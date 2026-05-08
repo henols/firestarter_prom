@@ -52,6 +52,24 @@
 
 ---
 
+---
+
+### User Experience & Hardware Guidance
+
+**REQ-UX-01:** `firestarter search` and `firestarter info` must clearly distinguish chips without a valid bus-config (unknown or missing pinout key) with a visible warning, rather than silently returning incomplete data that causes confusing hardware failures.
+
+**REQ-UX-02:** `firestarter info --adapter` displays the full physical DIP pin → RURP signal mapping table for the chip's pinout variant, derived from `pinouts.json`. This enables users to determine whether a chip can be inserted directly or requires a wiring adapter, and to derive the exact remap wiring if an adapter is needed.
+
+---
+
+### Address Bus Correctness
+
+**REQ-FW-05:** Address bus lines that must be driven to a fixed HIGH state (second chip-enable pins, JEDEC-required tied-high NC pins, hardware quirk lines) are specified in `pinouts.json` as `static-high-pins` and transmitted in bus-config JSON as `static-high`. Firmware applies them via `static_high_mask` in `bus_config_t` unconditionally on every address write. No hardcoded pin-count conditions.
+
+**REQ-FW-06:** The dead compile-time comparison `READ_WRITE == WRITE_FLAG` in `mem_util_calculate_top_address_register` is removed. The VPE_TO_VPP/A16 sharing constraint is expressed as `if (handle->pins < 32)` with a comment naming the hardware reason.
+
+---
+
 ## v2 (Deferred)
 
 - Backward-compat dual `type` + `algorithm` fields in wire protocol during firmware transition

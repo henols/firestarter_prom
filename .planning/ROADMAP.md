@@ -114,3 +114,35 @@
 - CLAUDE.md updated in both sub-repos to reflect new algorithm field and dispatch architecture
 
 **Requirements:** All
+
+---
+
+## Phase 09 — Hardware Compatibility & Adapter Support
+**Goal:** Surface hardware compatibility in the CLI: warn when a chip has no valid pinout, and add `--adapter` to print the physical pin-to-signal table for building wiring adapters.
+
+**Success criteria:**
+- `firestarter search <query>` marks chips without a bus-config with a visible `[no pinout]` indicator
+- `firestarter info <chip>` prints a clear warning when no bus-config is available instead of silently returning incomplete data
+- `firestarter info <chip> --adapter` prints a two-column table of physical DIP pin → RURP signal for the chip's pinout variant
+- The adapter table is derived entirely from `pinouts.json` — no hardcoded signal names
+- Chips that plug in directly (no adapter needed) still display the table confirming their wiring
+
+**Requirements:** REQ-UX-01, REQ-UX-02
+
+---
+
+## Phase 10 — Static Pins, Multi-CE, and Address Bus Correctness
+**Goal:** Add `static_high_mask` to `bus_config_t` so pins that must always be driven HIGH
+(second CE, tied-high NC pins) are handled by data rather than firmware hacks. Clean up the
+dead condition in `mem_util_calculate_top_address_register`.
+
+**Success criteria:**
+- `bus_config_t` has a `static_high_mask` field; `mem_util_remap_address_bus` ORs it into every address unconditionally
+- `pinouts.json` has `static-high-pins` on DIP24_2716, DIP24_2732 (and any other pinouts that need it); these replace the hardcoded `ADDRESS_LINE_13` logic
+- `mem_util_calculate_msb_register` no longer has the special-case `if (handle->pins == 24)` line
+- `mem_util_calculate_top_address_register` dead condition replaced with `if (handle->pins < 32)` plus explanatory comment
+- `parse_bus_config()` parses `static-high` array from bus-config JSON
+- `database.py` `get_bus_config()` outputs `static-high` when `static-high-pins` present in pinout
+- Both firmware targets build clean
+
+**Requirements:** REQ-FW-05, REQ-FW-06

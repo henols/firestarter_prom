@@ -1,12 +1,12 @@
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-05-08
+**Updated:** 2026-05-09
 
 ## Current Position
 
-**Phase:** 08 — Integration, Rebuild & Verification (complete)
-**Next action:** Hardware testing with real chips
+**Phase:** 10 — Static Pins, Multi-CE, Address Bus Correctness (complete)
+**Next action:** Hardware testing with real chips (DIP24 variants: 2716, 2732)
 
 ## Completed
 
@@ -14,7 +14,7 @@
 - [x] Domain research completed (`.planning/research/` — PROTOCOLS, HARDWARE, ECOSYSTEM, PITFALLS, CHIP_FAMILIES, ARCHITECTURE_PATTERNS, FEATURES)
 - [x] PROJECT.md written
 - [x] REQUIREMENTS.md written (13 requirements across 4 categories)
-- [x] ROADMAP.md written (8 phases)
+- [x] ROADMAP.md written (10 phases)
 
 ## Phases
 
@@ -28,6 +28,8 @@
 | 06 | EEPROM Page Write with DQ7 Polling | Complete ✓ |
 | 07 | Chip ID Validation & Pre-Write Safety | Complete ✓ |
 | 08 | Integration, Rebuild & Verification | Complete ✓ |
+| 09 | Hardware Compatibility & Adapter Support | Complete ✓ |
+| 10 | Static Pins, Multi-CE, Address Bus Correctness | Complete ✓ |
 
 ## Key Decisions
 
