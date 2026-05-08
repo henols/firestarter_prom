@@ -25,9 +25,9 @@
 | 03 | UV-EPROM Algorithm Correctness | Complete ✓ |
 | 04 | Flash AMD Sector Erase | Complete ✓ |
 | 05 | Intel Flash Handler | Complete ✓ |
-| 06 | EEPROM Page Write with DQ7 Polling | Not started |
-| 07 | Chip ID Validation & Pre-Write Safety | Not started |
-| 08 | Integration, Rebuild & Verification | Not started |
+| 06 | EEPROM Page Write with DQ7 Polling | Planned (1 plan) |
+| 07 | Chip ID Validation & Pre-Write Safety | Planned (1 plan) |
+| 08 | Integration, Rebuild & Verification | Planned (1 plan) |
 
 ## Key Decisions
 
