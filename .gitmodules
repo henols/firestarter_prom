@@ -1,0 +1,6 @@
+[submodule "firestarter"]
+	path = firestarter
+	url = git@github.com:henols/firestarter.git
+[submodule "firestarter_app"]
+	path = firestarter_app
+	url = git@github.com:henols/firestarter_app.git
