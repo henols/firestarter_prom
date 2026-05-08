@@ -5,8 +5,8 @@
 
 ## Current Position
 
-**Phase:** 03 — UV-EPROM Algorithm Correctness (complete)
-**Next action:** `/gsd:plan-phase 4` — Flash AMD Sector Erase
+**Phase:** 04 — Flash AMD Sector Erase (complete)
+**Next action:** `/gsd:plan-phase 5` — Intel Flash Handler
 
 ## Completed
 
@@ -23,7 +23,7 @@
 | 01 | Database Pipeline Fix | Complete ✓ |
 | 02 | Firmware JSON Protocol Extension | Complete ✓ |
 | 03 | UV-EPROM Algorithm Correctness | Complete ✓ |
-| 04 | Flash AMD Sector Erase | Not started |
+| 04 | Flash AMD Sector Erase | Complete ✓ |
 | 05 | Intel Flash Handler | Not started |
 | 06 | EEPROM Page Write with DQ7 Polling | Not started |
 | 07 | Chip ID Validation & Pre-Write Safety | Not started |
