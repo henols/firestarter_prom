@@ -5,8 +5,8 @@
 
 ## Current Position
 
-**Phase:** 05 — Intel Flash Handler (complete)
-**Next action:** `/gsd:plan-phase 6` — EEPROM Page Write with DQ7 Polling
+**Phase:** 08 — Integration, Rebuild & Verification (complete)
+**Next action:** Hardware testing with real chips
 
 ## Completed
 
@@ -25,9 +25,9 @@
 | 03 | UV-EPROM Algorithm Correctness | Complete ✓ |
 | 04 | Flash AMD Sector Erase | Complete ✓ |
 | 05 | Intel Flash Handler | Complete ✓ |
-| 06 | EEPROM Page Write with DQ7 Polling | Planned (1 plan) |
-| 07 | Chip ID Validation & Pre-Write Safety | Planned (1 plan) |
-| 08 | Integration, Rebuild & Verification | Planned (1 plan) |
+| 06 | EEPROM Page Write with DQ7 Polling | Complete ✓ |
+| 07 | Chip ID Validation & Pre-Write Safety | Complete ✓ |
+| 08 | Integration, Rebuild & Verification | Complete ✓ |
 
 ## Key Decisions
 
