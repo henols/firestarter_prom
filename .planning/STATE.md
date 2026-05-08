@@ -5,8 +5,8 @@
 
 ## Current Position
 
-**Phase:** 04 — Flash AMD Sector Erase (complete)
-**Next action:** `/gsd:plan-phase 5` — Intel Flash Handler
+**Phase:** 05 — Intel Flash Handler (planned)
+**Next action:** `/gsd:execute-phase 5` — execute 05-01-PLAN.md
 
 ## Completed
 
@@ -24,7 +24,7 @@
 | 02 | Firmware JSON Protocol Extension | Complete ✓ |
 | 03 | UV-EPROM Algorithm Correctness | Complete ✓ |
 | 04 | Flash AMD Sector Erase | Complete ✓ |
-| 05 | Intel Flash Handler | Not started |
+| 05 | Intel Flash Handler | Planned (1 plan) |
 | 06 | EEPROM Page Write with DQ7 Polling | Not started |
 | 07 | Chip ID Validation & Pre-Write Safety | Not started |
 | 08 | Integration, Rebuild & Verification | Not started |
