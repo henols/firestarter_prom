@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: milestone_complete
-last_updated: "2026-05-11T19:50:00.000Z"
+last_updated: "2026-05-11T19:44:30.000Z"
 progress:
   total_phases: 13
   completed_phases: 12
   total_plans: 22
-  completed_plans: 21
-  percent: 95
+  completed_plans: 22
+  percent: 100
 ---
 
 # Project State
@@ -19,11 +19,11 @@ progress:
 
 ## Current Position
 
-Phase: 13 (close-gap-warning-5-at28c256-64-5v-eeprom-override-12v-on-we) — EXECUTING
-Plan: 3 of 3
+Phase: 13 (close-gap-warning-5-at28c256-64-5v-eeprom-override-12v-on-we) — COMPLETE
+Plan: 3 of 3 (all plans complete)
 **Phase:** 13
-**Last completed:** Plan 13-02 (inline `build_db.py` WARNING-5 override + DB regen — 23 chips moved from 0x07 to 0x0D; `check_dispatch.py` now PASSes; Unity 15/15 GREEN; AVR builds SUCCESS with flash delta 0) — 2026-05-11T19:50Z
-**Next action:** Execute Plan 13-03 (document the WARNING-5 override in `firestarter_app/CLAUDE.md` Database Pipeline section, cross-reference REQUIREMENTS.md and `v1.0-MILESTONE-AUDIT.md`).
+**Last completed:** Plan 13-03 (documentation plane — 20-line "Protocol overrides (WARNING-5)" paragraph added to `firestarter_app/CLAUDE.md` Database Pipeline section between "Known protocols" line and `### Constants`; cross-references `.planning/v1.0-MILESTONE-AUDIT.md` and `tools/check_dispatch.py` guard) — 2026-05-11T19:44Z
+**Next action:** Phase 13 complete. WARNING-5 closed across all three planes (source/Plan 02 + regression/Plan 01 + documentation/Plan 03). Run `/gsd-verify-work` to finalize phase verification.
 
 ## Completed
 
@@ -63,6 +63,7 @@ Plan: 3 of 3
   - **Phase 12 / Plan 05:** Phase 12 AC-8 closed (documentation). `firestarter/CLAUDE.md` updated to match the post-Phase-12 firmware: 11-step dispatch list mirroring `memory.cpp:configure_memory` line-for-line (six protocol-prefix steps for every KNOWN_PROTOCOLS entry + four mem_type fallback steps + error); Algorithm Handlers table gained an SRAM row (0x0E/0x27/0x28/0x29 → `sram.cpp`, BLOCKER-2 mitigation) and a 0x39 row (→ `flash_type_4.cpp`, future-proofed, no chips in current DB). Added new `Native (Host) Test Environment` section documenting `[env:native]` config, `pio test -e native -f "*test_dispatch*"` invocation, and the `host_stubs.cpp` / `avr/pgmspace.h` shim pattern under `test/native/avr/test_dispatch/`. All `TYPE_FLASH_TYPE_2` references purged. Phase 12 ready for `/gsd-verify-work`.
 - **Phase 13 / Plan 01:** WARNING-5 regression guard added to `firestarter_app/tools/check_dispatch.py`. New module-top constant `_28C_EEPROM_HAZARD_PINOUT = "DIP28_2764"` + `eeprom28c_in_eprom` violation list + per-chip pinout+electrical.type check structurally parallel to the existing `_SRAM_PROTOCOLS` BLOCKER-2 guard. On the current (pre-fix) DB the guard FAILs with exit 1 and exactly 23 violations across 7 manufacturers (10 ATMEL + 7 MICROCHIP + 2 NEC + 2 XICOR + 1 ST + 1 EXEL) — proving the pinout-based discriminator catches chips a name-prefix discriminator would miss (13 of 23). Existing SRAM guard + `dispatch()` function left byte-identical (diff is purely additive). Commits: submodule `firestarter_app` at 6c35587 + outer-repo pointer-bump dd8d372 + SUMMARY 2c50cbf. Plan 02 will flip the gate to PASS via `_PROTOCOL_OVERRIDES` in `build_db.py`.
 - **Phase 13 / Plan 02:** WARNING-5 closed at the database-pipeline layer. Inline 3-predicate conditional in `firestarter_app/tools/build_db.py` main() between the `_etype` derivation and the `chip_entry = {` dict literal: when `pinout_key == "DIP28_2764" AND proto_id == 0x07 AND _etype == "Flash/EEPROM"` the override flips `proto_id = 0x0D` and logs an `INFO:` stderr line. No module-top constant introduced (matches the Phase 12 Plan 04 SRAM inline-literal precedent). Regenerated `minipro_complete_db.json`: 23 chips moved from algorithm=0x07 → 0x0D across 6 manufacturer families (ATMEL=10, MICROCHIP memory=7, NEC=2, XICOR=2, ST=1, EXEL=1); algos[0x07] 237→214 (Δ=-23); algos[0x0D] 18→41 (Δ=+23); JSON diff 46+/46-. AT28C256 verified at 0x0D; W27C512 verified UNCHANGED at 0x07 (regression intact). `check_dispatch.py` now PASSes 743/743 chips with the three-clause PASS line (0 SRAM + 0 DIP28_2764 hazards). Unity dispatch tests 15/15 GREEN (incl. `test_protocol_0x0D_dispatches_eeprom28c`). Both AVR builds SUCCESS with flash delta = 0 bytes (Uno 24852B, Leonardo 27218B — no firmware sources changed). Defense-in-depth grep on `eeprom_28c.cpp` confirms zero VPP-regulator references. Commits: submodule `firestarter_app` at fe7e14b + outer-repo pointer-bump 4d5c3d2 + SUMMARY 770b64f. REQ-FW-03 and REQ-SAF-01 now reachable end-to-end for the 23 affected chips.
+- **Phase 13 / Plan 03:** WARNING-5 closed at the documentation plane. Added a 20-line "Protocol overrides (WARNING-5)" paragraph to `firestarter_app/CLAUDE.md` Database Pipeline section between the existing "Known protocols" hex-list line and the `### Constants` subsection heading. Paragraph documents (1) the override location in `build_db.py`, (2) the 3-predicate condition (`DIP28_2764 + 0x07 + Flash/EEPROM`), (3) the algorithm flip to `0x0D` (EEPROM_POLL → `configure_eeprom28c` instead of `configure_eprom`), (4) the rationale (socket pin 1 = A14 on 28C-family 5V EEPROMs, so `P1_VPP_ENABLE` 12V is a hardware-damage path; `configure_eeprom28c` is pure 5V VCC with no VPP regulator engagement), (5) the ~23-chip / 6-manufacturer scope (ATMEL/MICROCHIP/NEC/XICOR/ST/EXEL) plus the 7-chip regression-safe set on DIP28_27512/DIP28_27256, (6) the audit pointer to `.planning/v1.0-MILESTONE-AUDIT.md` WARNING-5 entry and the phase folder, and (7) the `tools/check_dispatch.py` regression-guard pointer. CLAUDE.md grew 81→101 lines (+20 additive, no removals). Submodule commit `07ae624` + outer-repo pointer-bump `39d7c1d`. WARNING-5 now closed across all three planes — source (Plan 02), regression (Plan 01), documentation (Plan 03).
 
 ## Key Files
 
