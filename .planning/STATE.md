@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: milestone_complete
-last_updated: "2026-05-11T08:59:16.421Z"
+last_updated: "2026-05-11T09:43:00.000Z"
 progress:
   total_phases: 12
   completed_phases: 11
   total_plans: 19
-  completed_plans: 15
-  percent: 79
+  completed_plans: 16
+  percent: 84
 ---
 
 # Project State
@@ -20,9 +20,10 @@ progress:
 ## Current Position
 
 Phase: 12 (close-gap-blocker-1-algorithm-based-dispatch-for-protocols-0) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 **Phase:** 12
-**Next action:** `/gsd:plan-phase 12` to break down BLOCKER-1 + BLOCKER-2 fix into plans
+**Last completed:** Plan 12-02 (firmware configure_memory protocol-prefix dispatch + [env:native] host stubs) — 2026-05-11T09:43Z
+**Next action:** Execute Plan 12-03 (Python `database.py:_map_data` D3 algorithm→mem_type table)
 
 ## Completed
 
@@ -55,6 +56,8 @@ Plan: 2 of 5
 - **Firmware dispatch:** On `algorithm`, not `type` enum
 - **Packages in scope:** DIP 24, 28, 32 only
 - **Hardware:** RURP shield — fixed 5V VCC, no 3.3V switching, 19-bit address bus (512KB max), 8-bit data bus
+- **Phase 12 / Plan 02:** BLOCKER-1 + BLOCKER-2 closed at the firmware layer. `configure_memory` now exposes an explicit protocol-prefix `if-return` block for every KNOWN_PROTOCOLS entry (0x06 → flash3; 0x05/0x35/0x39 → flash4; 0x07/0x08/0x0B → eprom; 0x0E/0x27/0x28/0x29 → sram); mem_type chain preserved as legacy fallback. Orphan constant `TYPE_FLASH_TYPE_2` deleted. Both AVR targets build clean (Uno +256B, Leonardo +256B flash).
+- **Phase 12 / Plan 02:** Absorbed Wave 0's deferred host-mocking work — added `firestarter/test/native/avr/test_dispatch/host_stubs.cpp` (no-op `rurp_*` + `LOG_*_MSG` PROGMEM globals) plus `[env:native]` `src_filter = +<proms/>` + `test_build_src = yes`. `pio test -e native -f "*test_dispatch*"` now reports 15/15 PASS (flipping 11 protocols from RED to GREEN).
 
 ## Key Files
 
