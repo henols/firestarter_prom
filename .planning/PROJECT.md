@@ -2,6 +2,25 @@
 
 **Created:** 2026-05-08
 **v1.0 shipped:** 2026-05-11
+**Active milestone:** v1.1 — Safety Closure & Hardware Validation (started 2026-05-11)
+
+## Current Milestone: v1.1 Safety Closure & Hardware Validation
+
+**Goal:** Close the v1.0 audit gaps (Intel-flash REQ-SAF-01, WARNING-2/3/4) and bring the four canon chip-family flows under real-hardware validation with formal verification artifacts.
+
+**Target features:**
+- Intel-flash REQ-SAF-01 closure — VPP ADC compare in `flash_intel_write_init` (39 chips, algo=0x10)
+- Retroactive `VERIFICATION.md` artifacts for Phases 01-10 (close 13 PARTIAL audit findings)
+- Hardware-validation pass on a real RURP shield for W27C512, 29F040, SST39SF040, AT28C256
+- WARNING-2 — wire `handle->chip_id` into `eeprom_28c.cpp::eeprom28c_write_init` (forward-compat)
+- WARNING-3 — rename wire JSON `"vpp"` → `"vpp_mv"` end-to-end (Python emit + firmware parse + docs)
+- WARNING-4 — fix `firestarter_test.sh` + `write_test.sh` references to deleted `database_generated.json`
+
+**Out for v1.1** (deferred):
+- `build_db.py` bare-except + missing `raise_for_status()`/`timeout` robustness
+- Restoring the `verified` field on `minipro_complete_db.json` entries
+- DIP28/DIP32 `static-high-pins` coverage in `pinouts.json`
+- `DIP24_2732` pinout audit
 
 ## Vision
 
@@ -132,6 +151,23 @@ on a physical RURP shield is deferred to a v1.1 hardware-test pass.
 - `firestarter_app/` — Python host CLI, database pipeline, serial protocol
 - `firestarter/` — Arduino firmware, algorithm implementations
 
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd-transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd-complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
 ---
 
-*Last updated: 2026-05-11 after v1.0 milestone*
+*Last updated: 2026-05-11 after v1.1 milestone kickoff*

@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: Protocol-Aware Programming Architecture
-status: Awaiting next milestone
-last_updated: "2026-05-11T20:00:58.414Z"
-last_activity: 2026-05-11 — Milestone v1.0 completed and archived
+milestone: v1.1
+milestone_name: Safety Closure & Hardware Validation
+status: planning
+last_updated: "2026-05-11T20:09:35.050Z"
+last_activity: 2026-05-11
 progress:
-  total_phases: 13
-  completed_phases: 13
-  total_plans: 22
-  completed_plans: 22
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-- **Phase:** Milestone v1.0 complete
-- **Plan:** —
-- **Status:** Awaiting next milestone
-- **Last activity:** 2026-05-11 — v1.0 archived (13 phases / 22 plans shipped)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-05-11 — Milestone v1.1 started
 
 ## Project Reference
 
@@ -34,6 +34,7 @@ from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
 **Current focus:** Planning next milestone. Top candidates carried over from
 v1.0 audit (see `.planning/MILESTONES.md` Known Gaps):
+
 - Intel-flash REQ-SAF-01 closure (VPP ADC compare on `flash_intel_write_init`)
 - Retroactive `VERIFICATION.md` for Phases 01-10
 - Hardware verification pass against a real RURP shield (4 chip families)
@@ -63,6 +64,7 @@ None.
 
 - BLOCKER-1 (Phase 12) — algorithm-based dispatch for protocols 0x05/0x06/0x07/0x08/0x0B
   and SRAM 0x0E/0x27/0x28/0x29
+
 - BLOCKER-2 (Phase 12) — SRAM chips routed to `configure_eprom` with 12V VPP regulator
 - WARNING-5 (Phase 13) — AT28C256/64 5V EEPROM 12V-on-A14 hazard via DB override
 
