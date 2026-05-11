@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: milestone_complete
-last_updated: "2026-05-11T09:27:30.740Z"
+last_updated: "2026-05-11T19:35:15.921Z"
 progress:
-  total_phases: 12
-  completed_phases: 13
-  total_plans: 19
-  completed_plans: 19
-  percent: 108
+  total_phases: 13
+  completed_phases: 12
+  total_plans: 22
+  completed_plans: 20
+  percent: 91
 ---
 
 # Project State
@@ -19,11 +19,11 @@ progress:
 
 ## Current Position
 
-Phase: 12 (close-gap-blocker-1-algorithm-based-dispatch-for-protocols-0) — READY FOR VERIFICATION
-Plan: Not started
-**Phase:** 12
-**Last completed:** Plan 12-05 (`firestarter/CLAUDE.md` dispatch table + native test env documentation) — 2026-05-11T09:33Z
-**Next action:** Run `/gsd-verify-work` on Phase 12 (full suite: `pio run -e uno && pio run -e leonardo && python3 firestarter_app/tools/check_dispatch.py && pio test -e native`)
+Phase: 13 (close-gap-warning-5-at28c256-64-5v-eeprom-override-12v-on-we) — EXECUTING
+Plan: 2 of 3
+**Phase:** 13
+**Last completed:** Plan 13-01 (`check_dispatch.py` WARNING-5 regression guard — controlled failure with 23 violations) — 2026-05-11T19:39Z
+**Next action:** Execute Plan 13-02 (`_PROTOCOL_OVERRIDES` in `build_db.py` + DB regeneration) to flip the WARNING-5 gate to PASS.
 
 ## Completed
 
@@ -61,6 +61,7 @@ Plan: Not started
 - **Phase 12 / Plan 03:** BLOCKER-1 closed at the Python host layer. `firestarter_app/firestarter/database.py:_map_data` now drives `mem_type` from a new module-level `_ALGO_MEM_TYPE` table (13 entries from CONTEXT.md D3) instead of the brittle `electrical.type` substring branch. Legacy substring branch preserved for `algorithm == 0`/absent fallback (user-override DB entries). `protocol_id` read moved up 9 lines so the new lookup can reference it; `info_flags` block untouched. `check_dispatch.py` still PASSes 743/743 chips, 0 SRAM→eprom routes. Spot-checks: W27C512 type 2→1, AM29F040 2→3, AE29F1008 2→5, 6116 1→4, DS1245AB(RW) 1→4.
 - **Phase 12 / Plan 04:** BLOCKER-2 closed at the database-pipeline layer. `firestarter_app/tools/build_db.py` now derives `electrical.type` via an explicit if/elif/else chain (SRAM proto_ids {0x0E,0x27,0x28,0x29} → "SRAM"; else flags & 0x10 → "Flash/EEPROM"; else "UV-EPROM") hoisted out of the inline ternary. Regenerated `minipro_complete_db.json` contains exactly 52 SRAM-tagged chips (matches RESEARCH.md baseline to the chip; algorithm counts 0x05=27/0x06=190/0x07=237/0x08=127/0x0B=53/0x0D=18/0x0E=20/0x10=39/0x27=2/0x28=10/0x29=20 all exact). DB diff: 52 insertions, 52 deletions (one line per SRAM chip). `check_dispatch.py` PASSes 743/743 chips, 0 SRAM→eprom routes. End-to-end BLOCKER-2 fix complete across firmware (Plan 02) + host (Plan 03) + DB (Plan 04) layers.
   - **Phase 12 / Plan 05:** Phase 12 AC-8 closed (documentation). `firestarter/CLAUDE.md` updated to match the post-Phase-12 firmware: 11-step dispatch list mirroring `memory.cpp:configure_memory` line-for-line (six protocol-prefix steps for every KNOWN_PROTOCOLS entry + four mem_type fallback steps + error); Algorithm Handlers table gained an SRAM row (0x0E/0x27/0x28/0x29 → `sram.cpp`, BLOCKER-2 mitigation) and a 0x39 row (→ `flash_type_4.cpp`, future-proofed, no chips in current DB). Added new `Native (Host) Test Environment` section documenting `[env:native]` config, `pio test -e native -f "*test_dispatch*"` invocation, and the `host_stubs.cpp` / `avr/pgmspace.h` shim pattern under `test/native/avr/test_dispatch/`. All `TYPE_FLASH_TYPE_2` references purged. Phase 12 ready for `/gsd-verify-work`.
+- **Phase 13 / Plan 01:** WARNING-5 regression guard added to `firestarter_app/tools/check_dispatch.py`. New module-top constant `_28C_EEPROM_HAZARD_PINOUT = "DIP28_2764"` + `eeprom28c_in_eprom` violation list + per-chip pinout+electrical.type check structurally parallel to the existing `_SRAM_PROTOCOLS` BLOCKER-2 guard. On the current (pre-fix) DB the guard FAILs with exit 1 and exactly 23 violations across 7 manufacturers (10 ATMEL + 7 MICROCHIP + 2 NEC + 2 XICOR + 1 ST + 1 EXEL) — proving the pinout-based discriminator catches chips a name-prefix discriminator would miss (13 of 23). Existing SRAM guard + `dispatch()` function left byte-identical (diff is purely additive). Commits: submodule `firestarter_app` at 6c35587 + outer-repo pointer-bump dd8d372 + SUMMARY 2c50cbf. Plan 02 will flip the gate to PASS via `_PROTOCOL_OVERRIDES` in `build_db.py`.
 
 ## Key Files
 
@@ -78,3 +79,4 @@ Plan: Not started
 ### Roadmap Evolution
 
 - Phase 12 added: Close gap: BLOCKER-1 — algorithm-based dispatch for protocols 0x05/0x06/0x07/0x08/0x0B (and SRAM 0x0E/0x27/0x28/0x29) — either extend memory.cpp protocol-prefix dispatch or fix database.py:_map_data mem_type translation
+- Phase 13 added: Close gap: WARNING-5 — AT28C256/64 5V EEPROM override (12V on /WE on write)
