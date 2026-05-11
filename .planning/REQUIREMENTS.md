@@ -17,6 +17,8 @@
 
 **REQ-DB-04:** `parse_db_2.py` warns and skips any chip entry whose `protocol_id` is not in the known mapping table, rather than storing a raw integer that breaks firmware dispatch.
 
+**REQ-DB-05:** The database build pipeline is a single canonical tool named `build_db.py`. The upstream `infoic.xml` is fetched from `https://gitlab.com/DavidGriffith/minipro/` at run time and is never stored or committed in this repository. The legacy `parse_db.py` and its inputs/outputs (`infoic.xml`, `infoic2.xml`, `verified.txt`, `database_generated.json`, `pin-maps.json`) are removed.
+
 ---
 
 ### Serial Protocol / Wire Format

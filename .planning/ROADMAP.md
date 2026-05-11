@@ -146,3 +146,21 @@ dead condition in `mem_util_calculate_top_address_register`.
 - Both firmware targets build clean
 
 **Requirements:** REQ-FW-05, REQ-FW-06
+
+---
+
+## Phase 11 — Database Pipeline Cleanup
+**Goal:** Consolidate the database build pipeline to a single canonical tool. Remove the legacy `parse_db.py` and its stale outputs, rename `parse_db_2.py` to `build_db.py`, and ensure the source `infoic.xml` is fetched from upstream at run time and never stored or committed in this project.
+
+**Success criteria:**
+- `firestarter_app/tools/parse_db.py` is removed
+- `firestarter_app/tools/parse_db_2.py` is renamed to `build_db.py` with no behavior change beyond the rename
+- `firestarter_app/tools/infoic.xml` and `tools/infoic2.xml` are deleted from the working tree
+- `firestarter_app/tools/verified.txt` is removed (only consumer was `parse_db.py`)
+- Stale legacy outputs `firestarter_app/firestarter/data/database_generated.json` and `pin-maps.json` are removed
+- `firestarter_app/.gitignore` ignores `tools/infoic*.xml` so the file can never be re-committed
+- `build_db.py` continues to fetch `infoic.xml` from `https://gitlab.com/DavidGriffith/minipro/-/raw/master/infoic.xml` at run time, parses it in memory, and writes only `minipro_complete_db.json`
+- All references to `parse_db_2.py` are updated to `build_db.py` in `firestarter_app/CLAUDE.md` and `firestarter_app/firestarter/database.py` comments
+- `python tools/build_db.py` runs cleanly from a fresh checkout (no local `infoic.xml` required) and produces a `minipro_complete_db.json` byte-identical to the previous `parse_db_2.py` output on the same upstream XML
+
+**Requirements:** REQ-DB-05
