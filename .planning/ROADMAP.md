@@ -194,9 +194,9 @@ Plans:
 
 **Depends on:** Phase 12
 
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
 - [x] 13-01-PLAN.md — Wave 1: Add `_28C_EEPROM_HAZARD_PINOUT` regression guard to `check_dispatch.py` (controlled FAIL with 23 violations on current DB)
-- [ ] 13-02-PLAN.md — Wave 2: Inline `pinout_key=DIP28_2764 + proto_id=0x07 + _etype=Flash/EEPROM` override block in `build_db.py` flips 23 chips to `algorithm=0x0D`, regenerate DB, full regression green (check_dispatch PASS, Unity 15/15, AVR builds clean)
+- [x] 13-02-PLAN.md — Wave 2: Inline `pinout_key=DIP28_2764 + proto_id=0x07 + _etype=Flash/EEPROM` override block in `build_db.py` flips 23 chips to `algorithm=0x0D`, regenerate DB, full regression green (check_dispatch PASS, Unity 15/15, AVR builds clean, flash delta 0)
 - [ ] 13-03-PLAN.md — Wave 3: Document WARNING-5 override in `firestarter_app/CLAUDE.md` Database Pipeline section
