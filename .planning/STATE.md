@@ -3,26 +3,26 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: milestone_complete
-last_updated: "2026-05-11T07:12:32.755Z"
+last_updated: "2026-05-11T07:58:44.237Z"
 progress:
-  total_phases: 11
+  total_phases: 12
   completed_phases: 11
   total_plans: 14
-  completed_plans: 13
+  completed_plans: 14
   percent: 100
 ---
 
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-05-09
+**Updated:** 2026-05-11
 
 ## Current Position
 
-Phase: 11 (build-db-cleanup) — EXECUTING
+Phase: 12 (close-gap-blocker-1-algorithm-based-dispatch) — CONTEXT GATHERED
 Plan: Not started
-**Phase:** 11
-**Next action:** `/gsd:execute-phase 11` to apply the rename + deletions, or hardware-test Phase 10 first
+**Phase:** 12
+**Next action:** `/gsd:plan-phase 12` to break down BLOCKER-1 + BLOCKER-2 fix into plans
 
 ## Completed
 
@@ -66,3 +66,9 @@ Plan: Not started
 - `firestarter/src/proms/memory.cpp` — firmware algorithm dispatch
 - `firestarter/include/firestarter.h` — `firestarter_handle_t` struct (add `algorithm` field here)
 - `firestarter/include/firestarter.h` — `bus_config_t` struct
+
+## Accumulated Context
+
+### Roadmap Evolution
+
+- Phase 12 added: Close gap: BLOCKER-1 — algorithm-based dispatch for protocols 0x05/0x06/0x07/0x08/0x0B (and SRAM 0x0E/0x27/0x28/0x29) — either extend memory.cpp protocol-prefix dispatch or fix database.py:_map_data mem_type translation
