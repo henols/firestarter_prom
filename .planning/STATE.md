@@ -2,15 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Safety Closure & Hardware Validation
-status: roadmapped
-last_updated: "2026-05-11T20:30:00.000Z"
-last_activity: 2026-05-11
+status: planning
+last_updated: "2026-05-11T20:25:30.615Z"
+last_activity: 2026-05-11 — v1.1 ROADMAP.md created (5 phases, 22 requirements, 100% coverage)
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
-  percent: 0
 ---
 
 # Project State
@@ -33,6 +32,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-11)
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
 **Current focus:** Closing v1.0 audit gaps:
+
 - Intel-flash REQ-SAF-01 closure (VPP ADC compare in `flash_intel_write_init`)
 - 28C chip-ID forward-compat (`eeprom28c_write_init` honouring `handle->chip_id`)
 - Wire JSON `"vpp"` → `"vpp_mv"` rename (atomic Python + firmware sync)
@@ -73,6 +73,7 @@ None.
 
 - BLOCKER-1 (Phase 12) — algorithm-based dispatch for protocols 0x05/0x06/0x07/0x08/0x0B
   and SRAM 0x0E/0x27/0x28/0x29
+
 - BLOCKER-2 (Phase 12) — SRAM chips routed to `configure_eprom` with 12V VPP regulator
 - WARNING-5 (Phase 13) — AT28C256/64 5V EEPROM 12V-on-A14 hazard via DB override
 
