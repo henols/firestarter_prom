@@ -187,7 +187,7 @@ Phase 12 is ready for `/gsd-verify-work`. The phase-level verification command f
 
 - `firestarter/CLAUDE.md` — exists; 11 numbered dispatch steps; Algorithm Handlers table contains SRAM (0x0E/0x27/0x28/0x29 → sram.cpp) and 0x39 → flash_type_4.cpp rows; no `TYPE_FLASH_TYPE_2` token; every KNOWN_PROTOCOLS hex appears at least once; new `Native (Host) Test Environment` section with `pio test -e native -f "*test_dispatch*"` invocation and `host_stubs.cpp` references.
 - `firestarter/src/proms/memory.cpp` — unchanged by this plan; verified line 72 (`protocol == 0x10`) and line 116 (error fallback) still bracket the 11 cases the doc lists.
-- Commits — captured below by `git rev-parse --short HEAD` after each commit. Both submodule and supermodule commits land with the `docs(12-05): ...` prefix.
+- Commits — submodule `firestarter@b62de9a` (CLAUDE.md edit), supermodule `31c466b` (submodule pointer bump), supermodule `932738a` (SUMMARY.md + STATE.md + ROADMAP.md). All three confirmed by `git log --oneline | grep <hash>`.
 
 ---
 *Phase: 12-close-gap-blocker-1-algorithm-based-dispatch-for-protocols-0*
