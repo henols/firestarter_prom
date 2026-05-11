@@ -164,3 +164,22 @@ dead condition in `mem_util_calculate_top_address_register`.
 - `python tools/build_db.py` runs cleanly from a fresh checkout (no local `infoic.xml` required) and produces a `minipro_complete_db.json` byte-identical to the previous `parse_db_2.py` output on the same upstream XML
 
 **Requirements:** REQ-DB-05
+
+---
+
+## Phase 12 — Close BLOCKER-1: Algorithm-Based Dispatch for Missing Protocols
+
+**Goal:** Close gap: BLOCKER-1 — algorithm-based dispatch for protocols 0x05/0x06/0x07/0x08/0x0B (and SRAM 0x0E/0x27/0x28/0x29). Either extend `memory.cpp` protocol-prefix dispatch or fix `database.py:_map_data` mem_type translation so chips with these protocol IDs route to a working handler.
+
+**Requirements:** REQ-FW-01, REQ-FW-04, REQ-SER-01
+
+**Depends on:** Phase 11
+
+**Plans:** 5 plans
+
+Plans:
+- [ ] 12-01-PLAN.md — Wave 0: Test infra + regression scan (`[env:native]`, `check_dispatch.py`, `test_configure_memory.cpp`)
+- [ ] 12-02-PLAN.md — Wave 1: C++ dispatch extension in `memory.cpp` (D2 steps 3-6 + remove TYPE_FLASH_TYPE_2)
+- [ ] 12-03-PLAN.md — Wave 1: Python `_ALGO_MEM_TYPE` table + `_map_data` algorithm-driven mem_type derivation (D3)
+- [ ] 12-04-PLAN.md — Wave 2: `build_db.py` SRAM proto_id detection (D4) + regenerate DB + end-to-end regression
+- [ ] 12-05-PLAN.md — Wave 2: Doc sync — `firestarter/CLAUDE.md` dispatch table + handler table aligned with source (AC-8)
