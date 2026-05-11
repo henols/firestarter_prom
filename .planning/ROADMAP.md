@@ -175,11 +175,11 @@ dead condition in `mem_util_calculate_top_address_register`.
 
 **Depends on:** Phase 11
 
-**Plans:** 3/5 plans executed
+**Plans:** 4/5 plans executed
 
 Plans:
 - [x] 12-01-PLAN.md — Wave 0: Test infra + regression scan (`[env:native]`, `check_dispatch.py`, `test_configure_memory.cpp`)
 - [x] 12-02-PLAN.md — Wave 1: C++ dispatch extension in `memory.cpp` (D2 steps 3-6 + remove TYPE_FLASH_TYPE_2)
 - [x] 12-03-PLAN.md — Wave 1: Python `_ALGO_MEM_TYPE` table + `_map_data` algorithm-driven mem_type derivation (D3)
-- [ ] 12-04-PLAN.md — Wave 2: `build_db.py` SRAM proto_id detection (D4) + regenerate DB + end-to-end regression
+- [x] 12-04-PLAN.md — Wave 2: `build_db.py` SRAM proto_id detection (D4) + regenerate DB + end-to-end regression
 - [ ] 12-05-PLAN.md — Wave 2: Doc sync — `firestarter/CLAUDE.md` dispatch table + handler table aligned with source (AC-8)
