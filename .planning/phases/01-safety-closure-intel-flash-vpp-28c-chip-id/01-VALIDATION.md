@@ -1,10 +1,11 @@
 ---
 phase: 1
 slug: safety-closure-intel-flash-vpp-28c-chip-id
-status: draft
-nyquist_compliant: false
+status: approved
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-05-11
+approved: 2026-05-11
 ---
 
 # Phase 1 — Validation Strategy
@@ -83,12 +84,12 @@ Create the two new native test directories with suite-local stubs. Suite-local m
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies wired
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all `❌ Wave 0` references above
-- [ ] No watch-mode flags in any test command
-- [ ] Feedback latency < 15 s
-- [ ] `test_dispatch/` regression guard (15/15 PASS, byte-identical) included as the phase-gate assertion
-- [ ] `nyquist_compliant: true` set in frontmatter after planner integration
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies wired
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all `❌ Wave 0` references above (per 01-01-PLAN.md / 01-02-PLAN.md Wave-0 tasks)
+- [x] No watch-mode flags in any test command
+- [x] Feedback latency < 15 s
+- [x] `test_dispatch/` regression guard (15/15 PASS, byte-identical) included as the phase-gate assertion
+- [x] `nyquist_compliant: true` set in frontmatter after planner integration
 
-**Approval:** pending
+**Approval:** approved 2026-05-11 (plan-checker verification passed; see commit history)

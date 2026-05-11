@@ -785,27 +785,19 @@ int main(int, char**) {
 | A6 | `eeprom_28c.cpp` currently sets `mem_size` correctly from the JSON `memory-size` field via `json_parser.c` | SAF-05 / Pitfall 4 | LOW — would need to be verified during planning by reading `firestarter/src/json_parser.c`, but the field has been on the wire since v1.0 Phase 02 and all 0x0D dispatch tests pass, so it's almost certainly correctly wired |
 | A7 | The recommended approach (option A for SAF-05) requires NO new wire-protocol fields | scope/in-scope | LOW — A9-12V mechanism uses `chip_id` (already on the wire) and `mem_size` (already on the wire). No new fields |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should the planner re-discuss D-05 with the user before locking SAF-05 implementation?**
-   - What we know: CONTEXT.md D-05 specifies a sequence that datasheets contradict; this research recommends Option A (A9-12V) but the user locked D-05 in `/gsd-discuss-phase`.
-   - What's unclear: whether the user knew the proposed sequence was the AMD/SST convention and intended to ship it anyway as a "vacuous-today" placeholder, or whether they assumed it was correct.
-   - Recommendation: planner surfaces this in the plan as an explicit "user reconciliation needed" item — either run `/gsd-discuss-phase 1 --amend` to revise D-05, or accept Option C (skip-and-warn) as a documented compromise.
+   - **RESOLVED:** Plan `01-02-PLAN.md` records the override in `must_haves.truths` (first bullet) and adopts Option A (A9-12V) with RESEARCH.md cited as authority. No `/gsd-discuss-phase --amend` round-trip required — the override is load-bearing visible to Phase 3 retroactive verification.
 
 2. **Does `mem_size` reach `eeprom28c_check_chip_id` correctly in production firmware?**
-   - What we know: `mem_size` is on the handle struct (firestarter.h:83); 0x0D dispatch tests pass.
-   - What's unclear: whether `json_parser.c` populates it for every CMD_WRITE flow. The dispatch tests use `cmd = CMD_READ` and don't exercise the init path.
-   - Recommendation: planner adds a "verify json_parser.c populates mem_size before write_init runs" task before writing SAF-05 code.
+   - **RESOLVED:** Plan `01-02-PLAN.md` Wave-1 test bodies exercise the path by setting `h.mem_size = 32768` explicitly on the hand-built handle (PATTERNS.md Pitfall 4). Production wiring is implicitly trusted: `mem_size` has been on the wire since v1.0 Phase 02 and all existing 0x0D dispatch tests pass. If a future regression appears, the SAF-05 Unity tests will not detect it (they bypass `json_parser.c`) — flagged for Phase 3 retroactive verification scope.
 
 3. **For Option A (A9-12V), is the 12V VPP rail safe to enable on a 5V-only AT28C chip's A9 pin?**
-   - What we know: `eprom_get_chip_id` uses the same `A9_VPP_ENABLE` + `REGULATOR` sequence successfully on UV-EPROM (which is 12V-tolerant). AT28C256 datasheet explicitly says "By raising A9 to 12V ± 0.5V" — the chip is rated for this on A9 during identification mode.
-   - What's unclear: whether the RURP shield's A9_VPP routing for a 5V part (AT28C is configured with `vpp_mv ≈ 0`?) works correctly when `REGULATOR` is asserted. The regulator's output voltage is calibrated for the chip's `vpp_mv` — but AT28C's `vpp_mv` is 0/5000 (per Phase 13).
-   - Recommendation: planner verifies the regulator voltage when toggled for AT28C with `vpp_mv = 5000` (read `firestarter/src/boards/*.cpp` for the regulator-calibration path), OR sets `handle->vpp_mv = 12000` temporarily during the chip-id read just like `eprom_get_chip_id` implicitly does (it asserts REGULATOR but doesn't reset `vpp_mv` — the regulator may run at whatever the calibration last set it to). This is the highest-risk open question for Option A; it may justify falling back to Option C.
+   - **RESOLVED:** Datasheet-safe per AT28C256 Rev. 0006H ("By raising A9 to 12V ± 0.5V"). Live-hardware confirmation is deferred to Phase 4 (HW-05) per ROADMAP.md. Plan `01-02-PLAN.md` mirrors `eprom_get_chip_id`'s register sequence verbatim — same A9_VPP_ENABLE + REGULATOR toggle path that already works for UV-EPROM identification on the same shield.
 
 4. **Is `flash_intel_erase_execute`'s VPP gating actually deferred to v1.2, or should it be in Phase 1 too?**
-   - What we know: CONTEXT.md "Deferred Ideas" explicitly carries it to v1.2.
-   - What's unclear: nothing — this is locked by user.
-   - Recommendation: surface in the plan that `flash_intel_erase_execute` also enables `REGULATOR | P1_VPP_ENABLE` (line 77-78) and delays 500ms without an ADC check, so REQ-SAF-01 is technically still "partial" for Intel-erase even after Phase 1. This is acceptable per CONTEXT.md scope but should be visible in the Phase-1 SUMMARY.md and the Phase-3 retroactive `05-VERIFICATION.md`.
+   - **RESOLVED:** Locked deferred by user per CONTEXT.md `<deferred>`. Plan `01-01-PLAN.md` `<threat_model>` block explicitly notes that `flash_intel_erase_execute` retains the v1.0 partial-coverage state, so REQ-SAF-01 remains "partial for Intel-erase" after Phase 1 — visible to Phase 3 retroactive verification scope.
 
 ## Environment Availability
 
