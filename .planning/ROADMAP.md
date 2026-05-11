@@ -183,3 +183,20 @@ Plans:
 - [x] 12-03-PLAN.md — Wave 1: Python `_ALGO_MEM_TYPE` table + `_map_data` algorithm-driven mem_type derivation (D3)
 - [x] 12-04-PLAN.md — Wave 2: `build_db.py` SRAM proto_id detection (D4) + regenerate DB + end-to-end regression
 - [x] 12-05-PLAN.md — Wave 2: Doc sync — `firestarter/CLAUDE.md` dispatch table + handler table aligned with source (AC-8)
+
+---
+
+## Phase 13 — Close gap: WARNING-5 — AT28C256/64 5V EEPROM override (12V on /WE on write)
+
+**Goal:** Make 23 hazardous DIP28_2764 5V EEPROMs (ATMEL AT28C/BV, MICROCHIP 28Cxx, NEC UPD28C, ST M28256, XICOR X28C, EXEL XLE2865A — currently mistagged `algorithm=0x07` + `electrical.type='Flash/EEPROM'` in upstream minipro) route to `configure_eeprom28c` (5V, no VPP regulator) instead of `configure_eprom` (which would assert 12V `P1_VPP_ENABLE` on socket pin 1 = A14 address line = hardware damage). Fix is data-layer only: an inline 3-predicate conditional in `build_db.py` flips `algorithm` to `0x0D` at DB-generation time; no firmware changes needed. Verified by `check_dispatch.py` PASS (0 DIP28_2764 Flash/EEPROM chips routing to `configure_eprom`) and a 23-chip diff in the regenerated `minipro_complete_db.json`.
+
+**Requirements:** REQ-FW-03, REQ-SAF-01
+
+**Depends on:** Phase 12
+
+**Plans:** 3 plans
+
+Plans:
+- [ ] 13-01-PLAN.md — Wave 1: Add `_28C_EEPROM_HAZARD_PINOUT` regression guard to `check_dispatch.py` (controlled FAIL with 23 violations on current DB)
+- [ ] 13-02-PLAN.md — Wave 2: Inline `pinout_key=DIP28_2764 + proto_id=0x07 + _etype=Flash/EEPROM` override block in `build_db.py` flips 23 chips to `algorithm=0x0D`, regenerate DB, full regression green (check_dispatch PASS, Unity 15/15, AVR builds clean)
+- [ ] 13-03-PLAN.md — Wave 3: Document WARNING-5 override in `firestarter_app/CLAUDE.md` Database Pipeline section
