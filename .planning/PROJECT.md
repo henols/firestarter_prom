@@ -15,6 +15,7 @@
 - WARNING-2 — wire `handle->chip_id` into `eeprom_28c.cpp::eeprom28c_write_init` (forward-compat)
 - WARNING-3 — rename wire JSON `"vpp"` → `"vpp_mv"` end-to-end (Python emit + firmware parse + docs)
 - WARNING-4 — fix `firestarter_test.sh` + `write_test.sh` references to deleted `database_generated.json`
+- **Minipro reference cleanup** — rename `minipro_complete_db.json` → neutral name and reduce "minipro" mentions in app code/CLAUDE.md docs to a single attribution where the upstream URL constant lives
 
 **Out for v1.1** (deferred):
 - `build_db.py` bare-except + missing `raise_for_status()`/`timeout` robustness

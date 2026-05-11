@@ -34,10 +34,12 @@ Each requirement maps to exactly one phase in `ROADMAP.md`. v1.0 requirements ar
 - [ ] **HW-04**: A physical RURP shield programs and verifies an AT28C256 (algo=0x0D, 5V EEPROM via Phase 13 override) — confirms zero VPP regulator engagement on the scope/multimeter during the write window; logged.
 - [ ] **HW-05**: A physical RURP shield programs and verifies an Intel-family flash (AM28F010 or 28F256, algo=0x10) **after** SAF-04 ships — confirms the new VPP ADC compare gates a deliberately-underpowered VPP run; logged.
 
-### Wire-Protocol Naming
+### Naming Cleanup
 
-- [ ] **WIRE-01**: Wire JSON `"vpp"` key (which currently carries millivolts) is renamed to `"vpp_mv"` in the Python emitter (`firestarter_app/firestarter/eprom_operations.py` / `serial_comm.py` family), the firmware parser (`firestarter.cpp` ArduinoJson key), and `firestarter_app/CLAUDE.md` example — eliminating the volts/millivolts semantic overload (WARNING-3).
+- [ ] **WIRE-01**: Wire JSON `"vpp"` key (which currently carries millivolts) is renamed to `"vpp_mv"` in the Python emitter (`firestarter_app/firestarter/eprom_operations.py` / `serial_comm.py` / `database.py::convert_to_programmer` family), the firmware parser (`firestarter.cpp` / `json_parser.c` ArduinoJson key), and `firestarter_app/CLAUDE.md` example — eliminating the volts/millivolts semantic overload (WARNING-3).
 - [ ] **WIRE-02**: A `check_dispatch.py` (or equivalent host-side) test confirms every chip in the regenerated DB still parses end-to-end on both Uno + Leonardo simulator after the rename — no algorithm=0x?? entry regresses on the wire.
+- [ ] **CLEAN-01**: The data filename `firestarter/data/minipro_complete_db.json` is renamed to a neutral name (e.g. `chip_database.json`) — the file is *our* DB derived from the upstream XML, not the minipro tool's own artifact. All references updated atomically: `tools/build_db.py:12` (OUTPUT_FILE), `firestarter/database.py:189` (default path) + `:366` (docstring), `tools/check_dispatch.py:2` (docstring) + `:27` (data-dir glob), meta `CLAUDE.md:44`, `firestarter_app/CLAUDE.md` Pipeline section, `firestarter/CLAUDE.md:30`.
+- [ ] **CLEAN-02**: Unnecessary "minipro" mentions in app code comments and docs are removed. Single attribution kept in `tools/build_db.py` (which owns `MINIPRO_XML_URL` — the actual upstream URL constant) and one line in `firestarter_app/CLAUDE.md` naming the upstream source. Replace remaining `# Algorithm (minipro protocol_id) → ...` comments in `firestarter/database.py:45,389` and `tools/check_dispatch.py:30` with neutral wording (`# Algorithm (upstream protocol_id) → ...` or `# Algorithm integer → ...`). Reduce `firestarter_app/CLAUDE.md` from 6 mentions to 1; `firestarter/CLAUDE.md` from 2 mentions to 0 (firmware never sees minipro).
 
 ### Documentation
 
@@ -72,23 +74,37 @@ Tracked but deferred past v1.1 (carry to v1.2 or beyond):
 
 ## Traceability
 
-Empty until `ROADMAP.md` is generated. Will be filled by the roadmapper.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SAF-04 | TBD | Pending |
-| SAF-05 | TBD | Pending |
-| SAF-06 | TBD | Pending |
-| VERIF-01..VERIF-10 | TBD | Pending |
-| HW-01..HW-05 | TBD | Pending |
-| WIRE-01..WIRE-02 | TBD | Pending |
-| DOC-01 | TBD | Pending |
+| SAF-04 | Phase 1 | Pending |
+| SAF-05 | Phase 1 | Pending |
+| SAF-06 | Phase 1 | Pending |
+| VERIF-01 | Phase 3 | Pending |
+| VERIF-02 | Phase 3 | Pending |
+| VERIF-03 | Phase 3 | Pending |
+| VERIF-04 | Phase 3 | Pending |
+| VERIF-05 | Phase 3 | Pending |
+| VERIF-06 | Phase 3 | Pending |
+| VERIF-07 | Phase 3 | Pending |
+| VERIF-08 | Phase 3 | Pending |
+| VERIF-09 | Phase 3 | Pending |
+| VERIF-10 | Phase 3 | Pending |
+| HW-01 | Phase 4 | Pending |
+| HW-02 | Phase 4 | Pending |
+| HW-03 | Phase 4 | Pending |
+| HW-04 | Phase 4 | Pending |
+| HW-05 | Phase 4 | Pending |
+| WIRE-01 | Phase 2 | Pending |
+| WIRE-02 | Phase 2 | Pending |
+| CLEAN-01 | Phase 2 | Pending |
+| CLEAN-02 | Phase 2 | Pending |
+| DOC-01 | Phase 5 | Pending |
 
 **Coverage:**
-- v1.1 requirements: 22 total (3 SAF + 10 VERIF + 5 HW + 2 WIRE + 1 DOC + 1 SAF test = 22, where SAF-06 is the test bucket)
-- Mapped to phases: 0
-- Unmapped: 22 ⚠ (filled by roadmapper)
+- v1.1 requirements: 24 total (3 SAF + 10 VERIF + 5 HW + 2 WIRE + 2 CLEAN + 1 DOC = 23 + 1 = 24)
+- Mapped to phases: 24
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-05-11*
-*Last updated: 2026-05-11 after initial v1.1 definition*
+*Last updated: 2026-05-11 — CLEAN-01/02 added (minipro reference cleanup); folded into Phase 2 Naming Cleanup*
