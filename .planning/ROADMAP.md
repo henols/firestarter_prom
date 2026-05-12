@@ -75,7 +75,10 @@
   3. A physical RURP shield programs and verifies an AM29F040 (chip-erase + write) and an SST39SF040 (sector-erase + write), both algo=0x06, with results logged.
   4. A physical RURP shield programs and verifies an AT28C256 (algo=0x0D via Phase 13 override) with scope/multimeter confirmation that the VPP regulator never engages during the write window.
   5. A physical RURP shield programs and verifies an Intel-family flash (AM28F010 or 28F256, algo=0x10) and confirms the new SAF-04 VPP ADC compare aborts a deliberately-underpowered VPP run.
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 04-01-PLAN.md — HW-01 test-script repair (filename + jq schema migration to chip_database.json; WARNING-4 closure)
+- [ ] 04-02-PLAN.md — HW-02 W27C512 + HW-03 AM29F040 chip-erase + HW-03 SST39SF040 sector-erase + HW-04 AT28C256 5V invariant (4 canon-chip-family bench runs)
+- [ ] 04-03-PLAN.md — HW-05 AM28F010 + SAF-04 abort closure (DB-override mechanism per RESEARCH.md correction; Sub-run A abort + Sub-run B nominal pass)
 
 #### Phase 5: Milestone Close
 **Goal**: The v1.1 milestone is formally recorded in `.planning/MILESTONES.md` using the same Known Gaps / Hardware Verification / Key Decisions structure as the v1.0 entry, so v1.2 planning can start from a clean accumulated record.
