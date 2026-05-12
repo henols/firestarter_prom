@@ -1,8 +1,19 @@
 # Phase 4: Hardware Validation (RURP shield) — Context
 
 **Gathered:** 2026-05-12
-**Status:** Ready for research + planning
-**Source:** /gsd-discuss-phase 4 (recommendations mode — user accepted all 7 recommended defaults; supplied physical-parts inventory)
+**Status:** Ready for planning (research complete; CONTEXT.md updated 2026-05-12 with RESEARCH.md corrections — see "Research-Led Corrections" below)
+**Source:** /gsd-discuss-phase 4 (recommendations mode — user accepted all 7 recommended defaults; supplied physical-parts inventory) + /gsd-plan-phase 4 (gsd-phase-researcher findings folded in)
+
+## Research-Led Corrections
+
+After CONTEXT.md was authored, `gsd-phase-researcher` surfaced two load-bearing corrections to original decisions. These have been folded INTO the relevant D-NN sections below — the original wording is preserved with a clearly marked "RESEARCH.md-corrected" amendment. Planner should treat the corrected wording as authoritative.
+
+| # | Decision | Original framing | Correction | Why it matters |
+|---|----------|------------------|------------|----------------|
+| D-01 | HW-01 scope | 2-line filename sed (WARNING-4 only) | Also fix jq-query schema drift (kebab-case top-level → nested) at `firestarter_test.sh:48-67` + `write_test.sh:35-40` | Without the jq fix, the scripts would still fail even with corrected filenames — the bench validation gate (success criterion #1) is missed |
+| D-05 | HW-05 abort mechanism | Lower regulator via `firestarter config` (which doesn't expose a VPP setpoint) | Override `vpp_mv` in `~/.firestarter/database.json` to 8000 mV — VPP HIGH ERROR branch fires (asymmetric check at `flash_intel.cpp:39-48`) | Lowering measured VPP only trips the WARN branch; the abort is on the HIGH side. Original mechanism would have produced no abort and silently passed |
+
+
 
 <domain>
 ## Phase Boundary
@@ -48,7 +59,13 @@ User-supplied physical-parts inventory (2026-05-12):
 ## Implementation Decisions (locked, in recommendation order)
 
 ### D-01 — HW-01 ships as its own plan in Wave 1 (software-only, no bench dep)
-HW-01 is a `git mv`-class fix: 2 dead `database_generated.json` references confirmed live at `firestarter_app/firestarter_test.sh:31` and `firestarter_app/write_test.sh:17`. Plan 04-01 ships HW-01 in isolation so it unblocks immediately (no bench access required) and so Plan 04-02 (bench work) inherits a known-clean test-script state. Bench is single-resource (one chip per RURP socket); software work must not block on it.
+HW-01 is software-only test-script repair. Plan 04-01 ships HW-01 in isolation so it unblocks immediately (no bench access required) and so Plan 04-02 (bench work) inherits a known-clean test-script state. Bench is single-resource (one chip per RURP socket); software work must not block on it.
+
+**Scope (RESEARCH.md-corrected, 2026-05-12):** HW-01 is bigger than two filename `sed` fixes. The 2 dead `database_generated.json` references at `firestarter_app/firestarter_test.sh:31` and `firestarter_app/write_test.sh:17` are real (WARNING-4), but the scripts ALSO use a jq query schema that does not match the post-Phase-11 `chip_database.json` shape. Specifically, the scripts query the OLD flat top-level keys `.["memory-size"]`, `.["has-chip-id"]`, `.["can-erase"]`, `.["name"]` at `firestarter_test.sh:48-67` and `write_test.sh:35-40`. The new DB is `{manufacturer: [chips...]}` with nested `.electrical.size_bytes`, `.programming.chip_id_check`, `.part_number`. HW-01 fixes BOTH layers:
+  1. `JSON_FILE` filename flip (`database_generated.json` → `chip_database.json`).
+  2. jq query rewrite to the new nested schema (flatten across manufacturers + nested path lookups).
+
+Planner authors both as a single sub-repo commit per D-08 (one atomic `firestarter_app/` commit covering both repair layers). Pre-fix `bash -n` syntax-check is the dry-run gate; post-fix `jq` smoke against the live DB is the acceptance gate (planner picks a known chip name, looks it up, asserts non-empty result).
 
 ### D-02 — Three plans total; HW-NN grouped by execution rhythm
 - **Plan 04-01 = HW-01** (Wave 1) — software-only test-script repair.
@@ -73,16 +90,28 @@ ROADMAP success criterion 4 reads "scope/multimeter" — disjunction. The binary
 
 Captured in `04-HW-VALIDATION.md §4`: meter model, measurement points (P1_VPP socket pin + reference GND), reading at write-start, reading mid-write, reading at write-end. Scope screenshot optional addendum.
 
-### D-05 — HW-05 underpowered VPP via `firestarter config` regulator setpoint (software-controlled, repeatable)
-The SAF-04 closure (`flash_intel_check_vpp` at `flash_intel.cpp:25-50`) compares the configured `handle->vpp_mv` against an ADC reading. To trigger abort:
-1. Run `firestarter config` to lower the VPP regulator setpoint to a value below Intel's required ~12V (target 10000 mV = 10 V).
-2. Run `firestarter write AM28F010 <binfile>` — expect `ERROR:` + abort code; `flash_intel_check_vpp` should detect the under-voltage and pull regulator + P1_VPP_ENABLE down per CR-01.
-3. Restore VPP setpoint to nominal (12000 mV).
-4. Run `firestarter write AM28F010 <binfile>` — expect normal `OK:` completion.
+### D-05 — HW-05 underpowered VPP via DB override of AM28F010 `vpp_mv` (RESEARCH.md-corrected mechanism)
+**Mechanism correction (2026-05-12):** The original D-05 proposed `firestarter config` to lower the VPP regulator setpoint, but RESEARCH.md established two load-bearing facts:
+
+1. **`firestarter config` does not expose a VPP setpoint.** Its only writable args are `--rev`, `-r1`, `-r2` (board revision + resistor calibration). There is no VPP-related setpoint command.
+
+2. **`flash_intel_check_vpp` at `flash_intel.cpp:25-50` is asymmetric on purpose** — verified verbatim live:
+   - `vpp_mv > handle->vpp_mv + 500` → **ERROR** (or warning under `FLAG_FORCE`) — aborts the write.
+   - `vpp_mv < handle->vpp_mv * 95 / 100` → **WARNING only** (`firestarter_warning_response_format`) — the write continues.
+
+   Lowering the regulator's measured output (reducing `vpp_mv`) would only trip the WARNING branch — the write would proceed and HW-05 would not validate the SAF-04 abort path.
+
+**Corrected mechanism — DB override of `handle->vpp_mv`:** Keep the regulator nominal (~12 V measured) but provide an AM28F010 override in `~/.firestarter/database.json` with `vpp_mv: 8000` (8 V). Then measured 12 V > 8000+500 = 8500 mV → **VPP HIGH ERROR** branch fires → clean abort.
+
+Sub-runs:
+1. **Sub-run A — underpowered (must abort):** Drop override `~/.firestarter/database.json` containing `{"manufacturer": [{"part_number": "AM28F010", ..., "electrical": {..., "vpp_mv": 8000, ...}, ...}]}` (full chip spec with the single `vpp_mv` field reduced). Run `firestarter write AM28F010 testbin.bin`. Expect `ERROR: VPP is high: 12.0V > 8.0V` (verbatim format from `flash_intel.cpp:41-43`) + cleared regulator/P1_VPP_ENABLE.
+2. **Sub-run B — nominal (must pass):** Remove the override (or restore `vpp_mv: 12000`). Run `firestarter write AM28F010 testbin.bin` + `firestarter verify AM28F010 testbin.bin` + `firestarter read AM28F010 readback.bin`. Expect `OK:` + 0-byte `xxd` diff.
 
 Both runs captured in `04-HW-VALIDATION.md §5`. The two-run contrast (abort + pass) is the load-bearing evidence — a single abort run alone could be masked by an unrelated regulator failure.
 
-Rejected: physical underpowering (bench-supply tap or VPP-rail pulldown resistor) — adds rewiring risk, not reversible by config command, harder to repeat in re-validation.
+Captured signature (planner greps for in HW-05 log evidence): `ERROR: VPP is high:` substring on Sub-run A; `OK:` + 0-byte diff on Sub-run B.
+
+Rejected: original `firestarter config` mechanism (no such command); physical underpowering (rewiring risk, not reversible); FLAG_FORCE bypass (would convert the ERROR back to a WARNING, defeating the abort test). The DB-override mechanism is repeatable (just drop/remove a JSON file), reversible (delete the override file), and exercises the actual production code path (every byte of `flash_intel_check_vpp` runs).
 
 ### D-06 — Per-chip evidence schema
 Each H2 section in `04-HW-VALIDATION.md` carries:
