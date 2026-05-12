@@ -192,3 +192,10 @@ After `/gsd-verify-work 03` passes, the orchestrator will transition STATE.md to
 **Then Phase 4 (Hardware Validation, HW-01..HW-05) is unblocked** — Phase 4 owns the hardware-execution evidence the doc-only Phase 3 deliberately deferred (per CONTEXT.md `<domain>` "Out of scope"), and Phase 4 / HW-01 also inherits the WARNING-4 follow_up carried by 08-VERIFICATION.md (test-script drift referencing the deleted `database_generated.json`).
 
 The two deferred-to-v1.2 follow_ups (WARNING-5 across 03/06/07 + INFO-3 in 10) remain in MILESTONES.md Known Gaps and the REQUIREMENTS.md Future Requirements block (FW-07); they are not Phase 4 work, but Phase 5 (DOC-01) will cross-reference them in the MILESTONES.md v1.1 entry.
+
+## Self-Check: PASSED
+
+- All 6 files exist on disk (5 VERIFICATION.md under `.planning/milestones/v1.0-phases/{NN-slug}/` + this SUMMARY at `.planning/phases/03-retroactive-verification-phases-01-10/03-02-SUMMARY.md`).
+- All 6 commits exist in git log: `b137cfc` (03), `8f95a66` (05), `0dc5c65` (06), `67dcff4` (07), `b94aa77` (10), `216d6c3` (SUMMARY).
+- `git status --short` clean inside the worktree.
+- `git log 5342e40..HEAD --name-only` confirms ONLY `.planning/` paths modified across all 6 commits (no `firestarter/` or `firestarter_app/` source touched).
