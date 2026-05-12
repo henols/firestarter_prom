@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Safety Closure & Hardware Validation
-status: verifying
+status: ready_to_plan
 last_updated: "2026-05-12T09:02:18.546Z"
 last_activity: 2026-05-12
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 5
   completed_plans: 5
-  percent: 100
+  percent: 60
 ---
 
 # Project State
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 02 (naming-cleanup-wire-key-minipro-references) — COMPLETE (ready for /gsd-verify-work)
-Plan: 3 of 3 complete
-Status: Phase 02 closed — WIRE-01, WIRE-02, CLEAN-01, CLEAN-02 all discharged
-Last activity: 2026-05-12 — Plan 02-03 complete (firestarter_app@0489a20 + firestarter@587396a; check_dispatch.py 743-chip wire round-trip green; SC#5 CLI smoke all exit 0)
+Phase: 3
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-05-12
 
 ## Project Reference
 
