@@ -35,7 +35,7 @@
   5. All pre-existing dispatch / handler Unity tests still pass (no regression in the 15 v1.0 tests).
 **Plans**: 2 plans
 - [x] 01-01-PLAN.md — SAF-04 Intel-flash VPP ADC compare (`flash_intel_write_init` + 5 Unity tests)
-- [ ] 01-02-PLAN.md — SAF-05 AT28C chip-id check via A9-12V (`eeprom28c_write_init` + 4 Unity tests; OVERRIDES CONTEXT.md D-05 JEDEC proposal per RESEARCH.md datasheet evidence)
+- [x] 01-02-PLAN.md — SAF-05 AT28C chip-id check via A9-12V (`eeprom28c_write_init` + 4 Unity tests; OVERRIDES CONTEXT.md D-05 JEDEC proposal per RESEARCH.md datasheet evidence)
 
 #### Phase 2: Naming Cleanup (Wire Key + Minipro References)
 **Goal**: The host-side codebase has clean naming — the wire JSON VPP key is unambiguously `"vpp_mv"`, the chip-database file no longer carries the upstream toolchain name, and "minipro" appears in the app only where it's load-bearing (the `MINIPRO_XML_URL` constant and one attribution line). No dispatch regression on any of the 743 chips.
@@ -153,7 +153,7 @@ Audit: `.planning/milestones/v1.0-MILESTONE-AUDIT.md` (status: gaps_found — ac
 
 | Phase | Milestone | Plans | Status   | Completed  |
 | ----- | --------- | ----- | -------- | ---------- |
-| 01    | v1.0      | 3/3   | Complete | 2026-05-08 |
+| 01    | v1.0      | 2/2 | Complete   | 2026-05-12 |
 | 02    | v1.0      | 1/1   | Complete | 2026-05-09 |
 | 03    | v1.0      | 1/1   | Complete | 2026-05-09 |
 | 04    | v1.0      | 2/2   | Complete | 2026-05-09 |

@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Safety Closure & Hardware Validation
-status: executing
-last_updated: "2026-05-12T05:53:48.905Z"
+status: verifying
+last_updated: "2026-05-12T06:12:49.839Z"
 last_activity: 2026-05-12
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
-  percent: 50
+  completed_plans: 2
+  percent: 100
 ---
 
 # Project State
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 01 (safety-closure-intel-flash-vpp-28c-chip-id) — EXECUTING
-Plan: 2 of 2
-Status: Plan 01-01 complete; ready to execute 01-02
-Last activity: 2026-05-12 — Plan 01-01 complete (SAF-04 + SAF-06 VPP half)
+Phase: 01 (safety-closure-intel-flash-vpp-28c-chip-id) — COMPLETE
+Plan: 2 of 2 (all plans executed)
+Status: Phase 01 complete — SAF-04 + SAF-05 + SAF-06 closed; 24/24 native tests PASSING
+Last activity: 2026-05-12 — Plan 01-02 complete (SAF-05 + SAF-06 chip-id half)
 
 ## Project Reference
 
@@ -67,7 +67,7 @@ None.
 
 ### Open Warnings (now tracked as v1.1 phases)
 
-- WARNING-2 — `eeprom_28c.cpp` ignores `handle->chip_id` → **Phase 1 (SAF-05)** — Plan 01-02 pending
+- WARNING-2 — `eeprom_28c.cpp` ignores `handle->chip_id` → **CLOSED by Plan 01-02** (`eeprom28c_check_chip_id` A9-12V + 4 Unity tests; 24/24 native tests passing)
 - WARNING-3 — wire JSON `"vpp"` key carries millivolts → **Phase 2 (WIRE-01)**
 - WARNING-4 — `firestarter_test.sh` / `write_test.sh` reference deleted `database_generated.json` → **Phase 4 (HW-01)**
 
@@ -84,8 +84,11 @@ None.
 ## Decisions (Phase 1)
 
 - **D-04 (SAF-04):** `flash_intel_check_vpp` implemented as inline-copy static helper in `flash_intel.cpp` — `eprom_check_vpp` left byte-identical; shared helper extraction deferred to cleanup phase
-- **ArduinoFake delay():** Any test suite that drives `operation_init` must call `When(Method(ArduinoFake(), delay)).AlwaysReturn()` in `setUp()` — fakeit aborts on unmocked virtuals
+- **D-05 override (SAF-05, load-bearing):** `eeprom28c_check_chip_id` uses A9-12V identification (RESEARCH.md datasheet evidence), NOT the AMD/SST JEDEC AA/55/90 sequence from CONTEXT.md D-05. JEDEC sequence would corrupt address 0x5555 on SDP-disabled AT28C parts.
+- **ArduinoFake delay() + delayMicroseconds():** Any test suite that drives `operation_init` must mock BOTH `delay()` AND `delayMicroseconds()` in `setUp()` — fakeit aborts on unmocked virtuals
+- **configure_memory() function-pointer overwrite:** `configure_memory()` overwrites `handle->firestarter_get_data` with `memory_get_data` before calling the specific handler. Tests that mock `firestarter_get_data` must RE-ASSIGN the mock pointer AFTER `configure_memory()` and before `operation_init()`.
 
 ## Operator Next Steps
 
-- Run `/gsd-execute-phase 01 01-02` to execute Plan 01-02 (AT28C chip-id check — SAF-05).
+- Phase 01 complete. All SAF requirements closed (SAF-04, SAF-05, SAF-06).
+- Run `/gsd-execute-phase 02` to execute Phase 02 (Wire Protocol Rename vpp → vpp_mv).
