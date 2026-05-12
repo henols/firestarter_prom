@@ -2,156 +2,330 @@
 
 **Gathered:** 2026-05-12
 **Status:** Ready for planning
-**Mode:** auto-decided (orchestrator instructed "no clarifying questions" — user can redirect by editing this file or re-running `/gsd:discuss-phase 2`)
 
 <domain>
 ## Phase Boundary
 
-Mechanical naming cleanup across both sub-repos that removes two long-standing semantic
-overloads from the v1.0 wire / data layer:
+Mechanical naming cleanup across both sub-repos that removes two long-standing
+semantic overloads from the v1.0 wire / data layer plus reduces minipro-tool
+attribution to one load-bearing site:
 
-1. **WIRE-01** — Wire JSON VPP key flips from `"vpp"` (overloaded — historically volts,
-   currently millivolts after the silent v1.0 semantic shift) to `"vpp_mv"` end-to-end:
-   Python emitter (`firestarter_app/firestarter/database.py::convert_to_programmer`),
-   firmware parser (`firestarter/src/json_parser.c` PROGMEM key table + `get_vpp_mv`
-   function body), and the wire-JSON example in `firestarter_app/CLAUDE.md`. Closes
-   `.planning/MILESTONES.md` WARNING-3.
-2. **WIRE-02** — `firestarter_app/tools/check_dispatch.py` regenerates the DB and
-   confirms every chip in the regenerated `chip_database.json` still parses end-to-end
-   on Uno + Leonardo simulator with no algorithm regressing on the wire after the
-   rename. Wire-key assertion folded into the existing dispatch loop (one new check,
-   not a new test file).
-3. **CLEAN-01** — Generated DB filename flips from `minipro_complete_db.json` (toolchain
-   name) to `chip_database.json` (project-neutral). All readers + the writer + docs
-   atomically reference the new filename: `tools/build_db.py:12 OUTPUT_FILE`,
-   `firestarter/database.py:189 default path + :366 docstring`, `tools/check_dispatch.py:2
-   docstring + :27 data-dir glob`, `firestarter_app/CLAUDE.md:19,36,69`, `firestarter/CLAUDE.md:30`,
-   meta `CLAUDE.md:44`.
-4. **CLEAN-02** — "minipro" comment scrub: firestarter sub-repo drops to **zero** mentions
-   (`firestarter/CLAUDE.md:30,69`); firestarter_app keeps **one** load-bearing attribution
-   line in `tools/build_db.py` (which owns the `MINIPRO_XML_URL` upstream constant) plus
-   **one** attribution line in `firestarter_app/CLAUDE.md`. All other mentions
-   (`firestarter_app/firestarter/database.py:45,389`, `firestarter_app/tools/check_dispatch.py:30`,
-   the 4 extra `CLAUDE.md` mentions) become neutral wording.
+1. **WIRE-01 — Atomic wire-key flip.** The host emitter
+   (`firestarter_app/firestarter/database.py::convert_to_programmer`) currently
+   emits BOTH `"vpp": <mV>` and `"vpp_mv": <mV>` (database.py:518 + :510). The
+   firmware parser (`firestarter/src/json_parser.c:62, :74, :308-310`) reads
+   ONLY `"vpp"`. After Phase 2: Python emits ONLY `"vpp_mv"`; firmware parses
+   ONLY `"vpp_mv"`. No legacy fallback on either side. `firestarter_app/CLAUDE.md`
+   wire example rewritten to drop `"vpp": 12000,`. Closes MILESTONES.md WARNING-3.
+
+2. **WIRE-01 (internal twin) — `_map_data()` float-volts rename.** The internal
+   dict produced by `database.py::_map_data` carries `"vpp": <float volts>` next
+   to `"vpp_mv": <int mV>` (database.py:373-381, :387, :417-418, :510). The
+   float-volts key is renamed to `"vpp_volts"` for symmetric naming with
+   `vpp_mv` — same WARNING-3 root cause, internal-dict scope. The on-disk DB
+   schema (`build_db.py:255-256` emits `"vpp": "12V"` string + `"vpp_mv": int`)
+   is OUT OF SCOPE for the rename — see Deferred Ideas.
+
+3. **WIRE-02 — Regression scan.** `firestarter_app/tools/check_dispatch.py`
+   (Phase 12-built host-side scanner) runs end-to-end against the renamed DB
+   on both Uno + Leonardo simulator path and confirms no `algorithm` regressing
+   on the wire. Augmented with two new asserts per chip (`"vpp_mv" in wire` and
+   `"vpp" not in wire`) — single-file change folded into the existing 743-chip
+   iteration. Plus a `firestarter --help` + `firestarter info W27C512` CLI smoke
+   (SC#5).
+
+4. **CLEAN-01 — Data file rename.**
+   `firestarter_app/firestarter/data/minipro_complete_db.json` →
+   `firestarter_app/firestarter/data/chip_database.json` via `git mv` (preserves
+   blame across the rename, mirrors Phase 11's `parse_db_2.py → build_db.py`
+   pattern). All four reference sites flipped atomically: `tools/build_db.py:12`
+   (`OUTPUT_FILE`), `firestarter/database.py:189` (default path) + `:366`
+   (docstring), `tools/check_dispatch.py:2` (docstring) + `:27` (data-dir glob),
+   plus the meta `CLAUDE.md:44` + `firestarter_app/CLAUDE.md:19,36,69` +
+   `firestarter/CLAUDE.md:30` path references.
+
+5. **CLEAN-02 — "minipro" attribution scrub.** Single attribution survives at
+   `tools/build_db.py` (where `MINIPRO_XML_URL` is defined — the load-bearing
+   upstream constant) plus one line in `firestarter_app/CLAUDE.md` naming the
+   upstream source. All other mentions become neutral wording. `firestarter`
+   firmware sub-repo drops to ZERO minipro mentions (it never sees the upstream
+   tool).
 
 **In scope:**
-- Python emitter wire-key rename: `firestarter_app/firestarter/database.py::convert_to_programmer` L518.
-- Firmware parser key change: `firestarter/src/json_parser.c:62` PROGMEM literal + L309 inline
-  `extract_int(...)` argument (BOTH locations must change together — see <code_context> below).
-- DB output filename: `firestarter_app/tools/build_db.py:12 OUTPUT_FILE` and the four reader sites.
-- check_dispatch.py augmentation: add an end-of-loop assertion that every emitted wire JSON
-  carries `"vpp_mv"` and zero `"vpp"` keys, across all 743 chips. Asserts both Uno + Leonardo
-  paths via the existing simulator-buffer fork (no new simulator entry point needed).
-- Doc updates: `firestarter_app/CLAUDE.md`, `firestarter/CLAUDE.md`, meta `CLAUDE.md`, including
-  the wire-JSON example (drop the dual `"vpp"` / `"vpp_mv"` block to just `"vpp_mv"`).
-- Comment scrub on the 4 documented minipro mentions in app code (database.py:45,389;
-  check_dispatch.py:30) — replace with neutral wording per D-04 below.
+- Python emitter wire-key change: `database.py:518` (delete `"vpp": vpp_mv,`).
+- Internal `_map_data()` dict rename: `database.py:373-387,417` (rename `"vpp"`
+  float-volts key to `"vpp_volts"`); plus the consumer fallback at `:510`.
+- Firmware parser key change: `firestarter/src/json_parser.c:62` PROGMEM literal
+  + `:74` dispatch row + `:308-310` `get_vpp_mv` body. ALL THREE locations must
+  flip together — see D-08 below.
+- DB file rename via `git mv` + flip all 7 callsite paths and docstrings.
+- `check_dispatch.py` augmentation: two new asserts inside the existing
+  743-chip iteration.
+- Doc updates: `firestarter_app/CLAUDE.md`, `firestarter/CLAUDE.md`, meta
+  `CLAUDE.md`. Wire-JSON example drops the dual-key block to `vpp_mv` only.
+- Comment scrub on `database.py:45,389`, `check_dispatch.py:30`,
+  `firestarter/CLAUDE.md:30,69`, and 5 of 6 `firestarter_app/CLAUDE.md` mentions.
 
 **Out of scope:**
-- `build_db.py` robustness — bare-except blocks and missing `raise_for_status()` / `timeout`
-  on `requests.get(MINIPRO_XML_URL)` (covered by code-review WR-02/WR-03 from Phase 11; tracked
-  as DB-06 in REQUIREMENTS.md "Future Requirements"; deferred past v1.1).
-- `verified` field restoration on the regenerated DB (DB-07; deferred past v1.1).
-- Test-script fixes for `firestarter_test.sh:31` / `write_test.sh:17` `database_generated.json`
-  references — **explicitly owned by Phase 4 / HW-01** (REQUIREMENTS.md:31). They're closely
-  related (same WARNING-4 family) but Phase 4 already owns the fix as part of restoring the
-  hardware integration test scripts.
-- `~/.firestarter/database.json` user-override schema migration — handled organically by the
-  retained fallback in `convert_to_programmer:510` (`vpp_mv or vpp*1000`), no new code path.
-- Retroactive VERIFICATION.md artifacts for v1.0 phases 01-10 (Phase 3 / VERIF-01..10).
+- Backward-compat parsing of legacy `"vpp"` wire key in firmware (explicitly
+  rejected — atomic flip per D-01). The legacy key is deleted from
+  `json_parser.c` entirely.
+- On-disk DB schema rename: `tools/build_db.py:255` emits `electrical.vpp = "12V"`
+  (string) + `electrical.vpp_mv = 12000` (int). The on-disk schema is OUT of
+  scope; only the in-memory `_map_data()` output dict is renamed. See Deferred
+  Ideas for the on-disk drop candidate.
+- Test-script fixes for `firestarter_test.sh:31` / `write_test.sh:17`
+  `database_generated.json` references — explicitly owned by Phase 4 / HW-01.
+- `~/.firestarter/database.json` user-override schema migration — handled
+  organically by the retained `_map_data()` fallback at `database.py:373-387`
+  (`electrical.get("vpp", "0").replace("V", "")` for legacy user-override
+  upstream-schema strings). See D-07.
+- Renaming `~/.firestarter/database.json` to `chip_database.json` — would break
+  user installations silently. The user-override file keeps its name.
+- Renaming `tools/infoic.xml` — that IS the minipro source file; the upstream
+  filename is the load-bearing attribution.
+- Renaming the firmware C struct field `firestarter_handle_t.vpp_mv`
+  (`firestarter/include/firestarter.h:85`) — already correctly named since
+  v1.0. Wire-key rename is parse-layer only.
+- The `firestarter vpp` CLI subcommand (`firestarter_app/firestarter/main.py:185,626`)
+  — same prefix, different concept (a CLI command name, not a wire key). Defer.
+- Retroactive VERIFICATION.md artifacts for v1.0 phases 01-10 (Phase 3).
 - Hardware validation on the renamed DB (Phase 4 / HW-02..05).
-- `firestarter/CLAUDE.md` wire-protocol-section docstring at L51-58 currently lists `vpp` AND
-  `vpp_mv` as fields — collapse to `vpp_mv` only (no new section).
 
 </domain>
 
 <decisions>
 ## Implementation Decisions
 
-### D-01 — Wire-key transition: hard cutover on the emitter, soft retention on the parser
+### Wire-key transition policy
 
-**Python emitter (`convert_to_programmer:518`):** emit **only** `"vpp_mv": vpp_mv`. Drop the legacy `"vpp"` key entirely.
+- **D-01:** **Atomic flip — firmware parser registers ONLY `"vpp_mv"`; Python
+  emits ONLY `"vpp_mv"`.** No backward-compat fallback on either side.
+  Rationale: the audit text and milestone goal call for closure, not a
+  sustained dual-key window; Phase 4 hardware-test scripts will use the new
+  key only — simpler test surface. User flashes matching firmware + app
+  together; this is the documented upgrade path. The const
+  `key_vpp[] PROGMEM = "vpp"` at `firestarter/src/json_parser.c:62` is renamed
+  (literal AND variable) to `key_vpp_mv[] PROGMEM = "vpp_mv"`. The
+  `key_parsers[]` row at `:74` flips to `{key_vpp_mv, get_vpp_mv}`. The
+  `get_vpp_mv` body at `:308-310` flips its `extract_int("vpp", handle->vpp_mv)`
+  arg to `extract_int("vpp_mv", handle->vpp_mv)`. **All three locations are a
+  single atomic-flip unit — mismatch at any one of them silently breaks the
+  parse (the field is dropped, `handle->vpp_mv` stays 0, the new SAF-04 VPP
+  ADC compare then trips on every Intel-flash write).** See D-08 for macro
+  semantics.
 
-**Firmware parser (`json_parser.c`):** accept **both** `"vpp_mv"` (new primary) and `"vpp"` (legacy fallback). Concretely: keep the existing `key_vpp_mv → get_vpp_mv` row, add a second row `key_vpp_legacy → get_vpp_mv` that re-uses the same handler. Both parse-key string literals inside `get_vpp_mv` (L309) must check both keys via two consecutive `extract_int(...)` calls — the macro returns 0 on key mismatch and 1 on match (see <code_context> below), so two back-to-back invocations naturally form an "or" without changing the dispatch loop.
+- **D-02:** **`convert_to_programmer` emits only `"vpp_mv"`.**
+  `firestarter_app/firestarter/database.py:518` (`"vpp": vpp_mv,`) is **deleted**
+  — the wire dict ships with `"vpp_mv": vpp_mv` only. Wire JSON shrinks by one
+  key per command. The CLAUDE.md example wire JSON in
+  `firestarter_app/CLAUDE.md:46-58` is rewritten to drop `"vpp": 12000,`
+  (keeping `"vpp_mv": 12000,`).
 
-**Rationale:** asymmetric. The emitter is the single source of truth in this repo — making it strict eliminates ambiguity at the source. The firmware fallback exists for two real-world senders that this phase does NOT control: (a) `firestarter_test.sh` and `write_test.sh` hand-crafted JSON used by Phase 4 / HW-01; (b) any third-party tool that learned to emit `"vpp"` from the v1.0 wire docs. Removing the legacy key entry from the parser would silently break those senders — too risky for a naming-cleanup phase. The legacy key can be removed in a future cleanup phase once Phase 4 hardware scripts are confirmed clean.
+- **D-03:** **No firmware C-struct rename.** `firestarter_handle_t.vpp_mv` at
+  `firestarter/include/firestarter.h:85` already has the correct name. Out of
+  scope. `bus_config.vpp_line` (different concept — pinout, not voltage) is
+  also untouched. `get_vpp_pin` (`json_parser.c:320-321`) keys on `"vpp-pin"`
+  — a separate field, not affected.
 
-### D-02 — DB filename: `chip_database.json`
+### Internal `_map_data()` rename
 
-Verbatim from REQUIREMENTS.md CLEAN-01 suggestion. Rejected alternatives:
-- `chip_db.json` — abbreviation, less self-describing.
-- `firestarter_db.json` — redundant in a `firestarter/data/` directory.
-- `chips.json` — too generic (could collide with future per-family files).
-- Keeping `minipro_complete_db.json` — that's what we're fixing.
+- **D-04:** **Rename internal `"vpp"` float-volts key to `"vpp_volts"` in
+  `_map_data()` output dict.** Symmetric naming with `vpp_mv` removes the same
+  WARNING-3 semantic overload internally. Touched lines:
+  - `database.py:417` — `"vpp": vpp,` → `"vpp_volts": vpp,`
+  - `database.py:510` — fallback `int(full_eprom_data.get("vpp", 0) * 1000)`
+    → `int(full_eprom_data.get("vpp_volts", 0) * 1000)`
+  - **Planner: grep for any callsite reading `full_eprom_data["vpp"]` /
+    `.get("vpp")` (not `["vpp_mv"]`) — likely `eprom_info.py`, `ic_layout.py`
+    — and update each.**
 
-`chip_database.json` also rhymes with the user-override file `~/.firestarter/database.json` — both are "databases", reinforcing the conceptual symmetry between base + override.
+  **Distinction from upstream-schema read:** `database.py:373-381` reads
+  `electrical.get("vpp", "0").replace("V", "")` from the on-disk DB / user
+  override. That `electrical.vpp` field is upstream-schema-owned (the on-disk
+  string `"12V"` shape produced by `build_db.py:255` and by legacy user
+  overrides) — NOT renamed in this phase. The rename is purely the internal
+  dict KEY `_map_data()` produces, not the upstream field it reads.
 
-### D-03 — Wire-protocol example in firestarter_app/CLAUDE.md drops the dual-key form
+### Data file rename
 
-Current `firestarter_app/CLAUDE.md:48-59` example wire JSON shows BOTH `"vpp": 12000` AND `"vpp_mv": 12000`. That's a transition artefact and must collapse to `"vpp_mv": 12000` only after WIRE-01. Same for `firestarter/CLAUDE.md:51-58` field-list block — drop `vpp /` and keep only `vpp_mv`.
+- **D-05:** **New filename: `chip_database.json`.** Verbatim from REQUIREMENTS.md
+  CLEAN-01 suggestion. Rhymes with `~/.firestarter/database.json` (user override)
+  — reinforces the base + override symmetry. Rejected alternatives:
+  - `chip_db.json` — less self-describing.
+  - `firestarter_db.json` — redundant inside `firestarter/data/`.
+  - `chips.json` — too generic; could collide with future per-family files.
 
-### D-04 — Neutral wording for minipro comment scrub
+- **D-06:** **Use `git mv` for the file rename inside the `firestarter_app/`
+  sub-repo.** Preserves blame. Mirrors Phase 11's `git mv parse_db_2.py
+  build_db.py`. The sub-repo is a separate git history from the meta-repo —
+  the rename commit lands inside `firestarter_app/`; the meta-repo only sees a
+  pointer-bump. Coordinate with the constant flip in `tools/build_db.py:12`
+  and the reader in `database.py:189` so the file path is valid in every commit
+  (stage all rename-related edits together; one commit).
 
-| Current comment site | Current text | New text |
-|---|---|---|
-| `firestarter_app/firestarter/database.py:45` | `# Algorithm (minipro protocol_id) → firmware mem_type integer.` | `# Algorithm integer (upstream protocol_id from infoic.xml) → firmware mem_type integer.` |
-| `firestarter_app/firestarter/database.py:389` | `# Read algorithm integer directly — set by build_db.py as minipro protocol_id` | `# Read algorithm integer directly — set by build_db.py from upstream protocol_id` |
-| `firestarter_app/tools/check_dispatch.py:30` | `# Algorithm (minipro protocol_id) → firmware mem_type integer.` | `# Algorithm integer (upstream protocol_id from infoic.xml) → firmware mem_type integer.` |
+- **D-07:** **Sweep all reader / writer / doc sites in one atomic plan
+  boundary** (planner discretion to split into smaller commits within the plan):
+  - `firestarter_app/tools/build_db.py:12` (`OUTPUT_FILE`)
+  - `firestarter_app/firestarter/database.py:189` (default path) + `:366`
+    (docstring `the new 'minipro_complete_db.json' format` → `the
+    'chip_database.json' format`)
+  - `firestarter_app/tools/check_dispatch.py:2` (docstring) + `:27` (data-dir
+    glob list)
+  - meta `CLAUDE.md:44`
+  - `firestarter_app/CLAUDE.md:19` (data-flow diagram) + `:36` (Key Files
+    bullet) + `:69` (Database Pipeline)
+  - `firestarter/CLAUDE.md:30` (`regenerated minipro_complete_db.json`
+    reference)
 
-The single load-bearing attribution stays in `firestarter_app/tools/build_db.py` where `MINIPRO_XML_URL` is defined (the actual constant naming the upstream tool). The single attribution line in `firestarter_app/CLAUDE.md` stays at L19 (`infoic.xml → build_db.py → chip_database.json`) but rephrased: `upstream chip XML → build_db.py → chip_database.json`. **No** minipro reference survives in firmware `firestarter/CLAUDE.md` — the firmware never sees the upstream tool.
+### User-override compatibility
 
-### D-05 — Commit shape: 4 atomic feat commits per sub-repo + 1 chore commit per submodule bump in meta
+- **D-08-compat:** **Loader stays tolerant on internal READ; wire is atomic.**
+  `_map_data()`'s existing read chain
+  (`electrical.get("vpp_mv", 0)` → `electrical.get("vpp", "0").replace("V", "")`)
+  at `database.py:373-387` is **preserved unchanged** — this is the
+  upstream-schema read path that also handles legacy user-override DBs at
+  `~/.firestarter/database.json`. Net effect: users with legacy user-override
+  DBs keep working internally; users with old firmware do not (because the
+  wire is atomic). Acceptable — the upgrade story is "flash firmware + update
+  app together" per D-01.
 
-Plan-phase will decompose further, but the intent is:
-- `firestarter_app@feat(02-01)` — WIRE-01 Python emitter half (database.py L518 + the wire JSON example in CLAUDE.md)
-- `firestarter@feat(02-01)` — WIRE-01 firmware parser half (json_parser.c L62 + L309 + the field list in CLAUDE.md)
-- `firestarter_app@chore(02-02)` — WIRE-02 check_dispatch.py wire-key assertion (no behavior change for existing chips — just an extra check)
-- `firestarter_app@refactor(02-03)` — CLEAN-01 rename `minipro_complete_db.json` → `chip_database.json` across build_db.py + database.py + check_dispatch.py + CLAUDE.md (`git mv` for the JSON file itself); meta CLAUDE.md updated separately
-- `firestarter_app@refactor(02-04)` — CLEAN-02 minipro comment scrub (database.py L45 + L389, check_dispatch.py L30, CLAUDE.md text changes)
-- `firestarter@refactor(02-04)` — CLEAN-02 firmware-side minipro scrub (CLAUDE.md L30, L69)
-- Meta-repo: one commit per sub-repo submodule bump, plus `docs(02): update meta CLAUDE.md DB filename reference`.
+### Minipro attribution scrub
 
-Plan-phase has discretion on whether WIRE-01 spans one plan (both halves together) or two (Python plan + firmware plan). Recommended: one plan, two sub-repo commits — they are conceptually atomic.
+- **D-09:** **Single load-bearing attribution stays.** `tools/build_db.py:10`
+  keeps the `MINIPRO_XML_URL` constant verbatim (it IS the upstream URL).
+  `tools/build_db.py:23` (`# This map translates the numeric protocol ID from
+  minipro's XML`) is reworded to `# This map translates the numeric protocol
+  ID from upstream's XML` — one inline attribution near the URL is allowed
+  per REQUIREMENTS.md CLEAN-02 (the variable name + comment together are one
+  attribution).
 
-### D-06 — Verification approach for WIRE-02 (regression check)
+- **D-10:** **Neutral wording table for the comment scrub** (verbatim diff
+  targets for the planner; line numbers verified at planning time):
 
-Augment `firestarter_app/tools/check_dispatch.py` with a wire-key assertion that runs over all 743 chips at the end of the existing dispatch-resolution loop:
+  | File:Line | Replace this exact string | With |
+  |---|---|---|
+  | `firestarter_app/firestarter/database.py:45` | `# Algorithm (minipro protocol_id) → firmware mem_type integer.` | `# Algorithm integer (upstream protocol_id from infoic.xml) → firmware mem_type integer.` |
+  | `firestarter_app/firestarter/database.py:389` | `# Read algorithm integer directly — set by build_db.py as minipro protocol_id` | `# Read algorithm integer directly — set by build_db.py from upstream protocol_id` |
+  | `firestarter_app/tools/check_dispatch.py:30` | `# Algorithm (minipro protocol_id) → firmware mem_type integer.` | `# Algorithm integer (upstream protocol_id from infoic.xml) → firmware mem_type integer.` |
+  | `firestarter_app/tools/check_dispatch.py:2` (docstring) | `Regression scan: assert every chip in minipro_complete_db.json reaches a real …` | `Regression scan: assert every chip in chip_database.json reaches a real …` |
 
-```python
-# Pseudo-code — final shape is plan-phase territory
-for chip in chips:
-    wire = db.convert_to_programmer(chip)
-    assert "vpp_mv" in wire, f"{chip['part_number']}: emitter regressed — missing vpp_mv"
-    assert "vpp" not in wire, f"{chip['part_number']}: emitter regressed — legacy vpp still emitted"
-```
+- **D-11:** **`firestarter/CLAUDE.md` reduces to zero minipro mentions.** The
+  firmware never touches minipro. The two mentions at
+  `firestarter/CLAUDE.md:30` (`minipro_complete_db.json` filename) and `:69`
+  (`minipro protocol_id`) become `chip_database.json` and `upstream
+  protocol_id` respectively.
 
-Single-file change in an already-existing regression-scan script. Uno + Leonardo simulator buffer-size fork already exists in check_dispatch.py; the new assertion runs once per chip regardless of buffer path, so both targets are covered.
+- **D-12:** **`firestarter_app/CLAUDE.md` reduces to exactly 1 mention.** The
+  attribution line at `:42` or `:69` (planner picks one; `:69` recommended
+  since it is co-located with `infoic.xml` — the actual upstream file) keeps
+  the word "minipro" since it's where readers naturally look for upstream
+  provenance. Other mentions at `:19, :36, :42 (or :69), :46-58 (wire example),
+  :72` become either the new filename (CLEAN-01) or neutral wording ("upstream
+  chip XML" / "upstream protocol_id"). Net mentions: 6 → 1.
 
-Rejected alternatives:
-- New `check_wire_key.py` — duplicates iteration logic for one assertion.
-- Firmware-side Unity test — overkill; the wire key is a host-side emission concern.
-- Manual `firestarter info <chip>` smoke — Phase 4 / HW-01 already covers this empirically.
+### Firmware parser semantics
 
-### D-07 — User-override (`~/.firestarter/database.json`) compatibility
+- **D-08 (macro semantics):** **`extract_num` has implicit early returns.**
+  `firestarter/src/json_parser.c:268-273`:
 
-**No new code.** The existing fallback at `convert_to_programmer:510` (`full_eprom_data.get("vpp_mv") or int(full_eprom_data.get("vpp", 0) * 1000)`) already handles user-override DBs that pre-date `vpp_mv` — it reads `vpp_mv` if present, otherwise multiplies legacy `vpp` (volts) by 1000. Leave this fallback in place; it is the migration path for any local user DB. **Do not** rename the user-override file from `database.json` to `chip_database.json` — the user-override file lives under `~/.firestarter/`, not in the package, and renaming would break user installations silently. Only the package-bundled file is in scope.
+  ```c
+  #define extract_num(element, register, type)           \
+      if (jsoneq(json, &tokens[pos], element) == 0) {    \
+          register = type(json + tokens[pos + 1].start); \
+          return 1;                                      \
+      }                                                  \
+      return 0;
+  ```
 
-### D-08 — Firmware parser PROGMEM rename detail
+  The macro returns `1` on match (and writes the register) or `0` on no-match
+  (without writing). It is a single-key probe. The first arg IS the parse key
+  — confirmed against `jsoneq_` body at `:260-266` which compares the JSON
+  token against the literal via `strncmp_P`. Two back-to-back `extract_int`
+  calls in the same function body do NOT chain — the first one always returns.
+  **Implication for D-01:** since we only need ONE key (`"vpp_mv"`), the
+  single-line `extract_int("vpp_mv", handle->vpp_mv);` body is correct as-is.
+  No macro change, no body refactor.
 
-The current code at `firestarter/src/json_parser.c:62` declares `const char key_vpp[] PROGMEM = "vpp";` and the dispatch table at L74 references it as `{key_vpp, get_vpp_mv}`. Inside `get_vpp_mv` (L308-310), the macro `extract_int("vpp", handle->vpp_mv)` is **not** a debug label — it expands to `extract_num("vpp", ...)` which compares the JSON key against `"vpp"` via `jsoneq` (see `extract_num` macro at L268-273 + <code_context> below). So renaming the wire key on the firmware side requires editing **two** locations together:
+### Plan granularity
 
-1. `key_vpp` PROGMEM string at L62 → become `key_vpp_mv` with literal `"vpp_mv"` (primary).
-2. Inside `get_vpp_mv` at L309 → first call: `extract_int("vpp_mv", handle->vpp_mv);` (primary). Second back-to-back call: `extract_int("vpp", handle->vpp_mv);` (legacy fallback per D-01). The macro returns 0 if the key doesn't match the current JSON token, so the function will try both in order; first match wins, function returns 1; no match returns 0 and dispatch moves on (matches existing semantics).
+- **D-13:** **Split into 3 plans (planner's discretion to merge if friction):**
+  - **Plan 02-01** — WIRE-01 atomic flip. Python emitter
+    (`database.py::convert_to_programmer` delete `"vpp"` key) + firmware
+    parser (`json_parser.c` literal + dispatch row + body) + wire-example
+    update in `firestarter_app/CLAUDE.md`. Single conceptually-atomic change
+    spanning both sub-repos. Recommended commit order: firmware first
+    (existing wire still works with new firmware because Python is the only
+    sender that emits this key, and the host-side hasn't shipped yet), then
+    Python.
+  - **Plan 02-02** — CLEAN-01 file rename (`git mv` + 7 callsite touches per
+    D-07) plus internal `vpp_volts` rename (D-04). Larger blast radius but
+    naturally atomic.
+  - **Plan 02-03** — CLEAN-02 minipro attribution scrub (D-09/D-10/D-11/D-12)
+    + WIRE-02 regression scan (D-15) + SC#5 CLI smoke (D-17). Doc / comment
+    edits + the final regression evidence.
 
-Plus a third row in the `key_parsers[]` table at L74 — `{key_vpp_legacy, get_vpp_mv}` with `key_vpp_legacy[] PROGMEM = "vpp";` — so the dispatch table also recognises legacy `"vpp"` keys. The double-extract inside `get_vpp_mv` and the extra dispatch row are belt-and-braces — without the dispatch entry the function would never be invoked for legacy JSON; without the inline-extract second key the function would extract from the wrong token offset. Both are required.
+- **D-14:** **The audit text "atomic" refers to the four-rename batch landing
+  before regression scan — not to a single git commit.** A 3-plan split with
+  sequential commits inside the milestone slot is consistent with the
+  requirement; Phase 1 used 2 plans, this phase has more file touches but
+  mechanically simpler edits.
+
+### Regression test approach
+
+- **D-15:** **`check_dispatch.py` is the canonical regression scanner (SC#4),
+  augmented with wire-key asserts.** Inside the existing 743-chip iteration
+  loop, two new asserts after the dispatch resolution:
+
+  ```python
+  wire = db.convert_to_programmer(chip)
+  if "vpp_mv" not in wire:
+      print(f"WIRE-REGRESSION: {chip.get('part_number')} — missing vpp_mv")
+      failures += 1
+  if "vpp" in wire:
+      print(f"WIRE-REGRESSION: {chip.get('part_number')} — legacy vpp key still emitted")
+      failures += 1
+  ```
+
+  Existing `failures > 0 → exit 1` contract preserved. Both Uno + Leonardo
+  simulator paths covered through the existing buffer-size fork in
+  `check_dispatch.py`.
+
+- **D-16:** **DB regeneration via `tools/build_db.py` is OPTIONAL.** SC#4 says
+  "regenerates the DB and confirms all 743 chips still parse end-to-end" — the
+  existing committed `minipro_complete_db.json` IS the regenerated artifact
+  (last regenerated post-v1.0 / Phase 13). After the `git mv` it becomes the
+  committed `chip_database.json`. Re-running `build_db.py` requires network
+  access to fetch `infoic.xml` from upstream. The planner should fall back to
+  "use the committed DB as the regenerated artifact" if the network call fails
+  — phase output is byte-identical modulo the filename.
+
+- **D-17:** **`firestarter info W27C512` smoke is the integration check (SC#5).**
+  Loading the renamed DB via `EpromDatabase` and emitting `convert_to_programmer`
+  JSON for one canonical chip (W27C512 — UV-EPROM 0x07) confirms:
+  - The new filename loads (no `FileNotFoundError`).
+  - The new wire emits `"vpp_mv"` only.
+  - No stale-path warning.
+
+  Plus a `firestarter --help` smoke (no DB load) to confirm the package still
+  installs cleanly.
 
 ### Claude's Discretion
 
-- Exact PROGMEM constant name (`key_vpp_mv` vs `key_vpp_new` vs `key_vpp_primary`) — pick `key_vpp_mv` for clarity but accept any name that's grep-able.
-- Exact phrasing of the `firestarter_app/CLAUDE.md:19` data-flow line beyond removing "minipro" — preserve the arrow-diagram shape.
-- Whether the firmware CLAUDE.md wire-protocol field list also documents the legacy `vpp` fallback or just `vpp_mv` (recommend: only `vpp_mv` in user-facing docs; the legacy parser path is implementation detail).
-- Whether to add a deprecation logger.warning in `convert_to_programmer` when a user-override entry was read via the legacy `vpp` fallback (recommend: yes — one-line `logger.debug(...)` only, not a noisy warning, since override DBs are user data we don't control).
-- Test names for the augmented check_dispatch.py — preserve the existing exit-code 0/1 contract.
+- Exact PROGMEM constant name (`key_vpp_mv` is the natural choice).
+- Whether to neutralize `build_db.py:23` (`# This map translates the numeric
+  protocol ID from minipro's XML`) further. D-09 keeps a softened form.
+- Whether the meta `CLAUDE.md:44` edit lands in Plan 02-02 or Plan 02-03
+  (both reasonable).
+- Final wording of replacement comments (D-10 suggests one option; alternates
+  like `upstream chip database protocol_id` are fine).
+- Whether `firestarter info --adapter W27C512` (richer smoke) augments the
+  basic `firestarter info W27C512`.
+- Whether to add a Python-side `test_convert_to_programmer.py` unit test
+  asserting the emitted wire dict — OPTIONAL; `check_dispatch.py` is the
+  contract.
+- Whether to update `firestarter/CLAUDE.md:51-58` field-list block to drop
+  the `vpp /` legacy mention (implied by D-01 — recommended).
 
 </decisions>
 
@@ -161,51 +335,108 @@ Plus a third row in the `key_parsers[]` table at L74 — `{key_vpp_legacy, get_v
 **Downstream agents MUST read these before planning or implementing.**
 
 ### Requirements + roadmap
-- `.planning/REQUIREMENTS.md` §"Naming Cleanup" — WIRE-01 / WIRE-02 / CLEAN-01 / CLEAN-02 wording (lines 39-42) — names every edit target with line numbers; this is the authoritative spec.
-- `.planning/ROADMAP.md` §"Phase 2: Naming Cleanup (Wire Key + Minipro References)" — 5 success criteria, dependency chain (ordered before Phase 4 so hardware tests use final wire key and DB filename).
-- `.planning/MILESTONES.md` §"Known Gaps" — WARNING-3 wire-key semantic overload original audit text.
-- `.planning/milestones/v1.0-MILESTONE-AUDIT.md` — WARNING-3 full context (volts/millivolts overload introduced in v1.0).
+- `.planning/REQUIREMENTS.md` §"Naming Cleanup" (lines 39-42) — WIRE-01 /
+  WIRE-02 / CLEAN-01 / CLEAN-02 — the authoritative spec with verbatim
+  file:line edit targets.
+- `.planning/ROADMAP.md` §"Phase 2: Naming Cleanup (Wire Key + Minipro
+  References)" — 5 success criteria; depends on nothing, ordered before
+  Phase 4 so hardware scripts use the final wire format and DB filename.
+- `.planning/MILESTONES.md` §"Known Gaps" — WARNING-3 (vpp wire-key semantic
+  overload) — this phase closes it.
+- `.planning/milestones/v1.0-MILESTONE-AUDIT.md` — WARNING-3 + WARNING-4
+  full context (volts/mV overload origin).
+- `.planning/PROJECT.md` "Key Decisions" — 2026-05-11 row on the `"vpp"` key
+  carrying mV (status: ⚠ Revisit) — this phase resolves it.
 
 ### Codebase entry points — Python host (firestarter_app)
-- `firestarter_app/firestarter/database.py:518` — `convert_to_programmer` wire-emit site (`"vpp": vpp_mv` overload); WIRE-01 primary edit.
-- `firestarter_app/firestarter/database.py:510` — fallback chain (`vpp_mv or vpp*1000`); per D-07 KEEP this for user-override DBs.
-- `firestarter_app/firestarter/database.py:189` — default DB filename (`"minipro_complete_db.json"`); CLEAN-01 edit.
-- `firestarter_app/firestarter/database.py:366` — docstring referencing old name; CLEAN-01 edit.
-- `firestarter_app/firestarter/database.py:45` — minipro comment in `_ALGO_MEM_TYPE` header; CLEAN-02 edit per D-04.
-- `firestarter_app/firestarter/database.py:389` — minipro comment on algorithm read; CLEAN-02 edit per D-04.
-- `firestarter_app/tools/build_db.py:12` — `OUTPUT_FILE` constant; CLEAN-01 edit.
-- `firestarter_app/tools/build_db.py:9` — `MINIPRO_XML_URL` constant; CLEAN-02 ATTRIBUTION KEEPS minipro mention (this is the load-bearing one).
-- `firestarter_app/tools/build_db.py:255-256` — current per-entry emit of both `"vpp"` (string) + `"vpp_mv"` (int); WIRE-01 path: keep `vpp_mv`, drop `vpp` (NOT just the wire emission — also drop from the on-disk DB schema for consistency; plan-phase confirms).
-- `firestarter_app/tools/check_dispatch.py:2` — docstring header referencing old DB name; CLEAN-01 edit.
-- `firestarter_app/tools/check_dispatch.py:27` — `DB_FILE` default; CLEAN-01 edit.
-- `firestarter_app/tools/check_dispatch.py:30` — minipro comment; CLEAN-02 edit per D-04.
+- `firestarter_app/firestarter/database.py:175-210` — `_initialize_database_core`
+  (the DB filename reader; `_read_config_file("minipro_complete_db.json")` at
+  `:189`).
+- `firestarter_app/firestarter/database.py:362-440` — `_map_data` (internal
+  `"vpp"` float-volts producer; `:373-381` parses `electrical.vpp` upstream
+  string, `:387` reads `electrical.vpp_mv`, `:417-418` writes both `"vpp"`
+  and `"vpp_mv"` into output dict).
+- `firestarter_app/firestarter/database.py:501-540` — `convert_to_programmer`
+  (WIRE emitter; `:510` fallback chain, `:518` `"vpp": vpp_mv` line to delete).
+- `firestarter_app/firestarter/database.py:45` — `_ALGO_MEM_TYPE` header
+  comment (CLEAN-02 D-10 edit).
+- `firestarter_app/firestarter/database.py:366` — `_map_data` docstring
+  referencing old filename (CLEAN-01 D-07 edit).
+- `firestarter_app/firestarter/database.py:389` — algorithm-read comment
+  (CLEAN-02 D-10 edit).
+- `firestarter_app/tools/build_db.py:10` — `MINIPRO_XML_URL` constant —
+  CLEAN-02 KEEPS this (load-bearing attribution).
+- `firestarter_app/tools/build_db.py:12` — `OUTPUT_FILE` constant (CLEAN-01
+  D-07 edit).
+- `firestarter_app/tools/build_db.py:23` — minipro comment near the URL
+  (D-09 soft-neutralize: "upstream's XML").
+- `firestarter_app/tools/build_db.py:255-256` — on-disk DB emit: BOTH
+  `"vpp": "12V"` (string) AND `"vpp_mv": int`. **NOT renamed in this phase**
+  — the on-disk schema is upstream-owned; only the wire and the in-memory
+  `_map_data()` output dict are renamed. See Deferred Ideas.
+- `firestarter_app/tools/check_dispatch.py:2` — docstring referencing old
+  DB name (CLEAN-01 + CLEAN-02 edits).
+- `firestarter_app/tools/check_dispatch.py:27` — `_DATA_DIR` glob entry
+  `"minipro_complete_db.json"` (CLEAN-01 D-07 edit).
+- `firestarter_app/tools/check_dispatch.py:30` — `# Algorithm (minipro
+  protocol_id) → …` comment (CLEAN-02 D-10 edit).
 
-### Codebase entry points — firmware (firestarter sub-repo)
-- `firestarter/src/json_parser.c:62` — `key_vpp[] PROGMEM = "vpp"`; WIRE-01 edit per D-08 (rename to `key_vpp_mv` with literal `"vpp_mv"`).
-- `firestarter/src/json_parser.c:74` — dispatch table `{key_vpp, get_vpp_mv}`; WIRE-01 add second row `{key_vpp_legacy, get_vpp_mv}` per D-01 + D-08.
-- `firestarter/src/json_parser.c:308-310` — `get_vpp_mv` function body with `extract_int("vpp", ...)`; WIRE-01 edit per D-08 (two extract_int calls back-to-back).
-- `firestarter/src/json_parser.c:268-278` — `extract_num` / `extract_long` / `extract_int` macros (confirm the first arg is the parse key, NOT a debug label — see <code_context>).
-- `firestarter/CLAUDE.md:30` — minipro mention in mem_type-fallback paragraph; CLEAN-02 → ZERO mentions.
-- `firestarter/CLAUDE.md:69` — minipro mention in JSON wire protocol paragraph; CLEAN-02 → ZERO mentions.
-- `firestarter/CLAUDE.md:51-58` — wire-protocol field list with `vpp / vpp_mv`; WIRE-01 → collapse to `vpp_mv`.
+### Codebase entry points — Firmware (firestarter sub-repo)
+- `firestarter/src/json_parser.c:25-29` — forward decls for `get_vpp_mv` /
+  `get_vpp_pin`.
+- `firestarter/src/json_parser.c:62` — `const char key_vpp[] PROGMEM = "vpp"`
+  → rename to `key_vpp_mv[] PROGMEM = "vpp_mv"` (D-01).
+- `firestarter/src/json_parser.c:74` — `key_parsers[]` dispatch row
+  `{key_vpp, get_vpp_mv}` → `{key_vpp_mv, get_vpp_mv}` (D-01).
+- `firestarter/src/json_parser.c:260-273` — `jsoneq_` + `extract_num` /
+  `extract_long` / `extract_int` macros. **First arg IS the parse key (not a
+  debug label).** Single-key probe with early return — see D-08.
+- `firestarter/src/json_parser.c:308-310` — `get_vpp_mv` body:
+  `extract_int("vpp", handle->vpp_mv);` → `extract_int("vpp_mv",
+  handle->vpp_mv);` (D-01).
+- `firestarter/src/json_parser.c:320-321` — `get_vpp_pin` keys on `"vpp-pin"`
+  (separate field; **NOT in scope**).
+- `firestarter/include/firestarter.h:85` — `uint16_t vpp_mv;` (C-struct field
+  name; already correct, NOT renamed).
 
-### Codebase entry points — docs
-- `firestarter_app/CLAUDE.md:19` — data flow diagram (`infoic.xml → build_db.py → minipro_complete_db.json`); CLEAN-01 + CLEAN-02 edit (output filename + neutral "upstream chip XML").
-- `firestarter_app/CLAUDE.md:36` — key files list (`minipro_complete_db.json`); CLEAN-01 edit.
-- `firestarter_app/CLAUDE.md:42` — build_db.py description ("parses minipro `infoic.xml`"); CLEAN-02 edit (keep one attribution).
-- `firestarter_app/CLAUDE.md:46-59` — wire JSON example with dual `"vpp"` + `"vpp_mv"`; WIRE-01 → drop `"vpp"` line.
-- `firestarter_app/CLAUDE.md:69` — database pipeline section (`tools/build_db.py parses tools/infoic.xml`); CLEAN-02 + CLEAN-01.
-- `firestarter_app/CLAUDE.md:72` — algorithm description with minipro mention; CLEAN-02 edit.
-- `CLAUDE.md:44` (meta) — single mention of `minipro_complete_db.json`; CLEAN-01 edit.
+### Documentation entry points (all three CLAUDE.md files)
+- `CLAUDE.md:44` (meta) — `minipro_complete_db.json` path reference (CLEAN-01).
+- `firestarter_app/CLAUDE.md:19` — data-flow diagram (`infoic.xml → build_db.py
+  → minipro_complete_db.json`); CLEAN-01 + CLEAN-02.
+- `firestarter_app/CLAUDE.md:36` — Key Files list entry; CLEAN-01.
+- `firestarter_app/CLAUDE.md:42` — build_db.py description ("parses minipro
+  `infoic.xml`"); CLEAN-02 (one attribution survives — recommend this OR :69).
+- `firestarter_app/CLAUDE.md:46-58` — wire JSON example with both `"vpp"` and
+  `"vpp_mv"`; WIRE-01 drops `"vpp": 12000,`.
+- `firestarter_app/CLAUDE.md:69` — database pipeline section; CLEAN-01 +
+  CLEAN-02 (one attribution survives — recommend this OR :42).
+- `firestarter_app/CLAUDE.md:72` — algorithm description with minipro mention;
+  CLEAN-02.
+- `firestarter/CLAUDE.md:30` — `regenerated minipro_complete_db.json` —
+  CLEAN-01 (filename) + CLEAN-02 (zero firmware-side mentions per D-11).
+- `firestarter/CLAUDE.md:51-58` — wire-protocol field list mentions `vpp /
+  vpp_mv` — collapse to `vpp_mv` only (Claude's-discretion, implied by D-01).
+- `firestarter/CLAUDE.md:69` — `minipro protocol_id` mention; CLEAN-02 → zero.
 
 ### Data file rename target
-- `firestarter_app/firestarter/data/minipro_complete_db.json` → rename via `git mv` to `firestarter_app/firestarter/data/chip_database.json`. 743 entries; history preserved.
+- `firestarter_app/firestarter/data/minipro_complete_db.json` → `git mv` →
+  `firestarter_app/firestarter/data/chip_database.json` (743 entries; history
+  preserved).
 
 ### Prior context
-- `.planning/phases/01-safety-closure-intel-flash-vpp-28c-chip-id/01-CONTEXT.md` §Out of scope — confirms "Replacing the v1.0 vpp JSON wire key with vpp_mv is Phase 2 / WIRE-01" — phase boundary already locked at v1.1 milestone start.
-- `.planning/milestones/v1.0-phases/01-database-pipeline-fix/` — phase that established the `convert_to_programmer` emission shape.
-- `.planning/milestones/v1.0-phases/02-firmware-json-protocol-extension/` — phase that established `json_parser.c` and the PROGMEM key table.
-- `.planning/milestones/v1.0-phases/11-build-db-cleanup/` — phase that consolidated `parse_db_2.py → build_db.py` but deliberately did NOT rename the output JSON (deferred to Phase 2 / CLEAN-01).
+- `.planning/phases/01-safety-closure-intel-flash-vpp-28c-chip-id/01-CONTEXT.md`
+  §Out of scope — confirms "Replacing the v1.0 vpp JSON wire key with vpp_mv
+  is Phase 2 / WIRE-01" — phase boundary locked at milestone start.
+- `.planning/milestones/v1.0-phases/01-database-pipeline-fix/` — phase that
+  established the `convert_to_programmer` emission shape.
+- `.planning/milestones/v1.0-phases/02-firmware-json-protocol-extension/` —
+  phase that built `json_parser.c` + the PROGMEM key table convention.
+- `.planning/milestones/v1.0-phases/11-database-pipeline-cleanup/` — phase
+  that consolidated `parse_db_2.py → build_db.py` but deliberately did NOT
+  rename the output JSON (deferred to Phase 2 / CLEAN-01) and established the
+  `git mv` history-preserving rename pattern.
+- `.planning/milestones/v1.0-phases/12-close-gap-blocker-1-algorithm-based-dispatch-for-protocols-0/`
+  — phase that built `tools/check_dispatch.py` (the scanner extended in D-15).
 
 </canonical_refs>
 
@@ -213,28 +444,85 @@ Plus a third row in the `key_parsers[]` table at L74 — `{key_vpp_legacy, get_v
 ## Existing Code Insights
 
 ### Reusable Assets
-- **`convert_to_programmer` fallback chain (database.py:510):** `vpp_mv or vpp*1000` — already handles user-override DBs that pre-date `vpp_mv`. Keeps Phase 2 from breaking local user installations even though it tightens the wire-emit side. KEEP unchanged.
-- **`check_dispatch.py` 743-chip iteration:** already a regression-scan loop. Adding two `assert` lines covers WIRE-02 without a new file. Existing exit-code 0/1 contract preserved.
-- **`key_parsers[]` table (json_parser.c:74):** simple `{PROGMEM_key, fn_ptr}` array. Adding a second row for the legacy `"vpp"` key is mechanical and preserves the dispatch-loop shape; no refactor needed.
-- **`git mv` for the DB file rename:** mirrors Phase 11's `git mv parse_db_2.py build_db.py` — history-preserving rename pattern is established in this repo.
+
+- **`convert_to_programmer` fallback chain (database.py:510):** `vpp_mv or
+  vpp*1000` — already handles user-override DBs that pre-date `vpp_mv`. After
+  D-04 this becomes `vpp_mv or vpp_volts*1000`. KEEP the chain shape; only
+  the second key name flips.
+- **`check_dispatch.py` 743-chip iteration:** existing regression-scan loop
+  with `failures` counter + exit-code 0/1 contract. Two new asserts inside the
+  loop cover WIRE-02 without a new file. Reuse the existing buffer-size fork
+  (covers Uno + Leonardo simulator paths).
+- **`key_parsers[]` table (json_parser.c:74):** `{PROGMEM_key, fn_ptr}` array.
+  Single-row edit for the atomic flip — no new row needed (atomic flip per
+  D-01, not dual-key per the rejected soft-retention option).
+- **`git mv` for the DB file rename:** mirrors Phase 11's `git mv parse_db_2.py
+  build_db.py` — history-preserving rename pattern is established in this repo.
+- **`extract_int(key, target)` macro:** PROGMEM-key-aware extractor; first arg
+  is the parse key. Single-line edit at `:309` for the atomic flip.
 
 ### Established Patterns
-- **Build-time DB emission has BOTH legacy `"vpp"` (string with "V") AND `"vpp_mv"` (int millivolts) at `tools/build_db.py:255-256`** — the on-disk DB schema is dual-keyed. Phase 2 drops the legacy `"vpp"` from BOTH the DB schema (build_db.py) AND the wire emission (database.py:518). Plan-phase verifies that no code path reads the on-disk `"vpp"` key besides the `convert_to_programmer:510` user-override fallback (which then becomes effectively dead for the package-bundled DB, but is retained per D-07 for user-override DBs that haven't been regenerated).
-- **Parse keys live in TWO places per field in `json_parser.c`** — once as a `PROGMEM` literal at the top of the file (used by the dispatch table), and once inline inside the `get_*` function body as the macro argument (used by `jsoneq` inside `extract_num`). When renaming, BOTH must change. See D-08.
-- **`extract_int` / `extract_long` macros (json_parser.c:268-278) DO NOT use the first arg as a debug label** — they expand to `jsoneq(json, &tokens[pos], element) == 0`, i.e. the first arg IS the parse key. This was confirmed during scout to forestall a likely error class for the planner.
-- **Comment scrub leaves project-anchored attribution intact:** the single `MINIPRO_XML_URL` constant in `tools/build_db.py` is where the upstream tool name belongs (the URL contains "minipro"); CLAUDE.md text mentions become neutral.
+
+- **`extract_num` is a single-key probe with early return** (json_parser.c:268-273).
+  The macro returns 1 on match (writes target), 0 on no-match (no write). It
+  does NOT chain — back-to-back invocations don't OR together because each
+  one returns unconditionally. For an atomic-flip wire-key rename, we only
+  need ONE invocation with the new key string.
+- **Parse keys live in TWO places per field in `json_parser.c`** — once as a
+  `PROGMEM` literal at the top of the file (used by the dispatch table), and
+  once inline inside the `get_*` function body as the macro argument (used by
+  `jsoneq` inside `extract_num`). Atomic rename: BOTH must flip together.
+- **`build_db.py` emits BOTH `"vpp"` (string with "V") AND `"vpp_mv"` (int) to
+  the on-disk DB schema** at `tools/build_db.py:255-256`. This phase does NOT
+  drop the on-disk `"vpp"` string field (out of scope per Domain block).
+  Future cleanup is tracked in Deferred Ideas.
+- **`convert_to_programmer` emits the wire dict** — the dict's keys ARE the
+  wire-format names. Adding/renaming a wire field is one-line in this function
+  plus one-line each at three sites in `json_parser.c`. No protocol-version
+  bump.
+- **Three-repo doc consistency** — meta `CLAUDE.md`, `firestarter_app/CLAUDE.md`,
+  `firestarter/CLAUDE.md` are authored independently but reference the same
+  file paths and wire shape. After Phase 2: `chip_database.json` everywhere;
+  "minipro" appears in exactly one app `CLAUDE.md` line + the
+  `MINIPRO_XML_URL` constant.
+- **Comment style for minipro neutralization** — terse, function-relevant:
+  `# Algorithm integer (upstream protocol_id from infoic.xml) → firmware
+  mem_type integer.` matches the existing single-line comment style.
 
 ### Integration Points
-- **No wire-protocol change observable to firmware behavior.** The firmware `handle->vpp_mv` field name is already correct (since Phase 1 SAF-04). Phase 2 only renames the JSON key feeding into it.
-- **No DB schema observable to runtime.** `chip_database.json` and `minipro_complete_db.json` have identical content; only the filename differs. Phase 12 dispatch tests and Phase 1 Unity tests are unaffected.
-- **Cross-sub-repo coordination:** both sub-repos change in Phase 2. The order matters for hand-testing: Python emit change WITHOUT firmware parser change would cause `handle->vpp_mv` to be zero (firmware drops unknown keys silently) → write voltage check would always trip. The firmware fallback (D-01) makes the order independent — firmware accepts both keys, so either sub-repo can ship first. Plan-phase enforces ship-firmware-first to be safe.
+
+- **No dispatch / handler change.** All five `configure_*` handlers in
+  `firestarter/src/proms/` read `handle->vpp_mv` (the C-struct field, already
+  correctly named) — they don't care what JSON key fed it. Phase 2 is below
+  the dispatch layer.
+- **No serial-protocol version bump.** One key name flip; INIT/MAIN/END state
+  machine and response prefixes (`OK:`, `DATA:`, etc.) unchanged.
+- **No firmware C-struct change.** `firestarter_handle_t.vpp_mv`
+  (`include/firestarter.h:85`) is the only consumer of the parsed mV value in
+  firmware. Already correctly named.
+- **User-override DB path unchanged.** `~/.firestarter/database.json` schema
+  is upstream-owned (matches what `_map_data` reads from `electrical.*`). The
+  loader's existing fallback chain at `database.py:373-381` handles legacy
+  user-override files unchanged.
+- **Cross-sub-repo coordination:** both sub-repos change. With atomic flip
+  (no firmware fallback per D-01), the order matters for a partial-upgrade:
+  - Python-new + firmware-old → `handle->vpp_mv` stays 0 → SAF-04 VPP ADC
+    compare trips on every Intel-flash write (safe-fail).
+  - Python-old + firmware-new → firmware drops the `"vpp"` key silently →
+    `handle->vpp_mv` stays 0 → same fail mode.
+
+  Recommendation: ship firmware first (the firmware-new + Python-old combo at
+  least has the old wire still emitting `"vpp"` from existing installs — but
+  firmware-new ignores it). Pragmatically, users flash + update together.
+  Plan-phase commits Python and firmware close in time; both are documented
+  in the milestone close (DOC-01).
 
 </code_context>
 
 <specifics>
 ## Specific Ideas
 
-### Wire JSON example before/after (firestarter_app/CLAUDE.md:46-59)
+### Wire JSON before/after (concrete diff for firestarter_app/CLAUDE.md:46-58)
 
 **Before:**
 ```json
@@ -246,11 +534,14 @@ Plus a third row in the `key_parsers[]` table at L74 — `{key_vpp_legacy, get_v
   "vpp": 12000,
   "vpp_mv": 12000,
   "pulse-delay": 0,
-  ...
+  "pin-count": 28,
+  "chip-id": 42495,
+  "flags": 10,
+  "bus-config": { ... }
 }
 ```
 
-**After:**
+**After Phase 2:**
 ```json
 {
   "cmd": 2,
@@ -259,45 +550,85 @@ Plus a third row in the `key_parsers[]` table at L74 — `{key_vpp_legacy, get_v
   "memory-size": 65536,
   "vpp_mv": 12000,
   "pulse-delay": 0,
-  ...
+  "pin-count": 28,
+  "chip-id": 42495,
+  "flags": 10,
+  "bus-config": { ... }
 }
 ```
 
-### json_parser.c after-state (sketch — plan-phase finalises)
+One key removed; firmware parser no longer matches the deleted name.
 
+### `_map_data()` internal dict diff (database.py:417-418)
+
+**Before:**
+```python
+"vpp": vpp,        # float volts (4.5, 12.0, 21.0)
+"vpp_mv": vpp_mv,  # int millivolts (4500, 12000, 21000)
+```
+
+**After (D-04):**
+```python
+"vpp_volts": vpp,  # float volts (4.5, 12.0, 21.0)
+"vpp_mv": vpp_mv,  # int millivolts (4500, 12000, 21000)
+```
+
+Plus the consumer fallback at `database.py:510`:
+```python
+# Before:
+vpp_mv = full_eprom_data.get("vpp_mv") or int(full_eprom_data.get("vpp", 0) * 1000)
+# After:
+vpp_mv = full_eprom_data.get("vpp_mv") or int(full_eprom_data.get("vpp_volts", 0) * 1000)
+```
+
+### `json_parser.c` after-state (atomic flip per D-01)
+
+**Before (firestarter/src/json_parser.c:62, :74, :308-310):**
 ```c
-const char key_vpp_mv[]    PROGMEM = "vpp_mv";   // primary (was: key_vpp = "vpp")
-const char key_vpp_legacy[] PROGMEM = "vpp";      // legacy fallback (new row per D-01)
+const char key_vpp[] PROGMEM = "vpp";
 // ...
 static const key_parser_t key_parsers[] PROGMEM = {
     // ...
-    {key_vpp_mv,    get_vpp_mv},
-    {key_vpp_legacy, get_vpp_mv},   // dispatch both keys to same handler
-    // ...
+    {key_vpp, get_vpp_mv},  ...
 };
-
-bool get_vpp_mv(const char* json, jsmntok_t* tokens, int pos, firestarter_handle_t* handle) {
-    extract_int("vpp_mv", handle->vpp_mv);  // primary — returns 1 on match
-    extract_int("vpp",    handle->vpp_mv);  // legacy fallback — returns 1 on match
-    // (the macro's "return 0" at end of each invocation falls through; both are inline-flat)
+// ...
+bool get_vpp_mv(const char* json, jsmntok_t* tokens, int pos,
+                firestarter_handle_t* handle) {
+    extract_int("vpp", handle->vpp_mv);
 }
 ```
 
-NOTE: the `extract_num` macro at L268 has implicit early returns (`return 1` on match, `return 0` on no-match). Two back-to-back `extract_int` calls cannot work as-is because the first invocation always returns. Plan-phase needs to either (a) inline both `jsoneq` checks manually in `get_vpp_mv` body, or (b) define a new macro `extract_int_alt(elem1, elem2, reg)` that checks both keys before returning. Recommend (a) for clarity:
-
+**After:**
 ```c
-bool get_vpp_mv(const char* json, jsmntok_t* tokens, int pos, firestarter_handle_t* handle) {
-    if (jsoneq(json, &tokens[pos], "vpp_mv") == 0 || jsoneq(json, &tokens[pos], "vpp") == 0) {
-        handle->vpp_mv = simple_strtoul(json + tokens[pos + 1].start);
-        return 1;
-    }
-    return 0;
+const char key_vpp_mv[] PROGMEM = "vpp_mv";
+// ...
+static const key_parser_t key_parsers[] PROGMEM = {
+    // ...
+    {key_vpp_mv, get_vpp_mv},  ...
+};
+// ...
+bool get_vpp_mv(const char* json, jsmntok_t* tokens, int pos,
+                firestarter_handle_t* handle) {
+    extract_int("vpp_mv", handle->vpp_mv);
 }
 ```
 
-### check_dispatch.py augmentation sketch
+(Three locations, one atomic flip. `extract_int` macro returns 1 on match /
+0 on no-match — single-key probe; no behavior change beyond the key string.)
 
-After the existing per-chip dispatch resolution loop in check_dispatch.py:
+### Filename rename (verbatim path)
+
+```
+firestarter_app/firestarter/data/minipro_complete_db.json
+→
+firestarter_app/firestarter/data/chip_database.json
+```
+
+(`git mv` inside the `firestarter_app/` sub-repo to preserve blame.)
+
+### `check_dispatch.py` augmentation sketch (D-15)
+
+After the existing per-chip dispatch resolution loop:
 
 ```python
 # WIRE-02 wire-key regression check
@@ -310,29 +641,70 @@ if "vpp" in wire:
     failures += 1
 ```
 
-The existing `failures` counter and exit-code logic at the bottom of the file already routes >0 to exit 1.
+Existing `failures > 0 → exit 1` contract preserved.
+
+### Acceptance smoke commands (SC#5)
+
+```bash
+# Inside firestarter_app/ working tree, after the rename:
+pip install -e .                 # picks up the new package data
+firestarter --help               # CLI loads (no FileNotFoundError on the renamed DB)
+firestarter info W27C512         # DB resolves the canonical UV-EPROM chip
+```
 
 ### Comment scrub table (verbatim diff targets)
 
-| File:Line | Replace this exact string | With this exact string |
-|---|---|---|
-| `firestarter_app/firestarter/database.py:45` | `# Algorithm (minipro protocol_id) → firmware mem_type integer.` | `# Algorithm integer (upstream protocol_id from infoic.xml) → firmware mem_type integer.` |
-| `firestarter_app/firestarter/database.py:389` | `# Read algorithm integer directly — set by build_db.py as minipro protocol_id` | `# Read algorithm integer directly — set by build_db.py from upstream protocol_id` |
-| `firestarter_app/tools/check_dispatch.py:30` | `# Algorithm (minipro protocol_id) → firmware mem_type integer.` | `# Algorithm integer (upstream protocol_id from infoic.xml) → firmware mem_type integer.` |
-
-(Plan-phase verifies line numbers haven't drifted at execution time.)
+See D-10. Three exact-text rewrites — line numbers verified at planning time.
 
 </specifics>
 
 <deferred>
 ## Deferred Ideas
 
-- **Remove the legacy `"vpp"` parser fallback from firmware** — D-01 keeps it for one milestone as belt-and-braces against hand-crafted JSON in `firestarter_test.sh` / `write_test.sh` and any third-party tool. Once Phase 4 / HW-01 ships the corrected test scripts and the firmware has shipped one full cycle on the new key, the legacy entry can be deleted. Track as v1.2 cleanup or fold into the next firmware-touching phase.
-- **Drop the `vpp` (volts string) key from the on-disk DB schema** — `tools/build_db.py:255` currently emits both `"vpp": "12V"` (legacy string-with-unit) AND `"vpp_mv": 12000` (canonical int millivolts). The string form was useful when `convert_to_programmer` did the volts→millivolts conversion at emit time; now that emit is `vpp_mv`-only, the string is dead. Plan-phase decides whether to drop it in Phase 2 (small extra change, helps long-term schema clarity) or defer to v1.2 (lower blast radius for this milestone).
-- **`firestarter_app/firestarter/main.py:185,626` `vpp` subcommand** — this is the CLI subcommand name (`firestarter vpp`), NOT the wire key. Naming-overload-y in a different sense. Defer to a future UX-cleanup phase if at all; renaming would break user muscle memory.
-- **Replace minipro upstream — out of scope for v1.1.** REQUIREMENTS.md "Out of Scope" explicitly says `infoic.xml` is authoritative; one override is sufficient.
-- **`firestarter_app/firestarter/data/pinouts.json` — does it stay named that, or get aligned with `chip_database.json`?** No naming overload there (pinouts ≠ minipro), keep as-is.
-- **`~/.firestarter/database.json` → `~/.firestarter/chip_database.json`?** D-07 explicitly says NO — would break user installations silently. Stays as `database.json`.
+- **Remove the on-disk `"vpp"` (volts string) field from `build_db.py:255` and
+  the DB schema.** `tools/build_db.py:255` currently emits both `"vpp": "12V"`
+  (legacy string-with-unit) AND `"vpp_mv": 12000` (canonical int millivolts).
+  After Phase 2, the wire and the internal `_map_data()` output both use
+  `vpp_mv` / `vpp_volts`; the on-disk `"vpp"` string field is only read by
+  `_map_data()`'s upstream-schema fallback (database.py:373-381). Dropping it
+  in a future cleanup phase (v1.2) would simplify the schema. Out of v1.1
+  scope — the on-disk schema is upstream-owned and changing it risks user
+  overrides.
+
+- **Drop `vpp_volts` field entirely** (v1.2+ cleanup). After Phase 2 the float
+  volts field is kept renamed; a future cleanup could compute float volts on
+  demand from `vpp_mv` (`vpp_mv / 1000.0`) and delete the redundant field.
+  Would touch `eprom_info.py` and `ic_layout.py` consumers.
+
+- **Test-script repair** (`firestarter_test.sh:31` / `write_test.sh:17`
+  `database_generated.json` reference). Phase 4 / HW-01 owns this; the
+  hardware-validation phase fixes its own scripts.
+
+- **Python-side wire-emit unit test** (`test_convert_to_programmer.py`
+  asserting `"vpp_mv" in wire and "vpp" not in wire`). Nice-to-have. Phase 2
+  leans on `check_dispatch.py` for regression coverage. If a Python test infra
+  arrives in v1.2, this is a candidate.
+
+- **`firestarter vpp` CLI subcommand** (`firestarter_app/firestarter/main.py:185,626`).
+  Same prefix, different concept (CLI command name, not wire key). Renaming
+  would break user muscle memory. Defer indefinitely.
+
+- **Replace minipro upstream — out of scope for v1.1** (REQUIREMENTS.md "Out
+  of Scope": `infoic.xml` is authoritative; one override is sufficient).
+
+- **`firestarter_app/firestarter/data/pinouts.json` rename audit.** No naming
+  overload (pinouts ≠ minipro). Keep as-is.
+
+- **`~/.firestarter/database.json` rename to `chip_database.json`.** Explicitly
+  rejected per D-08-compat — would break user installations silently. The
+  user-override file keeps its name.
+
+- **Add `vpp_volts` consumers** — refactor `eprom_info.py` / `ic_layout.py` to
+  consume `vpp_volts` consistently instead of recomputing `vpp_mv / 1000`.
+  Touch-light v1.2 cleanup.
+
+- **Remove the legacy `"vpp"` ANYTHING from firmware** — Phase 2 atomic flip
+  already deletes it from `json_parser.c`. No follow-up needed.
 
 </deferred>
 
@@ -340,4 +712,3 @@ The existing `failures` counter and exit-code logic at the bottom of the file al
 
 *Phase: 02-naming-cleanup-wire-key-minipro-references*
 *Context gathered: 2026-05-12*
-*Auto-decided: see header. User can redirect by editing CONTEXT.md or re-running `/gsd:discuss-phase 2`.*

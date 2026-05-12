@@ -1,104 +1,126 @@
-# Phase 2 Discussion Log
+# Phase 2: Naming Cleanup (Wire Key + Minipro References) - Discussion Log
+
+> **Audit trail only.** Do not use as input to planning, research, or execution agents.
+> Decisions are captured in CONTEXT.md — this log preserves the alternatives considered.
 
 **Date:** 2026-05-12
-**Mode:** auto-decided (orchestrator instructed "no clarifying questions")
+**Phase:** 02-naming-cleanup-wire-key-minipro-references
+**Areas discussed:** Wire-key transition policy, New DB filename + internal vpp_volts
 
-This phase was discussed in auto mode — the orchestrator scouted the codebase, identified gray areas, and made reasonable calls on each rather than pausing for user input. This log records the gray areas considered, the options weighed, the choice made, and the reasoning. The user can override any decision by editing `02-CONTEXT.md` or re-running `/gsd:discuss-phase 2`.
-
-## Codebase Scout — What Was Found
-
-- The DB JSON already has both `"vpp"` (string, e.g. `"12V"`) and `"vpp_mv"` (int, e.g. `12000`) per entry — written by `build_db.py:255-256`. On-disk schema is dual-keyed; only the wire emission and firmware parsing need to flip.
-- `convert_to_programmer` (`database.py:518`) currently emits the wire key as `"vpp": vpp_mv` — the integer value under the legacy name (the v1.0 semantic overload).
-- Firmware: `json_parser.c:62` defines `key_vpp[] PROGMEM = "vpp"` and dispatches to `get_vpp_mv` at L74; inside `get_vpp_mv` at L309, `extract_int("vpp", ...)` invokes `extract_num` which compares the literal `"vpp"` against the JSON key via `jsoneq` — **the first arg is the parse key, not a debug label**. Both locations must change together.
-- `firestarter_app/CLAUDE.md:46-59` already shows BOTH `"vpp"` AND `"vpp_mv"` in the example JSON — transition artefact, collapses to `vpp_mv` only.
-- DB filename `minipro_complete_db.json` is referenced in 8 sites across 6 files (build_db.py:12, database.py:189+:366, check_dispatch.py:2+:27, firestarter_app/CLAUDE.md:19+:36+:69, firestarter/CLAUDE.md:30, meta CLAUDE.md:44).
-- Minipro mentions: 2 in firmware CLAUDE.md (drop to 0), 6 in firestarter_app/CLAUDE.md (drop to 1), 3 in app code (.py comments — neutralise wording).
-- Phase 1 CONTEXT.md confirmed: "Replacing the v1.0 vpp JSON wire key with vpp_mv is Phase 2 / WIRE-01" — phase boundary locked at milestone start.
-- No matching todos for Phase 2 (`todo.match-phase 2` returned empty).
-
-## Gray Areas Considered
-
-### G1 — DB filename
-
-**Options considered:**
-1. `chip_database.json` (REQUIREMENTS.md suggestion verbatim).
-2. `chip_db.json`.
-3. `firestarter_db.json`.
-4. `chips.json`.
-
-**Chosen: `chip_database.json`** (D-02). Explicit, self-describing, rhymes with the user-override file `~/.firestarter/database.json`, matches REQUIREMENTS.md suggestion exactly.
-
-### G2 — Wire-key transition: hard vs soft cutover
-
-**Options considered:**
-1. Hard cutover both sides: Python emits only `vpp_mv`, firmware parses only `vpp_mv`.
-2. Symmetric transitional: Python emits both keys, firmware accepts either.
-3. Asymmetric: Python emits only `vpp_mv` (strict), firmware accepts both (legacy fallback).
-
-**Chosen: option 3** (D-01). Rationale: single source of truth (the Python emitter) is strict — no ambiguity at the source. Firmware fallback shields uncontrolled senders: hand-crafted JSON in `firestarter_test.sh` / `write_test.sh` (Phase 4 territory) and any third-party tool. Removing the legacy key from the parser would silently break those senders — too risky for a naming-cleanup phase. The legacy parser entry can be removed in a future cleanup phase once Phase 4 confirms the test scripts are clean.
-
-### G3 — User-override DB schema migration
-
-**Options considered:**
-1. New code path to detect+migrate legacy user-override DBs.
-2. Use the existing `convert_to_programmer:510` fallback (`vpp_mv or vpp*1000`) — no new code.
-3. Document user-side manual migration.
-
-**Chosen: option 2** (D-07). The fallback already handles user-override DBs with the legacy key. Zero new code. The user-override file at `~/.firestarter/database.json` keeps its filename (renaming would break user installs silently).
-
-### G4 — Atomicity / commit shape
-
-**Options considered:**
-1. One commit for all of Phase 2 (atomic, one revert).
-2. Per-requirement commits (WIRE-01, WIRE-02, CLEAN-01, CLEAN-02) — 4 atomic feature commits.
-3. Per-sub-repo commits (firestarter + firestarter_app + meta) — 3 commits.
-
-**Chosen: option 2 with sub-repo split inside** (D-05). 4 requirements → 4 conceptual commits, decomposed naturally across sub-repos (e.g., WIRE-01 → one Python emit commit + one firmware parser commit). Each requirement is independently revertable. Plan-phase finalises the exact decomposition.
-
-### G5 — WIRE-02 test approach
-
-**Options considered:**
-1. Augment existing `check_dispatch.py` with end-of-loop wire-key assertion.
-2. New dedicated `check_wire_key.py`.
-3. Firmware Unity test only.
-4. Manual `firestarter info <chip>` smoke.
-
-**Chosen: option 1** (D-06). Single-file change in an existing 743-chip iteration. Two assert lines. Existing exit-code 0/1 contract preserved.
-
-### G6 — Minipro comment scrub wording
-
-**Options considered:**
-1. `# Algorithm (upstream protocol_id) → ...`
-2. `# Algorithm integer → ...`
-3. `# Algorithm integer (upstream protocol_id from infoic.xml) → ...`
-
-**Chosen: option 3 for header comments, option 2 for terse inline comments** (D-04). The expansion preserves attribution where the data flow demands it (table headers); inline comments stay terse. The single load-bearing minipro attribution lives in `tools/build_db.py` (where `MINIPRO_XML_URL` is defined).
-
-### G7 — Firmware parser PROGMEM rename detail
-
-This isn't really a gray area — it's a single technical decision that the planner needed nailed down BEFORE planning, because it's the kind of thing that breaks silently. Captured as D-08:
-- Both `key_vpp[] PROGMEM` at L62 AND the macro arg `extract_int("vpp", ...)` at L309 ARE parse keys (the latter is NOT a debug label, contrary to first glance).
-- The asymmetric-emit, dual-parse pattern (D-01) requires adding a SECOND PROGMEM key + dispatch row + a manually-inlined `jsoneq || jsoneq` check inside `get_vpp_mv` (the existing `extract_int` macro early-returns and can't be chained twice).
-
-### G8 — Drop the legacy `"vpp"` string-with-unit key from the on-disk DB schema?
-
-Considered: `tools/build_db.py:255` emits `"vpp": "12V"` AND `"vpp_mv": 12000` per entry. The string form was needed when `convert_to_programmer` did the volts→millivolts conversion at emit time; now that emit is `vpp_mv`-only, the string is dead in the package-bundled DB.
-
-**Decision: defer to plan-phase discretion.** Listed in deferred ideas. Small extra change with clear long-term value (less schema clutter), but increases blast radius for the milestone. If plan-phase picks "drop now", the user-override fallback at `convert_to_programmer:510` (`vpp_mv or vpp*1000`) still works for user DBs that haven't been regenerated.
-
-## Deferred Ideas Captured
-
-See `02-CONTEXT.md` <deferred> — 6 items, including the legacy `"vpp"` parser fallback removal (post-Phase-4 cleanup), the on-disk DB schema legacy-string-key removal (plan-phase discretion or v1.2), the `firestarter vpp` CLI subcommand rename (UX phase, may never happen), the `pinouts.json` filename retention (no overload), and the `~/.firestarter/database.json` user-override file retention.
-
-## What Was NOT Asked of the User
-
-Per "no clarifying questions" instruction, no AskUserQuestion calls were made. All gray areas were resolved by the orchestrator based on REQUIREMENTS.md spec, codebase scout, and prior CONTEXT.md (Phase 1) decisions. User can redirect any choice by:
-
-1. Editing `02-CONTEXT.md` directly before `/gsd:plan-phase 2`, OR
-2. Re-running `/gsd:discuss-phase 2` with feedback, OR
-3. Letting plan-phase decompose and then editing the resulting `02-NN-PLAN.md` files.
+**Areas NOT selected (Claude made reasonable calls — see CONTEXT.md):**
+- User-override DB compat — D-08-compat in CONTEXT.md (loader stays tolerant on
+  internal read; wire is atomic).
+- Plan granularity — D-13 in CONTEXT.md (3-plan split; planner's discretion to
+  merge).
 
 ---
 
-*Phase: 02-naming-cleanup-wire-key-minipro-references*
-*Discussion log: 2026-05-12*
+## Wire-key transition policy
+
+### Question 1: How should the firmware JSON parser handle the wire-key transition from "vpp" to "vpp_mv"?
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Atomic flip (Recommended) | Firmware accepts ONLY `"vpp_mv"`. Python emits ONLY `"vpp_mv"`. User must flash matching firmware + app together. Cleanest. Matches the audit text "atomic rename". Phase 4 hardware-test scripts will use the new key only — simpler test surface. | ✓ |
+| Firmware accepts both (vpp_mv preferred, vpp fallback) | `json_parser.c` registers both keys; vpp_mv takes precedence when both present. Python emits only vpp_mv. Lets users with old firmware keep working until they reflash. Adds one parser line + a comment but no real complexity. | |
+| Python emits both (firmware reads only vpp_mv) | Mirror image — firmware atomic, host emits both during transition. Lets new app drive old firmware. Less useful (users typically reflash firmware before upgrading app). | |
+
+**User's choice:** Atomic flip
+**Notes:** Locked as D-01 in CONTEXT.md. The const at `json_parser.c:62`, the
+dispatch row at `:74`, and the body at `:308-310` are a single atomic-flip unit
+— mismatch at any of the three silently breaks the parse (SAF-04 VPP ADC compare
+trips on every Intel-flash write because `handle->vpp_mv` would be 0).
+
+### Question 2: Wire-key cleanup scope — should `convert_to_programmer` strip the legacy `"vpp"` from the emitted wire dict entirely?
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Strip vpp from wire dict (Recommended) | `database.py:518` emits ONLY `"vpp_mv": vpp_mv` — the old `"vpp": vpp_mv` line is deleted. Matches the atomic-flip choice. Firmware doesn't see vpp at all. Test scripts updated to grep vpp_mv only. | ✓ |
+| Emit both keys for one milestone | Keep `"vpp": vpp_mv` and `"vpp_mv": vpp_mv` both on the wire (current v1.0 behavior is to emit both). Defers the actual `vpp` removal until v1.2. Cleaner upgrade story but extends the semantic-overload WARNING-3 one more milestone. | |
+
+**User's choice:** Strip vpp from wire dict
+**Notes:** Locked as D-02 in CONTEXT.md. `convert_to_programmer:518` deletes
+the `"vpp": vpp_mv,` line; the wire JSON example in `firestarter_app/CLAUDE.md:46-58`
+is also collapsed.
+
+---
+
+## New DB filename + internal vpp_volts
+
+### Question 1: Pick the new neutral filename for `firestarter/data/minipro_complete_db.json`.
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| chip_database.json (Recommended) | Most generic, matches REQUIREMENTS.md suggested name. Describes what the file is (a chip database) without overloading the project name. | ✓ |
+| firestarter_db.json | Project-branded. Tighter coupling to the project name; matches the pattern of `~/.firestarter/database.json` (user-override). Slight inconsistency with `pinouts.json` (project-neutral file already in the same dir). | |
+| chips.json | Shortest. Symmetric with `pinouts.json` already in the same data dir. Minor: less self-describing than `chip_database.json`. | |
+| eprom_db.json | Narrower scope name. Slight semantic mismatch — the DB also contains Flash, EEPROM, SRAM — not just UV-EPROMs. | |
+
+**User's choice:** chip_database.json
+**Notes:** Locked as D-05 in CONTEXT.md. Rhymes with `~/.firestarter/database.json`
+(user override) — reinforces the base + override symmetry.
+
+### Question 2: Internal field `"vpp"` (float volts) at database.py:417 lives next to `"vpp_mv"` (int millivolts) — rename it?
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Rename to `vpp_volts` (Recommended) | Symmetric with `vpp_mv`. Removes the same volts/mV semantic overload internally. Touches `_map_data()` writer and any reader of the `vpp` float-volts internal field (sweep grep: `electrical.get("vpp"`, `data["vpp"]`, etc.). Tiny extra scope, but it's the same WARNING-3 root cause. | ✓ |
+| Leave it — wire scope only | Only rename the WIRE key. Internal float-volts field stays as `"vpp"`. Matches the strict reading of WIRE-01 ("wire JSON"). Keeps the file diff smaller but leaves the same name-overload visible to any future reader of `_map_data()`. | |
+| Drop the internal float-volts field entirely | Delete `"vpp"` (float) and `vpp_str` parsing at database.py:373-381. `vpp_mv` (int) is the authoritative value from build_db.py. Only callers using float-volts would break — check whether eprom_info.py or ic_layout.py display float volts. More aggressive cleanup. | |
+
+**User's choice:** Rename to `vpp_volts`
+**Notes:** Locked as D-04 in CONTEXT.md. Scope distinction documented:
+- IN scope: the in-memory dict key `_map_data()` produces (database.py:417 +
+  the consumer fallback at :510).
+- OUT of scope: the upstream-schema `electrical.vpp = "12V"` string read at
+  :373-381 (that field is on-disk DB-owned, not in-memory dict-owned).
+Planner must grep callsites reading `["vpp"]` (not `["vpp_mv"]`) in eprom_info.py,
+ic_layout.py, etc., and update them.
+
+---
+
+## Claude's Discretion
+
+Areas the user did NOT select for discussion — reasonable calls written
+directly into CONTEXT.md:
+
+- **User-override DB compat** (CONTEXT.md D-08-compat) — Loader stays tolerant
+  on internal READ; wire is atomic. The existing `_map_data()` fallback at
+  `database.py:373-387` (`electrical.get("vpp_mv", 0)` then
+  `electrical.get("vpp", "0").replace("V", "")`) is PRESERVED — this handles
+  legacy user-override DBs at `~/.firestarter/database.json`. Net effect: users
+  with legacy overrides keep working internally; users with old firmware do
+  not.
+- **Plan granularity** (CONTEXT.md D-13) — Split into 3 plans (planner's
+  discretion to merge if friction):
+  - Plan 02-01: WIRE-01 atomic flip (Python emitter + firmware parser + wire
+    example).
+  - Plan 02-02: CLEAN-01 file rename + internal `vpp_volts` rename + reader/
+    writer/doc sweep.
+  - Plan 02-03: CLEAN-02 attribution scrub + WIRE-02 regression + SC#5 CLI
+    smoke.
+
+Other Claude-discretion notes documented in CONTEXT.md "Claude's Discretion"
+section.
+
+---
+
+## Deferred Ideas
+
+Captured in CONTEXT.md `<deferred>` section:
+
+- Remove the on-disk `"vpp"` (volts string) field from `build_db.py:255` and
+  the DB schema — v1.2 cleanup, would simplify schema but risks user overrides.
+- Drop `vpp_volts` field entirely (v1.2+) — compute float volts on demand from
+  `vpp_mv / 1000.0`.
+- Test-script repair for `firestarter_test.sh` / `write_test.sh` — owned by
+  Phase 4 / HW-01.
+- Python-side wire-emit unit test (`test_convert_to_programmer.py`) — nice-to-
+  have if Python test infra arrives.
+- `firestarter vpp` CLI subcommand — separate concept (command name, not wire
+  key); user muscle memory.
+- Replace minipro upstream — out of scope (REQUIREMENTS.md "Out of Scope").
+- `firestarter/data/pinouts.json` rename — no overload, keep as-is.
+- `~/.firestarter/database.json` rename — would break user installations;
+  explicitly rejected.
+- Add `vpp_volts` consumers — v1.2 cleanup in `eprom_info.py` / `ic_layout.py`.
