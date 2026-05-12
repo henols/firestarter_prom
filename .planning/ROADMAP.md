@@ -76,7 +76,7 @@
   4. A physical RURP shield programs and verifies an AT28C256 (algo=0x0D via Phase 13 override) with scope/multimeter confirmation that the VPP regulator never engages during the write window.
   5. A physical RURP shield programs and verifies an Intel-family flash (AM28F010 or 28F256, algo=0x10) and confirms the new SAF-04 VPP ADC compare aborts a deliberately-underpowered VPP run.
 **Plans**: 3 plans
-- [ ] 04-01-PLAN.md — HW-01 test-script repair (filename + jq schema migration to chip_database.json; WARNING-4 closure)
+- [x] 04-01-PLAN.md — HW-01 test-script repair (filename + jq schema migration to chip_database.json; WARNING-4 closure)
 - [ ] 04-02-PLAN.md — HW-02 W27C512 + HW-03 AM29F040 chip-erase + HW-03 SST39SF040 sector-erase + HW-04 AT28C256 5V invariant (4 canon-chip-family bench runs)
 - [ ] 04-03-PLAN.md — HW-05 AM28F010 + SAF-04 abort closure (DB-override mechanism per RESEARCH.md correction; Sub-run A abort + Sub-run B nominal pass)
 
@@ -154,7 +154,7 @@ Audit: `.planning/milestones/v1.0-MILESTONE-AUDIT.md` (status: gaps_found — ac
 | 1. Safety Closure (Intel-flash VPP + 28C chip-ID) | 0/2 | Planned | - |
 | 2. Naming Cleanup (Wire Key + Minipro References) | 0/3 | Planned | - |
 | 3. Retroactive Verification (Phases 01-10) | 2/2 | Complete | 2026-05-12 |
-| 4. Hardware Validation (RURP shield) | 0/? | Not started | - |
+| 4. Hardware Validation (RURP shield) | 1/3 | In Progress | - |
 | 5. Milestone Close | 0/? | Not started | - |
 
 ### v1.0 (Shipped)
@@ -164,7 +164,7 @@ Audit: `.planning/milestones/v1.0-MILESTONE-AUDIT.md` (status: gaps_found — ac
 | 01    | v1.0      | 2/2 | Complete    | 2026-05-12 |
 | 02    | v1.0      | 3/3 | Complete    | 2026-05-12 |
 | 03    | v1.0      | 2/2 | Complete   | 2026-05-12 |
-| 04    | v1.0      | 2/2   | Complete | 2026-05-09 |
+| 04    | v1.0      | 1/3 | In Progress|  |
 | 05    | v1.0      | 1/1   | Complete | 2026-05-09 |
 | 06    | v1.0      | 1/1   | Complete | 2026-05-09 |
 | 07    | v1.0      | 1/1   | Complete | 2026-05-10 |
