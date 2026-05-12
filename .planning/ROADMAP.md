@@ -153,7 +153,7 @@ Audit: `.planning/milestones/v1.0-MILESTONE-AUDIT.md` (status: gaps_found — ac
 
 | Phase | Milestone | Plans | Status   | Completed  |
 | ----- | --------- | ----- | -------- | ---------- |
-| 01    | v1.0      | 2/2 | Complete   | 2026-05-12 |
+| 01    | v1.0      | 2/2 | Complete    | 2026-05-12 |
 | 02    | v1.0      | 1/1   | Complete | 2026-05-09 |
 | 03    | v1.0      | 1/1   | Complete | 2026-05-09 |
 | 04    | v1.0      | 2/2   | Complete | 2026-05-09 |
