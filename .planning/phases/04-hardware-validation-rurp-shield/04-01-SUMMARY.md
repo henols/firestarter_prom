@@ -88,3 +88,20 @@ The meta-repo commit also bumps the `firestarter_app` submodule pointer from `04
 ## Hand-off
 
 **Wave 1 is closed. Plan 04-02 (Wave 2) is unblocked the moment this commit lands** — HW-02 (W27C512), HW-03 (AM29F040 + SST39SF040), and HW-04 (AT28C256 + multimeter trace) all inherit a known-clean test-script state and can begin the bench-runner loop (write → verify → read → xxd-diff) on the operator's RURP shield. Plan 04-03 (Wave 3) follows for HW-05 (AM28F010 + SAF-04 abort run). Per CONTEXT.md D-10 bench-resume convention, the bench-runner plans re-read `04-HW-VALIDATION.md` to identify the next unfilled `§N` section.
+
+## Self-Check: PASSED
+
+Verified after commit (executor self-check protocol):
+
+- **Files exist (created):**
+  - `04-HW-VALIDATION.md` — FOUND
+  - `04-01-SUMMARY.md` — FOUND
+- **Files exist (modified):**
+  - `firestarter_app/firestarter_test.sh` — FOUND (HEAD = `16dcafe` in sub-repo)
+  - `firestarter_app/write_test.sh` — FOUND (HEAD = `16dcafe` in sub-repo)
+- **Commits exist:**
+  - `firestarter_app@16dcafe` — FOUND (sub-repo `fix(test-scripts)`)
+  - `71edcac` — FOUND (meta-repo `docs(04-01): HW-01 §1 evidence + firestarter_app pointer bump`)
+  - `982a1f1` — FOUND (meta-repo `docs(04-01): plan-04-01 closure SUMMARY (HW-01)`)
+- **Plan verification suite (8 gates):** all PASS
+- **Scope discipline:** STATE.md, ROADMAP.md, REQUIREMENTS.md, and `firestarter/` (firmware) all UNCHANGED by this plan's commits (verified via `git diff HEAD~2 HEAD --name-only`).
