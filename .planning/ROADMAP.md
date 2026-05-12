@@ -50,7 +50,7 @@
 **Plans**: 3 plans
 - [x] 02-01-PLAN.md — WIRE-01 atomic wire-key flip (Python emitter at database.py:518 + firmware parser three-site flip at json_parser.c:62/74/309 + wire-JSON example doc edits)
 - [x] 02-02-PLAN.md — CLEAN-01 file rename via git mv + D-04 internal vpp_volts rename + pyproject.toml/MANIFEST.in packaging alignment
-- [ ] 02-03-PLAN.md — CLEAN-02 minipro attribution scrub + WIRE-02 check_dispatch.py augmentation (Shape A round-trip) + SC#5 CLI smoke
+- [x] 02-03-PLAN.md — CLEAN-02 minipro attribution scrub + WIRE-02 check_dispatch.py augmentation (Shape A round-trip) + SC#5 CLI smoke
 
 #### Phase 3: Retroactive Verification (Phases 01-10)
 **Goal**: Every v1.0 phase has a formal `VERIFICATION.md` artifact scoring its requirements against the current source tree, closing the 13 PARTIAL audit findings from the v1.0 milestone audit.

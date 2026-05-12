@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Safety Closure & Hardware Validation
-status: executing
-last_updated: "2026-05-12T08:47:59.132Z"
+status: verifying
+last_updated: "2026-05-12T09:02:18.546Z"
 last_activity: 2026-05-12
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 5
-  completed_plans: 4
-  percent: 80
+  completed_plans: 5
+  percent: 100
 ---
 
 # Project State
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 02 (naming-cleanup-wire-key-minipro-references) — EXECUTING
-Plan: 3 of 3
-Status: Plan 02-02 complete; Plan 02-03 ready to execute
-Last activity: 2026-05-12 -- Plan 02-02 (CLEAN-01 file rename + D-04 vpp_volts internal rename + Phase 11 packaging fix) complete (firestarter_app@9e61061 + firestarter@8bb85e1)
+Phase: 02 (naming-cleanup-wire-key-minipro-references) — COMPLETE (ready for /gsd-verify-work)
+Plan: 3 of 3 complete
+Status: Phase 02 closed — WIRE-01, WIRE-02, CLEAN-01, CLEAN-02 all discharged
+Last activity: 2026-05-12 — Plan 02-03 complete (firestarter_app@0489a20 + firestarter@587396a; check_dispatch.py 743-chip wire round-trip green; SC#5 CLI smoke all exit 0)
 
 ## Project Reference
 
@@ -68,7 +68,7 @@ None.
 ### Open Warnings (now tracked as v1.1 phases)
 
 - WARNING-2 — `eeprom_28c.cpp` ignores `handle->chip_id` → **CLOSED by Plan 01-02** (`eeprom28c_check_chip_id` A9-12V + 4 Unity tests; 24/24 native tests passing)
-- WARNING-3 — wire JSON `"vpp"` key carries millivolts → **CLOSED at source level by Plan 02-01** (firmware `firestarter@39b29a9` atomic three-site flip in `json_parser.c` + Python `firestarter_app@20cfe86` emitter rename at `database.py:518`; both CLAUDE.md examples synced; 8/8 cross-sub-repo grep gates pass; `pio run -e uno/leonardo` both succeed; 25/25 native tests pass). **D-04 internal twin (`_map_data` dict key `"vpp"` carrying float volts next to `"vpp_mv"` int mV) CLOSED by Plan 02-02** (firestarter_app@9e61061 — internal dict key renamed to `"vpp_volts"` at `database.py:417` + emitter fallback at `:510` + 2 downstream consumers at `eprom_info.py:271` + `ic_layout.py:516`; upstream-schema READ at `database.py:375` PRESERVED per D-08-compat). WIRE-02 regression evidence still owed by Plan 02-03.
+- WARNING-3 — wire JSON `"vpp"` key carries millivolts → **CLOSED at source level by Plan 02-01** (firmware `firestarter@39b29a9` atomic three-site flip in `json_parser.c` + Python `firestarter_app@20cfe86` emitter rename at `database.py:518`; both CLAUDE.md examples synced; 8/8 cross-sub-repo grep gates pass; `pio run -e uno/leonardo` both succeed; 25/25 native tests pass). **D-04 internal twin (`_map_data` dict key `"vpp"` carrying float volts next to `"vpp_mv"` int mV) CLOSED by Plan 02-02** (firestarter_app@9e61061 — internal dict key renamed to `"vpp_volts"` at `database.py:417` + emitter fallback at `:510` + 2 downstream consumers at `eprom_info.py:271` + `ic_layout.py:516`; upstream-schema READ at `database.py:375` PRESERVED per D-08-compat). **WIRE-02 regression evidence + CLEAN-02 attribution scrub + SC#5 CLI smoke CLOSED by Plan 02-03** (firestarter_app@0489a20 — D-15 Shape A wire round-trip in check_dispatch.py asserts "vpp_mv" in wire AND "vpp" not in wire for all 743 chips, exits 0 with "0 wire-key regressions"; minipro reduced to 1 surviving attribution at firestarter_app/CLAUDE.md:68 next to infoic.xml + chip_database.json; firestarter@587396a — final minipro mention in firmware CLAUDE.md flipped to "upstream"; pip install -e . + firestarter --help + firestarter info W27C512 + firestarter info --adapter W27C512 all exit 0).
 - WARNING-4 — `firestarter_test.sh` / `write_test.sh` reference deleted `database_generated.json` → **Phase 4 (HW-01)**
 
 (Full audit trail: `.planning/milestones/v1.0-INTEGRATION-CHECK.md` and `.planning/milestones/v1.0-MILESTONE-AUDIT.md`.)
@@ -96,9 +96,13 @@ None.
 - **Plan 02-02 — three tasks collapsed into ONE `firestarter_app/` commit (9e61061) per D-13 natural atomicity.** CLEAN-01 `git mv` rename + 7 path callsite flips + D-04 internal `vpp_volts` rename + v1.0 Phase 11 `pyproject.toml`/`MANIFEST.in` packaging-drift fix all land together so package state is coherent at every revision. Firmware sub-repo CLAUDE.md edit in its own commit (`firestarter@8bb85e1`).
 - **Plan 02-02 — index-only partial staging for `ic_layout.py`.** Working tree carried a pre-existing co-located black/whitespace reformat with a load-bearing `pin_map_details["vpp-pin"][0]` indexing bugfix needed for SC#5 smoke. Recipe: `cp worktree → /tmp; git checkout HEAD -- file; re-apply scoped vpp_volts line; git add; restore from /tmp`. Result: index contains exactly the one-line scoped edit; pre-existing reformat remains unstaged for a future plan.
 - **Plan 02-02 — upstream-schema READ at `database.py:375` PRESERVED** (`electrical.get("vpp", "0").replace("V", "")`). RESEARCH.md Pitfall #2 three-vpp-concepts distinction held: internal dict key renamed to `"vpp_volts"`; wire emit key already `"vpp_mv"` (Plan 02-01); upstream-schema read against on-disk DB `"12V"` string + legacy user-override DBs UNCHANGED per D-08-compat.
+- **Plan 02-03 — surviving minipro attribution at `firestarter_app/CLAUDE.md:68`, not `:42`.** RESEARCH.md "Missed Callsites" gave the binary choice; `:68` sits next to `infoic.xml` (the actual upstream file) and ends with `chip_database.json` (the renamed local artifact) — single self-contained provenance pointer beats two non-adjacent half-attributions. Plan body's nominal `:69` line number was an off-by-one shift after Plan 02-02 edits; used content-based location.
+- **Plan 02-03 — Shape A wire round-trip fused into existing `check_dispatch.py`.** Per RESEARCH.md recommendation: per-chip `db.convert_to_programmer(db.get_eprom(part))` round-trip added inside the existing 743-chip dispatch-scan loop (parallel failure list `wire_regressions`, sibling reporter block, extended PASS line). Single-binary "scanner == gate" UX preserved; Shape B parametrize-pytest rejected because it would have split CI signal across two tools.
+- **Plan 02-03 — `MINIPRO_XML_URL` constant + argparse `default="minipro"` preserved verbatim per D-09.** `build_db.py:10` constant identifier (case-sensitive grep counts only the lowercase URL substring on `:10`, not the uppercase identifier or its `:157/:159` usages) and `:29 default="minipro"` (load-bearing CLI default directory path) both unchanged. CLAUDE.md surviving attribution + these two file-level survivors together form the canonical minipro-provenance triplet.
 
 ## Operator Next Steps
 
-- Plan 02-02 complete. CLEAN-01 source-state contract locked (chip_database.json renamed via git mv with blame preserved; all 7 callsites flipped; both sub-repo + meta CLAUDE.md docs synced). D-04 internal `vpp_volts` rename closed (_map_data dict-write + fallback + 2 consumers symmetric). v1.0 Phase 11 packaging drift closed. Initial SC#5 smoke (`pip install -e .` + `firestarter info W27C512`) exits 0.
-- Run `/gsd-execute-plan 02-03` next (CLEAN-02 attribution scrub across both CLAUDE.md files + database.py/check_dispatch.py minipro comments + WIRE-02 check_dispatch.py D-15 augmentation + full SC#5 CLI smoke including `--adapter`).
-- Pre-existing dirt logged for a future scoped plan: `firestarter_app/firestarter/__init__.py` version bump 2.0.6 → 2.0.7_dev; `firestarter_app/.planning/codebase/*.md` deletions; `firestarter_app/firestarter/ic_layout.py` black/whitespace reformat carrying a load-bearing `pin_map_details["vpp-pin"][0]` indexing fix.
+- Plan 02-03 complete. CLEAN-02 attribution closed (1 surviving line at firestarter_app/CLAUDE.md:68; 0 in firestarter/CLAUDE.md; 0 in meta CLAUDE.md). WIRE-02 dynamic evidence closed (check_dispatch.py per-chip wire round-trip exits 0 with "0 wire-key regressions" across all 743 chips). SC#5 fully discharged (pip install -e . + firestarter --help + firestarter info W27C512 + firestarter info --adapter W27C512 all exit 0).
+- Phase 02 fully discharged: WIRE-01 (Plan 02-01) + WIRE-02 (Plan 02-03) + CLEAN-01 (Plan 02-02) + CLEAN-02 (Plan 02-03) all closed.
+- Run `/gsd-verify-work 02` next to confirm Phase 02 verification artifacts and trigger Phase 3 (Retroactive Verification) planning.
+- Pre-existing dirt logged for a future scoped plan (unchanged since Plan 02-02): `firestarter_app/firestarter/__init__.py` version bump 2.0.6 → 2.0.7_dev; `firestarter_app/.planning/codebase/*.md` deletions; `firestarter_app/firestarter/ic_layout.py` black/whitespace reformat carrying a load-bearing `pin_map_details["vpp-pin"][0]` indexing fix.
