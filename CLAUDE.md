@@ -41,7 +41,7 @@ pio test                          # run unit tests
 
 ## Key Architecture Points
 
-- **EPROM database** is in `firestarter_app/firestarter/data/minipro_complete_db.json`; user overrides go in `~/.firestarter/database.json`. `EpromDatabase` (singleton) translates generic DIP pin numbers to RURP bus config before sending to firmware.
+- **EPROM database** is in `firestarter_app/firestarter/data/chip_database.json`; user overrides go in `~/.firestarter/database.json`. `EpromDatabase` (singleton) translates generic DIP pin numbers to RURP bus config before sending to firmware.
 - **Serial protocol changes** must be kept in sync between `firestarter_app/firestarter/serial_comm.py` and `firestarter/src/firestarter.cpp`.
 - **Constants/flag bits** are duplicated between `firestarter_app/firestarter/constants.py` (Python) and `firestarter/include/firestarter.h` (C++). Change both together.
 - **Board differences**: Uno has a 512-byte data buffer; Leonardo has 1024 bytes. Buffer size affects chunked transfer in `eprom_operations.py`.
