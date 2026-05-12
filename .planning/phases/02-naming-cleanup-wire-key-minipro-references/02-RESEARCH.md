@@ -684,22 +684,22 @@ def main():
 | A6 | Phase 1 (SAF-04) shipped successfully; `flash_intel_check_vpp` is in production firmware. | Common Pitfalls #3 | If SAF-04 didn't ship, partial-upgrade safety story collapses to "user hopefully notices". **[VERIFIED]** by direct read of `firestarter/src/proms/flash_intel.cpp:25-50` AND STATE.md line 65: "WARNING-1 — CLOSED by Plan 01-01". |
 | A7 | `eprom_info.py:271` and `ic_layout.py:516` are the ONLY two consumers of the `_map_data()` output's `"vpp"` key (besides the `convert_to_programmer` fallback at `:510`). | Missed Callsites | If there are more consumers (e.g., in a downstream tool or test), they would break silently. **[VERIFIED]** by exhaustive `grep -rn '"vpp"\|\.get\(.vpp.' firestarter_app/`. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should the `firestarter info --adapter W27C512` (richer smoke) replace or augment `firestarter info W27C512`?**
    - What we know: D-17 specifies the basic `firestarter info W27C512` and `firestarter --help`. CONTEXT.md "Claude's Discretion" mentions `--adapter` as optional augmentation.
    - What's unclear: `--adapter` additionally exercises the `pinouts.json` read path and the `get_adapter_table()` function — slightly more coverage. But also slightly more output to eyeball.
-   - **Recommendation:** Run both — `firestarter info W27C512` for the basic smoke; `firestarter info --adapter W27C512` as a second smoke immediately after. Two CLI invocations, both stdlib-fast.
+   - **RESOLVED:** Run both — `firestarter info W27C512` for the basic smoke; `firestarter info --adapter W27C512` as a second smoke immediately after. Two CLI invocations, both stdlib-fast. (Implemented in Plan 02-03 Task 02-03-03.)
 
 2. **Should Plan 02-02 also fix `MANIFEST.in` (drift from v1.0 Phase 11)?**
    - What we know: `MANIFEST.in` lists `database.json` and `pin-maps.json` — neither file exists.
    - What's unclear: Is this in Phase 2 scope? CONTEXT.md is silent on `MANIFEST.in`.
-   - **Recommendation:** Yes — same wave as the `pyproject.toml` package-data fix. Document as "tidy-up necessary for the renamed file to ship cleanly in wheels." Tiny scope creep, but the alternative is two phases touching the same file.
+   - **RESOLVED:** Yes — same wave as the `pyproject.toml` package-data fix. Documented as "tidy-up necessary for the renamed file to ship cleanly in wheels." Tiny scope creep, but the alternative is two phases touching the same file. (Implemented in Plan 02-02 Task 02-02-03.)
 
 3. **What's the rollback story if a hardware test (Phase 4) discovers a regression?**
    - What we know: Three sub-repo commits (one per plan in Phase 2). Plan-level rollback works.
    - What's unclear: If SC#5 passes but Phase 4 hardware testing later reveals an issue with the renamed wire on a specific chip, do we roll back the whole Phase 2 or patch forward?
-   - **Recommendation:** Patch forward. The wire-key rename is binary correct or binary broken; if it works for one chip via `check_dispatch.py` + CLI smoke, it works for all (the wire shape is identical across all 743 chips). Phase 4 might reveal SAF-04 / SAF-05 issues unrelated to Phase 2.
+   - **RESOLVED:** Patch forward. The wire-key rename is binary correct or binary broken; if it works for one chip via `check_dispatch.py` + CLI smoke, it works for all (the wire shape is identical across all 743 chips). Phase 4 might reveal SAF-04 / SAF-05 issues unrelated to Phase 2 — those would be tracked separately. (No plan task; codified here as the operational disposition.)
 
 ## Environment Availability
 
