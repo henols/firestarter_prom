@@ -9,9 +9,9 @@ Each requirement maps to exactly one phase in `ROADMAP.md`. v1.0 requirements ar
 
 ### Safety Closure
 
-- [ ] **SAF-04**: `flash_intel_write_init` calls `rurp_read_voltage_mv()` and aborts if the measured VPP is below the chip's `vpp` setpoint (in millivolts) minus the existing tolerance window, before issuing the first write command — closing REQ-SAF-01 for all 39 algorithm=0x10 Intel-flash chips.
+- [x] **SAF-04**: `flash_intel_write_init` calls `rurp_read_voltage_mv()` and aborts if the measured VPP is below the chip's `vpp` setpoint (in millivolts) minus the existing tolerance window, before issuing the first write command — closing REQ-SAF-01 for all 39 algorithm=0x10 Intel-flash chips.
 - [ ] **SAF-05**: `eeprom_28c.cpp::eeprom28c_write_init` honours `handle->chip_id` when non-zero — performs the same chip-ID validation the UV-EPROM and Intel/AMD-flash paths already do, so REQ-SAF-02 holds the moment any algorithm=0x0D entry gains a `chip_id_value` (forward-compat).
-- [ ] **SAF-06**: A Unity test on `[env:native]` covers the new Intel-flash VPP check (low-VPP path returns the existing voltage error code; nominal-VPP path proceeds) and a fake-chip-ID test covers the new 28C path (matching ID proceeds; mismatching ID aborts).
+- [x] **SAF-06**: A Unity test on `[env:native]` covers the new Intel-flash VPP check (low-VPP path returns the existing voltage error code; nominal-VPP path proceeds) and a fake-chip-ID test covers the new 28C path (matching ID proceeds; mismatching ID aborts).
 
 ### Retroactive Verification
 
@@ -76,9 +76,9 @@ Tracked but deferred past v1.1 (carry to v1.2 or beyond):
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SAF-04 | Phase 1 | Pending |
+| SAF-04 | Phase 1 | Complete |
 | SAF-05 | Phase 1 | Pending |
-| SAF-06 | Phase 1 | Pending |
+| SAF-06 | Phase 1 | Complete |
 | VERIF-01 | Phase 3 | Pending |
 | VERIF-02 | Phase 3 | Pending |
 | VERIF-03 | Phase 3 | Pending |

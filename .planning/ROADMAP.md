@@ -34,7 +34,7 @@
   4. A Unity test on `[env:native]` proves the new 28C chip-ID check: matching fake chip-ID proceeds, mismatching aborts.
   5. All pre-existing dispatch / handler Unity tests still pass (no regression in the 15 v1.0 tests).
 **Plans**: 2 plans
-- [ ] 01-01-PLAN.md — SAF-04 Intel-flash VPP ADC compare (`flash_intel_write_init` + 5 Unity tests)
+- [x] 01-01-PLAN.md — SAF-04 Intel-flash VPP ADC compare (`flash_intel_write_init` + 5 Unity tests)
 - [ ] 01-02-PLAN.md — SAF-05 AT28C chip-id check via A9-12V (`eeprom28c_write_init` + 4 Unity tests; OVERRIDES CONTEXT.md D-05 JEDEC proposal per RESEARCH.md datasheet evidence)
 
 #### Phase 2: Naming Cleanup (Wire Key + Minipro References)
