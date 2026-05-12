@@ -152,6 +152,22 @@ If a Phase 1 fix or Phase 2 wire-key rename gets re-touched after Phase 4 ships,
 
 If re-validation is needed, append a `Re-validation` subsection to the relevant H2; don't overwrite the original run.
 
+### D-12 — Plan 04-02 partial-Wave-2 closure with in-family substitutes (operator inventory constraint, 2026-05-12)
+
+Plan 04-02 was authored naming the canon four (W27C512, AM29F040, SST39SF040, AT28C256). At bench start the operator's chip inventory was: 1 of 4 canon (SST39SF040), 0 W27C512, 0 AM29F040, 0 AT28C256. The DB has no W27E512 entry; the W27E040 / W29C040 / W29C020 chips on hand belong to different protocol families (algo=0x08 or 0x05) and would not exercise the §2 / §3 / §4 firmware paths the plan targets. Per D-07 chip-specific triage, Wave 2 is re-scoped as follows:
+
+- **§2 HW-02 substitute:** `SST27SF512` (in DB; `algorithm: 7`, `size_bytes: 65536`, `chip_id_value: 0x0000bfa4`, `vpp: 12V`). Firmware path is identical to W27C512: `firestarter/src/proms/memory.cpp:92-93` `protocol == 0x07` → `configure_eprom(handle)` → `eprom_check_vpp` (`eprom.cpp:79` call, `:199` def, SAF-04 v1.0) + `eprom_internal_check_chip_id` (`eprom.cpp:84` call, `:260` def, SAF-05 v1.0). The substitution preserves algo-family + dispatch-path coverage; it forfeits UV-EPROM-specific evidence (SST27SF512 is MTP / electrically programmable, not UV). §2 chip header MUST cite the substitute explicitly and reference this D-12.
+
+- **§3a HW-03 chip-erase substitute:** `SST39SF040` (canon-for-§3b, used as substitute for AM29F040 in §3a). Same `algorithm: 6`, same `configure_flash3` dispatch (`memory.cpp:82-85`), same `flash3_erase_execute` chip-erase branch (`flash_type_3.cpp:94-101`, `handle->address == 0` → `flash_execute_command(FLASH_ERASE)`). Substituting same-family same-algo means §3a + §3b use the same chip — this still exercises both branches of the `handle->address` discriminator on real silicon, but forfeits AMD-vs-SST chip-family diversity for SC#3 evidence. §3a chip header MUST cite the substitute explicitly and reference this D-12.
+
+- **§3b HW-03 sector-erase: CANON (SST39SF040).** No substitute; runs as Plan 04-02 specifies.
+
+- **§4 HW-04: DEFERRED.** No AT28C256 (or other algo=0x0D / AT28C-family chip) in operator inventory. No defensible substitute exists — AT28C's chip_id_value=0 gate at `eeprom_28c.cpp:55-77` and the v1.0 Phase 13 build_db.py override at `tools/build_db.py:221-247` are unique to that chip family. §4 is deferred to a follow-up bench session (likely opened as `04-04-PLAN.md` or `04.1-01-PLAN.md` once the chip is sourced) and recorded as a `follow_ups:` entry on `04-HW-VALIDATION.md`. ROADMAP Phase 4 SC#4 remains OPEN until §4 lands.
+
+Consequence: `04-02-SUMMARY.md` lands with `status: partial` (not `complete`); requirements_addressed shrinks to `[HW-02, HW-03]` (HW-04 dropped); Plan 04-03 (Wave 3 HW-05) is unaffected and can proceed against the live AM28F010 inventory.
+
+Out-of-scope for D-12: re-authoring Plan 04-02's body. The plan retains its canon language; the substitutes are recorded here in CONTEXT.md per Phase 3 LEARNINGS ("decisions go in CONTEXT.md, not silently inside SUMMARY") and surfaced verbatim in each §-section chip header.
+
 ### Claude's Discretion
 - Exact wording of the abort-error string the host CLI emits on the underpowered HW-05 run — research the `serial_comm.py` `ERROR:` parse path; bench evidence captures whatever the live binary actually emits.
 - Whether to also re-execute `pio test` (firmware native unit tests) as part of HW-01 dry-run validation — likely yes (it's been the v1.1 pattern since Plan 01-01) but the test-script repair itself doesn't depend on it; let the planner decide.
