@@ -150,7 +150,7 @@ Audit: `.planning/milestones/v1.0-MILESTONE-AUDIT.md` (status: gaps_found — ac
 |-------|-------|--------|-----------|
 | 1. Safety Closure (Intel-flash VPP + 28C chip-ID) | 0/2 | Planned | - |
 | 2. Naming Cleanup (Wire Key + Minipro References) | 0/3 | Planned | - |
-| 3. Retroactive Verification (Phases 01-10) | 0/2 | Planned | - |
+| 3. Retroactive Verification (Phases 01-10) | 2/2 | Complete | 2026-05-12 |
 | 4. Hardware Validation (RURP shield) | 0/? | Not started | - |
 | 5. Milestone Close | 0/? | Not started | - |
 

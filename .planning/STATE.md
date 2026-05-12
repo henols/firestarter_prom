@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Safety Closure & Hardware Validation
-status: verifying
-last_updated: "2026-05-12T10:13:52.716Z"
-last_activity: 2026-05-12
+status: completed
+last_updated: "2026-05-12T10:18:56.584Z"
+last_activity: 2026-05-12 -- Phase 03 marked complete
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 7
   completed_plans: 7
-  percent: 100
+  percent: 60
 ---
 
 # Project State
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 03 (retroactive-verification-phases-01-10) — EXECUTING
+Phase: 03 — COMPLETE
 Plan: 2 of 2
-Status: Phase complete — ready for verification
-Last activity: 2026-05-12
+Status: Phase 03 complete
+Last activity: 2026-05-12 -- Phase 03 marked complete
 Resume file: `.planning/phases/03-retroactive-verification-phases-01-10/03-CONTEXT.md`
 
 ## Project Reference
@@ -103,7 +103,6 @@ None.
 
 ## Operator Next Steps
 
-- Plan 02-03 complete. CLEAN-02 attribution closed (1 surviving line at firestarter_app/CLAUDE.md:68; 0 in firestarter/CLAUDE.md; 0 in meta CLAUDE.md). WIRE-02 dynamic evidence closed (check_dispatch.py per-chip wire round-trip exits 0 with "0 wire-key regressions" across all 743 chips). SC#5 fully discharged (pip install -e . + firestarter --help + firestarter info W27C512 + firestarter info --adapter W27C512 all exit 0).
-- Phase 02 fully discharged: WIRE-01 (Plan 02-01) + WIRE-02 (Plan 02-03) + CLEAN-01 (Plan 02-02) + CLEAN-02 (Plan 02-03) all closed.
-- Run `/gsd-verify-work 02` next to confirm Phase 02 verification artifacts and trigger Phase 3 (Retroactive Verification) planning.
+- **Phase 03 fully discharged (2026-05-12).** Plan 03-01 + 03-02 merged; 10 retroactive VERIFICATION.md artifacts authored under `.planning/milestones/v1.0-phases/{01..10}-*`; SC#1 + SC#2 + SC#3 + SC#4 all locked; WARNING-4 / WARNING-5 / INFO-3 follow_ups carried; zero source under `firestarter/` or `firestarter_app/` touched. Verifier report at `.planning/phases/03-retroactive-verification-phases-01-10/VERIFICATION.md` — verdict PASS (13/13 must-haves).
+- Run `/gsd-plan-phase 04` next to start Hardware Validation (RURP shield) — HW-01 closes WARNING-4 (`firestarter_test.sh` / `write_test.sh` reference deleted `database_generated.json`).
 - Pre-existing dirt logged for a future scoped plan (unchanged since Plan 02-02): `firestarter_app/firestarter/__init__.py` version bump 2.0.6 → 2.0.7_dev; `firestarter_app/.planning/codebase/*.md` deletions; `firestarter_app/firestarter/ic_layout.py` black/whitespace reformat carrying a load-bearing `pin_map_details["vpp-pin"][0]` indexing fix.
