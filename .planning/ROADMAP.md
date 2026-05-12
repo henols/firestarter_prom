@@ -47,7 +47,10 @@
   3. "minipro" mentions in app code comments are reduced to a single attribution in `tools/build_db.py` (where `MINIPRO_XML_URL` lives); `firestarter/database.py`, `tools/check_dispatch.py`, `firestarter/CLAUDE.md` have zero remaining minipro mentions; `firestarter_app/CLAUDE.md` keeps at most one line naming the upstream source.
   4. `check_dispatch.py` (or equivalent host-side test) regenerates the DB and confirms all 743 chips still parse end-to-end on Uno + Leonardo simulator with no algorithm regressing on the wire, after all four renames.
   5. `firestarter` CLI smoke (`firestarter --help` + `firestarter info W27C512`) succeeds against the renamed DB with no `FileNotFoundError` or stale-path warning.
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 02-01-PLAN.md — WIRE-01 atomic wire-key flip (Python emitter at database.py:518 + firmware parser three-site flip at json_parser.c:62/74/309 + wire-JSON example doc edits)
+- [ ] 02-02-PLAN.md — CLEAN-01 file rename via git mv + D-04 internal vpp_volts rename + pyproject.toml/MANIFEST.in packaging alignment
+- [ ] 02-03-PLAN.md — CLEAN-02 minipro attribution scrub + WIRE-02 check_dispatch.py augmentation (Shape A round-trip) + SC#5 CLI smoke
 
 #### Phase 3: Retroactive Verification (Phases 01-10)
 **Goal**: Every v1.0 phase has a formal `VERIFICATION.md` artifact scoring its requirements against the current source tree, closing the 13 PARTIAL audit findings from the v1.0 milestone audit.
@@ -144,7 +147,7 @@ Audit: `.planning/milestones/v1.0-MILESTONE-AUDIT.md` (status: gaps_found — ac
 | Phase | Plans | Status | Completed |
 |-------|-------|--------|-----------|
 | 1. Safety Closure (Intel-flash VPP + 28C chip-ID) | 0/2 | Planned | - |
-| 2. Naming Cleanup (Wire Key + Minipro References) | 0/? | Not started | - |
+| 2. Naming Cleanup (Wire Key + Minipro References) | 0/3 | Planned | - |
 | 3. Retroactive Verification (Phases 01-10) | 0/? | Not started | - |
 | 4. Hardware Validation (RURP shield) | 0/? | Not started | - |
 | 5. Milestone Close | 0/? | Not started | - |
@@ -169,4 +172,4 @@ Audit: `.planning/milestones/v1.0-MILESTONE-AUDIT.md` (status: gaps_found — ac
 
 ---
 
-*Roadmap last updated: 2026-05-11 — v1.1 Phase 2 expanded to "Naming Cleanup" (added CLEAN-01/02 minipro reference removal); 5 phases, 24 requirements, 100% coverage*
+*Roadmap last updated: 2026-05-12 — v1.1 Phase 2 planned (3 plans: WIRE-01 atomic flip / CLEAN-01 file rename + vpp_volts + packaging / CLEAN-02 scrub + WIRE-02 augment + SC#5 smoke); 5 phases, 24 requirements, 100% coverage*
