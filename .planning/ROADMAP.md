@@ -48,7 +48,7 @@
   4. `check_dispatch.py` (or equivalent host-side test) regenerates the DB and confirms all 743 chips still parse end-to-end on Uno + Leonardo simulator with no algorithm regressing on the wire, after all four renames.
   5. `firestarter` CLI smoke (`firestarter --help` + `firestarter info W27C512`) succeeds against the renamed DB with no `FileNotFoundError` or stale-path warning.
 **Plans**: 3 plans
-- [ ] 02-01-PLAN.md — WIRE-01 atomic wire-key flip (Python emitter at database.py:518 + firmware parser three-site flip at json_parser.c:62/74/309 + wire-JSON example doc edits)
+- [x] 02-01-PLAN.md — WIRE-01 atomic wire-key flip (Python emitter at database.py:518 + firmware parser three-site flip at json_parser.c:62/74/309 + wire-JSON example doc edits)
 - [ ] 02-02-PLAN.md — CLEAN-01 file rename via git mv + D-04 internal vpp_volts rename + pyproject.toml/MANIFEST.in packaging alignment
 - [ ] 02-03-PLAN.md — CLEAN-02 minipro attribution scrub + WIRE-02 check_dispatch.py augmentation (Shape A round-trip) + SC#5 CLI smoke
 
@@ -157,7 +157,7 @@ Audit: `.planning/milestones/v1.0-MILESTONE-AUDIT.md` (status: gaps_found — ac
 | Phase | Milestone | Plans | Status   | Completed  |
 | ----- | --------- | ----- | -------- | ---------- |
 | 01    | v1.0      | 2/2 | Complete    | 2026-05-12 |
-| 02    | v1.0      | 1/1   | Complete | 2026-05-09 |
+| 02    | v1.0      | 1/3 | In Progress|  |
 | 03    | v1.0      | 1/1   | Complete | 2026-05-09 |
 | 04    | v1.0      | 2/2   | Complete | 2026-05-09 |
 | 05    | v1.0      | 1/1   | Complete | 2026-05-09 |

@@ -36,7 +36,7 @@ Each requirement maps to exactly one phase in `ROADMAP.md`. v1.0 requirements ar
 
 ### Naming Cleanup
 
-- [ ] **WIRE-01**: Wire JSON `"vpp"` key (which currently carries millivolts) is renamed to `"vpp_mv"` in the Python emitter (`firestarter_app/firestarter/eprom_operations.py` / `serial_comm.py` / `database.py::convert_to_programmer` family), the firmware parser (`firestarter.cpp` / `json_parser.c` ArduinoJson key), and `firestarter_app/CLAUDE.md` example — eliminating the volts/millivolts semantic overload (WARNING-3).
+- [x] **WIRE-01**: Wire JSON `"vpp"` key (which currently carries millivolts) is renamed to `"vpp_mv"` in the Python emitter (`firestarter_app/firestarter/eprom_operations.py` / `serial_comm.py` / `database.py::convert_to_programmer` family), the firmware parser (`firestarter.cpp` / `json_parser.c` ArduinoJson key), and `firestarter_app/CLAUDE.md` example — eliminating the volts/millivolts semantic overload (WARNING-3).
 - [ ] **WIRE-02**: A `check_dispatch.py` (or equivalent host-side) test confirms every chip in the regenerated DB still parses end-to-end on both Uno + Leonardo simulator after the rename — no algorithm=0x?? entry regresses on the wire.
 - [ ] **CLEAN-01**: The data filename `firestarter/data/minipro_complete_db.json` is renamed to a neutral name (e.g. `chip_database.json`) — the file is *our* DB derived from the upstream XML, not the minipro tool's own artifact. All references updated atomically: `tools/build_db.py:12` (OUTPUT_FILE), `firestarter/database.py:189` (default path) + `:366` (docstring), `tools/check_dispatch.py:2` (docstring) + `:27` (data-dir glob), meta `CLAUDE.md:44`, `firestarter_app/CLAUDE.md` Pipeline section, `firestarter/CLAUDE.md:30`.
 - [ ] **CLEAN-02**: Unnecessary "minipro" mentions in app code comments and docs are removed. Single attribution kept in `tools/build_db.py` (which owns `MINIPRO_XML_URL` — the actual upstream URL constant) and one line in `firestarter_app/CLAUDE.md` naming the upstream source. Replace remaining `# Algorithm (minipro protocol_id) → ...` comments in `firestarter/database.py:45,389` and `tools/check_dispatch.py:30` with neutral wording (`# Algorithm (upstream protocol_id) → ...` or `# Algorithm integer → ...`). Reduce `firestarter_app/CLAUDE.md` from 6 mentions to 1; `firestarter/CLAUDE.md` from 2 mentions to 0 (firmware never sees minipro).
@@ -94,7 +94,7 @@ Tracked but deferred past v1.1 (carry to v1.2 or beyond):
 | HW-03 | Phase 4 | Pending |
 | HW-04 | Phase 4 | Pending |
 | HW-05 | Phase 4 | Pending |
-| WIRE-01 | Phase 2 | Pending |
+| WIRE-01 | Phase 2 | Complete |
 | WIRE-02 | Phase 2 | Pending |
 | CLEAN-01 | Phase 2 | Pending |
 | CLEAN-02 | Phase 2 | Pending |
