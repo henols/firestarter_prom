@@ -61,7 +61,9 @@
   2. Every audit finding from `.planning/milestones/v1.0-INTEGRATION-CHECK.md` that was attributed to "missing VERIFICATION.md" is either resolved (VERIFIED) or explicitly carried as a follow-up in the corresponding artifact.
   3. `05-VERIFICATION.md` explicitly records that the SAF-04 closure from Phase 1 satisfies the Intel-flash REQ-SAF-01 gap noted in the v1.0 audit.
   4. `10-VERIFICATION.md` confirms `static_high_mask` end-to-end wiring and the `pins < 32` VPE_TO_VPP guard are intact in the current `memory.cpp`.
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 03-01-PLAN.md — Clean batch: 5 VERIFICATION.md files for phases 01/02/04/08/09 (REQ-DB-01..04, REQ-SER-02, REQ-FW-04, REQ-SAF-03 cross-handler, REQ-UX-01/02; WARNING-4 follow_up for Phase 08)
+- [ ] 03-02-PLAN.md — Closure/hazard batch: 5 VERIFICATION.md files for phases 03/05/06/07/10 (REQ-FW-01/02/03, REQ-SAF-01/02, REQ-FW-05/06; SC#3 SAF-04 closure in 05 + SC#4 static_high_mask + pins<32 lock in 10; WARNING-5 follow_ups for 03/06/07; INFO-3 follow_up for 10)
 
 #### Phase 4: Hardware Validation (RURP shield)
 **Goal**: A physical RURP shield successfully programs and verifies the four canon chip families plus an Intel-flash family chip after the SAF-04 safety closure, with results logged in formal `HW-VALIDATION.md` artifacts and the integration-test shell scripts restored to a working state.
@@ -148,7 +150,7 @@ Audit: `.planning/milestones/v1.0-MILESTONE-AUDIT.md` (status: gaps_found — ac
 |-------|-------|--------|-----------|
 | 1. Safety Closure (Intel-flash VPP + 28C chip-ID) | 0/2 | Planned | - |
 | 2. Naming Cleanup (Wire Key + Minipro References) | 0/3 | Planned | - |
-| 3. Retroactive Verification (Phases 01-10) | 0/? | Not started | - |
+| 3. Retroactive Verification (Phases 01-10) | 0/2 | Planned | - |
 | 4. Hardware Validation (RURP shield) | 0/? | Not started | - |
 | 5. Milestone Close | 0/? | Not started | - |
 
@@ -172,4 +174,4 @@ Audit: `.planning/milestones/v1.0-MILESTONE-AUDIT.md` (status: gaps_found — ac
 
 ---
 
-*Roadmap last updated: 2026-05-12 — v1.1 Phase 2 planned (3 plans: WIRE-01 atomic flip / CLEAN-01 file rename + vpp_volts + packaging / CLEAN-02 scrub + WIRE-02 augment + SC#5 smoke); 5 phases, 24 requirements, 100% coverage*
+*Roadmap last updated: 2026-05-12 — v1.1 Phase 3 planned (2 plans: 03-01 clean batch / 03-02 closure-and-hazard batch with SC#3 + SC#4 locks); 5 phases, 24 requirements, 100% coverage*
