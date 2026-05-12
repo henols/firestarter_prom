@@ -24,14 +24,16 @@ chips_tested:
 follow_ups:
   - id: host-main-phase-bug
     severity: BLOCKER
+    status: RESOLVED (firestarter_app@08ca252, 2026-05-12)
     surface: firestarter_app (host CLI)
     evidence: bench-evidence-2026-05-12/02-sst27sf512_write_verbose_data_err_-3.log + 10-w27c512_write_data_err_-3_universal.log
-    detail: "EpromOperator MAIN-phase data-send constructs the 4-byte data packet header (# + 2-byte size + 1-byte checksum) but never sends the payload bytes that should follow. Firmware times out after 2s waiting for payload → Data err -3 (rurp_serial_utils.cpp:82). Universal across configure_eprom dispatch family (algo=0x07/0x08/0x0B); confirmed identical failure mode on canon W27C512 AND substitute SST27SF512, both pre-flash and post-flash firmware. Blocks all Plan 04-02 §2/§3/§4 bench work."
+    detail: "EpromOperator._main_phase_send_data was sending the 4-byte packet header (# + size + checksum) and then calling expect_ack() before sending the payload. The firmware protocol has no such ACK — rurp_communication_read_data (rurp_serial_utils.cpp:59-86) reads size + checksum + payload in one synchronous flow with a 2-second timeout on the payload-read loop. Host blocking on a non-existent ACK left the payload unsent; firmware timed out and returned 'Data err -3'; the host's own expect_ack then consumed the ERROR response and raised 'Firmware did not acknowledge header' — the exact failure surfaced on every configure_eprom-family write during the 2026-05-12 bench. RESOLUTION: firestarter_app@08ca252 (fix: remove spurious ACK round-trip in MAIN-phase data send) concatenates header + data_chunk into a single send_bytes call. Bench re-validation pending next session (chip + bench setup required). RESUMPTION: re-run /gsd-execute-phase 04 --wave 2 --interactive against a fresh W27C512 (already proven blank-check OK in the 2026-05-12 session)."
   - id: firmware-version-drift
     severity: HIGH
+    status: RESOLVED (firestarter@bbf0e0c, 2026-05-12)
     surface: firestarter (firmware) + firestarter_app (host)
     evidence: bench-evidence-2026-05-12/05-firmware_flash_to_587396a.log
-    detail: "firestarter/include/version.h VERSION constant ('2.0.6') has not been bumped despite 30 commits since the 2.0.6 git tag (db4e565). firestarter fw misleadingly reports 'already up to date' against the on-board binary even when source has substantial drift (Phase 01 SAF-04+SAF-05, Phase 02 wire-key rename, Phase 12 dispatch chain, etc., all post-tag). Fix: bump VERSION string on every source-tree change to firmware OR change auto-update logic to compare git ref / SHA."
+    detail: "firestarter/include/version.h VERSION constant ('2.0.6') had not been bumped despite 30 commits since the 2.0.6 git tag (db4e565), so firestarter fw kept reporting 'already up to date' against any source-tree build. This misled the 2026-05-12 bench session into believing v1.1 firmware closures (Phase 01 SAF-04+SAF-05, Phase 02 wire-key rename, Phase 12 dispatch chain) were on-board when they were not until mid-session reflash. RESOLUTION: firestarter@bbf0e0c (chore: bump VERSION to 2.0.7-dev) bumps the VERSION constant to '2.0.7-dev'. Next stable release can drop -dev and tag 2.0.7 cleanly. Long-term: prefer auto-update logic that compares git ref / SHA over version-string equality, or treat every behavior-affecting firmware commit as a VERSION-bump candidate."
   - id: sst39sf040-dead-chip
     severity: MEDIUM
     surface: operator hardware
@@ -243,10 +245,13 @@ D-12 (committed `f093643`) recorded the substitution plan: SST27SF512 for §2 (l
 
 In dependency order:
 
-1. **Fix host MAIN-phase bug** (`follow_up: host-main-phase-bug`, BLOCKER) — the Python `EpromOperator` data-send must emit header AND payload, not just header. Likely a single-file fix in `firestarter_app/firestarter/eprom_operations.py` (or `serial_comm.py`). The verbose trace in log 10 pinpoints the exact failure: `Sent 4 bytes` should be `Sent <header_size + payload_size> bytes`.
+1. ~~**Fix host MAIN-phase bug**~~ → **RESOLVED 2026-05-12** in `firestarter_app@08ca252` (single-line root cause: spurious `expect_ack()` between header and payload in `_main_phase_send_data`). Bench re-validation pending next session.
 2. **Replace SST39SF040 chip** (`follow_up: sst39sf040-dead-chip`) — sourcing another SST39SF040 (or substituting with a different algo=0x06 chip, e.g. AM29F040 if also sourced).
 3. **Source AT28C256** for HW-04 (still deferred per D-12).
-4. **Bump `version.h` VERSION** (`follow_up: firmware-version-drift`, HIGH) — prevents future drift hiding.
-5. **Fix CLI label bugs + DB entries** (`follow_ups: firestarter-info-label-bugs`, `fm1608-db-mismatch`, `w27e512-missing-db-entry`, `firestarter-erase-b-silent`, `firestarter-force-flag-scope`) — UX + safety improvements; not strictly blockers for Plan 04-02 but cleanup-worthy.
+4. ~~**Bump `version.h` VERSION**~~ → **RESOLVED 2026-05-12** in `firestarter@bbf0e0c` (VERSION "2.0.6" → "2.0.7-dev").
+5. **Fix CLI label bugs + DB entries** (`follow_ups: firestarter-info-label-bugs`, `fm1608-db-mismatch`, `w27e512-missing-db-entry`, `firestarter-erase-b-silent`, `firestarter-force-flag-scope`) — UX + safety improvements; not strictly blockers for Plan 04-02 but cleanup-worthy. `fm1608-db-mismatch` now fully evidenced (see follow_up detail + bench-evidence-2026-05-12/11+12).
 
-Once #1 is fixed and at least one canon §3 chip is in hand, re-run `/gsd-execute-phase 04 --wave 2 --interactive` to resume.
+**With #1 + #4 resolved**, the next bench session can:
+- Reflash the Arduino (`pio run -t upload -e uno` from `firestarter/`) — picks up both the new VERSION string AND the up-to-date dispatch chain.
+- Re-run `/gsd-execute-phase 04 --wave 2 --interactive` with a fresh W27C512 (already proven blank-check OK in this session).
+- Sequential remaining blockers: source §3 chip + AT28C256.
