@@ -27,20 +27,28 @@ This document was originally produced from firmware-source trace alone. A subseq
   - **Pin 31 / PGM** (via `VPE_ENABLE` → BJT cascade → D11) — for 28-pin EPROM program pulse
 - All other socket pins (5V address lines, data lines, GND, VCC, CE, OE) are driven by 74HC573 latch outputs at 5V — **no HV path exists to those pins**.
 
-**Major implication for 24-pin EPROMs (DIP24_2716, DIP24_2732 family — ~53 chips in DB):**
+**24-pin EPROM support (DIP24_2716, DIP24_2732 family — ~53+16 chips in DB):**
+
+> **CORRECTION (2026-05-13):** This section previously stated "24-pin EPROM writes are structurally unsupported on Rev 2.x." That framing was overstated. The corrected picture is below; full investigation in [04-HW-24PIN-INVESTIGATION.md](04-HW-24PIN-INVESTIGATION.md).
 
 Per [database.py:85-87](firestarter_app/firestarter/database.py#L85-L87), a 24-pin chip is inserted at **socket positions 5–28** (chip pin 1 at socket pin 5, chip pin 24 at socket pin 28 = VCC). With that alignment:
 
-- 2716's VPP pin (chip pin 21) → socket pin **25** → shield's A11 latch output → driven by U3 Q3 at **5V max**.
-- 2732's VPP pin (chip pin 20) shares with OE → socket pin **24** → shield's `ROM_OE` signal → no HV path.
+- 2716's VPP pin (chip pin 21) → socket pin **25** → shield's A11 latch output (5V CMOS).
+- 2732's VPP pin (chip pin 20) shares with OE → socket pin **24** → shield's `~ROM_OE` signal (5V CMOS).
 
-**Neither 24-pin EPROM family has a physical HV path to its VPP pin on this shield design.** Programming requires either:
-- An external manual jumper supplying 21V/25V to the appropriate socket pin (per pre-Rev2 upstream "A/B jumper" workaround), or
-- A firmware revision that uses one of the HV-reachable pins (1, 26, 31) and an updated pinout that re-aligns the chip socket position.
+**Neither socket pin has a built-in HV BJT cascade on Rev 2.3.** Upstream's design has *always* required the operator to supply the HV path for 24-pin chips:
 
-Existing DB writes for DIP24_2716 / DIP24_2732 will dispatch through `configure_eprom`, assert `REGULATOR`, and attempt to drive `VPE_ENABLE` — but the HV rail never reaches the chip's VPP pin. Writes silently fail (no programming pulse delivered). The 24-pin SRAM path (DIP24_6116 → configure_sram) is unaffected because SRAM writes use only 5V signals.
+- **Rev 1.x:** explicit manual jumpers (operator-soldered).
+- **Rev 2.0 / 2.1 / 2.3:** operator-soldered bodge wire from socket pin **1** → socket pin **25** (2716) or socket pin **24** (2732).
+- **Rev 2.2:** built-in alternative JP4 position ("red") that does the same routing via a board-supplied jumper.
 
-**Severity for [24pin-eeprom-no-handler](04-HW-VALIDATION.md) follow_up:** rationale corrected from "no firmware handler" to "no hardware HV path on Rev 2.x shield." Mitigation (skip filter) is still correct.
+With either the bodge wire or the Rev 2.2 red jumper in place, the HV cascade at socket pin 1 (`P1_VPP_ENABLE` → JP4 → D33) feeds the 24-pin chip's VPP pin through the operator-supplied path. This is why **upstream Anders firmware unconditionally asserts `P1_VPP_ENABLE` for `romPinCount == 24`** — it relies on the operator's external routing to complete the HV path.
+
+**Firestarter's current firmware doesn't drive this correctly.** The redirect in `eprom.cpp:268-274` (VPE_ENABLE → P1_VPP_ENABLE) is gated by `using_p1_as_vpp()` in `memory_utils.h:24-27`, which returns false for stock 24-pin pinouts (`vpp_line = 11`, not the magic 0x0F). So Firestarter asserts `VPE_ENABLE` (→ socket pin 31) instead of `P1_VPP_ENABLE` (→ socket pin 1 → operator wire → chip VPP). The result is silent write failure even on a board that's mechanically set up for 24-pin programming.
+
+**Fix path:** extend `using_p1_as_vpp()` to return true when `handle->pins == 24`, matching upstream Anders firmware behavior. Tracked as follow_up [`24pin-eprom-firmware-vpp-path`](04-HW-VALIDATION.md) (severity MEDIUM, OPEN).
+
+Reads of 24-pin EPROMs are unaffected — the 5V address bus is sufficient for read-mode access regardless of HV routing.
 
 ---
 
