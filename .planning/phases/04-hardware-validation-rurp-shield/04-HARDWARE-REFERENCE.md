@@ -2,9 +2,49 @@
 
 **Document Purpose:** Comprehensive tracing of the firmware's control-register bit layout, VPP routing, and per-protocol handler signal flows for validating safety claims about 12V VPP placement on socket pins.
 
-**Analysis Date:** 2026-05-13  
-**Scope:** Firestarter firmware v1.0+, hardware revisions 0.1–2.2  
+**Analysis Date:** 2026-05-13 (initial) / 2026-05-13 (schematic-verified update)
+**Scope:** Firestarter firmware v1.0+, hardware Rev 2.3 (upstream `github.com/AndersBNielsen/Relatively-Universal-ROM-Programmer` `hardware/RelativelyUniversalROMProgrammerRev2.3.pdf`)
 **Key Question:** For a given pinout (e.g., DIP24_2716) and protocol handler (e.g., configure_eprom), does the firmware correctly route VPP to the intended socket pin without damaging 5V-only chips?
+
+---
+
+## SCHEMATIC ADDENDUM (2026-05-13)
+
+This document was originally produced from firmware-source trace alone. A subsequent read of the upstream Rev 2.3 PCB schematic produced the following **corrections and verifications**:
+
+**Corrections:**
+- The shield uses **three 74HC573 transparent latches** (U2/U3/U4 with separate LE strobes — `RLSBLE`, `RMSBLE`, `CTRL_LE`), NOT 74HC595 shift registers. All three latches share Arduino PORTD as the D-input bus; the LE strobe selects which latch captures. This is faster and simpler than shift-register chains.
+- The HV regulator is a **MIC2288** boost converter (U1) with feedback set by trimmer RV1 (50kΩ) + R8/R35/R36/R37. Verified per-schematic math: `VPE-Max ≈ 22.53V` (VPE_TO_VPP de-asserted), `VPP ≈ 12.05V` (VPE_TO_VPP asserted via Q3 switching R28 into the feedback network), `VPE-Min ≈ 9.45V`.
+- The MIC2288's `~SHDN` (active-low shutdown) is gated by `~REG_DISABLE` via bodge point JP9. The CONTROL_REGISTER bit `REGULATOR (0x80)` enables the boost supply when asserted (the firmware-level meaning is "regulator on"; the hardware-level signal is its inverse).
+
+**Verifications (schematic-confirmed):**
+- The **ROM socket (U5)** is explicitly labeled "28/32 pin ROM" — there is NO dedicated 24-pin section.
+- **JP4 (`P1_VPP_JMP`)** is a 3-pin selector jumper that gates the BJT-driven HV path to socket pin 1 via D33 (1N5819 protection diode). Closed = 28-pin VPP enabled. Upstream warns: open this jumper before installing 32-pin chips (their pin 1 = A18).
+- **JP5 (`A19_CUT`)**: cuts the A18-line backfeed path so pin 1 can carry VPP without driving the U3 latch output. (The "A19" in the silkscreen name is a misnomer — there's no A19 on a 32-pin DIP.)
+- **HV-reachable socket pins** (from schematic — these are the only pins with a HV BJT cascade):
+  - **Pin 1** (via `P1_VPP_ENABLE` → JP4 → D33)
+  - **Pin 26 / A9** (via `A9_VPP_ENABLE` → BJT cascade → D34) — for chip-ID reads
+  - **Pin 31 / PGM** (via `VPE_ENABLE` → BJT cascade → D11) — for 28-pin EPROM program pulse
+- All other socket pins (5V address lines, data lines, GND, VCC, CE, OE) are driven by 74HC573 latch outputs at 5V — **no HV path exists to those pins**.
+
+**Major implication for 24-pin EPROMs (DIP24_2716, DIP24_2732 family — ~53 chips in DB):**
+
+Per [database.py:85-87](firestarter_app/firestarter/database.py#L85-L87), a 24-pin chip is inserted at **socket positions 5–28** (chip pin 1 at socket pin 5, chip pin 24 at socket pin 28 = VCC). With that alignment:
+
+- 2716's VPP pin (chip pin 21) → socket pin **25** → shield's A11 latch output → driven by U3 Q3 at **5V max**.
+- 2732's VPP pin (chip pin 20) shares with OE → socket pin **24** → shield's `ROM_OE` signal → no HV path.
+
+**Neither 24-pin EPROM family has a physical HV path to its VPP pin on this shield design.** Programming requires either:
+- An external manual jumper supplying 21V/25V to the appropriate socket pin (per pre-Rev2 upstream "A/B jumper" workaround), or
+- A firmware revision that uses one of the HV-reachable pins (1, 26, 31) and an updated pinout that re-aligns the chip socket position.
+
+Existing DB writes for DIP24_2716 / DIP24_2732 will dispatch through `configure_eprom`, assert `REGULATOR`, and attempt to drive `VPE_ENABLE` — but the HV rail never reaches the chip's VPP pin. Writes silently fail (no programming pulse delivered). The 24-pin SRAM path (DIP24_6116 → configure_sram) is unaffected because SRAM writes use only 5V signals.
+
+**Severity for [24pin-eeprom-no-handler](04-HW-VALIDATION.md) follow_up:** rationale corrected from "no firmware handler" to "no hardware HV path on Rev 2.x shield." Mitigation (skip filter) is still correct.
+
+---
+
+## ORIGINAL FIRMWARE-TRACE ANALYSIS (pre-schematic)
 
 ---
 
