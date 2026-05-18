@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Message-ID Logging Rework
 status: executing
-last_updated: "2026-05-18T15:04:00.812Z"
-last_activity: 2026-05-18 -- Phase 07 planning complete
+last_updated: "2026-05-18T15:15:38.479Z"
+last_activity: 2026-05-18
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 19
-  completed_plans: 6
+  completed_plans: 7
   percent: 20
 ---
 
@@ -20,11 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: 7
-Plan: Not started
+Phase: 07 (convert-error-warn-info-call-sites) — EXECUTING
+Plan: 2 of 13
 Status: Ready to execute
 Resume from: `.planning/phases/07-convert-error-warn-info-call-sites/07-CONTEXT.md`
-Last activity: 2026-05-18 -- Phase 07 planning complete
+Last activity: 2026-05-18
 
 ## Project Reference
 
@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-18)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 06 — logging-infrastructure
+**Current focus:** Phase 07 — convert-error-warn-info-call-sites
 
 - Replace firmware text-string logs with 1-byte message IDs + raw parameter byte arrays
 - Single canonical catalog (meta-repo) → codegen → C++ header (firmware) + Python module (host)
@@ -124,6 +124,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 06 P06-04 | ~6 min | 2 tasks | 3 files |
 | Phase 06 P06 | 8 min | 1 tasks | 1 files |
 | Phase 06 P06-05 | ~7min | 3 tasks | 3 files |
+| Phase 07 P07-01 | 1min | - tasks | - files |
 
 ## Decisions
 
@@ -140,3 +141,4 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase ?]: Phase 06-05: release.yml NOT given needs:[ci] gate — optional per plan; retrofittable later if bad-catalog→tag→PyPI race ever bites.
 - [Phase ?]: Phase 06-05: Meta-repo catalog-sync-check.yml uses cmp (byte-equality, load-bearing) + diff (readable failure dump) together; submodules:recursive on meta-repo checkout per orchestrator objective.
 - [Phase ?]: Phase 06-05: GitHub slugs pinned to henols/firestarter and henols/firestarter_app (confirmed via git remote get-url origin).
+- [Phase ?]: Phase 07-01: LOG_ERROR_ID_* and LOG_WARN_ID_* macro families added as unconditional one-line aliases — no FLAG_VERBOSE gate, zero flash cost until call-sites are converted
