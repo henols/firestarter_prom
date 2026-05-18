@@ -76,7 +76,15 @@
   2. `firestarter write -e W27C512` runs end-to-end and reaches normal completion with the host correctly rendering state-machine progress (INIT phase, MAIN data-transfer phase, END acknowledgement) from ID-frame decoding alone — visible in the host CLI output and indistinguishable in user experience from the pre-v1.2 text-format output.
   3. The `DATA:` binary read-payload stream still works unchanged — `firestarter read -e W27C512 -o out.bin` against the simulator produces a byte-identical binary file vs the pre-Phase-8 baseline (locked constraint: `DATA:` prefix stays text per PROJECT.md "Out for v1.2").
   4. `pio run -e leonardo` and `pio run -e uno` both compile, with the firmware binary size again measurably smaller than the Phase 7 baseline.
-**Plans**: TBD
+**Plans**: 8 plans
+- [ ] 08-01-PLAN.md — Catalog additions (VPP/VPE/CHUNK/DEBUG) + codegen [debug] support + sync (Wave 1)
+- [ ] 08-02-PLAN.md — Wire-format len u8→u16 widening (firmware + host atomic; Wave 2)
+- [ ] 08-03-PLAN.md — Host parser surgical prefix-matching removal + sentinel rendering (Wave 3)
+- [ ] 08-04-PLAN.md — New LOG_*_ID macro families + simple OK/INIT/MAIN/END/DATA populate-sites (Wave 4)
+- [ ] 08-05-PLAN.md — P-01..P-04 composite OK_REV/OK_CFG/FW_HANDSHAKE + VPP/VPE DATA + MSG_DATA_CHUNK streaming (Wave 5)
+- [ ] 08-06-PLAN.md — _check_response strip + response_msg field deletion + copy_to_buffer macro deletion (Wave 6, R-01/R-03)
+- [ ] 08-07-PLAN.md — debug() single-sweep conversion to MSG_DEBUG + sub_id channel (Wave 7, B-01..B-04)
+- [ ] 08-08-PLAN.md — Phase close: SC#1/#4 automated + SC#2/#3 hardware verification + 08-MEASUREMENT.md (Wave 8)
 
 #### Phase 9: Delete Old Log Macros + Measure Flash Savings
 **Goal**: All legacy firmware log infrastructure (`rurp_log`, `rurp_log_P`, `LOG_*_MSG` PROGMEM string literals, and the `log_info_const` / `log_error_format` / `log_warn` macros) is deleted from `firestarter/src/`, `firestarter/include/`, and `firestarter/lib/`. The firmware major version bumps to 3.0.0 so old hosts refuse to talk to new firmware (and vice versa). A formal flash-usage measurement is recorded for both Uno and Leonardo, with the Leonardo number compared to the v1.1 baseline of 98.7%.
