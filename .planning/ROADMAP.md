@@ -80,7 +80,7 @@
 - [x] 08-01-PLAN.md — Catalog additions (VPP/VPE/CHUNK/DEBUG) + codegen [debug] support + sync (Wave 1)
 - [x] 08-02-PLAN.md — Wire-format len u8→u16 widening (firmware + host atomic; Wave 2)
 - [x] 08-03-PLAN.md — Host parser surgical prefix-matching removal + sentinel rendering (Wave 3)
-- [ ] 08-04-PLAN.md — New LOG_*_ID macro families + simple OK/INIT/MAIN/END/DATA populate-sites (Wave 4)
+- [x] 08-04-PLAN.md — New LOG_*_ID macro families + simple OK/INIT/MAIN/END/DATA populate-sites (Wave 4)
 - [ ] 08-05-PLAN.md — P-01..P-04 composite OK_REV/OK_CFG/FW_HANDSHAKE + VPP/VPE DATA + MSG_DATA_CHUNK streaming (Wave 5)
 - [ ] 08-06-PLAN.md — _check_response strip + response_msg field deletion + copy_to_buffer macro deletion (Wave 6, R-01/R-03)
 - [ ] 08-07-PLAN.md — debug() single-sweep conversion to MSG_DEBUG + sub_id channel (Wave 7, B-01..B-04)

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Message-ID Logging Rework
 status: executing
-last_updated: "2026-05-18T19:17:35.222Z"
+last_updated: "2026-05-18T19:24:53.979Z"
 last_activity: 2026-05-18
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 27
-  completed_plans: 22
+  completed_plans: 23
   percent: 40
 ---
 
@@ -21,7 +21,7 @@ progress:
 ## Current Position
 
 Phase: 08 (Convert State-Machine Prefix Call-Sites (OK/INIT/MAIN/END)) — EXECUTING
-Plan: 4 of 8
+Plan: 5 of 8
 Status: Ready to execute
 Resume from: `.planning/phases/08-convert-state-machine-prefix-call-sites-ok-init-main-end/08-02-PLAN.md`
 Last activity: 2026-05-18
@@ -137,6 +137,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 08 P08-01 | 25min | 3 tasks | 9 files |
 | Phase 08 P02 | 19 | 2 tasks | 5 files |
 | Phase 08 P03 | 20min | 2 tasks | 2 files |
+| Phase 08 P04 | 20min | 6 tasks | 7 files |
 
 ## Decisions
 
@@ -175,3 +176,5 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase ?]: bytes param type decodes all remaining buf as raw bytes; filtered from printf tuple
 - [Phase ?]: Phase 08-03: _format_message added as instance method on SerialCommunicator; returns None to fall through to generic catalog rendering for non-sentinel IDs
 - [Phase ?]: Phase 08-03: INIT/MAIN/END removed from EXPECTED_PREFIXES; STATE_MACHINE_PREFIXES emptied; dead Done-rewrite branch removed from _log_rurp_feedback
+- [Phase ?]: LOG_DATA_ID_U32_U32 composite packs two u32 values as 8 big-endian bytes — covers MSG_DATA_PROGRESS; LOG_DATA_ID_U16_U16 declared for Plan 05 VPP/VPE symmetry
+- [Phase ?]: Phase 08-04: 10 call-sites converted (3 state-machine acks, 2 trivial OK/DATA, 5 R-02 populate-sites) using LOG_OK_ID_*/LOG_INIT_ID_*/LOG_MAIN_ID_*/LOG_END_ID_*/LOG_DATA_ID_* families
