@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Message-ID Logging Rework
 status: executing
-last_updated: "2026-05-18T12:13:26.858Z"
+last_updated: "2026-05-18T12:19:01.471Z"
 last_activity: 2026-05-18
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 6
-  completed_plans: 4
+  completed_plans: 5
   percent: 0
 ---
 
@@ -21,7 +21,7 @@ progress:
 ## Current Position
 
 Phase: 06 (logging-infrastructure) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 Status: Ready to execute
 Resume from: `.planning/phases/06-logging-infrastructure/06-05-PLAN.md` (CI drift gate)
 Last activity: 2026-05-18
@@ -122,6 +122,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 06 P02 | 30 min | 2 tasks | 12 files |
 | Phase 06 P03 | 5min | 3 tasks | 5 files |
 | Phase 06 P06-04 | ~6 min | 2 tasks | 3 files |
+| Phase 06 P06 | 8 min | 1 tasks | 1 files |
 
 ## Decisions
 
@@ -134,3 +135,4 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase ?]: Reference CRC in test conftest is table-FREE — independent of production lookup table (catches table drift)
 - [Phase ?]: _read_and_parse_lines unified text+binary dispatch through single yield surface (D-05)
 - [Phase ?]: Phase 6 Plan 04: re-raise resolution + locked wording + escape hatch
+- [Phase 06]: Plan 06-06: Decision Case A — Leonardo Phase 6 close at 98.7% (28,292/28,672 B, 380 B free); −7 B vs v1.1 close baseline (rounding noise; same 98.7% display). LMIG-01 coexistence proven; no -D NO_TEXT_LOGS fall-back required. Uno baseline established at 80.9% (6,156 B free).

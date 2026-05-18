@@ -41,7 +41,7 @@
 - [x] 06-03-PLAN.md — Host pytest infrastructure + always-on byte-stream reader + `_decode_id_frame` + LHOST-01/02/03 acceptance suite
 - [x] 06-04-PLAN.md — Host fw-version refuse guard + `FIRESTARTER_DEV_ALLOW_PRE_V12` escape hatch + 4 unit tests
 - [ ] 06-05-PLAN.md — CI drift gates (firmware build.yml modified, host ci.yml new, meta-repo catalog-sync-check.yml new)
-- [ ] 06-06-PLAN.md — Phase 6 close flash budget measurement (Leonardo + Uno) with fall-back plan
+- [x] 06-06-PLAN.md — Phase 6 close flash budget measurement (Leonardo + Uno) with fall-back plan
 
 #### Phase 7: Convert ERROR + WARN + INFO Call-Sites
 **Goal**: Every firmware ERROR, WARN, and INFO log call-site is emitted via `rurp_log_id` (or the LOG_* macro form) with parameters as raw byte arrays per the catalog. The host renders these frames identically to how the text-format messages used to read in the CLI output. Old log helpers remain present in firmware **only** for the state-machine prefix acks (`OK:` / `INIT:` / `MAIN:` / `END:`), which are still text-formatted at the end of this phase.
