@@ -37,14 +37,14 @@ Each requirement maps to exactly one v1.2 roadmap phase (numbering continues fro
 
 ### Logging CI / Build integration
 
-- [ ] **LCI-01**: The firmware sub-repo (`firestarter/`) has a CI step that runs codegen (regenerates `messages.h` from canonical catalog) and asserts no `git diff` on the generated file. Drift fails the CI run.
-- [ ] **LCI-02**: The host sub-repo (`firestarter_app/`) has the equivalent CI step for `messages.py`. Drift fails CI.
-- [ ] **LCI-03**: Both sub-repo builds (`pio run`, `pip install -e .` test paths) run codegen before compile/test, so a developer who edits the canonical catalog locally sees the updated generated files appear in their working tree.
-- [ ] **LCI-04**: Catalog validity (LCAT-02) is checked as part of codegen and CI; an invalid catalog file fails both local builds and CI before any source generation happens.
+- [x] **LCI-01**: The firmware sub-repo (`firestarter/`) has a CI step that runs codegen (regenerates `messages.h` from canonical catalog) and asserts no `git diff` on the generated file. Drift fails the CI run.
+- [x] **LCI-02**: The host sub-repo (`firestarter_app/`) has the equivalent CI step for `messages.py`. Drift fails CI.
+- [x] **LCI-03**: Both sub-repo builds (`pio run`, `pip install -e .` test paths) run codegen before compile/test, so a developer who edits the canonical catalog locally sees the updated generated files appear in their working tree.
+- [x] **LCI-04**: Catalog validity (LCAT-02) is checked as part of codegen and CI; an invalid catalog file fails both local builds and CI before any source generation happens.
 
 ### Logging Migration
 
-- [ ] **LMIG-01**: **Phase A (infrastructure-only)**: catalog + codegen + `rurp_log_id` helper + host decoder all land in a single phase, without removing any existing log code. Firmware compiles and links with both old `rurp_log(LOG_*_MSG, ...)` and new `rurp_log_id(...)` paths available. Old hosts continue working against unchanged firmware behavior.
+- [x] **LMIG-01**: **Phase A (infrastructure-only)**: catalog + codegen + `rurp_log_id` helper + host decoder all land in a single phase, without removing any existing log code. Firmware compiles and links with both old `rurp_log(LOG_*_MSG, ...)` and new `rurp_log_id(...)` paths available. Old hosts continue working against unchanged firmware behavior.
 - [ ] **LMIG-02**: **Phase B (error + info conversion)**: firmware ERROR + WARN + INFO log call-sites are converted to `rurp_log_id` form. Each batch commits separately by call-site cluster (one PROM module at a time). Old log helpers still present for OK/INIT/MAIN/END prefixes.
 - [ ] **LMIG-03**: **Phase C (state-machine prefix conversion)**: `OK:` / `INIT:` / `MAIN:` / `END:` call-sites are converted. Host parser switches from line-prefix matching to ID-frame decoding for state-machine acks. **`DATA:` prefix marker remains as literal text** (gates the host's binary read loop and is not changed in v1.2).
 - [ ] **LMIG-04**: **Phase D (delete + measure)**: Old `rurp_log` / `rurp_log_P` / `LOG_*_MSG` PROGMEM definitions and `log_info_const` / `log_error_format` / `log_warn` macros are removed. `pio run -e leonardo` produces a final flash-savings number documented in the milestone close. Target: bring Leonardo flash below 90% with measurable headroom.
@@ -93,11 +93,11 @@ Each requirement maps to exactly one v1.2 phase. Phase numbering continues from 
 | LHOST-02 | Phase 6 | Complete |
 | LHOST-03 | Phase 6 | Complete |
 | LHOST-04 | Phase 6 | Complete |
-| LCI-01  | Phase 6 | Pending |
-| LCI-02  | Phase 6 | Pending |
-| LCI-03  | Phase 6 | Pending |
-| LCI-04  | Phase 6 | Pending |
-| LMIG-01 | Phase 6 | Pending |
+| LCI-01  | Phase 6 | Complete |
+| LCI-02  | Phase 6 | Complete |
+| LCI-03  | Phase 6 | Complete |
+| LCI-04  | Phase 6 | Complete |
+| LMIG-01 | Phase 6 | Complete |
 | LMIG-02 | Phase 7 | Pending |
 | LMIG-03 | Phase 8 | Pending |
 | LMIG-04 | Phase 9 | Pending |

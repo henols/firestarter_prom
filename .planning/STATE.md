@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Message-ID Logging Rework
-status: executing
-last_updated: "2026-05-18T12:19:01.471Z"
+status: verifying
+last_updated: "2026-05-18T12:27:49.485Z"
 last_activity: 2026-05-18
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 6
-  completed_plans: 5
-  percent: 0
+  completed_plans: 6
+  percent: 20
 ---
 
 # Project State
@@ -22,7 +22,7 @@ progress:
 
 Phase: 06 (logging-infrastructure) — EXECUTING
 Plan: 6 of 6
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Resume from: `.planning/phases/06-logging-infrastructure/06-05-PLAN.md` (CI drift gate)
 Last activity: 2026-05-18
 
@@ -123,6 +123,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 06 P03 | 5min | 3 tasks | 5 files |
 | Phase 06 P06-04 | ~6 min | 2 tasks | 3 files |
 | Phase 06 P06 | 8 min | 1 tasks | 1 files |
+| Phase 06 P06-05 | ~7min | 3 tasks | 3 files |
 
 ## Decisions
 
@@ -136,3 +137,6 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase ?]: _read_and_parse_lines unified text+binary dispatch through single yield surface (D-05)
 - [Phase ?]: Phase 6 Plan 04: re-raise resolution + locked wording + escape hatch
 - [Phase 06]: Plan 06-06: Decision Case A — Leonardo Phase 6 close at 98.7% (28,292/28,672 B, 380 B free); −7 B vs v1.1 close baseline (rounding noise; same 98.7% display). LMIG-01 coexistence proven; no -D NO_TEXT_LOGS fall-back required. Uno baseline established at 80.9% (6,156 B free).
+- [Phase ?]: Phase 06-05: release.yml NOT given needs:[ci] gate — optional per plan; retrofittable later if bad-catalog→tag→PyPI race ever bites.
+- [Phase ?]: Phase 06-05: Meta-repo catalog-sync-check.yml uses cmp (byte-equality, load-bearing) + diff (readable failure dump) together; submodules:recursive on meta-repo checkout per orchestrator objective.
+- [Phase ?]: Phase 06-05: GitHub slugs pinned to henols/firestarter and henols/firestarter_app (confirmed via git remote get-url origin).

@@ -1,0 +1,54 @@
+# Phase 6 (LCI-02 supplementary): cross-sub-repo authority assertion per RESEARCH §"Authority Assertion". Triggers on catalog edits OR this workflow's own edits.
+name: Catalog sync check
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - '.planning/catalog/**'
+    - '.github/workflows/catalog-sync-check.yml'
+  pull_request:
+    branches:
+    - main
+    paths:
+    - '.planning/catalog/**'
+    - '.github/workflows/catalog-sync-check.yml'
+  workflow_dispatch:
+
+jobs:
+  sync-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out meta-repo
+        uses: actions/checkout@v4
+        with:
+          path: meta
+          submodules: recursive
+
+      - name: Check out firestarter (firmware sub-repo)
+        uses: actions/checkout@v4
+        with:
+          repository: henols/firestarter
+          path: firestarter
+          ref: main
+
+      - name: Check out firestarter_app (host sub-repo)
+        uses: actions/checkout@v4
+        with:
+          repository: henols/firestarter_app
+          path: firestarter_app
+          ref: main
+
+      - name: Assert cross-sub-repo vendored catalog identity
+        run: |
+          cmp firestarter/tools/catalog/messages.toml firestarter_app/tools/catalog/messages.toml
+          diff firestarter/tools/catalog/messages.toml firestarter_app/tools/catalog/messages.toml
+          echo "OK: vendored messages.toml byte-identical across sub-repos"
+
+      - name: Assert vendored catalog matches meta-repo authoritative copy
+        run: |
+          cmp meta/.planning/catalog/messages.toml firestarter/tools/catalog/messages.toml
+          cmp meta/.planning/catalog/messages.toml firestarter_app/tools/catalog/messages.toml
+          diff meta/.planning/catalog/messages.toml firestarter/tools/catalog/messages.toml
+          diff meta/.planning/catalog/messages.toml firestarter_app/tools/catalog/messages.toml
+          echo "OK: meta-repo authority preserved end-to-end"
