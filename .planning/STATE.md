@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Message-ID Logging Rework
 status: executing
-last_updated: "2026-05-18T19:24:53.979Z"
+last_updated: "2026-05-18T19:37:49.964Z"
 last_activity: 2026-05-18
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 27
-  completed_plans: 23
+  completed_plans: 24
   percent: 40
 ---
 
@@ -21,7 +21,7 @@ progress:
 ## Current Position
 
 Phase: 08 (Convert State-Machine Prefix Call-Sites (OK/INIT/MAIN/END)) — EXECUTING
-Plan: 5 of 8
+Plan: 6 of 8
 Status: Ready to execute
 Resume from: `.planning/phases/08-convert-state-machine-prefix-call-sites-ok-init-main-end/08-02-PLAN.md`
 Last activity: 2026-05-18
@@ -138,6 +138,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 08 P02 | 19 | 2 tasks | 5 files |
 | Phase 08 P03 | 20min | 2 tasks | 2 files |
 | Phase 08 P04 | 20min | 6 tasks | 7 files |
+| Phase 08 P05 | 45min | 4 tasks | 11 files |
 
 ## Decisions
 
