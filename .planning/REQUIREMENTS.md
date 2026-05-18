@@ -14,7 +14,7 @@ Each requirement maps to exactly one v1.2 roadmap phase (numbering continues fro
 
 ### Logging Catalog (canonical source + codegen)
 
-- [x] **LCAT-01**: A single canonical catalog file in the meta-repo (e.g. `.planning/catalog/messages.yaml` or equivalent) declares every firmware log message as `{id, symbolic_name, format_string, parameter_shape}`. The file is the source of truth — no message exists in firmware or host code without an entry here.
+- [x] **LCAT-01**: A single canonical catalog file in the meta-repo (`tools/catalog/messages.toml`) declares every firmware log message as `{id, symbolic_name, format_string, parameter_shape}`. The file is the source of truth — no message exists in firmware or host code without an entry here.
 - [x] **LCAT-02**: Catalog validation enforces: unique 1-byte IDs (0–255), unique symbolic names, well-formed parameter shapes (each param has a type: `u8` / `u16` / `u24` / `u32` / `i8` / `i16` / `i32`), and a non-empty format_string. Validation runs as part of codegen and fails the build on violation.
 - [x] **LCAT-03**: A codegen script (in `tools/` or equivalent) produces a C++ header (e.g. `firestarter/include/messages.h`) containing the message-ID enum + symbolic name constants + a `MSG_PARAM_COUNT(id)` helper, deterministically from the canonical catalog.
 - [x] **LCAT-04**: The same codegen script produces a Python module (e.g. `firestarter_app/firestarter/messages.py`) containing the ID → format-string + parameter-shape lookup, deterministically from the canonical catalog.

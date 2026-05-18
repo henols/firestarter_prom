@@ -6,7 +6,7 @@
 # two sub-repos' tools/catalog/ directories. Verifies byte-identical copies
 # via `diff -q` after each copy. Exits non-zero on any mismatch.
 #
-# Authoritative source: .planning/catalog/{messages.toml,codegen.py}
+# Authoritative source: tools/catalog/{messages.toml,codegen.py}
 # Targets:
 #   firestarter/tools/catalog/{messages.toml,codegen.py}
 #   firestarter_app/tools/catalog/{messages.toml,codegen.py}
@@ -24,7 +24,7 @@ META_REPO_CATALOG="$SCRIPT_DIR"
 FILES=(messages.toml codegen.py)
 
 # Targets are relative to the meta-repo (this script lives at
-# .planning/catalog/, so the two sub-repos are ../../{firestarter,firestarter_app}).
+# tools/catalog/, so the two sub-repos are ../../{firestarter,firestarter_app}).
 TARGETS=(
     "$META_REPO_CATALOG/../../firestarter/tools/catalog"
     "$META_REPO_CATALOG/../../firestarter_app/tools/catalog"

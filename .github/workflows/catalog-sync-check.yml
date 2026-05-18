@@ -5,13 +5,13 @@ on:
     branches:
     - main
     paths:
-    - '.planning/catalog/**'
+    - 'tools/catalog/**'
     - '.github/workflows/catalog-sync-check.yml'
   pull_request:
     branches:
     - main
     paths:
-    - '.planning/catalog/**'
+    - 'tools/catalog/**'
     - '.github/workflows/catalog-sync-check.yml'
   workflow_dispatch:
 
@@ -47,8 +47,8 @@ jobs:
 
       - name: Assert vendored catalog matches meta-repo authoritative copy
         run: |
-          cmp meta/.planning/catalog/messages.toml firestarter/tools/catalog/messages.toml
-          cmp meta/.planning/catalog/messages.toml firestarter_app/tools/catalog/messages.toml
-          diff meta/.planning/catalog/messages.toml firestarter/tools/catalog/messages.toml
-          diff meta/.planning/catalog/messages.toml firestarter_app/tools/catalog/messages.toml
+          cmp meta/tools/catalog/messages.toml firestarter/tools/catalog/messages.toml
+          cmp meta/tools/catalog/messages.toml firestarter_app/tools/catalog/messages.toml
+          diff meta/tools/catalog/messages.toml firestarter/tools/catalog/messages.toml
+          diff meta/tools/catalog/messages.toml firestarter_app/tools/catalog/messages.toml
           echo "OK: meta-repo authority preserved end-to-end"
