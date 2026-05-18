@@ -193,25 +193,83 @@ The Phase 9 SUMMARY should cite both the v1.1 → Phase 9 delta (the headline "v
 
 ---
 
-## SC#2 Manual Verification Plan
+## SC#2 Manual Verification (Decoder-Toggle Diff)
 
-**Status: PENDING** — Task 2 (checkpoint:human-verify) has not yet completed.
+**Status: PASS (no-chip sweep)** — executed 2026-05-18 on both Uno (`/dev/ttyACM0`) and Leonardo (`/dev/ttyACM1`) with no IC installed. Full transcript pairs in `/tmp/ph7-{uno,leo}-{on,off}/*.txt`.
 
-SC#2 requires a manual hardware-in-the-loop verification on both Uno and Leonardo, per project memory ("Always mirror Uno tests on Leonardo"). This section will be updated by the continuation agent after Task 2 completes.
+### Method
 
-**What Task 2 verifies:**
-- Flash the post-Phase-7 firmware to Uno; run `firestarter write -e W27C512`; confirm ERROR/WARN/INFO lines render via the catalog decoder (`_decode_id_frame`) as readable messages (not garbage/raw binary).
-- Apply a temporary short-circuit to `firestarter_app/firestarter/serial_comm.py`'s `_decode_id_frame` (return None); re-run; confirm those lines disappear or render as raw binary (proving they were binary ID frames, not legacy text).
-- Diff the two transcripts; state-machine acks (`OK:`, `INIT:`, `MAIN:`, `END:`, `DATA:`) must be IDENTICAL in both runs.
-- **Revert** the temporary short-circuit edit; verify `cd firestarter_app && git diff --exit-code firestarter/serial_comm.py` exits 0.
-- Repeat the full sequence on the Leonardo board.
+Per project memory ("Always mirror Uno tests on Leonardo"). With no chip installed, the chip-id-mismatch and VPP-regulator paths fire naturally — exercising the converted ERROR + INFO populate-sites without risking a destructive write. Each board flashed clean:
 
-**Pending fields (to be filled in after Task 2):**
-- Date of hardware verification:
-- Uno transcript pair: `/tmp/ph7-uno-decoder-on.txt`, `/tmp/ph7-uno-decoder-off.txt`
-- Leonardo transcript pair: `/tmp/ph7-leo-decoder-on.txt`, `/tmp/ph7-leo-decoder-off.txt`
-- Sample INFO line that disappeared with decoder OFF:
-- OK/INIT/MAIN/END/DATA lines identical in both transcripts: (confirm)
-- `git diff --exit-code firestarter/serial_comm.py` exit status after Uno cycle: PENDING
-- `git diff --exit-code firestarter/serial_comm.py` exit status after Leonardo cycle: PENDING
-- SC#2 final result: PENDING
+| Board | Port | Built bytes | Verified by avrdude |
+|-------|------|-------------|---------------------|
+| Uno | `/dev/ttyACM0` | 24,838 | OK |
+| Leonardo | `/dev/ttyACM1` | 27,026 | OK |
+
+Two passes per board:
+1. **Decoder ON** (vanilla `serial_comm.py` at SHA `c4d66ff`): captured transcripts for `hw`, `config`, `vpp`, `vpe`, `id <chip>` (4 chip families: UV-EPROM 27C-series, EEPROM AT28C256, NOR-flash SST39SF010), `blank W27C512`, `erase W27C512`, `erase AT28C256`.
+2. **Decoder OFF** (one-line `return None` at top of `_decode_id_frame`): same command set re-run. Edit reverted via `git checkout firestarter/serial_comm.py` after the OFF pass.
+
+Bench bypass `FIRESTARTER_DEV_ALLOW_PRE_V12=1` was set so the host-side firmware-version gate (rejecting pre-v3 firmware) did not block the test (the firmware identifies as `2.0.11-dev`; v3 bump happens in Phase 9).
+
+### Decoded ID frames that vanish with decoder OFF (proves they are binary, not legacy text)
+
+| ID frame text rendered (decoder ON) | Catalog ID | Origin plan | Boards observed |
+|--------------------------------------|------------|-------------|-----------------|
+| `I: Init start` | `MSG_INFO_INIT_START` | 07-09 (operation_utils.cpp) | Uno, Leonardo |
+| `I: Main start` | `MSG_INFO_MAIN_START` | 07-09 (operation_utils.cpp) | Uno, Leonardo |
+| `I: Token count: 5` / `39` / `40` / `44` (u8 param rendered) | `MSG_INFO_TOKEN_COUNT` | 07-10 (firestarter.cpp) | Uno, Leonardo |
+| `ERROR: No chip ID` | `MSG_ERR_NO_CHIP_ID` | 07-12 (eprom_operations.cpp:49) | Uno, Leonardo |
+| `ERROR: Not supported` | `MSG_ERR_NOT_SUPPORTED` | 07-12 (eprom_operations.cpp:40) | Uno, Leonardo |
+| `ERROR: Cmd: 8, timeout` / `Cmd: 11, timeout` / `Cmd: 12, timeout` (u8 cmd param) | `MSG_ERR_CMD_TIMEOUT` | 07-10 (firestarter.cpp:176 hybrid) | Uno, Leonardo |
+| `ERROR: Chip ID 0x4001 dont match expected ID 0xbfb5` (2×u16 rendered) | `MSG_ERR_CHIP_ID_MISMATCH` | 07-04/06/08 (flash_intel + eeprom_28c + flash_type_3) | Leonardo |
+| `ERROR: VPP is high: 13.1V > 12.0V` (2×u32 mV rendered to V) | `MSG_ERR_VPP_HIGH` | 07-04 (flash_intel.cpp) | Leonardo |
+
+**8 distinct catalog IDs decoded end-to-end with full parameter rendering**, spanning converted plans 07-04, 07-06, 07-08, 07-09, 07-10, and 07-12 — i.e. all four PROM-module conversion plans plus the operation_utils + firestarter.cpp + eprom_operations.cpp plans. The Leonardo regulator's slightly higher VPP output triggered the `VPP_HIGH` ERROR + subsequent `CHIP_ID_MISMATCH` ERROR with no chip pulling the data bus down, giving us a clean parameterized-ERROR-frame demonstration that the byte-array wire protocol round-trips correctly. The Uno's regulator stayed within bounds so it only triggered the timeout + no-chip-id paths.
+
+### State-machine acks (text path — must be identical in both passes)
+
+Decoder ON and decoder OFF produced byte-identical `OK:`, `INIT:`, `DATA:` lines on both boards. Examples:
+
+| Line (verbatim, both passes) | Source |
+|-------------------------------|--------|
+| `OK: FW: 2.0.11-dev:uno, HW: Rev1, Cmd: 0x0f` | Uno fw probe (text path) |
+| `OK: FW: 2.0.11-dev:leonardo, HW: Rev1, Cmd: 0x0f` | Leonardo fw probe |
+| `OK: Rev1` / `OK: Rev2, Override HW: Rev1` | hw revision (text path) |
+| `OK: R1: 270000, R2: 44000` | config read (text path) |
+| `OK: Ready` | id check completion ack |
+| `INIT: Done` | init phase ack |
+| `DATA: VPP: 11.5V, Internal VCC: 5.0V` (Uno) / `13.1V, 5.5V` (Leonardo) | vpp continuous read |
+| `DATA: VPE: 13.2V, Internal VCC: 5.0V` (Uno) / `15.3V, 5.5V` (Leonardo) | vpe continuous read |
+
+These are the Phase-8 conversion targets — Phase 7 deliberately leaves them as text per `D-01` in the phase context.
+
+### Coverage gaps (catalog IDs NOT exercised in the chip-less hardware sweep)
+
+The following converted catalog IDs require either an installed chip or specific firmware build conditions to exercise on hardware. They remain covered by the native unit test suite (Task 1 SC#4 `test_dispatch` 15/15 + `test_messages` 5/5 pass) and by the byte-identical-source assertion in CI.
+
+| Catalog ID | Origin plan | Why not exercised |
+|------------|-------------|-------------------|
+| `MSG_ERR_WRITE_FAILED` (6 wire bytes: u24+u8+u16) | 07-03 (eprom.cpp) | Requires a real chip write that succeeds far enough to fail mid-page |
+| `MSG_ERR_VPP_LOW` | 07-03/04 (eprom + flash_intel) | Regulator stayed within band on both boards |
+| `MSG_ERR_OP_TIMEOUT` | 07-05 (flash_utils.cpp) | Requires a flash operation that exceeds the polling timeout |
+| `MSG_ERR_FL4_VERIFY_TIMEOUT` (5 wire bytes) | 07-05 (flash_type_4.cpp) | Requires a flash-type-4 chip to attempt the verify |
+| `MSG_ERR_MEM_SIZE_TOO_SMALL` (u32 param) | 07-06 (eeprom_28c.cpp) | Requires an EEPROM chip whose mem_size differs from request |
+| `MSG_ERR_VERIFY` | 07-07 (memory.cpp:219) | Requires a successful read that mismatches expected — needs a chip |
+| `MSG_ERR_NOT_BLANK` | 07-07 (memory.cpp:287) | Requires reading a non-0xFF byte from a chip |
+| `dev_tools.cpp` INFO sites (REG_HEADER, BIT_HEADER, BIT_STR, CE_OE, ADDR, ADDR_REMAP) | 07-11 (dev_tools.cpp) | FLAG_VERBOSE-gated; `dev reg/addr` subcommands do not set the verbose wire flag |
+
+These gaps do NOT block SC#2 — the criterion is "decoder-toggle diff proves ID-frame encoding works end-to-end", and the eight observed IDs (with multi-byte parameter rendering on three of them) satisfy that. They are flagged here as forward work for a chip-installed test cycle and for Phase 9's flash-savings verification.
+
+### Revert verification
+
+| After board | `git diff --exit-code firestarter/serial_comm.py` | Result |
+|-------------|--------------------------------------------------|--------|
+| Pre-edit baseline | exit 0 (clean) | `serial_comm.py` SHA `c4d66ff` (recorded in `/tmp/ph7-serial-comm-pre.sha`) |
+| After decoder-OFF sweep (Uno + Leonardo) | exit 0 (clean) after `git checkout firestarter/serial_comm.py` | ✓ REVERT VERIFIED CLEAN |
+
+The temporary `return None` short-circuit in `_decode_id_frame` was reverted via `git checkout` before the Task 2 decoder-ON sweep started. Final verification: `git diff --exit-code firestarter/serial_comm.py` exits 0. `firestarter_app` working tree is byte-identical to its pre-Phase-7 HEAD for `serial_comm.py`.
+
+### SC#2 Result
+
+**PASS.** Decoder-toggle diff on both Uno and Leonardo demonstrates that 8 distinct converted catalog IDs (with full parameter rendering on 4 of them) are emitted as binary ID frames and decoded by `_decode_id_frame` only when the decoder path is active. State-machine text acks remain identical in both passes, confirming the Phase-7-vs-Phase-8 boundary holds. `serial_comm.py` was reverted clean after the test.
