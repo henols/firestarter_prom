@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Message-ID Logging Rework
 status: executing
-last_updated: "2026-05-18T11:55:39.815Z"
+last_updated: "2026-05-18T12:05:33.085Z"
 last_activity: 2026-05-18
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 6
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -21,7 +21,7 @@ progress:
 ## Current Position
 
 Phase: 06 (logging-infrastructure) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Resume from: `.planning/phases/06-logging-infrastructure/06-02-PLAN.md` (Wave 1 firmware helper)
 Last activity: 2026-05-18
@@ -120,6 +120,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 |-------|------|----------|-------|
 | Phase 06 P06-01 | 10m | 2 tasks | 10 files |
 | Phase 06 P02 | 30 min | 2 tasks | 12 files |
+| Phase 06 P03 | 5min | 3 tasks | 5 files |
 
 ## Decisions
 
@@ -128,3 +129,6 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase ?]: Plan 06-01: Catalog distribution = meta-repo authoritative + vendored sub-repo copies + cross-sub-repo byte-identity assertion in sync_to_subrepos.sh.
 - [Phase ?]: Leonardo override: zero-diff (weak rurp_log_id default suffices — no com_mode global, no PORTD aliasing on USB-CDC; confirms T-06-08 acceptance)
 - [Phase ?]: Phase 06-02: Native test binary links real rurp_serial_utils.cpp + messages.c via widened [env:native] src_filter — production CRC8 table + emitter validated end-to-end
+- [Phase ?]: Host decoder ascii_str decode uses errors='replace' for visible tamper surface
+- [Phase ?]: Reference CRC in test conftest is table-FREE — independent of production lookup table (catches table drift)
+- [Phase ?]: _read_and_parse_lines unified text+binary dispatch through single yield surface (D-05)

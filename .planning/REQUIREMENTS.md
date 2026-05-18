@@ -30,9 +30,9 @@ Each requirement maps to exactly one v1.2 roadmap phase (numbering continues fro
 
 ### Logging Host-side
 
-- [ ] **LHOST-01**: `firestarter_app/firestarter/serial_comm.py` parses incoming ID-encoded log frames using the generated `messages.py` catalog: reads 1-byte ID, reads N bytes of params per the declared shape, and yields a `LogMessage(severity, text)` for downstream display.
-- [ ] **LHOST-02**: The formatter renders parameters into the format_string using the declared types — e.g. `[u16]` rendered as the integer value, `[u24]` rendered as a 6-hex-digit address (`0x{:06X}`). Rendering rules are part of the catalog (per-param: integer / hex / decimal / signed / ascii-char).
-- [ ] **LHOST-03**: The host's existing log severity routing (`logger.warning`, `logger.error`, etc. per current `_log_rurp_feedback`) is preserved — severity is derived from the catalog entry's category (`OK` / `INIT` / `MAIN` / `END` / `INFO` / `WARN` / `ERROR` / `DATA`), and the host logger receives the formatted human-readable line.
+- [x] **LHOST-01**: `firestarter_app/firestarter/serial_comm.py` parses incoming ID-encoded log frames using the generated `messages.py` catalog: reads 1-byte ID, reads N bytes of params per the declared shape, and yields a `LogMessage(severity, text)` for downstream display.
+- [x] **LHOST-02**: The formatter renders parameters into the format_string using the declared types — e.g. `[u16]` rendered as the integer value, `[u24]` rendered as a 6-hex-digit address (`0x{:06X}`). Rendering rules are part of the catalog (per-param: integer / hex / decimal / signed / ascii-char).
+- [x] **LHOST-03**: The host's existing log severity routing (`logger.warning`, `logger.error`, etc. per current `_log_rurp_feedback`) is preserved — severity is derived from the catalog entry's category (`OK` / `INIT` / `MAIN` / `END` / `INFO` / `WARN` / `ERROR` / `DATA`), and the host logger receives the formatted human-readable line.
 - [ ] **LHOST-04**: The host's fw-version check refuses to talk to firmware older than v1.2's major bump (per LFW-05). Error message instructs the operator to upgrade firmware. No fallback to old text-protocol parsing.
 
 ### Logging CI / Build integration
@@ -89,9 +89,9 @@ Each requirement maps to exactly one v1.2 phase. Phase numbering continues from 
 | LFW-03  | Phase 9 | Pending |
 | LFW-04  | Phase 9 | Pending |
 | LFW-05  | Phase 6 | Pending |
-| LHOST-01 | Phase 6 | Pending |
-| LHOST-02 | Phase 6 | Pending |
-| LHOST-03 | Phase 6 | Pending |
+| LHOST-01 | Phase 6 | Complete |
+| LHOST-02 | Phase 6 | Complete |
+| LHOST-03 | Phase 6 | Complete |
 | LHOST-04 | Phase 6 | Pending |
 | LCI-01  | Phase 6 | Pending |
 | LCI-02  | Phase 6 | Pending |
