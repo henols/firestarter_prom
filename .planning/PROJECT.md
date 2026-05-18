@@ -2,26 +2,34 @@
 
 **Created:** 2026-05-08
 **v1.0 shipped:** 2026-05-11
-**Active milestone:** v1.1 — Safety Closure & Hardware Validation (started 2026-05-11)
+**v1.1 status:** Parked at 80% (Phase 4 hardware-validation open — FM1608 byte-0 bug requires a different Uno board to unblock; see `.planning/debug/fm1608-fresh-chip-baseline.md`)
+**Active milestone:** v1.2 — Message-ID Logging Rework (started 2026-05-18)
 
-## Current Milestone: v1.1 Safety Closure & Hardware Validation
+## Current Milestone: v1.2 Message-ID Logging Rework
 
-**Goal:** Close the v1.0 audit gaps (Intel-flash REQ-SAF-01, WARNING-2/3/4) and bring the four canon chip-family flows under real-hardware validation with formal verification artifacts.
+**Goal:** Replace firmware text-string logs with numeric message IDs + raw parameter byte arrays. The format catalog and decoding logic move from firmware PROGMEM to the Python host. Driven by Leonardo flash pressure (currently 98.7% Flash usage) and the protocol-cleanliness benefit of removing per-call string literals.
 
 **Target features:**
-- Intel-flash REQ-SAF-01 closure — VPP ADC compare in `flash_intel_write_init` (39 chips, algo=0x10)
-- Retroactive `VERIFICATION.md` artifacts for Phases 01-10 (close 13 PARTIAL audit findings)
-- Hardware-validation pass on a real RURP shield for W27C512, 29F040, SST39SF040, AT28C256
-- WARNING-2 — wire `handle->chip_id` into `eeprom_28c.cpp::eeprom28c_write_init` (forward-compat)
-- WARNING-3 — rename wire JSON `"vpp"` → `"vpp_mv"` end-to-end (Python emit + firmware parse + docs)
-- WARNING-4 — fix `firestarter_test.sh` + `write_test.sh` references to deleted `database_generated.json`
-- **Minipro reference cleanup** — rename `minipro_complete_db.json` → neutral name and reduce "minipro" mentions in app code/CLAUDE.md docs to a single attribution where the upstream URL constant lives
+- **Canonical message catalog** — single source-of-truth file in the meta-repo (e.g. `messages.yaml`) declaring `id → format_string + parameter_shape` for every firmware log message
+- **Codegen pipeline** — build step generates `firestarter/include/messages.h` (C++ enum + ID constants) and `firestarter_app/firestarter/messages.py` (host-side decoder catalog) from the canonical file. Generated files committed; CI regenerates and diffs to fail on drift
+- **Firmware send-by-ID helper** — `rurp_log_id(msg_id, param_bytes, param_count)` replaces existing `rurp_log(LOG_*_MSG, char*)`. Eliminates per-call PROGMEM string overhead
+- **Host decoder** — `serial_comm.py` reads ID + param bytes, looks up format + shape in generated catalog, formats for display/logging
+- **Scope: all firmware logs** — every `OK:`, `INIT:`, `MAIN:`, `END:`, `INFO:`, `WARN:`, `ERROR:` message is migrated; only the `DATA:` binary read-payload stream stays untouched
+- **Phased migration** — Phase A: infrastructure (no removals). Phase B: convert error/info call-sites. Phase C: convert state-machine prefixes. Phase D: delete old log macros + measure final flash savings
 
-**Out for v1.1** (deferred):
-- `build_db.py` bare-except + missing `raise_for_status()`/`timeout` robustness
-- Restoring the `verified` field on `minipro_complete_db.json` entries
-- DIP28/DIP32 `static-high-pins` coverage in `pinouts.json`
-- `DIP24_2732` pinout audit
+**Constraints (locked at milestone start):**
+- **Lockstep upgrade**: firmware + host upgrade together; firmware version bump enforces; no fallback to old text format
+- **1-byte IDs**: 0–255 distinct messages
+- **Raw byte array params**: catalog declares each ID's parameter shape; firmware sends bytes, host decodes per shape
+- **English only**: single catalog, no localization plumbing
+- **CI drift gate**: generated files committed to both sub-repos; CI regenerates and asserts no diff
+
+**Out for v1.2** (deferred):
+- `DATA:` binary payload stream — already optimal raw binary; only the prefix marker would change, not worth the protocol-parser churn
+- v1.1 Phase 4 (FM1608 byte-0 hardware bug) — parked; needs different Uno board to unblock; will be resolved in a follow-up patch or folded into v1.2 close
+- v1.1 Phase 5 (milestone close) — happens after v1.2 ships and the FM1608 unblock lands
+- Localization (multi-language catalog)
+- Compressing the `DATA:` prefix or other state-machine framing tokens
 
 ## Vision
 
@@ -123,6 +131,8 @@ on a physical RURP shield is deferred to a v1.1 hardware-test pass.
 | 2026-05-11 | Intel-flash write path ships without pre-pulse VPP ADC compare (REQ-SAF-01 partial — 39 chips affected)                                                                                                                                     | ✓ Resolved (Phase 1 SAF-04) |
 | 2026-05-12 | Phase 1 closes SAF-04 (Intel-flash pre-pulse VPP ADC compare) + SAF-05 (AT28C A9-12V chip-id forward-compat) + SAF-06 (Unity coverage on `[env:native]`). Code review surfaced and fixed a regulator-leak regression on the VPP error path. | ✓ Good   |
 | 2026-05-12 | Phase 2 closes WIRE-01 (atomic `"vpp"`→`"vpp_mv"` wire-key flip), CLEAN-01 (`minipro_complete_db.json`→`chip_database.json` rename + D-04 internal `vpp_volts` rename), CLEAN-02 (minipro attribution scrub: 6→1 host, 2→0 firmware), WIRE-02 (`check_dispatch.py` per-chip wire round-trip: 743/743 PASS). Layered `vpp` semantics: wire=`vpp_mv`(mV int), internal=`vpp_volts`(V float), upstream-schema READ preserved per D-08-compat. Phase 11 packaging-metadata drift also fixed (`pyproject.toml`/`MANIFEST.in` aligned to actual shipping files). | ✓ Good   |
+| 2026-05-18 | v1.1 paused at 80% (Phase 4 hardware-validation in progress, FM1608 byte-0 bug parked) to start v1.2 immediately — Leonardo flash at 98.7% is blocking further firmware iteration, so logging rework jumps the queue. | — Pending |
+| 2026-05-18 | v1.2 wire-format design: 1-byte message IDs + raw parameter byte arrays; catalog declares per-ID parameter shape (e.g. `[u16, u24]`). Firmware/host catalogs both codegenerated from a single canonical source. Generated files committed; CI runs `<regen> && git diff --exit-code` as drift gate. Lockstep upgrade — no backward compat to text-format firmware. | — Pending |
 
 ## Context
 
@@ -173,4 +183,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last updated: 2026-05-12 after Phase 2 (Naming Cleanup) complete*
+*Last updated: 2026-05-18 after starting milestone v1.2 (Message-ID Logging Rework)*

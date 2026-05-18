@@ -1,108 +1,94 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Safety Closure & Hardware Validation
-status: executing
-last_updated: "2026-05-12T11:56:12.428Z"
-last_activity: 2026-05-12
+milestone: v1.2
+milestone_name: Message-ID Logging Rework
+status: planning
+last_updated: "2026-05-18T08:00:00.000Z"
+last_activity: 2026-05-18
 progress:
-  total_phases: 5
-  completed_phases: 3
-  total_plans: 10
-  completed_plans: 8
-  percent: 80
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-05-12
+**Updated:** 2026-05-18
 
 ## Current Position
 
-Phase: 04 (hardware-validation-rurp-shield) — EXECUTING
-Plan: 2 of 3
-Status: Ready to execute
-Last activity: 2026-05-12
-Resume file: .planning/phases/04-hardware-validation-rurp-shield/04-CONTEXT.md
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-05-18 — Milestone v1.2 started (v1.1 parked at 80%)
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-05-11)
+See: `.planning/PROJECT.md` (updated 2026-05-18)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 04 — hardware-validation-rurp-shield
+**Current focus:** Milestone v1.2 — Message-ID Logging Rework
 
-- Intel-flash REQ-SAF-01 closure (VPP ADC compare in `flash_intel_write_init`)
-- 28C chip-ID forward-compat (`eeprom28c_write_init` honouring `handle->chip_id`)
-- Wire JSON `"vpp"` → `"vpp_mv"` rename (atomic Python + firmware sync)
-- Retroactive `VERIFICATION.md` artifacts for Phases 01-10
-- Physical-hardware validation of the four canon chip families on a RURP shield
-
-## Roadmap Summary
-
-| Phase | Name | Requirements |
-|-------|------|--------------|
-| 1 | Safety Closure (Intel-flash VPP + 28C chip-ID) | SAF-04, SAF-05, SAF-06 |
-| 2 | Wire Protocol Rename (`vpp` → `vpp_mv`) | WIRE-01, WIRE-02 |
-| 3 | Retroactive Verification (Phases 01-10) | VERIF-01..VERIF-10 |
-| 4 | Hardware Validation (RURP shield) | HW-01..HW-05 |
-| 5 | Milestone Close | DOC-01 |
+- Replace firmware text-string logs with 1-byte message IDs + raw parameter byte arrays
+- Single canonical catalog (meta-repo) → codegen → C++ header (firmware) + Python module (host)
+- Lockstep upgrade; no backwards compatibility to text format
+- Phased migration: infrastructure → batched call-site conversion → delete old log code
+- Generated files committed; CI regenerates + diffs as drift gate
+- Goal: free Leonardo flash space (currently 98.7%) AND a cleaner host↔firmware protocol
 
 ## Milestone History
 
-- **v1.0** — Protocol-Aware Programming Architecture (shipped 2026-05-11) —
-  see `.planning/MILESTONES.md` + `.planning/milestones/v1.0-*.md`
+- **v1.0** — Protocol-Aware Programming Architecture (shipped 2026-05-11) — see `.planning/MILESTONES.md` + `.planning/milestones/v1.0-*.md`
+- **v1.1** — Safety Closure & Hardware Validation — **PAUSED at 80%** (2026-05-18). Phases 1–3 complete (SAF closure, wire-key rename, retroactive VERIFICATION.md artifacts). Phase 4 hardware-validation Plan 2 of 3 in progress (FM1608 byte-0 read bug parked — see `.planning/debug/fm1608-fresh-chip-baseline.md`; needs a different Uno board to unblock). Phase 5 (milestone close) deferred.
 
 ## Accumulated Context
 
 ### Open Blockers
 
-None.
+None at v1.2 start.
 
-### Resolved in v1.1
+### Carried Over From v1.1 (still open)
 
-- WARNING-1 — Intel-flash write path missing VPP ADC compare → **CLOSED by Plan 01-01** (`flash_intel_check_vpp` + 5 Unity tests; 20/20 native tests passing)
+- **v1.1 Phase 4 — FM1608 byte-0 read bug** — Localized to a specific Uno board (chip + shield both clean on Leonardo). Eight firmware fixes failed (PORTD pre/post-clear, robust-read with 100µs + 2nd /CE cycle, LSB cache invalidation). Cheapest unblocking experiment: try a different Uno R3. See `.planning/debug/fm1608-fresh-chip-baseline.md` (status: `parked-2026-05-18`).
+- **WARNING-4** — `firestarter_test.sh` / `write_test.sh` reference deleted `database_generated.json`. Was scheduled for v1.1 Phase 4 (HW-01). Carries forward; address either as part of v1.1 closure or fold into v1.2 if test scripts are touched.
 
-### Open Warnings (now tracked as v1.1 phases)
+### Resolved in v1.1 (Phases 1–3 complete)
 
-- WARNING-2 — `eeprom_28c.cpp` ignores `handle->chip_id` → **CLOSED by Plan 01-02** (`eeprom28c_check_chip_id` A9-12V + 4 Unity tests; 24/24 native tests passing)
-- WARNING-3 — wire JSON `"vpp"` key carries millivolts → **CLOSED at source level by Plan 02-01** (firmware `firestarter@39b29a9` atomic three-site flip in `json_parser.c` + Python `firestarter_app@20cfe86` emitter rename at `database.py:518`; both CLAUDE.md examples synced; 8/8 cross-sub-repo grep gates pass; `pio run -e uno/leonardo` both succeed; 25/25 native tests pass). **D-04 internal twin (`_map_data` dict key `"vpp"` carrying float volts next to `"vpp_mv"` int mV) CLOSED by Plan 02-02** (firestarter_app@9e61061 — internal dict key renamed to `"vpp_volts"` at `database.py:417` + emitter fallback at `:510` + 2 downstream consumers at `eprom_info.py:271` + `ic_layout.py:516`; upstream-schema READ at `database.py:375` PRESERVED per D-08-compat). **WIRE-02 regression evidence + CLEAN-02 attribution scrub + SC#5 CLI smoke CLOSED by Plan 02-03** (firestarter_app@0489a20 — D-15 Shape A wire round-trip in check_dispatch.py asserts "vpp_mv" in wire AND "vpp" not in wire for all 743 chips, exits 0 with "0 wire-key regressions"; minipro reduced to 1 surviving attribution at firestarter_app/CLAUDE.md:68 next to infoic.xml + chip_database.json; firestarter@587396a — final minipro mention in firmware CLAUDE.md flipped to "upstream"; pip install -e . + firestarter --help + firestarter info W27C512 + firestarter info --adapter W27C512 all exit 0).
-- WARNING-4 — `firestarter_test.sh` / `write_test.sh` reference deleted `database_generated.json` → **Phase 4 (HW-01)**
-
-(Full audit trail: `.planning/milestones/v1.0-INTEGRATION-CHECK.md` and `.planning/milestones/v1.0-MILESTONE-AUDIT.md`.)
+- WARNING-1 (Intel-flash VPP ADC compare) — Plan 01-01
+- WARNING-2 (`eeprom_28c.cpp` chip-id forward-compat) — Plan 01-02
+- WARNING-3 (wire JSON `"vpp"` → `"vpp_mv"`) — Plan 02-01 + 02-02
+- CLEAN-01 (`minipro_complete_db.json` → `chip_database.json` rename) — Plan 02-02
+- CLEAN-02 (minipro attribution scrub) — Plan 02-03
+- VERIF-01..VERIF-10 (retroactive VERIFICATION.md for v1.0 Phases 01–10) — Phase 03
 
 ### Resolved Blockers (v1.0)
 
-- BLOCKER-1 (Phase 12) — algorithm-based dispatch for protocols 0x05/0x06/0x07/0x08/0x0B
-  and SRAM 0x0E/0x27/0x28/0x29
-
+- BLOCKER-1 (Phase 12) — algorithm-based dispatch for protocols 0x05/0x06/0x07/0x08/0x0B and SRAM 0x0E/0x27/0x28/0x29
 - BLOCKER-2 (Phase 12) — SRAM chips routed to `configure_eprom` with 12V VPP regulator
 - WARNING-5 (Phase 13) — AT28C256/64 5V EEPROM 12V-on-A14 hazard via DB override
 
-## Decisions (Phase 1)
+## v1.2 Decisions (locked at milestone start, 2026-05-18)
 
-- **D-04 (SAF-04):** `flash_intel_check_vpp` implemented as inline-copy static helper in `flash_intel.cpp` — `eprom_check_vpp` left byte-identical; shared helper extraction deferred to cleanup phase
-- **D-05 override (SAF-05, load-bearing):** `eeprom28c_check_chip_id` uses A9-12V identification (RESEARCH.md datasheet evidence), NOT the AMD/SST JEDEC AA/55/90 sequence from CONTEXT.md D-05. JEDEC sequence would corrupt address 0x5555 on SDP-disabled AT28C parts.
-- **ArduinoFake delay() + delayMicroseconds():** Any test suite that drives `operation_init` must mock BOTH `delay()` AND `delayMicroseconds()` in `setUp()` — fakeit aborts on unmocked virtuals
-- **configure_memory() function-pointer overwrite:** `configure_memory()` overwrites `handle->firestarter_get_data` with `memory_get_data` before calling the specific handler. Tests that mock `firestarter_get_data` must RE-ASSIGN the mock pointer AFTER `configure_memory()` and before `operation_init()`.
+- **Goal weighting:** flash savings + clean protocol equally weighted. Either can drive a decision when they conflict.
+- **Backwards compatibility:** none — firmware + host upgrade together. Firmware version bump enforces.
+- **Scope:** ALL firmware log call-sites (`OK:`, `INIT:`, `MAIN:`, `END:`, `INFO:`, `WARN:`, `ERROR:`) migrate to ID + param-bytes format. Only the `DATA:` raw binary read-payload stream is untouched (already optimal; only the prefix marker would change and it's not worth the parser churn).
+- **ID width:** 1 byte (0–255 messages). Current firmware has well under 100 distinct strings; generous headroom.
+- **Param encoding:** raw byte array; catalog declares each ID's parameter shape (e.g. `[u16, u24]`). No type tags on the wire.
+- **Catalog source-of-truth:** single canonical file in the meta-repo. Codegen produces a C++ header for firmware + a Python module for host.
+- **Generated artifact policy:** generated files **committed** to both sub-repos. CI runs `<regen> && git diff --exit-code` so drift fails the build (visible in PRs).
+- **Migration strategy:** phased. Infrastructure first (no removals). Then batched call-site conversion. Old log macros + PROGMEM strings deleted last, where the final flash-savings measurement happens.
+- **Localization:** English only. No multi-language plumbing in v1.2.
 
-## Decisions (Phase 2)
+## Decisions Carried Forward (v1.0 + v1.1)
 
-- **Plan 02-01 commit order — firmware first, Python second.** Recommended by Phase 2 RESEARCH.md "Cross-Sub-Repo Coordination Pattern"; SAF-04 (shipped Phase 1) makes either order safe via zero-init `handle->vpp_mv` VPP-HIGH guard (RESEARCH.md Pitfall #3). Both sub-repo commits land in the same wave: firmware `39b29a9`, then app `20cfe86`.
-- **Plan 02-01 — rename, not delete, at `database.py:518`.** Honored RESEARCH.md "Factual Correction" over CONTEXT.md D-02's "delete `\"vpp\": vpp_mv,`" framing. The live wire today emits exactly one VPP key (`"vpp"` carrying integer mV); there is no second `"vpp_mv": ...,` line to delete. The correct edit is a one-character-class swap on a single line.
-- **Plan 02-01 — firmware atomic three-site flip locked into ONE commit.** PROGMEM literal (`:62`) + dispatch table row (`:74`) + `extract_int` macro arg (`:309`) all flip in one firmware commit. Half-flipped state would silently drop the field (RESEARCH.md Pitfall #1).
-- **Plan 02-02 — three tasks collapsed into ONE `firestarter_app/` commit (9e61061) per D-13 natural atomicity.** CLEAN-01 `git mv` rename + 7 path callsite flips + D-04 internal `vpp_volts` rename + v1.0 Phase 11 `pyproject.toml`/`MANIFEST.in` packaging-drift fix all land together so package state is coherent at every revision. Firmware sub-repo CLAUDE.md edit in its own commit (`firestarter@8bb85e1`).
-- **Plan 02-02 — index-only partial staging for `ic_layout.py`.** Working tree carried a pre-existing co-located black/whitespace reformat with a load-bearing `pin_map_details["vpp-pin"][0]` indexing bugfix needed for SC#5 smoke. Recipe: `cp worktree → /tmp; git checkout HEAD -- file; re-apply scoped vpp_volts line; git add; restore from /tmp`. Result: index contains exactly the one-line scoped edit; pre-existing reformat remains unstaged for a future plan.
-- **Plan 02-02 — upstream-schema READ at `database.py:375` PRESERVED** (`electrical.get("vpp", "0").replace("V", "")`). RESEARCH.md Pitfall #2 three-vpp-concepts distinction held: internal dict key renamed to `"vpp_volts"`; wire emit key already `"vpp_mv"` (Plan 02-01); upstream-schema read against on-disk DB `"12V"` string + legacy user-override DBs UNCHANGED per D-08-compat.
-- **Plan 02-03 — surviving minipro attribution at `firestarter_app/CLAUDE.md:68`, not `:42`.** RESEARCH.md "Missed Callsites" gave the binary choice; `:68` sits next to `infoic.xml` (the actual upstream file) and ends with `chip_database.json` (the renamed local artifact) — single self-contained provenance pointer beats two non-adjacent half-attributions. Plan body's nominal `:69` line number was an off-by-one shift after Plan 02-02 edits; used content-based location.
-- **Plan 02-03 — Shape A wire round-trip fused into existing `check_dispatch.py`.** Per RESEARCH.md recommendation: per-chip `db.convert_to_programmer(db.get_eprom(part))` round-trip added inside the existing 743-chip dispatch-scan loop (parallel failure list `wire_regressions`, sibling reporter block, extended PASS line). Single-binary "scanner == gate" UX preserved; Shape B parametrize-pytest rejected because it would have split CI signal across two tools.
-- **Plan 02-03 — `MINIPRO_XML_URL` constant + argparse `default="minipro"` preserved verbatim per D-09.** `build_db.py:10` constant identifier (case-sensitive grep counts only the lowercase URL substring on `:10`, not the uppercase identifier or its `:157/:159` usages) and `:29 default="minipro"` (load-bearing CLI default directory path) both unchanged. CLAUDE.md surviving attribution + these two file-level survivors together form the canonical minipro-provenance triplet.
+See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/phases/01-*/`, `02-*/`, `03-*/` for v1.1 phase-level decisions.
 
 ## Operator Next Steps
 
-- **Phase 03 fully discharged (2026-05-12).** Plan 03-01 + 03-02 merged; 10 retroactive VERIFICATION.md artifacts authored under `.planning/milestones/v1.0-phases/{01..10}-*`; SC#1 + SC#2 + SC#3 + SC#4 all locked; WARNING-4 / WARNING-5 / INFO-3 follow_ups carried; zero source under `firestarter/` or `firestarter_app/` touched. Verifier report at `.planning/phases/03-retroactive-verification-phases-01-10/VERIFICATION.md` — verdict PASS (13/13 must-haves).
-- Run `/gsd-plan-phase 04` next to start Hardware Validation (RURP shield) — HW-01 closes WARNING-4 (`firestarter_test.sh` / `write_test.sh` reference deleted `database_generated.json`).
-- Pre-existing dirt logged for a future scoped plan (unchanged since Plan 02-02): `firestarter_app/firestarter/__init__.py` version bump 2.0.6 → 2.0.7_dev; `firestarter_app/.planning/codebase/*.md` deletions; `firestarter_app/firestarter/ic_layout.py` black/whitespace reformat carrying a load-bearing `pin_map_details["vpp-pin"][0]` indexing fix.
+- v1.2 is in the requirements-defining phase. After requirements + roadmap approval, the first phase plan can be drafted via `/gsd-plan-phase [N] ${GSD_WS}`.
+- v1.1 leftovers (FM1608 hw bug, WARNING-4 test scripts, milestone close) carried in this STATE; resume after v1.2 ships or fold opportunistically.
