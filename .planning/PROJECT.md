@@ -183,4 +183,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last updated: 2026-05-18 after starting milestone v1.2 (Message-ID Logging Rework)*
+*Last updated: 2026-05-18 — v1.2 Phase 6 (Logging Infrastructure) complete: canonical message catalog + deterministic codegen + firmware `rurp_log_id` helper + host byte-stream decoder + CI drift gates across three repos. Both log paths coexist (LMIG-01). Leonardo Flash unchanged at 98.7% (380 B free) — additive code is linker-dormant until Phase 7 converts call-sites.*
