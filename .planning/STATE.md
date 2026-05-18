@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Message-ID Logging Rework
 status: executing
-last_updated: "2026-05-18T15:37:00.000Z"
+last_updated: "2026-05-18T15:43:15.329Z"
 last_activity: 2026-05-18
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 19
-  completed_plans: 12
-  percent: 24
+  completed_plans: 13
+  percent: 20
 ---
 
 # Project State
@@ -21,7 +21,7 @@ progress:
 ## Current Position
 
 Phase: 07 (convert-error-warn-info-call-sites) — EXECUTING
-Plan: 7 of 13
+Plan: 8 of 13
 Status: Ready to execute
 Resume from: `.planning/phases/07-convert-error-warn-info-call-sites/07-07-PLAN.md`
 Last activity: 2026-05-18
@@ -129,6 +129,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 07 P04 | 15min | 1 tasks | 1 files |
 | Phase 07 P05 | 1min | 2 tasks | 2 files |
 | Phase 07 P06 | 2min | 1 tasks | 1 files |
+| Phase 07-convert-error-warn-info-call-sites P07 | 15 | 1 tasks | 2 files |
 
 ## Decisions
 
@@ -151,3 +152,5 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase ?]: Phase 07-04: flash_intel_poll_sr response_code assignments added alongside LOG_ERROR_ID calls (Rule 2 auto-fix — state machine requires both emit and response_code set)
 - [Phase 07]: Plan 07-05: flash_type_4.cpp multi-param [u8+u24+u8] packed into named local _b[5]; flash_utils.cpp zero-param LOG_ERROR_ID site; Leonardo confirmed at 98.4% flash (464 B free) after both conversions
 - [Phase 07]: Plan 07-06: eeprom_28c.cpp 3 populate-sites converted; response_code added to EEPROM timeout path (was implicit, now explicit); Leonardo 97.8% flash (632 B free) after conversion
+- [Phase ?]: Two-line error populate-site pattern established in memory.cpp
+- [Phase ?]: Serial stub required in dispatch test setUp once error path emits via rurp_log_id (LOG_ERROR_ID_* conversion)
