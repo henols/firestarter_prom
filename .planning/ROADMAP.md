@@ -35,7 +35,13 @@
   4. Sending a hand-crafted ID-encoded log frame from a Python test fixture into `serial_comm.py` yields a `LogMessage(severity, text)` whose severity matches the catalog category (`OK` / `INIT` / `MAIN` / `END` / `INFO` / `WARN` / `ERROR`) and whose text matches the catalog format string rendered against the supplied param bytes (e.g. a `[u24]` param renders as `0x{:06X}`).
   5. Both sub-repo CI pipelines run codegen and assert `git diff --exit-code` on the generated files; introducing a manual edit to either generated file (without re-running codegen) makes CI fail visibly in the PR.
   6. The host's firmware-version check is wired to refuse a firmware reporting an old (pre-v1.2) major version with an operator-facing "upgrade firmware" message — even though no firmware has bumped its version yet, the host-side guard is in place and unit-tested.
-**Plans**: TBD
+**Plans**: 6 plans
+- [ ] 06-01-PLAN.md — Catalog + codegen + sync script (meta-repo) + first generated artifacts in both sub-repos
+- [ ] 06-02-PLAN.md — Firmware `rurp_log_id` helper, CRC8 table, Uno strong override, native Unity test suite
+- [ ] 06-03-PLAN.md — Host pytest infrastructure + always-on byte-stream reader + `_decode_id_frame` + LHOST-01/02/03 acceptance suite
+- [ ] 06-04-PLAN.md — Host fw-version refuse guard + `FIRESTARTER_DEV_ALLOW_PRE_V12` escape hatch + 4 unit tests
+- [ ] 06-05-PLAN.md — CI drift gates (firmware build.yml modified, host ci.yml new, meta-repo catalog-sync-check.yml new)
+- [ ] 06-06-PLAN.md — Phase 6 close flash budget measurement (Leonardo + Uno) with fall-back plan
 
 #### Phase 7: Convert ERROR + WARN + INFO Call-Sites
 **Goal**: Every firmware ERROR, WARN, and INFO log call-site is emitted via `rurp_log_id` (or the LOG_* macro form) with parameters as raw byte arrays per the catalog. The host renders these frames identically to how the text-format messages used to read in the CLI output. Old log helpers remain present in firmware **only** for the state-machine prefix acks (`OK:` / `INIT:` / `MAIN:` / `END:`), which are still text-formatted at the end of this phase.
@@ -160,7 +166,7 @@ Full milestone details: `.planning/milestones/v1.0-ROADMAP.md`
 
 | Phase | Plans | Status | Completed |
 |-------|-------|--------|-----------|
-| 6. Logging Infrastructure (catalog + codegen + helper + decoder) | 0/? | Not started | - |
+| 6. Logging Infrastructure (catalog + codegen + helper + decoder) | 0/6 | Not started | - |
 | 7. Convert ERROR + WARN + INFO Call-Sites | 0/? | Not started | - |
 | 8. Convert State-Machine Prefix Call-Sites (OK/INIT/MAIN/END) | 0/? | Not started | - |
 | 9. Delete Old Log Macros + Measure Flash Savings | 0/? | Not started | - |

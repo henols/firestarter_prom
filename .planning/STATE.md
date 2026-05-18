@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Message-ID Logging Rework
-status: planning
-last_updated: "2026-05-18T16:00:00.000Z"
+status: ready_to_execute
+last_updated: "2026-05-18T20:00:00.000Z"
 last_activity: 2026-05-18
 progress:
   total_phases: 5
   completed_phases: 0
-  total_plans: 0
+  total_plans: 6
   completed_plans: 0
   percent: 0
 ---
@@ -21,10 +21,10 @@ progress:
 ## Current Position
 
 Phase: 6 — Logging Infrastructure (catalog + codegen + helper + decoder)
-Plan: —
-Status: Context gathered (`.planning/phases/06-logging-infrastructure/06-CONTEXT.md`) — awaiting `/gsd-plan-phase 6`
-Resume from: `.planning/phases/06-logging-infrastructure/06-CONTEXT.md`
-Last activity: 2026-05-18 — Phase 6 context gathered (wire-frame format locked: 4-byte magic 0xAA 0x55 0xAA 0x55 + len + ID + params + CRC8 + 0x0A; always-on byte-stream parser with text-line fallback)
+Plan: 6 plans (06-01..06-06) across 4 waves — Ready to execute
+Status: Plans drafted, verified by gsd-plan-checker (0 BLOCKER, 2 WARNING, 1 INFO — all non-blocking) — awaiting `/gsd-execute-phase 6`
+Resume from: `.planning/phases/06-logging-infrastructure/06-01-PLAN.md` (Wave 0 catalog + codegen)
+Last activity: 2026-05-18 — Phase 6 planned (6 plans, 4 waves, 17/17 reqs covered, D-01..D-06 cited)
 
 ## Project Reference
 
@@ -111,5 +111,5 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 
 ## Operator Next Steps
 
-- v1.2 roadmap is approved. Next: `/gsd-plan-phase 6 ${GSD_WS}` to draft the Phase 6 (Logging Infrastructure) plan.
+- Phase 6 plans are drafted + verified. Next: `/gsd-execute-phase 6` to execute the 6-plan, 4-wave Phase 6.
 - v1.1 leftovers (FM1608 hw bug, WARNING-4 test scripts, v1.1 DOC-01 milestone close) carried in this STATE; resume after v1.2 ships or fold opportunistically.
