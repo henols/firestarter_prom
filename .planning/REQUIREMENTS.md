@@ -49,6 +49,10 @@ Each requirement maps to exactly one v1.2 roadmap phase (numbering continues fro
 - [ ] **LMIG-03**: **Phase C (state-machine prefix conversion)**: `OK:` / `INIT:` / `MAIN:` / `END:` call-sites are converted. Host parser switches from line-prefix matching to ID-frame decoding for state-machine acks. **`DATA:` prefix marker remains as literal text** (gates the host's binary read loop and is not changed in v1.2).
 - [ ] **LMIG-04**: **Phase D (delete + measure)**: Old `rurp_log` / `rurp_log_P` / `LOG_*_MSG` PROGMEM definitions and `log_info_const` / `log_error_format` / `log_warn` macros are removed. `pio run -e leonardo` produces a final flash-savings number documented in the milestone close. Target: bring Leonardo flash below 90% with measurable headroom.
 
+### Milestone Close
+
+- [ ] **DOC-02**: The v1.2 milestone is formally recorded in `.planning/MILESTONES.md` with the canonical sub-sections (Key Accomplishments, Stats, Key Decisions, Known Gaps) **plus a dedicated Flash-Savings Comparison sub-section** that pins the v1.1 baseline (98.7% Leonardo Flash) against the v1.2 post-Phase-9 measurement (target: <90%). PROJECT.md "Active milestone" header updates to reflect v1.2 shipped; STATE.md rolls forward with any carried-over v1.1 items re-listed cleanly. (Mirrors the v1.1 DOC-01 milestone-close requirement.)
+
 ## v2 Requirements (deferred)
 
 ### Logging extensions
@@ -71,22 +75,51 @@ Each requirement maps to exactly one v1.2 roadmap phase (numbering continues fro
 
 ## Traceability
 
-Populated by the roadmapper in step 10. Each requirement maps to exactly one phase.
+Each requirement maps to exactly one v1.2 phase. Phase numbering continues from v1.1 (so v1.2 starts at Phase 6).
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LCAT-01..LCAT-05 | TBD | Pending |
-| LFW-01..LFW-05 | TBD | Pending |
-| LHOST-01..LHOST-04 | TBD | Pending |
-| LCI-01..LCI-04 | TBD | Pending |
-| LMIG-01..LMIG-04 | TBD | Pending |
+| LCAT-01 | Phase 6 | Pending |
+| LCAT-02 | Phase 6 | Pending |
+| LCAT-03 | Phase 6 | Pending |
+| LCAT-04 | Phase 6 | Pending |
+| LCAT-05 | Phase 6 | Pending |
+| LFW-01  | Phase 6 | Pending |
+| LFW-02  | Phase 6 | Pending |
+| LFW-03  | Phase 9 | Pending |
+| LFW-04  | Phase 9 | Pending |
+| LFW-05  | Phase 6 | Pending |
+| LHOST-01 | Phase 6 | Pending |
+| LHOST-02 | Phase 6 | Pending |
+| LHOST-03 | Phase 6 | Pending |
+| LHOST-04 | Phase 6 | Pending |
+| LCI-01  | Phase 6 | Pending |
+| LCI-02  | Phase 6 | Pending |
+| LCI-03  | Phase 6 | Pending |
+| LCI-04  | Phase 6 | Pending |
+| LMIG-01 | Phase 6 | Pending |
+| LMIG-02 | Phase 7 | Pending |
+| LMIG-03 | Phase 8 | Pending |
+| LMIG-04 | Phase 9 | Pending |
+| DOC-02  | Phase 10 | Pending |
 
-**Coverage (pre-roadmap):**
-- v1.2 requirements: 22 total (5 LCAT + 5 LFW + 4 LHOST + 4 LCI + 4 LMIG)
-- Mapped to phases: 0 (roadmapper next)
-- Unmapped: 22 ⚠ (resolves at roadmap creation)
+**Coverage (post-roadmap):**
+- v1.2 requirements: 23 total (5 LCAT + 5 LFW + 4 LHOST + 4 LCI + 4 LMIG + 1 DOC milestone-close)
+- Mapped to phases: 23
+- Unmapped: 0 ✓
+- Coverage: **100% ✓**
+
+**Per-phase coverage:**
+
+| Phase | Name | Requirement count | Requirements |
+|-------|------|-------------------|--------------|
+| 6 | Logging Infrastructure (catalog + codegen + helper + decoder) | 17 | LCAT-01..05, LFW-01, LFW-02, LFW-05, LHOST-01..04, LCI-01..04, LMIG-01 |
+| 7 | Convert ERROR + WARN + INFO Call-Sites | 1 | LMIG-02 |
+| 8 | Convert State-Machine Prefix Call-Sites (OK/INIT/MAIN/END) | 1 | LMIG-03 |
+| 9 | Delete Old Log Macros + Measure Flash Savings | 3 | LFW-03, LFW-04, LMIG-04 |
+| 10 | Milestone Close (v1.2) | 1 | DOC-02 |
 
 ---
 
 *Requirements defined: 2026-05-18*
-*Last updated: 2026-05-18 after initial v1.2 definition*
+*Last updated: 2026-05-18 — Traceability populated (5 phases, 23 requirements, 100% coverage); DOC-02 added under new "Milestone Close" category by the roadmapper.*

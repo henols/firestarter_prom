@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Message-ID Logging Rework
 status: planning
-last_updated: "2026-05-18T08:00:00.000Z"
+last_updated: "2026-05-18T12:00:00.000Z"
 last_activity: 2026-05-18
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: Not started (roadmap approved 2026-05-18; ready to plan Phase 6)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-05-18 — Milestone v1.2 started (v1.1 parked at 80%)
+Status: Roadmap created — awaiting `/gsd-plan-phase 6`
+Last activity: 2026-05-18 — v1.2 roadmap created (Phases 6-10, 23 requirements, 100% coverage)
 
 ## Project Reference
 
@@ -41,6 +41,24 @@ from upstream XML → DB → wire JSON → firmware handler. No guessing.
 - Generated files committed; CI regenerates + diffs as drift gate
 - Goal: free Leonardo flash space (currently 98.7%) AND a cleaner host↔firmware protocol
 
+## Roadmap Summary
+
+**v1.2 phases (numbered 6-10 — continues from v1.1):**
+
+| Phase | Name | Requirements | Status |
+|-------|------|--------------|--------|
+| 6 | Logging Infrastructure (catalog + codegen + helper + decoder) | LCAT-01..05, LFW-01, LFW-02, LFW-05, LHOST-01..04, LCI-01..04, LMIG-01 (17 reqs) | Not started |
+| 7 | Convert ERROR + WARN + INFO Call-Sites | LMIG-02 | Not started |
+| 8 | Convert State-Machine Prefix Call-Sites (OK/INIT/MAIN/END) | LMIG-03 | Not started |
+| 9 | Delete Old Log Macros + Measure Flash Savings | LFW-03, LFW-04, LMIG-04 | Not started |
+| 10 | Milestone Close (v1.2) | DOC-02 | Not started |
+
+**Coverage:** 23/23 requirements mapped (100% ✓) — 22 v1.2 requirements + DOC-02 (milestone-close) added by the roadmap.
+
+**Dependency chain:** strictly linear (6 → 7 → 8 → 9 → 10) — mirrors the locked phased migration order Phase A → B → C → D → Close.
+
+Full roadmap: `.planning/ROADMAP.md`
+
 ## Milestone History
 
 - **v1.0** — Protocol-Aware Programming Architecture (shipped 2026-05-11) — see `.planning/MILESTONES.md` + `.planning/milestones/v1.0-*.md`
@@ -56,6 +74,7 @@ None at v1.2 start.
 
 - **v1.1 Phase 4 — FM1608 byte-0 read bug** — Localized to a specific Uno board (chip + shield both clean on Leonardo). Eight firmware fixes failed (PORTD pre/post-clear, robust-read with 100µs + 2nd /CE cycle, LSB cache invalidation). Cheapest unblocking experiment: try a different Uno R3. See `.planning/debug/fm1608-fresh-chip-baseline.md` (status: `parked-2026-05-18`).
 - **WARNING-4** — `firestarter_test.sh` / `write_test.sh` reference deleted `database_generated.json`. Was scheduled for v1.1 Phase 4 (HW-01). Carries forward; address either as part of v1.1 closure or fold into v1.2 if test scripts are touched.
+- **v1.1 DOC-01 (milestone close)** — Phase 5 of v1.1 deferred; will be picked up either after v1.2 ships or folded with the FM1608 unblock.
 
 ### Resolved in v1.1 (Phases 1–3 complete)
 
@@ -83,6 +102,7 @@ None at v1.2 start.
 - **Generated artifact policy:** generated files **committed** to both sub-repos. CI runs `<regen> && git diff --exit-code` so drift fails the build (visible in PRs).
 - **Migration strategy:** phased. Infrastructure first (no removals). Then batched call-site conversion. Old log macros + PROGMEM strings deleted last, where the final flash-savings measurement happens.
 - **Localization:** English only. No multi-language plumbing in v1.2.
+- **Phase numbering:** continues from v1.1 (Phase 6-10); no `--reset-phase-numbers`.
 
 ## Decisions Carried Forward (v1.0 + v1.1)
 
@@ -90,5 +110,5 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 
 ## Operator Next Steps
 
-- v1.2 is in the requirements-defining phase. After requirements + roadmap approval, the first phase plan can be drafted via `/gsd-plan-phase [N] ${GSD_WS}`.
-- v1.1 leftovers (FM1608 hw bug, WARNING-4 test scripts, milestone close) carried in this STATE; resume after v1.2 ships or fold opportunistically.
+- v1.2 roadmap is approved. Next: `/gsd-plan-phase 6 ${GSD_WS}` to draft the Phase 6 (Logging Infrastructure) plan.
+- v1.1 leftovers (FM1608 hw bug, WARNING-4 test scripts, v1.1 DOC-01 milestone close) carried in this STATE; resume after v1.2 ships or fold opportunistically.

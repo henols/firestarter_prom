@@ -3,124 +3,135 @@
 ## Milestones
 
 - ✅ **v1.0 Protocol-Aware Programming Architecture** — Phases 1-13 (shipped 2026-05-11)
-- 🚧 **v1.1 Safety Closure & Hardware Validation** — Phases 1-5 (started 2026-05-11)
+- ⏸ **v1.1 Safety Closure & Hardware Validation** — Phases 1-5 (paused at 80% on 2026-05-18; archived at `.planning/milestones/v1.1-paused/`)
+- 🚧 **v1.2 Message-ID Logging Rework** — Phases 6-10 (started 2026-05-18)
 
-## Current Milestone: v1.1 — Safety Closure & Hardware Validation
+## Current Milestone: v1.2 — Message-ID Logging Rework
 
-**Goal:** Close the v1.0 audit gaps (Intel-flash REQ-SAF-01, WARNING-2/3/4), bring the four canon chip-family flows (W27C512, 29F040, SST39SF040, AT28C256) under real-hardware validation, and back-fill formal `VERIFICATION.md` artifacts for Phases 01-10 so the v1.0 architecture is fully audited end-to-end.
+**Goal:** Replace firmware text-string logs with 1-byte numeric message IDs plus raw parameter byte arrays. The format catalog and decoding logic move from firmware PROGMEM to the Python host. Driven by Leonardo flash pressure (currently 98.7% Flash usage) and the protocol-cleanliness benefit of removing per-call string literals.
 
 **Granularity:** Comprehensive
-**Total phases:** 5
-**Total requirements covered:** 24 / 24 (100%)
+**Total phases:** 5 (numbered 6-10; phase numbering continues from v1.1)
+**Total requirements covered:** 23 / 23 (100%) — 22 v1.2 requirements + DOC-02 milestone-close requirement added by this roadmap
 
 ### Phases
 
-- [ ] **Phase 1: Safety Closure (Intel-flash VPP + 28C chip-ID)** — Close WARNING-1 and WARNING-2 with Unity test coverage.
-- [ ] **Phase 2: Naming Cleanup (Wire Key + Minipro References)** — Atomic `vpp` → `vpp_mv` rename, DB file rename (`minipro_complete_db.json` → neutral name), comment/doc cleanup, single regression scan covering all renames.
-- [ ] **Phase 3: Retroactive Verification (Phases 01-10)** — Produce 10 `VERIFICATION.md` audit artifacts back-filling the v1.0 verification gap.
-- [ ] **Phase 4: Hardware Validation (RURP shield)** — Repair test scripts and program/verify four canon chip families on real hardware.
-- [ ] **Phase 5: Milestone Close** — Write the v1.1 `MILESTONES.md` entry.
+- [ ] **Phase 6: Logging Infrastructure (catalog + codegen + helper + decoder)** — Phase A of the locked phased migration. Land the canonical catalog, codegen pipeline, firmware `rurp_log_id` helper, host decoder, and CI drift gate — all without removing any existing log code. Both paths coexist briefly.
+- [ ] **Phase 7: Convert ERROR + WARN + INFO Call-Sites** — Phase B. Migrate firmware ERROR/WARN/INFO log call-sites to `rurp_log_id`. Old helpers still present for state-machine prefix acks.
+- [ ] **Phase 8: Convert State-Machine Prefix Call-Sites (OK/INIT/MAIN/END)** — Phase C. Convert `OK:` / `INIT:` / `MAIN:` / `END:` call-sites; host parser switches from line-prefix matching to ID-frame decoding for state-machine acks. `DATA:` prefix marker stays literal text.
+- [ ] **Phase 9: Delete Old Log Macros + Measure Flash Savings** — Phase D. Remove old `rurp_log` / `rurp_log_P` / `LOG_*_MSG` PROGMEM definitions and `log_info_const` / `log_error_format` / `log_warn` macros. Bump firmware major version. Measure final Leonardo flash usage.
+- [ ] **Phase 10: Milestone Close (v1.2)** — Write the v1.2 `MILESTONES.md` entry with the formal flash-savings comparison vs the v1.1 baseline. Update PROJECT.md active-milestone header.
 
 ### Phase Details
 
-#### Phase 1: Safety Closure (Intel-flash VPP + 28C chip-ID)
-**Goal**: Every algorithm path that can apply write voltage performs a pre-pulse safety check (VPP ADC compare and chip-ID validation when populated), and the new checks are covered by Unity tests on `[env:native]`.
-**Depends on**: Nothing (first phase — surgical firmware edits, no upstream dependency).
-**Requirements**: SAF-04, SAF-05, SAF-06
+#### Phase 6: Logging Infrastructure (catalog + codegen + helper + decoder)
+**Goal**: A canonical message catalog plus codegen-produced firmware header + host Python module exist, the firmware `rurp_log_id` send-by-ID helper compiles and links alongside the old log helpers, the host `serial_comm.py` can decode an ID-encoded log frame, and CI fails on any drift between the catalog and the generated artifacts. No existing call-site is converted yet — both old and new paths coexist.
+**Depends on**: Nothing (first v1.2 phase; PHASE A of the locked phased migration per PROJECT.md "Phased migration" target feature).
+**Requirements**: LCAT-01, LCAT-02, LCAT-03, LCAT-04, LCAT-05, LFW-01, LFW-02, LFW-05, LHOST-01, LHOST-02, LHOST-03, LHOST-04, LCI-01, LCI-02, LCI-03, LCI-04, LMIG-01
 **Success Criteria** (what must be TRUE):
-  1. `flash_intel_write_init` calls `rurp_read_voltage_mv()` and aborts with the existing voltage error code if measured VPP is below the chip's `vpp` setpoint (minus tolerance) before the first write command — REQ-SAF-01 holds for all 39 algorithm=0x10 Intel-flash chips.
-  2. `eeprom28c_write_init` honours `handle->chip_id` when non-zero (matching ID proceeds, mismatching ID aborts), so REQ-SAF-02 holds the moment any algorithm=0x0D entry gains a `chip_id_value`.
-  3. A Unity test on `[env:native]` proves the new Intel-flash VPP check: low-VPP path returns the voltage error code, nominal-VPP path proceeds.
-  4. A Unity test on `[env:native]` proves the new 28C chip-ID check: matching fake chip-ID proceeds, mismatching aborts.
-  5. All pre-existing dispatch / handler Unity tests still pass (no regression in the 15 v1.0 tests).
-**Plans**: 2 plans
-- [x] 01-01-PLAN.md — SAF-04 Intel-flash VPP ADC compare (`flash_intel_write_init` + 5 Unity tests)
-- [x] 01-02-PLAN.md — SAF-05 AT28C chip-id check via A9-12V (`eeprom28c_write_init` + 4 Unity tests; OVERRIDES CONTEXT.md D-05 JEDEC proposal per RESEARCH.md datasheet evidence)
-
-#### Phase 2: Naming Cleanup (Wire Key + Minipro References)
-**Goal**: The host-side codebase has clean naming — the wire JSON VPP key is unambiguously `"vpp_mv"`, the chip-database file no longer carries the upstream toolchain name, and "minipro" appears in the app only where it's load-bearing (the `MINIPRO_XML_URL` constant and one attribution line). No dispatch regression on any of the 743 chips.
-**Depends on**: Nothing structurally, but ordered before Phase 4 so hardware-test scripts use the final wire format and the final DB filename.
-**Requirements**: WIRE-01, WIRE-02, CLEAN-01, CLEAN-02
-**Success Criteria** (what must be TRUE):
-  1. `firestarter_app/firestarter/database.py::convert_to_programmer` (and any sibling emitter) emits the wire key `"vpp_mv"` (not `"vpp"`) carrying the integer millivolt value, the firmware JSON parser reads `"vpp_mv"` into `handle->vpp_mv`, and `firestarter_app/CLAUDE.md` example wire JSON shows only `"vpp_mv"` — no phantom `"vpp"` key.
-  2. The chip-database file in `firestarter_app/firestarter/data/` no longer references the minipro tool name (renamed to a neutral name such as `chip_database.json`); all readers (`firestarter/database.py`, `tools/check_dispatch.py`) and the writer (`tools/build_db.py`) point at the new name; meta + sub-repo CLAUDE.md docs reflect the new name.
-  3. "minipro" mentions in app code comments are reduced to a single attribution in `tools/build_db.py` (where `MINIPRO_XML_URL` lives); `firestarter/database.py`, `tools/check_dispatch.py`, `firestarter/CLAUDE.md` have zero remaining minipro mentions; `firestarter_app/CLAUDE.md` keeps at most one line naming the upstream source.
-  4. `check_dispatch.py` (or equivalent host-side test) regenerates the DB and confirms all 743 chips still parse end-to-end on Uno + Leonardo simulator with no algorithm regressing on the wire, after all four renames.
-  5. `firestarter` CLI smoke (`firestarter --help` + `firestarter info W27C512`) succeeds against the renamed DB with no `FileNotFoundError` or stale-path warning.
-**Plans**: 3 plans
-- [x] 02-01-PLAN.md — WIRE-01 atomic wire-key flip (Python emitter at database.py:518 + firmware parser three-site flip at json_parser.c:62/74/309 + wire-JSON example doc edits)
-- [x] 02-02-PLAN.md — CLEAN-01 file rename via git mv + D-04 internal vpp_volts rename + pyproject.toml/MANIFEST.in packaging alignment
-- [x] 02-03-PLAN.md — CLEAN-02 minipro attribution scrub + WIRE-02 check_dispatch.py augmentation (Shape A round-trip) + SC#5 CLI smoke
-
-#### Phase 3: Retroactive Verification (Phases 01-10)
-**Goal**: Every v1.0 phase has a formal `VERIFICATION.md` artifact scoring its requirements against the current source tree, closing the 13 PARTIAL audit findings from the v1.0 milestone audit.
-**Depends on**: Phases 1 and 2 (so `05-VERIFICATION.md` can record the SAF-04 closure and the wire-key rename is reflected in all artifacts).
-**Requirements**: VERIF-01, VERIF-02, VERIF-03, VERIF-04, VERIF-05, VERIF-06, VERIF-07, VERIF-08, VERIF-09, VERIF-10
-**Success Criteria** (what must be TRUE):
-  1. Ten `NN-VERIFICATION.md` files exist under `.planning/milestones/v1.0-phases/` (or equivalent retroactive location) — one per v1.0 phase 01..10 — each scoring its phase requirements against the current source tree.
-  2. Every audit finding from `.planning/milestones/v1.0-INTEGRATION-CHECK.md` that was attributed to "missing VERIFICATION.md" is either resolved (VERIFIED) or explicitly carried as a follow-up in the corresponding artifact.
-  3. `05-VERIFICATION.md` explicitly records that the SAF-04 closure from Phase 1 satisfies the Intel-flash REQ-SAF-01 gap noted in the v1.0 audit.
-  4. `10-VERIFICATION.md` confirms `static_high_mask` end-to-end wiring and the `pins < 32` VPE_TO_VPP guard are intact in the current `memory.cpp`.
-**Plans**: 2 plans
-- [x] 03-01-PLAN.md — Clean batch: 5 VERIFICATION.md files for phases 01/02/04/08/09 (REQ-DB-01..04, REQ-SER-02, REQ-FW-04, REQ-SAF-03 cross-handler, REQ-UX-01/02; WARNING-4 follow_up for Phase 08)
-- [x] 03-02-PLAN.md — Closure/hazard batch: 5 VERIFICATION.md files for phases 03/05/06/07/10 (REQ-FW-01/02/03, REQ-SAF-01/02, REQ-FW-05/06; SC#3 SAF-04 closure in 05 + SC#4 static_high_mask + pins<32 lock in 10; WARNING-5 follow_ups for 03/06/07; INFO-3 follow_up for 10)
-
-#### Phase 4: Hardware Validation (RURP shield)
-**Goal**: A physical RURP shield successfully programs and verifies the four canon chip families plus an Intel-flash family chip after the SAF-04 safety closure, with results logged in formal `HW-VALIDATION.md` artifacts and the integration-test shell scripts restored to a working state.
-**Depends on**: Phase 1 (SAF-04 must ship before HW-05 can exercise the new VPP ADC compare) and Phase 2 (test scripts must use the final wire key).
-**Requirements**: HW-01, HW-02, HW-03, HW-04, HW-05
-**Success Criteria** (what must be TRUE):
-  1. `firestarter_test.sh` and `write_test.sh` run cleanly against the current `minipro_complete_db.json` — no references to the deleted `database_generated.json` remain (WARNING-4 closed).
-  2. A physical RURP shield programs and verifies a W27C512 (algo=0x07, UV-EPROM) via `firestarter write` then `firestarter read --verify`, with results logged.
-  3. A physical RURP shield programs and verifies an AM29F040 (chip-erase + write) and an SST39SF040 (sector-erase + write), both algo=0x06, with results logged.
-  4. A physical RURP shield programs and verifies an AT28C256 (algo=0x0D via Phase 13 override) with scope/multimeter confirmation that the VPP regulator never engages during the write window.
-  5. A physical RURP shield programs and verifies an Intel-family flash (AM28F010 or 28F256, algo=0x10) and confirms the new SAF-04 VPP ADC compare aborts a deliberately-underpowered VPP run.
-**Plans**: 3 plans
-- [x] 04-01-PLAN.md — HW-01 test-script repair (filename + jq schema migration to chip_database.json; WARNING-4 closure)
-- [ ] 04-02-PLAN.md — HW-02 W27C512 + HW-03 AM29F040 chip-erase + HW-03 SST39SF040 sector-erase + HW-04 AT28C256 5V invariant (4 canon-chip-family bench runs)
-- [ ] 04-03-PLAN.md — HW-05 AM28F010 + SAF-04 abort closure (DB-override mechanism per RESEARCH.md correction; Sub-run A abort + Sub-run B nominal pass)
-
-#### Phase 5: Milestone Close
-**Goal**: The v1.1 milestone is formally recorded in `.planning/MILESTONES.md` using the same Known Gaps / Hardware Verification / Key Decisions structure as the v1.0 entry, so v1.2 planning can start from a clean accumulated record.
-**Depends on**: Phases 1-4 (entry summarises what shipped across all preceding phases).
-**Requirements**: DOC-01
-**Success Criteria** (what must be TRUE):
-  1. `.planning/MILESTONES.md` contains a v1.1 entry above the v1.0 entry with the canonical sub-sections (Key Accomplishments, Stats, Key Decisions, Known Gaps, Hardware Verification).
-  2. The Hardware Verification sub-section records the four canon chip families plus the Intel-flash family as physically verified (linking to the Phase 4 `HW-VALIDATION.md` artifacts).
-  3. The Known Gaps sub-section lists the deferred v1.2 items (DB-06, DB-07, FW-07, FW-08) and any new gaps surfaced during v1.1 execution.
-  4. `.planning/PROJECT.md` "Active milestone" header is updated to reflect v1.1 shipped (with date) and the next milestone slot is open.
+  1. A single canonical catalog file in the meta-repo declares every firmware log message as `{id, symbolic_name, format_string, parameter_shape}`, and running the codegen script twice on the same catalog produces byte-identical `firestarter/include/messages.h` + `firestarter_app/firestarter/messages.py` artifacts (no timestamps, no ordering instability).
+  2. An invalid catalog (duplicate ID, duplicate symbolic name, malformed param shape, empty format string) fails codegen with a clear error before any source files are written — verifiable by introducing each violation in a scratch catalog and confirming the codegen exits non-zero.
+  3. `pio run -e leonardo` and `pio run -e uno` both compile cleanly with the new `rurp_log_id(uint8_t, const uint8_t*, uint8_t)` helper available in firmware **alongside** the existing `rurp_log` family — neither path is removed yet, and the binary still links.
+  4. Sending a hand-crafted ID-encoded log frame from a Python test fixture into `serial_comm.py` yields a `LogMessage(severity, text)` whose severity matches the catalog category (`OK` / `INIT` / `MAIN` / `END` / `INFO` / `WARN` / `ERROR`) and whose text matches the catalog format string rendered against the supplied param bytes (e.g. a `[u24]` param renders as `0x{:06X}`).
+  5. Both sub-repo CI pipelines run codegen and assert `git diff --exit-code` on the generated files; introducing a manual edit to either generated file (without re-running codegen) makes CI fail visibly in the PR.
+  6. The host's firmware-version check is wired to refuse a firmware reporting an old (pre-v1.2) major version with an operator-facing "upgrade firmware" message — even though no firmware has bumped its version yet, the host-side guard is in place and unit-tested.
 **Plans**: TBD
 
-### Coverage Map (v1.1)
+#### Phase 7: Convert ERROR + WARN + INFO Call-Sites
+**Goal**: Every firmware ERROR, WARN, and INFO log call-site is emitted via `rurp_log_id` (or the LOG_* macro form) with parameters as raw byte arrays per the catalog. The host renders these frames identically to how the text-format messages used to read in the CLI output. Old log helpers remain present in firmware **only** for the state-machine prefix acks (`OK:` / `INIT:` / `MAIN:` / `END:`), which are still text-formatted at the end of this phase.
+**Depends on**: Phase 6 (catalog, codegen, `rurp_log_id` helper, and host decoder must exist before any call-site can be converted; PHASE B of the locked phased migration).
+**Requirements**: LMIG-02
+**Success Criteria** (what must be TRUE):
+  1. A grep across `firestarter/src/`, `firestarter/include/`, and `firestarter/lib/` for the ERROR/WARN/INFO log macros (`log_error_format`, `log_warn`, `log_info_const`, or equivalents) returns zero hits — every former site now calls `rurp_log_id` (directly or via a `LOG_ERROR(MSG_*, ...)` macro).
+  2. `firestarter write -e W27C512` (or another canon chip from v1.0) run end-to-end against the firmware-simulator harness produces host-side log output where every ERROR/WARN/INFO line was rendered by the new catalog decoder (verifiable by toggling the decoder off and seeing those specific lines disappear).
+  3. The state-machine acks (`OK:` / `INIT:` / `MAIN:` / `END:` / `DATA:`) still flow as **text** at the end of this phase — host parser line-prefix matching for those prefixes is untouched, confirming that this phase is strictly the error/info conversion.
+  4. `pio run -e leonardo` and `pio run -e uno` still compile cleanly; the firmware binary size has dropped measurably vs the Phase 6 baseline (record the delta — not yet the milestone target, but the trend must be downward).
+**Plans**: TBD
 
-| Phase | Requirements |
-|-------|--------------|
-| 1 | SAF-04, SAF-05, SAF-06 |
-| 2 | WIRE-01, WIRE-02, CLEAN-01, CLEAN-02 |
-| 3 | VERIF-01, VERIF-02, VERIF-03, VERIF-04, VERIF-05, VERIF-06, VERIF-07, VERIF-08, VERIF-09, VERIF-10 |
-| 4 | HW-01, HW-02, HW-03, HW-04, HW-05 |
-| 5 | DOC-01 |
+#### Phase 8: Convert State-Machine Prefix Call-Sites (OK/INIT/MAIN/END)
+**Goal**: The firmware emits `OK:` / `INIT:` / `MAIN:` / `END:` state-machine acks as ID-encoded frames via `rurp_log_id`, and the host parser switches from line-prefix matching to ID-frame decoding for those acks. The `DATA:` binary read-payload stream prefix marker remains a literal text prefix (explicitly out of scope per the locked v1.2 constraints). After this phase the only text-formatted log surface left in firmware is the bootstrap `OK: FW: ...` version handshake response (per LFW-05).
+**Depends on**: Phase 7 (ERROR/WARN/INFO conversion must already be in place so the host parser only has to migrate one log family at a time; PHASE C of the locked phased migration).
+**Requirements**: LMIG-03
+**Success Criteria** (what must be TRUE):
+  1. A test run of the firmware-simulator harness shows that the only line-prefix-matched messages remaining in the host parser are the `DATA:` binary read-payload stream marker and the bootstrap `OK: FW: ...` version handshake — every other `OK:` / `INIT:` / `MAIN:` / `END:` ack arrives as an ID-encoded frame.
+  2. `firestarter write -e W27C512` runs end-to-end and reaches normal completion with the host correctly rendering state-machine progress (INIT phase, MAIN data-transfer phase, END acknowledgement) from ID-frame decoding alone — visible in the host CLI output and indistinguishable in user experience from the pre-v1.2 text-format output.
+  3. The `DATA:` binary read-payload stream still works unchanged — `firestarter read -e W27C512 -o out.bin` against the simulator produces a byte-identical binary file vs the pre-Phase-8 baseline (locked constraint: `DATA:` prefix stays text per PROJECT.md "Out for v1.2").
+  4. `pio run -e leonardo` and `pio run -e uno` both compile, with the firmware binary size again measurably smaller than the Phase 7 baseline.
+**Plans**: TBD
 
-**Total v1.1 requirements:** 24
-**Mapped:** 24
+#### Phase 9: Delete Old Log Macros + Measure Flash Savings
+**Goal**: All legacy firmware log infrastructure (`rurp_log`, `rurp_log_P`, `LOG_*_MSG` PROGMEM string literals, and the `log_info_const` / `log_error_format` / `log_warn` macros) is deleted from `firestarter/src/`, `firestarter/include/`, and `firestarter/lib/`. The firmware major version bumps to 3.0.0 so old hosts refuse to talk to new firmware (and vice versa). A formal flash-usage measurement is recorded for both Uno and Leonardo, with the Leonardo number compared to the v1.1 baseline of 98.7%.
+**Depends on**: Phase 8 (every call-site that used a legacy log helper must already be converted before the helpers can be deleted; PHASE D of the locked phased migration).
+**Requirements**: LFW-03, LFW-04, LMIG-04
+**Success Criteria** (what must be TRUE):
+  1. A grep across `firestarter/src/`, `firestarter/include/`, and `firestarter/lib/` for `PROGMEM` string literals returns only documented exemptions (the `DATA:` prefix marker and any genuinely non-log PROGMEM data such as font tables or constant lookup tables) — every PROGMEM string that existed solely to be passed to a log function is gone, and the list of remaining hits is enumerated in the phase verification artifact.
+  2. The legacy log macros (`log_info_const`, `log_error_format`, `log_warn`) and the underlying `rurp_log` / `rurp_log_P` functions are deleted from the codebase — a grep for the symbols returns zero hits in `firestarter/src/` and `firestarter/include/`.
+  3. Firmware version handshake reports major version `3.0.0` (or equivalent v1.2 major bump per LFW-05); a host built before Phase 6 trying to talk to this firmware fails with the operator-facing "upgrade firmware" message wired in Phase 6 (regression-tested against the Phase 6 host guard).
+  4. `pio run -e leonardo` reports Flash usage **below 90%** with measurable headroom vs the v1.1 baseline of 98.7% — the exact percentage is recorded in the phase verification artifact (e.g. `Leonardo Flash: X% (Y bytes free), down from 98.7%`).
+  5. `pio run -e uno` also reports the new Flash usage, recorded alongside the Leonardo number for the milestone-close comparison.
+**Plans**: TBD
+
+#### Phase 10: Milestone Close (v1.2)
+**Goal**: The v1.2 milestone is formally recorded in `.planning/MILESTONES.md` using the same Key Accomplishments / Stats / Key Decisions / Known Gaps structure as the v1.0 + v1.1 entries, with a dedicated Flash-Savings comparison sub-section that pins the v1.1 baseline (98.7% Leonardo) against the v1.2 post-Phase-9 measurement. PROJECT.md is updated to reflect v1.2 shipped, and any carried-forward v1.1 leftover items are re-listed cleanly in STATE.md for the next milestone slot.
+**Depends on**: Phase 9 (the milestone entry summarises what shipped across Phases 6-9 and quotes the Phase 9 final flash-savings number).
+**Requirements**: DOC-02
+**Success Criteria** (what must be TRUE):
+  1. `.planning/MILESTONES.md` contains a v1.2 entry above the v1.0 + v1.1 entries with the canonical sub-sections (Key Accomplishments, Stats, Key Decisions, Known Gaps, Flash-Savings Comparison).
+  2. The Flash-Savings Comparison sub-section explicitly quotes the v1.1 baseline (Leonardo 98.7% Flash) and the v1.2 post-Phase-9 number, with the bytes-saved delta and the percentage-point delta both reported.
+  3. `.planning/PROJECT.md` "Active milestone" header is updated to reflect v1.2 shipped (with date) and the next milestone slot is open (or v1.1 resumption is noted, per the operator's current intent in STATE.md).
+  4. STATE.md is rolled forward — `milestone: v1.2` → next active milestone (or back to v1.1 resumption), open carried-over items (FM1608 hw bug, WARNING-4 test-script drift, v1.1 DOC-01 close) are re-listed cleanly, and `progress.percent` resets for the next milestone.
+**Plans**: TBD
+
+### Coverage Map (v1.2)
+
+| Phase | Requirements | Count |
+|-------|--------------|-------|
+| 6 | LCAT-01, LCAT-02, LCAT-03, LCAT-04, LCAT-05, LFW-01, LFW-02, LFW-05, LHOST-01, LHOST-02, LHOST-03, LHOST-04, LCI-01, LCI-02, LCI-03, LCI-04, LMIG-01 | 17 |
+| 7 | LMIG-02 | 1 |
+| 8 | LMIG-03 | 1 |
+| 9 | LFW-03, LFW-04, LMIG-04 | 3 |
+| 10 | DOC-02 | 1 |
+
+**Total v1.2 requirements:** 23 (22 from REQUIREMENTS.md + DOC-02 added by this roadmap under a new "Milestone Close" category)
+**Mapped:** 23
 **Orphaned:** 0
 **Coverage:** 100% ✓
 
-### Dependency Graph (v1.1)
+### Dependency Graph (v1.2)
 
 ```
-Phase 1 (Safety Closure)  ─┐
-                           ├─► Phase 3 (Retroactive Verification) ─► Phase 5 (Milestone Close)
-Phase 2 (Wire Rename)     ─┤                                        ▲
-                           └─► Phase 4 (Hardware Validation) ───────┘
+Phase 6 (Infrastructure / Phase A)
+   │
+   ▼
+Phase 7 (ERROR/WARN/INFO conversion / Phase B)
+   │
+   ▼
+Phase 8 (State-machine prefix conversion / Phase C)
+   │
+   ▼
+Phase 9 (Delete old macros + measure / Phase D)
+   │
+   ▼
+Phase 10 (Milestone Close)
 ```
 
-Phase 1 must precede Phase 4 (HW-05 tests the SAF-04 closure on real hardware).
-Phase 2 must precede Phase 4 (test scripts must use the renamed wire key).
-Phase 3 should follow Phases 1 and 2 (artifacts reflect closures from those phases).
-Phase 5 closes the milestone after all preceding phases ship.
+Strictly linear by design: each conversion phase requires the previous phase's infrastructure to be in place, and the Phase 9 delete-and-measure step requires every call-site to have already been migrated. The locked phased migration order (per PROJECT.md "Phased migration" and REQUIREMENTS.md LMIG-01..04) maps 1:1 to Phases 6→9, with Phase 10 closing the milestone.
 
 ## Phases (Historical)
+
+<details>
+<summary>⏸ v1.1 Safety Closure & Hardware Validation (Phases 1-5) — PAUSED 2026-05-18 at 80%</summary>
+
+- [x] Phase 1: Safety Closure (Intel-flash VPP + 28C chip-ID) — Complete
+- [x] Phase 2: Naming Cleanup (Wire Key + Minipro References) — Complete
+- [x] Phase 3: Retroactive Verification (Phases 01-10) — Complete (2026-05-12)
+- [~] Phase 4: Hardware Validation (RURP shield) — 1/3 plans complete; FM1608 byte-0 hw bug parked
+- [ ] Phase 5: Milestone Close — Deferred until v1.2 ships
+
+Full v1.1 roadmap (frozen at pause): `.planning/milestones/v1.1-paused/ROADMAP-at-pause.md`
+Carried-forward items in STATE.md: FM1608 hw bug, WARNING-4 test-script drift, DOC-01 milestone close.
+
+</details>
 
 <details>
 <summary>✅ v1.0 Protocol-Aware Programming Architecture (Phases 1-13) — SHIPPED 2026-05-11</summary>
@@ -140,41 +151,37 @@ Phase 5 closes the milestone after all preceding phases ship.
 - [x] Phase 13: Close WARNING-5 (3/3) — REQ-FW-03, REQ-SAF-01
 
 Full milestone details: `.planning/milestones/v1.0-ROADMAP.md`
-Requirements archive: `.planning/milestones/v1.0-REQUIREMENTS.md`
-Audit: `.planning/milestones/v1.0-MILESTONE-AUDIT.md` (status: gaps_found — accepted as v1.1 tech debt)
 
 </details>
 
 ## Progress
 
-### v1.1 (Current)
+### v1.2 (Current)
 
 | Phase | Plans | Status | Completed |
 |-------|-------|--------|-----------|
-| 1. Safety Closure (Intel-flash VPP + 28C chip-ID) | 0/2 | Planned | - |
-| 2. Naming Cleanup (Wire Key + Minipro References) | 0/3 | Planned | - |
+| 6. Logging Infrastructure (catalog + codegen + helper + decoder) | 0/? | Not started | - |
+| 7. Convert ERROR + WARN + INFO Call-Sites | 0/? | Not started | - |
+| 8. Convert State-Machine Prefix Call-Sites (OK/INIT/MAIN/END) | 0/? | Not started | - |
+| 9. Delete Old Log Macros + Measure Flash Savings | 0/? | Not started | - |
+| 10. Milestone Close (v1.2) | 0/? | Not started | - |
+
+### v1.1 (Paused at 80%)
+
+| Phase | Plans | Status | Completed |
+|-------|-------|--------|-----------|
+| 1. Safety Closure (Intel-flash VPP + 28C chip-ID) | 2/2 | Complete | 2026-05-12 |
+| 2. Naming Cleanup (Wire Key + Minipro References) | 3/3 | Complete | 2026-05-12 |
 | 3. Retroactive Verification (Phases 01-10) | 2/2 | Complete | 2026-05-12 |
-| 4. Hardware Validation (RURP shield) | 1/3 | In Progress | - |
-| 5. Milestone Close | 0/? | Not started | - |
+| 4. Hardware Validation (RURP shield) | 1/3 | Paused | - |
+| 5. Milestone Close | 0/? | Deferred | - |
 
 ### v1.0 (Shipped)
 
 | Phase | Milestone | Plans | Status   | Completed  |
 | ----- | --------- | ----- | -------- | ---------- |
-| 01    | v1.0      | 2/2 | Complete    | 2026-05-12 |
-| 02    | v1.0      | 3/3 | Complete    | 2026-05-12 |
-| 03    | v1.0      | 2/2 | Complete   | 2026-05-12 |
-| 04    | v1.0      | 1/3 | In Progress|  |
-| 05    | v1.0      | 1/1   | Complete | 2026-05-09 |
-| 06    | v1.0      | 1/1   | Complete | 2026-05-09 |
-| 07    | v1.0      | 1/1   | Complete | 2026-05-10 |
-| 08    | v1.0      | 1/1   | Complete | 2026-05-10 |
-| 09    | v1.0      | 1/1   | Complete | 2026-05-10 |
-| 10    | v1.0      | 1/1   | Complete | 2026-05-10 |
-| 11    | v1.0      | 1/1   | Complete | 2026-05-10 |
-| 12    | v1.0      | 5/5   | Complete | 2026-05-11 |
-| 13    | v1.0      | 3/3   | Complete | 2026-05-11 |
+| 01-13 | v1.0      | 22/22 | Complete | 2026-05-11 |
 
 ---
 
-*Roadmap last updated: 2026-05-12 — v1.1 Phase 3 planned (2 plans: 03-01 clean batch / 03-02 closure-and-hazard batch with SC#3 + SC#4 locks); 5 phases, 24 requirements, 100% coverage*
+*Roadmap last updated: 2026-05-18 — v1.2 created with 5 phases (6-10), 23 requirements (22 v1.2 + DOC-02 milestone-close), 100% coverage. Phase numbering continues from v1.1's last phase.*
