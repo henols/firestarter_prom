@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Message-ID Logging Rework
 status: executing
-last_updated: "2026-05-18T20:40:58.796Z"
-last_activity: 2026-05-18 -- Phase 08 planning complete
+last_updated: "2026-05-18T21:06:22.731Z"
+last_activity: 2026-05-18
 progress:
   total_phases: 5
   completed_phases: 3
@@ -20,11 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: 08 (Convert State-Machine Prefix Call-Sites (OK/INIT/MAIN/END)) — EXECUTING
-Plan: 8 of 8
+Phase: 9
+Plan: Not started
 Status: Ready to execute
 Resume from: `.planning/phases/08-convert-state-machine-prefix-call-sites-ok-init-main-end/08-08-PLAN.md`
-Last activity: 2026-05-18 -- Phase 08 planning complete
+Last activity: 2026-05-18
 
 ## Project Reference
 
