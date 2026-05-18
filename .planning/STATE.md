@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Message-ID Logging Rework
 status: executing
-last_updated: "2026-05-18T19:56:28.192Z"
+last_updated: "2026-05-18T20:11:55.337Z"
 last_activity: 2026-05-18
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 27
-  completed_plans: 25
+  completed_plans: 26
   percent: 40
 ---
 
@@ -21,9 +21,9 @@ progress:
 ## Current Position
 
 Phase: 08 (Convert State-Machine Prefix Call-Sites (OK/INIT/MAIN/END)) — EXECUTING
-Plan: 7 of 8
+Plan: 8 of 8
 Status: Ready to execute
-Resume from: `.planning/phases/08-convert-state-machine-prefix-call-sites-ok-init-main-end/08-02-PLAN.md`
+Resume from: `.planning/phases/08-convert-state-machine-prefix-call-sites-ok-init-main-end/08-08-PLAN.md`
 Last activity: 2026-05-18
 
 ## Project Reference
@@ -140,6 +140,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 08 P04 | 20min | 6 tasks | 7 files |
 | Phase 08 P05 | 45min | 4 tasks | 11 files |
 | Phase 08 P06 | 12min | 2 tasks | 5 files |
+| Phase 08 P07 | 11min | 2 tasks | 14 files |
 
 ## Decisions
 
@@ -181,3 +182,6 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase ?]: LOG_DATA_ID_U32_U32 composite packs two u32 values as 8 big-endian bytes — covers MSG_DATA_PROGRESS; LOG_DATA_ID_U16_U16 declared for Plan 05 VPP/VPE symmetry
 - [Phase ?]: Phase 08-04: 10 call-sites converted (3 state-machine acks, 2 trivial OK/DATA, 5 R-02 populate-sites) using LOG_OK_ID_*/LOG_INIT_ID_*/LOG_MAIN_ID_*/LOG_END_ID_*/LOG_DATA_ID_* families
 - [Phase ?]: Phase 08 Plan 06: R-01 SRAM win exactly 96 bytes on both Uno and Leonardo (1593->1497 B Uno, 1563->1467 B Leonardo)
+- [Phase 08]: Plan 08-07: LOG_DEBUG_ID_SUB_U16_U16 added for DBG_PULSE_DELAY_MISMATCH (pulse_delay is uint32_t exceeding catalog u8 decl; u16 preserves diagnostic range)
+- [Phase 08]: Plan 08-07: debug_msg_buffer deleted (malloc(80) removed, extern decl removed, Uno rurp_log_id/rurp_log_P SoftwareSerial paths removed); debug_setup() retained for SoftwareSerial port init
+- [Phase 08]: Plan 08-07: Production flash unchanged vs Plan 06 baseline — debug() was already a #define no-op in production; new LOG_DEBUG_ID_SUB* expands to same nothing
