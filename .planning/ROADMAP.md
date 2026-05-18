@@ -77,7 +77,7 @@
   3. The `DATA:` binary read-payload stream still works unchanged — `firestarter read -e W27C512 -o out.bin` against the simulator produces a byte-identical binary file vs the pre-Phase-8 baseline (locked constraint: `DATA:` prefix stays text per PROJECT.md "Out for v1.2").
   4. `pio run -e leonardo` and `pio run -e uno` both compile, with the firmware binary size again measurably smaller than the Phase 7 baseline.
 **Plans**: 8 plans
-- [ ] 08-01-PLAN.md — Catalog additions (VPP/VPE/CHUNK/DEBUG) + codegen [debug] support + sync (Wave 1)
+- [x] 08-01-PLAN.md — Catalog additions (VPP/VPE/CHUNK/DEBUG) + codegen [debug] support + sync (Wave 1)
 - [ ] 08-02-PLAN.md — Wire-format len u8→u16 widening (firmware + host atomic; Wave 2)
 - [ ] 08-03-PLAN.md — Host parser surgical prefix-matching removal + sentinel rendering (Wave 3)
 - [ ] 08-04-PLAN.md — New LOG_*_ID macro families + simple OK/INIT/MAIN/END/DATA populate-sites (Wave 4)
