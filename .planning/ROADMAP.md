@@ -57,7 +57,7 @@
 - [x] 07-02-PLAN.md — Catalog gap fixes: add MSG_ERR_VPP_HIGH (0xB8) + MSG_ERR_CHIP_ID_MISMATCH (0xB9) + MSG_ERR_MEM_SIZE_TOO_SMALL (0xBA) (Wave 1, three chore commits)
 - [x] 07-03-PLAN.md — Convert proms/eprom.cpp populate-sites (5 sites; Wave 2)
 - [x] 07-04-PLAN.md — Convert proms/flash_intel.cpp populate-sites (7 sites; Wave 2)
-- [ ] 07-05-PLAN.md — Convert proms/flash_type_4.cpp + proms/flash_utils.cpp populate-sites (2 sites; Wave 2; commit per file)
+- [x] 07-05-PLAN.md — Convert proms/flash_type_4.cpp + proms/flash_utils.cpp populate-sites (2 sites; Wave 2; commit per file)
 - [ ] 07-06-PLAN.md — Convert proms/eeprom_28c.cpp populate-sites (3 sites incl. dynamic-severity; Wave 2)
 - [ ] 07-07-PLAN.md — Convert proms/memory.cpp populate-sites (3 sites incl. dispatch fallthrough; Wave 2)
 - [ ] 07-08-PLAN.md — Convert proms/flash_type_3.cpp dynamic-severity site + classify line 87 OK-path (Wave 2)
@@ -180,7 +180,7 @@ Full milestone details: `.planning/milestones/v1.0-ROADMAP.md`
 | Phase | Plans | Status | Completed |
 |-------|-------|--------|-----------|
 | 6. Logging Infrastructure (catalog + codegen + helper + decoder) | 0/6 | Not started | - |
-| 7. Convert ERROR + WARN + INFO Call-Sites | 0/13 | Not started | - |
+| 7. Convert ERROR + WARN + INFO Call-Sites | 5/13 | In progress | - |
 | 8. Convert State-Machine Prefix Call-Sites (OK/INIT/MAIN/END) | 0/? | Not started | - |
 | 9. Delete Old Log Macros + Measure Flash Savings | 0/? | Not started | - |
 | 10. Milestone Close (v1.2) | 0/? | Not started | - |
