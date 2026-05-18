@@ -22,8 +22,8 @@ Each requirement maps to exactly one v1.2 roadmap phase (numbering continues fro
 
 ### Logging Firmware-side
 
-- [ ] **LFW-01**: A `rurp_log_id(uint8_t msg_id, const uint8_t* params, uint8_t param_count)` helper exists in firmware and replaces the existing `rurp_log(LOG_*_MSG, char*)` family. It sends the wire frame for an ID-encoded log message over `SERIAL_PORT` per the wire-format agreed in phase planning (a binary frame distinguishable from `DATA:` binary payload).
-- [ ] **LFW-02**: Convenience macros / inline helpers exist so that idiomatic call-sites (e.g. `LOG_INFO(MSG_VPP_OK)` with no params, or `LOG_ERROR(MSG_BAD_VPP, vpp_mv_value)` with one u16 param) are no more verbose than the current `log_info_const` / `log_error_format` macros they replace.
+- [x] **LFW-01**: A `rurp_log_id(uint8_t msg_id, const uint8_t* params, uint8_t param_count)` helper exists in firmware and replaces the existing `rurp_log(LOG_*_MSG, char*)` family. It sends the wire frame for an ID-encoded log message over `SERIAL_PORT` per the wire-format agreed in phase planning (a binary frame distinguishable from `DATA:` binary payload).
+- [x] **LFW-02**: Convenience macros / inline helpers exist so that idiomatic call-sites (e.g. `LOG_INFO(MSG_VPP_OK)` with no params, or `LOG_ERROR(MSG_BAD_VPP, vpp_mv_value)` with one u16 param) are no more verbose than the current `log_info_const` / `log_error_format` macros they replace.
 - [ ] **LFW-03**: All firmware log call-sites that today use `OK:` / `INIT:` / `MAIN:` / `END:` / `INFO:` / `WARN:` / `ERROR:` PROGMEM strings are converted to `rurp_log_id` (or the LOG_* macro form). Every former format-string is represented as a single entry in the canonical catalog.
 - [ ] **LFW-04**: After conversion, `firestarter/src/`, `firestarter/include/`, and `firestarter/lib/` contain zero PROGMEM string literals that exist only to be passed to a log function. (`DATA:` prefix marker and any non-log PROGMEM strings are exempt and noted explicitly.)
 - [ ] **LFW-05**: Firmware version handshake bumps the major version (e.g. `3.0.0`) so the host's version check rejects mismatched-format firmware cleanly. The `OK: FW: ...` response message itself stays text-formatted (this single message is required to bootstrap the version check before the ID catalog is loaded).
@@ -84,8 +84,8 @@ Each requirement maps to exactly one v1.2 phase. Phase numbering continues from 
 | LCAT-03 | Phase 6 | Complete |
 | LCAT-04 | Phase 6 | Complete |
 | LCAT-05 | Phase 6 | Complete |
-| LFW-01  | Phase 6 | Pending |
-| LFW-02  | Phase 6 | Pending |
+| LFW-01  | Phase 6 | Complete |
+| LFW-02  | Phase 6 | Complete |
 | LFW-03  | Phase 9 | Pending |
 | LFW-04  | Phase 9 | Pending |
 | LFW-05  | Phase 6 | Pending |
