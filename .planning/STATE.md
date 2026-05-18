@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Message-ID Logging Rework
 status: executing
-last_updated: "2026-05-18T15:51:47.162Z"
+last_updated: "2026-05-18T15:56:28.968Z"
 last_activity: 2026-05-18
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 19
-  completed_plans: 15
+  completed_plans: 16
   percent: 20
 ---
 
@@ -21,7 +21,7 @@ progress:
 ## Current Position
 
 Phase: 07 (convert-error-warn-info-call-sites) — EXECUTING
-Plan: 10 of 13
+Plan: 11 of 13
 Status: Ready to execute
 Resume from: `.planning/phases/07-convert-error-warn-info-call-sites/07-07-PLAN.md`
 Last activity: 2026-05-18
@@ -132,6 +132,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 07-convert-error-warn-info-call-sites P07 | 15 | 1 tasks | 2 files |
 | Phase 07 P08 | 5 | 1 tasks | 1 files |
 | Phase 07 P09 | 10min | 1 tasks | 1 files |
+| Phase 07 P10 | 15 | 1 tasks | 1 files |
 
 ## Decisions
 
@@ -157,3 +158,6 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase ?]: Two-line error populate-site pattern established in memory.cpp
 - [Phase ?]: Serial stub required in dispatch test setUp once error path emits via rurp_log_id (LOG_ERROR_ID_* conversion)
 - [Phase ?]: flash_type_3.cpp:87 Skipping-erase site confirmed OK-path; deferred to Phase 8 (MSG_INFO_SKIPPING_ERASE_MEM 0x59)
+- [Phase ?]: Dead-code block at firestarter.cpp:86 safely deleted
+- [Phase ?]: command_done() resets handle immediately after timeout emit
+- [Phase ?]: No format string needed — catalog owns the wire format

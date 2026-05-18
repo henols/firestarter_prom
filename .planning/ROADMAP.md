@@ -62,7 +62,7 @@
 - [x] 07-07-PLAN.md — Convert proms/memory.cpp populate-sites (3 sites incl. dispatch fallthrough; Wave 2)
 - [x] 07-08-PLAN.md — Convert proms/flash_type_3.cpp dynamic-severity site + classify line 87 OK-path (Wave 2)
 - [x] 07-09-PLAN.md — Convert operation_utils.cpp direct-log + _check_response surgical edit + breadcrumb deletion (Wave 3)
-- [ ] 07-10-PLAN.md — Convert firestarter.cpp 20 sites + delete line 86 dead-code + line 176 hybrid (Wave 3)
+- [x] 07-10-PLAN.md — Convert firestarter.cpp 20 sites + delete line 86 dead-code + line 176 hybrid (Wave 3)
 - [ ] 07-11-PLAN.md — Convert dev_tools.cpp 7 INFO call-sites with stack-array packing (Wave 3)
 - [ ] 07-12-PLAN.md — Convert eprom_operations.cpp + hardware_operations.cpp 5 trivial ERROR sites (Wave 3; commit per file)
 - [ ] 07-13-PLAN.md — Phase-close verification artifact + SC#1 grep gate + SC#3 pytest + SC#4 dual-board flash measurement + SC#2 manual decoder-toggle diff on Uno+Leonardo (Wave 4)
