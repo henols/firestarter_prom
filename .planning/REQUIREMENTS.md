@@ -46,7 +46,7 @@ Each requirement maps to exactly one v1.2 roadmap phase (numbering continues fro
 
 - [x] **LMIG-01**: **Phase A (infrastructure-only)**: catalog + codegen + `rurp_log_id` helper + host decoder all land in a single phase, without removing any existing log code. Firmware compiles and links with both old `rurp_log(LOG_*_MSG, ...)` and new `rurp_log_id(...)` paths available. Old hosts continue working against unchanged firmware behavior.
 - [x] **LMIG-02**: **Phase B (error + info conversion)**: firmware ERROR + WARN + INFO log call-sites are converted to `rurp_log_id` form. Each batch commits separately by call-site cluster (one PROM module at a time). Old log helpers still present for OK/INIT/MAIN/END prefixes.
-- [ ] **LMIG-03**: **Phase C (state-machine prefix conversion)**: `OK:` / `INIT:` / `MAIN:` / `END:` call-sites are converted. Host parser switches from line-prefix matching to ID-frame decoding for state-machine acks. **`DATA:` prefix marker remains as literal text** (gates the host's binary read loop and is not changed in v1.2).
+- [x] **LMIG-03**: **Phase C (state-machine prefix conversion)**: `OK:` / `INIT:` / `MAIN:` / `END:` call-sites are converted. Host parser switches from line-prefix matching to ID-frame decoding for state-machine acks. **`DATA:` prefix marker remains as literal text** (gates the host's binary read loop and is not changed in v1.2).
 - [ ] **LMIG-04**: **Phase D (delete + measure)**: Old `rurp_log` / `rurp_log_P` / `LOG_*_MSG` PROGMEM definitions and `log_info_const` / `log_error_format` / `log_warn` macros are removed. `pio run -e leonardo` produces a final flash-savings number documented in the milestone close. Target: bring Leonardo flash below 90% with measurable headroom.
 
 ### Milestone Close
@@ -99,7 +99,7 @@ Each requirement maps to exactly one v1.2 phase. Phase numbering continues from 
 | LCI-04  | Phase 6 | Complete |
 | LMIG-01 | Phase 6 | Complete |
 | LMIG-02 | Phase 7 | Complete |
-| LMIG-03 | Phase 8 | Pending |
+| LMIG-03 | Phase 8 | Complete |
 | LMIG-04 | Phase 9 | Pending |
 | DOC-02  | Phase 10 | Pending |
 

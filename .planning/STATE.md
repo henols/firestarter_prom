@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Message-ID Logging Rework
 status: executing
-last_updated: "2026-05-18T19:01:00.000Z"
-last_activity: 2026-05-18 -- Phase 08 Plan 01 complete
+last_updated: "2026-05-18T19:11:11.003Z"
+last_activity: 2026-05-18
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 27
-  completed_plans: 20
-  percent: 41
+  completed_plans: 21
+  percent: 40
 ---
 
 # Project State
@@ -21,10 +21,10 @@ progress:
 ## Current Position
 
 Phase: 08 (Convert State-Machine Prefix Call-Sites (OK/INIT/MAIN/END)) — EXECUTING
-Plan: 2 of 8
-Status: Executing Phase 08 (Plan 01 complete)
+Plan: 3 of 8
+Status: Ready to execute
 Resume from: `.planning/phases/08-convert-state-machine-prefix-call-sites-ok-init-main-end/08-02-PLAN.md`
-Last activity: 2026-05-18 -- Phase 08 Plan 01 complete
+Last activity: 2026-05-18
 
 ## Project Reference
 
@@ -135,6 +135,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 07 P10 | 15 | 1 tasks | 1 files |
 | Phase 07 P11 | 3min | 1 tasks | 1 files |
 | Phase 08 P08-01 | 25min | 3 tasks | 9 files |
+| Phase 08 P02 | 19 | 2 tasks | 5 files |
 
 ## Decisions
 
@@ -169,3 +170,5 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase 08]: Plan 08-01: MSG_OK_FW_HANDSHAKE wire_format->id_frame; format "HW: %u, Cmd: 0x%02x, FW: %s" [u8 hw, u8 cmd, ascii_str fw_version]; hw=0xFF sentinel for no HARDWARE_REVISION
 - [Phase 08]: Plan 08-01: 41 unique debug strings found (43 call-sites); CONTEXT.md B-01 count of 34 was stale; DBG_* sub_id 0x00..0x28 in [debug] section; audit at /tmp/ph8-debug-audit.txt
 - [Phase 08]: Plan 08-01: sync_to_subrepos.sh now runs full generation cycle (copy TOML+codegen, then regen messages.h + messages.py); idempotence confirmed by second run zero-diff
+- [Phase ?]: Firmware param_count stays uint8_t, guard widened to 65533 for W-04 MSG_DATA_CHUNK forward-compat
+- [Phase ?]: bytes param type decodes all remaining buf as raw bytes; filtered from printf tuple

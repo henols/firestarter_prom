@@ -78,7 +78,7 @@
   4. `pio run -e leonardo` and `pio run -e uno` both compile, with the firmware binary size again measurably smaller than the Phase 7 baseline.
 **Plans**: 8 plans
 - [x] 08-01-PLAN.md — Catalog additions (VPP/VPE/CHUNK/DEBUG) + codegen [debug] support + sync (Wave 1)
-- [ ] 08-02-PLAN.md — Wire-format len u8→u16 widening (firmware + host atomic; Wave 2)
+- [x] 08-02-PLAN.md — Wire-format len u8→u16 widening (firmware + host atomic; Wave 2)
 - [ ] 08-03-PLAN.md — Host parser surgical prefix-matching removal + sentinel rendering (Wave 3)
 - [ ] 08-04-PLAN.md — New LOG_*_ID macro families + simple OK/INIT/MAIN/END/DATA populate-sites (Wave 4)
 - [ ] 08-05-PLAN.md — P-01..P-04 composite OK_REV/OK_CFG/FW_HANDSHAKE + VPP/VPE DATA + MSG_DATA_CHUNK streaming (Wave 5)
