@@ -58,7 +58,7 @@
 - [x] 07-03-PLAN.md — Convert proms/eprom.cpp populate-sites (5 sites; Wave 2)
 - [x] 07-04-PLAN.md — Convert proms/flash_intel.cpp populate-sites (7 sites; Wave 2)
 - [x] 07-05-PLAN.md — Convert proms/flash_type_4.cpp + proms/flash_utils.cpp populate-sites (2 sites; Wave 2; commit per file)
-- [ ] 07-06-PLAN.md — Convert proms/eeprom_28c.cpp populate-sites (3 sites incl. dynamic-severity; Wave 2)
+- [x] 07-06-PLAN.md — Convert proms/eeprom_28c.cpp populate-sites (3 sites incl. dynamic-severity; Wave 2)
 - [ ] 07-07-PLAN.md — Convert proms/memory.cpp populate-sites (3 sites incl. dispatch fallthrough; Wave 2)
 - [ ] 07-08-PLAN.md — Convert proms/flash_type_3.cpp dynamic-severity site + classify line 87 OK-path (Wave 2)
 - [ ] 07-09-PLAN.md — Convert operation_utils.cpp direct-log + _check_response surgical edit + breadcrumb deletion (Wave 3)
