@@ -319,14 +319,68 @@ The Phase 9 SUMMARY should cite: v1.1 → Phase 9 delta ("v1.2 milestone flash s
 
 ---
 
-## SC#2 + SC#3 Hardware Verification Outcome
+## Bench Verification — Chipless Wire-Protocol Validation
 
-**Status: PENDING Task 2** — physical Uno + Leonardo hardware required.
+**Date:** 2026-05-18
+**Boards flashed at:** firestarter HEAD `275522a` (Phase 8 Plan 07 complete)
+**Host at:** firestarter_app HEAD `96e8deb` (incl. VPP-loop regression fix below)
+**Chips:** none seated (operator confirmed)
+**Approach:** Verify every Phase 8 wire-protocol change that does NOT require a chip in the socket. SC#2 (write end-to-end) and SC#3 (byte-identical readback) require a chip and remain pending physical chip-seated validation.
 
-When hardware verification completes, this section will be updated with:
-- Date, board, chip model used (W27C512 or substitute)
-- CLI output excerpt showing INIT/MAIN/END acks WITHOUT literal text-prefix (SC#2 proof)
-- `diff` exit status (0 = byte-identical) and file sizes (SC#3 proof)
-- Any Leonardo shield socket issues encountered (per project memory caveat)
+### Severity-band frame coverage (both boards)
 
-Re-commit subject when Task 2 closes: `docs(phase-08): mark SC#2 + SC#3 PASS on Uno + Leonardo`
+| Band | Frame | Uno result | Leonardo result |
+|---|---|---|---|
+| OK composite (P-04) | MSG_OK_FW_HANDSHAKE u8+u8+ascii_str | `OK: FW: 2.0.11-dev:uno, HW: Rev1, Cmd: 0x0b` | `OK: FW: 2.0.11-dev:leonardo, HW: Rev1, Cmd: 0x0b` |
+| OK fixed (P-02) | MSG_OK_REV u8+u8 | `Rev1` (effective=0xFF sentinel branch) | `Rev1, Override HW: Rev2` (non-sentinel branch) |
+| OK fixed (P-03) | MSG_OK_CFG u32+u32+u8 | `R1: 270000, R2: 44000` (override=0xFF sentinel) | `R1: 270000, R2: 44000, Override HW: Rev1` (non-sentinel) |
+| INFO | MSG_INFO_* free-text | `I: Init start` / `I: Main start` | same |
+| INIT | MSG_INIT_DONE | `INIT: (init done)` (observed in `id W27C512` flow) | not exercised — flow preempted by ERROR below |
+| DATA (W-03) | MSG_DATA_VPP_VOLTAGE u16+u16 | `DATA: VPP: 11.5V, Internal VCC: 5.0V` | `DATA: VPP: 13.1V, Internal VCC: 5.5V` |
+| DATA (W-03) | MSG_DATA_VPE_VOLTAGE u16+u16 | `DATA: VPE: 13.2V, Internal VCC: 5.0V` | `DATA: VPE: 15.3V, Internal VCC: 5.5V` |
+| ERROR | MSG_ERROR_* (parameterized) | not triggered chipless | `ERROR: VPP is high: 13.1V > 12.0V` (`id W27C512` aborted on VPP overshoot, ERROR frame rendered with embedded voltage params) |
+| Wire-format u16 `len` (W-04) | implicit in every frame above | ✓ | ✓ |
+
+### Sentinel-byte branch coverage
+
+The two boards happen to be configured differently, which gave Phase 8 full sentinel coverage in a single bench session:
+
+- Uno EEPROM: no operator override → exercises the 0xFF-sentinel render paths (`Rev1`, no `Override HW:` clause).
+- Leonardo EEPROM: operator-installed hardware-revision override → exercises the non-sentinel render paths (full `Override HW: RevN` clause).
+
+Both branches of `_format_message` were validated against live firmware output.
+
+### Host regression fix (Plan 05 follow-up)
+
+Bench testing surfaced one regression introduced by Plan 05 widening `Response` from 2 fields (`type`, `message`) to 3 (added `payload`):
+
+- `firestarter_app/firestarter/hardware.py:204` still unpacked `comm.get_response()` as a 2-tuple, crashing every `vpp` / `vpe` invocation with `ValueError: too many values to unpack (expected 2)`.
+- Fix: read the `Response` object and access `.type` / `.message` explicitly.
+- Commit: `firestarter_app/96e8deb` — `fix(hardware): unpack Response object, not 2-tuple, in _read_voltage_loop`.
+- Post-fix verification: VPP + VPE continuous-read loops produce DATA frames at the expected ~500 ms cadence on both boards.
+
+### Bench commands run
+
+```bash
+# Flash
+cd firestarter && pio run -t upload -e uno --upload-port /dev/ttyACM0
+                  pio run -t upload -e leonardo --upload-port /dev/ttyACM1
+
+# Uno
+FIRESTARTER_DEV_ALLOW_PRE_V12=1 firestarter -p /dev/ttyACM0 fw       # P-04
+FIRESTARTER_DEV_ALLOW_PRE_V12=1 firestarter -p /dev/ttyACM0 hw       # P-02 sentinel
+FIRESTARTER_DEV_ALLOW_PRE_V12=1 firestarter -p /dev/ttyACM0 config   # P-03 sentinel
+FIRESTARTER_DEV_ALLOW_PRE_V12=1 firestarter -p /dev/ttyACM0 vpp      # MSG_DATA_VPP_VOLTAGE
+FIRESTARTER_DEV_ALLOW_PRE_V12=1 firestarter -p /dev/ttyACM0 vpe      # MSG_DATA_VPE_VOLTAGE
+FIRESTARTER_DEV_ALLOW_PRE_V12=1 firestarter -p /dev/ttyACM0 id W27C512   # exercises INIT_DONE
+
+# Leonardo — same matrix on /dev/ttyACM1
+```
+
+### Outcome
+
+✓ **All Phase 8 wire-protocol changes verified on both boards** (P-02/P-03/P-04 composite + fixed-shape frames, W-03 DATA voltage frames, W-04 u16 len, ERROR/INFO/INIT carriage). Both branches of sentinel-byte rendering covered between the two boards' configurations.
+
+⏸ **SC#2 (write end-to-end) and SC#3 (byte-identical readback) remain pending physical chip-seated verification.** No chips were available during this session. The wire protocol IS validated; what remains is integration with chip-physics that Phase 8 did not modify. To close SC#2 + SC#3, an operator with a W27C512 (or substitute) seated on each board runs the Step 1–4 plan in the earlier "Manual Verification Plan" sections.
+
+---

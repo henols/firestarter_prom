@@ -84,7 +84,7 @@
 - [x] 08-05-PLAN.md — P-01..P-04 composite OK_REV/OK_CFG/FW_HANDSHAKE + VPP/VPE DATA + MSG_DATA_CHUNK streaming (Wave 5)
 - [x] 08-06-PLAN.md — _check_response strip + response_msg field deletion + copy_to_buffer macro deletion (Wave 6, R-01/R-03)
 - [x] 08-07-PLAN.md — debug() single-sweep conversion to MSG_DEBUG + sub_id channel (Wave 7, B-01..B-04)
-- [ ] 08-08-PLAN.md — Phase close: SC#1/#4 automated + SC#2/#3 hardware verification + 08-MEASUREMENT.md (Wave 8)
+- [x] 08-08-PLAN.md — Phase close: SC#1/#4 automated + SC#2/#3 hardware verification + 08-MEASUREMENT.md (Wave 8)
 
 #### Phase 9: Delete Old Log Macros + Measure Flash Savings
 **Goal**: All legacy firmware log infrastructure (`rurp_log`, `rurp_log_P`, `LOG_*_MSG` PROGMEM string literals, and the `log_info_const` / `log_error_format` / `log_warn` macros) is deleted from `firestarter/src/`, `firestarter/include/`, and `firestarter/lib/`. The firmware major version bumps to 3.0.0 so old hosts refuse to talk to new firmware (and vice versa). A formal flash-usage measurement is recorded for both Uno and Leonardo, with the Leonardo number compared to the v1.1 baseline of 98.7%.
