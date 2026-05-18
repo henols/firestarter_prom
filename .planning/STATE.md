@@ -22,8 +22,8 @@ progress:
 
 Phase: 7
 Plan: Not started
-Status: Phase complete — ready for verification
-Resume from: `.planning/phases/06-logging-infrastructure/06-05-PLAN.md` (CI drift gate)
+Status: Context gathered — ready for planning
+Resume from: `.planning/phases/07-convert-error-warn-info-call-sites/07-CONTEXT.md`
 Last activity: 2026-05-18
 
 ## Project Reference
