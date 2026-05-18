@@ -384,3 +384,146 @@ FIRESTARTER_DEV_ALLOW_PRE_V12=1 firestarter -p /dev/ttyACM0 id W27C512   # exerc
 ⏸ **SC#2 (write end-to-end) and SC#3 (byte-identical readback) remain pending physical chip-seated verification.** No chips were available during this session. The wire protocol IS validated; what remains is integration with chip-physics that Phase 8 did not modify. To close SC#2 + SC#3, an operator with a W27C512 (or substitute) seated on each board runs the Step 1–4 plan in the earlier "Manual Verification Plan" sections.
 
 ---
+
+## Phase 8 Close — Logging Housekeeping Pass
+
+**Date:** 2026-05-18
+**Baseline:** Uno 22,330 B Flash / 1,497 B SRAM; Leonardo 24,538 B Flash / 1,467 B SRAM (Phase 8 Plan 07 close)
+**Post-pass:** Uno 22,330 B Flash / 1,497 B SRAM; Leonardo 24,538 B Flash / 1,467 B SRAM (unchanged — dead macros were already empty expansions in production builds)
+
+---
+
+## Dead Symbol Deletion (Task 1)
+
+**Files modified:** `include/logging.h`, `src/logging.c`, `src/boards/uno_rurp_shield.cpp`, `src/boards/leonardo_rurp_shield.cpp`, `src/boards/rurp_serial_utils.cpp`, `src/firestarter.cpp`, `src/proms/memory.cpp`
+
+**Macros deleted from logging.h** (all confirmed zero callers in src/):
+- `send_main_done`, `send_init_done`, `send_end_done`
+- `log_info`, `log_info_const`, `log_info_format`
+- `log_data`, `log_data_const`, `log_data_format`
+- `log_warn`, `log_warn_const`, `log_warn_format`, `log_warn_format_buf`
+- `log_error`, `log_error_const`, `log_error_format`, `log_error_format_buf`
+- `format`, `format_P_int`, `format_P_char`
+- `log_error_P_int_buf`, `log_info_P_int_buf`, `log_info_P_char_buf`
+- `log_info_P_int`, `log_info_P_char`, `log_error_P_int`
+- `send_ack_format`
+- `firestarter_data_response`, `firestarter_data_response_format`
+- `firestarter_warning_response`, `firestarter_warning_response_format`
+- `firestarter_error_response`, `firestarter_error_response_format`
+- `firestarter_set_response`, `firestarter_response_format`
+
+**PROGMEM strings deleted from logging.c** (now unreferenced after macro deletion):
+- `LOG_INIT_DONE_MSG`, `LOG_MAIN_DONE_MSG`, `LOG_END_DONE_MSG`
+- `LOG_INFO_MSG`, `LOG_DATA_MSG`, `LOG_WARN_MSG`, `LOG_ERROR_MSG`
+- Kept: `LOG_OK_MSG` (still referenced by `send_ack` / `send_ack_const`)
+
+**Functions deleted from board files:**
+- `uno_rurp_shield.cpp`: `debug_buf(const char* msg)` — zero external callers
+- `leonardo_rurp_shield.cpp`: `debug_buf(const char* msg)` — zero external callers
+
+**Macros KEPT (live callers confirmed):**
+- `send_ack` — called from `dev_tools.cpp:108` and `:154`
+- `send_ack_const` — called from `hardware_operations.cpp:86` (LFW-05 bootstrap text path)
+- `debug_setup()` / `log_debug(type, msg)` — SERIAL_DEBUG build support
+- `log_debug` function body in `uno_rurp_shield.cpp` — called from `rurp_log()` line 84 in SERIAL_DEBUG path
+
+**Commented-out call-sites cleaned:**
+- `rurp_serial_utils.cpp` lines 72, 81, 93: converted `// log_error_*(...)` to plain inline error-code comments
+- `firestarter.cpp` parse_json: removed `// log_info_format(...)` comment + dead `#ifdef EXTRA_INFO_LOGGING` block that contained only that comment
+- `memory.cpp` memory_read_execute: removed `// debug_format(...)` comment
+
+**Flash delta:** 0 bytes (production; SERIAL_DEBUG macros were already empty no-ops). SERIAL_DEBUG builds gain code reduction.
+**Commit:** `451756f`
+
+---
+
+## Catalog Orphan Audit (Task 2)
+
+**Method:** For each MSG_* and DBG_* entry in messages.toml, grepped firestarter/src/ and firestarter/include/ (excluding generated messages.h and logging_id.h) for emit site references.
+
+| ID | Name | Status | Notes |
+|----|------|--------|-------|
+| 0x00 | MSG_NONE | KEPT | Reserved sentinel — by design |
+| 0x01 | MSG_OK_READY | USED | hardware_operations.cpp:42 |
+| 0x02 | MSG_OK_REQ_DATA | USED | eprom_operations.cpp:76 |
+| 0x03 | MSG_OK_FW_VERSION | KEPT | LFW-05 bootstrap exemption (text path, no ID-frame emit) |
+| 0x04 | MSG_OK_REV | USED | hardware_operations.cpp:98 |
+| 0x05 | MSG_OK_CFG | USED | hardware_operations.cpp:120 |
+| 0x06 | MSG_OK_FW_HANDSHAKE | USED | firestarter.cpp:153 |
+| 0x10 | MSG_INIT_DONE | USED | operation_utils.cpp:254 |
+| 0x20 | MSG_MAIN_DONE | USED | operation_utils.cpp:184 |
+| 0x30 | MSG_END_DONE | USED | operation_utils.cpp:256 |
+| 0x40–0x59 | MSG_INFO_* (all 26) | USED | firestarter.cpp, dev_tools.cpp, eprom.cpp, flash_type_{3,4}.cpp |
+| 0x80–0x84 | MSG_WARN_* (all 5) | USED | eprom.cpp, flash_intel.cpp, flash_type_3.cpp, eeprom_28c.cpp |
+| 0xA0–0xBA | MSG_ERR_* (all 27) | USED | firestarter.cpp, hardware_operations.cpp, operation_utils.cpp, eprom_operations.cpp, proms/*.cpp |
+| 0xE0 | MSG_DATA_PROGRESS | USED | memory.cpp:325 |
+| 0xE1 | MSG_DATA_VOLTAGE | ORPHAN | DELETED — superseded by 0xE4/0xE5 (VPP/VPE dedicated IDs) |
+| 0xE2 | MSG_DATA_SENDING | USED | eprom_operations.cpp:119 |
+| 0xE4 | MSG_DATA_VPP_VOLTAGE | USED | hardware_operations.cpp:72 |
+| 0xE5 | MSG_DATA_VPE_VOLTAGE | USED | hardware_operations.cpp:70 |
+| 0xE6 | MSG_DATA_CHUNK | USED | eprom_operations.cpp:120 |
+| 0xF0 | MSG_DEBUG | USED | logging_id.h (LOG_DEBUG_ID_SUB* macros) |
+| DBG_0x00–0x28 | All 41 DBG_* entries | USED | Confirmed individual grep for all 41 |
+
+**Orphans deleted:** 1 (MSG_DATA_VOLTAGE 0xE1)
+**Catalog total:** 75 → 74 messages
+**Commits:** `b2b903c` (firestarter), `789c886` (firestarter_app)
+
+---
+
+## Catalog Clarity Pass (Task 3)
+
+**Method:** Full read of messages.toml format strings; applied non-breaking fixes only.
+
+| Entry | Old format | New format | Reason |
+|-------|-----------|------------|--------|
+| MSG_INFO_ADDR_REMAP (0x57) | `"Address: 0x%06x remappend"` | `"Address: 0x%06x remapped"` | Typo: double 'd' |
+| MSG_INFO_SKIPPING_ERASE (0x58) | `"Skipping erase."` | `"Skipping erase"` | Standardize: no trailing period on status messages |
+| MSG_WARN_REV0_VPP_UNSUPPORTED (0x80) | `"Rev0 dont support reading VPP/VPE"` | `"Rev0 does not support reading VPP/VPE"` | Grammar |
+| MSG_WARN_CHIP_ID_MISMATCH (0x83) | `"Chip ID %#04x dont match expected ID %#04x"` | `"Chip ID %#04x does not match expected ID %#04x"` | Grammar |
+| MSG_WARN_MEM_SIZE_TOO_SMALL (0x84) | `"mem_size %lu too small for chip-id check"` | `"Memory size %lu too small for chip-id check"` | Remove internal var name from operator text |
+| MSG_ERR_NO_CMD (0xA1) | `"No cmd"` | `"No command"` | Expand abbreviation |
+| MSG_ERR_DATA_ERR_N (0xA9) | `"Data err %d"` | `"Data error: %d"` | Expand abbreviation |
+| MSG_ERR_CMD_TIMEOUT (0xAA) | `"Cmd: %d, timeout"` | `"Command %d timed out"` | Expand abbreviation, clearer phrasing |
+| MSG_ERR_UNKNOWN_CMD (0xAB) | `"Unknown cmd: %d"` | `"Unknown command: %d"` | Expand abbreviation |
+| MSG_ERR_REV0_VPP_RD (0xAC) | `"Rev0 dont support reading VPP/VPE"` | `"Rev0 does not support reading VPP/VPE"` | Grammar |
+| MSG_ERR_CMD (0xAD) | `"Error cmd"` | `"Command error"` | Clearer phrasing |
+| MSG_ERR_CHIP_ID_MISMATCH (0xB9) | `"Chip ID %#04x dont match expected ID %#04x"` | `"Chip ID %#04x does not match expected ID %#04x"` | Grammar |
+| MSG_ERR_MEM_SIZE_TOO_SMALL (0xBA) | `"mem_size %lu too small for chip-id check"` | `"Memory size %lu too small for chip-id check"` | Remove internal var name |
+
+**Deferred / not changed:**
+- WARN/ERROR severity pairs with identical format strings (CHIP_ID_MISMATCH, VPP_HIGH, MEM_SIZE_TOO_SMALL, REV0_VPP): kept as separate entries — host uses severity band to decide --force override logic; merging would lose that distinction.
+- MSG_INFO_SKIPPING_ERASE vs MSG_INFO_SKIPPING_ERASE_MEM: kept separate — different emitters and semantic contexts (eprom/flash4 chip-erase skip vs flash3 memory-erase skip).
+- MSG_ERR_VERIFY (0xAF) format `"0x%02x != 0x%02x at 0x%06x"`: kept — hex bytes are appropriate for byte comparison context.
+- MSG_ERR_NOT_BLANK (0xB0) format `"Not blank, at 0x%06x, v: 0x%02x"`: kept — adequate for operator.
+
+**Commits:** `9e9c888` (firestarter), `e44fb72` (firestarter_app)
+
+---
+
+## Legacy Message Fixes (Task 4)
+
+**Issue:** MSG_OK_REQ_DATA (0x02) had `format = "Req data"` in the meta-repo (abbreviation).
+An earlier hand-edit on the firestarter sub-repo had introduced `"Reqest data"` (typo, now overwritten by Tasks 2+3 sync).
+
+**Fix:** Set canonical meta-repo value to `"Request data"` (full word, correct spelling). Synced to both sub-repos.
+
+**Other legacy checks:**
+- `wire_format = "text"` entries: only MSG_OK_FW_VERSION (0x03) — LFW-05 bootstrap exemption, correct.
+- Format-params mismatches: none. MSG_OK_FW_VERSION uses `{0}` placeholder on the text path (exempt from ID-frame param validation per Rule 8).
+- ID/severity-band violations: none. All 74 entries fall within their correct ranges (OK 0x00-0x0F, INIT 0x10-0x1F, MAIN 0x20-0x2F, END 0x30-0x3F, INFO 0x40-0x7F, WARN 0x80-0x9F, ERROR 0xA0-0xDF, DATA 0xE0-0xFF).
+
+**Commits:** `2520575` (firestarter), `aa75c05` (firestarter_app)
+
+---
+
+## Phase 8 Close — Final Build Status
+
+| Board | Flash Used | Flash Max | % Used | Free | Delta vs Ph8 Plan07 |
+|-------|-----------|-----------|--------|------|---------------------|
+| Uno | 22,330 B | 32,256 B | 69.2% | 9,926 B | 0 B (no change — macros were already empty no-ops) |
+| Leonardo | 24,538 B | 28,672 B | 85.6% | 4,134 B | 0 B (no change) |
+
+Native test suite: `test_dispatch` PASSED, `test_messages` PASSED (20/20 cases).
+Host pytest: 29 passed.
+
