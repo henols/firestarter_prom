@@ -36,7 +36,7 @@
   5. Both sub-repo CI pipelines run codegen and assert `git diff --exit-code` on the generated files; introducing a manual edit to either generated file (without re-running codegen) makes CI fail visibly in the PR.
   6. The host's firmware-version check is wired to refuse a firmware reporting an old (pre-v1.2) major version with an operator-facing "upgrade firmware" message — even though no firmware has bumped its version yet, the host-side guard is in place and unit-tested.
 **Plans**: 6 plans
-- [ ] 06-01-PLAN.md — Catalog + codegen + sync script (meta-repo) + first generated artifacts in both sub-repos
+- [x] 06-01-PLAN.md — Catalog + codegen + sync script (meta-repo) + first generated artifacts in both sub-repos
 - [ ] 06-02-PLAN.md — Firmware `rurp_log_id` helper, CRC8 table, Uno strong override, native Unity test suite
 - [ ] 06-03-PLAN.md — Host pytest infrastructure + always-on byte-stream reader + `_decode_id_frame` + LHOST-01/02/03 acceptance suite
 - [ ] 06-04-PLAN.md — Host fw-version refuse guard + `FIRESTARTER_DEV_ALLOW_PRE_V12` escape hatch + 4 unit tests

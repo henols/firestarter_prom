@@ -1,15 +1,15 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.2
-milestone_name: Message-ID Logging Rework
-status: ready_to_execute
-last_updated: "2026-05-18T20:00:00.000Z"
-last_activity: 2026-05-18
+milestone_name: — Message-ID Logging Rework
+status: executing
+last_updated: "2026-05-18T11:41:15.611Z"
+last_activity: 2026-05-18 -- Plan 06-01 complete (catalog + codegen + sync; 68 entries seeded)
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 6
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 ---
 
@@ -20,11 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: 6 — Logging Infrastructure (catalog + codegen + helper + decoder)
-Plan: 6 plans (06-01..06-06) across 4 waves — Ready to execute
-Status: Plans drafted, verified by gsd-plan-checker (0 BLOCKER, 2 WARNING, 1 INFO — all non-blocking) — awaiting `/gsd-execute-phase 6`
-Resume from: `.planning/phases/06-logging-infrastructure/06-01-PLAN.md` (Wave 0 catalog + codegen)
-Last activity: 2026-05-18 — Phase 6 planned (6 plans, 4 waves, 17/17 reqs covered, D-01..D-06 cited)
+Phase: 06 (logging-infrastructure) — EXECUTING
+Plan: 2 of 6
+Status: Ready to execute
+Resume from: `.planning/phases/06-logging-infrastructure/06-02-PLAN.md` (Wave 1 firmware helper)
+Last activity: 2026-05-18 -- Plan 06-01 complete (catalog + codegen + sync; 68 entries seeded)
 
 ## Project Reference
 
@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-18)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Milestone v1.2 — Message-ID Logging Rework
+**Current focus:** Phase 06 — logging-infrastructure
 
 - Replace firmware text-string logs with 1-byte message IDs + raw parameter byte arrays
 - Single canonical catalog (meta-repo) → codegen → C++ header (firmware) + Python module (host)
@@ -113,3 +113,15 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 
 - Phase 6 plans are drafted + verified. Next: `/gsd-execute-phase 6` to execute the 6-plan, 4-wave Phase 6.
 - v1.1 leftovers (FM1608 hw bug, WARNING-4 test scripts, v1.1 DOC-01 milestone close) carried in this STATE; resume after v1.2 ships or fold opportunistically.
+
+## Performance Metrics
+
+| Phase | Plan | Duration | Notes |
+|-------|------|----------|-------|
+| Phase 06 P06-01 | 10m | 2 tasks | 10 files |
+
+## Decisions
+
+- [Phase ?]: Plan 06-01: Adopted 68-entry catalog from RESEARCH §Full Catalog Seed table (the section header's 52-count is stale; the table itself has 68 rows).
+- [Phase ?]: Plan 06-01: Codegen idempotence achieved via sort-by-id + LF-only line endings + no-timestamp banner; proven by re-running and diffing the output (BYTE-IDENTICAL on all 3 emitters).
+- [Phase ?]: Plan 06-01: Catalog distribution = meta-repo authoritative + vendored sub-repo copies + cross-sub-repo byte-identity assertion in sync_to_subrepos.sh.
