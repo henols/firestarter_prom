@@ -54,7 +54,7 @@
   4. `pio run -e leonardo` and `pio run -e uno` still compile cleanly; the firmware binary size has dropped measurably vs the Phase 6 baseline (record the delta — not yet the milestone target, but the trend must be downward).
 **Plans**: 13 plans
 - [x] 07-01-PLAN.md — Add LOG_ERROR_ID_* + LOG_WARN_ID_* macro families to logging_id.h (Wave 1 infrastructure)
-- [ ] 07-02-PLAN.md — Catalog gap fixes: add MSG_ERR_VPP_HIGH (0xB8) + MSG_ERR_CHIP_ID_MISMATCH (0xB9) + MSG_ERR_MEM_SIZE_TOO_SMALL (0xBA) (Wave 1, three chore commits)
+- [x] 07-02-PLAN.md — Catalog gap fixes: add MSG_ERR_VPP_HIGH (0xB8) + MSG_ERR_CHIP_ID_MISMATCH (0xB9) + MSG_ERR_MEM_SIZE_TOO_SMALL (0xBA) (Wave 1, three chore commits)
 - [ ] 07-03-PLAN.md — Convert proms/eprom.cpp populate-sites (5 sites; Wave 2)
 - [ ] 07-04-PLAN.md — Convert proms/flash_intel.cpp populate-sites (7 sites; Wave 2)
 - [ ] 07-05-PLAN.md — Convert proms/flash_type_4.cpp + proms/flash_utils.cpp populate-sites (2 sites; Wave 2; commit per file)
