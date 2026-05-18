@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Message-ID Logging Rework
 status: executing
-last_updated: "2026-05-18T15:43:15.329Z"
+last_updated: "2026-05-18T15:46:51.757Z"
 last_activity: 2026-05-18
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 19
-  completed_plans: 13
+  completed_plans: 14
   percent: 20
 ---
 
@@ -21,7 +21,7 @@ progress:
 ## Current Position
 
 Phase: 07 (convert-error-warn-info-call-sites) — EXECUTING
-Plan: 8 of 13
+Plan: 9 of 13
 Status: Ready to execute
 Resume from: `.planning/phases/07-convert-error-warn-info-call-sites/07-07-PLAN.md`
 Last activity: 2026-05-18
@@ -130,6 +130,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 07 P05 | 1min | 2 tasks | 2 files |
 | Phase 07 P06 | 2min | 1 tasks | 1 files |
 | Phase 07-convert-error-warn-info-call-sites P07 | 15 | 1 tasks | 2 files |
+| Phase 07 P08 | 5 | 1 tasks | 1 files |
 
 ## Decisions
 
@@ -154,3 +155,4 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase 07]: Plan 07-06: eeprom_28c.cpp 3 populate-sites converted; response_code added to EEPROM timeout path (was implicit, now explicit); Leonardo 97.8% flash (632 B free) after conversion
 - [Phase ?]: Two-line error populate-site pattern established in memory.cpp
 - [Phase ?]: Serial stub required in dispatch test setUp once error path emits via rurp_log_id (LOG_ERROR_ID_* conversion)
+- [Phase ?]: flash_type_3.cpp:87 Skipping-erase site confirmed OK-path; deferred to Phase 8 (MSG_INFO_SKIPPING_ERASE_MEM 0x59)
