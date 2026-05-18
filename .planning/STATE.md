@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Message-ID Logging Rework
 status: verifying
-last_updated: "2026-05-18T16:43:35.989Z"
+last_updated: "2026-05-18T17:58:39.488Z"
 last_activity: 2026-05-18
 progress:
   total_phases: 5
