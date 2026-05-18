@@ -26,14 +26,14 @@ Each requirement maps to exactly one v1.2 roadmap phase (numbering continues fro
 - [x] **LFW-02**: Convenience macros / inline helpers exist so that idiomatic call-sites (e.g. `LOG_INFO(MSG_VPP_OK)` with no params, or `LOG_ERROR(MSG_BAD_VPP, vpp_mv_value)` with one u16 param) are no more verbose than the current `log_info_const` / `log_error_format` macros they replace.
 - [ ] **LFW-03**: All firmware log call-sites that today use `OK:` / `INIT:` / `MAIN:` / `END:` / `INFO:` / `WARN:` / `ERROR:` PROGMEM strings are converted to `rurp_log_id` (or the LOG_* macro form). Every former format-string is represented as a single entry in the canonical catalog.
 - [ ] **LFW-04**: After conversion, `firestarter/src/`, `firestarter/include/`, and `firestarter/lib/` contain zero PROGMEM string literals that exist only to be passed to a log function. (`DATA:` prefix marker and any non-log PROGMEM strings are exempt and noted explicitly.)
-- [ ] **LFW-05**: Firmware version handshake bumps the major version (e.g. `3.0.0`) so the host's version check rejects mismatched-format firmware cleanly. The `OK: FW: ...` response message itself stays text-formatted (this single message is required to bootstrap the version check before the ID catalog is loaded).
+- [x] **LFW-05**: Firmware version handshake bumps the major version (e.g. `3.0.0`) so the host's version check rejects mismatched-format firmware cleanly. The `OK: FW: ...` response message itself stays text-formatted (this single message is required to bootstrap the version check before the ID catalog is loaded).
 
 ### Logging Host-side
 
 - [x] **LHOST-01**: `firestarter_app/firestarter/serial_comm.py` parses incoming ID-encoded log frames using the generated `messages.py` catalog: reads 1-byte ID, reads N bytes of params per the declared shape, and yields a `LogMessage(severity, text)` for downstream display.
 - [x] **LHOST-02**: The formatter renders parameters into the format_string using the declared types — e.g. `[u16]` rendered as the integer value, `[u24]` rendered as a 6-hex-digit address (`0x{:06X}`). Rendering rules are part of the catalog (per-param: integer / hex / decimal / signed / ascii-char).
 - [x] **LHOST-03**: The host's existing log severity routing (`logger.warning`, `logger.error`, etc. per current `_log_rurp_feedback`) is preserved — severity is derived from the catalog entry's category (`OK` / `INIT` / `MAIN` / `END` / `INFO` / `WARN` / `ERROR` / `DATA`), and the host logger receives the formatted human-readable line.
-- [ ] **LHOST-04**: The host's fw-version check refuses to talk to firmware older than v1.2's major bump (per LFW-05). Error message instructs the operator to upgrade firmware. No fallback to old text-protocol parsing.
+- [x] **LHOST-04**: The host's fw-version check refuses to talk to firmware older than v1.2's major bump (per LFW-05). Error message instructs the operator to upgrade firmware. No fallback to old text-protocol parsing.
 
 ### Logging CI / Build integration
 
@@ -88,11 +88,11 @@ Each requirement maps to exactly one v1.2 phase. Phase numbering continues from 
 | LFW-02  | Phase 6 | Complete |
 | LFW-03  | Phase 9 | Pending |
 | LFW-04  | Phase 9 | Pending |
-| LFW-05  | Phase 6 | Pending |
+| LFW-05  | Phase 6 | Complete |
 | LHOST-01 | Phase 6 | Complete |
 | LHOST-02 | Phase 6 | Complete |
 | LHOST-03 | Phase 6 | Complete |
-| LHOST-04 | Phase 6 | Pending |
+| LHOST-04 | Phase 6 | Complete |
 | LCI-01  | Phase 6 | Pending |
 | LCI-02  | Phase 6 | Pending |
 | LCI-03  | Phase 6 | Pending |

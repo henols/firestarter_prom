@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Message-ID Logging Rework
 status: executing
-last_updated: "2026-05-18T12:05:33.085Z"
+last_updated: "2026-05-18T12:13:26.858Z"
 last_activity: 2026-05-18
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 6
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -21,9 +21,9 @@ progress:
 ## Current Position
 
 Phase: 06 (logging-infrastructure) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 Status: Ready to execute
-Resume from: `.planning/phases/06-logging-infrastructure/06-02-PLAN.md` (Wave 1 firmware helper)
+Resume from: `.planning/phases/06-logging-infrastructure/06-05-PLAN.md` (CI drift gate)
 Last activity: 2026-05-18
 
 ## Project Reference
@@ -121,6 +121,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 06 P06-01 | 10m | 2 tasks | 10 files |
 | Phase 06 P02 | 30 min | 2 tasks | 12 files |
 | Phase 06 P03 | 5min | 3 tasks | 5 files |
+| Phase 06 P06-04 | ~6 min | 2 tasks | 3 files |
 
 ## Decisions
 
@@ -132,3 +133,4 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase ?]: Host decoder ascii_str decode uses errors='replace' for visible tamper surface
 - [Phase ?]: Reference CRC in test conftest is table-FREE — independent of production lookup table (catches table drift)
 - [Phase ?]: _read_and_parse_lines unified text+binary dispatch through single yield surface (D-05)
+- [Phase ?]: Phase 6 Plan 04: re-raise resolution + locked wording + escape hatch

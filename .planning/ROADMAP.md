@@ -39,7 +39,7 @@
 - [x] 06-01-PLAN.md — Catalog + codegen + sync script (meta-repo) + first generated artifacts in both sub-repos
 - [x] 06-02-PLAN.md — Firmware `rurp_log_id` helper, CRC8 table, Uno strong override, native Unity test suite
 - [x] 06-03-PLAN.md — Host pytest infrastructure + always-on byte-stream reader + `_decode_id_frame` + LHOST-01/02/03 acceptance suite
-- [ ] 06-04-PLAN.md — Host fw-version refuse guard + `FIRESTARTER_DEV_ALLOW_PRE_V12` escape hatch + 4 unit tests
+- [x] 06-04-PLAN.md — Host fw-version refuse guard + `FIRESTARTER_DEV_ALLOW_PRE_V12` escape hatch + 4 unit tests
 - [ ] 06-05-PLAN.md — CI drift gates (firmware build.yml modified, host ci.yml new, meta-repo catalog-sync-check.yml new)
 - [ ] 06-06-PLAN.md — Phase 6 close flash budget measurement (Leonardo + Uno) with fall-back plan
 
