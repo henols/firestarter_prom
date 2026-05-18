@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Message-ID Logging Rework
 status: planning
-last_updated: "2026-05-18T12:00:00.000Z"
+last_updated: "2026-05-18T16:00:00.000Z"
 last_activity: 2026-05-18
 progress:
   total_phases: 5
@@ -20,10 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: Not started (roadmap approved 2026-05-18; ready to plan Phase 6)
+Phase: 6 — Logging Infrastructure (catalog + codegen + helper + decoder)
 Plan: —
-Status: Roadmap created — awaiting `/gsd-plan-phase 6`
-Last activity: 2026-05-18 — v1.2 roadmap created (Phases 6-10, 23 requirements, 100% coverage)
+Status: Context gathered (`.planning/phases/06-logging-infrastructure/06-CONTEXT.md`) — awaiting `/gsd-plan-phase 6`
+Resume from: `.planning/phases/06-logging-infrastructure/06-CONTEXT.md`
+Last activity: 2026-05-18 — Phase 6 context gathered (wire-frame format locked: 4-byte magic 0xAA 0x55 0xAA 0x55 + len + ID + params + CRC8 + 0x0A; always-on byte-stream parser with text-line fallback)
 
 ## Project Reference
 
