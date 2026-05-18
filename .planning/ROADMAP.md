@@ -52,7 +52,20 @@
   2. `firestarter write -e W27C512` (or another canon chip from v1.0) run end-to-end against the firmware-simulator harness produces host-side log output where every ERROR/WARN/INFO line was rendered by the new catalog decoder (verifiable by toggling the decoder off and seeing those specific lines disappear).
   3. The state-machine acks (`OK:` / `INIT:` / `MAIN:` / `END:` / `DATA:`) still flow as **text** at the end of this phase — host parser line-prefix matching for those prefixes is untouched, confirming that this phase is strictly the error/info conversion.
   4. `pio run -e leonardo` and `pio run -e uno` still compile cleanly; the firmware binary size has dropped measurably vs the Phase 6 baseline (record the delta — not yet the milestone target, but the trend must be downward).
-**Plans**: TBD
+**Plans**: 13 plans
+- [ ] 07-01-PLAN.md — Add LOG_ERROR_ID_* + LOG_WARN_ID_* macro families to logging_id.h (Wave 1 infrastructure)
+- [ ] 07-02-PLAN.md — Catalog gap fixes: add MSG_ERR_VPP_HIGH (0xB8) + MSG_ERR_CHIP_ID_MISMATCH (0xB9) + MSG_ERR_MEM_SIZE_TOO_SMALL (0xBA) (Wave 1, three chore commits)
+- [ ] 07-03-PLAN.md — Convert proms/eprom.cpp populate-sites (5 sites; Wave 2)
+- [ ] 07-04-PLAN.md — Convert proms/flash_intel.cpp populate-sites (7 sites; Wave 2)
+- [ ] 07-05-PLAN.md — Convert proms/flash_type_4.cpp + proms/flash_utils.cpp populate-sites (2 sites; Wave 2; commit per file)
+- [ ] 07-06-PLAN.md — Convert proms/eeprom_28c.cpp populate-sites (3 sites incl. dynamic-severity; Wave 2)
+- [ ] 07-07-PLAN.md — Convert proms/memory.cpp populate-sites (3 sites incl. dispatch fallthrough; Wave 2)
+- [ ] 07-08-PLAN.md — Convert proms/flash_type_3.cpp dynamic-severity site + classify line 87 OK-path (Wave 2)
+- [ ] 07-09-PLAN.md — Convert operation_utils.cpp direct-log + _check_response surgical edit + breadcrumb deletion (Wave 3)
+- [ ] 07-10-PLAN.md — Convert firestarter.cpp 20 sites + delete line 86 dead-code + line 176 hybrid (Wave 3)
+- [ ] 07-11-PLAN.md — Convert dev_tools.cpp 7 INFO call-sites with stack-array packing (Wave 3)
+- [ ] 07-12-PLAN.md — Convert eprom_operations.cpp + hardware_operations.cpp 5 trivial ERROR sites (Wave 3; commit per file)
+- [ ] 07-13-PLAN.md — Phase-close verification artifact + SC#1 grep gate + SC#3 pytest + SC#4 dual-board flash measurement + SC#2 manual decoder-toggle diff on Uno+Leonardo (Wave 4)
 
 #### Phase 8: Convert State-Machine Prefix Call-Sites (OK/INIT/MAIN/END)
 **Goal**: The firmware emits `OK:` / `INIT:` / `MAIN:` / `END:` state-machine acks as ID-encoded frames via `rurp_log_id`, and the host parser switches from line-prefix matching to ID-frame decoding for those acks. The `DATA:` binary read-payload stream prefix marker remains a literal text prefix (explicitly out of scope per the locked v1.2 constraints). After this phase the only text-formatted log surface left in firmware is the bootstrap `OK: FW: ...` version handshake response (per LFW-05).
@@ -167,7 +180,7 @@ Full milestone details: `.planning/milestones/v1.0-ROADMAP.md`
 | Phase | Plans | Status | Completed |
 |-------|-------|--------|-----------|
 | 6. Logging Infrastructure (catalog + codegen + helper + decoder) | 0/6 | Not started | - |
-| 7. Convert ERROR + WARN + INFO Call-Sites | 0/? | Not started | - |
+| 7. Convert ERROR + WARN + INFO Call-Sites | 0/13 | Not started | - |
 | 8. Convert State-Machine Prefix Call-Sites (OK/INIT/MAIN/END) | 0/? | Not started | - |
 | 9. Delete Old Log Macros + Measure Flash Savings | 0/? | Not started | - |
 | 10. Milestone Close (v1.2) | 0/? | Not started | - |
@@ -190,4 +203,5 @@ Full milestone details: `.planning/milestones/v1.0-ROADMAP.md`
 
 ---
 
+*Roadmap last updated: 2026-05-18 — Phase 7 planning complete: 13 plans across 4 waves (Wave 1 = infrastructure: logging_id.h macros + 3 catalog-gap chores; Wave 2 = populate-site conversions per PROM module; Wave 3 = direct-log conversions per file; Wave 4 = phase-close verification + flash-measurement artifact).*
 *Roadmap last updated: 2026-05-18 — v1.2 created with 5 phases (6-10), 23 requirements (22 v1.2 + DOC-02 milestone-close), 100% coverage. Phase numbering continues from v1.1's last phase.*
