@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Message-ID Logging Rework
 status: executing
-last_updated: "2026-05-18T15:25:19.873Z"
+last_updated: "2026-05-18T15:29:16.241Z"
 last_activity: 2026-05-18
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 19
-  completed_plans: 9
+  completed_plans: 10
   percent: 20
 ---
 
@@ -21,7 +21,7 @@ progress:
 ## Current Position
 
 Phase: 07 (convert-error-warn-info-call-sites) — EXECUTING
-Plan: 4 of 13
+Plan: 5 of 13
 Status: Ready to execute
 Resume from: `.planning/phases/07-convert-error-warn-info-call-sites/07-CONTEXT.md`
 Last activity: 2026-05-18
@@ -126,6 +126,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 06 P06-05 | ~7min | 3 tasks | 3 files |
 | Phase 07 P07-01 | 1min | - tasks | - files |
 | Phase 07 P03 | 15min | 1 tasks | 1 files |
+| Phase 07 P04 | 15min | 1 tasks | 1 files |
 
 ## Decisions
 
@@ -145,3 +146,4 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase ?]: Phase 07-01: LOG_ERROR_ID_* and LOG_WARN_ID_* macro families added as unconditional one-line aliases — no FLAG_VERBOSE gate, zero flash cost until call-sites are converted
 - [Phase ?]: Phase 07-03: CHIP_ID_MISMATCH uses error_code parameter (not FLAG_FORCE re-check)
 - [Phase ?]: Phase 07-03: WRITE_FAILED packs [u24, u8, u16] = 6 wire bytes MSB-first; braced-block isolation for _b[] arrays in eprom.cpp
+- [Phase ?]: Phase 07-04: flash_intel_poll_sr response_code assignments added alongside LOG_ERROR_ID calls (Rule 2 auto-fix — state machine requires both emit and response_code set)
