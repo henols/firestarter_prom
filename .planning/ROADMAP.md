@@ -44,7 +44,7 @@
 - [x] 11-02-PLAN.md — Wave 1 tool skeleton + CLI + §1 Summary + §2 DB Count Reconciliation ✅ 2026-05-19
 - [x] 11-03-PLAN.md — Wave 2 §3 Full Enumeration (339 rows, per-algorithm sub-tables, D-06 sort) ✅ 2026-05-19
 - [x] 11-04-PLAN.md — Wave 3 §4 Defect Candidates + DEFECT-COV-NN ledger + --check semantics
-- [ ] 11-05-PLAN.md — Wave 4 §5 BENCH Coverage Proof + golden-file fixture
+- [x] 11-05-PLAN.md — Wave 4 §5 BENCH Coverage Proof + golden-file fixture
 - [ ] 11-06-PLAN.md — Wave 5 D-07 planning-doc count reconciliation (PROJECT.md, ROADMAP.md, REQUIREMENTS.md, STATE.md)
 
 #### Phase 12: 28-Pin / Algo-0x07 Bench Validation
@@ -156,7 +156,7 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 8 | v1.2 | 8/8 | ✅ Complete | 2026-05-18 |
 | 9 | v1.2 | 5/5 | ✅ Complete | 2026-05-19 |
 | 10 (close) | v1.2 | n/a | ✅ Complete | 2026-05-19 |
-| 11 | v1.3 | 4/6 | In Progress|  |
+| 11 | v1.3 | 5/6 | In Progress|  |
 | 12 | v1.3 | 0/0 | Not started | — |
 | 13 | v1.3 | 0/0 | Not started | — |
 | 14 (close) | v1.3 | 0/0 | Not started | — |
