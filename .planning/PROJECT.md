@@ -13,7 +13,7 @@
 **Target features:**
 - End-to-end bench validation (write → read → verify → blank-check → chip-ID) for the four named chips — W27C512, SST27SF512, W27C020, W27E040 — on Uno + Leonardo.
 - Density-extreme bench coverage: one 28-pin lower-density representative (e.g. W27C257 / SST27SF256) + one 32-pin lower-density representative (e.g. W27C010 / SST27SF010) so the full 32K → 512K span is exercised.
-- Structural-coverage report across all ~341 algorithm-0x07 + algorithm-0x08 chips in the database (which chips share which DB row, pulse-duration profile, chip-id check status, pinout class).
+- Structural-coverage report across all 339 algorithm-0x07 + algorithm-0x08 chips in the database (which chips share which DB row, pulse-duration profile, chip-id check status, pinout class).
 - VPP regulator + chip-ID read + pulse-duration breadcrumbs verified in the field via SERIAL_DEBUG against bench scope observations.
 - Coverage matrix and bench-result artifact written into the milestone close.
 
@@ -40,7 +40,7 @@ Replace the current guessing-based chip type mapping with an explicit, protocol-
 ## Current State (v1.0)
 
 The algorithm-first contract is now load-bearing. `chip_database.json`
-carries 743 chips with explicit `algorithm` integer = upstream `protocol_id`;
+carries 734 chips with explicit `algorithm` integer = upstream `protocol_id`;
 the wire JSON transmits it; `memory.cpp::configure_memory` dispatches a
 protocol-prefix `if-return` block for every entry in `KNOWN_PROTOCOLS`
 (0x05/0x06/0x07/0x08/0x0B/0x0D/0x0E/0x10/0x27/0x28/0x29/0x35/0x39) to one of
@@ -76,14 +76,14 @@ authoritative `protocol_id`. v1.0 restores the chain end-to-end:
 ## What Must Be TRUE — Validated by v1.0
 
 1. ✓ **minipro `protocol_id` is the authoritative source** — v1.0 (verified by
-   `check_dispatch.py` across 743 chips; no guessing fallback in non-user-override path)
+   `check_dispatch.py` across 734 chips; no guessing fallback in non-user-override path)
 2. ✓ **An explicit `algorithm` field is transmitted over serial** — v1.0
    (`firestarter_handle_t.algorithm` parsed and propagated; legacy `type` retained as fallback)
 3. ✓ **Firmware dispatches on `algorithm`, not `type`** — v1.0 (handlers
    implemented: configure_eprom, flash3, flash_intel, eeprom28c, sram)
 4. ✓ **Database pipeline is deterministic** — v1.0 (single `build_db.py`;
    byte-identical regeneration on stable upstream XML; REQ-DB-05)
-5. ✓ **DIP 24/28/32 packages fully covered** — v1.0 (filter clean; 743 chips
+5. ✓ **DIP 24/28/32 packages fully covered** — v1.0 (filter clean; 734 chips
    across 27xx UV-EPROM, 29xx/39xx Flash AMD, Intel Flash, parallel EEPROM, SRAM)
 
 ## The One Thing That Must Work — ✓ Validated
@@ -146,9 +146,9 @@ on a physical RURP shield is deferred to a v1.1 hardware-test pass.
 - **Repo structure:** Meta-repo + 2 sub-repos (`firestarter/` firmware,
   `firestarter_app/` Python). Meta-repo tracks `.planning/` and `.claude/` only;
   sub-repos are pointer-bumped commits
-- **Database state:** 743 chips post-v1.0 across DIP24/28/32. Algorithm
-  histogram: 0x05=27, 0x06=190, 0x07=214, 0x08=127, 0x0B=53, 0x0D=41, 0x0E=20,
-  0x10=39, 0x27=2, 0x28=10, 0x29=20 (totals 743)
+- **Database state:** 734 chips post-v1.0 across DIP24/28/32. Algorithm
+  histogram: 0x05=27, 0x06=190, 0x07=212, 0x08=127, 0x0B=40, 0x0D=23, 0x0E=20,
+  0x10=39, 0x27=2, 0x28=34, 0x29=20 (totals 734)
 - **Verified families (structural):** UV-EPROM (W27C512), Flash AMD (29F040),
   Flash Intel (28F010 minus VPP-ADC gap), EEPROM (AT28C256 via Phase 13
   override), SRAM (6116-class via safe stub)
@@ -187,4 +187,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last updated: 2026-05-19 — v1.3 milestone started (CMOS EPROM Family Hardware Validation). Goal: bench-validate algorithm-0x07 (28-pin, 214 chips) + algorithm-0x08 (32-pin, 127 chips) families on Uno + Leonardo via four named chips (W27C512, SST27SF512, W27C020, W27E040) + density-extreme representatives. v1.2 ship state preserved (Leonardo Flash 85.4%, firmware 3.0.0-dev). Phase numbering continues from Phase 11.*
+*Last updated: 2026-05-19 — v1.3 milestone started (CMOS EPROM Family Hardware Validation). Goal: bench-validate algorithm-0x07 (28-pin, 212 chips) + algorithm-0x08 (32-pin, 127 chips) families on Uno + Leonardo via four named chips (W27C512, SST27SF512, W27C020, W27E040) + density-extreme representatives. v1.2 ship state preserved (Leonardo Flash 85.4%, firmware 3.0.0-dev). Phase numbering continues from Phase 11.*

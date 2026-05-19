@@ -45,7 +45,7 @@ from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
 | Phase | Goal | Requirements | Bench-gated? |
 |-------|------|--------------|--------------|
-| 11. Coverage Matrix & DB Inconsistency Audit | Single-source coverage map of all 341 algo-0x07/0x08 DB rows + flag intra-algorithm inconsistencies | COV-01, COV-02 | No (desk-side) |
+| 11. Coverage Matrix & DB Inconsistency Audit | Single-source coverage map of all 339 algo-0x07/0x08 DB rows + flag intra-algorithm inconsistencies | COV-01, COV-02 | No (desk-side) |
 | 12. 28-Pin / Algo-0x07 Bench Validation | Full write/read/verify cycle on Uno + Leonardo for W27C512, SST27SF512, 32K density-low rep; establish chip-ID + VPP observation protocols | BENCH-01, BENCH-02, BENCH-05, PROTO-01, PROTO-02 | Yes |
 | 13. 32-Pin / Algo-0x08 Bench Validation | Full write/read/verify cycle on Uno + Leonardo for W27C020, W27E040, 128K density-low rep; re-apply Phase 12 observation protocols | BENCH-03, BENCH-04, BENCH-06 | Yes |
 | 14. Milestone Close & Artifacts | Publish v1.3-BENCH-RESULTS.md, update MILESTONES.md, archive phase directories | DOC-01, DOC-02 | No (paperwork) |
@@ -106,7 +106,7 @@ Items acknowledged and deferred at v1.2 milestone close on 2026-05-19. The three
 
 ## v1.3 Decisions (locked at milestone start, 2026-05-19)
 
-- **Scope:** Algorithm-0x07 (28-pin DIP CMOS UV-EPROM, 214 chips in DB) + algorithm-0x08 (32-pin DIP CMOS UV-EPROM, 127 chips in DB). End-to-end bench validation on Uno + Leonardo for four named chips (W27C512, SST27SF512, W27C020, W27E040) + one 28-pin lower-density representative + one 32-pin lower-density representative. Structural-coverage report across all 341 in-scope DB rows.
+- **Scope:** Algorithm-0x07 (28-pin DIP CMOS UV-EPROM, 212 chips in DB) + algorithm-0x08 (32-pin DIP CMOS UV-EPROM, 127 chips in DB). End-to-end bench validation on Uno + Leonardo for four named chips (W27C512, SST27SF512, W27C020, W27E040) + one 28-pin lower-density representative + one 32-pin lower-density representative. Structural-coverage report across all 339 in-scope DB rows.
 - **Out of scope:** New algorithms, new chip families, FM1608 (parked v1.1 carryover), flash-savings work (v1.2 budget held as-is).
 - **Definition of "working" (bench gate per chip):** chip-ID read returns DB-declared value where `chip_id_check: true`; blank-check passes; write programs a test image without error; read-back is byte-identical; VPP regulator engages at 12V; both Uno (512-B buffer) and Leonardo (1024-B buffer) reach green.
 - **Density coverage strategy:** test at both ends — smallest 28-pin (32K W27C257 / SST27SF256) and smallest 32-pin (128K W27C010 / SST27SF010) — so address-bus correctness covers the whole 32K → 512K span.
