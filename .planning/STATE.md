@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: — CMOS EPROM Family Hardware Validation
 status: executing
-last_updated: "2026-05-19T22:30:00.000Z"
-last_activity: 2026-05-19 -- Phase 11 Plan 01 complete (Wave 0 failing-test scaffold)
+last_updated: "2026-05-19T22:07:32.000Z"
+last_activity: 2026-05-19 -- Phase 11 Plan 02 complete (Wave 1 tool skeleton + §1+§2 emit)
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 6
-  completed_plans: 1
-  percent: 17
+  completed_plans: 2
+  percent: 33
 ---
 
 # Project State
@@ -21,10 +21,10 @@ progress:
 ## Current Position
 
 Phase: 11 (coverage-matrix-db-inconsistency-audit) — EXECUTING
-Plan: 2 of 6 (Plan 01 complete — Wave 0 RED gate landed)
+Plan: 3 of 6 (Plans 01-02 complete — Wave 0 RED gate + Wave 1 tool skeleton + §1+§2 emit landed)
 Status: Executing Phase 11
-Resume from: `/gsd-execute-phase 11` to continue with Plan 11-02 (Wave 1 — tool skeleton + §1 Summary + §2 DB Count Reconciliation)
-Last activity: 2026-05-19 -- Phase 11 Plan 01 complete (firestarter_app@b03bc9b + meta@a4bca09)
+Resume from: `/gsd-execute-phase 11` to continue with Plan 11-03 (Wave 2 — §3 Full Enumeration, 339 rows, D-06 sort)
+Last activity: 2026-05-19 -- Phase 11 Plan 02 complete (firestarter_app@80ad29c + 11ed35a; meta@0b3d571)
 
 ## Project Reference
 
@@ -165,6 +165,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 08 P06 | 12min | 2 tasks | 5 files |
 | Phase 08 P07 | 11min | 2 tasks | 14 files |
 | Phase 11 P11-01 | 12min | 1 tasks | 1 files |
+| Phase 11 P11-02 | 12min | 2 tasks | 4 files |
 
 ## Decisions
 
@@ -212,3 +213,8 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase 11]: Plan 11-01: Wave 0 RED-gate scaffold uses NotImplementedError after deferred import (not pytest.fail) — single failure-mode story across Wave 0 → Wave N transition (ModuleNotFoundError today, NotImplementedError once Wave 1 creates the tool module).
 - [Phase 11]: Plan 11-01: Class-based pytest organisation chosen over module-level functions to mirror test_fwguard.py:31-42 — class boundary is the natural scope for the autouse _isolate_env fixture that clears FIRESTARTER_DB_FILE per test.
 - [Phase 11]: Plan 11-01: Each stub docstring quotes BOTH requirement IDs (COV-01/COV-02/SC-03) AND decision IDs (D-02/D-03/D-06/D-07/D-09/D-10/D-11/D-12/D-13/D-15) — trace test → contract → CONTEXT.md walkable without re-reading PLAN.md.
+- [Phase 11]: Plan 11-02: Live-DB regression anchors locked in three places — tool body (computed live), §2 reconciliation (live vs hard-coded old), test_summary_stats (substring asserts). A future DB regen that drifts 734 / 339 / 212 / 127 trips the test immediately; update all three together.
+- [Phase 11]: Plan 11-02: §2 hard-codes the OLD planning-doc counts (743 / 214 / 341 / per-algo histogram) rather than greping them, so the matrix's §2 stays stable through and after Wave 5's D-07 planning-doc edit pass.
+- [Phase 11]: Plan 11-02: Pulse-bucket sort uses explicit dict mapping (_pulse_bucket_sort_key returns 0-4 for the five D-09 buckets); never insertion order — Pattern B byte-identity guarantee across Python minor versions.
+- [Phase 11]: Plan 11-02: --check semantic in Wave 1 is a no-op (always returns 0). Wave 3 (Plan 11-04) wires the real "would minting add new IDs?" comparison after the defect-findings emit lands. TODO comments in both tool body (line 524) and test_exit_codes mark the extension point.
+- [Phase 11]: Plan 11-02: _REPO_ROOT computed from __file__ (three dirname() hops) → absolute --output and --ledger defaults; defends against operator-cwd variance per RESEARCH.md Pitfall 6.
