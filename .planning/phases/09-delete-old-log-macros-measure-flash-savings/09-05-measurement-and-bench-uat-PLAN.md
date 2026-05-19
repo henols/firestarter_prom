@@ -3,7 +3,7 @@ phase: 09-delete-old-log-macros-measure-flash-savings
 plan: 05
 type: execute
 wave: 4
-depends_on: [02, 03, 04]
+depends_on: [09-02-atomic-legacy-deletion-and-version-bump, 09-03-host-comment-refresh, 09-04-host-stubs-trim]
 files_modified:
   - .planning/phases/09-delete-old-log-macros-measure-flash-savings/09-MEASUREMENT.md
 autonomous: false

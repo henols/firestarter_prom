@@ -3,7 +3,7 @@ phase: 09-delete-old-log-macros-measure-flash-savings
 plan: 02
 type: execute
 wave: 2
-depends_on: [01]
+depends_on: [09-01-dev-tools-send-ack-conversion]
 files_modified:
   - firestarter/include/logging.h
   - firestarter/src/logging.c

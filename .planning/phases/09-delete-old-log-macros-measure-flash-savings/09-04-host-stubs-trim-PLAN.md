@@ -3,7 +3,7 @@ phase: 09-delete-old-log-macros-measure-flash-savings
 plan: 04
 type: execute
 wave: 3
-depends_on: [02]
+depends_on: [09-02-atomic-legacy-deletion-and-version-bump]
 files_modified:
   - firestarter/test/native/avr/_shared/host_stubs_common.inc
 autonomous: true
