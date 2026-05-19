@@ -1,9 +1,9 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.3
-milestone_name: CMOS EPROM Family Hardware Validation
-status: planning
-last_updated: "2026-05-19T12:00:00.000Z"
+milestone_name: — CMOS EPROM Family Hardware Validation
+status: v1.3 roadmap created with 4 phases (11–14); all 12 requirements mapped; ready for `/gsd-plan-phase 11` (desk-side coverage matrix, can run without hardware)
+last_updated: "2026-05-19T20:54:29.252Z"
 last_activity: 2026-05-19 — v1.3 roadmap created (Phases 11-14)
 progress:
   total_phases: 4
@@ -53,6 +53,7 @@ from upstream XML → DB → wire JSON → firmware handler. No guessing.
 **Coverage:** 12/12 v1.3 requirements mapped to exactly one phase. No orphans, no duplicates.
 
 **Phase-order rationale:**
+
 - Phase 11 first — desk-side, lands without hardware; coverage matrix informs which density-low representatives are chosen for Phases 12 + 13.
 - Phase 12 before Phase 13 — establishes chip-ID + VPP scope observation protocols against the smaller-package algo-0x07 family first; Phase 13 reuses the same protocols.
 - Phase 14 last — depends on bench data + coverage matrix being in hand.
