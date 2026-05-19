@@ -4,9 +4,9 @@ milestone: v1.3
 milestone_name: CMOS EPROM Family Hardware Validation
 status: planning
 last_updated: "2026-05-19T12:00:00.000Z"
-last_activity: 2026-05-19 — v1.3 milestone started
+last_activity: 2026-05-19 — v1.3 roadmap created (Phases 11-14)
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,11 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: Not started (roadmap drafted)
 Plan: —
-Status: Defining requirements for v1.3 — CMOS EPROM Family Hardware Validation
-Resume from: continue `/gsd:new-milestone` flow (requirements → roadmap), or `/gsd-plan-phase 11` once roadmap lands
-Last activity: 2026-05-19 — v1.3 milestone started
+Status: v1.3 roadmap created with 4 phases (11–14); all 12 requirements mapped; ready for `/gsd-plan-phase 11` (desk-side coverage matrix, can run without hardware)
+Resume from: `/gsd-plan-phase 11` to decompose Phase 11 into executable plans
+Last activity: 2026-05-19 — v1.3 roadmap created (Phases 11-14)
 
 ## Project Reference
 
@@ -36,14 +36,28 @@ from upstream XML → DB → wire JSON → firmware handler. No guessing.
 **Current focus:** v1.3 — bench-validating the CMOS EPROM families (algo 0x07 28-pin + algo 0x08 32-pin) that v1.0–v1.2 dispatch logic ships for. End-to-end write/read/verify on Uno + Leonardo for W27C512, SST27SF512, W27C020, W27E040 plus density-tier representatives; structural-coverage report across the ~341 algo-0x07 + algo-0x08 chips in the database.
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
-- v1.3 in planning — milestone goal confirmed, requirements being defined
+- v1.3 in planning — roadmap drafted (Phases 11–14), 12/12 requirements mapped
 - Phase numbering continues from v1.2 close (starts at Phase 11)
 
 ## Roadmap Summary
 
-**v1.3 phases:** TBD — roadmap pending. Phase numbering starts at **Phase 11** (continues from v1.2 close).
+**v1.3 phases:** 4 (numbered 11–14, continues from v1.2 close). Granularity: Comprehensive (compressed — validation milestone, not a build milestone).
 
-Full roadmap will be written to `.planning/ROADMAP.md` after requirements are approved.
+| Phase | Goal | Requirements | Bench-gated? |
+|-------|------|--------------|--------------|
+| 11. Coverage Matrix & DB Inconsistency Audit | Single-source coverage map of all 341 algo-0x07/0x08 DB rows + flag intra-algorithm inconsistencies | COV-01, COV-02 | No (desk-side) |
+| 12. 28-Pin / Algo-0x07 Bench Validation | Full write/read/verify cycle on Uno + Leonardo for W27C512, SST27SF512, 32K density-low rep; establish chip-ID + VPP observation protocols | BENCH-01, BENCH-02, BENCH-05, PROTO-01, PROTO-02 | Yes |
+| 13. 32-Pin / Algo-0x08 Bench Validation | Full write/read/verify cycle on Uno + Leonardo for W27C020, W27E040, 128K density-low rep; re-apply Phase 12 observation protocols | BENCH-03, BENCH-04, BENCH-06 | Yes |
+| 14. Milestone Close & Artifacts | Publish v1.3-BENCH-RESULTS.md, update MILESTONES.md, archive phase directories | DOC-01, DOC-02 | No (paperwork) |
+
+**Coverage:** 12/12 v1.3 requirements mapped to exactly one phase. No orphans, no duplicates.
+
+**Phase-order rationale:**
+- Phase 11 first — desk-side, lands without hardware; coverage matrix informs which density-low representatives are chosen for Phases 12 + 13.
+- Phase 12 before Phase 13 — establishes chip-ID + VPP scope observation protocols against the smaller-package algo-0x07 family first; Phase 13 reuses the same protocols.
+- Phase 14 last — depends on bench data + coverage matrix being in hand.
+
+Full details: `.planning/ROADMAP.md` (v1.3 section).
 
 ## Milestone History
 
@@ -64,9 +78,9 @@ Items acknowledged and deferred at v1.2 milestone close on 2026-05-19. The three
 | Category | Item | Status | Note |
 |----------|------|--------|------|
 | debug | fm1608-fresh-chip-baseline | parked-2026-05-18 | v1.1 carryover — needs different Uno R3 to unblock; out of scope for v1.3 |
-| uat | Phase 08 HUMAN-UAT.md | partial — 2 pending scenarios | chip-seated W27C512 write + readback → closes via v1.3 BENCH-01 |
-| verification | Phase 08 VERIFICATION.md | human_needed | bench UAT closure → closes via v1.3 BENCH-01 |
-| verification | Phase 09 VERIFICATION.md | human_needed | Plan 09-05 Task 3 (chip-seated W27C512 on both boards) → closes via v1.3 BENCH-01 |
+| uat | Phase 08 HUMAN-UAT.md | partial — 2 pending scenarios | chip-seated W27C512 write + readback → closes via v1.3 BENCH-01 (Phase 12) |
+| verification | Phase 08 VERIFICATION.md | human_needed | bench UAT closure → closes via v1.3 BENCH-01 (Phase 12) |
+| verification | Phase 09 VERIFICATION.md | human_needed | Plan 09-05 Task 3 (chip-seated W27C512 on both boards) → closes via v1.3 BENCH-01 (Phase 12) |
 
 ### Carried Over From v1.1 (still open)
 
@@ -95,9 +109,10 @@ Items acknowledged and deferred at v1.2 milestone close on 2026-05-19. The three
 - **Out of scope:** New algorithms, new chip families, FM1608 (parked v1.1 carryover), flash-savings work (v1.2 budget held as-is).
 - **Definition of "working" (bench gate per chip):** chip-ID read returns DB-declared value where `chip_id_check: true`; blank-check passes; write programs a test image without error; read-back is byte-identical; VPP regulator engages at 12V; both Uno (512-B buffer) and Leonardo (1024-B buffer) reach green.
 - **Density coverage strategy:** test at both ends — smallest 28-pin (32K W27C257 / SST27SF256) and smallest 32-pin (128K W27C010 / SST27SF010) — so address-bus correctness covers the whole 32K → 512K span.
-- **Deferred-items absorption:** v1.2 Phase 08 SC#2/SC#3 + Phase 09 Plan-05 Task 3 (chip-seated W27C512 UAT) close as a byproduct of v1.3 BENCH-01.
-- **Hardware-bench dependency:** entire milestone is operator-on-bench gated. Plan structure should isolate automated/desk-side work (DB audit, coverage report, test-pattern generators) from bench work (Uno + Leonardo + chip + scope) so progress is possible without continuous hardware access.
+- **Deferred-items absorption:** v1.2 Phase 08 SC#2/SC#3 + Phase 09 Plan-05 Task 3 (chip-seated W27C512 UAT) close as a byproduct of v1.3 BENCH-01 (Phase 12).
+- **Hardware-bench dependency:** entire milestone is operator-on-bench gated EXCEPT Phase 11 (desk-side coverage matrix + DB audit) and Phase 14 (close-out paperwork). Plan structure isolates these so progress is possible without continuous hardware access.
 - **Phase numbering:** continues from v1.2 (Phase 11+); no `--reset-phase-numbers`.
+- **PROTO-01/02 mapping:** mapped to Phase 12 (where chip-ID + VPP scope observation protocols are established + first applied); protocol carries forward into Phase 13 unchanged, and final aggregation lands in Phase 14 BENCH-RESULTS.
 
 ## v1.2 Decisions (locked at milestone start, 2026-05-18)
 
@@ -118,8 +133,8 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 
 ## Operator Next Steps
 
-- Phase 6 plans are drafted + verified. Next: `/gsd-execute-phase 6` to execute the 6-plan, 4-wave Phase 6.
-- v1.1 leftovers (FM1608 hw bug, WARNING-4 test scripts, v1.1 DOC-01 milestone close) carried in this STATE; resume after v1.2 ships or fold opportunistically.
+- **v1.3:** `/gsd-plan-phase 11` to decompose Phase 11 (Coverage Matrix & DB Inconsistency Audit). Phase 11 is desk-side and unblocks bench prep without requiring hardware.
+- v1.1 leftovers (FM1608 hw bug, WARNING-4 test scripts, v1.1 DOC-01 milestone close) carried in this STATE; resume after v1.3 ships or fold opportunistically.
 
 ## Performance Metrics
 

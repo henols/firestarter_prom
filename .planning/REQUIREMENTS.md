@@ -52,25 +52,25 @@ These are not new code paths — they verify existing firmware behavior is corre
 
 ## Traceability
 
-(Filled by `gsd-roadmapper` when ROADMAP.md is generated. Each requirement maps to exactly one phase.)
+Each requirement maps to exactly one phase. Coverage: 12/12 ✓.
 
 | REQ-ID | Phase | Plan(s) | Status |
 |--------|-------|---------|--------|
-| BENCH-01 | TBD | TBD | Not started |
-| BENCH-02 | TBD | TBD | Not started |
-| BENCH-03 | TBD | TBD | Not started |
-| BENCH-04 | TBD | TBD | Not started |
-| BENCH-05 | TBD | TBD | Not started |
-| BENCH-06 | TBD | TBD | Not started |
-| PROTO-01 | TBD | TBD | Not started |
-| PROTO-02 | TBD | TBD | Not started |
-| COV-01 | TBD | TBD | Not started |
-| COV-02 | TBD | TBD | Not started |
-| DOC-01 | TBD | TBD | Not started |
-| DOC-02 | TBD | TBD | Not started |
+| BENCH-01 | Phase 12 | TBD | Not started |
+| BENCH-02 | Phase 12 | TBD | Not started |
+| BENCH-03 | Phase 13 | TBD | Not started |
+| BENCH-04 | Phase 13 | TBD | Not started |
+| BENCH-05 | Phase 12 | TBD | Not started |
+| BENCH-06 | Phase 13 | TBD | Not started |
+| PROTO-01 | Phase 12 (observation protocol carried forward into Phase 13) | TBD | Not started |
+| PROTO-02 | Phase 12 (observation protocol carried forward into Phase 13) | TBD | Not started |
+| COV-01 | Phase 11 | TBD | Not started |
+| COV-02 | Phase 11 | TBD | Not started |
+| DOC-01 | Phase 14 | TBD | Not started |
+| DOC-02 | Phase 14 | TBD | Not started |
 
-**Coverage target:** 12 requirements, 100% mapped to phases.
+**Coverage target:** 12 requirements, 100% mapped to phases. ✓
 
 ---
 
-*Last updated: 2026-05-19 — initial v1.3 requirements drafted at milestone start.*
+*Last updated: 2026-05-19 — traceability table populated by `gsd-roadmapper` at ROADMAP.md creation. All 12 requirements mapped to phases 11–14. Bench-gated work (Phases 12 + 13) isolated from desk-side work (Phase 11) and paperwork (Phase 14) so progress is possible without continuous hardware access.*
