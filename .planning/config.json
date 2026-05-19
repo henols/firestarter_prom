@@ -1,5 +1,8 @@
 {
   "mode": "YOLO",
-  "depth": "Comprehensive",
-  "parallelization": "enabled"
+  "parallelization": "enabled",
+  "granularity": "Comprehensive",
+  "workflow": {
+    "_auto_chain_active": true
+  }
 }
