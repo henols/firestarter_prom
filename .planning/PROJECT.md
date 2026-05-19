@@ -4,7 +4,26 @@
 **v1.0 shipped:** 2026-05-11
 **v1.1 status:** Parked at 80% (Phase 4 hardware-validation open — FM1608 byte-0 bug requires a different Uno board to unblock; see `.planning/debug/fm1608-fresh-chip-baseline.md`)
 **v1.2 shipped:** 2026-05-19 (Message-ID Logging Rework — Leonardo Flash 98.7% → 85.4%, firmware 3.0.0-dev)
-**Active milestone:** None (v1.2 just shipped; next milestone TBD — `/gsd-new-milestone` to start)
+**Active milestone:** v1.3 — CMOS EPROM Family Hardware Validation (started 2026-05-19)
+
+## Current Milestone: v1.3 CMOS EPROM Family Hardware Validation
+
+**Goal:** Confirm — on real silicon, on both Uno and Leonardo — that the algorithm-0x07 (28-pin) and algorithm-0x08 (32-pin) CMOS EPROM families that v1.0–v1.2 ship dispatch logic for actually program, read back, and verify cleanly across the full density range.
+
+**Target features:**
+- End-to-end bench validation (write → read → verify → blank-check → chip-ID) for the four named chips — W27C512, SST27SF512, W27C020, W27E040 — on Uno + Leonardo.
+- Density-extreme bench coverage: one 28-pin lower-density representative (e.g. W27C257 / SST27SF256) + one 32-pin lower-density representative (e.g. W27C010 / SST27SF010) so the full 32K → 512K span is exercised.
+- Structural-coverage report across all ~341 algorithm-0x07 + algorithm-0x08 chips in the database (which chips share which DB row, pulse-duration profile, chip-id check status, pinout class).
+- VPP regulator + chip-ID read + pulse-duration breadcrumbs verified in the field via SERIAL_DEBUG against bench scope observations.
+- Coverage matrix and bench-result artifact written into the milestone close.
+
+**Phase numbering:** continues from v1.2 close — starts at Phase 11.
+
+**Out of scope for this milestone:**
+- New algorithms or dispatch changes (architecture is locked).
+- New chip families outside algo 0x07 / 0x08.
+- v1.1 FM1608 parked bug (different chip class, different debug session — stays parked).
+- Flash-savings work (the 24,482-byte Leonardo budget is v1.2 ship state; do not regress).
 
 ## v1.2 — Message-ID Logging Rework — ✓ Shipped 2026-05-19
 
@@ -168,4 +187,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last updated: 2026-05-19 after v1.2 milestone ship — Message-ID Logging Rework shipped. Leonardo Flash 98.7% → 85.4% (3,792 B headroom restored); Uno Flash 81.1% → 69.0%. Firmware 3.0.0-dev enforces lockstep upgrade. 23/23 requirements complete; 4 hardware-pending UAT items deferred (see STATE.md Deferred Items). Next: `/gsd-new-milestone` or close v1.1 leftovers (FM1608, WARNING-4, DOC-01).*
+*Last updated: 2026-05-19 — v1.3 milestone started (CMOS EPROM Family Hardware Validation). Goal: bench-validate algorithm-0x07 (28-pin, 214 chips) + algorithm-0x08 (32-pin, 127 chips) families on Uno + Leonardo via four named chips (W27C512, SST27SF512, W27C020, W27E040) + density-extreme representatives. v1.2 ship state preserved (Leonardo Flash 85.4%, firmware 3.0.0-dev). Phase numbering continues from Phase 11.*

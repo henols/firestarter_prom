@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: null
-milestone_name: (between milestones — v1.2 just shipped)
-status: idle
-last_updated: "2026-05-19T11:25:00.000Z"
-last_activity: 2026-05-19 — v1.2 milestone shipped
+milestone: v1.3
+milestone_name: CMOS EPROM Family Hardware Validation
+status: planning
+last_updated: "2026-05-19T12:00:00.000Z"
+last_activity: 2026-05-19 — v1.3 milestone started
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 32
-  completed_plans: 32
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -20,11 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: (none — between milestones)
-Plan: Not started
-Status: v1.2 shipped 2026-05-19; awaiting `/gsd-new-milestone` for next scope
-Resume from: `/gsd-new-milestone` (or close v1.1 leftovers — fm1608, WARNING-4, DOC-01)
-Last activity: 2026-05-19 — v1.2 milestone shipped (Message-ID Logging Rework)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements for v1.3 — CMOS EPROM Family Hardware Validation
+Resume from: continue `/gsd:new-milestone` flow (requirements → roadmap), or `/gsd-plan-phase 11` once roadmap lands
+Last activity: 2026-05-19 — v1.3 milestone started
 
 ## Project Reference
 
@@ -33,35 +33,23 @@ See: `.planning/PROJECT.md` (updated 2026-05-19)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Planning next milestone
+**Current focus:** v1.3 — bench-validating the CMOS EPROM families (algo 0x07 28-pin + algo 0x08 32-pin) that v1.0–v1.2 dispatch logic ships for. End-to-end write/read/verify on Uno + Leonardo for W27C512, SST27SF512, W27C020, W27E040 plus density-tier representatives; structural-coverage report across the ~341 algo-0x07 + algo-0x08 chips in the database.
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
-- 23/23 v1.2 requirements complete; 4 hardware-pending UAT items deferred (see Deferred Items below)
-- Possible next milestones: v1.1 wrap-up (FM1608 + WARNING-4 + DOC-01), v1.3 polish, or new feature work
-- Run `/gsd-new-milestone` to start the next milestone
+- v1.3 in planning — milestone goal confirmed, requirements being defined
+- Phase numbering continues from v1.2 close (starts at Phase 11)
 
 ## Roadmap Summary
 
-**v1.2 phases (numbered 6-10 — continues from v1.1):**
+**v1.3 phases:** TBD — roadmap pending. Phase numbering starts at **Phase 11** (continues from v1.2 close).
 
-| Phase | Name | Requirements | Status |
-|-------|------|--------------|--------|
-| 6 | Logging Infrastructure (catalog + codegen + helper + decoder) | LCAT-01..05, LFW-01, LFW-02, LFW-05, LHOST-01..04, LCI-01..04, LMIG-01 (17 reqs) | Not started |
-| 7 | Convert ERROR + WARN + INFO Call-Sites | LMIG-02 | Not started |
-| 8 | Convert State-Machine Prefix Call-Sites (OK/INIT/MAIN/END) | LMIG-03 | Not started |
-| 9 | Delete Old Log Macros + Measure Flash Savings | LFW-03, LFW-04, LMIG-04 | Not started |
-| 10 | Milestone Close (v1.2) | DOC-02 | Not started |
-
-**Coverage:** 23/23 requirements mapped (100% ✓) — 22 v1.2 requirements + DOC-02 (milestone-close) added by the roadmap.
-
-**Dependency chain:** strictly linear (6 → 7 → 8 → 9 → 10) — mirrors the locked phased migration order Phase A → B → C → D → Close.
-
-Full roadmap: `.planning/ROADMAP.md`
+Full roadmap will be written to `.planning/ROADMAP.md` after requirements are approved.
 
 ## Milestone History
 
 - **v1.0** — Protocol-Aware Programming Architecture (shipped 2026-05-11) — see `.planning/MILESTONES.md` + `.planning/milestones/v1.0-*.md`
 - **v1.1** — Safety Closure & Hardware Validation — **PAUSED at 80%** (2026-05-18). Phases 1–3 complete (SAF closure, wire-key rename, retroactive VERIFICATION.md artifacts). Phase 4 hardware-validation Plan 2 of 3 in progress (FM1608 byte-0 read bug parked — see `.planning/debug/fm1608-fresh-chip-baseline.md`; needs a different Uno board to unblock). Phase 5 (milestone close) deferred.
+- **v1.2** — Message-ID Logging Rework (shipped 2026-05-19) — 23/23 requirements; Leonardo Flash 98.7% → 85.4% (−3,792 B); firmware 3.0.0-dev lockstep upgrade. 4 hardware-pending UAT items deferred into v1.3 bench session (see Deferred Items below). See `.planning/MILESTONES.md`.
 
 ## Accumulated Context
 
@@ -71,16 +59,14 @@ None at v1.2 close.
 
 ## Deferred Items
 
-Items acknowledged and deferred at v1.2 milestone close on 2026-05-19. All four are hardware-bench gates that do not block the v1.2 product ship (LMIG-04 already achieved at 85.4% Leonardo Flash via the autonomous-side measurement in Phase 9 Plan 05 Task 1):
+Items acknowledged and deferred at v1.2 milestone close on 2026-05-19. The three W27C512 UAT items now **naturally fold into v1.3** — the W27C512 bench session is in scope for v1.3 BENCH-* requirements, so closing v1.3 closes Phase 08 SC#2/SC#3 + Phase 09 SC#3 as a side effect. The FM1608 byte-0 read bug remains parked (different chip family, different debug session, requires different Uno R3 hardware).
 
 | Category | Item | Status | Note |
 |----------|------|--------|------|
-| debug | fm1608-fresh-chip-baseline | parked-2026-05-18 | v1.1 carryover — needs different Uno R3 to unblock |
-| uat | Phase 08 HUMAN-UAT.md | partial — 2 pending scenarios | chip-seated W27C512 write + readback |
-| verification | Phase 08 VERIFICATION.md | human_needed | bench UAT closure (same scope as above) |
-| verification | Phase 09 VERIFICATION.md | human_needed | Plan 09-05 Task 3 (chip-seated W27C512 on both boards) |
-
-These bundle naturally on the next bench session: a single chip-seated W27C512 write + readback cycle on both Uno + Leonardo closes Phase 08 SC#2/SC#3 + Phase 09 SC#3 simultaneously. The fm1608 byte-0 read bug is unrelated (different chip family, different debug session, parked).
+| debug | fm1608-fresh-chip-baseline | parked-2026-05-18 | v1.1 carryover — needs different Uno R3 to unblock; out of scope for v1.3 |
+| uat | Phase 08 HUMAN-UAT.md | partial — 2 pending scenarios | chip-seated W27C512 write + readback → closes via v1.3 BENCH-01 |
+| verification | Phase 08 VERIFICATION.md | human_needed | bench UAT closure → closes via v1.3 BENCH-01 |
+| verification | Phase 09 VERIFICATION.md | human_needed | Plan 09-05 Task 3 (chip-seated W27C512 on both boards) → closes via v1.3 BENCH-01 |
 
 ### Carried Over From v1.1 (still open)
 
@@ -102,6 +88,16 @@ These bundle naturally on the next bench session: a single chip-seated W27C512 w
 - BLOCKER-1 (Phase 12) — algorithm-based dispatch for protocols 0x05/0x06/0x07/0x08/0x0B and SRAM 0x0E/0x27/0x28/0x29
 - BLOCKER-2 (Phase 12) — SRAM chips routed to `configure_eprom` with 12V VPP regulator
 - WARNING-5 (Phase 13) — AT28C256/64 5V EEPROM 12V-on-A14 hazard via DB override
+
+## v1.3 Decisions (locked at milestone start, 2026-05-19)
+
+- **Scope:** Algorithm-0x07 (28-pin DIP CMOS UV-EPROM, 214 chips in DB) + algorithm-0x08 (32-pin DIP CMOS UV-EPROM, 127 chips in DB). End-to-end bench validation on Uno + Leonardo for four named chips (W27C512, SST27SF512, W27C020, W27E040) + one 28-pin lower-density representative + one 32-pin lower-density representative. Structural-coverage report across all 341 in-scope DB rows.
+- **Out of scope:** New algorithms, new chip families, FM1608 (parked v1.1 carryover), flash-savings work (v1.2 budget held as-is).
+- **Definition of "working" (bench gate per chip):** chip-ID read returns DB-declared value where `chip_id_check: true`; blank-check passes; write programs a test image without error; read-back is byte-identical; VPP regulator engages at 12V; both Uno (512-B buffer) and Leonardo (1024-B buffer) reach green.
+- **Density coverage strategy:** test at both ends — smallest 28-pin (32K W27C257 / SST27SF256) and smallest 32-pin (128K W27C010 / SST27SF010) — so address-bus correctness covers the whole 32K → 512K span.
+- **Deferred-items absorption:** v1.2 Phase 08 SC#2/SC#3 + Phase 09 Plan-05 Task 3 (chip-seated W27C512 UAT) close as a byproduct of v1.3 BENCH-01.
+- **Hardware-bench dependency:** entire milestone is operator-on-bench gated. Plan structure should isolate automated/desk-side work (DB audit, coverage report, test-pattern generators) from bench work (Uno + Leonardo + chip + scope) so progress is possible without continuous hardware access.
+- **Phase numbering:** continues from v1.2 (Phase 11+); no `--reset-phase-numbers`.
 
 ## v1.2 Decisions (locked at milestone start, 2026-05-18)
 
