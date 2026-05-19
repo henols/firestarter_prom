@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: — CMOS EPROM Family Hardware Validation
 status: executing
-last_updated: "2026-05-19T22:37:17.847Z"
+last_updated: "2026-05-19T22:42:27Z"
 last_activity: 2026-05-19
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 6
-  completed_plans: 5
-  percent: 0
+  completed_plans: 6
+  percent: 25
 ---
 
 # Project State
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 11 (coverage-matrix-db-inconsistency-audit) — EXECUTING
-Plan: 6 of 6 (Plans 01-05 complete — Wave 0 RED gate + Wave 1 §1+§2 emit + Wave 2 §3 enumeration + Wave 3 §4 defect candidates + ledger + Wave 4 §5 BENCH coverage proof + golden file all landed; matrix is now operator-ready)
-Status: Ready to execute
-Resume from: `/gsd-execute-phase 11` to continue with Plan 11-06 (Wave 5 — planning-doc reconciliation: PROJECT.md / ROADMAP.md / REQUIREMENTS.md / STATE.md count fixes per D-07)
+Phase: 11 (coverage-matrix-db-inconsistency-audit) — COMPLETE (6/6 plans)
+Plan: 6 of 6 done — Wave 5 D-07 planning-doc reconciliation landed (commit 70be654); 20 substring edits across PROJECT/ROADMAP/REQUIREMENTS/STATE; matrix file byte-identical vs tool re-run; pytest 39/39 PASS. Phase 11 closes — COV-01 + COV-02 delivered.
+Status: Ready to advance to Phase 12 (28-Pin / Algo-0x07 Bench Validation) — bench-gated, requires Uno + Leonardo + DIP-28 socket + scope.
+Resume from: `/gsd-plan-phase 12` (Phase 12 has no plans yet — needs CONTEXT.md + PLANS via planner). Phase 11 artifacts (`.planning/v1.3-COVERAGE-MATRIX.md` + `.planning/v1.3-defect-coverage-ids.json`) are operator-ready input to Phase 12 BENCH-05 selection (D-11).
 Last activity: 2026-05-19
 
 ## Project Reference
@@ -169,6 +169,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 11 P11-03 | 18min | 3 tasks | 3 files |
 | Phase 11 P04 | 6min | 3 tasks | 4 files |
 | Phase 11 P05 | 10min | 2 tasks | 4 files |
+| Phase 11 P06 | ~6min | 1 tasks | 4 files |
 
 ## Decisions
 
@@ -232,3 +233,4 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase 11]: Plan 11-05: Pulse-coverage cross-references filtered by first_alias-in-bucket membership (not "any finding on this algorithm"). 100ms-1s algo-0x07 cell now references 16 specific CORRECTNESS findings instead of dumping 52+ noisy IDs.
 - [Phase 11]: Plan 11-05: Greenfield golden-file fixture at firestarter_app/tests/golden/v1.3-COVERAGE-MATRIX.md is the regression anchor. test_golden_file_matches seeds tmp_path/l.json byte-identically from .planning/v1.3-defect-coverage-ids.json so DEFECT-COV-NN assignments stay stable; any output drift requires regenerating the golden alongside the matrix in one commit.
 - [Phase 11]: Plan 11-05: Phrasing avoidance — initial caption read "does not propose swaps" but the literal "swap" tripped D-11 acceptance grep. Replaced with "is observational only" to preserve intent without triggering the regex. Lesson: D-11 acceptance gate is substring-grep, not semantic.
+- [Phase 11]: Plan 11-06: D-07 reconciliation landed as a single dedicated commit (70be654, separate from matrix-tool commits per D-07). 20 substring replacements across PROJECT.md (6) / ROADMAP.md (4) / REQUIREMENTS.md (1) / STATE.md (2 — L36 substring "~341 algo-0x07" not present in live file, edit deferred per PLAN action guidance "do not invent substitute edits"). Historical narrative preserved in 3 locations per RESEARCH.md A6 (PROJECT.md L135 WIRE-02 743/743 PASS decision-row; ROADMAP.md L140 v1.0 archived <details> bullet; STATE.md L220 Plan 11-02 narrative about §2 hard-coding the OLD counts).

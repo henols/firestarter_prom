@@ -24,7 +24,7 @@
 
 ### Phases
 
-- [ ] **Phase 11: Coverage Matrix & DB Inconsistency Audit** — Desk-side enumeration of all 339 algo-0x07/0x08 DB rows + flag intra-algorithm inconsistencies.
+- [x] **Phase 11: Coverage Matrix & DB Inconsistency Audit** — Desk-side enumeration of all 339 algo-0x07/0x08 DB rows + flag intra-algorithm inconsistencies. ✅ 2026-05-19
 - [ ] **Phase 12: 28-Pin / Algo-0x07 Bench Validation** — End-to-end bench cycle on Uno + Leonardo for W27C512, SST27SF512, and the 32K density-low representative; establish chip-ID + VPP scope observation protocols.
 - [ ] **Phase 13: 32-Pin / Algo-0x08 Bench Validation** — End-to-end bench cycle on Uno + Leonardo for W27C020, W27E040, and the 128K density-low representative; same observation protocols carried forward.
 - [ ] **Phase 14: Milestone Close & Artifacts** — Publish BENCH-RESULTS, update MILESTONES, archive v1.3 phase directories.
@@ -45,7 +45,7 @@
 - [x] 11-03-PLAN.md — Wave 2 §3 Full Enumeration (339 rows, per-algorithm sub-tables, D-06 sort) ✅ 2026-05-19
 - [x] 11-04-PLAN.md — Wave 3 §4 Defect Candidates + DEFECT-COV-NN ledger + --check semantics
 - [x] 11-05-PLAN.md — Wave 4 §5 BENCH Coverage Proof + golden-file fixture
-- [ ] 11-06-PLAN.md — Wave 5 D-07 planning-doc count reconciliation (PROJECT.md, ROADMAP.md, REQUIREMENTS.md, STATE.md)
+- [x] 11-06-PLAN.md — Wave 5 D-07 planning-doc count reconciliation (PROJECT.md, ROADMAP.md, REQUIREMENTS.md, STATE.md) ✅ 2026-05-19
 
 #### Phase 12: 28-Pin / Algo-0x07 Bench Validation
 **Goal:** On both Uno and Leonardo, operator can run a full write → read-back → verify cycle on every named 28-pin CMOS UV-EPROM (W27C512, SST27SF512) and on a 32K density-low representative, with chip-ID and VPP observation protocols established and captured.
@@ -156,7 +156,7 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 8 | v1.2 | 8/8 | ✅ Complete | 2026-05-18 |
 | 9 | v1.2 | 5/5 | ✅ Complete | 2026-05-19 |
 | 10 (close) | v1.2 | n/a | ✅ Complete | 2026-05-19 |
-| 11 | v1.3 | 5/6 | In Progress|  |
+| 11 | v1.3 | 6/6 | ✅ Complete | 2026-05-19 |
 | 12 | v1.3 | 0/0 | Not started | — |
 | 13 | v1.3 | 0/0 | Not started | — |
 | 14 (close) | v1.3 | 0/0 | Not started | — |

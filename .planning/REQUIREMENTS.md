@@ -64,8 +64,8 @@ Each requirement maps to exactly one phase. Coverage: 12/12 ✓.
 | BENCH-06 | Phase 13 | TBD | Not started |
 | PROTO-01 | Phase 12 (observation protocol carried forward into Phase 13) | TBD | Not started |
 | PROTO-02 | Phase 12 (observation protocol carried forward into Phase 13) | TBD | Not started |
-| COV-01 | Phase 11 | Plans 11-01..11-05 | In progress (Plan 11-01 Wave 0 ✅; Plan 11-02 Wave 1 ✅ — §1+§2 emit; Waves 2-4 implement §3+§4+§5) |
-| COV-02 | Phase 11 | Plans 11-01, 11-04 | In progress (Plan 11-01 Wave 0 scaffold ✅; Wave 3 implements §4 + ledger) |
+| COV-01 | Phase 11 | Plans 11-01..11-06 | ✅ Complete (Wave 0 RED + Wave 1 §1+§2 + Wave 2 §3 + Wave 3 §4 + Wave 4 §5 + Wave 5 D-07 reconciliation all landed 2026-05-19; matrix + ledger committed; 339 chips covered) |
+| COV-02 | Phase 11 | Plans 11-01, 11-04 | ✅ Complete (Wave 3 §4 + ledger committed 2026-05-19; HAZARD=1, CORRECTNESS=27, VARIANCE=49 findings flagged in `.planning/v1.3-COVERAGE-MATRIX.md` + `.planning/v1.3-defect-coverage-ids.json`) |
 | DOC-01 | Phase 14 | TBD | Not started |
 | DOC-02 | Phase 14 | TBD | Not started |
 
