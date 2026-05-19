@@ -39,7 +39,13 @@
   1. A coverage matrix file exists at `.planning/v1.3-COVERAGE-MATRIX.md` (or equivalent) enumerating every algo-0x07 + algo-0x08 row in `chip_database.json` with: manufacturer, part_number(s), pin_count, size_bytes, pulse_duration, chip_id_check, chip_id_value, pinout class. Total row count matches DB histogram (214 + 127 = 341 chips).
   2. The same file (or a companion file) lists every intra-algorithm DB inconsistency — chips that share `pin_count` + `algorithm` but differ in `pulse_duration`, `chip_id_check`, or `pinout` — with each inconsistency labeled as a defect candidate for v1.4 or a sub-repo PR (no auto-fixes applied in v1.3).
   3. Operator can use the matrix to confirm that the six BENCH chips (BENCH-01..06) span the pinout classes and pulse-duration profiles actually represented in the DB, so bench results generalize to the rest of the 341 rows.
-**Plans:** TBD
+**Plans:** 6 plans
+- [ ] 11-01-PLAN.md — Wave 0 failing-test scaffold for tests/test_audit_coverage_matrix.py (10 tests)
+- [ ] 11-02-PLAN.md — Wave 1 tool skeleton + CLI + §1 Summary + §2 DB Count Reconciliation
+- [ ] 11-03-PLAN.md — Wave 2 §3 Full Enumeration (339 rows, per-algorithm sub-tables, D-06 sort)
+- [ ] 11-04-PLAN.md — Wave 3 §4 Defect Candidates + DEFECT-COV-NN ledger + --check semantics
+- [ ] 11-05-PLAN.md — Wave 4 §5 BENCH Coverage Proof + golden-file fixture
+- [ ] 11-06-PLAN.md — Wave 5 D-07 planning-doc count reconciliation (PROJECT.md, ROADMAP.md, REQUIREMENTS.md, STATE.md)
 
 #### Phase 12: 28-Pin / Algo-0x07 Bench Validation
 **Goal:** On both Uno and Leonardo, operator can run a full write → read-back → verify cycle on every named 28-pin CMOS UV-EPROM (W27C512, SST27SF512) and on a 32K density-low representative, with chip-ID and VPP observation protocols established and captured.
@@ -150,7 +156,7 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 8 | v1.2 | 8/8 | ✅ Complete | 2026-05-18 |
 | 9 | v1.2 | 5/5 | ✅ Complete | 2026-05-19 |
 | 10 (close) | v1.2 | n/a | ✅ Complete | 2026-05-19 |
-| 11 | v1.3 | 0/0 | Not started | — |
+| 11 | v1.3 | 0/6 | Planning | — |
 | 12 | v1.3 | 0/0 | Not started | — |
 | 13 | v1.3 | 0/0 | Not started | — |
 | 14 (close) | v1.3 | 0/0 | Not started | — |
