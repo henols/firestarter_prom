@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Message-ID Logging Rework
 status: executing
-last_updated: "2026-05-19T07:48:09.428Z"
-last_activity: 2026-05-19 -- Phase 09 planning complete
+last_updated: "2026-05-19T07:51:11.921Z"
+last_activity: 2026-05-19 -- Phase 09 execution started
 progress:
   total_phases: 5
   completed_phases: 3
@@ -20,11 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: 9
-Plan: Not started
-Status: Ready to execute
+Phase: 09 (delete-old-log-macros-measure-flash-savings) — EXECUTING
+Plan: 1 of 5
+Status: Executing Phase 09
 Resume from: `.planning/phases/08-convert-state-machine-prefix-call-sites-ok-init-main-end/08-08-PLAN.md`
-Last activity: 2026-05-19 -- Phase 09 planning complete
+Last activity: 2026-05-19 -- Phase 09 execution started
 
 ## Project Reference
 
@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-18)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 08 — Convert State-Machine Prefix Call-Sites (OK/INIT/MAIN/END)
+**Current focus:** Phase 09 — delete-old-log-macros-measure-flash-savings
 
 - Replace firmware text-string logs with 1-byte message IDs + raw parameter byte arrays
 - Single canonical catalog (meta-repo) → codegen → C++ header (firmware) + Python module (host)
