@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: — CMOS EPROM Family Hardware Validation
 status: executing
-last_updated: "2026-05-19T22:07:32.000Z"
-last_activity: 2026-05-19 -- Phase 11 Plan 02 complete (Wave 1 tool skeleton + §1+§2 emit)
+last_updated: "2026-05-19T22:15:00.000Z"
+last_activity: 2026-05-19 -- Phase 11 Plan 03 complete (Wave 2 §3 Full Enumeration — 339 rows in two per-algorithm sub-tables, Pattern F sort, idempotence locked)
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 6
-  completed_plans: 2
-  percent: 33
+  completed_plans: 3
+  percent: 50
 ---
 
 # Project State
@@ -21,10 +21,10 @@ progress:
 ## Current Position
 
 Phase: 11 (coverage-matrix-db-inconsistency-audit) — EXECUTING
-Plan: 3 of 6 (Plans 01-02 complete — Wave 0 RED gate + Wave 1 tool skeleton + §1+§2 emit landed)
+Plan: 4 of 6 (Plans 01-03 complete — Wave 0 RED gate + Wave 1 tool skeleton + §1+§2 emit + Wave 2 §3 Full Enumeration landed)
 Status: Executing Phase 11
-Resume from: `/gsd-execute-phase 11` to continue with Plan 11-03 (Wave 2 — §3 Full Enumeration, 339 rows, D-06 sort)
-Last activity: 2026-05-19 -- Phase 11 Plan 02 complete (firestarter_app@80ad29c + 11ed35a; meta@0b3d571)
+Resume from: `/gsd-execute-phase 11` to continue with Plan 11-04 (Wave 3 — §4 Defect Candidates + DEFECT-COV-NN ledger + --check semantics)
+Last activity: 2026-05-19 -- Phase 11 Plan 03 complete (firestarter_app@a445bd5 + 9c39cf6; meta@74cf6c5)
 
 ## Project Reference
 
@@ -166,6 +166,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 08 P07 | 11min | 2 tasks | 14 files |
 | Phase 11 P11-01 | 12min | 1 tasks | 1 files |
 | Phase 11 P11-02 | 12min | 2 tasks | 4 files |
+| Phase 11 P11-03 | 18min | 3 tasks | 3 files |
 
 ## Decisions
 
@@ -218,3 +219,8 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase 11]: Plan 11-02: Pulse-bucket sort uses explicit dict mapping (_pulse_bucket_sort_key returns 0-4 for the five D-09 buckets); never insertion order — Pattern B byte-identity guarantee across Python minor versions.
 - [Phase 11]: Plan 11-02: --check semantic in Wave 1 is a no-op (always returns 0). Wave 3 (Plan 11-04) wires the real "would minting add new IDs?" comparison after the defect-findings emit lands. TODO comments in both tool body (line 524) and test_exit_codes mark the extension point.
 - [Phase 11]: Plan 11-02: _REPO_ROOT computed from __file__ (three dirname() hops) → absolute --output and --ledger defaults; defends against operator-cwd variance per RESEARCH.md Pitfall 6.
+- [Phase 11]: Plan 11-03: chip_id_value renders verbatim — all algo-0x07 + algo-0x08 rows store it as a string (`"0x00000108"`, `"0x00000000"`) in the live DB; no int-vs-string branching needed. Plan allowed the conditional; live data made it unnecessary.
+- [Phase 11]: Plan 11-03: Per-algorithm split happens BEFORE Pattern F sort (filter → sort → render). Keeps each sub-table self-contained for test slicing (test_enumeration_sort parses each sub-table independently and asserts non-decreasing on the 4-tuple projection (pinout, size_bytes, manufacturer, first_alias) — algorithm is implicit per sub-table).
+- [Phase 11]: Plan 11-03: emit_placeholder_sections() reduced from 3-tuple (s3, s4, s5) to 2-tuple (s4, s5) — §3 is now real; Wave 3/4 still consume the helper for §4/§5 placeholders. Clean shrink rather than a §3 stub left dangling.
+- [Phase 11]: Plan 11-03: Defensive `_md_escape` (replaces `|` with `\|`) applied to every §3 cell despite no DB row containing `|` today. Robustness over micro-optimization — one function call per cell.
+- [Phase 11]: Plan 11-03: 339-row regression anchor lives in three places (tool body live-computed, §2 reconciliation, test_enumeration_row_count). Drift in any one trips test_enumeration_row_count immediately; update all three together if DB regenerates.
