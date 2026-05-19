@@ -96,7 +96,12 @@
   3. Firmware version handshake reports major version `3.0.0` (or equivalent v1.2 major bump per LFW-05); a host built before Phase 6 trying to talk to this firmware fails with the operator-facing "upgrade firmware" message wired in Phase 6 (regression-tested against the Phase 6 host guard).
   4. `pio run -e leonardo` reports Flash usage **below 90%** with measurable headroom vs the v1.1 baseline of 98.7% — the exact percentage is recorded in the phase verification artifact (e.g. `Leonardo Flash: X% (Y bytes free), down from 98.7%`).
   5. `pio run -e uno` also reports the new Flash usage, recorded alongside the Leonardo number for the milestone-close comparison.
-**Plans**: TBD
+**Plans**: 5 plans
+- [ ] 09-01-PLAN.md — dev_tools.cpp send_ack("") → LOG_OK_ID(MSG_OK_READY) precondition (Wave 1, D-04)
+- [ ] 09-02-PLAN.md — Atomic legacy deletion (logging.h/.c, rurp_log*, _firestarter_log_*, debug_setup/log_debug, SoftwareSerial) + LFW-05 inline + version bump 3.0.0-dev (Wave 2, D-01+D-02+D-06)
+- [ ] 09-03-PLAN.md — Host comment refresh for FIRESTARTER_DEV_ALLOW_PRE_V12 (Wave 2 parallel)
+- [ ] 09-04-PLAN.md — host_stubs_common.inc trim (Wave 3, D-03)
+- [ ] 09-05-PLAN.md — 09-MEASUREMENT.md + bench wire matrix re-run + Phase 8 SC#2/SC#3 chip-seated UAT carry-over (Wave 4, non-autonomous)
 
 #### Phase 10: Milestone Close (v1.2)
 **Goal**: The v1.2 milestone is formally recorded in `.planning/MILESTONES.md` using the same Key Accomplishments / Stats / Key Decisions / Known Gaps structure as the v1.0 + v1.1 entries, with a dedicated Flash-Savings comparison sub-section that pins the v1.1 baseline (98.7% Leonardo) against the v1.2 post-Phase-9 measurement. PROJECT.md is updated to reflect v1.2 shipped, and any carried-forward v1.1 leftover items are re-listed cleanly in STATE.md for the next milestone slot.
@@ -190,7 +195,7 @@ Full milestone details: `.planning/milestones/v1.0-ROADMAP.md`
 | 6. Logging Infrastructure (catalog + codegen + helper + decoder) | 0/6 | Not started | - |
 | 7. Convert ERROR + WARN + INFO Call-Sites | 11/13 | In progress | - |
 | 8. Convert State-Machine Prefix Call-Sites (OK/INIT/MAIN/END) | 0/? | Not started | - |
-| 9. Delete Old Log Macros + Measure Flash Savings | 0/? | Not started | - |
+| 9. Delete Old Log Macros + Measure Flash Savings | 0/5 | Not started | - |
 | 10. Milestone Close (v1.2) | 0/? | Not started | - |
 
 ### v1.1 (Paused at 80%)
