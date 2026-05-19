@@ -1,0 +1,63 @@
+//
+// !!! WARNING !!! AUTO-GENERATED FILE!
+// PLEASE DO NOT MODIFY IT AND USE "platformio.ini":
+// https://docs.platformio.org/page/projectconf/section_env_build.html#build-flags
+//
+{
+    "configurations": [
+        {
+            "name": "PlatformIO",
+            "includePath": [
+                "/workspaces/firestarter/include",
+                "/workspaces/firestarter/src",
+                "/home/vscode/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
+                "/workspaces/firestarter/lib/jsmn/src",
+                "/home/vscode/.platformio/packages/framework-arduino-avr/cores/arduino",
+                "/home/vscode/.platformio/packages/framework-arduino-avr/variants/standard",
+                "/home/vscode/.platformio/packages/framework-arduino-avr/libraries/HID/src",
+                "/home/vscode/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
+                "/home/vscode/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                "/home/vscode/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                ""
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "/workspaces/firestarter/include",
+                    "/workspaces/firestarter/src",
+                    "/home/vscode/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
+                    "/workspaces/firestarter/lib/jsmn/src",
+                    "/home/vscode/.platformio/packages/framework-arduino-avr/cores/arduino",
+                    "/home/vscode/.platformio/packages/framework-arduino-avr/variants/standard",
+                    "/home/vscode/.platformio/packages/framework-arduino-avr/libraries/HID/src",
+                    "/home/vscode/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
+                    "/home/vscode/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                    "/home/vscode/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                    ""
+                ]
+            },
+            "defines": [
+                "PLATFORMIO=60119",
+                "ARDUINO_AVR_UNO",
+                "MONITOR_SPEED=250000",
+                "HARDWARE_REVISION",
+                "DEV_TOOLS",
+                "RURP_BOARD_NAME=\"uno\"",
+                "SERIAL_ON_IO",
+                "F_CPU=16000000L",
+                "ARDUINO_ARCH_AVR",
+                "ARDUINO=10808",
+                "__AVR_ATmega328P__",
+                ""
+            ],
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++11",
+            "compilerPath": "/home/vscode/.platformio/packages/toolchain-atmelavr/bin/avr-gcc",
+            "compilerArgs": [
+                "-mmcu=atmega328p",
+                ""
+            ]
+        }
+    ],
+    "version": 4
+}
