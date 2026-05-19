@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: — CMOS EPROM Family Hardware Validation
 status: executing
-last_updated: "2026-05-19T22:15:00.000Z"
-last_activity: 2026-05-19 -- Phase 11 Plan 03 complete (Wave 2 §3 Full Enumeration — 339 rows in two per-algorithm sub-tables, Pattern F sort, idempotence locked)
+last_updated: "2026-05-19T22:27:05.927Z"
+last_activity: 2026-05-19
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 6
-  completed_plans: 3
-  percent: 50
+  completed_plans: 4
+  percent: 0
 ---
 
 # Project State
@@ -21,10 +21,10 @@ progress:
 ## Current Position
 
 Phase: 11 (coverage-matrix-db-inconsistency-audit) — EXECUTING
-Plan: 4 of 6 (Plans 01-03 complete — Wave 0 RED gate + Wave 1 tool skeleton + §1+§2 emit + Wave 2 §3 Full Enumeration landed)
-Status: Executing Phase 11
+Plan: 5 of 6 (Plans 01-03 complete — Wave 0 RED gate + Wave 1 tool skeleton + §1+§2 emit + Wave 2 §3 Full Enumeration landed)
+Status: Ready to execute
 Resume from: `/gsd-execute-phase 11` to continue with Plan 11-04 (Wave 3 — §4 Defect Candidates + DEFECT-COV-NN ledger + --check semantics)
-Last activity: 2026-05-19 -- Phase 11 Plan 03 complete (firestarter_app@a445bd5 + 9c39cf6; meta@74cf6c5)
+Last activity: 2026-05-19
 
 ## Project Reference
 
@@ -167,6 +167,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 11 P11-01 | 12min | 1 tasks | 1 files |
 | Phase 11 P11-02 | 12min | 2 tasks | 4 files |
 | Phase 11 P11-03 | 18min | 3 tasks | 3 files |
+| Phase 11 P04 | 6min | 3 tasks | 4 files |
 
 ## Decisions
 
@@ -224,3 +225,4 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase 11]: Plan 11-03: emit_placeholder_sections() reduced from 3-tuple (s3, s4, s5) to 2-tuple (s4, s5) — §3 is now real; Wave 3/4 still consume the helper for §4/§5 placeholders. Clean shrink rather than a §3 stub left dangling.
 - [Phase 11]: Plan 11-03: Defensive `_md_escape` (replaces `|` with `\|`) applied to every §3 cell despite no DB row containing `|` today. Robustness over micro-optimization — one function call per cell.
 - [Phase 11]: Plan 11-03: 339-row regression anchor lives in three places (tool body live-computed, §2 reconciliation, test_enumeration_row_count). Drift in any one trips test_enumeration_row_count immediately; update all three together if DB regenerates.
+- [Phase 11]: DEFECT-COV-00 uses pre-rederive _etype (Flash/EEPROM); DEFECT-COV-01 uses post-rederive _etype (UV-EPROM) — two distinct hashes for the same physical 42-row cluster — Build_db.py:481-486 rewrites _etype AFTER WARNING-5 predicate fires; the predicate-time and detect-time substrates are different — two distinct stable IDs capture both narrative angles (v1.0 fix vs v1.4 gap)

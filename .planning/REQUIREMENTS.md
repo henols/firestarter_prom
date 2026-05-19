@@ -28,7 +28,7 @@ These are not new code paths — they verify existing firmware behavior is corre
 ### COVERAGE — Structural coverage report (desk-side, no chip needed)
 
 - [ ] **COV-01**: Generate a coverage matrix from `chip_database.json` enumerating every algo-0x07 + algo-0x08 row with: manufacturer, part_number(s), pin_count, size_bytes, pulse_duration, chip_id_check, chip_id_value, pinout class. Output: `.planning/v1.3-COVERAGE-MATRIX.md` (or equivalent). 341 chips covered.
-- [ ] **COV-02**: From the matrix, identify any DB inconsistencies inside each algorithm: chips that share `pin_count` + `algorithm` but differ in `pulse_duration`, `chip_id_check`, or `pinout`. Each inconsistency is flagged as a defect candidate (not auto-fixed in v1.3 — fixes go to v1.4 or sub-repo PRs).
+- [x] **COV-02**: From the matrix, identify any DB inconsistencies inside each algorithm: chips that share `pin_count` + `algorithm` but differ in `pulse_duration`, `chip_id_check`, or `pinout`. Each inconsistency is flagged as a defect candidate (not auto-fixed in v1.3 — fixes go to v1.4 or sub-repo PRs).
 
 ### DOC — Artifacts + close-out
 
