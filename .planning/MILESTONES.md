@@ -1,5 +1,144 @@
 # Milestones
 
+## v1.2 — Message-ID Logging Rework (Shipped: 2026-05-19)
+
+**Phases:** 4 (numbered 6-9; Phase 10 closed by this milestone-close workflow) | **Plans:** 32 | **Timeline:** 2026-05-08 → 2026-05-19 (~11 days, 108 meta-repo commits, 104 firmware + 64 host sub-repo commits)
+
+**Delivered:** Replaced every firmware text-prefix log emit (`OK:` / `INIT:` / `MAIN:` / `END:` / `INFO:` / `WARN:` / `ERROR:` / `DEBUG:`) with a 1-byte message-ID + raw-byte-param wire protocol driven by a canonical catalog in the meta-repo. The catalog is the single source of truth; codegen emits a C++ header for firmware and a Python module for the host, both regenerated and byte-identity-checked in CI. Old log helpers (`rurp_log`, `rurp_log_P`, `LOG_*_MSG` PROGMEM strings, `log_info_const` / `log_error_format` / `log_warn`) deleted. Leonardo flash 98.7% → **85.4%** (−13.3 pp / −3,792 B of headroom); firmware major bumps to 3.0.0 to enforce lockstep upgrade.
+
+### Flash-Savings Comparison (LMIG-04 acceptance — DOC-02 anchor)
+
+| Snapshot | Leonardo Flash | Uno Flash | SRAM (Uno) | Notes |
+|----------|---------------|-----------|------------|-------|
+| v1.1 close (baseline) | 28,292 / 28,672 B = **98.7%** | n/a | n/a | Carried v1.1 risk: < 400 B Leonardo headroom |
+| v1.2 Phase 6 close | 28,292 B = 98.7% | 26,178 / 32,256 B = 81.1% | 1,593 B | Catalog + helpers landed; no call-sites converted yet (LMIG-01 coexistence proven) |
+| v1.2 Phase 7 close | 27,952 B = 97.5% | 25,818 B = 80.0% | 1,593 B | ERROR + WARN + INFO converted (LMIG-02) |
+| v1.2 Phase 8 close | 26,096 B = 91.0% | 23,718 B = 73.5% | 1,497 B | State-machine prefix converted (LMIG-03); MSG_DATA_CHUNK streaming (W-04) |
+| v1.2 Phase 9 close | 24,500 B = **85.4%** | 22,282 B = 69.1% | 1,497 B | Legacy infra deleted; 3.0.0-dev bump (LFW-03/04, LMIG-04) |
+| v1.2 ship | 24,482 B = **85.4%** | 22,262 B = **69.0%** | 1,497 B | Post-ship polish: drop MSG_OK_FW_HANDSHAKE, INFO echo, helper refactor |
+
+### Key Accomplishments
+
+1. **Canonical message catalog + codegen pipeline** (LCAT-01..05, Phase 6 Plan 01)
+   — `tools/catalog/messages.toml` is the single source of truth for every log
+   message in the system. `tools/catalog/codegen.py` (stdlib-only, deterministic,
+   byte-identical re-runs) emits both `firestarter/include/messages.h` (C++) and
+   `firestarter_app/firestarter/messages.py` (Python) from the same TOML.
+   `sync_to_subrepos.sh` distributes the canonical copy to both sub-repos with
+   `diff -q` byte-identity guarantees. CI workflow (`.github/workflows/catalog-
+   sync-check.yml` in meta-repo + matching gates in both sub-repos) fails any
+   PR that introduces drift.
+
+2. **ID-encoded wire protocol** (LFW-01/02, LHOST-01/02, Phase 6 Plans 02-03)
+   — `rurp_log_id(uint8_t id, const uint8_t* params, uint8_t param_count)`
+   replaces the legacy `rurp_log(LOG_*_MSG, char*)` family. Wire frame is
+   `MAGIC_PREAMBLE | len_u16 | id | params | crc8 | 0x0A` (W-04 wide len
+   added in Phase 8 for MSG_DATA_CHUNK > 255 B). Host decoder in
+   `serial_comm.py::_decode_id_frame` handles the same shape with WR-03
+   guard for text-format catalog entries.
+
+3. **All firmware log call-sites migrated** (LMIG-02, LMIG-03, LFW-03, Phases 7-9)
+   — Every text-prefix emit converted across 13 sub-systems
+   (`eprom_operations`, `eeprom_28c`, `flash_intel`, `flash_type_3/4`,
+   `hardware_operations`, `memory`, `firestarter` main loop, `dev_tools`,
+   `json_parser`, plus catalog/helpers). Composite shapes added for
+   `MSG_OK_REV` (P-02 [u8, u8]), `MSG_OK_CFG` (P-03 [u32, u32, u8]),
+   `MSG_DATA_CHUNK` (W-04 wide bytes), and the host's sentinel-aware
+   `_format_message` renderer.
+
+4. **Legacy log infrastructure deletion** (LFW-03/04, Phase 9 Plan 02)
+   — Atomic deletion across 23 files: `logging.h` + `logging.c` outright;
+   `rurp_log`, `rurp_log_P`, `_firestarter_log_ram`, `_firestarter_log_progmem`,
+   `LOG_OK_MSG`, `send_ack`, `send_ack_const`, `debug_setup`, `log_debug`,
+   plus all four `#ifdef SERIAL_DEBUG` SoftwareSerial blocks + RX_DEBUG/TX_DEBUG
+   defines. `#include "logging.h"` swept from 20 sites. Firmware version
+   bumped to `3.0.0-dev` (LFW-05) so the host's `major < 3` guard refuses
+   pre-v1.2 firmware cleanly.
+
+5. **Phase 9 flash measurement** (LMIG-04, Phase 9 Plan 05 Task 1)
+   — Cold-cache PlatformIO measurement on Leonardo + Uno, two delta tables
+   in `09-MEASUREMENT.md`: incremental Phase 8 → Phase 9 attribution and the
+   milestone-close v1.1 → v1.2 comparison. SC#1 PROGMEM exemption audit
+   landed (12 named-symbol declarations: MAGIC_PREAMBLE + CRC8_TABLE +
+   json_parser keys + key_parsers[]; 1 inline `F(...)` literal at LFW-05
+   bootstrap; zero uncategorized log-purposed PROGMEM hits).
+
+6. **Post-ship polish: protocol simplification + verbose diagnostics**
+   (post-Phase-9 cleanup, ~9 commits) — Dropped per-command `MSG_OK_FW_HANDSHAKE`
+   composite (P-04) in favour of a plain `MSG_OK_READY` setup-complete ack;
+   added 4 single-purpose INFO emits (`MSG_INFO_FW` / `_HW` / `_PHYSICAL_HW` /
+   `_CMD` at 0x5A-0x5D) that mirror the dropped handshake content under the
+   `FLAG_VERBOSE` runtime gate. Migrated the EXTRA_INFO_LOGGING build-flag
+   block (BUF_VAL, TOKEN_COUNT, FLAG_*, BUFFER_SIZE, MEM_SIZE, ADDR_MASK,
+   MATCH_LINES) to SERIAL_DEBUG-gated `DBG_*` sub_ids (0x29-0x35) so the
+   diagnostics ride the existing DEBUG channel — zero production wire bytes,
+   full breadcrumb chain available in `-D SERIAL_DEBUG` builds.
+
+7. **Host probe path + symbolic command names** — Refactored `_probe_port`
+   to send a dedicated `CMD_FW_VERSION` pre-probe with two-ack pattern
+   handling (skip setup-complete "Ready", parse "OK: FW: ..." for version
+   validation) so the host correctly recognizes 3.0.0-dev firmware without
+   the dropped FW_HANDSHAKE in every ack. `COMMAND_NAMES` lookup in
+   `constants.py` + a `_format_message` branch renders `MSG_INFO_CMD` as
+   "Cmd: 0x0f (HW_VERSION)" and the same annotation applies to `DBG_CMD`
+   via the new MSG_DEBUG sub_id decoder path.
+
+8. **Helper-function refactor of macro internals** — Factored
+   `LOG_ID_U{8,16,24,32}` byte-pack bodies into `rurp_log_id_u{8,16,24,32}`
+   helpers in `rurp_serial_utils.cpp`. The macros collapse to one-liners;
+   each call site emits a single CALL instead of inlining the byte-array
+   build. Net Flash impact small (−20 B Uno / −18 B Leonardo) since
+   AVR-gcc was already inlining well — main value is code cleanliness.
+
+### Stats
+
+| Metric | Value |
+|--------|-------|
+| Phases | 4 active phases (6-9) + Phase 10 milestone-close (this workflow) |
+| Plans | 32 (Phase 6 = 6, Phase 7 = 13, Phase 8 = 8, Phase 9 = 5) |
+| Meta-repo commits | 108 |
+| Firmware sub-repo commits | 104 |
+| Host sub-repo commits | 64 |
+| Files changed (meta-repo + planning) | 101 files / +26,173 / −63 |
+| Firmware LOC | 4,932 (src + include, C++) |
+| Host LOC | 5,200 (firestarter/, Python) |
+| Catalog LOC | 1,743 (messages.toml + codegen.py) |
+| Native tests | 20/20 PASS (test_dispatch + test_messages) |
+| Host pytest | 29/29 PASS (test_decoder + test_fwguard + others) |
+| Hardware-bench verified | Uno + Leonardo at 3.0.0-dev, verbose + SERIAL_DEBUG modes |
+
+### Key Decisions
+
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| ID width = 1 byte | < 100 distinct strings; generous headroom for future growth | ✓ Good (60 catalog entries + 41 DBG sub_ids = 101 total; comfortable) |
+| Raw byte params, no type tags on wire | Catalog declares each ID's shape; type tags would waste bytes | ✓ Good (Phase 8 W-04 added `bytes` variable-length shape without protocol break) |
+| Codegen output committed to both sub-repos | Operators can build without running codegen first; CI drift gate catches changes | ✓ Good (zero drift incidents; tags ship reproducibly) |
+| Phased migration (infra → batched convert → delete last) | Allows both old + new paths to coexist during migration; safer than big-bang | ✓ Good (each phase shipped a working build; LMIG-01 coexistence proven Phase 6) |
+| Lockstep upgrade (no backwards compat) | Wire format change too invasive to support both; FW major bump enforces | ✓ Good (3.0.0-dev gate works; host pre-v1.2 refusal clean) |
+| MSG_OK_FW_HANDSHAKE → plain MSG_OK_READY (post-ship polish) | Per-command FW echo over-specified; INFO emits handle verbose case better | ✓ Good (saved ~5 wire bytes per command; INFO echo restored visibility) |
+| EXTRA_INFO_LOGGING → SERIAL_DEBUG | Build-flag gate is coarser than macro-level; DBG channel already SERIAL_DEBUG-gated | ✓ Good (10 fewer INFO catalog entries; debug breadcrumbs richer) |
+| Helper functions for byte-pack | Deduplicate ~10-line macro bodies | ⚠️ Revisit (Flash savings ~20 B — AVR-gcc was already optimizing well; kept for code cleanliness) |
+
+### Known Gaps / Hardware-Pending UAT
+
+Recorded in [STATE.md `## Deferred Items`](.planning/STATE.md). All four items bundle on a single chip-seated W27C512 bench session:
+
+- **Phase 09 Plan 05 Task 3** — chip-seated W27C512 write + readback on both boards (Plan 09-05 hardware UAT)
+- **Phase 08 SC#2 / SC#3** — chip-seated UAT carried forward from Phase 8 close (same scope)
+- **Phase 08 HUMAN-UAT.md** — 2 pending scenarios (same scope, different artifact)
+- **v1.1 debug session `fm1608-fresh-chip-baseline`** — parked since 2026-05-18; unrelated to v1.2 scope (needs different Uno R3 to unblock)
+
+Known deferred items at close: **4** (see STATE.md Deferred Items).
+
+### v1.1 Items Carried Forward (still open after v1.2)
+
+- v1.1 Phase 4 — FM1608 byte-0 read bug (parked, needs different Uno R3)
+- WARNING-4 — `firestarter_test.sh` / `write_test.sh` reference deleted `database_generated.json`
+- v1.1 DOC-01 — v1.1 milestone close (Phase 5 of v1.1 deferred)
+
+---
+
 ## v1.0 — Protocol-Aware Programming Architecture (Shipped: 2026-05-11)
 
 **Phases:** 13 | **Plans:** 22 | **Timeline:** 2026-05-08 → 2026-05-11 (4 days, 66 commits)

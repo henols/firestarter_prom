@@ -1,46 +1,44 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.2
-milestone_name: — Message-ID Logging Rework
-status: executing
-last_updated: "2026-05-19T08:37:24.954Z"
-last_activity: 2026-05-19
+milestone: null
+milestone_name: (between milestones — v1.2 just shipped)
+status: idle
+last_updated: "2026-05-19T11:25:00.000Z"
+last_activity: 2026-05-19 — v1.2 milestone shipped
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 32
   completed_plans: 32
-  percent: 80
+  percent: 100
 ---
 
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-05-18
+**Updated:** 2026-05-19
 
 ## Current Position
 
-Phase: 10
+Phase: (none — between milestones)
 Plan: Not started
-Status: Executing Phase 09
-Resume from: `.planning/phases/08-convert-state-machine-prefix-call-sites-ok-init-main-end/08-08-PLAN.md`
-Last activity: 2026-05-19
+Status: v1.2 shipped 2026-05-19; awaiting `/gsd-new-milestone` for next scope
+Resume from: `/gsd-new-milestone` (or close v1.1 leftovers — fm1608, WARNING-4, DOC-01)
+Last activity: 2026-05-19 — v1.2 milestone shipped (Message-ID Logging Rework)
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-05-18)
+See: `.planning/PROJECT.md` (updated 2026-05-19)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 09 — delete-old-log-macros-measure-flash-savings
+**Current focus:** Planning next milestone
 
-- Replace firmware text-string logs with 1-byte message IDs + raw parameter byte arrays
-- Single canonical catalog (meta-repo) → codegen → C++ header (firmware) + Python module (host)
-- Lockstep upgrade; no backwards compatibility to text format
-- Phased migration: infrastructure → batched call-site conversion → delete old log code
-- Generated files committed; CI regenerates + diffs as drift gate
-- Goal: free Leonardo flash space (currently 98.7%) AND a cleaner host↔firmware protocol
+- v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
+- 23/23 v1.2 requirements complete; 4 hardware-pending UAT items deferred (see Deferred Items below)
+- Possible next milestones: v1.1 wrap-up (FM1608 + WARNING-4 + DOC-01), v1.3 polish, or new feature work
+- Run `/gsd-new-milestone` to start the next milestone
 
 ## Roadmap Summary
 
@@ -69,7 +67,20 @@ Full roadmap: `.planning/ROADMAP.md`
 
 ### Open Blockers
 
-None at v1.2 start.
+None at v1.2 close.
+
+## Deferred Items
+
+Items acknowledged and deferred at v1.2 milestone close on 2026-05-19. All four are hardware-bench gates that do not block the v1.2 product ship (LMIG-04 already achieved at 85.4% Leonardo Flash via the autonomous-side measurement in Phase 9 Plan 05 Task 1):
+
+| Category | Item | Status | Note |
+|----------|------|--------|------|
+| debug | fm1608-fresh-chip-baseline | parked-2026-05-18 | v1.1 carryover — needs different Uno R3 to unblock |
+| uat | Phase 08 HUMAN-UAT.md | partial — 2 pending scenarios | chip-seated W27C512 write + readback |
+| verification | Phase 08 VERIFICATION.md | human_needed | bench UAT closure (same scope as above) |
+| verification | Phase 09 VERIFICATION.md | human_needed | Plan 09-05 Task 3 (chip-seated W27C512 on both boards) |
+
+These bundle naturally on the next bench session: a single chip-seated W27C512 write + readback cycle on both Uno + Leonardo closes Phase 08 SC#2/SC#3 + Phase 09 SC#3 simultaneously. The fm1608 byte-0 read bug is unrelated (different chip family, different debug session, parked).
 
 ### Carried Over From v1.1 (still open)
 

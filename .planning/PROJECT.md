@@ -3,33 +3,16 @@
 **Created:** 2026-05-08
 **v1.0 shipped:** 2026-05-11
 **v1.1 status:** Parked at 80% (Phase 4 hardware-validation open — FM1608 byte-0 bug requires a different Uno board to unblock; see `.planning/debug/fm1608-fresh-chip-baseline.md`)
-**Active milestone:** v1.2 — Message-ID Logging Rework (started 2026-05-18)
+**v1.2 shipped:** 2026-05-19 (Message-ID Logging Rework — Leonardo Flash 98.7% → 85.4%, firmware 3.0.0-dev)
+**Active milestone:** None (v1.2 just shipped; next milestone TBD — `/gsd-new-milestone` to start)
 
-## Current Milestone: v1.2 Message-ID Logging Rework
+## v1.2 — Message-ID Logging Rework — ✓ Shipped 2026-05-19
 
-**Goal:** Replace firmware text-string logs with numeric message IDs + raw parameter byte arrays. The format catalog and decoding logic move from firmware PROGMEM to the Python host. Driven by Leonardo flash pressure (currently 98.7% Flash usage) and the protocol-cleanliness benefit of removing per-call string literals.
+**Delivered:** Every firmware text-prefix log emit (`OK:` / `INIT:` / `MAIN:` / `END:` / `INFO:` / `WARN:` / `ERROR:` / `DEBUG:`) replaced with a 1-byte message-ID + raw-byte-param wire protocol driven by a canonical catalog in `tools/catalog/messages.toml`. Codegen emits C++ header for firmware + Python module for host; both regenerated and byte-identity-checked in CI. Old log helpers deleted; firmware 3.0.0-dev enforces lockstep upgrade.
 
-**Target features:**
-- **Canonical message catalog** — single source-of-truth file in the meta-repo (e.g. `messages.yaml`) declaring `id → format_string + parameter_shape` for every firmware log message
-- **Codegen pipeline** — build step generates `firestarter/include/messages.h` (C++ enum + ID constants) and `firestarter_app/firestarter/messages.py` (host-side decoder catalog) from the canonical file. Generated files committed; CI regenerates and diffs to fail on drift
-- **Firmware send-by-ID helper** — `rurp_log_id(msg_id, param_bytes, param_count)` replaces existing `rurp_log(LOG_*_MSG, char*)`. Eliminates per-call PROGMEM string overhead
-- **Host decoder** — `serial_comm.py` reads ID + param bytes, looks up format + shape in generated catalog, formats for display/logging
-- **Scope: all firmware logs** — every `OK:`, `INIT:`, `MAIN:`, `END:`, `INFO:`, `WARN:`, `ERROR:` message is migrated; only the `DATA:` binary read-payload stream stays untouched
-- **Phased migration** — Phase A: infrastructure (no removals). Phase B: convert error/info call-sites. Phase C: convert state-machine prefixes. Phase D: delete old log macros + measure final flash savings
+**Headline result (LMIG-04):** Leonardo Flash 98.7% (28,292 B) → **85.4% (24,482 B)** — 3,792 B of new headroom on the tightest board. Uno 81.1% → 69.0%. Native tests 20/20 PASS, host pytest 29/29 PASS, hardware-bench verified on Uno + Leonardo with both verbose-mode INFO emits and SERIAL_DEBUG breadcrumb chains.
 
-**Constraints (locked at milestone start):**
-- **Lockstep upgrade**: firmware + host upgrade together; firmware version bump enforces; no fallback to old text format
-- **1-byte IDs**: 0–255 distinct messages
-- **Raw byte array params**: catalog declares each ID's parameter shape; firmware sends bytes, host decodes per shape
-- **English only**: single catalog, no localization plumbing
-- **CI drift gate**: generated files committed to both sub-repos; CI regenerates and asserts no diff
-
-**Out for v1.2** (deferred):
-- `DATA:` binary payload stream — already optimal raw binary; only the prefix marker would change, not worth the protocol-parser churn
-- v1.1 Phase 4 (FM1608 byte-0 hardware bug) — parked; needs different Uno board to unblock; will be resolved in a follow-up patch or folded into v1.2 close
-- v1.1 Phase 5 (milestone close) — happens after v1.2 ships and the FM1608 unblock lands
-- Localization (multi-language catalog)
-- Compressing the `DATA:` prefix or other state-machine framing tokens
+See `.planning/MILESTONES.md` for the full delivery summary. Per-phase artifacts live in `.planning/phases/06-09-*` (and will move under `.planning/milestones/v1.2-phases/` on next cleanup).
 
 ## Vision
 
@@ -131,8 +114,10 @@ on a physical RURP shield is deferred to a v1.1 hardware-test pass.
 | 2026-05-11 | Intel-flash write path ships without pre-pulse VPP ADC compare (REQ-SAF-01 partial — 39 chips affected)                                                                                                                                     | ✓ Resolved (Phase 1 SAF-04) |
 | 2026-05-12 | Phase 1 closes SAF-04 (Intel-flash pre-pulse VPP ADC compare) + SAF-05 (AT28C A9-12V chip-id forward-compat) + SAF-06 (Unity coverage on `[env:native]`). Code review surfaced and fixed a regulator-leak regression on the VPP error path. | ✓ Good   |
 | 2026-05-12 | Phase 2 closes WIRE-01 (atomic `"vpp"`→`"vpp_mv"` wire-key flip), CLEAN-01 (`minipro_complete_db.json`→`chip_database.json` rename + D-04 internal `vpp_volts` rename), CLEAN-02 (minipro attribution scrub: 6→1 host, 2→0 firmware), WIRE-02 (`check_dispatch.py` per-chip wire round-trip: 743/743 PASS). Layered `vpp` semantics: wire=`vpp_mv`(mV int), internal=`vpp_volts`(V float), upstream-schema READ preserved per D-08-compat. Phase 11 packaging-metadata drift also fixed (`pyproject.toml`/`MANIFEST.in` aligned to actual shipping files). | ✓ Good   |
-| 2026-05-18 | v1.1 paused at 80% (Phase 4 hardware-validation in progress, FM1608 byte-0 bug parked) to start v1.2 immediately — Leonardo flash at 98.7% is blocking further firmware iteration, so logging rework jumps the queue. | — Pending |
-| 2026-05-18 | v1.2 wire-format design: 1-byte message IDs + raw parameter byte arrays; catalog declares per-ID parameter shape (e.g. `[u16, u24]`). Firmware/host catalogs both codegenerated from a single canonical source. Generated files committed; CI runs `<regen> && git diff --exit-code` as drift gate. Lockstep upgrade — no backward compat to text-format firmware. | — Pending |
+| 2026-05-18 | v1.1 paused at 80% (Phase 4 hardware-validation in progress, FM1608 byte-0 bug parked) to start v1.2 immediately — Leonardo flash at 98.7% is blocking further firmware iteration, so logging rework jumps the queue. | ✓ Good (decision validated by v1.2 ship at 85.4% Leonardo Flash on 2026-05-19; 3,792 B headroom restored) |
+| 2026-05-18 | v1.2 wire-format design: 1-byte message IDs + raw parameter byte arrays; catalog declares per-ID parameter shape (e.g. `[u16, u24]`). Firmware/host catalogs both codegenerated from a single canonical source. Generated files committed; CI runs `<regen> && git diff --exit-code` as drift gate. Lockstep upgrade — no backward compat to text-format firmware. | ✓ Good (shipped v1.2 with 60 catalog entries + 41 DBG sub_ids; CI drift gate caught zero violations; lockstep upgrade via 3.0.0-dev FW major bump works cleanly) |
+| 2026-05-19 | Post-Phase-9 polish: dropped `MSG_OK_FW_HANDSHAKE` per-command composite (P-04) in favour of plain `MSG_OK_READY` ack + 4 single-purpose INFO emits (FW/HW/PHYSICAL_HW/CMD) for verbose mode. Migrated `EXTRA_INFO_LOGGING` build-flag block to SERIAL_DEBUG-gated `DBG_*` sub_ids so verbose diagnostics ride the existing DEBUG channel. | ✓ Good (cleaner verbose-mode story; production wire-byte savings; bench-verified end-to-end) |
+| 2026-05-19 | v1.2 milestone closed with 4 hardware-pending UAT items deferred (Phase 8 SC#2/SC#3 + Phase 9 Plan 05 Task 3 chip-seated W27C512 UAT + v1.1 fm1608 debug carry-forward). LMIG-04 acceptance number already pinned via autonomous-side Phase 9 measurement; deferred items don't gate v1.2 ship. | ✓ Good (clean decision rationale; bundles for next bench session) |
 
 ## Context
 
@@ -183,4 +168,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last updated: 2026-05-18 — v1.2 Phase 6 (Logging Infrastructure) complete: canonical message catalog + deterministic codegen + firmware `rurp_log_id` helper + host byte-stream decoder + CI drift gates across three repos. Both log paths coexist (LMIG-01). Leonardo Flash unchanged at 98.7% (380 B free) — additive code is linker-dormant until Phase 7 converts call-sites.*
+*Last updated: 2026-05-19 after v1.2 milestone ship — Message-ID Logging Rework shipped. Leonardo Flash 98.7% → 85.4% (3,792 B headroom restored); Uno Flash 81.1% → 69.0%. Firmware 3.0.0-dev enforces lockstep upgrade. 23/23 requirements complete; 4 hardware-pending UAT items deferred (see STATE.md Deferred Items). Next: `/gsd-new-milestone` or close v1.1 leftovers (FM1608, WARNING-4, DOC-01).*
