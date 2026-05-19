@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: — CMOS EPROM Family Hardware Validation
 status: executing
-last_updated: "2026-05-19T21:54:56.559Z"
-last_activity: 2026-05-19 -- Phase 11 planning complete
+last_updated: "2026-05-19T22:30:00.000Z"
+last_activity: 2026-05-19 -- Phase 11 Plan 01 complete (Wave 0 failing-test scaffold)
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 6
-  completed_plans: 0
-  percent: 0
+  completed_plans: 1
+  percent: 17
 ---
 
 # Project State
@@ -20,11 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: Not started (roadmap drafted)
-Plan: —
-Status: Ready to execute
-Resume from: `/gsd-plan-phase 11` to decompose Phase 11 into executable plans
-Last activity: 2026-05-19 -- Phase 11 planning complete
+Phase: 11 (coverage-matrix-db-inconsistency-audit) — EXECUTING
+Plan: 2 of 6 (Plan 01 complete — Wave 0 RED gate landed)
+Status: Executing Phase 11
+Resume from: `/gsd-execute-phase 11` to continue with Plan 11-02 (Wave 1 — tool skeleton + §1 Summary + §2 DB Count Reconciliation)
+Last activity: 2026-05-19 -- Phase 11 Plan 01 complete (firestarter_app@b03bc9b + meta@a4bca09)
 
 ## Project Reference
 
@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-19)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** v1.3 — bench-validating the CMOS EPROM families (algo 0x07 28-pin + algo 0x08 32-pin) that v1.0–v1.2 dispatch logic ships for. End-to-end write/read/verify on Uno + Leonardo for W27C512, SST27SF512, W27C020, W27E040 plus density-tier representatives; structural-coverage report across the ~341 algo-0x07 + algo-0x08 chips in the database.
+**Current focus:** Phase 11 — coverage-matrix-db-inconsistency-audit
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 in planning — roadmap drafted (Phases 11–14), 12/12 requirements mapped
@@ -164,6 +164,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 08 P05 | 45min | 4 tasks | 11 files |
 | Phase 08 P06 | 12min | 2 tasks | 5 files |
 | Phase 08 P07 | 11min | 2 tasks | 14 files |
+| Phase 11 P11-01 | 12min | 1 tasks | 1 files |
 
 ## Decisions
 
@@ -208,3 +209,6 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase 08]: Plan 08-07: LOG_DEBUG_ID_SUB_U16_U16 added for DBG_PULSE_DELAY_MISMATCH (pulse_delay is uint32_t exceeding catalog u8 decl; u16 preserves diagnostic range)
 - [Phase 08]: Plan 08-07: debug_msg_buffer deleted (malloc(80) removed, extern decl removed, Uno rurp_log_id/rurp_log_P SoftwareSerial paths removed); debug_setup() retained for SoftwareSerial port init
 - [Phase 08]: Plan 08-07: Production flash unchanged vs Plan 06 baseline — debug() was already a #define no-op in production; new LOG_DEBUG_ID_SUB* expands to same nothing
+- [Phase 11]: Plan 11-01: Wave 0 RED-gate scaffold uses NotImplementedError after deferred import (not pytest.fail) — single failure-mode story across Wave 0 → Wave N transition (ModuleNotFoundError today, NotImplementedError once Wave 1 creates the tool module).
+- [Phase 11]: Plan 11-01: Class-based pytest organisation chosen over module-level functions to mirror test_fwguard.py:31-42 — class boundary is the natural scope for the autouse _isolate_env fixture that clears FIRESTARTER_DB_FILE per test.
+- [Phase 11]: Plan 11-01: Each stub docstring quotes BOTH requirement IDs (COV-01/COV-02/SC-03) AND decision IDs (D-02/D-03/D-06/D-07/D-09/D-10/D-11/D-12/D-13/D-15) — trace test → contract → CONTEXT.md walkable without re-reading PLAN.md.

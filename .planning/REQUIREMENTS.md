@@ -64,8 +64,8 @@ Each requirement maps to exactly one phase. Coverage: 12/12 ✓.
 | BENCH-06 | Phase 13 | TBD | Not started |
 | PROTO-01 | Phase 12 (observation protocol carried forward into Phase 13) | TBD | Not started |
 | PROTO-02 | Phase 12 (observation protocol carried forward into Phase 13) | TBD | Not started |
-| COV-01 | Phase 11 | TBD | Not started |
-| COV-02 | Phase 11 | TBD | Not started |
+| COV-01 | Phase 11 | Plans 11-01..11-05 | In progress (Plan 11-01 Wave 0 scaffold ✅; Waves 1-4 implement) |
+| COV-02 | Phase 11 | Plans 11-01, 11-04 | In progress (Plan 11-01 Wave 0 scaffold ✅; Wave 3 implements §4 + ledger) |
 | DOC-01 | Phase 14 | TBD | Not started |
 | DOC-02 | Phase 14 | TBD | Not started |
 
