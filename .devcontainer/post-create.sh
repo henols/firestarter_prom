@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
 set -e
 
+echo "=== Generating platformio.ini wrapper ==="
+python3 /workspaces/.devcontainer/gen-platformio-ini.py
+
 echo "=== Installing Python CLI (dev mode) ==="
-cd firestarter_app
-pip install -e .
-cd ..
+pip install -e /workspaces/firestarter_app
 
 echo "=== Initialising PlatformIO project dependencies ==="
-cd firestarter
-pio pkg install
-cd ..
+cd /workspaces/firestarter && pio pkg install
 
 echo "=== Done ==="

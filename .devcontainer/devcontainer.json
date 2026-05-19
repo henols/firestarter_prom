@@ -4,11 +4,21 @@
     "dockerfile": "Dockerfile"
   },
 
+  // Mount the repo root directly at /workspaces (not /workspaces/firestarter_prom)
+  // so firestarter/ and firestarter_app/ are top-level in the container.
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces,type=bind,consistency=cached",
+
   // Privileged + /dev mount needed for serial port access to Arduino hardware.
   // Remove both if you only need to build and not flash/test against hardware.
   "runArgs": ["--privileged"],
   "mounts": [
-    "source=/dev,target=/dev,type=bind,consistency=cached"
+    "source=/dev,target=/dev,type=bind,consistency=cached",
+    // Named volumes — survive container rebuilds (Dockerfile changes, "Rebuild Container")
+    "source=firestarter-platformio,target=/home/vscode/.platformio,type=volume",
+    "source=firestarter-config,target=/home/vscode/.config,type=volume",
+    "source=firestarter-pip-cache,target=/home/vscode/.cache/pip,type=volume",
+    // Claude Code auth + session state lives in ~/.claude, not ~/.config
+    "source=firestarter-claude,target=/home/vscode/.claude,type=volume"
   ],
 
   "customizations": {
@@ -17,17 +27,31 @@
         "ms-python.python",
         "ms-python.pylint",
         "ms-python.black-formatter",
-        "platformio.platformio-ide"
+        "platformio.platformio-ide",
+        "anthropic.claude-code"
       ],
       "settings": {
         "python.defaultInterpreterPath": "/usr/local/bin/python",
         "editor.formatOnSave": true,
         "[python]": {
           "editor.defaultFormatter": "ms-python.black-formatter"
+        },
+        "remote.extensionKind": {
+          "anthropic.claude-code": ["workspace"]
         }
       }
     }
   },
 
-  "postCreateCommand": "cd /workspaces/firestarter_prom && bash .devcontainer/post-create.sh"
+  // ~/.local/bin is where pip installs user scripts (firestarter CLI entry point)
+  "remoteEnv": {
+    "PATH": "${containerEnv:PATH}:/home/vscode/.local/bin"
+  },
+
+  // Opens the repo root so all of firestarter_prom is visible at the top level (firestarter/,
+  // firestarter_app/, .planning/, etc). PlatformIO IDE finds platformio.ini at this root
+  // (the wrapper that maps into firestarter/).
+  "workspaceFolder": "/workspaces",
+
+  "postCreateCommand": "bash /workspaces/.devcontainer/post-create.sh"
 }
