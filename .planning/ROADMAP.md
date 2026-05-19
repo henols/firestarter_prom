@@ -97,11 +97,11 @@
   4. `pio run -e leonardo` reports Flash usage **below 90%** with measurable headroom vs the v1.1 baseline of 98.7% — the exact percentage is recorded in the phase verification artifact (e.g. `Leonardo Flash: X% (Y bytes free), down from 98.7%`).
   5. `pio run -e uno` also reports the new Flash usage, recorded alongside the Leonardo number for the milestone-close comparison.
 **Plans**: 5 plans
-- [ ] 09-01-PLAN.md — dev_tools.cpp send_ack("") → LOG_OK_ID(MSG_OK_READY) precondition (Wave 1, D-04)
-- [ ] 09-02-PLAN.md — Atomic legacy deletion (logging.h/.c, rurp_log*, _firestarter_log_*, debug_setup/log_debug, SoftwareSerial) + LFW-05 inline + version bump 3.0.0-dev (Wave 2, D-01+D-02+D-06)
-- [ ] 09-03-PLAN.md — Host comment refresh for FIRESTARTER_DEV_ALLOW_PRE_V12 (Wave 2 parallel)
-- [ ] 09-04-PLAN.md — host_stubs_common.inc trim (Wave 3, D-03)
-- [ ] 09-05-PLAN.md — 09-MEASUREMENT.md + bench wire matrix re-run + Phase 8 SC#2/SC#3 chip-seated UAT carry-over (Wave 4, non-autonomous)
+- [x] 09-01-PLAN.md — dev_tools.cpp send_ack("") → LOG_OK_ID(MSG_OK_READY) precondition (Wave 1, D-04)
+- [x] 09-02-PLAN.md — Atomic legacy deletion (logging.h/.c, rurp_log*, _firestarter_log_*, debug_setup/log_debug, SoftwareSerial) + LFW-05 inline + version bump 3.0.0-dev (Wave 2, D-01+D-02+D-06)
+- [x] 09-03-PLAN.md — Host comment refresh for FIRESTARTER_DEV_ALLOW_PRE_V12 (Wave 2 parallel)
+- [x] 09-04-PLAN.md — host_stubs_common.inc trim (Wave 3, D-03)
+- [x] 09-05-PLAN.md — 09-MEASUREMENT.md + bench wire matrix re-run + Phase 8 SC#2/SC#3 chip-seated UAT carry-over (Wave 4, non-autonomous)
 
 #### Phase 10: Milestone Close (v1.2)
 **Goal**: The v1.2 milestone is formally recorded in `.planning/MILESTONES.md` using the same Key Accomplishments / Stats / Key Decisions / Known Gaps structure as the v1.0 + v1.1 entries, with a dedicated Flash-Savings comparison sub-section that pins the v1.1 baseline (98.7% Leonardo) against the v1.2 post-Phase-9 measurement. PROJECT.md is updated to reflect v1.2 shipped, and any carried-forward v1.1 leftover items are re-listed cleanly in STATE.md for the next milestone slot.
