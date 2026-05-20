@@ -41,6 +41,26 @@ from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
 ## Roadmap Summary
 
+**v1.5 phases:** 5 (numbered 21-25, continues from v1.4 last phase 20). Granularity: Standard.
+
+| Phase | Goal | Requirements |
+|-------|------|--------------|
+| 21. Firmware Target — `uno328pb` | `pio run -e uno328pb` builds clean; `boards/uno328pb.json` declares ATmega328PB MCU + Arduino-Uno-compatible pin mapping; firmware handshake reports `uno328pb`; `pio test -e native` stays green | FW-01, FW-02, FW-03, FW-04 |
+| 22. Release Pipeline Artifacts | Stable (`build.yml`) + beta (`beta-build.yml`) workflows emit `firestarter_uno328pb.hex` as a third per-board artifact; existing `firestarter_uno.hex` + `firestarter_leonardo.hex` byte-identical | REL-01, REL-02 |
+| 23. Host CLI Installer Integration | `firestarter fw -i`/`--pre`/`firmware list` flow through existing v1.4 board-driven asset resolution cleanly for `uno328pb`-reporting devices; allowlist + regression test added; GATE-01 non-regression verified on `uno`/`leonardo` | INST-01, INST-02, INST-03, GATE-01 |
+| 24. Bench Validation on 328PB-Uno | Cut v1.5 beta pre-release, flash 328PB-Uno via `firestarter fw -i --pre`, run write→read→verify on representative EPROM (W27C512 default); `.planning/v1.5-BENCH-RESULTS.md` row captured | BENCH-01, BENCH-02 |
+| 25. Documentation + Milestone Close | README updates (firmware + app), release-procedures three-board matrix, MILESTONES.md entry, archive `.planning/milestones/v1.5-phases/`, PROJECT.md shipped update | DOC-01, DOC-02, MS-01 |
+
+**Coverage:** 15/15 v1.5 requirements mapped to exactly one phase. No orphans, no duplicates.
+
+**Phase-order rationale:** Firmware target → release artifacts → host CLI → bench validation → docs + close. Phases 21–23 + 25 desk-side; Phase 24 is the only operator-on-bench phase (and the operator confirmed the 328PB-Uno + RURP shield is plugged in, so v1.5 is not hardware-gated the way v1.3 is).
+
+Full details: `.planning/ROADMAP.md` (v1.5 section).
+
+### v1.4 phases (archived — preserved for reference)
+
+`.planning/ROADMAP.md` retains the v1.4 section (Phases 15-20, shipped 2026-05-20) under the Prior Milestones collapsible. Per-phase artifacts archived at `.planning/milestones/v1.4-phases/`.
+
 **v1.4 phases:** 6 (numbered 15-20, continues from v1.3 last phase 14; Phase 18 inserted 2026-05-20, old 18/19 renumbered to 19/20). Granularity: Standard.
 
 | Phase | Goal | Requirements |

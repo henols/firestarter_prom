@@ -7,6 +7,119 @@
 - ✅ **v1.2 Message-ID Logging Rework** — Phases 6-10 (shipped 2026-05-19); Phase 10 closed by `/gsd-complete-milestone` (DOC-02)
 - ⏸ **v1.3 CMOS EPROM Family Hardware Validation** — Phases 11-14 (PAUSED 2026-05-20, hardware-gated). Phase 11 shipped + Phase 12 Wave 0 scaffold committed; Plans 12-01/02/03 + Phases 13/14 await operator bench hardware.
 - ✅ **v1.4 Beta & Pre-release Deployment Pipeline** — Phases 15-20 (shipped 2026-05-20; ship tag `3.0.0b3` in both sub-repos; hardware-flash validated on Uno + Leonardo). Parallel beta channel for both sub-repos without disrupting the stable main → release pipeline.
+- 🚧 **v1.5 Arduino Uno (ATmega328PB) Board Support** — Phases 21-25 (STARTED 2026-05-20). `uno328pb` as a third first-class firmware target alongside `uno` + `leonardo`; operator's 328PB-Uno + RURP shield available for bench validation; work branches off `beta` in both sub-repos.
+
+## v1.5 — Arduino Uno (ATmega328PB) Board Support (STARTED 2026-05-20)
+
+**Milestone goal:** Ship `uno328pb` as a third first-class firmware target alongside the existing `uno` and `leonardo`. End-to-end coverage: PlatformIO env + custom board definition → firmware handshake reports `uno328pb` → stable + beta release pipelines emit a third per-board `.hex` artifact (`firestarter_uno328pb.hex`) → host CLI's `firestarter fw -i` flashes the right artifact when the device reports `uno328pb` → bench-validated EPROM write → read-back → verify cycle on the operator's plugged-in 328PB-Uno + RURP shield. **This is a surgical MCU port; algorithm dispatch, wire protocol, chip database, host CLI verbs are unchanged.**
+
+**Status:** 🚧 In progress 2026-05-20. Sub-repo work branches will be cut from `beta` (current tip 5fd751e in both sub-repos as of milestone start) per operator instruction. Meta-repo `.planning/` work proceeds on `main`.
+
+**Granularity:** Standard. Five phases, 13 requirements, each mapped to exactly one phase.
+**Phase numbering:** Phases 21–25 (continues from v1.4 close at Phase 20).
+
+### Structural Notes
+
+- **Sub-repo branching.** Per operator instruction, both `firestarter/` and `firestarter_app/` cut working branches off `beta`. The v1.4 substrate already supports a per-board artifact matrix; v1.5 just widens it from 2 → 3 boards. First v1.5 pre-release version cut from `beta` after Phases 21–23 are green; promotion `beta` → `main` follows the v1.4 beta→stable pattern only after the Phase 24 bench-green.
+- **Desk-side vs. operator-bench split.** Phases 21 (firmware target), 22 (release pipelines), 23 (host CLI integration), 25 (docs + milestone close) are desk-side and can land without the 328PB-Uno in hand. Phase 24 is the only operator-on-bench phase — it requires the 328PB-Uno + RURP shield + an EPROM in the socket to validate the port on real silicon. The operator confirmed the hardware is available, so v1.5 is *not* hardware-gated in the way v1.3 is.
+- **Board-ID = artifact-name = handshake-string (consistent triple).** `board = uno328pb` in `[env:uno328pb]` → `name_firmware.py` emits `firestarter_uno328pb.hex` → `RURP_BOARD_NAME=\"uno328pb\"` build flag → firmware handshake reports `uno328pb` → host `firmware.py:fetch_latest_release_info` resolves `firestarter_{board}.hex` → installer downloads `firestarter_uno328pb.hex`. The triple makes the host code path zero-change for the install-by-board-name flow; v1.5 host work is one allowlist entry + one regression test, not a board-name translation table.
+- **GATE-1.5 (non-regression).** `firestarter_uno.hex` + `firestarter_leonardo.hex` byte-identical to pre-v1.5 outputs (modulo version-string drift); stable-installed app's `firestarter fw -i` on `uno`/`leonardo`-reporting devices unchanged. Verified at Phase 22 (release pipeline) and Phase 23 (host CLI).
+- **Branch tip baseline.** Both sub-repos at `beta` tip `5fd751e` (2026-05-20). Last commit message: `chore: ignore __pycache__/*.pyc + untrack accidentally-committed bytecode`. Meta-repo at `main` tip `9839eca` (v1.5 requirements commit).
+
+### Phases
+
+- [ ] **Phase 21: Firmware Target — `uno328pb`** — PlatformIO env + custom board file + handshake-name plumbing + native test green. Desk-side. (FW-01, FW-02, FW-03, FW-04)
+- [ ] **Phase 22: Release Pipeline Artifacts** — Stable + beta workflows emit `firestarter_uno328pb.hex` as a third per-board artifact; existing two artifacts unchanged. Desk-side / CI-side. (REL-01, REL-02)
+- [ ] **Phase 23: Host CLI Installer Integration** — Confirm `firestarter fw -i`/`--pre`/`firmware list` work for `uno328pb`-reporting devices; add any allowlist entry + regression test; verify GATE-01 non-regression on existing boards. Desk-side. (INST-01, INST-02, INST-03, GATE-01)
+- [ ] **Phase 24: Bench Validation on 328PB-Uno** — Operator-on-bench cycle: cut a v1.5 beta pre-release, flash 328PB-Uno via `firestarter fw -i --pre`, run write→read→verify on a representative EPROM (W27C512 default). Capture `.planning/v1.5-BENCH-RESULTS.md`. (BENCH-01, BENCH-02)
+- [ ] **Phase 25: Documentation + Milestone Close** — README updates (firmware + app), release-procedures update for three-board matrix, MILESTONES.md entry, archive v1.5 phase directories, update PROJECT.md to "shipped". (DOC-01, DOC-02, MS-01)
+
+### Phase Details
+
+#### Phase 21: Firmware Target — `uno328pb`
+**Goal:** A clean `pio run -e uno328pb` build that emits `firestarter_uno328pb.hex` and a firmware that, when handshaken, reports its board as the literal string `uno328pb`. Native dispatch + messages tests green.
+**Depends on:** Nothing (desk-side; no operator hardware needed for build/handshake-string validation). Can land before Phase 22 even sees the artifact.
+**Requirements:** FW-01, FW-02, FW-03, FW-04
+**Success Criteria** (what must be TRUE):
+  1. `pio run -e uno328pb` from a clean checkout of `firestarter/beta` produces `.pio/build/uno328pb/firestarter_uno328pb.hex` with no errors and no new warnings (vs. the `uno`/`leonardo` baseline).
+  2. The PlatformIO board file `firestarter/boards/uno328pb.json` exists, declares `mcu = atmega328pb`, declares an Arduino-Uno-compatible pin mapping (no PE0–PE3 use), and is loaded by `[env:uno328pb]` via `board = uno328pb`. `env.GetProjectOption("board")` returns the literal string `uno328pb` (validated by adding a `pre:name_firmware.py` print or by observing the artifact filename).
+  3. `platformio.ini` has a new `[env:uno328pb]` section with `platform = MCUdude/MiniCore`, `board = uno328pb`, `framework = arduino`, and `build_flags` carrying `${env.build_flags}` + `-D RURP_BOARD_NAME=\"uno328pb\"` (+ `DATA_BUFFER_SIZE=512` if explicit is preferred; matches `uno`).
+  4. Firmware emits the literal string `uno328pb` in the `<board>` slot of the `MSG_OK_FW_HANDSHAKE` payload — verifiable by linking against an existing native test harness or, if not host-testable, by static analysis of the build's `.elf` symbol section showing `RURP_BOARD_NAME` resolves to `"uno328pb"`.
+  5. `pio test -e native` from the same checkout completes with `test_dispatch` and `test_messages` suites both green — the new env addition must not regress the host-side native suite.
+
+#### Phase 22: Release Pipeline Artifacts
+**Goal:** Both the stable workflow (`build.yml`) and the beta workflow (`beta-build.yml`) emit `firestarter_uno328pb.hex` as a third per-board release artifact alongside `firestarter_uno.hex` and `firestarter_leonardo.hex`, without altering the existing two artifacts' byte content (modulo version-string drift).
+**Depends on:** Phase 21 (the artifact must exist on disk before the release upload step can attach it).
+**Requirements:** REL-01, REL-02
+**Success Criteria** (what must be TRUE):
+  1. `platformio.ini` `default_envs = uno, leonardo, uno328pb` so a CI-side `pio run` builds all three targets. (Or the workflow explicitly invokes each env — whichever pattern matches the existing CI shape with the smaller diff.)
+  2. `build.yml` Release step's `files:` glob (`/.pio/build/**/firestarter_*.hex`) catches `firestarter_uno328pb.hex` end-to-end on a stable cut from `firestarter/main`. After a stable cut, the GitHub Release asset list shows three `.hex` files.
+  3. `beta-build.yml` Release step's `files:` glob likewise catches `firestarter_uno328pb.hex` on a beta cut from `firestarter/beta`. After a beta cut, the GitHub Pre-release asset list shows three `.hex` files; `prerelease: true` and `make_latest: false` unchanged.
+  4. `firestarter_uno.hex` and `firestarter_leonardo.hex` from a v1.5 cut are byte-identical to a pre-v1.5 cut of the same source revision (modulo version-string drift from `update_version.py`). Verified by `diff` against the v1.4 ship-tag (3.0.0b3) artifacts.
+  5. No new mandatory CI checks are added; existing catalog-validity + codegen-drift + native Unity + PIO build gates run unchanged.
+
+#### Phase 23: Host CLI Installer Integration
+**Goal:** `firestarter fw -i`, `firestarter fw -i --pre`, and `firestarter firmware list` flow through the existing v1.4 board-driven asset-resolution path cleanly when the connected device's firmware handshake reports `uno328pb`. Any allowlist entry needed (e.g. in `avr_tool.py` upload profile or `constants.py` enum) is added; a regression test exercises the `uno328pb`-reporting code path.
+**Depends on:** Phase 22 (the host integration test downloads a real `uno328pb` asset; pre-Phase-22 there is no asset to download — though unit tests with mocked GitHub API can land in parallel with Phase 22).
+**Requirements:** INST-01, INST-02, INST-03, GATE-01
+**Success Criteria** (what must be TRUE):
+  1. With a `uno328pb`-reporting firmware connected (or simulated via the existing serial mock used in `tests/test_firmware*.py`), `firestarter fw -i` resolves the latest stable release's `firestarter_uno328pb.hex` asset URL via `fetch_latest_release_info(board="uno328pb")` and `avr_tool.py` flashes it with a 328PB-compatible upload profile.
+  2. `firestarter fw -i --pre` likewise resolves the highest PEP 440 pre-release's `firestarter_uno328pb.hex` asset URL and flashes it.
+  3. `firestarter firmware list [--all|--pre|--stable]` enumerates `uno328pb` releases when a 328PB device is connected, with the same plain-text/JSON table shape as for `uno`/`leonardo`.
+  4. A new pytest case (or extension of an existing one in `firestarter_app/tests/`) covers the `uno328pb`-reporting code path end-to-end with mocked GitHub responses; existing `uno`/`leonardo` test cases remain green.
+  5. With a `uno`-reporting or `leonardo`-reporting firmware connected, `firestarter fw -i` and `firestarter fw -i --pre` flash the matching `.hex` artifact with byte-identical behavior to pre-v1.5 (GATE-01 non-regression).
+
+#### Phase 24: Bench Validation on 328PB-Uno
+**Goal:** Operator-on-bench session: cut a v1.5 beta pre-release in `firestarter/beta` (and matching app pre-release in `firestarter_app/beta` per v1.4 locked-step procedure), flash the operator's plugged-in 328PB-Uno via `firestarter fw -i --pre`, then run a real `write → read → verify` cycle on at least one representative EPROM in the operator's chip kit (default W27C512). Capture `.planning/v1.5-BENCH-RESULTS.md`.
+**Depends on:** Phases 21, 22, 23 (all desk-side foundations must be green before a beta cut is meaningful).
+**Requirements:** BENCH-01, BENCH-02
+**Success Criteria** (what must be TRUE):
+  1. A v1.5 beta pre-release exists in both sub-repos (matching version strings per v1.4 VER-03 locked-step). Firmware pre-release asset list carries three `.hex` files including `firestarter_uno328pb.hex`.
+  2. Operator runs `firestarter fw -i --pre` connected to the 328PB-Uno + RURP shield. Host installs the matching `firestarter_uno328pb.hex` from the pre-release asset, `avr_tool.py` reports a clean flash, and the device reboots into the v1.5 firmware. Post-flash handshake reports the v1.5 version and `board: uno328pb`.
+  3. Operator runs `firestarter write <chip>` on an EPROM in the socket (default W27C512 — substitute from operator's kit if necessary). Write completes without error; `firestarter read <chip>` returns byte-identical data; `firestarter verify <chip>` reports PASS.
+  4. VPP regulator engages at the expected millivolts for the chip's algorithm (per existing firmware behavior — same value as on the regular `uno` for the same chip).
+  5. Bench results captured as a row in `.planning/v1.5-BENCH-RESULTS.md` (skeleton committed by Phase 24's planning work; row appended by the bench session).
+
+#### Phase 25: Documentation + Milestone Close
+**Goal:** `firestarter/README.md` + `firestarter_app/README.md` both mention the third supported board with install-by-handshake guidance. Meta-repo `v1.4-RELEASE-PROCEDURES.md` (or the renamed v1.5 successor) lists three boards in the release-engineer per-board verification step. v1.5 ships: `MILESTONES.md` entry, phase directories archived under `.planning/milestones/v1.5-phases/`, `PROJECT.md` updated to "shipped".
+**Depends on:** Phase 24 (you document what you built and what you've validated — the docs lock the substrate after bench-green).
+**Requirements:** DOC-01, DOC-02, MS-01
+**Success Criteria** (what must be TRUE):
+  1. Firmware README and app README each have a paragraph in the supported-boards / hardware section describing `uno328pb` (name, MCU, how host detects it, where to find the `.hex` on GitHub Releases).
+  2. Meta-repo release-procedures doc lists three per-board verification steps (one per `.hex` artifact), with `uno328pb` added alongside the existing `uno` and `leonardo` checks. Locked-step procedure unchanged.
+  3. `MILESTONES.md` grows a v1.5 entry with the standard sections (delivery summary, key accomplishments, stats, key decisions, known gaps).
+  4. `.planning/v1.5-archive.sh` exists and successfully moves `.planning/phases/21-*/` through `25-*/` into `.planning/milestones/v1.5-phases/`. Phase dirs cleared from `.planning/phases/`.
+  5. `.planning/PROJECT.md` updated: v1.5 marked shipped with date, current-milestone section retired (or replaced by a "next milestone TBD" placeholder).
+
+### v1.5 Coverage
+
+| REQ-ID | Phase |
+|--------|-------|
+| FW-01 | Phase 21 |
+| FW-02 | Phase 21 |
+| FW-03 | Phase 21 |
+| FW-04 | Phase 21 |
+| REL-01 | Phase 22 |
+| REL-02 | Phase 22 |
+| INST-01 | Phase 23 |
+| INST-02 | Phase 23 |
+| INST-03 | Phase 23 |
+| GATE-01 | Phase 23 |
+| BENCH-01 | Phase 24 |
+| BENCH-02 | Phase 24 |
+| DOC-01 | Phase 25 |
+| DOC-02 | Phase 25 |
+| MS-01 | Phase 25 |
+
+**Mapped: 15/15 requirements ✓** — no orphans, no duplicates. (REQUIREMENTS.md groups GATE under its own category; this table tracks it under Phase 23 since the host-side regression is where the gate is actively verified. Total checkbox items in REQUIREMENTS.md = 15: FW×4 + REL×2 + INST×3 + GATE×1 + BENCH×2 + DOC×2 + MS×1.)
+
+### Phase-order rationale
+
+- **Phase 21 first** — firmware target foundation. No release artifact, no host install, no bench session is meaningful without a buildable `firestarter_uno328pb.hex` and a handshake-reporting firmware. Desk-side; lowest-risk start.
+- **Phase 22 second** — release pipelines pick up the artifact once Phase 21 produces it. Desk-side / CI-side; verifies via a real stable + beta cut that the GitHub Release asset list grows from 2 → 3 entries.
+- **Phase 23 third** — host CLI integration. Sequential (not parallel) with Phase 22 because the integration test downloads a real `uno328pb.hex` from a beta pre-release — pre-Phase-22 the asset doesn't exist. Unit-test work with mocked GitHub responses can land earlier in parallel if useful, but the green gate is post-Phase-22.
+- **Phase 24 fourth (operator-on-bench)** — only meaningful after Phases 21–23 are green. Cut a v1.5 beta pre-release per the v1.4 locked-step procedure, then flash + bench. This is the only hardware-gated phase; the operator confirmed the 328PB-Uno is plugged in so it's not a milestone-blocker the way v1.3's hardware gap is.
+- **Phase 25 last** — document what was built and bench-validated; close. Follows the v1.4 milestone-close shape (READMEs + RELEASE-PROCEDURES + MILESTONES.md + archive + PROJECT.md update).
 
 ## v1.3 — CMOS EPROM Family Hardware Validation (PAUSED 2026-05-20)
 

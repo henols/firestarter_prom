@@ -78,4 +78,22 @@ Captured here so they don't get lost; not in v1.5 scope.
 
 ## Traceability
 
-Filled in by the roadmap. See `.planning/ROADMAP.md` v1.5 section for the phase ↔ REQ-ID mapping.
+| REQ-ID | Category | Phase |
+|--------|----------|-------|
+| FW-01 | FW | Phase 21 — Firmware Target — `uno328pb` |
+| FW-02 | FW | Phase 21 — Firmware Target — `uno328pb` |
+| FW-03 | FW | Phase 21 — Firmware Target — `uno328pb` |
+| FW-04 | FW | Phase 21 — Firmware Target — `uno328pb` |
+| REL-01 | REL | Phase 22 — Release Pipeline Artifacts |
+| REL-02 | REL | Phase 22 — Release Pipeline Artifacts |
+| INST-01 | INST | Phase 23 — Host CLI Installer Integration |
+| INST-02 | INST | Phase 23 — Host CLI Installer Integration |
+| INST-03 | INST | Phase 23 — Host CLI Installer Integration |
+| GATE-01 | GATE | Phase 23 — Host CLI Installer Integration |
+| BENCH-01 | BENCH | Phase 24 — Bench Validation on 328PB-Uno |
+| BENCH-02 | BENCH | Phase 24 — Bench Validation on 328PB-Uno |
+| DOC-01 | DOC | Phase 25 — Documentation + Milestone Close |
+| DOC-02 | DOC | Phase 25 — Documentation + Milestone Close |
+| MS-01 | MS | Phase 25 — Documentation + Milestone Close |
+
+**Coverage:** 15/15 requirements mapped to exactly one phase. No orphans, no duplicates. See `.planning/ROADMAP.md` v1.5 section for full per-phase detail.
