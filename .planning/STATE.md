@@ -2,7 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: — CMOS EPROM Family Hardware Validation
-status: executing
+status: paused-hardware-gated
+paused_at: 2026-05-20
+paused_reason: Operator does not have bench hardware available; v1.3 bench plans (12-01, 12-02, 12-03 + all of Phase 13) require Uno + Leonardo + RURP shield + scope + chips. Phase 11 (desk-side coverage matrix) is complete; Phase 12 Wave 0 scaffold is committed and append-ready for the eventual bench session.
 last_updated: "2026-05-20T07:57:47.278Z"
 last_activity: 2026-05-20
 progress:
@@ -20,11 +22,12 @@ progress:
 
 ## Current Position
 
-Phase: 12 (28-pin-algo-0x07-bench-validation) — EXECUTING
-Plan: 2 of 4 (Wave 0 — Plan 12-04 scaffold — complete; Wave 1 — Plan 12-01 BENCH-01 W27C512 — next, operator-on-bench)
-Status: Wave 0 complete; awaiting operator for Wave 1 (bench session)
-Resume from: `/gsd-execute-plan 12 12-01` once the W27C512 + Uno + Leonardo + RURP shield + scope are on the bench. Wave 0 scaffold (`.planning/v1.3-BENCH-RESULTS.md`, `.planning/v1.3/bench-logs/`, `.planning/v1.3/scope/`) is in place — Plan 12-01 appends rows + drops log/photo files without re-creating any scaffold.
-Last activity: 2026-05-20 -- Phase 12 Plan 12-04 scaffold landed (Wave 0 complete)
+Milestone: v1.3 — **PAUSED (hardware-gated)**
+Phase: 12 (28-pin-algo-0x07-bench-validation) — Wave 0 complete; Waves 1–3 blocked on hardware
+Active milestone: see top-of-file frontmatter once the new milestone is initialized (will replace v1.3 as the active milestone for new work).
+Status: v1.3 paused at the autonomous/hardware boundary 2026-05-20. Phase 11 shipped clean (coverage matrix + defect ledger + all-algorithms wide-scan extension). Phase 12 Plan 12-04 (desk-side scaffold) shipped. Plans 12-01/02/03 (BENCH-01/02/05) + entire Phase 13 + Phase 14 milestone-close cannot start without hardware (Uno + Leonardo + RURP shield + DIP-28 socket + scope + W27C512/SST27SF512/W27C257 chips).
+Resume v1.3 from: `/gsd-execute-phase 12 --wave 1 --interactive` once the bench hardware is available. `.planning/v1.3-BENCH-RESULTS.md` skeleton + `.planning/v1.3/bench-logs/` + `.planning/v1.3/scope/` are committed and append-ready — Plan 12-01 appends rows + drops log/photo files without re-creating any scaffold.
+Last activity: 2026-05-20 -- v1.3 paused (hardware-gated); preparing new milestone for software-only work
 
 ## Project Reference
 
