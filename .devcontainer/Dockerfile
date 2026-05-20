@@ -4,6 +4,7 @@ FROM mcr.microsoft.com/devcontainers/python:3.12
 RUN apt-get update && apt-get install -y --no-install-recommends \
         udev \
         libusb-1.0-0 \
+        avrdude \
     && rm -rf /var/lib/apt/lists/*
 
 # Add vscode user to dialout for serial port access
