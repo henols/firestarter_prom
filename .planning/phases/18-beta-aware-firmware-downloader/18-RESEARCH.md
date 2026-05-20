@@ -824,7 +824,7 @@ Each class uses an `autouse` fixture (`_isolate_env`) following the `test_update
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **`--list` channel filter flags (`--pre` / `--stable` for list filtering)**
 
@@ -832,7 +832,7 @@ Each class uses an `autouse` fixture (`_isolate_env`) following the `test_update
 
    What's unclear: Whether `--stable` and `--all` need to be added as new boolean flags, or whether the interpretation of `--pre` within `--list` context is sufficient.
 
-   Recommendation: Add `--stable` as a new boolean flag. When `args.list` is True, interpret `--pre` as "filter to pre-releases" and `--stable` as "filter to stable". No `--all` flag needed — it's the default when neither `--pre` nor `--stable` is set. This requires no third mutex group. The planner should make the final call here.
+   **RESOLVED (revision iteration 1, 2026-05-20):** `--stable` added to the EXISTING `channel_group` as a third member (3-way argparse-native mutex with `--pre` and `--firmware-version`). `--pre` serves dual purpose (install pre-release context AND `--list` filter to pre-releases); `--stable` is install-context redundant ("stay on stable") and list-context filter; `--all` flag dropped (it's the implicit default when no channel flag is set). Implementation: Plan 18-02 Task 2 Step B `channel_group.add_argument` × 3. Cross-checked by Plan 18-01 TestArgparseMutex pairwise mutex tests (`test_pre_and_firmware_version_mutex`, `test_pre_and_stable_mutex`, `test_firmware_version_and_stable_mutex`).
 
 2. **`fw_parser` scope in dispatch**
 
@@ -840,7 +840,7 @@ Each class uses an `autouse` fixture (`_isolate_env`) following the `test_update
 
    What's unclear: Whether the planner prefers returning `fw_parser` from `create_firmware_args`, or using a module-level variable, or just using `parser.error(msg)` (top-level parser reference also works for post-parse errors).
 
-   Recommendation: Change `create_firmware_args` to return `fw_parser`. Low-risk change; all other `create_*_args` functions could stay as-is since only `fw` needs the post-parse check.
+   **RESOLVED (revision iteration 1, 2026-05-20):** `create_firmware_args` now returns `fw_parser`. Call site captures: `fw_parser = create_firmware_args(subparsers)`. Used in dispatch for `fw_parser.error("--json requires --list")` post-parse validation. All other `create_*_args` functions retain their existing void-return signatures (no callsite changes elsewhere). Implementation: Plan 18-02 Task 2 Step B.
 
 ---
 
