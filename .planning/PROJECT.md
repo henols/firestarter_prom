@@ -4,26 +4,40 @@
 **v1.0 shipped:** 2026-05-11
 **v1.1 status:** Parked at 80% (Phase 4 hardware-validation open — FM1608 byte-0 bug requires a different Uno board to unblock; see `.planning/debug/fm1608-fresh-chip-baseline.md`)
 **v1.2 shipped:** 2026-05-19 (Message-ID Logging Rework — Leonardo Flash 98.7% → 85.4%, firmware 3.0.0-dev)
-**Active milestone:** v1.3 — CMOS EPROM Family Hardware Validation (started 2026-05-19)
+**v1.3 status:** Paused 2026-05-20 (hardware-gated — Phase 11 coverage matrix shipped + Phase 12 Wave 0 scaffold committed; bench plans 12-01/02/03 + Phase 13 + Phase 14 await operator hardware. Resume: `/gsd-execute-phase 12 --wave 1 --interactive`)
+**Active milestone:** v1.4 — Beta & Pre-release Deployment Pipeline (started 2026-05-20)
 
-## Current Milestone: v1.3 CMOS EPROM Family Hardware Validation
+## Current Milestone: v1.4 Beta & Pre-release Deployment Pipeline
 
-**Goal:** Confirm — on real silicon, on both Uno and Leonardo — that the algorithm-0x07 (28-pin) and algorithm-0x08 (32-pin) CMOS EPROM families that v1.0–v1.2 ship dispatch logic for actually program, read back, and verify cleanly across the full density range.
+**Goal:** Enable parallel beta / pre-release deployment of both firestarter firmware (`.hex` artifacts via GitHub Pre-release) and firestarter_app (PyPI pre-release versions installable via `pip install --pre firestarter`), without disrupting the stable main-branch pipeline. App and firmware ship locked-step (matching version numbers as a coordinated pair).
 
 **Target features:**
-- End-to-end bench validation (write → read → verify → blank-check → chip-ID) for the four named chips — W27C512, SST27SF512, W27C020, W27E040 — on Uno + Leonardo.
-- Density-extreme bench coverage: one 28-pin lower-density representative (e.g. W27C257 / SST27SF256) + one 32-pin lower-density representative (e.g. W27C010 / SST27SF010) so the full 32K → 512K span is exercised.
-- Structural-coverage report across all 339 algorithm-0x07 + algorithm-0x08 chips in the database (which chips share which DB row, pulse-duration profile, chip-id check status, pinout class).
-- VPP regulator + chip-ID read + pulse-duration breadcrumbs verified in the field via SERIAL_DEBUG against bench scope observations.
-- Coverage matrix and bench-result artifact written into the milestone close.
+- Branch-driven beta pipeline in both sub-repos: push to a `beta` branch produces pre-release artifacts (mirrors current `main` → stable behavior).
+- App: PyPI pre-release versions using PEP 440 identifiers (`X.Y.Zb1`, `X.Y.ZrcN`), installable via `pip install --pre firestarter`. TestPyPI deferred.
+- Firmware: GitHub Release with `prerelease: true` + `make_latest: false`, same `.hex` artifacts (Uno + Leonardo + any other configured boards).
+- Locked-step versioning between app and firmware (matching version numbers across both sub-repos; coordination mechanism finalised during planning — shared `VERSION` file vs. cross-repo workflow trigger vs. manual paired tagging).
+- Documentation: README updates in both sub-repos + meta-repo `.planning/` notes explaining the stable/beta channels, opt-in semantics for users, and the release-engineer workflow for cutting a beta.
+- No regressions in the existing stable pipeline (main-push → patch auto-bump → PyPI publish for app; main-push → catalog gate + codegen drift + Unity tests + PlatformIO build → GitHub Release with `firestarter_*.hex` for firmware).
 
-**Phase numbering:** continues from v1.2 close — starts at Phase 11.
+**Phase numbering:** continues from v1.3 last phase (14) — starts at Phase 15.
 
 **Out of scope for this milestone:**
-- New algorithms or dispatch changes (architecture is locked).
-- New chip families outside algo 0x07 / 0x08.
-- v1.1 FM1608 parked bug (different chip class, different debug session — stays parked).
-- Flash-savings work (the 24,482-byte Leonardo budget is v1.2 ship state; do not regress).
+- TestPyPI publishing (separate index adds operator friction; PyPI pre-release versions provide opt-in via `--pre`).
+- Changing the existing main → stable pipeline behavior (preserve as-is; add parallel beta path alongside).
+- Hardware testing of beta builds (v1.3 owns bench validation; v1.4 is pure CI/CD plumbing).
+- New CLI features in the app or new firmware behavior (purely deployment plumbing).
+- New CI checks beyond what stable pipeline already runs (catalog drift, codegen gates, Unity tests — already in place; reuse don't replicate).
+- Auto-promotion from beta → stable (deferred: this milestone establishes the beta channel; promotion workflow is a follow-on milestone if needed).
+
+## v1.3 — CMOS EPROM Family Hardware Validation — ⏸ Paused 2026-05-20 (hardware-gated)
+
+**Status:** Paused at the autonomous/hardware boundary. Phase 11 (Coverage Matrix & DB Inconsistency Audit) shipped clean 2026-05-19 — `.planning/v1.3-COVERAGE-MATRIX.md` + 78-entry defect ledger + all-algorithms wide-scan extension (`.planning/v1.3-COVERAGE-MATRIX-ALL.md` with 137 findings across all 11 DB algorithms) delivered. Phase 12 Wave 0 (desk-side scaffold) committed 2026-05-20.
+
+**Resume from:** `/gsd-execute-phase 12 --wave 1 --interactive` once operator has Uno + Leonardo + RURP shield + DIP-28 socket + scope + the BENCH-01/02/05 chips (W27C512, SST27SF512, W27C257) available.
+
+**Why paused:** Operator does not have bench hardware available at this time. Phase 12 plans 12-01/02/03 are operator-on-bench (`autonomous: false`) — they cannot run without hardware. Auto-mode would silently auto-approve checkpoints without real evidence, producing fabricated BENCH-RESULTS rows — that's an integrity hazard the planner explicitly designed against. Cleanest action: pause v1.3, work on software-only v1.4 in the meantime.
+
+**Phase directories preserved:** `.planning/phases/11-*/` and `.planning/phases/12-*/` remain in place (not archived). v1.4 phase numbering continues at 15 to avoid collision when v1.3 resumes.
 
 ## v1.2 — Message-ID Logging Rework — ✓ Shipped 2026-05-19
 

@@ -1,18 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.3
-milestone_name: — CMOS EPROM Family Hardware Validation
-status: paused-hardware-gated
-paused_at: 2026-05-20
-paused_reason: Operator does not have bench hardware available; v1.3 bench plans (12-01, 12-02, 12-03 + all of Phase 13) require Uno + Leonardo + RURP shield + scope + chips. Phase 11 (desk-side coverage matrix) is complete; Phase 12 Wave 0 scaffold is committed and append-ready for the eventual bench session.
-last_updated: "2026-05-20T07:57:47.278Z"
+milestone: v1.4
+milestone_name: Beta & Pre-release Deployment Pipeline
+status: planning
+last_updated: "2026-05-20T08:15:16.322Z"
 last_activity: 2026-05-20
 progress:
-  total_phases: 4
-  completed_phases: 1
-  total_plans: 10
-  completed_plans: 7
-  percent: 25
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -22,12 +20,10 @@ progress:
 
 ## Current Position
 
-Milestone: v1.3 — **PAUSED (hardware-gated)**
-Phase: 12 (28-pin-algo-0x07-bench-validation) — Wave 0 complete; Waves 1–3 blocked on hardware
-Active milestone: see top-of-file frontmatter once the new milestone is initialized (will replace v1.3 as the active milestone for new work).
-Status: v1.3 paused at the autonomous/hardware boundary 2026-05-20. Phase 11 shipped clean (coverage matrix + defect ledger + all-algorithms wide-scan extension). Phase 12 Plan 12-04 (desk-side scaffold) shipped. Plans 12-01/02/03 (BENCH-01/02/05) + entire Phase 13 + Phase 14 milestone-close cannot start without hardware (Uno + Leonardo + RURP shield + DIP-28 socket + scope + W27C512/SST27SF512/W27C257 chips).
-Resume v1.3 from: `/gsd-execute-phase 12 --wave 1 --interactive` once the bench hardware is available. `.planning/v1.3-BENCH-RESULTS.md` skeleton + `.planning/v1.3/bench-logs/` + `.planning/v1.3/scope/` are committed and append-ready — Plan 12-01 appends rows + drops log/photo files without re-creating any scaffold.
-Last activity: 2026-05-20 -- v1.3 paused (hardware-gated); preparing new milestone for software-only work
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-05-20 — Milestone v1.4 started
 
 ## Project Reference
 
@@ -36,11 +32,11 @@ See: `.planning/PROJECT.md` (updated 2026-05-19)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 12 — 28-pin-algo-0x07-bench-validation
+**Current focus:** v1.4 milestone setup — Beta & Pre-release Deployment Pipeline (defining requirements)
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
-- v1.3 in planning — roadmap drafted (Phases 11–14), 12/12 requirements mapped
-- Phase numbering continues from v1.2 close (starts at Phase 11)
+- v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
+- v1.4 (Beta & Pre-release Deployment Pipeline) starting 2026-05-20 — software-only CI/CD work; phase numbering continues from v1.3 last phase (14), starts at Phase 15
 
 ## Roadmap Summary
 
@@ -75,6 +71,12 @@ Full details: `.planning/ROADMAP.md` (v1.3 section).
 
 None at v1.2 close.
 
+### Paused Milestones
+
+| Milestone | Paused | Reason | Resume Command |
+|-----------|--------|--------|----------------|
+| **v1.3** — CMOS EPROM Family Hardware Validation | 2026-05-20 | Hardware-gated. Phase 11 (coverage matrix + 78-finding defect ledger + all-algorithms wide-scan with 137 findings across 11 algos) shipped. Phase 12 Wave 0 desk-side scaffold committed (`.planning/v1.3-BENCH-RESULTS.md` skeleton + `.planning/v1.3/bench-logs/` + `.planning/v1.3/scope/`). Plans 12-01/02/03 (BENCH-01/02/05 — W27C512, SST27SF512, W27C257) + entire Phase 13 (algo-0x08 family) + Phase 14 milestone close cannot start without Uno + Leonardo + RURP shield + DIP-28 socket + scope + the bench chips. Auto-mode would silently fabricate bench results — operator paused milestone to avoid integrity hazard. v1.4 phase numbering continues at 15 to avoid collision when v1.3 resumes. | `/gsd-execute-phase 12 --wave 1 --interactive` (once bench hardware available) |
+
 ## Deferred Items
 
 Items acknowledged and deferred at v1.2 milestone close on 2026-05-19. The three W27C512 UAT items now **naturally fold into v1.3** — the W27C512 bench session is in scope for v1.3 BENCH-* requirements, so closing v1.3 closes Phase 08 SC#2/SC#3 + Phase 09 SC#3 as a side effect. The FM1608 byte-0 read bug remains parked (different chip family, different debug session, requires different Uno R3 hardware).
@@ -106,6 +108,17 @@ Items acknowledged and deferred at v1.2 milestone close on 2026-05-19. The three
 - BLOCKER-1 (Phase 12) — algorithm-based dispatch for protocols 0x05/0x06/0x07/0x08/0x0B and SRAM 0x0E/0x27/0x28/0x29
 - BLOCKER-2 (Phase 12) — SRAM chips routed to `configure_eprom` with 12V VPP regulator
 - WARNING-5 (Phase 13) — AT28C256/64 5V EEPROM 12V-on-A14 hazard via DB override
+
+## v1.4 Decisions (locked at milestone start, 2026-05-20)
+
+- **Scope:** Add a parallel beta / pre-release deployment channel for both sub-repos. The existing main → stable pipelines (app: PyPI publish on GitHub Release; firmware: GitHub Release with `make_latest: true` carrying `firestarter_*.hex`) stay exactly as they are. Beta is additive plumbing — no changes to user-facing CLI, no firmware behavior changes, no new chip support.
+- **Trigger model: branch-driven beta.** Each sub-repo gets a `beta` branch. Pushing to `beta` triggers the pre-release build (mirrors the current main → stable trigger shape). Stable still triggers only on `main`. Operators cut a beta by pushing to `beta`; cut a stable by merging to `main`.
+- **App PyPI channel: PEP 440 pre-release versions.** Beta builds publish `X.Y.Zb1` / `X.Y.ZbN` / `X.Y.ZrcN` to the SAME PyPI index as stable. Users opt in via `pip install --pre firestarter`. TestPyPI explicitly deferred (extra index adds operator friction; opt-in via `--pre` is the simpler one-source-of-truth UX).
+- **Firmware channel: GitHub Pre-release.** Beta builds create a GitHub Release with `prerelease: true` AND `make_latest: false`, same `.hex` artifacts (per-board). Beta releases do NOT become "latest" — operators who use the default-release download path get stable; beta requires opt-in.
+- **Locked-step versioning between app and firmware.** App and firmware always release with matching version numbers (already true for stable: each independently auto-bumps patch on main push; coordination drift gets corrected at milestone close). Beta tightens this — beta `X.Y.ZbN` in one sub-repo MUST pair with the same `X.Y.ZbN` in the other. Coordination mechanism (shared `VERSION` file ⇄ cross-repo workflow trigger ⇄ manual paired beta-branch push) is the load-bearing planning decision for the milestone's first phase.
+- **Existing pipelines preserved.** No regressions in main → stable: app `release.yml` + `publish.yml`, firmware `build.yml` keep current behavior verbatim. v1.4 plumbing is additive (new workflow files or new branches in existing workflows; existing release artifacts stay byte-identical to current outputs when triggered from main).
+- **Out of scope:** TestPyPI publishing, auto-promotion beta → stable, hardware bench testing of beta builds (v1.3's job once hardware is back), new CI checks beyond what stable runs, any non-deployment app or firmware behavior change.
+- **Implementation lives in submodules.** All workflow file edits, version-bump script edits, version file edits land inside `firestarter/` and `firestarter_app/` (their own git repos). Meta-repo (`/workspaces`) tracks only `.planning/` + `.claude/` — same pattern as v1.3 Phase 12 commits.
 
 ## v1.3 Decisions (locked at milestone start, 2026-05-19)
 
