@@ -46,7 +46,7 @@
   3. `platformio.ini` has a new `[env:uno328pb]` section with `platform = MCUdude/MiniCore`, `board = uno328pb`, `framework = arduino`, and `build_flags` carrying `${env.build_flags}` + `-D RURP_BOARD_NAME=\"uno328pb\"` (+ `DATA_BUFFER_SIZE=512` if explicit is preferred; matches `uno`).
   4. Firmware emits the literal string `uno328pb` in the `<board>` slot of the `MSG_OK_FW_HANDSHAKE` payload — verifiable by linking against an existing native test harness or, if not host-testable, by static analysis of the build's `.elf` symbol section showing `RURP_BOARD_NAME` resolves to `"uno328pb"`.
   5. `pio test -e native` from the same checkout completes with `test_dispatch` and `test_messages` suites both green — the new env addition must not regress the host-side native suite.
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 - [x] 21-01-PLAN.md — Wave 1: Capture GATE-1.5 baselines (firestarter_uno.hex + firestarter_leonardo.hex from beta @ 5fd751e) + amend REQUIREMENTS.md FW-02 per CONTEXT D-09 (drop boards/uno328pb.json, anchor on RURP_BOARD_NAME + name_firmware.py rework) — shipped 2026-05-20 (commits 78dc1fe + 6fdaaff)
 - [x] 21-02-PLAN.md — Wave 2: Reworked firestarter/name_firmware.py (PROGNAME from RURP_BOARD_NAME via env.ParseFlags) + atomic 4-site macro guard widening (ARDUINO_AVR_UNO → || ARDUINO_AVR_ATmega328PB) + added [env:uno328pb] block (platform=atmelavr, board=ATmega328PB) + full verification gate green (FW-01 build SUCCESS / 0 warnings; FW-03 `avr-strings` surfaces `3.0.0b2:uno328pb` from firestarter_uno328pb.elf [AVR ELFs lack .rodata → avr-strings is the canonical alt per CONTEXT D-13]; FW-04 native suite 20/20 PASS; GATE-1.5 cmp -s both exit 0) — shipped 2026-05-20 (sub-repo commits da607d4 + ab7c2a9 on firestarter/beta)
 
