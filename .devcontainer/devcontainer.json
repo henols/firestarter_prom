@@ -21,6 +21,10 @@
     "source=firestarter-claude,target=/home/vscode/.claude,type=volume"
   ],
 
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
   "customizations": {
     "vscode": {
       "extensions": [
