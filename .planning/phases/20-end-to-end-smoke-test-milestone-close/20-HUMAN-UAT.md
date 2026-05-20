@@ -32,59 +32,164 @@ Before starting the cut sequence, confirm the following are in place:
       Test 5 (beta-installed app firmware install). Suggested: `python3 -m venv /tmp/e2e-beta`.
 - [ ] A SEPARATE clean Python virtual environment is available for Test 6 (stable-installed
       non-regression). Suggested: `python3 -m venv /tmp/e2e-stable`.
-- [ ] `BETA_VERSION` is chosen per the guidance below.
 - [ ] `jq` and `curl` are installed (required by `v1.4-e2e-verify.sh`).
+- [ ] `beta` branch exists in both sub-repos (see §One-time setup below — only needed before
+      the very first cut).
 
-### Choosing BETA_VERSION
+### One-time setup: create `beta` branch in each sub-repo
 
-Pick a `BETA_VERSION` of the form `X.Y.ZbN` that does NOT conflict with any existing stable
-or beta tag in EITHER repo. Must match the PEP 440 regex `^[0-9]+\.[0-9]+\.[0-9]+(b|rc)[0-9]+$`.
+Before the first-ever beta cut, the `beta` branch must exist in both repos. Run once:
 
-Recommended options:
-- **First E2E run:** `0.0.1b1` — clean version line, zero risk of disrupting current stable
-  users on the `2.0.7` app / `3.0.0` firmware stable lines.
-- **Next-minor real beta:** `(major).(minor+1).0b1` — semantic intent: pre-release of the
-  next minor version. Verify no existing tag in either repo before using.
-
-Verify no conflict:
 ```bash
-gh release list -R henols/firestarter_app | grep "$BETA_VERSION"   # should return nothing
-gh release list -R henols/firestarter     | grep "$BETA_VERSION"   # should return nothing
+# In firestarter_app/:
+git checkout main && git pull
+git checkout -b beta && git push -u origin beta
+
+# In firestarter/:
+git checkout main && git pull
+git checkout -b beta && git push -u origin beta
 ```
 
-## Cut Sequence
+After this, `beta` exists at the same commit as `main`. No workflow fires yet — there's
+nothing to merge into `beta`. Subsequent PRs will diff against this baseline.
+
+### Choosing the resulting BETA_VERSION (Option 1 auto-increment vs Option 2 explicit)
+
+Under **Option 1 (canonical — PR → merge to `beta`)**, you do NOT pre-pick `BETA_VERSION`.
+Each repo's `update_version.py` scans git tags for the highest `X.Y.Zb*` matching the current
+base version and auto-emits `b(N+1)`. First-ever cut emits `b1`. The resulting tag string is
+whatever the script chooses based on the base version line.
+
+**Base-version mismatch warning:** the two sub-repos currently carry DIFFERENT bases:
+- `firestarter_app/firestarter/__init__.py`: `__version__ = "2.0.7_dev"` → auto-increment to `2.0.7b1`
+- `firestarter/include/version.h`: `#define VERSION "3.0.0_dev"` → auto-increment to `3.0.0b1`
+
+This breaks Test 4 (lockstep tag string-equality) on the first cut. **You have three options:**
+
+1. **Reconcile bases first (recommended):** in your `firestarter_app` PR to `beta`, change
+   `__version__ = "2.0.7_dev"` to `__version__ = "3.0.0_dev"` so both repos share the
+   `3.0.0` base. Both then auto-increment to `3.0.0b1`. One-time reset.
+2. **Use Option 2 once (lockstep escape hatch):** instead of letting auto-increment run on the
+   first cut, use `gh workflow run ... -f beta_version=3.1.0b1` (or your chosen string) in BOTH
+   repos. After the first cut anchors a common base, switch back to Option 1 for subsequent betas.
+3. **Accept asymmetry (NOT RECOMMENDED):** publish `2.0.7b1` (app) + `3.0.0b1` (firmware).
+   Test 4 will fail; `v1.4-e2e-verify.sh` Step 3 will report a lockstep mismatch. You'd need
+   to manually skip that check and reinterpret VER-03. This pushes the problem to v1.5+.
+
+The Cut Sequence below assumes **Option 1 with base reconciliation** (path #1). If you pick
+path #2, jump to the §Option 2 alternative below.
+
+## Cut Sequence (Option 1 — canonical PR → merge to `beta`)
 
 Follow these steps in order before filling in the HUMAN-UAT tests below.
 
-**Step 1 — Lockstep dry-run:**
-```bash
-BETA_VERSION=<chosen> bash .planning/phases/15-versioning-locked-step-coordination-foundation/lockstep-dryrun-fixture.sh
-```
-Expected output: `LOCKSTEP OK`. If it prints `LOCKSTEP FAILED`, stop and check your
-`BETA_VERSION` choice and both sub-repos' `update_version.py` scripts.
+**Step 1 — Reconcile bases (FIRST cut only; skip on subsequent cuts):**
 
-**Step 2 — Cut app beta release:**
-```bash
-gh workflow run beta-release.yml -R henols/firestarter_app --ref beta -f beta_version=<chosen>
+In `firestarter_app/`, open a PR targeting `beta` that changes:
+```diff
+- __version__ = "2.0.7_dev"
++ __version__ = "3.0.0_dev"
 ```
-Wait for the workflow to complete green in the Actions tab
-(`https://github.com/henols/firestarter_app/actions`).
+in `firestarter/__init__.py`. Merge this PR before the feature PR. The merge will trigger
+`beta-release.yml` and emit `3.0.0b1` (first-ever beta on the `3.0.0` base).
 
-**Step 3 — Cut firmware beta release:**
+If you don't need a feature for the first cut, this reconcile PR IS the first cut — it
+publishes `3.0.0b1` to PyPI.
+
+**Step 2 — Open feature PRs in both sub-repos targeting `beta`:**
+
+In `firestarter_app/`:
 ```bash
-gh workflow run beta-build.yml -R henols/firestarter --ref beta -f beta_version=<chosen>
+git checkout beta && git pull
+git checkout -b feature/<short-name>
+# ... make changes (touch source files, NOT just docs / **.md / **.sh / docs/** / images/** / .vscode/**) ...
+git push -u origin feature/<short-name>
+gh pr create --base beta --title "<title>" --body "<body>"
 ```
-Wait for the workflow to complete green in the Actions tab
-(`https://github.com/henols/firestarter/actions`).
 
-**Step 4 — Run automated verifier:**
+In `firestarter/`:
 ```bash
-bash .planning/v1.4-e2e-verify.sh <chosen>
+git checkout beta && git pull
+git checkout -b feature/<short-name>
+# ... make changes (touch source files, NOT just docs / **.md / **.sh / docs/** / documents/** / images/** / .vscode/** / .editorconfig/**) ...
+git push -u origin feature/<short-name>
+gh pr create --base beta --title "<title>" --body "<body>"
 ```
-Expected: exit 0 with `ALL CHECKS PASSED`. If any check fails, review the per-step
-failure summary printed by the script and fix before proceeding to the HUMAN-UAT tests.
 
-**Step 5 — Walk through the 6 HUMAN-UAT tests below** and mark each `pass` or `issue`.
+⚠ **`paths-ignore` warning:** if your PR only touches `paths-ignore` patterns (markdown,
+shell scripts, docs, images, .vscode/, .editorconfig/), the merge will NOT trigger the
+workflow. Touch source code, a `.toml`, a workflow YAML, or `include/` / `firestarter/`
+content to ensure the workflow fires.
+
+**Step 3 — Merge both PRs close in time:**
+
+```bash
+gh pr merge <app-pr-num>     -R henols/firestarter_app --squash --delete-branch
+gh pr merge <firmware-pr-num> -R henols/firestarter     --squash --delete-branch
+```
+
+Each merge pushes to `beta`. The workflow runs:
+1. CI gates (catalog validity, codegen drift, pytest, native Unity for firmware)
+2. `update_version.py` scans tags → emits `b(N+1)` (first cut after reconciliation: `3.0.0b1`)
+3. Version bump auto-committed back to `beta`
+4. GitHub Pre-release created
+5. PyPI publish (app side only)
+
+Watch both runs:
+```bash
+gh run watch -R henols/firestarter_app
+gh run watch -R henols/firestarter
+```
+
+**Step 4 — Identify the emitted BETA_VERSION:**
+
+```bash
+BETA_VERSION_APP=$(gh release view -R henols/firestarter_app --json tagName -q .tagName)
+BETA_VERSION_FW=$(gh release view -R henols/firestarter      --json tagName -q .tagName)
+echo "app:      $BETA_VERSION_APP"
+echo "firmware: $BETA_VERSION_FW"
+```
+
+If the bases were reconciled per Step 1, both will be the same (e.g. `3.0.0b1`).
+Use that string as `<BETA_VERSION>` for the remaining tests.
+
+If they differ, you skipped reconciliation — either roll back and reconcile, switch to
+Option 2 (next section), or accept asymmetry knowing Test 4 will fail.
+
+**Step 5 — Run automated verifier:**
+
+```bash
+bash .planning/v1.4-e2e-verify.sh "$BETA_VERSION_APP"
+```
+
+Expected: exit 0 with `ALL CHECKS PASSED`. If Step 3 (lockstep equality) fails, you have
+drift — see §Option 2 alternative or §Recovering from drift in `v1.4-RELEASE-PROCEDURES.md`.
+
+**Step 6 — Walk through the 6 HUMAN-UAT tests below** and mark each `pass` or `issue`,
+substituting `<BETA_VERSION>` with the value from Step 4.
+
+### Option 2 alternative (lockstep escape hatch)
+
+Use this if you want to pin a specific `BETA_VERSION` (e.g. `0.0.1b1` for a guaranteed-clean
+first test cut without reconciling bases):
+
+```bash
+# Land your changes on beta first via PR → merge (steps 2-3 above), but the auto-increment
+# emitted strings can be ignored if you're going to override them.
+# OR: skip the feature PRs entirely if the current beta-branch state is what you want to ship.
+
+BETA_VERSION=0.0.1b1   # your chosen string; must satisfy ^[0-9]+\.[0-9]+\.[0-9]+(b|rc)[0-9]+$
+
+gh workflow run beta-release.yml -R henols/firestarter_app --ref beta -f beta_version=$BETA_VERSION
+gh workflow run beta-build.yml   -R henols/firestarter     --ref beta -f beta_version=$BETA_VERSION
+```
+
+Both workflows write `$BETA_VERSION` verbatim — guaranteed string-equal across both repos.
+Then run verifier:
+```bash
+bash .planning/v1.4-e2e-verify.sh "$BETA_VERSION"
+```
+and walk the 6 HUMAN-UAT tests.
 
 ## HUMAN-UAT Tests
 
