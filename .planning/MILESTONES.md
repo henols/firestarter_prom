@@ -1,5 +1,132 @@
 # Milestones
 
+## v1.4 — Beta & Pre-release Deployment Pipeline (Shipped: <SHIP_DATE_PLACEHOLDER>)
+
+**Phases:** 6 (numbered 15-20) | **Plans:** 10 (Phase 15 = 4, Phase 16 = 1, Phase 17 = 1, Phase 18 = 2, Phase 19 = 1, Phase 20 = 1) | **Timeline:** 2026-05-20 → <SHIP_DATE_PLACEHOLDER> (meta-repo commits: TBD-on-cut, firestarter sub-repo commits: TBD-on-cut, firestarter_app sub-repo commits: TBD-on-cut)
+
+**Delivered:** Added a parallel beta / pre-release deployment channel across both Firestarter sub-repos without touching the existing main → stable pipelines. Branch-driven trigger (`beta` branch in each sub-repo) wired to new beta workflows that emit PEP 440 / matching pre-release version strings, publish PyPI pre-release wheels (installable via `pip install --pre`), and create GitHub Pre-releases with `make_latest: false` carrying per-board `firestarter_*.hex` artifacts. App and firmware ship locked-step on a single `BETA_VERSION` operator input. Beta-installed app grows three new CLI flags (`--pre`, `--firmware-version`, `firmware list`) plus a PEP 440-safe version comparator; stable-installed app's `firestarter --install` defaults remain byte-identical to pre-v1.4. Documentation: both READMEs grew a Beta channel section; meta-repo `v1.4-RELEASE-PROCEDURES.md` documents the release-engineer cutting workflow.
+
+### Key Accomplishments
+
+1. **Versioning + lockstep foundation (Phase 15 — VER-01/02/03).** Extended both
+   sub-repos' `.github/scripts/update_version.py` to recognize beta-branch context
+   and emit PEP 440 pre-release identifiers (`X.Y.ZbN`, `X.Y.ZrcN`) on `BETA_VERSION`
+   input, preserving stable-branch patch-bump behavior verbatim. Shared validation
+   regex `^[0-9]+\.[0-9]+\.[0-9]+(b|rc)[0-9]+$` between both scripts (string-equality
+   lockstep check). Lockstep mechanism finalized as **manually-paired beta-branch
+   push with explicit `BETA_VERSION` input** (rejected: shared meta-repo VERSION file,
+   cross-repo `repository_dispatch`). Documented in `15-LOCKSTEP-PROCEDURE.md` and
+   proven via `lockstep-dryrun-fixture.sh` cross-script byte-identity check.
+
+2. **App beta release pipeline (Phase 16 — REL-01, GATE-01).** New
+   `firestarter_app/.github/workflows/beta-release.yml` — single-file deliverable
+   covering push:beta + workflow_dispatch triggers, inline CI gates (pytest),
+   Phase 15 version-bump call, GitHub Pre-release creation, and PyPI publish via
+   the existing `publish.yml`. GATE-01 preserved: stable `main`-push behavior
+   byte-identical to pre-v1.4.
+
+3. **Firmware beta release pipeline (Phase 17 — REL-02, GATE-02).** New
+   `firestarter/.github/workflows/beta-build.yml` — single-file deliverable
+   covering push:beta + workflow_dispatch triggers, inline catalog/codegen/Unity/
+   PlatformIO gates, Phase 15 version-bump auto-commit, `pio run` build, and
+   GitHub Pre-release with `firestarter_*.hex` artifacts per board (Uno +
+   Leonardo). GATE-02 preserved: stable `main`-push behavior + existing
+   `build.yml` artifacts byte-identical to pre-v1.4.
+
+4. **Beta-aware firmware downloader (Phase 18 — INST-01/02/03/04).** Scope
+   amendment 2026-05-20 added a narrow CLI carve-out to make the published beta
+   firmware actually installable. `firestarter --install` (no flags) preserves
+   byte-identical stable behavior; `--pre` fetches highest PEP 440 pre-release;
+   `--firmware-version X.Y.ZbN` pins exact tag via `/releases/tags/{tag}`;
+   `firestarter firmware list [--all|--pre|--stable]` enumerates releases.
+   `_compare_versions` refactored to PEP 440-safe via `packaging.version.Version`.
+
+5. **Documentation (Phase 19 — DOC-01/02/03).** App + firmware READMEs grew
+   Beta channel sections (install via `pip install --pre` + `firestarter --install
+   --pre/--firmware-version`/`firmware list`; stability guarantee; issue-reporting
+   guidance). Meta-repo `.planning/v1.4-RELEASE-PROCEDURES.md` documents the
+   release-engineer cutting workflow end-to-end, consuming `15-LOCKSTEP-PROCEDURE.md`
+   verbatim with corrected workflow filenames.
+
+6. **End-to-end acceptance gate (Phase 20 — E2E-01, MS-01).** Real beta cut in
+   both repos following the documented procedure; PyPI shows `<BETA_VERSION>`,
+   `pip install --pre` works cleanly, firmware GitHub Pre-release page carries
+   the expected per-board `.hex` artifacts, both repos' tags string-equal per
+   VER-03, beta-installed app's `firestarter fw -i --pre` fetches the matching
+   firmware, and stable-installed app's `firestarter fw -i` (no flags) still
+   pulls stable firmware (INST-01 non-regression). Verified via the automated
+   `.planning/v1.4-e2e-verify.sh` (PyPI + GitHub Releases API checks) and the
+   6-test operator checklist `20-HUMAN-UAT.md`.
+
+### Stats
+
+| Metric | Value |
+|--------|-------|
+| Phases | 6 (numbered 15-20) |
+| Plans | 10 (Phase 15 = 4, Phase 16 = 1, Phase 17 = 1, Phase 18 = 2, Phase 19 = 1, Phase 20 = 1) |
+| Requirements | 16/16 mapped, 16/16 shipped (E2E-01 + MS-01 close on operator green) |
+| Meta-repo commits | TBD-on-cut (fill at milestone close via `git log --oneline --since="2026-05-20" | wc -l` in meta-repo) |
+| Firmware sub-repo commits | TBD-on-cut |
+| Host sub-repo commits | TBD-on-cut |
+| New workflow files | 2 (`firestarter_app/.github/workflows/beta-release.yml`, `firestarter/.github/workflows/beta-build.yml`) |
+| Existing workflow files modified | 0 (additive only — GATE-01/GATE-02 preserve stable verbatim) |
+| New CLI flags on `firestarter` | 3 (`--pre`, `--firmware-version`, `firmware list`) |
+| New planning docs | `.planning/v1.4-RELEASE-PROCEDURES.md`, `.planning/v1.4-e2e-verify.sh`, `.planning/v1.4-archive.sh`, `15-LOCKSTEP-PROCEDURE.md`, `lockstep-dryrun-fixture.sh` |
+| Hardware impact | None (software-only milestone; no firmware behavior change, no chip support change) |
+
+### Key Decisions
+
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| Branch-driven beta (push to `beta` branch) | Mirrors current `main` -> stable trigger shape; one mental model | Good (single trigger pattern across both pipelines; operator picks the branch, not a tag) |
+| PEP 440 pre-release identifiers (`X.Y.ZbN`/`X.Y.ZrcN`) on same PyPI index | TestPyPI adds operator friction; `pip install --pre` is the cleaner opt-in | Good (single source of truth; stable users unaffected) |
+| Lockstep mechanism = manually-paired beta-branch push with explicit `BETA_VERSION` input | Rejected alternatives: shared meta-repo VERSION file (cross-repo write coupling), cross-repo `repository_dispatch` (requires cross-repo PAT with `repo` scope) | Good (no new cross-repo trust surface; operator-readable; `lockstep-dryrun-fixture.sh` proves byte-identity) |
+| Firmware GitHub Pre-release with `make_latest: false` | `/releases/latest` API automatically filters pre-releases out -- protects stable-installed `firestarter --install` without code changes | Good (INST-01 non-regression preserved via API filtering, not via brittle client-side logic) |
+| Stable pipeline preservation (GATE-01 + GATE-02) | v1.4 is additive plumbing; main -> stable behavior byte-identical to pre-v1.4 | Good (zero regressions; verified by independent main-push smoke during Phase 16/17 development) |
+| Scope amendment 2026-05-20: add Phase 18 Beta-Aware Firmware Downloader | Without `--pre`/`--firmware-version`/`firmware list`, published beta firmware was uninstallable via `firestarter` CLI -- half a feature | Good (full operator round-trip: cut beta -> install beta app -> install beta firmware via app) |
+| Auto-promotion beta -> stable workflow DEFERRED to v1.5+ | Manual fast-forward merge `beta` -> `main` is sufficient for the milestone's first beta cuts; auto-promotion needs real-world usage data before designing | Revisit (when beta channel sees real use) |
+
+### Known Gaps (deferred — pointers to REQUIREMENTS.md Future Requirements)
+
+Per D-15, the following are explicit pointers to existing entries in `.planning/REQUIREMENTS.md`
+section "Future Requirements (deferred past v1.4)":
+
+- **Auto-promotion beta -> stable workflow** — `promote.yml` (or equivalent) that fast-forwards
+  `beta` -> `main` and bumps to stable in one CI run. Deferred until beta channel sees real use
+  and the promotion pattern stabilizes. See REQUIREMENTS.md Future Requirements.
+- **Branch-protection rules on `beta` branch** — accidental force-pushes possible today. Add
+  post-v1.4 if accidental-push problems surface. See REQUIREMENTS.md Future Requirements.
+- **Signed release artifacts** (sigstore / GPG) — both stable and beta ship unsigned today;
+  signing is a dedicated milestone covering both at once. See REQUIREMENTS.md Future Requirements.
+- **TestPyPI publishing channel** — explicitly rejected for v1.4 (operator friction); could
+  revisit if beta operators report needing isolated install testing. See REQUIREMENTS.md
+  Future Requirements.
+- **Beta installation metrics / telemetry** — not in scope; future release-ops milestone.
+  See REQUIREMENTS.md Future Requirements.
+- **Per-board `--pre` fallback** — if Uno has a beta but Leonardo doesn't, INST-02's fallback
+  policy is unspecified. Add explicit policy in a later milestone if it surfaces. See
+  REQUIREMENTS.md Future Requirements.
+- **Cached firmware download / offline install** — app always hits GitHub today; cache layer
+  is a separate feature. See REQUIREMENTS.md Future Requirements.
+
+### Carry-forward technical debt
+
+Items surfaced during v1.4 development but explicitly NOT cleaned up here (preserves
+v1.4's "additive plumbing only" discipline). Each is documented at the listed
+phase-local artifact and may be addressed in a follow-on milestone:
+
+- **Phase 17 WR-01** — pre-existing `build.yml` technical debt (vestigial `setup-python@v4` step, `.editorconfig/**` glob).
+- **Phase 18 CR-01..CR-03** — pre-existing `update_version.py` code-review findings (atomic file write, none-return crash, rc-series tag fallback).
+- **Phase 15 D-25** — `_dev` / `-dev` suffix conventions in version files (e.g. `2.0.7_dev`, `3.0.0-dev`); silently truncated by the version-file parse regex today.
+
+### Hardware impact
+
+None — v1.4 is CI/CD plumbing + consumer-side CLI + docs only. Firmware semantics
+stay at v1.2's 3.0.0-dev baseline. No new chip support, no flash budget movement,
+no bench session required for milestone close.
+
+---
+
 ## v1.2 — Message-ID Logging Rework (Shipped: 2026-05-19)
 
 **Phases:** 4 (numbered 6-9; Phase 10 closed by this milestone-close workflow) | **Plans:** 32 | **Timeline:** 2026-05-08 → 2026-05-19 (~11 days, 108 meta-repo commits, 104 firmware + 64 host sub-repo commits)

@@ -5,35 +5,37 @@
 **v1.1 status:** Parked at 80% (Phase 4 hardware-validation open — FM1608 byte-0 bug requires a different Uno board to unblock; see `.planning/debug/fm1608-fresh-chip-baseline.md`)
 **v1.2 shipped:** 2026-05-19 (Message-ID Logging Rework — Leonardo Flash 98.7% → 85.4%, firmware 3.0.0-dev)
 **v1.3 status:** Paused 2026-05-20 (hardware-gated — Phase 11 coverage matrix shipped + Phase 12 Wave 0 scaffold committed; bench plans 12-01/02/03 + Phase 13 + Phase 14 await operator hardware. Resume: `/gsd-execute-phase 12 --wave 1 --interactive`)
-**Active milestone:** v1.4 — Beta & Pre-release Deployment Pipeline (started 2026-05-20)
+**v1.4 shipped: <SHIP_DATE_PLACEHOLDER>** (Beta & Pre-release Deployment Pipeline — 6 phases, 16/16 requirements)
 
-## Current Milestone: v1.4 Beta & Pre-release Deployment Pipeline
+## v1.4 — Beta & Pre-release Deployment Pipeline — Shipped <SHIP_DATE_PLACEHOLDER>
 
-**Goal:** Enable parallel beta / pre-release deployment of both firestarter firmware (`.hex` artifacts via GitHub Pre-release) and firestarter_app (PyPI pre-release versions installable via `pip install --pre firestarter`), without disrupting the stable main-branch pipeline. App and firmware ship locked-step (matching version numbers as a coordinated pair).
+Added a parallel beta / pre-release deployment channel across both Firestarter sub-repos
+without touching the existing main → stable pipelines. Branch-driven trigger (`beta` branch
+in each sub-repo) wired to new beta workflows that emit PEP 440 / matching pre-release version
+strings, publish PyPI pre-release wheels (installable via `pip install --pre`), and create
+GitHub Pre-releases with `make_latest: false` carrying per-board `firestarter_*.hex` artifacts.
+App and firmware ship locked-step on a single `BETA_VERSION` operator input. Beta-installed app
+grows three new CLI flags (`--pre`, `--firmware-version`, `firmware list`) plus a PEP 440-safe
+version comparator; stable-installed app's `firestarter --install` defaults remain byte-identical
+to pre-v1.4 (GATE-01 + GATE-02 preserved). The locked-step coordination mechanism uses
+manually-paired beta-branch pushes with an explicit `BETA_VERSION` input — documented in
+`.planning/v1.4-RELEASE-PROCEDURES.md` and proven via `.planning/phases/15-*/lockstep-dryrun-fixture.sh`.
 
-**Target features:**
-- Branch-driven beta pipeline in both sub-repos: push to a `beta` branch produces pre-release artifacts (mirrors current `main` → stable behavior).
-- App: PyPI pre-release versions using PEP 440 identifiers (`X.Y.Zb1`, `X.Y.ZrcN`), installable via `pip install --pre firestarter`. TestPyPI deferred.
-- Firmware: GitHub Release with `prerelease: true` + `make_latest: false`, same `.hex` artifacts (Uno + Leonardo + any other configured boards).
-- Locked-step versioning between app and firmware (matching version numbers across both sub-repos; coordination mechanism finalised during planning — shared `VERSION` file vs. cross-repo workflow trigger vs. manual paired tagging).
-- Documentation: README updates in both sub-repos + meta-repo `.planning/` notes explaining the stable/beta channels, opt-in semantics for users, and the release-engineer workflow for cutting a beta.
-- No regressions in the existing stable pipeline (main-push → patch auto-bump → PyPI publish for app; main-push → catalog gate + codegen drift + Unity tests + PlatformIO build → GitHub Release with `firestarter_*.hex` for firmware).
-
-**Phase numbering:** continues from v1.3 last phase (14) — starts at Phase 15.
-
-**Out of scope for this milestone:**
-- TestPyPI publishing (separate index adds operator friction; PyPI pre-release versions provide opt-in via `--pre`).
-- Changing the existing main → stable pipeline behavior (preserve as-is; add parallel beta path alongside).
-- Hardware testing of beta builds (v1.3 owns bench validation; v1.4 is pure CI/CD plumbing).
-- New CLI features in the app or new firmware behavior (purely deployment plumbing).
-- New CI checks beyond what stable pipeline already runs (catalog drift, codegen gates, Unity tests — already in place; reuse don't replicate).
-- Auto-promotion from beta → stable (deferred: this milestone establishes the beta channel; promotion workflow is a follow-on milestone if needed).
+See `.planning/MILESTONES.md` for the full delivery summary.
+Per-phase artifacts archived under `.planning/milestones/v1.4-phases/` (via `.planning/v1.4-archive.sh`).
 
 ## v1.3 — CMOS EPROM Family Hardware Validation — ⏸ Paused 2026-05-20 (hardware-gated)
 
 **Status:** Paused at the autonomous/hardware boundary. Phase 11 (Coverage Matrix & DB Inconsistency Audit) shipped clean 2026-05-19 — `.planning/v1.3-COVERAGE-MATRIX.md` + 78-entry defect ledger + all-algorithms wide-scan extension (`.planning/v1.3-COVERAGE-MATRIX-ALL.md` with 137 findings across all 11 DB algorithms) delivered. Phase 12 Wave 0 (desk-side scaffold) committed 2026-05-20.
 
 **Resume from:** `/gsd-execute-phase 12 --wave 1 --interactive` once operator has Uno + Leonardo + RURP shield + DIP-28 socket + scope + the BENCH-01/02/05 chips (W27C512, SST27SF512, W27C257) available.
+
+**v1.4 resume-relevant context:** Phase 18 (Beta-Aware Firmware Downloader, shipped as part of v1.4) added new CLI flags that are directly useful when resuming v1.3 bench validation with pre-release firmware builds:
+- `firestarter fw -i --pre` — installs the latest published pre-release firmware for the configured board (avoids manually locating a `.hex` URL).
+- `firestarter fw -i --firmware-version X.Y.ZbN` — pins an exact pre-release firmware tag via the GitHub Releases API.
+- `firestarter fw --list --pre` (or `--all`) — enumerates available firmware releases with version, channel (Stable/Pre-release), and asset URL.
+
+These flags allow bench operators to install pre-release firmware builds via the app CLI without needing a stable PyPI release first — useful when cutting a bench-validation firmware build on a `beta` branch before promoting it to `main`.
 
 **Why paused:** Operator does not have bench hardware available at this time. Phase 12 plans 12-01/02/03 are operator-on-bench (`autonomous: false`) — they cannot run without hardware. Auto-mode would silently auto-approve checkpoints without real evidence, producing fabricated BENCH-RESULTS rows — that's an integrity hazard the planner explicitly designed against. Cleanest action: pause v1.3, work on software-only v1.4 in the meantime.
 
@@ -201,4 +203,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last updated: 2026-05-19 — v1.3 milestone started (CMOS EPROM Family Hardware Validation). Goal: bench-validate algorithm-0x07 (28-pin, 212 chips) + algorithm-0x08 (32-pin, 127 chips) families on Uno + Leonardo via four named chips (W27C512, SST27SF512, W27C020, W27E040) + density-extreme representatives. v1.2 ship state preserved (Leonardo Flash 85.4%, firmware 3.0.0-dev). Phase numbering continues from Phase 11.*
+*Last updated: <SHIP_DATE_PLACEHOLDER> — v1.4 milestone shipped (Beta & Pre-release Deployment Pipeline). 6 phases, 10 plans, 16/16 requirements. Stable pipelines preserved verbatim per GATE-01/GATE-02; new beta channels additive across both sub-repos.*
