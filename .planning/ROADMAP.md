@@ -4,7 +4,7 @@
 
 - ✅ **v1.0 Protocol-Aware Programming Architecture** — Phases 1-13 (shipped 2026-05-11)
 - ⏸ **v1.1 Safety Closure & Hardware Validation** — Phases 1-3 done, Phase 4 hardware-validation parked (FM1608 byte-0 bug); Phase 5 milestone-close deferred. Original artifacts preserved at `.planning/milestones/v1.1-paused/`.
-- ✅ **v1.2 Message-ID Logging Rework** — Phases 6-9 (shipped 2026-05-19); Phase 10 closed by `/gsd-complete-milestone`. Leonardo Flash 98.7% → 85.4%; firmware 3.0.0-dev.
+- ✅ **v1.2 Message-ID Logging Rework** — Phases 6-9 (shipped 2026-05-19); Phase 10 closed by `/gsd-complete-milestone` (DOC-02)
 - ⏸ **v1.3 CMOS EPROM Family Hardware Validation** — Phases 11-14 (PAUSED 2026-05-20, hardware-gated). Phase 11 shipped + Phase 12 Wave 0 scaffold committed; Plans 12-01/02/03 + Phases 13/14 await operator bench hardware.
 - 🚧 **v1.4 Beta & Pre-release Deployment Pipeline** — Phases 15-20 (active, started 2026-05-20; Phase 18 inserted 2026-05-20 — Beta-Aware Firmware Downloader). Add parallel beta channel for both sub-repos without disrupting the stable main → release pipeline. App ships PyPI pre-release versions (`pip install --pre`); firmware ships GitHub Pre-release artifacts (`prerelease: true`, `make_latest: false`). App and firmware lockstep on matching version numbers. Beta-installed app can list and install any firmware (stable or pre-release); stable-installed app's `firestarter --install` defaults are byte-identical to today.
 
@@ -74,7 +74,8 @@
   2. **GATE-02 preserved.** After v1.4 lands, a push to `firestarter/main` still produces: (a) a GitHub Release with `make_latest: true` (no `b`/`rc` suffix in the tag), (b) the same set of `firestarter_*.hex` artifacts per board as today, (c) `VERSION` in `include/version.h` auto-bumped to the next patch. The existing catalog-validity, codegen-drift, and Unity-test gates run unchanged on the stable path. No new mandatory CI checks added beyond what the pre-v1.4 build.yml currently runs.
   3. The beta build produces the same per-board `.hex` artifact set as the stable build (no missing boards, no extra boards) — verified by file-name listing on the GitHub Release page and an artifact-count assertion in the workflow.
   4. The firmware beta version string (`X.Y.ZbN` in `include/version.h`) matches the app beta version string from Phase 16 when both repos are cut as a coordinated pair via the Phase 15 lockstep procedure. Verified by a string-equality check in Phase 19's E2E smoke test.
-**Plans:** TBD
+**Plans:** 1 plan
+- [ ] 17-01-PLAN.md — Create firestarter/.github/workflows/beta-build.yml (single-file deliverable: push: beta + workflow_dispatch triggers, inline catalog/codegen/native-Unity/pytest gates, Phase 15 version bump, auto-commit, pio run, GH Pre-release with firestarter_*.hex artifacts). REL-02 + GATE-02; 23 D-XX decisions; build.yml byte-identity preserved; vestigial setup-python@v4 step omitted per D-14.
 
 #### Phase 18: Beta-Aware Firmware Downloader
 **Goal:** The `firestarter_app/` CLI grows the minimum consumer-side surface needed to actually use the beta firmware channel. `firestarter --install` (no flags) continues to hit `/releases/latest` and download stable firmware byte-identically to today (INST-01 non-regression). New `firestarter --install --pre` fetches the newest pre-release firmware for the configured board (mirrors `pip install --pre`). New `firestarter --install --firmware-version X.Y.Z[bN|rcN]` pins an exact tag via `/releases/tags/{tag}`. New `firestarter firmware list [--all|--pre|--stable]` enumerates available releases for the configured board. The internal `_compare_versions` helper is refactored to use `packaging.version.Version` so PEP 440 pre-release strings (`3.1.0b1`, `3.1.0rc2`) no longer crash with `ValueError` — today's stable-only path is protected only by GitHub's `/releases/latest` filter; the new code paths bypass that protection and need a real comparator.
@@ -293,7 +294,7 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 14 (close) | v1.3 | 0/0 | ⏸ Paused | — (hardware-gated) |
 | 15 | v1.4 | 4/4 | ✅ Complete  | 2026-05-20 |
 | 16 | v1.4 | 1/1 | Complete    | 2026-05-20 |
-| 17 | v1.4 | 0/0 | Not started | — |
+| 17 | v1.4 | 0/1 | Planned     | — |
 | 18 | v1.4 | 2/2 | Complete    | 2026-05-20 |
 | 19 | v1.4 | 0/0 | Not started | — (Documentation; was Phase 18 before 2026-05-20 amendment) |
 | 20 (close) | v1.4 | 0/0 | Not started | — (E2E + Milestone Close; was Phase 19 before 2026-05-20 amendment) |
