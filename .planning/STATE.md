@@ -4,13 +4,13 @@ milestone: v1.5
 milestone_name: — Arduino Uno
 status: executing
 last_updated: "2026-05-20T20:30:00.000Z"
-last_activity: 2026-05-20 -- Phase 21 planning complete (2 plans, 2 waves)
+last_activity: "2026-05-20 -- Plan 21-01 completed (GATE-1.5 baselines + FW-02 amendment)"
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 2
-  completed_plans: 0
-  percent: 0
+  completed_plans: 1
+  percent: 50
 ---
 
 # Project State
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 21 — Firmware Target `uno328pb`
-Plan: 21-01 + 21-02 (ready)
-Status: Ready to execute
-Last activity: 2026-05-20 -- Phase 21 planning complete (2 plans, 2 waves)
+Phase: 21 (firmware-target-uno328pb) — EXECUTING
+Plan: 2 of 2 (Plan 21-01 complete; Plan 21-02 next)
+Status: Executing Phase 21
+Last activity: 2026-05-20 -- Plan 21-01 completed (GATE-1.5 baselines + FW-02 amendment)
 
 ## Project Reference
 
@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-20)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Land `uno328pb` as a third first-class firmware target alongside `uno` and `leonardo` (PIO env + handshake + per-board release artifacts + host CLI installer + bench-validated EPROM cycle on operator's plugged-in 328PB-Uno). Work branches off `beta` in both sub-repos.
+**Current focus:** Phase 21 — firmware-target-uno328pb
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
@@ -194,7 +194,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 
 ## Operator Next Steps
 
-- Plan v1.5 Phase 21 (PlatformIO + handshake): `/gsd-discuss-phase 21` or `/gsd-plan-phase 21`
+- Execute v1.5 Phase 21 Plan 21-02 (firmware sub-repo rework + GATE-1.5 verify): `/gsd-execute-phase 21 --plan 21-02` (Plan 21-01 complete — baselines + FW-02 amendment landed in commits 78dc1fe + 6fdaaff)
 
 ## Performance Metrics
 
@@ -230,6 +230,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 11 P05 | 10min | 2 tasks | 4 files |
 | Phase 11 P06 | ~6min | 1 tasks | 4 files |
 | Phase 12 P12-04 | 3min | 1 tasks | 3 files |
+| Phase 21 P21-01 | ~5min | 2 tasks | 4 files |
 
 ## Decisions
 
@@ -296,3 +297,6 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase 11]: Plan 11-06: D-07 reconciliation landed as a single dedicated commit (70be654, separate from matrix-tool commits per D-07). 20 substring replacements across PROJECT.md (6) / ROADMAP.md (4) / REQUIREMENTS.md (1) / STATE.md (2 — L36 substring "~341 algo-0x07" not present in live file, edit deferred per PLAN action guidance "do not invent substitute edits"). Historical narrative preserved in 3 locations per RESEARCH.md A6 (PROJECT.md L135 WIRE-02 743/743 PASS decision-row; ROADMAP.md L140 v1.0 archived <details> bullet; STATE.md L220 Plan 11-02 narrative about §2 hard-coding the OLD counts).
 - [Phase ?]: [Phase 12]: Plan 12-04: Headers-only scaffold for v1.3-BENCH-RESULTS.md (no placeholder rows) — resolves RESEARCH.md Open Q1; append-a-new-row is idempotent on resume vs edit-an-empty-row.
 - [Phase ?]: [Phase 12]: Plan 12-04: BENCH evidence accretion model — v1.3-BENCH-RESULTS.md is append-only across Phases 12 + 13; Phase 14 / DOC-01 closes it. Two empty directories (bench-logs/, scope/) committed via .gitkeep sentinels.
+- [Phase 21]: Plan 21-01: Path B locked at the requirements layer — REQUIREMENTS.md FW-02 amended to drop boards/uno328pb.json entirely; the requirement now anchors on `RURP_BOARD_NAME` as the single source of truth for the board-id triple (artifact filename = build_flag value = handshake `<board>` slot). Citing CONTEXT D-05 + D-09 inline keeps the REQUIREMENTS → CONTEXT trace grep-walkable.
+- [Phase 21]: Plan 21-01: GATE-1.5 baselines captured with `include/version.h` UNMODIFIED (VERSION="3.0.0b2") per RESEARCH Pitfall 3 — any `update_version.py` invocation between capture and Plan 21-02's `cmp -s` gate tears the .rodata version-string region. CAPTURE-PROCEDURE.md records the "do NOT run update_version.py" warning explicitly + SHA-256 of each baseline for drift detection.
+- [Phase 21]: Plan 21-01: Hex baselines stored as plain blobs under `.planning/v1.5/baselines/` (no Git LFS) per CONTEXT D-04 Claude's Discretion — meta-repo is otherwise text-only and ~62/69 KB per board is below any meaningful LFS threshold.

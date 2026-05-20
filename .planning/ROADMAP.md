@@ -47,7 +47,7 @@
   4. Firmware emits the literal string `uno328pb` in the `<board>` slot of the `MSG_OK_FW_HANDSHAKE` payload — verifiable by linking against an existing native test harness or, if not host-testable, by static analysis of the build's `.elf` symbol section showing `RURP_BOARD_NAME` resolves to `"uno328pb"`.
   5. `pio test -e native` from the same checkout completes with `test_dispatch` and `test_messages` suites both green — the new env addition must not regress the host-side native suite.
 **Plans:** 2 plans
-- [ ] 21-01-PLAN.md — Wave 1: Capture GATE-1.5 baselines (firestarter_uno.hex + firestarter_leonardo.hex from beta @ 5fd751e) + amend REQUIREMENTS.md FW-02 per CONTEXT D-09 (drop boards/uno328pb.json, anchor on RURP_BOARD_NAME + name_firmware.py rework)
+- [x] 21-01-PLAN.md — Wave 1: Capture GATE-1.5 baselines (firestarter_uno.hex + firestarter_leonardo.hex from beta @ 5fd751e) + amend REQUIREMENTS.md FW-02 per CONTEXT D-09 (drop boards/uno328pb.json, anchor on RURP_BOARD_NAME + name_firmware.py rework) — shipped 2026-05-20 (commits 78dc1fe + 6fdaaff)
 - [ ] 21-02-PLAN.md — Wave 2: Rework firestarter/name_firmware.py (PROGNAME from RURP_BOARD_NAME via env.ParseFlags) + atomic 4-site macro guard widening (ARDUINO_AVR_UNO → || ARDUINO_AVR_ATmega328PB) + add [env:uno328pb] block (platform=atmelavr, board=ATmega328PB) + full verification gate (FW-01 build green, FW-03 .elf .rodata grep, FW-04 native suite, GATE-1.5 cmp -s)
 
 #### Phase 22: Release Pipeline Artifacts
