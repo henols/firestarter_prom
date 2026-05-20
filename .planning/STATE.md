@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.4
-milestone_name: — Beta & Pre-release Deployment Pipeline
-status: Awaiting next milestone
-last_updated: "2026-05-20T18:47:31.179Z"
-last_activity: 2026-05-20 — Milestone v1.4 completed and archived
+milestone: v1.5
+milestone_name: Arduino Uno (ATmega328PB) Board Support
+status: planning
+last_updated: "2026-05-20T19:00:00.000Z"
+last_activity: 2026-05-20 — Milestone v1.5 started
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 10
-  completed_plans: 10
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: Milestone v1.4 complete (ship tag 3.0.0b3)
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-05-20 — Milestone v1.4 completed and archived via `/gsd-complete-milestone`
+Status: Defining requirements
+Last activity: 2026-05-20 — Milestone v1.5 started (Arduino Uno ATmega328PB Board Support)
 
 ## Project Reference
 
@@ -32,11 +32,12 @@ See: `.planning/PROJECT.md` (updated 2026-05-20)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Planning next milestone (or resume v1.3 when bench hardware available).
+**Current focus:** Land `uno328pb` as a third first-class firmware target alongside `uno` and `leonardo` (PIO env + handshake + per-board release artifacts + host CLI installer + bench-validated EPROM cycle on operator's plugged-in 328PB-Uno). Work branches off `beta` in both sub-repos.
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
 - v1.4 (Beta & Pre-release Deployment Pipeline) SHIPPED 2026-05-20 — 6/6 phases, 10/10 plans, ship tag 3.0.0b3, hardware-flash validated on Uno + Leonardo
+- v1.5 (Arduino Uno ATmega328PB Board Support) STARTED 2026-05-20 — `uno328pb` as a third first-class firmware target; operator's 328PB-Uno + RURP shield available for bench validation; work branches off `beta` in both sub-repos
 
 ## Roadmap Summary
 
@@ -117,6 +118,20 @@ Items acknowledged and deferred at v1.2 milestone close on 2026-05-19. The three
 - BLOCKER-2 (Phase 12) — SRAM chips routed to `configure_eprom` with 12V VPP regulator
 - WARNING-5 (Phase 13) — AT28C256/64 5V EEPROM 12V-on-A14 hazard via DB override
 
+## v1.5 Decisions (locked at milestone start, 2026-05-20)
+
+- **Scope:** Add `uno328pb` as a third firmware target alongside the existing `uno` and `leonardo`. End-to-end coverage: PlatformIO env → handshake board-name reporting → stable + beta release pipelines emit a third `.hex` artifact → host CLI installer flashes the right artifact when device reports `uno328pb` → bench-validated EPROM write→read-back→verify cycle on operator's plugged-in 328PB-Uno + RURP shield.
+- **Out of scope:** 328PB extra peripherals (USART1, TWI1, SPI1, Timer3/4, PE0–PE3 pins) — Firestarter only uses 328P-common I/O; bootloader flashing (operator provisions the board separately); host-side VID/PID auto-detect (firmware-handshake report is authoritative — same pattern as `uno`/`leonardo`); RURP shield rev changes; new chip support; CMOS bench resume (still v1.3 territory, hardware-gated).
+- **Branch model:** Both sub-repos cut working branches off `beta` (current tip 5fd751e in both sub-repos as of 2026-05-20). Cut the first v1.5 pre-release (e.g. `3.0.1bN`) from `beta` once Phases 21–23 are green. Promote `beta` → `main` and bump to stable (`3.0.1`) only after operator green on the 328PB bench cycle (Phase 24). Meta-repo's `.planning/` work proceeds on `main` per existing convention.
+- **Board-ID strategy:** Custom PIO `boards/uno328pb.json` so `board = uno328pb` in `[env:uno328pb]`. `name_firmware.py` already derives the artifact name from `env.GetProjectOption("board")`, so this produces `firestarter_uno328pb.hex` with no codegen change, and the host's `firestarter_{board}.hex` lookup in `firmware.py` matches without any board-name translation.
+- **MCU framework:** MiniCore (`platform = MCUdude/MiniCore`) is the established Arduino-framework support for ATmega328PB. Use it as the platform. Pin definitions kept Arduino-Uno-compatible for Firestarter's I/O footprint (no use of PB-exclusive pins PE0–PE3).
+- **Buffer size:** Use `DATA_BUFFER_SIZE=512` (same as `uno`). 328PB has the same 2 KB SRAM as 328P. Only revisit if compiled binary runs cold against the buffer floor on bench.
+- **Handshake-name source of truth:** `RURP_BOARD_NAME=\"uno328pb\"` set per-env in `platformio.ini` (mirror of `uno` and `leonardo`); firmware emits this string in the `MSG_OK_FW_HANDSHAKE` payload's `<board>` slot so the host's `firmware.py:check_current_firmware` parses it identically to the existing two boards.
+- **Phase numbering:** continues from v1.4 last phase 20; v1.5 starts at Phase 21. No `--reset-phase-numbers`.
+- **GATE-1.5 (non-regression):** `firestarter_uno.hex` and `firestarter_leonardo.hex` are byte-identical to pre-v1.5 outputs (modulo unavoidable version-string drift from `update_version.py`). Stable-installed app's `firestarter fw -i` defaults still flash the matching artifact for `uno`/`leonardo`-reporting devices.
+- **Bench validation chip:** Operator's plugged-in 328PB-Uno is the test vehicle. Bench session validates against at least one representative EPROM available in the operator's chip kit (default W27C512 — overlaps v1.3 BENCH-01 chip-of-interest). Algorithm dispatch is firmware-internal and unchanged by the MCU port, so a single representative chip is sufficient to prove the port.
+- **Documentation surface:** Firmware README + app README each grow a one-paragraph board-matrix entry for `uno328pb`. Meta-repo `v1.4-RELEASE-PROCEDURES.md` (or v1.5-renamed equivalent) grows the per-board artifact line in the release-engineer checklist.
+
 ## v1.4 Decisions (locked at milestone start, 2026-05-20; amended 2026-05-20 for Phase 18)
 
 - **Scope:** Add a parallel beta / pre-release deployment channel for both sub-repos. The existing main → stable pipelines (app: PyPI publish on GitHub Release; firmware: GitHub Release with `make_latest: true` carrying `firestarter_*.hex`) stay exactly as they are. Beta is additive plumbing PLUS a minimum consumer-side surface in the app so the beta firmware channel is actually installable (see Scope amendment below). No firmware behavior changes, no new chip support.
@@ -159,7 +174,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Plan v1.5 Phase 21 (PlatformIO + handshake): `/gsd-discuss-phase 21` or `/gsd-plan-phase 21`
 
 ## Performance Metrics
 
