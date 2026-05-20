@@ -29,7 +29,7 @@
 ### Phases
 
 - [x] **Phase 21: Firmware Target — `uno328pb`** — PlatformIO env (no custom board file; see CONTEXT D-05 Path B amendment to FW-02) + name_firmware.py rework + handshake-name plumbing + native test green + GATE-1.5 byte-identity on uno + leonardo. Desk-side. (FW-01, FW-02, FW-03, FW-04). **Plans:** 2/2 complete (shipped 2026-05-20)
-- [ ] **Phase 22: Release Pipeline Artifacts** — Stable + beta workflows emit `firestarter_uno328pb.hex` as a third per-board artifact; existing two artifacts unchanged. Desk-side / CI-side. (REL-01, REL-02)
+- [ ] **Phase 22: Release Pipeline Artifacts** — Stable + beta workflows emit `firestarter_uno328pb.hex` as a third per-board artifact; existing two artifacts unchanged. Desk-side / CI-side. (REL-01, REL-02). **Plans:** 0/1 complete
 - [ ] **Phase 23: Host CLI Installer Integration** — Confirm `firestarter fw -i`/`--pre`/`firmware list` work for `uno328pb`-reporting devices; add any allowlist entry + regression test; verify GATE-01 non-regression on existing boards. Desk-side. (INST-01, INST-02, INST-03, GATE-01)
 - [ ] **Phase 24: Bench Validation on 328PB-Uno** — Operator-on-bench cycle: cut a v1.5 beta pre-release, flash 328PB-Uno via `firestarter fw -i --pre`, run write→read→verify on a representative EPROM (W27C512 default). Capture `.planning/v1.5-BENCH-RESULTS.md`. (BENCH-01, BENCH-02)
 - [ ] **Phase 25: Documentation + Milestone Close** — README updates (firmware + app), release-procedures update for three-board matrix, MILESTONES.md entry, archive v1.5 phase directories, update PROJECT.md to "shipped". (DOC-01, DOC-02, MS-01)
@@ -60,6 +60,8 @@
   3. `beta-build.yml` Release step's `files:` glob likewise catches `firestarter_uno328pb.hex` on a beta cut from `firestarter/beta`. After a beta cut, the GitHub Pre-release asset list shows three `.hex` files; `prerelease: true` and `make_latest: false` unchanged.
   4. `firestarter_uno.hex` and `firestarter_leonardo.hex` from a v1.5 cut are byte-identical to a pre-v1.5 cut of the same source revision (modulo version-string drift from `update_version.py`). Verified by `diff` against the v1.4 ship-tag (3.0.0b3) artifacts.
   5. No new mandatory CI checks are added; existing catalog-validity + codegen-drift + native Unity + PIO build gates run unchanged.
+**Plans:** 1 plan
+- [ ] 22-01-PLAN.md — Wave 1: widen `firestarter/platformio.ini` `default_envs` to `uno, uno328pb, leonardo` (D-01) + realign ROADMAP Phase 22 SC#1 literal (D-02; Phase 21 D-12 hand-off); GATE-01 byte-identity + native suite regression-clean; no CI workflow edits (D-03 / D-11)
 
 #### Phase 23: Host CLI Installer Integration
 **Goal:** `firestarter fw -i`, `firestarter fw -i --pre`, and `firestarter firmware list` flow through the existing v1.4 board-driven asset-resolution path cleanly when the connected device's firmware handshake reports `uno328pb`. Any allowlist entry needed (e.g. in `avr_tool.py` upload profile or `constants.py` enum) is added; a regression test exercises the `uno328pb`-reporting code path.
