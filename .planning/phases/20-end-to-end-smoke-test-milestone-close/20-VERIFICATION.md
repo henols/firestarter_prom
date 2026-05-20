@@ -244,3 +244,67 @@ All 20 decisions from CONTEXT.md are honored by the planning artifacts:
 
 _Verified: 2026-05-20_
 _Verifier: Claude (gsd-verifier)_
+
+---
+
+## 2026-05-20 Update — Live Cut Validation (E2E-01 GREEN)
+
+The operator-driven live cut for `BETA_VERSION=3.0.0b1` was executed on 2026-05-20 with several recovery iterations needed for first-run substrate defects (E2E-01 through E2E-05). Substrate is now hardened against all observed failure modes; current ship state below.
+
+### Live state
+
+| Artifact                                                   | Value                                                                |
+|------------------------------------------------------------|----------------------------------------------------------------------|
+| PyPI release                                               | https://pypi.org/project/firestarter/3.0.0b1/ — both wheel + sdist   |
+| Firmware GitHub Pre-release                                | https://github.com/henols/firestarter/releases/tag/3.0.0b1           |
+| Firmware assets                                            | firestarter_uno.hex (62617 B), firestarter_leonardo.hex (68876 B)    |
+| App GitHub Pre-release                                     | https://github.com/henols/firestarter_app/releases/tag/3.0.0b1       |
+| App tag → commit                                           | 5af07e4 (post-bump auto-commit; __version__ = "3.0.0b1")             |
+| FW tag → commit                                            | post-auto-commit HEAD (see firmware repo)                            |
+| `pip install firestarter`        → 2.0.7 (stable channel intact)                                                                              |
+| `pip install --pre firestarter`  → 3.0.0b1                                                                                                    |
+| `firestarter fw --list --pre`    → shows 3.0.0b1 as prerelease channel                                                                        |
+| `firestarter fw --list`          → mixed channels with 3.0.0b1 visible as prerelease                                                          |
+
+### Verifier exit
+
+`bash .planning/v1.4-e2e-verify.sh 3.0.0b1 --quick` → exit 0 (ALL CHECKS PASSED)
+Steps verified: PyPI visibility, FW GH Pre-release shape, Lockstep tag equality.
+Step 4 (`firestarter fw --list --pre`) verified separately via direct invocation against a `--pre`-installed venv.
+
+### E2E recovery findings (folded into substrate)
+
+The first live cut surfaced 5 substrate defects that have been fixed in-place. Future cuts should not require these recoveries.
+
+| ID     | Defect                                                                                                                                | Fix                                                                                                                                                                                                                                                  | Lands in                                                |
+|--------|---------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| E2E-01 | `publish.yml` did not auto-trigger after beta-release.yml created the Pre-release (PAT path suppresses `release.published` dependents) | Added `workflow_dispatch` trigger to `publish.yml` with `tag` input so the operator can re-publish a tag manually; stable `release: published` trigger preserved.                                                                                    | firestarter_app: f8c7ce5 (#37 → main), 772e399 (beta)   |
+| E2E-02 | `pyproject.toml` had BOTH `[tool.setuptools_scm]` AND `[tool.setuptools.dynamic] version = {attr}` — setuptools warned the combo is invalid; the `attr` source won, reading from `__init__.py`, so build produced `firestarter-2.0.7.whl` (the tagged commit's stale base) instead of `3.0.0b1.whl`. | Dropped `[tool.setuptools_scm]` block; `update_version.py` is the single source of truth for `__init__.py` writes. Build now produces `firestarter-3.0.0b1`.                                                                                          | firestarter_app: 091f476 (beta)                         |
+| E2E-03 | `softprops/action-gh-release` defaults to `target_commitish: github.sha`, which is the **pre**-workflow trigger SHA — so the tag landed on the OLD commit (`__version__ = "2.0.7"`), invisible to the post-`update_version.py` auto-commit.                                                          | Added `target_commitish: ${{ steps.auto_commit.outputs.commit_hash \|\| git rev-parse HEAD }}` step. Tag now lands on the version-bumped commit.                                                                                                       | firestarter_app: 091f476 (beta); firestarter: a566b94 (beta) |
+| E2E-04 | `beta-build.yml` runs `pio run` (all environments). `[env:native]` is a test-only env with no `main()`, so linking fails with "undefined reference to main".                                                                                                                                          | Added `[platformio]` section with `default_envs = uno, leonardo` so `pio run` skips the native env. `pio test -e native` still picks it up explicitly.                                                                                                | firestarter: 761bed9 (beta)                             |
+| E2E-05 | Firmware `Release` step required `PERSONAL_ACCESS_TOKEN` which is not configured on the firmware repo (and which is unnecessary — there's no PyPI cascade from firmware).                                                                                                                              | Switched firmware Release auth to the built-in `secrets.GITHUB_TOKEN`.                                                                                                                                                                                | firestarter: a566b94 (beta)                             |
+
+Additional fixes to `v1.4-e2e-verify.sh` itself (not E2E-01 substrate, but discovered during verification):
+- `gh release view --json isLatest` is not supported in current `gh` CLI; replaced with `gh api repos/.../releases/latest` + tag_name comparison.
+- `jq -e ... && echo true` shell idiom produced `"true\ntrue"` in `HAS_UNO`/`HAS_LEONARDO` because `jq -e` prints the matched value; suppressed jq stdout so only the `echo` branches contribute.
+
+### Sub-criterion green status (E2E-01 D-01..D-20 acceptance gate)
+
+| Sub-criterion | Verifier check                                                                              | Status |
+|---------------|---------------------------------------------------------------------------------------------|--------|
+| (a) PyPI shows X.Y.ZbN                                                                                       | Step 1                  | PASS   |
+| (b) `pip install --pre firestarter` resolves X.Y.ZbN                                                         | Manual venv install     | PASS   |
+| (c) FW GitHub Pre-release shape (isPrerelease=true, latest != X.Y.ZbN, .hex assets present)                  | Step 2                  | PASS   |
+| (d) Lockstep tag equality across app + firmware repos                                                        | Step 3                  | PASS   |
+| (e) `firestarter fw --list --pre` shows X.Y.ZbN as prerelease channel                                        | Step 4                  | PASS   |
+| (f) Stable install does NOT see beta (`pip install firestarter` resolves 2.0.7, no `--list` flag)            | Manual stable venv      | PASS   |
+
+### Pending operator follow-up (post-E2E-green checklist)
+
+- Replace `<SHIP_DATE_PLACEHOLDER>` and `TBD-on-cut` tokens in `MILESTONES.md` + `PROJECT.md` with 2026-05-20 + real commit counts.
+- Walk through `20-HUMAN-UAT.md`, mark each test result, flip its frontmatter `status: partial` → `status: passed` once all 6 are recorded.
+- Run `bash .planning/v1.4-archive.sh` (no `--dry-run`) and commit `refactor: archive v1.4 phase directories to milestones/v1.4-phases/`.
+- After all of the above, flip this file's frontmatter `status: human_needed` → `status: passed` and run `gsd-sdk query phase.complete 20` to close Phase 20.
+
+_Updated: 2026-05-20_
+_E2E recovery iteration: Claude (Phase 20 substrate hardening)_
