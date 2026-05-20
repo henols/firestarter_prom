@@ -28,7 +28,7 @@
 
 ### Phases
 
-- [ ] **Phase 21: Firmware Target — `uno328pb`** — PlatformIO env (no custom board file; see CONTEXT D-05 Path B amendment to FW-02) + name_firmware.py rework + handshake-name plumbing + native test green + GATE-1.5 byte-identity on uno + leonardo. Desk-side. (FW-01, FW-02, FW-03, FW-04). **Plans:** 2
+- [x] **Phase 21: Firmware Target — `uno328pb`** — PlatformIO env (no custom board file; see CONTEXT D-05 Path B amendment to FW-02) + name_firmware.py rework + handshake-name plumbing + native test green + GATE-1.5 byte-identity on uno + leonardo. Desk-side. (FW-01, FW-02, FW-03, FW-04). **Plans:** 2/2 complete (shipped 2026-05-20)
 - [ ] **Phase 22: Release Pipeline Artifacts** — Stable + beta workflows emit `firestarter_uno328pb.hex` as a third per-board artifact; existing two artifacts unchanged. Desk-side / CI-side. (REL-01, REL-02)
 - [ ] **Phase 23: Host CLI Installer Integration** — Confirm `firestarter fw -i`/`--pre`/`firmware list` work for `uno328pb`-reporting devices; add any allowlist entry + regression test; verify GATE-01 non-regression on existing boards. Desk-side. (INST-01, INST-02, INST-03, GATE-01)
 - [ ] **Phase 24: Bench Validation on 328PB-Uno** — Operator-on-bench cycle: cut a v1.5 beta pre-release, flash 328PB-Uno via `firestarter fw -i --pre`, run write→read→verify on a representative EPROM (W27C512 default). Capture `.planning/v1.5-BENCH-RESULTS.md`. (BENCH-01, BENCH-02)
@@ -48,7 +48,7 @@
   5. `pio test -e native` from the same checkout completes with `test_dispatch` and `test_messages` suites both green — the new env addition must not regress the host-side native suite.
 **Plans:** 2 plans
 - [x] 21-01-PLAN.md — Wave 1: Capture GATE-1.5 baselines (firestarter_uno.hex + firestarter_leonardo.hex from beta @ 5fd751e) + amend REQUIREMENTS.md FW-02 per CONTEXT D-09 (drop boards/uno328pb.json, anchor on RURP_BOARD_NAME + name_firmware.py rework) — shipped 2026-05-20 (commits 78dc1fe + 6fdaaff)
-- [ ] 21-02-PLAN.md — Wave 2: Rework firestarter/name_firmware.py (PROGNAME from RURP_BOARD_NAME via env.ParseFlags) + atomic 4-site macro guard widening (ARDUINO_AVR_UNO → || ARDUINO_AVR_ATmega328PB) + add [env:uno328pb] block (platform=atmelavr, board=ATmega328PB) + full verification gate (FW-01 build green, FW-03 .elf .rodata grep, FW-04 native suite, GATE-1.5 cmp -s)
+- [x] 21-02-PLAN.md — Wave 2: Reworked firestarter/name_firmware.py (PROGNAME from RURP_BOARD_NAME via env.ParseFlags) + atomic 4-site macro guard widening (ARDUINO_AVR_UNO → || ARDUINO_AVR_ATmega328PB) + added [env:uno328pb] block (platform=atmelavr, board=ATmega328PB) + full verification gate green (FW-01 build SUCCESS / 0 warnings; FW-03 `avr-strings` surfaces `3.0.0b2:uno328pb` from firestarter_uno328pb.elf [AVR ELFs lack .rodata → avr-strings is the canonical alt per CONTEXT D-13]; FW-04 native suite 20/20 PASS; GATE-1.5 cmp -s both exit 0) — shipped 2026-05-20 (sub-repo commits da607d4 + ab7c2a9 on firestarter/beta)
 
 #### Phase 22: Release Pipeline Artifacts
 **Goal:** Both the stable workflow (`build.yml`) and the beta workflow (`beta-build.yml`) emit `firestarter_uno328pb.hex` as a third per-board release artifact alongside `firestarter_uno.hex` and `firestarter_leonardo.hex`, without altering the existing two artifacts' byte content (modulo version-string drift).

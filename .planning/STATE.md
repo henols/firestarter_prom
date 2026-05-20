@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: — Arduino Uno
 status: executing
-last_updated: "2026-05-20T20:30:00.000Z"
-last_activity: "2026-05-20 -- Plan 21-01 completed (GATE-1.5 baselines + FW-02 amendment)"
+last_updated: "2026-05-20T20:24:00.000Z"
+last_activity: "2026-05-20 -- Plan 21-02 completed (firmware sub-repo: [env:uno328pb] + 4-site guard widening + name_firmware.py rework; FW-01..FW-04 closed; GATE-1.5 green; Phase 21 ready for verifier)"
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
-  percent: 50
+  completed_plans: 2
+  percent: 100
 ---
 
 # Project State
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 21 (firmware-target-uno328pb) — EXECUTING
-Plan: 2 of 2 (Plan 21-01 complete; Plan 21-02 next)
-Status: Executing Phase 21
-Last activity: 2026-05-20 -- Plan 21-01 completed (GATE-1.5 baselines + FW-02 amendment)
+Phase: 21 (firmware-target-uno328pb) — PLANS COMPLETE, AWAITING VERIFIER
+Plan: 2 of 2 complete (Plan 21-01 + Plan 21-02 both shipped)
+Status: Phase 21 ready for /gsd-verify-work; Phase 22 (REL) next
+Last activity: 2026-05-20 -- Plan 21-02 completed (firmware sub-repo [env:uno328pb] + 4-site guard widening + name_firmware.py rework; all 5 phase SC green: FW-01 build SUCCESS 0 warnings, FW-03 uno328pb literal in firmware artifact, FW-04 native suite 20/20, GATE-1.5 byte-identity preserved on uno + leonardo)
 
 ## Project Reference
 
@@ -194,7 +194,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 
 ## Operator Next Steps
 
-- Execute v1.5 Phase 21 Plan 21-02 (firmware sub-repo rework + GATE-1.5 verify): `/gsd-execute-phase 21 --plan 21-02` (Plan 21-01 complete — baselines + FW-02 amendment landed in commits 78dc1fe + 6fdaaff)
+- Run `/gsd-verify-work 21` to formally close Phase 21 (all SC green; both plans shipped). Then start Phase 22 (Release Pipeline Artifacts): `/gsd-execute-phase 22` — this widens `[platformio] default_envs` to include `uno328pb` so `build.yml` + `beta-build.yml` attach the new artifact to GitHub Releases. Cross-phase hand-off reminder: CONTEXT D-11 / D-12 — Phase 22 SC#1's ROADMAP literal currently reads `default_envs = uno, leonardo, uno328pb`; the CONTEXT D-08 section order argues for `uno, uno328pb, leonardo`. Phase 22 planner picks. Phase 23 (Host CLI) hand-off: `firestarter_app/firestarter/firmware.py:417-423` needs an `uno328pb` branch for the avrdude profile (CONTEXT D-10) — partno = `atmega328pb`, baud_rate = 115200, programmer_id = whatever bootloader the operator flashed (likely `urclock` per MiniCore default).
 
 ## Performance Metrics
 
@@ -231,6 +231,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 11 P06 | ~6min | 1 tasks | 4 files |
 | Phase 12 P12-04 | 3min | 1 tasks | 3 files |
 | Phase 21 P21-01 | ~5min | 2 tasks | 4 files |
+| Phase 21 P21-02 | ~4min | 3 tasks | 5 files |
 
 ## Decisions
 
@@ -300,3 +301,8 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase 21]: Plan 21-01: Path B locked at the requirements layer — REQUIREMENTS.md FW-02 amended to drop boards/uno328pb.json entirely; the requirement now anchors on `RURP_BOARD_NAME` as the single source of truth for the board-id triple (artifact filename = build_flag value = handshake `<board>` slot). Citing CONTEXT D-05 + D-09 inline keeps the REQUIREMENTS → CONTEXT trace grep-walkable.
 - [Phase 21]: Plan 21-01: GATE-1.5 baselines captured with `include/version.h` UNMODIFIED (VERSION="3.0.0b2") per RESEARCH Pitfall 3 — any `update_version.py` invocation between capture and Plan 21-02's `cmp -s` gate tears the .rodata version-string region. CAPTURE-PROCEDURE.md records the "do NOT run update_version.py" warning explicitly + SHA-256 of each baseline for drift detection.
 - [Phase 21]: Plan 21-01: Hex baselines stored as plain blobs under `.planning/v1.5/baselines/` (no Git LFS) per CONTEXT D-04 Claude's Discretion — meta-repo is otherwise text-only and ~62/69 KB per board is below any meaningful LFS threshold.
+- [Phase 21]: Plan 21-02: RESEARCH Open Q1 resolved at execution time — `platform = atmelavr` worked on the FIRST attempt (no fallback to `MCUdude/MiniCore` needed). The bundled `boards/ATmega328PB.json` in `platformio/atmelavr@5.2.0` supplies `build.core = "MiniCore"` and `-DARDUINO_AVR_ATmega328PB` via `build.extra_flags`. CONTEXT D-07's literal `platform = MCUdude/MiniCore` is a colloquial reference; the canonical PIO form is `atmelavr` (mirrors `[env:uno]`).
+- [Phase 21]: Plan 21-02: FW-03 verification surface adjustment — AVR ELFs (avr-gcc output) DO NOT have a `.rodata` section; the `FW_VERSION` literal lands in `.data` instead. Plan's primary `avr-objdump -j .rodata -s` command errors with `section '.rodata' mentioned in -j option, but not found in any input file`. CONTEXT D-13's alternative `avr-strings -a *.elf | grep -F <board>` (or `avr-objdump -j .data -s`) is the canonical AVR-correct verification surface and surfaces the literal `3.0.0b2:uno328pb` cleanly. Documented in 21-02-SUMMARY.md "Deviations" section for downstream phases (especially Phase 22 if it ever adds a CI gate asserting the handshake string ships in the artifact).
+- [Phase 21]: Plan 21-02: PROGNAME-named ELF — PIO renames BOTH the `.hex` AND the `.elf` to `PROGNAME`. Actual ELF path is `.pio/build/uno328pb/firestarter_uno328pb.elf`, NOT `firmware.elf`. This is inherited behavior (uno + leonardo envs also emit `firestarter_uno.elf` / `firestarter_leonardo.elf`); the plan's `firmware.elf` references were spec drift. Downstream phases that need the ELF should reference `.pio/build/<env>/firestarter_<env>.elf`.
+- [Phase 21]: Plan 21-02: Atomic 4-site widening + new env block landed in a single firmware sub-repo commit (ab7c2a9) per CONTEXT D-01 invariant — no half-state in any commit. Pitfall 5 honored: `rurp_common.cpp` lines 25 + 28 (the Leonardo `#elif` arm + `#error "Unsupported board"`) preserved verbatim through the widening of lines 10 + 23.
+- [Phase 21]: Plan 21-02: GATE-1.5 byte-identity preserved across BOTH perturbations (script rework + macro widening). Sub-repo commits ordered such that Task 1 (script) and Task 2 (widening + env) committed separately to isolate the GATE-1.5 risk surface per RESEARCH Assumption A3 — cmp -s verified green AFTER each commit, not just at the end.
