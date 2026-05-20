@@ -128,7 +128,7 @@ Both must print `DRY_RUN: <chosen-string>` and exit 0.
 ### Step 4 — Trigger the app-side beta workflow
 
 ```bash
-gh workflow run release.yml \
+gh workflow run beta-release.yml \
   -R <owner>/firestarter_app \
   --ref beta \
   -f beta_version=<chosen-string>
@@ -146,7 +146,7 @@ Wait for the workflow to complete (`gh run watch` or refresh the Actions tab), t
 ### Step 5 — Trigger the firmware-side beta workflow with the SAME `BETA_VERSION`
 
 ```bash
-gh workflow run build.yml \
+gh workflow run beta-build.yml \
   -R <owner>/firestarter \
   --ref beta \
   -f beta_version=<chosen-string>
