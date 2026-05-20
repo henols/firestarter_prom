@@ -44,7 +44,11 @@
   2. `firestarter/.github/scripts/update_version.py` (or its replacement) recognises beta-branch context in the same way and emits matching pre-release identifiers (`X.Y.ZbN`) into `include/version.h`. Format is identical to the app's so lockstep comparison is a string-equality check. Stable-branch behaviour preserved verbatim — a `main`-context invocation produces byte-identical output to the pre-v1.4 script.
   3. The locked-step coordination mechanism is finalised (one of: shared `VERSION` file in the meta-repo committed by both sub-repos' release workflows; cross-repo workflow trigger via `repository_dispatch`; or manually-paired beta-branch push with a written checklist) and documented in a phase-local artifact that Phase 18 (`v1.4-RELEASE-PROCEDURES.md`) consumes verbatim. The procedure, when followed, produces matching `X.Y.ZbN` version strings in both repos' beta releases — verified by a dry-run or fixture-driven test.
   4. Both version-bump scripts have a unit-level test (pytest fixture, or PlatformIO native, or a `--dry-run` flag with golden-file diff) that exercises both the stable-branch path (asserts patch increment) and the beta-branch path (asserts `b1` / `bN` / `rcN` suffix on a chosen base version). Test runs in CI on PRs to either sub-repo before the v1.4 plumbing lands in mainline.
-**Plans:** TBD
+**Plans:** 4 plans
+- [ ] 15-01-PLAN.md — Wave 0 RED-gate scaffold: failing pytest tests + golden baselines in both sub-repos (creates firestarter/tests/ dir)
+- [ ] 15-02-PLAN.md — Wave 1 app-side: extend firestarter_app/.github/scripts/update_version.py (beta detection, dry-run, validation, GITHUB_OUTPUT guard) — VER-01 GREEN
+- [ ] 15-03-PLAN.md — Wave 1 firmware-side: extend firestarter/.github/scripts/update_version.py + add pytest CI step to build.yml — VER-02 GREEN, lockstep regex parity
+- [ ] 15-04-PLAN.md — Wave 2 lockstep deliverables: 15-LOCKSTEP-PROCEDURE.md + lockstep-dryrun-fixture.sh (cross-script byte-identity proof) — VER-03 GREEN
 
 #### Phase 16: App Beta Release Pipeline
 **Goal:** A push to `firestarter_app/beta` triggers a new (or extended) GitHub Actions workflow that runs the existing CI test suite, calls the Phase 15 version-bump script in beta mode, creates a GitHub Release with `prerelease: true` and `make_latest: false`, and publishes the resulting wheel/sdist to PyPI as a `X.Y.ZbN` pre-release installable via `pip install --pre firestarter`. The existing `main` → stable pipeline behaviour is preserved verbatim (GATE-01).
