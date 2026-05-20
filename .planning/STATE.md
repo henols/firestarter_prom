@@ -1,14 +1,14 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.5
-milestone_name: Arduino Uno (ATmega328PB) Board Support
-status: planning
-last_updated: "2026-05-20T19:00:00.000Z"
-last_activity: 2026-05-20 — Milestone v1.5 started
+milestone_name: — Arduino Uno
+status: executing
+last_updated: "2026-05-20T20:30:00.000Z"
+last_activity: 2026-05-20 -- Phase 21 planning complete (2 plans, 2 waves)
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
-  total_plans: 0
+  total_plans: 2
   completed_plans: 0
   percent: 0
 ---
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-05-20 — Milestone v1.5 started (Arduino Uno ATmega328PB Board Support)
+Phase: 21 — Firmware Target `uno328pb`
+Plan: 21-01 + 21-02 (ready)
+Status: Ready to execute
+Last activity: 2026-05-20 -- Phase 21 planning complete (2 plans, 2 waves)
 
 ## Project Reference
 

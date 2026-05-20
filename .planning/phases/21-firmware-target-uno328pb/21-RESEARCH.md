@@ -578,27 +578,31 @@ echo "leonardo byte-identity: $?"  # expect 0
 | A5 | The MiniCore-bundled-via-atmelavr build for `board = ATmega328PB` uses the same Arduino-Uno-compatible pin mapping as `[env:uno]` (PD0/PD1 as USART0 RX/TX → FTDI), so the existing `SERIAL_ON_IO` gating works identically. | Pattern 1, Don't Hand-Roll | If wrong (`pb-variant` remaps the UART pins differently), the firmware would handshake correctly but the serial wire could be miswired. Mitigation: Phase 24 bench validates real-silicon serial behavior. For Phase 21 desk-side validation this is unfalsifiable without bench hardware. Medium risk; mostly Phase 24's problem. |
 | A6 | The 328PB's `ADMUX` bandgap-channel encoding (CONTEXT D-01 site #3) is identical to the 328P's (MUX[3:0] = 1110 selects internal 1.1V bandgap). | Don't Hand-Roll, Pattern 3 | If wrong, the 328PB's `rurp_read_vcc_mv()` returns a garbage VCC value, downstream voltage math is wrong, and VPP regulation could mis-set (safety concern). Mitigation: Phase 24 bench measures VPP at the chip socket — divergence would be caught there. [VERIFIED externally against Microchip ATmega328PB datasheet Table 24-4 — same encoding as 328P.] Low risk. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should `[env:uno328pb]` use `platform = atmelavr` (my recommendation) or `platform = MCUdude/MiniCore` (CONTEXT D-07 literal)?**
    - What we know: CONTEXT D-07 says `MCUdude/MiniCore`; PlatformIO's built-in atmelavr 5.2.0 ships ATmega328PB with MiniCore as the bundled core; `pio pkg show MCUdude/MiniCore` returns "not found" against the registry.
    - What's unclear: whether the CONTEXT author intended `MCUdude/MiniCore` literally (implying the planner installs it as a custom platform via git URL) or colloquially (referring to MiniCore-the-core, which ships via atmelavr).
    - Recommendation: Planner asks operator to confirm. If atmelavr is acceptable, ship `platform = atmelavr` for symmetry with `[env:uno]`. If literal MCUdude/MiniCore is required, the platform string becomes `platform = https://github.com/MCUdude/MiniCore.git` (git URL form — registered packages list doesn't include it).
+   - **RESOLVED:** Plans use `platform = atmelavr` for symmetry with `[env:uno]` (MiniCore-the-core is bundled inside atmelavr@5.2.0 via the ATmega328PB board file's `build.core = "MiniCore"`). The CONTEXT D-07 literal is treated as colloquial. Plan 21-02 Task 2 `<action>` documents the disambiguation; if `pio run -e uno328pb` fails at config-parse with "platform not found", that confirms the read of D-07 as colloquial.
 
 2. **Should `firestarter_uno.hex` and `firestarter_leonardo.hex` baselines be captured BEFORE or AFTER the `name_firmware.py` rework?**
    - What we know: CONTEXT D-04 says capture from `firestarter/beta` tip `5fd751e` (which is the current beta tip = before any Phase 21 work). D-04 also says "GATE-1.5 byte-identity must hold AFTER both the macro widening AND the `name_firmware.py` rework."
    - What's unclear: if the script rework is the load-bearing perturbation risk, capturing baseline at `5fd751e` (pre-rework) AND verifying the new build (post-rework) is the proper bracket. Confirmed: yes, baseline = pre-rework state, post-state = both edits applied.
    - Recommendation: Capture at `5fd751e` (clean baseline = today's beta tip), then verify after both edits. This is the canonical CONTEXT D-04 interpretation.
+   - **RESOLVED:** Plan 21-01 Task 1 captures baselines at `firestarter/beta` tip `5fd751e` with `version.h` UNMODIFIED (no `update_version.py` invocation per Pitfall 3). Plan 21-02 Tasks 1/2/3 verify post-rework `.hex` against captured baselines via `cmp -s`.
 
 3. **Does the `[env:uno328pb]` need `board_build.f_cpu` override?**
    - What we know: PIO atmelavr's `ATmega328PB.json` defaults `build.f_cpu = 16000000L` (16 MHz). CONTEXT D-07 says no `board_build.*` overrides. ROADMAP Phase 21 SC#1 implicitly expects 16 MHz (Arduino-Uno-clock).
    - What's unclear: nothing — accept the 16 MHz default. Deferred to Phase 24 if bench measurement of the operator's board reveals a different oscillator.
    - Recommendation: No f_cpu override.
+   - **RESOLVED:** No `board_build.f_cpu` override in `[env:uno328pb]`. The 16 MHz default from the stock ATmega328PB board file is accepted. Real-silicon clock measurement deferred to Phase 24 bench.
 
 4. **Should the baseline hex files be committed via Git LFS or plain blobs?**
    - What we know: AVR hex files are typically ~70 KB max per board (uno ~22 KB at v1.4 ship; leonardo ~25 KB). Meta-repo otherwise tracks only text. CONTEXT discretion note flagged this as Claude's discretion.
    - What's unclear: nothing — small artifacts, no LFS dependency in meta-repo today.
    - Recommendation: Plain blobs under `.planning/v1.5/baselines/`. If a future milestone adds many board baselines, consider LFS at that point.
+   - **RESOLVED:** Plan 21-01 Task 1 commits baselines as plain blobs under `.planning/v1.5/baselines/`. No Git LFS dependency added to the meta-repo for this milestone.
 
 ## Environment Availability
 
