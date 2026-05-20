@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: — CMOS EPROM Family Hardware Validation
 status: executing
-last_updated: "2026-05-20T07:53:01.387Z"
-last_activity: 2026-05-20 -- Phase 12 planning complete
+last_updated: "2026-05-20T07:57:47.278Z"
+last_activity: 2026-05-20
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 10
-  completed_plans: 6
+  completed_plans: 7
   percent: 25
 ---
 
@@ -20,11 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: 11 (coverage-matrix-db-inconsistency-audit) — COMPLETE (6/6 plans)
-Plan: 6 of 6 done — Wave 5 D-07 planning-doc reconciliation landed (commit 70be654); 20 substring edits across PROJECT/ROADMAP/REQUIREMENTS/STATE; matrix file byte-identical vs tool re-run; pytest 39/39 PASS. Phase 11 closes — COV-01 + COV-02 delivered.
-Status: Ready to execute
-Resume from: `/gsd-plan-phase 12` (Phase 12 has no plans yet — needs CONTEXT.md + PLANS via planner). Phase 11 artifacts (`.planning/v1.3-COVERAGE-MATRIX.md` + `.planning/v1.3-defect-coverage-ids.json`) are operator-ready input to Phase 12 BENCH-05 selection (D-11).
-Last activity: 2026-05-20 -- Phase 12 planning complete
+Phase: 12 (28-pin-algo-0x07-bench-validation) — EXECUTING
+Plan: 2 of 4 (Wave 0 — Plan 12-04 scaffold — complete; Wave 1 — Plan 12-01 BENCH-01 W27C512 — next, operator-on-bench)
+Status: Wave 0 complete; awaiting operator for Wave 1 (bench session)
+Resume from: `/gsd-execute-plan 12 12-01` once the W27C512 + Uno + Leonardo + RURP shield + scope are on the bench. Wave 0 scaffold (`.planning/v1.3-BENCH-RESULTS.md`, `.planning/v1.3/bench-logs/`, `.planning/v1.3/scope/`) is in place — Plan 12-01 appends rows + drops log/photo files without re-creating any scaffold.
+Last activity: 2026-05-20 -- Phase 12 Plan 12-04 scaffold landed (Wave 0 complete)
 
 ## Project Reference
 
@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-19)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 11 — coverage-matrix-db-inconsistency-audit
+**Current focus:** Phase 12 — 28-pin-algo-0x07-bench-validation
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 in planning — roadmap drafted (Phases 11–14), 12/12 requirements mapped
@@ -170,6 +170,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 11 P04 | 6min | 3 tasks | 4 files |
 | Phase 11 P05 | 10min | 2 tasks | 4 files |
 | Phase 11 P06 | ~6min | 1 tasks | 4 files |
+| Phase 12 P12-04 | 3min | 1 tasks | 3 files |
 
 ## Decisions
 
@@ -234,3 +235,5 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase 11]: Plan 11-05: Greenfield golden-file fixture at firestarter_app/tests/golden/v1.3-COVERAGE-MATRIX.md is the regression anchor. test_golden_file_matches seeds tmp_path/l.json byte-identically from .planning/v1.3-defect-coverage-ids.json so DEFECT-COV-NN assignments stay stable; any output drift requires regenerating the golden alongside the matrix in one commit.
 - [Phase 11]: Plan 11-05: Phrasing avoidance — initial caption read "does not propose swaps" but the literal "swap" tripped D-11 acceptance grep. Replaced with "is observational only" to preserve intent without triggering the regex. Lesson: D-11 acceptance gate is substring-grep, not semantic.
 - [Phase 11]: Plan 11-06: D-07 reconciliation landed as a single dedicated commit (70be654, separate from matrix-tool commits per D-07). 20 substring replacements across PROJECT.md (6) / ROADMAP.md (4) / REQUIREMENTS.md (1) / STATE.md (2 — L36 substring "~341 algo-0x07" not present in live file, edit deferred per PLAN action guidance "do not invent substitute edits"). Historical narrative preserved in 3 locations per RESEARCH.md A6 (PROJECT.md L135 WIRE-02 743/743 PASS decision-row; ROADMAP.md L140 v1.0 archived <details> bullet; STATE.md L220 Plan 11-02 narrative about §2 hard-coding the OLD counts).
+- [Phase ?]: [Phase 12]: Plan 12-04: Headers-only scaffold for v1.3-BENCH-RESULTS.md (no placeholder rows) — resolves RESEARCH.md Open Q1; append-a-new-row is idempotent on resume vs edit-an-empty-row.
+- [Phase ?]: [Phase 12]: Plan 12-04: BENCH evidence accretion model — v1.3-BENCH-RESULTS.md is append-only across Phases 12 + 13; Phase 14 / DOC-01 closes it. Two empty directories (bench-logs/, scope/) committed via .gitkeep sentinels.

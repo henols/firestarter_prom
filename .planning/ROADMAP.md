@@ -58,7 +58,7 @@
   4. Chip-ID observation protocol (PROTO-01): for every chip in BENCH-01/02/05 where `chip_id_check: true` in `chip_database.json`, the chip-ID read returns the DB-declared `chip_id_value` on both boards; mismatches confirmed to block write via the safety stack. Observation protocol is recorded in a way that Phase 13 can re-apply it without re-derivation.
   5. VPP observation protocol (PROTO-02): scope-measured VPP at the chip socket VPP pin reads 12V ±5% during write/erase phases and idles at VCC or off between operations, on both boards, for every chip in BENCH-01/02/05. Scope trace captured at least once per board.
 **Plans:** 4 plans
-- [ ] 12-04-PLAN.md — Wave 0 desk-side scaffold: BENCH-RESULTS.md skeleton + .planning/v1.3/{bench-logs,scope}/ directories
+- [x] 12-04-PLAN.md — Wave 0 desk-side scaffold: BENCH-RESULTS.md skeleton + .planning/v1.3/{bench-logs,scope}/ directories
 - [ ] 12-01-PLAN.md — Wave 1 BENCH-01 W27C512 bench cycle on Uno + Leonardo + PROTO-02 scope photos at pin 22 (closes deferred Phase 08/09 UAT items)
 - [ ] 12-02-PLAN.md — Wave 2 BENCH-02 SST27SF512 bench cycle + PROTO-01 blocked-write evidence capture (MSG_ERR_CHIP_ID_MISMATCH)
 - [ ] 12-03-PLAN.md — Wave 3 BENCH-05 W27C257 bench cycle (probe-point swap to pin 1 — DIP28_27256 VPP) + PROTO-02 BENCH-05 leg scope photos
@@ -161,6 +161,6 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 9 | v1.2 | 5/5 | ✅ Complete | 2026-05-19 |
 | 10 (close) | v1.2 | n/a | ✅ Complete | 2026-05-19 |
 | 11 | v1.3 | 6/6 | ✅ Complete | 2026-05-19 |
-| 12 | v1.3 | 0/0 | Not started | — |
+| 12 | v1.3 | 1/4 | In Progress|  |
 | 13 | v1.3 | 0/0 | Not started | — |
 | 14 (close) | v1.3 | 0/0 | Not started | — |
