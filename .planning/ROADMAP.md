@@ -55,7 +55,7 @@
 **Depends on:** Phase 21 (the artifact must exist on disk before the release upload step can attach it).
 **Requirements:** REL-01, REL-02
 **Success Criteria** (what must be TRUE):
-  1. `platformio.ini` `default_envs = uno, leonardo, uno328pb` so a CI-side `pio run` builds all three targets. (Or the workflow explicitly invokes each env — whichever pattern matches the existing CI shape with the smaller diff.)
+  1. `platformio.ini` `default_envs = uno, uno328pb, leonardo` so a CI-side `pio run` builds all three targets. (Order matches the `[env:*]` section order in `platformio.ini` per Phase 21 D-08 + D-12 hand-off; supersedes the original stale literal `uno, leonardo, uno328pb`.) The workflows' existing glob `files: .pio/build/**/firestarter_*.hex` (build.yml:105 + beta-build.yml:92) captures all three artifacts — no workflow edits needed (CONTEXT D-03).
   2. `build.yml` Release step's `files:` glob (`/.pio/build/**/firestarter_*.hex`) catches `firestarter_uno328pb.hex` end-to-end on a stable cut from `firestarter/main`. After a stable cut, the GitHub Release asset list shows three `.hex` files.
   3. `beta-build.yml` Release step's `files:` glob likewise catches `firestarter_uno328pb.hex` on a beta cut from `firestarter/beta`. After a beta cut, the GitHub Pre-release asset list shows three `.hex` files; `prerelease: true` and `make_latest: false` unchanged.
   4. `firestarter_uno.hex` and `firestarter_leonardo.hex` from a v1.5 cut are byte-identical to a pre-v1.5 cut of the same source revision (modulo version-string drift from `update_version.py`). Verified by `diff` against the v1.4 ship-tag (3.0.0b3) artifacts.
