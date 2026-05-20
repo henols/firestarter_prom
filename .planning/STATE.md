@@ -1,10 +1,10 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.4
-milestone_name: Beta & Pre-release Deployment Pipeline
+milestone_name: — Beta & Pre-release Deployment Pipeline
 status: planning
-last_updated: "2026-05-20T08:15:16.322Z"
-last_activity: 2026-05-20
+last_updated: "2026-05-20T08:38:56.753Z"
+last_activity: 2026-05-20 — v1.4 roadmap created (Phases 15-19, 12/12 requirements mapped)
 progress:
   total_phases: 5
   completed_phases: 0
