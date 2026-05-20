@@ -1,9 +1,11 @@
 ---
-status: partial
+status: passed
 phase: 20-end-to-end-smoke-test-milestone-close
 source: [20-VERIFICATION.md]
 started: 2026-05-20
 updated: 2026-05-20
+closed: 2026-05-20
+ship_tag: 3.0.0b2
 ---
 
 # Phase 20 — End-to-End Smoke Test (E2E-01) — Operator Checklist
@@ -198,7 +200,7 @@ and walk the 6 HUMAN-UAT tests.
 ### Test 1: PyPI pre-release visibility
 
 **Maps to:** E2E-01 sub-criterion (a)
-**Result:** pending
+**Result:** pass
 **Verified by:** operator
 
 **Steps:**
@@ -219,7 +221,7 @@ and walk the 6 HUMAN-UAT tests.
 ### Test 2: Clean-install from PyPI
 
 **Maps to:** E2E-01 sub-criterion (b)
-**Result:** pending
+**Result:** pass
 **Verified by:** operator
 
 **Steps:**
@@ -248,7 +250,7 @@ and walk the 6 HUMAN-UAT tests.
 ### Test 3: Firmware GitHub Pre-release with .hex artifacts
 
 **Maps to:** E2E-01 sub-criterion (c)
-**Result:** pending
+**Result:** pass
 **Verified by:** operator
 
 **Steps:**
@@ -272,7 +274,7 @@ and walk the 6 HUMAN-UAT tests.
 ### Test 4: Lockstep version string equality
 
 **Maps to:** E2E-01 sub-criterion (d)
-**Result:** pending
+**Result:** pass
 **Verified by:** operator
 
 **Steps:**
@@ -295,7 +297,7 @@ and walk the 6 HUMAN-UAT tests.
 ### Test 5: Beta-installed app fetches matching beta firmware (INST-02 E2E)
 
 **Maps to:** E2E-01 sub-criterion (e)
-**Result:** pending
+**Result:** pass
 **Verified by:** operator
 
 **Steps:**
@@ -327,7 +329,7 @@ asset URL/path referencing `<BETA_VERSION>`. Proves INST-02 end-to-end.
 ### Test 6: Stable-installed app non-regression (INST-01)
 
 **Maps to:** E2E-01 sub-criterion (f)
-**Result:** pending
+**Result:** pass
 **Verified by:** operator
 
 **Steps:**
@@ -364,14 +366,13 @@ users are unaffected by the new beta channel.
 
 Phase 20 is considered green when ALL of the following are true:
 
-- [ ] All 6 tests above are marked `pass`
-- [ ] `bash .planning/v1.4-e2e-verify.sh <BETA_VERSION>` exited 0
-- [ ] `.planning/MILESTONES.md` v1.4 entry committed (Task 2 deliverable — already done
-      as of the plan-20-01 commit; operator updates `<SHIP_DATE_PLACEHOLDER>` tokens)
-- [ ] `bash .planning/v1.4-archive.sh` executed and phase directories moved to
+- [x] All 6 tests above are marked `pass`
+- [x] `bash .planning/v1.4-e2e-verify.sh <BETA_VERSION>` exited 0
+- [x] `.planning/MILESTONES.md` v1.4 entry committed (Task 2 deliverable — already done
+      as of the plan-20-01 commit; placeholder tokens replaced 2026-05-20)
+- [x] `bash .planning/v1.4-archive.sh` executed and phase directories moved to
       `.planning/milestones/v1.4-phases/`
-- [ ] `.planning/PROJECT.md` updated to ship state with the real ship date
-      (operator replaces `<SHIP_DATE_PLACEHOLDER>` token)
+- [x] `.planning/PROJECT.md` updated to ship state with the real ship date (2026-05-20)
 
 Once all criteria are met, update this file's frontmatter to `status: passed` and
 commit the change as part of the milestone close.

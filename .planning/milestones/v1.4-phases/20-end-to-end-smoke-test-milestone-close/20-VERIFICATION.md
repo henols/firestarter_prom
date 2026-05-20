@@ -1,9 +1,10 @@
 ---
 phase: 20-end-to-end-smoke-test-milestone-close
 verified: 2026-05-20T00:00:00Z
-status: human_needed
-score: 6/11 must-haves verified
+status: passed
+score: 11/11 must-haves verified (live cut + real-hardware flash 2026-05-20T17:25)
 overrides_applied: 0
+ship_tag: 3.0.0b2
 human_verification:
   - test: "Cut a real beta in both sub-repos following v1.4-RELEASE-PROCEDURES.md"
     expected: "Both workflows (beta-release.yml, beta-build.yml) complete green; releases tagged X.Y.ZbN in both repos"

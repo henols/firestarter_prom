@@ -5,9 +5,9 @@
 **v1.1 status:** Parked at 80% (Phase 4 hardware-validation open — FM1608 byte-0 bug requires a different Uno board to unblock; see `.planning/debug/fm1608-fresh-chip-baseline.md`)
 **v1.2 shipped:** 2026-05-19 (Message-ID Logging Rework — Leonardo Flash 98.7% → 85.4%, firmware 3.0.0-dev)
 **v1.3 status:** Paused 2026-05-20 (hardware-gated — Phase 11 coverage matrix shipped + Phase 12 Wave 0 scaffold committed; bench plans 12-01/02/03 + Phase 13 + Phase 14 await operator hardware. Resume: `/gsd-execute-phase 12 --wave 1 --interactive`)
-**v1.4 shipped: <SHIP_DATE_PLACEHOLDER>** (Beta & Pre-release Deployment Pipeline — 6 phases, 16/16 requirements)
+**v1.4 shipped: 2026-05-20** (Beta & Pre-release Deployment Pipeline — 6 phases, 16/16 requirements)
 
-## v1.4 — Beta & Pre-release Deployment Pipeline — Shipped <SHIP_DATE_PLACEHOLDER>
+## v1.4 — Beta & Pre-release Deployment Pipeline — Shipped 2026-05-20
 
 Added a parallel beta / pre-release deployment channel across both Firestarter sub-repos
 without touching the existing main → stable pipelines. Branch-driven trigger (`beta` branch
@@ -203,4 +203,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last updated: <SHIP_DATE_PLACEHOLDER> — v1.4 milestone shipped (Beta & Pre-release Deployment Pipeline). 6 phases, 10 plans, 16/16 requirements. Stable pipelines preserved verbatim per GATE-01/GATE-02; new beta channels additive across both sub-repos.*
+*Last updated: 2026-05-20 — v1.4 milestone shipped (Beta & Pre-release Deployment Pipeline). 6 phases, 10 plans, 16/16 requirements. Stable pipelines preserved verbatim per GATE-01/GATE-02; new beta channels additive across both sub-repos.*

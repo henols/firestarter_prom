@@ -1,8 +1,8 @@
 # Milestones
 
-## v1.4 — Beta & Pre-release Deployment Pipeline (Shipped: <SHIP_DATE_PLACEHOLDER>)
+## v1.4 — Beta & Pre-release Deployment Pipeline (Shipped: 2026-05-20)
 
-**Phases:** 6 (numbered 15-20) | **Plans:** 10 (Phase 15 = 4, Phase 16 = 1, Phase 17 = 1, Phase 18 = 2, Phase 19 = 1, Phase 20 = 1) | **Timeline:** 2026-05-20 → <SHIP_DATE_PLACEHOLDER> (meta-repo commits: TBD-on-cut, firestarter sub-repo commits: TBD-on-cut, firestarter_app sub-repo commits: TBD-on-cut)
+**Phases:** 6 (numbered 15-20) | **Plans:** 10 (Phase 15 = 4, Phase 16 = 1, Phase 17 = 1, Phase 18 = 2, Phase 19 = 1, Phase 20 = 1) | **Timeline:** 2026-05-20 (single-day cut: planning + execution + live verification including real-hardware flash) (meta-repo commits: 55, firestarter sub-repo commits: 12, firestarter_app sub-repo commits: 16)
 
 **Delivered:** Added a parallel beta / pre-release deployment channel across both Firestarter sub-repos without touching the existing main → stable pipelines. Branch-driven trigger (`beta` branch in each sub-repo) wired to new beta workflows that emit PEP 440 / matching pre-release version strings, publish PyPI pre-release wheels (installable via `pip install --pre`), and create GitHub Pre-releases with `make_latest: false` carrying per-board `firestarter_*.hex` artifacts. App and firmware ship locked-step on a single `BETA_VERSION` operator input. Beta-installed app grows three new CLI flags (`--pre`, `--firmware-version`, `firmware list`) plus a PEP 440-safe version comparator; stable-installed app's `firestarter --install` defaults remain byte-identical to pre-v1.4. Documentation: both READMEs grew a Beta channel section; meta-repo `v1.4-RELEASE-PROCEDURES.md` documents the release-engineer cutting workflow.
 
@@ -65,9 +65,9 @@
 | Phases | 6 (numbered 15-20) |
 | Plans | 10 (Phase 15 = 4, Phase 16 = 1, Phase 17 = 1, Phase 18 = 2, Phase 19 = 1, Phase 20 = 1) |
 | Requirements | 16/16 mapped, 16/16 shipped (E2E-01 + MS-01 close on operator green) |
-| Meta-repo commits | TBD-on-cut (fill at milestone close via `git log --oneline --since="2026-05-20" | wc -l` in meta-repo) |
-| Firmware sub-repo commits | TBD-on-cut |
-| Host sub-repo commits | TBD-on-cut |
+| Meta-repo commits | 55 (`git log --oneline 261a430^..HEAD | wc -l` — from `docs(15): capture phase context` to ship) |
+| Firmware sub-repo commits | 12 (`git log --oneline 6c66b29^..origin/beta | wc -l` — from `test(15-01): wave 0 scaffold` to 3.0.0b2 cut) |
+| Host sub-repo commits | 16 (`git log --oneline a7390cc^..origin/beta | wc -l` — from `test(15-01): wave 0 scaffold (app)` to 3.0.0b2 cut) |
 | New workflow files | 2 (`firestarter_app/.github/workflows/beta-release.yml`, `firestarter/.github/workflows/beta-build.yml`) |
 | Existing workflow files modified | 0 (additive only — GATE-01/GATE-02 preserve stable verbatim) |
 | New CLI flags on `firestarter` | 3 (`--pre`, `--firmware-version`, `firmware list`) |
