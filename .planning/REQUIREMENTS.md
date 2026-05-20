@@ -20,9 +20,9 @@ The two sub-repos each grow a parallel beta channel that mirrors the trigger sha
 
 Beta builds use PEP 440 pre-release identifiers in the app, mapped to matching firmware version strings, and coordinated so a beta cut in one repo is paired with the same version in the other.
 
-- [ ] **VER-01**: `firestarter_app/.github/scripts/update_version.py` (or its replacement) recognizes beta-branch builds and emits PEP 440 pre-release identifiers (`X.Y.Zb1`, `X.Y.Zb2`, `X.Y.ZrcN`, etc.) instead of bumping the patch version. Stable-branch behavior (patch auto-bump) preserved verbatim.
-- [ ] **VER-02**: `firestarter/.github/scripts/update_version.py` (or its replacement) recognizes beta-branch builds and emits matching pre-release identifiers (`X.Y.Zb1` etc.). The format is identical to the app's so locked-step comparison is a string equality check.
-- [ ] **VER-03**: Locked-step coordination mechanism exists and is documented. When a beta is cut in one sub-repo, the matching beta version is producible in the other sub-repo by following a defined procedure (the exact mechanism — shared `VERSION` file, cross-repo workflow trigger, or manually-paired beta-branch push — is the load-bearing planning decision for the milestone's first phase and is finalized during /gsd-discuss-phase). Verification: after the procedure runs, both repos' beta releases carry the same `X.Y.ZbN` string.
+- [x] **VER-01**: `firestarter_app/.github/scripts/update_version.py` (or its replacement) recognizes beta-branch builds and emits PEP 440 pre-release identifiers (`X.Y.Zb1`, `X.Y.Zb2`, `X.Y.ZrcN`, etc.) instead of bumping the patch version. Stable-branch behavior (patch auto-bump) preserved verbatim.
+- [x] **VER-02**: `firestarter/.github/scripts/update_version.py` (or its replacement) recognizes beta-branch builds and emits matching pre-release identifiers (`X.Y.Zb1` etc.). The format is identical to the app's so locked-step comparison is a string equality check.
+- [x] **VER-03**: Locked-step coordination mechanism exists and is documented. When a beta is cut in one sub-repo, the matching beta version is producible in the other sub-repo by following a defined procedure (the exact mechanism — shared `VERSION` file, cross-repo workflow trigger, or manually-paired beta-branch push — is the load-bearing planning decision for the milestone's first phase and is finalized during /gsd-discuss-phase). Verification: after the procedure runs, both repos' beta releases carry the same `X.Y.ZbN` string.
 
 ### GATE — Stable-pipeline preservation (regression gates)
 

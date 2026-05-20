@@ -27,7 +27,7 @@
 
 ### Phases
 
-- [ ] **Phase 15: Versioning & Locked-Step Coordination (Foundation)** — Resolve the lockstep coordination mechanism (shared VERSION file vs. cross-repo workflow trigger vs. paired manual tagging); extend both `update_version.py` scripts to emit PEP 440 / matching pre-release identifiers on `beta`-branch builds; document the coordination procedure as input to Phase 18.
+- [x] **Phase 15: Versioning & Locked-Step Coordination (Foundation)** — Resolve the lockstep coordination mechanism (shared VERSION file vs. cross-repo workflow trigger vs. paired manual tagging); extend both `update_version.py` scripts to emit PEP 440 / matching pre-release identifiers on `beta`-branch builds; document the coordination procedure as input to Phase 18. (completed 2026-05-20)
 - [ ] **Phase 16: App Beta Release Pipeline** — Add the `firestarter_app/` beta workflow (push to `beta` → run CI → bump pre-release version per Phase 15 → GitHub Release with `prerelease: true`, `make_latest: false` → publish wheel/sdist to PyPI). Validate stable pipeline (GATE-01) still produces unchanged outputs from a `main` push.
 - [ ] **Phase 17: Firmware Beta Release Pipeline** — Add the `firestarter/` beta workflow (push to `beta` → run catalog validity + codegen drift gate + native Unity tests + PlatformIO build → bump pre-release version per Phase 15 → GitHub Release with `prerelease: true`, `make_latest: false`, same `firestarter_*.hex` artifacts per board). Validate stable pipeline (GATE-02) still produces unchanged outputs from a `main` push.
 - [ ] **Phase 18: Documentation** — Update `firestarter_app/README.md` (install via `pip install --pre`, beta stability guarantee, how to report beta issues); update `firestarter/README.md` (find pre-release `.hex` on GitHub Releases, opt-in semantics, issue reporting); publish `.planning/v1.4-RELEASE-PROCEDURES.md` (release-engineer workflow for cutting a beta in both repos via the Phase 15 lockstep mechanism, deferred promotion path).
@@ -44,11 +44,11 @@
   2. `firestarter/.github/scripts/update_version.py` (or its replacement) recognises beta-branch context in the same way and emits matching pre-release identifiers (`X.Y.ZbN`) into `include/version.h`. Format is identical to the app's so lockstep comparison is a string-equality check. Stable-branch behaviour preserved verbatim — a `main`-context invocation produces byte-identical output to the pre-v1.4 script.
   3. The locked-step coordination mechanism is finalised (one of: shared `VERSION` file in the meta-repo committed by both sub-repos' release workflows; cross-repo workflow trigger via `repository_dispatch`; or manually-paired beta-branch push with a written checklist) and documented in a phase-local artifact that Phase 18 (`v1.4-RELEASE-PROCEDURES.md`) consumes verbatim. The procedure, when followed, produces matching `X.Y.ZbN` version strings in both repos' beta releases — verified by a dry-run or fixture-driven test.
   4. Both version-bump scripts have a unit-level test (pytest fixture, or PlatformIO native, or a `--dry-run` flag with golden-file diff) that exercises both the stable-branch path (asserts patch increment) and the beta-branch path (asserts `b1` / `bN` / `rcN` suffix on a chosen base version). Test runs in CI on PRs to either sub-repo before the v1.4 plumbing lands in mainline.
-**Plans:** 4 plans
-- [ ] 15-01-PLAN.md — Wave 0 RED-gate scaffold: failing pytest tests + golden baselines in both sub-repos (creates firestarter/tests/ dir)
-- [ ] 15-02-PLAN.md — Wave 1 app-side: extend firestarter_app/.github/scripts/update_version.py (beta detection, dry-run, validation, GITHUB_OUTPUT guard) — VER-01 GREEN
-- [ ] 15-03-PLAN.md — Wave 1 firmware-side: extend firestarter/.github/scripts/update_version.py + add pytest CI step to build.yml — VER-02 GREEN, lockstep regex parity
-- [ ] 15-04-PLAN.md — Wave 2 lockstep deliverables: 15-LOCKSTEP-PROCEDURE.md + lockstep-dryrun-fixture.sh (cross-script byte-identity proof) — VER-03 GREEN
+**Plans:** 4/4 plans complete
+- [x] 15-01-PLAN.md — Wave 0 RED-gate scaffold: failing pytest tests + golden baselines in both sub-repos (creates firestarter/tests/ dir)
+- [x] 15-02-PLAN.md — Wave 1 app-side: extend firestarter_app/.github/scripts/update_version.py (beta detection, dry-run, validation, GITHUB_OUTPUT guard) — VER-01 GREEN
+- [x] 15-03-PLAN.md — Wave 1 firmware-side: extend firestarter/.github/scripts/update_version.py + add pytest CI step to build.yml — VER-02 GREEN, lockstep regex parity
+- [x] 15-04-PLAN.md — Wave 2 lockstep deliverables: 15-LOCKSTEP-PROCEDURE.md + lockstep-dryrun-fixture.sh (cross-script byte-identity proof) — VER-03 GREEN
 
 #### Phase 16: App Beta Release Pipeline
 **Goal:** A push to `firestarter_app/beta` triggers a new (or extended) GitHub Actions workflow that runs the existing CI test suite, calls the Phase 15 version-bump script in beta mode, creates a GitHub Release with `prerelease: true` and `make_latest: false`, and publishes the resulting wheel/sdist to PyPI as a `X.Y.ZbN` pre-release installable via `pip install --pre firestarter`. The existing `main` → stable pipeline behaviour is preserved verbatim (GATE-01).
@@ -270,7 +270,7 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 12 | v1.3 | 1/4 | ⏸ Paused | — (hardware-gated) |
 | 13 | v1.3 | 0/0 | ⏸ Paused | — (hardware-gated) |
 | 14 (close) | v1.3 | 0/0 | ⏸ Paused | — (hardware-gated) |
-| 15 | v1.4 | 0/0 | Not started | — |
+| 15 | v1.4 | 4/4 | Complete    | 2026-05-20 |
 | 16 | v1.4 | 0/0 | Not started | — |
 | 17 | v1.4 | 0/0 | Not started | — |
 | 18 | v1.4 | 0/0 | Not started | — |
