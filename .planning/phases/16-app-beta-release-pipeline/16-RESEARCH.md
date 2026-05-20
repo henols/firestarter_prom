@@ -584,17 +584,15 @@ Phase 16 is a YAML file edit — no new CLIs or external services beyond what th
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Can `beta-release.yml` be smoke-tested without actually publishing to PyPI?**
    - What we know: A `workflow_dispatch` run with a test `BETA_VERSION` like `0.0.1b1` would publish to PyPI if the gates pass. There is no built-in "dry run" mode in `beta-release.yml` (only `update_version.py` has `--dry-run`).
-   - What's unclear: Whether the planner should add a dry-run gate step or recommend real-network testing as a Phase 20 E2E activity.
-   - Recommendation: Real-network testing belongs in Phase 20's E2E-01 (CONTEXT.md D-23 explicitly states this). Phase 16 VERIFICATION.md should note that full E2E validation (actual PyPI publish, actual GH Release creation) is a Phase 20 prerequisite. For Phase 16 verification, YAML lint + git diff assertions are sufficient.
+   - **RESOLVED:** Real-network testing belongs in Phase 20 E2E-01 (CONTEXT.md D-23). Phase 16 verification uses YAML lint + git diff assertions only. VALIDATION.md Manual-Only Verifications row documents the Phase 20 handoff explicitly.
 
 2. **LOCKSTEP-PROCEDURE Step 4 references `gh workflow run release.yml`**
-   - What we know: `15-LOCKSTEP-PROCEDURE.md` Step 4 says `gh workflow run release.yml`. This appears to be a documentation error — Phase 16's file is `beta-release.yml`, not `release.yml`.
-   - What's unclear: Whether Phase 19 (documentation) will correct this, or whether Phase 16 should note this as a known procedure document gap.
-   - Recommendation: Phase 19 will update `v1.4-RELEASE-PROCEDURES.md` with the correct `gh workflow run beta-release.yml --ref beta -f beta_version=X.Y.ZbN` command. Phase 16 planner should note this as a documentation gap for Phase 19 to resolve — it is not a blocker.
+   - What we know: `15-LOCKSTEP-PROCEDURE.md` Step 4 currently says `gh workflow run release.yml` — should be `beta-release.yml`.
+   - **RESOLVED:** Phase 19 (Documentation) will update `v1.4-RELEASE-PROCEDURES.md` AND `15-LOCKSTEP-PROCEDURE.md` with the correct `gh workflow run beta-release.yml --ref beta -f beta_version=X.Y.ZbN` command shape. Tracked as a Phase 19 deliverable; not a Phase 16 blocker.
 
 ---
 
