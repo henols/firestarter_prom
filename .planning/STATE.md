@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: — CMOS EPROM Family Hardware Validation
-status: executing
-last_updated: "2026-05-19T22:42:27Z"
+status: Ready to advance to Phase 12 (28-Pin / Algo-0x07 Bench Validation) — bench-gated, requires Uno + Leonardo + DIP-28 socket + scope.
+last_updated: "2026-05-20T07:10:15.845Z"
 last_activity: 2026-05-19
 progress:
   total_phases: 4
