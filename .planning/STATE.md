@@ -6,7 +6,7 @@ status: planning
 last_updated: "2026-05-20T08:15:16.322Z"
 last_activity: 2026-05-20
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -16,14 +16,14 @@ progress:
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-05-19
+**Updated:** 2026-05-20
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: Not started (roadmap created; ready for Phase 15 planning)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-05-20 — Milestone v1.4 started
+Status: Ready to plan Phase 15
+Last activity: 2026-05-20 — v1.4 roadmap created (Phases 15-19, 12/12 requirements mapped)
 
 ## Project Reference
 
@@ -32,32 +32,38 @@ See: `.planning/PROJECT.md` (updated 2026-05-19)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** v1.4 milestone setup — Beta & Pre-release Deployment Pipeline (defining requirements)
+**Current focus:** v1.4 milestone — Beta & Pre-release Deployment Pipeline (CI/CD plumbing + docs only; software-only milestone running in parallel with paused v1.3 hardware milestone)
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
-- v1.4 (Beta & Pre-release Deployment Pipeline) starting 2026-05-20 — software-only CI/CD work; phase numbering continues from v1.3 last phase (14), starts at Phase 15
+- v1.4 (Beta & Pre-release Deployment Pipeline) — roadmap created 2026-05-20; Phases 15-19; no `--reset-phase-numbers` (continues from v1.3 last phase 14)
 
 ## Roadmap Summary
 
-**v1.3 phases:** 4 (numbered 11–14, continues from v1.2 close). Granularity: Comprehensive (compressed — validation milestone, not a build milestone).
+**v1.4 phases:** 5 (numbered 15-19, continues from v1.3 last phase 14). Granularity: Standard.
 
-| Phase | Goal | Requirements | Bench-gated? |
-|-------|------|--------------|--------------|
-| 11. Coverage Matrix & DB Inconsistency Audit | Single-source coverage map of all 339 algo-0x07/0x08 DB rows + flag intra-algorithm inconsistencies | COV-01, COV-02 | No (desk-side) |
-| 12. 28-Pin / Algo-0x07 Bench Validation | Full write/read/verify cycle on Uno + Leonardo for W27C512, SST27SF512, 32K density-low rep; establish chip-ID + VPP observation protocols | BENCH-01, BENCH-02, BENCH-05, PROTO-01, PROTO-02 | Yes |
-| 13. 32-Pin / Algo-0x08 Bench Validation | Full write/read/verify cycle on Uno + Leonardo for W27C020, W27E040, 128K density-low rep; re-apply Phase 12 observation protocols | BENCH-03, BENCH-04, BENCH-06 | Yes |
-| 14. Milestone Close & Artifacts | Publish v1.3-BENCH-RESULTS.md, update MILESTONES.md, archive phase directories | DOC-01, DOC-02 | No (paperwork) |
+| Phase | Goal | Requirements |
+|-------|------|--------------|
+| 15. Versioning & Locked-Step Coordination (Foundation) | Both sub-repos emit PEP 440 / matching pre-release identifiers on `beta`-branch builds; locked-step coordination mechanism finalised and documented | VER-01, VER-02, VER-03 |
+| 16. App Beta Release Pipeline | Push to `firestarter_app/beta` → GitHub Actions workflow → bump pre-release version → PyPI pre-release publish + GitHub Pre-release. Stable pipeline (GATE-01) preserved verbatim | REL-01, GATE-01 |
+| 17. Firmware Beta Release Pipeline | Push to `firestarter/beta` → GitHub Actions workflow → catalog/codegen/Unity/PIO gates → bump pre-release version → GitHub Pre-release with `.hex` artifacts per board. Stable pipeline (GATE-02) preserved verbatim | REL-02, GATE-02 |
+| 18. Documentation | App README + firmware README beta sections (opt-in install, stability guarantee, issue reporting); `v1.4-RELEASE-PROCEDURES.md` documents release-engineer cutting workflow | DOC-01, DOC-02, DOC-03 |
+| 19. End-to-End Smoke Test + Milestone Close | Cut real beta in both repos per Phase 18 procedure; verify PyPI + GitHub Release outputs + locked-step version match; close milestone (MILESTONES.md, archive, PROJECT.md update) | E2E-01, MS-01 |
 
-**Coverage:** 12/12 v1.3 requirements mapped to exactly one phase. No orphans, no duplicates.
+**Coverage:** 12/12 v1.4 requirements mapped to exactly one phase. No orphans, no duplicates.
 
 **Phase-order rationale:**
 
-- Phase 11 first — desk-side, lands without hardware; coverage matrix informs which density-low representatives are chosen for Phases 12 + 13.
-- Phase 12 before Phase 13 — establishes chip-ID + VPP scope observation protocols against the smaller-package algo-0x07 family first; Phase 13 reuses the same protocols.
-- Phase 14 last — depends on bench data + coverage matrix being in hand.
+- Phase 15 first — foundation phase resolves the open lockstep coordination question (shared `VERSION` file vs. cross-repo workflow trigger vs. paired manual tagging) and extends both `update_version.py` scripts; REL-01 + REL-02 have no version-emission scheme to plug into without it.
+- Phase 16 before Phase 17 (sequential, not parallel) — app-side beta path is more constrained (PEP 440 strict, single PyPI index, `--pre` install semantics) so it shakes out the version-emission flow; firmware beta is a near-mirror with GitHub Release `prerelease: true` instead of PyPI, so app lessons-learned feed firmware design cleanly. Tight feedback loop in a CI/CD setup is more valuable than parallel-track throughput here.
+- Phase 18 after Phases 15/16/17 — you document what you built, not what you plan; both READMEs + the meta-repo `v1.4-RELEASE-PROCEDURES.md` lock the substrate that emerged from the prior three phases.
+- Phase 19 last — the acceptance gate. Cut a real beta in both repos following the Phase 18 documented procedure; verify all acceptance criteria; close milestone. No v1.4 close without a green E2E-01.
 
-Full details: `.planning/ROADMAP.md` (v1.3 section).
+Full details: `.planning/ROADMAP.md` (v1.4 section).
+
+### v1.3 phases (paused — preserved for resume)
+
+`.planning/ROADMAP.md` retains the v1.3 section (Phases 11-14) intact. v1.3 is paused, not deleted; Phase 11 shipped + Phase 12 Wave 0 scaffold shipped; Waves 1-3 + Phases 13/14 await bench hardware. Resume command on the Paused Milestones list below.
 
 ## Milestone History
 
@@ -69,7 +75,7 @@ Full details: `.planning/ROADMAP.md` (v1.3 section).
 
 ### Open Blockers
 
-None at v1.2 close.
+None at v1.4 start.
 
 ### Paused Milestones
 
@@ -150,8 +156,9 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 
 ## Operator Next Steps
 
-- **v1.3:** `/gsd-plan-phase 11` to decompose Phase 11 (Coverage Matrix & DB Inconsistency Audit). Phase 11 is desk-side and unblocks bench prep without requiring hardware.
-- v1.1 leftovers (FM1608 hw bug, WARNING-4 test scripts, v1.1 DOC-01 milestone close) carried in this STATE; resume after v1.3 ships or fold opportunistically.
+- **v1.4:** `/gsd-plan-phase 15` to decompose Phase 15 (Versioning & Locked-Step Coordination). Phase 15 is the foundation phase and must finalise the open lockstep coordination mechanism (shared `VERSION` file vs. cross-repo workflow trigger vs. paired manual tagging) during `/gsd-discuss-phase` before plan generation.
+- **v1.3:** Paused; resume with `/gsd-execute-phase 12 --wave 1 --interactive` once bench hardware is available. v1.4 does NOT block on v1.3 closure.
+- v1.1 leftovers (FM1608 hw bug, WARNING-4 test scripts, v1.1 DOC-01 milestone close) carried in this STATE; resume after v1.3 or v1.4 ships or fold opportunistically.
 
 ## Performance Metrics
 

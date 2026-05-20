@@ -69,25 +69,25 @@ After plumbing lands, prove the whole stack works by cutting a real beta.
 
 ## Traceability
 
-Each requirement maps to exactly one phase. Coverage: 12 requirements, 100% mapped (populated by roadmapper).
+Each requirement maps to exactly one phase. Coverage: 12/12 requirements, 100% mapped.
 
 | REQ-ID | Phase | Plan(s) | Status |
 |--------|-------|---------|--------|
-| REL-01 | TBD | TBD | Not started |
-| REL-02 | TBD | TBD | Not started |
-| VER-01 | TBD | TBD | Not started |
-| VER-02 | TBD | TBD | Not started |
-| VER-03 | TBD | TBD | Not started |
-| GATE-01 | TBD | TBD | Not started |
-| GATE-02 | TBD | TBD | Not started |
-| DOC-01 | TBD | TBD | Not started |
-| DOC-02 | TBD | TBD | Not started |
-| DOC-03 | TBD | TBD | Not started |
-| E2E-01 | TBD | TBD | Not started |
-| MS-01 | TBD | TBD | Not started |
+| REL-01 | Phase 16 | TBD | Not started |
+| REL-02 | Phase 17 | TBD | Not started |
+| VER-01 | Phase 15 | TBD | Not started |
+| VER-02 | Phase 15 | TBD | Not started |
+| VER-03 | Phase 15 | TBD | Not started |
+| GATE-01 | Phase 16 | TBD | Not started |
+| GATE-02 | Phase 17 | TBD | Not started |
+| DOC-01 | Phase 18 | TBD | Not started |
+| DOC-02 | Phase 18 | TBD | Not started |
+| DOC-03 | Phase 18 | TBD | Not started |
+| E2E-01 | Phase 19 | TBD | Not started |
+| MS-01 | Phase 19 | TBD | Not started |
 
-**Coverage target:** 12 requirements, 100% mapped to phases.
+**Coverage target:** 12 requirements, 100% mapped to phases ✓
 
 ---
 
-*Last updated: 2026-05-20 — initial v1.4 requirements draft. Traceability table populated by `gsd-roadmapper` at ROADMAP.md creation. v1.3 paused; v1.3 REQUIREMENTS.md archived at `.planning/milestones/v1.3-paused/REQUIREMENTS-at-pause.md`.*
+*Last updated: 2026-05-20 — traceability table populated by `gsd-roadmapper` at ROADMAP.md creation. v1.3 paused; v1.3 REQUIREMENTS.md archived at `.planning/milestones/v1.3-paused/REQUIREMENTS-at-pause.md`.*

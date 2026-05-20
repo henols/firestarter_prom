@@ -5,14 +5,116 @@
 - ✅ **v1.0 Protocol-Aware Programming Architecture** — Phases 1-13 (shipped 2026-05-11)
 - ⏸ **v1.1 Safety Closure & Hardware Validation** — Phases 1-3 done, Phase 4 hardware-validation parked (FM1608 byte-0 bug); Phase 5 milestone-close deferred. Original artifacts preserved at `.planning/milestones/v1.1-paused/`.
 - ✅ **v1.2 Message-ID Logging Rework** — Phases 6-9 (shipped 2026-05-19); Phase 10 closed by `/gsd-complete-milestone`. Leonardo Flash 98.7% → 85.4%; firmware 3.0.0-dev.
-- 🚧 **v1.3 CMOS EPROM Family Hardware Validation** — Phases 11-14 (in planning, started 2026-05-19). Bench-validate algo-0x07 (28-pin) + algo-0x08 (32-pin) families across full 32K → 512K density span on Uno + Leonardo.
+- ⏸ **v1.3 CMOS EPROM Family Hardware Validation** — Phases 11-14 (PAUSED 2026-05-20, hardware-gated). Phase 11 shipped + Phase 12 Wave 0 scaffold committed; Plans 12-01/02/03 + Phases 13/14 await operator bench hardware.
+- 🚧 **v1.4 Beta & Pre-release Deployment Pipeline** — Phases 15-19 (active, started 2026-05-20). Add parallel beta channel for both sub-repos without disrupting the stable main → release pipeline. App ships PyPI pre-release versions (`pip install --pre`); firmware ships GitHub Pre-release artifacts (`prerelease: true`, `make_latest: false`). App and firmware lockstep on matching version numbers.
 
-## v1.3 — CMOS EPROM Family Hardware Validation (Active)
+## v1.4 — Beta & Pre-release Deployment Pipeline (Active)
+
+**Milestone goal:** Add a parallel beta / pre-release deployment channel for both sub-repos (`firestarter_app/` and `firestarter/`) without disrupting the existing main → stable pipelines. Branch-driven trigger: push to `beta` produces opt-in pre-release artifacts. App publishes PEP 440 pre-release versions to PyPI (installable via `pip install --pre firestarter`); firmware publishes GitHub Pre-releases (`prerelease: true`, `make_latest: false`) with the same `.hex` artifacts as stable. App and firmware ship locked-step (matching version numbers as a coordinated pair).
+
+**Granularity:** Standard (5 phases — natural decomposition of CI/CD plumbing + docs work). Foundation phase resolves the load-bearing versioning question, then app and firmware beta pipelines land sequentially (tight feedback loop between repos), then docs, then a real beta cut as the milestone acceptance gate.
+**Phase numbering:** continues from v1.3 last phase (14) — starts at **Phase 15**. (v1.3 paused, not completed; v1.3 phase directories at `.planning/phases/11-*/` and `.planning/phases/12-*/` preserved.)
+
+### Structural Notes
+
+- **CI/CD plumbing + docs only.** Zero new user-facing CLI features in the app, zero firmware behavior changes, zero hardware bench testing. All workflow / script / version-file edits land inside the two submodules (`firestarter/` and `firestarter_app/`), each with its own GitHub repo. Meta-repo tracks only `.planning/` and `.claude/`.
+- **Three decisions are LOCKED at milestone start** (see `.planning/STATE.md` v1.4 Decisions): (1) branch-driven beta — push to `beta` triggers the pre-release pipeline in each sub-repo; (2) app uses PEP 440 pre-release identifiers (`X.Y.ZbN`, `X.Y.ZrcN`) on the SAME PyPI index — TestPyPI deferred; (3) firmware + app ship lockstep on matching version strings. The exact lockstep coordination MECHANISM (shared `VERSION` file vs. cross-repo workflow trigger vs. paired manual tagging) is the open planning question that Phase 15 finalises during `/gsd-discuss-phase`.
+- **Stable pipeline is sacred.** GATE-01 and GATE-02 are explicit non-regress requirements. After v1.4 lands, pushing to `firestarter_app/main` must produce a byte-identical (modulo version-number bump) GitHub Release + PyPI publish as today; pushing to `firestarter/main` must produce the same `.hex` artifacts and catalog/codegen/Unity gates as today. Beta plumbing is purely additive — new workflow files, new branch triggers, new version-bump branches — never modifications to stable trigger behavior.
+- **Phase 15 is load-bearing.** REL-01 (app beta release) and REL-02 (firmware beta release) cannot meaningfully run without a defined pre-release version emission scheme + locked-step coordination procedure. Phase 15 resolves the open question and ships VER-01/VER-02 version-bump script extensions; Phases 16 and 17 then assemble the workflow plumbing on top.
+- **Phase 16 before Phase 17 (sequential, not parallel).** App-side beta lands first because: (a) the PyPI pre-release version path is more constrained (PEP 440 strict, install via `--pre`, single-index gating) and shakes out the version-emission scheme; (b) firmware beta is a near-mirror with GitHub Release `prerelease: true` instead of PyPI `--pre`, so app lessons-learned feed firmware design cleanly; (c) tight feedback loop in a CI/CD setup is more valuable than parallel-track throughput when both phases ultimately depend on Phase 15 output.
+- **Phase 19 is the acceptance gate.** E2E-01 + MS-01 together. No v1.4 close without a green E2E-01 — a real beta cut in both repos using the documented Phase 18 procedure, with both PyPI `pip install --pre firestarter==X.Y.ZbN` and firmware GitHub Pre-release pages showing the expected artifacts and matching version strings per VER-03.
+- **v1.3 carry.** v1.3 is paused, not closed. v1.4 does NOT block on v1.3 closure. v1.3 BENCH-01..06 / PROTO-01/02 / DOC-01/02 requirements stay archived at `.planning/milestones/v1.3-paused/REQUIREMENTS-at-pause.md`; resume command on the v1.3 paused list when bench hardware is available.
+
+### Phases
+
+- [ ] **Phase 15: Versioning & Locked-Step Coordination (Foundation)** — Resolve the lockstep coordination mechanism (shared VERSION file vs. cross-repo workflow trigger vs. paired manual tagging); extend both `update_version.py` scripts to emit PEP 440 / matching pre-release identifiers on `beta`-branch builds; document the coordination procedure as input to Phase 18.
+- [ ] **Phase 16: App Beta Release Pipeline** — Add the `firestarter_app/` beta workflow (push to `beta` → run CI → bump pre-release version per Phase 15 → GitHub Release with `prerelease: true`, `make_latest: false` → publish wheel/sdist to PyPI). Validate stable pipeline (GATE-01) still produces unchanged outputs from a `main` push.
+- [ ] **Phase 17: Firmware Beta Release Pipeline** — Add the `firestarter/` beta workflow (push to `beta` → run catalog validity + codegen drift gate + native Unity tests + PlatformIO build → bump pre-release version per Phase 15 → GitHub Release with `prerelease: true`, `make_latest: false`, same `firestarter_*.hex` artifacts per board). Validate stable pipeline (GATE-02) still produces unchanged outputs from a `main` push.
+- [ ] **Phase 18: Documentation** — Update `firestarter_app/README.md` (install via `pip install --pre`, beta stability guarantee, how to report beta issues); update `firestarter/README.md` (find pre-release `.hex` on GitHub Releases, opt-in semantics, issue reporting); publish `.planning/v1.4-RELEASE-PROCEDURES.md` (release-engineer workflow for cutting a beta in both repos via the Phase 15 lockstep mechanism, deferred promotion path).
+- [ ] **Phase 19: End-to-End Smoke Test + Milestone Close** — Cut a real beta in both sub-repos following the Phase 18 documented procedure; verify all acceptance criteria (PyPI shows pre-release version, `pip install --pre` works cleanly, firmware GitHub Release marked pre-release, both version strings match per VER-03); update MILESTONES.md, archive v1.4 phase directories, refresh PROJECT.md active-milestone footer.
+
+### Phase Details
+
+#### Phase 15: Versioning & Locked-Step Coordination (Foundation)
+**Goal:** Both sub-repos have a defined, scripted mechanism for emitting PEP 440 / matching pre-release version identifiers on `beta`-branch builds, AND a documented locked-step coordination procedure that guarantees a beta cut in one sub-repo can be paired with the same version string in the other. Without this foundation, REL-01 and REL-02 have no version-emission scheme to plug into.
+**Depends on:** Nothing (foundation phase; resolves the open milestone planning question).
+**Requirements:** VER-01, VER-02, VER-03
+**Success Criteria** (what must be TRUE):
+  1. `firestarter_app/.github/scripts/update_version.py` (or its replacement) recognises beta-branch context (env var, CLI flag, git-branch detection — the mechanism chosen during `/gsd-discuss-phase`) and emits PEP 440 pre-release identifiers (`X.Y.Zb1`, `X.Y.ZbN`, `X.Y.ZrcN`) instead of bumping the patch component. Stable-branch behaviour (patch auto-bump) is preserved verbatim — a `main`-context invocation produces byte-identical output to the pre-v1.4 script.
+  2. `firestarter/.github/scripts/update_version.py` (or its replacement) recognises beta-branch context in the same way and emits matching pre-release identifiers (`X.Y.ZbN`) into `include/version.h`. Format is identical to the app's so lockstep comparison is a string-equality check. Stable-branch behaviour preserved verbatim — a `main`-context invocation produces byte-identical output to the pre-v1.4 script.
+  3. The locked-step coordination mechanism is finalised (one of: shared `VERSION` file in the meta-repo committed by both sub-repos' release workflows; cross-repo workflow trigger via `repository_dispatch`; or manually-paired beta-branch push with a written checklist) and documented in a phase-local artifact that Phase 18 (`v1.4-RELEASE-PROCEDURES.md`) consumes verbatim. The procedure, when followed, produces matching `X.Y.ZbN` version strings in both repos' beta releases — verified by a dry-run or fixture-driven test.
+  4. Both version-bump scripts have a unit-level test (pytest fixture, or PlatformIO native, or a `--dry-run` flag with golden-file diff) that exercises both the stable-branch path (asserts patch increment) and the beta-branch path (asserts `b1` / `bN` / `rcN` suffix on a chosen base version). Test runs in CI on PRs to either sub-repo before the v1.4 plumbing lands in mainline.
+**Plans:** TBD
+
+#### Phase 16: App Beta Release Pipeline
+**Goal:** A push to `firestarter_app/beta` triggers a new (or extended) GitHub Actions workflow that runs the existing CI test suite, calls the Phase 15 version-bump script in beta mode, creates a GitHub Release with `prerelease: true` and `make_latest: false`, and publishes the resulting wheel/sdist to PyPI as a `X.Y.ZbN` pre-release installable via `pip install --pre firestarter`. The existing `main` → stable pipeline behaviour is preserved verbatim (GATE-01).
+**Depends on:** Phase 15 (version-bump script's beta-branch mode is the workflow's version-emission step).
+**Requirements:** REL-01, GATE-01
+**Success Criteria** (what must be TRUE):
+  1. A push to a `beta` branch in `firestarter_app/` triggers a GitHub Actions workflow that runs the existing CI suite (pytest), calls `update_version.py` in beta mode (per Phase 15), creates a GitHub Release tagged `X.Y.ZbN` with `prerelease: true` and `make_latest: false`, builds wheel + sdist via `python3 -m build`, and publishes to PyPI as a pre-release version. End-to-end run is observable in the GitHub Actions tab as a single workflow execution producing all listed artifacts.
+  2. After the beta workflow lands, `pip install --pre firestarter` on a clean Python environment installs the most-recent `X.Y.ZbN` build successfully and imports cleanly. `pip install firestarter` (without `--pre`) still installs the stable version, NOT the beta — beta is opt-in via the `--pre` flag.
+  3. **GATE-01 preserved.** After v1.4 lands, a push to `firestarter_app/main` still produces: (a) a GitHub Release with `make_latest: true` (no `b`/`rc` suffix in the tag), (b) a non-pre-release wheel + sdist published to PyPI, (c) `__version__` in `firestarter/__init__.py` auto-bumped to the next patch. The stable path runs no new mandatory CI checks beyond what the pre-v1.4 release.yml + publish.yml currently run.
+  4. The beta workflow shares CI gates with the stable workflow where it makes sense (existing pytest suite, lint, etc.) but does NOT introduce new mandatory gates on either path. If the existing pytest suite fails on a `beta` push, the workflow halts before publishing — same fail-stop semantics as the stable path.
+**Plans:** TBD
+
+#### Phase 17: Firmware Beta Release Pipeline
+**Goal:** A push to `firestarter/beta` triggers a new (or extended) GitHub Actions workflow that runs the existing build pipeline (catalog validity, codegen drift gate, native Unity tests, PlatformIO build), calls the Phase 15 version-bump script in beta mode (producing matching `X.Y.ZbN` `#define VERSION` in `include/version.h`), and creates a GitHub Release with `prerelease: true`, `make_latest: false`, and the same `firestarter_*.hex` artifacts per board (Uno + Leonardo, plus any other configured board) as the stable build. The existing `main` → stable pipeline behaviour is preserved verbatim (GATE-02).
+**Depends on:** Phase 15 (version-bump script's beta-branch mode), Phase 16 (lessons-learned from app-side beta pipeline feed firmware design — branch trigger shape, version emission flow, release-action wiring).
+**Requirements:** REL-02, GATE-02
+**Success Criteria** (what must be TRUE):
+  1. A push to a `beta` branch in `firestarter/` triggers a GitHub Actions workflow that runs the existing build pipeline (catalog validity check via `tools/catalog/codegen.py --check`, codegen drift gate via the git-diff check on `include/messages.h`, native Unity tests via `pio test -e native`, PlatformIO build via `pio run`), calls `update_version.py` in beta mode (per Phase 15), and creates a GitHub Release tagged `X.Y.ZbN` with `prerelease: true`, `make_latest: false`, and the full set of `.pio/build/**/firestarter_*.hex` artifacts attached (same set per board as the stable build).
+  2. **GATE-02 preserved.** After v1.4 lands, a push to `firestarter/main` still produces: (a) a GitHub Release with `make_latest: true` (no `b`/`rc` suffix in the tag), (b) the same set of `firestarter_*.hex` artifacts per board as today, (c) `VERSION` in `include/version.h` auto-bumped to the next patch. The existing catalog-validity, codegen-drift, and Unity-test gates run unchanged on the stable path. No new mandatory CI checks added beyond what the pre-v1.4 build.yml currently runs.
+  3. The beta build produces the same per-board `.hex` artifact set as the stable build (no missing boards, no extra boards) — verified by file-name listing on the GitHub Release page and an artifact-count assertion in the workflow.
+  4. The firmware beta version string (`X.Y.ZbN` in `include/version.h`) matches the app beta version string from Phase 16 when both repos are cut as a coordinated pair via the Phase 15 lockstep procedure. Verified by a string-equality check in Phase 19's E2E smoke test.
+**Plans:** TBD
+
+#### Phase 18: Documentation
+**Goal:** End users know how to opt into the beta channel and the release engineer knows how to cut a beta. Three documentation artifacts land: app README beta section, firmware README beta section, and a meta-repo release-procedures doc that captures the locked-step cutting workflow for the release engineer's reference.
+**Depends on:** Phases 15, 16, 17 (you document what you built, not what you plan — the Phase 15 lockstep mechanism + Phase 16/17 workflow trigger shapes are the substrate for the documentation).
+**Requirements:** DOC-01, DOC-02, DOC-03
+**Success Criteria** (what must be TRUE):
+  1. `firestarter_app/README.md` has a "Beta / pre-release channel" section documenting: (a) how to install — `pip install --pre firestarter` — with a worked example showing the install command + a sanity check (`firestarter --version` reports the `X.Y.ZbN` string); (b) what stability guarantee a beta carries (explicit "no guarantees, may break, intended for testing of unreleased features" wording); (c) how to report issues against a beta build — which version identifier to cite (the `X.Y.ZbN` string) + which info to include (board, OS, chip if hardware-related, full traceback).
+  2. `firestarter/README.md` has a "Beta / pre-release channel" section documenting: (a) where to find pre-release `.hex` artifacts — GitHub Releases page, filtering by "Pre-release" tag (with a screenshot or link example); (b) what stability guarantee a beta carries (same wording family as the app README); (c) how to report issues against a beta build — which firmware version (the `X.Y.ZbN` string from `include/version.h` or printed at the firmware handshake) + commit SHA + board (Uno / Leonardo / other) + chip to cite.
+  3. `.planning/v1.4-RELEASE-PROCEDURES.md` (or equivalent path under `.planning/`) documents the release-engineer workflow for cutting a beta: (a) which branch to push to in each repo (`beta` in both `firestarter_app/` and `firestarter/`); (b) how the locked-step `X.Y.ZbN` identifier is chosen and applied — verbatim from the Phase 15 finalised mechanism; (c) the eventual promotion path from beta to stable, with the explicit note that an auto-promotion workflow is deferred to a follow-on milestone and the manual promotion path is a fast-forward merge from `beta` to `main` once a beta is validated. The document is detailed enough that a release engineer with no prior v1.4 context can cut a beta following it as a checklist.
+**Plans:** TBD
+
+#### Phase 19: End-to-End Smoke Test + Milestone Close
+**Goal:** A real beta build is cut in both sub-repos following the Phase 18 documented procedure; all acceptance criteria are verified end-to-end; milestone-close artifacts land (MILESTONES.md updated, v1.4 phase directories archived, PROJECT.md active-milestone footer refreshed). This is the milestone's acceptance gate — no v1.4 close without a green E2E-01.
+**Depends on:** Phases 15, 16, 17, 18 (every prior phase — the smoke test exercises the lockstep mechanism, both beta pipelines, and the documented release-engineer procedure as a single end-to-end flow).
+**Requirements:** E2E-01, MS-01
+**Success Criteria** (what must be TRUE):
+  1. A real beta build is cut in both sub-repos following the `v1.4-RELEASE-PROCEDURES.md` procedure (no shortcuts, no out-of-band fixes). Resulting version identifier is something like `0.0.1b1` or whatever test identifier doesn't conflict with the current production version line. After the cut: (a) PyPI shows the `X.Y.ZbN` pre-release version on the `firestarter` project page; (b) `pip install --pre firestarter==X.Y.ZbN` installs cleanly from a fresh Python environment on at least one operator-accessible OS (macOS or Linux); (c) firmware GitHub Releases page shows the build marked `Pre-release` (not `Latest`) with the expected `firestarter_*.hex` artifacts per board attached; (d) both repos' beta release tags carry the same `X.Y.ZbN` string per VER-03.
+  2. `.planning/MILESTONES.md` carries a v1.4 milestone summary styled consistently with the v1.0 / v1.2 entries: delivered (beta pipeline both sides, lockstep mechanism, docs, E2E smoke test), stats (phase / plan counts, commit counts in both submodules), key decisions (the chosen lockstep mechanism, the trigger model, PEP 440 vs alternatives), known gaps if any (auto-promotion workflow deferred, branch protection deferred, signed artifacts deferred — explicit pointers to "Future Requirements" in REQUIREMENTS.md).
+  3. v1.4 phase directories archived to `.planning/milestones/v1.4-phases/` and `PROJECT.md` Active Milestone footer updated to reflect v1.4 ship state. If v1.3 is still paused at v1.4 close, the v1.3 paused-status note in MILESTONES.md and PROJECT.md is refreshed to point at any new resume-relevant context (no functional change to v1.3 archive — just a coherence pass).
+**Plans:** TBD
+
+### v1.4 Coverage
+
+| REQ-ID | Phase |
+|--------|-------|
+| REL-01 | Phase 16 |
+| REL-02 | Phase 17 |
+| VER-01 | Phase 15 |
+| VER-02 | Phase 15 |
+| VER-03 | Phase 15 |
+| GATE-01 | Phase 16 |
+| GATE-02 | Phase 17 |
+| DOC-01 | Phase 18 |
+| DOC-02 | Phase 18 |
+| DOC-03 | Phase 18 |
+| E2E-01 | Phase 19 |
+| MS-01 | Phase 19 |
+
+**Mapped: 12/12 requirements ✓** — no orphans, no duplicates.
+
+## v1.3 — CMOS EPROM Family Hardware Validation (PAUSED 2026-05-20)
 
 **Milestone goal:** Bench-validate, on real silicon and on both Arduino Uno + Leonardo, that the algorithm-0x07 (28-pin DIP CMOS UV-EPROM, 212 chips in DB) and algorithm-0x08 (32-pin DIP CMOS UV-EPROM, 127 chips in DB) dispatch logic shipped in v1.0–v1.2 actually programs, reads back, and verifies cleanly across the full 32K → 512K density span. This is **validation, not new features** — architecture is locked.
 
+**Status:** ⏸ Paused 2026-05-20 — hardware-gated. Phase 11 shipped clean; Phase 12 Wave 0 desk-side scaffold committed; Plans 12-01/02/03 (BENCH-01/02/05 — W27C512, SST27SF512, W27C257) + entire Phase 13 + Phase 14 await operator bench hardware (Uno + Leonardo + RURP shield + DIP-28 socket + scope + bench chips). Resume command: `/gsd-execute-phase 12 --wave 1 --interactive` once hardware is available.
+
 **Granularity:** Comprehensive (compressed — focused validation milestone, not a build milestone).
-**Phase numbering:** continues from v1.2 close — starts at **Phase 11**.
+**Phase numbering:** Phases 11-14 (continues from v1.2 close).
 
 ### Structural Notes
 
@@ -25,9 +127,9 @@
 ### Phases
 
 - [x] **Phase 11: Coverage Matrix & DB Inconsistency Audit** — Desk-side enumeration of all 339 algo-0x07/0x08 DB rows + flag intra-algorithm inconsistencies. ✅ 2026-05-19
-- [ ] **Phase 12: 28-Pin / Algo-0x07 Bench Validation** — End-to-end bench cycle on Uno + Leonardo for W27C512, SST27SF512, and the 32K density-low representative; establish chip-ID + VPP scope observation protocols.
-- [ ] **Phase 13: 32-Pin / Algo-0x08 Bench Validation** — End-to-end bench cycle on Uno + Leonardo for W27C020, W27E040, and the 128K density-low representative; same observation protocols carried forward.
-- [ ] **Phase 14: Milestone Close & Artifacts** — Publish BENCH-RESULTS, update MILESTONES, archive v1.3 phase directories.
+- [ ] **Phase 12: 28-Pin / Algo-0x07 Bench Validation** — End-to-end bench cycle on Uno + Leonardo for W27C512, SST27SF512, and the 32K density-low representative; establish chip-ID + VPP scope observation protocols. ⏸ Paused (Wave 0 shipped; Waves 1-3 await hardware)
+- [ ] **Phase 13: 32-Pin / Algo-0x08 Bench Validation** — End-to-end bench cycle on Uno + Leonardo for W27C020, W27E040, and the 128K density-low representative; same observation protocols carried forward. ⏸ Paused
+- [ ] **Phase 14: Milestone Close & Artifacts** — Publish BENCH-RESULTS, update MILESTONES, archive v1.3 phase directories. ⏸ Paused
 
 ### Phase Details
 
@@ -161,6 +263,11 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 9 | v1.2 | 5/5 | ✅ Complete | 2026-05-19 |
 | 10 (close) | v1.2 | n/a | ✅ Complete | 2026-05-19 |
 | 11 | v1.3 | 6/6 | ✅ Complete | 2026-05-19 |
-| 12 | v1.3 | 1/4 | In Progress|  |
-| 13 | v1.3 | 0/0 | Not started | — |
-| 14 (close) | v1.3 | 0/0 | Not started | — |
+| 12 | v1.3 | 1/4 | ⏸ Paused | — (hardware-gated) |
+| 13 | v1.3 | 0/0 | ⏸ Paused | — (hardware-gated) |
+| 14 (close) | v1.3 | 0/0 | ⏸ Paused | — (hardware-gated) |
+| 15 | v1.4 | 0/0 | Not started | — |
+| 16 | v1.4 | 0/0 | Not started | — |
+| 17 | v1.4 | 0/0 | Not started | — |
+| 18 | v1.4 | 0/0 | Not started | — |
+| 19 (close) | v1.4 | 0/0 | Not started | — |
