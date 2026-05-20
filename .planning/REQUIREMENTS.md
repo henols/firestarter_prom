@@ -24,8 +24,8 @@ The 328PB is pin-compatible with the 328P on Arduino-Uno I/O; firmware compiles 
 
 The two firmware-sub-repo workflows (stable `build.yml` and beta `beta-build.yml`) emit a third per-board `.hex` artifact. Both already build "everything in `default_envs`" via `pio run` and glob `firestarter_*.hex` for the release attachment — the change is to widen `default_envs` so `pio run` picks up `uno328pb`, and to confirm the glob still catches the new artifact end-to-end on a CI run.
 
-- [ ] **REL-01**: Push to `firestarter/main` produces a GitHub Release (stable, `make_latest: true`) that carries `firestarter_uno328pb.hex` **in addition to** the existing `firestarter_uno.hex` and `firestarter_leonardo.hex` artifacts. Existing two artifacts remain byte-identical (modulo version-string drift from `update_version.py`) per GATE-01. Verified end-to-end by inspecting the release's asset list after a stable cut.
-- [ ] **REL-02**: Push to `firestarter/beta` produces a GitHub Pre-release (`prerelease: true`, `make_latest: false`) that carries `firestarter_uno328pb.hex` in addition to the existing two per-board artifacts. Existing two artifacts remain byte-identical to a pre-v1.5 beta cut per GATE-01. Verified end-to-end by inspecting the pre-release's asset list after a beta cut.
+- [x] **REL-01**: Push to `firestarter/main` produces a GitHub Release (stable, `make_latest: true`) that carries `firestarter_uno328pb.hex` **in addition to** the existing `firestarter_uno.hex` and `firestarter_leonardo.hex` artifacts. Existing two artifacts remain byte-identical (modulo version-string drift from `update_version.py`) per GATE-01. Verified end-to-end by inspecting the release's asset list after a stable cut.
+- [x] **REL-02**: Push to `firestarter/beta` produces a GitHub Pre-release (`prerelease: true`, `make_latest: false`) that carries `firestarter_uno328pb.hex` in addition to the existing two per-board artifacts. Existing two artifacts remain byte-identical to a pre-v1.5 beta cut per GATE-01. Verified end-to-end by inspecting the pre-release's asset list after a beta cut.
 
 ### INST — Host CLI installer integration
 

@@ -60,7 +60,7 @@
   3. `beta-build.yml` Release step's `files:` glob likewise catches `firestarter_uno328pb.hex` on a beta cut from `firestarter/beta`. After a beta cut, the GitHub Pre-release asset list shows three `.hex` files; `prerelease: true` and `make_latest: false` unchanged.
   4. `firestarter_uno.hex` and `firestarter_leonardo.hex` from a v1.5 cut are byte-identical to a pre-v1.5 cut of the same source revision (modulo version-string drift from `update_version.py`). Verified by `diff` against the v1.4 ship-tag (3.0.0b3) artifacts.
   5. No new mandatory CI checks are added; existing catalog-validity + codegen-drift + native Unity + PIO build gates run unchanged.
-**Plans:** 1/1 plan complete
+**Plans:** 1/1 plans complete
 - [x] 22-01-PLAN.md — Wave 1: widen `firestarter/platformio.ini` `default_envs` to `uno, uno328pb, leonardo` (D-01) + realign ROADMAP Phase 22 SC#1 literal (D-02; Phase 21 D-12 hand-off); GATE-01 byte-identity + native suite regression-clean; no CI workflow edits (D-03 / D-11) — shipped 2026-05-20 (sub-repo commit 897067b on firestarter/v1.5-uno328pb + meta-repo commit f0aca97 on v1.5-uno328pb; GATE-01 cmp -s both exit 0; native 20/20 PASS; workflow YAMLs untouched)
 
 #### Phase 23: Host CLI Installer Integration
