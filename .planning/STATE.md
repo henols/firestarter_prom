@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: — Arduino Uno
 status: executing
-last_updated: "2026-05-20T21:05:22.109Z"
-last_activity: 2026-05-20 -- Phase 22 planning complete
+last_updated: "2026-05-20T21:10:00.000Z"
+last_activity: 2026-05-20 -- Phase 22 Plan 22-01 complete (default_envs widened to uno, uno328pb, leonardo; GATE-01 + native suite green)
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 3
-  completed_plans: 2
-  percent: 20
+  completed_plans: 3
+  percent: 40
 ---
 
 # Project State
@@ -21,9 +21,9 @@ progress:
 ## Current Position
 
 Phase: 22
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-05-20 -- Phase 22 planning complete
+Plan: 22-01 complete (1/1 plans — Phase 22 substrate done)
+Status: Ready for /gsd-verify-work 22, then Phase 23
+Last activity: 2026-05-20 -- Phase 22 Plan 22-01 complete (default_envs widened to uno, uno328pb, leonardo; GATE-01 + native suite green; sub-repo commit 897067b + meta-repo commit f0aca97)
 
 ## Project Reference
 
@@ -194,7 +194,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 
 ## Operator Next Steps
 
-- Run `/gsd-verify-work 21` to formally close Phase 21 (all SC green; both plans shipped). Then start Phase 22 (Release Pipeline Artifacts): `/gsd-execute-phase 22` — this widens `[platformio] default_envs` to include `uno328pb` so `build.yml` + `beta-build.yml` attach the new artifact to GitHub Releases. Cross-phase hand-off reminder: CONTEXT D-11 / D-12 — Phase 22 SC#1's ROADMAP literal currently reads `default_envs = uno, leonardo, uno328pb`; the CONTEXT D-08 section order argues for `uno, uno328pb, leonardo`. Phase 22 planner picks. Phase 23 (Host CLI) hand-off: `firestarter_app/firestarter/firmware.py:417-423` needs an `uno328pb` branch for the avrdude profile (CONTEXT D-10) — partno = `atmega328pb`, baud_rate = 115200, programmer_id = whatever bootloader the operator flashed (likely `urclock` per MiniCore default).
+- Run `/gsd-verify-work 22` to formally close Phase 22 (substrate complete: REL-01/REL-02 platformio.ini widening + ROADMAP literal realignment landed; GATE-01 cmp -s green; native 20/20 PASS; workflow YAMLs untouched per D-03/D-11). Then start Phase 23 (Host CLI Installer Integration): `/gsd-execute-phase 23` — Phase 21 D-10 hand-off: `firestarter_app/firestarter/firmware.py:417-423` needs an `uno328pb` branch for the avrdude profile (partno = `atmega328pb`, baud_rate = 115200, programmer_id = whatever bootloader the operator flashed — likely `urclock` per MiniCore default; verify on bench during Phase 24). Phase 22 commits: sub-repo 897067b on firestarter/v1.5-uno328pb + meta-repo f0aca97 on v1.5-uno328pb. No remote push yet (D-09); first push happens at Phase 24 when v1.5-uno328pb merges to firestarter/beta.
 
 ## Performance Metrics
 
@@ -232,6 +232,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 12 P12-04 | 3min | 1 tasks | 3 files |
 | Phase 21 P21-01 | ~5min | 2 tasks | 4 files |
 | Phase 21 P21-02 | ~4min | 3 tasks | 5 files |
+| Phase 22 P22-01 | ~3min | 3 tasks | 3 files |
 
 ## Decisions
 
@@ -306,3 +307,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase 21]: Plan 21-02: PROGNAME-named ELF — PIO renames BOTH the `.hex` AND the `.elf` to `PROGNAME`. Actual ELF path is `.pio/build/uno328pb/firestarter_uno328pb.elf`, NOT `firmware.elf`. This is inherited behavior (uno + leonardo envs also emit `firestarter_uno.elf` / `firestarter_leonardo.elf`); the plan's `firmware.elf` references were spec drift. Downstream phases that need the ELF should reference `.pio/build/<env>/firestarter_<env>.elf`.
 - [Phase 21]: Plan 21-02: Atomic 4-site widening + new env block landed in a single firmware sub-repo commit (ab7c2a9) per CONTEXT D-01 invariant — no half-state in any commit. Pitfall 5 honored: `rurp_common.cpp` lines 25 + 28 (the Leonardo `#elif` arm + `#error "Unsupported board"`) preserved verbatim through the widening of lines 10 + 23.
 - [Phase 21]: Plan 21-02: GATE-1.5 byte-identity preserved across BOTH perturbations (script rework + macro widening). Sub-repo commits ordered such that Task 1 (script) and Task 2 (widening + env) committed separately to isolate the GATE-1.5 risk surface per RESEARCH Assumption A3 — cmp -s verified green AFTER each commit, not just at the end.
+- [Phase 22]: Plan 22-01: Coupled meta-repo + sub-repo edit on the matching `v1.5-uno328pb` branch landed exactly per CONTEXT D-01..D-11 with zero deviations. Section-order choice `default_envs = uno, uno328pb, leonardo` (Phase 21 D-08 / Phase 22 D-01) picked over the older ROADMAP literal `uno, leonardo, uno328pb` because the `.ini` section order is the natural consistency anchor and is what the planner-owns-the-realignment hand-off in Phase 21 D-12 enabled.
+- [Phase 22]: Plan 22-01: Phase 22 ships SUBSTRATE for REL-01 + REL-02 (the platformio.ini widening + ROADMAP literal realignment); the "inspect release's asset list after a stable/beta cut" portion of REL-01/REL-02 acceptance is verified at Phase 24's first real beta cut from `firestarter/beta` per CONTEXT D-08 + RESEARCH Pitfall 6. Same Phase 18->Phase 20 pattern from v1.4. Documented in 22-01-SUMMARY.md REL-01/REL-02/GATE-01 substrate coverage section.
+- [Phase 22]: Plan 22-01: Skipped defensive size/symbol assertion on firestarter_uno328pb.hex (Claude's Discretion #3) — `cmp -s` against Phase 21 baselines is the strongest available byte-identity gate; an additional check would be ceremony without signal. Plan executed with the smaller-diff form (RESEARCH primary recommendation).
+- [Phase 22]: Plan 22-01: Meta-repo submodule pointer advance from 5fd751e -> 897067b included in the meta-repo commit (f0aca97) alongside ROADMAP.md. This rolls the meta-repo's submodule record through both Phase 21's ab7c2a9 (sub-repo Phase 21 tip — never previously committed back to meta-repo) and Phase 22's 897067b. Future plan executors should verify submodule pointer consistency early.
