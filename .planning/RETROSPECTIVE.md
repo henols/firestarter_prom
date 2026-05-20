@@ -171,6 +171,58 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 
 ---
 
+## Milestone: v1.4 — Beta & Pre-release Deployment Pipeline
+
+**Shipped:** 2026-05-20 (single-day cut: planning + execution + live verification + real-hardware flash)
+**Phases:** 6 (15-20) | **Plans:** 10 | **Ship tag:** 3.0.0b3
+
+### What Was Built
+
+1. **Versioning + lockstep foundation (Phase 15).** Both sub-repos' `update_version.py` extended to recognize beta-branch context and emit PEP 440 pre-release identifiers (`X.Y.ZbN`/`X.Y.ZrcN`). Shared validation regex across both scripts (string-equality lockstep). `lockstep-dryrun-fixture.sh` cross-script byte-identity proof.
+2. **App beta pipeline (Phase 16).** Single-file `firestarter_app/.github/workflows/beta-release.yml` — push:beta + workflow_dispatch + inline pytest gate + version bump + GitHub Pre-release + PyPI publish. GATE-01 preserves stable verbatim.
+3. **Firmware beta pipeline (Phase 17).** Single-file `firestarter/.github/workflows/beta-build.yml` — push:beta + workflow_dispatch + catalog/codegen/Unity/PIO gates + version bump + GitHub Pre-release with per-board `.hex`. GATE-02 preserves stable verbatim.
+4. **Beta-aware downloader (Phase 18, scope amendment).** `firestarter fw -i --pre`, `fw -i --firmware-version X.Y.ZbN`, `fw --list [--all|--pre|--stable]`. `_compare_versions` refactored to PEP 440-safe via `packaging.version.Version`. INST-01 (stable non-regression) provable via `/releases/latest` API auto-filtering.
+5. **Documentation (Phase 19).** Both READMEs grew Beta sections; meta-repo `v1.4-RELEASE-PROCEDURES.md` documents the release-engineer workflow end-to-end.
+6. **End-to-end gate (Phase 20).** Real beta cut in both repos following the documented procedure. All 6 E2E-01 sub-criteria green at 3.0.0b3. Real-hardware flash validated on Uno + Leonardo.
+
+### What Worked
+
+- **Substrate-first planning paid off.** Phase 15 (foundation) shipped before Phase 16/17 (consumers) so the version-emission scheme was already in place when the workflow files were written. No retro version-bump fixes were needed across the consumer phases.
+- **Sequential app-then-firmware (not parallel).** PyPI's strict PEP 440 + `--pre` semantics shook out the version-emission flow in Phase 16; firmware Phase 17 was a near-mirror that benefited from app lessons-learned. Tight feedback beat parallel throughput.
+- **Scope amendment was caught mid-milestone, not post-ship.** When operator surfaced that the published beta firmware would be uninstallable via the existing app, Phase 18 was inserted *after* Phase 15 shipped and *before* Phase 16/17 close — the cleanest possible insertion point.
+- **Single-day cut, multi-iteration shipping.** Three sequential beta cuts (b1 → b2 → b3) treated the live cut as the integration test. Each iteration surfaced and fixed a real substrate defect; b3 ships hardened against all six.
+- **Real-hardware flash as final E2E.** Going beyond `pip install --pre` to actually flashing both physical Arduinos (Uno on ttyACM0, Leonardo on ttyACM1) caught the firmware.py `FW:` parser bug that would have shipped silently otherwise.
+
+### What Was Inefficient
+
+- **6 substrate defects in the first beta cut (E2E-01..06).** The first beta cut hit five workflow defects sequentially: (a) `publish.yml` didn't auto-trigger after PAT-created release, (b) `pyproject.toml` had conflicting `setuptools_scm` + `setuptools.dynamic[attr]`, (c) `softprops/action-gh-release` defaulted `target_commitish` to pre-bump SHA, (d) `pio run` linked the test-only native env, (e) firmware `Release` step needed PAT but only had `GITHUB_TOKEN`. Each took an iteration to surface. **Lesson:** workflow E2E tests should run against a throwaway tag before the first "real" cut.
+- **`.pyc` files committed by auto-commit step.** Phase 15 added new Python files in `.github/scripts/` and `tests/` but `.gitignore` only had narrow per-dir `__pycache__/` patterns. `stefanzweifel/git-auto-commit-action`'s `git add -A` swept the bytecode into beta. Caught at b3. **Lesson:** when a phase adds new Python paths, gitignore audit should be part of plan checker.
+- **PyPI listing endpoint vs version endpoint caching.** The verifier's `gh release view --json isLatest` field was removed in current `gh` CLI; verifier needed a `gh api releases/latest` fallback. PyPI's `/pypi/{pkg}/json` listing lagged the version-specific endpoint by ~30s on each cut. **Lesson:** verifier `--quick` mode should poll until propagated, not single-shot.
+
+### Patterns Established
+
+- **"Substrate cut" pattern.** Cut a throwaway version first (`b1` here was effectively a substrate proof) to surface workflow defects in the live environment, then iterate cleanly. Future milestones with new CI/CD plumbing should plan for at least one substrate iteration before considering the cut "the real one".
+- **`target_commitish: ${{ steps.auto_commit.outputs.commit_hash }}` for tag placement.** Whenever a workflow does `version bump → auto-commit → release`, the release MUST `target_commitish` the auto-commit SHA, not `github.sha` (which is pre-bump). Both sub-repo workflows now follow this pattern; documented in workflow comments.
+- **`paths-ignore` in beta workflows.** Including `.github/**`, `**.md`, `**.sh`, `docs/**` lets workflow-cleanup commits land on beta without triggering an unwanted re-cut. Used successfully to push the publish.yml cherry-pick and the .gitignore fix without auto-bumping.
+- **Hardware-flash validation as part of E2E.** Don't trust "package installs from PyPI" as sufficient — actually flash the device and read back the version. Caught the parser bug that two layers of automated CI didn't.
+
+### Key Lessons
+
+1. **Live cuts are integration tests.** Treat the first beta cut of any new CI/CD plumbing as the test, not the ship. Plan for 2-3 iterations.
+2. **Auto-commit + tag placement is subtle.** Default `target_commitish` is the trigger SHA, not the post-mutation HEAD. Every workflow that mutates then tags must explicitly pin the target SHA.
+3. **`.gitignore` audit is plan-time work.** When a phase adds Python files in new directories, the gitignore patterns must follow. Otherwise auto-commit actions sweep up bytecode.
+4. **Real-hardware E2E catches parser bugs.** The `FW: <version>:<board>` parser had been broken since 2025-02 (stable 2.0.7 has it) but only surfaced now because v1.4 added the `--pre` install path. Hardware E2E is the safety net for old code that was never exercised end-to-end.
+
+### Cost Observations
+
+- Single-day milestone (planning + execution + cut + hardware validation + close all on 2026-05-20)
+- Commit counts: meta-repo 56 (includes archive + close commits), firmware 13, app 17
+- 3 live beta cuts in sequence (b1 → b2 → b3), each ~5 min round-trip from push to PyPI live
+- Real-hardware flash via avrdude: ~7s Uno, ~5s Leonardo per chip
+- Notable: substrate hardening cost ~6 iterations to land all of E2E-01..06; future beta cuts should land in 1.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -179,6 +231,7 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 | --------- | ------ | ----- | ---- | --------------------------------------------------------- |
 | v1.0      | 13     | 22    | 4    | Initial — established algorithm-first, three-layer-fix, regression-guard patterns |
 | v1.2      | 4 + close | 32 | 11 | Catalog-driven codegen with CI drift gate; phased migration (A→B→C→D→Close); bench-verification as a first-class step; helper-function refactor pattern (mixed result on AVR) |
+| v1.4      | 6     | 10    | 1    | Live cuts as integration tests (3 sequential cuts b1→b2→b3 surfaced 6 substrate defects); branch-driven beta with `make_latest:false` + `pip --pre` opt-in; real-hardware flash as E2E gate; manually-paired lockstep coordination (rejected: shared VERSION file, cross-repo dispatch) |
 
 ### Cumulative Quality
 

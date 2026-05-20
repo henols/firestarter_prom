@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: — Beta & Pre-release Deployment Pipeline
-status: executing
-last_updated: "2026-05-20T14:34:13.948Z"
-last_activity: 2026-05-20 -- Phase 20 execution started
+status: Awaiting next milestone
+last_updated: "2026-05-20T18:47:31.179Z"
+last_activity: 2026-05-20 — Milestone v1.4 completed and archived
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 10
-  completed_plans: 9
-  percent: 83
+  completed_plans: 10
+  percent: 100
 ---
 
 # Project State
@@ -20,23 +20,23 @@ progress:
 
 ## Current Position
 
-Phase: 20 (End-to-End Smoke Test + Milestone Close) — EXECUTING
-Plan: 1 of 1
-Status: Executing Phase 20
-Last activity: 2026-05-20 -- Phase 20 execution started
+Phase: Milestone v1.4 complete (ship tag 3.0.0b3)
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-05-20 — Milestone v1.4 completed and archived via `/gsd-complete-milestone`
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-05-19)
+See: `.planning/PROJECT.md` (updated 2026-05-20)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 20 — End-to-End Smoke Test + Milestone Close
+**Current focus:** Planning next milestone (or resume v1.3 when bench hardware available).
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
-- v1.4 (Beta & Pre-release Deployment Pipeline) — roadmap created 2026-05-20; Phases 15-19; no `--reset-phase-numbers` (continues from v1.3 last phase 14)
+- v1.4 (Beta & Pre-release Deployment Pipeline) SHIPPED 2026-05-20 — 6/6 phases, 10/10 plans, ship tag 3.0.0b3, hardware-flash validated on Uno + Leonardo
 
 ## Roadmap Summary
 
@@ -159,9 +159,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 
 ## Operator Next Steps
 
-- **v1.4:** `/gsd-plan-phase 15` to decompose Phase 15 (Versioning & Locked-Step Coordination). Phase 15 is the foundation phase and must finalise the open lockstep coordination mechanism (shared `VERSION` file vs. cross-repo workflow trigger vs. paired manual tagging) during `/gsd-discuss-phase` before plan generation.
-- **v1.3:** Paused; resume with `/gsd-execute-phase 12 --wave 1 --interactive` once bench hardware is available. v1.4 does NOT block on v1.3 closure.
-- v1.1 leftovers (FM1608 hw bug, WARNING-4 test scripts, v1.1 DOC-01 milestone close) carried in this STATE; resume after v1.3 or v1.4 ships or fold opportunistically.
+- Start the next milestone with /gsd-new-milestone
 
 ## Performance Metrics
 

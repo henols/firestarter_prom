@@ -96,18 +96,24 @@ section "Future Requirements (deferred past v1.4)":
 - **Auto-promotion beta -> stable workflow** — `promote.yml` (or equivalent) that fast-forwards
   `beta` -> `main` and bumps to stable in one CI run. Deferred until beta channel sees real use
   and the promotion pattern stabilizes. See REQUIREMENTS.md Future Requirements.
+
 - **Branch-protection rules on `beta` branch** — accidental force-pushes possible today. Add
   post-v1.4 if accidental-push problems surface. See REQUIREMENTS.md Future Requirements.
+
 - **Signed release artifacts** (sigstore / GPG) — both stable and beta ship unsigned today;
   signing is a dedicated milestone covering both at once. See REQUIREMENTS.md Future Requirements.
+
 - **TestPyPI publishing channel** — explicitly rejected for v1.4 (operator friction); could
   revisit if beta operators report needing isolated install testing. See REQUIREMENTS.md
   Future Requirements.
+
 - **Beta installation metrics / telemetry** — not in scope; future release-ops milestone.
   See REQUIREMENTS.md Future Requirements.
+
 - **Per-board `--pre` fallback** — if Uno has a beta but Leonardo doesn't, INST-02's fallback
   policy is unspecified. Add explicit policy in a later milestone if it surfaces. See
   REQUIREMENTS.md Future Requirements.
+
 - **Cached firmware download / offline install** — app always hits GitHub today; cache layer
   is a separate feature. See REQUIREMENTS.md Future Requirements.
 
@@ -323,11 +329,13 @@ DB. Two safety-critical hazards closed (BLOCKER-1, BLOCKER-2, WARNING-5).
 7. **Three safety-critical close-out phases** —
    - **Phase 11** consolidated the build pipeline to `build_db.py` and removed
      all legacy artifacts (REQ-DB-05; byte-identical regeneration verified).
+
    - **Phase 12** closed BLOCKER-1 (277 chips fell through to "Memory type
      0x%02x not supported" before the protocol-prefix dispatch) + BLOCKER-2
      (52 SRAM chips routed to `configure_eprom` with 12V VPP regulator on 5V
      parts). Fixed at three layers: firmware dispatch + Python `_ALGO_MEM_TYPE`
      table + `build_db.py` SRAM tagging.
+
    - **Phase 13** closed WARNING-5 (23 DIP28_2764 5V EEPROMs mistagged in
      upstream minipro as `algorithm=0x07` would have applied 12V to socket
      pin 1 = A14 address line on write). Data-layer-only fix via inline
@@ -340,10 +348,12 @@ DB. Two safety-critical hazards closed (BLOCKER-1, BLOCKER-2, WARNING-5).
 
 - **Files modified:** firmware (Arduino C++) + Python CLI submodules; meta-repo
   tracks `.planning/` only
+
 - **Verification:** Phase 11 (4/4), Phase 12 (8/8), Phase 13 (8/8) formally
   verified end-to-end. Phases 01-10 verified by independent
   `INTEGRATION-CHECK.md` + Phase 12 `check_dispatch.py` regression on the full
   743-chip DB.
+
 - **E2E flows shipped:** `write -e W27C512`, `write -e AM29F040`,
   `write -e SST39SF040`, `erase -s 0x10000 -e SST39SF040`, `write -e 6116`
   (SRAM safe), `write -e AT28C256` (now safe via Phase 13), `write -e AM28F010`
@@ -353,14 +363,18 @@ DB. Two safety-critical hazards closed (BLOCKER-1, BLOCKER-2, WARNING-5).
 
 - **Database source:** minipro `infoic.xml` via `build_db.py` (not hand-curated
   JSON). Outcome: ✓ — 743 chips covered without per-chip curation overhead.
+
 - **Wire protocol:** New explicit `algorithm` integer field (minipro
   `protocol_id`); `type` retained as legacy fallback. Outcome: ✓ — all 13
   KNOWN_PROTOCOLS dispatched correctly; no regressions.
+
 - **Firmware dispatch:** Protocol-prefix `if-return` block per KNOWN_PROTOCOLS
   entry in `configure_memory`, mem_type chain retained only for legacy
   user-override DB entries. Outcome: ✓ — verified by Phase 12 `check_dispatch.py`.
+
 - **Packages in scope:** DIP 24, 28, 32 only. Outcome: ✓ — SMD/PLCC/serial
   filtered cleanly by `build_db.py`.
+
 - **WARNING-5 fix:** Data-layer override in `build_db.py` rather than
   per-chip firmware switch. Outcome: ✓ — preserves the "algorithm is
   authoritative" contract while routing around the upstream minipro
@@ -382,6 +396,7 @@ only), 1 UNSATISFIED.
 
 - **Phases 01-10 lack formal VERIFICATION.md files** (verification-gap on 13
   requirements). Wiring is independently verified by `.planning/INTEGRATION-CHECK.md`
+
   + Phase 12 `check_dispatch.py` (743/743 chips PASS) + Phase 13 hazard guard
   (0 violations) + 15/15 Unity dispatch tests. By the workflow rule "missing
   VERIFICATION.md = unverified phase", 10 of 13 phases remain structurally
