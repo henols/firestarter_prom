@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: — Beta & Pre-release Deployment Pipeline
 status: executing
-last_updated: "2026-05-20T12:58:02.260Z"
-last_activity: 2026-05-20 -- Phase 16 planning complete
+last_updated: "2026-05-20T13:12:20.888Z"
+last_activity: 2026-05-20
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 7
-  completed_plans: 6
-  percent: 33
+  completed_plans: 7
+  percent: 50
 ---
 
 # Project State
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 19
+Phase: 18
 Plan: Not started
-Status: Ready to execute
-Last activity: 2026-05-20 -- Phase 16 planning complete
+Status: Executing Phase 16
+Last activity: 2026-05-20
 
 ## Project Reference
 
@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-19)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 18 — Beta-Aware Firmware Downloader
+**Current focus:** Phase 16 — App Beta Release Pipeline
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)

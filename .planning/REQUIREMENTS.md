@@ -16,7 +16,7 @@
 
 The two sub-repos each grow a parallel beta channel that mirrors the trigger shape of the existing stable channel but produces opt-in pre-release artifacts.
 
-- [ ] **REL-01**: Push to a `beta` branch in `firestarter_app/` triggers a new (or extended) GitHub Actions workflow that runs the existing CI test suite, bumps the pre-release version identifier (per VER-01), creates a GitHub Release with `prerelease: true` and `make_latest: false`, and publishes the resulting wheel/sdist to **PyPI** (the same index as stable, not TestPyPI).
+- [x] **REL-01**: Push to a `beta` branch in `firestarter_app/` triggers a new (or extended) GitHub Actions workflow that runs the existing CI test suite, bumps the pre-release version identifier (per VER-01), creates a GitHub Release with `prerelease: true` and `make_latest: false`, and publishes the resulting wheel/sdist to **PyPI** (the same index as stable, not TestPyPI).
 - [ ] **REL-02**: Push to a `beta` branch in `firestarter/` triggers a new (or extended) GitHub Actions workflow that runs the existing build pipeline (catalog validity check, codegen drift gate, native Unity tests, PlatformIO build), bumps the pre-release version identifier (per VER-02), and creates a GitHub Release with `prerelease: true`, `make_latest: false`, and the same `firestarter_*.hex` artifacts per board (Uno, Leonardo, any other configured board) as the stable build.
 
 ### VER — Versioning & locked-step coordination
@@ -31,7 +31,7 @@ Beta builds use PEP 440 pre-release identifiers in the app, mapped to matching f
 
 The existing main → stable pipelines must continue to behave identically. Beta plumbing is purely additive.
 
-- [ ] **GATE-01**: After v1.4 lands, a push to `firestarter_app/main` still produces a GitHub Release with `make_latest: true`, the `firestarter_*.whl` and `*.tar.gz` published to PyPI as a non-pre-release version (no `b`/`rc` suffix), and `__version__` in `firestarter/__init__.py` auto-bumped to the next patch. No new mandatory CI checks added to the stable path beyond what currently runs.
+- [x] **GATE-01**: After v1.4 lands, a push to `firestarter_app/main` still produces a GitHub Release with `make_latest: true`, the `firestarter_*.whl` and `*.tar.gz` published to PyPI as a non-pre-release version (no `b`/`rc` suffix), and `__version__` in `firestarter/__init__.py` auto-bumped to the next patch. No new mandatory CI checks added to the stable path beyond what currently runs.
 - [ ] **GATE-02**: After v1.4 lands, a push to `firestarter/main` still produces a GitHub Release with `make_latest: true`, the `firestarter_*.hex` artifacts per board (same set as today), version bumped in `include/version.h`, and the existing catalog-validity + codegen-drift + Unity-test gates run unchanged. No new mandatory CI checks added to the stable path beyond what currently runs.
 
 ### INST — Beta-aware firmware downloader (consumer-side enablement)

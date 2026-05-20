@@ -30,7 +30,7 @@
 ### Phases
 
 - [x] **Phase 15: Versioning & Locked-Step Coordination (Foundation)** — Resolve the lockstep coordination mechanism (manually-paired beta-branch push with `BETA_VERSION` input); extend both `update_version.py` scripts to emit PEP 440 / matching pre-release identifiers on `beta`-branch builds; document the coordination procedure as input to Phase 19. (completed 2026-05-20)
-- [ ] **Phase 16: App Beta Release Pipeline** — Add the `firestarter_app/` beta workflow (push to `beta` → run CI → bump pre-release version per Phase 15 → GitHub Release with `prerelease: true`, `make_latest: false` → publish wheel/sdist to PyPI). Validate stable pipeline (GATE-01) still produces unchanged outputs from a `main` push.
+- [x] **Phase 16: App Beta Release Pipeline** — Add the `firestarter_app/` beta workflow (push to `beta` → run CI → bump pre-release version per Phase 15 → GitHub Release with `prerelease: true`, `make_latest: false` → publish wheel/sdist to PyPI). Validate stable pipeline (GATE-01) still produces unchanged outputs from a `main` push. (completed 2026-05-20)
 - [ ] **Phase 17: Firmware Beta Release Pipeline** — Add the `firestarter/` beta workflow (push to `beta` → run catalog validity + codegen drift gate + native Unity tests + PlatformIO build → bump pre-release version per Phase 15 → GitHub Release with `prerelease: true`, `make_latest: false`, same `firestarter_*.hex` artifacts per board). Validate stable pipeline (GATE-02) still produces unchanged outputs from a `main` push.
 - [x] **Phase 18: Beta-Aware Firmware Downloader** — Extend `firestarter_app/` so `firestarter --install` (no flags) preserves byte-identical stable-only behavior, `--pre` fetches latest pre-release firmware (mirrors `pip install --pre`), `--firmware-version X.Y.Z[bN]` pins an exact tag via `/releases/tags/{tag}`, and a new `firestarter firmware list [--all|--pre|--stable]` enumerates available releases. Refactor `_compare_versions` to use `packaging.version.Version` so PEP 440 pre-release strings no longer crash. Adds pytest coverage for each path. (completed 2026-05-20)
 - [ ] **Phase 19: Documentation** — Update `firestarter_app/README.md` (install via `pip install --pre`; install firmware via `firestarter --install --pre`, `--firmware-version X.Y.ZbN`, and `firmware list`; beta stability guarantee; how to report beta issues); update `firestarter/README.md` (find pre-release `.hex` on GitHub Releases; opt-in install via the new app flags; issue reporting); publish `.planning/v1.4-RELEASE-PROCEDURES.md` (release-engineer workflow for cutting a beta in both repos via the Phase 15 lockstep mechanism, deferred promotion path).
@@ -62,8 +62,8 @@
   2. After the beta workflow lands, `pip install --pre firestarter` on a clean Python environment installs the most-recent `X.Y.ZbN` build successfully and imports cleanly. `pip install firestarter` (without `--pre`) still installs the stable version, NOT the beta — beta is opt-in via the `--pre` flag.
   3. **GATE-01 preserved.** After v1.4 lands, a push to `firestarter_app/main` still produces: (a) a GitHub Release with `make_latest: true` (no `b`/`rc` suffix in the tag), (b) a non-pre-release wheel + sdist published to PyPI, (c) `__version__` in `firestarter/__init__.py` auto-bumped to the next patch. The stable path runs no new mandatory CI checks beyond what the pre-v1.4 release.yml + publish.yml currently run.
   4. The beta workflow shares CI gates with the stable workflow where it makes sense (existing pytest suite, lint, etc.) but does NOT introduce new mandatory gates on either path. If the existing pytest suite fails on a `beta` push, the workflow halts before publishing — same fail-stop semantics as the stable path.
-**Plans:** 1 plan
-- [ ] 16-01-PLAN.md — Create firestarter_app/.github/workflows/beta-release.yml (single-file deliverable: push: beta + workflow_dispatch triggers, inline CI gates, Phase 15 version bump, GH Pre-release, PyPI via existing publish.yml). REL-01 + GATE-01.
+**Plans:** 1/1 plans complete
+- [x] 16-01-PLAN.md — Create firestarter_app/.github/workflows/beta-release.yml (single-file deliverable: push: beta + workflow_dispatch triggers, inline CI gates, Phase 15 version bump, GH Pre-release, PyPI via existing publish.yml). REL-01 + GATE-01.
 
 #### Phase 17: Firmware Beta Release Pipeline
 **Goal:** A push to `firestarter/beta` triggers a new (or extended) GitHub Actions workflow that runs the existing build pipeline (catalog validity, codegen drift gate, native Unity tests, PlatformIO build), calls the Phase 15 version-bump script in beta mode (producing matching `X.Y.ZbN` `#define VERSION` in `include/version.h`), and creates a GitHub Release with `prerelease: true`, `make_latest: false`, and the same `firestarter_*.hex` artifacts per board (Uno + Leonardo, plus any other configured board) as the stable build. The existing `main` → stable pipeline behaviour is preserved verbatim (GATE-02).
@@ -292,7 +292,7 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 13 | v1.3 | 0/0 | ⏸ Paused | — (hardware-gated) |
 | 14 (close) | v1.3 | 0/0 | ⏸ Paused | — (hardware-gated) |
 | 15 | v1.4 | 4/4 | ✅ Complete  | 2026-05-20 |
-| 16 | v1.4 | 0/0 | Not started | — |
+| 16 | v1.4 | 1/1 | Complete    | 2026-05-20 |
 | 17 | v1.4 | 0/0 | Not started | — |
 | 18 | v1.4 | 2/2 | Complete    | 2026-05-20 |
 | 19 | v1.4 | 0/0 | Not started | — (Documentation; was Phase 18 before 2026-05-20 amendment) |
