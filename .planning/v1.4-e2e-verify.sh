@@ -140,7 +140,7 @@ fi
 echo "[Step 2] Checking firmware GitHub Release for $BETA_VERSION ..."
 FW_RELEASE_CACHE="/tmp/firestarter-fw-release.json"
 if gh release view "$BETA_VERSION" -R henols/firestarter \
-       --json isPrerelease,isLatest,assets \
+       --json isPrerelease,assets \
        > "$FW_RELEASE_CACHE" 2>/dev/null; then
 
     STEP2_ISSUES=()
@@ -150,23 +150,27 @@ if gh release view "$BETA_VERSION" -R henols/firestarter \
         STEP2_ISSUES+=("  isPrerelease is not true (got: $IS_PRERELEASE) -- release must be marked Pre-release.")
     fi
 
-    IS_LATEST="$(jq -r '.isLatest' "$FW_RELEASE_CACHE")"
-    if [ "$IS_LATEST" != "false" ]; then
-        STEP2_ISSUES+=("  isLatest is not false (got: $IS_LATEST) -- release must NOT be marked Latest.")
+    # gh CLI does NOT expose isLatest in `release view --json` -- fall back to
+    # the REST API (repos/.../releases/latest) and compare tag_name. If the
+    # "latest" release equals BETA_VERSION, then make_latest is incorrectly
+    # set (Pre-release must not be the Latest marker).
+    LATEST_TAG="$(gh api "repos/henols/firestarter/releases/latest" --jq '.tag_name' 2>/dev/null || true)"
+    if [ "$LATEST_TAG" = "$BETA_VERSION" ]; then
+        STEP2_ISSUES+=("  Latest release tag equals $BETA_VERSION -- Pre-release must NOT be marked Latest.")
     fi
 
-    HAS_UNO="$(jq -e '(.assets | map(.name) | any(. == "firestarter_uno.hex"))' "$FW_RELEASE_CACHE" 2>/dev/null && echo "true" || echo "false")"
+    HAS_UNO="$(jq -e '(.assets | map(.name) | any(. == "firestarter_uno.hex"))' "$FW_RELEASE_CACHE" >/dev/null 2>&1 && echo "true" || echo "false")"
     if [ "$HAS_UNO" != "true" ]; then
         STEP2_ISSUES+=("  firestarter_uno.hex not found in release assets.")
     fi
 
-    HAS_LEONARDO="$(jq -e '(.assets | map(.name) | any(. == "firestarter_leonardo.hex"))' "$FW_RELEASE_CACHE" 2>/dev/null && echo "true" || echo "false")"
+    HAS_LEONARDO="$(jq -e '(.assets | map(.name) | any(. == "firestarter_leonardo.hex"))' "$FW_RELEASE_CACHE" >/dev/null 2>&1 && echo "true" || echo "false")"
     if [ "$HAS_LEONARDO" != "true" ]; then
         STEP2_ISSUES+=("  firestarter_leonardo.hex not found in release assets.")
     fi
 
     if [ "${#STEP2_ISSUES[@]}" -eq 0 ]; then
-        echo "  [OK] isPrerelease=true, isLatest=false, firestarter_uno.hex + firestarter_leonardo.hex present."
+        echo "  [OK] isPrerelease=true, latest!=$BETA_VERSION, firestarter_uno.hex + firestarter_leonardo.hex present."
         STEP2_RESULT="[PASS]"
     else
         echo "  [FAIL] Firmware release $BETA_VERSION has issues:" >&2
