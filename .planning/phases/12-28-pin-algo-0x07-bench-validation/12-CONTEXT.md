@@ -69,7 +69,7 @@ Each cycle runs on **Uno first, then Leonardo** so any board-asymmetry shows up 
 ### PROTO-01 chip-ID observation protocol
 
 - **D-03: Capture method = CLI stdout/stderr piped to a per-cycle log file with `tee`.** The line containing `chip-id` or `chip_id` (case-insensitive) in the log is the protocol evidence. Operator pastes a 5-line snippet (the `id` invocation + the response lines + the next command) into `.planning/v1.3-BENCH-RESULTS.md`'s PROTO-01 row.
-- **D-04: PROTO-01 mismatch handling = blocked-write evidence is required.** For at least one of BENCH-01/02/05 (operator's choice — recommended: SST27SF512 since its `chip_id_value: 0x0000bfa8` is distinct from the WINBOND chips), the operator runs `firestarter id` then deliberately attempts `firestarter write <wrong-chip-name> data.bin` and captures the safety-stack refusal as evidence that the chip-ID mismatch path blocks the write (PROTO-01 success criterion ROADMAP SC#4). Single capture is sufficient — the firmware safety path is shared across all algo-0x07 chips.
+- **D-04: PROTO-01 mismatch handling = blocked-write evidence is required.** For at least one of BENCH-01/02/05 (operator's choice — recommended: SST27SF512 since its `chip_id_value: 0x0000bfa4` is distinct from the WINBOND chips), the operator runs `firestarter id` then deliberately attempts `firestarter write <wrong-chip-name> data.bin` and captures the safety-stack refusal as evidence that the chip-ID mismatch path blocks the write (PROTO-01 success criterion ROADMAP SC#4). Single capture is sufficient — the firmware safety path is shared across all algo-0x07 chips.
 
 ### PROTO-02 VPP scope observation protocol
 
