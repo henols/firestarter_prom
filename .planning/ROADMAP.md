@@ -73,6 +73,9 @@
   3. `firestarter firmware list [--all|--pre|--stable]` enumerates `uno328pb` releases when a 328PB device is connected, with the same plain-text/JSON table shape as for `uno`/`leonardo`.
   4. A new pytest case (or extension of an existing one in `firestarter_app/tests/`) covers the `uno328pb`-reporting code path end-to-end with mocked GitHub responses; existing `uno`/`leonardo` test cases remain green.
   5. With a `uno`-reporting or `leonardo`-reporting firmware connected, `firestarter fw -i` and `firestarter fw -i --pre` flash the matching `.hex` artifact with byte-identical behavior to pre-v1.5 (GATE-01 non-regression).
+**Plans:** 2 plans
+- [ ] 23-01-PLAN.md — Wave 1: TDD RED. Adds class TestUno328pbResolution with 5 tests (3 release-resolution + 1 avrdude profile + 1 argparse allowlist) + _FakeAvrdude helper + _STABLE_RELEASE_UNO328PB fixture in firestarter_app/tests/test_firmware_install.py (D-05, D-06, D-10 revised).
+- [ ] 23-02-PLAN.md — Wave 2: TDD GREEN. Insert uno328pb elif branch in firestarter_app/firestarter/firmware.py:_install_with_avrdude (D-01..D-04: atmega328pb / arduino / 115200) + widen main.py argparse -b/--board choices to [uno, uno328pb, leonardo] (D-10 revised, Phase 21 D-08 section order). GATE-01 non-regression verified at 77 passed.
 
 #### Phase 24: Bench Validation on 328PB-Uno
 **Goal:** Operator-on-bench session: cut a v1.5 beta pre-release in `firestarter/beta` (and matching app pre-release in `firestarter_app/beta` per v1.4 locked-step procedure), flash the operator's plugged-in 328PB-Uno via `firestarter fw -i --pre`, then run a real `write → read → verify` cycle on at least one representative EPROM in the operator's chip kit (default W27C512). Capture `.planning/v1.5-BENCH-RESULTS.md`.

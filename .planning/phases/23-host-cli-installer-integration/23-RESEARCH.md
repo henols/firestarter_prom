@@ -666,9 +666,11 @@ def test_uno328pb_avrdude_profile_resolution(self, monkeypatch, tmp_path):
 | A5 | Adding 4 tests increases full-suite-time by < 1 second. [ASSUMED — extrapolation from 30 existing tests in test_firmware_install.py running in 0.16s total.] | D-14 | Negligible risk. |
 | A6 | `firestarter firmware list` does NOT call `check_current_firmware()` and therefore cannot resolve `board="uno328pb"` from a connected device — it uses `args.board` (operator-supplied, default "uno", choices=["uno","leonardo"]). [VERIFIED via inspection of `main.py:739-757`] | Open Q1 | If INST-03 SC#3 ("when a 328PB device is connected") is read strictly, this is a real gap. Mitigation options listed in Open Q1. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-### Open Q1: `main.py --board` allowlist excludes `uno328pb` — does INST-03 require resolving this?
+> **RESOLVED 2026-05-21:** All three questions resolved before plan-lock. Q1 → adopted as CONTEXT D-10 revision (widen argparse choices); Q2 → planner chose two-wave TDD shape; Q3 → planner chose `monkeypatch.setattr(firmware, "Avrdude", ...)` pattern. Each question retains its full prose below for audit trail.
+
+### Open Q1: `main.py --board` allowlist excludes `uno328pb` — does INST-03 require resolving this? **(RESOLVED — yes; D-10 revised to widen argparse choices)**
 
 - **What we know:** `main.py:288-291` declares `choices=["uno", "leonardo"]` for the `-b/--board` argparse argument. The install path (`fw -i`) uses `current_board` from handshake (overrides `args.board` for the install flow), so a `uno328pb`-reporting connected device flashes correctly without touching `--board`. **However**, the listing path (`firmware list`) passes `args.board` directly to `list_releases(board=args.board)` and never invokes `check_current_firmware()`. So `firestarter firmware list --board uno328pb` is **rejected by argparse today** with `error: argument -b/--board: invalid choice: 'uno328pb'`.
 - **What's unclear:** CONTEXT D-10 says "main.py requires NO edits". But INST-03 SC#3 says `firestarter firmware list` enumerates `uno328pb` releases **when a 328PB device is connected**. The current code doesn't auto-detect board for list; it relies on `--board`. Either (a) `--board` choices must widen to include `uno328pb` (1-line edit to main.py), OR (b) the list path must be re-architected to call `check_current_firmware()` (larger main.py edit), OR (c) the operator is expected to use the listing-path with the `--board` flag and INST-03's "when a 328PB device is connected" is interpreted as "when the listing target is uno328pb".
