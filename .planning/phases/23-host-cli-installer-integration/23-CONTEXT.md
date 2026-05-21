@@ -42,7 +42,7 @@ The v1.4 INST-04 work (Phase 18) already generalized `fetch_release_info(board=.
 ### What does NOT need to change (negative scope)
 - **D-08: `constants.py` requires NO edits.** A grep across `firestarter_app/firestarter/constants.py` returns zero references to `uno`/`leonardo`/`board` — there is no board enum or allowlist. The code is duck-typed on the `board: str` parameter, which the v1.4 INST-04 work already plumbed end-to-end. No allowlist add.
 - **D-09: `avr_tool.py` requires NO edits.** It's a thin wrapper around the avrdude subprocess; the partno/programmer/baud get passed in by `_install_with_avrdude` (now D-01). avr_tool.py itself doesn't branch on board.
-- **D-10: `main.py` requires NO edits.** No new CLI flags (ROADMAP SC#3 + INST-03 explicitly say "No new flags; existing listing logic resolves the asset name from the connected-device board string"). Existing `firestarter fw -i`, `firestarter fw -i --pre`, `firestarter firmware list` already dispatch on the board string returned by `check_current_firmware()` (lines 86-117).
+- **D-10 (REVISED 2026-05-21 after research): `main.py` requires ONE narrow allowlist edit.** Research finding: `main.py:288-291` declares `choices=["uno", "leonardo"]` for the `-b/--board` argparse argument. The install path uses the device-handshake `current_board` (overrides `args.board`), so `firestarter fw -i` on a uno328pb-reporting device works without the widening — but `firestarter firmware list --board uno328pb` is rejected by argparse before any handshake runs. Per REQUIREMENTS.md INST language "Any allowlist entry needed (e.g. in `avr_tool.py` upload profile or `constants.py` enum) is added" — the "e.g." is explicitly non-exhaustive; `main.py --board choices` is another allowlist surface. **Resolution:** widen the `choices=` tuple from `["uno", "leonardo"]` to `["uno", "uno328pb", "leonardo"]` (matching Phase 21 D-08 section-order discipline). This is a 1-line edit; no new flag added, no help text rewrite, no architectural change. ROADMAP SC#3 + INST-03 "no new flags" remain honored. The original D-10 prediction (no main.py edits) was too conservative — research revealed the contradiction.
 - **D-11: `serial_comm.py` requires NO edits.** Handshake parsing (`FW: <version>:<board>`) is already board-string-generic (line 112: `board_name = parts[1].strip()`). Phase 21 firmware emits `<board> = "uno328pb"`; the host already correctly extracts it.
 - **D-12: NO firmware sub-repo edits.** Phase 23 is HOST-ONLY. `firestarter/` (firmware sub-repo) stays untouched at its Phase 22 state (HEAD `897067b` on `v1.5-uno328pb`).
 - **D-13: NO meta-repo edits beyond CONTEXT/RESEARCH/VALIDATION/PLAN/SUMMARY/VERIFICATION/ROADMAP/STATE.** No new requirements added, no new files outside `.planning/phases/23-*/`.
@@ -53,9 +53,10 @@ The v1.4 INST-04 work (Phase 18) already generalized `fetch_release_info(board=.
 - **D-16: GATE-01 non-regression command** — `cd firestarter_app && python -m pytest tests/test_firmware_install.py -v -k "not uno328pb"` must exit 0 with the same case count as pre-Phase-23 (the test count is observable via `git diff` against the pre-edit tree).
 
 ### Edit surface summary
-- **D-17: Phase 23 edits exactly 2 files in the host CLI sub-repo:**
+- **D-17 (REVISED 2026-05-21): Phase 23 edits exactly 3 files in the host CLI sub-repo:**
   - `firestarter_app/firestarter/firmware.py` (1 elif branch in `_install_with_avrdude`)
-  - `firestarter_app/tests/test_firmware_install.py` (4 new test methods: 3 release-resolution + 1 avrdude-profile)
+  - `firestarter_app/firestarter/main.py` (1-line widening of `-b/--board` argparse `choices=` per revised D-10)
+  - `firestarter_app/tests/test_firmware_install.py` (4 new test methods: 3 release-resolution + 1 avrdude-profile). Optionally add a 5th test asserting `argparse` accepts `--board uno328pb` without erroring (covers the D-10 widening).
 - **D-18: NO `firestarter_app/setup.py`, `firestarter_app/pyproject.toml`, README, or documentation edits.** Phase 25 owns docs.
 
 ### Branching / commits / push
