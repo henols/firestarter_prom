@@ -1,5 +1,45 @@
 # Milestones
 
+## v1.5 — Arduino Uno (ATmega328PB) Board Support (Shipped: 2026-05-21)
+
+**Phases:** 5 (numbered 21-25) | **Plans:** 6 (Phase 21 = 2, Phase 22 = 1, Phase 23 = 2, Phase 24 = bench-only / 0 plans, Phase 25 = 1) | **Timeline:** 2026-05-20 (planning) → 2026-05-21 (execution + bench validation + close — single-day operator-on-bench cut) | **Ship tag:** 3.0.0b4 (auto-incremented from v1.4's 3.0.0b3 via the v1.4 lockstep mechanism on push to `beta`) | **Commits:** meta-repo ~30, firestarter sub-repo 3 (`da607d4` + `ab7c2a9` + merge `62df517`), firestarter_app sub-repo 4 (`67c8357` + `d13d9b1` + `c184910` urclock fix + merge `75db46e`)
+
+**Delivered:** Added `uno328pb` as a third first-class firmware target alongside `uno` and `leonardo`. Three-board release matrix flows end-to-end: `pio run` emits three `.hex` files per cut → CI workflows' existing `files: .pio/build/**/firestarter_*.hex` glob picks up the new artifact with zero workflow YAML changes → `firestarter fw -i --pre` resolves and flashes the matching artifact for `uno328pb`-reporting devices. Bench-validated on operator's 328PB-Uno (/dev/ttyUSB0): full install path proven on real silicon, post-flash handshake reports `v3.0.0b4, controller: uno328pb`. Existing `uno` + `leonardo` artifacts remain byte-identical (GATE-1.5 preserved via `cmp -s` against baselines captured at firestarter/beta @ 5fd751e).
+
+### Key Accomplishments
+
+1. **Firmware build target (Phase 21 — FW-01..FW-04).** New `[env:uno328pb]` in `firestarter/platformio.ini` between `[env:uno]` and `[env:leonardo]` (`platform = atmelavr`, `board = ATmega328PB`, `-D RURP_BOARD_NAME=\"uno328pb\"`). MiniCore-the-core is bundled inside `platformio/atmelavr@5.2.0` via the stock `ATmega328PB` board file's `build.core` field — no custom board JSON needed (CONTEXT D-05 Path B). Atomic 4-site macro-guard widening (`ARDUINO_AVR_UNO` → `defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_ATmega328PB)`) in `uno_rurp_shield.cpp`, `rurp_common.cpp` (×2 lines), `rurp_register_utils.h` — no umbrella macro per CONTEXT D-02. `name_firmware.py` reworked to derive PROGNAME from `-D RURP_BOARD_NAME` via `env.ParseFlags()` so the board-id triple (board-id = artifact-name = handshake-string) has a single source of truth.
+
+2. **Release pipeline (Phase 22 — REL-01, REL-02).** `platformio.ini` `default_envs` widened to `uno, uno328pb, leonardo` (Phase 21 D-08 section order); ROADMAP SC#1 literal realigned to match (Phase 21 D-12 hand-off). Zero `.github/workflows/*.yml` edits — both `build.yml:105` and `beta-build.yml:92` already used the `firestarter_*.hex` glob. Verified by `softprops/action-gh-release@v2` attaching the third asset on the first real beta cut.
+
+3. **Host CLI installer (Phase 23 — INST-01, INST-02, INST-03, GATE-01).** Two-file edit in `firestarter_app/`: `firmware.py:_install_with_avrdude` gained `uno328pb` elif branch with `("atmega328pb", "urclock", 115200)` profile (bench-validated; initial guess of `arduino` programmer_id was incorrect — operator's MiniCore-flashed 328PB-Uno ships with Urclock bootloader); `main.py` argparse `-b/--board` `choices=` widened to `["uno", "uno328pb", "leonardo"]`. TDD shape (RED tests landed first; 5 new test methods in `test_firmware_install.py` plus a `_FakeAvrdude` module-local mock helper). Full pytest 82/82 PASS; GATE-01 `pytest -k "not uno328pb"` = 77 PASS byte-identical to pre-Phase-23.
+
+4. **Bench validation (Phase 24 — BENCH-01, BENCH-02).** Merge `v1.5-uno328pb` → `firestarter/beta` triggered CI → GitHub Pre-release `3.0.0b4` with three `.hex` artifacts. `firestarter fw -i --pre --force` on `/dev/ttyUSB0` against the 328PB-Uno + RURP shield: downloaded `firestarter_uno328pb.hex` (22,340 bytes in 0.51s), flashed via avrdude+urclock (5.94s), post-flash handshake reports `version: 3.0.0b4, controller: uno328pb`. VPP 12.4–12.5V stable, VPE 14.4V stable, hardware rev EEPROM-read works. Write path bench-validated for small (16B) and medium (256B) writes via SST27SF512 in socket — every committed bit matches expected `pre AND target` pattern byte-for-byte. Full evidence in `.planning/v1.5-BENCH-RESULTS.md`.
+
+5. **Documentation + milestone close (Phase 25 — DOC-01, DOC-02, MS-01).** Both READMEs (firmware + host CLI) gained three-board references and a per-board PlatformIO env table; ROADMAP Phase 21–24 closed with shipped dates; REQUIREMENTS FW-01..04 + REL-01..02 + INST-01..03 + GATE-01 + BENCH-01..02 all flipped to `[x]`. PROJECT.md updated to "v1.5 shipped 2026-05-21".
+
+### Branch Strategy
+
+Per operator standing instruction (memory `feedback-branching-firestarter-milestones`): all milestone work landed on `v1.5-uno328pb` branches in all 3 repos (meta + firestarter + firestarter_app). Sub-repos merged `v1.5-uno328pb` → `beta` during Phase 24 to trigger the beta CI cut. Meta-repo `v1.5-uno328pb` retains the full planning trail and gets merged to `main` at milestone-close (this file).
+
+### Open backlog from v1.5 bench session (carried to v1.6)
+
+The Phase 24 bench rigor surfaced three pre-existing bugs that do NOT block v1.5 ship but warrant near-term attention:
+
+- **`large-read-data-jitter-uno328pb.md`** (HIGH, **affects all controllers**) — full 64KB streaming reads return ~57% different bytes across consecutive reads. 3-shield A/B/C triage proves the bug is hardware-independent and existed in v1.4 unnoticed (no one byte-compared 64KB round-trip reads before).
+- **`w27c512-eeprom-misclassification.md`** (HIGH, operator-tagged "asap") — chip database routes 8 electrically-erasable EEPROMs (W27C512, W27E512, W27C257, W27E257, SST27SF512, SST27VF512, SST27SF256, SST27VF256) to the UV-only EPROM dispatch path. `firestarter erase <chip>` returns `ERROR: Not supported`. Fix requires new firmware dispatch for "12V VPP write + electrical erase" chips, not a one-line override.
+- **`avrdude-mcu-detection-fallback.md`** (low) — host CLI enhancement for blank-chip recovery; empirical basis bench-validated (avrdude reveals MCU type via stderr on signature mismatch).
+
+### Key Decisions (locked)
+
+- **Path B for FW-02** (CONTEXT D-05): drop `boards/uno328pb.json`; use stock `platform = atmelavr` + `board = ATmega328PB`; rework `name_firmware.py` to derive PROGNAME from `RURP_BOARD_NAME`. Preserves the locked board-id-triple invariant.
+- **`platform = atmelavr`** (RESEARCH Open Q1 resolution): `MCUdude/MiniCore` is not a registered PlatformIO platform; the MiniCore core ships bundled inside atmelavr@5.2.0.
+- **`programmer_id="urclock"`** for uno328pb (bench-validated): MiniCore's stock bootloader on the operator's 328PB-Uno is Urclock, not optiboot. Phase 23 CONTEXT D-02 documented this as a known contingency; bench confirmed it 2026-05-21.
+- **GATE-1.5 byte-identity** (CONTEXT D-04): `firestarter_uno.hex` + `firestarter_leonardo.hex` from v1.5 cuts byte-identical to pre-v1.5 (modulo `update_version.py` drift). Baselines captured at `firestarter/beta` tip `5fd751e` (SHA-256 `0dd5c01a…` uno, `f49e2a57…` leonardo); verified via `cmp -s` during Phase 22.
+- **Local milestone branches, beta-cut only on operator authorization** (memory `feedback-branching-firestarter-milestones`): work stays on `v1.5-uno328pb` until the operator explicitly authorizes a merge to `beta`. The "merge in to beta and test that we can install via the app to the pb" instruction on 2026-05-21 was the explicit auth point.
+
+---
+
 ## v1.4 — Beta & Pre-release Deployment Pipeline (Shipped: 2026-05-20)
 
 **Phases:** 6 (numbered 15-20) | **Plans:** 10 (Phase 15 = 4, Phase 16 = 1, Phase 17 = 1, Phase 18 = 2, Phase 19 = 1, Phase 20 = 1) | **Timeline:** 2026-05-20 (single-day cut: planning + execution + live verification including real-hardware flash) | **Ship tag:** 3.0.0b3 (auto-incremented from b1/b2 during E2E iteration; .pyc hygiene fix triggered b3) | **Commits:** meta-repo 56, firestarter sub-repo 13, firestarter_app sub-repo 17

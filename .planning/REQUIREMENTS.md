@@ -50,12 +50,12 @@ The operator's Arduino-Uno-form-factor board with an ATmega328PB chip + RURP shi
 
 ### DOC — Documentation & operator guidance
 
-- [ ] **DOC-01**: `firestarter/README.md` (firmware sub-repo) and `firestarter_app/README.md` (app sub-repo) each grow a one-paragraph entry for the third supported board in their "Supported boards" / "Hardware" section: name (`uno328pb`), MCU (ATmega328PB), how the host detects it (firmware handshake reports `uno328pb`), and where to find the `.hex` artifact on GitHub Releases (the asset list).
-- [ ] **DOC-02**: Meta-repo `.planning/v1.4-RELEASE-PROCEDURES.md` (or the v1.5 successor — to be decided in the milestone close phase) is updated so the release-engineer checklist's per-board verification step lists three boards instead of two. The locked-step procedure itself (paired `beta` push, `BETA_VERSION` input, `lockstep-dryrun-fixture.sh`) is unchanged.
+- [x] **DOC-01**: `firestarter/README.md` (firmware sub-repo) and `firestarter_app/README.md` (app sub-repo) each grow a one-paragraph entry for the third supported board in their "Supported boards" / "Hardware" section: name (`uno328pb`), MCU (ATmega328PB), how the host detects it (firmware handshake reports `uno328pb`), and where to find the `.hex` artifact on GitHub Releases (the asset list). (Closed 2026-05-21; firestarter sub-repo commit `bc0f5ac` on beta; firestarter_app sub-repo commit `26e22a0` on beta. Both pushed to origin/beta with `*.md` path-ignore so no extra CI cut triggered.)
+- [x] **DOC-02**: Meta-repo `.planning/v1.4-RELEASE-PROCEDURES.md` (or the v1.5 successor — to be decided in the milestone close phase) is updated so the release-engineer checklist's per-board verification step lists three boards instead of two. The locked-step procedure itself (paired `beta` push, `BETA_VERSION` input, `lockstep-dryrun-fixture.sh`) is unchanged. (Closed 2026-05-21; v1.4-RELEASE-PROCEDURES.md got a v1.5-update note at the top — the procedure mechanics carry forward unchanged; the asset-list verification step now expects 3 artifacts.)
 
 ### MS — Milestone close
 
-- [ ] **MS-01**: `.planning/MILESTONES.md` grows a v1.5 entry (delivery summary, key accomplishments, stats, key decisions, known gaps); v1.5 phase directories are archived under `.planning/milestones/v1.5-phases/` via a `v1.5-archive.sh` script; `.planning/PROJECT.md` is updated to mark v1.5 shipped. Closure runs after BENCH-01 + BENCH-02 are green.
+- [x] **MS-01**: `.planning/MILESTONES.md` grows a v1.5 entry (delivery summary, key accomplishments, stats, key decisions, known gaps); v1.5 phase directories are archived under `.planning/milestones/v1.5-phases/` via a `v1.5-archive.sh` script; `.planning/PROJECT.md` is updated to mark v1.5 shipped. Closure runs after BENCH-01 + BENCH-02 are green. (Closed 2026-05-21; MILESTONES.md v1.5 entry added with full delivery summary + accomplishments + 3 open-backlog bugs carried to v1.6; PROJECT.md updated "v1.5 shipped 2026-05-21". Archive script handled by gsd:complete-milestone skill below.)
 
 ## Future Requirements (deferred past v1.5)
 

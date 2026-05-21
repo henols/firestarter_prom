@@ -6,9 +6,11 @@
 **v1.2 shipped:** 2026-05-19 (Message-ID Logging Rework — Leonardo Flash 98.7% → 85.4%, firmware 3.0.0-dev)
 **v1.3 status:** Paused 2026-05-20 (hardware-gated — Phase 11 coverage matrix shipped + Phase 12 Wave 0 scaffold committed; bench plans 12-01/02/03 + Phase 13 + Phase 14 await operator hardware. Resume: `/gsd-execute-phase 12 --wave 1 --interactive`)
 **v1.4 shipped:** 2026-05-20 (Beta & Pre-release Deployment Pipeline — 6 phases, 16/16 requirements)
-**v1.5 status:** Started 2026-05-20 (Arduino Uno ATmega328PB Board Support — `uno328pb` as a third first-class firmware target alongside `uno` + `leonardo`. Operator-hardware available: an Uno with a 328PB is plugged in for bench validation. Work branches off `beta` in both sub-repos.)
+**v1.5 shipped:** 2026-05-21 (Arduino Uno ATmega328PB Board Support — 5 phases, 15/15 requirements; ship tag `3.0.0b4`; bench-validated on operator's 328PB-Uno via `urclock` bootloader). Three open backlog items carried forward to v1.6 — see MILESTONES.md.
 
-## Current Milestone: v1.5 Arduino Uno (ATmega328PB) Board Support
+## Current Milestone: (none active — v1.5 shipped 2026-05-21)
+
+## v1.5 Archive: Arduino Uno (ATmega328PB) Board Support — Shipped 2026-05-21
 
 **Goal:** Ship `uno328pb` as a third first-class firmware target (alongside `uno` and `leonardo`) — end-to-end from PlatformIO env through stable + beta release artifacts (`firestarter_uno328pb.hex`), through host-CLI installer integration, to a bench-validated write→read-back→verify cycle on the operator's plugged-in ATmega328PB Uno board.
 
