@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: — Arduino Uno
 status: executing
-last_updated: "2026-05-21T06:11:05.151Z"
-last_activity: 2026-05-21 -- Phase 23 planning complete
+last_updated: "2026-05-21T06:22:17Z"
+last_activity: 2026-05-21 -- Plan 23-01 RED wave complete (5 contracts pinned; 2 RED, 3 GREEN-acceptable)
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 5
-  completed_plans: 3
-  percent: 40
+  total_plans: 6
+  completed_plans: 4
+  percent: 45
 ---
 
 # Project State
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 23
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-05-21 -- Phase 23 planning complete
+Phase: 23 (host-cli-installer-integration) — EXECUTING
+Plan: 1 of 2 complete (RED wave landed sub-repo 67c8357); ready to execute Plan 23-02 GREEN
+Status: Executing Phase 23
+Last activity: 2026-05-21 -- Plan 23-01 RED wave complete (5 contracts pinned; 2 RED, 3 GREEN-acceptable per D-07 INST-04 board-string-generic substrate)
 
 ## Project Reference
 
@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-20)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 21 — firmware-target-uno328pb
+**Current focus:** Phase 23 — host-cli-installer-integration
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
@@ -233,6 +233,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 21 P21-01 | ~5min | 2 tasks | 4 files |
 | Phase 21 P21-02 | ~4min | 3 tasks | 5 files |
 | Phase 22 P22-01 | ~3min | 3 tasks | 3 files |
+| Phase 23 P23-01 | ~4min | 2 tasks | 1 files |
 
 ## Decisions
 
@@ -311,3 +312,6 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase 22]: Plan 22-01: Phase 22 ships SUBSTRATE for REL-01 + REL-02 (the platformio.ini widening + ROADMAP literal realignment); the "inspect release's asset list after a stable/beta cut" portion of REL-01/REL-02 acceptance is verified at Phase 24's first real beta cut from `firestarter/beta` per CONTEXT D-08 + RESEARCH Pitfall 6. Same Phase 18->Phase 20 pattern from v1.4. Documented in 22-01-SUMMARY.md REL-01/REL-02/GATE-01 substrate coverage section.
 - [Phase 22]: Plan 22-01: Skipped defensive size/symbol assertion on firestarter_uno328pb.hex (Claude's Discretion #3) — `cmp -s` against Phase 21 baselines is the strongest available byte-identity gate; an additional check would be ceremony without signal. Plan executed with the smaller-diff form (RESEARCH primary recommendation).
 - [Phase 22]: Plan 22-01: Meta-repo submodule pointer advance from 5fd751e -> 897067b included in the meta-repo commit (f0aca97) alongside ROADMAP.md. This rolls the meta-repo's submodule record through both Phase 21's ab7c2a9 (sub-repo Phase 21 tip — never previously committed back to meta-repo) and Phase 22's 897067b. Future plan executors should verify submodule pointer consistency early.
+- [Phase 23]: Plan 23-01: TDD RED wave landed 5 named pytest contracts (`TestUno328pbResolution` class) + `_FakeAvrdude` helper + `_STABLE_RELEASE_UNO328PB` 3-asset fixture in a single sub-repo commit (67c8357) on `firestarter_app/v1.5-uno328pb`. D-07 GATE-01 invariant preserved bit-for-bit (`git diff --stat` shows `1 file changed, 257 insertions(+), 0 deletions`). Pre-Wave-2 status verified at execution time matches the plan's prediction verbatim: tests 1-3 PASS green (v1.4 INST-04 board-string-generic resolver substrate extends to `uno328pb` for free), tests 4 + 5 FAIL RED (firmware.py default `atmega328p` branch + main.py `choices=["uno","leonardo"]` allowlist). Plan 23-02's job is precisely those two edits.
+- [Phase 23]: Plan 23-01: RESEARCH Open Q3 / Assumption A2 verified empirically — `monkeypatch.setattr(firmware, "Avrdude", _capture_init)` does propagate to the production call site at firmware.py:472 (no `unittest.mock.patch("firestarter.firmware.Avrdude")` fallback needed). Module-level import at firmware.py:30 binds `Avrdude` as a module attribute; the call site resolves against `firmware.Avrdude` so the monkeypatch wins. New mock pattern is now established for any future Avrdude-mocking test.
+- [Phase 23]: Plan 23-01: D-07 invariant verified via the strongest possible gate — `git diff HEAD~1 HEAD -- tests/test_firmware_install.py | grep -E "^-[^-]"` returns empty (no `-` lines that aren't part of the `---`/`@@@` diff header). Pure additions only; existing 30 test methods + 2 helpers (`mock_releases_factory`, `mock_404_response`) + 2 fixtures (`_STABLE_RELEASE_UNO`, `_STABLE_RELEASE_LEONARDO`) byte-identical to the pre-edit state.
