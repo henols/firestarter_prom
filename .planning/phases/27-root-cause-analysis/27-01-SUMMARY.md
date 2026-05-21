@@ -186,6 +186,15 @@ None beyond the paragraph-count deviation documented above.
 
 None — no external service configuration required. This phase is purely desk-side analysis + documentation.
 
+## Self-Check: PASSED
+
+- FOUND: `.planning/v1.6-EVIDENCE.md` with Phase 27 section
+- FOUND: `.planning/phases/27-root-cause-analysis/27-01-SUMMARY.md`
+- FOUND: commit `40b8424` (Task 2 — append Phase 27 RCA Findings)
+- FOUND: commit `9c1950a` (SUMMARY.md)
+- Zero edits to `firestarter/` or `firestarter_app/` sub-repos confirmed
+- All 11 acceptance checks passed (final run after SUMMARY.md authored)
+
 ## Next Phase Readiness
 
 Phase 28 can begin immediately with:
