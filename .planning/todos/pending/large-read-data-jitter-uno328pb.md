@@ -80,6 +80,30 @@ If dev-reads at 1KB ALSO jitter → the bug is in the firmware's per-chunk send 
 
 **Triage result (bench 2026-05-21):** 1KB `dev read -s 1024` ALSO jitters — observed 1 byte difference at offset 0x5C across two consecutive reads of the same chip. Rate is much lower than full-chip (0.1% vs 57.8%), but still nonzero. This **points the bug at the firmware-side per-chunk send code on the 328PB, not host-side buffer management.** The bug is rate-limited — it manifests as occasional bit/byte corruption per chunk that compounds across many chunks. Small enough reads (16/256 bytes — single buffer fill) escape it; anything that streams multiple chunks accumulates errors.
 
+**3-shield A/B/C triage (bench 2026-05-21, operator-driven):**
+
+The operator rotated through three RURP shields on the same `[env:uno328pb]` board (`/dev/ttyUSB0`, hw_rev byte EEPROM-stored), same firmware (v3.0.0b4 from Phase 23 install), to isolate hardware-vs-firmware origin:
+
+| Shield | Rev | EEPROM hw byte | Chip in socket | 32-byte sample reads as | 1KB jitter (consecutive reads) | 64KB full read completes |
+|--------|-----|----------------|----------------|-------------------------|-------------------------------|--------------------------|
+| 1 | 2.2 (recent) | Rev2 | SST27SF512 | varied (actual chip data) | 1 byte diff / 1024 | ✓ (with 57.8% inter-read jitter) |
+| 2 | 2.0 | Rev2 | SST27SF512 | `77 14 b1 4e ...` (chip data) | 2 bytes diff / 1024 (offsets 0x4F + 0xBB) | ✗ timeout |
+| 3 | 0/1.0 + voltage-divider mod | **Rev1** | (chip not transferred) | all `0x00` (bus pull) | **110-124 diff LINES / 3 reads** — multi-way jitter, much worse | ✗ timeout |
+
+**Findings from the 3-shield methodology:**
+
+1. **Jitter is NOT shield-specific.** Every shield shows it at the 1KB level. Differences in magnitude are explained by chip-vs-bus-pull data content and possibly minor electrical variations, but the *presence* of the bug is invariant across shields.
+
+2. **Shield 3 (floating bus, no chip) jitters MORE than shields with real chips.** This is the smoking gun: when the chip is missing and the data bus is just floating/pulled to `0x00`, the host *still* receives different "0x00"-mostly values across consecutive reads. The variation cannot be coming from the chip (there is no chip). The bytes are being **introduced or corrupted somewhere between firmware's bus sample and host's serial receive.**
+
+3. **Shields 2 and 3 fail full 64KB reads entirely** (timeout, zero bytes captured) while Shield 1 completed earlier in the session (with 57.8% inter-read jitter). The most likely explanation is not a shield-specific failure mode but a session-state difference: Shield 1's test ran when the chip socket was driving real data, and Shield 2+3 tests ran with a missing or wrong-orientation chip — the host's READ command may have a different timeout path when the firmware's blank-or-pattern detector trips.
+
+4. **hw_rev EEPROM byte distinguishes Rev1 from Rev2 families** but not 2.0 vs 2.2. Shield 3 (Rev 0/1.0 modified) reports `Rev1`; Shields 1+2 both report `Rev2`. The voltage-divider mod on Shield 3 makes it electrically behave Rev2-alike for VPP/VPE measurement, but does not change the EEPROM-stored revision flag the firmware reads at startup.
+
+**Updated implication:** This is a **pre-Phase-21 bug**, not a regression introduced by the uno328pb build. The Phase 21 work didn't change the read state-machine code — it only widened macro guards for board setup, ADC bandgap, and added the new env. The fact that the same jitter appears on all 3 shields with the same firmware suggests the bug has been latent in the codebase since at least v1.4 (probably earlier — full-chip reads weren't byte-compared in the v1.4 lockstep fixture).
+
+**Re-tag:** demote from "v1.5 hotfix candidate" to "pre-existing latent bug surfaced by Phase 24 verify rigor". Still HIGH priority because it blocks meaningful read-back verification, but doesn't block v1.5 ship — uno + leonardo have the same bug, and they shipped at v1.4 without anyone noticing.
+
 ## Cross-checks needed
 
 - **Does this happen on uno?** Re-run the same triage on `/dev/ttyACM0` with a chip in its socket (or test against the existing uno328pb data). If yes — bug is pre-existing, not 328PB-specific.
