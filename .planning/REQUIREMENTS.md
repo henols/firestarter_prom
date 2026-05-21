@@ -21,9 +21,9 @@
 
 ### Fix (FIX)
 
-- [ ] **FIX-01**: Implementation lands in firestarter sub-repo and/or firestarter_app sub-repo (whichever sides the RCA points at); covered by atomic commits with the RCA evidence cited in the commit message
-- [ ] **FIX-02**: A native unit test (Unity for firmware, pytest for host) exercises the specific code path the fix touches and would fail on the pre-fix code
-- [ ] **FIX-03**: GATE-1.6 — the fix does not regress the write path; `firestarter write` + post-write `dev read -s N` byte-comparison still passes on at least one bench chip (already proven stable in Phase 24)
+- [x] **FIX-01**: Implementation lands in firestarter sub-repo and/or firestarter_app sub-repo (whichever sides the RCA points at); covered by atomic commits with the RCA evidence cited in the commit message
+- [x] **FIX-02**: A native unit test (Unity for firmware, pytest for host) exercises the specific code path the fix touches and would fail on the pre-fix code
+- [x] **FIX-03**: GATE-1.6 — the fix does not regress the write path; `firestarter write` + post-write `dev read -s N` byte-comparison still passes on at least one bench chip (already proven stable in Phase 24)
 
 ### Verification (VERIFY)
 

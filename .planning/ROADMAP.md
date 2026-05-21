@@ -34,7 +34,7 @@
 
 - [x] **Phase 26: Cross-board Reproduction & Diagnostic Tooling** — Reproduce the 64KB streaming-read jitter on `uno` and `leonardo` (not just `uno328pb`); land an enduring `firestarter dev consistency-check` host CLI command so the bug — and its eventual fix — is verifiable by anyone with hardware. (completed 2026-05-21)
 - [x] **Phase 27: Root Cause Analysis** — Identify the exact code path that introduces byte corruption (instrumented build, code-path bisection, or scope/logic-analyzer trace); write up WHY the corruption happens; bracket the introducing commit/milestone. (completed 2026-05-21)
-- [ ] **Phase 28: Fix Implementation + Unit Test Coverage** — Land the fix in the appropriate sub-repo(s) with atomic commits citing RCA evidence; ship a native unit test (Unity or pytest) that would fail on pre-fix code; preserve GATE-1.6 write-path non-regression.
+- [x] **Phase 28: Fix Implementation + Unit Test Coverage** — Land the fix in the appropriate sub-repo(s) with atomic commits citing RCA evidence; ship a native unit test (Unity or pytest) that would fail on pre-fix code; preserve GATE-1.6 write-path non-regression. (completed 2026-05-21)
 - [ ] **Phase 29: Multi-Board Bench Verification** — Operator-on-bench. N≥5 consecutive `firestarter read <chip> file.bin` invocations return byte-identical SHA-256 hashes on `uno`, `leonardo`, AND `uno328pb`; `dev read -s 1024` low-rate jitter also resolved; Phase 24 BENCH-02 closes as a side effect.
 - [ ] **Phase 30: Documentation + Milestone Close** — Move the todo out of `pending/`, update PROJECT.md, ship the MILESTONES.md entry, archive phase artifacts.
 
@@ -79,7 +79,7 @@
   3. GATE-1.6 holds: `firestarter write` followed by `dev read -s N` byte-comparison on at least one bench chip (W27C512 or SST27SF512 — already proven stable in Phase 24) still passes byte-for-byte. This is the desk-side TDD-equivalent of the bench regression check; full bench gate runs in Phase 29.
   4. Compiled firmware artifact sizes (`firestarter_uno.hex`, `firestarter_leonardo.hex`, `firestarter_uno328pb.hex`) are recorded in the fix commit message — any drift > a reasonable threshold (e.g. ±200 B on Leonardo's 85.4% baseline) is explicitly justified by the RCA's necessary scope. Major drift on Leonardo (the tightest board) is a flag to revisit fix scope before merge.
   5. Sub-repo fixes ready for Phase 29 bench cut — i.e. `v1.6-read-bug` branches can be merged to `beta` to trigger a `3.0.0b5` (or next pre-release) cut for bench validation. Merge to `beta` happens at the Phase 29 boundary, not within Phase 28 itself.
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 - [x] 28-01-PLAN.md — Wave A desk-side: RED Unity scaffold + branch cut (FIX-02 RED half)
 - [x] 28-02-PLAN.md — Wave B desk-side: two atomic fix commits + GREEN bar + EVIDENCE.md append (FIX-01, FIX-02 GREEN half, FIX-03 desk-side half)
 **UI hint:** no
@@ -311,6 +311,6 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 21-25 (v1.5) | v1.5 | 6/6 | ✅ Shipped | 2026-05-21 |
 | 26 | v1.6 | 2/2 | Complete    | 2026-05-21 |
 | 27 | v1.6 | 2/2 | Complete    | 2026-05-21 |
-| 28 | v1.6 | 2/2 | Complete   | 2026-05-21 |
+| 28 | v1.6 | 2/2 | Complete    | 2026-05-21 |
 | 29 | v1.6 | 0/0 | Not started | — (operator-on-bench) |
 | 30 (close) | v1.6 | 0/0 | Not started | — |
