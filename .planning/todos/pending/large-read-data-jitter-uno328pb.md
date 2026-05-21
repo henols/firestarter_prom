@@ -4,10 +4,10 @@ title: Full 64KB streaming reads return 57% scrambled data on uno328pb (small re
 captured: 2026-05-21
 status: pending
 type: bug
-target_milestone: v1.5 hotfix candidate
+target_milestone: v1.6 (in scope)
 priority: HIGH
 related_phase: 24
-resolves_phase: null
+resolves_phase: 28
 ---
 
 # Full 64KB streaming reads are unreliable on uno328pb

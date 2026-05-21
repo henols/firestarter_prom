@@ -1,6 +1,6 @@
 # Requirements — Milestone v1.6: Fix the Read Bug
 
-**Status:** Active — defined 2026-05-21 at milestone start
+**Status:** Active — defined 2026-05-21 at milestone start; phase-mapped 2026-05-21 by roadmapper.
 **Milestone goal:** Root-cause and fix the 64KB streaming-read byte-jitter surfaced by Phase 24 bench rigor; restore byte-identical full-chip read-back across `uno`, `leonardo`, and `uno328pb`.
 
 **Source backlog item:** `.planning/todos/pending/large-read-data-jitter-uno328pb.md` (HIGH priority; pre-existing latent bug, all 3 controllers).
@@ -54,23 +54,23 @@
 
 ## Traceability
 
-(Filled by the roadmapper after `/gsd-plan-phase` runs — maps each REQ-ID to exactly one phase.)
+Phase mappings locked 2026-05-21 by `/gsd-roadmap` — every v1.6 requirement maps to exactly one phase. No orphans, no duplicates. Coverage: 16/16 ✓.
 
 | REQ-ID | Phase |
 |--------|-------|
-| REPRO-01 | TBD |
-| REPRO-02 | TBD |
-| REPRO-03 | TBD |
-| RCA-01   | TBD |
-| RCA-02   | TBD |
-| RCA-03   | TBD |
-| FIX-01   | TBD |
-| FIX-02   | TBD |
-| FIX-03   | TBD |
-| VERIFY-01 | TBD |
-| VERIFY-02 | TBD |
-| VERIFY-03 | TBD |
-| VERIFY-04 | TBD |
-| DOC-01   | TBD |
-| DOC-02   | TBD |
-| MS-01    | TBD |
+| REPRO-01 | Phase 26 |
+| REPRO-02 | Phase 26 |
+| REPRO-03 | Phase 26 |
+| RCA-01   | Phase 27 |
+| RCA-02   | Phase 27 |
+| RCA-03   | Phase 27 |
+| FIX-01   | Phase 28 |
+| FIX-02   | Phase 28 |
+| FIX-03   | Phase 28 |
+| VERIFY-01 | Phase 29 |
+| VERIFY-02 | Phase 29 |
+| VERIFY-03 | Phase 29 |
+| VERIFY-04 | Phase 29 |
+| DOC-01   | Phase 30 |
+| DOC-02   | Phase 30 |
+| MS-01    | Phase 30 |
