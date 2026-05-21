@@ -33,7 +33,7 @@
 ### Phases
 
 - [x] **Phase 26: Cross-board Reproduction & Diagnostic Tooling** — Reproduce the 64KB streaming-read jitter on `uno` and `leonardo` (not just `uno328pb`); land an enduring `firestarter dev consistency-check` host CLI command so the bug — and its eventual fix — is verifiable by anyone with hardware. (completed 2026-05-21)
-- [ ] **Phase 27: Root Cause Analysis** — Identify the exact code path that introduces byte corruption (instrumented build, code-path bisection, or scope/logic-analyzer trace); write up WHY the corruption happens; bracket the introducing commit/milestone.
+- [x] **Phase 27: Root Cause Analysis** — Identify the exact code path that introduces byte corruption (instrumented build, code-path bisection, or scope/logic-analyzer trace); write up WHY the corruption happens; bracket the introducing commit/milestone. (completed 2026-05-21)
 - [ ] **Phase 28: Fix Implementation + Unit Test Coverage** — Land the fix in the appropriate sub-repo(s) with atomic commits citing RCA evidence; ship a native unit test (Unity or pytest) that would fail on pre-fix code; preserve GATE-1.6 write-path non-regression.
 - [ ] **Phase 29: Multi-Board Bench Verification** — Operator-on-bench. N≥5 consecutive `firestarter read <chip> file.bin` invocations return byte-identical SHA-256 hashes on `uno`, `leonardo`, AND `uno328pb`; `dev read -s 1024` low-rate jitter also resolved; Phase 24 BENCH-02 closes as a side effect.
 - [ ] **Phase 30: Documentation + Milestone Close** — Move the todo out of `pending/`, update PROJECT.md, ship the MILESTONES.md entry, archive phase artifacts.
@@ -64,7 +64,7 @@
   2. The RCA artifact contains a 2-5 paragraph explanation of the WHY (timing window, missed ACK, buffer overflow, CRC8 false-positive, MAGIC_PREAMBLE collision, MSG_DATA_CHUNK length-field handling, host-side pyserial input-buffer overflow at 250000 baud, etc.) — sufficient detail that a future maintainer encountering similar symptoms can reach for the same fix pattern without re-bisecting.
   3. The introducing commit (or earliest version with the bug) is cited via `git log -L` / `git bisect` output where reasonably possible — at minimum bracketed to a milestone (v1.0 vs v1.2 vs v1.4) with rationale. If full bisection is impractical (e.g. the bug existed since v1.0 and only became observable via Phase 24 rigor), that fact is documented with the empirical reasoning.
   4. GATE-1.6 risk assessment is included — explicit prose stating whether the candidate fix (sketched in this phase, implemented in Phase 28) is likely to perturb write-path timing, VPP regulator engagement, or chip-programming pulse intervals. If risk is non-trivial, RCA flags it for explicit Phase 28 mitigation.
-**Plans:** 2 plans (Wave A autonomous + Wave B conditional, drafted-but-parked by default per D-07)
+**Plans:** 2/2 plans complete
 - [x] 27-01-PLAN.md — Wave A desk-side: produce `## Phase 27 — RCA Findings` section in `.planning/v1.6-EVIDENCE.md` (closes RCA-01/02/03 + SC#1-4 + hypothesis disposition + D-11 drift call-out; Wave A verifier emits `needs_bench: false` per RESEARCH HIGH-confidence finding)
 - [x] 27-02-PLAN.md — Wave B operator-on-bench (CONDITIONAL, drafted-but-not-executed by default): cut `firestarter/v1.6-read-bug` off `beta@3.0.0b4`, add `-D RCA_INSTRUMENT_READ_TRACE`, instrument `leonardo_rurp_shield.cpp`, flash + rerun consistency-check, append Wave B addendum to the same EVIDENCE.md section
 **UI hint:** no
@@ -308,7 +308,7 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 15-20 (v1.4) | v1.4 | 10/10 | ✅ Shipped | 2026-05-20 |
 | 21-25 (v1.5) | v1.5 | 6/6 | ✅ Shipped | 2026-05-21 |
 | 26 | v1.6 | 2/2 | Complete    | 2026-05-21 |
-| 27 | v1.6 | 2/2 | Complete   | 2026-05-21 |
+| 27 | v1.6 | 2/2 | Complete    | 2026-05-21 |
 | 28 | v1.6 | 0/0 | Not started | — |
 | 29 | v1.6 | 0/0 | Not started | — (operator-on-bench) |
 | 30 (close) | v1.6 | 0/0 | Not started | — |

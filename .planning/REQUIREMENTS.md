@@ -15,9 +15,9 @@
 
 ### Root Cause (RCA)
 
-- [ ] **RCA-01**: The exact code path that introduces byte corruption is identified with concrete evidence (instrumented firmware build, code-path bisection, or a minimal reproducer narrowing the bug to a single function / chunk boundary)
-- [ ] **RCA-02**: A written explanation of WHY the corruption happens (timing window, missed ACK, buffer overflow, etc.) is captured in the planning trail — sufficient for a future reader to understand the bug without re-bisecting
-- [ ] **RCA-03**: The introducing commit (or earliest version with the bug) is identified via `git log -L` / `git bisect` where reasonably possible — at minimum bracketed to a milestone (v1.0 vs v1.2 vs v1.4)
+- [x] **RCA-01**: The exact code path that introduces byte corruption is identified with concrete evidence (instrumented firmware build, code-path bisection, or a minimal reproducer narrowing the bug to a single function / chunk boundary)
+- [x] **RCA-02**: A written explanation of WHY the corruption happens (timing window, missed ACK, buffer overflow, etc.) is captured in the planning trail — sufficient for a future reader to understand the bug without re-bisecting
+- [x] **RCA-03**: The introducing commit (or earliest version with the bug) is identified via `git log -L` / `git bisect` where reasonably possible — at minimum bracketed to a milestone (v1.0 vs v1.2 vs v1.4)
 
 ### Fix (FIX)
 
