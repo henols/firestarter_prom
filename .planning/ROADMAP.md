@@ -64,7 +64,9 @@
   2. The RCA artifact contains a 2-5 paragraph explanation of the WHY (timing window, missed ACK, buffer overflow, CRC8 false-positive, MAGIC_PREAMBLE collision, MSG_DATA_CHUNK length-field handling, host-side pyserial input-buffer overflow at 250000 baud, etc.) — sufficient detail that a future maintainer encountering similar symptoms can reach for the same fix pattern without re-bisecting.
   3. The introducing commit (or earliest version with the bug) is cited via `git log -L` / `git bisect` output where reasonably possible — at minimum bracketed to a milestone (v1.0 vs v1.2 vs v1.4) with rationale. If full bisection is impractical (e.g. the bug existed since v1.0 and only became observable via Phase 24 rigor), that fact is documented with the empirical reasoning.
   4. GATE-1.6 risk assessment is included — explicit prose stating whether the candidate fix (sketched in this phase, implemented in Phase 28) is likely to perturb write-path timing, VPP regulator engagement, or chip-programming pulse intervals. If risk is non-trivial, RCA flags it for explicit Phase 28 mitigation.
-**Plans:** TBD
+**Plans:** 2 plans (Wave A autonomous + Wave B conditional, drafted-but-parked by default per D-07)
+- [ ] 27-01-PLAN.md — Wave A desk-side: produce `## Phase 27 — RCA Findings` section in `.planning/v1.6-EVIDENCE.md` (closes RCA-01/02/03 + SC#1-4 + hypothesis disposition + D-11 drift call-out; Wave A verifier emits `needs_bench: false` per RESEARCH HIGH-confidence finding)
+- [ ] 27-02-PLAN.md — Wave B operator-on-bench (CONDITIONAL, drafted-but-not-executed by default): cut `firestarter/v1.6-read-bug` off `beta@3.0.0b4`, add `-D RCA_INSTRUMENT_READ_TRACE`, instrument `leonardo_rurp_shield.cpp`, flash + rerun consistency-check, append Wave B addendum to the same EVIDENCE.md section
 **UI hint:** no
 
 #### Phase 28: Fix Implementation + Unit Test Coverage

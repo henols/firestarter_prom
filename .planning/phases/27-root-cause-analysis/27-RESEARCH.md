@@ -520,22 +520,24 @@ The planner converts each row into a Wave A task. Every claim in the RCA narrati
 | A9: Write the Phase 27 RCA section into `.planning/v1.6-EVIDENCE.md` | This research's §"Detailed RCA-02 Narrative" + §"Hypothesis Disposition Summary Table" + §"GATE-1.6 Risk Assessment" + §"Documentation Drift Correction Targets" — lift-and-paste-ready | Closes RCA-01 + RCA-02 + RCA-03 + SC#4 |
 | A10 (optional, planner's call): Include hex-dump appendix showing `L1[0x1000..0x101F] = 10 01 02 03 ...` side-by-side with L2 / L3 | Same binaries | Per CONTEXT.md §"Claude's Discretion" — useful since H2 wins. Recommended to include. |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+All three questions below are explicitly resolved (deferred out of Phase 27 scope with concrete downstream-phase owners). None blocks Phase 27 closure.
 
 1. **Is the Leonardo's bug truly chip-specific (would a freshly-programmed W27C512 in the Leonardo socket be cleaner)?**
    - What we know: The Leonardo's chip is partially erased (15% 0xFF). On programmed regions, the bug fires less often.
    - What's unclear: How much of the 2.1% jitter rate is *intrinsic to the read race* vs how much is *amplified by the partial-erased state of this specific chip*. A freshly-programmed chip might show 0.5% or 0.1% jitter, not 2.1%.
-   - Recommendation: Phase 29's post-fix verification (N≥5 consecutive reads, byte-identical) is the authoritative gate. If the Phase 28 fix lands and Phase 29 fails on the Leonardo, the next question is whether to re-program the test chip OR add additional read-timing settling. The RCA narrative should note this so Phase 29 knows it has two recovery paths.
+   - **RESOLVED:** Deferred to Phase 29 post-fix verification (N≥5 consecutive reads, byte-identical) — the authoritative gate. If the Phase 28 fix lands and Phase 29 fails on the Leonardo, the recovery path is re-program the test chip OR add additional read-timing settling. The RCA narrative notes this so Phase 29 knows it has two recovery paths. Not blocking for Phase 27 closure.
 
 2. **Does the second-Uno chip (Plain Uno, chip ID 0xda08) have similar single-bit-flip behavior at a 100× lower rate (~0.02%) that would only manifest at N≥100 reads?**
    - What we know: Phase 26 N=3 reads on Uno yielded byte-identical SHAs.
    - What's unclear: Whether N=100 or N=1000 reads on Uno would expose latent jitter — the Uno's PIND-direct read is simpler but not necessarily race-free.
-   - Recommendation: Out of Phase 27 scope. Phase 29 N=5 is the milestone gate; if N=5 passes the milestone closes. Note this as a v1.7+ research curiosity.
+   - **RESOLVED:** Out of Phase 27 scope. Phase 29 N=5 is the milestone gate; if N=5 passes the milestone closes. Logged as a v1.7+ research curiosity. Not blocking for Phase 27 closure.
 
 3. **What is the precise capacitive-coupling path that lets the address bus bleed onto the data bus on the Leonardo PCB?**
    - What we know: PORTD bit 0 (PD0) maps to Arduino D3 (= data bus D3); PORTD bit 1 (PD1) maps to D2; PORTD bits 4 (PD4) maps to D4; address-bus lines on the RURP shield are driven through 74HC595 shift registers on PORTB. Adjacent PCB trace coupling between address-out lines (on shield) and data-in lines (PD0..PD7) is a plausible candidate.
    - What's unclear: Whether the coupling is on the shield-side trace or on the AVR-side die-internal substrate. A scope trace at the chip socket pins would disambiguate.
-   - Recommendation: Out of Phase 27 scope; Phase 28 fix doesn't need this precision (mirroring the Uno's `PORTD = 0x00` + adding `_NOP()` is sufficient at the firmware layer regardless of where the coupling is). If Phase 29 finds the fix insufficient, Wave B firmware instrumentation (`-D RCA_LOG_DATA_BUS_DEBOUNCE`) becomes the path.
+   - **RESOLVED:** Out of Phase 27 scope; Phase 28 fix doesn't need this precision (mirroring the Uno's `PORTD = 0x00` + adding `_NOP()` is sufficient at the firmware layer regardless of where the coupling is). If Phase 29 finds the fix insufficient, Wave B firmware instrumentation (`-D RCA_LOG_DATA_BUS_DEBOUNCE`) becomes the path. Not blocking for Phase 27 closure.
 
 ## Environment Availability
 
