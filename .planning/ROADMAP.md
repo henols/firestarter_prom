@@ -51,7 +51,7 @@
   4. Running the diagnostic against the operator's `leonardo` (on `/dev/ttyACM1` or equivalent) is exercised. Outcome captured either way: jitter present (expected — 1024-byte buffer changes chunk count but not per-chunk send code), or explicitly absent with evidence (would point RCA at AVR-328-specific timing rather than shared transport code).
   5. Pre-fix consistency-check results for all 3 boards are captured in `.planning/v1.6-EVIDENCE.md` (or equivalent — fixed at execution time) with raw SHA-256s + byte-diff counts, serving as the baseline that Phase 29 inverts post-fix.
 **Plans:** 2 plans
-- [ ] 26-01-PLAN.md — Desk-side: implement REPRO-03 (dev consistency-check CLI + EpromOperator.consistency_check_eprom + 8-test pytest suite)
+- [x] 26-01-PLAN.md — Desk-side: implement REPRO-03 (dev consistency-check CLI + EpromOperator.consistency_check_eprom + 8-test pytest suite)
 - [ ] 26-02-PLAN.md — Operator-on-bench: REPRO-01 + REPRO-02 + SC#5 (run diagnostic on uno + leonardo + uno328pb; populate .planning/v1.6-EVIDENCE.md)
 **UI hint:** no
 
@@ -305,7 +305,7 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 14 (close) | v1.3 | 0/0 | ⏸ Paused | — (hardware-gated) |
 | 15-20 (v1.4) | v1.4 | 10/10 | ✅ Shipped | 2026-05-20 |
 | 21-25 (v1.5) | v1.5 | 6/6 | ✅ Shipped | 2026-05-21 |
-| 26 | v1.6 | 0/0 | Not started | — |
+| 26 | v1.6 | 1/2 | In Progress|  |
 | 27 | v1.6 | 0/0 | Not started | — |
 | 28 | v1.6 | 0/0 | Not started | — |
 | 29 | v1.6 | 0/0 | Not started | — (operator-on-bench) |

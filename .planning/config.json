@@ -3,6 +3,6 @@
   "parallelization": "enabled",
   "granularity": "Comprehensive",
   "workflow": {
-    "_auto_chain_active": true
+    "_auto_chain_active": false
   }
 }

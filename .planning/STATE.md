@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.6
 milestone_name: — Fix the Read Bug
 status: executing
-last_updated: "2026-05-21T11:00:01.447Z"
-last_activity: 2026-05-21 -- Phase 26 planning complete
+last_updated: "2026-05-21T12:30:36.215Z"
+last_activity: 2026-05-21
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 2
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 ---
 
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 26 (context gathered — ready for planning)
-Plan: —
+Phase: 26 (cross-board-reproduction-diagnostic-tooling) — EXECUTING
+Plan: 2 of 2
 Status: Ready to execute
-Last activity: 2026-05-21 -- Phase 26 planning complete
+Last activity: 2026-05-21
 
 ## Project Reference
 
@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** v1.6 root-cause + fix the 64KB streaming-read byte-jitter (`large-read-data-jitter-uno328pb.md`; pre-existing latent bug, all 3 controllers).
+**Current focus:** Phase 26 — cross-board-reproduction-diagnostic-tooling
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
@@ -272,6 +272,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 22 P22-01 | ~3min | 3 tasks | 3 files |
 | Phase 23 P23-01 | ~4min | 2 tasks | 1 files |
 | Phase 23 P23-02 | ~3min | 3 tasks | 2 files |
+| Phase 26 P01 | 5min | 2 tasks | 3 files |
 
 ## Decisions
 
@@ -356,6 +357,11 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase 23]: Plan 23-02: TDD GREEN wave landed atomic 2-file paired edit on `firestarter_app/v1.5-uno328pb` (sub-repo commit d13d9b1) -- firmware.py `_install_with_avrdude` gains the `elif board.lower() == "uno328pb":` branch with the canonical `("atmega328pb", "arduino", 115200)` profile, and main.py argparse `-b/--board` choices widens from `["uno","leonardo"]` to `["uno","uno328pb","leonardo"]` (Phase 21 D-08 section order). 8 insertions / 0 deletions; the leonardo branch + uno default tuple are byte-identical post-edit (D-07 invariant verified via `grep -E "^-[^-]"` returning empty on both files). 5 uno328pb-named tests turn GREEN; GATE-01 command `-k "not uno328pb"` stays at 77 passed bit-for-bit; full suite at 82 passed.
 - [Phase 23]: Plan 23-02: Substring-anchor Edits worked on first attempt for both files (RESEARCH Pitfall 1 cleared -- no line-number drift). The 8-space indent on the elif (function-body level) and 12-space indent on the new `"uno328pb",` choice (inside the multi-line `choices=[` list) matched the file's existing conventions. The inline Phase 21 D-10 hand-off comment cites the 0x1E 0x95 0x16 vs 0x1E 0x95 0x0F signature distinction explicitly, providing the trace for future readers and the Phase 24 BENCH-01 contingency hand-off ("if `arduino` programmer_id fails on the operator's MiniCore Urclock bootloader, 1-line swap to `urclock`").
 - [Phase 23]: Plan 23-02: INST-01 / INST-02 / INST-03 / GATE-01 all closed at the mocked-pytest layer. INST-02 real-silicon proof deferred to Phase 24 BENCH-01 (D-15). Phase 23 ready for `/gsd-verify-work 23`. No remote push (D-20) -- branch stays local until milestone close at Phase 25.
+- [Phase ?]: Plan 26-01: consistency_check_eprom returns int directly (0/1/2 per D-05); dispatch branch returns the int directly (no bool->int wrapper) — 3-way verdict can't fit in bool.
+- [Phase ?]: Plan 26-01: Reused _run_state_machine + _main_phase_read_data + _write_to_file closure verbatim per D-03 reuse-not-duplicate (grep verifies 3 main_phase_handler= occurrences in eprom_operations.py).
+- [Phase ?]: Plan 26-01: Default output_dir uses 'unknown-board' placeholder; Plan 26-02 bench wave passes --output-dir explicitly with real board name.
+- [Phase ?]: Plan 26-01: Quiet mode swaps progress_callback to a no-op lambda for the call duration (restored in finally) per RESEARCH Pitfall 1 — does not touch ClassProgressHandler directly.
+- [Phase ?]: Plan 26-01: Phase 29 forward-compat contract pinned by test_stdout_verdict_block_format regex regression — Consistency check: PASS|FAIL, Distinct SHAs, Runs: N=, First divergence: offset 0x[0-9A-F]+.
 
 ## Deferred Items (acknowledged at v1.5 close 2026-05-21)
 
