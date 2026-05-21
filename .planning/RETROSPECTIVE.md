@@ -223,6 +223,58 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 
 ---
 
+## Milestone: v1.5 — Arduino Uno (ATmega328PB) Board Support
+
+**Shipped:** 2026-05-21
+**Phases:** 5 | **Plans:** 6 | **Timeline:** 2026-05-20 (planning) → 2026-05-21 (execution + bench + close)
+
+### What Was Built
+
+- New `[env:uno328pb]` PIO env using stock `platform = atmelavr` + `board = ATmega328PB` (MiniCore bundled inside atmelavr@5.2.0); no custom board JSON needed (Path B per CONTEXT D-05)
+- Atomic 4-site macro-guard widening — inline disjunction `defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_ATmega328PB)` at every site, no umbrella macro (CONTEXT D-02)
+- Reworked `name_firmware.py` — PROGNAME derives from `-D RURP_BOARD_NAME` via `env.ParseFlags()`, giving the board-id triple a single source of truth (CONTEXT D-06)
+- `default_envs` widened to include `uno328pb` (Phase 22; zero workflow YAML edits needed — existing `firestarter_*.hex` glob picks up the third asset)
+- Host CLI `_install_with_avrdude` `uno328pb` elif branch with `("atmega328pb", "urclock", 115200)` profile (Phase 23, bench-validated programmer_id)
+- `main.py` argparse `--board` choices widened to `["uno", "uno328pb", "leonardo"]` (Phase 23 D-10 revised)
+- 5 new pytest contracts in `test_firmware_install.py` + `_FakeAvrdude` mock helper (Phase 23 TDD shape)
+- End-to-end install on real PB silicon proven via `firestarter fw -i --pre` against operator's 328PB-Uno on `/dev/ttyUSB0` (Phase 24 BENCH-01)
+
+### What Worked
+
+- **TDD RED→GREEN shape for Phase 23.** Wave 1 wrote 5 failing tests (3 release-resolution + 1 avrdude profile + 1 argparse allowlist); Wave 2 made them pass with an atomic 2-file edit. Caught the `programmer_id="arduino"` guess as wrong at the bench step — operator's Urclock bootloader exposed it, the 1-line swap fixed it, and the corresponding test assertion was updated in the same fix commit. Test contract continued to pin the new value.
+- **CONTEXT.md revision DURING planning.** Phase 23 D-10 was originally written as "no main.py edits" based on incomplete code reading. The researcher surfaced an argparse `choices=["uno", "leonardo"]` constraint, and we revised D-10 (with explicit `(REVISED 2026-05-21 after research)` marker) before the planner ran. Result: the plan included the 1-line argparse fix from the start, no replanning needed.
+- **GATE-1.5 byte-identity validation.** Phase 21 captured pre-rework baselines from `firestarter/beta@5fd751e` with `version.h` UNMODIFIED (Pitfall 3 discipline), and Phase 22's verification used `cmp -s` against those baselines to prove uno + leonardo .hex outputs unperturbed. Catches the entire class of "did the macro widening break the existing builds" regressions with a single command.
+- **3-shield A/B/C triage methodology.** Operator's standing pattern for hardware-vs-firmware bug isolation rotated through Rev 2.2 → Rev 2.0 → modified Rev 0 shields. Proved the read-jitter bug was hardware-independent (NOT a v1.5 regression) in under 5 minutes; would have taken hours by code inspection alone.
+
+### What Was Inefficient
+
+- **Phase 24 not formally planned** before bench validation started. The operator just said "test that we can install via the app to the pb" and I went directly to bench work. Worked fine here because the scope was operator-driven, but it bypassed the discuss/plan/execute cycle. Should formalize "operator-driven phases" as a documented exception, not an ad-hoc deviation.
+- **`firestarter info <chip>` crashed every smoke test attempt** — pre-existing bug in `ic_layout.py:167` where `vpp-pin` is always a list but treated as int. Noticed but not filed as a todo. Should have surfaced more loudly during the smoke test instead of just noting it.
+- **Phase 22 BENCH-02 verification cannot byte-compare** due to the read-streaming jitter — discovered during bench validation rather than during plan/research. A "can we actually verify round-trip on this firmware?" smoke test EARLIER in the v1.5 sequence would have surfaced the jitter before BENCH-02 was committed to. Filed as a v1.6 learning.
+
+### Patterns Established
+
+- **CONTEXT.md `(REVISED <date>)` marker** for in-flight decision revisions. When research surfaces something that contradicts an earlier CONTEXT decision, edit the CONTEXT in place with an explicit revision date stamp. Keeps the decision trail visible without losing the original reasoning.
+- **3-shield A/B/C triage** as a documented project-level methodology (memory `user-shield-revisions`). Operator owns the practice; the meta-repo just needs to know to ASK which shield when "swap the shield" comes up.
+- **Project memory for bench environment** (`project-bench-findings-v15`). Capture operator-hardware specifics that aren't visible from the codebase: port locations, bootloader types, chip-database quirks. Future phases inherit this context for free.
+- **`firestarter fw --list --board X` as smoke test** for CI-cut verification. Lists pre-releases that contain `firestarter_X.hex`. Catches a missing release artifact instantly without flashing.
+
+### Key Lessons
+
+- **Bench validation can compress to one session** if (a) the install path is bench-validated end-to-end before going chip-deep, (b) the chip-id command works as a quick "is the socket alive" check, and (c) the operator authorizes destructive writes in advance.
+- **CONTEXT decisions get more surprising the closer to silicon you get.** D-10 (Phase 23 argparse) and D-02 (Phase 23 programmer_id) BOTH got revised after research/bench. The lesson is to mark CONTEXT decisions that are "best guess pending bench" explicitly — they're not equal-fidelity with decisions about purely textual code work.
+- **3 separate bug findings from one bench session.** Read-jitter (pre-existing, all controllers), EEPROM misclassification (8 chips, pre-existing, blocks erase), `firestarter info` crash (host-side, all chips). None of these blocked v1.5 ship, but they all wanted v1.6 todos. The bench is where pre-existing bugs surface — budget triage time, not just feature-work time.
+- **Operator-driven sessions break the GSD ceremony pattern** and that's OK. Phase 24's bench work didn't go through discuss/plan/execute formally — the operator drove it interactively. The output (24-SUMMARY.md, v1.5-BENCH-RESULTS.md) still landed in the right places.
+
+### Cost Observations
+
+- Single-day milestone close (planning landed 2026-05-20, ship 2026-05-21) — comparable to v1.4's same-day cut.
+- 6 plans total across 5 phases; Phase 24 had 0 plans (operator-on-bench, no executor agent needed).
+- Sub-repo commits very compact: firestarter sub-repo 3 substantive commits + 1 merge; firestarter_app sub-repo 3 + 1 + 1 urclock fix.
+- 3 v1.6 backlog items surfaced — appropriate triage-to-ship ratio for a milestone that touches real hardware.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
