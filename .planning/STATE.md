@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.6
 milestone_name: — Fix the Read Bug
-status: verifying
-last_updated: "2026-05-21T13:59:04.557Z"
+status: planning
+last_updated: "2026-05-21T14:30:00.000Z"
 last_activity: 2026-05-21
 progress:
   total_phases: 5
@@ -22,8 +22,8 @@ progress:
 
 Phase: 27
 Plan: Not started
-Status: Plans complete — phase verification pending
-Last activity: 2026-05-21
+Status: Context gathered — ready for /gsd:plan-phase 27
+Last activity: 2026-05-21 (Phase 27 context session)
 
 ## Project Reference
 
@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 26 — cross-board-reproduction-diagnostic-tooling
+**Current focus:** Phase 27 — root-cause-analysis (Leonardo-specific read-bug RCA; 12 decisions D-01..D-12 locked)
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
