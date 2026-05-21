@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: — Arduino Uno
 status: executing
-last_updated: "2026-05-21T06:22:17Z"
-last_activity: 2026-05-21 -- Plan 23-01 RED wave complete (5 contracts pinned; 2 RED, 3 GREEN-acceptable)
+last_updated: "2026-05-21T06:29:18Z"
+last_activity: 2026-05-21 -- Plan 23-02 GREEN wave complete (sub-repo d13d9b1; 82 passed; GATE-01 = 77 unchanged)
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 6
-  completed_plans: 4
-  percent: 45
+  completed_plans: 5
+  percent: 55
 ---
 
 # Project State
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 23 (host-cli-installer-integration) — EXECUTING
-Plan: 1 of 2 complete (RED wave landed sub-repo 67c8357); ready to execute Plan 23-02 GREEN
+Phase: 23 (host-cli-installer-integration) — EXECUTING (mocked-pytest scope complete; ready for /gsd-verify-work 23)
+Plan: 2 of 2 complete (RED wave 67c8357 + GREEN wave d13d9b1 both on firestarter_app/v1.5-uno328pb)
 Status: Executing Phase 23
-Last activity: 2026-05-21 -- Plan 23-01 RED wave complete (5 contracts pinned; 2 RED, 3 GREEN-acceptable per D-07 INST-04 board-string-generic substrate)
+Last activity: 2026-05-21 -- Plan 23-02 GREEN wave complete (atomic 2-file edit firmware.py elif + main.py choices; 5 uno328pb tests PASS; GATE-01 = 77 unchanged byte-identical; full suite 82 PASS; INST-01/02/03 + GATE-01 closed at mocked-pytest layer; INST-02 real-silicon proof deferred to Phase 24 BENCH-01)
 
 ## Project Reference
 
@@ -194,7 +194,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 
 ## Operator Next Steps
 
-- Run `/gsd-verify-work 22` to formally close Phase 22 (substrate complete: REL-01/REL-02 platformio.ini widening + ROADMAP literal realignment landed; GATE-01 cmp -s green; native 20/20 PASS; workflow YAMLs untouched per D-03/D-11). Then start Phase 23 (Host CLI Installer Integration): `/gsd-execute-phase 23` — Phase 21 D-10 hand-off: `firestarter_app/firestarter/firmware.py:417-423` needs an `uno328pb` branch for the avrdude profile (partno = `atmega328pb`, baud_rate = 115200, programmer_id = whatever bootloader the operator flashed — likely `urclock` per MiniCore default; verify on bench during Phase 24). Phase 22 commits: sub-repo 897067b on firestarter/v1.5-uno328pb + meta-repo f0aca97 on v1.5-uno328pb. No remote push yet (D-09); first push happens at Phase 24 when v1.5-uno328pb merges to firestarter/beta.
+- Run `/gsd-verify-work 23` to formally close Phase 23 (mocked-pytest scope complete: Plan 23-01 RED wave + Plan 23-02 GREEN wave both landed on `firestarter_app/v1.5-uno328pb`; 5 uno328pb tests PASS; GATE-01 = 77 unchanged byte-identical; full suite 82 PASS; INST-01/02/03 + GATE-01 closed at mocked-pytest layer; INST-02 real-silicon proof deferred to Phase 24 BENCH-01). Then start Phase 24 (Bench Validation): cut the first v1.5 beta from `firestarter/beta` (sub-repo) so a real `firestarter_uno328pb.hex` asset exists in a GitHub Pre-release, then run `firestarter fw -i --pre` on the operator's 328PB-Uno + RURP shield. The handshake `<board>="uno328pb"` flows from Phase 21 firmware -> host's `check_current_firmware` -> the new `_install_with_avrdude` elif branch -> `avrdude -p atmega328pb -c arduino -b 115200`. Single contingency: if `arduino` fails on operator's MiniCore Urclock bootloader, 1-line swap to `urclock` in `firmware.py:_install_with_avrdude`. Phase 23 commits: sub-repo d13d9b1 on `firestarter_app/v1.5-uno328pb` + meta-repo commit landing with the SUMMARY. No remote push yet (D-20); first push happens at Phase 24 when `v1.5-uno328pb` merges to `firestarter/beta`.
 
 ## Performance Metrics
 
@@ -234,6 +234,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 21 P21-02 | ~4min | 3 tasks | 5 files |
 | Phase 22 P22-01 | ~3min | 3 tasks | 3 files |
 | Phase 23 P23-01 | ~4min | 2 tasks | 1 files |
+| Phase 23 P23-02 | ~3min | 3 tasks | 2 files |
 
 ## Decisions
 
@@ -315,3 +316,6 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase 23]: Plan 23-01: TDD RED wave landed 5 named pytest contracts (`TestUno328pbResolution` class) + `_FakeAvrdude` helper + `_STABLE_RELEASE_UNO328PB` 3-asset fixture in a single sub-repo commit (67c8357) on `firestarter_app/v1.5-uno328pb`. D-07 GATE-01 invariant preserved bit-for-bit (`git diff --stat` shows `1 file changed, 257 insertions(+), 0 deletions`). Pre-Wave-2 status verified at execution time matches the plan's prediction verbatim: tests 1-3 PASS green (v1.4 INST-04 board-string-generic resolver substrate extends to `uno328pb` for free), tests 4 + 5 FAIL RED (firmware.py default `atmega328p` branch + main.py `choices=["uno","leonardo"]` allowlist). Plan 23-02's job is precisely those two edits.
 - [Phase 23]: Plan 23-01: RESEARCH Open Q3 / Assumption A2 verified empirically — `monkeypatch.setattr(firmware, "Avrdude", _capture_init)` does propagate to the production call site at firmware.py:472 (no `unittest.mock.patch("firestarter.firmware.Avrdude")` fallback needed). Module-level import at firmware.py:30 binds `Avrdude` as a module attribute; the call site resolves against `firmware.Avrdude` so the monkeypatch wins. New mock pattern is now established for any future Avrdude-mocking test.
 - [Phase 23]: Plan 23-01: D-07 invariant verified via the strongest possible gate — `git diff HEAD~1 HEAD -- tests/test_firmware_install.py | grep -E "^-[^-]"` returns empty (no `-` lines that aren't part of the `---`/`@@@` diff header). Pure additions only; existing 30 test methods + 2 helpers (`mock_releases_factory`, `mock_404_response`) + 2 fixtures (`_STABLE_RELEASE_UNO`, `_STABLE_RELEASE_LEONARDO`) byte-identical to the pre-edit state.
+- [Phase 23]: Plan 23-02: TDD GREEN wave landed atomic 2-file paired edit on `firestarter_app/v1.5-uno328pb` (sub-repo commit d13d9b1) -- firmware.py `_install_with_avrdude` gains the `elif board.lower() == "uno328pb":` branch with the canonical `("atmega328pb", "arduino", 115200)` profile, and main.py argparse `-b/--board` choices widens from `["uno","leonardo"]` to `["uno","uno328pb","leonardo"]` (Phase 21 D-08 section order). 8 insertions / 0 deletions; the leonardo branch + uno default tuple are byte-identical post-edit (D-07 invariant verified via `grep -E "^-[^-]"` returning empty on both files). 5 uno328pb-named tests turn GREEN; GATE-01 command `-k "not uno328pb"` stays at 77 passed bit-for-bit; full suite at 82 passed.
+- [Phase 23]: Plan 23-02: Substring-anchor Edits worked on first attempt for both files (RESEARCH Pitfall 1 cleared -- no line-number drift). The 8-space indent on the elif (function-body level) and 12-space indent on the new `"uno328pb",` choice (inside the multi-line `choices=[` list) matched the file's existing conventions. The inline Phase 21 D-10 hand-off comment cites the 0x1E 0x95 0x16 vs 0x1E 0x95 0x0F signature distinction explicitly, providing the trace for future readers and the Phase 24 BENCH-01 contingency hand-off ("if `arduino` programmer_id fails on the operator's MiniCore Urclock bootloader, 1-line swap to `urclock`").
+- [Phase 23]: Plan 23-02: INST-01 / INST-02 / INST-03 / GATE-01 all closed at the mocked-pytest layer. INST-02 real-silicon proof deferred to Phase 24 BENCH-01 (D-15). Phase 23 ready for `/gsd-verify-work 23`. No remote push (D-20) -- branch stays local until milestone close at Phase 25.
