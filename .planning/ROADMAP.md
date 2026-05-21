@@ -80,8 +80,8 @@
   4. Compiled firmware artifact sizes (`firestarter_uno.hex`, `firestarter_leonardo.hex`, `firestarter_uno328pb.hex`) are recorded in the fix commit message — any drift > a reasonable threshold (e.g. ±200 B on Leonardo's 85.4% baseline) is explicitly justified by the RCA's necessary scope. Major drift on Leonardo (the tightest board) is a flag to revisit fix scope before merge.
   5. Sub-repo fixes ready for Phase 29 bench cut — i.e. `v1.6-read-bug` branches can be merged to `beta` to trigger a `3.0.0b5` (or next pre-release) cut for bench validation. Merge to `beta` happens at the Phase 29 boundary, not within Phase 28 itself.
 **Plans:** 2 plans
-- [ ] 28-01-PLAN.md — Wave A desk-side: RED Unity scaffold + branch cut (FIX-02 RED half)
-- [ ] 28-02-PLAN.md — Wave B desk-side: two atomic fix commits + GREEN bar + EVIDENCE.md append (FIX-01, FIX-02 GREEN half, FIX-03 desk-side half)
+- [x] 28-01-PLAN.md — Wave A desk-side: RED Unity scaffold + branch cut (FIX-02 RED half)
+- [x] 28-02-PLAN.md — Wave B desk-side: two atomic fix commits + GREEN bar + EVIDENCE.md append (FIX-01, FIX-02 GREEN half, FIX-03 desk-side half)
 **UI hint:** no
 
 #### Phase 29: Multi-Board Bench Verification
@@ -311,6 +311,6 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 21-25 (v1.5) | v1.5 | 6/6 | ✅ Shipped | 2026-05-21 |
 | 26 | v1.6 | 2/2 | Complete    | 2026-05-21 |
 | 27 | v1.6 | 2/2 | Complete    | 2026-05-21 |
-| 28 | v1.6 | 0/0 | Not started | — |
+| 28 | v1.6 | 2/2 | Complete   | 2026-05-21 |
 | 29 | v1.6 | 0/0 | Not started | — (operator-on-bench) |
 | 30 (close) | v1.6 | 0/0 | Not started | — |

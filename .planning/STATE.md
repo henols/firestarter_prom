@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.6
 milestone_name: — Fix the Read Bug
 status: executing
-last_updated: "2026-05-21T20:56:21.872Z"
-last_activity: 2026-05-21 -- Phase 28 planning complete
+last_updated: "2026-05-21T20:58:02.777Z"
+last_activity: 2026-05-21 -- Phase 28 execution started
 progress:
   total_phases: 5
   completed_phases: 2
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 28
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-05-21 -- Phase 28 planning complete
+Phase: 28 (Fix Implementation + Unit Test Coverage) — EXECUTING
+Plan: 1 of 2
+Status: Executing Phase 28
+Last activity: 2026-05-21 -- Phase 28 execution started
 Resume file: .planning/phases/28-fix-implementation-unit-test-coverage/28-CONTEXT.md
 
 ## Project Reference
@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 28 — fix-implementation-unit-test-coverage
+**Current focus:** Phase 28 — Fix Implementation + Unit Test Coverage
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
