@@ -7,8 +7,29 @@
 **v1.3 status:** Paused 2026-05-20 (hardware-gated — Phase 11 coverage matrix shipped + Phase 12 Wave 0 scaffold committed; bench plans 12-01/02/03 + Phase 13 + Phase 14 await operator hardware. Resume: `/gsd-execute-phase 12 --wave 1 --interactive`)
 **v1.4 shipped:** 2026-05-20 (Beta & Pre-release Deployment Pipeline — 6 phases, 16/16 requirements)
 **v1.5 shipped:** 2026-05-21 (Arduino Uno ATmega328PB Board Support — 5 phases, 15/15 requirements; ship tag `3.0.0b4`; bench-validated on operator's 328PB-Uno via `urclock` bootloader). Three open backlog items carried forward to v1.6 — see MILESTONES.md.
+**v1.6 status:** STARTED 2026-05-21 — Fix the Read Bug (root-cause + fix the 64KB streaming-read byte-jitter from `large-read-data-jitter-uno328pb.md`; pre-existing latent bug surfaced by Phase 24 bench rigor; affects all 3 controllers).
 
-## Current Milestone: (none active — v1.5 shipped 2026-05-21)
+## Current Milestone: v1.6 Fix the Read Bug
+
+**Goal:** Root-cause and fix the 64KB streaming-read byte-jitter bug surfaced by Phase 24 bench rigor — restore byte-identical full-chip read-back across `uno`, `leonardo`, and `uno328pb` so verify operations and BENCH-02 close are meaningful again.
+
+**Target features:**
+- Reproduce 64KB read-jitter on `uno` and `leonardo` (not just `uno328pb`); confirm pre-existing latent bug, not a v1.5 regression
+- Isolate firmware-side vs host-side (1KB `dev read` jitters at lower rate — already points to firmware per-chunk send code)
+- Identify the exact root cause with concrete evidence (instrumented firmware build, code-path bisection, or scope/logic-analyzer trace)
+- Land fix that produces byte-identical 64KB reads across N consecutive invocations on all 3 boards (`uno`, `leonardo`, `uno328pb`)
+- Operator bench-validates the fix on 328PB-Uno + at least one other board; Phase 24 BENCH-02 closes as side effect
+- Document root cause + fix in `.planning/v1.5-BENCH-RESULTS.md` follow-up + commit-message narrative
+
+**Locked decisions (v1.6 start, 2026-05-21):**
+
+- **Scope:** Fix one specific bug — the 64KB streaming-read byte-jitter (~57.8% jitter rate at 64KB, ~0.1% at 1KB) affecting all three controllers. Cross-board verification + root-cause analysis + fix + bench validation, end-to-end.
+- **Out of scope:** `w27c512-eeprom-misclassification` (separate HIGH-priority backlog — different bug class, chip-database routing, deferred to its own milestone or grouped later); `avrdude-mcu-detection-fallback` (low priority); any new chip support; any new board target; any v1.1 FM1608 carryover.
+- **Phase numbering:** continues from v1.5 last phase 25 → v1.6 starts at Phase 26. No `--reset-phase-numbers`.
+- **Branch model:** Per operator standing instruction (memory `feedback-branching-firestarter-milestones`): all v1.6 work lands on `v1.6-read-bug` branches in all 3 repos (meta + firestarter + firestarter_app). Sub-repos branch off `beta` (current v1.5 tips). Promote to `main` only after operator green on bench cycle.
+- **Definition of done:** `firestarter read <chip> file.bin` invoked N consecutive times against the same physically-static chip returns byte-identical SHA-256 hashes on all 3 boards. Plus `dev read -s 1024` byte-identical across consecutive calls (the lower-rate jitter must also resolve, otherwise the root cause isn't truly fixed).
+- **Pre-existing-bug regression policy:** Once root cause is known, retroactively check git history — if the regression has a clear introducing commit, document it (helps Future-Us not reintroduce); but do not pursue blame.
+- **GATE-1.6 (non-regression):** Write path stays unaffected (Phase 24 already proved write commits correctly; the fix should not perturb write timing). Existing `firestarter_uno.hex`, `firestarter_leonardo.hex`, `firestarter_uno328pb.hex` artifact sizes within reasonable drift; any size delta documented in fix-commit message.
 
 ## v1.5 Archive: Arduino Uno (ATmega328PB) Board Support — Shipped 2026-05-21
 
@@ -239,4 +260,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last updated: 2026-05-20 — v1.5 milestone started (Arduino Uno ATmega328PB Board Support). `uno328pb` as a third first-class firmware target. Work branches off `beta` in both sub-repos; operator's 328PB-Uno + RURP shield available for bench validation.*
+*Last updated: 2026-05-21 — v1.6 milestone started (Fix the Read Bug). Target: root-cause and fix the 64KB streaming-read byte-jitter surfaced by Phase 24 bench rigor; restore byte-identical full-chip round-trip reads on `uno`, `leonardo`, `uno328pb`. v1.5 closed 2026-05-21 (Arduino Uno ATmega328PB Board Support).*

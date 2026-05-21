@@ -1,38 +1,38 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.5
-milestone_name: — Arduino Uno
-status: Awaiting next milestone
-last_updated: "2026-05-21T09:04:34.095Z"
-last_activity: 2026-05-21 — Milestone v1.5 completed and archived
+milestone: v1.6
+milestone_name: Fix the Read Bug
+status: planning
+last_updated: "2026-05-21T12:00:00.000Z"
+last_activity: 2026-05-21 — Milestone v1.6 started
 progress:
-  total_phases: 5
-  completed_phases: 3
-  total_plans: 5
-  completed_plans: 7
-  percent: 60
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-05-20
+**Updated:** 2026-05-21
 
 ## Current Position
 
-Phase: Milestone v1.5 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-05-21 — Milestone v1.5 completed and archived
+Status: Defining requirements
+Last activity: 2026-05-21 — Milestone v1.6 started
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-05-20)
+See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 23 — host-cli-installer-integration
+**Current focus:** v1.6 root-cause + fix the 64KB streaming-read byte-jitter (`large-read-data-jitter-uno328pb.md`; pre-existing latent bug, all 3 controllers).
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
@@ -40,6 +40,10 @@ from upstream XML → DB → wire JSON → firmware handler. No guessing.
 - v1.5 (Arduino Uno ATmega328PB Board Support) STARTED 2026-05-20 — `uno328pb` as a third first-class firmware target; operator's 328PB-Uno + RURP shield available for bench validation; work branches off `beta` in both sub-repos
 
 ## Roadmap Summary
+
+**v1.6 phases:** pending — roadmapper has not run yet. Phase numbering continues from v1.5 last phase 25 (next phase = 26). Granularity: Standard.
+
+### v1.5 phases (archived — preserved for reference)
 
 **v1.5 phases:** 5 (numbered 21-25, continues from v1.4 last phase 20). Granularity: Standard.
 
@@ -194,7 +198,18 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- `/gsd-discuss-phase 26` — gather context for the first v1.6 phase (cross-board reproduction)
+- Alternative: `/gsd-plan-phase 26` — skip discussion and plan directly
+
+## v1.6 Decisions (locked at milestone start, 2026-05-21)
+
+- **Scope:** Fix one specific bug — the 64KB streaming-read byte-jitter (~57.8% jitter rate at 64KB, ~0.1% at 1KB) affecting all three controllers (`uno`, `leonardo`, `uno328pb`). Cross-board verification + root-cause analysis + fix + bench validation.
+- **Out of scope:** `w27c512-eeprom-misclassification` (separate HIGH-priority backlog — chip database routing bug, different milestone); `avrdude-mcu-detection-fallback` (low priority); any new chip support; any new board target; v1.1 FM1608 carryover.
+- **Phase numbering:** continues from v1.5 (Phase 26+); no `--reset-phase-numbers`.
+- **Branch model:** Per memory `feedback-branching-firestarter-milestones`: `v1.6-read-bug` branches in all 3 repos. Sub-repos branch off current `beta` tips; promote to `main` only after operator green on bench.
+- **Definition of done:** `firestarter read <chip> file.bin` invoked N consecutive times against the same physically-static chip returns byte-identical SHA-256 hashes on all 3 boards. AND `dev read -s 1024` byte-identical across consecutive calls (low-rate jitter must also resolve — same root cause).
+- **GATE-1.6 (non-regression):** Write path unaffected — Phase 24 already proved write commits correctly; the fix should not perturb write timing or VPP regulator engagement.
+- **Pre-existing-bug attribution:** Once root cause is known, retroactively check git history for the introducing commit (helps prevent reintroduction); do not pursue blame.
 
 ## Performance Metrics
 
