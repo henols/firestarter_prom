@@ -9,8 +9,8 @@
 
 ### Reproduction & Triage (REPRO)
 
-- [ ] **REPRO-01**: Operator can reproduce 64KB read-jitter on `uno` (not just `uno328pb`) — consecutive `firestarter read <chip> file.bin` against a static chip yields different SHA-256 hashes
-- [ ] **REPRO-02**: Operator can reproduce 64KB read-jitter on `leonardo` (1024-byte buffer board; magnitude may differ but bug must be present or explicitly proven absent)
+- [x] **REPRO-01**: Operator can reproduce 64KB read-jitter on `uno` (not just `uno328pb`) — consecutive `firestarter read <chip> file.bin` against a static chip yields different SHA-256 hashes
+- [x] **REPRO-02**: Operator can reproduce 64KB read-jitter on `leonardo` (1024-byte buffer board; magnitude may differ but bug must be present or explicitly proven absent)
 - [x] **REPRO-03**: A reusable "consecutive-read consistency" diagnostic script lives in the host CLI (e.g. `firestarter dev consistency-check <chip> --runs N`) so the bug — and its eventual fix — is verifiable by anyone with hardware
 
 ### Root Cause (RCA)

@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.6
 milestone_name: — Fix the Read Bug
-status: executing
-last_updated: "2026-05-21T12:30:36.215Z"
+status: verifying
+last_updated: "2026-05-21T13:59:04.557Z"
 last_activity: 2026-05-21
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
-  percent: 0
+  completed_plans: 2
+  percent: 20
 ---
 
 # Project State
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 26 (cross-board-reproduction-diagnostic-tooling) — EXECUTING (awaiting verification)
-Plan: 2 of 2 — both plans complete; Task 4 (uno328pb bench row) DEFERRED, others closed
+Phase: 27
+Plan: Not started
 Status: Plans complete — phase verification pending
-Last activity: 2026-05-21 — Plan 26-02 closed (Plain Uno PASS, Leonardo FAIL 2.1% jitter at offset 0x0003)
+Last activity: 2026-05-21
 
 ## Project Reference
 

@@ -32,7 +32,7 @@
 
 ### Phases
 
-- [ ] **Phase 26: Cross-board Reproduction & Diagnostic Tooling** — Reproduce the 64KB streaming-read jitter on `uno` and `leonardo` (not just `uno328pb`); land an enduring `firestarter dev consistency-check` host CLI command so the bug — and its eventual fix — is verifiable by anyone with hardware.
+- [x] **Phase 26: Cross-board Reproduction & Diagnostic Tooling** — Reproduce the 64KB streaming-read jitter on `uno` and `leonardo` (not just `uno328pb`); land an enduring `firestarter dev consistency-check` host CLI command so the bug — and its eventual fix — is verifiable by anyone with hardware. (completed 2026-05-21)
 - [ ] **Phase 27: Root Cause Analysis** — Identify the exact code path that introduces byte corruption (instrumented build, code-path bisection, or scope/logic-analyzer trace); write up WHY the corruption happens; bracket the introducing commit/milestone.
 - [ ] **Phase 28: Fix Implementation + Unit Test Coverage** — Land the fix in the appropriate sub-repo(s) with atomic commits citing RCA evidence; ship a native unit test (Unity or pytest) that would fail on pre-fix code; preserve GATE-1.6 write-path non-regression.
 - [ ] **Phase 29: Multi-Board Bench Verification** — Operator-on-bench. N≥5 consecutive `firestarter read <chip> file.bin` invocations return byte-identical SHA-256 hashes on `uno`, `leonardo`, AND `uno328pb`; `dev read -s 1024` low-rate jitter also resolved; Phase 24 BENCH-02 closes as a side effect.
@@ -50,7 +50,7 @@
   3. Running the diagnostic against the operator's `uno` (on `/dev/ttyACM0` or equivalent) ALSO shows jitter — proves the bug is pre-existing across the 328P + 328PB controller family. If jitter is somehow absent on `uno`, that fact is captured with evidence (would refute the 3-shield-invariance finding and demand RCA scope expansion).
   4. Running the diagnostic against the operator's `leonardo` (on `/dev/ttyACM1` or equivalent) is exercised. Outcome captured either way: jitter present (expected — 1024-byte buffer changes chunk count but not per-chunk send code), or explicitly absent with evidence (would point RCA at AVR-328-specific timing rather than shared transport code).
   5. Pre-fix consistency-check results for all 3 boards are captured in `.planning/v1.6-EVIDENCE.md` (or equivalent — fixed at execution time) with raw SHA-256s + byte-diff counts, serving as the baseline that Phase 29 inverts post-fix.
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 - [x] 26-01-PLAN.md — Desk-side: implement REPRO-03 (dev consistency-check CLI + EpromOperator.consistency_check_eprom + 8-test pytest suite)
 - [x] 26-02-PLAN.md — Operator-on-bench: REPRO-01 + REPRO-02 + SC#5 (run diagnostic on uno + leonardo + uno328pb; populate .planning/v1.6-EVIDENCE.md)
 **UI hint:** no
@@ -305,7 +305,7 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 14 (close) | v1.3 | 0/0 | ⏸ Paused | — (hardware-gated) |
 | 15-20 (v1.4) | v1.4 | 10/10 | ✅ Shipped | 2026-05-20 |
 | 21-25 (v1.5) | v1.5 | 6/6 | ✅ Shipped | 2026-05-21 |
-| 26 | v1.6 | 2/2 | Complete   | 2026-05-21 |
+| 26 | v1.6 | 2/2 | Complete    | 2026-05-21 |
 | 27 | v1.6 | 0/0 | Not started | — |
 | 28 | v1.6 | 0/0 | Not started | — |
 | 29 | v1.6 | 0/0 | Not started | — (operator-on-bench) |
