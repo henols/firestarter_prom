@@ -50,6 +50,12 @@
   2. `.planning/v1.7-SHIELD-REVS.md` has an inventory section with one row per identified revision: silkscreen-version string (e.g. `RURP Rev 2.2`), upstream commit/tag of introduction, schematic file path in upstream repo, date introduced. Older revs (Rev 0, Rev 1) recovered from history are flagged "no longer on `main`" with the git commit that removed them.
   3. Operator's three on-hand boards (Rev 2.2, Rev 2.0, modified Rev 0) are photographed and stored under `.planning/v1.7/photos/<rev>/` (sufficient resolution to read silkscreen). The Modified Rev 0 rework hacks (per memory [[user_shield_revisions]]) are annotated on the photo or in an accompanying `MODIFICATIONS.md`.
   4. Silkscreen-version strings are captured verbatim per board (the actual text on the silkscreen, not a normalized form). These become the canonical revision identifiers used by all downstream phases.
+**Plans:** 5 plans
+- [ ] 31-01-substrate-and-gitignore-PLAN.md — Wave 1: root `.gitignore` 3-line correction (Research Finding #9 over D-11) + upstream RURP clone + raw ODT/CSV moved into gitignored `.planning/v1.7/notes/`
+- [ ] 31-02-chat-intel-PLAN.md — Wave 2: distill `CHAT-INTEL.md` from ODT + Discord CSV; dated verbatim quotes for the 5 D-12 key claims
+- [ ] 31-03-photos-rev22-rev20-PLAN.md — Wave 2 (operator-attested): photograph Rev 2.2 + Rev 2.0 boards (top/bottom/silkscreen JPGs); verbatim silkscreen strings captured for §1 column 1
+- [ ] 31-04-mine-and-scaffold-PLAN.md — Wave 2: 5-pass git-history mine of upstream + per-rev R41/JP4/A3 grep into `mine-notes.md`; scaffold `.planning/v1.7-SHIELD-REVS.md` §1-§9 with OWNED-BY markers on §4-§9
+- [ ] 31-05-modified-rev0-and-fills-PLAN.md — Wave 3 (operator-attested): photograph Modified Rev 0 + trace rework against upstream Rev 0 schematic into `MODIFICATIONS.md`; fill §1 inventory + §2 appendix + §3 Anders R41-on-A3 table; run 8-check phase-gate
 **UI hint:** no
 
 #### Phase 32: Inter-Rev Difference + Capability Matrix

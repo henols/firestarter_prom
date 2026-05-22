@@ -144,8 +144,9 @@ for i, line in enumerate(lines):
     if not m:
         continue
     window = '\n'.join(lines[i:i+6])
-    if '<!-- OWNED BY PHASE' not in window:
-        print(f"MISSING marker after §{m.group(1)} at line {i+1}: {line}")
+    # Literal em-dash U+2014 required — hyphen-minus must NOT satisfy this check
+    if not re.search(r'<!-- OWNED BY PHASE \d+ \u2014 TBD -->', window):
+        print(f"MISSING em-dash marker after §{m.group(1)} at line {i+1}: {line}")
 PY
 # Output must be empty
 ```
