@@ -11,13 +11,13 @@
 
 ### Hardware Inventory (HW-INV)
 
-- [ ] **HW-INV-01**: Every RURP shield revision ever published in upstream `AndersBNielsen/Relatively-Universal-ROM-Programmer` (current revs on `main` + older revs Rev 0 / Rev 1 recoverable via `git log -p` / `git log --diff-filter=D`) is identified with a unique revision identifier matching its silkscreen-version string
-- [ ] **HW-INV-02**: Each identified revision is recorded in `.planning/v1.7-SHIELD-REVS.md` with: silkscreen-version string, upstream commit/tag that introduced it, schematic file reference (path in upstream repo), date introduced (from commit history)
-- [ ] **HW-INV-03**: Operator's three on-hand boards (Rev 2.2, Rev 2.0, modified Rev 0) are photographed (top + bottom views, sufficient resolution to read silkscreen) and the photos archived under `.planning/v1.7/photos/<rev>/`; any operator-side rework hacks (e.g. the Modified Rev 0 hardware-bug-A/B mod) are annotated in the photo or accompanying note
+- [x] **HW-INV-01**: Every RURP shield revision ever published in upstream `AndersBNielsen/Relatively-Universal-ROM-Programmer` (current revs on `main` + older revs Rev 0 / Rev 1 recoverable via `git log -p` / `git log --diff-filter=D`) is identified with a unique revision identifier matching its silkscreen-version string
+- [x] **HW-INV-02**: Each identified revision is recorded in `.planning/v1.7-SHIELD-REVS.md` with: silkscreen-version string, upstream commit/tag that introduced it, schematic file reference (path in upstream repo), date introduced (from commit history)
+- [x] **HW-INV-03**: Operator's three on-hand boards (Rev 2.2, Rev 2.0, modified Rev 0) are photographed (top + bottom views, sufficient resolution to read silkscreen) and the photos archived under `.planning/v1.7/photos/<rev>/`; any operator-side rework hacks (e.g. the Modified Rev 0 hardware-bug-A/B mod) are annotated in the photo or accompanying note
 
 ### Silkscreen Capture (SILK)
 
-- [ ] **SILK-01**: For each identified shield revision, the exact silkscreen-version string is captured verbatim (e.g. `RURP Rev 2.2`, `RURP v2.0`, `RURP Rev 0` — whatever the silkscreen actually says) and stored as the canonical revision identifier in `.planning/v1.7-SHIELD-REVS.md`
+- [x] **SILK-01**: For each identified shield revision, the exact silkscreen-version string is captured verbatim (e.g. `RURP Rev 2.2`, `RURP v2.0`, `RURP Rev 0` — whatever the silkscreen actually says) and stored as the canonical revision identifier in `.planning/v1.7-SHIELD-REVS.md`
 
 ### Inter-Rev Differences (DIFF)
 

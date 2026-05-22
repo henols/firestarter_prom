@@ -33,7 +33,7 @@
 
 ### Phases
 
-- [ ] **Phase 31: Upstream Shield Archaeology** — Clone upstream `AndersBNielsen/Relatively-Universal-ROM-Programmer`; mine git history for all shield revisions (Rev 0, Rev 1, Rev 2.0, Rev 2.2, plus any others); per-rev silkscreen-version capture; photograph operator's three on-hand boards; populate `.planning/v1.7-SHIELD-REVS.md` inventory section.
+- [x] **Phase 31: Upstream Shield Archaeology** — Clone upstream `AndersBNielsen/Relatively-Universal-ROM-Programmer`; mine git history for all shield revisions (Rev 0, Rev 1, Rev 2.0, Rev 2.2, plus any others); per-rev silkscreen-version capture; photograph operator's three on-hand boards; populate `.planning/v1.7-SHIELD-REVS.md` inventory section. (completed 2026-05-22)
 - [ ] **Phase 32: Inter-Rev Difference + Capability Matrix** — Per-rev electrical/mechanical difference table (pinout, VPP regulator wiring, voltage divider values, jumpers, control-line routing, rework hacks); per-rev capability matrix (chip families, max VPP/VCC, address-bus width, supported algorithms); cross-check capabilities against firmware code.
 - [ ] **Phase 33: Silkscreen Label → Code Alias Migration** — Inventory every silkscreen label across all known revs; propose code-side alias namespace (`PIN_<SUBSYSTEM>_<FUNCTION>`); apply aliases to `firestarter/include/` + `firestarter_app/firestarter/constants.py`; migrate existing call-sites; GATE-1.7 non-regression preserved (compiled `.hex` byte-identical modulo trivial symbol-name overhead).
 - [ ] **Phase 34: Shield-Version-Detect Design + Firmware Plumbing** — Schematic delta for next-rev shield (resistor divider into Arduino ADC pin not conflicting with any current RURP signal); per-rev voltage-band lookup table; firmware ADC read at boot + handshake report; backward-compat fall-through for pre-detect-resistor boards (Rev 0 / 2.0 / 2.2 → `rev_unknown` + EEPROM `hw_revision` byte fallback).
@@ -50,7 +50,7 @@
   2. `.planning/v1.7-SHIELD-REVS.md` has an inventory section with one row per identified revision: silkscreen-version string (e.g. `RURP Rev 2.2`), upstream commit/tag of introduction, schematic file path in upstream repo, date introduced. Older revs (Rev 0, Rev 1) recovered from history are flagged "no longer on `main`" with the git commit that removed them.
   3. Operator's three on-hand boards (Rev 2.2, Rev 2.0, modified Rev 0) are photographed and stored under `.planning/v1.7/photos/<rev>/` (sufficient resolution to read silkscreen). The Modified Rev 0 rework hacks (per memory [[user_shield_revisions]]) are annotated on the photo or in an accompanying `MODIFICATIONS.md`.
   4. Silkscreen-version strings are captured verbatim per board (the actual text on the silkscreen, not a normalized form). These become the canonical revision identifiers used by all downstream phases.
-**Plans:** 5 plans
+**Plans:** 5/5 plans complete
 - [x] 31-01-substrate-and-gitignore-PLAN.md — Wave 1: root `.gitignore` 3-line correction (Research Finding #9 over D-11) + upstream RURP clone + raw ODT/CSV moved into gitignored `.planning/v1.7/notes/`
 - [x] 31-02-chat-intel-PLAN.md — Wave 2: distill `CHAT-INTEL.md` from ODT + Discord CSV; dated verbatim quotes for the 5 D-12 key claims
 - [x] 31-03-photos-rev22-rev20-PLAN.md — Wave 2 (operator-attested): photograph Rev 2.2 + Rev 2.0 boards (top/bottom/silkscreen JPGs); verbatim silkscreen strings captured for §1 column 1
