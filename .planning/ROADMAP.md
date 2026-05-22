@@ -67,6 +67,11 @@
   2. An inter-rev mechanical difference subsection covers board outline / mounting holes, ZIF socket presence + orientation, header positions, notable component changes. Differences with no electrical impact are noted but not gated.
   3. A per-rev capability matrix declares for each revision: chip families supported (28-pin DIP UV-EPROM, 32-pin DIP UV-EPROM, parallel EEPROM, AMD-style flash, Intel flash, SRAM), max VPP, max VCC, address-bus width, supported firmware algorithms (subset of `0x05/0x06/0x07/0x08/0x0B/0x0D/0x0E/0x10/0x27/0x28/0x29`).
   4. Capability matrix is cross-checked against firmware code (`firestarter/src/algorithm_*.cpp` + handler dispatch in `memory.cpp::configure_memory`). If a rev physically cannot support an algorithm (e.g. missing VPP regulator on a hypothetical Rev 0), that fact is documented and a follow-up todo is captured for a runtime-guard implementation in a later milestone (out of scope for v1.7).
+**Plans:** 3 plans
+- [ ] 32-01-PLAN.md — Wave 1: fill §4 Inter-Rev Electrical Differences (8 delta rows: 7 consecutive-rev pairs + Modified Rev 0; cites mine-notes.md Findings B/C/D/F + CHAT-INTEL discrepancies); DIFF-01
+- [ ] 32-02-PLAN.md — Wave 1: fill §5 Inter-Rev Mechanical Differences (7 delta rows + Phase 35 deferral preamble; JP4 1x2→2x2 footprint change cross-refs §4); DIFF-02
+- [ ] 32-03-PLAN.md — Wave 2: fill §6 Per-Rev Capability Matrix (8 rev rows + 4 runtime-guard follow-up todos appendix) + firmware cross-check against memory.cpp/CLAUDE.md KNOWN_PROTOCOLS + write 32-VALIDATION.md (6 new checks 32-A..32-F extending Phase 31's gate); CAPS-01, CAPS-02
+
 **UI hint:** no
 
 #### Phase 33: Silkscreen Label → Code Alias Migration
