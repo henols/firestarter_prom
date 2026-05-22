@@ -13,3 +13,4 @@ __pycache__/
 .planning/v1.7/**
 !.planning/v1.7/**/
 !.planning/v1.7/**/*.md
+.planning/v1.7/upstream-rurp/
