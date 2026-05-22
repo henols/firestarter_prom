@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.6
-milestone_name: — Fix the Read Bug
-status: blocked
-last_updated: "2026-05-22T10:30:00Z"
+milestone: v1.7
+milestone_name: — RURP Shield Hardware Investigation & Version Detection
+status: planning
+last_updated: "2026-05-22T16:00:00Z"
 last_activity: 2026-05-22
 progress:
   total_phases: 5
-  completed_phases: 3
-  total_plans: 8
-  completed_plans: 7
-  percent: 60
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -20,11 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 29 (multi-board-bench-verification) — BLOCKED (v1.6 milestone re-opens per D-07)
-Plan: 2 of 2
-Status: BLOCKED — Phase 29 Wave B Attempt 2 (2026-05-22 PM) closed FAIL per D-07; Leonardo + uno328pb read paths broken under Phase 28 firmware; chip-swap diagnostic eliminates chip as the variable. Recommend Phase 27 RCA re-open with pre-Phase-28-firmware A/B test as first experiment.
-Last activity: 2026-05-22
-Resume file: .planning/phases/29-multi-board-bench-verification/29-02-PLAN.md (rerun after Phase 27 + 28 fix-iteration)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-05-22 — Milestone v1.7 started (RURP Shield Hardware Investigation & Version Detection). v1.6 paused at the Phase 27 RCA re-open boundary after Phase 29 Wave B FAIL (D-07 milestone-reopens).
 
 ## Project Reference
 
@@ -33,14 +32,34 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 29 — multi-board-bench-verification
+**Current focus:** Phase 31 (TBD — first phase of v1.7 RURP Shield Hardware Investigation)
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
 - v1.4 (Beta & Pre-release Deployment Pipeline) SHIPPED 2026-05-20 — 6/6 phases, 10/10 plans, ship tag 3.0.0b3, hardware-flash validated on Uno + Leonardo
 - v1.5 (Arduino Uno ATmega328PB Board Support) SHIPPED 2026-05-21 — 5/5 phases, 6/6 plans, ship tag 3.0.0b4, bench-validated on operator's 328PB-Uno via `urclock` bootloader. Three open backlog items carried forward to v1.6 (the read-bug fix is the v1.6 milestone scope; the other two carry further).
+- v1.6 (Fix the Read Bug) PAUSED 2026-05-22 at the Phase 27 RCA re-open boundary — Phases 26+27+28 shipped, Phase 29 Wave B FAIL (D-07 milestone-reopens), Phase 30 BLOCKED (see Paused Milestones below)
+- **v1.7 (RURP Shield Hardware Investigation & Version Detection) STARTED 2026-05-22** — five phases (31-35); branch model `v1.7-shield-investigation` in all 3 repos
 
 ## Roadmap Summary
+
+**v1.7 phases:** 5 (numbered 31-35, continues from v1.6 last planned phase 30). Granularity: Comprehensive.
+
+| Phase | Goal | Requirements |
+|-------|------|--------------|
+| 31. Upstream Shield Archaeology | Clone upstream `AndersBNielsen/Relatively-Universal-ROM-Programmer`; mine git history; identify + record every shield revision ever published (Rev 0, Rev 1, Rev 2.0, Rev 2.2, plus any others); extract per-rev silkscreen-version string + photographs + schematic file references | HW-INV-01, HW-INV-02, HW-INV-03, SILK-01 |
+| 32. Inter-Rev Difference + Capability Matrix | Per-rev electrical/mechanical difference table (pinout, VPP regulator wiring, voltage divider values, jumpers, control-line routing, rework hacks); per-rev capability matrix (chip families supported, max VPP, max VCC, address-bus width, supported algorithms) | DIFF-01, DIFF-02, CAPS-01, CAPS-02 |
+| 33. Silkscreen Label → Code Alias Migration | Inventory every silkscreen label across all known revs; propose a single code-side alias namespace (descriptive identifiers like `PIN_VPP_REGULATOR_ENABLE`); apply aliases to firmware (`firestarter/include/`) + host (`firestarter_app/firestarter/constants.py`); GATE-1.7 non-regression preserved | ALIAS-01, ALIAS-02, ALIAS-03 |
+| 34. Shield-Version-Detect Design + Firmware Plumbing | Schematic delta for next-rev shield (resistor divider into Arduino ADC pin); firmware ADC read + lookup table mapping voltage band → silkscreen-rev string; handshake reports detected rev; backward-compat fall-through for pre-detect-resistor boards (Rev 0 / 2.0 / 2.2 → `rev_unknown` + EEPROM `hw_revision` byte fallback) | DETECT-HW-01, DETECT-HW-02, DETECT-FW-01, DETECT-FW-02 |
+| 35. Documentation + Milestone Close | `.planning/v1.7-SHIELD-REVS.md` reference document finalized; README + per-sub-repo docs updated; MILESTONES.md entry; archive `.planning/milestones/v1.7-phases/`; PROJECT.md "Validated" updates | DOC-01, MS-01 |
+
+**Coverage:** 17/17 v1.7 requirements mapped to exactly one phase. No orphans, no duplicates.
+
+**Phase-order rationale:** Archaeology → difference matrix → label aliasing → detect design → close. Phases 31+32+33+35 are desk-side (operator's existing Rev 2.2 / 2.0 / Mod-Rev 0 boards used for label-photo capture + spot-check; no bench programming). Phase 34 has a desk-side wave (schematic delta + firmware compile + handshake report on synthetic/floating ADC) and an optional operator-on-bench wave (sanity-check ADC read on existing pre-detect-resistor boards reports `rev_unknown` cleanly without breaking handshake).
+
+Full details: `.planning/ROADMAP.md` (v1.7 section).
+
+### v1.6 phases (paused — preserved for resume)
 
 **v1.6 phases:** 5 (numbered 26-30, continues from v1.5 last phase 25). Granularity: Comprehensive.
 
@@ -124,14 +143,14 @@ Full details: `.planning/ROADMAP.md` (v1.4 section).
 
 ### Open Blockers
 
-- **v1.6 Phase 29 Wave B FAIL (2026-05-22 PM) — milestone re-opens per D-07.** Bench-validated FAIL: Leonardo (`/dev/ttyACM1`, Modified Rev 0 + voltage-divider mod, 32U4 silicon) reads 83.8% zero-bytes with 5 distinct SHAs across N=5 consistency-check; uno328pb (`/dev/ttyUSB0`, Rev 2.2, real ATmega328PB Case A confirmed) reads 5 distinct SHAs with 18.2% pairwise byte-jitter. Chip-swap diagnostic eliminates chip as the variable (proven-good chip from Uno reads garbage on Leonardo). Uno code path unaffected (Δ=0 Phase 28 hex, regression check held). Strong candidate-cause: Phase 28 fix (commits `437339b6` PORTx-clear + `4f205e58` `_NOP()` settling) introduced a Leonardo + uno328pb read-path regression. **Phase 30 BLOCKED** — no `v1.6-read-bug → beta → main` promotion, no pre-release cut, no public tag until a corrected fix re-runs Phase 29 to PASS. **Next step:** Phase 27 RCA re-open with pre-Phase-28-firmware A/B test (build + sideload `firestarter/v1.6-read-bug~2` to Leonardo, re-probe) as the first disambiguation experiment. See `.planning/v1.6-EVIDENCE.md` "Wave B FAIL post-mortem (D-07 — milestone re-opens)" section + `.planning/phases/29-multi-board-bench-verification/29-02-SUMMARY.md` for full diagnostic narrative.
-- Pre-v1.6 baseline note: bench access required for Phase 26 Wave B + Phase 29 — operator owns hardware (uno + leonardo + uno328pb + RURP shield + test chip in socket), and 3-shield A/B/C triage on 2026-05-21 already proved the bug is firmware/host-side rather than shield-specific.
+- **None for v1.7 directly.** Milestone is documentation-first; investigation can proceed with operator's Rev 2.2 / Rev 2.0 / Modified Rev 0 boards (photographs + spot-check) without programming-side bench access. Phase 34 firmware-detect plumbing is desk-side compile + handshake-report verification; optional bench wave validates pre-detect-resistor backward-compat fall-through.
 
 ### Paused Milestones
 
 | Milestone | Paused | Reason | Resume Command |
 |-----------|--------|--------|----------------|
 | **v1.3** — CMOS EPROM Family Hardware Validation | 2026-05-20 | Hardware-gated. Phase 11 (coverage matrix + 78-finding defect ledger + all-algorithms wide-scan with 137 findings across 11 algos) shipped. Phase 12 Wave 0 desk-side scaffold committed (`.planning/v1.3-BENCH-RESULTS.md` skeleton + `.planning/v1.3/bench-logs/` + `.planning/v1.3/scope/`). Plans 12-01/02/03 (BENCH-01/02/05 — W27C512, SST27SF512, W27C257) + entire Phase 13 (algo-0x08 family) + Phase 14 milestone close cannot start without Uno + Leonardo + RURP shield + DIP-28 socket + scope + the bench chips. Auto-mode would silently fabricate bench results — operator paused milestone to avoid integrity hazard. v1.4 phase numbering continues at 15 to avoid collision when v1.3 resumes. | `/gsd-execute-phase 12 --wave 1 --interactive` (once bench hardware available) |
+| **v1.6** — Fix the Read Bug | 2026-05-22 | D-07 FAIL milestone-reopens triggered by Phase 29 Wave B Attempt 2 (2026-05-22 PM): Leonardo (`/dev/ttyACM1`, Modified Rev 0 + voltage-divider mod, 32U4 silicon) reads 83.8% zero-bytes with 5 distinct SHAs across N=5 consistency-check; uno328pb (`/dev/ttyUSB0`, Rev 2.2, real ATmega328PB Case A confirmed) reads 5 distinct SHAs with 18.2% pairwise byte-jitter. Chip-swap diagnostic eliminates chip as the variable (proven-good chip from Uno reads garbage on Leonardo). Uno code path unaffected (Δ=0 Phase 28 hex, regression check held). Strong candidate cause: Phase 28 fix (commits `437339b6` PORTx-clear + `4f205e58` `_NOP()` settling) introduced a Leonardo + uno328pb read-path regression. Phase 30 BLOCKED — no `v1.6-read-bug → beta → main` promotion, no pre-release cut, no public tag until a corrected fix re-runs Phase 29 to PASS. v1.6 paused to let v1.7 ship its labeled-schematic + per-rev capability table + shield-version-detect substrate; Phase 27 RCA re-open will reuse those artifacts to design instrumented A/B builds with known-good schematics. See `.planning/v1.6-EVIDENCE.md` "Wave B FAIL post-mortem" + `.planning/phases/29-multi-board-bench-verification/29-02-SUMMARY.md`. | `/gsd-plan-phase 27 --gaps` (once v1.7 ships); first disambiguation experiment per 29-02 SUMMARY hand-off — pre-Phase-28-firmware A/B test (build `firestarter/v1.6-read-bug~2`, sideload to Leonardo, re-probe) |
 
 ## Deferred Items
 
@@ -165,17 +184,6 @@ Items acknowledged and deferred at v1.2 milestone close on 2026-05-19. The three
 - BLOCKER-2 (Phase 12) — SRAM chips routed to `configure_eprom` with 12V VPP regulator
 - WARNING-5 (Phase 13) — AT28C256/64 5V EEPROM 12V-on-A14 hazard via DB override
 
-## v1.6 Decisions (locked at milestone start, 2026-05-21; phase mappings locked 2026-05-21 by roadmapper)
-
-- **Scope:** Fix one specific bug — the 64KB streaming-read byte-jitter (~57.8% jitter rate at 64KB, ~0.1% at 1KB) affecting all three controllers (`uno`, `leonardo`, `uno328pb`). Cross-board verification + root-cause analysis + fix + bench validation.
-- **Out of scope:** `w27c512-eeprom-misclassification` (separate HIGH-priority backlog — chip database routing bug, different milestone); `avrdude-mcu-detection-fallback` (low priority); any new chip support; any new board target; v1.1 FM1608 carryover.
-- **Phase numbering:** continues from v1.5 (Phase 26+); no `--reset-phase-numbers`. Five phases (26-30); 16/16 requirements mapped.
-- **Branch model:** Per memory `feedback-branching-firestarter-milestones`: `v1.6-read-bug` branches in all 3 repos. Sub-repos branch off current `beta` tips; promote to `main` only after operator green on bench. Sub-repos `v1.6-read-bug` → `beta` merge happens at the Phase 29 boundary to trigger a fresh pre-release cut for bench install. Instrumented builds for Phase 27 RCA may need their own one-off pre-release tag.
-- **Definition of done:** `firestarter read <chip> file.bin` invoked N consecutive times against the same physically-static chip returns byte-identical SHA-256 hashes on all 3 boards. AND `dev read -s 1024` byte-identical across consecutive calls (low-rate jitter must also resolve — same root cause).
-- **GATE-1.6 (non-regression):** Write path unaffected — Phase 24 already proved write commits correctly; the fix should not perturb write timing or VPP regulator engagement.
-- **Pre-existing-bug attribution:** Once root cause is known, retroactively check git history for the introducing commit (helps prevent reintroduction); do not pursue blame.
-- **Bench dependency profile:** Phase 26 has a desk-side wave (REPRO-03 tool) and an operator-on-bench wave (REPRO-01/02 reproduction). Phase 27 (RCA) and Phase 28 (fix + unit tests) are desk-side. Phase 29 is exclusively operator-on-bench — the acceptance gate. Phase 30 is paperwork. Total bench sessions needed: 1-2 (one for Phase 26 Wave B reproduction, one for Phase 29 verification; can be consolidated into a single session if Phase 28 fix lands quickly).
-
 ## v1.5 Decisions (locked at milestone start, 2026-05-20)
 
 - **Scope:** Add `uno328pb` as a third firmware target alongside the existing `uno` and `leonardo`. End-to-end coverage: PlatformIO env → handshake board-name reporting → stable + beta release pipelines emit a third `.hex` artifact → host CLI installer flashes the right artifact when device reports `uno328pb` → bench-validated EPROM write→read-back→verify cycle on operator's plugged-in 328PB-Uno + RURP shield.
@@ -189,6 +197,29 @@ Items acknowledged and deferred at v1.2 milestone close on 2026-05-19. The three
 - **GATE-1.5 (non-regression):** `firestarter_uno.hex` and `firestarter_leonardo.hex` are byte-identical to pre-v1.5 outputs (modulo unavoidable version-string drift from `update_version.py`). Stable-installed app's `firestarter fw -i` defaults still flash the matching artifact for `uno`/`leonardo`-reporting devices.
 - **Bench validation chip:** Operator's plugged-in 328PB-Uno is the test vehicle. Bench session validates against at least one representative EPROM available in the operator's chip kit (default W27C512 — overlaps v1.3 BENCH-01 chip-of-interest). Algorithm dispatch is firmware-internal and unchanged by the MCU port, so a single representative chip is sufficient to prove the port.
 - **Documentation surface:** Firmware README + app README each grow a one-paragraph board-matrix entry for `uno328pb`. Meta-repo `v1.4-RELEASE-PROCEDURES.md` (or v1.5-renamed equivalent) grows the per-board artifact line in the release-engineer checklist.
+
+## v1.7 Decisions (locked at milestone start, 2026-05-22)
+
+- **Scope:** Documentation-first investigation of every known RURP shield revision (Rev 0 → Rev 2.2 + any older revs recoverable from upstream git history); per-rev silkscreen-version capture; silkscreen-label → code-side alias migration; inter-rev electrical/mechanical difference table; per-rev capabilities matrix; design + firmware plumbing for a next-rev shield-version-detect resistor divider.
+- **Out of scope:** Fixing the v1.6 read-bug (still v1.6 territory; resumes after v1.7 ships); new chip support; new MCU board target (`uno328pb` family closed in v1.5); physical PCB manufacturing of the next-rev shield (design-only); EEPROM `rurp_configuration_t.hw_revision` byte semantics (preserved as legacy fall-back, no breaking change); RURP shield manufacturing instructions (operator-side concern).
+- **Source of truth for upstream schematics:** `https://github.com/AndersBNielsen/Relatively-Universal-ROM-Programmer/tree/main/hardware` (current revs on `main`; older revs Rev 0 + Rev 1 mined from git history via `git log -p`/`git log --diff-filter=D`).
+- **Operator hardware on hand:** Rev 2.2, Rev 2.0, modified Rev 0 (with hardware-bug-A/B rework). Per memory [[user_shield_revisions]] — operator photographs + spot-checks all three during Phase 31 silkscreen capture. Per memory [[feedback_chip_out_before_sideload]] — chip OUT of socket before any firmware sideload (Phase 34). Per memory [[feedback_verify_port_identity_each_task]] — verify `controller:` identity per port at every task start.
+- **Phase numbering:** continues from v1.6 last planned phase 30 → v1.7 starts at **Phase 31**. No `--reset-phase-numbers`. Phase 30 (v1.6 milestone close) slot stays reserved.
+- **Branch model:** Per memory [[feedback_branching]] — `v1.7-shield-investigation` branches in all 3 repos. Meta-repo branches off `main`. Sub-repos branch off current `beta` tips (post-v1.5 ship, since v1.6 sub-repo branches are mid-iteration and the firmware-detect patch needs a clean substrate). Promote sub-repos → `beta` only after Phase 34 firmware-detect lands; `beta` → `main` only after operator confirms firmware reports correctly on at least one bench-present rev. Most of v1.7 lives in the meta-repo (documentation).
+- **Definition of done:** `.planning/v1.7-SHIELD-REVS.md` (or equivalent — fixed at execution time) is the canonical per-rev reference; every silkscreen label maps to a code-side alias; firmware uses the aliases; next-rev schematic delta + ADC-detect firmware plumbing are committed (without requiring physical fabrication for firmware to compile + boot cleanly on existing pre-detect-resistor boards).
+- **GATE-1.7 (non-regression):** Existing pre-detect-resistor boards (Rev 0 / 2.0 / 2.2) handshake byte-identical to v1.6 baseline; chip programming + read paths byte-identical; the alias migration is name-only (no wire-format or behavior changes); compiled `.hex` sizes within trivial drift (≤ symbol-name overhead, typically a few bytes).
+- **Backward-compat fall-through:** Firmware ADC-detect must gracefully handle pre-detect-resistor boards — floating/grounded ADC reading falls through to "rev_unknown" reported in handshake, AND firmware continues to honor the operator-configured `hw_revision` byte in EEPROM (existing behavior preserved). The detect resistor is additive; existing boards are not bricked or downgraded.
+- **Resistor-divider design constraints (Phase 34 target):** Pick an Arduino ADC pin not currently used by any active RURP signal across any known rev (verified in Phase 32 capability matrix); resistor values chosen to give clearly distinguishable voltage bands per rev (≥ ~0.3V separation against 10-bit ADC noise floor); each rev gets a documented expected-ADC-band entry in the firmware lookup table; rev string returned by detect matches the silkscreen-version string captured in Phase 31 verbatim.
+
+## v1.6 Decisions (locked at milestone start, 2026-05-21; PAUSED 2026-05-22 at the Phase 27 RCA re-open boundary)
+
+- **Scope:** Fix one specific bug — the 64KB streaming-read byte-jitter (~57.8% jitter rate at 64KB, ~0.1% at 1KB) affecting all three controllers (`uno`, `leonardo`, `uno328pb`). Cross-board verification + root-cause analysis + fix + bench validation.
+- **Out of scope:** `w27c512-eeprom-misclassification` (separate HIGH-priority backlog — chip database routing bug, different milestone); `avrdude-mcu-detection-fallback` (low priority); any new chip support; any new board target; v1.1 FM1608 carryover.
+- **Phase numbering:** continues from v1.5 (Phase 26+); no `--reset-phase-numbers`. Five phases (26-30); 16/16 requirements mapped.
+- **Branch model:** Per memory [[feedback_branching]]: `v1.6-read-bug` branches in all 3 repos. Sub-repos branch off current `beta` tips; promote to `main` only after operator green on bench.
+- **Definition of done:** `firestarter read <chip> file.bin` invoked N consecutive times against the same physically-static chip returns byte-identical SHA-256 hashes on all 3 boards.
+- **GATE-1.6 (non-regression):** Write path unaffected — Phase 24 already proved write commits correctly.
+- **Pause reason (2026-05-22):** Phase 29 Wave B FAIL — D-07 milestone-reopens. Chip-swap diagnostic isolated Phase 28 firmware as introducing a Leonardo + uno328pb read-path regression. Paused to let v1.7 ship labeled-schematic + per-rev capability table; resume after v1.7 close with `/gsd-plan-phase 27 --gaps`.
 
 ## v1.4 Decisions (locked at milestone start, 2026-05-20; amended 2026-05-20 for Phase 18)
 
@@ -232,8 +263,9 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 
 ## Operator Next Steps
 
-- `/gsd-plan-phase 26` — plan Phase 26 (Cross-board Reproduction & Diagnostic Tooling) using the captured `26-CONTEXT.md` (13 decisions D-01..D-13 locked)
-- Alternative: review `.planning/phases/26-cross-board-reproduction-diagnostic-tooling/26-CONTEXT.md` and re-run `/gsd-discuss-phase 26` if any auto-resolved decision needs revisiting before planning
+- `/gsd-discuss-phase 31` — gather context for Phase 31 (Upstream Shield Archaeology); clone `AndersBNielsen/Relatively-Universal-ROM-Programmer`, map git history, capture silkscreen text from operator's Rev 2.2 / Rev 2.0 / Modified Rev 0 boards
+- Alternative: `/gsd-plan-phase 31` — skip discussion, plan Phase 31 directly using REQUIREMENTS.md + ROADMAP.md
+- v1.6 resume: deferred until v1.7 ships — `/gsd-plan-phase 27 --gaps` once v1.7 close lands the labeled-schematic + per-rev capability table
 
 ## Performance Metrics
 

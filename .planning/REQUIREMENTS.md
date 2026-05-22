@@ -1,76 +1,94 @@
-# Requirements — Milestone v1.6: Fix the Read Bug
+# Requirements — Milestone v1.7: RURP Shield Hardware Investigation & Version Detection
 
-**Status:** Active — defined 2026-05-21 at milestone start; phase-mapped 2026-05-21 by roadmapper.
-**Milestone goal:** Root-cause and fix the 64KB streaming-read byte-jitter surfaced by Phase 24 bench rigor; restore byte-identical full-chip read-back across `uno`, `leonardo`, and `uno328pb`.
+**Status:** Active — defined 2026-05-22 at milestone start; phase mappings locked 2026-05-22.
+**Milestone goal:** Produce a versioned, authoritative reference for every known RURP shield revision (silkscreen text, electrical/mechanical schematic, label-to-code-alias map, per-rev capabilities matrix, inter-rev difference table) and design the next-rev shield-version-detect resistor + firmware ADC read so future hardware-touch work is grounded in known-good shield schematics rather than ask-the-operator memory.
 
-**Source backlog item:** `.planning/todos/pending/large-read-data-jitter-uno328pb.md` (HIGH priority; pre-existing latent bug, all 3 controllers).
+**Source upstream:** `https://github.com/AndersBNielsen/Relatively-Universal-ROM-Programmer/tree/main/hardware` (current revs on `main`; older revs Rev 0 + Rev 1 mined from git history).
 
-## v1.6 Requirements
+**Why now:** v1.6 Wave B FAIL on Phase 29 burned two bench attempts on chip-swap diagnostics to disambiguate chip-state from board/shield/firmware. Memory `user_shield_revisions` notes the EEPROM `hw_revision` byte can't distinguish operator's Rev 2.2 / Rev 2.0 / Modified Rev 0. v1.7 closes that ask-the-operator loop and gives v1.6 Phase 27 RCA re-open a labeled-schematic substrate to design instrumented A/B builds.
 
-### Reproduction & Triage (REPRO)
+## v1.7 Requirements
 
-- [x] **REPRO-01**: Operator can reproduce 64KB read-jitter on `uno` (not just `uno328pb`) — consecutive `firestarter read <chip> file.bin` against a static chip yields different SHA-256 hashes
-- [x] **REPRO-02**: Operator can reproduce 64KB read-jitter on `leonardo` (1024-byte buffer board; magnitude may differ but bug must be present or explicitly proven absent)
-- [x] **REPRO-03**: A reusable "consecutive-read consistency" diagnostic script lives in the host CLI (e.g. `firestarter dev consistency-check <chip> --runs N`) so the bug — and its eventual fix — is verifiable by anyone with hardware
+### Hardware Inventory (HW-INV)
 
-### Root Cause (RCA)
+- [ ] **HW-INV-01**: Every RURP shield revision ever published in upstream `AndersBNielsen/Relatively-Universal-ROM-Programmer` (current revs on `main` + older revs Rev 0 / Rev 1 recoverable via `git log -p` / `git log --diff-filter=D`) is identified with a unique revision identifier matching its silkscreen-version string
+- [ ] **HW-INV-02**: Each identified revision is recorded in `.planning/v1.7-SHIELD-REVS.md` with: silkscreen-version string, upstream commit/tag that introduced it, schematic file reference (path in upstream repo), date introduced (from commit history)
+- [ ] **HW-INV-03**: Operator's three on-hand boards (Rev 2.2, Rev 2.0, modified Rev 0) are photographed (top + bottom views, sufficient resolution to read silkscreen) and the photos archived under `.planning/v1.7/photos/<rev>/`; any operator-side rework hacks (e.g. the Modified Rev 0 hardware-bug-A/B mod) are annotated in the photo or accompanying note
 
-- [x] **RCA-01**: The exact code path that introduces byte corruption is identified with concrete evidence (instrumented firmware build, code-path bisection, or a minimal reproducer narrowing the bug to a single function / chunk boundary)
-- [x] **RCA-02**: A written explanation of WHY the corruption happens (timing window, missed ACK, buffer overflow, etc.) is captured in the planning trail — sufficient for a future reader to understand the bug without re-bisecting
-- [x] **RCA-03**: The introducing commit (or earliest version with the bug) is identified via `git log -L` / `git bisect` where reasonably possible — at minimum bracketed to a milestone (v1.0 vs v1.2 vs v1.4)
+### Silkscreen Capture (SILK)
 
-### Fix (FIX)
+- [ ] **SILK-01**: For each identified shield revision, the exact silkscreen-version string is captured verbatim (e.g. `RURP Rev 2.2`, `RURP v2.0`, `RURP Rev 0` — whatever the silkscreen actually says) and stored as the canonical revision identifier in `.planning/v1.7-SHIELD-REVS.md`
 
-- [x] **FIX-01**: Implementation lands in firestarter sub-repo and/or firestarter_app sub-repo (whichever sides the RCA points at); covered by atomic commits with the RCA evidence cited in the commit message
-- [x] **FIX-02**: A native unit test (Unity for firmware, pytest for host) exercises the specific code path the fix touches and would fail on the pre-fix code
-- [x] **FIX-03**: GATE-1.6 — the fix does not regress the write path; `firestarter write` + post-write `dev read -s N` byte-comparison still passes on at least one bench chip (already proven stable in Phase 24)
+### Inter-Rev Differences (DIFF)
 
-### Verification (VERIFY)
+- [ ] **DIFF-01**: An inter-rev electrical difference table is captured in `.planning/v1.7-SHIELD-REVS.md` covering at minimum: Arduino pin mapping (Dx/Ax → RURP signal), VPP regulator wiring (input pin, output pin, enable pin, feedback divider), voltage divider values (R1/R2 from `rurp_configuration_t`), control-line routing (CE/WE/OE per algorithm), jumper/strap positions
+- [ ] **DIFF-02**: Inter-rev mechanical differences are captured: board outline / mounting holes, ZIF socket presence + orientation, header positions, any notable component changes (DIP package vs SMD, regulator family, etc.). Differences that have no electrical impact are noted but not gated.
 
-- [ ] **VERIFY-01**: Post-fix `firestarter read <chip> file.bin` invoked **N≥5 consecutive times** against the same physically-static chip returns byte-identical SHA-256 hashes on `uno328pb`
-- [ ] **VERIFY-02**: Same N≥5 consecutive-read consistency check passes on `uno` and `leonardo`
-- [ ] **VERIFY-03**: `firestarter dev read <chip> -s 1024` byte-identical across N≥5 consecutive calls on all 3 boards (the low-rate jitter must also resolve — if it doesn't, the root cause isn't truly fixed)
-- [ ] **VERIFY-04**: Phase 24 BENCH-02 acceptance criterion ("write→read→verify on a representative EPROM") closes as a side effect — recorded in `.planning/v1.5-BENCH-RESULTS.md` (post-hoc row addendum)
+### Per-Rev Capabilities (CAPS)
+
+- [ ] **CAPS-01**: A per-rev capability matrix in `.planning/v1.7-SHIELD-REVS.md` declares for each revision: chip families supported (28-pin DIP UV-EPROM, 32-pin DIP UV-EPROM, parallel EEPROM, AMD-style flash, Intel flash, SRAM), max VPP, max VCC, address-bus width, supported firmware algorithms (0x05/0x06/0x07/0x08/0x0B/0x0D/0x0E/0x10/0x27/0x28/0x29 — subset per rev)
+- [ ] **CAPS-02**: Capability matrix is cross-checked against firmware code (`firestarter/src/algorithm_*.cpp`) — if a rev physically cannot support an algorithm (e.g. missing VPP regulator on Rev 0), that fact is documented and a firmware-side runtime guard is proposed (out-of-scope to implement in v1.7; recorded as a follow-up todo)
+
+### Label → Code Alias Migration (ALIAS)
+
+- [ ] **ALIAS-01**: Every silkscreen label across all known revs is inventoried (e.g. `VPP`, `VPP_EN`, `WE`, `OE`, `CE`, `A0`..`A18`, `D0`..`D7`, `VCC`, `GND`, etc.) and recorded in a single canonical table in `.planning/v1.7-SHIELD-REVS.md`. The table maps silkscreen label → proposed code-side alias (descriptive identifier suitable for use in C++ + Python source). Alias naming convention: `PIN_<SUBSYSTEM>_<FUNCTION>` (e.g. `PIN_VPP_REGULATOR_ENABLE`, `PIN_DATA_BUS_BYTE_0`, `PIN_ADDRESS_BUS_A14`).
+- [ ] **ALIAS-02**: Aliases land as `#define` / `constexpr` declarations in `firestarter/include/rurp_pinout.h` (or equivalent header — fixed at plan time) and as constants in `firestarter_app/firestarter/constants.py` (or equivalent module). Existing call-sites that use bare pin numbers or shield-specific net names are migrated to the aliases. The migration is name-only — no wire-format or behavior changes.
+- [ ] **ALIAS-03**: GATE-1.7 non-regression — after the alias migration, compiled firmware `.hex` artifacts for all three boards (`uno`, `leonardo`, `uno328pb`) are byte-identical to pre-migration (modulo trivial symbol-name overhead, ≤ ~50 B). Pytest + Unity test suites stay green.
+
+### Shield-Version-Detect Hardware Design (DETECT-HW)
+
+- [ ] **DETECT-HW-01**: A schematic delta for the next-rev shield (likely Rev 2.3) is designed and documented in `.planning/v1.7-SHIELD-REVS.md`: a resistor divider into an Arduino ADC pin (pin selected to not conflict with any currently-used RURP signal across any known rev; verified against CAPS-01 capability matrix), with rev-specific resistor values that produce clearly distinguishable voltage bands per rev (≥ ~0.3V separation against 10-bit ADC noise floor)
+- [ ] **DETECT-HW-02**: The schematic delta includes a per-rev expected-ADC-band table (rev string → expected ADC value range), suitable for firmware lookup at boot. Initial table seeds the next-rev (Rev 2.3) entry; existing Rev 0 / 2.0 / 2.2 boards have no detect resistor and produce floating/grounded ADC readings — captured in the table as the "rev_unknown" fall-through band.
+
+### Shield-Version-Detect Firmware Plumbing (DETECT-FW)
+
+- [ ] **DETECT-FW-01**: Firmware reads the ADC pin at boot (or on first handshake), looks up the voltage band in the DETECT-HW-02 table, and reports the detected silkscreen-rev string in the handshake payload (extends `MSG_OK_FW_HANDSHAKE` or adds a sibling INFO message — exact wire format finalized at plan time). On pre-detect-resistor boards (floating/grounded ADC), the report is `rev_unknown` and firmware falls through to honoring the operator-configured `hw_revision` byte in EEPROM (existing behavior preserved).
+- [ ] **DETECT-FW-02**: GATE-1.7 non-regression — existing pre-detect-resistor boards continue to handshake byte-identical to v1.6 baseline (modulo the additive `rev_unknown` report, which is documented as a new INFO emit). Chip programming + read paths byte-identical. Firmware compiles cleanly for all three board targets without requiring physical fabrication of the next-rev shield.
 
 ### Documentation & Close (DOC, MS)
 
-- [ ] **DOC-01**: `large-read-data-jitter-uno328pb.md` todo moved out of `.planning/todos/pending/` (resolved); root-cause summary + fix commit reference recorded
-- [ ] **DOC-02**: PROJECT.md "Known Gaps" / "Validated" sections updated to reflect the fix
-- [ ] **MS-01**: Milestone v1.6 closed via `/gsd:complete-milestone`; MILESTONES.md entry written; phase artifacts archived under `.planning/milestones/v1.6-phases/`
+- [ ] **DOC-01**: `.planning/v1.7-SHIELD-REVS.md` is the canonical reference. README updates in `firestarter/` + `firestarter_app/` cross-link to it for "which shield rev do I have" + "what does this silkscreen label mean in code" lookups. PROJECT.md "Validated" section grows entries for the alias migration + detect plumbing.
+- [ ] **MS-01**: Milestone v1.7 closed via `/gsd-complete-milestone`; MILESTONES.md entry written; phase artifacts archived under `.planning/milestones/v1.7-phases/`.
 
 ## Future Requirements (deferred to later milestones)
 
-- Chip database misclassification fix for W27C/E + SST27SF/VF series (`w27c512-eeprom-misclassification.md`) — HIGH priority, operator-tagged "asap", but different bug class (DB routing, not transport). Carry to v1.7 or own milestone.
-- avrdude-based MCU-detection fallback for blank-chip recovery (`avrdude-mcu-detection-fallback.md`) — low priority, v1.7+.
-- v1.1 Phase 4 FM1608 byte-0 read-bug — separate hardware-gated investigation, parked since 2026-05-18; if v1.6 RCA happens to overlap, address as a bonus; otherwise leave parked.
+- **v1.6 resume** — Fix the Read Bug. Phase 27 RCA re-open uses v1.7's labeled-schematic + per-rev capability table + shield-version-detect firmware plumbing to design instrumented A/B builds with known-good schematics. First experiment: pre-Phase-28-firmware A/B test on Leonardo (build `firestarter/v1.6-read-bug~2`, sideload, re-probe).
+- **w27c512-eeprom-misclassification fix** — separate HIGH-priority backlog; chip-database routing bug; carry to its own milestone after v1.6 closes.
+- **avrdude-based MCU-detection fallback** — low priority; blank-chip recovery path.
+- **v1.1 Phase 4 FM1608 byte-0 read bug** — separate hardware-gated investigation, parked since 2026-05-18.
+- **Physical fabrication of next-rev (Rev 2.3) shield** — operator-side; out of scope here. v1.7 delivers design + firmware plumbing only.
+- **Runtime algorithm-vs-rev capability guards** (firmware refuses an algorithm if the bench rev physically cannot support it) — captured as a CAPS-02 follow-up todo; implement in a later milestone once CAPS matrix is solid.
 
 ## Out of Scope
 
-- New chip support, new board target, new firmware features
+- Fixing the v1.6 read-bug itself (v1.6 territory; resumes after v1.7 ships)
+- New chip support, new board MCU targets, new firmware features beyond DETECT-FW plumbing
+- Physical PCB manufacturing of the next-rev shield (operator orders/fabricates separately; v1.7 commits the schematic delta + firmware-side detect logic only)
+- EEPROM `rurp_configuration_t.hw_revision` byte semantics — preserved as legacy fall-back; no breaking change
 - v1.3 CMOS EPROM Family Hardware Validation resume (separate paused milestone, hardware-gated)
-- Any host-CLI feature work beyond what's strictly needed for REPRO-03 (the consistency-check diagnostic) and the fix itself
 - Beta release pipeline / lockstep coordination changes (v1.4 plumbing stays as-is)
-- Any RURP shield hardware redesign — three-shield A/B/C triage already proves the bug is firmware/host, not hardware
+- RURP shield manufacturing instructions (operator-side concern)
 
 ## Traceability
 
-Phase mappings locked 2026-05-21 by `/gsd-roadmap` — every v1.6 requirement maps to exactly one phase. No orphans, no duplicates. Coverage: 16/16 ✓.
+Phase mappings locked 2026-05-22 — every v1.7 requirement maps to exactly one phase. Coverage: 17/17 ✓.
 
-| REQ-ID | Phase |
-|--------|-------|
-| REPRO-01 | Phase 26 |
-| REPRO-02 | Phase 26 |
-| REPRO-03 | Phase 26 |
-| RCA-01   | Phase 27 |
-| RCA-02   | Phase 27 |
-| RCA-03   | Phase 27 |
-| FIX-01   | Phase 28 |
-| FIX-02   | Phase 28 |
-| FIX-03   | Phase 28 |
-| VERIFY-01 | Phase 29 |
-| VERIFY-02 | Phase 29 |
-| VERIFY-03 | Phase 29 |
-| VERIFY-04 | Phase 29 |
-| DOC-01   | Phase 30 |
-| DOC-02   | Phase 30 |
-| MS-01    | Phase 30 |
+| REQ-ID       | Phase |
+|--------------|-------|
+| HW-INV-01    | Phase 31 |
+| HW-INV-02    | Phase 31 |
+| HW-INV-03    | Phase 31 |
+| SILK-01      | Phase 31 |
+| DIFF-01      | Phase 32 |
+| DIFF-02      | Phase 32 |
+| CAPS-01      | Phase 32 |
+| CAPS-02      | Phase 32 |
+| ALIAS-01     | Phase 33 |
+| ALIAS-02     | Phase 33 |
+| ALIAS-03     | Phase 33 |
+| DETECT-HW-01 | Phase 34 |
+| DETECT-HW-02 | Phase 34 |
+| DETECT-FW-01 | Phase 34 |
+| DETECT-FW-02 | Phase 34 |
+| DOC-01       | Phase 35 |
+| MS-01        | Phase 35 |
