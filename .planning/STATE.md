@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: — RURP Shield Hardware Investigation & Version Detection
 status: executing
-last_updated: "2026-05-22T13:29:45.961Z"
-last_activity: 2026-05-22 -- Phase 31 planning complete
+last_updated: "2026-05-22T13:35:51.409Z"
+last_activity: 2026-05-22 -- Phase 31 execution started
 progress:
   total_phases: 5
   completed_phases: 0
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 31 — Upstream Shield Archaeology
-Plan: — (context captured; not yet planned)
-Status: Ready to execute
-Last activity: 2026-05-22 -- Phase 31 planning complete
+Phase: 31 (upstream-shield-archaeology) — EXECUTING
+Plan: 1 of 5
+Status: Executing Phase 31
+Last activity: 2026-05-22 -- Phase 31 execution started
 
 ## Project Reference
 
@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 31 (TBD — first phase of v1.7 RURP Shield Hardware Investigation)
+**Current focus:** Phase 31 — upstream-shield-archaeology
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
