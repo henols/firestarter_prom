@@ -7,3 +7,10 @@ platformio.ini
 # Python bytecode (codegen tools etc.)
 __pycache__/
 *.py[cod]
+
+# v1.7 milestone substrate — gitignore everything under .planning/v1.7/ except .md files
+# (raw chat dumps, upstream clone, photo binaries stay local; distilled .md commits)
+.planning/v1.7/**
+!.planning/v1.7/**/
+!.planning/v1.7/**/*.md
+.planning/v1.7/upstream-rurp/
