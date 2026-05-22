@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.6
 milestone_name: — Fix the Read Bug
 status: executing
-last_updated: "2026-05-22T08:01:46.780Z"
-last_activity: 2026-05-22 -- Phase 29 planning complete
+last_updated: "2026-05-22T08:14:29.624Z"
+last_activity: 2026-05-22
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 8
-  completed_plans: 6
+  completed_plans: 7
   percent: 60
 ---
 
@@ -20,11 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: 29
-Plan: Not started
+Phase: 29 (multi-board-bench-verification) — EXECUTING
+Plan: 2 of 2
 Status: Ready to execute
-Last activity: 2026-05-22 -- Phase 29 planning complete
-Resume file: .planning/phases/29-multi-board-bench-verification/29-CONTEXT.md
+Last activity: 2026-05-22
+Resume file: .planning/phases/29-multi-board-bench-verification/29-02-PLAN.md
 
 ## Project Reference
 
@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 28 — Fix Implementation + Unit Test Coverage
+**Current focus:** Phase 29 — multi-board-bench-verification
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
@@ -274,6 +274,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 23 P23-01 | ~4min | 2 tasks | 1 files |
 | Phase 23 P23-02 | ~3min | 3 tasks | 2 files |
 | Phase 26 P01 | 5min | 2 tasks | 3 files |
+| Phase 29 P1 | 12min | 5 tasks | 3 files |
 
 ## Decisions
 
@@ -363,6 +364,9 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase ?]: Plan 26-01: Default output_dir uses 'unknown-board' placeholder; Plan 26-02 bench wave passes --output-dir explicitly with real board name.
 - [Phase ?]: Plan 26-01: Quiet mode swaps progress_callback to a no-op lambda for the call duration (restored in finally) per RESEARCH Pitfall 1 — does not touch ClassProgressHandler directly.
 - [Phase ?]: Plan 26-01: Phase 29 forward-compat contract pinned by test_stdout_verdict_block_format regex regression — Consistency check: PASS|FAIL, Distinct SHAs, Runs: N=, First divergence: offset 0x[0-9A-F]+.
+- [Phase 29]: Plan 29-01: firestarter_app v1.6-read-bug branch tip is 999c3cc (NOT c057fe2 as CONTEXT.md D-02 lists); 999c3cc is the GREEN feat commit carrying dev consistency-check implementation, c057fe2 is the RED-scaffold one commit prior. RESEARCH.md authoritative; downstream phases should treat 999c3cc as canonical.
+- [Phase 29]: Plan 29-01: Captured per-board build SHA-256s at firestarter/v1.6-read-bug commit 4f205e58 (uno=5e7f393a..., leonardo=2619eea6..., uno328pb=d9e51b7e...) for Wave B + Phase 30 byte-equivalence cross-reference; full hashes in v1.6-EVIDENCE.md build-hash table.
+- [Phase 29]: Plan 29-01: firestarter_app/firestarter/config.py working-tree drift dispositioned 'proceed with editable install' — stylistic early-return refactor (functionally equivalent); pytest gate green (8 passed) confirms no functional regression.
 
 ## Deferred Items (acknowledged at v1.5 close 2026-05-21)
 
