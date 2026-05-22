@@ -94,7 +94,9 @@
   3. `firestarter dev read <chip> -s 1024` returns byte-identical bytes across N≥5 consecutive calls on all 3 boards — the low-rate jitter (~0.1% per the original triage) also resolves. If this criterion fails while criteria 1+2 pass, the root cause is masked rather than fixed and the milestone re-opens.
   4. Phase 24 BENCH-02 closes — recorded as a post-hoc row addendum in `.planning/v1.5-BENCH-RESULTS.md` citing the v1.6 fix. Operator can now run write→read→verify on the representative EPROM (W27C512 or SST27SF512) with meaningful read-back comparison.
   5. GATE-1.6 confirmed on bench: write path remains correct — `firestarter write -e <chip>` followed by full-chip read-back on the same board still produces byte-identical content matching the input file. This is the bench-rigor version of Phase 28's desk-side gate, with the freshly-installed post-fix firmware.
-**Plans:** TBD
+**Plans:** 2 plans
+- [ ] 29-01-PLAN.md — Wave A desk-side: local PIO build of 3 firmware envs from `firestarter/v1.6-read-bug` @ 4f205e58 + per-board hex SHA-256 capture + host CLI editable install from `firestarter_app/v1.6-read-bug` @ c057fe2 + pytest sanity gate + EVIDENCE.md + v1.5-BENCH-RESULTS.md SCAFFOLD sections appended (NO branch operations; Phase 30 owns merge per Phase 30 SC#5)
+- [ ] 29-02-PLAN.md — Wave B operator-on-bench: sideload per board + hardware metadata snapshot + 3-axis verification (consistency-check N=5 + 1KB shell-loop N=5 + BENCH-02 write→read→verify on Leonardo/SST27SF512) + uno328pb Case A/B branch per D-01 + Verdict block resolution → green hand-off to Phase 30 OR D-07 milestone-reopens halt (closes VERIFY-01..04)
 **UI hint:** no
 
 #### Phase 30: Documentation + Milestone Close
@@ -312,5 +314,5 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 26 | v1.6 | 2/2 | Complete    | 2026-05-21 |
 | 27 | v1.6 | 2/2 | Complete    | 2026-05-21 |
 | 28 | v1.6 | 2/2 | Complete    | 2026-05-21 |
-| 29 | v1.6 | 0/0 | Not started | — (operator-on-bench) |
+| 29 | v1.6 | 0/2 | Planned    |  |
 | 30 (close) | v1.6 | 0/0 | Not started | — |
