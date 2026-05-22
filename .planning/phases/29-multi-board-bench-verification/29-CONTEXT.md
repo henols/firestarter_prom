@@ -2,12 +2,14 @@
 
 **Gathered:** 2026-05-22
 **Status:** Ready for planning
-**Source:** /gsd:discuss-phase 29 (Auto Mode — gray areas auto-resolved with recommended options; no AskUserQuestion prompts per harness Auto Mode active in this session)
+**Source:** /gsd:discuss-phase 29 (Auto Mode — gray areas auto-resolved with recommended options; D-02 + D-04 + Branch flow + D-01 reflash sub-procedure subsequently corrected on operator feedback 2026-05-22: bench verification MUST precede any `v1.6-read-bug → beta` merge so an untested fix never contaminates the public release channel; merge/promotion now lives in Phase 30 per ROADMAP Phase 30 SC#5)
 
 <domain>
 ## Phase Boundary
 
-Phase 29 delivers **the operator-on-bench acceptance gate for v1.6** — running the Phase 26 `firestarter dev consistency-check` diagnostic against the post-fix firmware on every participating board and recording byte-identical SHA-256 evidence in `.planning/v1.6-EVIDENCE.md`. The fix shipped in Phase 28 (Leonardo `rurp_set_data_input` PORTx-clear + `rurp_read_data_buffer` `_NOP()` settling) must invert the Phase 26 baseline: Verdict cells flip `FAIL → PASS` and `SHAs distinct` cells go `N → 1`. The low-rate (1KB) jitter via `dev read -s 1024` must also collapse to byte-identity (VERIFY-03), and Phase 24's deferred BENCH-02 (`write → read → verify` on a representative EPROM) closes as a post-hoc row addendum in `.planning/v1.5-BENCH-RESULTS.md` (VERIFY-04). This phase has no source-of-truth code edits; its deliverable is empirical bench evidence + the desk-side scaffolding that makes that evidence collectible.
+Phase 29 delivers **the LOCAL-SIDELOAD operator-on-bench acceptance gate for v1.6** — running the Phase 26 `firestarter dev consistency-check` diagnostic against the post-fix firmware on every participating board and recording byte-identical SHA-256 evidence in `.planning/v1.6-EVIDENCE.md`. The fix shipped in Phase 28 (Leonardo `rurp_set_data_input` PORTx-clear + `rurp_read_data_buffer` `_NOP()` settling) must invert the Phase 26 baseline: Verdict cells flip `FAIL → PASS` and `SHAs distinct` cells go `N → 1`. The low-rate (1KB) jitter via `dev read -s 1024` must also collapse to byte-identity (VERIFY-03), and Phase 24's deferred BENCH-02 (`write → read → verify` on a representative EPROM) closes as a post-hoc row addendum in `.planning/v1.5-BENCH-RESULTS.md` (VERIFY-04). This phase has no source-of-truth code edits and **NO branch merges or remote pushes**; its deliverable is empirical bench evidence captured against firmware built and sideloaded from the LOCAL `firestarter/v1.6-read-bug` branch — the public-channel merge + pre-release cut + `beta → main` promotion are explicitly Phase 30's responsibility per ROADMAP Phase 30 SC#5.
+
+**Why local-sideload before merge:** the v1.4 beta workflow's pre-release cut is irreversible once tagged — a failed bench verdict against a publicly-tagged `3.0.0bN` artifact pollutes the GitHub Pre-release + PyPI pre-release indices with an untested fix and forces a `3.0.0b(N+1)` cleanup tag. Local sideload (build `.hex` via PIO + flash via `pio run -t upload` or `avrdude` directly) keeps a failed verdict private and lets the milestone re-open cleanly via D-07. Only after Phase 29 PASSes does Phase 30 commit to the public release pipeline.
 
 The v1.6 scope-narrowing carried in from Phase 26/27/28 holds:
 
@@ -17,30 +19,38 @@ The v1.6 scope-narrowing carried in from Phase 26/27/28 holds:
 
 **In scope:**
 
-- **Desk-side prep wave (29-01):**
-  - Merge `firestarter/v1.6-read-bug` → `firestarter/beta` (commits `fdb1ed5`, `437339b`, `4f205e5`) to trigger the v1.4 beta workflow's pre-release cut. Resulting GitHub Pre-release tag: `3.0.0b5` (or next pre-release per the v1.4 lockstep numbering — actual tag fixed by the workflow's `BETA_VERSION` input at cut time). NO host-side app merge required for Phase 29 — `firestarter_app/v1.6-read-bug` Phase 26 commits (`999c3cc` + `c057fe2`) carry the `dev consistency-check` diagnostic on the local branch; operator installs the host CLI separately if needed (e.g., `pip install -e .` from the sub-repo on `v1.6-read-bug`).
-  - Append a Phase 29 SCAFFOLD section to `.planning/v1.6-EVIDENCE.md` at the line-186 (was line-111 pre-Phase-28) anchor: `## Phase 29 — Post-fix Consistency-Check Verification (TBD-YYYY-MM-DD)` heading + empty 9-column row table for each participating board + sub-table for VERIFY-03 (1KB) + sub-section for VERIFY-04 (GATE-1.6 bench rigor). Empty placeholders allow Wave B (bench) to fill in atomically without inventing schema mid-session.
-  - Append a Phase 29 SCAFFOLD row to `.planning/v1.5-BENCH-RESULTS.md` for the BENCH-02 post-hoc addendum (VERIFY-04). Placeholder format mirrors v1.5's existing rows + adds a `v1.6 fix reference` column citing the Phase 28 commits.
-  - Provide an **operator pre-flight checklist** as a top-of-section block: which port = which board, which RURP shield rev to use, which test chip, which firmware version to install (the pre-release tag from the merge), the install command (`firestarter fw -i --pre --force`), the verification commands per board, and the expected verdict per row.
-  - Read-only: no firmware sub-repo source edits (the firmware fix already shipped in Phase 28).
+- **Desk-side prep wave (29-01, `autonomous: true`):**
+  - Build firmware locally from `firestarter/v1.6-read-bug` (tip `4f205e58`): `pio run -e uno`, `pio run -e leonardo`, `pio run -e uno328pb`. Produces `.pio/build/<env>/firestarter_<env>.hex` for each board (3 hex artifacts). NO push to remote, NO merge to `beta`.
+  - Confirm the host CLI is installed locally from `firestarter_app/v1.6-read-bug` (tip `c057fe2`): `cd firestarter_app && pip install -e .`. Verify `firestarter dev consistency-check --help` prints the Phase 26 subcommand surface.
+  - Append a Phase 29 SCAFFOLD section to `.planning/v1.6-EVIDENCE.md` at the line-186 (was line-111 pre-Phase-28) anchor: `## Phase 29 — Post-fix Consistency-Check Verification (TBD-YYYY-MM-DD)` heading + empty 9-column row table for each participating board + sub-table for VERIFY-03 (1KB) + sub-section for VERIFY-04 (GATE-1.6 bench rigor) + per-board build hash record (so we know exactly which local commit was on bench). Empty placeholders allow Wave B (bench) to fill in atomically without inventing schema mid-session.
+  - Append a Phase 29 SCAFFOLD row to `.planning/v1.5-BENCH-RESULTS.md` for the BENCH-02 post-hoc addendum (VERIFY-04). Placeholder format mirrors v1.5's existing rows + adds a `v1.6 fix reference` column citing the Phase 28 commits (`437339b6` + `4f205e58`) — note these are LOCAL-only SHAs in Phase 29 evidence; they become public SHAs on `firestarter/main` after Phase 30 promotion.
+  - Provide an **operator pre-flight checklist** as a top-of-section block: which port = which board, which RURP shield rev to use, which test chip, which **local `.hex` path** to sideload (`firestarter/.pio/build/<env>/firestarter_<env>.hex`), the sideload command (per D-02), the verification commands per board, and the expected verdict per row. Explicitly NOT `firestarter fw -i --pre --force` (that's Phase 30's install-pipeline regression check, after Phase 29 green-lights the merge).
+  - Read-only: no firmware sub-repo source edits (the firmware fix already shipped in Phase 28); no remote pushes from any sub-repo or meta-repo.
 
 - **Bench wave (29-02, `autonomous: false` — operator-on-bench):**
-  - Install the post-fix pre-release firmware on each participating board via `firestarter fw -i --pre --force` (after promoting the host CLI app from `firestarter_app/v1.6-read-bug` so the host knows about `--pre`).
+  - Sideload the locally-built post-fix firmware to each participating board via `pio run -e <env> -t upload --upload-port /dev/ttyXXX` from the `firestarter/` sub-repo on `v1.6-read-bug` (D-02). Fallback path for the misidentified third board: direct `avrdude -p atmega328pb -c urclock -b 115200 -P /dev/ttyUSB0 -U flash:w:.pio/build/uno328pb/firestarter_uno328pb.hex:i` mirroring v1.5 BENCH-01.
+  - Confirm install via `firestarter -p /dev/ttyXXX fw` (no args) — should print `version 3.0.0b4+local, controller <board> on /dev/ttyXXX` (or whatever local-build version string `update_version.py` emits for a non-tagged build; the EXACT version string is recorded in the EVIDENCE.md per-board build hash record, not asserted against a literal tag).
   - Run `firestarter dev consistency-check W27C512 --runs 5 --output-dir .planning/v1.6/post-fix-runs/W27C512-<board>-<YYYY-MM-DD-HHMMSS>` against each participating board. Record one row per board in the Phase 29 EVIDENCE table.
   - Run the **VERIFY-03 1KB shell-loop** on each participating board: `for i in $(seq 5); do firestarter dev read W27C512 -s 1024 /tmp/r1k_<board>_$i.bin; done; sha256sum /tmp/r1k_<board>_*.bin` and record byte-identity in the EVIDENCE table's 1KB sub-section.
-  - Run **VERIFY-04 BENCH-02 cycle**: `firestarter write -e SST27SF512 <test-image>.bin` followed by `firestarter dev read SST27SF512 -s <full-chip> <readback>.bin` and `cmp <test-image>.bin <readback>.bin`. Record the result as a post-hoc row addendum in `.planning/v1.5-BENCH-RESULTS.md` citing the Phase 28 fix commits.
-  - For the misidentified third board: attempt to reflash with `firestarter_uno328pb.hex` from the pre-release. If post-flash handshake reports `uno328pb`, run the same verification as Uno/Leonardo. If reflash fails OR handshake reports `uno` (confirming the board is actually a Plain Uno), mark the row `DEFERRED — board confirmed misidentified per [[project_uno328pb_correction]]; VERIFY-01 closes via code-equivalence with the Uno row (Phase 28 hex size Δ=0)`.
-  - Operator captures a **hardware metadata snapshot table** at session start (mirror of Phase 26's table at `v1.6-EVIDENCE.md:208-212`) — effective hw_rev, physical shield rev, native auto-detect rev, FW build, chip ID seen — because per memory `[[user_shield_revisions]]` the EEPROM hw_revision byte can't distinguish Rev 2.2 / Rev 2.0 / modified Rev 0; the snapshot is the only record of which shield was actually in use.
+  - Run **VERIFY-04 BENCH-02 cycle**: `firestarter write -e SST27SF512 <test-image>.bin` followed by `firestarter dev read SST27SF512 -s <full-chip> <readback>.bin` and `cmp <test-image>.bin <readback>.bin`. Record the result as a post-hoc row addendum in `.planning/v1.5-BENCH-RESULTS.md` citing the Phase 28 fix commits (LOCAL SHAs; Phase 30 may amend the row with post-merge public SHAs if they change — squash-merge would; merge-commit would not).
+  - For the misidentified third board: attempt to sideload `firestarter_uno328pb.hex` via the avrdude fallback above. If post-flash handshake reports `uno328pb`, run the same verification as Uno/Leonardo. If sideload fails (signature mismatch) OR handshake reports `uno`, mark the row `DEFERRED — board confirmed misidentified per [[project_uno328pb_correction]]; VERIFY-01 closes via code-equivalence with the Uno row (Phase 28 hex size Δ=0)`.
+  - Operator captures a **hardware metadata snapshot table** at session start (mirror of Phase 26's table at `v1.6-EVIDENCE.md:208-212`) — effective hw_rev, physical shield rev, native auto-detect rev, FW build (local-build version string + commit SHA), chip ID seen — because per memory `[[user_shield_revisions]]` the EEPROM hw_revision byte can't distinguish Rev 2.2 / Rev 2.0 / modified Rev 0; the snapshot is the only record of which shield was actually in use.
   - Fill in the EVIDENCE.md scaffold sections with the captured rows. Verdict propagates to the milestone-level v1.6 verdict per ROADMAP SC#3.
+  - **Phase 29 closes here with VERIFY-01..04 marked PASS (or FAIL per D-07).** No branch merges, no pushes, no tag cuts. The branches `firestarter/v1.6-read-bug` and `firestarter_app/v1.6-read-bug` stay LOCAL — ready for Phase 30 to promote.
 
-- **Branch flow:**
-  - Merge `firestarter/v1.6-read-bug` → `firestarter/beta` at the START of Wave A (one merge commit on `firestarter/beta`). Push triggers the v1.4 `beta-build.yml` workflow which cuts the GitHub Pre-release with the per-board `.hex` artifacts (D-02).
-  - `firestarter_app/v1.6-read-bug` carries `999c3cc` + `c057fe2` (Phase 26 work) + whatever was added in Phase 28 to that branch (none, per Phase 28 D-03 — the Phase 28 host-side branch stayed parked). Phase 29 promotes `firestarter_app/v1.6-read-bug` → `firestarter_app/beta` ALSO at the start of Wave A so that `pip install --pre firestarter` resolves cleanly with the matching `--pre` semantics. PyPI pre-release cut by the app's `beta-build.yml`.
-  - Promote `firestarter/beta` → `firestarter/main` AND `firestarter_app/beta` → `firestarter_app/main` ONLY after Wave B's verifier reports all VERIFY-NN PASS. Promotion lands as the Wave B verifier's final task. Stable tag bump (e.g., `3.0.1`) is operator-authorized at milestone close (Phase 30 owns the stable-tag question, but Phase 29 can land the `beta → main` merge if Wave B verifies green and operator stays present).
-  - Meta-repo (`.planning/phases/29-*/` + `.planning/v1.6-EVIDENCE.md` + `.planning/v1.5-BENCH-RESULTS.md` additions) commits to `main` per the standing meta-repo convention (no topic branch on meta-repo; sub-repos own the topic branches).
+- **Branch flow (Phase 29 only):**
+  - `firestarter/v1.6-read-bug` (tip `4f205e58`, LOCAL): stays local, no push, no merge during Phase 29.
+  - `firestarter_app/v1.6-read-bug` (tip `c057fe2`, status confirmed at execution — local or already pushed for Phase 26 CI purposes): no new pushes in Phase 29; if already pushed to `origin` for Phase 26's host-side tests, that's pre-existing state and not a Phase 29 action.
+  - **Phase 30 owns** (per ROADMAP Phase 30 SC#5): the `v1.6-read-bug` → `beta` merge in both sub-repos (triggers public pre-release cut), the optional install-pipeline regression check via `firestarter fw -i --pre --force`, the `beta` → `main` promotion, and the operator-authorized stable tag bump (e.g., `3.0.1`).
+  - Meta-repo (`.planning/phases/29-*/` + `.planning/v1.6-EVIDENCE.md` + `.planning/v1.5-BENCH-RESULTS.md` additions) commits to `main` per the standing meta-repo convention (no topic branch on meta-repo; sub-repos own the topic branches). Meta-repo IS pushed (standard convention) so the EVIDENCE.md captures sync between operator and reviewer.
 
 **Out of scope:**
 
+- **Any merge of `v1.6-read-bug` → `beta` in either sub-repo** — Phase 30 owns this per ROADMAP Phase 30 SC#5. Phase 29 stays LOCAL.
+- **Any `beta` → `main` promotion in either sub-repo** — Phase 30.
+- **Cutting any pre-release tag** (`3.0.0b5` or otherwise) — Phase 30 triggers this via the v1.4 `beta-build.yml` workflow once the bench evidence in Phase 29 says PASS.
+- **`firestarter fw -i --pre --force` install-pipeline regression check** — Phase 30 (after the public pre-release exists). Phase 29 sideloads locally only.
+- **Stable tag bump (e.g., `3.0.1`)** — operator-authorized at Phase 30 milestone close.
 - The fix itself — closed in Phase 28 (`firestarter/v1.6-read-bug` tip = `4f205e58`). Phase 29 does NOT re-touch `leonardo_rurp_shield.cpp` or any other firmware source.
 - RCA narrative — closed in Phase 27.
 - Documentation drift correction (the 5 "Leonardo 1024-B" locations from the Phase 27 drift table) — Phase 30 paperwork per Phase 27 D-11 + Phase 28 D-05.
@@ -61,39 +71,61 @@ The v1.6 scope-narrowing carried in from Phase 26/27/28 holds:
 
 ### uno328pb row strategy (the carried-over VERIFY-01 mismatch)
 
-- **D-01: Reflash-then-test; fall back to code-equivalence DEFERRAL if reflash confirms misidentification.**
-  Phase 26's third row is DEFERRED because the board labeled `uno328pb` in v1.5 bench notes was operator-clarified mid-session as a Plain Uno + wrong firmware (`[[project_uno328pb_correction]]`). VERIFY-01 maps explicitly to `uno328pb`; Phase 29 must resolve the row, not silently skip it.
+- **D-01: Local-sideload reflash-then-test; fall back to code-equivalence DEFERRAL if sideload confirms misidentification.**
+  Phase 26's third row is DEFERRED because the board labeled `uno328pb` in v1.5 bench notes was operator-clarified mid-session as a Plain Uno + wrong firmware (`[[project_uno328pb_correction]]`). VERIFY-01 maps explicitly to `uno328pb`; Phase 29 must resolve the row, not silently skip it. Procedure uses the **locally-built** `firestarter_uno328pb.hex` from `firestarter/v1.6-read-bug` — NOT a public pre-release, since Phase 29 precedes any beta merge.
   Operator procedure (locked):
-  1. With the misidentified board plugged in (`/dev/ttyUSB0` per `[[project_bench_findings_v15]]`), run `firestarter fw -i --pre --force --board uno328pb` to flash `firestarter_uno328pb.hex` from the post-fix pre-release.
-  2. Post-flash, run `firestarter fw` (handshake check). Observe the reported `<board>` slot in the handshake reply.
-  3. **Case A — handshake reports `uno328pb`**: the board has true ATmega328PB silicon (the `3.0.0b4` `urclock`-bootloader path that worked for v1.5 BENCH-01 is reproducible). Run the full Phase 29 verification (consistency-check N=5 + 1KB shell-loop + BENCH-02 cycle) on this board. Record a real row in the Phase 29 EVIDENCE table.
-  4. **Case B — handshake reports `uno` (or flash fails with `signature mismatch`)**: v1.5 misidentification is confirmed at the silicon level. Mark the EVIDENCE row `DEFERRED — board confirmed Plain Uno per [[project_uno328pb_correction]]; VERIFY-01 closes via code-equivalence with Uno row (Phase 28 hex size Δ=0 between uno and uno328pb builds — see EVIDENCE.md Phase 28 size table)`. Reflash the board with `firestarter_uno.hex` to restore it to a working Plain Uno + Phase 28 fix, then run an OPTIONAL "second Uno row" verification to confirm the fix on this physical board too.
+  1. With the misidentified board plugged in (`/dev/ttyUSB0` per `[[project_bench_findings_v15]]`), sideload the locally-built hex via `pio run -e uno328pb -t upload --upload-port /dev/ttyUSB0 -d firestarter/` (from the meta-repo root). Fallback if PIO upload protocol mismatches the bootloader: `avrdude -p atmega328pb -c urclock -b 115200 -P /dev/ttyUSB0 -U flash:w:firestarter/.pio/build/uno328pb/firestarter_uno328pb.hex:i` (mirrors v1.5 BENCH-01's working `urclock`-bootloader command verbatim).
+  2. Post-flash, run `firestarter -p /dev/ttyUSB0 fw` (handshake check). Observe the reported `<board>` slot in the handshake reply.
+  3. **Case A — handshake reports `uno328pb`**: the board has true ATmega328PB silicon. Run the full Phase 29 verification (consistency-check N=5 + 1KB shell-loop + BENCH-02 cycle) on this board. Record a real row in the Phase 29 EVIDENCE table with the local commit SHA (`4f205e58`) as the firmware reference.
+  4. **Case B — handshake reports `uno` (or avrdude fails with `signature mismatch` — the 328PB signature `0x1E 0x95 0x16` won't match a 328P chip's `0x1E 0x95 0x0F` even with `-F` override producing wrong-CPU-config bits)**: v1.5 misidentification is confirmed at the silicon level. Mark the EVIDENCE row `DEFERRED — board confirmed Plain Uno per [[project_uno328pb_correction]]; VERIFY-01 closes via code-equivalence with Uno row (Phase 28 hex size Δ=0 between uno and uno328pb builds — see EVIDENCE.md Phase 28 size table)`. Optionally sideload `firestarter/.pio/build/uno/firestarter_uno.hex` to restore the board to a working Plain Uno + Phase 28 fix, then run an OPTIONAL "second Uno row" verification.
   5. Either way, the milestone-level VERIFY-01 verdict is recorded with rationale; Phase 30 MILESTONE.md entry cites the chosen outcome explicitly.
   Rationale:
   - **VERIFY-01 maps to `uno328pb` by name in REQUIREMENTS.md line 30.** Silently skipping leaves a coverage gap; explicit DEFERRAL with code-equivalence rationale closes the requirement on the strength of Phase 28's `.hex` size analysis (uno328pb hex Δ=0 — the build is byte-equivalent to the Uno build modulo board-name string + PIO env metadata).
-  - **Reflash is cheap and informative.** Operator already owns the procedure from v1.5 BENCH-01 (`firestarter fw -i --pre` flashed the v1.5 `3.0.0b4` end-to-end via the `urclock` bootloader at 115200 baud). If the silicon really is 328PB, Case A produces a clean third real-silicon row; if it's misidentified, Case B at least restores the board to a useful state.
+  - **Local sideload is the right tool** because Phase 29 is BEFORE merge — using `firestarter fw -i --pre --force` would require a public pre-release tag that doesn't exist yet, and creating one before bench-confirming the fix is the exact pollution pattern this phase restructure is preventing.
+  - **avrdude `urclock` path is operator-proven** from v1.5 BENCH-01 (`firestarter fw -i --pre` post-flash handshake reported `v3.0.0b4 / uno328pb` on `/dev/ttyUSB0`). Same bootloader, same baud, same programmer-id — the local-hex sideload bypasses the host installer but uses identical wire semantics.
   - **Memory `[[uno328pb_correction]]` explicitly says skip for v1.6 read-bug repro; the 2026-05-21 ~57.8% baseline is FW-mismatch, not true 328PB silicon.** This decision honors the memory by not chasing the ~57.8% baseline; the reflash test resolves the ambiguity in one shot.
-  - **No new code or DB changes required** — the v1.5 Phase 23 host CLI work + Phase 22 release pipeline already emit the `firestarter_uno328pb.hex` artifact + the host installer routes `uno328pb`-reporting devices to the right artifact (v1.5 BENCH-01 closed this loop).
+  - **No new code or DB changes required** — the v1.5 Phase 21 firmware env + Phase 22 release pipeline already emit `firestarter_uno328pb.hex` from `[env:uno328pb]`. Phase 28 builds this artifact identically from `v1.6-read-bug`.
   **Output the planner needs:** PLAN.md Wave B step explicitly enumerates Case A vs Case B branches with the verifier writing the chosen branch's verdict back to EVIDENCE.md + the Phase 29 SUMMARY narrative.
 
-### Pre-release cut procedure (firmware + host CLI installable on bench)
+### Local-sideload procedure (firmware + host CLI installable on bench WITHOUT public release)
 
-- **D-02: Standard v1.4 beta workflow — merge `v1.6-read-bug` → `beta` triggers automated pre-release cut. Tag: `3.0.0b5` (or next pre-release per v1.4 lockstep `BETA_VERSION` input).**
-  Two sub-repo merges at the START of Wave A:
-  1. `firestarter/v1.6-read-bug` (`4f205e58`) → `firestarter/beta` (current tip `bc0f5ac`). Merge commit pushed to GitHub remote. Triggers the v1.4 `firestarter/.github/workflows/beta-build.yml` workflow which runs `update_version.py --beta` to bump the version (operator supplies `BETA_VERSION=3.0.0b5` via the `workflow_dispatch` input or the workflow auto-bumps from `3.0.0b4`), runs the PIO + Unity gates, and cuts a GitHub Pre-release with `firestarter_uno.hex`, `firestarter_leonardo.hex`, `firestarter_uno328pb.hex` attached.
-  2. `firestarter_app/v1.6-read-bug` (Phase 26 tip `c057fe2`) → `firestarter_app/beta` (current tip — operator confirms at execution). Merge commit pushed. Triggers `firestarter_app/.github/workflows/beta-build.yml` which publishes the matching pre-release version to PyPI.
-  Install procedure on bench:
-  - `pip install --pre --upgrade firestarter` (resolves to the new PyPI pre-release).
-  - `firestarter fw -i --pre --force` (downloads + flashes the matching `firestarter_{board}.hex` per the v1.4 INST-04 board-driven asset resolution).
+- **D-02: Local PIO build + `pio -t upload` (or `avrdude -c urclock`) sideload from `firestarter/v1.6-read-bug` LOCAL branch. NO beta merge in Phase 29.**
+  Operator builds and installs from the local checkout — bench evidence is captured BEFORE any public release commitment. Phase 30 owns the eventual merge once Phase 29's verdict is green.
+  Wave A desk-side build (run from meta-repo root, executable by `gsd-executor`):
+  ```bash
+  cd firestarter && git checkout v1.6-read-bug && git log -1 --oneline   # confirm tip = 4f205e58
+  pio run -e uno          # produces .pio/build/uno/firestarter_uno.hex
+  pio run -e leonardo     # produces .pio/build/leonardo/firestarter_leonardo.hex
+  pio run -e uno328pb     # produces .pio/build/uno328pb/firestarter_uno328pb.hex
+  shasum -a 256 .pio/build/uno/firestarter_uno.hex .pio/build/leonardo/firestarter_leonardo.hex .pio/build/uno328pb/firestarter_uno328pb.hex
+  # SHA-256s recorded in EVIDENCE.md per-board build hash row
+  cd ../firestarter_app && git checkout v1.6-read-bug && pip install -e .
+  firestarter dev consistency-check --help   # confirm Phase 26 subcommand surface
+  ```
+  Wave B bench sideload (operator-driven, per board):
+  ```bash
+  # Plain Uno on /dev/ttyACM0
+  cd firestarter && pio run -e uno -t upload --upload-port /dev/ttyACM0
+  firestarter -p /dev/ttyACM0 fw   # verify post-flash handshake
+  # Leonardo on /dev/ttyACM1 (32U4 needs 1200-baud touch then reset — pio handles this)
+  pio run -e leonardo -t upload --upload-port /dev/ttyACM1
+  firestarter -p /dev/ttyACM1 fw
+  # uno328pb on /dev/ttyUSB0 — use avrdude fallback for urclock bootloader
+  avrdude -p atmega328pb -c urclock -b 115200 -P /dev/ttyUSB0 \
+    -U flash:w:.pio/build/uno328pb/firestarter_uno328pb.hex:i
+  firestarter -p /dev/ttyUSB0 fw   # branches per D-01 Case A / Case B
+  ```
   Verification:
-  - Post-flash, `firestarter fw` (no args) prints `version 3.0.0bN, controller <board> on /dev/ttyXXX` for each board.
-  - Operator records the exact tag string in the Phase 29 EVIDENCE.md SCAFFOLD section's pre-flight block.
+  - Post-flash, `firestarter fw` (no args) prints `version <local-build-version>, controller <board> on /dev/ttyXXX`. The exact version string depends on whether `update_version.py` ran (probably stale at `3.0.0b4` since nothing in Phase 28 bumped it; the EVIDENCE.md per-board build hash record uses the commit SHA `4f205e58` for unambiguous identification, not the version string).
+  - Operator records the per-board SHA-256 of the locally-built `.hex` file + the commit SHA in the Phase 29 EVIDENCE.md SCAFFOLD section's build hash record.
   Rationale:
-  - **Mirrors v1.5 exactly.** v1.5 BENCH-01 used `firestarter fw -i --pre` to flash `3.0.0b4` end-to-end on `/dev/ttyUSB0` via the `urclock` bootloader (BENCH-01 row in `.planning/v1.5-BENCH-RESULTS.md`). Same path, same operator muscle memory.
-  - **Locked-step coordination from v1.4 Phase 15 is honored.** App + firmware always release with matching version numbers; `BETA_VERSION` input flows through both `beta-build.yml` workflows. The `3.0.0b5` (or whatever the cut produces) tag is identical across both sub-repos.
-  - **NO one-off RCA tag (`3.0.0-rcaN`).** Phase 27 D-03 / Phase 28 D-03 explicitly carried "instrumented builds for Phase 27 RCA may need their own one-off pre-release tag" but Phase 27 Wave B did not fire (`needs_bench: false`) so no RCA tag was cut. Phase 29 uses the standard beta channel.
-  - **NO local-hex sideload.** Per `[[feedback_branching]]` and `[[firestarter_repo_layout]]`, sub-repo work flows through the public release pipeline; sideloading defeats the v1.4 pipeline's GATE-01 non-regression guarantee.
-  **Output the planner needs:** Wave A's first task is "merge `v1.6-read-bug` → `beta` in both sub-repos + push + confirm GitHub Pre-release tag cut + confirm PyPI pre-release published". Wave B's first task is "install the pre-release on each board + verify handshake reports the right version".
+  - **Bench-test BEFORE merge.** A failed bench verdict against the locally-built artifact stays private — no GitHub Pre-release tag, no PyPI pre-release, nothing to retract. The milestone re-opens cleanly via D-07 without channel pollution. A failed verdict against a publicly-tagged `3.0.0b5` would force a `3.0.0b6` cleanup tag + retract-or-yank dance.
+  - **ROADMAP Phase 30 SC#5 already owns the merge.** "Sub-repo branch promotion done: `v1.6-read-bug` → `beta` → `main` in both `firestarter/` and `firestarter_app/`" — this is Phase 30's literal scope. Phase 29's earlier draft incorrectly migrated it into Wave A; corrected here.
+  - **`pio -t upload` is the operator's existing build path** — `firestarter/CLAUDE.md` documents `pio run -t upload -e uno` as the canonical flash command. No new tooling.
+  - **`avrdude -c urclock` for the uno328pb path** is operator-proven from v1.5 BENCH-01 (the exact `programmer_id="urclock"` finding lives in memory `[[project_bench_findings_v15]]`).
+  - **Locked-step coordination is preserved** — no version bump in Phase 29; Phase 30 runs `update_version.py --beta` at merge time to produce the matching app+firmware `3.0.0bN` tags.
+  - **Wave A's local-build artifacts (`.pio/build/*/firestarter_*.hex`) MUST be re-built in Phase 30 from the merge commit** (not copied from Phase 29's artifacts) to guarantee `firestarter/beta` HEAD = the artifact source-of-truth. Phase 29's artifacts are operator-bench-only; never published.
+  **Output the planner needs:** Wave A's tasks list the 3 `pio run -e <env>` commands + the host CLI install + the SHA-256 build hash capture. Wave B's per-board tasks list the upload command + post-flash handshake + the three verification axes. No merge, no push, no tag.
 
 ### N count strategy (consecutive-read sample size)
 
@@ -108,16 +140,16 @@ The v1.6 scope-narrowing carried in from Phase 26/27/28 holds:
 
 ### Plan structure / wave shape
 
-- **D-04: Two-plan structure — 29-01 (desk-side prep, `autonomous: true`) + 29-02 (operator-on-bench, `autonomous: false`).**
-  - **Plan 29-01 — Desk-side prep (`autonomous: true`, ~15 min):** Merge `v1.6-read-bug` → `beta` in both sub-repos. Push. Wait for / confirm both pre-release workflows ran green and the artifacts uploaded (operator can dispatch them manually if `workflow_dispatch` is the trigger). Append the Phase 29 SCAFFOLD section to `.planning/v1.6-EVIDENCE.md` at the line-186 anchor. Append the Phase 29 SCAFFOLD row to `.planning/v1.5-BENCH-RESULTS.md` for BENCH-02 addendum. Write the operator pre-flight checklist as a top-of-section block in the Phase 29 EVIDENCE section. Closes the desk-side half (no VERIFY-NN closes here; this is pure scaffolding).
-  - **Plan 29-02 — Bench wave (`autonomous: false`, operator-on-bench session, ~60-90 min total):** Operator installs the pre-release on each board, captures the hardware metadata snapshot, runs the 3-axis verification per board (full-chip consistency-check N=5 + 1KB shell-loop N=5 + BENCH-02 write→read→verify on SST27SF512), fills in the EVIDENCE.md SCAFFOLD section's rows, fills in the `.planning/v1.5-BENCH-RESULTS.md` post-hoc addendum row, and resolves the uno328pb row per D-01's reflash test. Closes VERIFY-01 + VERIFY-02 + VERIFY-03 + VERIFY-04. Final verifier task: promote `beta → main` in both sub-repos IF all four VERIFY-NN cells are PASS (stable tag bump deferred to Phase 30 operator authorization).
-  Plan dependency: 29-01 → 29-02 (Wave B cannot run until the pre-release is installable).
+- **D-04: Two-plan structure — 29-01 (desk-side local build, `autonomous: true`) + 29-02 (operator-on-bench, `autonomous: false`). NO merge/promotion in either plan; Phase 30 owns that.**
+  - **Plan 29-01 — Desk-side local build + scaffold (`autonomous: true`, ~5 min):** Run the 3 `pio run -e <env>` commands from `firestarter/v1.6-read-bug` (tip `4f205e58`) to produce the 3 local `.hex` artifacts. Capture per-board hex SHA-256 to record in EVIDENCE.md. Install host CLI from `firestarter_app/v1.6-read-bug` via `pip install -e .`. Append the Phase 29 SCAFFOLD section to `.planning/v1.6-EVIDENCE.md` at the line-186 anchor (sub-tables for VERIFY-01+02, VERIFY-03, VERIFY-04 + hardware metadata snapshot + per-board build hash record block). Append the Phase 29 SCAFFOLD row to `.planning/v1.5-BENCH-RESULTS.md` for BENCH-02 addendum. Write the operator pre-flight checklist as a top-of-section block (explicit sideload commands per board — `pio run -e uno -t upload --upload-port /dev/ttyACM0`, `pio run -e leonardo -t upload --upload-port /dev/ttyACM1`, `avrdude -c urclock` for the uno328pb path). NO remote pushes, NO merges, NO tags. Closes the desk-side half (no VERIFY-NN closes here; this is pure scaffolding).
+  - **Plan 29-02 — Bench wave (`autonomous: false`, operator-on-bench session, ~60-90 min total):** Operator sideloads the locally-built firmware on each board via the Wave A pre-flight commands, captures the hardware metadata snapshot (incl. shield rev per D-10), runs the 3-axis verification per board (full-chip consistency-check N=5 + 1KB shell-loop N=5 + BENCH-02 write→read→verify on SST27SF512), fills in the EVIDENCE.md SCAFFOLD section's rows, fills in the `.planning/v1.5-BENCH-RESULTS.md` post-hoc addendum row, and resolves the uno328pb row per D-01's sideload Case A/B test. Closes VERIFY-01 + VERIFY-02 + VERIFY-03 + VERIFY-04. **Final verifier task: hand off to Phase 30** if all four VERIFY-NN cells are PASS; otherwise milestone re-opens per D-07. NO `beta → main` promotion in this plan — that's Phase 30.
+  Plan dependency: 29-01 → 29-02 (Wave B cannot run until the local `.hex` artifacts exist and the host CLI is installed).
   Rationale:
-  - **Mirrors Phase 26's pattern exactly.** Plan 26-01 (desk-side tool ship) + Plan 26-02 (operator-on-bench session). Two-plan structure is the proven shape for "desk-side prep + operator session" phases (Phase 24 v1.5 BENCH followed this; Phase 12 v1.3 BENCH would have followed this if hardware were available).
-  - **Atomic operator-session boundary.** Wave B is one continuous session; splitting per-board across multiple plans adds overhead without diagnostic granularity (the operator is rotating the same chip through three boards in one sitting; the EVIDENCE.md fill is the single artifact). Same logic as Phase 26 D-09 ("one plan per session, with all boards inside") — generalizes here.
-  - **Beta-merge as the trigger boundary, not the bench session.** Putting the merge in Wave A means CI runs (workflows, PyPI publish, GitHub Pre-release) finish before the bench session starts. Operator never waits on CI mid-session.
-  - **Promotion-to-main lives at the end of Wave B, not Phase 30.** Phase 30 is paperwork; the cleanest semantic boundary is "Phase 29 produces a green bench verdict AND lands the beta → main merge as the artifact of that green verdict". Phase 30's job is then MILESTONE.md + bug-todo move + archive — not branch operations. (This is a deliberate refinement of ROADMAP.md's "Promote beta → main only after operator green" — Phase 29 is exactly that gate; doing the promotion here keeps the milestone-close paperwork from being mixed with branch-management decisions.)
-  **Output the planner needs:** PLAN.md 29-01 + 29-02 with explicit task lists; 29-02 task list enumerates the per-board verification axes + the EVIDENCE.md fill + the Case A/B branch for uno328pb + the final `beta → main` promotion check.
+  - **Mirrors Phase 26's pattern exactly.** Plan 26-01 (desk-side tool ship) + Plan 26-02 (operator-on-bench session). Two-plan structure is the proven shape for "desk-side prep + operator session" phases.
+  - **Atomic operator-session boundary.** Wave B is one continuous session; splitting per-board across multiple plans adds overhead without diagnostic granularity. Same logic as Phase 26 D-09 ("one plan per session, with all boards inside") — generalizes here.
+  - **Build artifacts ready BEFORE the bench session.** Wave A's PIO compile runs desk-side; operator never waits on `pio run` mid-bench-session.
+  - **Promotion-to-main is Phase 30's job per ROADMAP** — corrected from this CONTEXT.md's earlier draft which incorrectly placed it in Wave B's verifier task list. Phase 30 already owns `v1.6-read-bug → beta → main` in its SC#5 explicitly.
+  **Output the planner needs:** PLAN.md 29-01 + 29-02 with explicit task lists; 29-02 task list enumerates the per-board verification axes + the EVIDENCE.md fill + the Case A/B branch for uno328pb + the green-verdict hand-off to Phase 30 (no branch operations).
 
 ### VERIFY-03 (low-rate 1KB jitter) verification mechanism
 
@@ -192,16 +224,25 @@ The v1.6 scope-narrowing carried in from Phase 26/27/28 holds:
   ## Phase 29 — Post-fix Consistency-Check Verification (YYYY-MM-DD)
 
   **Bench session:** YYYY-MM-DD (operator-on-bench, single session)
-  **Firmware shipped to chip:** `firestarter_<board>.hex` v3.0.0bN (from GitHub Pre-release `henols/firestarter` tag `3.0.0bN`)
-  **Branch flow:** `firestarter/v1.6-read-bug` (`4f205e58`) → `firestarter/beta` → tag `3.0.0bN`; `firestarter_app/v1.6-read-bug` (`c057fe2`) → `firestarter_app/beta` → PyPI pre-release `3.0.0bN`
+  **Firmware sideloaded to chip:** locally-built `firestarter_<board>.hex` from `firestarter/v1.6-read-bug` (LOCAL branch, commit `4f205e58`) via `pio run -e <env> -t upload` (or `avrdude -c urclock` for uno328pb path)
+  **Host CLI:** locally-installed from `firestarter_app/v1.6-read-bug` (tip `c057fe2`) via `pip install -e .`
+  **Branch flow (Phase 29):** sub-repo branches stay LOCAL; no merges, no pushes, no public tags. Phase 30 owns the `v1.6-read-bug → beta → main` promotion + pre-release cut (ROADMAP Phase 30 SC#5).
 
   ### Pre-flight checklist (operator)
-  (Wave A populates: per-board port mapping, shield rev expected, install commands, expected verdicts.)
+  (Wave A populates: per-board port mapping, shield rev expected, sideload commands, expected verdicts.)
+
+  ### Per-board build hash record (Wave A capture)
+  | Board | Local hex path | SHA-256 of hex | Source commit | Build timestamp |
+  |-------|----------------|----------------|---------------|-----------------|
+  | uno | firestarter/.pio/build/uno/firestarter_uno.hex | <sha256> | `4f205e58` | YYYY-MM-DD HH:MM |
+  | leonardo | firestarter/.pio/build/leonardo/firestarter_leonardo.hex | <sha256> | `4f205e58` | YYYY-MM-DD HH:MM |
+  | uno328pb | firestarter/.pio/build/uno328pb/firestarter_uno328pb.hex | <sha256> | `4f205e58` | YYYY-MM-DD HH:MM |
+  (These hash records let Phase 30 verify that the post-merge build produces byte-identical artifacts to the Phase 29 bench-tested artifacts — a strong "what bench OK'd is what got promoted" guarantee.)
 
   ### Hardware metadata snapshot
-  | Board | Effective hw rev | Physical shield | Native auto-detect | FW build | Chip ID seen |
-  |-------|------------------|-----------------|--------------------|----------|--------------|
-  (Wave B fills in; mirror of Phase 26 baseline table at lines 208-212.)
+  | Board | Effective hw rev | Physical shield | Native auto-detect | FW build (local commit + version string) | Chip ID seen |
+  |-------|------------------|-----------------|--------------------|------------------------------------------|--------------|
+  (Wave B fills in; mirror of Phase 26 baseline table at lines 208-212. FW build column carries `4f205e58` + the version string the local build emitted — likely `3.0.0b4+local` or the existing `3.0.0b4` if no bump ran.)
 
   ### VERIFY-01 + VERIFY-02 — Full-chip consistency-check (post-fix; 9-column schema)
   | Board | Port | Chip | N | SHAs distinct | Divergent bytes (run1 vs run2) | First-diverge offset | Verdict | Log |
@@ -224,10 +265,10 @@ The v1.6 scope-narrowing carried in from Phase 26/27/28 holds:
   - **VERIFY-03:** [CLOSED ✓ — root cause is NOT masked: 1KB jitter resolved alongside 64KB jitter]
   - **VERIFY-04:** [CLOSED ✓ — Phase 24 BENCH-02 post-hoc row added to v1.5-BENCH-RESULTS.md]
 
-  ### Promotion
-  - `firestarter/beta` → `firestarter/main`: <merge SHA YYYY-MM-DD>
-  - `firestarter_app/beta` → `firestarter_app/main`: <merge SHA YYYY-MM-DD>
-  - Stable tag bump: <deferred to Phase 30 operator authorization | landed as `3.0.1` YYYY-MM-DD>
+  ### Hand-off to Phase 30
+  All VERIFY-NN PASS → Phase 30 may proceed with: `firestarter/v1.6-read-bug` → `firestarter/beta` merge + pre-release cut + `firestarter_app/v1.6-read-bug` → `firestarter_app/beta` merge + PyPI pre-release publish + optional install-pipeline regression check via `firestarter fw -i --pre --force` (asserting post-merge artifacts byte-match the Phase 29 build hash record above) + `beta → main` promotion + operator-authorized stable tag bump.
+
+  Any FAIL → milestone re-opens per D-07; Phase 30 does NOT execute the merge until a future bench session re-validates.
   ```
   Rationale:
   - **9-column schema locked by Phase 26 D-08** ("Important — schema is shared. Phase 27/28/29 must read this CONTEXT.md (or the live `v1.6-EVIDENCE.md`) and follow the same row schema so the file is internally consistent across phases").
@@ -276,9 +317,11 @@ The v1.6 scope-narrowing carried in from Phase 26/27/28 holds:
 
   | Bench item | Result | Evidence |
   |-----------|--------|----------|
-  | SST27SF512 write→read→verify (Leonardo, post-fix `firestarter/v1.6-read-bug`) | ✓ PASS — byte-identical via `cmp` | Phase 28 fix commits `437339b6` + `4f205e58`; Phase 29 EVIDENCE.md §"VERIFY-04 — BENCH-02 post-hoc closure"; bench session YYYY-MM-DD |
+  | SST27SF512 write→read→verify (Leonardo, post-fix `firestarter/v1.6-read-bug` LOCAL build `4f205e58`) | ✓ PASS — byte-identical via `cmp` | Phase 28 fix commits `437339b6` + `4f205e58` (LOCAL on `firestarter/v1.6-read-bug` at Phase 29 time; Phase 30 promotes); Phase 29 EVIDENCE.md §"VERIFY-04 — BENCH-02 post-hoc closure"; bench session YYYY-MM-DD |
 
   **Verdict:** BENCH-02 fully closed (no caveat). `.planning/todos/pending/large-read-data-jitter-uno328pb.md` ready for Phase 30 DOC-01 move-to-resolved.
+
+  **Note on commit SHAs:** the cited fix commits are LOCAL on `firestarter/v1.6-read-bug` when this row lands. If Phase 30 uses a non-fast-forward merge (default for `beta` workflow), the post-merge `firestarter/beta` HEAD SHAs differ from `437339b6` / `4f205e58`; the original commits stay reachable as merge ancestors. If Phase 30 uses a squash-merge, only the squashed commit SHA appears on `beta`. Either way, the LOCAL SHAs cited here are unambiguous + grep-able in `git log --all`. Phase 30 may amend this row with the public SHAs post-merge for cross-reference.
   ```
   Rationale:
   - **REQUIREMENTS.md VERIFY-04 specifies "post-hoc row addendum in `.planning/v1.5-BENCH-RESULTS.md`"** — this format honors it literally.
@@ -289,10 +332,10 @@ The v1.6 scope-narrowing carried in from Phase 26/27/28 holds:
 ### Claude's Discretion
 
 - **Whether to run the BENCH-02 write→read→verify on Uno in addition to Leonardo.** Default: NO (Phase 26 already proved Uno's read path is clean; BENCH-02 on Leonardo is the maximally-informative single closure). If operator volunteers a second Uno cycle for confidence, capture as a bonus row but don't make it gating.
-- **Exact pre-release version number** (`3.0.0b5` vs `3.0.0b6` etc.) — depends on whether the v1.4 `update_version.py --beta` auto-bumps from `3.0.0b4` or whether the operator dispatches with a specific `BETA_VERSION` input. Planner picks the next sequential pre-release number; operator confirms at execution and records the actual tag in the EVIDENCE.md SCAFFOLD section.
-- **Whether Wave B's `beta → main` promotion is dependency-blocked on stable-tag bump.** Default: promotion happens (the merge commits land on `main`); stable tag (`3.0.1`) deferred to Phase 30 operator authorization. If operator says "stable bump now, milestone close later", the verifier can also cut the stable tag.
+- **Whether `pio run -e leonardo -t upload` works for the 32U4's USB-CDC reset dance** vs needing operator-side intervention. Default: trust PIO's bundled `arduino` upload protocol (which handles the 1200-baud touch automatically). If it fails on bench, fall back to manual reset-then-upload pattern; record in EVIDENCE.md.
 - **How to handle a partial PASS** (e.g., 4 / 5 SHAs identical) — current encoding treats any non-1 `SHAs distinct` as FAIL per D-07. If operator wants a "marginal" verdict tier, that's a Phase 29 D-07 amendment + EVIDENCE.md schema extension; default is strict binary PASS/FAIL.
-- **Whether to capture pre-flash binary baselines for the uno328pb reflash test** (so if Case B fires, the operator has a saved binary to compare the misidentified board's behavior against). Default: NOT captured — the reflash test outcome is binary (handshake reports `uno328pb` or it doesn't); pre-flash baseline adds noise without diagnostic value.
+- **Whether to capture pre-flash binary baselines for the uno328pb sideload test** (so if Case B fires, the operator has a saved binary to compare the misidentified board's behavior against). Default: NOT captured — the sideload test outcome is binary (handshake reports `uno328pb` or it doesn't); pre-flash baseline adds noise without diagnostic value.
+- **Whether `update_version.py` should run in Wave A** to stamp a `+local`/`+phase29` suffix into the version string for clearer EVIDENCE.md traceability. Default: NO — adds unnecessary diff churn; the build-hash record in EVIDENCE.md plus the commit SHA `4f205e58` are already unambiguous identifiers. Operator records the as-built version string verbatim from the handshake reply.
 
 ### Folded Todos
 
@@ -337,12 +380,18 @@ None folded. All three pending todos scored 0.6 against Phase 29 keywords but no
 - `.planning/ROADMAP.md §"Phase 29: Multi-Board Bench Verification"` (lines 87-99) — Goal + 5 success criteria + dependencies. SC#3 (1KB low-rate jitter; "if this criterion fails while criteria 1+2 pass, the root cause is masked rather than fixed and the milestone re-opens") is encoded in D-07. SC#5 (GATE-1.6 bench-rigor write→read→verify) coincides with VERIFY-04 per D-06.
 - `.planning/REQUIREMENTS.md` lines 28-33 — VERIFY-01, VERIFY-02, VERIFY-03, VERIFY-04 verbatim text. N≥5 floor is the requirement-level lock (D-03).
 
-### v1.4 release pipeline (the pre-release cut substrate Phase 29 reuses)
+### Build / install toolchain (Phase 29 LOCAL sideload path)
 
-- `firestarter/.github/workflows/beta-build.yml` — the v1.4 Phase 17 firmware beta workflow. Phase 29 Wave A triggers this via `firestarter/v1.6-read-bug` → `firestarter/beta` merge.
-- `firestarter_app/.github/workflows/beta-build.yml` — the v1.4 Phase 16 app beta workflow. Phase 29 Wave A triggers this via `firestarter_app/v1.6-read-bug` → `firestarter_app/beta` merge.
-- `firestarter_app/firestarter/firmware.py` — v1.4 Phase 18 INST-02 `--pre` flag logic; routes `--pre` to `releases?prerelease=true` filter. Phase 29 operator install (`firestarter fw -i --pre --force`) flows through this code path.
-- `.planning/milestones/v1.4-RELEASE-PROCEDURES.md` — v1.4 Phase 19 documented procedure for cutting a coordinated beta pre-release (locked-step app + firmware version). Phase 29 follows this verbatim.
+- `firestarter/platformio.ini` — `[env:uno]`, `[env:leonardo]`, `[env:uno328pb]` definitions; Phase 29 Wave A invokes `pio run -e <env>` against each to produce the local `.hex` artifacts. Same env config Phase 22 v1.5 release pipeline uses to produce public artifacts — byte-equivalence between local and post-merge builds is the Wave A → Phase 30 verification guarantee.
+- `firestarter/CLAUDE.md` §"Development Commands" — documents `pio run -e <env>` + `pio run -t upload -e <env>` as the canonical local build + flash path. Phase 29 D-02 follows verbatim.
+- `firestarter_app/firestarter/main.py` + `eprom_operations.py` — host CLI surface; Phase 29 operator installs via `pip install -e .` from `firestarter_app/v1.6-read-bug` checkout. No PyPI dependency for Phase 29.
+
+### v1.4 release pipeline (Phase 30 uses these; Phase 29 does NOT trigger)
+
+- `firestarter/.github/workflows/beta-build.yml` — v1.4 Phase 17 firmware beta workflow. **Phase 30** triggers this via `firestarter/v1.6-read-bug` → `firestarter/beta` merge once Phase 29 verdict is green.
+- `firestarter_app/.github/workflows/beta-build.yml` — v1.4 Phase 16 app beta workflow. **Phase 30** triggers via `firestarter_app/v1.6-read-bug` → `firestarter_app/beta` merge.
+- `firestarter_app/firestarter/firmware.py` — v1.4 Phase 18 INST-02 `--pre` flag logic. **Phase 30** install-pipeline regression check (`firestarter fw -i --pre --force`) flows through this; Phase 29 does NOT exercise this path.
+- `.planning/milestones/v1.4-RELEASE-PROCEDURES.md` — v1.4 Phase 19 documented procedure for cutting a coordinated beta pre-release. **Phase 30** follows this verbatim.
 
 ### Cross-cutting branching + memory
 
@@ -400,14 +449,15 @@ None folded. All three pending todos scored 0.6 against Phase 29 keywords but no
 - **The 5-line Python cross-check from Phase 27** (EVIDENCE.md lines 99-108) is re-runnable against the post-fix binaries to confirm the divergence count drops from 1349 to 0. Phase 29 Wave B's verifier can optionally run this as a sanity check (expected output: `Total divergences: 0; single-bit-flip fraction: 0.0%`).
 - **Two empirically-confirmed `_NOP()` count = 2 settling delay** (Phase 28 commit `4f205e58`). If Phase 29 still shows residual single-bit flips on Leonardo, operator can attempt N=3 or N=4 `_NOP()`s as a Phase 27 re-open experiment per Phase 28 Claude's Discretion #1. Phase 29 itself does NOT modify the count.
 - **The `urclock` bootloader is the right `programmer_id`** for the misidentified board (per `[[project_bench_findings_v15]]`). Phase 29 D-01 reflash uses the standard `firestarter fw -i --pre --force` path which already picks `urclock` for the uno328pb-reporting handshake (v1.5 Phase 23 host CLI work). If the reflash fails with a programmer-id mismatch, the board is likely a Plain Uno (Case B) and `firestarter fw -i --pre --force --board uno` will succeed.
-- **Operator's stable-installed app vs `--pre`-installed app:** Phase 29 Wave B requires the `--pre`-installed app on bench (because the diagnostic + the install command both need v1.6 bits). The promotion to `main` at the end of Wave B + stable bump in Phase 30 restores the stable-installed app to v1.6 semantics for downstream users.
+- **Operator's stable-installed app vs locally-installed app:** Phase 29 Wave B requires the LOCALLY-installed app from `firestarter_app/v1.6-read-bug` checkout via `pip install -e .` (because the `dev consistency-check` diagnostic is only on that branch + no PyPI pre-release exists yet — Phase 30 creates that). The locally-installed app coexists with whatever stable-or-prior install the operator has; `pip install -e .` overrides for the active venv. Phase 30's eventual PyPI pre-release publish + `firestarter fw -i --pre --force` re-install is what restores users to a publishable v1.6 state.
 
 </specifics>
 
 <deferred>
 ## Deferred Ideas
 
-- **Cutting a one-off `3.0.0-rcaN` tag** for Phase 29 (mirror of Phase 27 RCA tag option) — explicitly NOT taken per D-02; standard beta workflow is sufficient. If Phase 29 Wave B FAILs and Phase 27 re-opens with an instrumented build, the RCA tag becomes available again at that point.
+- **Cutting a one-off `3.0.0-rcaN` tag** for Phase 29 (mirror of Phase 27 RCA tag option) — explicitly NOT taken per D-02; LOCAL sideload is sufficient for Phase 29's bench evidence and avoids public-channel pollution. If Phase 29 Wave B FAILs and Phase 27 re-opens with an instrumented build, the RCA tag becomes available again at that point. Phase 30's `beta` merge creates the only public artifact for v1.6.
+- **Cutting the public pre-release in Phase 29** (the original D-02 design before this correction) — explicitly NOT taken. Phase 30 owns the merge per ROADMAP Phase 30 SC#5. The local-sideload path keeps Phase 29 evidence-only.
 - **Adding `--size N` flag to `dev consistency-check`** to fold VERIFY-03 into the same diagnostic — Phase 26 D-06 explicitly deferred. Could land post-v1.6 if the 1KB-only verification is repeatedly needed.
 - **Auto-orchestrating cross-board verification** (`--all-boards` flag enumerating `/dev/tty*` and rotating chip) — Phase 26 D-07 / D-09 deferred; operator muscle memory wins.
 - **Bench-validating the Uno's `df5fb44` 2026-05-13 fix** by adding a parallel Unity test mirroring Phase 28's test_data_input — Phase 28 `<deferred>` carries this; post-v1.6 quality-debt.

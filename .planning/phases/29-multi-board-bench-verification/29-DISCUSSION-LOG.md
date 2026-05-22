@@ -6,7 +6,9 @@
 **Date:** 2026-05-22
 **Phase:** 29-multi-board-bench-verification
 **Mode:** Auto Mode (harness Auto Mode active — gray areas auto-resolved with recommended options; no AskUserQuestion prompts)
-**Areas discussed:** uno328pb row strategy, Pre-release cut procedure, N count, Plan structure, VERIFY-03 mechanism, VERIFY-04 chip + procedure, Fail-handling protocol, EVIDENCE.md schema, Test chip selection, Shield-rev recording, BENCH-02 addendum format
+**Areas discussed:** uno328pb row strategy, Pre-release cut procedure (CORRECTED to local sideload), N count, Plan structure (CORRECTED — no merge in Phase 29), VERIFY-03 mechanism, VERIFY-04 chip + procedure, Fail-handling protocol, EVIDENCE.md schema, Test chip selection, Shield-rev recording, BENCH-02 addendum format
+
+**Operator correction (2026-05-22):** initial CONTEXT placed the `v1.6-read-bug → beta` merge in Wave A (BEFORE bench verification), which would have polluted the public release channel if the fix failed on bench. Corrected to local-sideload model — Phase 29 builds firmware locally from `v1.6-read-bug`, sideloads via `pio run -t upload` (or `avrdude -c urclock`), and stays entirely off-remote. Phase 30 (which ROADMAP SC#5 already designates as the branch-promotion phase) picks up the public merge + pre-release cut + main promotion once Phase 29 verdict is green.
 
 ---
 
@@ -25,18 +27,18 @@ The carried-over VERIFY-01 mismatch from Phase 26 — the board labeled `uno328p
 
 ---
 
-## Pre-release cut procedure (D-02)
+## Local-sideload procedure (D-02) — CORRECTED after operator feedback
 
 When and how is the post-fix firmware made bench-installable?
 
 | Option | Description | Selected |
 |--------|-------------|----------|
-| Standard v1.4 beta workflow — merge `v1.6-read-bug` → `beta` triggers automated pre-release cut at Wave A start | Both sub-repos merge → CI cuts GitHub Pre-release `3.0.0bN` + PyPI pre-release; operator installs via `firestarter fw -i --pre --force`. Mirrors v1.5 BENCH-01. | ✓ |
-| Cut a one-off `3.0.0-rcaN` tag from `v1.6-read-bug` directly | Mirrors v1.5 RCA tag option from Phase 27 D-03 carryover. | |
-| Build local hex, sideload via `firestarter fw -i <local.hex>` | Skip CI; copy hex to operator's machine and flash. | |
+| ~~Standard v1.4 beta workflow — merge `v1.6-read-bug` → `beta` triggers automated pre-release cut at Wave A start~~ | Both sub-repos merge → CI cuts GitHub Pre-release `3.0.0bN` + PyPI pre-release; operator installs via `firestarter fw -i --pre --force`. Initially selected; **REVERSED on operator feedback** because merge-before-bench-test pollutes the public release channel if the fix fails. | (initial — reversed) |
+| ~~Cut a one-off `3.0.0-rcaN` tag from `v1.6-read-bug` directly~~ | Mirrors v1.5 RCA tag option from Phase 27 D-03 carryover. Same public-channel pollution issue. | |
+| Build local hex via `pio run -e <env>`, sideload via `pio run -t upload` (or `avrdude -c urclock` for uno328pb) | Skip CI entirely; build from local `firestarter/v1.6-read-bug` checkout; sideload to operator's boards. NO public artifact created. Phase 30 owns the eventual merge once Phase 29 verdict is green. | ✓ |
 
-**Selected:** Standard v1.4 beta workflow (auto — recommended default).
-**Notes:** Locked-step coordination from v1.4 Phase 15 carries through; operator muscle memory established by v1.5; CI gates remain authoritative; no one-off tag debt.
+**Selected:** Local sideload (CORRECTED — initial choice reversed on operator feedback).
+**Notes:** A failed bench verdict against a publicly-tagged `3.0.0bN` artifact pollutes the GitHub Pre-release + PyPI pre-release indices and forces a cleanup tag. Local sideload keeps a failed verdict private; milestone re-opens cleanly via D-07. ROADMAP Phase 30 SC#5 already designates Phase 30 as the branch-promotion phase, so this correction realigns with the originally-roadmapped phase split. v1.5 BENCH-01 happened to test from a public pre-release, but in v1.5 the fix had no bench-side gate before tag-cut — different precedent.
 
 ---
 
@@ -55,16 +57,16 @@ REQUIREMENTS says N≥5; Phase 26 baseline was N=3.
 
 ---
 
-## Plan structure / wave shape (D-04)
+## Plan structure / wave shape (D-04) — CORRECTED to remove merge
 
 | Option | Description | Selected |
 |--------|-------------|----------|
-| Two-plan structure: 29-01 desk-side prep (`autonomous: true`) + 29-02 operator-on-bench (`autonomous: false`) | Mirrors Phase 26 pattern (26-01 desk + 26-02 bench). Wave A scaffolds EVIDENCE.md + merges sub-repos to trigger pre-release cut; Wave B is one continuous operator session. | ✓ |
-| Single bench plan (`autonomous: false`) — operator does everything | Smallest plan count; operator coordinates merges + bench in one sitting. | |
+| Two-plan structure: 29-01 desk-side local build + scaffold (`autonomous: true`) + 29-02 operator-on-bench sideload + verify (`autonomous: false`). NO merge in either plan; Phase 30 owns promotion. | Mirrors Phase 26 pattern (26-01 desk + 26-02 bench). Wave A builds firmware locally + scaffolds EVIDENCE.md; Wave B sideloads + verifies + hands off to Phase 30. | ✓ |
+| Single bench plan (`autonomous: false`) — operator does everything | Smallest plan count; less separation between desk-side prep and bench session. | |
 | Three plans: prep + bench + close-out paperwork | Split paperwork from bench session for explicit gates. | |
 
-**Selected:** Two-plan structure (auto — recommended default).
-**Notes:** Beta-merge as the trigger boundary, not the bench session — CI runs finish before operator picks up the iron. Promotion-to-`main` lives at the end of Wave B as the artifact of the green verdict; Phase 30 owns stable-tag bump.
+**Selected:** Two-plan structure with NO merge inside Phase 29 (CORRECTED — initial draft incorrectly included `beta → main` promotion in Wave B's verifier task list).
+**Notes:** Phase 29's deliverable is the bench evidence. Phase 30 (per ROADMAP SC#5) owns the `v1.6-read-bug → beta → main` promotion, the public pre-release cut, the install-pipeline regression check, and the operator-authorized stable tag bump. The wave-A→wave-B→Phase 30 dependency chain becomes: build local → bench-verify → (PASS gate) → public promotion.
 
 ---
 
