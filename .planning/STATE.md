@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.6
 milestone_name: — Fix the Read Bug
-status: executing
-last_updated: "2026-05-22T08:14:29.624Z"
+status: blocked
+last_updated: "2026-05-22T10:30:00Z"
 last_activity: 2026-05-22
 progress:
   total_phases: 5
@@ -16,15 +16,15 @@ progress:
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-05-21
+**Updated:** 2026-05-22
 
 ## Current Position
 
-Phase: 29 (multi-board-bench-verification) — EXECUTING
+Phase: 29 (multi-board-bench-verification) — BLOCKED (v1.6 milestone re-opens per D-07)
 Plan: 2 of 2
-Status: Ready to execute
+Status: BLOCKED — Phase 29 Wave B Attempt 2 (2026-05-22 PM) closed FAIL per D-07; Leonardo + uno328pb read paths broken under Phase 28 firmware; chip-swap diagnostic eliminates chip as the variable. Recommend Phase 27 RCA re-open with pre-Phase-28-firmware A/B test as first experiment.
 Last activity: 2026-05-22
-Resume file: .planning/phases/29-multi-board-bench-verification/29-02-PLAN.md
+Resume file: .planning/phases/29-multi-board-bench-verification/29-02-PLAN.md (rerun after Phase 27 + 28 fix-iteration)
 
 ## Project Reference
 
@@ -124,7 +124,8 @@ Full details: `.planning/ROADMAP.md` (v1.4 section).
 
 ### Open Blockers
 
-None at v1.6 start. Bench access required for Phase 26 Wave B + Phase 29 — operator owns hardware (uno + leonardo + uno328pb + RURP shield + test chip in socket), and 3-shield A/B/C triage on 2026-05-21 already proved the bug is firmware/host-side rather than shield-specific, so RCA (Phase 27) and fix-development (Phase 28) can proceed desk-side.
+- **v1.6 Phase 29 Wave B FAIL (2026-05-22 PM) — milestone re-opens per D-07.** Bench-validated FAIL: Leonardo (`/dev/ttyACM1`, Modified Rev 0 + voltage-divider mod, 32U4 silicon) reads 83.8% zero-bytes with 5 distinct SHAs across N=5 consistency-check; uno328pb (`/dev/ttyUSB0`, Rev 2.2, real ATmega328PB Case A confirmed) reads 5 distinct SHAs with 18.2% pairwise byte-jitter. Chip-swap diagnostic eliminates chip as the variable (proven-good chip from Uno reads garbage on Leonardo). Uno code path unaffected (Δ=0 Phase 28 hex, regression check held). Strong candidate-cause: Phase 28 fix (commits `437339b6` PORTx-clear + `4f205e58` `_NOP()` settling) introduced a Leonardo + uno328pb read-path regression. **Phase 30 BLOCKED** — no `v1.6-read-bug → beta → main` promotion, no pre-release cut, no public tag until a corrected fix re-runs Phase 29 to PASS. **Next step:** Phase 27 RCA re-open with pre-Phase-28-firmware A/B test (build + sideload `firestarter/v1.6-read-bug~2` to Leonardo, re-probe) as the first disambiguation experiment. See `.planning/v1.6-EVIDENCE.md` "Wave B FAIL post-mortem (D-07 — milestone re-opens)" section + `.planning/phases/29-multi-board-bench-verification/29-02-SUMMARY.md` for full diagnostic narrative.
+- Pre-v1.6 baseline note: bench access required for Phase 26 Wave B + Phase 29 — operator owns hardware (uno + leonardo + uno328pb + RURP shield + test chip in socket), and 3-shield A/B/C triage on 2026-05-21 already proved the bug is firmware/host-side rather than shield-specific.
 
 ### Paused Milestones
 
