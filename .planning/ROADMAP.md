@@ -135,7 +135,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 34-02-PLAN.md — Wave 2: add REVISION_2_3 = 5 + REVISION_UNKNOWN = 0xFE to firestarter/include/rurp_shield.h under #ifdef HARDWARE_REVISION (D-07; 0xFE/0xFF sentinel carve-out)
+- [x] 34-02-PLAN.md — Wave 2: add REVISION_2_3 = 5 + REVISION_UNKNOWN = 0xFE to firestarter/include/rurp_shield.h under #ifdef HARDWARE_REVISION (D-07; 0xFE/0xFF sentinel carve-out)
 - [ ] 34-03-PLAN.md — Wave 2: add ADC_BAND_R41_4K7_HIGH=200 / _10K_LOW=220 / _10K_HIGH=600 thresholds to rurp_pinout.h + rework rurp_detect_hardware_revision() body (analogRead A3 + 8-sample avg + 4-arm band-lookup) + add case REVISION_2_3 arm to rurp_map_ctrl_reg_for_hardware_revision() (D-03 + D-06 + D-07; DETECT-FW-01)
 - [ ] 34-04-PLAN.md — Wave 2: run verify-detect-34.sh delta-band gate + record per-env .hex Δ table + bump meta-repo firestarter submodule pointer to Plan-03-HEAD (DETECT-FW-02 GATE-1.7 non-regression close)
 
@@ -505,5 +505,5 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 31 (v1.7) | v1.7 | done | ✅ Complete | 2026-05-22 |
 | 32 (v1.7) | v1.7 | 3/3 | ✅ Complete | 2026-05-22 |
 | 33 (v1.7) | v1.7 | 4/5 | In Progress|  |
-| 34 (v1.7) | v1.7 | 2/7 | In Progress|  |
+| 34 (v1.7) | v1.7 | 3/7 | In Progress|  |
 | 35 (v1.7 close) | v1.7 | 0/0 | Not started | — |

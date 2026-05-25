@@ -42,8 +42,8 @@
 
 ### Shield-Version-Detect Firmware Plumbing (DETECT-FW)
 
-- [ ] **DETECT-FW-01**: Firmware reads the ADC pin at boot (or on first handshake), looks up the voltage band in the DETECT-HW-02 table, and reports the detected silkscreen-rev string in the handshake payload (extends `MSG_OK_FW_HANDSHAKE` or adds a sibling INFO message — exact wire format finalized at plan time). On pre-detect-resistor boards (floating/grounded ADC), the report is `rev_unknown` and firmware falls through to honoring the operator-configured `hw_revision` byte in EEPROM (existing behavior preserved).
-- [ ] **DETECT-FW-02**: GATE-1.7 non-regression — existing pre-detect-resistor boards continue to handshake byte-identical to v1.6 baseline (modulo the additive `rev_unknown` report, which is documented as a new INFO emit). Chip programming + read paths byte-identical. Firmware compiles cleanly for all three board targets without requiring physical fabrication of the next-rev shield.
+- [x] **DETECT-FW-01**: Firmware reads the ADC pin at boot (or on first handshake), looks up the voltage band in the DETECT-HW-02 table, and reports the detected silkscreen-rev string in the handshake payload (extends `MSG_OK_FW_HANDSHAKE` or adds a sibling INFO message — exact wire format finalized at plan time). On pre-detect-resistor boards (floating/grounded ADC), the report is `rev_unknown` and firmware falls through to honoring the operator-configured `hw_revision` byte in EEPROM (existing behavior preserved).
+- [x] **DETECT-FW-02**: GATE-1.7 non-regression — existing pre-detect-resistor boards continue to handshake byte-identical to v1.6 baseline (modulo the additive `rev_unknown` report, which is documented as a new INFO emit). Chip programming + read paths byte-identical. Firmware compiles cleanly for all three board targets without requiring physical fabrication of the next-rev shield.
 
 ### Documentation & Close (DOC, MS)
 

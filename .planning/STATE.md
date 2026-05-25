@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: — RURP Shield Hardware Investigation & Version Detection
 status: executing
-last_updated: "2026-05-25T13:43:53.457Z"
+last_updated: "2026-05-25T13:49:07.391Z"
 last_activity: 2026-05-25
 progress:
   total_phases: 10
   completed_phases: 7
   total_plans: 28
-  completed_plans: 23
+  completed_plans: 24
   percent: 70
 ---
 
@@ -21,7 +21,7 @@ progress:
 ## Current Position
 
 Phase: 34 (shield-version-detect-design-firmware-plumbing) — EXECUTING
-Plan: 2 of 7
+Plan: 3 of 7
 Status: Ready to execute
 Last activity: 2026-05-25
 Resume file: None
@@ -315,6 +315,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 33 P33-03 | ~13min | 4 tasks tasks | 7 files files |
 | Phase 33 P33-04 | ~10min | 2 tasks | 4 files (constants.py + main.py + firestarter_app/CLAUDE.md + .planning/v1.7-SHIELD-REVS.md §7) |
 | Phase Phase 34 PP34-01 | 2m | 3 tasks | 1 files |
+| Phase 34 P02 | 6min | 1 tasks | 1 files |
 
 ## Decisions
 
@@ -427,6 +428,8 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase ?]: Phase 34 §8 documents EXISTING Anders R41-on-A3 detect-divider scheme — no new operator-fabricated board (D-01); Rev 2.3 (R41=10kΩ) treated as the seed entry to satisfy DETECT-HW-01
 - [Phase ?]: Phase 34 §9 6-column ADC band table per D-11 — Rev 2.0/2.1/2.2 collapsed into broad bucket REVISION_2_0 silkscreen 'Rev 2.0-class' (D-04); REVISION_UNKNOWN=0xFE carved as guard-gap catchall (D-07)
 - [Phase ?]: Phase 34 §9 footnote cross-links firmware threshold constants ADC_BAND_R41_4K7_HIGH=200, ADC_BAND_R41_10K_LOW=220, ADC_BAND_R41_10K_HIGH=600 — Wave 2 declarations in rurp_pinout.h MUST agree with this footnote (doc-mirrors-code contract)
+- [Phase ?]: Phase 34 Plan 02: REVISION_2_3=5 + REVISION_UNKNOWN=0xFE landed in firestarter/include/rurp_shield.h (D-07; firestarter@b243fb4)
+- [Phase ?]: D-07 sentinel carve-out: 0xFE=REVISION_UNKNOWN, 0xFF stays reserved for EEPROM-override-absent sentinel
 
 ## Deferred Items (acknowledged at v1.5 close 2026-05-21)
 
