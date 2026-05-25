@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: — RURP Shield Hardware Investigation & Version Detection
 status: executing
-last_updated: "2026-05-25T13:26:43.844Z"
-last_activity: 2026-05-25 -- Phase 34 planning complete
+last_updated: "2026-05-25T13:43:53.457Z"
+last_activity: 2026-05-25
 progress:
   total_phases: 10
   completed_phases: 7
   total_plans: 28
-  completed_plans: 21
+  completed_plans: 23
   percent: 70
 ---
 
@@ -20,11 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: 33 COMPLETE (silkscreen-label-code-alias-migration) — next: Phase 34 (Shield-Version-Detect Design + Firmware Plumbing)
-Plan: 33-04 complete (Wave 4 — firestarter_app Python-side CTRL_* parity + v1.7-SHIELD-REVS.md §7 silkscreen → code alias table populated; ALIAS-01 + ALIAS-02 MET, ALIAS-03 GATE-1.7 preserved Δ = 0 B across all 3 AVR envs)
+Phase: 34 (shield-version-detect-design-firmware-plumbing) — EXECUTING
+Plan: 2 of 7
 Status: Ready to execute
-Last activity: 2026-05-25 -- Phase 34 planning complete
-Resume file: .planning/phases/34-shield-version-detect-design-firmware-plumbing/34-CONTEXT.md
+Last activity: 2026-05-25
+Resume file: None
 
 ## Project Reference
 
@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 33 — silkscreen-label-code-alias-migration (context gathered 2026-05-25)
+**Current focus:** Phase 34 — shield-version-detect-design-firmware-plumbing
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
@@ -314,6 +314,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 33 P02 | ~8min | 3 tasks | 7 files (src/proms/* + hardware_operations.cpp) |
 | Phase 33 P33-03 | ~13min | 4 tasks tasks | 7 files files |
 | Phase 33 P33-04 | ~10min | 2 tasks | 4 files (constants.py + main.py + firestarter_app/CLAUDE.md + .planning/v1.7-SHIELD-REVS.md §7) |
+| Phase Phase 34 PP34-01 | 2m | 3 tasks | 1 files |
 
 ## Decisions
 
@@ -423,6 +424,9 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase 33]: Plan 33-04 (Wave 4) — Phase 33 typo preservation: `argumet` / `sheild` in firestarter_app/firestarter/main.py:405-407 preserved verbatim. Phase 33 is name-only; typo fixes are out of scope.
 - [Phase 33]: Plan 33-04 (Wave 4) — firestarter_app/firestarter/config.py drift carried forward untouched throughout the wave. Pre-existing (predates v1.7 milestone) stylistic early-return refactor stays unstaged on v1.7-shield-investigation; explicit-path staging (NOT `git add .` / `git add -A`) used for all 3 Task 1 files to avoid contamination.
 - [Phase 33]: Plan 33-04 (Wave 4) — Phase 33 closed end-to-end: ALIAS-01 + ALIAS-02 + ALIAS-03 all MET. GATE-1.7 preserved Δ = 0 B across all 3 AVR envs; check-migration.sh post-Wave-4 PASS preserved; pytest 82/82 PASS. Phase 34 next consumes RES_HW_REVISION_DIVIDER + PIN_HW_REVISION_DETECT_ADC for ADC band-table substrate.
+- [Phase ?]: Phase 34 §8 documents EXISTING Anders R41-on-A3 detect-divider scheme — no new operator-fabricated board (D-01); Rev 2.3 (R41=10kΩ) treated as the seed entry to satisfy DETECT-HW-01
+- [Phase ?]: Phase 34 §9 6-column ADC band table per D-11 — Rev 2.0/2.1/2.2 collapsed into broad bucket REVISION_2_0 silkscreen 'Rev 2.0-class' (D-04); REVISION_UNKNOWN=0xFE carved as guard-gap catchall (D-07)
+- [Phase ?]: Phase 34 §9 footnote cross-links firmware threshold constants ADC_BAND_R41_4K7_HIGH=200, ADC_BAND_R41_10K_LOW=220, ADC_BAND_R41_10K_HIGH=600 — Wave 2 declarations in rurp_pinout.h MUST agree with this footnote (doc-mirrors-code contract)
 
 ## Deferred Items (acknowledged at v1.5 close 2026-05-21)
 

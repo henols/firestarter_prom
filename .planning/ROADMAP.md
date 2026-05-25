@@ -130,8 +130,8 @@
 Plans:
 **Wave 1**
 
-- [ ] 34-00-PLAN.md — Wave 0: capture pre-Phase-34 .hex baseline (uno / uno328pb / leonardo) + land executable verify-detect-34.sh delta-band gate (gitignored under .planning/v1.7/baseline-34/)
-- [ ] 34-01-PLAN.md — Wave 1: fill .planning/v1.7-SHIELD-REVS.md §8 (Detect-HW schematic delta — Anders R41-on-A3 ASCII topology + per-rev R41 table per D-01) + §9 (per-rev ADC band table per D-11 6-column schema; DETECT-HW-01 + DETECT-HW-02)
+- [x] 34-00-PLAN.md — Wave 0: capture pre-Phase-34 .hex baseline (uno / uno328pb / leonardo) + land executable verify-detect-34.sh delta-band gate (gitignored under .planning/v1.7/baseline-34/)
+- [x] 34-01-PLAN.md — Wave 1: fill .planning/v1.7-SHIELD-REVS.md §8 (Detect-HW schematic delta — Anders R41-on-A3 ASCII topology + per-rev R41 table per D-01) + §9 (per-rev ADC band table per D-11 6-column schema; DETECT-HW-01 + DETECT-HW-02)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -505,5 +505,5 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 31 (v1.7) | v1.7 | done | ✅ Complete | 2026-05-22 |
 | 32 (v1.7) | v1.7 | 3/3 | ✅ Complete | 2026-05-22 |
 | 33 (v1.7) | v1.7 | 4/5 | In Progress|  |
-| 34 (v1.7) | v1.7 | 0/0 | Not started | — |
+| 34 (v1.7) | v1.7 | 2/7 | In Progress|  |
 | 35 (v1.7 close) | v1.7 | 0/0 | Not started | — |

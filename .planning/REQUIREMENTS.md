@@ -37,8 +37,8 @@
 
 ### Shield-Version-Detect Hardware Design (DETECT-HW)
 
-- [ ] **DETECT-HW-01**: A schematic delta for the next-rev shield (likely Rev 2.3) is designed and documented in `.planning/v1.7-SHIELD-REVS.md`: a resistor divider into an Arduino ADC pin (pin selected to not conflict with any currently-used RURP signal across any known rev; verified against CAPS-01 capability matrix), with rev-specific resistor values that produce clearly distinguishable voltage bands per rev (≥ ~0.3V separation against 10-bit ADC noise floor)
-- [ ] **DETECT-HW-02**: The schematic delta includes a per-rev expected-ADC-band table (rev string → expected ADC value range), suitable for firmware lookup at boot. Initial table seeds the next-rev (Rev 2.3) entry; existing Rev 0 / 2.0 / 2.2 boards have no detect resistor and produce floating/grounded ADC readings — captured in the table as the "rev_unknown" fall-through band.
+- [x] **DETECT-HW-01**: A schematic delta for the next-rev shield (likely Rev 2.3) is designed and documented in `.planning/v1.7-SHIELD-REVS.md`: a resistor divider into an Arduino ADC pin (pin selected to not conflict with any currently-used RURP signal across any known rev; verified against CAPS-01 capability matrix), with rev-specific resistor values that produce clearly distinguishable voltage bands per rev (≥ ~0.3V separation against 10-bit ADC noise floor)
+- [x] **DETECT-HW-02**: The schematic delta includes a per-rev expected-ADC-band table (rev string → expected ADC value range), suitable for firmware lookup at boot. Initial table seeds the next-rev (Rev 2.3) entry; existing Rev 0 / 2.0 / 2.2 boards have no detect resistor and produce floating/grounded ADC readings — captured in the table as the "rev_unknown" fall-through band.
 
 ### Shield-Version-Detect Firmware Plumbing (DETECT-FW)
 
