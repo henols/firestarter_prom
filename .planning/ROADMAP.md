@@ -102,9 +102,9 @@
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 33-02-PLAN.md — Wave 2: rename ~46 call-sites across src/proms/{eprom,flash_intel,memory,flash_type_4,eeprom_28c,flash_utils}.cpp + src/hardware_operations.cpp
+- [x] 33-02-PLAN.md — Wave 2: rename ~46 call-sites across src/proms/{eprom,flash_intel,memory,flash_type_4,eeprom_28c,flash_utils}.cpp + src/hardware_operations.cpp — **COMPLETE 2026-05-25** (7 files modified; 46 lines renamed; per-file #include rurp_pinout.h added; load-bearing aliasing comment at memory.cpp:142-144 refreshed; check-migration.sh post-Wave-2 33 hits remaining (-38 from Wave 1) all in Wave 3 targets; GATE-1.7 .hex byte-identical preserved for uno/uno328pb/leonardo)
 
-**Wave 3** *(blocked on Wave 2 completion)*
+**Wave 3** *(unblocked 2026-05-25 — Wave 2 complete)*
 
 - [ ] 33-03-PLAN.md — Wave 3: rename include/rurp_hw_rev_utils.h dispatcher + include/rurp_register_utils.h + src/boards/{uno_rurp_shield,rurp_common}.cpp + test/native/avr/test_flash_intel_vpp.cpp + REMOVE transient shim from rurp_pinout.h (final D-06 enforcement + GATE-1.7 cmp gate)
 

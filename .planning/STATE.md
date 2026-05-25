@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: — RURP Shield Hardware Investigation & Version Detection
 status: completed
-last_updated: "2026-05-25T11:26:17.666Z"
-last_activity: 2026-05-25 -- Phase 33 Plan 01 complete (rurp_pinout.h alias substrate + CLAUDE.md refresh; Wave 1 .hex byte-identical, D-06 preserved)
+last_updated: "2026-05-25T12:00:00.000Z"
+last_activity: 2026-05-25 -- Phase 33 Plan 02 complete (Wave 2 call-site migration in src/proms/* + hardware_operations.cpp; 46 lines renamed across 7 files; .hex byte-identical, D-06 preserved)
 progress:
   total_phases: 10
   completed_phases: 6
-  total_plans: 21
-  completed_plans: 18
-  percent: 60
+  total_plans: 22
+  completed_plans: 19
+  percent: 63
 ---
 
 # Project State
@@ -21,9 +21,9 @@ progress:
 ## Current Position
 
 Phase: 33
-Plan: 33-01 complete (rurp_pinout.h Wave 1 substrate landed) — next: 33-02 (Wave 2 — call-site migration in src/proms/* + hardware_operations.cpp)
-Status: Plan 33-01 complete; Wave 1 .hex byte-identical to baseline; D-06 preserved (rurp_shield.h:25-94 unchanged); ready for Wave 2 call-site migration
-Last activity: 2026-05-25 -- Phase 33 Plan 01 complete (rurp_pinout.h alias substrate + CLAUDE.md refresh; Wave 1 .hex byte-identical, D-06 preserved)
+Plan: 33-02 complete (Wave 2 src/proms/* + hardware_operations.cpp migrated to CTRL_*) — next: 33-03 (Wave 3 — remaining include/rurp_*_utils.h, src/boards/, test/native/, plus atomic D-06 deletion of rurp_shield.h:25-94)
+Status: Plan 33-02 complete; Wave 2 .hex byte-identical to baseline for all 3 envs; D-06 preserved (rurp_shield.h:25-94 unchanged); 33 remaining old-name hits concentrated in Wave 3 targets only
+Last activity: 2026-05-25 -- Phase 33 Plan 02 complete (Wave 2 call-site migration in src/proms/* + hardware_operations.cpp; 46 lines renamed across 7 files; .hex byte-identical, D-06 preserved)
 Resume file: None
 
 ## Project Reference
@@ -311,6 +311,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 29 P1 | 12min | 5 tasks | 3 files |
 | Phase 33 P00 | ~4min | 2 tasks | 5 files (all gitignored under .planning/v1.7/) |
 | Phase 33 P01 | 10min | 3 tasks | 2 files |
+| Phase 33 P02 | ~8min | 3 tasks | 7 files (src/proms/* + hardware_operations.cpp) |
 
 ## Decisions
 
@@ -409,6 +410,10 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase 33]: Plan 33-00: All Plan 33-00 work-product (3 baseline .hex + BASELINE_COMMIT.txt + check-migration.sh) lives under gitignored `.planning/v1.7/phase-33-baseline-hex/` per Phase 31 D-11 — no git history beyond the SUMMARY/STATE/ROADMAP commit. The pre-rename `check-migration.sh` exit-1 with `FAIL: Assertion 1 — found 71 non-comment references` is the documented load-bearing proof per the plan's `<verification>` block ("expect FAIL on Assertion 1 — proves the gate is wired correctly").
 - [Phase ?]: Phase 33 Plan 01 (Wave 1) — D-06 enforced: NO shim block in rurp_pinout.h; old #defines in rurp_shield.h:25-94 unchanged, serve as backward-compat substrate until Wave 3 atomic deletion
 - [Phase ?]: Phase 33 Wave 1 namespace split locked: CTRL_* (control-register bits) + PIN_* (Arduino-pin assignments); RES_* / JMP_* reserved §7-table-only (no Phase 33 firmware declarations)
+- [Phase 33]: Plan 33-02 (Wave 2) — per-file `#include "rurp_pinout.h"` strategy adopted directly because rurp_shield.h does not yet transitively include rurp_pinout.h (that lands in Wave 3 final task atomic edit alongside the :25-94 deletion). Files that already include rurp_shield.h add adjacent; files using transitive chains via flash_utils.h (flash_type_4, eeprom_28c) add adjacent to operation_utils.h.
+- [Phase 33]: Plan 33-02 (Wave 2) — CONTROL_REGISTER preserved verbatim in hardware_operations.cpp:27/:30. 74HC573 latch selector (rurp_shield.h:108) is in a different semantic layer than the `CTRL_*` namespace and is out of scope per D-03 alias-scoping + RESEARCH Anti-Patterns bullet.
+- [Phase 33]: Plan 33-02 (Wave 2) — Load-bearing aliasing comment at memory.cpp:142-144 refreshed to use new CTRL_* names ("CTRL_VPP_VPE_DROP_ENABLE and CTRL_ADDRESS_LINE_16 share the same CONTROL bit"). Pitfall 1 documentation honored under new namespace.
+- [Phase 33]: Plan 33-02 (Wave 2) — Post-wave hit count progression: 71 (Wave 1) → 33 (Wave 2; -38). All 33 remaining hits concentrated in 5 known Wave 3 targets (rurp_shield.h 16, rurp_hw_rev_utils.h 8, test_flash_intel_vpp.cpp 7, rurp_common.cpp 1, rurp_register_utils.h 1). GATE-1.7 ALIAS-03 cmp byte-identical preserved for all 3 envs.
 
 ## Deferred Items (acknowledged at v1.5 close 2026-05-21)
 
