@@ -36,7 +36,7 @@
 - [x] **Phase 31: Upstream Shield Archaeology** — Clone upstream `AndersBNielsen/Relatively-Universal-ROM-Programmer`; mine git history for all shield revisions (Rev 0, Rev 1, Rev 2.0, Rev 2.2, plus any others); per-rev silkscreen-version capture; photograph operator's three on-hand boards; populate `.planning/v1.7-SHIELD-REVS.md` inventory section. (completed 2026-05-22)
 - [x] **Phase 32: Inter-Rev Difference + Capability Matrix** — Per-rev electrical/mechanical difference table (pinout, VPP regulator wiring, voltage divider values, jumpers, control-line routing, rework hacks); per-rev capability matrix (chip families, max VPP/VCC, address-bus width, supported algorithms); cross-check capabilities against firmware code. (completed 2026-05-25)
 - [x] **Phase 33: Silkscreen Label → Code Alias Migration** — Inventory every silkscreen label across all known revs; propose code-side alias namespace (`PIN_<SUBSYSTEM>_<FUNCTION>`); apply aliases to `firestarter/include/` + `firestarter_app/firestarter/constants.py`; migrate existing call-sites; GATE-1.7 non-regression preserved (compiled `.hex` byte-identical modulo trivial symbol-name overhead). (completed 2026-05-25 — 4-namespace lock CTRL_/PIN_/RES_/JMP_; firmware migration + atomic D-06 delete; Python parity; §7 canonical alias table 17 rows; Δ = 0 B across all 3 AVR envs)
-- [ ] **Phase 34: Shield-Version-Detect Design + Firmware Plumbing** — Schematic delta for next-rev shield (resistor divider into Arduino ADC pin not conflicting with any current RURP signal); per-rev voltage-band lookup table; firmware ADC read at boot + handshake report; backward-compat fall-through for pre-detect-resistor boards (Rev 0 / 2.0 / 2.2 → `rev_unknown` + EEPROM `hw_revision` byte fallback).
+- [x] **Phase 34: Shield-Version-Detect Design + Firmware Plumbing** — Schematic delta for next-rev shield (resistor divider into Arduino ADC pin not conflicting with any current RURP signal); per-rev voltage-band lookup table; firmware ADC read at boot + handshake report; backward-compat fall-through for pre-detect-resistor boards (Rev 0 / 2.0 / 2.2 → `rev_unknown` + EEPROM `hw_revision` byte fallback). (completed 2026-05-25)
 - [ ] **Phase 35: Documentation + Milestone Close** — Finalize `.planning/v1.7-SHIELD-REVS.md`; README updates in both sub-repos cross-link to it; PROJECT.md "Validated" section updates; MILESTONES.md entry; archive `.planning/milestones/v1.7-phases/`.
 
 ### Phase Details
@@ -126,7 +126,7 @@
   3. Firmware reads the ADC pin at boot (or on first handshake), looks up the voltage band in the table, and reports the detected silkscreen-rev string in the handshake payload. Exact wire shape (extend `MSG_OK_FW_HANDSHAKE` or add a sibling INFO emit) finalized at plan time.
   4. On pre-detect-resistor boards (floating/grounded ADC), the report is `rev_unknown` and firmware continues to honor the operator-configured `hw_revision` byte in EEPROM (existing behavior preserved). GATE-1.7 non-regression: existing pre-detect-resistor boards handshake byte-identical to v1.6 baseline modulo the additive `rev_unknown` report (documented in the fix-commit message). Chip programming + read paths byte-identical. Firmware compiles cleanly for all three board targets without requiring physical fabrication of the next-rev shield.
 
-**Plans:** 7 plans (Wave 0: baseline+verify-harness; Wave 1: meta-repo §8/§9 doc fills; Wave 2: firestarter sub-repo enum extension + threshold constants + detect-rev rework + delta-band gate + meta-repo sub-repo bump; Wave 3: firestarter_app sub-repo Python parity + serial_comm silkscreen mapping + meta-repo sub-repo bump)
+**Plans:** 7/7 plans complete
 Plans:
 **Wave 1**
 
@@ -505,5 +505,5 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 31 (v1.7) | v1.7 | done | ✅ Complete | 2026-05-22 |
 | 32 (v1.7) | v1.7 | 3/3 | ✅ Complete | 2026-05-22 |
 | 33 (v1.7) | v1.7 | 4/5 | In Progress|  |
-| 34 (v1.7) | v1.7 | 7/7 | Complete   | 2026-05-25 |
+| 34 (v1.7) | v1.7 | 7/7 | Complete    | 2026-05-25 |
 | 35 (v1.7 close) | v1.7 | 0/0 | Not started | — |
