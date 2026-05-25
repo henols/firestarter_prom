@@ -97,7 +97,7 @@
 
 **Wave 1**
 
-- [ ] 33-00-PLAN.md — Wave 0: capture pre-rename .hex baseline for uno / uno328pb / leonardo + check-migration.sh verifier (gitignored under .planning/v1.7/)
+- [x] 33-00-PLAN.md — Wave 0: capture pre-rename .hex baseline for uno / uno328pb / leonardo + check-migration.sh verifier (gitignored under .planning/v1.7/) — **COMPLETE 2026-05-25** (baseline SHA `bc0f5ac`; uno 62617 B / uno328pb 62854 B / leonardo 68876 B; check-migration.sh pre-rename returns exit-1 with `FAIL: Assertion 1 — 71 non-comment old-name hits` per design)
 - [ ] 33-01-PLAN.md — Wave 1: create firestarter/include/rurp_pinout.h (CTRL_*/PIN_*/RES_*/JMP_* namespaces + transient shim) + rewrite rurp_shield.h to #include it + refresh firestarter/CLAUDE.md §Constants
 
 **Wave 2** *(blocked on Wave 1 completion)*
@@ -484,3 +484,8 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 28 | v1.6 | 2/2 | Complete    | 2026-05-21 |
 | 29 | v1.6 | 1/2 | In Progress|  |
 | 30 (close) | v1.6 | 0/0 | Not started | — |
+| 31 (v1.7) | v1.7 | done | ✅ Complete | 2026-05-22 |
+| 32 (v1.7) | v1.7 | 3/3 | ✅ Complete | 2026-05-22 |
+| 33 (v1.7) | v1.7 | 1/5 | In Progress | — (33-00 baseline + verifier shipped 2026-05-25) |
+| 34 (v1.7) | v1.7 | 0/0 | Not started | — |
+| 35 (v1.7 close) | v1.7 | 0/0 | Not started | — |

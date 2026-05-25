@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: — RURP Shield Hardware Investigation & Version Detection
 status: executing
-last_updated: "2026-05-25T10:53:24.322Z"
-last_activity: 2026-05-25 -- Phase 33 planning complete
+last_updated: "2026-05-25T11:12:46Z"
+last_activity: 2026-05-25 -- Phase 33 Plan 00 complete (baseline .hex + check-migration.sh)
 progress:
   total_phases: 10
   completed_phases: 6
   total_plans: 21
-  completed_plans: 16
-  percent: 60
+  completed_plans: 18
+  percent: 62
 ---
 
 # Project State
@@ -21,10 +21,10 @@ progress:
 ## Current Position
 
 Phase: 33
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-05-25 -- Phase 33 planning complete
-Resume file: .planning/phases/33-silkscreen-label-code-alias-migration/33-CONTEXT.md
+Plan: 33-00 complete (baseline + verifier landed) — next: 33-01 (rename wave 1, planner-decided shape)
+Status: Plan 33-00 complete; substrate ready for subsequent rename waves
+Last activity: 2026-05-25 -- Phase 33 Plan 00 complete (baseline .hex captured for uno/uno328pb/leonardo; BASELINE_COMMIT.txt bc0f5ac; check-migration.sh landed with documented pre-rename Assertion-1 FAIL proof)
+Resume file: .planning/phases/33-silkscreen-label-code-alias-migration/33-00-SUMMARY.md
 
 ## Project Reference
 
@@ -309,6 +309,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 23 P23-02 | ~3min | 3 tasks | 2 files |
 | Phase 26 P01 | 5min | 2 tasks | 3 files |
 | Phase 29 P1 | 12min | 5 tasks | 3 files |
+| Phase 33 P00 | ~4min | 2 tasks | 5 files (all gitignored under .planning/v1.7/) |
 
 ## Decisions
 
@@ -401,6 +402,10 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase 29]: Plan 29-01: firestarter_app v1.6-read-bug branch tip is 999c3cc (NOT c057fe2 as CONTEXT.md D-02 lists); 999c3cc is the GREEN feat commit carrying dev consistency-check implementation, c057fe2 is the RED-scaffold one commit prior. RESEARCH.md authoritative; downstream phases should treat 999c3cc as canonical.
 - [Phase 29]: Plan 29-01: Captured per-board build SHA-256s at firestarter/v1.6-read-bug commit 4f205e58 (uno=5e7f393a..., leonardo=2619eea6..., uno328pb=d9e51b7e...) for Wave B + Phase 30 byte-equivalence cross-reference; full hashes in v1.6-EVIDENCE.md build-hash table.
 - [Phase 29]: Plan 29-01: firestarter_app/firestarter/config.py working-tree drift dispositioned 'proceed with editable install' — stylistic early-return refactor (functionally equivalent); pytest gate green (8 passed) confirms no functional regression.
+- [Phase 33]: Plan 33-00: Pre-rename baseline captured at firestarter HEAD `bc0f5ac05b37c94eb7ddc706f65dbdc94c47899e` (v1.7-shield-investigation tip on 2026-05-25). Per-board .hex sizes — uno 62617 B / uno328pb 62854 B / leonardo 68876 B (total 194347 B); Wave-3 post-rename cmp targets these byte-for-byte modulo ≤ ~50 B ALIAS-03 reserve.
+- [Phase 33]: Plan 33-00: check-migration.sh Assertion-1 uses comment-line filter `grep -v '^[^:]*:[0-9]*:[[:space:]]*//'` to strip `//`-prefixed doc-line hits per Open Q4 / Pattern H — gives historical comment refresh flexibility while still firing on functional call-sites. Raw grep returns 82 hits; filtered grep returns 71 (well above the 0-hit post-rename target).
+- [Phase 33]: Plan 33-00: Assertion 2 (REV_[12]_* prefix family) explicitly excludes `REVISION_*` per D-03 — `REVISION_0` / `REVISION_1` / `REVISION_2_0..2_2` enum values are NOT renamed (they're revision-enum values, not RURP-signal aliases). `grep -v 'REVISION_'` preserves the enum block at `rurp_shield.h:37-41` cleanly through migration.
+- [Phase 33]: Plan 33-00: All Plan 33-00 work-product (3 baseline .hex + BASELINE_COMMIT.txt + check-migration.sh) lives under gitignored `.planning/v1.7/phase-33-baseline-hex/` per Phase 31 D-11 — no git history beyond the SUMMARY/STATE/ROADMAP commit. The pre-rename `check-migration.sh` exit-1 with `FAIL: Assertion 1 — found 71 non-comment references` is the documented load-bearing proof per the plan's `<verification>` block ("expect FAIL on Assertion 1 — proves the gate is wired correctly").
 
 ## Deferred Items (acknowledged at v1.5 close 2026-05-21)
 
