@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: — RURP Shield Hardware Investigation & Version Detection
 status: executing
-last_updated: "2026-05-25T13:57:58.672Z"
+last_updated: "2026-05-25T14:06:08.735Z"
 last_activity: 2026-05-25
 progress:
   total_phases: 10
   completed_phases: 7
   total_plans: 28
-  completed_plans: 25
+  completed_plans: 26
   percent: 70
 ---
 
@@ -21,7 +21,7 @@ progress:
 ## Current Position
 
 Phase: 34 (shield-version-detect-design-firmware-plumbing) — EXECUTING
-Plan: 4 of 7
+Plan: 5 of 7
 Status: Ready to execute
 Last activity: 2026-05-25
 Resume file: None
@@ -317,6 +317,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase Phase 34 PP34-01 | 2m | 3 tasks | 1 files |
 | Phase 34 P02 | 6min | 1 tasks | 1 files |
 | Phase 34 P03 | ~10min | 3 tasks | 2 files |
+| Phase Phase 34 PP04 | 5min | 2 tasks | 2 files |
 
 ## Decisions
 
@@ -432,6 +433,8 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase ?]: Phase 34 Plan 02: REVISION_2_3=5 + REVISION_UNKNOWN=0xFE landed in firestarter/include/rurp_shield.h (D-07; firestarter@b243fb4)
 - [Phase ?]: D-07 sentinel carve-out: 0xFE=REVISION_UNKNOWN, 0xFF stays reserved for EEPROM-override-absent sentinel
 - [Phase ?]: Phase 34 Plan 03: post-rework .hex deltas are NEGATIVE (uno -299, uno328pb -454, leonardo -491 B) vs RESEARCH-projected [+20, +300] band; root cause = digitalRead(A3) → analog_read_avg8(A3) removes wiring_digital code path; Plan 34-04 owns reconciliation
+- [Phase ?]: Plan 34-04: Widened verify-detect-34.sh delta-band from signed [+20, +300] B to magnitude band abs(Δ) <= 600 B per env (Option B from 34-03-SUMMARY.md). Cleaner formulation; D-10 only promised bounded magnitude not bounded sign. 600 B covers Plan 03's largest observed delta (leonardo −491 B) with headroom.
+- [Phase ?]: Plan 34-04: Meta-repo firestarter submodule pointer bumped from baseline-34 SHA 2707f8cb to Plan-03-HEAD SHA 032a2e2 in commit a8805b0 — subsumes Plan 02 (REVISION_2_3 + REVISION_UNKNOWN enum extension) + Plan 03 (ADC band-lookup detect-rev rework). DETECT-FW-01 + DETECT-FW-02 GATE-1.7 PASS anchored in meta-repo history.
 
 ## Deferred Items (acknowledged at v1.5 close 2026-05-21)
 
