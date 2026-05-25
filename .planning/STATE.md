@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: — RURP Shield Hardware Investigation & Version Detection
-status: completed
-last_updated: "2026-05-25T12:02:42Z"
-last_activity: "2026-05-25 -- Phase 33 Plan 04 complete (Wave 4 — Python-side CTRL_* parity in firestarter_app + .planning/v1.7-SHIELD-REVS.md §7 silkscreen → code alias table filled with 17 rows across CTRL_/PIN_/RES_/JMP_ namespaces; ALIAS-01 + ALIAS-02 + ALIAS-03 all MET; Phase 33 CLOSED; check-migration.sh post-Wave-4 PASS preserved)"
+status: planning
+last_updated: "2026-05-25T12:39:54.198Z"
+last_activity: 2026-05-25 -- Phase 33 Plan 04 complete (Wave 4 — Python parity + §7 fill; Phase 33 CLOSED; ALIAS-01 + ALIAS-02 + ALIAS-03 all MET)
 progress:
   total_phases: 10
   completed_phases: 7
@@ -24,7 +24,7 @@ Phase: 33 COMPLETE (silkscreen-label-code-alias-migration) — next: Phase 34 (S
 Plan: 33-04 complete (Wave 4 — firestarter_app Python-side CTRL_* parity + v1.7-SHIELD-REVS.md §7 silkscreen → code alias table populated; ALIAS-01 + ALIAS-02 MET, ALIAS-03 GATE-1.7 preserved Δ = 0 B across all 3 AVR envs)
 Status: Phase 33 closed. ALIAS-01 + ALIAS-02 + ALIAS-03 all MET. firestarter_app/firestarter/constants.py mirrors rurp_pinout.h CTRL_* bits; main.py argparse docstring refreshed; firestarter_app/CLAUDE.md sync rule extended; .planning/v1.7-SHIELD-REVS.md §7 populated with 17-row 12-column canonical alias table (13 CTRL_* / 2 PIN_* / 1 RES_* / 1 JMP_*); D-09 sentinels honored. check-migration.sh post-Wave-4 PASS. pytest 82/82 green. config.py drift preserved.
 Last activity: 2026-05-25 -- Phase 33 Plan 04 complete (Wave 4 — Python parity + §7 fill; Phase 33 CLOSED; ALIAS-01 + ALIAS-02 + ALIAS-03 all MET)
-Resume file: None
+Resume file: .planning/phases/34-shield-version-detect-design-firmware-plumbing/34-CONTEXT.md
 
 ## Project Reference
 
