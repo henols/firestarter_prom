@@ -142,7 +142,7 @@ Plans:
 **Wave 3** *(blocked on Wave 2 completion)*
 
 - [x] 34-05-PLAN.md — Wave 3: add # RURP Hardware Revisions block (7 REVISION_* constants) to firestarter_app/firestarter/constants.py + extend firestarter_app/CLAUDE.md sync rule + land firestarter_app/tests/test_revision_constants_parity.py hard pytest gate (D-08; VALIDATION Dim 3 + Dim 6 stronger coverage)
-- [ ] 34-06-PLAN.md — Wave 3: add _REVISION_SILKSCREEN dict to firestarter_app/firestarter/serial_comm.py + extend _format_message MSG_OK_REV branch with defensive .get() rendering (D-05 Path A; D-09 wire shape unchanged) + bump meta-repo firestarter_app submodule pointer (Phase 34 desk-side scope CLOSED; Phase 35 owns operator-on-bench + milestone close)
+- [x] 34-06-PLAN.md — Wave 3: add _REVISION_SILKSCREEN dict to firestarter_app/firestarter/serial_comm.py + extend _format_message MSG_OK_REV branch with defensive .get() rendering (D-05 Path A; D-09 wire shape unchanged) + bump meta-repo firestarter_app submodule pointer (Phase 34 desk-side scope CLOSED; Phase 35 owns operator-on-bench + milestone close)
 
 **UI hint:** no
 
@@ -505,5 +505,5 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 31 (v1.7) | v1.7 | done | ✅ Complete | 2026-05-22 |
 | 32 (v1.7) | v1.7 | 3/3 | ✅ Complete | 2026-05-22 |
 | 33 (v1.7) | v1.7 | 4/5 | In Progress|  |
-| 34 (v1.7) | v1.7 | 6/7 | In Progress|  |
+| 34 (v1.7) | v1.7 | 7/7 | Complete   | 2026-05-25 |
 | 35 (v1.7 close) | v1.7 | 0/0 | Not started | — |
