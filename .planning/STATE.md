@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: — RURP Shield Hardware Investigation & Version Detection
 status: completed
-last_updated: "2026-05-25T11:55:59.890Z"
-last_activity: "2026-05-25 -- Phase 33 Plan 03 complete (Wave 3 final-task atomic D-06 delete of rurp_shield.h:25-94 + 6 firmware file migrations; 7 files modified; .hex byte-identical for all 3 AVR envs; GATE-1.7 ALIAS-03 + check-migration.sh PASS)"
+last_updated: "2026-05-25T12:02:42Z"
+last_activity: "2026-05-25 -- Phase 33 Plan 04 complete (Wave 4 — Python-side CTRL_* parity in firestarter_app + .planning/v1.7-SHIELD-REVS.md §7 silkscreen → code alias table filled with 17 rows across CTRL_/PIN_/RES_/JMP_ namespaces; ALIAS-01 + ALIAS-02 + ALIAS-03 all MET; Phase 33 CLOSED; check-migration.sh post-Wave-4 PASS preserved)"
 progress:
   total_phases: 10
-  completed_phases: 6
-  total_plans: 22
-  completed_plans: 20
-  percent: 63
+  completed_phases: 7
+  total_plans: 21
+  completed_plans: 21
+  percent: 70
 ---
 
 # Project State
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 33
-Plan: 33-03 complete (Wave 3 — atomic D-06 delete of rurp_shield.h:25-94 + migrations of rurp_hw_rev_utils.h dispatcher + rurp_register_utils.h settle-check + 2 board adapters + native test) — next: 33-04 (Wave 4 — Python-side mirror + §7 fill)
-Status: Plan 33-03 complete; firmware-side ALIAS-02 + ALIAS-03 MET; check-migration.sh PASS for all 3 assertions; .hex byte-identical for all 3 AVR envs (Δ = 0 B); pio test -e native 20/20 PASS; D-06 hard-rename fully enforced atomically
-Last activity: 2026-05-25 -- Phase 33 Plan 03 complete (Wave 3 final-task atomic D-06 delete of rurp_shield.h:25-94 + 6 firmware file migrations; 7 files modified; .hex byte-identical for all 3 AVR envs; GATE-1.7 ALIAS-03 + check-migration.sh PASS)
+Phase: 33 COMPLETE (silkscreen-label-code-alias-migration) — next: Phase 34 (Shield-Version-Detect Design + Firmware Plumbing)
+Plan: 33-04 complete (Wave 4 — firestarter_app Python-side CTRL_* parity + v1.7-SHIELD-REVS.md §7 silkscreen → code alias table populated; ALIAS-01 + ALIAS-02 MET, ALIAS-03 GATE-1.7 preserved Δ = 0 B across all 3 AVR envs)
+Status: Phase 33 closed. ALIAS-01 + ALIAS-02 + ALIAS-03 all MET. firestarter_app/firestarter/constants.py mirrors rurp_pinout.h CTRL_* bits; main.py argparse docstring refreshed; firestarter_app/CLAUDE.md sync rule extended; .planning/v1.7-SHIELD-REVS.md §7 populated with 17-row 12-column canonical alias table (13 CTRL_* / 2 PIN_* / 1 RES_* / 1 JMP_*); D-09 sentinels honored. check-migration.sh post-Wave-4 PASS. pytest 82/82 green. config.py drift preserved.
+Last activity: 2026-05-25 -- Phase 33 Plan 04 complete (Wave 4 — Python parity + §7 fill; Phase 33 CLOSED; ALIAS-01 + ALIAS-02 + ALIAS-03 all MET)
 Resume file: None
 
 ## Project Reference
@@ -313,6 +313,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 33 P01 | 10min | 3 tasks | 2 files |
 | Phase 33 P02 | ~8min | 3 tasks | 7 files (src/proms/* + hardware_operations.cpp) |
 | Phase 33 P33-03 | ~13min | 4 tasks tasks | 7 files files |
+| Phase 33 P33-04 | ~10min | 2 tasks | 4 files (constants.py + main.py + firestarter_app/CLAUDE.md + .planning/v1.7-SHIELD-REVS.md §7) |
 
 ## Decisions
 
@@ -416,6 +417,12 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase 33]: Plan 33-02 (Wave 2) — Load-bearing aliasing comment at memory.cpp:142-144 refreshed to use new CTRL_* names ("CTRL_VPP_VPE_DROP_ENABLE and CTRL_ADDRESS_LINE_16 share the same CONTROL bit"). Pitfall 1 documentation honored under new namespace.
 - [Phase 33]: Plan 33-02 (Wave 2) — Post-wave hit count progression: 71 (Wave 1) → 33 (Wave 2; -38). All 33 remaining hits concentrated in 5 known Wave 3 targets (rurp_shield.h 16, rurp_hw_rev_utils.h 8, test_flash_intel_vpp.cpp 7, rurp_common.cpp 1, rurp_register_utils.h 1). GATE-1.7 ALIAS-03 cmp byte-identical preserved for all 3 envs.
 - [Phase ?]: Phase 33 Plan 03 (Wave 3): D-06 atomic delete of rurp_shield.h:25-94 executed in one commit; latent rurp_pinout.h Arduino.h bracketing bug fixed (Rule 1) as part of same atomic delete commit
+- [Phase 33]: Plan 33-04 (Wave 4) — ALIAS-01 namespace lock honored: §7 table fills with 17 rows covering 4-way namespace (13 CTRL_* / 2 PIN_* / 1 RES_* / 1 JMP_*); every canonical_alias matches ^(CTRL|PIN|RES|JMP)_[A-Z0-9_]+$ regex (Open Question Q1 lock).
+- [Phase 33]: Plan 33-04 (Wave 4) — D-09 sentinel split honored: 15 rows carry `(inherits Rev 0)` (control-register bits + Arduino pins — rework is hand-wire-level, not control-register-layout-level); 2 rows (R41 + JP4 — physical shield designators) carry `as-modified — pending Phase 35` (rework MAY have touched these designators — full trace pending Phase 35 follow-up #4).
+- [Phase 33]: Plan 33-04 (Wave 4) — Python-side parity is documentary-only (Python doesn't write the control register; firmware owns that). Hex values in constants.RURP_CONTROL_REGISTER_BITS match the HARDWARE_REVISION wide layout (CTRL_VPP_VPE_DROP_ENABLE = 0x100) since that's what the host docstring authoritatively documents for `firestarter dev reg --firestarter`.
+- [Phase 33]: Plan 33-04 (Wave 4) — Phase 33 typo preservation: `argumet` / `sheild` in firestarter_app/firestarter/main.py:405-407 preserved verbatim. Phase 33 is name-only; typo fixes are out of scope.
+- [Phase 33]: Plan 33-04 (Wave 4) — firestarter_app/firestarter/config.py drift carried forward untouched throughout the wave. Pre-existing (predates v1.7 milestone) stylistic early-return refactor stays unstaged on v1.7-shield-investigation; explicit-path staging (NOT `git add .` / `git add -A`) used for all 3 Task 1 files to avoid contamination.
+- [Phase 33]: Plan 33-04 (Wave 4) — Phase 33 closed end-to-end: ALIAS-01 + ALIAS-02 + ALIAS-03 all MET. GATE-1.7 preserved Δ = 0 B across all 3 AVR envs; check-migration.sh post-Wave-4 PASS preserved; pytest 82/82 PASS. Phase 34 next consumes RES_HW_REVISION_DIVIDER + PIN_HW_REVISION_DETECT_ADC for ADC band-table substrate.
 
 ## Deferred Items (acknowledged at v1.5 close 2026-05-21)
 

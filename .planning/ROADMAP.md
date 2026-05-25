@@ -35,7 +35,7 @@
 
 - [x] **Phase 31: Upstream Shield Archaeology** — Clone upstream `AndersBNielsen/Relatively-Universal-ROM-Programmer`; mine git history for all shield revisions (Rev 0, Rev 1, Rev 2.0, Rev 2.2, plus any others); per-rev silkscreen-version capture; photograph operator's three on-hand boards; populate `.planning/v1.7-SHIELD-REVS.md` inventory section. (completed 2026-05-22)
 - [x] **Phase 32: Inter-Rev Difference + Capability Matrix** — Per-rev electrical/mechanical difference table (pinout, VPP regulator wiring, voltage divider values, jumpers, control-line routing, rework hacks); per-rev capability matrix (chip families, max VPP/VCC, address-bus width, supported algorithms); cross-check capabilities against firmware code. (completed 2026-05-25)
-- [ ] **Phase 33: Silkscreen Label → Code Alias Migration** — Inventory every silkscreen label across all known revs; propose code-side alias namespace (`PIN_<SUBSYSTEM>_<FUNCTION>`); apply aliases to `firestarter/include/` + `firestarter_app/firestarter/constants.py`; migrate existing call-sites; GATE-1.7 non-regression preserved (compiled `.hex` byte-identical modulo trivial symbol-name overhead).
+- [x] **Phase 33: Silkscreen Label → Code Alias Migration** — Inventory every silkscreen label across all known revs; propose code-side alias namespace (`PIN_<SUBSYSTEM>_<FUNCTION>`); apply aliases to `firestarter/include/` + `firestarter_app/firestarter/constants.py`; migrate existing call-sites; GATE-1.7 non-regression preserved (compiled `.hex` byte-identical modulo trivial symbol-name overhead). (completed 2026-05-25 — 4-namespace lock CTRL_/PIN_/RES_/JMP_; firmware migration + atomic D-06 delete; Python parity; §7 canonical alias table 17 rows; Δ = 0 B across all 3 AVR envs)
 - [ ] **Phase 34: Shield-Version-Detect Design + Firmware Plumbing** — Schematic delta for next-rev shield (resistor divider into Arduino ADC pin not conflicting with any current RURP signal); per-rev voltage-band lookup table; firmware ADC read at boot + handshake report; backward-compat fall-through for pre-detect-resistor boards (Rev 0 / 2.0 / 2.2 → `rev_unknown` + EEPROM `hw_revision` byte fallback).
 - [ ] **Phase 35: Documentation + Milestone Close** — Finalize `.planning/v1.7-SHIELD-REVS.md`; README updates in both sub-repos cross-link to it; PROJECT.md "Validated" section updates; MILESTONES.md entry; archive `.planning/milestones/v1.7-phases/`.
 
@@ -110,7 +110,7 @@
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 33-04-PLAN.md — Wave 4: Python parity (constants.py RURP_CONTROL_REGISTER_BITS block + main.py:408-416 docstring + firestarter_app/CLAUDE.md sync rule extension) + fill .planning/v1.7-SHIELD-REVS.md §7 canonical alias table (≥16 rows × 12 cols; ALIAS-01)
+- [x] 33-04-PLAN.md — Wave 4: Python parity (constants.py RURP_CONTROL_REGISTER_BITS block + main.py:408-416 docstring + firestarter_app/CLAUDE.md sync rule extension) + fill .planning/v1.7-SHIELD-REVS.md §7 canonical alias table (≥16 rows × 12 cols; ALIAS-01) — **COMPLETE 2026-05-25** (3 firestarter_app files + 1 meta-repo doc fill; §7 populated with 17 data rows across 4-namespace split — 13 CTRL_* / 2 PIN_* / 1 RES_* / 1 JMP_*; D-09 sentinels honored; ALIAS-01 + ALIAS-02 MET; GATE-1.7 ALIAS-03 preserved Δ = 0 B; pytest 82/82 PASS; check-migration.sh PASS; Phase 33 CLOSED end-to-end)
 
 **UI hint:** no
 
