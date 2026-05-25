@@ -32,8 +32,8 @@
 ### Label → Code Alias Migration (ALIAS)
 
 - [ ] **ALIAS-01**: Every silkscreen label across all known revs is inventoried (e.g. `VPP`, `VPP_EN`, `WE`, `OE`, `CE`, `A0`..`A18`, `D0`..`D7`, `VCC`, `GND`, etc.) and recorded in a single canonical table in `.planning/v1.7-SHIELD-REVS.md`. The table maps silkscreen label → proposed code-side alias (descriptive identifier suitable for use in C++ + Python source). Alias naming convention: `PIN_<SUBSYSTEM>_<FUNCTION>` (e.g. `PIN_VPP_REGULATOR_ENABLE`, `PIN_DATA_BUS_BYTE_0`, `PIN_ADDRESS_BUS_A14`).
-- [ ] **ALIAS-02**: Aliases land as `#define` / `constexpr` declarations in `firestarter/include/rurp_pinout.h` (or equivalent header — fixed at plan time) and as constants in `firestarter_app/firestarter/constants.py` (or equivalent module). Existing call-sites that use bare pin numbers or shield-specific net names are migrated to the aliases. The migration is name-only — no wire-format or behavior changes.
-- [ ] **ALIAS-03**: GATE-1.7 non-regression — after the alias migration, compiled firmware `.hex` artifacts for all three boards (`uno`, `leonardo`, `uno328pb`) are byte-identical to pre-migration (modulo trivial symbol-name overhead, ≤ ~50 B). Pytest + Unity test suites stay green.
+- [x] **ALIAS-02**: Aliases land as `#define` / `constexpr` declarations in `firestarter/include/rurp_pinout.h` (or equivalent header — fixed at plan time) and as constants in `firestarter_app/firestarter/constants.py` (or equivalent module). Existing call-sites that use bare pin numbers or shield-specific net names are migrated to the aliases. The migration is name-only — no wire-format or behavior changes.
+- [x] **ALIAS-03**: GATE-1.7 non-regression — after the alias migration, compiled firmware `.hex` artifacts for all three boards (`uno`, `leonardo`, `uno328pb`) are byte-identical to pre-migration (modulo trivial symbol-name overhead, ≤ ~50 B). Pytest + Unity test suites stay green.
 
 ### Shield-Version-Detect Hardware Design (DETECT-HW)
 

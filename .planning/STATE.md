@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: — RURP Shield Hardware Investigation & Version Detection
-status: executing
-last_updated: "2026-05-25T11:12:46Z"
-last_activity: 2026-05-25 -- Phase 33 Plan 00 complete (baseline .hex + check-migration.sh)
+status: completed
+last_updated: "2026-05-25T11:26:17.666Z"
+last_activity: 2026-05-25 -- Phase 33 Plan 01 complete (rurp_pinout.h alias substrate + CLAUDE.md refresh; Wave 1 .hex byte-identical, D-06 preserved)
 progress:
   total_phases: 10
   completed_phases: 6
   total_plans: 21
   completed_plans: 18
-  percent: 62
+  percent: 60
 ---
 
 # Project State
@@ -21,10 +21,10 @@ progress:
 ## Current Position
 
 Phase: 33
-Plan: 33-00 complete (baseline + verifier landed) — next: 33-01 (rename wave 1, planner-decided shape)
-Status: Plan 33-00 complete; substrate ready for subsequent rename waves
-Last activity: 2026-05-25 -- Phase 33 Plan 00 complete (baseline .hex captured for uno/uno328pb/leonardo; BASELINE_COMMIT.txt bc0f5ac; check-migration.sh landed with documented pre-rename Assertion-1 FAIL proof)
-Resume file: .planning/phases/33-silkscreen-label-code-alias-migration/33-00-SUMMARY.md
+Plan: 33-01 complete (rurp_pinout.h Wave 1 substrate landed) — next: 33-02 (Wave 2 — call-site migration in src/proms/* + hardware_operations.cpp)
+Status: Plan 33-01 complete; Wave 1 .hex byte-identical to baseline; D-06 preserved (rurp_shield.h:25-94 unchanged); ready for Wave 2 call-site migration
+Last activity: 2026-05-25 -- Phase 33 Plan 01 complete (rurp_pinout.h alias substrate + CLAUDE.md refresh; Wave 1 .hex byte-identical, D-06 preserved)
+Resume file: None
 
 ## Project Reference
 
@@ -310,6 +310,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 26 P01 | 5min | 2 tasks | 3 files |
 | Phase 29 P1 | 12min | 5 tasks | 3 files |
 | Phase 33 P00 | ~4min | 2 tasks | 5 files (all gitignored under .planning/v1.7/) |
+| Phase 33 P01 | 10min | 3 tasks | 2 files |
 
 ## Decisions
 
@@ -406,6 +407,8 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase 33]: Plan 33-00: check-migration.sh Assertion-1 uses comment-line filter `grep -v '^[^:]*:[0-9]*:[[:space:]]*//'` to strip `//`-prefixed doc-line hits per Open Q4 / Pattern H — gives historical comment refresh flexibility while still firing on functional call-sites. Raw grep returns 82 hits; filtered grep returns 71 (well above the 0-hit post-rename target).
 - [Phase 33]: Plan 33-00: Assertion 2 (REV_[12]_* prefix family) explicitly excludes `REVISION_*` per D-03 — `REVISION_0` / `REVISION_1` / `REVISION_2_0..2_2` enum values are NOT renamed (they're revision-enum values, not RURP-signal aliases). `grep -v 'REVISION_'` preserves the enum block at `rurp_shield.h:37-41` cleanly through migration.
 - [Phase 33]: Plan 33-00: All Plan 33-00 work-product (3 baseline .hex + BASELINE_COMMIT.txt + check-migration.sh) lives under gitignored `.planning/v1.7/phase-33-baseline-hex/` per Phase 31 D-11 — no git history beyond the SUMMARY/STATE/ROADMAP commit. The pre-rename `check-migration.sh` exit-1 with `FAIL: Assertion 1 — found 71 non-comment references` is the documented load-bearing proof per the plan's `<verification>` block ("expect FAIL on Assertion 1 — proves the gate is wired correctly").
+- [Phase ?]: Phase 33 Plan 01 (Wave 1) — D-06 enforced: NO shim block in rurp_pinout.h; old #defines in rurp_shield.h:25-94 unchanged, serve as backward-compat substrate until Wave 3 atomic deletion
+- [Phase ?]: Phase 33 Wave 1 namespace split locked: CTRL_* (control-register bits) + PIN_* (Arduino-pin assignments); RES_* / JMP_* reserved §7-table-only (no Phase 33 firmware declarations)
 
 ## Deferred Items (acknowledged at v1.5 close 2026-05-21)
 
