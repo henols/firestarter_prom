@@ -106,7 +106,7 @@
 
 **Wave 3** *(unblocked 2026-05-25 — Wave 2 complete)*
 
-- [ ] 33-03-PLAN.md — Wave 3: rename include/rurp_hw_rev_utils.h dispatcher + include/rurp_register_utils.h + src/boards/{uno_rurp_shield,rurp_common}.cpp + test/native/avr/test_flash_intel_vpp.cpp + REMOVE transient shim from rurp_pinout.h (final D-06 enforcement + GATE-1.7 cmp gate)
+- [x] 33-03-PLAN.md — Wave 3: rename include/rurp_hw_rev_utils.h dispatcher + include/rurp_register_utils.h + src/boards/{uno_rurp_shield,rurp_common}.cpp + test/native/avr/test_flash_intel_vpp.cpp + REMOVE transient shim from rurp_pinout.h (final D-06 enforcement + GATE-1.7 cmp gate)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -486,6 +486,6 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 30 (close) | v1.6 | 0/0 | Not started | — |
 | 31 (v1.7) | v1.7 | done | ✅ Complete | 2026-05-22 |
 | 32 (v1.7) | v1.7 | 3/3 | ✅ Complete | 2026-05-22 |
-| 33 (v1.7) | v1.7 | 2/5 | In Progress|  |
+| 33 (v1.7) | v1.7 | 4/5 | In Progress|  |
 | 34 (v1.7) | v1.7 | 0/0 | Not started | — |
 | 35 (v1.7 close) | v1.7 | 0/0 | Not started | — |
