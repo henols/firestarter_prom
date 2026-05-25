@@ -21,13 +21,13 @@
 
 ### Inter-Rev Differences (DIFF)
 
-- [ ] **DIFF-01**: An inter-rev electrical difference table is captured in `.planning/v1.7-SHIELD-REVS.md` covering at minimum: Arduino pin mapping (Dx/Ax → RURP signal), VPP regulator wiring (input pin, output pin, enable pin, feedback divider), voltage divider values (R1/R2 from `rurp_configuration_t`), control-line routing (CE/WE/OE per algorithm), jumper/strap positions
-- [ ] **DIFF-02**: Inter-rev mechanical differences are captured: board outline / mounting holes, ZIF socket presence + orientation, header positions, any notable component changes (DIP package vs SMD, regulator family, etc.). Differences that have no electrical impact are noted but not gated.
+- [x] **DIFF-01**: An inter-rev electrical difference table is captured in `.planning/v1.7-SHIELD-REVS.md` covering at minimum: Arduino pin mapping (Dx/Ax → RURP signal), VPP regulator wiring (input pin, output pin, enable pin, feedback divider), voltage divider values (R1/R2 from `rurp_configuration_t`), control-line routing (CE/WE/OE per algorithm), jumper/strap positions
+- [x] **DIFF-02**: Inter-rev mechanical differences are captured: board outline / mounting holes, ZIF socket presence + orientation, header positions, any notable component changes (DIP package vs SMD, regulator family, etc.). Differences that have no electrical impact are noted but not gated.
 
 ### Per-Rev Capabilities (CAPS)
 
-- [ ] **CAPS-01**: A per-rev capability matrix in `.planning/v1.7-SHIELD-REVS.md` declares for each revision: chip families supported (28-pin DIP UV-EPROM, 32-pin DIP UV-EPROM, parallel EEPROM, AMD-style flash, Intel flash, SRAM), max VPP, max VCC, address-bus width, supported firmware algorithms (0x05/0x06/0x07/0x08/0x0B/0x0D/0x0E/0x10/0x27/0x28/0x29 — subset per rev)
-- [ ] **CAPS-02**: Capability matrix is cross-checked against firmware code (`firestarter/src/algorithm_*.cpp`) — if a rev physically cannot support an algorithm (e.g. missing VPP regulator on Rev 0), that fact is documented and a firmware-side runtime guard is proposed (out-of-scope to implement in v1.7; recorded as a follow-up todo)
+- [x] **CAPS-01**: A per-rev capability matrix in `.planning/v1.7-SHIELD-REVS.md` declares for each revision: chip families supported (28-pin DIP UV-EPROM, 32-pin DIP UV-EPROM, parallel EEPROM, AMD-style flash, Intel flash, SRAM), max VPP, max VCC, address-bus width, supported firmware algorithms (0x05/0x06/0x07/0x08/0x0B/0x0D/0x0E/0x10/0x27/0x28/0x29 — subset per rev)
+- [x] **CAPS-02**: Capability matrix is cross-checked against firmware code (`firestarter/src/algorithm_*.cpp`) — if a rev physically cannot support an algorithm (e.g. missing VPP regulator on Rev 0), that fact is documented and a firmware-side runtime guard is proposed (out-of-scope to implement in v1.7; recorded as a follow-up todo)
 
 ### Label → Code Alias Migration (ALIAS)
 
