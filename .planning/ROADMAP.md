@@ -126,6 +126,24 @@
   3. Firmware reads the ADC pin at boot (or on first handshake), looks up the voltage band in the table, and reports the detected silkscreen-rev string in the handshake payload. Exact wire shape (extend `MSG_OK_FW_HANDSHAKE` or add a sibling INFO emit) finalized at plan time.
   4. On pre-detect-resistor boards (floating/grounded ADC), the report is `rev_unknown` and firmware continues to honor the operator-configured `hw_revision` byte in EEPROM (existing behavior preserved). GATE-1.7 non-regression: existing pre-detect-resistor boards handshake byte-identical to v1.6 baseline modulo the additive `rev_unknown` report (documented in the fix-commit message). Chip programming + read paths byte-identical. Firmware compiles cleanly for all three board targets without requiring physical fabrication of the next-rev shield.
 
+**Plans:** 7 plans (Wave 0: baseline+verify-harness; Wave 1: meta-repo §8/§9 doc fills; Wave 2: firestarter sub-repo enum extension + threshold constants + detect-rev rework + delta-band gate + meta-repo sub-repo bump; Wave 3: firestarter_app sub-repo Python parity + serial_comm silkscreen mapping + meta-repo sub-repo bump)
+Plans:
+**Wave 1**
+
+- [ ] 34-00-PLAN.md — Wave 0: capture pre-Phase-34 .hex baseline (uno / uno328pb / leonardo) + land executable verify-detect-34.sh delta-band gate (gitignored under .planning/v1.7/baseline-34/)
+- [ ] 34-01-PLAN.md — Wave 1: fill .planning/v1.7-SHIELD-REVS.md §8 (Detect-HW schematic delta — Anders R41-on-A3 ASCII topology + per-rev R41 table per D-01) + §9 (per-rev ADC band table per D-11 6-column schema; DETECT-HW-01 + DETECT-HW-02)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 34-02-PLAN.md — Wave 2: add REVISION_2_3 = 5 + REVISION_UNKNOWN = 0xFE to firestarter/include/rurp_shield.h under #ifdef HARDWARE_REVISION (D-07; 0xFE/0xFF sentinel carve-out)
+- [ ] 34-03-PLAN.md — Wave 2: add ADC_BAND_R41_4K7_HIGH=200 / _10K_LOW=220 / _10K_HIGH=600 thresholds to rurp_pinout.h + rework rurp_detect_hardware_revision() body (analogRead A3 + 8-sample avg + 4-arm band-lookup) + add case REVISION_2_3 arm to rurp_map_ctrl_reg_for_hardware_revision() (D-03 + D-06 + D-07; DETECT-FW-01)
+- [ ] 34-04-PLAN.md — Wave 2: run verify-detect-34.sh delta-band gate + record per-env .hex Δ table + bump meta-repo firestarter submodule pointer to Plan-03-HEAD (DETECT-FW-02 GATE-1.7 non-regression close)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 34-05-PLAN.md — Wave 3: add # RURP Hardware Revisions block (7 REVISION_* constants) to firestarter_app/firestarter/constants.py + extend firestarter_app/CLAUDE.md sync rule + land firestarter_app/tests/test_revision_constants_parity.py hard pytest gate (D-08; VALIDATION Dim 3 + Dim 6 stronger coverage)
+- [ ] 34-06-PLAN.md — Wave 3: add _REVISION_SILKSCREEN dict to firestarter_app/firestarter/serial_comm.py + extend _format_message MSG_OK_REV branch with defensive .get() rendering (D-05 Path A; D-09 wire shape unchanged) + bump meta-repo firestarter_app submodule pointer (Phase 34 desk-side scope CLOSED; Phase 35 owns operator-on-bench + milestone close)
+
 **UI hint:** no
 
 #### Phase 35: Documentation + Milestone Close
