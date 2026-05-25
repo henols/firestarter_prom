@@ -85,7 +85,7 @@ For `beta` → `main` + ship tag timing — selected: gated on UAT-1/2/3 green (
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| D-10 README depth | 3-5 sentence section + bulleted reference list pointing to specific §sections | Matches v1.5 README pattern; gives operators just enough to navigate without bloating the README |
+| D-10 README depth | (SUPERSEDED 2026-05-25 by user input — original "cross-link to meta-repo" plan was wrong; see "D-10 amendment" section below) | Original cross-link plan would 404 for any user browsing the sub-repo on GitHub since the meta-repo's `.planning/` is private to the planner |
 | D-11 PROJECT.md surface | Two new "Validated" entries (alias migration + detect-fw plumbing); v1.7 block rewritten as "Shipped" | Each phase delivers an independently-verifiable artifact per ROADMAP §Structural Notes → separate validated entries respect that boundary |
 | D-12 MILESTONES.md entry | Full v1.5 template (Phases/Plans/Timeline/Ship tag/Commits header + Delivered + Key Accomplishments per phase + Branch Strategy + Open Backlog + Key Decisions + Known Gaps) | v1.5 entry is the closest template; matches the operator's mental model of "what shipped, what didn't, why" |
 | D-13 STATE.md hand-off | Operator Next Steps rewrites to point at `/gsd-plan-phase 27 --gaps`; cites v1.7 substrate artifacts | Per ROADMAP SC#4 explicit phrasing |
@@ -102,6 +102,40 @@ For `beta` → `main` + ship tag timing — selected: gated on UAT-1/2/3 green (
 |----------|--------|-----------|
 | D-14 archive script | `.planning/v1.7-archive.sh` mirroring `.planning/v1.4-archive.sh` (explicit per-phase glob enumeration, `--dry-run`, pre-flight) | Pattern reuse; zero new logic needed |
 | D-15 REQUIREMENTS + ROADMAP | Archive `.planning/REQUIREMENTS.md` as `.planning/milestones/v1.7-REQUIREMENTS.md`; collapse ROADMAP §v1.7 to `<details>` summary | Mirror of v1.5 close commit `8eff40e` |
+
+---
+
+## D-10 amendment (2026-05-25, user-driven)
+
+**Triggering observation (user):** "There must be a md doc in the firestarter project" — the original D-10 plan (README sections cross-linking into `.planning/v1.7-SHIELD-REVS.md` in the meta-repo) is wrong. The meta-repo's `.planning/` directory is private to the planner; any user browsing `henols/firestarter` or `henols/firestarter_app` on GitHub gets a 404 on those cross-links. Operator-facing shield-rev documentation does not exist anywhere inside the sub-repos.
+
+**Gap analysis confirmed:**
+
+| Where | What | Operator-visible? |
+|-------|------|-------------------|
+| `.planning/v1.7-SHIELD-REVS.md` (meta) | Full 201-line investigation | ❌ private |
+| `firestarter/README.md` | Mentions "RURP shield" once; no rev info | ❌ no rev table |
+| `firestarter_app/README.md` line 354 | `-rev <revision>` flag accepts `0-2` with "WARNING ... only use with HW mods" | ❌ no explanation of what 0/1/2 means |
+
+**Options presented + user choices:**
+
+| Question | Option A | Option B | Option C | Selected |
+|---------|---------|---------|---------|---------|
+| Doc location | `firestarter/doc/SHIELD-REVISIONS.md` only | Both sub-repos (mirror) | `firestarter_app/doc/SHIELD-REVISIONS.md` only | **A — firestarter only** |
+| Content depth | Operator summary (~80 lines, table + flag map) | Full §1+§6+§7+§9 (~150 lines) | Verbatim mirror of v1.7-SHIELD-REVS.md (~200 lines) | **B — full operator+dev copy** |
+| Timing | Fold into Phase 35 D-10 (Wave 3) | New Phase 36 / fold into v1.6 close | — | **A — Phase 35 Wave 3** |
+
+**Rationale (user choices):**
+- **firestarter sub-repo (not host)**: firmware is the side that drives the bus + reports the rev via `MSG_OK_REV` + holds the `REVISION_*` enum source-of-truth at `rurp_shield.h:25-30`; doc lives where the enum lives. Host README cross-links via GitHub URL. Lower duplication risk than mirroring; meaningful for a dev grepping for `PIN_VPP_REGULATOR_ENABLE` who lands in firmware/.
+- **Full §1+§6+§7+§9 (no archaeology)**: gives dev-side readers the alias table (§7) for grep-back-from-code lookups; gives operators the capability matrix (§6) for "can my Rev N program this chip family"; excludes meta-repo investigation sections (§2/§3/§4/§5/§8) that are debug-trail not operator-facing.
+- **Phase 35 Wave 3 (not Phase 36)**: v1.7's milestone goal explicitly includes "READMEs cross-link to it" (ROADMAP SC#1) and "PROJECT.md Validated section grows entries" (SC#2) — folding the sub-repo doc into the same wave keeps v1.7 self-consistent. Lands post-bench so §9 ADC band values are finalized from Wave 2 evidence before copying.
+
+**CONTEXT.md updates:**
+- D-10 rewritten in `<decisions>` to specify `firestarter/doc/SHIELD-REVISIONS.md` location + content scope + drift policy
+- `<canonical_refs>` section "Sub-repo READMEs" renamed to "Sub-repo operator-facing docs" with the new file added
+- Drift policy: meta-repo doc remains investigation-canonical; sub-repo doc is operator-canonical; `firestarter/CLAUDE.md` grows a new sync rule
+
+**Drift risk + mitigation:** copy-paste of §1+§6+§7+§9 across two locations introduces drift risk. Mitigation: (a) sync rule in `firestarter/CLAUDE.md` (analogous to the constants-sync rule between `constants.py` and `firestarter.h`); (b) future meta-repo edits to those four sections must also touch the sub-repo doc (explicit in commit message); (c) Wave 4 close commits both files in lockstep — single commit boundary.
 
 ---
 
