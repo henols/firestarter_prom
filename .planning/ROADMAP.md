@@ -158,18 +158,41 @@ Plans:
   3. MILESTONES.md entry written; phase artifacts archived under `.planning/milestones/v1.7-phases/` via the archive script pattern established in v1.4/v1.5.
   4. Hand-off to v1.6 resume: `Operator Next Steps` in STATE.md points at `/gsd-plan-phase 27 --gaps` with a note citing the v1.7 artifacts (labeled schematic + per-rev capability table) that the Phase 27 RCA re-open will consume.
 
-**Plans:** 9 plans
-
+**Plans:** 10 plans
 Plans:
-- [ ] 35-01-PLAN.md — Wave 1: firmware CR-01 + CR-02 fixes (rurp_hw_rev_utils.h INPUT high-Z + REVISION_UNKNOWN hard-fail-loud LOG_WARN_ID emit); D-01 + D-02
+**Wave 1**
+
+- [ ] 35-01-PLAN.md — Wave 1: firmware CR-01 + CR-02 fixes (rurp_hw_rev_utils.h INPUT high-Z + REVISION_UNKNOWN hard-fail-loud LOG_WARN_ID_U8 emit); D-01 + D-02
 - [ ] 35-02-PLAN.md — Wave 1: host WR-01 + WR-02 silkscreen rendering (serial_comm.py MSG_INFO_HW + MSG_INFO_PHYSICAL_HW + MSG_OK_CFG Override); D-03 + D-04
-- [ ] 35-03-PLAN.md — Wave 1: re-baseline + meta-repo submodule bumps for both sub-repo Wave 1 commits (.planning/v1.7/baseline-35/)
-- [ ] 35-04-PLAN.md — Wave 2 (operator-on-bench): sub-repo beta promotion + 3.0.0b5 cut + sideload to Rev 2.0 + Rev 2.2 + UAT-1/2/3 + photos + R41 measurement (resolves §8 OPEN); D-05 + D-06 + D-08
-- [ ] 35-05-PLAN.md — Wave 3: v1.7-SHIELD-REVS.md §1/§3/§4/§8/§9 row updates from bench evidence + rurp_pinout.h ADC band threshold widening per D-02 (Branch A separable bands or Branch B band collapse)
-- [ ] 35-06-PLAN.md — Wave 3: NEW firestarter/doc/SHIELD-REVISIONS.md operator-facing canonical reference + sub-repo README sections + CLAUDE.md sync rules; D-10
-- [ ] 35-07-PLAN.md — Wave 3: PROJECT.md v1.7 archive + 2 Validated entries + MILESTONES.md v1.7 entry + STATE.md v1.6 hand-off; D-11 + D-12 + D-13
-- [ ] 35-08-PLAN.md — Wave 4: .planning/v1.7-archive.sh + ROADMAP.md collapse + REQUIREMENTS.md archive + 2 post-v1.7 todos + phase directory archive execution; D-07 + D-14 + D-15
-- [ ] 35-09-PLAN.md — Wave 4 (operator-authorized): sub-repo beta → main promotion + meta-repo submodule bumps + final close commit with placeholder finalization; D-09 + MS-01
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 35-03-PLAN.md — Wave 2: re-baseline + meta-repo submodule bumps for both sub-repo Wave 1 commits (.planning/v1.7/baseline-35/)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 35-04-PLAN.md — Wave 3 (operator-on-bench): scaffold UAT + bench-evidence + sub-repo beta promotion + 3.0.0b5 cut + sideload to Rev 2.0 + Rev 2.2 + UAT-1/2/3 + photos + R41 measurement (resolves §8 OPEN); D-05 + D-06 + D-08
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 35-05-PLAN.md — Wave 4: v1.7-SHIELD-REVS.md §1/§3/§4/§8/§9 row updates from bench evidence + rurp_pinout.h ADC band threshold widening per D-02 (Branch A separable bands or Branch B band collapse)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 35-06-PLAN.md — Wave 5: NEW firestarter/doc/SHIELD-REVISIONS.md operator-facing canonical reference + sub-repo README sections + CLAUDE.md sync rules; D-10
+- [ ] 35-07-PLAN.md — Wave 5: PROJECT.md v1.7 archive + 2 Validated entries + MILESTONES.md v1.7 entry + STATE.md v1.6 hand-off; D-11 + D-12 + D-13 (parallel-eligible with 35-06)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 35-08a-PLAN.md — Wave 6: .planning/v1.7-archive.sh script (dry-run validated) + ROADMAP.md collapse + REQUIREMENTS.md archive + 2 post-v1.7 todos; D-07 + D-14 + D-15 (paperwork; no live archive run)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
+- [ ] 35-08b-PLAN.md — Wave 7: live `bash .planning/v1.7-archive.sh` execution + atomic commit capturing 5 phase directory renames into .planning/milestones/v1.7-phases/
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
+- [ ] 35-09-PLAN.md — Wave 8 (operator-authorized): sub-repo beta → main promotion + meta-repo submodule bumps + final close commit with placeholder finalization; D-09 + MS-01
 
 **UI hint:** no
 

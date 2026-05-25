@@ -1,8 +1,8 @@
 ---
 phase: 35-documentation-milestone-close
-plan: 08
+plan: 08a
 type: execute
-wave: 4
+wave: 6
 depends_on: [35-06, 35-07]
 files_modified:
   - .planning/v1.7-archive.sh
@@ -15,12 +15,12 @@ autonomous: true
 requirements: [MS-01]
 must_haves:
   truths:
-    - "NEW: .planning/v1.7-archive.sh exists, mirrors .planning/v1.4-archive.sh pattern with phase number array 31-35 per D-14"
+    - "NEW: .planning/v1.7-archive.sh exists, mirrors .planning/v1.4-archive.sh pattern with phase number array 31-35 per D-14; --dry-run sanity check exits 0"
     - "ROADMAP.md v1.7 section collapsed to <details>/<summary> block per D-15"
-    - "NEW: .planning/milestones/v1.7-REQUIREMENTS.md exists as archive of .planning/REQUIREMENTS.md per D-15"
+    - "NEW: .planning/milestones/v1.7-REQUIREMENTS.md exists as archive of .planning/REQUIREMENTS.md per D-15 (git mv preserves blame)"
     - ".planning/REQUIREMENTS.md REMOVED from live planning surface per D-15"
     - "NEW: .planning/todos/pending/photograph-modified-rev-0.md + write-modifications-md-rework-trace.md created per D-07"
-    - "Phase directories 31-* through 35-* archived under .planning/milestones/v1.7-phases/ via .planning/v1.7-archive.sh execution"
+    - "One atomic meta-repo commit covers all paperwork; no live archive script execution in this plan (Plan 08b handles)"
   artifacts:
     - path: ".planning/v1.7-archive.sh"
       provides: "Phase archive script (mirror of v1.4-archive.sh)"
@@ -34,38 +34,36 @@ must_haves:
     - path: ".planning/todos/pending/write-modifications-md-rework-trace.md"
       provides: "D-07 post-v1.7 todo #2"
       contains: "Phase 31 follow-up #4"
-    - path: ".planning/milestones/v1.7-phases/"
-      provides: "Archived phase 31-35 directories"
   key_links:
     - from: ".planning/REQUIREMENTS.md (deleted)"
       to: ".planning/milestones/v1.7-REQUIREMENTS.md"
       via: "git mv preserves blob; new file has archive header prepended"
       pattern: "Requirements Archive: v1.7"
-    - from: ".planning/v1.7-archive.sh"
-      to: ".planning/milestones/v1.7-phases/"
+    - from: ".planning/v1.7-archive.sh PHASE_GLOBS"
+      to: "Plan 08b (live run)"
       via: "explicit per-phase glob enumeration 31-* through 35-*; safety against accidental capture of paused v1.6 phases 26-* / 29-*"
       pattern: "31-.*32-.*33-.*34-.*35-"
 ---
 
 <objective>
-Wave 4 paperwork — the close-side archive operations that have NO dependency on the bench session and can run alongside Plan 09's sub-repo branch promotion. Six deliverables:
+Wave 6 paperwork — the scaffolding side of the v1.7 close archive operations. Split from the prior monolithic Plan 08 to honor the ≤5-task scope-sanity rule and separate the deterministic paperwork (this plan) from the destructive live-archive `mv` (Plan 08b).
 
-1. **`.planning/v1.7-archive.sh`** (D-14) — copy `.planning/v1.4-archive.sh` verbatim, edit the PHASE_GLOBS array from `15-* through 20-*` to `31-* through 35-*`, find/replace `v1.4` → `v1.7` throughout, update destination path to `.planning/milestones/v1.7-phases/`, update next-steps echo commit message. CRITICAL safety: explicit-per-phase glob enumeration prevents accidental capture of v1.6 paused phases (`26-*` through `29-*`) which still live in `.planning/phases/` per STATE.md Paused Milestones.
+Five deliverables:
+
+1. **`.planning/v1.7-archive.sh`** (D-14) — copy `.planning/v1.4-archive.sh` verbatim, edit the PHASE_GLOBS array from `15-* through 20-*` to `31-* through 35-*`, find/replace `v1.4` → `v1.7` throughout, update destination path to `.planning/milestones/v1.7-phases/`, update next-steps echo commit message. CRITICAL safety: explicit-per-phase glob enumeration prevents accidental capture of v1.6 paused phases (`26-*` through `29-*`) which still live in `.planning/phases/` per STATE.md Paused Milestones. Run `--dry-run` to verify the script previews the correct 5 mv operations + exits 0. DO NOT run live — Plan 08b handles that.
 
 2. **`.planning/ROADMAP.md` v1.7 section → `<details>`** (D-15) — wrap the existing v1.7 section in a `<details><summary>` block. Top bullet at line 12 flips from `🚧 STARTED 2026-05-22` to `✅ shipped 2026-05-XX`. Mirror of v1.5 ROADMAP collapse pattern.
 
 3. **`.planning/REQUIREMENTS.md` → `.planning/milestones/v1.7-REQUIREMENTS.md`** (D-15) — `git mv` the active REQUIREMENTS file to the milestones archive directory; prepend an 8-line archive header (mirror of `.planning/milestones/v1.5-REQUIREMENTS.md:1-8`); the active `.planning/REQUIREMENTS.md` is removed from the live planning surface.
 
-4. **`.planning/todos/pending/photograph-modified-rev-0.md`** (D-07) — new todo capturing Phase 31 follow-up #3.
+4. **Two new post-v1.7 todos** (D-07):
+   - `.planning/todos/pending/photograph-modified-rev-0.md` — Phase 31 follow-up #3.
+   - `.planning/todos/pending/write-modifications-md-rework-trace.md` — Phase 31 follow-up #4. Depends on the photograph todo above.
 
-5. **`.planning/todos/pending/write-modifications-md-rework-trace.md`** (D-07) — new todo capturing Phase 31 follow-up #4. Depends on the photograph todo above.
+5. **Atomic meta-repo commit** covering all four deliverables in ONE commit. No phase directories are physically moved in this plan; they remain in `.planning/phases/` until Plan 08b runs the live archive script.
 
-6. **Run `.planning/v1.7-archive.sh`** — move phase directories 31-* through 35-* into `.planning/milestones/v1.7-phases/`. Single live-run after the dry-run validation.
-
-Plan 08 commits all six deliverables in ONE atomic meta-repo commit.
-
-Purpose: Archive paperwork + new-todo creation + physical phase directory move. Decouples from bench-session dependencies (Plan 09).
-Output: One meta-repo commit on `v1.7-shield-investigation` containing all paperwork edits + the physical `mv` of phase directories.
+Purpose: Build + validate the archive script and prepare the planning-surface paperwork; defer the destructive `mv` to Plan 08b so it lands in its own wave with its own commit.
+Output: One meta-repo commit on `v1.7-shield-investigation` containing all paperwork edits; no phase directory moves.
 </objective>
 
 <execution_context>
@@ -100,7 +98,7 @@ Output: One meta-repo commit on `v1.7-shield-investigation` containing all paper
 
     2. All `v1.4` references → `v1.7` throughout: header comment block, usage line, error messages, destination path (`v1.4-phases` → `v1.7-phases`), pre-flight error message (`15-* through 20-*` → `31-* through 35-*`), next-steps echo commit message.
 
-    3. T-20-03 mitigation citation: update to "T-35-XX mitigation: explicit enumeration prevents accidental capture of paused v1.6 phases (26-* through 29-*) or paused v1.3 phases".
+    3. T-20-03 mitigation citation: update to "T-35-17 mitigation: explicit enumeration prevents accidental capture of paused v1.6 phases (26-* through 29-*) or paused v1.3 phases".
 
     4. Final next-steps echo: update the commit message template to "refactor: archive v1.7 phase directories to milestones/v1.7-phases/".
 
@@ -111,7 +109,7 @@ Output: One meta-repo commit on `v1.7-shield-investigation` containing all paper
     - 5 `[dry-run] mv .planning/phases/3N-... .planning/milestones/v1.7-phases/` lines
     - `[dry-run] No changes made. 5 phase director(ies) would be archived.`
 
-    Exit code 0. DO NOT run live yet — Task 5 executes after other Wave 4 edits.
+    Exit code 0. DO NOT run live — Plan 08b owns the live archive run.
   </action>
   <verify>
     <automated>test -x /workspaces/.planning/v1.7-archive.sh && bash /workspaces/.planning/v1.7-archive.sh --dry-run 2>&1 | tail -3 | grep -q 'No changes made'</automated>
@@ -218,7 +216,7 @@ Output: One meta-repo commit on `v1.7-shield-investigation` containing all paper
     Frontmatter fields:
     - id: photograph-modified-rev-0
     - title: Photograph operator's Modified Rev 0 board (Phase 31 follow-up #3)
-    - captured: 2026-05-XX (Wave 4 close date — Plan 09 finalizes)
+    - captured: 2026-05-XX (Wave 8 close date — Plan 09 finalizes)
     - status: pending
     - type: documentation
     - target_milestone: post-v1.7
@@ -269,72 +267,42 @@ Output: One meta-repo commit on `v1.7-shield-investigation` containing all paper
 </task>
 
 <task type="auto" tdd="false">
-  <name>Task 5: Run .planning/v1.7-archive.sh (LIVE) to move phase directories 31-35 to milestones/v1.7-phases/</name>
-  <files>.planning/phases/31-* through .planning/phases/35-*, .planning/milestones/v1.7-phases/</files>
+  <name>Task 5: Atomic meta-repo commit for Plan 08a paperwork</name>
+  <files>.planning/v1.7-archive.sh, .planning/ROADMAP.md, .planning/REQUIREMENTS.md (removed), .planning/milestones/v1.7-REQUIREMENTS.md, .planning/todos/pending/photograph-modified-rev-0.md, .planning/todos/pending/write-modifications-md-rework-trace.md</files>
   <read_first>
-    - .planning/v1.7-archive.sh (post-Task-1 finished file)
+    - .planning/phases/35-documentation-milestone-close/35-08a-SUMMARY.md (in-progress)
   </read_first>
   <action>
-    Run a final dry-run sanity check first: `bash /workspaces/.planning/v1.7-archive.sh --dry-run`. Confirm output lists 5 mv operations + "5 phase director(ies) would be archived" + exit code 0.
-
-    Then run LIVE: `bash /workspaces/.planning/v1.7-archive.sh`. Expected output:
-    - 5 `moved: 3N-...` lines
-    - "Archived 5 phase director(ies) to .planning/milestones/v1.7-phases/"
-    - Next-steps echo with the v1.7 commit message template
-    - Exit code 0
-
-    Sanity-check the result: `ls /workspaces/.planning/milestones/v1.7-phases/` should show 5 directory entries (31-upstream-shield-archaeology, 32-inter-rev-difference-capability-matrix, 33-silkscreen-label-code-alias-migration, 34-shield-version-detect-design-firmware-plumbing, 35-documentation-milestone-close). `ls /workspaces/.planning/phases/` should NOT contain any 31/32/33/34/35 directories anymore (the v1.6 directories 26-* through 29-* + any v1.3 paused directories remain untouched).
-
-    Verify the move did not capture any paused-milestone directories: `ls /workspaces/.planning/phases/ | grep -E '^(26|27|28|29|11|12|13|14)' | wc -l` should return ≥ 1 (v1.6/v1.3 paused phases preserved in active phases/ dir per STATE.md Paused Milestones).
-  </action>
-  <verify>
-    <automated>ls /workspaces/.planning/milestones/v1.7-phases/ 2>/dev/null | wc -l</automated>
-  </verify>
-  <done>
-    `.planning/milestones/v1.7-phases/` contains 5 directory entries (31-* through 35-*); `.planning/phases/` no longer contains 31-* through 35-* directories; paused v1.3 + v1.6 phase directories preserved untouched.
-  </done>
-</task>
-
-<task type="auto" tdd="false">
-  <name>Task 6: Atomic meta-repo commit for all Wave 4 paperwork</name>
-  <files>.planning/v1.7-archive.sh, .planning/ROADMAP.md, .planning/REQUIREMENTS.md (removed), .planning/milestones/v1.7-REQUIREMENTS.md, .planning/milestones/v1.7-phases/ (containing 5 archived phase dirs), .planning/todos/pending/photograph-modified-rev-0.md, .planning/todos/pending/write-modifications-md-rework-trace.md</files>
-  <read_first>
-    - .planning/phases/35-documentation-milestone-close/35-08-SUMMARY.md (in-progress)
-  </read_first>
-  <action>
-    Stage all Wave 4 paperwork changes from the meta-repo working directory:
+    Stage all Plan 08a paperwork changes from the meta-repo working directory:
 
     ```
     cd /workspaces
     git add .planning/v1.7-archive.sh
     git add .planning/ROADMAP.md
     git add .planning/milestones/v1.7-REQUIREMENTS.md
-    git add .planning/milestones/v1.7-phases/
     git add .planning/todos/pending/photograph-modified-rev-0.md
     git add .planning/todos/pending/write-modifications-md-rework-trace.md
     git add -u .planning/REQUIREMENTS.md  # stage the deletion from git mv
-    git add -u .planning/phases/  # stage the directory removals from archive.sh mv
     ```
-
-    Note: at this point Phase 35 plan files (35-01-PLAN.md, 35-02-PLAN.md, etc., including this one) are now under `.planning/milestones/v1.7-phases/35-documentation-milestone-close/` — they were just archived in Task 5. The commit captures the move as a series of renames.
 
     Verify the stage with `git status`:
     - `.planning/v1.7-archive.sh` — new file
     - `.planning/ROADMAP.md` — modified (v1.7 collapsed)
     - `.planning/REQUIREMENTS.md` → `.planning/milestones/v1.7-REQUIREMENTS.md` — renamed (with header content modification)
-    - `.planning/milestones/v1.7-phases/{31-*,32-*,33-*,34-*,35-*}/` — multiple new files (the archived phases) OR shown as renames from `.planning/phases/3N-*`
     - `.planning/todos/pending/photograph-modified-rev-0.md` — new file
     - `.planning/todos/pending/write-modifications-md-rework-trace.md` — new file
 
+    No phase directories should appear in this commit — Plan 08b runs the live archive script later.
+
     Commit on `v1.7-shield-investigation`:
-    - Subject: `refactor(35-08): archive v1.7 phase dirs + collapse ROADMAP + move REQUIREMENTS + 2 post-v1.7 todos (D-07 + D-14 + D-15)`
-    - Body cites: D-07 (2 new pending todos preserving Pattern E sentinel cross-refs); D-14 (`.planning/v1.7-archive.sh` 4-line edit pattern); D-15 (ROADMAP.md `<details>` collapse + REQUIREMENTS.md → archive); preservation of paused v1.6 + v1.3 phase directories via explicit per-phase glob enumeration.
+    - Subject: `refactor(35-08a): build v1.7 archive script + collapse ROADMAP + move REQUIREMENTS + 2 post-v1.7 todos (D-07 + D-14 + D-15)`
+    - Body cites: D-07 (2 new pending todos preserving Pattern E sentinel cross-refs); D-14 (`.planning/v1.7-archive.sh` 4-line edit pattern + dry-run validated); D-15 (ROADMAP.md `<details>` collapse + REQUIREMENTS.md → archive). Note that live archive run is deferred to Plan 08b.
   </action>
   <verify>
-    <automated>cd /workspaces && git log --oneline -1 | grep -q '35-08'</automated>
+    <automated>cd /workspaces && git log --oneline -1 | grep -q '35-08a'</automated>
   </verify>
   <done>
-    One meta-repo commit on `v1.7-shield-investigation` with subject starting `refactor(35-08):`; commit covers all 6 deliverables; sub-repo SHAs unchanged (Plan 08 is meta-repo only); next-plan (35-09) ready to run.
+    One meta-repo commit on `v1.7-shield-investigation` with subject starting `refactor(35-08a):`; commit covers the 5 paperwork deliverables (script + ROADMAP + REQUIREMENTS move + 2 todos); no phase directory moves yet; Plan 08b ready to run.
   </done>
 </task>
 
@@ -345,14 +313,14 @@ Output: One meta-repo commit on `v1.7-shield-investigation` containing all paper
 
 | Boundary | Description |
 |----------|-------------|
-| `.planning/v1.7-archive.sh` glob expansion → phase directory archive | explicit per-phase enumeration prevents accidental capture of paused-milestone phase dirs (v1.6 26-* / 29-*, v1.3 11-* / 12-*) |
+| `.planning/v1.7-archive.sh` glob expansion → phase directory archive | explicit per-phase enumeration prevents accidental capture of paused-milestone phase dirs (v1.6 26-* / 29-*, v1.3 11-* / 12-*); dry-run validated in Task 1 |
 | `git mv REQUIREMENTS.md` → archive | git blame preserved; `git log --follow` traces lineage |
 
 ## STRIDE Threat Register
 
 | Threat ID | Category | Component | Disposition | Mitigation Plan |
 |-----------|----------|-----------|-------------|-----------------|
-| T-35-17 | Tampering | accidental capture of paused-milestone phase dirs | mitigate | `.planning/v1.7-archive.sh` uses explicit per-phase glob array (NOT a wide wildcard); --dry-run validation in Task 5 confirms only 5 v1.7 dirs would move |
+| T-35-17 | Tampering | accidental capture of paused-milestone phase dirs | mitigate | `.planning/v1.7-archive.sh` uses explicit per-phase glob array (NOT a wide wildcard); --dry-run validation in Task 1 confirms only 5 v1.7 dirs would move; live run gated to Plan 08b |
 | T-35-18 | Repudiation | REQUIREMENTS history lost | mitigate | `git mv` preserves blob; archive header prepend in same commit; `git log --follow` shows the lineage |
 | T-35-19 | Repudiation | sentinel-deferred work lost | mitigate | Two new pending todos with sentinel cross-references preserve the deferred items for future RCA / milestone-start sweeps |
 
@@ -360,22 +328,22 @@ No new threat surface — meta-repo paperwork + safe in-tree file moves.
 </threat_model>
 
 <verification>
-- `.planning/v1.7-archive.sh` exists + executable; --dry-run exits 0
+- `.planning/v1.7-archive.sh` exists + executable; --dry-run exits 0 and previews 5 mv operations
 - `.planning/ROADMAP.md` has `<details>` block wrapping v1.7 section; top milestone bullet reads `✅ shipped`
 - `.planning/REQUIREMENTS.md` no longer exists in working tree
 - `.planning/milestones/v1.7-REQUIREMENTS.md` exists with archive header
 - `.planning/todos/pending/photograph-modified-rev-0.md` + `write-modifications-md-rework-trace.md` exist with proper frontmatter + body
-- `.planning/milestones/v1.7-phases/` contains 5 archived phase directories
-- `.planning/phases/` no longer contains 31-* through 35-* directories; paused v1.6 + v1.3 directories untouched
-- One meta-repo commit on `v1.7-shield-investigation` with subject starting `refactor(35-08):`
+- `.planning/phases/31-* through 35-*` UNTOUCHED — Plan 08b handles physical archive
+- One meta-repo commit on `v1.7-shield-investigation` with subject starting `refactor(35-08a):`
 </verification>
 
 <success_criteria>
-- D-07 + D-14 + D-15 all honored
-- Phase directories archived without disturbing paused-milestone substrate
-- v1.7 close paperwork complete; Wave 4 Plan 09 final close commit ready
+- D-07 + D-14 + D-15 paperwork honored
+- Archive script built + dry-run validated; ready for Plan 08b live run
+- Paused-milestone substrate untouched
+- Plan 08b dependency satisfied — script + paperwork present, only live mv + commit remain
 </success_criteria>
 
 <output>
-Create `.planning/milestones/v1.7-phases/35-documentation-milestone-close/35-08-SUMMARY.md` when done — note that the SUMMARY itself lands in the archived directory since the phase dir was moved in Task 5. Document: 5 archived directories, archive script test result, ROADMAP collapse line ranges, REQUIREMENTS archive line count, both new todos created.
+Create `.planning/phases/35-documentation-milestone-close/35-08a-SUMMARY.md` when done. Document: dry-run output (5 mv operations previewed), ROADMAP collapse line ranges, REQUIREMENTS archive line count, both new todos created, archive script ready for Plan 08b live execution.
 </output>
