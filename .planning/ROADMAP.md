@@ -404,7 +404,7 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 15-20 (v1.4) | v1.4 | 10/10 | ✅ Shipped | 2026-05-20 |
 | 21-25 (v1.5) | v1.5 | 6/6 | ✅ Shipped | 2026-05-21 |
 | 26 | v1.6 | 2/2 | Complete    | 2026-05-21 |
-| 27 | v1.6 | 2/2 | Complete    | 2026-05-21 |
+| 27 | v1.6 | 3/2 | Complete   | 2026-05-26 |
 | 28 | v1.6 | 2/2 | Complete    | 2026-05-21 |
 | 29 | v1.6 | 1/2 | In Progress|  |
 | 30 (close) | v1.6 | 0/0 | Not started | — |
