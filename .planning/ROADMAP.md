@@ -111,181 +111,23 @@
 
 **UI hint:** no
 
-## v1.6 — Fix the Read Bug (PAUSED 2026-05-22)
+## v1.6 — Fix the Read Bug (SHIPPED 2026-05-26 — diagnostic + revert)
 
-**Pause boundary:** Phase 27 RCA re-open. Phases 26+27+28 shipped 2026-05-21; Phase 29 Wave B FAIL closed 2026-05-22 PM per D-07 (chip-swap diagnostic isolated Phase 28 firmware as introducing a Leonardo + uno328pb read-path regression — proven-good chip from Uno reads garbage on Leonardo; Uno code path unaffected). Phase 30 BLOCKED. Resumes after v1.7 close with `/gsd-plan-phase 27 --gaps`; first disambiguation experiment is the pre-Phase-28-firmware A/B test (build `firestarter/v1.6-read-bug~2`, sideload to Leonardo, re-probe).
+<details>
+<summary>✅ v1.6 shipped — ships as "diagnostic + revert" per D-17v2 (5 phases, 13 plans). Read-bug carries to v1.8 with Bug A + Bug B pattern findings as RCA seed. Full detail in `.planning/MILESTONES.md` §v1.6.</summary>
 
-Original v1.6 roadmap detail preserved below for resume context.
+- **Ship tag:** `<TBD-from-30-03>` (default `3.0.0b5` beta-only; operator may authorize `3.0.1` stable in Plan 30-03)
+- **Phases:**
+  - [x] Phase 26: Cross-board Reproduction & Diagnostic Tooling (2 plans; REPRO-01..03)
+  - [x] Phase 27: Root Cause Analysis (3 plans incl. re-open Plan 27-05; RCA-01..03)
+  - [x] Phase 28: Fix Implementation + Unit Test Coverage (4 plans incl. revert Plan 28-03 + parked Plan 28-04; FIX-01..03 as diagnostic + revert)
+  - [x] Phase 29: Multi-Board Bench Verification (4 plans incl. v2 re-iteration Plans 29-03/04; VERIFY-02 PASS via structured_data shape; VERIFY-01/03/04 DEFERRED to v1.8)
+  - [x] Phase 30: Documentation + Milestone Close (3 plans; DOC-01/02 + MS-01)
+- **Re-scope (D-17v2):** Phase 29 v1 Wave B FAIL → Plan 27-05 re-open confirmed dual-cause (Outcome A Leonardo firmware-induced + Outcome B-independent uno328pb hardware) → Plan 28-03 reverted `437339b6` via `ea25174`; `4f205e58` `_NOP()` settling preserved (Plan 28-04 parks) → Phase 29 v2 PASS_PARKED (Leonardo Modified Rev 0 returns to Phase 26 baseline; WORST 0.047% zeros vs 83.8% pre-revert).
+- **v1.8 hand-off:** 15 N=5 W27C512 binaries at `.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260526-*-v2*/`; Bug A (Modified Rev 0 upper-address jitter, A15=1 → 1.86× skew) + Bug B (Rev 2.0 /CE-or-/OE timing + VPP=13.1V) characterized in `.planning/v1.6-EVIDENCE.md` Phase 29 v2 H3 block + `.planning/milestones/v1.6-phases/29-multi-board-bench-verification/29-04-SUMMARY.md`.
+- See full archive: `.planning/MILESTONES.md` §v1.6, `.planning/milestones/v1.6-REQUIREMENTS.md`, `.planning/v1.6-EVIDENCE.md`.
 
-## v1.6 — Fix the Read Bug (STARTED 2026-05-21)
-
-**Milestone goal:** Root-cause and fix the 64KB streaming-read byte-jitter (`large-read-data-jitter-uno328pb.md` — ~57.8% inter-read scramble at 64KB, ~0.1% at 1KB) on all three controllers. Restore byte-identical full-chip read-back so verify operations and Phase 24 BENCH-02 close are meaningful again.
-
-**Status:** Roadmap created 2026-05-21. Phase numbering continues from v1.5 last phase 25 (next phase = 26). Phases 26 + 30 are desk-side; Phases 27 + 28 are largely desk-side with optional bench instrumentation; Phase 29 is operator-on-bench (the acceptance gate). The 3-shield A/B/C triage already proves the bug is firmware/host transport-side, not RURP hardware — so RCA can proceed without continuous bench access, with bench used only to confirm reproduction + validate the fix.
-
-**Granularity:** Comprehensive — five phases for a bug-fix milestone is on the high side, but each phase delivers an independently-verifiable artifact (diagnostic tool, RCA evidence file, fix commits + unit tests, multi-board bench results, milestone close paperwork) and the bug's pre-existing nature (latent since v1.4 or earlier) warrants the rigor.
-
-**Phase numbering:** Phases 26-30 (continues from v1.5 close).
-
-**Branch model:** Per memory `feedback-branching-firestarter-milestones` — all work lands on `v1.6-read-bug` branches in all 3 repos. Sub-repos branch off current `beta` tips (post-v1.5 ship: firestarter beta @ `3.0.0b4` cut, firestarter_app beta @ matching `3.0.0b4` cut). Meta-repo `v1.6-read-bug` branches off `main`. Promote sub-repos `v1.6-read-bug` → `beta` only when Phase 28 fix is ready for bench validation (cut a fresh `3.0.0bN` pre-release for Phase 29). Promote `beta` → `main` only after operator green on the multi-board bench cycle (Phase 29). Instrumented builds for Phase 27 RCA may need their own one-off pre-release tag (e.g. `3.0.0b5` or `3.0.0-rcaN`) similar to v1.5's `3.0.0b4` workflow.
-
-### Structural Notes
-
-- **Bug-evidence-driven phase shape.** The bug's empirical profile (~57.8% jitter at 64KB, ~0.1% jitter at 1KB, 3-shield-invariant, manifests on the host side as scrambled bytes that are NOT single-bit flips) already narrows the search space. REPRO and RCA phases inherit this evidence verbatim from `.planning/todos/pending/large-read-data-jitter-uno328pb.md` rather than re-deriving it.
-- **Bench-gated vs desk-side split.** Phase 26 has a desk-side wave (REPRO-03 — host CLI `dev consistency-check` diagnostic) and an operator-on-bench wave (REPRO-01 + REPRO-02 — running the tool against `uno` and `leonardo` to prove the bug is not 328PB-specific). Phase 27 (RCA) can run entirely desk-side via code reading + instrumented build prep, with optional bench instrumentation if a logic-analyzer trace is needed. Phase 28 (fix + unit tests) is desk-side with TDD. Phase 29 is exclusively operator-on-bench — the acceptance gate for the whole milestone. Phase 30 is paperwork only.
-- **Pre-existing bug, not regression.** 3-shield A/B/C triage on 2026-05-21 demonstrated the bug is shield-invariant and present on `uno328pb` from day one of its build — the read state-machine code path was not touched by v1.5 Phase 21. Bug has been latent since at least v1.4 (probably earlier). RCA-03 includes a `git log -L` / `git bisect` pass to identify the introducing commit (or earliest version with the bug) — at minimum bracketed to a milestone (v1.0 vs v1.2 vs v1.4). Documenting this prevents reintroduction.
-- **GATE-1.6 non-regression.** Write path stays unaffected — Phase 24 already proved write commits correctly (small + medium writes via `dev read -s 256` confirmed every committed bit matches expected `pre AND target` pattern byte-for-byte). The fix should not perturb write timing, VPP regulator engagement, or chip-programming pulse intervals.
-- **Cross-cutting evidence accretion.** Each phase appends to `.planning/v1.6-EVIDENCE.md` (or equivalent — fixed at execution time): Phase 26 lands the consistency-check artifacts (SHA-256s across N runs on each board), Phase 27 lands the RCA narrative + introducing-commit citation, Phase 28 lands the fix commit references + unit-test references, Phase 29 lands the post-fix bench results (the inverse of Phase 26's pre-fix evidence). Same evidence-accretion pattern as v1.3's `v1.3-BENCH-RESULTS.md` and v1.5's `v1.5-BENCH-RESULTS.md`.
-
-### Phases
-
-- [x] **Phase 26: Cross-board Reproduction & Diagnostic Tooling** — Reproduce the 64KB streaming-read jitter on `uno` and `leonardo` (not just `uno328pb`); land an enduring `firestarter dev consistency-check` host CLI command so the bug — and its eventual fix — is verifiable by anyone with hardware. (completed 2026-05-21)
-- [x] **Phase 27: Root Cause Analysis** — Identify the exact code path that introduces byte corruption (instrumented build, code-path bisection, or scope/logic-analyzer trace); write up WHY the corruption happens; bracket the introducing commit/milestone. (completed 2026-05-21)
-- [x] **Phase 28: Fix Implementation + Unit Test Coverage** — Land the fix in the appropriate sub-repo(s) with atomic commits citing RCA evidence; ship a native unit test (Unity or pytest) that would fail on pre-fix code; preserve GATE-1.6 write-path non-regression. (completed 2026-05-21; re-iterated 2026-05-26 — split-scope: Leonardo revert)
-- [ ] **Phase 29: Multi-Board Bench Verification** — Operator-on-bench. N≥5 consecutive `firestarter read <chip> file.bin` invocations return byte-identical SHA-256 hashes on `uno`, `leonardo`, AND `uno328pb`; `dev read -s 1024` low-rate jitter also resolved; Phase 24 BENCH-02 closes as a side effect.
-- [ ] **Phase 30: Documentation + Milestone Close** — Move the todo out of `pending/`, update PROJECT.md, ship the MILESTONES.md entry, archive phase artifacts.
-
-### Phase Details
-
-#### Phase 26: Cross-board Reproduction & Diagnostic Tooling
-
-**Goal:** Operator can run a single host-CLI command to measure read consistency on any of the 3 boards, and the same command demonstrates the bug is present (or explicitly absent) on `uno`, `leonardo`, AND `uno328pb` — confirming the bug is pre-existing and transport-side, not board-specific.
-**Depends on:** Nothing (continues from v1.5 close).
-**Requirements:** REPRO-01, REPRO-02, REPRO-03
-**Success Criteria** (what must be TRUE):
-
-  1. A new host CLI subcommand (e.g. `firestarter dev consistency-check <chip> --runs N` — exact verb finalized in plan) exists in `firestarter_app/`, runs N≥3 consecutive `read` operations against a static chip, computes per-run SHA-256 hashes, and reports a pass/fail verdict + first-divergence offset on mismatch. The command persists in the CLI permanently (becomes the canonical post-fix regression check).
-  2. Running the diagnostic against the operator's `uno328pb` reproduces the 64KB jitter (SHA-256 hashes differ across runs) — matches the `large-read-data-jitter-uno328pb.md` empirical baseline (~57.8% byte diff between consecutive 64KB reads).
-  3. Running the diagnostic against the operator's `uno` (on `/dev/ttyACM0` or equivalent) ALSO shows jitter — proves the bug is pre-existing across the 328P + 328PB controller family. If jitter is somehow absent on `uno`, that fact is captured with evidence (would refute the 3-shield-invariance finding and demand RCA scope expansion).
-  4. Running the diagnostic against the operator's `leonardo` (on `/dev/ttyACM1` or equivalent) is exercised. Outcome captured either way: jitter present (expected — 1024-byte buffer changes chunk count but not per-chunk send code), or explicitly absent with evidence (would point RCA at AVR-328-specific timing rather than shared transport code).
-  5. Pre-fix consistency-check results for all 3 boards are captured in `.planning/v1.6-EVIDENCE.md` (or equivalent — fixed at execution time) with raw SHA-256s + byte-diff counts, serving as the baseline that Phase 29 inverts post-fix.
-
-**Plans:** 2/2 plans complete
-
-- [x] 26-01-PLAN.md — Desk-side: implement REPRO-03 (dev consistency-check CLI + EpromOperator.consistency_check_eprom + 8-test pytest suite)
-- [x] 26-02-PLAN.md — Operator-on-bench: REPRO-01 + REPRO-02 + SC#5 (run diagnostic on uno + leonardo + uno328pb; populate .planning/v1.6-EVIDENCE.md)
-
-**UI hint:** no
-
-#### Phase 27: Root Cause Analysis
-
-**Goal:** A future reader of `.planning/` can understand WHY the 64KB streaming reads jitter — the exact code path, the timing or buffering window that fails, and the milestone or commit that introduced the bug — without re-running the bisection.
-**Depends on:** Phase 26 (reproducer exists + cross-board evidence narrows the search to shared transport code rather than board-specific quirks).
-**Requirements:** RCA-01, RCA-02, RCA-03
-**Success Criteria** (what must be TRUE):
-
-  1. A written RCA artifact (`.planning/v1.6-RCA.md` or section in `.planning/v1.6-EVIDENCE.md` — fixed at execution time) identifies the exact code path that introduces byte corruption, with concrete evidence: either (a) an instrumented firmware build (e.g. `-D RCA_INSTRUMENT_READ_CHUNK`) whose log output pinpoints the corruption boundary, or (b) a `git bisect` / code-path narrowing that isolates the bug to a single function or chunk-boundary handler, or (c) a scope/logic-analyzer trace at the chip-socket level showing where firmware-sampled bytes diverge from host-received bytes.
-  2. The RCA artifact contains a 2-5 paragraph explanation of the WHY (timing window, missed ACK, buffer overflow, CRC8 false-positive, MAGIC_PREAMBLE collision, MSG_DATA_CHUNK length-field handling, host-side pyserial input-buffer overflow at 250000 baud, etc.) — sufficient detail that a future maintainer encountering similar symptoms can reach for the same fix pattern without re-bisecting.
-  3. The introducing commit (or earliest version with the bug) is cited via `git log -L` / `git bisect` output where reasonably possible — at minimum bracketed to a milestone (v1.0 vs v1.2 vs v1.4) with rationale. If full bisection is impractical (e.g. the bug existed since v1.0 and only became observable via Phase 24 rigor), that fact is documented with the empirical reasoning.
-  4. GATE-1.6 risk assessment is included — explicit prose stating whether the candidate fix (sketched in this phase, implemented in Phase 28) is likely to perturb write-path timing, VPP regulator engagement, or chip-programming pulse intervals. If risk is non-trivial, RCA flags it for explicit Phase 28 mitigation.
-
-**Plans:** 2/2 plans complete
-
-- [x] 27-01-PLAN.md — Wave A desk-side: produce `## Phase 27 — RCA Findings` section in `.planning/v1.6-EVIDENCE.md` (closes RCA-01/02/03 + SC#1-4 + hypothesis disposition + D-11 drift call-out; Wave A verifier emits `needs_bench: false` per RESEARCH HIGH-confidence finding)
-- [x] 27-02-PLAN.md — Wave B operator-on-bench (CONDITIONAL, drafted-but-not-executed by default): cut `firestarter/v1.6-read-bug` off `beta@3.0.0b4`, add `-D RCA_INSTRUMENT_READ_TRACE`, instrument `leonardo_rurp_shield.cpp`, flash + rerun consistency-check, append Wave B addendum to the same EVIDENCE.md section
-
-**UI hint:** no
-
-#### Phase 28: Fix Implementation + Unit Test Coverage
-
-**Goal:** The fix lands in the appropriate sub-repo(s) with the RCA evidence cited in commit messages, and a native unit test (Unity or pytest, whichever sub-repo the RCA points at) exercises the specific code path and would fail on the pre-fix code.
-**Depends on:** Phase 27 (RCA pinpoints the code path; without it, the fix would be speculative).
-**Requirements:** FIX-01, FIX-02, FIX-03
-**Success Criteria** (what must be TRUE):
-
-  1. The fix lands as one or more atomic commits in `firestarter/` and/or `firestarter_app/` (whichever side the RCA points at) on the `v1.6-read-bug` branch. Each commit message cites the Phase 27 RCA artifact and the introducing commit (if identified). If the fix spans both sub-repos, commits in each are paired and reference each other.
-  2. A native unit test (Unity test under `firestarter/test/` for firmware-side fixes, pytest under `firestarter_app/tests/` for host-side fixes — or both if the fix is bilateral) exercises the specific code path the fix touches. The test is demonstrated to FAIL on the pre-fix code (run on the parent commit) and PASS on the post-fix code. Test file location + test name recorded in the plan/phase artifact.
-  3. GATE-1.6 holds: `firestarter write` followed by `dev read -s N` byte-comparison on at least one bench chip (W27C512 or SST27SF512 — already proven stable in Phase 24) still passes byte-for-byte. This is the desk-side TDD-equivalent of the bench regression check; full bench gate runs in Phase 29.
-  4. Compiled firmware artifact sizes (`firestarter_uno.hex`, `firestarter_leonardo.hex`, `firestarter_uno328pb.hex`) are recorded in the fix commit message — any drift > a reasonable threshold (e.g. ±200 B on Leonardo's 85.4% baseline) is explicitly justified by the RCA's necessary scope. Major drift on Leonardo (the tightest board) is a flag to revisit fix scope before merge.
-  5. Sub-repo fixes ready for Phase 29 bench cut — i.e. `v1.6-read-bug` branches can be merged to `beta` to trigger a `3.0.0b5` (or next pre-release) cut for bench validation. Merge to `beta` happens at the Phase 29 boundary, not within Phase 28 itself.
-
-**Plans:** 4/4 plans complete
-
-**Wave 1:**
-
-- [x] 28-01-PLAN.md — Wave A desk-side: RED Unity scaffold + branch cut (FIX-02 RED half) [AUDIT TRAIL — shipped 2026-05-21]
-- [x] 28-02-PLAN.md — Wave B desk-side: two atomic fix commits + GREEN bar + EVIDENCE.md append (original FIX-01/FIX-02 GREEN + FIX-03 desk-side) [AUDIT TRAIL — shipped 2026-05-21, broken approach reverted by 28-03]
-- [x] 28-03-PLAN.md — Wave A re-iteration desk-side autonomous: `git revert 437339b6` + prune obsolete pullup-clear Unity test + GATE-1.6 v2 Axis 4 `.hex` SHA-256 capture + EVIDENCE.md re-iteration H2 append + ROADMAP annotation (FIX-01/FIX-02/FIX-03 desk-side close per D-09v2/D-11v2/D-12v2/D-14v2)
-
-**Wave 2** *(blocked on Phase 29 v2 bench result — gate flips only if Leonardo shape still zeros-dominant post-28-03 revert)*:
-
-- [x] 28-04-PLAN.md — Conditional desk-side revert of `4f205e58` (DRAFTED BUT NOT EXECUTED by default; `autonomous: false`, `executes_only_if: phase_29_v2_leonardo_zeros_dominant`; mirrors Plan 27-02 drafted-but-not-executed pattern)
-
-**UI hint:** no
-
-#### Phase 29: Multi-Board Bench Verification
-
-**Goal:** On all three boards (`uno`, `leonardo`, `uno328pb`), N≥5 consecutive `firestarter read <chip> file.bin` invocations against the same physically-static chip return byte-identical SHA-256 hashes; `dev read -s 1024` low-rate jitter also resolves; Phase 24 BENCH-02 closes as a side effect. Operator-on-bench — the acceptance gate for the whole milestone.
-**Depends on:** Phase 28 (the fix exists + pre-release bench-installable build exists). Bench hardware: operator's 3 boards + RURP shield + at least one representative EPROM (SST27SF512 default — already in socket from Phase 24).
-**Requirements:** VERIFY-01, VERIFY-02, VERIFY-03, VERIFY-04
-**Success Criteria** (what must be TRUE):
-
-  1. On `uno328pb`, post-fix `firestarter read <chip> file.bin` invoked N≥5 consecutive times against the same physically-static chip returns N byte-identical SHA-256 hashes. Raw SHA-256s recorded in `.planning/v1.6-EVIDENCE.md` (the inverse of Phase 26's baseline).
-  2. Same N≥5 consecutive-read byte-identity verified on `uno` AND `leonardo` (operator rotates each board through the same socketed chip, or uses separate chips with separately-captured baselines). Both boards' SHA-256s recorded alongside `uno328pb`'s.
-  3. `firestarter dev read <chip> -s 1024` returns byte-identical bytes across N≥5 consecutive calls on all 3 boards — the low-rate jitter (~0.1% per the original triage) also resolves. If this criterion fails while criteria 1+2 pass, the root cause is masked rather than fixed and the milestone re-opens.
-  4. Phase 24 BENCH-02 closes — recorded as a post-hoc row addendum in `.planning/v1.5-BENCH-RESULTS.md` citing the v1.6 fix. Operator can now run write→read→verify on the representative EPROM (W27C512 or SST27SF512) with meaningful read-back comparison.
-  5. GATE-1.6 confirmed on bench: write path remains correct — `firestarter write -e <chip>` followed by full-chip read-back on the same board still produces byte-identical content matching the input file. This is the bench-rigor version of Phase 28's desk-side gate, with the freshly-installed post-fix firmware.**Plans:** 2 plans
-
-**Wave 1**
-
-- [x] 29-01-PLAN.md — Wave A desk-side: local PIO build of 3 firmware envs from `firestarter/v1.6-read-bug` @ 4f205e58 + per-board hex SHA-256 capture + host CLI editable install from `firestarter_app/v1.6-read-bug` @ c057fe2 + pytest sanity gate + EVIDENCE.md + v1.5-BENCH-RESULTS.md SCAFFOLD sections appended (NO branch operations; Phase 30 owns merge per Phase 30 SC#5)
-
-**Wave 2** *(blocked on Wave 1 completion)*
-
-- [x] 29-02-PLAN.md — Wave B operator-on-bench (v1, 2026-05-22): Leonardo + uno328pb FAIL (zeros-dominant); D-07 milestone-reopens triggered. Immutable audit trail per D-25v2. Closed by re-iteration via plans 29-03 + 29-04.
-
-**Wave 3** *(re-iteration: post Plan 28-03 single revert of `437339b6`)*
-
-- [x] 29-03-PLAN.md — Wave A v2 desk-side rebuild: leonardo-only rebuild from `firestarter/v1.6-read-bug` @ `efd203a` + SHA attestation against Phase 28 re-iteration Axis 4 expected (`734b9a85…`, 68884 B; MATCH). EVIDENCE.md Wave A v2 build hash record appended inside Phase 29 Attempt 2 H2 area. No source/branch mutations. Closed 2026-05-26.
-
-**Wave 4** *(re-iteration: operator-on-bench gate; blocked on Wave 3 completion)*
-
-- [x] 29-04-PLAN.md — Wave B v2 operator-on-bench (2026-05-26): sideloaded Wave A v2 hex to Leonardo on `/dev/ttyACM1`; 3× N=5 `firestarter dev consistency-check W27C512` (Modified Rev 0 canonical + Rev 2.0 bonus diagnostic + Modified Rev 0 replication). Modified Rev 0 WORST zero-byte ratio 0.047% (≤ 1% structured_data threshold); 99.50% cross-session-stable-byte agreement; Phase 26 baseline shape match. Emitted `plan_28_04_gate: pass_parked` per D-22v2. VERIFY-02 PASS; VERIFY-01 + VERIFY-04 DEFERRED to v1.8 (D-29v2/D-30v2); VERIFY-03 DEFERRED (D-26v2 operator-optional). Pattern findings (Bug A upper-address jitter + Bug B Rev 2.0 /CE-or-/OE timing) recorded as v1.8 RCA seed. Plan 28-04 parks permanently; Phase 28 re-iteration closes fully; Phase 30 UNBLOCKS per D-17v2 re-scope. Closed 2026-05-26.
-
-**UI hint:** no
-
-#### Phase 30: Documentation + Milestone Close
-
-**Goal:** v1.6 ships with the bug todo moved out of `pending/`, PROJECT.md updated, MILESTONES.md entry written, phase artifacts archived. The milestone is reproducibly closed.
-**Depends on:** Phases 26, 27, 28, 29 (all evidence + artifacts must exist before close).
-**Requirements:** DOC-01, DOC-02, MS-01
-**Success Criteria** (what must be TRUE):
-
-  1. `.planning/todos/pending/large-read-data-jitter-uno328pb.md` moved out of `pending/` (e.g. to `.planning/todos/resolved/` or deleted — pattern fixed at execution time) with a root-cause summary + Phase 27 RCA file reference + Phase 28 fix commit references recorded.
-  2. `PROJECT.md` reflects the v1.6 ship — "Validated" / "What works today" sections updated to note the fix; the Current Milestone section flipped to point at the next milestone (or set to "no milestone in progress" if none is queued). The v1.5 backlog list in MILESTONES.md "Open backlog from v1.5 bench session" is updated to strike `large-read-data-jitter-uno328pb` (or replaced with a "resolved in v1.6" annotation).
-  3. `.planning/MILESTONES.md` grows a v1.6 entry following the same shape as v1.4/v1.5 (Phases, Plans, Timeline, Ship tag, Commits, Delivered narrative, Key Accomplishments, Stats, Key Decisions, Known Gaps, Hardware Impact). Bench evidence cross-referenced.
-  4. `.planning/phases/26-*/` through `.planning/phases/30-*/` archived under `.planning/milestones/v1.6-phases/` (mirror of v1.4/v1.5 archive pattern); `.planning/ROADMAP.md` collapses the v1.6 section into a `<details>` summary; `.planning/REQUIREMENTS.md` is archived as `.planning/milestones/v1.6-REQUIREMENTS.md` and deleted from the live planning surface (mirror of v1.5 close pattern documented in MILESTONES.md commit `8eff40e`).
-  5. Sub-repo branch promotion done: `v1.6-read-bug` → `beta` → `main` in both `firestarter/` and `firestarter_app/`; ship tag (e.g. `3.0.1` or matching next stable per v1.4 lockstep) cut from each `main` if operator authorizes a stable promotion. Otherwise v1.6 ships on the pre-release channel only and the stable bump is explicitly deferred.
-
-**Plans:** 3 plans
-
-- [x] 30-01-PLAN.md — Wave 1 desk-side autonomous: DOC-01 + DOC-02 + MS-01 substrate (read-bug todo carry-forward to v1.8-seed/; PROJECT.md ship-state flip; MILESTONES.md v1.6 entry; v1.5 backlog annotation)
-- [ ] 30-02-PLAN.md — Wave 2 desk-side autonomous: v1.6-archive.sh + run archive + v1.6-REQUIREMENTS.md + ROADMAP.md v1.6 collapse (Phase 30 SC#4)
-- [ ] 30-03-PLAN.md — Wave 3 operator-authorized: 30-HUMAN-UAT.md checklist for sub-repo + meta-repo branch promotion + ship-tag decision (3.0.0b5 beta-only default per D-17v2 vs 3.0.1 stable operator-discretion) + STATE.md flip (Phase 30 SC#5)
-**UI hint:** no
-
-### v1.6 Coverage
-
-| REQ-ID | Phase |
-|--------|-------|
-| REPRO-01 | Phase 26 |
-| REPRO-02 | Phase 26 |
-| REPRO-03 | Phase 26 |
-| RCA-01 | Phase 27 |
-| RCA-02 | Phase 27 |
-| RCA-03 | Phase 27 |
-| FIX-01 | Phase 28 |
-| FIX-02 | Phase 28 |
-| FIX-03 | Phase 28 |
-| VERIFY-01 | Phase 29 |
-| VERIFY-02 | Phase 29 |
-| VERIFY-03 | Phase 29 |
-| VERIFY-04 | Phase 29 |
-| DOC-01 | Phase 30 |
-| DOC-02 | Phase 30 |
-| MS-01 | Phase 30 |
-
-**Mapped: 16/16 requirements ✓** — no orphans, no duplicates.
+</details>
 
 ## v1.5 — Arduino Uno (ATmega328PB) Board Support (SHIPPED 2026-05-21)
 
