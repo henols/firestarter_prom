@@ -259,7 +259,7 @@ Original v1.6 roadmap detail preserved below for resume context.
 
 **Plans:** 3 plans
 
-- [ ] 30-01-PLAN.md — Wave 1 desk-side autonomous: DOC-01 + DOC-02 + MS-01 substrate (read-bug todo carry-forward to v1.8-seed/; PROJECT.md ship-state flip; MILESTONES.md v1.6 entry; v1.5 backlog annotation)
+- [x] 30-01-PLAN.md — Wave 1 desk-side autonomous: DOC-01 + DOC-02 + MS-01 substrate (read-bug todo carry-forward to v1.8-seed/; PROJECT.md ship-state flip; MILESTONES.md v1.6 entry; v1.5 backlog annotation)
 - [ ] 30-02-PLAN.md — Wave 2 desk-side autonomous: v1.6-archive.sh + run archive + v1.6-REQUIREMENTS.md + ROADMAP.md v1.6 collapse (Phase 30 SC#4)
 - [ ] 30-03-PLAN.md — Wave 3 operator-authorized: 30-HUMAN-UAT.md checklist for sub-repo + meta-repo branch promotion + ship-tag decision (3.0.0b5 beta-only default per D-17v2 vs 3.0.1 stable operator-discretion) + STATE.md flip (Phase 30 SC#5)
 **UI hint:** no
@@ -474,4 +474,4 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 27 | v1.6 | 3/2 | Complete   | 2026-05-26 |
 | 28 | v1.6 | 4/4 | Complete    | 2026-05-26 |
 | 29 | v1.6 | 1/2 | In Progress|  |
-| 30 (close) | v1.6 | 0/0 | Not started | — |
+| 30 (close) | v1.6 | 1/3 | In Progress|  |
