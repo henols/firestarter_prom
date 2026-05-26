@@ -270,8 +270,12 @@ Original v1.6 roadmap detail preserved below for resume context.
   4. GATE-1.6 risk assessment is included — explicit prose stating whether the candidate fix (sketched in this phase, implemented in Phase 28) is likely to perturb write-path timing, VPP regulator engagement, or chip-programming pulse intervals. If risk is non-trivial, RCA flags it for explicit Phase 28 mitigation.
 
 **Plans:** 2/2 plans complete
+**Wave 1**
 
 - [x] 27-01-PLAN.md — Wave A desk-side: produce `## Phase 27 — RCA Findings` section in `.planning/v1.6-EVIDENCE.md` (closes RCA-01/02/03 + SC#1-4 + hypothesis disposition + D-11 drift call-out; Wave A verifier emits `needs_bench: false` per RESEARCH HIGH-confidence finding)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [x] 27-02-PLAN.md — Wave B operator-on-bench (CONDITIONAL, drafted-but-not-executed by default): cut `firestarter/v1.6-read-bug` off `beta@3.0.0b4`, add `-D RCA_INSTRUMENT_READ_TRACE`, instrument `leonardo_rurp_shield.cpp`, flash + rerun consistency-check, append Wave B addendum to the same EVIDENCE.md section
 
 **UI hint:** no

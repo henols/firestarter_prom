@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.6
 milestone_name: — Fix the Read Bug (resuming after v1.7 close)
-status: paused_resume_v1.6
-last_updated: "2026-05-26T08:30:00.000Z"
-last_activity: 2026-05-26 -- v1.7 close commit pending Plan 09; v1.6 resume hand-off ready
+status: executing
+last_updated: "2026-05-26T10:59:25.954Z"
+last_activity: 2026-05-26 -- Phase 27 planning complete
 progress:
-  total_phases: 5
-  completed_phases: 3
-  total_plans: 8
-  completed_plans: 8
-  percent: 60
+  total_phases: 9
+  completed_phases: 4
+  total_plans: 21
+  completed_plans: 15
+  percent: 44
 ---
 
 # Project State
@@ -22,8 +22,8 @@ progress:
 
 Phase: 27 (re-open imminent — v1.6 RCA)
 Plan: N/A (gap-closure planning required)
-Status: Paused — resume v1.6 via `/gsd-plan-phase 27 --gaps`
-Last activity: 2026-05-26 -- v1.7 close substrate ready for v1.6 Phase 27 consumption
+Status: Ready to execute
+Last activity: 2026-05-26 -- Phase 27 planning complete
 Resume file: .planning/phases/27-root-cause-analysis/ (gap-closure pending)
 
 ## Project Reference
