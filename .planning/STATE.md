@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.7
-milestone_name: — RURP Shield Hardware Investigation & Version Detection
-status: executing
-last_updated: "2026-05-25T18:06:41.375Z"
-last_activity: 2026-05-25 -- Phase 35 planning complete
+milestone: v1.6
+milestone_name: — Fix the Read Bug (resuming after v1.7 close)
+status: paused_resume_v1.6
+last_updated: "2026-05-26T08:30:00.000Z"
+last_activity: 2026-05-26 -- v1.7 close commit pending Plan 09; v1.6 resume hand-off ready
 progress:
-  total_phases: 10
-  completed_phases: 8
-  total_plans: 38
-  completed_plans: 28
-  percent: 74
+  total_phases: 5
+  completed_phases: 3
+  total_plans: 8
+  completed_plans: 8
+  percent: 60
 ---
 
 # Project State
@@ -20,11 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: 35
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-05-25 -- Phase 35 planning complete
-Resume file: .planning/phases/35-documentation-milestone-close/35-CONTEXT.md
+Phase: 27 (re-open imminent — v1.6 RCA)
+Plan: N/A (gap-closure planning required)
+Status: Paused — resume v1.6 via `/gsd-plan-phase 27 --gaps`
+Last activity: 2026-05-26 -- v1.7 close substrate ready for v1.6 Phase 27 consumption
+Resume file: .planning/phases/27-root-cause-analysis/ (gap-closure pending)
 
 ## Project Reference
 
@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 35 — documentation + milestone close
+**Current focus:** v1.6 resume — Phase 27 RCA re-open via `/gsd-plan-phase 27 --gaps` (v1.7 substrate now available)
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
@@ -264,9 +264,14 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 
 ## Operator Next Steps
 
-- `/gsd-discuss-phase 31` — gather context for Phase 31 (Upstream Shield Archaeology); clone `AndersBNielsen/Relatively-Universal-ROM-Programmer`, map git history, capture silkscreen text from operator's Rev 2.2 / Rev 2.0 / Modified Rev 0 boards
-- Alternative: `/gsd-plan-phase 31` — skip discussion, plan Phase 31 directly using REQUIREMENTS.md + ROADMAP.md
-- v1.6 resume: deferred until v1.7 ships — `/gsd-plan-phase 27 --gaps` once v1.7 close lands the labeled-schematic + per-rev capability table
+- **v1.7 closed — Shipped 2026-05-XX.** See `.planning/MILESTONES.md` v1.7 entry; canonical reference at `.planning/v1.7-SHIELD-REVS.md`; operator-facing copy at `firestarter/doc/SHIELD-REVISIONS.md` (GitHub-discoverable); bench validation in `.planning/phases/35-documentation-milestone-close/35-HUMAN-UAT.md` (UAT-1/2/3 firmware-side PASS 2026-05-26).
+- **v1.6 resume: `/gsd-plan-phase 27 --gaps`** — Phase 27 RCA re-open will design instrumented A/B builds with the v1.7-shipped labeled-schematic + per-rev capability table + detect-fw substrate.
+- **v1.7 substrate the Phase 27 RCA re-open consumes:**
+  - Labeled schematic: `.planning/v1.7-SHIELD-REVS.md` §1 (inventory) + §3 (Anders R41-on-A3 detect-divider history) + §4 (inter-rev electrical differences)
+  - Per-rev capability table: `.planning/v1.7-SHIELD-REVS.md` §6
+  - Detect-fw substrate: `REVISION_2_3` / `REVISION_UNKNOWN` enum (`firestarter/include/rurp_shield.h`) + post-CR-01 INPUT high-Z ADC band lookup (`firestarter/include/rurp_pinout.h:58-62`) + Plan 01 INPUT high-Z semantic correction (bands characterize A3-net composition, not R41 value — see `.planning/v1.7/bench-evidence-35.md`)
+- **First disambiguation experiment** per Phase 29-02 SUMMARY hand-off: pre-Phase-28-firmware A/B test on `firestarter/v1.6-read-bug~2` — build the firmware from `firestarter` commit `~2` (two commits before the Phase 28 `_NOP()` settling fix at `4f205e58` + `PORTx-clear` mirror at `437339b6`), sideload to operator's Leonardo (port + controller identity verified per memory `[[feedback_verify_port_identity_each_task]]`), re-probe the read-jitter signature. Outcome disambiguates whether the regression is the Phase 28 fix itself or pre-existing in the read-path.
+- **Bench session capability:** Operator's three boards stay connected via USB passthrough (per `[[reference_usb_passthrough_bench]]` memory) — Claude can drive firmware sideload + serial reads directly; operator handles chip handling, multimeter, photos.
 
 ## Performance Metrics
 
