@@ -257,7 +257,11 @@ Original v1.6 roadmap detail preserved below for resume context.
   4. `.planning/phases/26-*/` through `.planning/phases/30-*/` archived under `.planning/milestones/v1.6-phases/` (mirror of v1.4/v1.5 archive pattern); `.planning/ROADMAP.md` collapses the v1.6 section into a `<details>` summary; `.planning/REQUIREMENTS.md` is archived as `.planning/milestones/v1.6-REQUIREMENTS.md` and deleted from the live planning surface (mirror of v1.5 close pattern documented in MILESTONES.md commit `8eff40e`).
   5. Sub-repo branch promotion done: `v1.6-read-bug` → `beta` → `main` in both `firestarter/` and `firestarter_app/`; ship tag (e.g. `3.0.1` or matching next stable per v1.4 lockstep) cut from each `main` if operator authorizes a stable promotion. Otherwise v1.6 ships on the pre-release channel only and the stable bump is explicitly deferred.
 
-**Plans:** TBD
+**Plans:** 3 plans
+
+- [ ] 30-01-PLAN.md — Wave 1 desk-side autonomous: DOC-01 + DOC-02 + MS-01 substrate (read-bug todo carry-forward to v1.8-seed/; PROJECT.md ship-state flip; MILESTONES.md v1.6 entry; v1.5 backlog annotation)
+- [ ] 30-02-PLAN.md — Wave 2 desk-side autonomous: v1.6-archive.sh + run archive + v1.6-REQUIREMENTS.md + ROADMAP.md v1.6 collapse (Phase 30 SC#4)
+- [ ] 30-03-PLAN.md — Wave 3 operator-authorized: 30-HUMAN-UAT.md checklist for sub-repo + meta-repo branch promotion + ship-tag decision (3.0.0b5 beta-only default per D-17v2 vs 3.0.1 stable operator-discretion) + STATE.md flip (Phase 30 SC#5)
 **UI hint:** no
 
 ### v1.6 Coverage
