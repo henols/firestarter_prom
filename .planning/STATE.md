@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: — RURP Shield Hardware Investigation & Version Detection
 status: executing
-last_updated: "2026-05-26T14:13:53.967Z"
-last_activity: 2026-05-26 -- Phase 28 re-iteration planning complete (split-scope revert; Plans 28-03 + 28-04 added; 28-01/28-02 preserved as audit trail)
+last_updated: "2026-05-26T14:38:43.067Z"
+last_activity: 2026-05-26
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 13
-  completed_plans: 11
+  completed_plans: 12
   percent: 30
 ---
 
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 28 (re-iteration) — Fix Implementation + Unit Test Coverage (split-scope revert)
-Plan: 28-03 (next — desk-side autonomous revert of `437339b6` + Unity test prune + Axis 4 `.hex` SHA capture + EVIDENCE.md H2 append + ROADMAP annotation); 28-04 (drafted-but-not-executed, conditional second revert of `4f205e58` gated on Phase 29 v2 bench outcome)
+Phase: 28 (fix-implementation-unit-test-coverage) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-05-26 — Phase 28 re-iteration planning complete after Phase 27 re-open closure (Plan 27-05). Plans 28-03 + 28-04 added; original 28-01 + 28-02 preserved as audit trail. Closed-phase replan under --force override per re-iteration commit `7a5eb7c`. Resume: `/gsd-execute-phase 28`.
+Last activity: 2026-05-26
 
 ## Project Reference
 
@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 28 re-iteration — split-scope Leonardo revert on `firestarter/v1.6-read-bug` (v1.6 resumed 2026-05-26 after Phase 27 re-open closure). v1.7 shipped 2026-05-26.
+**Current focus:** Phase 28 — fix-implementation-unit-test-coverage
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)

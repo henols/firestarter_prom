@@ -1,0 +1,8 @@
+phase_28_reiteration_status: closed
+fix_01_close: PASS (revert commit ea25174 landed; D-06 footer present; 437339b6 inverted cleanly)
+fix_02_close: PASS (prune commit efd203a landed; surviving test_rurp_read_data_buffer_reassembles_data_bus passes; allowlist preserved)
+fix_03_desk_side_close: PASS (Axis 4 desk-side identity table holds: Uno=byte-identical, uno328pb=byte-identical+d9e51b7e, Leonardo=differs by revert delta)
+fix_03_bench_side: carries to Phase 29 v2 (N=5 multi-board consistency-check)
+immutability_guard: PASS (Guards 1+3 byte-identical; Guard 2 changed as expected — insertion was at end of Guard 2 range, no existing content modified)
+plan_28_04_status: drafted-but-not-executed; wave_b_needed: false
+phase_29_v2_handoff: ready (sideload Plan 28-03 HEAD efd203a; assert Leonardo shape returns to structured-data)

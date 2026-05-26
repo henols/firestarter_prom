@@ -176,7 +176,7 @@ Original v1.6 roadmap detail preserved below for resume context.
 **Wave 1:**
 - [x] 28-01-PLAN.md — Wave A desk-side: RED Unity scaffold + branch cut (FIX-02 RED half) [AUDIT TRAIL — shipped 2026-05-21]
 - [x] 28-02-PLAN.md — Wave B desk-side: two atomic fix commits + GREEN bar + EVIDENCE.md append (original FIX-01/FIX-02 GREEN + FIX-03 desk-side) [AUDIT TRAIL — shipped 2026-05-21, broken approach reverted by 28-03]
-- [ ] 28-03-PLAN.md — Wave A re-iteration desk-side autonomous: `git revert 437339b6` + prune obsolete pullup-clear Unity test + GATE-1.6 v2 Axis 4 `.hex` SHA-256 capture + EVIDENCE.md re-iteration H2 append + ROADMAP annotation (FIX-01/FIX-02/FIX-03 desk-side close per D-09v2/D-11v2/D-12v2/D-14v2)
+- [x] 28-03-PLAN.md — Wave A re-iteration desk-side autonomous: `git revert 437339b6` + prune obsolete pullup-clear Unity test + GATE-1.6 v2 Axis 4 `.hex` SHA-256 capture + EVIDENCE.md re-iteration H2 append + ROADMAP annotation (FIX-01/FIX-02/FIX-03 desk-side close per D-09v2/D-11v2/D-12v2/D-14v2)
 
 **Wave 2** *(blocked on Phase 29 v2 bench result — gate flips only if Leonardo shape still zeros-dominant post-28-03 revert)*:
 - [ ] 28-04-PLAN.md — Conditional desk-side revert of `4f205e58` (DRAFTED BUT NOT EXECUTED by default; `autonomous: false`, `executes_only_if: phase_29_v2_leonardo_zeros_dominant`; mirrors Plan 27-02 drafted-but-not-executed pattern)
@@ -411,6 +411,6 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 21-25 (v1.5) | v1.5 | 6/6 | ✅ Shipped | 2026-05-21 |
 | 26 | v1.6 | 2/2 | Complete    | 2026-05-21 |
 | 27 | v1.6 | 3/2 | Complete   | 2026-05-26 |
-| 28 | v1.6 | 2/2 | Complete    | 2026-05-21 |
+| 28 | v1.6 | 3/4 | In Progress|  |
 | 29 | v1.6 | 1/2 | In Progress|  |
 | 30 (close) | v1.6 | 0/0 | Not started | — |
