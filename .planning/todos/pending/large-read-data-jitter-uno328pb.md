@@ -7,7 +7,7 @@ type: bug
 target_milestone: v1.6 (in scope)
 priority: HIGH
 related_phase: 24
-resolves_phase: 28
+resolves_phase: v1.8
 ---
 
 # Full 64KB streaming reads are unreliable on uno328pb
