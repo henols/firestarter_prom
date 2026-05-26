@@ -171,7 +171,7 @@ Original v1.6 roadmap detail preserved below for resume context.
   3. GATE-1.6 holds: `firestarter write` followed by `dev read -s N` byte-comparison on at least one bench chip (W27C512 or SST27SF512 — already proven stable in Phase 24) still passes byte-for-byte. This is the desk-side TDD-equivalent of the bench regression check; full bench gate runs in Phase 29.
   4. Compiled firmware artifact sizes (`firestarter_uno.hex`, `firestarter_leonardo.hex`, `firestarter_uno328pb.hex`) are recorded in the fix commit message — any drift > a reasonable threshold (e.g. ±200 B on Leonardo's 85.4% baseline) is explicitly justified by the RCA's necessary scope. Major drift on Leonardo (the tightest board) is a flag to revisit fix scope before merge.
   5. Sub-repo fixes ready for Phase 29 bench cut — i.e. `v1.6-read-bug` branches can be merged to `beta` to trigger a `3.0.0b5` (or next pre-release) cut for bench validation. Merge to `beta` happens at the Phase 29 boundary, not within Phase 28 itself.
-**Plans:** 4 plans (2 audit-trail + 2 re-iteration; 2/4 complete — re-iterated 2026-05-26 split-scope revert)
+**Plans:** 4/4 plans complete
 
 **Wave 1:**
 - [x] 28-01-PLAN.md — Wave A desk-side: RED Unity scaffold + branch cut (FIX-02 RED half) [AUDIT TRAIL — shipped 2026-05-21]
@@ -411,6 +411,6 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 21-25 (v1.5) | v1.5 | 6/6 | ✅ Shipped | 2026-05-21 |
 | 26 | v1.6 | 2/2 | Complete    | 2026-05-21 |
 | 27 | v1.6 | 3/2 | Complete   | 2026-05-26 |
-| 28 | v1.6 | 4/4 | Complete   | 2026-05-26 |
+| 28 | v1.6 | 4/4 | Complete    | 2026-05-26 |
 | 29 | v1.6 | 1/2 | In Progress|  |
 | 30 (close) | v1.6 | 0/0 | Not started | — |
