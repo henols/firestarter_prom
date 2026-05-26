@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: — RURP Shield Hardware Investigation & Version Detection
 status: Defining requirements
-last_updated: "2026-05-26T13:10:00.000Z"
-last_activity: 2026-05-26 — Phase 27 re-open CLOSED (Plan 27-05 final synthesis): dual-cause disposition confirmed; Phase 28 re-iteration UNBLOCKED with split-scope handoff. See .planning/v1.6-EVIDENCE.md § Phase 27 RCA Re-open Findings.
+last_updated: "2026-05-26T14:00:00.000Z"
+last_activity: 2026-05-26 — Phase 28 re-iteration context gathered (split-scope revert: Leonardo per-commit revert of 437339b6; uno328pb deferred to operator workstream). v1.6 resumes at Phase 28 re-iteration.
 progress:
   total_phases: 10
   completed_phases: 4
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-05-22 — Milestone v1.7 started (RURP Shield Hardware Investigation & Version Detection). v1.6 paused at the Phase 27 RCA re-open boundary after Phase 29 Wave B FAIL (D-07 milestone-reopens).
+Phase: 28 (re-iteration) — Fix Implementation + Unit Test Coverage (split-scope revert)
+Plan: 28-03 (next — desk-side autonomous revert of `437339b6`); 28-04 (drafted-but-not-executed, conditional second revert)
+Status: Re-iteration context gathered; ready for planning
+Last activity: 2026-05-26 — Phase 28 re-iteration context gathered after Phase 27 re-open closure (Plan 27-05). Split-scope: Leonardo revert `437339b6` (primary) + conditional second revert `4f205e58`; uno328pb deferred to operator workstream per `.hex` SHA identity falsifier (`d9e51b7e…`). Resume file: `.planning/phases/28-fix-implementation-unit-test-coverage/28-CONTEXT.md`.
 
 ## Project Reference
 
@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 31 (TBD — first phase of v1.7 RURP Shield Hardware Investigation)
+**Current focus:** Phase 28 re-iteration — split-scope Leonardo revert on `firestarter/v1.6-read-bug` (v1.6 resumed 2026-05-26 after Phase 27 re-open closure). v1.7 shipped 2026-05-26.
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)

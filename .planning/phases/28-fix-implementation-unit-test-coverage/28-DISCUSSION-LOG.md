@@ -130,3 +130,72 @@
 - `firestarter info <chip>` crash + `0xda01` W27C512 chip-ID alias gap — out of v1.6 scope per Phase 26 EVIDENCE.md.
 - uno328pb-silicon read-path RCA — deferred until operator reflashes the misidentified board per `[[project_uno328pb_correction]]`.
 - Three pending todos (`large-read-data-jitter-uno328pb`, `avrdude-mcu-detection-fallback`, `w27c512-eeprom-misclassification`) — reviewed in cross_reference_todos, none folded. The first will be moved out of `pending/` by Phase 30 DOC-01.
+
+---
+
+## Session 2 — Re-iteration (2026-05-26)
+
+**Trigger:** Phase 27 re-open closure (Plan 27-05, 2026-05-26) UNBLOCKED Phase 28 re-iteration with split-scope hand-off. The Phase 28 v1 attempt (commits `437339b6` + `4f205e58`) was proven by Plan 27-04 bench A/B to introduce a Leonardo regression (99% zeros / 0.08% jitter / 5-distinct-SHAs vs Phase 26 baseline 2.1% jitter on structured data). uno328pb regression is structurally independent (Plan 27-04 `.hex` SHA identity `d9e51b7e…`) and not a Phase 28 deliverable.
+
+**Mode:** /gsd-discuss-phase 28 (harness Auto Mode active — gray areas auto-resolved with recommended defaults; no AskUserQuestion prompts).
+
+**Prior context loaded:** `.planning/PROJECT.md`, `.planning/STATE.md`, `.planning/ROADMAP.md` (v1.6 collapsed section + Phase 28 SC#1-5), `.planning/v1.6-EVIDENCE.md §"Phase 27 — RCA Re-open Findings (2026-05-26)"` (lines 378-560), `.planning/phases/27-root-cause-analysis/27-VERIFICATION.md` (re-open verification 14/14 truths), `.planning/phases/27-root-cause-analysis/27-05-SUMMARY.md`, `.planning/phases/27-root-cause-analysis/27-04-SUMMARY.md`, original `28-CONTEXT.md` (now superseded), original `28-DISCUSSION-LOG.md` Session 1.
+
+**Codebase scout:** `firestarter/v1.6-read-bug` HEAD `4f205e58`; clean working tree. `firestarter_app/v1.6-read-bug` HEAD `999c3cc`; clean working tree (sanctioned deviation per Plan 27-04).
+
+### Detection-phase auto-decisions
+
+| Detection | Auto-selected option | Rationale |
+|-----------|----------------------|-----------|
+| Existing 28-CONTEXT.md from 2026-05-21 detected | **Update it (append re-iteration section; preserve v1 as `_v1_superseded` tag-marked appendix)** | Harness Auto Mode → treat as `--auto`. Audit-trail preservation matches Plan 27-05 immutability pattern. |
+| Existing plans 28-01-PLAN.md + 28-02-PLAN.md detected (both completed) | **Continue and replan after (new plans 28-03 + 28-04 added without modifying v1 plans)** | v1 plans are historical artifacts; the re-iteration introduces new plans (numbering 28-03 onwards) without touching 28-01/02. |
+
+### Re-iteration gray areas — auto-resolved (recommended defaults)
+
+| Gray Area | Question | Options considered | Selected (recommended) | Why |
+|-----------|----------|-------------------|------------------------|-----|
+| A. Revert order | Per-commit bisection-first vs both-at-once | (a) revert `437339b6` first; (b) revert `4f205e58` first; (c) revert both at once | **(a) revert `437339b6` first** | Plan 27-05 fix sketch v2 (`v1.6-EVIDENCE.md:513`) explicit: "revert `437339b6` OR `4f205e58` SEPARATELY". `437339b6` is the more likely primary fault driver (PORTx-clear changes bus-drive timing such that `_NOP()` settling samples bus after chip output collapses). |
+| B. Re-fix attempt | Pure revert vs revert + new fix attempt vs activate instrumented-build template | (a) pure revert; (b) revert + new PORTx-clear-with-guard; (c) revert + `_NOP()` count tune; (d) activate Plan 27-05 parked instrumented-build template inside Phase 28 | **(a) pure revert; defer re-fix to v1.8** | Aggressive re-fix burned the confidence budget on the Phase 28 v1 attempt; parked template's substrate (v1.7 shield-detect) hasn't been forward-merged onto `v1.6-read-bug`. v1.6 milestone goal narrows to "ship diagnostic + revert broken fix" (D-17v2). |
+| C. GATE-1.6 v2 Axis 4 desk-side closure | Defer Axis 4 entirely to Phase 29 bench wave vs close half desk-side via `.hex` SHA identity | (a) desk-side `.hex` SHA identity check only; (b) defer entirely to Phase 29; (c) both halves in Phase 28 (bench wave inside Phase 28) | **(a) desk-side `.hex` SHA identity check; bench half in Phase 29 v2** | Cheap over-determining falsification for uno328pb branch independence + regression guard for Uno. Plan 27-05 names it as the mandatory GATE-1.6 v2 sub-check. Bench N=5 stays Phase 29 v2's gate. |
+| D. Unity test handling | Keep / delete / tombstone the pullup-clear assertion test | (a) delete; (b) keep as expected-fail tombstone; (c) update to assert new behavior | **(a) delete** | Asserted behavior is no longer the intended fix shape post-revert; tombstone introduces ongoing CI noise; the asserted shape is fully documented in `v1.6-EVIDENCE.md §"Fix sketch v2"` for v1.8 pickup. Keep bit-reassembly companion test if it exists in the codebase (researcher confirms). |
+| E. Plan structure | Single plan (both reverts) vs primary + conditional | (a) Plan 28-03 single revert + Plan 28-04 conditional second revert; (b) Plan 28-03 both reverts at once; (c) one combined plan | **(a) Plan 28-03 primary (desk-side, autonomous) + Plan 28-04 drafted-but-not-executed (conditional)** | Mirrors v1 Phase 27 Wave A/B drafted-but-not-executed pattern; preserves bisection signal for the v1.8 re-fix substrate. Phase 29 v2 bench result decides whether Plan 28-04 fires. |
+| F. EVIDENCE.md append placement | New H2 vs H3 vs edit-in-place | (a) new H2 after `### Re-open final verdict` + before `## Verdict`; (b) new H3 under the existing Phase 28 H2 (line 112); (c) edit-in-place | **(a) new H2 section, append-only** | Preserves the file's append-only convention + the original Phase 28 H2 byte-identical (audit trail). Chronological placement matches the rest of the file (re-open closure → Phase 28 re-iteration → Verdict). Anti-pattern immutability guard SHA-256 on the original H2 mandatory. |
+| G. uno328pb handling | Address in Phase 28 vs defer to operator workstream | (a) defer entirely; (b) include diagnostic placeholder section in Phase 28; (c) attempt a uno328pb-specific source edit | **(a) defer entirely (operator workstream)** | `.hex` SHA identity `d9e51b7e…` over-determines that Phase 28's source edits cannot have caused the uno328pb regression. Memory `[[project_uno328pb_bench_instability_27_04]]` is the diagnostic substrate. Phase 28 re-iteration only touchpoint: read-only `.hex` SHA capture for Axis 4 verification. |
+| H. Milestone goal re-scope propagation | Update PROJECT.md / MILESTONES.md in Phase 28 vs Phase 30 | (a) propagation paperwork in Phase 28; (b) defer to Phase 30; (c) split — flag in Phase 28, owner in Phase 30 | **(c) flag in Phase 28 via D-17v2; full propagation in Phase 30** | Phase 28 re-iteration's deliverable is the technical substrate (revert + Axis 4 desk-side); Phase 30 owns the narrative. D-17v2 captures the implication for downstream agents (Phase 28 success = revert lands + Axis 4 desk-side passes, NOT Leonardo byte-identical N=5 reads). |
+
+### cross_reference_todos (re-iteration)
+
+No new todo folding. The three pending todos already reviewed in Session 1 carry forward with the same disposition. The v1.6 milestone bug todo (`large-read-data-jitter-uno328pb.md`) will be moved out of `pending/` by Phase 30 re-iteration with re-scoped narrative ("diagnostic shipped + broken fix reverted; proper read-bug fix deferred to v1.8").
+
+### Canonical refs added (re-iteration)
+
+- `.planning/v1.6-EVIDENCE.md §"Phase 27 — RCA Re-open Findings (2026-05-26)"` — line 378.
+- `.planning/v1.6-EVIDENCE.md §"Fix sketch v2 (Phase 28 re-iteration hand-off)"` — line 507.
+- `.planning/v1.6-EVIDENCE.md §"GATE-1.6 v2 reassessment"` — line 530.
+- `.planning/v1.6-EVIDENCE.md §"Re-open final verdict — closing the loop"` — line 544.
+- `.planning/phases/27-root-cause-analysis/27-05-SUMMARY.md` — Plan 27-05 synthesis.
+- `.planning/phases/27-root-cause-analysis/27-04-SUMMARY.md` — Plan 27-04 bench A/B outcome.
+- `.planning/phases/27-root-cause-analysis/27-03-SUMMARY.md` — Plan 27-03 v2 hypothesis table.
+
+### Deferred (re-iteration)
+
+- **Proper Leonardo read-bug re-fix** → v1.8+ (after v1.7 shield-detect substrate forward-merge enables Plan 27-05 parked instrumented-build template activation).
+- **uno328pb pre-existing regression** → operator workstream (Rev 2.2 socket contact wear, USB-UART bridge buffering, ATmega328PB Case A bus-read timing audit).
+- **Plan 28-04 conditional second revert** → drafted-but-not-executed by default; activates on Phase 29 v2 bench signal.
+- **Phase 30 v1.6 milestone close re-scope** → Phase 30 re-discusses separately.
+- **Documentation drift correction (5 locations claiming Leonardo 1024-B)** → Phase 30 paperwork (carried forward from v1 D-05).
+- **`firestarter/platformio.ini:64-65` DATA_BUFFER_SIZE revert (512 → 1024)** → Phase 30 polish or post-v1.6 (carried forward).
+- **Backfill Unity test for Uno `df5fb44` fix** → post-v1.6 quality-debt (carried forward).
+
+### Claude's discretion (re-iteration)
+
+- Whether to commit the test deletion separately from the revert (recommended: separate atomic commit for narrative clarity).
+- Whether `test_rurp_read_data_buffer_reassembles_data_bus` exists in the codebase (researcher checks `firestarter/test/native/avr/test_data_input/`).
+- Pre-revert `.hex` SHA capture location (recommended: inline in plan task output).
+- Anti-pattern immutability guard depth (minimum: SHA-256 on the original `## Phase 28 — Fix Commit References` H2 section).
+
+---
+
+*Phase: 28-fix-implementation-unit-test-coverage*
+*Session 1 (v1): 2026-05-21*
+*Session 2 (re-iteration): 2026-05-26*
