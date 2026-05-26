@@ -3,12 +3,103 @@
 > **Audit trail only.** Do not use as input to planning, research, or execution agents.
 > Decisions are captured in CONTEXT.md — this log preserves the alternatives considered.
 
-**Date:** 2026-05-22
+**Date:** 2026-05-22 (v1) + 2026-05-26 (v2 re-iteration)
 **Phase:** 29-multi-board-bench-verification
 **Mode:** Auto Mode (harness Auto Mode active — gray areas auto-resolved with recommended options; no AskUserQuestion prompts)
-**Areas discussed:** uno328pb row strategy, Pre-release cut procedure (CORRECTED to local sideload), N count, Plan structure (CORRECTED — no merge in Phase 29), VERIFY-03 mechanism, VERIFY-04 chip + procedure, Fail-handling protocol, EVIDENCE.md schema, Test chip selection, Shield-rev recording, BENCH-02 addendum format
+**Areas discussed:**
+- v1 (2026-05-22): uno328pb row strategy, Pre-release cut procedure (CORRECTED to local sideload), N count, Plan structure (CORRECTED — no merge in Phase 29), VERIFY-03 mechanism, VERIFY-04 chip + procedure, Fail-handling protocol, EVIDENCE.md schema, Test chip selection, Shield-rev recording, BENCH-02 addendum format
+- v2 (2026-05-26): Success-criteria reshape (revert vs byte-identity), Plan 28-04 gate signal, Wave shape simplification (Leonardo-only), EVIDENCE.md re-iteration schema, Plan numbering (29-03/04 vs overwrite), uno328pb deferral to v1.8, BENCH-02 deferral to v1.8, FAIL semantics re-mapping
 
 **Operator correction (2026-05-22):** initial CONTEXT placed the `v1.6-read-bug → beta` merge in Wave A (BEFORE bench verification), which would have polluted the public release channel if the fix failed on bench. Corrected to local-sideload model — Phase 29 builds firmware locally from `v1.6-read-bug`, sideloads via `pio run -t upload` (or `avrdude -c urclock`), and stays entirely off-remote. Phase 30 (which ROADMAP SC#5 already designates as the branch-promotion phase) picks up the public merge + pre-release cut + main promotion once Phase 29 verdict is green.
+
+---
+
+## Re-iteration overlay (2026-05-26) — Post-revert bench gate
+
+Phase 29 v1 (2026-05-22) FAILED on Leonardo + uno328pb (D-07 milestone-reopens). Phase 27 RCA re-opened (Plan 27-05, closed 2026-05-26) with dual-cause disposition: Leonardo regression caused by Phase 28 v1 firmware (Outcome A); uno328pb regression confirmed independent pre-existing hardware issue (Outcome B). Phase 28 re-iterated 2026-05-26 with single revert of `437339b6` (Plan 28-03, `ea25174`+`efd203a`); second revert of `4f205e58` (Plan 28-04) parked drafted-but-not-executed pending Phase 29 v2 bench signal.
+
+Re-iteration mode: same auto-mode no-AskUserQuestion-prompts approach as v1; reasonable calls made for each new gray area introduced by the re-iteration scope.
+
+### Success-criteria reshape (D-21v2)
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Leonardo shape = Phase 26 baseline (structured-data + ~0.44% jitter) | Phase 29 v2 verifies the revert removed the regression; gate is shape classification, not SHA-256 byte-identity. Read bug itself defers to v1.8 per D-17v2 milestone re-scope. | ✓ |
+| Leonardo byte-identical SHA-256 across N=5 (original v1 D-08 gate) | Preserves v1 verdict cell semantics; but would FAIL even with a perfect revert because the original ~0.44% read jitter is the Phase 26 baseline bug (which v1.6 no longer attempts to fix). | |
+| Skip Leonardo gate entirely; close v1.6 on Plan 28-03 desk-side evidence alone | Phase 28 re-iteration verification (5/5) already passed desk-side; bench could be deferred. But Plan 28-04 gate signal needs a bench source to evaluate. | |
+
+**Selected:** Leonardo shape = Phase 26 baseline (auto — only option consistent with D-17v2 re-scope + Plan 28-04 gate contract).
+**Notes:** Phase 26 baseline Leonardo on Modified Rev 0 + voltage-divider mod + W27C512 produced ~0.44% jitter (structured-data). v2's gate verifier classifies via zero-byte ratio (≤1% threshold) + qualitative shape against the Phase 26 archived run binaries.
+
+### Plan 28-04 gate signal emission (D-22v2)
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Triple-state emission: pass_parked / activate / needs_human | Wave B v2 verifier emits one of three states to `.planning/v1.6/phase-28-reiteration-verdict.txt` + EVIDENCE.md placeholder. Auto-activate only on clear zeros-dominant; escalate ambiguous cases. | ✓ |
+| Binary emission: pass / fail | Simpler but loses the ambiguous-case escalation path; risks auto-activating Plan 28-04 on noisy intermediate verdicts. | |
+| Operator-only emission (no auto-emit) | Verifier suggests; operator decides. But Plan 28-04's `executes_only_if` predicate requires a machine-readable signal. | |
+
+**Selected:** Triple-state (auto — preserves Plan 28-04's conditional contract while allowing human escalation on edge cases).
+**Notes:** Zero-byte ratio thresholds — ≤1% = structured (pass_parked); >30% = zeros-dominant (activate); 1-30% = ambiguous (needs_human). Phase 29 v1 Attempts 1+2 both saw >80% zeros on Leonardo; the 30% conservative threshold captures clear failure.
+
+### Wave shape simplification (D-23v2)
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Leonardo-only rebuild + bench | Build only `firestarter_leonardo.hex` from `efd203a`; sideload + verify Leonardo only. uno328pb deferred (D-29v2); uno code-path Δ=0 (regression check carries from Phase 26). | ✓ |
+| Rebuild all 3 envs + verify all 3 boards (v1 shape) | Mirrors v1 D-04 plan structure; but uno328pb is deferred so its build is wasted, and uno hex Δ=0 so its bench rerun is non-gating. ~75 min vs ~30 min on bench. | |
+| Skip Wave A rebuild; reuse v1's `4f205e58` hex artifacts | Faster but tests the WRONG firmware (`4f205e58`, the broken v1 fix, not the reverted `efd203a`). | |
+
+**Selected:** Leonardo-only (auto — only option that tests the correct firmware while respecting deferrals).
+**Notes:** Wave A v2 sanity-checks the Leonardo build SHA against the Phase 28 re-iteration Axis 4 post-prune expected value (`734b9a85…`) to confirm the local build matches the post-revert state Phase 28 desk-side verified.
+
+### Plan numbering (D-25v2)
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| New plans 29-03 (Wave A v2) + 29-04 (Wave B v2); 29-01/02 stay as audit trail | Mirrors Phase 28 re-iteration's 28-03/04 pattern; preserves immutable FAIL evidence; ROADMAP plan list grows. | ✓ |
+| Overwrite 29-01/02 plans + SUMMARYs in-place | Destroys the D-07 FAIL audit trail that the milestone-reopens verdict + Phase 27 re-open + Phase 28 re-iteration are anchored to. | |
+| Branch 29-v2 directory parallel to 29-multi-board-bench-verification | Adds directory-discovery complexity; no precedent in the project structure. | |
+
+**Selected:** New plans 29-03 + 29-04 (auto — only audit-preserving option that matches Phase 28's re-iteration precedent).
+**Notes:** `/gsd-plan-phase 29 --gaps` should produce 29-03/04 without touching 29-01/02. ROADMAP Phase 29 plan list grows: `[x] 29-01 (v1 Wave A)`, `[x] 29-02 (v1 Wave B — FAIL)`, `[ ] 29-03 (v2 Wave A)`, `[ ] 29-04 (v2 Wave B)`.
+
+### uno328pb deferral handling (D-29v2)
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| DEFERRED to v1.8 with explicit "independent pre-existing hardware regression" verdict | Memory `[[project_uno328pb_bench_instability_27_04]]` + Plan 27-04 falsifier `d9e51b7e…` over-determines this is not a Phase 28 firmware issue; v1.7 substrate (shipped 2026-05-26) provides v1.8 RCA foundation. | ✓ |
+| Re-run v1 D-01 reflash test on uno328pb | v1 D-01 was designed for the v1.5 "misidentified board" question, which is now obsolete — operator confirmed the board has real ATmega328PB silicon; the issue is bench-instability, not misidentification. | |
+| Mark uno328pb VERIFY-01 closed via code-equivalence with Uno (v1 D-01 Case B fallback) | Would close the requirement on the strength of `.hex` Δ=0, but the bench-instability is a hardware-level issue that the code-equivalence argument doesn't address. Honest deferral is cleaner. | |
+
+**Selected:** DEFERRED to v1.8 (auto — only option consistent with the dual-cause Plan 27-05 disposition).
+**Notes:** EVIDENCE.md Verdict block explicitly writes the deferral with `[[project_uno328pb_bench_instability_27_04]]` + Plan 27-04 falsifier reference + v1.7 forward-link.
+
+### BENCH-02 (VERIFY-04) reframing (D-30v2)
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| DEFERRED to v1.8 alongside read-bug fix | Read bug must be fixed before write→read→verify is meaningful; revert restores Phase 26 baseline jitter (~0.44%), which would fail `cmp`. GATE-1.6 write-path already desk-side-confirmed via Axis 4. | ✓ |
+| Run BENCH-02 in v2 as bonus diagnostic | Would confirm write path observably still works; but `cmp` would FAIL even on a perfect revert because the original read bug is unfixed. Diagnostically uninformative for v1.6 ship gate. | |
+| Run BENCH-02 with small-window-write workaround (v1 D-06 fallback path) | Even with the workaround, the small-window readback would carry ~0.44% jitter from the unfixed read bug. Operator could visually inspect, but no clean PASS/FAIL signal. | |
+
+**Selected:** DEFERRED to v1.8 (auto — only option consistent with D-17v2 milestone re-scope).
+**Notes:** v1.5 BENCH-02 row stays at "closed with caveat" until v1.8 ships the actual read-bug fix.
+
+### FAIL semantics re-mapping (D-28v2)
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Triple-state outcomes: pass_parked / activate / needs_human (auto-recover via Plan 28-04) | A first-revert FAIL is NOT milestone-reopens — Plan 28-04 is the designed recovery. Only a both-reverts-FAIL outcome triggers true milestone-reopens. | ✓ |
+| Preserve v1 D-07 "any FAIL → milestone reopens" | Correct for v1's "fix the bug" goal; wrong for v2's "revert broken fix" goal because Plan 28-04 IS the recovery path. | |
+| Halt on any FAIL; require human re-discussion | Defensive but loses the Plan 28-04 conditional-contract value. | |
+
+**Selected:** Triple-state outcomes (auto — only option that respects Plan 28-04's conditional contract).
+**Notes:** Plan 29-04 verifier task explicitly documents the triple-state map + the "true milestone-reopens" condition (Plan 28-04 lands + Phase 29 v2 re-runs + STILL zeros).
+
+---
+
+## Phase 29 v1 discussion log (preserved verbatim below)
 
 ---
 

@@ -1,8 +1,258 @@
 # Phase 29: Multi-Board Bench Verification — Context
 
-**Gathered:** 2026-05-22
-**Status:** Ready for planning
-**Source:** /gsd:discuss-phase 29 (Auto Mode — gray areas auto-resolved with recommended options; D-02 + D-04 + Branch flow + D-01 reflash sub-procedure subsequently corrected on operator feedback 2026-05-22: bench verification MUST precede any `v1.6-read-bug → beta` merge so an untested fix never contaminates the public release channel; merge/promotion now lives in Phase 30 per ROADMAP Phase 30 SC#5)
+**Gathered:** 2026-05-22 (original v1)
+**Re-iteration gathered:** 2026-05-26 (v2 — post Phase 27 re-open + Phase 28 re-iteration close)
+**Status:** Re-iteration ready for planning (Phase 29 v2)
+**Source:** /gsd:discuss-phase 29 (Auto Mode). v1 captured pre-fix two-commit firmware (`4f205e58`); v2 supersedes after Plan 27-05 RCA re-open close (dual-cause disposition) + Plan 28-03 single revert of `437339b6` (firestarter HEAD now `efd203a`) + Plan 28-04 conditional second-revert PARKED.
+
+---
+
+## Phase 29 Re-iteration (v2) (2026-05-26) — Post-Revert Bench Gate
+
+**v1 context preserved verbatim below.** The v1 decisions describe the original Phase 28 two-commit fix bench verification (`4f205e58` HEAD; the verdict was FAIL on Leonardo + uno328pb 2026-05-22, triggering D-07 milestone-reopens). This re-iteration section captures what changed after Phase 27 RCA re-open + Phase 28 re-iteration; downstream agents MUST read this section first and treat conflicting v1 decisions as superseded. Where v1 decisions still apply unchanged, they are explicitly re-affirmed by ID below.
+
+### Phase Boundary (Re-iteration)
+
+Phase 29 v2 delivers **the post-revert bench gate** — sideload `firestarter/v1.6-read-bug` HEAD (`efd203a`, the Plan 28-03 single revert of `437339b6` with `_NOP()` settling at `4f205e58` PRESERVED) to Leonardo and confirm the Leonardo read-path returns to the Phase 26 baseline shape (structured-data + ~0.44% jitter). The verdict on Leonardo determines two downstream gates atomically:
+
+1. **Plan 28-04 activation gate.** If Leonardo shape stays zeros-dominant (qualitatively like the Phase 29 v1 Attempt 2 ~83.8% zeros), Plan 28-04 (the parked second revert of `4f205e58`) activates and the bench session re-runs after that lands. If Leonardo shape returns to structured-data, Plan 28-04 stays parked permanently and the Phase 28 re-iteration closes fully.
+2. **v1.6 milestone close gate (per D-17v2 re-scope).** With the milestone goal narrowed to "ship `dev consistency-check` diagnostic + revert broken Phase 28 fix; defer read-bug fix to v1.8" (Phase 28 D-17v2), a Leonardo PASS = "revert removes regression cleanly" = milestone can close via Phase 30. The original read-bug fix itself is deferred to v1.8.
+
+**In scope (re-iteration):**
+
+- **Wave A v2 (`autonomous: true`, ~3-5 min):** Rebuild Leonardo firmware ONLY from `firestarter/v1.6-read-bug` HEAD (`efd203a`) and capture the new hex SHA-256. Compare against Phase 28 re-iteration Axis 4 desk-side table: pre-revert leonardo SHA `2619eea6…`, post-prune leonardo SHA `734b9a85…` (the latter is the expected Wave A v2 build SHA, since `efd203a` IS the post-prune HEAD). Refresh the Phase 29 EVIDENCE.md section with a `Re-iteration build hash record` block (small addendum, not a new top-level section). NO uno or uno328pb rebuilds — uno code path is unchanged by the revert (Δ=0), uno328pb is deferred to v1.8 per D-29v2.
+- **Wave B v2 (`autonomous: false`, operator-on-bench, ~30 min):** Sideload `efd203a`-built `firestarter_leonardo.hex` to Leonardo (chip OUT of socket per `[[feedback_chip_out_before_sideload]]`; verify port identity per `[[feedback_verify_port_identity_each_task]]`). Seat W27C512 (the Phase 26 + Phase 29 v1 chip class). Run `firestarter -p /dev/ttyACM<N> dev consistency-check W27C512 --runs 5`. Capture: (a) per-run SHA-256 across N=5, (b) zero-byte ratio per run, (c) qualitative shape classification (structured-data vs zeros-dominant). Emit Plan 28-04 gate signal to `.planning/v1.6/phase-28-reiteration-verdict.txt` and EVIDENCE.md placeholder section. Optionally re-run VERIFY-03 (1KB shell-loop, N=5) on Leonardo as a low-rate jitter regression check at the same baseline shape.
+- **EVIDENCE.md append:** New H3 `### Phase 29 v2 — Post-Revert Bench Verification (YYYY-MM-DD)` inside the existing Phase 29 H2, AFTER the Phase 29 v1 Wave B Attempt 2 FAIL section + AFTER the Phase 28 re-iteration H2 placeholder. The placeholder section that Phase 28 re-iteration prepared (`§"Phase 29 v2 bench verification (placeholder)"` per Plan 28-04 SUMMARY) is filled in here. Records: revert HEAD SHA (`efd203a`), leonardo build hash (expected `734b9a85…` match), per-run SHA + zero-ratio + shape table, verdict, Plan 28-04 gate emission.
+- **Acceptance signal:** Leonardo verdict = `structured_data` AND `~0.44% jitter` (matching Phase 26 baseline at `.planning/v1.6-EVIDENCE.md` Phase 26 section) → PASS; Phase 28 re-iteration fully closes; Plan 28-04 parks permanently; Phase 30 unblocks for v1.6 close per D-17v2 re-scope. Verdict = `zeros_dominant` → Plan 28-04 activates; Phase 29 v2 re-runs after the second revert lands.
+
+**Out of scope (re-iteration):**
+
+- **uno328pb bench rerun.** Confirmed independent pre-existing hardware regression per memory `[[project_uno328pb_bench_instability_27_04]]` (W27C512 reads on `/dev/ttyUSB0` Rev 2.2 produce timeouts + 99% 0xff drift; NOT introduced by Phase 28 v1 firmware; over-determined by Plan 27-04 `.hex` SHA falsifier `d9e51b7e…`). Deferred to v1.8 per Phase 28 D-10v2. VERIFY-01 closes as `DEFERRED to v1.8 — independent hardware issue` in EVIDENCE.md Verdict block, not via the v1 D-01 reflash test.
+- **Uno bench rerun.** Uno code path is Δ=0 from the revert (the revert only touched `leonardo_rurp_shield.cpp`); Phase 26 PASS verdict carries forward. Optional bonus: operator may re-run Uno N=5 as a triple-replicated regression check, but it is NOT required and NOT gating.
+- **BENCH-02 cycle (VERIFY-04 write→read→verify on SST27SF512).** Reframed per D-17v2 milestone re-scope: with the milestone goal narrowed to "revert broken fix; defer read-bug fix to v1.8", the BENCH-02 closure depends on whether the operator wants a write→read→verify confirmation now (post-revert Leonardo write path is unaffected per GATE-1.6 v2 Axis 4 desk-side `.hex` Δ=0; risk is low) OR defers it to v1.8 alongside the actual read-bug fix. Default per D-30v2: SKIP in v2; close VERIFY-04 as `DEFERRED to v1.8 alongside read-bug fix` in EVIDENCE.md.
+- **Branch merge / Phase 30 trigger.** Same as v1 — Phase 30 still owns the `v1.6-read-bug → beta → main` merge per ROADMAP Phase 30 SC#5. v2 changes nothing about the branch flow; only the bench verdict ownership shifts (v2 unblocks Phase 30 on Leonardo-structured-data, not on three-board byte-identity).
+- **Original 64KB read-bug fix.** Deferred to v1.8 per D-17v2 milestone re-scope. Phase 29 v2 is NOT verifying that the read bug is fixed; it is verifying that the broken Phase 28 fix was successfully reverted and Leonardo returns to Phase 26 baseline shape (which still has ~0.44% jitter — the original bug — but is structured-data, not zeros-dominant).
+
+### Implementation Decisions (Re-iteration)
+
+#### Success criteria re-shape (the load-bearing change)
+
+- **D-21v2: Phase 29 v2 success = Leonardo shape returns to Phase 26 baseline (structured-data + ~0.44% jitter), NOT byte-identical SHA-256 across N=5.** This supersedes the v1 D-08 9-column "Verdict" cells that expected `PASS` to mean `SHAs distinct = 1`.
+  Rationale:
+  - **Per D-17v2 milestone re-scope**, v1.6 no longer attempts to fix the read bug. The original 64KB read jitter (Phase 26 baseline showed ~0.44% on Leonardo + 2.1% on Uno, depending on shield) is the bug that's being deferred to v1.8. Phase 29 v2's job is to verify the broken Phase 28 fix was reverted cleanly, not to verify the bug is fixed.
+  - **Leonardo qualitative-shape classification** is the gate: `structured_data` (matching Phase 26 baseline) = revert removed the regression; `zeros_dominant` (matching Phase 29 v1 Attempt 2 FAIL shape, ~83.8% zeros) = revert insufficient, Plan 28-04 activates.
+  - **Phase 26 baseline metric on Leonardo:** Modified Rev 0 + voltage-divider mod + W27C512 → `~0.44% jitter` (from Phase 26 EVIDENCE.md; v1 attempt-2 SUMMARY explicitly cites this baseline for shape comparison).
+  - **Per-run SHA-256s are still recorded** for forensic continuity with Phase 26 baseline + Phase 29 v1 Attempts 1+2 (the bench-logs/post-fix-runs archive pattern is preserved), but the gate verdict is shape-based not SHA-equality-based.
+  **Output the planner needs:** Wave B v2 verifier evaluates Leonardo's N=5 run output against TWO criteria — (a) zero-byte ratio ≤ 1% (structured-data threshold; Phase 26 baseline was ~0.4-2.1% across boards), (b) qualitative match to Phase 26 Leonardo run-binary archive (structural diff against `.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260521-134210/run_01.bin`). Emit `gate_verdict: structured_data | zeros_dominant` to the verdict file + EVIDENCE.md placeholder.
+
+#### Plan 28-04 gate signal emission
+
+- **D-22v2: Wave B v2 verifier MUST emit `plan_28_04_gate: pass_parked | activate` to `.planning/v1.6/phase-28-reiteration-verdict.txt` AND mirror to `.planning/v1.6-EVIDENCE.md §"Phase 29 v2 bench verification (placeholder)"` body.**
+  Mapping (locked):
+  - Leonardo shape = `structured_data` AND zero-byte ratio ≤ 1% → `plan_28_04_gate: pass_parked` (Plan 28-04 parks permanently; Phase 28 re-iteration closes fully; Phase 30 unblocks).
+  - Leonardo shape = `zeros_dominant` (zero-byte ratio > 30% across any run in N=5) → `plan_28_04_gate: activate` (Plan 28-04's `executes_only_if: phase_29_v2_leonardo_zeros_dominant` predicate fires; re-open Plan 28-04 via `/gsd-execute-phase 28 --gaps-only` or manual executor spawn; second revert of `4f205e58` lands; Phase 29 v2 re-runs after).
+  - Leonardo shape = ambiguous (e.g. zero-byte ratio between 1% and 30%, or qualitative-shape unclear) → `plan_28_04_gate: needs_human` (operator escalation; do not auto-activate).
+  Rationale:
+  - **Plan 28-04 SUMMARY explicitly cites this gate** at `.planning/phases/28-fix-implementation-unit-test-coverage/28-04-SUMMARY.md §"Decisions Made"` — "Phase 29 v2 operator appends the bench outcome to `.planning/v1.6-EVIDENCE.md` §'Phase 29 v2 bench verification (placeholder)'. If `zeros_dominant: true`, re-run `/gsd-execute-phase 28 --gaps-only` ... the conditional gate flips and the plan executes per its drafted task list."
+  - **The verdict file `.planning/v1.6/phase-28-reiteration-verdict.txt`** already exists from Plan 28-03 with `wave_b_needed: false` as the default-before-bench. Wave B v2 verifier APPENDS the bench-confirmed verdict (does NOT overwrite — preserves audit trail of the default-state-before-bench).
+  - **Triple-state mapping (pass_parked / activate / needs_human)** prevents auto-activation on edge cases where the zero-ratio is intermediate. Phase 29 v1 Attempts 1 + 2 both saw `>80%` zeros on Leonardo; the threshold-30% conservatively captures clear failure without triggering on noisy baselines.
+  **Output the planner needs:** Wave B v2 task list includes an explicit "verifier task" that: (a) reads N=5 run binary zero-byte ratios via the `od -An -tx1 -v <file> | tr -s ' \n' '\n' | grep -c '^00$'` pattern established by Phase 29 v1 Attempt 2 SUMMARY, (b) classifies shape per D-21v2 thresholds, (c) emits the `plan_28_04_gate` triple-state, (d) appends to both the verdict file + EVIDENCE.md placeholder atomically.
+
+#### Wave shape simplification (single-board focus)
+
+- **D-23v2: Wave A v2 rebuilds Leonardo ONLY (single env); Wave B v2 sideloads + verifies Leonardo ONLY (single board, single chip class).** This supersedes v1 D-04's three-env build + three-board verification.
+  Rationale:
+  - **Uno code path Δ=0 from the revert** (`leonardo_rurp_shield.cpp` only changed; uno hex byte-identical pre/post — confirmed by Phase 28 re-iteration Axis 4 desk-side table: uno SHA `5e7f393a…` IDENTICAL pre/post). Phase 26 Uno PASS verdict carries forward; no bench rerun required.
+  - **uno328pb deferred to v1.8** per D-29v2 (separate independent hardware regression). Rebuilding `firestarter_uno328pb.hex` is wasted work.
+  - **Bench-session time is operator-precious.** v1 Attempt 1 + Attempt 2 cost ~165 min combined chasing 3-board verification; v2's Leonardo-only focus is ~30 min on bench.
+  - **Phase 28 re-iteration Axis 4 desk-side table** already records pre/post-revert hex SHAs for all three envs (`.planning/phases/28-fix-implementation-unit-test-coverage/28-CONTEXT.md` D-13v2 + Plan 28-03 SUMMARY). Wave A v2 ONLY needs to rebuild Leonardo + record the post-prune SHA `734b9a85…` matches; uno + uno328pb are documented as Δ=0 in the existing Axis 4 table.
+  **Output the planner needs:** Plan 29-03 (the v2 re-run plan; numbering continues from 29-01 + 29-02 — v2 lands as a NEW plan, not overwriting 29-01/29-02) Wave A task list = "rebuild Leonardo hex from `efd203a`; sanity-check SHA matches Phase 28 re-iteration Axis 4 expected post-prune value". Wave B task list = "sideload Leonardo; run N=5 consistency-check W27C512; classify shape; emit gate signal". No uno or uno328pb bench tasks.
+
+#### EVIDENCE.md schema (re-iteration)
+
+- **D-24v2: New H3 `### Phase 29 v2 — Post-Revert Bench Verification (YYYY-MM-DD)` inside the existing Phase 29 H2, AFTER the Phase 29 v1 Wave B Attempt 2 FAIL block. Fills in the Phase 28 re-iteration H2's `§"Phase 29 v2 bench verification (placeholder)"` reference.** Original Phase 29 v1 content stays byte-identical (audit trail immutable).
+  Section structure (locked):
+  ```
+  ### Phase 29 v2 — Post-Revert Bench Verification (YYYY-MM-DD)
+
+  **Bench session:** YYYY-MM-DD (operator-on-bench, single Leonardo session)
+  **Firmware sideloaded:** locally-built `firestarter_leonardo.hex` from `firestarter/v1.6-read-bug` HEAD (`efd203a` — Plan 28-03 revert of `437339b6` + Plan 28-04 parked)
+  **Expected leonardo hex SHA:** `734b9a85…` (matches Phase 28 re-iteration Axis 4 post-prune row; see `§"Phase 28 Re-iteration — Revert Commits (2026-05-26)"`)
+  **Actual leonardo hex SHA:** <Wave A v2 captures>
+  **Branch flow:** sub-repo branches stay LOCAL; no merges; Phase 30 owns promotion if Phase 29 v2 verdict = pass_parked.
+
+  ### Hardware metadata snapshot (Wave B v2 capture)
+  | Board | Port | Shield rev | Chip | FW build (commit + version) | Chip ID |
+  |-------|------|-----------|------|----------------------------|---------|
+  (Operator declares at session start; mirror of v1 D-10 / D-08 schema.)
+
+  ### Per-run results (Leonardo only)
+  | Run | SHA-256 | Zero-byte count / 65536 | Zero-byte % | Shape classification |
+  |-----|---------|-------------------------|-------------|----------------------|
+  | 1 | <sha> | <count> | <pct> | structured | zeros |
+  | 2 | <sha> | <count> | <pct> | structured | zeros |
+  | 3 | <sha> | <count> | <pct> | structured | zeros |
+  | 4 | <sha> | <count> | <pct> | structured | zeros |
+  | 5 | <sha> | <count> | <pct> | structured | zeros |
+
+  ### Gate verdict
+  - **Leonardo shape:** structured_data | zeros_dominant | ambiguous
+  - **Zero-byte ratio (worst case across N=5):** <pct>%
+  - **Plan 28-04 gate emission:** pass_parked | activate | needs_human
+  - **Mirror to `.planning/v1.6/phase-28-reiteration-verdict.txt`:** <append line with date + emission>
+  - **Quals vs Phase 26 baseline:** matches structured-data shape (~0.44% jitter) | differs by ... | matches Phase 29 v1 Attempt 2 zeros-dominant shape
+
+  ### Phase 30 readiness (Phase 29 v2 PASS path only)
+  All gates PASS → Phase 30 unblocks per D-17v2 re-scope:
+  - DOC-01: move `large-read-data-jitter-uno328pb.md` from `pending/` (with v1.8 deferral note for the actual read-bug fix)
+  - DOC-02: PROJECT.md update — v1.6 ships with "diagnostic + revert" disposition; read-bug fix carries to v1.8
+  - MS-01: MILESTONES.md v1.6 entry citing the re-scoped goal
+  - Sub-repo branch promotion: `firestarter/v1.6-read-bug` → `beta` → `main` (operator-authorized) — note the `_NOP()` settling at `4f205e58` ships to main as part of this; it's not reverted (per Plan 28-04 stays parked)
+  - **VERIFY-01 closes as DEFERRED to v1.8** (uno328pb independent hardware issue per D-29v2)
+  - **VERIFY-04 closes as DEFERRED to v1.8** (BENCH-02 reframed per D-30v2)
+
+  Any FAIL or activate → Plan 28-04 second revert lands; Phase 29 v2 re-runs after `4f205e58` is reverted; Phase 30 stays blocked.
+  ```
+  Rationale:
+  - **Symmetric audit trail.** v1 H2 stays byte-identical; v2 lands as a NEW H3 inside the existing Phase 29 H2 (not a new top-level H2), reflecting that this is a re-run of the same phase, not a new phase.
+  - **Fills the placeholder.** Phase 28 re-iteration's `## Phase 28 Re-iteration — Revert Commits` H2 body contains a `wave_b_needed: false` placeholder reference to `§"Phase 29 v2 bench verification (placeholder)"`; Wave B v2 verifier replaces the placeholder with the live verdict atomically.
+  - **Zero-byte ratio table** matches the diagnostic pattern Phase 29 v1 Attempt 2 SUMMARY established (`Pattern (data-shape) — zero-byte ratio is a fast partial-read-failure detector`). Reuses operator's existing muscle memory.
+  - **Quals-vs-baseline row** lets the v1.8 future-author see how close Phase 29 v2 came to Phase 26 baseline (anchors the "did the revert fully restore baseline" question for future RCA).
+  **Output the planner needs:** Wave B v2 EVIDENCE.md append task writes this exact section structure; verifier task fills in the per-run rows + gate verdict atomically.
+
+#### Existing Plan 29-01 + 29-02 status
+
+- **D-25v2: Existing Plan 29-01 (Wave A v1, shipped 2026-05-22) + Plan 29-02 (Wave B v1, FAILED 2026-05-22) stay as audit trail. v2 lands as new Plan 29-03 (autonomous Wave A v2) + Plan 29-04 (operator-on-bench Wave B v2).** Numbering continues from 29-01/29-02 to preserve audit trail per Phase 28 re-iteration's Plan 28-03/28-04 numbering precedent.
+  Rationale:
+  - **Audit trail preservation.** Plan 29-01 SUMMARY records the v1 Wave A build (`4f205e58` hex artifacts). Plan 29-02 SUMMARY records the D-07 FAIL with Attempt 1 + Attempt 2 evidence. Both stay immutable as evidence of why the milestone re-opened.
+  - **Mirror of Phase 28 re-iteration pattern** (Plans 28-01/02 audit trail + Plans 28-03/04 re-iteration). Phase 29 v2 = Plans 29-03/04.
+  - **Plan numbering continuity** keeps `/gsd-execute-phase 29` from auto-discovering only the v2 plans — the executor will list 29-01/02 as completed-with-FAIL + 29-03/04 as pending.
+  - **Plan 29-01 hex artifacts are STALE** for v2 (built from `4f205e58`, not `efd203a`). Plan 29-03 rebuilds Leonardo only.
+  **Output the planner needs:** `/gsd-plan-phase 29 --gaps` (or `/gsd-plan-phase 29` with awareness of the re-iteration) produces Plans 29-03 (autonomous) + 29-04 (operator-on-bench), NOT overwriting 29-01/02. ROADMAP Phase 29 plan list grows: `[x] 29-01-PLAN.md (v1 Wave A)`, `[x] 29-02-PLAN.md (v1 Wave B — FAIL)`, `[ ] 29-03-PLAN.md (v2 Wave A — rebuild leonardo)`, `[ ] 29-04-PLAN.md (v2 Wave B — bench verify)`.
+
+#### N count + 1KB jitter (re-iteration scope)
+
+- **D-26v2: N=5 floor preserved per v1 D-03; VERIFY-03 1KB shell-loop is OPTIONAL in v2 (operator's call at bench).** v1 D-03 (uniform N=5) and v1 D-05 (1KB shell-loop) still apply where exercised; v2 narrows scope to Leonardo only.
+  Rationale:
+  - **N=5 keeps symmetric A/B with Phase 26 baseline + Phase 29 v1 Attempts 1+2** (all three captured N=5). v2's Leonardo row reads cleanly in the EVIDENCE.md table at N=5.
+  - **VERIFY-03 (1KB jitter)** in v1 D-05 was scoped to "all 3 boards"; v2 narrows to Leonardo. If Leonardo's 64KB shape is `structured_data` per D-21v2, the 1KB shape is over-determined to also be `structured_data` (the 1KB read exercises the same `_run_state_machine` + `_main_phase_read_data` path that the 64KB read exercises, just fewer chunks). Operator can SKIP VERIFY-03 in v2 unless they want a defensive double-check.
+  - **If operator runs VERIFY-03 in v2 and Leonardo 64KB is `structured_data` but 1KB is `zeros_dominant`** — that would be a NEW failure mode not seen in v1, and the verifier should classify it as `needs_human` per D-22v2 (not auto-activate Plan 28-04, since that gate is specifically the 64KB shape).
+  **Output the planner needs:** Plan 29-04 Wave B task list has a primary "N=5 consistency-check W27C512" task + an optional "N=5 1KB shell-loop W27C512" task marked `(operator-optional; gating only if 64KB result is also `structured_data` AND operator wants defensive coverage)`.
+
+#### Chip class + shield rev (re-iteration scope)
+
+- **D-27v2: W27C512 on Modified Rev 0 + voltage-divider mod (matching Phase 26 Leonardo baseline) is the canonical v2 bench setup.** v1 D-09 (W27C512 for VERIFY-01/02/03) and v1 D-10 (operator declares shield rev at session start) still apply.
+  Rationale:
+  - **Direct A/B against Phase 26 baseline** requires the same physical setup. Phase 26 Leonardo row was Modified Rev 0 + voltage-divider mod + W27C512 → structured-data + ~0.44% jitter. v2 must match.
+  - **v1 Attempt 2 already ran on this exact setup** (Modified Rev 0 + W27C512) and produced 83.8% zeros. v2 runs on the same setup → if the revert works, shape returns to Phase 26 baseline. If shape stays zeros-dominant, the revert is insufficient and Plan 28-04 activates.
+  - **Memory `[[user_shield_revisions]]`** still says ASK operator which rev. Auto mode encodes Modified Rev 0 + voltage-divider mod as the DEFAULT for v2 (since v1 Attempt 2 already used it); operator overrides at session start if they want to swap shields.
+  **Output the planner needs:** Plan 29-04 Wave B Task 1 ("hardware metadata snapshot") explicitly notes "expected: Modified Rev 0 + voltage-divider mod on Leonardo; operator confirms or overrides".
+
+#### Fail-handling protocol (re-iteration scope)
+
+- **D-28v2: D-07 milestone-reopens behavior is SUPERSEDED for Phase 29 v2.** v1 D-07 said "any FAIL row triggers milestone-reopens"; v2 reframes FAIL semantics per the new gate structure.
+  v2 FAIL semantics (locked):
+  - **Leonardo shape = `zeros_dominant` (gate emission = `activate`):** This is NOT "milestone reopens" — it is "Plan 28-04 activates per its drafted contract". The Phase 28 re-iteration goal is to *find* whether one revert or two were needed; `activate` is one of the two designed outcomes, not a failure.
+  - **Leonardo shape = `ambiguous` (gate emission = `needs_human`):** Operator escalation; manual diagnosis. NOT auto-milestone-reopens.
+  - **True milestone-reopens (back to D-07-like state)** only fires if Plan 28-04 lands the second revert + Phase 29 v2 re-runs + STILL shows `zeros_dominant`. That outcome means both reverts were insufficient and the regression has a deeper cause (likely needs v1.8 to disentangle). At that point STATE.md flips to `status: blocked` and v1.6 + v1.7 close pattern repeats (v1.6 ships diagnostic-only; deeper RCA carries to v1.8).
+  Rationale:
+  - **Per D-17v2 milestone re-scope**, v1.6 milestone close depends on "ship `dev consistency-check` diagnostic + revert broken fix; defer read-bug fix to v1.8". A `zeros_dominant` Leonardo verdict on the FIRST revert (`437339b6` reverted via `ea25174`) is by-design recoverable via the SECOND revert (`4f205e58` reverted via Plan 28-04). It's only a true milestone-reopens if both reverts fail.
+  - **Prevents auto-panic.** v1 D-07's "any FAIL → re-open" was correct for the original "fix the bug" goal; v2's re-scoped goal admits a recoverable middle state.
+  **Output the planner needs:** Plan 29-04 Wave B verifier task documents the triple-state outcome map explicitly + the "true milestone-reopens" condition (Plan 28-04 lands + Phase 29 v2 re-runs + still zeros).
+
+#### uno328pb deferral handling
+
+- **D-29v2: uno328pb VERIFY-01 closes as `DEFERRED to v1.8 — independent pre-existing hardware regression` in EVIDENCE.md Verdict block.** Supersedes v1 D-01's reflash test entirely.
+  Rationale:
+  - **Plan 27-05 Outcome B** + Plan 27-04 falsifier `.hex` SHA `d9e51b7e…` IDENTICAL pre/post revert over-determines that Phase 28 firmware changes cannot cause uno328pb regression. The regression is a separate hardware issue.
+  - **Memory `[[project_uno328pb_bench_instability_27_04]]`** captures the bench-instability empirically (W27C512 reads on `/dev/ttyUSB0` Rev 2.2 produce timeouts + 99% 0xff drift; distinct from Leonardo bug; NOT introduced by Phase 28 fix; pre-existing).
+  - **uno328pb is on Rev 2.2 shield** (v1.7's investigated rev) — the labeled-schematic substrate v1.7 shipped 2026-05-26 will let v1.8 design a proper instrumented A/B build for this regression.
+  - **v1.6 ships as "diagnostic + revert"** per D-17v2; the uno328pb regression is explicitly out of scope.
+  **Output the planner needs:** Plan 29-04 Wave B EVIDENCE.md Verdict block explicitly writes:
+  ```
+  - VERIFY-01 (uno328pb byte-identity): DEFERRED to v1.8 — independent pre-existing hardware regression per [[project_uno328pb_bench_instability_27_04]]; Phase 27 Plan 27-04 falsifier `d9e51b7e…` over-determines that Phase 28 firmware cannot cause this. v1.7 labeled-schematic + shield-version-detect substrate (shipped 2026-05-26) provides the foundation for v1.8 RCA on this issue.
+  ```
+
+#### BENCH-02 (VERIFY-04) reframing
+
+- **D-30v2: VERIFY-04 (BENCH-02 closure) closes as `DEFERRED to v1.8 alongside the actual read-bug fix` in EVIDENCE.md Verdict block.** Supersedes v1 D-06.
+  Rationale:
+  - **Per D-17v2**, the read-bug fix itself defers to v1.8. The BENCH-02 acceptance test ("write→read→verify byte-identical") needs a working read path to be meaningful; with the read bug still present (just reverted-fix, not fixed), `cmp <write-image> <readback>` will fail even with the revert.
+  - **Phase 26 baseline jitter (~0.44% on Leonardo)** would cause BENCH-02 to FAIL even with the revert — that's the original bug, which is exactly what v1.8 addresses.
+  - **GATE-1.6 v2 desk-side (Axis 4) ALREADY closed** per Phase 28 re-iteration: the revert preserves the write path (`.hex` Δ confined to read-bus code on Leonardo). Bench-side write-path validation is NOT load-bearing for v1.6 ship per D-17v2 re-scope.
+  - **Operator may volunteer BENCH-02 anyway** as a bonus diagnostic (e.g. to confirm write path observably still works), but it does NOT gate v1.6 close.
+  **Output the planner needs:** Plan 29-04 Wave B EVIDENCE.md Verdict block explicitly writes:
+  ```
+  - VERIFY-04 (BENCH-02 closure): DEFERRED to v1.8 alongside read-bug fix per D-17v2 / D-30v2. Write-path non-regression confirmed desk-side via Phase 28 re-iteration Axis 4 `.hex` SHA identity (uno + uno328pb Δ=0; Leonardo Δ confined to read-bus code). v1.5 BENCH-02 row stays at original "closed with caveat" until v1.8 ships the actual read-bug fix.
+  ```
+
+#### Re-affirmed v1 decisions (still apply unchanged)
+
+- **D-02 (LOCAL-sideload build path)** — re-affirmed. `pio run -e leonardo -t upload --upload-port /dev/ttyACM<N>` from `firestarter/v1.6-read-bug` (`efd203a`). NO public release in Phase 29 v2.
+- **D-03 (N=5)** — re-affirmed (narrowed to Leonardo per D-23v2).
+- **D-05 (1KB shell-loop)** — re-affirmed where exercised (optional in v2 per D-26v2).
+- **D-10 (operator declares shield rev at session start; recorded in EVIDENCE.md)** — re-affirmed.
+- **Branch flow (v1)** — re-affirmed: Phase 29 v2 stays LOCAL; Phase 30 still owns the merge.
+- **Two-plan structure (autonomous Wave A + operator Wave B)** — re-affirmed, just renumbered to 29-03 / 29-04 per D-25v2.
+
+### Canonical References (Re-iteration)
+
+**Downstream agents MUST read these before planning Phase 29 v2.**
+
+#### Primary inputs (Plan 28-03 + Plan 28-04 outcomes)
+
+- `.planning/phases/28-fix-implementation-unit-test-coverage/28-CONTEXT.md` — Phase 28 re-iteration section (lines 1-200), especially D-13v2 (Axis 4 desk-side SHA table), D-14v2 (EVIDENCE.md placement), D-17v2 (milestone goal re-scope to "diagnostic + revert; defer fix to v1.8"), D-09v2 (revert shape — `437339b6` alone, not `4f205e58`).
+- `.planning/phases/28-fix-implementation-unit-test-coverage/28-03-SUMMARY.md` — actual revert + prune + EVIDENCE.md H2 append outcome; Axis 4 desk-side SHA table (uno `5e7f393a…` Δ=0, leonardo `2619eea6→734b9a85…`, uno328pb `d9e51b7e…` Δ=0).
+- `.planning/phases/28-fix-implementation-unit-test-coverage/28-04-SUMMARY.md` — Plan 28-04 parked-but-resolved record; trigger-evaluation contract (`executes_only_if: phase_29_v2_leonardo_zeros_dominant`); reactivation path documentation.
+- `.planning/phases/28-fix-implementation-unit-test-coverage/28-VERIFICATION.md` — Phase 28 re-iteration verification (5/5 truths verified desk-side; FIX-03 bench-side gated to Phase 29 v2; explicit Human Verification block describing the Phase 29 v2 sideload-and-test procedure).
+- `.planning/v1.6-EVIDENCE.md §"Phase 28 Re-iteration — Revert Commits (2026-05-26)"` (line ~562) — the canonical re-iteration narrative the Phase 29 v2 EVIDENCE.md append refers back to; contains the `§"Phase 29 v2 bench verification (placeholder)"` placeholder that Wave B v2 fills in.
+- `.planning/v1.6/phase-28-reiteration-verdict.txt` — current state: `wave_b_needed: false` (default-before-bench). Wave B v2 APPENDS the bench-confirmed verdict (does NOT overwrite).
+
+#### Phase 29 v1 audit trail (preserved, do not edit)
+
+- `.planning/phases/29-multi-board-bench-verification/29-CONTEXT.md` — this file, v1 section below the v2 re-iteration block.
+- `.planning/phases/29-multi-board-bench-verification/29-01-PLAN.md` + `29-01-SUMMARY.md` — v1 Wave A (built `4f205e58` hex artifacts; STALE for v2 but preserved for audit).
+- `.planning/phases/29-multi-board-bench-verification/29-02-PLAN.md` — v1 Wave B plan.
+- `.planning/phases/29-multi-board-bench-verification/29-02-SUMMARY-attempt1-2026-05-22-INCONCLUSIVE.md` — v1 Attempt 1 (bench-confounded; led to feedback memories).
+- `.planning/phases/29-multi-board-bench-verification/29-02-SUMMARY.md` — v1 Wave B FINAL (Attempt 2 D-07 FAIL; chip-swap diagnostic that triggered milestone-reopens).
+- `.planning/v1.6-EVIDENCE.md §"Phase 29 — Post-fix Consistency-Check Verification"` (v1 H2, around line 186) — original Phase 29 bench evidence with Wave B Attempt 2 FAIL Verdict block + Wave B FAIL post-mortem.
+- `.planning/v1.6/post-fix-runs/W27C512-leonardo-2026-05-22-101119-swap/run_{01..05}.bin` — v1 Attempt 2 Leonardo run binaries (5 distinct SHAs, 83.8% zeros) — Wave B v2 verifier compares its N=5 against these to confirm shape inversion.
+- `.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260521-134210/run_{01..03}.bin` — Phase 26 Leonardo baseline run binaries (~0.44% jitter, structured-data) — Wave B v2 verifier compares its N=5 against these to confirm shape return.
+
+#### Sub-repo source-of-truth (current state for Phase 29 v2)
+
+- `firestarter/v1.6-read-bug` HEAD = `efd203a` (CONFIRMED via `cd firestarter && git log --oneline beta..v1.6-read-bug`). 5-commit chain `bc0f5ac → fdb1ed5 → 437339b6 → 4f205e58 → ea25174 → efd203a` on the topic branch. Wave A v2 builds Leonardo from this tip.
+- `firestarter/src/boards/leonardo_rurp_shield.cpp` at `efd203a` — post-revert state. `rurp_set_data_input` no longer clears PORTD/PORTC/PORTE (the `437339b6` block reverted by `ea25174`); `rurp_read_data_buffer` still has `_NOP()` × 2 (the `4f205e58` settling, NOT reverted; Plan 28-04 parks).
+- `firestarter_app/v1.6-read-bug` HEAD = `c057fe2` (unchanged from v1; host CLI is read-only for Phase 29 v2 just like v1).
+
+#### Cross-cutting memory
+
+- `[[project_uno328pb_bench_instability_27_04]]` — uno328pb pre-existing hardware regression; independent of Phase 28 firmware; deferred to v1.8 per D-29v2.
+- `[[feedback_chip_out_before_sideload]]` — chip OUT of socket before sideload; Wave B v2 honors at sideload time.
+- `[[feedback_verify_port_identity_each_task]]` — verify `controller:` identity per port at every task start; Wave B v2 honors after sideload.
+- `[[user_shield_revisions]]` — operator owns Rev 2.2, Rev 2.0, modified Rev 0; D-27v2 defaults to Modified Rev 0 + voltage-divider mod (Phase 26 + v1 Attempt 2 setup) but operator may override.
+- `[[feedback_branching]]` — Phase 29 v2 stays LOCAL on `v1.6-read-bug`; Phase 30 owns the promotion.
+
+#### v1.7 substrate (informational; not activated by Phase 29 v2)
+
+- `.planning/v1.7-SHIELD-REVS.md` — labeled-schematic + per-rev capability table shipped 2026-05-26 (v1.7 close). Phase 29 v2 does NOT consume this directly, but v1.8 (when it RCAs the uno328pb regression + read-bug fix) will lean on it heavily. Mentioned here for forward-traceability.
+
+#### ROADMAP + traceability
+
+- `.planning/ROADMAP.md §"Phase 29: Multi-Board Bench Verification"` (lines 185-198) — Phase 29 SC#1-5 still defined per v1 framing; D-17v2 / D-29v2 / D-30v2 explicitly DEFER VERIFY-01 + VERIFY-04 to v1.8 in the Verdict block while VERIFY-02 + VERIFY-03 close via Leonardo-shape-return. ROADMAP plan list grows to `29-01 [x] / 29-02 [x] / 29-03 [ ] / 29-04 [ ]` per D-25v2.
+- `.planning/PROJECT.md §"v1.6 status"` — already annotated 2026-05-26 with Phase 28 re-iteration outcome + Phase 29 v2 carry; Phase 30 still BLOCKED on Phase 29 v2.
+
+### Deferred Ideas (Re-iteration)
+
+- **uno328pb full bench rerun in v1.6** — DEFERRED to v1.8 per D-29v2. v1.8 RCA will use v1.7's labeled-schematic + shield-version-detect substrate to design a proper instrumented A/B build for the uno328pb regression.
+- **BENCH-02 (VERIFY-04) full write→read→verify cycle** — DEFERRED to v1.8 per D-30v2. Read bug must be fixed first; the write-path non-regression is already desk-side-confirmed via Phase 28 re-iteration Axis 4.
+- **Plan 28-04 second revert of `4f205e58`** — STAYS PARKED unless Wave B v2 emits `plan_28_04_gate: activate`. Drafted-but-not-executed; activation contract is part of D-22v2.
+- **Three-board byte-identity goal (original v1.6 definition of done)** — superseded by D-17v2 milestone re-scope; carries to v1.8 as the new read-bug-fix milestone goal.
+- **Public pre-release cut from `firestarter/v1.6-read-bug`** — Phase 30 owns; only triggers if Phase 29 v2 verdict = pass_parked.
+- **Optional re-run of Uno N=5 in v2** — operator's discretion; not gating per D-23v2 (Uno Δ=0 from the revert; Phase 26 PASS carries).
+- **Optional VERIFY-03 1KB shell-loop in v2** — operator's discretion per D-26v2; not gating since 64KB structured-data over-determines 1KB structured-data.
+
+---
 
 <domain>
 ## Phase Boundary
