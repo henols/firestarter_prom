@@ -126,7 +126,7 @@ Original v1.6 roadmap detail preserved below for resume context.
 
 - [x] **Phase 26: Cross-board Reproduction & Diagnostic Tooling** — Reproduce the 64KB streaming-read jitter on `uno` and `leonardo` (not just `uno328pb`); land an enduring `firestarter dev consistency-check` host CLI command so the bug — and its eventual fix — is verifiable by anyone with hardware. (completed 2026-05-21)
 - [x] **Phase 27: Root Cause Analysis** — Identify the exact code path that introduces byte corruption (instrumented build, code-path bisection, or scope/logic-analyzer trace); write up WHY the corruption happens; bracket the introducing commit/milestone. (completed 2026-05-21)
-- [x] **Phase 28: Fix Implementation + Unit Test Coverage** — Land the fix in the appropriate sub-repo(s) with atomic commits citing RCA evidence; ship a native unit test (Unity or pytest) that would fail on pre-fix code; preserve GATE-1.6 write-path non-regression. (completed 2026-05-21)
+- [x] **Phase 28: Fix Implementation + Unit Test Coverage** — Land the fix in the appropriate sub-repo(s) with atomic commits citing RCA evidence; ship a native unit test (Unity or pytest) that would fail on pre-fix code; preserve GATE-1.6 write-path non-regression. (completed 2026-05-21; re-iterated 2026-05-26 — split-scope: Leonardo revert)
 - [ ] **Phase 29: Multi-Board Bench Verification** — Operator-on-bench. N≥5 consecutive `firestarter read <chip> file.bin` invocations return byte-identical SHA-256 hashes on `uno`, `leonardo`, AND `uno328pb`; `dev read -s 1024` low-rate jitter also resolved; Phase 24 BENCH-02 closes as a side effect.
 - [ ] **Phase 30: Documentation + Milestone Close** — Move the todo out of `pending/`, update PROJECT.md, ship the MILESTONES.md entry, archive phase artifacts.
 
