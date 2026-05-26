@@ -232,7 +232,15 @@ Original v1.6 roadmap detail preserved below for resume context.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 29-02-PLAN.md — Wave B operator-on-bench: sideload per board + hardware metadata snapshot + 3-axis verification (consistency-check N=5 + 1KB shell-loop N=5 + BENCH-02 write→read→verify on Leonardo/SST27SF512) + uno328pb Case A/B branch per D-01 + Verdict block resolution → green hand-off to Phase 30 OR D-07 milestone-reopens halt (closes VERIFY-01..04)
+- [x] 29-02-PLAN.md — Wave B operator-on-bench (v1, 2026-05-22): Leonardo + uno328pb FAIL (zeros-dominant); D-07 milestone-reopens triggered. Immutable audit trail per D-25v2. Closed by re-iteration via plans 29-03 + 29-04.
+
+**Wave 3** *(re-iteration: post Plan 28-03 single revert of `437339b6`)*
+
+- [x] 29-03-PLAN.md — Wave A v2 desk-side rebuild: leonardo-only rebuild from `firestarter/v1.6-read-bug` @ `efd203a` + SHA attestation against Phase 28 re-iteration Axis 4 expected (`734b9a85…`, 68884 B; MATCH). EVIDENCE.md Wave A v2 build hash record appended inside Phase 29 Attempt 2 H2 area. No source/branch mutations. Closed 2026-05-26.
+
+**Wave 4** *(re-iteration: operator-on-bench gate; blocked on Wave 3 completion)*
+
+- [x] 29-04-PLAN.md — Wave B v2 operator-on-bench (2026-05-26): sideloaded Wave A v2 hex to Leonardo on `/dev/ttyACM1`; 3× N=5 `firestarter dev consistency-check W27C512` (Modified Rev 0 canonical + Rev 2.0 bonus diagnostic + Modified Rev 0 replication). Modified Rev 0 WORST zero-byte ratio 0.047% (≤ 1% structured_data threshold); 99.50% cross-session-stable-byte agreement; Phase 26 baseline shape match. Emitted `plan_28_04_gate: pass_parked` per D-22v2. VERIFY-02 PASS; VERIFY-01 + VERIFY-04 DEFERRED to v1.8 (D-29v2/D-30v2); VERIFY-03 DEFERRED (D-26v2 operator-optional). Pattern findings (Bug A upper-address jitter + Bug B Rev 2.0 /CE-or-/OE timing) recorded as v1.8 RCA seed. Plan 28-04 parks permanently; Phase 28 re-iteration closes fully; Phase 30 UNBLOCKS per D-17v2 re-scope. Closed 2026-05-26.
 
 **UI hint:** no
 

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: — RURP Shield Hardware Investigation & Version Detection
 status: executing
-last_updated: "2026-05-26T15:40:02.313Z"
-last_activity: 2026-05-26 -- Phase 29 planning complete
+last_updated: "2026-05-26T16:20:00.000Z"
+last_activity: 2026-05-26 -- Phase 29 v2 closed (pass_parked); Phase 30 unblocks
 progress:
   total_phases: 10
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 15
-  completed_plans: 13
-  percent: 30
+  completed_plans: 15
+  percent: 40
 ---
 
 # Project State
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 29
+Phase: 30 (next — v1.6 milestone close; UNBLOCKED per Phase 29 v2 pass_parked emission)
 Plan: Not started
-Status: Ready to execute
-Last activity: 2026-05-26 -- Phase 29 planning complete
+Status: Phase 29 complete; ready for Phase 30 planning
+Last activity: 2026-05-26 -- Phase 29 v2 closed: Leonardo structured_data shape restored (WORST=0.047% zeros, ≤ D-21v2 1% threshold), 99.50% cross-session reproducibility on Modified Rev 0; plan_28_04_gate: pass_parked; VERIFY-02 PASS; VERIFY-01+04 DEFERRED to v1.8; Bug A+B pattern findings characterized as v1.8 RCA seed
 
 ## Project Reference
 
@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 29 — multi board bench verification
+**Current focus:** Phase 30 — v1.6 milestone close (UNBLOCKED per Phase 29 v2 pass_parked emission)
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
