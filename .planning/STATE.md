@@ -264,7 +264,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 
 ## Operator Next Steps
 
-- **v1.7 closed — Shipped 2026-05-XX.** See `.planning/MILESTONES.md` v1.7 entry; canonical reference at `.planning/v1.7-SHIELD-REVS.md`; operator-facing copy at `firestarter/doc/SHIELD-REVISIONS.md` (GitHub-discoverable); bench validation in `.planning/phases/35-documentation-milestone-close/35-HUMAN-UAT.md` (UAT-1/2/3 firmware-side PASS 2026-05-26).
+- **v1.7 closed — Shipped 2026-05-26.** See `.planning/MILESTONES.md` v1.7 entry; canonical reference at `.planning/v1.7-SHIELD-REVS.md`; operator-facing copy at `firestarter/doc/SHIELD-REVISIONS.md` (GitHub-discoverable); bench validation in `.planning/phases/35-documentation-milestone-close/35-HUMAN-UAT.md` (UAT-1/2/3 firmware-side PASS 2026-05-26).
 - **v1.6 resume: `/gsd-plan-phase 27 --gaps`** — Phase 27 RCA re-open will design instrumented A/B builds with the v1.7-shipped labeled-schematic + per-rev capability table + detect-fw substrate.
 - **v1.7 substrate the Phase 27 RCA re-open consumes:**
   - Labeled schematic: `.planning/v1.7-SHIELD-REVS.md` §1 (inventory) + §3 (Anders R41-on-A3 detect-divider history) + §4 (inter-rev electrical differences)

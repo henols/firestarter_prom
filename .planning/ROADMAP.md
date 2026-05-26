@@ -9,12 +9,12 @@
 - ✅ **v1.4 Beta & Pre-release Deployment Pipeline** — Phases 15-20 (shipped 2026-05-20; ship tag `3.0.0b3` in both sub-repos; hardware-flash validated on Uno + Leonardo). Parallel beta channel for both sub-repos without disrupting the stable main → release pipeline.
 - ✅ **v1.5 Arduino Uno (ATmega328PB) Board Support** — Phases 21-25 (shipped 2026-05-21; ship tag `3.0.0b4`; bench-validated on operator's 328PB-Uno via `urclock` bootloader). `uno328pb` as a third first-class firmware target alongside `uno` + `leonardo`. Full detail in `.planning/milestones/v1.5-ROADMAP.md`; bench evidence in `.planning/v1.5-BENCH-RESULTS.md`.
 - ⏸ **v1.6 Fix the Read Bug** — Phases 26-30 (PAUSED 2026-05-22 at the Phase 27 RCA re-open boundary). Phases 26+27+28 shipped; Phase 29 Wave B FAIL (D-07 milestone-reopens) — chip-swap diagnostic isolated Phase 28 firmware as introducing a Leonardo + uno328pb read-path regression; Uno code path unaffected. Phase 30 BLOCKED. Resumes after v1.7 ships its labeled-schematic + per-rev capability table + shield-version-detect substrate (v1.6 Phase 27 RCA re-open then designs instrumented A/B builds with known-good schematics).
-- ✅ **v1.7 RURP Shield Hardware Investigation & Version Detection** — Phases 31-35 (shipped 2026-05-XX; ship tag `3.0.0b5` both sub-repos; canonical reference `.planning/v1.7-SHIELD-REVS.md`; operator-facing copy `firestarter/doc/SHIELD-REVISIONS.md`; bench-validated on operator's Rev 2.0 + Rev 2.2 boards via USB-passthrough Claude-driven session).
+- ✅ **v1.7 RURP Shield Hardware Investigation & Version Detection** — Phases 31-35 (shipped 2026-05-26; ship tag `3.0.0b5` both sub-repos; canonical reference `.planning/v1.7-SHIELD-REVS.md`; operator-facing copy `firestarter/doc/SHIELD-REVISIONS.md`; bench-validated on operator's Rev 2.0 + Rev 2.2 boards via USB-passthrough Claude-driven session).
 
 <details>
-<summary>v1.7 — RURP Shield Hardware Investigation & Version Detection (Shipped 2026-05-XX) — full milestone detail (collapsed)</summary>
+<summary>v1.7 — RURP Shield Hardware Investigation & Version Detection (Shipped 2026-05-26) — full milestone detail (collapsed)</summary>
 
-## v1.7 — RURP Shield Hardware Investigation & Version Detection (Shipped 2026-05-XX)
+## v1.7 — RURP Shield Hardware Investigation & Version Detection (Shipped 2026-05-26)
 
 **Milestone goal:** Produce a versioned, authoritative reference for every known RURP shield revision — silkscreen text, electrical/mechanical schematic, label-to-code-alias map, per-rev capabilities matrix, inter-rev difference table — and design the next-rev shield-version-detect resistor divider + firmware ADC read + handshake report so future hardware-touch work is grounded in known-good schematics rather than ask-the-operator memory.
 
@@ -157,7 +157,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
 
   1. `.planning/v1.7-SHIELD-REVS.md` is the canonical reference and is complete (inventory + difference matrix + capability matrix + alias table + detect-hw schematic delta + per-rev ADC band table). Cross-links from `firestarter/README.md` + `firestarter_app/README.md` resolve to it.
-  2. PROJECT.md "Validated" section grows entries for the alias migration + detect-fw plumbing. The v1.7 milestone block at the top is rewritten as "Shipped 2026-05-XX". v1.6 paused-block carries through unchanged (v1.6 resume is the milestone-close hand-off).
+  2. PROJECT.md "Validated" section grows entries for the alias migration + detect-fw plumbing. The v1.7 milestone block at the top is rewritten as "Shipped 2026-05-26". v1.6 paused-block carries through unchanged (v1.6 resume is the milestone-close hand-off).
   3. MILESTONES.md entry written; phase artifacts archived under `.planning/milestones/v1.7-phases/` via the archive script pattern established in v1.4/v1.5.
   4. Hand-off to v1.6 resume: `Operator Next Steps` in STATE.md points at `/gsd-plan-phase 27 --gaps` with a note citing the v1.7 artifacts (labeled schematic + per-rev capability table) that the Phase 27 RCA re-open will consume.
 
