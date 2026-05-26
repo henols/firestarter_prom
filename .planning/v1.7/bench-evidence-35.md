@@ -120,12 +120,28 @@ Same as ACM0 — `adc_a3` not logged. 100% stable across 5 boots, lands in 4k7 b
 | **Rev 2.0** | /dev/ttyACM0 | **27 kΩ** | 4.7 kΩ |
 | **Rev 2.2** | /dev/ttyUSB0 | **20 kΩ** | 4.7 kΩ |
 
-**⚠ Interpretation correction — this is NOT R41 in isolation.** Both boards share the same schematic family (4.7 kΩ R41), yet measurements differ by ~7 kΩ. The only sensible explanation: A3↔GND with the board OFF doesn't isolate R41; it measures R41 (to JP4) in parallel with the ATmega's unpowered A3-pin leakage paths to GND. ATmega input-protection (ESD diodes + sub-threshold gate paths) at ~200 mV multimeter test voltage presents non-linear impedance that varies by chip instance, temperature, and undefined power-rail state. Two different ATmega chips → two different leakage profiles → 20 kΩ vs 27 kΩ.
+**⚠ Interpretation correction — this is NOT R41 in isolation.** A3↔GND with the board OFF doesn't isolate R41; it measures R41 (to JP4) in parallel/series with the ATmega's unpowered A3-pin leakage paths to GND. ATmega input-protection (ESD diodes + sub-threshold gate paths) at ~200 mV multimeter test voltage presents non-linear impedance that varies by chip instance, temperature, and undefined power-rail state — confirmed by the 2026-05-26 follow-up measurement below (which isolates R41 properly and shows Rev 2.0 ≠ Rev 2.2 at the component level).
 
-- **§8 OPEN ground-truth resolution:** **inconclusive from A3↔GND header-pin measurement.** Schematic value (R41 = 4.7 kΩ for Rev 2.0/2.1/2.2) is still consistent with both readings because R41 itself isn't being isolated — the multimeter sees R41 || [MCU leakage]. Where MCU leakage is ~5-7 kΩ at multimeter test voltage, parallel with R41=4.7 kΩ yields ~2.5-3 kΩ — but in reverse-bias direction (which is what board-off A3 to GND would be) MCU leakage could easily be 20-100 kΩ, putting the parallel result in the observed 20-27 kΩ range.
-- **Schematic-stated value:** 4.7 kΩ (upstream blob `f3b7a521`, identical to Rev 2.1) — not contradicted by these readings
-- **Anders chat-intel value:** 10 kΩ — not contradicted either (10k || 7k MCU-leakage ≈ 4.1 kΩ; 10k || 100k MCU-leakage ≈ 9.1 kΩ — both still plausible)
-- **Definitive resolution path:** lift one of R41's pads (desolder one leg) and measure across the resistor with both leads off the board. **OR** visually read R41's value (color bands on THT package, or "472"/"103" SMD code) — non-invasive. Both deferred to operator preference; not gating Phase 35 close.
+### R41 ground-truth resolution (2026-05-26 operator follow-up — §8 OPEN RESOLVED)
+
+**Procedure:** Operator re-measured R41 in isolation (lift-leg / visual color-band / SMD-code read — direct component measurement, no MCU leakage path in series).
+
+**Confirmed values:**
+
+| Shield | Port | R41 in isolation | Schematic blob | Anders CHAT-INTEL §1 | Verdict |
+|--------|------|------------------|----------------|----------------------|---------|
+| **Rev 2.0** | /dev/ttyACM0 | **4.7 kΩ ✓** | 4.7 kΩ (blob d2a7f691) | (n/a — only spoke about Rev 2.2) | schematic CORRECT for Rev 2.0 |
+| **Rev 2.2** | /dev/ttyUSB0 | **10 kΩ ✓** | 4.7 kΩ (blob f3b7a521 — shared with Rev 2.1) | 10 kΩ ("10k version resistor for Rev 2.2", 2025-04-28) | Anders CHAT-INTEL VINDICATED; schematic blob f3b7a521 INCORRECT for the physical Rev 2.2 board |
+
+**§8 OPEN RESOLUTION:** **Rev 2.2 physical R41 = 10 kΩ.** The committed schematic blob `f3b7a521` (re-used from Rev 2.1) does NOT reflect the physical Rev 2.2 board as manufactured. Upstream re-issued only the gerbers for Rev 2.2 (Rev2.2-gerbers.zip dated 2025-04-28, committed at c2bd111 alongside Rev 2.3); the BOM / component-value change from 4k7 to 10k went into the gerber re-spin without a corresponding schematic-source update. Anders's 2025-04-28 chat statement is the authoritative ground truth for Rev 2.2 R41 value.
+
+**Why prior A3↔GND header-pin readings (27 kΩ Rev 2.0 / 20 kΩ Rev 2.2) cannot be derived linearly from the now-confirmed R41 values:** the board-off measurement includes ATmega input-protection leakage paths in non-deterministic series/parallel combinations with R41. The Rev 2.0 reading of 27 kΩ on a 4.7 kΩ R41 implies ~22 kΩ of leakage path in series; the Rev 2.2 reading of 20 kΩ on a 10 kΩ R41 implies ~10 kΩ. The two ATmega instances simply present different unpowered leakage profiles — the readings remain physically plausible but not predictive of R41 value. **Lesson:** A3↔GND header-pin probing with board OFF is NOT a viable methodology for resolving R41 value; lift-leg or visual marking inspection is required.
+
+### Firmware-side impact (post-RESOLUTION)
+
+**None.** Plan 01 Wave 1 (CR-01) switched `pinMode(PIN_HW_REVISION_DETECT_ADC)` from `INPUT_PULLUP` to `INPUT` (high-Z), which disabled the internal pull-up R_top. Without R_top active, the ADC band-math no longer depends on R41 value — both 4k7 (Rev 2.0) and 10k (Rev 2.2) produce A3 ≈ 0 V via ATmega ADC input leakage (~150 nA × R41 = sub-millivolt regardless of whether R41 is 4k7 or 10k). Bench-Wave-3 evidence (5 boots × 3 boards = 15 reads, 100% stable in low band) is therefore consistent with the now-confirmed Rev 2.2 R41 = 10k value — no firmware-side regression.
+
+**v1.8 backlog impact:** the `runtime-guard:rev22-r41-value-discrepancy` follow-up (`.planning/v1.7-SHIELD-REVS.md` §6 runtime-guard ledger gap #2) is **CLOSED** by this resolution. No v1.8 task required.
 
 ### Band-math semantics under Plan 01 INPUT high-Z (Phase 34 §8 ASCII correction)
 
@@ -240,7 +256,8 @@ Photo dirs already exist; READMEs in place; Task 5 commit will include them once
 - **Rev 2.0 MSG_OK_REV stability:** stable (5/5 boots = `Rev 2.0-class`)
 - **Rev 2.2 MSG_OK_REV stability:** stable (5/5 boots = `Rev 2.0-class`)
 - **Modified Rev 0 MSG_OK_REV stability:** stable (5/5 reads = effective `Rev 2.0-class` / physical `Rev 2.3`; opportunistic capture; Leonardo single-boot)
-- **A3↔GND multimeter readings (board OFF, header pins):** Rev 2.0 = 27 kΩ; Rev 2.2 = 20 kΩ. **NOT R41 in isolation** — measurement includes unpowered-ATmega input-protection leakage paths. Schematic R41 value (4.7 kΩ) is not contradicted; §8 OPEN ground-truth resolution deferred to v1.8 backlog (operator decision: defer rather than do invasive lift-leg measurement now).
+- **A3↔GND multimeter readings (board OFF, header pins):** Rev 2.0 = 27 kΩ; Rev 2.2 = 20 kΩ. **NOT R41 in isolation** — measurement includes unpowered-ATmega input-protection leakage paths. Methodology rejected as non-viable for R41 value resolution.
+- **R41 ground-truth (2026-05-26 follow-up — lift-leg / visual color-band / SMD-code read):** Rev 2.0 = **4.7 kΩ ✓** (schematic CORRECT); Rev 2.2 = **10 kΩ ✓** (Anders CHAT-INTEL §1 VINDICATED; schematic blob f3b7a521 INCORRECT for the physical Rev 2.2 board). **§8 OPEN RESOLVED.** Runtime-guard v1.8 backlog gap #2 (`rev22-r41-value-discrepancy`) is CLOSED. Firmware impact: NONE (Plan 01 INPUT high-Z makes R41 value irrelevant to band-math).
 - **Raw ADC summary:** not exposed by `3.0.0b5` firmware. Moot under Plan 01 INPUT high-Z — band math no longer depends on R41 value (depends on A3-net composition; see §"Band-math semantics under Plan 01 INPUT high-Z").
 - **Guard-gap feasibility:** **PROVED EMPIRICALLY** — 0/15 reads landed in the guard gap (`[200, 220)`); no board crossed into `REVISION_UNKNOWN`. The existing 20-count guard gap is sufficient on the operator's bench hardware; D-02 threshold widening no longer needed under Plan 01 INPUT high-Z.
 - **UAT-1 / UAT-2 / UAT-3 outcomes:** all firmware-side PASS. UAT-2's §8 OPEN R41-value-in-isolation deferred to v1.8 (operator decision; non-blocking).
