@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: — RURP Shield Hardware Investigation & Version Detection
-status: Defining requirements
-last_updated: "2026-05-26T14:00:00.000Z"
-last_activity: 2026-05-26 — Phase 28 re-iteration context gathered (split-scope revert: Leonardo per-commit revert of 437339b6; uno328pb deferred to operator workstream). v1.6 resumes at Phase 28 re-iteration.
+status: executing
+last_updated: "2026-05-26T14:13:53.967Z"
+last_activity: 2026-05-26 -- Phase 28 re-iteration planning complete (split-scope revert; Plans 28-03 + 28-04 added; 28-01/28-02 preserved as audit trail)
 progress:
   total_phases: 10
-  completed_phases: 4
-  total_plans: 11
+  completed_phases: 3
+  total_plans: 13
   completed_plans: 11
-  percent: 40
+  percent: 30
 ---
 
 # Project State
@@ -21,9 +21,9 @@ progress:
 ## Current Position
 
 Phase: 28 (re-iteration) — Fix Implementation + Unit Test Coverage (split-scope revert)
-Plan: 28-03 (next — desk-side autonomous revert of `437339b6`); 28-04 (drafted-but-not-executed, conditional second revert)
-Status: Re-iteration context gathered; ready for planning
-Last activity: 2026-05-26 — Phase 28 re-iteration context gathered after Phase 27 re-open closure (Plan 27-05). Split-scope: Leonardo revert `437339b6` (primary) + conditional second revert `4f205e58`; uno328pb deferred to operator workstream per `.hex` SHA identity falsifier (`d9e51b7e…`). Resume file: `.planning/phases/28-fix-implementation-unit-test-coverage/28-CONTEXT.md`.
+Plan: 28-03 (next — desk-side autonomous revert of `437339b6` + Unity test prune + Axis 4 `.hex` SHA capture + EVIDENCE.md H2 append + ROADMAP annotation); 28-04 (drafted-but-not-executed, conditional second revert of `4f205e58` gated on Phase 29 v2 bench outcome)
+Status: Ready to execute
+Last activity: 2026-05-26 — Phase 28 re-iteration planning complete after Phase 27 re-open closure (Plan 27-05). Plans 28-03 + 28-04 added; original 28-01 + 28-02 preserved as audit trail. Closed-phase replan under --force override per re-iteration commit `7a5eb7c`. Resume: `/gsd-execute-phase 28`.
 
 ## Project Reference
 

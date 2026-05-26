@@ -171,9 +171,15 @@ Original v1.6 roadmap detail preserved below for resume context.
   3. GATE-1.6 holds: `firestarter write` followed by `dev read -s N` byte-comparison on at least one bench chip (W27C512 or SST27SF512 — already proven stable in Phase 24) still passes byte-for-byte. This is the desk-side TDD-equivalent of the bench regression check; full bench gate runs in Phase 29.
   4. Compiled firmware artifact sizes (`firestarter_uno.hex`, `firestarter_leonardo.hex`, `firestarter_uno328pb.hex`) are recorded in the fix commit message — any drift > a reasonable threshold (e.g. ±200 B on Leonardo's 85.4% baseline) is explicitly justified by the RCA's necessary scope. Major drift on Leonardo (the tightest board) is a flag to revisit fix scope before merge.
   5. Sub-repo fixes ready for Phase 29 bench cut — i.e. `v1.6-read-bug` branches can be merged to `beta` to trigger a `3.0.0b5` (or next pre-release) cut for bench validation. Merge to `beta` happens at the Phase 29 boundary, not within Phase 28 itself.
-**Plans:** 2/2 plans complete
-- [x] 28-01-PLAN.md — Wave A desk-side: RED Unity scaffold + branch cut (FIX-02 RED half)
-- [x] 28-02-PLAN.md — Wave B desk-side: two atomic fix commits + GREEN bar + EVIDENCE.md append (FIX-01, FIX-02 GREEN half, FIX-03 desk-side half)
+**Plans:** 4 plans (2 audit-trail + 2 re-iteration; 2/4 complete — re-iterated 2026-05-26 split-scope revert)
+
+**Wave 1:**
+- [x] 28-01-PLAN.md — Wave A desk-side: RED Unity scaffold + branch cut (FIX-02 RED half) [AUDIT TRAIL — shipped 2026-05-21]
+- [x] 28-02-PLAN.md — Wave B desk-side: two atomic fix commits + GREEN bar + EVIDENCE.md append (original FIX-01/FIX-02 GREEN + FIX-03 desk-side) [AUDIT TRAIL — shipped 2026-05-21, broken approach reverted by 28-03]
+- [ ] 28-03-PLAN.md — Wave A re-iteration desk-side autonomous: `git revert 437339b6` + prune obsolete pullup-clear Unity test + GATE-1.6 v2 Axis 4 `.hex` SHA-256 capture + EVIDENCE.md re-iteration H2 append + ROADMAP annotation (FIX-01/FIX-02/FIX-03 desk-side close per D-09v2/D-11v2/D-12v2/D-14v2)
+
+**Wave 2** *(blocked on Phase 29 v2 bench result — gate flips only if Leonardo shape still zeros-dominant post-28-03 revert)*:
+- [ ] 28-04-PLAN.md — Conditional desk-side revert of `4f205e58` (DRAFTED BUT NOT EXECUTED by default; `autonomous: false`, `executes_only_if: phase_29_v2_leonardo_zeros_dominant`; mirrors Plan 27-02 drafted-but-not-executed pattern)
 **UI hint:** no
 
 #### Phase 29: Multi-Board Bench Verification

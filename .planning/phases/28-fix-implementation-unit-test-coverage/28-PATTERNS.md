@@ -1,8 +1,11 @@
-# Phase 28: Fix Implementation + Unit Test Coverage — Pattern Map
+# Phase 28 (RE-ITERATION 2026-05-26): Fix Implementation + Unit Test Coverage — Pattern Map
 
-**Mapped:** 2026-05-21
-**Files analyzed:** 6 (3 new, 3 modified)
-**Analogs found:** 6 / 6 (100%)
+**Mapped:** 2026-05-26
+**Files analyzed:** 6 work items (1 revert commit pair, 1 manual file edit, 1 EVIDENCE.md append, 1 ROADMAP.md annotation, 1 conditional Plan 28-04, 1 platformio.ini non-edit)
+**Analogs found:** 6 / 6 (every item has a concrete in-repo precedent)
+**Supersedes:** the 2026-05-21 28-PATTERNS.md (which mapped patterns for the broken FIX approach — now stale; the v1 file is git-archived audit trail).
+
+**Scope reminder:** Re-iteration is a pure REVERT + Unity test prune + `.hex` SHA evidence capture + EVIDENCE.md append. NO new fix code is authored. All "code" written here is commit-message text, planning-doc Markdown, and YAML frontmatter — there are NO new source-file patterns to map.
 
 ---
 
@@ -10,733 +13,515 @@
 
 | New/Modified File | Role | Data Flow | Closest Analog | Match Quality |
 |-------------------|------|-----------|----------------|---------------|
-| `firestarter/test/native/avr/test_data_input/test_rurp_set_data_input.cpp` (NEW) | unit-test | request-response (Unity RUN_TEST) | `firestarter/test/native/avr/test_dispatch/test_configure_memory.cpp` (primary), `test_messages/test_rurp_log_id.cpp` (secondary — uses ArduinoFake) | exact role + flow |
-| `firestarter/test/native/avr/test_data_input/host_stubs.cpp` (NEW) | test-link-stub | linkage only | `firestarter/test/native/avr/test_messages/host_stubs.cpp` | exact (with documented opt-out per Q6/D.1) |
-| `firestarter/test/native/avr/test_data_input/avr/pgmspace.h` (NEW) | host-shim header | macro/include translation | `firestarter/test/native/avr/test_dispatch/avr/pgmspace.h` | byte-for-byte twin |
-| `firestarter/src/boards/leonardo_rurp_shield.cpp` (MOD — `rurp_set_data_input`) | board-driver fn | hardware-register write | `firestarter/src/boards/uno_rurp_shield.cpp:rurp_set_data_input` POST-`df5fb44` | exact (cross-board mirror) |
-| `firestarter/src/boards/leonardo_rurp_shield.cpp` (MOD — `rurp_read_data_buffer`) | board-driver fn | hardware-register read | (no exact analog — original Uno reads only one port). Pattern source: ATmega32U4 datasheet §10.2.4 + research Q1 | partial — synthesized from datasheet + research |
-| `firestarter/platformio.ini` (MOD — `test_filter` line) | build-config | declarative list | existing `test_filter` entries at lines 78-80 | exact |
-| `.planning/v1.6-EVIDENCE.md` (MOD — append at line-110 anchor) | doc | append-only narrative | Phase 27 append pattern at the same file (sections above line 110) | exact |
+| `firestarter/src/boards/leonardo_rurp_shield.cpp` (auto-edited by `git revert 437339b6`) | source, auto-patched | git-history-mutation | `git log 437339b6 --stat` (the commit being inverted) | exact inverse |
+| `firestarter/test/native/avr/test_data_input/test_rurp_set_data_input.cpp` (manual edit — delete one test) | test, Unity native | host-test-prune | The file itself at lines 1-93 (header/setUp scaffolding) + 135-187 (surviving test + main) — analog is "same file, minus one function + one RUN_TEST" | exact |
+| `firestarter/platformio.ini` (NO EDIT — allowlist stays) | config | non-edit | `firestarter/platformio.ini:67-104` `[env:native].test_filter` allowlist | non-edit confirmed |
+| `.planning/v1.6-EVIDENCE.md` (append new H2 section) | planning doc, append-only | append-between-anchors | Plan 27-05 (`27-05-PLAN.md:242-352`) — append three H3s between two anchors with anti-pattern guards | exact pattern |
+| `.planning/ROADMAP.md:129` (annotate Phase 28 checkbox) | planning doc, in-line annotation | suffix-append | `.planning/ROADMAP.md:128-129` Phase 27 + Phase 28 lines with `(completed 2026-05-21)` suffix | role-match (no prior re-iteration annotation exists; we extend the shape) |
+| `.planning/phases/28-fix-implementation-unit-test-coverage/28-04-PLAN.md` (conditional) | plan file, drafted-but-not-executed | YAML frontmatter + objective shell | `.planning/phases/27-root-cause-analysis/27-02-PLAN.md:1-66` | exact |
+| `.planning/phases/28-fix-implementation-unit-test-coverage/28-03-PLAN.md` (primary) | plan file, autonomous desk-side, multi-task | YAML frontmatter + tasks | `.planning/phases/27-root-cause-analysis/27-05-PLAN.md:1-352` (Wave 3 desk-side capstone with EVIDENCE.md append + anti-pattern guards) | exact |
 
 ---
 
 ## Pattern Assignments
 
-### `firestarter/test/native/avr/test_data_input/test_rurp_set_data_input.cpp` (NEW)
+### `firestarter/src/boards/leonardo_rurp_shield.cpp` (auto-edited by `git revert 437339b6 --no-commit`)
 
-**Primary analog:** `firestarter/test/native/avr/test_dispatch/test_configure_memory.cpp`
-**Secondary analog (for ArduinoFake-mocked Serial pattern):** `firestarter/test/native/avr/test_messages/test_rurp_log_id.cpp`
+**Analog:** the commit `437339b6` itself (the diff being inverted). No "create" pattern needed — git produces the inverse patch deterministically.
 
-#### Excerpt 1 — Header banner + canonical includes (mirror lines 1-40 of `test_configure_memory.cpp`)
+**Commit-message footer template** (paste verbatim into the commit body — sourced from CONTEXT.md D-06 carry-forward lines 132-139):
 
-`test_configure_memory.cpp` lines 1-40 (verbatim shape to copy; substitute Phase-28 narrative for Phase-12 narrative):
+```
+Reverts: <broken-commit-sha> "<broken-commit-subject>"
+RCA re-open: .planning/v1.6-EVIDENCE.md §"Phase 27 — RCA Re-open Findings (2026-05-26)"
+Verdict: dual-cause (Outcome A Leonardo firmware-induced + Outcome B-independent uno328pb pre-existing)
+Fix sketch: .planning/v1.6-EVIDENCE.md §"Fix sketch v2 (Phase 28 re-iteration hand-off)"
+GATE-1.6 v2: .planning/v1.6-EVIDENCE.md §"GATE-1.6 v2 reassessment" (Axis 4 desk-side passes; bench gate in Phase 29 v2)
+```
+
+**Paste-ready commit body** (researcher-authored in RESEARCH.md lines 271-296; reproduced for planner convenience):
+
+```bash
+cd /workspaces/firestarter
+git revert 437339b6 --no-commit
+# Verify staged diff: src/boards/leonardo_rurp_shield.cpp | 10 ----------
+git diff --cached --stat
+git commit -m "$(cat <<'EOF'
+Revert "fix(leonardo): clear PORTD/PORTC/PORTE data-bit pullups in rurp_set_data_input"
+
+This reverts commit 437339b6879a7493f5f732a46b22b29e7863db24.
+
+The masked PORTx-clear introduced in 437339b6 was confirmed by Phase 27
+re-open (Plan 27-05, 2026-05-26) + Plan 27-04 bench A/B test (2026-05-26)
+to be the primary source of a 99% zeros / 0.08% jitter / 5-distinct-SHAs
+regression on Leonardo when combined with 4f205e58's _NOP() settling.
+Reverting restores rurp_set_data_input to the pre-Phase-28 shape
+(matching v1.6-read-bug~2 = fdb1ed5 / pre-fix Phase 26 baseline).
+
+Reverts: 437339b6 "fix(leonardo): clear PORTD/PORTC/PORTE data-bit pullups in rurp_set_data_input"
+RCA re-open: .planning/v1.6-EVIDENCE.md §"Phase 27 — RCA Re-open Findings (2026-05-26)"
+Verdict: dual-cause (Outcome A Leonardo firmware-induced + Outcome B-independent uno328pb pre-existing)
+Fix sketch: .planning/v1.6-EVIDENCE.md §"Fix sketch v2 (Phase 28 re-iteration hand-off)"
+GATE-1.6 v2: .planning/v1.6-EVIDENCE.md §"GATE-1.6 v2 reassessment" (Axis 4 desk-side passes; bench gate in Phase 29 v2)
+
+Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+EOF
+)"
+```
+
+**Verified shape:** dry-run executed 2026-05-26; produces clean inverse patch (1 file, 10 deletions, 0 conflicts). No merge resolution needed.
+
+**Cross-reference — atomic-commit-per-RCA-axis precedent:** The original Phase 28 v1 PATTERNS used the v1.2/v1.3 atomic-commit-per-axis pattern (cited at `.planning/phases/28-.../28-PATTERNS.md` v1, and at CONTEXT.md v1 D-01). Re-iteration preserves the same "one commit per RCA axis" hygiene — Plan 28-03 lands ONE revert commit (axis = the PORTx-clear), and Plan 28-04 (if it fires) lands a SECOND atomic revert commit (axis = the `_NOP()` settling). The footer template is the re-iteration analog of the v1 RCA-citation footer.
+
+---
+
+### `firestarter/test/native/avr/test_data_input/test_rurp_set_data_input.cpp` (manual edit — delete one Unity test)
+
+**Analog:** the file itself. The pattern is "edit-in-place to delete N of K cases; preserve the include scaffolding + the K-N surviving cases".
+
+**Why not delete the whole file:** Plan 27-05 anti-pattern reasoning applies — preserve infrastructure (`host_stubs.cpp`, `avr/pgmspace.h`, the `_BV` shim, the `#include "../../../../src/boards/leonardo_rurp_shield.cpp"` shape on lines 1-89) that the SURVIVING test still needs. Dropping the file would also force a `platformio.ini` allowlist edit (Pitfall 3 in RESEARCH.md).
+
+**Surviving structure (verified live at lines 1-93 + 135-187 of the file):**
+
+- Lines 1-89: header comment + `#include <unity.h>` + AVR-register host shims + `_BV(b)` macro + Leonardo-source include + `setUp(void)` + `tearDown(void)`. KEEP VERBATIM.
+- Lines 94-133: the `test_rurp_set_data_input_clears_data_pullups_leonardo` function body + its 30-line preceding comment block. **DELETE.**
+- Lines 135-176: the `test_rurp_read_data_buffer_reassembles_data_bus` function body + its 18-line preceding comment block. **KEEP VERBATIM** — researcher-confirmed: the bit-reassembly logic at `leonardo_rurp_shield.cpp:119-126` is unchanged by either revert; this test remains a valid regression guard.
+- Lines 178-187: `main()` shell + `UNITY_BEGIN()` + `RUN_TEST(test_rurp_set_data_input_clears_data_pullups_leonardo);` (line 183 — **DELETE this line only**) + `RUN_TEST(test_rurp_read_data_buffer_reassembles_data_bus);` (line 184 — KEEP) + `UNITY_END()`. KEEP the rest verbatim.
+
+**Concrete excerpt of the surviving test (lines 135-176 — for the planner to reference)** — the 8-bit-reassembly cases that stay green post-revert:
 
 ```cpp
-/*
- * Project Name: Firestarter
- * Copyright (c) 2024 Henrik Olsson
+/* ---------------------------------------------------------------------------
+ * Test 2 — Regression guard for rurp_read_data_buffer bit-mapping.
  *
- * Permission is hereby granted under MIT license.
- *
- * Phase 12 Wave 0 — dispatch unit tests for configure_memory().
- *
- * One test per protocol in KNOWN_PROTOCOLS (build_db.py:89). Each test
- * constructs a minimal firestarter_handle_t (protocol, mem_type, cmd,
- * response_code) and asserts `configure_memory()` does not raise
- * RESPONSE_CODE_ERROR ...
- * ...
- */
-
-#include <Arduino.h>
-#include <ArduinoFake.h>
-#include <unity.h>
-
-extern "C" {
-#include "memory.h"
-}
-#include "firestarter.h"
-
-using namespace fakeit;
-```
-
-**Substitutions for Phase 28:**
-- Phase-12 narrative → Phase-28 narrative (Wave A — RED unity scaffold for `rurp_set_data_input` pullup clearing per FIX-02).
-- `#include "memory.h"` → replaced by **include-as-source pattern** per RESEARCH.md Q2 / Option D (see Excerpt 2 below).
-- Keep `#include <Arduino.h>`, `#include <ArduinoFake.h>`, `#include <unity.h>` verbatim.
-- `using namespace fakeit;` is NOT needed for the data-input test (no `When(...)` mocks of Serial in the assertions themselves), but it is harmless and keeps the include-pattern uniform with other suites. Optional.
-
-#### Excerpt 2 — Top-of-file board-source include pattern (RESEARCH.md Q2 Option D, lines 122-134)
-
-Insert this block AFTER the standard includes (Excerpt 1) and BEFORE any test functions:
-
-```cpp
-// --- Host-side AVR register shim. MUST be BEFORE leonardo_rurp_shield.cpp
-// is included so the source sees these as plain uint8_t globals.
-#include <stdint.h>
-static uint8_t PORTD = 0, PORTC = 0, PORTE = 0;
-static uint8_t DDRD  = 0, DDRC  = 0, DDRE  = 0;
-static uint8_t PIND  = 0, PINC  = 0, PINE  = 0;
-// PORTB/DDRB are referenced by rurp_board_setup + rurp_set_control_pin (never
-// called by these tests, but the linker still resolves them).
-static uint8_t PORTB = 0, DDRB = 0;
-
-// --- Enable the Leonardo board guard, then pull the source into THIS TU
-// so rurp_set_data_input / rurp_read_data_buffer are exposed to the tests.
-#define ARDUINO_AVR_LEONARDO
-#include "../../../src/boards/leonardo_rurp_shield.cpp"
-```
-
-**LANDMINE — path depth:** the test cpp lives at `test/native/avr/test_data_input/`, so the source is reached with **FOUR** `../` segments (`../../../../src/...`)? Re-count from RESEARCH.md Risk #6:
-
-- `test/native/avr/test_data_input/test_rurp_set_data_input.cpp` → `../` = `test/native/avr/` → `../../` = `test/native/` → `../../../` = `test/` → `../../../../` = repo root → `../../../../src/boards/leonardo_rurp_shield.cpp`.
-
-The relative path is `../../../../src/boards/leonardo_rurp_shield.cpp` (FOUR dot-dot segments). The RESEARCH.md Q2 sample showing THREE is a typo; Risk #6 corrects it. **Use four.**
-
-#### Excerpt 3 — setUp/tearDown pattern (mirror `test_configure_memory.cpp` lines 42-55)
-
-```cpp
-void setUp(void) {
-    ArduinoFakeReset();
-    /* Reset all host-shim register globals to a known state before each test.
-     * The "residual pullups" pre-state is set inside each test body. */
-    PORTD = 0; PORTC = 0; PORTE = 0;
-    DDRD  = 0; DDRC  = 0; DDRE  = 0;
-    PIND  = 0; PINC  = 0; PINE  = 0;
-}
-
-void tearDown(void) {
-}
-```
-
-**Substitutions for Phase 28:** drop the `When(OverloadedMethod(ArduinoFake(Serial), write, ...))` Serial mocks — the data-input test never invokes serial output. Replace with the register-reset block.
-
-#### Excerpt 4 — Test body pattern for `test_rurp_set_data_input_clears_data_pullups_leonardo`
-
-Source for assertions: CONTEXT.md D-02 §"Post-condition assertions" + RESEARCH.md Q4. Test body to paste:
-
-```cpp
-void test_rurp_set_data_input_clears_data_pullups_leonardo(void) {
-    // Pre-state: simulate residual register state from prior
-    // rurp_set_control_pins / rurp_write_data_buffer strobes — all data
-    // bits set HIGH (the worst-case "every internal pullup engaged" case).
-    PORTD = 0xFF; PORTC = 0xFF; PORTE = 0xFF;
-    DDRD  = PORTD_DATA_MASK; DDRC = PORTC_DATA_MASK; DDRE = PORTE_DATA_MASK;
-
-    rurp_set_data_input();
-
-    // Post-conditions: data-bit pullups cleared on all three ports.
-    TEST_ASSERT_EQUAL_HEX8(0x00, PORTD & PORTD_DATA_MASK);
-    TEST_ASSERT_EQUAL_HEX8(0x00, PORTC & PORTC_DATA_MASK);
-    TEST_ASSERT_EQUAL_HEX8(0x00, PORTE & PORTE_DATA_MASK);
-
-    // DDRx data bits cleared (input). Regression guard against accidentally
-    // breaking the existing DDRx-clear logic while adding the PORTx-clear.
-    TEST_ASSERT_EQUAL_HEX8(0x00, DDRD & PORTD_DATA_MASK);
-    TEST_ASSERT_EQUAL_HEX8(0x00, DDRC & PORTC_DATA_MASK);
-    TEST_ASSERT_EQUAL_HEX8(0x00, DDRE & PORTE_DATA_MASK);
-
-    // Control bits MUST NOT be touched (PORTD bit 6 = D12, PORTC bit 7 = D13).
-    // Pre-state set them HIGH via 0xFF; the masked PORTx-clear must preserve.
-    TEST_ASSERT_EQUAL_HEX8(PORTD_CONTROL_MASK, PORTD & PORTD_CONTROL_MASK);
-    TEST_ASSERT_EQUAL_HEX8(PORTC_CONTROL_MASK, PORTC & PORTC_CONTROL_MASK);
-}
-```
-
-**Why the control-bit assertions matter:** RESEARCH.md Risk #1 — the EVIDENCE.md sketch's `PORTD = 0x00` literal would zero the D12 control line. The test's post-condition assertions catch this regression at unit-test time. The executor MUST use the masked form (`PORTD &= ~PORTD_DATA_MASK`) and these assertions encode the contract.
-
-#### Excerpt 5 — Test body pattern for `test_rurp_read_data_buffer_reassembles_data_bus` (RESEARCH.md Q3, lines 164-188 verbatim)
-
-```cpp
+ * PASSES on pre-fix code (the bit-mapping logic at lines 119-126 is unchanged
+ * by either Wave B fix commit). Wave B Commit 2 inserts _NOP() settling
+ * delays between the three PINx reads; this case guards against accidentally
+ * breaking the shift-and-mask reassembly while editing the read function.
+ * ... [bit map docstring] ...
+ * --------------------------------------------------------------------------- */
 void test_rurp_read_data_buffer_reassembles_data_bus(void) {
-    // All-high data bus: PIND data bits + PINC bit 6 + PINE bit 6 all set
-    // Should reassemble to 0xFF.
-    PIND = PORTD_DATA_MASK;  // 0x9F: bits 0,1,2,3,4,7 set
-    PINC = PORTC_DATA_MASK;  // 0x40: bit 6
-    PINE = PORTE_DATA_MASK;  // 0x40: bit 6
+    PIND = PORTD_DATA_MASK;  /* 0x9F: bits 0,1,2,3,4,7 set */
+    PINC = PORTC_DATA_MASK;  /* 0x40: bit 6 */
+    PINE = PORTE_DATA_MASK;  /* 0x40: bit 6 */
     TEST_ASSERT_EQUAL_HEX8(0xFF, rurp_read_data_buffer());
 
-    // All-low: returns 0x00
     PIND = 0; PINC = 0; PINE = 0;
     TEST_ASSERT_EQUAL_HEX8(0x00, rurp_read_data_buffer());
 
-    // Single-bit walks: D0 only set → PD2 = 0x04 (bit 2 of PIND)
-    PIND = _BV(2); PINC = 0; PINE = 0;
-    TEST_ASSERT_EQUAL_HEX8(0x01, rurp_read_data_buffer());
-
-    // D5 only → PC6 = 0x40 (bit 6 of PINC)
-    PIND = 0; PINC = _BV(6); PINE = 0;
-    TEST_ASSERT_EQUAL_HEX8(0x20, rurp_read_data_buffer());
-
-    // D7 only → PE6 = 0x40 (bit 6 of PINE)
-    PIND = 0; PINC = 0; PINE = _BV(6);
-    TEST_ASSERT_EQUAL_HEX8(0x80, rurp_read_data_buffer());
+    /* ... single-bit walks for D0, D5, D7 ... */
 }
 ```
 
-#### Excerpt 6 — `main()` runner (mirror `test_configure_memory.cpp` lines 165-190)
+**Commit-message subject** (per CONTEXT.md "Specific Re-iteration Ideas" line 221 + RESEARCH.md "Claude's Discretion" line 50):
 
-```cpp
-int main(int argc, char** argv) {
-    (void)argc;
-    (void)argv;
-    UNITY_BEGIN();
-
-    RUN_TEST(test_rurp_set_data_input_clears_data_pullups_leonardo);
-    RUN_TEST(test_rurp_read_data_buffer_reassembles_data_bus);
-
-    return UNITY_END();
-}
+```
+test(leonardo): remove pullup-clear assertion superseded by Phase 27 re-open revert
 ```
 
-**What stays the same vs `test_configure_memory.cpp`:**
-- File-banner shape (copyright + Phase narrative + behavioural contract paragraph).
-- `setUp` / `tearDown` function signatures.
-- `int main(int argc, char** argv) { (void)argc; (void)argv; UNITY_BEGIN(); ...; return UNITY_END(); }` scaffolding.
-- One `RUN_TEST(...)` line per test.
-- `TEST_ASSERT_EQUAL_HEX8` macro for register-state assertions (matches the "register state is hex-readable" convention noted in CONTEXT.md §Specific Ideas).
-- `extern "C" { #include "..." }` brace pattern around any C headers pulled in.
+Body cites Plan 27-05.
 
-**What changes:**
-- `#include "memory.h"` → host-shim register globals + `#define ARDUINO_AVR_LEONARDO` + `#include "../../../../src/boards/leonardo_rurp_shield.cpp"` (the include-as-source pattern per RESEARCH.md Q2 Option D).
-- Drop the `using namespace fakeit;` + ArduinoFake `When(...)` Serial mocks (not needed — these tests never trigger serial output).
-- Drop the `make_handle()` helper (not needed — these tests operate on register globals, not `firestarter_handle_t`).
-- Two `RUN_TEST` calls (vs `test_configure_memory.cpp`'s 15).
+**Cross-reference — Unity test prune precedent:** No prior Unity test was DELETED in this firmware sub-repo's history; the only deletion-shaped change is the v1.4 `messages.c` removal (`platformio.ini:101-102` historical comment: "messages.c was generated... but had no firmware callers; deleted post-Phase-7 to reclaim ~256 B"). The analog there is "remove a TU + its allowlist entry"; our re-iteration is "remove a test FUNCTION but keep the TU + allowlist entry intact" — strictly weaker change, no allowlist edit required.
 
 ---
 
-### `firestarter/test/native/avr/test_data_input/host_stubs.cpp` (NEW)
+### `firestarter/platformio.ini` (NO EDIT — allowlist stays unchanged)
 
-**Analog:** `firestarter/test/native/avr/test_messages/host_stubs.cpp` (closer match than `test_dispatch/host_stubs.cpp` because both this and `test_messages` need ArduinoFake's `Serial_::operator bool()` linkage via `<Arduino.h>` + `<ArduinoFake.h>` pull-in).
-
-**CRITICAL DEVIATION from the analog:** per RESEARCH.md Q2 + Q6 + D.1, this suite does **NOT** include `../_shared/host_stubs_common.inc`. The shared inc defines `extern "C"` no-op versions of `rurp_set_data_input` / `rurp_read_data_buffer` / `rurp_set_data_output` / `rurp_write_data_buffer` / `rurp_set_control_pin` (lines 58-72 of the shared inc) — all of which would multiple-define against the REAL implementations pulled in by the test cpp's `#include "../../../../src/boards/leonardo_rurp_shield.cpp"`.
-
-#### Excerpt 1 — `test_messages/host_stubs.cpp` lines 24-37 (reference shape)
-
-```cpp
-#include <stdint.h>
-#include <stddef.h>
-#include <string.h>
-
-#include <Arduino.h>
-#include <ArduinoFake.h>
-
-extern "C" {
-#include "rurp_shield.h"
-#include "rurp_types.h"
-}
-
-#include "../_shared/host_stubs_common.inc"
-```
-
-#### Excerpt 2 — Phase-28-specific `host_stubs.cpp` content (RESEARCH.md Q6 lines 314-341)
-
-The DELTA from the analog is: replace the `#include "../_shared/host_stubs_common.inc"` line with a minimal `Serial_::operator bool()` definition only. Paste verbatim:
-
-```cpp
-/*
- * Project Name: Firestarter
- * Copyright (c) 2024 Henrik Olsson
- *
- * Permission is hereby granted under MIT license.
- *
- * Phase 28 — host stub TU for the test_data_input suite.
- *
- * This suite uses the include-as-source pattern (the test cpp #includes
- * leonardo_rurp_shield.cpp directly per RESEARCH.md Q2 Option D) and defines
- * PORTx/DDRx/PINx as test-local globals. The shared host_stubs_common.inc
- * is INTENTIONALLY NOT INCLUDED because:
- *   1. test_data_input does not link src/proms/*.cpp (it doesn't need the
- *      dispatch surface).
- *   2. The included leonardo_rurp_shield.cpp provides real implementations
- *      of rurp_set_data_input, rurp_read_data_buffer, rurp_set_data_output,
- *      rurp_write_data_buffer, rurp_set_control_pin, rurp_board_setup, and
- *      rurp_user_button_pressed — which would multiple-define against the
- *      shared stubs.
- *
- * The only host_stubs.cpp content needed is Serial_::operator bool() (a
- * link-only stub referenced indirectly through ArduinoFake's USB-CDC
- * surface — used inside leonardo_rurp_shield.cpp's rurp_board_setup, which
- * the tests never call but the linker still resolves).
- */
-#include <Arduino.h>
-#include <ArduinoFake.h>
-
-Serial_::operator bool() {
-    return true;
-}
-```
-
-**What stays the same vs `test_messages/host_stubs.cpp`:**
-- Copyright + Phase-narrative file banner.
-- `#include <Arduino.h>` + `#include <ArduinoFake.h>`.
-- `Serial_::operator bool() { return true; }` link-only definition (also present at line 141-143 of `_shared/host_stubs_common.inc`).
-
-**What changes:**
-- Drop the `extern "C" { #include "rurp_shield.h" ... }` block (not needed — `rurp_shield.h` is pulled in transitively via the test cpp's source-include).
-- Drop `#include "../_shared/host_stubs_common.inc"` (would cause multiple-definition errors per the explanation in the file's docstring).
-- Drop `#include <stdint.h>` / `<stddef.h>` / `<string.h>` (not needed without the shared inc).
-
----
-
-### `firestarter/test/native/avr/test_data_input/avr/pgmspace.h` (NEW)
-
-**Analog:** `firestarter/test/native/avr/test_dispatch/avr/pgmspace.h` — **copy verbatim** (the file is a stable host-shim and `test_messages/avr/pgmspace.h` is functionally identical; choose `test_dispatch/` as the reference per RESEARCH.md §"Files Phase 28 will create").
-
-#### Excerpt — full file contents (paste byte-for-byte)
-
-```cpp
-/*
- * Phase 12 Wave 0 — host-side stub for <avr/pgmspace.h>
- *
- * The dispatch test runs on platform = native (no AVR libc available).
- * `rurp_shield.h` unconditionally `#include <avr/pgmspace.h>` to get the
- * `PROGMEM` storage attribute and `pgm_read_*` accessors. On host we just
- * neutralize these to no-ops / direct memory access so the test binary
- * can link.
- *
- * Scope: ONLY for the dispatch unit test. Not for production builds.
- * Production builds use the real AVR libc header via the Arduino framework.
- */
-#ifndef _AVR_PGMSPACE_H_STUB_
-#define _AVR_PGMSPACE_H_STUB_
-
-#include <stdint.h>
-#include <string.h>
-
-#ifndef PROGMEM
-#define PROGMEM
-#endif
-
-#ifndef PSTR
-#define PSTR(s) (s)
-#endif
-
-#ifndef PGM_P
-#define PGM_P const char *
-#endif
-
-#ifndef pgm_read_byte
-#define pgm_read_byte(addr) (*(const uint8_t*)(addr))
-#endif
-
-#ifndef pgm_read_word
-#define pgm_read_word(addr) (*(const uint16_t*)(addr))
-#endif
-
-#ifndef pgm_read_dword
-#define pgm_read_dword(addr) (*(const uint32_t*)(addr))
-#endif
-
-#ifndef pgm_read_ptr
-#define pgm_read_ptr(addr) (*(void**)(addr))
-#endif
-
-#ifndef strcpy_P
-#define strcpy_P(dst, src) strcpy((dst), (src))
-#endif
-
-#ifndef strlen_P
-#define strlen_P(s) strlen((s))
-#endif
-
-#ifndef memcpy_P
-#define memcpy_P(dst, src) memcpy((dst), (src), (n))
-#endif
-
-#endif /* _AVR_PGMSPACE_H_STUB_ */
-```
-
-**What stays the same:** EVERY line of `test_dispatch/avr/pgmspace.h`. Pure copy.
-
-**What changes:** OPTIONALLY change the comment "the dispatch test" → "the data_input test" in the header docstring. Functionally inert. Both `test_dispatch/` and `test_messages/` have nearly-identical files with slightly different docstrings; either is acceptable.
-
-**Why the include-path search resolves this file:** PlatformIO automatically adds the active test directory to the include path (per `[env:native].build_flags` lines 84-86: `-I test/native/avr/test_dispatch` and `-I test/native/avr/test_messages`). **Phase 28 must add `-I test/native/avr/test_data_input` to that list** so that `#include <avr/pgmspace.h>` (pulled transitively by `rurp_shield.h` → included in `leonardo_rurp_shield.cpp`) resolves to the local shim, not the system AVR header (which won't exist on the native host).
-
----
-
-### `firestarter/src/boards/leonardo_rurp_shield.cpp` — Commit 1: `rurp_set_data_input`
-
-**Analog:** `firestarter/src/boards/uno_rurp_shield.cpp:rurp_set_data_input` POST-`df5fb44` (the canonical reference fix).
-
-#### Excerpt 1 — Uno PRE-fix shape (from `git show df5fb44 -- src/boards/uno_rurp_shield.cpp`, the "-" side)
-
-```cpp
-void rurp_set_data_input() {
-    DDRD = 0x00;
-}
-```
-
-#### Excerpt 2 — Uno POST-fix shape (current state, `uno_rurp_shield.cpp:128-137`)
-
-```cpp
-void rurp_set_data_input() {
-    // Clear PORTD before switching to input so internal pullups are disabled
-    // on every data line. Without this, residual PORTD bits from the last
-    // register-strobe or rurp_set_communication_mode (PORTD bit 0 = 1) leave
-    // 1..2 data pins weakly biased HIGH against the chip's drive. Defensive
-    // — does not on its own fix the FM1608 byte-0 read failure on Uno (see
-    // .planning/debug/fm1608-fresh-chip-baseline.md).
-    PORTD = 0x00;
-    DDRD = 0x00;
-}
-```
-
-#### Excerpt 3 — Leonardo PRE-fix shape (current state, `leonardo_rurp_shield.cpp:137-141`)
-
-```cpp
-void rurp_set_data_input() {
-    DDRD &= ~PORTD_DATA_MASK; // Set pins D0-D3 and D4-D7 as output
-    DDRC &= ~PORTC_DATA_MASK; // Set pin D5 as output
-    DDRE &= ~PORTE_DATA_MASK; // Set pin D6 as output
-}
-```
-
-#### Excerpt 4 — Leonardo POST-fix target shape (RESEARCH.md Q4, lines 212-227)
-
-```cpp
-void rurp_set_data_input() {
-    // Clear data-bit pullups on PORTD/PORTC/PORTE before switching DDR
-    // to input. Without this, residual PORTx bits from prior
-    // rurp_set_control_pins / rurp_write_data_buffer strobes leave 1-2
-    // data pins weakly biased HIGH against the chip's drive. On a partially
-    // erased EPROM (weak drive) this produces single-bit data corruption
-    // (78% single-bit XOR flips per Phase 27 RCA on Leonardo W27C512).
-    // Mirror of uno_rurp_shield.cpp:rurp_set_data_input (commit df5fb44).
-    PORTD &= ~PORTD_DATA_MASK;
-    PORTC &= ~PORTC_DATA_MASK;
-    PORTE &= ~PORTE_DATA_MASK;
-    DDRD &= ~PORTD_DATA_MASK; // Set pins D0-D3 and D4-D7 as output
-    DDRC &= ~PORTC_DATA_MASK; // Set pin D5 as output
-    DDRE &= ~PORTE_DATA_MASK; // Set pin D6 as output
-}
-```
-
-**What stays the same as the Uno-side `df5fb44`:**
-- Add PORTx-clear lines BEFORE the existing DDRx-clear lines.
-- 7-line comment-block-then-1-line-per-PORT shape.
-- Function body otherwise unchanged (no signature change, no return type change).
-
-**What changes (Leonardo-specific):**
-- **THREE PORTs to clear, not one** (Leonardo's data bus scatters across PORTD/PORTC/PORTE; Uno's is all on PORTD).
-- **Masked-clear form `PORTx &= ~PORTx_DATA_MASK`, NOT total-clear `PORTx = 0x00`.** This is the load-bearing deviation flagged by RESEARCH.md Risk #1 — Uno can use `PORTD = 0x00` because PD0..PD7 are all data bits on the Uno; Leonardo MUST mask because PORTD bit 6 carries the D12 control line (`PORTD_CONTROL_MASK = 0x40`) and PORTC bit 7 carries D13 (`PORTC_CONTROL_MASK = 0x80`). A naive `PORTD = 0x00` would zero those active control bits and break the write path.
-- Comment text references "partially erased EPROM" + "78% single-bit XOR flips" (Phase 27 RCA) rather than "FM1608 byte-0 read failure" (separate Uno-side debug).
-- Commit-message body (per RESEARCH.md Q4 lines 234-263) documents the masked-vs-total-clear deviation explicitly.
-
----
-
-### `firestarter/src/boards/leonardo_rurp_shield.cpp` — Commit 2: `rurp_read_data_buffer`
-
-**Analog:** no exact source-code analog (the Uno's `rurp_read_data_buffer` is a one-liner `return PIND;`; it doesn't have the three-port race condition). Pattern source = ATmega32U4 datasheet §10.2.4 (per RESEARCH.md Q1) + the existing inline `_BV()` convention used at `leonardo_rurp_shield.cpp:99-104`.
-
-#### Excerpt 1 — Leonardo PRE-fix (current state, `leonardo_rurp_shield.cpp:112-129`)
-
-```cpp
-uint8_t rurp_read_data_buffer() {
-    // Read from ports and map back to data bus bits (D0-D7)
-    uint8_t pind_val = PIND;
-    uint8_t pinc_val = PINC;
-    uint8_t pine_val = PINE;
-
-    uint8_t data = 0;
-    data |= ((pind_val & _BV(2)) >> 2); // PD2 -> D0
-    data |= ((pind_val & _BV(3)) >> 2); // PD3 -> D1
-    data |= ((pind_val & _BV(1)) << 1); // PD1 -> D2
-    data |= ((pind_val & _BV(0)) << 3); // PD0 -> D3
-    data |= (pind_val & _BV(4));        // PD4 -> D4
-    data |= ((pinc_val & _BV(6)) >> 1); // PC6 -> D5
-    data |= ((pind_val & _BV(7)) >> 1); // PD7 -> D6
-    data |= ((pine_val & _BV(6)) << 1); // PE6 -> D7
-
-    return data;
-}
-```
-
-#### Excerpt 2 — Leonardo POST-fix target shape (RESEARCH.md Q1, lines 39-54)
-
-```cpp
-uint8_t rurp_read_data_buffer() {
-    // Read from ports and map back to data bus bits (D0-D7).
-    // Insert a single _NOP() between each PINx read to let the AVR's input
-    // synchronizer latch settle before the next port read. The 32U4 PINx
-    // register has a 0.5-1.5 clock-cycle latch latency (datasheet 7766J
-    // §10.2.4); with a partially-erased EPROM (weak chip drive) plus the
-    // address-bus driven through nearby PCB traces, three back-to-back PINx
-    // reads can sample mid-transition values. One _NOP() @ 16 MHz = 62.5 ns;
-    // worst-case W27C512 tACC at 5V is 90 ns. Two stalls put total settling
-    // at ~125 ns - comfortably > tACC, < 1 µs / 64KB read overhead.
-    uint8_t pind_val = PIND;
-    _NOP();
-    uint8_t pinc_val = PINC;
-    _NOP();
-    uint8_t pine_val = PINE;
-
-    uint8_t data = 0;
-    data |= ((pind_val & _BV(2)) >> 2); // PD2 -> D0
-    data |= ((pind_val & _BV(3)) >> 2); // PD3 -> D1
-    data |= ((pind_val & _BV(1)) << 1); // PD1 -> D2
-    data |= ((pind_val & _BV(0)) << 3); // PD0 -> D3
-    data |= (pind_val & _BV(4));        // PD4 -> D4
-    data |= ((pinc_val & _BV(6)) >> 1); // PC6 -> D5
-    data |= ((pind_val & _BV(7)) >> 1); // PD7 -> D6
-    data |= ((pine_val & _BV(6)) << 1); // PE6 -> D7
-
-    return data;
-}
-```
-
-**What stays the same:**
-- Function signature: `uint8_t rurp_read_data_buffer()`.
-- All eight `data |= ...` bit-extract lines (lines 119-126 — the shift-and-mask reassembly is bit-identical pre and post fix; only the three PINx reads are touched).
-- All three `uint8_t pinX_val = PINX;` reads (in original order — PIND, then PINC, then PINE).
-- `return data;` line.
-
-**What changes:**
-- The brief existing 1-line comment "Read from ports and map back to data bus bits (D0-D7)" expands into the multi-line datasheet-citing comment paragraph.
-- Insert `_NOP();` between the PIND read and PINC read.
-- Insert a second `_NOP();` between the PINC read and PINE read.
-- Net additions: 2 lines of code (the `_NOP();` calls) + 8 lines of comment expansion. Total +10 lines.
-- Flash impact: +4 B (per RESEARCH.md Q1 cost analysis); runtime impact: ~125 ns per byte read = ~8 ms per 64KB read (invisible).
-
----
-
-### `firestarter/platformio.ini` — `test_filter` line addition
-
-**Analog:** the existing two-line allowlist at `platformio.ini:78-80`.
-
-#### Excerpt — `platformio.ini` lines 76-86 (current state)
+**Analog:** the existing allowlist at lines 78-81:
 
 ```ini
-; Using positive test_filter allowlist (test_ignore was being honored
-; inconsistently — likely PIO version quirk).
 test_filter =
-    native/avr/test_dispatch
-    native/avr/test_messages
-build_flags =
-    ${env.build_flags}
-    -std=gnu++17
-    -I include
-    -I test/native/avr/test_dispatch
-    -I test/native/avr/test_messages
-    -D RURP_BOARD_NAME=\"native\"
+	native/avr/test_dispatch
+	native/avr/test_messages
+	native/avr/test_data_input
 ```
 
-#### Excerpt — Phase 28 target shape
+**Rationale:** Per RESEARCH.md "Alternatives Considered" (line 128) + Pitfall 3 (line 397) — the directory `native/avr/test_data_input/` stays populated (surviving `test_rurp_read_data_buffer_reassembles_data_bus` + `host_stubs.cpp` + `avr/pgmspace.h`). The allowlist entry MUST remain or `pio test -e native` errors on a missing-suite reference.
 
-```ini
-; Using positive test_filter allowlist (test_ignore was being honored
-; inconsistently — likely PIO version quirk).
-test_filter =
-    native/avr/test_dispatch
-    native/avr/test_messages
-    native/avr/test_data_input
-build_flags =
-    ${env.build_flags}
-    -std=gnu++17
-    -I include
-    -I test/native/avr/test_dispatch
-    -I test/native/avr/test_messages
-    -I test/native/avr/test_data_input
-    -D RURP_BOARD_NAME=\"native\"
-```
-
-**What stays the same:**
-- Every other line in `[env:native]`.
-- `build_src_filter = +<proms/> +<boards/rurp_serial_utils.cpp>` (line 101) — **do NOT extend** with `+<boards/leonardo_rurp_shield.cpp>` per RESEARCH.md Risk #3. The Leonardo source is pulled into the test_data_input TU via `#include`, not via `build_src_filter`.
-
-**What changes:**
-- Add the line `    native/avr/test_data_input` to the `test_filter` block (4-space indent matching existing entries — verify by reading the surrounding lines; tabs vs spaces must match).
-- Add the line `    -I test/native/avr/test_data_input` to the `build_flags` block so the test cpp's `#include <avr/pgmspace.h>` (pulled transitively by `rurp_shield.h`) resolves to the local `test_data_input/avr/pgmspace.h` shim. **RESEARCH.md Q2 line 119 says "No other platformio.ini changes" — that statement is incomplete; the `-I` line is also required so the new suite's `avr/pgmspace.h` is found. Existing suites have the analogous `-I` line for the same reason.**
+**Cross-reference — `firestarter/CLAUDE.md` reuse pattern:** documents the inverse (adding new suites): "To add a new host-side Unity suite, drop `test_*.cpp` files under `test/native/avr/<dirname>/`. ... The `[env:native]` configuration in `platformio.ini` does not need changes for new suites." Re-iteration applies the symmetric rule: no changes needed when a suite SHRINKS but stays non-empty.
 
 ---
 
-### `.planning/v1.6-EVIDENCE.md` — append `## Phase 28 — Fix Commit References`
+### `.planning/v1.6-EVIDENCE.md` (append new H2 section between lines 560 and 562)
 
-**Analog:** the Phase 27 RCA append pattern already present in the same file (sections at lines 1-110). The append goes at the line-110 anchor:
+**Analog:** `.planning/phases/27-root-cause-analysis/27-05-PLAN.md` Task 2 (lines 242-352) — the canonical pattern for "append to EVIDENCE.md between two anchors with anti-pattern immutability guards". Plan 27-05 appended THREE H3 subsections; we append ONE H2 section. The mechanics (anchor capture → pre-edit SHA → string-anchored Edit → post-edit SHA assertion) are identical.
 
+**Insertion anchor pattern** (RESEARCH.md lines 484-543; verified live: `grep -c '^## Verdict$' = 1`):
+
+- **Old string** ends with the last line of `### Re-open final verdict — closing the loop` (line 560 — the sentence ending `All re-fix candidates must pass the full GATE-1.6 v2 four-axis check before landing.`) + blank line + `## Verdict` header.
+- **New string** = same old + the new H2 inserted between them.
+
+**Anti-pattern immutability guard pattern** (sourced from Plan 27-05 PLAN lines 256-268 + Plan 27-05 SUMMARY lines 151-158):
+
+The Plan 27-05 guards used `awk` range-extraction (semantically robust against line-number drift) — adapt this shape rather than `sed -n '112,186p'` (line-numeric, fragile). Plan 27-05's four guards:
+
+```bash
+# Guard #1 — original Phase 27 H2 (lines 22-117 — preserved byte-identical)
+awk '/^## Phase 27 — RCA Findings \(2026-05-21\)/,/^## Phase 28/' \
+    /workspaces/.planning/v1.6-EVIDENCE.md | sha256sum   # save as PRE_P27_V1_SHA
+
+# Guard #2 — Wave B FAIL post-mortem H3 (preserved byte-identical)
+awk '/^### Wave B FAIL post-mortem \(D-07 — milestone re-opens\)/,/^## Phase 27 — RCA Re-open Findings/' \
+    /workspaces/.planning/v1.6-EVIDENCE.md | head -n -1 | sha256sum   # save as PRE_WAVEB_SHA
+
+# Guard #3 — ## Verdict + all subsequent (preserved byte-identical)
+awk '/^## Verdict/,EOF' /workspaces/.planning/v1.6-EVIDENCE.md | sha256sum   # save as PRE_VERDICT_SHA
+
+# Guard #4 — prior H3 subsections under ## Phase 27 — RCA Re-open Findings (count check ≥6)
+grep -cE '^### ' /workspaces/.planning/v1.6-EVIDENCE.md   # save as PRE_H3_COUNT
 ```
-<!-- Phase 28 appends commit refs here: ## Phase 28 — Fix Commit References. -->
+
+Plan 27-05's results table (from `27-05-SUMMARY.md:151-158`):
+
+| Guard | Pre-edit SHA | Post-edit match |
+|-------|-------------|-----------------|
+| #1 — original Phase 27 H2 (2026-05-21) | `79f3e5cd…` | PASS — identical |
+| #2 — Wave B FAIL post-mortem H3 | `8782ed2f…` | PASS — identical |
+| #3 — `## Verdict` H2 + all subsequent | `5b5903db…` | PASS — identical |
+| #4 — prior H3 subsections (6 total) | grep ≥6 verified | PASS — all 6 headings present |
+
+**Adapted guards for Plan 28-03** (CONTEXT.md "Specific Re-iteration Ideas" line 220 mandates the original `## Phase 28 — Fix Commit References` H2 at lines 112-186 as the new immutability target):
+
+```bash
+# Plan 28-03 Guard #1 — original Phase 28 — Fix Commit References H2 (lines 112-186) byte-identical
+awk '/^## Phase 28 — Fix Commit References/,/^## Phase 29 Attempt 1/' \
+    /workspaces/.planning/v1.6-EVIDENCE.md | head -n -1 | sha256sum   # save as PRE_P28_V1_SHA
+
+# Plan 28-03 Guard #2 — Phase 27 H2 + Phase 27 Re-open H2 + Verdict all byte-identical
+awk '/^## Phase 27 — RCA Findings \(2026-05-21\)/,/^## Verdict/' \
+    /workspaces/.planning/v1.6-EVIDENCE.md | head -n -1 | sha256sum   # save as PRE_PRIOR_SHA
+
+# Plan 28-03 Guard #3 — ## Verdict + all subsequent byte-identical
+awk '/^## Verdict/,EOF' /workspaces/.planning/v1.6-EVIDENCE.md | sha256sum   # save as PRE_VERDICT_SHA
 ```
 
-#### Excerpt — surrounding anchor context (`.planning/v1.6-EVIDENCE.md:108-112`)
+Post-edit assertion (mirror of Plan 27-05's Task 2 close lines 349-351):
 
-```
-```
-
-<!-- Phase 28 appends commit refs here: ## Phase 28 — Fix Commit References. -->
-<!-- Phase 29 inverts here: ## Phase 29 — Post-fix Consistency-Check Verification (YYYY-MM-DD). Same 9-column row schema; Verdict cells flip from FAIL to PASS, SHAs distinct cells go from N to 1. -->
-
-## Verdict
+```bash
+POST_P28_V1_SHA=$(awk '/^## Phase 28 — Fix Commit References/,/^## Phase 29 Attempt 1/' \
+    /workspaces/.planning/v1.6-EVIDENCE.md | head -n -1 | sha256sum | awk '{print $1}')
+[ "$PRE_P28_V1_SHA" = "$POST_P28_V1_SHA" ] || { echo "FAIL — Phase 28 v1 audit trail diverged"; exit 1; }
 ```
 
-#### Append-section skeleton (per D-08 + RESEARCH.md Q1/Q4)
-
-The append goes **between** the line-110 `Phase 28` HTML comment and the line-111 `Phase 29` HTML comment. Do NOT modify either comment marker.
+**New H2 body skeleton** (RESEARCH.md lines 502-540 — paste-ready; planner fills `<placeholders>` with Task-captured values):
 
 ```markdown
-## Phase 28 — Fix Commit References
+## Phase 28 Re-iteration — Revert Commits (2026-05-26)
 
-**Landed:** 2026-05-21
-**Branch:** `firestarter/v1.6-read-bug` (cut from `beta@bc0f5ac` at start of Wave A)
+**Landed:** 2026-05-26
+**Branch:** `firestarter/v1.6-read-bug` (linear history: bc0f5ac → fdb1ed5 → 437339b6 → 4f205e58 → <revert>)
+**Trigger:** Phase 27 re-open closure (Plan 27-05, 2026-05-26) — dual-cause disposition.
 
-### Wave A — RED unity scaffold
+### Revert commit (Plan 28-03)
+- **Commit:** `<post-revert-SHA>`
+- **Subject:** `Revert "fix(leonardo): clear PORTD/PORTC/PORTE data-bit pullups in rurp_set_data_input"`
+- **Reverts:** `437339b6` (the masked PORTx-clear)
+- **Diff shape:** -10 lines in `firestarter/src/boards/leonardo_rurp_shield.cpp:147-161`
 
-- **Commit:** `<WAVE_A_SHA>` — `test(leonardo): RED unity scaffold for rurp_set_data_input pullup clearing (FIX-02)`
-- **Test files:**
-  - `firestarter/test/native/avr/test_data_input/test_rurp_set_data_input.cpp`
-  - `firestarter/test/native/avr/test_data_input/host_stubs.cpp`
-  - `firestarter/test/native/avr/test_data_input/avr/pgmspace.h`
-- **Test names:**
-  - `test_rurp_set_data_input_clears_data_pullups_leonardo` — FAIL on parent (PORTx residual bits assert)
-  - `test_rurp_read_data_buffer_reassembles_data_bus` — PASS on parent (regression guard, unchanged logic)
-- **Verifier output:** `pio test -e native -f "*test_data_input*"` exit non-zero; assertion-failure marker `:FAIL:` on the pullup test.
+### Test prune commit (Plan 28-03)
+- **Commit:** `<post-prune-SHA>`
+- **Subject:** `test(leonardo): remove pullup-clear assertion superseded by Phase 27 re-open revert`
+- **Files modified:** `firestarter/test/native/avr/test_data_input/test_rurp_set_data_input.cpp` (-~75 lines)
+- **`platformio.ini`:** UNCHANGED
 
-### Wave B — Fix commits
+### GATE-1.6 v2 Axis 4 desk-side `.hex` SHA-256 evidence
+| Env | Pre-revert (`4f205e58`) | Post-revert | Δ | Axis 4 verdict |
+|-----|------------------------|-------------|----|----------------|
+| uno | `<uno-pre-SHA>` (62,617 B) | `<uno-post-SHA>` (62,617 B) | byte-identical | PASS |
+| leonardo | `<leonardo-pre-SHA>` (68,917 B) | `<leonardo-post-SHA>` (~68,900 B) | differs by revert delta | PASS |
+| uno328pb | `d9e51b7e…` (62,854 B) | `d9e51b7e…` (62,854 B) | byte-identical | PASS |
 
-#### Commit 1 — PORTx-clear
+### Plan 28-04 conditional placeholder
+`wave_b_needed: false` — Plan 28-04 ships drafted-but-not-executed. Activates only if Phase 29 v2 bench sideload shows Leonardo shape still zeros-dominant.
 
-- **SHA:** `<COMMIT_1_SHA>` — `fix(leonardo): clear PORTD/PORTC/PORTE data-bit pullups in rurp_set_data_input`
-- **RCA reference:** `.planning/v1.6-EVIDENCE.md` §"Phase 27 — RCA Findings" (2026-05-21)
-- **Introducing commit:** `5b1f1cd` "Leonardo is working, fast as a shark" (2025-02-11) — shape introduction
-- **Tag presence:** bug present at every firmware tag from `2.0.2` through `3.0.0b4`
-- **Mirror reference:** `df5fb44` (2026-05-13) — Uno-side equivalent fix (PORTD pullup clear)
-- **Deviation from EVIDENCE.md fix sketch:** uses masked form `PORTD &= ~PORTD_DATA_MASK` (not the sketch's `PORTD = 0x00`) to preserve PORTD bit 6 = D12 control line. See commit body for rationale.
-
-#### Commit 2 — `_NOP()` settling delay
-
-- **SHA:** `<COMMIT_2_SHA>` — `fix(leonardo): add _NOP settling delay between PIND/PINC/PINE reads in rurp_read_data_buffer`
-- **RCA reference:** same `Phase 27 — RCA Findings` section
-- **Datasheet citations:** ATmega16U4/32U4 (Atmel-7766J) §10.2.4 PINx synchronizer 0.5-1.5 clk latency; Winbond W27C512 tACC=90 ns at 5V
-- **Defensive-in-depth note:** Commit 1 alone may be sufficient; Commit 2 adds belt-and-suspenders against the multi-instruction port-read race. Phase 29 bench A/B can confirm.
-
-### Per-board `.hex` sizes (D-07)
-
-Pre-fix baseline (beta@bc0f5ac, captured 2026-05-21):
-- `firestarter_uno.hex`: 62,617 B
-- `firestarter_leonardo.hex`: 68,876 B
-- `firestarter_uno328pb.hex`: 62,854 B
-
-Post-fix (after Commit 1 + Commit 2):
-
-| Board     | Pre-fix `.hex` | Post-fix `.hex` | Δ      | Notes                              |
-|-----------|----------------|-----------------|--------|------------------------------------|
-| uno       | 62,617         | `<N>`           | `<0>`  | Untouched — no edits to uno_rurp_shield.cpp |
-| leonardo  | 68,876         | `<N>`           | `<+~40>` | PORTx-clear + 2 × _NOP(); ±200 B threshold |
-| uno328pb  | 62,854         | `<N>`           | `<0>`  | Untouched — shares uno_rurp_shield.cpp |
-
-Threshold: ±200 B (ROADMAP SC#4). Leonardo Δ within budget.
-
-### Read-path-only inspection (GATE-1.6 desk-side confirmation)
-
-`git diff bc0f5ac..HEAD -- src/boards/leonardo_rurp_shield.cpp` shows changes ONLY to `rurp_set_data_input` (lines 137-145 area) and `rurp_read_data_buffer` (lines 112-129 area). No edits to `rurp_set_data_output`, `rurp_write_data_buffer`, `rurp_set_control_pin`, `rurp_board_setup`, or any VPP/regulator/pulse-interval code path. Three-axis-green carried over from Phase 27 GATE-1.6 risk assessment.
-
-### Bench verification — Phase 29 (placeholder)
-
-Bench-side N≥5 byte-identity verification of the fix (FIX-03) is gated to Phase 29 per ROADMAP SC#3. Phase 29's `dev consistency-check` invocation against W27C512 + Leonardo will replace this placeholder with verdict + SHAs.
+### Phase 29 v2 bench verification (placeholder)
+<!-- Phase 29 v2 appends post-revert bench verification here. -->
 ```
 
-**What stays the same vs the existing Phase 27 / Phase 26 sections in the same file:**
-- Markdown heading hierarchy (`## Phase N — ...` at H2; sub-sections at H3/H4).
-- Date stamp at top of section.
-- Code-fenced commit message subjects.
-- `:` prefix for "SHA:", "RCA reference:", etc. (the Phase 27 RCA Findings section uses the same bullet shape).
+**Original Phase 28 H2 reference (the immutability target — lines 112-186 of EVIDENCE.md, excerpt verified live):**
 
-**What changes:**
-- New section title.
-- Section body is fix-specific (commits + sizes + GATE confirmation) rather than RCA-specific.
+The audit trail H2 starts at line 112 with `## Phase 28 — Fix Commit References` and contains Wave A (RED scaffold) + Wave B (two fix commits) + per-board `.hex` sizes + GATE-1.6 desk-side + Phase 29 placeholder. The new re-iteration H2 sits 448 lines later between line 560 and line 562. The two H2s are siblings — the original is preserved byte-identical as the broken-approach audit trail; the new one supersedes its conclusions.
+
+---
+
+### `.planning/ROADMAP.md:129` (annotate Phase 28 checkbox)
+
+**Analog:** `.planning/ROADMAP.md:128-129` — the Phase 27 + Phase 28 checkbox lines with the `(completed YYYY-MM-DD)` suffix shape:
+
+```markdown
+- [x] **Phase 27: Root Cause Analysis** — Identify the exact code path that introduces byte corruption (instrumented build, code-path bisection, or scope/logic-analyzer trace); write up WHY the corruption happens; bracket the introducing commit/milestone. (completed 2026-05-21)
+- [x] **Phase 28: Fix Implementation + Unit Test Coverage** — Land the fix in the appropriate sub-repo(s) with atomic commits citing RCA evidence; ship a native unit test (Unity or pytest) that would fail on pre-fix code; preserve GATE-1.6 write-path non-regression. (completed 2026-05-21)
+```
+
+**No prior re-iteration annotation precedent.** Searched all `Phase 2[7-9]` lines in ROADMAP — Phase 27's RCA was re-opened and closed without any ROADMAP suffix edit (the re-open status is captured in EVIDENCE.md and in the top-level status block at ROADMAP line 11). The PARTIAL annotation precedent is the top-level "PAUSED 2026-05-22 at the Phase 27 RCA re-open boundary" parenthetical on line 11 + the multi-clause status sentence describing what happened.
+
+**Adapted shape** (per CONTEXT.md "In scope" line 29):
+
+```markdown
+- [x] **Phase 28: Fix Implementation + Unit Test Coverage** — Land the fix in the appropriate sub-repo(s) with atomic commits citing RCA evidence; ship a native unit test (Unity or pytest) that would fail on pre-fix code; preserve GATE-1.6 write-path non-regression. (completed 2026-05-21; re-iterated 2026-05-26 — split-scope: Leonardo revert)
+```
+
+**Edit shape:** semicolon-extend the existing parenthetical. Preserves the `(completed 2026-05-21)` historical record; adds the re-iteration annotation as a second clause inside the same parens.
+
+**Cross-reference — top-level status block precedent (line 11):** the multi-clause sentence pattern `Phases X+Y shipped; Phase Z FAIL (D-N milestone-reopens) — chip-swap diagnostic isolated...` is the project's established way to record re-iterations at the milestone level. The line-129 annotation is the smaller per-phase analog.
+
+---
+
+### `.planning/phases/28-fix-implementation-unit-test-coverage/28-04-PLAN.md` (drafted-but-not-executed, conditional)
+
+**Analog:** `.planning/phases/27-root-cause-analysis/27-02-PLAN.md` (verified read in full above). Frontmatter lines 1-54 + the `<objective>` block at lines 56-66 are the paste-ready template.
+
+**Frontmatter excerpt to mirror** (sourced from `27-02-PLAN.md:1-24` + `:33-53`):
+
+```yaml
+---
+phase: 27-root-cause-analysis     # ADAPT → 28-fix-implementation-unit-test-coverage
+plan: 02                          # ADAPT → 04
+type: execute
+wave: 2                           # KEEP — Wave B / conditional second revert
+depends_on:
+  - "27-01"                       # ADAPT → "28-03"
+files_modified:
+  - .planning/v1.6-EVIDENCE.md
+  - firestarter/platformio.ini    # ADAPT — remove (28-04 doesn't touch ini)
+  - firestarter/src/boards/leonardo_rurp_shield.cpp
+autonomous: false                 # KEEP — gates on a runtime signal
+executes_only_if: needs_bench     # ADAPT → phase_29_v2_leonardo_zeros_dominant
+requirements:
+  - RCA-01                        # ADAPT → FIX-01 / FIX-02 / FIX-03
+  - RCA-02
+  - RCA-03
+tags:
+  - rca                           # ADAPT → re-iteration, leonardo, revert, read-bug, conditional, wave-b
+  - leonardo
+  - read-bug
+  - bench
+  - conditional
+  - wave-b
+must_haves:
+  truths:
+    - "Wave B fires ONLY IF Plan 27-01's Wave A verifier emitted `needs_bench: true`. ..."
+    # ADAPT → "Wave B fires ONLY IF Phase 29 v2 bench sideload ... Leonardo shape still zeros-dominant"
+  artifacts:
+    - path: ".planning/v1.6-EVIDENCE.md"
+      provides: "Wave B addendum subsection under the existing ## Phase 27 — RCA Findings section"
+      contains: "### Wave B addendum"
+      # ADAPT → addendum under the NEW ## Phase 28 Re-iteration H2; contains "### Conditional second revert (Plan 28-04)"
+---
+```
+
+**`<objective>` opening sentence — REQUIRED VERBATIM** (sourced from `27-02-PLAN.md:57`):
+
+```markdown
+**THIS PLAN IS DRAFTED BUT DOES NOT EXECUTE BY DEFAULT.**
+```
+
+This is the load-bearing safety-valve marker. Per RESEARCH.md Pitfall 5 (lines 411-417), the GSD executor uses this string + the `executes_only_if:` frontmatter key together to recognize a parked plan. Both must be present.
+
+**`<objective>` second-paragraph pattern** (sourced from `27-02-PLAN.md:59`):
+
+```
+Wave B is a conditional safety valve per CONTEXT D-01 / D-07. The plan exists in
+the workflow so the executor can activate it at runtime IF AND ONLY IF
+<gating signal>. Per RESEARCH §"<criteria section>" (HIGH confidence), <expected
+default outcome>.
+```
+
+**Adapted second paragraph for Plan 28-04** (researcher-drafted in RESEARCH.md lines 608-614):
+
+```
+Plan 28-04 is a conditional safety valve per CONTEXT D-13v2. The plan exists in
+the workflow so the executor can activate it at runtime IF AND ONLY IF Phase 29 v2
+bench sideload of Plan 28-03's single revert (of 437339b6) shows Leonardo shape
+STILL zeros-dominant. Per Plan 27-05 fix sketch v2 (`v1.6-EVIDENCE.md:513`)
+bisection-first recommendation, this conditional second revert preserves the
+diagnostic signal of which Phase 28 commit was primary.
+
+Expected outcome: Plan 28-04 stays parked — Plan 27-05 hypothesizes the
+PORTx-clear (437339b6) is the more likely primary fault driver.
+```
+
+**Task 0 gate pattern** (sourced from `27-02-PLAN.md:118-146` — the `<task type="checkpoint:decision" gate="blocking">` block with `<options>` for `parked` vs `activate` and a `<resume-signal>`). Mirror this verbatim for Plan 28-04 Task 0, replacing:
+- The `<decision>` question: "Did Plan 27-01's Task 2 ... emit `needs_bench: true`?" → "Did Phase 29 v2 bench sideload of Plan 28-03's revert show Leonardo shape still zeros-dominant?"
+- The `<option id="parked">` `<pros>` text to match the 28-04 stay-parked default.
+- The `<option id="activate">` `<cons>` text to match the second-revert cost.
+
+---
+
+### `.planning/phases/28-fix-implementation-unit-test-coverage/28-03-PLAN.md` (primary, autonomous, desk-side)
+
+**Analog:** `.planning/phases/27-root-cause-analysis/27-05-PLAN.md` — the Wave 3 desk-side capstone that (a) sequenced multiple Edit operations on EVIDENCE.md, (b) used anti-pattern immutability guards, (c) was `autonomous: true`, and (d) produced a single meta-repo commit on `v1.6-read-bug`.
+
+**Frontmatter excerpt to mirror** (sourced from `27-05-PLAN.md:1-57`):
+
+```yaml
+---
+phase: 27-root-cause-analysis     # ADAPT → 28-fix-implementation-unit-test-coverage
+plan: 05                          # ADAPT → 03
+type: execute
+wave: 3                           # ADAPT → 1 (primary Wave A; Plan 28-04 is Wave 2)
+depends_on:
+  - "27-03"                       # ADAPT → no deps within phase (28-01/02 are v1 audit trail)
+  - "27-04"
+files_modified:
+  - .planning/v1.6-EVIDENCE.md
+  # ADAPT — add:
+  #   - .planning/ROADMAP.md
+  #   - firestarter/src/boards/leonardo_rurp_shield.cpp (auto-edited by git revert)
+  #   - firestarter/test/native/avr/test_data_input/test_rurp_set_data_input.cpp
+autonomous: true
+gap_closure: true                 # KEEP shape — re-iteration is a gap closure
+requirements:
+  - RCA-01                        # ADAPT → FIX-01, FIX-02, FIX-03
+  - RCA-02
+  - RCA-03
+tags:
+  # ADAPT → re-iteration, leonardo, revert, read-bug, gate-1-6-v2-axis-4-desk-side, hex-sha-identity
+must_haves:
+  truths:
+    # ADAPT — multi-line list of locked truths from CONTEXT.md re-iteration block
+  artifacts:
+    - path: ".planning/v1.6-EVIDENCE.md"
+      provides: "<new H2 section appended>"
+      contains: "## Phase 28 Re-iteration — Revert Commits (2026-05-26)"
+---
+```
+
+**Task structure to mirror** (sourced from `27-05-PLAN.md:242-352` Task 2 — the EVIDENCE.md append task is the structural template):
+
+1. `read_first` block listing the EVIDENCE.md current state + CONTEXT.md + RESEARCH.md + the v1 audit-trail H2 to be guarded.
+2. `<action>` block in this order:
+   - Capture pre-edit SHA-256 immutability guards FIRST (see "Anti-pattern immutability guard pattern" above).
+   - Perform the Edit operations (string-anchored, not line-numeric).
+   - Re-capture post-edit SHA-256 immutability guards.
+   - Assert byte-identity for all guards; on FAIL, revert with `git checkout -- .planning/v1.6-EVIDENCE.md` (Plan 27-05 PLAN line 349).
+3. `<verify>` block with paste-ready `grep -cE '...' | awk '$1 >= N {exit 0} {exit 1}' && ...` chains (Plan 27-05 PLAN line 354 is the canonical example — uses `awk '$1 >= 1 {exit 0} {exit 1}'` after `grep -c` for count assertions).
+4. `<acceptance_criteria>` enumerated 1..N (Plan 27-05 PLAN lines 356-435 = 18 numbered criteria covering positional + token + count + immutability-guard checks).
+
+**Cross-reference — the per-board `.hex` capture script:** sourced from RESEARCH.md lines 425-444 (paste-ready Bash one-liner using `pio run -e $ENV` + `sha256sum .pio/build/$ENV/firmware.hex`). The pre-revert + post-revert SHA capture pair is the GATE-1.6 v2 Axis 4 desk-side evidence input.
 
 ---
 
 ## Shared Patterns
 
-### Native-test Unity scaffolding
+### Anti-Pattern Immutability Guard (SHA-256-based)
 
-**Source:** `firestarter/test/native/avr/test_dispatch/test_configure_memory.cpp` lines 31-65, 165-190
-**Apply to:** every new native test cpp
+**Source:** Plan 27-05 PLAN `27-05-PLAN.md:256-262` + SUMMARY `27-05-SUMMARY.md:151-158`
 
-The canonical Unity test cpp shape in this codebase is:
+**Apply to:** Every EVIDENCE.md edit task in Plan 28-03 (and Plan 28-04 if it fires).
 
-```cpp
-#include <Arduino.h>
-#include <ArduinoFake.h>
-#include <unity.h>
+**Why this pattern:** EVIDENCE.md is append-only by convention; the file accumulates phase H2 sections in chronological order. The original Phase 28 H2 (lines 112-186) is the audit trail of the broken FIX approach — preserving it byte-identical is what makes the re-iteration's append honest (rather than rewriting history). Plan 27-05's four guards all PASSED in execution; the pattern is proven.
 
-// extern "C" { #include "<production-header>.h" } for any C headers under test
+**Mechanics (paste-ready):**
 
-void setUp(void) { /* per-test reset; ArduinoFakeReset(); + suite-local globals */ }
-void tearDown(void) {}
-
-// One test function per assertion case, named test_<what_it_asserts>.
-
-int main(int argc, char** argv) {
-    (void)argc;
-    (void)argv;
-    UNITY_BEGIN();
-    RUN_TEST(test_<name>);
-    // ... more RUN_TEST lines ...
-    return UNITY_END();
-}
-```
-
-Phase 28's test cpp follows this template (Excerpts 1, 3, 6 above).
-
-### Host-side AVR-register mocking
-
-**Source:** RESEARCH.md Q6 (verified — ArduinoFake does NOT provide PORTx/DDRx/PINx)
-**Apply to:** test_data_input ONLY (no other native suite touches register globals).
-
-Pattern: declare `static uint8_t PORTD = 0, ...;` at file scope in the test cpp **before** any `#include` that references them. The included board source then sees them as plain lvalue uint8_t globals. AVR's `_BV(n) = (1 << n)` and `_NOP() = __asm__ volatile("nop")` are both provided by ArduinoFake's `<Arduino.h>` and work transparently on x86 host.
-
-### Commit-message footer (D-06)
-
-**Source:** CONTEXT.md D-06 lines 124-129
-**Apply to:** both Wave B fix commits
-
-Verbatim footer block to append to BOTH Commit 1 and Commit 2:
-
-```
-RCA: .planning/v1.6-EVIDENCE.md §"Phase 27 — RCA Findings" (2026-05-21)
-Introducing-commit: 5b1f1cd "Leonardo is working, fast as a shark" (2025-02-11) — shape introduction
-Tag presence: bug present at every firmware tag from 2.0.2 through 3.0.0b4 (verified via tag-walk)
-Test: firestarter/test/native/avr/test_data_input/test_rurp_set_data_input.cpp
-
-Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
-```
-
-### Branch hygiene (D-03 + RESEARCH.md Q8)
-
-**Source:** RESEARCH.md Q8 lines 465-491
-**Apply to:** Wave A first task (sub-repo branch cut)
-
-Sequence:
 ```bash
-cd /workspaces/firestarter
-git status --short                # must be empty
-git fetch origin
-git rev-parse beta origin/beta   # both must = bc0f5ac
-git checkout beta && git pull --ff-only origin beta
-git checkout -b v1.6-read-bug
-git rev-parse HEAD               # must = bc0f5ac
+# Pre-edit capture
+PRE_SHA=$(awk '/^<START_HEADING>/,/^<END_HEADING>/' file.md | head -n -1 | sha256sum | awk '{print $1}')
+
+# ... perform Edit ...
+
+# Post-edit assertion
+POST_SHA=$(awk '/^<START_HEADING>/,/^<END_HEADING>/' file.md | head -n -1 | sha256sum | awk '{print $1}')
+[ "$PRE_SHA" = "$POST_SHA" ] || { git checkout -- file.md; exit 1; }
 ```
 
-Branch is LOCAL-only; push deferred to Phase 29 boundary per D-03.
+The `head -n -1` strips the END_HEADING line from the range (so it doesn't appear in the hashed content). For trailing ranges (`,EOF`), omit `head -n -1`.
+
+### Atomic-Commit-per-RCA-Axis Footer
+
+**Source:** CONTEXT.md D-06 carry-forward (lines 132-139)
+
+**Apply to:** Every revert commit in Plan 28-03 (one) and Plan 28-04 (one, if it fires).
+
+**Why this pattern:** The original Phase 28 v1 used atomic-commit-per-RCA-axis (Plan 28-02 Commit 1 = PORTx-clear axis; Commit 2 = `_NOP()` settling axis). The re-iteration inverts the polarity: atomic-revert-per-RCA-axis, with each revert commit's footer citing the same RCA evidence (Plan 27-05 verdict + Plan 27-04 bench A/B + GATE-1.6 v2 reassessment + fix sketch v2). Bisection clarity beats efficiency (CONTEXT.md D-13v2).
+
+**Mechanics:** Use `git revert <sha> --no-commit` to stage the inverse patch without invoking `$EDITOR`; then `git commit -m "$(cat <<'EOF' ... EOF)"` HEREDOC with the D-06 footer baked in. RESEARCH.md lines 271-296 are the paste-ready commit invocation.
+
+### Drafted-But-Not-Executed Plan Shell
+
+**Source:** `.planning/phases/27-root-cause-analysis/27-02-PLAN.md` (full file, especially frontmatter lines 1-54 + objective opener line 57)
+
+**Apply to:** Plan 28-04 only.
+
+**Why this pattern:** Phase 27 v1 used this exact shape for Plan 27-02 (instrumented-build Wave B — the trigger never fired, plan stayed parked). The GSD executor recognizes the pattern via the combination of `autonomous: false` + `executes_only_if: <gate>` + the **bold-uppercase** marker `THIS PLAN IS DRAFTED BUT DOES NOT EXECUTE BY DEFAULT.` as the first line of `<objective>`. Per Pitfall 5 (RESEARCH.md), missing either signal causes unintended auto-firing.
+
+### Append-Between-Anchors Edit Pattern
+
+**Source:** `27-05-PLAN.md:254-269` — Plan 27-05 Task 2 action prologue.
+
+**Apply to:** The Plan 28-03 EVIDENCE.md edit task.
+
+**Why this pattern:** String-anchored Edit operations are robust against line-number drift (a parallel commit between research and execution can shift line numbers; the unique string `## Verdict` remains stable). RESEARCH.md line 543 verified `grep -c '^## Verdict$' = 1`. The old_string/new_string formulation in RESEARCH.md lines 487-540 is the paste-ready Edit invocation for the planner.
+
+### Verifier Block Pattern (count + token + positional)
+
+**Source:** `27-05-PLAN.md:354` (the `<automated>` block)
+
+**Apply to:** Plan 28-03 `<verify>` block.
+
+**Shape:**
+
+```bash
+grep -cE '^### <new heading>' file.md | awk '$1 >= 1 {exit 0} {exit 1}' \
+&& grep -cE '<required token>' file.md | awk '$1 >= N {exit 0} {exit 1}' \
+&& awk '/^<anchor A>/{a=NR} /^<anchor B>/{b=NR} END{exit (a>0 && b>a)?0:1}' file.md \
+&& cd /workspaces/firestarter && git rev-parse v1.6-read-bug | grep -E '^<expected-SHA-prefix>' \
+&& cd /workspaces/firestarter_app && pytest tests/ -x
+```
+
+The chain combines: (a) count assertions (`grep -c | awk '$1 >= N'`); (b) positional assertions (`awk '... NR ...'`); (c) sub-repo state verification (`git rev-parse`); (d) host-side non-regression smoke (`pytest tests/ -x`). All four classes are required for a complete Phase 28 re-iteration verifier.
 
 ---
 
 ## No Analog Found
 
-No new file in Phase 28 lacks an analog. The closest "synthesized-not-copied" case is the `_NOP()` insertion pattern in `rurp_read_data_buffer` (Commit 2) — there's no exact code-level analog in the codebase, but the pattern is grounded in the ATmega32U4 datasheet (cited verbatim in RESEARCH.md Q1) and matches the existing inline `_BV()` / direct-register-access conventions at `leonardo_rurp_shield.cpp:99-104`.
+None. Every work item in Phase 28 re-iteration has a concrete in-repo precedent:
+
+| Work Item | Why a Precedent Exists |
+|-----------|------------------------|
+| Git revert with footer expansion | Used in v1.2/v1.3 atomic-commit-per-axis history; the inverse polarity (revert) follows the same shape |
+| Unity test prune (edit-in-place) | `firestarter/CLAUDE.md` documents the inverse (add) shape; symmetric rule applies |
+| EVIDENCE.md append between anchors | Plan 27-05 Task 2 is the direct template |
+| Anti-pattern immutability guards | Plan 27-05 used four; all PASSED |
+| Drafted-but-not-executed plan | Plan 27-02 is the direct template |
+| ROADMAP.md per-phase annotation | The `(completed YYYY-MM-DD)` suffix shape extends to `(completed YYYY-MM-DD; re-iterated YYYY-MM-DD — ...)` |
+| `.hex` SHA-256 capture | Standard `sha256sum .pio/build/$ENV/firmware.hex` — already used in Phase 27 (`d9e51b7e…` for uno328pb) |
+
+---
+
+## Out-of-Scope Patterns (Explicitly IGNORED)
+
+Per the pattern_mapping_context, the following patterns from the 2026-05-21 28-PATTERNS.md (the v1 audit trail) are NOT extracted into this re-iteration map:
+
+- The Uno `df5fb44` PORTx-clear mirror shape (the fix shape that introduced the regression).
+- `_NOP()` count tuning rationale (Atmel-7766J §10.2.4 + W27C512 tACC datasheet citations) — applicable only to a future v1.8 re-fix, not to the re-iteration revert.
+- Unity test scaffolding for the pullup-clear assertion (the test being DELETED, not added).
+- Two-wave Plan 28-01 (RED scaffold) + Plan 28-02 (Wave B fix) structure — superseded by Plan 28-03 (revert) + Plan 28-04 (conditional second revert).
+- The "include-as-source" pattern (`#include "../../../../src/boards/leonardo_rurp_shield.cpp"`) — preserved in the surviving test file as part of the kept lines 1-89, but not the subject of any new pattern decision in the re-iteration.
+
+These remain on file in:
+- `firestarter/test/native/avr/test_data_input/test_rurp_set_data_input.cpp` (the file itself + git log)
+- `.planning/v1.6-EVIDENCE.md §"Phase 28 — Fix Commit References"` (lines 112-186 — audit trail, immutability-guarded)
+- `.planning/phases/28-fix-implementation-unit-test-coverage/28-01-PLAN.md` + `28-02-PLAN.md` (the v1 plans, also audit trail)
+- `.planning/phases/28-fix-implementation-unit-test-coverage/28-CONTEXT.md:248-518` (the v1 appendix)
+
+The re-iteration explicitly does NOT re-author or re-derive these patterns.
 
 ---
 
 ## Metadata
 
 **Analog search scope:**
-- `/workspaces/firestarter/test/native/avr/` (full tree — 4 existing test directories + `_shared/`)
-- `/workspaces/firestarter/src/boards/` (full tree — uno_rurp_shield.cpp, leonardo_rurp_shield.cpp, rurp_serial_utils.cpp)
-- `/workspaces/firestarter/platformio.ini` (full file)
-- `/workspaces/.planning/v1.6-EVIDENCE.md` (Phase 27 sections + line-110 anchor)
-- `/workspaces/firestarter/CLAUDE.md` §"Native (Host) Test Environment"
+- `.planning/phases/27-root-cause-analysis/27-02-PLAN.md` (drafted-but-not-executed shape) — read in full
+- `.planning/phases/27-root-cause-analysis/27-05-PLAN.md` (EVIDENCE.md append + immutability guards) — read frontmatter + Task 2 action body
+- `.planning/phases/27-root-cause-analysis/27-05-SUMMARY.md` (guard PASS results) — read full
+- `.planning/v1.6-EVIDENCE.md` (original Phase 28 H2 at 112-186; Phase 27 Re-open verdict at 540-560; Verdict at 562) — read all three anchor regions
+- `.planning/ROADMAP.md` (Phase 27/28 checkbox lines 128-129 + top-level status line 11) — read both
+- `firestarter/platformio.ini` (`[env:native].test_filter` allowlist + `[env:leonardo]` shape, lines 60-104) — read
+- `firestarter/test/native/avr/test_data_input/test_rurp_set_data_input.cpp` (lines 85-187 — both Unity tests + main) — read
+- `firestarter/CLAUDE.md` (Native Test Environment + reuse pattern) — read via system reminder
 
-**Files scanned:** 13 (full reads) + git history of `df5fb44`
-
-**Pattern extraction date:** 2026-05-21
+**Files scanned:** 8 source/planning files + 2 sub-repo CLAUDE.md files (system context).
+**Pattern extraction date:** 2026-05-26.
+**Memory consulted:** `[[project_uno328pb_bench_instability_27_04]]` (uno328pb deferral substrate); `[[feedback_branching]]` (sub-repo branch model — applies but is unchanged by the revert).
+**Auto Mode active:** No clarifying questions asked; all gray areas were pre-resolved against Plan 27-05 verdict.

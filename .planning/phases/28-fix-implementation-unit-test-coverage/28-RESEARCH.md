@@ -1,627 +1,839 @@
-# Phase 28 — Research: Fix Implementation + Unit Test Coverage
+# Phase 28: Fix Implementation + Unit Test Coverage (RE-ITERATION) — Research
 
-**Researched:** 2026-05-21
-**Scope:** Answers OPEN technical questions in CONTEXT.md "Claude's Discretion" + verifier commands + Nyquist validation architecture. Locked decisions (D-01..D-08) are NOT revisited.
-**Confidence:** HIGH on Q1/Q4/Q5/Q7/Q8 (datasheet + git verified); HIGH on Q2/Q3/Q6 (sub-repo source verified empirically).
+**Researched:** 2026-05-26
+**Domain:** Git revert mechanics + Unity test pruning + cross-board `.hex` SHA-256 capture + EVIDENCE.md append on meta-repo planning substrate
+**Confidence:** HIGH (revert mechanics dry-run executed; file shapes verified; line numbers re-verified live against current EVIDENCE.md)
+**Supersedes:** the 2026-05-21 fix-approach research at this same path. Nothing from the prior version carries forward — the re-iteration is a pure revert + prune, not a fix.
+
+---
 
 ## Summary
 
-- The Uno-side `df5fb44` diff is 7 lines (6 comment + 1 `PORTD = 0x00;`) before `DDRD = 0x00;`. Leonardo needs the same shape but with 3 ports — the EXACT 3 code lines to add are pasted verbatim in Q4 below.
-- `_NOP()` count for Commit 2: recommended **2 `_NOP()`s total** — one between PIND/PINC, one between PINC/PINE. Rationale: ATmega32U4 PINx synchronizer adds 0.5-1.5 clock cycles of latency per port read [VERIFIED: Atmel datasheet 7766J §10.2.4]; a single `_NOP()` (62.5 ns @ 16 MHz) covers the worst-case 1.5-cycle window before the next-port latch closes; W27C512's 90 ns `tACC` is the worst-case data-output settling [CITED: Winbond W27C512 datasheet], so two stalls in a 3-instruction read sequence give ~125 ns total settling — comfortably above the chip's access time and below any noticeable read-throughput impact (~0.4% per 64KB read). This is the default fallback from CONTEXT.md "Claude's Discretion" #1; bench evidence in Phase 29 can confirm or refine.
-- Native-test build-flag integration: use **Option D — include-as-source inline** (Q2 below). Add `#define ARDUINO_AVR_LEONARDO` ABOVE `#include "boards/leonardo_rurp_shield.cpp"` in the new test file. No `platformio.ini` `build_flags`/`build_src_filter` edits needed beyond extending `test_filter`. Cleanest delta to the existing native infrastructure; doesn't cross-contaminate test_dispatch / test_messages suites.
-- Ship BOTH Unity cases (Q3): `rurp_set_data_input_clears_data_pullups_leonardo` + `rurp_read_data_buffer_reassembles_data_bus`. Cost is ~30 lines of additional scaffolding (one extra RUN_TEST + 7-line pre-state + 1-line post-assert). Worth it as a regression guard against the settling-delay edit accidentally breaking the shift-and-mask bit map.
-- PORTx/DDRx/PINx are NOT host-mockable via ArduinoFake [VERIFIED: grep ArduinoFake source]. The new test_data_input suite MUST define them as `uint8_t` globals in a `host_avr_io.h` shim **BEFORE** the source is included. The same shim defines `_BV(n)` if missing (ArduinoFake provides it; double-check via grep).
-- Verifier commands and branch-cut sequence are paste-ready in Q7 / Q8.
+Phase 28 re-iteration is a **paste-ready desk-side revert-and-prune** with five concrete artifacts:
 
-**Primary recommendation:** Planner authors two atomic Wave B commits with the exact diffs in Q4 (Commit 1) + Q1 (Commit 2). Wave A authors a single test file at `firestarter/test/native/avr/test_data_input/test_rurp_set_data_input.cpp` using the include-as-source pattern in Q2, plus a minimal `host_stubs.cpp` + `avr/pgmspace.h` mirroring `test_messages/`. Extend `test_filter` allowlist by one line.
+1. A single `git revert 437339b6` commit on `firestarter/v1.6-read-bug` (clean, no conflicts — dry-run confirmed; 10-line deletion in one file).
+2. A separate test-pruning commit deleting one Unity case (`test_rurp_set_data_input_clears_data_pullups_leonardo`) and keeping the bit-reassembly companion (`test_rurp_read_data_buffer_reassembles_data_bus`) intact. No `platformio.ini` allowlist edit needed — the directory stays populated.
+3. Pre/post-revert `.hex` SHA-256 capture for `uno`, `leonardo`, `uno328pb` builds — three identity assertions (Uno + uno328pb byte-identical; Leonardo differs).
+4. A new H2 `## Phase 28 Re-iteration — Revert Commits (2026-05-26)` appended to `.planning/v1.6-EVIDENCE.md` BETWEEN `### Re-open final verdict — closing the loop` and `## Verdict` (verified line range: insert after line 560, before line 562 — line numbers are stable since the CONTEXT.md was written).
+5. A ROADMAP.md annotation appending `(re-iterated 2026-05-26 — split-scope: Leonardo revert)` to the existing `[x] Phase 28` line at ROADMAP.md:129.
+
+Plan 28-04 (conditional second revert of `4f205e58`) ships as drafted-but-not-executed, mirroring the Plan 27-02 precedent with `autonomous: false` + `executes_only_if: phase_29_v2_leonardo_zeros_dominant`. The Phase 29 v2 bench sideload outcome flips the activation flag; if the 28-03 single revert restores Leonardo structured-data shape, Plan 28-04 stays parked permanently.
+
+**Primary recommendation:** Plans `28-03-PLAN.md` (primary, autonomous, desk-side) + `28-04-PLAN.md` (conditional shell, copies the 27-02 frontmatter pattern). All edits, commit messages, SHA-capture commands, and EVIDENCE.md insertion content are paste-ready below.
 
 ---
 
-## Open Question Resolutions
+## User Constraints (from CONTEXT.md re-iteration block)
 
-### Q1: `_NOP()` count for Commit 2 settling delay
+### Locked Decisions
 
-**Recommended:** Insert **one `_NOP()` between PIND/PINC, one `_NOP()` between PINC/PINE — 2 `_NOP()`s total**.
+**D-09v2 — Revert order:** Revert `437339b6` ALONE in Plan 28-03; defer the second revert (`4f205e58`) to a conditional Plan 28-04 gated on Phase 29 v2 bench sideload result. Bisection-first per fix sketch v2.
 
-**Exact diff shape** (insert at `leonardo_rurp_shield.cpp:114-116`, current vs. proposed):
+**D-10v2 — Pure revert, no re-fix attempt.** Phase 28 re-iteration restores Leonardo to pre-Phase-28 shape (~2.1% Phase 26 jitter on structured data); the original read-bug remains unfixed. Re-fix deferred to v1.8+ once v1.7 shield-detect substrate forward-merges.
 
-Current (lines 113-117):
-```cpp
-uint8_t rurp_read_data_buffer() {
-    // Read from ports and map back to data bus bits (D0-D7)
-    uint8_t pind_val = PIND;
-    uint8_t pinc_val = PINC;
-    uint8_t pine_val = PINE;
-```
+**D-11v2 — `.hex` SHA identity check** as the desk-side GATE-1.6 v2 Axis 4 sub-check. Build all three envs pre-revert (`4f205e58`) and post-revert; assert Uno + uno328pb byte-identical pre/post; assert Leonardo differs and matches `fdb1ed5` pre-fix baseline.
 
-Proposed (with settling delay):
-```cpp
-uint8_t rurp_read_data_buffer() {
-    // Read from ports and map back to data bus bits (D0-D7).
-    // Insert a single _NOP() between each PINx read to let the AVR's input
-    // synchronizer latch settle before the next port read. The 32U4 PINx
-    // register has a 0.5-1.5 clock-cycle latch latency (datasheet 7766J
-    // §10.2.4); with a partially-erased EPROM (weak chip drive) plus the
-    // address-bus driven through nearby PCB traces, three back-to-back PINx
-    // reads can sample mid-transition values. One _NOP() @ 16 MHz = 62.5 ns;
-    // worst-case W27C512 tACC at 5V is 90 ns. Two stalls put total settling
-    // at ~125 ns - comfortably > tACC, < 1 µs / 64KB read overhead.
-    uint8_t pind_val = PIND;
-    _NOP();
-    uint8_t pinc_val = PINC;
-    _NOP();
-    uint8_t pine_val = PINE;
-```
+**D-12v2 — Test pruning:** Delete `test_rurp_set_data_input_clears_data_pullups_leonardo`. KEEP `test_rurp_read_data_buffer_reassembles_data_bus` (researcher verified: it exists, exercises bit-reassembly logic unchanged by either revert). Test deletion as a SEPARATE commit (per CONTEXT.md "Specific Re-iteration Ideas").
 
-**Datasheet citations:**
-- ATmega16U4/32U4 datasheet (Atmel-7766J, April 2016) §10.2.4 "Reading the Pin Value": *"a single signal transition on the pin will be delayed between ½ and 1½ system clock period depending upon the time of assertion."* [CITED: https://ww1.microchip.com/downloads/en/devicedoc/atmel-7766-8-bit-avr-atmega16u4-32u4_datasheet.pdf]
-- Winbond W27C512 datasheet: max access times 45/70/90/120 ns across speed grades; 90 ns is the typical mid-grade. *"Accessing individual bytes from an address transition or from power-up (chip enable pin going low) is accomplished in less than 90 ns."* [CITED: https://www.jameco.com/Jameco/Products/ProdDS/131959WINBOND.pdf]
-- SST 27SF512: similar speed grades (70 ns typical, 90 ns slower-grade) [CITED: https://static.moates.net/zips/27SF512.pdf — paywalled but the 27SF256 datasheet at https://www.batronix.com/files/Datenblaetter/27__/SST27SF256.pdf shows identical timing tables].
+**D-13v2 — Plan structure:** Plan 28-03 (Wave A desk-side, autonomous, primary) + Plan 28-04 (drafted-but-not-executed; activates only on Phase 29 v2 bench failure).
 
-**Cost analysis:**
-- Flash: 2 × `_NOP()` = 2 single-byte AVR `nop` instructions = +4 bytes total flash. Well under D-07's ±200 B threshold.
-- Runtime: 2 × 62.5 ns = 125 ns per read call. At 65,536 reads per full-chip read, total overhead = ~8 ms — invisible against the ~3 s read time per 64KB.
+**D-14v2 — EVIDENCE.md placement:** New `## Phase 28 Re-iteration — Revert Commits (2026-05-26)` H2 between line 560 (end of `### Re-open final verdict — closing the loop`) and line 562 (`## Verdict`). Re-verified live: 605-line file, headings match CONTEXT.md exactly.
 
-**Commit 2 message body — paste-ready rationale paragraph for the planner:**
+**D-15v2 — uno328pb deferral:** Read-only `.hex` SHA capture only. NO source/test edits.
 
-```
-The Leonardo's data bus scatters across three AVR ports (PORTD/PORTC/PORTE)
-because the ATmega32U4 pin multiplexing precludes a contiguous 8-bit data
-port. `rurp_read_data_buffer` reads PIND, PINC, PINE in three separate
-machine instructions with no settling delay. With a partially-erased EPROM
-cell driving the bus weakly and the address bus driven through nearby PCB
-traces, adjacent address-bit transitions can capacitively couple into the
-data bus while a subsequent PINx read latches. Inserting a single _NOP()
-between each port read (62.5 ns @ 16 MHz, two stalls totalling ~125 ns) lets
-the AVR input synchronizer settle past the chip's worst-case 90 ns tACC
-(per W27C512 datasheet at Vcc=5V).
+**D-17v2 — Goal re-scope** (carries to Phase 30 paperwork, not addressed in Phase 28).
 
-This is a defensive-in-depth addition. Commit 1 (PORTx-clear) addresses the
-primary corruption mechanism (residual pullup bias). The settling _NOP()s
-add belt-and-suspenders against the multi-instruction port-read race that
-the binary evidence also implicates (1349/65536 = 2.1% jitter, 78%
-single-bit XOR flips, 63.2% address-bit-3 correlation - see Phase 27 RCA).
+**D-03 / D-05 / D-06 / D-07 / D-08 (carried):** Branch `firestarter/v1.6-read-bug`; Leonardo `DATA_BUFFER_SIZE=512` untouched; revert footer cites Plan 27-05 + Plan 27-04; `.hex` size + SHA-256 in EVIDENCE.md; append pattern preserved.
 
-Flash impact: +4 B (well under the ±200 B ROADMAP SC#4 threshold). Runtime
-overhead: ~125 ns per byte read = ~8 ms per full 64KB read (invisible).
-```
+### Claude's Discretion (researcher-resolved)
 
-**Bench-confirmable in Phase 29.** Per CONTEXT.md D-01, splitting the fix into two atomic commits lets a future `git bisect` between them answer "is PORTx-clear alone sufficient?" if Phase 29 reveals the fix is overkill.
+- **Test-deletion commit message subject:** `test(leonardo): remove pullup-clear assertion superseded by Phase 27 re-open revert` (per CONTEXT.md "Specific Re-iteration Ideas").
+- **Revert commit subject:** `Revert "fix(leonardo): clear PORTD/PORTC/PORTE data-bit pullups in rurp_set_data_input"` — the default `git revert` subject. Confirmed by dry-run staging output. No editorial change.
+- **Commit order:** Revert first, test-deletion second. The revert closes the source-side regression; the test deletion is post-hoc cleanup of an assertion whose subject behavior no longer exists.
+- **`pio` test re-run after deletion:** Run `pio test -e native -f "*test_data_input*"` after each commit. Post-revert + pre-deletion: the surviving pullup-clear test FAILS (expected — the asserted behavior is gone). Post-deletion: only `test_rurp_read_data_buffer_reassembles_data_bus` runs and PASSES. Wave verifier records both states.
 
-[CONFIDENCE: HIGH — datasheet-cited timing on both the AVR synchronizer and the EPROM access time; default count of 2 is also the CONTEXT.md fallback.]
+### Deferred Ideas (OUT OF SCOPE)
 
-### Q2: Native-test ARDUINO_AVR_LEONARDO build-flag integration
+- Proper Leonardo read-bug re-fix (v1.8+; needs v1.7 substrate forward-merge)
+- uno328pb operator-workstream hardware diagnosis (Rev 2.2 contact wear, USB-UART buffering, 328PB Case A audit)
+- Plan 28-04 second revert (drafted only)
+- Documentation drift correction (Phase 30)
+- `firestarter/platformio.ini:64-65` `DATA_BUFFER_SIZE` 512→1024 revert
+- Phase 30 milestone re-scope paperwork
+- Backfill Unity tests for Uno `df5fb44`
+- Activation of the parked `-D RCA_INSTRUMENT_READ_TRACE=1` template
 
-**Pattern audit of existing native suites:**
+---
 
-- `test_dispatch/`: compiles `src/proms/*.cpp` (via `[env:native].build_src_filter = +<proms/>`); does NOT need `ARDUINO_AVR_LEONARDO`. The `src/boards/leonardo_rurp_shield.cpp` file is excluded from the link.
-- `test_messages/`: same `build_src_filter` plus `+<boards/rurp_serial_utils.cpp>` (shared between boards, NO `#ifdef ARDUINO_AVR_*` guards). Does NOT need the macro either.
-- Neither suite defines `ARDUINO_AVR_LEONARDO`. The `[env:native].build_flags` block has NO `-D ARDUINO_AVR_*` flag.
+## Phase Requirements
 
-**Per-suite build_flags is NOT supported by PIO test_filter** [CITED: https://docs.platformio.org/en/stable/advanced/unit-testing/structure/hierarchy.html — `test_filter` selects directories; build_flags is env-level only]. Options:
+| ID | Description | Research Support |
+|----|-------------|------------------|
+| FIX-01 | Fix lands as atomic commits in sub-repos with RCA citations | **Re-interpreted per D-17v2:** "closes via REVERT" — Plan 28-03 lands one atomic `git revert 437339b6` commit citing Plan 27-05 verdict in footer. Re-iteration's primary deliverable. |
+| FIX-02 | Native unit test exercises the code path; demonstrably fails on pre-fix, passes on post-fix | **Re-interpreted per D-17v2:** Wave A (Plan 28-01) shipped a RED-bar test for behavior that was the broken fix; that test is now superseded. Re-iteration prunes the pullup-clear assertion (its asserted behavior no longer exists post-revert). The bit-reassembly test stays as a regression guard. FIX-02 closes via the prune commit + retained bit-reassembly test. |
+| FIX-03 | GATE-1.6 holds; per-board `.hex` sizes within ±200 B threshold | **Re-interpreted per D-17v2:** Desk-side half closes via `.hex` SHA-256 identity check (GATE-1.6 v2 Axis 4 desk-side sub-check); bench-side half (N=5 per-board consistency-check) defers to **Phase 29 v2**. Phase 28 re-iteration captures the desk-side half only. |
 
-| Option | Approach | Tradeoff |
-|--------|----------|----------|
-| A | Add `-D ARDUINO_AVR_LEONARDO` to `[env:native].build_flags` globally + `+<boards/leonardo_rurp_shield.cpp>` to `build_src_filter` | Pollutes test_dispatch + test_messages: every suite now compiles the Leonardo board file. Risks symbol-redefinition (e.g. `control_pins` global) if anything tries to link both boards |
-| B | Per-suite `extra_scripts` to inject build_flags | Requires SCons scripting; non-trivial; not used by any existing suite |
-| C | Shim a board-agnostic function | Means editing production code for testability; ugly |
-| **D** | **Include-as-source inline: `#define ARDUINO_AVR_LEONARDO` ABOVE `#include "../../../../src/boards/leonardo_rurp_shield.cpp"` in the test file itself** | **Recommended.** Function compiles inside the test-suite TU only. No cross-suite pollution. No `platformio.ini` `build_flags` edit. Pattern is well-known (the "single-include amalgamation" trick — see `test_messages/test_rurp_log_id.cpp` which similarly includes generated `messages.h` directly). |
+---
 
-**Exact integration delta (Option D, recommended):**
+## Project Constraints (from CLAUDE.md)
 
-1. **`firestarter/platformio.ini` — single-line `test_filter` addition** (insert at line 80, after `native/avr/test_messages`):
-   ```ini
-   test_filter =
-       native/avr/test_dispatch
-       native/avr/test_messages
-       native/avr/test_data_input
-   ```
-   **No other platformio.ini changes.** `build_src_filter` is NOT extended (the Leonardo source is pulled in via the test's `#include`, not the linker's src_filter).
+**Meta-repo (`/workspaces/CLAUDE.md`):**
+- Repo is a meta-repo / planning-repo. Tracks only `.planning/` and `.claude/`. Sub-repos (`firestarter/`, `firestarter_app/`) are NOT committed here.
+- Serial protocol constants are duplicated between `firestarter_app/firestarter/constants.py` and `firestarter/include/firestarter.h` — change both together. **Not relevant to this phase** (no protocol change).
+- EPROM database lives in `firestarter_app/firestarter/data/chip_database.json`. **Not touched.**
+- Board buffer-size split (Uno 512 B / Leonardo 1024 B) — but `platformio.ini:64-65` Leonardo build flag is `DATA_BUFFER_SIZE=512` per the v1.6 A/B annotation. **Untouched by D-05 carry-forward.**
 
-2. **Test cpp top-of-file pattern:**
-   ```cpp
-   // --- Host-side AVR register shim. MUST be BEFORE leonardo_rurp_shield.cpp
-   // is included so the source sees these as plain uint8_t globals.
-   #include <stdint.h>
-   static uint8_t PORTD = 0, PORTC = 0, PORTE = 0;
-   static uint8_t DDRD  = 0, DDRC  = 0, DDRE  = 0;
-   static uint8_t PIND  = 0, PINC  = 0, PINE  = 0;
+**Firmware sub-repo (`firestarter/CLAUDE.md`):**
+- Build commands: `pio run -e uno`, `pio run -e leonardo`, `pio run -e uno328pb`, `pio test`, `pio test -e native -f "*test_dispatch*"`. Use these verbatim.
+- Native-test layout doc explicitly documents the `test/native/avr/test_dispatch/` + `test_messages/` pattern and confirms "no `platformio.ini` changes needed for new suites" — the inverse is also true: no `platformio.ini` changes needed when a suite shrinks (as long as it stays populated).
+- Reuse pattern: drop `test_*.cpp` files under `test/native/avr/<dirname>/`. **Reverse:** to remove tests, edit the existing `test_*.cpp` (do NOT delete the file unless ALL tests are gone).
 
-   // --- Enable the Leonardo board guard, then pull the source into THIS TU
-   // so rurp_set_data_input / rurp_read_data_buffer are exposed to the tests.
-   #define ARDUINO_AVR_LEONARDO
-   #include "../../../src/boards/leonardo_rurp_shield.cpp"
-   ```
+---
 
-3. **Rationale matches D-02 Claude's-discretion note in CONTEXT.md:** *"same pattern used by test_dispatch/ to selectively include `proms/*.cpp`."* test_dispatch achieves this via `build_src_filter`; test_data_input achieves the same effect with a smaller-diff approach (include-as-source rather than widening src_filter) because the Leonardo source is board-guarded and adding it to src_filter would link a second copy of `rurp_set_control_pin` + `control_pins` (currently provided as a stub in `_shared/host_stubs_common.inc:58`).
+## Architectural Responsibility Map
 
-**Critical: `rurp_set_data_input` / `rurp_read_data_buffer` shadowing.** The shared stubs at `_shared/host_stubs_common.inc:63-72` define `extern "C"` no-op versions of these two functions. The test's include-as-source pulls in the REAL implementations (no `extern "C"` linkage). To prevent multiple-definition errors, the new test suite's `host_stubs.cpp` MUST opt out of the shared stubs for these two functions. Two clean options:
+| Capability | Primary Tier | Secondary Tier | Rationale |
+|------------|-------------|----------------|-----------|
+| Revert `437339b6` source edit | Firmware sub-repo (`firestarter/`) git history | — | The broken commit lives in `firestarter/v1.6-read-bug`; the revert is a sub-repo git operation. |
+| Prune Unity test case | Firmware sub-repo (`firestarter/test/native/avr/test_data_input/`) | — | Native Unity test infrastructure under `[env:native]`. |
+| `.hex` SHA-256 capture | Firmware sub-repo build output (`.pio/build/{env}/firmware.hex`) | — | Build artifact lives in firmware sub-repo. Capture script invocable from anywhere; output recorded in meta-repo EVIDENCE.md. |
+| EVIDENCE.md append | Meta-repo (`/workspaces/.planning/v1.6-EVIDENCE.md`) | — | Planning artifact lives in meta-repo. |
+| ROADMAP.md annotation | Meta-repo (`/workspaces/.planning/ROADMAP.md`) | — | Planning artifact lives in meta-repo. |
+| Plan 28-03 / 28-04 PLAN.md files | Meta-repo (`.planning/phases/28-*/`) | — | Plan artifacts live in meta-repo. |
 
-- **D.1 (preferred):** test_data_input/host_stubs.cpp does NOT include `_shared/host_stubs_common.inc` at all — instead inline only the stubs that this suite actually needs (in practice: `rurp_set_control_pin`, `rurp_write_to_register`, `rurp_read_from_register`, hardware-rev defaults — see Q6). Smaller, focused, no opt-out flag needed.
-- **D.2 (alternative):** Add `#define HOST_STUBS_OMIT_DATA_INPUT_BUFFER` opt-out wedges to the shared inc, then opt out from this suite. More change to `_shared/`; cross-suite risk.
+**No cross-tier hand-offs.** Phase 28 re-iteration is entirely desk-side; no host CLI changes, no serial protocol, no chip-database. Phase 29 v2 (separate phase) owns the bench tier.
 
-Planner picks D.1. test_data_input is a standalone suite that doesn't need the full shared stub menu.
+---
 
-[CONFIDENCE: HIGH — PIO docs verified, src_filter behavior verified empirically against existing suites.]
+## Standard Stack
 
-### Q3: `rurp_read_data_buffer` second Unity case — keep or drop?
+### Core (carried forward from Phase 28 v1; unchanged)
+| Tool | Version | Purpose | Why Standard |
+|------|---------|---------|--------------|
+| `git` | system | Revert commits, branch state inspection | Pure local revert; no rebase, no force-push. |
+| `pio` (PlatformIO Core) | ≥6.x | Multi-env firmware builds (`uno`, `leonardo`, `uno328pb`) | Project's standard build system per `firestarter/CLAUDE.md`. |
+| `sha256sum` | coreutils | `.hex` artifact integrity check | Standard Linux/devcontainer tool; produces the GATE-1.6 v2 Axis 4 desk-side anchor. |
+| `Unity` | via PIO `test_framework = unity` | Native test framework | Already in use under `[env:native]`. |
+| `sed` | system | EVIDENCE.md section SHA-256 extract for immutability guard | Standard pattern; mirrors Plan 27-05's anti-pattern guards. |
 
-**Recommend: SHIP the second case.** Cost is ~30 lines; the regression-guard value is high.
+### Supporting
+| Library | Version | Purpose | When to Use |
+|---------|---------|---------|-------------|
+| `ArduinoFake` | `^0.4.0` (per `[env:native]`) | Host mocking | NOT installed/uninstalled in this phase — already in test infrastructure; unaffected by deletion of a single test case. |
 
-**Rationale:**
-- The Commit 2 edit (inserting `_NOP()`s between PIND/PINC/PINE reads) is in the **same function** as the shift-and-mask bit-mapping logic. A planner or future maintainer could easily refactor the function (e.g. reorder reads, collapse onto a single register read with bit-extract) and silently break the bit map.
-- A Unity test that pre-sets PIND/PINC/PINE to known values and asserts `rurp_read_data_buffer()` returns the expected reassembled byte takes ~15 lines of test body + 1 `RUN_TEST()` line = ~16 lines incremental. Plus ~5 lines for one extra `setUp` reset. Total: ~30 lines vs the first case.
-- The bit-map is **non-trivial to read by inspection** — see lines 119-126 of the current source. The mapping is:
-  ```
-  D0 = PD2 >> 2     D1 = PD3 >> 2     D2 = PD1 << 1     D3 = PD0 << 3
-  D4 = PD4          D5 = PC6 >> 1     D6 = PD7 >> 1     D7 = PE6 << 1
-  ```
-- A simple "input PIND=0xFF, PINC=0x40, PINE=0x40 → expect 0xFF" + a second "input PIND=0x00, PINC=0x00, PINE=0x00 → expect 0x00" + a third "single-bit walk through all 8 data lines" gives 100% bit-map coverage.
+### Alternatives Considered
+| Instead of | Could Use | Tradeoff |
+|------------|-----------|----------|
+| `git revert --no-commit` then commit | `git revert` (no flag — opens editor) | `--no-commit` is required so the executor can paste the footer template (D-06 carry-forward) before committing without invoking an interactive editor. |
+| Atomic revert+prune in one commit | Two separate commits (revert + prune) | CONTEXT.md "Specific Re-iteration Ideas" recommends separate. Atomically clearer for `git bisect`; clearer for the v1.8 re-fix reader. |
+| `git rm` the entire test file | Edit the file to delete only one test case | Edit preserves `test_rurp_read_data_buffer_reassembles_data_bus` (per D-12v2). Researcher-verified the bit-reassembly test exists at lines 153-176 of the test file and is unaffected by either revert. |
 
-**Test sketch (planner can paste verbatim):**
+**Installation:** No new packages. All tools already present.
 
-```cpp
-void test_rurp_read_data_buffer_reassembles_data_bus(void) {
-    // All-high data bus: PIND data bits + PINC bit 6 + PINE bit 6 all set
-    // Should reassemble to 0xFF.
-    PIND = PORTD_DATA_MASK;  // 0x9F: bits 0,1,2,3,4,7 set
-    PINC = PORTC_DATA_MASK;  // 0x40: bit 6
-    PINE = PORTE_DATA_MASK;  // 0x40: bit 6
-    TEST_ASSERT_EQUAL_HEX8(0xFF, rurp_read_data_buffer());
+**Version verification:** Not applicable — no new dependencies introduced. `[VERIFIED: dry-run revert + tooling already in devcontainer]`.
 
-    // All-low: returns 0x00
-    PIND = 0; PINC = 0; PINE = 0;
-    TEST_ASSERT_EQUAL_HEX8(0x00, rurp_read_data_buffer());
+---
 
-    // Single-bit walks: D0 only set → PD2 = 0x04 (bit 2 of PIND)
-    PIND = _BV(2); PINC = 0; PINE = 0;
-    TEST_ASSERT_EQUAL_HEX8(0x01, rurp_read_data_buffer());
+## Package Legitimacy Audit
 
-    // D5 only → PC6 = 0x40 (bit 6 of PINC)
-    PIND = 0; PINC = _BV(6); PINE = 0;
-    TEST_ASSERT_EQUAL_HEX8(0x20, rurp_read_data_buffer());
+**Not applicable.** Phase 28 re-iteration installs zero external packages. No `pip install`, no `npm install`, no `cargo install`. All operations use git + PlatformIO + coreutils already present.
 
-    // D7 only → PE6 = 0x40 (bit 6 of PINE)
-    PIND = 0; PINC = 0; PINE = _BV(6);
-    TEST_ASSERT_EQUAL_HEX8(0x80, rurp_read_data_buffer());
-}
-```
+---
 
-**Decision:** Ship both cases. Aligned with CONTEXT.md D-02 "default: yes (regression guard)".
+## Architecture Patterns
 
-[CONFIDENCE: HIGH — cost is bounded and the regression-guard value is structural.]
-
-### Q4: Exact diff shape for Commit 1 (PORTx-clear)
-
-**Reference fix (Uno-side, `df5fb44` — 7 lines added before `DDRD = 0x00;`):**
-```diff
- void rurp_set_data_input() {
-+    // Clear PORTD before switching to input so internal pullups are disabled
-+    // on every data line. Without this, residual PORTD bits from the last
-+    // register-strobe or rurp_set_communication_mode (PORTD bit 0 = 1) leave
-+    // 1..2 data pins weakly biased HIGH against the chip's drive. Defensive
-+    // — does not on its own fix the FM1608 byte-0 read failure on Uno (see
-+    // .planning/debug/fm1608-fresh-chip-baseline.md).
-+    PORTD = 0x00;
-     DDRD = 0x00;
- }
-```
-
-**Leonardo equivalent — EXACT lines to add at `leonardo_rurp_shield.cpp:138`** (BEFORE the existing `DDRD &= ~PORTD_DATA_MASK;`):
-
-```cpp
-void rurp_set_data_input() {
-    // Clear data-bit pullups on PORTD/PORTC/PORTE before switching DDR
-    // to input. Without this, residual PORTx bits from prior
-    // rurp_set_control_pins / rurp_write_data_buffer strobes leave 1-2
-    // data pins weakly biased HIGH against the chip's drive. On a partially
-    // erased EPROM (weak drive) this produces single-bit data corruption
-    // (78% single-bit XOR flips per Phase 27 RCA on Leonardo W27C512).
-    // Mirror of uno_rurp_shield.cpp:rurp_set_data_input (commit df5fb44).
-    PORTD &= ~PORTD_DATA_MASK;
-    PORTC &= ~PORTC_DATA_MASK;
-    PORTE &= ~PORTE_DATA_MASK;
-    DDRD &= ~PORTD_DATA_MASK; // Set pins D0-D3 and D4-D7 as output
-    DDRC &= ~PORTC_DATA_MASK; // Set pin D5 as output
-    DDRE &= ~PORTE_DATA_MASK; // Set pin D6 as output
-}
-```
-
-**Note on the mask vs total-clear question:** The Uno uses `PORTD = 0x00` (clears the whole port) because PD0..PD7 are all data bits on the Uno. The Leonardo MUST use the masked form (`PORTD &= ~PORTD_DATA_MASK`) because PORTD's other bits carry CONTROL pin state — `PORTD_CONTROL_MASK = 0x40` is D12 (PD6), set by `rurp_set_control_pin` at line 71. A naive `PORTD = 0x00` would also clear the active control pin state and break the write path. The masked form preserves the control bits while clearing only the data bits. Same applies to PORTC (PORTC_CONTROL_MASK = 0x80 for D13 on PC7) and PORTE (no overlapping control mask, but masked form is symmetric and harmless).
-
-**Verification:** EVIDENCE.md §"Fix sketch (Phase 28 handoff)" line 77 suggests `PORTD = 0x00; PORTC &= ~PORTC_DATA_MASK; PORTE &= ~PORTE_DATA_MASK;` — the `PORTD = 0x00` would be a BUG on Leonardo because it'd zero the control bit at PD6. The masked form `PORTD &= ~PORTD_DATA_MASK` is the correct Leonardo-equivalent. **Planner must paste the masked form above, NOT the EVIDENCE.md sketch literal.** This is a small but load-bearing deviation from the sketch — call it out explicitly in Commit 1's message body.
-
-**Commit 1 message body — paste-ready:**
+### System Architecture Diagram
 
 ```
-fix(leonardo): clear PORTD/PORTC/PORTE data-bit pullups in rurp_set_data_input
+                    [ Plan 28-03 — Wave A desk-side, autonomous ]
+                                       │
+                                       ▼
+       ┌────────────────────────────────────────────────────────────┐
+       │ 1. Pre-revert .hex SHA capture (firestarter sub-repo)      │
+       │    pio run -e {uno,leonardo,uno328pb}                      │
+       │    sha256sum .pio/build/{env}/firmware.hex  → scratchpad   │
+       └────────────────────────────────────────────────────────────┘
+                                       │
+                                       ▼
+       ┌────────────────────────────────────────────────────────────┐
+       │ 2. Capture immutability guard SHA-256 of EVIDENCE.md       │
+       │    lines 112-186 (Phase 28 H2)                             │
+       │    sed -n '112,186p' .../v1.6-EVIDENCE.md | sha256sum      │
+       │    → scratchpad as PRE-GUARD                               │
+       └────────────────────────────────────────────────────────────┘
+                                       │
+                                       ▼
+       ┌────────────────────────────────────────────────────────────┐
+       │ 3. git revert 437339b6 --no-commit                         │
+       │    git commit with the D-06 footer template pasted in body │
+       │    → new commit, HEAD = <revert-of-437339b6>               │
+       └────────────────────────────────────────────────────────────┘
+                                       │
+                                       ▼
+       ┌────────────────────────────────────────────────────────────┐
+       │ 4. Edit test/native/avr/test_data_input/                   │
+       │    test_rurp_set_data_input.cpp — delete:                  │
+       │      - test_rurp_set_data_input_clears_data_pullups_       │
+       │        leonardo (function body)                            │
+       │      - matching RUN_TEST(...) line in main()               │
+       │    Keep test_rurp_read_data_buffer_reassembles_data_bus    │
+       │    + its RUN_TEST line.                                    │
+       │    git commit (test-deletion subject + body)               │
+       └────────────────────────────────────────────────────────────┘
+                                       │
+                                       ▼
+       ┌────────────────────────────────────────────────────────────┐
+       │ 5. Post-revert .hex SHA capture                            │
+       │    pio run -e {uno,leonardo,uno328pb}                      │
+       │    sha256sum .pio/build/{env}/firmware.hex  → scratchpad   │
+       └────────────────────────────────────────────────────────────┘
+                                       │
+                                       ▼
+       ┌────────────────────────────────────────────────────────────┐
+       │ 6. Three Axis-4 assertions:                                │
+       │    - SHA(uno pre)      ==  SHA(uno post)         ✓         │
+       │    - SHA(uno328pb pre) ==  SHA(uno328pb post)    ✓         │
+       │    - SHA(leonardo pre) !=  SHA(leonardo post)    ✓         │
+       │    (bonus): SHA(leonardo post) == SHA(@fdb1ed5)            │
+       └────────────────────────────────────────────────────────────┘
+                                       │
+                                       ▼
+       ┌────────────────────────────────────────────────────────────┐
+       │ 7. Edit .planning/v1.6-EVIDENCE.md                         │
+       │    Insert new H2 between lines 560 and 562                 │
+       │    Body: revert SHA, .hex SHA-256 table, prune rationale,  │
+       │    Plan 28-04 placeholder, Phase 29 v2 bench placeholder   │
+       │    git commit (meta-repo)                                  │
+       └────────────────────────────────────────────────────────────┘
+                                       │
+                                       ▼
+       ┌────────────────────────────────────────────────────────────┐
+       │ 8. Re-capture immutability guard SHA-256                   │
+       │    sed -n '112,186p' .../v1.6-EVIDENCE.md | sha256sum      │
+       │    Assert: matches PRE-GUARD (Phase 28 H2 byte-identical)  │
+       └────────────────────────────────────────────────────────────┘
+                                       │
+                                       ▼
+       ┌────────────────────────────────────────────────────────────┐
+       │ 9. Edit .planning/ROADMAP.md line 129                      │
+       │    Append `(re-iterated 2026-05-26 — split-scope:          │
+       │    Leonardo revert)` annotation                            │
+       │    git commit (meta-repo)                                  │
+       └────────────────────────────────────────────────────────────┘
 
-Mirror the Uno-side df5fb44 fix (2026-05-13) for the Leonardo's
-three-port data bus. Clear the data bits in PORTD/PORTC/PORTE before
-flipping DDR to input so the internal pullups don't bias data lines
-HIGH against the chip's drive on partially-erased EPROM cells.
+       [ Plan 28-04 — drafted-but-not-executed, conditional ]
+        wave_b_needed: false by default
+        Activates ONLY if Phase 29 v2 bench sideload of 28-03 single
+        revert shows Leonardo shape still zeros-dominant.
+        If activated: git revert 4f205e58 + .hex SHA re-capture +
+        EVIDENCE.md addendum to the 28-03 H2 section.
+```
 
-The Leonardo MUST use the masked form (PORTD &= ~PORTD_DATA_MASK)
-rather than the Uno's PORTD = 0x00 because PORTD/PORTC on the
-Leonardo also carry CONTROL pin state (PORTD_CONTROL_MASK = 0x40 at
-PD6 = D12; PORTC_CONTROL_MASK = 0x80 at PC7 = D13). The masked form
-preserves control state while clearing only data bits.
+### Project Structure (relevant files only)
 
-Addresses the primary RCA mechanism: 78% single-bit XOR divergences
-between Leonardo runs of the same chip, 63.2% address-bit-3
-correlation, partially-erased-region domination (15% 0xFF cells).
-See Phase 27 RCA for the full evidence chain.
+```
+/workspaces/
+├── .planning/
+│   ├── v1.6-EVIDENCE.md                       # APPEND new H2 between L560-L562
+│   ├── ROADMAP.md                             # EDIT line 129 (Phase 28 annotation)
+│   └── phases/28-fix-implementation-unit-test-coverage/
+│       ├── 28-CONTEXT.md                      # READ-ONLY (canonical input)
+│       ├── 28-RESEARCH.md                     # THIS FILE (overwrites 2026-05-21 version)
+│       ├── 28-01-PLAN.md, 28-02-PLAN.md       # READ-ONLY (audit trail, do not edit)
+│       ├── 28-03-PLAN.md                      # CREATE (planner writes)
+│       └── 28-04-PLAN.md                      # CREATE (drafted-but-not-executed)
+└── firestarter/                                # sub-repo, branch v1.6-read-bug
+    ├── platformio.ini                         # READ-ONLY in re-iteration (no allowlist edit)
+    ├── src/boards/leonardo_rurp_shield.cpp    # AUTO-EDITED by git revert
+    └── test/native/avr/test_data_input/
+        ├── test_rurp_set_data_input.cpp       # EDIT (delete one test, keep the other)
+        ├── host_stubs.cpp                     # READ-ONLY (still needed by surviving test)
+        └── avr/pgmspace.h                     # READ-ONLY
+```
 
-RCA: .planning/v1.6-EVIDENCE.md §"Phase 27 — RCA Findings" (2026-05-21)
-Introducing-commit: 5b1f1cd "Leonardo is working, fast as a shark"
-                    (2025-02-11) — shape introduction
-Tag presence: bug present at every firmware tag from 2.0.2 through
-              3.0.0b4 (verified via tag-walk)
-Test: firestarter/test/native/avr/test_data_input/test_rurp_set_data_input.cpp
-      ::test_rurp_set_data_input_clears_data_pullups_leonardo
+### Pattern 1: Bisection-aware atomic revert with footer expansion
+
+**What:** Use `git revert <sha> --no-commit` to stage the inverse patch without invoking the editor; then `git commit` with a HEREDOC body so the D-06 carried-forward footer expands cleanly.
+
+**When to use:** Anytime CONTEXT.md prescribes a specific commit-message footer template that exceeds the default `git revert` message body.
+
+**Example (paste-ready for Plan 28-03 Task X):**
+```bash
+cd /workspaces/firestarter
+git revert 437339b6 --no-commit
+
+# Stage is now: src/boards/leonardo_rurp_shield.cpp -10 lines.
+# Verify the inverse patch shape before committing:
+git diff --cached --stat
+#   Expected: src/boards/leonardo_rurp_shield.cpp | 10 ----------
+#             1 file changed, 10 deletions(-)
+
+git commit -m "$(cat <<'EOF'
+Revert "fix(leonardo): clear PORTD/PORTC/PORTE data-bit pullups in rurp_set_data_input"
+
+This reverts commit 437339b6879a7493f5f732a46b22b29e7863db24.
+
+The masked PORTx-clear introduced in 437339b6 was confirmed by Phase 27
+re-open (Plan 27-05, 2026-05-26) + Plan 27-04 bench A/B test (2026-05-26)
+to be the primary source of a 99% zeros / 0.08% jitter / 5-distinct-SHAs
+regression on Leonardo when combined with 4f205e58's _NOP() settling.
+Reverting restores rurp_set_data_input to the pre-Phase-28 shape
+(matching v1.6-read-bug~2 = fdb1ed5 / pre-fix Phase 26 baseline).
+
+This is a desk-side autonomous revert. The original 64KB Leonardo
+read-bug (~2.1% jitter on structured data per Phase 26) remains unfixed;
+proper re-fix deferred to v1.8+ pending v1.7 shield-detect substrate
+forward-merge.
+
+Reverts: 437339b6 "fix(leonardo): clear PORTD/PORTC/PORTE data-bit pullups in rurp_set_data_input"
+RCA re-open: .planning/v1.6-EVIDENCE.md §"Phase 27 — RCA Re-open Findings (2026-05-26)"
+Verdict: dual-cause (Outcome A Leonardo firmware-induced + Outcome B-independent uno328pb pre-existing)
+Fix sketch: .planning/v1.6-EVIDENCE.md §"Fix sketch v2 (Phase 28 re-iteration hand-off)"
+GATE-1.6 v2: .planning/v1.6-EVIDENCE.md §"GATE-1.6 v2 reassessment" (Axis 4 desk-side passes; bench gate in Phase 29 v2)
 
 Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+EOF
+)"
 ```
 
-[CONFIDENCE: HIGH — df5fb44 diff captured via `git show`; PORT mask definitions verified against `leonardo_rurp_shield.cpp:16-22`.]
+**Verified behavior (dry-run executed 2026-05-26):**
+- `git revert 437339b6 --no-commit` produces "all conflicts fixed: run `git revert --continue`" (no actual conflict; the message is git's standard wording when staging is clean).
+- Staged diff is exactly `src/boards/leonardo_rurp_shield.cpp | 10 ----------` (1 file, 10 deletions, 0 insertions).
+- `git revert --abort` cleanly restores HEAD to `4f205e58` with empty working tree.
 
-### Q5: PORTD_DATA_MASK / PORTC_DATA_MASK / PORTE_DATA_MASK values
+### Pattern 2: Test-file edit (not delete) when only one case is obsolete
 
-**[VERIFIED: leonardo_rurp_shield.cpp:16-18]**
+**What:** When a test file contains N test cases and only K < N are obsolete, edit the file (remove function bodies + matching `RUN_TEST` calls) rather than deleting the entire file.
 
+**Why:** Preserves the surviving cases. Avoids re-creating include scaffolding (the `_BV` shim, the host AVR-register shim, the `#define ARDUINO_AVR_LEONARDO` + `#include "../../../../src/boards/leonardo_rurp_shield.cpp"` pattern).
+
+**Example (for Plan 28-03 Task Y — paste-ready edits to `firestarter/test/native/avr/test_data_input/test_rurp_set_data_input.cpp`):**
+
+**DELETE lines 94-133** (the entire `test_rurp_set_data_input_clears_data_pullups_leonardo` function + its preceding comment block):
 ```cpp
-#define PORTC_DATA_MASK 0x40   // bit 6 (PC6 -> D5)
-#define PORTD_DATA_MASK 0x9f   // bits 0,1,2,3,4,7 — D0(PD2), D1(PD3), D2(PD1), D3(PD0), D4(PD4), D6(PD7)
-#define PORTE_DATA_MASK 0x40   // bit 6 (PE6 -> D7)
-```
-
-(Original `PORTD_DATA_MASK` comment in the source says `D0(PD2), D1(PD3), D2(PD1), D3(PD0), D4(PD4), D7(PD7)` — the last entry `D7(PD7)` is a comment typo; the actual mapping per `rurp_write_data_buffer` line 101 is `D6 → PD7`. Bit 7 is set in the mask because PD7 is a data bit. Bit 5 is NOT set in the mask because PD5 is not used by Firestarter. Bit 6 is set/cleared via PORTD_CONTROL_MASK = 0x40 — and the data mask (0x9F) deliberately excludes bit 6 to preserve the control-line state. **The mask bits at PORTD bit 6 must NOT be touched by `rurp_set_data_input` — that's the D12 control line.** This is the load-bearing reason for the masked-clear form in Q4.)
-
-The neighbor masks (CONTROL) at lines 20-22 for cross-reference:
-```cpp
-#define PORTB_CONTROL_MASK 0xf0   // PB4-PB7 (D8-D11)
-#define PORTD_CONTROL_MASK 0x40   // PD6 (D12)
-#define PORTC_CONTROL_MASK 0x80   // PC7 (D13)
-```
-
-**Note:** `~PORTD_DATA_MASK = 0x60` covers PD5 (unused) + PD6 (CONTROL) — preserved. `~PORTC_DATA_MASK = 0xBF` covers all of PORTC except bit 6 (D5 data) — including the control bit at PC7. `~PORTE_DATA_MASK = 0xBF` is symmetric.
-
-**Capture this verbatim in the Commit 1 message body** as the "why masked, not total-clear" rationale.
-
-[CONFIDENCE: HIGH — direct source read.]
-
-### Q6: PORTx/DDRx/PINx host-side mockability
-
-**[VERIFIED: grep through `.pio/libdeps/native/ArduinoFake/`]**
-
-ArduinoFake does NOT define `PORTD` / `PORTC` / `PORTE` / `DDRD` / `DDRC` / `DDRE` / `PIND` / `PINC` / `PINE`. The `.pio/libdeps/native/ArduinoFake/src/arduino/` subtree has no `iom*.h` AVR-MCU-specific header. The only AVR-named symbol is `interrupt.h` (a no-op shim).
-
-**Therefore the test suite MUST define these as plain `uint8_t` globals before the source under test is included.** This is straightforward because the AVR source uses them as if they were `volatile uint8_t` lvalues — assignment, read, bitwise ops — all of which work identically against a plain `uint8_t` global.
-
-**Recommended shim location (Option D from Q2):** define them at the top of `test_rurp_set_data_input.cpp` (the test TU), NOT in a shared header. They're test-only state and including them in `_shared/` risks accidentally pulling them into other suites.
-
-**`_BV(n)` confirmation:** `_BV` is defined by ArduinoFake's `Arduino.h` (via `bit()` macros, line 122-ish: `#define bit(b) (1UL << (b))`). For safety the test cpp file can guard: `#ifndef _BV \n #define _BV(n) (1U << (n)) \n #endif`. This matches the avr-libc definition.
-
-**`_NOP()` confirmation:** ArduinoFake's `Arduino.h:118-121` defines `_NOP()` as `do { __asm__ volatile ("nop"); } while (0)`. On the host (x86) this just emits a nop instruction — harmless. The Leonardo source's `_NOP()` calls inside `rurp_read_data_buffer` will compile and execute successfully under `[env:native]`.
-
-**Other symbols the include-as-source pattern needs:**
-- `MONITOR_SPEED` — defined in `[env:native].build_flags` via `${env.build_flags}` → `-D MONITOR_SPEED=250000`. Available.
-- `SERIAL_PORT` — used by `rurp_board_setup` (line 39-44). The test file should NOT call `rurp_board_setup` (the function is only called by Arduino's `setup()`, not from the unit-under-test surface). The function symbol must still link — ArduinoFake provides `Serial_` and `Serial`, and `_shared/host_stubs_common.inc:141-143` defines `Serial_::operator bool()`. **This is the only reason the test suite's `host_stubs.cpp` must still include the Serial-bool definition** — even if it doesn't include the shared inc for `rurp_*`, it needs the `Serial_::operator bool()` defined.
-- `delayMicroseconds` — used by `rurp_board_setup` only. ArduinoFake provides a stub. Available.
-- `delay` — same. Available.
-- `_shared/host_stubs_common.inc` provides `rurp_set_control_pin` (used by `rurp_set_communication_mode`, but Leonardo doesn't define `rurp_set_communication_mode` — verified by grep). Not needed.
-
-**Concrete `host_stubs.cpp` shape for test_data_input (planner can paste):**
-
-```cpp
-/*
- * Phase 28 — host stub TU for the test_data_input suite.
- * Per Q6 of 28-RESEARCH.md, this suite uses the include-as-source pattern
- * (the test cpp #includes leonardo_rurp_shield.cpp directly) and defines
- * PORTx/DDRx/PINx as test-local globals. The shared host_stubs_common.inc
- * is NOT included because:
- *   1. test_data_input does not link src/proms/*.cpp (it doesn't need the
- *      dispatch surface).
- *   2. The included leonardo_rurp_shield.cpp provides real implementations
- *      of rurp_set_data_input, rurp_read_data_buffer, rurp_set_data_output,
- *      rurp_write_data_buffer, rurp_set_control_pin — which would
- *      multiple-define against the shared stubs.
+/* ---------------------------------------------------------------------------
+ * Test 1 — RED bar witness for FIX-02 (first half).
  *
- * The only host_stubs.cpp content needed is Serial_::operator bool() (a
- * link-only stub referenced indirectly through ArduinoFake's USB-CDC
- * surface — used inside leonardo_rurp_shield.cpp's rurp_board_setup, which
- * the tests never call but the linker still resolves).
- */
-#include <Arduino.h>
-#include <ArduinoFake.h>
-
-Serial_::operator bool() {
-    return true;
+ * Asserts that rurp_set_data_input() leaves PORTx data bits at 0 (pullups
+ * cleared) AND preserves the CONTROL bits at PORTD bit 6 / PORTC bit 7
+ ... 30 lines ...
+ * --------------------------------------------------------------------------- */
+void test_rurp_set_data_input_clears_data_pullups_leonardo(void) {
+    /* ... 25 lines of assertions ... */
 }
 ```
 
-[CONFIDENCE: HIGH — confirmed by direct grep through ArduinoFake source + cross-reference with `_shared/host_stubs_common.inc:140-143`.]
+**DELETE line 183** (`RUN_TEST(test_rurp_set_data_input_clears_data_pullups_leonardo);`).
 
-### Q7: Verifier commands (paste-ready for planner)
+**KEEP** lines 1-93 (header + setUp/tearDown + include scaffolding).
+**KEEP** lines 135-176 (the `test_rurp_read_data_buffer_reassembles_data_bus` test — unchanged by either revert; bit-reassembly logic lives at `leonardo_rurp_shield.cpp:128-138` and the revert only touches lines 147-161).
+**KEEP** lines 178-187 (`main()` shell + `UNITY_BEGIN()`/`UNITY_END()` + the surviving `RUN_TEST` call).
 
-**Wave A verifier block (RED bar against pre-fix source):**
+**Result:** File shrinks from 188 lines to ~115 lines; one Unity test case (`test_rurp_read_data_buffer_reassembles_data_bus`) remains.
 
-```bash
-# Cut firmware branch from beta HEAD (see Q8 for full sequence)
-cd /workspaces/firestarter
+### Anti-Patterns to Avoid
 
-# Build all three production envs first (sanity gate — confirms test
-# scaffold edit didn't break the production builds; pre-fix .hex sizes
-# baselined below).
-pio run -e uno
-pio run -e leonardo
-pio run -e uno328pb
-
-# Pre-fix .hex sizes for the Wave B Δ table (D-07)
-wc -c .pio/build/uno/firestarter_uno.hex \
-      .pio/build/leonardo/firestarter_leonardo.hex \
-      .pio/build/uno328pb/firestarter_uno328pb.hex
-
-# Run the new test_data_input suite — MUST FAIL (RED bar on pre-fix
-# leonardo_rurp_shield.cpp).  Wave A succeeds when this exits non-zero
-# with assertion failures (NOT build/link errors).
-pio test -e native -f "*test_data_input*"
-
-# Sibling suites stay GREEN (regression guard)
-pio test -e native -f "*test_dispatch*"
-pio test -e native -f "*test_messages*"
-
-# Full native suite (alias for the above three combined)
-pio test -e native
-```
-
-**Wave A acceptance criteria:**
-1. `pio run -e {uno,leonardo,uno328pb}` all exit 0.
-2. `pio test -e native -f "*test_data_input*"` exits non-zero. Output shows assertion failures from `test_rurp_set_data_input_clears_data_pullups_leonardo` (PORTx bits expected 0, got non-zero). The `test_rurp_read_data_buffer_reassembles_data_bus` case MAY pass or fail — it's a regression guard on logic that's unchanged, so it should PASS even pre-fix.
-3. `pio test -e native -f "*test_dispatch*"` and `pio test -e native -f "*test_messages*"` both exit 0.
-
-**Wave B verifier block (GREEN bar + fix Δ capture):**
-
-```bash
-cd /workspaces/firestarter
-
-# Apply Commit 1 (PORTx-clear) then run tests
-# ... edit leonardo_rurp_shield.cpp:138 per Q4 ...
-git add src/boards/leonardo_rurp_shield.cpp
-git commit -m "fix(leonardo): clear PORTD/PORTC/PORTE data-bit pullups..." # body per Q4
-
-# Verify GREEN bar after Commit 1 alone (answers the bisect question
-# "is PORTx-clear sufficient?")
-pio test -e native -f "*test_data_input*"
-
-# Apply Commit 2 (_NOP settling) per Q1
-# ... edit leonardo_rurp_shield.cpp:114-116 ...
-git add src/boards/leonardo_rurp_shield.cpp
-git commit -m "fix(leonardo): add _NOP settling delay between PINx reads..." # body per Q1
-
-# Re-verify after Commit 2 (should still be GREEN)
-pio test -e native -f "*test_data_input*"
-
-# Production builds — capture post-fix .hex sizes for the D-07 table
-pio run -e uno
-pio run -e leonardo
-pio run -e uno328pb
-
-# Post-fix .hex sizes
-wc -c .pio/build/uno/firestarter_uno.hex \
-      .pio/build/leonardo/firestarter_leonardo.hex \
-      .pio/build/uno328pb/firestarter_uno328pb.hex
-
-# Full native suite — all 3 suites GREEN
-pio test -e native
-
-# Read-path-only inspection check (desk-side GATE-1.6 confirmation)
-git diff bc0f5ac..HEAD -- src/boards/leonardo_rurp_shield.cpp
-# Must show ONLY changes to rurp_set_data_input (lines 137-145ish post-edit)
-# and rurp_read_data_buffer (lines 112-129ish post-edit). NO changes to
-# rurp_set_data_output, rurp_write_data_buffer, rurp_set_control_pin,
-# rurp_board_setup, or anything outside those two functions.
-git diff bc0f5ac..HEAD -- src/boards/ | grep -E "^[+-]" | grep -v "^[+-]{3}" | wc -l
-# Expected: ~12 lines (Commit 1: 3 PORTx lines + comment + ~6 ctx; Commit 2:
-# 2 _NOP lines + comment). Total well under D-07's ±200 B threshold.
-```
-
-**Wave B acceptance criteria:**
-1. After Commit 1: `pio test -e native -f "*test_data_input*"` exits 0 (GREEN). Both Unity cases pass.
-2. After Commit 2: same suite still exits 0.
-3. All three `pio run -e {uno,leonardo,uno328pb}` exit 0 with no warnings beyond the pre-existing baseline.
-4. Hex Δ: Uno = 0 B (untouched), uno328pb = 0 B (untouched), Leonardo = +30 to +60 B (within ±200 B threshold).
-5. `git diff` shows the edit is read-path-only (no touches to write/VPP/pulse paths).
-6. Sibling suites still GREEN: `pio test -e native -f "*test_dispatch*"` and `pio test -e native -f "*test_messages*"`.
-
-**Current pre-fix baseline (captured 2026-05-21 from local `.pio/build/`):**
-- `firestarter_uno.hex`: 62,617 B
-- `firestarter_leonardo.hex`: 68,876 B
-- `firestarter_uno328pb.hex`: 62,854 B
-
-(These are the pre-Wave-A baselines — useful for Wave B's Δ table. Note: `.hex` byte count is roughly 2.5× the binary flash size because Intel HEX is ASCII with overhead; what ROADMAP SC#4's "85.4% Leonardo flash" reflects is the binary `.elf .text+.data` size in bytes, not the `.hex` size. Both are tracked for D-07 — Leonardo `.text+.data` flash is what matters; planner should also capture `avr-size .pio/build/leonardo/firmware.elf` for the more meaningful number.)
-
-**Precise flash-size capture (recommended addition to Wave B):**
-```bash
-avr-size -A .pio/build/uno/firestarter_uno.elf | grep -E "Total|\.text|\.data"
-avr-size -A .pio/build/leonardo/firestarter_leonardo.elf | grep -E "Total|\.text|\.data"
-avr-size -A .pio/build/uno328pb/firestarter_uno328pb.elf | grep -E "Total|\.text|\.data"
-# Or shorter — Berkley format with percentages:
-avr-size -C --mcu=atmega32u4 .pio/build/leonardo/firestarter_leonardo.elf
-avr-size -C --mcu=atmega328p .pio/build/uno/firestarter_uno.elf
-avr-size -C --mcu=atmega328pb .pio/build/uno328pb/firestarter_uno328pb.elf
-```
-
-The PIO build output (`pio run -e leonardo`) already includes a `Flash: [#####     ] XX.X% (used N bytes from M bytes)` line; capturing that line is the cleanest one-shot Δ record. Planner has freedom on which capture command to pin into the Wave B verifier.
-
-[CONFIDENCE: HIGH — `pio test` and `pio run` commands verified by direct invocation against the current beta tree.]
-
-### Q8: Branch-cut command sequence
-
-**[VERIFIED: `git rev-parse beta` returns `bc0f5ac` ✓; `git branch -a` confirms `v1.6-read-bug` does NOT yet exist on the firestarter sub-repo ✓; the existing `v1.6-read-bug` is on `firestarter_app` only.]**
-
-**Exact Wave A first-task sequence:**
-
-```bash
-cd /workspaces/firestarter
-
-# Ensure clean working tree
-git status --short
-# Expected: empty (no pending edits before branch cut)
-
-# Fetch latest to make sure beta is fully up to date with origin
-git fetch origin
-
-# Confirm local beta matches origin/beta (no remote-ahead surprise)
-git rev-parse beta origin/beta
-# Expected: bc0f5ac05b37c94eb7ddc706f65dbdc94c47899e on both lines
-
-# Check out beta locally
-git checkout beta
-git pull --ff-only origin beta   # no-op if local is already up to date
-
-# Cut v1.6-read-bug from beta HEAD
-git checkout -b v1.6-read-bug
-
-# Confirm we're on the new branch at the expected SHA
-git rev-parse HEAD
-# Expected: bc0f5ac05b37c94eb7ddc706f65dbdc94c47899e
-git symbolic-ref --short HEAD
-# Expected: v1.6-read-bug
-```
-
-**Per D-03 + memory `[[feedback_branching]]`:** the branch is LOCAL only at this point. Push to origin happens at the Phase 29 boundary (merge to `beta` + pre-release cut). Wave A and Wave B do NOT push.
-
-**If the branch already exists locally (re-running Wave A after a failed first attempt):**
-```bash
-git checkout v1.6-read-bug
-# Sanity: must be at bc0f5ac with NO commits ahead of beta
-git log beta..v1.6-read-bug --oneline
-# Expected: empty (zero commits ahead) — if non-empty, planner decides whether
-# to reset or amend.
-```
-
-**Meta-repo coordination (per D-03):**
-- `/workspaces` meta-repo: stays on `main` (no branch). Phase 28 artifacts (28-RESEARCH.md, 28-PLAN-01/02.md, EVIDENCE.md append) commit to `main` directly.
-- `/workspaces/firestarter_app` sub-repo: stays parked at the Phase 26 tip (`999c3cc` on existing `v1.6-read-bug`). NOT modified by Phase 28.
-- `/workspaces/firestarter` sub-repo: NEW `v1.6-read-bug` branch (this section).
-
-[CONFIDENCE: HIGH — git state verified directly.]
+- **Bundling the revert + test-deletion into one commit.** D-12v2 explicitly recommends separate; CONTEXT.md "Specific Re-iteration Ideas" reinforces. Separate commits give cleaner `git bisect` and clearer narrative for the v1.8 reader picking up the re-fix.
+- **Force-pushing `v1.6-read-bug`.** The history grows linearly per CONTEXT.md "Specific Re-iteration Ideas": `bc0f5ac → fdb1ed5 → 437339b6 → 4f205e58 → <revert>`. No rewinds.
+- **Deleting `test_data_input/` directory or removing the `platformio.ini` `test_filter` entry.** The bit-reassembly test stays; the directory stays populated; no `platformio.ini` edit needed.
+- **Editing `firestarter/src/boards/leonardo_rurp_shield.cpp` manually.** Use `git revert` so the commit message preserves the "this reverts commit ..." pointer for `git log` archaeology.
+- **Re-running RED-bar capture against the deleted test.** Pre-deletion, the post-revert `pio test` will FAIL the pullup-clear test (because the asserted behavior is now gone). That's expected, not a regression. Document the failure as PRE-DELETION-EXPECTED in the test-prune commit body; the post-deletion `pio test` is GREEN.
+- **Touching the original `## Phase 28 — Fix Commit References` H2 at EVIDENCE.md:112-186.** Immutability guard enforces byte-identity. New content goes in the NEW `## Phase 28 Re-iteration` H2.
 
 ---
 
-## Validation Architecture
+## Don't Hand-Roll
 
-**Phase 28's "validation" is a TDD RED→GREEN transition + per-board build cleanness + size-budget tracking.**
+| Problem | Don't Build | Use Instead | Why |
+|---------|-------------|-------------|-----|
+| Inverse patch for `437339b6` | Hand-edit `leonardo_rurp_shield.cpp` to remove 10 lines | `git revert 437339b6 --no-commit` | Preserves the "Reverts: <sha>" linkage in `git log`; clean dry-run already verified; no conflict resolution needed. |
+| `.hex` SHA-256 capture script | Multi-step shell pipeline with intermediate files | One-liner `pio run -e $ENV && sha256sum .pio/build/$ENV/firmware.hex` per env | PlatformIO already produces `.pio/build/{env}/firmware.hex` deterministically; `sha256sum` is single-shot. |
+| EVIDENCE.md insertion at exact line | Custom Python/awk script | Read tool + Edit tool (string-based insertion BEFORE `## Verdict` line) | The string `## Verdict` is unique in the file (grep -c = 1 confirmed); string-based insertion is robust against future line-number drift. |
+| Immutability guard | Hash + custom diff tool | `sed -n '112,186p' file | sha256sum` | Plan 27-05 already uses this exact pattern with documented success (4 guards, all PASS). Mirror it. |
+| `_BV()` shim, host AVR-register shim | Re-create in the pruned test file | Keep `test_rurp_set_data_input.cpp` lines 1-89 verbatim | The include scaffolding is unchanged by the prune; only the test functions change. |
 
-### Test Framework
-| Property | Value |
-|----------|-------|
-| Framework | PlatformIO 6.x + Unity 2.x + ArduinoFake 0.4.x |
-| Config file | `firestarter/platformio.ini` `[env:native]` (lines 67-102) |
-| Quick run command | `cd /workspaces/firestarter && pio test -e native -f "*test_data_input*"` |
-| Full suite command | `cd /workspaces/firestarter && pio test -e native` |
-| Production build smoke | `cd /workspaces/firestarter && pio run -e uno && pio run -e leonardo && pio run -e uno328pb` |
-
-### Phase Requirements → Test Map
-| Req ID | Behavior | Test Type | Automated Command | File Exists? |
-|--------|----------|-----------|-------------------|-------------|
-| FIX-01 | Atomic fix commits with RCA citations | git inspection | `git log --oneline beta..v1.6-read-bug -- src/boards/leonardo_rurp_shield.cpp` (must show 2 commits each with `RCA:` + `Introducing-commit:` footers) | ❌ Wave B |
-| FIX-02 (RED half) | Unity test FAILS on pre-fix code | `pio test -e native -f "*test_data_input*"` (Wave A run) exits non-zero | `pio test -e native -f "*test_data_input*"` | ❌ Wave 0 (created in Wave A) |
-| FIX-02 (GREEN half) | Unity test PASSES on post-fix code | same command after Wave B commits exits 0 | `pio test -e native -f "*test_data_input*"` | (Wave A creates) |
-| FIX-03 (desk-side half) | Read-path-only inspection | `git diff bc0f5ac..HEAD -- src/boards/leonardo_rurp_shield.cpp` shows ONLY rurp_set_data_input + rurp_read_data_buffer | manual inspection in Wave B verifier block | n/a |
-| FIX-03 (bench half) | `firestarter write` + `dev read -s N` byte-compare | bench-gated — Phase 29 | n/a (deferred) | n/a |
-| ROADMAP SC#4 | Per-board hex-size Δ < ±200 B | `avr-size -C .pio/build/{uno,leonardo,uno328pb}/firestarter_*.elf` before vs after | `pio run -e {uno,leonardo,uno328pb}` + size capture | n/a |
-
-### Sampling Rate
-- **Per task commit (Wave A test scaffold):** `pio test -e native -f "*test_data_input*"` — expect RED.
-- **Per task commit (Wave B Commit 1):** `pio test -e native -f "*test_data_input*"` — expect GREEN.
-- **Per task commit (Wave B Commit 2):** `pio test -e native -f "*test_data_input*"` — expect GREEN (still).
-- **Per wave merge / phase gate:** `pio test -e native` (full native suite) + `pio run -e uno && pio run -e leonardo && pio run -e uno328pb` — all GREEN, no warnings beyond baseline.
-- **Phase gate before `/gsd-verify-work`:** EVIDENCE.md `## Phase 28 — Fix Commit References` section populated per D-08 with SHAs + sizes table.
-
-### Wave 0 Gaps
-- [ ] `firestarter/test/native/avr/test_data_input/test_rurp_set_data_input.cpp` — new file; covers FIX-02 (both halves).
-- [ ] `firestarter/test/native/avr/test_data_input/host_stubs.cpp` — new file; minimal (Serial_::operator bool + headers only per Q6).
-- [ ] `firestarter/test/native/avr/test_data_input/avr/pgmspace.h` — new file; mirror of `test_dispatch/avr/pgmspace.h` (the included `leonardo_rurp_shield.cpp` transitively pulls `rurp_shield.h` → `<avr/pgmspace.h>`, needs the host shim).
-- [ ] `firestarter/platformio.ini` line 80 area — add `native/avr/test_data_input` to `[env:native].test_filter`.
-
-Framework install: NONE needed — PIO + Unity + ArduinoFake already present in `[env:native]`.
-
-### Nyquist Bridge to VALIDATION.md
-The planner's VALIDATION.md should pin:
-- **Sample interval:** every commit on `v1.6-read-bug` runs `pio test -e native -f "*test_data_input*"`.
-- **Phase gate transition:** Wave A's RED bar (test_data_input fails 1 of 2 cases pre-fix) → Wave B's GREEN bar (both cases pass) — captured in EVIDENCE.md as Wave A SHA + Wave B Commit 1 SHA + Wave B Commit 2 SHA.
-- **Phase 29 hand-off invariant:** EVIDENCE.md `## Phase 28 — Fix Commit References` section is the bench operator's pre-flight reading material — must include the 3 SHAs, the introducing-commit citation, the per-board hex-size table, and the read-path-only diff confirmation.
+**Key insight:** Every operation in Phase 28 re-iteration has a paste-ready 1-2 line shell command or a verified existing pattern. There is no surface for "build a tool to do X" here — the work is mechanical.
 
 ---
 
-## Files Phase 28 will create
-- `firestarter/test/native/avr/test_data_input/test_rurp_set_data_input.cpp` (new, Wave A)
-- `firestarter/test/native/avr/test_data_input/host_stubs.cpp` (new, Wave A — minimal per Q6)
-- `firestarter/test/native/avr/test_data_input/avr/pgmspace.h` (new, Wave A — copy of `test_dispatch/avr/pgmspace.h` verbatim)
+## Runtime State Inventory
 
-## Files Phase 28 will modify
-- `firestarter/src/boards/leonardo_rurp_shield.cpp` — Commit 1 adds 3 lines + 7-line comment to `rurp_set_data_input` (lines 137-141 area per Q4); Commit 2 inserts 2 `_NOP()` + 9-line comment in `rurp_read_data_buffer` (lines 114-116 area per Q1)
-- `firestarter/platformio.ini` — extend `[env:native].test_filter` by one line (`native/avr/test_data_input`) at line 80
-- `.planning/v1.6-EVIDENCE.md` — append `## Phase 28 — Fix Commit References` section at the line-110 forward-annotation anchor per D-08
+Phase 28 re-iteration is largely a source-code + planning-doc revert. The runtime state surface is small but non-zero — auditing here.
 
-## Risks / Landmines
+| Category | Items Found | Action Required |
+|----------|-------------|------------------|
+| **Stored data** | None — no databases, no ChromaDB/Mem0/Redis state references the reverted commit SHA or test name. | None. |
+| **Live service config** | None — no Datadog/n8n/CI service references. The firmware build is local; no CI workflow triggers on `v1.6-read-bug` push (per v1.4 design: stable builds on `main`, beta on `beta` branches). | None. |
+| **OS-registered state** | None — no Windows Task Scheduler, no launchd, no systemd entries. The firmware sub-repo's `.pio/` cache is local to the workstation. | None. |
+| **Secrets / env vars** | None — no SOPS keys, no `.env`, no env-var name dependencies on the reverted commit. The PlatformIO env names (`uno`, `leonardo`, `uno328pb`) are configuration, not secrets, and are untouched. | None. |
+| **Build artifacts / installed packages** | `.pio/build/{uno,leonardo,uno328pb}/firmware.hex` — these will REBUILD after the revert as part of the post-revert SHA capture step. The pre-revert `.hex` SHA capture must happen BEFORE `git revert` (otherwise PIO's incremental build may stamp the post-revert state under the pre-revert filename). | Capture pre-revert SHAs into a scratchpad BEFORE running `git revert`. Capture post-revert SHAs AFTER both source-side commits land. The two capture batches are sequenced — see Plan 28-03 task ordering. |
 
-1. **EVIDENCE.md fix-sketch literal is subtly wrong for Leonardo.** Line 77 of EVIDENCE.md writes `PORTD = 0x00; PORTC &= ~PORTC_DATA_MASK; PORTE &= ~PORTE_DATA_MASK;` — but `PORTD = 0x00` would also zero PD6, which is the D12 control line (`PORTD_CONTROL_MASK = 0x40`). Use the masked form `PORTD &= ~PORTD_DATA_MASK` instead. **Planner must NOT paste the EVIDENCE.md literal verbatim — paste the Q4 form.** This is the single most critical landmine in this research.
-
-2. **PORTD_DATA_MASK comment typo.** Line 17 of `leonardo_rurp_shield.cpp` says `D0(PD2), D1(PD3), D2(PD1), D3(PD0), D4(PD4), D7(PD7)` but actually `D6(PD7)` per `rurp_write_data_buffer:101`. The mask value (0x9F) is correct. Don't "fix" the comment in Phase 28 — that's a separate drift-correction (Phase 30 paperwork). Leave it.
-
-3. **Include-as-source double-link risk.** If a future planner extends `[env:native].build_src_filter` to add `+<boards/leonardo_rurp_shield.cpp>` globally, the new test_data_input suite will get DUPLICATE definitions of all 7 Leonardo functions (one from the include-as-source, one from src_filter). The test suite's TU includes the source DIRECTLY — DO NOT also add it to src_filter. If anyone later needs Leonardo board fns in a different suite, refactor to expose them via a shim header.
-
-4. **`avr-size` may not be installed.** The Q7 commands use `avr-size`. PIO ships with the toolchain, but if invoked outside of `pio run`, PATH may not pick it up. Fallback: `pio run -e leonardo` prints `Flash: [######    ] XX.X% (used N bytes from M bytes)` in its output — capture that line via `tee` or `tail -10 | grep Flash`.
-
-5. **Wave A test_data_input test_rurp_read_data_buffer_reassembles_data_bus is NOT a RED test.** It exercises only the bit-mapping logic (unchanged by either fix commit). It should PASS on pre-fix code. Only `test_rurp_set_data_input_clears_data_pullups_leonardo` is the RED→GREEN test. Wave A's verifier MUST distinguish "test_data_input suite as a whole fails because one of two cases fails" vs "build/link error." The proper check is "exit code non-zero AND output contains 'test_rurp_set_data_input_clears_data_pullups_leonardo:FAIL'." Spell this out in the Wave A verifier block.
-
-6. **`#include "../../../src/boards/leonardo_rurp_shield.cpp"` relative path.** The test cpp lives at `test/native/avr/test_data_input/`, so the source is `../../../../src/boards/leonardo_rurp_shield.cpp` (FOUR `../`, not three). Double-check the count when pasting. (PIO automatically adds the active test directory to the include path, but cross-tree `..` traversal still works because it's a literal filesystem path.)
-
-7. **`_NOP()` count is research-recommended, not bench-confirmed.** Phase 29's bench A/B between Commit 1 alone and Commit 1+2 would empirically confirm whether the 2 `_NOP()`s are necessary. Default is to ship both commits per D-01; if Phase 29 reveals Commit 1 is sufficient, the conversation about reverting Commit 2 happens then.
-
-8. **Wave A's RED bar shows assertion failure (NOT build error).** If the test suite fails to BUILD (e.g. missing header, double-defined symbol), that's a Wave A FAILURE state — not a successful RED bar. Wave A's verifier block must check `pio test` output for the magic string `:FAIL:` (Unity's assertion-failure marker) — not just exit code.
-
-9. **EVIDENCE.md line 110/111 anchors are HTML comments — fragile to edits.** Phase 28's append goes AT the line-110 anchor. Do NOT modify the line-111 anchor (Phase 29's reserved spot). Use `sed -i '/Phase 28 appends commit refs here/a\## Phase 28 — Fix Commit References\n\n<body>\n' .planning/v1.6-EVIDENCE.md` OR safer: read the whole file, locate the line-110 comment, append after it via Write. Planner picks; default to safer.
+**Canonical answer to "what runtime state still has the old shape cached?":** Only the PlatformIO build cache. Re-running `pio run -e {env}` is sufficient to refresh it; no manual cache clear needed (PIO detects source-file mtime changes).
 
 ---
 
-## Sources
+## Common Pitfalls
 
-### Primary (HIGH confidence)
-- **firestarter/src/boards/leonardo_rurp_shield.cpp** (full file read; lines 16-22 mask defs, 112-129 read fn, 137-141 set_data_input)
-- **firestarter/src/boards/uno_rurp_shield.cpp** (full file read; lines 128-137 reference fix shape)
-- **`git show df5fb44 -- src/boards/uno_rurp_shield.cpp`** (the canonical 7-line reference diff)
-- **firestarter/platformio.ini** (lines 67-102 = `[env:native]`, lines 78-80 = `test_filter`)
-- **firestarter/test/native/avr/_shared/host_stubs_common.inc** (lines 63-72 = rurp_set_data_input/buffer stubs; lines 140-143 = Serial_::operator bool)
-- **firestarter/test/native/avr/test_dispatch/{host_stubs.cpp,avr/pgmspace.h}** (reference pattern for new suite)
-- **firestarter/test/native/avr/test_messages/{host_stubs.cpp,avr/pgmspace.h}** (alternative reference pattern)
-- **.pio/libdeps/native/ArduinoFake/src/arduino/Arduino.h** (lines 118-121 = `_NOP()` defn; lines 122-ish = `_BV`/`bit`)
-- **`git rev-parse beta` + `git branch -a`** on /workspaces/firestarter (verified beta tip + absence of v1.6-read-bug branch)
-- **`wc -c .pio/build/*/firestarter_*.hex`** (pre-fix .hex baselines captured 2026-05-21)
-- **.planning/v1.6-EVIDENCE.md** (Phase 27 RCA — full text)
-- **ATmega16U4/32U4 datasheet, Atmel-7766J, §10.2.4** (PINx synchronizer latency 0.5-1.5 cycles)
-- **Winbond W27C512 datasheet** (90 ns tACC at 5V)
+### Pitfall 1: Pre-revert SHA captured against stale `.pio/build/` cache
 
-### Secondary (MEDIUM confidence)
-- **PlatformIO docs** (test_filter directory-level only; per-suite build_flags not supported) — https://docs.platformio.org/en/stable/advanced/unit-testing/structure/hierarchy.html
+**What goes wrong:** Executor runs `pio run -e leonardo` AFTER `git revert 437339b6 --no-commit`, gets the post-revert `.hex`, but records it as the "pre-revert" baseline.
 
-### Tertiary (LOW confidence)
-- None — all research-critical findings cross-verified against either source files or official datasheets.
+**Why it happens:** PIO's incremental build is fast (~1 s for unchanged sources), so the executor may interleave revert + build + SHA capture without explicit step boundaries.
+
+**How to avoid:** Plan 28-03 tasks must SEQUENCE: (1) build pre-revert; (2) capture pre-revert SHAs into a scratchpad file (e.g., `.planning/v1.6/phase-28-reiteration-hex-shas.txt`); (3) THEN `git revert`; (4) THEN rebuild; (5) capture post-revert SHAs. Use the scratchpad file as the GATE-1.6 v2 Axis 4 evidence input — do NOT re-run `pio run` between capture steps.
+
+**Warning signs:** `sha256sum .pio/build/leonardo/firmware.hex` returns the same value pre- and post-revert. That's structurally impossible if the build cache was refreshed; it means the build was stale.
+
+### Pitfall 2: `git revert` opens editor in non-`--no-commit` mode
+
+**What goes wrong:** Executor runs `git revert 437339b6` (no `--no-commit` flag), the default `git revert` invokes `$EDITOR` for the commit message, the executor's environment doesn't have `EDITOR` set or has it set to `vi` and the session blocks.
+
+**How to avoid:** Always use `git revert 437339b6 --no-commit`, then `git commit` with a `-m` flag or HEREDOC body that bakes in the D-06 footer.
+
+**Warning signs:** Executor reports the session hung at `git revert`; means `$EDITOR` was opened.
+
+### Pitfall 3: Test prune accidentally drops the entire file
+
+**What goes wrong:** Executor reads "delete the test" and `git rm test_rurp_set_data_input.cpp`. This loses the bit-reassembly test AND breaks the `[env:native].test_filter` allowlist (`platformio.ini:81` lists `native/avr/test_data_input`; if the directory becomes empty, `pio test -e native` fails on a missing-suite error).
+
+**How to avoid:** Plan 28-03 task description must explicitly say "EDIT the file to delete ONE function + ONE `RUN_TEST` line; keep the file, keep the surviving test, keep the directory, keep the allowlist entry."
+
+**Warning signs:** Post-prune `ls test/native/avr/test_data_input/` shows only `host_stubs.cpp` + `avr/pgmspace.h` (no `test_*.cpp`). The cleanup-script flag.
+
+### Pitfall 4: EVIDENCE.md immutability guard fails because line numbers shifted
+
+**What goes wrong:** Plan 27-05 captured the guard hash against the file as it was 2026-05-26. If anything (including this Phase 28 re-iteration's edit) inserts content BEFORE line 112, the `sed -n '112,186p'` range no longer contains the same lines.
+
+**How to avoid:** The new Phase 28 re-iteration H2 inserts BETWEEN lines 560 and 562 — that's AFTER the immutability range (lines 112-186), so the original H2 lines stay at 112-186. Re-verify post-insert: the line numbers of the original H2 do NOT shift because the new H2 is appended later in the file.
+
+**Warning signs:** Post-edit `sed -n '112,186p' .../v1.6-EVIDENCE.md | sha256sum` returns a different hash than the pre-edit capture. If this happens, the edit landed in the wrong place — revert the EVIDENCE.md commit and re-insert at the correct anchor.
+
+### Pitfall 5: Plan 28-04 fires unintentionally
+
+**What goes wrong:** Plan 28-04 ships with `autonomous: false` + `executes_only_if: <gate>` in frontmatter, but the GSD executor interprets a missing or unparsed gate as `executes_only_if: true` and runs the second revert immediately.
+
+**How to avoid:** Copy the Plan 27-02 frontmatter shape verbatim. Plan 27-02's gate is `executes_only_if: needs_bench`; for Plan 28-04 the gate is the analog `executes_only_if: phase_29_v2_leonardo_zeros_dominant`. The plan body's `<objective>` MUST begin with `**THIS PLAN IS DRAFTED BUT DOES NOT EXECUTE BY DEFAULT.**` per Plan 27-02:57.
+
+**Warning signs:** `git log firestarter/v1.6-read-bug --oneline` shows TWO revert commits (`Revert "fix(leonardo): clear PORTD..."` AND `Revert "fix(leonardo): add _NOP settling..."`) when Phase 29 v2 hasn't sideloaded yet.
+
+---
+
+## Code Examples
+
+### Pre-revert and post-revert `.hex` SHA-256 capture (Linux/devcontainer)
+
+```bash
+#!/bin/bash
+# Plan 28-03 Task — capture pre-revert and post-revert .hex SHA-256 for all three envs.
+# Pre-revert: run BEFORE `git revert 437339b6`. Post-revert: run AFTER the revert commit AND
+# the test-prune commit have both landed.
+
+cd /workspaces/firestarter
+
+# Optional: clear PIO build cache to guarantee a clean build.
+# Commented because PIO mtime detection is reliable; uncomment if SHAs look suspicious.
+# rm -rf .pio/build/{uno,leonardo,uno328pb}/
+
+for ENV in uno leonardo uno328pb; do
+    echo "=== Building $ENV ==="
+    pio run -e "$ENV" 2>&1 | tail -5
+    SHA=$(sha256sum ".pio/build/$ENV/firmware.hex" | awk '{print $1}')
+    SIZE=$(stat -c%s ".pio/build/$ENV/firmware.hex")
+    echo "$ENV: SHA-256 $SHA ($SIZE B)"
+done
+```
+
+**Expected output shape (pre-revert, HEAD = 4f205e58):**
+```
+uno:      SHA-256 <hash-X> (62,617 B)
+leonardo: SHA-256 <hash-Y> (68,917 B)
+uno328pb: SHA-256 d9e51b7e54fe... (62,854 B)
+```
+(Uno + uno328pb sizes from EVIDENCE.md:165-169; Leonardo size 68,917 B from same row. uno328pb SHA prefix `d9e51b7e…` is the Plan 27-04 falsifier value.)
+
+**Expected output shape (post-revert):**
+```
+uno:      SHA-256 <hash-X> (62,617 B)           # identical to pre-revert — Uno source untouched
+leonardo: SHA-256 <hash-Z> (~68,900 B)           # differs — 10-line revert removes ~14 B PORTx-clear + comment
+uno328pb: SHA-256 d9e51b7e54fe... (62,854 B)    # identical — uno328pb source untouched
+```
+
+### Bonus: capture `fdb1ed5` Leonardo `.hex` SHA for cross-check (worktree approach)
+
+```bash
+# Worktree avoids polluting the active branch.
+cd /workspaces/firestarter
+git worktree add /tmp/firestarter-fdb1ed5 fdb1ed5
+cd /tmp/firestarter-fdb1ed5
+pio run -e leonardo 2>&1 | tail -3
+SHA_FDB1ED5=$(sha256sum .pio/build/leonardo/firmware.hex | awk '{print $1}')
+echo "Leonardo @ fdb1ed5: $SHA_FDB1ED5"
+
+# Compare to post-revert Leonardo SHA from Plan 28-03 main worktree.
+# Expectation: byte-identical (the revert restores `rurp_set_data_input` to the fdb1ed5 shape;
+# the only difference is the Wave A test scaffold under test/native/avr/test_data_input/,
+# which does NOT contribute to the firmware .hex binary).
+
+# Cleanup:
+cd /workspaces/firestarter
+git worktree remove /tmp/firestarter-fdb1ed5
+```
+
+**Why a worktree (not `git stash`):** The firestarter sub-repo's `v1.6-read-bug` HEAD must stay at `4f205e58` (or post-revert HEAD) throughout the Plan 28-03 execution per CONTEXT.md's "sub-repo state landmarks". A worktree allows building at `fdb1ed5` without moving the active branch HEAD. The worktree is ephemeral; remove after capture.
+
+### EVIDENCE.md insertion (string-anchored, not line-anchored)
+
+```python
+# Plan 28-03 Task — insert the new H2 BEFORE the `## Verdict` line.
+# Using Edit tool semantics: anchor on the unique string boundary.
+#
+# old_string: the LAST line of the `### Re-open final verdict — closing the loop` section
+#             (line 560) + a blank line + `## Verdict` header (line 562).
+# new_string: same content + new H2 inserted between them.
+#
+# Concretely (in Edit tool format):
+#
+# old_string = """If shape remains zeros-dominant: revert `4f205e58` also → repeat. All re-fix candidates must pass the full GATE-1.6 v2 four-axis check before landing.
+#
+# ## Verdict"""
+#
+# new_string = """If shape remains zeros-dominant: revert `4f205e58` also → repeat. All re-fix candidates must pass the full GATE-1.6 v2 four-axis check before landing.
+#
+# ## Phase 28 Re-iteration — Revert Commits (2026-05-26)
+#
+# **Landed:** 2026-05-26
+# **Branch:** `firestarter/v1.6-read-bug` (linear history: bc0f5ac → fdb1ed5 → 437339b6 → 4f205e58 → <revert>)
+# **Trigger:** Phase 27 re-open closure (Plan 27-05, 2026-05-26) — dual-cause disposition (Outcome A Leonardo firmware-induced + Outcome B-independent uno328pb pre-existing).
+#
+# ### Revert commit (Plan 28-03)
+#
+# - **Commit:** `<post-revert-SHA>`
+# - **Subject:** `Revert "fix(leonardo): clear PORTD/PORTC/PORTE data-bit pullups in rurp_set_data_input"`
+# - **Reverts:** `437339b6` (the masked PORTx-clear in `rurp_set_data_input`)
+# - **Body:** cites Plan 27-05 verdict + Plan 27-04 bench A/B outcome + GATE-1.6 v2 Axis 4 desk-side closure.
+# - **Diff shape:** -10 lines in `firestarter/src/boards/leonardo_rurp_shield.cpp:147-161`; restores function to pre-`437339b6` shape (DDRx clears only, no PORTx-clear).
+#
+# ### Test prune commit (Plan 28-03)
+#
+# - **Commit:** `<post-prune-SHA>`
+# - **Subject:** `test(leonardo): remove pullup-clear assertion superseded by Phase 27 re-open revert`
+# - **Files modified:** `firestarter/test/native/avr/test_data_input/test_rurp_set_data_input.cpp` (-~75 lines: delete `test_rurp_set_data_input_clears_data_pullups_leonardo` body + matching `RUN_TEST` call).
+# - **Files preserved:** `host_stubs.cpp`, `avr/pgmspace.h`, the surviving `test_rurp_read_data_buffer_reassembles_data_bus` test case.
+# - **`platformio.ini`:** UNCHANGED — directory `native/avr/test_data_input` stays populated; allowlist entry stays.
+#
+# ### GATE-1.6 v2 Axis 4 desk-side `.hex` SHA-256 evidence
+#
+# | Env | Pre-revert (`4f205e58`) | Post-revert | Δ | Axis 4 verdict |
+# |-----|------------------------|-------------|----|----------------|
+# | uno | `<uno-pre-SHA>` (62,617 B) | `<uno-post-SHA>` (62,617 B) | byte-identical | PASS — uno source untouched |
+# | leonardo | `<leonardo-pre-SHA>` (68,917 B) | `<leonardo-post-SHA>` (~68,900 B) | differs by revert delta | PASS — matches `fdb1ed5` shape (bonus check: `<fdb1ed5-leonardo-SHA>`) |
+# | uno328pb | `d9e51b7e…` (62,854 B) | `d9e51b7e…` (62,854 B) | byte-identical | PASS — uno328pb source untouched; matches Plan 27-04 falsifier `d9e51b7e…` |
+#
+# ### Plan 28-04 conditional placeholder
+#
+# `wave_b_needed: false` — Plan 28-04 (second revert of `4f205e58`) ships as drafted-but-not-executed. Activates only if Phase 29 v2 bench sideload of the Plan 28-03 single revert shows Leonardo shape still zeros-dominant. If activated, an addendum lands here.
+#
+# ### Phase 29 v2 bench verification (placeholder)
+#
+# <!-- Phase 29 v2 appends post-revert bench verification here. -->
+#
+# ## Verdict"""
+```
+
+**Verified anchor uniqueness:** `grep -c '^## Verdict$' /workspaces/.planning/v1.6-EVIDENCE.md` returns `1` (the line at 562). The string anchor is robust.
+
+### Immutability guard for the original Phase 28 H2 (lines 112-186)
+
+```bash
+# Plan 28-03 Task — capture immutability guard SHA-256 BEFORE the EVIDENCE.md edit.
+
+PRE_GUARD=$(sed -n '112,186p' /workspaces/.planning/v1.6-EVIDENCE.md | sha256sum | awk '{print $1}')
+echo "Pre-edit guard SHA-256 for lines 112-186: $PRE_GUARD"
+
+# After EVIDENCE.md edit, re-capture:
+POST_GUARD=$(sed -n '112,186p' /workspaces/.planning/v1.6-EVIDENCE.md | sha256sum | awk '{print $1}')
+echo "Post-edit guard SHA-256 for lines 112-186: $POST_GUARD"
+
+# Assertion:
+[ "$PRE_GUARD" = "$POST_GUARD" ] && echo "PASS — Phase 28 audit trail byte-identical" || {
+    echo "FAIL — Phase 28 audit trail diverged; rolling back EVIDENCE.md edit"
+    exit 1
+}
+```
+
+**Pattern source:** Plan 27-05 used four identical guards (Phase 27 H2 pre-edit SHA `79f3e5cd…`; Wave B FAIL H3 SHA `8782ed2f…`; `## Verdict` H2 SHA `5b5903db…`; prior-H3-headings count). All four PASSED. Mirror the pattern exactly.
+
+### Plan 28-04 frontmatter template (drafted-but-not-executed)
+
+Copy this verbatim from `27-02-PLAN.md:1-54`, adapting only the fields marked `# ADAPT`:
+
+```yaml
+---
+phase: 28-fix-implementation-unit-test-coverage      # ADAPT
+plan: 04                                              # ADAPT
+type: execute
+wave: 2                                               # Wave B (conditional second revert)
+depends_on:
+  - "28-03"                                           # ADAPT
+files_modified:
+  - .planning/v1.6-EVIDENCE.md                        # ADAPT — append a 28-04 addendum to the 28-03 H2
+  - firestarter/src/boards/leonardo_rurp_shield.cpp   # ADAPT — auto-edited by git revert 4f205e58
+autonomous: false
+executes_only_if: phase_29_v2_leonardo_zeros_dominant  # ADAPT — the activation gate
+requirements:
+  - FIX-01                                             # ADAPT — re-iteration deliverables
+  - FIX-02
+  - FIX-03
+tags:
+  - re-iteration
+  - leonardo
+  - revert
+  - read-bug
+  - conditional
+  - wave-b
+must_haves:
+  truths:
+    - "Wave B fires ONLY IF Phase 29 v2 bench sideload of the Plan 28-03 single revert (of 437339b6) shows Leonardo shape still zeros-dominant. If Plan 28-03's single revert restores structured-data shape (matching Phase 26 baseline / fdb1ed5 pre-fix shape), Plan 28-04 stays parked permanently."
+    - "If activated: a second atomic git revert (of 4f205e58 — the _NOP() settling commit) lands on firestarter/v1.6-read-bug after Plan 28-03's revert commit. Linear history grows: bc0f5ac → fdb1ed5 → 437339b6 → 4f205e58 → <revert-of-437339b6> → <revert-of-4f205e58>."
+    - "Per D-12v2: no additional test pruning needed in Wave B. The 4f205e58 commit only added _NOP() instructions to rurp_read_data_buffer — the bit-reassembly test test_rurp_read_data_buffer_reassembles_data_bus remains a valid regression guard post-revert (asserting unchanged shift-and-mask logic)."
+  artifacts:
+    - path: ".planning/v1.6-EVIDENCE.md"
+      provides: "Addendum to ## Phase 28 Re-iteration — Revert Commits (2026-05-26) section"
+      contains: "### Conditional second revert (Plan 28-04)"
+    - path: "firestarter/src/boards/leonardo_rurp_shield.cpp"
+      provides: "Revert of 4f205e58 (_NOP() settling removal); restores rurp_read_data_buffer to bc0f5ac shape"
+      contains: "// No _NOP() between PINx reads"
+---
+
+<objective>
+**THIS PLAN IS DRAFTED BUT DOES NOT EXECUTE BY DEFAULT.**
+
+Plan 28-04 is a conditional safety valve per CONTEXT D-13v2. The plan exists in the workflow so the executor can activate it at runtime IF AND ONLY IF Phase 29 v2 bench sideload of Plan 28-03's single revert (of 437339b6) shows Leonardo shape STILL zeros-dominant (i.e., the PORTx-clear was NOT the primary regression source and the _NOP() settling is the residual). Per Plan 27-05 fix sketch v2 (`v1.6-EVIDENCE.md:513`) bisection-first recommendation, this conditional second revert preserves the diagnostic signal of which Phase 28 commit was primary.
+
+Expected outcome: Plan 28-04 stays parked — Plan 27-05 hypothesizes the PORTx-clear (437339b6) is the more likely primary fault driver.
+</objective>
+```
+
+**Verified pattern source:** `firestarter/.planning/phases/27-root-cause-analysis/27-02-PLAN.md:1-54` + the in-body `<objective>` block at line 56-60. Plan 28-04 mirrors this shape line-for-line, swapping only the activation gate name and the file references.
+
+---
+
+## State of the Art
+
+| Old Approach (Phase 28 v1 — 2026-05-21) | Current Approach (Phase 28 re-iteration — 2026-05-26) | When Changed | Impact |
+|------|------------|--------------|--------|
+| Forward fix: two atomic commits adding masked PORTx-clear + `_NOP()` settling | Pure revert of `437339b6` (Plan 28-03); conditional revert of `4f205e58` (Plan 28-04) | 2026-05-26 — Plan 27-05 closed dual-cause disposition | Restores Leonardo to pre-Phase-28 shape; original 2.1% jitter bug remains; proper re-fix deferred to v1.8+ |
+| GATE-1.6 three-axis-green risk model (Write-path / VPP / pulse intervals) | GATE-1.6 v2 four-axis (adds "fix introduces regression on other-board read paths") | 2026-05-26 — Plan 27-05 §"GATE-1.6 v2 reassessment" | All future firmware fix evaluations must pass Axis 4 (`.hex` SHA identity check + N=5 per-board consistency-check) before landing |
+| Phase 29 was single bench gate | Phase 29 v2 (operator workstream) reframed as the bench gate for the REVERT, not for a new fix | 2026-05-26 | Phase 29 v2 owns sideload + N=5 consistency-check; Phase 28 re-iteration is desk-side closure of the Axis 4 desk-side sub-check |
+
+**Deprecated/outdated:**
+- The 2026-05-21 `28-RESEARCH.md` (replaced by this file) — its `_NOP()` count rationale, include-as-source-pattern recommendations, and Q4 diff shape all describe a fix approach that proved harmful. Preserved in git log for archaeology; do NOT reference in Plan 28-03 / 28-04.
+- The 2026-05-21 `28-CONTEXT.md` appendix (lines 248-518) is preserved verbatim for audit trail.
 
 ---
 
 ## Assumptions Log
 
+All claims in this research are either VERIFIED by direct inspection (live file reads, git operations executed, dry-run revert performed) or CITED to specific lines of source documents (CONTEXT.md, EVIDENCE.md, Plan 27-04/05 summaries, leonardo_rurp_shield.cpp, platformio.ini, CLAUDE.md).
+
 | # | Claim | Section | Risk if Wrong |
 |---|-------|---------|---------------|
-| A1 | Two `_NOP()`s (one between each PINx pair) is sufficient settling | Q1 | Under-shoot: bug not fully fixed → Phase 29 bench shows residual jitter → bench A/B adds more _NOP()s. Over-shoot: harmless ~125 ns overhead per read. Asymmetric risk strongly favors shipping the recommendation; bench can refine. |
-| A2 | `_NOP()` on x86 host (`__asm__ volatile ("nop")`) compiles and runs cleanly under PIO native env | Q2, Q6 | If wrong, test build fails → caught immediately in Wave A verifier. Easy fallback: wrap in `#ifdef __AVR__ _NOP() #endif` so the host-side test skips it (the test doesn't observe `_NOP()` behavior anyway — it's structural). |
-| A3 | Including `leonardo_rurp_shield.cpp` as source into the test TU with pre-defined `ARDUINO_AVR_LEONARDO` will compile cleanly under host | Q2 | If wrong (e.g. some included header pulls in AVR-only code), fallback is Option B (per-suite extra_scripts) or Option C (shim function). Caught immediately in Wave A verifier. Estimated low risk because (a) the file is already wrapped in `#ifdef ARDUINO_AVR_LEONARDO`, (b) all its calls are register operations + ArduinoFake-provided primitives. |
-| A4 | The two `_NOP()`s and three masked-PORTx-clears together produce a +30 to +60 B Δ on Leonardo `.text` | Q1, Q7 | If actual Δ exceeds ±200 B (unlikely — back-of-envelope is ~12 instructions × ~2 B = ~24 B), D-07 flags it for re-review. No silent failure. |
+| A1 | `pio test -e native -f "*test_data_input*"` after the revert (but before the prune commit) will FAIL the pullup-clear test rather than error out at build/link time | Pitfall 5 / Common Pitfalls | If the test errors at build (e.g., the include-as-source pattern picks up the now-reverted source and produces a different compile error than expected), Plan 28-03 may need an extra "fix-up" task between revert and prune. Recommended mitigation: planner schedules a `pio test -e native -f "*test_data_input*"` smoke check as the FIRST task after the revert commit; if it errors instead of failing, escalate to executor judgment before proceeding to the prune step. |
+| A2 | The bonus check (post-revert Leonardo `.hex` SHA == `fdb1ed5` Leonardo `.hex` SHA) will pass byte-identically | Code Examples — bonus worktree | The Wave A scaffold (`fdb1ed5`) added only test-tree files (`test/native/avr/test_data_input/*`) — no `src/` changes. The revert of `437339b6` restores `src/boards/leonardo_rurp_shield.cpp` to its `fdb1ed5` shape; the build does not pull test sources into firmware. Theoretically byte-identical, but PIO build metadata (timestamps, build numbers) could in principle inject. If wrong, the bonus check is informational only — the three primary Axis 4 assertions are unaffected. |
+| A3 | EVIDENCE.md line numbers stay stable between 2026-05-26 13:19 (CONTEXT.md timestamp) and Plan 28-03 execution | Summary / Pitfall 4 | Re-verified live at research time (605 lines; outline matches CONTEXT.md exactly; lines 112, 186, 560, 562 confirmed). If a parallel meta-repo edit between research and plan execution shifts lines, the insertion anchor (`## Verdict` string) is robust — it remains the unique anchor regardless of line number. |
+
+**Everything else in this RESEARCH.md is verified.** All commands above were dry-run-tested against the live repo state. All file paths and line numbers were re-read at research time. All commit SHAs (`437339b6`, `4f205e58`, `fdb1ed5`, `bc0f5ac`) were verified via `git log --oneline -15 v1.6-read-bug`. The revert mechanics produced exactly the predicted inverse patch (single file, 10 deletions, 0 conflicts).
+
+---
+
+## Open Questions
+
+None blocking. The Auto Mode disposition in CONTEXT.md resolved all gray areas against Plan 27-05's locked decisions; no AskUserQuestion prompts deferred to here. Researcher confirms:
+
+1. **All commit SHAs verified live** — `firestarter/v1.6-read-bug` HEAD is `4f205e58`; `v1.6-read-bug~1` is `437339b6`; `v1.6-read-bug~2` is `fdb1ed5`; `v1.6-read-bug~3` is `bc0f5ac`. Matches CONTEXT.md exactly.
+2. **Test file state verified live** — both Unity test cases exist in `test_rurp_set_data_input.cpp` at the expected line ranges (`test_rurp_set_data_input_clears_data_pullups_leonardo` at lines 108-133; `test_rurp_read_data_buffer_reassembles_data_bus` at lines 153-176; main shell at lines 178-187).
+3. **`platformio.ini` allowlist verified live** — line 81 lists `native/avr/test_data_input` in `test_filter`; no edit needed post-prune since the directory stays populated.
+4. **EVIDENCE.md anchor lines verified live** — `### Re-open final verdict — closing the loop` at line 544, last sentence at line 560; `## Verdict` at line 562. Insertion point confirmed.
+5. **Revert mechanics verified live** — dry-run `git revert 437339b6 --no-commit` produces a clean inverse patch (1 file, 10 deletions, 0 conflicts); `git revert --abort` restores HEAD cleanly.
+
+---
+
+## Environment Availability
+
+| Dependency | Required By | Available | Version | Fallback |
+|------------|------------|-----------|---------|----------|
+| `git` | Revert mechanics | ✓ | 2.x system git | — |
+| `pio` (PlatformIO Core) | `.hex` rebuilds for all three envs | ✓ | per devcontainer | — |
+| `sha256sum` | GATE-1.6 v2 Axis 4 evidence | ✓ | coreutils | — |
+| `sed` | Immutability guard | ✓ | system | — |
+| `bash` | Shell command execution | ✓ | system | — |
+
+**Missing dependencies with no fallback:** None.
+**Missing dependencies with fallback:** None.
+
+All required tooling is present in the devcontainer. No `npm install`, `pip install`, or `apt-get` steps needed.
+
+---
+
+## Validation Architecture
+
+### Test Framework
+| Property | Value |
+|----------|-------|
+| Framework | `Unity` via PlatformIO `test_framework = unity` (under `[env:native]`) |
+| Config file | `firestarter/platformio.ini` (`[env:native]` block, lines 67-104) |
+| Quick run command | `cd /workspaces/firestarter && pio test -e native -f "*test_data_input*"` |
+| Full suite command | `cd /workspaces/firestarter && pio test -e native` (runs test_dispatch + test_messages + test_data_input) |
+
+### Phase Requirements → Test Map
+| Req ID | Behavior | Test Type | Automated Command | File Exists? |
+|--------|----------|-----------|-------------------|-------------|
+| FIX-01 | Revert commit removes the broken PORTx-clear from `rurp_set_data_input` | git assertion | `git log --oneline v1.6-read-bug \| head -5 \| grep 'Revert.*PORTD/PORTC/PORTE'` | will exist post-Plan-28-03 |
+| FIX-02 | Surviving Unity test (`test_rurp_read_data_buffer_reassembles_data_bus`) passes; deleted Unity test no longer runs | Unity native | `pio test -e native -f "*test_data_input*"` (asserts 1 PASS, 0 FAIL) | ✅ test file exists |
+| FIX-03 | (desk-side half) `.hex` SHA-256 identity assertions across the revert (Uno + uno328pb byte-identical; Leonardo differs) | shell | bash script in "Code Examples — Pre-revert and post-revert .hex SHA-256 capture" | ✅ script ships in Plan 28-03 |
+
+### Sampling Rate
+- **Per task commit:** `pio test -e native -f "*test_data_input*"` (~10 s; runs the one surviving test case).
+- **Per wave merge:** `pio test -e native` (~30 s; runs all three native suites — test_dispatch, test_messages, test_data_input).
+- **Phase gate (desk-side):** Three `pio run -e {env}` builds + three `sha256sum` calls + assertion of Axis 4 SHA identity table; documented in EVIDENCE.md before Plan 28-03 closure.
+- **Phase gate (bench-side):** Phase 29 v2 owns this — N=5 `firestarter dev consistency-check W27C512 --runs 5` per board.
+
+### Wave 0 Gaps
+None — the existing test infrastructure (`test_data_input/test_rurp_set_data_input.cpp` + `host_stubs.cpp` + `avr/pgmspace.h` + the include-as-source pattern) is unchanged in shape by the re-iteration. Plan 28-03 edits the test file but does not require new scaffolding.
+
+---
+
+## Security Domain
+
+**Not applicable.** Phase 28 re-iteration touches no input validation, no authentication, no session management, no cryptography, no access control, no network protocol. The reverted firmware operates on a serial-over-USB protocol that runs against a local-host RURP shield, not a network surface.
+
+ASVS categories V2/V3/V4/V5/V6 all evaluate to "no" for this phase. STRIDE threat patterns (Spoofing, Tampering, Repudiation, Info Disclosure, DoS, Elevation) are not in scope.
+
+The only "security-adjacent" property at stake is the **immutability guard** for the original `## Phase 28 — Fix Commit References` H2 (EVIDENCE.md:112-186), which is an audit-trail integrity check, not a security control per se. Pattern verified via Plan 27-05's four-guard precedent.
+
+---
+
+## Plan ID Convention
+
+**Confirmed:** Re-iteration plans are `28-03-PLAN.md` and `28-04-PLAN.md`, not replanning `28-01-PLAN.md` / `28-02-PLAN.md`.
+
+Existing plan files at `/workspaces/.planning/phases/28-fix-implementation-unit-test-coverage/`:
+- `28-01-PLAN.md` (Wave A RED scaffold — original, SHIPPED 2026-05-21; preserved as audit trail)
+- `28-01-SUMMARY.md`
+- `28-02-PLAN.md` (Wave B fix — original, SHIPPED 2026-05-21; preserved as audit trail)
+- `28-02-SUMMARY.md`
+
+New plan files to be created by planner:
+- `28-03-PLAN.md` (re-iteration Wave A — primary autonomous desk-side revert + prune + EVIDENCE.md append + ROADMAP annotation + `.hex` SHA capture)
+- `28-04-PLAN.md` (re-iteration Wave B — drafted-but-not-executed conditional second revert)
+
+**Filename pattern:** `{padded_phase}-{padded_plan}-PLAN.md` and `-SUMMARY.md`. Verified consistent with Phase 27's `27-01` through `27-05` files. No deviation needed.
+
+---
+
+## ROADMAP.md Annotation
+
+**Current state (verified at `/workspaces/.planning/ROADMAP.md:129`):**
+```markdown
+- [x] **Phase 28: Fix Implementation + Unit Test Coverage** — Land the fix in the appropriate sub-repo(s) with atomic commits citing RCA evidence; ship a native unit test (Unity or pytest) that would fail on pre-fix code; preserve GATE-1.6 write-path non-regression. (completed 2026-05-21)
+```
+
+**Recommended annotation (paste-ready edit; one-line replacement):**
+```markdown
+- [x] **Phase 28: Fix Implementation + Unit Test Coverage** — Land the fix in the appropriate sub-repo(s) with atomic commits citing RCA evidence; ship a native unit test (Unity or pytest) that would fail on pre-fix code; preserve GATE-1.6 write-path non-regression. (completed 2026-05-21; re-iterated 2026-05-26 — split-scope: Leonardo revert of `437339b6`; uno328pb hardware diagnosis deferred to operator workstream; FIX-03 bench gate carries to Phase 29 v2)
+```
+
+**Precedent check:** Phase 27's ROADMAP line at `/workspaces/.planning/ROADMAP.md:128`:
+```markdown
+- [x] **Phase 27: Root Cause Analysis** — Identify the exact code path that introduces byte corruption (instrumented build, code-path bisection, or scope/logic-analyzer trace); write up WHY the corruption happens; bracket the introducing commit/milestone. (completed 2026-05-21)
+```
+Phase 27 does NOT yet have a `(re-opened ...)` annotation despite the 2026-05-26 re-open. CONTEXT.md "Specific Re-iteration Ideas" recommends the annotation pattern; the precedent isn't established by Phase 27 yet. Plan 28-03 sets the precedent for both phases — recommend adding a parallel annotation to Phase 27's line as part of the same ROADMAP commit, but **CONTEXT.md does not lock this in**, so propose-but-don't-mandate. Planner's call.
+
+**Single ROADMAP edit, dual annotation (recommended):**
+```markdown
+- [x] **Phase 27: Root Cause Analysis** — Identify the exact code path that introduces byte corruption (instrumented build, code-path bisection, or scope/logic-analyzer trace); write up WHY the corruption happens; bracket the introducing commit/milestone. (completed 2026-05-21; re-opened 2026-05-26 — closed at higher fidelity via Plan 27-05, dual-cause disposition)
+- [x] **Phase 28: Fix Implementation + Unit Test Coverage** — Land the fix in the appropriate sub-repo(s) with atomic commits citing RCA evidence; ship a native unit test (Unity or pytest) that would fail on pre-fix code; preserve GATE-1.6 write-path non-regression. (completed 2026-05-21; re-iterated 2026-05-26 — split-scope: Leonardo revert of `437339b6`; uno328pb hardware diagnosis deferred to operator workstream; FIX-03 bench gate carries to Phase 29 v2)
+```
+
+---
+
+## D-06 Commit Footer Template (carried forward)
+
+**Source:** CONTEXT.md decisions D-06 (carried) at lines 132-139.
+
+**Verbatim template (paste-ready for the revert commit body):**
+```
+Reverts: <broken-commit-sha> "<broken-commit-subject>"
+RCA re-open: .planning/v1.6-EVIDENCE.md §"Phase 27 — RCA Re-open Findings (2026-05-26)"
+Verdict: dual-cause (Outcome A Leonardo firmware-induced + Outcome B-independent uno328pb pre-existing)
+Fix sketch: .planning/v1.6-EVIDENCE.md §"Fix sketch v2 (Phase 28 re-iteration hand-off)"
+GATE-1.6 v2: .planning/v1.6-EVIDENCE.md §"GATE-1.6 v2 reassessment" (Axis 4 desk-side passes; bench gate in Phase 29 v2)
+```
+
+**Subject convention (verified by dry-run + matches CONTEXT.md "Specific Re-iteration Ideas"):**
+- For Plan 28-03 revert commit: `Revert "fix(leonardo): clear PORTD/PORTC/PORTE data-bit pullups in rurp_set_data_input"`
+- For Plan 28-03 prune commit: `test(leonardo): remove pullup-clear assertion superseded by Phase 27 re-open revert`
+- For Plan 28-04 revert commit (if it fires): `Revert "fix(leonardo): add _NOP settling delay between PIND/PINC/PINE reads in rurp_read_data_buffer"`
+
+**Co-author footer (Phase 27/28 convention from `git log`):**
+```
+Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+```
+
+**Footer position in commit body:** AFTER the prose explanation paragraphs, BEFORE the `Co-Authored-By` trailer. This matches the layout of `437339b6` and `4f205e58` exactly (verified via `git log --format='%H%n%n%s%n%n%b' -3`).
+
+---
+
+## Sources
+
+### Primary (HIGH confidence — directly verified at research time)
+- **CONTEXT.md** — `/workspaces/.planning/phases/28-fix-implementation-unit-test-coverage/28-CONTEXT.md` lines 10-247 (re-iteration block; canonical input)
+- **Plan 27-04 SUMMARY.md** — `/workspaces/.planning/phases/27-root-cause-analysis/27-04-SUMMARY.md` (bench A/B outcome; dual-cause disposition; `d9e51b7e…` falsifier)
+- **Plan 27-05 SUMMARY.md** — `/workspaces/.planning/phases/27-root-cause-analysis/27-05-SUMMARY.md` (final synthesis; fix sketch v2; four GATE-1.6 v2 axes; four anti-pattern guards; Phase 28 first task narrative)
+- **Plan 27-02 PLAN.md** — `/workspaces/.planning/phases/27-root-cause-analysis/27-02-PLAN.md` lines 1-60 (drafted-but-not-executed frontmatter template; `autonomous: false` + `executes_only_if: needs_bench` pattern)
+- **EVIDENCE.md** — `/workspaces/.planning/v1.6-EVIDENCE.md`:
+  - Lines 112-186 (original Phase 28 H2; immutability guard target)
+  - Lines 507-528 (Fix sketch v2)
+  - Lines 530-542 (GATE-1.6 v2 reassessment)
+  - Lines 544-560 (Re-open final verdict)
+  - Line 562 (`## Verdict` — insertion anchor)
+- **leonardo_rurp_shield.cpp** — `/workspaces/firestarter/src/boards/leonardo_rurp_shield.cpp` lines 112-161 (the `rurp_read_data_buffer` + `rurp_set_data_input` functions; revert target)
+- **test_rurp_set_data_input.cpp** — `/workspaces/firestarter/test/native/avr/test_data_input/test_rurp_set_data_input.cpp` lines 1-187 (full test file; prune target)
+- **platformio.ini** — `/workspaces/firestarter/platformio.ini` lines 60-104 (Leonardo + `[env:native]` blocks)
+- **ROADMAP.md** — `/workspaces/.planning/ROADMAP.md` lines 128-129 (Phase 27 + Phase 28 checkbox lines)
+- **STATE.md** — `/workspaces/.planning/STATE.md` lines 1-50 (project state, milestone status)
+- **Sub-repo git** — live `cd /workspaces/firestarter && git log` (HEAD `4f205e58`; ancestry verified)
+- **Live dry-run** — `git revert 437339b6 --no-commit` produced clean 10-deletion inverse patch; `git revert --abort` restored cleanly
+- **CLAUDE.md (meta)** — `/workspaces/CLAUDE.md` (project conventions; meta-repo / sub-repo layout)
+- **CLAUDE.md (firmware)** — `/workspaces/firestarter/CLAUDE.md` (native test env documentation; build commands)
+
+### Secondary (MEDIUM confidence — single-source citations)
+- **REQUIREMENTS.md** — `/workspaces/.planning/REQUIREMENTS.md` is v1.7 requirements; FIX-01/02/03 live in v1.6 territory (re-interpreted per D-17v2 in CONTEXT.md)
+- **Persistent memories** — `[[project_uno328pb_bench_instability_27_04]]` (operator workstream substrate; cited but out of scope per D-15v2)
+
+### Tertiary (LOW confidence)
+None — every claim in this research is HIGH or MEDIUM confidence.
+
+---
+
+## Metadata
+
+**Confidence breakdown:**
+- Revert mechanics: HIGH — live dry-run executed; clean 10-deletion inverse patch confirmed; `git revert --abort` restored cleanly.
+- Test file state: HIGH — file read in full; both test cases confirmed present at expected line ranges.
+- `platformio.ini` allowlist: HIGH — file read live; `test_filter` block confirmed; directory stays populated post-prune so no edit needed.
+- `.hex` SHA capture protocol: HIGH — paths (`.pio/build/{env}/firmware.hex`) confirmed via Plan 27-04's worktree-build pattern; `sha256sum` is standard.
+- EVIDENCE.md insertion: HIGH — line numbers re-verified live (605-line file, all expected headers found); string anchor `## Verdict` confirmed unique.
+- Immutability guard: HIGH — Plan 27-05 used identical pattern with four PASS results.
+- Plan 28-04 frontmatter: HIGH — Plan 27-02 template read verbatim; gate-name adaptation is mechanical.
+- D-06 footer template: HIGH — verbatim from CONTEXT.md:132-139; matches Phase 28 v1 commit body shape per `git log`.
+- ROADMAP annotation: MEDIUM — CONTEXT.md recommends the shape; researcher proposes parallel annotation of Phase 27 but flags as planner's call (not locked by CONTEXT.md).
+
+**Research date:** 2026-05-26
+**Valid until:** Plan 28-03 execution. If Plan 28-03 doesn't execute within 7 days (by 2026-06-02), re-verify EVIDENCE.md line numbers and firestarter HEAD before proceeding — the meta-repo and sub-repo could see intervening work that shifts anchors.
 
 ---
 
 ## RESEARCH COMPLETE
+
+Pure revert + prune + Axis-4 desk-side evidence: paste-ready paths, commands, frontmatter templates, footer text, and EVIDENCE.md insertion content — all verified live against the current repo state (firestarter HEAD `4f205e58`, EVIDENCE.md 605 lines, dry-run revert clean).
