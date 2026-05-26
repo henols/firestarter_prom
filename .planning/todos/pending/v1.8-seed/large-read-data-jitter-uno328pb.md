@@ -2,13 +2,71 @@
 id: large-read-data-jitter-uno328pb
 title: Full 64KB streaming reads return 57% scrambled data on uno328pb (small reads stable)
 captured: 2026-05-21
-status: pending
+status: v1.8-deferred
+previous_status: pending
+moved: 2026-05-26 (Phase 30 close — v1.6 ships as "diagnostic + revert" per D-17v2)
 type: bug
-target_milestone: v1.6 (in scope)
+previous_target_milestone: v1.6 (carried as v1.6 in-scope; re-scoped per D-17v2 — not fixed in v1.6)
+target_milestone: v1.8 (RCA + fix per D-17v2 hand-off)
 priority: HIGH
-related_phase: 24
-resolves_phase: v1.8
+related_phase: 29 (Phase 29 v2 — characterized as Bug A + Bug B)
+v1_6_disposition: diagnostic + revert (NOT fix)
 ---
+
+# v1.8 RCA Seed — carried forward from v1.6 close (2026-05-26)
+
+v1.6 ships as "diagnostic + revert" per D-17v2: the Phase 28 v1 firmware-induced
+regression (commit 437339b6 PORTx-clear) was reverted cleanly via ea25174; the
+4f205e58 `_NOP()` settling change preserved (Plan 28-04 parks); Leonardo Modified
+Rev 0 returns to the Phase 26 baseline shape (WORST=0.047% zeros vs Phase 28 v1's
+83.8% pre-revert). The original read-bug itself is NOT fixed in v1.6 — it predates
+v1.6 and remains by design.
+
+Phase 29 v2 (closed 2026-05-26) characterized the bug as two independent failure modes:
+
+## Bug A — Modified Rev 0 upper-address jitter (the original v1.6 read-bug; carries to v1.8)
+
+- 858/65536 (1.31%) of byte positions disagree within N=5 consistency-check.
+- Address-bit correlation (smoking gun): A15=1 → 1.70% jitter vs A15=0 → 0.92% (1.86× skew);
+  A14=1 → 1.55% vs A14=0 → 1.07% (1.46× skew). Upper 24KB (0xA000-0xFFFF) accounts for
+  2/3 of jittery bytes.
+- Bit-direction bias: 63% of jitters BIT-RAISE (read more 1s than the mode); mean delta +8.89.
+- Hypothesis: address-bus signal-integrity at upper addresses (A14/A15 high → more bits
+  toggling → ground bounce / supply sag / capacitive crosstalk) combined with weak data-bus
+  pull-down. The `_NOP()` settling at 4f205e58 targeted timing; insufficient on its own.
+
+## Bug B — Rev 2.0 /CE-or-/OE timing + voltage-divider mismatch (independent shield-specific)
+
+- All 5 Rev 2.0 N=5 byte-identical (deterministic; zero within-session jitter).
+- 49.06% of read bytes are bus-tristate symptoms: 36.19% `0xff` + 12.87% `0x00`.
+- VPP measured 13.1-13.2V > 12.0V expected — voltage divider ratio differs from Modified Rev 0.
+- 54473/65536 (83.1%) bytes differ from Modified Rev 0; per-bit XOR distribution uniform across
+  D0-D7 (~22-25K flips each) — NOT a single stuck data line.
+- Hypothesis: Rev 2.0 has different /CE or /OE timing AND/OR different voltage-divider ratio.
+  VPP-too-high warning corroborates voltage-divider mismatch.
+
+## v1.8 RCA substrate (ready to consume)
+
+- 15 N=5 W27C512 binaries (3 sessions × 5 runs × 65536 B):
+  - `.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260526-155021-v2/` — Modified Rev 0 canonical
+  - `.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260526-155617-v2-rev20/` — Rev 2.0 bonus
+  - `.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260526-160035-v2-rep/` — Modified Rev 0 replication
+- `.planning/v1.6/bench-logs/W27C512-leonardo-20260526-*.log` — 3 tee'd stdout logs
+- `.planning/v1.6-EVIDENCE.md` §"Phase 29 v2 — Post-Revert Bench Verification (2026-05-26)" (H3 block at lines 394+) — full pattern findings
+- `.planning/phases/29-multi-board-bench-verification/29-04-SUMMARY.md` — canonical Phase 29 v2 close narrative
+- v1.7 substrate (shipped 2026-05-26): `.planning/v1.7-SHIELD-REVS.md` per-rev capability table + labeled schematic + shield-version-detect firmware plumbing → enables v1.8 to design A/B fix candidates knowing exactly which silkscreen rev sits on the bench at each step.
+
+## Phase references
+
+- Phase 27 RCA (original) — `.planning/phases/27-root-cause-analysis/27-01-SUMMARY.md`
+- Phase 27 RCA re-open (2026-05-26) — `.planning/phases/27-root-cause-analysis/27-05-SUMMARY.md` (Outcome A Leonardo firmware-induced + Outcome B-independent uno328pb pre-existing hardware)
+- Phase 28 v1 (reverted) — commits 437339b6 (PORTx-clear) + 4f205e58 (`_NOP()`) in `firestarter/`
+- Phase 28 re-iteration (2026-05-26) — Plan 28-03 revert ea25174 + Plan 28-04 parked
+- Phase 29 v2 close — `.planning/phases/29-multi-board-bench-verification/29-04-SUMMARY.md`
+
+---
+
+*(Original v1.6-era bug report text preserved verbatim below for v1.8 RCA context.)*
 
 # Full 64KB streaming reads are unreliable on uno328pb
 
