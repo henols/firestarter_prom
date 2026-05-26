@@ -49,7 +49,7 @@ Per operator standing instruction (memory `[[feedback_branching]]`): all v1.7 wo
 - **Phase 34 §8 ASCII stale until Wave 4 update** — original §8 ASCII attributed R_top to MCU internal pull-up; Plan 01 INPUT high-Z invalidated that model. Wave 4 SHIELD-REVS.md update + sub-repo doc both carry the correction; future readers must reference the post-Wave-4 state.
 - **CTRL_* parity executable test** — Phase 34 review IN-04 noted the `RURP_CONTROL_REGISTER_BITS` (CTRL_*) parity has documented sync rule but no executable pytest gate (parallel to the existing `test_revision_constants_parity.py`). Future v1.7.1 or v1.8 candidate.
 
-*Closed via commit `<MILESTONE_CLOSE_COMMIT>` on 2026-05-26*
+*Closed via commit `4252480` on 2026-05-26*
 
 ---
 
