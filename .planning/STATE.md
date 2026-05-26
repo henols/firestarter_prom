@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.7
-milestone_name: — RURP Shield Hardware Investigation & Version Detection
-status: executing
-last_updated: "2026-05-26T17:08:41.310Z"
-last_activity: 2026-05-26 -- Phase 30 execution started
+milestone: v1.8
+milestone_name: — Read-Bug RCA + Fix (PROPOSED — no roadmap yet)
+status: planning
+last_updated: "2026-05-26T21:35:00.000Z"
+last_activity: 2026-05-26 -- v1.6 milestone SHIPPED (3.0.0b6 beta-only, diagnostic + revert per D-17v2); v1.8 PROPOSED
 progress:
-  total_phases: 10
-  completed_phases: 4
-  total_plans: 18
-  completed_plans: 15
-  percent: 40
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 30 (documentation-milestone-close) — EXECUTING
-Plan: 1 of 3
-Status: Executing Phase 30
-Last activity: 2026-05-26 -- Phase 30 execution started
+Phase: none actively executing — v1.6 SHIPPED 2026-05-26 (Phase 30 closed, 3/3 plans)
+Plan: v1.6 complete (3.0.0b6 beta cut, lockstep both sub-repos)
+Status: Between milestones — v1.8 (Read-Bug RCA + Fix) PROPOSED, not yet planned
+Last activity: 2026-05-26 -- v1.6 milestone SHIPPED (diagnostic + revert per D-17v2)
 
 ## Project Reference
 
@@ -32,13 +32,13 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 30 — documentation-milestone-close
+**Current focus:** None actively executing — v1.6 shipped 2026-05-26; v1.8 (Read-Bug RCA + Fix) PROPOSED
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
 - v1.4 (Beta & Pre-release Deployment Pipeline) SHIPPED 2026-05-20 — 6/6 phases, 10/10 plans, ship tag 3.0.0b3, hardware-flash validated on Uno + Leonardo
 - v1.5 (Arduino Uno ATmega328PB Board Support) SHIPPED 2026-05-21 — 5/5 phases, 6/6 plans, ship tag 3.0.0b4, bench-validated on operator's 328PB-Uno via `urclock` bootloader. Three open backlog items carried forward to v1.6 (the read-bug fix is the v1.6 milestone scope; the other two carry further).
-- v1.6 (Fix the Read Bug) PAUSED 2026-05-22 at the Phase 27 RCA re-open boundary — Phases 26+27+28 shipped, Phase 29 Wave B FAIL (D-07 milestone-reopens), Phase 30 BLOCKED (see Paused Milestones below)
+- v1.6 (Fix the Read Bug) SHIPPED 2026-05-26 — 5/5 phases (26-30), 13 plans, ship tag 3.0.0b6 (beta-only). Ships as "diagnostic + revert" per D-17v2: Phase 28 v1 `437339b6` reverted via `ea25174`, `4f205e58` `_NOP()` settling preserved, `dev consistency-check` CLI shipped. Read-bug NOT fixed — carries to v1.8 as Bug A + Bug B RCA seed. Phase artifacts archived at `.planning/milestones/v1.6-phases/`.
 - **v1.7 (RURP Shield Hardware Investigation & Version Detection) STARTED 2026-05-22** — five phases (31-35); branch model `v1.7-shield-investigation` in all 3 repos
 
 ## Roadmap Summary
@@ -150,7 +150,6 @@ Full details: `.planning/ROADMAP.md` (v1.4 section).
 | Milestone | Paused | Reason | Resume Command |
 |-----------|--------|--------|----------------|
 | **v1.3** — CMOS EPROM Family Hardware Validation | 2026-05-20 | Hardware-gated. Phase 11 (coverage matrix + 78-finding defect ledger + all-algorithms wide-scan with 137 findings across 11 algos) shipped. Phase 12 Wave 0 desk-side scaffold committed (`.planning/v1.3-BENCH-RESULTS.md` skeleton + `.planning/v1.3/bench-logs/` + `.planning/v1.3/scope/`). Plans 12-01/02/03 (BENCH-01/02/05 — W27C512, SST27SF512, W27C257) + entire Phase 13 (algo-0x08 family) + Phase 14 milestone close cannot start without Uno + Leonardo + RURP shield + DIP-28 socket + scope + the bench chips. Auto-mode would silently fabricate bench results — operator paused milestone to avoid integrity hazard. v1.4 phase numbering continues at 15 to avoid collision when v1.3 resumes. | `/gsd-execute-phase 12 --wave 1 --interactive` (once bench hardware available) |
-| **v1.6** — Fix the Read Bug | 2026-05-22 | D-07 FAIL milestone-reopens triggered by Phase 29 Wave B Attempt 2 (2026-05-22 PM): Leonardo (`/dev/ttyACM1`, Modified Rev 0 + voltage-divider mod, 32U4 silicon) reads 83.8% zero-bytes with 5 distinct SHAs across N=5 consistency-check; uno328pb (`/dev/ttyUSB0`, Rev 2.2, real ATmega328PB Case A confirmed) reads 5 distinct SHAs with 18.2% pairwise byte-jitter. Chip-swap diagnostic eliminates chip as the variable (proven-good chip from Uno reads garbage on Leonardo). Uno code path unaffected (Δ=0 Phase 28 hex, regression check held). Strong candidate cause: Phase 28 fix (commits `437339b6` PORTx-clear + `4f205e58` `_NOP()` settling) introduced a Leonardo + uno328pb read-path regression. Phase 30 BLOCKED — no `v1.6-read-bug → beta → main` promotion, no pre-release cut, no public tag until a corrected fix re-runs Phase 29 to PASS. **Phase 27 re-open CLOSED 2026-05-26 (Plan 27-05):** Dual-cause disposition confirmed (Outcome A Leonardo firmware-induced + Outcome B-independent uno328pb pre-existing hardware); Phase 28 re-iteration UNBLOCKED with split-scope handoff. Phase 28 first task: revert `437339b6` alone on `firestarter/v1.6-read-bug` → rebuild Leonardo → sideload → N=5 consistency-check. See `.planning/v1.6-EVIDENCE.md §"Phase 27 — RCA Re-open Findings (2026-05-26)"` for Fix sketch v2 + GATE-1.6 v2 + final verdict. | `/gsd-execute-phase 28` (Phase 28 re-iteration UNBLOCKED — split-scope: Leonardo fix-revert/tune; uno328pb operator hardware diagnosis) |
 
 ## Deferred Items
 

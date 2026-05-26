@@ -1,11 +1,14 @@
 ---
-status: partial
+status: passed
 phase: 30-documentation-milestone-close
 plan: 03
 source: [30-03-PLAN.md]
 started: 2026-05-26
 updated: 2026-05-26
 ---
+
+> **EXECUTION RESULT (2026-05-26, operator-authorized "merges + push", ship Option A):**
+> All 6 steps completed. Branch tips verified (firestarter `efd203a`, firestarter_app `999c3cc`, `ea25174` revert present). Sub-repo merges `--no-ff`: firestarter `v1.6-read-bug`→`beta` = `0bbe017` (21/21 native tests), firestarter_app = `6b2687d` (8/8 pytest). **Ship-tag resolved to `3.0.0b6`** — `3.0.0b5` was already cut by v1.7, so v1.6 advanced to the next pre-release. Both sub-repo `beta` branches pushed; CI cut `3.0.0b6` in lockstep (firestarter release carries all 3 `.hex`; firestarter_app PyPI pre-release; CI version-bumps `8fead2d` / `c24df71`). MILESTONES `<TBD-from-30-03>` tokens substituted; STATE.md flipped to v1.6 SHIPPED + v1.6 paused-row removed. Meta-repo `v1.6-read-bug`→`main` merge + push completed as the milestone-close commit.
 
 # Phase 30 Plan 03 — v1.6 Milestone Close: Sub-repo + Meta-repo Branch Promotion — Operator Checklist
 
@@ -34,7 +37,7 @@ So this ship is **likely beta-only**: the stable channel doesn't have a real rea
 ### Step 1: Branch identity verification (per memory `feedback_verify_port_identity_each_task`)
 
 **Maps to:** Phase 30 SC#5 safety precondition (verify branch tips before merge)
-**Result:** pending
+**Result:** pass
 **Verified by:** operator
 
 **Commands:**
@@ -59,7 +62,7 @@ cd /workspaces/firestarter && git log --oneline v1.6-read-bug -5
 ### Step 2: firestarter sub-repo `v1.6-read-bug` → `beta` merge
 
 **Maps to:** Phase 30 SC#5 sub-repo branch promotion (firmware)
-**Result:** pending
+**Result:** pass
 **Verified by:** operator
 
 **Commands:**
@@ -81,7 +84,7 @@ git log --oneline beta -3                     # verify merge commit + ea25174 vi
 ### Step 3: firestarter_app sub-repo `v1.6-read-bug` → `beta` merge
 
 **Maps to:** Phase 30 SC#5 sub-repo branch promotion (host CLI)
-**Result:** pending
+**Result:** pass
 **Verified by:** operator
 
 **Commands:**
@@ -103,7 +106,7 @@ git log --oneline beta -3                     # verify merge commit visible
 ### Step 4: Ship-tag decision (operator chooses A or B)
 
 **Maps to:** Phase 30 SC#5 ship-tag policy + D-17v2 re-scope
-**Result:** pending
+**Result:** pass
 **Verified by:** operator
 
 **Option A — `3.0.0b5` beta-only (DEFAULT per D-17v2 re-scope):**
@@ -143,7 +146,7 @@ cd /workspaces/firestarter_app && git push origin beta && git checkout main && g
 ### Step 5: Meta-repo `v1.6-read-bug` → `main` merge (the milestone-close commit)
 
 **Maps to:** Phase 30 SC#5 meta-repo branch promotion + MS-01 close
-**Result:** pending
+**Result:** pass
 **Verified by:** operator
 
 **Commands:**
@@ -165,7 +168,7 @@ git push origin main                          # ship the v1.6 planning trail to 
 ### Step 6: Placeholder substitution + STATE.md flip
 
 **Maps to:** Phase 30 SC#3 (MILESTONES.md token substitution) + STATE.md milestone history
-**Result:** pending
+**Result:** pass
 **Verified by:** operator
 
 **Commands:**
