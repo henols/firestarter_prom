@@ -1,7 +1,7 @@
 ---
 id: write-modifications-md-rework-trace
 title: Write full MODIFICATIONS.md rework trace for operator's Modified Rev 0 (Phase 31 follow-up #4)
-captured: 2026-05-XX
+captured: 2026-05-26
 status: pending
 type: documentation
 target_milestone: post-v1.7

@@ -1,7 +1,7 @@
 ---
 id: photograph-modified-rev-0
 title: Photograph operator's Modified Rev 0 board (Phase 31 follow-up #3)
-captured: 2026-05-XX
+captured: 2026-05-26
 status: pending
 type: documentation
 target_milestone: post-v1.7
