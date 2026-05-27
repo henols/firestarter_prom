@@ -85,10 +85,17 @@ Plans:
 
 **UI hint:** no
 
-**Plans:** 3 plans (3 waves)
-Plans:
+**Plans:** 3 plans (3 waves)Plans:
+**Wave 1**
+
 - [ ] 37-01-PLAN.md — ruff + mypy config in pyproject.toml + green-baseline transform (format / import-sort / 2× noqa) + .git-blame-ignore-revs (TOOL-01, wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 37-02-PLAN.md — measure + record mypy watermark + tools/check_mypy_watermark.py + coverage config + pytest-cov/types-pyserial deps (TOOL-02, TOOL-03, wave 2)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 37-03-PLAN.md — extend ci.yml (all-PR trigger + folded gate steps + .[test] install) + .pre-commit-config.yaml (TOOL-03, wave 3)
 
 #### Phase 38: Low-Risk Extractions

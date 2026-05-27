@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.8
 milestone_name: — Host CLI Structural Cleanup
 status: executing
-last_updated: "2026-05-27T12:35:00Z"
-last_activity: 2026-05-27 -- Phase 36 complete + verified (passed); next Phase 37
+last_updated: "2026-05-27T12:52:38.884Z"
+last_activity: 2026-05-27 -- Phase 37 planning complete
 progress:
   total_phases: 8
   completed_phases: 1
-  total_plans: 4
+  total_plans: 7
   completed_plans: 4
   percent: 13
 ---
@@ -22,8 +22,8 @@ progress:
 
 Phase: 36 (characterization-test-baseline) — ✓ COMPLETE (verified: passed)
 Next: Phase 37 (Tooling Baseline + CI Gate) — not started
-Status: Phase 36 shipped on firestarter_app branch v1.8-app-cleanup; 9 commits; suite 162 passed, 2 xfailed, 29 snapshots
-Last activity: 2026-05-27 -- Phase 36 complete + verified (passed); TEST-01..05 satisfied
+Status: Ready to execute
+Last activity: 2026-05-27 -- Phase 37 planning complete
 
 ## Project Reference
 
