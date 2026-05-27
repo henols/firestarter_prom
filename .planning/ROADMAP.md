@@ -69,8 +69,8 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 36-03-PLAN.md — TEST-01 CLI surface subprocess goldens + in-process happy-paths + committed syrupy snapshots (wave 2)
-- [ ] 36-04-PLAN.md — TEST-03 EpromDatabase unit tests + TEST-05 two xfail(strict) bug pins (wave 2)
+- [x] 36-03-PLAN.md — TEST-01 CLI surface subprocess goldens + in-process happy-paths + committed syrupy snapshots (wave 2)
+- [x] 36-04-PLAN.md — TEST-03 EpromDatabase unit tests + TEST-05 two xfail(strict) bug pins (wave 2)
 
 #### Phase 37: Tooling Baseline + CI Gate
 

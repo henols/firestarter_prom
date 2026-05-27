@@ -9,7 +9,7 @@ progress:
   total_phases: 8
   completed_phases: 0
   total_plans: 4
-  completed_plans: 2
+  completed_plans: 4
   percent: 0
 ---
 
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 36 (characterization-test-baseline) — EXECUTING
-Plan: 3 of 4 (Wave 1 complete: 36-01, 36-02)
-Status: Executing Phase 36 — Wave 2
-Last activity: 2026-05-27 -- Phase 36 Wave 1 complete (36-01, 36-02); both submodule suites green
+Phase: 36 (characterization-test-baseline) — EXECUTING (all plans done; verifying)
+Plan: 4 of 4 complete
+Status: Phase 36 plans complete — awaiting verification
+Last activity: 2026-05-27 -- Phase 36 all 4 plans complete; firestarter_app suite 162 passed, 2 xfailed (strict bug pins), 29 snapshots
 
 ## Project Reference
 
