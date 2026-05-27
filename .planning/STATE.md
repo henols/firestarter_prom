@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.8
 milestone_name: — Host CLI Structural Cleanup
 status: executing
-last_updated: "2026-05-27T13:34:21.000Z"
-last_activity: 2026-05-27 -- Phase 37 complete (verified passed)
+last_updated: "2026-05-27T14:03:40.312Z"
+last_activity: 2026-05-27 -- Phase 38 context gathered (4 gray areas resolved)
 progress:
   total_phases: 8
   completed_phases: 2
@@ -20,11 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: 37 (tooling-baseline-ci-gate) — ✓ COMPLETE (verified: passed)
-Plans: 3 of 3 complete
-Next: Phase 38 (Low-Risk Extractions) — not started
-Status: Ready to execute Phase 38
-Last activity: 2026-05-27 -- Phase 37 complete (verified passed)
+Phase: 38 (low-risk-extractions) — CONTEXT gathered (ready for planning)
+Plans: 0 (not yet planned)
+Next: /gsd-plan-phase 38 — plan Low-Risk Extractions
+Status: Phase 38 context captured; ready to plan
+Last activity: 2026-05-27 -- Phase 38 context gathered (4 gray areas resolved: exceptions membership, frame_parser purity, ring-fence, address_parser contract)
 
 ## Project Reference
 
