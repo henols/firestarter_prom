@@ -21,6 +21,7 @@
 **Granularity:** Comprehensive — 8 phases for a broad refactoring milestone. Each phase delivers one independently-verifiable structural capability: safety net → tooling gate → low-risk extractions → DB cleanup → serial restructure → CLI migration → quality sweep → close. Coverage 27/27.
 
 **Standing gate (applies to every phase):** GATE-1.8 (a–e) is a non-regression contract, not a phase. Every phase MUST satisfy all five sub-clauses before its plans are marked complete:
+
 - **GATE-1.8a**: Wire protocol stays byte-identical (`_read_and_parse_lines` atomic-read invariant preserved; serial framing/CRC/timeout semantics unchanged).
 - **GATE-1.8b**: End-user CLI surface preserved — command names, flags, defaults, exit codes, output. Verified by characterization tests.
 - **GATE-1.8c**: Firmware/app constant contract preserved — `constants.py` values equal `firestarter/include/firestarter.h`; guarded by parity tests.
@@ -50,6 +51,7 @@
 **Depends on:** Nothing (additive only; no existing code changed except singleton removal).
 **Requirements:** TEST-01, TEST-02, TEST-03, TEST-04, TEST-05
 **Success Criteria** (what must be TRUE):
+
   1. `tests/test_characterization.py` (or equivalent) covers all 14 CLI commands + `dev` sub-commands using Click's `CliRunner` + syrupy snapshots, pinning exit codes and output. Tests for `build_arg_flags` and `COMMAND_FW_VERSION` issues carry explicit `# BUG:` markers asserting the corrected behavior once fixed — they do NOT pin the broken behavior.
   2. `tests/test_decoder_characterization.py` (or equivalent) pins the `_read_and_parse_lines` preamble → body → terminator sequence using the existing `BytesIO` fake-serial fixture; a delayed-response test asserts the sliding-window timeout resets on every yield (invariant explicitly documented in test).
   3. `EpromDatabase` construction is injectable (Click context / DI via constructor parameter); `tests/test_eprom_database.py` covers `get_eprom`, `convert_to_programmer`, and DIP→RURP pin translation against real `chip_database.json` data — without `find_and_connect` or serial I/O.
@@ -59,10 +61,14 @@
 **UI hint:** no
 
 **Plans:** 4 plans (2 waves)
-
 Plans:
+**Wave 1**
+
 - [ ] 36-01-PLAN.md — Foundations: pyproject `test` dep group (syrupy) + EpromDatabase de-singleton seam (wave 1)
 - [ ] 36-02-PLAN.md — TEST-04 firmware-parity extension (COMMAND_*/FLAG_*/CTRL_*) + TEST-02 serial frame-parse pin (wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 36-03-PLAN.md — TEST-01 CLI surface subprocess goldens + in-process happy-paths + committed syrupy snapshots (wave 2)
 - [ ] 36-04-PLAN.md — TEST-03 EpromDatabase unit tests + TEST-05 two xfail(strict) bug pins (wave 2)
 
@@ -72,6 +78,7 @@ Plans:
 **Depends on:** Phase 36 (characterization test suite must pass under the new linting rules).
 **Requirements:** TOOL-01, TOOL-02, TOOL-03
 **Success Criteria** (what must be TRUE):
+
   1. `pyproject.toml` contains `[tool.ruff]` (E, F, I rules minimum; UP added; no `select = ["ALL"]`), `[tool.ruff.format]`, and `[tool.mypy]` sections with documented rationale for any selected rules; `ruff check` and `ruff format --check` both exit 0 on the full tree.
   2. mypy runs with `disallow_untyped_defs = false` globally (gradual adoption); initial error count recorded as the watermark comment in `pyproject.toml`; the gate is "no new errors vs. watermark"; `[[tool.mypy.overrides]]` strict list starts with the new Phase 36 test modules.
   3. A CI workflow step (in the existing `firestarter_app` GitHub Actions file) runs `ruff check`, `ruff format --check`, and `mypy`, plus `pytest` with `--cov` and a coverage gate of ≥ 60%, and fails the build on any violation; a `pre-commit` config with the same hook order (ruff-check → ruff-format → mypy) is committed.
@@ -84,6 +91,7 @@ Plans:
 **Depends on:** Phase 37 (tooling gate enforced so extractions produce clean diffs; no formatting noise mixed with logic changes).
 **Requirements:** STRUCT-01, STRUCT-02, STRUCT-03, STRUCT-04, STRUCT-05
 **Success Criteria** (what must be TRUE):
+
   1. `firestarter/exceptions.py` exists and contains all application exception classes (`SerialError`, `SerialTimeoutError`, `ProgrammerNotFoundError`, `FirmwareOutdatedError`, `EpromOperationError`, `HardwareOperationError`, `ChipNotFoundError`); all former import sites updated; no exception class defined outside this module.
   2. `firestarter/frame_parser.py` exists containing `_build_crc8_table`, `_crc8_ccitt`, `_decode_param`, `_decode_id_frame`, `Response`, `LogMessage`, `MAGIC_PREAMBLE`; it has no imports from within the `firestarter` package (stdlib + typing only); `test_decoder.py` passes unchanged (the generator body in `serial_comm.py` is not touched).
   3. `firestarter/codec.py` exists containing `_format_message` (renamed `format_message`) and `_REVISION_SILKSCREEN`; it imports from `constants.py` and `messages.py` only; new `tests/test_codec.py` covers `format_message` with message catalog fixtures.
@@ -98,6 +106,7 @@ Plans:
 **Depends on:** Phase 38 (`exceptions.py` must exist so `chip_resolver.py` can import `ChipNotFoundError`).
 **Requirements:** DATA-01, DATA-02, DATA-03, DATA-04
 **Success Criteria** (what must be TRUE):
+
   1. `firestarter/chip_resolver.py` exists with `resolve_chip(name: str) -> dict` raising `ChipNotFoundError` on miss; `tests/test_chip_resolver.py` (from Phase 36) passes; `grep -n "db.get_eprom\|convert_to_programmer" firestarter/main.py` returns no results (the 9 copy-paste sites are gone).
   2. `database.py`'s `pin_conversions` dict has a docstring explicitly stating it encodes RURP board-wiring (DIP socket position → bus line number), distinct from `pinouts.json` which encodes chip DIP pinout (function → socket position); no code behavior is changed.
   3. `grep -r "from firestarter.constants import \*" firestarter/` returns no results; all four previously-star-importing modules (`main.py`, `serial_comm.py`, `eprom_operations.py`, `database.py`) use explicit named imports; mypy error count on those modules does not increase vs. the Phase 37 watermark.
@@ -111,6 +120,7 @@ Plans:
 **Depends on:** Phase 38 (frame decode logic already extracted; `exceptions.py` import surface stable; Phase 39 preferred but not strictly required — serial cleanup does not depend on chip_resolver).
 **Requirements:** SERIAL-01, SERIAL-02, SERIAL-03
 **Success Criteria** (what must be TRUE):
+
   1. `SerialCommunicator` owns only socket lifecycle, `send_*`, `get_response`, `expect_ack`, `consume_remaining_input`, `disconnect`, `find_and_connect`, `_probe_port`, `_list_potential_ports`, and `_read_and_parse_lines`; all frame-decode and message-format concerns are delegated to `frame_parser` + `codec` imports; `STATE_MACHINE_PREFIXES` empty-list dead code is deleted.
   2. `SerialCommunicator._validate_firmware_version(version_str: str) -> None` is a `@staticmethod`; `tests/test_fw_version_guard.py` covers the version-guard logic directly without a fake serial (passes on "3.0.0", raises `FirmwareOutdatedError` on "2.9.9").
   3. `_read_and_parse_lines` carries a `# DO NOT MODIFY — v1.9 RCA territory` comment at its function header; the generator body is byte-identical to pre-v1.8 (verified by `test_decoder.py` passing unchanged); all public `SerialCommunicator` methods have type-annotated signatures; `pytest` exits 0.
@@ -123,6 +133,7 @@ Plans:
 **Depends on:** Phase 39 (chip_resolver.py must exist for handlers to call `resolve_chip()`); Phase 40 (stable exception import surface from `exceptions.py`; `SerialCommunicator` public API clean).
 **Requirements:** CLI-01, CLI-02, CLI-03, CLI-04
 **Success Criteria** (what must be TRUE):
+
   1. `firestarter` CLI passes all characterization tests from Phase 36 (CliRunner exit codes and output snapshot-match pre-migration behavior for all 14 commands + `dev` sub-commands); the five argparse→Click traps are addressed: exit codes via `raise click.ClickException` / `sys.exit`, no prefix matching assumed, `--no-blank-check` polarity correct (`is_flag=True, default=True`), `--pre`/`--firmware-version`/`--stable` mutex enforced via Click callback guard, `_validate_firmware_version` wired as Click param type or callback.
   2. `firestarter/cli_handlers.py` exists with one `@cli.command()` per top-level user command; `firestarter/main.py` is ≤ 50 lines (imports, Click group definition, global options, entry-point call); `if args.command ==` dispatch chain is gone.
   3. `build_arg_flags` attribute-vs-truthiness bug is fixed; commit message contains `INTENTIONAL BEHAVIOR CHANGE: build_arg_flags "if force in args" corrected to truthiness check` and a one-line explanation; the Phase 36 characterization test (previously marked `# BUG:`) now asserts the corrected behavior and passes.
@@ -136,6 +147,7 @@ Plans:
 **Depends on:** Phase 41 (quality sweep most efficient post-restructure; performing it before would require doing it again).
 **Requirements:** ERR-01, ERR-02, ERR-03
 **Success Criteria** (what must be TRUE):
+
   1. Service and transport layers raise typed exceptions from `exceptions.py`; the Click boundary in `cli_handlers.py` maps them to stable exit codes (0 success, 1 expected failure, 2 usage error via `click.UsageError`); `grep -rn "except:" firestarter/` returns no bare excepts; `grep -rn "except Exception" firestarter/` results are all logged with `as e`.
   2. All public functions in modules touched during v1.8 (at minimum `main.py`, `cli_handlers.py`, `chip_resolver.py`, `frame_parser.py`, `codec.py`, `address_parser.py`, `exceptions.py`, `serial_comm.py`) have return type annotations; those modules are added to the mypy `[[tool.mypy.overrides]]` strict list; `mypy` exits 0 for those modules.
   3. All public classes and methods in touched modules have docstrings (1-liner minimum); naming is normalized to snake_case throughout (no camelCase legacy); `ruff check` exits 0 with no `# noqa` suppressions added by Phase 42; `pytest --cov` coverage threshold is raised to ≥ 70% and passes.
@@ -148,6 +160,7 @@ Plans:
 **Depends on:** Phases 36–42 (everything that produced the refactored codebase).
 **Requirements:** DOC-01, DOC-02, MS-01
 **Success Criteria** (what must be TRUE):
+
   1. `firestarter_app/README.md` and any contributor/development docs reflect the post-v1.8 flat-module map (listing `frame_parser.py`, `codec.py`, `address_parser.py`, `chip_resolver.py`, `cli_handlers.py`, `exceptions.py`), the tooling workflow (`ruff`, `ruff format`, `mypy`, `pytest --cov`), and the Click-based CLI structure; the docs accurately describe the layer boundary rules.
   2. MILESTONES.md grows a v1.8 entry covering: delivered structural changes, new modules introduced, requirements closed, known intentional behavior changes, and the v1.9 read-path ring-fence status; PROJECT.md "Validated" section grows entries for each major structural change; the v1.8 milestone block in PROJECT.md is rewritten as "Shipped 2026-05-XX".
   3. Phase artifacts are archived under `.planning/milestones/v1.8-phases/` via the archive script pattern; GATE-1.8 (a–e) is verified end-to-end (wire protocol byte-identical confirmed by `firestarter read` on real hardware or `test_decoder.py` characterization; CLI surface verified by CliRunner; parity test green; entry point smoke test green); `firestarter_app` branch `v1.8-app-cleanup` is promoted → `beta` → `main` per the operator-authorized branch promotion pattern.

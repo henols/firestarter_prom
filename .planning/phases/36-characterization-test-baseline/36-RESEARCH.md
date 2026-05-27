@@ -713,17 +713,17 @@ Note: `CTRL_*` constants from `rurp_pinout.h` — not in `firestarter.h`. The pa
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **`CTRL_*` parity source header**
    - What we know: `CTRL_*` constants in Python mirror `firestarter/include/rurp_pinout.h`, not `firestarter.h`. The research confirmed that `firestarter.h` does not contain the CTRL definitions.
    - What's unclear: Whether `rurp_pinout.h` is present in the same location as `firestarter.h`.
-   - Recommendation: The parity test should use `skipif` that checks for the presence of `firestarter/include/firestarter.h` (as the proxy for "firmware checkout present") — if `firestarter.h` is present, `rurp_pinout.h` is almost certainly present too. The test itself references both headers.
+   - RESOLVED — Recommendation (implemented in plan 36-02-T1): The parity test should use `skipif` that checks for the presence of `firestarter/include/firestarter.h` (as the proxy for "firmware checkout present") — if `firestarter.h` is present, `rurp_pinout.h` is almost certainly present too. The test itself references both headers.
 
 2. **pyproject.toml `test` vs `dev` group**
    - What we know: Currently the group is `dev = ["pytest>=7.0"]`. CONTEXT.md says add to `.test`.
    - What's unclear: Should we rename `dev` → `test` (breaking existing `pip install -e ".[dev]"` workflows) or add `test` alongside `dev`?
-   - Recommendation: Add a new `test` group; keep `dev` as-is. The plan task should add `test = ["pytest>=8.0", "syrupy>=5.0"]` without touching `dev`.
+   - RESOLVED — Recommendation (implemented in plan 36-01-T1): Add a new `test` group; keep `dev` as-is. The plan task should add `test = ["pytest>=8.0", "syrupy>=5.0"]` without touching `dev`.
 
 ---
 
