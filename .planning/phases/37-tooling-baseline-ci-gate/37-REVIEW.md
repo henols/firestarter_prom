@@ -14,7 +14,13 @@ findings:
   warning: 4
   info: 3
   total: 8
-status: issues_found
+resolved:
+  critical: 1
+  warning: 2
+  deferred_to_phase_42: [WR-01, WR-02]
+  advisory_no_action: [IN-01, IN-02, IN-03]
+  fix_commit: 8468d10
+status: resolved
 ---
 
 # Phase 37: Code Review Report
@@ -209,6 +215,21 @@ value's accuracy is contingent on the toolchain pin discussed in WR-01.
 **Fix:** None required; keep the watermark and the toolchain version in lockstep when upgrading.
 
 ---
+
+## Resolution Log (orchestrator, 2026-05-27)
+
+Fixes applied in `firestarter_app` commit `8468d10` — `fix(37): harden mypy watermark gate against tool failure (CR-01, WR-03, WR-04)`:
+
+- **CR-01 (critical) — RESOLVED.** `count_mypy_errors()` now distinguishes three outcomes: a parseable `Found N errors` count, a genuinely-clean tree (`exit 0` / `Success: no issues found` → 0), and a tool/config failure (mypy ran but produced no parseable count, or non-zero with unexpected output → `sys.exit(2)`). A broken type checker can no longer be reported as a silent `0` that passes the gate. Verified empirically against simulated crash/config-error/garbage outputs (all route to exit 2) while the normal 44/clean/0 paths are preserved.
+- **WR-03 (warning) — RESOLVED.** Paths are now anchored to `REPO_ROOT = Path(__file__).resolve().parent.parent`; the watermark read and the mypy subprocess (`cwd=REPO_ROOT`) are CWD-independent. Verified the gate runs identically from the repo root and from `/tmp`.
+- **WR-04 (warning) — RESOLVED.** The watermark regex is now anchored to a comment line via `re.MULTILINE` (`^\s*#\s*mypy_error_watermark...`).
+
+Deferred (intentional — milestone-wide concerns, not Phase 37 bugs):
+
+- **WR-01 (toolchain version pinning vs `>=` floors)** → **Phase 42** (final ruff+mypy quality sweep). The watermark/version lockstep is a milestone-wide tooling-policy decision; the `>=` floors were the plan's deliberate choice. Re-evaluate pinning + watermark together in the Phase 42 sweep.
+- **WR-02 (pre-commit mypy hook stricter/per-file vs CI)** → **Phase 42.** Related to the documented pre-commit-vs-CI scope divergence; CI remains the authoritative gate. Revisit when `tools/` is baselined.
+
+Advisory, no action (design notes): **IN-01** (manual ratchet is by design), **IN-02** (TOML-key vs comment — a future refactor; would dissolve WR-04), **IN-03** (the 44-vs-41 delta is documented and verified accurate).
 
 _Reviewed: 2026-05-27_
 _Reviewer: Claude (gsd-code-reviewer)_
