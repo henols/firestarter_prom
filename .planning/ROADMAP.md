@@ -58,6 +58,14 @@
 
 **UI hint:** no
 
+**Plans:** 4 plans (2 waves)
+
+Plans:
+- [ ] 36-01-PLAN.md — Foundations: pyproject `test` dep group (syrupy) + EpromDatabase de-singleton seam (wave 1)
+- [ ] 36-02-PLAN.md — TEST-04 firmware-parity extension (COMMAND_*/FLAG_*/CTRL_*) + TEST-02 serial frame-parse pin (wave 1)
+- [ ] 36-03-PLAN.md — TEST-01 CLI surface subprocess goldens + in-process happy-paths + committed syrupy snapshots (wave 2)
+- [ ] 36-04-PLAN.md — TEST-03 EpromDatabase unit tests + TEST-05 two xfail(strict) bug pins (wave 2)
+
 #### Phase 37: Tooling Baseline + CI Gate
 
 **Goal:** ruff, ruff-format, and mypy are configured and enforced in CI. All existing code is formatted and linted to a green baseline (using `ruff check --add-noqa` for legacy violations, not hand-fixing everything). From this phase forward, touched modules must be clean; the CI gate fails the build on any new violation.
