@@ -10,20 +10,50 @@
 **v1.6 shipped:** 2026-05-26 (Fix the Read Bug — ships as "diagnostic + revert" per D-17v2; 5 phases, 13 plans; 12/16 requirements DELIVERED; 4 DEFERRED to v1.8 with Bug A + Bug B pattern findings as RCA seed). Per Phase 29 v2 PASS_PARKED: Leonardo Modified Rev 0 returns to Phase 26 baseline shape (WORST=0.047% zeros vs 83.8% pre-revert); Phase 28 v1 PORTx-clear regression cleanly removed via revert; `_NOP()` settling preserved. Read-bug itself carries to v1.8.
 **v1.7 shipped:** 2026-05-26 (RURP Shield Hardware Investigation & Version Detection — 5 phases; per-rev capability table + labeled schematics + shield-version-detect firmware plumbing). Substrate consumed by v1.6 Phase 29 v2 bench session + v1.8 RCA hand-off.
 
-## Current Milestone: v1.8 — Read-Bug RCA + Fix (PROPOSED)
+## Current Milestone: v1.8 — Host CLI Structural Cleanup (firestarter_app)
 
-**Status:** Proposed 2026-05-26 at v1.6 close. Roadmap not yet locked.
+**Status:** Started 2026-05-27. Branch `v1.8-app-cleanup` (meta off `main`, `firestarter_app` off `beta`; firmware sub-repo untouched).
 
-**Why:** v1.6 closed with the original read-bug intentionally deferred per D-17v2 re-scope. Phase 29 v2 characterized the bug as two independent failure modes — Bug A (Modified Rev 0 upper-address jitter, A15=1 → 1.86× skew, 63% BIT-RAISE) and Bug B (Rev 2.0 /CE-or-/OE timing + voltage-divider mismatch + VPP=13.1V). v1.8 inherits the diagnostic (`firestarter dev consistency-check`), the 15-binary N=5 bench substrate at `.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260526-*-v2*/`, the Phase 29 v2 H3 block in `.planning/v1.6-EVIDENCE.md`, and the v1.7 labeled-schematic + per-rev capability table + shield-version-detect firmware plumbing as the foundation for designing instrumented A/B fix candidates knowing exactly which silkscreen rev sits on the bench at each step.
+**Goal:** Make the `firestarter_app` Python host code structured, readable, and spaghetti-free — without changing the wire protocol or end-user command surface (except intentional, documented bug fixes).
+
+**Why:** v1.0–v1.7 grew the host CLI feature-by-feature and structural debt accumulated. A codebase map (2026-05-27) found the spaghetti concentrated in specific places: `main.py:510` `main()` is a 418-line, 14-branch `if/elif` dispatcher with chip-lookup boilerplate copy-pasted across 9 handlers; `serial_comm.py` is 1037 lines mixing port I/O, framing, CRC, codec, logging, and timeouts; DIP→RURP pinout translation has two sources of truth (hardcoded dict + `pinouts.json`); wire-protocol constants are scattered across 4 files; error handling mixes exceptions and return codes; the core paths (CLI dispatch, EPROM read/write/verify/erase, DB lookup, pin translation) have **no unit tests**; there is no ruff/black/mypy config. Cleaning this up now is pure software (no bench hardware needed) and de-risks the v1.9 Read-Bug RCA work, which will touch the host read path.
+
+**Target features (work areas):**
+- CLI: migrate argparse → Click; one handler per command; single shared chip-resolution helper (kills the 9× copy-paste); decompose the 418-line `main()`
+- Serial: split `serial_comm.py` into frame-parser / message-codec / transport modules, testable without serial I/O
+- Database: single source of truth for DIP→RURP pin mapping; cohesive chip-resolution service
+- Constants: consolidate wire-protocol constants into one authoritative module; firmware-contract parity tests
+- Errors: consistent exception/exit-code convention; no bare excepts
+- Tests: characterization safety net on the untested core paths FIRST, before the risky restructure
+- Tooling: ruff + black + mypy + CI gate
+- Quality: type hints, docstrings, dead-code removal, naming normalization
+- File layout stays FLAT (decompose into sibling modules; no subpackage reorg)
+
+**Scope decisions (locked 2026-05-27):**
+- Behavior gate = **"refactor + fix bugs found"**: restructure freely; fix latent bugs/dead code discovered along the way; document any intentional behavior change in commits + MILESTONES. Otherwise the wire protocol stays byte-identical and the command surface/flags/exit codes are preserved (GATE-1.8).
+- **Host-only:** the `firestarter` firmware sub-repo is NOT modified this milestone. The firmware/app constant contract (`constants.py` ↔ `firestarter/include/firestarter.h`) is preserved and guarded by parity tests.
+- **CLI framework = Click** (replaces argparse); existing command surface preserved.
+- **File layout stays flat** (no subpackage reorg) per operator decision — lower churn, git blame intact.
+- **Tooling = ruff + black + mypy** with a CI gate.
+- **Tests-first** for high-risk core (CLI dispatch / EPROM ops / DB lookup are currently untested).
+- Phase numbering continues at **Phase 36** (post-v1.7 last phase 35).
+
+**Operator next step:** `/gsd-discuss-phase 36` (or `/gsd-plan-phase 36`) once the roadmap is locked.
+
+## v1.9 — Read-Bug RCA + Fix (PROPOSED)
+
+**Status:** Proposed 2026-05-26 at v1.6 close; renumbered v1.8 → **v1.9** on 2026-05-27 when the host-CLI cleanup took the v1.8 slot (cleanup is pure software / not hardware-gated, and a cleaner host read path de-risks the RCA). Roadmap not yet locked. Phase numbering continues after v1.8's last phase.
+
+**Why:** v1.6 closed with the original read-bug intentionally deferred per D-17v2 re-scope. Phase 29 v2 characterized the bug as two independent failure modes — Bug A (Modified Rev 0 upper-address jitter, A15=1 → 1.86× skew, 63% BIT-RAISE) and Bug B (Rev 2.0 /CE-or-/OE timing + voltage-divider mismatch + VPP=13.1V). v1.9 inherits the diagnostic (`firestarter dev consistency-check`), the 15-binary N=5 bench substrate at `.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260526-*-v2*/`, the Phase 29 v2 H3 block in `.planning/v1.6-EVIDENCE.md`, and the v1.7 labeled-schematic + per-rev capability table + shield-version-detect firmware plumbing as the foundation for designing instrumented A/B fix candidates knowing exactly which silkscreen rev sits on the bench at each step.
 
 **Target features (proposed; not locked):**
-- v1.8 RCA from the characterized hypotheses (Bug A signal-integrity, Bug B timing/voltage)
+- RCA from the characterized hypotheses (Bug A signal-integrity, Bug B timing/voltage)
 - Instrumented A/B fix candidates across Modified Rev 0 + Rev 2.0 + Rev 2.2 shields
 - Re-iterate Phase 29 acceptance gate (N≥5 byte-identical reads across boards)
 - Close VERIFY-01 (uno328pb byte-identity) + VERIFY-03 (1KB low-rate jitter) + VERIFY-04 (Phase 24 BENCH-02 closure)
-- Phase numbering continues at Phase 36 (post-v1.7 last phase 35)
+- Phase numbering continues after v1.8's last phase
 
-**Operator next step:** `/gsd-discuss-milestone v1.8` to lock scope + decisions, or `/gsd-progress` to pause (no milestone in progress) and resume v1.8 later.
+**Operator next step:** `/gsd-discuss-milestone v1.9` to lock scope + decisions (after v1.8 ships).
 
 ## v1.6 — Fix the Read Bug — ✓ Shipped 2026-05-26 (diagnostic + revert per D-17v2)
 
@@ -260,4 +290,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last updated: 2026-05-26 — v1.6 milestone shipped as "diagnostic + revert" per D-17v2 (5 phases, 13 plans). v1.7 shipped 2026-05-26 in parallel (RURP shield investigation). Read-bug carries to v1.8 with Bug A + Bug B characterized as RCA seed. PROJECT.md Current Milestone flipped to v1.8 PROPOSED per Plan 30-01.*
+*Last updated: 2026-05-27 — v1.8 milestone started: Host CLI Structural Cleanup (firestarter_app). The previously-proposed Read-Bug RCA milestone renumbered v1.8 → v1.9 (cleanup took the v1.8 slot as pure-software, non-hardware-gated work that also de-risks the host read path). Scope locked via /gsd-new-milestone: full restructure, argparse→Click, flat layout kept, ruff+black+mypy+CI gate, tests-first on untested core. Branch `v1.8-app-cleanup`. Phases continue at 36.*

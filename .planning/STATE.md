@@ -1,10 +1,10 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.8
-milestone_name: — Read-Bug RCA + Fix (PROPOSED — no roadmap yet)
+milestone_name: — Host CLI Structural Cleanup (firestarter_app)
 status: planning
-last_updated: "2026-05-26T21:35:00.000Z"
-last_activity: 2026-05-26 -- v1.6 milestone SHIPPED (3.0.0b6 beta-only, diagnostic + revert per D-17v2); v1.8 PROPOSED
+last_updated: "2026-05-27T00:00:00.000Z"
+last_activity: 2026-05-27 -- v1.8 milestone STARTED (Host CLI Structural Cleanup); prior Read-Bug RCA proposal renumbered to v1.9
 progress:
   total_phases: 0
   completed_phases: 0
@@ -20,19 +20,19 @@ progress:
 
 ## Current Position
 
-Phase: none actively executing — v1.6 SHIPPED 2026-05-26 (Phase 30 closed, 3/3 plans)
-Plan: v1.6 complete (3.0.0b6 beta cut, lockstep both sub-repos)
-Status: Between milestones — v1.8 (Read-Bug RCA + Fix) PROPOSED, not yet planned
-Last activity: 2026-05-26 -- v1.6 milestone SHIPPED (diagnostic + revert per D-17v2)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements — v1.8 (Host CLI Structural Cleanup) started
+Last activity: 2026-05-27 — Milestone v1.8 started (Host CLI Structural Cleanup, firestarter_app)
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-05-21)
+See: `.planning/PROJECT.md` (updated 2026-05-27)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** None actively executing — v1.6 shipped 2026-05-26; v1.8 (Read-Bug RCA + Fix) PROPOSED
+**Current focus:** v1.8 — Host CLI Structural Cleanup (firestarter_app). Restructure the Python host code (decompose god functions, argparse→Click, split serial layer, consolidate constants, unify errors, tests-first, ruff+black+mypy gate) without changing the wire protocol. Read-Bug RCA renumbered to v1.9 (PROPOSED).
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
@@ -182,6 +182,20 @@ Items acknowledged and deferred at v1.2 milestone close on 2026-05-19. The three
 - BLOCKER-1 (Phase 12) — algorithm-based dispatch for protocols 0x05/0x06/0x07/0x08/0x0B and SRAM 0x0E/0x27/0x28/0x29
 - BLOCKER-2 (Phase 12) — SRAM chips routed to `configure_eprom` with 12V VPP regulator
 - WARNING-5 (Phase 13) — AT28C256/64 5V EEPROM 12V-on-A14 hazard via DB override
+
+## v1.8 Decisions (locked at milestone start, 2026-05-27)
+
+- **Scope:** Structural cleanup/refactor of the `firestarter_app` Python host CLI — make it structured, readable, and spaghetti-free. **Full restructure** breadth: decompose god functions, migrate argparse→Click, split the serial layer, consolidate wire-protocol constants, unify error handling, add a characterization test safety net, adopt tooling, and sweep type hints/docstrings/naming.
+- **Behavior gate (GATE-1.8) = "refactor + fix bugs found":** internal structure changes freely; latent bugs and dead code discovered during the refactor may be fixed (behavior changes where it was wrong, documented in commits + MILESTONES). Otherwise the wire protocol stays byte-identical and the end-user command surface (command names, flags, defaults, exit codes, output) is preserved.
+- **Host-only:** the `firestarter` firmware sub-repo is NOT touched this milestone. The firmware/app constant contract (`firestarter_app/firestarter/constants.py` ↔ `firestarter/include/firestarter.h`) is preserved verbatim and guarded by parity tests; no wire-format or flag-bit changes.
+- **CLI framework:** migrate argparse → **Click** command groups; existing command surface preserved (verified by CLI dispatch tests + golden behavior).
+- **File layout:** stays **flat** — decompose into sibling modules at `firestarter/` level (e.g. handlers, frame-parser, message-codec, protocol-constants). No subpackage reorg, to keep churn low and git blame intact.
+- **Tooling:** adopt **ruff + black + mypy** with a CI gate (fail build on violations). Strategy for a messy baseline: configure, format, get to green (per-module ignores / baseline acceptable for legacy untouched code), enforce on touched modules.
+- **Tests-first:** the mapper found core paths (CLI dispatch, EPROM read/write/verify/erase, DB lookup, DIP→RURP pin translation) have **no unit tests**. Characterization tests pin current behavior on these paths BEFORE the risky serial/CLI restructure.
+- **Branch model** (per memory [[feedback_branching]]): meta-repo branch `v1.8-app-cleanup` off `main`; `firestarter_app` branch `v1.8-app-cleanup` off `beta`; firmware untouched (no branch). Promote `firestarter_app` → `beta` → `main` per the established beta→stable pattern after green.
+- **Phase numbering:** continues from v1.7 last phase 35 → v1.8 starts at **Phase 36**. No `--reset-phase-numbers`.
+- **Versioning:** the previously-proposed Read-Bug RCA milestone is renumbered **v1.8 → v1.9** (PROPOSED). Cleanup is pure software / not hardware-gated and de-risks the host read path that the RCA will touch.
+- **Spaghetti hotspots (codebase map, 2026-05-27):** `main.py:510` `main()` 418 L / 14-branch dispatcher / 9× chip-lookup copy-paste; `serial_comm.py` 1037 L mixing 6 concerns; `eprom_operations.py:431` `consistency_check_eprom()` 176 L; `database.py` dual-source pin mapping; constants scattered across 4 files; mixed error handling; no lint/format/type config.
 
 ## v1.5 Decisions (locked at milestone start, 2026-05-20)
 
