@@ -45,10 +45,10 @@ The behavior gate is **"refactor + fix bugs found"**: internal structure changes
 
 ### Database & Chip Resolution (DATA)
 
-- [ ] **DATA-01**: A new flat `chip_resolver.py` provides a single `resolve_chip(name) -> programmer_config` used by every command — eliminating the chip-lookup boilerplate copy-pasted across the 9 handlers.
-- [ ] **DATA-02**: There is a single source of truth for DIP→RURP pin mapping — the hardcoded `pin_conversions` dict / `pinouts.json` duplication is consolidated to one authoritative source.
-- [ ] **DATA-03**: `from firestarter.constants import *` star-imports are replaced with named imports across all modules (readability + mypy traceability).
-- [ ] **DATA-04**: Wire-protocol constants (commands, flags, control bits, message IDs) are consolidated into one authoritative module with clear firmware-sync markers; `COMMAND_FW_VERSION` is verified present (added if missing).
+- [x] **DATA-01**: A new flat `chip_resolver.py` provides a single `resolve_chip(name) -> programmer_config` used by every command — eliminating the chip-lookup boilerplate copy-pasted across the 9 handlers.
+- [x] **DATA-02**: There is a single source of truth for DIP→RURP pin mapping — the hardcoded `pin_conversions` dict / `pinouts.json` duplication is consolidated to one authoritative source. _(Resolved documentation-only, D-05: pin_conversions and pinouts.json are distinct composing layers, not duplicates — documented in `database.py`, not merged.)_
+- [x] **DATA-03**: `from firestarter.constants import *` star-imports are replaced with named imports across all modules (readability + mypy traceability).
+- [x] **DATA-04**: Wire-protocol constants (commands, flags, control bits, message IDs) are consolidated into one authoritative module with clear firmware-sync markers; `COMMAND_FW_VERSION` is verified present (added if missing).
 
 ### Serial / Transport Restructure (SERIAL)
 
@@ -123,10 +123,10 @@ Which phases cover which requirements. Populated during roadmap creation.
 | STRUCT-03 | Phase 38 | Complete |
 | STRUCT-04 | Phase 38 | Complete |
 | STRUCT-05 | Phase 38 | Complete |
-| DATA-01 | Phase 39 | Pending |
-| DATA-02 | Phase 39 | Pending |
-| DATA-03 | Phase 39 | Pending |
-| DATA-04 | Phase 39 | Pending |
+| DATA-01 | Phase 39 | Complete |
+| DATA-02 | Phase 39 | Complete |
+| DATA-03 | Phase 39 | Complete |
+| DATA-04 | Phase 39 | Complete |
 | SERIAL-01 | Phase 40 | Pending |
 | SERIAL-02 | Phase 40 | Pending |
 | SERIAL-03 | Phase 40 | Pending |

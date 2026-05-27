@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.8
 milestone_name: — Host CLI Structural Cleanup
 status: executing
-last_updated: "2026-05-27T17:57:09.002Z"
-last_activity: 2026-05-27 -- Phase 39 planning complete
+last_updated: "2026-05-27T21:13:04.000Z"
+last_activity: 2026-05-27 -- Phase 39 (database-cleanup-chip-resolver) COMPLETE — verified passed
 progress:
   total_phases: 8
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 15
-  completed_plans: 12
-  percent: 38
+  completed_plans: 15
+  percent: 50
 ---
 
 # Project State
@@ -20,11 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: 38 (low-risk-extractions) — COMPLETE ✓ (verified passed 2026-05-27)
-Plans: 5/5 complete (38-01..38-05); STRUCT-01..05 delivered
-Next: Phase 39 — Database Cleanup + chip_resolver (DATA-01..04). Start with /gsd-discuss-phase 39 or /gsd-plan-phase 39.
-Status: Ready to execute
-Last activity: 2026-05-27 -- Phase 39 planning complete
+Phase: 39 (database-cleanup-chip-resolver) — COMPLETE ✓ (verified passed 2026-05-27)
+Plans: 3/3 complete (39-01..39-03); DATA-01..04 delivered
+Next: Phase 40 — Serial / Transport Restructure (SERIAL). Start with /gsd-discuss-phase 40 or /gsd-plan-phase 40.
+Status: Phase 39 complete; Phase 40 not started
+Last activity: 2026-05-27 -- Phase 39 complete (3/3 plans, verified passed; code review advisory issues_found, 0 blockers, 2 INFO)
 
 ## Project Reference
 
@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-27)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 39 — Database Cleanup + chip_resolver (Phase 38 complete + verified passed)
+**Current focus:** Phase 40 — Serial / Transport Restructure (Phase 39 complete + verified passed)
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)

@@ -37,7 +37,7 @@
 - [x] **Phase 36: Characterization Test Baseline** (completed 2026-05-27) — Write characterization (golden) tests for the currently-untested CLI surface, serial frame-parse path, and EPROM database layer; extend firmware-contract parity test; remove EpromDatabase singleton (prerequisite for testability). Safety net committed before any structural change.
 - [x] **Phase 37: Tooling Baseline + CI Gate** (completed 2026-05-27) — Configure ruff, ruff-format, and mypy in `pyproject.toml`; run format + baseline pass on the codebase; add GitHub Actions CI step enforcing lint/format/type with coverage gate. Zero new violations permitted after this phase.
 - [x] **Phase 38: Low-Risk Extractions** (completed 2026-05-27) — Extract `frame_parser.py` (CRC + decode, pure functions), `codec.py` (message formatting), `address_parser.py` (hex/decimal parsing), and `exceptions.py` (consolidated exception hierarchy); delete confirmed dead code (`read_data_block`, `globals()` introspection, commented-out blocks). Mechanical moves verified by the full test suite after each file move.
-- [ ] **Phase 39: Database Cleanup + chip_resolver** — Introduce `chip_resolver.py` with `resolve_chip()` eliminating the 9× chip-lookup copy-paste; add type hints + docstrings to `EpromDatabase`; replace all `from firestarter.constants import *` star-imports with named imports; verify/add `COMMAND_FW_VERSION`; consolidate wire-protocol constants.
+- [x] **Phase 39: Database Cleanup + chip_resolver** (completed 2026-05-27) — Introduce `chip_resolver.py` with `resolve_chip()` eliminating the 9× chip-lookup copy-paste; add type hints + docstrings to `EpromDatabase`; replace all `from firestarter.constants import *` star-imports with named imports; verify/add `COMMAND_FW_VERSION`; consolidate wire-protocol constants.
 - [ ] **Phase 40: Serial / Transport Restructure** — Clean up `serial_comm.py` post-Phase-38: extract `_validate_firmware_version` as a testable `@staticmethod`; add type hints to all public `SerialCommunicator` methods; delete `STATE_MACHINE_PREFIXES` dead code; confirm `_read_and_parse_lines` generator body is byte-identical (add `# DO NOT MODIFY — v1.9 RCA territory` marker).
 - [ ] **Phase 41: CLI Migration argparse → Click** — Migrate from argparse to Click; create `cli_handlers.py` with one `@cli.command()` per user command; reduce `main()` to ≤ 50 lines; handle all five argparse→Click behavioral traps explicitly; fix `build_arg_flags` latent bug (INTENTIONAL BEHAVIOR CHANGE documented); confirm pip entry point and shell-completion behavior with operator.
 - [ ] **Phase 42: Error Handling Normalization + Quality Sweep** — Enforce consistent exception/exit-code convention throughout; eliminate bare `except:` clauses; add return type annotations on all public functions in touched modules; add module + public-function docstrings; normalize naming; run final ruff + mypy sweep with raised coverage threshold.
@@ -153,15 +153,15 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 39-01-PLAN.md — DATA-01: create chip_resolver.py (resolve_chip) + tests/test_chip_resolver.py + repoint the 9 main.py op sites via _resolve_or_exit (wave 1)
+- [x] 39-01-PLAN.md — DATA-01: create chip_resolver.py (resolve_chip) + tests/test_chip_resolver.py + repoint the 9 main.py op sites via _resolve_or_exit (wave 1)
 
 **Wave 2** *(blocked on Wave 1; touches main.py)*
 
-- [ ] 39-02-PLAN.md — DATA-03: star-import → named imports + strip 55 F403/F405 noqas across all 6 modules (D-06; F401 markers preserved) (wave 2)
+- [x] 39-02-PLAN.md — DATA-03: star-import → named imports + strip 55 F403/F405 noqas across all 6 modules (D-06; F401 markers preserved) (wave 2)
 
 **Wave 3** *(blocked on Wave 2; touches database.py)*
 
-- [ ] 39-03-PLAN.md — DATA-02 pin_conversions board-wiring docstring + DATA-04 COMMAND_*/FLAG_* firmware-sync markers + parity verify (wave 3)
+- [x] 39-03-PLAN.md — DATA-02 pin_conversions board-wiring docstring + DATA-04 COMMAND_*/FLAG_* firmware-sync markers + parity verify (wave 3)
 
 #### Phase 40: Serial / Transport Restructure
 
@@ -233,10 +233,10 @@ Plans:
 | STRUCT-03 | Phase 38 | Complete |
 | STRUCT-04 | Phase 38 | Complete |
 | STRUCT-05 | Phase 38 | Complete |
-| DATA-01 | Phase 39 | Pending |
-| DATA-02 | Phase 39 | Pending |
-| DATA-03 | Phase 39 | Pending |
-| DATA-04 | Phase 39 | Pending |
+| DATA-01 | Phase 39 | Complete |
+| DATA-02 | Phase 39 | Complete |
+| DATA-03 | Phase 39 | Complete |
+| DATA-04 | Phase 39 | Complete |
 | SERIAL-01 | Phase 40 | Pending |
 | SERIAL-02 | Phase 40 | Pending |
 | SERIAL-03 | Phase 40 | Pending |
@@ -480,7 +480,7 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 36 | v1.8 | 0/TBD | Not started | — |
 | 37 | v1.8 | 0/TBD | Not started | — |
 | 38 | v1.8 | 0/TBD | Not started | — |
-| 39 | v1.8 | 0/TBD | Not started | — |
+| 39 | v1.8 | 3/3 | Complete | 2026-05-27 |
 | 40 | v1.8 | 0/TBD | Not started | — |
 | 41 | v1.8 | 0/TBD | Not started | — |
 | 42 | v1.8 | 0/TBD | Not started | — |
