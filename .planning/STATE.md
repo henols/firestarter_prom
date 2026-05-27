@@ -4,12 +4,12 @@ milestone: v1.8
 milestone_name: — Host CLI Structural Cleanup
 status: executing
 last_updated: "2026-05-27T15:53:42.779Z"
-last_activity: 2026-05-27 -- Phase 38 Wave 4 (38-04 STRUCT-03) complete
+last_activity: 2026-05-27 -- Phase 38 all 5 plans executed; verification pending
 progress:
   total_phases: 8
   completed_phases: 2
   total_plans: 12
-  completed_plans: 11
+  completed_plans: 12
   percent: 25
 ---
 
@@ -21,9 +21,9 @@ progress:
 ## Current Position
 
 Phase: 38 (low-risk-extractions) — EXECUTING
-Plan: 5 of 5 (Wave 5) — 38-01, 38-02, 38-03, 38-04 complete
-Plans: 5 planned (38-01..38-05); 4 complete; strict dependency chain, sequential execution
-Next: Execute Wave 5 — 38-05 (STRUCT-05 dead-code sweep: read_data_block + globals() → COMMAND_NAMES[cmd])
+Plan: 5 of 5 complete — all plans executed (38-01..38-05)
+Plans: 5 planned (38-01..38-05); 5 complete; strict dependency chain, sequential execution
+Next: Phase 38 verification (code review → verify_phase_goal); then mark phase complete
 Status: Executing Phase 38
 Last activity: 2026-05-27 -- Phase 38 execution started
 

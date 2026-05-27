@@ -133,7 +133,7 @@ Plans:
 
 **Wave 5** *(blocked on Waves 3+4; touches serial_comm.py + eprom_operations.py)*
 
-- [ ] 38-05-PLAN.md — STRUCT-05: dead-code sweep (delete read_data_block, globals() → COMMAND_NAMES[cmd]) (wave 5)
+- [x] 38-05-PLAN.md — STRUCT-05: dead-code sweep (delete read_data_block, globals() → COMMAND_NAMES[cmd]) (wave 5)
 
 #### Phase 39: Database Cleanup + chip_resolver
 
