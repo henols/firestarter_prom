@@ -23,11 +23,11 @@ The behavior gate is **"refactor + fix bugs found"**: internal structure changes
 
 ### Test Safety Net (TEST) — pin behavior before restructuring
 
-- [ ] **TEST-01**: Characterization (golden) tests pin the current CLI command surface — `list`, `info`, `read`, `write`, `verify`, `blank`, `erase`, `id`, and the `dev` subcommands — capturing output, exit codes, and flag-parsing edge cases via Click's `CliRunner` + snapshot (syrupy), BEFORE the Click migration.
-- [ ] **TEST-02**: Characterization tests pin the serial frame-parse path (`_read_and_parse_lines` preamble→body→terminator sequence + sliding-window timeout) using the existing `BytesIO` fake-serial fixture, BEFORE the serial split.
-- [ ] **TEST-03**: The `EpromDatabase` singleton is replaced with injectable construction (DI via Click context), so the database, chip lookup, and EPROM operations are independently testable; unit tests cover `get_eprom`, `convert_to_programmer`, and DIP→RURP pin translation.
-- [ ] **TEST-04**: The firmware-contract parity test is extended from `REVISION_*` only to also cover `COMMAND_*`, `FLAG_*`, and `CTRL_*`, asserting each value equals the corresponding firmware header literal.
-- [ ] **TEST-05**: Two known latent bugs are characterized as **bugs, not pinned as correct**: `build_arg_flags` `if "force" in args` attribute-vs-truthiness check, and a possibly-missing `COMMAND_FW_VERSION` in `constants.py`. Tests assert the corrected behavior once fixed.
+- [x] **TEST-01**: Characterization (golden) tests pin the current CLI command surface — `list`, `info`, `read`, `write`, `verify`, `blank`, `erase`, `id`, and the `dev` subcommands — capturing output, exit codes, and flag-parsing edge cases via Click's `CliRunner` + snapshot (syrupy), BEFORE the Click migration. *(Phase 36: implemented as a syrupy **subprocess** harness — D-01 — since the CLI is still argparse until Phase 41; CliRunner adopted then.)*
+- [x] **TEST-02**: Characterization tests pin the serial frame-parse path (`_read_and_parse_lines` preamble→body→terminator sequence + sliding-window timeout) using the existing `BytesIO` fake-serial fixture, BEFORE the serial split.
+- [x] **TEST-03**: The `EpromDatabase` singleton is replaced with injectable construction (DI via Click context), so the database, chip lookup, and EPROM operations are independently testable; unit tests cover `get_eprom`, `convert_to_programmer`, and DIP→RURP pin translation. *(Phase 36: minimal `skip_local_override` constructor seam per D-06; full Click-context DI deferred to Phase 41.)*
+- [x] **TEST-04**: The firmware-contract parity test is extended from `REVISION_*` only to also cover `COMMAND_*`, `FLAG_*`, and `CTRL_*`, asserting each value equals the corresponding firmware header literal.
+- [x] **TEST-05**: Two known latent bugs are characterized as **bugs, not pinned as correct**: `build_arg_flags` `if "force" in args` attribute-vs-truthiness check, and a possibly-missing `COMMAND_FW_VERSION` in `constants.py`. Tests assert the corrected behavior once fixed. *(Phase 36: `COMMAND_FW_VERSION` confirmed PRESENT at 0x0D → folded into TEST-04 parity; second bug slot substituted with the `EpromOperationError`-conflated-as-comm-error bug per D-08/D-09. Both pinned `xfail(strict=True)`.)*
 
 ### Tooling & CI Quality Gate (TOOL)
 
@@ -110,11 +110,11 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TEST-01 | Phase 36 | Pending |
-| TEST-02 | Phase 36 | Pending |
-| TEST-03 | Phase 36 | Pending |
-| TEST-04 | Phase 36 | Pending |
-| TEST-05 | Phase 36 | Pending |
+| TEST-01 | Phase 36 | Complete |
+| TEST-02 | Phase 36 | Complete |
+| TEST-03 | Phase 36 | Complete |
+| TEST-04 | Phase 36 | Complete |
+| TEST-05 | Phase 36 | Complete |
 | TOOL-01 | Phase 37 | Pending |
 | TOOL-02 | Phase 37 | Pending |
 | TOOL-03 | Phase 37 | Pending |

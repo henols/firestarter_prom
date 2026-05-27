@@ -34,7 +34,7 @@
 
 ### Phases
 
-- [ ] **Phase 36: Characterization Test Baseline** — Write characterization (golden) tests for the currently-untested CLI surface, serial frame-parse path, and EPROM database layer; extend firmware-contract parity test; remove EpromDatabase singleton (prerequisite for testability). Safety net committed before any structural change.
+- [x] **Phase 36: Characterization Test Baseline** (completed 2026-05-27) — Write characterization (golden) tests for the currently-untested CLI surface, serial frame-parse path, and EPROM database layer; extend firmware-contract parity test; remove EpromDatabase singleton (prerequisite for testability). Safety net committed before any structural change.
 - [ ] **Phase 37: Tooling Baseline + CI Gate** — Configure ruff, ruff-format, and mypy in `pyproject.toml`; run format + baseline pass on the codebase; add GitHub Actions CI step enforcing lint/format/type with coverage gate. Zero new violations permitted after this phase.
 - [ ] **Phase 38: Low-Risk Extractions** — Extract `frame_parser.py` (CRC + decode, pure functions), `codec.py` (message formatting), `address_parser.py` (hex/decimal parsing), and `exceptions.py` (consolidated exception hierarchy); delete confirmed dead code (`read_data_block`, `globals()` introspection, commented-out blocks). Mechanical moves verified by the full test suite after each file move.
 - [ ] **Phase 39: Database Cleanup + chip_resolver** — Introduce `chip_resolver.py` with `resolve_chip()` eliminating the 9× chip-lookup copy-paste; add type hints + docstrings to `EpromDatabase`; replace all `from firestarter.constants import *` star-imports with named imports; verify/add `COMMAND_FW_VERSION`; consolidate wire-protocol constants.
@@ -171,11 +171,11 @@ Plans:
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TEST-01 | Phase 36 | Pending |
-| TEST-02 | Phase 36 | Pending |
-| TEST-03 | Phase 36 | Pending |
-| TEST-04 | Phase 36 | Pending |
-| TEST-05 | Phase 36 | Pending |
+| TEST-01 | Phase 36 | Complete |
+| TEST-02 | Phase 36 | Complete |
+| TEST-03 | Phase 36 | Complete |
+| TEST-04 | Phase 36 | Complete |
+| TEST-05 | Phase 36 | Complete |
 | TOOL-01 | Phase 37 | Pending |
 | TOOL-02 | Phase 37 | Pending |
 | TOOL-03 | Phase 37 | Pending |

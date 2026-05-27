@@ -2,8 +2,13 @@
   "mode": "YOLO",
   "parallelization": "enabled",
   "granularity": "Comprehensive",
-  "sub_repos": ["firestarter", "firestarter_app"],
   "workflow": {
     "_auto_chain_active": false
+  },
+  "planning": {
+    "sub_repos": [
+      "firestarter",
+      "firestarter_app"
+    ]
   }
 }

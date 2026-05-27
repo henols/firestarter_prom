@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.8
 milestone_name: — Host CLI Structural Cleanup
 status: executing
-last_updated: "2026-05-27T08:51:52.297Z"
-last_activity: 2026-05-27 -- Phase 36 execution started
+last_updated: "2026-05-27T12:35:00Z"
+last_activity: 2026-05-27 -- Phase 36 complete + verified (passed); next Phase 37
 progress:
   total_phases: 8
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 4
   completed_plans: 4
-  percent: 0
+  percent: 13
 ---
 
 # Project State
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 36 (characterization-test-baseline) — EXECUTING (all plans done; verifying)
-Plan: 4 of 4 complete
-Status: Phase 36 plans complete — awaiting verification
-Last activity: 2026-05-27 -- Phase 36 all 4 plans complete; firestarter_app suite 162 passed, 2 xfailed (strict bug pins), 29 snapshots
+Phase: 36 (characterization-test-baseline) — ✓ COMPLETE (verified: passed)
+Next: Phase 37 (Tooling Baseline + CI Gate) — not started
+Status: Phase 36 shipped on firestarter_app branch v1.8-app-cleanup; 9 commits; suite 162 passed, 2 xfailed, 29 snapshots
+Last activity: 2026-05-27 -- Phase 36 complete + verified (passed); TEST-01..05 satisfied
 
 ## Project Reference
 
@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-27)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 36 — characterization-test-baseline
+**Current focus:** Phase 37 — Tooling Baseline + CI Gate (Phase 36 complete + verified)
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
@@ -292,8 +292,9 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 
 ## Operator Next Steps
 
-- `/gsd-plan-phase 36` — plan Phase 36 (Characterization Test Baseline); write characterization tests for CLI surface, serial frame-parse path, and EPROM database layer; extend firmware-contract parity test; remove EpromDatabase singleton
-- Alternative: `/gsd-discuss-phase 36` — gather context for Phase 36 before planning
+- `/gsd-discuss-phase 37` — gather context for Phase 37 (Tooling Baseline + CI Gate: ruff + ruff-format + mypy, baseline + CI enforcement with coverage gate) before planning
+- Alternative: `/gsd-plan-phase 37` — plan Phase 37 directly (skip discuss)
+- Note: the Phase 36 characterization suite (162 passed, 2 xfailed) is the regression net Phase 37's tooling/format pass must keep green
 
 ## Performance Metrics
 
