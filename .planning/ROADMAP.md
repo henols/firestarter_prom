@@ -129,7 +129,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 1; independent of 02/03; touches eprom_operations.py)*
 
-- [ ] 38-04-PLAN.md — STRUCT-03: extract address_parser.py (ValueError contract) + call-site wrap (D-12/D-13) + new tests/test_address_parser.py (wave 4)
+- [x] 38-04-PLAN.md — STRUCT-03: extract address_parser.py (ValueError contract) + call-site wrap (D-12/D-13) + new tests/test_address_parser.py (wave 4)
 
 **Wave 5** *(blocked on Waves 3+4; touches serial_comm.py + eprom_operations.py)*
 
