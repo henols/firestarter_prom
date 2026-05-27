@@ -125,7 +125,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2; codec needs frame_parser._decode_param; touches serial_comm.py)*
 
-- [ ] 38-03-PLAN.md — STRUCT-02: extract codec.format_message (+ D-08 _decode_param import) + new tests/test_codec.py (wave 3)
+- [x] 38-03-PLAN.md — STRUCT-02: extract codec.format_message (+ D-08 _decode_param import) + new tests/test_codec.py (wave 3)
 
 **Wave 4** *(blocked on Wave 1; independent of 02/03; touches eprom_operations.py)*
 
