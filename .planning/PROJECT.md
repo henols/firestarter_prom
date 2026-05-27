@@ -12,7 +12,7 @@
 
 ## Current Milestone: v1.8 — Host CLI Structural Cleanup (firestarter_app)
 
-**Status:** Started 2026-05-27. Branch `v1.8-app-cleanup` (meta off `main`, `firestarter_app` off `beta`; firmware sub-repo untouched).
+**Status:** Started 2026-05-27. Branch `v1.8-app-cleanup` (meta off `main`, `firestarter_app` off `beta`; firmware sub-repo untouched). **Phase 36 (Characterization Test Baseline) complete + verified 2026-05-27** — characterization safety net live (162 passed, 2 xfailed strict bug-pins, 29 syrupy snapshots); `EpromDatabase` de-singletoned with a `skip_local_override` seam; firmware-contract parity extended to COMMAND_*/FLAG_*/CTRL_*. Next: Phase 37 (Tooling Baseline + CI Gate).
 
 **Goal:** Make the `firestarter_app` Python host code structured, readable, and spaghetti-free — without changing the wire protocol or end-user command surface (except intentional, documented bug fixes).
 
@@ -38,7 +38,7 @@
 - **Tests-first** for high-risk core (CLI dispatch / EPROM ops / DB lookup are currently untested).
 - Phase numbering continues at **Phase 36** (post-v1.7 last phase 35).
 
-**Operator next step:** `/gsd-discuss-phase 36` (or `/gsd-plan-phase 36`) once the roadmap is locked.
+**Operator next step:** `/gsd-discuss-phase 37` (or `/gsd-plan-phase 37`) — Tooling Baseline + CI Gate.
 
 ## v1.9 — Read-Bug RCA + Fix (PROPOSED)
 
@@ -290,4 +290,5 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last updated: 2026-05-27 — v1.8 milestone started: Host CLI Structural Cleanup (firestarter_app). The previously-proposed Read-Bug RCA milestone renumbered v1.8 → v1.9 (cleanup took the v1.8 slot as pure-software, non-hardware-gated work that also de-risks the host read path). Scope locked via /gsd-new-milestone: full restructure, argparse→Click, flat layout kept, ruff+black+mypy+CI gate, tests-first on untested core. Branch `v1.8-app-cleanup`. Phases continue at 36.*
+*Last updated: 2026-05-27 — v1.8 Phase 36 (Characterization Test Baseline) complete + verified. Safety net of characterization tests committed on `firestarter_app` branch `v1.8-app-cleanup` (CLI golden snapshots, serial frame-parse pins, EpromDatabase unit tests, extended firmware-contract parity, two xfail(strict) bug-pins); only production change is the EpromDatabase de-singleton. Next: Phase 37 (ruff + ruff-format + mypy + CI gate).*
+*v1.8 milestone started 2026-05-27: Host CLI Structural Cleanup (firestarter_app). The previously-proposed Read-Bug RCA milestone renumbered v1.8 → v1.9 (cleanup took the v1.8 slot as pure-software, non-hardware-gated work that also de-risks the host read path). Scope locked via /gsd-new-milestone: full restructure, argparse→Click, flat layout kept, ruff+ruff-format+mypy+CI gate, tests-first on untested core. Branch `v1.8-app-cleanup`. Phases continue at 36.*
