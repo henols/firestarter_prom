@@ -113,6 +113,28 @@ Plans:
 
 **UI hint:** no
 
+**Plans:** 5 plans (5 waves — strict dependency chain; this milestone runs executors sequentially, worktrees off)
+Plans:
+**Wave 1**
+
+- [ ] 38-01-PLAN.md — STRUCT-04: consolidate 8 exception classes into exceptions.py + repoint all sites (wave 1)
+
+**Wave 2** *(blocked on Wave 1; touches serial_comm.py)*
+
+- [ ] 38-02-PLAN.md — STRUCT-01: extract frame_parser.py + serial_comm re-export landmine (D-07); test_decoder.py unchanged (wave 2)
+
+**Wave 3** *(blocked on Wave 2; codec needs frame_parser._decode_param; touches serial_comm.py)*
+
+- [ ] 38-03-PLAN.md — STRUCT-02: extract codec.format_message (+ D-08 _decode_param import) + new tests/test_codec.py (wave 3)
+
+**Wave 4** *(blocked on Wave 1; independent of 02/03; touches eprom_operations.py)*
+
+- [ ] 38-04-PLAN.md — STRUCT-03: extract address_parser.py (ValueError contract) + call-site wrap (D-12/D-13) + new tests/test_address_parser.py (wave 4)
+
+**Wave 5** *(blocked on Waves 3+4; touches serial_comm.py + eprom_operations.py)*
+
+- [ ] 38-05-PLAN.md — STRUCT-05: dead-code sweep (delete read_data_block, globals() → COMMAND_NAMES[cmd]) (wave 5)
+
 #### Phase 39: Database Cleanup + chip_resolver
 
 **Goal:** The 9× chip-lookup boilerplate copy-pasted across handlers is eliminated by a single `resolve_chip()` function. All `from firestarter.constants import *` star-imports are replaced with named imports (prerequisite for tightening the mypy gate). Wire-protocol constants are consolidated with clear firmware-sync markers; `COMMAND_FW_VERSION` is verified present (added if missing). The DIP→RURP pin-mapping documentation is clarified to eliminate the apparent "two sources of truth" ambiguity.
