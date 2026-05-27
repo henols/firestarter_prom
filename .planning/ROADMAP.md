@@ -96,7 +96,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 37-03-PLAN.md — extend ci.yml (all-PR trigger + folded gate steps + .[test] install) + .pre-commit-config.yaml (TOOL-03, wave 3)
+- [x] 37-03-PLAN.md — extend ci.yml (all-PR trigger + folded gate steps + .[test] install) + .pre-commit-config.yaml (TOOL-03, wave 3)
 
 #### Phase 38: Low-Risk Extractions
 
