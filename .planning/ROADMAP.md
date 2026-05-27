@@ -88,7 +88,7 @@ Plans:
 **Plans:** 3 plans (3 waves)Plans:
 **Wave 1**
 
-- [ ] 37-01-PLAN.md — ruff + mypy config in pyproject.toml + green-baseline transform (format / import-sort / 2× noqa) + .git-blame-ignore-revs (TOOL-01, wave 1)
+- [x] 37-01-PLAN.md — ruff + mypy config in pyproject.toml + green-baseline transform (format / import-sort / 2× noqa) + .git-blame-ignore-revs (TOOL-01, wave 1)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 

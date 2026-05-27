@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.8
 milestone_name: — Host CLI Structural Cleanup
 status: executing
-last_updated: "2026-05-27T12:52:38.884Z"
-last_activity: 2026-05-27 -- Phase 37 planning complete
+last_updated: "2026-05-27T12:58:02.704Z"
+last_activity: 2026-05-27 -- Phase 37 execution started
 progress:
   total_phases: 8
   completed_phases: 1
@@ -20,10 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: 36 (characterization-test-baseline) — ✓ COMPLETE (verified: passed)
+Phase: 37 (tooling-baseline-ci-gate) — EXECUTING
+Plan: 1 of 3
 Next: Phase 37 (Tooling Baseline + CI Gate) — not started
-Status: Ready to execute
-Last activity: 2026-05-27 -- Phase 37 planning complete
+Status: Executing Phase 37
+Last activity: 2026-05-27 -- Phase 37 execution started
 
 ## Project Reference
 
@@ -32,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-27)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 37 — Tooling Baseline + CI Gate (Phase 36 complete + verified)
+**Current focus:** Phase 37 — tooling-baseline-ci-gate
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
