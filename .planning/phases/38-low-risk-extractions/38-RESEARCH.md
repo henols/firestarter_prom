@@ -726,17 +726,19 @@ from firestarter.frame_parser import (  # noqa: F401  — re-exports for test_de
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **`_REVISION_SILKSCREEN` uses REVISION_* via star-import in serial_comm.py; when it moves to codec.py it needs explicit imports of all 7 REVISION_* names.**
    - What we know: All 7 names are: `REVISION_0, REVISION_1, REVISION_2_0, REVISION_2_1, REVISION_2_2, REVISION_2_3, REVISION_UNKNOWN`
    - What's unclear: Whether the planner wants to use explicit named imports or keep a partial star-import in codec.py until Phase 39
    - Recommendation: Use explicit named imports in codec.py (it's a new file; no legacy star-import to preserve). This sets the right pattern.
+   - **RESOLVED (plan):** Plan 38-03 Task 2 uses explicit `REVISION_*` named imports in codec.py and drops the `# noqa: F405` annotations (PATTERNS landmine #3).
 
 2. **`_operation_context` also uses `globals()` at line 232 for `operation_name` logging, but this local is yielded out in `yield command_dict, buffer_size, operation_name`. Does the planner want to keep the `operation_name` local in `_operation_context` or unify the replacement?**
    - What we know: Both sites (170 and 232) perform the identical globals() lookup. Line 170 is in `_setup_operation`; line 232 is in `_operation_context`.
    - What's unclear: D-15 says "replace both" — confirmed. Both become `COMMAND_NAMES[cmd]`.
    - Recommendation: Replace both with `COMMAND_NAMES[cmd]` per D-15. No ambiguity.
+   - **RESOLVED (plan):** Plan 38-05 Task 1 replaces both globals() sites (170 and 232) with `COMMAND_NAMES[cmd]` per D-15.
 
 ---
 
