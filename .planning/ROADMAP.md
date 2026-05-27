@@ -64,8 +64,8 @@
 Plans:
 **Wave 1**
 
-- [ ] 36-01-PLAN.md — Foundations: pyproject `test` dep group (syrupy) + EpromDatabase de-singleton seam (wave 1)
-- [ ] 36-02-PLAN.md — TEST-04 firmware-parity extension (COMMAND_*/FLAG_*/CTRL_*) + TEST-02 serial frame-parse pin (wave 1)
+- [x] 36-01-PLAN.md — Foundations: pyproject `test` dep group (syrupy) + EpromDatabase de-singleton seam (wave 1)
+- [x] 36-02-PLAN.md — TEST-04 firmware-parity extension (COMMAND_*/FLAG_*/CTRL_*) + TEST-02 serial frame-parse pin (wave 1)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 

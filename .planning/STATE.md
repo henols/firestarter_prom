@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.8
 milestone_name: — Host CLI Structural Cleanup
 status: executing
-last_updated: "2026-05-27T08:35:54.879Z"
-last_activity: 2026-05-27 -- Phase 36 planning complete
+last_updated: "2026-05-27T08:51:52.297Z"
+last_activity: 2026-05-27 -- Phase 36 execution started
 progress:
   total_phases: 8
   completed_phases: 0
   total_plans: 4
-  completed_plans: 0
+  completed_plans: 2
   percent: 0
 ---
 
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: Not started (roadmap locked — ready to plan Phase 36)
-Plan: —
-Status: Ready to execute
-Last activity: 2026-05-27 -- Phase 36 planning complete
+Phase: 36 (characterization-test-baseline) — EXECUTING
+Plan: 3 of 4 (Wave 1 complete: 36-01, 36-02)
+Status: Executing Phase 36 — Wave 2
+Last activity: 2026-05-27 -- Phase 36 Wave 1 complete (36-01, 36-02); both submodule suites green
 
 ## Project Reference
 
@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-27)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** v1.8 — Host CLI Structural Cleanup (firestarter_app). Restructure the Python host code (decompose god functions, argparse→Click, split serial layer, consolidate constants, unify errors, tests-first, ruff+ruff-format+mypy gate) without changing the wire protocol. Read-Bug RCA renumbered to v1.9 (PROPOSED).
+**Current focus:** Phase 36 — characterization-test-baseline
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
