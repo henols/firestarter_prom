@@ -1,10 +1,10 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.8
-milestone_name: — Host CLI Structural Cleanup (firestarter_app)
-status: planning
-last_updated: "2026-05-27T00:00:00.000Z"
-last_activity: 2026-05-27 -- v1.8 roadmap created (Host CLI Structural Cleanup, Phases 36-43, 27 requirements mapped)
+milestone_name: — Host CLI Structural Cleanup
+status: Roadmap created — v1.8 (Host CLI Structural Cleanup) phases 36-43 defined
+last_updated: "2026-05-27T07:59:32.086Z"
+last_activity: 2026-05-27 — Roadmap created for v1.8 (8 phases, 30 requirements mapped, GATE-1.8 standing gate defined)
 progress:
   total_phases: 8
   completed_phases: 0
@@ -61,6 +61,7 @@ from upstream XML → DB → wire JSON → firmware handler. No guessing.
 **Coverage:** 30/30 v1.8 requirements mapped to exactly one phase. No orphans, no duplicates. GATE-1.8 (a–e) is a standing cross-cutting gate, not mapped to a phase.
 
 **Phase-order rationale:**
+
 - Phase 36 first: safety net must precede all structural changes; parity test extension and wire-path characterization committed before constants or serial modules touched.
 - Phase 37 before restructuring: formatting enforcement before structural diffs prevents mixed noise; CI gate catches regressions immediately.
 - Phase 38 (exceptions.py) before Phases 39, 40, 41: exception classes must exist before DB and serial layers import from exceptions.py.
@@ -439,5 +440,6 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | todo | large-read-data-jitter-uno328pb.md | **in scope for v1.9** — Bug A + Bug B RCA seed substrate ready | v1.9 (proposed) |
 | todo | w27c512-eeprom-misclassification.md | HIGH — operator-tagged asap | v1.9+ |
 | todo | avrdude-mcu-detection-fallback.md | low — host CLI enhancement | v1.9+ |
+| todo | serial-cobs-resync-data-path.md | low — protocol robustness; PacketSerial assessed/not adopted; independent of Bug A/B (hardware) | v1.8+ |
 
 Operator-authorized close 2026-05-21 ("close the milestone"). v1.6 STARTED 2026-05-21; roadmap created 2026-05-21.
