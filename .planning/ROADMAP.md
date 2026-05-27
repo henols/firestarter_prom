@@ -36,7 +36,7 @@
 
 - [x] **Phase 36: Characterization Test Baseline** (completed 2026-05-27) — Write characterization (golden) tests for the currently-untested CLI surface, serial frame-parse path, and EPROM database layer; extend firmware-contract parity test; remove EpromDatabase singleton (prerequisite for testability). Safety net committed before any structural change.
 - [x] **Phase 37: Tooling Baseline + CI Gate** (completed 2026-05-27) — Configure ruff, ruff-format, and mypy in `pyproject.toml`; run format + baseline pass on the codebase; add GitHub Actions CI step enforcing lint/format/type with coverage gate. Zero new violations permitted after this phase.
-- [ ] **Phase 38: Low-Risk Extractions** — Extract `frame_parser.py` (CRC + decode, pure functions), `codec.py` (message formatting), `address_parser.py` (hex/decimal parsing), and `exceptions.py` (consolidated exception hierarchy); delete confirmed dead code (`read_data_block`, `globals()` introspection, commented-out blocks). Mechanical moves verified by the full test suite after each file move.
+- [x] **Phase 38: Low-Risk Extractions** (completed 2026-05-27) — Extract `frame_parser.py` (CRC + decode, pure functions), `codec.py` (message formatting), `address_parser.py` (hex/decimal parsing), and `exceptions.py` (consolidated exception hierarchy); delete confirmed dead code (`read_data_block`, `globals()` introspection, commented-out blocks). Mechanical moves verified by the full test suite after each file move.
 - [ ] **Phase 39: Database Cleanup + chip_resolver** — Introduce `chip_resolver.py` with `resolve_chip()` eliminating the 9× chip-lookup copy-paste; add type hints + docstrings to `EpromDatabase`; replace all `from firestarter.constants import *` star-imports with named imports; verify/add `COMMAND_FW_VERSION`; consolidate wire-protocol constants.
 - [ ] **Phase 40: Serial / Transport Restructure** — Clean up `serial_comm.py` post-Phase-38: extract `_validate_firmware_version` as a testable `@staticmethod`; add type hints to all public `SerialCommunicator` methods; delete `STATE_MACHINE_PREFIXES` dead code; confirm `_read_and_parse_lines` generator body is byte-identical (add `# DO NOT MODIFY — v1.9 RCA territory` marker).
 - [ ] **Phase 41: CLI Migration argparse → Click** — Migrate from argparse to Click; create `cli_handlers.py` with one `@cli.command()` per user command; reduce `main()` to ≤ 50 lines; handle all five argparse→Click behavioral traps explicitly; fix `build_arg_flags` latent bug (INTENTIONAL BEHAVIOR CHANGE documented); confirm pip entry point and shell-completion behavior with operator.
@@ -214,11 +214,11 @@ Plans:
 | TOOL-01 | Phase 37 | Complete |
 | TOOL-02 | Phase 37 | Complete |
 | TOOL-03 | Phase 37 | Complete |
-| STRUCT-01 | Phase 38 | Pending |
-| STRUCT-02 | Phase 38 | Pending |
-| STRUCT-03 | Phase 38 | Pending |
-| STRUCT-04 | Phase 38 | Pending |
-| STRUCT-05 | Phase 38 | Pending |
+| STRUCT-01 | Phase 38 | Complete |
+| STRUCT-02 | Phase 38 | Complete |
+| STRUCT-03 | Phase 38 | Complete |
+| STRUCT-04 | Phase 38 | Complete |
+| STRUCT-05 | Phase 38 | Complete |
 | DATA-01 | Phase 39 | Pending |
 | DATA-02 | Phase 39 | Pending |
 | DATA-03 | Phase 39 | Pending |

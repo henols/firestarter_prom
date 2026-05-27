@@ -37,11 +37,11 @@ The behavior gate is **"refactor + fix bugs found"**: internal structure changes
 
 ### Module Decomposition — low-risk extractions (STRUCT)
 
-- [ ] **STRUCT-01**: Frame parsing is extracted into a new flat `frame_parser.py` (CRC8, `_decode_param`, `_decode_id_frame`, structured `Response`/`LogMessage` types), testable without serial I/O; `test_decoder.py` passes unchanged.
-- [ ] **STRUCT-02**: Message decode/format is extracted into a new flat `codec.py` (`format_message`, revision-silkscreen rendering), separated from frame parsing and from logging side effects.
-- [ ] **STRUCT-03**: Address/size string parsing is extracted into a new flat `address_parser.py` with explicit validation; `_setup_operation` consumes it.
-- [ ] **STRUCT-04**: Exception classes are consolidated into a single flat `exceptions.py` hierarchy (from `serial_comm`, `eprom_operations`, `hardware`).
-- [ ] **STRUCT-05**: Confirmed dead code is removed (`read_data_block` and commented-out blocks); `globals()`-introspection patterns are replaced with explicit references.
+- [x] **STRUCT-01**: Frame parsing is extracted into a new flat `frame_parser.py` (CRC8, `_decode_param`, `_decode_id_frame`, structured `Response`/`LogMessage` types), testable without serial I/O; `test_decoder.py` passes unchanged. *(Phase 38: `_decode_id_frame` intentionally STAYS in `serial_comm.py` per locked decision D-06 — it is package-coupled to CATALOG + codec; its relocation is deferred to Phase 40. The pure primitives + `test_decoder.py`-unchanged intent are delivered.)*
+- [x] **STRUCT-02**: Message decode/format is extracted into a new flat `codec.py` (`format_message`, revision-silkscreen rendering), separated from frame parsing and from logging side effects.
+- [x] **STRUCT-03**: Address/size string parsing is extracted into a new flat `address_parser.py` with explicit validation; `_setup_operation` consumes it.
+- [x] **STRUCT-04**: Exception classes are consolidated into a single flat `exceptions.py` hierarchy (from `serial_comm`, `eprom_operations`, `hardware`).
+- [x] **STRUCT-05**: Confirmed dead code is removed (`read_data_block` and commented-out blocks); `globals()`-introspection patterns are replaced with explicit references.
 
 ### Database & Chip Resolution (DATA)
 
@@ -118,11 +118,11 @@ Which phases cover which requirements. Populated during roadmap creation.
 | TOOL-01 | Phase 37 | Complete |
 | TOOL-02 | Phase 37 | Complete |
 | TOOL-03 | Phase 37 | Complete |
-| STRUCT-01 | Phase 38 | Pending |
-| STRUCT-02 | Phase 38 | Pending |
-| STRUCT-03 | Phase 38 | Pending |
-| STRUCT-04 | Phase 38 | Pending |
-| STRUCT-05 | Phase 38 | Pending |
+| STRUCT-01 | Phase 38 | Complete |
+| STRUCT-02 | Phase 38 | Complete |
+| STRUCT-03 | Phase 38 | Complete |
+| STRUCT-04 | Phase 38 | Complete |
+| STRUCT-05 | Phase 38 | Complete |
 | DATA-01 | Phase 39 | Pending |
 | DATA-02 | Phase 39 | Pending |
 | DATA-03 | Phase 39 | Pending |

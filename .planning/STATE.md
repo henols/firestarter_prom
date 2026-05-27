@@ -4,13 +4,13 @@ milestone: v1.8
 milestone_name: — Host CLI Structural Cleanup
 status: executing
 last_updated: "2026-05-27T15:53:42.779Z"
-last_activity: 2026-05-27 -- Phase 38 all 5 plans executed; verification pending
+last_activity: 2026-05-27 -- Phase 38 (low-risk-extractions) COMPLETE — verified passed
 progress:
   total_phases: 8
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 12
   completed_plans: 12
-  percent: 25
+  percent: 38
 ---
 
 # Project State
@@ -20,12 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: 38 (low-risk-extractions) — EXECUTING
-Plan: 5 of 5 complete — all plans executed (38-01..38-05)
-Plans: 5 planned (38-01..38-05); 5 complete; strict dependency chain, sequential execution
-Next: Phase 38 verification (code review → verify_phase_goal); then mark phase complete
-Status: Executing Phase 38
-Last activity: 2026-05-27 -- Phase 38 execution started
+Phase: 38 (low-risk-extractions) — COMPLETE ✓ (verified passed 2026-05-27)
+Plans: 5/5 complete (38-01..38-05); STRUCT-01..05 delivered
+Next: Phase 39 — Database Cleanup + chip_resolver (DATA-01..04). Start with /gsd-discuss-phase 39 or /gsd-plan-phase 39.
+Status: Phase 38 complete; Phase 39 not started
+Last activity: 2026-05-27 -- Phase 38 complete (5/5 plans, verified passed; code review advisory issues_found, 0 blockers)
 
 ## Project Reference
 
@@ -34,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-27)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 38 — low-risk-extractions
+**Current focus:** Phase 39 — Database Cleanup + chip_resolver (Phase 38 complete + verified passed)
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
