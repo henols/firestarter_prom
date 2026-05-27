@@ -92,7 +92,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 37-02-PLAN.md — measure + record mypy watermark + tools/check_mypy_watermark.py + coverage config + pytest-cov/types-pyserial deps (TOOL-02, TOOL-03, wave 2)
+- [x] 37-02-PLAN.md — measure + record mypy watermark + tools/check_mypy_watermark.py + coverage config + pytest-cov/types-pyserial deps (TOOL-02, TOOL-03, wave 2)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
