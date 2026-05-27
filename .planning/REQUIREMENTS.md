@@ -1,94 +1,122 @@
-# Requirements — Milestone v1.7: RURP Shield Hardware Investigation & Version Detection
+# Requirements: Firestarter v1.8 — Host CLI Structural Cleanup (firestarter_app)
 
-**Status:** Active — defined 2026-05-22 at milestone start; phase mappings locked 2026-05-22.
-**Milestone goal:** Produce a versioned, authoritative reference for every known RURP shield revision (silkscreen text, electrical/mechanical schematic, label-to-code-alias map, per-rev capabilities matrix, inter-rev difference table) and design the next-rev shield-version-detect resistor + firmware ADC read so future hardware-touch work is grounded in known-good shield schematics rather than ask-the-operator memory.
+**Defined:** 2026-05-27
+**Core Value:** Algorithm-first dispatch stays intact — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware. This milestone makes the **host code** that drives that flow structured, readable, and spaghetti-free without changing the wire protocol.
 
-**Source upstream:** `https://github.com/AndersBNielsen/Relatively-Universal-ROM-Programmer/tree/main/hardware` (current revs on `main`; older revs Rev 0 + Rev 1 mined from git history).
+**Milestone type:** Refactoring (no new end-user features). Host-only — the `firestarter` firmware sub-repo is NOT modified.
 
-**Why now:** v1.6 Wave B FAIL on Phase 29 burned two bench attempts on chip-swap diagnostics to disambiguate chip-state from board/shield/firmware. Memory `user_shield_revisions` notes the EEPROM `hw_revision` byte can't distinguish operator's Rev 2.2 / Rev 2.0 / Modified Rev 0. v1.7 closes that ask-the-operator loop and gives v1.6 Phase 27 RCA re-open a labeled-schematic substrate to design instrumented A/B builds.
+---
 
-## v1.7 Requirements
+## GATE-1.8 — Non-Regression Contract (applies to EVERY phase)
 
-### Hardware Inventory (HW-INV)
+The behavior gate is **"refactor + fix bugs found"**: internal structure changes freely; latent bugs and dead code discovered during the refactor MAY be fixed, but any intentional behavior change is documented in the commit message (convention: `INTENTIONAL BEHAVIOR CHANGE: …`) and in MILESTONES.md. Otherwise:
 
-- [ ] **HW-INV-01**: Every RURP shield revision ever published in upstream `AndersBNielsen/Relatively-Universal-ROM-Programmer` (current revs on `main` + older revs Rev 0 / Rev 1 recoverable via `git log -p` / `git log --diff-filter=D`) is identified with a unique revision identifier matching its silkscreen-version string
-- [ ] **HW-INV-02**: Each identified revision is recorded in `.planning/v1.7-SHIELD-REVS.md` with: silkscreen-version string, upstream commit/tag that introduced it, schematic file reference (path in upstream repo), date introduced (from commit history)
-- [ ] **HW-INV-03**: Operator's three on-hand boards (Rev 2.2, Rev 2.0, modified Rev 0) are photographed (top + bottom views, sufficient resolution to read silkscreen) and the photos archived under `.planning/v1.7/photos/<rev>/`; any operator-side rework hacks (e.g. the Modified Rev 0 hardware-bug-A/B mod) are annotated in the photo or accompanying note
+- [ ] **GATE-1.8a**: Wire protocol stays byte-identical (the `_read_and_parse_lines` atomic-read invariant preserved; serial framing/CRC/timeout semantics unchanged).
+- [ ] **GATE-1.8b**: End-user CLI surface preserved — command names, flags, defaults, exit codes, and output. Verified by characterization (golden) tests.
+- [ ] **GATE-1.8c**: Firmware/app constant contract preserved — `constants.py` values stay equal to `firestarter/include/firestarter.h` (and the v1.7 alias/revision headers); guarded by parity tests.
+- [ ] **GATE-1.8d**: The host read path is **ring-fenced** — changes to `read_eprom()` / `read_data_block()` are structural-only, so the v1.9 RCA's 15 N=5 W27C512 baseline binaries remain valid. Any non-structural read-path change is flagged and deferred to v1.9.
+- [ ] **GATE-1.8e**: Full test suite (existing + new) green; pip entry point (`firestarter`) still installs and runs.
 
-### Silkscreen Capture (SILK)
+---
 
-- [ ] **SILK-01**: For each identified shield revision, the exact silkscreen-version string is captured verbatim (e.g. `RURP Rev 2.2`, `RURP v2.0`, `RURP Rev 0` — whatever the silkscreen actually says) and stored as the canonical revision identifier in `.planning/v1.7-SHIELD-REVS.md`
+## v1 Requirements
 
-### Inter-Rev Differences (DIFF)
+### Test Safety Net (TEST) — pin behavior before restructuring
 
-- [ ] **DIFF-01**: An inter-rev electrical difference table is captured in `.planning/v1.7-SHIELD-REVS.md` covering at minimum: Arduino pin mapping (Dx/Ax → RURP signal), VPP regulator wiring (input pin, output pin, enable pin, feedback divider), voltage divider values (R1/R2 from `rurp_configuration_t`), control-line routing (CE/WE/OE per algorithm), jumper/strap positions
-- [ ] **DIFF-02**: Inter-rev mechanical differences are captured: board outline / mounting holes, ZIF socket presence + orientation, header positions, any notable component changes (DIP package vs SMD, regulator family, etc.). Differences that have no electrical impact are noted but not gated.
+- [ ] **TEST-01**: Characterization (golden) tests pin the current CLI command surface — `list`, `info`, `read`, `write`, `verify`, `blank`, `erase`, `id`, and the `dev` subcommands — capturing output, exit codes, and flag-parsing edge cases via Click's `CliRunner` + snapshot (syrupy), BEFORE the Click migration.
+- [ ] **TEST-02**: Characterization tests pin the serial frame-parse path (`_read_and_parse_lines` preamble→body→terminator sequence + sliding-window timeout) using the existing `BytesIO` fake-serial fixture, BEFORE the serial split.
+- [ ] **TEST-03**: The `EpromDatabase` singleton is replaced with injectable construction (DI via Click context), so the database, chip lookup, and EPROM operations are independently testable; unit tests cover `get_eprom`, `convert_to_programmer`, and DIP→RURP pin translation.
+- [ ] **TEST-04**: The firmware-contract parity test is extended from `REVISION_*` only to also cover `COMMAND_*`, `FLAG_*`, and `CTRL_*`, asserting each value equals the corresponding firmware header literal.
+- [ ] **TEST-05**: Two known latent bugs are characterized as **bugs, not pinned as correct**: `build_arg_flags` `if "force" in args` attribute-vs-truthiness check, and a possibly-missing `COMMAND_FW_VERSION` in `constants.py`. Tests assert the corrected behavior once fixed.
 
-### Per-Rev Capabilities (CAPS)
+### Tooling & CI Quality Gate (TOOL)
 
-- [ ] **CAPS-01**: A per-rev capability matrix in `.planning/v1.7-SHIELD-REVS.md` declares for each revision: chip families supported (28-pin DIP UV-EPROM, 32-pin DIP UV-EPROM, parallel EEPROM, AMD-style flash, Intel flash, SRAM), max VPP, max VCC, address-bus width, supported firmware algorithms (0x05/0x06/0x07/0x08/0x0B/0x0D/0x0E/0x10/0x27/0x28/0x29 — subset per rev)
-- [ ] **CAPS-02**: Capability matrix is cross-checked against firmware code (`firestarter/src/algorithm_*.cpp`) — if a rev physically cannot support an algorithm (e.g. missing VPP regulator on Rev 0), that fact is documented and a firmware-side runtime guard is proposed (out-of-scope to implement in v1.7; recorded as a follow-up todo)
+- [ ] **TOOL-01**: `ruff` (lint) + `ruff format` configured in `pyproject.toml`; a baseline pass (`ruff check --add-noqa`) makes the tree green; selected rule categories documented (no `select = ["ALL"]`).
+- [ ] **TOOL-02**: `mypy` configured with a gradual per-module strategy + `types-pyserial`; the initial error count is recorded as a watermark; the gate is "no new errors," tightened to strict on modules as they are typed.
+- [ ] **TOOL-03**: A CI workflow runs `ruff check`, `ruff format --check`, and `mypy`, plus the test suite with a coverage gate (start ~60%, ratcheted up per phase), and fails the build on violations.
 
-### Label → Code Alias Migration (ALIAS)
+### Module Decomposition — low-risk extractions (STRUCT)
 
-- [ ] **ALIAS-01**: Every silkscreen label across all known revs is inventoried (e.g. `VPP`, `VPP_EN`, `WE`, `OE`, `CE`, `A0`..`A18`, `D0`..`D7`, `VCC`, `GND`, etc.) and recorded in a single canonical table in `.planning/v1.7-SHIELD-REVS.md`. The table maps silkscreen label → proposed code-side alias (descriptive identifier suitable for use in C++ + Python source). Alias naming convention: `PIN_<SUBSYSTEM>_<FUNCTION>` (e.g. `PIN_VPP_REGULATOR_ENABLE`, `PIN_DATA_BUS_BYTE_0`, `PIN_ADDRESS_BUS_A14`).
-- [ ] **ALIAS-02**: Aliases land as `#define` / `constexpr` declarations in `firestarter/include/rurp_pinout.h` (or equivalent header — fixed at plan time) and as constants in `firestarter_app/firestarter/constants.py` (or equivalent module). Existing call-sites that use bare pin numbers or shield-specific net names are migrated to the aliases. The migration is name-only — no wire-format or behavior changes.
-- [ ] **ALIAS-03**: GATE-1.7 non-regression — after the alias migration, compiled firmware `.hex` artifacts for all three boards (`uno`, `leonardo`, `uno328pb`) are byte-identical to pre-migration (modulo trivial symbol-name overhead, ≤ ~50 B). Pytest + Unity test suites stay green.
+- [ ] **STRUCT-01**: Frame parsing is extracted into a new flat `frame_parser.py` (CRC8, `_decode_param`, `_decode_id_frame`, structured `Response`/`LogMessage` types), testable without serial I/O; `test_decoder.py` passes unchanged.
+- [ ] **STRUCT-02**: Message decode/format is extracted into a new flat `codec.py` (`format_message`, revision-silkscreen rendering), separated from frame parsing and from logging side effects.
+- [ ] **STRUCT-03**: Address/size string parsing is extracted into a new flat `address_parser.py` with explicit validation; `_setup_operation` consumes it.
+- [ ] **STRUCT-04**: Exception classes are consolidated into a single flat `exceptions.py` hierarchy (from `serial_comm`, `eprom_operations`, `hardware`).
+- [ ] **STRUCT-05**: Confirmed dead code is removed (`read_data_block` and commented-out blocks); `globals()`-introspection patterns are replaced with explicit references.
 
-### Shield-Version-Detect Hardware Design (DETECT-HW)
+### Database & Chip Resolution (DATA)
 
-- [ ] **DETECT-HW-01**: A schematic delta for the next-rev shield (likely Rev 2.3) is designed and documented in `.planning/v1.7-SHIELD-REVS.md`: a resistor divider into an Arduino ADC pin (pin selected to not conflict with any currently-used RURP signal across any known rev; verified against CAPS-01 capability matrix), with rev-specific resistor values that produce clearly distinguishable voltage bands per rev (≥ ~0.3V separation against 10-bit ADC noise floor)
-- [ ] **DETECT-HW-02**: The schematic delta includes a per-rev expected-ADC-band table (rev string → expected ADC value range), suitable for firmware lookup at boot. Initial table seeds the next-rev (Rev 2.3) entry; existing Rev 0 / 2.0 / 2.2 boards have no detect resistor and produce floating/grounded ADC readings — captured in the table as the "rev_unknown" fall-through band.
+- [ ] **DATA-01**: A new flat `chip_resolver.py` provides a single `resolve_chip(name) -> programmer_config` used by every command — eliminating the chip-lookup boilerplate copy-pasted across the 9 handlers.
+- [ ] **DATA-02**: There is a single source of truth for DIP→RURP pin mapping — the hardcoded `pin_conversions` dict / `pinouts.json` duplication is consolidated to one authoritative source.
+- [ ] **DATA-03**: `from firestarter.constants import *` star-imports are replaced with named imports across all modules (readability + mypy traceability).
+- [ ] **DATA-04**: Wire-protocol constants (commands, flags, control bits, message IDs) are consolidated into one authoritative module with clear firmware-sync markers; `COMMAND_FW_VERSION` is verified present (added if missing).
 
-### Shield-Version-Detect Firmware Plumbing (DETECT-FW)
+### Serial / Transport Restructure (SERIAL)
 
-- [ ] **DETECT-FW-01**: Firmware reads the ADC pin at boot (or on first handshake), looks up the voltage band in the DETECT-HW-02 table, and reports the detected silkscreen-rev string in the handshake payload (extends `MSG_OK_FW_HANDSHAKE` or adds a sibling INFO message — exact wire format finalized at plan time). On pre-detect-resistor boards (floating/grounded ADC), the report is `rev_unknown` and firmware falls through to honoring the operator-configured `hw_revision` byte in EEPROM (existing behavior preserved).
-- [ ] **DETECT-FW-02**: GATE-1.7 non-regression — existing pre-detect-resistor boards continue to handshake byte-identical to v1.6 baseline (modulo the additive `rev_unknown` report, which is documented as a new INFO emit). Chip programming + read paths byte-identical. Firmware compiles cleanly for all three board targets without requiring physical fabrication of the next-rev shield.
+- [ ] **SERIAL-01**: `SerialCommunicator` is reduced to transport + command dispatch; the firmware-handshake concern is lifted out of port discovery (`_probe_port`); type hints added.
+- [ ] **SERIAL-02**: `_validate_firmware_version` is extracted as a testable static method with unit tests for the version-guard logic.
+- [ ] **SERIAL-03**: Wire behavior stays byte-identical — the `_read_and_parse_lines` generator body is unchanged (relocated callees only); verified by existing + new tests (satisfies GATE-1.8a).
 
-### Documentation & Close (DOC, MS)
+### CLI Migration to Click (CLI)
 
-- [ ] **DOC-01**: `.planning/v1.7-SHIELD-REVS.md` is the canonical reference. README updates in `firestarter/` + `firestarter_app/` cross-link to it for "which shield rev do I have" + "what does this silkscreen label mean in code" lookups. PROJECT.md "Validated" section grows entries for the alias migration + detect plumbing.
-- [ ] **MS-01**: Milestone v1.7 closed via `/gsd-complete-milestone`; MILESTONES.md entry written; phase artifacts archived under `.planning/milestones/v1.7-phases/`.
+- [ ] **CLI-01**: The CLI is migrated from argparse to Click; every command, flag, default, and exit code is preserved (verified by TEST-01), with the five documented argparse→Click traps handled explicitly (exit codes / `return 1`, prefix matching, `store_false` polarity for `--no-blank-check`, the `--pre`/`--firmware-version`/`--stable` mutually-exclusive group, the firmware-version type-validator).
+- [ ] **CLI-02**: One Click command per user command lives in a new flat `cli_handlers.py`; the 418-line `main()` becomes a thin Click group entry point.
+- [ ] **CLI-03**: The `build_arg_flags` latent bug is fixed (documented intentional behavior change per GATE-1.8).
+- [ ] **CLI-04**: The pip entry point (`firestarter`) is preserved and a CLI smoke test runs in CI; shell-completion behavior is either preserved or explicitly dropped with operator sign-off (the `argcomplete` question).
 
-## Future Requirements (deferred to later milestones)
+### Error Handling & Quality Sweep (ERR)
 
-- **v1.6 resume** — Fix the Read Bug. Phase 27 RCA re-open uses v1.7's labeled-schematic + per-rev capability table + shield-version-detect firmware plumbing to design instrumented A/B builds with known-good schematics. First experiment: pre-Phase-28-firmware A/B test on Leonardo (build `firestarter/v1.6-read-bug~2`, sideload, re-probe).
-- **w27c512-eeprom-misclassification fix** — separate HIGH-priority backlog; chip-database routing bug; carry to its own milestone after v1.6 closes.
-- **avrdude-based MCU-detection fallback** — low priority; blank-chip recovery path.
-- **v1.1 Phase 4 FM1608 byte-0 read bug** — separate hardware-gated investigation, parked since 2026-05-18.
-- **Physical fabrication of next-rev (Rev 2.3) shield** — operator-side; out of scope here. v1.7 delivers design + firmware plumbing only.
-- **Runtime algorithm-vs-rev capability guards** (firmware refuses an algorithm if the bench rev physically cannot support it) — captured as a CAPS-02 follow-up todo; implement in a later milestone once CAPS matrix is solid.
+- [ ] **ERR-01**: A consistent error convention — service/transport layers raise typed exceptions; the Click boundary maps them to stable exit codes/messages; no bare `except:`.
+- [ ] **ERR-02**: Type hints on all public functions in touched modules (those modules are mypy-clean under the configured strictness).
+- [ ] **ERR-03**: Module and public-function docstrings explaining intent; naming normalized to snake_case (no camelCase legacy); remaining dead code removed.
+
+### Documentation & Milestone Close (DOC)
+
+- [ ] **DOC-01**: `firestarter_app` README / contributor docs updated to reflect the new flat-module structure and the tooling workflow (ruff / mypy / pytest / coverage).
+- [ ] **DOC-02**: MILESTONES.md v1.8 entry written; PROJECT.md "Validated" updates; phase directories archived under `.planning/milestones/v1.8-phases/`.
+- [ ] **MS-01**: GATE-1.8 verified end-to-end and the `firestarter_app` branch promoted (`v1.8-app-cleanup` → `beta` → `main`) per the established beta→stable pattern.
+
+---
+
+## Future Requirements (deferred)
+
+### v1.9 — Read-Bug RCA + Fix
+
+- **RCA-\***: Root-cause + fix the 64KB streaming-read byte-jitter (Bug A / Bug B). Depends on the read path being ring-fenced (GATE-1.8d) so the baseline binaries stay valid.
+- **PROTOSM-01**: Extract the `ProtocolStateMachine` from `serial_comm.py` (HIGH complexity) — explicitly deferred from v1.8.
+
+---
 
 ## Out of Scope
 
-- Fixing the v1.6 read-bug itself (v1.6 territory; resumes after v1.7 ships)
-- New chip support, new board MCU targets, new firmware features beyond DETECT-FW plumbing
-- Physical PCB manufacturing of the next-rev shield (operator orders/fabricates separately; v1.7 commits the schematic delta + firmware-side detect logic only)
-- EEPROM `rurp_configuration_t.hw_revision` byte semantics — preserved as legacy fall-back; no breaking change
-- v1.3 CMOS EPROM Family Hardware Validation resume (separate paused milestone, hardware-gated)
-- Beta release pipeline / lockstep coordination changes (v1.4 plumbing stays as-is)
-- RURP shield manufacturing instructions (operator-side concern)
+Explicitly excluded for v1.8. Documented to prevent scope creep.
+
+| Item | Reason |
+|------|--------|
+| Firmware (`firestarter/`) changes | Host-only milestone; firmware contract preserved + parity-tested, not modified |
+| Subpackage reorganization (cli/, serial/, ops/) | Operator decision: keep flat layout to minimize churn / preserve git blame |
+| async/asyncio rewrite | Over-engineering; serial I/O is fine synchronous |
+| Dependency-injection framework, plugin system (pluggy/click-plugins) | Over-abstraction for a CLI of this size |
+| Pydantic / new validation/serialization layer | Not needed; TypedDict + plain functions suffice |
+| `ProtocolStateMachine` extraction | HIGH-risk; deferred to v1.9 alongside the RCA |
+| The 64KB read-bug RCA/fix itself | Renumbered to v1.9 (hardware-gated); v1.8 only ring-fences the read path |
+| New chip support / new board target / new CLI features | Refactoring milestone — no new features |
+| Binary wire format / protocol changes | Wire protocol frozen by GATE-1.8a |
+
+---
 
 ## Traceability
 
-Phase mappings locked 2026-05-22 — every v1.7 requirement maps to exactly one phase. Coverage: 17/17 ✓.
+Which phases cover which requirements. Populated during roadmap creation.
 
-| REQ-ID       | Phase |
-|--------------|-------|
-| HW-INV-01    | Phase 31 |
-| HW-INV-02    | Phase 31 |
-| HW-INV-03    | Phase 31 |
-| SILK-01      | Phase 31 |
-| DIFF-01      | Phase 32 |
-| DIFF-02      | Phase 32 |
-| CAPS-01      | Phase 32 |
-| CAPS-02      | Phase 32 |
-| ALIAS-01     | Phase 33 |
-| ALIAS-02     | Phase 33 |
-| ALIAS-03     | Phase 33 |
-| DETECT-HW-01 | Phase 34 |
-| DETECT-HW-02 | Phase 34 |
-| DETECT-FW-01 | Phase 34 |
-| DETECT-FW-02 | Phase 34 |
-| DOC-01       | Phase 35 |
-| MS-01        | Phase 35 |
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| (filled by roadmapper) | — | Pending |
+
+**Coverage:**
+- v1 requirements: 27 (5 TEST + 3 TOOL + 5 STRUCT + 4 DATA + 3 SERIAL + 4 CLI + 3 ERR) + 3 DOC/MS = 27; plus GATE-1.8 (5 cross-cutting sub-clauses)
+- Mapped to phases: TBD (roadmapper)
+- Unmapped: TBD ⚠️
+
+---
+*Requirements defined: 2026-05-27*
+*Last updated: 2026-05-27 after initial definition (research-grounded: SUMMARY.md + STACK/FEATURES/ARCHITECTURE/PITFALLS)*
