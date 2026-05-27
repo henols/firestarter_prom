@@ -4,9 +4,9 @@ milestone: v1.8
 milestone_name: — Host CLI Structural Cleanup (firestarter_app)
 status: planning
 last_updated: "2026-05-27T00:00:00.000Z"
-last_activity: 2026-05-27 -- v1.8 milestone STARTED (Host CLI Structural Cleanup); prior Read-Bug RCA proposal renumbered to v1.9
+last_activity: 2026-05-27 -- v1.8 roadmap created (Host CLI Structural Cleanup, Phases 36-43, 27 requirements mapped)
 progress:
-  total_phases: 0
+  total_phases: 8
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -16,14 +16,14 @@ progress:
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-05-22
+**Updated:** 2026-05-27
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: Not started (roadmap locked — ready to plan Phase 36)
 Plan: —
-Status: Defining requirements — v1.8 (Host CLI Structural Cleanup) started
-Last activity: 2026-05-27 — Milestone v1.8 started (Host CLI Structural Cleanup, firestarter_app)
+Status: Roadmap created — v1.8 (Host CLI Structural Cleanup) phases 36-43 defined
+Last activity: 2026-05-27 — Roadmap created for v1.8 (8 phases, 30 requirements mapped, GATE-1.8 standing gate defined)
 
 ## Project Reference
 
@@ -32,16 +32,49 @@ See: `.planning/PROJECT.md` (updated 2026-05-27)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** v1.8 — Host CLI Structural Cleanup (firestarter_app). Restructure the Python host code (decompose god functions, argparse→Click, split serial layer, consolidate constants, unify errors, tests-first, ruff+black+mypy gate) without changing the wire protocol. Read-Bug RCA renumbered to v1.9 (PROPOSED).
+**Current focus:** v1.8 — Host CLI Structural Cleanup (firestarter_app). Restructure the Python host code (decompose god functions, argparse→Click, split serial layer, consolidate constants, unify errors, tests-first, ruff+ruff-format+mypy gate) without changing the wire protocol. Read-Bug RCA renumbered to v1.9 (PROPOSED).
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
 - v1.4 (Beta & Pre-release Deployment Pipeline) SHIPPED 2026-05-20 — 6/6 phases, 10/10 plans, ship tag 3.0.0b3, hardware-flash validated on Uno + Leonardo
 - v1.5 (Arduino Uno ATmega328PB Board Support) SHIPPED 2026-05-21 — 5/5 phases, 6/6 plans, ship tag 3.0.0b4, bench-validated on operator's 328PB-Uno via `urclock` bootloader. Three open backlog items carried forward to v1.6 (the read-bug fix is the v1.6 milestone scope; the other two carry further).
-- v1.6 (Fix the Read Bug) SHIPPED 2026-05-26 — 5/5 phases (26-30), 13 plans, ship tag 3.0.0b6 (beta-only). Ships as "diagnostic + revert" per D-17v2: Phase 28 v1 `437339b6` reverted via `ea25174`, `4f205e58` `_NOP()` settling preserved, `dev consistency-check` CLI shipped. Read-bug NOT fixed — carries to v1.8 as Bug A + Bug B RCA seed. Phase artifacts archived at `.planning/milestones/v1.6-phases/`.
-- **v1.7 (RURP Shield Hardware Investigation & Version Detection) STARTED 2026-05-22** — five phases (31-35); branch model `v1.7-shield-investigation` in all 3 repos
+- v1.6 (Fix the Read Bug) SHIPPED 2026-05-26 — 5/5 phases (26-30), 13 plans, ship tag 3.0.0b6 (beta-only). Ships as "diagnostic + revert" per D-17v2: Phase 28 v1 `437339b6` reverted via `ea25174`, `4f205e58` `_NOP()` settling preserved, `dev consistency-check` CLI shipped. Read-bug NOT fixed — carries to v1.9 as Bug A + Bug B RCA seed. Phase artifacts archived at `.planning/milestones/v1.6-phases/`.
+- v1.7 (RURP Shield Hardware Investigation & Version Detection) SHIPPED 2026-05-26 — 5 phases (31-35); per-rev capability table + labeled schematics + shield-version-detect firmware plumbing. Phase artifacts archived at `.planning/milestones/v1.7-phases/`.
 
 ## Roadmap Summary
+
+**v1.8 phases:** 8 (numbered 36-43, continues from v1.7 last phase 35). Granularity: Comprehensive.
+
+**GATE-1.8 (standing gate — applies to every phase):** Wire protocol byte-identical (a); CLI surface preserved (b); firmware/app constant contract preserved (c); read path ring-fenced for v1.9 RCA (d); test suite green + entry point installs (e).
+
+| Phase | Goal | Requirements |
+|-------|------|--------------|
+| 36. Characterization Test Baseline | Write CLI/serial/DB characterization tests + extend firmware-parity test + remove EpromDatabase singleton — safety net before any structural change | TEST-01, TEST-02, TEST-03, TEST-04, TEST-05 |
+| 37. Tooling Baseline + CI Gate | Configure ruff, ruff-format, mypy in pyproject.toml; format + baseline the codebase; add CI enforcement with coverage gate | TOOL-01, TOOL-02, TOOL-03 |
+| 38. Low-Risk Extractions | Extract frame_parser.py, codec.py, address_parser.py, exceptions.py; delete dead code (read_data_block, globals() introspection, commented blocks) | STRUCT-01, STRUCT-02, STRUCT-03, STRUCT-04, STRUCT-05 |
+| 39. Database Cleanup + chip_resolver | Introduce chip_resolver.py (resolve_chip eliminates 9× copy-paste); replace all star-imports with named imports; verify/add COMMAND_FW_VERSION; consolidate constants | DATA-01, DATA-02, DATA-03, DATA-04 |
+| 40. Serial / Transport Restructure | Extract _validate_firmware_version as @staticmethod; add type hints to SerialCommunicator public API; ring-fence _read_and_parse_lines with DO NOT MODIFY marker | SERIAL-01, SERIAL-02, SERIAL-03 |
+| 41. CLI Migration argparse → Click | Migrate to Click; create cli_handlers.py (one command per handler); main() ≤ 50 lines; fix build_arg_flags bug; handle all five argparse→Click traps | CLI-01, CLI-02, CLI-03, CLI-04 |
+| 42. Error Handling + Quality Sweep | Consistent exception/exit-code convention; no bare excepts; type hints complete; docstrings; naming normalized; final ruff+mypy sweep with raised coverage | ERR-01, ERR-02, ERR-03 |
+| 43. Documentation + Milestone Close | Update README + contributor docs; write MILESTONES.md entry; archive phases; verify GATE-1.8 end-to-end; promote branch → beta → main | DOC-01, DOC-02, MS-01 |
+
+**Coverage:** 30/30 v1.8 requirements mapped to exactly one phase. No orphans, no duplicates. GATE-1.8 (a–e) is a standing cross-cutting gate, not mapped to a phase.
+
+**Phase-order rationale:**
+- Phase 36 first: safety net must precede all structural changes; parity test extension and wire-path characterization committed before constants or serial modules touched.
+- Phase 37 before restructuring: formatting enforcement before structural diffs prevents mixed noise; CI gate catches regressions immediately.
+- Phase 38 (exceptions.py) before Phases 39, 40, 41: exception classes must exist before DB and serial layers import from exceptions.py.
+- Phase 39 (chip_resolver) before Phase 41: CLI handlers cannot call resolve_chip() until it exists and is tested; star-import removal is the prerequisite for tightening mypy.
+- Phase 40 (serial) before Phase 41: CLI handlers need stable exception import surface from serial cleanup.
+- Phase 41 (Click migration) last among structural changes: widest surface area + highest coupling; benefits from all prior safety infrastructure.
+- Phase 42 last before close: quality sweep most efficient post-restructure; performing it before would require doing it twice.
+- Phase 43 separate from Phase 42: milestone-close activities (README, MILESTONES.md, archive, branch promotion) are distinct from the quality sweep and deserve a clean "done" signal.
+
+**Why Phase 43 is separate (not folded into Phase 42):** Every prior milestone (v1.4, v1.5, v1.6, v1.7) has a dedicated close phase. The close phase delivers three distinct artifacts that are independent of code quality: updated end-user docs, the MILESTONES.md entry, and the branch promotion. Folding these into Phase 42 would make Phase 42's success criteria incoherent (mix of code quality + process). A clean phase boundary preserves the "Phase 42 = codebase green, Phase 43 = shipped" invariant.
+
+Full details: `.planning/ROADMAP.md` (v1.8 section).
+
+### v1.7 phases (archived — shipped 2026-05-26)
 
 **v1.7 phases:** 5 (numbered 31-35, continues from v1.6 last planned phase 30). Granularity: Comprehensive.
 
@@ -55,11 +88,9 @@ from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
 **Coverage:** 17/17 v1.7 requirements mapped to exactly one phase. No orphans, no duplicates.
 
-**Phase-order rationale:** Archaeology → difference matrix → label aliasing → detect design → close. Phases 31+32+33+35 are desk-side (operator's existing Rev 2.2 / 2.0 / Mod-Rev 0 boards used for label-photo capture + spot-check; no bench programming). Phase 34 has a desk-side wave (schematic delta + firmware compile + handshake report on synthetic/floating ADC) and an optional operator-on-bench wave (sanity-check ADC read on existing pre-detect-resistor boards reports `rev_unknown` cleanly without breaking handshake).
+Full details: `.planning/ROADMAP.md` (v1.7 section — now archived under Prior Milestones).
 
-Full details: `.planning/ROADMAP.md` (v1.7 section).
-
-### v1.6 phases (paused — preserved for resume)
+### v1.6 phases (archived — shipped 2026-05-26)
 
 **v1.6 phases:** 5 (numbered 26-30, continues from v1.5 last phase 25). Granularity: Comprehensive.
 
@@ -72,15 +103,6 @@ Full details: `.planning/ROADMAP.md` (v1.7 section).
 | 30. Documentation + Milestone Close | Move todo out of `pending/`, update PROJECT.md, ship MILESTONES.md entry, archive `.planning/milestones/v1.6-phases/`, sub-repo branch promotion | DOC-01, DOC-02, MS-01 |
 
 **Coverage:** 16/16 v1.6 requirements mapped to exactly one phase. No orphans, no duplicates.
-
-**Phase-order rationale:** Reproduce → Diagnose → Fix → Verify → Close. Each phase delivers an independently-verifiable artifact (diagnostic tool, RCA narrative, fix commits + tests, multi-board bench evidence, milestone close paperwork). Phases 26+30 are desk-side; Phase 27 is largely desk-side with optional bench instrumentation; Phase 28 is desk-side TDD; Phase 29 is the only exclusively-bench phase (the acceptance gate). The 3-shield A/B/C triage already proves the bug is transport-side and not RURP-hardware-specific — so RCA can proceed without continuous bench access, with bench used only for reproduction confirmation (Phase 26) + fix validation (Phase 29).
-
-**Bench-gated vs desk-side split (Phase 26 internal wave structure):**
-
-- Wave A (desk-side): Implement `firestarter dev consistency-check <chip> --runs N` host CLI command (REPRO-03 artifact). Lands without hardware. The command becomes the canonical post-fix regression check.
-- Wave B (operator-on-bench): Run the diagnostic against `uno`, `leonardo`, AND `uno328pb` to satisfy REPRO-01/02 + the per-board baseline rows of REPRO-03's evidence file. Falls naturally between Phase 26 Wave A and Phase 27 — operator decides whether to interleave (Wave A → bench → Wave B → start Phase 27) or batch (Wave A → Phase 27 desk-side → bench session covering Phase 26 Wave B + Phase 29 in one operator sitting).
-
-**Branch model:** Per memory `feedback-branching-firestarter-milestones` — all v1.6 work lands on `v1.6-read-bug` branches in all 3 repos. Sub-repos branch off current `beta` tips (post-v1.5 ship); meta-repo branches off `main`. Sub-repos `v1.6-read-bug` → `beta` merge happens at the Phase 29 boundary to trigger a fresh pre-release cut (e.g. `3.0.0b5` or `3.0.1bN`) for bench install via `firestarter fw -i --pre --force`. Promote `beta` → `main` only after operator green on the multi-board bench cycle. Instrumented builds for Phase 27 RCA may need their own one-off pre-release tag.
 
 Full details: `.planning/ROADMAP.md` (v1.6 section).
 
@@ -98,8 +120,6 @@ Full details: `.planning/ROADMAP.md` (v1.6 section).
 
 **Coverage:** 15/15 v1.5 requirements mapped to exactly one phase. No orphans, no duplicates.
 
-**Phase-order rationale:** Firmware target → release artifacts → host CLI → bench validation → docs + close. Phases 21–23 + 25 desk-side; Phase 24 is the only operator-on-bench phase (and the operator confirmed the 328PB-Uno + RURP shield is plugged in, so v1.5 is not hardware-gated the way v1.3 is).
-
 Full details: `.planning/ROADMAP.md` (v1.5 section).
 
 ### v1.4 phases (archived — preserved for reference)
@@ -112,20 +132,12 @@ Full details: `.planning/ROADMAP.md` (v1.5 section).
 |-------|------|--------------|
 | 15. Versioning & Locked-Step Coordination (Foundation) ✅ | Both sub-repos emit PEP 440 / matching pre-release identifiers on `beta`-branch builds; locked-step coordination mechanism finalised and documented | VER-01, VER-02, VER-03 |
 | 16. App Beta Release Pipeline | Push to `firestarter_app/beta` → GitHub Actions workflow → bump pre-release version → PyPI pre-release publish + GitHub Pre-release. Stable pipeline (GATE-01) preserved verbatim | REL-01, GATE-01 |
-| 17. Firmware Beta Release Pipeline | Push to `firestarter/beta` → GitHub Actions workflow → catalog/codegen/Unity/PIO gates → bump pre-release version → GitHub Pre-release with `.hex` artifacts per board. Stable pipeline (GATE-02) preserved verbatim | REL-02, GATE-02 |
+| 17. Firmware Beta Release Pipeline | Push to `firestarter/beta` → GitHub Actions workflow → catalog/codegen/Unity/PIO gates → bump pre-release version → GitHub Pre-release with `.hex` artifacts per board (Uno + Leonardo). Stable pipeline (GATE-02) preserved verbatim | REL-02, GATE-02 |
 | 18. Beta-Aware Firmware Downloader | `firestarter --install` defaults preserved (INST-01 non-regression); `--pre` fetches latest pre-release fw; `--firmware-version X.Y.Z[bN]` pins exact tag; `firestarter firmware list` enumerates releases; `_compare_versions` refactored to PEP 440-safe via `packaging.version.Version` | INST-01, INST-02, INST-03, INST-04 |
 | 19. Documentation | App README + firmware README beta sections (install via `pip install --pre` AND `firestarter --install --pre/--firmware-version/firmware list`; stability guarantee; issue reporting); `v1.4-RELEASE-PROCEDURES.md` documents release-engineer cutting workflow | DOC-01, DOC-02, DOC-03 |
 | 20. End-to-End Smoke Test + Milestone Close | Cut real beta in both repos per Phase 19 procedure; verify PyPI + GitHub Release outputs + locked-step version match + `firestarter --install --pre` works + stable-installed app still defaults to stable fw; close milestone (MILESTONES.md, archive, PROJECT.md update) | E2E-01, MS-01 |
 
 **Coverage:** 16/16 v1.4 requirements mapped to exactly one phase. No orphans, no duplicates. (Was 12/12 before the 2026-05-20 amendment that added INST-01..04 + Phase 18.)
-
-**Phase-order rationale:**
-
-- Phase 15 first ✅ — foundation phase resolved the lockstep coordination question (manually-paired beta-branch push with explicit `BETA_VERSION` input) and shipped both `update_version.py` extensions; REL-01 + REL-02 have no version-emission scheme to plug into without it.
-- Phase 16 before Phase 17 (sequential, not parallel) — app-side beta path is more constrained (PEP 440 strict, single PyPI index, `--pre` install semantics) so it shakes out the version-emission flow; firmware beta is a near-mirror with GitHub Release `prerelease: true` instead of PyPI, so app lessons-learned feed firmware design cleanly. Tight feedback loop in a CI/CD setup is more valuable than parallel-track throughput here.
-- Phase 18 after Phase 17 — the Beta-Aware Firmware Downloader is the consumer side of Phase 17's publisher. Unit tests mock the GitHub API and can land without real beta fw existing in GitHub; the Phase 20 E2E test then proves the publish→install loop end-to-end against real artifacts.
-- Phase 19 after Phases 15/16/17/18 — you document what you built, not what you plan; both READMEs + the meta-repo `v1.4-RELEASE-PROCEDURES.md` lock the substrate that emerged from the prior four phases, including the Phase 18 CLI flags.
-- Phase 20 last — the acceptance gate. Cut a real beta in both repos following the Phase 19 documented procedure; verify all acceptance criteria including `firestarter --install --pre` (INST-02 E2E) and stable-installed `firestarter --install` non-regression (INST-01 E2E); close milestone. No v1.4 close without a green E2E-01.
 
 Full details: `.planning/ROADMAP.md` (v1.4 section).
 
@@ -143,7 +155,7 @@ Full details: `.planning/ROADMAP.md` (v1.4 section).
 
 ### Open Blockers
 
-- **None for v1.7 directly.** Milestone is documentation-first; investigation can proceed with operator's Rev 2.2 / Rev 2.0 / Modified Rev 0 boards (photographs + spot-check) without programming-side bench access. Phase 34 firmware-detect plumbing is desk-side compile + handshake-report verification; optional bench wave validates pre-detect-resistor backward-compat fall-through.
+- **None for v1.8.** Milestone is pure software (no bench hardware required). All 8 phases are desk-side.
 
 ### Paused Milestones
 
@@ -190,12 +202,15 @@ Items acknowledged and deferred at v1.2 milestone close on 2026-05-19. The three
 - **Host-only:** the `firestarter` firmware sub-repo is NOT touched this milestone. The firmware/app constant contract (`firestarter_app/firestarter/constants.py` ↔ `firestarter/include/firestarter.h`) is preserved verbatim and guarded by parity tests; no wire-format or flag-bit changes.
 - **CLI framework:** migrate argparse → **Click** command groups; existing command surface preserved (verified by CLI dispatch tests + golden behavior).
 - **File layout:** stays **flat** — decompose into sibling modules at `firestarter/` level (e.g. handlers, frame-parser, message-codec, protocol-constants). No subpackage reorg, to keep churn low and git blame intact.
-- **Tooling:** adopt **ruff + black + mypy** with a CI gate (fail build on violations). Strategy for a messy baseline: configure, format, get to green (per-module ignores / baseline acceptable for legacy untouched code), enforce on touched modules.
+- **Tooling:** adopt **ruff + ruff-format + mypy** with a CI gate (fail build on violations). Strategy for a messy baseline: configure, format, get to green (per-module ignores / baseline acceptable for legacy untouched code), enforce on touched modules.
 - **Tests-first:** the mapper found core paths (CLI dispatch, EPROM read/write/verify/erase, DB lookup, DIP→RURP pin translation) have **no unit tests**. Characterization tests pin current behavior on these paths BEFORE the risky serial/CLI restructure.
 - **Branch model** (per memory [[feedback_branching]]): meta-repo branch `v1.8-app-cleanup` off `main`; `firestarter_app` branch `v1.8-app-cleanup` off `beta`; firmware untouched (no branch). Promote `firestarter_app` → `beta` → `main` per the established beta→stable pattern after green.
 - **Phase numbering:** continues from v1.7 last phase 35 → v1.8 starts at **Phase 36**. No `--reset-phase-numbers`.
 - **Versioning:** the previously-proposed Read-Bug RCA milestone is renumbered **v1.8 → v1.9** (PROPOSED). Cleanup is pure software / not hardware-gated and de-risks the host read path that the RCA will touch.
+- **8 phases (not 7):** research suggests 7 phases (36-42). A dedicated Phase 43 (Milestone Close) is added to give a clean "done" signal matching the pattern of every prior milestone (v1.4 Phase 20, v1.5 Phase 25, v1.6 Phase 30, v1.7 Phase 35). DOC-01, DOC-02, MS-01 map to Phase 43.
 - **Spaghetti hotspots (codebase map, 2026-05-27):** `main.py:510` `main()` 418 L / 14-branch dispatcher / 9× chip-lookup copy-paste; `serial_comm.py` 1037 L mixing 6 concerns; `eprom_operations.py:431` `consistency_check_eprom()` 176 L; `database.py` dual-source pin mapping; constants scattered across 4 files; mixed error handling; no lint/format/type config.
+- **Two latent bugs to fix (not pin):** `build_arg_flags` `if "force" in args` attribute-vs-truthiness check (always True — broken); `COMMAND_FW_VERSION` possibly missing from `constants.py` despite being referenced. Both characterized with `# BUG:` markers in Phase 36 tests; fixed in Phases 41 and 39 respectively with INTENTIONAL BEHAVIOR CHANGE commits.
+- **argcomplete:** confirm with operator before removing in Phase 41 — shell completion is user-visible. Click's built-in completion must be wired before argcomplete is deleted.
 
 ## v1.5 Decisions (locked at milestone start, 2026-05-20)
 
@@ -276,9 +291,8 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 
 ## Operator Next Steps
 
-- `/gsd-discuss-phase 31` — gather context for Phase 31 (Upstream Shield Archaeology); clone `AndersBNielsen/Relatively-Universal-ROM-Programmer`, map git history, capture silkscreen text from operator's Rev 2.2 / Rev 2.0 / Modified Rev 0 boards
-- Alternative: `/gsd-plan-phase 31` — skip discussion, plan Phase 31 directly using REQUIREMENTS.md + ROADMAP.md
-- v1.6 resume: deferred until v1.7 ships — `/gsd-plan-phase 27 --gaps` once v1.7 close lands the labeled-schematic + per-rev capability table
+- `/gsd-plan-phase 36` — plan Phase 36 (Characterization Test Baseline); write characterization tests for CLI surface, serial frame-parse path, and EPROM database layer; extend firmware-contract parity test; remove EpromDatabase singleton
+- Alternative: `/gsd-discuss-phase 36` — gather context for Phase 36 before planning
 
 ## Performance Metrics
 
@@ -422,8 +436,8 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | uat-gap | Phase 08 HUMAN-UAT.md | partial — 2 pending scenarios (v1.2 territory) | Future v1.x cleanup |
 | verification-gap | Phase 08 VERIFICATION.md | human_needed (v1.2 territory) | Future v1.x cleanup |
 | verification-gap | Phase 09 VERIFICATION.md | human_needed (v1.2 territory) | Future v1.x cleanup |
-| todo | large-read-data-jitter-uno328pb.md | **in scope for v1.6** — Phases 26-30 (READ-BUG milestone) | v1.6 (active) |
-| todo | w27c512-eeprom-misclassification.md | HIGH — operator-tagged asap | v1.7+ |
-| todo | avrdude-mcu-detection-fallback.md | low — host CLI enhancement | v1.7+ |
+| todo | large-read-data-jitter-uno328pb.md | **in scope for v1.9** — Bug A + Bug B RCA seed substrate ready | v1.9 (proposed) |
+| todo | w27c512-eeprom-misclassification.md | HIGH — operator-tagged asap | v1.9+ |
+| todo | avrdude-mcu-detection-fallback.md | low — host CLI enhancement | v1.9+ |
 
 Operator-authorized close 2026-05-21 ("close the milestone"). v1.6 STARTED 2026-05-21; roadmap created 2026-05-21.

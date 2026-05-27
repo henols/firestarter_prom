@@ -110,13 +110,44 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (filled by roadmapper) | — | Pending |
+| TEST-01 | Phase 36 | Pending |
+| TEST-02 | Phase 36 | Pending |
+| TEST-03 | Phase 36 | Pending |
+| TEST-04 | Phase 36 | Pending |
+| TEST-05 | Phase 36 | Pending |
+| TOOL-01 | Phase 37 | Pending |
+| TOOL-02 | Phase 37 | Pending |
+| TOOL-03 | Phase 37 | Pending |
+| STRUCT-01 | Phase 38 | Pending |
+| STRUCT-02 | Phase 38 | Pending |
+| STRUCT-03 | Phase 38 | Pending |
+| STRUCT-04 | Phase 38 | Pending |
+| STRUCT-05 | Phase 38 | Pending |
+| DATA-01 | Phase 39 | Pending |
+| DATA-02 | Phase 39 | Pending |
+| DATA-03 | Phase 39 | Pending |
+| DATA-04 | Phase 39 | Pending |
+| SERIAL-01 | Phase 40 | Pending |
+| SERIAL-02 | Phase 40 | Pending |
+| SERIAL-03 | Phase 40 | Pending |
+| CLI-01 | Phase 41 | Pending |
+| CLI-02 | Phase 41 | Pending |
+| CLI-03 | Phase 41 | Pending |
+| CLI-04 | Phase 41 | Pending |
+| ERR-01 | Phase 42 | Pending |
+| ERR-02 | Phase 42 | Pending |
+| ERR-03 | Phase 42 | Pending |
+| DOC-01 | Phase 43 | Pending |
+| DOC-02 | Phase 43 | Pending |
+| MS-01 | Phase 43 | Pending |
+| GATE-1.8 (a–e) | All phases (standing gate) | Pending |
 
 **Coverage:**
-- v1 requirements: 27 (5 TEST + 3 TOOL + 5 STRUCT + 4 DATA + 3 SERIAL + 4 CLI + 3 ERR) + 3 DOC/MS = 27; plus GATE-1.8 (5 cross-cutting sub-clauses)
-- Mapped to phases: TBD (roadmapper)
-- Unmapped: TBD ⚠️
+- v1 requirements: 30 (5 TEST + 3 TOOL + 5 STRUCT + 4 DATA + 3 SERIAL + 4 CLI + 3 ERR + 3 DOC/MS)
+- Mapped to phases: 30/30 ✓ (Phase 36: 5, Phase 37: 3, Phase 38: 5, Phase 39: 4, Phase 40: 3, Phase 41: 4, Phase 42: 3, Phase 43: 3)
+- Unmapped: 0
+- GATE-1.8 (a–e): standing cross-cutting gate, not a phase
 
 ---
 *Requirements defined: 2026-05-27*
-*Last updated: 2026-05-27 after initial definition (research-grounded: SUMMARY.md + STACK/FEATURES/ARCHITECTURE/PITFALLS)*
+*Last updated: 2026-05-27 — traceability table filled by roadmapper (Phases 36-43)*

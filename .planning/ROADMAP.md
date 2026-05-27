@@ -8,123 +8,212 @@
 - ⏸ **v1.3 CMOS EPROM Family Hardware Validation** — Phases 11-14 (PAUSED 2026-05-20, hardware-gated). Phase 11 shipped + Phase 12 Wave 0 scaffold committed; Plans 12-01/02/03 + Phases 13/14 await operator bench hardware.
 - ✅ **v1.4 Beta & Pre-release Deployment Pipeline** — Phases 15-20 (shipped 2026-05-20; ship tag `3.0.0b3` in both sub-repos; hardware-flash validated on Uno + Leonardo). Parallel beta channel for both sub-repos without disrupting the stable main → release pipeline.
 - ✅ **v1.5 Arduino Uno (ATmega328PB) Board Support** — Phases 21-25 (shipped 2026-05-21; ship tag `3.0.0b4`; bench-validated on operator's 328PB-Uno via `urclock` bootloader). `uno328pb` as a third first-class firmware target alongside `uno` + `leonardo`. Full detail in `.planning/milestones/v1.5-ROADMAP.md`; bench evidence in `.planning/v1.5-BENCH-RESULTS.md`.
-- ⏸ **v1.6 Fix the Read Bug** — Phases 26-30 (PAUSED 2026-05-22 at the Phase 27 RCA re-open boundary). Phases 26+27+28 shipped; Phase 29 Wave B FAIL (D-07 milestone-reopens) — chip-swap diagnostic isolated Phase 28 firmware as introducing a Leonardo + uno328pb read-path regression; Uno code path unaffected. Phase 30 BLOCKED. Resumes after v1.7 ships its labeled-schematic + per-rev capability table + shield-version-detect substrate (v1.6 Phase 27 RCA re-open then designs instrumented A/B builds with known-good schematics).
-- 🚧 **v1.7 RURP Shield Hardware Investigation & Version Detection** — Phases 31-35 (STARTED 2026-05-22). Catalog every known RURP shield revision (Rev 0 → Rev 2.2 + older revs from upstream git history); per-rev silkscreen capture, electrical/mechanical difference matrix, capability table; silkscreen-label → code-side alias migration applied to firmware + host; shield-version-detect resistor divider design + firmware ADC read + handshake report with backward-compat fall-through for pre-detect-resistor boards.
+- ⏸ **v1.6 Fix the Read Bug** — Phases 26-30 (SHIPPED 2026-05-26 as "diagnostic + revert" per D-17v2). Read-bug carries to v1.9 as Bug A + Bug B RCA seed.
+- ✅ **v1.7 RURP Shield Hardware Investigation & Version Detection** — Phases 31-35 (SHIPPED 2026-05-26). Per-rev capability table + labeled schematics + shield-version-detect firmware plumbing.
+- 🚧 **v1.8 Host CLI Structural Cleanup (firestarter_app)** — Phases 36-43 (STARTED 2026-05-27). Decompose god functions, argparse→Click, split serial layer, consolidate constants, unify errors, tests-first, ruff+ruff-format+mypy gate. Host-only; firmware sub-repo untouched.
 
-## v1.7 — RURP Shield Hardware Investigation & Version Detection (STARTED 2026-05-22)
+## v1.8 — Host CLI Structural Cleanup (firestarter_app) (STARTED 2026-05-27)
 
-**Milestone goal:** Produce a versioned, authoritative reference for every known RURP shield revision — silkscreen text, electrical/mechanical schematic, label-to-code-alias map, per-rev capabilities matrix, inter-rev difference table — and design the next-rev shield-version-detect resistor divider + firmware ADC read + handshake report so future hardware-touch work is grounded in known-good schematics rather than ask-the-operator memory.
+**Milestone goal:** Make the `firestarter_app` Python host code structured, readable, and spaghetti-free — without changing the wire protocol or end-user command surface (except intentional, documented bug fixes). Specifically: decompose the 418-line `main()` dispatcher and the 1037-line `serial_comm.py`; migrate argparse to Click; introduce a characterization test safety net on the currently-untested core paths; consolidate wire-protocol constants; unify error handling; and gate everything with ruff + ruff-format + mypy + CI.
 
-**Status:** Roadmap created 2026-05-22. Phase numbering continues from v1.6 last planned phase 30 (next phase = 31). Phases 31+32+33+35 are desk-side (operator's existing Rev 2.2 / Rev 2.0 / Modified Rev 0 boards used for label-photo capture + spot-check; no bench programming needed). Phase 34 has a desk-side wave (schematic delta + firmware compile + handshake report on synthetic/floating ADC) and an optional operator-on-bench wave (sanity-check ADC read on existing pre-detect-resistor boards reports `rev_unknown` cleanly).
+**Status:** Roadmap created 2026-05-27. Phase numbering continues from v1.7 last phase 35 (next phase = 36). All 8 phases are desk-side (pure software — no bench hardware required).
 
-**Granularity:** Comprehensive — five phases for a documentation + design milestone is high, but each phase delivers an independently-verifiable artifact: per-rev inventory (HW-INV-01..03 + SILK-01), inter-rev difference + capability matrix (DIFF-01/02 + CAPS-01/02), label-alias migration (ALIAS-01..03), detect-hw schematic delta + detect-fw plumbing (DETECT-HW-01/02 + DETECT-FW-01/02), close (DOC-01 + MS-01). Coverage 17/17.
+**Granularity:** Comprehensive — 8 phases for a broad refactoring milestone. Each phase delivers one independently-verifiable structural capability: safety net → tooling gate → low-risk extractions → DB cleanup → serial restructure → CLI migration → quality sweep → close. Coverage 27/27.
 
-**Phase numbering:** Phases 31-35 (continues from v1.6 last planned phase 30; Phase 30 slot stays reserved for v1.6 close on resume).
+**Standing gate (applies to every phase):** GATE-1.8 (a–e) is a non-regression contract, not a phase. Every phase MUST satisfy all five sub-clauses before its plans are marked complete:
+- **GATE-1.8a**: Wire protocol stays byte-identical (`_read_and_parse_lines` atomic-read invariant preserved; serial framing/CRC/timeout semantics unchanged).
+- **GATE-1.8b**: End-user CLI surface preserved — command names, flags, defaults, exit codes, output. Verified by characterization tests.
+- **GATE-1.8c**: Firmware/app constant contract preserved — `constants.py` values equal `firestarter/include/firestarter.h`; guarded by parity tests.
+- **GATE-1.8d**: Host read path ring-fenced — changes to `read_eprom()` / `read_data_block()` are structural-only so v1.9 RCA baseline binaries stay valid.
+- **GATE-1.8e**: Full test suite (existing + new) green; pip entry point (`firestarter`) installs and runs.
 
-**Branch model:** Per memory [[feedback_branching]] — all v1.7 work lands on `v1.7-shield-investigation` branches in all 3 repos. Meta-repo `v1.7-shield-investigation` branches off `main` (most of v1.7 lives here — documentation). Sub-repos branch off current `beta` tips (post-v1.5 ship at `3.0.0b4`; v1.6 sub-repo branches are mid-iteration and the firmware-detect patch needs a clean substrate). Promote sub-repos `v1.7-shield-investigation` → `beta` only after Phase 34 firmware-detect lands; `beta` → `main` only after operator confirms firmware handshake reports correctly on at least one bench-present rev.
+**Branch model:** Per memory [[feedback_branching]] — meta-repo branch `v1.8-app-cleanup` off `main`; `firestarter_app` sub-repo branch `v1.8-app-cleanup` off `beta`; firmware sub-repo untouched. Promote `firestarter_app` → `beta` → `main` per the established beta→stable pattern after green (Phase 43).
 
-### Structural Notes
-
-- **Documentation-first investigation.** v1.7 is unusual in this project — most prior milestones added behavior or shipped a fix. v1.7 ships a reference document plus one hardware design delta + one firmware plumbing patch. The reference document (`.planning/v1.7-SHIELD-REVS.md`) is itself a load-bearing artifact: future RCA passes (including v1.6 Phase 27 re-open) read it to know what's on the bench.
-- **Operator hardware on hand.** Memory [[user_shield_revisions]] — operator has Rev 2.2, Rev 2.0, modified Rev 0 (with hardware-bug-A/B rework). Phase 31 photographs + spot-checks all three. Per memory [[feedback_chip_out_before_sideload]] — chip OUT of socket before any firmware sideload in Phase 34. Per memory [[feedback_verify_port_identity_each_task]] — verify `controller:` identity per port at every task start.
-- **Upstream archaeology.** Phase 31 mines `AndersBNielsen/Relatively-Universal-ROM-Programmer/hardware` via `git log -p` + `git log --diff-filter=D` to recover older revs (Rev 0, Rev 1) that may not exist on `main`. Branch tip + tag history walked to bracket when each rev was introduced.
-- **Alias migration is name-only.** ALIAS-03 GATE-1.7 — the silkscreen-label → code-alias migration must NOT change firmware behavior, wire format, or compiled `.hex` size beyond trivial symbol-name overhead (≤ ~50 B). Pytest + Unity stay green.
-- **Backward-compat fall-through is load-bearing.** DETECT-FW-02 GATE-1.7 — existing pre-detect-resistor boards (Rev 0 / 2.0 / 2.2 with no resistor) must handshake byte-identical to v1.6 baseline. Floating/grounded ADC reading falls through to `rev_unknown` + firmware honors EEPROM `hw_revision` byte (existing behavior preserved). The detect resistor is additive; no existing board is bricked or downgraded.
+**Phase numbering:** Phases 36-43 (continues from v1.7 last phase 35).
 
 ### Phases
 
-- [ ] **Phase 31: Upstream Shield Archaeology** — Clone upstream `AndersBNielsen/Relatively-Universal-ROM-Programmer`; mine git history for all shield revisions (Rev 0, Rev 1, Rev 2.0, Rev 2.2, plus any others); per-rev silkscreen-version capture; photograph operator's three on-hand boards; populate `.planning/v1.7-SHIELD-REVS.md` inventory section.
-- [ ] **Phase 32: Inter-Rev Difference + Capability Matrix** — Per-rev electrical/mechanical difference table (pinout, VPP regulator wiring, voltage divider values, jumpers, control-line routing, rework hacks); per-rev capability matrix (chip families, max VPP/VCC, address-bus width, supported algorithms); cross-check capabilities against firmware code.
-- [ ] **Phase 33: Silkscreen Label → Code Alias Migration** — Inventory every silkscreen label across all known revs; propose code-side alias namespace (`PIN_<SUBSYSTEM>_<FUNCTION>`); apply aliases to `firestarter/include/` + `firestarter_app/firestarter/constants.py`; migrate existing call-sites; GATE-1.7 non-regression preserved (compiled `.hex` byte-identical modulo trivial symbol-name overhead).
-- [ ] **Phase 34: Shield-Version-Detect Design + Firmware Plumbing** — Schematic delta for next-rev shield (resistor divider into Arduino ADC pin not conflicting with any current RURP signal); per-rev voltage-band lookup table; firmware ADC read at boot + handshake report; backward-compat fall-through for pre-detect-resistor boards (Rev 0 / 2.0 / 2.2 → `rev_unknown` + EEPROM `hw_revision` byte fallback).
-- [ ] **Phase 35: Documentation + Milestone Close** — Finalize `.planning/v1.7-SHIELD-REVS.md`; README updates in both sub-repos cross-link to it; PROJECT.md "Validated" section updates; MILESTONES.md entry; archive `.planning/milestones/v1.7-phases/`.
+- [ ] **Phase 36: Characterization Test Baseline** — Write characterization (golden) tests for the currently-untested CLI surface, serial frame-parse path, and EPROM database layer; extend firmware-contract parity test; remove EpromDatabase singleton (prerequisite for testability). Safety net committed before any structural change.
+- [ ] **Phase 37: Tooling Baseline + CI Gate** — Configure ruff, ruff-format, and mypy in `pyproject.toml`; run format + baseline pass on the codebase; add GitHub Actions CI step enforcing lint/format/type with coverage gate. Zero new violations permitted after this phase.
+- [ ] **Phase 38: Low-Risk Extractions** — Extract `frame_parser.py` (CRC + decode, pure functions), `codec.py` (message formatting), `address_parser.py` (hex/decimal parsing), and `exceptions.py` (consolidated exception hierarchy); delete confirmed dead code (`read_data_block`, `globals()` introspection, commented-out blocks). Mechanical moves verified by the full test suite after each file move.
+- [ ] **Phase 39: Database Cleanup + chip_resolver** — Introduce `chip_resolver.py` with `resolve_chip()` eliminating the 9× chip-lookup copy-paste; add type hints + docstrings to `EpromDatabase`; replace all `from firestarter.constants import *` star-imports with named imports; verify/add `COMMAND_FW_VERSION`; consolidate wire-protocol constants.
+- [ ] **Phase 40: Serial / Transport Restructure** — Clean up `serial_comm.py` post-Phase-38: extract `_validate_firmware_version` as a testable `@staticmethod`; add type hints to all public `SerialCommunicator` methods; delete `STATE_MACHINE_PREFIXES` dead code; confirm `_read_and_parse_lines` generator body is byte-identical (add `# DO NOT MODIFY — v1.9 RCA territory` marker).
+- [ ] **Phase 41: CLI Migration argparse → Click** — Migrate from argparse to Click; create `cli_handlers.py` with one `@cli.command()` per user command; reduce `main()` to ≤ 50 lines; handle all five argparse→Click behavioral traps explicitly; fix `build_arg_flags` latent bug (INTENTIONAL BEHAVIOR CHANGE documented); confirm pip entry point and shell-completion behavior with operator.
+- [ ] **Phase 42: Error Handling Normalization + Quality Sweep** — Enforce consistent exception/exit-code convention throughout; eliminate bare `except:` clauses; add return type annotations on all public functions in touched modules; add module + public-function docstrings; normalize naming; run final ruff + mypy sweep with raised coverage threshold.
+- [ ] **Phase 43: Documentation + Milestone Close** — Update `firestarter_app` README + contributor docs for the new flat-module structure and tooling workflow; write MILESTONES.md v1.8 entry; update PROJECT.md "Validated"; archive phase directories; verify GATE-1.8 end-to-end; promote branch `v1.8-app-cleanup` → `beta` → `main`.
 
 ### Phase Details
 
-#### Phase 31: Upstream Shield Archaeology
+#### Phase 36: Characterization Test Baseline
 
-**Goal:** A future reader can name every RURP shield revision that has ever existed, point at its silkscreen-version string, find its schematic file in upstream, and see photographs of the three on-hand revisions including any operator-side rework annotations.
-**Depends on:** Nothing (continues from v1.6 pause boundary; meta-repo only).
-**Requirements:** HW-INV-01, HW-INV-02, HW-INV-03, SILK-01
+**Goal:** A comprehensive safety net of characterization tests is committed — pinning the current CLI command surface, serial frame-parse path, and EPROM database layer — so that any behavioral regression introduced by subsequent structural phases is caught immediately. The EpromDatabase singleton is removed to make the DB independently testable. The firmware-contract parity test is extended to cover all COMMAND_*, FLAG_*, and CTRL_* values.
+**Depends on:** Nothing (additive only; no existing code changed except singleton removal).
+**Requirements:** TEST-01, TEST-02, TEST-03, TEST-04, TEST-05
 **Success Criteria** (what must be TRUE):
-
-  1. `git clone` of `https://github.com/AndersBNielsen/Relatively-Universal-ROM-Programmer` is staged under `.planning/v1.7/upstream-rurp/` (gitignored — not checked into meta-repo); `git log -p hardware/` is scanned for every rev introduction + every rev deletion; recovered revs list is comprehensive.
-  2. `.planning/v1.7-SHIELD-REVS.md` has an inventory section with one row per identified revision: silkscreen-version string (e.g. `RURP Rev 2.2`), upstream commit/tag of introduction, schematic file path in upstream repo, date introduced. Older revs (Rev 0, Rev 1) recovered from history are flagged "no longer on `main`" with the git commit that removed them.
-  3. Operator's three on-hand boards (Rev 2.2, Rev 2.0, modified Rev 0) are photographed and stored under `.planning/v1.7/photos/<rev>/` (sufficient resolution to read silkscreen). The Modified Rev 0 rework hacks (per memory [[user_shield_revisions]]) are annotated on the photo or in an accompanying `MODIFICATIONS.md`.
-  4. Silkscreen-version strings are captured verbatim per board (the actual text on the silkscreen, not a normalized form). These become the canonical revision identifiers used by all downstream phases.
+  1. `tests/test_characterization.py` (or equivalent) covers all 14 CLI commands + `dev` sub-commands using Click's `CliRunner` + syrupy snapshots, pinning exit codes and output. Tests for `build_arg_flags` and `COMMAND_FW_VERSION` issues carry explicit `# BUG:` markers asserting the corrected behavior once fixed — they do NOT pin the broken behavior.
+  2. `tests/test_decoder_characterization.py` (or equivalent) pins the `_read_and_parse_lines` preamble → body → terminator sequence using the existing `BytesIO` fake-serial fixture; a delayed-response test asserts the sliding-window timeout resets on every yield (invariant explicitly documented in test).
+  3. `EpromDatabase` construction is injectable (Click context / DI via constructor parameter); `tests/test_eprom_database.py` covers `get_eprom`, `convert_to_programmer`, and DIP→RURP pin translation against real `chip_database.json` data — without `find_and_connect` or serial I/O.
+  4. `tests/test_firmware_contract_parity.py` extends the existing `test_revision_constants_parity.py` pattern to cover all `COMMAND_*`, `FLAG_*`, and `CTRL_*` blocks; each assertion uses a hard-coded hex literal matching `firestarter/include/firestarter.h`; test is `skipif` when the firmware checkout is absent.
+  5. All existing tests plus the new suite pass (`pytest` exits 0); `ruff` and `mypy` run without configuration errors (violations recorded as baseline watermark, not fixed yet).
 
 **UI hint:** no
 
-#### Phase 32: Inter-Rev Difference + Capability Matrix
+#### Phase 37: Tooling Baseline + CI Gate
 
-**Goal:** A future engineer planning a firmware change can read one table to know which revs support which algorithms, and read another table to know what changed electrically/mechanically between rev N and rev N+1 — without re-reading upstream schematics.
-**Depends on:** Phase 31 (inventory of revs to compare).
-**Requirements:** DIFF-01, DIFF-02, CAPS-01, CAPS-02
+**Goal:** ruff, ruff-format, and mypy are configured and enforced in CI. All existing code is formatted and linted to a green baseline (using `ruff check --add-noqa` for legacy violations, not hand-fixing everything). From this phase forward, touched modules must be clean; the CI gate fails the build on any new violation.
+**Depends on:** Phase 36 (characterization test suite must pass under the new linting rules).
+**Requirements:** TOOL-01, TOOL-02, TOOL-03
 **Success Criteria** (what must be TRUE):
-
-  1. `.planning/v1.7-SHIELD-REVS.md` has an inter-rev electrical difference table covering at minimum: Arduino pin mapping (Dx/Ax → RURP signal), VPP regulator wiring (input pin, output pin, enable pin, feedback divider), voltage divider values (R1/R2 from `rurp_configuration_t`), control-line routing (CE/WE/OE per algorithm), jumper/strap positions. Each row is "rev → rev" delta. Where a rev is electrically identical to its predecessor, the row says so explicitly.
-  2. An inter-rev mechanical difference subsection covers board outline / mounting holes, ZIF socket presence + orientation, header positions, notable component changes. Differences with no electrical impact are noted but not gated.
-  3. A per-rev capability matrix declares for each revision: chip families supported (28-pin DIP UV-EPROM, 32-pin DIP UV-EPROM, parallel EEPROM, AMD-style flash, Intel flash, SRAM), max VPP, max VCC, address-bus width, supported firmware algorithms (subset of `0x05/0x06/0x07/0x08/0x0B/0x0D/0x0E/0x10/0x27/0x28/0x29`).
-  4. Capability matrix is cross-checked against firmware code (`firestarter/src/algorithm_*.cpp` + handler dispatch in `memory.cpp::configure_memory`). If a rev physically cannot support an algorithm (e.g. missing VPP regulator on a hypothetical Rev 0), that fact is documented and a follow-up todo is captured for a runtime-guard implementation in a later milestone (out of scope for v1.7).
+  1. `pyproject.toml` contains `[tool.ruff]` (E, F, I rules minimum; UP added; no `select = ["ALL"]`), `[tool.ruff.format]`, and `[tool.mypy]` sections with documented rationale for any selected rules; `ruff check` and `ruff format --check` both exit 0 on the full tree.
+  2. mypy runs with `disallow_untyped_defs = false` globally (gradual adoption); initial error count recorded as the watermark comment in `pyproject.toml`; the gate is "no new errors vs. watermark"; `[[tool.mypy.overrides]]` strict list starts with the new Phase 36 test modules.
+  3. A CI workflow step (in the existing `firestarter_app` GitHub Actions file) runs `ruff check`, `ruff format --check`, and `mypy`, plus `pytest` with `--cov` and a coverage gate of ≥ 60%, and fails the build on any violation; a `pre-commit` config with the same hook order (ruff-check → ruff-format → mypy) is committed.
 
 **UI hint:** no
 
-#### Phase 33: Silkscreen Label → Code Alias Migration
+#### Phase 38: Low-Risk Extractions
 
-**Goal:** Reading firmware or host code that references a RURP signal makes immediate sense without consulting a schematic — `PIN_VPP_REGULATOR_ENABLE` is self-documenting where the bare pin number isn't. The migration is name-only (no behavior change, no wire-format change, no `.hex` size drift beyond trivial symbol-name overhead).
-**Depends on:** Phase 31 (silkscreen-label inventory) + Phase 32 (per-rev pin-mapping table — aliases must be consistent across revs where the silkscreen label is the same).
-**Requirements:** ALIAS-01, ALIAS-02, ALIAS-03
+**Goal:** Pure-compute code is extracted into new flat sibling modules with zero runtime behavior change. `exceptions.py` consolidates all exception classes (prerequisite for Phases 39, 40, 41). `frame_parser.py`, `codec.py`, and `address_parser.py` are independently testable without serial I/O. Dead code is deleted. The full test suite passes unchanged after every file move.
+**Depends on:** Phase 37 (tooling gate enforced so extractions produce clean diffs; no formatting noise mixed with logic changes).
+**Requirements:** STRUCT-01, STRUCT-02, STRUCT-03, STRUCT-04, STRUCT-05
 **Success Criteria** (what must be TRUE):
-
-  1. Every silkscreen label across all known revs is inventoried in `.planning/v1.7-SHIELD-REVS.md` (canonical table). Each row maps silkscreen label → proposed code-side alias following the `PIN_<SUBSYSTEM>_<FUNCTION>` convention (e.g. `VPP_EN` → `PIN_VPP_REGULATOR_ENABLE`, `A14` → `PIN_ADDRESS_BUS_A14`, `D0` → `PIN_DATA_BUS_BYTE_0`).
-  2. Aliases land as `#define` / `constexpr` declarations in `firestarter/include/rurp_pinout.h` (or equivalent header — fixed at plan time) and as constants in `firestarter_app/firestarter/constants.py` (or equivalent module). Existing call-sites that use bare pin numbers or shield-specific net names are migrated to the aliases.
-  3. GATE-1.7 non-regression: after migration, compiled firmware `.hex` artifacts for all three boards (`uno`, `leonardo`, `uno328pb`) are byte-identical to pre-migration modulo trivial symbol-name overhead (≤ ~50 B per board; documented in the fix-commit message if non-zero). Pytest + Unity test suites stay green.
-  4. Per-rev pin-mapping differences (from Phase 32) are honored — if Rev 2.0 maps `VPP_EN` to Arduino pin A5 but Rev 0 maps it to a different pin, the alias resolves correctly per active rev via the existing `RURP_BOARD_NAME` per-env mechanism (or a new compile-time switch — finalized at plan time).
+  1. `firestarter/exceptions.py` exists and contains all application exception classes (`SerialError`, `SerialTimeoutError`, `ProgrammerNotFoundError`, `FirmwareOutdatedError`, `EpromOperationError`, `HardwareOperationError`, `ChipNotFoundError`); all former import sites updated; no exception class defined outside this module.
+  2. `firestarter/frame_parser.py` exists containing `_build_crc8_table`, `_crc8_ccitt`, `_decode_param`, `_decode_id_frame`, `Response`, `LogMessage`, `MAGIC_PREAMBLE`; it has no imports from within the `firestarter` package (stdlib + typing only); `test_decoder.py` passes unchanged (the generator body in `serial_comm.py` is not touched).
+  3. `firestarter/codec.py` exists containing `_format_message` (renamed `format_message`) and `_REVISION_SILKSCREEN`; it imports from `constants.py` and `messages.py` only; new `tests/test_codec.py` covers `format_message` with message catalog fixtures.
+  4. `firestarter/address_parser.py` exists with `parse_address(s: str | None) -> int | None` and `parse_size` raising `ValueError` on bad input; `tests/test_address_parser.py` covers hex, decimal, `None`, and invalid inputs.
+  5. `read_data_block` is deleted from `serial_comm.py` (dead code per W-04 MSG_DATA_CHUNK migration, commit message cites the migration); `globals()` introspection in `eprom_operations.py` is replaced with explicit `COMMAND_NAMES` lookup; confirmed dead commented-out blocks are removed; `pytest` exits 0.
 
 **UI hint:** no
 
-#### Phase 34: Shield-Version-Detect Design + Firmware Plumbing
+#### Phase 39: Database Cleanup + chip_resolver
 
-**Goal:** Operator can build the next-rev shield (with the new detect resistor populated) and the firmware reports the correct silkscreen-version string in the handshake without operator intervention. Existing pre-detect-resistor boards continue to report `rev_unknown` and fall through to the EEPROM `hw_revision` byte — no breaking change.
-**Depends on:** Phase 32 (capability matrix — to pick an ADC pin not conflicting with any current RURP signal across any known rev) + Phase 33 (aliases — the new ADC pin gets an alias).
-**Requirements:** DETECT-HW-01, DETECT-HW-02, DETECT-FW-01, DETECT-FW-02
+**Goal:** The 9× chip-lookup boilerplate copy-pasted across handlers is eliminated by a single `resolve_chip()` function. All `from firestarter.constants import *` star-imports are replaced with named imports (prerequisite for tightening the mypy gate). Wire-protocol constants are consolidated with clear firmware-sync markers; `COMMAND_FW_VERSION` is verified present (added if missing). The DIP→RURP pin-mapping documentation is clarified to eliminate the apparent "two sources of truth" ambiguity.
+**Depends on:** Phase 38 (`exceptions.py` must exist so `chip_resolver.py` can import `ChipNotFoundError`).
+**Requirements:** DATA-01, DATA-02, DATA-03, DATA-04
 **Success Criteria** (what must be TRUE):
-
-  1. `.planning/v1.7-SHIELD-REVS.md` documents the schematic delta for the next-rev shield: a resistor divider into an Arduino ADC pin (pin selected to not conflict with any currently-used RURP signal across any known rev, verified against Phase 32 capability matrix). Resistor values produce voltage bands per rev with ≥ ~0.3V separation against 10-bit ADC noise floor.
-  2. A per-rev expected-ADC-band table is included: rev string → expected ADC value range. The next-rev (e.g. Rev 2.3) entry is the seed; existing Rev 0 / 2.0 / 2.2 boards have no detect resistor and produce floating/grounded ADC readings — captured as the "rev_unknown" fall-through band.
-  3. Firmware reads the ADC pin at boot (or on first handshake), looks up the voltage band in the table, and reports the detected silkscreen-rev string in the handshake payload. Exact wire shape (extend `MSG_OK_FW_HANDSHAKE` or add a sibling INFO emit) finalized at plan time.
-  4. On pre-detect-resistor boards (floating/grounded ADC), the report is `rev_unknown` and firmware continues to honor the operator-configured `hw_revision` byte in EEPROM (existing behavior preserved). GATE-1.7 non-regression: existing pre-detect-resistor boards handshake byte-identical to v1.6 baseline modulo the additive `rev_unknown` report (documented in the fix-commit message). Chip programming + read paths byte-identical. Firmware compiles cleanly for all three board targets without requiring physical fabrication of the next-rev shield.
+  1. `firestarter/chip_resolver.py` exists with `resolve_chip(name: str) -> dict` raising `ChipNotFoundError` on miss; `tests/test_chip_resolver.py` (from Phase 36) passes; `grep -n "db.get_eprom\|convert_to_programmer" firestarter/main.py` returns no results (the 9 copy-paste sites are gone).
+  2. `database.py`'s `pin_conversions` dict has a docstring explicitly stating it encodes RURP board-wiring (DIP socket position → bus line number), distinct from `pinouts.json` which encodes chip DIP pinout (function → socket position); no code behavior is changed.
+  3. `grep -r "from firestarter.constants import \*" firestarter/` returns no results; all four previously-star-importing modules (`main.py`, `serial_comm.py`, `eprom_operations.py`, `database.py`) use explicit named imports; mypy error count on those modules does not increase vs. the Phase 37 watermark.
+  4. `constants.py` contains `COMMAND_FW_VERSION` (added if absent, with value verified against `firestarter/include/firestarter.h`); all wire-protocol constant blocks (`COMMAND_*`, `FLAG_*`, `CTRL_*`, `REVISION_*`) have a `# Firmware sync: firestarter.h` marker comment; `tests/test_firmware_contract_parity.py` passes.
 
 **UI hint:** no
 
-#### Phase 35: Documentation + Milestone Close
+#### Phase 40: Serial / Transport Restructure
 
-**Goal:** v1.7 is closed cleanly — the canonical reference document is operator-readable, the sub-repo READMEs cross-link to it, PROJECT.md reflects what shipped, MILESTONES.md captures the delivery, and the phase artifacts are archived.
-**Depends on:** Phase 31 + Phase 32 + Phase 33 + Phase 34 (everything that fills `.planning/v1.7-SHIELD-REVS.md`).
-**Requirements:** DOC-01, MS-01
+**Goal:** `serial_comm.py` owns only transport concerns after Phase 38's extractions. `_validate_firmware_version` is an extractable `@staticmethod` with direct unit tests. The `_read_and_parse_lines` generator body is explicitly ring-fenced with a comment. Type hints are added to all public `SerialCommunicator` methods. Wire behavior is verified byte-identical by the existing test suite.
+**Depends on:** Phase 38 (frame decode logic already extracted; `exceptions.py` import surface stable; Phase 39 preferred but not strictly required — serial cleanup does not depend on chip_resolver).
+**Requirements:** SERIAL-01, SERIAL-02, SERIAL-03
 **Success Criteria** (what must be TRUE):
-
-  1. `.planning/v1.7-SHIELD-REVS.md` is the canonical reference and is complete (inventory + difference matrix + capability matrix + alias table + detect-hw schematic delta + per-rev ADC band table). Cross-links from `firestarter/README.md` + `firestarter_app/README.md` resolve to it.
-  2. PROJECT.md "Validated" section grows entries for the alias migration + detect-fw plumbing. The v1.7 milestone block at the top is rewritten as "Shipped 2026-05-XX". v1.6 paused-block carries through unchanged (v1.6 resume is the milestone-close hand-off).
-  3. MILESTONES.md entry written; phase artifacts archived under `.planning/milestones/v1.7-phases/` via the archive script pattern established in v1.4/v1.5.
-  4. Hand-off to v1.6 resume: `Operator Next Steps` in STATE.md points at `/gsd-plan-phase 27 --gaps` with a note citing the v1.7 artifacts (labeled schematic + per-rev capability table) that the Phase 27 RCA re-open will consume.
+  1. `SerialCommunicator` owns only socket lifecycle, `send_*`, `get_response`, `expect_ack`, `consume_remaining_input`, `disconnect`, `find_and_connect`, `_probe_port`, `_list_potential_ports`, and `_read_and_parse_lines`; all frame-decode and message-format concerns are delegated to `frame_parser` + `codec` imports; `STATE_MACHINE_PREFIXES` empty-list dead code is deleted.
+  2. `SerialCommunicator._validate_firmware_version(version_str: str) -> None` is a `@staticmethod`; `tests/test_fw_version_guard.py` covers the version-guard logic directly without a fake serial (passes on "3.0.0", raises `FirmwareOutdatedError` on "2.9.9").
+  3. `_read_and_parse_lines` carries a `# DO NOT MODIFY — v1.9 RCA territory` comment at its function header; the generator body is byte-identical to pre-v1.8 (verified by `test_decoder.py` passing unchanged); all public `SerialCommunicator` methods have type-annotated signatures; `pytest` exits 0.
 
 **UI hint:** no
+
+#### Phase 41: CLI Migration argparse → Click
+
+**Goal:** The 418-line `main()` dispatcher is replaced by a Click command group; `cli_handlers.py` contains one `@cli.command()` decorated function per user command; `main.py` is ≤ 50 lines. All five argparse→Click behavioral traps are handled explicitly. The `build_arg_flags` bug is fixed with an INTENTIONAL BEHAVIOR CHANGE commit. The pip entry point works; shell-completion behavior is confirmed or explicitly dropped with operator sign-off.
+**Depends on:** Phase 39 (chip_resolver.py must exist for handlers to call `resolve_chip()`); Phase 40 (stable exception import surface from `exceptions.py`; `SerialCommunicator` public API clean).
+**Requirements:** CLI-01, CLI-02, CLI-03, CLI-04
+**Success Criteria** (what must be TRUE):
+  1. `firestarter` CLI passes all characterization tests from Phase 36 (CliRunner exit codes and output snapshot-match pre-migration behavior for all 14 commands + `dev` sub-commands); the five argparse→Click traps are addressed: exit codes via `raise click.ClickException` / `sys.exit`, no prefix matching assumed, `--no-blank-check` polarity correct (`is_flag=True, default=True`), `--pre`/`--firmware-version`/`--stable` mutex enforced via Click callback guard, `_validate_firmware_version` wired as Click param type or callback.
+  2. `firestarter/cli_handlers.py` exists with one `@cli.command()` per top-level user command; `firestarter/main.py` is ≤ 50 lines (imports, Click group definition, global options, entry-point call); `if args.command ==` dispatch chain is gone.
+  3. `build_arg_flags` attribute-vs-truthiness bug is fixed; commit message contains `INTENTIONAL BEHAVIOR CHANGE: build_arg_flags "if force in args" corrected to truthiness check` and a one-line explanation; the Phase 36 characterization test (previously marked `# BUG:`) now asserts the corrected behavior and passes.
+  4. `pip install -e . && firestarter --help` runs successfully (CI smoke test); `argcomplete` dependency is either removed (with Click shell completion wired as its replacement) or retained with explicit operator sign-off on the deferral; the outcome is documented in the commit message.
+
+**UI hint:** no
+
+#### Phase 42: Error Handling Normalization + Quality Sweep
+
+**Goal:** Consistent exception/exit-code convention enforced throughout the codebase. No bare `except:` clauses. Return type annotations on all public functions in touched modules (those modules are mypy-clean under the configured strictness). Module and public-function docstrings present on everything touched this milestone. Dead code and naming inconsistencies resolved. Final ruff + mypy sweep with raised coverage threshold.
+**Depends on:** Phase 41 (quality sweep most efficient post-restructure; performing it before would require doing it again).
+**Requirements:** ERR-01, ERR-02, ERR-03
+**Success Criteria** (what must be TRUE):
+  1. Service and transport layers raise typed exceptions from `exceptions.py`; the Click boundary in `cli_handlers.py` maps them to stable exit codes (0 success, 1 expected failure, 2 usage error via `click.UsageError`); `grep -rn "except:" firestarter/` returns no bare excepts; `grep -rn "except Exception" firestarter/` results are all logged with `as e`.
+  2. All public functions in modules touched during v1.8 (at minimum `main.py`, `cli_handlers.py`, `chip_resolver.py`, `frame_parser.py`, `codec.py`, `address_parser.py`, `exceptions.py`, `serial_comm.py`) have return type annotations; those modules are added to the mypy `[[tool.mypy.overrides]]` strict list; `mypy` exits 0 for those modules.
+  3. All public classes and methods in touched modules have docstrings (1-liner minimum); naming is normalized to snake_case throughout (no camelCase legacy); `ruff check` exits 0 with no `# noqa` suppressions added by Phase 42; `pytest --cov` coverage threshold is raised to ≥ 70% and passes.
+
+**UI hint:** no
+
+#### Phase 43: Documentation + Milestone Close
+
+**Goal:** v1.8 is closed cleanly — the `firestarter_app` README and contributor docs reflect the new flat-module structure and tooling workflow, MILESTONES.md captures the delivery, PROJECT.md is updated, phase directories are archived, GATE-1.8 is verified end-to-end, and the branch is promoted per the established beta→stable pattern.
+**Depends on:** Phases 36–42 (everything that produced the refactored codebase).
+**Requirements:** DOC-01, DOC-02, MS-01
+**Success Criteria** (what must be TRUE):
+  1. `firestarter_app/README.md` and any contributor/development docs reflect the post-v1.8 flat-module map (listing `frame_parser.py`, `codec.py`, `address_parser.py`, `chip_resolver.py`, `cli_handlers.py`, `exceptions.py`), the tooling workflow (`ruff`, `ruff format`, `mypy`, `pytest --cov`), and the Click-based CLI structure; the docs accurately describe the layer boundary rules.
+  2. MILESTONES.md grows a v1.8 entry covering: delivered structural changes, new modules introduced, requirements closed, known intentional behavior changes, and the v1.9 read-path ring-fence status; PROJECT.md "Validated" section grows entries for each major structural change; the v1.8 milestone block in PROJECT.md is rewritten as "Shipped 2026-05-XX".
+  3. Phase artifacts are archived under `.planning/milestones/v1.8-phases/` via the archive script pattern; GATE-1.8 (a–e) is verified end-to-end (wire protocol byte-identical confirmed by `firestarter read` on real hardware or `test_decoder.py` characterization; CLI surface verified by CliRunner; parity test green; entry point smoke test green); `firestarter_app` branch `v1.8-app-cleanup` is promoted → `beta` → `main` per the operator-authorized branch promotion pattern.
+
+**UI hint:** no
+
+### v1.8 Coverage
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| TEST-01 | Phase 36 | Pending |
+| TEST-02 | Phase 36 | Pending |
+| TEST-03 | Phase 36 | Pending |
+| TEST-04 | Phase 36 | Pending |
+| TEST-05 | Phase 36 | Pending |
+| TOOL-01 | Phase 37 | Pending |
+| TOOL-02 | Phase 37 | Pending |
+| TOOL-03 | Phase 37 | Pending |
+| STRUCT-01 | Phase 38 | Pending |
+| STRUCT-02 | Phase 38 | Pending |
+| STRUCT-03 | Phase 38 | Pending |
+| STRUCT-04 | Phase 38 | Pending |
+| STRUCT-05 | Phase 38 | Pending |
+| DATA-01 | Phase 39 | Pending |
+| DATA-02 | Phase 39 | Pending |
+| DATA-03 | Phase 39 | Pending |
+| DATA-04 | Phase 39 | Pending |
+| SERIAL-01 | Phase 40 | Pending |
+| SERIAL-02 | Phase 40 | Pending |
+| SERIAL-03 | Phase 40 | Pending |
+| CLI-01 | Phase 41 | Pending |
+| CLI-02 | Phase 41 | Pending |
+| CLI-03 | Phase 41 | Pending |
+| CLI-04 | Phase 41 | Pending |
+| ERR-01 | Phase 42 | Pending |
+| ERR-02 | Phase 42 | Pending |
+| ERR-03 | Phase 42 | Pending |
+| DOC-01 | Phase 43 | Pending |
+| DOC-02 | Phase 43 | Pending |
+| MS-01 | Phase 43 | Pending |
+
+**Mapped: 30/30 (27 v1 requirements + DOC-01, DOC-02, MS-01) ✓** — no orphans, no duplicates.
+**GATE-1.8 (a–e):** Standing cross-cutting gate applied at every phase; not a phase itself.
+
+## v1.7 — RURP Shield Hardware Investigation & Version Detection (SHIPPED 2026-05-26)
+
+<details>
+<summary>✅ v1.7 shipped — per-rev capability table + labeled schematics + shield-version-detect firmware plumbing (5 phases). Full detail in `.planning/MILESTONES.md` §v1.7.</summary>
+
+- **Phases:**
+  - [x] Phase 31: Upstream Shield Archaeology (HW-INV-01, HW-INV-02, HW-INV-03, SILK-01)
+  - [x] Phase 32: Inter-Rev Difference + Capability Matrix (DIFF-01, DIFF-02, CAPS-01, CAPS-02)
+  - [x] Phase 33: Silkscreen Label → Code Alias Migration (ALIAS-01, ALIAS-02, ALIAS-03)
+  - [x] Phase 34: Shield-Version-Detect Design + Firmware Plumbing (DETECT-HW-01, DETECT-HW-02, DETECT-FW-01, DETECT-FW-02)
+  - [x] Phase 35: Documentation + Milestone Close (DOC-01, MS-01)
+- **Canonical reference:** `.planning/v1.7-SHIELD-REVS.md` (9 sections: inventory, difference matrix, capability matrix, alias table, detect-hw schematic delta, per-rev ADC band table, labeled schematics, operator-board annotations, v1.8 hand-off).
+- See full archive: `.planning/MILESTONES.md` §v1.7.
+
+</details>
 
 ## v1.6 — Fix the Read Bug (SHIPPED 2026-05-26 — diagnostic + revert)
 
 <details>
-<summary>✅ v1.6 shipped — ships as "diagnostic + revert" per D-17v2 (5 phases, 13 plans). Read-bug carries to v1.8 with Bug A + Bug B pattern findings as RCA seed. Full detail in `.planning/MILESTONES.md` §v1.6.</summary>
+<summary>✅ v1.6 shipped — ships as "diagnostic + revert" per D-17v2 (5 phases, 13 plans). Read-bug carries to v1.9 with Bug A + Bug B pattern findings as RCA seed. Full detail in `.planning/MILESTONES.md` §v1.6.</summary>
 
-- **Ship tag:** `<TBD-from-30-03>` (default `3.0.0b5` beta-only; operator may authorize `3.0.1` stable in Plan 30-03)
+- **Ship tag:** `3.0.0b6` (beta-only; both sub-repos lockstep)
 - **Phases:**
   - [x] Phase 26: Cross-board Reproduction & Diagnostic Tooling (2 plans; REPRO-01..03)
   - [x] Phase 27: Root Cause Analysis (3 plans incl. re-open Plan 27-05; RCA-01..03)
   - [x] Phase 28: Fix Implementation + Unit Test Coverage (4 plans incl. revert Plan 28-03 + parked Plan 28-04; FIX-01..03 as diagnostic + revert)
-  - [x] Phase 29: Multi-Board Bench Verification (4 plans incl. v2 re-iteration Plans 29-03/04; VERIFY-02 PASS via structured_data shape; VERIFY-01/03/04 DEFERRED to v1.8)
+  - [x] Phase 29: Multi-Board Bench Verification (4 plans incl. v2 re-iteration Plans 29-03/04; VERIFY-02 PASS via structured_data shape; VERIFY-01/03/04 DEFERRED to v1.9)
   - [x] Phase 30: Documentation + Milestone Close (3 plans; DOC-01/02 + MS-01)
 - **Re-scope (D-17v2):** Phase 29 v1 Wave B FAIL → Plan 27-05 re-open confirmed dual-cause (Outcome A Leonardo firmware-induced + Outcome B-independent uno328pb hardware) → Plan 28-03 reverted `437339b6` via `ea25174`; `4f205e58` `_NOP()` settling preserved (Plan 28-04 parks) → Phase 29 v2 PASS_PARKED (Leonardo Modified Rev 0 returns to Phase 26 baseline; WORST 0.047% zeros vs 83.8% pre-revert).
-- **v1.8 hand-off:** 15 N=5 W27C512 binaries at `.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260526-*-v2*/`; Bug A (Modified Rev 0 upper-address jitter, A15=1 → 1.86× skew) + Bug B (Rev 2.0 /CE-or-/OE timing + VPP=13.1V) characterized in `.planning/v1.6-EVIDENCE.md` Phase 29 v2 H3 block + `.planning/milestones/v1.6-phases/29-multi-board-bench-verification/29-04-SUMMARY.md`.
+- **v1.9 hand-off:** 15 N=5 W27C512 binaries at `.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260526-*-v2*/`; Bug A (Modified Rev 0 upper-address jitter, A15=1 → 1.86× skew) + Bug B (Rev 2.0 /CE-or-/OE timing + VPP=13.1V) characterized in `.planning/v1.6-EVIDENCE.md` Phase 29 v2 H3 block + `.planning/milestones/v1.6-phases/29-multi-board-bench-verification/29-04-SUMMARY.md`.
 - See full archive: `.planning/MILESTONES.md` §v1.6, `.planning/milestones/v1.6-REQUIREMENTS.md`, `.planning/v1.6-EVIDENCE.md`.
 
 </details>
@@ -142,7 +231,7 @@
   - [x] Phase 24: Bench Validation on 328PB-Uno (operator-on-bench; BENCH-01, BENCH-02)
   - [x] Phase 25: Documentation + Milestone Close (1 plan; DOC-01, DOC-02, MS-01)
 - **Bench-validated** on operator's 328PB-Uno via `firestarter fw -i --pre` end-to-end on `/dev/ttyUSB0` with `urclock` bootloader. Post-flash handshake reports `v3.0.0b4 / uno328pb`.
-- **Open v1.6 backlog** carried forward (3 todos): `large-read-data-jitter-uno328pb` (HIGH, pre-existing, affects all controllers — **now in scope for v1.6**), `w27c512-eeprom-misclassification` (HIGH, operator-tagged asap), `avrdude-mcu-detection-fallback` (low).
+- **Open v1.9 backlog** carried forward (3 todos): `large-read-data-jitter-uno328pb` (HIGH, pre-existing, affects all controllers — now in scope for v1.9), `w27c512-eeprom-misclassification` (HIGH, operator-tagged asap), `avrdude-mcu-detection-fallback` (low).
 - See full archive: `.planning/milestones/v1.5-ROADMAP.md`, `.planning/milestones/v1.5-REQUIREMENTS.md`, `.planning/v1.5-BENCH-RESULTS.md`.
 
 </details>
@@ -312,8 +401,17 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 14 (close) | v1.3 | 0/0 | ⏸ Paused | — (hardware-gated) |
 | 15-20 (v1.4) | v1.4 | 10/10 | ✅ Shipped | 2026-05-20 |
 | 21-25 (v1.5) | v1.5 | 6/6 | ✅ Shipped | 2026-05-21 |
-| 26 | v1.6 | 2/2 | Complete    | 2026-05-21 |
-| 27 | v1.6 | 3/2 | Complete   | 2026-05-26 |
-| 28 | v1.6 | 4/4 | Complete    | 2026-05-26 |
-| 29 | v1.6 | 1/2 | In Progress|  |
-| 30 (close) | v1.6 | 1/3 | In Progress|  |
+| 26 | v1.6 | 2/2 | ✅ Complete | 2026-05-21 |
+| 27 | v1.6 | 3/2 | ✅ Complete | 2026-05-26 |
+| 28 | v1.6 | 4/4 | ✅ Complete | 2026-05-26 |
+| 29 | v1.6 | 4/4 | ✅ Complete | 2026-05-26 |
+| 30 (close) | v1.6 | 3/3 | ✅ Shipped | 2026-05-26 |
+| 31-35 (v1.7) | v1.7 | — | ✅ Shipped | 2026-05-26 |
+| 36 | v1.8 | 0/TBD | Not started | — |
+| 37 | v1.8 | 0/TBD | Not started | — |
+| 38 | v1.8 | 0/TBD | Not started | — |
+| 39 | v1.8 | 0/TBD | Not started | — |
+| 40 | v1.8 | 0/TBD | Not started | — |
+| 41 | v1.8 | 0/TBD | Not started | — |
+| 42 | v1.8 | 0/TBD | Not started | — |
+| 43 (close) | v1.8 | 0/TBD | Not started | — |
