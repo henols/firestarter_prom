@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.8
 milestone_name: — Host CLI Structural Cleanup
 status: executing
-last_updated: "2026-05-27T12:58:02.704Z"
-last_activity: 2026-05-27 -- Phase 37 execution started
+last_updated: "2026-05-27T13:34:21.000Z"
+last_activity: 2026-05-27 -- Phase 37 complete (verified passed)
 progress:
   total_phases: 8
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 7
-  completed_plans: 4
-  percent: 13
+  completed_plans: 7
+  percent: 25
 ---
 
 # Project State
@@ -20,11 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: 37 (tooling-baseline-ci-gate) — EXECUTING
-Plan: 1 of 3
-Next: Phase 37 (Tooling Baseline + CI Gate) — not started
-Status: Executing Phase 37
-Last activity: 2026-05-27 -- Phase 37 execution started
+Phase: 37 (tooling-baseline-ci-gate) — ✓ COMPLETE (verified: passed)
+Plans: 3 of 3 complete
+Next: Phase 38 (Low-Risk Extractions) — not started
+Status: Ready to execute Phase 38
+Last activity: 2026-05-27 -- Phase 37 complete (verified passed)
 
 ## Project Reference
 
@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-27)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 37 — tooling-baseline-ci-gate
+**Current focus:** Phase 38 — Low-Risk Extractions (Phase 37 complete + verified passed)
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
@@ -293,9 +293,10 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 
 ## Operator Next Steps
 
-- `/gsd-discuss-phase 37` — gather context for Phase 37 (Tooling Baseline + CI Gate: ruff + ruff-format + mypy, baseline + CI enforcement with coverage gate) before planning
-- Alternative: `/gsd-plan-phase 37` — plan Phase 37 directly (skip discuss)
-- Note: the Phase 36 characterization suite (162 passed, 2 xfailed) is the regression net Phase 37's tooling/format pass must keep green
+- `/gsd-discuss-phase 38` — gather context for Phase 38 (Low-Risk Extractions: frame_parser.py, codec.py, address_parser.py, exceptions.py; delete dead code) before planning
+- Alternative: `/gsd-plan-phase 38` — plan Phase 38 directly (skip discuss)
+- Note: the enforced ruff+ruff-format+mypy(watermark 44)+coverage(≥50%) CI gate now guards every PR on `v1.8-app-cleanup` — Phase 38's extractions must keep the tree green and not raise the mypy watermark
+- Deferred from Phase 37 code review → Phase 42 quality sweep: WR-01 (pin type/lint toolchain to the watermark-measured versions) + WR-02 (align the pre-commit mypy hook with the CI watermark gate)
 
 ## Performance Metrics
 

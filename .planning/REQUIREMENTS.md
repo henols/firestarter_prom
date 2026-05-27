@@ -31,9 +31,9 @@ The behavior gate is **"refactor + fix bugs found"**: internal structure changes
 
 ### Tooling & CI Quality Gate (TOOL)
 
-- [ ] **TOOL-01**: `ruff` (lint) + `ruff format` configured in `pyproject.toml`; a baseline pass (`ruff check --add-noqa`) makes the tree green; selected rule categories documented (no `select = ["ALL"]`).
-- [ ] **TOOL-02**: `mypy` configured with a gradual per-module strategy + `types-pyserial`; the initial error count is recorded as a watermark; the gate is "no new errors," tightened to strict on modules as they are typed.
-- [ ] **TOOL-03**: A CI workflow runs `ruff check`, `ruff format --check`, and `mypy`, plus the test suite with a coverage gate (start ~60%, ratcheted up per phase), and fails the build on violations.
+- [x] **TOOL-01**: `ruff` (lint) + `ruff format` configured in `pyproject.toml`; a baseline pass (`ruff check --add-noqa`) makes the tree green; selected rule categories documented (no `select = ["ALL"]`).
+- [x] **TOOL-02**: `mypy` configured with a gradual per-module strategy + `types-pyserial`; the initial error count is recorded as a watermark; the gate is "no new errors," tightened to strict on modules as they are typed.
+- [x] **TOOL-03**: A CI workflow runs `ruff check`, `ruff format --check`, and `mypy`, plus the test suite with a coverage gate (start ~60%, ratcheted up per phase), and fails the build on violations.
 
 ### Module Decomposition — low-risk extractions (STRUCT)
 
@@ -115,9 +115,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 | TEST-03 | Phase 36 | Complete |
 | TEST-04 | Phase 36 | Complete |
 | TEST-05 | Phase 36 | Complete |
-| TOOL-01 | Phase 37 | Pending |
-| TOOL-02 | Phase 37 | Pending |
-| TOOL-03 | Phase 37 | Pending |
+| TOOL-01 | Phase 37 | Complete |
+| TOOL-02 | Phase 37 | Complete |
+| TOOL-03 | Phase 37 | Complete |
 | STRUCT-01 | Phase 38 | Pending |
 | STRUCT-02 | Phase 38 | Pending |
 | STRUCT-03 | Phase 38 | Pending |
