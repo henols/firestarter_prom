@@ -536,17 +536,17 @@ def test_resolve_chip_conversion_correctness(db):
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Per-site `try/except` vs shared helper for ChipNotFoundError catch**
    - What we know: Both approaches are behavior-equivalent for GATE-1.8b. CONTEXT.md leaves this to Claude's Discretion.
    - What's unclear: Which produces a cleaner diff for Phase 41 (Click migration that adds centralized error mapping).
-   - Recommendation: Shared helper (`_resolve_or_exit`) is preferable — it is a single point the Phase 41 planner removes and replaces with Click error mapping, minimizing churn.
+   - RESOLVED: Shared helper (`_resolve_or_exit`) is preferable — it is a single point the Phase 41 planner removes and replaces with Click error mapping, minimizing churn. Implemented in Plan 39-01 Task 2.
 
 2. **Whether to add `chip_resolver` to the mypy strict-island overrides in `pyproject.toml`**
    - What we know: Phase 42 (ERR-02) is the mypy-strict phase. Phase 39 only must not raise the watermark.
    - What's unclear: Whether the planner wants to proactively annotate `chip_resolver.py` to strict and add it to `[[tool.mypy.overrides]]` now.
-   - Recommendation: Add `return type: dict` annotation to `resolve_chip` (minimal, correct) but defer adding `chip_resolver` to the strict overrides list to Phase 42 (keeps the Phase 39 diff minimal).
+   - RESOLVED: Add `return type: dict` annotation to `resolve_chip` (minimal, correct) but defer adding `chip_resolver` to the strict overrides list to Phase 42 (keeps the Phase 39 diff minimal). Implemented in Plan 39-01 Task 1.
 
 ---
 

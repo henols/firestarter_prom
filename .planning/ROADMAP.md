@@ -149,6 +149,20 @@ Plans:
 
 **UI hint:** no
 
+**Plans:** 3 plans (3 waves — strict sequential chain; this milestone runs executors sequentially, worktrees off; file overlaps main.py/database.py force ordering)
+Plans:
+**Wave 1**
+
+- [ ] 39-01-PLAN.md — DATA-01: create chip_resolver.py (resolve_chip) + tests/test_chip_resolver.py + repoint the 9 main.py op sites via _resolve_or_exit (wave 1)
+
+**Wave 2** *(blocked on Wave 1; touches main.py)*
+
+- [ ] 39-02-PLAN.md — DATA-03: star-import → named imports + strip 55 F403/F405 noqas across all 6 modules (D-06; F401 markers preserved) (wave 2)
+
+**Wave 3** *(blocked on Wave 2; touches database.py)*
+
+- [ ] 39-03-PLAN.md — DATA-02 pin_conversions board-wiring docstring + DATA-04 COMMAND_*/FLAG_* firmware-sync markers + parity verify (wave 3)
+
 #### Phase 40: Serial / Transport Restructure
 
 **Goal:** `serial_comm.py` owns only transport concerns after Phase 38's extractions. `_validate_firmware_version` is an extractable `@staticmethod` with direct unit tests. The `_read_and_parse_lines` generator body is explicitly ring-fenced with a comment. Type hints are added to all public `SerialCommunicator` methods. Wire behavior is verified byte-identical by the existing test suite.
