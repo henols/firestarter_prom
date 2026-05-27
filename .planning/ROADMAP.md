@@ -81,9 +81,15 @@ Plans:
 
   1. `pyproject.toml` contains `[tool.ruff]` (E, F, I rules minimum; UP added; no `select = ["ALL"]`), `[tool.ruff.format]`, and `[tool.mypy]` sections with documented rationale for any selected rules; `ruff check` and `ruff format --check` both exit 0 on the full tree.
   2. mypy runs with `disallow_untyped_defs = false` globally (gradual adoption); initial error count recorded as the watermark comment in `pyproject.toml`; the gate is "no new errors vs. watermark"; `[[tool.mypy.overrides]]` strict list starts with the new Phase 36 test modules.
-  3. A CI workflow step (in the existing `firestarter_app` GitHub Actions file) runs `ruff check`, `ruff format --check`, and `mypy`, plus `pytest` with `--cov` and a coverage gate of ≥ 60%, and fails the build on any violation; a `pre-commit` config with the same hook order (ruff-check → ruff-format → mypy) is committed.
+  3. A CI workflow step (in the existing `firestarter_app` GitHub Actions file) runs `ruff check`, `ruff format --check`, and `mypy`, plus `pytest` with `--cov` and a coverage gate (D-04: measured 51.33% → floor set at 50%, ratcheted to ≥ 70% in Phase 42), and fails the build on any violation; a `pre-commit` config with the same hook order (ruff-check → ruff-format → mypy) is committed.
 
 **UI hint:** no
+
+**Plans:** 3 plans (3 waves)
+Plans:
+- [ ] 37-01-PLAN.md — ruff + mypy config in pyproject.toml + green-baseline transform (format / import-sort / 2× noqa) + .git-blame-ignore-revs (TOOL-01, wave 1)
+- [ ] 37-02-PLAN.md — measure + record mypy watermark + tools/check_mypy_watermark.py + coverage config + pytest-cov/types-pyserial deps (TOOL-02, TOOL-03, wave 2)
+- [ ] 37-03-PLAN.md — extend ci.yml (all-PR trigger + folded gate steps + .[test] install) + .pre-commit-config.yaml (TOOL-03, wave 3)
 
 #### Phase 38: Low-Risk Extractions
 
