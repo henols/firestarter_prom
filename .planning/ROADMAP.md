@@ -117,7 +117,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 38-01-PLAN.md — STRUCT-04: consolidate 8 exception classes into exceptions.py + repoint all sites (wave 1)
+- [x] 38-01-PLAN.md — STRUCT-04: consolidate 8 exception classes into exceptions.py + repoint all sites (wave 1)
 
 **Wave 2** *(blocked on Wave 1; touches serial_comm.py)*
 

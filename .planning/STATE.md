@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.8
 milestone_name: — Host CLI Structural Cleanup
 status: executing
-last_updated: "2026-05-27T15:46:50.728Z"
-last_activity: 2026-05-27 -- Phase 38 planning complete
+last_updated: "2026-05-27T15:53:42.779Z"
+last_activity: 2026-05-27 -- Phase 38 Wave 1 (38-01 STRUCT-04) complete
 progress:
   total_phases: 8
   completed_phases: 2
   total_plans: 12
-  completed_plans: 7
+  completed_plans: 8
   percent: 25
 ---
 
@@ -20,11 +20,12 @@ progress:
 
 ## Current Position
 
-Phase: 38 (low-risk-extractions) — CONTEXT gathered (ready for planning)
-Plans: 0 (not yet planned)
-Next: /gsd-plan-phase 38 — plan Low-Risk Extractions
-Status: Ready to execute
-Last activity: 2026-05-27 -- Phase 38 planning complete
+Phase: 38 (low-risk-extractions) — EXECUTING
+Plan: 2 of 5 (Wave 2) — 38-01 complete
+Plans: 5 planned (38-01..38-05); 1 complete; strict dependency chain, sequential execution
+Next: Execute Wave 2 — 38-02 (STRUCT-01 frame_parser.py extraction + re-export landmine)
+Status: Executing Phase 38
+Last activity: 2026-05-27 -- Phase 38 execution started
 
 ## Project Reference
 
@@ -33,7 +34,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-27)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 38 — Low-Risk Extractions (Phase 37 complete + verified passed)
+**Current focus:** Phase 38 — low-risk-extractions
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
