@@ -121,7 +121,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1; touches serial_comm.py)*
 
-- [ ] 38-02-PLAN.md — STRUCT-01: extract frame_parser.py + serial_comm re-export landmine (D-07); test_decoder.py unchanged (wave 2)
+- [x] 38-02-PLAN.md — STRUCT-01: extract frame_parser.py + serial_comm re-export landmine (D-07); test_decoder.py unchanged (wave 2)
 
 **Wave 3** *(blocked on Wave 2; codec needs frame_parser._decode_param; touches serial_comm.py)*
 
