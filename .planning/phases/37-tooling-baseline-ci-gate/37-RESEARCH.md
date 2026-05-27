@@ -769,7 +769,7 @@ repos:
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **ruff `--fix` in pre-commit `ruff-check` hook — include or not?**
    - What we know: adding `args: ["--fix"]` auto-fixes safe violations (unused imports that are
@@ -778,12 +778,17 @@ repos:
    - What's unclear: whether the operator wants auto-fix at commit time or check-only.
    - Recommendation: start with check-only (no `--fix` args) to keep pre-commit simple; devs
      run `ruff check --fix` manually when they see violations.
+   - **RESOLVED:** check-only — the `ruff-check` pre-commit hook carries no `args: ["--fix"]`
+     (avoids re-stage friction; developers run `ruff check --fix` manually). Encoded in Plan 37-03
+     Task 2 and `37-PATTERNS.md`.
 
 2. **Coverage source: `firestarter/` only, or include `tests/`?**
    - What we know: `--cov=firestarter` measures only the package code (standard); tests/ is not
      production code and its coverage is less meaningful.
    - What's unclear: whether the operator wants to see test file coverage too.
    - Recommendation: `--cov=firestarter` only (standard practice).
+   - **RESOLVED:** `--cov=firestarter` only (package code; test files excluded). Encoded in
+     Plan 37-03 Task 1 (`--cov=firestarter --cov-fail-under=50`).
 
 ---
 
