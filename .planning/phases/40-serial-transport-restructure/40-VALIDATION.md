@@ -2,7 +2,7 @@
 phase: 40
 slug: serial-transport-restructure
 status: draft
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-05-28
 ---
@@ -90,11 +90,11 @@ Framework + existing conftest cover all other Wave 0 needs (pytest 9.0.3, syrupy
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references (`test_fw_version_guard.py`)
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 15s (full suite ~10s)
-- [ ] `nyquist_compliant: true` set in frontmatter after planner consumes this
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references (`test_fw_version_guard.py`)
+- [x] No watch-mode flags
+- [x] Feedback latency < 15s (full suite ~10s)
+- [x] `nyquist_compliant: true` set in frontmatter after planner consumes this
 
-**Approval:** pending
+**Approval:** approved 2026-05-28

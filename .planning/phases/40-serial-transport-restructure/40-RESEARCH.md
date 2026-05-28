@@ -564,17 +564,19 @@ All other claims were verified against live source files.
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **`"3.0.0-dev"` test case behavior (§7 above)**
    - What we know: In production the regex strips `-dev`; direct calls to `_validate_firmware_version("3.0.0-dev")` would raise the 2.0.0 floor error with current `_is_version_sufficient`.
    - What's unclear: D-05 says "return None" (pass); current logic says raise.
    - Recommendation: Option A (strip alpha suffix) — add `version_str = re.sub(r"-.*$", "", version_str)` before the major extraction. Document as intentional behavior fix in commit message. Low risk since the production path never sends the suffix.
+   - RESOLVED: Option A chosen — alpha-suffix strip via `re.sub(r"-.*$","",version_str)` in 40-01 Task 40-01-01 action. Production wire behavior unchanged (the `_probe_port` regex already strips `-dev`); documented as intentional behavior fix per GATE-1.8.
 
 2. **`"2.9.9" + allow_pre_v12=True` test row (§1 above)**
    - What we know: This PASSES (no raise). CONTEXT.md test matrix says "raises".
    - What's unclear: Nothing — the code is unambiguous.
    - Recommendation: Write the test row as `assert` (no exception expected). No operator consultation needed.
+   - RESOLVED: passes (no FirmwareOutdatedError raised). 40-01 Task 40-01-03 writes the test row as no-raise. Corrected from CONTEXT.md D-05 matrix per code trace in §1.
 
 ---
 

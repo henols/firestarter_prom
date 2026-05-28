@@ -176,6 +176,24 @@ Plans:
 
 **UI hint:** no
 
+**Plans:** 4 plans (4 waves — strict sequential chain; this milestone runs executors sequentially, worktrees off; file overlaps on serial_comm.py force ordering)
+Plans:
+**Wave 1**
+
+- [ ] 40-01-PLAN.md — SERIAL-02: extract _validate_firmware_version @staticmethod + repoint _probe_port (env-var → bool) + new tests/test_fw_version_guard.py (D-01..D-05; alpha-suffix strip per RESEARCH §7 Option A) (wave 1)
+
+**Wave 2** *(blocked on Wave 1; touches serial_comm.py + codec.py)*
+
+- [ ] 40-02-PLAN.md — SERIAL-01: extract _decode_id_frame body to codec.decode_id_frame (4 new imports in codec.py per RESEARCH §6) + thin SerialCommunicator wrapper (D-06..D-09; test_decoder.py unchanged) (wave 2)
+
+**Wave 3** *(blocked on Wave 2; touches serial_comm.py)*
+
+- [ ] 40-03-PLAN.md — SERIAL-01: dead-code sweep — delete STATE_MACHINE_PREFIXES + read_line_bytes + 3 orphan/dead comments (D-10..D-14; PREFIX_REGEX + F401 re-export KEPT) (wave 3)
+
+**Wave 4** *(blocked on Wave 3; touches serial_comm.py)*
+
+- [ ] 40-04-PLAN.md — SERIAL-03: ring-fence comment block + docstring marker on _read_and_parse_lines + 7x -> None return hints (D-15..D-19; GATE-1.8a/d body byte-identity) (wave 4)
+
 #### Phase 41: CLI Migration argparse → Click
 
 **Goal:** The 418-line `main()` dispatcher is replaced by a Click command group; `cli_handlers.py` contains one `@cli.command()` decorated function per user command; `main.py` is ≤ 50 lines. All five argparse→Click behavioral traps are handled explicitly. The `build_arg_flags` bug is fixed with an INTENTIONAL BEHAVIOR CHANGE commit. The pip entry point works; shell-completion behavior is confirmed or explicitly dropped with operator sign-off.
