@@ -252,7 +252,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 42-01-bug2-except-split-PLAN.md — ERR-01 (BUG-2 portion): split eprom_operations.py:265 except clause (INTENTIONAL BEHAVIOR CHANGE); flip BUG-2 xfail to passing (wave 1)
+- [x] 42-01-bug2-except-split-PLAN.md — ERR-01 (BUG-2 portion): split eprom_operations.py:265 except clause (INTENTIONAL BEHAVIOR CHANGE); flip BUG-2 xfail to passing (wave 1) — SHIPPED 2026-05-28, commit firestarter_app@04a0c13; 242 passed + 0 xfail
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
