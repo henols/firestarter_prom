@@ -248,6 +248,13 @@ Plans:
 
 **UI hint:** no
 
+**Plans:** 3 plans (3 waves — strict sequential chain per v1.8 execution mechanics; worktrees off; file overlaps + dependency on Plan 42-01 BUG-2 flip → Plan 42-02 decorator refactor → Plan 42-03 quality-gate raise force ordering)
+
+Plans:
+- [ ] 42-01-bug2-except-split-PLAN.md — ERR-01 (BUG-2 portion): split eprom_operations.py:265 except clause (INTENTIONAL BEHAVIOR CHANGE); flip BUG-2 xfail to passing (wave 1)
+- [ ] 42-02-map-typed-errors-decorator-PLAN.md — ERR-01 (decorator portion): centralize typed-exception → ClickException mapping at Click boundary; remove _resolve_or_exit shim (wave 2)
+- [ ] 42-03-mypy-strict-docstrings-coverage-PLAN.md — ERR-02 + ERR-03: mypy strict on 8 modules, docstrings + coverage ≥70% (wave 3)
+
 #### Phase 43: Documentation + Milestone Close
 
 **Goal:** v1.8 is closed cleanly — the `firestarter_app` README and contributor docs reflect the new flat-module structure and tooling workflow, MILESTONES.md captures the delivery, PROJECT.md is updated, phase directories are archived, GATE-1.8 is verified end-to-end, and the branch is promoted per the established beta→stable pattern.
@@ -528,5 +535,5 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 39 | v1.8 | 3/3 | Complete | 2026-05-27 |
 | 40 | v1.8 | 0/TBD | Not started | — |
 | 41 | v1.8 | 4/4 | Complete    | 2026-05-28 |
-| 42 | v1.8 | 0/TBD | Not started | — |
+| 42 | v1.8 | 0/3 | Not started | — |
 | 43 (close) | v1.8 | 0/TBD | Not started | — |
