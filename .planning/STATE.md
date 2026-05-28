@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.8
 milestone_name: — Host CLI Structural Cleanup
 status: executing
-last_updated: "2026-05-28T13:30:00.000Z"
-last_activity: 2026-05-28 -- Phase 41 Plan 01 (build_arg_flags fix, CLI-03, BUG-1) SHIPPED — firestarter_app@6241dba on v1.8-app-cleanup
+last_updated: "2026-05-28T13:00:00.000Z"
+last_activity: 2026-05-28 -- Phase 41 Plan 02 (Click skeleton + 3 read-only commands, CLI-01, CLI-02) SHIPPED — firestarter_app@631a038 on v1.8-app-cleanup
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 23
-  completed_plans: 20
-  percent: 65
+  completed_plans: 21
+  percent: 68
 ---
 
 # Project State
@@ -21,13 +21,13 @@ progress:
 ## Current Position
 
 Phase: 41 (cli-migration-argparse-click) — EXECUTING
-Plan: 2 of 4
-Plans: 1/4 (41-01 ✓ build_arg_flags fix SHIPPED • 41-02 Click skeleton + 3 read-only commands • 41-03 11 remaining commands • 41-04 entry-point swap + argcomplete drop + CI smoke)
-Next: Run `/gsd-execute-phase 41 --wave 2` to execute Wave 2 (cli_handlers.py skeleton + list/info/search Click commands).
-Status: Executing Phase 41 — Wave 1 complete; Wave 2 next
-Resume file: .planning/phases/41-cli-migration-argparse-click/41-02-click-skeleton-readonly-commands-PLAN.md
-Last activity: 2026-05-28 -- Phase 41 Plan 01 (W1 / CLI-03 / BUG-1) SHIPPED — firestarter_app@6241dba on v1.8-app-cleanup
-Last commit: firestarter_app@6241dba — fix(41-01): build_arg_flags getattr truthiness (CLI-03, BUG-1) [INTENTIONAL BEHAVIOR CHANGE]
+Plan: 3 of 4
+Plans: 2/4 (41-01 ✓ build_arg_flags fix SHIPPED • 41-02 ✓ Click skeleton + 3 read-only commands SHIPPED • 41-03 11 remaining commands • 41-04 entry-point swap + argcomplete drop + CI smoke)
+Next: Run `/gsd-execute-phase 41 --wave 3` to execute Wave 3 (migrate the remaining 11 commands — read/write/verify/blank/erase/id + vpp/vpe + hw/config + fw + dev group into cli_handlers.py per D-12).
+Status: Executing Phase 41 — Wave 2 complete; Wave 3 next
+Resume file: .planning/phases/41-cli-migration-argparse-click/41-03-*-PLAN.md
+Last activity: 2026-05-28 -- Phase 41 Plan 02 (W2 / CLI-01 + CLI-02 skeleton) SHIPPED — firestarter_app@631a038 on v1.8-app-cleanup
+Last commit: firestarter_app@631a038 — feat(41-02): land Click skeleton + 3 read-only commands as dead code (CLI-01, CLI-02)
 
 ## Project Reference
 
@@ -219,6 +219,7 @@ Items acknowledged and deferred at v1.2 milestone close on 2026-05-19. The three
 
 ## Phase 41 — Execution Decisions
 
+- **2026-05-28 (Plan 41-02 / Wave 2 SHIPPED):** Click skeleton + 3 read-only commands landed as a single atomic commit on `firestarter_app@v1.8-app-cleanup` (commit `631a038`). New `firestarter/cli_handlers.py` (170 lines) with AppContext dataclass + cli @click.group() + -v/-p/--version + ctx.obj + `_complete_eprom` shell-completion callback + 3 @cli.command()s: list/info/search. New `tests/test_cli_handlers.py` (100 lines) with 7 CliRunner tests (--help, --version, list/search happy-paths, info chip-resolution happy-path + unknown-chip error, no-prefix-matching TRAP #2 / D-13.2). Entry point in main.py STAYS argparse — cli_handlers.py is reviewable dead code until Wave 4. Two documented deviations: (1) Rule 3 — explicit `import click.shell_completion` (Click 8.3.x ergonomic shift); (2) Rule 2 — `test_info_chip_resolution_happy_path` asserts exit 1 (not 0) because the pre-existing ic_layout TypeError on every chip is preserved verbatim per GATE-1.8b. Phase 36 subprocess goldens unchanged (35 + 29 snapshots green); full suite 205 passed + 1 xfail (BUG-2). ruff clean; mypy at watermark 38/44. main.py + pyproject.toml byte-identical vs 6241dba. SUMMARY at `.planning/phases/41-cli-migration-argparse-click/41-02-click-skeleton-readonly-commands-SUMMARY.md`.
 - **2026-05-28 (Plan 41-01 / Wave 1 SHIPPED):** `build_arg_flags` truthiness fix landed as a single atomic INTENTIONAL BEHAVIOR CHANGE commit on `firestarter_app@v1.8-app-cleanup` (commit `6241dba`). 3 attribute-existence patterns (`force`/`verbose`/`vpe_as_vpp`) replaced with `getattr(args, key, default)`; 2 parallel attribute-existence gates (`input_enable`/`chip_disable`) replaced with `hasattr(args, key)` (Rule 2 deviation — required by the live PlainArgs contract; D-10's parenthetical that those lines `already use getattr correctly` was incorrect about the current source). BUG-1 xfail flipped to passing; BUG-2 xfail preserved verbatim. Suite green: 198 passed + 1 xfail (BUG-2) + 29 syrupy snapshots; ruff `firestarter/`+`tests/` clean; mypy at watermark 38/44; Phase 36 GATE-1.8b witness snapshots unchanged. SUMMARY at `.planning/phases/41-cli-migration-argparse-click/41-01-build-arg-flags-fix-SUMMARY.md`.
 
 ## v1.5 Decisions (locked at milestone start, 2026-05-20)
