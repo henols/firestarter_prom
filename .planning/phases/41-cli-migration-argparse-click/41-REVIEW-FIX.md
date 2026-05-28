@@ -1,122 +1,169 @@
 ---
 phase: 41-cli-migration-argparse-click
-fixed_at: 2026-05-28T00:00:00Z
+fixed_at: 2026-05-28T20:45:00Z
 review_path: .planning/phases/41-cli-migration-argparse-click/41-REVIEW.md
-iteration: 1
-findings_in_scope: 5
-fixed: 5
-skipped: 0
-status: all_fixed
+iteration: 2
+findings_in_scope: 6
+fixed: 4
+skipped: 2
+status: partial
 ---
 
-# Phase 41: Code Review Fix Report
+# Phase 41: Code Review Fix Report (iteration 2)
 
 **Fixed at:** 2026-05-28
 **Source review:** `.planning/phases/41-cli-migration-argparse-click/41-REVIEW.md`
-**Iteration:** 1
+**Iteration:** 2
 
 **Summary:**
-- Findings in scope (critical_warning): 5
-- Fixed: 5
-- Skipped: 0
+- Findings in scope (`all`: critical + warning + info): 6
+- Fixed: 4 (CR-01, WR-01, IN-01, IN-02)
+- Skipped: 2 (IN-03, IN-04) — both with `no-fix-needed` rationale documented below
 
-Scope per orchestrator: critical-and-warning only. Phase 41 REVIEW.md had 0 critical, 5 warning, 7 info — all 5 warnings were addressed in this run. The 7 Info findings are deferred per the orchestrator's stated scope.
+Scope per orchestrator: `--fix --all`, so the 1 Critical + 1 Warning + 4 Info findings are all in scope.
 
-All code commits landed inside the `firestarter_app` sub-repo on branch `v1.8-app-cleanup`, per the project's submodule-execution convention (see memory note `project_v18_phase_execution_mechanics.md`). The 5 commit hashes shown below are sub-repo hashes (`git -C firestarter_app log`), not meta-repo hashes.
+All code commits landed inside the `firestarter_app` sub-repo on branch `v1.8-app-cleanup`, per the project's submodule-execution convention (memory note `project_v18_phase_execution_mechanics.md`). Commit hashes shown below are sub-repo hashes (`git -C firestarter_app log`), not meta-repo hashes.
+
+Iteration-2 note: when this agent started, all four targetable findings had already been committed inside the sub-repo as atomic `fix(41): <ID> ...` commits by a prior fixer invocation. This agent verified each fix is present and correct, ran the affected tests, and discovered ONE additional snapshot drift that the prior fixer missed (a side-effect of the IN-01 dead-code removal shifting line numbers in a traceback-embedding snapshot). That follow-up was committed as `d50aa27`.
 
 ## Fixed Issues
 
-### WR-01: Stale `requirements.txt` still pins `argparse` and `argcomplete`
+### CR-01: WR-03 fix breaks three syrupy snapshots — `pytest` will fail in CI
 
-**Files modified:** `firestarter_app/requirements.txt`
-**Commit (firestarter_app):** 91fc65e
-**Applied fix:** Per orchestrator guidance preferring rewrite over deletion (the file's developer-install surface is referenced by `pip install -r requirements.txt` workflows), rewrote `requirements.txt` to match `pyproject.toml`'s runtime dependency block:
+**Files modified:** `firestarter_app/tests/__snapshots__/test_characterization.ambr`
+**Commit (firestarter_app):** `86aa29f`
+**Applied fix:** Regenerated the three snapshots that drifted when WR-03 (commit `86bd1b8`) changed the `fw` command's docstring AND the format of the mutex error string:
+
+- `test_help_fw` (snapshot at `.ambr:163-201`) — `fw --help` docstring now matches the post-WR-03 cli_handlers.py:777-784 prose ("single post-parse check at the top of the command body — WR-03; replaces the earlier per-option callback _check_install_mutex which depended on Click's left-to-right option-processing order").
+- `test_error_fw_pre_stable_mutex` (snapshot at `.ambr:11-18`) — now pins `Error: --pre is mutually exclusive with --stable.` (the new `UsageError` form).
+- `test_error_fw_pre_firmware_version_mutex` (snapshot at `.ambr:1-9`) — now pins `Error: --pre is mutually exclusive with --firmware-version.`
+
+The deterministic option-naming behaviour (the new mutex check always cites `--pre` first because `(pre, ...)` is the first tuple in the filter list) is intentional per WR-03's resolution. The reviewer's UX critique (the new form doesn't tell the user which option they typed first) is acknowledged but explicitly classified in REVIEW.md as "not a correctness bug — just a UX point. The PRIMARY defect is snapshot drift."
+
+**Verification:** `python -m pytest tests/test_characterization.py::test_help_fw tests/test_characterization.py::test_error_fw_pre_stable_mutex tests/test_characterization.py::test_error_fw_pre_firmware_version_mutex` → 3/3 passed (3 snapshots passed).
+
+### WR-01: Stale docstring/comment references to deleted `_check_install_mutex` callback
+
+**Files modified:** `firestarter_app/tests/test_cli_handlers.py`
+**Commit (firestarter_app):** `2ea8352`
+**Applied fix:** Rewrote the `test_fw_mutex_pre_and_firmware_version` docstring (`test_cli_handlers.py:430-435`) to describe the post-WR-03 enforcement path:
 
 ```
-pyserial>=3.5
-requests>=2.20
-tqdm>=4.60
-click>=8.1
-rich>=14.0
-packaging>=21.0
+"""TRAP #4 / D-13.4: --pre + --firmware-version exits 2 (mutually exclusive).
+
+Enforced by a single post-parse check at the top of fw()'s body
+(cli_handlers.py:792-805 — WR-03) raising click.UsageError when more
+than one of --pre / --firmware-version / --stable is set.
+"""
 ```
 
-This drops the stdlib `argparse` cruft and the now-unused `argcomplete`, and adds the missing `click` and `packaging` deps that the migrated CLI actually requires. Also folds in IN-04 (the stdlib-argparse-as-PyPI-dep complaint).
+The two other call-out sites in the REVIEW (cli_handlers.py:670 section banner, cli_handlers.py:779 fw() docstring) were explicitly LEFT as accurate retrospective annotations per the reviewer's "LEAVE as historical breadcrumb" directive.
 
-### WR-02: `_setup_logging` runs in test-mode CLI invocations, clobbers pytest caplog handler
+**Verification:** `python -m pytest tests/test_cli_handlers.py::test_fw_mutex_pre_and_firmware_version` → 1/1 passed.
 
-**Files modified:** `firestarter_app/firestarter/cli_handlers.py`
-**Commit (firestarter_app):** ecb7e4c
-**Applied fix:** Moved the `_setup_logging(verbose)` call from BEFORE the `if ctx.obj is not None and isinstance(ctx.obj, AppContext): return` test-mode short-circuit to AFTER it. Test-mode invocations (CliRunner with a pre-built AppContext) now skip the destructive `root_logger.handlers = [handler]` replacement, leaving pytest's caplog handler intact for any future tests that want to assert on cli-handler-emitted log records. Added an inline `# WR-02:` comment to explain the ordering invariant so future readers don't innocently revert it. Production path unchanged.
-
-**Verification:** `python -m pytest tests/test_cli_handlers.py` → 48/48 passing.
-
-### WR-03: Firmware-install mutex relies on Click's left-to-right callback order
+### IN-01: Dead defensive `if eprom_details:` after `sys.exit(1)`
 
 **Files modified:** `firestarter_app/firestarter/cli_handlers.py`
-**Commit (firestarter_app):** 86bd1b8
-**Applied fix:** Three-part change:
+**Commits (firestarter_app):** `c70637c` (primary fix), `d50aa27` (follow-up snapshot regen)
+**Applied fix:** In the `info` command handler, removed the dead `eprom_data_for_programmer = None` initializer and the unreachable-as-false `if eprom_details:` guard. The `eprom_data_for_programmer = app.db.convert_to_programmer(eprom_details)` call now runs unconditionally after the early-exit on the `if not eprom_details:` branch, which is the only reachable path past it.
 
-1. Deleted the `_check_install_mutex` per-option callback function (34 lines).
-2. Removed `callback=_check_install_mutex` from the three `@click.option` decorators (`--pre`, `--firmware-version`, `--stable`) on the `fw` command.
-3. Added a single post-parse mutex check at the top of `fw()`'s body (right where the existing `--json requires --list` UsageError check sits, per the orchestrator's "same place as the `--json requires --list` check" pointer). The new check builds `set_channel_opts = [name for name, val in (...) if val]` and raises `click.UsageError(f"--{a} is mutually exclusive with --{b}.")` if more than one option is set.
+Diff:
 
-The new check is order-independent in TWO senses: (1) it doesn't depend on Click's left-to-right option-processing order, and (2) the error message reports the options in their declaration order `(pre, firmware-version, stable)` rather than whichever the user happened to type second.
+```python
+# Before (cli_handlers.py:316-322):
+eprom_details = app.db.get_eprom(eprom)
+if not eprom_details:
+    logger.error(f"EPROM '{eprom}' not found in database.")
+    sys.exit(1)
 
-Also updated the section header comment and the `fw()` docstring to reflect that TRAP #4 is now enforced post-parse rather than per-option-callback.
+eprom_data_for_programmer = None
+if eprom_details:
+    eprom_data_for_programmer = app.db.convert_to_programmer(eprom_details)
 
-**Verification:**
-- `python -m pytest tests/test_cli_handlers.py` → 48/48 passing (mutex tests pinned only `exit_code == 2` and `"mutually exclusive" in result.output.lower()`, both still hold).
-- `python -m pytest tests/test_firmware_install.py` → 30/30 passing.
+# After (cli_handlers.py:316-321):
+eprom_details = app.db.get_eprom(eprom)
+if not eprom_details:
+    logger.error(f"EPROM '{eprom}' not found in database.")
+    sys.exit(1)
 
-### WR-04: `id` command shadows Python `id()` builtin in the module namespace
+eprom_data_for_programmer = app.db.convert_to_programmer(eprom_details)
+```
+
+**Follow-up snapshot regen (`d50aa27`):** Removing the dead block shifted the `info` function body — specifically the `structured_details = app.eprom_presenter.prepare_detailed_eprom_data(...)` call — from line 356 to line 324. The `test_info_known_chip[test_info_known_chip_stderr]` snapshot embeds this line number in a pinned traceback (the test characterizes an unrelated pre-existing `TypeError` from `ic_layout.py:396` when the chip database returns a list-typed `vpp-pin` for W27C512). The only delta between old/new snapshot is the literal `line 356` → `line 324` at the `File "<PATH>", line N, in info` frame; the captured TypeError and all other frames are byte-identical. This is informational drift, not a real test failure.
+
+**Verification:** `python -m pytest tests/test_characterization.py tests/test_cli_handlers.py` → 100% pass (82 passed). Also `python -m pytest` over the full suite → 241 passed, 1 xfailed (pre-existing BUG-tracking xfail unrelated to Phase 41).
+
+### IN-02: `cli_handlers.py` module docstring still describes pre-Wave-4 state
 
 **Files modified:** `firestarter_app/firestarter/cli_handlers.py`
-**Commit (firestarter_app):** 062418c
-**Applied fix:** Renamed `def id(...)` to `def chip_id(...)`. The `@cli.command(name="id")` decorator preserves the user-visible command name (`firestarter id <chip>`) unchanged. Matches the existing convention in the same file (`list_releases` for `--list`, `_list_cmd` for the `list` command function).
+**Commit (firestarter_app):** `9803992`
+**Applied fix:** Rewrote the module docstring (`cli_handlers.py:1-15`) to describe the shipped post-Wave-4 state. New text:
 
-Searched for callers via `grep -rn "cli_handlers.id\|from firestarter.cli_handlers import.*\bid\b"` — none found, so no downstream breakage.
+```python
+"""Click-based CLI handlers for firestarter (Phase 41 / v1.8).
 
-**Verification:** `python -m pytest tests/test_cli_handlers.py` → 48/48 passing.
+This module is the production CLI surface; main.py re-exports ``cli`` as
+``main`` for the ``firestarter`` console-script entry point (D-08, D-16).
+The argparse machinery in main.py was deleted in Plan 41-04 (Wave 4).
 
-### WR-05: `id` handler reaches into private `db._map_data`
+Commands surfaced from here:
+  - 3 read-only: list / info / search
+  - 6 chip-ops: read / write / verify / blank / erase / id
+  - 2 voltage: vpp / vpe
+  - 2 hardware: hw / config
+  - 1 firmware: fw (3-way --pre/--firmware-version/--stable mutex + version
+    validator)
+  - 1 group: dev (4 sub-commands: read / reg / addr / consistency-check)
+"""
+```
 
-**Files modified:** `firestarter_app/firestarter/database.py`, `firestarter_app/firestarter/cli_handlers.py`
-**Commit (firestarter_app):** 5b85a48
-**Applied fix:** Applied the LIGHTER of the two suggested options per the orchestrator's explicit preference ("Don't do the broader 'push search-and-map into the DB' refactor — that's out of scope for a quality fix"):
+The new docstring reconciles with `main.py:9-12`'s post-swap stub commentary; the prior contradictory "main.py STAYS argparse until Wave 4" line is gone. The expanded command inventory is a small bonus that gives readers a one-glance map of the module without doing it again as a comment block.
 
-1. Added a public method `map_chip_record(self, ic: dict, manufacturer: str) -> dict` on `EpromDatabase` in `database.py`. The body is one line: `return self._map_data(ic, manufacturer)`. Docstring notes the WR-05 rationale and the stable-surface contract.
-2. Replaced the `app.db._map_data(ic, ic.get("manufacturer", "Unknown"))` call in `cli_handlers.py`'s `chip_id` command body with `app.db.map_chip_record(ic, ic.get("manufacturer", "Unknown"))`.
-
-`_map_data` itself is untouched — internal users (`get_eproms`, `get_eprom`, `search_eprom`) still call it directly. Only the CLI module now binds to a public name.
-
-**Verification:** `python -m pytest tests/test_cli_handlers.py` → 48/48 passing.
+**Verification:** `python -c "import ast; ast.parse(open('firestarter/cli_handlers.py').read())"` → OK. No snapshot drift (module docstrings are not embedded in `firestarter --help` output; Click sources help text from per-command docstrings only).
 
 ## Skipped Issues
 
-None. All 5 in-scope warning findings were applied successfully.
+### IN-03: `_complete_eprom` instantiates a fresh `EpromDatabase` per completion invocation
 
-## Snapshot tests (golden-master) requiring re-baseline — INFORMATIONAL
+**File:** `firestarter_app/firestarter/cli_handlers.py:87`
+**Reason:** `no-fix-needed (informational; reviewer-classified as "Acceptable as-is")`
+**Original issue:** Each tab-completion subprocess re-reads `chip_database.json` (~1500 entries) inside a fresh `EpromDatabase()` instance, inherited from the argcomplete-era `EpromCompleter`. The reviewer explicitly tagged this as "Not a correctness issue; no fix needed."
+**Skip rationale:** Per-process, not per-keypress, so the cost is amortized across the lifetime of the completion subprocess. A cross-process cache (filesystem-pickle or similar) would introduce more failure modes than it removes. Deferred — not a regression, not a defect, just an observation. Phase context for this iteration explicitly directs: "mark as skipped with reason 'no-fix-needed (informational)' rather than fixing it."
 
-WR-02 and WR-03 are intentional behaviour/format changes. Two consequences in `tests/test_characterization.py` are NOT regressions but DO require the developer to run `pytest --snapshot-update` (or equivalent) and review:
+### IN-04: `ConfigManager` singleton port leak in integration test
 
-1. **`test_help_fw`** — Click renders the `fw` command's docstring as `--help` output. WR-03's docstring rewrite (post-parse mutex rationale, references to WR-03) changed the text. Expected.
-2. **`test_info_known_chip`** — pins a TRACEBACK for the `info`-command crash on `W27C512` (the underlying `vpp-pin` TypeError in `ic_layout.py` is unrelated to Phase 41 and was already a known bug). The snapshot embedded the literal source line number `line 356`; WR-02's 2-line shift moved the `info` definition to `line 323`. The traceback contents are otherwise identical. Expected.
-3. **`test_error_fw_pre_stable_mutex`** — error-message format changed from Click's `BadParameter` style (`"Invalid value for '--stable': --stable is mutually exclusive with --pre."`) to `UsageError` style (`"--pre is mutually exclusive with --stable."`). This change IS the WR-03 fix. Expected.
-4. **`test_error_fw_pre_firmware_version_mutex`** — same as #3 but for the `--pre`/`--firmware-version` combination. Expected.
+**File:** `firestarter_app/tests/test_consistency_check.py:482-493` (test body), interacting with `firestarter_app/firestarter/cli_handlers.py:282-284` (the `set_value("port", port, persist=False)` call)
+**Reason:** `no-fix-needed (optional cleanup; reviewer-classified as "Not blocking — optional cleanup". Deferred to Phase 42 cleanup.)`
+**Original issue:** `test_main_dispatch_invokes_consistency_check` injects `sys.argv = [..., "-p", "/dev/null", ...]`, which causes the production `cli()` group callback to write `port=/dev/null` into the `ConfigManager` singleton. Because `ConfigManager` keys its singleton table on config-filename, the `port` value survives in-memory across subsequent tests in the same pytest session.
+**Skip rationale:**
+1. REVIEW.md explicitly says "Not blocking — optional cleanup."
+2. No actual test flake has been observed (the singleton's `port` getter falls back to a fresh value-lookup that doesn't depend on the leaked state for any other test in the current suite).
+3. The full test suite (`python -m pytest`) passes 241/241 + 1 xfail with no order-dependence — `pytest -p no:randomly` and the default order both pass.
+4. The cleanest fix (a `monkeypatch.setattr(ConfigManager, "_instances", {})` teardown OR a session-scoped autouse fixture that snapshots and restores `_instances`) is a behavioural change to the shared test infrastructure with subtle interactions with the `EpromOperator(ConfigManager())` direct-instantiation pattern used by 9 other tests in the same file. Out of scope for a focused review-fix pass — appropriately deferred to Phase 42 (the v1.8 ConfigManager / test-isolation cleanup phase).
 
-The orchestrator's quality gate (`python -m pytest tests/test_cli_handlers.py` and `python -m pytest -q`) only refers to unit tests; characterization snapshots are explicitly designed to surface ALL changes and require human re-baseline. Recommendation: run `pytest tests/test_characterization.py --snapshot-update` after reviewing the four diffs above. All 4 diffs are reviewable and acceptable.
-
-Non-characterization suite: **206 passed, 1 xfailed** (the xfail is the pre-existing `test_eprom_operation_error_not_labeled_as_communication_error` BUG-tracking xfail unrelated to Phase 41).
+The prior fixer's decision to land 4 atomic fixes (CR-01, WR-01, IN-01, IN-02) but not IN-04 is upheld by this iteration's verification.
 
 ## Logic-correctness notes (per agent verification policy)
 
-WR-02 / WR-04 / WR-05 are pure structural/mechanical changes (line move, identifier rename, public wrapper) — Tier-1+Tier-2 syntax verification + the 48/48 test suite together cover them.
+All four applied fixes are pure structural/mechanical changes:
 
-WR-03 changes a control-flow shape (per-option callback → post-parse block). The unit-test suite (`test_cli_handlers.py`) covers the four named mutex pairings (`--pre`+`--stable`, `--pre`+`--firmware-version`, `--firmware-version`+`--stable`, all-three) and the lone-option success paths. The single-option success path was also re-verified by the 30/30 `test_firmware_install.py` suite. No further human verification required.
+- **CR-01 / IN-01 follow-up**: snapshot regens — the .ambr file mirrors actual program output 1:1, and the regen was driven by `pytest --snapshot-update` which uses the same code-under-test the production tests use. No human verification beyond "diff the snapshot, confirm only the expected lines changed" is required.
+- **WR-01**: docstring-only edit, no runtime behaviour change.
+- **IN-01**: dead-code deletion, verified by 35-snapshot + 48-unit-test full pass.
+- **IN-02**: module-docstring edit, no runtime behaviour change.
+
+No finding in this iteration falls into the "logic bug — requires human verification" category from the verification_strategy. All four are committed as `"fixed"` (not `"fixed: requires human verification"`).
+
+## Test-suite health after this iteration
+
+- `python -m pytest tests/test_characterization.py` → 35 passed (29 snapshots), 0 failed.
+- `python -m pytest tests/test_cli_handlers.py` → 48 passed, 0 failed.
+- `python -m pytest` (full suite) → 241 passed, 1 xfailed. The xfail is the pre-existing `test_eprom_operation_error_not_labeled_as_communication_error` BUG-tracking xfail (ERR-01, lands Phase 42), unrelated to Phase 41.
+
+The CI gate (`ci.yml` runs pytest + `--cov-fail-under=50`) is now green for snapshot drift. Coverage was not measured in this run because no new code paths were exercised; the prior coverage baseline holds.
 
 ---
 
 _Fixed: 2026-05-28_
 _Fixer: Claude (gsd-code-fixer)_
-_Iteration: 1_
+_Iteration: 2_
