@@ -208,6 +208,28 @@ Plans:
 
 **UI hint:** no
 
+**Plans:**
+
+**Wave 1 (independent of W2–W4 per D-17; lands first so BUG-1 xfail flips early)**
+- [ ] 41-01-build-arg-flags-fix — CLI-03 — INTENTIONAL BEHAVIOR CHANGE: `build_arg_flags "force" in args` → `getattr(args, "force", False)`; BUG-1 xfail flips to passing.
+
+**Wave 2 (starts the Click chain; entry point STAYS argparse this wave per D-11)**
+- [ ] 41-02-click-skeleton-readonly-commands — CLI-01, CLI-02 — `cli_handlers.py` NEW: `AppContext` dataclass + `@click.group() cli` + `_complete_eprom` shell_complete + 3 read-only commands (`list`, `info`, `search`); `test_cli_handlers.py` NEW (CliRunner happy-path + TRAP #2 no-prefix-matching).
+
+**Wave 3 *(blocked on Wave 2 completion)***
+- [ ] 41-03-migrate-remaining-commands — CLI-01, CLI-02 — Migrate 11 remaining commands into `cli_handlers.py`: 6 chip-ops (`read`/`write`/`verify`/`blank`/`erase`/`id`) + 2 voltage (`vpp`/`vpe`) + 2 hardware (`hw`/`config`) + 1 `fw` + `dev` group with 4 sub-commands. TRAPs #1 (exit codes), #3 (`--no-blank-check` polarity), #4 (3-way mutex via per-option callback), #5 (`_validate_firmware_version` as `_FirmwareVersionType` ParamType). Single atomic commit per v1.8 phase style. Entry point STAYS argparse this wave.
+
+**Wave 4 *(blocked on Wave 3 completion)***
+- [ ] 41-04-entrypoint-swap-argcomplete-removal — CLI-01, CLI-02, CLI-04 — Single atomic INTENTIONAL BEHAVIOR CHANGE commit. `main.py` trim 932 → ≤ 50 lines (entire argparse dispatcher + 14 `create_*_args` + `EpromCompleter` + argparse `_validate_firmware_version` deleted); `build_arg_flags` + `_maybe_auto_route_to_pre` relocated to `cli_handlers.py`. `pyproject.toml` drops `argcomplete>=3.6.2`, adds `click>=8.1`. Entry point stays `firestarter.main:main` with `main = cli` re-export. `autocomplete.md` rewritten with Click `_FIRESTARTER_COMPLETE=<shell>_source firestarter` activation (bash/zsh/fish/PowerShell). `tests/test_bug_characterization.py:42` import repointed. CI gains `pip install -e . && firestarter --help` smoke step.
+
+**Cross-cutting constraints (appear in every plan's `must_haves.truths`):**
+- GATE-1.8a: wire protocol byte-identical (no edits to serial/wire code)
+- GATE-1.8b: end-user CLI surface preserved — Phase 36's 29 syrupy snapshots stay green (BUG-1 flips in W1; BUG-2 stays xfail through this phase)
+- GATE-1.8c: constants.py + firmware header parity untouched (named imports only per Phase 39 D-06)
+- GATE-1.8d: read path ring-fenced (no edits to `eprom_operator.read_eprom` or `_read_and_parse_lines`)
+- GATE-1.8e: full suite green; `pip install -e . && firestarter --help` succeeds
+- No-touch file list: `serial_comm.py`, `eprom_operations.py`, `hardware.py`, `firmware.py`, `database.py`, `chip_resolver.py`, `eprom_info.py`, `config.py`, `exceptions.py`, `address_parser.py`, `constants.py`, `codec.py`, `frame_parser.py`, `logging_utils.py`, `data/chip_database.json`, `data/pinouts.json`, `tests/__snapshots__/`, the firmware sub-repo
+
 #### Phase 42: Error Handling Normalization + Quality Sweep
 
 **Goal:** Consistent exception/exit-code convention enforced throughout the codebase. No bare `except:` clauses. Return type annotations on all public functions in touched modules (those modules are mypy-clean under the configured strictness). Module and public-function docstrings present on everything touched this milestone. Dead code and naming inconsistencies resolved. Final ruff + mypy sweep with raised coverage threshold.

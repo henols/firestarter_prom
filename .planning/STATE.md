@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.8
 milestone_name: — Host CLI Structural Cleanup
 status: executing
-last_updated: "2026-05-28T07:12:38.199Z"
-last_activity: 2026-05-28 -- Phase 40 complete + verified passed (SERIAL-01/02/03; GATE-1.8 a/b/c/d/e)
+last_updated: "2026-05-28T12:30:00.000Z"
+last_activity: 2026-05-28 -- Phase 41 planned (4 plans; CLI-01..04 covered; D-01..D-17 covered; plan-checker VERIFICATION PASSED)
 progress:
   total_phases: 8
   completed_phases: 5
-  total_plans: 19
+  total_plans: 23
   completed_plans: 19
   percent: 63
 ---
@@ -20,12 +20,12 @@ progress:
 
 ## Current Position
 
-Phase: 40 (serial-transport-restructure) — COMPLETE + VERIFIED PASSED (2026-05-28)
-Plans: 4/4 (40-01 ✓ SERIAL-02; 40-02 + 40-03 ✓ SERIAL-01; 40-04 ✓ SERIAL-03)
-Next: Phase 41 (CLI Migration argparse → Click). Run `/gsd-discuss-phase 41` or `/gsd-plan-phase 41`.
-Status: Ready for next phase
-Resume file: .planning/phases/40-serial-transport-restructure/40-VERIFICATION.md
-Last activity: 2026-05-28 -- Phase 40 complete + verified passed (SERIAL-01/02/03; GATE-1.8 a/b/c/d/e)
+Phase: 41 (CLI Migration argparse → Click) — PLANNED (2026-05-28)
+Plans: 0/4 (41-01 build_arg_flags fix • 41-02 Click skeleton + 3 read-only commands • 41-03 11 remaining commands • 41-04 entry-point swap + argcomplete drop + CI smoke)
+Next: Run `/gsd-execute-phase 41` to execute Wave 1 → Wave 2 → Wave 3 → Wave 4 sequentially.
+Status: Ready to execute
+Resume file: .planning/phases/41-cli-migration-argparse-click/41-01-build-arg-flags-fix-PLAN.md
+Last activity: 2026-05-28 -- Phase 41 planned (4 plans; CLI-01..04 covered; D-01..D-17 covered; plan-checker VERIFICATION PASSED)
 
 ## Project Reference
 
@@ -34,7 +34,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-27)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 41 — CLI Migration argparse → Click (Phase 40 SHIPPED + verified passed 2026-05-28)
+**Current focus:** Phase 41 — CLI Migration argparse → Click (planned 2026-05-28; ready to execute)
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
@@ -294,10 +294,10 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 
 ## Operator Next Steps
 
-- `/gsd-plan-phase 40` — plan Phase 40 (Serial / Transport Restructure: extract `_validate_firmware_version` @staticmethod + `tests/test_fw_version_guard.py`; extract `_decode_id_frame` body to `codec.decode_id_frame` with thin SerialCommunicator wrapper preserved for `test_decoder.py`; dead-code sweep `STATE_MACHINE_PREFIXES`/`read_line_bytes` + comment fragments; ring-fence `_read_and_parse_lines` with header `#` block + type hints on public methods) per the 4 locked decision blocks D-01..D-19 in CONTEXT.md
-- Alternative: review/edit `.planning/phases/40-serial-transport-restructure/40-CONTEXT.md` before planning (operator chose "you recommend" — recommendations locked but reversible)
-- Note: the ruff+ruff-format+mypy(watermark)+coverage CI gate continues to guard every PR on `v1.8-app-cleanup` — Phase 40's extractions must keep the tree green and not raise the watermark; `tests/test_decoder.py` MUST pass unchanged (SC#3 + GATE-1.8a/d load-bearing)
-- Deferred to Phase 42 quality sweep (carry-forward): WR-01 (pin type/lint toolchain to the watermark-measured versions) + WR-02 (align the pre-commit mypy hook with the CI watermark gate); also Phase 40-deferred: `SerialCommunicator` mypy strict-overrides addition (ERR-02), public-method docstrings (ERR-03), removing the thin `_decode_id_frame` method wrapper once tests can repoint
+- `/gsd-execute-phase 41` — execute Phase 41 (CLI Migration argparse → Click) per the 4 locked plans. Wave 1 (41-01, build_arg_flags INTENTIONAL BEHAVIOR CHANGE — CLI-03) is independent and can land in either order per D-17; Wave 2 → 3 → 4 is a strict sequential chain (D-11/D-12/D-16). Each plan commits inside the `firestarter_app` submodule on the `v1.8-app-cleanup` branch per `project_v18_phase_execution_mechanics`; worktrees auto-off → sequential executor.
+- Alternative: cat `.planning/phases/41-cli-migration-argparse-click/41-0[1-4]-*-PLAN.md` to review the 4 plans before launching (plan-checker VERIFICATION PASSED on all 11 dimensions; D-01..D-17 cited across the plans; CLI-01..04 all covered).
+- Note: the ruff+ruff-format+mypy(watermark)+coverage CI gate on `v1.8-app-cleanup` must stay green at every wave boundary. GATE-1.8 (a/b/c/d/e) load-bearing throughout — wire protocol byte-identical, CLI surface preserved (Phase 36's 29 syrupy snapshots), constants untouched, read path ring-fenced, suite green + pip entry point. The no-touch file list is enumerated in every plan's `must_haves.truths`.
+- Deferred to Phase 42 (still carrying forward): WR-01/WR-02 (toolchain pinning + pre-commit hook alignment); ERR-01 typed-exception → ClickException mapping (replaces `_resolve_or_exit` shim); ERR-02 mypy strict on `cli_handlers.py`; ERR-03 docstrings; BUG-2 `EpromOperationError` vs `SerialError` split (xfail-strict pinned through Phase 41).
 
 ## Performance Metrics
 
