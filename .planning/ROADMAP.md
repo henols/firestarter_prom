@@ -256,7 +256,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 42-02-map-typed-errors-decorator-PLAN.md — ERR-01 (decorator portion): centralize typed-exception → ClickException mapping at Click boundary; remove _resolve_or_exit shim (wave 2)
+- [x] 42-02-map-typed-errors-decorator-PLAN.md — ERR-01 (decorator portion): centralize typed-exception → ClickException mapping at Click boundary; remove _resolve_or_exit shim (wave 2) — SHIPPED 2026-05-28, commit firestarter_app@910ed75; 20 callbacks decorated; 242 passed + 0 xfail + 29 snapshots green; ERR-01 FULLY CLOSED
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
