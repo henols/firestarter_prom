@@ -53,7 +53,7 @@ The behavior gate is **"refactor + fix bugs found"**: internal structure changes
 ### Serial / Transport Restructure (SERIAL)
 
 - [ ] **SERIAL-01**: `SerialCommunicator` is reduced to transport + command dispatch; the firmware-handshake concern is lifted out of port discovery (`_probe_port`); type hints added.
-- [ ] **SERIAL-02**: `_validate_firmware_version` is extracted as a testable static method with unit tests for the version-guard logic.
+- [x] **SERIAL-02**: `_validate_firmware_version` is extracted as a testable static method with unit tests for the version-guard logic.
 - [ ] **SERIAL-03**: Wire behavior stays byte-identical — the `_read_and_parse_lines` generator body is unchanged (relocated callees only); verified by existing + new tests (satisfies GATE-1.8a).
 
 ### CLI Migration to Click (CLI)
@@ -128,7 +128,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | DATA-03 | Phase 39 | Complete |
 | DATA-04 | Phase 39 | Complete |
 | SERIAL-01 | Phase 40 | Pending |
-| SERIAL-02 | Phase 40 | Pending |
+| SERIAL-02 | Phase 40 | Complete |
 | SERIAL-03 | Phase 40 | Pending |
 | CLI-01 | Phase 41 | Pending |
 | CLI-02 | Phase 41 | Pending |

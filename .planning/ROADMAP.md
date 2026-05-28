@@ -180,7 +180,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 40-01-PLAN.md — SERIAL-02: extract _validate_firmware_version @staticmethod + repoint _probe_port (env-var → bool) + new tests/test_fw_version_guard.py (D-01..D-05; alpha-suffix strip per RESEARCH §7 Option A) (wave 1)
+- [x] 40-01-PLAN.md — SERIAL-02: extract _validate_firmware_version @staticmethod + repoint _probe_port (env-var → bool) + new tests/test_fw_version_guard.py (D-01..D-05; alpha-suffix strip per RESEARCH §7 Option A) (wave 1)
 
 **Wave 2** *(blocked on Wave 1; touches serial_comm.py + codec.py)*
 

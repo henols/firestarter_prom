@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.8
 milestone_name: — Host CLI Structural Cleanup
 status: executing
-last_updated: "2026-05-28T06:18:45.808Z"
-last_activity: 2026-05-28 -- Phase 40 planning complete
+last_updated: "2026-05-28T07:12:38.199Z"
+last_activity: 2026-05-28 -- Phase 40 wave 1 complete (40-01 SERIAL-02)
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 19
-  completed_plans: 15
-  percent: 50
+  completed_plans: 16
+  percent: 53
 ---
 
 # Project State
@@ -20,12 +20,13 @@ progress:
 
 ## Current Position
 
-Phase: 40 (serial-transport-restructure) — CONTEXT GATHERED ✓ (2026-05-28)
-Plans: 0/TBD; SERIAL-01..03 pending
-Next: `/gsd-plan-phase 40` — wave-decompose validate-fw → decode-id-frame → dead-code → ring-fence per CONTEXT.md decisions.
-Status: Ready to execute
+Phase: 40 (serial-transport-restructure) — EXECUTING
+Plan: 2 of 4 (wave 1 complete; wave 2 next)
+Plans: 1/4 (40-01 ✓; SERIAL-02 done)
+Next: Wave 2 — 40-02 (SERIAL-01: _decode_id_frame → codec.decode_id_frame + thin wrapper).
+Status: Executing Phase 40
 Resume file: .planning/phases/40-serial-transport-restructure/40-CONTEXT.md
-Last activity: 2026-05-28 -- Phase 40 planning complete
+Last activity: 2026-05-28 -- Phase 40 wave 1 complete (40-01 SERIAL-02)
 
 ## Project Reference
 
@@ -34,7 +35,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-27)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 40 — Serial / Transport Restructure (Phase 39 complete + verified passed)
+**Current focus:** Phase 40 — serial-transport-restructure
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
