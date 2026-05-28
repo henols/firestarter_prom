@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.8
 milestone_name: — Host CLI Structural Cleanup
-status: executing
-last_updated: "2026-05-27T21:13:04.000Z"
-last_activity: 2026-05-27 -- Phase 39 (database-cleanup-chip-resolver) COMPLETE — verified passed
+status: completed
+last_updated: "2026-05-28T05:30:00.000Z"
+last_activity: 2026-05-28 -- Phase 40 context gathered (CONTEXT.md + DISCUSSION-LOG.md; you-recommend pattern; 19 decisions across 4 areas — D-06 closes Phase 38's deferred _decode_id_frame disposition)
 progress:
   total_phases: 8
   completed_phases: 4
@@ -16,15 +16,16 @@ progress:
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-05-27
+**Updated:** 2026-05-28
 
 ## Current Position
 
-Phase: 39 (database-cleanup-chip-resolver) — COMPLETE ✓ (verified passed 2026-05-27)
-Plans: 3/3 complete (39-01..39-03); DATA-01..04 delivered
-Next: Phase 40 — Serial / Transport Restructure (SERIAL). Start with /gsd-discuss-phase 40 or /gsd-plan-phase 40.
-Status: Phase 39 complete; Phase 40 not started
-Last activity: 2026-05-27 -- Phase 39 complete (3/3 plans, verified passed; code review advisory issues_found, 0 blockers, 2 INFO)
+Phase: 40 (serial-transport-restructure) — CONTEXT GATHERED ✓ (2026-05-28)
+Plans: 0/TBD; SERIAL-01..03 pending
+Next: `/gsd-plan-phase 40` — wave-decompose validate-fw → decode-id-frame → dead-code → ring-fence per CONTEXT.md decisions.
+Status: Phase 39 complete; Phase 40 context locked, planning not started
+Resume file: .planning/phases/40-serial-transport-restructure/40-CONTEXT.md
+Last activity: 2026-05-28 -- Phase 40 context gathered (CONTEXT.md + DISCUSSION-LOG.md; you-recommend pattern; 19 decisions across 4 areas — D-06 closes Phase 38's deferred _decode_id_frame disposition)
 
 ## Project Reference
 
@@ -293,10 +294,10 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 
 ## Operator Next Steps
 
-- `/gsd-discuss-phase 38` — gather context for Phase 38 (Low-Risk Extractions: frame_parser.py, codec.py, address_parser.py, exceptions.py; delete dead code) before planning
-- Alternative: `/gsd-plan-phase 38` — plan Phase 38 directly (skip discuss)
-- Note: the enforced ruff+ruff-format+mypy(watermark 44)+coverage(≥50%) CI gate now guards every PR on `v1.8-app-cleanup` — Phase 38's extractions must keep the tree green and not raise the mypy watermark
-- Deferred from Phase 37 code review → Phase 42 quality sweep: WR-01 (pin type/lint toolchain to the watermark-measured versions) + WR-02 (align the pre-commit mypy hook with the CI watermark gate)
+- `/gsd-plan-phase 40` — plan Phase 40 (Serial / Transport Restructure: extract `_validate_firmware_version` @staticmethod + `tests/test_fw_version_guard.py`; extract `_decode_id_frame` body to `codec.decode_id_frame` with thin SerialCommunicator wrapper preserved for `test_decoder.py`; dead-code sweep `STATE_MACHINE_PREFIXES`/`read_line_bytes` + comment fragments; ring-fence `_read_and_parse_lines` with header `#` block + type hints on public methods) per the 4 locked decision blocks D-01..D-19 in CONTEXT.md
+- Alternative: review/edit `.planning/phases/40-serial-transport-restructure/40-CONTEXT.md` before planning (operator chose "you recommend" — recommendations locked but reversible)
+- Note: the ruff+ruff-format+mypy(watermark)+coverage CI gate continues to guard every PR on `v1.8-app-cleanup` — Phase 40's extractions must keep the tree green and not raise the watermark; `tests/test_decoder.py` MUST pass unchanged (SC#3 + GATE-1.8a/d load-bearing)
+- Deferred to Phase 42 quality sweep (carry-forward): WR-01 (pin type/lint toolchain to the watermark-measured versions) + WR-02 (align the pre-commit mypy hook with the CI watermark gate); also Phase 40-deferred: `SerialCommunicator` mypy strict-overrides addition (ERR-02), public-method docstrings (ERR-03), removing the thin `_decode_id_frame` method wrapper once tests can repoint
 
 ## Performance Metrics
 
