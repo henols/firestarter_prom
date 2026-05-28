@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.8
 milestone_name: — Host CLI Structural Cleanup
 status: executing
-last_updated: "2026-05-28T13:00:00.000Z"
-last_activity: 2026-05-28 -- Phase 41 Plan 02 (Click skeleton + 3 read-only commands, CLI-01, CLI-02) SHIPPED — firestarter_app@631a038 on v1.8-app-cleanup
+last_updated: "2026-05-28T13:25:00.000Z"
+last_activity: 2026-05-28 -- Phase 41 Plan 03 (Click migration of 11 remaining commands + fw TRAPs + dev group + 41 new CliRunner tests, CLI-01, CLI-02) SHIPPED — firestarter_app@73c32fb on v1.8-app-cleanup
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 23
-  completed_plans: 21
-  percent: 68
+  completed_plans: 22
+  percent: 71
 ---
 
 # Project State
@@ -21,13 +21,13 @@ progress:
 ## Current Position
 
 Phase: 41 (cli-migration-argparse-click) — EXECUTING
-Plan: 3 of 4
-Plans: 2/4 (41-01 ✓ build_arg_flags fix SHIPPED • 41-02 ✓ Click skeleton + 3 read-only commands SHIPPED • 41-03 11 remaining commands • 41-04 entry-point swap + argcomplete drop + CI smoke)
-Next: Run `/gsd-execute-phase 41 --wave 3` to execute Wave 3 (migrate the remaining 11 commands — read/write/verify/blank/erase/id + vpp/vpe + hw/config + fw + dev group into cli_handlers.py per D-12).
-Status: Executing Phase 41 — Wave 2 complete; Wave 3 next
-Resume file: .planning/phases/41-cli-migration-argparse-click/41-03-*-PLAN.md
-Last activity: 2026-05-28 -- Phase 41 Plan 02 (W2 / CLI-01 + CLI-02 skeleton) SHIPPED — firestarter_app@631a038 on v1.8-app-cleanup
-Last commit: firestarter_app@631a038 — feat(41-02): land Click skeleton + 3 read-only commands as dead code (CLI-01, CLI-02)
+Plan: 4 of 4
+Plans: 3/4 (41-01 ✓ build_arg_flags fix SHIPPED • 41-02 ✓ Click skeleton + 3 read-only commands SHIPPED • 41-03 ✓ 11 remaining commands + TRAPs + dev group SHIPPED • 41-04 entry-point swap + argcomplete drop + CI smoke)
+Next: Run `/gsd-execute-phase 41 --wave 4` to execute Wave 4 (entry-point swap from argparse to Click + main.py trim to ≤50 lines + argcomplete drop + Click shell_complete wiring + autocomplete.md rewrite + click>=8.1 declared in pyproject.toml + CI smoke `pip install -e . && firestarter --help` per D-16).
+Status: Executing Phase 41 — Wave 3 complete; Wave 4 next (entry-point swap + dep changes)
+Resume file: .planning/phases/41-cli-migration-argparse-click/41-04-*-PLAN.md
+Last activity: 2026-05-28 -- Phase 41 Plan 03 (W3 / CLI-01 + CLI-02 11 remaining commands + TRAPs + dev group + 41 new tests) SHIPPED — firestarter_app@73c32fb on v1.8-app-cleanup
+Last commit: firestarter_app@73c32fb — feat(41-03): migrate 11 commands (chip-ops + voltage + hw + fw + dev) to Click (CLI-01, CLI-02)
 
 ## Project Reference
 
@@ -219,6 +219,7 @@ Items acknowledged and deferred at v1.2 milestone close on 2026-05-19. The three
 
 ## Phase 41 — Execution Decisions
 
+- **2026-05-28 (Plan 41-03 / Wave 3 SHIPPED):** Click migration of the remaining 11 commands landed as a single atomic commit on `firestarter_app@v1.8-app-cleanup` (commit `73c32fb`). `firestarter/cli_handlers.py` extended (171 → 1022 lines): 6 chip-op commands (read/write/verify/blank/erase/id) + 2 voltage (vpp/vpe) + 2 hardware (hw/config) + 1 firmware (fw with full TRAP coverage) + dev `@cli.group()` with 4 sub-commands (read/reg/addr/consistency-check). All 4 argparse→Click TRAPs addressed per D-13: #1 exit codes via `sys.exit(0 if op() else 1)`; #3 `--no-blank-check` polarity via `is_flag=True flag_value=False default=True` on write coexisting with inverse `--blank-check store_true default=False` on erase; #4 3-way mutex via per-option `_check_install_mutex` callback (Claude's Discretion / D-13.4); #5 firmware-version validator via custom `_FirmwareVersionType(click.ParamType)` subclass (Claude's Discretion / D-13.5). D-14 narrow upgrade: `fw_parser.error("--json requires --list")` becomes `raise click.UsageError(...)`. D-15 picks SimpleNamespace adapter for `_maybe_auto_route_to_pre` (zero churn). `dev consistency-check` preserves 3-way verdict contract (0=PASS, 1=FAIL, 2=hardware-error) via `sys.exit(verdict_int)` — NOT bool-to-int wrap (pinned by 3 separate tests per D-12 step 5). `tests/test_cli_handlers.py` extended (100 → 594 lines, 7 → 48 tests; 41 new). Three documented deviations: (1) Rule 2 — added group-body short-circuit `if ctx.obj is not None and isinstance(ctx.obj, AppContext): return` so `runner.invoke(cli, ..., obj=app)` test pattern bypasses real manager construction (standard Click test pattern; no production behavior change); (2) Rule 2 — 10 sites of `shell_complete=_complete_eprom` (not 9 as plan's exact-count acceptance criterion stated) because `main.py:446 add_eprom_completer(cc_parser)` wires completion on consistency-check too (argparse parity demands it); (3) Rule 3 — explicit None-narrowing for `param.name` in `_check_install_mutex` (Click ParamType is Optional[str]). Suite green: 246 passed + 1 xfail (BUG-2 preserved) + 29 syrupy snapshots; Phase 36 characterization (35 passed + 29 snapshots) byte-identical (GATE-1.8b witness — argparse path unchanged); BUG-1 still passing (flipped in 41-01), BUG-2 still xfail-strict. ruff/format clean (pre-existing `tests/test_fw_version_guard.py` baseline drift carries forward); mypy at watermark 41/44 (3 below). main.py + pyproject.toml + autocomplete.md + CI workflow all byte-identical to W2 state. SUMMARY at `.planning/phases/41-cli-migration-argparse-click/41-03-migrate-remaining-commands-SUMMARY.md`.
 - **2026-05-28 (Plan 41-02 / Wave 2 SHIPPED):** Click skeleton + 3 read-only commands landed as a single atomic commit on `firestarter_app@v1.8-app-cleanup` (commit `631a038`). New `firestarter/cli_handlers.py` (170 lines) with AppContext dataclass + cli @click.group() + -v/-p/--version + ctx.obj + `_complete_eprom` shell-completion callback + 3 @cli.command()s: list/info/search. New `tests/test_cli_handlers.py` (100 lines) with 7 CliRunner tests (--help, --version, list/search happy-paths, info chip-resolution happy-path + unknown-chip error, no-prefix-matching TRAP #2 / D-13.2). Entry point in main.py STAYS argparse — cli_handlers.py is reviewable dead code until Wave 4. Two documented deviations: (1) Rule 3 — explicit `import click.shell_completion` (Click 8.3.x ergonomic shift); (2) Rule 2 — `test_info_chip_resolution_happy_path` asserts exit 1 (not 0) because the pre-existing ic_layout TypeError on every chip is preserved verbatim per GATE-1.8b. Phase 36 subprocess goldens unchanged (35 + 29 snapshots green); full suite 205 passed + 1 xfail (BUG-2). ruff clean; mypy at watermark 38/44. main.py + pyproject.toml byte-identical vs 6241dba. SUMMARY at `.planning/phases/41-cli-migration-argparse-click/41-02-click-skeleton-readonly-commands-SUMMARY.md`.
 - **2026-05-28 (Plan 41-01 / Wave 1 SHIPPED):** `build_arg_flags` truthiness fix landed as a single atomic INTENTIONAL BEHAVIOR CHANGE commit on `firestarter_app@v1.8-app-cleanup` (commit `6241dba`). 3 attribute-existence patterns (`force`/`verbose`/`vpe_as_vpp`) replaced with `getattr(args, key, default)`; 2 parallel attribute-existence gates (`input_enable`/`chip_disable`) replaced with `hasattr(args, key)` (Rule 2 deviation — required by the live PlainArgs contract; D-10's parenthetical that those lines `already use getattr correctly` was incorrect about the current source). BUG-1 xfail flipped to passing; BUG-2 xfail preserved verbatim. Suite green: 198 passed + 1 xfail (BUG-2) + 29 syrupy snapshots; ruff `firestarter/`+`tests/` clean; mypy at watermark 38/44; Phase 36 GATE-1.8b witness snapshots unchanged. SUMMARY at `.planning/phases/41-cli-migration-argparse-click/41-01-build-arg-flags-fix-SUMMARY.md`.
 
