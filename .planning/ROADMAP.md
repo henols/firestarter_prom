@@ -249,10 +249,17 @@ Plans:
 **UI hint:** no
 
 **Plans:** 3 plans (3 waves — strict sequential chain per v1.8 execution mechanics; worktrees off; file overlaps + dependency on Plan 42-01 BUG-2 flip → Plan 42-02 decorator refactor → Plan 42-03 quality-gate raise force ordering)
-
 Plans:
+**Wave 1**
+
 - [ ] 42-01-bug2-except-split-PLAN.md — ERR-01 (BUG-2 portion): split eprom_operations.py:265 except clause (INTENTIONAL BEHAVIOR CHANGE); flip BUG-2 xfail to passing (wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 42-02-map-typed-errors-decorator-PLAN.md — ERR-01 (decorator portion): centralize typed-exception → ClickException mapping at Click boundary; remove _resolve_or_exit shim (wave 2)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 42-03-mypy-strict-docstrings-coverage-PLAN.md — ERR-02 + ERR-03: mypy strict on 8 modules, docstrings + coverage ≥70% (wave 3)
 
 #### Phase 43: Documentation + Milestone Close

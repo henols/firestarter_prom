@@ -18,14 +18,15 @@ must_haves:
     - "GATE-1.8e: full suite green + pip install -e . && firestarter --help smoke remains green"
     - "D-03 honored: a single @map_typed_errors decorator near top of cli_handlers.py catches ChipNotFoundError, FirmwareOutdatedError, SerialError, SerialTimeoutError, EpromOperationError, HardwareOperationError; each re-raises click.ClickException with a stable prefix → exit 1"
     - "D-05 honored: _resolve_or_exit is DELETED; all 9 chip-op handlers + dev sub-commands replace `eprom_data = _resolve_or_exit(eprom, app.db); if not eprom_data: sys.exit(1)` with `eprom_data = resolve_chip(eprom, db=app.db)` and let the decorator catch ChipNotFoundError"
-    - "Decorator stacking order: @map_typed_errors sits OUTSIDE @click.pass_obj / @click.pass_context — handlers reachable via Click's command-decorator chain still receive their AppContext kwarg unchanged"
+    - "Decorator stacking: @map_typed_errors is positioned closest to `def` (applied first at function-creation time, so it runs the handler body and catches typed exceptions BEFORE Click's decorators inspect signatures or inject context). From the handler's perspective the try/except is the innermost wrapper; @click.pass_obj / @click.pass_context wrap that, then the @cli.command()/@click.option/@click.argument layers stack above. Handlers reachable via Click's command-decorator chain still receive their AppContext (or click.Context) kwarg unchanged."
     - "D-04 deviation honored: NO new exit code carved out for EpromOperationError; it stays at exit 1 (ClickException default)"
     - "dev consistency-check 3-way verdict contract (0=PASS, 1=FAIL, 2=hardware-error) preserved — verdict_int flows through sys.exit(verdict_int) UNCHANGED; the decorator does NOT collapse this because consistency_check_eprom returns int and does not raise the mapped exceptions on its happy path (the decorator's except clauses are only triggered if an exception escapes the body)"
     - "Phase 41 D-08 seed honored: the _resolve_or_exit shim was 'the deliberate seam' between Phase 41's logging contract and Phase 42's exception-mapping contract; this plan removes the shim cleanly per the load-bearing handoff"
+    - "20 callbacks (1× `cli` group + 14× commands + 1× `dev` group + 4× dev sub-commands) decorated with @map_typed_errors; final count locked at 20 per CONTEXT D-03/D-09 footnote — every Click callback that Python wraps as a function (group bodies execute callback code during AppContext setup and can raise typed exceptions there too, so they are included for semantic consistency)"
     - "no-touch invariant: eprom_operations.py (post-W1 tip), main.py, pyproject.toml, ci.yml, serial_comm.py, hardware.py, firmware.py, database.py, chip_resolver.py, eprom_info.py, config.py, exceptions.py, address_parser.py, constants.py, codec.py, frame_parser.py, logging_utils.py, data/chip_database.json, data/pinouts.json, tests/__snapshots__/, the firmware sub-repo — none touched in this plan"
   artifacts:
     - path: "firestarter_app/firestarter/cli_handlers.py"
-      provides: "map_typed_errors decorator (single Click-boundary mapping layer) + 19 callbacks decorated with it (14 top-level + 1 dev group + 4 dev sub-commands) + 9 chip-op handlers calling resolve_chip() directly"
+      provides: "map_typed_errors decorator (single Click-boundary mapping layer) + 20 callbacks decorated with it (1 cli group + 14 top-level commands + 1 dev group + 4 dev sub-commands) + 9 chip-op handlers calling resolve_chip() directly"
       contains: "def map_typed_errors("
       exports: ["map_typed_errors", "cli", "AppContext"]
   key_links:
@@ -40,11 +41,11 @@ must_haves:
 ---
 
 <objective>
-Wave 2 / Plan 42-02 — Centralize typed-exception → ClickException mapping at the Click boundary per D-03 and remove the `_resolve_or_exit` shim per D-05. Add a new `map_typed_errors` decorator near the top of `firestarter_app/firestarter/cli_handlers.py` (placed inside `cli_handlers.py` per Claude's Discretion in CONTEXT.md — a separate `cli_errors.py` is overengineering for one ~25-line decorator). Apply `@map_typed_errors` to every `@cli.command()` / `@cli.group()` / `@dev.command()` callback in the file (14 top-level + 1 dev group + 4 dev sub-commands = 19 callbacks). Delete the `_resolve_or_exit` helper at lines 98-113. Replace the 9 chip-op call sites of `_resolve_or_exit` with direct `resolve_chip(eprom, db=app.db)` calls, deleting the `if not eprom_data: sys.exit(1)` follow-up block at each site (the decorator now handles ChipNotFoundError → ClickException → exit 1 uniformly).
+Wave 2 / Plan 42-02 — Centralize typed-exception → ClickException mapping at the Click boundary per D-03 and remove the `_resolve_or_exit` shim per D-05. Add a new `map_typed_errors` decorator near the top of `firestarter_app/firestarter/cli_handlers.py` (placed inside `cli_handlers.py` per Claude's Discretion in CONTEXT.md — a separate `cli_errors.py` is overengineering for one ~25-line decorator). Apply `@map_typed_errors` to every `@cli.command()` / `@click.group()` / `@cli.group()` / `@dev.command()` callback in the file (1 cli group + 14 top-level commands + 1 dev group + 4 dev sub-commands = **20 callbacks total**, count locked per BLOCKER 3 / CONTEXT D-03/D-09 footnote). Delete the `_resolve_or_exit` helper at lines 98-113. Replace the 9 chip-op call sites of `_resolve_or_exit` with direct `resolve_chip(eprom, db=app.db)` calls, deleting the `if not eprom_data: sys.exit(1)` follow-up block at each site (the decorator now handles ChipNotFoundError → ClickException → exit 1 uniformly).
 
 Per D-04, all caught exceptions map to `click.ClickException` which prints to stderr and exits 1 by default — matching today's behavior for these error types. No exit-code semantics change; Phase 36 syrupy snapshots stay green; Phase 41 `test_cli_handlers.py` exit_code assertions (~30 sites) stay green. The `dev consistency-check` 3-way verdict (0/1/2) is preserved by `sys.exit(verdict_int)` — the decorator does NOT collapse it because `consistency_check_eprom` returns int rather than raising the mapped exceptions on its happy path; if a mapped exception DOES escape `consistency_check_eprom` (e.g. SerialError during the read sequence), it maps to exit 1 just like every other handler — that's the consistent behavior, NOT a regression of the 3-way verdict (the 3-way verdict applies only when the operation completes and returns its verdict integer).
 
-Purpose: Close the decorator portion of ERR-01 — give Phase 42 a single grep-able mapping point so future exception types added to `exceptions.py` add one `except` clause here, not 18 try/except blocks scattered across the handlers. This is the long-term ergonomic win the ERR-01 SC#1 implies but doesn't spell out.
+Purpose: Close the decorator portion of ERR-01 — give Phase 42 a single grep-able mapping point so future exception types added to `exceptions.py` add one `except` clause here, not 20 try/except blocks scattered across the handlers. This is the long-term ergonomic win the ERR-01 SC#1 implies but doesn't spell out.
 Output: One atomic commit on the `firestarter_app/` submodule's `v1.8-app-cleanup` branch modifying only `cli_handlers.py`.
 </objective>
 
@@ -82,7 +83,7 @@ Output: One atomic commit on the `firestarter_app/` submodule's `v1.8-app-cleanu
 | Threat ID | Category | Component | Disposition | Mitigation Plan |
 |-----------|----------|-----------|-------------|-----------------|
 | T-42-03 | Information Disclosure | click.ClickException(str(e)) | accept | Exception messages may surface chip names / file paths / port names via str(e) — already true today via `logger.error(...)`; not a new exposure (D-03 mirrors the existing logging pattern's information surface) |
-| T-42-04 | Denial of Service | decorator stacking error | mitigate | Smoke-test decorator stacking after the first 1-2 handlers are decorated (per CONTEXT Integration Points note) before applying to all 19 callbacks; if the decorator order breaks `@click.pass_obj` kwarg injection, the test_cli_handlers.py suite catches it immediately (~30 exit_code assertions exercise the AppContext injection on every command) |
+| T-42-04 | Denial of Service | decorator stacking error | mitigate | Smoke-test decorator stacking after the first 1-2 handlers are decorated (per CONTEXT Integration Points note) before applying to all 20 callbacks; if the decorator order breaks `@click.pass_obj` kwarg injection, the test_cli_handlers.py suite catches it immediately (~30 exit_code assertions exercise the AppContext injection on every command) |
 | T-42-05 | Tampering | wire protocol byte stream | accept | No new attack surface; cli_handlers.py is the host-side CLI parser, not a wire-format participant |
 
 Severity: informational only. `block_on: high` not triggered.
@@ -157,49 +158,51 @@ Severity: informational only. `block_on: high` not triggered.
 </task>
 
 <task type="auto">
-  <name>Task 2: Apply @map_typed_errors to all 19 callbacks; verify decorator stacking order</name>
+  <name>Task 2: Apply @map_typed_errors to all 20 callbacks (count locked); verify decorator stacking order</name>
   <files>firestarter_app/firestarter/cli_handlers.py</files>
   <read_first>
-    - firestarter_app/firestarter/cli_handlers.py (current state — observe each callback's decorator stack; the typical shape is `@cli.command(name=...) / @click.argument(...) / @click.option(...) / @click.pass_obj` immediately above `def <handler>(app: AppContext, ...) -> None:`. The `dev` group itself uses just `@cli.group(name="dev")`. Some `fw` handler uses `@click.pass_context` instead of `@click.pass_obj`. The `cli` group at line 258 uses `@click.pass_context`.)
-    - .planning/phases/42-error-handling-normalization-quality-sweep/42-CONTEXT.md (CONTEXT.md "Integration Points" — `map_typed_errors` must wrap the handler function BEFORE Click's command-decorator chain; equivalent: `@map_typed_errors` sits BETWEEN `@cli.command(...)` / `@click.option(...)` / `@click.argument(...)` block and `@click.pass_obj` (or `@click.pass_context`). Concretely: `@map_typed_errors` is the LAST decorator above `def <handler>(...)` — i.e. closest to the function definition. Stacking order matters because Click's chain expects the decorated function to be a Click-callable; if `@map_typed_errors` sits ABOVE Click's `@cli.command`, the click-callable becomes the wrapper, which Click's internal introspection (`callback`, `params`, etc.) cannot read.)
+    - firestarter_app/firestarter/cli_handlers.py (current state — observe each callback's decorator stack; the typical shape is `@cli.command(name=...) / @click.argument(...) / @click.option(...) / @click.pass_obj` immediately above `def <handler>(app: AppContext, ...) -> None:`. The top-level `cli` group at line 258 uses `@click.group()` + `@click.pass_context`. The `dev` group at line 869 uses `@cli.group(name="dev")`. The `fw` handler at line 700 uses `@click.pass_context` instead of `@click.pass_obj`. Empirically-verified count per `grep -nE "^@(click|cli|dev)\.(command|group)\(" firestarter/cli_handlers.py`: 1 cli group (@click.group at 258) + 14 @cli.command + 1 dev group (@cli.group at 869) + 4 @dev.command = 20.)
+    - .planning/phases/42-error-handling-normalization-quality-sweep/42-CONTEXT.md (CONTEXT.md "Integration Points" — `map_typed_errors` must wrap the handler function BEFORE Click's command-decorator chain. Per BLOCKER 1: `@map_typed_errors` is positioned closest to `def` (applied first at function-creation time, so it runs the handler body and catches typed exceptions BEFORE Click's decorators inspect signatures or inject context). From the handler's perspective the try/except is the innermost wrapper; @click.pass_obj / @click.pass_context wrap that, then @click.option / @click.argument / @cli.command()/@cli.group() layers stack above. Stacking order matters because Click's chain expects the decorated function to be a Click-callable; if `@map_typed_errors` sat ABOVE Click's `@cli.command`, the click-callable would become the wrapper, which Click's internal introspection (`callback`, `params`, etc.) cannot read.)
     - firestarter_app/tests/test_cli_handlers.py (~30 exit_code == 0 / == 1 assertions — Task 2 must keep these green after applying the decorator)
   </read_first>
   <action>
-    Apply `@map_typed_errors` to every callback in `cli_handlers.py` that produces user-visible CLI output (the Click-command callbacks; NOT the helper functions). Per CONTEXT Integration Points, the decorator MUST be the INNERMOST one — i.e., the decorator listed CLOSEST to the `def <handler>(...)` line. Stack order (top-to-bottom):
+    **Rationale (read first):** `@map_typed_errors` is applied to the bare function so its `try/except` is the innermost wrapper around the handler body; `@click.pass_obj` (or `@click.pass_context`) then wraps `map_typed_errors(handler)`, injecting `app` as first arg before any exception can bubble; Click's command decorators (`@click.option`, `@click.argument`, `@cli.command`, `@click.group`) then wrap that.
 
-      @cli.command(name=...)         ← OUTERMOST (Click decorator)
+    Apply `@map_typed_errors` to every Click callback in `cli_handlers.py` — the 20 callbacks enumerated below. Per CONTEXT Integration Points + BLOCKER 1 wording: the decorator is positioned **closest to `def`** (applied first at function-creation time, so it runs the handler body and catches typed exceptions before Click's decorators inspect signatures or inject context). Stack diagram (top-to-bottom in source order; Python applies the bottom-most first):
+
+      @cli.command(name=...)         ← top of source (Click decorator, outermost wrap in source order)
       @click.argument(...)
       @click.option(...)
       @click.pass_obj                ← Click's parameter-injection layer
-      @map_typed_errors              ← INNERMOST (just above def line)
+      @map_typed_errors              ← positioned closest to `def` (applied FIRST at function-creation time; runs LAST in the call chain — so exception handling sits closest to the handler body)
       def handler(...) -> None:
 
-    For `@click.pass_context` handlers (the top-level `cli` group at line 268 + the `fw` handler at line 763) the stacking is identical — `@map_typed_errors` immediately precedes the `def` line.
+    For `@click.pass_context` handlers (the top-level `cli` group at line 258 + the `fw` handler at line 700) the stacking is identical — `@map_typed_errors` immediately precedes the `def` line.
 
-    Apply to these 19 callbacks (verified by `grep -nE "^@(cli|dev)\.(command|group)\(" firestarter/cli_handlers.py` against the current file):
+    Apply to these **20 callbacks** (count locked per BLOCKER 3 / CONTEXT D-03/D-09 footnote; enumerated by name + actual current line from a fresh `grep -nE "^@(click|cli|dev)\.(command|group)\(" firestarter/cli_handlers.py`):
 
-    1. `cli` (group) — line ~268
-    2. `_list_cmd` (list) — line ~300
-    3. `info` — line ~314
-    4. `search` — line ~346
-    5. `read` — line ~371
-    6. `write` — line ~415
-    7. `verify` — line ~458
-    8. `blank` — line ~488
-    9. `erase` — line ~524
-    10. `chip_id` (id) — line ~558
-    11. `vpp` — line ~599
-    12. `vpe` — line ~610
-    13. `hw` — line ~625
-    14. `config` — line ~655
-    15. `fw` — line ~763
-    16. `dev` (group) — line ~870
-    17. `dev_read` — line ~888
-    18. `dev_reg` — line ~950
-    19. `dev_addr` — line ~988
-    20. `dev_consistency_check` — line ~1046
+    1. `cli` (top-level group; `@click.group()` line 258, `def cli(...)` line 268)
+    2. `_list_cmd` (`@cli.command(name="list")` line 297)
+    3. `info` (`@cli.command(name="info")` line 309)
+    4. `search` (`@cli.command(name="search")` line 343)
+    5. `read` (`@cli.command(name="read")` line 362)
+    6. `write` (`@cli.command(name="write")` line 394)
+    7. `verify` (`@cli.command(name="verify")` line 447)
+    8. `blank` (`@cli.command(name="blank")` line 479)
+    9. `erase` (`@cli.command(name="erase")` line 499)
+    10. `chip_id` / `id` (`@cli.command(name="id")` line 549)
+    11. `vpp` (`@cli.command(name="vpp")` line 596)
+    12. `vpe` (`@cli.command(name="vpe")` line 607)
+    13. `hw` (`@cli.command(name="hw")` line 623)
+    14. `config` (`@cli.command(name="config")` line 631)
+    15. `fw` (`@cli.command(name="fw")` line 700)
+    16. `dev` (group body; `@cli.group(name="dev")` line 869)
+    17. `dev_read` (`@dev.command(name="read")` line 877)
+    18. `dev_reg` (`@dev.command(name="reg")` line 909)
+    19. `dev_addr` (`@dev.command(name="addr")` line 970)
+    20. `dev_consistency_check` (`@dev.command(name="consistency-check")` line 1008)
 
-    (That's 20 callbacks total when the `cli` group itself is included — CONTEXT D-09 cited "18" excluding both `cli` and `dev` groups; the operator's intent in CONTEXT D-03 is "every @cli.command() and @cli.group() callback" — apply to all 20 to maintain decoration uniformity. Decorating the two group-body callbacks is harmless: the group bodies only run setup code and would simply pass any typed exception through to the parent invocation chain — but CliRunner tests have the AppContext shortcut pattern at lines 277-278 which `return`s early and never raises typed exceptions, so the wrapped path is a no-op in tests. Production code in the `cli` group body could in principle raise SerialError from `EpromDatabase()`'s pin-conversion path — the decorator catches it gracefully.)
+    Total = **20** (1× `cli` group + 14× top-level commands + 1× `dev` group + 4× dev sub-commands). Decorating both group bodies (`cli` + `dev`) is the consistent semantic — group bodies execute callback code during AppContext setup and can raise typed exceptions there too (e.g. `EpromDatabase()` pin-conversion in the cli group body can raise SerialError-like issues). BLOCKER 3 lock: count is exactly 20; no 18-vs-20 hedge.
 
     For the `dev_consistency_check` callback specifically: the 3-way verdict (0/1/2) is preserved verbatim because the callback's body calls `sys.exit(verdict_int)`. The `map_typed_errors` wrapper's `return f(*args, **kwargs)` body never reaches `return` for this handler — `sys.exit(...)` raises `SystemExit` which is NOT in the decorator's caught list. SystemExit propagates up to Click's invocation runner which honors the exit code. NO regression to the 3-way verdict.
 
@@ -207,7 +210,7 @@ Severity: informational only. `block_on: high` not triggered.
     1. Apply `@map_typed_errors` only to `_list_cmd`
     2. Run `cd firestarter_app && pytest tests/test_cli_handlers.py::test_list_happy_path -v` — must PASS with exit_code == 0
     3. Run `cd firestarter_app && pytest tests/test_cli_handlers.py::test_cli_help_runs -v` — must PASS (verifies the docstring is still readable by Click; `@functools.wraps` working correctly)
-    4. If both pass, fan out to the remaining 18-19 callbacks; if either fails, REVERT the single-handler decoration and re-check stacking order before retrying.
+    4. If both pass, fan out to the remaining 19 callbacks; if either fails, REVERT the single-handler decoration and re-check stacking order before retrying.
 
     DO NOT:
     - Re-order any existing Click decorators (`@click.argument`/`@click.option` order matters for argparse-parity per Phase 41 D-13)
@@ -219,9 +222,9 @@ Severity: informational only. `block_on: high` not triggered.
     <automated>cd firestarter_app && grep -c "^@map_typed_errors$" firestarter/cli_handlers.py</automated>
   </verify>
   <acceptance_criteria>
-    - `cd firestarter_app && grep -c "^@map_typed_errors$" firestarter/cli_handlers.py` returns exactly 20 (one per callback — `cli` group + 13 top-level commands + `dev` group + 4 dev sub-commands + `fw` if not already counted = 20; if CONTEXT D-09's "18" interpretation is preferred and the planner excludes both group bodies, this count is 18 — either 18 or 20 is acceptable as long as every COMMAND callback has the decorator; the planner records the chosen count in the SUMMARY)
-    - `cd firestarter_app && grep -c "^@map_typed_errors$" firestarter/cli_handlers.py` matches the count of `@(cli|dev)\.command\(` entries (i.e., every command callback decorated; verified by `grep -cE "^@(cli|dev)\.command\(" firestarter/cli_handlers.py` returning the same or matching count — the planner picks 18 vs 20 by including/excluding the two group bodies, but every COMMAND must have the decorator)
-    - For every callback the decorator stacking order has `@map_typed_errors` immediately ABOVE the `def` line: `cd firestarter_app && python -c "import ast, sys; src = open('firestarter/cli_handlers.py').read(); tree = ast.parse(src); count = sum(1 for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.decorator_list and any(isinstance(d, ast.Name) and d.id == 'map_typed_errors' for d in n.decorator_list[-1:]))" && echo OK` exits 0 with OK printed (this is informational — the AST sanity check confirms `map_typed_errors` is found as the LAST decorator on every decorated function; mypy strict mode in Plan 42-03 will further validate)
+    - `cd firestarter_app && grep -c "^@map_typed_errors$" firestarter/cli_handlers.py` returns exactly **20** (count locked per BLOCKER 3: 1× cli group + 14× top-level commands + 1× dev group + 4× dev sub-commands)
+    - `cd firestarter_app && grep -cE "^@(click\.group|cli\.command|cli\.group|dev\.command)\(" firestarter/cli_handlers.py` returns exactly 20 (every callback the decorator is applied to)
+    - AST assertion that every callback has the decorator and the count is exactly 20 (asserts, exits non-zero on mismatch per WARNING 9): `cd firestarter_app && python -c "import ast; tree = ast.parse(open('firestarter/cli_handlers.py').read()); count = sum(1 for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and any(isinstance(d, ast.Name) and d.id == 'map_typed_errors' for d in n.decorator_list)); assert count == 20, f'expected 20 map_typed_errors decorators, got {count}'"`
     - `cd firestarter_app && pytest tests/test_cli_handlers.py -v` exits 0 (all ~30 exit_code assertions still green; D-04 preserved)
     - `cd firestarter_app && pytest tests/test_characterization.py -v` exits 0 (29 syrupy CLI snapshots still green; @functools.wraps preserves docstrings for Click's --help formatting per GATE-1.8b)
     - `cd firestarter_app && pytest tests/test_consistency_check.py -v` exits 0 (3-way verdict contract preserved per D-12 step 5 / Phase 41 D-08; the `sys.exit(verdict_int)` path is NOT collapsed by the decorator because SystemExit is not in its except list)
@@ -229,7 +232,7 @@ Severity: informational only. `block_on: high` not triggered.
     - `cd firestarter_app && python tools/check_mypy_watermark.py` exits 0 (no new mypy errors vs watermark; strict overrides for cli_handlers.py land in Plan 42-03 so the gate stays at watermark this wave)
   </acceptance_criteria>
   <done>
-    Every Click command callback in `cli_handlers.py` is decorated with `@map_typed_errors` as the INNERMOST decorator; decorator-stacking smoke test confirmed working via test_cli_handlers.py + test_characterization.py + test_consistency_check.py; ~30 exit_code assertions stay green; 29 syrupy snapshots green; lint/format/mypy gate clean.
+    Every Click command/group callback in `cli_handlers.py` (exactly 20, count locked per BLOCKER 3) is decorated with `@map_typed_errors` positioned closest to `def` (applied first at function-creation time, runs last in the call chain); decorator-stacking smoke test confirmed working via test_cli_handlers.py + test_characterization.py + test_consistency_check.py; ~30 exit_code assertions stay green; 29 syrupy snapshots green; lint/format/mypy gate clean.
   </done>
 </task>
 
@@ -336,7 +339,7 @@ Severity: informational only. `block_on: high` not triggered.
     Subject line: `refactor(42-02): centralize typed-exception → ClickException mapping at Click boundary; remove _resolve_or_exit shim (ERR-01)`
 
     Body (HEREDOC):
-    `Closes the decorator portion of ERR-01 (D-03, D-05). Adds map_typed_errors decorator near the top of cli_handlers.py mapping 5 typed-exception clauses (ChipNotFoundError, FirmwareOutdatedError, SerialError|SerialTimeoutError tuple, EpromOperationError, HardwareOperationError) to click.ClickException → exit 1. Applies @map_typed_errors as the innermost decorator on every Click command callback (~19-20 callbacks: cli group + 13 commands + dev group + 4 dev sub-commands + fw). Deletes the _resolve_or_exit shim (was the Phase 41 D-08 seam) and rewrites the 9 chip-op call sites to call resolve_chip(eprom, db=app.db) directly; the decorator now catches ChipNotFoundError uniformly. Exit codes preserved per D-04 (stay at 0/1/2; no new code introduced); dev consistency-check 3-way verdict (0=PASS, 1=FAIL, 2=hw-error) preserved because sys.exit(verdict_int) raises SystemExit which falls outside the decorator's except list. Phase 36 syrupy snapshots (29) + Phase 41 test_cli_handlers.py exit_code assertions (~30) + test_consistency_check.py 3-way pin all stay green.`
+    `Closes the decorator portion of ERR-01 (D-03, D-05). Adds map_typed_errors decorator near the top of cli_handlers.py mapping 5 typed-exception clauses (ChipNotFoundError, FirmwareOutdatedError, SerialError|SerialTimeoutError tuple, EpromOperationError, HardwareOperationError) to click.ClickException → exit 1. Applies @map_typed_errors as positioned-closest-to-def on every Click callback (20 callbacks total: cli group + 14 commands + dev group + 4 dev sub-commands per BLOCKER 3 lock). Deletes the _resolve_or_exit shim (was the Phase 41 D-08 seam) and rewrites the 9 chip-op call sites to call resolve_chip(eprom, db=app.db) directly; the decorator now catches ChipNotFoundError uniformly. Exit codes preserved per D-04 (stay at 0/1/2; no new code introduced); dev consistency-check 3-way verdict (0=PASS, 1=FAIL, 2=hw-error) preserved because sys.exit(verdict_int) raises SystemExit which falls outside the decorator's except list. Phase 36 syrupy snapshots (29) + Phase 41 test_cli_handlers.py exit_code assertions (~30) + test_consistency_check.py 3-way pin all stay green.`
 
     Do NOT amend prior commits. Do NOT push.
   </action>
@@ -374,14 +377,17 @@ Severity: informational only. `block_on: high` not triggered.
 - `cd firestarter_app && grep -c "_resolve_or_exit" firestarter/cli_handlers.py` returns 0
 - `cd firestarter_app && grep -c "^def map_typed_errors(" firestarter/cli_handlers.py` returns 1
 - `cd firestarter_app && grep -cE "resolve_chip\(eprom, db=app\.db\)" firestarter/cli_handlers.py` returns 9
+- `cd firestarter_app && grep -c "^@map_typed_errors$" firestarter/cli_handlers.py` returns exactly 20 (BLOCKER 3 lock)
 - Latest commit on firestarter_app `v1.8-app-cleanup` branch contains references to D-03, D-04, D-05, _resolve_or_exit, ChipNotFoundError
 - Only `firestarter/cli_handlers.py` modified in this commit
 </verification>
 
 <success_criteria>
-The decorator portion of ERR-01 is closed. The `map_typed_errors` decorator is the single grep-able Click-boundary mapping point for service/transport typed exceptions; future exception types add one `except` clause here rather than 18 try/except blocks scattered across handlers. The `_resolve_or_exit` shim is gone; 9 chip-op handlers + 2 dev sub-commands call `resolve_chip(eprom, db=app.db)` directly. All exit codes preserved (0/1/2 — D-04); 29 syrupy snapshots green; ~30 test_cli_handlers.py exit_code assertions green; `dev consistency-check` 3-way verdict preserved. GATE-1.8 (a–e) preserved end-to-end.
+The decorator portion of ERR-01 is closed. The `map_typed_errors` decorator is the single grep-able Click-boundary mapping point for service/transport typed exceptions; future exception types add one `except` clause here rather than 20 try/except blocks scattered across handlers. The `_resolve_or_exit` shim is gone; 9 chip-op handlers + 2 dev sub-commands call `resolve_chip(eprom, db=app.db)` directly. All exit codes preserved (0/1/2 — D-04); 29 syrupy snapshots green; ~30 test_cli_handlers.py exit_code assertions green; `dev consistency-check` 3-way verdict preserved. GATE-1.8 (a–e) preserved end-to-end.
 </success_criteria>
 
 <output>
 Create `.planning/phases/42-error-handling-normalization-quality-sweep/42-02-SUMMARY.md` when done.
 </output>
+</content>
+</invoke>

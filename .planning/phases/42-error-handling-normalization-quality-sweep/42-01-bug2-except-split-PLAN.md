@@ -95,13 +95,13 @@ Severity: informational only. `block_on: high` not triggered.
   <name>Task 1: Split the BUG-2 except clause in eprom_operations.py::_run_state_machine</name>
   <files>firestarter_app/firestarter/eprom_operations.py</files>
   <read_first>
-    - firestarter_app/firestarter/eprom_operations.py (the full _run_state_machine method body — currently at lines 257-295; locate the load-bearing `except (SerialError, SerialTimeoutError, EpromOperationError) as e:` clause at line 291 immediately before the `finally:` block at line 294)
+    - firestarter_app/firestarter/eprom_operations.py (the full _run_state_machine method body — currently at lines 257-295; locate the load-bearing `except (SerialError, SerialTimeoutError, EpromOperationError) as e:` clause **at line 291** (confirmed via `grep -n "except (SerialError, SerialTimeoutError, EpromOperationError)" firestarter/eprom_operations.py` returning `291:        except (SerialError, SerialTimeoutError, EpromOperationError) as e:`) immediately before the `finally:` block. CONTEXT D-01 / D-16 reference the historical line 265 from when BUG-2 was first characterized in Phase 36 — that anchor is preserved in the commit-message text (WARNING 8) but the executor should treat **line 291 as the actual current location** of the clause; if a re-scout at execute time finds it shifted further, the executor edits the actual current line and notes the new position in the SUMMARY)
     - firestarter_app/firestarter/exceptions.py (verify EpromOperationError + SerialError + SerialTimeoutError exception types — EpromOperationError is a plain Exception, NOT a SerialError subclass; the split is therefore safe — no overlap)
     - .planning/phases/42-error-handling-normalization-quality-sweep/42-CONTEXT.md (D-01 specifies the exact split shape verbatim; D-04 locks the exit-code preservation; D-07 locks the no-typing-change rule)
     - firestarter_app/tests/test_bug_characterization.py (lines 100-129 — the xfail body that asserts caplog records do NOT contain "Communication error"; the assertion text drives the log-label change)
   </read_first>
   <action>
-    In `firestarter_app/firestarter/eprom_operations.py`, locate the `_run_state_machine` method (currently at line 257). Inside it, replace the single combined except clause with two separate clauses per D-01.
+    In `firestarter_app/firestarter/eprom_operations.py`, locate the `_run_state_machine` method (currently at line 257). Inside it, replace the single combined except clause **at line 291** with two separate clauses per D-01.
 
     Current state (single combined clause, line 291-293):
       - One `except` line catching the tuple `(SerialError, SerialTimeoutError, EpromOperationError) as e`
@@ -132,11 +132,11 @@ Severity: informational only. `block_on: high` not triggered.
     <automated>cd firestarter_app && grep -c "except (SerialError, SerialTimeoutError) as e:" firestarter/eprom_operations.py</automated>
   </verify>
   <acceptance_criteria>
-    - `cd firestarter_app && grep -c "except (SerialError, SerialTimeoutError) as e:" firestarter/eprom_operations.py` returns exactly 1
-    - `cd firestarter_app && grep -c "except EpromOperationError as e:" firestarter/eprom_operations.py` returns exactly 1
+    - `cd firestarter_app && grep -c "except (SerialError, SerialTimeoutError) as e:" firestarter/eprom_operations.py` returns exactly 3 (the new BUG-2 clause inside `_run_state_machine` plus the 2 pre-existing identical clauses elsewhere in the file at lines 778 + 814; the BUG-2 fix adds ONE more occurrence of this exact text — pre-fix count was 2, post-fix is 3; the executor verifies the pre-fix count via `git show HEAD:firestarter/eprom_operations.py | grep -c "except (SerialError, SerialTimeoutError) as e:"` before editing)
+    - `cd firestarter_app && grep -c "except EpromOperationError as e:" firestarter/eprom_operations.py` returns at least 2 (the new BUG-2 clause inside `_run_state_machine` + the existing standalone clause at line 608; if the executor verifies pre-fix via `git show HEAD:firestarter/eprom_operations.py | grep -c "except EpromOperationError as e:"` it should be 1 and post-fix is 2)
     - `cd firestarter_app && grep -c "except (SerialError, SerialTimeoutError, EpromOperationError)" firestarter/eprom_operations.py` returns 0 (combined clause is gone)
     - `cd firestarter_app && grep -c "Programmer error during " firestarter/eprom_operations.py` returns exactly 1
-    - `cd firestarter_app && grep -c "Communication error during " firestarter/eprom_operations.py` returns exactly 1 (the SerialError branch keeps this label)
+    - `cd firestarter_app && grep -c "Communication error during " firestarter/eprom_operations.py` returns at least 1 (the SerialError branch in `_run_state_machine` keeps this label; the existing pre-fix occurrences elsewhere in the file are also "Communication error during ..." or similar — executor records the actual delta in the SUMMARY)
     - `cd firestarter_app && grep -c "return False, str(e)" firestarter/eprom_operations.py` returns at least 2 (both new except clauses still return the same shape; may be higher if other sites use the same return idiom elsewhere)
     - `cd firestarter_app && python -c "from firestarter.eprom_operations import EpromOperator; print('OK')"` exits 0 (import-clean)
     - The `_run_state_machine` method body outside the modified except clause is byte-identical — verified by `cd firestarter_app && git diff firestarter/eprom_operations.py | grep -cE "^[+-]" | wc -l` returning a small number (4 removed lines + 6 added lines = 10 diff lines max for the split)
@@ -212,9 +212,13 @@ Severity: informational only. `block_on: high` not triggered.
 
     Subject line: `fix(42-01): split eprom_operations.py BUG-2 except clause (ERR-01)`
 
-    Body MUST contain the literal string `INTENTIONAL BEHAVIOR CHANGE: split eprom_operations.py:265 except clause; EpromOperationError logged as "Programmer error during {op}" (ERR-01, BUG-2 fix)` exactly as specified in CONTEXT D-01/D-16. The line number "265" in the commit message is preserved from CONTEXT.md verbatim even though the runtime line is now 291 — the message references the historical bug-coordinate per the operator-recorded literal in CONTEXT D-01/D-16; reviewers and `grep -r "eprom_operations.py:265"` searches across `.planning/` find the message via this anchor. Full message body:
+    Body MUST contain the literal string (per WARNING 8 — drops the literal line number to avoid future-rot when line numbers shift; references the function name `_run_state_machine` which is stable):
 
-    `INTENTIONAL BEHAVIOR CHANGE: split eprom_operations.py:265 except clause; EpromOperationError logged as "Programmer error during {op}" (ERR-01, BUG-2 fix). The combined except (SerialError, SerialTimeoutError, EpromOperationError) clause logged all three as "Communication error" — misleading users when the firmware reported a programmer-side failure on a healthy serial link. Splits into two clauses: SerialError|SerialTimeoutError keeps "Communication error"; EpromOperationError logs as "Programmer error". Both still return (False, str(e)); exit codes unchanged (D-04). Flips tests/test_bug_characterization.py::test_eprom_operation_error_not_labeled_as_communication_error from xfail(strict=True) to passing.`
+    `INTENTIONAL BEHAVIOR CHANGE: split _run_state_machine except clause in eprom_operations.py; EpromOperationError logged as "Programmer error during {op}" (ERR-01, BUG-2 fix)`
+
+    Full message body:
+
+    `INTENTIONAL BEHAVIOR CHANGE: split _run_state_machine except clause in eprom_operations.py; EpromOperationError logged as "Programmer error during {op}" (ERR-01, BUG-2 fix). The combined except (SerialError, SerialTimeoutError, EpromOperationError) clause logged all three as "Communication error" — misleading users when the firmware reported a programmer-side failure on a healthy serial link. Splits into two clauses: SerialError|SerialTimeoutError keeps "Communication error"; EpromOperationError logs as "Programmer error". Both still return (False, str(e)); exit codes unchanged (D-04). Flips tests/test_bug_characterization.py::test_eprom_operation_error_not_labeled_as_communication_error from xfail(strict=True) to passing. (Historical anchor: CONTEXT D-01/D-16 reference the clause as "eprom_operations.py:265" from its Phase 36 characterization point; the runtime location at execution time is line 291.)`
 
     Do NOT amend prior commits. Do NOT push the commit (sub-repo push is the operator's call per the established branch-promotion pattern).
 
@@ -231,13 +235,13 @@ Severity: informational only. `block_on: high` not triggered.
     - `cd firestarter_app && pytest tests/test_characterization.py -v` exits 0 (29 syrupy snapshots green; argparse-form goldens preserved from Phase 41)
     - `cd firestarter_app && pytest --cov=firestarter --cov-fail-under=50` exits 0 (coverage floor preserved; the 70% flip lands in Plan 42-03 per D-15)
     - `cd firestarter_app && firestarter --help` exits 0 (CLI-04 SC#4 smoke test still green)
-    - `cd firestarter_app && git log -1 --format=%B` contains the literal string `INTENTIONAL BEHAVIOR CHANGE: split eprom_operations.py:265 except clause; EpromOperationError logged as "Programmer error during {op}" (ERR-01, BUG-2 fix)`
+    - `cd firestarter_app && git log -1 --format=%B` contains the literal string `INTENTIONAL BEHAVIOR CHANGE: split _run_state_machine except clause in eprom_operations.py; EpromOperationError logged as "Programmer error during {op}" (ERR-01, BUG-2 fix)`
     - `cd firestarter_app && git log -1 --name-only` lists exactly `firestarter/eprom_operations.py` and `tests/test_bug_characterization.py` (no other files touched in this commit)
     - The commit lands on branch `v1.8-app-cleanup` (sub-repo): `cd firestarter_app && git rev-parse --abbrev-ref HEAD` returns `v1.8-app-cleanup`
     - The Phase 41 Plan 41-04 SUMMARY's reported "246 passed + 1 xfail (BUG-2 preserved)" floor moves to "247 passed + 0 xfail" (or higher passed count if Wave 1 of Plan 42-03 lands first — not applicable here since this is the W1 of Phase 42)
   </acceptance_criteria>
   <done>
-    Single atomic commit on `firestarter_app/`'s `v1.8-app-cleanup` branch with the required INTENTIONAL BEHAVIOR CHANGE message; suite green with the BUG-2 xfail flipped to passing; lint/format/mypy/coverage gate green; CLI smoke green; Phase 36 syrupy snapshots green.
+    Single atomic commit on `firestarter_app/`'s `v1.8-app-cleanup` branch with the required INTENTIONAL BEHAVIOR CHANGE message referencing the stable function name `_run_state_machine` (not a literal line number); suite green with the BUG-2 xfail flipped to passing; lint/format/mypy/coverage gate green; CLI smoke green; Phase 36 syrupy snapshots green.
   </done>
 </task>
 
@@ -250,7 +254,7 @@ Severity: informational only. `block_on: high` not triggered.
 - `cd firestarter_app && pytest tests/test_characterization.py -v` exits 0 (29 syrupy snapshots green)
 - `cd firestarter_app && pytest --cov=firestarter --cov-fail-under=50` exits 0
 - `cd firestarter_app && firestarter --help` exits 0
-- Latest commit on firestarter_app `v1.8-app-cleanup` branch contains the literal INTENTIONAL BEHAVIOR CHANGE string for BUG-2 / ERR-01
+- Latest commit on firestarter_app `v1.8-app-cleanup` branch contains the literal INTENTIONAL BEHAVIOR CHANGE string for BUG-2 / ERR-01 (referencing `_run_state_machine`, not a literal line number per WARNING 8)
 - No other files in firestarter_app/ modified beyond eprom_operations.py + test_bug_characterization.py
 </verification>
 
@@ -261,3 +265,5 @@ The BUG-2 portion of ERR-01 is closed. The conflated except clause in `_run_stat
 <output>
 Create `.planning/phases/42-error-handling-normalization-quality-sweep/42-01-SUMMARY.md` when done.
 </output>
+</content>
+</invoke>
