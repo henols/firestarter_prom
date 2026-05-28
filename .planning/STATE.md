@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.8
 milestone_name: — Host CLI Structural Cleanup
-status: executing
-last_updated: "2026-05-28T13:44:00.000Z"
-last_activity: 2026-05-28 -- Phase 41 Plan 04 (entry-point swap argparse→Click + main.py 932→35 lines + argcomplete dropped + click>=8.1 added + autocomplete.md rewritten + CI smoke step; CLI-01 + CLI-02 + CLI-04) SHIPPED — firestarter_app@3224f7e on v1.8-app-cleanup. Phase 41 SHIPS.
+status: Phase 41 SHIPPED. Ready for Phase 42 (Error Handling + Quality Sweep).
+last_updated: "2026-05-28T14:01:42.191Z"
+last_activity: 2026-05-28
 progress:
   total_phases: 8
   completed_phases: 6
@@ -20,13 +20,13 @@ progress:
 
 ## Current Position
 
-Phase: 41 (cli-migration-argparse-click) — SHIPPED
-Plan: 4 of 4 COMPLETE
+Phase: 42
+Plan: Not started
 Plans: 4/4 (41-01 ✓ build_arg_flags fix SHIPPED • 41-02 ✓ Click skeleton + 3 read-only commands SHIPPED • 41-03 ✓ 11 remaining commands + TRAPs + dev group SHIPPED • 41-04 ✓ entry-point swap + argcomplete drop + CI smoke SHIPPED)
 Next: Phase 42 — Error Handling + Quality Sweep. Operator command: `/gsd-discuss-phase 42` or `/gsd-plan-phase 42`.
 Status: Phase 41 SHIPPED. Ready for Phase 42 (Error Handling + Quality Sweep).
 Resume file: .planning/phases/42-* (not yet created)
-Last activity: 2026-05-28 -- Phase 41 Plan 04 (W4 / CLI-01 + CLI-02 + CLI-04 entry-point swap + argcomplete drop + click>=8.1 + autocomplete.md + CI smoke) SHIPPED — firestarter_app@3224f7e on v1.8-app-cleanup. Phase 41 ships.
+Last activity: 2026-05-28
 Last commit: firestarter_app@3224f7e — feat(41-04): swap entry point to Click; drop argcomplete; main.py 932->35 (CLI-01, CLI-02, CLI-04)
 
 ## Project Reference

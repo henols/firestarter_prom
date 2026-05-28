@@ -39,7 +39,7 @@
 - [x] **Phase 38: Low-Risk Extractions** (completed 2026-05-27) — Extract `frame_parser.py` (CRC + decode, pure functions), `codec.py` (message formatting), `address_parser.py` (hex/decimal parsing), and `exceptions.py` (consolidated exception hierarchy); delete confirmed dead code (`read_data_block`, `globals()` introspection, commented-out blocks). Mechanical moves verified by the full test suite after each file move.
 - [x] **Phase 39: Database Cleanup + chip_resolver** (completed 2026-05-27) — Introduce `chip_resolver.py` with `resolve_chip()` eliminating the 9× chip-lookup copy-paste; add type hints + docstrings to `EpromDatabase`; replace all `from firestarter.constants import *` star-imports with named imports; verify/add `COMMAND_FW_VERSION`; consolidate wire-protocol constants.
 - [x] **Phase 40: Serial / Transport Restructure** — Clean up `serial_comm.py` post-Phase-38: extract `_validate_firmware_version` as a testable `@staticmethod`; add type hints to all public `SerialCommunicator` methods; delete `STATE_MACHINE_PREFIXES` dead code; confirm `_read_and_parse_lines` generator body is byte-identical (add `# DO NOT MODIFY — v1.9 RCA territory` marker). _(Completed 2026-05-28)_
-- [ ] **Phase 41: CLI Migration argparse → Click** — Migrate from argparse to Click; create `cli_handlers.py` with one `@cli.command()` per user command; reduce `main()` to ≤ 50 lines; handle all five argparse→Click behavioral traps explicitly; fix `build_arg_flags` latent bug (INTENTIONAL BEHAVIOR CHANGE documented); confirm pip entry point and shell-completion behavior with operator.
+- [x] **Phase 41: CLI Migration argparse → Click** — Migrate from argparse to Click; create `cli_handlers.py` with one `@cli.command()` per user command; reduce `main()` to ≤ 50 lines; handle all five argparse→Click behavioral traps explicitly; fix `build_arg_flags` latent bug (INTENTIONAL BEHAVIOR CHANGE documented); confirm pip entry point and shell-completion behavior with operator. (completed 2026-05-28)
 - [ ] **Phase 42: Error Handling Normalization + Quality Sweep** — Enforce consistent exception/exit-code convention throughout; eliminate bare `except:` clauses; add return type annotations on all public functions in touched modules; add module + public-function docstrings; normalize naming; run final ruff + mypy sweep with raised coverage threshold.
 - [ ] **Phase 43: Documentation + Milestone Close** — Update `firestarter_app` README + contributor docs for the new flat-module structure and tooling workflow; write MILESTONES.md v1.8 entry; update PROJECT.md "Validated"; archive phase directories; verify GATE-1.8 end-to-end; promote branch `v1.8-app-cleanup` → `beta` → `main`.
 
@@ -210,19 +210,24 @@ Plans:
 
 **Plans:**
 
-**Wave 1 (independent of W2–W4 per D-17; lands first so BUG-1 xfail flips early)**
-- [ ] 41-01-build-arg-flags-fix — CLI-03 — INTENTIONAL BEHAVIOR CHANGE: `build_arg_flags "force" in args` → `getattr(args, "force", False)`; BUG-1 xfail flips to passing.
+4/4 plans complete
+
+- [x] 41-01-build-arg-flags-fix — CLI-03 — INTENTIONAL BEHAVIOR CHANGE: `build_arg_flags "force" in args` → `getattr(args, "force", False)`; BUG-1 xfail flips to passing.
 
 **Wave 2 (starts the Click chain; entry point STAYS argparse this wave per D-11)**
-- [ ] 41-02-click-skeleton-readonly-commands — CLI-01, CLI-02 — `cli_handlers.py` NEW: `AppContext` dataclass + `@click.group() cli` + `_complete_eprom` shell_complete + 3 read-only commands (`list`, `info`, `search`); `test_cli_handlers.py` NEW (CliRunner happy-path + TRAP #2 no-prefix-matching).
+
+- [x] 41-02-click-skeleton-readonly-commands — CLI-01, CLI-02 — `cli_handlers.py` NEW: `AppContext` dataclass + `@click.group() cli` + `_complete_eprom` shell_complete + 3 read-only commands (`list`, `info`, `search`); `test_cli_handlers.py` NEW (CliRunner happy-path + TRAP #2 no-prefix-matching).
 
 **Wave 3 *(blocked on Wave 2 completion)***
-- [ ] 41-03-migrate-remaining-commands — CLI-01, CLI-02 — Migrate 11 remaining commands into `cli_handlers.py`: 6 chip-ops (`read`/`write`/`verify`/`blank`/`erase`/`id`) + 2 voltage (`vpp`/`vpe`) + 2 hardware (`hw`/`config`) + 1 `fw` + `dev` group with 4 sub-commands. TRAPs #1 (exit codes), #3 (`--no-blank-check` polarity), #4 (3-way mutex via per-option callback), #5 (`_validate_firmware_version` as `_FirmwareVersionType` ParamType). Single atomic commit per v1.8 phase style. Entry point STAYS argparse this wave.
+
+- [x] 41-03-migrate-remaining-commands — CLI-01, CLI-02 — Migrate 11 remaining commands into `cli_handlers.py`: 6 chip-ops (`read`/`write`/`verify`/`blank`/`erase`/`id`) + 2 voltage (`vpp`/`vpe`) + 2 hardware (`hw`/`config`) + 1 `fw` + `dev` group with 4 sub-commands. TRAPs #1 (exit codes), #3 (`--no-blank-check` polarity), #4 (3-way mutex via per-option callback), #5 (`_validate_firmware_version` as `_FirmwareVersionType` ParamType). Single atomic commit per v1.8 phase style. Entry point STAYS argparse this wave.
 
 **Wave 4 *(blocked on Wave 3 completion)***
-- [ ] 41-04-entrypoint-swap-argcomplete-removal — CLI-01, CLI-02, CLI-04 — Single atomic INTENTIONAL BEHAVIOR CHANGE commit. `main.py` trim 932 → ≤ 50 lines (entire argparse dispatcher + 14 `create_*_args` + `EpromCompleter` + argparse `_validate_firmware_version` deleted); `build_arg_flags` + `_maybe_auto_route_to_pre` relocated to `cli_handlers.py`. `pyproject.toml` drops `argcomplete>=3.6.2`, adds `click>=8.1`. Entry point stays `firestarter.main:main` with `main = cli` re-export. `autocomplete.md` rewritten with Click `_FIRESTARTER_COMPLETE=<shell>_source firestarter` activation (bash/zsh/fish/PowerShell). `tests/test_bug_characterization.py:42` import repointed. CI gains `pip install -e . && firestarter --help` smoke step.
+
+- [x] 41-04-entrypoint-swap-argcomplete-removal — CLI-01, CLI-02, CLI-04 — Single atomic INTENTIONAL BEHAVIOR CHANGE commit. `main.py` trim 932 → ≤ 50 lines (entire argparse dispatcher + 14 `create_*_args` + `EpromCompleter` + argparse `_validate_firmware_version` deleted); `build_arg_flags` + `_maybe_auto_route_to_pre` relocated to `cli_handlers.py`. `pyproject.toml` drops `argcomplete>=3.6.2`, adds `click>=8.1`. Entry point stays `firestarter.main:main` with `main = cli` re-export. `autocomplete.md` rewritten with Click `_FIRESTARTER_COMPLETE=<shell>_source firestarter` activation (bash/zsh/fish/PowerShell). `tests/test_bug_characterization.py:42` import repointed. CI gains `pip install -e . && firestarter --help` smoke step.
 
 **Cross-cutting constraints (appear in every plan's `must_haves.truths`):**
+
 - GATE-1.8a: wire protocol byte-identical (no edits to serial/wire code)
 - GATE-1.8b: end-user CLI surface preserved — Phase 36's 29 syrupy snapshots stay green (BUG-1 flips in W1; BUG-2 stays xfail through this phase)
 - GATE-1.8c: constants.py + firmware header parity untouched (named imports only per Phase 39 D-06)
@@ -522,6 +527,6 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 | 38 | v1.8 | 0/TBD | Not started | — |
 | 39 | v1.8 | 3/3 | Complete | 2026-05-27 |
 | 40 | v1.8 | 0/TBD | Not started | — |
-| 41 | v1.8 | 0/TBD | Not started | — |
+| 41 | v1.8 | 4/4 | Complete    | 2026-05-28 |
 | 42 | v1.8 | 0/TBD | Not started | — |
 | 43 (close) | v1.8 | 0/TBD | Not started | — |

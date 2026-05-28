@@ -58,10 +58,10 @@ The behavior gate is **"refactor + fix bugs found"**: internal structure changes
 
 ### CLI Migration to Click (CLI)
 
-- [ ] **CLI-01**: The CLI is migrated from argparse to Click; every command, flag, default, and exit code is preserved (verified by TEST-01), with the five documented argparse→Click traps handled explicitly (exit codes / `return 1`, prefix matching, `store_false` polarity for `--no-blank-check`, the `--pre`/`--firmware-version`/`--stable` mutually-exclusive group, the firmware-version type-validator).
-- [ ] **CLI-02**: One Click command per user command lives in a new flat `cli_handlers.py`; the 418-line `main()` becomes a thin Click group entry point.
-- [ ] **CLI-03**: The `build_arg_flags` latent bug is fixed (documented intentional behavior change per GATE-1.8).
-- [ ] **CLI-04**: The pip entry point (`firestarter`) is preserved and a CLI smoke test runs in CI; shell-completion behavior is either preserved or explicitly dropped with operator sign-off (the `argcomplete` question).
+- [x] **CLI-01**: The CLI is migrated from argparse to Click; every command, flag, default, and exit code is preserved (verified by TEST-01), with the five documented argparse→Click traps handled explicitly (exit codes / `return 1`, prefix matching, `store_false` polarity for `--no-blank-check`, the `--pre`/`--firmware-version`/`--stable` mutually-exclusive group, the firmware-version type-validator).
+- [x] **CLI-02**: One Click command per user command lives in a new flat `cli_handlers.py`; the 418-line `main()` becomes a thin Click group entry point.
+- [x] **CLI-03**: The `build_arg_flags` latent bug is fixed (documented intentional behavior change per GATE-1.8).
+- [x] **CLI-04**: The pip entry point (`firestarter`) is preserved and a CLI smoke test runs in CI; shell-completion behavior is either preserved or explicitly dropped with operator sign-off (the `argcomplete` question).
 
 ### Error Handling & Quality Sweep (ERR)
 
@@ -130,10 +130,10 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SERIAL-01 | Phase 40 | Complete |
 | SERIAL-02 | Phase 40 | Complete |
 | SERIAL-03 | Phase 40 | Complete |
-| CLI-01 | Phase 41 | Pending |
-| CLI-02 | Phase 41 | Pending |
-| CLI-03 | Phase 41 | Pending |
-| CLI-04 | Phase 41 | Pending |
+| CLI-01 | Phase 41 | Complete |
+| CLI-02 | Phase 41 | Complete |
+| CLI-03 | Phase 41 | Complete |
+| CLI-04 | Phase 41 | Complete |
 | ERR-01 | Phase 42 | Pending |
 | ERR-02 | Phase 42 | Pending |
 | ERR-03 | Phase 42 | Pending |
@@ -143,6 +143,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | GATE-1.8 (a–e) | All phases (standing gate) | Pending |
 
 **Coverage:**
+
 - v1 requirements: 30 (5 TEST + 3 TOOL + 5 STRUCT + 4 DATA + 3 SERIAL + 4 CLI + 3 ERR + 3 DOC/MS)
 - Mapped to phases: 30/30 ✓ (Phase 36: 5, Phase 37: 3, Phase 38: 5, Phase 39: 4, Phase 40: 3, Phase 41: 4, Phase 42: 3, Phase 43: 3)
 - Unmapped: 0
