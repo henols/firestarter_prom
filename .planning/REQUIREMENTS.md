@@ -65,9 +65,9 @@ The behavior gate is **"refactor + fix bugs found"**: internal structure changes
 
 ### Error Handling & Quality Sweep (ERR)
 
-- [ ] **ERR-01**: A consistent error convention — service/transport layers raise typed exceptions; the Click boundary maps them to stable exit codes/messages; no bare `except:`.
-- [ ] **ERR-02**: Type hints on all public functions in touched modules (those modules are mypy-clean under the configured strictness).
-- [ ] **ERR-03**: Module and public-function docstrings explaining intent; naming normalized to snake_case (no camelCase legacy); remaining dead code removed.
+- [x] **ERR-01**: A consistent error convention — service/transport layers raise typed exceptions; the Click boundary maps them to stable exit codes/messages; no bare `except:`. _(completed 2026-05-28; Phase 42 Plans 42-01 + 42-02 + 42-03 SC#1 grep contract)_
+- [x] **ERR-02**: Type hints on all public functions in touched modules (those modules are mypy-clean under the configured strictness). _(completed 2026-05-28; Phase 42 Plan 42-03)_
+- [x] **ERR-03**: Module and public-function docstrings explaining intent; naming normalized to snake_case (no camelCase legacy); remaining dead code removed. _(completed 2026-05-28; Phase 42 Plan 42-03)_
 
 ### Documentation & Milestone Close (DOC)
 
@@ -134,9 +134,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 | CLI-02 | Phase 41 | Complete |
 | CLI-03 | Phase 41 | Complete |
 | CLI-04 | Phase 41 | Complete |
-| ERR-01 | Phase 42 | Pending |
-| ERR-02 | Phase 42 | Pending |
-| ERR-03 | Phase 42 | Pending |
+| ERR-01 | Phase 42 | Complete |
+| ERR-02 | Phase 42 | Complete |
+| ERR-03 | Phase 42 | Complete |
 | DOC-01 | Phase 43 | Pending |
 | DOC-02 | Phase 43 | Pending |
 | MS-01 | Phase 43 | Pending |

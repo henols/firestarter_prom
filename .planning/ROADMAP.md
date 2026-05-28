@@ -40,7 +40,7 @@
 - [x] **Phase 39: Database Cleanup + chip_resolver** (completed 2026-05-27) — Introduce `chip_resolver.py` with `resolve_chip()` eliminating the 9× chip-lookup copy-paste; add type hints + docstrings to `EpromDatabase`; replace all `from firestarter.constants import *` star-imports with named imports; verify/add `COMMAND_FW_VERSION`; consolidate wire-protocol constants.
 - [x] **Phase 40: Serial / Transport Restructure** — Clean up `serial_comm.py` post-Phase-38: extract `_validate_firmware_version` as a testable `@staticmethod`; add type hints to all public `SerialCommunicator` methods; delete `STATE_MACHINE_PREFIXES` dead code; confirm `_read_and_parse_lines` generator body is byte-identical (add `# DO NOT MODIFY — v1.9 RCA territory` marker). _(Completed 2026-05-28)_
 - [x] **Phase 41: CLI Migration argparse → Click** — Migrate from argparse to Click; create `cli_handlers.py` with one `@cli.command()` per user command; reduce `main()` to ≤ 50 lines; handle all five argparse→Click behavioral traps explicitly; fix `build_arg_flags` latent bug (INTENTIONAL BEHAVIOR CHANGE documented); confirm pip entry point and shell-completion behavior with operator. (completed 2026-05-28)
-- [ ] **Phase 42: Error Handling Normalization + Quality Sweep** — Enforce consistent exception/exit-code convention throughout; eliminate bare `except:` clauses; add return type annotations on all public functions in touched modules; add module + public-function docstrings; normalize naming; run final ruff + mypy sweep with raised coverage threshold.
+- [x] **Phase 42: Error Handling Normalization + Quality Sweep** — Enforce consistent exception/exit-code convention throughout; eliminate bare `except:` clauses; add return type annotations on all public functions in touched modules; add module + public-function docstrings; normalize naming; run final ruff + mypy sweep with raised coverage threshold. _(completed 2026-05-28)_
 - [ ] **Phase 43: Documentation + Milestone Close** — Update `firestarter_app` README + contributor docs for the new flat-module structure and tooling workflow; write MILESTONES.md v1.8 entry; update PROJECT.md "Validated"; archive phase directories; verify GATE-1.8 end-to-end; promote branch `v1.8-app-cleanup` → `beta` → `main`.
 
 ### Phase Details
@@ -303,9 +303,9 @@ Plans:
 | CLI-02 | Phase 41 | Pending |
 | CLI-03 | Phase 41 | Pending |
 | CLI-04 | Phase 41 | Pending |
-| ERR-01 | Phase 42 | Pending |
-| ERR-02 | Phase 42 | Pending |
-| ERR-03 | Phase 42 | Pending |
+| ERR-01 | Phase 42 | Complete |
+| ERR-02 | Phase 42 | Complete |
+| ERR-03 | Phase 42 | Complete |
 | DOC-01 | Phase 43 | Pending |
 | DOC-02 | Phase 43 | Pending |
 | MS-01 | Phase 43 | Pending |
