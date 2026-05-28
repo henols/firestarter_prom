@@ -38,7 +38,7 @@
 - [x] **Phase 37: Tooling Baseline + CI Gate** (completed 2026-05-27) — Configure ruff, ruff-format, and mypy in `pyproject.toml`; run format + baseline pass on the codebase; add GitHub Actions CI step enforcing lint/format/type with coverage gate. Zero new violations permitted after this phase.
 - [x] **Phase 38: Low-Risk Extractions** (completed 2026-05-27) — Extract `frame_parser.py` (CRC + decode, pure functions), `codec.py` (message formatting), `address_parser.py` (hex/decimal parsing), and `exceptions.py` (consolidated exception hierarchy); delete confirmed dead code (`read_data_block`, `globals()` introspection, commented-out blocks). Mechanical moves verified by the full test suite after each file move.
 - [x] **Phase 39: Database Cleanup + chip_resolver** (completed 2026-05-27) — Introduce `chip_resolver.py` with `resolve_chip()` eliminating the 9× chip-lookup copy-paste; add type hints + docstrings to `EpromDatabase`; replace all `from firestarter.constants import *` star-imports with named imports; verify/add `COMMAND_FW_VERSION`; consolidate wire-protocol constants.
-- [ ] **Phase 40: Serial / Transport Restructure** — Clean up `serial_comm.py` post-Phase-38: extract `_validate_firmware_version` as a testable `@staticmethod`; add type hints to all public `SerialCommunicator` methods; delete `STATE_MACHINE_PREFIXES` dead code; confirm `_read_and_parse_lines` generator body is byte-identical (add `# DO NOT MODIFY — v1.9 RCA territory` marker).
+- [x] **Phase 40: Serial / Transport Restructure** — Clean up `serial_comm.py` post-Phase-38: extract `_validate_firmware_version` as a testable `@staticmethod`; add type hints to all public `SerialCommunicator` methods; delete `STATE_MACHINE_PREFIXES` dead code; confirm `_read_and_parse_lines` generator body is byte-identical (add `# DO NOT MODIFY — v1.9 RCA territory` marker). _(Completed 2026-05-28)_
 - [ ] **Phase 41: CLI Migration argparse → Click** — Migrate from argparse to Click; create `cli_handlers.py` with one `@cli.command()` per user command; reduce `main()` to ≤ 50 lines; handle all five argparse→Click behavioral traps explicitly; fix `build_arg_flags` latent bug (INTENTIONAL BEHAVIOR CHANGE documented); confirm pip entry point and shell-completion behavior with operator.
 - [ ] **Phase 42: Error Handling Normalization + Quality Sweep** — Enforce consistent exception/exit-code convention throughout; eliminate bare `except:` clauses; add return type annotations on all public functions in touched modules; add module + public-function docstrings; normalize naming; run final ruff + mypy sweep with raised coverage threshold.
 - [ ] **Phase 43: Documentation + Milestone Close** — Update `firestarter_app` README + contributor docs for the new flat-module structure and tooling workflow; write MILESTONES.md v1.8 entry; update PROJECT.md "Validated"; archive phase directories; verify GATE-1.8 end-to-end; promote branch `v1.8-app-cleanup` → `beta` → `main`.
@@ -192,7 +192,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3; touches serial_comm.py)*
 
-- [ ] 40-04-PLAN.md — SERIAL-03: ring-fence comment block + docstring marker on _read_and_parse_lines + 7x -> None return hints (D-15..D-19; GATE-1.8a/d body byte-identity) (wave 4)
+- [x] 40-04-PLAN.md — SERIAL-03: ring-fence comment block + docstring marker on _read_and_parse_lines + 7x -> None return hints (D-15..D-19; GATE-1.8a/d body byte-identity) (wave 4)
 
 #### Phase 41: CLI Migration argparse → Click
 

@@ -4,13 +4,13 @@ milestone: v1.8
 milestone_name: — Host CLI Structural Cleanup
 status: executing
 last_updated: "2026-05-28T07:12:38.199Z"
-last_activity: 2026-05-28 -- Phase 40 wave 3 complete (40-03 SERIAL-01 dead-code sweep)
+last_activity: 2026-05-28 -- Phase 40 complete + verified passed (SERIAL-01/02/03; GATE-1.8 a/b/c/d/e)
 progress:
   total_phases: 8
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 19
-  completed_plans: 18
-  percent: 59
+  completed_plans: 19
+  percent: 63
 ---
 
 # Project State
@@ -20,13 +20,12 @@ progress:
 
 ## Current Position
 
-Phase: 40 (serial-transport-restructure) — EXECUTING
-Plan: 4 of 4 (waves 1+2+3 complete; wave 4 next — final)
-Plans: 3/4 (40-01 ✓ SERIAL-02; 40-02 ✓ SERIAL-01 frame-decode; 40-03 ✓ SERIAL-01 dead-code sweep)
-Next: Wave 4 — 40-04 (SERIAL-03 ring-fence comment + 7 -> None return hints; GATE-1.8d).
-Status: Executing Phase 40
-Resume file: .planning/phases/40-serial-transport-restructure/40-CONTEXT.md
-Last activity: 2026-05-28 -- Phase 40 wave 3 complete (40-03 SERIAL-01 dead-code sweep)
+Phase: 40 (serial-transport-restructure) — COMPLETE + VERIFIED PASSED (2026-05-28)
+Plans: 4/4 (40-01 ✓ SERIAL-02; 40-02 + 40-03 ✓ SERIAL-01; 40-04 ✓ SERIAL-03)
+Next: Phase 41 (CLI Migration argparse → Click). Run `/gsd-discuss-phase 41` or `/gsd-plan-phase 41`.
+Status: Ready for next phase
+Resume file: .planning/phases/40-serial-transport-restructure/40-VERIFICATION.md
+Last activity: 2026-05-28 -- Phase 40 complete + verified passed (SERIAL-01/02/03; GATE-1.8 a/b/c/d/e)
 
 ## Project Reference
 
@@ -35,7 +34,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-27)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 40 — serial-transport-restructure
+**Current focus:** Phase 41 — CLI Migration argparse → Click (Phase 40 SHIPPED + verified passed 2026-05-28)
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
