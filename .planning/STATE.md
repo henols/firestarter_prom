@@ -4,13 +4,13 @@ milestone: v1.8
 milestone_name: — Host CLI Structural Cleanup
 status: executing
 last_updated: "2026-05-28T07:12:38.199Z"
-last_activity: 2026-05-28 -- Phase 40 wave 1 complete (40-01 SERIAL-02)
+last_activity: 2026-05-28 -- Phase 40 wave 2 complete (40-02 SERIAL-01 frame-decode extraction)
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 19
-  completed_plans: 16
-  percent: 53
+  completed_plans: 17
+  percent: 56
 ---
 
 # Project State
@@ -21,12 +21,12 @@ progress:
 ## Current Position
 
 Phase: 40 (serial-transport-restructure) — EXECUTING
-Plan: 2 of 4 (wave 1 complete; wave 2 next)
-Plans: 1/4 (40-01 ✓; SERIAL-02 done)
-Next: Wave 2 — 40-02 (SERIAL-01: _decode_id_frame → codec.decode_id_frame + thin wrapper).
+Plan: 3 of 4 (waves 1+2 complete; wave 3 next)
+Plans: 2/4 (40-01 ✓ SERIAL-02; 40-02 ✓ SERIAL-01 frame-decode)
+Next: Wave 3 — 40-03 (SERIAL-01 dead-code sweep: STATE_MACHINE_PREFIXES + read_line_bytes + 3 orphan comments).
 Status: Executing Phase 40
 Resume file: .planning/phases/40-serial-transport-restructure/40-CONTEXT.md
-Last activity: 2026-05-28 -- Phase 40 wave 1 complete (40-01 SERIAL-02)
+Last activity: 2026-05-28 -- Phase 40 wave 2 complete (40-02 SERIAL-01 frame-decode extraction)
 
 ## Project Reference
 

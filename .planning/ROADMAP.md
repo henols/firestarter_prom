@@ -184,7 +184,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1; touches serial_comm.py + codec.py)*
 
-- [ ] 40-02-PLAN.md — SERIAL-01: extract _decode_id_frame body to codec.decode_id_frame (4 new imports in codec.py per RESEARCH §6) + thin SerialCommunicator wrapper (D-06..D-09; test_decoder.py unchanged) (wave 2)
+- [x] 40-02-PLAN.md — SERIAL-01: extract _decode_id_frame body to codec.decode_id_frame (4 new imports in codec.py per RESEARCH §6) + thin SerialCommunicator wrapper (D-06..D-09; test_decoder.py unchanged) (wave 2)
 
 **Wave 3** *(blocked on Wave 2; touches serial_comm.py)*
 
