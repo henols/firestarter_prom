@@ -3,7 +3,7 @@
   "parallelization": "enabled",
   "granularity": "Comprehensive",
   "workflow": {
-    "_auto_chain_active": false
+    "_auto_chain_active": true
   },
   "planning": {
     "sub_repos": [
