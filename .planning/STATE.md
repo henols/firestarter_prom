@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.8
 milestone_name: — Host CLI Structural Cleanup
 status: executing
-last_updated: "2026-05-28T12:30:00.000Z"
-last_activity: 2026-05-28 -- Phase 41 planned (4 plans; CLI-01..04 covered; D-01..D-17 covered; plan-checker VERIFICATION PASSED)
+last_updated: "2026-05-28T13:30:00.000Z"
+last_activity: 2026-05-28 -- Phase 41 Plan 01 (build_arg_flags fix, CLI-03, BUG-1) SHIPPED — firestarter_app@6241dba on v1.8-app-cleanup
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 23
-  completed_plans: 19
-  percent: 63
+  completed_plans: 20
+  percent: 65
 ---
 
 # Project State
@@ -20,12 +20,14 @@ progress:
 
 ## Current Position
 
-Phase: 41 (CLI Migration argparse → Click) — PLANNED (2026-05-28)
-Plans: 0/4 (41-01 build_arg_flags fix • 41-02 Click skeleton + 3 read-only commands • 41-03 11 remaining commands • 41-04 entry-point swap + argcomplete drop + CI smoke)
-Next: Run `/gsd-execute-phase 41` to execute Wave 1 → Wave 2 → Wave 3 → Wave 4 sequentially.
-Status: Ready to execute
-Resume file: .planning/phases/41-cli-migration-argparse-click/41-01-build-arg-flags-fix-PLAN.md
-Last activity: 2026-05-28 -- Phase 41 planned (4 plans; CLI-01..04 covered; D-01..D-17 covered; plan-checker VERIFICATION PASSED)
+Phase: 41 (cli-migration-argparse-click) — EXECUTING
+Plan: 2 of 4
+Plans: 1/4 (41-01 ✓ build_arg_flags fix SHIPPED • 41-02 Click skeleton + 3 read-only commands • 41-03 11 remaining commands • 41-04 entry-point swap + argcomplete drop + CI smoke)
+Next: Run `/gsd-execute-phase 41 --wave 2` to execute Wave 2 (cli_handlers.py skeleton + list/info/search Click commands).
+Status: Executing Phase 41 — Wave 1 complete; Wave 2 next
+Resume file: .planning/phases/41-cli-migration-argparse-click/41-02-click-skeleton-readonly-commands-PLAN.md
+Last activity: 2026-05-28 -- Phase 41 Plan 01 (W1 / CLI-03 / BUG-1) SHIPPED — firestarter_app@6241dba on v1.8-app-cleanup
+Last commit: firestarter_app@6241dba — fix(41-01): build_arg_flags getattr truthiness (CLI-03, BUG-1) [INTENTIONAL BEHAVIOR CHANGE]
 
 ## Project Reference
 
@@ -34,7 +36,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-27)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 41 — CLI Migration argparse → Click (planned 2026-05-28; ready to execute)
+**Current focus:** Phase 41 — cli-migration-argparse-click
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
@@ -215,6 +217,10 @@ Items acknowledged and deferred at v1.2 milestone close on 2026-05-19. The three
 - **Two latent bugs to fix (not pin):** `build_arg_flags` `if "force" in args` attribute-vs-truthiness check (always True — broken); `COMMAND_FW_VERSION` possibly missing from `constants.py` despite being referenced. Both characterized with `# BUG:` markers in Phase 36 tests; fixed in Phases 41 and 39 respectively with INTENTIONAL BEHAVIOR CHANGE commits.
 - **argcomplete:** confirm with operator before removing in Phase 41 — shell completion is user-visible. Click's built-in completion must be wired before argcomplete is deleted.
 
+## Phase 41 — Execution Decisions
+
+- **2026-05-28 (Plan 41-01 / Wave 1 SHIPPED):** `build_arg_flags` truthiness fix landed as a single atomic INTENTIONAL BEHAVIOR CHANGE commit on `firestarter_app@v1.8-app-cleanup` (commit `6241dba`). 3 attribute-existence patterns (`force`/`verbose`/`vpe_as_vpp`) replaced with `getattr(args, key, default)`; 2 parallel attribute-existence gates (`input_enable`/`chip_disable`) replaced with `hasattr(args, key)` (Rule 2 deviation — required by the live PlainArgs contract; D-10's parenthetical that those lines `already use getattr correctly` was incorrect about the current source). BUG-1 xfail flipped to passing; BUG-2 xfail preserved verbatim. Suite green: 198 passed + 1 xfail (BUG-2) + 29 syrupy snapshots; ruff `firestarter/`+`tests/` clean; mypy at watermark 38/44; Phase 36 GATE-1.8b witness snapshots unchanged. SUMMARY at `.planning/phases/41-cli-migration-argparse-click/41-01-build-arg-flags-fix-SUMMARY.md`.
+
 ## v1.5 Decisions (locked at milestone start, 2026-05-20)
 
 - **Scope:** Add `uno328pb` as a third firmware target alongside the existing `uno` and `leonardo`. End-to-end coverage: PlatformIO env → handshake board-name reporting → stable + beta release pipelines emit a third `.hex` artifact → host CLI installer flashes the right artifact when device reports `uno328pb` → bench-validated EPROM write→read-back→verify cycle on operator's plugged-in 328PB-Uno + RURP shield.
@@ -340,6 +346,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 23 P23-02 | ~3min | 3 tasks | 2 files |
 | Phase 26 P01 | 5min | 2 tasks | 3 files |
 | Phase 29 P1 | 12min | 5 tasks | 3 files |
+| Phase 41 P41-01 | ~12min | 3 tasks | 2 files |
 
 ## Decisions
 
@@ -432,6 +439,8 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase 29]: Plan 29-01: firestarter_app v1.6-read-bug branch tip is 999c3cc (NOT c057fe2 as CONTEXT.md D-02 lists); 999c3cc is the GREEN feat commit carrying dev consistency-check implementation, c057fe2 is the RED-scaffold one commit prior. RESEARCH.md authoritative; downstream phases should treat 999c3cc as canonical.
 - [Phase 29]: Plan 29-01: Captured per-board build SHA-256s at firestarter/v1.6-read-bug commit 4f205e58 (uno=5e7f393a..., leonardo=2619eea6..., uno328pb=d9e51b7e...) for Wave B + Phase 30 byte-equivalence cross-reference; full hashes in v1.6-EVIDENCE.md build-hash table.
 - [Phase 29]: Plan 29-01: firestarter_app/firestarter/config.py working-tree drift dispositioned 'proceed with editable install' — stylistic early-return refactor (functionally equivalent); pytest gate green (8 passed) confirms no functional regression.
+- [Phase 41]: Plan 41-01: D-10's parenthetical that lines 513-516 (`input_enable`/`chip_disable`) "already use `getattr` correctly" was incorrect about the current source — they used the same `key in args` Namespace-only idiom as the 3 patched lines. Applied Rule 2 deviation to convert them to `hasattr(args, key)` so the live PlainArgs / non-Namespace contract pinned by the BUG-1 test holds end-to-end. Single atomic INTENTIONAL BEHAVIOR CHANGE commit firestarter_app@6241dba.
+- [Phase 41]: Plan 41-01: Stale `# BUG: main.py:497 — fix lands Phase 41 (CLI-03)` inline markers in the now-passing BUG-1 test docstring + assertion line cleaned up (Rule 1) — leaving them would mislead future readers that the bug is still pending. BUG-2's 3 `fix lands Phase 42` references untouched (module docstring + BUG-2 docstring + BUG-2 inline marker — preserved verbatim per the BUG-2 deferred contract).
 
 ## Deferred Items (acknowledged at v1.5 close 2026-05-21)
 
