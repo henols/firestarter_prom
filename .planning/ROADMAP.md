@@ -188,7 +188,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2; touches serial_comm.py)*
 
-- [ ] 40-03-PLAN.md — SERIAL-01: dead-code sweep — delete STATE_MACHINE_PREFIXES + read_line_bytes + 3 orphan/dead comments (D-10..D-14; PREFIX_REGEX + F401 re-export KEPT) (wave 3)
+- [x] 40-03-PLAN.md — SERIAL-01: dead-code sweep — delete STATE_MACHINE_PREFIXES + read_line_bytes + 3 orphan/dead comments (D-10..D-14; PREFIX_REGEX + F401 re-export KEPT) (wave 3)
 
 **Wave 4** *(blocked on Wave 3; touches serial_comm.py)*
 
