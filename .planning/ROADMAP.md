@@ -36,11 +36,18 @@
 **Depends on**: Phase 29 v2 evidence substrate (`.planning/v1.6-EVIDENCE.md` H3 block), v1.7 shield-version-detect plumbing, v1.8 cleaned-up host read path. Bench hardware: Modified Rev 0 shield + scope + operator authorization.
 **Requirements**: RCA-01, RCA-03 (partial — Modified Rev 0 failure mode confirmed)
 **Success Criteria** (what must be TRUE):
-  1. Operator-witnessed scope trace (or equivalent circuit measurement) identifies the specific electrical cause of A15=1 address line jitter on Modified Rev 0, not merely the symptom — e.g. "ringing on A15 due to missing series termination" or "settling time violation at current read-pulse width".
+  1. Operator-witnessed scope trace (or equivalent circuit measurement) identifies the specific electrical cause of A15=1 address line jitter on Modified Rev 0, not merely the symptom — e.g. "ringing on A15 due to missing series termination" or "settling time violation at current read-pulse width". *(Per CONTEXT D-07, the causal-only bar — a knob that controls the jitter — governs over this wording; mechanism-naming is a stretch goal.)*
   2. The root-cause mechanism is documented with supporting evidence (scope screenshot or measurement values) sufficient to inform a targeted fix strategy — not just "the signal is slow".
   3. `firestarter dev consistency-check` run on Modified Rev 0 reproduces the Phase 29 v2 pattern (jitter present, WORST ≥ 1% zeros) as a controlled baseline before any fix is applied, confirming bench continuity with v1.6 substrate.
   4. Per-rev failure-mode map is started: Modified Rev 0 → Bug A confirmed; Rev 2.2 entry recorded (confirm whether Rev 2.2 shows Bug A or is clean).
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+- [ ] 44-01-PLAN.md — Wave 1: fork v1.9-read-bug-rca off beta in both sub-repos + recover v1.7-SHIELD-REVS.md (git/working-tree prereq)
+- [ ] 44-02-PLAN.md — Wave 2: firmware read-timing knobs (read_settling_us / read_strobe_us) + bounds cap + Wave 0 native Unity tests
+- [ ] 44-03-PLAN.md — Wave 2: host knob params + CLI options + Wave 0 pytest + 2D sweep harness
+- [ ] 44-04-PLAN.md — Wave 3 (bench): static circuit inspection (D-01/D-02) + N=5 baseline repro vs Phase 29 v2 (D-11)
+- [ ] 44-05-PLAN.md — Wave 4 (bench): 2D causal sweep + LA capture (D-03/04/05/06/08) + RCA findings + per-rev map (RCA-03 partial / D-10)
 
 ### Phase 45: Bug B RCA — Rev 2.0 Timing & Voltage
 **Goal**: The Rev 2.0 read-failure mechanism (/CE-or-/OE timing mismatch + voltage-divider mismatch + VPP=13.1V interaction) is proven to a definitive root cause, with bench evidence identifying which factor(s) are causal vs incidental.
@@ -109,7 +116,7 @@
 | 30 (close) | v1.6 | 3/3 | ✅ Shipped | 2026-05-26 |
 | 31-35 (v1.7) | v1.7 | — | ✅ Shipped | 2026-05-26 |
 | 36-43 (v1.8) | v1.8 | 26/26 | ✅ Shipped | 2026-05-29 |
-| 44 | v1.9 | 0/TBD | Not started | — |
+| 44 | v1.9 | 0/5 | Planned | — |
 | 45 | v1.9 | 0/TBD | Not started | — |
 | 46 | v1.9 | 0/TBD | Not started | — |
 | 47 | v1.9 | 0/TBD | Not started | — |
