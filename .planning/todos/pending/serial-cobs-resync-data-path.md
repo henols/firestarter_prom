@@ -5,9 +5,10 @@ captured: 2026-05-27
 status: pending
 type: enhancement
 target_milestone: v1.9
-priority: low
+priority: medium
 related_phase: 48
 resolves_phase: 48
+requirement: COBS-01
 ---
 
 # COBS framing/resync on the serial data path
@@ -94,31 +95,85 @@ Two filters do the eliminating: single-byte length fields cap SerialTransfer + M
 ~254 B, and non-in-place encoders blow the Uno RAM budget at 512 B. Both push to the
 same place: **on the Uno, frames effectively must be ≤254 B regardless of library.**
 
-## Recommended path (for whoever picks this up)
+## CORRECTION (2026-05-29) — streaming-to-Serial obsoletes the 254 B re-chunk requirement
 
-**Preferred — codec-only, reuse our CRC8:** `nanocobs` (firmware, `tinyframe` in-place,
-≤254 B) + `cobs-python` `cobs.cobs` (host), keeping the existing CRC8-CCITT (poly 0x07)
-and u16-length header. Re-chunk the data path from one 512 B frame into ≤254 B COBS
-frames (the `eprom_operations.py` loop already chunks; this just shrinks the unit).
-- nanocobs = one `cobs.c`/`cobs.h`, C99, no malloc, no libc → drops into PlatformIO.
-- Use `cobs.cobs` (plain), **NOT** `cobs.cobsr` (COBS/R variant) — must match nanocobs' plain COBS byte-for-byte.
-- Keep CRC8-CCITT; both repos already implement + unit-test it (`test_messages`).
+The "in-place COBS ≤254 B" CRUX above is real, but it ONLY blocks single-buffer
+**in-place** encoding. It does NOT force re-chunking the wire frame to ≤254 B,
+because **we don't have to materialize the encoded form anywhere** — we can emit
+encoded bytes directly to `SERIAL_PORT.write()` byte-by-byte while reading from
+`data_buffer` as the source. Encoded form never lives in memory simultaneously;
+zero extra buffer.
 
-**Runner-up — turnkey:** `SerialTransfer` + `pySerialTransfer` — a matched C++/Python
-pair with COBS + CRC8 + callbacks already wired; its 254 B cap is moot once we chunk.
-Cost: replaces ALL framing (incl. the JSON command path), swaps CRC8-CCITT for poly
-0x9B, rewrites the `test_messages` contract wholesale → larger dual-repo diff.
+### Streaming encode (fw→host), ~15 lines, any payload size
+```c
+size_t i = 0;
+while (i < N) {
+    size_t run_start = i;
+    uint8_t run_len = 0;
+    while (i < N && data_buffer[i] != 0 && run_len < 254) { run_len++; i++; }
+    SERIAL_PORT.write((uint8_t)(run_len + 1));               // code byte (or 0xFF if max-run)
+    SERIAL_PORT.write(&data_buffer[run_start], run_len);     // run bytes
+    if (i < N && data_buffer[i] == 0) i++;                   // consume the 0x00
+    // else if run_len == 254: no 0x00 consumed; next group continues without implicit zero
+}
+SERIAL_PORT.write((uint8_t)0x00);                            // frame delimiter
+```
+RAM cost: `i`, `run_start`, `run_len` (≤ 6 bytes total on stack). Reads through
+`data_buffer` once, sequentially. No second buffer, no malloc. Works for 512 B
+(Uno) and 1024 B (Leonardo) single frames — the COBS 254 cap is on each *internal
+run*, NOT on the frame.
 
-**If 512 B single frames MUST stay** (no re-chunk): no existing library fits the Uno →
-write a custom streaming COBS encoder (nanocobs' incremental `cobs_encode_inc_begin/
-inc/inc_end` is the closest reusable building block), or scope COBS to **Leonardo only**
-(ATmega32u4: 2560 B RAM, native USB-CDC, no PORTD aliasing) and leave Uno on current framing.
+### Streaming decode (host→fw), symmetric
+Read 1 code byte from serial, then `code-1` bytes directly into
+`data_buffer[decoded_offset..]`, append the implicit `0x00` separator
+(if `code != 0xFF`), and loop until the `0x00` frame delimiter arrives.
+`data_buffer` holds the decoded form only; encoded form streams through and is
+discarded byte-by-byte.
+
+### Why this changes the recommendation
+Once streaming-to-Serial is on the table, the off-the-shelf libraries' main
+attraction (avoiding hand-rolled code) costs *more* than the custom path,
+because each adopted lib forces a 254 B re-chunk OR a second-buffer RAM hit
+neither of which streaming requires. ~40 lines of custom C + matching Python is
+smaller than the diff to adopt nanocobs+chunk or SerialTransfer.
+
+Credit: operator caught the "consumed bytes can be reused" framing, which
+generalizes to "don't materialize the encoded form at all" — the same insight
+in stronger form.
+
+## Recommended path (REVISED for Phase 48 / COBS-01)
+
+**Preferred — custom streaming COBS encoder/decoder, reuse CRC8 + u16-len header:**
+- Firmware: ~40 lines in `firestarter/src/boards/rurp_serial_utils.cpp`. Streaming
+  encode (above) for fw→host; streaming decode for host→fw into `data_buffer`.
+  Zero extra RAM, no 254 B chunking, no library dependency.
+- Host: ~30 lines in `firestarter_app/firestarter/serial_comm.py` matching the
+  same wire format. Optionally cross-check against PyPI `cobs.cobs` (plain
+  COBS, NOT `cobs.cobsr`) in a unit test to prove byte-identical encoding.
+- Keep existing CRC8-CCITT (poly 0x07) and u16 big-endian length header
+  unchanged. Both repos already implement + unit-test these.
+- Single frame stays 512 B (Uno) / 1024 B (Leonardo) — no eprom_operations
+  loop restructure, no JSON command path change.
+
+**Runner-up A — nanocobs (firmware) + cobs-python (host), if "use a library"
+trumps "minimize LOC":** still works, but requires re-chunking the data path to
+≤254 B frames to use `cobs_encode_tinyframe` (the only zero-extra-buffer mode).
+More LOC than the custom streaming path, not less, once the chunking loop and
+new test contract are counted.
+
+**Runner-up B — SerialTransfer/pySerialTransfer, if "batteries-included" trumps
+everything else:** turnkey C++/Python pair, but replaces ALL framing (incl. JSON
+command path), swaps CRC8-CCITT for poly 0x9B, rewrites `test_messages`
+wholesale, AND still caps at 254 B. Largest dual-repo diff.
+
+**Disqualified — PacketSerial drop-in on Uno:** second-buffer RAM hit, no
+streaming-to-Stream API.
 
 ## The decisive decision (pick before implementing)
-**Are we willing to re-chunk the data path to ≤254-byte frames?**
-- Yes, minimal diff + reuse CRC8 → **nanocobs + cobs-python**.
-- Yes, prefer batteries-included → **SerialTransfer / pySerialTransfer**.
-- No, keep 512 B single frames → custom streaming encoder, or Leonardo-only COBS.
+**Library boundary, or ~40 lines of custom code?**
+- Custom (smallest diff, no chunking, reuse CRC8) → **streaming encoder/decoder pair** ← *recommended*
+- Library + chunking to ≤254 B → nanocobs + cobs-python
+- Turnkey + accept replacing all framing → SerialTransfer / pySerialTransfer
 
 ## Open questions
 - Is the 2 s-timeout desync actually observed in the field, or only theoretical? If it never bites, priority stays low.
