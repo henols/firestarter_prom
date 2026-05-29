@@ -4,10 +4,10 @@ title: Evaluate COBS framing/resync on the serial data path (PacketSerial assess
 captured: 2026-05-27
 status: pending
 type: enhancement
-target_milestone: v1.8+
+target_milestone: v1.9
 priority: low
-related_phase: null
-resolves_phase: null
+related_phase: 48
+resolves_phase: 48
 ---
 
 # COBS framing/resync on the serial data path
