@@ -51,7 +51,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 44-02-PLAN.md — Wave 2: firmware read-timing knobs (read_settling_us / read_strobe_us) + bounds cap + Wave 0 native Unity tests
+- [x] 44-02-PLAN.md — Wave 2: firmware read-timing knobs (read_settling_us / read_strobe_us) + bounds cap + Wave 0 native Unity tests
 - [ ] 44-03-PLAN.md — Wave 2: host knob params + CLI options + Wave 0 pytest + 2D sweep harness
 
 **Wave 3** *(blocked on Wave 2 completion)*
@@ -141,7 +141,7 @@ Plans:
 | 30 (close) | v1.6 | 3/3 | ✅ Shipped | 2026-05-26 |
 | 31-35 (v1.7) | v1.7 | — | ✅ Shipped | 2026-05-26 |
 | 36-43 (v1.8) | v1.8 | 26/26 | ✅ Shipped | 2026-05-29 |
-| 44 | v1.9 | 1/5 | In Progress|  |
+| 44 | v1.9 | 2/5 | In Progress|  |
 | 45 | v1.9 | 0/TBD | Not started | — |
 | 46 | v1.9 | 0/TBD | Not started | — |
 | 47 | v1.9 | 0/TBD | Not started | — |
