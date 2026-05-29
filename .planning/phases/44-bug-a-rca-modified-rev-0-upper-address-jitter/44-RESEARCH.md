@@ -528,19 +528,22 @@ def consistency_check_eprom(
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Are the Modified Rev 0 hardware modifications documented anywhere beyond the v1.7 TBD stubs?**
+   - **RESOLVED:** Documentation gap is the point — 44-04 Task 1 static inspection (D-01) physically traces and documents the mods (filling `.planning/v1.7/MODIFICATIONS.md`). Planning proceeds knowing the mods exist and will be characterized on the bench; no further documentation is a prerequisite to plan.
    - What we know: v1.7-SHIELD-REVS.md §4 row "Rev 0 → Modified Rev 0" is entirely "TBD pending Phase 35" — the operator's rework trace (cuts + jumpers) was never photographed or documented. Phase 35 follow-up #3 + #4 are recorded as outstanding actions.
    - What's unclear: What specifically was modified? Which lines were cut or jumpered? Does the rework affect the address bus (A15 path) or only the voltage divider / R41 detect circuit?
    - Recommendation: The static check (D-01) must be performed by the operator with the board in hand. The Phase 44 plan should include a task where the operator photographs the board's rework regions and documents what they see against the upstream Rev 0 schematic (`UniversalProgrammerRev0b0.zip`, blob `d2a7f691`). The MODIFICATIONS.md stub at `.planning/v1.7/MODIFICATIONS.md` should be filled out. This is the prerequisite for a meaningful static-check hypothesis.
 
 2. **Does the sweep need to parameterize the `_NOP()` count in `rurp_read_data_buffer()` as well?**
+   - **RESOLVED:** Start with the two primary knobs (address-settling + /CE strobe per D-04). The `_NOP()`-count is an optional Phase 44 extension only if residual jitter persists at maximum settling.
    - What we know: The existing 2 × `_NOP()` at commit `4f205e58` (part of shipped v1.6 beta) address the between-PINx-read race. This is a Leonardo-specific fix on `beta`. The primary D-04 knobs are the address-settling delay and the /CE strobe width, both in `memory_get_data()`.
    - What's unclear: Whether a separate NOP-count knob (e.g., `"read-nop-count"`) adds meaningful data, or whether the settling delay in `memory_get_data()` is sufficient to capture the dominant mechanism.
    - Recommendation: Start with the two primary knobs (settling + strobe). Add the NOP-count knob as a Phase 44 optional extension if the first sweep shows residual jitter at maximum settling that correlates with the between-PINx race. This keeps the firmware change minimal for the first iteration.
 
 3. **Git prerequisite: is the `firestarter_app` v1.9 branch also needed before Phase 44 firmware work?**
+   - **RESOLVED:** Yes — 44-01 forks BOTH sub-repos (`firestarter` AND `firestarter_app`) off `beta` before any host-side change, so the host-side knob work in 44-03 lands on the v1.9 branch.
    - What we know: Phase 44 requires adding the read-timing knobs to `eprom_operations.py` and `constants.py` in `firestarter_app`. The firestarter_app is currently installed as editable from `/workspaces/firestarter_app` at commit `efd203a` (which is actually the firmware sub-repo point — the firestarter_app's current installed version is 3.0.0b5 from the editable install).
    - What's unclear: Whether the firestarter_app submodule is on a v1.8-app-cleanup branch or beta. The v1.8 shipped as `3.0.0b7` on beta; the editable install shows `3.0.0b5` which may be from an older install.
    - Recommendation: Before any host-side code changes, confirm `cd /workspaces/firestarter_app && git branch` shows the correct starting point (should be `beta` tip at `3.0.0b7` or the v1.9 branch). Cut `v1.9-read-bug-rca` off `beta` before any commits.

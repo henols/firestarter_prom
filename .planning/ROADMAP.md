@@ -32,66 +32,91 @@
 ## Phase Details
 
 ### Phase 44: Bug A RCA — Modified Rev 0 Upper-Address Jitter
+
 **Goal**: The Modified Rev 0 A15=1 upper-address jitter is proven to a specific signal-integrity mechanism (ringing, crosstalk, settling-time violation, or other), with scope traces and/or circuit analysis as evidence — going beyond the Phase 29 v2 symptom characterization (1.86× skew, 63% bit-raise).
 **Depends on**: Phase 29 v2 evidence substrate (`.planning/v1.6-EVIDENCE.md` H3 block), v1.7 shield-version-detect plumbing, v1.8 cleaned-up host read path. Bench hardware: Modified Rev 0 shield + scope + operator authorization.
 **Requirements**: RCA-01, RCA-03 (partial — Modified Rev 0 failure mode confirmed)
 **Success Criteria** (what must be TRUE):
+
   1. Operator-witnessed scope trace (or equivalent circuit measurement) identifies the specific electrical cause of A15=1 address line jitter on Modified Rev 0, not merely the symptom — e.g. "ringing on A15 due to missing series termination" or "settling time violation at current read-pulse width". *(Per CONTEXT D-07, the causal-only bar — a knob that controls the jitter — governs over this wording; mechanism-naming is a stretch goal.)*
   2. The root-cause mechanism is documented with supporting evidence (scope screenshot or measurement values) sufficient to inform a targeted fix strategy — not just "the signal is slow".
   3. `firestarter dev consistency-check` run on Modified Rev 0 reproduces the Phase 29 v2 pattern (jitter present, WORST ≥ 1% zeros) as a controlled baseline before any fix is applied, confirming bench continuity with v1.6 substrate.
   4. Per-rev failure-mode map is started: Modified Rev 0 → Bug A confirmed; Rev 2.2 entry recorded (confirm whether Rev 2.2 shows Bug A or is clean).
-**Plans**: 5 plans
 
+**Plans**: 5 plans
 Plans:
+**Wave 1**
+
 - [ ] 44-01-PLAN.md — Wave 1: fork v1.9-read-bug-rca off beta in both sub-repos + recover v1.7-SHIELD-REVS.md (git/working-tree prereq)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 44-02-PLAN.md — Wave 2: firmware read-timing knobs (read_settling_us / read_strobe_us) + bounds cap + Wave 0 native Unity tests
 - [ ] 44-03-PLAN.md — Wave 2: host knob params + CLI options + Wave 0 pytest + 2D sweep harness
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 44-04-PLAN.md — Wave 3 (bench): static circuit inspection (D-01/D-02) + N=5 baseline repro vs Phase 29 v2 (D-11)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 44-05-PLAN.md — Wave 4 (bench): 2D causal sweep + LA capture (D-03/04/05/06/08) + RCA findings + per-rev map (RCA-03 partial / D-10)
 
 ### Phase 45: Bug B RCA — Rev 2.0 Timing & Voltage
+
 **Goal**: The Rev 2.0 read-failure mechanism (/CE-or-/OE timing mismatch + voltage-divider mismatch + VPP=13.1V interaction) is proven to a definitive root cause, with bench evidence identifying which factor(s) are causal vs incidental.
 **Depends on**: Phase 44 (per-rev map started; bench protocol established). Bench hardware: Rev 2.0 shield + scope + operator authorization.
 **Requirements**: RCA-02, RCA-03 (completion — Rev 2.0 failure mode confirmed; full per-rev map finalized)
 **Success Criteria** (what must be TRUE):
+
   1. Operator-witnessed bench measurement on Rev 2.0 isolates the dominant failure factor: timing margin (/CE or /OE pulse width relative to chip t_ACC), voltage-divider mismatch (VPP at chip pin vs. expected), or VPP=13.1V overstress — with evidence distinguishing causal from coincidental.
   2. The Rev 2.0 failure reproduces with `firestarter dev consistency-check` as a controlled baseline (jitter present, WORST ≥ 1% zeros, or the specific failure mode observed in Phase 29 v2).
   3. Per-rev failure-mode map is complete and documented: Modified Rev 0 → Bug A (upper-address jitter); Rev 2.0 → Bug B (timing/voltage); Rev 2.2 → confirmed clean or categorized; each entry cites the evidence from Phase 44 / Phase 45.
   4. RCA-02 root cause is documented with enough detail that a firmware-side or host-side fix candidate can be designed without further scope work (i.e., the mechanism is fully understood, not just observed).
+
 **Plans**: TBD
 
 ### Phase 46: Fix Design & A/B Bench Trials
+
 **Goal**: Firmware (and/or host-side) fix candidates for Bug A and Bug B are designed based on the Phase 44/45 root causes, A/B-tested on the affected boards, and verified not to regress the unaffected boards — leaving a committed fix in both sub-repos ready for acceptance gating.
 **Depends on**: Phase 44 (Bug A root cause proven), Phase 45 (Bug B root cause proven). Bench hardware: all three shields (Modified Rev 0, Rev 2.0, Rev 2.2) + operator authorization. Firmware sub-repo `firestarter/` work expected.
 **Requirements**: FIX-01, FIX-02, FIX-03
 **Success Criteria** (what must be TRUE):
+
   1. A/B comparison on Modified Rev 0: `firestarter dev consistency-check` with fix applied shows WORST < 0.1% zeros (or byte-identical N=5 reads), vs. pre-fix baseline showing the Bug A pattern — operator-witnessed, result recorded.
   2. A/B comparison on Rev 2.0: `firestarter dev consistency-check` with fix applied shows WORST < 0.1% zeros (or byte-identical N=5 reads), vs. pre-fix baseline showing the Bug B pattern — operator-witnessed, result recorded.
   3. Rev 2.2 regression check: `firestarter dev consistency-check` on Rev 2.2 with the fix applied returns the same clean baseline as pre-fix (WORST stays ≤ 0.1% zeros or equivalent); no fix for one rev breaks reads on another.
   4. The fix is committed to the firmware sub-repo (and/or host sub-repo) with atomic commits citing the RCA findings from Phases 44/45; unit tests (Unity or pytest) covering the changed code path are committed alongside the fix.
+
 **Plans**: TBD
 **UI hint**: no
 
 ### Phase 47: Acceptance Gate + Backlog Closures
+
 **Goal**: The headline Phase 29 acceptance gate is re-run with the fix applied and passes on all boards; the three v1.6 backlog closures (VERIFY-01/03/04) are completed, retiring the open items that have been carried since v1.6.
 **Depends on**: Phase 46 (fix committed and A/B-tested on both bug families). Bench hardware: all three shields + uno328pb board + operator authorization.
 **Requirements**: VERIFY-A, VERIFY-01, VERIFY-03, VERIFY-04
 **Success Criteria** (what must be TRUE):
+
   1. N≥5 consecutive `firestarter read W27C512` invocations return byte-identical SHA-256 hashes on Modified Rev 0, Rev 2.0, AND Rev 2.2 shields — operator-witnessed, hashes recorded in bench artifact.
   2. uno328pb byte-identity confirmed (VERIFY-01): N≥5 `firestarter read` on the 328PB-Uno + RURP shield returns byte-identical results, closing the v1.6 carry-forward backlog item.
   3. 1KB low-rate jitter resolved (VERIFY-03): `firestarter dev read -s 1024` returns consistent results without the jitter pattern observed in v1.5/v1.6 bench sessions.
   4. Phase 24 BENCH-02 closure (VERIFY-04): the 328PB-Uno bench cycle item carried from v1.5 Phase 24 is formally closed with a recorded bench result or documented disposition.
+
 **Plans**: TBD
 
 ### Phase 48: COBS Evaluation + Post-RCA Cleanup + Milestone Close
+
 **Goal**: The COBS framing evaluation yields a documented adopt/defer/reject decision with rationale; the `eprom_operations.py` mypy strict overrides are lifted now that the read path is fixed and free to touch; the milestone is documented and branches promoted.
 **Depends on**: Phase 46 (read path is fixed — TYPE-01 is gated on this). Phase 47 (acceptance gate passed — milestone close follows). COBS-01 is independent of the hardware RCA and can proceed in parallel or after Phase 46.
 **Requirements**: COBS-01, TYPE-01
 **Success Criteria** (what must be TRUE):
+
   1. A written COBS-01 decision document (or section in a planning artifact) records: PacketSerial re-assessed, custom COBS layer option evaluated, and a clear adopt/defer/reject verdict with rationale referencing the current serial data-path shape post-v1.8 cleanup — not just "we looked at it".
   2. `eprom_operations.py` mypy strict overrides are removed (or reduced to the minimum justifiable residual); `mypy` on `eprom_operations.py` exits without the deferred-per-D-07 suppressions; the change is covered by the existing test suite.
   3. MILESTONES.md gains a complete v1.9 entry covering the RCA findings, fix summary, acceptance gate result, and COBS decision.
   4. Sub-repo branches for v1.9 are promoted per the branching convention; a new beta pre-release tag is cut (at minimum); the stable `3.0.1` promotion checklist is either executed or explicitly deferred with rationale.
+
 **Plans**: TBD
 
 ## Progress
