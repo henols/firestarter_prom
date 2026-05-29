@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.8
 milestone_name: — Host CLI Structural Cleanup
 status: completed
-last_updated: "2026-05-28T23:53:13.832Z"
+last_updated: "2026-05-29T08:00:19.854Z"
 last_activity: 2026-05-28 -- Phase 42 marked complete
 progress:
   total_phases: 8
@@ -25,7 +25,7 @@ Plan: 3 of 3 complete
 Plans: 3/3 complete (42-01 ✓ • 42-02 ✓ • 42-03 ✓)
 Next: `/gsd-discuss-phase 43` → DOC-01 README rewrite + MS-01 GATE-1.8 end-to-end verification = v1.8 milestone close.
 Status: Phase 42 complete
-Resume file: .planning/phases/43-* (to be created via /gsd-discuss-phase 43 → /gsd-plan-phase 43)
+Resume file: .planning/phases/43-documentation-milestone-close/43-CONTEXT.md
 Last activity: 2026-05-28 -- Phase 42 marked complete
 Last commit: firestarter_app@9999bdb — chore(42-03): raise v1.8 quality gates — mypy strict on 8 modules, docstrings + coverage ≥70% (ERR-02, ERR-03); meta-repo@dbf5eed — docs(42-03): record plan completion
 
