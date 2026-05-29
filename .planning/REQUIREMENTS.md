@@ -13,7 +13,7 @@
 
 - [ ] **RCA-01**: Bug A root cause proven — the Modified Rev 0 upper-address (A15=1) jitter is instrumented to a definitive signal-integrity mechanism (ringing / crosstalk / settling-time), beyond the Phase 29 v2 characterized symptom (1.86× skew, 63% bit-raise).
 - [ ] **RCA-02**: Bug B root cause proven — the Rev 2.0 /CE-or-/OE timing + voltage-divider mismatch + VPP=13.1V failure is instrumented to a definitive root cause.
-- [ ] **RCA-03**: Per-rev failure-mode map confirmed — which of Modified Rev 0 / Rev 2.0 / Rev 2.2 exhibits which bug, using the v1.7 shield-version-detect plumbing so each bench step knows the silkscreen rev in play.
+- [x] **RCA-03**: Per-rev failure-mode map confirmed — which of Modified Rev 0 / Rev 2.0 / Rev 2.2 exhibits which bug, using the v1.7 shield-version-detect plumbing so each bench step knows the silkscreen rev in play.
 
 ### 2. Fix Candidates (FIX) — instrumented A/B
 
@@ -54,7 +54,7 @@
 |--------|-------|--------|
 | RCA-01 | Phase 44 | pending |
 | RCA-02 | Phase 45 | pending |
-| RCA-03 | Phase 45 | pending |
+| RCA-03 | Phase 45 | Complete |
 | FIX-01 | Phase 46 | pending |
 | FIX-02 | Phase 46 | pending |
 | FIX-03 | Phase 46 | pending |
