@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.9
 milestone_name: — Read-Bug RCA + Fix
 status: executing
-stopped_at: Completed 44-01-PLAN.md
-last_updated: "2026-05-29T13:37:22.604Z"
+stopped_at: Completed 44-03-PLAN.md
+last_updated: "2026-05-29T13:50:44.752Z"
 last_activity: 2026-05-29
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 5
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -22,7 +22,7 @@ progress:
 ## Current Position
 
 Phase: 44 (bug-a-rca-modified-rev-0-upper-address-jitter) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Status: Ready to execute
 Last activity: 2026-05-29
 
@@ -81,8 +81,8 @@ Full details: `.planning/ROADMAP.md` (v1.9 section).
 
 ## Session Continuity
 
-Last session: 2026-05-29T13:37:22.598Z
-Stopped at: Completed 44-01-PLAN.md
+Last session: 2026-05-29T13:50:44.746Z
+Stopped at: Completed 44-03-PLAN.md
 Resume file: None
 
 ## Performance Metrics
@@ -90,8 +90,10 @@ Resume file: None
 | Phase | Plan | Duration | Notes |
 |-------|------|----------|-------|
 | Phase 44-bug-a-rca-modified-rev-0-upper-address-jitter P01 | 8 | - tasks | - files |
+| Phase 44 P03 | 15 minutes | 3 tasks | 6 files |
 
 ## Decisions
 
 - [Phase ?]: Forked v1.9-read-bug-rca off beta in both sub-repos
 - [Phase ?]: Recovered .planning/v1.7-SHIELD-REVS.md verbatim from v1.7-shield-investigation branch — 9-section investigation-canonical shield reference now on meta working tree for static-check D-01/D-02
+- [Phase ?]: Simpler eprom_data_dict merge approach chosen over threading through _operation_context/_setup_operation
