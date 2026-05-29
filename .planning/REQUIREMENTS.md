@@ -52,17 +52,15 @@
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| RCA-01 | TBD (44+) | pending |
-| RCA-02 | TBD | pending |
-| RCA-03 | TBD | pending |
-| FIX-01 | TBD | pending |
-| FIX-02 | TBD | pending |
-| FIX-03 | TBD | pending |
-| VERIFY-A | TBD | pending |
-| VERIFY-01 | TBD | pending |
-| VERIFY-03 | TBD | pending |
-| VERIFY-04 | TBD | pending |
-| COBS-01 | TBD | pending |
-| TYPE-01 | TBD | pending |
-
-*(Phase column filled by the roadmapper.)*
+| RCA-01 | Phase 44 | pending |
+| RCA-02 | Phase 45 | pending |
+| RCA-03 | Phase 45 | pending |
+| FIX-01 | Phase 46 | pending |
+| FIX-02 | Phase 46 | pending |
+| FIX-03 | Phase 46 | pending |
+| VERIFY-A | Phase 47 | pending |
+| VERIFY-01 | Phase 47 | pending |
+| VERIFY-03 | Phase 47 | pending |
+| VERIFY-04 | Phase 47 | pending |
+| COBS-01 | Phase 48 | pending |
+| TYPE-01 | Phase 48 | pending |

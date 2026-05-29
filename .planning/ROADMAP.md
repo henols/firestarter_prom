@@ -10,7 +10,110 @@
 - ✅ **v1.5 Arduino Uno (ATmega328PB) Board Support** — Phases 21-25 (shipped 2026-05-21; ship tag `3.0.0b4`; bench-validated on operator's 328PB-Uno via `urclock` bootloader). `uno328pb` as a third first-class firmware target alongside `uno` + `leonardo`. Full detail in `.planning/milestones/v1.5-ROADMAP.md`; bench evidence in `.planning/v1.5-BENCH-RESULTS.md`.
 - ⏸ **v1.6 Fix the Read Bug** — Phases 26-30 (SHIPPED 2026-05-26 as "diagnostic + revert" per D-17v2). Read-bug carries to v1.9 as Bug A + Bug B RCA seed.
 - ✅ **v1.7 RURP Shield Hardware Investigation & Version Detection** — Phases 31-35 (SHIPPED 2026-05-26). Per-rev capability table + labeled schematics + shield-version-detect firmware plumbing.
-- 🚧 **v1.8 Host CLI Structural Cleanup (firestarter_app)** — Phases 36-43 (STARTED 2026-05-27). Decompose god functions, argparse→Click, split serial layer, consolidate constants, unify errors, tests-first, ruff+ruff-format+mypy gate. Host-only; firmware sub-repo untouched.
+- ✅ **v1.8 Host CLI Structural Cleanup (firestarter_app)** — Phases 36-43 (SHIPPED 2026-05-29; ship tag `3.0.0b7` beta-only). 27 requirements DELIVERED + 3 VERIFIED-at-close; argparse→Click, mypy strict on 8 modules, 70% coverage floor. Full detail in `.planning/MILESTONES.md` §v1.8.
+- 🚧 **v1.9 Read-Bug RCA + Fix** — Phases 44-48 (STARTED 2026-05-29). Hardware-gated; firmware sub-repo work expected. Root-cause and fix Bug A (Modified Rev 0 upper-address jitter) + Bug B (Rev 2.0 /CE-/OE timing + VPP mismatch); N≥5 byte-identical acceptance gate across shield fleet.
+
+## v1.9 — Read-Bug RCA + Fix (STARTED 2026-05-29)
+
+**Milestone goal:** Root-cause and fix the EPROM read-bug deferred since v1.6, restoring N≥5 byte-identical reads across the shield fleet (Modified Rev 0, Rev 2.0, Rev 2.2). Inherits the v1.6 `dev consistency-check` diagnostic, the 15-binary N=5 W27C512 bench substrate at `.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260526-*-v2*/`, the Phase 29 v2 Bug A/Bug B characterization in `.planning/v1.6-EVIDENCE.md`, the v1.7 schematics + shield-version-detect plumbing, and the v1.8 cleaned-up host read path (GATE-1.8d ring-fence intact — baselines still valid).
+
+**Hardware-gated:** All bench operations are operator-authorized (shield swaps, scope traces, A/B fix trials). Per `feedback_chip_out_before_sideload`: chip leaves socket before any firmware sideload. Per `feedback_verify_port_identity_each_task`: controller identity verified per port at each bench task. Per `user_shield_revisions`: operator asked which silkscreen rev is on bench (EEPROM hw_revision byte cannot distinguish revs).
+
+**Phase numbering:** Continues from v1.8 last phase 43 → v1.9 starts at **Phase 44**.
+
+### Phases
+
+- [ ] **Phase 44: Bug A RCA — Modified Rev 0 Upper-Address Jitter** — Instrument the Modified Rev 0 A15=1 jitter to a definitive signal-integrity mechanism; begin per-rev failure-mode map.
+- [ ] **Phase 45: Bug B RCA — Rev 2.0 Timing & Voltage** — Instrument the Rev 2.0 /CE-or-/OE timing + VPP=13.1V failure to a definitive root cause; complete the per-rev failure-mode map.
+- [ ] **Phase 46: Fix Design & A/B Bench Trials** — Design firmware fix candidates for Bug A and Bug B; A/B-test on the affected boards; regression-check across the shield fleet.
+- [ ] **Phase 47: Acceptance Gate + Backlog Closures** — Re-run the Phase 29 acceptance gate (N≥5 byte-identical W27C512 reads across boards with fix applied); close VERIFY-01/03/04 backlog.
+- [ ] **Phase 48: COBS Evaluation + Post-RCA Cleanup + Milestone Close** — Evaluate COBS framing on the serial data path (adopt/defer/reject decision); lift `eprom_operations.py` mypy strict overrides; close milestone with documentation and branch promotion.
+
+## Phase Details
+
+### Phase 44: Bug A RCA — Modified Rev 0 Upper-Address Jitter
+**Goal**: The Modified Rev 0 A15=1 upper-address jitter is proven to a specific signal-integrity mechanism (ringing, crosstalk, settling-time violation, or other), with scope traces and/or circuit analysis as evidence — going beyond the Phase 29 v2 symptom characterization (1.86× skew, 63% bit-raise).
+**Depends on**: Phase 29 v2 evidence substrate (`.planning/v1.6-EVIDENCE.md` H3 block), v1.7 shield-version-detect plumbing, v1.8 cleaned-up host read path. Bench hardware: Modified Rev 0 shield + scope + operator authorization.
+**Requirements**: RCA-01, RCA-03 (partial — Modified Rev 0 failure mode confirmed)
+**Success Criteria** (what must be TRUE):
+  1. Operator-witnessed scope trace (or equivalent circuit measurement) identifies the specific electrical cause of A15=1 address line jitter on Modified Rev 0, not merely the symptom — e.g. "ringing on A15 due to missing series termination" or "settling time violation at current read-pulse width".
+  2. The root-cause mechanism is documented with supporting evidence (scope screenshot or measurement values) sufficient to inform a targeted fix strategy — not just "the signal is slow".
+  3. `firestarter dev consistency-check` run on Modified Rev 0 reproduces the Phase 29 v2 pattern (jitter present, WORST ≥ 1% zeros) as a controlled baseline before any fix is applied, confirming bench continuity with v1.6 substrate.
+  4. Per-rev failure-mode map is started: Modified Rev 0 → Bug A confirmed; Rev 2.2 entry recorded (confirm whether Rev 2.2 shows Bug A or is clean).
+**Plans**: TBD
+
+### Phase 45: Bug B RCA — Rev 2.0 Timing & Voltage
+**Goal**: The Rev 2.0 read-failure mechanism (/CE-or-/OE timing mismatch + voltage-divider mismatch + VPP=13.1V interaction) is proven to a definitive root cause, with bench evidence identifying which factor(s) are causal vs incidental.
+**Depends on**: Phase 44 (per-rev map started; bench protocol established). Bench hardware: Rev 2.0 shield + scope + operator authorization.
+**Requirements**: RCA-02, RCA-03 (completion — Rev 2.0 failure mode confirmed; full per-rev map finalized)
+**Success Criteria** (what must be TRUE):
+  1. Operator-witnessed bench measurement on Rev 2.0 isolates the dominant failure factor: timing margin (/CE or /OE pulse width relative to chip t_ACC), voltage-divider mismatch (VPP at chip pin vs. expected), or VPP=13.1V overstress — with evidence distinguishing causal from coincidental.
+  2. The Rev 2.0 failure reproduces with `firestarter dev consistency-check` as a controlled baseline (jitter present, WORST ≥ 1% zeros, or the specific failure mode observed in Phase 29 v2).
+  3. Per-rev failure-mode map is complete and documented: Modified Rev 0 → Bug A (upper-address jitter); Rev 2.0 → Bug B (timing/voltage); Rev 2.2 → confirmed clean or categorized; each entry cites the evidence from Phase 44 / Phase 45.
+  4. RCA-02 root cause is documented with enough detail that a firmware-side or host-side fix candidate can be designed without further scope work (i.e., the mechanism is fully understood, not just observed).
+**Plans**: TBD
+
+### Phase 46: Fix Design & A/B Bench Trials
+**Goal**: Firmware (and/or host-side) fix candidates for Bug A and Bug B are designed based on the Phase 44/45 root causes, A/B-tested on the affected boards, and verified not to regress the unaffected boards — leaving a committed fix in both sub-repos ready for acceptance gating.
+**Depends on**: Phase 44 (Bug A root cause proven), Phase 45 (Bug B root cause proven). Bench hardware: all three shields (Modified Rev 0, Rev 2.0, Rev 2.2) + operator authorization. Firmware sub-repo `firestarter/` work expected.
+**Requirements**: FIX-01, FIX-02, FIX-03
+**Success Criteria** (what must be TRUE):
+  1. A/B comparison on Modified Rev 0: `firestarter dev consistency-check` with fix applied shows WORST < 0.1% zeros (or byte-identical N=5 reads), vs. pre-fix baseline showing the Bug A pattern — operator-witnessed, result recorded.
+  2. A/B comparison on Rev 2.0: `firestarter dev consistency-check` with fix applied shows WORST < 0.1% zeros (or byte-identical N=5 reads), vs. pre-fix baseline showing the Bug B pattern — operator-witnessed, result recorded.
+  3. Rev 2.2 regression check: `firestarter dev consistency-check` on Rev 2.2 with the fix applied returns the same clean baseline as pre-fix (WORST stays ≤ 0.1% zeros or equivalent); no fix for one rev breaks reads on another.
+  4. The fix is committed to the firmware sub-repo (and/or host sub-repo) with atomic commits citing the RCA findings from Phases 44/45; unit tests (Unity or pytest) covering the changed code path are committed alongside the fix.
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 47: Acceptance Gate + Backlog Closures
+**Goal**: The headline Phase 29 acceptance gate is re-run with the fix applied and passes on all boards; the three v1.6 backlog closures (VERIFY-01/03/04) are completed, retiring the open items that have been carried since v1.6.
+**Depends on**: Phase 46 (fix committed and A/B-tested on both bug families). Bench hardware: all three shields + uno328pb board + operator authorization.
+**Requirements**: VERIFY-A, VERIFY-01, VERIFY-03, VERIFY-04
+**Success Criteria** (what must be TRUE):
+  1. N≥5 consecutive `firestarter read W27C512` invocations return byte-identical SHA-256 hashes on Modified Rev 0, Rev 2.0, AND Rev 2.2 shields — operator-witnessed, hashes recorded in bench artifact.
+  2. uno328pb byte-identity confirmed (VERIFY-01): N≥5 `firestarter read` on the 328PB-Uno + RURP shield returns byte-identical results, closing the v1.6 carry-forward backlog item.
+  3. 1KB low-rate jitter resolved (VERIFY-03): `firestarter dev read -s 1024` returns consistent results without the jitter pattern observed in v1.5/v1.6 bench sessions.
+  4. Phase 24 BENCH-02 closure (VERIFY-04): the 328PB-Uno bench cycle item carried from v1.5 Phase 24 is formally closed with a recorded bench result or documented disposition.
+**Plans**: TBD
+
+### Phase 48: COBS Evaluation + Post-RCA Cleanup + Milestone Close
+**Goal**: The COBS framing evaluation yields a documented adopt/defer/reject decision with rationale; the `eprom_operations.py` mypy strict overrides are lifted now that the read path is fixed and free to touch; the milestone is documented and branches promoted.
+**Depends on**: Phase 46 (read path is fixed — TYPE-01 is gated on this). Phase 47 (acceptance gate passed — milestone close follows). COBS-01 is independent of the hardware RCA and can proceed in parallel or after Phase 46.
+**Requirements**: COBS-01, TYPE-01
+**Success Criteria** (what must be TRUE):
+  1. A written COBS-01 decision document (or section in a planning artifact) records: PacketSerial re-assessed, custom COBS layer option evaluated, and a clear adopt/defer/reject verdict with rationale referencing the current serial data-path shape post-v1.8 cleanup — not just "we looked at it".
+  2. `eprom_operations.py` mypy strict overrides are removed (or reduced to the minimum justifiable residual); `mypy` on `eprom_operations.py` exits without the deferred-per-D-07 suppressions; the change is covered by the existing test suite.
+  3. MILESTONES.md gains a complete v1.9 entry covering the RCA findings, fix summary, acceptance gate result, and COBS decision.
+  4. Sub-repo branches for v1.9 are promoted per the branching convention; a new beta pre-release tag is cut (at minimum); the stable `3.0.1` promotion checklist is either executed or explicitly deferred with rationale.
+**Plans**: TBD
+
+## Progress
+
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 1-13 (v1.0) | v1.0 | 22/22 | ✅ Shipped | 2026-05-11 |
+| 1-3 (v1.1) | v1.1 | done | ✅ Complete | 2026-05-12..18 |
+| 4 (v1.1) | v1.1 | partial | ⏸ Parked | — (FM1608 blocked) |
+| 5 (v1.1) | v1.1 | 0/0 | ⏸ Deferred | — |
+| 6-10 (v1.2) | v1.2 | 32/32 | ✅ Shipped | 2026-05-19 |
+| 11 | v1.3 | 6/6 | ✅ Complete | 2026-05-19 |
+| 12 | v1.3 | 1/4 | ⏸ Paused | — (hardware-gated) |
+| 13 | v1.3 | 0/0 | ⏸ Paused | — (hardware-gated) |
+| 14 (close) | v1.3 | 0/0 | ⏸ Paused | — (hardware-gated) |
+| 15-20 (v1.4) | v1.4 | 10/10 | ✅ Shipped | 2026-05-20 |
+| 21-25 (v1.5) | v1.5 | 6/6 | ✅ Shipped | 2026-05-21 |
+| 26 | v1.6 | 2/2 | ✅ Complete | 2026-05-21 |
+| 27 | v1.6 | 3/2 | ✅ Complete | 2026-05-26 |
+| 28 | v1.6 | 4/4 | ✅ Complete | 2026-05-26 |
+| 29 | v1.6 | 4/4 | ✅ Complete | 2026-05-26 |
+| 30 (close) | v1.6 | 3/3 | ✅ Shipped | 2026-05-26 |
+| 31-35 (v1.7) | v1.7 | — | ✅ Shipped | 2026-05-26 |
+| 36-43 (v1.8) | v1.8 | 26/26 | ✅ Shipped | 2026-05-29 |
+| 44 | v1.9 | 0/TBD | Not started | — |
+| 45 | v1.9 | 0/TBD | Not started | — |
+| 46 | v1.9 | 0/TBD | Not started | — |
+| 47 | v1.9 | 0/TBD | Not started | — |
+| 48 (close) | v1.9 | 0/TBD | Not started | — |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
@@ -234,33 +337,3 @@ Also carrying: WARNING-4 (`firestarter_test.sh` / `write_test.sh` references to 
 Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.md) | [`.planning/milestones/v1.0-REQUIREMENTS.md`](milestones/v1.0-REQUIREMENTS.md) | [`.planning/milestones/v1.0-MILESTONE-AUDIT.md`](milestones/v1.0-MILESTONE-AUDIT.md) | [`.planning/milestones/v1.0-INTEGRATION-CHECK.md`](milestones/v1.0-INTEGRATION-CHECK.md) | [`.planning/milestones/v1.0-phases/`](milestones/v1.0-phases/).
 
 </details>
-
-## Progress
-
-| Phase | Milestone | Plans Complete | Status | Completed |
-|-------|-----------|----------------|--------|-----------|
-| 1-13 (v1.0) | v1.0 | 22/22 | ✅ Shipped | 2026-05-11 |
-| 1-3 (v1.1) | v1.1 | done | ✅ Complete | 2026-05-12..18 |
-| 4 (v1.1) | v1.1 | partial | ⏸ Parked | — (FM1608 blocked) |
-| 5 (v1.1) | v1.1 | 0/0 | ⏸ Deferred | — |
-| 6-10 (v1.2) | v1.2 | 32/32 | ✅ Shipped | 2026-05-19 |
-| 11 | v1.3 | 6/6 | ✅ Complete | 2026-05-19 |
-| 12 | v1.3 | 1/4 | ⏸ Paused | — (hardware-gated) |
-| 13 | v1.3 | 0/0 | ⏸ Paused | — (hardware-gated) |
-| 14 (close) | v1.3 | 0/0 | ⏸ Paused | — (hardware-gated) |
-| 15-20 (v1.4) | v1.4 | 10/10 | ✅ Shipped | 2026-05-20 |
-| 21-25 (v1.5) | v1.5 | 6/6 | ✅ Shipped | 2026-05-21 |
-| 26 | v1.6 | 2/2 | ✅ Complete | 2026-05-21 |
-| 27 | v1.6 | 3/2 | ✅ Complete | 2026-05-26 |
-| 28 | v1.6 | 4/4 | ✅ Complete | 2026-05-26 |
-| 29 | v1.6 | 4/4 | ✅ Complete | 2026-05-26 |
-| 30 (close) | v1.6 | 3/3 | ✅ Shipped | 2026-05-26 |
-| 31-35 (v1.7) | v1.7 | — | ✅ Shipped | 2026-05-26 |
-| 36 | v1.8 | 0/TBD | Not started | — |
-| 37 | v1.8 | 0/TBD | Not started | — |
-| 38 | v1.8 | 0/TBD | Not started | — |
-| 39 | v1.8 | 3/3 | Complete | 2026-05-27 |
-| 40 | v1.8 | 0/TBD | Not started | — |
-| 41 | v1.8 | 4/4 | Complete    | 2026-05-28 |
-| 42 | v1.8 | 0/3 | Not started | — |
-| 43 (close) | v1.8 | 0/TBD | Not started | — |
