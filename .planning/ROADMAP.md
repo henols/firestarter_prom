@@ -12,7 +12,7 @@
 - ✅ **v1.7 RURP Shield Hardware Investigation & Version Detection** — Phases 31-35 (SHIPPED 2026-05-26). Per-rev capability table + labeled schematics + shield-version-detect firmware plumbing.
 - 🚧 **v1.8 Host CLI Structural Cleanup (firestarter_app)** — Phases 36-43 (STARTED 2026-05-27). Decompose god functions, argparse→Click, split serial layer, consolidate constants, unify errors, tests-first, ruff+ruff-format+mypy gate. Host-only; firmware sub-repo untouched.
 
-## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED <TBD-from-43-03>)
+## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
 <details>
 <summary>✓ v1.8 shipped — Host CLI structural cleanup (firestarter_app); 8 phases, 27 requirements DELIVERED + 3 VERIFIED-AT-CLOSE; ship tag 3.0.0b7 beta-only. Full detail in `.planning/MILESTONES.md` §v1.8.</summary>

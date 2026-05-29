@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.8
-milestone_name: — Host CLI Structural Cleanup
-status: executing
+milestone: v1.9
+milestone_name: — Read-Bug RCA + Fix (PROPOSED)
+status: pending
 last_updated: "2026-05-29T09:00:45.628Z"
-last_activity: 2026-05-29 -- Phase 43 planning complete
+last_activity: 2026-05-29 -- v1.8 milestone shipped (Host CLI Structural Cleanup; ship tag 3.0.0b7 beta-only); v1.9 Read-Bug RCA proposed
 progress:
   total_phases: 8
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 29
-  completed_plans: 26
-  percent: 88
+  completed_plans: 29
+  percent: 100
 ---
 
 # Project State
@@ -20,14 +20,14 @@ progress:
 
 ## Current Position
 
-Phase: 42 — COMPLETE
+Phase: 43 — SHIPPED 2026-05-29
 Plan: 3 of 3 complete
-Plans: 3/3 complete (42-01 ✓ • 42-02 ✓ • 42-03 ✓)
-Next: `/gsd-discuss-phase 43` → DOC-01 README rewrite + MS-01 GATE-1.8 end-to-end verification = v1.8 milestone close.
-Status: Ready to execute
+Plans: 3/3 complete (43-01 ✓ • 43-02 ✓ • 43-03 ✓)
+Next: `/gsd-discuss-milestone v1.9`
+Status: v1.8 milestone shipped; v1.9 pending operator kick-off
 Resume file: .planning/phases/43-documentation-milestone-close/43-CONTEXT.md
-Last activity: 2026-05-29 -- Phase 43 planning complete
-Last commit: firestarter_app@9999bdb — chore(42-03): raise v1.8 quality gates — mypy strict on 8 modules, docstrings + coverage ≥70% (ERR-02, ERR-03); meta-repo@dbf5eed — docs(42-03): record plan completion
+Last activity: 2026-05-29 -- v1.8 milestone shipped (Host CLI Structural Cleanup; ship tag 3.0.0b7 beta-only); v1.9 Read-Bug RCA proposed
+Last commit: meta-repo@305e525 — merge(v1.8) close; firestarter_app@4f04d98 — merge(v1.8) beta (3.0.0b7 shipped)
 
 ## Project Reference
 
@@ -152,6 +152,7 @@ Full details: `.planning/ROADMAP.md` (v1.4 section).
 
 ## Milestone History
 
+- **v1.8** — Host CLI Structural Cleanup (firestarter_app) (shipped 2026-05-29) — 8 phases (36-43), 66 firestarter_app commits + 75 meta-repo planning commits, ship tag 3.0.0b7 beta-only (PyPI + GitHub pre-release). Phase artifacts archived at `.planning/milestones/v1.8-phases/`. Coverage 70.64%; mypy strict on 8 modules; argparse → Click. Read-bug carries to v1.9 under GATE-1.8d ring-fence.
 - **v1.0** — Protocol-Aware Programming Architecture (shipped 2026-05-11) — see `.planning/MILESTONES.md` + `.planning/milestones/v1.0-*.md`
 - **v1.1** — Safety Closure & Hardware Validation — **PAUSED at 80%** (2026-05-18). Phases 1–3 complete (SAF closure, wire-key rename, retroactive VERIFICATION.md artifacts). Phase 4 hardware-validation Plan 2 of 3 in progress (FM1608 byte-0 read bug parked — see `.planning/debug/fm1608-fresh-chip-baseline.md`; needs a different Uno board to unblock). Phase 5 (milestone close) deferred.
 - **v1.2** — Message-ID Logging Rework (shipped 2026-05-19) — 23/23 requirements; Leonardo Flash 98.7% → 85.4% (−3,792 B); firmware 3.0.0-dev lockstep upgrade. 4 hardware-pending UAT items deferred into v1.3 bench session (see Deferred Items below). See `.planning/MILESTONES.md`.
