@@ -11,21 +11,22 @@
 **v1.8 shipped:** 2026-05-29 (Host CLI Structural Cleanup — 8 phases, 27 requirements DELIVERED + 3 VERIFIED-at-close; argparse → Click migration; flat layout preserved (no subpackage reorg); ruff + ruff-format + mypy strict on 8 modules + 70% coverage floor enforced in CI; 2 latent bugs fixed as INTENTIONAL BEHAVIOR CHANGE (BUG-1 `build_arg_flags`, BUG-2 except-clause split); ship tag `3.0.0b7` beta-only; v1.8-app-cleanup → beta + meta-repo → main; firmware sub-repo untouched at `beta@0bbe017`; read-bug carries to v1.9 with GATE-1.8d ring-fence intact).
 **v1.7 shipped:** 2026-05-26 (RURP Shield Hardware Investigation & Version Detection — 5 phases; per-rev capability table + labeled schematics + shield-version-detect firmware plumbing). Substrate consumed by v1.6 Phase 29 v2 bench session + v1.8 RCA hand-off.
 
-## Current Milestone: v1.9 — Read-Bug RCA + Fix (PROPOSED)
+## Current Milestone: v1.9 — Read-Bug RCA + Fix
 
-**Status:** Proposed 2026-05-26 at v1.6 close; renumbered v1.8 → **v1.9** on 2026-05-27 when the host-CLI cleanup took the v1.8 slot (cleanup is pure software / not hardware-gated, and a cleaner host read path de-risks the RCA). v1.8 shipped 2026-05-29. Roadmap not yet locked. Phase numbering continues after v1.8's last phase 43 (next phase = 44).
+**Status:** STARTED 2026-05-29 (scope locked via `/gsd-new-milestone`). Proposed 2026-05-26 at v1.6 close; renumbered v1.8 → **v1.9** on 2026-05-27 when the host-CLI cleanup took the v1.8 slot (cleanup is pure software / not hardware-gated, and a cleaner host read path de-risks the RCA). v1.8 shipped 2026-05-29. Phase numbering continues after v1.8's last phase 43 (next phase = 44). Hardware-gated milestone — bench operations are operator-authorized; firmware sub-repo work expected (unlike v1.8's host-only scope).
 
 **Why:** v1.6 closed with the original read-bug intentionally deferred per D-17v2 re-scope. Phase 29 v2 characterized the bug as two independent failure modes — Bug A (Modified Rev 0 upper-address jitter, A15=1 → 1.86× skew, 63% BIT-RAISE) and Bug B (Rev 2.0 /CE-or-/OE timing + voltage-divider mismatch + VPP=13.1V). v1.9 inherits the diagnostic (`firestarter dev consistency-check`), the 15-binary N=5 bench substrate at `.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260526-*-v2*/`, the Phase 29 v2 H3 block in `.planning/v1.6-EVIDENCE.md`, the v1.7 labeled-schematic + per-rev capability table + shield-version-detect firmware plumbing, AND the v1.8 cleaned-up host read path (GATE-1.8d ring-fence intact — baseline binaries still valid) as the foundation for designing instrumented A/B fix candidates knowing exactly which silkscreen rev sits on the bench at each step.
 
-**Target features (proposed; not locked):**
+**Target features (scope locked 2026-05-29):**
 - RCA from the characterized hypotheses (Bug A signal-integrity, Bug B timing/voltage)
 - Instrumented A/B fix candidates across Modified Rev 0 + Rev 2.0 + Rev 2.2 shields
 - Re-iterate Phase 29 acceptance gate (N≥5 byte-identical reads across boards)
 - Close VERIFY-01 (uno328pb byte-identity) + VERIFY-03 (1KB low-rate jitter) + VERIFY-04 (Phase 24 BENCH-02 closure)
+- Evaluate COBS framing/resync on the serial data path (todo: PacketSerial assessed-not-adopted) as a data-path robustness angle — complementary to the hardware RCA, NOT a Bug A fix (Bug A is hardware upper-address jitter, not a framing fault)
 - Lift `eprom_operations.py` mypy strict overrides (DEFERRED per Phase 42 D-07; lifted post-RCA when the read path can be touched freely)
 - Phase numbering continues at Phase 44
 
-**Operator next step:** `/gsd-discuss-milestone v1.9` to lock scope + decisions.
+**Operator next step:** requirements + roadmap being generated via `/gsd-new-milestone` (2026-05-29).
 
 ## v1.8 Archive: Host CLI Structural Cleanup (firestarter_app) — Shipped 2026-05-29
 
@@ -268,4 +269,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last updated: 2026-05-29 — v1.8 milestone shipped (Host CLI Structural Cleanup; 8 phases, 27 requirements DELIVERED + 3 VERIFIED-at-close; argparse → Click; ruff + mypy strict on 8 modules + 70% coverage floor; ship tag `3.0.0b7` beta-only; v1.9 Read-Bug RCA promoted to Current Milestone per D-04.2).*
+*Last updated: 2026-05-29 — v1.9 (Read-Bug RCA + Fix) milestone STARTED; scope locked, requirements + roadmap being generated (phases from 44). v1.8 shipped 2026-05-29 (3.0.0b7 beta-only).*

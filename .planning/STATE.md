@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.9
-milestone_name: — Read-Bug RCA + Fix (PROPOSED)
-status: pending
-last_updated: "2026-05-29T09:00:45.628Z"
-last_activity: 2026-05-29 -- v1.8 milestone shipped (Host CLI Structural Cleanup; ship tag 3.0.0b7 beta-only); v1.9 Read-Bug RCA proposed
+milestone_name: Read-Bug RCA + Fix
+status: planning
+last_updated: "2026-05-29T11:37:44.682Z"
+last_activity: 2026-05-29
 progress:
-  total_phases: 8
-  completed_phases: 8
-  total_plans: 29
-  completed_plans: 29
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -20,14 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 43 — SHIPPED 2026-05-29
-Plan: 3 of 3 complete
-Plans: 3/3 complete (43-01 ✓ • 43-02 ✓ • 43-03 ✓)
-Next: `/gsd-discuss-milestone v1.9`
-Status: v1.8 milestone shipped; v1.9 pending operator kick-off
-Resume file: .planning/phases/43-documentation-milestone-close/43-CONTEXT.md
-Last activity: 2026-05-29 -- v1.8 milestone shipped (Host CLI Structural Cleanup; ship tag 3.0.0b7 beta-only); v1.9 Read-Bug RCA proposed
-Last commit: meta-repo@305e525 — merge(v1.8) close; firestarter_app@4f04d98 — merge(v1.8) beta (3.0.0b7 shipped)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-05-29 — Milestone v1.9 started
 
 ## Project Reference
 
