@@ -1,391 +1,375 @@
-# Pitfalls in EPROM Programmer Database and Protocol Design
+# Pitfalls Research — v1.8 Host CLI Structural Cleanup
 
-Research findings for the Firestarter protocol-aware programming architecture.
-Generated: 2026-05-08
+**Domain:** Refactoring a hardware-facing serial CLI (Python host for Arduino EPROM programmer)
+**Researched:** 2026-05-27
+**Confidence:** HIGH — based on direct code reading of the actual codebase plus verification against
+established Python/Click/pyserial refactoring patterns.
 
 ---
 
-## 1. Database and Chip Mapping Mistakes
+## Critical Pitfalls
 
-### 1.1 Wrong VPP Voltage Destroys Chips
+### Pitfall 1: Wire-Protocol Regression via "Harmless" Serial Module Split
 
-VPP voltages in the 27xx family range from 9V to 25V depending on era and manufacturer.
-Applying the wrong voltage will permanently damage the die.
+**What goes wrong:**
+The `serial_comm.py` split into frame-parser / message-codec / transport modules looks purely structural, but the split seam tends to land in the middle of the binary framing state machine. The critical invariant is: the 4-byte magic preamble detection, the u16 length read, the `frame_len`-byte body read, and the trailing terminator read must all happen in one atomic blocking sequence (`connection.read(2)` then `connection.read(frame_len)` then `connection.read(1)`). If the refactor extracts the "parse" step into a separate module that receives a buffer from a "transport" module, the temptation is to buffer multiple reads before dispatching. This can silently change when `connection.read(N)` is called — if the transport layer now reads in chunks or uses `readinto()` differently, bytes can be consumed from the OS serial buffer at a different moment, leaving the Arduino waiting for an ACK that hasn't been sent yet. The Arduino's UART receive side has a 64-byte hardware buffer; if the host stalls between reads, the firmware fills its transmit buffer and blocks, and the host eventually sees a timeout with no obvious cause.
 
-Key voltage ranges found in the minipro XML (voltages field, low byte = VPP):
+**Why it happens:**
+The current generator `_read_and_parse_lines` mixes three concerns (byte accumulation, preamble detection, frame decoding) in one function. When decomposing, the natural split is "accumulate bytes" (transport) + "decode frames" (parser). But `connection.read(frame_len)` in the middle of the preamble handler is not a "transport" call — it is a protocol-level synchronous read. Splitting it breaks the assumption that all bytes for one frame arrive in a single blocking context.
 
-| Code  | Voltage | Typical Chips                        |
-|-------|---------|--------------------------------------|
-| 0x00  | 12V     | Most modern 27Cxxx EPROMs            |
-| 0x70  | 13V     | AMD 27512, some 27256 parts          |
-| 0x80  | 13.5V   | Some Atmel 28Cxx EEPROM parts        |
-| 0x30  | 10V     | Some 28Cxx EEPROMs                   |
-| 0xF0  | 18V     | Old 2716 parts, some 2732            |
+**How to avoid:**
+Write a wire-layer characterization test BEFORE splitting. The test constructs a `BytesIO`-backed fake serial (the existing `conftest.py` `fake_serial` fixture already does this), drives the full message sequence — text line, then binary frame with MAGIC_PREAMBLE, then another text line — through `_read_and_parse_lines`, and asserts exact Response values and order. Pin this test to the existing implementation. During the split, keep the end-to-end path under test and only accept the refactor when the pinned test still passes. Do not change the blocking `connection.read(frame_len)` call site without running the full hardware integration test afterward.
 
-The 25V VCC_PROG for the original 2716 (as seen in `pinouts.json`) is extreme and comes
-from a dedicated Vpp supply pin, not the regulator chain. If a programmer assumes all
-24-pin chips use 12V VPP (the modern default), it will fail to program a 2716 silently
-or destroy it if the physical pin is wrongly driven.
+**Warning signs:**
+- Any new `connection.read()` call that is not immediately preceded by a preamble check or inside the binary-frame consumption block.
+- Buffering at any boundary between the new modules (e.g., a queue, an `asyncio` task, or a thread boundary) — none of these exist today, and introducing one changes the timing contract.
+- Test that passes with `BytesIO` but flickers on hardware because the fake serial delivers bytes instantaneously while real UART delivers them with inter-byte gaps.
 
-**In this codebase:** `parse_db_2.py` decodes VPP from `(voltages & 0xFF)`. The database
-does store correct VPP strings (e.g., "13V" for AM27512). The risk is in `database.py`'s
-`_map_data()` which silently defaults to `vpp = 0` on parse failure and sends that to the
-firmware as `vpp * 1000` millivolts. A 0mV VPP target will cause `eprom_check_vpp()` to
-compare against 0 and emit warnings that are easy to miss if `FLAG_FORCE` is set.
+**Phase to address:**
+Phase that owns the serial-module split. Must begin by pinning the existing `test_decoder.py` suite as a non-regression gate, then extend it to cover the preamble→body→terminator sequence before any restructure. The split should land in a single commit with zero changes to `connection.read` call sites.
 
-### 1.2 Wrong Algorithm for "Similar" Chips (27C256 vs 27256)
+---
 
-The 27256 and 27C256 occupy the same 28-pin package and look identical to a dumb
-programmer. However:
+### Pitfall 2: argparse→Click Behavioral Drift on Exit Codes
 
-- **27256** (no C): NMOS, VPP=12.5V, VCC=6V during programming, slow pulse timing
-- **27C256** (CMOS): VPP=12.5V, VCC=5V, different pulse timing, A14 on pin 1 (VPP also on pin 1)
-- **27512** (same 28 pins!): VPP migrated from pin 1 to pin 22 (shared with /OE)
+**What goes wrong:**
+argparse calls `sys.exit(2)` for parse errors (wrong argument, missing required arg, unrecognized argument). Click calls `sys.exit(2)` for `UsageError` but `sys.exit(1)` for `ClickException` subclasses and `sys.exit(0)` for `--help`. The current `main()` explicitly returns `0` or `1` and the entry point calls `sys.exit(main())`. In Click, commands do not return integers — they raise `SystemExit` or return `None`. If the Click migration naively adds `return 1` at the end of a command callback, Click ignores it; the process exits 0 regardless. Any shell script or CI pipeline that checks `$?` after `firestarter read W27C512` will see unexpected exit codes.
 
-In the minipro XML, these are distinguished by the `variant` field:
-- `variant == 0x11` (17): 27256-family (VPP on pin 1)
-- `variant == 0x10` (16): 27512-family (VPP on pin 22 = /OE pin)
-- `variant == 0x13` (19): 2764/27128-family (VPP on pin 1, A13 on pin 26)
+**Why it happens:**
+Click's invocation model is different: `@cli.command()` callbacks return `None`; to exit non-zero you call `sys.exit(N)` or raise `click.ClickException`. The argparse pattern of `return 0 if success else 1` is invisible to Click's runner. This is the most common mistake when migrating Python CLIs to Click.
 
-**BUG FOUND:** In `parse_db_2.py`, `resolve_pinout_key()` correctly maps:
+**How to avoid:**
+Before migrating any command, write a characterization test that invokes `main()` via `subprocess.run(["firestarter", ...])` or Click's `CliRunner` and asserts `result.exit_code`. Pin: (a) successful operations exit 0, (b) "EPROM not found in database" exits 1, (c) missing required argument exits 2, (d) `--help` exits 0. During the migration, each command's exit code must be explicitly verified. In Click, use `sys.exit(1)` or `raise click.ClickException(message)` (which prints to stderr and exits 1) for error cases. Do not rely on `return` value for exit code.
+
+**Warning signs:**
+- Click command callbacks with `return 0` or `return 1` statements — these are no-ops.
+- `result.exit_code == 0` in CliRunner tests even though the operation failed.
+- Shell-level test: `firestarter read NONEXISTENT_CHIP; echo $?` printing `0` instead of `1`.
+
+**Phase to address:**
+CLI characterization test phase (tests-first). Before touching `main.py`, capture exit codes for every command in a test suite using Click's `CliRunner`. The migration phase uses these tests as the gate.
+
+---
+
+### Pitfall 3: argparse→Click Behavioral Drift on Argument-Parsing Edge Cases
+
+**What goes wrong:**
+argparse and Click differ in several parsing behaviors that are not obvious:
+
+1. **Prefix matching**: argparse allows abbreviated long options by default (`--forc` matches `--force`). Click does not. Any user or script that relied on prefix matching breaks silently — the argument is treated as unrecognized.
+2. **`nargs="?"` (optional positional)**: argparse `nargs="?"` with `default=None` and `const=<something>` has specific semantics when the argument is absent vs. present without a value. Click's `argument(..., required=False)` behaves differently. The `read` command's `output_file` uses `nargs="?"` — if the Click equivalent is `@click.argument("output_file", required=False, default=None)`, test the case where `output_file` is omitted and where it is explicitly provided.
+3. **`store_false` with `dest`**: The `--no-blank-check` flag uses `action="store_false", dest="blank_check", default=True`. Click's equivalent is `@click.option("--no-blank-check", "blank_check", is_flag=True, flag_value=False, default=True)`. Getting the polarity wrong silently inverts the behavior — blank check runs when user says `--no-blank-check`.
+4. **Mutually exclusive groups**: argparse `add_mutually_exclusive_group()` is used for `--pre/--firmware-version/--stable` and `--install/--list`. Click requires manual `callback`-based mutex or the `cloup` library. Forgetting to enforce the mutex means users can pass `--pre` and `--firmware-version` together; the resolution logic picks one silently, which is a behavioral change.
+5. **Type coercion**: `_validate_firmware_version` is wired as an argparse `type=` function and raises `ArgumentTypeError` on bad input. The Click equivalent is `callback=` or a custom `ParamType`. If the validator is not wired, Click accepts any string.
+
+**Why it happens:**
+argparse and Click have different design philosophies. Developers migrating commands one-by-one often test the happy path but miss edge cases that users rely on. The current `main.py` has 14 branches of dispatch — each one can have a different subtlety.
+
+**How to avoid:**
+Characterize the current argument-parsing behavior with explicit tests before migrating. For each flag with non-trivial semantics (store_false, nargs="?", mutually-exclusive, type=validator), write a test using `CliRunner` that exercises the edge case against the argparse implementation, then re-run the same test against the Click implementation. The mutex groups are highest risk — test that `firestarter fw --pre --firmware-version 3.0.0` exits with a usage error (exit 2) both before and after migration.
+
+**Warning signs:**
+- `--no-blank-check` not appearing in Click's `--help` output for `write`.
+- `firestarter fw --pre --firmware-version 3.0.0` succeeding instead of erroring.
+- `firestarter read W27C512` (no output_file) writing to the wrong default name.
+
+**Phase to address:**
+CLI characterization test phase (before migration). The test suite must cover all non-trivial flag semantics. The Click migration phase must not close until every characterization test passes.
+
+---
+
+### Pitfall 4: Buffer-Size Constant Drift Between Board-Specific Code Paths
+
+**What goes wrong:**
+`constants.py` defines `BUFFER_SIZE = 512` and `LEONARDO_BUFFER_SIZE = 1024`. These are used in `eprom_operations.py` to size the chunk sent per `send_ack` cycle. During the serial-module split, if the buffer-size constant usage migrates to a new module without a clear import, a developer may introduce a hardcoded `512` or re-derive the buffer size from serial state. The consequence is that reads/writes against a Leonardo board send 512-byte chunks when 1024 are available (slower, but correct) or worse, send 1024-byte chunks to an Uno which silently truncates at the hardware buffer, causing checksum mismatches that look like hardware failures.
+
+**Why it happens:**
+`BUFFER_SIZE` and `LEONARDO_BUFFER_SIZE` are easy to copy-paste or re-derive "from context." The board selection logic is currently in `eprom_operations.py` and the constants import is `from firestarter.constants import *`, which makes the origin invisible. After the split, if the constants module is reorganized, an accidental `BUFFER_SIZE = 512` local variable anywhere in the call stack shadows the constant silently.
+
+**How to avoid:**
+During the constants consolidation phase, make `BUFFER_SIZE` and `LEONARDO_BUFFER_SIZE` importable by name only (no star-import in the serial/ops modules after the refactor). Add a constants-parity test that asserts the values have not drifted. Never hardcode `512` or `1024` in the ops or serial layer — always reference the named constant. After the refactor, grep for `512` and `1024` as bare integers in the module tree and fail the PR if found in a serial/ops context.
+
+**Warning signs:**
+- Any `512` or `1024` bare integer literal in `eprom_operations.py` or its successor modules.
+- A Leonardo board completing a read 2× slower after the refactor (chunk size regressed to 512).
+- Checksum mismatch errors that only appear on Uno, not Leonardo (chunk too large).
+
+**Phase to address:**
+Constants consolidation phase. The parity test must be written before any constants are moved.
+
+---
+
+### Pitfall 5: Serial Timeout Semantics Change During Generator Refactor
+
+**What goes wrong:**
+The `_read_and_parse_lines` generator resets `start_time = time.time()` every time it yields a response (line 601 and 654 in the current code). This "sliding window" timeout means: if the firmware is still sending responses, the timeout window keeps extending. A refactor that extracts the timeout logic or changes when `start_time` is reset can turn a sliding-window timeout into a fixed-deadline timeout. The consequence: multi-response commands (the FW probe sends two `expect_ack` calls in sequence) start timing out on slow ports even though firmware is responding correctly.
+
+**Why it happens:**
+The sliding-window semantics are not documented as an invariant — they look like an implementation detail that could be cleaned up. Anyone reading the code without running the hardware may not recognize that the reset is load-bearing for commands that produce multiple response frames.
+
+**How to avoid:**
+Add a comment at the `start_time = time.time()` reset site labeling it "INVARIANT: sliding-window timeout — must reset on every yield." Write a unit test using the fake serial fixture that drives a sequence of 3 responses with 0.3-second delays between them and asserts that a 0.5-second timeout does not fire before all 3 are received (which would fail with a fixed-deadline timeout but pass with a sliding-window timeout). This test must exist before the generator is refactored.
+
+**Warning signs:**
+- `SerialTimeoutError` appearing in the FW probe sequence on slow boards after the refactor.
+- `consume_remaining_input` consuming fewer frames than before.
+- Any change to `start_time` initialization or reset that is not accompanied by the unit test above.
+
+**Phase to address:**
+Serial characterization test phase. The invariant test must be green before the serial split.
+
+---
+
+### Pitfall 6: Characterization Tests Pinning Existing Bugs as Correct Behavior
+
+**What goes wrong:**
+The current `main.py` has several behaviors that are bugs, not features:
+- `build_arg_flags` uses `if "force" in args` which tests for attribute existence on the Namespace, not truthiness — this always evaluates True if argparse set the attribute, meaning `force` is always detected even when `False`. The resulting flag bits may be wrong for some commands.
+- The `dev consistency-check` command is the only command that returns an int directly (0/1/2 for PASS/FAIL/error) while all other commands use the `1 if not ... else 0` bool pattern. A characterization test that pins `exit_code == 1` for a consistency-check FAIL is pinning correct behavior; but a test that pins the current `build_arg_flags` evaluation would pin a bug.
+- The `argcomplete` integration in `EpromCompleter` calls `allowed_eproms()` which instantiates `EpromDatabase()` twice (once in `__init__`, once in `allowed_eproms()`). This is wasteful but not incorrect.
+
+**Why it happens:**
+Characterization tests capture existing behavior by definition. Without explicitly auditing which behaviors are intentional and which are bugs, tests will pin bugs. The v1.8 scope explicitly permits "fix bugs found" — but only if they are documented. An undocumented bug fix in the characterization test phase creates invisible behavior drift.
+
+**How to avoid:**
+Before writing any characterization test, audit the target behavior with a "bug or feature?" label. Mark tests that pin known-wrong behavior with `# BUG: <description> — do NOT preserve this behavior` and a corresponding FIXME comment. The migration phase then intentionally changes those tests to the correct behavior and documents the change in the commit. The constant parity tests (`test_revision_constants_parity.py`) are a good model: they pin intentional invariants, not accidental behaviors.
+
+**Warning signs:**
+- Characterization tests that pass before AND after the migration but should have changed.
+- Tests that accept both `force=True` and `force=False` as the same flag value.
+- No "CHANGED BEHAVIOR" entry in the commit log for a command whose characterization test was updated.
+
+**Phase to address:**
+Tests-first phase. Every characterization test that captures potentially-buggy behavior must carry a labeled comment. The "fix bugs found" gate is enforced at the roadmap level, not by individual test authors.
+
+---
+
+### Pitfall 7: Over-Mocking That Tests the Mock, Not the Code
+
+**What goes wrong:**
+The untested core paths (CLI dispatch, EPROM ops, DB lookup) require mocking `serial.Serial` and `SerialCommunicator.find_and_connect`. The failure mode is tests like:
 ```python
-if variant == 16: return "DIP28_27512"
-if variant == 17: return "DIP28_27256"
-return "DIP28_2764"  # default covers 2764/27128
+mock_comm.expect_ack.return_value = (True, "OK")
+result = operator.read_eprom(...)
+assert mock_comm.expect_ack.called
 ```
+This test passes regardless of whether `read_eprom` actually processes the response correctly, constructs the right JSON command, or handles errors. It tests that `expect_ack` was called, not that the operation succeeded or failed correctly.
 
-However, the committed `minipro_complete_db.json` assigns `DIP28_2764` to ALL 28-pin
-chips including all 27512 variants (67 chips). The `DIP28_27512` and `DIP28_27256`
-pinout keys appear zero times in the current database. This means the database was
-regenerated at a point when `resolve_pinout_key()` was not yet correct (or not yet
-present), and was never re-regenerated.
+**Why it happens:**
+When hardware is absent, mocking is the only option. But the natural tendency is to mock at the highest level (mock `find_and_connect` to return a mock communicator), which removes all the real protocol logic from the test.
 
-**Consequence:** Every 27512-family chip (AM27512, AT27C512, W27C512, 27C512, etc.)
-currently gets programmed with the VPP line pointed at pin 1 (A14) instead of pin 22
-(/OE). VPP is applied to an address line during programming — this may partially work
-(the high-voltage pulse may still reach the chip via its internal protection diodes) but
-is architecturally wrong and will fail for any chip that strictly requires VPP on /OE.
+**How to avoid:**
+Mock at the `serial.Serial` boundary, not the `SerialCommunicator` boundary. The existing `conftest.py` `fake_serial` fixture using `BytesIO` is the right pattern — it drives real `SerialCommunicator` logic with fake bytes. Extend this pattern to the EPROM ops layer: construct fake serial responses for a read sequence (INIT ack → MAIN acks with DATA chunks → END ack) and drive real `eprom_operator.read_eprom()` with them. The test then asserts on the output bytes and final return value, not on which methods were called. Reserve `MagicMock` for the serial port object itself.
 
-### 1.3 Pin Count Heuristics Fail for Edge Cases
+**Warning signs:**
+- Test files with more `mock.assert_called_once_with(...)` than `assert result == expected` lines.
+- Tests that pass when the implementation function body is replaced with `pass`.
+- Test coverage showing 100% line coverage but 0% branch coverage on the JSON command construction logic.
 
-The 27512 is the canonical example of why pin-count-alone cannot determine pinout:
-
-- **27256**: 28 pins, VPP on pin 1, A14 on pin 1 (dual-function)
-- **27512**: 28 pins, VPP on pin 22 (/OE), pin 1 is A15 (address only), /OE shares VPP
-- **2764**: 28 pins, VPP on pin 1, A12 only goes to pin 2 (NC on this), pin 26 is NC or A13
-
-All three are 28-pin DIP, all three have identical physical outline, all three use
-EPROM_STD protocol (0x07). The only distinguishing factor in minipro's database is the
-`variant` field.
-
-**27512 special case — VPP on /OE (pin 22):**
-
-The JEDEC 27512 standard moved VPP from pin 1 to the /OE pin (pin 22) to make room for
-address line A15 on pin 1. Programming sequence:
-1. CE low, OE/VPP raised to VPP voltage (12V or 13V)
-2. Apply address and data
-3. Pulse CE low for programming pulse width (typically 1ms)
-
-If OE/VPP is left at 0V (treated as active /OE), the chip reads instead of programs.
-If VPP is applied to pin 1 (A15) instead, A15 floats at 12V — the chip may be damaged
-(most EPROM address inputs have ESD protection only, not 12V tolerance) and will certainly
-not program correctly.
-
-**In `pinouts.json`:** The `DIP28_27512` entry correctly specifies:
-```json
-"vpp-pin": [22], "oe-pin": [22]
-```
-And the `DIP28_2764` entry correctly specifies:
-```json
-"vpp-pin": [1]
-```
-The pinout data is correct; the bug is that `minipro_complete_db.json` never assigns
-`DIP28_27512` to any chip.
-
-### 1.4 The "Algorithm Leakage" Bug — Unmapped Protocol IDs in the Database
-
-The `parse_db_2.py` script calls `PROTOCOL_MAP.get(proto_id, proto_id)` — if a
-protocol ID is not in the map, the **raw integer** is stored as the algorithm value.
-The current database contains entries with `"algorithm": 4` (raw integer, not a string),
-corresponding to protocol 0x04 which is not in `PROTOCOL_MAP`. AT45Dxxx dataflash chips
-from ADESTO/Atmel have protocol 0x04 and all land in the database with a numeric algorithm
-value.
-
-In `database.py`, `_map_data()` iterates `PROTOCOL_MAP` items to reverse-lookup
-`protocol_id` from the string, but when the algorithm field is already an integer (not
-a string), `v == programming.get("algorithm")` always fails, so `protocol_id` stays 0.
-The firmware receives `type=1` (default EPROM) and will attempt to UV-EPROM-program a
-dataflash chip.
+**Phase to address:**
+Tests-first phase. The test design review must verify that core-path tests drive real code with fake serial bytes, not fake code.
 
 ---
 
-## 2. Protocol Ambiguities in minipro's Database
+### Pitfall 8: mypy Avalanche — Getting Buried in Type Errors and Abandoning the Gate
 
-### 2.1 The `variant` Field Meaning
+**What goes wrong:**
+Running `mypy` on the current codebase for the first time against a legacy `from firestarter.constants import *` star-import, untyped `dict` return values from `db_instance.get_eprom()`, `Optional[dict]` function signatures that are actually `dict | None | False`, and `namedtuple` fields without type parameters will produce 80-200+ errors. Teams commonly react by adding `# type: ignore` to every file, setting `ignore_errors = true` in `mypy.ini`, or abandoning strict mode entirely. The gate becomes theater.
 
-In minipro's `infoic.xml`, `variant` is a multi-purpose field encoding:
-- **Physical pinout** (which DIP variant): bits that distinguish 27256 from 27512
-- **Programming sub-variant** within a chip family
-- **PLCC/SMD indicator** in combination with `package_details`
+**Why it happens:**
+Adding mypy to an existing codebase is harder than starting with it. The star-import alone makes mypy unable to resolve names. The `from firestarter.constants import *` pattern in `serial_comm.py`, `eprom_operations.py`, and `main.py` means mypy cannot know which names are in scope without analyzing the constants module.
 
-For 28-pin EPROM chips, the semantically significant values are:
-- `0x10` = 27512 pinout (VPP on /OE, pin 22)
-- `0x11` = 27256 pinout (VPP on pin 1, A14 shared)
-- `0x13` = 2764/27128 pinout (VPP on pin 1, A13 on pin 26)
-- `0x26` = 28Cxx EEPROM pinout (byte-write capable, different WE handling)
+**How to avoid:**
+Use `mypy --ignore-missing-imports --no-strict-optional` as the initial gate, not `--strict`. Set `warn_unused_ignores = true` so `# type: ignore` comments are tracked. Enable one mypy flag at a time per phase rather than all at once. The specific first target: replace `from firestarter.constants import *` with explicit named imports everywhere (this is also required for the flat-layout refactor). This single change makes mypy's scope analysis tractable. Accept that 100% clean mypy is a multi-phase goal; the gate for v1.8 should be "no new `Any` in the refactored modules" not "zero errors across all files."
 
-For the PLCC32 package variants, the same chip (e.g., AT27C512@PLCC32) uses
-`variant=0x03` — different from the DIP28 version's `variant=0x10`. The variant field
-changes meaning based on the package. Since Firestarter filters out PLCC/SMD chips
-during database generation, this does not cause runtime errors, but it means you cannot
-compare variant values across package types.
+**Warning signs:**
+- `mypy.ini` or `pyproject.toml` containing `ignore_errors = true` or `disallow_untyped_defs = false` after the tooling phase.
+- More than 5 `# type: ignore` comments in any single refactored module.
+- The CI mypy step showing 0 errors but the module having no type annotations (meaning mypy is not checking the file at all).
 
-### 2.2 Known Quirks in `infoic.xml` Data
-
-**Duplicate chip entries:** The same chip appears multiple times under different
-manufacturers (minipro tracks per-manufacturer). The `parse_db_2.py` deduplication
-only prevents identical `(name, chip_id)` pairs within a single manufacturer.
-Across manufacturers, duplicates are expected and acceptable.
-
-**`chip_id_value` of `0x00000000`:** Many chips that do not support chip ID reading have
-`chip_id_value` of `0x00000000`. The `parse_db_2.py` code stores this verbatim, but
-`database.py`'s `_map_data()` only adds `chip-id` to the output if the value is truthy.
-`0x00000000` converts to integer 0, which is falsy — so it is correctly omitted.
-However, `chip_id_check: false` with a non-zero chip_id_value would be ambiguous; in
-practice this combination does not appear in the filtered dataset.
-
-**Protocol 0x04 (FLASH_FWH) and others not in `PROTOCOL_MAP`:** `parse_db_2.py` has
-`PROTOCOL_MAP` entries for 18 protocols, but minipro uses more. The fallback
-`PROTOCOL_MAP.get(proto_id, proto_id)` stores raw integers for unmapped protocols.
-Affected protocols found in the 24-32 pin DIP filtered set include `0x04` (several
-AT45Dxxx dataflash parts) and potentially `0x34` / `0x3C` for large flash variants.
-
-**The two `infoic.xml` files:** The `tools/` directory contains both `infoic.xml` and
-`infoic2.xml`. `parse_db_2.py` fetches from the network (GitLab). The local XML files
-may be stale. The two files have different chip counts, suggesting different minipro
-versions. If the DB was generated from `infoic2.xml` (older) rather than the current
-GitLab version, entries may have different protocol_ids.
-
-### 2.3 Protocol ID Stability Across minipro Versions
-
-The minipro project on GitLab updates `infoic.xml` when new chips are added or bugs
-are fixed. Protocol IDs are generally stable (they encode the hardware algorithm number
-in the TL866 programmer's firmware), but chip-specific parameters like `voltages`,
-`pulse_delay`, and `flags` do change as contributors correct errors. The `variant` field
-for a given chip has been observed to change between minipro versions when the programmer
-team corrects pinout misassignments.
-
-**Implication:** The committed `minipro_complete_db.json` is a snapshot. Re-generating
-it from a newer `infoic.xml` may change VPP voltages, pinout assignments, or chip IDs
-for a subset of chips. The database pipeline must be treated as a build artifact with a
-known source revision, not as a static file.
+**Phase to address:**
+Tooling setup phase. Add mypy with minimal flags first, document the initial error count, and set a target of "no regressions" rather than "zero errors" as the phase gate. The explicit-import refactor (replacing star-imports) should be the first structural change — it improves mypy tractability and documents the constants dependency explicitly.
 
 ---
 
-## 3. Arduino/Embedded Firmware Pitfalls
+### Pitfall 9: firmware-header Contract Drift During Constants Consolidation
 
-### 3.1 Serial Buffer Overflow During Data Transfer
+**What goes wrong:**
+`constants.py` has three separate firmware-contract blocks that must stay byte-identical to C headers in the firmware sub-repo:
+1. Command codes and flag bits → `firestarter/include/firestarter.h`
+2. CTRL_* control-register bits → `firestarter/include/rurp_pinout.h`
+3. REVISION_* hardware revision bytes → `firestarter/include/rurp_shield.h`
 
-The ATmega328P (Uno) hardware UART receive buffer is 64 bytes. At 250000 baud, a
-64-byte buffer fills in ~2.05ms. The Arduino HardwareSerial library uses a 64-byte
-ring buffer by default (configurable via `SERIAL_RX_BUFFER_SIZE` in `HardwareSerial.h`).
+The v1.8 constants consolidation phase will touch this file. Any rename, reorder, or value change — even from a linter auto-fix ("rename `FLAG_FORCE = 0x01` to `FLAG_FORCE: Final[int] = 0x01`") — is safe. But a merge conflict resolution or a copy-paste of the block into a new module with a different value is catastrophic: the firmware sends `REVISION_2_0 = 0x02` and the host maps it to a different string, causing silent misidentification of shield hardware.
 
-The current firmware uses a "pull" protocol: the Arduino signals readiness before the
-host sends each chunk. This avoids overflow because the Arduino explicitly requests data
-(`OK` signal) only when the previous chunk is processed. The host must not send data
-until it receives `OK`. If the host sends data without waiting for the `OK` response
-(e.g., race condition on the Python side), the UART buffer will overflow and bytes will
-be silently dropped.
+**Why it happens:**
+The existing parity test (`test_revision_constants_parity.py`) covers only the REVISION_* block. The command codes and flag bits have no parity test. During constants consolidation, a developer may update the REVISION parity test but miss that the same test pattern is needed for FLAG_* and COMMAND_* values. Ruff's auto-fix may reorder dict literals or rename variables, and the linter will pass because Python values are unchanged — but a human review of the diff can miss that a constant was reordered and both ruff and mypy are satisfied while the contract is broken.
 
-The firmware reads a full JSON command in one shot via `rurp_communication_read_bytes()`.
-The JSON command must fit within `DATA_BUFFER_SIZE` (512 bytes for Uno, 1024 for
-Leonardo). If a future `algorithm` field is added to the JSON command, ensure the total
-JSON size stays within this limit. A JSON command including bus-config (array of 20
-integers) is approximately 200-250 bytes.
+**How to avoid:**
+Before the constants consolidation phase, extend the parity test to cover all three blocks: COMMAND_*, FLAG_*, CTRL_*, and REVISION_*. Each constant in `constants.py` that mirrors a firmware header value must have an explicit `assert CONSTANT_NAME == <hex_literal>` in the parity test. The hex literal must be hand-typed from the firmware header, not derived from the Python constant. This makes the test fail if the constant is changed on either side. Lock ruff's auto-fix to not reorder or rename constants in the firmware-contract section (use `# ruff: noqa` on the block header if necessary).
 
-### 3.2 Timing Issues with VPP Ramp-Up
+**Warning signs:**
+- A parity test that only covers REVISION_* (the current state — command codes and flags are untested).
+- Any `ruff --fix` run that touches the constants file without a parity-test check afterward.
+- A merge conflict resolution in `constants.py` that does not trigger a re-run of the parity test.
 
-The firmware uses `delay()` calls (blocking millisecond delays) to wait for VPP to
-stabilize. Key delays found in the code:
-
-- `delay(500)` after enabling REGULATOR for write (in `eprom_write_execute`)
-- `delay(100)` after enabling REGULATOR for VPP check
-- `delay(50)` after enabling REGULATOR for chip ID read
-- `delay(10)` before programming pulses
-
-The 500ms wait in `eprom_write_execute` is triggered each time the regulator is first
-enabled within a write session. If VPP does not actually reach the target voltage within
-500ms (due to capacitor sizing, resistor network calibration, or cold conditions), the
-first programming pulse will occur at sub-nominal VPP, which may cause the byte to
-program incorrectly but pass the immediate readback verify (since the verify also happens
-at low VPP). The chip may fail to read back correctly later at normal VCC.
-
-The `eprom_check_vpp()` function validates VPP before writing, which is the correct
-mitigation, but only if the chip has a `chip_id > 0` (which gates the vpp check in
-`eprom_generic_init()`). For chips without chip ID support, VPP is never validated
-before the first write.
-
-**VPE vs VPP path:** The firmware distinguishes two hardware paths:
-- `REGULATOR | VPE_TO_VPP`: enables regulator and routes it through the R1/R2 resistor
-  divider down to VPP (normal path for most EPROMs)
-- `REGULATOR` alone (FLAG_VPE_AS_VPP): routes regulator output directly as VPP
-  (higher voltage, for chips needing VPE-level programming)
-
-Wrong selection of this flag causes either under-voltage (programming fails, chip
-survives) or over-voltage (chip damaged). Currently this flag is set manually by the
-caller; with the new `algorithm` field, it should be derived deterministically from the
-protocol.
-
-### 3.3 Checksum/Verification Approaches That Give False Positives
-
-The current wire protocol uses XOR checksum for data blocks:
-```python
-checksum = functools.reduce(operator.xor, data_chunk, 0)
-```
-
-XOR checksum has well-known weaknesses:
-- Any even number of identical bit-flip errors in the same bit position cancel out
-- Byte-swap errors between adjacent bytes of the same value are undetected
-- All-zero payloads produce checksum 0; an all-zero block with a dropped header byte
-  would still match checksum 0
-
-For EPROM programming, a more serious false-positive scenario: during verify, the
-firmware reads back each byte individually at `READ_FLAG` voltage. If the bus is
-floating (chip not seated, or wrong pin mapping), the data lines may read back all-0xFF
-(pulled high) or all-0x00 (pulled low). A file of all-0xFF bytes would pass verify
-against a floating bus. The current code does not detect this condition.
-
-The `mem_util_blank_check()` function catches the all-0xFF case for blank chips, but
-for a written chip, a floating read would produce incorrect data that only matches the
-input file if the input file itself is all-0xFF or all-0x00 by coincidence.
-
-**Practical mitigation**: The chip ID check (when available) provides early detection
-of "chip not responding correctly" before programming begins.
-
-### 3.4 Memory Constraints on ATmega328P Affecting Algorithm Complexity
-
-The ATmega328P has:
-- 32KB flash (program memory)
-- 2KB SRAM
-- 1KB EEPROM (used for calibration config)
-
-The firmware uses 512 bytes for `data_buffer` (inside `firestarter_handle_t`),
-96 bytes for `response_msg`, and overhead for stack and other structs. At 250000 baud,
-the stack depth during JSON parsing with jsmn tokens adds approximately 20 × 8 bytes
-= 160 bytes for the token array (`NUMBER_JSNM_TOKENS` tokens × sizeof(jsmntok_t)).
-
-Adding a new `algorithm` dispatch table that covers all EPROM/Flash/EEPROM variants
-(8+ algorithm implementations) will add to flash. Each `configure_*()` function
-currently fits in flash, but if Intel-style sector erase loops, AMD sector sequences,
-and EEPROM poll loops are all added, the combined flash usage may approach the 32KB
-limit, especially if debug strings (in PROGMEM) are numerous.
-
-Key constraint: the `mismatch_bitmask` in `eprom_write_execute` is allocated on the
-stack:
-```c
-uint8_t mismatch_bitmask[DATA_BUFFER_SIZE / 8];  // 64 bytes on stack
-```
-Adding similar per-algorithm retry tracking arrays for flash algorithms would further
-consume stack. SRAM fragmentation from `malloc()` calls (used in blank check progress)
-is also a concern — the ATmega does not have an MMU and heap fragmentation can cause
-silent `malloc()` failures that return NULL.
+**Phase to address:**
+Constants consolidation phase, but the parity test extension must come first as its own committed unit, before any constants are moved.
 
 ---
 
-## 4. Wire Protocol Design Pitfalls
+### Pitfall 10: Entry-Point and Packaging Breakage During Module Moves
 
-### 4.1 JSON Parsing Overhead on 8-Bit Microcontroller
+**What goes wrong:**
+`pyproject.toml` declares `firestarter = "firestarter.main:main"` as the entry point. The flat layout decision (`packages = ["firestarter"]`) means all modules stay in the `firestarter/` package directory. However, during the `main.py` decomposition, a developer may create a new module at `firestarter/cli.py` and move the `main()` function there — then forget to update `pyproject.toml`. The installed `firestarter` command silently calls the old `main.py:main` which is now a stub or import-error. The error only manifests in an installed (`pip install -e .`) environment, not when running `python -m firestarter.main` directly.
 
-The firmware uses `jsmn` (a minimal JSON tokenizer) with a static token array. The
-current `json_parse()` function allocates `tokens[NUMBER_JSNM_TOKENS]` as a static
-local (in `firestarter.cpp`'s `parse_json()`), which means it occupies SRAM for the
-lifetime of the program.
+**Why it happens:**
+`pyproject.toml` is not automatically updated by refactoring tools. The entry point is tested by running `firestarter --help` after `pip install -e .`, but this step is often omitted in CI because `pip install -e .` is assumed to be stable.
 
-The parse loop in `json_parse()` is O(N × K) where N is the number of JSON fields and
-K is the number of registered key parsers. Currently K=8 (key_parsers array). Adding
-`algorithm` as a new field raises K to 9, which is negligible.
+**How to avoid:**
+If `main()` moves, update `pyproject.toml` in the same commit. Add a CI step that runs `pip install -e . && firestarter --help` as a smoke test. The Click migration makes this more critical because Click's `@cli` entry point must be the function invoked by the script entry. If Click's group is named `cli` and the entry point still says `main`, the CLI will fail to initialize.
 
-However, the key comparison uses `strncmp_P` against PROGMEM strings for each field in
-the dispatch table. If an unknown field is received (not in the table and not
-`bus-config`, `cmd`, or `state`), the firmware emits an error and returns -1, aborting
-the command. This is a **backward compatibility break**: if the Python host sends a new
-field (e.g., `"algorithm": 7`) to an older firmware that doesn't recognize it, the
-firmware will refuse the command entirely with "Unknown field: algorithm".
+Additionally, `pyproject.toml` currently includes `argcomplete>=3.6.2` as a runtime dependency. After the Click migration, argcomplete is no longer needed (Click has its own shell completion). Leaving it in as an unused dependency is harmless but should be cleaned up to avoid confusing future contributors.
 
-**Mitigation design**: Either:
-(a) Make the firmware silently skip unknown fields (change `return -1` to `token_idx += 2; continue`)
-(b) Version-gate: check firmware version before sending new fields
-(c) Send `algorithm` as part of `flags` or encode it into an existing field
+**Warning signs:**
+- `firestarter --help` output changing unexpectedly after a module rename.
+- ImportError on `from firestarter.main import main` after main is moved.
+- argcomplete still in `requirements` after the Click migration.
 
-Option (b) is already partially implemented — `serial_comm.py` checks for firmware
-version >= 2.0.0. But if `algorithm` requires a minor version bump (e.g., 2.1.0), the
-version check logic must be updated in `_is_version_sufficient()`.
-
-### 4.2 Field Naming Conflicts When Extending the Protocol
-
-The current JSON command fields:
-- `cmd` / `state` (both accepted for command code)
-- `memory-size`, `address`, `flags`, `chip-id`, `pin-count`, `pulse-delay`, `vpp`, `type`
-- `bus-config` (nested object with `bus`, `rw-pin`, `vpp-pin`)
-
-Risks when adding `algorithm`:
-- `"type"` already carries the memory type (1=EPROM, 2=Flash2, 3=Flash3, 4=SRAM,
-  5=Flash4). If `algorithm` replaces `type`, any firmware not updated will interpret the
-  absence of `type` as mem_type=0 (uninitialized). The `configure_memory()` switch
-  falls through to `firestarter_error_response_format("Memory type 0x%02x not supported")`
-  for type=0, which is a safe failure mode.
-- The field name `algorithm` is 9 characters. The `jsoneq_` function uses `strlen_P`
-  on the PROGMEM key string. This is fine but adds 9 bytes to PROGMEM per key string.
-- Both `cmd` and `state` are accepted for backward compatibility. If a similar dual-name
-  pattern is used for `algorithm` (e.g., also accepting `proto`), the key_parsers array
-  grows and the parse loop gets proportionally slower.
-
-**The `flags` field collision risk:** Bits 0-7 of `ctrl_flags` (uint32_t) are already
-defined: FORCE=0x01, CAN_ERASE=0x02, SKIP_ERASE=0x04, SKIP_BLANK_CHECK=0x08,
-VPE_AS_VPP=0x10, OUTPUT_ENABLE=0x20, CHIP_ENABLE=0x40, VERBOSE=0x80. If future
-algorithm variants need per-algorithm sub-flags, they must not collide with these. Bits
-8-31 of `ctrl_flags` are currently unused in the firmware and could carry algorithm-
-specific parameters, but this encoding is opaque and fragile.
-
-### 4.3 Backward Compatibility Concerns When Adding New Fields
-
-The Python host builds the command dict from `eprom_data["type"]` and sends it to the
-firmware. Adding `algorithm` as a new top-level field creates two compatibility axes:
-
-**Old Python + New Firmware**: The new firmware does not receive `algorithm`; it falls
-back to `type`-based dispatch. This is safe if `type` is still sent.
-
-**New Python + Old Firmware**: The old firmware receives `algorithm` as an unknown field
-and rejects the command with "Unknown field: algorithm". The user sees a confusing error
-that looks like a hardware problem.
-
-The safest transition path:
-1. Send both `type` (for old firmware) and `algorithm` (for new firmware) in the
-   same command
-2. New firmware parser: prefer `algorithm` if present, fall back to `type` if not
-3. Old firmware parser: silently skip unknown fields (requires firmware change first)
-4. After old firmware is obsolete (>=1 major version), remove `type`
-
-**Serial framing vulnerability**: The firmware scans for `{` as the start of a JSON
-frame. If a new field value contains `{` (e.g., a string value like `"algorithm":
-"FLASH_AMD_STD"`), the framing code will not be confused because it only triggers on
-the initial idle state scan (`rurp_communication_peak() == '{'`). String values inside
-a valid command cannot trigger re-entry. However, if communication is interrupted
-mid-command (timeout), the firmware discards the command and returns to IDLE. The next
-`{` it sees after partial data could be the opening of a nested object within the
-partially-received command, causing a malformed parse. The 10ms timeout guard in
-`rurp_communication_read_bytes()` mitigates this by abandoning reads that stall.
+**Phase to address:**
+Click migration phase. The entry-point update and smoke test must be in the same commit as the main() migration.
 
 ---
 
-## 5. Summary of Critical Bugs Found in This Codebase
+### Pitfall 11: "Fix Bugs Found" Gate Accidentally Expanding Scope
 
-| # | Location | Bug | Impact |
-|---|----------|-----|--------|
-| 1 | `minipro_complete_db.json` | All 27512-family chips assigned `DIP28_2764` instead of `DIP28_27512` | VPP applied to A15 (pin 1) instead of /OE (pin 22) — wrong pin for every 27512 chip |
-| 2 | `minipro_complete_db.json` | All 27256-family chips assigned `DIP28_2764` instead of `DIP28_27256` | Same VPP mismapping; 27256 VPP is also on pin 1 so effect is less severe but address bus is wrong |
-| 3 | `minipro_complete_db.json` | `algorithm` field contains raw integers (e.g., `4`, `10`, `52`) for unmapped protocol IDs | `database.py` reverse-lookup fails; `protocol-id` stays 0; chips get wrong programming type |
-| 4 | `database.py` `_map_data()` | `determined_type` only maps Flash and SRAM; EEPROM chips get type=1 (UV-EPROM) | 28Cxx/28C64 EEPROM chips would be programmed with UV-EPROM pulse algorithm, not byte-write |
-| 5 | `json_parser.c` `json_parse()` | Unknown JSON fields cause hard error + command rejection | Adding `algorithm` field to Python will silently break all older firmware installs |
-| 6 | `database.py` `convert_to_programmer()` | `algorithm` / `protocol-id` is never included in the programmer command dict | The entire purpose of the protocol pipeline is not yet wired to the output |
+**What goes wrong:**
+The v1.8 scope permits "fix bugs found" but the host read path (the actual read-bug from Bug A/Bug B) is explicitly deferred to v1.9. During the serial-module split and EPROM-ops refactor, developers will read `read_data_block()` and `read_eprom()` carefully. It is tempting to also fix the read-path timing issues — the code will be in front of the developer, the tests will be scaffolded, and the fix may look small. But any change to the read path that is NOT a structural-only refactor risks perturbing the Bug A/Bug B substrate that v1.9 depends on. The v1.9 RCA uses 15 N=5 W27C512 binaries as its baseline; a v1.8 change to the read timing could make the v1.9 baseline invalid.
 
+**Why it happens:**
+The "while I'm in here" effect. The scope boundary between "structural refactor of read path" and "behavioral fix of read path" is blurry when the code is open in an editor.
+
+**How to avoid:**
+Establish a hard rule at the start of the serial-split phase: any change to `read_data_block()` that is not whitespace/rename/import-only requires a separate commit with "INTENTIONAL BEHAVIOR CHANGE: <description>" in the commit message and a corresponding entry in the v1.8 milestone document. The CI gate should not catch this (it's not a lint violation), but the phase VERIFICATION step must explicitly confirm that the read path is structurally-only. The v1.9 RCA team reviews the v1.8 commit log for any read-path changes before starting.
+
+**Warning signs:**
+- A commit touching `read_data_block()` or `read_eprom()` without "REFACTOR ONLY" or "INTENTIONAL BEHAVIOR CHANGE" in the commit message.
+- The `read_data_block()` timeout value changing from the current implicit pyserial timeout behavior.
+- Any change to the `while bytes_to_read > 0:` loop's retry logic.
+
+**Phase to address:**
+Serial-module split phase. The boundary is enforced by commit-message convention and phase VERIFICATION checklist.
+
+---
+
+### Pitfall 12: Over-Abstraction and Unnecessary Layer Introduction
+
+**What goes wrong:**
+The refactor creates a natural temptation to introduce abstract base classes, protocol interfaces, or dependency injection containers. For example: a `SerialTransport` ABC with `read(n)` and `write(data)` methods, a `FrameParser` protocol, a `ChipResolver` service class injected into `EpromOperator`. None of these exist today. Each new layer adds indirection that:
+- Breaks git blame for the lines that actually do the work
+- Adds import weight that makes the module graph harder to read
+- Creates future "which layer owns this?" confusion
+- Makes the codebase harder for a single-developer project to maintain
+
+The flat-layout decision is already a correct instinct against subpackage reorg. The same instinct should apply to class hierarchy.
+
+**Why it happens:**
+Developers following "clean architecture" or "SOLID" principles for refactoring naturally reach for interfaces and dependency injection. These patterns are valuable in large teams; they are overhead in a single-developer hardware tool.
+
+**How to avoid:**
+The rule is: introduce a new class only if it replaces copy-paste that already exists (the 9x chip-lookup boilerplate in `main.py` is a valid candidate for a `resolve_chip` function — but not a `ChipResolver` class). Introduce a new module only if the existing file exceeds 300 lines after the split. Do not introduce ABCs or Protocols for existing concrete classes. The test for "is this layer necessary?" is: can the same test coverage be achieved without the new layer? If yes, skip the layer.
+
+**Warning signs:**
+- Any new file named `*_interface.py`, `*_protocol.py`, `*_base.py`, or `*_factory.py`.
+- Any new `ABC` or `Protocol` class that has only one concrete implementation.
+- A `ChipResolver`, `SerialTransport`, or `FrameDecoder` class that wraps a function that already worked fine.
+
+**Phase to address:**
+All refactor phases. The code review gate for each phase should explicitly check: "did this phase introduce any new indirection layers that are not justified by eliminating existing copy-paste?"
+
+---
+
+## Technical Debt Patterns
+
+| Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
+|----------|-------------------|----------------|-----------------|
+| `from firestarter.constants import *` in all modules | No explicit import list to maintain | mypy cannot resolve names; any constant can silently shadow a local; constants-drift is invisible | Never — replace with explicit named imports in v1.8 |
+| `# type: ignore` on legacy return types | Suppresses mypy error instantly | Accumulates; future type-correct code still gets ignored; masks real errors | Only when annotating a third-party stub is the only alternative |
+| Mocking `SerialCommunicator` at class level in tests | Fast test setup | Tests the mock contract, not the protocol logic; does not catch framing regressions | Only for tests of the CLI dispatch layer that explicitly don't care about serial |
+| Hardcoding `default="uno"` in Click options | Simple to write | Board list must be updated in two places (option choices + fw manager logic) | Acceptable until a fourth board is added |
+| Leaving `argcomplete` in dependencies post-migration | No pip change required | Dead dependency misleads future contributors; adds install weight | Never — remove it in the same PR as the Click migration |
+
+---
+
+## Integration Gotchas
+
+| Integration | Common Mistake | Correct Approach |
+|-------------|----------------|------------------|
+| `pyserial` + `BytesIO` in tests | `BytesIO` does not implement `in_waiting` property — accessing it raises `AttributeError` | Mock `in_waiting` explicitly; the existing `conftest.py` `fake_serial` fixture already wraps this correctly — follow its pattern |
+| Click's `CliRunner` | `CliRunner.invoke()` catches `SystemExit` and stores the exit code in `result.exit_code` — `sys.exit(1)` inside a command becomes `result.exit_code == 1`, not an exception | Use `CliRunner(mix_stderr=False)` and check `result.exit_code` not `result.exception` for expected failure cases |
+| Click shell completion vs argcomplete | Click's `shell_completion` mechanism is incompatible with argcomplete's `BASH_COMPLETIONS` env var | Remove argcomplete dependency and `argcomplete.autocomplete(parser, ...)` call; replace with `firestarter --install-completion` via `click_completion` or the built-in Click completion |
+| Firmware version check in `_probe_port` | The version check uses a regex on the text-format `FW:` response — if a future firmware emits the version via an ID-frame instead, the regex match silently fails and FirmwareOutdatedError is raised for a valid firmware | The version check path is in the `serial_comm` module; if the module is split, ensure the regex pattern is co-located with the text-path parser, not the ID-frame decoder |
+| `ConfigManager` singleton + `EpromDatabase` singleton | Both are singletons initialized in `main()` after argument parsing; in Click's model, the singletons must be initialized inside the `@click.pass_context` callback, not at import time | Use `@click.pass_context` or a `@click.pass_obj` group context to carry initialized singletons; do not use module-level globals |
+
+---
+
+## "Looks Done But Isn't" Checklist
+
+- [ ] **Wire protocol non-regression:** `firestarter read W27C512 /tmp/test.bin` on real hardware produces a byte-identical binary before and after refactor. Structural-only changes must pass this gate before closing the serial-split phase.
+- [ ] **Exit codes verified:** `CliRunner` tests confirm exit code 1 for "chip not found", exit code 2 for bad arguments, exit code 0 for successful operations — tested against Click implementation, not just argparse.
+- [ ] **Firmware contract parity:** `pytest tests/test_revision_constants_parity.py` plus new tests for COMMAND_* and FLAG_* all pass. The tests assert hex literals, not Python constants.
+- [ ] **Entry point smoke test:** `pip install -e . && firestarter --help` runs successfully and shows the Click-generated help text after migration.
+- [ ] **Buffer size constants not hardcoded:** `grep -r '\b512\b\|\b1024\b' firestarter/` in a serial/ops context returns no results (only in `constants.py`).
+- [ ] **Star imports eliminated:** `grep -r 'import \*' firestarter/` returns no results after the explicit-import phase.
+- [ ] **mypy gate not bypassed:** `pyproject.toml` contains no `ignore_errors`, `disallow_untyped_defs = false`, or `exclude` entries added during v1.8 without justification.
+- [ ] **No new ABCs or Protocols without copy-paste justification:** `grep -r 'ABC\|Protocol' firestarter/` reviewed and each instance justified.
+
+---
+
+## Recovery Strategies
+
+| Pitfall | Recovery Cost | Recovery Steps |
+|---------|---------------|----------------|
+| Wire-protocol regression discovered post-merge | HIGH | Revert the serial-split commit; re-run characterization tests against the revert to confirm baseline; re-implement split with `connection.read` call sites preserved |
+| Exit code drift discovered after Click migration | MEDIUM | Add `sys.exit(1)` to affected command callbacks; re-run CliRunner tests; no re-architecture needed |
+| Firmware constant value changed in consolidation | HIGH | Git diff `constants.py` vs firmware header; restore incorrect values; re-run parity tests; if firmware has already been updated with the wrong constant, the firmware sub-repo needs a patch too |
+| mypy gate abandoned mid-milestone | MEDIUM | Reset to the last state where the gate was clean; re-enable one flag at a time; do not attempt to fix all errors in one commit |
+| Entry point breakage in production install | LOW | Update `pyproject.toml` entry point; `pip install -e .`; smoke test; the fix is a one-line change |
+| Over-mocked tests that miss a real regression | HIGH | Cannot recover retroactively; the missed regression ships. Prevention is the only strategy — the test design review must catch this before tests are merged |
+
+---
+
+## Pitfall-to-Phase Mapping
+
+| Pitfall | Prevention Phase | Verification |
+|---------|------------------|--------------|
+| Wire-protocol regression (Pitfall 1) | Serial characterization test phase (before split) | `test_decoder.py` extended to cover preamble→body→terminator sequence; passes on fake serial and on hardware |
+| Exit code drift (Pitfall 2) | CLI characterization test phase (before migration) | `CliRunner` tests assert exit codes for all 14 command branches |
+| Argument-parsing edge cases (Pitfall 3) | CLI characterization test phase | Tests cover store_false, nargs="?", mutually-exclusive, type=validator for each affected command |
+| Buffer-size constant drift (Pitfall 4) | Constants consolidation phase | `grep -r '\b512\b\|\b1024\b' firestarter/` clean outside `constants.py` |
+| Sliding-window timeout regression (Pitfall 5) | Serial characterization test phase | Unit test drives 3 delayed responses against a 0.5s timeout and asserts all 3 are received |
+| Characterization tests pinning bugs (Pitfall 6) | Tests-first phase (audit step) | Every test that pins potentially-buggy behavior carries a "BUG or FEATURE?" comment |
+| Over-mocking (Pitfall 7) | Tests-first phase (test design review) | Core-path tests use `BytesIO`-backed fake serial, not `MagicMock(SerialCommunicator)` |
+| mypy avalanche (Pitfall 8) | Tooling setup phase | `pyproject.toml` mypy config documented; initial error count recorded; gate is "no regressions" |
+| Firmware contract drift (Pitfall 9) | Constants consolidation phase | Parity test extended to cover all three firmware-contract blocks with hex literals |
+| Entry-point breakage (Pitfall 10) | Click migration phase | CI smoke test `pip install -e . && firestarter --help` added |
+| Scope expansion into read path (Pitfall 11) | Serial-split phase VERIFICATION | Phase VERIFICATION checklist explicitly confirms read path is structural-only; commit log reviewed |
+| Over-abstraction (Pitfall 12) | All refactor phases (code review gate) | No new ABCs, Protocols, or layers without copy-paste justification |
+
+---
+
+## Sources
+
+- Direct code reading: `firestarter_app/firestarter/serial_comm.py` (1037 lines, current HEAD)
+- Direct code reading: `firestarter_app/firestarter/main.py` (14-branch dispatcher, 510+ lines)
+- Direct code reading: `firestarter_app/firestarter/constants.py` (firmware-contract blocks)
+- Direct code reading: `firestarter_app/tests/test_revision_constants_parity.py` (existing parity gate model)
+- Direct code reading: `firestarter_app/tests/test_decoder.py` and `conftest.py` (BytesIO-based fake serial pattern)
+- Direct code reading: `firestarter_app/pyproject.toml` (entry point, dependency list)
+- Project context: `.planning/PROJECT.md` (v1.8 scope decisions, GATE-1.8, v1.9 RCA seed)
+- Click documentation: exit code semantics differ from argparse (HIGH confidence — well-documented Click behavior)
+- pyserial documentation: `in_waiting` not implemented by `BytesIO` (HIGH confidence — known limitation)
+
+---
+*Pitfalls research for: Python serial hardware CLI refactoring (firestarter_app v1.8)*
+*Researched: 2026-05-27*

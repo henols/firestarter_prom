@@ -8,22 +8,30 @@
 **v1.4 shipped:** 2026-05-20 (Beta & Pre-release Deployment Pipeline — 6 phases, 16/16 requirements)
 **v1.5 shipped:** 2026-05-21 (Arduino Uno ATmega328PB Board Support — 5 phases, 15/15 requirements; ship tag `3.0.0b4`; bench-validated on operator's 328PB-Uno via `urclock` bootloader). Three open backlog items carried forward to v1.6 — see MILESTONES.md.
 **v1.6 shipped:** 2026-05-26 (Fix the Read Bug — ships as "diagnostic + revert" per D-17v2; 5 phases, 13 plans; 12/16 requirements DELIVERED; 4 DEFERRED to v1.8 with Bug A + Bug B pattern findings as RCA seed). Per Phase 29 v2 PASS_PARKED: Leonardo Modified Rev 0 returns to Phase 26 baseline shape (WORST=0.047% zeros vs 83.8% pre-revert); Phase 28 v1 PORTx-clear regression cleanly removed via revert; `_NOP()` settling preserved. Read-bug itself carries to v1.8.
+**v1.8 shipped:** <TBD-from-43-03> (Host CLI Structural Cleanup — 8 phases, 27 requirements DELIVERED + 3 VERIFIED-at-close; argparse → Click migration; flat layout preserved (no subpackage reorg); ruff + ruff-format + mypy strict on 8 modules + 70% coverage floor enforced in CI; 2 latent bugs fixed as INTENTIONAL BEHAVIOR CHANGE (BUG-1 `build_arg_flags`, BUG-2 except-clause split); ship tag `3.0.0b7` beta-only; v1.8-app-cleanup → beta + meta-repo → main; firmware sub-repo untouched at `beta@0bbe017`; read-bug carries to v1.9 with GATE-1.8d ring-fence intact).
 **v1.7 shipped:** 2026-05-26 (RURP Shield Hardware Investigation & Version Detection — 5 phases; per-rev capability table + labeled schematics + shield-version-detect firmware plumbing). Substrate consumed by v1.6 Phase 29 v2 bench session + v1.8 RCA hand-off.
 
-## Current Milestone: v1.8 — Read-Bug RCA + Fix (PROPOSED)
+## Current Milestone: v1.9 — Read-Bug RCA + Fix (PROPOSED)
 
-**Status:** Proposed 2026-05-26 at v1.6 close. Roadmap not yet locked.
+**Status:** Proposed 2026-05-26 at v1.6 close; renumbered v1.8 → **v1.9** on 2026-05-27 when the host-CLI cleanup took the v1.8 slot (cleanup is pure software / not hardware-gated, and a cleaner host read path de-risks the RCA). v1.8 shipped <TBD-from-43-03>. Roadmap not yet locked. Phase numbering continues after v1.8's last phase 43 (next phase = 44).
 
-**Why:** v1.6 closed with the original read-bug intentionally deferred per D-17v2 re-scope. Phase 29 v2 characterized the bug as two independent failure modes — Bug A (Modified Rev 0 upper-address jitter, A15=1 → 1.86× skew, 63% BIT-RAISE) and Bug B (Rev 2.0 /CE-or-/OE timing + voltage-divider mismatch + VPP=13.1V). v1.8 inherits the diagnostic (`firestarter dev consistency-check`), the 15-binary N=5 bench substrate at `.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260526-*-v2*/`, the Phase 29 v2 H3 block in `.planning/v1.6-EVIDENCE.md`, and the v1.7 labeled-schematic + per-rev capability table + shield-version-detect firmware plumbing as the foundation for designing instrumented A/B fix candidates knowing exactly which silkscreen rev sits on the bench at each step.
+**Why:** v1.6 closed with the original read-bug intentionally deferred per D-17v2 re-scope. Phase 29 v2 characterized the bug as two independent failure modes — Bug A (Modified Rev 0 upper-address jitter, A15=1 → 1.86× skew, 63% BIT-RAISE) and Bug B (Rev 2.0 /CE-or-/OE timing + voltage-divider mismatch + VPP=13.1V). v1.9 inherits the diagnostic (`firestarter dev consistency-check`), the 15-binary N=5 bench substrate at `.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260526-*-v2*/`, the Phase 29 v2 H3 block in `.planning/v1.6-EVIDENCE.md`, the v1.7 labeled-schematic + per-rev capability table + shield-version-detect firmware plumbing, AND the v1.8 cleaned-up host read path (GATE-1.8d ring-fence intact — baseline binaries still valid) as the foundation for designing instrumented A/B fix candidates knowing exactly which silkscreen rev sits on the bench at each step.
 
 **Target features (proposed; not locked):**
-- v1.8 RCA from the characterized hypotheses (Bug A signal-integrity, Bug B timing/voltage)
+- RCA from the characterized hypotheses (Bug A signal-integrity, Bug B timing/voltage)
 - Instrumented A/B fix candidates across Modified Rev 0 + Rev 2.0 + Rev 2.2 shields
 - Re-iterate Phase 29 acceptance gate (N≥5 byte-identical reads across boards)
 - Close VERIFY-01 (uno328pb byte-identity) + VERIFY-03 (1KB low-rate jitter) + VERIFY-04 (Phase 24 BENCH-02 closure)
-- Phase numbering continues at Phase 36 (post-v1.7 last phase 35)
+- Lift `eprom_operations.py` mypy strict overrides (DEFERRED per Phase 42 D-07; lifted post-RCA when the read path can be touched freely)
+- Phase numbering continues at Phase 44
 
-**Operator next step:** `/gsd-discuss-milestone v1.8` to lock scope + decisions, or `/gsd-progress` to pause (no milestone in progress) and resume v1.8 later.
+**Operator next step:** `/gsd-discuss-milestone v1.9` to lock scope + decisions.
+
+## v1.8 Archive: Host CLI Structural Cleanup (firestarter_app) — Shipped <TBD-from-43-03>
+
+v1.8 is a pure-software structural cleanup of the `firestarter_app` Python host CLI. Per GATE-1.8 (a–e) "refactor + fix bugs found" non-regression contract: wire protocol byte-identical, end-user CLI surface preserved, firmware/app constant contract preserved via parity tests, host read path ring-fenced for the v1.9 RCA, full test suite green + entry point installs. 30/30 requirements closed: 27 DELIVERED (TEST-01..05 + TOOL-01..03 + STRUCT-01..05 + DATA-01..04 + SERIAL-01..03 + CLI-01..04 + ERR-01..03) + 3 VERIFIED-at-close (DOC-01 + DOC-02 + MS-01). Two latent bugs fixed as INTENTIONAL BEHAVIOR CHANGEs: BUG-1 `build_arg_flags` truthiness check (Phase 41 Plan 41-01 commit `6241dba`); BUG-2 `eprom_operations._run_state_machine` except-clause split (Phase 42 Plan 42-01 commit `04a0c13`). `main.py` trimmed 932 → 35 lines; `cli_handlers.py` houses 14 `@cli.command()` + `dev` group with 4 sub-commands. Ship tag `3.0.0b7` beta-only (stable `3.0.1` deferred to v1.9 read-bug fix per D-17v2 carry-forward). Firmware sub-repo untouched (host-only milestone; firmware stays at `beta@0bbe017` from v1.6 close).
+
+See `.planning/MILESTONES.md` §v1.8 for the full delivery summary. Per-phase artifacts archived under `.planning/milestones/v1.8-phases/` (via `.planning/v1.8-archive.sh` in Plan 43-02). Coverage table archived at `.planning/milestones/v1.8-REQUIREMENTS.md` (30 rows with per-requirement disposition column). v1.9 hand-off: read-bug (Bug A + Bug B) carries forward with GATE-1.8d ring-fence intact; 15 N=5 W27C512 baseline binaries at `.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260526-*-v2*/` remain valid because `_read_and_parse_lines` body is byte-identical pre/post v1.8.
 
 ## v1.6 — Fix the Read Bug — ✓ Shipped 2026-05-26 (diagnostic + revert per D-17v2)
 
@@ -260,4 +268,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last updated: 2026-05-26 — v1.6 milestone shipped as "diagnostic + revert" per D-17v2 (5 phases, 13 plans). v1.7 shipped 2026-05-26 in parallel (RURP shield investigation). Read-bug carries to v1.8 with Bug A + Bug B characterized as RCA seed. PROJECT.md Current Milestone flipped to v1.8 PROPOSED per Plan 30-01.*
+*Last updated: <TBD-from-43-03> — v1.8 milestone shipped (Host CLI Structural Cleanup; 8 phases, 27 requirements DELIVERED + 3 VERIFIED-at-close; argparse → Click; ruff + mypy strict on 8 modules + 70% coverage floor; ship tag `3.0.0b7` beta-only; v1.9 Read-Bug RCA promoted to Current Milestone per D-04.2).*

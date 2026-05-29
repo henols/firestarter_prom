@@ -4,5 +4,11 @@
   "granularity": "Comprehensive",
   "workflow": {
     "_auto_chain_active": false
+  },
+  "planning": {
+    "sub_repos": [
+      "firestarter",
+      "firestarter_app"
+    ]
   }
 }

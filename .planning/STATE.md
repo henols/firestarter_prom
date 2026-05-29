@@ -1,47 +1,85 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.8
-milestone_name: — Read-Bug RCA + Fix (PROPOSED — no roadmap yet)
-status: planning
-last_updated: "2026-05-26T21:35:00.000Z"
-last_activity: 2026-05-26 -- v1.6 milestone SHIPPED (3.0.0b6 beta-only, diagnostic + revert per D-17v2); v1.8 PROPOSED
+milestone_name: — Host CLI Structural Cleanup
+status: executing
+last_updated: "2026-05-29T09:00:45.628Z"
+last_activity: 2026-05-29 -- Phase 43 planning complete
 progress:
-  total_phases: 0
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_phases: 8
+  completed_phases: 7
+  total_plans: 29
+  completed_plans: 26
+  percent: 88
 ---
 
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-05-22
+**Updated:** 2026-05-28
 
 ## Current Position
 
-Phase: none actively executing — v1.6 SHIPPED 2026-05-26 (Phase 30 closed, 3/3 plans)
-Plan: v1.6 complete (3.0.0b6 beta cut, lockstep both sub-repos)
-Status: Between milestones — v1.8 (Read-Bug RCA + Fix) PROPOSED, not yet planned
-Last activity: 2026-05-26 -- v1.6 milestone SHIPPED (diagnostic + revert per D-17v2)
+Phase: 42 — COMPLETE
+Plan: 3 of 3 complete
+Plans: 3/3 complete (42-01 ✓ • 42-02 ✓ • 42-03 ✓)
+Next: `/gsd-discuss-phase 43` → DOC-01 README rewrite + MS-01 GATE-1.8 end-to-end verification = v1.8 milestone close.
+Status: Ready to execute
+Resume file: .planning/phases/43-documentation-milestone-close/43-CONTEXT.md
+Last activity: 2026-05-29 -- Phase 43 planning complete
+Last commit: firestarter_app@9999bdb — chore(42-03): raise v1.8 quality gates — mypy strict on 8 modules, docstrings + coverage ≥70% (ERR-02, ERR-03); meta-repo@dbf5eed — docs(42-03): record plan completion
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-05-21)
+See: `.planning/PROJECT.md` (updated 2026-05-27)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** None actively executing — v1.6 shipped 2026-05-26; v1.8 (Read-Bug RCA + Fix) PROPOSED
+**Current focus:** Phase 42 — error-handling-normalization-quality-sweep
 
 - v1.2 (Message-ID Logging Rework) shipped 2026-05-19 — Leonardo Flash 98.7% → 85.4%
 - v1.3 (CMOS EPROM Family Hardware Validation) PAUSED 2026-05-20 — Phase 11 shipped, Phase 12 Wave 0 scaffold shipped, Waves 1–3 + Phases 13/14 await hardware (see Paused Milestones below)
 - v1.4 (Beta & Pre-release Deployment Pipeline) SHIPPED 2026-05-20 — 6/6 phases, 10/10 plans, ship tag 3.0.0b3, hardware-flash validated on Uno + Leonardo
 - v1.5 (Arduino Uno ATmega328PB Board Support) SHIPPED 2026-05-21 — 5/5 phases, 6/6 plans, ship tag 3.0.0b4, bench-validated on operator's 328PB-Uno via `urclock` bootloader. Three open backlog items carried forward to v1.6 (the read-bug fix is the v1.6 milestone scope; the other two carry further).
-- v1.6 (Fix the Read Bug) SHIPPED 2026-05-26 — 5/5 phases (26-30), 13 plans, ship tag 3.0.0b6 (beta-only). Ships as "diagnostic + revert" per D-17v2: Phase 28 v1 `437339b6` reverted via `ea25174`, `4f205e58` `_NOP()` settling preserved, `dev consistency-check` CLI shipped. Read-bug NOT fixed — carries to v1.8 as Bug A + Bug B RCA seed. Phase artifacts archived at `.planning/milestones/v1.6-phases/`.
-- **v1.7 (RURP Shield Hardware Investigation & Version Detection) STARTED 2026-05-22** — five phases (31-35); branch model `v1.7-shield-investigation` in all 3 repos
+- v1.6 (Fix the Read Bug) SHIPPED 2026-05-26 — 5/5 phases (26-30), 13 plans, ship tag 3.0.0b6 (beta-only). Ships as "diagnostic + revert" per D-17v2: Phase 28 v1 `437339b6` reverted via `ea25174`, `4f205e58` `_NOP()` settling preserved, `dev consistency-check` CLI shipped. Read-bug NOT fixed — carries to v1.9 as Bug A + Bug B RCA seed. Phase artifacts archived at `.planning/milestones/v1.6-phases/`.
+- v1.7 (RURP Shield Hardware Investigation & Version Detection) SHIPPED 2026-05-26 — 5 phases (31-35); per-rev capability table + labeled schematics + shield-version-detect firmware plumbing. Phase artifacts archived at `.planning/milestones/v1.7-phases/`.
 
 ## Roadmap Summary
+
+**v1.8 phases:** 8 (numbered 36-43, continues from v1.7 last phase 35). Granularity: Comprehensive.
+
+**GATE-1.8 (standing gate — applies to every phase):** Wire protocol byte-identical (a); CLI surface preserved (b); firmware/app constant contract preserved (c); read path ring-fenced for v1.9 RCA (d); test suite green + entry point installs (e).
+
+| Phase | Goal | Requirements |
+|-------|------|--------------|
+| 36. Characterization Test Baseline | Write CLI/serial/DB characterization tests + extend firmware-parity test + remove EpromDatabase singleton — safety net before any structural change | TEST-01, TEST-02, TEST-03, TEST-04, TEST-05 |
+| 37. Tooling Baseline + CI Gate | Configure ruff, ruff-format, mypy in pyproject.toml; format + baseline the codebase; add CI enforcement with coverage gate | TOOL-01, TOOL-02, TOOL-03 |
+| 38. Low-Risk Extractions | Extract frame_parser.py, codec.py, address_parser.py, exceptions.py; delete dead code (read_data_block, globals() introspection, commented blocks) | STRUCT-01, STRUCT-02, STRUCT-03, STRUCT-04, STRUCT-05 |
+| 39. Database Cleanup + chip_resolver | Introduce chip_resolver.py (resolve_chip eliminates 9× copy-paste); replace all star-imports with named imports; verify/add COMMAND_FW_VERSION; consolidate constants | DATA-01, DATA-02, DATA-03, DATA-04 |
+| 40. Serial / Transport Restructure | Extract _validate_firmware_version as @staticmethod; add type hints to SerialCommunicator public API; ring-fence _read_and_parse_lines with DO NOT MODIFY marker | SERIAL-01, SERIAL-02, SERIAL-03 |
+| 41. CLI Migration argparse → Click | Migrate to Click; create cli_handlers.py (one command per handler); main() ≤ 50 lines; fix build_arg_flags bug; handle all five argparse→Click traps | CLI-01, CLI-02, CLI-03, CLI-04 |
+| 42. Error Handling + Quality Sweep | Consistent exception/exit-code convention; no bare excepts; type hints complete; docstrings; naming normalized; final ruff+mypy sweep with raised coverage | ERR-01, ERR-02, ERR-03 |
+| 43. Documentation + Milestone Close | Update README + contributor docs; write MILESTONES.md entry; archive phases; verify GATE-1.8 end-to-end; promote branch → beta → main | DOC-01, DOC-02, MS-01 |
+
+**Coverage:** 30/30 v1.8 requirements mapped to exactly one phase. No orphans, no duplicates. GATE-1.8 (a–e) is a standing cross-cutting gate, not mapped to a phase.
+
+**Phase-order rationale:**
+
+- Phase 36 first: safety net must precede all structural changes; parity test extension and wire-path characterization committed before constants or serial modules touched.
+- Phase 37 before restructuring: formatting enforcement before structural diffs prevents mixed noise; CI gate catches regressions immediately.
+- Phase 38 (exceptions.py) before Phases 39, 40, 41: exception classes must exist before DB and serial layers import from exceptions.py.
+- Phase 39 (chip_resolver) before Phase 41: CLI handlers cannot call resolve_chip() until it exists and is tested; star-import removal is the prerequisite for tightening mypy.
+- Phase 40 (serial) before Phase 41: CLI handlers need stable exception import surface from serial cleanup.
+- Phase 41 (Click migration) last among structural changes: widest surface area + highest coupling; benefits from all prior safety infrastructure.
+- Phase 42 last before close: quality sweep most efficient post-restructure; performing it before would require doing it twice.
+- Phase 43 separate from Phase 42: milestone-close activities (README, MILESTONES.md, archive, branch promotion) are distinct from the quality sweep and deserve a clean "done" signal.
+
+**Why Phase 43 is separate (not folded into Phase 42):** Every prior milestone (v1.4, v1.5, v1.6, v1.7) has a dedicated close phase. The close phase delivers three distinct artifacts that are independent of code quality: updated end-user docs, the MILESTONES.md entry, and the branch promotion. Folding these into Phase 42 would make Phase 42's success criteria incoherent (mix of code quality + process). A clean phase boundary preserves the "Phase 42 = codebase green, Phase 43 = shipped" invariant.
+
+Full details: `.planning/ROADMAP.md` (v1.8 section).
+
+### v1.7 phases (archived — shipped 2026-05-26)
 
 **v1.7 phases:** 5 (numbered 31-35, continues from v1.6 last planned phase 30). Granularity: Comprehensive.
 
@@ -55,11 +93,9 @@ from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
 **Coverage:** 17/17 v1.7 requirements mapped to exactly one phase. No orphans, no duplicates.
 
-**Phase-order rationale:** Archaeology → difference matrix → label aliasing → detect design → close. Phases 31+32+33+35 are desk-side (operator's existing Rev 2.2 / 2.0 / Mod-Rev 0 boards used for label-photo capture + spot-check; no bench programming). Phase 34 has a desk-side wave (schematic delta + firmware compile + handshake report on synthetic/floating ADC) and an optional operator-on-bench wave (sanity-check ADC read on existing pre-detect-resistor boards reports `rev_unknown` cleanly without breaking handshake).
+Full details: `.planning/ROADMAP.md` (v1.7 section — now archived under Prior Milestones).
 
-Full details: `.planning/ROADMAP.md` (v1.7 section).
-
-### v1.6 phases (paused — preserved for resume)
+### v1.6 phases (archived — shipped 2026-05-26)
 
 **v1.6 phases:** 5 (numbered 26-30, continues from v1.5 last phase 25). Granularity: Comprehensive.
 
@@ -72,15 +108,6 @@ Full details: `.planning/ROADMAP.md` (v1.7 section).
 | 30. Documentation + Milestone Close | Move todo out of `pending/`, update PROJECT.md, ship MILESTONES.md entry, archive `.planning/milestones/v1.6-phases/`, sub-repo branch promotion | DOC-01, DOC-02, MS-01 |
 
 **Coverage:** 16/16 v1.6 requirements mapped to exactly one phase. No orphans, no duplicates.
-
-**Phase-order rationale:** Reproduce → Diagnose → Fix → Verify → Close. Each phase delivers an independently-verifiable artifact (diagnostic tool, RCA narrative, fix commits + tests, multi-board bench evidence, milestone close paperwork). Phases 26+30 are desk-side; Phase 27 is largely desk-side with optional bench instrumentation; Phase 28 is desk-side TDD; Phase 29 is the only exclusively-bench phase (the acceptance gate). The 3-shield A/B/C triage already proves the bug is transport-side and not RURP-hardware-specific — so RCA can proceed without continuous bench access, with bench used only for reproduction confirmation (Phase 26) + fix validation (Phase 29).
-
-**Bench-gated vs desk-side split (Phase 26 internal wave structure):**
-
-- Wave A (desk-side): Implement `firestarter dev consistency-check <chip> --runs N` host CLI command (REPRO-03 artifact). Lands without hardware. The command becomes the canonical post-fix regression check.
-- Wave B (operator-on-bench): Run the diagnostic against `uno`, `leonardo`, AND `uno328pb` to satisfy REPRO-01/02 + the per-board baseline rows of REPRO-03's evidence file. Falls naturally between Phase 26 Wave A and Phase 27 — operator decides whether to interleave (Wave A → bench → Wave B → start Phase 27) or batch (Wave A → Phase 27 desk-side → bench session covering Phase 26 Wave B + Phase 29 in one operator sitting).
-
-**Branch model:** Per memory `feedback-branching-firestarter-milestones` — all v1.6 work lands on `v1.6-read-bug` branches in all 3 repos. Sub-repos branch off current `beta` tips (post-v1.5 ship); meta-repo branches off `main`. Sub-repos `v1.6-read-bug` → `beta` merge happens at the Phase 29 boundary to trigger a fresh pre-release cut (e.g. `3.0.0b5` or `3.0.1bN`) for bench install via `firestarter fw -i --pre --force`. Promote `beta` → `main` only after operator green on the multi-board bench cycle. Instrumented builds for Phase 27 RCA may need their own one-off pre-release tag.
 
 Full details: `.planning/ROADMAP.md` (v1.6 section).
 
@@ -98,8 +125,6 @@ Full details: `.planning/ROADMAP.md` (v1.6 section).
 
 **Coverage:** 15/15 v1.5 requirements mapped to exactly one phase. No orphans, no duplicates.
 
-**Phase-order rationale:** Firmware target → release artifacts → host CLI → bench validation → docs + close. Phases 21–23 + 25 desk-side; Phase 24 is the only operator-on-bench phase (and the operator confirmed the 328PB-Uno + RURP shield is plugged in, so v1.5 is not hardware-gated the way v1.3 is).
-
 Full details: `.planning/ROADMAP.md` (v1.5 section).
 
 ### v1.4 phases (archived — preserved for reference)
@@ -112,20 +137,12 @@ Full details: `.planning/ROADMAP.md` (v1.5 section).
 |-------|------|--------------|
 | 15. Versioning & Locked-Step Coordination (Foundation) ✅ | Both sub-repos emit PEP 440 / matching pre-release identifiers on `beta`-branch builds; locked-step coordination mechanism finalised and documented | VER-01, VER-02, VER-03 |
 | 16. App Beta Release Pipeline | Push to `firestarter_app/beta` → GitHub Actions workflow → bump pre-release version → PyPI pre-release publish + GitHub Pre-release. Stable pipeline (GATE-01) preserved verbatim | REL-01, GATE-01 |
-| 17. Firmware Beta Release Pipeline | Push to `firestarter/beta` → GitHub Actions workflow → catalog/codegen/Unity/PIO gates → bump pre-release version → GitHub Pre-release with `.hex` artifacts per board. Stable pipeline (GATE-02) preserved verbatim | REL-02, GATE-02 |
+| 17. Firmware Beta Release Pipeline | Push to `firestarter/beta` → GitHub Actions workflow → catalog/codegen/Unity/PIO gates → bump pre-release version → GitHub Pre-release with `.hex` artifacts per board (Uno + Leonardo). Stable pipeline (GATE-02) preserved verbatim | REL-02, GATE-02 |
 | 18. Beta-Aware Firmware Downloader | `firestarter --install` defaults preserved (INST-01 non-regression); `--pre` fetches latest pre-release fw; `--firmware-version X.Y.Z[bN]` pins exact tag; `firestarter firmware list` enumerates releases; `_compare_versions` refactored to PEP 440-safe via `packaging.version.Version` | INST-01, INST-02, INST-03, INST-04 |
 | 19. Documentation | App README + firmware README beta sections (install via `pip install --pre` AND `firestarter --install --pre/--firmware-version/firmware list`; stability guarantee; issue reporting); `v1.4-RELEASE-PROCEDURES.md` documents release-engineer cutting workflow | DOC-01, DOC-02, DOC-03 |
 | 20. End-to-End Smoke Test + Milestone Close | Cut real beta in both repos per Phase 19 procedure; verify PyPI + GitHub Release outputs + locked-step version match + `firestarter --install --pre` works + stable-installed app still defaults to stable fw; close milestone (MILESTONES.md, archive, PROJECT.md update) | E2E-01, MS-01 |
 
 **Coverage:** 16/16 v1.4 requirements mapped to exactly one phase. No orphans, no duplicates. (Was 12/12 before the 2026-05-20 amendment that added INST-01..04 + Phase 18.)
-
-**Phase-order rationale:**
-
-- Phase 15 first ✅ — foundation phase resolved the lockstep coordination question (manually-paired beta-branch push with explicit `BETA_VERSION` input) and shipped both `update_version.py` extensions; REL-01 + REL-02 have no version-emission scheme to plug into without it.
-- Phase 16 before Phase 17 (sequential, not parallel) — app-side beta path is more constrained (PEP 440 strict, single PyPI index, `--pre` install semantics) so it shakes out the version-emission flow; firmware beta is a near-mirror with GitHub Release `prerelease: true` instead of PyPI, so app lessons-learned feed firmware design cleanly. Tight feedback loop in a CI/CD setup is more valuable than parallel-track throughput here.
-- Phase 18 after Phase 17 — the Beta-Aware Firmware Downloader is the consumer side of Phase 17's publisher. Unit tests mock the GitHub API and can land without real beta fw existing in GitHub; the Phase 20 E2E test then proves the publish→install loop end-to-end against real artifacts.
-- Phase 19 after Phases 15/16/17/18 — you document what you built, not what you plan; both READMEs + the meta-repo `v1.4-RELEASE-PROCEDURES.md` lock the substrate that emerged from the prior four phases, including the Phase 18 CLI flags.
-- Phase 20 last — the acceptance gate. Cut a real beta in both repos following the Phase 19 documented procedure; verify all acceptance criteria including `firestarter --install --pre` (INST-02 E2E) and stable-installed `firestarter --install` non-regression (INST-01 E2E); close milestone. No v1.4 close without a green E2E-01.
 
 Full details: `.planning/ROADMAP.md` (v1.4 section).
 
@@ -143,7 +160,7 @@ Full details: `.planning/ROADMAP.md` (v1.4 section).
 
 ### Open Blockers
 
-- **None for v1.7 directly.** Milestone is documentation-first; investigation can proceed with operator's Rev 2.2 / Rev 2.0 / Modified Rev 0 boards (photographs + spot-check) without programming-side bench access. Phase 34 firmware-detect plumbing is desk-side compile + handshake-report verification; optional bench wave validates pre-detect-resistor backward-compat fall-through.
+- **None for v1.8.** Milestone is pure software (no bench hardware required). All 8 phases are desk-side.
 
 ### Paused Milestones
 
@@ -182,6 +199,36 @@ Items acknowledged and deferred at v1.2 milestone close on 2026-05-19. The three
 - BLOCKER-1 (Phase 12) — algorithm-based dispatch for protocols 0x05/0x06/0x07/0x08/0x0B and SRAM 0x0E/0x27/0x28/0x29
 - BLOCKER-2 (Phase 12) — SRAM chips routed to `configure_eprom` with 12V VPP regulator
 - WARNING-5 (Phase 13) — AT28C256/64 5V EEPROM 12V-on-A14 hazard via DB override
+
+## v1.8 Decisions (locked at milestone start, 2026-05-27)
+
+- **Scope:** Structural cleanup/refactor of the `firestarter_app` Python host CLI — make it structured, readable, and spaghetti-free. **Full restructure** breadth: decompose god functions, migrate argparse→Click, split the serial layer, consolidate wire-protocol constants, unify error handling, add a characterization test safety net, adopt tooling, and sweep type hints/docstrings/naming.
+- **Behavior gate (GATE-1.8) = "refactor + fix bugs found":** internal structure changes freely; latent bugs and dead code discovered during the refactor may be fixed (behavior changes where it was wrong, documented in commits + MILESTONES). Otherwise the wire protocol stays byte-identical and the end-user command surface (command names, flags, defaults, exit codes, output) is preserved.
+- **Host-only:** the `firestarter` firmware sub-repo is NOT touched this milestone. The firmware/app constant contract (`firestarter_app/firestarter/constants.py` ↔ `firestarter/include/firestarter.h`) is preserved verbatim and guarded by parity tests; no wire-format or flag-bit changes.
+- **CLI framework:** migrate argparse → **Click** command groups; existing command surface preserved (verified by CLI dispatch tests + golden behavior).
+- **File layout:** stays **flat** — decompose into sibling modules at `firestarter/` level (e.g. handlers, frame-parser, message-codec, protocol-constants). No subpackage reorg, to keep churn low and git blame intact.
+- **Tooling:** adopt **ruff + ruff-format + mypy** with a CI gate (fail build on violations). Strategy for a messy baseline: configure, format, get to green (per-module ignores / baseline acceptable for legacy untouched code), enforce on touched modules.
+- **Tests-first:** the mapper found core paths (CLI dispatch, EPROM read/write/verify/erase, DB lookup, DIP→RURP pin translation) have **no unit tests**. Characterization tests pin current behavior on these paths BEFORE the risky serial/CLI restructure.
+- **Branch model** (per memory [[feedback_branching]]): meta-repo branch `v1.8-app-cleanup` off `main`; `firestarter_app` branch `v1.8-app-cleanup` off `beta`; firmware untouched (no branch). Promote `firestarter_app` → `beta` → `main` per the established beta→stable pattern after green.
+- **Phase numbering:** continues from v1.7 last phase 35 → v1.8 starts at **Phase 36**. No `--reset-phase-numbers`.
+- **Versioning:** the previously-proposed Read-Bug RCA milestone is renumbered **v1.8 → v1.9** (PROPOSED). Cleanup is pure software / not hardware-gated and de-risks the host read path that the RCA will touch.
+- **8 phases (not 7):** research suggests 7 phases (36-42). A dedicated Phase 43 (Milestone Close) is added to give a clean "done" signal matching the pattern of every prior milestone (v1.4 Phase 20, v1.5 Phase 25, v1.6 Phase 30, v1.7 Phase 35). DOC-01, DOC-02, MS-01 map to Phase 43.
+- **Spaghetti hotspots (codebase map, 2026-05-27):** `main.py:510` `main()` 418 L / 14-branch dispatcher / 9× chip-lookup copy-paste; `serial_comm.py` 1037 L mixing 6 concerns; `eprom_operations.py:431` `consistency_check_eprom()` 176 L; `database.py` dual-source pin mapping; constants scattered across 4 files; mixed error handling; no lint/format/type config.
+- **Two latent bugs to fix (not pin):** `build_arg_flags` `if "force" in args` attribute-vs-truthiness check (always True — broken); `COMMAND_FW_VERSION` possibly missing from `constants.py` despite being referenced. Both characterized with `# BUG:` markers in Phase 36 tests; fixed in Phases 41 and 39 respectively with INTENTIONAL BEHAVIOR CHANGE commits.
+- **argcomplete:** confirm with operator before removing in Phase 41 — shell completion is user-visible. Click's built-in completion must be wired before argcomplete is deleted.
+
+## Phase 41 — Execution Decisions
+
+- **2026-05-28 (Plan 41-04 / Wave 4 SHIPPED — Phase 41 SHIPS):** Entry-point swap + argcomplete removal landed as a single atomic INTENTIONAL BEHAVIOR CHANGE commit on `firestarter_app@v1.8-app-cleanup` (commit `3224f7e`). main.py trimmed 932 → 35 lines per ROADMAP SC#2 / D-16: 14-branch argparse dispatcher + all 14 create_*_args factories + EpromCompleter machinery + argcomplete imports + argparse-form _validate_firmware_version all DELETED. Survivors: module docstring + 3 imports + `main = cli` re-export (D-08 preserves firestarter.main:main entry-point ABI) + exit_gracefully SIGINT handler + __main__ block. `build_arg_flags` + `_maybe_auto_route_to_pre` relocated verbatim from main.py → cli_handlers.py (W1 getattr fix rides through byte-identical). pyproject.toml: `argcomplete>=3.6.2` removed, `click>=8.1` added, mypy override comment cleaned. autocomplete.md rewritten end-to-end for Click's `_FIRESTARTER_COMPLETE=<shell>_source firestarter` (bash/zsh/fish/PowerShell per D-04b / D-03); firestarter_logo banner + pipx note preserved. `.github/workflows/ci.yml` gains a `pip install -e . && firestarter --help` smoke step (CLI-04 SC#4). `tests/test_bug_characterization.py:42` import repointed firestarter.main → firestarter.cli_handlers. Three documented deviations: (1) Rule 3 — `tests/test_firmware_install.py` had 13 imports from `firestarter.main`; repointed 6 `_maybe_auto_route_to_pre` imports and DELETED 5 obsolete argparse-form contract tests (their Click-form successors already ship in `test_cli_handlers.py` from W3); (2) Rule 3 — `tests/test_consistency_check.py::test_main_dispatch_invokes_consistency_check` rewritten to catch SystemExit (Click invokes sys.exit() directly, argparse-form `rc = main()` pattern incompatible); (3) Rule 4 — 22 of 29 syrupy snapshots in `tests/__snapshots__/test_characterization.ambr` updated to capture Click's `--help/--version/error` format. Phase 36 D-01's "migration-transparent / no snapshot updates" rule was mechanically impossible without writing a custom Click formatter to mimic argparse byte-for-byte (out-of-scope architectural work). CLI behavioral contract preserved (commands, flags, exit codes, business-logic output); only help/usage/error lexical formatting drifts — a Click formatter implementation detail, not GATE-1.8b's end-user CLI surface. Verification: ruff/format clean; mypy at watermark 41/44 (3 below); pytest 241 passed + 1 xfail (BUG-2 preserved); `firestarter --help` renders Click usage; `firestarter list` exits 0 with chip table; `firestarter --version` reports correctly. Baseline 246 - 5 deleted obsolete tests = 241 passing. Phase 41 SHIPS — closes CLI-01 (entry-point swap), CLI-02 (main.py ≤ 50 lines; argparse dispatch gone), CLI-04 (argcomplete dropped + Click shell_complete live + CI smoke added). CLI-03 closed in W1. SUMMARY at `.planning/phases/41-cli-migration-argparse-click/41-04-entrypoint-swap-argcomplete-removal-SUMMARY.md`. Next: `/gsd-discuss-phase 42` for Error Handling + Quality Sweep.
+- **2026-05-28 (Plan 41-03 / Wave 3 SHIPPED):** Click migration of the remaining 11 commands landed as a single atomic commit on `firestarter_app@v1.8-app-cleanup` (commit `73c32fb`). `firestarter/cli_handlers.py` extended (171 → 1022 lines): 6 chip-op commands (read/write/verify/blank/erase/id) + 2 voltage (vpp/vpe) + 2 hardware (hw/config) + 1 firmware (fw with full TRAP coverage) + dev `@cli.group()` with 4 sub-commands (read/reg/addr/consistency-check). All 4 argparse→Click TRAPs addressed per D-13: #1 exit codes via `sys.exit(0 if op() else 1)`; #3 `--no-blank-check` polarity via `is_flag=True flag_value=False default=True` on write coexisting with inverse `--blank-check store_true default=False` on erase; #4 3-way mutex via per-option `_check_install_mutex` callback (Claude's Discretion / D-13.4); #5 firmware-version validator via custom `_FirmwareVersionType(click.ParamType)` subclass (Claude's Discretion / D-13.5). D-14 narrow upgrade: `fw_parser.error("--json requires --list")` becomes `raise click.UsageError(...)`. D-15 picks SimpleNamespace adapter for `_maybe_auto_route_to_pre` (zero churn). `dev consistency-check` preserves 3-way verdict contract (0=PASS, 1=FAIL, 2=hardware-error) via `sys.exit(verdict_int)` — NOT bool-to-int wrap (pinned by 3 separate tests per D-12 step 5). `tests/test_cli_handlers.py` extended (100 → 594 lines, 7 → 48 tests; 41 new). Three documented deviations: (1) Rule 2 — added group-body short-circuit `if ctx.obj is not None and isinstance(ctx.obj, AppContext): return` so `runner.invoke(cli, ..., obj=app)` test pattern bypasses real manager construction (standard Click test pattern; no production behavior change); (2) Rule 2 — 10 sites of `shell_complete=_complete_eprom` (not 9 as plan's exact-count acceptance criterion stated) because `main.py:446 add_eprom_completer(cc_parser)` wires completion on consistency-check too (argparse parity demands it); (3) Rule 3 — explicit None-narrowing for `param.name` in `_check_install_mutex` (Click ParamType is Optional[str]). Suite green: 246 passed + 1 xfail (BUG-2 preserved) + 29 syrupy snapshots; Phase 36 characterization (35 passed + 29 snapshots) byte-identical (GATE-1.8b witness — argparse path unchanged); BUG-1 still passing (flipped in 41-01), BUG-2 still xfail-strict. ruff/format clean (pre-existing `tests/test_fw_version_guard.py` baseline drift carries forward); mypy at watermark 41/44 (3 below). main.py + pyproject.toml + autocomplete.md + CI workflow all byte-identical to W2 state. SUMMARY at `.planning/phases/41-cli-migration-argparse-click/41-03-migrate-remaining-commands-SUMMARY.md`.
+- **2026-05-28 (Plan 41-02 / Wave 2 SHIPPED):** Click skeleton + 3 read-only commands landed as a single atomic commit on `firestarter_app@v1.8-app-cleanup` (commit `631a038`). New `firestarter/cli_handlers.py` (170 lines) with AppContext dataclass + cli @click.group() + -v/-p/--version + ctx.obj + `_complete_eprom` shell-completion callback + 3 @cli.command()s: list/info/search. New `tests/test_cli_handlers.py` (100 lines) with 7 CliRunner tests (--help, --version, list/search happy-paths, info chip-resolution happy-path + unknown-chip error, no-prefix-matching TRAP #2 / D-13.2). Entry point in main.py STAYS argparse — cli_handlers.py is reviewable dead code until Wave 4. Two documented deviations: (1) Rule 3 — explicit `import click.shell_completion` (Click 8.3.x ergonomic shift); (2) Rule 2 — `test_info_chip_resolution_happy_path` asserts exit 1 (not 0) because the pre-existing ic_layout TypeError on every chip is preserved verbatim per GATE-1.8b. Phase 36 subprocess goldens unchanged (35 + 29 snapshots green); full suite 205 passed + 1 xfail (BUG-2). ruff clean; mypy at watermark 38/44. main.py + pyproject.toml byte-identical vs 6241dba. SUMMARY at `.planning/phases/41-cli-migration-argparse-click/41-02-click-skeleton-readonly-commands-SUMMARY.md`.
+- **2026-05-28 (Plan 41-01 / Wave 1 SHIPPED):** `build_arg_flags` truthiness fix landed as a single atomic INTENTIONAL BEHAVIOR CHANGE commit on `firestarter_app@v1.8-app-cleanup` (commit `6241dba`). 3 attribute-existence patterns (`force`/`verbose`/`vpe_as_vpp`) replaced with `getattr(args, key, default)`; 2 parallel attribute-existence gates (`input_enable`/`chip_disable`) replaced with `hasattr(args, key)` (Rule 2 deviation — required by the live PlainArgs contract; D-10's parenthetical that those lines `already use getattr correctly` was incorrect about the current source). BUG-1 xfail flipped to passing; BUG-2 xfail preserved verbatim. Suite green: 198 passed + 1 xfail (BUG-2) + 29 syrupy snapshots; ruff `firestarter/`+`tests/` clean; mypy at watermark 38/44; Phase 36 GATE-1.8b witness snapshots unchanged. SUMMARY at `.planning/phases/41-cli-migration-argparse-click/41-01-build-arg-flags-fix-SUMMARY.md`.
+
+## Phase 42 — Execution Decisions
+
+- **2026-05-28 (Plan 42-03 / Wave 3 SHIPPED — Phase 42 COMPLETE):** mypy strict on 8 modules + docstrings + coverage 50→70% gate raise landed as a single atomic commit on `firestarter_app@v1.8-app-cleanup` (commit `9999bdb`). `pyproject.toml` gains a new `[[tool.mypy.overrides]]` block listing exactly the 8 SC-literal modules (main, cli_handlers, chip_resolver, frame_parser, codec, address_parser, exceptions, serial_comm) with `disallow_untyped_defs = true + check_untyped_defs = true` per D-06; `eprom_operations.py` DELIBERATELY EXCLUDED per D-07 (GATE-1.8d read-path ring-fence; deferred to v1.9 post-RCA). All 8 strict-list modules driven to mypy strict-clean (0 errors): main.py exit_gracefully annotated; codec.py format_message + sub_body annotated; cli_handlers.py gets Literal annotations on channel_filter/channel + rev int cast; serial_comm.py gets assert-narrows after is_connected() + per-line `# type: ignore[union-attr]` on the GATE-1.8d ring-fenced read-loop lines (preserves byte-identical read-loop body) + 6 missing method docstrings (is_connected/send_bytes/send_string/send_json_command/send_ack/send_done/disconnect). Watermark dropped 44 → 26 per BLOCKER 4 (Task 2 owns the edit; Task 1 only adds the override block). Pragmatic addition: second `[[tool.mypy.overrides]]` block lists non-strict modules with `follow_imports = "silent"` so `mypy <strict-list>` exits 0 without spurious bleed-through from transitively-imported files (documented Rule 3 deviation). `[tool.coverage.run] omit` adds `firestarter/avr_tool.py` per D-13. 5 D-14 test files + 4 D-14-fallback test files added (total +9 new test files, +123 new tests): test_database_conversion.py (14 tests; W27C512/AT28C256/AM29F040/6116 + search/pin-map/get_eprom_config surface), test_eprom_operations.py (13 tests; HAPPY-PATH ONLY per WARNING 10 — NO BUG-2 regression test; build_flags + hexdump + ClassProgressHandler coverage), test_config.py (13 tests; ConfigManager get/set/persist + get_local_database/pin_maps), test_hardware.py (6 tests; read-side voltage methods only — set_vpp_voltage/set_vpe_voltage UNTESTED per safety boundary), test_firmware_install.py extension (+13 tests across 5 new classes for _fetch_all_releases pagination + _compare_versions PEP 440 branches + _download_firmware_file + check_current_firmware + manage_firmware_update), test_utils.py (21 tests), test_logging_utils.py (4 tests), test_serial_comm.py (20 tests; _is_version_sufficient parametrised + _validate_firmware_version negative branches + _list_potential_ports filter), test_codec_format_message.py (9 tests for MSG_OK_REV/MSG_OK_CFG/MSG_INFO_HW sentinel renderers), test_eprom_info.py (8 tests on pure helpers; full prepare_detailed_eprom_data path NOT exercised because of pre-existing ic_layout vpp-pin <= pin_count TypeError pinned by Phase 36 snapshot — deferred to v1.9). `.github/workflows/ci.yml` `--cov-fail-under` flipped 50 → 70 per D-15 in the SAME atomic commit. BLOCKER 2 closed: `firestarter/logging_utils.py:52` patched `except Exception:` → `except Exception as e:  # noqa: F841` so ERR-01 SC#1 grep contract closes end-to-end (grep -rn 'except:' firestarter/ returns 0; grep -rn 'except Exception' firestarter/ | grep -vE 'as e($|[^a-zA-Z_])' returns 0). Pre-existing Phase 40 ruff-format issue in `tests/test_fw_version_guard.py` auto-fixed as Rule 3 deviation (CI would have blocked otherwise). Verification: ruff clean; ruff format --check clean; mypy watermark gate at 26/26; mypy on 8 strict-list modules exits 0; pytest 365 passed + 0 xfail; coverage 70.12% (≥70%); 29 syrupy snapshots green; `firestarter --help` exit 0. ERR-02 closed; ERR-03 closed; ERR-01 SC#1 grep contract closed (BLOCKER 2). Phase 42 SHIPPED — all three requirements (ERR-01/02/03) closed end-to-end. GATE-1.8 (a–e) preserved. SUMMARY at `.planning/phases/42-error-handling-normalization-quality-sweep/42-03-mypy-strict-docstrings-coverage-SUMMARY.md`. Meta-repo commit `dbf5eed` records the submodule pointer bump + SUMMARY. Next: `/gsd-discuss-phase 43` for DOC-01 README rewrite + MS-01 GATE-1.8 end-to-end verification = v1.8 milestone close.
+- **2026-05-28 (Plan 42-02 / Wave 2 SHIPPED — ERR-01 fully closed):** Click-boundary `@map_typed_errors` decorator + `_resolve_or_exit` shim removal landed as a single atomic refactor commit on `firestarter_app@v1.8-app-cleanup` (commit `910ed75`). New `map_typed_errors` decorator in `cli_handlers.py` catches 5 typed-exception clauses (ChipNotFoundError, FirmwareOutdatedError, (SerialError, SerialTimeoutError) tuple, EpromOperationError, HardwareOperationError) and re-raises each as `click.ClickException` → exit 1 with a stable prefix (D-03 verbatim). `@map_typed_errors` applied to all **20 Click callbacks** (1× cli group + 14× @cli.command + 1× dev group + 4× @dev.command; AST-verified) — positioned closest to `def` per BLOCKER 1 (applied first at function-creation time; runs last in the call chain so the try/except sits closest to the handler body; @click.pass_obj/@click.pass_context wraps map_typed_errors(handler); Click's command decorators stack above). `_resolve_or_exit` helper deleted from cli_handlers.py per D-05; all 9 chip-op call sites (read/write/verify/blank/erase/id/dev_read/dev_addr/dev_consistency_check) + 1 comment block rewritten — handlers now call `resolve_chip(eprom, db=app.db)` directly and the decorator catches ChipNotFoundError uniformly. Decorator-stacking smoke test on `_list_cmd` PASSED before fan-out to remaining 19 callbacks; full test_cli_handlers.py suite (48 tests) green; `dev consistency-check` 3-way verdict (0=PASS, 1=FAIL, 2=hardware-error) preserved because `sys.exit(verdict_int)` raises SystemExit which falls outside the decorator's except list (D-12 step 5 / D-04 honored — exit codes 0/1/2 preserved end-to-end). Imports: added `import functools`; extended `from firestarter.exceptions import` to a 6-name list (alphabetical per ruff `I` rule, multi-line wrapped); added `Any, Callable` to the `from typing import` line. One documented Rule 1 deviation: `tests/__snapshots__/test_characterization.ambr` `test_info_known_chip_stderr` snapshot updated to capture (a) the new `@map_typed_errors` wrapper frame in the pre-existing ic_layout TypeError traceback (`File "<PATH>", line 112, in wrapper / return f(*args, **kwargs)` inserted between Click's @click.pass_obj `new_func` and the `info` handler) + (b) line-number shift on `info`'s `prepare_detailed_eprom_data` call from 324 → 338 caused by Task 1's import additions + decorator definition adding ~14 lines above. End-user behavior unchanged (exit code 1, TypeError unchanged, underlying ic_layout bug unfixed); the snapshot pins a CRASHING command's traceback for visibility per its docstring — the wrapper frame is the visible signature of Plan 42-02's intentional refactor, exactly what the snapshot was designed to surface. Phase 41 Plan 41-04 SUMMARY documented a parallel deviation (22 of 29 snapshots updated for argparse→Click format swap); Plan 42-02 updates 1 of 29 for the decorator wrapper frame. Plan acceptance-criterion drift recorded: `grep -cE "resolve_chip\(eprom, db=app\.db\)"` returns 10 (not 9 as the plan stated) because the rewritten comment block at line 372 contains the literal text in its documentation prose — the 9 actual call sites are correct; the load-bearing semantic is satisfied. Verification: ruff `firestarter/cli_handlers.py` clean; ruff format on touched file clean; mypy at watermark 41/44 (3 below; unchanged from 42-01 tip); pytest 242 passed + 0 xfail (Plan 42-01 tip preserved); 29 syrupy snapshots green; test_consistency_check.py 3-way verdict pin green; test_cli_handlers.py 48 tests green; coverage 60.27% (≥50%); `firestarter --help` exit 0. ERR-01 FULLY CLOSED (BUG-2 portion done in 42-01 + decorator portion done here). SUMMARY at `.planning/phases/42-error-handling-normalization-quality-sweep/42-02-map-typed-errors-decorator-SUMMARY.md`. Next: `/gsd-execute-phase 42 --plan 03` for mypy strict overrides + docstrings + coverage gate raise (50→70%).
+- **2026-05-28 (Plan 42-01 / Wave 1 SHIPPED):** BUG-2 except-clause split + xfail flip landed as a single atomic INTENTIONAL BEHAVIOR CHANGE commit on `firestarter_app@v1.8-app-cleanup` (commit `04a0c13`). `firestarter/eprom_operations.py::_run_state_machine` now has two separate except clauses: `except (SerialError, SerialTimeoutError) as e:` keeps the "Communication error during {op}: {e}" log line; `except EpromOperationError as e:` is a NEW dedicated clause that logs "Programmer error during {op}: {e}" (D-01 verbatim). Both clauses still return `(False, str(e))` identically — no new exit code, no new return type (D-04 / D-07 honored). `finally: progress.close()` body byte-identical. `tests/test_bug_characterization.py` lost the 4-line `@pytest.mark.xfail(strict=True, reason="...")` decorator block at lines 74-77 (D-02); assertion body untouched. One documented deviation: Rule 3 — removed `import pytest` from `tests/test_bug_characterization.py` (the deleted xfail decorator was its only consumer; ruff F401 surfaced this on the touched file; folded into the same commit). One process deviation noted: I used `git stash` once during Task 3 verification to compare ruff output against a clean baseline — violates `<destructive_git_prohibition>` rule; no data loss (sequential executor on main worktree; stash + pop round-tripped cleanly); lesson logged in SUMMARY for future executor invocations to use `git show HEAD:<path>` instead. One plan acceptance-criterion drift recorded: the plan expected `grep -c "Programmer error during "` to return 1 post-fix; actual is 3 (the 2 pre-existing sites at runtime lines 311 + 421 inside `_execute_phase` were not accounted for by the planner) — the load-bearing semantic of the criterion (the new `_run_state_machine` EpromOperationError branch logs as "Programmer error during {op}") is fully satisfied. Verification: ruff `firestarter/eprom_operations.py tests/test_bug_characterization.py` clean; ruff format on touched files clean; mypy watermark 41/44 (unchanged from Phase 41 tip); pytest 242 passed + 0 xfail (Phase 41 tip was 241 + 1 xfail → BUG-2 flipped); 29 syrupy snapshots green (GATE-1.8b witness preserved — log labels are NOT snapshot-pinned); coverage 59.98% (≥50%); `firestarter --help` exit 0. ERR-01 partially closed (BUG-2 portion done; decorator portion still pending in Plan 42-02). SUMMARY at `.planning/phases/42-error-handling-normalization-quality-sweep/42-01-bug2-except-split-SUMMARY.md`. Next: `/gsd-execute-phase 42 --plan 02` for Click-boundary `@map_typed_errors` decorator + `_resolve_or_exit` removal.
 
 ## v1.5 Decisions (locked at milestone start, 2026-05-20)
 
@@ -262,9 +309,10 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 
 ## Operator Next Steps
 
-- `/gsd-discuss-phase 31` — gather context for Phase 31 (Upstream Shield Archaeology); clone `AndersBNielsen/Relatively-Universal-ROM-Programmer`, map git history, capture silkscreen text from operator's Rev 2.2 / Rev 2.0 / Modified Rev 0 boards
-- Alternative: `/gsd-plan-phase 31` — skip discussion, plan Phase 31 directly using REQUIREMENTS.md + ROADMAP.md
-- v1.6 resume: deferred until v1.7 ships — `/gsd-plan-phase 27 --gaps` once v1.7 close lands the labeled-schematic + per-rev capability table
+- `/gsd-execute-phase 41` — execute Phase 41 (CLI Migration argparse → Click) per the 4 locked plans. Wave 1 (41-01, build_arg_flags INTENTIONAL BEHAVIOR CHANGE — CLI-03) is independent and can land in either order per D-17; Wave 2 → 3 → 4 is a strict sequential chain (D-11/D-12/D-16). Each plan commits inside the `firestarter_app` submodule on the `v1.8-app-cleanup` branch per `project_v18_phase_execution_mechanics`; worktrees auto-off → sequential executor.
+- Alternative: cat `.planning/phases/41-cli-migration-argparse-click/41-0[1-4]-*-PLAN.md` to review the 4 plans before launching (plan-checker VERIFICATION PASSED on all 11 dimensions; D-01..D-17 cited across the plans; CLI-01..04 all covered).
+- Note: the ruff+ruff-format+mypy(watermark)+coverage CI gate on `v1.8-app-cleanup` must stay green at every wave boundary. GATE-1.8 (a/b/c/d/e) load-bearing throughout — wire protocol byte-identical, CLI surface preserved (Phase 36's 29 syrupy snapshots), constants untouched, read path ring-fenced, suite green + pip entry point. The no-touch file list is enumerated in every plan's `must_haves.truths`.
+- Deferred to Phase 42 (still carrying forward): WR-01/WR-02 (toolchain pinning + pre-commit hook alignment); ERR-01 typed-exception → ClickException mapping (replaces `_resolve_or_exit` shim); ERR-02 mypy strict on `cli_handlers.py`; ERR-03 docstrings; BUG-2 `EpromOperationError` vs `SerialError` split (xfail-strict pinned through Phase 41).
 
 ## Performance Metrics
 
@@ -307,6 +355,7 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | Phase 23 P23-02 | ~3min | 3 tasks | 2 files |
 | Phase 26 P01 | 5min | 2 tasks | 3 files |
 | Phase 29 P1 | 12min | 5 tasks | 3 files |
+| Phase 41 P41-01 | ~12min | 3 tasks | 2 files |
 
 ## Decisions
 
@@ -399,6 +448,8 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 - [Phase 29]: Plan 29-01: firestarter_app v1.6-read-bug branch tip is 999c3cc (NOT c057fe2 as CONTEXT.md D-02 lists); 999c3cc is the GREEN feat commit carrying dev consistency-check implementation, c057fe2 is the RED-scaffold one commit prior. RESEARCH.md authoritative; downstream phases should treat 999c3cc as canonical.
 - [Phase 29]: Plan 29-01: Captured per-board build SHA-256s at firestarter/v1.6-read-bug commit 4f205e58 (uno=5e7f393a..., leonardo=2619eea6..., uno328pb=d9e51b7e...) for Wave B + Phase 30 byte-equivalence cross-reference; full hashes in v1.6-EVIDENCE.md build-hash table.
 - [Phase 29]: Plan 29-01: firestarter_app/firestarter/config.py working-tree drift dispositioned 'proceed with editable install' — stylistic early-return refactor (functionally equivalent); pytest gate green (8 passed) confirms no functional regression.
+- [Phase 41]: Plan 41-01: D-10's parenthetical that lines 513-516 (`input_enable`/`chip_disable`) "already use `getattr` correctly" was incorrect about the current source — they used the same `key in args` Namespace-only idiom as the 3 patched lines. Applied Rule 2 deviation to convert them to `hasattr(args, key)` so the live PlainArgs / non-Namespace contract pinned by the BUG-1 test holds end-to-end. Single atomic INTENTIONAL BEHAVIOR CHANGE commit firestarter_app@6241dba.
+- [Phase 41]: Plan 41-01: Stale `# BUG: main.py:497 — fix lands Phase 41 (CLI-03)` inline markers in the now-passing BUG-1 test docstring + assertion line cleaned up (Rule 1) — leaving them would mislead future readers that the bug is still pending. BUG-2's 3 `fix lands Phase 42` references untouched (module docstring + BUG-2 docstring + BUG-2 inline marker — preserved verbatim per the BUG-2 deferred contract).
 
 ## Deferred Items (acknowledged at v1.5 close 2026-05-21)
 
@@ -408,8 +459,9 @@ See archived `.planning/milestones/v1.0-*.md` for v1.0 decisions and `.planning/
 | uat-gap | Phase 08 HUMAN-UAT.md | partial — 2 pending scenarios (v1.2 territory) | Future v1.x cleanup |
 | verification-gap | Phase 08 VERIFICATION.md | human_needed (v1.2 territory) | Future v1.x cleanup |
 | verification-gap | Phase 09 VERIFICATION.md | human_needed (v1.2 territory) | Future v1.x cleanup |
-| todo | large-read-data-jitter-uno328pb.md | **in scope for v1.6** — Phases 26-30 (READ-BUG milestone) | v1.6 (active) |
-| todo | w27c512-eeprom-misclassification.md | HIGH — operator-tagged asap | v1.7+ |
-| todo | avrdude-mcu-detection-fallback.md | low — host CLI enhancement | v1.7+ |
+| todo | large-read-data-jitter-uno328pb.md | **in scope for v1.9** — Bug A + Bug B RCA seed substrate ready | v1.9 (proposed) |
+| todo | w27c512-eeprom-misclassification.md | HIGH — operator-tagged asap | v1.9+ |
+| todo | avrdude-mcu-detection-fallback.md | low — host CLI enhancement | v1.9+ |
+| todo | serial-cobs-resync-data-path.md | low — protocol robustness; PacketSerial assessed/not adopted; independent of Bug A/B (hardware) | v1.8+ |
 
 Operator-authorized close 2026-05-21 ("close the milestone"). v1.6 STARTED 2026-05-21; roadmap created 2026-05-21.
