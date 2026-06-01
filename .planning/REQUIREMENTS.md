@@ -32,7 +32,7 @@
 
 ### 4. Bus-Aliasing Safety (SAFE)
 
-- [ ] **SAFE-01**: The SERIAL_ON_IO `0x00` bus-aliasing risk (COBS-DECISION Open Q2) is resolved and documented — either a code/bench proof that the host cannot deliver a `0x00` frame-boundary byte during the programmer↔communication mode transition window (COBS path), or adoption of SLIP's `0xC0` delimiter, which sidesteps the concern entirely (Q3). Note: framing the command channel (FRAME-05) means the host now actively emits delimiter bytes on the host→fw direction, so this host-side timing guarantee is load-bearing, not theoretical.
+- [x] **SAFE-01**: The SERIAL_ON_IO `0x00` bus-aliasing risk (COBS-DECISION Open Q2) is resolved and documented — either a code/bench proof that the host cannot deliver a `0x00` frame-boundary byte during the programmer↔communication mode transition window (COBS path), or adoption of SLIP's `0xC0` delimiter, which sidesteps the concern entirely (Q3). Note: framing the command channel (FRAME-05) means the host now actively emits delimiter bytes on the host→fw direction, so this host-side timing guarantee is load-bearing, not theoretical. **SATISFIED: static proof conclusive (Phase 49 Plan 01 — `.planning/v1.10-FRAMING-DECISION.md`)**
 
 ### 5. Byte-Exact Verification (XACT)
 
@@ -66,7 +66,7 @@
 | CRC-01 | Phase 50 | Pending |
 | LOCK-01 | Phase 52 | Pending |
 | LOCK-02 | Phase 52 | Pending |
-| SAFE-01 | Phase 49 | Pending |
+| SAFE-01 | Phase 49 | ✅ Complete (2026-06-01) |
 | XACT-01 | Phase 53 | Pending |
 | XACT-02 | Phase 53 | Pending |
 | XACT-03 | Phase 53 | Pending |

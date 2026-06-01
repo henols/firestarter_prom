@@ -28,7 +28,7 @@
 
 ### Phases
 
-- [ ] **Phase 49: Framing Mechanism Decision (COBS `0x00` vs SLIP `0xC0`)** — Resolve the deferred mechanism choice and the `0x00` bus-aliasing safety question (COBS-DECISION §2.0 / Open Q2/Q3) before any implementation commits to a delimiter. Produces a binding decision record.
+- [x] **Phase 49: Framing Mechanism Decision (COBS `0x00` vs SLIP `0xC0`)** — Resolve the deferred mechanism choice and the `0x00` bus-aliasing safety question (COBS-DECISION §2.0 / Open Q2/Q3) before any implementation commits to a delimiter. **COMPLETE 2026-06-01: COBS `0x00` selected; SAFE-01 proof conclusive; D-06 frame contract frozen at `.planning/v1.10-FRAMING-DECISION.md`.**
 - [ ] **Phase 50: Data-Path Framing Layer + Automatic Resync (dual-repo lockstep)** — Implement the chosen streaming framing on the host↔fw data-block path with CRC8 retained; receiver auto-resyncs to the next delimiter, killing the 2 s `len_u16`-corruption timeout cascade; fits the Uno free-RAM ceiling.
 - [ ] **Phase 51: Command-Channel Framing Migration (breaking wire change)** — Migrate the host→fw JSON command channel into the same framing (CRC8-verified before the JSON parser sees the payload); firmware + host upgrade lockstep, no mixed-version interop.
 - [ ] **Phase 52: Lockstep Contract + Round-Trip Tests** — Prove host-encode↔firmware-decode byte-compatibility (data blocks AND command frames, incl. delimiter-laden + all-delimiter payloads); pin the new frame contract in the `test_messages` Unity suite + host parser tests; CI green across both repos.
@@ -51,7 +51,7 @@
 **Plans**: 1 plan
 Plans:
 
-- [ ] 49-01-PLAN.md — Wave 1: SAFE-01 static proof → scored neutral COBS-vs-SLIP matrix → ADR + frozen frame contract at `.planning/v1.10-FRAMING-DECISION.md` (handles both decision branches; CRC8-before-parse V5 mandate recorded; supersedes v1.9-COBS-DECISION.md DEFER line)
+- [x] 49-01-PLAN.md — Wave 1: SAFE-01 static proof → scored neutral COBS-vs-SLIP matrix → ADR + frozen frame contract at `.planning/v1.10-FRAMING-DECISION.md` (handles both decision branches; CRC8-before-parse V5 mandate recorded; supersedes v1.9-COBS-DECISION.md DEFER line) ✅ 2026-06-01
 
 #### Phase 50: Data-Path Framing Layer + Automatic Resync (dual-repo lockstep)
 
@@ -279,7 +279,7 @@ Plans:
 | 30 (close) | v1.6 | 3/3 | ✅ Shipped | 2026-05-26 |
 | 31-35 (v1.7) | v1.7 | — | ✅ Shipped | 2026-05-26 |
 | 36-43 (v1.8) | v1.8 | 26/26 | ✅ Shipped | 2026-05-29 |
-| 49 | v1.10 | 0/1 | Not started | — |
+| 49 | v1.10 | 1/1 | ✅ Complete | 2026-06-01 |
 | 50 | v1.10 | 0/TBD | Not started | — |
 | 51 | v1.10 | 0/TBD | Not started | — |
 | 52 | v1.10 | 0/TBD | Not started | — |

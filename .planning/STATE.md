@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.10
 milestone_name: — Serial Transport Hardening
 status: executing
-stopped_at: Phase 49 context gathered
-last_updated: "2026-06-01T14:29:09.607Z"
-last_activity: 2026-06-01 -- Phase 49 planning complete
+stopped_at: Phase 49 Plan 01 complete
+last_updated: "2026-06-01T14:54:52Z"
+last_activity: 2026-06-01 -- Phase 49 Plan 01 executed (framing-mechanism ADR written, COBS selected)
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 1
-  completed_plans: 0
-  percent: 0
+  completed_plans: 1
+  percent: 20
 ---
 
 # Project State
@@ -21,12 +21,12 @@ progress:
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Ready to execute
-Last activity: 2026-06-01 -- Phase 49 planning complete
+Phase: 49 (framing-mechanism-decision-cobs-0x00-vs-slip-0xc0) — COMPLETE
+Plan: 1 of 1 — COMPLETE
+Status: Phase 49 complete; Phase 50 next
+Last activity: 2026-06-01 -- Phase 49 Plan 01 executed (framing-mechanism ADR written, COBS selected)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██░░░░░░░░] 20%
 
 ## Project Reference
 
@@ -35,7 +35,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-01)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** v1.10 — implement a custom serial framing + automatic-resync layer
+**Current focus:** Phase 49 — framing-mechanism-decision-cobs-0x00-vs-slip-0xc0
 (streaming COBS vs SLIP, chosen in plan research) on the Arduino↔host data path so the
 transport is provably byte-exact, ruling serial out as a read-bug confounder.
 
@@ -118,12 +118,15 @@ per operator pivot so the serial transport is hardened first.
 
 ## Session Continuity
 
-Last session: 2026-06-01T14:06:24.761Z
-Stopped at: Phase 49 context gathered
-Resume file: .planning/phases/49-framing-mechanism-decision-cobs-0x00-vs-slip-0xc0/49-CONTEXT.md
+Last session: 2026-06-01T14:54:52Z
+Stopped at: Completed Phase 49 Plan 01 — framing-mechanism ADR written; Phase 50 data-path framing next
+Resume file: .planning/ROADMAP.md (Phase 50)
 
 ## Decisions
 
 - [v1.10 start]: PAUSED v1.9 at Phase 44; inserted v1.10 Serial Transport Hardening ahead of it to rule serial out as a read-bug confounder before the per-shield RCA resumes.
 - [v1.10 start]: Branch model = stacked off the `v1.9-read-bug-rca` tip in all 3 repos (NOT off main/beta — stale at v1.8 close, missing the COBS ADOPT decision + Phase 44 knobs).
 - [v1.10 start]: CRC8-CCITT kept (D-05); Uno-fit filter binding (D-04); framing mechanism (COBS vs SLIP) deferred to plan research.
+- [Phase 49]: COBS `0x00` selected as framing mechanism — SAFE-01 static proof conclusive (host 0x00-silence proven); aggregate matrix 11/12 vs SLIP 10/12.
+- [Phase 49]: len_u16 length prefix removed from data-block framing; XOR checksum replaced by CRC8-CCITT on data-block path.
+- [Phase 49]: CRC8-before-parse mandate recorded as Phase 51 design constraint (T-49-01 / V5).
