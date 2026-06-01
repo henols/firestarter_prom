@@ -73,8 +73,8 @@ Plans:
 
 **Wave 2** *(parallel — firmware vs host, zero file overlap; both depend on 50-01)*
 
-- [ ] 50-02-PLAN.md — firmware: rewrite `rurp_communication_read_data` (COBS decode-in-place + CRC8 + drain-to-`0x00`, removes 2 s loop) + `rurp_communication_write` COBS encode mirror; `case '#'` surface preserved (D-01/D-04/D-05/D-06)
-- [ ] 50-03-PLAN.md — host: add `cobs_encode`/`cobs_decode` to `frame_parser.py` (CRC8 reused) + COBS frame contents in `_main_phase_send_data` (atomic write); read RX path untouched (D-05/D-06)
+- [x] 50-02-PLAN.md — firmware: rewrite `rurp_communication_read_data` (COBS decode-in-place + CRC8 + drain-to-`0x00`, removes 2 s loop) + `rurp_communication_write` COBS encode mirror; `case '#'` surface preserved (D-01/D-04/D-05/D-06)
+- [x] 50-03-PLAN.md — host: add `cobs_encode`/`cobs_decode` to `frame_parser.py` (CRC8 reused) + COBS frame contents in `_main_phase_send_data` (atomic write); read RX path untouched (D-05/D-06)
 
 **Wave 3** *(integration gate — depends on 50-02 + 50-03)*
 
@@ -293,7 +293,7 @@ Plans:
 | 31-35 (v1.7) | v1.7 | — | ✅ Shipped | 2026-05-26 |
 | 36-43 (v1.8) | v1.8 | 26/26 | ✅ Shipped | 2026-05-29 |
 | 49 | v1.10 | 1/1 | Complete    | 2026-06-01 |
-| 50 | v1.10 | 1/4 | In Progress|  |
+| 50 | v1.10 | 3/4 | In Progress|  |
 | 51 | v1.10 | 0/TBD | Not started | — |
 | 52 | v1.10 | 0/TBD | Not started | — |
 | 53 | v1.10 | 0/TBD | Not started | — |
