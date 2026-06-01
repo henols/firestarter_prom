@@ -7,7 +7,7 @@ stopped_at: ""
 last_updated: "2026-06-01"
 last_activity: 2026-06-01
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -41,10 +41,20 @@ transport is provably byte-exact, ruling serial out as a read-bug confounder.
 
 ## Roadmap Summary
 
-**v1.10 phases:** numbered from **49** (45–48 reserved for the deferred v1.9 phases).
-Roadmap being generated. Hardware-gated; coordinated dual-repo firmware + host work expected.
+**v1.10 phases:** 5 (numbered 49–53; 45–48 reserved for deferred v1.9). Granularity: Comprehensive.
+Hardware-gated at Phase 53; coordinated dual-repo (firmware + host) lockstep throughout.
 
-Full details: `.planning/ROADMAP.md` (v1.10 section, once written).
+| Phase | Goal | Requirements |
+|-------|------|--------------|
+| 49. Framing Mechanism Decision (COBS `0x00` vs SLIP `0xC0`) | Resolve mechanism + `0x00` bus-aliasing safety before implementation commits | SAFE-01 |
+| 50. Data-Path Framing + Auto-Resync (dual-repo lockstep) | Streaming framing on the data-block path; kill the 2 s timeout cascade; CRC8 retained; fits Uno RAM | FRAME-01/02/03/04, CRC-01 |
+| 51. Command-Channel Framing Migration (breaking wire change) | Migrate host→fw JSON commands into the framing; CRC8-verified before JSON parse; lockstep upgrade | FRAME-05 |
+| 52. Lockstep Contract + Round-Trip Tests | Prove host↔fw byte-compatibility (data + command frames); pin `test_messages`; CI green both repos | LOCK-01, LOCK-02 |
+| 53. Byte-Exact Bench Verification (hardware-gated) | Operator-witnessed N-run byte-identity (Uno/Leonardo); fault-injection resync; uno328pb re-test | XACT-01/02/03 |
+
+**Coverage:** 12/12 v1.10 requirements mapped to exactly one phase. No orphans, no duplicates.
+
+Full details: `.planning/ROADMAP.md` (v1.10 section).
 
 ## Accumulated Context
 

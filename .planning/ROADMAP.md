@@ -11,7 +11,119 @@
 - ⏸ **v1.6 Fix the Read Bug** — Phases 26-30 (SHIPPED 2026-05-26 as "diagnostic + revert" per D-17v2). Read-bug carries to v1.9 as Bug A + Bug B RCA seed.
 - ✅ **v1.7 RURP Shield Hardware Investigation & Version Detection** — Phases 31-35 (SHIPPED 2026-05-26). Per-rev capability table + labeled schematics + shield-version-detect firmware plumbing.
 - ✅ **v1.8 Host CLI Structural Cleanup (firestarter_app)** — Phases 36-43 (SHIPPED 2026-05-29; ship tag `3.0.0b7` beta-only). 27 requirements DELIVERED + 3 VERIFIED-at-close; argparse→Click, mypy strict on 8 modules, 70% coverage floor. Full detail in `.planning/MILESTONES.md` §v1.8.
-- 🚧 **v1.9 Read-Bug RCA + Fix** — Phases 44-48 (STARTED 2026-05-29). Hardware-gated; firmware sub-repo work expected. Root-cause and fix Bug A (Modified Rev 0 upper-address jitter) + Bug B (Rev 2.0 /CE-/OE timing + VPP mismatch); N≥5 byte-identical acceptance gate across shield fleet.
+- 🚧 **v1.10 Serial Transport Hardening (COBS)** — Phases 49-53 (STARTED 2026-06-01). Hardware-gated; coordinated dual-repo firmware + host lockstep. Inserted ahead of the paused v1.9 RCA: a custom delimiter-based framing + automatic-resync layer (streaming COBS `0x00` vs SLIP `0xC0` — mechanism chosen in plan research) on the data-block path AND the host→fw JSON command channel, making the transport provably byte-exact so serial corruption is ruled out as a read-bug confounder. CRC8-CCITT poly 0x07 retained (D-05); Uno-fit streaming-encode-only constraint (D-04). Stacked off the v1.9 branch tip.
+- ⏸ **v1.9 Read-Bug RCA + Fix** — Phases 44-48 (PAUSED 2026-06-01 at Phase 44 — v1.10 inserted ahead; resumes at Phase 45). Hardware-gated; firmware sub-repo work expected. Root-cause and fix Bug A (Modified Rev 0 upper-address jitter) + Bug B (Rev 2.0 /CE-/OE timing + VPP mismatch); N≥5 byte-identical acceptance gate across shield fleet.
+
+## v1.10 — Serial Transport Hardening (COBS) (STARTED 2026-06-01)
+
+**Milestone goal:** Implement a custom delimiter-based serial framing + automatic-resync layer on the Arduino↔host data path — covering **both** the binary data-block path and the host→firmware JSON command channel — so the transport is **provably byte-exact** end to end: delivering exactly the bytes the firmware read off the parallel bus, and exactly the commands the host issued, with any line corruption bounded to a single frame. This rules serial corruption out as a confounding variable before the paused per-shield read-bug RCA resumes (v1.9 Phase 45+). Per `.planning/v1.9-COBS-DECISION.md` §2: ADOPT a custom framing layer; REJECT all off-the-shelf libraries (§4); KEEP CRC8-CCITT poly 0x07 (D-05); honor the Uno-fit filter (D-04 — streaming encode only, no second ~512 B buffer, ~545 B free-RAM ceiling).
+
+**Interleaved milestone:** v1.10 was inserted *ahead* of the paused v1.9 RCA (operator pivot 2026-06-01). Phase numbering continues at **Phase 49** — Phases 45–48 are RESERVED for the deferred v1.9 phases and are not reused here. Branch model: `v1.10-serial-transport-hardening` stacked off the `v1.9-read-bug-rca` tip in all 3 repos (NOT off `main`/`beta`, which are stale at the v1.8 close and lack both the COBS ADOPT decision and Phase 44's read-timing knobs that v1.10 depends on).
+
+**Hardware-gated:** byte-exact transport verification (Uno 512 B / Leonardo 1024 B / uno328pb) is operator-authorized bench work. Per `feedback_chip_out_before_sideload`: the chip leaves the socket before any firmware sideload. Per `feedback_verify_port_identity_each_task`: controller identity is verified per port at each bench task. Per `user_shield_revisions`: the operator is asked which silkscreen rev is on the bench.
+
+**Lockstep mandate:** root `CLAUDE.md` requires `rurp_serial_utils.cpp` ↔ `serial_comm.py`/`frame_parser.py` to change together; the `test_messages` Unity contract pins the byte-level frame shape. This is a coordinated dual-repo (firmware + host) milestone, like the v1.2 Message-ID rework.
+
+**Granularity:** Comprehensive (decision → data-path framing → command-channel migration → lockstep contract → hardware verification — five distinct delivery boundaries; the breaking command-channel change and the operator-gated bench verification each warrant their own phase).
+
+### Phases
+
+- [ ] **Phase 49: Framing Mechanism Decision (COBS `0x00` vs SLIP `0xC0`)** — Resolve the deferred mechanism choice and the `0x00` bus-aliasing safety question (COBS-DECISION §2.0 / Open Q2/Q3) before any implementation commits to a delimiter. Produces a binding decision record.
+- [ ] **Phase 50: Data-Path Framing Layer + Automatic Resync (dual-repo lockstep)** — Implement the chosen streaming framing on the host↔fw data-block path with CRC8 retained; receiver auto-resyncs to the next delimiter, killing the 2 s `len_u16`-corruption timeout cascade; fits the Uno free-RAM ceiling.
+- [ ] **Phase 51: Command-Channel Framing Migration (breaking wire change)** — Migrate the host→fw JSON command channel into the same framing (CRC8-verified before the JSON parser sees the payload); firmware + host upgrade lockstep, no mixed-version interop.
+- [ ] **Phase 52: Lockstep Contract + Round-Trip Tests** — Prove host-encode↔firmware-decode byte-compatibility (data blocks AND command frames, incl. delimiter-laden + all-delimiter payloads); pin the new frame contract in the `test_messages` Unity suite + host parser tests; CI green across both repos.
+- [ ] **Phase 53: Byte-Exact Bench Verification (hardware-gated)** — Operator-authorized bench proof: N consecutive framed read+write transfers byte-identical on Uno + Leonardo (reproducing the GATE-1.8d W27C512 N=5 baselines); fault-injection resync proven within one packet; uno328pb re-test recorded (transport-exoneration, not a hardware fix).
+
+### Phase Details
+
+#### Phase 49: Framing Mechanism Decision (COBS `0x00` vs SLIP `0xC0`)
+
+**Goal**: The framing mechanism is chosen with a binding, evidence-backed decision — streaming COBS (`0x00` delimiter) vs SLIP/RFC-1055 (`0xC0` delimiter) — and the SERIAL_ON_IO `0x00` bus-aliasing risk (COBS-DECISION Open Q2) is resolved before any implementation phase commits to a delimiter byte. The decision is load-bearing because framing the command channel (Phase 51) means the host now actively emits delimiter bytes on the host→fw direction.
+**Depends on**: Nothing (first v1.10 phase). Inputs: `.planning/v1.9-COBS-DECISION.md` §2.0/§4.2/§4.3/§5, the verified `com_mode` gate analysis in `uno_rurp_shield.cpp`, and the current four-framing serial-path map (§1.1).
+**Requirements**: SAFE-01
+**Success Criteria** (what must be TRUE):
+
+  1. A written decision record names the chosen mechanism (COBS `0x00` or SLIP `0xC0`) with rationale referencing the Uno-fit constraint (D-04), the CRC8 coexistence requirement (D-05), and the bus-aliasing analysis — not merely "we picked one".
+  2. The SERIAL_ON_IO `0x00` bus-aliasing risk is resolved and documented: EITHER a code/bench proof that the host cannot deliver a `0x00` frame-boundary byte during the programmer↔communication mode transition window (COBS path), OR an explicit adoption of SLIP's `0xC0` delimiter that sidesteps the concern (Q3) — the chosen resolution is the one the implementation phases build on.
+  3. The decision explicitly confirms the mechanism is streaming-encodable with no second ~512 B encode buffer (fits the ~545 B Uno free-RAM ceiling) and layers on top of the unchanged CRC8-CCITT poly 0x07 integrity byte.
+  4. The decision identifies what changes in each repo file (`rurp_serial_utils.cpp`, `serial_comm.py`, `frame_parser.py`, `test_messages`) so Phases 50–52 inherit a concrete contract, not an open question.
+
+**Plans**: TBD
+
+#### Phase 50: Data-Path Framing Layer + Automatic Resync (dual-repo lockstep)
+
+**Goal**: The host↔firmware data-block path uses the Phase-49 framing layer end to end — full board-buffer payloads (512 B Uno / 1024 B Leonardo) frame transparently to the eprom read/write loop, the firmware encoder/decoder streams with no second encode buffer (proven by a post-change Uno RAM report), CRC8 is retained on every framed payload, and the receiver automatically resyncs to the next delimiter after any framing or integrity error — eliminating the 2 s `len_u16`-corruption timeout-desync cascade.
+**Depends on**: Phase 49 (mechanism + delimiter + bus-aliasing resolution chosen). Coordinated dual-repo work: `rurp_serial_utils.cpp` (firmware) + `serial_comm.py`/`frame_parser.py` (host) change in lockstep.
+**Requirements**: FRAME-01, FRAME-02, FRAME-03, FRAME-04, CRC-01
+**Success Criteria** (what must be TRUE):
+
+  1. The bare `[len_u16][xor][payload]` data-block frame boundary is replaced by the chosen delimiter-based framing on both directions of the data-block path; a corrupted byte no longer causes a wrong-length read that cascades to the 2 s timeout.
+  2. After a deliberately injected framing or integrity error in a unit/host-level test, the receiver discards bytes up to the next delimiter and recovers within a single packet — the desync is bounded to one frame, not the rest of the transfer.
+  3. A post-change `pio run -e uno` RAM report shows the encoder/decoder is streaming — no second ~512 B encode buffer is materialized and the build stays under the ~545 B free-RAM ceiling (D-04); 512 B (Uno) and 1024 B (Leonardo) full-buffer payloads frame without operator-visible re-chunking.
+  4. CRC8-CCITT (poly 0x07, seed 0x00, no reflection, no final XOR) is computed and verified on every framed data-block payload, byte-compatible with the existing `rurp_serial_utils.cpp` table and `frame_parser.py` `_build_crc8_table` — no polynomial swap (D-05).
+
+**Plans**: TBD
+
+#### Phase 51: Command-Channel Framing Migration (breaking wire change)
+
+**Goal**: The host→firmware JSON command channel is migrated into the same framing layer — the firmware decodes a frame, verifies its CRC8, then hands the payload to the JSON parser; the legacy "`{`-peek and discard non-`{` bytes" path is replaced (or retained only as an explicit fallback). This is a breaking wire-protocol change: firmware and host upgrade lockstep with no mixed-version interop, exactly like the v1.2 Message-ID rework.
+**Depends on**: Phase 50 (the framing layer + CRC8-on-payload contract exists on the data path and is reused for the command channel). Coordinated dual-repo lockstep.
+**Requirements**: FRAME-05
+**Success Criteria** (what must be TRUE):
+
+  1. The host→fw JSON command channel emits framed commands using the Phase-49/50 framing; the firmware decodes a frame and verifies its CRC8 BEFORE the JSON parser sees the payload — the command channel, which previously had no checksum, now gains end-to-end integrity (closing the CRC-01 command-channel obligation).
+  2. The legacy `{`-peek / discard-non-`{` command-ingest path is replaced (or demoted to an explicit, documented fallback) — the firmware no longer relies on byte-peeking to find command boundaries on the framed path.
+  3. The change is enforced as a breaking lockstep upgrade: a version/handshake guard (or equivalent) prevents a framed host from silently mis-driving unframed firmware and vice-versa; the breaking nature is documented for the beta cut.
+  4. A representative set of host commands (read/write/info/etc.) round-trips through the framed command channel and is parsed identically to the pre-migration JSON behavior — no command-surface regression.
+
+**Plans**: TBD
+
+#### Phase 52: Lockstep Contract + Round-Trip Tests
+
+**Goal**: The firmware and host framing implementations are proven byte-compatible and pinned by tests in both repos, so the dual-repo contract cannot silently drift — host-encode→firmware-decode and firmware-encode→host-decode both round-trip for representative payloads (data blocks AND JSON command frames), including the pathological delimiter-laden and all-delimiter cases, and CI stays green across both repos with firmware/host constant parity preserved.
+**Depends on**: Phase 50 (data-path framing) + Phase 51 (command-channel framing) — both framed paths must exist to pin the full contract.
+**Requirements**: LOCK-01, LOCK-02
+**Success Criteria** (what must be TRUE):
+
+  1. A round-trip test proves host-encode → firmware-decode AND firmware-encode → host-decode for representative payloads — data blocks and JSON command frames — including a payload that contains the delimiter byte and the pathological all-delimiter payload; encode/decode are byte-exact inverses.
+  2. The `test_messages` Unity suite (firmware) and the host-side parser tests are updated to pin the new frame contract (delimiter, escaping/run-length, CRC8 placement) so any future drift fails a test rather than silently breaking the link.
+  3. Firmware/host constant parity is preserved (the constants duplicated between `firestarter/include/firestarter.h` and `firestarter_app/firestarter/constants.py` stay in sync, guarded by the parity tests) and CI is green in both the `firestarter` and `firestarter_app` repos.
+  4. The CRC8-CCITT byte-level contract (poly 0x07) is asserted byte-for-byte in the updated suites — confirming framing layered on top without a polynomial change (D-05).
+
+**Plans**: TBD
+
+#### Phase 53: Byte-Exact Bench Verification (hardware-gated)
+
+**Goal**: The hardened transport is proven byte-exact on real hardware and its resync behavior is demonstrated under fault injection — closing the milestone's central claim that serial corruption is ruled out as a read-bug confounder. The uno328pb (where the timeout + ~99% 0xff-drift instability bites hardest) is re-tested with the result documenting explicitly what the hardened transport does and does not conclude (transport-exoneration per COBS-DECISION §2.0, NOT a hardware fix).
+**Depends on**: Phase 50 + Phase 51 (both framed paths implemented) + Phase 52 (lockstep contract proven green) — bench verification runs against the merged hardened firmware + host. Bench hardware: Uno (512 B) + Leonardo (1024 B) + uno328pb + RURP shield + operator authorization. Operator is asked which silkscreen rev is on the bench; controller identity verified per port; chip out of socket before any sideload.
+**Requirements**: XACT-01, XACT-02, XACT-03
+**Success Criteria** (what must be TRUE):
+
+  1. Transport proven byte-exact on a clean board: N consecutive framed read AND write transfers return byte-identical results on Uno (512 B) and Leonardo (1024 B) — operator-witnessed — and the hardened read path reproduces the GATE-1.8d W27C512 N=5 baselines (`.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260526-*-v2*/`).
+  2. Resync proven under fault injection: a deliberately corrupted byte (or length field) recovers within one packet via the delimiter — demonstrated by a host-side or bench fault-injection harness — NOT a 2-second timeout cascade.
+  3. uno328pb re-test recorded: the `firestarter dev consistency-check` read is re-run on the uno328pb and the result documents whether the hardened transport changes the failure shape (timeout / ~99% 0xff-drift), stating explicitly that this is transport-exoneration and NOT a per-shield hardware fix (the actual RCA is deferred v1.9 Phase 45+).
+  4. The bench evidence is captured in a milestone artifact (hashes, fault-injection log, uno328pb before/after shape) sufficient for the resumed v1.9 RCA to treat the transport as a settled, byte-exact variable.
+
+**Plans**: TBD
+
+### v1.10 Coverage
+
+| REQ-ID | Phase |
+|--------|-------|
+| SAFE-01 | Phase 49 |
+| FRAME-01 | Phase 50 |
+| FRAME-02 | Phase 50 |
+| FRAME-03 | Phase 50 |
+| FRAME-04 | Phase 50 |
+| CRC-01 | Phase 50 |
+| FRAME-05 | Phase 51 |
+| LOCK-01 | Phase 52 |
+| LOCK-02 | Phase 52 |
+| XACT-01 | Phase 53 |
+| XACT-02 | Phase 53 |
+| XACT-03 | Phase 53 |
+
+**Mapped: 12/12 requirements ✓** — no orphans, no duplicates.
 
 ## v1.9 — Read-Bug RCA + Fix (STARTED 2026-05-29)
 

@@ -50,7 +50,7 @@
 
 ## Future Requirements (deferred)
 
-- Hardening the JSON command channel framing, if a corruption case there is ever observed.
+- Re-framing the fw→host log/telemetry channel (#4), if a corruption case there is ever observed (it already self-delimits today).
 - Resync telemetry/metrics (counting recovered desyncs) if field instrumentation becomes useful for the v1.9 RCA.
 - Applying the framing layer to any future higher-throughput transport (e.g. a faster baud or a binary command channel).
 
@@ -58,4 +58,15 @@
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| _(filled by roadmap)_ | | |
+| FRAME-01 | Phase 50 | Pending |
+| FRAME-02 | Phase 50 | Pending |
+| FRAME-03 | Phase 50 | Pending |
+| FRAME-04 | Phase 50 | Pending |
+| FRAME-05 | Phase 51 | Pending |
+| CRC-01 | Phase 50 | Pending |
+| LOCK-01 | Phase 52 | Pending |
+| LOCK-02 | Phase 52 | Pending |
+| SAFE-01 | Phase 49 | Pending |
+| XACT-01 | Phase 53 | Pending |
+| XACT-02 | Phase 53 | Pending |
+| XACT-03 | Phase 53 | Pending |
