@@ -1,8 +1,8 @@
 ---
 phase: 49
 slug: framing-mechanism-decision-cobs-0x00-vs-slip-0xc0
-status: draft
-nyquist_compliant: false
+status: approved
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-06-01
 ---
@@ -78,6 +78,6 @@ created: 2026-06-01
 - [ ] Wave 0 covers the one MISSING reference (the ADR file)
 - [ ] No watch-mode flags (N/A — no test runner)
 - [ ] Feedback latency < 5s
-- [ ] `nyquist_compliant: true` set in frontmatter (after planner confirms task→row mapping)
+- [x] `nyquist_compliant: true` set in frontmatter (task→row mapping confirmed by plan-checker)
 
-**Approval:** pending
+**Approval:** approved 2026-06-01

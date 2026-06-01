@@ -49,8 +49,8 @@
   4. The decision identifies what changes in each repo file (`rurp_serial_utils.cpp`, `serial_comm.py`, `frame_parser.py`, `test_messages`) so Phases 50–52 inherit a concrete contract, not an open question.
 
 **Plans**: 1 plan
-
 Plans:
+
 - [ ] 49-01-PLAN.md — Wave 1: SAFE-01 static proof → scored neutral COBS-vs-SLIP matrix → ADR + frozen frame contract at `.planning/v1.10-FRAMING-DECISION.md` (handles both decision branches; CRC8-before-parse V5 mandate recorded; supersedes v1.9-COBS-DECISION.md DEFER line)
 
 #### Phase 50: Data-Path Framing Layer + Automatic Resync (dual-repo lockstep)
