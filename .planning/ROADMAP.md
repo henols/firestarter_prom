@@ -29,7 +29,7 @@
 ### Phases
 
 - [x] **Phase 49: Framing Mechanism Decision (COBS `0x00` vs SLIP `0xC0`)** — Resolve the deferred mechanism choice and the `0x00` bus-aliasing safety question (COBS-DECISION §2.0 / Open Q2/Q3) before any implementation commits to a delimiter. **COMPLETE 2026-06-01: COBS `0x00` selected; SAFE-01 proof conclusive; D-06 frame contract frozen at `.planning/v1.10-FRAMING-DECISION.md`.**
-- [ ] **Phase 50: Data-Path Framing Layer + Automatic Resync (dual-repo lockstep)** — Implement the chosen streaming framing on the host↔fw data-block path with CRC8 retained; receiver auto-resyncs to the next delimiter, killing the 2 s `len_u16`-corruption timeout cascade; fits the Uno free-RAM ceiling.
+- [x] **Phase 50: Data-Path Framing Layer + Automatic Resync (dual-repo lockstep)** — Implement the chosen streaming framing on the host↔fw data-block path with CRC8 retained; receiver auto-resyncs to the next delimiter, killing the 2 s `len_u16`-corruption timeout cascade; fits the Uno free-RAM ceiling. (completed 2026-06-01)
 - [ ] **Phase 51: Command-Channel Framing Migration (breaking wire change)** — Migrate the host→fw JSON command channel into the same framing (CRC8-verified before the JSON parser sees the payload); firmware + host upgrade lockstep, no mixed-version interop.
 - [ ] **Phase 52: Lockstep Contract + Round-Trip Tests** — Prove host-encode↔firmware-decode byte-compatibility (data blocks AND command frames, incl. delimiter-laden + all-delimiter payloads); pin the new frame contract in the `test_messages` Unity suite + host parser tests; CI green across both repos.
 - [ ] **Phase 53: Byte-Exact Bench Verification (hardware-gated)** — Operator-authorized bench proof: N consecutive framed read+write transfers byte-identical on Uno + Leonardo (reproducing the GATE-1.8d W27C512 N=5 baselines); fault-injection resync proven within one packet; uno328pb re-test recorded (transport-exoneration, not a hardware fix).
@@ -293,7 +293,7 @@ Plans:
 | 31-35 (v1.7) | v1.7 | — | ✅ Shipped | 2026-05-26 |
 | 36-43 (v1.8) | v1.8 | 26/26 | ✅ Shipped | 2026-05-29 |
 | 49 | v1.10 | 1/1 | Complete    | 2026-06-01 |
-| 50 | v1.10 | 4/4 | Complete   | 2026-06-01 |
+| 50 | v1.10 | 4/4 | Complete    | 2026-06-01 |
 | 51 | v1.10 | 0/TBD | Not started | — |
 | 52 | v1.10 | 0/TBD | Not started | — |
 | 53 | v1.10 | 0/TBD | Not started | — |
@@ -413,7 +413,7 @@ Plans:
   2. The same file (or a companion file) lists every intra-algorithm DB inconsistency — chips that share `pin_count` + `algorithm` but differ in `pulse_duration`, `chip_id_check`, or `pinout` — with each inconsistency labeled as a defect candidate for v1.4 or a sub-repo PR (no auto-fixes applied in v1.3).
   3. Operator can use the matrix to confirm that the six BENCH chips (BENCH-01..06) span the pinout classes and pulse-duration profiles actually represented in the DB, so bench results generalize to the rest of the 339 rows.
 
-**Plans:** 1/1 plans complete
+**Plans:** 4/4 plans complete
 
 - [x] 11-01-PLAN.md — Wave 0 failing-test scaffold for tests/test_audit_coverage_matrix.py (10 tests) ✅ 2026-05-19
 - [x] 11-02-PLAN.md — Wave 1 tool skeleton + CLI + §1 Summary + §2 DB Count Reconciliation ✅ 2026-05-19
