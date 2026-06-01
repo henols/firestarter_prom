@@ -78,7 +78,7 @@ Plans:
 
 **Wave 3** *(integration gate — depends on 50-02 + 50-03)*
 
-- [ ] 50-04-PLAN.md — post-change Uno RAM proof (FRAME-03) + dual-repo full-suite green gate + Leonardo `DATA_BUFFER_SIZE` A/B-pin operator decision (D-03)
+- [x] 50-04-PLAN.md — post-change Uno RAM proof (FRAME-03) + dual-repo full-suite green gate + Leonardo `DATA_BUFFER_SIZE` A/B-pin operator decision (D-03)
 
 #### Phase 51: Command-Channel Framing Migration (breaking wire change)
 
@@ -293,7 +293,7 @@ Plans:
 | 31-35 (v1.7) | v1.7 | — | ✅ Shipped | 2026-05-26 |
 | 36-43 (v1.8) | v1.8 | 26/26 | ✅ Shipped | 2026-05-29 |
 | 49 | v1.10 | 1/1 | Complete    | 2026-06-01 |
-| 50 | v1.10 | 3/4 | In Progress|  |
+| 50 | v1.10 | 4/4 | Complete   | 2026-06-01 |
 | 51 | v1.10 | 0/TBD | Not started | — |
 | 52 | v1.10 | 0/TBD | Not started | — |
 | 53 | v1.10 | 0/TBD | Not started | — |
