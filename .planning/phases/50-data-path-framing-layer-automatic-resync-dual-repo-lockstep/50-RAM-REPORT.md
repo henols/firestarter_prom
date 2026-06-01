@@ -114,3 +114,39 @@ This report attests:
    host/firmware pair (one updated, one not) will fail to communicate. No interim version/interop
    guard is added in Phase 50 (accepted per D-03); the version/handshake guard lands in Phase 51.
    The breaking nature is accepted and documented here per plan objective.
+
+---
+
+## Leonardo DATA_BUFFER_SIZE A/B-Pin Disposition (FRAME-04 — Task 2)
+
+**Operator decision (2026-06-01): keep-512-documented**
+
+The `[env:leonardo]` build pin `DATA_BUFFER_SIZE=512` (line 65 of `firestarter/platformio.ini`,
+comment: "TEMP: 512 to match Uno for buffer-size A/B test (was 1024)") is **deliberately retained
+unchanged** as an explicit A/B-test condition, not silently shipped.
+
+### Rationale
+
+The 512 B pin was set to match the Uno buffer size for a side-by-side comparison tied to the v1.9
+read-bug investigation (paused at Phase 44; resumes at Phase 45 after v1.10 completes). Restoring
+1024 would end that A/B condition prematurely — before the v1.9 RCA has used it. The operator
+decision preserves the v1.9 A/B state.
+
+### FRAME-04 Satisfaction
+
+FRAME-04 requires "512 B (Uno) and 1024 B (Leonardo) transfers complete through the new framing
+transparently." COBS is **size-agnostic** — the framing code treats any N-byte payload identically;
+there is no special case for 512 vs 1024. The `test_cobs_data_frame` suite (Phase 50 Plan 01/02/03)
+includes parameterized round-trip tests at multiple payload sizes — including full-buffer cases that
+cover the 1024 B path — and all 28/28 test cases pass. FRAME-04's 1024 B Leonardo path is
+**test-validated** by those size-agnostic tests independent of the shipped Leonardo define.
+
+The shipped Leonardo build running at `DATA_BUFFER_SIZE=512` does not represent a defect in the
+framing layer; it represents a deliberate A/B-test condition that the operator owns.
+
+### State
+
+- `firestarter/platformio.ini` `[env:leonardo]`: `DATA_BUFFER_SIZE=512` — **UNCHANGED**
+- No firmware commit was made for Task 2 (disposition is documentation-only)
+- The A/B pin will be revisited when the v1.9 read-bug RCA resumes (Phase 45+)
+- Nothing is promoted to stable without operator authorization (per D-03 / D-17v2 carry-forward)
