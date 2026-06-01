@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.10
-milestone_name: Serial Transport Hardening (COBS)
-status: planning
-stopped_at: ""
-last_updated: "2026-06-01"
-last_activity: 2026-06-01
+milestone_name: — Serial Transport Hardening
+status: Defining requirements — v1.10 Serial Transport Hardening (COBS)
+stopped_at: Phase 49 context gathered
+last_updated: "2026-06-01T14:06:24.767Z"
+last_activity: 2026-06-01 — Milestone v1.10 started (stacked off the v1.9 branch tip)
 progress:
   total_phases: 5
   completed_phases: 0
@@ -66,9 +66,11 @@ per operator pivot so the serial transport is hardened first.
 - **Done:** Phase 44 (Bug A RCA — Modified Rev 0, read-strobe-causal) complete; Phase 48 plan
   48-01 (COBS-01 evaluation) complete — verdict flipped DEFER→**ADOPT** (`.planning/v1.9-COBS-DECISION.md` §2),
   which is what triggered v1.10.
+
 - **Deferred until after v1.10 ships:** Phase 45 (Bug B RCA — Rev 2.0), Phase 46 (Fix Design & A/B),
   Phase 47 (Acceptance Gate + VERIFY-01/03/04 backlog closures), Phase 48 plans 48-02 (TYPE-01,
   hard-gated on Phase 46) and 48-03 (v1.9 milestone close).
+
 - **Phase dirs preserved:** `.planning/phases/44-*` and `.planning/phases/48-*` are intact (NOT cleared).
 - **Resume command:** `/gsd-plan-phase 45` once v1.10 ships and the hardened transport is merged.
 - v1.9 roadmap (phases 44–48) still recorded in `.planning/ROADMAP.md`.
@@ -78,14 +80,18 @@ per operator pivot so the serial transport is hardened first.
 - **COBS decision:** `.planning/v1.9-COBS-DECISION.md` — ADOPT custom framing layer; REJECT all
   off-the-shelf libraries; KEEP CRC8-CCITT (D-05); Uno-fit filter (D-04). §4 has the 7-candidate
   survey; SLIP (§4.2) and hand-rolled streaming COBS (§4.3) are the two Uno-fitting finalists.
+
 - **Open questions carried in:** Q1 (no field desync evidence — now superseded by the "rule out
   confounder" rationale), Q2 (host-side `0x00` timing guarantee for COBS), Q3 (SLIP vs COBS).
+
 - **Serial path code (lockstep mandate):** `firestarter/src/boards/rurp_serial_utils.cpp`,
   `firestarter/src/boards/uno_rurp_shield.cpp` (`com_mode` gate), `firestarter/src/firestarter.cpp`;
   host `firestarter_app/firestarter/serial_comm.py` + `frame_parser.py`; contract pinned by the
   `test_messages` Unity suite.
+
 - **Uno RAM baseline (2026-06-01):** 545 B free (1503/2048 used); `data_buffer[512]` dominant.
   Binding: no second ~512 B encode buffer fits.
+
 - **GATE-1.8d ring-fence:** `_read_and_parse_lines` body byte-identical pre/post v1.8; 15 N=5
   W27C512 baseline binaries at `.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260526-*-v2*/`
   remain valid.
@@ -95,6 +101,7 @@ per operator pivot so the serial transport is hardened first.
 - `serial-cobs-resync-data-path.md` (medium) — the v1.10 starting-evidence todo; resolved by this milestone.
 - `large-read-data-jitter-uno328pb.md` (HIGH) — v1.9 RCA target; uno328pb timeout instability is
   transport-shaped, so v1.10 hardening is expected to bear on it.
+
 - `avrdude-mcu-detection-fallback.md` (low), `w27c512-eeprom-misclassification.md` (HIGH) — out of v1.10 scope, carry forward.
 
 ### Blockers / Concerns
@@ -102,16 +109,18 @@ per operator pivot so the serial transport is hardened first.
 - **Hardware-gated.** Bench verification (byte-exact transport across Uno/Leonardo/uno328pb) requires
   operator authorization. Per `feedback_verify_port_identity_each_task`: verify controller identity per
   port at each bench task start. Per `user_shield_revisions`: ask which silkscreen rev is on bench.
+
 - **Coordinated dual-repo change.** The root `CLAUDE.md` mandates `rurp_serial_utils.cpp` ↔
   `serial_comm.py`/`frame_parser.py` change in lockstep; any framing change is a dual-repo milestone, not a patch.
+
 - **Branch model:** `v1.10-serial-transport-hardening` stacked off the v1.9 tip in all 3 repos
   (meta + firestarter + firestarter_app). Merging v1.10 first also carries v1.9's unmerged commits.
 
 ## Session Continuity
 
-Last session: 2026-06-01
-Stopped at: v1.10 milestone init — requirements + roadmap being generated
-Resume file: —
+Last session: 2026-06-01T14:06:24.761Z
+Stopped at: Phase 49 context gathered
+Resume file: .planning/phases/49-framing-mechanism-decision-cobs-0x00-vs-slip-0xc0/49-CONTEXT.md
 
 ## Decisions
 
