@@ -279,7 +279,7 @@ Plans:
 | 30 (close) | v1.6 | 3/3 | ✅ Shipped | 2026-05-26 |
 | 31-35 (v1.7) | v1.7 | — | ✅ Shipped | 2026-05-26 |
 | 36-43 (v1.8) | v1.8 | 26/26 | ✅ Shipped | 2026-05-29 |
-| 49 | v1.10 | 1/1 | ✅ Complete | 2026-06-01 |
+| 49 | v1.10 | 1/1 | Complete    | 2026-06-01 |
 | 50 | v1.10 | 0/TBD | Not started | — |
 | 51 | v1.10 | 0/TBD | Not started | — |
 | 52 | v1.10 | 0/TBD | Not started | — |
@@ -400,7 +400,7 @@ Plans:
   2. The same file (or a companion file) lists every intra-algorithm DB inconsistency — chips that share `pin_count` + `algorithm` but differ in `pulse_duration`, `chip_id_check`, or `pinout` — with each inconsistency labeled as a defect candidate for v1.4 or a sub-repo PR (no auto-fixes applied in v1.3).
   3. Operator can use the matrix to confirm that the six BENCH chips (BENCH-01..06) span the pinout classes and pulse-duration profiles actually represented in the DB, so bench results generalize to the rest of the 339 rows.
 
-**Plans:** 6 plans
+**Plans:** 1/1 plans complete
 
 - [x] 11-01-PLAN.md — Wave 0 failing-test scaffold for tests/test_audit_coverage_matrix.py (10 tests) ✅ 2026-05-19
 - [x] 11-02-PLAN.md — Wave 1 tool skeleton + CLI + §1 Summary + §2 DB Count Reconciliation ✅ 2026-05-19

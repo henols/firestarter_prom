@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.10
 milestone_name: — Serial Transport Hardening
-status: executing
-stopped_at: Phase 49 Plan 01 complete
-last_updated: "2026-06-01T14:54:52Z"
-last_activity: 2026-06-01 -- Phase 49 Plan 01 executed (framing-mechanism ADR written, COBS selected)
+status: completed
+stopped_at: Completed Phase 49 Plan 01 — framing-mechanism ADR written; Phase 50 data-path framing next
+last_updated: "2026-06-01T15:10:00.092Z"
+last_activity: 2026-06-01
 progress:
   total_phases: 5
   completed_phases: 1
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 49 (framing-mechanism-decision-cobs-0x00-vs-slip-0xc0) — COMPLETE
-Plan: 1 of 1 — COMPLETE
+Phase: 50
+Plan: Not started
 Status: Phase 49 complete; Phase 50 next
-Last activity: 2026-06-01 -- Phase 49 Plan 01 executed (framing-mechanism ADR written, COBS selected)
+Last activity: 2026-06-01
 
 Progress: [██░░░░░░░░] 20%
 
