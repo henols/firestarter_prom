@@ -27,7 +27,7 @@
 - Byte-exact transport verification across Uno (512 B) + Leonardo (1024 B), and the uno328pb where the timeout instability bites hardest
 - Phase numbering continues at Phase 49 (45–48 reserved for deferred v1.9)
 
-**Operator next step:** requirements + roadmap being generated via `/gsd-new-milestone` (2026-06-01).
+**Progress:** Phase 49 (Framing Mechanism Decision — COBS `0x00` selected, SAFE-01 static proof) and **Phase 50 (Data-Path Framing + Auto-Resync, dual-repo lockstep) COMPLETE 2026-06-01** — streaming COBS `[COBS(payload+CRC8)][0x00]` on the data block both directions; the 2 s `timeout_ms` cascade source removed; CRC8-CCITT retained unchanged; decode-in-place fits the Uno 545 B free-RAM ceiling (no second buffer); FRAME-01/02/03/04 + CRC-01 verified (4/4 must-haves), firmware native 29/29 + host pytest 410 green. A post-execution code review caught + fixed a host-encoder 254-run boundary byte-drop (CR-01) before close; one advisory residual (WR-01, decoder byte-wait has no frame-level deadline → clean hang on mid-frame disconnect) captured as a follow-up todo. **Next:** Phase 51 — Command-Channel Framing Migration (breaking wire change).
 
 ## Paused Milestone: v1.9 — Read-Bug RCA + Fix (resumes after v1.10 ships)
 
@@ -290,4 +290,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last updated: 2026-06-01 — v1.10 (Serial Transport Hardening / COBS) milestone STARTED, stacked off the v1.9 branch tip; scope locked, requirements + roadmap being generated (phases from 49). v1.9 (Read-Bug RCA + Fix) PAUSED at Phase 44, resumes at Phase 45 after v1.10 ships.*
+*Last updated: 2026-06-01 — v1.10 (Serial Transport Hardening / COBS) Phases 49 + 50 COMPLETE: data-path COBS framing + auto-resync shipped dual-repo lockstep, 2 s timeout cascade removed, FRAME-01/02/03/04 + CRC-01 verified. Next: Phase 51 (command-channel framing migration). v1.9 (Read-Bug RCA + Fix) PAUSED at Phase 44, resumes at Phase 45 after v1.10 ships.*
