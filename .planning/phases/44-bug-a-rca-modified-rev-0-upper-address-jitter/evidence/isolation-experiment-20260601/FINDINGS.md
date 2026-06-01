@@ -2,12 +2,39 @@
 artifact: isolation-experiment-findings
 phase: 44 (Bug A) — cross-cuts Phase 45 (Bug B)
 type: bench-evidence
-status: decisive-on-chip-vs-board; shield-vs-controller still confounded
+status: RESOLVED — fault isolated to the Rev 0 (Modified Rev 0) shield
 recorded: 2026-06-01
 operator_witnessed: true
 ---
 
 # Chip-vs-Board Isolation Experiment — 2026-06-01
+
+## ★ VERDICT (full 2×2 complete): the Rev 0 shield is the faulty component
+
+| Controller \ Shield | **Rev 2.0** | **Rev 0 (Modified Rev 0)** |
+|---------------------|-------------|----------------------------|
+| **Leonardo** (ttyACM0) | PASS — clean | **FAIL — 426B, skew 1.07× (uniform)** |
+| **Uno** (ttyACM1) | **PASS — perfect, 1 SHA** | FAIL — 689/568B, skew 0.27–0.93× (uniform) |
+
+- **Rev 0 shield FAILS on BOTH controllers; Rev 2.0 shield PASSES on BOTH.**
+- The jitter **follows the Rev 0 shield**, independent of controller and chip.
+- **Controller exonerated:** the Uno reads *perfectly* with the Rev 2.0 shield
+  (1 SHA) — its prior instability reputation did NOT manifest here.
+- **Chip exonerated** (crossover, below): good chips read clean on any Rev 2.0
+  assembly and jitter on any Rev 0 assembly.
+- **Failure mode is BROAD/UNIFORM read jitter** across the whole address space
+  (every Rev 0 measurement: skew ≈ 0.3–1.1×) — **NOT** the "upper-address (A15)
+  jitter" in the Phase 44 title. The only A15-skewed datum all session was a
+  marginal chip on the Rev 2.0 board (see Secondary observation) and is discounted.
+
+**Answer to "is the shield bad?": YES — the Rev 0 / Modified Rev 0 shield induces
+read-path jitter on any controller.** Mechanism is shield-level signal integrity
+(consistent with the weak-data-bus-pulldown / missing-termination candidates from
+the static check, which were never quantified — see `../rev2.0-misattributed-20260601/`).
+
+---
+
+## Detail — chip-vs-board crossover (rounds 1–2)
 
 ## Goal
 
@@ -47,20 +74,14 @@ Two chips, swapped between the two assemblies:
   A15=1 0.836%, skew 0.93×) — a **broad read instability**, NOT an upper-address
   (A15) phenomenon. Chip-B is ~90% 0xff in both halves yet still jitters ~0.87%.
 
-## ⚠ Remaining confound: shield (Rev 0) vs controller (Uno)
+## Shield-vs-controller — RESOLVED by round 3 (shield swap)
 
-Assembly B differs from A in **both** controller (Uno vs Leonardo) **and** shield
-(Rev 0 vs Rev 2.0). This experiment proves the fault is in the B *assembly* but
-**cannot yet attribute it to the Rev 0 shield specifically**. The Uno controller is
-a strong independent suspect: prior bench history records the operator's Uno/uno328pb
-as pre-existingly unstable on W27C512 reads (timeouts + 0xff drift), distinct from any
-shield (memory `project_uno328pb_bench_instability_27_04` /
-`project_uno328pb_correction`).
-
-**To disambiguate → shield swap:** mount the Rev 0 shield on the Leonardo (or the
-Rev 2.0 shield on the Uno) and re-read.
-- Rev 0 shield jitters on the Leonardo → **shield** is bad.
-- Rev 0 shield clean on the Leonardo → **controller (Uno)** is bad.
+The rounds 1–2 confound (B differs in both controller and shield) was resolved by
+the round-3 shield swap: **Leonardo + Rev 0 → FAIL (426B)**, **Uno + Rev 2.0 →
+PASS (1 SHA)**. The Rev 0 shield jitters on the Leonardo too, and the Uno reads
+perfectly with the Rev 2.0 shield → **the Rev 0 shield is the fault; controller is
+exonerated.** (The prior Uno/uno328pb instability reputation did not manifest with
+a good shield.) See the VERDICT table at the top.
 
 ## Secondary observation (treat cautiously)
 
@@ -86,5 +107,6 @@ property without re-test.
 
 ## Binaries
 
-- `round1-leo-rev2.0/` (Chip-B), `round1-uno-rev0/` (Chip-D)
-- `round2-leo-rev2.0-chipD/` (Chip-D, PASS), `round2-uno-rev0-chipB/` (Chip-B)
+- `round1-leo-rev2.0/` (Chip-B, clean), `round1-uno-rev0/` (Chip-D, FAIL)
+- `round2-leo-rev2.0-chipD/` (Chip-D, PASS), `round2-uno-rev0-chipB/` (Chip-B, FAIL)
+- `round3-leo-rev0/` (Rev 0 shield on Leonardo, FAIL 426B), `round3-uno-rev2.0/` (Rev 2.0 shield on Uno, PASS)
