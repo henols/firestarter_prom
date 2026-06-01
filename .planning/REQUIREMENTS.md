@@ -1,66 +1,61 @@
-# Requirements: Firestarter v1.9 — Read-Bug RCA + Fix
+# Requirements: Firestarter v1.10 — Serial Transport Hardening (COBS)
 
-**Defined:** 2026-05-29
-**Milestone goal:** Root-cause and fix the EPROM read-bug deferred since v1.6, restoring N≥5 byte-identical reads across the shield fleet (Modified Rev 0, Rev 2.0, Rev 2.2). Inherits the v1.6 `dev consistency-check` diagnostic, the 15-binary N=5 W27C512 bench substrate, the Phase 29 v2 Bug A/Bug B characterization, the v1.7 schematics + shield-version-detect plumbing, and the v1.8 cleaned-up host read path (GATE-1.8d ring-fence intact → baselines still valid).
+**Defined:** 2026-06-01
+**Milestone goal:** Implement a custom serial framing + automatic-resync layer on the Arduino↔host data path — covering **both** the binary data-block path (host↔fw payload transfers) **and** the host→firmware JSON command channel — so the transport is **provably byte-exact** end to end: delivering exactly the bytes the firmware read off the parallel bus, and exactly the commands the host issued, with any line corruption bounded to a single frame. This rules serial corruption out as a confounding variable before the per-shield read-bug RCA resumes (v1.9 Phase 45+).
 
-**Scope locked:** 2026-05-29 via `/gsd-new-milestone`. Phase numbering continues at **Phase 44** (after v1.8's last phase 43).
+**Scope locked:** 2026-06-01 via `/gsd-new-milestone`, inserted ahead of the paused v1.9 RCA. Phase numbering continues at **Phase 49** (45–48 reserved for deferred v1.9 phases).
 
-**Hardware-gated:** all bench operations are operator-authorized (shield swaps, reads, A/B fix trials). Firmware sub-repo work is expected (unlike v1.8's host-only scope). Per `feedback_chip_out_before_sideload`, the chip leaves the socket before any firmware sideload; per `feedback_verify_port_identity_each_task`, controller identity is verified per port at each bench task; per `user_shield_revisions`, the operator is asked which silkscreen rev is on the bench (the EEPROM hw_revision byte can't distinguish them).
+**Binding inputs (from `.planning/v1.9-COBS-DECISION.md`):** ADOPT a custom framing layer; REJECT all off-the-shelf libraries (§4); KEEP CRC8-CCITT poly 0x07 (D-05); Uno-fit filter (D-04 — streaming encode only, no second ~512 B buffer, ~545 B free-RAM ceiling). The framing **mechanism** (streaming COBS `0x00` per §4.3 vs SLIP/RFC-1055 `0xC0` per §4.2) is deferred to plan-phase research.
 
-## v1.9 Requirements
+**Hardware-gated:** byte-exact transport verification (Uno / Leonardo / uno328pb) is operator-authorized. Per `feedback_chip_out_before_sideload`, the chip leaves the socket before any firmware sideload; per `feedback_verify_port_identity_each_task`, controller identity is verified per port at each bench task; per `user_shield_revisions`, the operator is asked which silkscreen rev is on the bench.
 
-### 1. Root-Cause Analysis (RCA) — prove the mechanisms
+**Lockstep mandate:** root `CLAUDE.md` requires `rurp_serial_utils.cpp` ↔ `serial_comm.py`/`frame_parser.py` to change together; this is a coordinated dual-repo milestone.
 
-- [x] **RCA-01**: Bug A root cause proven — the Modified Rev 0 upper-address (A15=1) jitter is instrumented to a definitive signal-integrity mechanism (ringing / crosstalk / settling-time), beyond the Phase 29 v2 characterized symptom (1.86× skew, 63% bit-raise).
-- [ ] **RCA-02**: Bug B root cause proven — the Rev 2.0 /CE-or-/OE timing + voltage-divider mismatch + VPP=13.1V failure is instrumented to a definitive root cause.
-- [x] **RCA-03**: Per-rev failure-mode map confirmed — which of Modified Rev 0 / Rev 2.0 / Rev 2.2 exhibits which bug, using the v1.7 shield-version-detect plumbing so each bench step knows the silkscreen rev in play.
+## v1.10 Requirements
 
-### 2. Fix Candidates (FIX) — instrumented A/B
+### 1. Framing Layer (FRAME)
 
-- [ ] **FIX-01**: Bug A fix candidate(s) designed and A/B-tested, restoring byte-identical reads on Modified Rev 0 (address settling / slew / firmware-timing strategy informed by RCA-01).
-- [ ] **FIX-02**: Bug B fix candidate(s) designed and A/B-tested on Rev 2.0 (timing/voltage strategy informed by RCA-02).
-- [ ] **FIX-03**: Fix(es) regression-checked across the shield fleet — no fix for one rev breaks reads on another.
+- [ ] **FRAME-01**: A custom delimiter-based framing layer is implemented on the host↔firmware data-block path (streaming COBS `0x00` or SLIP `0xC0`, mechanism chosen in plan research), replacing the desync-prone bare `[len_u16][xor][payload]` frame boundary.
+- [ ] **FRAME-02**: Automatic resync — after any framing or integrity error, the receiver discards bytes up to the next frame delimiter and recovers within a single packet; the 2-second `len_u16`-corruption timeout-desync cascade is eliminated.
+- [ ] **FRAME-03**: The firmware encoder/decoder is streaming — no second ~512 B encode buffer is materialized; the change fits the Uno ~545 B free-RAM ceiling, proven by a post-change `pio run -e uno` RAM report (D-04).
+- [ ] **FRAME-04**: Full board-buffer payloads are framed without operator-visible re-chunking — 512 B (Uno) and 1024 B (Leonardo) transfers complete through the new framing transparently to the eprom read/write loop.
+- [ ] **FRAME-05**: The host→firmware JSON command channel is migrated to the same framing layer — the firmware decodes a frame, verifies its CRC8, then hands the payload to the JSON parser; the legacy "`{`-peek and discard non-`{` bytes" path is replaced (or retained only as an explicit fallback). This is a breaking wire-protocol change: firmware and host upgrade lockstep, no mixed-version interop (cf. v1.2 lockstep upgrade).
 
-### 3. Verification & Acceptance (VERIFY)
+### 2. Integrity (CRC)
 
-- [ ] **VERIFY-A**: Phase 29 acceptance gate re-run — N≥5 byte-identical W27C512 reads across boards with the fix applied (the milestone's headline acceptance gate).
-- [ ] **VERIFY-01**: uno328pb byte-identity closed (carried forward from v1.6 backlog).
-- [ ] **VERIFY-03**: 1KB low-rate jitter closed (carried forward).
-- [ ] **VERIFY-04**: Phase 24 BENCH-02 closure (carried forward).
+- [ ] **CRC-01**: CRC8-CCITT (poly 0x07, seed 0x00, no reflection, no final XOR) is retained unchanged on every framed payload — including the newly-framed command channel (FRAME-05), which previously had no checksum; the existing byte-level CRC contract in `rurp_serial_utils.cpp` and `frame_parser.py` is preserved (D-05 — framing layers on top, no polynomial swap).
 
-### 4. Serial Data-Path Robustness (COBS) — evaluation
+### 3. Dual-Repo Lockstep (LOCK)
 
-- [x] **COBS-01**: Evaluate COBS framing/resync on the serial data path; re-assess PacketSerial vs a custom COBS layer and record an **adopt / defer / reject** decision with rationale. Explicitly complementary to the hardware RCA — NOT a Bug A fix (Bug A is hardware upper-address jitter, not a serial-framing fault).
+- [ ] **LOCK-01**: The firmware (`rurp_serial_utils.cpp`) and host (`serial_comm.py` + `frame_parser.py`) framing implementations are byte-compatible — a round-trip test proves host-encode → firmware-decode and firmware-encode → host-decode for representative payloads (data blocks **and** JSON command frames), including payloads that contain the delimiter byte and the pathological all-delimiter case.
+- [ ] **LOCK-02**: The `test_messages` Unity suite and host-side parser tests are updated to pin the new frame contract; firmware/host constant parity is preserved and CI stays green across both repos.
 
-### 5. Post-RCA Cleanup (TYPE)
+### 4. Bus-Aliasing Safety (SAFE)
 
-- [ ] **TYPE-01**: Lift the `eprom_operations.py` mypy strict-mode overrides (deferred per Phase 42 D-07 while the read path was ring-fenced) once the read path is fixed and free to touch.
+- [ ] **SAFE-01**: The SERIAL_ON_IO `0x00` bus-aliasing risk (COBS-DECISION Open Q2) is resolved and documented — either a code/bench proof that the host cannot deliver a `0x00` frame-boundary byte during the programmer↔communication mode transition window (COBS path), or adoption of SLIP's `0xC0` delimiter, which sidesteps the concern entirely (Q3). Note: framing the command channel (FRAME-05) means the host now actively emits delimiter bytes on the host→fw direction, so this host-side timing guarantee is load-bearing, not theoretical.
 
-## Out of Scope (v1.9)
+### 5. Byte-Exact Verification (XACT)
 
-- **New chip-family support / database expansion** — v1.9 is read-path RCA only; the W27C512 misclassification todo and the 28-/32-pin algo validation (paused v1.3 phases 11/12) are separate tracks.
-- **Adopting COBS/PacketSerial as a committed rewrite** — v1.9 only *evaluates* and decides (COBS-01); any adoption is a future milestone if the decision is "adopt".
-- **Stable `3.0.1` release** — deferred until a real read-bug fix lands and is bench-verified; v1.9 may cut a new beta but stable promotion is a separate gate.
-- **avrdude MCU-detection fallback** (pending todo) — firmware-sideload recovery, unrelated to the read path.
+- [ ] **XACT-01**: Transport proven byte-exact on a clean board — N consecutive framed read **and** write transfers are byte-identical on Uno (512 B) and Leonardo (1024 B); the hardened path reproduces the GATE-1.8d W27C512 N=5 baselines.
+- [ ] **XACT-02**: Resync proven under fault injection — a deliberately corrupted byte (or length field) recovers within one packet via the delimiter, not a 2-second timeout cascade, demonstrated by a host-side or bench fault-injection harness.
+- [ ] **XACT-03**: uno328pb re-test recorded — the consistency-check read is re-run on the uno328pb (where the timeout + ~99% 0xff-drift instability appears) and the result documents whether the hardened transport changes the failure shape, stating explicitly what it does and does not conclude per COBS-DECISION §2.0 (transport-exoneration, not a hardware fix).
+
+## Out of Scope (v1.10)
+
+- **Re-framing the fw→host log/telemetry channel** (#4: `[0xAA55AA55][len_u16][id][params][crc8][0x0A]`) — it already self-delimits via the magic preamble + CRC8 + `0x0A` terminator and is gated behind `com_mode`, so it is outside the data-corruption blast zone. (The host→fw JSON command channel #1, by contrast, IS now in scope per FRAME-05.)
+- **Adopting any off-the-shelf framing library** — PacketSerial, nanocobs, cobs-c/cobs-python, SerialTransfer, MIN are all rejected/eliminated in COBS-DECISION §4 (Uno-RAM, CRC-poly, or Python-version filters). v1.10 builds the custom layer only.
+- **CRC polynomial change / CRC32** — D-05 keeps CRC8-CCITT; candidates requiring a poly swap are eliminated.
+- **Fixing the read-bug itself** — v1.10 only rules transport out as a confounder; Bug A was localized by Phase 44 to the parallel read path (downstream of serial). The actual per-shield RCA/fix is v1.9 (Phases 45–47).
+- **Stable `3.0.1` release** — deferred until a real read-bug fix lands and is bench-verified (D-17v2 carry-forward). v1.10 may cut a new beta; stable promotion is a separate operator gate.
 
 ## Future Requirements (deferred)
 
-- COBS/PacketSerial adoption + protocol migration (if COBS-01 decides "adopt").
-- Broader signal-integrity hardening across all read-capable chip families beyond W27C512.
+- Hardening the JSON command channel framing, if a corruption case there is ever observed.
+- Resync telemetry/metrics (counting recovered desyncs) if field instrumentation becomes useful for the v1.9 RCA.
+- Applying the framing layer to any future higher-throughput transport (e.g. a faster baud or a binary command channel).
 
 ## Traceability
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| RCA-01 | Phase 44 | Complete |
-| RCA-02 | Phase 45 | pending |
-| RCA-03 | Phase 45 | Complete |
-| FIX-01 | Phase 46 | pending |
-| FIX-02 | Phase 46 | pending |
-| FIX-03 | Phase 46 | pending |
-| VERIFY-A | Phase 47 | pending |
-| VERIFY-01 | Phase 47 | pending |
-| VERIFY-03 | Phase 47 | pending |
-| VERIFY-04 | Phase 47 | pending |
-| COBS-01 | Phase 48 | Complete |
-| TYPE-01 | Phase 48 | pending |
+| _(filled by roadmap)_ | | |
