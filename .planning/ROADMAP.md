@@ -48,7 +48,10 @@
   3. The decision explicitly confirms the mechanism is streaming-encodable with no second ~512 B encode buffer (fits the ~545 B Uno free-RAM ceiling) and layers on top of the unchanged CRC8-CCITT poly 0x07 integrity byte.
   4. The decision identifies what changes in each repo file (`rurp_serial_utils.cpp`, `serial_comm.py`, `frame_parser.py`, `test_messages`) so Phases 50–52 inherit a concrete contract, not an open question.
 
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 49-01-PLAN.md — Wave 1: SAFE-01 static proof → scored neutral COBS-vs-SLIP matrix → ADR + frozen frame contract at `.planning/v1.10-FRAMING-DECISION.md` (handles both decision branches; CRC8-before-parse V5 mandate recorded; supersedes v1.9-COBS-DECISION.md DEFER line)
 
 #### Phase 50: Data-Path Framing Layer + Automatic Resync (dual-repo lockstep)
 
@@ -276,6 +279,11 @@ Plans:
 | 30 (close) | v1.6 | 3/3 | ✅ Shipped | 2026-05-26 |
 | 31-35 (v1.7) | v1.7 | — | ✅ Shipped | 2026-05-26 |
 | 36-43 (v1.8) | v1.8 | 26/26 | ✅ Shipped | 2026-05-29 |
+| 49 | v1.10 | 0/1 | Not started | — |
+| 50 | v1.10 | 0/TBD | Not started | — |
+| 51 | v1.10 | 0/TBD | Not started | — |
+| 52 | v1.10 | 0/TBD | Not started | — |
+| 53 | v1.10 | 0/TBD | Not started | — |
 | 44 | v1.9 | 3/5 | In Progress|  |
 | 45 | v1.9 | 0/TBD | Not started | — |
 | 46 | v1.9 | 0/TBD | Not started | — |
