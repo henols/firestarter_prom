@@ -17,7 +17,8 @@ findings:
   warning: 3
   info: 2
   total: 6
-status: issues_found
+status: resolved
+resolution: "5/6 findings fixed post-review (CR-01, IN-01, IN-02, WR-02, WR-03); WR-01 deferred to verification as a design decision. Both full suites green after fixes."
 ---
 
 # Phase 50: Code Review Report
@@ -291,3 +292,20 @@ void test_cobs_254_run_then_zero(void) {
 _Reviewed: 2026-06-01T00:00:00Z_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_
+
+---
+
+## Resolution (post-review fixes, 2026-06-01)
+
+Applied before phase verification, as the byte-exactness of the transport is the milestone goal.
+
+| Finding | Disposition | Detail |
+|---------|-------------|--------|
+| CR-01 (BLOCKER) | **Fixed** | `cobs_encode` branch order swapped (254-run check first) — zero at a 254-run boundary is no longer dropped. `firestarter_app` `df9cd2c`. |
+| IN-01 | **Fixed** | Added `test_254_run_boundary_followed_by_zero` (+ in-frame variant) to `test_cobs.py` — the exact CR-01 trigger; RED before, GREEN after. `df9cd2c`/`44fe538`. |
+| IN-02 | **Fixed** | Added `test_cobs_254_run_then_zero` to the firmware Unity suite. It **passed immediately** — the firmware decoder's `was_254_run`/implicit-zero deferral already handles the boundary correctly (no decoder bug; only the host encoder was wrong). `firestarter` `976dea9`. |
+| WR-02 | **Fixed** | Removed the unreachable `available()<=0` guard in `op_get_message` `case '#'`. `976dea9`. |
+| WR-03 | **Fixed** | Removed the unreachable `else if (run_len == 254)` dead branch in the firmware encoder post-loop; invariant documented. `976dea9`. |
+| WR-01 | **Deferred** | Unbounded byte-wait spin (`while (available() <= 0) {}`) in the decoder/`_drain_to_delimiter`. Intersects the plan's deliberate removal of the 2 s `timeout_ms` loop (D-01/D-03), whose stated mitigation is "incomplete frame → op-level timeout machinery." Whether a frame-level deadline (not a per-byte loop) should be reintroduced is a design call for verification/operator, not an auto-fix. |
+
+Post-fix suites: host **410 passed** (coverage floor held, ruff+mypy clean); firmware **29/29** (incl. new 254-run test); Uno RAM **545 B free** (gate exits 0).
