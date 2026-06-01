@@ -1,110 +1,110 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.9
-milestone_name: — Read-Bug RCA + Fix
-status: paused
-stopped_at: "v1.9 PAUSED at Phase 44 — pivoting to v1.10 Serial Transport Hardening (COBS) per operator (2026-06-01). Phase 48 COBS-01 done (48-01); verdict flipped DEFER→ADOPT. v1.9 Phases 45-47 + plans 48-02/48-03 deferred until after v1.10."
-last_updated: "2026-06-01T12:34:13.745Z"
+milestone: v1.10
+milestone_name: Serial Transport Hardening (COBS)
+status: planning
+stopped_at: ""
+last_updated: "2026-06-01"
 last_activity: 2026-06-01
 progress:
-  total_phases: 5
-  completed_phases: 1
-  total_plans: 8
-  completed_plans: 6
-  percent: 20
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-05-29
+**Updated:** 2026-06-01
 
 ## Current Position
 
-⏸ **v1.9 PAUSED — pivoting to v1.10 Serial Transport Hardening (COBS)** (operator decision, 2026-06-01)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements — v1.10 Serial Transport Hardening (COBS)
+Last activity: 2026-06-01 — Milestone v1.10 started (stacked off the v1.9 branch tip)
 
-v1.9 progress at pause:
-- Phase 44 (Bug A RCA) — complete
-- Phase 48 / COBS-01 (48-01) — complete; verdict flipped DEFER→**ADOPT** → see `.planning/v1.9-COBS-DECISION.md` §2
-- Deferred until after v1.10: v1.9 Phases 45 (Bug B RCA), 46 (Fix), 47 (Acceptance); Phase 48 plans 48-02 (TYPE-01, still hard-gated on Phase 46) and 48-03 (milestone close)
-
-**Why the pivot:** harden the Arduino↔host serial transport to byte-exact *first*, so serial
-corruption is ruled out as a confounder before resuming the per-shield read-bug RCA (Phase 45+).
-
-**Resume v1.9 after v1.10 ships:** `/gsd-plan-phase 45` (Bug B RCA).
-
-Last activity: 2026-06-01
-
-Progress: [██░░░░░░░░] 20%
+Progress: [░░░░░░░░░░] 0%
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-05-29)
+See: `.planning/PROJECT.md` (updated 2026-06-01)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Standing up v1.10 — Serial Transport Hardening (COBS implementation), ahead of v1.9 Phase 45
+**Current focus:** v1.10 — implement a custom serial framing + automatic-resync layer
+(streaming COBS vs SLIP, chosen in plan research) on the Arduino↔host data path so the
+transport is provably byte-exact, ruling serial out as a read-bug confounder.
 
 ## Roadmap Summary
 
-**v1.9 phases:** 5 (numbered 44-48, continues from v1.8 last phase 43). Granularity: Comprehensive. Hardware-gated — firmware sub-repo work expected from Phase 46 onward.
+**v1.10 phases:** numbered from **49** (45–48 reserved for the deferred v1.9 phases).
+Roadmap being generated. Hardware-gated; coordinated dual-repo firmware + host work expected.
 
-**Standing context:** GATE-1.8d ring-fence intact — 15 N=5 W27C512 baseline binaries at `.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260526-*-v2*/` remain valid; `_read_and_parse_lines` body byte-identical pre/post v1.8.
-
-| Phase | Goal | Requirements |
-|-------|------|--------------|
-| 44. Bug A RCA — Modified Rev 0 | Prove the Modified Rev 0 A15=1 jitter to a definitive signal-integrity mechanism via scope traces; start per-rev failure map | RCA-01, RCA-03 (partial) |
-| 45. Bug B RCA — Rev 2.0 | Prove the Rev 2.0 /CE-/OE timing + VPP=13.1V failure to a definitive root cause; complete the per-rev failure map | RCA-02, RCA-03 |
-| 46. Fix Design & A/B Bench Trials | Design and A/B-test firmware fix candidates for Bug A and Bug B across the shield fleet; regression-check Rev 2.2 | FIX-01, FIX-02, FIX-03 |
-| 47. Acceptance Gate + Backlog Closures | Re-run Phase 29 N≥5 byte-identical acceptance gate with fix applied; close VERIFY-01/03/04 v1.6 backlog | VERIFY-A, VERIFY-01, VERIFY-03, VERIFY-04 |
-| 48. COBS Evaluation + Cleanup + Close | Evaluate COBS framing (adopt/defer/reject); lift eprom_operations.py mypy strict overrides; milestone close + branch promotion | COBS-01, TYPE-01 |
-
-**Coverage:** 12/12 v1.9 requirements mapped to exactly one phase. No orphans, no duplicates.
-
-Full details: `.planning/ROADMAP.md` (v1.9 section).
+Full details: `.planning/ROADMAP.md` (v1.10 section, once written).
 
 ## Accumulated Context
 
-### Key Substrate (consumed by Phase 44)
+### ⏸ v1.9 RESUME (paused 2026-06-01 — DO NOT LOSE)
 
-- Bug A evidence: `.planning/v1.6-EVIDENCE.md` Phase 29 v2 H3 block — Modified Rev 0, WORST=1.86× skew, 63% bit-raise, A15=1 address lines.
-- Bug B evidence: same file — Rev 2.0 /CE-or-/OE timing + voltage-divider mismatch + VPP=13.1V.
-- Baseline binaries: `.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260526-*-v2*/` (15 files, N=5 each).
-- Phase 29 summary: `.planning/milestones/v1.6-phases/29-multi-board-bench-verification/29-04-SUMMARY.md`.
-- Shield-rev docs: `.planning/v1.7-SHIELD-REVS.md` (per-rev capability table + ADC-band detect plumbing).
-- v1.8 cleanup: `eprom_operations.py` mypy strict deferred per D-07; `# DO NOT MODIFY — v1.9 RCA territory` marker on `_read_and_parse_lines`.
+v1.9 (Read-Bug RCA + Fix) is PAUSED mid-flight, NOT shipped. v1.10 was inserted ahead of it
+per operator pivot so the serial transport is hardened first.
 
-### Pending Todos (carried from v1.8)
+- **Done:** Phase 44 (Bug A RCA — Modified Rev 0, read-strobe-causal) complete; Phase 48 plan
+  48-01 (COBS-01 evaluation) complete — verdict flipped DEFER→**ADOPT** (`.planning/v1.9-COBS-DECISION.md` §2),
+  which is what triggered v1.10.
+- **Deferred until after v1.10 ships:** Phase 45 (Bug B RCA — Rev 2.0), Phase 46 (Fix Design & A/B),
+  Phase 47 (Acceptance Gate + VERIFY-01/03/04 backlog closures), Phase 48 plans 48-02 (TYPE-01,
+  hard-gated on Phase 46) and 48-03 (v1.9 milestone close).
+- **Phase dirs preserved:** `.planning/phases/44-*` and `.planning/phases/48-*` are intact (NOT cleared).
+- **Resume command:** `/gsd-plan-phase 45` once v1.10 ships and the hardened transport is merged.
+- v1.9 roadmap (phases 44–48) still recorded in `.planning/ROADMAP.md`.
 
-- `large-read-data-jitter-uno328pb.md` (HIGH) — primary v1.9 target; Bug A + Bug B RCA seed.
-- `serial-cobs-resync-data-path.md` (medium) — COBS-01 evaluation in Phase 48.
-- `avrdude-mcu-detection-fallback.md` (low) — out of v1.9 scope, carry forward.
-- `w27c512-eeprom-misclassification.md` (HIGH) — DB content fix, out of v1.9 scope.
+### v1.10 Substrate (the binding inputs)
+
+- **COBS decision:** `.planning/v1.9-COBS-DECISION.md` — ADOPT custom framing layer; REJECT all
+  off-the-shelf libraries; KEEP CRC8-CCITT (D-05); Uno-fit filter (D-04). §4 has the 7-candidate
+  survey; SLIP (§4.2) and hand-rolled streaming COBS (§4.3) are the two Uno-fitting finalists.
+- **Open questions carried in:** Q1 (no field desync evidence — now superseded by the "rule out
+  confounder" rationale), Q2 (host-side `0x00` timing guarantee for COBS), Q3 (SLIP vs COBS).
+- **Serial path code (lockstep mandate):** `firestarter/src/boards/rurp_serial_utils.cpp`,
+  `firestarter/src/boards/uno_rurp_shield.cpp` (`com_mode` gate), `firestarter/src/firestarter.cpp`;
+  host `firestarter_app/firestarter/serial_comm.py` + `frame_parser.py`; contract pinned by the
+  `test_messages` Unity suite.
+- **Uno RAM baseline (2026-06-01):** 545 B free (1503/2048 used); `data_buffer[512]` dominant.
+  Binding: no second ~512 B encode buffer fits.
+- **GATE-1.8d ring-fence:** `_read_and_parse_lines` body byte-identical pre/post v1.8; 15 N=5
+  W27C512 baseline binaries at `.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260526-*-v2*/`
+  remain valid.
+
+### Pending Todos
+
+- `serial-cobs-resync-data-path.md` (medium) — the v1.10 starting-evidence todo; resolved by this milestone.
+- `large-read-data-jitter-uno328pb.md` (HIGH) — v1.9 RCA target; uno328pb timeout instability is
+  transport-shaped, so v1.10 hardening is expected to bear on it.
+- `avrdude-mcu-detection-fallback.md` (low), `w27c512-eeprom-misclassification.md` (HIGH) — out of v1.10 scope, carry forward.
 
 ### Blockers / Concerns
 
-- **Hardware-gated from Phase 44 onward.** All RCA/FIX/VERIFY phases require operator bench authorization and shield swaps. Per `feedback_verify_port_identity_each_task`: verify controller identity per port at each bench task start. Per `user_shield_revisions`: ask which silkscreen rev is on bench before each session.
-- **Firmware sub-repo work expected in Phase 46.** Branch model: cut `v1.9-read-bug-rca` in all 3 repos (meta off `main`, sub-repos off current `beta` tips) per `feedback_branching`.
-- **TYPE-01 gated on Phase 46.** The `eprom_operations.py` mypy ring-fence (GATE-1.8d) cannot be lifted until the read path is fixed. Do not attempt TYPE-01 before Phase 46 ships.
+- **Hardware-gated.** Bench verification (byte-exact transport across Uno/Leonardo/uno328pb) requires
+  operator authorization. Per `feedback_verify_port_identity_each_task`: verify controller identity per
+  port at each bench task start. Per `user_shield_revisions`: ask which silkscreen rev is on bench.
+- **Coordinated dual-repo change.** The root `CLAUDE.md` mandates `rurp_serial_utils.cpp` ↔
+  `serial_comm.py`/`frame_parser.py` change in lockstep; any framing change is a dual-repo milestone, not a patch.
+- **Branch model:** `v1.10-serial-transport-hardening` stacked off the v1.9 tip in all 3 repos
+  (meta + firestarter + firestarter_app). Merging v1.10 first also carries v1.9's unmerged commits.
 
 ## Session Continuity
 
-Last session: 2026-06-01T12:34:13.739Z
-Stopped at: Phase 48 Plan 01 complete — COBS-01 decision doc written
-Resume file: .planning/phases/48-cobs-evaluation-post-rca-cleanup-milestone-close/48-01-SUMMARY.md
-
-## Performance Metrics
-
-| Phase | Plan | Duration | Notes |
-|-------|------|----------|-------|
-| Phase 44-bug-a-rca-modified-rev-0-upper-address-jitter P01 | 8 | - tasks | - files |
-| Phase 44 P03 | 15 minutes | 3 tasks | 6 files |
+Last session: 2026-06-01
+Stopped at: v1.10 milestone init — requirements + roadmap being generated
+Resume file: —
 
 ## Decisions
 
-- [Phase ?]: Forked v1.9-read-bug-rca off beta in both sub-repos
-- [Phase ?]: Recovered .planning/v1.7-SHIELD-REVS.md verbatim from v1.7-shield-investigation branch — 9-section investigation-canonical shield reference now on meta working tree for static-check D-01/D-02
-- [Phase ?]: Simpler eprom_data_dict merge approach chosen over threading through _operation_context/_setup_operation
-- [Phase ?]: COBS-01: REJECT libraries / DEFER concept / keep CRC8-CCITT (Phase 48-01)
-- [Phase ?]: Phase 48-01: Streaming-to-Serial insight confirmed — hand-rolled ~70-line COBS is only Uno-fitting option; deferred (no field evidence of 2 s timeout desync)
+- [v1.10 start]: PAUSED v1.9 at Phase 44; inserted v1.10 Serial Transport Hardening ahead of it to rule serial out as a read-bug confounder before the per-shield RCA resumes.
+- [v1.10 start]: Branch model = stacked off the `v1.9-read-bug-rca` tip in all 3 repos (NOT off main/beta — stale at v1.8 close, missing the COBS ADOPT decision + Phase 44 knobs).
+- [v1.10 start]: CRC8-CCITT kept (D-05); Uno-fit filter binding (D-04); framing mechanism (COBS vs SLIP) deferred to plan research.
