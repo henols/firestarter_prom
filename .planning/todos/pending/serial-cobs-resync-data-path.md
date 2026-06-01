@@ -4,11 +4,12 @@ title: Evaluate COBS framing/resync on the serial data path (PacketSerial assess
 captured: 2026-05-27
 status: pending
 type: enhancement
-target_milestone: v1.9
+target_milestone: v1.10
 priority: medium
-related_phase: 48
-resolves_phase: 48
-requirement: COBS-01
+related_phase: 50
+resolves_phase: 50
+requirement: FRAME-01
+note: Evaluation half closed by v1.9 Phase 48-01 (verdict ADOPT, see .planning/v1.9-COBS-DECISION.md). Implementation is v1.10 — the custom framing layer lands in Phase 50 (data path) + Phase 51 (command channel); mechanism (COBS vs SLIP) decided in Phase 49.
 ---
 
 # COBS framing/resync on the serial data path
