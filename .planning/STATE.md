@@ -130,3 +130,4 @@ Resume file: .planning/phases/50-data-path-framing-layer-automatic-resync-dual-r
 - [Phase 49]: COBS `0x00` selected as framing mechanism — SAFE-01 static proof conclusive (host 0x00-silence proven); aggregate matrix 11/12 vs SLIP 10/12.
 - [Phase 49]: len_u16 length prefix removed from data-block framing; XOR checksum replaced by CRC8-CCITT on data-block path.
 - [Phase 49]: CRC8-before-parse mandate recorded as Phase 51 design constraint (T-49-01 / V5).
+- [Phase 50 plan]: Framing-3 scope = **Option A** (operator-locked 2026-06-01). Live-code trace proved fw→host EPROM reads emit over the UNCHANGED `MSG_DATA_CHUNK` magic-preamble frame, not `rurp_communication_write()` (dormant, behind undefined `RAW_DATA_PROGRESS`). Phase 50 rewrites `rurp_communication_read_data()` (the 2 s cascade source) + the dormant `rurp_communication_write()` as its COBS encode mirror; reads stay on `MSG_DATA_CHUNK`. ADR §4.6 errata recorded in `v1.10-FRAMING-DECISION.md`.

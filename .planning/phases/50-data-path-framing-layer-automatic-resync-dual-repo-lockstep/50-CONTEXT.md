@@ -83,6 +83,25 @@ eliminating the 2 s `len_u16`-corruption timeout-desync cascade.
     is the one residual edge in keeping the marker — research should validate it before the planner locks
     the read loop.
 
+### Framing-3 scope resolution (operator-locked 2026-06-01 — resolves D-04 open item via RESEARCH.md deep trace)
+- **D-06:** **Option A.** A live-code trace (RESEARCH.md "Framing-3 Scope Deep Trace") proved the fw→host
+  EPROM **read** data block does NOT flow through `rurp_communication_write()` — reads emit over the
+  UNCHANGED `MSG_DATA_CHUNK` magic-preamble frame (`eprom_operations.cpp:119-121`), and
+  `rurp_communication_write()` is dormant (only caller behind the undefined `#ifdef RAW_DATA_PROGRESS`).
+  Therefore Phase 50:
+  - **Rewrites `rurp_communication_read_data()`** (the host→fw write-receive path — the literal 2 s
+    `timeout_ms` cascade source) to COBS streaming decode + CRC8 + resync.
+  - **Rewrites the dormant `rurp_communication_write()`** as its COBS streaming-encode mirror (contract
+    symmetry + Unity-testable), even though no live caller exercises it in v1.10.
+  - **Leaves EPROM reads on `MSG_DATA_CHUNK`** — the log/telemetry magic-preamble framing stays UNCHANGED
+    (consistent with the ADR §4.2 freeze; ADR §4.6 function-name errata recorded in `v1.10-FRAMING-DECISION.md`).
+  - Host counterpart: change frame *contents* in `eprom_operations.py:_main_phase_send_data` (write send
+    path) + add `cobs_encode`/`cobs_decode` to `frame_parser.py`; the read RX path (`_main_phase_read_data`
+    / `_read_and_parse_lines`) keeps consuming `MSG_DATA_CHUNK` unchanged.
+  - **Corrupted-`#`-marker directive (resolves the D-04 open edge):** the rewritten reader MUST, on any
+    COBS-decode or CRC8 failure, drain bytes up to **and including** the next `0x00` before returning the
+    error — a flipped marker re-anchors on the next delimiter and never strands the parser.
+
 ### Claude's Discretion
 - Exact placement of the COBS decode helper (co-located in `serial_comm.py` vs `frame_parser.py`) — per the
   ADR change map, planner's call.
