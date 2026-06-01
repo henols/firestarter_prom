@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.9
 milestone_name: — Read-Bug RCA + Fix
-status: executing
-stopped_at: Phase 44 complete (Bug A RCA achieved, re-grounded 2026-06-01)
-last_updated: "2026-06-01T08:30:00.000Z"
+status: "Phase 44 closed — RCA = Rev 0-shield read-path fault, read-strobe-causal (see 44-RCA-FINDINGS.md). Open follow-ups: write/program stall (`/gsd-debug`), short-strobe fix confirmation (Phase 46)."
+stopped_at: Phase 48 context gathered
+last_updated: "2026-06-01T10:13:47.424Z"
 last_activity: 2026-06-01
 progress:
   total_phases: 5
@@ -81,9 +81,9 @@ Full details: `.planning/ROADMAP.md` (v1.9 section).
 
 ## Session Continuity
 
-Last session: 2026-05-29T13:52:26.241Z
-Stopped at: Completed 44-03-PLAN.md
-Resume file: None
+Last session: 2026-06-01T10:13:47.412Z
+Stopped at: Phase 48 context gathered
+Resume file: .planning/phases/48-cobs-evaluation-post-rca-cleanup-milestone-close/48-CONTEXT.md
 
 ## Performance Metrics
 
