@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.9
 milestone_name: — Read-Bug RCA + Fix
-status: executing
-stopped_at: Phase 48 Plan 01 complete — COBS-01 decision doc written
+status: paused
+stopped_at: "v1.9 PAUSED at Phase 44 — pivoting to v1.10 Serial Transport Hardening (COBS) per operator (2026-06-01). Phase 48 COBS-01 done (48-01); verdict flipped DEFER→ADOPT. v1.9 Phases 45-47 + plans 48-02/48-03 deferred until after v1.10."
 last_updated: "2026-06-01T12:34:13.745Z"
 last_activity: 2026-06-01
 progress:
@@ -21,9 +21,18 @@ progress:
 
 ## Current Position
 
-Phase: 48 (cobs-evaluation-post-rca-cleanup-milestone-close) — EXECUTING
-Plan: 2 of 3
-Status: Ready to execute
+⏸ **v1.9 PAUSED — pivoting to v1.10 Serial Transport Hardening (COBS)** (operator decision, 2026-06-01)
+
+v1.9 progress at pause:
+- Phase 44 (Bug A RCA) — complete
+- Phase 48 / COBS-01 (48-01) — complete; verdict flipped DEFER→**ADOPT** → see `.planning/v1.9-COBS-DECISION.md` §2
+- Deferred until after v1.10: v1.9 Phases 45 (Bug B RCA), 46 (Fix), 47 (Acceptance); Phase 48 plans 48-02 (TYPE-01, still hard-gated on Phase 46) and 48-03 (milestone close)
+
+**Why the pivot:** harden the Arduino↔host serial transport to byte-exact *first*, so serial
+corruption is ruled out as a confounder before resuming the per-shield read-bug RCA (Phase 45+).
+
+**Resume v1.9 after v1.10 ships:** `/gsd-plan-phase 45` (Bug B RCA).
+
 Last activity: 2026-06-01
 
 Progress: [██░░░░░░░░] 20%
@@ -35,7 +44,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-29)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 48 — cobs-evaluation-post-rca-cleanup-milestone-close
+**Current focus:** Standing up v1.10 — Serial Transport Hardening (COBS implementation), ahead of v1.9 Phase 45
 
 ## Roadmap Summary
 
