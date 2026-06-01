@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.9
 milestone_name: — Read-Bug RCA + Fix
 status: executing
-stopped_at: Phase 48 context gathered
-last_updated: "2026-06-01T12:08:39.938Z"
-last_activity: 2026-06-01 -- Phase 48 planning complete
+stopped_at: Phase 48 Plan 01 complete — COBS-01 decision doc written
+last_updated: "2026-06-01T12:34:13.745Z"
+last_activity: 2026-06-01
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 8
-  completed_plans: 5
+  completed_plans: 6
   percent: 20
 ---
 
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 44 — COMPLETE (Bug A RCA achieved, re-grounded 2026-06-01). Next: Phase 45 (Bug B RCA — Rev 2.0).
-Plan: 5 of 5 complete
+Phase: 48 (cobs-evaluation-post-rca-cleanup-milestone-close) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-06-01 -- Phase 48 planning complete
+Last activity: 2026-06-01
 
 Progress: [██░░░░░░░░] 20%
 
@@ -35,7 +35,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-29)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 45 — Bug B RCA (Rev 2.0). Note: this session found the Rev 2.0 shield reads *clean*, so Bug B is likely a write/voltage-path fault, not read-consistency — re-scope Phase 45 accordingly.
+**Current focus:** Phase 48 — cobs-evaluation-post-rca-cleanup-milestone-close
 
 ## Roadmap Summary
 
@@ -81,9 +81,9 @@ Full details: `.planning/ROADMAP.md` (v1.9 section).
 
 ## Session Continuity
 
-Last session: 2026-06-01T10:13:47.412Z
-Stopped at: Phase 48 context gathered
-Resume file: .planning/phases/48-cobs-evaluation-post-rca-cleanup-milestone-close/48-CONTEXT.md
+Last session: 2026-06-01T12:34:13.739Z
+Stopped at: Phase 48 Plan 01 complete — COBS-01 decision doc written
+Resume file: .planning/phases/48-cobs-evaluation-post-rca-cleanup-milestone-close/48-01-SUMMARY.md
 
 ## Performance Metrics
 
@@ -97,3 +97,5 @@ Resume file: .planning/phases/48-cobs-evaluation-post-rca-cleanup-milestone-clos
 - [Phase ?]: Forked v1.9-read-bug-rca off beta in both sub-repos
 - [Phase ?]: Recovered .planning/v1.7-SHIELD-REVS.md verbatim from v1.7-shield-investigation branch — 9-section investigation-canonical shield reference now on meta working tree for static-check D-01/D-02
 - [Phase ?]: Simpler eprom_data_dict merge approach chosen over threading through _operation_context/_setup_operation
+- [Phase ?]: COBS-01: REJECT libraries / DEFER concept / keep CRC8-CCITT (Phase 48-01)
+- [Phase ?]: Phase 48-01: Streaming-to-Serial insight confirmed — hand-rolled ~70-line COBS is only Uno-fitting option; deferred (no field evidence of 2 s timeout desync)

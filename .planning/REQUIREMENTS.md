@@ -30,7 +30,7 @@
 
 ### 4. Serial Data-Path Robustness (COBS) — evaluation
 
-- [ ] **COBS-01**: Evaluate COBS framing/resync on the serial data path; re-assess PacketSerial vs a custom COBS layer and record an **adopt / defer / reject** decision with rationale. Explicitly complementary to the hardware RCA — NOT a Bug A fix (Bug A is hardware upper-address jitter, not a serial-framing fault).
+- [x] **COBS-01**: Evaluate COBS framing/resync on the serial data path; re-assess PacketSerial vs a custom COBS layer and record an **adopt / defer / reject** decision with rationale. Explicitly complementary to the hardware RCA — NOT a Bug A fix (Bug A is hardware upper-address jitter, not a serial-framing fault).
 
 ### 5. Post-RCA Cleanup (TYPE)
 
@@ -62,5 +62,5 @@
 | VERIFY-01 | Phase 47 | pending |
 | VERIFY-03 | Phase 47 | pending |
 | VERIFY-04 | Phase 47 | pending |
-| COBS-01 | Phase 48 | pending |
+| COBS-01 | Phase 48 | Complete |
 | TYPE-01 | Phase 48 | pending |
