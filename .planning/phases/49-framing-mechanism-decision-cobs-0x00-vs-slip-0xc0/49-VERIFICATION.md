@@ -1,8 +1,9 @@
 ---
 phase: 49-framing-mechanism-decision-cobs-0x00-vs-slip-0xc0
 verified: 2026-06-01T00:00:00Z
-status: human_needed
+status: passed
 score: 6/6 must-haves verified
+human_verification_signoff: "Operator approved all 3 reasoning-soundness items 2026-06-01 (henrik@predictly.se) — SAFE-01 chain, decision evidence-backing, frozen-contract completeness accepted."
 overrides_applied: 0
 human_verification:
   - test: "Read the SAFE-01 resolution section (§1.2–1.4 of .planning/v1.10-FRAMING-DECISION.md). Confirm that it proves host 0x00-silence in the mode-transition window via all three sub-claims (A: pyserial flush() guarantees physical TX, B: atomic-write mandate, C: Phase 51 frame-decoder consumption contract), and that the scope is explicitly the Phase 51 command-channel case."
