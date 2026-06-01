@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.10
 milestone_name: — Serial Transport Hardening
 status: completed
-stopped_at: Completed Phase 49 Plan 01 — framing-mechanism ADR written; Phase 50 data-path framing next
-last_updated: "2026-06-01T15:10:00.092Z"
+stopped_at: Phase 50 context gathered
+last_updated: "2026-06-01T15:36:14.196Z"
 last_activity: 2026-06-01
 progress:
   total_phases: 5
@@ -118,9 +118,9 @@ per operator pivot so the serial transport is hardened first.
 
 ## Session Continuity
 
-Last session: 2026-06-01T14:54:52Z
-Stopped at: Completed Phase 49 Plan 01 — framing-mechanism ADR written; Phase 50 data-path framing next
-Resume file: .planning/ROADMAP.md (Phase 50)
+Last session: 2026-06-01T15:36:14.193Z
+Stopped at: Phase 50 context gathered
+Resume file: .planning/phases/50-data-path-framing-layer-automatic-resync-dual-repo-lockstep/50-CONTEXT.md
 
 ## Decisions
 
