@@ -513,125 +513,22 @@ SERIAL_PORT.write((uint8_t)0x00);  // frame delimiter
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Is the 2-second timeout desync observed in the field?**
    - What we know: The 2-second timeout fires if a length-prefixed data block is interrupted. The desync cascades until the next JSON command peek.
    - What's unclear: Whether this ever manifests during normal bench use (the consistency-check runs are 64KB reads in good conditions).
    - Recommendation: If Phase 46/47 bench sessions ever see timeout desync, document it in the COBS decision doc as field evidence pushing toward the resync concept.
+   - **RESOLVED:** No field reports exist; the COBS decision proceeds without field evidence — the resync win is deferred to a future milestone on that basis.
 
 2. **Will the watermark after TYPE-01 fixes land at or below 26?**
    - What we know: Currently 26 errors visible (watermark = 26). Moving `eprom_operations` to strict island adds ~53 errors visible to mypy --strict, but the non-strict modules that call into `eprom_operations` may produce additional cross-module type errors.
    - What's unclear: Exact post-fix watermark.
    - Recommendation: Run `python tools/check_mypy_watermark.py` after each TYPE-01 fix batch to track progress; set the new watermark to the measured post-fix count.
+   - **RESOLVED:** Measured at execution time via `tools/check_mypy_watermark.py`; the watermark is updated to the post-fix count in 48-02.
 
 3. **Phase 45/46/47 outcomes for the MILESTONES.md entry**
    - What we know: Phase 44 = Bug A RCA complete (Rev 0 shield read-path fault, read-strobe-causal). Phase 45-47 are not yet executed.
    - What's unclear: Bug B root cause, fix candidate, acceptance gate result.
    - Recommendation: Structure the milestone-close plan to populate Phase 45-47 fields from their SUMMARY.md and evidence files at Phase 48 execution time.
-
----
-
-## Environment Availability
-
-| Dependency | Required By | Available | Version | Fallback |
-|------------|------------|-----------|---------|----------|
-| Python 3.x | TYPE-01 mypy runs | ✓ | /usr/local/bin/python (v3.11+) | — |
-| mypy | TYPE-01 | ✓ | ≥2.1.0 (per pyproject.toml) | — |
-| pytest | TYPE-01 suite validation | ✓ | 387 tests pass | — |
-| PlatformIO (pio) | COBS-01 RAM baseline check | ✓ | Confirmed (`pio run -e uno` ran 2026-06-01) | — |
-| firestarter firmware sub-repo | COBS-01 code review | ✓ | `v1.9-read-bug-rca` branch | — |
-
-**Missing dependencies with no fallback:** none
-
-**Note on TYPE-01 gating:** TYPE-01 is explicitly gated on Phase 46 per D-09. The research is complete now; the IMPLEMENTATION plan must not start TYPE-01 until Phase 46 ships. The planner should model this as a dependency gate, not a research blocker.
-
----
-
-## Validation Architecture
-
-### Test Framework
-
-| Property | Value |
-|----------|-------|
-| Framework | pytest ≥8.0 + syrupy ≥5.0 |
-| Config file | `firestarter_app/pyproject.toml` `[tool.pytest.ini_options]` |
-| Quick run command | `cd firestarter_app && python -m pytest tests/ -q --no-header -x` |
-| Full suite command | `cd firestarter_app && python -m pytest tests/ --cov=firestarter --cov-fail-under=70` |
-| mypy gate command | `cd firestarter_app && python tools/check_mypy_watermark.py` |
-
-### Phase Requirements → Test Map
-
-| Req ID | Behavior | Test Type | Automated Command | File Exists? |
-|--------|----------|-----------|-------------------|-------------|
-| COBS-01 | ADR decision doc exists at `.planning/v1.9-COBS-DECISION.md` with adopt/defer/reject verdict | Manual-only (doc review) | — | ❌ Wave 0 — create in COBS plan |
-| TYPE-01 | `eprom_operations.py` passes mypy strict with no deferred-D-07 suppressions | mypy gate | `python tools/check_mypy_watermark.py` | ✅ exists |
-| TYPE-01 | Test suite stays green after TYPE-01 annotation changes | pytest | `python -m pytest tests/ -q` | ✅ 387 tests passing |
-| TYPE-01 | No behavior change to read-path bytes | characterization tests | `python -m pytest tests/test_serial_characterization.py tests/test_decoder.py -v` | ✅ exist |
-| Milestone close | MILESTONES.md gains v1.9 entry | Manual-only (doc review) | — | ❌ Wave 0 — write at phase close |
-
-### Sampling Rate
-- **Per task commit:** `python -m pytest tests/ -q -x && python tools/check_mypy_watermark.py`
-- **Per wave merge:** Full suite `python -m pytest tests/ --cov=firestarter --cov-fail-under=70`
-- **Phase gate:** Full suite green before `/gsd-verify-work`
-
-### Wave 0 Gaps
-- [ ] `.planning/v1.9-COBS-DECISION.md` stub — structure-only file for COBS-01 decision output
-- [ ] MILESTONES.md v1.9 template section — populated at Phase 48 execution close
-
-*(If no new test files are needed — TYPE-01 is covered by existing characterization + pytest suite.)*
-
----
-
-## Security Domain
-
-This phase introduces no new authentication, session management, cryptography, or network-facing code. COBS-01 is a documentation deliverable. TYPE-01 adds type annotations only. Milestone close is documentation + git operations.
-
-| ASVS Category | Applies | Standard Control |
-|---------------|---------|-----------------|
-| V2 Authentication | no | — |
-| V3 Session Management | no | — |
-| V4 Access Control | no | — |
-| V5 Input Validation | no | — |
-| V6 Cryptography | no | Existing CRC8-CCITT unchanged; no new crypto |
-
-No new threat patterns introduced.
-
----
-
-## Sources
-
-### Primary (HIGH confidence)
-- Live codebase: `firestarter/src/boards/rurp_serial_utils.cpp` — 4-framing wire map confirmed
-- Live codebase: `firestarter_app/firestarter/eprom_operations.py` — 53 strict errors measured directly via `mypy --strict`
-- Live codebase: `firestarter_app/pyproject.toml` — strict-island block at L131-L145, silent block at L147-L163, watermark 26
-- Live build: `pio run -e uno` — RAM 73.4% (1503/2048, 545 B free); Flash 69.7% (2026-06-01)
-- Live test run: `pytest` — 387 tests pass, 29 snapshots green (2026-06-01)
-- Live watermark: `python tools/check_mypy_watermark.py` — 26 at watermark (2026-06-01)
-- Live branch/tag audit: `firestarter` latest tag = `3.0.0b6`; `firestarter_app` latest tag = `3.0.0b7`; both on `v1.9-read-bug-rca`
-- `.planning/todos/pending/serial-cobs-resync-data-path.md` — 2026-05-27 investigation + 2026-05-29 correction (streaming-to-Serial insight)
-- `.planning/phases/48-cobs-evaluation-post-rca-cleanup-milestone-close/48-CONTEXT.md` — D-01..D-12 locked decisions
-- `.planning/MILESTONES.md` §v1.8, §v1.6 — format precedents for v1.9 entry
-
-### Secondary (MEDIUM confidence)
-- WebFetch: github.com/charlesnicholson/nanocobs — v0.2.0 (Feb 2026); tinyframe ≤253 B; standard mode = separate buffer [VERIFIED]
-- WebFetch: github.com/PowerBroker2/SerialTransfer — v3.1.5 (Jul 2025); 254-byte cap; CRC8 poly 0x9B [VERIFIED]
-- WebFetch: github.com/cmcqueen/cobs-python — v1.2.1 (Oct 2023); Python ≥3.10 required [VERIFIED]
-- pip index: pySerialTransfer v2.6.11 exists on PyPI [VERIFIED]
-- pip index: cobs v1.2.2 exists on PyPI [VERIFIED]
-
-### Tertiary (LOW confidence)
-- WebFetch: github.com/min-protocol/min — MIN protocol; RAM/CRC details not returned by WebFetch; [ASSUMED] based on CRC32 + retransmission framing description in todo substrate
-
----
-
-## Metadata
-
-**Confidence breakdown:**
-- COBS survey: HIGH — live code verified against current firmware + RAM baseline; candidate analysis re-derived from first principles; library claims verified via WebFetch on official repos
-- TYPE-01 error catalog: HIGH — measured directly via mypy --strict on current codebase
-- Milestone close: HIGH — tag sequence verified from both sub-repos; precedent format confirmed from MILESTONES.md
-- MIN protocol RAM details: LOW — WebFetch returned no specifics; classified as ELIMINATE based on CRC32 + todo substrate consensus
-
-**Research date:** 2026-06-01
-**Valid until:** 2026-07-01 (stable — no fast-moving dependencies; mypy/pytest versions pinned in pyproject.toml)
+   - **RESOLVED:** Populated from the Phase 45/46/47 SUMMARY.md files at 48-03 close time via the placeholder mechanism in 48-03 Task 1.
