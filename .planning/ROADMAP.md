@@ -131,7 +131,14 @@ Plans:
   3. MILESTONES.md gains a complete v1.9 entry covering the RCA findings, fix summary, acceptance gate result, and COBS decision.
   4. Sub-repo branches for v1.9 are promoted per the branching convention; a new beta pre-release tag is cut (at minimum); the stable `3.0.1` promotion checklist is either executed or explicitly deferred with rationale.
 
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+**Wave 1** *(parallel — no file overlap)*
+- [ ] 48-01-PLAN.md — COBS-01: from-scratch lightweight-framing survey -> `.planning/v1.9-COBS-DECISION.md` (ADR, REJECT-libraries/DEFER-concept). UNGATED — decidable now.
+- [ ] 48-02-PLAN.md — TYPE-01: lift `eprom_operations.py` mypy strict ring-fence (strict-island move + ~53 behavior-preserving fixes + watermark). HARD-GATED on Phase 46.
+
+**Wave 2** *(milestone close — depends on 48-01 + 48-02; gated on Phases 46/47)*
+- [ ] 48-03-PLAN.md — MILESTONES.md v1.9 entry + coordinated lockstep `3.0.0b8` beta tag (sub-repos->beta, meta->main; no stable 3.0.1). Operator-gated promotion checkpoint.
 
 ## Progress
 
@@ -159,7 +166,7 @@ Plans:
 | 45 | v1.9 | 0/TBD | Not started | — |
 | 46 | v1.9 | 0/TBD | Not started | — |
 | 47 | v1.9 | 0/TBD | Not started | — |
-| 48 (close) | v1.9 | 0/TBD | Not started | — |
+| 48 (close) | v1.9 | 0/3 | Not started | — |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
