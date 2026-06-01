@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.9
 milestone_name: — Read-Bug RCA + Fix
 status: executing
-stopped_at: Completed 44-03-PLAN.md
-last_updated: "2026-05-29T13:52:26.244Z"
-last_activity: 2026-05-29
+stopped_at: Phase 44 complete (Bug A RCA achieved, re-grounded 2026-06-01)
+last_updated: "2026-06-01T08:30:00.000Z"
+last_activity: 2026-06-01
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 5
-  completed_plans: 3
-  percent: 0
+  completed_plans: 5
+  percent: 20
 ---
 
 # Project State
@@ -21,12 +21,12 @@ progress:
 
 ## Current Position
 
-Phase: 44 (bug-a-rca-modified-rev-0-upper-address-jitter) — EXECUTING
-Plan: 5 of 5
-Status: Ready to execute
-Last activity: 2026-05-29
+Phase: 44 — COMPLETE (Bug A RCA achieved, re-grounded 2026-06-01). Next: Phase 45 (Bug B RCA — Rev 2.0).
+Plan: 5 of 5 complete
+Status: Phase 44 closed — RCA = Rev 0-shield read-path fault, read-strobe-causal (see 44-RCA-FINDINGS.md). Open follow-ups: write/program stall (`/gsd-debug`), short-strobe fix confirmation (Phase 46).
+Last activity: 2026-06-01
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██░░░░░░░░] 20%
 
 ## Project Reference
 
@@ -35,7 +35,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-29)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 44 — bug-a-rca-modified-rev-0-upper-address-jitter
+**Current focus:** Phase 45 — Bug B RCA (Rev 2.0). Note: this session found the Rev 2.0 shield reads *clean*, so Bug B is likely a write/voltage-path fault, not read-consistency — re-scope Phase 45 accordingly.
 
 ## Roadmap Summary
 

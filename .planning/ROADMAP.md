@@ -23,7 +23,7 @@
 
 ### Phases
 
-- [ ] **Phase 44: Bug A RCA — Modified Rev 0 Upper-Address Jitter** — Instrument the Modified Rev 0 A15=1 jitter to a definitive signal-integrity mechanism; begin per-rev failure-mode map.
+- [x] **Phase 44: Bug A RCA — Modified Rev 0 Upper-Address Jitter** *(complete 2026-06-01; re-grounded)* — RCA achieved: Bug A is a **Rev 0-shield read-path fault** (broad read jitter, causally controlled by read-strobe timing — the governing D-07 causal bar), NOT the hypothesized A15 upper-address effect. Per-rev map started.
 - [ ] **Phase 45: Bug B RCA — Rev 2.0 Timing & Voltage** — Instrument the Rev 2.0 /CE-or-/OE timing + VPP=13.1V failure to a definitive root cause; complete the per-rev failure-mode map.
 - [ ] **Phase 46: Fix Design & A/B Bench Trials** — Design firmware fix candidates for Bug A and Bug B; A/B-test on the affected boards; regression-check across the shield fleet.
 - [ ] **Phase 47: Acceptance Gate + Backlog Closures** — Re-run the Phase 29 acceptance gate (N≥5 byte-identical W27C512 reads across boards with fix applied); close VERIFY-01/03/04 backlog.
@@ -33,7 +33,21 @@
 
 ### Phase 44: Bug A RCA — Modified Rev 0 Upper-Address Jitter
 
-**Goal**: The Modified Rev 0 A15=1 upper-address jitter is proven to a specific signal-integrity mechanism (ringing, crosstalk, settling-time violation, or other), with scope traces and/or circuit analysis as evidence — going beyond the Phase 29 v2 symptom characterization (1.86× skew, 63% bit-raise).
+> **★ RE-GROUNDED 2026-06-01 (RCA achieved).** The 2026-06-01 bench session
+> **disproved the upper-address premise** and proved a stronger result: Bug A is a
+> **Rev 0 (Modified Rev 0) shield read-path fault** — broad, ~uniform read jitter
+> (not A15-specific), **causally controlled by the read-strobe knob** (longer
+> strobe → ~6.5× worse; mechanism = charge-leakage / weak data-bus pulldown; fix
+> direction = shorter strobe, handed to Phase 46). Isolated to the shield via a 2×2
+> controller×shield crossover (chips + controllers exonerated). This **meets the
+> governing D-07 causal-only success bar** (a knob that controls the jitter).
+> Plans 04/05 as-written (Modified-Rev-0-on-Leonardo baseline + upper-address 2D/LA
+> sweep) are **superseded**. Canonical RCA: `evidence/44-RCA-FINDINGS.md`.
+> Adjacent findings (out of scope, logged): VPP hardware healthy (Uno R1 miscal
+> fixed); **write/program stalls on both controllers** (`evidence/.../WRITE-STALL.md`
+> — recommend a separate `/gsd-debug`).
+
+**Goal**: The Modified Rev 0 A15=1 upper-address jitter is proven to a specific signal-integrity mechanism (ringing, crosstalk, settling-time violation, or other), with scope traces and/or circuit analysis as evidence — going beyond the Phase 29 v2 symptom characterization (1.86× skew, 63% bit-raise). *(Re-grounded: mechanism proven is a Rev 0-shield read-path fault, causally controlled by read-strobe timing — see re-grounding note above.)*
 **Depends on**: Phase 29 v2 evidence substrate (`.planning/v1.6-EVIDENCE.md` H3 block), v1.7 shield-version-detect plumbing, v1.8 cleaned-up host read path. Bench hardware: Modified Rev 0 shield + scope + operator authorization.
 **Requirements**: RCA-01, RCA-03 (partial — Modified Rev 0 failure mode confirmed)
 **Success Criteria** (what must be TRUE):
@@ -56,11 +70,11 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 44-04-PLAN.md — Wave 3 (bench): static circuit inspection (D-01/D-02) + N=5 baseline repro vs Phase 29 v2 (D-11)
+- [x] 44-04-PLAN.md — Wave 3 (bench): *superseded* — static check done (readings uncaptured); baseline misattributed to a Rev 2.0 board & relocated. Goal served by the isolation experiment (Bug A reproduced + isolated to Rev 0 shield). See 44-04-SUMMARY.md.
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 44-05-PLAN.md — Wave 4 (bench): 2D causal sweep + LA capture (D-03/04/05/06/08) + RCA findings + per-rev map (RCA-03 partial / D-10)
+- [x] 44-05-PLAN.md — Wave 4 (bench): *goal achieved, method changed* — knob check proved causal coupling (D-06; longer strobe → 6.5× worse), 2×2 crossover isolated the fault to the Rev 0 shield, RCA findings written, per-rev map started (RCA-03 partial). Full 2D grid + LA capture deferred (not needed for the mechanism). See 44-05-SUMMARY.md.
 
 ### Phase 45: Bug B RCA — Rev 2.0 Timing & Voltage
 
