@@ -13,11 +13,18 @@
 
 ## Board identity
 
+> **⚠ CORRECTION (2026-06-01):** No Modified Rev 0 physical inspection has actually
+> occurred yet. The 2026-06-01 bench session initially believed it was on the
+> Modified Rev 0 board, but the board was a **Rev 2.0** shield (firmware `hw` →
+> "Rev 2.0-class"; operator correction). The rows below are sourced from prior
+> canonical Modified Rev 0 knowledge in `v1.7-SHIELD-REVS.md`, **not** from a
+> direct inspection. The signal-integrity trace section remains uncaptured.
+
 | Field | Value | Source |
 |-------|-------|--------|
-| Silkscreen rev | Modified Rev 0 | Phase 44 operator confirmation ("rev 0"), 2026-06-01 |
 | Parent | upstream Rev 0 — `upstream-486f3d1`, schematic blob `d2a7f691` (`UniversalProgrammerRev0b0.zip`) | v1.7-SHIELD-REVS.md §1/§4 |
 | EEPROM `hw_revision` | cannot distinguish this board from the other two shields — silkscreen is authoritative | memory [[user_shield_revisions]] |
+| ADC detect | Modified Rev 0 detects mid-band as `Rev 2.3` (10 kΩ A3 pull-up); a `Rev 2.0-class` reading means the board is NOT the Modified Rev 0 | v1.7-SHIELD-REVS.md §3/§8 |
 
 ## Known / attested modifications
 
