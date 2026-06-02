@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.10
 milestone_name: — Serial Transport Hardening
 status: executing
-stopped_at: Phase 50 context gathered
-last_updated: "2026-06-01T21:07:44.079Z"
+stopped_at: Phase 51 context gathered
+last_updated: "2026-06-02T06:44:28.137Z"
 last_activity: 2026-06-01
 progress:
   total_phases: 5
@@ -118,9 +118,9 @@ per operator pivot so the serial transport is hardened first.
 
 ## Session Continuity
 
-Last session: 2026-06-01T15:36:14.193Z
-Stopped at: Phase 50 context gathered
-Resume file: .planning/phases/50-data-path-framing-layer-automatic-resync-dual-repo-lockstep/50-CONTEXT.md
+Last session: 2026-06-02T06:44:28.125Z
+Stopped at: Phase 51 context gathered
+Resume file: .planning/phases/51-command-channel-framing-migration-breaking-wire-change/51-CONTEXT.md
 
 ## Decisions
 
