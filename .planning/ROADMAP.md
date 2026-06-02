@@ -132,7 +132,7 @@ Plans:
 
 **Wave 3** *(merge gate — depends on 52-01 + 52-02 + 52-03)*
 
-- [ ] 52-04-PLAN.md — cross-repo byte-identity assert (`diff` empty for catalog + codegen, D-09) + both codegen drift gates clean + dual-repo full-suite green (LOCK-01 + LOCK-02 close)
+- [x] 52-04-PLAN.md — cross-repo byte-identity assert (`diff` empty for catalog + codegen, D-09) + both codegen drift gates clean + dual-repo full-suite green (LOCK-01 + LOCK-02 close)
 
 #### Phase 53: Byte-Exact Bench Verification (hardware-gated)
 
@@ -321,7 +321,7 @@ Plans:
 | 49 | v1.10 | 1/1 | Complete    | 2026-06-01 |
 | 50 | v1.10 | 4/4 | Complete    | 2026-06-01 |
 | 51 | v1.10 | 4/4 | Complete    | 2026-06-02 |
-| 52 | v1.10 | 3/4 | In Progress|  |
+| 52 | v1.10 | 4/4 | Complete   | 2026-06-02 |
 | 53 | v1.10 | 0/TBD | Not started | — |
 | 44 | v1.9 | 3/5 | In Progress|  |
 | 45 | v1.9 | 0/TBD | Not started | — |
