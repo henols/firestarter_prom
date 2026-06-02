@@ -290,4 +290,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last updated: 2026-06-01 — v1.10 (Serial Transport Hardening / COBS) Phases 49 + 50 COMPLETE: data-path COBS framing + auto-resync shipped dual-repo lockstep, 2 s timeout cascade removed, FRAME-01/02/03/04 + CRC-01 verified. Next: Phase 51 (command-channel framing migration). v1.9 (Read-Bug RCA + Fix) PAUSED at Phase 44, resumes at Phase 45 after v1.10 ships.*
+*Last updated: 2026-06-02 — v1.10 (Serial Transport Hardening / COBS) Phases 49–52 COMPLETE: data-path + command-channel COBS framing shipped dual-repo lockstep, 2 s timeout cascade removed, and the lockstep frame contract is now pinned by a shared byte-identical golden-vector catalog (frame-vectors.toml + deterministic codegen) with round-trip suites in both repos — firmware 39/39, host 422/422, LOCK-01/LOCK-02 verified. Next: Phase 53 (byte-exact bench verification, hardware-gated). v1.9 (Read-Bug RCA + Fix) PAUSED at Phase 44, resumes at Phase 45 after v1.10 ships.*
