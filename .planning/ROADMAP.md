@@ -127,7 +127,7 @@ Plans:
 
 **Wave 2** *(parallel — firmware vs host, zero file overlap; both depend on 52-01)*
 
-- [ ] 52-02-PLAN.md — firmware: new `test_frame_vectors/` Unity suite (both-legs vector assertions, decode leg capped at 511 B per CR-01, CRC8 KAT `CRC8([0x01])==0x07`) + platformio.ini allowlist registration (D-02/D-06)
+- [x] 52-02-PLAN.md — firmware: new `test_frame_vectors/` Unity suite (both-legs vector assertions, decode leg capped at 511 B per CR-01, CRC8 KAT `CRC8([0x01])==0x07`) + platformio.ini allowlist registration (D-02/D-06)
 - [ ] 52-03-PLAN.md — host: new `test_frame_vectors.py` (both-legs assertions + CRC8 KAT) + extend `test_revision_constants_parity.py` with `CMD_FRAME_MAX==512` parity (D-02/D-06/D-07)
 
 **Wave 3** *(merge gate — depends on 52-01 + 52-02 + 52-03)*
@@ -321,7 +321,7 @@ Plans:
 | 49 | v1.10 | 1/1 | Complete    | 2026-06-01 |
 | 50 | v1.10 | 4/4 | Complete    | 2026-06-01 |
 | 51 | v1.10 | 4/4 | Complete    | 2026-06-02 |
-| 52 | v1.10 | 1/4 | In Progress|  |
+| 52 | v1.10 | 2/4 | In Progress|  |
 | 53 | v1.10 | 0/TBD | Not started | — |
 | 44 | v1.9 | 3/5 | In Progress|  |
 | 45 | v1.9 | 0/TBD | Not started | — |

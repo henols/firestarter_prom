@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.10
 milestone_name: — Serial Transport Hardening
 status: executing
-stopped_at: Phase 52 Plan 01 complete
-last_updated: "2026-06-02T13:29:17.033Z"
+stopped_at: Completed Phase 52 Plan 02 — firmware Unity vector suite
+last_updated: "2026-06-02T13:42:10.150Z"
 last_activity: 2026-06-02
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 13
-  completed_plans: 10
+  completed_plans: 11
   percent: 60
 ---
 
@@ -22,9 +22,9 @@ progress:
 ## Current Position
 
 Phase: 52 (lockstep-contract-round-trip-tests) — EXECUTING
-Plan: 2 of 4
-Status: Executing Phase 52
-Last activity: 2026-06-02 -- Phase 52 Plan 01 complete (golden vectors + codegen + CI drift gates)
+Plan: 3 of 4
+Status: Ready to execute
+Last activity: 2026-06-02
 
 Progress: [████░░░░░░] 40%
 
@@ -118,8 +118,8 @@ per operator pivot so the serial transport is hardened first.
 
 ## Session Continuity
 
-Last session: 2026-06-02T13:29:17.029Z
-Stopped at: Phase 52 context gathered
+Last session: 2026-06-02T13:42:10.146Z
+Stopped at: Completed Phase 52 Plan 02 — firmware Unity vector suite
 Resume file: None
 
 ## Decisions
@@ -141,6 +141,7 @@ Resume file: None
 - [Phase 51 P04]: CR-02 closed: both spin sites in rurp_serial_utils.cpp replaced with millis()-bounded inter-byte deadline (TIMEOUT_MS); truncated frames return negative instead of hanging; SC1 win preserved (no idle timer on truly-idle path); D-06 letter refined, intent honored
 - [Phase 51 P04]: D-06 reconciliation: bounded mid-frame inter-byte deadline (approach B) chosen over resumable decoder (approach A); approach A is a large state-machine rewrite; approach B is the minimal correct fix; operator had delegated the call to the planner
 - [Phase 52 P01]: Separate codegen_vectors.py (not extending codegen.py) to avoid entangling [[messages]] validator with [[vectors]] schema (Open Q3/Pitfall 6); VECTOR_NAME_RE relaxed to VEC_[A-Z0-9][A-Z0-9_]* to accommodate VEC_512_*/VEC_1024_* corpus names
+- [Phase ?]: [Phase 52 P02]: Unity TEST_ASSERT_EQUAL_MEMORY rejects size=0; VEC_EMPTY decode verified via length-only assertions with payload_len>0 guard on memory compare
 
 ## Performance Metrics
 
@@ -151,3 +152,4 @@ Resume file: None
 | Phase 51 P03 | 4m | - tasks | - files |
 | Phase 51 P04 | 25m | 2 tasks (TDD) | 5 files |
 | Phase 52 P01 | 25m | 3 tasks | 8 files |
+| Phase Phase 52 PP02 | 30m | 2 tasks | 8 files |
