@@ -146,7 +146,25 @@ Plans:
   3. uno328pb re-test recorded: the `firestarter dev consistency-check` read is re-run on the uno328pb and the result documents whether the hardened transport changes the failure shape (timeout / ~99% 0xff-drift), stating explicitly that this is transport-exoneration and NOT a per-shield hardware fix (the actual RCA is deferred v1.9 Phase 45+).
   4. The bench evidence is captured in a milestone artifact (hashes, fault-injection log, uno328pb before/after shape) sufficient for the resumed v1.9 RCA to treat the transport as a settled, byte-exact variable.
 
-**Plans**: TBD
+**Plans**: 6 plans
+Plans:
+**Wave 1**
+
+- [ ] 53-01-PLAN.md — Wave 0 failing-test scaffold: RED tests for write_cycle_eprom 3-way verdict, outgoing fault-inject hook + FaultInjectingSerialCommunicator, dev write-cycle/dev fault-inject smoke tests, plus a GREEN _read_and_parse_lines ring-fence compliance assertion (XACT-01/02)
+
+**Wave 2** *(depends on 53-01)*
+
+- [ ] 53-02-PLAN.md — software harness: write_cycle_eprom() (erase->write->read-back->host SHA compare, D-06), getattr-guarded outgoing fault hook in send_json_command(), FaultInjectingSerialCommunicator + fault_inject_cycle(), dev write-cycle/dev fault-inject subcommands (3-way verdict); transport production path byte-identical; ring-fence intact (XACT-01/02)
+
+**Wave 3** *(parallel — operator-witnessed bench, distinct artifact subdirs; all depend on 53-02)*
+
+- [ ] 53-03-PLAN.md — clean-board bench (autonomous: false): N=5 byte-identical reads + N=5 write->read-back cycles on clean Uno (512 B) + Leonardo (1024 B), Rev 2.0 target (D-07), GATE-1.8d hash-match strong-form-or-self-consistency (D-04/D-05/D-06) (XACT-01)
+- [ ] 53-04-PLAN.md — fault-injection bench (autonomous: false): host->fw + fw->host, both fault forms (corrupt-crc8, drop-delimiter); sub-second clean error (no 2 s cascade) + byte-exact next transfer (D-01/D-02/D-03) (XACT-02)
+- [ ] 53-05-PLAN.md — uno328pb re-test (autonomous: false): N=5 with timeout-retry logging (D-08), hardened-firmware-only (D-09), structured transport-exoneration verdict per v1.9-COBS-DECISION §2.0 (D-10) (XACT-03)
+
+**Wave 4** *(milestone artifact — depends on 53-03 + 53-04 + 53-05)*
+
+- [ ] 53-06-PLAN.md — milestone evidence artifact (autonomous: false): assemble .planning/v1.10/bench-verification/SUMMARY.md (operator attestation, full SHA table, fault-injection log, uno328pb before/after + exoneration verdict, settled-variable claim) (D-11; SC4)
 
 ### v1.10 Coverage
 
