@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.10
 milestone_name: — Serial Transport Hardening
 status: executing
-stopped_at: Completed Phase 51 (all 3 plans)
-last_updated: "2026-06-02T09:46:04.199Z"
-last_activity: 2026-06-02 -- Phase 51 planning complete
+stopped_at: Completed Phase 51 (all 4 plans — including gap-closure 51-04)
+last_updated: "2026-06-02T10:50:00Z"
+last_activity: 2026-06-02 -- Phase 51 gap-closure (51-04) complete; all 4 plans done
 progress:
   total_phases: 5
   completed_phases: 2
@@ -21,12 +21,12 @@ progress:
 
 ## Current Position
 
-Phase: 51 (command-channel-framing-migration-breaking-wire-change) — EXECUTING
-Plan: 3 of 3
-Status: Ready to execute
-Last activity: 2026-06-02 -- Phase 51 planning complete
+Phase: 52 (lockstep-contract-and-round-trip-tests) — READY
+Plan: 0 of TBD
+Status: Phase 51 complete; Phase 52 next
+Last activity: 2026-06-02 -- Phase 51 gap-closure (51-04) complete; all 4 plans done
 
-Progress: [██░░░░░░░░] 20%
+Progress: [████░░░░░░] 40%
 
 ## Project Reference
 
@@ -118,8 +118,8 @@ per operator pivot so the serial transport is hardened first.
 
 ## Session Continuity
 
-Last session: 2026-06-02T08:28:04.206Z
-Stopped at: Completed Phase 51 (all 3 plans)
+Last session: 2026-06-02T10:50:00Z
+Stopped at: Completed Phase 51 plan 04 (gap-closure: CR-01 OOB write + CR-02 truncated-frame hang)
 Resume file: None
 
 ## Decisions
@@ -137,6 +137,9 @@ Resume file: None
 - [Phase ?]: Phase 51 plan 02: Encode order locked — CRC8 over raw json_bytes before COBS encode (ADR §4.3); reversed order would break firmware CRC8 verify
 - [Phase ?]: Phase 51 plan 03: Breaking command-channel wire change documented in both sub-repo READMEs (COBS+CRC8, lockstep upgrade, no mixed-version interop, beta-only) per D-02 / SC3
 - [Phase ?]: Phase 51 plan 03: Dual-repo gate green — 33/33 fw native tests PASSED, 413/413 host tests PASSED (71.21% coverage); CMD_FRAME_MAX=512 parity confirmed
+- [Phase 51 P04]: CR-01 closed: PUSH overflow guard lowered to DATA_BUFFER_SIZE-1; decoder returns n<=511 always; NUL write at data_buffer[n] in-bounds by construction; CMD_FRAME_MAX unchanged; no constants.py edit
+- [Phase 51 P04]: CR-02 closed: both spin sites in rurp_serial_utils.cpp replaced with millis()-bounded inter-byte deadline (TIMEOUT_MS); truncated frames return negative instead of hanging; SC1 win preserved (no idle timer on truly-idle path); D-06 letter refined, intent honored
+- [Phase 51 P04]: D-06 reconciliation: bounded mid-frame inter-byte deadline (approach B) chosen over resumable decoder (approach A); approach A is a large state-machine rewrite; approach B is the minimal correct fix; operator had delegated the call to the planner
 
 ## Performance Metrics
 
@@ -145,3 +148,4 @@ Resume file: None
 | Phase 51 P01 | 5m | 2 tasks | 5 files |
 | Phase 51 P02 | 5m | 2 tasks | 3 files |
 | Phase 51 P03 | 4m | - tasks | - files |
+| Phase 51 P04 | 25m | 2 tasks (TDD) | 5 files |

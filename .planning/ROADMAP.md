@@ -30,7 +30,7 @@
 
 - [x] **Phase 49: Framing Mechanism Decision (COBS `0x00` vs SLIP `0xC0`)** — Resolve the deferred mechanism choice and the `0x00` bus-aliasing safety question (COBS-DECISION §2.0 / Open Q2/Q3) before any implementation commits to a delimiter. **COMPLETE 2026-06-01: COBS `0x00` selected; SAFE-01 proof conclusive; D-06 frame contract frozen at `.planning/v1.10-FRAMING-DECISION.md`.**
 - [x] **Phase 50: Data-Path Framing Layer + Automatic Resync (dual-repo lockstep)** — Implement the chosen streaming framing on the host↔fw data-block path with CRC8 retained; receiver auto-resyncs to the next delimiter, killing the 2 s `len_u16`-corruption timeout cascade; fits the Uno free-RAM ceiling. (completed 2026-06-01)
-- [ ] **Phase 51: Command-Channel Framing Migration (breaking wire change)** — Migrate the host→fw JSON command channel into the same framing (CRC8-verified before the JSON parser sees the payload); firmware + host upgrade lockstep, no mixed-version interop.
+- [x] **Phase 51: Command-Channel Framing Migration (breaking wire change)** — Migrate the host→fw JSON command channel into the same framing (CRC8-verified before the JSON parser sees the payload); firmware + host upgrade lockstep, no mixed-version interop. **COMPLETE 2026-06-02: all 4 plans shipped (COBS decode+CRC8, host framing, breaking-change docs, CR-01/CR-02 gap closure); 36/36 native tests green.**
 - [ ] **Phase 52: Lockstep Contract + Round-Trip Tests** — Prove host-encode↔firmware-decode byte-compatibility (data blocks AND command frames, incl. delimiter-laden + all-delimiter payloads); pin the new frame contract in the `test_messages` Unity suite + host parser tests; CI green across both repos.
 - [ ] **Phase 53: Byte-Exact Bench Verification (hardware-gated)** — Operator-authorized bench proof: N consecutive framed read+write transfers byte-identical on Uno + Leonardo (reproducing the GATE-1.8d W27C512 N=5 baselines); fault-injection resync proven within one packet; uno328pb re-test recorded (transport-exoneration, not a hardware fix).
 
@@ -105,7 +105,7 @@ Plans:
 
 **Wave 1 (gap closure — firmware BLOCKER defects from 51-VERIFICATION.md)**
 
-- [ ] 51-04-PLAN.md — firmware gap closure: close CR-01 (off-by-one OOB NUL-write at the 512-byte boundary → cap decode at `DATA_BUFFER_SIZE-1`) + CR-02 (unbounded busy-wait hang on a truncated frame → bounded mid-frame inter-byte deadline on both `rurp_serial_utils.cpp` spin sites) + exact-boundary & truncated-frame Unity cases + finite-stream mock mode (FRAME-05/CRC-01; D-06 reconciled; SC1 win preserved)
+- [x] 51-04-PLAN.md — firmware gap closure: close CR-01 (off-by-one OOB NUL-write at the 512-byte boundary → cap decode at `DATA_BUFFER_SIZE-1`) + CR-02 (unbounded busy-wait hang on a truncated frame → bounded mid-frame inter-byte deadline on both `rurp_serial_utils.cpp` spin sites) + exact-boundary & truncated-frame Unity cases + finite-stream mock mode (FRAME-05/CRC-01; D-06 reconciled; SC1 win preserved) ✅ 2026-06-02
 
 #### Phase 52: Lockstep Contract + Round-Trip Tests
 
