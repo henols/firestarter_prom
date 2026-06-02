@@ -545,19 +545,21 @@ The vector catalog adds two parallel steps pointing at `frame-vectors.toml` and 
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Extend existing cobs suites vs new `test_frame_vectors` directory**
+> All three resolved by the Phase 52 plans (committed `48ba414`): Q1 → new `test_frame_vectors/` directory; Q2 → encoder-only for >511-byte vectors; Q3 → separate `codegen_vectors.py`.
+
+1. **RESOLVED — Extend existing cobs suites vs new `test_frame_vectors` directory**
    - What we know: The existing `test_cobs_cmd_frame.cpp` and `test_cobs_data_frame.cpp` already have the `build_cobs_frame_bytes` + `test_cobs_encode` + `ref_crc8` helpers and the `serial_read_mock.h` wiring. A new `test_frame_vectors/` directory would duplicate this setup.
    - What's unclear: Is a new directory cleaner (separation of concerns: existing tests cover behavior, new tests cover the frozen contract) or unnecessarily heavyweight?
    - Recommendation: Create a new `test_frame_vectors/` directory so the vector corpus is clearly identified as a Phase-52 addition. This also avoids perturbing the existing test counts in the two suites (which are guarded at Phase 50/51 GREEN baselines). Share `_shared/host_stubs_common.inc` and copy `serial_read_mock.h` locally (the established pattern per the comment in `test_cobs_cmd_frame`'s copy of `serial_read_mock.h`).
 
-2. **Encoder-only vs both-legs for 512/1024-byte data-block vectors**
+2. **RESOLVED — Encoder-only vs both-legs for 512/1024-byte data-block vectors**
    - What we know: `rurp_communication_read_data()` caps at 511 bytes (CR-01). The 512/1024-byte data-block transfers use the unchanged `MSG_DATA_CHUNK` magic-preamble path. The dormant `rurp_communication_write()` encoder is the firmware side of the data-block COBS path.
    - What's unclear: Should 512/1024-byte vectors assert only the encode leg (both repos), or also the decode leg of `rurp_communication_write()` via a read-back mechanism?
    - Recommendation: Assert encode-only for 512/1024-byte vectors. `rurp_communication_write()` writes to `SERIAL_PORT` directly — capturing its output in a Unity test requires mocking `SERIAL_PORT.write()`, which is heavier than the mock already in place for `rurp_communication_read_data()`. The host `cobs_encode()` / `cobs_decode()` round-trip for 512/1024 bytes is already covered by the existing `TestCobsFullBuffer` class in `test_cobs.py`. The golden-vector decode leg for large payloads can be omitted or deferred to Phase 53 bench verification.
 
-3. **Single codegen.py or separate script**
+3. **RESOLVED — Single codegen.py or separate script**
    - What we know: The existing `codegen.py` processes `[[messages]]` and `[[debug.messages]]` TOML tables with a rich schema (10 validation rules, param types, severity codes). The `[[vectors]]` table is structurally simpler (just `payload_hex` + `frame_hex`).
    - What's unclear: Whether extending `codegen.py` with a new `--language cpp-vectors` emitter and a new validator branch is cleaner than a new `codegen_vectors.py`.
    - Recommendation: Create a separate `codegen_vectors.py` with its own simpler schema, to avoid entangling the Phase-6 log-catalog machinery with the Phase-52 vector machinery. Use the same determinism contract (sorted, no timestamps, LF, upper-case hex). Mirror the `--check` flag interface exactly so CI step syntax is identical.
