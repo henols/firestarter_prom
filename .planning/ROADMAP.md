@@ -307,7 +307,7 @@ Plans:
 | 36-43 (v1.8) | v1.8 | 26/26 | ✅ Shipped | 2026-05-29 |
 | 49 | v1.10 | 1/1 | Complete    | 2026-06-01 |
 | 50 | v1.10 | 4/4 | Complete    | 2026-06-01 |
-| 51 | v1.10 | 3/3 | Complete   | 2026-06-02 |
+| 51 | v1.10 | 4/4 | Complete    | 2026-06-02 |
 | 52 | v1.10 | 0/TBD | Not started | — |
 | 53 | v1.10 | 0/TBD | Not started | — |
 | 44 | v1.9 | 3/5 | In Progress|  |
