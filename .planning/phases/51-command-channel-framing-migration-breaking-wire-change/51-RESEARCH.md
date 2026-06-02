@@ -673,26 +673,32 @@ bool init_programmer_framed(firestarter_handle_t* handle) {
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> All four were planner-discretion items, resolved in the Phase-51 plans (51-01/51-02). Markers added post-planning.
 
 1. **Symbol name: `init_programmer_framed` vs modified `init_programmer`**
    - What we know: the function body from line 115 onward is unchanged; only the read-preamble at lines 112-114 is removed.
    - What's unclear: whether to create a new `init_programmer_framed()` function or modify `init_programmer()` in place (e.g., via a parameter or by simply removing the read lines).
    - Recommendation: modify in place — rename to `init_programmer_framed()` or add a comment block. Avoids a dead unreachable old function. Planner's discretion.
+   - **RESOLVED:** `init_programmer_framed()` (51-01 Task 2).
 
 2. **Error ID for bad command frame (`MSG_ERR_BAD_FRAME`)**
    - What we know: existing error IDs are defined in `logging_id.h`; the firmware already has `MSG_ERR_EMPTY_INPUT`, `MSG_ERR_BAD_JSON`, `MSG_ERR_NO_CMD`.
    - What's unclear: whether to reuse `MSG_ERR_EMPTY_INPUT` (already covers `n == 0`) for the new error path or add a `MSG_ERR_BAD_FRAME` entry.
    - Recommendation: add `MSG_ERR_BAD_FRAME` to `logging_id.h` for distinction; planner's call. If not adding, `MSG_ERR_EMPTY_INPUT` is the least-wrong existing code.
+   - **RESOLVED:** add `MSG_ERR_BAD_FRAME` to `logging_id.h` (51-01 Task 2; `logging_id.h` now in 51-01 `files_modified`).
 
 3. **D-03: host version-floor bump**
    - What we know: current floor is "2.0.0" in `_validate_firmware_version()`. The framing-version firmware is 3.0.0b6.
    - What's unclear: whether bumping to "3.0.0" floor provides a meaningfully cleaner error for stale firmware.
    - Recommendation: bump floor to "3.0.0b6" or "3.0.0" so a stale firmware gets `FirmwareOutdatedError("Please reflash")` instead of an opaque COBS decode failure. Low-effort, useful UX. Planner should decide.
+   - **RESOLVED:** see 51-02 Task 2 (D-03 disposition; non-load-bearing per D-01).
 
 4. **`CMD_FRAME_MAX` as decoded-length check vs COBS-body-length check**
    - What we know: `rurp_communication_read_data()` already enforces a decoded-payload cap at `DATA_BUFFER_SIZE`. Defining `CMD_FRAME_MAX = DATA_BUFFER_SIZE` means the `CMD_IDLE` check `n <= CMD_FRAME_MAX` is always satisfied for successful decodes and always violated for `-2` returns (which the `n > 0` gate already catches).
    - Recommendation: define `CMD_FRAME_MAX` = 512 as documentation/parity constant; the real enforcement is the decoder's internal overflow guard. Planner may choose to omit the `n <= CMD_FRAME_MAX` check and rely solely on `n > 0`.
+   - **RESOLVED:** `CMD_FRAME_MAX = 512` (= `DATA_BUFFER_SIZE`) as a documentation/parity constant in both repos (51-01 Task 1 + 51-02 Task 1); decoder overflow guard is the real enforcement.
 
 ---
 
