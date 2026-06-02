@@ -1,294 +1,100 @@
 ---
 phase: 51-command-channel-framing-migration-breaking-wire-change
-reviewed: 2026-06-02T00:00:00Z
+reviewed: 2026-06-02T12:00:00Z
 depth: standard
-files_reviewed: 11
+files_reviewed: 2
 files_reviewed_list:
-  - firestarter/include/firestarter.h
-  - firestarter/platformio.ini
+  - firestarter/src/boards/rurp_serial_utils.cpp
   - firestarter/src/firestarter.cpp
-  - firestarter/test/native/avr/test_cobs_cmd_frame/host_stubs.cpp
-  - firestarter/test/native/avr/test_cobs_cmd_frame/test_cobs_cmd_frame.cpp
-  - firestarter_app/firestarter/constants.py
-  - firestarter_app/firestarter/serial_comm.py
-  - firestarter_app/tests/test_serial_comm.py
-  - firestarter/README.md
-  - firestarter_app/README.md
 findings:
-  critical: 2
-  warning: 4
-  info: 3
-  total: 9
+  critical: 0
+  warning: 1
+  info: 2
+  total: 3
 status: issues_found
 ---
 
-# Phase 51: Code Review Report
+# Phase 51: Re-Review Report (Gap-Closure Verification)
 
 **Reviewed:** 2026-06-02
 **Depth:** standard
-**Files Reviewed:** 11
+**Files Reviewed:** 2 (gap-closure scope: rurp_serial_utils.cpp + firestarter.cpp)
 **Status:** issues_found
 
 ## Summary
 
-Reviewed the COBS+CRC8 command-channel framing migration across both repos. The
-CRC-before-parse ordering, the deleted `{`-peek plaintext path, the atomic single
-write, and the host/firmware `CMD_FRAME_MAX = 512` constant declarations are all
-present and correct as designed. However, the firmware integration in
-`firestarter.cpp` and the shared decoder in `rurp_serial_utils.cpp` (the
-load-bearing primitive this phase wires up — included as essential context though
-not in the explicit file list) contain two ship-blocking defects:
+This is a targeted re-review of the two gap-closure commits (6c3c392 + c523f49) that addressed the two BLOCKER defects found in the prior review:
 
-1. An **off-by-one out-of-bounds write** at the exact `DATA_BUFFER_SIZE` payload
-   boundary — directly in the headroom the phase deliberately reserves.
-2. An **unbounded busy-wait hang** on a truncated frame, because the per-frame
-   timeout was removed (SC1) and the CMD_IDLE decode path has no watchdog.
+- **CR-01** (OOB write: `handle.data_buffer[n] = '\0'` with n == DATA_BUFFER_SIZE): **GENUINELY CLOSED**. The PUSH macro cap at `out >= DATA_BUFFER_SIZE - 1` (= 511) ensures the decoder never returns n > 511. The belt-and-suspenders guard in `firestarter.cpp:184` (`if (n < DATA_BUFFER_SIZE)`) is always true for valid n but correctly documents the invariant and protects against future callers.
+- **CR-02** (unbounded busy-wait spin): **GENUINELY CLOSED**. Both spin sites (`rurp_serial_utils.cpp:113-119` in `_drain_to_delimiter` and `rurp_serial_utils.cpp:167-175` in `rurp_communication_read_data`) are bounded by `TIMEOUT_MS = 1000 ms` per inter-byte wait. The truly-idle path is unaffected: the decoder is only entered when `loop()` already has `rurp_communication_available() > 0`.
 
-Neither defect is covered by the four Unity cases in the new suite — the suite
-tests `DATA_BUFFER_SIZE + 4` (drained) but never exactly `DATA_BUFFER_SIZE`, and
-never a truncated/no-delimiter stream.
+One new WARNING is introduced by the CR-02 fix design: the per-byte timeout bound means total drain time is O(N × TIMEOUT_MS) for N bytes slowly arriving, not a single TIMEOUT_MS cap. Two pre-existing issues (millis-overflow in `op_reset_timeout`, dead-code guard in `_firestarter_emit_frame`) are documented as INFO for completeness.
 
-The host side is clean for the framing contract, but `CMD_FRAME_MAX` is declared
-and never enforced on send, so an oversized command fails opaquely.
+All COBS decoder edge cases were traced exhaustively: zero-CRC, 254-run boundary, empty payload, all-zeros payload, single-byte frames, and mid-run violation. All cases are correct. No new memory-safety issues or AVR heap allocations were introduced.
 
-## Critical Issues
-
-### CR-01: Off-by-one OOB write — `data_buffer[n] = '\0'` at the 512-byte boundary
-
-**File:** `firestarter/src/firestarter.cpp:176-179`
-**Issue:**
-`handle.data_buffer` is declared `char data_buffer[DATA_BUFFER_SIZE]` (512 bytes,
-`firestarter.h:95`). The decoder `rurp_communication_read_data()` caps the
-committed payload at `out == DATA_BUFFER_SIZE` — its overflow guard only fires on
-`out >= DATA_BUFFER_SIZE` *before* a further commit
-(`rurp_serial_utils.cpp:113`), so a payload of *exactly* `DATA_BUFFER_SIZE` bytes
-is accepted and returns `n == 512`. The CRC byte is held in the 1-byte lookahead
-and never committed, so 512 is a legitimate, reachable return value (and well
-inside the "512 B headroom" the phase reserves above the ~422 B worst case).
-
-The CMD_IDLE branch then executes:
-
-```c
-handle.data_size = (uint32_t)n;       // n == 512
-handle.data_buffer[n] = '\0';         // writes data_buffer[512] — OUT OF BOUNDS
-```
-
-`data_buffer[512]` is one past the end of the 512-element array. On the Uno this
-overwrites whatever struct field follows `data_buffer` in `firestarter_handle_t`
-(`data_size`, then `bus_config`) — silent memory corruption on the single global
-`handle` with only ~545 B of free RAM. This is a data-integrity / undefined-
-behavior defect on the exact boundary the design treats as valid.
-
-The same NUL-terminate-past-decoded-length pattern is *not* a problem on the data
-channel (`operation_utils.cpp:164-169` does not append a terminator), confirming
-this is specific to the new command path.
-
-**Fix:** Either reserve one byte for the terminator in the buffer, or have the
-decoder cap one byte lower so a returned length always leaves room. Minimal,
-self-contained fix at the call site — clamp before terminating:
-
-```c
-int n = rurp_communication_read_data(handle.data_buffer);
-if (n > 0) {
-    /* Reserve the terminator slot: the JSON parser uses data_size as the
-     * authoritative length, so a 512-byte payload need not be NUL-terminated
-     * beyond the buffer. Guard the write. */
-    handle.data_size = (uint32_t)n;
-    if (n < DATA_BUFFER_SIZE) {
-        handle.data_buffer[n] = '\0';
-    }
-    if (init_programmer_framed(&handle)) {
-        return;
-    }
-}
-```
-
-Preferred long-term fix: lower the decoder's overflow cap to
-`DATA_BUFFER_SIZE - 1` (so the terminator slot is always free) and add a Unity
-case for a payload of *exactly* `DATA_BUFFER_SIZE` bytes — the existing
-`test_cobs_oversized_frame_bounded_recovery` uses `DATA_BUFFER_SIZE + 4` and skips
-the boundary that triggers this bug.
-
-### CR-02: Unbounded busy-wait hang on a truncated command frame (no timeout)
-
-**File:** `firestarter/src/firestarter.cpp:158-191` (CMD_IDLE branch) +
-`firestarter/src/boards/rurp_serial_utils.cpp:91-92, 124-125`
-**Issue:**
-The phase deleted the per-frame wall-clock timeout (the "2 s cascade … SC1 win",
-documented in the test file at `test_cobs_cmd_frame.cpp:164-167` and in
-`rurp_serial_utils.cpp:82`). The decoder now relies solely on the `0x00`
-delimiter for frame termination and spins on raw availability:
-
-```c
-// rurp_serial_utils.cpp:124-125 (main read loop)
-while (rurp_communication_available() <= 0) {}   // spins forever
-// rurp_serial_utils.cpp:91-92 (_drain_to_delimiter)
-while (rurp_communication_available() <= 0) {}   // spins forever
-```
-
-If the host writes a partial frame and then stops (cut cable, host crash, killed
-process mid-`write`, USB-CDC stall), the firmware enters this loop with
-`available() == 0` and no further bytes ever arriving. There is no escape:
-
-- The decoder has no timeout (deleted by design).
-- The `loop()` watchdog at `firestarter.cpp:159`
-  (`handle.cmd != CMD_IDLE && timeout < millis()`) **cannot fire** — the firmware
-  is still in the `CMD_IDLE` state while decoding, so `handle.cmd == CMD_IDLE` and
-  the timeout branch is never taken. `op_reset_timeout()` is only called at the
-  end of a *successful* `init_programmer_framed` (`firestarter.cpp:143`).
-
-Result: a truncated frame hard-hangs the programmer until physical reset — a
-denial-of-availability regression versus the previous timeout-bounded ingest. The
-firmware controls live programming hardware; a hang mid-session can also leave
-control-register / VPP state asserted (the cleanup in `command_done()` never runs).
-
-The new Unity suite does **not** cover this: every test feeds a complete stream
-ending in `0x00`. `test_cobs_resync_bounded` and
-`test_cobs_oversized_frame_bounded_recovery` both terminate every frame, so the
-busy-wait always has bytes to consume.
-
-**Fix:** Reintroduce a bounded wait. Either:
-
-- Make `rurp_communication_read_data()` return early (negative) when no byte
-  arrives within a deadline (`millis()`-based), e.g. wrap the
-  `while (available() <= 0)` spins with a `TIMEOUT_MS` cap and `return -1` /
-  `_drain_to_delimiter()` on expiry; **or**
-- Only call `rurp_communication_read_data()` once `available()` indicates a full
-  delimited frame is buffered, and arm the `loop()` timeout the moment the first
-  byte is seen.
-
-Add a Unity case feeding bytes with no trailing `0x00` and asserting the call
-returns (does not spin) — currently impossible to express because the mock has no
-"starved read" path, so the mock needs a finite-stream-then-empty mode too.
+## Narrative Findings (AI reviewer)
 
 ## Warnings
 
-### WR-01: `CMD_FRAME_MAX` declared on both sides but never enforced on the host
+### WR-01: Drain total hang time is O(N × TIMEOUT_MS), not O(TIMEOUT_MS)
 
-**File:** `firestarter_app/firestarter/constants.py:24-28` (+
-`firestarter_app/firestarter/serial_comm.py:156-175`)
-**Issue:**
-`CMD_FRAME_MAX = 512` is added "for parity" but is dead on the host — `grep`
-finds zero references outside its own definition. `send_json_command()` will
-serialise, CRC, COBS-encode, and transmit a command of *any* size. If a command's
-JSON exceeds 512 bytes (e.g. a large `bus-config`, or a future field), the
-firmware decoder silently returns `-2` (overflow drain) and the operation fails
-with only the reused generic `MSG_ERR_EMPTY_INPUT` error
-(`firestarter.cpp:187`) — no actionable diagnostic on either side. The "~422 B
-worst case" claim is asserted in a comment but never guarded.
+**File:** `firestarter/src/boards/rurp_serial_utils.cpp:95-126` (`_drain_to_delimiter`) and `rurp_serial_utils.cpp:167-175` (main decode timeout path)
+**Issue:** The CR-02 fix bounds each individual inter-byte wait to `TIMEOUT_MS` (1 s), but `_drain_to_delimiter` rearms the 1 s timer from scratch for every new byte that arrives. A host that sends one non-zero byte every 999 ms keeps the drain loop running indefinitely — effectively re-establishing an unbounded hang through repeated per-byte deferrals. In the worst case (512-byte max frame, each byte arriving at 999 ms intervals) the drain blocks for approximately 512 seconds before completing. Additionally, when `rurp_communication_read_data` fires its own mid-frame timeout and then calls `_drain_to_delimiter`, the total blocked time is `TIMEOUT_MS` (main decoder) + up to N × `TIMEOUT_MS` (drain). For a truly silent host (no bytes at all) the combined worst case is 2 s (1 s + 1 s), which is acceptable; the dangerous scenario requires an active but slow sender.
 
-**Fix:** Enforce the cap at the single send chokepoint before writing:
+This is a remaining weakness in the CR-02 design rather than a regression (the prior code hung forever). The plan documentation acknowledges this is a per-byte timer. It is a WARNING because a crashed host application that trickles bytes slowly — plausible with a USB-CDC driver in a bad state — would block the programmer for minutes with no way to recover short of a physical reset.
 
-```python
-json_bytes = json.dumps(command_dict, separators=(",", ":")).encode("ascii")
-# +1 for the CRC byte that shares the frame budget
-if len(json_bytes) + 1 > CMD_FRAME_MAX:
-    raise SerialError(
-        f"Command frame {len(json_bytes) + 1} B exceeds CMD_FRAME_MAX "
-        f"({CMD_FRAME_MAX} B); firmware would reject it."
-    )
+**Fix:** Add a total-frame-drain deadline alongside the per-byte deadline. Example:
+```cpp
+static void _drain_to_delimiter(void) {
+    unsigned long frame_start = millis();  // total deadline for entire drain
+    while (1) {
+        if (rurp_communication_available() <= 0) {
+            unsigned long byte_start = millis();
+            while (rurp_communication_available() <= 0) {
+                if (millis() - byte_start >= TIMEOUT_MS ||
+                    millis() - frame_start >= DRAIN_TOTAL_MS) {
+                    return;
+                }
+            }
+        }
+        if (millis() - frame_start >= DRAIN_TOTAL_MS) {
+            return;
+        }
+        int d = rurp_communication_read();
+        if (d < 0 || (uint8_t)d == 0x00) {
+            break;
+        }
+    }
+}
 ```
-
-Import `CMD_FRAME_MAX` from `constants` (currently not imported in
-`serial_comm.py`).
-
-### WR-02: Generic error masks all frame-failure causes (CRC vs overflow vs underrun)
-
-**File:** `firestarter/src/firestarter.cpp:183-188`
-**Issue:**
-Every decoder failure code (`-1` underrun, `-2` overflow, `-3` COBS violation,
-`-4` CRC mismatch) collapses to a single `LOG_ERROR_ID(MSG_ERR_EMPTY_INPUT)`. The
-inline comment acknowledges this is a stopgap ("MSG_ERR_BAD_FRAME requires a TOML
-catalog update — deferred"). For a *breaking* wire-protocol change whose first
-field symptom will be "old host ↔ new firmware → decode error", operators get an
-actively misleading message ("empty input") for a CRC or version-mismatch
-failure. This will generate false bug reports during the lockstep-upgrade window
-the READMEs warn about.
-
-**Fix:** At minimum log the negative return code as a parameter (the data channel
-already does this — `operation_utils.cpp:166`
-`LOG_ERROR_ID_U16(MSG_ERR_DATA_ERR_N, (uint16_t)res)`). Reuse that message ID, or
-add `MSG_ERR_BAD_FRAME` to the catalog before shipping the breaking change rather
-than after.
-
-### WR-03: `_drain_to_delimiter` / read loop ignore a sticky `read() < 0` only after the spin
-
-**File:** `firestarter/src/boards/rurp_serial_utils.cpp:91-97, 124-131`
-**Issue:**
-Both loops first `while (available() <= 0) {}` and only then `read()`. The
-`available()` spin is the hang vector (CR-02), but note a secondary issue: if the
-underlying serial returns a transient `available() > 0` followed by `read() < 0`,
-`_drain_to_delimiter` treats `d < 0` as a terminator and breaks
-(`rurp_serial_utils.cpp:94`), silently re-anchoring on a *non*-delimiter
-condition. That can desync the next frame (the real `0x00` is still in the
-stream). The main loop handles `b < 0` differently — it drains and returns `-1`.
-The two read sites disagree on what a negative read means.
-
-**Fix:** Make the negative-read handling consistent. In `_drain_to_delimiter`, a
-`read() < 0` after `available() > 0` is an I/O error, not a frame boundary —
-either keep spinning or propagate the error upward rather than treating it as a
-successful resync.
-
-### WR-04: COBS overhead can push a max-size payload past the decoder cap on the wire
-
-**File:** `firestarter_app/firestarter/serial_comm.py:171-175` +
-`firestarter/src/boards/rurp_serial_utils.cpp:113`
-**Issue:**
-The host budget check (WR-01, if added) and the firmware cap both reason about the
-*decoded payload* length. But the firmware decoder enforces the cap on `out`
-(decoded bytes), while the host transmits `cobs_encode(json + crc)` which is
-larger on the wire. This is internally consistent (the cap is on decoded output,
-which is what matters for `data_buffer`), so it is not a correctness bug — but the
-parity comment in `constants.py:24-28` conflates "frame size" with "payload size".
-A JSON payload of exactly 512 B decodes to 512 B and trips CR-01; the wire frame
-is ~514+ B. The naming (`CMD_FRAME_MAX`) implies a *frame* (encoded) limit but the
-firmware enforces a *payload* (decoded) limit.
-
-**Fix:** Rename or re-document so the host guard checks the same quantity the
-firmware caps (decoded `len(json_bytes) + 1`), and state explicitly that the
-limit is on decoded payload, not on the COBS-encoded frame. Coordinate with the
-CR-01 fix so the effective payload cap is `DATA_BUFFER_SIZE - 1` on both sides.
+Where `DRAIN_TOTAL_MS` is a constant (e.g., 3000 ms — large enough to allow a 512-byte frame at 250000 baud to drain completely, but tight enough to prevent indefinite blocking). Alternatively, an iteration counter (max N iterations = DATA_BUFFER_SIZE + headroom) caps the loop without a second timer.
 
 ## Info
 
-### IN-01: Reference COBS encoder duplicated three times
+### IN-01: `op_reset_timeout` uses unsafe millis() + TIMEOUT_MS pattern (pre-existing)
 
-**File:** `firestarter/test/native/avr/test_cobs_cmd_frame/test_cobs_cmd_frame.cpp:95-118`
-**Issue:** `test_cobs_encode` is a third hand-rolled COBS encoder (alongside the
-host `cobs_encode` in `frame_parser.py` and the firmware
-`rurp_communication_write` in `rurp_serial_utils.cpp`). Three independent
-implementations of the same edge-case-laden algorithm (254-run, trailing-zero,
-zero-CRC) is a divergence risk; a bug in the test encoder could mask a decoder
-bug. The test deliberately re-derives it for independence, which is defensible,
-but worth a tracking note.
-**Fix:** Add a single round-trip Unity case that pins the firmware
-`rurp_communication_write` output against `rurp_communication_read_data` so the
-production encoder/decoder pair is exercised end-to-end (not just decoder vs
-test-encoder).
+**File:** `firestarter/src/firestarter.cpp:259`
+**Issue:** `timeout = millis() + TIMEOUT_MS` overflows when `millis()` is within `TIMEOUT_MS` ms of the 32-bit rollover (~49.7 days uptime). The result wraps to a small value; the next `loop()` iteration evaluates `timeout < millis()` as true and fires `command_done()` immediately, aborting any in-progress operation. The COBS timeout code in `rurp_serial_utils.cpp` correctly uses the safe `millis() - start >= TIMEOUT_MS` pattern; `op_reset_timeout` does not. Pre-existing defect; not introduced by the CR-01/CR-02 gap-closure.
 
-### IN-02: Unreachable inner guard left in the data-channel `#` branch
+**Fix:**
+```cpp
+void op_reset_timeout() {
+    // Safe: use start + delta comparison, not absolute deadline addition
+    timeout_start = millis();  // store start; check as (millis() - timeout_start >= TIMEOUT_MS)
+}
+// ... in loop():
+// if (handle.cmd != CMD_IDLE && millis() - timeout_start >= TIMEOUT_MS) { ... }
+```
 
-**File:** `firestarter/src/operation_utils.cpp:159-163`
-**Issue:** The comment states the inner `available()` guard is now unreachable
-under COBS framing ("the inner guard is unreachable"). Dead-but-documented code.
-Low priority, but a candidate for removal during the same pass to avoid confusion
-about whether the data-channel ingest still has a fixed-header assumption.
-**Fix:** Remove the dead guard or convert the comment into a one-line note.
+### IN-02: Dead-code overflow guard in `_firestarter_emit_frame` (pre-existing)
 
-### IN-03: Leonardo buffer size pinned to 512 via a "TEMP" A/B-test flag
+**File:** `firestarter/src/boards/rurp_serial_utils.cpp:380`
+**Issue:** `_firestarter_emit_frame` takes `param_count` as `uint8_t` but guards with `if (param_count > 65533)`. A `uint8_t` can never exceed 255, so this condition is always false and the guard is dead code. The check was evidently copied from `_firestarter_emit_frame_wide` (which uses `uint16_t param_count` where the guard is also unreachable, since uint16_t max is 65535 and the check threshold is 65533 — only the values 65534 and 65535 would trigger it, and `len_u16 = 1 + 65534 + 1 = 65536` wraps to 0 causing the same bug the guard tries to prevent, so the wide variant's guard is similarly near-dead). Pre-existing; not introduced by the gap-closure.
 
-**File:** `firestarter/platformio.ini:64-65`
-**Issue:** `-D DATA_BUFFER_SIZE=512  ; TEMP: 512 to match Uno for buffer-size A/B
-test (was 1024)`. This is unrelated to Phase 51 but is in a reviewed file and
-interacts with CR-01: while this flag is active, Leonardo shares the Uno's 512-B
-boundary and the same off-by-one OOB applies to Leonardo too. If/when this reverts
-to 1024, the CR-01 fix must still hold at whatever `DATA_BUFFER_SIZE` is.
-**Fix:** Confirm the CR-01 fix is expressed in terms of `DATA_BUFFER_SIZE` (not a
-literal 512) so it survives the Leonardo revert. No action needed on the TEMP flag
-itself for this phase.
+**Fix:** For `_firestarter_emit_frame` (uint8_t), remove the dead guard entirely — `len_u16` can never overflow with uint8_t input. For `_firestarter_emit_frame_wide` (uint16_t), lower the threshold to `65533` is correct for intent but `len_u16` wraps at 65536; the guard as written permits 65534 and 65535 which still cause the wrap — tighten to `param_count > 65533` is correct (65534 → len = 65536 → wraps → already excluded). Clarify with a comment that the uint8_t overload needs no guard.
 
 ---
 
 _Reviewed: 2026-06-02_
 _Reviewer: Claude (gsd-code-reviewer)_
-_Depth: standard_
+_Depth: standard (gap-closure focused)_
