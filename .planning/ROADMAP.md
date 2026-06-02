@@ -92,7 +92,7 @@ Plans:
   3. The change is enforced as a breaking lockstep upgrade: a version/handshake guard (or equivalent) prevents a framed host from silently mis-driving unframed firmware and vice-versa; the breaking nature is documented for the beta cut.
   4. A representative set of host commands (read/write/info/etc.) round-trips through the framed command channel and is parsed identically to the pre-migration JSON behavior — no command-surface regression.
 
-**Plans**: 3 plans
+**Plans**: 4 plans (3 + 1 gap-closure)
 Plans:
 **Wave 1** *(parallel — firmware vs host, zero file overlap)*
 
@@ -102,6 +102,10 @@ Plans:
 **Wave 2** *(merge gate — depends on 51-01 + 51-02)*
 
 - [x] 51-03-PLAN.md — breaking-change README notes in both sub-repos (D-02 documentation-as-SC3-guard) + dual-repo full-suite green gate + firmware/host `CMD_FRAME_MAX` parity check (FRAME-05 SC3)
+
+**Wave 1 (gap closure — firmware BLOCKER defects from 51-VERIFICATION.md)**
+
+- [ ] 51-04-PLAN.md — firmware gap closure: close CR-01 (off-by-one OOB NUL-write at the 512-byte boundary → cap decode at `DATA_BUFFER_SIZE-1`) + CR-02 (unbounded busy-wait hang on a truncated frame → bounded mid-frame inter-byte deadline on both `rurp_serial_utils.cpp` spin sites) + exact-boundary & truncated-frame Unity cases + finite-stream mock mode (FRAME-05/CRC-01; D-06 reconciled; SC1 win preserved)
 
 #### Phase 52: Lockstep Contract + Round-Trip Tests
 
