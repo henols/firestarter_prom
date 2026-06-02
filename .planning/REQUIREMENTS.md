@@ -36,8 +36,8 @@
 
 ### 5. Byte-Exact Verification (XACT)
 
-- [ ] **XACT-01**: Transport proven byte-exact on a clean board — N consecutive framed read **and** write transfers are byte-identical on Uno (512 B) and Leonardo (1024 B); the hardened path reproduces the GATE-1.8d W27C512 N=5 baselines.
-- [ ] **XACT-02**: Resync proven under fault injection — a deliberately corrupted byte (or length field) recovers within one packet via the delimiter, not a 2-second timeout cascade, demonstrated by a host-side or bench fault-injection harness.
+- [x] **XACT-01**: Transport proven byte-exact on a clean board — N consecutive framed read **and** write transfers are byte-identical on Uno (512 B) and Leonardo (1024 B); the hardened path reproduces the GATE-1.8d W27C512 N=5 baselines.
+- [x] **XACT-02**: Resync proven under fault injection — a deliberately corrupted byte (or length field) recovers within one packet via the delimiter, not a 2-second timeout cascade, demonstrated by a host-side or bench fault-injection harness.
 - [ ] **XACT-03**: uno328pb re-test recorded — the consistency-check read is re-run on the uno328pb (where the timeout + ~99% 0xff-drift instability appears) and the result documents whether the hardened transport changes the failure shape, stating explicitly what it does and does not conclude per COBS-DECISION §2.0 (transport-exoneration, not a hardware fix).
 
 ## Out of Scope (v1.10)
@@ -67,6 +67,6 @@
 | LOCK-01 | Phase 52 | Complete |
 | LOCK-02 | Phase 52 | Complete |
 | SAFE-01 | Phase 49 | ✅ Complete (2026-06-01) |
-| XACT-01 | Phase 53 | Pending |
-| XACT-02 | Phase 53 | Pending |
+| XACT-01 | Phase 53 | Complete |
+| XACT-02 | Phase 53 | Complete |
 | XACT-03 | Phase 53 | Pending |

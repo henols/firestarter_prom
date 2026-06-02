@@ -150,7 +150,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 53-01-PLAN.md — Wave 0 failing-test scaffold: RED tests for write_cycle_eprom 3-way verdict, outgoing fault-inject hook + FaultInjectingSerialCommunicator, dev write-cycle/dev fault-inject smoke tests, plus a GREEN _read_and_parse_lines ring-fence compliance assertion (XACT-01/02)
+- [x] 53-01-PLAN.md — Wave 0 failing-test scaffold: RED tests for write_cycle_eprom 3-way verdict, outgoing fault-inject hook + FaultInjectingSerialCommunicator, dev write-cycle/dev fault-inject smoke tests, plus a GREEN _read_and_parse_lines ring-fence compliance assertion (XACT-01/02)
 
 **Wave 2** *(depends on 53-01)*
 
@@ -340,7 +340,7 @@ Plans:
 | 50 | v1.10 | 4/4 | Complete    | 2026-06-01 |
 | 51 | v1.10 | 4/4 | Complete    | 2026-06-02 |
 | 52 | v1.10 | 4/4 | Complete    | 2026-06-02 |
-| 53 | v1.10 | 0/TBD | Not started | — |
+| 53 | v1.10 | 1/6 | In Progress|  |
 | 44 | v1.9 | 3/5 | In Progress|  |
 | 45 | v1.9 | 0/TBD | Not started | — |
 | 46 | v1.9 | 0/TBD | Not started | — |
