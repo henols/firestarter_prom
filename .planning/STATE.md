@@ -4,13 +4,13 @@ milestone: v1.10
 milestone_name: — Serial Transport Hardening
 status: executing
 stopped_at: Phase 51 context gathered
-last_updated: "2026-06-02T08:11:50.404Z"
+last_updated: "2026-06-02T08:20:02.491Z"
 last_activity: 2026-06-02
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 8
-  completed_plans: 6
+  completed_plans: 7
   percent: 40
 ---
 
@@ -22,7 +22,7 @@ progress:
 ## Current Position
 
 Phase: 51 (command-channel-framing-migration-breaking-wire-change) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-06-02
 
@@ -118,7 +118,7 @@ per operator pivot so the serial transport is hardened first.
 
 ## Session Continuity
 
-Last session: 2026-06-02T08:11:50.400Z
+Last session: 2026-06-02T08:19:54.784Z
 Stopped at: Phase 51 context gathered
 Resume file: None
 
@@ -133,9 +133,12 @@ Resume file: None
 - [Phase 50 plan]: Framing-3 scope = **Option A** (operator-locked 2026-06-01). Live-code trace proved fw→host EPROM reads emit over the UNCHANGED `MSG_DATA_CHUNK` magic-preamble frame, not `rurp_communication_write()` (dormant, behind undefined `RAW_DATA_PROGRESS`). Phase 50 rewrites `rurp_communication_read_data()` (the 2 s cascade source) + the dormant `rurp_communication_write()` as its COBS encode mirror; reads stay on `MSG_DATA_CHUNK`. ADR §4.6 errata recorded in `v1.10-FRAMING-DECISION.md`.
 - [Phase ?]: Phase 51 plan 01: MSG_ERR_EMPTY_INPUT reused for bad-frame error (messages.h is codegen from TOML; MSG_ERR_BAD_FRAME deferred to catalog update)
 - [Phase ?]: Phase 51 plan 01: COBS+CRC8 command decode replaces legacy {-peek loop; CRC8 verified before parse_json() on every CMD_IDLE ingest (FRAME-05 + CRC-01 closed)
+- [Phase ?]: Phase 51 plan 02: D-04 honored — CMD_FW_VERSION probe emitted through framed path (no plaintext bypass); every command carries CRC8
+- [Phase ?]: Phase 51 plan 02: Encode order locked — CRC8 over raw json_bytes before COBS encode (ADR §4.3); reversed order would break firmware CRC8 verify
 
 ## Performance Metrics
 
 | Phase | Plan | Duration | Notes |
 |-------|------|----------|-------|
 | Phase 51 P01 | 5m | 2 tasks | 5 files |
+| Phase 51 P02 | 5m | 2 tasks | 3 files |
