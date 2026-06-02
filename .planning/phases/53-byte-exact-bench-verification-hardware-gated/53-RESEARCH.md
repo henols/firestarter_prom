@@ -709,22 +709,27 @@ The following directives from `./CLAUDE.md` and `firestarter_app/CLAUDE.md` appl
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> All three are handled by plan structure rather than left open — Q1 and Q2 are operator/hardware contingencies the plans encode both paths for; Q3 is a design choice the planner made. None block execution.
 
 1. **W27C512 chip availability for D-05 strong-form hash match**
    - What we know: GATE-1.8d baselines exist at `.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260526-155617-v2-rev20/`; Rev 2.0 canonical SHA `19710f6e…`
    - What's unclear: Whether the exact same physical chip that produced those baselines is still on the bench (chip may have been partially-written or worn since 2026-05-26)
    - Recommendation: Planner should include a task to verify chip ID matches `0xda08` before attempting hash match; record in artifact which form (strong or self-consistency-only) was achieved
+   - **RESOLVED:** Plan 53-03 Task 2 encodes both paths per D-05 — strong-form GATE-1.8d hash-match if the original chip is present, self-consistency-only otherwise, with the achieved form recorded in the artifact. No pre-bench answer required; contingency is in the plan.
 
 2. **uno328pb sideload port at Phase 53 bench time**
    - What we know: Historically `/dev/ttyUSB0`, urclock programmer_id, ATmega328PB Case A confirmed
    - What's unclear: USB device assignment at time of execution (ACM numbers shuffle)
    - Recommendation: Every bench task must include port-identity verification step before any operation
+   - **RESOLVED:** Every bench task (53-03/04/05 Task 1) mandates per-port `controller:` identity verification at task start before any operation. Port shuffle is handled operationally, not as a planning unknown.
 
 3. **Fault-injection subcommand vs flag implementation choice (planner's discretion)**
    - What we know: Context D says "planner's discretion" on exact mechanism
    - What's unclear: Whether adding a `dev fault-inject` subcommand vs `--fault-inject` flag on `dev consistency-check` is cleaner in context of mypy strict and test coverage requirements
    - Recommendation: Separate subcommand is cleaner (avoids complicating the ring-fenced read path's test surface)
+   - **RESOLVED:** Planner chose the separate `dev fault-inject` subcommand (Plan 53-02 Task 3), keeping the ring-fenced read path's test surface untouched.
 
 ---
 
