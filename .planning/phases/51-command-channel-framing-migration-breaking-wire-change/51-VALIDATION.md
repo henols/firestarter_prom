@@ -1,9 +1,9 @@
 ---
 phase: 51
 slug: command-channel-framing-migration-breaking-wire-change
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: planned
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-06-02
 ---
 

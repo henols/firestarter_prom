@@ -92,7 +92,17 @@ Plans:
   3. The change is enforced as a breaking lockstep upgrade: a version/handshake guard (or equivalent) prevents a framed host from silently mis-driving unframed firmware and vice-versa; the breaking nature is documented for the beta cut.
   4. A representative set of host commands (read/write/info/etc.) round-trips through the framed command channel and is parsed identically to the pre-migration JSON behavior — no command-surface regression.
 
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+**Wave 1** *(parallel — firmware vs host, zero file overlap)*
+
+- [ ] 51-01-PLAN.md — firmware: new `test_cobs_cmd_frame` Unity suite (Wave-0 scaffold) + `CMD_FRAME_MAX` + delete `{`-peek `CMD_IDLE` loop → `rurp_communication_read_data()` COBS-decode + CRC8-before-parse + drain-to-`0x00`; `init_programmer_framed` surgery (FRAME-05/CRC-01; D-05/D-06; V5 §4.4)
+- [ ] 51-02-PLAN.md — host: framed `send_json_command()` (COBS+CRC8, single atomic `send_bytes()`) + `CMD_FRAME_MAX` parity in constants.py + framed/atomic/version-probe tests; probe framed automatically (FRAME-05/CRC-01; D-04; SAFE-01 sub-claim B)
+
+**Wave 2** *(merge gate — depends on 51-01 + 51-02)*
+
+- [ ] 51-03-PLAN.md — breaking-change README notes in both sub-repos (D-02 documentation-as-SC3-guard) + dual-repo full-suite green gate + firmware/host `CMD_FRAME_MAX` parity check (FRAME-05 SC3)
+
 
 #### Phase 52: Lockstep Contract + Round-Trip Tests
 
@@ -294,7 +304,7 @@ Plans:
 | 36-43 (v1.8) | v1.8 | 26/26 | ✅ Shipped | 2026-05-29 |
 | 49 | v1.10 | 1/1 | Complete    | 2026-06-01 |
 | 50 | v1.10 | 4/4 | Complete    | 2026-06-01 |
-| 51 | v1.10 | 0/TBD | Not started | — |
+| 51 | v1.10 | 0/3 | Planned | — |
 | 52 | v1.10 | 0/TBD | Not started | — |
 | 53 | v1.10 | 0/TBD | Not started | — |
 | 44 | v1.9 | 3/5 | In Progress|  |
