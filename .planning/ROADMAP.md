@@ -31,7 +31,7 @@
 - [x] **Phase 49: Framing Mechanism Decision (COBS `0x00` vs SLIP `0xC0`)** — Resolve the deferred mechanism choice and the `0x00` bus-aliasing safety question (COBS-DECISION §2.0 / Open Q2/Q3) before any implementation commits to a delimiter. **COMPLETE 2026-06-01: COBS `0x00` selected; SAFE-01 proof conclusive; D-06 frame contract frozen at `.planning/v1.10-FRAMING-DECISION.md`.**
 - [x] **Phase 50: Data-Path Framing Layer + Automatic Resync (dual-repo lockstep)** — Implement the chosen streaming framing on the host↔fw data-block path with CRC8 retained; receiver auto-resyncs to the next delimiter, killing the 2 s `len_u16`-corruption timeout cascade; fits the Uno free-RAM ceiling. (completed 2026-06-01)
 - [x] **Phase 51: Command-Channel Framing Migration (breaking wire change)** — Migrate the host→fw JSON command channel into the same framing (CRC8-verified before the JSON parser sees the payload); firmware + host upgrade lockstep, no mixed-version interop. **COMPLETE 2026-06-02: all 4 plans shipped (COBS decode+CRC8, host framing, breaking-change docs, CR-01/CR-02 gap closure); 36/36 native tests green.**
-- [ ] **Phase 52: Lockstep Contract + Round-Trip Tests** — Prove host-encode↔firmware-decode byte-compatibility (data blocks AND command frames, incl. delimiter-laden + all-delimiter payloads); pin the new frame contract in the `test_messages` Unity suite + host parser tests; CI green across both repos.
+- [x] **Phase 52: Lockstep Contract + Round-Trip Tests** — Prove host-encode↔firmware-decode byte-compatibility (data blocks AND command frames, incl. delimiter-laden + all-delimiter payloads); pin the new frame contract in the `test_messages` Unity suite + host parser tests; CI green across both repos. (completed 2026-06-02)
 - [ ] **Phase 53: Byte-Exact Bench Verification (hardware-gated)** — Operator-authorized bench proof: N consecutive framed read+write transfers byte-identical on Uno + Leonardo (reproducing the GATE-1.8d W27C512 N=5 baselines); fault-injection resync proven within one packet; uno328pb re-test recorded (transport-exoneration, not a hardware fix).
 
 ### Phase Details
@@ -321,7 +321,7 @@ Plans:
 | 49 | v1.10 | 1/1 | Complete    | 2026-06-01 |
 | 50 | v1.10 | 4/4 | Complete    | 2026-06-01 |
 | 51 | v1.10 | 4/4 | Complete    | 2026-06-02 |
-| 52 | v1.10 | 4/4 | Complete   | 2026-06-02 |
+| 52 | v1.10 | 4/4 | Complete    | 2026-06-02 |
 | 53 | v1.10 | 0/TBD | Not started | — |
 | 44 | v1.9 | 3/5 | In Progress|  |
 | 45 | v1.9 | 0/TBD | Not started | — |
