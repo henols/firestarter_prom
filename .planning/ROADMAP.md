@@ -119,7 +119,20 @@ Plans:
   3. Firmware/host constant parity is preserved (the constants duplicated between `firestarter/include/firestarter.h` and `firestarter_app/firestarter/constants.py` stay in sync, guarded by the parity tests) and CI is green in both the `firestarter` and `firestarter_app` repos.
   4. The CRC8-CCITT byte-level contract (poly 0x07) is asserted byte-for-byte in the updated suites — confirming framing layered on top without a polynomial change (D-05).
 
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+**Wave 1**
+
+- [ ] 52-01-PLAN.md — author canonical `frame-vectors.toml` (D-05 corpus incl. 253/254/255-run boundary) + `codegen_vectors.py` (v1.2 determinism contract + `--check`), vendor byte-identical into both repos, generate `frame_vectors.h` / `frame_vectors.py`, add per-repo codegen drift-gate CI steps (D-01/D-04/D-08)
+
+**Wave 2** *(parallel — firmware vs host, zero file overlap; both depend on 52-01)*
+
+- [ ] 52-02-PLAN.md — firmware: new `test_frame_vectors/` Unity suite (both-legs vector assertions, decode leg capped at 511 B per CR-01, CRC8 KAT `CRC8([0x01])==0x07`) + platformio.ini allowlist registration (D-02/D-06)
+- [ ] 52-03-PLAN.md — host: new `test_frame_vectors.py` (both-legs assertions + CRC8 KAT) + extend `test_revision_constants_parity.py` with `CMD_FRAME_MAX==512` parity (D-02/D-06/D-07)
+
+**Wave 3** *(merge gate — depends on 52-01 + 52-02 + 52-03)*
+
+- [ ] 52-04-PLAN.md — cross-repo byte-identity assert (`diff` empty for catalog + codegen, D-09) + both codegen drift gates clean + dual-repo full-suite green (LOCK-01 + LOCK-02 close)
 
 #### Phase 53: Byte-Exact Bench Verification (hardware-gated)
 
