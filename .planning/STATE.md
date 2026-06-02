@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.10
 milestone_name: — Serial Transport Hardening
 status: executing
-stopped_at: Phase 52 context gathered
-last_updated: "2026-06-02T12:27:50.835Z"
-last_activity: 2026-06-02 -- Phase 52 planning complete
+stopped_at: Phase 52 Plan 01 complete
+last_updated: "2026-06-02T13:29:17.033Z"
+last_activity: 2026-06-02
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 13
-  completed_plans: 9
+  completed_plans: 10
   percent: 60
 ---
 
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 52
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-06-02 -- Phase 52 planning complete
+Phase: 52 (lockstep-contract-round-trip-tests) — EXECUTING
+Plan: 2 of 4
+Status: Executing Phase 52
+Last activity: 2026-06-02 -- Phase 52 Plan 01 complete (golden vectors + codegen + CI drift gates)
 
 Progress: [████░░░░░░] 40%
 
@@ -35,7 +35,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-01)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 51 — command-channel-framing-migration-breaking-wire-change
+**Current focus:** Phase 52 — lockstep-contract-round-trip-tests
 (streaming COBS vs SLIP, chosen in plan research) on the Arduino↔host data path so the
 transport is provably byte-exact, ruling serial out as a read-bug confounder.
 
@@ -118,9 +118,9 @@ per operator pivot so the serial transport is hardened first.
 
 ## Session Continuity
 
-Last session: 2026-06-02T11:02:27.756Z
+Last session: 2026-06-02T13:29:17.029Z
 Stopped at: Phase 52 context gathered
-Resume file: .planning/phases/52-lockstep-contract-round-trip-tests/52-CONTEXT.md
+Resume file: None
 
 ## Decisions
 
@@ -140,6 +140,7 @@ Resume file: .planning/phases/52-lockstep-contract-round-trip-tests/52-CONTEXT.m
 - [Phase 51 P04]: CR-01 closed: PUSH overflow guard lowered to DATA_BUFFER_SIZE-1; decoder returns n<=511 always; NUL write at data_buffer[n] in-bounds by construction; CMD_FRAME_MAX unchanged; no constants.py edit
 - [Phase 51 P04]: CR-02 closed: both spin sites in rurp_serial_utils.cpp replaced with millis()-bounded inter-byte deadline (TIMEOUT_MS); truncated frames return negative instead of hanging; SC1 win preserved (no idle timer on truly-idle path); D-06 letter refined, intent honored
 - [Phase 51 P04]: D-06 reconciliation: bounded mid-frame inter-byte deadline (approach B) chosen over resumable decoder (approach A); approach A is a large state-machine rewrite; approach B is the minimal correct fix; operator had delegated the call to the planner
+- [Phase 52 P01]: Separate codegen_vectors.py (not extending codegen.py) to avoid entangling [[messages]] validator with [[vectors]] schema (Open Q3/Pitfall 6); VECTOR_NAME_RE relaxed to VEC_[A-Z0-9][A-Z0-9_]* to accommodate VEC_512_*/VEC_1024_* corpus names
 
 ## Performance Metrics
 
@@ -149,3 +150,4 @@ Resume file: .planning/phases/52-lockstep-contract-round-trip-tests/52-CONTEXT.m
 | Phase 51 P02 | 5m | 2 tasks | 3 files |
 | Phase 51 P03 | 4m | - tasks | - files |
 | Phase 51 P04 | 25m | 2 tasks (TDD) | 5 files |
+| Phase 52 P01 | 25m | 3 tasks | 8 files |

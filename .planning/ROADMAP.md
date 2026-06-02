@@ -123,7 +123,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 52-01-PLAN.md — author canonical `frame-vectors.toml` (D-05 corpus incl. 253/254/255-run boundary) + `codegen_vectors.py` (v1.2 determinism contract + `--check`), vendor byte-identical into both repos, generate `frame_vectors.h` / `frame_vectors.py`, add per-repo codegen drift-gate CI steps (D-01/D-04/D-08)
+- [x] 52-01-PLAN.md — author canonical `frame-vectors.toml` (D-05 corpus incl. 253/254/255-run boundary) + `codegen_vectors.py` (v1.2 determinism contract + `--check`), vendor byte-identical into both repos, generate `frame_vectors.h` / `frame_vectors.py`, add per-repo codegen drift-gate CI steps (D-01/D-04/D-08)
 
 **Wave 2** *(parallel — firmware vs host, zero file overlap; both depend on 52-01)*
 
@@ -321,7 +321,7 @@ Plans:
 | 49 | v1.10 | 1/1 | Complete    | 2026-06-01 |
 | 50 | v1.10 | 4/4 | Complete    | 2026-06-01 |
 | 51 | v1.10 | 4/4 | Complete    | 2026-06-02 |
-| 52 | v1.10 | 0/TBD | Not started | — |
+| 52 | v1.10 | 1/4 | In Progress|  |
 | 53 | v1.10 | 0/TBD | Not started | — |
 | 44 | v1.9 | 3/5 | In Progress|  |
 | 45 | v1.9 | 0/TBD | Not started | — |

@@ -27,8 +27,8 @@
 
 ### 3. Dual-Repo Lockstep (LOCK)
 
-- [ ] **LOCK-01**: The firmware (`rurp_serial_utils.cpp`) and host (`serial_comm.py` + `frame_parser.py`) framing implementations are byte-compatible — a round-trip test proves host-encode → firmware-decode and firmware-encode → host-decode for representative payloads (data blocks **and** JSON command frames), including payloads that contain the delimiter byte and the pathological all-delimiter case.
-- [ ] **LOCK-02**: The `test_messages` Unity suite and host-side parser tests are updated to pin the new frame contract; firmware/host constant parity is preserved and CI stays green across both repos.
+- [x] **LOCK-01**: The firmware (`rurp_serial_utils.cpp`) and host (`serial_comm.py` + `frame_parser.py`) framing implementations are byte-compatible — a round-trip test proves host-encode → firmware-decode and firmware-encode → host-decode for representative payloads (data blocks **and** JSON command frames), including payloads that contain the delimiter byte and the pathological all-delimiter case.
+- [x] **LOCK-02**: The `test_messages` Unity suite and host-side parser tests are updated to pin the new frame contract; firmware/host constant parity is preserved and CI stays green across both repos.
 
 ### 4. Bus-Aliasing Safety (SAFE)
 
@@ -64,8 +64,8 @@
 | FRAME-04 | Phase 50 | Complete |
 | FRAME-05 | Phase 51 | Complete |
 | CRC-01 | Phase 50 | Complete |
-| LOCK-01 | Phase 52 | Pending |
-| LOCK-02 | Phase 52 | Pending |
+| LOCK-01 | Phase 52 | Complete |
+| LOCK-02 | Phase 52 | Complete |
 | SAFE-01 | Phase 49 | ✅ Complete (2026-06-01) |
 | XACT-01 | Phase 53 | Pending |
 | XACT-02 | Phase 53 | Pending |
