@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.10
 milestone_name: — Serial Transport Hardening
-status: executing
-stopped_at: Phase 51 context gathered
-last_updated: "2026-06-02T08:20:02.491Z"
+status: verifying
+stopped_at: Completed Phase 51 (all 3 plans)
+last_updated: "2026-06-02T08:28:04.210Z"
 last_activity: 2026-06-02
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 8
-  completed_plans: 7
-  percent: 40
+  completed_plans: 8
+  percent: 60
 ---
 
 # Project State
@@ -23,7 +23,7 @@ progress:
 
 Phase: 51 (command-channel-framing-migration-breaking-wire-change) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-06-02
 
 Progress: [██░░░░░░░░] 20%
@@ -118,8 +118,8 @@ per operator pivot so the serial transport is hardened first.
 
 ## Session Continuity
 
-Last session: 2026-06-02T08:19:54.784Z
-Stopped at: Phase 51 context gathered
+Last session: 2026-06-02T08:28:04.206Z
+Stopped at: Completed Phase 51 (all 3 plans)
 Resume file: None
 
 ## Decisions
@@ -135,6 +135,8 @@ Resume file: None
 - [Phase ?]: Phase 51 plan 01: COBS+CRC8 command decode replaces legacy {-peek loop; CRC8 verified before parse_json() on every CMD_IDLE ingest (FRAME-05 + CRC-01 closed)
 - [Phase ?]: Phase 51 plan 02: D-04 honored — CMD_FW_VERSION probe emitted through framed path (no plaintext bypass); every command carries CRC8
 - [Phase ?]: Phase 51 plan 02: Encode order locked — CRC8 over raw json_bytes before COBS encode (ADR §4.3); reversed order would break firmware CRC8 verify
+- [Phase ?]: Phase 51 plan 03: Breaking command-channel wire change documented in both sub-repo READMEs (COBS+CRC8, lockstep upgrade, no mixed-version interop, beta-only) per D-02 / SC3
+- [Phase ?]: Phase 51 plan 03: Dual-repo gate green — 33/33 fw native tests PASSED, 413/413 host tests PASSED (71.21% coverage); CMD_FRAME_MAX=512 parity confirmed
 
 ## Performance Metrics
 
@@ -142,3 +144,4 @@ Resume file: None
 |-------|------|----------|-------|
 | Phase 51 P01 | 5m | 2 tasks | 5 files |
 | Phase 51 P02 | 5m | 2 tasks | 3 files |
+| Phase 51 P03 | 4m | - tasks | - files |
