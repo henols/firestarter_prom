@@ -154,7 +154,7 @@ Plans:
 
 **Wave 2** *(depends on 53-01)*
 
-- [ ] 53-02-PLAN.md — software harness: write_cycle_eprom() (erase->write->read-back->host SHA compare, D-06), getattr-guarded outgoing fault hook in send_json_command(), FaultInjectingSerialCommunicator + fault_inject_cycle(), dev write-cycle/dev fault-inject subcommands (3-way verdict); transport production path byte-identical; ring-fence intact (XACT-01/02)
+- [x] 53-02-PLAN.md — software harness: write_cycle_eprom() (erase->write->read-back->host SHA compare, D-06), getattr-guarded outgoing fault hook in send_json_command(), FaultInjectingSerialCommunicator + fault_inject_cycle(), dev write-cycle/dev fault-inject subcommands (3-way verdict); transport production path byte-identical; ring-fence intact (XACT-01/02)
 
 **Wave 3** *(parallel — operator-witnessed bench, distinct artifact subdirs; all depend on 53-02)*
 
@@ -340,7 +340,7 @@ Plans:
 | 50 | v1.10 | 4/4 | Complete    | 2026-06-01 |
 | 51 | v1.10 | 4/4 | Complete    | 2026-06-02 |
 | 52 | v1.10 | 4/4 | Complete    | 2026-06-02 |
-| 53 | v1.10 | 1/6 | In Progress|  |
+| 53 | v1.10 | 2/6 | In Progress|  |
 | 44 | v1.9 | 3/5 | In Progress|  |
 | 45 | v1.9 | 0/TBD | Not started | — |
 | 46 | v1.9 | 0/TBD | Not started | — |
