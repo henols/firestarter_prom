@@ -4,13 +4,13 @@ milestone: v1.10
 milestone_name: — Serial Transport Hardening
 status: executing
 stopped_at: Phase 51 context gathered
-last_updated: "2026-06-02T07:17:18.215Z"
-last_activity: 2026-06-02 -- Phase 51 planning complete
+last_updated: "2026-06-02T08:11:50.404Z"
+last_activity: 2026-06-02
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 8
-  completed_plans: 5
+  completed_plans: 6
   percent: 40
 ---
 
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 51
-Plan: Not started
+Phase: 51 (command-channel-framing-migration-breaking-wire-change) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-06-02 -- Phase 51 planning complete
+Last activity: 2026-06-02
 
 Progress: [██░░░░░░░░] 20%
 
@@ -35,7 +35,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-01)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 49 — framing-mechanism-decision-cobs-0x00-vs-slip-0xc0
+**Current focus:** Phase 51 — command-channel-framing-migration-breaking-wire-change
 (streaming COBS vs SLIP, chosen in plan research) on the Arduino↔host data path so the
 transport is provably byte-exact, ruling serial out as a read-bug confounder.
 
@@ -118,9 +118,9 @@ per operator pivot so the serial transport is hardened first.
 
 ## Session Continuity
 
-Last session: 2026-06-02T06:44:28.125Z
+Last session: 2026-06-02T08:11:50.400Z
 Stopped at: Phase 51 context gathered
-Resume file: .planning/phases/51-command-channel-framing-migration-breaking-wire-change/51-CONTEXT.md
+Resume file: None
 
 ## Decisions
 
@@ -131,3 +131,11 @@ Resume file: .planning/phases/51-command-channel-framing-migration-breaking-wire
 - [Phase 49]: len_u16 length prefix removed from data-block framing; XOR checksum replaced by CRC8-CCITT on data-block path.
 - [Phase 49]: CRC8-before-parse mandate recorded as Phase 51 design constraint (T-49-01 / V5).
 - [Phase 50 plan]: Framing-3 scope = **Option A** (operator-locked 2026-06-01). Live-code trace proved fw→host EPROM reads emit over the UNCHANGED `MSG_DATA_CHUNK` magic-preamble frame, not `rurp_communication_write()` (dormant, behind undefined `RAW_DATA_PROGRESS`). Phase 50 rewrites `rurp_communication_read_data()` (the 2 s cascade source) + the dormant `rurp_communication_write()` as its COBS encode mirror; reads stay on `MSG_DATA_CHUNK`. ADR §4.6 errata recorded in `v1.10-FRAMING-DECISION.md`.
+- [Phase ?]: Phase 51 plan 01: MSG_ERR_EMPTY_INPUT reused for bad-frame error (messages.h is codegen from TOML; MSG_ERR_BAD_FRAME deferred to catalog update)
+- [Phase ?]: Phase 51 plan 01: COBS+CRC8 command decode replaces legacy {-peek loop; CRC8 verified before parse_json() on every CMD_IDLE ingest (FRAME-05 + CRC-01 closed)
+
+## Performance Metrics
+
+| Phase | Plan | Duration | Notes |
+|-------|------|----------|-------|
+| Phase 51 P01 | 5m | 2 tasks | 5 files |

@@ -19,7 +19,7 @@
 - [x] **FRAME-02**: Automatic resync — after any framing or integrity error, the receiver discards bytes up to the next frame delimiter and recovers within a single packet; the 2-second `len_u16`-corruption timeout-desync cascade is eliminated.
 - [x] **FRAME-03**: The firmware encoder/decoder is streaming — no second ~512 B encode buffer is materialized; the change fits the Uno ~545 B free-RAM ceiling, proven by a post-change `pio run -e uno` RAM report (D-04).
 - [x] **FRAME-04**: Full board-buffer payloads are framed without operator-visible re-chunking — 512 B (Uno) and 1024 B (Leonardo) transfers complete through the new framing transparently to the eprom read/write loop.
-- [ ] **FRAME-05**: The host→firmware JSON command channel is migrated to the same framing layer — the firmware decodes a frame, verifies its CRC8, then hands the payload to the JSON parser; the legacy "`{`-peek and discard non-`{` bytes" path is replaced (or retained only as an explicit fallback). This is a breaking wire-protocol change: firmware and host upgrade lockstep, no mixed-version interop (cf. v1.2 lockstep upgrade).
+- [x] **FRAME-05**: The host→firmware JSON command channel is migrated to the same framing layer — the firmware decodes a frame, verifies its CRC8, then hands the payload to the JSON parser; the legacy "`{`-peek and discard non-`{` bytes" path is replaced (or retained only as an explicit fallback). This is a breaking wire-protocol change: firmware and host upgrade lockstep, no mixed-version interop (cf. v1.2 lockstep upgrade).
 
 ### 2. Integrity (CRC)
 
@@ -62,7 +62,7 @@
 | FRAME-02 | Phase 50 | Complete |
 | FRAME-03 | Phase 50 | Complete |
 | FRAME-04 | Phase 50 | Complete |
-| FRAME-05 | Phase 51 | Pending |
+| FRAME-05 | Phase 51 | Complete |
 | CRC-01 | Phase 50 | Complete |
 | LOCK-01 | Phase 52 | Pending |
 | LOCK-02 | Phase 52 | Pending |
