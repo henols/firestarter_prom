@@ -1,5 +1,5 @@
 ---
-status: partially-resolved
+status: resolved
 trigger: "verify (and write) fail immediately on the host->fw data path with 'ERROR: Data error: -2' on BOTH Uno and Leonardo, on the hardened v1.10 firmware."
 created: 2026-06-02
 updated: 2026-06-02
@@ -42,11 +42,20 @@ fix: "UNRESOLVED. Dual-repo lockstep change. Options: (a) host: send <=510-byte 
 - Host suite green (the lone test_no_programmer_found_read failure is an env artifact: the bench
   saved port /dev/ttyACM1 in ~/.firestarter/config.json; passes with the port cleared).
 
-## REMAINING (part 2 — verify stall): OPEN, suspected com_mode-gate class
-After the -2 fix, `verify` still TIMES OUT after accepting chunk 0 (510 bytes). Suspected same
-class as the blank-check bug: verify's per-chunk compare reads the chip in PROGRAMMER mode and
-emits its mismatch/next-step frame there, where the Uno com_mode gate drops it (the test chip is
-jittery -> mismatch expected). Needs the same comm-mode-flush treatment in the verify/write
-_process_incoming_data path. `write` is additionally blocked on W27C512 by erase "Not supported"
-(UV-EPROM classification — separate chip-config matter). NOT yet fixed; operator paused milestone
-to address transport fixes.
+## Resolution (part 2 — verify stall): FIXED (systemic)
+CONFIRMED same com_mode-gate class: memory_verify_execute (memory.cpp:241) emits MSG_ERR_VERIFY on
+mismatch while inside the programmer-mode op window (op_execute_function -> _execute_operation) ->
+dropped on the Uno -> host timeout. (The test chip is jittery, so a mismatch is expected.)
+
+Fixed SYSTEMICALLY (firestarter bafbe8a): the Uno rurp_log_id now BUFFERS frames emitted while
+com_mode==false and FLUSHES them in rurp_set_communication_mode() instead of dropping. This fixes
+verify, write, blank (write/erase reuse path), the 28C chip-id mismatch, flash verify-timeouts —
+every operation that emits inside the programmer-mode window — in one place, no per-site changes.
+
+Bench-verified on Uno: verify now reports "0xff != 0x03 at 0x000000" (MSG_ERR_VERIFY) instead of
+timing out. blank/fw/read regress clean (single emit, coexists with the targeted blank fix 83d186f).
+39/39 native tests pass; +41 B RAM (504 B free).
+
+Note: `write` on W27C512 is still gated by erase "Not supported" (UV-EPROM classification) — a
+SEPARATE chip-config matter, not a transport bug. The host->fw write/verify TRANSPORT path is now
+fully working (chunk decode + error/result reporting).
