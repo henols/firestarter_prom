@@ -59,3 +59,10 @@ timing out. blank/fw/read regress clean (single emit, coexists with the targeted
 Note: `write` on W27C512 is still gated by erase "Not supported" (UV-EPROM classification) — a
 SEPARATE chip-config matter, not a transport bug. The host->fw write/verify TRANSPORT path is now
 fully working (chunk decode + error/result reporting).
+
+## End-to-end verification (chip seated, all 3 fixes)
+- Uno (re-enumerated to /dev/ttyACM0 after chip re-seat — ports shuffle per
+  feedback_verify_port_identity_each_task). Fresh read SHA 71189f7f (stable across two reads).
+- `verify W27C512 <fresh read>` -> "Verify for W27C512 successful (13.98s)", exit 0. Full 64KB
+  host->fw compare PASSED. Error leg (MSG_ERR_VERIFY) separately confirmed chip-out ("0xff != 0x03
+  at 0x000000"). The host->fw data path is proven end-to-end on the hardened transport.
