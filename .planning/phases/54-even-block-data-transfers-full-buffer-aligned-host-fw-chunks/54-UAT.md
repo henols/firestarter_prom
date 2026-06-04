@@ -1,5 +1,5 @@
 ---
-status: complete
+status: diagnosed
 phase: 54-even-block-data-transfers-full-buffer-aligned-host-fw-chunks
 source: [54-01-SUMMARY.md, 54-02-SUMMARY.md, 54-03-SUMMARY.md]
 started: 2026-06-04T15:00:44Z
@@ -68,7 +68,15 @@ blocked: 0
   reason: "User reported: This is a fw bug, it measures 12.2v — firmware reports 'VPP is low: 1.8V < 12.0V' while bench multimeter measures actual socket VPP at 12.2V. The misread VPP blocks the program path: write stalls at first chunk (0x0200) and times out (deterministic, 4 retries, random + all-zero payloads) on W27C512/uno328pb/Rev 2.0. EVEN-01 transport itself is sound (72×512B chunks streamed, no buf−2). Suspected pre-existing firmware VPP-measurement bug, outside EVEN-01 scope."
   severity: major
   test: 2
-  root_cause: ""     # Filled by diagnosis
-  artifacts: []      # Filled by diagnosis
-  missing: []        # Filled by diagnosis
-  debug_session: ""  # Filled by diagnosis
+  root_cause: "Stale EEPROM calibration on this uno328pb board: rurp_configuration_t.r1 holds the legacy ~1000 instead of the correct 270000. rurp_read_voltage_mv math is correct — gain = (r1+r2)/r2; with r1=1000,r2=44000 gain≈1.02× so true 12.2V computes as ≈1.75V≈1.8V (exact symptom + 6.8× ratio match). Latent firmware bug: rurp_validate_config re-applies defaults ONLY when config->version != CONFIG_VERSION ('VER06'); Phase 44 changed VALUE_R1 default 1000→270000 in rurp_shield.h WITHOUT bumping CONFIG_VERSION, so already-calibrated boards keep the stale r1 forever — the code fix never reaches their EEPROM. PRE-EXISTING; Phase 54 (f8249b8/c1ae294) touched only COBS cap + FW identity + native tests, not VPP/r1/config code. EVEN-01 transport itself verified sound (72×512B chunks streamed)."
+  artifacts:
+    - path: "firestarter/src/boards/rurp_common.cpp:52-71"
+      issue: "rurp_read_voltage_mv — math correct but trusts stale EEPROM r1/r2"
+    - path: "firestarter/src/rurp_config_utils.cpp:32-39"
+      issue: "rurp_validate_config — version-gated default refresh; changed default never reaches an already-calibrated board"
+    - path: "firestarter/include/rurp_shield.h:46,49-50"
+      issue: "CONFIG_VERSION 'VER06' not bumped when VALUE_R1 default changed 1000→270000 (Phase 44); VALUE_R2 44000"
+  missing:
+    - "BENCH (immediate, non-code): recalibrate this board's EEPROM R1 to 270000 (firestarter config), then re-run Test 2 full write+verify"
+    - "FIRMWARE (durable, separate from EVEN-01 scope): make corrected R1/R2 defaults propagate to already-calibrated boards — bump CONFIG_VERSION on default change, OR add a sanity-range guard rejecting implausible r1, OR a targeted r1==1000 migration"
+  debug_session: .planning/debug/firmware-vpp-misread.md
