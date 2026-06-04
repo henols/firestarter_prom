@@ -34,6 +34,7 @@
 - [x] **Phase 52: Lockstep Contract + Round-Trip Tests** — Prove host-encode↔firmware-decode byte-compatibility (data blocks AND command frames, incl. delimiter-laden + all-delimiter payloads); pin the new frame contract in the `test_messages` Unity suite + host parser tests; CI green across both repos. (completed 2026-06-02)
 - [ ] **Phase 53: Byte-Exact Bench Verification (hardware-gated)** — Operator-authorized bench proof: N consecutive framed read+write transfers byte-identical on Uno + Leonardo (reproducing the GATE-1.8d W27C512 N=5 baselines); fault-injection resync proven within one packet; uno328pb re-test recorded (transport-exoneration, not a hardware fix).
 - [ ] **Phase 54: Even-Block Data Transfers (full-buffer-aligned host→fw chunks)** — Make host→fw write/verify data blocks a full even buffer (512/1024) like the fw→host read path already is, instead of buffer−2 (510/1022), so a chip-sized transfer divides into whole blocks with no odd-sized final remainder chunk — saving one write round. Decouple the on-wire data-block size from the COBS decode-buffer cap (decode buffer holds a full block + CRC8 + NUL) while keeping the Phase 52 lockstep contract green.
+- [ ] **Phase 55: Relocate Buffer-Size Advertisement to the Operation OK Ack (+ safe 512 default)** — Move the board's buffer-size advertisement off the FW version string and onto the per-operation OK:Ready ack (u16 on MSG_OK_READY); host reads it at setup time and defaults to a universally-safe 512 when absent (no FirmwareOutdatedError — reverses Phase 54 D-05). Version string returns to pure `<version>:<board>`; removes the buf/maxchunk duplication. **Must run before Phase 53 bench verification.**
 
 ### Phase Details
 
@@ -193,6 +194,24 @@ Plans:
 
 - [x] 54-03-PLAN.md — Uno + uno328pb RAM gate under ~545 B free-RAM ceiling (D-08 hard close) + dual-repo full-suite green + frame-vectors drift gate clean (EVEN-01 SC3/SC4)
 
+#### Phase 55: Relocate Buffer-Size Advertisement to the Operation OK Ack (+ safe 512 default)
+
+**Goal**: The firmware advertises its data-buffer capacity on the per-operation **OK:Ready ack** (a structured `u16` param on `MSG_OK_READY`) instead of piggybacked on the FW version identity string, and the host reads it there at operation-setup time — defaulting to the universally-safe **512** (the Uno floor) when absent. This separates two unrelated concepts (firmware *version* vs transport *capability*): the version string returns to pure `<version>:<board>`, the redundant `<buf>:<maxchunk>` duplication is removed, and an un-advertising firmware degrades gracefully (host assumes 512 — which can never overflow any board's decode buffer) instead of raising `FirmwareOutdatedError`. **Reverses Phase 54 D-05** (lockstep-or-fail → safe default).
+
+**Depends on**: Phase 54 (the `<maxchunk>`-in-identity mechanism this replaces). **Must precede Phase 53** (byte-exact bench verification) — re-sequence 53 to run after 55 so the bench proves the *final* transport, not the soon-to-change identity-string mechanism. Coordinated dual-repo lockstep touching the codegen'd message catalog (`messages.toml` → `messages.h`/`messages.py`) which decodes every operation's OK ack.
+
+**Requirements**: CAP-01
+
+**Success Criteria** (what must be TRUE):
+
+  1. `FW_VERSION` identity is `<version>:<board>` only — no buffer/maxchunk fields; `firestarter fw` prints just version + board.
+  2. The firmware reports `DATA_BUFFER_SIZE` as a `u16` param on the operation `OK:Ready` ack (`MSG_OK_READY`) via the codegen catalog; **all** `MSG_OK_READY` emit sites updated (operation setup, FW-probe ready, both dev-tool acks); messages drift + parity gates green in both repos.
+  3. The host reads the buffer size from the operation-setup ack and sizes write/verify chunks to it; when absent it defaults to **512** (safe Uno floor) with NO `FirmwareOutdatedError` — pinned by a test injecting an un-advertising ack.
+  4. EVEN-01 behavior preserved: host→fw chunks stay full-buffer (512 / 1024), no `buf − 2`; a full-chip transfer still divides into whole blocks; the Phase 52 lockstep contract + round-trip tests stay green.
+  5. Dual-repo full suites green; `messages.toml` byte-identical across repos (drift gate) + firmware/host constant parity preserved.
+
+**Plans**: TBD (run `/gsd-plan-phase 55`)
+
 ### v1.10 Coverage
 
 | REQ-ID | Phase |
@@ -210,8 +229,9 @@ Plans:
 | XACT-02 | Phase 53 |
 | XACT-03 | Phase 53 |
 | EVEN-01 | Phase 54 |
+| CAP-01 | Phase 55 |
 
-**Mapped: 13/13 requirements ✓** — no orphans, no duplicates.
+**Mapped: 14/14 requirements ✓** — no orphans, no duplicates.
 
 ## v1.9 — Read-Bug RCA + Fix (STARTED 2026-05-29)
 
