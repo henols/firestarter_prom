@@ -210,7 +210,13 @@ Plans:
   4. EVEN-01 behavior preserved: host→fw chunks stay full-buffer (512 / 1024), no `buf − 2`; a full-chip transfer still divides into whole blocks; the Phase 52 lockstep contract + round-trip tests stay green.
   5. Dual-repo full suites green; `messages.toml` byte-identical across repos (drift gate) + firmware/host constant parity preserved.
 
-**Plans**: TBD (run `/gsd-plan-phase 55`)
+**Plans**: 4 plans (3 waves)
+
+Plans:
+- [ ] 55-01-PLAN.md — Declare `bytes` param on MSG_OK_READY in messages.toml, sync to both sub-repos, add RED host safe-default tests (linchpin, Wave 1)
+- [ ] 55-02-PLAN.md — Revert FW_VERSION to `<version>:<board>`, update all 4 MSG_OK_READY emit sites to LOG_OK_ID_U16, extend Unity test (firmware, Wave 2)
+- [ ] 55-03-PLAN.md — Add `_decode_id_frame` override extracting the u16, default `_calculate_buffer_size` to 512, remove identity-string parse + update tests (host, Wave 2)
+- [ ] 55-04-PLAN.md — Drift gate + dual-repo full suites + EVEN-01/parity regressions + `firestarter fw` checkpoint (integration, Wave 3)
 
 ### v1.10 Coverage
 
