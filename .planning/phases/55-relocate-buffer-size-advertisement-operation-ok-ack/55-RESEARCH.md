@@ -964,19 +964,20 @@ No new attack surface. MSG_OK_READY with a `bytes` param:
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should the format string for `MSG_OK_READY` with `bytes` param be `"Ready"` or something more descriptive?**
+   - **RESOLVED: Keep `"Ready"`** (planner decision, implemented in Plan 55-01).
    - What we know: `format = "Ready"` with `params = [{ type = "bytes" }]` passes codegen Rule 9 (bytes excluded from specifier count). The rendered text is always `"Ready"` regardless of the param value.
-   - What's unclear: Whether the operator wants to see the buffer size in verbose output (e.g., `firestarter --verbose fw`).
-   - Recommendation: Keep `"Ready"` for minimal diff. If verbose visibility is desired, use `"Ready"` and add a separate debug log.
+   - Recommendation followed: Keep `"Ready"` for minimal diff. Verbose buffer-size visibility, if wanted later, goes to a separate debug log — out of scope for Phase 55.
 
 2. **Should `firmware_buffer_size` (the Phase 53 attribute, currently set from `fw_fields[2]`) be removed?**
+   - **RESOLVED: Executor-time grep-gated removal** (Plan 55-03 Task 2 carries the decision path).
    - What we know: After Phase 55, the identity string is 2-field — `fw_fields[2]` no longer exists. `firmware_buffer_size` is never read (only `firmware_max_chunk` is used by `_calculate_buffer_size`). `conftest.py` line 146 sets it to `None` in the mock communicator.
-   - What's unclear: Whether any test code or external caller references `firmware_buffer_size`.
-   - Recommendation: Check with grep; if no external references, remove the attribute. If present in tests, update tests.
+   - Resolution: Plan 55-03 Task 2 greps for references; if none, removes the attribute; if present in tests, updates them.
 
 3. **Does the `_decode_id_frame` override on `SerialCommunicator` conflict with the GATE-1.8d ring-fence?**
+   - **RESOLVED: No conflict** — verified.
    - What we know: The ring-fence (lines 250-259 of `serial_comm.py`) applies to `_read_and_parse_lines` body — "structural-only changes to the signature are OK; any change to the byte-by-byte read loop, magic-preamble dispatch, frame-length read, or timeout reset semantics MUST be flagged." Overriding `_decode_id_frame` is explicitly NOT protected by this note — the GATE-1.8d fence is on `_read_and_parse_lines`.
    - Conclusion: The `_decode_id_frame` override is safe and within the extension point pattern already established by `FaultInjectingSerialCommunicator`. No conflict with GATE-1.8d.
    [VERIFIED: serial_comm.py lines 250-259]

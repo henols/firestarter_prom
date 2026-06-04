@@ -211,11 +211,18 @@ Plans:
   5. Dual-repo full suites green; `messages.toml` byte-identical across repos (drift gate) + firmware/host constant parity preserved.
 
 **Plans**: 4 plans (3 waves)
-
 Plans:
+**Wave 1**
+
 - [ ] 55-01-PLAN.md — Declare `bytes` param on MSG_OK_READY in messages.toml, sync to both sub-repos, add RED host safe-default tests (linchpin, Wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 55-02-PLAN.md — Revert FW_VERSION to `<version>:<board>`, update all 4 MSG_OK_READY emit sites to LOG_OK_ID_U16, extend Unity test (firmware, Wave 2)
 - [ ] 55-03-PLAN.md — Add `_decode_id_frame` override extracting the u16, default `_calculate_buffer_size` to 512, remove identity-string parse + update tests (host, Wave 2)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 55-04-PLAN.md — Drift gate + dual-repo full suites + EVEN-01/parity regressions + `firestarter fw` checkpoint (integration, Wave 3)
 
 ### v1.10 Coverage
@@ -634,6 +641,7 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 **Origin:** Phase 54 UAT diagnosis — [`.planning/debug/firmware-vpp-misread.md`](debug/firmware-vpp-misread.md). Severity: major. Out of EVEN-01 scope.
 
 Plans:
+
 - [ ] TBD (promote with /gsd-review-backlog when ready)
 
 ### Phase 999.2: uno328pb + Rev 2.0 chip-PROGRAM brownout hang (bench/hardware) (BACKLOG)
@@ -644,4 +652,5 @@ Plans:
 **Origin:** Phase 54 UAT Test 2 (uno328pb). Severity: major. Out of EVEN-01 scope.
 
 Plans:
+
 - [ ] TBD (promote with /gsd-review-backlog when ready)
