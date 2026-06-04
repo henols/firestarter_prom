@@ -173,7 +173,7 @@ Plans:
 
 **Depends on**: Phase 50 (data-path framing), Phase 51 (the CR-01 decode cap this loosens), Phase 52 (lockstep contract — must stay green at the new block size), Phase 53 (bench-verified transport baseline + the per-board buffer negotiation: firmware advertises `DATA_BUFFER_SIZE`, host sizes chunks). This phase changes the chunk-size-vs-decode-cap relationship on that substrate.
 
-**Requirements**: TBD (define in planning — e.g. EVEN-01)
+**Requirements**: EVEN-01
 
 **Success Criteria** (what must be TRUE):
 
@@ -182,10 +182,16 @@ Plans:
   3. The firmware COBS decoder accepts a full-buffer data block + CRC8 without overflow (no `Data error: -2`); RAM-fit confirmed on the Uno (2 KB) and uno328pb.
   4. The Phase 52 lockstep contract + round-trip tests stay green (host-encode ↔ firmware-decode byte-compatible at the new block size); a regression test pins the full-buffer block round-trip.
 
-**Plans**: TBD (run `/gsd-plan-phase 54`)
+**Plans**: 3 plans
 Plans:
+**Wave 1** *(parallel — firmware vs host, zero file overlap)*
 
-- [ ] TBD (run /gsd-plan-phase 54 to break down)
+- [ ] 54-01-PLAN.md — firmware: parameterize `rurp_communication_read_data(char*, size_t cap)` (MAIN cap=DATA_BUFFER_SIZE, CMD_IDLE cap=DATA_BUFFER_SIZE−1 per CR-01) + 4th `:<maxchunk>` identity field + update all 4 native Unity suites + new MAIN-path/CMD_IDLE-overflow/no-remainder tests (EVEN-01; D-01 Candidate A/D-04)
+- [ ] 54-02-PLAN.md — host: parse `fw_fields[3]`→`firmware_max_chunk` (isdigit/V5) + rewrite `_calculate_buffer_size()` to return it (no −2, raise `FirmwareOutdatedError` if absent per D-05) + new `test_even_block.py` + fix the 2 breaking `test_frame_vectors.py` classes (EVEN-01; D-03/D-04/D-05/D-06/D-07)
+
+**Wave 2** *(integration gate — depends on 54-01 + 54-02)*
+
+- [ ] 54-03-PLAN.md — Uno + uno328pb RAM gate under ~545 B free-RAM ceiling (D-08 hard close) + dual-repo full-suite green + frame-vectors drift gate clean (EVEN-01 SC3/SC4)
 
 ### v1.10 Coverage
 
@@ -203,8 +209,9 @@ Plans:
 | XACT-01 | Phase 53 |
 | XACT-02 | Phase 53 |
 | XACT-03 | Phase 53 |
+| EVEN-01 | Phase 54 |
 
-**Mapped: 12/12 requirements ✓** — no orphans, no duplicates.
+**Mapped: 13/13 requirements ✓** — no orphans, no duplicates.
 
 ## v1.9 — Read-Bug RCA + Fix (STARTED 2026-05-29)
 

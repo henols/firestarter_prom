@@ -40,6 +40,10 @@
 - [x] **XACT-02**: Resync proven under fault injection — a deliberately corrupted byte (or length field) recovers within one packet via the delimiter, not a 2-second timeout cascade, demonstrated by a host-side or bench fault-injection harness.
 - [ ] **XACT-03**: uno328pb re-test recorded — the consistency-check read is re-run on the uno328pb (where the timeout + ~99% 0xff-drift instability appears) and the result documents whether the hardened transport changes the failure shape, stating explicitly what it does and does not conclude per COBS-DECISION §2.0 (transport-exoneration, not a hardware fix).
 
+### 6. Even-Block Data Transfers (EVEN)
+
+- [ ] **EVEN-01**: Host→fw write/verify data blocks transfer in full even buffer-sized blocks (512 on Uno/uno328pb, 1024 on Leonardo) with **no `buffer−2` reduction**, by decoupling the on-wire data-block size from the firmware COBS decode-buffer cap. The mechanism is the data-path NUL-skip (RESEARCH D-01 Candidate A, zero RAM growth): `rurp_communication_read_data` takes a `size_t cap` parameter — the CMD_IDLE/JSON-command call passes `DATA_BUFFER_SIZE − 1` (CR-01 NUL-slot reservation preserved), the MAIN/write-receive call passes `DATA_BUFFER_SIZE` (full block; `data_buffer` never read as a C string on that path). The firmware advertises the effective MAIN-path decode capacity in a 4th identity-string field `<maxchunk>` (`"<ver>:<board>:<buf>:<maxchunk>"`, D-04) so the host's `_calculate_buffer_size()` returns it directly with no arithmetic and no hardcoded per-board constant (D-03); a missing field raises `FirmwareOutdatedError` (D-05, beta lockstep, no mixed-version interop). Both write and verify legs are covered by the single chunk-sizing seam (D-06). A full 65536-byte chip then divides into whole even blocks with no odd-sized final remainder chunk — one fewer round trip. The Phase 52 lockstep contract + golden vectors stay green at the new block size with a pinned full-buffer round-trip regression (D-07), and a post-change Uno + uno328pb RAM report holds under the ~545 B free-RAM ceiling as a hard close gate (D-08).
+
 ## Out of Scope (v1.10)
 
 - **Re-framing the fw→host log/telemetry channel** (#4: `[0xAA55AA55][len_u16][id][params][crc8][0x0A]`) — it already self-delimits via the magic preamble + CRC8 + `0x0A` terminator and is gated behind `com_mode`, so it is outside the data-corruption blast zone. (The host→fw JSON command channel #1, by contrast, IS now in scope per FRAME-05.)
@@ -47,12 +51,15 @@
 - **CRC polynomial change / CRC32** — D-05 keeps CRC8-CCITT; candidates requiring a poly swap are eliminated.
 - **Fixing the read-bug itself** — v1.10 only rules transport out as a confounder; Bug A was localized by Phase 44 to the parallel read path (downstream of serial). The actual per-shield RCA/fix is v1.9 (Phases 45–47).
 - **Stable `3.0.1` release** — deferred until a real read-bug fix lands and is bench-verified (D-17v2 carry-forward). v1.10 may cut a new beta; stable promotion is a separate operator gate.
+- **The fw→host read path even-block re-framing (Phase 54)** — EPROM reads already transfer full-buffer blocks over the unchanged `MSG_DATA_CHUNK` magic-preamble framing (Phase 50 D-06); Phase 54 touches only the host→fw write-receive decode path.
+- **WR-01 frame-level decoder byte-wait deadline** — a distinct decoder behavior change; deferred to a dedicated fix even though Phase 54 edits the same decoder.
 
 ## Future Requirements (deferred)
 
 - Re-framing the fw→host log/telemetry channel (#4), if a corruption case there is ever observed (it already self-delimits today).
 - Resync telemetry/metrics (counting recovered desyncs) if field instrumentation becomes useful for the v1.9 RCA.
 - Applying the framing layer to any future higher-throughput transport (e.g. a faster baud or a binary command channel).
+- WR-01 — frame-level deadline on the firmware COBS decoder byte-wait (`.planning/todos/pending/cobs-decoder-framelevel-deadline-wr01.md`).
 
 ## Traceability
 
@@ -70,3 +77,4 @@
 | XACT-01 | Phase 53 | Complete |
 | XACT-02 | Phase 53 | Complete |
 | XACT-03 | Phase 53 | Pending |
+| EVEN-01 | Phase 54 | Planned (2026-06-04) |
