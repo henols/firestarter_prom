@@ -33,6 +33,7 @@
 - [x] **Phase 51: Command-Channel Framing Migration (breaking wire change)** — Migrate the host→fw JSON command channel into the same framing (CRC8-verified before the JSON parser sees the payload); firmware + host upgrade lockstep, no mixed-version interop. **COMPLETE 2026-06-02: all 4 plans shipped (COBS decode+CRC8, host framing, breaking-change docs, CR-01/CR-02 gap closure); 36/36 native tests green.**
 - [x] **Phase 52: Lockstep Contract + Round-Trip Tests** — Prove host-encode↔firmware-decode byte-compatibility (data blocks AND command frames, incl. delimiter-laden + all-delimiter payloads); pin the new frame contract in the `test_messages` Unity suite + host parser tests; CI green across both repos. (completed 2026-06-02)
 - [ ] **Phase 53: Byte-Exact Bench Verification (hardware-gated)** — Operator-authorized bench proof: N consecutive framed read+write transfers byte-identical on Uno + Leonardo (reproducing the GATE-1.8d W27C512 N=5 baselines); fault-injection resync proven within one packet; uno328pb re-test recorded (transport-exoneration, not a hardware fix).
+- [ ] **Phase 54: Even-Block Data Transfers (full-buffer-aligned host→fw chunks)** — Make host→fw write/verify data blocks a full even buffer (512/1024) like the fw→host read path already is, instead of buffer−2 (510/1022), so a chip-sized transfer divides into whole blocks with no odd-sized final remainder chunk — saving one write round. Decouple the on-wire data-block size from the COBS decode-buffer cap (decode buffer holds a full block + CRC8 + NUL) while keeping the Phase 52 lockstep contract green.
 
 ### Phase Details
 
@@ -165,6 +166,26 @@ Plans:
 **Wave 4** *(milestone artifact — depends on 53-03 + 53-04 + 53-05)*
 
 - [ ] 53-06-PLAN.md — milestone evidence artifact (autonomous: false): assemble .planning/v1.10/bench-verification/SUMMARY.md (operator attestation, full SHA table, fault-injection log, uno328pb before/after + exoneration verdict, settled-variable claim) (D-11; SC4)
+
+#### Phase 54: Even-Block Data Transfers (full-buffer-aligned host→fw chunks)
+
+**Goal**: Host→fw data blocks (write/verify) transfer in full, even, buffer-sized blocks — 512 on Uno/uno328pb, 1024 on Leonardo — exactly like the fw→host read path already does, so a chip-sized transfer divides into whole blocks with NO odd-sized final remainder chunk. Today the host→fw chunk is `buffer − 2` (510 / 1022): the firmware COBS decoder commits at most `DATA_BUFFER_SIZE − 1` (CR-01 NUL-slot reservation) and the payload also carries a trailing CRC8 byte, so usable data = buffer − 2. On a 65536-byte chip that 510-byte chunk leaves a 256-byte partial last write (128×510 + 256) — one extra round trip. Make the on-wire DATA payload equal the full buffer in BOTH directions by decoupling the data-block size from the decode-buffer cap (e.g. size the firmware decode buffer to hold a full block + CRC8 + NUL, or carry the CRC/length out-of-band), so the even-block transfer saves a write round and the two directions are symmetric.
+
+**Depends on**: Phase 50 (data-path framing), Phase 51 (the CR-01 decode cap this loosens), Phase 52 (lockstep contract — must stay green at the new block size), Phase 53 (bench-verified transport baseline + the per-board buffer negotiation: firmware advertises `DATA_BUFFER_SIZE`, host sizes chunks). This phase changes the chunk-size-vs-decode-cap relationship on that substrate.
+
+**Requirements**: TBD (define in planning — e.g. EVEN-01)
+
+**Success Criteria** (what must be TRUE):
+
+  1. Host→fw write/verify data blocks are full buffer-sized (512 / 1024) — no `buffer − 2` reduction — verified on the wire (frame sizes) on Uno + Leonardo.
+  2. A full-chip (65536 B) write/verify divides into whole blocks with no odd-sized final remainder chunk — one fewer round trip than the 510/1022 chunking.
+  3. The firmware COBS decoder accepts a full-buffer data block + CRC8 without overflow (no `Data error: -2`); RAM-fit confirmed on the Uno (2 KB) and uno328pb.
+  4. The Phase 52 lockstep contract + round-trip tests stay green (host-encode ↔ firmware-decode byte-compatible at the new block size); a regression test pins the full-buffer block round-trip.
+
+**Plans**: TBD (run `/gsd-plan-phase 54`)
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 54 to break down)
 
 ### v1.10 Coverage
 

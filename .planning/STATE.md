@@ -124,6 +124,7 @@ Resume file: None
 
 ## Decisions
 
+- [Roadmap evolution 2026-06-03]: Added **Phase 54 — Even-Block Data Transfers** to v1.10. Make host→fw write/verify blocks full buffer-sized (512/1024) like the read path, instead of buffer−2 (510/1022), so a chip-sized transfer has no odd final remainder chunk (saves a write round). Decouples the on-wire data-block size from the COBS decode-buffer cap. Not yet planned (`/gsd-plan-phase 54`).
 - [v1.10 start]: PAUSED v1.9 at Phase 44; inserted v1.10 Serial Transport Hardening ahead of it to rule serial out as a read-bug confounder before the per-shield RCA resumes.
 - [v1.10 start]: Branch model = stacked off the `v1.9-read-bug-rca` tip in all 3 repos (NOT off main/beta — stale at v1.8 close, missing the COBS ADOPT decision + Phase 44 knobs).
 - [v1.10 start]: CRC8-CCITT kept (D-05); Uno-fit filter binding (D-04); framing mechanism (COBS vs SLIP) deferred to plan research.
