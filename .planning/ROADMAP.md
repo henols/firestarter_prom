@@ -191,7 +191,7 @@ Plans:
 
 **Wave 2** *(integration gate — depends on 54-01 + 54-02)*
 
-- [ ] 54-03-PLAN.md — Uno + uno328pb RAM gate under ~545 B free-RAM ceiling (D-08 hard close) + dual-repo full-suite green + frame-vectors drift gate clean (EVEN-01 SC3/SC4)
+- [x] 54-03-PLAN.md — Uno + uno328pb RAM gate under ~545 B free-RAM ceiling (D-08 hard close) + dual-repo full-suite green + frame-vectors drift gate clean (EVEN-01 SC3/SC4)
 
 ### v1.10 Coverage
 
