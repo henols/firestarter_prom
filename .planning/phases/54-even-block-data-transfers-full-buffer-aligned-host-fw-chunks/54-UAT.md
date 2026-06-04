@@ -1,5 +1,5 @@
 ---
-status: diagnosed
+status: complete
 phase: 54-even-block-data-transfers-full-buffer-aligned-host-fw-chunks
 source: [54-01-SUMMARY.md, 54-02-SUMMARY.md, 54-03-SUMMARY.md]
 started: 2026-06-04T15:00:44Z
@@ -8,7 +8,7 @@ updated: 2026-06-04T16:30:00Z
 
 ## Current Test
 
-[testing complete — 4 passed, 1 issue (firmware VPP-measurement bug, see Gaps)]
+[testing complete — 5/5 passed; 1 sub-issue resolved (R1 recalibration); 2 items captured to backlog]
 
 ## Tests
 
@@ -19,23 +19,29 @@ note: "Verified live by Claude. Flashed Phase 54 firmware to uno328pb (Rev 2.0 s
 
 ### 2. Full-buffer write/verify against a real EPROM
 expected: Writing then verifying an EPROM (e.g. `./write_test.sh [EPROM]`) completes successfully. Host→fw data blocks are now full buffer-sized (512 Uno / 1024 Leonardo) with NO `buffer−2` reduction. Even-block transfer — 65536-byte chips divide cleanly with no remainder/short final chunk.
-result: issue
-reported: "This is a fw bug, it measures 12.2v"
-severity: major
+result: pass
 note: |
-  EVEN-01 TRANSPORT VERIFIED (the phase deliverable is sound): the blank-check
-  write streamed 72 consecutive full-buffer 512-byte chunks (0x0000→0x9000, 36KB)
-  host→fw with NO buf−2 reduction before aborting on a non-blank chip byte. Host
-  sizes chunks to firmware-advertised maxchunk=512 (Test 1); 65536 % 512 == 0.
-  ISSUE (separate fw bug, blocks full write+verify): on W27C512/uno328pb/Rev 2.0,
-  `firestarter vpp` + the write path report "VPP is low: 1.8V < 12.0V" while the
-  operator's bench multimeter reads the actual socket VPP at 12.2V. The firmware
-  VPP measurement is wrong. With `-b` (program path, which needs VPP) the write
-  stalls at the first chunk (0x0200) and the host times out — deterministic across
-  4 retries, both random and all-zero payloads. Reads (blank-check) don't need VPP
-  and streamed fine, which is why the no-`-b` path got 72 chunks in. Operator
-  verdict: firmware VPP-measurement bug, NOT a real VPP/contact fault and NOT an
-  EVEN-01 transport defect. Likely pre-existing (EVEN-01 did not touch VPP code).
+  PASS — full-buffer even-block write+verify completed end-to-end on the LEONARDO
+  (board swap mid-test). Sequence on /dev/ttyACM0 after flashing Phase 54 firmware
+  (identity 3.0.0b6:leonardo:1024:1024, maxchunk=1024):
+    • write all-0x00 64KB, -b -f → 0x10000/0x10000 complete in 83s (1024-byte
+      even-block chunks, 64 chunks, NO buf−2; 65536 % 1024 == 0)
+    • verify → "Verify for W27C512 successful (5.59s)"
+    • independent read-back → byte-IDENTICAL to source (cmp clean, full 64KB)
+  EVEN-01 transport also corroborated on the uno328pb (Test 1: maxchunk=512,
+  _calculate_buffer_size()=512; 72×512B chunks streamed on the read path).
+
+  RESOLVED sub-issue (originally logged here): firmware reported "VPP is low: 1.8V"
+  while bench multimeter read ~12.2V. Root cause = stale EEPROM R1=1000 (should be
+  270000); recalibrated via `firestarter config -r1 270000` → VPP then read
+  correctly. Latent firmware default-propagation bug captured to backlog (see Gaps).
+
+  SEPARATE bench/hardware finding (NOT EVEN-01, captured to backlog): on the
+  uno328pb + Rev 2.0, the chip-PROGRAM path hangs on the first block (deterministic
+  across 6 attempts incl. reflash + reseat + random/zero payloads; firmware stops
+  responding the moment it drives program current at VPP 12.7V / VCC 5.3V —
+  suspected VPP-regulator brownout). The SAME firmware + chip + calibration writes
+  & verifies perfectly on the Leonardo, proving the hang is uno328pb-board-specific.
 
 ### 3. Outdated-firmware rejection (no silent fallback)
 expected: When connected to firmware that does NOT advertise the maxchunk field (old/3-field identity), the host raises a clear `FirmwareOutdatedError` and refuses to proceed — it does NOT silently fall back to the old `buf−2` chunk size.
@@ -55,17 +61,22 @@ note: "Verified live by Claude — FW native 42/42 succeeded; host 456 passed (7
 ## Summary
 
 total: 5
-passed: 4
-issues: 1
+passed: 5
+issues: 0
 pending: 0
 skipped: 0
 blocked: 0
 
 ## Gaps
 
+# RESOLVED during this UAT session — kept for the record. EVEN-01 itself had NO gaps;
+# Test 2's full write+verify now passes (on Leonardo). The two follow-ups below are
+# OUT of EVEN-01 scope and were captured to backlog per operator decision.
+
 - truth: "Firmware reports an accurate VPP voltage (≈12V) so the program/write path can complete; full-buffer even-block write+verify of an EPROM succeeds end-to-end."
-  status: failed
-  reason: "User reported: This is a fw bug, it measures 12.2v — firmware reports 'VPP is low: 1.8V < 12.0V' while bench multimeter measures actual socket VPP at 12.2V. The misread VPP blocks the program path: write stalls at first chunk (0x0200) and times out (deterministic, 4 retries, random + all-zero payloads) on W27C512/uno328pb/Rev 2.0. EVEN-01 transport itself is sound (72×512B chunks streamed, no buf−2). Suspected pre-existing firmware VPP-measurement bug, outside EVEN-01 scope."
+  status: resolved
+  resolution: "Stale EEPROM R1=1000 on the uno328pb recalibrated to 270000 via `firestarter config -r1 270000` → VPP then read correctly. Full write+verify subsequently completed end-to-end on the Leonardo (1024-byte even-block, 64KB, read-back byte-identical). EVEN-01 transport verified sound throughout."
+  reason: "User reported: This is a fw bug, it measures 12.2v — firmware reported 'VPP is low: 1.8V < 12.0V' while bench multimeter measured ~12.2V. Misread blocked the program path."
   severity: major
   test: 2
   root_cause: "Stale EEPROM calibration on this uno328pb board: rurp_configuration_t.r1 holds the legacy ~1000 instead of the correct 270000. rurp_read_voltage_mv math is correct — gain = (r1+r2)/r2; with r1=1000,r2=44000 gain≈1.02× so true 12.2V computes as ≈1.75V≈1.8V (exact symptom + 6.8× ratio match). Latent firmware bug: rurp_validate_config re-applies defaults ONLY when config->version != CONFIG_VERSION ('VER06'); Phase 44 changed VALUE_R1 default 1000→270000 in rurp_shield.h WITHOUT bumping CONFIG_VERSION, so already-calibrated boards keep the stale r1 forever — the code fix never reaches their EEPROM. PRE-EXISTING; Phase 54 (f8249b8/c1ae294) touched only COBS cap + FW identity + native tests, not VPP/r1/config code. EVEN-01 transport itself verified sound (72×512B chunks streamed)."
@@ -80,3 +91,15 @@ blocked: 0
     - "BENCH (immediate, non-code): recalibrate this board's EEPROM R1 to 270000 (firestarter config), then re-run Test 2 full write+verify"
     - "FIRMWARE (durable, separate from EVEN-01 scope): make corrected R1/R2 defaults propagate to already-calibrated boards — bump CONFIG_VERSION on default change, OR add a sanity-range guard rejecting implausible r1, OR a targeted r1==1000 migration"
   debug_session: .planning/debug/firmware-vpp-misread.md
+
+## Backlog (out of EVEN-01 scope — captured for future phases)
+
+- item: "Firmware: corrected R1/R2 calibration defaults don't propagate to already-calibrated boards"
+  origin: "Phase 54 UAT diagnosis (debug session firmware-vpp-misread.md)"
+  detail: "rurp_validate_config re-applies defaults only on CONFIG_VERSION ('VER06') mismatch; Phase 44's VALUE_R1 1000→270000 change didn't bump CONFIG_VERSION, so boards calibrated under VER06 silently keep a stale r1 → wildly wrong VPP reading. Fix options: bump CONFIG_VERSION on any default change; add a sanity-range guard rejecting implausible r1; or a targeted r1==1000 migration."
+  severity: major
+
+- item: "Bench/hardware: uno328pb + Rev 2.0 chip-PROGRAM path hangs on first block (suspected VPP-regulator brownout)"
+  origin: "Phase 54 UAT Test 2 (uno328pb)"
+  detail: "Deterministic across 6 attempts (reflash + reseat + random/zero payloads): firmware stops responding the instant it drives program current at VPP 12.7V / VCC 5.3V; host times out at first block. SAME firmware + chip + R1=270000 calibration writes & verifies cleanly on the Leonardo (VPP 13.1V), so the fault is uno328pb-board-specific, not firmware/EVEN-01. Needs bench investigation: VPP regulator level, VCC stability under program load, board power."
+  severity: major

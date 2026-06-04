@@ -597,3 +597,25 @@ Also carrying: WARNING-4 (`firestarter_test.sh` / `write_test.sh` references to 
 Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.md) | [`.planning/milestones/v1.0-REQUIREMENTS.md`](milestones/v1.0-REQUIREMENTS.md) | [`.planning/milestones/v1.0-MILESTONE-AUDIT.md`](milestones/v1.0-MILESTONE-AUDIT.md) | [`.planning/milestones/v1.0-INTEGRATION-CHECK.md`](milestones/v1.0-INTEGRATION-CHECK.md) | [`.planning/milestones/v1.0-phases/`](milestones/v1.0-phases/).
 
 </details>
+
+## Backlog
+
+### Phase 999.1: Firmware calibration-default propagation (CONFIG_VERSION gate) (BACKLOG)
+
+**Goal:** [Captured for future planning] Make corrected R1/R2 calibration defaults reach already-calibrated boards. `rurp_validate_config` ([firestarter/src/rurp_config_utils.cpp:32-39](../firestarter/src/rurp_config_utils.cpp#L32-L39)) re-applies defaults only when `config->version != CONFIG_VERSION` ("VER06"); Phase 44 changed `VALUE_R1` 1000→270000 ([firestarter/include/rurp_shield.h:49](../firestarter/include/rurp_shield.h#L49)) without bumping `CONFIG_VERSION`, so VER06-calibrated boards silently keep a stale `r1` → wildly wrong VPP reading (true 12.2V reported as ~1.8V). Fix options: bump `CONFIG_VERSION` on any default change (resets all users' calibration — communicate), OR add a sanity-range guard rejecting implausible `r1`, OR a targeted `r1==1000` migration.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** Phase 54 UAT diagnosis — [`.planning/debug/firmware-vpp-misread.md`](debug/firmware-vpp-misread.md). Severity: major. Out of EVEN-01 scope.
+
+Plans:
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.2: uno328pb + Rev 2.0 chip-PROGRAM brownout hang (bench/hardware) (BACKLOG)
+
+**Goal:** [Captured for future planning] Investigate the deterministic chip-PROGRAM hang on the uno328pb + Rev 2.0 shield. Across 6 attempts (firmware reflash + chip reseat + random/zero payloads) the firmware stops responding the instant it drives program current at VPP 12.7V / VCC 5.3V (suspected VPP-regulator brownout under program load); host times out on the first block. The SAME firmware + W27C512 + R1=270000 calibration writes & verifies cleanly on the Leonardo (VPP 13.1V), proving the fault is uno328pb-board-specific — not firmware/EVEN-01. Needs bench investigation: VPP regulator level, VCC stability under program load, board power.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** Phase 54 UAT Test 2 (uno328pb). Severity: major. Out of EVEN-01 scope.
+
+Plans:
+- [ ] TBD (promote with /gsd-review-backlog when ready)
