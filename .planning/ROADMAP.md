@@ -186,8 +186,8 @@ Plans:
 Plans:
 **Wave 1** *(parallel — firmware vs host, zero file overlap)*
 
-- [ ] 54-01-PLAN.md — firmware: parameterize `rurp_communication_read_data(char*, size_t cap)` (MAIN cap=DATA_BUFFER_SIZE, CMD_IDLE cap=DATA_BUFFER_SIZE−1 per CR-01) + 4th `:<maxchunk>` identity field + update all 4 native Unity suites + new MAIN-path/CMD_IDLE-overflow/no-remainder tests (EVEN-01; D-01 Candidate A/D-04)
-- [ ] 54-02-PLAN.md — host: parse `fw_fields[3]`→`firmware_max_chunk` (isdigit/V5) + rewrite `_calculate_buffer_size()` to return it (no −2, raise `FirmwareOutdatedError` if absent per D-05) + new `test_even_block.py` + fix the 2 breaking `test_frame_vectors.py` classes (EVEN-01; D-03/D-04/D-05/D-06/D-07)
+- [x] 54-01-PLAN.md — firmware: parameterize `rurp_communication_read_data(char*, size_t cap)` (MAIN cap=DATA_BUFFER_SIZE, CMD_IDLE cap=DATA_BUFFER_SIZE−1 per CR-01) + 4th `:<maxchunk>` identity field + update all 4 native Unity suites + new MAIN-path/CMD_IDLE-overflow/no-remainder tests (EVEN-01; D-01 Candidate A/D-04)
+- [x] 54-02-PLAN.md — host: parse `fw_fields[3]`→`firmware_max_chunk` (isdigit/V5) + rewrite `_calculate_buffer_size()` to return it (no −2, raise `FirmwareOutdatedError` if absent per D-05) + new `test_even_block.py` + fix the 2 breaking `test_frame_vectors.py` classes (EVEN-01; D-03/D-04/D-05/D-06/D-07)
 
 **Wave 2** *(integration gate — depends on 54-01 + 54-02)*
 

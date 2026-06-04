@@ -4,8 +4,8 @@ milestone: v1.10
 milestone_name: — Serial Transport Hardening
 status: executing
 stopped_at: Phase 54 context gathered
-last_updated: "2026-06-04T13:33:41.004Z"
-last_activity: 2026-06-04 -- Phase 54 planning complete
+last_updated: "2026-06-04T13:42:13.152Z"
+last_activity: 2026-06-04 -- Phase 54 execution started
 progress:
   total_phases: 6
   completed_phases: 4
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 53 (byte-exact-bench-verification-hardware-gated) — EXECUTING
-Plan: 3 of 6
-Status: Ready to execute
-Last activity: 2026-06-04 -- Phase 54 planning complete
+Phase: 54 (even-block-data-transfers-full-buffer-aligned-host-fw-chunks) — EXECUTING
+Plan: 1 of 3
+Status: Executing Phase 54
+Last activity: 2026-06-04 -- Phase 54 execution started
 
 Progress: [████░░░░░░] 40%
 
@@ -35,7 +35,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-01)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 53 — byte-exact-bench-verification-hardware-gated
+**Current focus:** Phase 54 — even-block-data-transfers-full-buffer-aligned-host-fw-chunks
 (streaming COBS vs SLIP, chosen in plan research) on the Arduino↔host data path so the
 transport is provably byte-exact, ruling serial out as a read-bug confounder.
 
