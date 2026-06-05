@@ -162,7 +162,7 @@ Plans:
 
 - [x] 53-03-PLAN.md — clean-board bench (autonomous: false): N=5 byte-identical reads + N=5 write->read-back cycles on clean Uno (512 B) + Leonardo (1024 B), Rev 2.0 target (D-07), GATE-1.8d hash-match strong-form-or-self-consistency (D-04/D-05/D-06) (XACT-01)
 - [x] 53-04-PLAN.md — fault-injection bench (autonomous: false): host->fw + fw->host, both fault forms (corrupt-crc8, drop-delimiter); sub-second clean error (no 2 s cascade) + byte-exact next transfer (D-01/D-02/D-03) (XACT-02)
-- [ ] 53-05-PLAN.md — uno328pb re-test (autonomous: false): N=5 with timeout-retry logging (D-08), hardened-firmware-only (D-09), structured transport-exoneration verdict per v1.9-COBS-DECISION §2.0 (D-10) (XACT-03)
+- [x] 53-05-PLAN.md — uno328pb re-test (autonomous: false): N=5 with timeout-retry logging (D-08), hardened-firmware-only (D-09), structured transport-exoneration verdict per v1.9-COBS-DECISION §2.0 (D-10) (XACT-03)
 - [x] 53-07-PLAN.md — post-54/55 byte-exact corpus extension (autonomous: false): operator-witnessed pure-identity capture (OK: FW: <ver>:<board>, no buf/maxchunk suffix), ack-sourced chunk size+count (Leonardo 1024x64 / Uno 512x128), even-block no-remainder byte-identity (N=5 read self-consistency + N=5 write read-back==source); safe-512 default recorded software-covered; distinct even-block-ack/ artifact subdir; 53-06 incorporation recommended (XACT-01)
 
 **Wave 4** *(milestone artifact — depends on 53-03 + 53-04 + 53-05)*
@@ -402,7 +402,7 @@ Plans:
 | 50 | v1.10 | 4/4 | Complete    | 2026-06-01 |
 | 51 | v1.10 | 4/4 | Complete    | 2026-06-02 |
 | 52 | v1.10 | 4/4 | Complete    | 2026-06-02 |
-| 53 | v1.10 | 5/7 | In Progress|  |
+| 53 | v1.10 | 6/7 | In Progress|  |
 | 44 | v1.9 | 3/5 | In Progress|  |
 | 45 | v1.9 | 0/TBD | Not started | — |
 | 46 | v1.9 | 0/TBD | Not started | — |
