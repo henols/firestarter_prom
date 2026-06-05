@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.10
 milestone_name: — Serial Transport Hardening
 status: executing
-stopped_at: Phase 55 (CAP-01) complete — Phase 53 bench unblocked
-last_updated: "2026-06-05T08:52:34.092Z"
+stopped_at: Phase 53 — 53-07 witnessed on Leonardo; 53-03/04/05/06 still bench-gated
+last_updated: "2026-06-05T11:08:05.000Z"
 last_activity: 2026-06-05
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 27
-  completed_plans: 22
+  completed_plans: 23
   percent: 85
 ---
 
@@ -22,11 +22,11 @@ progress:
 ## Current Position
 
 Phase: 53 — Byte-Exact Bench Verification (hardware-gated, operator-witnessed)
-Plan: 53-03 (next) — 53-01/02 done; 53-03→07 written, not executed (53-07 added 2026-06-05)
+Plan: 53-03/04/05 (next bench legs) — 53-01/02/07 done; 53-03/04/05/06 still bench-gated
 Status: Executing Phase 53 (final v1.10 phase). Phases 49–52, 54, 55 all Complete.
-Last activity: 2026-06-05 — added bench plan 53-07: extends the byte-exact corpus to the shipped post-54/55 contract (ack-sourced chunk sizing, even-block no-remainder, pure version:board identity) — checker PASSED (commit pending)
+Last activity: 2026-06-05 — executed 53-07 (operator-witnessed): Leonardo (ACM0, Rev 2.0) byte-exact corpus on the SHIPPED post-55 contract — pure identity `OK: FW: 3.0.0b6:leonardo`, ack-sourced 1024×64 (no remainder), N=5 read verdict 0 + N=5 write read-back==source verdict 0. VPP-high(13.1V) guard force-bypassed (operator-authorized); W27C512 standalone-erase unsupported→plain-write path. Uno optional 2nd witness deferred (no chip seated). 53-03/04/05/06 remain.
 
-Progress: [█████████░] 85% (6/7 phases, 22/27 plans)
+Progress: [█████████░] 85% (6/7 phases, 23/27 plans)
 
 ## Project Reference
 
