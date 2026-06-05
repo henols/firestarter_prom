@@ -22,3 +22,9 @@ The host decoder DETECTS the mutated fw->host frame instantly (CRC mismatch logg
 error surfaces as a ~2 s "ERROR: Timeout", NOT the sub-second fast-fail XACT-02 specifies. After
 discarding the bad frame the host waits for the next expected response and hits its read timeout.
 So "detect + recover" is PROVEN; "sub-second clean error, no 2 s cascade" is NOT met as-is.
+
+## CORRECTION (2026-06-05, after firmware RCA)
+# The firmware fast-NAK ALREADY EXISTS (corrupt-crc8 immediate MSG_ERR_EMPTY_INPUT; drop-delimiter
+# 1s-bounded inter-byte deadline; no 2s cascade). The latency above is a HARNESS artifact (outgoing:
+# multi-port connect-retry; incoming: host post-drain read-timeout), NOT firmware slowness.
+# Authoritative interpretation: FINDINGS-2026-06-05.md "Firmware fast-NAK RCA".

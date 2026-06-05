@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.10
 milestone_name: — Serial Transport Hardening
 status: executing
-stopped_at: Phase 53 — 53-07 witnessed; 53-04 resync detect+recover PROVEN but sub-second-error NOT met (needs transport decision)
-last_updated: "2026-06-05T11:50:00.000Z"
+stopped_at: Phase 53 — 53-07 witnessed; 53-04 resync PROVEN + firmware fast-NAK RCA'd as ALREADY-PRESENT (gap was harness measurement, not firmware)
+last_updated: "2026-06-05T12:05:00.000Z"
 last_activity: 2026-06-05
 progress:
   total_phases: 7
@@ -24,7 +24,7 @@ progress:
 Phase: 53 — Byte-Exact Bench Verification (hardware-gated, operator-witnessed)
 Plan: 53-03/04/05 (next bench legs) — 53-01/02/07 done; 53-03/04/05/06 still bench-gated
 Status: Executing Phase 53 (final v1.10 phase). Phases 49–52, 54, 55 all Complete.
-Last activity: 2026-06-05 — executed 53-07 (operator-witnessed): Leonardo (ACM0, Rev 2.0) byte-exact corpus on the SHIPPED post-55 contract — pure identity `OK: FW: 3.0.0b6:leonardo`, ack-sourced 1024×64 (no remainder), N=5 read verdict 0 + N=5 write read-back==source verdict 0. VPP-high(13.1V) guard force-bypassed (operator-authorized); W27C512 standalone-erase unsupported→plain-write path. Uno optional 2nd witness deferred (no chip seated). Also fixed the 53-04 `dev fault-inject` outgoing harness false-negative (firestarter_app 630fafd) AND ran the 4-combo XACT-02 bench on Uno/ACM1 (W27C512 0xda08): resync DETECT+RECOVER proven (all 4 byte-exact, incoming shows CRC-mismatch detection — no silent corruption), BUT errors are timeout-mediated (~2s+ "ERROR: Timeout"), so the sub-second-clean-error truth is NOT met → 53-04 PARTIAL, not complete. Needs a transport decision (firmware fast-NAK on CRC8/COBS fail, or re-scope XACT-02 latency). See fault-injection/FINDINGS-2026-06-05.md. Remaining: 53-03, 53-04(decision), 53-05, 53-06.
+Last activity: 2026-06-05 — executed 53-07 (operator-witnessed): Leonardo (ACM0, Rev 2.0) byte-exact corpus on the SHIPPED post-55 contract — pure identity `OK: FW: 3.0.0b6:leonardo`, ack-sourced 1024×64 (no remainder), N=5 read verdict 0 + N=5 write read-back==source verdict 0. VPP-high(13.1V) guard force-bypassed (operator-authorized); W27C512 standalone-erase unsupported→plain-write path. Uno optional 2nd witness deferred (no chip seated). Also fixed the 53-04 `dev fault-inject` outgoing harness false-negative (firestarter_app 630fafd) AND ran the 4-combo XACT-02 bench on Uno/ACM1 (W27C512 0xda08): resync DETECT+RECOVER proven (all 4 byte-exact, incoming shows CRC-mismatch detection — no silent corruption). Firmware fast-NAK RCA (read rurp_communication_read_data + firestarter.cpp CMD_IDLE): the fast-NAK ALREADY EXISTS + is correct — corrupt-crc8 → immediate MSG_ERR_EMPTY_INPUT (the "ERROR: Empty input" seen); drop-delimiter → 1s bounded inter-byte deadline (TIMEOUT_MS=1000), 2s cascade gone. The bench latency was a HARNESS artifact (outgoing multi-port connect-retry; incoming host post-drain read-timeout), NOT firmware → NO firmware change warranted. Clean sub-second XACT-02 demo needs a HARNESS refinement (corrupt a command on an established single-port connection + precise per-frame timing). See fault-injection/FINDINGS-2026-06-05.md. Remaining: 53-03, 53-04(harness refinement), 53-05, 53-06.
 
 Progress: [█████████░] 85% (6/7 phases, 23/27 plans)
 

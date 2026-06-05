@@ -21,3 +21,9 @@ RETRIES ACROSS ALL PORTS, so the latency is connection-level, NOT a single-frame
 latency. The outgoing latency numbers therefore do NOT measure the "sub-second per-frame error".
 What IS proven: the firmware does not ACK a corrupt host->fw frame (no silent accept), and a fresh
 clean transfer recovers byte-exact.
+
+## CORRECTION (2026-06-05, after firmware RCA)
+# The firmware fast-NAK ALREADY EXISTS (corrupt-crc8 immediate MSG_ERR_EMPTY_INPUT; drop-delimiter
+# 1s-bounded inter-byte deadline; no 2s cascade). The latency above is a HARNESS artifact (outgoing:
+# multi-port connect-retry; incoming: host post-drain read-timeout), NOT firmware slowness.
+# Authoritative interpretation: FINDINGS-2026-06-05.md "Firmware fast-NAK RCA".
