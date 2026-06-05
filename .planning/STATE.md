@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.10
 milestone_name: — Serial Transport Hardening
 status: executing
-stopped_at: Phase 54 context gathered
+stopped_at: Phase 55 (CAP-01) complete — Phase 53 bench unblocked
 last_updated: "2026-06-05T08:52:34.092Z"
 last_activity: 2026-06-05
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 26
+  total_plans: 27
   completed_plans: 22
   percent: 85
 ---
@@ -21,12 +21,12 @@ progress:
 
 ## Current Position
 
-Phase: 55
-Plan: Not started
-Status: Executing Phase 55
-Last activity: 2026-06-05
+Phase: 53 — Byte-Exact Bench Verification (hardware-gated, operator-witnessed)
+Plan: 53-03 (next) — 53-01/02 done; 53-03→07 written, not executed (53-07 added 2026-06-05)
+Status: Executing Phase 53 (final v1.10 phase). Phases 49–52, 54, 55 all Complete.
+Last activity: 2026-06-05 — added bench plan 53-07: extends the byte-exact corpus to the shipped post-54/55 contract (ack-sourced chunk sizing, even-block no-remainder, pure version:board identity) — checker PASSED (commit pending)
 
-Progress: [████░░░░░░] 40%
+Progress: [█████████░] 85% (6/7 phases, 22/27 plans)
 
 ## Project Reference
 
@@ -35,9 +35,10 @@ See: `.planning/PROJECT.md` (updated 2026-06-01)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 55 — relocate-buffer-size-advertisement-operation-ok-ack
-(streaming COBS vs SLIP, chosen in plan research) on the Arduino↔host data path so the
-transport is provably byte-exact, ruling serial out as a read-bug confounder.
+**Current focus:** Phase 53 — byte-exact bench verification (hardware-gated). Phase 55
+(CAP-01, buffer-size advertisement → MSG_OK_READY ack) shipped 2026-06-05 and unblocked it.
+Prove the hardened COBS transport is byte-exact across Uno/Leonardo/uno328pb so serial is
+ruled out as a read-bug confounder before v1.9 RCA resumes at Phase 45.
 
 ## Roadmap Summary
 
@@ -118,12 +119,13 @@ per operator pivot so the serial transport is hardened first.
 
 ## Session Continuity
 
-Last session: 2026-06-04T12:45:02.812Z
-Stopped at: Phase 54 context gathered
-Resume file: .planning/phases/54-even-block-data-transfers-full-buffer-aligned-host-fw-chunks/54-CONTEXT.md
+Last session: 2026-06-05 (resumed) — reconciled stale STATE body against git; Phases 54 & 55 confirmed Complete
+Stopped at: Phase 55 (CAP-01) complete & bench-approved; Phase 53 bench verification is the sole remaining v1.10 work
+Resume file: none — next is `/gsd-execute-phase 53` (hardware-gated; plans 53-03→06 already written)
 
 ## Decisions
 
+- [Phase 53 plan 2026-06-05]: Added **53-07** (operator-witnessed bench, Wave 3, autonomous:false). The bench plans 53-03..06 were authored Jun 2, before Phase 54 (even-block transfers) and Phase 55 (CAP-01 ack-sourced advertisement) shipped. 53-07 extends the XACT-01 byte-exact corpus to the *actually-shipped* post-54/55 contract: pure `OK: FW: <version>:<board>` identity (no buf/maxchunk suffix), MSG_OK_READY u16 ack-sourced chunking (Leonardo 64×1024 / Uno 128×512), even-block no-remainder SHA-256 byte-identity; safe-512 absent-ack default recorded as software-covered (Phase 55 `TestCapSafeDefault`), NOT an old-firmware bench leg. 53-01..06 left untouched. **Open follow-up:** 53-06 (Wave 4 milestone artifact) does not yet aggregate 53-07's `even-block-ack/` evidence — widen its scope at execute/verify time. NOTE: `/gsd-plan-phase 53 --gaps` was requested but `--gaps` was inapplicable (no VERIFICATION.md — phase never verified); ran as an add-plans flow per operator choice.
 - [Roadmap evolution 2026-06-03]: Added **Phase 54 — Even-Block Data Transfers** to v1.10. Make host→fw write/verify blocks full buffer-sized (512/1024) like the read path, instead of buffer−2 (510/1022), so a chip-sized transfer has no odd final remainder chunk (saves a write round). Decouples the on-wire data-block size from the COBS decode-buffer cap. Not yet planned (`/gsd-plan-phase 54`).
 - [v1.10 start]: PAUSED v1.9 at Phase 44; inserted v1.10 Serial Transport Hardening ahead of it to rule serial out as a read-bug confounder before the per-shield RCA resumes.
 - [v1.10 start]: Branch model = stacked off the `v1.9-read-bug-rca` tip in all 3 repos (NOT off main/beta — stale at v1.8 close, missing the COBS ADOPT decision + Phase 44 knobs).

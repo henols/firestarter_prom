@@ -402,7 +402,7 @@ Plans:
 | 50 | v1.10 | 4/4 | Complete    | 2026-06-01 |
 | 51 | v1.10 | 4/4 | Complete    | 2026-06-02 |
 | 52 | v1.10 | 4/4 | Complete    | 2026-06-02 |
-| 53 | v1.10 | 2/6 | In Progress|  |
+| 53 | v1.10 | 2/7 | In Progress|  |
 | 44 | v1.9 | 3/5 | In Progress|  |
 | 45 | v1.9 | 0/TBD | Not started | — |
 | 46 | v1.9 | 0/TBD | Not started | — |
