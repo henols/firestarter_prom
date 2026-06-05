@@ -38,7 +38,7 @@
 
 - [x] **XACT-01**: Transport proven byte-exact on a clean board — N consecutive framed read **and** write transfers are byte-identical on Uno (512 B) and Leonardo (1024 B); the hardened path reproduces the GATE-1.8d W27C512 N=5 baselines.
 - [x] **XACT-02**: Resync proven under fault injection — a deliberately corrupted byte (or length field) recovers within one packet via the delimiter, not a 2-second timeout cascade, demonstrated by a host-side or bench fault-injection harness.
-- [ ] **XACT-03**: uno328pb re-test recorded — the consistency-check read is re-run on the uno328pb (where the timeout + ~99% 0xff-drift instability appears) and the result documents whether the hardened transport changes the failure shape, stating explicitly what it does and does not conclude per COBS-DECISION §2.0 (transport-exoneration, not a hardware fix).
+- [x] **XACT-03**: uno328pb re-test recorded — the consistency-check read is re-run on the uno328pb (where the timeout + ~99% 0xff-drift instability appears) and the result documents whether the hardened transport changes the failure shape, stating explicitly what it does and does not conclude per COBS-DECISION §2.0 (transport-exoneration, not a hardware fix).
 
 ### 6. Even-Block Data Transfers (EVEN)
 
@@ -76,5 +76,5 @@
 | SAFE-01 | Phase 49 | ✅ Complete (2026-06-01) |
 | XACT-01 | Phase 53 | Complete |
 | XACT-02 | Phase 53 | Complete |
-| XACT-03 | Phase 53 | Pending |
+| XACT-03 | Phase 53 | Complete |
 | EVEN-01 | Phase 54 | Planned (2026-06-04) |

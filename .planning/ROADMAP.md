@@ -32,7 +32,7 @@
 - [x] **Phase 50: Data-Path Framing Layer + Automatic Resync (dual-repo lockstep)** — Implement the chosen streaming framing on the host↔fw data-block path with CRC8 retained; receiver auto-resyncs to the next delimiter, killing the 2 s `len_u16`-corruption timeout cascade; fits the Uno free-RAM ceiling. (completed 2026-06-01)
 - [x] **Phase 51: Command-Channel Framing Migration (breaking wire change)** — Migrate the host→fw JSON command channel into the same framing (CRC8-verified before the JSON parser sees the payload); firmware + host upgrade lockstep, no mixed-version interop. **COMPLETE 2026-06-02: all 4 plans shipped (COBS decode+CRC8, host framing, breaking-change docs, CR-01/CR-02 gap closure); 36/36 native tests green.**
 - [x] **Phase 52: Lockstep Contract + Round-Trip Tests** — Prove host-encode↔firmware-decode byte-compatibility (data blocks AND command frames, incl. delimiter-laden + all-delimiter payloads); pin the new frame contract in the `test_messages` Unity suite + host parser tests; CI green across both repos. (completed 2026-06-02)
-- [ ] **Phase 53: Byte-Exact Bench Verification (hardware-gated)** — Operator-authorized bench proof: N consecutive framed read+write transfers byte-identical on Uno + Leonardo (reproducing the GATE-1.8d W27C512 N=5 baselines); fault-injection resync proven within one packet; uno328pb re-test recorded (transport-exoneration, not a hardware fix).
+- [x] **Phase 53: Byte-Exact Bench Verification (hardware-gated)** — Operator-authorized bench proof: N consecutive framed read+write transfers byte-identical on Uno + Leonardo (reproducing the GATE-1.8d W27C512 N=5 baselines); fault-injection resync proven within one packet; uno328pb re-test recorded (transport-exoneration, not a hardware fix). (completed 2026-06-05)
 - [ ] **Phase 54: Even-Block Data Transfers (full-buffer-aligned host→fw chunks)** — Make host→fw write/verify data blocks a full even buffer (512/1024) like the fw→host read path already is, instead of buffer−2 (510/1022), so a chip-sized transfer divides into whole blocks with no odd-sized final remainder chunk — saving one write round. Decouple the on-wire data-block size from the COBS decode-buffer cap (decode buffer holds a full block + CRC8 + NUL) while keeping the Phase 52 lockstep contract green.
 - [x] **Phase 55: Relocate Buffer-Size Advertisement to the Operation OK Ack (+ safe 512 default)** — Move the board's buffer-size advertisement off the FW version string and onto the per-operation OK:Ready ack (u16 on MSG_OK_READY); host reads it at setup time and defaults to a universally-safe 512 when absent (no FirmwareOutdatedError — reverses Phase 54 D-05). Version string returns to pure `<version>:<board>`; removes the buf/maxchunk duplication. **Must run before Phase 53 bench verification.** (completed 2026-06-05)
 
@@ -402,7 +402,7 @@ Plans:
 | 50 | v1.10 | 4/4 | Complete    | 2026-06-01 |
 | 51 | v1.10 | 4/4 | Complete    | 2026-06-02 |
 | 52 | v1.10 | 4/4 | Complete    | 2026-06-02 |
-| 53 | v1.10 | 7/7 | Complete   | 2026-06-05 |
+| 53 | v1.10 | 7/7 | Complete    | 2026-06-05 |
 | 44 | v1.9 | 3/5 | In Progress|  |
 | 45 | v1.9 | 0/TBD | Not started | — |
 | 46 | v1.9 | 0/TBD | Not started | — |
@@ -519,7 +519,7 @@ Plans:
   2. The same file (or a companion file) lists every intra-algorithm DB inconsistency — chips that share `pin_count` + `algorithm` but differ in `pulse_duration`, `chip_id_check`, or `pinout` — with each inconsistency labeled as a defect candidate for v1.4 or a sub-repo PR (no auto-fixes applied in v1.3).
   3. Operator can use the matrix to confirm that the six BENCH chips (BENCH-01..06) span the pinout classes and pulse-duration profiles actually represented in the DB, so bench results generalize to the rest of the 339 rows.
 
-**Plans:** 4/4 plans complete
+**Plans:** 7/7 plans complete
 
 - [x] 11-01-PLAN.md — Wave 0 failing-test scaffold for tests/test_audit_coverage_matrix.py (10 tests) ✅ 2026-05-19
 - [x] 11-02-PLAN.md — Wave 1 tool skeleton + CLI + §1 Summary + §2 DB Count Reconciliation ✅ 2026-05-19
