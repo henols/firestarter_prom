@@ -4,8 +4,8 @@ milestone: v1.10
 milestone_name: — Serial Transport Hardening
 status: executing
 stopped_at: Phase 54 context gathered
-last_updated: "2026-06-04T21:37:37.693Z"
-last_activity: 2026-06-04 -- Phase 55 planning complete
+last_updated: "2026-06-05T06:46:35.176Z"
+last_activity: 2026-06-05 -- Phase 55 execution started
 progress:
   total_phases: 7
   completed_phases: 5
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 54 (even-block-data-transfers) — COMPLETE + UAT 5/5 pass. Next: Phase 55 (relocate buffer advertisement to OK ack), which MUST precede Phase 53 bench verification.
-Plan: 3 of 3
-Status: Ready to execute
-Last activity: 2026-06-04 -- Phase 55 planning complete
+Phase: 55 (relocate-buffer-size-advertisement-operation-ok-ack) — EXECUTING
+Plan: 1 of 4
+Status: Executing Phase 55
+Last activity: 2026-06-05 -- Phase 55 execution started
 
 Progress: [████░░░░░░] 40%
 
@@ -35,7 +35,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-01)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 54 — even-block-data-transfers-full-buffer-aligned-host-fw-chunks
+**Current focus:** Phase 55 — relocate-buffer-size-advertisement-operation-ok-ack
 (streaming COBS vs SLIP, chosen in plan research) on the Arduino↔host data path so the
 transport is provably byte-exact, ruling serial out as a read-bug confounder.
 
