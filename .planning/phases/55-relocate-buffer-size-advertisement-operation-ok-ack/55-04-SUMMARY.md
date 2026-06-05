@@ -148,3 +148,26 @@ No new security-relevant surface. T-55-08 (messages.toml drift) mitigated — dr
 ---
 *Phase: 55-relocate-buffer-size-advertisement-operation-ok-ack*
 *Completed: 2026-06-05*
+
+---
+
+## Human-Verify Checkpoint — Bench Results (2026-06-05, operator-witnessed)
+
+**Hardware:** Leonardo on `/dev/ttyACM0`, Rev 2.0 shield. Phase-55 firmware built (`pio run -e leonardo`) and flashed/verified (avrdude, 25336 bytes). Host = working-tree Phase-55 code (`firestarter` console script, 3.0.0b7).
+
+**SC1 — FW identity `<version>:<board>` only: ✅ PROVEN.**
+Raw wire string captured via `firestarter -v fw`:
+```
+OK: FW: 3.0.0b6:leonardo
+```
+No trailing `:512`/`:1024`/maxchunk suffix — the buffer-size advertisement is off the identity string.
+
+**SC4 — ack-sourced full-buffer (1024) even-block chunking, byte-exact: ✅ PROVEN (read path) + write-path transport confirmed.**
+- Clean `read W27C512` completed byte-exact: 65536 bytes in 7.29s, **64 × `DATA: <chunk: 1024 bytes>`** (even blocks, no odd remainder), MAIN/END clean, no desync from the new 2-byte `MSG_OK_READY` param.
+- Decisive proof of ack-sourcing: the Leonardo host *default* is the safe **512** floor; chunks sized to **1024** only because the host decoded `firmware_max_chunk=1024` from the `MSG_OK_READY` ack. The 1024-byte chunking IS the end-to-end confirmation that the relocated advertisement is read off the ack.
+- Write path: firmware received and attempted full **1024-byte** blocks (firmware reported "bad bytes: 1019/1024"), confirming the write transport delivers full ack-sized blocks.
+
+**Literal write→verify to chip: ⚠ not demonstrated — blocked by CHIP STATE, not code.**
+The seated W27C512 is non-blank and firmware erase is "Not supported" on its `algorithm: 7` (UV-EPROM) path, so random data cannot overwrite existing cells (bits can't flip 0→1 without a UV erase). This is independent of Phase 55. The transport itself delivered full 1024-byte blocks correctly; only cell-level programming failed. A write→verify to a *blank/UV-erased* W27C512 (or an electrically-erasable chip) remains an operator option but is not required to validate CAP-01.
+
+**Verdict:** Operator approved ("continue", 2026-06-05). CAP-01 transport contract verified end-to-end: SC1 proven, ack-sourced 1024 even-block chunking byte-exact, no protocol desync from the relocated advertisement.
