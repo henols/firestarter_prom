@@ -34,7 +34,7 @@
 - [x] **Phase 52: Lockstep Contract + Round-Trip Tests** — Prove host-encode↔firmware-decode byte-compatibility (data blocks AND command frames, incl. delimiter-laden + all-delimiter payloads); pin the new frame contract in the `test_messages` Unity suite + host parser tests; CI green across both repos. (completed 2026-06-02)
 - [ ] **Phase 53: Byte-Exact Bench Verification (hardware-gated)** — Operator-authorized bench proof: N consecutive framed read+write transfers byte-identical on Uno + Leonardo (reproducing the GATE-1.8d W27C512 N=5 baselines); fault-injection resync proven within one packet; uno328pb re-test recorded (transport-exoneration, not a hardware fix).
 - [ ] **Phase 54: Even-Block Data Transfers (full-buffer-aligned host→fw chunks)** — Make host→fw write/verify data blocks a full even buffer (512/1024) like the fw→host read path already is, instead of buffer−2 (510/1022), so a chip-sized transfer divides into whole blocks with no odd-sized final remainder chunk — saving one write round. Decouple the on-wire data-block size from the COBS decode-buffer cap (decode buffer holds a full block + CRC8 + NUL) while keeping the Phase 52 lockstep contract green.
-- [ ] **Phase 55: Relocate Buffer-Size Advertisement to the Operation OK Ack (+ safe 512 default)** — Move the board's buffer-size advertisement off the FW version string and onto the per-operation OK:Ready ack (u16 on MSG_OK_READY); host reads it at setup time and defaults to a universally-safe 512 when absent (no FirmwareOutdatedError — reverses Phase 54 D-05). Version string returns to pure `<version>:<board>`; removes the buf/maxchunk duplication. **Must run before Phase 53 bench verification.**
+- [x] **Phase 55: Relocate Buffer-Size Advertisement to the Operation OK Ack (+ safe 512 default)** — Move the board's buffer-size advertisement off the FW version string and onto the per-operation OK:Ready ack (u16 on MSG_OK_READY); host reads it at setup time and defaults to a universally-safe 512 when absent (no FirmwareOutdatedError — reverses Phase 54 D-05). Version string returns to pure `<version>:<board>`; removes the buf/maxchunk duplication. **Must run before Phase 53 bench verification.** (completed 2026-06-05)
 
 ### Phase Details
 
@@ -214,16 +214,16 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 55-01-PLAN.md — Declare `bytes` param on MSG_OK_READY in messages.toml, sync to both sub-repos, add RED host safe-default tests (linchpin, Wave 1)
+- [x] 55-01-PLAN.md — Declare `bytes` param on MSG_OK_READY in messages.toml, sync to both sub-repos, add RED host safe-default tests (linchpin, Wave 1)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 55-02-PLAN.md — Revert FW_VERSION to `<version>:<board>`, update all 4 MSG_OK_READY emit sites to LOG_OK_ID_U16, extend Unity test (firmware, Wave 2)
-- [ ] 55-03-PLAN.md — Add `_decode_id_frame` override extracting the u16, default `_calculate_buffer_size` to 512, remove identity-string parse + update tests (host, Wave 2)
+- [x] 55-02-PLAN.md — Revert FW_VERSION to `<version>:<board>`, update all 4 MSG_OK_READY emit sites to LOG_OK_ID_U16, extend Unity test (firmware, Wave 2)
+- [x] 55-03-PLAN.md — Add `_decode_id_frame` override extracting the u16, default `_calculate_buffer_size` to 512, remove identity-string parse + update tests (host, Wave 2)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 55-04-PLAN.md — Drift gate + dual-repo full suites + EVEN-01/parity regressions + `firestarter fw` checkpoint (integration, Wave 3)
+- [x] 55-04-PLAN.md — Drift gate + dual-repo full suites + EVEN-01/parity regressions + `firestarter fw` checkpoint (integration, Wave 3)
 
 ### v1.10 Coverage
 
