@@ -1,12 +1,12 @@
 ---
-status: diagnosed
+status: resolved
 trigger: "53-04 XACT-02 fault injection: outgoing leg reports 'corrupted transfer unexpectedly succeeded'; incoming leg detects the corrupt frame but the corrupted transfer ends in a Timeout of unverified latency."
 created: 2026-06-03
-updated: 2026-06-03
+updated: 2026-06-05
 phase: 53
 related: [transport-protocol-verify, write-verify-datapath-overflow]
 root_cause: "Harness wiring bug in EpromOperator.fault_inject_cycle (firestarter_app, 53-02). The outgoing _fault_inject_outgoing hook fires inside send_json_command, but fault_inject_cycle sets it INSIDE _operation_context AFTER the read's only JSON command (the setup) has already been sent during context entry. A READ's MAIN phase sends only plaintext 'OK' acks via send_string (never send_json_command), so the hook never fires -> nothing is corrupted -> the read succeeds -> 'corrupted transfer unexpectedly succeeded' (a FALSE NEGATIVE). It is NOT evidence the firmware accepts corrupt host->fw frames; the outgoing fault was simply never injected."
-fix: "UNRESOLVED (operator paused bench). Options: (a) corrupt the SETUP command frame — set the hook before/at _operation_context entry (or have the first send_json_command fire it); (b) use a write/verify cycle and move the hook to the data-chunk send (send_bytes path) instead of send_json_command. Also add an explicit error-latency measurement to PROVE the sub-second clean error (no 2s cascade) the XACT-02 acceptance requires. Re-run all 4 combos. Update 53-01 unit tests + 53-02 to match the corrected injection point."
+fix: "RESOLVED in firestarter_app commit 630fafd (option (a)). Threaded an optional fault_inject_outgoing hook through _operation_context -> _setup_operation -> find_and_connect -> _probe_port so it arms the communicator BEFORE the setup command frame is sent (the only corruptible host->fw command frame; a READ's MAIN phase sends only plaintext acks). Default None keeps production byte-identical (T-53-03). fault_inject_cycle (outgoing) now treats the bounded connection failure from a rejected setup frame as the expected outcome, and a fresh clean transfer proves recovery; added error-latency measurement + fault-inject-<direction>-log.txt recording the sub-second-clean-error / 2s-cascade verdict. +5 unit tests; full suite 467 passed; coverage 71.85%; ruff clean; mypy neutral. REMAINING (normal 53-04 bench execution, NOT a debug item): operator hardware re-run of all 4 combos to record the measured latency + byte-exact recovery evidence under .planning/v1.10/bench-verification/fault-injection/."
 ---
 
 # Debug: fault-inject-harness-outgoing
@@ -37,3 +37,16 @@ fix: "UNRESOLVED (operator paused bench). Options: (a) corrupt the SETUP command
 Operator paused the bench. When resumed: fix the outgoing injection point, add latency
 measurement, re-run all 4 combos (both directions x corrupt-crc8/drop-delimiter), and only then
 record XACT-02 evidence for 53-04.
+
+## Resolution (2026-06-05)
+Harness defect fixed in firestarter_app commit `630fafd` (option (a) — corrupt the SETUP
+command frame at connection time). The outgoing fault now genuinely fires (no more false
+negative), and `fault-inject-<direction>-log.txt` records the measured error latency so the
+sub-second-clean-error (no 2 s cascade) XACT-02 acceptance can be confirmed on hardware.
+Production path byte-identical when the hook is None (T-53-03). +5 unit tests; full suite
+467 passed; coverage 71.85%; ruff clean; mypy neutral (pre-existing watermark drift noted).
+
+This closes the DIAGNOSED HARNESS DEFECT. The remaining XACT-02 work is a normal bench
+execution of plan 53-04 (run all 4 combos on real hardware, record latency + byte-exact
+recovery into `.planning/v1.10/bench-verification/fault-injection/`) — tracked under 53-04,
+not as a debug session.

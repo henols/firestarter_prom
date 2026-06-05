@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.10
 milestone_name: — Serial Transport Hardening
 status: executing
-stopped_at: Phase 53 — 53-07 witnessed on Leonardo; 53-03/04/05/06 still bench-gated
-last_updated: "2026-06-05T11:08:05.000Z"
+stopped_at: Phase 53 — 53-07 witnessed; 53-04 harness bug FIXED (bench re-run pending); 53-03/04/05/06 bench-gated
+last_updated: "2026-06-05T11:35:00.000Z"
 last_activity: 2026-06-05
 progress:
   total_phases: 7
@@ -24,7 +24,7 @@ progress:
 Phase: 53 — Byte-Exact Bench Verification (hardware-gated, operator-witnessed)
 Plan: 53-03/04/05 (next bench legs) — 53-01/02/07 done; 53-03/04/05/06 still bench-gated
 Status: Executing Phase 53 (final v1.10 phase). Phases 49–52, 54, 55 all Complete.
-Last activity: 2026-06-05 — executed 53-07 (operator-witnessed): Leonardo (ACM0, Rev 2.0) byte-exact corpus on the SHIPPED post-55 contract — pure identity `OK: FW: 3.0.0b6:leonardo`, ack-sourced 1024×64 (no remainder), N=5 read verdict 0 + N=5 write read-back==source verdict 0. VPP-high(13.1V) guard force-bypassed (operator-authorized); W27C512 standalone-erase unsupported→plain-write path. Uno optional 2nd witness deferred (no chip seated). 53-03/04/05/06 remain.
+Last activity: 2026-06-05 — executed 53-07 (operator-witnessed): Leonardo (ACM0, Rev 2.0) byte-exact corpus on the SHIPPED post-55 contract — pure identity `OK: FW: 3.0.0b6:leonardo`, ack-sourced 1024×64 (no remainder), N=5 read verdict 0 + N=5 write read-back==source verdict 0. VPP-high(13.1V) guard force-bypassed (operator-authorized); W27C512 standalone-erase unsupported→plain-write path. Uno optional 2nd witness deferred (no chip seated). Also fixed the 53-04 `dev fault-inject` outgoing harness false-negative (firestarter_app 630fafd): hook now arms at connection time + error-latency logging; debug session `fault-inject-harness-outgoing` resolved. 53-03/04/05/06 bench legs remain (53-04 now unblocked, needs hardware re-run).
 
 Progress: [█████████░] 85% (6/7 phases, 23/27 plans)
 
