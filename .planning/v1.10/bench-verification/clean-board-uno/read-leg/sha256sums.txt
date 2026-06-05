@@ -1,14 +1,8 @@
-# Uno clean-board read leg — N=5 consistency-check (53-03 / XACT-01)
-# Board: Arduino Uno (ATmega328P), /dev/ttyACM1, hardened firmware (COBS, controller:uno)
-# Shield: Rev 2.0 (operator-declared 2026-06-02)
-# Chip: original baseline W27C512 (operator-confirmed), ~97.3% 0xff (near-blank)
-# Default read timing (strobe=3us firmware default, settling=0us)
-#
-# RESULT: runs 01-04 complete (64KB); run 05 TIMEOUT at 34816B (verdict 2 hw-error, per-plan retry-not-fail)
-# 4 distinct SHAs; pairwise diff 4-9 bytes, all single-bit drops from 0xff (read-path jitter, NOT transport)
-#
-dd0f4143d5826667993332055e60da9c2581c6c73e04ce6d1b10dc35829fe75e  run_01.bin
-ce909aa8d1308093f0d0684a59e5b5067ced37a04210a32730cc2d7d08e3c050  run_02.bin
-f5172da9f4a21b0ae3a14835ab04c5748cc5f021225fb618b7675fd407b593b9  run_03.bin
-79559f2a7795c6160a0070787637a0378e4e7680d3f94dbfa1dd0f5a08114dd8  run_04.bin
-c97b3c833357682009564674f4c51da41c57964f1c7b3e74f6e224120ddd7940  run_05.bin
+# 53-03 Uno (ACM1) read leg — N=5 consistency-check, verdict 0 (self-consistency, UNFORCED)
+# board: uno (512B chunks), Rev 2.0 (operator-confirmed); chip-id 0xda08 passed unforced (no VPP issue)
+8144ae5745bd8de1a2ba2890938fb5e8e7b58e7402b9cccfbe80a93224e63e38  run_01.bin
+8144ae5745bd8de1a2ba2890938fb5e8e7b58e7402b9cccfbe80a93224e63e38  run_02.bin
+8144ae5745bd8de1a2ba2890938fb5e8e7b58e7402b9cccfbe80a93224e63e38  run_03.bin
+8144ae5745bd8de1a2ba2890938fb5e8e7b58e7402b9cccfbe80a93224e63e38  run_04.bin
+8144ae5745bd8de1a2ba2890938fb5e8e7b58e7402b9cccfbe80a93224e63e38  run_05.bin
+# verdict: 0 (PASS) — 1 distinct SHA across N=5 (8144ae57...)
