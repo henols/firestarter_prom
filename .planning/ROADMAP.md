@@ -167,7 +167,7 @@ Plans:
 
 **Wave 4** *(milestone artifact — depends on 53-03 + 53-04 + 53-05)*
 
-- [ ] 53-06-PLAN.md — milestone evidence artifact (autonomous: false): assemble .planning/v1.10/bench-verification/SUMMARY.md (operator attestation, full SHA table, fault-injection log, uno328pb before/after + exoneration verdict, settled-variable claim) (D-11; SC4)
+- [x] 53-06-PLAN.md — milestone evidence artifact (autonomous: false): assemble .planning/v1.10/bench-verification/SUMMARY.md (operator attestation, full SHA table, fault-injection log, uno328pb before/after + exoneration verdict, settled-variable claim) (D-11; SC4)
 
 #### Phase 54: Even-Block Data Transfers (full-buffer-aligned host→fw chunks)
 
@@ -402,7 +402,7 @@ Plans:
 | 50 | v1.10 | 4/4 | Complete    | 2026-06-01 |
 | 51 | v1.10 | 4/4 | Complete    | 2026-06-02 |
 | 52 | v1.10 | 4/4 | Complete    | 2026-06-02 |
-| 53 | v1.10 | 6/7 | In Progress|  |
+| 53 | v1.10 | 7/7 | Complete   | 2026-06-05 |
 | 44 | v1.9 | 3/5 | In Progress|  |
 | 45 | v1.9 | 0/TBD | Not started | — |
 | 46 | v1.9 | 0/TBD | Not started | — |
