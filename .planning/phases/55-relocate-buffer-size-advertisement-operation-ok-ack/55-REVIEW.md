@@ -19,7 +19,8 @@ findings:
   warning: 4
   info: 3
   total: 7
-status: issues_found
+status: resolved
+resolution: "WR-01..04 fixed in firestarter_app@41d80e0 (clamp coverage + stale Phase-54 contract docs). IN-01/02/03 left as documented follow-ups (info-level)."
 ---
 
 # Phase 55: Code Review Report
