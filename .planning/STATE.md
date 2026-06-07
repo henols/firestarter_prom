@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.10
 milestone_name: — Serial Transport Hardening
-status: executing
+status: Awaiting next milestone
 stopped_at: Phase 55 (CAP-01) complete & bench-approved; Phase 53 bench verification is the sole remaining v1.10 work
-last_updated: "2026-06-05T14:16:27.384Z"
-last_activity: 2026-06-05
+last_updated: "2026-06-07T20:56:40.559Z"
+last_activity: 2026-06-07 — Milestone v1.10 completed and archived
 progress:
   total_phases: 7
   completed_phases: 7
@@ -21,12 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 54
-Plan: Not started
-Status: Executing Phase 53 (final v1.10 phase). Phases 49–52, 54, 55 all Complete.
-Last activity: 2026-06-05
-
-Progress: [██████████] 100% plans (6/7 phases, 27/27 plans) — Phase 53 pending verification
+Phase: Milestone v1.10 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-06-07 — Milestone v1.10 completed and archived
 
 ## Project Reference
 
@@ -164,3 +162,25 @@ Resume file: none — next is `/gsd-execute-phase 53` (hardware-gated; plans 53-
 | Phase 52 P52-04 | 4m | 2 tasks | 0 files |
 | Phase 53 P01 | 20m | 3 tasks | 3 files |
 | Phase Phase 53 PP02 | 35m | 3 tasks | 7 files |
+
+## Deferred Items
+
+Items acknowledged and deferred at v1.10 milestone close on 2026-06-07. None are
+incomplete v1.10 transport work — they are v1.0-era leftovers, an already-fixed debug
+session, and explicitly carry-forward todos. Recorded here for the resumed v1.9 RCA and
+future milestones.
+
+| Category | Item | Status | Disposition |
+|----------|------|--------|-------------|
+| debug | firmware-vpp-misread | diagnosed | Fixed in Phase 54 UAT (uno328pb R1 recal 1000→270000); session left open — close retroactively |
+| debug | fm1608-fresh-chip-baseline | parked-2026-05-18 | Pre-v1.10 FRAM byte-0 write investigation; out of v1.10 scope |
+| uat | Phase 08 (08-HUMAN-UAT.md) | partial (2 pending) | v1.0-era logging-infrastructure phase; out of v1.10 scope |
+| verification | Phase 08 (08-VERIFICATION.md) | human_needed | v1.0-era logging phase; out of v1.10 scope |
+| verification | Phase 09 (09-VERIFICATION.md) | human_needed | v1.0-era logging phase; out of v1.10 scope |
+| todo | avrdude-mcu-detection-fallback.md | low | Carry-forward; out of v1.10 scope |
+| todo | cobs-decoder-framelevel-deadline-wr01.md | medium | v1.10 COBS follow-up (WR-01); explicitly deferred per REQUIREMENTS.md §Future |
+| todo | w27c512-eeprom-misclassification.md | high | Carry-forward; out of v1.10 scope |
+
+## Operator Next Steps
+
+- Start the next milestone with /gsd-new-milestone
