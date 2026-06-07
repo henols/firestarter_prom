@@ -28,38 +28,33 @@ Last activity: 2026-06-07 — Milestone v1.10 completed and archived
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-06-01)
+See: `.planning/PROJECT.md` (updated 2026-06-07 after v1.10 close)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 53 — byte-exact bench verification (hardware-gated). Phase 55
-(CAP-01, buffer-size advertisement → MSG_OK_READY ack) shipped 2026-06-05 and unblocked it.
-Prove the hardened COBS transport is byte-exact across Uno/Leonardo/uno328pb so serial is
-ruled out as a read-bug confounder before v1.9 RCA resumes at Phase 45.
+**Current focus:** v1.10 (Serial Transport Hardening / COBS) SHIPPED 2026-06-07 — serial is
+now a settled, byte-exact variable. **Next: v1.9 Read-Bug RCA resumes at Phase 45**
+(`/gsd-plan-phase 45`) once the hardened transport is merged. The transport-exoneration
+verdict from Phase 53 (uno328pb instability persists on the hardened path) feeds the per-shield
+RCA directly.
 
 ## Roadmap Summary
 
-**v1.10 phases:** 5 (numbered 49–53; 45–48 reserved for deferred v1.9). Granularity: Comprehensive.
-Hardware-gated at Phase 53; coordinated dual-repo (firmware + host) lockstep throughout.
+**v1.10 SHIPPED 2026-06-07:** 7 phases (49–55; 45–48 reserved for v1.9), 27 plans, 14/14 requirements.
+Custom streaming COBS `0x00` + CRC8 framing with automatic resync on both the data-block path and
+the host→fw JSON command channel; 2 s timeout cascade removed; byte-exact proven on operator-witnessed
+bench (Uno + Leonardo); uno328pb transport-exonerated (RCA deferred). Beta-only; stable `3.0.1`
+operator-gated. Archive: `.planning/milestones/v1.10-ROADMAP.md` + `.planning/MILESTONES.md` §v1.10.
 
-| Phase | Goal | Requirements |
-|-------|------|--------------|
-| 49. Framing Mechanism Decision (COBS `0x00` vs SLIP `0xC0`) | Resolve mechanism + `0x00` bus-aliasing safety before implementation commits | SAFE-01 |
-| 50. Data-Path Framing + Auto-Resync (dual-repo lockstep) | Streaming framing on the data-block path; kill the 2 s timeout cascade; CRC8 retained; fits Uno RAM | FRAME-01/02/03/04, CRC-01 |
-| 51. Command-Channel Framing Migration (breaking wire change) | Migrate host→fw JSON commands into the framing; CRC8-verified before JSON parse; lockstep upgrade | FRAME-05 |
-| 52. Lockstep Contract + Round-Trip Tests | Prove host↔fw byte-compatibility (data + command frames); pin `test_messages`; CI green both repos | LOCK-01, LOCK-02 |
-| 53. Byte-Exact Bench Verification (hardware-gated) | Operator-witnessed N-run byte-identity (Uno/Leonardo); fault-injection resync; uno328pb re-test | XACT-01/02/03 |
-
-**Coverage:** 12/12 v1.10 requirements mapped to exactly one phase. No orphans, no duplicates.
-
-Full details: `.planning/ROADMAP.md` (v1.10 section).
+**Next milestone — v1.9 Read-Bug RCA + Fix (resumes):** Phases 45–48 remain (44 + 48-01 done).
+Resume at Phase 45 (Bug B RCA — Rev 2.0). See the v1.9 RESUME block below.
 
 ## Accumulated Context
 
-### ⏸ v1.9 RESUME (paused 2026-06-01 — DO NOT LOSE)
+### ▶ v1.9 RESUME (v1.10 shipped 2026-06-07 — resume NOW at Phase 45)
 
-v1.9 (Read-Bug RCA + Fix) is PAUSED mid-flight, NOT shipped. v1.10 was inserted ahead of it
+v1.9 (Read-Bug RCA + Fix) is the active milestone again. v1.10 was inserted ahead of it
 per operator pivot so the serial transport is hardened first.
 
 - **Done:** Phase 44 (Bug A RCA — Modified Rev 0, read-strobe-causal) complete; Phase 48 plan
@@ -117,9 +112,9 @@ per operator pivot so the serial transport is hardened first.
 
 ## Session Continuity
 
-Last session: 2026-06-05 (resumed) — reconciled stale STATE body against git; Phases 54 & 55 confirmed Complete
-Stopped at: Phase 55 (CAP-01) complete & bench-approved; Phase 53 bench verification is the sole remaining v1.10 work
-Resume file: none — next is `/gsd-execute-phase 53` (hardware-gated; plans 53-03→06 already written)
+Last session: 2026-06-07 — v1.10 milestone closed and archived (ROADMAP collapsed, REQUIREMENTS archived + removed, PROJECT/MILESTONES/RETROSPECTIVE evolved, 8 items deferred, tag v1.10)
+Stopped at: v1.10 SHIPPED. v1.9 Read-Bug RCA is the active milestone again, resuming at Phase 45.
+Resume file: none — next is `/gsd-plan-phase 45` (Bug B RCA — Rev 2.0; hardware-gated) once the hardened transport is merged
 
 ## Decisions
 
