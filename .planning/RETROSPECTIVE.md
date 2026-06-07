@@ -275,6 +275,52 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 
 ---
 
+## Milestone: v1.10 — Serial Transport Hardening (COBS)
+
+**Shipped:** 2026-06-07
+**Phases:** 7 (49–55; 45–48 reserved for v1.9) | **Plans:** 27 | **Tasks:** 36 | **Timeline:** 2026-06-01 (Phase 49 context) → 2026-06-05 (Phase 53 bench close); archived 2026-06-07
+
+### What Was Built
+
+- Custom **streaming COBS `0x00` + CRC8-CCITT** framing layer on the host↔fw data-block path (Phase 50) with decode-in-place + 1-byte lookahead + drain-to-`0x00` automatic resync — the 2 s `len_u16` timeout cascade is gone (recovery ~1 ms for corrupt frames, single bounded ~1 s inter-byte deadline for truncated frames)
+- Host→fw JSON command channel migrated into the same framing as a **breaking lockstep wire change** — CRC8 verified before `parse_json()` on every `CMD_IDLE` ingest, replacing the legacy `{`-peek loop (Phase 51); CR-01 OOB-write + CR-02 hang hardened the decoder
+- Shared golden-vector catalog (`codegen_vectors.py`) pinning host-encode↔fw-decode byte-identity for data + command frames incl. delimiter-laden + all-delimiter payloads; codegen drift gates green both repos (Phase 52)
+- Even-block full-buffer host→fw transfers (no `buffer−2`, Phase 54) + buffer-size advertisement relocated from the FW version string to a `u16` param on the `MSG_OK_READY` ack with a safe-512 default (Phase 55, reverses Phase 54 D-05)
+- Operator-witnessed bench corpus (Phase 53): N=5 read + write read-back byte-identity on clean Uno + Leonardo (Rev 2.0); hardware resync proof both directions/both fault forms; uno328pb transport-exoneration verdict — all aggregated at `.planning/v1.10/bench-verification/SUMMARY.md`
+
+### What Worked
+
+- **Decision-phase-first for a load-bearing mechanism choice.** Phase 49 resolved COBS-vs-SLIP with a static SAFE-01 proof + scored matrix BEFORE any implementation committed to a delimiter byte. The `0x00` bus-aliasing question (would framing the command channel make the host emit a frame boundary mid-mode-transition?) was answered on paper, so Phases 50/51 never churned on it.
+- **Dual-repo lockstep pinned by codegen + golden vectors.** The `test_messages` Unity suite + host parser tests share a single canonical vector catalog with a CI drift gate (`<regen> && git diff --exit-code`) — same pattern proven in v1.2. Byte-compatibility was provable in CI before the bench, so the hardware session verified transport, not contract.
+- **Insert-ahead sequencing held its rationale end to end.** v1.10 was inserted ahead of the paused v1.9 RCA specifically to exonerate the transport. The bench delivered exactly that: clean boards byte-exact, uno328pb instability *persisting* on the hardened transport → serial is now a settled variable, and the residual failure is unambiguously hardware. The methodological prerequisite paid off.
+- **Re-sequencing 53 after 54/55.** Phase 55 (CAP-01) shipped changes to the very identity/ack contract the bench would witness; running bench-verification last meant the corpus proves the *final* transport, not a soon-to-change mechanism. Phase 53-07 was added to widen the corpus to the post-55 contract rather than re-running everything.
+
+### What Was Inefficient
+
+- **STATE.md body drifted from git reality.** The frontmatter said 100% / 7 phases while the body still read "Phase 53 pending verification" and the Roadmap Summary still listed only phases 49–53. A stale CLOSE-OUT-GAPS report (committed 09:53) also pre-dated the afternoon bench session (13:12–14:08) and the passing VERIFICATION.md (16:00) — three artifacts telling different stories about the same phase. Cost reconciliation time at close.
+- **REQUIREMENTS.md lagged the inserted phases.** EVEN-01 (Phase 54) stayed `[ ]` after the phase verified, and CAP-01 (Phase 55) was never added to the requirements doc at all — the same checkbox-lag pattern the Phase 53 VERIFICATION.md flagged for XACT-03. Inserted phases need a requirements-doc update as part of their own close, not at milestone close.
+- **Auto-generated MILESTONES accomplishments picked up noise.** The SDK's `milestone complete` extracted plan "Deviations" lines (`1. [Rule 3 - Blocking] …`) as if they were accomplishments. Required a manual rewrite of the entry.
+
+### Patterns Established
+
+- **Decision phase as phase 0 of a mechanism milestone.** When a milestone hinges on one irreversible technical choice (framing delimiter, wire format), spend a dedicated phase resolving it with a written proof + scored matrix before implementation. Freezes the contract; downstream phases don't relitigate.
+- **Inserted/decimal phases own their own requirements-doc bookkeeping.** Flip the requirement checkbox + add the traceability row at phase close, not at milestone close — otherwise the milestone-close audit inherits N silent doc-lags.
+- **Transport-exoneration as a first-class verdict.** A hardware re-test that *still fails* on the hardened path is a PASS for a transport-hardening milestone, provided the persistence is recorded as exoneration (not a fix) with the RCA explicitly deferred. Structured verdict > "it still doesn't work."
+
+### Key Lessons
+
+- **Reconcile STATE/VERIFICATION/git against each other at close, newest-wins.** Where a phase has a stale gap report and a later passing VERIFICATION.md, the VERIFICATION timestamp + git log are authoritative. Don't trust a single artifact's status field at milestone close — cross-check timestamps.
+- **A milestone whose whole point is "rule out variable X" must state plainly whether X was ruled out.** v1.10's deliverable is a *negative* result on the read bug (serial is not the cause) plus a *positive* result on the transport (byte-exact). Both belong in the milestone entry; the hand-off to v1.9 is the negative result.
+- **Stacked-branch milestones carry their base's unmerged commits.** v1.10 stacked off the v1.9 tip; merging v1.10 first promotes v1.9's Phase 44 commits too. This was accepted up front (recorded in Key Decisions) — but it makes the v1.9 promotion the moment to untangle, and that's now flagged for the resumed milestone.
+
+### Cost Observations
+
+- 5 development days (2026-06-01 → 06-05) + a 2-day gap to archival (06-07); 27 plans across 7 phases — denser per-day than the hardware-gated milestones, because phases 49–52 were pure software with CI gates and no bench dependency.
+- Hardware gating concentrated in one phase (53) at the end, after all software contracts were CI-green — kept the operator bench session short and focused.
+- 8 items deferred at close, all out-of-scope/carry-forward — clean triage-to-ship ratio for an interleaved milestone.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -284,6 +330,7 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 | v1.0      | 13     | 22    | 4    | Initial — established algorithm-first, three-layer-fix, regression-guard patterns |
 | v1.2      | 4 + close | 32 | 11 | Catalog-driven codegen with CI drift gate; phased migration (A→B→C→D→Close); bench-verification as a first-class step; helper-function refactor pattern (mixed result on AVR) |
 | v1.4      | 6     | 10    | 1    | Live cuts as integration tests (3 sequential cuts b1→b2→b3 surfaced 6 substrate defects); branch-driven beta with `make_latest:false` + `pip --pre` opt-in; real-hardware flash as E2E gate; manually-paired lockstep coordination (rejected: shared VERSION file, cross-repo dispatch) |
+| v1.10     | 7     | 27    | 5    | Decision-phase-first for a load-bearing mechanism choice (COBS vs SLIP, static proof before implementation); dual-repo lockstep pinned by shared golden-vector codegen + CI drift gate; insert-ahead sequencing to exonerate a variable; transport-exoneration as a first-class PASS verdict (hardware still fails → RCA deferred, not a milestone failure) |
 
 ### Cumulative Quality
 
