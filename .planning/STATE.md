@@ -26,17 +26,14 @@ Plan: —
 Status: Awaiting next milestone. v1.10 landed on beta in all 3 repos (local FF, not yet pushed); v1.9 read-bug RCA deferred by operator.
 Last activity: 2026-06-08 — v1.10 merged to beta (local); v1.9 deferred
 
-## ⏯ Pending operator action — v1.10 beta cut (NOT done by Claude)
+## ✅ v1.10 beta cut — DONE 2026-06-08 (lockstep 3.0.0b8)
 
-v1.10 is merged to `beta` (sub-repos) / `main` (meta) **locally only** — nothing pushed, no CI fired, no tag cut. Branch tips:
-- `firestarter` beta @ `0266ee2` · `firestarter_app` beta @ `8480ff3` · meta `main` @ `ec90b92` (submodule pointers corrected)
-- All three are clean fast-forwards over their `origin/*` (firmware +26, app +35, meta +182).
+v1.10 shipped to beta across all 3 repos and published:
+- **firestarter (firmware):** `beta` @ `4e2c985`, GitHub Pre-release **`3.0.0b8`** (with `firestarter_{uno,uno328pb,leonardo}.hex`). A `3.0.0b7` tag was created at the b6 commit (`8fead2d`) to mark the firmware version skipped during the app-only v1.8, so the auto-scan incremented b6→b8 in lockstep with the app.
+- **firestarter_app (host):** `beta` @ `faaa571`, GitHub Pre-release **`3.0.0b8`** + **PyPI `3.0.0b8`** (`pip install --pre firestarter`). One pre-push fix was needed: the committed `firestarter/messages.py` was raw codegen and failed the `beta-release.yml` ruff-normalization drift gate (devcontainer-3.12-masks-CI-3.11 trap) — ruff-normalized + recommitted (`c4b47bc`), then the cut went green.
+- **meta:** `main` pushed; submodule pointers updated to the released beta tips (`4e2c985` / `faaa571`).
 
-To cut the beta when ready (per `.planning/v1.4-RELEASE-PROCEDURES.md`):
-1. Push branches: `git push origin beta` in each sub-repo + `git push origin main` in meta.
-2. **Lockstep `3.0.0b8` requires an explicit pin** — `workflow_dispatch` with `BETA_VERSION=3.0.0b8` in BOTH sub-repos. Auto-tag-scan would DESYNC (firmware b6→b7, app b7→b8); the explicit pin forces both to b8 (firmware skips b7). CI's `update_version.py` writes `version.h`/`__init__.py` at cut time — version files are intentionally NOT hand-edited here.
-3. Stable `3.0.1` stays operator-gated (deferred to the read-bug fix).
-4. The v1.10 carries v1.9 Phase 44 + 48-01 commits into beta (accepted stacked-branch tradeoff).
+Stable `3.0.1` remains operator-gated (deferred to the read-bug fix). v1.9 Phase 44 + 48-01 commits rode into beta as accepted. v1.9 read-bug RCA stays deferred ("skip the bug for now").
 
 ## Project Reference
 
