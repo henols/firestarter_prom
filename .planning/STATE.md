@@ -1,16 +1,17 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.11
-milestone_name: Complete infoic.xml Decode & Database Correctness
+milestone_name: — Complete infoic.xml Decode & Database Correctness
 status: planning
-last_updated: "2026-06-08T09:00:00.000Z"
-last_activity: 2026-06-08
+stopped_at: Phase 56 context gathered
+last_updated: "2026-06-08T11:11:53.313Z"
+last_activity: "2026-06-08 — Milestone v1.11 roadmap created (4 phases: 56-59)"
 progress:
-  total_phases: 4
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_phases: 9
+  completed_phases: 1
+  total_plans: 8
+  completed_plans: 6
+  percent: 11
 ---
 
 # Project State
@@ -72,12 +73,14 @@ already handled via existing SRAM protocols. Genuine new-chip gap = ~9 blocked 2
 `configure_eeprom28c` already handles them. No new firmware handlers needed.
 
 **Confirmed decode bugs to fix (all host-only):**
+
 - BUG-1: `VCC_VOLTAGES` missing nibble 0x02 (4V) / 0x03 (4.5V)
 - BUG-2: `interpret_timing` ×100 multiplier for 0x07/0x0B (W27C512 → 10000µs not 100µs)
 - BUG-3: `vdd`/`vcc` field labels inverted vs minipro `database.c`
 - BUG-4: `PROTOCOL_MAP` wrong names for 0x2A/0x2C/0x2E/0x35; invented 0x3C; phantom 0x39
 
 **Key ordering constraints (from research):**
+
 1. Pinned infoic.xml snapshot FIRST (prevents upstream drift corrupting regression baseline)
 2. `check_dispatch.py` full-class VPP-safety guard BEFORE re-derivation changes land
 3. 24-pin EEPROM unblock AFTER corrected decode + pinout audit
@@ -118,9 +121,9 @@ only if a real safety issue is found during the SRAM audit).
 
 ## Session Continuity
 
-Last session: 2026-06-08 — v1.11 roadmap created (4 phases: 56-59, 15/15 requirements mapped).
-Stopped at: Roadmap written; REQUIREMENTS.md traceability updated; STATE.md updated.
-Resume file: none — next step is `/gsd-plan-phase 56` to begin planning Phase 56.
+Last session: 2026-06-08T11:11:53.304Z
+Stopped at: Phase 56 context gathered
+Resume file: .planning/phases/56-snapshot-field-dictionary-corrected-docs/56-CONTEXT.md
 
 ## Decisions
 
