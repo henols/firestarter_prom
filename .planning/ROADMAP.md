@@ -221,7 +221,17 @@ Plans:
   4. `PROTOCOL_MAP` uses only canonical `IC2_ALG_*` names; entries for `0x2A`/`0x2C`/`0x2E`/`0x35`/`0x3C` are removed or carry explicit exclusion comments; phantom `0x39` is documented.
   5. `check_dispatch.py` asserts that no chip with a `vpp-pin` pinout AND a 5V-EEPROM-family handler (algorithm in `{0x05, 0x06, 0x0D}`) routes to a VPP-asserting path — not just the `DIP28_2764` case — and exits clean (0 violations) across the full chip set.
 
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+**Wave 1** *(parallel — no file overlap)*
+
+  - [ ] 57-01-PLAN.md — Fix the 4 decode bugs in build_db.py: interpret_timing ×100 (DEC-03), VCC nibbles + vcc/vdd swap (DEC-04), PROTOCOL_MAP/KNOWN_PROTOCOLS canonicalize (DEC-05); DEC-02 umbrella
+  - [ ] 57-02-PLAN.md — Extend check_dispatch.py to a full-class vpp-pin + {0x05,0x06,0x0D} VPP-safety guard (GATE-03) + sync 0x35/0x39 removal (DEC-05)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+  - [ ] 57-03-PLAN.md — Regenerate chip_database.json + baseline diff (DEC-02/03/04) + GATE-03 on regenerated set + snapshot refresh + full suite; blocking human-verify of firestarter info W27C512
+
 **UI hint**: no
 
 ### Phase 58: Pinout Re-derivation + 24-pin EEPROM Unblock
