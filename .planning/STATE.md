@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.10
 milestone_name: — Serial Transport Hardening
 status: Awaiting next milestone
-stopped_at: Phase 55 (CAP-01) complete & bench-approved; Phase 53 bench verification is the sole remaining v1.10 work
-last_updated: "2026-06-07T20:56:40.559Z"
-last_activity: 2026-06-07 — Milestone v1.10 completed and archived
+stopped_at: v1.10 shipped + merged to beta locally (pending operator push/cut); v1.9 read-bug RCA deferred by operator 2026-06-08
+last_updated: "2026-06-08T00:00:00.000Z"
+last_activity: 2026-06-08 — v1.10 merged to beta (all 3 repos, local FF); v1.9 deferred for now
 progress:
   total_phases: 7
   completed_phases: 7
@@ -21,10 +21,22 @@ progress:
 
 ## Current Position
 
-Phase: Milestone v1.10 complete
+Phase: Milestone v1.10 complete + merged to beta (local)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-06-07 — Milestone v1.10 completed and archived
+Status: Awaiting next milestone. v1.10 landed on beta in all 3 repos (local FF, not yet pushed); v1.9 read-bug RCA deferred by operator.
+Last activity: 2026-06-08 — v1.10 merged to beta (local); v1.9 deferred
+
+## ⏯ Pending operator action — v1.10 beta cut (NOT done by Claude)
+
+v1.10 is merged to `beta` (sub-repos) / `main` (meta) **locally only** — nothing pushed, no CI fired, no tag cut. Branch tips:
+- `firestarter` beta @ `0266ee2` · `firestarter_app` beta @ `8480ff3` · meta `main` @ `ec90b92` (submodule pointers corrected)
+- All three are clean fast-forwards over their `origin/*` (firmware +26, app +35, meta +182).
+
+To cut the beta when ready (per `.planning/v1.4-RELEASE-PROCEDURES.md`):
+1. Push branches: `git push origin beta` in each sub-repo + `git push origin main` in meta.
+2. **Lockstep `3.0.0b8` requires an explicit pin** — `workflow_dispatch` with `BETA_VERSION=3.0.0b8` in BOTH sub-repos. Auto-tag-scan would DESYNC (firmware b6→b7, app b7→b8); the explicit pin forces both to b8 (firmware skips b7). CI's `update_version.py` writes `version.h`/`__init__.py` at cut time — version files are intentionally NOT hand-edited here.
+3. Stable `3.0.1` stays operator-gated (deferred to the read-bug fix).
+4. The v1.10 carries v1.9 Phase 44 + 48-01 commits into beta (accepted stacked-branch tradeoff).
 
 ## Project Reference
 
@@ -33,11 +45,11 @@ See: `.planning/PROJECT.md` (updated 2026-06-07 after v1.10 close)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** v1.10 (Serial Transport Hardening / COBS) SHIPPED 2026-06-07 — serial is
-now a settled, byte-exact variable. **Next: v1.9 Read-Bug RCA resumes at Phase 45**
-(`/gsd-plan-phase 45`) once the hardened transport is merged. The transport-exoneration
-verdict from Phase 53 (uno328pb instability persists on the hardened path) feeds the per-shield
-RCA directly.
+**Current focus:** v1.10 (Serial Transport Hardening / COBS) SHIPPED 2026-06-07 and merged to beta
+locally 2026-06-08 — serial is now a settled, byte-exact variable. **v1.9 Read-Bug RCA is DEFERRED**
+(operator call 2026-06-08: "skip that bug for now"). No active milestone. When v1.9 resumes it picks
+up at Phase 45 (`/gsd-plan-phase 45`); the Phase 53 transport-exoneration verdict feeds the per-shield
+RCA directly. Immediate pending item is the operator-driven beta cut (see Pending operator action above).
 
 ## Roadmap Summary
 
@@ -47,14 +59,14 @@ the host→fw JSON command channel; 2 s timeout cascade removed; byte-exact prov
 bench (Uno + Leonardo); uno328pb transport-exonerated (RCA deferred). Beta-only; stable `3.0.1`
 operator-gated. Archive: `.planning/milestones/v1.10-ROADMAP.md` + `.planning/MILESTONES.md` §v1.10.
 
-**Next milestone — v1.9 Read-Bug RCA + Fix (resumes):** Phases 45–48 remain (44 + 48-01 done).
-Resume at Phase 45 (Bug B RCA — Rev 2.0). See the v1.9 RESUME block below.
+**v1.9 Read-Bug RCA + Fix — DEFERRED (operator 2026-06-08):** Phases 45–48 remain (44 + 48-01 done).
+Not the active milestone. When picked back up, resume at Phase 45 (Bug B RCA — Rev 2.0). See the v1.9 block below.
 
 ## Accumulated Context
 
-### ▶ v1.9 RESUME (v1.10 shipped 2026-06-07 — resume NOW at Phase 45)
+### ⏸ v1.9 DEFERRED (operator 2026-06-08 — "skip that bug for now"; resumes later at Phase 45)
 
-v1.9 (Read-Bug RCA + Fix) is the active milestone again. v1.10 was inserted ahead of it
+v1.9 (Read-Bug RCA + Fix) is paused again — deferred by operator decision after v1.10 shipped, NOT abandoned. v1.10 was inserted ahead of it
 per operator pivot so the serial transport is hardened first.
 
 - **Done:** Phase 44 (Bug A RCA — Modified Rev 0, read-strobe-causal) complete; Phase 48 plan
@@ -112,9 +124,9 @@ per operator pivot so the serial transport is hardened first.
 
 ## Session Continuity
 
-Last session: 2026-06-07 — v1.10 milestone closed and archived (ROADMAP collapsed, REQUIREMENTS archived + removed, PROJECT/MILESTONES/RETROSPECTIVE evolved, 8 items deferred, tag v1.10)
-Stopped at: v1.10 SHIPPED. v1.9 Read-Bug RCA is the active milestone again, resuming at Phase 45.
-Resume file: none — next is `/gsd-plan-phase 45` (Bug B RCA — Rev 2.0; hardware-gated) once the hardened transport is merged
+Last session: 2026-06-08 — v1.10 merged to beta in all 3 repos (local FF: fw beta@0266ee2, app beta@8480ff3, meta main@ec90b92, submodule pointers corrected). Nothing pushed. v1.9 deferred per operator.
+Stopped at: v1.10 SHIPPED + locally merged to beta. v1.9 Read-Bug RCA DEFERRED. No active milestone.
+Resume file: none — pending operator action is the beta cut (push + workflow_dispatch BETA_VERSION=3.0.0b8 lockstep; see "Pending operator action" above). v1.9 resumes later via `/gsd-plan-phase 45`.
 
 ## Decisions
 
