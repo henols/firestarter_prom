@@ -611,9 +611,11 @@ This phase edits Python decode tables and a safety-guard script. No authenticati
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Does AT28C256 have nibble 0x02 or 0x03 in its voltages field?**
+> All three are factual lookups, not blocking unknowns. Each is resolved in a plan action: Q1 → 57-03 Task 1 baseline-diff spot-check; Q2 → 57-01 Task 3 keeps `0x11` as a commented exclusion entry (per 57-PATTERNS.md); Q3 → 57-03 Task 2 confirms the `test_info_known_chip` snapshot is unchanged.
+
+1. **Does AT28C256 have nibble 0x02 or 0x03 in its voltages field?** *(resolved → 57-03 Task 1)*
    - What we know: The success criterion says "AT28C256/AT28C64-class chips that previously defaulted to 5V now decode correct VCC."
    - What's unclear: We cannot verify the raw nibble from the generated DB (it was already decoded to "5V"). The raw value is in `infoic.xml` which requires a live fetch to inspect.
    - Recommendation: After applying BUG-1 fix and regenerating, diff the AT28C256 VCC field in the new vs baseline JSON. If it changes from "5V" to "4V" or "4.5V", the fix is confirmed. If it stays "5V", that chip happens to have nibble 0x00 and the fix corrects other chips.
