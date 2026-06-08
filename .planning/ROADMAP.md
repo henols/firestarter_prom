@@ -247,8 +247,13 @@ Plans:
   4. The SR-1 safety checklist is completed for the `DIP24_6116` pinout: `vpp-pin` absent (no VPP on any 5V EEPROM pin), `rw-pin` matches the datasheet WE pin, `oe-pin`/`ce-pin` correct; all 24 DIP pins accounted for.
 
 **Plans**: 3 plans (1 Wave-0 + 2 execute)
+**Wave 1**
+
 - [ ] 58-01-PLAN.md — Wave 0: DIP24_2816 pinout entry + five test-first Wave 0 classes (PIN-01/02/03)
 - [ ] 58-02-PLAN.md — Principled resolve_pinout_key rewrite, guess-table deletion, overrides-as-rules, D-06 fail-safe, DB regen (PIN-01/02/03)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 58-03-PLAN.md — GATE-03 0-violation proof + CLI reachability + two-layer SR-1 safety review (PIN-02/03)
 
 Note: D-07 supersedes SC#3/#4's `DIP24_6116` reference with a dedicated `DIP24_2816` entry (electrically identical, named as a 5V EEPROM for SR-1 traceability).
