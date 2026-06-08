@@ -1,17 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.10
-milestone_name: — Serial Transport Hardening
-status: Awaiting next milestone
-stopped_at: v1.10 shipped + merged to beta locally (pending operator push/cut); v1.9 read-bug RCA deferred by operator 2026-06-08
-last_updated: "2026-06-08T00:00:00.000Z"
-last_activity: 2026-06-08 — v1.10 merged to beta (all 3 repos, local FF); v1.9 deferred for now
+milestone: v1.11
+milestone_name: Complete infoic.xml Decode & Full Memory-Type Coverage
+status: planning
+last_updated: "2026-06-08T08:43:46.125Z"
+last_activity: 2026-06-08
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 27
-  completed_plans: 27
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -21,14 +20,15 @@ progress:
 
 ## Current Position
 
-Phase: Milestone v1.10 complete + merged to beta (local)
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone. v1.10 landed on beta in all 3 repos (local FF, not yet pushed); v1.9 read-bug RCA deferred by operator.
-Last activity: 2026-06-08 — v1.10 merged to beta (local); v1.9 deferred
+Status: Defining requirements
+Last activity: 2026-06-08 — Milestone v1.11 started
 
 ## ✅ v1.10 beta cut — DONE 2026-06-08 (lockstep 3.0.0b8)
 
 v1.10 shipped to beta across all 3 repos and published:
+
 - **firestarter (firmware):** `beta` @ `4e2c985`, GitHub Pre-release **`3.0.0b8`** (with `firestarter_{uno,uno328pb,leonardo}.hex`). A `3.0.0b7` tag was created at the b6 commit (`8fead2d`) to mark the firmware version skipped during the app-only v1.8, so the auto-scan incremented b6→b8 in lockstep with the app.
 - **firestarter_app (host):** `beta` @ `faaa571`, GitHub Pre-release **`3.0.0b8`** + **PyPI `3.0.0b8`** (`pip install --pre firestarter`). One pre-push fix was needed: the committed `firestarter/messages.py` was raw codegen and failed the `beta-release.yml` ruff-normalization drift gate (devcontainer-3.12-masks-CI-3.11 trap) — ruff-normalized + recommitted (`c4b47bc`), then the cut went green.
 - **meta:** `main` pushed; submodule pointers updated to the released beta tips (`4e2c985` / `faaa571`).
