@@ -15,6 +15,14 @@ findings:
   info: 3
   total: 8
 status: issues_found
+resolution:
+  resolved: [CR-01, WR-01, WR-03]
+  resolved_at: 2026-06-08T14:30:00Z
+  commits:
+    - "ffa74b6 — CR-01: re-key GATE-03 guard on electrical.type (also removes _vpp_pinouts → resolves WR-03)"
+    - "f2a05e7 — WR-01: propagate 0x35/0x39 removal to database.py + ic_layout.py"
+  deferred: [WR-02, WR-04]
+  deferred_note: "WR-02 (protocol-table parity test) and WR-04 (_first_pin empty-list hardening) tracked as debt; no current-DB impact. Operator-approved scope was CR-01 + WR-01."
 ---
 
 # Phase 57: Code Review Report
@@ -22,7 +30,9 @@ status: issues_found
 **Reviewed:** 2026-06-08
 **Depth:** standard
 **Files Reviewed:** 5
-**Status:** issues_found
+**Status:** issues_found (CR-01, WR-01, WR-03 RESOLVED — see frontmatter resolution; WR-02, WR-04 deferred as debt)
+
+> **Resolution (2026-06-08):** CR-01 confirmed via `dispatch()` + DB scan and fixed in `ffa74b6` — the GATE-03 guard now keys on `electrical.type == "Flash/EEPROM" ∧ handler == "configure_eprom"` (pinout-agnostic, true superset of WARNING-5), passes on the regenerated DB, and the removal of the dynamic `_vpp_pinouts` set resolves WR-03. WR-01 fixed in `f2a05e7` (0x35/0x39 removed from `database.py` + `ic_layout.py`). Full suite green (470+ tests, ≥70% coverage), ruff clean. WR-02/WR-04 deferred.
 
 ## Summary
 
