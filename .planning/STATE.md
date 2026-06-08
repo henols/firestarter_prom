@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.11
 milestone_name: — Complete infoic.xml Decode & Database Correctness
 status: executing
-stopped_at: Phase 57 Plan 01 complete
-last_updated: "2026-06-08T13:36:08.191Z"
+stopped_at: Phase 57 complete (all 3 plans done — wave 2 done)
+last_updated: "2026-06-08T15:00:00.000Z"
 last_activity: 2026-06-08
 progress:
   total_phases: 9
@@ -21,9 +21,9 @@ progress:
 
 ## Current Position
 
-Phase: 57 (decode-bug-fixes-protocol-map-check-dispatch-extension) — EXECUTING
-Plan: 3 of 3
-Status: Ready to execute
+Phase: 57 (decode-bug-fixes-protocol-map-check-dispatch-extension) — COMPLETE
+Plan: 3 of 3 (all done)
+Status: Phase 57 complete; Phase 58 next
 Last activity: 2026-06-08
 
 ## Project Reference
@@ -121,8 +121,8 @@ only if a real safety issue is found during the SRAM audit).
 
 ## Session Continuity
 
-Last session: 2026-06-08T13:35:56.342Z
-Stopped at: Phase 57 Plan 01 complete
+Last session: 2026-06-08T15:00:00.000Z
+Stopped at: Phase 57 Plan 03 complete (wave 2 done; Phase 57 complete)
 Resume file: None
 
 ## Decisions
@@ -132,13 +132,16 @@ Resume file: None
 - Phase 57-01: Excluded PROTOCOL_MAP IDs documented as comments (not deleted) for traceability; two-pass _etype structure preserved
 - [Phase ?]: GATE-03 predicate uses proto in _5v_eeprom_algos (not etype) for direct algorithm-based VPP-safety check
 - [Phase ?]: pinouts.json loaded dynamically in main() so GATE-03 auto-covers Phase 58 pinout additions
+- Phase 57-03: test_characterization.ambr did not need refresh; the file requiring update was tests/golden/v1.3-COVERAGE-MATRIX.md (pulse_duration column)
+- Phase 57-03: DEC-03 CLI surface (firestarter info W27C512 exits 0, 100uS) completed by debug fix 8088141 on same branch; tracked in .planning/debug/firestarter-info-vpp-pin-crash.md
 
 ## Performance Metrics
 
 | Phase | Plan | Duration | Notes |
 |-------|------|----------|-------|
 | 57 | 01 | 26min | DEC-02/03/04/05 decode fixes in build_db.py; 10 new tests; ruff clean |
-| Phase 57 P02 | 18min | 2 tasks | 1 files |
+| 57 | 02 | 18min | GATE-03 full-class VPP guard; check_dispatch.py extended; 0 violations |
+| 57 | 03 | ~45min | DB regenerated (734 chips); W27C512=100us; GATE-03 on regen set; 480 tests green |
 
 ## Deferred Items
 

@@ -230,7 +230,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-  - [ ] 57-03-PLAN.md — Regenerate chip_database.json + baseline diff (DEC-02/03/04) + GATE-03 on regenerated set + snapshot refresh + full suite; blocking human-verify of firestarter info W27C512
+  - [x] 57-03-PLAN.md — Regenerate chip_database.json + baseline diff (DEC-02/03/04) + GATE-03 on regenerated set + snapshot refresh + full suite; blocking human-verify of firestarter info W27C512
 
 **UI hint**: no
 
@@ -268,20 +268,20 @@ Plans:
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DEC-01 | Phase 56 | Pending |
-| DEC-02 | Phase 57 | Pending |
-| DEC-03 | Phase 56 + Phase 57 | Pending |
-| DEC-04 | Phase 56 + Phase 57 | Pending |
-| DEC-05 | Phase 56 + Phase 57 | Pending |
+| DEC-01 | Phase 56 | Complete (56-02) |
+| DEC-02 | Phase 57 | Complete (57-01/02/03) |
+| DEC-03 | Phase 56 + Phase 57 | Complete (56-02, 57-01/03, debug 8088141) |
+| DEC-04 | Phase 56 + Phase 57 | Complete (57-01/03) |
+| DEC-05 | Phase 56 + Phase 57 | Complete (57-01/02) |
 | PIN-01 | Phase 58 | Pending |
 | PIN-02 | Phase 58 | Pending |
 | PIN-03 | Phase 58 | Pending |
-| DOC-01 | Phase 56 | Pending |
-| DOC-02 | Phase 56 | Pending |
-| DOC-03 | Phase 56 | Pending |
-| GATE-01 | Phase 56 | Pending |
+| DOC-01 | Phase 56 | Complete (56-03) |
+| DOC-02 | Phase 56 | Complete (56-03) |
+| DOC-03 | Phase 56 | Complete (56-03) |
+| GATE-01 | Phase 56 | Complete (56-01) |
 | GATE-02 | Phase 59 | Pending |
-| GATE-03 | Phase 57 | Pending |
+| GATE-03 | Phase 57 | Complete (57-02/03) |
 | GATE-04 | Phase 59 | Pending |
 
 **Mapped: 15/15 requirements ✓** — no orphans, no duplicates.
@@ -317,7 +317,7 @@ Note: DEC-03, DEC-04, DEC-05 span Phases 56 and 57. The field dictionary work (t
 | 47 | v1.9 | 0/TBD | Not started | — |
 | 48 (close) | v1.9 | 1/3 | In Progress|  |
 | 56 | v1.11 | 3/3 | Complete   | 2026-06-08 |
-| 57 | v1.11 | 2/3 | In Progress|  |
+| 57 | v1.11 | 3/3 | Complete   | 2026-06-08 |
 | 58 | v1.11 | 0/TBD | Not started | — |
 | 59 (close) | v1.11 | 0/TBD | Not started | — |
 
