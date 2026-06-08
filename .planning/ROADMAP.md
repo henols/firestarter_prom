@@ -226,7 +226,7 @@ Plans:
 **Wave 1** *(parallel — no file overlap)*
 
   - [x] 57-01-PLAN.md — Fix the 4 decode bugs in build_db.py: interpret_timing ×100 (DEC-03), VCC nibbles + vcc/vdd swap (DEC-04), PROTOCOL_MAP/KNOWN_PROTOCOLS canonicalize (DEC-05); DEC-02 umbrella
-  - [ ] 57-02-PLAN.md — Extend check_dispatch.py to a full-class vpp-pin + {0x05,0x06,0x0D} VPP-safety guard (GATE-03) + sync 0x35/0x39 removal (DEC-05)
+  - [x] 57-02-PLAN.md — Extend check_dispatch.py to a full-class vpp-pin + {0x05,0x06,0x0D} VPP-safety guard (GATE-03) + sync 0x35/0x39 removal (DEC-05)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -317,7 +317,7 @@ Note: DEC-03, DEC-04, DEC-05 span Phases 56 and 57. The field dictionary work (t
 | 47 | v1.9 | 0/TBD | Not started | — |
 | 48 (close) | v1.9 | 1/3 | In Progress|  |
 | 56 | v1.11 | 3/3 | Complete   | 2026-06-08 |
-| 57 | v1.11 | 0/TBD | Not started | — |
+| 57 | v1.11 | 2/3 | In Progress|  |
 | 58 | v1.11 | 0/TBD | Not started | — |
 | 59 (close) | v1.11 | 0/TBD | Not started | — |
 

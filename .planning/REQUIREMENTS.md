@@ -14,7 +14,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 - [ ] **DEC-02**: `build_db.py` field decode is re-derived to match minipro source semantics for `voltages`, `flags`, `protocol_id`, `type`, and `package_details`.
 - [ ] **DEC-03**: `pulse_delay` is decoded as microseconds for all protocols (the `interpret_timing` ×100 multiplier for 0x07/0x0B is removed), verified against minipro source.
 - [ ] **DEC-04**: VCC/VDD voltage decode is complete and correctly labelled — nibble `0x02`=4V and `0x03`=4.5V are added, and `vcc` (bits 11-8) / `vdd` (bits 15-12) field names are corrected.
-- [ ] **DEC-05**: `PROTOCOL_MAP` uses canonical `IC2_ALG_*` names; non-memory or unreachable IDs (`0x2A`/`0x2C`/`0x2E` GAL/PIC, `0x35` ITE, `0x39`, `0x3C`) are removed or documented with an explicit exclusion rationale.
+- [x] **DEC-05**: `PROTOCOL_MAP` uses canonical `IC2_ALG_*` names; non-memory or unreachable IDs (`0x2A`/`0x2C`/`0x2E` GAL/PIC, `0x35` ITE, `0x39`, `0x3C`) are removed or documented with an explicit exclusion rationale.
 
 ### PIN — Pinout Resolution & Chip Coverage
 
@@ -32,7 +32,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 - [ ] **GATE-01**: `infoic.xml` is pinned to a specific upstream snapshot, committed in-repo as the decode baseline (guards against upstream drift corrupting regression comparisons).
 - [ ] **GATE-02**: A per-chip diff of the regenerated `chip_database.json` against the pre-milestone baseline is produced and reviewed; every changed chip is explained and intended.
-- [ ] **GATE-03**: `check_dispatch.py` is extended to a full-class VPP-safety guard (asserts no chip with a `vpp-pin` pinout AND a 5V-EEPROM-family handler routes to a VPP-asserting path — not just `DIP28_2764`); green across the full chip set.
+- [x] **GATE-03**: `check_dispatch.py` is extended to a full-class VPP-safety guard (asserts no chip with a `vpp-pin` pinout AND a 5V-EEPROM-family handler routes to a VPP-asserting path — not just `DIP28_2764`); green across the full chip set.
 - [ ] **GATE-04**: `configure_sram` NVRAM/SRAM blank-check + WP# behavior is audited and documented (SRAM volatility / blank-check limitation noted). Host-side audit; escalates to a firmware item ONLY if a real safety issue is found.
 
 ## v2 Requirements
@@ -71,7 +71,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | DEC-02 | Phase 57 | Pending |
 | DEC-03 | Phase 56 (dict) + Phase 57 (code) | Pending |
 | DEC-04 | Phase 56 (dict) + Phase 57 (code) | Pending |
-| DEC-05 | Phase 56 (dict) + Phase 57 (code) | Pending |
+| DEC-05 | Phase 56 (dict) + Phase 57 (code) | Complete |
 | PIN-01 | Phase 58 | Pending |
 | PIN-02 | Phase 58 | Pending |
 | PIN-03 | Phase 58 | Pending |
@@ -80,10 +80,11 @@ Which phases cover which requirements. Populated during roadmap creation.
 | DOC-03 | Phase 56 | Pending |
 | GATE-01 | Phase 56 | Pending |
 | GATE-02 | Phase 59 | Pending |
-| GATE-03 | Phase 57 | Pending |
+| GATE-03 | Phase 57 | Complete |
 | GATE-04 | Phase 59 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 15 total
 - Mapped to phases: 15/15 ✓
 - Unmapped: 0
