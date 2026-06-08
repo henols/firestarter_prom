@@ -67,27 +67,27 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DEC-01 | TBD | Pending |
-| DEC-02 | TBD | Pending |
-| DEC-03 | TBD | Pending |
-| DEC-04 | TBD | Pending |
-| DEC-05 | TBD | Pending |
-| PIN-01 | TBD | Pending |
-| PIN-02 | TBD | Pending |
-| PIN-03 | TBD | Pending |
-| DOC-01 | TBD | Pending |
-| DOC-02 | TBD | Pending |
-| DOC-03 | TBD | Pending |
-| GATE-01 | TBD | Pending |
-| GATE-02 | TBD | Pending |
-| GATE-03 | TBD | Pending |
-| GATE-04 | TBD | Pending |
+| DEC-01 | Phase 56 | Pending |
+| DEC-02 | Phase 57 | Pending |
+| DEC-03 | Phase 56 (dict) + Phase 57 (code) | Pending |
+| DEC-04 | Phase 56 (dict) + Phase 57 (code) | Pending |
+| DEC-05 | Phase 56 (dict) + Phase 57 (code) | Pending |
+| PIN-01 | Phase 58 | Pending |
+| PIN-02 | Phase 58 | Pending |
+| PIN-03 | Phase 58 | Pending |
+| DOC-01 | Phase 56 | Pending |
+| DOC-02 | Phase 56 | Pending |
+| DOC-03 | Phase 56 | Pending |
+| GATE-01 | Phase 56 | Pending |
+| GATE-02 | Phase 59 | Pending |
+| GATE-03 | Phase 57 | Pending |
+| GATE-04 | Phase 59 | Pending |
 
 **Coverage:**
 - v1 requirements: 15 total
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 15 ⚠️ (resolved by roadmapper)
+- Mapped to phases: 15/15 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-06-08*
-*Last updated: 2026-06-08 after initial definition (post-research re-scope)*
+*Last updated: 2026-06-08 — roadmap created (phases 56-59 assigned; 15/15 requirements mapped)*

@@ -13,6 +13,7 @@
 - ✅ **v1.8 Host CLI Structural Cleanup (firestarter_app)** — Phases 36-43 (SHIPPED 2026-05-29; ship tag `3.0.0b7` beta-only). 27 requirements DELIVERED + 3 VERIFIED-at-close; argparse→Click, mypy strict on 8 modules, 70% coverage floor. Full detail in `.planning/MILESTONES.md` §v1.8.
 - ✅ **v1.10 Serial Transport Hardening (COBS)** — Phases 49-55 (SHIPPED 2026-06-07; beta-only, stable `3.0.1` operator-gated/deferred to the v1.9 read-bug fix). Custom COBS `0x00` + CRC8 framing with automatic resync on **both** the data-block path and the host→fw JSON command channel; transport now provably byte-exact across Uno/Leonardo, ruling serial out as a read-bug confounder. 14/14 requirements; operator-witnessed bench close. Full detail in `.planning/MILESTONES.md` §v1.10 + `.planning/milestones/v1.10-ROADMAP.md`.
 - ⏸ **v1.9 Read-Bug RCA + Fix** — Phases 44-48 (PAUSED 2026-06-01 at Phase 44 — v1.10 inserted ahead; resumes at Phase 45). Hardware-gated; firmware sub-repo work expected. Root-cause and fix Bug A (Modified Rev 0 upper-address jitter) + Bug B (Rev 2.0 /CE-/OE timing + VPP mismatch); N≥5 byte-identical acceptance gate across shield fleet.
+- 🔵 **v1.11 Complete infoic.xml Decode & Database Correctness** — Phases 56-59 (ACTIVE 2026-06-08). HOST-ONLY decode-correctness + authoritative-docs milestone: authoritative field dictionary + corrected decode docs, re-derived `build_db.py`, fix confirmed decode bugs, unblock 9 × 24-pin EEPROMs (host-only), correctness/regression gate. Firmware sub-repo untouched. 15 requirements.
 
 <details>
 <summary>✅ <b>v1.10 — Serial Transport Hardening (COBS)</b> — Phases 49–55 (SHIPPED 2026-06-07) · 27/27 plans · 14/14 reqs · beta-only</summary>
@@ -164,6 +165,108 @@ Plans:
 
 - [ ] 48-03-PLAN.md — MILESTONES.md v1.9 entry + coordinated lockstep `3.0.0b8` beta tag (sub-repos->beta, meta->main; no stable 3.0.1). Operator-gated promotion checkpoint.
 
+
+## v1.11 — Complete infoic.xml Decode & Database Correctness (ACTIVE 2026-06-08)
+
+**Milestone goal:** Authoritatively decode every Firestarter-relevant field in minipro's `infoic.xml` — grounded in the minipro C source — and rebuild the database decode so every DIP parallel memory the RURP shield can physically drive is correctly classified, with an authoritative field-dictionary reference and a correctness/regression gate. HOST-ONLY milestone (`firestarter_app` data pipeline + docs); firmware sub-repo untouched like v1.8.
+
+**Phase numbering:** Continues from v1.10 last phase 55 → v1.11 starts at **Phase 56**.
+
+### Phases
+
+- [ ] **Phase 56: Snapshot + Field Dictionary + Corrected Docs** — Pin the infoic.xml snapshot; produce authoritative source-grounded field dictionary; deliver corrected `protocol-id.md` / `protocol-flags.md` / `package-details.md`.
+- [ ] **Phase 57: Decode Bug Fixes + PROTOCOL_MAP + check_dispatch Extension** — Fix confirmed decode bugs (BUG-1..4: `interpret_timing` ×100, VCC nibbles, vdd/vcc swap, PROTOCOL_MAP names); extend `check_dispatch.py` to full-class VPP safety guard before any re-derivation changes land.
+- [ ] **Phase 58: Pinout Re-derivation + 24-pin EEPROM Unblock** — Re-derive `resolve_pinout_key` from principled `(pin_count, proto_id, mem_size)` rules; add `DIP24_6116` EEPROM pinout; unblock the 9 AT28C04/AT28C16 chips; SR-1 safety checklist.
+- [ ] **Phase 59: Correctness Gate + Per-chip Diff + SRAM Audit** — Regenerate DB; produce and review per-chip diff vs pinned baseline; `configure_sram` NVRAM/WP# behavior audit + documentation.
+
+## Phase Details
+
+### Phase 56: Snapshot + Field Dictionary + Corrected Docs
+
+**Goal**: The decode pipeline has an immutable source-of-truth anchor and every Firestarter-relevant `infoic.xml` attribute is documented with an authoritative, minipro-source-cited meaning.
+**Depends on**: Nothing (first phase — lays the foundation everything else requires).
+**Requirements**: DEC-01, DEC-03, DEC-04, DEC-05, DOC-01, DOC-02, DOC-03, GATE-01
+**Success Criteria** (what must be TRUE):
+
+  1. A specific upstream `infoic.xml` commit is pinned and committed in-repo (or an equivalent immutable local copy); all subsequent DB regenerations in this milestone reference that snapshot, not a live URL fetch.
+  2. A field-dictionary reference (as annotated constants in `build_db.py` or a companion file) documents every attribute in scope — `package_details`, `type`, `variant`, `protocol_id`, `flags`, `voltages`, `pin_map`, `pulse_delay`, `chip_id`, `code_memory_size`, `page_size`, `chip_info`, `blank_value` — each entry marked CONFIRMED / INFERRED / UNKNOWN with a minipro-source citation.
+  3. `firestarter_app/doc/protocol-id.md` shows canonical `IC2_ALG_*` names, the `0x39` error is fixed, and infeasible/non-memory IDs (`0x2A`/`0x2C`/`0x2E` GAL/PIC/MCU, `0x35` ITE, `0x11` FWH) carry explicit exclusion rationales.
+  4. `firestarter_app/doc/protocol-flags.md` carries corrected canonical protocol names and the flag-bit interpretation fix (bit 4 = `can_erase`, not "requires write-enable sequence").
+  5. `firestarter_app/doc/package-details.md` is re-titled to describe `flags`, bit meanings are source-grounded, and inferred bits (3/6/7) are explicitly marked not-source-confirmed.
+
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 57: Decode Bug Fixes + PROTOCOL_MAP + check_dispatch Extension
+
+**Goal**: All four confirmed decode bugs are fixed in `build_db.py` and the VPP-safety guard in `check_dispatch.py` covers the full chip set — not just the previously-audited `DIP28_2764` pinout — so no future re-derivation change can introduce an evasive VPP-routing regression.
+**Depends on**: Phase 56 (field dictionary provides source-grounded authority for each fix; bug fixes must reference the dictionary, not re-invent the lookup).
+**Requirements**: DEC-02, DEC-03, DEC-04, DEC-05, GATE-03
+**Success Criteria** (what must be TRUE):
+
+  1. `firestarter info W27C512` (or equivalent DB query) reports `pulse_duration` as 100 µs, not 10000 µs — confirming the `interpret_timing` ×100 multiplier for protocols 0x07/0x0B is removed.
+  2. `VCC_VOLTAGES` in `build_db.py` includes entries for nibble `0x02` (4V) and `0x03` (4.5V); AT28C256/AT28C64-class chips that previously defaulted to 5V now decode their correct VCC.
+  3. `vcc` (bits 11-8) and `vdd` (bits 15-12) field names match the minipro source bit-field layout (the swap is corrected).
+  4. `PROTOCOL_MAP` uses only canonical `IC2_ALG_*` names; entries for `0x2A`/`0x2C`/`0x2E`/`0x35`/`0x3C` are removed or carry explicit exclusion comments; phantom `0x39` is documented.
+  5. `check_dispatch.py` asserts that no chip with a `vpp-pin` pinout AND a 5V-EEPROM-family handler (algorithm in `{0x05, 0x06, 0x0D}`) routes to a VPP-asserting path — not just the `DIP28_2764` case — and exits clean (0 violations) across the full chip set.
+
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 58: Pinout Re-derivation + 24-pin EEPROM Unblock
+
+**Goal**: `resolve_pinout_key` is rebuilt on principled, minipro-source-grounded rules; the survey-built guess tables are retired; the 9 blocked 24-pin EEPROMs are exposed safely via the correct pinout and handler with a completed SR-1 safety review.
+**Depends on**: Phase 57 (corrected field values — voltages, flags, protocol — are prerequisites for principled `resolve_pinout_key` rules; GATE-03 guard must be in place before expansion changes land).
+**Requirements**: PIN-01, PIN-02, PIN-03
+**Success Criteria** (what must be TRUE):
+
+  1. `PIN_MAP_TO_PINOUT`, `PIN_MAP_PROTO_TO_PINOUT`, and `DIP28_VARIANT_MAP` guess tables are replaced (or fully superseded) by a `resolve_pinout_key` function whose dispatch is grounded in `(pin_count, proto_id, mem_size)` with each case citing a minipro source reference or a datasheer-confirmed pinout — no "one-rom verified" evidence-free entries remain.
+  2. The three load-bearing safety overrides are intact and verified: WARNING-5 (`DIP28_2764` + 0x07 + Flash/EEPROM → 0x0D), fm1608 (`type=4` + EPROM-family → 0x28), and 24-pin EEPROM skip semantics — `check_dispatch.py` returns 0 violations after the re-derivation.
+  3. The 9 AT28C04/AT28C16-family chips appear in the regenerated `chip_database.json` with `algorithm=0x0D` and `pinout=DIP24_6116` (or equivalent); `firestarter info AT28C16` (or any family member) returns a valid entry rather than "chip not found".
+  4. The SR-1 safety checklist is completed for the `DIP24_6116` pinout: `vpp-pin` absent (no VPP on any 5V EEPROM pin), `rw-pin` matches the datasheet WE pin, `oe-pin`/`ce-pin` correct; all 24 DIP pins accounted for.
+
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 59: Correctness Gate + Per-chip Diff + SRAM Audit
+
+**Goal**: The regenerated `chip_database.json` is reviewed against the pre-milestone baseline chip by chip; every change is explained and intentional; the `configure_sram` NVRAM behavior is documented; the correctness gate is fully green.
+**Depends on**: Phase 57 (decode bugs fixed), Phase 58 (pinout re-derivation + 24-pin EEPROM exposure complete).
+**Requirements**: GATE-02, GATE-04
+**Success Criteria** (what must be TRUE):
+
+  1. A per-chip diff of the regenerated `chip_database.json` against the pre-milestone baseline is produced (script or manual `jq` comparison); every chip whose `algorithm`, `pinout`, `vpp_mv`, `pulse_duration`, or `electrical.type` changed is listed with an explicit, documented rationale — no unexplained diffs remain.
+  2. `check_dispatch.py` exits clean (0 errors) across the full regenerated chip set, including the newly-added 24-pin EEPROMs — confirming every chip dispatches to its intended handler via the wire round-trip.
+  3. `configure_sram`'s NVRAM/SRAM behavior is documented: blank-check limitation (NVRAM is never factory-blank), WP# pin behavior for representative families (DS1225/M48T08 class), and the RTC-oscillator side effect for timekeepers — published as a comment block in `sram.cpp` or a `doc/sram-nvram-behavior.md` note. If a real safety issue is found during the audit, it is escalated as a firmware backlog item (not silently dismissed).
+  4. Regenerating `chip_database.json` from the pinned `infoic.xml` snapshot produces a byte-identical result across two independent runs (pipeline determinism preserved; no runtime upstream fetch).
+
+**Plans**: TBD
+**UI hint**: no
+
+### v1.11 Coverage
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| DEC-01 | Phase 56 | Pending |
+| DEC-02 | Phase 57 | Pending |
+| DEC-03 | Phase 56 + Phase 57 | Pending |
+| DEC-04 | Phase 56 + Phase 57 | Pending |
+| DEC-05 | Phase 56 + Phase 57 | Pending |
+| PIN-01 | Phase 58 | Pending |
+| PIN-02 | Phase 58 | Pending |
+| PIN-03 | Phase 58 | Pending |
+| DOC-01 | Phase 56 | Pending |
+| DOC-02 | Phase 56 | Pending |
+| DOC-03 | Phase 56 | Pending |
+| GATE-01 | Phase 56 | Pending |
+| GATE-02 | Phase 59 | Pending |
+| GATE-03 | Phase 57 | Pending |
+| GATE-04 | Phase 59 | Pending |
+
+**Mapped: 15/15 requirements ✓** — no orphans, no duplicates.
+
+Note: DEC-03, DEC-04, DEC-05 span Phases 56 and 57. The field dictionary work (the authoritative source-grounded decode of timing/voltage/PROTOCOL_MAP) is Phase 56; the corrected `build_db.py` code implementing those fixes is Phase 57. Each requirement maps to the phase that delivers the primary artifact.
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -192,6 +295,10 @@ Plans:
 | 46 | v1.9 | 0/TBD | Not started | — |
 | 47 | v1.9 | 0/TBD | Not started | — |
 | 48 (close) | v1.9 | 1/3 | In Progress|  |
+| 56 | v1.11 | 0/TBD | Not started | — |
+| 57 | v1.11 | 0/TBD | Not started | — |
+| 58 | v1.11 | 0/TBD | Not started | — |
+| 59 (close) | v1.11 | 0/TBD | Not started | — |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
