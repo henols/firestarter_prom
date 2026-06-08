@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.11
 milestone_name: — Complete infoic.xml Decode & Database Correctness
 status: executing
-stopped_at: Phase 56 context gathered
-last_updated: "2026-06-08T13:04:34.844Z"
-last_activity: 2026-06-08 -- Phase 57 planning complete
+stopped_at: Phase 57 Plan 01 complete
+last_updated: "2026-06-08T13:26:02Z"
+last_activity: 2026-06-08 -- Phase 57 Plan 01 executed (DEC-02/03/04/05 decode fixes)
 progress:
   total_phases: 9
   completed_phases: 2
   total_plans: 14
-  completed_plans: 9
-  percent: 22
+  completed_plans: 10
+  percent: 24
 ---
 
 # Project State
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 56 — COMPLETE
-Plan: 1 of 3
-Status: Ready to execute
-Last activity: 2026-06-08 -- Phase 57 planning complete
+Phase: 57 (decode-bug-fixes-protocol-map-check-dispatch-extension) — EXECUTING
+Plan: 2 of 3
+Status: Executing Phase 57 (Plan 01 complete; Plan 02 is next)
+Last activity: 2026-06-08 -- Phase 57 Plan 01 executed (DEC-02/03/04/05 decode fixes)
 
 ## Project Reference
 
@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-08 after v1.11 scope lock)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 56 — snapshot-field-dictionary-corrected-docs
+**Current focus:** Phase 57 — decode-bug-fixes-protocol-map-check-dispatch-extension
 (firestarter_app data pipeline + docs). Firmware sub-repo untouched. 15 requirements across
 4 phases (56–59). Phase numbering continues from v1.10 close at Phase 55.
 
@@ -121,19 +121,21 @@ only if a real safety issue is found during the SRAM audit).
 
 ## Session Continuity
 
-Last session: 2026-06-08T11:11:53.304Z
-Stopped at: Phase 56 context gathered
-Resume file: .planning/phases/56-snapshot-field-dictionary-corrected-docs/56-CONTEXT.md
+Last session: 2026-06-08T13:26:02Z
+Stopped at: Phase 57 Plan 01 complete
+Resume file: .planning/phases/57-decode-bug-fixes-protocol-map-check-dispatch-extension/57-01-SUMMARY.md
 
 ## Decisions
 
-(No v1.11 implementation decisions yet — roadmap phase.)
+- Phase 57-01: Four decode bugs fixed in build_db.py (VCC nibbles, vcc/vdd swap, timing x100, PROTOCOL_MAP names) — all host-only, no DB regeneration in this plan
+- Phase 57-01: ruff format applied to pre-existing VPP_MV/KNOWN_PROTOCOLS style violations to satisfy plan gate
+- Phase 57-01: Excluded PROTOCOL_MAP IDs documented as comments (not deleted) for traceability; two-pass _etype structure preserved
 
 ## Performance Metrics
 
 | Phase | Plan | Duration | Notes |
 |-------|------|----------|-------|
-| (none yet) | | | |
+| 57 | 01 | 26min | DEC-02/03/04/05 decode fixes in build_db.py; 10 new tests; ruff clean |
 
 ## Deferred Items
 

@@ -225,7 +225,7 @@ Plans:
 Plans:
 **Wave 1** *(parallel — no file overlap)*
 
-  - [ ] 57-01-PLAN.md — Fix the 4 decode bugs in build_db.py: interpret_timing ×100 (DEC-03), VCC nibbles + vcc/vdd swap (DEC-04), PROTOCOL_MAP/KNOWN_PROTOCOLS canonicalize (DEC-05); DEC-02 umbrella
+  - [x] 57-01-PLAN.md — Fix the 4 decode bugs in build_db.py: interpret_timing ×100 (DEC-03), VCC nibbles + vcc/vdd swap (DEC-04), PROTOCOL_MAP/KNOWN_PROTOCOLS canonicalize (DEC-05); DEC-02 umbrella
   - [ ] 57-02-PLAN.md — Extend check_dispatch.py to a full-class vpp-pin + {0x05,0x06,0x0D} VPP-safety guard (GATE-03) + sync 0x35/0x39 removal (DEC-05)
 
 **Wave 2** *(blocked on Wave 1 completion)*
