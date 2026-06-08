@@ -196,15 +196,15 @@ Plans:
 **Plans**: 3 plans
 **Wave 1**
 
-  - [ ] 56-01-PLAN.md — Commit pre-milestone baseline snapshot of chip_database.json (GATE-01)
+  - [x] 56-01-PLAN.md — Commit pre-milestone baseline snapshot of chip_database.json (GATE-01)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-  - [ ] 56-02-PLAN.md — Author infoic-field-dictionary.md: 13 attributes, citation SHA, BUG-1..4 semantics (DEC-01/03/04/05)
+  - [x] 56-02-PLAN.md — Author infoic-field-dictionary.md: 13 attributes, citation SHA, BUG-1..4 semantics (DEC-01/03/04/05)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-  - [ ] 56-03-PLAN.md — Rewrite protocol-id/protocol-flags/package-details docs + regression gate (DOC-01/02/03)
+  - [x] 56-03-PLAN.md — Rewrite protocol-id/protocol-flags/package-details docs + regression gate (DOC-01/02/03)
 
 **UI hint**: no
 
@@ -306,7 +306,7 @@ Note: DEC-03, DEC-04, DEC-05 span Phases 56 and 57. The field dictionary work (t
 | 46 | v1.9 | 0/TBD | Not started | — |
 | 47 | v1.9 | 0/TBD | Not started | — |
 | 48 (close) | v1.9 | 1/3 | In Progress|  |
-| 56 | v1.11 | 0/TBD | Not started | — |
+| 56 | v1.11 | 3/3 | Complete   | 2026-06-08 |
 | 57 | v1.11 | 0/TBD | Not started | — |
 | 58 | v1.11 | 0/TBD | Not started | — |
 | 59 (close) | v1.11 | 0/TBD | Not started | — |
