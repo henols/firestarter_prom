@@ -174,7 +174,7 @@ Plans:
 ### Phases
 
 - [ ] **Phase 56: Snapshot + Field Dictionary + Corrected Docs** — Pin the infoic.xml snapshot; produce authoritative source-grounded field dictionary; deliver corrected `protocol-id.md` / `protocol-flags.md` / `package-details.md`.
-- [ ] **Phase 57: Decode Bug Fixes + PROTOCOL_MAP + check_dispatch Extension** — Fix confirmed decode bugs (BUG-1..4: `interpret_timing` ×100, VCC nibbles, vdd/vcc swap, PROTOCOL_MAP names); extend `check_dispatch.py` to full-class VPP safety guard before any re-derivation changes land.
+- [x] **Phase 57: Decode Bug Fixes + PROTOCOL_MAP + check_dispatch Extension** — Fix confirmed decode bugs (BUG-1..4: `interpret_timing` ×100, VCC nibbles, vdd/vcc swap, PROTOCOL_MAP names); extend `check_dispatch.py` to full-class VPP safety guard before any re-derivation changes land. (completed 2026-06-08)
 - [ ] **Phase 58: Pinout Re-derivation + 24-pin EEPROM Unblock** — Re-derive `resolve_pinout_key` from principled `(pin_count, proto_id, mem_size)` rules; add `DIP24_6116` EEPROM pinout; unblock the 9 AT28C04/AT28C16 chips; SR-1 safety checklist.
 - [ ] **Phase 59: Correctness Gate + Per-chip Diff + SRAM Audit** — Regenerate DB; produce and review per-chip diff vs pinned baseline; `configure_sram` NVRAM/WP# behavior audit + documentation.
 
@@ -219,7 +219,7 @@ Plans:
   2. `VCC_VOLTAGES` in `build_db.py` includes entries for nibble `0x02` (4V) and `0x03` (4.5V); AT28C256/AT28C64-class chips that previously defaulted to 5V now decode their correct VCC.
   3. `vcc` (bits 11-8) and `vdd` (bits 15-12) field names match the minipro source bit-field layout (the swap is corrected).
   4. `PROTOCOL_MAP` uses only canonical `IC2_ALG_*` names; entries for `0x2A`/`0x2C`/`0x2E`/`0x35`/`0x3C` are removed or carry explicit exclusion comments; phantom `0x39` is documented.
-  5. `check_dispatch.py` asserts that no chip with a `vpp-pin` pinout AND a 5V-EEPROM-family handler (algorithm in `{0x05, 0x06, 0x0D}`) routes to a VPP-asserting path — not just the `DIP28_2764` case — and exits clean (0 violations) across the full chip set.
+  5. `check_dispatch.py` asserts that no chip whose `electrical.type == "Flash/EEPROM"` (a 5V part) routes to a VPP-asserting path (`configure_eprom`) — not just the `DIP28_2764` case — and exits clean (0 violations) across the full chip set. *(Corrected 2026-06-08, Phase 57 code-review CR-01: the original phrasing keyed the guard on "algorithm in `{0x05,0x06,0x0D}`", but `dispatch()` never routes those protocols to `configure_eprom`, so that predicate was dead code. The guard now keys on `electrical.type`, which is pinout/algorithm-agnostic and genuinely enforces the Goal's intent — a true superset of the WARNING-5 check. See commit `ffa74b6` and `57-REVIEW.md`.)*
 
 **Plans**: 3 plans
 Plans:
@@ -317,7 +317,7 @@ Note: DEC-03, DEC-04, DEC-05 span Phases 56 and 57. The field dictionary work (t
 | 47 | v1.9 | 0/TBD | Not started | — |
 | 48 (close) | v1.9 | 1/3 | In Progress|  |
 | 56 | v1.11 | 3/3 | Complete   | 2026-06-08 |
-| 57 | v1.11 | 3/3 | Complete   | 2026-06-08 |
+| 57 | v1.11 | 3/3 | Complete    | 2026-06-08 |
 | 58 | v1.11 | 0/TBD | Not started | — |
 | 59 (close) | v1.11 | 0/TBD | Not started | — |
 
@@ -431,7 +431,7 @@ Note: DEC-03, DEC-04, DEC-05 span Phases 56 and 57. The field dictionary work (t
   2. The same file (or a companion file) lists every intra-algorithm DB inconsistency — chips that share `pin_count` + `algorithm` but differ in `pulse_duration`, `chip_id_check`, or `pinout` — with each inconsistency labeled as a defect candidate for v1.4 or a sub-repo PR (no auto-fixes applied in v1.3).
   3. Operator can use the matrix to confirm that the six BENCH chips (BENCH-01..06) span the pinout classes and pulse-duration profiles actually represented in the DB, so bench results generalize to the rest of the 339 rows.
 
-**Plans:** 7/7 plans complete
+**Plans:** 3/3 plans complete
 
 - [x] 11-01-PLAN.md — Wave 0 failing-test scaffold for tests/test_audit_coverage_matrix.py (10 tests) ✅ 2026-05-19
 - [x] 11-02-PLAN.md — Wave 1 tool skeleton + CLI + §1 Summary + §2 DB Count Reconciliation ✅ 2026-05-19
