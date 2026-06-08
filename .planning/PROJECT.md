@@ -12,21 +12,23 @@
 **v1.7 shipped:** 2026-05-26 (RURP Shield Hardware Investigation & Version Detection — 5 phases; per-rev capability table + labeled schematics + shield-version-detect firmware plumbing). Substrate consumed by v1.6 Phase 29 v2 bench session + v1.8 RCA hand-off.
 **v1.10 shipped:** 2026-06-07 (Serial Transport Hardening / COBS — 7 phases (49–55; 45–48 reserved for v1.9), 27 plans, 14/14 requirements; beta-only, stable `3.0.1` operator-gated/deferred to the v1.9 read-bug fix). Custom COBS `0x00` + CRC8 framing with automatic resync on **both** the data-block path and the host→fw JSON command channel; the 2 s `len_u16` timeout cascade is gone; transport proven byte-exact (operator-witnessed bench, Uno 512 B + Leonardo 1024 B, N=5 read + write read-back). uno328pb read instability **persists** on the hardened transport → recorded as transport-exoneration, NOT a hardware fix; RCA stays deferred to v1.9. Serial is now a settled variable for the resumed read-bug RCA.
 
-## Current Milestone: v1.11 — Complete infoic.xml Decode & Full Memory-Type Coverage
+## Current Milestone: v1.11 — Complete infoic.xml Decode & Database Correctness
 
-**Goal:** Authoritatively decode every Firestarter-relevant field in minipro's `infoic.xml` — grounded in the minipro source and chip datasheets — and rebuild the database so every DIP parallel memory the RURP shield can physically drive is correctly classified and fully programmable.
+**Goal:** Authoritatively decode every Firestarter-relevant field in minipro's `infoic.xml` — grounded in the minipro C source — and rebuild the database decode so every DIP parallel memory the RURP shield can physically drive is correctly classified, with an authoritative field-dictionary reference and a correctness/regression gate.
+
+**Scope corrected after research (2026-06-08):** The original framing ("expand to all types + add firmware handlers, dual-repo") was overturned by source-grounded research. The hardware-feasible memory set is **already covered**: the "exotic" `0x2A/0x2C/0x2E` are GAL/PIC PLD/MCU protocols with zero DIP memory chips; FWH `0x11` is LPC-serial + 3.3V (infeasible on RURP); real battery-backed NVRAM/timekeeper is already handled via existing SRAM protocols. The only genuine new-chip gap is ~9 blocked 24-pin EEPROMs (AT28C04/AT28C16 family), unblockable **host-only** (`DIP24_6116` pinout + `algorithm=0x0D`; `configure_eeprom28c` already handles them). **No new firmware handlers are needed** → re-scoped to a **host-only** decode-correctness + documentation milestone (operator-confirmed). See `.planning/research/SUMMARY.md`.
 
 **Target features:**
-- **Field dictionary** — reverse-engineer the meaning of every `infoic.xml` attribute relevant to Firestarter (`package_details`, `type`, `variant`, `protocol_id`, `flags`, `voltages`, `pin_map`, `pulse_delay`, `chip_id`, `code_memory_size`, …), cross-checked against minipro source + datasheets.
-- **Re-derived `build_db.py` pipeline** — rebuild decode logic on principled, source-grounded rules; retire ad-hoc heuristic overrides (WARNING-5 `0x07→0x0D` flip, fm1608 `type=4` flip, "one-rom verified" pinout guesses, `PIN_MAP_*` guess tables) wherever a correct decode replaces them.
-- **Type expansion (dual-repo)** — add DB entries **and firmware algorithm handlers** for currently-skipped DIP parallel types inside the shield envelope (5V VCC, ~22V VPP, 19 addr lines / 512KB max, 8-bit data, DIP 24/28/32). Exotic families (NVRAM/timekeeper `0x2A/0x2C/0x2E`, FWH `0x11`) feasibility-assessed in research before commit.
-- **Authoritative decode docs** — deliver corrected, canonical versions of `package-details.md` / `protocol-flags.md` / `protocol-id.md` as the field-dictionary reference.
-- **Full read+write per type**, each new firmware handler safety-reviewed against datasheet pin/voltage maps (no 12V-on-wrong-pin damage paths).
-- **Correctness gate** — automated source + datasheet cross-check / regression proving each decoded field; no bench required to close (bench-unvalidated write-path risk accepted at close, full read+write shipped safety-reviewed).
+- **Field dictionary** — authoritative, source-cited meaning of every relevant `infoic.xml` attribute (`package_details`, `type`, `variant`, `protocol_id`, `flags`, `voltages`, `pin_map`, `pulse_delay`, `chip_id`, `code_memory_size`, …).
+- **Re-derived `build_db.py` decode** — rebuild decode logic on principled, source-grounded rules (incl. `resolve_pinout_key` from minipro gnd/vcc/pin masks); retire ad-hoc guess tables where a correct decode replaces them, preserving the load-bearing safety overrides.
+- **Confirmed decode-bug fixes** — `interpret_timing` ×100 error, `VCC_VOLTAGES` missing 4V/4.5V, `vdd/vcc` field swap, wrong/phantom `PROTOCOL_MAP` names (0x2A/0x2C/0x2E/0x35/0x39/0x3C).
+- **24-pin EEPROM unblock** — expose the 9 AT28C04/AT28C16-family chips via `DIP24_6116` + `0x0D`, safety-reviewed (SR-1 checklist); no firmware change.
+- **Authoritative decode docs** — corrected canonical `package-details.md` / `protocol-flags.md` / `protocol-id.md`.
+- **Correctness gate** — pinned `infoic.xml` snapshot + per-chip diff vs baseline + extended `check_dispatch.py` (full-class VPP-safety guard). No bench required to close.
 
 **Key context:**
-- Dual-repo milestone (`firestarter_app` data pipeline + `firestarter` firmware handlers). Per standing branching rule: branches off `beta` in both sub-repos, off `main` in meta.
-- Research-heavy: minipro source clone (`git@gitlab.com:DavidGriffith/minipro.git`) + chip datasheets + the `infoic.xml` schema are required inputs.
+- **Host-only milestone** (`firestarter_app` data pipeline + docs). Firmware sub-repo (`firestarter`) is untouched — like v1.8. Branches off `beta` in `firestarter_app`, off `main` in meta; firmware stays put.
+- Research artifacts at `.planning/research/` (STACK = field dictionary, FEATURES = protocol/feasibility catalog, ARCHITECTURE = integration, PITFALLS = hazard model, SUMMARY = synthesis).
 - Independent of the deferred v1.9 read-bug RCA; phase numbering continues at **Phase 56**.
 
 ## v1.10 Archive: Serial Transport Hardening (COBS) — Shipped 2026-06-07
@@ -303,6 +305,6 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last updated: 2026-06-08 — v1.11 (Complete infoic.xml Decode & Full Memory-Type Coverage) started via `/gsd-new-milestone`; scope locked (expand to all HW-capable DIP parallel types, re-derive decode from minipro source + datasheets, deliver authoritative decode docs, full read+write per type safety-reviewed, source+datasheet correctness gate — no bench to close). Dual-repo; phase numbering continues at Phase 56. Prior footer retained below.*
+*Last updated: 2026-06-08 — v1.11 (Complete infoic.xml Decode & Database Correctness) started via `/gsd-new-milestone`. Research overturned the original "expand + firmware handlers" framing → re-scoped (operator-confirmed) to a HOST-ONLY decode-correctness + authoritative-docs milestone: re-derive decode from minipro source, fix confirmed bugs, unblock 9 × 24-pin EEPROMs (host-only), deliver corrected decode docs, correctness/regression gate. Firmware sub-repo untouched (like v1.8). Phase numbering continues at Phase 56. Prior footer retained below.*
 
 *Previously: 2026-06-08 — after v1.10 (Serial Transport Hardening / COBS) close + beta merge. Shipped 7 phases (49–55), 27 plans, 14/14 requirements: streaming COBS `0x00` + CRC8 framing with automatic resync on both the data-block path and the host→fw JSON command channel; 2 s timeout cascade removed; byte-exact proven on operator-witnessed bench (Uno + Leonardo); uno328pb instability transport-exonerated. Merged to beta in all 3 repos locally 2026-06-08 (fw beta@0266ee2, app beta@8480ff3, meta main@ec90b92) — not yet pushed; operator cuts the beta when ready (lockstep `BETA_VERSION=3.0.0b8`, explicit pin). Beta-only — stable `3.0.1` operator-gated. **v1.9 Read-Bug RCA DEFERRED** (operator 2026-06-08); resumes later at Phase 45.*
