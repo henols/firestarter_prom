@@ -165,7 +165,6 @@ Plans:
 
 - [ ] 48-03-PLAN.md — MILESTONES.md v1.9 entry + coordinated lockstep `3.0.0b8` beta tag (sub-repos->beta, meta->main; no stable 3.0.1). Operator-gated promotion checkpoint.
 
-
 ## v1.11 — Complete infoic.xml Decode & Database Correctness (ACTIVE 2026-06-08)
 
 **Milestone goal:** Authoritatively decode every Firestarter-relevant field in minipro's `infoic.xml` — grounded in the minipro C source — and rebuild the database decode so every DIP parallel memory the RURP shield can physically drive is correctly classified, with an authoritative field-dictionary reference and a correctness/regression gate. HOST-ONLY milestone (`firestarter_app` data pipeline + docs); firmware sub-repo untouched like v1.8.
@@ -195,9 +194,18 @@ Plans:
   5. `firestarter_app/doc/package-details.md` is re-titled to describe `flags`, bit meanings are source-grounded, and inferred bits (3/6/7) are explicitly marked not-source-confirmed.
 
 **Plans**: 3 plans
+**Wave 1**
+
   - [ ] 56-01-PLAN.md — Commit pre-milestone baseline snapshot of chip_database.json (GATE-01)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
   - [ ] 56-02-PLAN.md — Author infoic-field-dictionary.md: 13 attributes, citation SHA, BUG-1..4 semantics (DEC-01/03/04/05)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
   - [ ] 56-03-PLAN.md — Rewrite protocol-id/protocol-flags/package-details docs + regression gate (DOC-01/02/03)
+
 **UI hint**: no
 
 ### Phase 57: Decode Bug Fixes + PROTOCOL_MAP + check_dispatch Extension

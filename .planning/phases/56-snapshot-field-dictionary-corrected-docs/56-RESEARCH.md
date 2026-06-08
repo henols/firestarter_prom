@@ -665,7 +665,7 @@ Per `/workspaces/CLAUDE.md` (meta-repo):
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Baseline snapshot path — `tools/baseline/` vs `.planning/v1.11/`**
    - What we know: Both paths are technically valid; D-03 leaves the exact path to the planner/executor.
