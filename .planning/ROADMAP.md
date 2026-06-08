@@ -194,7 +194,10 @@ Plans:
   4. `firestarter_app/doc/protocol-flags.md` carries corrected canonical protocol names and the flag-bit interpretation fix (bit 4 = `can_erase`, not "requires write-enable sequence").
   5. `firestarter_app/doc/package-details.md` is re-titled to describe `flags`, bit meanings are source-grounded, and inferred bits (3/6/7) are explicitly marked not-source-confirmed.
 
-**Plans**: TBD
+**Plans**: 3 plans
+  - [ ] 56-01-PLAN.md — Commit pre-milestone baseline snapshot of chip_database.json (GATE-01)
+  - [ ] 56-02-PLAN.md — Author infoic-field-dictionary.md: 13 attributes, citation SHA, BUG-1..4 semantics (DEC-01/03/04/05)
+  - [ ] 56-03-PLAN.md — Rewrite protocol-id/protocol-flags/package-details docs + regression gate (DOC-01/02/03)
 **UI hint**: no
 
 ### Phase 57: Decode Bug Fixes + PROTOCOL_MAP + check_dispatch Extension
