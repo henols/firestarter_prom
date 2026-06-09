@@ -271,7 +271,12 @@ Note: D-07 supersedes SC#3/#4's `DIP24_6116` reference with a dedicated `DIP24_2
   3. `configure_sram`'s NVRAM/SRAM behavior is documented: blank-check limitation (NVRAM is never factory-blank), WP# pin behavior for representative families (DS1225/M48T08 class), and the RTC-oscillator side effect for timekeepers — published as a comment block in `sram.cpp` or a `doc/sram-nvram-behavior.md` note. If a real safety issue is found during the audit, it is escalated as a firmware backlog item (not silently dismissed).
   4. Regenerating `chip_database.json` from the pinned `infoic.xml` snapshot produces a byte-identical result across two independent runs (pipeline determinism preserved; no runtime upstream fetch).
 
-**Plans**: TBD
+**Plans**: 2 plans (2 waves collapse to 1 — independent workstreams)
+Plans:
+**Wave 1** *(parallel — no file overlap)*
+
+  - [ ] 59-01-PLAN.md — GATE-02 correctness gate: sort_keys determinism (SC#4) + GATE-03 re-confirm (SC#2) + diff_db.py grouped-by-cause full-record diff with D-03 BLOCK
+  - [ ] 59-02-PLAN.md — GATE-04 SRAM/NVRAM audit: two-layer docs (59-SRAM-AUDIT.md + doc/sram-nvram-behavior.md), no firmware escalation
 **UI hint**: no
 
 ### v1.11 Coverage
