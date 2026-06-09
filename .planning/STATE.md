@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11
 milestone_name: — Complete infoic.xml Decode & Database Correctness
 status: executing
-stopped_at: Phase 58 context gathered
-last_updated: "2026-06-08T16:56:05.045Z"
-last_activity: 2026-06-08 -- Phase 58 planning complete
+stopped_at: Completed Phase 58 Plan 01 (DIP24_2816 + Wave 0 tests)
+last_updated: "2026-06-09T07:00:52.994Z"
+last_activity: 2026-06-09
 progress:
   total_phases: 9
   completed_phases: 3
   total_plans: 17
-  completed_plans: 12
+  completed_plans: 13
   percent: 33
 ---
 
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 58
-Plan: Not started
+Phase: 58 (pinout-re-derivation-24-pin-eeprom-unblock) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-06-08 -- Phase 58 planning complete
+Last activity: 2026-06-09
 
 ## Project Reference
 
@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-08 after v1.11 scope lock)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 57 — decode-bug-fixes-protocol-map-check-dispatch-extension
+**Current focus:** Phase 58 — pinout-re-derivation-24-pin-eeprom-unblock
 (firestarter_app data pipeline + docs). Firmware sub-repo untouched. 15 requirements across
 4 phases (56–59). Phase numbering continues from v1.10 close at Phase 55.
 
@@ -121,9 +121,9 @@ only if a real safety issue is found during the SRAM audit).
 
 ## Session Continuity
 
-Last session: 2026-06-08T16:15:44.756Z
-Stopped at: Phase 58 context gathered
-Resume file: .planning/phases/58-pinout-re-derivation-24-pin-eeprom-unblock/58-CONTEXT.md
+Last session: 2026-06-09T07:00:52.983Z
+Stopped at: Completed Phase 58 Plan 01 (DIP24_2816 + Wave 0 tests)
+Resume file: None
 
 ## Decisions
 
@@ -134,6 +134,8 @@ Resume file: .planning/phases/58-pinout-re-derivation-24-pin-eeprom-unblock/58-C
 - [Phase ?]: pinouts.json loaded dynamically in main() so GATE-03 auto-covers Phase 58 pinout additions
 - Phase 57-03: test_characterization.ambr did not need refresh; the file requiring update was tests/golden/v1.3-COVERAGE-MATRIX.md (pulse_duration column)
 - Phase 57-03: DEC-03 CLI surface (firestarter info W27C512 exits 0, 100uS) completed by debug fix 8088141 on same branch; tracked in .planning/debug/firestarter-info-vpp-pin-crash.md
+- [Phase ?]: Phase 58-01: DIP24_2816 pinout added with no vpp-pin (pin 21 = rw-pin/WE, SR-1 invariant)
+- [Phase ?]: Phase 58-01: Five Wave 0 RED-first test classes committed (TestResolvedPinoutKey/TestGuessTablesDeleted/TestWarning5Rule RED; TestDIP24_2816Pinout GREEN)
 
 ## Performance Metrics
 

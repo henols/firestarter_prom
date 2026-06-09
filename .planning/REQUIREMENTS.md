@@ -18,9 +18,9 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### PIN — Pinout Resolution & Chip Coverage
 
-- [ ] **PIN-01**: `resolve_pinout_key` is re-derived from principled `(pin_count, proto_id, mem_size)` rules grounded in minipro pin/gnd/vcc masks, replacing the survey-built `PIN_MAP_*` / `DIP28_VARIANT_MAP` guess tables.
-- [ ] **PIN-02**: The load-bearing safety overrides (WARNING-5 `0x07→0x0D`, fm1608 `type=4` flip, 24-pin EEPROM skip semantics) are preserved/verified through the re-derivation — no chip gains a VPP-on-wrong-pin damage path.
-- [ ] **PIN-03**: The 9 currently-blocked 24-pin EEPROMs (AT28C04 / AT28C16 family) are exposed via the `DIP24_6116` pinout + `algorithm=0x0D`, safety-reviewed (SR-1 checklist); no firmware change (`configure_eeprom28c` already handles them).
+- [x] **PIN-01**: `resolve_pinout_key` is re-derived from principled `(pin_count, proto_id, mem_size)` rules grounded in minipro pin/gnd/vcc masks, replacing the survey-built `PIN_MAP_*` / `DIP28_VARIANT_MAP` guess tables.
+- [x] **PIN-02**: The load-bearing safety overrides (WARNING-5 `0x07→0x0D`, fm1608 `type=4` flip, 24-pin EEPROM skip semantics) are preserved/verified through the re-derivation — no chip gains a VPP-on-wrong-pin damage path.
+- [x] **PIN-03**: The 9 currently-blocked 24-pin EEPROMs (AT28C04 / AT28C16 family) are exposed via the `DIP24_6116` pinout + `algorithm=0x0D`, safety-reviewed (SR-1 checklist); no firmware change (`configure_eeprom28c` already handles them).
 
 ### DOC — Authoritative Decode Documentation
 
@@ -72,9 +72,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 | DEC-03 | Phase 56 (dict) + Phase 57 (code) | Complete |
 | DEC-04 | Phase 56 (dict) + Phase 57 (code) | Complete |
 | DEC-05 | Phase 56 (dict) + Phase 57 (code) | Complete |
-| PIN-01 | Phase 58 | Pending |
-| PIN-02 | Phase 58 | Pending |
-| PIN-03 | Phase 58 | Pending |
+| PIN-01 | Phase 58 | Complete |
+| PIN-02 | Phase 58 | Complete |
+| PIN-03 | Phase 58 | Complete |
 | DOC-01 | Phase 56 | Pending |
 | DOC-02 | Phase 56 | Pending |
 | DOC-03 | Phase 56 | Pending |
