@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11
 milestone_name: — Complete infoic.xml Decode & Database Correctness
 status: executing
-stopped_at: Completed Phase 58 Plan 01 (DIP24_2816 + Wave 0 tests)
-last_updated: "2026-06-09T07:00:52.994Z"
+stopped_at: Completed Phase 58 Plan 02 (principled resolve_pinout_key + DB regen)
+last_updated: "2026-06-09T07:21:05.467Z"
 last_activity: 2026-06-09
 progress:
   total_phases: 9
   completed_phases: 3
   total_plans: 17
-  completed_plans: 13
+  completed_plans: 14
   percent: 33
 ---
 
@@ -22,7 +22,7 @@ progress:
 ## Current Position
 
 Phase: 58 (pinout-re-derivation-24-pin-eeprom-unblock) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-06-09
 
@@ -121,8 +121,8 @@ only if a real safety issue is found during the SRAM audit).
 
 ## Session Continuity
 
-Last session: 2026-06-09T07:00:52.983Z
-Stopped at: Completed Phase 58 Plan 01 (DIP24_2816 + Wave 0 tests)
+Last session: 2026-06-09T07:21:05.460Z
+Stopped at: Completed Phase 58 Plan 02 (principled resolve_pinout_key + DB regen)
 Resume file: None
 
 ## Decisions
@@ -136,6 +136,7 @@ Resume file: None
 - Phase 57-03: DEC-03 CLI surface (firestarter info W27C512 exits 0, 100uS) completed by debug fix 8088141 on same branch; tracked in .planning/debug/firestarter-info-vpp-pin-crash.md
 - [Phase ?]: Phase 58-01: DIP24_2816 pinout added with no vpp-pin (pin 21 = rw-pin/WE, SR-1 invariant)
 - [Phase ?]: Phase 58-01: Five Wave 0 RED-first test classes committed (TestResolvedPinoutKey/TestGuessTablesDeleted/TestWarning5Rule RED; TestDIP24_2816Pinout GREEN)
+- [Phase ?]: Phase 58-02: principled resolve_pinout_key; 743 chips; 19 Rule1 + 12 Rule2; GATE-03 0 violations; 516 tests green
 
 ## Performance Metrics
 
@@ -144,6 +145,7 @@ Resume file: None
 | 57 | 01 | 26min | DEC-02/03/04/05 decode fixes in build_db.py; 10 new tests; ruff clean |
 | 57 | 02 | 18min | GATE-03 full-class VPP guard; check_dispatch.py extended; 0 violations |
 | 57 | 03 | ~45min | DB regenerated (734 chips); W27C512=100us; GATE-03 on regen set; 480 tests green |
+| Phase 58 P02 | 35 | 2 tasks | 5 files |
 
 ## Deferred Items
 

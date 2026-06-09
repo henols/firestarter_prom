@@ -250,7 +250,7 @@ Plans:
 **Wave 1**
 
 - [x] 58-01-PLAN.md — Wave 0: DIP24_2816 pinout entry + five test-first Wave 0 classes (PIN-01/02/03)
-- [ ] 58-02-PLAN.md — Principled resolve_pinout_key rewrite, guess-table deletion, overrides-as-rules, D-06 fail-safe, DB regen (PIN-01/02/03)
+- [x] 58-02-PLAN.md — Principled resolve_pinout_key rewrite, guess-table deletion, overrides-as-rules, D-06 fail-safe, DB regen (PIN-01/02/03)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -328,7 +328,7 @@ Note: DEC-03, DEC-04, DEC-05 span Phases 56 and 57. The field dictionary work (t
 | 48 (close) | v1.9 | 1/3 | In Progress|  |
 | 56 | v1.11 | 3/3 | Complete   | 2026-06-08 |
 | 57 | v1.11 | 3/3 | Complete    | 2026-06-08 |
-| 58 | v1.11 | 1/3 | In Progress|  |
+| 58 | v1.11 | 2/3 | In Progress|  |
 | 59 (close) | v1.11 | 0/TBD | Not started | — |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
