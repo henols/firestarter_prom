@@ -31,7 +31,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 ### GATE — Correctness & Regression Gate
 
 - [ ] **GATE-01**: `infoic.xml` is pinned to a specific upstream snapshot, committed in-repo as the decode baseline (guards against upstream drift corrupting regression comparisons).
-- [ ] **GATE-02**: A per-chip diff of the regenerated `chip_database.json` against the pre-milestone baseline is produced and reviewed; every changed chip is explained and intended.
+- [x] **GATE-02**: A per-chip diff of the regenerated `chip_database.json` against the pre-milestone baseline is produced and reviewed; every changed chip is explained and intended.
 - [x] **GATE-03**: `check_dispatch.py` is extended to a full-class VPP-safety guard (asserts no chip with a `vpp-pin` pinout AND a 5V-EEPROM-family handler routes to a VPP-asserting path — not just `DIP28_2764`); green across the full chip set.
 - [x] **GATE-04**: `configure_sram` NVRAM/SRAM blank-check + WP# behavior is audited and documented (SRAM volatility / blank-check limitation noted). Host-side audit; escalates to a firmware item ONLY if a real safety issue is found.
 
@@ -79,7 +79,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | DOC-02 | Phase 56 | Pending |
 | DOC-03 | Phase 56 | Pending |
 | GATE-01 | Phase 56 | Pending |
-| GATE-02 | Phase 59 | Pending |
+| GATE-02 | Phase 59 | Complete |
 | GATE-03 | Phase 57 | Complete |
 | GATE-04 | Phase 59 | Complete |
 

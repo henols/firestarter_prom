@@ -176,7 +176,7 @@ Plans:
 - [ ] **Phase 56: Snapshot + Field Dictionary + Corrected Docs** — Pin the infoic.xml snapshot; produce authoritative source-grounded field dictionary; deliver corrected `protocol-id.md` / `protocol-flags.md` / `package-details.md`.
 - [x] **Phase 57: Decode Bug Fixes + PROTOCOL_MAP + check_dispatch Extension** — Fix confirmed decode bugs (BUG-1..4: `interpret_timing` ×100, VCC nibbles, vdd/vcc swap, PROTOCOL_MAP names); extend `check_dispatch.py` to full-class VPP safety guard before any re-derivation changes land. (completed 2026-06-08)
 - [x] **Phase 58: Pinout Re-derivation + 24-pin EEPROM Unblock** — Re-derive `resolve_pinout_key` from principled `(pin_count, proto_id, mem_size)` rules; add `DIP24_6116` EEPROM pinout; unblock the 9 AT28C04/AT28C16 chips; SR-1 safety checklist. (completed 2026-06-09)
-- [ ] **Phase 59: Correctness Gate + Per-chip Diff + SRAM Audit** — Regenerate DB; produce and review per-chip diff vs pinned baseline; `configure_sram` NVRAM/WP# behavior audit + documentation.
+- [x] **Phase 59: Correctness Gate + Per-chip Diff + SRAM Audit** — Regenerate DB; produce and review per-chip diff vs pinned baseline; `configure_sram` NVRAM/WP# behavior audit + documentation. (completed 2026-06-09)
 
 ## Phase Details
 
@@ -335,7 +335,7 @@ Note: DEC-03, DEC-04, DEC-05 span Phases 56 and 57. The field dictionary work (t
 | 56 | v1.11 | 3/3 | Complete   | 2026-06-08 |
 | 57 | v1.11 | 3/3 | Complete    | 2026-06-08 |
 | 58 | v1.11 | 3/3 | Complete    | 2026-06-09 |
-| 59 (close) | v1.11 | 2/2 | Complete   | 2026-06-09 |
+| 59 (close) | v1.11 | 2/2 | Complete    | 2026-06-09 |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
@@ -447,7 +447,7 @@ Note: DEC-03, DEC-04, DEC-05 span Phases 56 and 57. The field dictionary work (t
   2. The same file (or a companion file) lists every intra-algorithm DB inconsistency — chips that share `pin_count` + `algorithm` but differ in `pulse_duration`, `chip_id_check`, or `pinout` — with each inconsistency labeled as a defect candidate for v1.4 or a sub-repo PR (no auto-fixes applied in v1.3).
   3. Operator can use the matrix to confirm that the six BENCH chips (BENCH-01..06) span the pinout classes and pulse-duration profiles actually represented in the DB, so bench results generalize to the rest of the 339 rows.
 
-**Plans:** 3/3 plans complete
+**Plans:** 2/2 plans complete
 
 - [x] 11-01-PLAN.md — Wave 0 failing-test scaffold for tests/test_audit_coverage_matrix.py (10 tests) ✅ 2026-05-19
 - [x] 11-02-PLAN.md — Wave 1 tool skeleton + CLI + §1 Summary + §2 DB Count Reconciliation ✅ 2026-05-19
