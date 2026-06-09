@@ -254,7 +254,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 58-03-PLAN.md — GATE-03 0-violation proof + CLI reachability + two-layer SR-1 safety review (PIN-02/03)
+- [x] 58-03-PLAN.md — GATE-03 0-violation proof + CLI reachability + two-layer SR-1 safety review (PIN-02/03)
 
 Note: D-07 supersedes SC#3/#4's `DIP24_6116` reference with a dedicated `DIP24_2816` entry (electrically identical, named as a 5V EEPROM for SR-1 traceability).
 **UI hint**: no
@@ -328,7 +328,7 @@ Note: DEC-03, DEC-04, DEC-05 span Phases 56 and 57. The field dictionary work (t
 | 48 (close) | v1.9 | 1/3 | In Progress|  |
 | 56 | v1.11 | 3/3 | Complete   | 2026-06-08 |
 | 57 | v1.11 | 3/3 | Complete    | 2026-06-08 |
-| 58 | v1.11 | 2/3 | In Progress|  |
+| 58 | v1.11 | 3/3 | Complete   | 2026-06-09 |
 | 59 (close) | v1.11 | 0/TBD | Not started | — |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
