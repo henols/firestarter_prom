@@ -289,16 +289,16 @@ Plans:
 | DEC-03 | Phase 56 + Phase 57 | Complete (56-02, 57-01/03, debug 8088141) |
 | DEC-04 | Phase 56 + Phase 57 | Complete (57-01/03) |
 | DEC-05 | Phase 56 + Phase 57 | Complete (57-01/02) |
-| PIN-01 | Phase 58 | Pending |
-| PIN-02 | Phase 58 | Pending |
-| PIN-03 | Phase 58 | Pending |
+| PIN-01 | Phase 58 | Complete (58-01/02) |
+| PIN-02 | Phase 58 | Complete (58-02) |
+| PIN-03 | Phase 58 | Complete (58-02/03) |
 | DOC-01 | Phase 56 | Complete (56-03) |
 | DOC-02 | Phase 56 | Complete (56-03) |
 | DOC-03 | Phase 56 | Complete (56-03) |
 | GATE-01 | Phase 56 | Complete (56-01) |
-| GATE-02 | Phase 59 | Pending |
+| GATE-02 | Phase 59 | Complete (59-01, CR-01 fix f3b2ed7) |
 | GATE-03 | Phase 57 | Complete (57-02/03) |
-| GATE-04 | Phase 59 | Pending |
+| GATE-04 | Phase 59 | Complete (59-02) |
 
 **Mapped: 15/15 requirements ✓** — no orphans, no duplicates.
 
