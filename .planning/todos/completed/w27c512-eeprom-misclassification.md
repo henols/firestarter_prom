@@ -3,13 +3,35 @@ id: w27c512-eeprom-misclassification
 title: W27C/E + SST27SF/VF series misclassified as UV-only EPROMs in chip database (should be electrically erasable)
 captured: 2026-05-21
 escalated: 2026-05-21 (operator: "the db is really wrong and must be fixed asap")
-status: pending
+resolved: 2026-06-09 (/gsd-debug session infoic-decode-eeprom-misclass — root-caused to build_db.py decode, fixed at firestarter_app cca7d62)
+status: resolved
 type: bug
-target_milestone: v1.5 hotfix OR v1.6 (operator decision)
+target_milestone: v1.11 (resolved in v1.11 decode-correctness milestone, post-phase-59)
 priority: high
 related_phase: 24
 resolves_phase: null
+debug_session: infoic-decode-eeprom-misclass
 ---
+
+## RESOLUTION (2026-06-09)
+
+Root cause was the infoic.xml field-decode in `firestarter_app/tools/build_db.py`, not the chip
+data. Fixed (commit `cca7d62`, branch v1.11-infoic-decode-correctness):
+- **BUG A:** Pass 2 blindly mapped `protocol_id=0x07 → "UV-EPROM"`. Now consults `flags & 0x10`
+  (electrically-erasable bit) — W27C512/W27E512, SST27SF512, SST27VF512, W27C257 (and the wider
+  CMOS-EEPROM/SuperFlash family) now decode as `electrical.type = EEPROM`; genuine UV-EPROMs
+  (flags bit clear, e.g. M27C512/27C256) correctly stay UV-EPROM.
+- **BUG B:** VPP decode masked `voltages & 0xFF` instead of `& 0xF0` (bits 7-4 = VPP index, bits
+  3-0 = option flags). SST27VF512 (`voltages=0x0001`) now correctly resolves to 12V (~126 chips
+  affected).
+- **BUG C (bonus):** 35 × DIP28_28C64 5V EEPROMs were on the 12V UV path → flipped to algo=0x0D
+  (5V-safe configure_eeprom28c); a tracked HAZARD resolved.
+
+Verified host-side: GATE-02 diff PASS (501 changes explained), GATE-03 dispatch PASS (0
+violations), 516 tests green, ruff clean. **NOT yet bench-verified:** whether `firestarter erase
+W27C512` succeeds end-to-end is firmware-gated (the 0x07 handler must support electrical erase)
+and needs an operator bench test; may require a firmware follow-up if the handler lacks it.
+See `.planning/debug/resolved/infoic-decode-eeprom-misclass.md`.
 
 # W27C512 misclassified as UV-only EPROM — should be electrically erasable
 
