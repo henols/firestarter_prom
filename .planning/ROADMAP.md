@@ -275,8 +275,9 @@ Note: D-07 supersedes SC#3/#4's `DIP24_6116` reference with a dedicated `DIP24_2
 Plans:
 **Wave 1** *(parallel — no file overlap)*
 
-  - [ ] 59-01-PLAN.md — GATE-02 correctness gate: sort_keys determinism (SC#4) + GATE-03 re-confirm (SC#2) + diff_db.py grouped-by-cause full-record diff with D-03 BLOCK
+  - [x] 59-01-PLAN.md — GATE-02 correctness gate: sort_keys determinism (SC#4) + GATE-03 re-confirm (SC#2) + diff_db.py grouped-by-cause full-record diff with D-03 BLOCK
   - [ ] 59-02-PLAN.md — GATE-04 SRAM/NVRAM audit: two-layer docs (59-SRAM-AUDIT.md + doc/sram-nvram-behavior.md), no firmware escalation
+
 **UI hint**: no
 
 ### v1.11 Coverage
@@ -334,7 +335,7 @@ Note: DEC-03, DEC-04, DEC-05 span Phases 56 and 57. The field dictionary work (t
 | 56 | v1.11 | 3/3 | Complete   | 2026-06-08 |
 | 57 | v1.11 | 3/3 | Complete    | 2026-06-08 |
 | 58 | v1.11 | 3/3 | Complete    | 2026-06-09 |
-| 59 (close) | v1.11 | 0/TBD | Not started | — |
+| 59 (close) | v1.11 | 1/2 | In Progress|  |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
