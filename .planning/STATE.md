@@ -3,28 +3,28 @@ gsd_state_version: 1.0
 milestone: v1.11
 milestone_name: — Complete infoic.xml Decode & Database Correctness
 status: executing
-stopped_at: Phase 59 — 59-01 complete (GATE-02), 59-02 pending (GATE-04 SRAM audit)
-last_updated: "2026-06-09T08:38:33.442Z"
-last_activity: 2026-06-09 -- 59-01 done; tracking reconciled, 59-02 not started
+stopped_at: Phase 59 — COMPLETE (59-01 GATE-02 ✓, 59-02 GATE-04 ✓); Phase 59 done; milestone close pending operator /gsd-complete-milestone
+last_updated: "2026-06-09T09:28:18Z"
+last_activity: 2026-06-09 -- 59-02 GATE-04 SRAM audit complete; both doc layers committed in lockstep
 progress:
   total_phases: 9
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 19
-  completed_plans: 16
-  percent: 47
+  completed_plans: 17
+  percent: 53
 ---
 
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-06-08
+**Updated:** 2026-06-09
 
 ## Current Position
 
-Phase: 59 (correctness-gate-per-chip-diff-sram-audit) — EXECUTING
-Plan: 1 of 2 complete (59-01 GATE-02 ✓); 59-02 (GATE-04) pending
-Status: 59-01 tracking reconciled; paused before 59-02
-Last activity: 2026-06-09 -- 59-01 done; resume via /gsd-execute-phase 59
+Phase: 59 (correctness-gate-per-chip-diff-sram-audit) — COMPLETE
+Plan: 2 of 2 complete (59-01 GATE-02 ✓, 59-02 GATE-04 ✓)
+Status: Phase 59 complete; milestone close pending operator /gsd-complete-milestone
+Last activity: 2026-06-09 -- 59-02 GATE-04 SRAM audit complete; sram-nvram-behavior.md shipped
 
 ## Project Reference
 
@@ -121,9 +121,9 @@ only if a real safety issue is found during the SRAM audit).
 
 ## Session Continuity
 
-Last session: 2026-06-09T07:56:25.183Z
-Stopped at: Phase 59 context gathered
-Resume file: .planning/phases/59-correctness-gate-per-chip-diff-sram-audit/59-CONTEXT.md
+Last session: 2026-06-09T09:28:18Z
+Stopped at: Phase 59 complete (59-02 GATE-04 done); operator runs /gsd-complete-milestone when ready
+Resume file: None (phase complete)
 
 ## Decisions
 
@@ -138,6 +138,7 @@ Resume file: .planning/phases/59-correctness-gate-per-chip-diff-sram-audit/59-CO
 - [Phase ?]: Phase 58-01: Five Wave 0 RED-first test classes committed (TestResolvedPinoutKey/TestGuessTablesDeleted/TestWarning5Rule RED; TestDIP24_2816Pinout GREEN)
 - [Phase ?]: Phase 58-02: principled resolve_pinout_key; 743 chips; 19 Rule1 + 12 Rule2; GATE-03 0 violations; 516 tests green
 - Phase 58-03: GATE-03 0 violations confirmed on 743-chip regenerated DB; AT28C04/16 CLI-reachable; SR-1 two-layer docs authored (DIP24_2816 PASS + all changed pinouts reviewed)
+- Phase 59-02: GATE-04 audit: configure_sram near-no-op; BLOCKER-2 guard proof (0 SRAM chips → configure_eprom); Safety Verdict no-escalation + criterion stated; two-layer lockstep committed
 
 ## Performance Metrics
 
@@ -147,6 +148,7 @@ Resume file: .planning/phases/59-correctness-gate-per-chip-diff-sram-audit/59-CO
 | 57 | 02 | 18min | GATE-03 full-class VPP guard; check_dispatch.py extended; 0 violations |
 | 57 | 03 | ~45min | DB regenerated (734 chips); W27C512=100us; GATE-03 on regen set; 480 tests green |
 | Phase 58 P02 | 35 | 2 tasks | 5 files |
+| 59 | 02 | ~4min | GATE-04 SRAM audit; configure_sram near-no-op confirmed; 3 NVRAM truths documented; two-layer lockstep |
 
 ## Deferred Items
 
@@ -165,4 +167,4 @@ Items acknowledged and deferred. None are incomplete v1.10 transport work.
 
 ## Operator Next Steps
 
-- Plan Phase 56: `/gsd-plan-phase 56`
+- Phase 59 complete; run `/gsd-complete-milestone` to close v1.11 and cut the beta tag when ready.
