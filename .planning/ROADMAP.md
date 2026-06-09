@@ -175,7 +175,7 @@ Plans:
 
 - [ ] **Phase 56: Snapshot + Field Dictionary + Corrected Docs** — Pin the infoic.xml snapshot; produce authoritative source-grounded field dictionary; deliver corrected `protocol-id.md` / `protocol-flags.md` / `package-details.md`.
 - [x] **Phase 57: Decode Bug Fixes + PROTOCOL_MAP + check_dispatch Extension** — Fix confirmed decode bugs (BUG-1..4: `interpret_timing` ×100, VCC nibbles, vdd/vcc swap, PROTOCOL_MAP names); extend `check_dispatch.py` to full-class VPP safety guard before any re-derivation changes land. (completed 2026-06-08)
-- [ ] **Phase 58: Pinout Re-derivation + 24-pin EEPROM Unblock** — Re-derive `resolve_pinout_key` from principled `(pin_count, proto_id, mem_size)` rules; add `DIP24_6116` EEPROM pinout; unblock the 9 AT28C04/AT28C16 chips; SR-1 safety checklist.
+- [x] **Phase 58: Pinout Re-derivation + 24-pin EEPROM Unblock** — Re-derive `resolve_pinout_key` from principled `(pin_count, proto_id, mem_size)` rules; add `DIP24_6116` EEPROM pinout; unblock the 9 AT28C04/AT28C16 chips; SR-1 safety checklist. (completed 2026-06-09)
 - [ ] **Phase 59: Correctness Gate + Per-chip Diff + SRAM Audit** — Regenerate DB; produce and review per-chip diff vs pinned baseline; `configure_sram` NVRAM/WP# behavior audit + documentation.
 
 ## Phase Details
@@ -328,7 +328,7 @@ Note: DEC-03, DEC-04, DEC-05 span Phases 56 and 57. The field dictionary work (t
 | 48 (close) | v1.9 | 1/3 | In Progress|  |
 | 56 | v1.11 | 3/3 | Complete   | 2026-06-08 |
 | 57 | v1.11 | 3/3 | Complete    | 2026-06-08 |
-| 58 | v1.11 | 3/3 | Complete   | 2026-06-09 |
+| 58 | v1.11 | 3/3 | Complete    | 2026-06-09 |
 | 59 (close) | v1.11 | 0/TBD | Not started | — |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
