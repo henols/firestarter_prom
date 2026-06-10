@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.11
 milestone_name: — Complete infoic.xml Decode & Database Correctness
 status: verifying
-stopped_at: Phase 61 context gathered
-last_updated: "2026-06-10T10:26:29.092Z"
+stopped_at: Phase 61 SHIPPED (executed + verified 7/7 + code-review fixed); FM1608 info-view follow-up committed. v1.11 ready to close.
+last_updated: "2026-06-10T00:00:00.000Z"
 last_activity: 2026-06-10
 progress:
   total_phases: 10
@@ -21,11 +21,12 @@ progress:
 
 ## Current Position
 
-Phase: 61
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 61 (v1.11 close phase)
+Plan: 61-01 complete
+Status: SHIPPED — verified 7/7, code review fixed (WR-01/WR-02), FM1608 info-view follow-up landed
 Last activity: 2026-06-10
-Note: Phase 59 was the prior "(close)" phase; Phase 60 is now the v1.11 close. /gsd-complete-milestone deferred until 60 ships.
+Note: Phase 61 is the v1.11 close phase. All v1.11 phases (56–61) complete. Ready for /gsd-complete-milestone.
+Post-61 follow-up on firestarter_app v1.11 branch (NOT in phase artifacts; commits b81131f + e910e5e): FM1608 info-view fixes — SRAM/FRAM Vcc→5V normalization in build_db.py + DB regen, zero-pulse-delay row suppression, chip-ID "-" placeholder. Resolves the carried `w27c512-eeprom-misclassification` family of display concerns. Remember to bump the meta firestarter_app gitlink at beta cut.
 
 ## Project Reference
 
@@ -127,8 +128,8 @@ only if a real safety issue is found during the SRAM audit).
 
 ## Session Continuity
 
-Last session: 2026-06-10T10:08:44.272Z
-Stopped at: Phase 61 context gathered
+Last session: 2026-06-10
+Stopped at: Session resumed — Phase 61 confirmed shipped + FM1608 follow-up committed; proceeding toward v1.11 milestone close
 Resume file: None
 
 ## Decisions
