@@ -385,7 +385,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 — snapshot must be pre-edit)*
 
-- [ ] 62-03-PLAN.md — check_dispatch.py edits: 0x35/0x39 explicit case + protocol!=0 not_implemented arm + main() FAIL bucket; gate green (GATE-02)
+- [x] 62-03-PLAN.md — check_dispatch.py edits: 0x35/0x39 explicit case + protocol!=0 not_implemented arm + main() FAIL bucket; gate green (GATE-02)
 
 **UI hint**: no
 
@@ -538,7 +538,7 @@ Plans:
 | 59 | v1.11 | 2/2 | Complete    | 2026-06-09 |
 | 60 | v1.11 | 2/2 | Complete    | 2026-06-10 |
 | 61 (close) | v1.11 | 1/1 | ✅ Shipped   | 2026-06-10 |
-| 62 | v1.12 | 2/3 | In Progress|  |
+| 62 | v1.12 | 3/3 | Complete   | 2026-06-10 |
 | 63 | v1.12 | 0/TBD | Not started | — |
 | 64 | v1.12 | 0/TBD | Not started | — |
 | 65 | v1.12 | 0/TBD | Not started | — |
