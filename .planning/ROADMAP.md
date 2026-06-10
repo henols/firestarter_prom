@@ -381,7 +381,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 62-02-PLAN.md — Pre-edit dispatch baseline snapshot: 743-chip dispatch triples -> tools/baseline/dispatch_baseline.json (GATE-01)
+- [x] 62-02-PLAN.md — Pre-edit dispatch baseline snapshot: 743-chip dispatch triples -> tools/baseline/dispatch_baseline.json (GATE-01)
 
 **Wave 3** *(blocked on Wave 2 — snapshot must be pre-edit)*
 
@@ -538,7 +538,7 @@ Plans:
 | 59 | v1.11 | 2/2 | Complete    | 2026-06-09 |
 | 60 | v1.11 | 2/2 | Complete    | 2026-06-10 |
 | 61 (close) | v1.11 | 1/1 | ✅ Shipped   | 2026-06-10 |
-| 62 | v1.12 | 1/3 | In Progress|  |
+| 62 | v1.12 | 2/3 | In Progress|  |
 | 63 | v1.12 | 0/TBD | Not started | — |
 | 64 | v1.12 | 0/TBD | Not started | — |
 | 65 | v1.12 | 0/TBD | Not started | — |

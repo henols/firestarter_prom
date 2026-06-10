@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: — Firmware Protocol Dispatch Hardening + Skeletons
 status: executing
-stopped_at: Phase 62 Plan 01 complete
-last_updated: "2026-06-10T14:55:54.958Z"
+stopped_at: Phase 62 Plan 02 complete
+last_updated: "2026-06-10T15:15:00.000Z"
 last_activity: 2026-06-10
 progress:
   total_phases: 12
   completed_phases: 1
   total_plans: 11
-  completed_plans: 7
-  percent: 8
+  completed_plans: 8
+  percent: 73
 ---
 
 # Project State
@@ -22,7 +22,7 @@ progress:
 ## Current Position
 
 Phase: 62 (dispatch-baseline-capture-check-dispatch-update) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-06-10
 
@@ -145,7 +145,8 @@ Resume file: .planning/phases/62-dispatch-baseline-capture-check-dispatch-update
 
 _(v1.12 decisions will be recorded here as phases execute.)_
 
-- [Phase ?]: D-BETA-STATE: beta branch already has 0x35/0x39 explicit dispatch arms; TestDispatchGate02 tests 1+2 are GREEN now (not RED as planned); only protocol!=0 not_implemented arm is missing
+- [Phase 62-01]: D-BETA-STATE: beta branch already has 0x35/0x39 explicit dispatch arms; TestDispatchGate02 tests 1+2 are GREEN now (not RED as planned); only protocol!=0 not_implemented arm is missing
+- [Phase 62-02]: D-CHIP-COUNT: DB on v1.12 branch has 734 chips (not 743 as plan expected) — v1.11 work not yet reconciled into beta; dispatch_baseline.json correctly captures the actual current DB state
 
 ## Performance Metrics
 
@@ -158,6 +159,7 @@ _(v1.12 decisions will be recorded here as phases execute.)_
 | 59 | 02 | ~4min | GATE-04 SRAM audit; configure_sram near-no-op confirmed; 3 NVRAM truths documented; two-layer lockstep |
 | Phase 61 P01 | 40min | - tasks | - files |
 | Phase 62 P01 | 10min | 2 tasks | 1 files |
+| Phase 62 P02 | 8min | 1 task | 1 file (dispatch_baseline.json) |
 
 ## Deferred Items
 
