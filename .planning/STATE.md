@@ -1,16 +1,17 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.12
-milestone_name: Firmware Protocol Dispatch Hardening + Skeletons
-status: planning
-last_updated: "2026-06-10T12:32:46.075Z"
-last_activity: 2026-06-10
+milestone_name: — Firmware Protocol Dispatch Hardening + Skeletons
+status: Roadmap created — ready for `/gsd-plan-phase 62`
+stopped_at: Phase 62 context gathered
+last_updated: "2026-06-10T13:56:08.456Z"
+last_activity: "2026-06-10 — v1.12 roadmap revised (7 phases: 62-68; DB-01..05 integrated with support_status taxonomy)"
 progress:
-  total_phases: 7
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_phases: 12
+  completed_phases: 1
+  total_plans: 8
+  completed_plans: 6
+  percent: 8
 ---
 
 # Project State
@@ -44,6 +45,7 @@ First firmware-touching milestone since v1.10. Phases 62–68, no bench required
 ## Roadmap Summary
 
 **v1.12 ACTIVE — 7 phases (62–68):**
+
 - Phase 62: Dispatch Baseline Capture + check_dispatch Update (GATE-01, GATE-02)
 - Phase 63: Catalog Lockstep Wire Change (WIRE-01)
 - Phase 64: Firmware Fail-Closed Dispatch + Native Tests (DISP-01..04, WIRE-02, TEST-01, TEST-02)
@@ -79,6 +81,7 @@ The milestone's real value is the **fail-closed safety framework + honest report
 1. The silent `mem_type` fallback hazard: `protocol != 0` + `mem_type=1` silently routes to
    `configure_eprom` → 12V VPP on potentially 5V-only chips. Eliminated by the `protocol != 0`
    guard in `configure_memory()`.
+
 2. New `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED = 0xBB` (lockstep dual-repo codegen via `messages.toml`).
 3. `configure_not_implemented()` catch-all: zero hardware side effects; emits the new message ID.
 4. Named infeasibility arms for `0x11`/`0x2A`/`0x2B`/`0x2C` (documents hardware reason in-code).
@@ -89,12 +92,14 @@ The milestone's real value is the **fail-closed safety framework + honest report
 `firestarter_app/beta` before v1.12 host changes commit.
 
 **Critical ordering constraints (from research + pitfalls):**
+
 1. Phase 62 GATE first — baseline + `check_dispatch.py` update BEFORE any firmware change
 2. Phase 63 WIRE second — catalog message ID in both repos BEFORE firmware emits it
 3. Phase 64 FIRMWARE third — guard + not_implemented handler + native tests
 4. Phase 65 HOST last — `ProtocolNotImplementedError` + CLI message
 
 **Key pitfalls to remember:**
+
 - Codegen MUST use Python 3.11 (CI target), not the devcontainer's 3.12 — py3.12/3.11 drift trap
 - `messages.toml` edit in meta-repo ONLY; sync to both sub-repos via `sync_to_subrepos.sh`
 - `check_dispatch.py` updated BEFORE firmware changes (currently has 0x35/0x39 gap)
@@ -102,6 +107,7 @@ The milestone's real value is the **fail-closed safety framework + honest report
 - Flash gate: Leonardo must stay ≤ 90% after Phase 64
 
 **Flash budget at v1.12 start (from v1.11 close):**
+
 - Leonardo: 88.4% (25,354 B / 28,672 B) — 3,318 B remaining
 - Uno: 72.0% (23,216 B / 32,256 B) — 9,040 B remaining
 
@@ -131,9 +137,9 @@ no bench session required to close. Dual-repo lockstep (firmware + host).
 
 ## Session Continuity
 
-Last session: 2026-06-10
-Stopped at: v1.12 roadmap revised — 6 phases (62–67), 16/16 requirements mapped
-Resume file: None
+Last session: 2026-06-10T13:56:08.452Z
+Stopped at: Phase 62 context gathered
+Resume file: .planning/phases/62-dispatch-baseline-capture-check-dispatch-update/62-CONTEXT.md
 
 ## Decisions
 
