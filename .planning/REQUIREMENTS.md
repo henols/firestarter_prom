@@ -28,7 +28,7 @@
 ### GATE — Dispatch-Mirror Safety Gate (host)
 
 - [ ] **GATE-01**: A pre-removal dispatch baseline is captured (every DB chip's resolved handler + representative `protocol==0`/legacy and unknown-protocol cases) and committed BEFORE the fallback is guarded, providing regression evidence that no current chip changes dispatch.
-- [ ] **GATE-02**: `check_dispatch.py` gains a `not_implemented` arm mirroring the firmware `protocol != 0` guard, plus a FAIL assertion that no DB chip resolves to not-implemented; the pre-existing `0x35`/`0x39` dispatch-mirror gap is reconciled. Exits clean across all 743 chips.
+- [x] **GATE-02**: `check_dispatch.py` gains a `not_implemented` arm mirroring the firmware `protocol != 0` guard, plus a FAIL assertion that no DB chip resolves to not-implemented; the pre-existing `0x35`/`0x39` dispatch-mirror gap is reconciled. Exits clean across all 743 chips.
 
 ### TEST — Native Dispatch Coverage (firmware)
 
@@ -68,7 +68,7 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | GATE-01 | Phase 62 | Pending |
-| GATE-02 | Phase 62 | Pending |
+| GATE-02 | Phase 62 | Complete |
 | WIRE-01 | Phase 63 | Pending |
 | WIRE-02 | Phase 64 | Pending |
 | DISP-01 | Phase 64 | Pending |

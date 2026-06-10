@@ -367,15 +367,17 @@ Research finding: the SKELETON-NEEDED bucket is empty (every RURP-feasible proto
 **Depends on**: Nothing (first phase — foundational prerequisite for Phase 64).
 **Requirements**: GATE-01, GATE-02
 **Success Criteria** (what must be TRUE):
+
   1. A native Unity test (or equivalent committed artifact) asserts the current `(protocol=0, mem_type=1)` behavior routes to `configure_eprom` — pinning the legacy fallback behavior as a regression baseline before any guard is added.
   2. `check_dispatch.py`'s `dispatch()` function has explicit cases for protocols `0x35` and `0x39` (not relying on the mem_type coincidental fallback), plus a `protocol != 0` → `"not_implemented"` arm replacing the stale fallback; `0x35`/`0x39` chips continue to resolve to `configure_flash4`.
   3. A `not_implemented` list + FAIL assertion is present in the `check_dispatch.py` scan loop; running `python tools/check_dispatch.py` against the current 743-chip DB exits with `0 not-implemented chips` (PASS — because no DB chip uses a gap protocol).
   4. All pre-existing `check_dispatch.py` checks remain green (GATE-03 VPP-safety guard, SRAM-in-EPROM guard, wire round-trip 743/743 PASS).
+
 **Plans**: 3 plans
 Plans:
 **Wave 1**
 
-- [ ] 62-01-PLAN.md — Fork v1.12-protocol-dispatch-hardening (off beta) + Wave 0 failing TestDispatchGate02 tests (GATE-02)
+- [x] 62-01-PLAN.md — Fork v1.12-protocol-dispatch-hardening (off beta) + Wave 0 failing TestDispatchGate02 tests (GATE-02)
 
 **Wave 2** *(blocked on Wave 1)*
 
@@ -384,6 +386,7 @@ Plans:
 **Wave 3** *(blocked on Wave 2 — snapshot must be pre-edit)*
 
 - [ ] 62-03-PLAN.md — check_dispatch.py edits: 0x35/0x39 explicit case + protocol!=0 not_implemented arm + main() FAIL bucket; gate green (GATE-02)
+
 **UI hint**: no
 
 ### Phase 63: Catalog Lockstep Wire Change
@@ -392,10 +395,12 @@ Plans:
 **Depends on**: Phase 62 (baseline captured; no dependency on output, but sequenced to keep the Phase 63 commit clearly atomic and reviewable).
 **Requirements**: WIRE-01
 **Success Criteria** (what must be TRUE):
+
   1. `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED = 0xBB` appears in the meta-repo canonical `messages.toml`, the firmware sub-repo's synced `messages.toml`, and both generated outputs (`firestarter/include/messages.h` and `firestarter_app/firestarter/messages.py`).
   2. Codegen was run with Python 3.11 (CI-matching version); both sub-repo drift gates (`codegen + git diff --exit-code`) report no drift when run with the CI Python version.
   3. Neither `memory.cpp` nor any host file yet references the new constant — this commit introduces only the catalog definition, no call sites.
   4. The new message ID `0xBB` does not collide with any existing catalog entry; the ERROR band sequence is intact.
+
 **Plans**: TBD
 **UI hint**: no
 
@@ -405,11 +410,13 @@ Plans:
 **Depends on**: Phase 62 (baseline test pinned; `check_dispatch.py` updated — gate is accurate before firmware changes), Phase 63 (catalog constant defined in `messages.h` before firmware code references it).
 **Requirements**: DISP-01, DISP-02, DISP-03, DISP-04, WIRE-02, TEST-01, TEST-02
 **Success Criteria** (what must be TRUE):
+
   1. `configure_memory()` with a non-zero unknown protocol (e.g. `protocol=0x99`) returns `RESPONSE_CODE_ERROR` and emits `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` — confirmed by a native Unity dispatch test; no VPP regulator enable occurs.
   2. `configure_memory()` with `protocol=0` and `mem_type=1` still routes to `configure_eprom` — the legacy fallback is intact behind the `protocol == 0` guard, confirmed by the pre-existing regression test from Phase 62.
   3. `configure_not_implemented()` leaves all three operation pointers (`firestarter_operation_init`, `firestarter_operation_main`, `firestarter_operation_end`) NULL — confirmed by a native Unity test asserting NULL pointers after dispatch.
   4. Protocols `0x11`, `0x2A`, `0x2B`, and `0x2C` are explicitly recognized in the dispatch chain (named infeasibility arms) and route to `configure_not_implemented()` — confirmed by individual native Unity tests for each.
   5. `pio run -e leonardo` reports ≤ 90% flash utilization after all changes; all pre-existing native Unity tests remain green.
+
 **Plans**: TBD
 **UI hint**: no
 
@@ -419,10 +426,12 @@ Plans:
 **Depends on**: Phase 63 (catalog constant in `messages.py`), Phase 64 (firmware emits the new message ID — functional prerequisite; pytest tests may use mocked responses and can be developed in parallel with Phase 64 but must not merge until Phase 64 is committed).
 **Requirements**: HOST-01, HOST-02
 **Success Criteria** (what must be TRUE):
+
   1. `ProtocolNotImplementedError` is a subclass of `EpromOperationError` in `exceptions.py`; existing callers catching `EpromOperationError` continue to work without modification.
   2. `_run_state_machine` in `eprom_operations.py` raises `ProtocolNotImplementedError` when an ERROR response contains "not implemented" text — verified by a pytest test using a mocked ERROR response with the catalog format string.
   3. Running `firestarter write <chip-with-unimplemented-protocol>` (or equivalent mocked invocation) prints an actionable error message that includes the protocol value (e.g. `Protocol 0x0000000B not implemented`) and communicates that this is a known but not-yet-supported protocol — not a generic "operation failed" message.
   4. The `ProtocolNotImplementedError` catch in `map_typed_errors` appears before the `EpromOperationError` catch so the subclass is handled first; all pre-existing error paths remain green.
+
 **Plans**: TBD
 **UI hint**: no
 
@@ -432,10 +441,12 @@ Plans:
 **Depends on**: Phase 65 (host error-surface foundation in place; logically independent but sequenced after the firmware dispatch story is complete before the DB capability story begins).
 **Requirements**: DB-01, DB-03, DB-05
 **Success Criteria** (what must be TRUE):
+
   1. DIP parallel-memory chips previously silently dropped due to an unknown/unimplemented `protocol_id` appear in the regenerated `chip_database.json` with `support_status: protocol-not-implemented` — confirmed by inspecting the `build_db.py` output diff. Serial / GAL-PLD / MCU / SMD-only chips remain absent (unchanged skip logic).
   2. The authoritatively-known NMOS M2716, M2732, and M2732A entries (and their documented equivalents) carry the true VPP (25V or 21V respectively) rather than the upstream-truncated 18V; M2716 and M2732 appear as `support_status: vpp-exceeds-max` (true VPP > ~22V RURP ceiling); any NMOS variant with corrected VPP within the ceiling appears as `support_status: supported` at the corrected voltage. NMOS-vs-CMOS alias splitting is resolved at plan time.
   3. `check_dispatch.py` exits clean (0 errors) across the full regenerated DB: entries with any non-`supported` `support_status` do NOT resolve to a programming handler (they produce a `not_supported` outcome); the pre-existing GATE-03 VPP-safety guard and wire round-trip checks remain green.
   4. A per-chip diff (via `diff_db.py` or equivalent) accounts for every new or changed entry — additions carry a documented rationale (`protocol-not-implemented` or `vpp-exceeds-max` / corrected-VPP) and no unexplained diffs appear.
+
 **Plans**: TBD
 **UI hint**: no
 
@@ -445,10 +456,12 @@ Plans:
 **Depends on**: Phase 66 (the DB inclusion pipeline and `support_status` taxonomy are in place; Phase 67 fills in the `adapter-required` cases within that framework).
 **Requirements**: DB-02
 **Success Criteria** (what must be TRUE):
+
   1. Every DIP 24/28/32-pin parallel-memory chip that previously triggered an unclassifiable-pinout warning in `build_db.py` is either (a) mapped to an existing RURP pinout via an extended `resolve_pinout_key` rule (with source citation or datasheet reference) and included as `support_status: supported` or `protocol-not-implemented`, or (b) included as `support_status: adapter-required` with a non-empty adapter note explaining what mapping would be required — no chip is silently dropped due to pinout classification failure.
   2. The extended `resolve_pinout_key` rules follow the same principled `(pin_count, proto_id, mem_size)` dispatch pattern established in Phase 58; each new rule cites a minipro source reference or a datasheet-confirmed pinout — no evidence-free guesses.
   3. `check_dispatch.py` exits clean (0 errors) after the pinout-classification changes: `adapter-required` entries do NOT resolve to a programming handler; all other updated entries dispatch correctly; the Phase 66 GATE-03 and VPP-safety guards remain green.
   4. A per-chip diff accounts for every chip whose `pinout` field changed or was newly assigned — each diff entry has a documented rationale, and no regression on chips that were already correctly classified in Phase 66.
+
 **Plans**: TBD
 **UI hint**: no
 
@@ -458,10 +471,12 @@ Plans:
 **Depends on**: Phase 67 (the full `support_status` taxonomy is populated in `chip_database.json` before the host reads and reports it); Phase 65 (`ProtocolNotImplementedError` + `map_typed_errors` error-surface established — Phase 68 extends the same display/error surface with capability-status-aware guard paths).
 **Requirements**: DB-04
 **Success Criteria** (what must be TRUE):
+
   1. `firestarter info <non-supported-chip>` (e.g. an NMOS M2716, a DIP chip with unknown protocol, or an adapter-required chip) displays the chip record with a clear support-status line sourced from the DB's `support_status` field — not a "chip not found" error and not a bare record with no capability indication. The displayed reason is status-specific: "protocol not implemented" / "adapter required: <note>" / "VPP <x>V exceeds programmer max" as appropriate.
   2. `firestarter write <non-supported-chip>` (and `read`, `verify`) prints a clear, actionable status-specific message and exits non-zero WITHOUT attempting any serial communication with the firmware — the guard fires entirely in the host before any command is sent.
   3. Supported chips are unaffected — `firestarter write W27C512` continues to work normally; no regression on the existing write/read/verify paths.
   4. pytest tests cover all three non-supported statuses (`protocol-not-implemented`, `adapter-required`, `vpp-exceeds-max`): a mock DB entry for each routes through the CLI and produces the expected status-specific message + exit code; all pre-existing tests remain green; CI passes.
+
 **Plans**: TBD
 **UI hint**: no
 
@@ -523,7 +538,7 @@ Plans:
 | 59 | v1.11 | 2/2 | Complete    | 2026-06-09 |
 | 60 | v1.11 | 2/2 | Complete    | 2026-06-10 |
 | 61 (close) | v1.11 | 1/1 | ✅ Shipped   | 2026-06-10 |
-| 62 | v1.12 | 0/TBD | Not started | — |
+| 62 | v1.12 | 1/3 | In Progress|  |
 | 63 | v1.12 | 0/TBD | Not started | — |
 | 64 | v1.12 | 0/TBD | Not started | — |
 | 65 | v1.12 | 0/TBD | Not started | — |

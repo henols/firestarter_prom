@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: — Firmware Protocol Dispatch Hardening + Skeletons
 status: executing
-stopped_at: Phase 62 context gathered
-last_updated: "2026-06-10T14:37:09.520Z"
-last_activity: 2026-06-10 -- Phase 62 planning complete
+stopped_at: Phase 62 Plan 01 complete
+last_updated: "2026-06-10T14:55:54.958Z"
+last_activity: 2026-06-10
 progress:
   total_phases: 12
   completed_phases: 1
   total_plans: 11
-  completed_plans: 6
+  completed_plans: 7
   percent: 8
 ---
 
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: Not started
-Plan: —
+Phase: 62 (dispatch-baseline-capture-check-dispatch-update) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-06-10 -- Phase 62 planning complete
+Last activity: 2026-06-10
 
 ## Project Reference
 
@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-10 for v1.12)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** v1.12 Firmware Protocol Dispatch Hardening + Skeletons — fail-closed
+**Current focus:** Phase 62 — dispatch-baseline-capture-check-dispatch-update
 dispatch eliminating the silent VPP-hazard `mem_type` fallback path; new
 `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` wire response (lockstep dual-repo); host
 `ProtocolNotImplementedError` + clear CLI message; capability-honest DB inclusion
@@ -137,13 +137,15 @@ no bench session required to close. Dual-repo lockstep (firmware + host).
 
 ## Session Continuity
 
-Last session: 2026-06-10T13:56:08.452Z
-Stopped at: Phase 62 context gathered
-Resume file: .planning/phases/62-dispatch-baseline-capture-check-dispatch-update/62-CONTEXT.md
+Last session: 2026-06-10T14:55:54.954Z
+Stopped at: Phase 62 Plan 01 complete
+Resume file: .planning/phases/62-dispatch-baseline-capture-check-dispatch-update/62-02-PLAN.md
 
 ## Decisions
 
 _(v1.12 decisions will be recorded here as phases execute.)_
+
+- [Phase ?]: D-BETA-STATE: beta branch already has 0x35/0x39 explicit dispatch arms; TestDispatchGate02 tests 1+2 are GREEN now (not RED as planned); only protocol!=0 not_implemented arm is missing
 
 ## Performance Metrics
 
@@ -155,6 +157,7 @@ _(v1.12 decisions will be recorded here as phases execute.)_
 | Phase 58 P02 | 35 | 2 tasks | 5 files |
 | 59 | 02 | ~4min | GATE-04 SRAM audit; configure_sram near-no-op confirmed; 3 NVRAM truths documented; two-layer lockstep |
 | Phase 61 P01 | 40min | - tasks | - files |
+| Phase 62 P01 | 10min | 2 tasks | 1 files |
 
 ## Deferred Items
 
