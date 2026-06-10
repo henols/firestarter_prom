@@ -321,7 +321,11 @@ Note: DEC-03, DEC-04, DEC-05 span Phases 56 and 57. The field dictionary work (t
   4. `ic_layout.py`'s `get_chip_type_string` and can-erase derivation read `electrical.type`/`flags` (the protocol label may remain as supplementary detail, not the sole source of truth).
   5. Existing tests green + `ruff` clean; new/updated presenter tests cover the EEPROM-display case and the UV-EPROM control case.
 
-**Plans**: TBD — run `/gsd-plan-phase 60`.
+**Plans**: 2 plans
+
+Plans:
+- [ ] 60-01-PLAN.md — Six atomic display-decode edits (D-01/02/03/05/07) in ic_layout.py + database.py; synthetic + real-DB smoke tests
+- [ ] 60-02-PLAN.md — Regenerate test_info_known_chip snapshot (EEPROM canary) + phase gate
 
 **UI hint**: no (terminal text presentation only).
 
