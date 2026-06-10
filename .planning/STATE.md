@@ -1,17 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.11
-milestone_name: — Complete infoic.xml Decode & Database Correctness
-status: Awaiting next milestone
-stopped_at: Session resumed — Phase 61 confirmed shipped + FM1608 follow-up committed; proceeding toward v1.11 milestone close
-last_updated: "2026-06-10T12:07:05.573Z"
-last_activity: 2026-06-10 — Milestone v1.11 completed and archived
+milestone: v1.12
+milestone_name: Firmware Protocol Dispatch Hardening + Skeletons
+status: planning
+last_updated: "2026-06-10T12:32:46.075Z"
+last_activity: 2026-06-10
 progress:
-  total_phases: 10
-  completed_phases: 6
-  total_plans: 21
-  completed_plans: 19
-  percent: 60
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -21,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: Milestone v1.11 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-06-10 — Milestone v1.11 completed and archived
+Status: Defining requirements
+Last activity: 2026-06-10 — Milestone v1.12 started
 
 ## Project Reference
 
@@ -178,4 +177,5 @@ Resume file: None
   sub-repo untouched this milestone — confirm the lockstep-version policy at cut (may need a
   skipped firmware tag to keep b8→b9 lockstep, as at the v1.10 close). Watch the
   py3.12-masks-CI-py3.11 ruff/codegen drift traps. See MILESTONES.md §v1.11.
+
 - **Next milestone:** `/gsd-new-milestone`. Deferred v1.9 read-bug RCA resumes at `/gsd-plan-phase 45`.
