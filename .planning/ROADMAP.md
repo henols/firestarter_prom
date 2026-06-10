@@ -177,7 +177,7 @@ Plans:
 - [x] **Phase 57: Decode Bug Fixes + PROTOCOL_MAP + check_dispatch Extension** — Fix confirmed decode bugs (BUG-1..4: `interpret_timing` ×100, VCC nibbles, vdd/vcc swap, PROTOCOL_MAP names); extend `check_dispatch.py` to full-class VPP safety guard before any re-derivation changes land. (completed 2026-06-08)
 - [x] **Phase 58: Pinout Re-derivation + 24-pin EEPROM Unblock** — Re-derive `resolve_pinout_key` from principled `(pin_count, proto_id, mem_size)` rules; add `DIP24_6116` EEPROM pinout; unblock the 9 AT28C04/AT28C16 chips; SR-1 safety checklist. (completed 2026-06-09)
 - [x] **Phase 59: Correctness Gate + Per-chip Diff + SRAM Audit** — Regenerate DB; produce and review per-chip diff vs pinned baseline; `configure_sram` NVRAM/WP# behavior audit + documentation. (completed 2026-06-09)
-- [ ] **Phase 60: Display-Layer Decode Correctness (`info` reflects electrical.type)** — Make `ic_layout.py` derive the displayed chip Type and "Can be erased" from the DB's `electrical.type`/`flags` (decode ground truth) instead of keying solely on `protocol_id`, so the EEPROMs reclassified in the Phase 59 follow-up (`cca7d62`: W27C512, SST27VF512, SST27SF512, W27C257, …) display correctly in `firestarter info` and genuine UV-EPROMs do not regress. Host-only; firmware electrical-erase support is a separate firmware backlog item.
+- [x] **Phase 60: Display-Layer Decode Correctness (`info` reflects electrical.type)** — Make `ic_layout.py` derive the displayed chip Type and "Can be erased" from the DB's `electrical.type`/`flags` (decode ground truth) instead of keying solely on `protocol_id`, so the EEPROMs reclassified in the Phase 59 follow-up (`cca7d62`: W27C512, SST27VF512, SST27SF512, W27C257, …) display correctly in `firestarter info` and genuine UV-EPROMs do not regress. Host-only; firmware electrical-erase support is a separate firmware backlog item. (completed 2026-06-10)
 
 ## Phase Details
 
@@ -365,7 +365,7 @@ Plans:
 | 57 | v1.11 | 3/3 | Complete    | 2026-06-08 |
 | 58 | v1.11 | 3/3 | Complete    | 2026-06-09 |
 | 59 | v1.11 | 2/2 | Complete    | 2026-06-09 |
-| 60 (close) | v1.11 | 2/2 | Complete   | 2026-06-10 |
+| 60 (close) | v1.11 | 2/2 | Complete    | 2026-06-10 |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
