@@ -329,7 +329,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 60-02-PLAN.md — Regenerate test_info_known_chip snapshot (EEPROM canary) + phase gate
+- [x] 60-02-PLAN.md — Regenerate test_info_known_chip snapshot (EEPROM canary) + phase gate
 
 **UI hint**: no (terminal text presentation only).
 
@@ -365,7 +365,7 @@ Plans:
 | 57 | v1.11 | 3/3 | Complete    | 2026-06-08 |
 | 58 | v1.11 | 3/3 | Complete    | 2026-06-09 |
 | 59 | v1.11 | 2/2 | Complete    | 2026-06-09 |
-| 60 (close) | v1.11 | 1/2 | In Progress|  |
+| 60 (close) | v1.11 | 2/2 | Complete   | 2026-06-10 |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
