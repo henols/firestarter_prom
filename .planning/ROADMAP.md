@@ -371,7 +371,19 @@ Research finding: the SKELETON-NEEDED bucket is empty (every RURP-feasible proto
   2. `check_dispatch.py`'s `dispatch()` function has explicit cases for protocols `0x35` and `0x39` (not relying on the mem_type coincidental fallback), plus a `protocol != 0` → `"not_implemented"` arm replacing the stale fallback; `0x35`/`0x39` chips continue to resolve to `configure_flash4`.
   3. A `not_implemented` list + FAIL assertion is present in the `check_dispatch.py` scan loop; running `python tools/check_dispatch.py` against the current 743-chip DB exits with `0 not-implemented chips` (PASS — because no DB chip uses a gap protocol).
   4. All pre-existing `check_dispatch.py` checks remain green (GATE-03 VPP-safety guard, SRAM-in-EPROM guard, wire round-trip 743/743 PASS).
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+**Wave 1**
+
+- [ ] 62-01-PLAN.md — Fork v1.12-protocol-dispatch-hardening (off beta) + Wave 0 failing TestDispatchGate02 tests (GATE-02)
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 62-02-PLAN.md — Pre-edit dispatch baseline snapshot: 743-chip dispatch triples -> tools/baseline/dispatch_baseline.json (GATE-01)
+
+**Wave 3** *(blocked on Wave 2 — snapshot must be pre-edit)*
+
+- [ ] 62-03-PLAN.md — check_dispatch.py edits: 0x35/0x39 explicit case + protocol!=0 not_implemented arm + main() FAIL bucket; gate green (GATE-02)
 **UI hint**: no
 
 ### Phase 63: Catalog Lockstep Wire Change
