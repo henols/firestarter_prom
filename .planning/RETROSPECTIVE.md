@@ -321,6 +321,55 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 
 ---
 
+## Milestone: v1.11 — Complete infoic.xml Decode & Database Correctness
+
+**Shipped:** 2026-06-10
+**Phases:** 6 (56–61) | **Plans:** 14 | **Timeline:** 2026-06-08 → 2026-06-10 (3 days) | HOST-ONLY (firmware untouched like v1.8); beta-only, `3.0.0b9` cut operator-gated
+
+### What Was Built
+
+- Authoritative, minipro-source-cited **field dictionary** (13 attributes, CONFIRMED/INFERRED/UNKNOWN) + rewritten `protocol-id.md`/`protocol-flags.md`/`package-details.md` (Phase 56)
+- Re-derived `build_db.py` decode: 4 confirmed bugs fixed (`interpret_timing` ×100→µs; `VCC_VOLTAGES` 0x02/0x03; vcc/vdd label swap; `PROTOCOL_MAP` canonicalized) + `check_dispatch.py` extended to a full-class VPP-safety guard keyed on `electrical.type` (Phase 57)
+- Principled `resolve_pinout_key` replacing the survey-built guess tables, with the 3 load-bearing safety overrides preserved as explicit rules; 9 × 24-pin AT28C04/16 EEPROMs unblocked host-only via `DIP24_2816` + `0x0D` + two-layer SR-1 review (Phase 58)
+- `diff_db.py` per-chip correctness gate vs pinned baseline + `configure_sram` NVRAM audit (Phase 59); DB 734 → 743 chips
+- Display layer rewired to `electrical.type` ground truth via a single shared `resolve_type_label` helper — `info` (Phase 60) and `list`/`search` (Phase 61) now agree (EEPROM vs UV-EPROM, no spurious SRAM VPP)
+- Post-close operator-driven FM1608 follow-up: SRAM/FRAM `vcc`→`vdd` (5V) normalization, zero-pulse-delay row suppression, chip-ID `-` placeholder
+
+### What Worked
+
+- **Research re-scoped the milestone before a line was written.** The original framing ("expand to all types + add firmware handlers, dual-repo") was overturned by source-grounded research: the hardware-feasible memory set was already covered, the only real gap was ~9 24-pin EEPROMs, unblockable host-only. v1.11 shipped as a host-only software milestone with zero firmware risk — the research phase saved an entire firmware workstream.
+- **Field dictionary as the decode authority (phase 0 pattern, again).** Phase 56 produced the source-cited dictionary first; Phase 57's code fixes referenced it rather than re-deriving lookups. Same "resolve the contract before implementing" shape that worked for v1.10's decision phase.
+- **Single-source-of-truth helper for view parity.** Routing both `info` and `list`/`search` through one `resolve_type_label` (D-04) made divergence structurally impossible — the IN-01 info-vs-list bug can't recur because there's one code path. The parametrized list-vs-info parity test locks it.
+- **Two-pass `_etype` + override-preservation discipline.** The re-derivation explicitly preserved WARNING-5 / fm1608 / 24-pin-skip as rules and proved it via `check_dispatch.py` 0-violations on every regenerated DB — the load-bearing safety overrides survived a guess-table deletion intact.
+- **GATE keyed on the right axis (CR-01).** Code review caught that the VPP-safety guard's algorithm predicate was dead code; re-keying it on `electrical.type` made it a genuine superset of WARNING-5. Review-as-correctness, not just style.
+
+### What Was Inefficient
+
+- **REQUIREMENTS.md checkbox lag — third milestone running.** DOC-01/02/03 + GATE-01 stayed `[ ]` after Phase 56 verified 8/8; the milestone-close audit had to reconcile them. v1.10's retro flagged this exact pattern ("inserted/decimal phases own their own requirements bookkeeping") and it recurred for *first-phase* requirements this time.
+- **`milestone complete` CLI undercounted + picked up noise — also a repeat.** It reported 5 phases/13 plans (missed Phase 61 entirely, because the ROADMAP milestone *header* still read "Phases 56-59") and extracted a plan "Deviation" line (`1. [Rule 2 - Missing Critical]…`) as an accomplishment. Required a full manual rewrite of the MILESTONES entry — the same noise v1.10 hit.
+- **Phase 61 lived in the Backlog section.** It was added as a backlog `### Phase 61` entry rather than into the v1.11 milestone block, so the close had to move it out and the CLI's phase-count keyed off the stale header. Late-added close phases need the ROADMAP milestone header + phase list updated when they're inserted, not at close.
+- **SUMMARY `requirements_completed` frontmatter inconsistently populated** (56-02/03, 58-*, 59-02, 61-01 empty) — coverage was only confirmable via the VERIFICATION requirement tables, adding a cross-check step to the audit.
+
+### Patterns Established
+
+- **Research can (and should) shrink scope.** A dedicated research pass that overturns the milestone's premise — proving most of the proposed work is unnecessary — is a high-value outcome, not a detour. Budget for it before roadmapping a "big expansion."
+- **Display/presentation correctness as a follow-on phase pair.** When a decode/data fix changes ground truth, the operator-facing surfaces (`info`, then `list`/`search`) trail as their own small phases (60→61) routed through one shared helper — keeps the data milestone from ballooning while still closing the visible gap.
+- **Operator-driven post-close polish belongs in the same milestone entry.** The FM1608 fixes landed after the formal close decision but within the milestone theme; recording them in the MILESTONES entry + STATE (with the on-branch commit SHAs) keeps the beta-cut traceable.
+
+### Key Lessons
+
+- **The ROADMAP milestone *header* is load-bearing for tooling.** `milestone complete` counts phases from the header's stated range; a header that says "56-59" while the work spans 56-61 makes the CLI silently undercount. Update the header the moment a close phase is added.
+- **Checkbox/metadata lag is now a confirmed cross-milestone failure mode** (v1.10 + v1.11). Worth a process fix: flip the requirement checkbox at *phase* close, not milestone close — or add a verify-time hook.
+- **Always hand-verify the auto-generated MILESTONES entry.** Two milestones running, the SDK extraction has produced wrong counts and noise-as-accomplishments. Treat its output as a draft, not the entry.
+
+### Cost Observations
+
+- 3 development days, 14 plans across 6 phases — dense, because every phase was pure host-side software with CI gates and **no bench dependency** (research correctly ruled out firmware + hardware work).
+- Zero hardware sessions; the milestone closed entirely on software gates (`check_dispatch.py`, `diff_db.py`, 559-test suite, snapshots) + one operator UAT review of `firestarter info` output.
+- 7 items deferred at close, all pre-existing/out-of-scope/v1.9-gated; 2 carried todos resolved and closed (w27c512 misclassification, info-list divergence) — net backlog *shrank*.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -331,12 +380,14 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 | v1.2      | 4 + close | 32 | 11 | Catalog-driven codegen with CI drift gate; phased migration (A→B→C→D→Close); bench-verification as a first-class step; helper-function refactor pattern (mixed result on AVR) |
 | v1.4      | 6     | 10    | 1    | Live cuts as integration tests (3 sequential cuts b1→b2→b3 surfaced 6 substrate defects); branch-driven beta with `make_latest:false` + `pip --pre` opt-in; real-hardware flash as E2E gate; manually-paired lockstep coordination (rejected: shared VERSION file, cross-repo dispatch) |
 | v1.10     | 7     | 27    | 5    | Decision-phase-first for a load-bearing mechanism choice (COBS vs SLIP, static proof before implementation); dual-repo lockstep pinned by shared golden-vector codegen + CI drift gate; insert-ahead sequencing to exonerate a variable; transport-exoneration as a first-class PASS verdict (hardware still fails → RCA deferred, not a milestone failure) |
+| v1.11     | 6     | 14    | 3    | Research-shrinks-scope (overturned "expand + firmware handlers" → host-only); field-dictionary-as-decode-authority (phase 0); single-source-of-truth helper for view parity (one `resolve_type_label` → divergence structurally impossible); display correctness as a follow-on phase pair (60→61); recurring checkbox-lag + auto-MILESTONES-noise confirmed as cross-milestone failure modes |
 
 ### Cumulative Quality
 
 | Milestone | Verified Phases | Audit Status     | Hazard-Class E2E Flows |
 | --------- | --------------- | ---------------- | ---------------------- |
 | v1.0      | 3/13 formal (11, 12, 13) + 10 via INTEGRATION-CHECK | gaps_found (REQ-SAF-01 Intel-flash) | 0 (Phase 13 closed AT28C256) |
+| v1.11     | 6/6 formal (56–61, all passed) | passed (15/15 reqs, 0 gaps) | 5/5 CLI E2E flows (info/list/search) green; both correctness gates 0-violation on 743 chips |
 
 ### Top Lessons (Verified Across Milestones)
 
