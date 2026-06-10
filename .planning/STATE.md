@@ -66,6 +66,7 @@ Resumes at Phase 45 when the operator picks it back up.
 
 ### Roadmap Evolution
 
+- Phase 61 added (2026-06-10): List/Search Display Correctness + Table Layout — extend Phase 60's `electrical.type`-sourced display to the `firestarter list`/search table (Type + VPP columns; resolves the Phase 60 review IN-01 `info`-vs-`list` divergence incl. spurious SRAM VPP), AND enforce table-layout rules: fit all columns without breaking, never render narrower than today's default width (today is the floor). Host-only (`eprom_info.py` `print_eprom_list_table`). v1.11 `/gsd-complete-milestone` now deferred until Phase 61 ships (was: until Phase 60).
 - Phase 60 added (2026-06-10): Display-Layer Decode Correctness — `firestarter info` / `ic_layout.py` must derive the displayed Type and "Can be erased" from the DB's `electrical.type`/`flags`, not solely `protocol_id`. Triggered by the post-Phase-59 `/gsd-debug` finding: `cca7d62` corrected `electrical.type` to EEPROM for W27C512/SST27VF512/etc., but the operator-facing `info` display is protocol-keyed and still shows "UV-EPROM / MTP-Flash" + "Can be erased: false". Host-only; firmware electrical-erase support is a separate firmware backlog item. Phase 60 is now the v1.11 close phase (was 59).
 
 ### v1.11 Scope Lock (2026-06-08)
@@ -172,4 +173,5 @@ Items acknowledged and deferred. None are incomplete v1.10 transport work.
 
 ## Operator Next Steps
 
-- Phase 59 complete; run `/gsd-complete-milestone` to close v1.11 and cut the beta tag when ready.
+- Phase 60 complete + verified (11/11). Code-review fix cycle landed (WR-01 SRAM-VPP regression fixed). IN-01 `info`/`list` divergence promoted to Phase 61.
+- Phase 61 (List/Search Display Correctness + Table Layout) is the new v1.11 close phase. Next: `/gsd-plan-phase 61`. Run `/gsd-complete-milestone` only after Phase 61 ships.

@@ -178,6 +178,7 @@ Plans:
 - [x] **Phase 58: Pinout Re-derivation + 24-pin EEPROM Unblock** — Re-derive `resolve_pinout_key` from principled `(pin_count, proto_id, mem_size)` rules; add `DIP24_6116` EEPROM pinout; unblock the 9 AT28C04/AT28C16 chips; SR-1 safety checklist. (completed 2026-06-09)
 - [x] **Phase 59: Correctness Gate + Per-chip Diff + SRAM Audit** — Regenerate DB; produce and review per-chip diff vs pinned baseline; `configure_sram` NVRAM/WP# behavior audit + documentation. (completed 2026-06-09)
 - [x] **Phase 60: Display-Layer Decode Correctness (`info` reflects electrical.type)** — Make `ic_layout.py` derive the displayed chip Type and "Can be erased" from the DB's `electrical.type`/`flags` (decode ground truth) instead of keying solely on `protocol_id`, so the EEPROMs reclassified in the Phase 59 follow-up (`cca7d62`: W27C512, SST27VF512, SST27SF512, W27C257, …) display correctly in `firestarter info` and genuine UV-EPROMs do not regress. Host-only; firmware electrical-erase support is a separate firmware backlog item. (completed 2026-06-10)
+- [ ] **Phase 61: List/Search Display Correctness + Table Layout** — Route the `firestarter list` / search table Type & VPP columns through `electrical.type` (parity with `info`; resolves the Phase 60 IN-01 divergence, incl. no spurious SRAM VPP), and size the table so it fits all columns without breaking and is never narrower than today's default width. Host-only (`eprom_info.py` `print_eprom_list_table`).
 
 ## Phase Details
 
@@ -613,3 +614,14 @@ Plans:
 Plans:
 
 - [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 61: List/Search Display Correctness and Table Layout
+
+**Goal:** Route the `firestarter list` and search table's Type label and VPP column through the DB `electrical.type` ground truth (the same source `firestarter info` uses as of Phase 60), so the two views agree for the EEPROM-family chips reclassified in Phases 59/60 (W27C512, SST27VF512, SST27SF512, W27C257, …) and SRAM does not show a spurious VPP (SRAM carries `vpp_mv=12000` as an infoic.xml decode artifact, not a real programming voltage). This resolves the IN-01 follow-up (`info-list-type-vpp-divergence`) raised in the Phase 60 code review. **Also** adjust the list/search table sizing so it fits all columns without breaking/wrapping, and so the table is **never** rendered narrower than its current default width (today's width is the floor). Verification must confirm both `list` and search display the correct (electrical.type-sourced) information and that the table neither breaks nor shrinks below today's default. Host-only; primary surface is `firestarter_app/firestarter/eprom_info.py` (`print_eprom_list_table`) and related table-rendering code. Add a parametrized list-view test covering the EEPROM display set, the UV-EPROM control set, and an SRAM control so `list`/`info` stay consistent.
+**Requirements**: Decode-display follow-up (extends DEC-01..05 to the list/search presentation layer + table-layout UX). No new requirement ID minted — surfaces decode already correct in the DB.
+**Depends on:** Phase 60
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 61 to break down)
