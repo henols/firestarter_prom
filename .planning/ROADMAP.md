@@ -620,7 +620,7 @@ Plans:
 **Goal:** Route the `firestarter list` and search table's Type label and VPP column through the DB `electrical.type` ground truth (the same source `firestarter info` uses as of Phase 60), so the two views agree for the EEPROM-family chips reclassified in Phases 59/60 (W27C512, SST27VF512, SST27SF512, W27C257, …) and SRAM does not show a spurious VPP (SRAM carries `vpp_mv=12000` as an infoic.xml decode artifact, not a real programming voltage). This resolves the IN-01 follow-up (`info-list-type-vpp-divergence`) raised in the Phase 60 code review. **Also** adjust the list/search table sizing so it fits all columns without breaking/wrapping, and so the table is **never** rendered narrower than its current default width (today's width is the floor). Verification must confirm both `list` and search display the correct (electrical.type-sourced) information and that the table neither breaks nor shrinks below today's default. Host-only; primary surface is `firestarter_app/firestarter/eprom_info.py` (`print_eprom_list_table`) and related table-rendering code. Add a parametrized list-view test covering the EEPROM display set, the UV-EPROM control set, and an SRAM control so `list`/`info` stay consistent.
 **Requirements**: Decode-display follow-up (extends DEC-01..05 to the list/search presentation layer + table-layout UX). No new requirement ID minted — surfaces decode already correct in the DB.
 **Depends on:** Phase 60
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
 
-- [ ] 61-01-PLAN.md — Route list/search Type+VPP through electrical.type via one shared SpecBuilder helper (info parity, no spurious SRAM VPP) + table sizing (Name clamp 13..20, VPP width 5)
+- [x] 61-01-PLAN.md — Route list/search Type+VPP through electrical.type via one shared SpecBuilder helper (info parity, no spurious SRAM VPP) + table sizing (Name clamp 13..20, VPP width 5)

@@ -10,7 +10,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### DEC — Field Decode & Dictionary
 
-- [ ] **DEC-01**: An authoritative, source-cited field dictionary documents every Firestarter-relevant `infoic.xml` attribute (`package_details`, `type`, `variant`, `protocol_id`, `flags`, `voltages`, `pin_map`, `pulse_delay`, `chip_id`, `code_memory_size`, `page_size`, `chip_info`, `blank_value`), each marked CONFIRMED / INFERRED / UNKNOWN against minipro source.
+- [x] **DEC-01**: An authoritative, source-cited field dictionary documents every Firestarter-relevant `infoic.xml` attribute (`package_details`, `type`, `variant`, `protocol_id`, `flags`, `voltages`, `pin_map`, `pulse_delay`, `chip_id`, `code_memory_size`, `page_size`, `chip_info`, `blank_value`), each marked CONFIRMED / INFERRED / UNKNOWN against minipro source.
 - [x] **DEC-02**: `build_db.py` field decode is re-derived to match minipro source semantics for `voltages`, `flags`, `protocol_id`, `type`, and `package_details`.
 - [x] **DEC-03**: `pulse_delay` is decoded as microseconds for all protocols (the `interpret_timing` ×100 multiplier for 0x07/0x0B is removed), verified against minipro source.
 - [x] **DEC-04**: VCC/VDD voltage decode is complete and correctly labelled — nibble `0x02`=4V and `0x03`=4.5V are added, and `vcc` (bits 11-8) / `vdd` (bits 15-12) field names are corrected.
@@ -67,7 +67,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DEC-01 | Phase 56 | Pending |
+| DEC-01 | Phase 56 | Complete |
 | DEC-02 | Phase 57 | Complete |
 | DEC-03 | Phase 56 (dict) + Phase 57 (code) | Complete |
 | DEC-04 | Phase 56 (dict) + Phase 57 (code) | Complete |

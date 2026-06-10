@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.11
 milestone_name: — Complete infoic.xml Decode & Database Correctness
-status: executing
+status: verifying
 stopped_at: Phase 61 context gathered
-last_updated: "2026-06-10T09:49:28.227Z"
-last_activity: 2026-06-10 -- Phase 61 planning complete
+last_updated: "2026-06-10T10:08:44.280Z"
+last_activity: 2026-06-10
 progress:
   total_phases: 10
   completed_phases: 6
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 60
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-06-10 -- Phase 61 planning complete
+Phase: 61 (list-search-display-correctness-and-table-layout) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
+Last activity: 2026-06-10
 Note: Phase 59 was the prior "(close)" phase; Phase 60 is now the v1.11 close. /gsd-complete-milestone deferred until 60 ships.
 
 ## Project Reference
@@ -34,7 +34,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-08 after v1.11 scope lock)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 60 — display-layer-decode-correctness
+**Current focus:** Phase 61 — list-search-display-correctness-and-table-layout
 (firestarter_app data pipeline + docs). Firmware sub-repo untouched. 15 requirements across
 4 phases (56–59). Phase numbering continues from v1.10 close at Phase 55.
 
@@ -127,9 +127,9 @@ only if a real safety issue is found during the SRAM audit).
 
 ## Session Continuity
 
-Last session: 2026-06-10T09:35:50.948Z
+Last session: 2026-06-10T10:08:44.272Z
 Stopped at: Phase 61 context gathered
-Resume file: .planning/phases/61-list-search-display-correctness-and-table-layout/61-CONTEXT.md
+Resume file: None
 
 ## Decisions
 
@@ -145,6 +145,9 @@ Resume file: .planning/phases/61-list-search-display-correctness-and-table-layou
 - [Phase ?]: Phase 58-02: principled resolve_pinout_key; 743 chips; 19 Rule1 + 12 Rule2; GATE-03 0 violations; 516 tests green
 - Phase 58-03: GATE-03 0 violations confirmed on 743-chip regenerated DB; AT28C04/16 CLI-reachable; SR-1 two-layer docs authored (DIP24_2816 PASS + all changed pinouts reviewed)
 - Phase 59-02: GATE-04 audit: configure_sram near-no-op; BLOCKER-2 guard proof (0 SRAM chips → configure_eprom); Safety Verdict no-escalation + criterion stated; two-layer lockstep committed
+- [Phase ?]: Phase 61-01: Single resolve_type_label helper on EpromSpecBuilder — D-04 single source of truth for Type label in both info and list views
+- [Phase ?]: Phase 61-01: VPP gate parity — vpp_mv > 0 AND electrical-type != SRAM (D-03); SRAM shows '-' despite vpp_mv=12000
+- [Phase ?]: Phase 61-01: Name column dynamic width clamped to [13,20] with ellipsis truncation; VPP column fixed at 5
 
 ## Performance Metrics
 
@@ -155,6 +158,7 @@ Resume file: .planning/phases/61-list-search-display-correctness-and-table-layou
 | 57 | 03 | ~45min | DB regenerated (734 chips); W27C512=100us; GATE-03 on regen set; 480 tests green |
 | Phase 58 P02 | 35 | 2 tasks | 5 files |
 | 59 | 02 | ~4min | GATE-04 SRAM audit; configure_sram near-no-op confirmed; 3 NVRAM truths documented; two-layer lockstep |
+| Phase 61 P01 | 40min | - tasks | - files |
 
 ## Deferred Items
 
