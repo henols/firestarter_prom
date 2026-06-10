@@ -1,406 +1,320 @@
 # Pitfalls Research
 
-**Domain:** EPROM programmer — infoic.xml decode re-derivation + new firmware write-path handlers (Firestarter v1.11)
-**Researched:** 2026-06-08
-**Confidence:** HIGH (grounded in build_db.py override comments, firmware source, pinouts.json, check_dispatch.py, and audit_coverage_matrix.py findings)
+**Domain:** Firmware dispatch hardening + lockstep wire-protocol extension + skeleton handlers (v1.12)
+**Researched:** 2026-06-10
+**Confidence:** HIGH — all findings grounded in actual source files read above, v1.2/v1.10/v1.11 retrospectives, and the live flash-budget measurements from the current branch.
 
 ---
 
-## 1. Hardware-Damage Hazard Taxonomy
+## Critical Pitfalls
 
-Every damage class below is a consequence of the RURP shield asserting voltage to the wrong socket pin. The shield's control register has three VPP routing bits: `CTRL_VPP_A9_ENABLE` (routes regulator output to address line A9), `CTRL_VPE_ENABLE` / `CTRL_VPP_P1_ENABLE` (routes to the PGM/VPP pin — either the DIP-edge pin or socket pin 1 depending on `using_p1_as_vpp()`), and `CTRL_VPP_REGULATOR_ENABLE` (powers the boost converter). The damage path always starts with one of those bits being asserted for the wrong chip family.
-
-### H-1: Wrong-Pin VPP — Address Line Receives 12V+
+### Pitfall 1: Deleting the mem_type fallback before establishing a regression baseline — unmasking a WARNING-5-class hazard
 
 **What goes wrong:**
-`configure_eprom` asserts `CTRL_VPP_REGULATOR_ENABLE` + `CTRL_VPE_ENABLE` or `CTRL_VPP_P1_ENABLE` during every write pulse. If the chip seated in the socket has its VPP pin routed to a different physical location than the pinout entry expects, 12V lands on an address line, a data line, or a control signal.
 
-**Concrete instances in the existing codebase:**
+The `mem_type == TYPE_EPROM (1)` fallback at `memory.cpp:104` is the last stop before the existing `MSG_ERR_MEM_TYPE_UNSUPPORTED` error. It is currently only reachable when `handle->protocol == 0` (or some unknown non-zero value). Every chip in `chip_database.json` that the regenerated pipeline emits carries an explicit `algorithm` integer, so for those 743 chips the protocol-prefix chain always fires first and the fallback is never exercised. However, the fallback still provides safety for two real populations:
 
-- WARNING-5 (DIP28_2764 + 0x07 + Flash/EEPROM): socket pin 1 is the VPP line on `DIP28_2764`. On genuine UV-EPROMs (2764/27128) pin 1 IS VPP. On 28C-family 5V EEPROMs the same pinout class is reused but pin 1 is A14. The 0x07 EPROM_STD handler fires `CTRL_VPP_P1_ENABLE` → 12V on A14 → damage.
-- fm1608 (type=4 FRAM, proto=0x07/0x0B): Ramtron FRAMs are tagged SRAM-class in infoic.xml (`type=4`) but carry EPROM-family `protocol_id`. The EPROM handler would fire P1_VPP_ENABLE on pin 1, which on the JEDEC SRAM pinout is address line A13 → damage.
-- 24-pin 5V EEPROM SAFETY SKIP (AT28C04/16 etc.): `DIP24_2716` routes `vpp-pin = [21]`. On a genuine 2716, pin 21 is the OE/VPP shared pin. On a 24-pin 5V EEPROM (AT28C04, AT28C16) pin 21 is WE. The EPROM handler's `CTRL_VPE_ENABLE` (VPP to PGM-equivalent pin = pin 21) hits WE → 12V on write-enable input → damage.
-- 27512 vs 27256 pinout swap: `DIP28_27512` places VPP on pin 22 (OE/VPP shared). `DIP28_27256` places VPP on pin 1. A chip decoded with the wrong variant → VPP on the wrong pin.
-- 2732 vs 2716 pinout swap: `DIP24_2732` has `vpp-pin = [20]` (the OE/VPP pin). `DIP24_2716` has `vpp-pin = [21]`. A 1-pin shift in a 24-pin socket.
+1. **Hand-crafted JSON commands** — a developer or operator sending raw JSON with `"type": 1` and no `"algorithm"` key (or `"algorithm": 0`) will silently route to `configure_eprom`, which enables the 12V VPP boost regulator (`CTRL_VPP_REGULATOR_ENABLE`). If the chip seated in the socket is anything other than a UV-EPROM, that is a hardware-damage path. This population exists today and is explicitly called out in `firestarter/CLAUDE.md` as the backward-compatibility rationale for the fallback.
 
-**Root cause in re-derivation:**
-`variant` and `pm_idx` in infoic.xml encode the layout family, but the decode logic (`DIP28_VARIANT_MAP`, `PIN_MAP_TO_PINOUT`, `PIN_MAP_PROTO_TO_PINOUT`) was reverse-engineered heuristically. A re-derived rule that mis-reads the variant or pm_idx byte assignment routes a chip to the wrong pinout key, which changes which socket pin gets VPP.
+2. **User-override database entries** — entries in `~/.firestarter/database.json` that predate the v1.0 `algorithm` field will arrive with `protocol == 0` and `mem_type == 1`. These also silently route to `configure_eprom`.
 
-**Datasheet cross-check:**
-For every chip receiving a VPP-capable handler, confirm: (1) the pinout entry's `vpp-pin` field matches the datasheet's VPP pin number exactly; (2) that socket pin is not shared with any signal that would be damaged by 12V+ during normal operation (CE, OE, A14, WE are all damage-sensitive).
+Removing the fallback without auditing these populations first turns a latent hazard into a silent regression: any chip that was accidentally working through the fallback (even correctly) now gets `MSG_ERR_MEM_TYPE_UNSUPPORTED` at runtime with no warning that a fallback was removed.
 
-**Phase to address:** Field-dictionary decode phase (the phase that re-derives `variant`/`pm_idx` → pinout mapping). Every new pinout key must pass a pin/voltage table audit before it goes into `pinouts.json`.
+The v1.0 retrospective documents exactly this pattern: "Closing a blocker can unmask a deeper hazard. Phase 12 closed BLOCKER-1's 'Memory type not supported' safe-exit, which had been silently protecting 23 AT28C-family 5V EEPROMs from receiving 12V." Removing the fallback here is the same structural move — the net you are removing may be load-bearing for some edge case you have not yet enumerated.
 
----
+**Why it happens:**
 
-### H-2: Wrong-Pin VPP — WE Receives 12V+ (24-pin EEPROM class)
-
-**What goes wrong:**
-This is a subclass of H-1 specific to 24-pin chips where VPP and WE are on adjacent or overlapping pins. `configure_eprom` asserts the VPP regulator. `DIP24_2716` has `vpp-pin = [21]`. If a 24-pin EEPROM (5V WE-programmed) passes the filter — either because the `flags & 0x10` electrically-erasable guard is bypassed, or because a new chip type added without a corresponding safety skip has the wrong pinout — 12V goes to WE.
-
-**Root cause in re-derivation:**
-The existing SAFETY SKIP in `build_db.py` (lines 359-369) gates on `pin_count == 24 AND proto_id in (0x07, 0x08, 0x0B) AND (flags & 0x10)`. A re-derived decode could change which bits of `flags` represent "electrically erasable." If that bit assignment is wrong, the guard misfires and 24-pin EEPROMs pass through to the EPROM handler.
-
-**Datasheet cross-check:**
-For every 24-pin chip with an EPROM-family protocol: verify what pin 21 connects to on that chip (OE/VPP for a genuine EPROM; WE for an EEPROM). Also verify that `flags & 0x10` is the correct electrically-erasable discriminator in the authoritative minipro source — it must remain consistent with `build_db.py`'s `_etype` derivation logic.
-
-**Phase to address:** Flags field-dictionary phase. The `flags` bit meanings must be source-verified from minipro before the safety-skip predicate is rebuilt. Until a 24-pin EEPROM firmware handler exists and is safety-reviewed, the SAFETY SKIP must remain (or be tightened, not loosened).
-
----
-
-### H-3: VPP Overvoltage — Schema Cap vs. Real-Chip Requirements
-
-**What goes wrong:**
-`VPP_MV` and `VPP_VOLTAGES` cap at 0xF0 = 18000 mV (18V). The RURP shield's boost converter tops out at approximately 22V. Intel NMOS 2716 (original 1977) requires 25V VPP; Intel NMOS 2732 requires 25V; Intel M2732A requires 21V. These chips are aliased in infoic.xml under generic entries that report 18V (the schema maximum) — they silently receive 18V instead of their required voltage. At 18V they will not program correctly. They are physically unprogrammable on RURP hardware (25V > 22V hardware ceiling), but the operator has no indication of this.
-
-Additionally, in the other direction: if the VPP value decoded from a new chip family is misread (e.g., the `voltages` byte boundary between VPP and VCC nibbles is wrong), a chip could receive a higher-than-specified VPP. The existing `voltages` field decode uses `voltages & 0xFF` for VPP and `(voltages >> 8) & 0x0F` for VDD, `(voltages >> 12) & 0x0F` for VCC. A re-derived decode that gets the nibble boundaries wrong corrupts both values simultaneously.
-
-**Datasheet cross-check:**
-(a) For every new chip entry, verify VPP spec from the datasheet against the decoded `vpp_mv` value. (b) Verify that the `voltages` field nibble layout is consistent with minipro source — specifically that `vpp = voltages & 0xFF`, `vdd = (voltages >> 8) & 0x0F`, `vcc = (voltages >> 12) & 0x0F`. (c) Flag any chip requiring VPP > 18V as "schema-capped / unverifiable" rather than silently reporting 18V.
-
-**Phase to address:** Voltage field-dictionary decode phase.
-
----
-
-### H-4: VCC Mismatch — 3.3V / 6.5V Chips on 5V Rail
-
-**What goes wrong:**
-RURP provides fixed 5V VCC. The `VCC_VOLTAGES` decode currently handles 0x00=5V, 0x01=3.3V, 0x04=5.5V, 0x05=6.5V. Chips with `vcc = 3.3V` will be over-driven. Chips with `vcc = 6.5V` are legacy NMOS parts that the RURP cannot power correctly. If the existing `vcc` field decode is wrong and a 3.3V chip is tagged as 5V, it will be exposed to over-voltage on every bus line.
-
-**Root cause in re-derivation:**
-The `VCC_VOLTAGES` map was hand-derived. A re-derivation that changes which hex value means 3.3V or moves any nibble to a different byte position changes which chips pass the 5V filter and which are silently mis-tagged.
-
-**Datasheet cross-check:**
-Verify the `voltages` field byte layout and the VCC nibble decode against minipro source. Any chip with a VCC entry that decodes to not-5V should be either filtered out (RURP cannot power it) or emit an explicit error rather than proceeding with incorrect VCC.
-
-**Phase to address:** Voltage field-dictionary decode phase; filter layer in `build_db.py`.
-
----
-
-### H-5: WE/OE/CE/PGM Strobe on the Wrong Pin
-
-**What goes wrong:**
-`configure_eeprom28c` writes via the WE line (no VPP). The WE line comes from the pinout entry's implicit control-signal mapping — the RURP drives WE via the `CTRL_READ_WRITE` bit in the control register, which the pinout's `rw-pin` field maps to the physical socket pin. A new chip type (e.g., a 24-pin EEPROM handler) that uses a pinout with `rw-pin` mapped incorrectly will assert WE on the wrong socket pin.
-
-For `configure_eprom`, the PGM pulse is delivered via `CTRL_VPE_ENABLE` → either VPE (the shared PGM/VPP rail) or `CTRL_VPP_P1_ENABLE` depending on `using_p1_as_vpp()`. The `vpp_line` field in `bus_config` is set by the host from the pinout's `vpp-pin` entry and compared against `VPP_P1_32_DIP (0x15)`, `VPP_P1_28_DIP (0x0F)`, `VPP_P21_24_DIP (0x0B)` to select the routing path. A pinout that specifies the wrong `vpp-pin` value will pick the wrong routing path, causing the PGM pulse to fire on the wrong physical pin.
-
-**Datasheet cross-check:**
-For each new pinout entry: (1) cross-reference every control signal pin (WE, OE, CE, PGM/VPP) against the datasheet pin diagram; (2) verify that `rw-pin` (WE) is correct for write operations; (3) verify that `vpp-pin` exactly matches the datasheet's VPP/PGM pin number; (4) verify there is no physical overlap between `vpp-pin` and any address line for the target chip family.
-
-**Phase to address:** New pinout definition phase (any phase adding a `DIP24_*` or new 28/32-pin EEPROM pinout entry to `pinouts.json`).
-
----
-
-### H-6: Over-Erase / Corruption on Electrically-Erasable Chips
-
-**What goes wrong:**
-`configure_eprom`'s `eprom_internal_erase` asserts `CTRL_VPP_A9_ENABLE | CTRL_VPE_ENABLE` to the chip's A9 and PGM pins respectively. This is the correct erase sequence for UV-EPROMs that support electrical erase (e.g., W27C512). On a chip that does NOT support electrical erase (most classic 27-series), calling this function with `FLAG_CAN_ERASE` set will apply the erase-voltage sequence to a chip that ignores it — low risk of damage since the chip just doesn't respond. However, if `FLAG_CAN_ERASE` is incorrectly set for a 5V EEPROM routed to `configure_eprom` (due to a decode failure), the "erase" sequence asserts 12V A9 to what may be an address line, not an erase-enable input.
-
-For 5V flash families, `configure_flash3` and `configure_flash4` perform chip-erase or sector-erase via command sequences with no VPP. Over-erase risk here is algorithmic: if the wrong erase command sequence is used (e.g., 0x06 AMD-unlock sequence applied to a 0x05 page-write part), flash may be left in an indeterminate state.
-
-**Datasheet cross-check:**
-Verify for each chip: (a) whether electrical erase is supported (and thus `FLAG_CAN_ERASE` is appropriate); (b) the erase command sequence (for flash families) matches the datasheet command-set table; (c) A9 VPP erase is valid only for UV-EPROMs that explicitly support it — not for any 5V chip.
-
-**Phase to address:** Per-handler correctness review; firmware write-path phase for each new handler type.
-
----
-
-## 2. Re-Derivation Failure Mode Classes
-
-These are the classes of error that occur when re-deriving the decode from minipro source. Each maps to one of the existing override cases.
-
-### R-1: Type-Tag / Protocol-ID Mismatch (fm1608 class)
-
-**What goes wrong:**
-infoic.xml's `type` field (1=Memory, 4=SRAM) and `protocol_id` can disagree. Ramtron FRAM chips are `type=4` (SRAM-class by electrical behavior) but `protocol_id=0x07` (EPROM-family algorithm in minipro's classification). A re-derivation that trusts `protocol_id` alone routes them to `configure_eprom`. The existing fix gates on `type_int == 4 AND proto_id in (0x07, 0x08, 0x0B)` to flip `proto_id` to 0x28 (SRAM_STD).
-
-**Generalization:**
-Any chip where the minipro `type` field and `protocol_id` disagree is in this class. The re-derivation must not assume that `protocol_id` is the sole authority for dispatch — the `type` field is a veto for SRAM-class chips. More broadly: any chip tagged `type=4` that carries a VPP-capable `protocol_id` is unsafe to expose to that protocol's handler.
-
-**Detection:**
-Run `check_dispatch.py` after each DB rebuild. The BLOCKER-2 guard (`_SRAM_PROTOCOLS` set) catches SRAM-protocol chips routed to `configure_eprom`. The fm1608 class (type=4 with EPROM protocol) is caught by the `type_int == 4 AND proto_id in EPROM_FAMILY` predicate in `build_db.py`. A new variant of this pattern (type=4 + flash protocol) would bypass both guards — add an explicit guard for `type_int == 4 AND proto_id in FLASH_CAPABLE_PROTOCOLS` in the re-derived decode.
-
-**Phase to address:** Field-dictionary decode phase (type vs. protocol resolution rules); guard extension in `check_dispatch.py`.
-
----
-
-### R-2: Electrically-Erasable Flag Misinference (WARNING-5 class)
-
-**What goes wrong:**
-`flags & 0x10` is the "electrically erasable" discriminator used by WARNING-5 to distinguish 5V EEPROMs from genuine UV-EPROMs when both share `protocol_id=0x07`. If the `flags` bit for electrically-erasable is wrong (e.g., a re-derivation from minipro source discovers the bit is actually 0x80 in some schema version, or that the bit has additional conditions), the WARNING-5 predicate silently stops working.
-
-The existing `package-details.md` (the doc being replaced) calls bit 7 (0x80) "Electrically Erasable or Writable" and bit 4 (0x10) "Requires Write Enable Sequence." The `build_db.py` override uses `flags & 0x10` not `flags & 0x80`. If the authoritative source says the discriminator is a different bit, the override fires on the wrong set of chips.
-
-**Generalization:**
-Any flags-based dispatch predicate is fragile against an incorrect bit interpretation. The re-derivation must verify each bit's meaning from minipro source code (specifically the flag decode in `database.c` or equivalent) rather than inferring it from observed patterns.
-
-**Detection:**
-After each `build_db.py` run, the `check_dispatch.py` WARNING-5 guard (pinout `DIP28_2764` + type `Flash/EEPROM` + handler `configure_eprom`) must still return zero violations. If the flags-based `_etype` derivation changes, this guard may silently pass (no violations detected) while the underlying hazard has been re-introduced via a different chip's dispatch path. The guard tests a necessary condition but not sufficiency — it only checks chips that currently have pinout `DIP28_2764`.
-
-**Phase to address:** Flags field-dictionary decode phase; extend `check_dispatch.py` to cover the full WARNING-5 class for any pinout where pin 1 = VPP.
-
----
-
-### R-3: pm_idx Aliasing — Same Index, Different Physical Layout (PIN_MAP class)
-
-**What goes wrong:**
-`pm_idx` (the low byte of `pin_map`) clusters chips by family, but multiple families can share the same `pm_idx` with different physical layouts requiring protocol-level disambiguation. The existing `PIN_MAP_PROTO_TO_PINOUT` table handles this at `(pin_count, pm_idx, proto_id)` resolution. A re-derivation that adds a new pm_idx → pinout mapping without checking for protocol-level aliases will route multiple chip families to a single pinout, possibly routing a VPP-unsafe chip through a VPP-capable handler.
-
-Specific known cases:
-- `(32, 13)`: 5V flash (0x05/0x06 → `DIP32_SST39SF040`) vs. UV-EPROM (0x08 → `DIP32_STD`) vs. 5V EEPROM (0x0D → `DIP32_28C512_EEPROM`). All three share pm_idx=13 on 32-pin parts.
-- `(32, 0)`: 32-pin SRAM/NVRAM (0x0E → `DIP32_SST39SF040`) vs. anything new at pm_idx=0.
-- `(28, 22)`: 28-pin 27C family where `variant_lo` (0x10/0x11/0x12/0x13) sub-discriminates between `DIP28_27512` (VPP pin 22), `DIP28_27256` (VPP pin 1), and `DIP28_2764` (VPP pin 1).
-
-**Generalization:**
-Every `None` entry in `PIN_MAP_TO_PINOUT` is a known aliased cluster. For each such cluster, the re-derivation must enumerate every proto_id present in infoic.xml at that (pin_count, pm_idx) and confirm which pinout is correct for each.
-
-**Detection:**
-After re-derivation, scan for any chip assigned to a pinout that disagrees with its protocol family (e.g., a 0x05/0x06/0x0D chip assigned to `DIP32_STD` which has `vpp-pin=[1]`, exposing it to P1 VPP). Add a check to `check_dispatch.py` or a new tool: for any chip with `algorithm in {0x05, 0x06, 0x0D}` (5V, no VPP), verify `pinout` does not contain a `vpp-pin` field.
-
-**Phase to address:** pm_idx / pin_map decode phase; extend `check_dispatch.py`.
-
----
-
-### R-4: Variant Sub-Discriminator Drift (DIP28 27512 vs 27256 vs 2764)
-
-**What goes wrong:**
-Within `(28, 22)` (pm_idx=22, 28-pin), the `DIP28_VARIANT_MAP` uses `variant & 0xFF` to select between `DIP28_27512` (VPP pin 22), `DIP28_27256` (VPP pin 1), and `DIP28_2764` (VPP pin 1). The values 0x10/0x11/0x12/0x13 were reverse-engineered from observed infoic.xml data. If a re-derivation from minipro source reveals a different variant byte assignment (or the high byte encodes the algorithm number per `database.c:uint8_t algo_number = (uint8_t)(device->variant >> 8)`), the 27512 vs 27256 discrimination could flip, routing a 27512 (VPP=22) through the 27256 pinout (VPP=1) or vice versa.
-
-**Consequence:**
-27512 routed through 27256 pinout: VPP asserted on pin 1 (A14 on the chip) instead of pin 22 (OE/VPP). 12V on A14 = damage. The failure is silent unless pin 22 is confirmed as VPP in the bench test.
-
-**Datasheet cross-check:**
-For each 28-pin EPROM family, confirm from the datasheet: (a) VPP socket pin number; (b) whether it matches the assigned pinout's `vpp-pin` field; (c) cross-reference the variant byte value against the minipro `database.c` variant-decode logic to confirm the sub-discriminator logic is correct.
-
-**Phase to address:** variant field-dictionary decode phase; add a pinout-vs-chip-family consistency test.
-
----
-
-### R-5: Unknown Protocol-ID Pass-Through
-
-**What goes wrong:**
-`build_db.py` currently skips chips with `proto_id not in KNOWN_PROTOCOLS`. When v1.11 adds new protocols (0x2A, 0x2C, 0x2E, 0x11) to `KNOWN_PROTOCOLS`, chips that were previously skipped become visible. These chips may have been skipped for damage-prevention reasons that are not documented in `KNOWN_PROTOCOLS` membership alone. A new protocol added to `KNOWN_PROTOCOLS` without a corresponding firmware handler and safety review will either (a) emit a "Memory type not supported" error, or (b) fall through to the `mem_type` legacy chain and dispatch to a wrong handler.
-
-**Detection:**
-`check_dispatch.py`'s dispatch simulation must be updated in lockstep with `KNOWN_PROTOCOLS`. Any protocol added to `KNOWN_PROTOCOLS` without a corresponding entry in `_ALGO_MEM_TYPE` will produce `mt = None` and `handler = "ERROR"` — caught immediately. However, protocols that resolve to a wrong mem_type (e.g., a new NVRAM protocol that gets `mem_type=4` / SRAM) won't be caught unless the SRAM-safety guard is extended to include the new protocol.
-
-**Phase to address:** For each new protocol: add entry to `_ALGO_MEM_TYPE` in `check_dispatch.py` simultaneously with adding it to `KNOWN_PROTOCOLS` in `build_db.py`. Never do one without the other.
-
----
-
-## 3. Per-Handler Safety-Review Methodology (No Bench Validation)
-
-This is the concrete gate that every new write-capable handler must pass before shipping. It is the only guardrail in the absence of bench validation.
-
-### SR-1: Pinout Pin/Voltage Map Audit
-
-For the pinout entry assigned to the new handler, verify against the target chip's datasheet:
-
-- [ ] `vpp-pin` matches the datasheet VPP/PGM pin number (or is absent for 5V-only handlers)
-- [ ] `vpp-pin` is NOT a shared address line on ANY chip in the family that will use this pinout
-- [ ] `rw-pin` (WE) matches the datasheet WE pin number
-- [ ] `oe-pin` (OE) matches the datasheet OE pin number
-- [ ] `ce-pin` (CE) matches the datasheet CE pin number
-- [ ] `vcc-pin` list is correct (supply voltage pins; RURP asserts VCC here)
-- [ ] `gnd-pin` list is correct (ground pins; RURP ties these to GND)
-- [ ] No address or data bus pin in the pinout overlaps with `vpp-pin`, `vcc-pin`, or `gnd-pin`
-- [ ] For 24-pin handlers: confirm pin 21 is VPP/PGM (not WE) for every chip in scope
-- [ ] For 28-pin UV-EPROMs: confirm whether VPP is on pin 1 or pin 22 (not ambiguous)
-
-### SR-2: VPP Routing Path Verification
-
-Identify which firmware routing path the new handler uses:
-
-- [ ] Confirm `using_p1_as_vpp()` returns the expected value for this pinout (checks `vpp_line == VPP_P1_32_DIP | VPP_P1_28_DIP | VPP_P21_24_DIP` constants)
-- [ ] Confirm that `CTRL_VPE_ENABLE` vs `CTRL_VPP_P1_ENABLE` are used consistently with the expected routing (the `eprom_internal_set_control_register` intercept in `eprom.cpp` performs this flip)
-- [ ] For Intel-flash (0x10): VPP is routed via `CTRL_VPP_P1_ENABLE` (pin 1 on DIP32_STD). Confirm the new handler uses the same routing if it shares the Intel-flash pinout.
-- [ ] For 5V handlers (0x0D, 0x05, 0x06, 0x35, 0x39): confirm `CTRL_VPP_REGULATOR_ENABLE` is NEVER asserted in the handler's write path.
-
-### SR-3: VPP Voltage Range Check
-
-- [ ] Verify `vpp_mv` decoded value is within RURP hardware capability (max ~22V; reject > 18000 mV at schema level, flag 18V as schema-capped)
-- [ ] Verify the target chip's VPP spec from the datasheet matches the decoded `vpp_mv` within ±10%
-- [ ] Confirm the chip is not a 25V-VPP NMOS part aliased to an 18V infoic.xml entry
-- [ ] The `eprom_check_vpp` ADC gate (±500 mV over-voltage / 5% under-voltage) will run before any write pulse — confirm the VPP spec is achievable on the RURP before declaring the handler "safe"
-
-### SR-4: Handler Dispatch Chain Audit
-
-Before shipping a new protocol handler:
-
-- [ ] Add the protocol to `_ALGO_MEM_TYPE` in `check_dispatch.py` with the correct `mem_type`
-- [ ] Run `check_dispatch.py` on the regenerated DB — must pass with 0 errors, 0 SRAM-in-eprom, 0 WARNING-5 violations
-- [ ] Verify the dispatch order in `memory.cpp:configure_memory` places the new protocol in the correct position (before any fallback chain)
-- [ ] Add the protocol to `KNOWN_PROTOCOLS` in `build_db.py` only after the handler is implemented in firmware
-- [ ] Add a Unity test in `test/native/avr/test_dispatch/` asserting the new protocol dispatches to the expected handler — verify it passes on the native PlatformIO environment (`pio test -e native`)
-
-### SR-5: Safety-Skip Preservation Check
-
-- [ ] Confirm the 24-pin 5V EEPROM SAFETY SKIP (`pin_count == 24 AND proto_id in (0x07, 0x08, 0x0B) AND flags & 0x10`) is still intact after the re-derived decode (not accidentally weakened)
-- [ ] Confirm the fm1608 override (`type_int == 4 AND proto_id in (0x07, 0x08, 0x0B)`) is still intact
-- [ ] Confirm the WARNING-5 override (`pinout_key in DIP28_2764/DIP28_28C256 AND proto_id == 0x07 AND _etype == Flash/EEPROM`) still fires for the expected chip set after the re-derived decode
-- [ ] Run a `git diff` on the DB output comparing old and new for each affected chip family — unexpected changes = regression
-
-### SR-6: Dual-Repo Constant Parity
-
-- [ ] Any new flag bit, command code, or control register bit used by the new handler must be defined in both `firestarter_app/firestarter/constants.py` AND `firestarter/include/firestarter.h` / `rurp_pinout.h`
-- [ ] Run the existing parity test suite after adding constants
-
----
-
-## 4. Regression Strategy for the 734-Chip Decode
-
-### RG-1: Byte-Diff Regression Baseline
-
-**What goes wrong:**
-Re-deriving `build_db.py` can silently change the `algorithm`, `pinout`, `vpp_mv`, or `electrical.type` fields for existing chips. A chip that was correctly classified (e.g., W27C512 → algorithm=0x07, pinout=DIP28_27512) could be re-classified to a different pinout or algorithm if the re-derived rules differ from the originals.
+The fallback looks vestigial once the protocol-prefix chain covers all 743 DB chips. The temptation is to delete it as part of the "fail-closed" cleanup without asking what would have fallen through it in practice.
 
 **How to avoid:**
-Before any re-derivation work begins, snapshot the current `chip_database.json` as a baseline (git commit or named copy). After each re-derivation step, run a JSON diff against the baseline. Any unintended change to an existing chip's `algorithm`, `pinout`, or `vpp_mv` is a regression. The diff must be reviewed field-by-field for every changed chip, not accepted in bulk.
 
-**Detection tool:**
-A purpose-built comparison script that produces a per-chip diff showing exactly which field changed and why. The goal is not just a PASS/FAIL gate but a human-reviewable diff. Any change must be categorized as either "intentional (source-derived correction)" or "regression (must revert)."
+Before deleting or neutering the fallback, run a concrete audit:
 
-**Phase to address:** Decode re-derivation phase (any phase that modifies `build_db.py`). Make the diff a required deliverable.
+1. **Grep the codebase and test fixtures** for any JSON command that omits `algorithm` or sets `algorithm: 0`. Collect the set. For each, determine whether the current behavior (routes to `configure_eprom`) is correct or coincidentally safe.
+2. **Build a dispatch-baseline test** (a native Unity test or a host-side pytest) that asserts the expected handler for every `(protocol, mem_type)` pair in the current DB — including the `(0, 1)` case — *before* changing anything. This baseline is the regression surface the fallback-removal can be diffed against.
+3. **Update `check_dispatch.py`'s `dispatch()` function** to mirror the new fail-closed logic before the firmware changes land — so the gate is testing the new behavior against the old DB, surfacing any chip that would newly route to ERROR.
+4. Only after the baseline is green and any fallback-dependent chips are explicitly handled (or documented as unsupported) should the fallback be replaced with the fail-closed not-implemented response.
+
+**Warning signs:**
+
+- Any chip whose `algorithm` resolves to 0 in the DB pipeline (e.g. a chip with `protocol_id` absent in `infoic.xml` that build_db.py silently drops to 0).
+- User-override DB entries in `~/.firestarter/database.json` that predate the v1.0 `algorithm` field.
+- Native dispatch tests that only cover the protocol-prefix chain, with no test for `(protocol=0, mem_type=1)`.
+- `check_dispatch.py` exit 0 even after the firmware fallback is removed — because `check_dispatch.py`'s `dispatch()` still has the mem_type fallback chain (lines 89-95 of the current file), so it would NOT catch a chip that the firmware now rejects.
+
+**Phase to address:**
+
+The phase that removes/guards the mem_type fallback must begin with a "capture pre-removal baseline" plan step. The baseline (native test + `check_dispatch.py` scan on the fallback-present state) must be pinned before the fallback is touched. This is a Phase 1 / foundational-dispatch phase concern.
 
 ---
 
-### RG-2: Per-Chip Wire Round-Trip (check_dispatch.py)
-
-The existing `check_dispatch.py` performs a per-chip wire round-trip via `db.get_eprom(part)` + `db.convert_to_programmer(mapped)`, asserting `vpp_mv` is present and the legacy `vpp` key is absent. This must remain green after every re-derivation step.
-
-Additionally, the dispatch simulation must be kept in sync with `memory.cpp:configure_memory` — any new protocol added must have a corresponding `dispatch()` case in `check_dispatch.py` that mirrors the firmware's `if (handle->protocol == ...)` chain exactly.
-
-**Warning sign:**
-If `check_dispatch.py` exits with non-zero after a re-derivation, stop. Do not merge. The dispatch simulation is the authoritative regression gate for the 734-chip set.
-
-**Phase to address:** Every build_db.py modification phase. Run as a CI step.
-
----
-
-### RG-3: Upstream infoic.xml Drift
+### Pitfall 2: Lockstep wire-protocol desync — firmware emits the new "not implemented" message ID before the host catalog knows about it
 
 **What goes wrong:**
-`build_db.py` fetches `infoic.xml` from upstream at runtime. Between v1.0 (743 chips) and v1.3 (734 chips), upstream drift caused a -9 chip count change. The re-derivation work in v1.11 depends on the same live URL. If infoic.xml changes during development (or if the re-derivation uses a cached snapshot at phase start but CI fetches live), the DB output will differ between the development snapshot and the CI-generated artifact.
+
+v1.12 introduces a new response code / message ID (e.g. `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED`) to distinguish "protocol unimplemented" from the existing `MSG_ERR_MEM_TYPE_UNSUPPORTED` (0xAE). The message must be added to three places in lockstep:
+
+1. `firestarter/tools/catalog/messages.toml` (canonical source, meta-repo)
+2. `firestarter/include/messages.h` (generated C++ header — firmware side)
+3. `firestarter_app/firestarter/messages.py` (generated Python module — host side)
+
+The codegen drift gate (`python3 tools/catalog/codegen.py --catalog ... --check && git diff --exit-code`) catches drift between the TOML and the generated files *within each repo*. However it does NOT catch the case where the two repos' `messages.toml` files diverge from each other. The canonical copy lives in the meta-repo; it is sync'd to both sub-repos via `tools/catalog/sync_to_subrepos.sh`. If someone edits the firmware sub-repo's `messages.toml` directly (bypassing the sync script) the host's catalog will not have the new ID, and any frame carrying that ID will be decoded as an unknown message. Depending on `serial_comm.py`'s error handling, this produces a cryptic `EpromOperationError` or a silent hang rather than "protocol not implemented."
+
+The v1.10 retrospective confirms: "dual-repo lockstep pinned by codegen + golden vectors … byte-compatibility was provable in CI before the bench, so the hardware session verified transport, not contract."
+
+**Why it happens:**
+
+The firmware dev makes the catalog change in the firmware sub-repo directly (it is faster than going through the meta-repo sync path). The host CI only checks its own catalog drift; it does not cross-check the firmware sub-repo's catalog. The desync is invisible until a real device is connected.
 
 **How to avoid:**
-Pin a specific commit of infoic.xml as the v1.11 reference snapshot. Use a local copy (already committed to the repo or via a build-time hash check) rather than a live fetch during the re-derivation work. The MINIPRO_XML_URL fetch should be replaced with a versioned local reference for the duration of v1.11 development, with a clear note of which upstream commit the snapshot corresponds to.
 
-**Phase to address:** First re-derivation phase. Commit the pinned infoic.xml snapshot before modifying any decode logic.
+1. **Edit `messages.toml` ONLY in the meta-repo** and run `sync_to_subrepos.sh` to push the identical copy to both sub-repos. The sync script is the contract.
+2. **Add a cross-repo parity test** — a script (or a CI job in the meta-repo) that diffs `firestarter/tools/catalog/messages.toml` against `firestarter_app/tools/catalog/messages.toml` and fails on any difference. This is not currently in CI.
+3. **Assign consecutive IDs by appending to the catalog**, not by inserting in the middle — the drift gate is byte-identity, so any insertion shifts existing IDs and breaks every device running old firmware.
+4. **The new message ID must be in the 0xA0-0xBF ERROR band** (per the existing catalog layout) and must not collide with any existing `MSG_ERR_*` value. The current highest error ID is `MSG_ERR_MEM_SIZE_TOO_SMALL = 0xBA`. The next available slot is `0xBB`.
+
+**Warning signs:**
+
+- `serial_comm.py` logs an "unknown message id" warning during a `write` or `read` of an unimplemented-protocol chip.
+- The host prints a generic `EpromOperationError` or timeout instead of "protocol not implemented."
+- The codegen drift gate passes in both sub-repos individually but the two `messages.toml` files differ (no cross-repo gate today).
+- The host-side `messages.py` does not contain a constant for the new message ID but the firmware `messages.h` does (or vice versa).
+
+**Phase to address:**
+
+The phase that adds the new message ID to the catalog must include both: (a) editing and syncing the meta-repo `messages.toml`, and (b) regenerating + committing both sub-repo generated files in the same commit pair, with the codegen drift gate green in both repos. This lockstep-wire phase must come before any firmware dispatch logic uses the new ID.
 
 ---
 
-### RG-4: `_etype` Pre/Post Override Order
+### Pitfall 3: Codegen-drift CI gate masked by Python version skew (py3.12-on-devcontainer vs py3.11-in-CI)
 
 **What goes wrong:**
-`build_db.py` computes `_etype` twice: once flags-based (lines 388-395, used by WARNING-5 and fm1608 predicates) and once protocol-aware after all overrides (lines 481-489, stored in the final DB entry). The WARNING-5 and fm1608 overrides MUST run between these two `_etype` computations because they depend on the flags-based value to detect mistagged chips and then the post-override re-derivation "fixes" `_etype` to match the corrected protocol.
 
-A re-derivation that merges the two `_etype` computations into one, or changes their order, breaks the WARNING-5 predicate (it needs `_etype == "Flash/EEPROM"` at predicate time, which is set by the flags-based block) while the stored DB value must reflect the post-override protocol (UV-EPROM after the 0x07 flip vs. SRAM after the fm1608 flip).
+The codegen drift gate in both sub-repo CI workflows runs on Python 3.11 (`python-version: '3.11'` in `.github/workflows/ci.yml` and `build.yml`). The devcontainer runs Python 3.12. In v1.10 and v1.11 this caused the `ruff` formatter to produce different output on 3.12 (f-string backslash handling) and the codegen script to emit slightly different formatting. The developer runs `python3 tools/catalog/codegen.py --catalog ... --output messages.py` locally on 3.12 and commits the result; CI on 3.11 re-runs codegen and sees a diff, failing the drift gate at cut time.
+
+From the project memory: "py3.12-masks-py3.11 ruff/codegen issue seen at prior cuts" and "validate ruff check + ruff format --check against the target before claiming CI green."
+
+**Why it happens:**
+
+The drift gate is designed to be deterministic, but `ruff format` and the codegen script itself can produce different output across Python minor versions for edge cases (f-strings, string quoting, trailing comma rules). The developer only discovers this at beta-cut time because that is when CI runs against the pinned Python version. By then the commit is already made and the fix requires a follow-up commit.
 
 **How to avoid:**
-Maintain the two-pass `_etype` pattern explicitly in any re-derived version. Document the order dependency. Add a comment block to the re-derived code that names both `_etype` derivation passes and states why they must remain in order.
 
-**Phase to address:** build_db.py re-derivation phase.
+1. **Run codegen + drift gate using the CI Python version**, not the devcontainer default. In the devcontainer: `python3.11 tools/catalog/codegen.py ...` (or activate a venv pinned to 3.11 for codegen work).
+2. **After editing `messages.toml` and running codegen**, always run `ruff format --check` and `ruff check` against the generated output with the 3.11-compatible ruff version before committing.
+3. **Add a note to the catalog-sync plan step**: "regenerate using `python3.11`; if py3.11 is not installed in the devcontainer, install it with `apt-get install python3.11` or use the CI-equivalent environment."
+4. **At beta-cut time**, run the CI workflow on a draft PR first and watch the codegen drift step before pushing to `beta`. This has caught drift at both prior milestone cuts.
 
----
+**Warning signs:**
 
-## 5. Exotic Type Pitfalls (NVRAM 0x2A/0x2C/0x2E, FWH 0x11)
+- The devcontainer's `python3 --version` reports 3.12 while CI runs 3.11.
+- A newly generated `messages.py` or `messages.h` passes local `git diff --exit-code` but fails the drift gate in CI.
+- Ruff reports no issues locally but fails in CI — the py3.12-vs-3.11 f-string backslash issue presents exactly this way.
 
-### E-1: NVRAM/Timekeeper (0x2A / 0x2C / 0x2E) — No Standard Pinout Class
+**Phase to address:**
 
-**What goes wrong:**
-Dallas DS12887/DS1643/DS1244 NVRAM/timekeepers use the JEDEC 32-pin SRAM bus layout for data access (no VPP, WE-programmed at 5V) but with additional hardware: a built-in lithium battery, an RTC oscillator, and sometimes a power-fail comparator. The programming operation is standard SRAM byte-write — configure_sram would work for data access. However:
-
-- The chip-enable sequencing for write operations may require a specific /WE strobe width not guaranteed by the current `configure_sram` stub (which is a "safe no-op" per the architecture)
-- The RTC oscillator and battery circuitry mean some pins that look like VCC or NC on the datasheet are sensitive to voltage levels during power-up/power-down
-- DS1244/DS1245 series use `(32, 0, 0x0E)` in `PIN_MAP_PROTO_TO_PINOUT` → `DIP32_SST39SF040`. This was derived from JEDEC SRAM reasoning, not confirmed from a datasheet. The SST39SF040 pinout has WE=31, CE=22, OE=24 — these must be verified against the Dallas NVRAM datasheet pin assignments.
-
-**Datasheet cross-check for 0x2A/0x2C/0x2E:**
-(a) Confirm the pinout (CE, OE, WE socket pins) matches `DIP32_SST39SF040` for each NVRAM family in scope. (b) Confirm no VPP or high-voltage operation is required (these are all 5V parts). (c) Confirm `configure_sram` (byte-write at 5V with no VPP) is functionally correct for the intended write operation. (d) Check whether the `0x2A/0x2C/0x2E` protocol requires any command-register access or special write sequences beyond a simple WE-gated byte write.
-
-**Phase to address:** NVRAM feasibility research must precede any handler implementation. Do not expose 0x2A/0x2C/0x2E in `KNOWN_PROTOCOLS` until the datasheet cross-check is complete.
+Any phase that modifies `messages.toml` or its generated artifacts must include a "verify codegen with py3.11" plan step before the commit is pushed. The beta-cut phase must include this check as a blocking pre-cut gate.
 
 ---
 
-### E-2: FWH (0x11) — Likely Out of RURP Scope
+### Pitfall 4: Skeleton handlers that accidentally touch hardware before returning not-implemented
 
 **What goes wrong:**
-FWH (Firmware Hub, Intel) is a serial protocol, not parallel. While infoic.xml carries FWH entries and they may have DIP packages in the database, FWH devices use an LPC-bus-derived serial interface (4-bit multiplexed) that the RURP parallel bus cannot drive. Adding 0x11 to `KNOWN_PROTOCOLS` will cause FWH chips to appear in the database and potentially be dispatched to `configure_flash_intel` (which expects a parallel bus command-register interface, not LPC serial).
+
+A skeleton handler for an unimplemented protocol is written as a stub that sets `handle->response_code = RESPONSE_CODE_ERROR` and emits `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED`, but the developer copies the structure from an existing handler (e.g. `configure_eprom`) and forgets to remove the hardware-setup calls that appear before the error return in the real handler. Specifically:
+
+- `configure_eprom` calls `eprom_check_vpp()` early in its body, which enables the VPP boost regulator (`CTRL_VPP_REGULATOR_ENABLE`) and samples the ADC.
+- Any skeleton that inherits this structure and calls `eprom_check_vpp()` before the not-implemented guard will enable 12V on the VPP regulator — exactly the hazard v1.12 is designed to close.
+- Similarly, calling `rurp_chip_enable()` or setting address-bus lines before returning not-implemented drives the socket bus with arbitrary state, which can latch data into a seated chip or stress address lines.
+
+The `configure_memory()` dispatch currently assigns `handle->firestarter_operation_main`, `_init`, and `_end` as function pointers via NULL initialization before calling `configure_X`. A skeleton that sets `firestarter_operation_init` to a function that enables the regulator as part of its "init" phase will trigger regulator enable even if the skeleton's configure function itself does not — because the state machine calls `firestarter_operation_init` later.
+
+**Why it happens:**
+
+Copy-paste from working handlers is the fastest way to create a skeleton. The hardware-touching calls are deep inside the handler body or the init/end callbacks, not at the top, making them easy to miss in a quick review.
 
 **How to avoid:**
-Confirm via minipro source that 0x11 is indeed FWH (serial, not parallel). If so, keep it in PROTOCOL_MAP for documentation purposes but do NOT add it to `KNOWN_PROTOCOLS`. The existing filter (`if proto_id not in KNOWN_PROTOCOLS: skip`) is the correct gate. Document the reason for the explicit exclusion in `build_db.py`.
 
-**Phase to address:** Exotic-type feasibility research; exclude 0x11 from KNOWN_PROTOCOLS with an explanatory comment unless a parallel-bus FWH variant is confirmed from the datasheet.
+1. **Write skeleton handlers from a zero-hardware template**, not by copying existing handlers. The template: (a) do NOT assign `firestarter_operation_init`, `firestarter_operation_main`, or `firestarter_operation_end` — leave the NULL assignments from `configure_memory` in place; (b) immediately set `handle->response_code = RESPONSE_CODE_ERROR` and emit the not-implemented message with the protocol value; (c) return. The state machine will not call NULL operation callbacks.
+2. **Add a native Unity test** for each skeleton protocol that asserts: `handle->response_code == RESPONSE_CODE_ERROR` AND `handle->firestarter_operation_init == NULL` AND `handle->firestarter_operation_main == NULL` after `configure_memory()` is called with that protocol. This detects hardware-touching regressions in the host-side test suite without any hardware.
+3. **Code review checklist for each skeleton**: no VPP regulator enable, no chip enable, no address bus writes, all three operation pointers remain NULL.
+4. The existing `host_stubs.cpp` in `test/native/avr/test_dispatch/` provides no-op `rurp_*` stubs. The dispatch tests assert on `handle->firestarter_operation_main` and `handle->response_code` only — so a skeleton that incorrectly hooks in a hardware-touching init callback will cause the test to fail because `firestarter_operation_init != NULL`.
+
+**Warning signs:**
+
+- A skeleton handler file that `#include`s `eprom.h`, `flash_intel.h`, or similar and calls any `*_check_vpp*`, `rurp_chip_enable`, or `rurp_write_to_register` function.
+- A native dispatch test for a skeleton that passes but does NOT assert `firestarter_operation_init == NULL`.
+- Flash measurement after adding skeletons shows unexpected increase caused by PROGMEM strings or function bodies from hardware-touching paths being compiled in.
+
+**Phase to address:**
+
+The skeleton-handler scaffolding phase must include a zero-hardware-template requirement and a native Unity test asserting both the not-implemented response code and the NULL operation pointers for every skeleton. This phase should not begin until the not-implemented message ID is defined and the catalog is synchronized.
 
 ---
 
-### E-3: NVRAM Battery State — Irreversible Side Effects
+### Pitfall 5: `check_dispatch.py` drift — the guard does not model the new fail-closed outcome and gives false assurance
 
 **What goes wrong:**
-Battery-backed NVRAM (DS1243/DS1244/DS1245/DS1249/DS1250, M48T128) retains data indefinitely. A programming operation that runs blank check before write will PASS blank check only if the chip has never been written (factory-new) OR if it has been bulk-erased (which these chips do not support electrically — they can only be overwritten byte-by-byte). If `FLAG_SKIP_BLANK_CHECK` is not set, the write will be aborted on a non-blank NVRAM.
 
-More critically: the RTC oscillator in Dallas timekeepers draws current continuously. If the chip is seated in the RURP socket with VCC present, the oscillator runs and the RTC increments. This is not a damage hazard but it is a state-change side effect the operator should be aware of.
+`check_dispatch.py`'s `dispatch()` function (lines 75-95) currently models the firmware dispatch including the `mem_type` fallback chain (lines 89-95). After v1.12 removes the fallback and adds the fail-closed not-implemented path, `dispatch()` must be updated to match. If it is not updated:
+
+1. Any chip whose `algorithm` is not in the currently-handled protocol set will still "resolve" to a `mem_type`-based handler in the simulation, masking the fact that the firmware now returns an error for that chip.
+2. The `errors` list (filled when `handler == "ERROR"`) will only fire for chips with `mem_type` outside {1, 3, 4, 5} — the same behavior as today — even though the firmware now returns not-implemented for every unknown protocol regardless of `mem_type`.
+3. The BLOCKER-2 SRAM safety guard (`sram_in_eprom` list) is correct only if `dispatch()` accurately models the firmware path. With a stale `dispatch()` the guard can give a false PASS.
+
+Additionally, `check_dispatch.py` has a pre-existing gap: it handles `0x05` explicitly but NOT `0x35` or `0x39` (the full `configure_flash4` set that the firmware dispatches together at `memory.cpp` line 88-89). For `0x35` chips, `dispatch()` falls through to the mem_type fallback (`mem_type=5 → configure_flash4`), which happens to give the correct answer coincidentally — not structurally. If the fallback is removed, `0x35` chips will route to `"ERROR"` in `check_dispatch.py` because the `dispatch()` function has no explicit case for them.
+
+**Why it happens:**
+
+`check_dispatch.py` was written to mirror the firmware dispatch at the time of Phase 12. The firmware has been extended since (0x35/0x39 added), but `dispatch()` was not updated. The v1.12 fail-closed change is a second opportunity for the same pattern. Because the CI gate only runs `check_dispatch.py` (not a diff of `check_dispatch.py` against `memory.cpp`), the drift is invisible until someone audits the two files side-by-side.
 
 **How to avoid:**
-Any NVRAM handler must set `FLAG_SKIP_BLANK_CHECK` by default (NVRAMs are never blank). Document that NVRAM write is always an overwrite, not a blank-then-write operation. Document the RTC oscillator side effect.
 
-**Phase to address:** NVRAM handler design phase.
+1. **Update `check_dispatch.py`'s `dispatch()` to match the new `configure_memory` dispatch order** as the first step of the fail-closed dispatch phase — before any firmware changes. The updated `dispatch()` must: add explicit cases for `0x35` and `0x39`; replace the mem_type fallback with `"NOT_IMPLEMENTED"` (or a similar string); treat `"NOT_IMPLEMENTED"` as a distinct non-error outcome (not the same as `"ERROR"`) in the scan loop.
+2. **Add a new `not_implemented` list** in the main scan loop alongside `errors`, `sram_in_eprom`, etc., that collects chips resolving to `"NOT_IMPLEMENTED"`. The gate should print a summary (e.g. "N chips resolve to not-implemented") but NOT fail on it — that is the expected, safe outcome of the new dispatch.
+3. **Write a unit test for `dispatch()`** that exhaustively covers every protocol value in `KNOWN_PROTOCOLS` plus the new fail-closed case and the `0x35`/`0x39` protocols.
+4. **Review `check_dispatch.py` against `memory.cpp` as a paired artifact** at every phase that modifies dispatch logic. The CLAUDE.md note "Dispatch order in memory.cpp:configure_memory (source-of-truth — must match check_dispatch.py line-for-line)" must be enforced as a phase-close gate, not just documentation.
+
+**Warning signs:**
+
+- `check_dispatch.py` exit 0 after the firmware fallback is removed, even though some chips now get not-implemented responses.
+- `0x35`-protocol chips routing to `configure_flash4` via the mem_type fallback in `dispatch()` rather than an explicit protocol branch.
+- The PASS message says "0 chips have no valid dispatch path" but does not mention the number of chips routing to not-implemented.
+
+**Phase to address:**
+
+The `check_dispatch.py` update is a prerequisite for the fail-closed dispatch phase and must be its own plan step or sub-phase. It should be committed before the firmware `memory.cpp` changes so that the updated gate is already in place when the firmware change is reviewed.
+
+---
+
+### Pitfall 6: "recognized-but-not-implemented" and "totally-unknown" conflated into one error code
+
+**What goes wrong:**
+
+If the fail-closed dispatch emits a single `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` for both (a) a protocol the firmware has explicitly enumerated as "skeleton — not yet implemented" and (b) a completely unknown protocol value that has never been seen before, the host cannot distinguish between them. This matters because:
+
+- For case (a), the host should surface: "This chip's programming protocol (0x3C) is recognized but not yet implemented in the firmware. A future firmware update will add support." This is actionable for the user.
+- For case (b), the host should surface: "This chip's programming protocol (0x99) is unknown and may not be supported on this hardware." This signals a database or firmware mismatch.
+
+If both cases emit the same message ID with the same protocol-byte parameter, the host's error rendering falls back to a generic string and the operator loses diagnostic information. This is especially relevant for the v1.12 "protocol-gap enumeration" deliverable: the goal is to classify every protocol as implemented / skeleton / infeasible, and that classification should be reflected in the wire response.
+
+**Why it happens:**
+
+The simplest implementation is a single `else { emit NOT_IMPLEMENTED; }` at the bottom of `configure_memory()`. It handles both cases with one code path and one message ID. The distinction only becomes visible when a user encounters a chip with an unexpected protocol value and the error message gives no hint whether it is a known gap or something completely off the map.
+
+**How to avoid:**
+
+1. **Use the protocol-byte parameter** on the not-implemented message to carry the `protocol` value. The host can then look up the value in its own catalog (the v1.11 `protocol_id.md` classification) and render the distinction itself, without needing two separate message IDs from the firmware.
+2. **Alternatively, define two message IDs**: `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` (for explicitly-registered skeletons) and `MSG_ERR_PROTOCOL_UNKNOWN` (for unrecognized values). The firmware emits the former for protocols in the known-skeleton set and the latter for everything else. This is cleaner but costs one additional catalog entry.
+3. **The recommended approach for v1.12**: single `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` with the protocol value as a u8/u32 param; the host renders "Protocol 0xXX is recognized but not yet implemented" for protocols in the known-skeleton set (a Python-side lookup against the v1.11 classification), and "Protocol 0xXX is unrecognized" for values outside that set. This minimizes firmware flash cost (one message, not two) while preserving diagnostic quality.
+4. **Update `exceptions.py`** to carry a `protocol_id` field on whatever exception class surfaces the not-implemented response, so the CLI handler can render the appropriate message.
+
+**Warning signs:**
+
+- The host prints "Memory type 0x01 not supported" (the old `MSG_ERR_MEM_TYPE_UNSUPPORTED` wording) for an unimplemented protocol — indicates the host is not decoding the new message ID.
+- The host prints a generic "operation failed" without any protocol value — indicates the new message ID is being decoded but the protocol-byte param is not being extracted.
+- `serial_comm.py`'s error path uses `str(message)` or a default format that does not include the param bytes.
+
+**Phase to address:**
+
+This distinction must be designed in the catalog-and-wire-protocol phase (before any firmware dispatch logic is written) and validated in the host-graceful-handling phase (the phase that adds the "protocol not implemented" user-facing error message to `exceptions.py` and `cli_handlers.py`).
+
+---
+
+### Pitfall 7: Flash budget regression — new strings and handlers push Leonardo over the ceiling
+
+**What goes wrong:**
+
+Current flash usage as of 2026-06-10 (measured from live build on `v1.11-infoic-decode-correctness`):
+
+- **Leonardo**: 88.4% (25,354 B of 28,672 B) — 3,318 B remaining
+- **Uno**: 72.0% (23,216 B of 32,256 B) — 9,040 B remaining
+
+Leonardo is the constrained board. The v1.12 changes add: (a) skeleton handler function bodies (small but non-zero); (b) at minimum one new `MSG_ERR_*` emit site in `configure_memory()` (costs the `rurp_log_id` call site plus the ID byte param); (c) additional dispatch branches in `configure_memory()`.
+
+The v1.2 retrospective established that helper-function refactors targeting flash savings often wash out on AVR-gcc with `-Os`: "AVR-gcc was already inlining the pack bodies efficiently — the CALL/RET overhead ate most of the dedup savings." The same caveat applies in reverse: what looks like "just a return statement" in a skeleton handler may be larger than expected after linking, because each new function introduces a function prologue/epilogue even if the body is trivial.
+
+At 88.4% on Leonardo, adding roughly 3% (approximately 860 B) of new code would put the board at ~91.4%. Still below the 98.7% danger level from before v1.2, but the margin is much tighter than Uno. The risk is real if the skeleton set is large (the v1.11 protocol-gap enumeration found multiple protocols without handlers) and each skeleton contributes even a 50-100 B function body.
+
+**Why it happens:**
+
+Flash cost is invisible during code writing and only surfaces at `pio run --target=size`. Developers writing skeletons focus on correctness, not binary size. Leonardo's 28KB ceiling is 13% smaller than Uno's 32KB, making it the binding constraint for every firmware change.
+
+**How to avoid:**
+
+1. **Measure flash after each skeleton is added**, not at the end. Run `pio run -e leonardo` after the first skeleton to establish the per-skeleton cost, then project whether the full set fits.
+2. **Prefer a single shared `configure_not_implemented()` function** called from all skeleton dispatch branches, rather than N separate stub functions. One function body; N if/return call sites (each ~4-8 B on AVR) rather than N full function bodies.
+3. **Use a single inlined response call in `configure_memory()` itself** for the fail-closed path — the not-implemented case does not need a per-protocol function at all if the only behavior is "emit message + set error code." The protocol value is already in `handle->protocol`. This is the most flash-efficient approach.
+4. **Set a flash-budget gate** in the phase acceptance criteria: `pio run -e leonardo` must report <= 90% after all skeletons are added. This is a hard go/no-go, not a suggestion.
+
+**Warning signs:**
+
+- `pio run -e leonardo` after adding the first few skeletons shows the percentage growing faster than 0.1% per skeleton.
+- The skeleton function body inadvertently calls `rurp_shield.h` helpers (which pull in their dependency chain) rather than being truly minimal.
+- The `configure_memory()` if-chain grows significantly — each if/return is small but not free.
+
+**Phase to address:**
+
+The skeleton-handler phase must include a post-skeleton flash measurement plan step with a leonardo gate. The measurement should be done on a branch off the final dispatch-logic state (not mid-refactor) so the number is stable. If the gate is at risk, a "consolidate not-implemented path" sub-task must be included before close.
 
 ---
 
 ## Technical Debt Patterns
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
-|----------|-------------------|----------------|-----------------|
-| "One-rom verified" comment without datasheet citation | Faster initial decode | Brittle — a different chip in the same pm_idx cluster may have a different layout | Never for v1.11 re-derivation; must cite datasheet |
-| Adding protocol to KNOWN_PROTOCOLS without firmware handler | Chips appear in DB | Silent "Memory type not supported" error at runtime; operators see non-actionable failures | Never; KNOWN_PROTOCOLS and handler must ship together |
-| Skipping `check_dispatch.py` after a build_db.py change | Faster iteration | Undetected dispatch regression across 734 chips | Never |
-| Re-using an existing pinout for a new chip family without datasheet confirmation | Fewer new pinout entries | Pin 1 VPP vs pin 22 VPP ambiguity; wrong-pin-VPP damage | Never for VPP-capable handlers |
-| Trusting the existing doc (package-details.md / protocol-flags.md) as ground truth | No upstream research needed | Those docs are heuristic-derived, not source-verified; the flags bit meanings are "inferred" not authoritative | Never for v1.11; the whole point is to replace them |
+|---|---|---|---|
+| Leaving `check_dispatch.py`'s `dispatch()` stale after firmware dispatch change | Saves one file edit | Gate gives false PASS; SRAM safety check may not cover new protocols | Never — update `dispatch()` in the same commit or PR that changes `configure_memory()` |
+| Emitting `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` without the protocol value as a param | Simpler catalog entry | Host cannot render a useful message; debugging requires serial capture | Never for v1.12 — the protocol value must be included |
+| Reusing `MSG_ERR_NOT_SUPPORTED (0xA5)` instead of defining a new message ID | No catalog change needed | Conflates "command not supported" with "protocol not implemented"; host cannot distinguish | Never — separate semantics deserve separate IDs |
+| Copying an existing handler as the skeleton template | Fast to write | Hardware-touching calls may be inherited silently | Never — use the zero-hardware template |
+| Not syncing `messages.toml` via `sync_to_subrepos.sh` | Faster dev loop | Both repos' catalogs drift; codegen drift gate only detects intra-repo drift | Never — the sync script is the contract |
 
----
+## Integration Gotchas
+
+| Integration | Common Mistake | Correct Approach |
+|---|---|---|
+| meta-repo `messages.toml` to sub-repo sync | Edit firmware sub-repo `messages.toml` directly | Edit only the meta-repo copy; run `sync_to_subrepos.sh`; regenerate in both sub-repos |
+| Codegen drift gate with Python version | Run codegen locally on py3.12, commit, fail CI on py3.11 | Explicitly invoke `python3.11` (or a 3.11 venv) for codegen and drift gate before committing |
+| `check_dispatch.py` vs `memory.cpp` | Update `memory.cpp` dispatch without updating `dispatch()` in `check_dispatch.py` | Treat the two as a paired artifact; update `check_dispatch.py` first, verify gate, then change firmware |
+| Deferred v1.11 host work on `firestarter_app/beta` | Begin v1.12 host changes before the deferred v1.11 work is reconciled into `beta` | Confirm `firestarter_app/beta` tip is clean and post-v1.11 before branching `v1.12-*` off it |
+
+## "Looks Done But Isn't" Checklist
+
+- [ ] **Fail-closed dispatch**: `check_dispatch.py` updated to match new `configure_memory()` order, including removal of mem_type fallback — verify `python tools/check_dispatch.py` exit 0 with the updated `dispatch()` function.
+- [ ] **New message ID**: appears in meta-repo `messages.toml`, synced to both sub-repos, both generated files (`messages.h`, `messages.py`) regenerated and committed, codegen drift gate green in both repos.
+- [ ] **Skeleton handlers**: each skeleton's native Unity test asserts `handle->response_code == RESPONSE_CODE_ERROR` AND all three operation pointers remain NULL.
+- [ ] **`check_dispatch.py` updated**: `0x35` and `0x39` have explicit cases (not relying on mem_type fallback), and a `"NOT_IMPLEMENTED"` outcome is distinct from `"ERROR"` in the scan logic.
+- [ ] **Flash budget**: `pio run -e leonardo` reports <= 90% after all skeletons are added.
+- [ ] **Host graceful handling**: `firestarter write <unimplemented-chip>` prints a message that includes the protocol value and distinguishes "not yet implemented" from "unrecognized protocol."
+- [ ] **Deferred v1.11 host work**: `firestarter_app/beta` is at the correct post-v1.11 state before any v1.12 host changes are committed.
+- [ ] **Regression baseline**: pre-removal dispatch baseline test exists and is pinned before the mem_type fallback is deleted.
 
 ## Pitfall-to-Phase Mapping
 
 | Pitfall | Prevention Phase | Verification |
-|---------|------------------|--------------|
-| H-1: Wrong-pin VPP | Field-dictionary decode phase (variant/pm_idx/pinout derivation) | SR-1 checklist for every new pinout; check_dispatch.py WARNING-5 guard extended |
-| H-2: WE gets 12V (24-pin EEPROM) | Flags field-dictionary phase + 24-pin EEPROM handler phase | SAFETY SKIP predicate confirmed in SR-5; flags bit verified from minipro source |
-| H-3: VPP overvoltage / schema cap | Voltage field-dictionary decode phase | SR-3 VPP range check; 25V parts documented as unprogrammable |
-| H-4: VCC mismatch | Voltage field decode + filter layer | Chips with VCC != 5V filtered or explicitly errored |
-| H-5: Wrong WE/OE/CE/PGM pin | New pinout definition phase | SR-1 full pin map audit against datasheet for every new pinout |
-| H-6: Over-erase on non-erasable chips | Per-handler correctness phase | FLAG_CAN_ERASE only set when datasheet confirms electrical erase |
-| R-1: type=4 / EPROM protocol conflict | build_db.py re-derivation phase | fm1608 override intact (SR-5); check_dispatch.py BLOCKER-2 guard; add flash-family guard for type=4 |
-| R-2: Flags bit misinference | Flags field-dictionary decode phase | WARNING-5 verified against minipro source bit assignment; check_dispatch.py guard still 0 violations |
-| R-3: pm_idx aliasing | pm_idx / pin_map decode phase | PIN_MAP_PROTO_TO_PINOUT completeness check; no 5V chip on VPP-bearing pinout |
-| R-4: variant sub-discriminator drift | variant field-dictionary decode phase | Per-chip DB diff; 27512 vs 27256 VPP-pin confirmed in test |
-| R-5: Unknown protocol pass-through | Each new protocol addition phase | _ALGO_MEM_TYPE updated simultaneously; check_dispatch.py runs clean |
-| RG-1: Byte-diff regression | Every build_db.py modification | Per-chip JSON diff against baseline; unexpected changes reviewed |
-| RG-2: Wire round-trip regression | Every build_db.py modification | check_dispatch.py green; WIRE-02 round-trip passes |
-| RG-3: infoic.xml upstream drift | First re-derivation phase | Pinned snapshot committed before decode logic changes |
-| RG-4: _etype pre/post order | build_db.py re-derivation | Two-pass pattern preserved; WARNING-5 fires on correct chip set |
-| E-1: NVRAM pinout unconfirmed | NVRAM feasibility research phase | Datasheet pin audit for DS1245/M48T128 before exposure |
-| E-2: FWH serial/parallel confusion | Exotic-type feasibility research | 0x11 explicitly excluded from KNOWN_PROTOCOLS with comment |
-| E-3: NVRAM blank-check / RTC side effects | NVRAM handler design phase | FLAG_SKIP_BLANK_CHECK default; RTC behavior documented |
-
----
+|---|---|---|
+| 1 — mem_type fallback removal unmasks hazard | Phase that establishes pre-removal baseline (Phase 1 of v1.12 roadmap) | Native Unity test covering `(protocol=0, mem_type=1)` exits PASS before the baseline commit; `check_dispatch.py` scan with updated `dispatch()` shows 0 chips newly routing to ERROR that were previously routed to a real handler |
+| 2 — lockstep wire desync | Phase that adds the new message ID to the catalog (lockstep-wire phase) | Codegen drift gate green in both sub-repos; cross-repo `diff messages.toml` returns empty |
+| 3 — py3.12-vs-py3.11 codegen drift | Same lockstep-wire phase, plus every phase touching catalog artifacts | Explicitly run codegen with `python3.11` in the plan step; CI green on PR before push to beta |
+| 4 — skeleton hardware accidental access | Skeleton-handler scaffolding phase | Native Unity test asserts NULL operation pointers and error response code for every skeleton; code review against zero-hardware template checklist |
+| 5 — `check_dispatch.py` drift | `check_dispatch.py` update phase (must precede firmware dispatch changes) | `dispatch()` explicitly handles `0x35`/`0x39` and the new fail-closed path; unit test for `dispatch()` covers all known protocols |
+| 6 — recognized vs unknown conflated | Catalog-and-wire-protocol design phase + host-graceful-handling phase | Host test: chip with skeleton protocol prints "not yet implemented" including protocol value; chip with unknown protocol value prints "unrecognized protocol" |
+| 7 — flash budget regression | Skeleton-handler phase (measure after each batch) | `pio run -e leonardo` <= 90% gate in phase acceptance criteria |
 
 ## Sources
 
-- `firestarter_app/tools/build_db.py` — all override comments are the primary hazard catalog (HIGH confidence; grounded in production code that has prevented real damage)
-- `firestarter_app/tools/check_dispatch.py` — BLOCKER-2 and WARNING-5 regression guards (HIGH confidence)
-- `firestarter_app/tools/audit_coverage_matrix.py` — DEFECT-COV-00/01 findings and the `detect_hazard()` function (HIGH confidence)
-- `firestarter/src/proms/eprom.cpp` — VPP routing implementation; `eprom_internal_set_control_register` / `using_p1_as_vpp()` (HIGH confidence)
-- `firestarter/src/proms/flash_intel.cpp` — CTRL_VPP_P1_ENABLE routing for Intel-flash (HIGH confidence)
-- `firestarter/include/rurp_pinout.h` — CTRL_VPP_* bit definitions (HIGH confidence)
-- `firestarter/include/memory_utils.h` — `using_p1_as_vpp()` constants (VPP_P1_32_DIP, VPP_P1_28_DIP, VPP_P21_24_DIP) (HIGH confidence)
-- `firestarter/include/rurp_shield.h` — VPP magic constants and hardware revision (HIGH confidence)
-- `firestarter_app/firestarter/data/pinouts.json` — per-pinout vpp-pin, we-pin, oe-pin, ce-pin assignments (HIGH confidence)
-- `firestarter_app/doc/package-details.md` / `protocol-flags.md` — existing flag interpretations (MEDIUM confidence; heuristic-derived, to be replaced by v1.11)
-- `.planning/PROJECT.md` section "Current Milestone: v1.11" — scope and constraint definitions (HIGH confidence)
-- minipro `src/minipro.h` via WebFetch — `pin_map_t.gnd_table`, `device_t.pin_map`, `package_details_t.adapter` field layout (MEDIUM confidence; fetched via WebFetch, core struct shapes confirmed)
-- minipro `src/tl866iiplus.c` via WebFetch — 21-entry `vpp_pins[]` array confirming pin 1 can receive VPP; `tl866iiplus_set_pin_drivers()` for VPP enable logic (MEDIUM confidence; VPP routing confirmed at hardware driver level)
+- `firestarter/src/proms/memory.cpp` — live dispatch chain and mem_type fallback (lines 73-118), read 2026-06-10
+- `firestarter/CLAUDE.md` — dispatch order documentation and backward-compatibility rationale for the fallback
+- `firestarter_app/tools/check_dispatch.py` — `dispatch()` function (lines 75-95); gap: no explicit 0x35/0x39 cases, read 2026-06-10
+- `firestarter/include/messages.h` + `firestarter_app/firestarter/messages.py` — generated catalog; current highest error ID 0xBA (`MSG_ERR_MEM_SIZE_TOO_SMALL`)
+- `firestarter/include/firestarter.h` — `firestarter_handle_t` struct; operation pointer fields
+- `firestarter/include/logging_id.h` — `LOG_ERROR_ID_U8` macro chain
+- `.planning/RETROSPECTIVE.md` §v1.2 — codegen drift gate; "measure before refactoring for size"; "read the host's expect_ack / probe path before changing the firmware ack shape"
+- `.planning/RETROSPECTIVE.md` §v1.10 — dual-repo lockstep pinned by codegen + golden vectors; cross-repo catalog sync pattern
+- `.planning/RETROSPECTIVE.md` §v1.0 — "closing a blocker can unmask a deeper hazard"; three-layer fix; audit-then-close
+- `.planning/PROJECT.md` §v1.12 — milestone goal statement; mem_type fallback as explicit safety hazard; dual-repo lockstep requirement
+- Live `pio run -e uno/leonardo` builds on `v1.11-infoic-decode-correctness` (2026-06-10): Uno 72.0% / Leonardo 88.4%
 
 ---
-
-*Pitfalls research for: Firestarter v1.11 infoic.xml decode re-derivation + new firmware write-path handlers*
-*Researched: 2026-06-08*
+*Pitfalls research for: v1.12 — Firmware Protocol Dispatch Hardening + Skeletons*
+*Researched: 2026-06-10*
