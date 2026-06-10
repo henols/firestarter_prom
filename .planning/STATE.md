@@ -6,7 +6,7 @@ status: planning
 last_updated: "2026-06-10T12:32:46.075Z"
 last_activity: 2026-06-10
 progress:
-  total_phases: 0
+  total_phases: 7
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -16,26 +16,41 @@ progress:
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-06-09
+**Updated:** 2026-06-10
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: Not started
 Plan: —
-Status: Defining requirements
-Last activity: 2026-06-10 — Milestone v1.12 started
+Status: Roadmap created — ready for `/gsd-plan-phase 62`
+Last activity: 2026-06-10 — v1.12 roadmap revised (7 phases: 62-68; DB-01..05 integrated with support_status taxonomy)
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-06-08 after v1.11 scope lock)
+See: `.planning/PROJECT.md` (updated 2026-06-10 for v1.12)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** None — v1.11 SHIPPED 2026-06-10. Planning next milestone (`/gsd-new-milestone`),
-or resume the deferred v1.9 read-bug RCA at `/gsd-plan-phase 45`.
+**Current focus:** v1.12 Firmware Protocol Dispatch Hardening + Skeletons — fail-closed
+dispatch eliminating the silent VPP-hazard `mem_type` fallback path; new
+`MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` wire response (lockstep dual-repo); host
+`ProtocolNotImplementedError` + clear CLI message; capability-honest DB inclusion
+(`support_status` taxonomy: `protocol-not-implemented` / `adapter-required` / `vpp-exceeds-max`;
+true NMOS VPP correction for M2716/M2732/M2732A; principled pinout engineering for currently-unclassifiable DIP chips;
+host `info`/`write`/`read`/`verify` status-specific capability guard).
+First firmware-touching milestone since v1.10. Phases 62–68, no bench required.
 
 ## Roadmap Summary
+
+**v1.12 ACTIVE — 7 phases (62–68):**
+- Phase 62: Dispatch Baseline Capture + check_dispatch Update (GATE-01, GATE-02)
+- Phase 63: Catalog Lockstep Wire Change (WIRE-01)
+- Phase 64: Firmware Fail-Closed Dispatch + Native Tests (DISP-01..04, WIRE-02, TEST-01, TEST-02)
+- Phase 65: Host Graceful Handling (HOST-01, HOST-02)
+- Phase 66: DB Inclusion + VPP Correction + Dispatch Gate (DB-01, DB-03, DB-05)
+- Phase 67: Pinout Classification for Unclassifiable DIP Chips (DB-02)
+- Phase 68: Host Capability Reporting (DB-04)
 
 **v1.11 SHIPPED 2026-06-10:** 6 phases (56–61), 14 plans, 15/15 requirements. HOST-ONLY
 decode-correctness milestone (firmware untouched like v1.8). Authoritative field dictionary +
@@ -53,41 +68,42 @@ Resumes at Phase 45 when the operator picks it back up.
 
 ## Accumulated Context
 
-### Roadmap Evolution
+### v1.12 Scope Lock (2026-06-10)
 
-- Phase 61 added (2026-06-10): List/Search Display Correctness + Table Layout — extend Phase 60's `electrical.type`-sourced display to the `firestarter list`/search table (Type + VPP columns; resolves the Phase 60 review IN-01 `info`-vs-`list` divergence incl. spurious SRAM VPP), AND enforce table-layout rules: fit all columns without breaking, never render narrower than today's default width (today is the floor). Host-only (`eprom_info.py` `print_eprom_list_table`). v1.11 `/gsd-complete-milestone` now deferred until Phase 61 ships (was: until Phase 60).
-- Phase 60 added (2026-06-10): Display-Layer Decode Correctness — `firestarter info` / `ic_layout.py` must derive the displayed Type and "Can be erased" from the DB's `electrical.type`/`flags`, not solely `protocol_id`. Triggered by the post-Phase-59 `/gsd-debug` finding: `cca7d62` corrected `electrical.type` to EEPROM for W27C512/SST27VF512/etc., but the operator-facing `info` display is protocol-keyed and still shows "UV-EPROM / MTP-Flash" + "Can be erased: false". Host-only; firmware electrical-erase support is a separate firmware backlog item. Phase 60 is now the v1.11 close phase (was 59).
+Research finding: the SKELETON-NEEDED bucket is **empty**. Every RURP-feasible DIP-parallel-memory
+`protocol_id` is already handled (all 743 DB chips covered by 13 protocols). The unimplemented
+protocol_ids (`0x11` FWH, `0x2A`/`0x2B`/`0x2C` GAL/PLD, etc.) are all infeasible on RURP.
 
-### v1.11 Scope Lock (2026-06-08)
+The milestone's real value is the **fail-closed safety framework + honest reporting**:
 
-Research overturned the original "expand + firmware handlers" framing. The hardware-feasible
-memory set is **already covered**: 0x2A/0x2C/0x2E are GAL/PIC PLD/MCU protocols (zero DIP
-memory chips); FWH `0x11` is LPC-serial + 3.3V (infeasible on RURP); real NVRAM/timekeeper
-already handled via existing SRAM protocols. Genuine new-chip gap = ~9 blocked 24-pin EEPROMs
-(AT28C04/AT28C16 family) — unblockable HOST-ONLY via `DIP24_6116` pinout + `algorithm=0x0D`;
-`configure_eeprom28c` already handles them. No new firmware handlers needed.
+1. The silent `mem_type` fallback hazard: `protocol != 0` + `mem_type=1` silently routes to
+   `configure_eprom` → 12V VPP on potentially 5V-only chips. Eliminated by the `protocol != 0`
+   guard in `configure_memory()`.
+2. New `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED = 0xBB` (lockstep dual-repo codegen via `messages.toml`).
+3. `configure_not_implemented()` catch-all: zero hardware side effects; emits the new message ID.
+4. Named infeasibility arms for `0x11`/`0x2A`/`0x2B`/`0x2C` (documents hardware reason in-code).
+5. Host `ProtocolNotImplementedError(EpromOperationError)` + clear CLI message with protocol value.
 
-**Confirmed decode bugs to fix (all host-only):**
+**Branch model:** `v1.12-protocol-dispatch-hardening` off `beta` in all 3 repos; merge back to
+`beta`; `beta`→stable operator-gated. Deferred v1.11 host work must reconcile into
+`firestarter_app/beta` before v1.12 host changes commit.
 
-- BUG-1: `VCC_VOLTAGES` missing nibble 0x02 (4V) / 0x03 (4.5V)
-- BUG-2: `interpret_timing` ×100 multiplier for 0x07/0x0B (W27C512 → 10000µs not 100µs)
-- BUG-3: `vdd`/`vcc` field labels inverted vs minipro `database.c`
-- BUG-4: `PROTOCOL_MAP` wrong names for 0x2A/0x2C/0x2E/0x35; invented 0x3C; phantom 0x39
+**Critical ordering constraints (from research + pitfalls):**
+1. Phase 62 GATE first — baseline + `check_dispatch.py` update BEFORE any firmware change
+2. Phase 63 WIRE second — catalog message ID in both repos BEFORE firmware emits it
+3. Phase 64 FIRMWARE third — guard + not_implemented handler + native tests
+4. Phase 65 HOST last — `ProtocolNotImplementedError` + CLI message
 
-**Key ordering constraints (from research):**
+**Key pitfalls to remember:**
+- Codegen MUST use Python 3.11 (CI target), not the devcontainer's 3.12 — py3.12/3.11 drift trap
+- `messages.toml` edit in meta-repo ONLY; sync to both sub-repos via `sync_to_subrepos.sh`
+- `check_dispatch.py` updated BEFORE firmware changes (currently has 0x35/0x39 gap)
+- Skeleton handlers: NEVER assign operation pointers, NEVER call hardware functions
+- Flash gate: Leonardo must stay ≤ 90% after Phase 64
 
-1. Pinned infoic.xml snapshot FIRST (prevents upstream drift corrupting regression baseline)
-2. `check_dispatch.py` full-class VPP-safety guard BEFORE re-derivation changes land
-3. 24-pin EEPROM unblock AFTER corrected decode + pinout audit
-4. Correctness gate (per-chip diff) LAST
-
-**Safety guard:** The load-bearing overrides (WARNING-5, fm1608, 24-pin EEPROM skip) must
-survive re-derivation intact. The two-pass `_etype` pattern in `build_db.py` must be preserved.
-Any new pinout must pass the SR-1 checklist before landing.
-
-**GATE-04 conditionality:** `configure_sram` NVRAM/SRAM audit is host-side documentation.
-Escalates to a firmware backlog item ONLY if a real safety issue is found — no up-front firmware
-phase is created.
+**Flash budget at v1.12 start (from v1.11 close):**
+- Leonardo: 88.4% (25,354 B / 28,672 B) — 3,318 B remaining
+- Uno: 72.0% (23,216 B / 32,256 B) — 9,040 B remaining
 
 ### ⏸ v1.9 DEFERRED (operator 2026-06-08 — "skip that bug for now"; resumes later at Phase 45)
 
@@ -102,42 +118,26 @@ Remaining: Phases 45–48. Resume: `/gsd-plan-phase 45`.
 - GATE-1.8d ring-fence: `_read_and_parse_lines` body byte-identical; 15 N=5 W27C512 baseline
   binaries at `.planning/v1.6/consistency-check-runs/W27C512-leonardo-20260526-*-v2*/` valid.
 
-### Pending Todos (carried forward)
+### Pending Todos (carried forward from v1.11)
 
 - `avrdude-mcu-detection-fallback.md` (low) — out of scope, carry forward
 - `cobs-decoder-framelevel-deadline-wr01.md` (medium) — v1.10 COBS follow-up; deferred
 - `large-read-data-jitter-uno328pb.md` (HIGH, in v1.8-seed) — v1.9 RCA target
-- ✅ Closed this milestone: `w27c512-eeprom-misclassification.md` (v1.11 decode) + `info-list-type-vpp-divergence.md` (Phase 61)
 
 ### Blockers / Concerns
 
-None for v1.11 — this is a host-only, software-only milestone. No bench required to close.
-No firmware sub-repo changes expected (GATE-04 is the one conditional; it escalates to firmware
-only if a real safety issue is found during the SRAM audit).
+None at roadmap start. This milestone is provable on the native dispatch harness + pytest;
+no bench session required to close. Dual-repo lockstep (firmware + host).
 
 ## Session Continuity
 
 Last session: 2026-06-10
-Stopped at: Session resumed — Phase 61 confirmed shipped + FM1608 follow-up committed; proceeding toward v1.11 milestone close
+Stopped at: v1.12 roadmap revised — 6 phases (62–67), 16/16 requirements mapped
 Resume file: None
 
 ## Decisions
 
-- Phase 57-01: Four decode bugs fixed in build_db.py (VCC nibbles, vcc/vdd swap, timing x100, PROTOCOL_MAP names) — all host-only, no DB regeneration in this plan
-- Phase 57-01: ruff format applied to pre-existing VPP_MV/KNOWN_PROTOCOLS style violations to satisfy plan gate
-- Phase 57-01: Excluded PROTOCOL_MAP IDs documented as comments (not deleted) for traceability; two-pass _etype structure preserved
-- [Phase ?]: GATE-03 predicate uses proto in _5v_eeprom_algos (not etype) for direct algorithm-based VPP-safety check
-- [Phase ?]: pinouts.json loaded dynamically in main() so GATE-03 auto-covers Phase 58 pinout additions
-- Phase 57-03: test_characterization.ambr did not need refresh; the file requiring update was tests/golden/v1.3-COVERAGE-MATRIX.md (pulse_duration column)
-- Phase 57-03: DEC-03 CLI surface (firestarter info W27C512 exits 0, 100uS) completed by debug fix 8088141 on same branch; tracked in .planning/debug/firestarter-info-vpp-pin-crash.md
-- [Phase ?]: Phase 58-01: DIP24_2816 pinout added with no vpp-pin (pin 21 = rw-pin/WE, SR-1 invariant)
-- [Phase ?]: Phase 58-01: Five Wave 0 RED-first test classes committed (TestResolvedPinoutKey/TestGuessTablesDeleted/TestWarning5Rule RED; TestDIP24_2816Pinout GREEN)
-- [Phase ?]: Phase 58-02: principled resolve_pinout_key; 743 chips; 19 Rule1 + 12 Rule2; GATE-03 0 violations; 516 tests green
-- Phase 58-03: GATE-03 0 violations confirmed on 743-chip regenerated DB; AT28C04/16 CLI-reachable; SR-1 two-layer docs authored (DIP24_2816 PASS + all changed pinouts reviewed)
-- Phase 59-02: GATE-04 audit: configure_sram near-no-op; BLOCKER-2 guard proof (0 SRAM chips → configure_eprom); Safety Verdict no-escalation + criterion stated; two-layer lockstep committed
-- [Phase ?]: Phase 61-01: Single resolve_type_label helper on EpromSpecBuilder — D-04 single source of truth for Type label in both info and list views
-- [Phase ?]: Phase 61-01: VPP gate parity — vpp_mv > 0 AND electrical-type != SRAM (D-03); SRAM shows '-' despite vpp_mv=12000
-- [Phase ?]: Phase 61-01: Name column dynamic width clamped to [13,20] with ellipsis truncation; VPP column fixed at 5
+_(v1.12 decisions will be recorded here as phases execute.)_
 
 ## Performance Metrics
 
@@ -169,8 +169,8 @@ Resume file: None
 
 ## Operator Next Steps
 
-- **v1.11 SHIPPED 2026-06-10** — archived + meta-tagged `v1.11`; audit PASSED 15/15. Beta-only.
-- **PENDING operator action — lockstep beta cut (`3.0.0b9`):** bump `firestarter_app` version
+- **v1.12 STARTED 2026-06-10** — roadmap written, 4 phases (62–65), 12 requirements.
+- **PENDING (from v1.11 close) — lockstep beta cut (`3.0.0b9`):** bump `firestarter_app` version
   (next after `3.0.0b8`) + bump the meta `firestarter_app` gitlink (pinned `faaa571`; the v1.11
   work — incl. the FM1608 follow-up commits b81131f/e910e5e — sits on submodule branch
   `v1.11-infoic-decode-correctness`) + PyPI pre-release publish + GitHub Pre-release. Firmware
@@ -178,4 +178,5 @@ Resume file: None
   skipped firmware tag to keep b8→b9 lockstep, as at the v1.10 close). Watch the
   py3.12-masks-CI-py3.11 ruff/codegen drift traps. See MILESTONES.md §v1.11.
 
-- **Next milestone:** `/gsd-new-milestone`. Deferred v1.9 read-bug RCA resumes at `/gsd-plan-phase 45`.
+- **v1.12 roadmap revised (2026-06-10):** 7 phases (62–68), 17/17 requirements mapped.
+- **Begin v1.12:** `/gsd-plan-phase 62`

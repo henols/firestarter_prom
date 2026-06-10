@@ -1,6 +1,6 @@
 # Requirements: v1.12 — Firmware Protocol Dispatch Hardening + Skeletons
 
-**Milestone goal:** Make the firmware honestly report unimplemented programming protocols — fail-closed dispatch with an explicit "not implemented" response the host surfaces cleanly — and scaffold skeleton (infeasibility-rejection) handlers for the protocols a user might plausibly attempt. **Framework + skeletons only; no new per-protocol programming logic.** Dual-repo lockstep wire change.
+**Milestone goal:** Make the **whole stack honest about what it can and cannot program** — (a) firmware fail-closed dispatch with an explicit "not implemented" response the host surfaces cleanly + skeleton (infeasibility-rejection) handlers, and (b) a capability-honest database that *lists* the DIP parallel-memory chips RURP can't fully support (instead of silently dropping them) with a `supported: false` flag the host reports clearly. **Framework + honest reporting only; no new per-protocol programming logic and no new chips become programmable.** Dual-repo lockstep wire change.
 
 **Research finding (reshapes scope):** There are **no RURP-feasible unimplemented protocols** — every DIP parallel-memory protocol_id already has a handler (all 743 DB chips covered). The unimplemented protocol_ids are all infeasible on RURP (serial/LPC/3.3V, GAL/PLD, MCU, SMD-only). So the milestone's value is the **fail-closed safety framework + honest reporting**, and "skeletons" are explicit infeasibility-rejection markers, not future-fill stubs. See `.planning/research/SUMMARY.md`.
 
@@ -35,6 +35,16 @@
 - [ ] **TEST-01**: Native (host, no-hardware) Unity dispatch tests cover the new paths — unknown non-zero protocol → not-implemented; `protocol==0` + `mem_type` → legacy fallback still works; named infeasibility markers (`0x11`/`0x2A`/`0x2B`/`0x2C`) → not-implemented; `configure_not_implemented` sets no operation pointers and ERROR response. All pre-existing dispatch tests stay green.
 - [ ] **TEST-02**: Flash-budget regression check — the v1.12 addition keeps both Uno and Leonardo builds under their flash ceilings (Leonardo is the binding constraint).
 
+### DB — Capability-Honest Database Inclusion (host)
+
+**Capability taxonomy** (machine-readable `support_status` + `unsupported_reason` per chip): `supported` | `protocol-not-implemented` | `adapter-required` | `vpp-exceeds-max`. Only genuinely-irrelevant serial / GAL-PLD / MCU / SMD-only parts stay skipped entirely.
+
+- [ ] **DB-01**: `build_db.py` no longer silently drops DIP parallel-memory chips (24/28/32-pin, Memory/SRAM type). Chips with an **unknown/unimplemented `protocol_id`** are INCLUDED in `chip_database.json` marked `support_status: protocol-not-implemented` (NOT routed to a handler) — so they are visible and "can maybe be resolved later" when/if the protocol is implemented. Serial/GAL/MCU/SMD parts remain skipped (existing warning).
+- [ ] **DB-02**: **Pinouts are classified, not skipped.** For DIP parallel chips whose pinout `build_db.py` currently can't classify, make a best-effort principled classification to a RURP pinout (extending the Phase-58 `resolve_pinout_key` rules). Only if a chip genuinely cannot be mapped correctly to RURP's bus is it INCLUDED marked `support_status: adapter-required` with a note on what adapter/mapping would be needed (tie to the existing `firestarter info --adapter` concept). No DIP-parallel chip is dropped for pinout reasons.
+- [ ] **DB-03**: **Correct VPP is recorded, not the truncated cap.** For DIP parallel chips authoritatively known to need a VPP above the upstream 18V `infoic.xml` cap (the documented NMOS family — Intel `M2716`/`M2732` = 25V, `M2732A` = 21V, and equivalents), the DB records the **true VPP**. `support_status` is then derived from the RURP hardware VPP ceiling (~22V): true VPP > ceiling → `vpp-exceeds-max`; true VPP within range → `supported` at the corrected voltage. (The exact ceiling, the curated known-exception list, and NMOS-vs-CMOS alias splitting are resolved at plan time — scope is the authoritatively-known cases, not a blanket VPP re-survey.)
+- [ ] **DB-04**: The host reports capability honestly — `firestarter info <chip>` shows the `support_status` + reason; `firestarter write` / `read` / `verify` on a non-`supported` chip prints a clear, status-specific message ("protocol not implemented" / "adapter required: <note>" / "VPP <x>V exceeds programmer max") and does NOT attempt the hardware operation (rather than silently failing, mis-programming at a wrong voltage, or "chip not found").
+- [ ] **DB-05**: The correctness/dispatch gate accounts for non-`supported` entries — `check_dispatch.py` (and the per-chip diff) treat them as non-dispatchable (they must NOT resolve to a programming handler) and the gate stays green across the regenerated DB.
+
 ---
 
 ## Future Requirements (deferred)
@@ -48,7 +58,8 @@
 - **New response codes** — the not-implemented outcome reuses `RESPONSE_CODE_ERROR`; discrimination is via the message ID + protocol param.
 - **Deleting the `mem_type` fallback outright** — it is guarded (`protocol==0` only), not removed, to preserve hand-crafted/legacy JSON.
 - **Hardware/bench validation** — this milestone is provable on the native dispatch harness + host pytest; no bench session required to close.
-- **Host DB changes** — `chip_database.json` is unchanged; no chip gains or loses support.
+- **Making any new chip programmable** — `supported: false` entries are *listed and reported honestly*, NOT made to work; no chip gains real programming support this milestone (that's the deferred per-protocol / hardware work).
+- **Serial / GAL-PLD / MCU / SMD-only chips** — remain skipped from the DB entirely; only DIP parallel memory is included-but-flagged.
 
 ---
 
@@ -56,17 +67,22 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GATE-01 | TBD | Pending |
-| GATE-02 | TBD | Pending |
-| WIRE-01 | TBD | Pending |
-| WIRE-02 | TBD | Pending |
-| DISP-01 | TBD | Pending |
-| DISP-02 | TBD | Pending |
-| DISP-03 | TBD | Pending |
-| DISP-04 | TBD | Pending |
-| TEST-01 | TBD | Pending |
-| TEST-02 | TBD | Pending |
-| HOST-01 | TBD | Pending |
-| HOST-02 | TBD | Pending |
+| GATE-01 | Phase 62 | Pending |
+| GATE-02 | Phase 62 | Pending |
+| WIRE-01 | Phase 63 | Pending |
+| WIRE-02 | Phase 64 | Pending |
+| DISP-01 | Phase 64 | Pending |
+| DISP-02 | Phase 64 | Pending |
+| DISP-03 | Phase 64 | Pending |
+| DISP-04 | Phase 64 | Pending |
+| TEST-01 | Phase 64 | Pending |
+| TEST-02 | Phase 64 | Pending |
+| HOST-01 | Phase 65 | Pending |
+| HOST-02 | Phase 65 | Pending |
+| DB-01 | Phase 66 | Pending |
+| DB-02 | Phase 67 | Pending |
+| DB-03 | Phase 66 | Pending |
+| DB-04 | Phase 68 | Pending |
+| DB-05 | Phase 66 | Pending |
 
-_(Phase column filled by the roadmapper.)_
+**Mapped: 17/17 requirements ✓** — no orphans, no duplicates.
