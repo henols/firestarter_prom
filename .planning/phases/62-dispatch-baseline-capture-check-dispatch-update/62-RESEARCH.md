@@ -783,17 +783,21 @@ processing is involved. Security enforcement is not applicable.
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> Both questions fall within "Claude's Discretion" per CONTEXT.md (exact snapshot
+> file format/location and dispatch-arrangement details) and are resolved below;
+> the Phase 62 plans implement the recommended answers.
 
 1. **Should the snapshot generator be a standalone script or inline in the plan task?**
    - What we know: Phase 56 used a direct `cp` / Python inline copy; the snapshot is simple enough for inline generation.
    - What's unclear: Whether a reusable `gen_dispatch_baseline.py` script is wanted for future milestones.
-   - Recommendation: Inline script in the plan task (one-shot; D-01 says one-time snapshot, not a regenerate-and-diff gate). No standalone script needed.
+   - RESOLVED: Inline script in the plan task (one-shot; D-01 says one-time snapshot, not a regenerate-and-diff gate). No standalone script needed. (Plan 62-02 implements this.)
 
 2. **Exact PASS line text in `check_dispatch.py` after adding `not_implemented` bucket**
    - What we know: The PASS line at line 266 currently reads `f"PASS: all {total} chips have a valid dispatch path; 0 SRAM chips route ..."`.
    - What's unclear: Whether to insert `"0 not-implemented chips; "` before or after the existing text.
-   - Recommendation: Insert as the first clause after the chip count: `f"PASS: all {total} chips have a valid dispatch path; 0 not-implemented chips; 0 SRAM chips route ..."`.
+   - RESOLVED: Insert as the first clause after the chip count: `f"PASS: all {total} chips have a valid dispatch path; 0 not-implemented chips; 0 SRAM chips route ..."`. (Plan 62-03 Task 2 implements this.)
 
 ---
 
