@@ -177,6 +177,7 @@ Plans:
 - [x] **Phase 57: Decode Bug Fixes + PROTOCOL_MAP + check_dispatch Extension** — Fix confirmed decode bugs (BUG-1..4: `interpret_timing` ×100, VCC nibbles, vdd/vcc swap, PROTOCOL_MAP names); extend `check_dispatch.py` to full-class VPP safety guard before any re-derivation changes land. (completed 2026-06-08)
 - [x] **Phase 58: Pinout Re-derivation + 24-pin EEPROM Unblock** — Re-derive `resolve_pinout_key` from principled `(pin_count, proto_id, mem_size)` rules; add `DIP24_6116` EEPROM pinout; unblock the 9 AT28C04/AT28C16 chips; SR-1 safety checklist. (completed 2026-06-09)
 - [x] **Phase 59: Correctness Gate + Per-chip Diff + SRAM Audit** — Regenerate DB; produce and review per-chip diff vs pinned baseline; `configure_sram` NVRAM/WP# behavior audit + documentation. (completed 2026-06-09)
+- [ ] **Phase 60: Display-Layer Decode Correctness (`info` reflects electrical.type)** — Make `ic_layout.py` derive the displayed chip Type and "Can be erased" from the DB's `electrical.type`/`flags` (decode ground truth) instead of keying solely on `protocol_id`, so the EEPROMs reclassified in the Phase 59 follow-up (`cca7d62`: W27C512, SST27VF512, SST27SF512, W27C257, …) display correctly in `firestarter info` and genuine UV-EPROMs do not regress. Host-only; firmware electrical-erase support is a separate firmware backlog item.
 
 ## Phase Details
 
@@ -304,6 +305,26 @@ Plans:
 
 Note: DEC-03, DEC-04, DEC-05 span Phases 56 and 57. The field dictionary work (the authoritative source-grounded decode of timing/voltage/PROTOCOL_MAP) is Phase 56; the corrected `build_db.py` code implementing those fixes is Phase 57. Each requirement maps to the phase that delivers the primary artifact.
 
+### Phase 60: Display-Layer Decode Correctness (`info` reflects electrical.type)
+
+**Goal**: `firestarter info` and the operator-facing presentation layer derive the displayed chip **Type** label and **"Can be erased"** status from the database's `electrical.type` (and `flags`) — the decode ground truth produced by `build_db.py` — rather than keying solely on `protocol_id`. The electrically-erasable parts reclassified in the Phase 59 follow-up `cca7d62` (W27C512, SST27VF512, SST27SF512, W27C257, and the wider CMOS-EEPROM / SST SuperFlash family) display as EEPROM with correct erasability; genuine UV-EPROMs continue to display as UV-EPROM. HOST-ONLY — firmware electrical-erase support (so `firestarter erase W27C512` actually works) is a **separate firmware backlog item**, not this phase.
+
+**Depends on**: Phase 59 (the `electrical.type` re-derivation in `build_db.py` / `cca7d62` is the field the display must now read).
+
+**Requirements**: Decode-display follow-up — extends the already-validated DEC-01..05 decode to the presentation layer (`firestarter info`). No new requirement ID is minted; this surfaces decode that is already correct in the DB but invisible to the operator. (The 15/15 v1.11 requirement mapping above is unchanged.)
+
+**Success Criteria** (what must be TRUE):
+
+  1. `firestarter info W27C512` (and `SST27VF512`, `SST27SF512`, `W27C257`) shows a Type label indicating an electrically-erasable EEPROM (not "UV-EPROM / MTP-Flash"), sourced from the DB record's `electrical.type`.
+  2. The "Can be erased" line is consistent with `electrical.type`/`flags` and does NOT mislead: it distinguishes "electrically erasable (chip-erase)" from firmware-erase-command availability — i.e., it must not imply `firestarter erase` works for the 0x07 path while the firmware lacks that command (that gap is referenced as a backlog item, not silently implied).
+  3. Genuine UV-EPROMs (control set, e.g. `M27C512`, `27C256`, `M2764`) still display as UV-EPROM — no regression.
+  4. `ic_layout.py`'s `get_chip_type_string` and can-erase derivation read `electrical.type`/`flags` (the protocol label may remain as supplementary detail, not the sole source of truth).
+  5. Existing tests green + `ruff` clean; new/updated presenter tests cover the EEPROM-display case and the UV-EPROM control case.
+
+**Plans**: TBD — run `/gsd-plan-phase 60`.
+
+**UI hint**: no (terminal text presentation only).
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -335,7 +356,8 @@ Note: DEC-03, DEC-04, DEC-05 span Phases 56 and 57. The field dictionary work (t
 | 56 | v1.11 | 3/3 | Complete   | 2026-06-08 |
 | 57 | v1.11 | 3/3 | Complete    | 2026-06-08 |
 | 58 | v1.11 | 3/3 | Complete    | 2026-06-09 |
-| 59 (close) | v1.11 | 2/2 | Complete    | 2026-06-09 |
+| 59 | v1.11 | 2/2 | Complete    | 2026-06-09 |
+| 60 (close) | v1.11 | 0/TBD | Not started | — |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
