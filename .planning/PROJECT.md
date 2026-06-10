@@ -11,8 +11,16 @@
 **v1.8 shipped:** 2026-05-29 (Host CLI Structural Cleanup — 8 phases, 27 requirements DELIVERED + 3 VERIFIED-at-close; argparse → Click migration; flat layout preserved (no subpackage reorg); ruff + ruff-format + mypy strict on 8 modules + 70% coverage floor enforced in CI; 2 latent bugs fixed as INTENTIONAL BEHAVIOR CHANGE (BUG-1 `build_arg_flags`, BUG-2 except-clause split); ship tag `3.0.0b7` beta-only; v1.8-app-cleanup → beta + meta-repo → main; firmware sub-repo untouched at `beta@0bbe017`; read-bug carries to v1.9 with GATE-1.8d ring-fence intact).
 **v1.7 shipped:** 2026-05-26 (RURP Shield Hardware Investigation & Version Detection — 5 phases; per-rev capability table + labeled schematics + shield-version-detect firmware plumbing). Substrate consumed by v1.6 Phase 29 v2 bench session + v1.8 RCA hand-off.
 **v1.10 shipped:** 2026-06-07 (Serial Transport Hardening / COBS — 7 phases (49–55; 45–48 reserved for v1.9), 27 plans, 14/14 requirements; beta-only, stable `3.0.1` operator-gated/deferred to the v1.9 read-bug fix). Custom COBS `0x00` + CRC8 framing with automatic resync on **both** the data-block path and the host→fw JSON command channel; the 2 s `len_u16` timeout cascade is gone; transport proven byte-exact (operator-witnessed bench, Uno 512 B + Leonardo 1024 B, N=5 read + write read-back). uno328pb read instability **persists** on the hardened transport → recorded as transport-exoneration, NOT a hardware fix; RCA stays deferred to v1.9. Serial is now a settled variable for the resumed read-bug RCA.
+**v1.11 shipped:** 2026-06-10 (Complete infoic.xml Decode & Database Correctness — 6 phases (56–61), 14 plans, 15/15 requirements; HOST-ONLY, firmware untouched like v1.8; beta-only, stable operator-gated). Authoritative source-grounded field dictionary + corrected decode docs; re-derived `build_db.py` (4 decode bugs fixed: `interpret_timing` ×100, VCC nibbles 0x02/0x03, vcc/vdd swap, PROTOCOL_MAP canonicalization); principled `resolve_pinout_key` replacing guess tables; 9 × 24-pin AT28C04/16 EEPROMs unblocked host-only (`DIP24_2816` + `0x0D`); full-class VPP-safety gate (`check_dispatch.py`, 743 chips, 0 violations) + per-chip diff gate (`diff_db.py`) + pinned baseline. Display layer (`firestarter info` + `list`/`search`) now reflects `electrical.type` ground truth (EEPROM vs UV-EPROM, no spurious SRAM VPP). Post-close FM1608 follow-up: SRAM/FRAM Vcc→5V normalization, zero-pulse-delay row suppression, chip-ID `-` placeholder. Audit PASSED 15/15, 5/5 E2E flows, 559 tests green. Meta tagged `v1.11`; lockstep beta cut (`3.0.0b9`) operator-gated.
 
-## Current Milestone: v1.11 — Complete infoic.xml Decode & Database Correctness
+## v1.11 Archive: Complete infoic.xml Decode & Database Correctness — Shipped 2026-06-10
+
+**Goal (achieved):** Authoritatively decode every Firestarter-relevant field in minipro's `infoic.xml` — grounded in the minipro C source — and rebuild the database decode so every DIP parallel memory the RURP shield can physically drive is correctly classified, with an authoritative field-dictionary reference and a correctness/regression gate.
+
+**Delivered (15/15 requirements):** DEC-01..05 (source-grounded field dictionary + corrected `build_db.py` decode); PIN-01..03 (principled `resolve_pinout_key`; 9 × 24-pin EEPROM unblock); DOC-01..03 (corrected `protocol-id.md`/`protocol-flags.md`/`package-details.md`); GATE-01 (pinned baseline — operator-authorized live-fetch deviation D-01/D-02, regression anchored via `chip_database.baseline.json`); GATE-02 (`diff_db.py` per-chip diff); GATE-03 (full-class VPP-safety guard); GATE-04 (`configure_sram` NVRAM audit, host-side, no firmware escalation). Phase 60 (display-layer `info` correctness) + Phase 61 (list/search parity via shared `resolve_type_label`) extended the corrected decode to the operator-facing presentation; a post-close FM1608 follow-up normalized SRAM/FRAM Vcc to 5V and cleaned the info-view (no zero pulse-delay row; chip-ID `-` placeholder). DB grew 734 → 743 chips (the 9 unblocked EEPROMs). See `.planning/MILESTONES.md` §v1.11, `.planning/v1.11-MILESTONE-AUDIT.md`; ROADMAP archived at `.planning/milestones/v1.11-ROADMAP.md`; requirements at `.planning/milestones/v1.11-REQUIREMENTS.md`.
+
+<details>
+<summary>v1.11 original scope framing (pre-close)</summary>
 
 **Goal:** Authoritatively decode every Firestarter-relevant field in minipro's `infoic.xml` — grounded in the minipro C source — and rebuild the database decode so every DIP parallel memory the RURP shield can physically drive is correctly classified, with an authoritative field-dictionary reference and a correctness/regression gate.
 
@@ -30,6 +38,8 @@
 - **Host-only milestone** (`firestarter_app` data pipeline + docs). Firmware sub-repo (`firestarter`) is untouched — like v1.8. Branches off `beta` in `firestarter_app`, off `main` in meta; firmware stays put.
 - Research artifacts at `.planning/research/` (STACK = field dictionary, FEATURES = protocol/feasibility catalog, ARCHITECTURE = integration, PITFALLS = hazard model, SUMMARY = synthesis).
 - Independent of the deferred v1.9 read-bug RCA; phase numbering continues at **Phase 56**.
+
+</details>
 
 ## v1.10 Archive: Serial Transport Hardening (COBS) — Shipped 2026-06-07
 
@@ -255,6 +265,11 @@ on a physical RURP shield is deferred to a v1.1 hardware-test pass.
 | 2026-06-01 | Phase 49: COBS `0x00` selected over SLIP `0xC0` as the framing mechanism — SAFE-01 static proof conclusive (host cannot emit a `0x00` frame-boundary byte during the mode-transition window); scored 4-criterion matrix 11/12 vs 10/12. `len_u16` length prefix + XOR checksum dropped from the data-block frame. | ✓ Good (shipped; resync proven on hardware Phase 53) |
 | 2026-06-02 | Phase 51: command-channel JSON migrated into COBS+CRC8 framing as a breaking lockstep wire change — no mixed-version interop; CRC8 verified before `parse_json()`. Decoder cap lowered to `DATA_BUFFER_SIZE-1` (CR-01 OOB write) + `millis()`-bounded inter-byte deadline (CR-02 hang) hardened the receive path. | ✓ Good (documented in both sub-repo READMEs; 36/36 native green) |
 | 2026-06-05 | Phase 53 byte-exact proof accepted in **self-consistency** form (D-05): no chip on the bench was the original `19710f6e` GATE-1.8d baseline, so N=5 self-identity (rather than baseline-reproduction) is the operator-accepted achieved form; recorded explicitly in the SHA files + SUMMARY. uno328pb instability persisting on the hardened transport recorded as transport-**exoneration**, NOT a hardware fix. | ✓ Good (operator-authorized override; RCA cleanly deferred to v1.9 Phase 45+) |
+| 2026-06-08 | v1.11 re-scoped HOST-ONLY after source-grounded research overturned the "expand types + add firmware handlers" framing: the hardware-feasible memory set is already covered; only ~9 24-pin EEPROMs are a genuine gap, unblockable host-only. No new firmware handlers. | ✓ Good (15/15 shipped host-only; firmware untouched like v1.8) |
+| 2026-06-08 | v1.11 GATE-01 deviation (D-01/D-02): keep `build_db.py` fetching `infoic.xml` from upstream master rather than pinning an in-repo snapshot; the regression anchor is the committed `chip_database.baseline.json` that GATE-02 `diff_db.py` diffs against. | ✓ Good (regression purpose met; verified Phase 56 8/8; locked twice by operator before planning) |
+| 2026-06-08 | v1.11 GATE-03 keyed on `electrical.type` (5V-EEPROM family) rather than algorithm-in-{0x05,0x06,0x0D} (CR-01): the algorithm predicate was dead code since `dispatch()` never routes those to `configure_eprom`; the type-keyed guard is a genuine superset of WARNING-5. | ✓ Good (0 violations across 743 chips; structural + type-keyed dual guard) |
+| 2026-06-09 | v1.11 Phase 58: deleted the survey-built `PIN_MAP_*`/`DIP28_VARIANT_MAP` guess tables; `resolve_pinout_key` rebuilt as a pure function of `(pin_count, proto_id, mem_size)` with the 3 load-bearing safety overrides (WARNING-5, fm1608, 24-pin EEPROM skip) preserved as explicit rules. | ✓ Good (30 RED→GREEN Wave-0 tests; GATE-03 0 violations; SR-1 two-layer review) |
+| 2026-06-10 | v1.11 Phases 60/61 (display-layer): `info` + `list`/`search` derive Type/erasability/VPP from `electrical.type` via a single shared `resolve_type_label` helper (D-04), not `protocol_id` — resolving the EEPROM-vs-UV-EPROM mislabel and the spurious SRAM VPP. Post-close: SRAM/FRAM `vcc`→`vdd` (5V) normalization in `build_db.py`. | ✓ Good (operator-driven; FM1608 shows SRAM/5.0v/`-`; W27C512 shows EEPROM; 559 tests green) |
 
 ## Context
 
@@ -264,9 +279,11 @@ on a physical RURP shield is deferred to a v1.1 hardware-test pass.
 - **Repo structure:** Meta-repo + 2 sub-repos (`firestarter/` firmware,
   `firestarter_app/` Python). Meta-repo tracks `.planning/` and `.claude/` only;
   sub-repos are pointer-bumped commits
-- **Database state:** 734 chips post-v1.0 across DIP24/28/32. Algorithm
-  histogram: 0x05=27, 0x06=190, 0x07=212, 0x08=127, 0x0B=40, 0x0D=23, 0x0E=20,
-  0x10=39, 0x27=2, 0x28=34, 0x29=20 (totals 734)
+- **Database state:** **743 chips post-v1.11** across DIP24/28/32 (was 734 at v1.0;
+  +9 from the 24-pin AT28C04/16 EEPROM unblock in Phase 58). Decode re-derived from
+  minipro source in v1.11: corrected VCC nibbles (4V/4.5V), vcc/vdd labels,
+  `interpret_timing` (µs not ×100), canonical `PROTOCOL_MAP`; SRAM/FRAM Vcc normalized
+  to supply rail. `electrical.type` is the display ground truth (`info`/`list`/`search`).
 - **Verified families (structural):** UV-EPROM (W27C512), Flash AMD (29F040),
   Flash Intel (28F010 minus VPP-ADC gap), EEPROM (AT28C256 via Phase 13
   override), SRAM (6116-class via safe stub)
@@ -305,6 +322,6 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last updated: 2026-06-09 — v1.11 all phases complete (56–59); milestone close pending operator `/gsd-complete-milestone`. Phase 59 closed the milestone: GATE-02 correctness gate (re-runnable per-chip `diff_db.py` vs pinned baseline — 743/743 + 734/734 records indexed 1:1, 405 changes all explained, 0 missing; a code-review BLOCKER (non-unique `part_number` index silently dropping ~69 records, CR-01) was caught and fixed in `f3b2ed7`) + GATE-04 SRAM/NVRAM behavioral audit (two lockstep doc layers, no firmware escalation). Host-only throughout; firmware sub-repo untouched (like v1.8). v1.11 started 2026-06-08 via `/gsd-new-milestone`; research overturned the original "expand + firmware handlers" framing → re-scoped (operator-confirmed) to HOST-ONLY decode-correctness + authoritative docs: re-derive decode from minipro source, fix confirmed bugs, unblock 9 × 24-pin EEPROMs (host-only), corrected decode docs, correctness/regression gate. Prior footer retained below.*
+*Last updated: 2026-06-10 — after v1.11 (Complete infoic.xml Decode & Database Correctness) close. Shipped 6 phases (56–61), 14 plans, 15/15 requirements, HOST-ONLY (firmware untouched like v1.8). Audit PASSED (15/15 reqs, 5/5 E2E flows, both correctness gates green on 743 chips, 559 tests). Meta tagged `v1.11`; lockstep beta cut `3.0.0b9` (firestarter_app version bump + gitlink bump + PyPI/GitHub pre-release) is operator-gated and pending. Stable promotion deferred per the operator-gated release rule. Deferred v1.9 read-bug RCA resumes at `/gsd-plan-phase 45`. Prior footer retained below.*
 
 *Previously: 2026-06-08 — after v1.10 (Serial Transport Hardening / COBS) close + beta merge. Shipped 7 phases (49–55), 27 plans, 14/14 requirements: streaming COBS `0x00` + CRC8 framing with automatic resync on both the data-block path and the host→fw JSON command channel; 2 s timeout cascade removed; byte-exact proven on operator-witnessed bench (Uno + Leonardo); uno328pb instability transport-exonerated. Merged to beta in all 3 repos locally 2026-06-08 (fw beta@0266ee2, app beta@8480ff3, meta main@ec90b92) — not yet pushed; operator cuts the beta when ready (lockstep `BETA_VERSION=3.0.0b8`, explicit pin). Beta-only — stable `3.0.1` operator-gated. **v1.9 Read-Bug RCA DEFERRED** (operator 2026-06-08); resumes later at Phase 45.*

@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.11
 milestone_name: — Complete infoic.xml Decode & Database Correctness
-status: verifying
-stopped_at: Phase 61 SHIPPED (executed + verified 7/7 + code-review fixed); FM1608 info-view follow-up committed. v1.11 ready to close.
-last_updated: "2026-06-10T00:00:00.000Z"
-last_activity: 2026-06-10
+status: Awaiting next milestone
+stopped_at: Session resumed — Phase 61 confirmed shipped + FM1608 follow-up committed; proceeding toward v1.11 milestone close
+last_updated: "2026-06-10T12:07:05.573Z"
+last_activity: 2026-06-10 — Milestone v1.11 completed and archived
 progress:
   total_phases: 10
   completed_phases: 6
@@ -21,12 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 61 (v1.11 close phase)
-Plan: 61-01 complete
-Status: SHIPPED — verified 7/7, code review fixed (WR-01/WR-02), FM1608 info-view follow-up landed
-Last activity: 2026-06-10
-Note: Phase 61 is the v1.11 close phase. All v1.11 phases (56–61) complete. Ready for /gsd-complete-milestone.
-Post-61 follow-up on firestarter_app v1.11 branch (NOT in phase artifacts; commits b81131f + e910e5e): FM1608 info-view fixes — SRAM/FRAM Vcc→5V normalization in build_db.py + DB regen, zero-pulse-delay row suppression, chip-ID "-" placeholder. Resolves the carried `w27c512-eeprom-misclassification` family of display concerns. Remember to bump the meta firestarter_app gitlink at beta cut.
+Phase: Milestone v1.11 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-06-10 — Milestone v1.11 completed and archived
 
 ## Project Reference
 
@@ -35,26 +33,17 @@ See: `.planning/PROJECT.md` (updated 2026-06-08 after v1.11 scope lock)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 61 — list-search-display-correctness-and-table-layout
-(firestarter_app data pipeline + docs). Firmware sub-repo untouched. 15 requirements across
-4 phases (56–59). Phase numbering continues from v1.10 close at Phase 55.
+**Current focus:** None — v1.11 SHIPPED 2026-06-10. Planning next milestone (`/gsd-new-milestone`),
+or resume the deferred v1.9 read-bug RCA at `/gsd-plan-phase 45`.
 
 ## Roadmap Summary
 
-**v1.11 (ACTIVE 2026-06-08):** 4 phases (56–59), 0/TBD plans, 15/15 requirements mapped.
-HOST-ONLY decode-correctness milestone: authoritative field dictionary + minipro-source-grounded
-decode rules, fix confirmed bugs (interpret_timing ×100, VCC nibbles, vdd/vcc swap, PROTOCOL_MAP
-names), unblock 9 × 24-pin EEPROMs (host-only, no firmware change), correctness/regression gate.
-
-| Phase | Goal | Requirements |
-|-------|------|--------------|
-| 56 | Snapshot + Field Dictionary + Corrected Docs | DEC-01, DEC-03, DEC-04, DEC-05, DOC-01, DOC-02, DOC-03, GATE-01 |
-| 57 | Decode Bug Fixes + PROTOCOL_MAP + check_dispatch Extension | DEC-02, DEC-03*, DEC-04*, DEC-05*, GATE-03 |
-| 58 | Pinout Re-derivation + 24-pin EEPROM Unblock | PIN-01, PIN-02, PIN-03 |
-| 59 | Correctness Gate + Per-chip Diff + SRAM Audit | GATE-02, GATE-04 |
-
-*DEC-03/04/05 span Phases 56 (field dictionary) and 57 (build_db.py code fixes); primary
- artifact assignment: Phase 56 for the dictionary, Phase 57 for the corrected decode code.
+**v1.11 SHIPPED 2026-06-10:** 6 phases (56–61), 14 plans, 15/15 requirements. HOST-ONLY
+decode-correctness milestone (firmware untouched like v1.8). Authoritative field dictionary +
+minipro-source-grounded decode, 4 decode bugs fixed, principled `resolve_pinout_key`, 9 × 24-pin
+EEPROMs unblocked host-only, full-class VPP-safety + per-chip diff gates, display layer reflects
+`electrical.type`. Audit PASSED 15/15. Beta-only; lockstep `3.0.0b9` cut + stable operator-gated.
+Archive: `.planning/milestones/v1.11-ROADMAP.md`.
 
 **v1.10 SHIPPED 2026-06-07:** 7 phases (49–55), 27 plans, 14/14 requirements. Provably
 byte-exact serial transport (COBS `0x00` + CRC8). Beta-only; stable `3.0.1` operator-gated.
@@ -116,9 +105,10 @@ Remaining: Phases 45–48. Resume: `/gsd-plan-phase 45`.
 
 ### Pending Todos (carried forward)
 
-- `w27c512-eeprom-misclassification.md` (HIGH) — DB content fix; relevant to v1.11 decode work
-- `avrdude-mcu-detection-fallback.md` (low) — out of v1.11 scope, carry forward
-- `large-read-data-jitter-uno328pb.md` (HIGH) — v1.9 RCA target
+- `avrdude-mcu-detection-fallback.md` (low) — out of scope, carry forward
+- `cobs-decoder-framelevel-deadline-wr01.md` (medium) — v1.10 COBS follow-up; deferred
+- `large-read-data-jitter-uno328pb.md` (HIGH, in v1.8-seed) — v1.9 RCA target
+- ✅ Closed this milestone: `w27c512-eeprom-misclassification.md` (v1.11 decode) + `info-list-type-vpp-divergence.md` (Phase 61)
 
 ### Blockers / Concerns
 
@@ -163,20 +153,29 @@ Resume file: None
 
 ## Deferred Items
 
-Items acknowledged and deferred. None are incomplete v1.10 transport work.
+7 items acknowledged and deferred at **v1.11 milestone close (2026-06-10)** — none are v1.11 work
+(all pre-existing / out-of-scope / v1.9 hardware-gated). See `.planning/milestones/v1.11-MILESTONE-AUDIT.md`.
 
 | Category | Item | Status | Disposition |
 |----------|------|--------|-------------|
 | debug | firmware-vpp-misread | diagnosed | Fixed in Phase 54 UAT (uno328pb R1 recal 1000→270000); session left open — close retroactively |
-| debug | fm1608-fresh-chip-baseline | parked-2026-05-18 | Pre-v1.10 FRAM byte-0 write investigation; out of v1.10 scope |
+| debug | fm1608-fresh-chip-baseline | parked-2026-05-18 | Pre-v1.10 FRAM byte-0 write investigation; out of v1.11 scope |
 | uat | Phase 08 (08-HUMAN-UAT.md) | partial (2 pending) | v1.0-era logging-infrastructure phase; out of v1.11 scope |
 | verification | Phase 08 (08-VERIFICATION.md) | human_needed | v1.0-era logging phase; out of v1.11 scope |
 | verification | Phase 09 (09-VERIFICATION.md) | human_needed | v1.0-era logging phase; out of v1.11 scope |
 | todo | avrdude-mcu-detection-fallback.md | low | Carry-forward; out of v1.11 scope |
 | todo | cobs-decoder-framelevel-deadline-wr01.md | medium | v1.10 COBS follow-up (WR-01); explicitly deferred per REQUIREMENTS.md §Future |
-| todo | w27c512-eeprom-misclassification.md | high | Relevant to v1.11 decode work; evaluate at Phase 57 |
+| ~~todo~~ | ~~w27c512-eeprom-misclassification.md~~ | ✅ RESOLVED | Closed by v1.11 decode work (Phase 57/59 cca7d62 + Phase 60); todo moved to `completed/` |
+| ~~todo~~ | ~~info-list-type-vpp-divergence.md~~ | ✅ RESOLVED | Closed by Phase 61 (shared resolve_type_label + D-03 VPP parity); todo moved to `completed/` |
 
 ## Operator Next Steps
 
-- Phase 60 complete + verified (11/11). Code-review fix cycle landed (WR-01 SRAM-VPP regression fixed). IN-01 `info`/`list` divergence promoted to Phase 61.
-- Phase 61 (List/Search Display Correctness + Table Layout) is the new v1.11 close phase. Next: `/gsd-plan-phase 61`. Run `/gsd-complete-milestone` only after Phase 61 ships.
+- **v1.11 SHIPPED 2026-06-10** — archived + meta-tagged `v1.11`; audit PASSED 15/15. Beta-only.
+- **PENDING operator action — lockstep beta cut (`3.0.0b9`):** bump `firestarter_app` version
+  (next after `3.0.0b8`) + bump the meta `firestarter_app` gitlink (pinned `faaa571`; the v1.11
+  work — incl. the FM1608 follow-up commits b81131f/e910e5e — sits on submodule branch
+  `v1.11-infoic-decode-correctness`) + PyPI pre-release publish + GitHub Pre-release. Firmware
+  sub-repo untouched this milestone — confirm the lockstep-version policy at cut (may need a
+  skipped firmware tag to keep b8→b9 lockstep, as at the v1.10 close). Watch the
+  py3.12-masks-CI-py3.11 ruff/codegen drift traps. See MILESTONES.md §v1.11.
+- **Next milestone:** `/gsd-new-milestone`. Deferred v1.9 read-bug RCA resumes at `/gsd-plan-phase 45`.

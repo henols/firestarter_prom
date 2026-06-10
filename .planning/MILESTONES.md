@@ -1,5 +1,25 @@
 # Milestones
 
+## v1.11 Complete infoic.xml Decode & Database Correctness (Shipped: 2026-06-10)
+
+**Phases:** 6 (56–61) | **Plans:** 14 | **Timeline:** 2026-06-08 → 2026-06-10 (3 days) | **Ship:** HOST-ONLY (`firestarter_app`; firmware untouched like v1.8); beta-only — lockstep `3.0.0b9` cut + stable promotion operator-gated. | **Audit:** PASSED — 15/15 requirements, 5/5 E2E flows, both correctness gates green on 743 chips, 559 tests (`.planning/milestones/v1.11-MILESTONE-AUDIT.md`). | **Known deferred items at close:** 7 (pre-existing / out-of-scope / v1.9-gated; see STATE.md Deferred Items).
+
+**Delivered (15/15 requirements):** Authoritatively decoded every Firestarter-relevant `infoic.xml` field grounded in minipro C source, rebuilt the `build_db.py` decode, unblocked the 9 blocked 24-pin EEPROMs host-only, and extended the corrected decode to the operator-facing display — all behind a full-class VPP-safety gate + per-chip diff gate. DB grew 734 → 743 chips. Research overturned the original "expand types + add firmware handlers" framing: the hardware-feasible memory set was already covered, so this shipped as a host-only decode-correctness + authoritative-docs milestone.
+
+**Key accomplishments:**
+
+1. **Phase 56 — Field dictionary + corrected docs (DEC-01/03/04/05, DOC-01/02/03, GATE-01).** Authoritative 288-line source-cited `infoic-field-dictionary.md` (13 attributes, CONFIRMED/INFERRED/UNKNOWN); rewrote `protocol-id.md`/`protocol-flags.md`/`package-details.md` fresh (canonical `IC2_ALG_*` names, 0x39 phantom fixed, bit-4 = `MP_ERASE_MASK`, bits 3/6/7 UNKNOWN). GATE-01 anchored via committed `chip_database.baseline.json` (operator-authorized D-01/D-02 live-fetch deviation).
+2. **Phase 57 — Decode bug fixes + check_dispatch extension (DEC-02..05, GATE-03).** Fixed all 4 confirmed bugs in `build_db.py` (`interpret_timing` ×100 → µs; `VCC_VOLTAGES` 0x02=4V/0x03=4.5V; vcc/vdd label swap; `PROTOCOL_MAP` canonicalized, 0x35/0x39/0x3C removed). Extended `check_dispatch.py` to a full-class VPP-safety guard keyed on `electrical.type` (CR-01 — the algorithm predicate was dead code). `firestarter info W27C512` → 100 µs (not 10000).
+3. **Phase 58 — Pinout re-derivation + 24-pin EEPROM unblock (PIN-01/02/03).** Deleted the `PIN_MAP_*`/`DIP28_VARIANT_MAP` guess tables; `resolve_pinout_key` rebuilt as a pure function of `(pin_count, proto_id, mem_size)`; 3 load-bearing safety overrides preserved as explicit rules; 9 × AT28C04/16 EEPROMs exposed via `DIP24_2816` + `0x0D` with a two-layer SR-1 safety review. 30 RED→GREEN Wave-0 tests; GATE-03 0 violations on 743 chips.
+4. **Phase 59 — Correctness gate + per-chip diff + SRAM audit (GATE-02, GATE-04).** `diff_db.py` classifies every changed chip by root-cause rule vs the pinned baseline with minipro `a8efaedc` citations (a CR-01 BLOCKER — non-unique `part_number` index silently dropping ~69 records — caught and fixed in `f3b2ed7`); `sort_keys` byte-identity proved; `configure_sram` NVRAM/WP#/RTC behavior documented in two lockstep doc layers, no firmware escalation.
+5. **Phase 60 — Display-layer decode correctness (`info`).** `firestarter info` derives Type/erasability/VPP from `electrical.type` ground truth: W27C512/SST27VF512/etc. show EEPROM + electrically erasable + 12V VPP; genuine UV-EPROMs (2764/M27C512/27C256) unchanged. 539 tests green; EEPROM snapshot canary added.
+6. **Phase 61 — List/search display correctness + table layout.** Routed `firestarter list`/search Type+VPP through a single shared `resolve_type_label` helper (D-04) sourced from `electrical.type`, resolving the info-vs-list divergence and the spurious SRAM VPP (D-03); Name column clamped to [13,20], VPP fixed at 5; parametrized list-vs-info parity test. Code-review fix cycle landed WR-01 (Type clamp) + WR-02 (vpp_str parity).
+7. **Post-close FM1608 follow-up (operator-driven).** SRAM/FRAM `vcc`→`vdd` (5V) normalization in `build_db.py` (24 entries — minipro's lower test-rail misrepresented the supply the RURP shield actually applies); `info` no longer renders a zero pulse-delay row; chip-ID shows `-` for absent/placeholder IDs. 560 tests; GATE green.
+
+ROADMAP archived: `.planning/milestones/v1.11-ROADMAP.md` · Requirements: `.planning/milestones/v1.11-REQUIREMENTS.md` · Audit: `.planning/milestones/v1.11-MILESTONE-AUDIT.md`.
+
+---
+
 ## v1.10 Serial Transport Hardening (COBS) (Shipped: 2026-06-07)
 
 **Phases:** 7 (numbered 49–53, plus inserted 54 & 55; 45–48 reserved for the deferred v1.9 RCA) | **Plans:** 27 | **Tasks:** 36 | **Timeline:** 2026-06-01 (Phase 49 context capture) → 2026-06-05 (Phase 53 bench close, operator-witnessed) | **Commits:** ~139 (meta-repo, coordinated dual-repo firmware + host lockstep) | **Branch model:** `v1.10-serial-transport-hardening` stacked off the `v1.9-read-bug-rca` tip in all 3 repos (NOT off main/beta — stale at v1.8 close, missing the COBS ADOPT decision + Phase 44 read-timing knobs). | **Ship:** beta-only — stable `3.0.1` promotion remains operator-gated and deferred to the v1.9 read-bug fix (D-17v2 carry-forward).
