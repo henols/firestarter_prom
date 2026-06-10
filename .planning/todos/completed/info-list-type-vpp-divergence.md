@@ -2,13 +2,22 @@
 id: info-list-type-vpp-divergence
 title: Route `firestarter list` Type/VPP column through electrical.type (parity with `info`)
 captured: 2026-06-10
-status: pending
+status: completed
+completed: 2026-06-10
 type: enhancement
-target_milestone: v1.11+
+target_milestone: v1.11
 priority: medium
 related_phase: 60
-resolves_phase: null
+resolves_phase: 61
 ---
+
+> **RESOLVED by Phase 61 (2026-06-10).** `print_eprom_list_table` now routes the
+> Type label and VPP column through the shared `resolve_type_label` helper on the
+> same `electrical.type` source as `info` (D-04 single source of truth); VPP gate
+> parity (`vpp_mv > 0 AND electrical-type != "SRAM"`, D-03) suppresses the spurious
+> SRAM VPP. Verified 7/7 (61-VERIFICATION truth #1/#2); parametrized list-vs-info
+> parity test covers the EEPROM display set + UV-EPROM control + SRAM control.
+
 
 # `info` vs `list` Type/VPP label divergence (IN-01 from Phase 60 review)
 
