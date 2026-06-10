@@ -621,7 +621,6 @@ Plans:
 **Requirements**: Decode-display follow-up (extends DEC-01..05 to the list/search presentation layer + table-layout UX). No new requirement ID minted — surfaces decode already correct in the DB.
 **Depends on:** Phase 60
 **Plans:** 1 plan
-
 Plans:
 
 - [ ] 61-01-PLAN.md — Route list/search Type+VPP through electrical.type via one shared SpecBuilder helper (info parity, no spurious SRAM VPP) + table sizing (Name clamp 13..20, VPP width 5)

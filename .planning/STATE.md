@@ -4,8 +4,8 @@ milestone: v1.11
 milestone_name: — Complete infoic.xml Decode & Database Correctness
 status: executing
 stopped_at: Phase 61 context gathered
-last_updated: "2026-06-10T09:35:50.952Z"
-last_activity: 2026-06-10
+last_updated: "2026-06-10T09:49:28.227Z"
+last_activity: 2026-06-10 -- Phase 61 planning complete
 progress:
   total_phases: 10
   completed_phases: 6
@@ -23,8 +23,8 @@ progress:
 
 Phase: 60
 Plan: Not started
-Status: Executing Phase 60
-Last activity: 2026-06-10
+Status: Ready to execute
+Last activity: 2026-06-10 -- Phase 61 planning complete
 Note: Phase 59 was the prior "(close)" phase; Phase 60 is now the v1.11 close. /gsd-complete-milestone deferred until 60 ships.
 
 ## Project Reference
