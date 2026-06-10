@@ -322,9 +322,13 @@ Note: DEC-03, DEC-04, DEC-05 span Phases 56 and 57. The field dictionary work (t
   5. Existing tests green + `ruff` clean; new/updated presenter tests cover the EEPROM-display case and the UV-EPROM control case.
 
 **Plans**: 2 plans
-
 Plans:
+**Wave 1**
+
 - [ ] 60-01-PLAN.md — Six atomic display-decode edits (D-01/02/03/05/07) in ic_layout.py + database.py; synthetic + real-DB smoke tests
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 60-02-PLAN.md — Regenerate test_info_known_chip snapshot (EEPROM canary) + phase gate
 
 **UI hint**: no (terminal text presentation only).

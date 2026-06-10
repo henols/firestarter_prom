@@ -4,7 +4,7 @@ milestone: v1.11
 milestone_name: — Complete infoic.xml Decode & Database Correctness
 status: "Phase 60 added — make `firestarter info` (ic_layout.py) derive Type/erasability from electrical.type, not solely protocol_id. Surfaces the cca7d62 EEPROM reclassification to the operator. Next: /gsd-plan-phase 60"
 stopped_at: Phase 60 context gathered
-last_updated: "2026-06-10T07:58:29.360Z"
+last_updated: "2026-06-10T08:24:20.321Z"
 last_activity: 2026-06-10 — Phase 59 closed + 2 post-59 decode follow-ups (cca7d62 type/VPP, 82186c3 GATE-03 re-key) on the v1.11 branch; Phase 60 added for the display layer
 progress:
   total_phases: 10
