@@ -325,7 +325,7 @@ Note: DEC-03, DEC-04, DEC-05 span Phases 56 and 57. The field dictionary work (t
 Plans:
 **Wave 1**
 
-- [ ] 60-01-PLAN.md — Six atomic display-decode edits (D-01/02/03/05/07) in ic_layout.py + database.py; synthetic + real-DB smoke tests
+- [x] 60-01-PLAN.md — Six atomic display-decode edits (D-01/02/03/05/07) in ic_layout.py + database.py; synthetic + real-DB smoke tests
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -365,7 +365,7 @@ Plans:
 | 57 | v1.11 | 3/3 | Complete    | 2026-06-08 |
 | 58 | v1.11 | 3/3 | Complete    | 2026-06-09 |
 | 59 | v1.11 | 2/2 | Complete    | 2026-06-09 |
-| 60 (close) | v1.11 | 0/TBD | Not started | — |
+| 60 (close) | v1.11 | 1/2 | In Progress|  |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 

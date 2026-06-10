@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.11
 milestone_name: — Complete infoic.xml Decode & Database Correctness
-status: "Phase 60 added — make `firestarter info` (ic_layout.py) derive Type/erasability from electrical.type, not solely protocol_id. Surfaces the cca7d62 EEPROM reclassification to the operator. Next: /gsd-plan-phase 60"
+status: executing
 stopped_at: Phase 60 context gathered
-last_updated: "2026-06-10T08:24:20.321Z"
-last_activity: 2026-06-10 — Phase 59 closed + 2 post-59 decode follow-ups (cca7d62 type/VPP, 82186c3 GATE-03 re-key) on the v1.11 branch; Phase 60 added for the display layer
+last_updated: "2026-06-10T08:35:03.336Z"
+last_activity: 2026-06-10 -- Phase 60 execution started
 progress:
   total_phases: 10
   completed_phases: 5
-  total_plans: 19
+  total_plans: 21
   completed_plans: 17
   percent: 50
 ---
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 60 (display-layer-decode-correctness) — NOT PLANNED
-Plan: Not started
-Status: Phase 60 added — make `firestarter info` (ic_layout.py) derive Type/erasability from electrical.type, not solely protocol_id. Surfaces the cca7d62 EEPROM reclassification to the operator. Next: /gsd-plan-phase 60
-Last activity: 2026-06-10 — Phase 59 closed + 2 post-59 decode follow-ups (cca7d62 type/VPP, 82186c3 GATE-03 re-key) on the v1.11 branch; Phase 60 added for the display layer
+Phase: 60 (display-layer-decode-correctness) — EXECUTING
+Plan: 1 of 2
+Status: Executing Phase 60
+Last activity: 2026-06-10 -- Phase 60 execution started
 Note: Phase 59 was the prior "(close)" phase; Phase 60 is now the v1.11 close. /gsd-complete-milestone deferred until 60 ships.
 
 ## Project Reference
@@ -34,7 +34,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-08 after v1.11 scope lock)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 59 — correctness-gate-per-chip-diff-sram-audit
+**Current focus:** Phase 60 — display-layer-decode-correctness
 (firestarter_app data pipeline + docs). Firmware sub-repo untouched. 15 requirements across
 4 phases (56–59). Phase numbering continues from v1.10 close at Phase 55.
 
