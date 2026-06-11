@@ -443,10 +443,11 @@ Plans:
   3. Running `firestarter write <chip-with-unimplemented-protocol>` (or equivalent mocked invocation) prints an actionable error message that includes the protocol value (e.g. `Protocol 0x0000000B not implemented`) and communicates that this is a known but not-yet-supported protocol — not a generic "operation failed" message.
   4. The `ProtocolNotImplementedError` catch in `map_typed_errors` appears before the `EpromOperationError` catch so the subclass is handled first; all pre-existing error paths remain green.
 
-**Plans**: 1 plan
+**Plans**: 2 plans
 Plans:
 
 - [x] 65-01-PLAN.md — add ProtocolNotImplementedError(EpromOperationError) + thread decoded message id through Response, centralize id-0xBB -> typed-raise dispatch (_raise_for_error_response) in the state-machine ERROR path, add the actionable "Unsupported protocol:" arm before the EpromOperationError arm in map_typed_errors, and pytest the 4 SC cases (HOST-01, HOST-02)
+- [ ] 65-02-PLAN.md — GAP-CLOSURE: wire the probe/connect boundary so the 0xBB ERROR frame reaches the CLI (Option B: expect_ack raises ProtocolNotImplementedError, _probe_port + find_and_connect propagate it instead of masking it as ProgrammerNotFoundError); close WR-02 (route _main_phase_read_data/_main_phase_send_data through _raise_for_error_response); add a production-path integration test driving the REAL find_and_connect path (HOST-01, HOST-02)
 
 **UI hint**: no
 
