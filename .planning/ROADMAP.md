@@ -446,7 +446,7 @@ Plans:
 **Plans**: 1 plan
 Plans:
 
-- [ ] 65-01-PLAN.md — add ProtocolNotImplementedError(EpromOperationError) + thread decoded message id through Response, centralize id-0xBB -> typed-raise dispatch (_raise_for_error_response) in the state-machine ERROR path, add the actionable "Unsupported protocol:" arm before the EpromOperationError arm in map_typed_errors, and pytest the 4 SC cases (HOST-01, HOST-02)
+- [x] 65-01-PLAN.md — add ProtocolNotImplementedError(EpromOperationError) + thread decoded message id through Response, centralize id-0xBB -> typed-raise dispatch (_raise_for_error_response) in the state-machine ERROR path, add the actionable "Unsupported protocol:" arm before the EpromOperationError arm in map_typed_errors, and pytest the 4 SC cases (HOST-01, HOST-02)
 
 **UI hint**: no
 
@@ -556,7 +556,7 @@ Plans:
 | 62 | v1.12 | 3/3 | Complete    | 2026-06-10 |
 | 63 | v1.12 | 1/1 | Complete    | 2026-06-11 |
 | 64 | v1.12 | 2/2 | Complete    | 2026-06-11 |
-| 65 | v1.12 | 0/TBD | Not started | — |
+| 65 | v1.12 | 1/1 | Complete   | 2026-06-11 |
 | 66 | v1.12 | 0/TBD | Not started | — |
 | 67 | v1.12 | 0/TBD | Not started | — |
 | 68 (close) | v1.12 | 0/TBD | Not started | — |

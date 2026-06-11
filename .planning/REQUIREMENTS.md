@@ -22,8 +22,8 @@
 
 ### HOST — Host Graceful Handling (firestarter_app)
 
-- [ ] **HOST-01**: The host detects the not-implemented response and raises a typed `ProtocolNotImplementedError` (subclass of `EpromOperationError`), distinguishable from generic operation failures.
-- [ ] **HOST-02**: `firestarter write` / `read` / `verify` against a chip whose protocol is unimplemented prints a clear, actionable message (decoding recognized-but-infeasible vs totally-unknown via the v1.11 protocol classification) instead of a cryptic error or hang.
+- [x] **HOST-01**: The host detects the not-implemented response and raises a typed `ProtocolNotImplementedError` (subclass of `EpromOperationError`), distinguishable from generic operation failures.
+- [x] **HOST-02**: `firestarter write` / `read` / `verify` against a chip whose protocol is unimplemented prints a clear, actionable message (decoding recognized-but-infeasible vs totally-unknown via the v1.11 protocol classification) instead of a cryptic error or hang.
 
 ### GATE — Dispatch-Mirror Safety Gate (host)
 
@@ -77,8 +77,8 @@
 | DISP-04 | Phase 64 | Complete |
 | TEST-01 | Phase 64 | Complete |
 | TEST-02 | Phase 64 | Complete |
-| HOST-01 | Phase 65 | Pending |
-| HOST-02 | Phase 65 | Pending |
+| HOST-01 | Phase 65 | Complete |
+| HOST-02 | Phase 65 | Complete |
 | DB-01 | Phase 66 | Pending |
 | DB-02 | Phase 67 | Pending |
 | DB-03 | Phase 66 | Pending |
