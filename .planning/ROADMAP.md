@@ -354,7 +354,7 @@ Research finding: the SKELETON-NEEDED bucket is empty (every RURP-feasible proto
 - [x] **Phase 62: Dispatch Baseline Capture + check_dispatch Update** — Capture a pre-change dispatch baseline (native test + `check_dispatch.py` scan on fallback-present state) before any firmware modification; reconcile the pre-existing `0x35`/`0x39` dispatch-mirror gap; add the `not_implemented` arm + FAIL guard to `check_dispatch.py`. Gate is green before Phase 64 touches any firmware code. (completed 2026-06-10)
 - [x] **Phase 63: Catalog Lockstep Wire Change** — Add `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED = 0xBB` to the meta-repo canonical `messages.toml`; sync to both sub-repos; regenerate `messages.h` + `messages.py` with Python 3.11; codegen drift gate green in both repos. Zero behavior change — reviewable in isolation. (completed 2026-06-11)
 - [x] **Phase 64: Firmware Fail-Closed Dispatch + Native Tests** — `configure_not_implemented()` in `not_implemented.cpp`; `protocol != 0` guard in `configure_memory()`; named infeasibility arms for `0x11`/`0x2A`/`0x2B`/`0x2C`; firmware emits `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` with protocol value; native Unity tests prove fail-closed + legacy fallback intact + NULL operation pointers; Leonardo flash gate ≤ 90%. (completed 2026-06-11)
-- [ ] **Phase 65: Host Graceful Handling** — `ProtocolNotImplementedError(EpromOperationError)` in `exceptions.py`; detection in `_run_state_machine`; clear actionable CLI message in `map_typed_errors`; pytest tests covering the new exception path; CI green.
+- [x] **Phase 65: Host Graceful Handling** — `ProtocolNotImplementedError(EpromOperationError)` in `exceptions.py`; detection in `_run_state_machine`; clear actionable CLI message in `map_typed_errors`; pytest tests covering the new exception path; CI green. (completed 2026-06-11)
 - [ ] **Phase 66: DB Inclusion + VPP Correction + Dispatch Gate** — `build_db.py` includes DIP parallel-memory chips with unknown/unimplemented `protocol_id` marked `support_status: protocol-not-implemented`; NMOS high-VPP family (M2716/M2732 = 25V, M2732A = 21V) gets true VPP recorded with `support_status` derived from RURP ceiling (~22V); `check_dispatch.py` + per-chip diff gate treat non-`supported` entries as non-dispatchable; gate green. HOST-ONLY.
 - [ ] **Phase 67: Pinout Classification for Unclassifiable DIP Chips** — Extend Phase 58 `resolve_pinout_key` rules to cover DIP chips `build_db.py` currently cannot classify; genuinely unmappable chips included as `support_status: adapter-required` with adapter note; no DIP parallel chip dropped for pinout reasons. HOST-ONLY.
 - [ ] **Phase 68: Host Capability Reporting** — `firestarter info` shows `support_status` + reason for non-`supported` chips; `firestarter write` / `read` / `verify` on a non-`supported` chip prints a status-specific message ("protocol not implemented" / "adapter required: <note>" / "VPP <x>V exceeds programmer max") and does NOT attempt the hardware operation; pytest tests cover all three statuses; CI green.
@@ -558,7 +558,7 @@ Plans:
 | 62 | v1.12 | 3/3 | Complete    | 2026-06-10 |
 | 63 | v1.12 | 1/1 | Complete    | 2026-06-11 |
 | 64 | v1.12 | 2/2 | Complete    | 2026-06-11 |
-| 65 | v1.12 | 2/2 | Complete   | 2026-06-11 |
+| 65 | v1.12 | 2/2 | Complete    | 2026-06-11 |
 | 66 | v1.12 | 0/TBD | Not started | — |
 | 67 | v1.12 | 0/TBD | Not started | — |
 | 68 (close) | v1.12 | 0/TBD | Not started | — |
