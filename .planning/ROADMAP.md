@@ -420,7 +420,11 @@ Plans:
   4. Protocols `0x11`, `0x2A`, `0x2B`, and `0x2C` are explicitly recognized in the dispatch chain (named infeasibility arms) and route to `configure_not_implemented()` — confirmed by individual native Unity tests for each.
   5. `pio run -e leonardo` reports ≤ 90% flash utilization after all changes; all pre-existing native Unity tests remain green.
 
-**Plans**: TBD
+**Plans**: 2 plans
+
+- [ ] 64-01-PLAN.md — create self-contained configure_not_implemented handler + wire named arms (0x11/0x2A/0x2B/0x2C) and generic protocol!=0 fail-closed guard into configure_memory before the protocol==0 mem_type fallback; update CLAUDE.md dispatch table (DISP-01..04, WIRE-02)
+- [ ] 64-02-PLAN.md — native Unity suite (test_not_implemented.cpp) proving 0x99/named-arms -> ERROR+NULL pointers and protocol==0 fallback intact, all pre-existing dispatch tests green; flash-budget gate Leonardo <= 90% / Uno clean (TEST-01, TEST-02)
+
 **UI hint**: no
 
 ### Phase 65: Host Graceful Handling
