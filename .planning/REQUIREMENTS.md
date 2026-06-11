@@ -17,7 +17,7 @@
 
 ### WIRE — Not-Implemented Wire Response (lockstep, dual-repo)
 
-- [ ] **WIRE-01**: A new catalog message `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` (carrying the offending `protocol` byte as a param) is added to the canonical `messages.toml` and code-generated into BOTH sub-repos (`messages.h` + host `messages.py`); the codegen drift gate is green in both repos (generated with the CI-matching Python to avoid the py3.12-masks-py3.11 trap).
+- [x] **WIRE-01**: A new catalog message `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` (carrying the offending `protocol` byte as a param) is added to the canonical `messages.toml` and code-generated into BOTH sub-repos (`messages.h` + host `messages.py`); the codegen drift gate is green in both repos (generated with the CI-matching Python to avoid the py3.12-masks-py3.11 trap).
 - [ ] **WIRE-02**: The firmware emits `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` with the protocol value for every not-implemented dispatch outcome, reusing `RESPONSE_CODE_ERROR` (no new response code added).
 
 ### HOST — Host Graceful Handling (firestarter_app)
@@ -69,7 +69,7 @@
 |-------------|-------|--------|
 | GATE-01 | Phase 62 | Complete |
 | GATE-02 | Phase 62 | Complete |
-| WIRE-01 | Phase 63 | Pending |
+| WIRE-01 | Phase 63 | Complete |
 | WIRE-02 | Phase 64 | Pending |
 | DISP-01 | Phase 64 | Pending |
 | DISP-02 | Phase 64 | Pending |

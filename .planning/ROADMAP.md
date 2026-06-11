@@ -405,7 +405,7 @@ Plans:
 **UI hint**: no
 Plans:
 
-- [ ] 63-01-PLAN.md — add MSG_ERR_PROTOCOL_NOT_IMPLEMENTED 0xBB to canonical messages.toml, sync + regenerate both sub-repos under py3.11, lockstep commit (WIRE-01)
+- [x] 63-01-PLAN.md — add MSG_ERR_PROTOCOL_NOT_IMPLEMENTED 0xBB to canonical messages.toml, sync + regenerate both sub-repos under py3.11, lockstep commit (WIRE-01)
 
 ### Phase 64: Firmware Fail-Closed Dispatch + Native Tests
 
@@ -542,7 +542,7 @@ Plans:
 | 60 | v1.11 | 2/2 | Complete    | 2026-06-10 |
 | 61 (close) | v1.11 | 1/1 | ✅ Shipped   | 2026-06-10 |
 | 62 | v1.12 | 3/3 | Complete    | 2026-06-10 |
-| 63 | v1.12 | 0/TBD | Not started | — |
+| 63 | v1.12 | 1/1 | Complete   | 2026-06-11 |
 | 64 | v1.12 | 0/TBD | Not started | — |
 | 65 | v1.12 | 0/TBD | Not started | — |
 | 66 | v1.12 | 0/TBD | Not started | — |

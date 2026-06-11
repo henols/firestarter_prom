@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: — Firmware Protocol Dispatch Hardening + Skeletons
-status: executing
-stopped_at: Phase 63 context gathered
-last_updated: "2026-06-11T07:27:19.038Z"
-last_activity: 2026-06-11 -- Phase 63 planning complete
+status: verifying
+stopped_at: Completed Phase 63-01 PLAN.md
+last_updated: "2026-06-11T07:49:41.182Z"
+last_activity: 2026-06-11
 progress:
   total_phases: 12
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 12
-  completed_plans: 9
-  percent: 17
+  completed_plans: 10
+  percent: 25
 ---
 
 # Project State
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 63
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-06-11 -- Phase 63 planning complete
+Phase: 63 (catalog-lockstep-wire-change) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
+Last activity: 2026-06-11
 
 ## Project Reference
 
@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-10 for v1.12)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 62 — dispatch-baseline-capture-check-dispatch-update
+**Current focus:** Phase 63 — catalog-lockstep-wire-change
 dispatch eliminating the silent VPP-hazard `mem_type` fallback path; new
 `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` wire response (lockstep dual-repo); host
 `ProtocolNotImplementedError` + clear CLI message; capability-honest DB inclusion
@@ -137,9 +137,9 @@ no bench session required to close. Dual-repo lockstep (firmware + host).
 
 ## Session Continuity
 
-Last session: 2026-06-11T07:12:02.893Z
-Stopped at: Phase 63 context gathered
-Resume file: .planning/phases/63-catalog-lockstep-wire-change/63-CONTEXT.md
+Last session: 2026-06-11T07:49:41.178Z
+Stopped at: Completed Phase 63-01 PLAN.md
+Resume file: None
 
 ## Decisions
 
@@ -147,6 +147,7 @@ _(v1.12 decisions will be recorded here as phases execute.)_
 
 - [Phase 62-01]: D-BETA-STATE: beta branch already has 0x35/0x39 explicit dispatch arms; TestDispatchGate02 tests 1+2 are GREEN now (not RED as planned); only protocol!=0 not_implemented arm is missing
 - [Phase 62-02]: D-CHIP-COUNT: DB on v1.12 branch has 734 chips (not 743 as plan expected) — v1.11 work not yet reconciled into beta; dispatch_baseline.json correctly captures the actual current DB state
+- [Phase ?]: Phase 63-01: D-01 honored (0xBB mirrors 0xAE); D-04 honored (py3.11.13 from source, drift gates green); D-05 honored (firestarter_app gitlink not bumped)
 
 ## Performance Metrics
 
@@ -161,6 +162,7 @@ _(v1.12 decisions will be recorded here as phases execute.)_
 | Phase 62 P01 | 10min | 2 tasks | 1 files |
 | Phase 62 P02 | 8min | 1 task | 1 file (dispatch_baseline.json) |
 | Phase 62 P03 | 15 | 2 tasks | 1 files |
+| Phase 63 P01 | 35min | - tasks | - files |
 
 ## Deferred Items
 
