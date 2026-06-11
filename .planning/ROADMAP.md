@@ -401,8 +401,11 @@ Plans:
   3. Neither `memory.cpp` nor any host file yet references the new constant — this commit introduces only the catalog definition, no call sites.
   4. The new message ID `0xBB` does not collide with any existing catalog entry; the ERROR band sequence is intact.
 
-**Plans**: TBD
+**Plans**: 1 plan
 **UI hint**: no
+
+Plans:
+- [ ] 63-01-PLAN.md — add MSG_ERR_PROTOCOL_NOT_IMPLEMENTED 0xBB to canonical messages.toml, sync + regenerate both sub-repos under py3.11, lockstep commit (WIRE-01)
 
 ### Phase 64: Firmware Fail-Closed Dispatch + Native Tests
 
