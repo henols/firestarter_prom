@@ -403,8 +403,8 @@ Plans:
 
 **Plans**: 1 plan
 **UI hint**: no
-
 Plans:
+
 - [ ] 63-01-PLAN.md — add MSG_ERR_PROTOCOL_NOT_IMPLEMENTED 0xBB to canonical messages.toml, sync + regenerate both sub-repos under py3.11, lockstep commit (WIRE-01)
 
 ### Phase 64: Firmware Fail-Closed Dispatch + Native Tests
