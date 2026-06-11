@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: — Firmware Protocol Dispatch Hardening + Skeletons
 status: verifying
-stopped_at: Completed Phase 63-01 PLAN.md
-last_updated: "2026-06-11T08:49:04.644Z"
+stopped_at: Phase 64 context gathered
+last_updated: "2026-06-11T09:05:57.998Z"
 last_activity: 2026-06-11
 progress:
   total_phases: 12
@@ -137,9 +137,9 @@ no bench session required to close. Dual-repo lockstep (firmware + host).
 
 ## Session Continuity
 
-Last session: 2026-06-11T07:49:41.178Z
-Stopped at: Completed Phase 63-01 PLAN.md
-Resume file: None
+Last session: 2026-06-11T09:05:57.994Z
+Stopped at: Phase 64 context gathered
+Resume file: .planning/phases/64-firmware-fail-closed-dispatch-native-tests/64-CONTEXT.md
 
 ## Decisions
 
