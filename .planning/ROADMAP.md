@@ -421,8 +421,12 @@ Plans:
   5. `pio run -e leonardo` reports ≤ 90% flash utilization after all changes; all pre-existing native Unity tests remain green.
 
 **Plans**: 2 plans
+**Wave 1**
 
 - [ ] 64-01-PLAN.md — create self-contained configure_not_implemented handler + wire named arms (0x11/0x2A/0x2B/0x2C) and generic protocol!=0 fail-closed guard into configure_memory before the protocol==0 mem_type fallback; update CLAUDE.md dispatch table (DISP-01..04, WIRE-02)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 64-02-PLAN.md — native Unity suite (test_not_implemented.cpp) proving 0x99/named-arms -> ERROR+NULL pointers and protocol==0 fallback intact, all pre-existing dispatch tests green; flash-budget gate Leonardo <= 90% / Uno clean (TEST-01, TEST-02)
 
 **UI hint**: no
