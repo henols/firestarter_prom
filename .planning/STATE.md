@@ -4,8 +4,8 @@ milestone: v1.12
 milestone_name: — Firmware Protocol Dispatch Hardening + Skeletons
 status: executing
 stopped_at: Phase 64 context gathered
-last_updated: "2026-06-11T09:18:39.197Z"
-last_activity: 2026-06-11 -- Phase 64 planning complete
+last_updated: "2026-06-11T09:28:52.539Z"
+last_activity: 2026-06-11 -- Phase 64 execution started
 progress:
   total_phases: 12
   completed_phases: 3
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 64
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-06-11 -- Phase 64 planning complete
+Phase: 64 (firmware-fail-closed-dispatch-native-tests) — EXECUTING
+Plan: 1 of 2
+Status: Executing Phase 64
+Last activity: 2026-06-11 -- Phase 64 execution started
 
 ## Project Reference
 
@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-10 for v1.12)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 63 — catalog-lockstep-wire-change
+**Current focus:** Phase 64 — firmware-fail-closed-dispatch-native-tests
 dispatch eliminating the silent VPP-hazard `mem_type` fallback path; new
 `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` wire response (lockstep dual-repo); host
 `ProtocolNotImplementedError` + clear CLI message; capability-honest DB inclusion

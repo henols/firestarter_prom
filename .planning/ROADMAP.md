@@ -423,11 +423,11 @@ Plans:
 **Plans**: 2 plans
 **Wave 1**
 
-- [ ] 64-01-PLAN.md — create self-contained configure_not_implemented handler + wire named arms (0x11/0x2A/0x2B/0x2C) and generic protocol!=0 fail-closed guard into configure_memory before the protocol==0 mem_type fallback; update CLAUDE.md dispatch table (DISP-01..04, WIRE-02)
+- [x] 64-01-PLAN.md — create self-contained configure_not_implemented handler + wire named arms (0x11/0x2A/0x2B/0x2C) and generic protocol!=0 fail-closed guard into configure_memory before the protocol==0 mem_type fallback; update CLAUDE.md dispatch table (DISP-01..04, WIRE-02)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 64-02-PLAN.md — native Unity suite (test_not_implemented.cpp) proving 0x99/named-arms -> ERROR+NULL pointers and protocol==0 fallback intact, all pre-existing dispatch tests green; flash-budget gate Leonardo <= 90% / Uno clean (TEST-01, TEST-02)
+- [x] 64-02-PLAN.md — native Unity suite (test_not_implemented.cpp) proving 0x99/named-arms -> ERROR+NULL pointers and protocol==0 fallback intact, all pre-existing dispatch tests green; flash-budget gate Leonardo <= 90% / Uno clean (TEST-01, TEST-02)
 
 **UI hint**: no
 
@@ -551,7 +551,7 @@ Plans:
 | 61 (close) | v1.11 | 1/1 | ✅ Shipped   | 2026-06-10 |
 | 62 | v1.12 | 3/3 | Complete    | 2026-06-10 |
 | 63 | v1.12 | 1/1 | Complete    | 2026-06-11 |
-| 64 | v1.12 | 0/TBD | Not started | — |
+| 64 | v1.12 | 2/2 | Complete   | 2026-06-11 |
 | 65 | v1.12 | 0/TBD | Not started | — |
 | 66 | v1.12 | 0/TBD | Not started | — |
 | 67 | v1.12 | 0/TBD | Not started | — |
