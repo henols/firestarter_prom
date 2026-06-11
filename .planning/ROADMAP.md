@@ -353,7 +353,7 @@ Research finding: the SKELETON-NEEDED bucket is empty (every RURP-feasible proto
 
 - [x] **Phase 62: Dispatch Baseline Capture + check_dispatch Update** — Capture a pre-change dispatch baseline (native test + `check_dispatch.py` scan on fallback-present state) before any firmware modification; reconcile the pre-existing `0x35`/`0x39` dispatch-mirror gap; add the `not_implemented` arm + FAIL guard to `check_dispatch.py`. Gate is green before Phase 64 touches any firmware code. (completed 2026-06-10)
 - [x] **Phase 63: Catalog Lockstep Wire Change** — Add `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED = 0xBB` to the meta-repo canonical `messages.toml`; sync to both sub-repos; regenerate `messages.h` + `messages.py` with Python 3.11; codegen drift gate green in both repos. Zero behavior change — reviewable in isolation. (completed 2026-06-11)
-- [ ] **Phase 64: Firmware Fail-Closed Dispatch + Native Tests** — `configure_not_implemented()` in `not_implemented.cpp`; `protocol != 0` guard in `configure_memory()`; named infeasibility arms for `0x11`/`0x2A`/`0x2B`/`0x2C`; firmware emits `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` with protocol value; native Unity tests prove fail-closed + legacy fallback intact + NULL operation pointers; Leonardo flash gate ≤ 90%.
+- [x] **Phase 64: Firmware Fail-Closed Dispatch + Native Tests** — `configure_not_implemented()` in `not_implemented.cpp`; `protocol != 0` guard in `configure_memory()`; named infeasibility arms for `0x11`/`0x2A`/`0x2B`/`0x2C`; firmware emits `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` with protocol value; native Unity tests prove fail-closed + legacy fallback intact + NULL operation pointers; Leonardo flash gate ≤ 90%. (completed 2026-06-11)
 - [ ] **Phase 65: Host Graceful Handling** — `ProtocolNotImplementedError(EpromOperationError)` in `exceptions.py`; detection in `_run_state_machine`; clear actionable CLI message in `map_typed_errors`; pytest tests covering the new exception path; CI green.
 - [ ] **Phase 66: DB Inclusion + VPP Correction + Dispatch Gate** — `build_db.py` includes DIP parallel-memory chips with unknown/unimplemented `protocol_id` marked `support_status: protocol-not-implemented`; NMOS high-VPP family (M2716/M2732 = 25V, M2732A = 21V) gets true VPP recorded with `support_status` derived from RURP ceiling (~22V); `check_dispatch.py` + per-chip diff gate treat non-`supported` entries as non-dispatchable; gate green. HOST-ONLY.
 - [ ] **Phase 67: Pinout Classification for Unclassifiable DIP Chips** — Extend Phase 58 `resolve_pinout_key` rules to cover DIP chips `build_db.py` currently cannot classify; genuinely unmappable chips included as `support_status: adapter-required` with adapter note; no DIP parallel chip dropped for pinout reasons. HOST-ONLY.
@@ -551,7 +551,7 @@ Plans:
 | 61 (close) | v1.11 | 1/1 | ✅ Shipped   | 2026-06-10 |
 | 62 | v1.12 | 3/3 | Complete    | 2026-06-10 |
 | 63 | v1.12 | 1/1 | Complete    | 2026-06-11 |
-| 64 | v1.12 | 2/2 | Complete   | 2026-06-11 |
+| 64 | v1.12 | 2/2 | Complete    | 2026-06-11 |
 | 65 | v1.12 | 0/TBD | Not started | — |
 | 66 | v1.12 | 0/TBD | Not started | — |
 | 67 | v1.12 | 0/TBD | Not started | — |
@@ -667,7 +667,7 @@ Plans:
   2. The same file (or a companion file) lists every intra-algorithm DB inconsistency — chips that share `pin_count` + `algorithm` but differ in `pulse_duration`, `chip_id_check`, or `pinout` — with each inconsistency labeled as a defect candidate for v1.4 or a sub-repo PR (no auto-fixes applied in v1.3).
   3. Operator can use the matrix to confirm that the six BENCH chips (BENCH-01..06) span the pinout classes and pulse-duration profiles actually represented in the DB, so bench results generalize to the rest of the 339 rows.
 
-**Plans:** 1/1 plans complete
+**Plans:** 2/2 plans complete
 
 - [x] 11-01-PLAN.md — Wave 0 failing-test scaffold for tests/test_audit_coverage_matrix.py (10 tests) ✅ 2026-05-19
 - [x] 11-02-PLAN.md — Wave 1 tool skeleton + CLI + §1 Summary + §2 DB Count Reconciliation ✅ 2026-05-19

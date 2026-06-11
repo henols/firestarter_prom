@@ -10,15 +10,15 @@
 
 ### DISP — Fail-Closed Dispatch (firmware)
 
-- [ ] **DISP-01**: An unknown/unimplemented **non-zero** `protocol` no longer routes to a programming handler — `configure_memory` returns an explicit not-implemented response instead of falling through to the `mem_type` chain, closing the hazard where `protocol`=unknown + `mem_type=1` reaches `configure_eprom` (12V VPP on a 5V part).
-- [ ] **DISP-02**: The legacy `mem_type` fallback is preserved ONLY for `protocol == 0` (hand-crafted / pre-`algorithm` legacy JSON), behind an explicit, auditable guard — no dispatch change for any chip the current `chip_database.json` emits.
-- [ ] **DISP-03**: A shared `configure_not_implemented()` handler reports not-implemented with **zero hardware side effects** (no VPP regulator enable, no chip-enable, no address/data drive) and sets no operation function pointers.
-- [ ] **DISP-04**: The protocols a user might plausibly hand-craft but that are infeasible on RURP (`0x11` FWH, `0x2A`/`0x2B`/`0x2C` GAL/PLD) are explicitly recognized and routed to the not-implemented response (distinct from "totally unknown", but same wire message + protocol param).
+- [x] **DISP-01**: An unknown/unimplemented **non-zero** `protocol` no longer routes to a programming handler — `configure_memory` returns an explicit not-implemented response instead of falling through to the `mem_type` chain, closing the hazard where `protocol`=unknown + `mem_type=1` reaches `configure_eprom` (12V VPP on a 5V part).
+- [x] **DISP-02**: The legacy `mem_type` fallback is preserved ONLY for `protocol == 0` (hand-crafted / pre-`algorithm` legacy JSON), behind an explicit, auditable guard — no dispatch change for any chip the current `chip_database.json` emits.
+- [x] **DISP-03**: A shared `configure_not_implemented()` handler reports not-implemented with **zero hardware side effects** (no VPP regulator enable, no chip-enable, no address/data drive) and sets no operation function pointers.
+- [x] **DISP-04**: The protocols a user might plausibly hand-craft but that are infeasible on RURP (`0x11` FWH, `0x2A`/`0x2B`/`0x2C` GAL/PLD) are explicitly recognized and routed to the not-implemented response (distinct from "totally unknown", but same wire message + protocol param).
 
 ### WIRE — Not-Implemented Wire Response (lockstep, dual-repo)
 
 - [x] **WIRE-01**: A new catalog message `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` (carrying the offending `protocol` byte as a param) is added to the canonical `messages.toml` and code-generated into BOTH sub-repos (`messages.h` + host `messages.py`); the codegen drift gate is green in both repos (generated with the CI-matching Python to avoid the py3.12-masks-py3.11 trap).
-- [ ] **WIRE-02**: The firmware emits `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` with the protocol value for every not-implemented dispatch outcome, reusing `RESPONSE_CODE_ERROR` (no new response code added).
+- [x] **WIRE-02**: The firmware emits `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` with the protocol value for every not-implemented dispatch outcome, reusing `RESPONSE_CODE_ERROR` (no new response code added).
 
 ### HOST — Host Graceful Handling (firestarter_app)
 
@@ -32,8 +32,8 @@
 
 ### TEST — Native Dispatch Coverage (firmware)
 
-- [ ] **TEST-01**: Native (host, no-hardware) Unity dispatch tests cover the new paths — unknown non-zero protocol → not-implemented; `protocol==0` + `mem_type` → legacy fallback still works; named infeasibility markers (`0x11`/`0x2A`/`0x2B`/`0x2C`) → not-implemented; `configure_not_implemented` sets no operation pointers and ERROR response. All pre-existing dispatch tests stay green.
-- [ ] **TEST-02**: Flash-budget regression check — the v1.12 addition keeps both Uno and Leonardo builds under their flash ceilings (Leonardo is the binding constraint).
+- [x] **TEST-01**: Native (host, no-hardware) Unity dispatch tests cover the new paths — unknown non-zero protocol → not-implemented; `protocol==0` + `mem_type` → legacy fallback still works; named infeasibility markers (`0x11`/`0x2A`/`0x2B`/`0x2C`) → not-implemented; `configure_not_implemented` sets no operation pointers and ERROR response. All pre-existing dispatch tests stay green.
+- [x] **TEST-02**: Flash-budget regression check — the v1.12 addition keeps both Uno and Leonardo builds under their flash ceilings (Leonardo is the binding constraint).
 
 ### DB — Capability-Honest Database Inclusion (host)
 
@@ -70,13 +70,13 @@
 | GATE-01 | Phase 62 | Complete |
 | GATE-02 | Phase 62 | Complete |
 | WIRE-01 | Phase 63 | Complete |
-| WIRE-02 | Phase 64 | Pending |
-| DISP-01 | Phase 64 | Pending |
-| DISP-02 | Phase 64 | Pending |
-| DISP-03 | Phase 64 | Pending |
-| DISP-04 | Phase 64 | Pending |
-| TEST-01 | Phase 64 | Pending |
-| TEST-02 | Phase 64 | Pending |
+| WIRE-02 | Phase 64 | Complete |
+| DISP-01 | Phase 64 | Complete |
+| DISP-02 | Phase 64 | Complete |
+| DISP-03 | Phase 64 | Complete |
+| DISP-04 | Phase 64 | Complete |
+| TEST-01 | Phase 64 | Complete |
+| TEST-02 | Phase 64 | Complete |
 | HOST-01 | Phase 65 | Pending |
 | HOST-02 | Phase 65 | Pending |
 | DB-01 | Phase 66 | Pending |
