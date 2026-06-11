@@ -444,9 +444,10 @@ Plans:
   4. The `ProtocolNotImplementedError` catch in `map_typed_errors` appears before the `EpromOperationError` catch so the subclass is handled first; all pre-existing error paths remain green.
 
 **Plans**: 1 plan
-
 Plans:
+
 - [ ] 65-01-PLAN.md — add ProtocolNotImplementedError(EpromOperationError) + thread decoded message id through Response, centralize id-0xBB -> typed-raise dispatch (_raise_for_error_response) in the state-machine ERROR path, add the actionable "Unsupported protocol:" arm before the EpromOperationError arm in map_typed_errors, and pytest the 4 SC cases (HOST-01, HOST-02)
+
 **UI hint**: no
 
 ### Phase 66: DB Inclusion + VPP Correction + Dispatch Gate
