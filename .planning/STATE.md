@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: — Firmware Protocol Dispatch Hardening + Skeletons
 status: executing
-stopped_at: Phase 65-01 complete
-last_updated: "2026-06-11T16:30:35.383Z"
-last_activity: 2026-06-11 -- Phase 65 planning complete
+stopped_at: Phase 65 complete (both plans 01+02)
+last_updated: "2026-06-11T16:46:21.279Z"
+last_activity: 2026-06-11
 progress:
   total_phases: 12
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 16
-  completed_plans: 13
-  percent: 33
+  completed_plans: 14
+  percent: 42
 ---
 
 # Project State
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 65 (host-graceful-handling) — EXECUTING
-Plan: 1 of 1
-Status: Ready to execute
-Last activity: 2026-06-11 -- Phase 65 planning complete
+Phase: 65 (host-graceful-handling) — COMPLETE
+Plan: 2 of 2
+Status: Phase 65 complete; HOST-01 + HOST-02 production-path proven
+Last activity: 2026-06-11
 
 ## Project Reference
 
@@ -151,6 +151,8 @@ _(v1.12 decisions will be recorded here as phases execute.)_
 - [Phase ?]: Phase 65-01: _raise_for_error_response(response, message): response.id for typed dispatch, message for EpromOperationError framing
 - [Phase ?]: Phase 65-01: SC#2 test asserts on _execute_phase — outer _run_state_machine except swallows typed raise before caller sees it
 - [Phase ?]: Phase 65-01: GATE-1.8d ringfence pin updated for planned Response.id addition (v1.12 in-scope)
+- [Phase 65-02]: Option B applied — expect_ack raises ProtocolNotImplementedError when response.id == MSG_ERR_PROTOCOL_NOT_IMPLEMENTED; Tuple[bool, Optional[str]] arity unchanged; zero caller-unpacking edits needed
+- [Phase 65-02]: WR-02 closed — all 4 state-machine ERROR sites now route through _raise_for_error_response; production-path proven by Test A integration test (REAL EpromOperator + CliRunner)
 
 ## Performance Metrics
 
@@ -167,6 +169,7 @@ _(v1.12 decisions will be recorded here as phases execute.)_
 | Phase 62 P03 | 15 | 2 tasks | 1 files |
 | Phase 63 P01 | 35min | - tasks | - files |
 | Phase 65 P01 | 17min | - tasks | - files |
+| Phase 65 P02 | 10min | 3 tasks | 3 files |
 
 ## Deferred Items
 
