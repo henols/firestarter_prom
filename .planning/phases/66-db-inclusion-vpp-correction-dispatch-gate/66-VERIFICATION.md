@@ -1,101 +1,45 @@
 ---
 phase: 66-db-inclusion-vpp-correction-dispatch-gate
-verified: 2026-06-12T12:00:00Z
-status: gaps_found
-score: 3/4 must-haves verified
+verified: 2026-06-12T13:30:00Z
+status: passed
+score: 4/4 must-haves verified
 overrides_applied: 0
 re_verification:
   previous_status: gaps_found
   previous_score: 3/4
   gaps_closed:
-    - "check_dispatch.py now has the non_supported_dispatchable bucket (CR-02); exits 0 and reports truthful PASS with counted non-dispatchable total"
-    - "build_db.py sets proto_id = NON_DISPATCHABLE_ALGO (0x00) at Site B (adapter-required) and Site C (vpp-exceeds-max); DB regenerated with algorithm=0 for all 14 non-supported chips"
-    - "8th CI invariant test (TestNonSupportedNonDispatchable::test_non_supported_chips_are_non_dispatchable) added; 8/8 inclusion tests pass"
-    - "diff_db.py exits 0; all changes attributed (RULE_ALGO x4 compound + RULE_PHASE66 x730 + 10 new WARN)"
-    - "Full pytest suite: 494 passed, cov >= 70"
-  gaps_remaining:
     - >
-      SC#3 remains FAILED — the new check_dispatch.py simulation and the new CI test both use
-      dispatch(proto=0, mt=_ALGO_MEM_TYPE.get(0)=None) = ERROR, but database.py::_map_data
-      derives mem_type from electrical.type string when protocol_id==0 (falsy), sending
-      {algorithm: 0, type: 1} for UV-EPROM chips. Firmware protocol==0 fallback hits
-      mem_type==TYPE_EPROM → configure_eprom for the 4 vpp-exceeds-max NMOS entries
-      (INTEL/M2716, INTEL/2732-M2732, SGS-THOMSON/ETC2716-M2716, ST/ETC2716-M2716).
-      The adapter-required chips are incidentally safe (Flash/EEPROM etype → mem_type=2,
-      no firmware handler), but their safety depends on the etype string, not support_status.
+      SC#3 / DB-05 BLOCKER closed on the REAL host path: chip_resolver.resolve_chip now
+      raises ChipNotImplementedError BEFORE convert_to_programmer for every chip with
+      support_status != "supported", reading from the raw config via db.get_eprom_config
+      (not via _map_data, which does NOT carry support_status into the mapped dict).
+      The 4 vpp-exceeds-max UV-EPROM chips (M2716/M2732 family) and all 9 adapter-required
+      24-pin EEPROMs are refused before any wire dict is built or serial byte emitted —
+      driven by support_status, not the incidental etype string.
+    - >
+      check_dispatch.py simulation realigned to _map_data's real mem_type derivation
+      (etype fallback when proto==0; UV-EPROM -> mt=1 -> configure_eprom) so the gate
+      is GREEN AND TRUTHFUL — green because the host guard refuses, not because the sim
+      pretended mem_type=None (D-12). WR-02 (live count + assert not non_supported_dispatchable)
+      and WR-03 (non_dispatchable_count == non_supported_count assert) fixed.
+    - >
+      8th CI test (test_non_supported_chips_are_non_dispatchable) realigned to same
+      _map_data etype derivation + D-12 host-guard exemption; docstring references D-12.
+    - >
+      Runtime-boundary test suite added in test_chip_resolver.py (5 new tests): M2716
+      (vpp-exceeds-max) raises ChipNotImplementedError; AT28C04 (adapter-required) raises
+      ChipNotImplementedError; W27C512 (supported) still resolves; not-found still raises
+      ChipNotFoundError; convert_to_programmer is never called when guard fires (no serial bytes).
+    - >
+      Full pytest suite: 499 passed (up from 494 pre-66-05), coverage 71.93% (floor 70%).
+      ruff check and ruff format --check clean on all 6 CI-scoped 66-05 files.
+      mypy strict clean on chip_resolver.py and exceptions.py.
+      diff_db.py exits 0; chip_database.json unchanged (no DB churn — runtime-only change).
+  gaps_remaining: []
   regressions: []
-gaps:
-  - truth: "entries with any non-supported support_status do NOT resolve to a programming handler (they produce a not_supported / non-dispatchable outcome)"
-    status: failed
-    reason: >
-      The check_dispatch.py gate simulation and the 8th CI test both pass because they call
-      dispatch(0, _ALGO_MEM_TYPE.get(0)=None) → ERROR. However, the real production path
-      (database.py::_map_data lines 394-407) ignores support_status entirely and, because
-      algorithm==0 is falsy, falls through to the electrical.type string heuristic:
-      "UV-EPROM" → determined_type=1 (TYPE_EPROM, default). The wire dict emitted is
-      {algorithm: 0, type: 1}. Firmware configure_memory: protocol==0 falls to the
-      mem_type chain; mem_type==TYPE_EPROM(1) → configure_eprom (12V VPP boost regulator).
-      For the 4 vpp-exceeds-max NMOS chips, firestarter M2716 write still resolves to
-      configure_eprom at runtime. No host code reads support_status (grep returns 0 matches
-      in database.py, chip_resolver.py, eprom_operations.py, cli_handlers.py).
-      The adapter-required 24-pin EEPROMs are incidentally safe because "Flash/EEPROM" etype
-      → determined_type=2, and firmware has no mem_type=2 case (falls to ERROR) — but this
-      relies on the etype string substring, not support_status.
-    artifacts:
-      - path: "firestarter_app/firestarter/database.py"
-        issue: >
-          _map_data (lines 394-407): protocol_id = programming.get("algorithm", 0);
-          when protocol_id is 0 (falsy), falls to type_str = electrical.get("type", "");
-          determined_type = 1 if no "Flash"/"SRAM" substring. For UV-EPROM chips
-          (M2716/M2732 family), determined_type=1 (TYPE_EPROM) is sent as wire "type".
-          No reference to support_status anywhere in this file or the host runtime path.
-      - path: "firestarter_app/tools/check_dispatch.py"
-        issue: >
-          Simulation calls dispatch(proto=0, mt=_ALGO_MEM_TYPE.get(0)=None) → ERROR.
-          This does NOT mirror _map_data's actual mem_type derivation (type_str fallback).
-          The gate reports "0 non_supported_dispatchable" and exits 0 — a false PASS for
-          the 4 UV-EPROM vpp-exceeds-max chips whose real host+firmware path is configure_eprom.
-          The 8th CI test inherits the same simulation gap (imports dispatch and _ALGO_MEM_TYPE
-          from check_dispatch, does not call _map_data).
-      - path: "firestarter_app/tests/test_build_db_inclusion.py"
-        issue: >
-          test_non_supported_chips_are_non_dispatchable (lines 319-353) uses
-          mt = _ALGO_MEM_TYPE.get(proto) and dispatch(proto, mt), which is the gate's
-          simulation model, not the real runtime. dispatch(0, None) = ERROR passes the
-          assertion. The test does not exercise database._map_data or the wire dict,
-          so it cannot catch the UV-EPROM configure_eprom path.
-    missing:
-      - >
-        Fix option A (host guard — recommended, matches Phase 68 design intent):
-        In database.py::_map_data or chip_resolver.resolve_chip, add a support_status
-        check before building the wire dict:
-          if full_chip.get("support_status", "supported") != "supported":
-              raise ChipNotImplementedError(
-                  f"{name}: {full_chip.get('unsupported_reason', 'unsupported on this hardware')}"
-              )
-        This makes support_status load-bearing on the host side and prevents any
-        non-supported chip from reaching the serial wire. No firmware change needed.
-      - >
-        Fix option B (simulation gap closure — required alongside A):
-        In check_dispatch.py, mirror _map_data's type_str fallback when proto==0:
-          mt = _ALGO_MEM_TYPE.get(proto)
-          if not proto:
-              etype = chip.get("electrical", {}).get("type", "")
-              mt = 1
-              if "Flash" in etype: mt = 2
-              elif "SRAM" in etype: mt = 4
-          handler = dispatch(proto, mt)
-        With this fix, the gate would correctly FAIL on the 4 UV-EPROM vpp-exceeds-max
-        chips (dispatch(0, 1) = configure_eprom = real handler). Apply the same fix to
-        test_non_supported_chips_are_non_dispatchable.
-      - >
-        After implementing option A, add a pytest test that asserts firestarter write/read
-        M2716 raises ChipNotImplementedError (or equivalent) without sending any serial
-        command — using a mock EpromDatabase + mock serial. This pins the invariant at
-        the runtime boundary, not just the simulation boundary.
 ---
 
-# Phase 66: DB Inclusion + VPP Correction + Dispatch Gate — Verification Report (Re-verification)
+# Phase 66: DB Inclusion + VPP Correction + Dispatch Gate — Verification Report (Re-verification after 66-05)
 
 **Phase Goal:** `build_db.py` includes every DIP parallel-memory chip regardless of whether its
 `protocol_id` is implemented (unknown/unimplemented → `support_status: protocol-not-implemented`);
@@ -103,9 +47,9 @@ NMOS high-VPP family (M2716/M2732=25V, M2732A=21V) gets true VPP with `support_s
 from the ~22V RURP ceiling; `check_dispatch.py` and the per-chip diff gate treat any non-supported
 entry as non-dispatchable; gate green. HOST-ONLY.
 
-**Verified:** 2026-06-12T12:00:00Z
-**Status:** gaps_found
-**Re-verification:** Yes — after 66-04 gap-closure plan
+**Verified:** 2026-06-12T13:30:00Z
+**Status:** PASSED
+**Re-verification:** Yes — after 66-05 gap-closure plan (SC#3 BLOCKER closed)
 
 ---
 
@@ -116,209 +60,182 @@ entry as non-dispatchable; gate green. HOST-ONLY.
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
 | SC#1 | DIP parallel-memory chips with unknown/unimplemented protocol_id appear with support_status: protocol-not-implemented; serial/GAL-PLD/MCU/SMD remain absent | VERIFIED | X88C64P,X88C64S present (algorithm=0x34, support_status=protocol-not-implemented). DataFlash 0x04, FWH 0x11, PLCC 0x0A absent. diff_db.py exits 0: 10 new chips attributed to RULE_PHASE66. 8/8 inclusion tests pass. |
-| SC#2 | NMOS M2716/M2732/M2732A carry true VPP (25V/21V); M2716/M2732 = vpp-exceeds-max; within-ceiling NMOS = supported at corrected voltage | VERIFIED | INTEL/M2716,M2716M: vpp_mv=25000, vpp-exceeds-max. INTEL/2732,2732A,M2732,M2732A: vpp_mv=25000, vpp-exceeds-max (highest-VPP-wins). SGS-THOMSON/M2732A, ST/M2732A: vpp_mv=21000, supported. ETC2716/M2716 (SGS-THOMSON/ST): vpp_mv=25000, vpp-exceeds-max. All 7 inclusion tests pass. |
-| SC#3 | check_dispatch.py exits clean (0 errors); entries with any non-supported support_status do NOT resolve to a programming handler; GATE-03 VPP-safety guard + wire round-trip remain green | FAILED — BLOCKER | check_dispatch.py exits 0 with "0 non_supported_dispatchable" — a false PASS for the production path. Empirically verified: INTEL/M2716, INTEL/2732-M2732, SGS-THOMSON/ETC2716-M2716, ST/ETC2716-M2716 all have algorithm=0x00 + etype="UV-EPROM". database.py::_map_data derives determined_type=1 (default EPROM) from the type_str fallback when protocol_id==0. Wire dict: {algorithm:0, type:1}. Firmware configure_memory: protocol==0 → mem_type chain → mem_type==1 (TYPE_EPROM) → configure_eprom (12V VPP boost regulator). 4 vpp-exceeds-max NMOS chips still reach configure_eprom at runtime. The gate and CI test use dispatch(0, None)=ERROR — a simulation that does not match _map_data's actual derivation. No host code reads support_status (grep confirms zero matches outside chip_database.json). |
-| SC#4 | A per-chip diff (diff_db.py) accounts for every new/changed entry with documented rationale; no unexplained diffs | VERIFIED | diff_db.py exits 0. RULE_ALGO x4 compound + RULE_PHASE66 x730 + 10 new WARN. 0 unexplained diffs. Chip count: 744. |
+| SC#2 | NMOS M2716/M2732/M2732A carry true VPP (25V/21V); M2716/M2732 = vpp-exceeds-max; within-ceiling NMOS = supported at corrected voltage | VERIFIED | INTEL/M2716,M2716M: vpp_mv=25000, vpp-exceeds-max. INTEL/2732,2732A,M2732,M2732A: vpp_mv=25000, vpp-exceeds-max (highest-VPP-wins). SGS-THOMSON/M2732A, ST/M2732A: vpp_mv=21000, supported. ETC2716/M2716 (SGS-THOMSON/ST): vpp_mv=25000, vpp-exceeds-max. 7 inclusion tests pass. |
+| SC#3 | check_dispatch.py exits clean (0 errors); entries with any non-supported support_status do NOT resolve to a programming handler; GATE-03 VPP-safety guard + wire round-trip remain green | VERIFIED | chip_resolver.resolve_chip raises ChipNotImplementedError before convert_to_programmer for all 14 non-supported chips (confirmed: M2716 raises with message "M2716: VPP 25V exceeds RURP ceiling (22V); cannot program on this hardware"; AT28C04 raises with adapter-required message; convert_to_programmer mock assert_not_called passes). check_dispatch.py exits 0 with truthful PASS output (14 confirmed non-dispatchable; 0 non_supported_dispatchable; D-12 gate GREEN because host guard refuses, not because sim pretends mem_type=None). WR-02 (assert not non_supported_dispatchable + live count) and WR-03 (non_dispatchable_count == non_supported_count) both verified. |
+| SC#4 | A per-chip diff (diff_db.py) accounts for every new/changed entry with documented rationale; no unexplained diffs | VERIFIED | diff_db.py exits 0. RULE_ALGO x4 compound + RULE_PHASE66 x730 + 10 new WARN. 0 unexplained diffs. Chip count: 744. chip_database.json unchanged from 66-04 (no DB churn from 66-05 — runtime-only change confirmed). |
 
-**Score: 3/4 truths verified**
-
----
-
-## Re-verification: What 66-04 Fixed vs What Remains
-
-### Gaps Closed by 66-04
-
-| Item | Prior Status | Current Status | Evidence |
-|------|-------------|----------------|---------|
-| build_db.py has NON_DISPATCHABLE_ALGO=0x00 constant | Missing | VERIFIED | `grep -c 'NON_DISPATCHABLE_ALGO = 0x00' tools/build_db.py` = 1 |
-| Site B (adapter-required) sets proto_id=0x00 | Missing | VERIFIED | All 9 adapter-required chips: algorithm=0x00 in DB |
-| Site C (vpp-exceeds-max) sets proto_id=0x00 | Missing | VERIFIED | All 4 vpp-exceeds-max chips: algorithm=0x00 in DB |
-| check_dispatch.py has non_supported_dispatchable bucket | Missing | VERIFIED | `grep -c 'non_supported_dispatchable' tools/check_dispatch.py` >= 3; in sys.exit(1) condition |
-| check_dispatch.py PASS message truthful (counted) | Misleading | VERIFIED | Prints "14 chips confirmed non-dispatchable (handler in not_implemented/ERROR); 0 non_supported_dispatchable" |
-| 8th CI test pins SC#3 invariant | Missing | PARTIALLY VERIFIED | Test collects + passes, but tests the simulation path (dispatch+_ALGO_MEM_TYPE) not the real runtime path (_map_data) |
-| Full pytest suite green (cov >= 70) | N/A | VERIFIED | 494 passed, cov >= 70 |
-| diff_db.py exits 0 after proto_id->0x00 change | Unknown | VERIFIED | RULE_ALGO x4 compound for NMOS, RULE_PHASE66 x730, 10 new WARN; exit 0 |
-
-### Remaining Gap: Real Host+Firmware Path Still Reaches configure_eprom
-
-The 66-04 fix correctly demotes `algorithm` to `0x00` in the DB and correctly proves that `dispatch(0, None) = ERROR` in the simulation. However, the simulation does not model what `database.py::_map_data` actually does.
-
-**Exact code trace (empirically verified against current codebase):**
-
-```
-firestarter M2716 write → EpromDatabase.get_eprom("M2716")
-  → database.py::_map_data (lines 394-407)
-    protocol_id = programming.get("algorithm", 0)  # == 0 (algorithm=0 from 66-04 fix)
-    if protocol_id and protocol_id in _ALGO_MEM_TYPE:  # False — 0 is falsy
-        ...
-    else:
-        type_str = electrical.get("type", "")  # == "UV-EPROM" for M2716
-        determined_type = 1  # Default to EPROM  ← hits this branch
-        if "Flash" in type_str: ...  # False
-        elif "SRAM" in type_str: ...  # False
-    # Wire dict emitted: {algorithm: 0, type: 1, ...}
-
-→ firmware json_parser.c: handle->protocol = 0, handle->mem_type = 1
-→ firmware configure_memory:
-    protocol == 0x10? No. 0x0D? No. 0x06? No. {0x05,0x35,0x39}? No.
-    {0x07,0x08,0x0B}? No. {0x0E,0x27,0x28,0x29}? No.
-    {0x11,0x2A,0x2B,0x2C}? No.
-    protocol != 0? No (protocol==0).
-    → mem_type chain:
-    mem_type == TYPE_EPROM (1)? YES → configure_eprom(handle)  ← DAMAGE PATH
-```
-
-**Affected chips (4 vpp-exceeds-max NMOS entries):**
-
-| Chip | algorithm | etype | host mem_type | firmware outcome |
-|------|-----------|-------|---------------|-----------------|
-| INTEL/M2716,M2716M | 0x00 | UV-EPROM | 1 | configure_eprom |
-| INTEL/2732,2732A,M2732,M2732A | 0x00 | UV-EPROM | 1 | configure_eprom |
-| SGS-THOMSON/ETC2716,M2716 | 0x00 | UV-EPROM | 1 | configure_eprom |
-| ST/ETC2716,M2716 | 0x00 | UV-EPROM | 1 | configure_eprom |
-
-**Adapter-required 24-pin EEPROMs (incidentally safe — NOT by design):**
-
-| Chip | algorithm | etype | host mem_type | firmware outcome |
-|------|-----------|-------|---------------|-----------------|
-| ATMEL/AT28C04,AT28HC04 | 0x00 | Flash/EEPROM | 2 | ERROR (no mem_type=2 case in fw) |
-| (all 9 adapter-required chips) | 0x00 | Flash/EEPROM | 2 | ERROR |
-
-The adapter-required chips are safe only because "Flash/EEPROM" contains the substring "Flash" → `determined_type=2`, and firmware has no `mem_type==2` dispatch case. This is incidental to the etype string, not derived from `support_status`. Any future chip with `etype="UV-EPROM"` + `support_status=adapter-required` would follow the M2716 path to configure_eprom.
+**Score: 4/4 truths verified**
 
 ---
 
-### Required Artifacts
+## SC#3 Verdict — Detailed Evidence (the Prior BLOCKER)
+
+**STATUS: VERIFIED — CLOSED ON THE REAL HOST PATH**
+
+### The fix (Option A — host guard in chip_resolver.resolve_chip)
+
+`chip_resolver.py` (lines 44-57) now:
+1. Calls `db.get_eprom_config(name)` to read the raw chip record.
+2. Checks `raw_config.get("support_status", "supported")`.
+3. If `support_status != "supported"`, raises `ChipNotImplementedError` with `"{name}: {unsupported_reason}"` BEFORE calling `convert_to_programmer`.
+
+This is the authoritative guard. `support_status` is NOT carried through `database._map_data` into the mapped dict (confirmed — database.py lines 394-431 do not include `support_status` in the emitted `data` dict), so the guard correctly reads from the raw config, not the mapped result.
+
+### Runtime-boundary confirmation
+
+```
+resolve_chip("M2716", db=db)
+  -> db.get_eprom_config("M2716") returns ({"support_status": "vpp-exceeds-max", ...}, "INTEL")
+  -> support_status = "vpp-exceeds-max" != "supported"
+  -> raises ChipNotImplementedError("M2716: VPP 25V exceeds RURP ceiling (22V); cannot program on this hardware")
+  -> convert_to_programmer is NEVER CALLED (mock assert_not_called: PASS)
+  -> NO wire dict built; NO serial bytes emitted
+  -> configure_eprom is NEVER REACHED
+
+resolve_chip("AT28C04", db=db)
+  -> db.get_eprom_config("AT28C04") returns ({"support_status": "adapter-required", ...}, "ATMEL")
+  -> support_status = "adapter-required" != "supported"
+  -> raises ChipNotImplementedError("AT28C04: 24-pin 5V EEPROM with EPROM-family algo 0x0B: ...")
+  -> convert_to_programmer is NEVER CALLED (verified by test)
+
+resolve_chip("W27C512", db=db)
+  -> support_status = "supported" (passes guard)
+  -> returns programmer dict with memory-size=65536 (no regression)
+```
+
+All 5 runtime-boundary tests in `tests/test_chip_resolver.py` pass:
+- `test_resolve_chip_vpp_exceeds_max_raises_not_implemented`
+- `test_resolve_chip_adapter_required_raises_not_implemented`
+- `test_resolve_chip_supported_still_resolves`
+- `test_resolve_chip_not_found_still_raises_chip_not_found`
+- `test_resolve_chip_guard_fires_before_convert_to_programmer`
+
+### Guard coverage (all program-capable operations)
+
+`resolve_chip` is called from 12 sites in `cli_handlers.py` (lines 406, 457, 490, 513, 559, 581, 928, 1028, 1112, 1169, 1236 + dev sub-commands). Every program-capable operation (write/read/erase/verify/blank-check) routes through `resolve_chip`. The guard fires universally.
+
+`info`/`list`/`id`/`search` display handlers (cli_handlers lines 322-374) call `app.db.get_eprom()`/`convert_to_programmer()` directly — they do NOT call `resolve_chip` and are NOT blocked. Non-supported chips remain visible for display (Phase 68 DB-04 honest-reporting intent preserved).
+
+### check_dispatch.py — gate is GREEN AND TRUTHFUL (D-12)
+
+The simulation now mirrors `database._map_data`'s real mem_type derivation:
+```python
+if proto and proto in _ALGO_MEM_TYPE:
+    mt = _ALGO_MEM_TYPE[proto]
+else:
+    # etype fallback: mirrors database._map_data lines 402-407 exactly.
+    etype_for_mt = chip.get("electrical", {}).get("type", "")
+    mt = 1  # Default TYPE_EPROM
+    if "Flash" in etype_for_mt:
+        mt = 2
+    elif "SRAM" in etype_for_mt:
+        mt = 4
+```
+
+The 4 vpp-exceeds-max UV-EPROM chips now correctly derive `mt=1` -> `dispatch(0,1)=configure_eprom` (the REAL firmware path). The gate is GREEN because `chip_ss != "supported"` for every non-supported chip — the D-12 host-guard exemption is triggered for any non-supported chip that resolves to a real handler. The `non_supported_dispatchable` list is empty (0) and the WR-02/WR-03 asserts pass.
+
+PASS output confirmed: `"PASS: all 744 chips scanned; 730 supported; 14 chips confirmed non-dispatchable (D-12: host guard covers non-supported chips with real handlers; non-handler outcomes also safe); 0 non_supported_dispatchable (...); 0 dispatch regressions; 0 consistency violations"`
+
+### cli_handlers.py — ChipNotImplementedError arm properly wired
+
+`except ChipNotImplementedError as e:` (line 125) appears BEFORE the broader `except EpromOperationError as e:` (line 127) in `map_typed_errors`. The more specific subclass wins. `ChipNotImplementedError` is imported at line 36.
+
+---
+
+## Required Artifacts
 
 | Artifact | Expected | Status | Details |
 |----------|----------|--------|---------|
-| `firestarter_app/tools/build_db.py` | NON_DISPATCHABLE_ALGO=0x00 + proto_id set at Site B + Site C | VERIFIED | Constant defined; grep confirms >= 2 `proto_id = NON_DISPATCHABLE_ALGO` assignments; ruff clean |
-| `firestarter_app/firestarter/data/chip_database.json` | 744 chips; every chip has support_status; non-supported algorithm=0x00 | VERIFIED | 744 chips; all 744 have support_status; all 14 non-supported have algorithm=0 (except X88C64P=0x34) |
-| `firestarter_app/tools/check_dispatch.py` | non_supported_dispatchable gate + truthful PASS message | PARTIALLY VERIFIED — SIMULATION ONLY | Gate exists and passes; simulation reports 0 violations correctly within its model; but simulation does not mirror _map_data mem_type derivation for proto==0. The gate cannot detect the UV-EPROM vpp-exceeds-max configure_eprom path. |
-| `firestarter_app/tests/test_build_db_inclusion.py` | 8 tests; SC#3 invariant test (IN-03) | PARTIALLY VERIFIED — SIMULATION ONLY | 8/8 tests pass; 8th test (test_non_supported_chips_are_non_dispatchable) uses the simulation dispatch path not the runtime _map_data path — it passes on a real violation |
-| `firestarter_app/tools/diff_db.py` | Exits 0 on post-66-04 DB; proto_id change attributed | VERIFIED | Exit 0; RULE_ALGO x4 compound + RULE_PHASE66 x730 + 10 new WARN |
-| `firestarter_app/tools/baseline/chip_database.baseline.json` | 734-chip pre-Phase-66 baseline | VERIFIED | Confirmed by test output |
-| `firestarter_app/tools/baseline/dispatch_baseline.json` | Regenerated 744-chip dispatch baseline reflecting algorithm=0 triples | VERIFIED | Modified from prior; 13 changed triples enumerated in SUMMARY |
+| `firestarter_app/firestarter/exceptions.py` | `class ChipNotImplementedError(EpromOperationError)` | VERIFIED | Exists at lines 49-64; subclasses EpromOperationError; docstring distinguishes from ProtocolNotImplementedError (firmware-0xBB vs host-side refusal) |
+| `firestarter_app/firestarter/chip_resolver.py` | support_status guard before convert_to_programmer; reads raw config via get_eprom_config | VERIFIED | Lines 44-57: get_eprom_config → not-found check → support_status check → raise ChipNotImplementedError (before get_eprom/convert_to_programmer). Guard is before conversion. |
+| `firestarter_app/firestarter/cli_handlers.py` | ChipNotImplementedError imported + except arm in map_typed_errors before EpromOperationError | VERIFIED | Line 36: import; line 125: except arm; line 127: EpromOperationError arm — specific before broad |
+| `firestarter_app/tools/check_dispatch.py` | etype fallback when proto==0; D-12 comment block; WR-02 assert + live count; WR-03 cross-check | VERIFIED | Lines 163-173: etype fallback mirrors _map_data; lines 190-221: D-12 comment block; lines 354-363: WR-02 assert + WR-03 assert; PASS line uses len(non_supported_dispatchable) |
+| `firestarter_app/tests/test_build_db_inclusion.py` | 8th test realigned to _map_data model + D-12; docstring references D-12 | VERIFIED | Lines 329-386: test_non_supported_chips_are_non_dispatchable uses etype fallback + D-12 exemption; docstring references D-12 and host guard |
+| `firestarter_app/tests/test_chip_resolver.py` | 5 runtime-boundary tests; M2716 + AT28C04 raise ChipNotImplementedError; convert_to_programmer not called | VERIFIED | Lines 66-115: 5 tests added; all 9 tests in file pass |
 
 ---
 
-### Key Link Verification
+## Key Link Verification
 
 | From | To | Via | Status | Details |
 |------|-----|-----|--------|---------|
-| build_db.py Site B | chip_database.json adapter-required entries | proto_id = NON_DISPATCHABLE_ALGO | VERIFIED | All 9 adapter-required: algorithm=0x00 in DB |
-| build_db.py Site C | chip_database.json vpp-exceeds-max entries | proto_id = NON_DISPATCHABLE_ALGO (inside ceiling-exceed branch) | VERIFIED | All 4 vpp-exceeds-max: algorithm=0x00 in DB |
-| chip_database.json algorithm=0 | check_dispatch.py simulation | dispatch(0, None)=ERROR | VERIFIED (simulation) | Simulation correctly reports no violations |
-| chip_database.json algorithm=0 | database.py::_map_data → wire → firmware | _map_data derives mem_type from electrical.type string | BROKEN | UV-EPROM etype → mem_type=1 → configure_eprom (real path, not simulated) |
-| support_status field | host runtime | database.py / chip_resolver.py / eprom_operations.py | NOT WIRED | grep confirms 0 references to support_status in the host runtime path. Deferred to Phase 68 (DB-04) per ROADMAP, but Phase 66's SC#3 requires non-dispatchable at the gate + runtime layer |
+| chip_resolver.resolve_chip | raw chip_database.json support_status | db.get_eprom_config before convert_to_programmer | VERIFIED | get_eprom_config called first; support_status read from raw_config; guard fires before full record lookup |
+| chip_resolver.resolve_chip | all program-capable cli_handlers | ChipNotImplementedError propagates through map_typed_errors | VERIFIED | 12 resolve_chip call sites in cli_handlers; map_typed_errors has dedicated except arm at line 125 |
+| check_dispatch.py | database._map_data mem_type derivation | etype string fallback when proto==0 (default 1, Flash->2, SRAM->4) | VERIFIED | Lines 163-173 in check_dispatch.py mirror database.py lines 402-407 exactly |
+| info/list/search handlers | database (NOT resolve_chip) | db.get_eprom / db.get_eproms / db.search_eprom directly | VERIFIED | Lines 322-374: display handlers bypass resolve_chip; non-supported chips remain visible |
+| chip_database.json algorithm=0 (non-supported) | check_dispatch.py D-12 exemption | chip_ss != "supported" triggers non_dispatchable_count increment (host-guard coverage) | VERIFIED | Every non-supported chip counted as safe because host guard refuses; non_supported_dispatchable empty |
 
 ---
 
-### Data-Flow Trace (Level 4)
+## Data-Flow Trace (Level 4)
 
 | Artifact | Data Variable | Source | Produces Real Data | Status |
 |----------|---------------|--------|-------------------|--------|
-| chip_database.json | support_status per chip | build_db.py _support_status | Yes — all 744 chips | FLOWING to DB |
-| chip_database.json | algorithm=0x00 for non-supported | build_db.py NON_DISPATCHABLE_ALGO | Yes — 13 chips (+ X88C64P=0x34) | FLOWING to DB |
-| database.py wire dict | type (mem_type) field | _map_data electrical.type fallback when algorithm==0 | Yes — UV-EPROM → mem_type=1 | FLOWING but misroutes UV-EPROM to configure_eprom |
-| check_dispatch.py | non_supported_dispatchable bucket | dispatch(0, None)=ERROR simulation | Simulation only — does not match _map_data | HOLLOW (simulation gap) |
+| chip_resolver.resolve_chip | support_status | db.get_eprom_config → raw chip record | Yes — read from live chip_database.json per chip | FLOWING — authoritative guard |
+| check_dispatch.py gate | mt (mem_type) | etype string fallback mirrors _map_data; not hardcoded | Yes — derived from chip's electrical.type field | FLOWING — truthful simulation |
+| test_chip_resolver.py | ChipNotImplementedError raise | resolve_chip → get_eprom_config → support_status check | Yes — reads packaged DB via skip_local_override=True | FLOWING — real runtime boundary proven |
 
 ---
 
-### Behavioral Spot-Checks
+## Behavioral Spot-Checks
 
 | Behavior | Command | Result | Status |
 |----------|---------|--------|--------|
-| DB chip count = 744 | python3 -c "...sum(len(v)...)" chip_database.json | 744 | PASS |
-| All 744 chips have support_status | grep -c '"support_status"' chip_database.json | 744 | PASS |
-| All non-supported chips have algorithm=0 | python3 inspect loop | All 14 non-supported: algorithm=0 (X88C64P=0x34) | PASS |
-| check_dispatch.py exits 0 | python3 tools/check_dispatch.py | Exit 0, "0 non_supported_dispatchable" (simulation) | PASS (simulation only) |
-| M2716 real host path → configure_eprom | python3 -c "EpromDatabase.convert_to_programmer(M2716)" then firmware trace | Wire: {algorithm:0, type:1} → firmware: configure_eprom | FAIL — BLOCKER |
-| M2732 real host path → configure_eprom | Same trace for 2732,2732A,M2732,M2732A entry | Wire: {algorithm:0, type:1} → firmware: configure_eprom | FAIL — BLOCKER |
-| SGS-THOMSON/ST ETC2716,M2716 real path | Same trace | Wire: {algorithm:0, type:1} → firmware: configure_eprom | FAIL — BLOCKER |
-| Adapter-required 24-pin EEPROM path | Same trace for AT28C04 | Wire: {algorithm:0, type:2} → firmware: ERROR | PASS (incidental — etype="Flash/EEPROM" → mem_type=2, no fw handler) |
-| diff_db.py exits 0 | python3 tools/diff_db.py | Exit 0; RULE_ALGO x4 + RULE_PHASE66 x730 + 10 WARN | PASS |
-| All 8 inclusion tests pass | python3 -m pytest tests/test_build_db_inclusion.py | 8/8 passed | PASS (8th test uses simulation, passes on real violation) |
-| Full suite 494 passed, cov >= 70 | python3 -m pytest --cov-fail-under=70 | 494 passed | PASS |
+| M2716 raises ChipNotImplementedError | python -c "resolve_chip('M2716', db=db)" | Raises ChipNotImplementedError: "M2716: VPP 25V exceeds RURP ceiling (22V); cannot program on this hardware" | PASS |
+| AT28C04 raises ChipNotImplementedError | python -c "resolve_chip('AT28C04', db=db)" | Raises ChipNotImplementedError with adapter-required message | PASS |
+| W27C512 still resolves (no regression) | python -c "resolve_chip('W27C512', db=db)" | Returns dict with memory-size=65536 | PASS |
+| convert_to_programmer not called for M2716 | mock + resolve_chip | mock.assert_not_called() PASS — no wire dict built | PASS |
+| check_dispatch.py exits 0 + truthful PASS | python tools/check_dispatch.py | exit=0; "14 chips confirmed non-dispatchable; 0 non_supported_dispatchable" | PASS |
+| diff_db.py exits 0; no DB churn | python tools/diff_db.py | exit=0; chip_database.json unchanged by 66-05 | PASS |
+| Full test suite green (cov >= 70) | python -m pytest --cov-fail-under=70 | 499 passed, coverage 71.93% | PASS |
+| Chip resolver runtime-boundary tests | python -m pytest tests/test_chip_resolver.py -q | 9/9 passed | PASS |
+| Inclusion + 8th SC#3 test | python -m pytest tests/test_build_db_inclusion.py -q | 8/8 passed | PASS |
 
 ---
 
-### Requirements Coverage
+## Requirements Coverage
 
 | Requirement | Source Plan | Description | Status | Evidence |
 |-------------|------------|-------------|--------|---------|
 | DB-01 | 66-03 | build_db.py includes DIP parallel-memory chips with unknown protocol as protocol-not-implemented | SATISFIED | X88C64P/X88C64S included; serial/SMD excluded |
 | DB-03 | 66-03 | Correct VPP for NMOS family; support_status from RURP ceiling | SATISFIED | M2716/M2732 = 25000mV/vpp-exceeds-max; M2732A standalone = 21000mV/supported |
-| DB-05 | 66-01, 66-02, 66-03, 66-04 | check_dispatch.py and per-chip diff treat non-supported as non-dispatchable; gate green | BLOCKED | Per-chip diff (diff_db.py) exits 0. check_dispatch.py exits 0 but with a simulation-only PASS — the 4 vpp-exceeds-max UV-EPROM chips reach configure_eprom via database.py::_map_data → wire {type:1} → firmware mem_type fallback. The gate does not model _map_data's type_str derivation. DB-05 requires "they must NOT resolve to a programming handler" — violated for 4 of 14 non-supported chips on the real host+firmware path. |
+| DB-05 | 66-01..66-05 | check_dispatch.py and per-chip diff treat non-supported as non-dispatchable; gate green; non-supported chips do NOT resolve to a programming handler at runtime | SATISFIED | Per-chip diff (diff_db.py) exits 0. check_dispatch.py exits 0 with truthful PASS (D-12 model). chip_resolver.resolve_chip raises ChipNotImplementedError before any wire dict for all 14 non-supported chips — driven by support_status, not etype string. Runtime-boundary tests pin the invariant. DB-05 satisfied at the runtime boundary, not just simulation boundary. |
 
 ---
 
-### Anti-Patterns Found
+## Anti-Patterns Found
 
 | File | Line | Pattern | Severity | Impact |
 |------|------|---------|----------|--------|
-| firestarter_app/firestarter/database.py | 394-407 | _map_data derives mem_type from electrical.type string when algorithm==0; "UV-EPROM" → mem_type=1 (TYPE_EPROM); no support_status check anywhere in host runtime | BLOCKER | 4 vpp-exceeds-max NMOS chips (M2716/M2732 family) have algorithm=0+etype="UV-EPROM" and reach configure_eprom (12V VPP) via the type_str fallback. This is the exact hazard SC#3 exists to close. |
-| firestarter_app/tools/check_dispatch.py | 152-154 | Simulation uses mt=_ALGO_MEM_TYPE.get(proto); for proto==0 → mt=None; does not mirror _map_data's type_str fallback | WARNING | Gate reports a false PASS for the UV-EPROM vpp-exceeds-max chips. REVIEW CR-01 fix #2 addresses this. |
-| firestarter_app/tests/test_build_db_inclusion.py | 340-342 | 8th test uses mt=_ALGO_MEM_TYPE.get(proto); inherits the simulation gap from check_dispatch | WARNING | Test pins the invariant against the wrong model; passes on a real violation. |
+| tests/test_address_parser.py | 13 | I001 import sort (pre-existing, not from 66-05) | INFO | Pre-existing; not in 66-05 files; ruff check on 66-05 files only returns exit=0 |
+| tests/test_codec.py | 17 | I001 import sort (pre-existing, not from 66-05) | INFO | Pre-existing; not in 66-05 files; confirmed by ruff check on 66-05 files returning exit=0 |
+
+Note: `ruff check firestarter/ tests/` exits 1 due to these 2 pre-existing I001 errors in `tests/test_address_parser.py` and `tests/test_codec.py`. These predate 66-05 and are in files 66-05 did not touch. `ruff check` on the 6 CI-scoped 66-05 files returns exit=0 (all clean). `ruff format --check firestarter/ tests/` exits 0 (58 files already formatted). The CI ruff gate scope (firestarter/ tests/) will surface these pre-existing errors — this is a pre-existing debt item, not introduced by 66-05.
 
 ---
 
-### Human Verification Required
+## Human Verification Required
 
-None — all truths are verifiable programmatically. The host+firmware path traced above is deterministic code with no runtime variability.
+None — all truths verifiable programmatically. The host guard, runtime-boundary tests, and behavioral spot-checks constitute full programmatic verification.
 
 ---
 
 ## Gaps Summary
 
-**SC#3 is still FAILED.** The 66-04 gap-closure plan made genuine progress:
-- The DB now has `algorithm=0x00` for all 13 non-supported chips (except X88C64P=0x34).
-- The `check_dispatch.py` gate now has the `non_supported_dispatchable` assertion.
-- The simulation correctly proves `dispatch(0, None)=ERROR`.
-- The 8th CI test correctly pins the invariant — against the simulation model.
+No gaps. SC#3 / DB-05 is closed at the runtime boundary. The 66-05 gap-closure plan delivered both remediation options (Option A: authoritative runtime host guard; Option B: simulation realignment + WR-02/WR-03).
 
-However, the **simulation model does not match the real production path**. `database.py::_map_data` was not updated by 66-04. It ignores `support_status` entirely and, when `protocol_id==0`, derives `mem_type` from the `electrical.type` string:
+**SC#1, SC#2, SC#4 remain VERIFIED** — unchanged from prior verification; 66-05 touched runtime code only (no DB churn).
 
-- `"UV-EPROM"` → no "Flash" or "SRAM" substring → `determined_type=1` (the hardcoded default = TYPE_EPROM)
-- The wire dict emitted is `{algorithm: 0, type: 1}`
-- Firmware receives `protocol=0`, falls to the `mem_type` chain, hits `mem_type==1 → configure_eprom`
-
-This was confirmed empirically: `EpromDatabase().convert_to_programmer(get_eprom("M2716"))` returns a wire dict with `algorithm=0, type=1`. The firmware trace from `memory.cpp::configure_memory` is deterministic.
-
-**Affected chips (BLOCKER — 4 of 14 non-supported):**
-- INTEL/M2716,M2716M (vpp-exceeds-max, 25V)
-- INTEL/2732,2732A,M2732,M2732A (vpp-exceeds-max, 25V)
-- SGS-THOMSON/ETC2716,M2716 (vpp-exceeds-max, 25V)
-- ST/ETC2716,M2716 (vpp-exceeds-max, 25V)
-
-**Adapter-required 24-pin EEPROMs (incidentally safe, not by design):**
-All 9 have `etype="Flash/EEPROM"` → `determined_type=2`. Firmware has no `mem_type=2` handler, so these fall to the error case. This is incidental to the etype string — any future UV-EPROM chip flagged `adapter-required` would follow the M2716 path.
-
-**Root cause:** Phase 66's CONTEXT.md (D-10) deferred host-side refusal to Phase 68 ("Phase 66 is the data + gate layer only; the hazard-prevention guarantee for non-supported chips lives in the Phase-68 host-refusal layer"). However, the `algorithm=0x00` data-layer fix was intended to close the firmware hazard by making `dispatch(0, None)=ERROR`. The fix achieves that in the simulation, but `_map_data`'s type_str fallback overrides the simulation's `mt=None` assumption with `mt=1` for UV-EPROM entries.
-
-**Remediation options (structured for gap-closure planner):**
-
-Option A — Runtime guard in `database.py` (closes the hazard at the host boundary):
-Add `support_status` check in `_map_data` or `chip_resolver.resolve_chip`. When `support_status != "supported"`, raise `ChipNotImplementedError` before building the wire dict. No firmware change needed.
-
-Option B — Simulation realignment in `check_dispatch.py` + CI test (closes the gate gap):
-Mirror `_map_data`'s type_str fallback when `proto==0` in the simulation:
-```python
-mt = _ALGO_MEM_TYPE.get(proto)
-if not proto:
-    etype = chip.get("electrical", {}).get("type", "")
-    mt = 1
-    if "Flash" in etype: mt = 2
-    elif "SRAM" in etype: mt = 4
-```
-This makes the gate correctly FAIL on the 4 UV-EPROM chips (dispatch(0,1)=configure_eprom). Apply the same fix to the 8th CI test.
-
-Both A + B are recommended: A closes the actual hazard; B ensures the gate and CI test accurately reflect the real runtime. Option A alone suffices to close SC#3 as a hardware-damage prevention measure; Option B ensures the gate will catch any future reintroduction.
-
-**SC#1, SC#2, SC#4 remain VERIFIED** — the DB inclusion, NMOS VPP corrections, and diff_db.py gate all work correctly. The regression is isolated to the dispatch safety invariant for vpp-exceeds-max UV-EPROM chips on the real host+firmware path.
+**SC#3 is now VERIFIED** — the prior BLOCKER is closed. Evidence chain:
+1. `chip_resolver.resolve_chip` reads `support_status` from the raw config (not via `_map_data`).
+2. The guard fires BEFORE `convert_to_programmer` — no wire dict is ever built for a non-supported chip.
+3. The 4 vpp-exceeds-max UV-EPROM chips (M2716/M2732 family, 25V) raise `ChipNotImplementedError` at the host boundary — `configure_eprom` is unreachable.
+4. The 9 adapter-required 24-pin EEPROMs raise `ChipNotImplementedError` — the guard is driven by `support_status`, not the incidental `etype` string.
+5. `check_dispatch.py` models `_map_data`'s real mem_type derivation and is GREEN because the host guard refuses (not because the simulation pretended `mem_type=None`).
+6. All 499 tests pass; coverage 71.93%; ruff/mypy clean on modified files; no DB churn.
 
 ---
 
-_Verified: 2026-06-12T12:00:00Z_
+_Verified: 2026-06-12T13:30:00Z_
 _Verifier: Claude (gsd-verifier)_
-_Status: gaps_found — SC#3 BLOCKER (4 vpp-exceeds-max NMOS chips reach configure_eprom via database.py::_map_data type_str fallback; gate simulation does not model this path)_
+_Status: passed — 4/4 SC verified; SC#3 BLOCKER closed by 66-05 host guard in chip_resolver.resolve_chip_
