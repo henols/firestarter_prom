@@ -469,7 +469,7 @@ Plans:
 **Wave 1** *(parallel — no file overlap)*
 
 - [x] 66-01-PLAN.md — Wave 0: cherry-pick diff_db.py + pin 734-chip chip_database.baseline.json + RULE_PHASE66 rationale/field-paths/classify arm + RED tests/test_build_db_inclusion.py (DB-05)
-- [ ] 66-02-PLAN.md — check_dispatch.py rework: not_implemented FAIL-only-if-supported (D-10) + 3 consistency assertions; dispatch() memory.cpp mirror preserved; gate green on current DB (DB-05)
+- [x] 66-02-PLAN.md — check_dispatch.py rework: not_implemented FAIL-only-if-supported (D-10) + 3 consistency assertions; dispatch() memory.cpp mirror preserved; gate green on current DB (DB-05)
 
 **Wave 2** *(blocked on 66-01 + 66-02)*
 
@@ -569,7 +569,7 @@ Plans:
 | 63 | v1.12 | 1/1 | Complete    | 2026-06-11 |
 | 64 | v1.12 | 2/2 | Complete    | 2026-06-11 |
 | 65 | v1.12 | 2/2 | Complete    | 2026-06-11 |
-| 66 | v1.12 | 1/3 | In Progress|  |
+| 66 | v1.12 | 2/3 | In Progress|  |
 | 67 | v1.12 | 0/TBD | Not started | — |
 | 68 (close) | v1.12 | 0/TBD | Not started | — |
 
