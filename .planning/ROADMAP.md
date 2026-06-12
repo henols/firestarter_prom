@@ -478,7 +478,7 @@ Plans:
 **Wave 3 — gap closure** *(SC#3 BLOCKER; blocked on 66-03)*
 
 - [x] 66-04-PLAN.md — SC#3/DB-05 gap closure: set proto_id=NON_DISPATCHABLE_ALGO(0x00) at Site B (adapter-required) + Site C (vpp-exceeds-max) so the 13 non-supported chips dispatch to ERROR not configure_eprom (CR-01 Option A); add non_supported_dispatchable gate assertion + truthful PASS to check_dispatch.py (CR-02); pin the SC#3 invariant in a CI test (IN-03); regen DB + dispatch_baseline; diff_db/check_dispatch/full suite green (DB-05)
-- [ ] 66-05-PLAN.md — SC#3/DB-05 gap closure (re-verify BLOCKER, D-12): pull the Phase 68 host-refusal guard forward — add ChipNotImplementedError + a support_status guard in chip_resolver.resolve_chip that refuses every non-supported chip before any wire dict/serial byte (Option A, closes the 4 vpp-exceeds-max UV-EPROM 12V-VPP path that survived 66-04); realign check_dispatch.py + the 8th CI test to _map_data's real mem_type derivation with the host-guard exemption so the gate stays green AND truthful + fix WR-02/WR-03; runtime-boundary test (M2716 + adapter-required EEPROM raise, no serial bytes); no DB churn (DB-05)
+- [x] 66-05-PLAN.md — SC#3/DB-05 gap closure (re-verify BLOCKER, D-12): pull the Phase 68 host-refusal guard forward — add ChipNotImplementedError + a support_status guard in chip_resolver.resolve_chip that refuses every non-supported chip before any wire dict/serial byte (Option A, closes the 4 vpp-exceeds-max UV-EPROM 12V-VPP path that survived 66-04); realign check_dispatch.py + the 8th CI test to _map_data's real mem_type derivation with the host-guard exemption so the gate stays green AND truthful + fix WR-02/WR-03; runtime-boundary test (M2716 + adapter-required EEPROM raise, no serial bytes); no DB churn (DB-05)
 
 **UI hint**: no
 
@@ -574,7 +574,7 @@ Plans:
 | 63 | v1.12 | 1/1 | Complete    | 2026-06-11 |
 | 64 | v1.12 | 2/2 | Complete    | 2026-06-11 |
 | 65 | v1.12 | 2/2 | Complete    | 2026-06-11 |
-| 66 | v1.12 | 4/4 | Complete   | 2026-06-12 |
+| 66 | v1.12 | 5/5 | Complete   | 2026-06-12 |
 | 67 | v1.12 | 0/TBD | Not started | — |
 | 68 (close) | v1.12 | 0/TBD | Not started | — |
 
