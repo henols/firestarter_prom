@@ -2,262 +2,249 @@
 phase: 66-db-inclusion-vpp-correction-dispatch-gate
 reviewed: 2026-06-12T00:00:00Z
 depth: standard
-files_reviewed: 4
+files_reviewed: 3
 files_reviewed_list:
   - firestarter_app/tools/build_db.py
   - firestarter_app/tools/check_dispatch.py
-  - firestarter_app/tools/diff_db.py
   - firestarter_app/tests/test_build_db_inclusion.py
 findings:
-  critical: 2
-  warning: 5
-  info: 3
-  total: 10
+  critical: 1
+  warning: 4
+  info: 2
+  total: 7
 status: issues_found
 ---
 
-# Phase 66: Code Review Report
+# Phase 66: Code Review Report (66-04 gap-closure re-review)
 
 **Reviewed:** 2026-06-12
 **Depth:** standard
-**Files Reviewed:** 4
+**Files Reviewed:** 3
 **Status:** issues_found
 
 ## Summary
 
-Phase 66 introduces a `support_status` taxonomy (`supported` / `protocol-not-implemented` /
-`adapter-required` / `vpp-exceeds-max`), DB-01/02 inclusion gates, DB-03 NMOS true-VPP
-correction with "highest-VPP-wins", and a reworked dispatch gate. The stated HARD invariant
-is: *"a non-`supported` chip must NEVER be wired to a working dispatch handler (no
-protocol/mem_type change that makes it programmable)."*
+Phase 66 plan 66-04 is a SAFETY gap-closure whose stated invariant is: a chip with
+`support_status != "supported"` must NEVER resolve to a real programming handler
+(`configure_eprom`, etc.) that would drive 12V VPP onto a pin. The implementation
+sets `proto_id = NON_DISPATCHABLE_ALGO (0x00)` at Site B (adapter-required) and
+Site C (vpp-exceeds-max) in `build_db.py`, adds a `non_supported_dispatchable`
+gate bucket plus PASS-line rework in `check_dispatch.py`, and adds a CI invariant
+test in `test_build_db_inclusion.py`.
 
-That invariant is **violated by 13 of the 14 non-supported chips**. The `adapter-required`
-and `vpp-exceeds-max` chips keep `algorithm` 0x0B (EPROM_LEGACY), which dispatches to the real
-`configure_eprom` handler — the exact 12V-VPP hardware-damage path the classification was
-created to prevent. The reworked `check_dispatch.py` gate does **not** detect this because it
-only flags *supported → not_implemented*, never *non-supported → real handler*; it then prints
-a PASS message falsely asserting all 14 are "non-dispatchable." This is the central defect of
-the phase and is reproducible against the regenerated DB.
+The build-time demotion to `0x00` is correctly ordered and holds for all 14
+non-supported chips in the regenerated DB; `check_dispatch.py` exits 0 and reports
+"14 chips confirmed non-dispatchable." However, **the safety invariant is verified
+ONLY against a simulated dispatch model that does not match the real host+firmware
+runtime path.** Tracing the actual production path (`database._map_data` → wire →
+firmware `configure_memory`) shows the vpp-exceeds-max NMOS EPROMs (M2716/M2732)
+STILL reach `configure_eprom` (12V VPP) at runtime. The gate, the mirrored test,
+and the PASS message all report this case as safe — they are not truthful for that
+bucket. This is the exact hardware-damage path the phase exists to close, so it is
+a BLOCKER.
 
-Secondary concerns: the two `KNOWN_PROTOCOLS` constants are documented as must-keep-in-sync
-mirrors but are intentionally (and load-bearingly) divergent, so following the sync instruction
-breaks the gate; and the highest-VPP-wins logic marks the combined `2732,2732A,M2732,M2732A`
-entry `vpp-exceeds-max`, silently blocking the programmable 21V M2732A part.
+(Note: this artifact previously held a broader 66-wide review covering diff_db.py;
+it is replaced here with the focused 66-04 re-review of the 3 changed files in the
+diff range 4454d07^..HEAD.)
 
 ## Critical Issues
 
-### CR-01: Non-supported chips are wired to a working dispatch handler (HARD invariant violated)
+### CR-01: vpp-exceeds-max NMOS EPROMs still dispatch to `configure_eprom` (12V VPP) at runtime — the gate's safety claim is false
 
-**File:** `firestarter_app/tools/build_db.py:411-431, 551-571`
+**File:** `firestarter_app/tools/build_db.py:584`, `firestarter_app/firestarter/database.py:395-407`, `firestarter_app/tools/check_dispatch.py:152-154`
+
 **Issue:**
-The DB-02 `adapter-required` gate (L411-431) and the DB-03 `vpp-exceeds-max` gate (L562-569)
-set `support_status` but leave `proto_id` unchanged at `0x0B`/`0x07`/`0x08`. Empirically, on
-the regenerated `chip_database.json`, 13 of 14 non-supported chips dispatch to a real handler:
+The fix demotes `proto_id` to `0x00` for non-supported chips and proves safety via
+`check_dispatch.dispatch(0x00, _ALGO_MEM_TYPE.get(0x00))`. `_ALGO_MEM_TYPE.get(0x00)`
+is `None`, so the simulated `mem_type` fallback returns `"ERROR"` — apparently safe.
 
-```
-('ATMEL','AT28C04,AT28HC04','adapter-required','0xb','configure_eprom')
-('ATMEL','AT28C16,AT28HC16,AT28HC16L','adapter-required','0xb','configure_eprom')
-('MICROCHIP memory','28C04A','adapter-required','0xb','configure_eprom')
-('NEC','UPD28C04','adapter-required','0xb','configure_eprom')
-('INTEL','2732,2732A,M2732,M2732A','vpp-exceeds-max','0xb','configure_eprom')
-('INTEL','M2716,M2716M','vpp-exceeds-max','0xb','configure_eprom')
-('ST','ETC2716,M2716','vpp-exceeds-max','0xb','configure_eprom')
-... (13 total)
-```
-
-`configure_eprom` engages the 12V VPP boost regulator and asserts `P1_VPP_ENABLE` — which the
-phase's own comment (L405-408, L417-423) identifies as the hardware-damage path for the
-24-pin EEPROMs (12V onto socket pin 21 = WE). Because the host runtime (`database.py`
-`get_eprom` / `convert_to_programmer`) never inspects `support_status`, a user running
-`firestarter write AT28C04` (or any of these 13 parts) gets a fully-formed wire command and the
-firmware drives the damage path. `support_status` is documentation-only; nothing enforces it.
-
-**Fix:** The invariant requires non-supported chips be made non-dispatchable. Two acceptable
-approaches — pick one and apply at both gates:
+But the **real host runtime** does NOT derive `mem_type` that way. In
+`database.py::_map_data` (lines 395-407), when `protocol_id` is `0` (falsy) the
+code falls through to an `electrical.type`-string heuristic:
 
 ```python
-# Option A (preferred per "no protocol change that makes it programmable"):
-# Set algorithm to a sentinel the firmware/host treat as non-dispatchable.
-NON_DISPATCHABLE_ALGO = 0x00  # dispatch() returns ERROR/not_implemented for proto 0
-...
-if (pin_count == 24 and proto_id in (0x07,0x08,0x0B) and (flags & 0x10)):
-    _support_status = "adapter-required"
-    _unsupported_reason = (...)
-    proto_id = NON_DISPATCHABLE_ALGO   # <-- prevents configure_eprom routing
-...
-if _nmos_vpp_mv is not None and _nmos_vpp_mv > RURP_VPP_CEILING_MV:
-    _support_status = "vpp-exceeds-max"
-    _unsupported_reason = (...)
-    proto_id = NON_DISPATCHABLE_ALGO   # <-- prevents configure_eprom routing
-```
-If `proto_id` cannot change (to preserve display info), instead gate at the host: have
-`get_eprom_config` / `convert_to_programmer` raise on `support_status != "supported"` for
-write/program operations. Whichever path is chosen, CR-02's gate must be updated to actually
-prove the invariant.
-
-### CR-02: Dispatch gate does not enforce the HARD invariant and prints a false PASS
-
-**File:** `firestarter_app/tools/check_dispatch.py:162-174, 273-279`
-**Issue:**
-The reworked `not_implemented` bucket only fails when a chip routes to the `not_implemented`
-*handler* AND is `supported` (L165-171). There is **no check** for the inverse and far more
-dangerous case: a *non-supported* chip routing to a *real* handler (`configure_eprom`,
-`configure_eeprom28c`, etc.). As a result, the 13 chips from CR-01 pass the gate, and the
-summary line (L273-279) prints:
-
-```
-PASS: all 744 chips scanned; 730 supported; 14 non-supported (non-dispatchable, expected); ...
+protocol_id = programming.get("algorithm", 0)   # == 0 for non-supported chips
+if protocol_id and protocol_id in _ALGO_MEM_TYPE:
+    determined_type = _ALGO_MEM_TYPE[protocol_id]
+else:
+    type_str = electrical.get("type", "")
+    determined_type = 1                          # default EPROM
+    if "Flash" in type_str: determined_type = 2
+    elif "SRAM" in type_str: determined_type = 4
 ```
 
-The phrase "14 non-supported (non-dispatchable, expected)" is factually wrong — 13 of those 14
-ARE dispatchable to `configure_eprom`. The gate that exists specifically to catch this class of
-hazard reports green. The docstring (L1-16) and "D-10 Assertion 3" comment (L134-135) both
-claim the invariant is enforced; it is not.
+For the vpp-exceeds-max NMOS parts (M2716/M2732), `build_db.py` leaves
+`electrical.type == "UV-EPROM"` (the proto==0 re-derivation block at
+build_db.py:553-561 hits no branch, so `_etype` keeps its flags-based value, and
+these UV-EPROMs lack the 0x10 erasable flag). The host therefore computes
+`determined_type = 1 (TYPE_EPROM)` and sends `{"protocol-id": 0, "type": 1, ...}`
+on the wire.
 
-**Fix:** Add an explicit assertion that any non-supported chip resolves to a non-dispatchable
-handler, and correct the summary wording:
+The firmware (`firestarter/src/proms/memory.cpp`) protocol==0 fallback then runs:
+```cpp
+if (handle->protocol != 0) { configure_not_implemented(handle); return; }
+if (handle->mem_type == TYPE_EPROM) { configure_eprom(handle); return; }  // <-- HIT (TYPE_EPROM==1)
+```
+`configure_eprom` engages the 12V VPP boost regulator — exactly the
+hardware-damage path 66-04 was supposed to eliminate for these chips.
 
+Verified empirically against the regenerated DB (4 vpp-exceeds-max entries):
+```
+INTEL/M2716:       etype='UV-EPROM' proto=0 -> HOST mem_type=1; check_dispatch sim handler=ERROR
+SGS-THOMSON/M2716: etype='UV-EPROM' proto=0 -> HOST mem_type=1; check_dispatch sim handler=ERROR
+ST/M2716:          etype='UV-EPROM' proto=0 -> HOST mem_type=1; check_dispatch sim handler=ERROR
+INTEL/2732:        etype='UV-EPROM' proto=0 -> HOST mem_type=1; check_dispatch sim handler=ERROR
+```
+The simulated handler is `ERROR` (the gate's "safe" verdict) but the host-derived
+`mem_type` is `1`, which firmware routes to `configure_eprom`.
+
+Additionally, `chip_resolver.resolve_chip` and `eprom_operations` perform NO
+`support_status` check (grep of `firestarter/*.py` for `support_status` returns
+zero matches), so `firestarter M2716 write file.bin` is not blocked anywhere on the
+host before the command is transmitted.
+
+The adapter-required 24-pin EEPROMs happen to escape this because their
+`electrical.type == "Flash/EEPROM"` yields `determined_type = 2`, which is NOT in
+the firmware's mem_type fallback (only TYPE_EPROM=1/SRAM=4/FLASH_3=3/FLASH_4=5),
+so firmware fails closed. That is incidental — it depends on a string-substring
+match, not on `support_status` — and does not protect the UV-EPROM bucket.
+
+**Fix (defense-in-depth; prefer the runtime guard, and also close the gate gap):**
+
+1. Authoritative runtime guard — make `support_status` load-bearing instead of
+   relying on `algorithm==0` round-tripping safely through the `electrical.type`
+   fallback. In `database.py::_map_data` (or `chip_resolver.resolve_chip`), refuse
+   to emit a program-capable command for non-supported chips:
 ```python
-non_supported_dispatchable = []  # add near other bucket lists
-...
-# inside the per-chip loop, after computing handler:
-if chip_ss != "supported" and handler not in ("not_implemented", "ERROR"):
-    non_supported_dispatchable.append(
-        f"{mfg}/{part} support_status={chip_ss} proto=0x{proto:02X} -> {handler} "
-        f"(HARD invariant: non-supported chip wired to a working handler)"
+if full.get("support_status", "supported") != "supported":
+    raise ChipNotImplementedError(
+        f"{name}: {full.get('unsupported_reason', 'unsupported on this hardware')}"
     )
-...
-# include non_supported_dispatchable in the failure gate and print block.
 ```
-Only after CR-01 is fixed will this assertion pass; until then it correctly fails. Also change
-the summary to count actually-non-dispatchable chips rather than asserting it unconditionally.
+2. Close the simulation gap so the gate models the real host derivation. In
+   `check_dispatch.py`, derive `mem_type` the same way `_map_data` does (fall back
+   to the `electrical.type` string when `proto == 0`) before calling `dispatch`:
+```python
+proto = chip.get("programming", {}).get("algorithm", 0) or 0
+mt = _ALGO_MEM_TYPE.get(proto)
+if not proto:                              # mirror database._map_data fallback
+    etype = chip.get("electrical", {}).get("type", "")
+    mt = 1
+    if "Flash" in etype: mt = 2
+    elif "SRAM" in etype: mt = 4
+handler = dispatch(proto, mt)
+```
+   With this change the gate (and the mirrored test) would correctly FAIL on the
+   current DB, surfacing the M2716/M2732 hazard. The same change must be applied to
+   `test_build_db_inclusion.py::test_non_supported_chips_are_non_dispatchable`,
+   which imports the same `dispatch`/`_ALGO_MEM_TYPE` and inherits the identical
+   blind spot.
 
 ## Warnings
 
-### WR-01: KNOWN_PROTOCOLS "mirror" is load-bearingly divergent — sync instruction breaks the gate
+### WR-01: CI gate and invariant test share one dispatch model — neither validates the real runtime path
 
-**File:** `firestarter_app/tools/check_dispatch.py:65-83` vs `firestarter_app/tools/build_db.py:98-113`
-**Issue:**
-`check_dispatch.py` L67-68 says "Local mirror of build_db.py:83 — source of truth. Keep in sync
-if KNOWN_PROTOCOLS changes." But the two sets are intentionally different: `build_db.py` includes
-`0x34` (so X88C64P passes the inclusion gate); `check_dispatch.py` omits `0x34` (so Assertion 2,
-L158-161 — "a protocol-not-implemented chip must have proto NOT in KNOWN_PROTOCOLS" — passes for
-X88C64P). The two constants therefore have *different semantics* (inclusion-gate set vs
-implemented-handler set) and must NOT be equal. A maintainer who follows the literal "keep in
-sync" comment and adds `0x34` to the check_dispatch mirror will cause Assertion 2 to falsely fail
-on X88C64P. This is a maintenance trap encoded directly in the comments.
+**File:** `firestarter_app/tools/check_dispatch.py:152-154`, `firestarter_app/tests/test_build_db_inclusion.py:329-343`
 
-**Fix:** Rename the check_dispatch set to reflect its real meaning and document why it diverges:
+**Issue:** The test deliberately imports `check_dispatch._ALGO_MEM_TYPE` and
+`check_dispatch.dispatch` (lines 332, 341-342) and re-runs the exact computation
+the gate performs. This is not independent verification — the test cannot catch any
+defect the gate misses, including CR-01. Both the module docstring and the test
+docstring assert the invariant is "pinned in CI," but the pin is anchored to a
+simulation that diverges from `database._map_data` (which IS the production path).
 
+**Fix:** Drive the invariant test through the real production path
+(`EpromDatabase().convert_to_programmer(get_eprom(part))` and assert the emitted
+`type`/`protocol-id` cannot reach a 12V handler), OR at minimum align both gate and
+test mem_type derivation with `_map_data` per CR-01 fix #2 and add a direct
+assertion on the wire dict's `type` field for non-supported chips.
+
+### WR-02: PASS summary hardcodes "0 non_supported_dispatchable" instead of the derived count
+
+**File:** `firestarter_app/tools/check_dispatch.py:315`
+
+**Issue:** The PASS line prints the string literal `"0 non_supported_dispatchable"`.
+It is "true" only because the gate `sys.exit(1)`s whenever the list is non-empty, so
+the literal is structurally correct today. But it is decoupled from the data: a
+future refactor that drops the early-exit, or that populates the list without adding
+it to the abort condition (line 238), would print a falsely reassuring "0" while a
+violation exists. The phase brief explicitly asks whether the PASS message is
+truthful — a hardcoded safety count is a latent truthfulness hazard.
+
+**Fix:** Print the live count and add a belt-and-suspenders assert:
 ```python
-# Protocols that have a REAL firmware handler. Deliberately a SUBSET of
-# build_db.py's KNOWN_PROTOCOLS — 0x34 is in build_db's inclusion gate but is
-# NOT implemented, so it is intentionally absent here. Do NOT "sync" 0x34 in:
-# Assertion 2 relies on 0x34 being absent so X88C64P (protocol-not-implemented)
-# validates correctly.
-IMPLEMENTED_PROTOCOLS = { 0x05, 0x06, 0x07, 0x08, 0x0B, 0x0D, 0x0E, 0x10, 0x27, 0x28, 0x29, 0x35, 0x39 }
+assert not non_supported_dispatchable
+print(f"... {len(non_supported_dispatchable)} non_supported_dispatchable; ...")
 ```
 
-### WR-02: Highest-VPP-wins silently blocks the programmable M2732A on combined entries
+### WR-03: `non_dispatchable_count` and `non_supported_count` encode the same invariant but are never cross-checked
 
-**File:** `firestarter_app/tools/build_db.py:557-571`
-**Issue:**
-For the upstream combined entry `INTEL/2732,2732A,M2732,M2732A`, the alias set contains both
-`M2732` (25000 mV) and `M2732A` (21000 mV). "Highest VPP wins" selects 25000 mV → `vpp_mv`
-exceeds the 22000 mV ceiling → the whole record is marked `vpp-exceeds-max`. But the same record
-*is* the programmable 21V M2732A. So a chip the operator could legitimately program (21V ≤ 22V)
-is classified unprogrammable. The test `test_nmos_m2732a_supported` (test file L190-215)
-deliberately excludes combined entries (`"M2732A" in al and "M2732" not in al`), so this loss of
-function is invisible to the test suite. The L570-571 comment claims "M2732A (21V) is within the
-RURP ceiling" — true in isolation, but the combined-entry path contradicts it.
+**File:** `firestarter_app/tools/check_dispatch.py:158-183`, `309-317`
 
-**Fix:** Confirm the intended behavior. If a combined entry should remain programmable at the
-lower safe voltage, the override must not promote a record to `vpp-exceeds-max` when at least one
-alias is within the ceiling; or the build should split the combined record. At minimum, document
-that combined NMOS entries are intentionally conservatively blocked, and add a test asserting the
-`2732,2732A,M2732,M2732A` record's resulting `support_status` so the behavior is pinned.
+**Issue:** `non_dispatchable_count` is incremented (line 183) only inside the
+`else` arm of the `handler not in (...)` check, itself nested under
+`if chip_ss != "supported":`. The PASS line advertises it as
+"`{n} chips confirmed non-dispatchable`". The relationship
+`non_dispatchable_count == non_supported_count` (14 == 14 today) holds ONLY because
+every non-supported chip currently dispatches safely in the simulation. If a future
+DB contained an unsafe entry, these two counters would disagree
+(e.g. `non_supported_count=14`, `non_dispatchable_count=13`), yet the mismatch is
+never asserted — the gate relies entirely on the `non_supported_dispatchable` list
+membership. The redundant counter adds confusion without adding a check.
 
-### WR-03: NMOS status override can clobber an earlier adapter-required/protocol classification
-
-**File:** `firestarter_app/tools/build_db.py:562-569`
-**Issue:**
-The NMOS block unconditionally assigns `_support_status = "vpp-exceeds-max"` (and overwrites
-`_unsupported_reason`) when `_nmos_vpp_mv > ceiling`, regardless of whether an earlier gate
-already set `adapter-required` (L416) or `protocol-not-implemented` (L391). If a chip ever
-matched both an earlier gate and an NMOS alias above the ceiling, the earlier (possibly more
-hazardous) classification and its reason string are silently lost. No current chip hits this, but
-the ordering is fragile and undocumented as a precedence rule.
-
-**Fix:** Make precedence explicit — only downgrade to `vpp-exceeds-max` when the status is still
-`supported`, mirroring the existing comment style:
-
+**Fix:** After the loop, assert the relationship to make the counters load-bearing:
 ```python
-if _nmos_vpp_mv is not None and _nmos_vpp_mv > RURP_VPP_CEILING_MV:
-    if _support_status == "supported":
-        _support_status = "vpp-exceeds-max"
-        _unsupported_reason = (...)
-    # else: a stronger gate already classified this chip; keep it.
+assert non_dispatchable_count == non_supported_count, (
+    f"{non_supported_count - non_dispatchable_count} non-supported chip(s) "
+    f"resolved to a real handler"
+)
 ```
 
-### WR-04: diff_db NEW-chips check hardcodes Rule-1; Phase 66 new chips spuriously WARN
+### WR-04: `KNOWN_PROTOCOLS` triplicated with an intentional membership divergence (0x34) enforced only by a comment
 
-**File:** `firestarter_app/tools/diff_db.py:421-439`
-**Issue:**
-The NEW-chips reporting block is hardcoded to expect every new chip to be a "Rule 1 unblock
-(DIP24_2816 + algo=0x0D)" and prints `WARN: new chip ... is NOT a Rule 1 unblock` otherwise.
-Phase 66 adds new chips that are NOT Rule-1: X88C64P (`protocol-not-implemented`, algo 0x34) and
-the 9 `adapter-required` 24-pin EEPROMs (algo 0x07/0x08/0x0B, pinout DIP24_2716). All of these
-will print the spurious WARN even though they are the intended Phase-66 inclusions. It does not
-fail the gate (WARN only), but the report is misleading for the very phase under review.
+**File:** `firestarter_app/tools/check_dispatch.py:73-87` vs `firestarter_app/tools/build_db.py:98-113`
 
-**Fix:** Generalize the new-chip verification to recognize the Phase-66 inclusion shapes
-(non-`supported` chips with a non-empty `unsupported_reason`) in addition to Rule-1 unblocks,
-and only WARN on a new chip that matches none of the expected shapes.
+**Issue:** `check_dispatch.KNOWN_PROTOCOLS` is a deliberate SUBSET of
+`build_db.KNOWN_PROTOCOLS` — it omits `0x34` so D-10 assertion 2 passes for
+X88C64P. The divergence is correct but fragile: it is enforced solely by prose
+("Do NOT add 0x34 here"). Anyone "syncing" the two sets — a natural reaction to the
+`0x34` mismatch — silently breaks assertion 2, and nothing fails. A third copy in
+`firestarter_app/CLAUDE.md` drifts independently.
 
-### WR-05: support_status is never consumed at runtime — no enforcement layer exists
-
-**File:** `firestarter_app/firestarter/database.py:466-555` (consumers absent)
-**Issue:**
-`grep` across `database.py`, `eprom_operations.py`, `cli_handlers.py`, and `chip_resolver.py`
-finds zero references to `support_status` / `adapter-required` / `vpp-exceeds-max` /
-`protocol-not-implemented`. The field is written by `build_db.py` and read only by the offline
-`check_dispatch.py` gate. There is no path that prevents `firestarter write <non-supported>` from
-proceeding. Combined with CR-01 (algorithm left dispatchable), the taxonomy provides no actual
-operator protection. Even if CR-01 is fixed by leaving algorithm intact and gating at the host,
-that host gate does not yet exist.
-
-**Fix:** Add a runtime guard in the write/program path (e.g., in `chip_resolver.resolve_chip` or
-`cli_handlers`) that refuses to build a programmer command when
-`support_status != "supported"`, surfacing `unsupported_reason` to the operator. This is the
-enforcement half of the feature and should land before the catalog inclusions ship.
+**Fix:** Derive the mirror in code so the divergence is explicit and self-checking:
+```python
+from build_db import KNOWN_PROTOCOLS as _BUILD_KNOWN
+KNOWN_PROTOCOLS = _BUILD_KNOWN - {0x34}  # 0x34 included at build but "not implemented"
+```
+or add a test asserting `check_dispatch.KNOWN_PROTOCOLS == build_db.KNOWN_PROTOCOLS - {0x34}`.
 
 ## Info
 
-### IN-01: Bare `except:` clauses swallow all exceptions including SystemExit/KeyboardInterrupt
+### IN-01: Bare `except:` clauses swallow all exceptions including KeyboardInterrupt
 
-**File:** `firestarter_app/tools/build_db.py:301, 346`
-**Issue:** `interpret_timing` (L299-302) and the per-chip decode (L340-347) use bare `except:`,
-which catches `KeyboardInterrupt`/`SystemExit` and hides real decode bugs as silent `continue`/0.
-**Fix:** Narrow to the expected exception types, e.g. `except (ValueError, TypeError):`.
+**File:** `firestarter_app/tools/build_db.py:308-311`, `349-356`
 
-### IN-02: Test docstrings claim "EXPECTED TO FAIL (RED)" but tests pass post-regeneration
+**Issue:** `interpret_timing` uses a bare `except:` (line 310) that catches
+`BaseException` (including `KeyboardInterrupt`/`SystemExit`) and silently defaults
+`val = 0`. The package-decode site (line 355) uses the same bare `except:` and
+silently `continue`s on any malformed `ic`. These predate 66-04 but live in the
+reviewed file and mask malformed-XML data-quality issues.
 
-**File:** `firestarter_app/tests/test_build_db_inclusion.py:12-15` and per-test RED notes
-**Issue:** The module docstring and several test docstrings (e.g., L70-73, L120-123, L167-169)
-assert the tests must fail until Plan 03 lands. Plan 03 has landed (the DB now has 744
-`support_status` entries and the suite passes 7/7). The RED notes are now stale and misleading to
-a future reader debugging the suite.
-**Fix:** Update the docstrings to GREEN/post-implementation wording, or remove the RED notes.
+**Fix:** Narrow to `except (ValueError, TypeError):` so unexpected failures and
+interrupts propagate.
 
-### IN-03: Test suite does not assert the HARD non-dispatchability invariant
+### IN-02: fm1608 provenance log prints a stale back-computed "from" algorithm
 
-**File:** `firestarter_app/tests/test_build_db_inclusion.py` (whole file)
-**Issue:** The scaffold verifies presence of `support_status`, reasons, and VPP values, but no
-test asserts that non-supported chips are non-dispatchable — the single most important safety
-property of the phase. CR-01 would have been caught by such a test.
-**Fix:** Add a test that, for every chip with `support_status != "supported"`, asserts its
-`programming.algorithm` does not resolve to a real handler (reuse the `check_dispatch.dispatch`
-table), so the invariant is pinned in CI rather than only in the offline gate.
+**File:** `firestarter_app/tools/build_db.py:532-537`
+
+**Issue:** Inside the fm1608 block `proto_id` is set to `0x28` (line 519), then the
+log at line 534 prints `0x{proto_id-0x21:02X}` (= `0x07`) to reconstruct the source
+algorithm. This back-computation only yields the intended `0x07`; for chips that
+arrived via `0x08`/`0x0B` the displayed "from" value is wrong (an `0x0B`-origin FRAM
+is mislabeled `0x07`). Cosmetic (stderr provenance only).
+
+**Fix:** Capture the original algorithm into a local before the override and log
+that value verbatim instead of arithmetic on the post-override value.
 
 ---
 
