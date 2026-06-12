@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: — Firmware Protocol Dispatch Hardening + Skeletons
-status: executing
-stopped_at: Phase 66 context gathered
-last_updated: "2026-06-12T10:23:21.082Z"
+status: verifying
+stopped_at: Phase 66 Plan 03 complete
+last_updated: "2026-06-12T11:40:00.000Z"
 last_activity: 2026-06-12
 progress:
   total_phases: 12
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 19
-  completed_plans: 16
-  percent: 42
+  completed_plans: 17
+  percent: 89
 ---
 
 # Project State
@@ -21,9 +21,9 @@ progress:
 
 ## Current Position
 
-Phase: 66 (db-inclusion-vpp-correction-dispatch-gate) — EXECUTING
-Plan: 3 of 3
-Status: Ready to execute
+Phase: 66 (db-inclusion-vpp-correction-dispatch-gate) — COMPLETE
+Plan: 3 of 3 (all plans done)
+Status: Phase 66 complete; Phase 67 next
 Last activity: 2026-06-12
 
 ## Project Reference
@@ -137,8 +137,8 @@ no bench session required to close. Dual-repo lockstep (firmware + host).
 
 ## Session Continuity
 
-Last session: 2026-06-12T10:23:21.078Z
-Stopped at: Phase 66 context gathered
+Last session: 2026-06-12T11:40:00.000Z
+Stopped at: Phase 66 Plan 03 — DB inclusion + VPP correction + dispatch gate payload complete
 Resume file: None
 
 ## Decisions
@@ -153,6 +153,9 @@ _(v1.12 decisions will be recorded here as phases execute.)_
 - [Phase ?]: Phase 65-01: GATE-1.8d ringfence pin updated for planned Response.id addition (v1.12 in-scope)
 - [Phase 65-02]: Option B applied — expect_ack raises ProtocolNotImplementedError when response.id == MSG_ERR_PROTOCOL_NOT_IMPLEMENTED; Tuple[bool, Optional[str]] arity unchanged; zero caller-unpacking edits needed
 - [Phase 65-02]: WR-02 closed — all 4 state-machine ERROR sites now route through _raise_for_error_response; production-path proven by Test A integration test (REAL EpromOperator + CliRunner)
+- [Phase 66-03]: support_status taxonomy (supported|protocol-not-implemented|adapter-required|vpp-exceeds-max) now on every chip in chip_database.json (744 chips); RURP_VPP_CEILING_MV=22000; highest-VPP-wins for NMOS combined entries (M2716/M2732=25V/vpp-exceeds-max, M2732A=21V/supported)
+- [Phase 66-03]: D-11 authorized: dispatch_baseline.json regenerated to 744 chips; all 10 new chips enumerated in commit message and SUMMARY.md
+- [Phase 66-03]: D-03 HARD honored: adapter-required 24-pin EEPROMs keep original proto_id, no working handler wired; check_dispatch assertion 1 confirms all 9 carry unsupported_reason
 
 ## Performance Metrics
 
@@ -170,6 +173,7 @@ _(v1.12 decisions will be recorded here as phases execute.)_
 | Phase 63 P01 | 35min | - tasks | - files |
 | Phase 65 P01 | 17min | - tasks | - files |
 | Phase 65 P02 | 10min | 3 tasks | 3 files |
+| Phase 66 P03 | 40min | 2 tasks | 5 files |
 
 ## Deferred Items
 

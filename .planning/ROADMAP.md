@@ -473,7 +473,7 @@ Plans:
 
 **Wave 2** *(blocked on 66-01 + 66-02)*
 
-- [ ] 66-03-PLAN.md — build_db.py inclusion gates (0x34 include / 9 EEPROMs adapter-required) + NMOS VPP dict + RURP_VPP_CEILING_MV=22000 + support_status on every chip; regen DB to 744 under py3.11; check_dispatch + diff_db + 7 inclusion tests + full suite green; regen dispatch_baseline (D-11) (DB-01, DB-03, DB-05)
+- [x] 66-03-PLAN.md — build_db.py inclusion gates (0x34 include / 9 EEPROMs adapter-required) + NMOS VPP dict + RURP_VPP_CEILING_MV=22000 + support_status on every chip; regen DB to 744 under py3.11; check_dispatch + diff_db + 7 inclusion tests + full suite green; regen dispatch_baseline (D-11) (DB-01, DB-03, DB-05)
 
 **UI hint**: no
 
@@ -569,7 +569,7 @@ Plans:
 | 63 | v1.12 | 1/1 | Complete    | 2026-06-11 |
 | 64 | v1.12 | 2/2 | Complete    | 2026-06-11 |
 | 65 | v1.12 | 2/2 | Complete    | 2026-06-11 |
-| 66 | v1.12 | 2/3 | In Progress|  |
+| 66 | v1.12 | 3/3 | Complete   | 2026-06-12 |
 | 67 | v1.12 | 0/TBD | Not started | — |
 | 68 (close) | v1.12 | 0/TBD | Not started | — |
 
