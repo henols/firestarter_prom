@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: — Firmware Protocol Dispatch Hardening + Skeletons
-status: verifying
-stopped_at: Phase 66 Plan 03 complete
-last_updated: "2026-06-12T11:40:00.000Z"
+status: executing
+stopped_at: Phase 66 Plan 04 — SC#3 / DB-05 gap-closure complete; all 4 plans of Phase 66 done
+last_updated: "2026-06-12T13:00:00.000Z"
 last_activity: 2026-06-12
 progress:
   total_phases: 12
   completed_phases: 6
-  total_plans: 19
-  completed_plans: 17
-  percent: 89
+  total_plans: 20
+  completed_plans: 19
+  percent: 95
 ---
 
 # Project State
@@ -21,9 +21,9 @@ progress:
 
 ## Current Position
 
-Phase: 66 (db-inclusion-vpp-correction-dispatch-gate) — COMPLETE
-Plan: 3 of 3 (all plans done)
-Status: Phase 66 complete; Phase 67 next
+Phase: 66 (db-inclusion-vpp-correction-dispatch-gate) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
 Last activity: 2026-06-12
 
 ## Project Reference
@@ -137,8 +137,8 @@ no bench session required to close. Dual-repo lockstep (firmware + host).
 
 ## Session Continuity
 
-Last session: 2026-06-12T11:40:00.000Z
-Stopped at: Phase 66 Plan 03 — DB inclusion + VPP correction + dispatch gate payload complete
+Last session: 2026-06-12T13:00:00.000Z
+Stopped at: Phase 66 Plan 04 — SC#3 gap-closure complete; all 4 plans of Phase 66 done; DB-05 SATISFIED
 Resume file: None
 
 ## Decisions
@@ -156,6 +156,11 @@ _(v1.12 decisions will be recorded here as phases execute.)_
 - [Phase 66-03]: support_status taxonomy (supported|protocol-not-implemented|adapter-required|vpp-exceeds-max) now on every chip in chip_database.json (744 chips); RURP_VPP_CEILING_MV=22000; highest-VPP-wins for NMOS combined entries (M2716/M2732=25V/vpp-exceeds-max, M2732A=21V/supported)
 - [Phase 66-03]: D-11 authorized: dispatch_baseline.json regenerated to 744 chips; all 10 new chips enumerated in commit message and SUMMARY.md
 - [Phase 66-03]: D-03 HARD honored: adapter-required 24-pin EEPROMs keep original proto_id, no working handler wired; check_dispatch assertion 1 confirms all 9 carry unsupported_reason
+- [Phase 66-04]: CR-01 Option A applied — NON_DISPATCHABLE_ALGO=0x00 at Site B (adapter-required) + Site C (vpp-exceeds-max); dispatch(0x00, None)→ERROR; D-03 HARD enforced at data layer; DB-05 SATISFIED
+- [Phase 66-04]: CR-02 applied — non_supported_dispatchable bucket in check_dispatch.py; PASS message truthful; gate now detects dangerous inverse (non-supported→real handler)
+- [Phase 66-04]: IN-03 applied — 8th CI test pins SC#3 invariant; 494 tests green; cov≥70
+- [Phase 66-04]: D-11 authorized deviation — 13 dispatch_baseline.json triples changed (0x0B/configure_eprom → 0x00/ERROR); reviewed and enumerated in SUMMARY.md
+- [Phase 66-04]: errors bucket fix (Rule 1) — guard on chip_ss==supported so non-supported ERROR outcomes are not false-failed
 
 ## Performance Metrics
 
@@ -174,6 +179,7 @@ _(v1.12 decisions will be recorded here as phases execute.)_
 | Phase 65 P01 | 17min | - tasks | - files |
 | Phase 65 P02 | 10min | 3 tasks | 3 files |
 | Phase 66 P03 | 40min | 2 tasks | 5 files |
+| Phase 66 P04 | 45min | 3 tasks | 7 files |
 
 ## Deferred Items
 
