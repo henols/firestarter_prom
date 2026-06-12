@@ -464,7 +464,7 @@ Plans:
   3. `check_dispatch.py` exits clean (0 errors) across the full regenerated DB: entries with any non-`supported` `support_status` do NOT resolve to a programming handler (they produce a `not_supported` outcome); the pre-existing GATE-03 VPP-safety guard and wire round-trip checks remain green.
   4. A per-chip diff (via `diff_db.py` or equivalent) accounts for every new or changed entry — additions carry a documented rationale (`protocol-not-implemented` or `vpp-exceeds-max` / corrected-VPP) and no unexplained diffs appear.
 
-**Plans**: 3 plans
+**Plans**: 4 plans (3 shipped + 1 gap closure)
 Plans:
 **Wave 1** *(parallel — no file overlap)*
 
@@ -474,6 +474,10 @@ Plans:
 **Wave 2** *(blocked on 66-01 + 66-02)*
 
 - [x] 66-03-PLAN.md — build_db.py inclusion gates (0x34 include / 9 EEPROMs adapter-required) + NMOS VPP dict + RURP_VPP_CEILING_MV=22000 + support_status on every chip; regen DB to 744 under py3.11; check_dispatch + diff_db + 7 inclusion tests + full suite green; regen dispatch_baseline (D-11) (DB-01, DB-03, DB-05)
+
+**Wave 3 — gap closure** *(SC#3 BLOCKER; blocked on 66-03)*
+
+- [ ] 66-04-PLAN.md — SC#3/DB-05 gap closure: set proto_id=NON_DISPATCHABLE_ALGO(0x00) at Site B (adapter-required) + Site C (vpp-exceeds-max) so the 13 non-supported chips dispatch to ERROR not configure_eprom (CR-01 Option A); add non_supported_dispatchable gate assertion + truthful PASS to check_dispatch.py (CR-02); pin the SC#3 invariant in a CI test (IN-03); regen DB + dispatch_baseline; diff_db/check_dispatch/full suite green (DB-05)
 
 **UI hint**: no
 
