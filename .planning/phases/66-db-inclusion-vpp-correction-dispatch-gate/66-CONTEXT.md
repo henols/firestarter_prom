@@ -138,6 +138,24 @@ non-dispatchable; gate stays green).
   explicitly in the plan/commit. Note: the Phase-62 `dispatch_baseline.json` (D-04)
   deliberately **excluded `vpp_mv`**, so it churns only from the **new included
   chips**, not the VPP corrections. (Rejected: append-only / known-new allowlist.)
+- **D-12 (operator-authorized scope amendment, 2026-06-12 — supersedes the D-10
+  deferral for the host guard only):** Verification of 66-04 proved SC#3 **cannot**
+  be closed at the data/gate layer alone — `database.py::_map_data` ignores
+  `support_status` and, for `algorithm==0` + `electrical.type=="UV-EPROM"` entries,
+  falls through to a `type_str` heuristic yielding `mem_type=1` → firmware
+  `configure_eprom` (12V VPP) for the 4 `vpp-exceeds-max` NMOS EPROMs (a
+  hardware-damage path). The operator **authorizes pulling the Phase 68 (DB-04)
+  host-refusal guard forward** into this gap-closure (same precedent as the D-02
+  adapter-required safety pull-in): add a `support_status != "supported"` guard in
+  the host runtime that raises before any program-capable wire dict is emitted, and
+  realign `check_dispatch.py` + the CI invariant test to model `_map_data`'s real
+  mem_type derivation (so the gate FAILs on any future reintroduction). D-10's
+  "host refuses at Phase 68" framing is amended: **the host guard now ships in
+  Phase 66**; Phase 68 DB-04 is therefore partially delivered (status-specific
+  messaging / per-operation UX remain in 68). This keeps the gate **green AND
+  truthful** while actually closing the hazard. (Rejected: gate-honesty-only —
+  turns the gate RED with no hazard fix; document-and-defer — ships a known 12V
+  hazard.)
 
 ### Claude's Discretion
 - Exact `support_status` enum string values + `unsupported_reason` message
