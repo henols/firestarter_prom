@@ -4,13 +4,13 @@ milestone: v1.12
 milestone_name: — Firmware Protocol Dispatch Hardening + Skeletons
 status: executing
 stopped_at: Phase 66 context gathered
-last_updated: "2026-06-12T10:01:17.370Z"
-last_activity: 2026-06-12 -- Phase 66 planning complete
+last_updated: "2026-06-12T10:17:05.339Z"
+last_activity: 2026-06-12
 progress:
   total_phases: 12
   completed_phases: 5
   total_plans: 19
-  completed_plans: 14
+  completed_plans: 15
   percent: 42
 ---
 
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 66
-Plan: Not started
+Phase: 66 (db-inclusion-vpp-correction-dispatch-gate) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-06-12 -- Phase 66 planning complete
+Last activity: 2026-06-12
 
 ## Project Reference
 
@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-10 for v1.12)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 65 — host-graceful-handling
+**Current focus:** Phase 66 — db-inclusion-vpp-correction-dispatch-gate
 dispatch eliminating the silent VPP-hazard `mem_type` fallback path; new
 `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` wire response (lockstep dual-repo); host
 `ProtocolNotImplementedError` + clear CLI message; capability-honest DB inclusion
@@ -137,9 +137,9 @@ no bench session required to close. Dual-repo lockstep (firmware + host).
 
 ## Session Continuity
 
-Last session: 2026-06-12T09:09:57.928Z
+Last session: 2026-06-12T10:17:05.332Z
 Stopped at: Phase 66 context gathered
-Resume file: .planning/phases/66-db-inclusion-vpp-correction-dispatch-gate/66-CONTEXT.md
+Resume file: None
 
 ## Decisions
 
