@@ -464,7 +464,17 @@ Plans:
   3. `check_dispatch.py` exits clean (0 errors) across the full regenerated DB: entries with any non-`supported` `support_status` do NOT resolve to a programming handler (they produce a `not_supported` outcome); the pre-existing GATE-03 VPP-safety guard and wire round-trip checks remain green.
   4. A per-chip diff (via `diff_db.py` or equivalent) accounts for every new or changed entry — additions carry a documented rationale (`protocol-not-implemented` or `vpp-exceeds-max` / corrected-VPP) and no unexplained diffs appear.
 
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+**Wave 1** *(parallel — no file overlap)*
+
+- [ ] 66-01-PLAN.md — Wave 0: cherry-pick diff_db.py + pin 734-chip chip_database.baseline.json + RULE_PHASE66 rationale/field-paths/classify arm + RED tests/test_build_db_inclusion.py (DB-05)
+- [ ] 66-02-PLAN.md — check_dispatch.py rework: not_implemented FAIL-only-if-supported (D-10) + 3 consistency assertions; dispatch() memory.cpp mirror preserved; gate green on current DB (DB-05)
+
+**Wave 2** *(blocked on 66-01 + 66-02)*
+
+- [ ] 66-03-PLAN.md — build_db.py inclusion gates (0x34 include / 9 EEPROMs adapter-required) + NMOS VPP dict + RURP_VPP_CEILING_MV=22000 + support_status on every chip; regen DB to 744 under py3.11; check_dispatch + diff_db + 7 inclusion tests + full suite green; regen dispatch_baseline (D-11) (DB-01, DB-03, DB-05)
+
 **UI hint**: no
 
 ### Phase 67: Pinout Classification for Unclassifiable DIP Chips
