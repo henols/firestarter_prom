@@ -525,11 +525,17 @@ Plans:
   4. Full pytest suite green (cov ≥ 70); `ruff check` + `ruff format --check` + mypy pass against the CI target; no `chip_database.json` churn (this is host runtime/display code).
 
 **Plans:** 3 plans
-
 Plans:
+**Wave 1**
 
 - [ ] 69-01-PLAN.md — Root fix in ic_layout._generate_pin_names_for_display (scalar-extract list-valued pin fields) + new tests/test_ic_layout.py (SC#1, SC#3)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 69-02-PLAN.md — CLI command-surface smoke audit + info regression with REAL presenter; flip info happy-path to exit 0 (SC#2, SC#3)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 69-03-PLAN.md — Regenerate test_info_known_chip snapshot, realign mypy watermark, full CI gate green on CI target (SC#4)
 
 ### v1.12 Coverage

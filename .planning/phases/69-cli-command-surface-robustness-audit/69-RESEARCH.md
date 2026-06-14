@@ -601,7 +601,7 @@ No threat vectors introduced by this phase.
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should `_pin_scalar` be a private method or a module-level function?**
    - What we know: `get_bus_config` uses an inline expression, not a helper
