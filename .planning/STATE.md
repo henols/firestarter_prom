@@ -70,6 +70,10 @@ Resumes at Phase 45 when the operator picks it back up.
 
 ## Accumulated Context
 
+### Roadmap Evolution
+
+- Phase 69 added (2026-06-14): CLI Command-Surface Robustness Audit — investigate and secure that all `firestarter` commands run without crashing. Triggered by a live `TypeError: '<=' not supported between 'list' and 'int'` in `firestarter info 2732` (`ic_layout._generate_pin_names_for_display` treats pin-map `vpp-pin`/`rw-pin`/`oe-pin` as ints, but `pinouts.json` stores them as lists e.g. `[21]`; the info/display path crashes broadly, not just for 2732). HOST-ONLY.
+
 ### v1.12 Scope Lock (2026-06-10)
 
 Research finding: the SKELETON-NEEDED bucket is **empty**. Every RURP-feasible DIP-parallel-memory

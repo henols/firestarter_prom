@@ -512,6 +512,24 @@ Plans:
 **Plans**: TBD
 **UI hint**: no
 
+### Phase 69: CLI Command-Surface Robustness Audit
+
+**Goal:** Investigate and secure that all `firestarter` commands run without crashing. Triggered by a live `TypeError: '<=' not supported between instances of 'list' and 'int'` in `firestarter info <chip>` — `ic_layout._generate_pin_names_for_display` (ic_layout.py:394/396/402) compares pin-map `vpp-pin`/`rw-pin`/`oe-pin` against `pin_count` with `<=`, but `pinouts.json` stores every one of those as a **list** (e.g. `vpp-pin: [21]`), not an int. Because all pin-maps are list-valued, the info/display path crashes broadly — not just for `2732`. Root-cause and fix the list-vs-int pin-name display bug (decide whether the contract is list-valued pin fields or scalar, and align `ic_layout.py` + `pinouts.json` + any other consumer accordingly), then audit every CLI command (info, list, search, read, write, erase, verify, blank-check, id, and the `dev` sub-commands) for crash-free execution against representative chips — including the Phase 66 newly-included/corrected entries (2732 family `vpp-exceeds-max`, adapter-required 24-pin EEPROMs) — with regression tests pinning each command surface so a malformed/edge-case DB record can never again crash a read-only display command. HOST-ONLY.
+**Depends on:** Phase 68 (the `support_status` taxonomy + honest-reporting display surface is the final shape the info/display path must render without crashing).
+**Requirements**: TBD
+**Success Criteria** (what must be TRUE):
+
+  1. `firestarter info 2732` (and `info` on every other DB chip) completes without raising — the list-vs-int pin-name display bug at `ic_layout.py:394/396/402` is fixed at its root (pin-field contract aligned across `ic_layout.py` and `pinouts.json`), not patched at one call site.
+  2. A smoke audit exercises every CLI command surface (info, list, search, read, write, erase, verify, blank-check, id, dev sub-commands) against representative chips and confirms each runs to a clean, intended outcome (success or an intended typed error / `support_status` refusal) — never an unhandled traceback.
+  3. Regression tests pin each command surface, including a list-valued-pin `info` test and at least one Phase 66 corrected/included chip per non-supported status, so the crash class cannot reappear.
+  4. Full pytest suite green (cov ≥ 70); `ruff check` + `ruff format --check` + mypy pass against the CI target; no `chip_database.json` churn (this is host runtime/display code).
+
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 69 to break down)
+
 ### v1.12 Coverage
 
 | Requirement | Phase | Status |
