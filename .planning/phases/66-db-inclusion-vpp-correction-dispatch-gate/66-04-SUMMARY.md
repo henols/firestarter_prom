@@ -222,7 +222,7 @@ None. T-66-10/T-66-11/T-66-12/T-66-13 all mitigated:
 - **T-66-12 (Tampering / future regression):** CI test `TestNonSupportedNonDispatchable` pins the invariant in the test suite; a future `build_db.py` change that re-introduces the routing will fail CI.
 - **T-66-13 (Tampering / false-green baseline):** `dispatch_baseline.json` reviewed D-11 deviation; 13 changed triples enumerated above; `diff_db.py` independently re-derives every change against the pinned `chip_database.baseline.json` and BLOCKs on any unexplained delta (exit 0 confirmed).
 
-## Self-Check: PASSED
+## Self-Check: PASSED (verified post-commit)
 
 Files exist:
 - `/workspaces/firestarter_app/tools/build_db.py` — FOUND (contains NON_DISPATCHABLE_ALGO=0x00, proto_id=NON_DISPATCHABLE_ALGO ×2)

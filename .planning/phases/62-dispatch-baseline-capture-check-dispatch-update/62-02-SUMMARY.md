@@ -111,7 +111,8 @@ completed: 2026-06-10
 ## Self-Check: PASSED
 
 - `firestarter_app/tools/baseline/dispatch_baseline.json` — FOUND
-- commit `17254e2` — FOUND (verified via `git log --oneline -3` in firestarter_app)
+- commit `17254e2` (firestarter_app submodule) — FOUND
+- commit `b56da4d` (meta-repo planning artifacts) — FOUND
 
 ---
 *Phase: 62-dispatch-baseline-capture-check-dispatch-update*

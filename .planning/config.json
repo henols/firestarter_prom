@@ -3,12 +3,20 @@
   "parallelization": "enabled",
   "granularity": "Comprehensive",
   "workflow": {
-    "_auto_chain_active": false
+    "_auto_chain_active": false,
+    "research": true,
+    "plan_check": true,
+    "verifier": true,
+    "code_review": true
   },
   "planning": {
     "sub_repos": [
       "firestarter",
       "firestarter_app"
     ]
+  },
+  "model_profile": "adaptive",
+  "git": {
+    "branching_strategy": "milestone"
   }
 }
