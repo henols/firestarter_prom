@@ -508,7 +508,7 @@ Plans:
 
 **Wave 1**
 
-- [ ] 67.1-01-PLAN.md — DB build pipeline: DB-02 SRAM pinout rules (DIP24_6116 + native-28-pin DIP28_JEDEC_SRAM_8K/DIP28_28C256) + DB-04 Approach-A reason-string rewrites; regen DB; diff_db (14 SRAM pinout changes) + check_dispatch + inclusion tests (DB-02, DB-04)
+- [x] 67.1-01-PLAN.md — DB build pipeline: DB-02 SRAM pinout rules (DIP24_6116 + native-28-pin DIP28_JEDEC_SRAM_8K/DIP28_28C256) + DB-04 Approach-A reason-string rewrites; regen DB; diff_db (14 SRAM pinout changes) + check_dispatch + inclusion tests (DB-02, DB-04)
 
 **Wave 2** *(blocked on 67.1-01)*
 

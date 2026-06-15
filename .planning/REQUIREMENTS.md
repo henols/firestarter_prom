@@ -40,9 +40,9 @@
 **Capability taxonomy** (machine-readable `support_status` + `unsupported_reason` per chip): `supported` | `protocol-not-implemented` | `adapter-required` | `vpp-exceeds-max`. Only genuinely-irrelevant serial / GAL-PLD / MCU / SMD-only parts stay skipped entirely.
 
 - [x] **DB-01**: `build_db.py` no longer silently drops DIP parallel-memory chips (24/28/32-pin, Memory/SRAM type). Chips with an **unknown/unimplemented `protocol_id`** are INCLUDED in `chip_database.json` marked `support_status: protocol-not-implemented` (NOT routed to a handler) — so they are visible and "can maybe be resolved later" when/if the protocol is implemented. Serial/GAL/MCU/SMD parts remain skipped (existing warning).
-- [ ] **DB-02**: **Pinouts are classified, not skipped.** For DIP parallel chips whose pinout `build_db.py` currently can't classify, make a best-effort principled classification to a RURP pinout (extending the Phase-58 `resolve_pinout_key` rules). Only if a chip genuinely cannot be mapped correctly to RURP's bus is it INCLUDED marked `support_status: adapter-required` with a note on what adapter/mapping would be needed (tie to the existing `firestarter info --adapter` concept). No DIP-parallel chip is dropped for pinout reasons.
+- [x] **DB-02**: **Pinouts are classified, not skipped.** For DIP parallel chips whose pinout `build_db.py` currently can't classify, make a best-effort principled classification to a RURP pinout (extending the Phase-58 `resolve_pinout_key` rules). Only if a chip genuinely cannot be mapped correctly to RURP's bus is it INCLUDED marked `support_status: adapter-required` with a note on what adapter/mapping would be needed (tie to the existing `firestarter info --adapter` concept). No DIP-parallel chip is dropped for pinout reasons.
 - [x] **DB-03**: **Correct VPP is recorded, not the truncated cap.** For DIP parallel chips authoritatively known to need a VPP above the upstream 18V `infoic.xml` cap (the documented NMOS family — Intel `M2716`/`M2732` = 25V, `M2732A` = 21V, and equivalents), the DB records the **true VPP**. `support_status` is then derived from the RURP hardware VPP ceiling (~22V): true VPP > ceiling → `vpp-exceeds-max`; true VPP within range → `supported` at the corrected voltage. (The exact ceiling, the curated known-exception list, and NMOS-vs-CMOS alias splitting are resolved at plan time — scope is the authoritatively-known cases, not a blanket VPP re-survey.)
-- [ ] **DB-04**: The host reports capability honestly — `firestarter info <chip>` shows the `support_status` + reason; `firestarter write` / `read` / `verify` on a non-`supported` chip prints a clear, status-specific message ("protocol not implemented" / "adapter required: <note>" / "VPP <x>V exceeds programmer max") and does NOT attempt the hardware operation (rather than silently failing, mis-programming at a wrong voltage, or "chip not found").
+- [x] **DB-04**: The host reports capability honestly — `firestarter info <chip>` shows the `support_status` + reason; `firestarter write` / `read` / `verify` on a non-`supported` chip prints a clear, status-specific message ("protocol not implemented" / "adapter required: <note>" / "VPP <x>V exceeds programmer max") and does NOT attempt the hardware operation (rather than silently failing, mis-programming at a wrong voltage, or "chip not found").
 - [x] **DB-05**: The correctness/dispatch gate accounts for non-`supported` entries — `check_dispatch.py` (and the per-chip diff) treat them as non-dispatchable (they must NOT resolve to a programming handler) and the gate stays green across the regenerated DB.
 
 ---
@@ -80,9 +80,9 @@
 | HOST-01 | Phase 65 | Complete |
 | HOST-02 | Phase 65 | Complete |
 | DB-01 | Phase 66 | Complete |
-| DB-02 | Phase 67 | Pending |
+| DB-02 | Phase 67 | Complete |
 | DB-03 | Phase 66 | Complete |
-| DB-04 | Phase 68 | Pending |
+| DB-04 | Phase 68 | Complete |
 | DB-05 | Phase 66 | Complete |
 
 **Mapped: 17/17 requirements ✓** — no orphans, no duplicates.

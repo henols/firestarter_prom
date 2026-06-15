@@ -4,13 +4,13 @@ milestone: v1.12
 milestone_name: — Firmware Protocol Dispatch Hardening + Skeletons
 status: executing
 stopped_at: "Phase 66 Plan 05 — SC#3/DB-05 gap-closure complete (D-12 host guard ships); 5 plans of Phase 66 done"
-last_updated: "2026-06-15T12:40:18.356Z"
-last_activity: 2026-06-15 -- Phase 67.1 planning complete
+last_updated: "2026-06-15T13:18:10.672Z"
+last_activity: 2026-06-15
 progress:
   total_phases: 14
   completed_phases: 7
   total_plans: 26
-  completed_plans: 22
+  completed_plans: 23
   percent: 50
 ---
 
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 69
-Plan: Not started
+Phase: 67.1 (close-gaps-db-02-pinout-classification-db-04-capability-repo) — EXECUTING
+Plan: 2 of 2
 Status: Ready to execute
-Last activity: 2026-06-15 -- Phase 67.1 planning complete
+Last activity: 2026-06-15
 
 ## Project Reference
 
@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-10 for v1.12)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 69 — cli-command-surface-robustness-audit
+**Current focus:** Phase 67.1 — close-gaps-db-02-pinout-classification-db-04-capability-repo
 dispatch eliminating the silent VPP-hazard `mem_type` fallback path; new
 `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` wire response (lockstep dual-repo); host
 `ProtocolNotImplementedError` + clear CLI message; capability-honest DB inclusion
@@ -142,7 +142,7 @@ no bench session required to close. Dual-repo lockstep (firmware + host).
 
 ## Session Continuity
 
-Last session: 2026-06-15T08:15:25.815Z
+Last session: 2026-06-15T13:18:10.665Z
 Stopped at: Phase 66 Plan 05 — SC#3/DB-05 gap-closure complete (D-12 host guard ships); 5 plans of Phase 66 done
 Resume file: None
 
@@ -172,6 +172,10 @@ _(v1.12 decisions will be recorded here as phases execute.)_
 - [Phase 69-02]: All three SC#3 non-supported statuses pinned at CLI: vpp-exceeds-max (M2716), adapter-required (AT28C16), protocol-not-implemented (X88C64P); info DISPLAYS all three; chip-ops refuse with typed exit 1
 - [Phase 69-02]: X88C64P is the sole protocol-not-implemented chip in chip_database.json (part_number alias "X88C64P,X88C64S", protocol 0x34 XICOR NovRAM); no DB churn needed
 - [Phase 69-03]: Watermark bumped 26→29: honest post-fix floor (ic_layout fix 2 new mypy errors + Phase 65 test 1); no config loosening; SC#4 full CI gate green
+- [Phase 67.1-01]: D-02 Option B applied — native-28-pin SRAM block in main() loop after fm1608 override; avoids resolve_pinout_key signature change; parallels existing fm1608 override pattern
+- [Phase 67.1-01]: D-01 Approach A applied — unsupported_reason strings reworded in build_db.py (Sites A/B/C); DB is single source of truth; Plan 02 will print f"{e}" verbatim
+- [Phase 67.1-01]: DB-02 closed — 14 SRAM chips corrected (4 × DIP24_6116 Group 1; 10 × DIP28_JEDEC_SRAM_8K/DIP28_28C256 Group 2); diff_db: 14 SRAM_PINOUT; check_dispatch: 730/14 GREEN
+- [Phase 67.1-01]: DB-04 SC#2 source half closed — reason strings begin with "VPP Xv exceeds programmer max" / "adapter required:" / "protocol not implemented:"; 520 tests green
 
 ## Performance Metrics
 
@@ -195,6 +199,7 @@ _(v1.12 decisions will be recorded here as phases execute.)_
 | Phase 69 P01 | 20min | 2 tasks | 5 files |
 | Phase 69 P02 | 20min | 2 tasks | 2 files |
 | Phase 69 P03 | 10min | 1 task (Task 1 pre-done by 69-01) | 1 file |
+| Phase 67.1 P01 | 35min | 2 tasks | 3 files (build_db.py + chip_database.json + test_build_db_inclusion.py); 14 SRAM pinouts corrected; 7 new tests; 520 tests green |
 
 ## Deferred Items
 
