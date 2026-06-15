@@ -60,6 +60,7 @@ No network, auth, secrets, session, or crypto surface in this phase (read-only h
 | Audit Date | Threats Total | Closed | Open | Run By |
 |------------|---------------|--------|------|--------|
 | 2026-06-15 | 7 | 7 | 0 | gsd-security-auditor (sonnet) |
+| 2026-06-15 | 7 | 7 | 0 | /gsd-secure-phase re-verify (mitigations spot-checked in code: ic_layout.py:396-412, chip_resolver.py:54-57, pyproject.toml:115, 6 CLI smoke tests) |
 
 ---
 
