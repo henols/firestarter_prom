@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: — Firmware Protocol Dispatch Hardening + Skeletons
-status: verifying
+status: executing
 stopped_at: "Phase 66 Plan 05 — SC#3/DB-05 gap-closure complete (D-12 host guard ships); 5 plans of Phase 66 done"
-last_updated: "2026-06-15T08:41:16.260Z"
-last_activity: 2026-06-15
+last_updated: "2026-06-15T12:40:18.356Z"
+last_activity: 2026-06-15 -- Phase 67.1 planning complete
 progress:
-  total_phases: 13
+  total_phases: 14
   completed_phases: 7
-  total_plans: 24
+  total_plans: 26
   completed_plans: 22
-  percent: 54
+  percent: 50
 ---
 
 # Project State
@@ -23,8 +23,8 @@ progress:
 
 Phase: 69
 Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-06-15
+Status: Ready to execute
+Last activity: 2026-06-15 -- Phase 67.1 planning complete
 
 ## Project Reference
 
@@ -72,6 +72,7 @@ Resumes at Phase 45 when the operator picks it back up.
 
 ### Roadmap Evolution
 
+- Phase 67.1 inserted after Phase 67 (2026-06-15, URGENT): Close gaps: DB-02 pinout classification + DB-04 capability reporting. Gap-closure phase covering the DB-02 (pinout classification) and DB-04 (capability reporting) gaps surfaced by the v1.12 milestone audit; sits within the Phase 66 `support_status` taxonomy framework that Phases 67/68 build on. HOST-ONLY.
 - Phase 69 added (2026-06-14): CLI Command-Surface Robustness Audit — investigate and secure that all `firestarter` commands run without crashing. Triggered by a live `TypeError: '<=' not supported between 'list' and 'int'` in `firestarter info 2732` (`ic_layout._generate_pin_names_for_display` treats pin-map `vpp-pin`/`rw-pin`/`oe-pin` as ints, but `pinouts.json` stores them as lists e.g. `[21]`; the info/display path crashes broadly, not just for 2732). HOST-ONLY.
 
 ### v1.12 Scope Lock (2026-06-10)
