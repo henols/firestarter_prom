@@ -62,6 +62,7 @@ No network, auth, secrets, session, or crypto surface in this phase (read-only h
 | 2026-06-15 | 7 | 7 | 0 | gsd-security-auditor (sonnet) |
 | 2026-06-15 | 7 | 7 | 0 | /gsd-secure-phase re-verify (mitigations spot-checked in code: ic_layout.py:396-412, chip_resolver.py:54-57, pyproject.toml:115, 6 CLI smoke tests) |
 | 2026-06-15 | 7 | 7 | 0 | /gsd-secure-phase re-verify #2 — register matches plan-time STRIDE (3 PLAN `<threat_model>` blocks). All mitigations re-confirmed present: ic_layout list-scalar extract (396-412) + regression tests (W27C512/AT28C256/2732/M2716); chip_resolver `ChipNotImplementedError` guard (54-57); watermark=29 (pyproject:115) + characterization `rc == 0` asserts; 6 CLI smoke tests. No drift; threats_open: 0. |
+| 2026-06-15 | 7 | 7 | 0 | /gsd-secure-phase re-verify #3 — register origin reconfirmed (3 PLAN `<threat_model>` blocks → authored at plan time; short-circuit applies). Live gates re-run (py3.12.13): `pytest test_ic_layout.py test_cli_handlers.py test_characterization.py` PASS (106 tests + 29 snapshots). Mitigation sites confirmed present: ic_layout list-scalar extract (`ic_layout.py:396,401,407,412`); chip_resolver `ChipNotImplementedError` guard (`chip_resolver.py:55-57`); watermark=29 (`pyproject.toml:115`). No drift; threats_open: 0. |
 
 ---
 

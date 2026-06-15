@@ -167,4 +167,34 @@ surface. Residual T-66-09 py3.11 recommendation unchanged.
 
 ---
 
+## Security Audit 2026-06-15 (re-verification, pass 3)
+
+State-A re-audit (`/gsd-secure-phase 66`). Register origin reconfirmed: all 5 PLAN
+files carry a parseable `<threat_model>` block → `register_authored_at_plan_time:
+true`; short-circuit applies (threats_open: 0). Mitigations re-verified live in
+`firestarter_app/` code, not trusted from prior passes.
+
+| Metric | Count |
+|--------|-------|
+| Threats found | 18 |
+| Closed | 18 |
+| Open | 0 |
+
+Read-only gate re-run (this audit, Python 3.12.13):
+
+| Gate | Command | Result |
+|------|---------|--------|
+| Dispatch safety | `python3 tools/check_dispatch.py` | PASS (exit 0): 744 scanned; 730 supported; 14 non-dispatchable; 0 non_supported_dispatchable; 0 regressions |
+| Per-chip diff | `python3 tools/diff_db.py` | PASS (exit 0): 734 changed explained; 10 new; 0 missing |
+| Inclusion + runtime guard | `pytest tests/test_build_db_inclusion.py tests/test_chip_resolver.py` | PASS (24/24) |
+| Load-bearing host guard | `chip_resolver.py:55-57` raises ChipNotImplementedError before `convert_to_programmer` | PRESENT |
+| Demotion sites | `build_db.py:446` (Site B) + `:650` (Site C) `proto_id = NON_DISPATCHABLE_ALGO` | PRESENT |
+
+**Line-number drift note (non-blocking):** `build_db.py` demotion sites have shifted
+since the original register text (Site B 442→446, Site C 584→650) as the file grew;
+both demotion assignments are intact and behaviorally unchanged. No mitigation
+regressed. `threats_open: 0` — no disposition changes; no new attack surface.
+
+---
+
 *Phase: 66-db-inclusion-vpp-correction-dispatch-gate*
