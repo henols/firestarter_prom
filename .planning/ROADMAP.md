@@ -895,6 +895,7 @@ Host runtime code (`chip_resolver.py`, `exceptions.py`, `cli_handlers.py`,
 separately and is performed in lockstep at the beta cut.
 
 **v1.12 safety features to re-port onto `resolve_pinout_key`:**
+
 - `support_status` taxonomy: `protocol-not-implemented` / `adapter-required` / `vpp-exceeds-max`
 - true-NMOS-VPP correction (M2716/M2732 = 25V, M2732A = 21V) + `RURP_VPP_CEILING` (~22V) demotion
 - `0x34` / X88C64P (XICOR NovRAM) classified as protocol-not-implemented (not WARN-skipped)
@@ -902,6 +903,7 @@ separately and is performed in lockstep at the beta cut.
 - `NON_DISPATCHABLE_ALGO = 0x00` for non-supported chips
 
 **Success criteria:**
+
 1. `build_db.py` uses v1.11's `resolve_pinout_key()` as the sole pinout path (no `DIP28_VARIANT_MAP` resurrected); all v1.12 `support_status`/VPP-safety features present.
 2. `chip_database.json` regenerated from the integrated `build_db.py`; v1.11 decode-correctness preserved (no 0x35/0x39; correct VPP nibble + vcc/vdd).
 3. `check_dispatch.py` GATE-03 green: no non-`supported` chip reaches a real handler; 0 chips route `configure_eprom` onto a no-vpp-pin / wrong-pin pinout.
@@ -912,10 +914,19 @@ separately and is performed in lockstep at the beta cut.
 **Requirements**: v1.12 milestone close prerequisite (beta merge)
 **Depends on:** Phase 69 (v1.12 execution-complete), v1.11 phases 56–61 (on beta)
 **Plans:** 4 plans
-
 Plans:
+**Wave 1**
 
 - [ ] 70-01-PLAN.md — Transplant beta's resolve_pinout_key + graft v1.12 safety features into build_db.py (SC#1, SC#2)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 70-02-PLAN.md — Regenerate DB; integrate check_dispatch GATE-03 + diff_db two-stage; refresh baseline (SC#3, SC#4)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 70-03-PLAN.md — Reconcile test/snapshot/golden fixtures; full host CI gate green (SC#5)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 70-04-PLAN.md — Firmware v1.12->beta merge + build + native tests + wire parity; firestarter_app v1.12->beta merge, no tag (SC#6)
