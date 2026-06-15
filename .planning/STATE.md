@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: — Firmware Protocol Dispatch Hardening + Skeletons
 status: verifying
-stopped_at: "Phase 69 Plan 03 — SC#4 CI gate realignment complete; mypy watermark 26→29; all 3 plans of Phase 69 done"
-last_updated: "2026-06-15T08:24:05.040Z"
+stopped_at: "Phase 66 Plan 05 — SC#3/DB-05 gap-closure complete (D-12 host guard ships); 5 plans of Phase 66 done"
+last_updated: "2026-06-15T08:41:16.260Z"
 last_activity: 2026-06-15
 progress:
   total_phases: 13
@@ -21,8 +21,8 @@ progress:
 
 ## Current Position
 
-Phase: 69 (cli-command-surface-robustness-audit) — EXECUTING
-Plan: 3 of 3
+Phase: 69
+Plan: Not started
 Status: Phase complete — ready for verification
 Last activity: 2026-06-15
 

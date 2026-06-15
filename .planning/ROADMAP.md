@@ -524,7 +524,7 @@ Plans:
   3. Regression tests pin each command surface, including a list-valued-pin `info` test and at least one Phase 66 corrected/included chip per non-supported status, so the crash class cannot reappear.
   4. Full pytest suite green (cov ≥ 70); `ruff check` + `ruff format --check` + mypy pass against the CI target; no `chip_database.json` churn (this is host runtime/display code).
 
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 Plans:
 **Wave 1**
 
