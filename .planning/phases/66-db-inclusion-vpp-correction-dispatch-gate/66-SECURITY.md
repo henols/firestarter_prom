@@ -139,4 +139,32 @@ unchanged (see Notes).
 
 ---
 
+## Security Audit 2026-06-15 (re-verification, pass 2)
+
+State-A re-audit. Register origin reconfirmed: all 5 PLAN files carry a parseable
+`<threat_model>` block → `register_authored_at_plan_time: true`. All SUMMARY
+`## Threat Flags` (Plans 01/03/04/05) and Plan 02 `## Threat Model Review` re-checked
+— every flag maps to a registered, CLOSED threat ID; no unmapped surface. Mitigations
+re-verified live in `firestarter_app/` code (not trusted from prior pass).
+
+| Metric | Count |
+|--------|-------|
+| Threats found | 18 |
+| Closed | 18 |
+| Open | 0 |
+
+Read-only gate re-run (this audit, Python 3.12.13):
+
+| Gate | Command | Result |
+|------|---------|--------|
+| Dispatch safety | `python3 tools/check_dispatch.py` | PASS (exit 0): 744 scanned; 730 supported; 14 non-dispatchable; 0 non_supported_dispatchable; 0 regressions |
+| Per-chip diff | `python3 tools/diff_db.py` | PASS (exit 0): 734 changed explained; 10 new; 0 missing |
+| Inclusion + runtime guard | `pytest tests/test_build_db_inclusion.py tests/test_chip_resolver.py` | PASS (17/17) |
+| Load-bearing host guard | `chip_resolver.py:54-57` raises ChipNotImplementedError before `convert_to_programmer` | PRESENT |
+
+`threats_open: 0` — short-circuit honored. No disposition changes; no new attack
+surface. Residual T-66-09 py3.11 recommendation unchanged.
+
+---
+
 *Phase: 66-db-inclusion-vpp-correction-dispatch-gate*
