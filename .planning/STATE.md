@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: — Firmware Protocol Dispatch Hardening + Skeletons
-status: executing
-stopped_at: "Phase 69 Plan 02 — SC#2+SC#3 CLI smoke audit complete; all three non-supported statuses pinned at CLI surface"
-last_updated: "2026-06-15T08:35:00.000Z"
+status: verifying
+stopped_at: "Phase 69 Plan 03 — SC#4 CI gate realignment complete; mypy watermark 26→29; all 3 plans of Phase 69 done"
+last_updated: "2026-06-15T08:24:05.040Z"
 last_activity: 2026-06-15
 progress:
   total_phases: 13
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 24
-  completed_plans: 21
-  percent: 46
+  completed_plans: 22
+  percent: 54
 ---
 
 # Project State
@@ -23,7 +23,7 @@ progress:
 
 Phase: 69 (cli-command-surface-robustness-audit) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-06-15
 
 ## Project Reference
@@ -170,6 +170,7 @@ _(v1.12 decisions will be recorded here as phases execute.)_
 - [Phase 69-02]: REAL EpromConsolePresenter(db) injection required for info tests — default Mock returns None from prepare_detailed_eprom_data and masks the ic_layout fix
 - [Phase 69-02]: All three SC#3 non-supported statuses pinned at CLI: vpp-exceeds-max (M2716), adapter-required (AT28C16), protocol-not-implemented (X88C64P); info DISPLAYS all three; chip-ops refuse with typed exit 1
 - [Phase 69-02]: X88C64P is the sole protocol-not-implemented chip in chip_database.json (part_number alias "X88C64P,X88C64S", protocol 0x34 XICOR NovRAM); no DB churn needed
+- [Phase 69-03]: Watermark bumped 26→29: honest post-fix floor (ic_layout fix 2 new mypy errors + Phase 65 test 1); no config loosening; SC#4 full CI gate green
 
 ## Performance Metrics
 
@@ -191,6 +192,8 @@ _(v1.12 decisions will be recorded here as phases execute.)_
 | Phase 66 P04 | 45min | 3 tasks | 7 files |
 | Phase 66 P05 | 40min | - tasks | - files |
 | Phase 69 P01 | 20min | 2 tasks | 5 files |
+| Phase 69 P02 | 20min | 2 tasks | 2 files |
+| Phase 69 P03 | 10min | 1 task (Task 1 pre-done by 69-01) | 1 file |
 
 ## Deferred Items
 

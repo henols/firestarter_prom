@@ -536,7 +536,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 69-03-PLAN.md — Regenerate test_info_known_chip snapshot, realign mypy watermark, full CI gate green on CI target (SC#4)
+- [x] 69-03-PLAN.md — Regenerate test_info_known_chip snapshot, realign mypy watermark, full CI gate green on CI target (SC#4)
 
 ### v1.12 Coverage
 
