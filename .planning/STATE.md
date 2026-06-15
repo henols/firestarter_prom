@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: — Firmware Protocol Dispatch Hardening + Skeletons
 status: completed
-stopped_at: Completed 67.1-02-PLAN.md
-last_updated: "2026-06-15T13:51:23.900Z"
+stopped_at: Phase 70 context gathered
+last_updated: "2026-06-15T20:36:58.971Z"
 last_activity: 2026-06-15 -- Phase 67.1 marked complete
 progress:
   total_phases: 14
@@ -74,6 +74,7 @@ Resumes at Phase 45 when the operator picks it back up.
 
 - Phase 67.1 inserted after Phase 67 (2026-06-15, URGENT): Close gaps: DB-02 pinout classification + DB-04 capability reporting. Gap-closure phase covering the DB-02 (pinout classification) and DB-04 (capability reporting) gaps surfaced by the v1.12 milestone audit; sits within the Phase 66 `support_status` taxonomy framework that Phases 67/68 build on. HOST-ONLY.
 - Phase 69 added (2026-06-14): CLI Command-Surface Robustness Audit — investigate and secure that all `firestarter` commands run without crashing. Triggered by a live `TypeError: '<=' not supported between 'list' and 'int'` in `firestarter info 2732` (`ic_layout._generate_pin_names_for_display` treats pin-map `vpp-pin`/`rw-pin`/`oe-pin` as ints, but `pinouts.json` stores them as lists e.g. `[21]`; the info/display path crashes broadly, not just for 2732). HOST-ONLY.
+- Phase 70 added (2026-06-15): v1.11 + v1.12 DB-Pipeline Integration for Beta Merge — discovered while attempting `merge v1.12 → beta` for milestone close. v1.12 was forked off the PRE-v1.11 beta (`faaa571`), so its DB-build pipeline (`build_db.py`/`check_dispatch.py`/`diff_db.py`) collides architecturally with v1.11's Phase 58 rewrite (`resolve_pinout_key` replaced the deleted `DIP28_VARIANT_MAP`). Re-port v1.12's DB safety features onto v1.11's architecture; regenerate DB; validate via GATE-03 + diff_db + CI. Firmware merges clean separately. HOST-ONLY DB tooling. Blocks v1.12 milestone close + beta cut.
 
 ### v1.12 Scope Lock (2026-06-10)
 
@@ -142,9 +143,9 @@ no bench session required to close. Dual-repo lockstep (firmware + host).
 
 ## Session Continuity
 
-Last session: 2026-06-15T13:33:54.906Z
-Stopped at: Completed 67.1-02-PLAN.md
-Resume file: None
+Last session: 2026-06-15T20:36:58.964Z
+Stopped at: Phase 70 context gathered
+Resume file: .planning/phases/70-v1-11-v1-12-db-pipeline-integration-for-beta-merge/70-CONTEXT.md
 
 ## Decisions
 
