@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: — Firmware Protocol Dispatch Hardening + Skeletons
-status: executing
-stopped_at: "Phase 66 Plan 05 — SC#3/DB-05 gap-closure complete (D-12 host guard ships); 5 plans of Phase 66 done"
-last_updated: "2026-06-15T13:18:10.672Z"
+status: verifying
+stopped_at: Completed 67.1-02-PLAN.md
+last_updated: "2026-06-15T13:33:54.910Z"
 last_activity: 2026-06-15
 progress:
   total_phases: 14
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 26
-  completed_plans: 23
-  percent: 50
+  completed_plans: 24
+  percent: 57
 ---
 
 # Project State
@@ -23,7 +23,7 @@ progress:
 
 Phase: 67.1 (close-gaps-db-02-pinout-classification-db-04-capability-repo) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-06-15
 
 ## Project Reference
@@ -142,8 +142,8 @@ no bench session required to close. Dual-repo lockstep (firmware + host).
 
 ## Session Continuity
 
-Last session: 2026-06-15T13:18:10.665Z
-Stopped at: Phase 66 Plan 05 — SC#3/DB-05 gap-closure complete (D-12 host guard ships); 5 plans of Phase 66 done
+Last session: 2026-06-15T13:33:54.906Z
+Stopped at: Completed 67.1-02-PLAN.md
 Resume file: None
 
 ## Decisions
@@ -176,6 +176,8 @@ _(v1.12 decisions will be recorded here as phases execute.)_
 - [Phase 67.1-01]: D-01 Approach A applied — unsupported_reason strings reworded in build_db.py (Sites A/B/C); DB is single source of truth; Plan 02 will print f"{e}" verbatim
 - [Phase 67.1-01]: DB-02 closed — 14 SRAM chips corrected (4 × DIP24_6116 Group 1; 10 × DIP28_JEDEC_SRAM_8K/DIP28_28C256 Group 2); diff_db: 14 SRAM_PINOUT; check_dispatch: 730/14 GREEN
 - [Phase 67.1-01]: DB-04 SC#2 source half closed — reason strings begin with "VPP Xv exceeds programmer max" / "adapter required:" / "protocol not implemented:"; 520 tests green
+- [Phase ?]: DB-04 Approach A: map_typed_errors renders ChipNotImplementedError reason verbatim; dropped Chip not usable prefix — DB string is single source of truth for both info display and chip-op refusal
+- [Phase ?]: DB-04 SC#1 info injection gated on support_status != supported (Pitfall 3 compliance); caplog used to capture logger.warning in CliRunner tests where _setup_logging is bypassed
 
 ## Performance Metrics
 
@@ -200,6 +202,7 @@ _(v1.12 decisions will be recorded here as phases execute.)_
 | Phase 69 P02 | 20min | 2 tasks | 2 files |
 | Phase 69 P03 | 10min | 1 task (Task 1 pre-done by 69-01) | 1 file |
 | Phase 67.1 P01 | 35min | 2 tasks | 3 files (build_db.py + chip_database.json + test_build_db_inclusion.py); 14 SRAM pinouts corrected; 7 new tests; 520 tests green |
+| Phase 67.1 P02 | 25 | - tasks | - files |
 
 ## Deferred Items
 

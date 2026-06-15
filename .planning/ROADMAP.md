@@ -512,7 +512,7 @@ Plans:
 
 **Wave 2** *(blocked on 67.1-01)*
 
-- [ ] 67.1-02-PLAN.md — Host capability reporting: info status-specific support line + chip-op refusal renders reason verbatim + per-status CLI matrix (3 info + 3 refusal); full CI gate green (DB-04)
+- [x] 67.1-02-PLAN.md — Host capability reporting: info status-specific support line + chip-op refusal renders reason verbatim + per-status CLI matrix (3 info + 3 refusal); full CI gate green (DB-04)
 
 ### Phase 68: Host Capability Reporting
 
