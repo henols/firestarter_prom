@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: — Firmware Protocol Dispatch Hardening + Skeletons
 status: executing
-stopped_at: "Phase 66 Plan 05 — SC#3/DB-05 gap-closure complete (D-12 host guard ships); 5 plans of Phase 66 done"
-last_updated: "2026-06-15T08:04:42.132Z"
+stopped_at: "Phase 69 Plan 02 — SC#2+SC#3 CLI smoke audit complete; all three non-supported statuses pinned at CLI surface"
+last_updated: "2026-06-15T08:35:00.000Z"
 last_activity: 2026-06-15
 progress:
   total_phases: 13
   completed_phases: 6
   total_plans: 24
-  completed_plans: 20
+  completed_plans: 21
   percent: 46
 ---
 
@@ -22,7 +22,7 @@ progress:
 ## Current Position
 
 Phase: 69 (cli-command-surface-robustness-audit) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-06-15
 
@@ -141,7 +141,7 @@ no bench session required to close. Dual-repo lockstep (firmware + host).
 
 ## Session Continuity
 
-Last session: 2026-06-15T08:04:36.014Z
+Last session: 2026-06-15T08:15:25.815Z
 Stopped at: Phase 66 Plan 05 — SC#3/DB-05 gap-closure complete (D-12 host guard ships); 5 plans of Phase 66 done
 Resume file: None
 
@@ -167,6 +167,9 @@ _(v1.12 decisions will be recorded here as phases execute.)_
 - [Phase 66-04]: errors bucket fix (Rule 1) — guard on chip_ss==supported so non-supported ERROR outcomes are not false-failed
 - [Phase ?]: Phase 66-05: D-12 honored — ChipNotImplementedError host guard in resolve_chip closes 12V-VPP hazard; check_dispatch realigned to _map_data etype fallback; DB-05 satisfied at runtime boundary
 - [Phase ?]: Phase 69-01: Inline scalar-extraction at each pin-field site — no named helper, matching database.get_bus_config pattern
+- [Phase 69-02]: REAL EpromConsolePresenter(db) injection required for info tests — default Mock returns None from prepare_detailed_eprom_data and masks the ic_layout fix
+- [Phase 69-02]: All three SC#3 non-supported statuses pinned at CLI: vpp-exceeds-max (M2716), adapter-required (AT28C16), protocol-not-implemented (X88C64P); info DISPLAYS all three; chip-ops refuse with typed exit 1
+- [Phase 69-02]: X88C64P is the sole protocol-not-implemented chip in chip_database.json (part_number alias "X88C64P,X88C64S", protocol 0x34 XICOR NovRAM); no DB churn needed
 
 ## Performance Metrics
 

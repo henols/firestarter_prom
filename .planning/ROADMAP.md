@@ -532,7 +532,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 69-02-PLAN.md — CLI command-surface smoke audit + info regression with REAL presenter; flip info happy-path to exit 0 (SC#2, SC#3)
+- [x] 69-02-PLAN.md — CLI command-surface smoke audit + info regression with REAL presenter; flip info happy-path to exit 0 (SC#2, SC#3)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
