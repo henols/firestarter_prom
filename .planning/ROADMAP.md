@@ -873,3 +873,49 @@ Plans:
      the v1.11 archive: .planning/milestones/v1.11-ROADMAP.md. -->
 
 _Backlog items 999.1 / 999.2 are firmware bench-investigation items (Phase 54 UAT origin) — promote with `/gsd-review-backlog` when bench hardware is available._
+
+### Phase 70: v1.11 + v1.12 DB-Pipeline Integration for Beta Merge
+
+**Goal:** Make `v1.12-protocol-dispatch-hardening` mergeable into the v1.11-bearing
+`beta` with zero regression to v1.11 decode-correctness and zero 12V-to-wrong-pin
+hazard. v1.12 was forked off the **pre-v1.11** beta (`faaa571`), so its DB-build
+pipeline collides architecturally with v1.11's Phase 58 rewrite: v1.11 deleted
+`DIP28_VARIANT_MAP`/`PIN_MAP_TO_PINOUT` and replaced pinout selection with the
+principled `resolve_pinout_key()`, while v1.12's DB-02 SRAM fixes are post-hoc
+overrides built on the deleted architecture. This is an integration (re-port), NOT
+a conflict-merge. Re-express v1.12's DB safety features on top of v1.11's
+`resolve_pinout_key`, keeping v1.11's decode fixes (0x35/0x39 removed per DEC-05;
+`voltages & 0xF0` VPP-nibble mask; corrected vcc/vdd bit positions).
+
+**Scope (HOST-ONLY DB tooling — `firestarter_app`):**
+`tools/build_db.py`, `tools/check_dispatch.py`, `tools/diff_db.py`, generated
+`chip_database.json` (regenerate, never hand-merge), and their tests/snapshots/golden.
+Host runtime code (`chip_resolver.py`, `exceptions.py`, `cli_handlers.py`,
+`frame_parser.py`) already merges clean. Firmware (`firestarter`) merges clean
+separately and is performed in lockstep at the beta cut.
+
+**v1.12 safety features to re-port onto `resolve_pinout_key`:**
+- `support_status` taxonomy: `protocol-not-implemented` / `adapter-required` / `vpp-exceeds-max`
+- true-NMOS-VPP correction (M2716/M2732 = 25V, M2732A = 21V) + `RURP_VPP_CEILING` (~22V) demotion
+- `0x34` / X88C64P (XICOR NovRAM) classified as protocol-not-implemented (not WARN-skipped)
+- capability-honest inclusion gates (include-but-flag unsupported DIP parallel chips)
+- `NON_DISPATCHABLE_ALGO = 0x00` for non-supported chips
+
+**Success criteria:**
+1. `build_db.py` uses v1.11's `resolve_pinout_key()` as the sole pinout path (no `DIP28_VARIANT_MAP` resurrected); all v1.12 `support_status`/VPP-safety features present.
+2. `chip_database.json` regenerated from the integrated `build_db.py`; v1.11 decode-correctness preserved (no 0x35/0x39; correct VPP nibble + vcc/vdd).
+3. `check_dispatch.py` GATE-03 green: no non-`supported` chip reaches a real handler; 0 chips route `configure_eprom` onto a no-vpp-pin / wrong-pin pinout.
+4. `diff_db.py` accounts for every changed chip vs the v1.11 beta DB with a documented rule; 0 unexplained.
+5. Full test suite + ruff + mypy watermark + coverage floor green (CI gate).
+6. v1.12 branch merges into beta clean after integration; firmware merge staged lockstep.
+
+**Requirements**: v1.12 milestone close prerequisite (beta merge)
+**Depends on:** Phase 69 (v1.12 execution-complete), v1.11 phases 56–61 (on beta)
+**Plans:** 4 plans
+
+Plans:
+
+- [ ] 70-01-PLAN.md — Transplant beta's resolve_pinout_key + graft v1.12 safety features into build_db.py (SC#1, SC#2)
+- [ ] 70-02-PLAN.md — Regenerate DB; integrate check_dispatch GATE-03 + diff_db two-stage; refresh baseline (SC#3, SC#4)
+- [ ] 70-03-PLAN.md — Reconcile test/snapshot/golden fixtures; full host CI gate green (SC#5)
+- [ ] 70-04-PLAN.md — Firmware v1.12->beta merge + build + native tests + wire parity; firestarter_app v1.12->beta merge, no tag (SC#6)
