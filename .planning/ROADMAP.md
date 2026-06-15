@@ -497,6 +497,23 @@ Plans:
 **Plans**: TBD
 **UI hint**: no
 
+### Phase 67.1: Close gaps: DB-02 pinout classification + DB-04 capability reporting (INSERTED)
+
+**Goal:** Close the two outstanding v1.12 database-completeness gaps surfaced by the milestone audit, consolidating the never-executed Phases 67 (DB-02) and 68 (DB-04) into one host-only closure. DB-02: every DIP parallel-memory chip whose pinout `build_db.py` currently can't classify receives a principled best-effort RURP mapping by extending the Phase-58 `resolve_pinout_key` rules — only genuinely-unmappable chips are included as `support_status: adapter-required` with an adapter note; no DIP parallel chip is dropped for pinout reasons. DB-04: the host reports capability honestly — `firestarter info <chip>` shows `support_status` + a status-specific reason, and `write`/`read`/`verify` on a non-`supported` chip prints a clear status-specific message ("protocol not implemented" / "adapter required: <note>" / "VPP <x>V exceeds programmer max") and refuses entirely in the host before any serial communication. Builds on the Phase 66 `support_status` taxonomy and the refusal/display work already pulled forward in 66-05 and Phase 69. HOST-ONLY — no firmware change.
+**Requirements**: DB-02, DB-04
+**Depends on:** Phase 66 (the DB inclusion pipeline + `support_status` taxonomy framework; 66-05 host refusal guard and Phase 69 display robustness are already in place — this phase completes the DB-02 pinout sweep and the DB-04 status-specific narrative + per-status CLI test matrix on top of them)
+**Plans:** 2 plans
+
+Plans:
+
+**Wave 1**
+
+- [ ] 67.1-01-PLAN.md — DB build pipeline: DB-02 SRAM pinout rules (DIP24_6116 + native-28-pin DIP28_JEDEC_SRAM_8K/DIP28_28C256) + DB-04 Approach-A reason-string rewrites; regen DB; diff_db (14 SRAM pinout changes) + check_dispatch + inclusion tests (DB-02, DB-04)
+
+**Wave 2** *(blocked on 67.1-01)*
+
+- [ ] 67.1-02-PLAN.md — Host capability reporting: info status-specific support line + chip-op refusal renders reason verbatim + per-status CLI matrix (3 info + 3 refusal); full CI gate green (DB-04)
+
 ### Phase 68: Host Capability Reporting
 
 **Goal**: The host uses the `support_status` field produced by Phases 66-67 to give the operator clear, honest feedback — `firestarter info` shows the `support_status` and reason for every non-`supported` chip; `firestarter write` / `read` / `verify` on a non-`supported` chip prints a clear, status-specific message ("protocol not implemented" / "adapter required: <note>" / "VPP <x>V exceeds programmer max") and does NOT attempt the hardware operation.
