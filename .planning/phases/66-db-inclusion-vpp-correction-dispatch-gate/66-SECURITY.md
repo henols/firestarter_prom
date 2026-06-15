@@ -106,4 +106,37 @@ during implementation without a threat mapping.
 | Runtime boundary guard | `pytest tests/test_chip_resolver.py` | PASS (M2716/AT28C04 raise; convert_to_programmer not called) |
 | Non-supported → real handler | dispatch() one-liner over live DB | 0 of 14 reach a real handler |
 
+---
+
+## Security Audit 2026-06-15 (re-verification)
+
+State-A re-audit: register re-derived from all 5 PLAN `<threat_model>` blocks
+(`register_authored_at_plan_time: true`) and cross-checked against every SUMMARY
+`## Threat Flags` / `## Threat Model Review` section (all "None", every flag mapped
+to a registered ID). Mitigations independently re-verified in code, not trusted from
+the prior pass.
+
+| Metric | Count |
+|--------|-------|
+| Threats found | 18 |
+| Closed | 18 |
+| Open | 0 |
+
+Read-only gate re-run (this audit):
+
+| Gate | Command | Result |
+|------|---------|--------|
+| Dispatch safety | `python3 tools/check_dispatch.py` | PASS (exit 0): 744 scanned; 730 supported; 14 non-dispatchable; 0 non_supported_dispatchable; 0 regressions |
+| Per-chip diff | `python3 tools/diff_db.py` | PASS (exit 0): 734 changed explained; 10 new; 0 unexplained |
+| Inclusion + runtime guard | `pytest tests/test_build_db_inclusion.py tests/test_chip_resolver.py` | PASS (17/17) |
+| Load-bearing host guard | `chip_resolver.py:54-57` raises ChipNotImplementedError before `convert_to_programmer` | PRESENT |
+| Demotion sites | `build_db.py:442` (Site B) + `:584` (Site C) `proto_id = NON_DISPATCHABLE_ALGO` | PRESENT |
+| Non-supported → real handler | live DB: 14 non-supported chips | 0 reach a real handler |
+
+`threats_open: 0` — short-circuit honored (register authored at plan time, all CLOSED).
+No new attack surface; no disposition changes. Residual T-66-09 py3.11 recommendation
+unchanged (see Notes).
+
+---
+
 *Phase: 66-db-inclusion-vpp-correction-dispatch-gate*
