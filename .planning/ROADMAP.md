@@ -528,7 +528,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 69-01-PLAN.md — Root fix in ic_layout._generate_pin_names_for_display (scalar-extract list-valued pin fields) + new tests/test_ic_layout.py (SC#1, SC#3)
+- [x] 69-01-PLAN.md — Root fix in ic_layout._generate_pin_names_for_display (scalar-extract list-valued pin fields) + new tests/test_ic_layout.py (SC#1, SC#3)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 

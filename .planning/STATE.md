@@ -4,13 +4,13 @@ milestone: v1.12
 milestone_name: — Firmware Protocol Dispatch Hardening + Skeletons
 status: executing
 stopped_at: "Phase 66 Plan 05 — SC#3/DB-05 gap-closure complete (D-12 host guard ships); 5 plans of Phase 66 done"
-last_updated: "2026-06-14T19:17:08.197Z"
-last_activity: 2026-06-14 -- Phase 69 planning complete
+last_updated: "2026-06-15T08:04:42.132Z"
+last_activity: 2026-06-15
 progress:
   total_phases: 13
   completed_phases: 6
   total_plans: 24
-  completed_plans: 19
+  completed_plans: 20
   percent: 46
 ---
 
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 66 — COMPLETE
-Plan: 2 of 5
+Phase: 69 (cli-command-surface-robustness-audit) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-06-14 -- Phase 69 planning complete
+Last activity: 2026-06-15
 
 ## Project Reference
 
@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-10 for v1.12)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 66 — db-inclusion-vpp-correction-dispatch-gate
+**Current focus:** Phase 69 — cli-command-surface-robustness-audit
 dispatch eliminating the silent VPP-hazard `mem_type` fallback path; new
 `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` wire response (lockstep dual-repo); host
 `ProtocolNotImplementedError` + clear CLI message; capability-honest DB inclusion
@@ -141,7 +141,7 @@ no bench session required to close. Dual-repo lockstep (firmware + host).
 
 ## Session Continuity
 
-Last session: 2026-06-12T12:42:16.527Z
+Last session: 2026-06-15T08:04:36.014Z
 Stopped at: Phase 66 Plan 05 — SC#3/DB-05 gap-closure complete (D-12 host guard ships); 5 plans of Phase 66 done
 Resume file: None
 
@@ -166,6 +166,7 @@ _(v1.12 decisions will be recorded here as phases execute.)_
 - [Phase 66-04]: D-11 authorized deviation — 13 dispatch_baseline.json triples changed (0x0B/configure_eprom → 0x00/ERROR); reviewed and enumerated in SUMMARY.md
 - [Phase 66-04]: errors bucket fix (Rule 1) — guard on chip_ss==supported so non-supported ERROR outcomes are not false-failed
 - [Phase ?]: Phase 66-05: D-12 honored — ChipNotImplementedError host guard in resolve_chip closes 12V-VPP hazard; check_dispatch realigned to _map_data etype fallback; DB-05 satisfied at runtime boundary
+- [Phase ?]: Phase 69-01: Inline scalar-extraction at each pin-field site — no named helper, matching database.get_bus_config pattern
 
 ## Performance Metrics
 
@@ -186,6 +187,7 @@ _(v1.12 decisions will be recorded here as phases execute.)_
 | Phase 66 P03 | 40min | 2 tasks | 5 files |
 | Phase 66 P04 | 45min | 3 tasks | 7 files |
 | Phase 66 P05 | 40min | - tasks | - files |
+| Phase 69 P01 | 20min | 2 tasks | 5 files |
 
 ## Deferred Items
 
