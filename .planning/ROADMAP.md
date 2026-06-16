@@ -413,9 +413,9 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1: native suites need the recording stub + generated header; host tiers need the authored spec)*
 
-- [ ] 71-04-PLAN.md — 6 Tier-1 native Unity suites (provable-by-side-effect + in-tier negative controls; SRAM no-op documented) + `platformio.ini` allowlist (HARN-01 Tier-1, D-07) — deps 71-01, 71-02
-- [ ] 71-05-PLAN.md — 6 Tier-2 host wire round-trip suites via `make_comm`/`fake_serial` (algorithm + dispatch per family; SRAM never→configure_eprom) (HARN-01 Tier-2, D-07) — deps 71-02
-- [ ] 71-06-PLAN.md — `dev validate-family` Tier-3 runner composing the cycle methods + SKIP-deferred (D-06) + emitted `validation-matrix.{json,md}` + non-vacuous PASS oracle (negative control / Leonardo-only-PASS / r1≈270000 / uno328pb N/A) (HARN-01 Tier-3 + HARN-02 + HARN-03, D-05/D-08) — deps 71-02
+- [x] 71-04-PLAN.md — 6 Tier-1 native Unity suites (provable-by-side-effect + in-tier negative controls; SRAM no-op documented) + `platformio.ini` allowlist (HARN-01 Tier-1, D-07) — deps 71-01, 71-02
+- [x] 71-05-PLAN.md — 6 Tier-2 host wire round-trip suites via `make_comm`/`fake_serial` (algorithm + dispatch per family; SRAM never→configure_eprom) (HARN-01 Tier-2, D-07) — deps 71-02
+- [x] 71-06-PLAN.md — `dev validate-family` Tier-3 runner composing the cycle methods + SKIP-deferred (D-06) + emitted `validation-matrix.{json,md}` + non-vacuous PASS oracle (negative control / Leonardo-only-PASS / r1≈270000 / uno328pb N/A) (HARN-01 Tier-3 + HARN-02 + HARN-03, D-05/D-08) — deps 71-02
 
 **UI hint**: no
 
@@ -557,7 +557,7 @@ Plans:
 | 67.1 | v1.12 | 2/2 | ✅ Complete | 2026-06-15 |
 | 69 | v1.12 | 3/3 | ✅ Complete | 2026-06-14 |
 | 70 (close) | v1.12 | 4/4 | ✅ Shipped | 2026-06-16 |
-| 71 | v1.13 | 3/6 | In Progress|  |
+| 71 | v1.13 | 6/6 | Complete   | 2026-06-16 |
 | 72 | v1.13 | 0/TBD | Not started | — |
 | 73 | v1.13 | 0/TBD | Not started | — |
 | 74 | v1.13 | 0/TBD | Not started | — |
