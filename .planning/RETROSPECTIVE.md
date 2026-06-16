@@ -370,6 +370,54 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 
 ---
 
+## Milestone: v1.12 — Firmware Protocol Dispatch Hardening + Skeletons
+
+**Shipped:** 2026-06-16
+**Phases:** 8 delivering (62, 63, 64, 65, 66, 67.1, 69, 70) | **Plans:** 22 | **Timeline:** 2026-06-10 → 2026-06-16 (7 days) | First firmware-touching milestone since v1.10; dual-repo lockstep merged to `beta` (no tag), beta cut operator-gated
+
+### What Was Built
+
+- Firmware **fail-closed dispatch**: `protocol != 0` guard in `configure_memory()` routes every non-zero unimplemented protocol to `configure_not_implemented()` (NULL op pointers, no VPP enable) emitting `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED = 0xBB`; legacy `mem_type` fallback preserved only behind `protocol == 0`; named infeasibility arms for 0x11/0x2A/0x2B/0x2C (Phases 62/63/64; 49/49 native tests, Uno 72.4% flash)
+- Host **typed handling**: `ProtocolNotImplementedError(EpromOperationError)` + centralized id-0xBB raise in the state-machine ERROR path + subclass-first `map_typed_errors` arm; probe/connect boundary wired so the 0xBB frame reaches the CLI instead of masking as `ProgrammerNotFoundError` (Phase 65, incl. gap-closure 65-02)
+- **Capability-honest DB**: `support_status` taxonomy (`protocol-not-implemented`/`adapter-required`/`vpp-exceeds-max`) on every chip; true NMOS VPP (M2716/M2732=25V, M2732A=21V) vs `RURP_VPP_CEILING_MV=22000`; `NON_DISPATCHABLE_ALGO=0x00`; host-refusal guard in `chip_resolver.resolve_chip` (Phase 66); 14 SRAM chips correctly classified + status-specific `info`/refusal narrative (Phase 67.1); DB 743 → 744
+- **CLI robustness** (Phase 69, inserted): root-fixed a live `info` `TypeError` (list-valued pin fields vs `<= pin_count` in `ic_layout.py`) + smoke-audited every command surface with regression tests
+- **Beta-merge integration** (Phase 70, inserted): re-ported the v1.12 DB pipeline onto v1.11's `resolve_pinout_key`, regenerated the DB, merged both sub-repos to `beta` lockstep
+
+### What Worked
+
+- **Baseline-and-gate before touching firmware (Phase 62 first).** Pinning the 743-chip dispatch baseline + updating `check_dispatch.py` *before* any firmware edit meant the regression gate was accurate the entire time the hazard was being closed — the GATE-01/02-first ordering paid off exactly as the research predicted.
+- **Catalog wire change as its own reviewable commit (Phase 63).** Adding 0xBB to `messages.toml` with zero call sites kept the lockstep codegen change auditable in isolation before any code depended on it — clean separation of "define the wire" from "use the wire."
+- **Defense-in-depth on the 12V-VPP hazard.** Firmware guard (`protocol != 0`) + data-layer `NON_DISPATCHABLE_ALGO=0x00` + host guard (`resolve_chip` refusal) — three independent layers, so the host guard alone is authoritative even though the gate detector is hollow.
+- **Audit caught the real gaps; one consolidated phase closed them.** The first milestone audit returned `gaps_found` (DB-02/DB-04 mapped to never-run phases); rather than executing two thin phases, Phase 67.1 consolidated both into one verified closure (9/9).
+
+### What Was Inefficient
+
+- **Forked off the wrong base — discovered at the merge, not the fork.** v1.12 branched off the *pre-v1.11* beta, so its DB pipeline collided with v1.11's Phase 58 `resolve_pinout_key` rewrite. The collision only surfaced when attempting `v1.12 → beta` at close, forcing an entire unplanned integration phase (70). A base-branch check at fork time would have caught it.
+- **Hollow safety gate shipped as accepted tech debt.** The `check_dispatch.py` `non_supported_dispatchable` detector is declared, asserted-empty, and never populated — it reads as a regression detector but cannot fire. Real safety rests on the host guard. Documented and operator-accepted, but it's a false-assurance artifact that should be made real or removed.
+- **Requirements/SUMMARY metadata lag — fourth milestone running.** Traceability still labeled DB-02→67 / DB-04→68 (actual: 67.1); several plan SUMMARYs carry empty `requirements-completed`. Same checkbox/frontmatter-lag failure mode flagged in v1.10 and v1.11.
+- **Nyquist validation coverage trailed** — 6/8 phases have missing or partial VALIDATION.md. Behavioral coverage held via VERIFICATION.md + integration check, but formal validation-test coverage lagged execution.
+
+### Patterns Established
+
+- **Base-branch provenance is load-bearing for milestone merges.** When a milestone forks while another is in flight, record what it forked from and verify the base is current before close — or budget for an integration phase. "Integration, not conflict-merge" (regenerate generated artifacts, never hand-merge) is the right shape when pipelines diverge architecturally.
+- **Honest-reporting milestones: the DB string is the single source of truth.** One `unsupported_reason` string, rendered verbatim by both `info` display and chip-op refusal (Approach A), keeps the operator-facing narrative consistent without parallel message tables.
+- **A safety gate must actually be able to fail.** A detector that's asserted-empty-but-never-populated is worse than no gate (false assurance). If the authoritative layer is elsewhere (the host guard), say so explicitly and don't dress up a hollow check as the safety mechanism.
+
+### Key Lessons
+
+- **Check the fork base at fork time, not merge time.** The single most expensive surprise this milestone (an unplanned integration phase) was a stale fork base that went unnoticed for the whole milestone.
+- **"Accepted tech debt" for a *safety* artifact deserves a tracked follow-up, not just a note.** The hollow GATE-03 detector is safe today only because the host guard exists; if the host guard ever changes, the hollow gate won't catch it.
+- **Insert-phase agility worked again.** Two unplanned phases (69 crash-fix, 70 integration) slotted in cleanly mid-milestone without derailing the close — the GSD phase-insertion flow continues to absorb discovered work well.
+
+### Cost Observations
+
+- 7 days, 22 plans across 8 delivering phases — firmware + host, but **no bench dependency** (provable on the native dispatch harness + pytest, as scoped).
+- 2 of 8 phases were unplanned inserts (69, 70) — ~25% of phases were discovered work, both absorbed without a re-plan of the milestone.
+- 4 of 8 phases ran `/gsd-secure-phase` (66/67.1/69/70, all threats_open:0) — security verification is now routine for hazard-adjacent phases.
+- 7 items deferred at close — identical to the v1.11 deferral set (pre-existing/out-of-scope/v1.9-gated); none v1.12 work.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -381,6 +429,7 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 | v1.4      | 6     | 10    | 1    | Live cuts as integration tests (3 sequential cuts b1→b2→b3 surfaced 6 substrate defects); branch-driven beta with `make_latest:false` + `pip --pre` opt-in; real-hardware flash as E2E gate; manually-paired lockstep coordination (rejected: shared VERSION file, cross-repo dispatch) |
 | v1.10     | 7     | 27    | 5    | Decision-phase-first for a load-bearing mechanism choice (COBS vs SLIP, static proof before implementation); dual-repo lockstep pinned by shared golden-vector codegen + CI drift gate; insert-ahead sequencing to exonerate a variable; transport-exoneration as a first-class PASS verdict (hardware still fails → RCA deferred, not a milestone failure) |
 | v1.11     | 6     | 14    | 3    | Research-shrinks-scope (overturned "expand + firmware handlers" → host-only); field-dictionary-as-decode-authority (phase 0); single-source-of-truth helper for view parity (one `resolve_type_label` → divergence structurally impossible); display correctness as a follow-on phase pair (60→61); recurring checkbox-lag + auto-MILESTONES-noise confirmed as cross-milestone failure modes |
+| v1.12     | 8     | 22    | 7    | Baseline-and-gate before touching firmware (GATE-first ordering); catalog wire change as its own zero-call-site commit; defense-in-depth on the 12V-VPP hazard (firmware guard + data-layer 0x00 + host refusal); insert-phase agility (2 of 8 phases unplanned: 69 crash-fix, 70 integration); **stale fork base** surfaced an unplanned integration phase at merge; hollow-safety-gate shipped as accepted tech debt (host guard authoritative) |
 
 ### Cumulative Quality
 
@@ -388,9 +437,11 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 | --------- | --------------- | ---------------- | ---------------------- |
 | v1.0      | 3/13 formal (11, 12, 13) + 10 via INTEGRATION-CHECK | gaps_found (REQ-SAF-01 Intel-flash) | 0 (Phase 13 closed AT28C256) |
 | v1.11     | 6/6 formal (56–61, all passed) | passed (15/15 reqs, 0 gaps) | 5/5 CLI E2E flows (info/list/search) green; both correctness gates 0-violation on 743 chips |
+| v1.12     | 8/8 formal (62–70, all passed) | tech_debt (17/17 reqs, 0 gaps; deferred non-blocking debt) | 5/5 E2E flows wired (fw→host dispatch, host refusal, DB gate, wire parity, beta-merge); 4/8 phases secure-gated threats_open:0; firmware 49/49 native, host 529/530, cov 76.27% |
 
 ### Top Lessons (Verified Across Milestones)
 
 1. Algorithm-first beats type-first (validated in v1.0 by 743-chip dispatch scan)
-2. Three-layer fixes beat single-layer fixes for cross-cutting bugs (v1.0 BLOCKER-1, BLOCKER-2)
-3. Audit-then-close — re-run the audit after closing a blocker to surface unmasked hazards (v1.0 WARNING-5 escalation)
+2. Three-layer fixes beat single-layer fixes for cross-cutting bugs (v1.0 BLOCKER-1, BLOCKER-2; reaffirmed v1.12 defense-in-depth on the 12V-VPP hazard)
+3. Audit-then-close — re-run the audit after closing a blocker to surface unmasked hazards (v1.0 WARNING-5 escalation; v1.12 first-audit gaps_found → Phase 67.1 closure → re-audit)
+4. Check a milestone branch's fork base before close — a stale base (v1.12 forked off pre-v1.11 beta) forces an unplanned integration phase if caught only at merge

@@ -14,6 +14,7 @@
 - ✅ **v1.10 Serial Transport Hardening (COBS)** — Phases 49-55 (SHIPPED 2026-06-07; beta-only, stable `3.0.1` operator-gated/deferred to the v1.9 read-bug fix). Custom COBS `0x00` + CRC8 framing with automatic resync on **both** the data-block path and the host→fw JSON command channel; transport now provably byte-exact across Uno/Leonardo, ruling serial out as a read-bug confounder. 14/14 requirements; operator-witnessed bench close. Full detail in `.planning/MILESTONES.md` §v1.10 + `.planning/milestones/v1.10-ROADMAP.md`.
 - ⏸ **v1.9 Read-Bug RCA + Fix** — Phases 44-48 (PAUSED 2026-06-01 at Phase 44 — v1.10 inserted ahead; resumes at Phase 45). Hardware-gated; firmware sub-repo work expected. Root-cause and fix Bug A (Modified Rev 0 upper-address jitter) + Bug B (Rev 2.0 /CE-/OE timing + VPP mismatch); N≥5 byte-identical acceptance gate across shield fleet.
 - ✅ **v1.11 Complete infoic.xml Decode & Database Correctness** — Phases 56-61 (SHIPPED 2026-06-10; beta-only, stable operator-gated). HOST-ONLY decode-correctness + authoritative-docs milestone (firmware untouched like v1.8): source-grounded field dictionary + corrected decode docs, re-derived `build_db.py` (4 decode bugs fixed), principled `resolve_pinout_key`, 9 × 24-pin EEPROMs unblocked host-only, full-class VPP-safety + per-chip diff gates, display layer (`info`/`list`/`search`) reflects `electrical.type`. 15/15 requirements; audit PASSED (5/5 E2E flows, 559 tests, 743 chips). Full detail in `.planning/MILESTONES.md` §v1.11 + `.planning/milestones/v1.11-ROADMAP.md`.
+- ✅ **v1.12 Firmware Protocol Dispatch Hardening + Skeletons** — Phases 62–70 (SHIPPED 2026-06-16; dual-repo lockstep merged to `beta` — fw `b71c6fd` / app `6b5480f`, no tag; beta cut + stable operator-gated). First firmware-touching milestone since v1.10. Fail-closed dispatch (`MSG_ERR_PROTOCOL_NOT_IMPLEMENTED = 0xBB`, zero hardware side effects) eliminating the silent `mem_type` 12V-VPP fallback hazard; host `ProtocolNotImplementedError` + actionable CLI message; capability-honest DB inclusion (`support_status` taxonomy: `protocol-not-implemented` / `adapter-required` / `vpp-exceeds-max`; true NMOS VPP correction; principled pinout classification; in-host refusal before any serial byte). 17/17 requirements; audit tech_debt (8/8 phases passed, 5/5 E2E flows, all secure-gated phases threats_open:0). DB 743 → 744. Full detail in `.planning/MILESTONES.md` §v1.12 + [`.planning/milestones/v1.12-ROADMAP.md`](milestones/v1.12-ROADMAP.md).
 
 <details>
 <summary>✅ <b>v1.10 — Serial Transport Hardening (COBS)</b> — Phases 49–55 (SHIPPED 2026-06-07) · 27/27 plans · 14/14 reqs · beta-only</summary>
@@ -339,6 +340,32 @@ Plans:
 
 </details>
 
+<details>
+<summary>✅ <b>v1.12 — Firmware Protocol Dispatch Hardening + Skeletons</b> — Phases 62–70 (SHIPPED 2026-06-16) · 22 plans · 17/17 reqs · dual-repo lockstep on <code>beta</code> (no tag)</summary>
+
+**Milestone goal:** Make the **whole stack honest about what it can and cannot program** — (a) firmware fail-closed dispatch with an explicit `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED = 0xBB` response (zero hardware side effects) eliminating the silent `mem_type` 12V-VPP fallback hazard, the host surfacing it as a typed `ProtocolNotImplementedError` with an actionable CLI message; and (b) a capability-honest database that *lists* (not silently drops) DIP parallel chips RURP can't fully support, tagged with a `support_status` taxonomy (`protocol-not-implemented` / `adapter-required` / `vpp-exceeds-max`) the host reports via `info` and refuses in-host (pre-serial) on `write`/`read`/`verify`. Framework + honest reporting only; **no new chip became programmable**. DB grew 743 → 744.
+
+**Delivering shape:** ROADMAP headed "Phases 62–68"; execution became 62, 63, 64, 65, 66, **67.1** (combined DB-02/DB-04 closure replacing the never-executed 67 & 68), **69** (CLI robustness audit, inserted after a live `info` crash), **70** (v1.11+v1.12 DB-pipeline integration for the beta merge).
+
+**Phases:**
+
+- [x] Phase 62: Dispatch Baseline Capture + check_dispatch Update — 3/3 — 2026-06-10 (GATE-01, GATE-02)
+- [x] Phase 63: Catalog Lockstep Wire Change (`0xBB`) — 1/1 — 2026-06-11 (WIRE-01)
+- [x] Phase 64: Firmware Fail-Closed Dispatch + Native Tests — 2/2 — 2026-06-11 (DISP-01..04, WIRE-02, TEST-01/02; 49/49 native, Uno 72.4% flash)
+- [x] Phase 65: Host Graceful Handling — 2/2 — 2026-06-11 (HOST-01/02; 65-02 closed the probe-intercept gap)
+- [x] Phase 66: DB Inclusion + VPP Correction + Dispatch Gate — 5/5 — 2026-06-12 (DB-01/03/05; SECURED; 66-05 host-refusal guard)
+- [x] Phase 67.1: DB-02 Pinout + DB-04 Capability (INSERTED) — 2/2 — 2026-06-15 (DB-02, DB-04; verified 9/9; SECURED)
+- [x] Phase 69: CLI Command-Surface Robustness Audit — 3/3 — 2026-06-14 (root-fix list-vs-int `ic_layout` crash; SECURED)
+- [x] Phase 70: v1.11 + v1.12 DB-Pipeline Integration for Beta Merge — 4/4 — 2026-06-16 (verified 6/6; SECURED; merged to `beta` fw `b71c6fd` / app `6b5480f`, no tag)
+
+**Requirements (17/17 ✓):** GATE-01/02 (P62); WIRE-01 (P63); DISP-01..04 + WIRE-02 + TEST-01/02 (P64); HOST-01/02 (P65); DB-01/03/05 (P66); DB-02 + DB-04 (P67.1, originally roadmapped to 67/68).
+
+**Accepted tech debt at close (operator 2026-06-16):** hollow GATE-03 `non_supported_dispatchable` detector (host guard `chip_resolver.resolve_chip` is authoritative — no live hazard); latent WR-01 (Site B `0x00` re-promoted to `0x0D` for adapter-required chips, electrically safe); Nyquist validation gaps on 6/8 phases (behavioral coverage holds). **Release:** lockstep beta cut + stable promotion remain operator-gated.
+
+Full detail: [`.planning/milestones/v1.12-ROADMAP.md`](milestones/v1.12-ROADMAP.md) · [`v1.12-REQUIREMENTS.md`](milestones/v1.12-REQUIREMENTS.md) · [`v1.12-MILESTONE-AUDIT.md`](milestones/v1.12-MILESTONE-AUDIT.md) · [`MILESTONES.md`](MILESTONES.md) §v1.12.
+
+</details>
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -373,6 +400,14 @@ Plans:
 | 59 | v1.11 | 2/2 | Complete    | 2026-06-09 |
 | 60 | v1.11 | 2/2 | Complete    | 2026-06-10 |
 | 61 (close) | v1.11 | 1/1 | ✅ Shipped   | 2026-06-10 |
+| 62 | v1.12 | 3/3 | ✅ Complete | 2026-06-10 |
+| 63 | v1.12 | 1/1 | ✅ Complete | 2026-06-11 |
+| 64 | v1.12 | 2/2 | ✅ Complete | 2026-06-11 |
+| 65 | v1.12 | 2/2 | ✅ Complete | 2026-06-11 |
+| 66 | v1.12 | 5/5 | ✅ Complete | 2026-06-12 |
+| 67.1 | v1.12 | 2/2 | ✅ Complete | 2026-06-15 |
+| 69 | v1.12 | 3/3 | ✅ Complete | 2026-06-14 |
+| 70 (close) | v1.12 | 4/4 | ✅ Shipped | 2026-06-16 |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
@@ -626,3 +661,7 @@ Plans:
      the v1.11 archive: .planning/milestones/v1.11-ROADMAP.md. -->
 
 _Backlog items 999.1 / 999.2 are firmware bench-investigation items (Phase 54 UAT origin) — promote with `/gsd-review-backlog` when bench hardware is available._
+
+<!-- Phase 70 (v1.11 + v1.12 DB-Pipeline Integration for Beta Merge) shipped as part of v1.12
+     on 2026-06-16 — inserted for the beta merge, not a backlog item. Full detail in the v1.12
+     archive: .planning/milestones/v1.12-ROADMAP.md §Phase 70. -->

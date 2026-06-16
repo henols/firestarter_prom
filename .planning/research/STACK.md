@@ -1,150 +1,288 @@
-# STACK — Authoritative infoic.xml Field Dictionary + minipro Source Map
+# Stack Research: v1.12 Firmware Protocol Dispatch Hardening + Skeletons
 
-**Project:** Firestarter v1.11 — Complete infoic.xml Decode & Full Memory-Type Coverage
-**Researched:** 2026-06-08
-**Scope:** Field-level decode reference for re-deriving `build_db.py` from minipro source. NOT a library list — the "stack" here is the infoic.xml schema + the minipro C source that consumes it.
-**Confidence:** HIGH (every field cross-checked against minipro source)
-
-Primary source: `/tmp/minipro` (cloned from `https://gitlab.com/DavidGriffith/minipro.git`), chiefly `src/database.c` `load_mem_device()` (~lines 574–806), constants `database.c` 40–75, `database.h`, `minipro.h`. All findings CONFIRMED from source unless marked INFERRED / UNKNOWN.
+**Domain:** Arduino C++ firmware mechanism additions + dual-repo host lockstep — "not implemented" wire response, skeleton handler pattern, native test extension
+**Researched:** 2026-06-10
+**Confidence:** HIGH (all findings grounded in actual source files; no inference from documentation alone)
 
 ---
 
-## `<ic>` Attribute Dictionary
+## 1. Existing Mechanism Baseline (source-verified)
 
-### `name` (string)
-CONFIRMED. Comma-separated alias list; each alias may carry an `@PACKAGE` suffix (display-only, not decoded). Canonical name = first entry before first comma. build_db.py splits on comma, strips `@`-suffix per piece, dedupes, rejoins — correct.
+### Response Codes (`firestarter/include/firestarter.h` lines 53–56)
 
-### `type` (uint32 hex) — `device->chip_type`
-CONFIRMED. `database.c:583`. Constants in `minipro.h`.
-
-| Value | Constant | Meaning |
-|-------|----------|---------|
-| 0x01 | MP_MEMORY | ROM/EPROM/Flash/EEPROM (parallel memory) |
-| 0x02 | MP_MCU | Microcontroller |
-| 0x03 | MP_PLD | Programmable logic device |
-| 0x04 | MP_SRAM | SRAM / NVRAM / FRAM |
-| 0x05 | MP_LOGIC | Logic IC (uses logicic.xml) |
-
-build_db.py filters `type in [1,4]` — correct for scope.
-
-### `package_details` (uint32 hex) — `package_details_t`
-CONFIRMED. `database.c:618–703`.
+```c
+#define RESPONSE_CODE_OK      1
+#define RESPONSE_CODE_DATA    3
+#define RESPONSE_CODE_WARNING 2
+#define RESPONSE_CODE_ERROR   0
 ```
-Bit  31     SMD_FLAG          (0x80000000) surface-mount
-Bits 29-24  PIN_COUNT_MASK    (0x3f000000)>>24 raw pin count (pre-PLCC remap)
-Bits 15-8   ICSP_MASK         (0x0000ff00)>>8  in-circuit serial index
-Bits 7-0    ADAPTER_MASK      (0x000000ff)     adapter type; 0x00 = DIP native
-```
-PLCC remap (`get_pin_count()` ~406–420): ADAPTER 0x38→20, 0x3E→28, 0x3F→32, 0x3D→44, else raw nibble. `plcc = PIN_COUNT(pkg) > 0x30`.
 
-build_db.py uses `(pkg & 0x7F000000)>>24` (7-bit vs source 6-bit `0x3f000000`) — harmless for DIP (bit30 always 0). `is_smd` correct. `is_serial = (pkg & 0xFF00)>>8` correctly excludes ICSP-only parts.
+These four values are the complete set. They live in `firestarter_handle_t.response_code` (uint8_t). The dispatch consumer in `operation_utils.cpp:_check_response` (lines 322–338) does a `switch` over all four cases; anything else falls through to the `default: return false` branch (same as ERROR). The host never sees `response_code` directly — it sees the wire response which is a COBS-framed ID frame carrying a message ID from the catalog.
 
-### `protocol_id` (uint8 hex) — `database.c:685`; `IC2_ALG_*` in `database.h`
-CONFIRMED. Catalog reachable through the INFOIC2PLUS DIP-24..32 parallel filter:
+The response-code-to-wire-type mapping is: firmware sets `response_code`; the operation loop in `operation_utils.cpp` uses `_check_response()` to decide whether to continue; when the operation ends the final response frame (tagged with severity OK, ERROR, INIT, MAIN, END, DATA, or WARN) is what the host's `serial_comm.py` parses. The severity band of the last emitted catalog frame determines what `response.type` the host sees.
 
-| protocol_id | IC2_ALG_* | build_db label | Description |
-|------|------|------|------|
-| 0x05 | IC2_ALG_F29EE | FLASH_AMD_STD | AMD/Fujitsu 5V flash (Am29F) |
-| 0x06 | IC2_ALG_W29F32P | FLASH_AMD_ALT | Winbond/SST 5V flash (29F alt) |
-| 0x07 | IC2_ALG_ROM28P_1 | EPROM_STD | 28-pin ROM/EPROM type 1 — UV-EPROMs + some mistagged EEPROMs |
-| 0x08 | IC2_ALG_ROM32P | EPROM_QUICK | 32-pin ROM/EPROM (27C010/020/040) |
-| 0x0B | IC2_ALG_ROM24P_1 | EPROM_LEGACY | 24-pin ROM/EPROM type 1 (2716/2732) |
-| 0x0D | IC2_ALG_EE28C32P | EEPROM_POLL | 28/32-pin EEPROM (28C-series, 5V page-write, DQ7 poll) |
-| 0x0E | IC2_ALG_RAM32_1 | SRAM_32PIN | 32-pin SRAM type 1 |
-| 0x10 | IC2_ALG_28F32P | FLASH_INTEL | Intel 28F parallel flash (cmd register, 12V VPP) |
-| 0x27 | IC2_ALG_ROM24P_2 | SRAM_24PIN (mislabel) | 24-pin ROM/EPROM type 2 |
-| 0x28 | IC2_ALG_ROM28P_2 | SRAM_STD (mislabel) | 28-pin ROM/EPROM type 2 / used for SRAM after fm1608 override |
-| 0x29 | IC2_ALG_RAM32_2 | SRAM_512K_1M | 32-pin SRAM type 2 |
+**Key insight:** `response_code` is firmware-internal loop control, NOT the host-visible discriminator. The host discriminates on `response.type` which derives from `entry.severity` in the catalog (`SEVERITY_LABEL` in `messages.py`). An ERROR-severity message ID produces `response.type == "ERROR"` in `serial_comm.py`. So adding a new distinguishable "not implemented" response requires a new **message ID** in the catalog, NOT a new `RESPONSE_CODE_*` constant.
 
-**NOT in DIP-24..32 scope:** 0x09 ROM40P (40-pin), 0x0A R28TO32P (PLCC adapter), 0x0C ROM44, 0x11 FWH (LPC bus), 0x35 ITE (TQFP128), **0x39 has NO IC2_ALG define** (legacy INFOIC only, DIP40 AM27C1024) — unreachable from INFOIC2PLUS.
+### Message ID Catalog — Codegen Path
 
-### `flags` (uint32 hex) — `database.c:40–52, 661–682`
-CONFIRMED for decoded bits:
-```
-Bit 1  0x000002 MP_REVERSED_PACKAGE   reversed_package
-Bit 4  0x000010 MP_ERASE_MASK         can_erase   <-- build_db "electrically erasable" discriminator
-Bit 5  0x000020 MP_ID_MASK            has_chip_id
-Bit 12 0x001000 MP_DATA_MEMORY_ADDRESS has_data_offset
-Bit 13 0x002000 MP_DATA_BUS_WIDTH     data_org (0=8-bit,1=16-bit)
-Bit 14 0x004000 MP_OFF_PROTECT_BEFORE off_protect_before
-Bit 15 0x008000 MP_PROTECT_AFTER      protect_after
-Bit 18 0x040000 MP_LOCK_BIT_WRITE_ONLY lock_bit_write_only
-Bit 19 0x080000 MP_CALIBRATION        has_calibration
-Bits 20-21 0x300000 MP_SUPPORTED_PROGRAMMING>>20 prog_support
-```
-The full 32-bit raw value is forwarded to TL866II+ firmware. **Bits 3/6/7 are NOT decoded in database.c** — the existing docs' "VPP required / UV-erasable / electrically-erasable" meanings for 0x08/0x40/0x80 are INFERRED, not source-confirmed. `flags & 0x10` (`can_erase`) is the correct functional "electrically erasable" signal (UV-EPROM=0, EEPROM/Flash=1).
+The canonical source is at `firestarter/tools/catalog/messages.toml` (meta-repo). A copy exists at `firestarter_app/tools/catalog/messages.toml` (app sub-repo). Codegen via `tools/catalog/codegen.py --language cpp` produces `firestarter/include/messages.h`; `--language python` produces `firestarter_app/firestarter/messages.py`. Both generated files are committed and a CI drift gate (`codegen && git diff --exit-code`) enforces byte-identity.
 
-### `voltages` (uint32 hex) — `database.c:693–697, 144–158`
-CONFIRMED.
-```
-Bits 7-0   VPP byte   device->voltages.vpp
-Bits 11-8  VCC nibble device->voltages.vcc
-Bits 15-12 VDD nibble device->voltages.vdd
-```
-VPP byte → V (same as build_db VPP_VOLTAGES): 0x00=12, 0x10=9, 0x20=9.5, 0x30=10, 0x40=11, 0x50=11.5, 0x60=12.5, 0x70=13, 0x80=13.5, 0x90=14, 0xA0=14.5, 0xB0=15.5, 0xC0=16, 0xD0=16.5, 0xE0=17, 0xF0=18.
-VCC/VDD nibble → V (`tl866ii_vcc_voltages[]`): 0x00=5, 0x01=3.3, **0x02=4, 0x03=4.5**, 0x04=5.5, 0x05=6.5.
+**Adding a new message ID requires:**
+1. Add `[[messages]]` entry in `firestarter/tools/catalog/messages.toml` (meta-repo)
+2. Add the identical block to `firestarter_app/tools/catalog/messages.toml`
+3. Re-run codegen in both sub-repos; commit generated files
+4. CI drift gate fails until generated files are committed
 
-### `variant` (uint32 hex) — `database.c:585`
-CONFIRMED. Low byte = sub-algorithm/variant index sent to programmer; bits 15-8 = T56/T76 name index (irrelevant on RURP). build_db uses `variant & 0xFF`.
-DIP28 UV-EPROM low byte: 0x10=27C512(DIP28_27512), 0x11=27C256(DIP28_27256), 0x12=27C128(DIP28_2764), 0x13=27C64/2764A(DIP28_2764), else→2764-default.
-DIP24 low byte: 0x00=2716, 0x01=2732.
+No hand-editing of `messages.h` or `messages.py` is allowed (they are `DO NOT EDIT` generated files).
 
-### `pin_map` (uint32 hex, INFOIC2PLUS) — `database.c:608–617`
-CONFIRMED. Low byte = pin-test map index (`device->pin_map`), clusters chips by physical layout family. Upper bits: 0x10000000 T56_FLAG, 0x20000000 TL866II_FLAG, 0x40000000 T48_FLAG (programmer-support flags, decoded separately). build_db `pm_idx = pin_map_raw & 0xFF` — correct. NB: TL866II_FLAG=0 does not mean unprogrammable on TL866II+.
+### Existing Error IDs (relevant subset, from `messages.toml` and generated `messages.h`)
 
-### `pulse_delay` (uint32 hex) — `database.c:602–603`
-CONFIRMED. **Microseconds for ALL protocols, no transformation.** Verified: AM27C64=0x64(100µs), W27C512=0x64(100µs), AM2716=0x1F4(500µs), AT28C256=0x2710(10000µs=10ms). build_db's `interpret_timing()` ×100 for 0x07/0x0B is WRONG (see BUG-2).
+| ID | Name | Params | Current Use |
+|----|------|--------|-------------|
+| `0xA5` | `MSG_ERR_NOT_SUPPORTED` | none | Generic; used in multiple unrelated places — cannot cleanly mean "protocol not implemented" |
+| `0xAE` | `MSG_ERR_MEM_TYPE_UNSUPPORTED` | u8 (mem_type) | Current dispatch error (`memory.cpp` line 117); carries `mem_type` byte but NOT the protocol |
+| `0xBA` | `MSG_ERR_MEM_SIZE_TOO_SMALL` | u32 | Last assigned ERROR-band entry |
+| `0xBB`–`0xBF` | (unassigned) | — | Next available ERROR-band slots |
 
-### `chip_id` (uint32 hex) — `database.c:600, 561`
-CONFIRMED. Raw silicon ID; 0 = none. Significant byte count via `get_id_bytes_count()`. ID-check gated by `flags & MP_ID_MASK (0x20)`.
-
-### `code_memory_size` (uint32 hex) — `database.c:592`
-CONFIRMED. Total addressable bytes (27C512 = 0x10000 = 65536). Used as firmware `memory-size`.
-
-### `page_size` (uint32 hex) — `database.c:598`
-CONFIRMED. Page-write size (28C EEPROM typically 64/128; 0/1 if none).
-
-### `read_buffer_size` / `write_buffer_size` (uint32→uint16) — `database.c:586–591`
-CONFIRMED. Chunk sizes; NOT used by Firestarter (it derives chunking from board `MSG_OK_READY`).
-
-### `data_memory_size` / `data_memory2_size` — `database.c:594–597`
-CONFIRMED. Secondary regions (MCU EEPROM/data banks); ~0 for parallel memory.
-
-### `chip_info` (uint32 hex) — `database.c:605`
-CONFIRMED. Opaque discriminator: 0x0006 MP_VOLTAGES1 (adjustable VCC), 0x0007 MP_VOLTAGES2 (adjustable VPP), else MCU-specific. ~0x0000 for standard parallel memory.
-
-### `config` (string) — `database.c:637–658`
-CONFIRMED. Names a `<config>` profile (fuse/lock for MCU/PLD); "null"/absent for parallel memory.
-
-### `blank_value` (uint8 hex, optional) — `database.c:627–631`
-CONFIRMED. Erased-read byte (default 0xFF). Not stored by build_db today.
-
-### `pages_per_block` (uint32 hex, INFOIC2PLUS) — `database.c:609`
-CONFIRMED. NAND/paged-flash block structure; 0/absent for scope.
+`MSG_ERR_NOT_SUPPORTED` (0xA5) is too generic. The host cannot distinguish it from other 0xA5 uses. A dedicated ID is the correct approach.
 
 ---
 
-## Confirmed build_db.py Bugs (decode correctness targets)
+## 2. Recommended New Message ID
 
-**BUG-1 — VCC_VOLTAGES incomplete.** Missing `0x02:"4V"`, `0x03:"4.5V"`. AT28C256 (vcc nibble 0x02), AT28C64 family (0x02/0x03) silently default to "5V". Source: `tl866ii_vcc_voltages[]`.
+### `MSG_ERR_PROTOCOL_NOT_IMPL` = `0xBB`
 
-**BUG-2 — interpret_timing ×100 for 0x07 and 0x0B.** pulse_delay is already µs. W27C512 stored "10000 us" (should be 100); AT28C256 stored "1000000 us" (should be 10000). Remove the multiplier; return `f"{val} us"`. (Verify against minipro source once more before changing — flagged gap.)
+TOML entry to add to `messages.toml` in both sub-repos:
 
-**BUG-3 — vdd/vcc field names swapped.** Extraction positions correct but labels inverted vs database.c (bits 11-8=vcc, 15-12=vdd). Low functional impact today (both 5V for most chips) but wrong for AT28C256/NVRAM where VCC≠VDD.
+```toml
+[[messages]]
+id          = 0xBB
+name        = "MSG_ERR_PROTOCOL_NOT_IMPL"
+severity    = "ERROR"
+format      = "Protocol 0x%02x not implemented"
+params      = [{ type = "u8", render = "hex_byte" }]
+wire_format = "id_frame"
+```
 
-**BUG-4 — PROTOCOL_MAP wrong/phantom names.** 0x35 = IC2_ALG_ITE (TQFP128, never passes filter) labeled "FLASH_EEPROM_LIKE"; 0x39 has no IC2_ALG (unreachable) labeled "FLASH_INTEL_ALT"; 0x3C invented (no IC2_ALG counterpart); 0x2A/0x2C/0x2E mislabeled NVRAM (actually GAL16/GAL22/PIC32 per FEATURES.md). 0x27/0x28 labeled SRAM_* but are IC2_ALG_ROM24P_2/ROM28P_2 (repurposed for fm1608 SRAM override, not inherently SRAM).
+`0xBB` is the next unassigned ERROR-band slot after `0xBA`. Carries the raw `protocol` byte as a u8 param so the host can log which protocol was attempted.
+
+**No new `RESPONSE_CODE_*` is needed.** `RESPONSE_CODE_ERROR` already correctly triggers `expect_ack()` → `return False, response.message` on the host. Adding a fifth response code would require changes to `operation_utils.cpp:_check_response`, `firestarter.h`, and `constants.py`, all for a distinction already achievable at the catalog layer.
+
+Generated effect in `messages.h`:
+```c
+#define MSG_ERR_PROTOCOL_NOT_IMPL   0xBB
+```
+
+Generated effect in `messages.py`:
+```python
+MSG_ERR_PROTOCOL_NOT_IMPL = 0xBB
+```
 
 ---
 
-## Existing Decode-Doc Errors (deliverable corrections)
+## 3. Dispatch Extension — Fail-Closed Pattern
 
-**package-details.md:** mis-titled — content describes `flags`, not `package_details`. Bits 3/6/7 meanings are INFERRED not source-confirmed. Bit 4 = `can_erase` ("can be electrically erased"), not "Requires Write Enable Sequence".
+### Current dispatch tail (`memory.cpp` lines 104–118, source-verified)
 
-**protocol-flags.md:** 0x07 mislabeled "28-pin byte EEPROM" — it is IC2_ALG_ROM28P_1 (UV-EPROM primary + mistagged EEPROMs). Same bit-4 and bits-3/6/7 errors.
+```cpp
+if (handle->mem_type == TYPE_EPROM) {
+    configure_eprom(handle);     // SAFETY HAZARD: 12V VPP on any chip with mem_type=1
+    return;
+} else if (handle->mem_type == TYPE_SRAM) { ...
+} else if (handle->mem_type == TYPE_FLASH_TYPE_3) { ...
+} else if (handle->mem_type == TYPE_FLASH_TYPE_4) { ...
+}
+LOG_ERROR_ID_U8(MSG_ERR_MEM_TYPE_UNSUPPORTED, handle->mem_type);
+handle->response_code = RESPONSE_CODE_ERROR;
+```
 
-**protocol-id.md:** 0x39 described as "AT49F040 advanced flash" — CRITICAL ERROR (0x39 has no IC2_ALG, INFOIC2PLUS-unreachable). All descriptions inferred, none cite IC2_ALG names.
+The safety hazard: a chip with an unimplemented `protocol` but `mem_type=1` (EPROM) in the database currently silently routes to `configure_eprom`, which enables the 12V VPP boost regulator. For a chip that does not expect 12V VPP this is a hardware-damage path.
+
+### Recommended Fail-Closed Guard (insert between last protocol block and mem_type chain)
+
+```cpp
+// Fail-closed: any non-zero protocol that reached here has no handler.
+// Reject before the mem_type fallback so chips with a real protocol cannot
+// accidentally route to configure_eprom (12V VPP damage path).
+if (handle->protocol != 0) {
+    LOG_ERROR_ID_U8(MSG_ERR_PROTOCOL_NOT_IMPL, (uint8_t)handle->protocol);
+    handle->response_code = RESPONSE_CODE_ERROR;
+    return;
+}
+// Legacy mem_type fallback — reachable ONLY when protocol==0
+// (hand-crafted JSON or pre-algorithm host versions).
+if (handle->mem_type == TYPE_EPROM) { ...
+```
+
+Chips in the regenerated `chip_database.json` always carry a non-zero `algorithm` field. After this guard, they can never silently reach `configure_eprom` via the `mem_type` path.
 
 ---
 
-## Status legend
-CONFIRMED = read in minipro source. INFERRED = datasheet/behavior, not in source. UNKNOWN = forwarded raw to closed-source TL866II+ firmware, not recoverable from source (flags bits 3/6/7).
+## 4. Skeleton Handler Pattern
+
+### What configure_memory() pre-sets before dispatch (source-verified, lines 47–69)
+
+```cpp
+handle->firestarter_operation_init = NULL;
+handle->firestarter_operation_main = NULL;
+handle->firestarter_operation_end = NULL;
+handle->firestarter_get_data = memory_get_data;
+handle->firestarter_set_data = memory_set_data;
+handle->firestarter_set_address = mem_util_set_address;
+handle->firestarter_set_control_register = memory_set_control_register;
+handle->firestarter_get_control_register = memory_get_control_register;
+```
+
+A skeleton handler therefore needs to touch nothing except emit the error and set the response code:
+
+```cpp
+// Shared skeleton body — called by any protocol stub that is registered in
+// the dispatch but not yet implemented.
+static void configure_not_implemented(firestarter_handle_t* handle) {
+    // All shared fields pre-set by configure_memory() before dispatch.
+    // Operation pointers remain NULL (already set by configure_memory()).
+    LOG_ERROR_ID_U8(MSG_ERR_PROTOCOL_NOT_IMPL, (uint8_t)handle->protocol);
+    handle->response_code = RESPONSE_CODE_ERROR;
+}
+```
+
+**Flash cost:** `configure_not_implemented` is one function. Each skeleton dispatch entry is a 2-line if-return block calling the shared function — AVR `CALL` + `RET` is 4 instruction words (8 bytes). The shared function itself is approximately 30–40 bytes (LOG_ERROR_ID_U8 resolves to already-linked `rurp_log_id_u8`; no new linker pulls). Total for 5 skeleton protocols: ~80–100 bytes. Well within budget.
+
+**SRAM cost:** zero. No stack frames, no local buffers. `rurp_log_id_u8` passes the u8 arg in a register.
+
+### Flash Budget (measured from actual build, 2026-06-10)
+
+| Board | Current Flash | Max Flash | Headroom |
+|-------|--------------|-----------|----------|
+| Uno (ATmega328P) | 23,216 B (70.8%) | 32,768 B | ~9,552 B free |
+| Leonardo (ATmega32U4) | 25,354 B (77.4%) | 32,768 B | ~7,414 B free |
+| Uno SRAM | 1,544 B (75.4%) | 2,048 B | 504 B free |
+| Leonardo SRAM | 1,983 B (77.5%) | 2,560 B | 577 B free |
+
+Both boards have 7+ KB flash headroom. The v1.12 catalog entry + guard + shared skeleton function + dispatch entries will add well under 300 bytes total. No flash risk.
+
+---
+
+## 5. Host-Side Response Flow (source-verified)
+
+### End-to-end path for a not-implemented protocol error
+
+1. Firmware: `LOG_ERROR_ID_U8(MSG_ERR_PROTOCOL_NOT_IMPL, (uint8_t)handle->protocol)` + `handle->response_code = RESPONSE_CODE_ERROR`
+2. Operation loop in `operation_utils.cpp:_check_response` returns `false`; operation aborts
+3. Firmware emits the ID frame with `severity=ERROR` over COBS+CRC8
+4. Host `serial_comm.py:_decode_id_frame` → `codec.decode_id_frame` decodes: `LogMessage(severity="ERROR", text="Protocol 0xNN not implemented", id=0xBB, ...)`
+5. `get_response()` returns `Response(type="ERROR", message="Protocol 0xNN not implemented")`
+6. `expect_ack()` returns `(False, "Protocol 0xNN not implemented")`
+7. `_execute_phase()` raises `EpromOperationError("Programmer error during init: Protocol 0xNN not implemented")`
+8. `@map_typed_errors` in `cli_handlers.py` (line 119): `raise click.ClickException(f"Programmer error: {e}")`
+9. Click prints: `Error: Programmer error: Protocol 0xNN not implemented`
+
+This flow works without any new Python exception class or changes to `serial_comm.py`, `eprom_operations.py`, or `cli_handlers.py` beyond what the catalog entry provides.
+
+### Host changes required for v1.12
+
+| File | Change | Required? |
+|------|--------|-----------|
+| `firestarter_app/tools/catalog/messages.toml` | Add `MSG_ERR_PROTOCOL_NOT_IMPL = 0xBB` entry | YES — lockstep |
+| `firestarter_app/firestarter/messages.py` | Regenerated by codegen | YES — committed |
+| `firestarter_app/firestarter/exceptions.py` | No change | No |
+| `firestarter_app/firestarter/serial_comm.py` | No change | No |
+| `firestarter_app/firestarter/eprom_operations.py` | No change | No |
+| `firestarter_app/firestarter/cli_handlers.py` | No change | No |
+
+The message text "Protocol 0xNN not implemented" delivered via `EpromOperationError` is the user-facing result. It is specific enough for v1.12.
+
+---
+
+## 6. Lockstep Sync Path
+
+### Full change sequence
+
+1. **`firestarter/tools/catalog/messages.toml`** (firmware sub-repo): add `[[messages]]` at `id = 0xBB`
+2. **`firestarter_app/tools/catalog/messages.toml`** (app sub-repo): add identical block
+3. **`firestarter/include/messages.h`**: regenerate via `python tools/catalog/codegen.py --language cpp --output include/messages.h tools/catalog/messages.toml`; commit
+4. **`firestarter_app/firestarter/messages.py`**: regenerate via `python tools/catalog/codegen.py --language python --output firestarter/messages.py tools/catalog/messages.toml`; commit
+5. **`firestarter/src/proms/memory.cpp`**: add `configure_not_implemented()` helper, fail-closed guard, dispatch entries for any skeleton protocols
+6. **`firestarter/test/native/avr/test_dispatch/test_configure_memory.cpp`**: extend with fail-closed and skeleton tests
+
+Note: no `sync_to_subrepos.sh` exists in either catalog directory (checked 2026-06-10). Manual copy of the TOML block is the actual practice.
+
+### What does NOT require changes
+
+- `firestarter.h` (response codes): no new `RESPONSE_CODE_*`
+- `constants.py` (flag/command mirror): no changes — `MSG_ERR_PROTOCOL_NOT_IMPL` is a catalog detail, not a command constant
+- `exceptions.py`: no new exception class for v1.12 scope
+- `frame_parser.py`, `codec.py`: no changes — `0xBB` with ERROR severity decodes cleanly through the existing path
+
+---
+
+## 7. Native Test Extension
+
+### Pattern (grounded in existing `test_configure_memory.cpp`, lines 149–190)
+
+The existing test suite at `firestarter/test/native/avr/test_dispatch/test_configure_memory.cpp` uses `make_handle(protocol, mem_type, cmd)` → `configure_memory(&h)` → `TEST_ASSERT_EQUAL(RESPONSE_CODE_ERROR, ...)` for negative tests.
+
+Three new test cases are needed:
+
+```cpp
+// 1. Fail-closed: previously protocol=unknown + mem_type=EPROM routed to
+//    configure_eprom (12V VPP hazard). After v1.12 it must error.
+void test_unknown_protocol_with_eprom_mem_type_now_errors(void) {
+    firestarter_handle_t h = make_handle(0xFF, 1, CMD_READ); // TYPE_EPROM=1
+    configure_memory(&h);
+    TEST_ASSERT_EQUAL(RESPONSE_CODE_ERROR, h.response_code);
+}
+
+// 2. Legacy path preserved: protocol=0 with known mem_type still routes via
+//    the mem_type fallback. This test must remain GREEN after the guard.
+//    (Already exists as test_protocol_zero_with_mem_type_eprom_dispatches_eprom)
+
+// 3. For each skeleton protocol registered in v1.12 dispatch:
+void test_protocol_0xXX_skeleton_returns_error(void) {
+    firestarter_handle_t h = make_handle(0xXX, 0, CMD_READ);
+    configure_memory(&h);
+    TEST_ASSERT_EQUAL(RESPONSE_CODE_ERROR, h.response_code);
+}
+```
+
+**Existing tests that must remain GREEN** after the fail-closed guard change:
+- `test_unknown_protocol_with_unknown_mem_type_errors` (protocol=0, mem_type=99): still GREEN — `protocol==0` bypasses the new guard, falls through to `mem_type=99` → `MSG_ERR_MEM_TYPE_UNSUPPORTED` → ERROR
+- `test_protocol_zero_with_mem_type_eprom_dispatches_eprom` (protocol=0, mem_type=1): still GREEN — `protocol==0` bypasses the guard, `mem_type=1` → `configure_eprom` → OK
+- All 13 protocol-positive tests (protocol=known, mem_type=0): still GREEN — they are handled before the new guard
+
+**Serial stub already covers `rurp_log_id_u8`:** the `setUp()` in the test file stubs `Serial.write` and `Serial.flush`. `LOG_ERROR_ID_U8` → `rurp_log_id_u8` uses Serial.write. No new stub additions needed.
+
+---
+
+## 8. What NOT to Add
+
+| Avoid | Why |
+|-------|-----|
+| New `RESPONSE_CODE_*` constant | No new value is needed; host discriminates on message ID (catalog severity band), not response_code. Adds risk to `_check_response` switch + constants.py parity with zero benefit. |
+| `ProtocolNotImplementedError` Python exception subclass | Not required for v1.12 ("framework + skeletons" scope). `EpromOperationError` with specific message text is sufficient. Defer to a milestone needing programmatic detection. |
+| Removing the `mem_type` fallback entirely | It must survive for `protocol==0` (hand-crafted JSON, dev tools, older host). Guard with `if (handle->protocol != 0)`, do not delete the fallback. |
+| Separate skeleton `.cpp` files per protocol | Unnecessary flash cost and file proliferation. One shared `configure_not_implemented()` helper is the right shape. |
+| Modifying `firestarter_handle_t` | No new fields needed; `response_code` + catalog MSG ID carry all required information. |
+| Changing `MSG_ERR_MEM_TYPE_UNSUPPORTED` (0xAE) | It remains correct for the `protocol==0` + unknown `mem_type` path. Do not repurpose it. |
+
+---
+
+## Sources
+
+| Source | File / Location | Confidence |
+|--------|-----------------|------------|
+| Firmware response codes | `firestarter/include/firestarter.h` lines 53–56 | HIGH (direct read) |
+| Dispatch chain | `firestarter/src/proms/memory.cpp` lines 45–118 | HIGH (direct read) |
+| Message catalog (canonical) | `firestarter/tools/catalog/messages.toml` | HIGH (direct read) |
+| Generated C++ header | `firestarter/include/messages.h` | HIGH (direct read) |
+| Generated Python module | `firestarter_app/firestarter/messages.py` | HIGH (direct read) |
+| Codegen pipeline | `firestarter/tools/catalog/codegen.py` | HIGH (direct read) |
+| Host error flow | `firestarter_app/firestarter/serial_comm.py`, `eprom_operations.py`, `exceptions.py`, `cli_handlers.py` | HIGH (direct read) |
+| Native test pattern | `firestarter/test/native/avr/test_dispatch/test_configure_memory.cpp` | HIGH (direct read) |
+| Flash budget | `pio run -e uno/leonardo --target size` (live build, 2026-06-10) | HIGH (measured) |
+| v1.12 scope | `.planning/PROJECT.md` lines 16–32 | HIGH (direct read) |
+
+---
+
+*Stack research for: v1.12 Firmware Protocol Dispatch Hardening + Skeletons*
+*Researched: 2026-06-10*
