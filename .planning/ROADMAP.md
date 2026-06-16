@@ -402,7 +402,19 @@ Full detail: [`.planning/milestones/v1.12-ROADMAP.md`](milestones/v1.12-ROADMAP.
   3. The matrix bakes in a non-vacuous PASS oracle: a PASS requires an independent post-write full read + SHA compare on **Leonardo** (advisory-only on other boards), a mandatory passing negative control (wrong-file mismatch + blank/chip-out failure proving verify *can* fail), retry-count capture, and a per-task live R1/R2 calibration precondition (`r1 ≈ 270000`); `uno328pb` is hard-coded N/A for program/write cells.
   4. `check_dispatch.py` is extended with per-family dispatch invariants AND its hollow `non_supported_dispatchable` inverse detector is populated (closing the v1.12 accepted tech debt) — a non-`supported` chip routing to a real handler, or a family handler enabling VPP it must not, fails the gate in CI.
 
-**Plans**: TBD
+**Plans**: 6 plans (2 waves)
+Plans:
+**Wave 1** *(parallel — no file overlap; firmware + host substrates independent)*
+
+- [ ] 71-01-PLAN.md — Recording bus stub: define-guarded `HOST_STUBS_RECORD_BUS` buffer in the shared `host_stubs_common.inc` + flag-off regression proof (HARN-01, D-04)
+- [ ] 71-02-PLAN.md — Authored `validation_matrix_spec.json` + `gen_validation_header.py` codegen + committed generated `validation_matrix.h` + schema/drift gates (HARN-02, D-01/D-02)
+- [ ] 71-03-PLAN.md — `check_dispatch.py` per-family VPP invariants + populated `non_supported_dispatchable` inverse detector + non-vacuous fixture test (HARN-04, D-09; closes v1.12 CR-01)
+
+**Wave 2** *(blocked on Wave 1: native suites need the recording stub + generated header; host tiers need the authored spec)*
+
+- [ ] 71-04-PLAN.md — 6 Tier-1 native Unity suites (provable-by-side-effect + in-tier negative controls; SRAM no-op documented) + `platformio.ini` allowlist (HARN-01 Tier-1, D-07) — deps 71-01, 71-02
+- [ ] 71-05-PLAN.md — 6 Tier-2 host wire round-trip suites via `make_comm`/`fake_serial` (algorithm + dispatch per family; SRAM never→configure_eprom) (HARN-01 Tier-2, D-07) — deps 71-02
+- [ ] 71-06-PLAN.md — `dev validate-family` Tier-3 runner composing the cycle methods + SKIP-deferred (D-06) + emitted `validation-matrix.{json,md}` + non-vacuous PASS oracle (negative control / Leonardo-only-PASS / r1≈270000 / uno328pb N/A) (HARN-01 Tier-3 + HARN-02 + HARN-03, D-05/D-08) — deps 71-02
 **UI hint**: no
 
 ### Phase 72: Re-research the Protocol Landscape
