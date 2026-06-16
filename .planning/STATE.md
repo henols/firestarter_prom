@@ -4,14 +4,14 @@ milestone: v1.13
 milestone_name: — Programming Algorithm Validation + Gap Implementation
 status: executing
 stopped_at: Phase 71 context gathered
-last_updated: "2026-06-16T19:10:27.210Z"
+last_updated: "2026-06-16T19:17:34.321Z"
 last_activity: 2026-06-16
 progress:
   total_phases: 11
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 16
-  completed_plans: 13
-  percent: 9
+  completed_plans: 14
+  percent: 18
 ---
 
 # Project State
@@ -22,7 +22,7 @@ progress:
 ## Current Position
 
 Phase: 71 (validation-harness-matrix) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Last activity: 2026-06-16
 
@@ -148,7 +148,7 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-16T19:10:27.205Z
+Last session: 2026-06-16T19:17:34.301Z
 Stopped at: Phase 71 context gathered
 Resume: `/gsd-plan-phase 71`
 
@@ -191,6 +191,7 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 </details>
 
 - [Phase 71]: HARN-03 closure: TRUST write_cycle_eprom return code directly; verdict_int==0 maps to board-class PASS via pass_type field, no source==source self-compare
+- [Phase 71-08]: CR-02 resolution: flash4 host matrix trimmed to protocols=[5]; 0x35/0x39 omitted (zero DB chips, host never dispatches); rationale in protocols_note; firmware truth + native coverage preserved in test_val_flash4.cpp; drift gate green at 11 rows
 
 ## Performance Metrics
 
@@ -226,6 +227,7 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 
 </details>
 | Phase 71 P07 | 8min | 2 tasks | 3 files |
+| Phase 71 P08 | 7min | 2 tasks | 4 files |
 
 ## Deferred Items
 

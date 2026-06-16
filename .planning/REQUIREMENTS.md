@@ -12,10 +12,10 @@
 
 ### HARN — Validation Harness & Matrix (software-first spine)
 
-- [ ] **HARN-01**: A reusable three-tier validation harness exists — Tier 1 native Unity per-family suites with a shared recording bus stub that captures `rurp_*` register-write sequences (so a handler is provable by side-effect, not just by operation-pointer presence); Tier 2 host pytest wire round-trip via `make_comm`/`fake_serial` (no serial port); Tier 3 a host-driven `dev validate-family` runner that composes the existing `write_cycle_eprom`/`consistency_check_eprom` cycle methods (no re-implementation of read/write). Adds zero production firmware flash.
-- [ ] **HARN-02**: A declarative per-family validation matrix data file (family → algorithm IDs → representative chip → assertions → native/bench tier) drives both the native suites and the bench runner, and emits a committed `validation-matrix.{json,md}` artifact (family × board × verdict × evidence SHA) that records PASS / FAIL / SKIP-deferred per cell — so partial bench coverage is explicit, not silent.
-- [ ] **HARN-03**: The matrix bakes in a non-vacuous PASS oracle: a PASS requires an independent post-write full read + SHA compare on **Leonardo** (advisory-only on other boards), a mandatory passing negative control (a wrong-file mismatch and a blank/chip-out failure that prove verify *can* fail), retry-count capture, and a per-task live R1/R2 calibration precondition (`r1 ≈ 270000`); `uno328pb` is hard-coded N/A for program/write cells.
-- [ ] **HARN-04**: `check_dispatch.py` is extended with per-family dispatch invariants AND its hollow `non_supported_dispatchable` inverse detector is populated (closing the v1.12 accepted tech debt) so a non-`supported` chip routing to a real handler — or a family handler enabling VPP it must not — fails the gate in CI.
+- [x] **HARN-01**: A reusable three-tier validation harness exists — Tier 1 native Unity per-family suites with a shared recording bus stub that captures `rurp_*` register-write sequences (so a handler is provable by side-effect, not just by operation-pointer presence); Tier 2 host pytest wire round-trip via `make_comm`/`fake_serial` (no serial port); Tier 3 a host-driven `dev validate-family` runner that composes the existing `write_cycle_eprom`/`consistency_check_eprom` cycle methods (no re-implementation of read/write). Adds zero production firmware flash.
+- [x] **HARN-02**: A declarative per-family validation matrix data file (family → algorithm IDs → representative chip → assertions → native/bench tier) drives both the native suites and the bench runner, and emits a committed `validation-matrix.{json,md}` artifact (family × board × verdict × evidence SHA) that records PASS / FAIL / SKIP-deferred per cell — so partial bench coverage is explicit, not silent.
+- [x] **HARN-03**: The matrix bakes in a non-vacuous PASS oracle: a PASS requires an independent post-write full read + SHA compare on **Leonardo** (advisory-only on other boards), a mandatory passing negative control (a wrong-file mismatch and a blank/chip-out failure that prove verify *can* fail), retry-count capture, and a per-task live R1/R2 calibration precondition (`r1 ≈ 270000`); `uno328pb` is hard-coded N/A for program/write cells.
+- [x] **HARN-04**: `check_dispatch.py` is extended with per-family dispatch invariants AND its hollow `non_supported_dispatchable` inverse detector is populated (closing the v1.12 accepted tech debt) so a non-`supported` chip routing to a real handler — or a family handler enabling VPP it must not — fails the gate in CI.
 
 ### RSCH — Protocol Landscape Re-research
 
@@ -70,10 +70,10 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| HARN-01 | Phase 71 | Pending |
-| HARN-02 | Phase 71 | Pending |
-| HARN-03 | Phase 71 | Pending |
-| HARN-04 | Phase 71 | Pending |
+| HARN-01 | Phase 71 | Complete |
+| HARN-02 | Phase 71 | Complete |
+| HARN-03 | Phase 71 | Complete |
+| HARN-04 | Phase 71 | Complete |
 | RSCH-01 | Phase 72 | Pending |
 | VAL-01 | Phase 73 | Pending |
 | VAL-02 | Phase 73 | Pending |
