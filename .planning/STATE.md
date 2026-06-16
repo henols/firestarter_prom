@@ -4,8 +4,8 @@ milestone: v1.12
 milestone_name: — Firmware Protocol Dispatch Hardening + Skeletons
 status: executing
 stopped_at: Phase 70 context gathered
-last_updated: "2026-06-15T21:12:15.159Z"
-last_activity: 2026-06-15 -- Phase 70 planning complete
+last_updated: "2026-06-16T09:20:11.542Z"
+last_activity: 2026-06-16
 progress:
   total_phases: 14
   completed_phases: 8
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 67.1 — COMPLETE
-Plan: 2 of 2
-Status: Ready to execute
-Last activity: 2026-06-15 -- Phase 70 planning complete
+Phase: 70
+Plan: Not started
+Status: Executing Phase 70
+Last activity: 2026-06-16
 
 ## Project Reference
 
@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-10 for v1.12)
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus:** Phase 67.1 — close-gaps-db-02-pinout-classification-db-04-capability-repo
+**Current focus:** Phase 70 — v1-11-v1-12-db-pipeline-integration-for-beta-merge
 dispatch eliminating the silent VPP-hazard `mem_type` fallback path; new
 `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` wire response (lockstep dual-repo); host
 `ProtocolNotImplementedError` + clear CLI message; capability-honest DB inclusion

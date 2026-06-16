@@ -1,9 +1,10 @@
 ---
 phase: 70-v1-11-v1-12-db-pipeline-integration-for-beta-merge
 verified: 2026-06-16T10:30:00Z
-status: human_needed
+status: passed
 score: 6/6 must-haves verified
 overrides_applied: 0
+human_disposition: "CR-01/WR-01 ACCEPTED AS TECH DEBT by operator 2026-06-16 — host guard (chip_resolver.resolve_chip) is the authoritative safety layer; no present 12V-to-wrong-pin hazard; GATE-03 enforcement fix deferred (non-blocking for milestone close). See 70-HUMAN-UAT.md (resolved)."
 human_verification:
   - test: "Visual inspection of 70-REVIEW.md CR-01 and WR-01 disposition"
     expected: "Operator accepts that the gate weakness (non_supported_dispatchable never populated; Site B NON_DISPATCHABLE_ALGO overridden by Rule 1) is acceptable given the host guard is the authoritative safety layer — or operator decides a gap-closure plan is required before milestone close"

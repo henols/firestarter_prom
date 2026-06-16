@@ -913,20 +913,20 @@ separately and is performed in lockstep at the beta cut.
 
 **Requirements**: v1.12 milestone close prerequisite (beta merge)
 **Depends on:** Phase 69 (v1.12 execution-complete), v1.11 phases 56–61 (on beta)
-**Plans:** 4 plans
+**Plans:** 4/4 plans complete
 Plans:
 **Wave 1**
 
-- [ ] 70-01-PLAN.md — Transplant beta's resolve_pinout_key + graft v1.12 safety features into build_db.py (SC#1, SC#2)
+- [x] 70-01-PLAN.md — Transplant beta's resolve_pinout_key + graft v1.12 safety features into build_db.py (SC#1, SC#2)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 70-02-PLAN.md — Regenerate DB; integrate check_dispatch GATE-03 + diff_db two-stage; refresh baseline (SC#3, SC#4)
+- [x] 70-02-PLAN.md — Regenerate DB; integrate check_dispatch GATE-03 + diff_db two-stage; refresh baseline (SC#3, SC#4)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 70-03-PLAN.md — Reconcile test/snapshot/golden fixtures; full host CI gate green (SC#5)
+- [x] 70-03-PLAN.md — Reconcile test/snapshot/golden fixtures; full host CI gate green (SC#5)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 70-04-PLAN.md — Firmware v1.12->beta merge + build + native tests + wire parity; firestarter_app v1.12->beta merge, no tag (SC#6)
+- [x] 70-04-PLAN.md — Firmware v1.12->beta merge + build + native tests + wire parity; firestarter_app v1.12->beta merge, no tag (SC#6)
