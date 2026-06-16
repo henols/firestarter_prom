@@ -417,6 +417,11 @@ Plans:
 - [x] 71-05-PLAN.md — 6 Tier-2 host wire round-trip suites via `make_comm`/`fake_serial` (algorithm + dispatch per family; SRAM never→configure_eprom) (HARN-01 Tier-2, D-07) — deps 71-02
 - [x] 71-06-PLAN.md — `dev validate-family` Tier-3 runner composing the cycle methods + SKIP-deferred (D-06) + emitted `validation-matrix.{json,md}` + non-vacuous PASS oracle (negative control / Leonardo-only-PASS / r1≈270000 / uno328pb N/A) (HARN-01 Tier-3 + HARN-02 + HARN-03, D-05/D-08) — deps 71-02
 
+**Wave 3 — gap closure** *(parallel — no file overlap; from 71-VERIFICATION.md gaps_found 2/4)*
+
+- [ ] 71-07-PLAN.md — GAP-1 (HARN-03 / SC#3): de-vacuum the `dev validate-family` PASS oracle — trust `write_cycle_eprom`'s real return code at the verdict_int==0 branch (remove the source==source `_classify_sha_result` self-compare; preserve Leonardo-authoritative/advisory mapping) + prove the comparator with distinct hashes (HARN-03)
+- [ ] 71-08-PLAN.md — GAP-2 (HARN-04 / SC#4): trim `validation_matrix_spec.json` flash4 `protocols` [5,53,57]→[5] to match the host dispatch mirror + regenerate `validation_matrix.h` (11 rows) + update drift gate + durable CR-02 rationale + mark HARN-04 Complete (HARN-04)
+
 **UI hint**: no
 
 ### Phase 72: Re-research the Protocol Landscape
