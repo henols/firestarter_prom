@@ -1,198 +1,224 @@
-# Feature Research: v1.12 Protocol-Gap Enumeration
+# Feature Research
 
-**Domain:** Firmware protocol dispatch hardening — Firestarter EPROM programmer (Arduino / RURP shield)
-**Researched:** 2026-06-10
-**Confidence:** HIGH
-
-**Primary source:** minipro `database.h` IC2_ALG_* constants @ commit `a8efaedc236c1d9718bd28299dfbb99536b010ff`; confirmed against `infoic-field-dictionary.md` (v1.11 canonical) and `protocol-id.md` (v1.11 corrected docs); `build_db.py` KNOWN_PROTOCOLS + filter logic; `firestarter/CLAUDE.md` dispatch table.
+**Domain:** EPROM/Flash/EEPROM/SRAM parallel-memory programmer — firmware algorithm validation + feasible-gap implementation (Firestarter v1.13)
+**Researched:** 2026-06-16
+**Confidence:** HIGH (firmware source + DB read directly; datasheet/protocol facts web-grounded; bench-feasibility verdicts grounded in fixed RURP constraints)
 
 ---
 
-## The Central Research Deliverable: Protocol-Gap Enumeration
+## Framing: validate vs implement vs infeasible
 
-The full IC2_ALG_* constant space from `database.h#L24–L77` spans `0x00`–`0x35` (54 named constants). Below is every ID classified into exactly one of three buckets:
+v1.13 is **test-first validation of already-built algorithm families, then evidence-driven gap implementation.** This document categorizes every candidate against three buckets:
 
-- **IMPLEMENTED** — firmware has a real handler registered in `configure_memory()`'s protocol-prefix chain.
-- **SKELETON-NEEDED** — a DIP parallel-memory protocol the RURP shield could physically drive but firmware does NOT implement; gets a stub handler this milestone.
-- **INFEASIBLE-ON-RURP** — serial bus / non-parallel / 3.3V-only / PLD / MCU / no-DIP-memory-chips; explicitly out of scope with reason.
+- **Table Stakes = VALIDATE** — algorithm family code already exists and dispatches; the milestone must *prove it correct on hardware* (and fix bugs bench exposes). Missing this = the firmware is shipping unverified write paths.
+- **Differentiators = IMPLEMENT** — a genuinely RURP-feasible (DIP parallel, fixed 5V VCC, VPP ≤ ~22V) operation/chip that is currently unimplemented or only partially wired. Each must carry a feasibility verdict + citation.
+- **Anti-Features = KEEP REFUSED** — physically infeasible on RURP; already fail-closed by v1.12; must stay refused. No evidence-free "just add protocol X".
 
----
+### RURP hardware constraints (the feasibility ruler — used for every verdict)
 
-### Full Protocol-ID Classification Table
-
-| protocol_id | IC2_ALG Constant    | Memory Family / Behavior                            | Chips in DB (approx.) | DIP parallel? | RURP-feasible? | Bucket | Rationale |
-|-------------|---------------------|-----------------------------------------------------|-----------------------|---------------|----------------|--------|-----------|
-| `0x00`      | `IC2_ALG_NONE`      | Null / no algorithm                                 | 0                     | N/A           | N/A            | **INFEASIBLE-ON-RURP** | No chips; null sentinel — not a real programming algorithm |
-| `0x01`      | `IC2_ALG_IIC24C`    | I2C serial EEPROM (24Cxx family)                    | 0 in DIP filter       | NO — serial   | NO             | **INFEASIBLE-ON-RURP** | 2-wire I2C serial bus; RURP has no I2C interface; `is_serial != 0` excludes all chips before KNOWN_PROTOCOLS check |
-| `0x02`      | `IC2_ALG_MW93ALG`   | Microwire serial EEPROM (93xx family)               | 0 in DIP filter       | NO — serial   | NO             | **INFEASIBLE-ON-RURP** | 3-wire Microwire serial bus; excluded by `is_serial != 0` filter |
-| `0x03`      | `IC2_ALG_SPI25F_1`  | SPI NOR Flash (25-series, variant 1)                | 0 in DIP filter       | NO — serial   | NO             | **INFEASIBLE-ON-RURP** | 4-wire SPI serial bus; excluded by `is_serial != 0` filter |
-| `0x04`      | `IC2_ALG_AT45D`     | Atmel DataFlash (AT45D SPI)                         | 0 in DIP filter       | NO — serial   | NO             | **INFEASIBLE-ON-RURP** | SPI serial bus; excluded by `is_serial != 0` filter |
-| `0x05`      | `IC2_ALG_F29EE`     | AMD/Fujitsu 5V page-write flash (F29EE type)        | ~15                   | YES           | YES            | **IMPLEMENTED** | `configure_flash4()` handler; registered in KNOWN_PROTOCOLS; 5V VCC, no VPP |
-| `0x06`      | `IC2_ALG_W29F32P`   | Winbond/SST AMD-unlock 5V flash (W29F32P type)      | ~200                  | YES           | YES            | **IMPLEMENTED** | `configure_flash3()` handler; registered in KNOWN_PROTOCOLS; 5V VCC, sector erase |
-| `0x07`      | `IC2_ALG_ROM28P_1`  | 28-pin UV-EPROM primary (27Cxxx, 9–13V VPP)         | ~220 (incl. overrides) | YES          | YES            | **IMPLEMENTED** | `configure_eprom()` handler; registered in KNOWN_PROTOCOLS; WARNING-5 override redirects mistagged EEPROMs to 0x0D |
-| `0x08`      | `IC2_ALG_ROM32P`    | 32-pin UV-EPROM (27C010/020/040, 100µs pulse)       | ~127                  | YES           | YES            | **IMPLEMENTED** | `configure_eprom()` handler; registered in KNOWN_PROTOCOLS |
-| `0x09`      | `IC2_ALG_ROM40P`    | 40-pin ROM / EPROM                                  | 0 in DIP 24–32 filter | NO — 40-pin   | NO             | **INFEASIBLE-ON-RURP** | 40-pin DIP; excluded by `24 <= pin_count <= 32` filter; RURP socket supports DIP24/28/32 max |
-| `0x0A`      | `IC2_ALG_R28TO32P`  | 28-to-32 pin adapter ROM                            | 0 in DIP filter       | MAYBE         | NO             | **INFEASIBLE-ON-RURP** | Adapter-class algorithm; no chips pass the INFOIC2PLUS DIP filter at this ID; no RURP adapter support |
-| `0x0B`      | `IC2_ALG_ROM24P_1`  | 24-pin legacy EPROM (2716/2732, 500µs pulse)        | ~20                   | YES           | YES            | **IMPLEMENTED** | `configure_eprom()` handler; registered in KNOWN_PROTOCOLS |
-| `0x0C`      | `IC2_ALG_ROM44`     | 44-pin ROM                                          | 0 in DIP filter       | NO — 44-pin   | NO             | **INFEASIBLE-ON-RURP** | 44-pin package; excluded by pin count filter |
-| `0x0D`      | `IC2_ALG_EE28C32P`  | 28/32-pin 5V EEPROM (AT28C/28Cxxx, DQ7 polling)    | ~140 (incl. 9 newly unblocked 24-pin) | YES | YES | **IMPLEMENTED** | `configure_eeprom28c()` handler; registered in KNOWN_PROTOCOLS; SDP-disable + DQ7 page poll; no VPP |
-| `0x0E`      | `IC2_ALG_RAM32_1`   | 32-pin SRAM type 1 (JEDEC 32-pin layout)            | ~30                   | YES           | YES            | **IMPLEMENTED** | `configure_sram()` handler; registered in KNOWN_PROTOCOLS; 5V, no VPP |
-| `0x0F`      | `IC2_ALG_SPI25F_2`  | SPI NOR Flash variant 2 (25-series)                 | 0 in DIP filter       | NO — serial   | NO             | **INFEASIBLE-ON-RURP** | SPI serial bus; excluded by `is_serial != 0` filter |
-| `0x10`      | `IC2_ALG_28F32P`    | Intel 28F parallel flash (12V VPP, command register) | ~40                  | YES           | YES            | **IMPLEMENTED** | `configure_flash_intel()` handler; registered in KNOWN_PROTOCOLS; 12V VPP via CTRL_VPP_P1_ENABLE |
-| `0x11`      | `IC2_ALG_FWH`       | Intel LPC Firmware Hub (4-wire serial, 3.3V VCC)    | 0 in DIP filter       | NO — serial   | NO             | **INFEASIBLE-ON-RURP** | LPC 4-wire serial bus + 3.3V VCC; not parallel; RURP has no LPC interface; confirmed v1.11 |
-| `0x12`      | `IC2_ALG_T48`       | T48 programmer-specific algorithm                   | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | Programmer-specific MCU algorithm; `type=2` (MCU); no DIP parallel memory chips |
-| `0x13`      | `IC2_ALG_T40A`      | T40 MCU algorithm variant A                         | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; no DIP parallel memory chips |
-| `0x14`      | `IC2_ALG_T40B`      | T40 MCU algorithm variant B                         | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; no DIP parallel memory chips |
-| `0x15`      | `IC2_ALG_T88V`      | T88V MCU algorithm                                  | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; no DIP parallel memory chips |
-| `0x16`      | `IC2_ALG_PIC32X_1`  | PIC32 MCU algorithm variant 1                       | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; no DIP parallel memory chips |
-| `0x17`      | `IC2_ALG_P18F87J`   | PIC18F87J MCU algorithm                             | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; no DIP parallel memory chips |
-| `0x18`      | `IC2_ALG_P16F`      | PIC16F MCU algorithm                                | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; no DIP parallel memory chips |
-| `0x19`      | `IC2_ALG_P18F2`     | PIC18F2 MCU algorithm                               | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; no DIP parallel memory chips |
-| `0x1A`      | `IC2_ALG_P16F5X`    | PIC16F5X MCU algorithm                              | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; no DIP parallel memory chips |
-| `0x1B`      | `IC2_ALG_P16CX`     | PIC16CX MCU algorithm                               | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; no DIP parallel memory chips |
-| `0x1C`      | `IC2_ALG_PIC16C`    | PIC16C MCU algorithm                                | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; no DIP parallel memory chips |
-| `0x1D`      | `IC2_ALG_ATMGA`     | ATmega MCU algorithm                                | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; no DIP parallel memory chips |
-| `0x1E`      | `IC2_ALG_ATTINY`    | ATtiny MCU algorithm                                | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; no DIP parallel memory chips |
-| `0x1F`      | `IC2_ALG_AT89P20`   | AT89C2051 8051 MCU algorithm                        | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; no DIP parallel memory chips |
-| `0x20`      | `IC2_ALG_SM89`      | SyncMOS SM89 MCU algorithm                          | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; no DIP parallel memory chips |
-| `0x21`      | `IC2_ALG_AT89C`     | AT89C MCU algorithm                                 | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; no DIP parallel memory chips |
-| `0x22`      | `IC2_ALG_P87C`      | P87C MCU algorithm                                  | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; no DIP parallel memory chips |
-| `0x23`      | `IC2_ALG_SST89`     | SST89 MCU algorithm                                 | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; no DIP parallel memory chips |
-| `0x24`      | `IC2_ALG_W78E`      | Winbond W78E MCU algorithm                          | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; no DIP parallel memory chips |
-| `0x25`      | `IC2_ALG_SM59`      | SyncMOS SM59 MCU algorithm                          | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; no DIP parallel memory chips |
-| `0x26`      | `IC2_ALG_SM39`      | SyncMOS SM39 MCU algorithm                          | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; no DIP parallel memory chips |
-| `0x27`      | `IC2_ALG_ROM24P_2`  | 24-pin SRAM (6116 family, NVRAM/FRAM)               | ~25                   | YES           | YES            | **IMPLEMENTED** | `configure_sram()` handler; registered in KNOWN_PROTOCOLS; fm1608 override in effect for FRAM |
-| `0x28`      | `IC2_ALG_ROM28P_2`  | 28-pin SRAM (JEDEC, DS1230 class)                   | ~20                   | YES           | YES            | **IMPLEMENTED** | `configure_sram()` handler; registered in KNOWN_PROTOCOLS |
-| `0x29`      | `IC2_ALG_RAM32_2`   | 32-pin SRAM / NVRAM 512K–1M                         | ~15                   | YES           | YES            | **IMPLEMENTED** | `configure_sram()` handler; registered in KNOWN_PROTOCOLS |
-| `0x2A`      | `IC2_ALG_GAL16`     | GAL16V8 PLD programming algorithm                   | 0 (type=3 PLD)        | NO            | NO             | **INFEASIBLE-ON-RURP** | PLD (`type=3`); filtered before KNOWN_PROTOCOLS check; zero DIP memory chips; confirmed v1.11 |
-| `0x2B`      | `IC2_ALG_GAL20`     | GAL20V8 PLD programming algorithm                   | 0 (type=3 PLD)        | NO            | NO             | **INFEASIBLE-ON-RURP** | PLD (`type=3`); filtered before KNOWN_PROTOCOLS check; zero DIP memory chips; same reason as 0x2A |
-| `0x2C`      | `IC2_ALG_GAL22`     | GAL22V10 PLD programming algorithm                  | 0 (type=3 PLD)        | NO            | NO             | **INFEASIBLE-ON-RURP** | PLD (`type=3`); filtered before KNOWN_PROTOCOLS check; zero DIP memory chips; confirmed v1.11 |
-| `0x2D`      | `IC2_ALG_NAND`      | NAND Flash (TSOP/SMD packages)                      | 0 in DIP filter       | SMD           | NO             | **INFEASIBLE-ON-RURP** | NAND Flash is SMD-only (TSOP/BGA); excluded by `is_smd != 0` filter; no DIP NAND chips in infoic.xml |
-| `0x2E`      | `IC2_ALG_PIC32X_2`  | PIC32 MCU algorithm variant 2                       | 0 (type=2 MCU)        | NO            | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; zero DIP memory chips; confirmed v1.11 |
-| `0x2F`      | `IC2_ALG_RAM36`     | 36-pin RAM algorithm                                | 0 in DIP filter       | NO — 36-pin   | NO             | **INFEASIBLE-ON-RURP** | 36-pin package; excluded by pin count filter (max 32); no reachable chips in INFOIC2PLUS DIP filter |
-| `0x30`      | `IC2_ALG_KB90`      | KB90 MCU algorithm                                  | 0 in DIP filter       | MCU-class     | NO             | **INFEASIBLE-ON-RURP** | MCU algorithm; `type=2`; no DIP parallel memory chips |
-| `0x31`      | `IC2_ALG_EMMC`      | eMMC flash (BGA package)                            | 0 in DIP filter       | NO — BGA      | NO             | **INFEASIBLE-ON-RURP** | eMMC is BGA/SMD; excluded by `is_smd != 0` and `is_serial != 0`; no DIP form factor |
-| `0x32`      | `IC2_ALG_VGA`       | VGA / video chip algorithm                          | 0 in DIP filter       | NO            | NO             | **INFEASIBLE-ON-RURP** | Video IC programming; not a memory chip family; no DIP parallel memory chips |
-| `0x33`      | `IC2_ALG_CPLD`      | CPLD programming algorithm                          | 0 (type=3 PLD)        | NO            | NO             | **INFEASIBLE-ON-RURP** | PLD/CPLD (`type=3`); filtered before KNOWN_PROTOCOLS check; no DIP parallel memory chips |
-| `0x34`      | `IC2_ALG_GEN`       | Generic algorithm                                   | 0 in DIP filter       | UNKNOWN       | NO             | **INFEASIBLE-ON-RURP** | Generic/catch-all; no chips pass the INFOIC2PLUS DIP 24–32 filter; no reachable DIP memory chips |
-| `0x35`      | `IC2_ALG_ITE`       | ITE IT8xxx EC MCU (TQFP128)                         | 0 (type=2 MCU)        | NO            | NO             | **INFEASIBLE-ON-RURP** | MCU in TQFP128 package; `type=2`; zero DIP memory chips; confirmed v1.11; previously phantomed in KNOWN_PROTOCOLS — removed by v1.11 Phase 57 |
-| `0x39`      | NO IC2_ALG CONSTANT | Phantom — no constant in database.h                 | 0 (INFOIC2PLUS-unreachable) | N/A       | NO             | **INFEASIBLE-ON-RURP** | Not a real IC2_ALG constant; appears in legacy INFOIC format only (DIP40 ROM readers); INFOIC2PLUS-unreachable; removed from KNOWN_PROTOCOLS by v1.11 Phase 57; firmware still dispatches it to configure_flash4() as a legacy carry — this is a cleanup target, not a skeleton to fill |
-| `0x3C`      | NOT IN SOURCE       | Invented — no entry in database.h at all            | 0                     | N/A           | NO             | **INFEASIBLE-ON-RURP** | Does not exist in minipro source at commit a8efaedc; removed from PROTOCOL_MAP by v1.11 Phase 57 |
+| Constraint | Value | Source |
+|---|---|---|
+| VCC | fixed 5V only | PROJECT.md "Out of Scope"; firmware has no VCC DAC |
+| VPP ceiling | `RURP_VPP_CEILING_MV = 22000` (~22V; practically ~21V tested) | v1.12 DB-03 (`check_dispatch.py`) |
+| Bus | DIP parallel, 19-bit address (512 KB), 8-bit data | PROJECT.md Key Decisions 2026-05-08 |
+| Packages | DIP 24 / 28 / 32 only | PROJECT.md |
+| No serial/LPC/SPI/I²C, no 3.3V rail, no ICSP | — | PROJECT.md; v1.12 infeasibility findings |
 
 ---
 
-### Bucket Summary
+## Algorithm-family inventory (ground truth from firmware + DB)
 
-**IMPLEMENTED (11 real protocol IDs with active firmware handlers):**
+744 chips. Support-status distribution (read from `chip_database.json` 2026-06-16): **supported 730**, **adapter-required 9**, **vpp-exceeds-max 4**, **protocol-not-implemented 1**. Algorithm handler map:
 
-`0x05`, `0x06`, `0x07`, `0x08`, `0x0B`, `0x0D`, `0x0E`, `0x10`, `0x27`, `0x28`, `0x29`
+| Protocol | Family / handler | DB chips | CMD_WRITE | CMD_ERASE in firmware? | CMD_BLANK | CMD_CHECK_CHIP_ID | VPP |
+|---|---|---|---|---|---|---|---|
+| 0x07 EPROM_STD | `configure_eprom` | 170 | yes (retry+verify loop) | **YES** (`eprom_internal_erase`, A9+VPE 14V) | yes | yes (A9-12V) | 13V via VPE_DROP |
+| 0x08 EPROM_QUICK | `configure_eprom` | 127 | yes (100µs pulse) | YES (same path) | yes | yes | 13V |
+| 0x0B EPROM_LEGACY | `configure_eprom` | 26 | yes (500µs, direct VPE) | YES | yes | yes | 12–18V direct |
+| 0x0D EEPROM_POLL | `configure_eeprom28c` | 84 (75 supported + 9 adapter) | yes (SDP-disable + 64B page + DQ7-wait) | **NO** (no CMD_ERASE case) | yes | yes (A9-12V) | none (5V) |
+| 0x06 FLASH_AMD_ALT | `configure_flash3` | 190 | yes (unlock+verify DQ7) | YES (chip + sector erase) | yes | yes | none (5V) |
+| 0x05 FLASH_AMD_STD | `configure_flash4` | 27 | yes (64B page + poll) | YES (12V-on-OE erase) | yes | **NO case** | none(write); 12V in erase |
+| 0x35 FLASH_EEPROM | `configure_flash4` | (within 0x05/0x35) | yes | YES | yes | NO | none |
+| 0x39 FLASH_EEPROM2 | `configure_flash4` | 2 | yes (by analogy; **0 chips historically — now 2**) | YES | yes | NO | none |
+| 0x10 FLASH_INTEL | `configure_flash_intel` | 39 | yes (0x40 setup + SR poll) | YES (0x20/0xD0 + SR) | yes | yes (0x90) | 12V via P1 |
+| 0x0E/0x27/0x28/0x29 SRAM | `configure_sram` | 20+34+... | **NO** (handler is a no-op stub) | n/a | n/a | n/a | none (5V) |
+| 0x34 (52) XICOR | `configure_not_implemented` | 1 (X88C64) | refused (0xBB) | — | — | — | — |
+| 0x11 / 0x2A / 0x2B / 0x2C | `configure_not_implemented` | 0 in DB | refused (0xBB) | — | — | — | — |
 
-These cover 100% of the chips in `chip_database.json` (743 chips post-v1.11). Every chip emitted by `build_db.py` has a firmware handler.
-
-**SKELETON-NEEDED: EMPTY (0 protocol IDs)**
-
-There are zero protocol IDs that are simultaneously:
-1. A real IC2_ALG_* constant in minipro's `database.h`
-2. Assigned to DIP 24–32 parallel memory chips in `infoic.xml`
-3. Not already implemented in Firestarter firmware
-
-The v1.11 "already covered" conclusion holds without qualification. The hardware-feasible DIP parallel-memory set is exhaustively dispatched. There are no missing-but-feasible protocols for this milestone to stub.
-
-**INFEASIBLE-ON-RURP (43 protocol IDs):**
-
-All remaining IDs fall into one of these sub-categories:
-- Serial bus (I2C, SPI, Microwire, LPC): `0x01`, `0x02`, `0x03`, `0x04`, `0x0F`, `0x11`
-- MCU programming algorithms (`type=2`): `0x12`–`0x1F`, `0x20`–`0x26`, `0x2E`, `0x30`
-- PLD/CPLD programming algorithms (`type=3`): `0x2A`, `0x2B`, `0x2C`, `0x33`
-- SMD/BGA packages only: `0x2D` (NAND), `0x31` (eMMC)
-- Pin count out of range (>32 pins): `0x09` (40-pin), `0x0C` (44-pin), `0x2F` (36-pin)
-- Adapter/converter ROM: `0x0A`
-- Non-memory device: `0x32` (VGA), `0x34` (generic)
-- Null sentinel: `0x00`
-- Phantom/invented (no chips, no real constant): `0x39`, `0x3C`
+> **Two structural findings jump out of this table** and reshape the milestone (see Differentiators + Anti-Features):
+> 1. `configure_sram` is an **empty no-op** — it logs and returns, setting *no* operation pointers. SRAM "support" is unproven and may be non-functional.
+> 2. Several handlers **lack a `CMD_CHECK_CHIP_ID` case** (flash4) and one lacks `CMD_ERASE` (eeprom28c). The 0x39 "future-proofed, 0 chips" comment in CLAUDE.md is now **stale — the DB has 2 chips on 0x39**.
 
 ---
 
-## Honest Assessment: What Bucket-2 Being Empty Means for v1.12
+## Feature Landscape
 
-Bucket 2 is empty. This is not a research gap — it is the correct answer, and it agrees precisely with v1.11's source-grounded conclusion.
+### Table Stakes (VALIDATE — code exists, prove it on hardware)
 
-**The practical implication:** The "Skeleton handlers" feature of v1.12's scope statement cannot be skeleton stubs for "missing-but-RURP-feasible protocols" because no such protocols exist. The milestone's value must be re-framed:
+Per-family hardware validation behind a reusable software-first **test harness + validation matrix** (the harness itself has no bench gate). Validation = write → read-back → byte-identical verify, plus erase/blank/chip-id where the family implements them.
 
-1. **Fail-closed dispatch framework** (primary value): The current `mem_type` fallback chain at the bottom of `configure_memory()` is a silent-damage path. Any chip command with an unknown/zero `algorithm` field but `mem_type=1 (TYPE_EPROM)` currently falls through to `configure_eprom()` — asserting 12V VPP on whatever is in the socket. Removing or guarding this fallback is the real safety win.
+| Feature (validate) | Why expected | Complexity | Notes / known-correctness risk |
+|---|---|---|---|
+| **Validation harness + matrix** (software) | Whole milestone hangs on it; reusable across families | MEDIUM | Build first, no bench gate; reuse `dev consistency-check` substrate; per-family per-op rows with PASS/FAIL/SKIP-with-reason |
+| **UV-EPROM 0x07/0x08/0x0B write+verify** | Core product op; 323 chips | LOW (validate) | Retry loop *grows* `pulse_delay` up to 20× — confirm convergence; legacy 0x0B uses direct VPE (no drop resistor) — distinct VPP path worth its own row |
+| **UV-EPROM 0x07 chip-ID (A9-12V)** | Identity gate before write | LOW | A9 driven to 12V; verify on real silicon (W27C512 chip-id `0xDA08`) |
+| **5V EEPROM 0x0D write (SDP+page+DQ7)** | 84 chips incl. AT28C256 | MEDIUM | SDP-disable magic sequence (0x5555/0x2AAA); 64-byte page boundary; DQ7 readback-equality poll (2000×10µs ceiling). Validate page-cross + last-partial-page |
+| **Flash AMD 0x06 write + sector/chip erase** | 190 chips — largest family | MEDIUM | Unlock 3-cycle; DQ7 toggle verify (double-read); `addr==0 → chip erase` else sector erase; 105 ms settle |
+| **Flash type-4 0x05/0x35 page write** | 27+ chips | MEDIUM | 64-byte page poll (1024×10µs); erase drives **12V on OE** — VPP path on a nominally-5V family, validate carefully |
+| **Flash Intel 0x10 write + erase (SR poll)** | 39 chips; 12V on P1 | MEDIUM | 0x40 program-setup; SR bit7 ready, bit4 VPP-error, bit3 program-error; `cleanup` resets to 0xFF read-array. Validate VPP-error + program-error branches |
+| **Blank check (all families)** | Pre-write safety + standalone op | LOW | Shared `mem_util_blank_check`; stateful 2KB-per-call progression (the flash3 re-entrancy bug history) |
+| **Read path (all families)** | Foundational | LOW | NOTE: large-read jitter on some shields is the **separate deferred v1.9 RCA** — validate on Leonardo/EVEN-01 clean board only; do NOT couple v1.13 to it |
 
-2. **Explicit not-implemented response** (primary value): A distinct firmware wire response code for "protocol not implemented" (as opposed to generic operation errors) gives the host clean error handling and surfaces misuse clearly.
+**Bench gating:** validate the families for which the operator has chips + a working shield; defer families lacking parts with an explicit SKIP-with-reason row. Milestone is closeable without 100% family coverage (PROJECT.md "hybrid bench gating").
 
-3. **Skeleton handlers as explicit infeasibility markers** (reframed value): If "skeleton" handlers are still useful, they serve as registered, documented "recognized-but-infeasible" stubs — e.g., a handler registered for `0x11` (IC2_ALG_FWH / FWH LPC) that immediately returns a "not implemented on RURP hardware" response rather than silently falling through to the mem_type chain. This is cleaner than the current approach where unrecognized protocols fall through to potentially destructive mem_type dispatch. Candidate IDs for explicit infeasibility markers:
-   - `0x11` (IC2_ALG_FWH): LPC serial — the most likely to be attempted by a user with an FWH chip who sees it in minipro's database
-   - `0x2A` / `0x2B` / `0x2C` (IC2_ALG_GAL16/GAL20/GAL22): PLD algorithms — would arrive only through a user-override DB entry; still worth a clean rejection
-   - These would register in the dispatch chain, immediately return a specific "not-implemented" response, and document why (hardware infeasibility)
+### Differentiators (IMPLEMENT — genuine RURP-feasible gaps with feasibility verdicts)
 
-4. **Firmware protocol-set is stable**: No new chip families have become RURP-feasible since v1.11. The 11 IMPLEMENTED IDs cover every chip `build_db.py` will ever emit under current hardware constraints.
+| Feature (implement) | Feasibility verdict | Evidence / citation | Complexity | Notes |
+|---|---|---|---|---|
+| **`firestarter erase W27C512` end-to-end (0x07 electrically-erasable EEPROMs)** | **FEASIBLE — firmware already implements the erase electricals; the gap is host-side wiring + a voltage detail** | W27C512 erase mode = OE/VPP→**14V**, A9→**14V**, VCC=5V, A0 low, all other A low, all DQ high, 100 ms ([Winbond W27C512 datasheet](https://www.dosdays.co.uk/media/winbond/W27C512_Datasheet.pdf)). `eprom_internal_erase` (eprom.cpp:274) already asserts `CTRL_VPP_A9_ENABLE \| CTRL_VPE_ENABLE` with regulator on — electrically the correct sequence. | MEDIUM | **GAP DETAIL:** (1) Host must set `FLAG_CAN_ERASE` / route `erase` to these chips. `FLAG_CAN_ERASE` is derived from info-flag bit 0x10 "electrically erasable" (database.py:594) — verify it is set for W27C512 (DB `type:"EEPROM"`, has the bit). (2) **Voltage mismatch:** DB lists `vpp 12V` but erase needs **14V**; `eprom_internal_erase` runs the regulator *without* the drop resistor (so it outputs the raw VPE rail), but the rail target/ceiling for 14V must be confirmed against `RURP_VPP_CEILING_MV=22000` (OK) and the actual regulator setpoint. (3) The erase does NOT set A0-low / all-DQ-high explicitly — validate the chip still bulk-erases, or add the datasheet preconditions. This is the milestone's flagship "deferred erase path resurfaces via research" item (PROJECT.md). |
+| **`configure_sram` real read/write (0x0E/0x27/0x28/0x29)** | **FEASIBLE — pure 5V parallel SRAM is trivially in-scope; handler is currently a no-op** | `sram.cpp` `configure_sram` sets no operation pointers (logs + returns). 20 chips on 0x0E alone (plus 0x27/0x28/0x29). SRAM is 5V, DIP parallel, no VPP. | LOW–MEDIUM | Either the generic state-machine default already covers plain read/write (validate!) or these chips silently no-op on write. **Must validate first** — this is a "validate, and if broken, implement" hybrid. Battery-backed NVRAM (e.g. DS1220/FM1608) writes via the same SRAM path. If a write command reaching a no-op handler returns success without writing, that is a **correctness bug worth a fix**. |
+| **X88C64 (0x34 XICOR parallel NOVRAM/EEPROM, 24-pin DIP, 5V)** | **MAYBE-FEASIBLE — re-classify; currently the *only* `protocol-not-implemented` chip and it is NOT GAL/PLD/serial** | X88C64 = 8K×8 **parallel 5V 24-pin DIP** EEPROM/NOVRAM ([Elnec X88C64](https://www.elnec.com/en/device/Xicor/X88C64/); [eBay X88C64PI 24-pin DIP 5V](https://www.ebay.com/p/663635561)). Unlike 0x11/0x2A-0x2C, this is a parallel DIP memory — physically drivable. | MEDIUM–HIGH | v1.12 lumped 0x34 into "not implemented" but it is **categorically different** from the GAL/PLD/FWH infeasibles: it is a parallel 5V DIP memory. Gap = a 0x34 algorithm handler (NOVRAM has STORE/RECALL software sequences + standard 28C-like byte/page write). **Verdict pending datasheet of the exact write protocol**; do NOT promise — flag as "investigate protocol 0x34, likely feasible, needs algorithm spec." Pin-mapping caveat identical to the 24-pin EEPROM adapter issue below. |
+| **9× AT28C04/AT28C16 24-pin EEPROMs (adapter-required, 0x0D)** | **FEASIBLE *only with a physical DIP24 adapter* — firmware handler already exists** | `unsupported_reason`: "socket pin 21 = WE, which the RURP DIP24_2716 pinout maps to the 12V VPP rail (hardware-damage path)". `configure_eeprom28c` (0x0D) already programs these electrically; the blocker is pin-mapping, not protocol. | MEDIUM (hardware-dependent) | **Adapter mapping needed:** a DIP24 socket adapter that re-routes socket pin 21 from RURP's VPP-rail line to WE, and aligns the AT28C04/16 pinout to a RURP bus the firmware can drive (it is a 28C-family EEPROM → 0x0D handler). PROJECT.md explicitly lists "adapter-required chip support" as a v1.13 target, gated on *having/making* the adapter. Deliverable = adapter pin-map spec (extend `firestarter info --adapter`) + a `DIP24` pinout entry; bench-validate once adapter exists. |
+| **Flash type-4 (0x05/0x35) `CMD_CHECK_CHIP_ID`** | **FEASIBLE — trivial; missing handler case** | `configure_flash4` switch (flash_type_4.cpp:27) has no `CMD_CHECK_CHIP_ID` case → autoselect ID unavailable for 27+0x35 chips. AMD-style autoselect (0xAA/0x55/0x90) is standard. | LOW | Small firmware add; mirror `flash3_check_chip_id_execute`. Worth doing so identity-gating works for the flash4 family like every other family. |
+| **0x39 family validation (2 chips, comment says 0)** | **FEASIBLE — already dispatched; just stale doc + unvalidated** | DB now has **2 chips on algo 0x39**; CLAUDE.md says "0 chips, future-proofed". Routes to `configure_flash4`. | LOW | Validate the 2 real chips on the 0x39→flash4 path; update the stale "0 chips" comment. Cheap correctness win surfaced by the DB read. |
 
----
+### Anti-Features (KEEP REFUSED — infeasible on RURP; stay fail-closed)
 
-## Feature Landscape (Reframed for v1.12)
-
-### Table Stakes (Required for the milestone to deliver its stated safety goal)
-
-| Feature | Why Required | Complexity | Notes |
-|---------|--------------|------------|-------|
-| Fail-closed dispatch — remove/guard `mem_type` fallback | Silent hardware-damage path: `mem_type=1` fallback asserts 12V VPP on unknown protocols | MEDIUM | Target: `configure_memory()` in `memory.cpp`; the protocol-prefix chain already covers all 11 real protocols; the `mem_type` chain below it is the hazard |
-| Distinct "not-implemented" wire response code | Host needs to distinguish "protocol unimplemented" from a generic operation error for clean UX | LOW | New message-ID in `tools/catalog/messages.toml`; codegen produces C++ + Python; lockstep wire change |
-| Host graceful handling — "protocol not implemented" user message | Without this, users get a cryptic serial error or silence when `algorithm` is unrecognized | LOW | `cli_handlers.py` maps the new response code to a clean human message; requires `constants.py` / `firestarter.h` sync |
-| Native dispatch tests for fail-closed path | Without tests, the safety guarantee is undocumented and regression-prone | LOW | Extend `test_configure_memory.cpp` to cover: (a) unknown protocol_id returns not-implemented, (b) algorithm=0 + mem_type=1 no longer silently routes to configure_eprom |
-
-### Differentiators (Increase robustness and auditability)
-
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| Explicit infeasibility skeleton for `0x11` (IC2_ALG_FWH) | User with an FWH chip gets a clean "not supported on RURP hardware" instead of falling to `mem_type` chain | LOW | Registers a handler stub that returns the new not-implemented response; documents the hardware reason |
-| Explicit infeasibility skeletons for PLD IDs (`0x2A`, `0x2B`, `0x2C`) | Defense in depth: user-override DB entries with PLD algorithms never silently engage VPP | LOW | Same stub pattern; these IDs are filtered by `build_db.py` but a hand-crafted command could still reach firmware |
-| Protocol-gap enumeration document in `firestarter/doc/` or `firestarter_app/doc/` | Future-proofs the architecture: any developer adding a chip knows exactly which protocols are handled, which are stubs, which are infeasible | LOW | Derived from this research; the classification table above is the source |
-
-### Anti-Features (Do Not Build)
-
-| Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|-------------------|
-| Actual programming logic for new chip families | Bucket 2 is empty — no new feasible protocols exist; implementing programming logic would be building for zero chips | Stay at skeleton/stub level; defer programming logic to per-protocol milestones gated on actual hardware availability |
-| Stubbing all 43 infeasible IDs | Registers 43 no-op handlers that add noise with zero user value | Stub only the IDs a user could plausibly encounter via a hand-crafted command or user-override DB entry (0x11, 0x2A, 0x2B, 0x2C at most) |
-| Backward-compat preservation of `mem_type` chain | The chain is the hazard this milestone exists to eliminate | Remove or guard it; any host version that omits `algorithm` should get the fail-closed response, not silent VPP engagement |
+| Feature | Why requested | Why infeasible on RURP | Correct behavior |
+|---|---|---|---|
+| FWH/LPC flash (0x11) | Appears in minipro DB | LPC serial interface + 3.3V rail; RURP is parallel + fixed 5V | Keep `configure_not_implemented` (0xBB) — v1.12 DISP-04 |
+| GAL/PLD (0x2A/0x2B/0x2C) | "It's a DIP chip" | Logic devices, not memory; need JEDEC fuse-map programming + non-memory pin protocols; many need >22V or special algorithms | Keep refused; not memory at all |
+| NMOS 2716/2732/M2716 (0x00, **vpp-exceeds-max**) | Classic EPROMs people own | Require **25V** VPP; `RURP_VPP_CEILING_MV=22000` | Keep `vpp-exceeds-max` refusal. **NOTE:** M2732A=21V is `supported` (under ceiling) — boundary already correct. Do not relax the ceiling. |
+| MCU / SMD-only / serial SPI-I²C EEPROM | minipro covers them | No ICSP, no SMD socket, no serial bus on RURP | Stay skipped/refused |
+| 6.5V VCC NMOS programming | Some NMOS parts want 6V VCC | RURP VCC fixed at 5V (no VCC DAC) | Out of scope per PROJECT.md |
 
 ---
 
 ## Feature Dependencies
 
 ```
-Fail-closed dispatch (guard/remove mem_type fallback)
-    requires: New "not-implemented" wire response code
-                  requires: messages.toml codegen update (messages.py + firmware header)
+[Validation harness + matrix]  (software, build FIRST, no bench gate)
+        └──enables──> [Per-family hardware validation rows]
+                            └──exposes──> [Per-family correctness fixes]
 
-Host graceful handling
-    requires: New "not-implemented" wire response code
-    requires: Fail-closed dispatch (so the response is actually emitted)
+[SRAM validation] ──may-promote-to──> [configure_sram real read/write IMPLEMENT]
+                            (no-op handler: validate decides validate-vs-implement)
 
-Dispatch tests (fail-closed path)
-    requires: Fail-closed dispatch (to have something to test)
-    requires: New response code (to assert against)
+[erase W27C512 host wiring] ──requires──> [FLAG_CAN_ERASE set + 14V rail confirm]
+        (firmware erase electricals already exist — eprom_internal_erase)
 
-Infeasibility skeleton stubs (optional: 0x11 / 0x2A / 0x2B / 0x2C)
-    requires: New "not-implemented" wire response code (stubs emit it)
-    enhances: Fail-closed dispatch (explicit rejection is cleaner than generic fallthrough)
+[AT28C04/16 24-pin support] ──requires──> [physical DIP24 adapter + DIP24 pinout entry]
+        └──requires──> [adapter pin-map spec / firestarter info --adapter]
+        (firmware 0x0D handler already correct — pure mapping/hardware dependency)
+
+[X88C64 0x34 support] ──requires──> [0x34 algorithm spec from datasheet]
+        └──then──> [new firmware handler] ──maybe-requires──> [DIP24 adapter]
+
+[flash4 CMD_CHECK_CHIP_ID] ──independent, LOW──> (mirror flash3)
+[0x39 stale-comment + 2-chip validation] ──independent, LOW──>
+
+[v1.9 read-bug RCA] ──CONFLICTS / DECOUPLED──> [v1.13 read validation]
+        (validate reads on clean Leonardo/EVEN-01 only; do not couple)
 ```
+
+### Dependency notes
+
+- **Harness precedes everything.** It is the only un-gated deliverable and the spine of the milestone; build and land it before any bench session.
+- **SRAM is a validate→maybe-implement fork.** The no-op `configure_sram` means a write may silently succeed-without-writing. Validation determines whether SRAM moves from Table Stakes (works via generic path) to Differentiator (needs a real handler). This must be resolved early because 20+ chips claim support.
+- **erase W27C512 is mostly host-side.** The firmware electricals exist; the gap is `FLAG_CAN_ERASE` routing + the 12V→14V rail detail + datasheet preconditions. This is the lowest-risk Differentiator and the explicit "deferred erase path resurfaces" item.
+- **Adapter-required and X88C64 are hardware/spec-gated.** Both depend on artifacts the operator must supply (a physical adapter; a datasheet protocol). Plan them as bench-gated/research-gated, not autonomous.
+- **Decouple from v1.9.** The shield-fleet read-bug RCA is a separate deferred milestone; v1.13 must validate reads on the trustworthy board only (Leonardo/EVEN-01) to avoid importing that confound.
+
+---
+
+## MVP Definition (v1.13)
+
+### Launch With (core of the milestone)
+
+- [ ] **Validation harness + matrix (software)** — essential; everything else reports through it.
+- [ ] **Validate UV-EPROM 0x07/0x08/0x0B write+verify+chip-id** on bench (W27C512 etc., Leonardo) — the product's core path.
+- [ ] **Validate 5V EEPROM 0x0D (SDP+page+DQ7)** — 84 chips, AT28C256 representative.
+- [ ] **Validate Flash AMD 0x06 write+erase** — largest family (190).
+- [ ] **Resolve SRAM no-op question** — validate the 0x0E/0x27/0x28/0x29 path; if it silently no-ops on write, classify as a correctness bug.
+- [ ] **`firestarter erase W27C512` host wiring + 14V confirm** — the flagship feasible gap; firmware electricals already exist.
+- [ ] **Re-research write-up** — formally re-enumerate feasible-but-unimplemented (this document feeds it): SRAM no-op, X88C64 0x34, flash4 chip-id, 0x39 stale comment.
+
+### Add After Validation (within v1.13 if bench/parts allow)
+
+- [ ] **Flash type-4 0x05/0x35 validation** + **add `CMD_CHECK_CHIP_ID` case** — trigger: chips on hand.
+- [ ] **Flash Intel 0x10 validation** (12V P1; SR error branches) — trigger: a 28F-series chip on hand.
+- [ ] **Per-family correctness fixes** bench exposes — trigger: any FAIL row.
+- [ ] **0x39 2-chip validation + comment fix** — cheap, do alongside flash4.
+
+### Future Consideration (defer — hardware/spec dependent)
+
+- [ ] **AT28C04/AT28C16 24-pin support** — defer until a DIP24 adapter exists; deliver the adapter pin-map spec now, bench-validate later.
+- [ ] **X88C64 0x34 handler** — defer until the 0x34 write/STORE-RECALL protocol is spec'd from datasheet; do not promise feasibility blind.
+
+---
+
+## Feature Prioritization Matrix
+
+| Feature | User Value | Implementation Cost | Priority |
+|---|---|---|---|
+| Validation harness + matrix | HIGH | MEDIUM | P1 |
+| UV-EPROM 0x07/08/0B validation | HIGH | LOW | P1 |
+| 5V EEPROM 0x0D validation | HIGH | MEDIUM | P1 |
+| Flash AMD 0x06 validation | HIGH | MEDIUM | P1 |
+| SRAM no-op resolution (validate→maybe-implement) | HIGH | LOW–MEDIUM | P1 |
+| `erase W27C512` host wiring + 14V | HIGH | MEDIUM | P1 |
+| Re-research write-up (this doc → requirements) | HIGH | LOW | P1 |
+| Flash type-4 0x05/0x35 validation + chip-id case | MEDIUM | LOW–MEDIUM | P2 |
+| Flash Intel 0x10 validation | MEDIUM | MEDIUM | P2 |
+| Per-family correctness fixes | HIGH | varies | P2 (triggered) |
+| 0x39 2-chip validation + stale comment | LOW | LOW | P2 |
+| AT28C04/16 24-pin adapter support | MEDIUM | MEDIUM (HW-gated) | P3 |
+| X88C64 0x34 handler | LOW–MEDIUM | HIGH (spec-gated) | P3 |
+| Keep 0x11/0x2A-0x2C/25V refused | — (safety) | none | P1 (invariant) |
+
+**Priority key:** P1 = milestone core; P2 = add when bench/parts allow; P3 = future / hardware-or-spec gated.
+
+---
+
+## Re-examination verdict: does v1.12's "feasible set is complete" hold?
+
+**Partially — it overstated completeness.** v1.12 concluded "every RURP-feasible DIP parallel-memory protocol already has a handler." That is true for the *protocol-dispatch framework* but glosses three real gaps that this milestone exists to surface:
+
+1. **`configure_sram` is a no-op stub.** SRAM/NVRAM "support" (20+ chips on 0x0E plus 0x27/0x28/0x29) is dispatched to an empty function. Either the generic path covers it (validate) or write silently does nothing (implement). v1.12 counted these as "supported."
+2. **X88C64 (0x34) is mis-bucketed as infeasible.** It is a **parallel 5V 24-pin DIP** EEPROM/NOVRAM — categorically unlike the genuinely-infeasible 0x11/0x2A-0x2C. It is the single `protocol-not-implemented` chip and is plausibly feasible with a new handler.
+3. **The erase path was explicitly deferred, not absent.** Firmware *has* the 0x07 erase electricals; the host never wires `erase` to electrically-erasable EEPROMs. v1.12 listed this as out-of-scope backlog; v1.13 promotes it.
+
+Everything else v1.12 refused (FWH 0x11, GAL/PLD 0x2A-0x2C, 25V NMOS, serial/SMD/MCU) **remains correctly infeasible** — those verdicts hold and must stay fail-closed.
+
+---
+
+## Competitor / prior-art Feature Analysis
+
+| Feature | minipro (TL866) | Arduino parallel-EEPROM libs | Firestarter (our approach) |
+|---|---|---|---|
+| Protocol coverage | Full XML DB incl. serial/PLD/MCU via dedicated HW | 28C/X28 byte+page only ([Andy4495/ParallelEEPROM](https://github.com/Andy4495/ParallelEEPROM)) | DIP-parallel memory subset; fail-closed on the rest |
+| Erase EE-EPROM (W27C512) | Yes (special erase algorithm) | n/a (UV parts) | **Gap to implement** — electricals exist, host wiring missing |
+| SRAM/NVRAM write | Yes | Yes (it's just SRAM) | **No-op stub — validate/implement** |
+| 24-pin AT28C04/16 | Yes (adapter/socket) | Yes (direct wiring) | **Adapter-required** — needs DIP24 adapter |
+| X88C64 NOVRAM | Yes (Elnec/BPM support it) | rare | **0x34 unimplemented — re-classify as feasible candidate** |
+| Capability honesty | silent on unsupported | n/a | fail-closed + `support_status` (v1.12) — keep |
 
 ---
 
 ## Sources
 
-- minipro `database.h` IC2_ALG_* constants @ `a8efaedc236c1d9718bd28299dfbb99536b010ff` (fetched 2026-06-10 via raw GitLab URL — confirmed complete list `0x00`–`0x35`, 54 named constants)
-- `firestarter_app/doc/infoic-field-dictionary.md` — v1.11 canonical field dictionary; all `protocol_id` semantics source-cited against `database.h#L24–L77`
-- `firestarter_app/doc/protocol-id.md` — v1.11 corrected protocol-ID reference; exclusion rationales for 0x11/0x2A/0x2C/0x2E/0x35/0x39/0x3C
-- `firestarter_app/tools/build_db.py` — KNOWN_PROTOCOLS set (post-v1.11: 11 IDs); PROTOCOL_MAP (canonical IC2_ALG_* names); filter logic (`type_int in [1,4]`, DIP 24–32, `is_smd==0`, `is_serial==0`)
-- `firestarter/CLAUDE.md` — dispatch table; algorithm handler table (11 handlers, 13 protocol IDs including 0x35/0x39 legacy carry)
-- `.planning/PROJECT.md` — v1.12 milestone scope; v1.11 research conclusion ("hardware-feasible set already covered")
-- `.planning/milestones/v1.11-ROADMAP.md` — v1.11 scope re-derivation rationale; Phase 57 PROTOCOL_MAP canonicalization; post-close state
+- Firmware source (read directly): `firestarter/src/proms/{eprom,eeprom_28c,flash_type_3,flash_type_4,flash_intel,sram,flash_utils,not_implemented,memory}.cpp` — handler/erase/chip-id presence, no-op SRAM, dispatch chain
+- `firestarter_app/firestarter/data/chip_database.json` — 744-chip support_status + algorithm distribution (read 2026-06-16)
+- `firestarter_app/firestarter/database.py:594` — `FLAG_CAN_ERASE` derivation from info-flag bit 0x10
+- `.planning/PROJECT.md` — v1.13 milestone scope, RURP constraints, hybrid bench gating, deferred erase path
+- `.planning/milestones/v1.12-REQUIREMENTS.md` — v1.12 feasibility conclusion + support_status taxonomy + out-of-scope erase/adapter items
+- `.planning/research/SUMMARY.md` (v1.12) — prior infeasibility reasoning
+- [Winbond W27C512 datasheet (dosdays mirror)](https://www.dosdays.co.uk/media/winbond/W27C512_Datasheet.pdf) — erase mode: OE/VPP=14V, A9=14V, 5V VCC, 100 ms
+- [W27C512 datasheet (alldatasheet)](https://www.alldatasheet.com/datasheet-pdf/pdf/47653/WINBOND/W27C512.html) — +14V erase / +12V program, electrically erasable
+- [Elnec — Xicor X88C64 device support](https://www.elnec.com/en/device/Xicor/X88C64/) — X88C64 supported, adapter modules
+- [eBay — X88C64PI 8K×8 5V 24-pin DIP](https://www.ebay.com/p/663635561) — confirms parallel 5V 24-pin DIP package
+- [Andy4495/ParallelEEPROM (Arduino lib)](https://github.com/Andy4495/ParallelEEPROM) — prior-art for 28C256/X28256/28C16 parallel programming
 
 ---
-*Protocol-gap enumeration for v1.12 "Firmware Protocol Dispatch Hardening + Skeletons"*
-*Researched: 2026-06-10*
+*Feature research for: Firestarter v1.13 — Programming Algorithm Validation + Gap Implementation*
+*Researched: 2026-06-16*

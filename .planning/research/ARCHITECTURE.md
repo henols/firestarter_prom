@@ -1,594 +1,329 @@
 # Architecture Research
 
-**Domain:** Firmware protocol dispatch hardening + skeleton handlers (v1.12)
-**Researched:** 2026-06-10
-**Confidence:** HIGH — all findings grounded in direct source inspection of
-`memory.cpp`, `firestarter.h`, `check_dispatch.py`, `serial_comm.py`,
-`exceptions.py`, `cli_handlers.py`, and the v1.2 `messages.toml` catalog.
+**Domain:** Test-first programming-algorithm validation harness for a dual-repo (Arduino C++ firmware + Python host CLI) EPROM/Flash/EEPROM/SRAM programmer (v1.13)
+**Researched:** 2026-06-16
+**Confidence:** HIGH (grounded in the actual v1.12 codebase — `memory.cpp`, `eprom.cpp`, `flash_utils.cpp`, `sram.cpp`, `eprom_operations.py`, `chip_resolver.py`, `check_dispatch.py`, `platformio.ini [env:native]`, existing native Unity suites)
+
+> **Scope note (per milestone_context):** the dispatch + handler + DB + transport architecture already exists and is NOT re-researched here. This document answers *where the validation harness plugs into that existing architecture* and *how the new components are layered/ordered* so per-family fixes and adapter-required additions land without regressing the other families or busting the Leonardo flash ceiling.
 
 ---
 
-## Integration Overview
+## Standard Architecture
 
-Three coupled changes must land as a lockstep dual-repo set:
+The v1.13 validation surface is a **three-tier test pyramid** stacked on the existing stack. Tiers 1–2 are pure software (no bench gate); Tier 3 is the hybrid bench-gated layer. Nothing here adds a new firmware code path on the production write/program/verify route — the harness *exercises and observes* the routes that already ship.
 
-1. **Firmware (`firestarter/`):** fail-closed dispatch in `memory.cpp` + a new
-   catalog message `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` in `messages.toml` + a
-   `configure_not_implemented()` catch-all stub.
-
-2. **Host (`firestarter_app/`):** codegen re-run so `messages.py` carries the new
-   message constant + a new `ProtocolNotImplementedError` exception + wiring in
-   `eprom_operations.py` to detect the new ERROR response and raise it + wiring in
-   `cli_handlers.py` to map it to a clear CLI message.
-
-3. **Regression gate (`check_dispatch.py`):** new assertion that `dispatch()` never
-   returns `"not_implemented"` for any chip in the live database (because all chips
-   with gap-protocol entries should have been re-routed in the database or never
-   exist in the first place).
-
----
-
-## System Overview
+### System Overview
 
 ```
-  JSON command (algorithm=<proto_id>)
-       |  COBS+CRC8 framed (v1.10)
-       v
-  +----------------------------------------------------------+
-  |  firmware: configure_memory()  (memory.cpp)             |
-  |                                                         |
-  |  Phase 1: protocol prefix chain (if-return cascade)     |
-  |    known & implemented  -> configure_<handler>(handle)  |
-  |    non-zero & unknown   -> configure_not_implemented()  |
-  |                            MSG_ERR_PROTOCOL_NOT_IMPL    |
-  |                            response_code = ERROR        |
-  |                                                         |
-  |  Phase 2: mem_type fallback (protocol == 0 ONLY)        |
-  |    mem_type in {1,3,4,5} -> existing fallback handlers  |
-  |    mem_type unknown      -> MSG_ERR_MEM_TYPE_UNSUPPORTED|
-  +----------------------------------------------------------+
-       |  COBS+CRC8 frame:
-       |  ERROR severity + MSG_ERR_PROTOCOL_NOT_IMPLEMENTED
-       |  params: [u32 protocol_id]
-       v
-  +----------------------------------------------------------+
-  |  host: serial_comm._read_and_parse_lines()              |
-  |    -> frame_parser: id_frame decoded -> LogMessage(ERROR)|
-  |    -> Response(type="ERROR",                            |
-  |         message="Protocol 0x... not implemented")       |
-  +----------------------------------------------------------+
-       |  Response.type == "ERROR" + protocol-not-impl text
-       v
-  +----------------------------------------------------------+
-  |  eprom_operations._run_state_machine()                  |
-  |    ERROR response -> raise ProtocolNotImplementedError  |
-  |      if message matches the catalog text pattern        |
-  |    (fallback: EpromOperationError for other ERRORs)     |
-  +----------------------------------------------------------+
-       |  ProtocolNotImplementedError
-       v
-  +----------------------------------------------------------+
-  |  cli_handlers.map_typed_errors()                        |
-  |    ProtocolNotImplementedError ->                       |
-  |      click.ClickException("Protocol not implemented:   |
-  |        chip <name> uses algorithm 0x{proto:02X} which  |
-  |        is recognized but not yet programmed. Check back |
-  |        in a future firmware release.")                  |
-  +----------------------------------------------------------+
-       |  click prints "Error: Protocol not implemented: ..."
-       |  exit code 1
+┌──────────────────────────────────────────────────────────────────────────┐
+│  TIER 3 — Hardware-in-the-Loop (HIL) bench layer  [HYBRID-GATED]           │
+│  host-driven; produces the per-family pass/fail VALIDATION MATRIX          │
+│  ┌──────────────────────────────────────────────────────────────────┐    │
+│  │  family_validation.py  (new host harness, dev-group CLI)           │    │
+│  │   per family: erase→write golden→read-back→SHA compare             │    │
+│  │   reuses write_cycle_eprom / consistency_check_eprom verbatim      │    │
+│  │   emits  validation-matrix.json + .md  (family × verdict)          │    │
+│  └───────────────┬───────────────────────────────┬──────────────────┘    │
+│                  │ real serial (COBS+CRC8, 250k)  │ golden vectors          │
+├──────────────────┼───────────────────────────────┼─────────────────────────┤
+│  TIER 2 — Host software tests  [NO BENCH GATE]    │  (pytest)               │
+│  ┌──────────────┴──────────┐  ┌──────────────────┴───────────────────┐    │
+│  │ MockSerial round-trip    │  │ check_dispatch.py / diff_db.py        │    │
+│  │ of the per-family wire    │  │ GATE: per-family dispatch invariants  │    │
+│  │ dict (state machine over  │  │  (defense-in-depth, the regression    │    │
+│  │  a fake transport)        │  │   firewall for cross-family bugs)     │    │
+│  └──────────────────────────┘  └───────────────────────────────────────┘    │
+├──────────────────────────────────────────────────────────────────────────────┤
+│  TIER 1 — Native Unity firmware tests  [NO BENCH GATE]  (pio test -e native)   │
+│  ┌────────────────────────────────────────────────────────────────────────┐ │
+│  │ test/native/avr/test_<family>/  — algorithm-level unit tests with mocked  │ │
+│  │ bus (ArduinoFake + host_stubs.cpp). One suite per family. Asserts         │ │
+│  │ op-pointer wiring + control-register call SEQUENCE on a recording stub —  │ │
+│  │ never real hardware.                                                      │ │
+│  └────────────────────────────────────────────────────────────────────────┘ │
+├──────────────────────────────────────────────────────────────────────────────┤
+│  EXISTING PRODUCTION STACK (unchanged route; observed, not replaced)           │
+│  configure_memory dispatch → configure_<family> → flash_utils helpers          │
+│  ↑ resolve_chip(support_status guard) → convert_to_programmer → wire dict       │
+└──────────────────────────────────────────────────────────────────────────────┘
 ```
 
----
+### Component Responsibilities
 
-## Decision 1: Fail-Closed Dispatch Placement and mem_type Fallback Disposition
-
-### Where the Unknown-Protocol Decision Belongs
-
-The decision point is **at the end of the protocol-prefix chain in
-`configure_memory()`**, before the `mem_type` fallback block begins.
-
-Current structure (lines 73-118 of `memory.cpp`):
-- Protocol-prefix if-return chain for KNOWN_PROTOCOLS (13 entries)
-- `mem_type` fallback chain for `{1, 3, 4, 5}`
-- `LOG_ERROR_ID_U8(MSG_ERR_MEM_TYPE_UNSUPPORTED, ...)` + `RESPONSE_CODE_ERROR`
-
-Target structure (v1.12):
-- Protocol-prefix if-return chain: KNOWN_PROTOCOLS + any named skeletons
-  -> `configure_not_implemented(handle); return;`
-- **New: unknown-protocol guard** -- if `handle->protocol != 0`, call
-  `configure_not_implemented(handle)` and `return`
-- `mem_type` fallback chain -- reached ONLY when `handle->protocol == 0`
-- `LOG_ERROR_ID_U8(MSG_ERR_MEM_TYPE_UNSUPPORTED, ...)` -- unchanged, still reachable
-
-The `handle->protocol != 0` guard is the exact backward-compat cut-point. Any
-chip emitted by the regenerated `chip_database.json` has a non-zero `algorithm` field,
-so it is always caught by the protocol-prefix chain. The `mem_type` fallback is only
-reachable for hand-crafted JSON commands that omit `algorithm` (or send `algorithm: 0`),
-which is the legitimate backward-compat use case documented in `CLAUDE.md`.
-
-### mem_type Fallback Disposition: Keep Behind Explicit Guard
-
-**Decision: keep the `mem_type` fallback chain but guard it explicitly on
-`handle->protocol == 0`.**
-
-Rationale:
-- The fallback serves legitimate use: older host versions, manual bench JSON, or
-  test harnesses that predate the `algorithm` field. Deleting it breaks these without
-  any safety benefit -- the VPP-hazard path was already closed by BLOCKER-2 (SRAM
-  protocols have protocol-prefix dispatch) and WARNING-5 (the AT28C family was re-
-  routed to 0x0D in `build_db.py`).
-- Keeping it behind `protocol == 0` makes the guard explicit and auditable -- it
-  appears as a single readable `if (handle->protocol != 0)` short-circuit before
-  the fallback block, not an implicit fall-through.
-- Deleting entirely would require updating every test fixture that exercises the
-  `make_handle(0, mem_type, cmd)` form. The existing
-  `test_protocol_zero_with_mem_type_eprom_dispatches_eprom` test must remain green.
-- A whitelist approach (option C) is functionally equivalent but requires maintaining
-  a separate list that mirrors the if-return chain -- redundant and drift-prone. The
-  `protocol == 0` sentinel is a natural and self-maintaining boundary.
-
-### The 12V VPP Hazard Analysis
-
-The hazard path is: chip with unimplemented protocol + `mem_type=1` (TYPE_EPROM)
--> falls through to `configure_eprom` -> enables VPP boost regulator -> 12V on a
-5V chip's pin 1.
-
-With the `protocol != 0` guard, this path is **eliminated for all database chips**.
-Every DB chip has a non-zero `algorithm`. Only a hand-crafted JSON command with
-`algorithm: 0` AND `type: 1` could still reach `configure_eprom` via the fallback,
-which is the intended backward-compat behavior and is the user's explicit instruction.
-
-The existing `check_dispatch.py` GATE-03 VPP-safety guard remains valid and
-unchanged. No new VPP-hazard surface is introduced.
+| Component | Responsibility | New / Modified | Lives in |
+|-----------|----------------|----------------|----------|
+| `test/native/avr/test_<family>/` Unity suites | Algorithm-level unit tests: assert each `configure_<family>` wires the correct op pointers AND drives the expected control-register sequence on a **recording** bus stub | NEW (one per family; extends the existing `test_dispatch` pattern) | firmware sub-repo |
+| `test/native/avr/_shared/` recording stub | A `host_stubs.cpp` variant that *records* `rurp_*` register writes into a sequence buffer (instead of no-op) so a fix can be asserted by side-effect, not just by pointer | NEW (extends `_shared/host_stubs_common.inc`) | firmware sub-repo |
+| `validation_harness.py` HIL orchestration | Pure-logic family runner: for each in-scope family, erase→write golden→read-back→SHA-compare; record verdict + evidence dir; serialize matrix | NEW (module, unit-testable without serial) | host sub-repo |
+| `dev validate-family` CLI sub-command | Thin Click handler invoking `validation_harness` on a real `SerialCommunicator` | NEW (extends the `dev` group) | host sub-repo |
+| `validation-matrix.{json,md}` | The per-chip-family pass/fail matrix artifact (family, representative chip, board, verdict, evidence path, SHA) | NEW (generated artifact) | host repo `tests/golden/` + `.planning/v1.13/` |
+| `check_dispatch.py` GATE | Defense-in-depth regression firewall: every per-family fix must keep ALL dispatch invariants green (SRAM-never-to-eprom, no-vpp-pin guard, support_status inverse guard) | MODIFIED (per-family assertions; populate the hollow `non_supported_dispatchable`) | host repo `tools/` |
+| `diff_db.py` GATE | Per-chip DB diff vs pinned baseline — catches any adapter-required addition that perturbs an unrelated chip | MODIFIED (re-baseline after each DB change) | host repo `tools/` |
+| `resolve_pinout_key` (build_db.py) | Pure `(pin_count, proto_id, mem_size)` → pinout-key function + explicit safety overrides; adapter-required chips integrate as **new rule arms**, NOT resurrected tables | MODIFIED (add adapter-required arms) | host repo `tools/` |
+| `chip_resolver.resolve_chip` | Authoritative host guard: refuses any non-`supported` chip before a serial byte. Adapter-required chips flip `support_status: supported` only when pinout + handler genuinely work | EXISTING (changes only when a chip graduates) | host repo |
+| `eprom_operations.py` cycle methods | `write_cycle_eprom` (erase→write→read-back×N→SHA) + `consistency_check_eprom` (read×N→SHA) are the reusable bench primitives the HIL harness composes | EXISTING (reuse verbatim — do NOT fork) | host repo |
 
 ---
 
-## Decision 2: Skeleton Handler Structure
+## Recommended Project Structure
 
-### What Constitutes a "Skeleton Protocol" for v1.12
+```
+firestarter/                                  # FIRMWARE sub-repo
+├── src/proms/
+│   ├── memory.cpp                            # dispatch (existing) — fixes land in handlers, not here
+│   ├── eprom.cpp / flash_type_3.cpp /        # per-family handlers — per-family correctness fixes here
+│   │   flash_type_4.cpp / flash_intel.cpp /
+│   │   eeprom_28c.cpp / sram.cpp
+│   └── flash_utils.cpp                        # shared DQ7-poll / byte-flip helpers
+└── test/native/avr/
+    ├── _shared/
+    │   ├── host_stubs_common.inc              # existing shared stub include
+    │   └── recording_bus_stub.inc             # NEW: records rurp_* register-write sequence
+    ├── test_dispatch/                         # existing — dispatch-level (keep green)
+    ├── test_eprom_algo/                       # NEW: UV-EPROM write/verify sequence asserts
+    ├── test_flash3_algo/                      # NEW: AMD unlock/sector-erase sequence asserts
+    ├── test_flash4_algo/                      # NEW: page-write + DQ7 sequence asserts
+    ├── test_flash_intel_algo/                 # NEW: command-register + SR-poll sequence asserts
+    ├── test_eeprom28c_algo/                   # NEW: SDP-disable + page-poll sequence asserts
+    └── test_sram_algo/                        # NEW: read/write, NO VPP-regulator assert (BLOCKER-2)
 
-From the v1.11 protocol gap enumeration (`.planning/research/FEATURES.md`):
+firestarter_app/                              # HOST sub-repo
+├── firestarter/
+│   ├── eprom_operations.py                   # reuse write_cycle_eprom / consistency_check_eprom
+│   ├── chip_resolver.py                      # support_status guard (existing)
+│   └── validation_harness.py                 # NEW: family-matrix orchestration (pure logic, testable)
+├── tools/
+│   ├── build_db.py                           # resolve_pinout_key + adapter-required arms (MODIFIED)
+│   ├── check_dispatch.py                     # defense-in-depth gate (MODIFIED: per-family + inverse)
+│   └── diff_db.py                            # per-chip diff vs baseline (MODIFIED: re-baseline)
+└── tests/
+    ├── test_validation_harness.py            # NEW: MockSerial round-trip per family (Tier 2)
+    ├── test_check_dispatch_families.py        # NEW: per-family dispatch invariant assertions
+    └── golden/
+        ├── validation-matrix.json            # NEW: generated family pass/fail matrix
+        └── family-vectors/                   # NEW: per-family golden write images + expected read-back
 
-The DB currently has chips only for the 13 already-dispatched protocols
-(`0x05`, `0x06`, `0x07`, `0x08`, `0x0B`, `0x0D`, `0x0E`, `0x10`, `0x27`, `0x28`,
-`0x29`, `0x35`, `0x39`). None of the "gap" protocols (`0x11`, `0x2A`, `0x2C`,
-`0x2E`, etc.) have any chips in the current database.
+.planning/v1.13/
+└── bench-verification/                       # HIL evidence dirs (SHA runs, matrix .md) — operator-witnessed
+```
 
-Therefore v1.12 does not need named per-protocol skeleton `configure_*` functions:
-the **catch-all `configure_not_implemented()`** in `memory.cpp` handles all non-zero
-unknown protocols with `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED`.
+### Structure Rationale
 
-The value of v1.12 is closing the hazard hole and producing a traceable error
-message. If future milestones add chips for currently-gap protocols, they add the
-dispatch arm AND the real handler together; there is no benefit to a dead stub
-in between.
+- **One Unity suite per family (`test_<family>_algo/`):** mirrors the proven `test_dispatch/` + `test_flash_intel_vpp/` + `test_eeprom28c_chip_id/` pattern already in `[env:native]`. PlatformIO auto-discovers any `test_*.cpp` under `test/native/avr/<dir>/`; adding a suite needs only a `test_filter`/`-I` line, not an env redesign (per firmware CLAUDE.md "Reuse pattern for future native tests"). Family isolation means a fix to `eprom.cpp` cannot silently change another family's suite.
+- **Recording bus stub in `_shared/`:** today `host_stubs.cpp` is *no-op* — sufficient for dispatch tests that assert only `response_code`/op-pointers. Algorithm-correctness validation needs to assert *what the handler did* (e.g. SRAM must NEVER set `CTRL_VPP_REGULATOR_ENABLE`; EPROM_STD must set `CTRL_VPP_VPE_DROP_ENABLE`). A recording stub captures the register-write sequence so a fix is provable host-side, pre-bench.
+- **Harness logic split from CLI (`validation_harness.py` + `dev` sub-command):** keeps orchestration pure-functional and unit-testable under pytest (Tier 2) without serial I/O, matching the v1.8 STRUCT pattern (logic in modules, thin CLI handlers). The bench run is the same logic with a real `SerialCommunicator`.
+- **Matrix as a committed artifact (`tests/golden/validation-matrix.json`):** makes "which families are proven on hardware" a versioned, diffable fact — the milestone can close at partial coverage (hybrid gating) with the matrix recording exactly which families are bench-proven vs deferred-for-parts.
+- **Adapter-required arms in `resolve_pinout_key`, NOT new tables:** v1.11 Phase 58 *deleted* `PIN_MAP_*`/`DIP28_VARIANT_MAP` guess tables and rebuilt `resolve_pinout_key` as a pure function with three explicit safety overrides. Adapter-required chips must extend that function as **named rule arms** (same shape as the WARNING-5 / fm1608 / 24-pin-EEPROM overrides), never by reintroducing a lookup table.
 
-If the roadmap explicitly calls for named skeleton stubs for documentation purposes,
-they follow this structure:
+---
 
-### Skeleton `configure_*` Structure
+## Architectural Patterns
 
-A skeleton recognizes the protocol (the dispatch reaches it) but returns not-
-implemented with **zero hardware side effects**. Key invariants:
+### Pattern 1: Test-first family validation (RED → bench → fix → GREEN)
 
-1. No `rurp_chip_enable()` or `rurp_chip_disable()` call.
-2. No `CTRL_VPP_REGULATOR_ENABLE`, `CTRL_VPP_VPE_DROP_ENABLE`, `CTRL_VPP_P1_ENABLE`
-   register writes (these enable the boost regulator or route voltage to socket pins).
-3. No function pointer assignments to `firestarter_operation_init/main/end` -- the
-   main loop must not run any phase after a not-implemented response.
-4. Must emit `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` with the protocol ID as a `u32` param
-   and set `handle->response_code = RESPONSE_CODE_ERROR`.
+**What:** For each family, write the Tier-1 algorithm assertion + Tier-2 wire round-trip BEFORE touching the handler. The bench run (Tier 3) reveals whether the *real* hardware agrees with the asserted sequence; a divergence becomes a failing test that the per-family fix turns green.
+**When to use:** every family in the milestone — this is the milestone's core method ("let evidence define what missing means").
+**Trade-offs:** more upfront test scaffolding; in return, no fix ships without a regression net, and the matrix is honest about coverage.
 
-Pattern (C++ body of a hypothetical `configure_flash_fwh`):
+**Example (recording-stub Unity assertion — SRAM electrical-safety invariant):**
 ```cpp
-void configure_flash_fwh(firestarter_handle_t* handle) {
-    /* FWH / LPC bus -- not supported on RURP parallel bus */
-    LOG_ERROR_ID_U32(MSG_ERR_PROTOCOL_NOT_IMPLEMENTED, handle->protocol);
-    handle->response_code = RESPONSE_CODE_ERROR;
-    /* No operation pointers set; no hardware lines touched */
+// test_sram_algo/test_sram_no_vpp.cpp
+void test_sram_write_never_enables_vpp_regulator(void) {
+    reset_register_recorder();
+    firestarter_handle_t h = make_handle(0x28 /*SRAM_STD*/, 0, CMD_WRITE);
+    configure_memory(&h);                       // dispatch → configure_sram
+    if (h.firestarter_operation_main) h.firestarter_operation_main(&h);
+    TEST_ASSERT_FALSE(recorder_saw_bit_set(CTRL_VPP_REGULATOR_ENABLE)); // BLOCKER-2
 }
 ```
+> Note: `configure_sram` is currently a bare stub (`sram.cpp` only logs). The Tier-1 SRAM suite both documents the *required* read/write behaviour and pins the safety invariant — a likely per-family fix candidate the bench will expose.
 
-### File Location for Stubs
+### Pattern 2: Golden write+read-back, host-side independent compare
 
-**New file `src/proms/not_implemented.cpp`** with a matching
-`include/not_implemented.h`. Rationale:
-- Keeps `memory.cpp` clean.
-- All skeleton stubs are co-located so a future author looking for "what needs
-  implementing" finds them in one file.
-- `sram.cpp` is the size reference: it is 17 lines. Skeleton stubs are even smaller.
-- The file houses `configure_not_implemented()` -- the catch-all:
+**What:** The harness never trusts the firmware's own verify. It writes a known golden image, then performs an independent host-side read-back and SHA-256 compares against the source image — exactly the `write_cycle_eprom` contract (3-way verdict: PASS / mismatch / hw-error; hw-error is never collapsed to mismatch).
+**When to use:** every Tier-3 family run.
+**Trade-offs:** doubles bench time (write + read); in return, catches firmware-verify blind spots (a buggy `memory_verify_execute` cannot mask a bad write).
 
-```cpp
-/* catch-all for unrecognized non-zero protocols */
-void configure_not_implemented(firestarter_handle_t* handle) {
-    LOG_ERROR_ID_U32(MSG_ERR_PROTOCOL_NOT_IMPLEMENTED, handle->protocol);
-    handle->response_code = RESPONSE_CODE_ERROR;
-}
+**Data-flow:**
+```
+golden image (family-vectors/<family>.bin)
+   → erase_eprom → write_eprom (production state machine, COBS+CRC8)
+   → read-back via _main_phase_read_data → cycle_NN_readback.bin
+   → SHA-256(readback) == SHA-256(golden)?  → matrix cell verdict
 ```
 
-The inclusion pattern in `memory.cpp` follows the existing include list:
-`#include "not_implemented.h"`.
+### Pattern 3: Defense-in-depth dispatch gate as the cross-family firewall
 
----
-
-## Decision 3: Not-Implemented Wire Response End-to-End
-
-### New Catalog Entry
-
-Add to `messages.toml` (meta-repo canonical, synced to both sub-repos via
-`sync_to_subrepos.sh`):
-
-```toml
-[[messages]]
-id          = 0xBB
-name        = "MSG_ERR_PROTOCOL_NOT_IMPLEMENTED"
-severity    = "ERROR"
-format      = "Protocol 0x%08lx not implemented"
-params      = [{ type = "u32", render = "hex_addr" }]
-wire_format = "id_frame"
-```
-
-ID `0xBB` is the next free slot in the `0xA0..0xDF` ERROR band after `0xBA`
-(`MSG_ERR_MEM_SIZE_TOO_SMALL`). Confirm by inspection before assigning; the catalog
-currently ends the ERROR band at `0xBA` per the generated `messages.py`.
-
-The `u32` param carries `handle->protocol` -- future-proof because `protocol` is
-declared `uint32_t` in `firestarter_handle_t` even though all current values fit in
-a byte.
-
-Codegen (`tools/catalog/codegen.py`) regenerates:
-- `firestarter/include/messages.h` (firmware C header)
-- `firestarter_app/firestarter/messages.py` (Python constants)
-
-Both are committed; the CI drift gate (`codegen + git diff --exit-code`) catches skew.
-
-### Firmware Emission
-
-```cpp
-// in configure_not_implemented():
-LOG_ERROR_ID_U32(MSG_ERR_PROTOCOL_NOT_IMPLEMENTED, handle->protocol);
-handle->response_code = RESPONSE_CODE_ERROR;
-```
-
-`LOG_ERROR_ID_U32` is a thin macro wrapping `rurp_log_id_u32` (defined in
-`logging_id.h`). No new macro is required.
-
-### Host Frame Reception
-
-The COBS+CRC8 transport (v1.10) is transparent. The `_read_and_parse_lines`
-generator in `serial_comm.py` is ring-fenced (GATE-1.8d). When the firmware
-emits `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED`, the generator yields a
-`Response(type="ERROR", message="Protocol 0x<proto> not implemented")` via the
-`_decode_id_frame` -> `codec.decode_id_frame` path using the catalog entry's
-format string. No changes to `_read_and_parse_lines`.
-
-### New Host Exception
-
-Add to `firestarter/exceptions.py`:
-```python
-class ProtocolNotImplementedError(EpromOperationError):
-    """Raised when firmware reports a recognized-but-unimplemented protocol.
-
-    Distinct from EpromOperationError so the CLI can print an actionable
-    "not yet supported" message rather than a generic programmer error.
-    Inherits from EpromOperationError so callers catching the parent continue
-    to work without modification (backward-compatible widening).
-    """
-    pass
-```
-
-### Detection in `eprom_operations.py`
-
-In `_run_state_machine`, the ERROR branch currently does:
-```python
-if response.type == "ERROR":
-    raise EpromOperationError(
-        f"Programmer error during {phase_name.lower()}: {response.message}"
-    )
-```
-
-Augment with a protocol-not-implemented check. The cleanest approach uses the
-decoded message text rather than a raw ID byte, because `_run_state_machine`
-operates on `Response` objects (text-level after catalog decode):
+**What:** `check_dispatch.py` already simulates `memory.cpp` dispatch over all 744 chips and asserts family invariants (SRAM never → `configure_eprom`; no chip on a no-vpp-pin pinout → `configure_eprom`; WARNING-5 type-keyed guard). Every per-family fix and every adapter-required addition must keep this gate at zero violations. It is the structural equivalent of "fix one family without breaking the others."
+**When to use:** as a CI gate on every DB or dispatch change (it runs without hardware).
+**Trade-offs:** the gate is a *mirror* of firmware dispatch order — it must be updated in lockstep with `memory.cpp` (drift = false confidence). v1.13 should also **populate the hollow `non_supported_dispatchable` detector** (accepted tech debt from v1.12) so the inverse guard is real, not asserted-empty.
 
 ```python
-from firestarter.exceptions import ProtocolNotImplementedError
-
-if response.type == "ERROR":
-    if "not implemented" in (response.message or "").lower():
-        raise ProtocolNotImplementedError(
-            response.message or "Protocol not implemented"
-        )
-    raise EpromOperationError(
-        f"Programmer error during {phase_name.lower()}: {response.message}"
-    )
+# extend check_dispatch.py — per-family invariant (illustrative)
+assert dispatch(0x0E, mem_type) == "configure_sram"   # SRAM family
+assert dispatch(0x10, mem_type) == "configure_flash_intel"
+# inverse guard (populate, don't just assert-empty):
+if support_status != "supported" and dispatch(proto, mt) != "not_implemented":
+    non_supported_dispatchable.append(part)
 ```
 
-The string match is on text under project control (the catalog format string).
-A more robust alternative threads the numeric message ID through `Response`, but
-that would require touching the ring-fenced generator; the string match is
-sufficient and safe for v1.12.
+### Pattern 4: Flash-budget-gated firmware additions
 
-### CLI Surface in `cli_handlers.py`
-
-Add to `map_typed_errors` (BEFORE the `EpromOperationError` catch -- subclass
-must be caught first):
-```python
-from firestarter.exceptions import ProtocolNotImplementedError
-
-except ProtocolNotImplementedError as e:
-    raise click.ClickException(
-        f"Protocol not implemented: {e}\n"
-        f"This chip's programming algorithm is recognized by the firmware "
-        f"but not yet implemented. Future firmware versions may add support."
-    ) from e
-```
-
-User-visible output:
-```
-Error: Protocol not implemented: Protocol 0x0000000B not implemented
-This chip's programming algorithm is recognized by the firmware
-but not yet implemented. Future firmware versions may add support.
-```
+**What:** Leonardo is the tight board (v1.12 closed with Uno at 72.4% flash; the milestone names ~88% Leonardo). Native Unity tests cost ZERO production flash (they compile under `[env:native]` on the host, excluded from `uno`/`leonardo` builds via `build_src_filter`). Therefore the *test harness itself is flash-free*; only actual handler fixes and adapter-required handler code consume the budget.
+**When to use:** every firmware change — measure `pio run -e leonardo` size before/after.
+**Trade-offs:** prefer fixing existing handlers (often net-neutral or net-negative on flash) over adding code; defer any adapter-required family whose handler would breach the ceiling.
 
 ---
 
-## Decision 4: `check_dispatch.py` Updates
+## Data Flow
 
-### What the Host Guard Needs
+### Validation-matrix generation flow (Tier 3)
 
-`check_dispatch.py`'s `dispatch()` function currently returns one of:
-`configure_eprom`, `configure_eeprom28c`, `configure_flash3`, `configure_flash4`,
-`configure_flash_intel`, `configure_sram`, or `ERROR`.
-
-After v1.12 the firmware has one additional outcome: `"not_implemented"` (the
-catch-all path). The host guard needs:
-
-1. **`dispatch()` updated** to return `"not_implemented"` for protocols that hit the
-   catch-all. Since the current DB has zero chips for gap protocols, this change
-   produces no immediate violations -- defense-in-depth for future DB additions.
-
-2. **New assertion**: any chip that resolves to `"not_implemented"` is a FAIL.
-   The DB must not contain chips the firmware cannot service.
-
-Updated `dispatch()` function:
-```python
-def dispatch(protocol, mem_type):
-    """Mirror firmware dispatch order after v1.12 fail-closed hardening."""
-    if protocol == 0x10: return "configure_flash_intel"
-    if protocol == 0x0D: return "configure_eeprom28c"
-    if protocol == 0x06: return "configure_flash3"
-    if protocol in (0x05, 0x35, 0x39): return "configure_flash4"
-    if protocol in (0x07, 0x08, 0x0B): return "configure_eprom"
-    if protocol in (0x0E, 0x27, 0x28, 0x29): return "configure_sram"
-    # v1.12: any non-zero unknown protocol -> not_implemented (not ERROR)
-    if protocol != 0:
-        return "not_implemented"
-    # mem_type fallback (protocol == 0 only, backward-compat)
-    return {
-        1: "configure_eprom",
-        4: "configure_sram",
-        3: "configure_flash3",
-        5: "configure_flash4",
-    }.get(mem_type, "ERROR")
+```
+[operator: bench available, family chip seated on Leonardo]
+        ↓
+firestarter dev validate-family --family eprom --golden W27C512.bin --port /dev/ttyACM0
+        ↓
+validation_harness.run_family()
+   → resolve_chip(rep_chip)           # support_status guard; refuses non-supported in-host
+   → erase_eprom / write_eprom        # production COBS+CRC8 state machine
+   → read-back (_main_phase_read_data)
+   → SHA-256 compare (host-side)
+        ↓
+matrix cell: {family, chip, board, verdict, evidence_dir, sha}
+        ↓
+write validation-matrix.json (+ render .md)   # committed; partial coverage OK
 ```
 
-The main scan loop adds a `not_implemented` list and FAIL guard. The PASS message
-is updated to include `0 not-implemented chips`.
+### Per-family fix flow (software-first, bench-on-hand)
 
-### `_ALGO_MEM_TYPE` Extension
-
-`_ALGO_MEM_TYPE` maps protocol -> mem_type for the fallback chain simulation.
-Gap protocols (`0x11`, etc.) are not in the current DB so no entries are needed now.
-If future phases add them, those phases extend `_ALGO_MEM_TYPE` at that time.
-
----
-
-## Component Boundaries (New vs Modified)
-
-### Firmware sub-repo (`firestarter/`)
-
-| File | Status | Change |
-|------|--------|--------|
-| `src/proms/memory.cpp` | MODIFIED | Add `protocol != 0` guard before mem_type fallback; add `#include "not_implemented.h"`; call `configure_not_implemented(handle); return;` for non-zero unknown protocols |
-| `src/proms/not_implemented.cpp` | NEW | `configure_not_implemented()` catch-all; any named per-protocol skeletons if roadmap requires them |
-| `include/not_implemented.h` | NEW | Declaration of `configure_not_implemented()` and any named skeletons |
-| `include/messages.h` | MODIFIED (codegen) | `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED = 0xBB` added by codegen |
-| `tools/catalog/messages.toml` | MODIFIED | Add `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` entry (sync copy from meta-repo) |
-| `test/native/avr/test_dispatch/test_configure_memory.cpp` | MODIFIED | Add test asserting non-zero unknown protocol sets `RESPONSE_CODE_ERROR`; keep existing fallback test green |
-
-### Host sub-repo (`firestarter_app/`)
-
-| File | Status | Change |
-|------|--------|--------|
-| `firestarter/exceptions.py` | MODIFIED | Add `ProtocolNotImplementedError(EpromOperationError)` |
-| `firestarter/messages.py` | MODIFIED (codegen) | `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED = 0xBB` added by codegen |
-| `firestarter/eprom_operations.py` | MODIFIED | Detect "not implemented" ERROR response in `_run_state_machine`; raise `ProtocolNotImplementedError` |
-| `firestarter/cli_handlers.py` | MODIFIED | Add `ProtocolNotImplementedError` catch in `map_typed_errors` (before `EpromOperationError`) |
-| `tools/check_dispatch.py` | MODIFIED | Update `dispatch()` with `protocol != 0 -> not_implemented` arm; add `not_implemented` list + FAIL guard + PASS message update |
-| `tools/catalog/messages.toml` | MODIFIED (sync copy) | Synced from meta-repo via `sync_to_subrepos.sh` |
-
-### Meta-repo (`.planning/`)
-
-| File | Status | Change |
-|------|--------|--------|
-| `tools/catalog/messages.toml` | MODIFIED | Canonical source; add new entry; run `sync_to_subrepos.sh` |
-
----
-
-## Build Order (Dependency-Respecting)
-
-The constraint is lockstep: the wire change (new message ID) must land in
-firmware and host at the same time. The catalog is the source of truth; codegen
-is the distribution mechanism.
-
-**Step 1 -- Catalog + codegen (both repos simultaneously)**
-- Edit `messages.toml` in meta-repo; run `sync_to_subrepos.sh`.
-- Run codegen in both sub-repos (`codegen.py`); commit generated `messages.h` and
-  `messages.py`. CI drift gate green.
-- This step has no observable behavior change (nothing calls the new ID yet).
-- Confirms the ID value (`0xBB`) is available before any code references it.
-
-**Step 2 -- Firmware: not_implemented stub + memory.cpp guard**
-- Create `not_implemented.cpp` / `not_implemented.h` with `configure_not_implemented()`.
-- Add `#include "not_implemented.h"` to `memory.cpp`.
-- Add `protocol != 0` guard: call `configure_not_implemented(handle); return;`
-  immediately after the last known-protocol arm.
-- The `mem_type` fallback block is unchanged; its guard (`protocol == 0`) is the
-  new implicit condition.
-- Run `pio test -e native` -- 15 existing tests green + new unknown-protocol test green.
-- All existing `test_protocol_zero_with_mem_type_*` and named-protocol tests unaffected.
-
-**Step 3 -- Host: exception + detection + CLI wiring**
-- Add `ProtocolNotImplementedError` to `exceptions.py`.
-- Add detection in `eprom_operations._run_state_machine`.
-- Add catch in `cli_handlers.map_typed_errors` (before `EpromOperationError`).
-- Run pytest -- existing tests green; add unit tests for the new exception path
-  using a mocked ERROR response with "not implemented" text.
-
-**Step 4 -- `check_dispatch.py` update + regression gate**
-- Update `dispatch()` with `protocol != 0 -> not_implemented` arm.
-- Add `not_implemented` FAIL list; update PASS message.
-- Run `check_dispatch.py` -- PASS with `0 not-implemented chips` (current DB has
-  none in gap protocols).
-
-**Why this order:**
-- Step 1 produces no observable change so it can be reviewed cleanly in isolation.
-- Step 2 is the firmware behavior change; it is testable with native tests without hardware.
-- Step 3 depends on Step 1 (needs the message constant) but is independently testable
-  with a mock before any firmware change ships.
-- Step 4 is additive to the regression gate; it will not fail until a gap-protocol
-  chip appears in the DB, so it can land any time after Step 1.
-
----
-
-## Patterns to Follow
-
-### Pattern: Zero-Hardware-Effect Stub
-
-`configure_sram` (17 lines, `sram.cpp`) is the reference for a minimal configure
-function. The skeleton pattern differs only in emitting an error response rather
-than setting operation pointers:
-
-```cpp
-/* Reference: configure_sram -- minimal, no hardware side effects */
-void configure_sram(firestarter_handle_t* handle) {
-    LOG_DEBUG_ID_SUB(DBG_CONFIGURING_SRAM);
-    /* operation pointers set by default to memory.cpp generic functions */
-}
-
-/* Skeleton pattern: error, no hardware */
-void configure_not_implemented(firestarter_handle_t* handle) {
-    LOG_ERROR_ID_U32(MSG_ERR_PROTOCOL_NOT_IMPLEMENTED, handle->protocol);
-    handle->response_code = RESPONSE_CODE_ERROR;
-}
+```
+1. Tier-1 Unity assert + Tier-2 wire round-trip written  → RED (no bench)
+2. Bench run (Tier 3) on hand                            → observed divergence
+3. Fix handler (eprom.cpp / flash_*.cpp / sram.cpp ...)  → measure Leonardo flash
+4. check_dispatch.py + diff_db.py + native suites green  → defense-in-depth
+5. Re-bench                                              → matrix cell PASS
 ```
 
-### Pattern: Protocol-Prefix Dispatch Arm Addition
+### Adapter-required integration flow
 
-Each new dispatch arm in `memory.cpp` follows the existing
-`if (handle->protocol == X) { fn(handle); return; }` form. The group-match form
-for multiple protocols sharing a handler is also established. Use the single-
-protocol form for any named skeleton arms to keep them individually identifiable.
+```
+infoic.xml row (genuinely unmappable pinout)
+   → resolve_pinout_key: add NAMED rule arm (NOT a resurrected table)
+   → build_db.py emits support_status:
+       adapter-required  (stays refused in-host) — until adapter exists + bench-proven
+       supported         (graduates) — ONLY when pinout+handler verified on the adapter
+   → diff_db.py re-baseline (per-chip diff acknowledged)
+   → check_dispatch.py: chip must dispatch to a real handler with zero hazard
+```
 
-### Pattern: Subclass Exception for Finer-Grained Catch
+### Key Data Flows
 
-`ProtocolNotImplementedError` inheriting from `EpromOperationError` follows the
-existing hierarchy (`SerialTimeoutError` inherits from `SerialError`;
-`ProgrammerNotFoundError` inherits from `SerialError`). Any existing caller that
-catches `EpromOperationError` continues to work; only callers that need to
-distinguish the "not yet supported" case add the narrower catch.
-
-### Pattern: Catalog-Driven Lockstep Wire Change
-
-The v1.10 COBS change established the pattern: edit `messages.toml` -> codegen
-both sub-repos -> CI drift gate proves both sub-repos carry identical constants.
-v1.12 follows this identically for the new ERROR message.
+1. **Golden vectors are the contract:** a small committed `family-vectors/<family>.bin` per family is both the write source and the SHA reference — the harness compares against it, not against the chip's own verify pass.
+2. **support_status is the single gate for "may we drive hardware":** the matrix records a family as bench-proven only after the representative chip is `supported` AND a golden write+read-back round-trips byte-identical.
 
 ---
 
-## Anti-Patterns to Avoid
+## Scaling Considerations
 
-### Anti-Pattern: Skeleton That Sets Operation Pointers
+(Not a user-scale system — "scale" here = number of families/chips/boards in the validation matrix.)
 
-**What:** A skeleton that assigns `handle->firestarter_operation_init` (even to
-`NULL`) but also calls `rurp_chip_enable()` or touches the control register.
+| Scale | Architecture adjustments |
+|-------|--------------------------|
+| 6 families, 1 board (Leonardo), 1 chip each | Single matrix file; harness loops families; hybrid gating defers parts-missing families |
+| +adapter-required chips | matrix gains rows; each adapter is a `resolve_pinout_key` arm + a deferred cell until the adapter is built/bench-proven |
+| Multi-board (Uno / uno328pb / Leonardo) | matrix becomes family × board grid; per-board buffer size (512/1024) already handled by `_calculate_buffer_size`; **Leonardo is the trustworthy verify board** — uno328pb program-brownout + Rev-0/2.0 read faults stay out of the verify path |
 
-**Why bad:** Even a read operation on an unimplemented protocol would attempt to
-cycle the chip enable line, potentially asserting a signal to a sensitive pin.
+### Scaling Priorities
 
-**Instead:** Emit the error and return immediately. Never set operation pointers
-in a not-implemented handler. The main loop checks `response_code` before entering
-the INIT/MAIN/END state machine.
-
-### Anti-Pattern: Silent Fallthrough to configure_eprom
-
-**What:** The existing `mem_type == TYPE_EPROM` fallback in `memory.cpp` when
-reached by a chip with a non-zero unimplemented protocol.
-
-**Why bad:** This is the exact VPP hazard the v1.12 `protocol != 0` guard eliminates.
-It is silent (no error response, no log), and it enables the 12V boost regulator on
-a chip that may not have VPP routed to pin 1.
-
-**Instead:** The `protocol != 0` guard short-circuits to `configure_not_implemented`
-before the `mem_type` chain is ever reached. Confirmed by the native dispatch tests.
-
-### Anti-Pattern: String-Matching the Error Response Inside `_read_and_parse_lines`
-
-**What:** Inspecting `response.message` for "not implemented" inside the ring-
-fenced generator body.
-
-**Why bad:** GATE-1.8d prohibits any change to the `_read_and_parse_lines` body.
-The detection logic belongs in `_run_state_machine` (already outside the ring fence)
-after the `Response` object is yielded.
-
-**Instead:** Add the `ProtocolNotImplementedError` raise to `_run_state_machine`
-via the existing `response.type == "ERROR"` branch -- outside the generator.
-
-### Anti-Pattern: Reusing `MSG_ERR_NOT_SUPPORTED` (0xA5)
-
-**What:** Mapping the not-implemented case to the existing `MSG_ERR_NOT_SUPPORTED`
-catalog entry to avoid adding a new catalog entry.
-
-**Why bad:** `MSG_ERR_NOT_SUPPORTED` has no params and an ambiguous format string
-("Not supported"). The host cannot reliably distinguish it from command-not-supported
-or operation-not-supported. The `ProtocolNotImplementedError` needs concrete evidence
-to be raisable; a generic "Not supported" text is fragile.
-
-**Instead:** Add `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` with a `u32` protocol param.
+1. **First bottleneck — Leonardo flash ceiling:** ~88% at v1.12. Adding adapter-required handler code is the first thing that breaks the firmware build. Mitigation: fix-don't-add where possible; gate every firmware change on `pio run -e leonardo` size; defer flash-heavy families.
+2. **Second bottleneck — bench availability:** Tier 3 needs chips + a working shield. Mitigation: hybrid gating — software tiers run always; the matrix closes at partial coverage with explicit deferred cells.
 
 ---
 
-## Scalability Considerations
+## Anti-Patterns
 
-| Concern | Now (743 chips, 13 protocols) | Future (new protocol chip added to DB) |
-|---------|-------------------------------|----------------------------------------|
-| Adding a real handler | Edit `memory.cpp` + new `src/proms/handler.cpp` | Same as existing pattern |
-| Adding a named skeleton | Edit `not_implemented.cpp` + single dispatch arm in `memory.cpp` | Single file, no cascade |
-| DB adds a gap-protocol chip | `check_dispatch.py` FAILS at CI -- catches it before ship | Enforces handler-first discipline |
-| New message catalog entry | `messages.toml` -> codegen -> 2 generated files | Established pattern (64 entries so far) |
-| Host CLI message improvement | `map_typed_errors` catch + string update | Isolated to `cli_handlers.py` |
+### Anti-Pattern 1: Forking a parallel read/write implementation for the harness
+
+**What people do:** write a fresh read/write loop inside the validation harness "to keep it clean."
+**Why it's wrong:** the bug being validated lives in the production path; a parallel implementation validates the wrong code. `eprom_operations.py` explicitly forbids this ("Do NOT refactor into a parallel read implementation" — `consistency_check_eprom`, `write_cycle_eprom`).
+**Do this instead:** compose `write_cycle_eprom` / `consistency_check_eprom` / `_run_state_machine` verbatim.
+
+### Anti-Pattern 2: Resurrecting deleted pinout guess-tables for adapter-required chips
+
+**What people do:** re-add a `DIP28_VARIANT_MAP`-style lookup to "quickly" map an adapter chip's pins.
+**Why it's wrong:** v1.11 Phase 58 deliberately deleted those tables and rebuilt `resolve_pinout_key` as a pure function. A new table reintroduces the guessing the whole pipeline was rebuilt to eliminate, and bypasses the safety-override structure.
+**Do this instead:** add a named rule arm to `resolve_pinout_key` (same shape as WARNING-5 / fm1608 / 24-pin-EEPROM overrides), with a comment citing the adapter and the hazard it guards.
+
+### Anti-Pattern 3: Asserting only firmware-verify success as proof of a good write
+
+**What people do:** treat a clean firmware `VERIFY` as proof the family works.
+**Why it's wrong:** a bug in `memory_verify_execute` (or a write that the same buggy path mis-reads consistently) can pass self-verify while the data is wrong.
+**Do this instead:** independent host-side SHA-256 read-back compare against the golden source (the `write_cycle_eprom` D-06 pattern).
+
+### Anti-Pattern 4: Adding native test code without checking it stays out of the production build
+
+**What people do:** drop test helpers into `src/proms/` or include them outside `[env:native]`.
+**Why it's wrong:** anything under `build_src_filter = +<proms/>` links into the Leonardo image and eats the flash ceiling.
+**Do this instead:** keep all harness/recording-stub code under `test/native/avr/` — it compiles only for `pio test -e native` and costs zero production flash.
+
+### Anti-Pattern 5: Letting `check_dispatch.py` drift from `memory.cpp`
+
+**What people do:** fix `memory.cpp` dispatch order and forget the Python mirror.
+**Why it's wrong:** the gate then validates a stale dispatch model — false green.
+**Do this instead:** treat the `dispatch()` mirror in `check_dispatch.py` as a lockstep artifact; update it in the same commit as any `memory.cpp` dispatch change (the file header already mandates "must match line-for-line").
+
+---
+
+## Integration Points
+
+### External Services
+
+| Service | Integration Pattern | Notes |
+|---------|---------------------|-------|
+| RURP shield over serial | COBS `0x00` + CRC8 framing, 250000 baud, INIT→MAIN→END state machine | Already byte-exact (v1.10); the harness rides it unchanged. Verify port identity per task (ACM* numbers shuffle); chip-out before sideload on Uno-class only |
+| minipro `infoic.xml` | `build_db.py` fetch + decode | Adapter-required arms decode here; pinned baseline via `diff_db.py` |
+
+### Internal Boundaries
+
+| Boundary | Communication | Notes |
+|----------|---------------|-------|
+| host harness ↔ firmware | JSON command (`algorithm` primary dispatch key) → tagged responses | Dual-repo lockstep; any new wire field needs both `constants.py` + `firestarter.h` |
+| Tier-1 Unity ↔ handlers | direct C++ link under `[env:native]`, ArduinoFake + recording stub | No serial; asserts op-pointers + register sequence |
+| Tier-2 pytest ↔ state machine | `MockSerial` / fake transport into `_run_state_machine` | No hardware; validates wire dict per family |
+| `resolve_chip` guard ↔ everything | `support_status != "supported"` → `ChipNotImplementedError` before any byte | Authoritative host safety layer; the matrix's "may drive hardware" gate |
+| `check_dispatch.py` ↔ `memory.cpp` | hand-maintained dispatch mirror | Lockstep — drift is a bug |
+
+---
+
+## Suggested Build Order (dependency- + flash- + bench-ordered)
+
+The order is driven by three constraints: (a) harness-before-validate-before-fix-before-gaps; (b) software-first so bench time is spent on proven-RED divergences; (c) flash-free work (tests, host) before flash-consuming work (handler fixes, adapter handlers) since Leonardo is the ceiling.
+
+1. **Harness scaffolding (software, zero flash):**
+   - Tier-1 recording bus stub in `test/native/avr/_shared/` + one `test_<family>_algo/` suite per family (RED where the algorithm assertion is unproven; SRAM stub is the obvious early RED).
+   - Tier-2 `validation_harness.py` + `test_validation_harness.py` (MockSerial round-trip per family).
+   - Tier-3 `family_validation.py` (`dev validate-family`) composing `write_cycle_eprom`/`consistency_check_eprom`; matrix serializer.
+   - Extend `check_dispatch.py` with per-family invariants + **populate the hollow `non_supported_dispatchable`** inverse guard.
+2. **Re-research the protocol landscape** (revisit v1.12's "feasible set complete"; surface real gaps e.g. the deferred erase path) — feeds which adapter-required arms / fixes are in scope.
+3. **Validate families on bench (hybrid-gated):** run Tier-3 per family with chips on hand on **Leonardo**; record matrix cells; defer parts-missing families with an explicit reason. This step *produces the evidence* that defines steps 4–5.
+4. **Per-family correctness fixes (flash-gated):** fix only families the bench showed divergent. Each fix: turn the RED Tier-1/2 test GREEN → measure `pio run -e leonardo` → keep `check_dispatch.py`/`diff_db.py`/native suites green → re-bench. Order families lightest-flash-impact first; defer any fix that would breach the ceiling pending a budget reclaim.
+5. **Adapter-required chip support (flash-gated, hardware-gated):** add `resolve_pinout_key` arms (no tables); chips stay `adapter-required` (refused in-host) until the physical adapter exists AND a golden write+read-back round-trips on it, at which point they graduate to `supported` and gain a matrix cell. Any new handler code is the last flash consumer — gate hardest here.
+
+**Flash-budget flag for the roadmap:** steps 1–3 are flash-free (tests + host + bench observation). Steps 4–5 are the only flash consumers; the Leonardo ~88% ceiling is the build-order driver that forces fixes-before-additions and makes adapter-required families the natural deferral candidates.
 
 ---
 
 ## Sources
 
-All findings are from direct source inspection at HEAD on branch
-`v1.11-infoic-decode-correctness` (2026-06-10):
+- `firestarter/src/proms/memory.cpp`, `eprom.cpp`, `flash_utils.cpp`, `sram.cpp`, `not_implemented.cpp`, `eeprom_28c.cpp` (firmware dispatch + handlers + shared helpers) — HIGH
+- `firestarter/platformio.ini [env:native]` + `firestarter/CLAUDE.md` "Native (Host) Test Environment" / "Reuse pattern for future native tests" — HIGH
+- `firestarter/test/native/avr/test_dispatch/` (existing Unity + host-stub pattern) — HIGH
+- `firestarter_app/firestarter/eprom_operations.py` (`write_cycle_eprom`, `consistency_check_eprom`, `_run_state_machine`, `_main_phase_read_data`) — HIGH
+- `firestarter_app/firestarter/chip_resolver.py` (support_status guard / `ChipNotImplementedError`) — HIGH
+- `firestarter_app/tools/check_dispatch.py` (dispatch mirror + GATE-03 + hollow `non_supported_dispatchable`) — HIGH
+- `.planning/PROJECT.md` v1.13 milestone + Key Decisions (Phase 58 `resolve_pinout_key` rewrite, v1.12 hollow gate tech debt, Leonardo flash budget, hybrid bench gating, Leonardo-as-verify-board) — HIGH
 
-- `/workspaces/firestarter/src/proms/memory.cpp` -- dispatch logic, lines 73-118
-- `/workspaces/firestarter/include/firestarter.h` -- `firestarter_handle_t`, response codes, flags
-- `/workspaces/firestarter/include/logging_id.h` -- `LOG_ERROR_ID_U32` macro chain
-- `/workspaces/firestarter/tools/catalog/messages.toml` -- catalog; ERROR band ends at `0xBA`
-- `/workspaces/firestarter/test/native/avr/test_dispatch/test_configure_memory.cpp` -- dispatch test pattern
-- `/workspaces/firestarter/src/proms/sram.cpp` -- minimal handler reference (17 lines)
-- `/workspaces/firestarter_app/tools/check_dispatch.py` -- host-side dispatch mirror + GATE-03
-- `/workspaces/firestarter_app/firestarter/serial_comm.py` -- `_run_state_machine` error branch, ring-fence note (GATE-1.8d)
-- `/workspaces/firestarter_app/firestarter/exceptions.py` -- exception hierarchy
-- `/workspaces/firestarter_app/firestarter/cli_handlers.py` -- `map_typed_errors` pattern
-- `/workspaces/firestarter_app/firestarter/messages.py` -- generated constants; `MSG_ERR_MEM_TYPE_UNSUPPORTED = 0xAE`, `MSG_ERR_MEM_SIZE_TOO_SMALL = 0xBA` (confirm 0xBB is free)
-- `/workspaces/.planning/research/FEATURES.md` (v1.11) -- protocol gap enumeration table
-- `/workspaces/.planning/PROJECT.md` -- v1.12 scope and key decisions record
-- `/workspaces/firestarter/CLAUDE.md` -- dispatch order documentation and native test reuse pattern
+---
+*Architecture research for: programming-algorithm validation harness (Firestarter v1.13)*
+*Researched: 2026-06-16*
