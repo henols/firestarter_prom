@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: — Firmware Protocol Dispatch Hardening + Skeletons
-status: executing
-stopped_at: Phase 70 context gathered
-last_updated: "2026-06-16T09:20:11.542Z"
+status: v1.12 milestone complete
+stopped_at: v1.12 milestone completed and archived
+last_updated: "2026-06-16T10:00:00.000Z"
 last_activity: 2026-06-16
 progress:
-  total_phases: 14
+  total_phases: 8
   completed_phases: 8
-  total_plans: 26
-  completed_plans: 24
-  percent: 57
+  total_plans: 22
+  completed_plans: 22
+  percent: 100
 ---
 
 # Project State
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 70
-Plan: Not started
-Status: Executing Phase 70
-Last activity: 2026-06-16
+Phase: Milestone v1.12 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-06-16 — Milestone v1.12 completed and archived
 
 ## Project Reference
 
@@ -207,8 +207,12 @@ _(v1.12 decisions will be recorded here as phases execute.)_
 
 ## Deferred Items
 
-7 items acknowledged and deferred at **v1.11 milestone close (2026-06-10)** — none are v1.11 work
-(all pre-existing / out-of-scope / v1.9 hardware-gated). See `.planning/milestones/v1.11-MILESTONE-AUDIT.md`.
+7 items acknowledged and deferred at **v1.11 milestone close (2026-06-10)** and **re-affirmed at
+v1.12 milestone close (2026-06-16)** — none are v1.11 or v1.12 work (all pre-existing / out-of-scope
+/ v1.9 hardware-gated). The pre-close artifact audit at the v1.12 close surfaced the identical 7
+items; operator chose Acknowledge-all and proceed. See `.planning/milestones/v1.11-MILESTONE-AUDIT.md`
+and `.planning/milestones/v1.12-MILESTONE-AUDIT.md` (v1.12 also carries its own accepted tech debt:
+hollow GATE-03 detector + Nyquist gaps on 6/8 phases — documented in the v1.12 audit, not repeated here).
 
 | Category | Item | Status | Disposition |
 |----------|------|--------|-------------|
@@ -224,14 +228,15 @@ _(v1.12 decisions will be recorded here as phases execute.)_
 
 ## Operator Next Steps
 
-- **v1.12 STARTED 2026-06-10** — roadmap written, 4 phases (62–65), 12 requirements.
-- **PENDING (from v1.11 close) — lockstep beta cut (`3.0.0b9`):** bump `firestarter_app` version
-  (next after `3.0.0b8`) + bump the meta `firestarter_app` gitlink (pinned `faaa571`; the v1.11
-  work — incl. the FM1608 follow-up commits b81131f/e910e5e — sits on submodule branch
-  `v1.11-infoic-decode-correctness`) + PyPI pre-release publish + GitHub Pre-release. Firmware
-  sub-repo untouched this milestone — confirm the lockstep-version policy at cut (may need a
-  skipped firmware tag to keep b8→b9 lockstep, as at the v1.10 close). Watch the
-  py3.12-masks-CI-py3.11 ruff/codegen drift traps. See MILESTONES.md §v1.11.
-
-- **v1.12 roadmap revised (2026-06-10):** 7 phases (62–68), 17/17 requirements mapped.
-- **Begin v1.12:** `/gsd-plan-phase 62`
+- **v1.12 SHIPPED + archived 2026-06-16.** Meta tagged `v1.12` (pushed to origin); milestone
+  artifacts archived to `.planning/milestones/v1.12-*`; ROADMAP collapsed; PROJECT.md +
+  RETROSPECTIVE.md evolved. Meta milestone branch merged to meta `beta`.
+- **OPERATOR-GATED — lockstep beta cut (both sub-repos already merged to `beta`: fw `b71c6fd` /
+  app `6b5480f`, no tag):** bump `firestarter_app` version (next pre-release) + bump the meta
+  `firestarter_app` **and** `firestarter` gitlinks (intentionally pinned through v1.12 — bump at
+  the cut, not per-phase) + PyPI pre-release publish + GitHub Pre-release for both repos. Firmware
+  changed this milestone (first since v1.10), so a real firmware pre-release tag is expected this
+  cut (not a skipped lockstep tag). Watch the py3.12-masks-CI-py3.11 ruff/codegen drift traps.
+  Stable promotion stays operator-authorized ("nothing is stable until I say so").
+- **Then — start the next milestone:** `/clear` then `/gsd-new-milestone` — or resume the deferred
+  v1.9 read-bug RCA at `/gsd-plan-phase 45`.

@@ -11,9 +11,19 @@
 **v1.8 shipped:** 2026-05-29 (Host CLI Structural Cleanup — 8 phases, 27 requirements DELIVERED + 3 VERIFIED-at-close; argparse → Click migration; flat layout preserved (no subpackage reorg); ruff + ruff-format + mypy strict on 8 modules + 70% coverage floor enforced in CI; 2 latent bugs fixed as INTENTIONAL BEHAVIOR CHANGE (BUG-1 `build_arg_flags`, BUG-2 except-clause split); ship tag `3.0.0b7` beta-only; v1.8-app-cleanup → beta + meta-repo → main; firmware sub-repo untouched at `beta@0bbe017`; read-bug carries to v1.9 with GATE-1.8d ring-fence intact).
 **v1.7 shipped:** 2026-05-26 (RURP Shield Hardware Investigation & Version Detection — 5 phases; per-rev capability table + labeled schematics + shield-version-detect firmware plumbing). Substrate consumed by v1.6 Phase 29 v2 bench session + v1.8 RCA hand-off.
 **v1.10 shipped:** 2026-06-07 (Serial Transport Hardening / COBS — 7 phases (49–55; 45–48 reserved for v1.9), 27 plans, 14/14 requirements; beta-only, stable `3.0.1` operator-gated/deferred to the v1.9 read-bug fix). Custom COBS `0x00` + CRC8 framing with automatic resync on **both** the data-block path and the host→fw JSON command channel; the 2 s `len_u16` timeout cascade is gone; transport proven byte-exact (operator-witnessed bench, Uno 512 B + Leonardo 1024 B, N=5 read + write read-back). uno328pb read instability **persists** on the hardened transport → recorded as transport-exoneration, NOT a hardware fix; RCA stays deferred to v1.9. Serial is now a settled variable for the resumed read-bug RCA.
+**v1.12 shipped:** 2026-06-16 (Firmware Protocol Dispatch Hardening + Skeletons — 8 delivering phases (62, 63, 64, 65, 66, 67.1, 69, 70), 22 plans, 17/17 requirements; first firmware-touching milestone since v1.10; dual-repo lockstep merged to `beta` — fw `b71c6fd` / app `6b5480f`, no tag; lockstep beta cut + stable promotion operator-gated). Fail-closed dispatch (`MSG_ERR_PROTOCOL_NOT_IMPLEMENTED = 0xBB`, zero hardware side effects) eliminating the silent `mem_type` 12V-VPP fallback hazard; host `ProtocolNotImplementedError` + actionable CLI message; capability-honest DB (`support_status` taxonomy `protocol-not-implemented`/`adapter-required`/`vpp-exceeds-max`; true NMOS VPP correction; principled pinout classification; in-host refusal before any serial byte). No new chip became programmable. DB 743 → 744. Audit tech_debt (17/17 reqs, 8/8 phases, 5/5 E2E flows, secure-gated phases threats_open:0); accepted tech debt = hollow GATE-03 detector (host guard authoritative) + Nyquist gaps on 6/8 phases. See `.planning/MILESTONES.md` §v1.12; ROADMAP archived at `.planning/milestones/v1.12-ROADMAP.md`.
 **v1.11 shipped:** 2026-06-10 (Complete infoic.xml Decode & Database Correctness — 6 phases (56–61), 14 plans, 15/15 requirements; HOST-ONLY, firmware untouched like v1.8; beta-only, stable operator-gated). Authoritative source-grounded field dictionary + corrected decode docs; re-derived `build_db.py` (4 decode bugs fixed: `interpret_timing` ×100, VCC nibbles 0x02/0x03, vcc/vdd swap, PROTOCOL_MAP canonicalization); principled `resolve_pinout_key` replacing guess tables; 9 × 24-pin AT28C04/16 EEPROMs unblocked host-only (`DIP24_2816` + `0x0D`); full-class VPP-safety gate (`check_dispatch.py`, 743 chips, 0 violations) + per-chip diff gate (`diff_db.py`) + pinned baseline. Display layer (`firestarter info` + `list`/`search`) now reflects `electrical.type` ground truth (EEPROM vs UV-EPROM, no spurious SRAM VPP). Post-close FM1608 follow-up: SRAM/FRAM Vcc→5V normalization, zero-pulse-delay row suppression, chip-ID `-` placeholder. Audit PASSED 15/15, 5/5 E2E flows, 559 tests green. Meta tagged `v1.11`; lockstep beta cut (`3.0.0b9`) operator-gated.
 
-## Current Milestone: v1.12 — Firmware Protocol Dispatch Hardening + Skeletons
+## v1.12 Archive: Firmware Protocol Dispatch Hardening + Skeletons — Shipped 2026-06-16
+
+**Goal (achieved):** Make the whole stack honest about what it can and cannot program — fail-closed firmware dispatch with an explicit "not implemented" wire response the host surfaces cleanly, plus a capability-honest database that lists (not silently drops) the DIP parallel chips RURP cannot fully support. Framework + honest reporting only; no new chip became programmable.
+
+**Delivered (17/17 requirements):** Firmware now fail-closes — a non-zero unimplemented `protocol` returns `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` (0xBB) with zero hardware side effects via `configure_not_implemented()` behind a `protocol != 0` guard, closing the silent `mem_type → configure_eprom` 12V-VPP hazard (DISP-01..04, WIRE-01/02, TEST-01/02; 49/49 native Unity tests, Uno 72.4% flash). The host raises a typed `ProtocolNotImplementedError(EpromOperationError)` and prints an actionable message, with the probe/connect boundary wired so the 0xBB frame reaches the CLI (HOST-01/02). `build_db.py` includes unknown-protocol DIP chips marked `support_status: protocol-not-implemented`; the authoritatively-known NMOS family records true VPP (M2716/M2732 = 25V → `vpp-exceeds-max`, M2732A = 21V → `supported`) against `RURP_VPP_CEILING_MV=22000`; every chip carries a `support_status` (DB-01/03/05). Pinouts are classified not skipped — 14 SRAM chips corrected via extended `resolve_pinout_key` rules; genuinely-unmappable chips are `adapter-required` (DB-02). The host reports capability honestly: `info` shows a status-specific support line, and `write`/`read`/`verify` refuse in-host (via `chip_resolver.resolve_chip` → `ChipNotImplementedError`) before any serial byte, rendering the DB reason string verbatim (DB-04). DB grew 743 → 744. The v1.12 branch — forked off the pre-v1.11 beta — was re-ported onto v1.11's `resolve_pinout_key` architecture (Phase 70) and merged to `beta` dual-repo lockstep (fw `b71c6fd` / app `6b5480f`, no tag). See `.planning/MILESTONES.md` §v1.12, `.planning/milestones/v1.12-MILESTONE-AUDIT.md`; ROADMAP archived at `.planning/milestones/v1.12-ROADMAP.md`; requirements at `.planning/milestones/v1.12-REQUIREMENTS.md`.
+
+**Accepted tech debt at close (operator 2026-06-16):** the GATE-03 `non_supported_dispatchable` detector in `check_dispatch.py` is hollow (declared, asserted empty, never populated) — the host guard `chip_resolver.resolve_chip` is the authoritative safety layer, so there is no live 12V-to-wrong-pin hazard. Latent WR-01 (Site B `0x00` re-promoted to `0x0D` for the 9 adapter-required EEPROMs; electrically safe). Nyquist validation gaps on 6/8 phases (3 missing VALIDATION.md: 63/64/65; 3 partial: 62/67.1/69) — non-blocking; behavioral coverage holds via VERIFICATION.md + the integration check.
+
+<details>
+<summary>v1.12 original scope framing (pre-close)</summary>
 
 **Goal:** Make the firmware honestly report unimplemented programming protocols — fail-closed dispatch with an explicit "not implemented" response the host surfaces cleanly — and scaffold skeleton handlers for the missing but RURP-feasible protocols.
 
@@ -30,6 +40,10 @@
 - **Framework + skeletons only** — actual per-protocol programming logic is deferred to future per-protocol (mostly hardware-gated) milestones; this milestone makes the firmware honest about what it does/doesn't implement and scaffolds the gaps.
 - Removing the `mem_type` fallback is a deliberate, safety-motivated behavior change (guarded escape hatch only if justified).
 - **Branch model (unified beta, 2026-06-10):** all three repos derive `v1.12-protocol-dispatch-hardening` off `beta` and merge back to `beta`; `beta`→stable is operator-gated. Meta `beta` created at the v1.11 tip; firmware sits on `beta` (clean — v1.11 was host-only); the deferred v1.11 host work must reconcile into `firestarter_app/beta` before the v1.12 host changes. See [[feedback-branching-firestarter-milestones]].
+
+> **At close (2026-06-16):** the "reconcile v1.11 host work into beta before v1.12 host changes" constraint materialized as a full architecture collision — v1.12 was forked off the *pre-v1.11* beta, so its DB-build pipeline clashed with v1.11's Phase 58 `resolve_pinout_key` rewrite. Resolved by **Phase 70** (re-port, not conflict-merge); both sub-repos merged to `beta`.
+
+</details>
 
 ## v1.11 Archive: Complete infoic.xml Decode & Database Correctness — Shipped 2026-06-10
 
@@ -288,6 +302,11 @@ on a physical RURP shield is deferred to a v1.1 hardware-test pass.
 | 2026-06-08 | v1.11 GATE-03 keyed on `electrical.type` (5V-EEPROM family) rather than algorithm-in-{0x05,0x06,0x0D} (CR-01): the algorithm predicate was dead code since `dispatch()` never routes those to `configure_eprom`; the type-keyed guard is a genuine superset of WARNING-5. | ✓ Good (0 violations across 743 chips; structural + type-keyed dual guard) |
 | 2026-06-09 | v1.11 Phase 58: deleted the survey-built `PIN_MAP_*`/`DIP28_VARIANT_MAP` guess tables; `resolve_pinout_key` rebuilt as a pure function of `(pin_count, proto_id, mem_size)` with the 3 load-bearing safety overrides (WARNING-5, fm1608, 24-pin EEPROM skip) preserved as explicit rules. | ✓ Good (30 RED→GREEN Wave-0 tests; GATE-03 0 violations; SR-1 two-layer review) |
 | 2026-06-10 | v1.11 Phases 60/61 (display-layer): `info` + `list`/`search` derive Type/erasability/VPP from `electrical.type` via a single shared `resolve_type_label` helper (D-04), not `protocol_id` — resolving the EEPROM-vs-UV-EPROM mislabel and the spurious SRAM VPP. Post-close: SRAM/FRAM `vcc`→`vdd` (5V) normalization in `build_db.py`. | ✓ Good (operator-driven; FM1608 shows SRAM/5.0v/`-`; W27C512 shows EEPROM; 559 tests green) |
+| 2026-06-11 | v1.12 firmware fail-closed dispatch: a `protocol != 0` guard in `configure_memory()` routes every non-zero unimplemented protocol to `configure_not_implemented()` (NULL op pointers, no VPP enable) emitting `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED = 0xBB`; the legacy `mem_type` fallback is preserved ONLY behind `protocol == 0`. New 0xBB message added lockstep via `messages.toml` codegen (py3.11). | ✓ Good (49/49 native tests; Uno 72.4% flash; closes the silent 12V-VPP hazard; host raises typed `ProtocolNotImplementedError`) |
+| 2026-06-12 | v1.12 capability-honest DB: chips RURP can't fully support are *listed* with a `support_status` taxonomy (`protocol-not-implemented`/`adapter-required`/`vpp-exceeds-max`) instead of silently dropped; `NON_DISPATCHABLE_ALGO = 0x00` makes them ERROR at the data layer (CR-01/Option A). | ✓ Good (DB 744; gate green) |
+| 2026-06-12 | v1.12 authoritative 12V-VPP-hazard closure = **host guard** (D-12, Phase 66-05): `ChipNotImplementedError` in `chip_resolver.resolve_chip` refuses every non-`supported` chip before any wire dict / serial byte. The `check_dispatch.py` `non_supported_dispatchable` gate detector is hollow (declared, asserted-empty, never populated). | ⚠ Revisit (accepted tech debt 2026-06-16 — host guard is authoritative, no live hazard; optional future: actually populate the gate detector) |
+| 2026-06-15 | v1.12 DB-02/DB-04 gaps (first audit `gaps_found`) closed by a single inserted **Phase 67.1** consolidating the never-executed Phases 67 & 68 — DB `unsupported_reason` string is the single source of truth, rendered verbatim by both `info` display and chip-op refusal (Approach A). | ✓ Good (verified PASSED 9/9; SECURED) |
+| 2026-06-16 | v1.12 → beta = **integration (re-port), not conflict-merge** (Phase 70): v1.12 was forked off the pre-v1.11 beta, so its DB pipeline collided with v1.11's Phase 58 `resolve_pinout_key` rewrite. Re-expressed v1.12's `support_status`/VPP-safety features on top of `resolve_pinout_key`, regenerated `chip_database.json` (never hand-merged), merged both sub-repos to `beta` lockstep (no tag). | ✓ Good (verified 6/6 SC; v1.11 decode-correctness preserved; firmware fast-forward `b71c6fd`) |
 
 ## Context
 
@@ -297,11 +316,15 @@ on a physical RURP shield is deferred to a v1.1 hardware-test pass.
 - **Repo structure:** Meta-repo + 2 sub-repos (`firestarter/` firmware,
   `firestarter_app/` Python). Meta-repo tracks `.planning/` and `.claude/` only;
   sub-repos are pointer-bumped commits
-- **Database state:** **743 chips post-v1.11** across DIP24/28/32 (was 734 at v1.0;
-  +9 from the 24-pin AT28C04/16 EEPROM unblock in Phase 58). Decode re-derived from
-  minipro source in v1.11: corrected VCC nibbles (4V/4.5V), vcc/vdd labels,
-  `interpret_timing` (µs not ×100), canonical `PROTOCOL_MAP`; SRAM/FRAM Vcc normalized
-  to supply rail. `electrical.type` is the display ground truth (`info`/`list`/`search`).
+- **Database state:** **744 chips post-v1.12** across DIP24/28/32 (was 734 at v1.0;
+  +9 from the 24-pin AT28C04/16 EEPROM unblock in Phase 58 (v1.11); +1 net in v1.12 from
+  capability-honest inclusion of previously-dropped unknown-protocol DIP chips). Every chip
+  now carries a `support_status` (`supported` / `protocol-not-implemented` / `adapter-required`
+  / `vpp-exceeds-max`); non-`supported` chips are listed-and-reported-honestly, refused in-host
+  before any serial byte, never made programmable. Decode re-derived from minipro source in
+  v1.11: corrected VCC nibbles (4V/4.5V), vcc/vdd labels, `interpret_timing` (µs not ×100),
+  canonical `PROTOCOL_MAP`; SRAM/FRAM Vcc normalized to supply rail; true NMOS VPP recorded in
+  v1.12. `electrical.type` is the display ground truth (`info`/`list`/`search`).
 - **Verified families (structural):** UV-EPROM (W27C512), Flash AMD (29F040),
   Flash Intel (28F010 minus VPP-ADC gap), EEPROM (AT28C256 via Phase 13
   override), SRAM (6116-class via safe stub)
@@ -339,6 +362,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
+
+*Last updated: 2026-06-16 — v1.12 (Firmware Protocol Dispatch Hardening + Skeletons) SHIPPED. 8 delivering phases (62, 63, 64, 65, 66, 67.1, 69, 70), 22 plans, 17/17 requirements; first firmware-touching milestone since v1.10. Fail-closed dispatch (0xBB) + host `ProtocolNotImplementedError` + capability-honest DB (`support_status` taxonomy, in-host refusal); no new chip programmable; DB 743 → 744. Dual-repo lockstep merged to `beta` (fw `b71c6fd` / app `6b5480f`, no tag); lockstep beta cut + stable promotion operator-gated. Accepted tech debt: hollow GATE-03 detector (host guard authoritative) + Nyquist gaps on 6/8 phases. Next: `/gsd-new-milestone` (or resume the deferred v1.9 read-bug RCA at Phase 45). Prior footer (v1.12 start) retained below.*
 
 *Last updated: 2026-06-10 — v1.12 (Firmware Protocol Dispatch Hardening + Skeletons) STARTED. First firmware-touching milestone since v1.10; fail-closed dispatch + not-implemented wire response + skeleton handlers for missing protocols; dual-repo lockstep, unified-beta branch model (all 3 repos off `beta`). Prior footer (v1.11 close) retained below.*
 
