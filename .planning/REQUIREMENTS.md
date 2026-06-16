@@ -70,22 +70,22 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| HARN-01 | TBD | Pending |
-| HARN-02 | TBD | Pending |
-| HARN-03 | TBD | Pending |
-| HARN-04 | TBD | Pending |
-| RSCH-01 | TBD | Pending |
-| VAL-01 | TBD | Pending |
-| VAL-02 | TBD | Pending |
-| VAL-03 | TBD | Pending |
-| VAL-04 | TBD | Pending |
-| VAL-05 | TBD | Pending |
-| VAL-06 | TBD | Pending |
-| FIX-01 | TBD | Pending |
-| FIX-02 | TBD | Pending |
-| FIX-03 | TBD | Pending |
-| ERASE-01 | TBD | Pending |
-| GAP-01 | TBD | Pending |
-| GAP-02 | TBD | Pending |
+| HARN-01 | Phase 71 | Pending |
+| HARN-02 | Phase 71 | Pending |
+| HARN-03 | Phase 71 | Pending |
+| HARN-04 | Phase 71 | Pending |
+| RSCH-01 | Phase 72 | Pending |
+| VAL-01 | Phase 73 | Pending |
+| VAL-02 | Phase 73 | Pending |
+| VAL-03 | Phase 73 | Pending |
+| VAL-04 | Phase 73 | Pending |
+| VAL-05 | Phase 73 | Pending |
+| VAL-06 | Phase 73 | Pending |
+| FIX-01 | Phase 74 | Pending |
+| FIX-02 | Phase 74 | Pending |
+| FIX-03 | Phase 74 | Pending |
+| ERASE-01 | Phase 75 | Pending |
+| GAP-01 | Phase 76 | Pending |
+| GAP-02 | Phase 76 | Pending |
 
-**Mapped: 17 requirements** — traceability phases filled in by the roadmapper.
+**Mapped: 17/17 requirements** — every v1.13 requirement maps to exactly one phase; no orphans, no duplicates.
