@@ -1,17 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.12
-milestone_name: — Firmware Protocol Dispatch Hardening + Skeletons
-status: v1.12 milestone complete
-stopped_at: v1.12 milestone completed and archived
-last_updated: "2026-06-16T10:00:00.000Z"
+milestone: v1.13
+milestone_name: Programming Algorithm Validation + Gap Implementation
+status: planning
+last_updated: "2026-06-16T10:46:59.616Z"
 last_activity: 2026-06-16
 progress:
-  total_phases: 8
-  completed_phases: 8
-  total_plans: 22
-  completed_plans: 22
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -21,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: Milestone v1.12 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-06-16 — Milestone v1.12 completed and archived
+Status: Defining requirements
+Last activity: 2026-06-16 — Milestone v1.13 started
 
 ## Project Reference
 
@@ -231,6 +230,7 @@ hollow GATE-03 detector + Nyquist gaps on 6/8 phases — documented in the v1.12
 - **v1.12 SHIPPED + archived 2026-06-16.** Meta tagged `v1.12` (pushed to origin); milestone
   artifacts archived to `.planning/milestones/v1.12-*`; ROADMAP collapsed; PROJECT.md +
   RETROSPECTIVE.md evolved. Meta milestone branch merged to meta `beta`.
+
 - **OPERATOR-GATED — lockstep beta cut (both sub-repos already merged to `beta`: fw `b71c6fd` /
   app `6b5480f`, no tag):** bump `firestarter_app` version (next pre-release) + bump the meta
   `firestarter_app` **and** `firestarter` gitlinks (intentionally pinned through v1.12 — bump at
@@ -238,5 +238,6 @@ hollow GATE-03 detector + Nyquist gaps on 6/8 phases — documented in the v1.12
   changed this milestone (first since v1.10), so a real firmware pre-release tag is expected this
   cut (not a skipped lockstep tag). Watch the py3.12-masks-CI-py3.11 ruff/codegen drift traps.
   Stable promotion stays operator-authorized ("nothing is stable until I say so").
+
 - **Then — start the next milestone:** `/clear` then `/gsd-new-milestone` — or resume the deferred
   v1.9 read-bug RCA at `/gsd-plan-phase 45`.
