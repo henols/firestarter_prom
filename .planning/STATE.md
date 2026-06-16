@@ -1,16 +1,17 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.13
-milestone_name: Programming Algorithm Validation + Gap Implementation
-status: roadmap_complete
-last_updated: "2026-06-16T11:30:00.000Z"
-last_activity: 2026-06-16
+milestone_name: — Programming Algorithm Validation + Gap Implementation
+status: Roadmap created, awaiting plan
+stopped_at: Phase 71 context gathered
+last_updated: "2026-06-16T11:44:24.337Z"
+last_activity: 2026-06-16 — v1.13 roadmap created (6 phases, 71–76; 17/17 reqs mapped)
 progress:
-  total_phases: 6
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_phases: 11
+  completed_phases: 1
+  total_plans: 8
+  completed_plans: 6
+  percent: 9
 ---
 
 # Project State
@@ -50,18 +51,23 @@ operator-gated. Phase numbering continues from v1.12 (70) → v1.13 starts at **
   `dev validate-family` runner) + declarative matrix + extended `check_dispatch.py` (populates the
   hollow `non_supported_dispatchable` detector, closing v1.12 tech debt); bakes in the
   Leonardo-only-PASS / negative-control / live-R1 / uno328pb-N/A oracle.
+
 - **Phase 72: Re-research Protocol Landscape** (RSCH-01) — re-enumerate feasibility verdicts BEFORE
   any flash-budget firmware commit; reaffirm-or-overturn v1.12's "feasible set complete"; re-confirm
   anti-features fail-closed.
+
 - **Phase 73: Bench-Validate the 6 Families on Leonardo** (VAL-01..06) — hybrid-gated; Tier 1/2
   always, Tier 3 on parts-on-hand (SKIP-deferred otherwise); resolves the SRAM no-op question
   (feeds FIX-01). Standing bench precondition applies.
+
 - **Phase 74: Per-Family Correctness Fixes** (FIX-01..03) — flash-gated RED→GREEN: SRAM real
   read/write IF VAL-06 confirms the no-op (else closed-with-evidence); flash4 `CMD_CHECK_CHIP_ID`;
   0x39 stale-comment + 2-chip coverage. Fixes-before-additions; `-e leonardo` ceiling held.
+
 - **Phase 75: Erase Path** (ERASE-01) — `firestarter erase W27C512` host `FLAG_CAN_ERASE` routing to
   existing `eprom_internal_erase` electricals + 12V→14V rail confirm under 22V ceiling + datasheet
   preconditions; chip-OUT VPP meter dry-run. Leonardo-closeable. Research-flagged for planning.
+
 - **Phase 76: Spec-Only Gaps** (GAP-01, GAP-02) — adapter-required AT28C04/16 pin-map spec +
   `resolve_pinout_key` arm (stays `adapter-required`); X88C64 0x34 datasheet feasibility verdict
   (handler only if fully spec'd). Graduation to `supported` is OUT of scope. Research-flagged.
@@ -102,14 +108,18 @@ v1.10 SHIPPED 2026-06-07. v1.9 Read-Bug RCA DEFERRED (Phases 45–48; resume at 
 
 - **No new third-party deps** — both substrates installed + green: firmware native = PlatformIO
   `[env:native]` + Unity + ArduinoFake `^0.4.0` (8 suites passing); host = pytest + syrupy + ruff/mypy
+
   + pyserial with `make_comm`/`fake_serial` no-port fixtures. REUSE `write_test.sh`,
   `eprom_operations.py` cycle methods, `check_dispatch.py`, `diff_db.py` — do NOT rewrite/fork.
+
 - **v1.12 "feasible set complete" overstated** — 3 genuine RURP-feasible gaps survive: erase path
   (0x07, electricals exist), `configure_sram` empty no-op (validate-first), X88C64 0x34
   (parallel 5V DIP EEPROM, MEDIUM — needs datasheet protocol). Anti-features stay fail-closed.
+
 - **Two coupled failure classes dominate:** false-PASS (untrustworthy verify read board → pin PASS
   to Leonardo + clean shield, N≥5 SHA, negative control) and chip-destruction (wrong VPP/algorithm →
   register-bit native tests via recording stub + chip-OUT VPP meter dry-run, never bypass host guard).
+
 - **999.1 / 999.2 are confounders, not in-scope fixes** — live R1/R2 readback at every VPP-dependent
   bench task is the discriminator; uno328pb = N/A for program/write.
 
@@ -138,8 +148,8 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-16T11:30:00.000Z
-Stopped at: v1.13 roadmap created (ROADMAP.md + REQUIREMENTS.md traceability + STATE.md written)
+Last session: 2026-06-16T11:44:24.322Z
+Stopped at: Phase 71 context gathered
 Resume: `/gsd-plan-phase 71`
 
 ## Decisions
@@ -238,8 +248,10 @@ uno328pb=N/A) but does NOT fix them. See `.planning/milestones/v1.11-MILESTONE-A
   ROADMAP.md (active v1.13 section + phase details + Milestones list + Progress table) +
   REQUIREMENTS.md traceability + STATE.md written. Prior-milestone collapsed sections + Backlog
   999.1/999.2 preserved.
+
 - **Next:** `/gsd-plan-phase 71` (Validation Harness + Matrix — software, flash-free, un-gated).
   Phases 75 + 76 flagged for `--research-phase` at planning time.
+
 - **Branch model reminder:** branches off `beta` in all 3 repos; merge back to `beta`; beta cut +
   stable promotion operator-gated. First firmware-touching milestone since v1.12 — dual-repo lockstep
   (meta-repo `messages.toml` only → regen both sub-repos) for any wire change; watch the
