@@ -23,12 +23,12 @@
 
 ### VAL — Family Validation (Tier 1/2 required for all; Tier 3 hybrid-gated)
 
-- [ ] **VAL-01**: UV-EPROM family (`configure_eprom`, 0x07/0x08/0x0B) write + verify + chip-id + blank-check is validated — pulse-delay retry loop convergence confirmed; 0x0B's direct-VPE (no drop-resistor) path proven distinct from 0x07/0x08.
-- [ ] **VAL-02**: 5V EEPROM family (`configure_eeprom28c`, 0x0D) is validated — SDP-disable sequence, 64-byte page write, and DQ7 data-polling confirmed (AT28C256 representative).
-- [ ] **VAL-03**: Flash AMD family (`configure_flash3`, 0x06) write + sector/chip erase is validated (the largest chip family).
-- [ ] **VAL-04**: Flash type-4 family (`configure_flash4`, 0x05/0x35/0x39) write + verify is validated.
-- [ ] **VAL-05**: Flash Intel family (`configure_flash_intel`, 0x10) is validated — 12V P1 handling and the status-register error branches exercised.
-- [ ] **VAL-06**: SRAM family (`configure_sram`, 0x0E/0x27/0x28/0x29) is validated AND the empty-no-op question is resolved — the matrix records whether a write actually persists or silently no-ops, classifying SRAM as table-stakes-PASS or as a FIX-01 correctness defect.
+- [x] **VAL-01**: UV-EPROM family (`configure_eprom`, 0x07/0x08/0x0B) write + verify + chip-id + blank-check is validated — pulse-delay retry loop convergence confirmed; 0x0B's direct-VPE (no drop-resistor) path proven distinct from 0x07/0x08.
+- [x] **VAL-02**: 5V EEPROM family (`configure_eeprom28c`, 0x0D) is validated — SDP-disable sequence, 64-byte page write, and DQ7 data-polling confirmed (AT28C256 representative).
+- [x] **VAL-03**: Flash AMD family (`configure_flash3`, 0x06) write + sector/chip erase is validated (the largest chip family).
+- [x] **VAL-04**: Flash type-4 family (`configure_flash4`, 0x05/0x35/0x39) write + verify is validated.
+- [x] **VAL-05**: Flash Intel family (`configure_flash_intel`, 0x10) is validated — 12V P1 handling and the status-register error branches exercised.
+- [x] **VAL-06**: SRAM family (`configure_sram`, 0x0E/0x27/0x28/0x29) is validated AND the empty-no-op question is resolved — the matrix records whether a write actually persists or silently no-ops, classifying SRAM as table-stakes-PASS or as a FIX-01 correctness defect.
 
 ### FIX — Per-Family Correctness Fixes (evidence-driven)
 
@@ -75,12 +75,12 @@
 | HARN-03 | Phase 71 | Complete |
 | HARN-04 | Phase 71 | Complete |
 | RSCH-01 | Phase 72 | Complete |
-| VAL-01 | Phase 73 | Pending |
-| VAL-02 | Phase 73 | Pending |
-| VAL-03 | Phase 73 | Pending |
-| VAL-04 | Phase 73 | Pending |
-| VAL-05 | Phase 73 | Pending |
-| VAL-06 | Phase 73 | Pending |
+| VAL-01 | Phase 73 | Complete |
+| VAL-02 | Phase 73 | Complete |
+| VAL-03 | Phase 73 | Complete |
+| VAL-04 | Phase 73 | Complete |
+| VAL-05 | Phase 73 | Complete |
+| VAL-06 | Phase 73 | Complete |
 | FIX-01 | Phase 74 | Pending |
 | FIX-02 | Phase 74 | Pending |
 | FIX-03 | Phase 74 | Pending |

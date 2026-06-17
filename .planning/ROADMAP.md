@@ -462,7 +462,7 @@ Plans:
 Plans:
 **Wave 1** *(software-first, flash-free; no bench gate)*
 
-- [ ] 73-01-PLAN.md — Re-confirm all 6 families' Tier-1+Tier-2 cells GREEN (SC#1) + arm the live R1/R2 precondition (SC#3 enabler) + emit Tier-3 SKIP-deferred for the 3 chipless families eeprom28c/flash4/flash_intel (VAL-02/04/05, SC#2) — autonomous
+- [x] 73-01-PLAN.md — Re-confirm all 6 families' Tier-1+Tier-2 cells GREEN (SC#1) + arm the live R1/R2 precondition (SC#3 enabler) + emit Tier-3 SKIP-deferred for the 3 chipless families eeprom28c/flash4/flash_intel (VAL-02/04/05, SC#2) — autonomous
 
 **Wave 2** *(Tier-3 HIL on Leonardo Rev 2.0; operator chip-insertion checkpoints; depends on 73-01)*
 
@@ -583,7 +583,7 @@ Plans:
 | 70 (close) | v1.12 | 4/4 | ✅ Shipped | 2026-06-16 |
 | 71 | v1.13 | 8/8 | Complete   | 2026-06-16 |
 | 72 | v1.13 | 2/2 | Complete    | 2026-06-17 |
-| 73 | v1.13 | 0/TBD | Not started | — |
+| 73 | v1.13 | 1/4 | In Progress|  |
 | 74 | v1.13 | 0/TBD | Not started | — |
 | 75 | v1.13 | 0/TBD | Not started | — |
 | 76 (close) | v1.13 | 0/TBD | Not started | — |
