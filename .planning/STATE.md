@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.13
 milestone_name: — Programming Algorithm Validation + Gap Implementation
-status: executing
-stopped_at: Phase 73 Plan 03 complete — flash3 SKIP-deferred + flash4 FAIL on W29C040 (Phase-74 candidate), VAL-03/VAL-04 Tier-3 closed
-last_updated: "2026-06-17T13:48:15.071Z"
+status: verifying
+stopped_at: Phase 73 Plan 04 complete — VAL-06 FM1608 FRAM two-pattern HIL = table-stakes-PASS; FIX-01 closed not-needed; D-09 hard gate satisfied
+last_updated: "2026-06-17T14:05:48.567Z"
 last_activity: 2026-06-17
 progress:
   total_phases: 11
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 22
-  completed_plans: 19
-  percent: 27
+  completed_plans: 20
+  percent: 36
 ---
 
 # Project State
@@ -23,7 +23,7 @@ progress:
 
 Phase: 73 (bench-validate-the-6-families-on-leonardo-hybrid-gated) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-06-17
 
 ## Project Reference
@@ -148,8 +148,8 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-17T13:48:15.058Z
-Stopped at: Phase 73 Plan 02 complete — W27C512 Tier-3 eprom PASS on Leonardo, VAL-01 Tier-3 closed
+Last session: 2026-06-17T14:05:48.562Z
+Stopped at: Phase 73 Plan 04 complete — VAL-06 FM1608 FRAM two-pattern HIL = table-stakes-PASS; FIX-01 closed not-needed; D-09 hard gate satisfied
 Resume: `/gsd-plan-phase 71`
 
 ## Decisions
@@ -200,6 +200,8 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 - [Phase ?]: 73-02: A1-CONFIRMED: W27C512 erase fires correctly in write_cycle_eprom; Tier-3 PASS authoritative on Leonardo
 - [Phase 73-03]: DEV: flash3/AM29F040 SKIP-deferred (no chip, operator 2026-06-17); flash4/W29C040 FAIL (hw-error): erase doesn't produce 0xFF blank, write verification timeout → Phase-74 candidate
 - [Phase 73-03]: configure_flash4 (algorithm 5) incompatible with W29C040 SDP/page-write sequence; erase "succeeds" but chip not erased to 0xFF; write init blank-check fails; standalone write -b times out at 0x3f
+- [Phase ?]: VAL-06 = table-stakes-PASS: configure_sram writes via generic_memory_write_execute; FIX-01 closed not-needed with evidence
+- [Phase ?]: FM1608 erase probe: exit 1 (Not supported) — configure_sram CMD_ERASE errors; write -b direct path is the only viable FRAM write approach (Pitfall 3 confirmed)
 
 ## Performance Metrics
 
@@ -239,6 +241,7 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 | Phase 72 P01 | 45min | - tasks | - files |
 | Phase 73 P02 | 3min | - tasks | - files |
 | Phase 73 P03 | 8min | 1 task | 6 files (flash3 SKIP-deferred + flash4 FAIL verdict W29C040) |
+| Phase 73 P04 | 8min | - tasks | - files |
 
 ## Deferred Items
 
