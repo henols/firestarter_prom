@@ -438,7 +438,7 @@ Plans:
 **Plans**: 2 plans
 **Wave 1**
 
-- [ ] 72-01-PLAN.md — Build the per-protocol verdict table + taxonomy + v1.12 holds-vs-overstated reconciliation, resolving the erase-scope & 0x2B open questions by code-trace (SC#1)
+- [x] 72-01-PLAN.md — Build the per-protocol verdict table + taxonomy + v1.12 holds-vs-overstated reconciliation, resolving the erase-scope & 0x2B open questions by code-trace (SC#1)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -571,7 +571,7 @@ Plans:
 | 69 | v1.12 | 3/3 | ✅ Complete | 2026-06-14 |
 | 70 (close) | v1.12 | 4/4 | ✅ Shipped | 2026-06-16 |
 | 71 | v1.13 | 8/8 | Complete   | 2026-06-16 |
-| 72 | v1.13 | 0/TBD | Not started | — |
+| 72 | v1.13 | 1/2 | In Progress|  |
 | 73 | v1.13 | 0/TBD | Not started | — |
 | 74 | v1.13 | 0/TBD | Not started | — |
 | 75 | v1.13 | 0/TBD | Not started | — |

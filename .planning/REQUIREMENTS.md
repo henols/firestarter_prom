@@ -19,7 +19,7 @@
 
 ### RSCH — Protocol Landscape Re-research
 
-- [ ] **RSCH-01**: The minipro/RURP protocol landscape is re-enumerated with per-protocol feasibility verdicts (citing the v1.11 field dictionary + datasheets), reaffirming-or-overturning v1.12's "feasible set complete" finding and confirming which FIX/ERASE/GAP items are genuinely RURP-feasible BEFORE any flash-budget firmware change is committed; anti-features (0x11, 0x2A-2C, 25V NMOS) are re-confirmed fail-closed.
+- [x] **RSCH-01**: The minipro/RURP protocol landscape is re-enumerated with per-protocol feasibility verdicts (citing the v1.11 field dictionary + datasheets), reaffirming-or-overturning v1.12's "feasible set complete" finding and confirming which FIX/ERASE/GAP items are genuinely RURP-feasible BEFORE any flash-budget firmware change is committed; anti-features (0x11, 0x2A-2C, 25V NMOS) are re-confirmed fail-closed.
 
 ### VAL — Family Validation (Tier 1/2 required for all; Tier 3 hybrid-gated)
 
@@ -74,7 +74,7 @@
 | HARN-02 | Phase 71 | Complete |
 | HARN-03 | Phase 71 | Complete |
 | HARN-04 | Phase 71 | Complete |
-| RSCH-01 | Phase 72 | Pending |
+| RSCH-01 | Phase 72 | Complete |
 | VAL-01 | Phase 73 | Pending |
 | VAL-02 | Phase 73 | Pending |
 | VAL-03 | Phase 73 | Pending |
