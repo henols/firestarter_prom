@@ -442,7 +442,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 72-02-PLAN.md — Resolve the 5 named gap items + re-confirm anti-features fail-closed + VPP ceiling unchanged, then commit the enumeration artifact & tick RSCH-01 (SC#2, SC#3)
+- [x] 72-02-PLAN.md — Resolve the 5 named gap items + re-confirm anti-features fail-closed + VPP ceiling unchanged, then commit the enumeration artifact & tick RSCH-01 (SC#2, SC#3)
 
 **UI hint**: no
 
@@ -571,7 +571,7 @@ Plans:
 | 69 | v1.12 | 3/3 | ✅ Complete | 2026-06-14 |
 | 70 (close) | v1.12 | 4/4 | ✅ Shipped | 2026-06-16 |
 | 71 | v1.13 | 8/8 | Complete   | 2026-06-16 |
-| 72 | v1.13 | 1/2 | In Progress|  |
+| 72 | v1.13 | 2/2 | Complete   | 2026-06-17 |
 | 73 | v1.13 | 0/TBD | Not started | — |
 | 74 | v1.13 | 0/TBD | Not started | — |
 | 75 | v1.13 | 0/TBD | Not started | — |
