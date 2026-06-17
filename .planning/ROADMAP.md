@@ -467,7 +467,7 @@ Plans:
 **Wave 2** *(Tier-3 HIL on Leonardo Rev 2.0; operator chip-insertion checkpoints; depends on 73-01)*
 
 - [x] 73-02-PLAN.md — W27C512 Tier-3 eprom cell + passing negative control (VAL-01, SC#2/SC#3) — autonomous: false
-- [ ] 73-03-PLAN.md — AM29F040 Tier-3 flash3 cell + passing negative control (VAL-03, SC#2/SC#3) — autonomous: false
+- [x] 73-03-PLAN.md — AM29F040 Tier-3 flash3 cell + passing negative control (VAL-03, SC#2/SC#3) — autonomous: false
 - [ ] 73-04-PLAN.md — FM1608 two-pattern A→B VAL-06 hard gate: definitive table-stakes-PASS vs FIX-01 verdict via per-byte D-08 logic (VAL-06, SC#4) — autonomous: false
 
 **UI hint**: no
@@ -583,7 +583,7 @@ Plans:
 | 70 (close) | v1.12 | 4/4 | ✅ Shipped | 2026-06-16 |
 | 71 | v1.13 | 8/8 | Complete   | 2026-06-16 |
 | 72 | v1.13 | 2/2 | Complete    | 2026-06-17 |
-| 73 | v1.13 | 2/4 | In Progress|  |
+| 73 | v1.13 | 3/4 | In Progress|  |
 | 74 | v1.13 | 0/TBD | Not started | — |
 | 75 | v1.13 | 0/TBD | Not started | — |
 | 76 (close) | v1.13 | 0/TBD | Not started | — |
