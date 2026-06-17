@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13
 milestone_name: — Programming Algorithm Validation + Gap Implementation
 status: executing
-stopped_at: Phase 73 Plan 01 complete — chipless SKIP-deferred emitted, r1 armed
-last_updated: "2026-06-17T12:47:14.258Z"
-last_activity: 2026-06-17 -- Phase 73 Plan 01 complete
+stopped_at: Phase 73 Plan 02 complete — W27C512 Tier-3 eprom PASS on Leonardo, VAL-01 Tier-3 closed
+last_updated: "2026-06-17T13:29:32.567Z"
+last_activity: 2026-06-17
 progress:
   total_phases: 11
   completed_phases: 3
   total_plans: 22
-  completed_plans: 17
+  completed_plans: 18
   percent: 27
 ---
 
@@ -22,9 +22,9 @@ progress:
 ## Current Position
 
 Phase: 73 (bench-validate-the-6-families-on-leonardo-hybrid-gated) — EXECUTING
-Plan: 2 of 4
-Status: Executing Phase 73
-Last activity: 2026-06-17 -- Phase 73 Plan 01 complete
+Plan: 3 of 4
+Status: Ready to execute
+Last activity: 2026-06-17
 
 ## Project Reference
 
@@ -148,8 +148,8 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-17T12:47:14.248Z
-Stopped at: Phase 73 Plan 01 complete — chipless SKIP-deferred emitted, r1 armed
+Last session: 2026-06-17T13:29:32.558Z
+Stopped at: Phase 73 Plan 02 complete — W27C512 Tier-3 eprom PASS on Leonardo, VAL-01 Tier-3 closed
 Resume: `/gsd-plan-phase 71`
 
 ## Decisions
@@ -197,6 +197,7 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 - [Phase ?]: SRAM-VERDICT: 0x0E/0x27/0x28/0x29 classified feasible-and-implemented (behavior deferred Phase 73 VAL-06); generic memory_write_execute fires before configure_sram
 - [Phase ?]: V1.12-OVERSTATED: 3 areas - SRAM no-op (sram.cpp:15-17), FLAG_CAN_ERASE routing gap (database.py:594-597), X88C64 0x34 feasible-gap
 - [Phase ?]: [Phase 73-01]: firestarter config -r1 writes to Arduino EEPROM only; r1 gate armed by writing r1=270000 directly to ~/.firestarter/config.json
+- [Phase ?]: 73-02: A1-CONFIRMED: W27C512 erase fires correctly in write_cycle_eprom; Tier-3 PASS authoritative on Leonardo
 
 ## Performance Metrics
 
@@ -234,6 +235,7 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 | Phase 71 P07 | 8min | 2 tasks | 3 files |
 | Phase 71 P08 | 7min | 2 tasks | 4 files |
 | Phase 72 P01 | 45min | - tasks | - files |
+| Phase 73 P02 | 3min | - tasks | - files |
 
 ## Deferred Items
 
