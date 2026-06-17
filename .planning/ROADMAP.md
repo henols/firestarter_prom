@@ -458,7 +458,18 @@ Plans:
   3. Every Tier-3 cell records a live R1/R2 readback (`r1 ≈ 270000`) precondition and retry count, so a calibration artifact (999.1) or board confounder (999.2 — uno328pb excluded by rule) is never recorded as an algorithm bug; no uno328pb program/write cell is recorded as PASS.
   4. The SRAM no-op question (VAL-06) is resolved with evidence: the matrix records whether a `configure_sram` write actually persists (Tier-3 write+read-back) or silently no-ops, classifying SRAM as table-stakes-PASS or as a FIX-01 correctness defect — handing the verdict to Phase 74.
 
-**Plans**: TBD
+**Plans**: 4 plans (2 waves)
+Plans:
+**Wave 1** *(software-first, flash-free; no bench gate)*
+
+- [ ] 73-01-PLAN.md — Re-confirm all 6 families' Tier-1+Tier-2 cells GREEN (SC#1) + arm the live R1/R2 precondition (SC#3 enabler) + emit Tier-3 SKIP-deferred for the 3 chipless families eeprom28c/flash4/flash_intel (VAL-02/04/05, SC#2) — autonomous
+
+**Wave 2** *(Tier-3 HIL on Leonardo Rev 2.0; operator chip-insertion checkpoints; depends on 73-01)*
+
+- [ ] 73-02-PLAN.md — W27C512 Tier-3 eprom cell + passing negative control (VAL-01, SC#2/SC#3) — autonomous: false
+- [ ] 73-03-PLAN.md — AM29F040 Tier-3 flash3 cell + passing negative control (VAL-03, SC#2/SC#3) — autonomous: false
+- [ ] 73-04-PLAN.md — FM1608 two-pattern A→B VAL-06 hard gate: definitive table-stakes-PASS vs FIX-01 verdict via per-byte D-08 logic (VAL-06, SC#4) — autonomous: false
+
 **UI hint**: no
 
 ### Phase 74: Per-Family Correctness Fixes (flash-gated)
