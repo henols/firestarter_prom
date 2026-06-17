@@ -435,7 +435,9 @@ Plans:
   2. The genuine RURP-feasible gaps are confirmed and scoped for the downstream phases — the erase path (0x07), the `configure_sram` no-op question, the X88C64 0x34 re-classification, flash4 chip-id, and the stale 0x39 comment — each marked in-scope or deferred with rationale.
   3. Anti-features are re-confirmed fail-closed with cited reasons: 0x11 FWH (LPC-serial/3.3V), 0x2A/0x2B/0x2C GAL/PLD (not memory), 25V NMOS (`vpp-exceeds-max`); the `RURP_VPP_CEILING_MV=22000` ceiling is not relaxed.
 
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 72-01-PLAN.md — Build the per-protocol verdict table + taxonomy + v1.12 holds-vs-overstated reconciliation, resolving the erase-scope & 0x2B open questions by code-trace (SC#1)
+- [ ] 72-02-PLAN.md — Resolve the 5 named gap items + re-confirm anti-features fail-closed + VPP ceiling unchanged, then commit the enumeration artifact & tick RSCH-01 (SC#2, SC#3)
 **UI hint**: no
 
 ### Phase 73: Bench-Validate the 6 Families on Leonardo (hybrid-gated)
