@@ -202,14 +202,82 @@ Executed at task start per hardware_note:
 
 ---
 
-## Self-Check
+## Self-Check: PASSED
 
 - [x] flash3/validation-matrix.json exists with SKIP-deferred cell — CONFIRMED
 - [x] flash4/validation-matrix.json exists with FAIL verdict — CONFIRMED
 - [x] Negative control for flash4: verify wrongfile exited non-zero — CONFIRMED (exit 1)
 - [x] Pre-write gate: controller=leonardo, Rev 2.0, R1=270000 — CONFIRMED
 - [x] Submodule commit 6e0ce28 in firestarter_app on v1.13-algo-validation — CONFIRMED
+- [x] Meta commit 65d22ce in meta repo — CONFIRMED
 - [x] Deviation documented prominently — CONFIRMED
+
+---
+
+## Bonus Bench Addendum (SST39SF040, post-plan) — 2026-06-17
+
+**VAL-03 upgraded from SKIP-deferred to authoritative PASS via SST39SF040.**
+
+### Context
+
+Plan 73-03 recorded flash3/VAL-03 as SKIP-deferred because no AM29F040 was available. In the same session, the operator confirmed a SST39SF040 (Silicon Storage Technology, 512KB Flash, configure_flash3 / algorithm 0x06) was seated in the Rev 2.0 Leonardo socket. A bonus HIL run was executed to upgrade VAL-03 from SKIP-deferred to real bench evidence. This does NOT require a new plan file — it is an authorized post-plan extension, documented here per D-12 (any recorded verdict closes the cell).
+
+### Pre-Write Gate (re-confirmed)
+
+| Check | Result |
+|-------|--------|
+| `firestarter -p /dev/ttyACM0 fw` | `controller: leonardo` CONFIRMED |
+| `firestarter -p /dev/ttyACM0 hw` | Rev 2.0-class CONFIRMED |
+| `firestarter -p /dev/ttyACM0 config` | R1=270000, R2=44000 (within [202500,337500]) IN BAND |
+
+### Run Details
+
+**Chip**: SST39SF040 (SST, 512KB Flash, DIP32, configure_flash3 / algorithm 0x06, 12V VPP, support_status=supported)
+
+**Source image**: `sst39sf040-source.bin` — 524288 bytes, pattern `((i * 0x37 + 0xA3) & 0xFF)`, SHA256=`c19c3e07b94b12beb32fbb6afd3de432453a895d82406a38390db78fa348368d`
+
+**Runner invocation**: `firestarter -p /dev/ttyACM0 dev validate-family flash3 --board leonardo --chip SST39SF040 --source val-results/flash3/sst39sf040-source.bin --output-dir val-results/flash3`
+
+**Exit code**: 0 (PASS)
+
+**Sequence**:
+1. Erase: `flash3_erase_execute` — "Erase for SST39SF040 successful (0.03s)" — configure_flash3 erase surface exercised
+2. Write: 524288 bytes written successfully (239.43s)
+3. Readback: full 524288-byte read-back, SHA256=`c19c3e07b94b12beb32fbb6afd3de432453a895d82406a38390db78fa348368d` — **exact match**
+
+**Verdict**: PASS (authoritative, Leonardo Rev 2.0)
+
+### Negative Control
+
+**Command**: `firestarter -p /dev/ttyACM0 verify SST39SF040 val-results/flash3/sst39sf040-wrongfile.bin`
+
+**Wrong file**: `sst39sf040-wrongfile.bin` — 524288 bytes, pattern `((i * 0x5B + 0x7E) & 0xFF)`, SHA256=`a6d1292ebb3d3a525c74c6b4a5aa10b6e55268150eea99cb468811161b4bf6c6`
+
+**Result**: Exit code 1. Error: `0x7e != 0xa3 at 0x000000`. PASSED (oracle non-vacuous).
+
+### VAL-03 Status Update
+
+| ID | Family | Chip | Verdict | Pass Type | Phase-74 Route |
+|----|--------|------|---------|-----------|----------------|
+| VAL-03 | flash3 | SST39SF040 (bonus; AM29F040 still deferred) | **PASS** | authoritative | No |
+
+VAL-03 is now **CLOSED with real bench evidence** (authoritative PASS on Leonardo, configure_flash3 erase+write exercised). The planned AM29F040 run is no longer required to close VAL-03 — the SST39SF040 is a full flash3-family representative using the same algorithm (0x06).
+
+### Submodule Commit
+
+- `d399219` (firestarter_app, v1.13-algo-validation): `feat(73-03-bonus): flash3 VAL-03 PASS on SST39SF040 — upgrade from SKIP-deferred to authoritative`
+
+### Files Added (firestarter_app submodule)
+
+- `val-results/flash3/sst39sf040-source.bin` — 524288-byte source image
+- `val-results/flash3/sst39sf040-wrongfile.bin` — 524288-byte wrong file for negative control
+- `val-results/flash3/cycle_01_readback.bin` — 524288-byte readback from chip (SHA matches source)
+- `val-results/flash3/validation-matrix.json` — flash3 leonardo cell upgraded: SKIP-deferred → PASS (authoritative, chip=SST39SF040, evidence_sha recorded)
+- `val-results/flash3/validation-matrix.md` — updated human-readable matrix
+
+### D-12 Routing
+
+PASS verdict — no Phase-74 route needed for flash3/configure_flash3. The algorithm is correct and functional.
 
 ---
 *Phase: 73-bench-validate-the-6-families-on-leonardo-hybrid-gated*
