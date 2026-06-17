@@ -383,7 +383,7 @@ Full detail: [`.planning/milestones/v1.12-ROADMAP.md`](milestones/v1.12-ROADMAP.
 ### Phases
 
 - [ ] **Phase 71: Validation Harness + Matrix** — Software-first, flash-free spine: three-tier harness (Tier-1 native recording-bus stub + per-family suites; Tier-2 host wire round-trip; Tier-3 `dev validate-family` runner) + declarative validation matrix + extended `check_dispatch.py` baking in the Leonardo-only-PASS / negative-control / live-R1 / uno328pb-N/A oracle.
-- [ ] **Phase 72: Re-research the Protocol Landscape** — Re-enumerate minipro/RURP protocols with feasibility verdicts; reaffirm-or-overturn v1.12's "feasible set complete"; confirm which FIX/ERASE/GAP items are genuinely feasible BEFORE any flash-budget firmware commit; re-confirm anti-features fail-closed.
+- [x] **Phase 72: Re-research the Protocol Landscape** — Re-enumerate minipro/RURP protocols with feasibility verdicts; reaffirm-or-overturn v1.12's "feasible set complete"; confirm which FIX/ERASE/GAP items are genuinely feasible BEFORE any flash-budget firmware commit; re-confirm anti-features fail-closed. (completed 2026-06-17)
 - [ ] **Phase 73: Bench-Validate the 6 Families on Leonardo (hybrid-gated)** — Run the matrix; populate PASS/FAIL/SKIP-deferred cells; resolve the SRAM no-op question. Tier 1/2 always; Tier 3 on parts-on-hand. Produces the evidence that defines the fix phases.
 - [ ] **Phase 74: Per-Family Correctness Fixes (flash-gated)** — RED→GREEN fixes for the divergences the bench exposed: SRAM real read/write IF VAL-06 confirms the no-op (else closed-with-evidence); flash4 `CMD_CHECK_CHIP_ID`; the stale 0x39 comment + 2-chip coverage. Fixes-before-additions; `-e leonardo` flash ceiling held.
 - [ ] **Phase 75: Erase Path (`firestarter erase` W27C512, 0x07)** — Host `FLAG_CAN_ERASE` routing to the existing `eprom_internal_erase` electricals + 12V→14V erase-rail confirm under the 22V ceiling + datasheet-precondition validation; chip-OUT VPP meter dry-run before any seated erase. Closeable on Leonardo with a W27C512 on hand.
@@ -571,7 +571,7 @@ Plans:
 | 69 | v1.12 | 3/3 | ✅ Complete | 2026-06-14 |
 | 70 (close) | v1.12 | 4/4 | ✅ Shipped | 2026-06-16 |
 | 71 | v1.13 | 8/8 | Complete   | 2026-06-16 |
-| 72 | v1.13 | 2/2 | Complete   | 2026-06-17 |
+| 72 | v1.13 | 2/2 | Complete    | 2026-06-17 |
 | 73 | v1.13 | 0/TBD | Not started | — |
 | 74 | v1.13 | 0/TBD | Not started | — |
 | 75 | v1.13 | 0/TBD | Not started | — |
