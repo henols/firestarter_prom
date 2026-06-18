@@ -857,6 +857,90 @@ Plans:
 
 - [ ] TBD (promote with /gsd-review-backlog when ready)
 
+---
+
+### v1.14 — Feasible-Gap Implementation (planned milestone — captured 2026-06-18)
+
+The four items below (999.4–999.7) are a coherent body of **implementation** work that
+**graduates chips to `supported`** — explicitly OUT of v1.13's validation-only scope. They are
+captured here pending the v1.13 close (operator-gated beta cut + `/gsd-complete-milestone v1.13`).
+**Promote them together via `/gsd-new-milestone v1.14`** (NOT `/gsd-review-backlog` into v1.13).
+All four are firmware-touching → subject to flash-budget ordering (the ~88% Leonardo flash ceiling
+that drove v1.13). Suggested order: 999.4 (most ready, mostly software) → 999.5 → 999.7 → 999.6
+(hardware-blocked last). Operator decision 2026-06-18: do all four; 25V NMOS implemented assuming
+hardware can produce 25V.
+
+### Phase 999.4: Erase write-path for 0x07 EE-EPROMs (FLAG_CAN_ERASE wiring) (BACKLOG → v1.14)
+
+**Goal:** [Captured for future planning] Writing a W27C512-class EE-EPROM (the 7 `electrical.type=="EEPROM"`
+chips on protocol 0x07) auto-erases before programming. The standalone erase electricals already work
+(`eprom_internal_erase` fires via `COMMAND_ERASE` → `eprom_erase_execute`, bench-confirmed Phase 73);
+the gap is the write auto-erase path: `eprom_write_init` ([firestarter/src/proms/eprom.cpp:100-106](../firestarter/src/proms/eprom.cpp#L100-L106))
+only erases `if (is_flag_set(FLAG_CAN_ERASE))`, but `convert_to_programmer` ([firestarter_app/firestarter/database.py:594-599](../firestarter_app/firestarter/database.py#L594-L599))
+gates `FLAG_CAN_ERASE` on `info-flags & 0x10`, which is `0x0` for all 7 chips → flag never set. Fix:
+wire `FLAG_CAN_ERASE` from `electrical.type == "EEPROM"` (not `info-flags & 0x10`). Bench: 12V→14V
+erase-rail confirm under the 22V ceiling on Leonardo + W27C512 (chip-OUT VPP meter dry-run first).
+**This is the skipped v1.13 Phase 75 (ERASE-01).**
+**Requirements:** TBD (was ERASE-01)
+**Plans:** 0 plans
+**Origin:** v1.13 Phase 72 RSCH-01 GAP-1 (`.planning/v1.13-PROTOCOL-ENUMERATION.md` §Gap Item Index); Phase 75 was never executed (flash-budget ordering). Type: feature. Most-ready gap.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-new-milestone v1.14 when ready)
+
+### Phase 999.5: X88C64 0x34 firmware handler (BACKLOG → v1.14)
+
+**Goal:** [Captured for future planning] Implement the `0x34` firmware handler (`configure_x88c64`) for the
+XICOR X88C64P — a parallel DIP24 5V EEPROM with an 8051 multiplexed address/data bus (ALE/WR/RD),
+byte/page write up to 32 bytes, toggle-bit (I/O6) polling — per the Phase 76 feasibility verdict
+([.planning/X88C64-FEASIBILITY.md](X88C64-FEASIBILITY.md), MEDIUM). Resolve the open ALE-routing
+control-bit question in `rurp_pinout.h` (bench investigation) before shipping; graduate X88C64P off
+`protocol-not-implemented`; bench write+read-back on Leonardo. No STORE/RECALL (that's X2210/X2212).
+**Requirements:** TBD (was GAP-02 implementation half)
+**Plans:** 0 plans
+**Origin:** v1.13 Phase 76 GAP-02 — spec-only verdict authored, handler deferred (D-01). Type: feature. Has an open ALE-routing question → carries bench risk.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-new-milestone v1.14 when ready)
+
+### Phase 999.6: AT28C04/16 adapter graduation (hardware-gated) (BACKLOG → v1.14)
+
+**Goal:** [Captured for future planning] Graduate the 9 `adapter-required` AT28C04/AT28C16 chips to
+`supported`. Build the physical DIP24→DIP32 adapter per the Phase 76 pin-map spec
+([firestarter/doc/AT28C04-ADAPTER.md](../firestarter/doc/AT28C04-ADAPTER.md) — the /WE chip-pin-21 →
+socket-pin-30 reroute against `DIP32_28C512_EEPROM`); the firmware handler already exists
+(`configure_eeprom28c`, protocol 0x0D, VPP-free); wire the chips through it; golden write+read-back
+round-trip; remove the `adapter-required` host-guard refusal in `chip_resolver.resolve_chip`.
+**HARDWARE-BLOCKED until the physical adapter is built.**
+**Requirements:** TBD (was GAP-01 graduation)
+**Plans:** 0 plans
+**Origin:** v1.13 Phase 76 GAP-01 — two-layer adapter spec authored (D-04), graduation deferred. Type: feature. Hardware-blocked → sequence last.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-new-milestone v1.14 when ready)
+
+### Phase 999.7: 25V NMOS support (M2716/M2732) — VPP ceiling raise (BACKLOG → v1.14)
+
+**Goal:** [Captured for future planning] Support the 4 `vpp-exceeds-max` NMOS chips (INTEL M2716,
+INTEL M2732, SGS-THOMSON ETC2716, ST M2716) currently fail-closed because they need 25V VPP, above
+the `RURP_VPP_CEILING_MV = 22000` ([firestarter_app/tools/build_db.py:117](../firestarter_app/tools/build_db.py#L117)).
+**FIRST verify a shield rev can physically produce 25V VPP** (operator multimeter, chip-OUT dry-run —
+this is the gating risk; the 22V ceiling reflects a hardware limit, not just a software constant).
+THEN raise the ceiling constant + the `check_dispatch.py` `_FAMILY_VPP_INVARIANTS` ceiling
+([firestarter_app/tools/check_dispatch.py:79-85](../firestarter_app/tools/check_dispatch.py#L79-L85)),
+re-classify the 4 chips off `vpp-exceeds-max`, confirm/wire the 25V program electricals, bench
+write+verify on Leonardo. Note M2732A (21V) is already `supported`.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** Operator request 2026-06-18 ("implement assuming HW can do 25V"). Was classified infeasible in the v1.13 enumeration Anti-Feature Block (`.planning/v1.13-PROTOCOL-ENUMERATION.md` §25V NMOS) under the 22V ceiling. Type: feature. HARDWARE-GATED on 25V capability confirm.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-new-milestone v1.14 when ready)
+
 <!-- Phase 61 (List/Search Display Correctness + Table Layout) shipped as part of v1.11 on
      2026-06-10 — moved out of Backlog into the v1.11 milestone section above. Full detail in
      the v1.11 archive: .planning/milestones/v1.11-ROADMAP.md. -->

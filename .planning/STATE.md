@@ -97,6 +97,12 @@ v1.10 SHIPPED 2026-06-07. v1.9 Read-Bug RCA DEFERRED (Phases 45–48; resume at 
 
 ### Roadmap Evolution
 
+- v1.14 captured to Backlog 2026-06-18 (operator request): 4 feasible-gap **implementation** phases that
+  graduate chips to `supported` (OUT of v1.13's validation-only scope) → ROADMAP §Backlog 999.4–999.7.
+  999.4 erase write-path (skipped v1.13 Phase 75, most ready), 999.5 X88C64 0x34 handler, 999.6 AT28C04/16
+  adapter graduation (hardware-blocked), 999.7 25V NMOS M2716/M2732 ceiling raise (was infeasible at 22V —
+  operator opted to implement assuming HW can do 25V; gating risk = confirm a shield can produce 25V VPP).
+  Promote via `/gsd-new-milestone v1.14` after v1.13 close (operator-gated beta cut still pending), NOT into v1.13.
 - v1.13 roadmap created 2026-06-16: 6 phases (71–76) derived from the HARN/RSCH/VAL/FIX/ERASE/GAP
   requirements along the research-derived harness→validate→fix→gaps spine, flash-ceiling-ordered.
   17/17 requirements mapped, no orphans/duplicates. FIX-01 (SRAM) is evidence-gated on VAL-06;
