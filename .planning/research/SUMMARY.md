@@ -1,171 +1,85 @@
-# Project Research Summary
+# Project Research Summary — v1.14 Feasible-Gap Implementation
 
-**Project:** Firestarter v1.13 — Programming Algorithm Validation + Gap Implementation
-**Domain:** Firmware write/program/verify algorithm validation (test-first, hybrid native + hardware-in-the-loop) + evidence-driven gap implementation on an Arduino RURP EPROM/Flash/EEPROM/SRAM programmer
-**Researched:** 2026-06-16
-**Confidence:** HIGH
+**Project:** Firestarter — Protocol-Aware Programming Architecture
+**Domain:** EPROM/Flash/EEPROM programmer — chip graduation milestone (4 chip groups → `supported`) on an Arduino RURP shield (Python CLI host + Arduino C++ firmware, dual-repo lockstep)
+**Researched:** 2026-06-18
+**Confidence:** HIGH (all four dimensions converged; grounded in live source, v1.13 artifacts, and hardware datasheets/product specs — no contradictions)
 
 ## Executive Summary
 
-v1.13 is a **test-first validation milestone, not a feature build**. The 6 write/program algorithm families (`configure_eprom` 0x07/08/0B, `configure_flash3` 0x06, `configure_flash4` 0x05/35/39, `configure_flash_intel` 0x10, `configure_eeprom28c` 0x0D, `configure_sram` 0x0E/27/28/29) already exist and dispatch; the milestone must *prove them correct on real silicon* behind a reusable, **software-first** validation harness + a declarative per-family validation matrix, then implement only the gaps that testing + re-research actually surface. All four researchers converged on the same spine: a **three-tier test pyramid** — Tier 1 native Unity (`pio test -e native`, ArduinoFake + recording register stub, zero production flash), Tier 2 host pytest wire round-trip (`make_comm`/`fake_serial`, no serial port), Tier 3 host-driven HIL bench (hybrid-gated, Leonardo as the only trusted verify board). Crucially, **almost nothing new is needed** — both test stacks are installed and proven; the genuine new work is a matrix data file, per-family native suites, golden wire-vectors + golden `.bin` images, a matrix-driven bench runner (a generalization of `write_test.sh`), and a `hardware` pytest marker. **Reuse existing infra — `write_test.sh`, `eprom_operations.py` `write_cycle_eprom`/`consistency_check_eprom`, `check_dispatch.py`, `diff_db.py` — do NOT rewrite or fork.**
+**v1.14 is the first milestone since v1.0 where chips actually graduate to `supported`** — the four gaps v1.13 surfaced as feasible-but-deferred become fully programmable. The research converged on one structural insight: **three of four gaps are HOST-ONLY with zero firmware flash cost** (999.4 erase-wiring, 999.7 25V ceiling, 999.6 adapter graduation); only **999.5 (X88C64 0x34 handler)** adds firmware code.
 
-The dominant risks are **coupled and unforgiving: false-pass and chip-destruction**. The verify oracle is a read, and the read path is the v1.9-deferred read bug on 2 of 3 shields plus uno328pb drift — so **only Leonardo + a clean shield is a valid PASS**; everything else is advisory. Worse, native dispatch tests assert operation-pointers, NOT register side-effects, so a wrong-VPP bug compiles, passes tests, and only manifests as a fried chip on the bench — the milestone must add **register-bit native tests (recording stub) + a chip-OUT VPP multimeter dry-run** before any seated write. Two calibration/board confounders (999.1 stale-R1 VPP misread; 999.2 uno328pb program brown-out) masquerade as algorithm bugs and must be ruled out by a live R1/R2 readback at every VPP-dependent bench task; **uno328pb is N/A for any program/write test**. A vacuous verify (cached buffer, no negative control) is a third false-pass vector — PASS must require an independent post-write full read + SHA compare + a negative control that proves verify *can* fail.
+The **dominant cross-cutting risk is host-guard-removal timing.** The `chip_resolver.resolve_chip` `ChipNotImplementedError` refusal installed in v1.12 is the authoritative hardware-damage prevention layer — it refuses every non-`supported` chip before any serial byte. Each of the four features *removes* that barrier for a chip family, re-opening the wrong-VPP-to-wrong-pin damage path. The safety invariant: **the graduation step (flip `support_status` → `supported` + drop the host guard) must be the FINAL plan in each phase, gated behind complete validation** (native recording-stub register tests + wire round-trip + Leonardo bench with a chip-OUT VPP multimeter dry-run first).
 
-v1.12's "feasible set is complete" was **overstated**. Three genuine gaps exist: (1) the **erase path** (`firestarter erase` W27C512 0x07) — firmware electricals already exist (`eprom_internal_erase` drives VPE+A9), so the gap is mostly host-side wiring + a 12V→14V rail detail (under the 22V ceiling); (2) **`configure_sram` is an empty no-op** yet 20+ chips report `supported` — validate-first, likely a correctness bug (writes may silently succeed-without-writing); (3) **X88C64 (0x34)** is mis-classified as infeasible but is a genuine parallel 5V 24-pin DIP EEPROM/NOVRAM (MEDIUM — needs a datasheet protocol spec). Plus cheap wins: flash4 missing `CMD_CHECK_CHIP_ID` case, and a stale "0x39 = 0 chips" comment (DB now has 2). Anti-features stay fail-closed: 0x11 FWH, 0x2A-2C GAL/PLD, 25V NMOS. The **build-order driver** is the Leonardo flash ceiling (~88%): the harness adds zero production flash, so fixes-before-additions, and adapter-required handlers (flash-heavy, hardware-gated) are the natural deferrals. Dual-repo lockstep + the py3.12-masks-CI-3.11 trap apply to every wire-touching firmware change.
+Two hard open questions gate feasibility and must be the **first plan** of their respective phases (not handler/constant code):
+1. **X88C64 ALE routing** (999.5) — is a free `CTRL_*` bit available in `rurp_pinout.h` to toggle the 8051 Address-Latch-Enable without a PCB modification? Labeled LOW-confidence (Assumption A6 in `X88C64-FEASIBILITY.md`). If no free bit exists, the handler cannot ship and X88C64 defers again.
+2. **25V VPP capability** (999.7) — can the on-bench shield physically + safely produce ≥25V at the socket VPP pin? Resolved via operator multimeter, chip-OUT dry-run (`autonomous: false`), before the ceiling constant changes.
+
+25V is **rated-feasible** (RURP Rev 2.3 spec = 5–27V VPP; AP3012 boost regulator = 4.5–36V), so the `RURP_VPP_CEILING_MV = 22000` is a conservative software constant, not a hard hardware wall — but the dry-run is still mandatory because it depends on the specific shield's R1/R2 calibration.
+
+**Flash budget** is the constraint for 999.5 only: Leonardo sits at **89.5% / ~3 KB free** post-v1.13. The X88C64 multiplexed-bus handler is the heaviest addition (~1–3 KB) and must be measured (`pio run -e leonardo`) as an explicit gate. This drives a build-order tension (below).
 
 ## Key Findings
 
 ### Recommended Stack
 
-See `STACK.md`. **No new third-party dependencies.** The two substrates are already pinned and green: firmware native = PlatformIO `[env:native]` + Unity + ArduinoFake `^0.4.0` (8 suites already passing); host = pytest `>=8` + syrupy `>=5` + ruff/mypy + pyserial, with `conftest.py` `make_comm`/`fake_serial` fixtures that drive the full INIT→MAIN→END state machine *without a serial port*. The genuinely-new work is patterns + a thin harness layer + data files, not a framework.
+No new third-party dependencies. All work lands in existing files with existing toolchains. See `STACK.md`.
 
-**Core technologies (all REUSE):**
-- **PlatformIO `[env:native]` + Unity + ArduinoFake `^0.4.0`** — cross-compile real handler TUs on host, mock `Serial`/`delay`/`set_control_register`; the model for algorithm-shape + register-sequence native tests (`test_dispatch`, `test_flash_intel_vpp` patterns).
-- **pytest `>=8` + syrupy `>=5` + `make_comm`/`fake_serial`** — host wire-dict + state-machine tests with no hardware; golden wire-vectors pin safety-critical fields (vpp_mv/algorithm/flags).
-- **`write_test.sh` / `eprom_operations.py` cycle methods / `firestarter_test.sh`** — the existing HIL write→verify→read-back→`diff` loop; v1.13 generalizes them matrix-driven, NOT rewrites.
-- **`check_dispatch.py` / `diff_db.py`** — DB-correctness + cross-family dispatch firewall; reused as CI gates and extended per-family.
+| Gap | Firmware? | Primary surgery | Flash cost |
+|-----|-----------|-----------------|-----------|
+| **999.4** erase write-path | No | `database.py::convert_to_programmer` — wire `FLAG_CAN_ERASE` from `electrical.type=="EEPROM"` (not `info-flags & 0x10`); firmware guard `eprom_write_init` already correct | 0 |
+| **999.5** X88C64 0x34 | **Yes** | New `configure_x88c64` (+ `eeprom_x88c64.cpp`/header) registered in `memory.cpp` dispatch **before** the `protocol != 0 → configure_not_implemented` guard; possible `rurp_pinout.h` + lockstep `constants.py`/`firestarter.h` ALE bit; `build_db.py` reclassification | ~1–3 KB (measure) |
+| **999.7** 25V NMOS | No | `RURP_VPP_CEILING_MV` 22000→25000 (`build_db.py`) + `_FAMILY_VPP_INVARIANTS` ceiling (`check_dispatch.py`); 4 chips reclassify off `vpp-exceeds-max` | 0 |
+| **999.6** AT28C04/16 adapter | No | Remove `_AT28C_DIP24_NAMES` rule arm (`build_db.py`) + host-guard refusal (`chip_resolver.py`); existing `configure_eeprom28c` (0x0D, VPP-free) handler | 0 |
 
-**New-but-tiny:** a declarative validation-matrix data file (family → algorithm IDs → rep chip → assertions → native/bench tier), per-family native Unity suites, golden wire-vectors, seed-pinned golden `.bin` images, a matrix-driven bench runner, and a `@pytest.mark.hardware` marker (`-m "not hardware"` default in CI). The one firmware config touch: add each new suite dir to the `[env:native]` `test_filter` allowlist + `-I` include.
+### Feature Landscape
 
-### Expected Features
+- **Table stakes per gap = "the chip writes + verifies correctly and reports `supported`."** Observable acceptance: N≥5 write→read-back SHA matches on Leonardo + a non-vacuous negative control (wrong-file verify exits non-zero).
+- **999.4** graduates 7–8 EE-EPROMs (W27C512/W27E512/W27C257/W27E257/SST27SF256/SST27SF512/SST27VF256/SST27VF512) to auto-erase-before-write.
+- **999.5** graduates X88C64P only. **Anti-feature: STORE/RECALL is explicitly OUT** (that's the X2210/X2212 NovRAM family — different product).
+- **999.7** graduates 4 NMOS UV-EPROMs (INTEL M2716/M2732, SGS-THOMSON ETC2716, ST M2716). M2732A (21V) is already `supported`. **Anti-feature: >25V chips stay fail-closed.**
+- **999.6** graduates 9 AT28C04/AT28C16 DIP24 EEPROMs. Before the physical adapter exists, the graceful behavior is the existing honest-refusal (`adapter-required`); after, full programmability.
 
-See `FEATURES.md`. Framing is **validate vs implement vs keep-refused**, measured against the RURP feasibility ruler (fixed 5V VCC, VPP ceiling `RURP_VPP_CEILING_MV=22000`, DIP parallel 24/28/32-pin).
+### Architecture & Integration
 
-**Must have (table stakes — VALIDATE, code exists, prove on hardware):**
-- **Validation harness + matrix (software, build FIRST, no bench gate)** — the spine; everything reports through it.
-- **UV-EPROM 0x07/08/0B write+verify+chip-id** — core product path (323 chips); retry loop grows pulse_delay up to 20× (confirm convergence); 0x0B uses direct VPE (no drop resistor) — distinct VPP row.
-- **5V EEPROM 0x0D (SDP-disable + 64B page + DQ7 poll)** — 84 chips (AT28C256 rep).
-- **Flash AMD 0x06 write + sector/chip erase** — largest family (190 chips).
-- **Resolve the SRAM no-op question** — 0x0E/27/28/29 dispatch to an empty handler; validate-or-classify-as-bug.
-- **Blank check + read path (all families)** — read validated on Leonardo/EVEN-01 ONLY (decoupled from the v1.9 RCA).
+- **Dispatch arm order is load-bearing:** any new 999.5 `memory.cpp` arm must insert BEFORE the generic `if (protocol != 0) → configure_not_implemented()` guard — after it, the arm is dead code.
+- **Only 999.5 requires a dual-repo lockstep phase**; 999.4/999.6/999.7 are host-only phases with bench-verification steps.
+- **refused → supported end-to-end** for each graduation: DB reclassification → host-guard refusal removed → wire → (firmware, 999.5 only) → Leonardo bench proof.
 
-**Should have (competitive — IMPLEMENT, RURP-feasible gaps):**
-- **`firestarter erase W27C512` host wiring + 14V rail confirm** — flagship feasible gap; firmware electricals already exist; gap = `FLAG_CAN_ERASE` routing + 12V→14V detail + datasheet preconditions. MEDIUM.
-- **`configure_sram` real read/write** — if validation shows silent no-op write, this is a correctness fix (LOW–MEDIUM).
-- **Flash type-4 0x05/0x35 `CMD_CHECK_CHIP_ID` case** — trivial, mirror flash3 (LOW).
-- **0x39 2-chip validation + stale-comment fix** — cheap correctness win (LOW).
-- **Flash Intel 0x10 validation** (12V P1; SR error branches) — trigger: a 28F-series chip on hand.
+## Roadmap Implications
 
-**Defer (hardware/spec-gated):**
-- **AT28C04/AT28C16 24-pin EEPROMs (adapter-required, 0x0D)** — firmware handler exists; needs a physical DIP24 adapter + a `resolve_pinout_key` arm + pin-map spec. Deliver the spec now, bench-validate when the adapter exists.
-- **X88C64 0x34 handler** — MEDIUM/HIGH; re-classify as feasible candidate, but do NOT promise blind — needs the 0x34 STORE/RECALL + byte/page write protocol from the datasheet first.
+**Suggested phase structure (Phase 77 onward — numbering continues from v1.13's Phase 76):**
 
-**Keep refused (anti-features, fail-closed invariant):** 0x11 FWH (LPC-serial/3.3V), 0x2A-2C GAL/PLD (not memory), 25V NMOS 2716/2732 (`vpp-exceeds-max`; M2732A=21V correctly `supported`), serial/SMD/MCU. Do not relax the 22V ceiling.
+| Order | Backlog | Phase | Gate / first-plan |
+|-------|---------|-------|-------------------|
+| 1 | 999.4 | Erase write-path (host-only, most-ready) | 14V erase-rail chip-OUT VPP dry-run before seated erase |
+| 2 | 999.5 | X88C64 0x34 handler (firmware) | **ALE-routing investigation = Plan 1**, before any handler code; `pio run -e leonardo` flash gate ≤~90% |
+| 3 | 999.7 | 25V NMOS ceiling raise (host-only) | **Operator multimeter ≥25V chip-OUT dry-run = Plan 1 (`autonomous: false`)**, before constant change |
+| 4 | 999.6 | AT28C04/16 adapter graduation (host-only) | Physical DIP24→DIP32 adapter built + DMM /WE-reroute continuity check before any chip insertion |
 
-### Architecture Approach
+**Build-order tension for the roadmapper to resolve:** PROJECT.md / operator-captured order is **999.4 → 999.5 → 999.7 → 999.6**. The PITFALLS researcher recommends swapping to **999.4 → 999.7 → 999.5 → 999.6** to land the zero-flash 25V change before the flash-consuming X88C64 handler, preserving headroom. Both are defensible; the captured order has operator backing. Flag for an explicit decision.
 
-See `ARCHITECTURE.md`. The validation surface is a **three-tier test pyramid stacked on the unchanged production stack** — the harness exercises and observes the routes that already ship; it adds NO new production write/program/verify code path. Tiers 1–2 are pure software (no bench gate); Tier 3 is hybrid bench-gated and produces the per-family matrix.
+**Per-phase shape:** the graduation gate (flip + guard-removal) is always the final plan, never mid-phase. 999.5 wants a dedicated ALE investigation sub-plan; 999.7 wants an `autonomous: false` VPP-measurement first plan; 999.6 gates on adapter-ready (defer cleanly without impacting the others if the adapter isn't built).
 
-**Major components:**
-1. **Tier 1 — native Unity suites** (`test/native/avr/test_<family>_algo/`, one per family) + a NEW `_shared/recording_bus_stub.inc` that records `rurp_*` register-write sequences — so a fix is provable by side-effect (e.g. SRAM must NEVER set `CTRL_VPP_REGULATOR_ENABLE`), not just by op-pointer. Zero production flash.
-2. **Tier 2 — host pytest** (`validation_harness.py` pure-logic module + `test_validation_harness.py` MockSerial round-trip per family) + extended `check_dispatch.py` (populate the hollow `non_supported_dispatchable` inverse guard, accepted v1.12 tech debt).
-3. **Tier 3 — HIL bench** (`dev validate-family` CLI thin handler composing `write_cycle_eprom`/`consistency_check_eprom` verbatim) emitting a committed `validation-matrix.{json,md}` artifact (family × board × verdict × evidence SHA; partial coverage OK under hybrid gating).
+## Watch Out For (top pitfalls)
 
-**Build order (dependency- + flash- + bench-ordered):** (1) harness scaffolding (flash-free) → (2) re-research protocol landscape → (3) validate families on Leonardo (produces the evidence) → (4) per-family fixes (flash-gated, fixes-before-additions) → (5) adapter-required arms in `resolve_pinout_key` (flash + hardware gated, last). Steps 1–3 are flash-free; steps 4–5 are the only flash consumers — the ~88% Leonardo ceiling forces the order.
-
-### Critical Pitfalls
-
-See `PITFALLS.md`. Two coupled failure classes dominate: **false-pass** (a corrupt image believed good) and **chip-destruction** (wrong VPP/algorithm on a physical part).
-
-1. **False-PASS from an untrustworthy verify read board** — the verify oracle IS the v1.9-deferred read bug on Rev-0/Rev-2.0 + uno328pb drift; the firmware's own in-program verify reads through the same path. *Avoid:* pin PASS to Leonardo + clean shield; advisory-only elsewhere; N≥5 byte-identical SHA reads; cross-check against read-independent signals (Intel SR poll, DQ7).
-2. **Chip destruction by wrong VPP / wrong algorithm** — bench shortcuts (`--force`, hand-built JSON, override DB) route around the v1.12 `resolve_chip` guard; a wrong `set_control_register` bit passes native dispatch tests (which check pointers, not registers). *Avoid:* never bypass the host guard; chip-OUT VPP multimeter dry-run before any seated write; add register-bit-sequence native tests; keep GATE-03 green.
-3. **Calibration + board confounders (999.1 / 999.2)** — stale-R1 EEPROM makes the VPP safety check lie (~6.8× under-read, could pass a destructive voltage); uno328pb brown-outs under program current. *Avoid:* read live R1/R2 (`r1 ≈ 270000`) + meter-reconcile at every VPP-dependent task; **uno328pb = N/A for program/write**; prefer Leonardo.
-4. **Vacuous verify / clean-read-masks-bad-write** — verify against the in-memory buffer, or retry-convergence on read noise, manufactures false PASS. *Avoid:* PASS = independent post-write full read + SHA + a passing negative control (wrong-file mismatch + blank/chip-out fail) per family; record retry counts.
-5. **Leonardo flash overflow + lockstep/codegen drift** — ~88% Leonardo ceiling; py3.12 masks CI-3.11 ruff/codegen; wire changes must edit the meta-repo catalog only. *Avoid:* build `-e leonardo` + flash-% ceiling as a success criterion on every firmware change; validate ruff/codegen against CI Python 3.11; meta-only catalog edits → regen → both-repo drift gate; cut a real firmware tag at the beta cut.
-
-Standing bench preconditions (Pitfall 9): chip-OUT before any Uno-class sideload (Leonardo exempt); ASK the operator which silkscreen shield rev is mounted (EEPROM can't distinguish); re-verify `controller:` port identity per task (ACM* numbers shuffle).
-
-## Implications for Roadmap
-
-Based on combined research, the suggested phase structure (numbering continues from v1.12 → **Phase 71+**) follows the harness-before-validate-before-fix-before-gaps spine, ordered so flash-free software work precedes flash-consuming firmware work.
-
-### Phase 71: Validation harness + matrix (software, flash-free)
-**Rationale:** The spine of the milestone and the only fully un-gated deliverable; everything else reports through it. Built first so bench time is spent only on proven-RED divergences.
-**Delivers:** Tier-1 recording bus stub + one `test_<family>_algo/` native suite per family (SRAM the obvious early RED); Tier-2 `validation_harness.py` + MockSerial round-trip; Tier-3 `dev validate-family` composing existing cycle methods + matrix serializer; extended `check_dispatch.py` with per-family invariants + populated `non_supported_dispatchable`.
-**Addresses:** "Validation harness + matrix" (P1 table stakes).
-**Avoids:** Bakes in the PASS definition that defends Pitfalls 1, 3, 4, 5, 6 — Leonardo-as-oracle, live R1/R2 precondition, uno328pb=N/A board-eligibility, independent-read+SHA+negative-control, retry-count capture.
-
-### Phase 72: Re-research the protocol landscape
-**Rationale:** Must reaffirm or overturn v1.12's "feasible set complete" with citations BEFORE any gap-implementation phase is committed; defines which fixes/additions are in scope.
-**Delivers:** Grounded re-enumeration (SRAM no-op, X88C64 0x34, flash4 chip-id, 0x39 stale comment, erase path) with feasibility verdicts citing the v1.11 field dictionary + datasheets; confirms anti-features stay refused.
-**Avoids:** Pitfall 10 (over-claiming the gap set — committing a flash-budget firmware phase to an infeasible protocol).
-
-### Phase 73: Bench-validate families on Leonardo (hybrid-gated)
-**Rationale:** Produces the evidence that defines the fix phases. Software tiers run always; bench runs the families with chips + a working shield on hand, defers parts-missing families with explicit SKIP rows.
-**Delivers:** Populated validation matrix (UV-EPROM 0x07/08/0B, EEPROM 0x0D, Flash AMD 0x06 first; Flash type-4/Intel as parts allow); resolved SRAM no-op question (validate→classify).
-**Uses:** `write_cycle_eprom`/`consistency_check_eprom`, `firestarter`/`dev` CLI, COBS+CRC8 transport (`STACK.md`).
-**Avoids:** Pitfalls 1–6, 9 (every bench precondition: Leonardo oracle, live-R1, uno328pb exclusion, negative control, chip-out, ask-rev, verify-port).
-
-### Phase 74: Per-family correctness fixes (flash-gated)
-**Rationale:** Fix only families the bench showed divergent; software-first RED→GREEN. Order lightest-flash-impact first; fixes-before-additions because Leonardo is the ceiling.
-**Delivers:** Handler fixes (e.g. SRAM real read/write if no-op confirmed; flash4 `CMD_CHECK_CHIP_ID`; 0x39 comment); each turns a RED native/wire test GREEN, keeps `check_dispatch.py`/`diff_db.py`/native suites green, re-benches to a PASS cell.
-**Implements:** SRAM IMPLEMENT fork, flash4 chip-id, 0x39 (P2 differentiators).
-**Avoids:** Pitfalls 2 (register-bit native test + chip-out VPP dry-run for any handler touching VPP), 7 (`-e leonardo` flash-% ceiling), 8 (lockstep/codegen for any wire-touching fix).
-
-### Phase 75: Erase path (`firestarter erase` W27C512, 0x07)
-**Rationale:** The flagship feasible gap and lowest-risk Differentiator — firmware electricals (`eprom_internal_erase`) already exist; gap is mostly host-side. Sequenced after fixes because it touches the VPP hazard surface.
-**Delivers:** Host `erase` wiring (`FLAG_CAN_ERASE` routing) + 12V→14V rail confirmation under the 22V ceiling + datasheet-precondition validation.
-**Avoids:** Pitfalls 2, 3 (chip-out 14V VPP meter dry-run; live-R1 reconcile), 7 (flash if any firmware touch).
-
-### Phase 76 (defer / hardware-spec gated): Adapter-required + X88C64
-**Rationale:** Both depend on artifacts the operator must supply (a physical DIP24 adapter; a 0x34 datasheet protocol). The heaviest flash consumers — gated hardest, natural deferrals under hybrid gating.
-**Delivers:** Adapter pin-map spec + a `resolve_pinout_key` named rule arm (NOT a resurrected table) for AT28C04/16, staying `adapter-required` until the adapter exists and a golden write+read-back round-trips; X88C64 0x34 handler only after the protocol is spec'd.
-**Avoids:** Pitfalls 7 (flash ceiling — last consumer), 10 (no blind feasibility promise), Anti-Pattern 2 (no guess-table resurrection).
-
-### Phase Ordering Rationale
-- **Harness → re-research → validate → fix → gaps** is forced by dependency (the matrix is the spine; evidence must precede fixes) AND by the **Leonardo flash ceiling** (~88%): steps 71–73 are flash-free, so all flash-consuming work (74–76) lands after the test net exists, fixes-before-additions.
-- **Family isolation** (one native suite per family) means a fix to one handler cannot silently regress another; `check_dispatch.py` is the cross-family firewall.
-- **Hybrid gating** lets the milestone close at partial bench coverage — the matrix records exactly which families are bench-proven vs deferred-for-parts.
-
-### Research Flags
-
-Phases likely needing deeper research during planning (`/gsd-plan-phase --research-phase`):
-- **Phase 75 (erase path):** the 12V→14V rail setpoint, the regulator behavior without the drop resistor, and the A0-low/all-DQ-high datasheet preconditions need confirmation against `eprom_internal_erase` + the W27C512 datasheet before wiring.
-- **Phase 76 (X88C64 0x34):** requires the exact STORE/RECALL + byte/page write protocol from the X88C64 datasheet; feasibility is MEDIUM and unconfirmed — do not commit until spec'd.
-- **Phase 76 (adapter-required):** the DIP24 socket adapter pin-map (re-route socket pin 21 from VPP rail to WE) is a physical-design + safety question.
-
-Phases with standard/established patterns (skip research-phase):
-- **Phase 71 (harness):** the native + pytest + bench reuse patterns are fully documented in `firestarter/CLAUDE.md` and proven by 8 existing suites + `write_test.sh`.
-- **Phase 74 (flash4 chip-id, 0x39 comment):** trivial mirrors of existing handler cases.
+1. **Host-guard removal before bench evidence** — re-opens the live 12V/25V-to-wrong-pin damage path. Graduation gate last, behind Tier-1/2/3.
+2. **25V assumed, not measured** — the ceiling reflects a physical rail limit; firmware does NO runtime VPP enforcement, it trusts host pre-screening entirely. Multimeter dry-run is non-negotiable.
+3. **Flash overrun on 999.5** — ~3 KB headroom; measure with `pio run -e leonardo`.
+4. **ALE infeasibility** — if no free `CTRL_*` bit, X88C64 cannot graduate without a PCB change.
+5. **Adapter mis-wire (999.6)** — VPP-free so damage is limited to non-function; the critical /WE reroute (chip pin 21 → socket pin 30) needs a DMM continuity check.
+6. **Lockstep / FLAG_* constant drift** — no automated parity gate for `FLAG_*` bits; change `constants.py` + `firestarter.h` together.
+7. **Bench-integrity standing rules** — Leonardo + clean shield is the only trustworthy PASS path; uno328pb is N/A for program/write; **always ASK which shield rev is on-bench** (Rev 2.2 / Rev 2.0 / Modified Rev 0 — EEPROM byte can't distinguish); verify per-port `controller:` identity at every task start; chip-OUT before sideload on Uno-class boards.
+8. **Pre-req:** confirm the v1.13 `3.0.0b10` lockstep beta cut has landed in both sub-repos before branching v1.14 off `beta`.
 
 ## Confidence Assessment
 
-| Area | Confidence | Notes |
-|------|------------|-------|
-| Stack | HIGH | Both substrates installed, pinned, and green in CI; reuse patterns repo-canonical (`firestarter/CLAUDE.md`, `platformio.ini`, `conftest.py`). Only the ArduinoFake "current version" check is MEDIUM. |
-| Features | HIGH | Firmware source + 744-chip DB read directly; datasheet/protocol facts web-grounded; feasibility verdicts measured against fixed RURP constraints. X88C64 0x34 verdict is explicitly MEDIUM (datasheet-pending). |
-| Architecture | HIGH | Grounded in the actual v1.12 codebase (`memory.cpp`, `eprom_operations.py`, `check_dispatch.py`, `[env:native]`, existing Unity suites); build order driven by the named Leonardo ~88% ceiling. |
-| Pitfalls | HIGH | Project-internal evidence (firmware source, the vpp-misread + datapath-overflow debug records, Phase 44 RCA, operator bench-protocol memory). |
+| Dimension | Confidence | Basis |
+|-----------|-----------|-------|
+| Stack | HIGH | Live source (2026-06-18); flash via `pio run`; RURP Rev 2.3 5–27V verified from two sources |
+| Features | HIGH | All four gaps defined in v1.13 artifacts with file:line origins; acceptance grounded in existing handlers + bench precedent |
+| Architecture | HIGH | Dispatch + host-guard verified against live code; lockstep needs explicit from v1.10–v1.13 history |
+| Pitfalls | HIGH | Grounded in v1.13 history (flash ceiling, uno328pb, Rev 0 Bug A, standing bench preconditions) |
+| X88C64 ALE routing | **MEDIUM/LOW** | Assumption A6 explicitly unresolved — needs a bench schematic trace |
 
-**Overall confidence:** HIGH
-
-### Gaps to Address
-- **SRAM no-op resolution is a validate→maybe-implement fork** — research can't decide it without the bench; the matrix run in Phase 73 determines whether SRAM is a table-stakes pass or a Phase-74 fix. Resolve early (20+ chips claim support).
-- **Erase 12V→14V rail detail** — the exact regulator setpoint and the datasheet preconditions (A0-low/all-DQ-high) need confirmation during Phase 75 planning, not assumption.
-- **X88C64 0x34 protocol unknown** — flag as feasible-candidate, NOT a commitment; gate on a datasheet spec.
-- **999.1 vs 999.2 disambiguation** — the live R1/R2 readback at bench-task start is the discriminator; bake it into the matrix preconditions so a calibration artifact is never recorded as an algorithm bug.
-- **Adapter physical artifact** — AT28C04/16 support is blocked on the operator building/obtaining a DIP24 adapter; deliver the pin-map spec now, bench-validate later.
-
-## Sources
-
-### Primary (HIGH confidence)
-- `firestarter/CLAUDE.md`, `firestarter/platformio.ini [env:native]`, `firestarter/test/native/avr/test_dispatch|test_flash_intel_vpp|test_eeprom28c_chip_id` — native test reuse pattern, recording-mock + setter patterns, `[env:native]` config
-- `firestarter/src/proms/{memory,eprom,eeprom_28c,flash_type_3,flash_type_4,flash_intel,sram,flash_utils,not_implemented}.cpp` — handler shapes, erase electricals, no-op SRAM, dispatch chain, VPP control-register bits
-- `firestarter_app/firestarter/{eprom_operations.py,chip_resolver.py,database.py}`, `tools/{check_dispatch.py,diff_db.py,build_db.py}`, `tests/conftest.py`, `pyproject.toml` — reusable cycle methods, support_status guard, DB gates, no-port fixtures, pinned test deps
-- `firestarter_app/firestarter/data/chip_database.json` (read 2026-06-16) — 744-chip support_status + algorithm distribution
-- `firestarter_app/{firestarter_test.sh,write_test.sh}` — existing HIL write→verify→read-back→diff loop
-- `.planning/PROJECT.md` v1.13 milestone + Key Decisions; `.planning/debug/{firmware-vpp-misread.md,write-verify-datapath-overflow.md}` (999.1; verify negative-control precedent); v1.9 Phase 44 RCA
-- Project memory: `reference_devcontainer_py312_masks_ci_py39`, `feedback_chip_out_before_sideload`, `feedback_verify_port_identity_each_task`, `user_shield_revisions`, `project_uno328pb_vpp_recal_and_program_brownout`, `reference_codegen_ruff_clean_emitter`
-
-### Secondary (MEDIUM confidence)
-- PlatformIO Unit Testing docs + ArduinoFake registry — confirmed `^0.4.0` current
-- [Winbond W27C512 datasheet](https://www.dosdays.co.uk/media/winbond/W27C512_Datasheet.pdf) — erase mode OE/VPP=14V, A9=14V, 5V VCC, 100 ms
-- [Elnec Xicor X88C64](https://www.elnec.com/en/device/Xicor/X88C64/), [eBay X88C64PI 24-pin DIP 5V](https://www.ebay.com/p/663635561) — confirms parallel 5V 24-pin DIP package
-
-### Tertiary (LOW confidence)
-- X88C64 0x34 write/STORE-RECALL algorithm — feasibility MEDIUM, exact protocol unconfirmed; needs datasheet before commitment
-- [Andy4495/ParallelEEPROM](https://github.com/Andy4495/ParallelEEPROM) — prior-art for parallel 28C/X28 programming
-
----
-*Research completed: 2026-06-16*
-*Ready for roadmap: yes*
+**Overall: HIGH** — feasibility of three gaps is settled; the two genuine unknowns (ALE bit, 25V rail) are correctly framed as bench-gated first-plan investigations, not blockers to milestone scoping.
