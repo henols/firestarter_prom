@@ -170,6 +170,16 @@ None. All pre-write gate checks passed on first attempt. Both pattern write+read
 
 The `*.bin` files required `git add -f` due to the root `.gitignore` containing `*.bin`. This is consistent with how prior plans (73-02) handled the `cycle_01_readback.bin` and source image artifacts — force-add is the established pattern for val-results binary artifacts.
 
+## Self-Check: PASSED
+
+All created files verified present:
+- 7 binary artifacts: fm1608-baseline.bin, pattern_a.bin, pattern_b.bin, readback_a_run1/b_run1/a_run2/b_run2.bin
+- val06-perbyte-verdict.txt, validation-matrix.json, validation-matrix.md
+- 73-04-SUMMARY.md
+
+Commit verified: `63624b3` (firestarter_app submodule)
+Meta commit: `be00e26` (SUMMARY.md + STATE.md + ROADMAP.md)
+
 ## Next Phase Readiness
 
 - Phase 73 is now complete: all 6 families have recorded Tier-3 verdicts (3 on-hand families: eprom=PASS, flash4=FAIL on W29C040, sram=PASS; 3 chipless: flash3/eeprom28c/flash_intel SKIP-deferred)

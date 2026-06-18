@@ -150,6 +150,15 @@ No new network endpoints, auth paths, or schema changes. This plan drives hardwa
 - Plan 73-03 (flash3 / AM29F040 HIL cell) is unblocked. The AM29F040 chip replacement checkpoint is next (operator must swap chip to AM29F040).
 - Phase 75 (erase path) is informed: write_cycle_eprom's explicit erase works (A1 confirmed); Phase 75 scope = wire FLAG_CAN_ERASE from electrical.type so standalone `firestarter erase W27C512` routes correctly.
 
+## Self-Check: PASSED
+
+- FOUND: firestarter_app/val-results/eprom/validation-matrix.json
+- FOUND: firestarter_app/val-results/eprom/w27c512-source.bin
+- FOUND: firestarter_app/val-results/eprom/w27c512-wrongfile.bin
+- FOUND: .planning/phases/73-bench-validate-the-6-families-on-leonardo-hybrid-gated/73-02-SUMMARY.md
+- FOUND: submodule commit d3b6302 (firestarter_app)
+- FOUND: meta commit 701dd59 (SUMMARY.md + STATE.md + ROADMAP.md)
+
 ---
 *Phase: 73-bench-validate-the-6-families-on-leonardo-hybrid-gated*
 *Completed: 2026-06-17*
