@@ -1,232 +1,262 @@
-# Stack Research
+# Technology Stack — v1.14 Feasible-Gap Implementation
 
-**Domain:** Firmware write/program/verify algorithm validation — reusable test harness + chip-family validation matrix, hybrid native (no-hardware) + hardware-in-the-loop (HIL) bench
-**Researched:** 2026-06-16
-**Confidence:** HIGH
+**Project:** Firestarter EPROM Programmer
+**Researched:** 2026-06-18
+**Confidence:** HIGH — all claims grounded in verified source files or cited hardware documentation
 
-## Headline Finding (read this first)
+---
 
-**v1.13 needs almost no new third-party dependencies.** The two test stacks
-this milestone builds on are already installed, version-current, and proven in
-this repo:
+## Headline Finding
 
-- **Firmware native side:** PlatformIO `[env:native]` + Unity + ArduinoFake
-  `@^0.4.0` — 8 native suites already green (`test_dispatch`, `test_not_implemented`,
-  `test_flash_intel_vpp`, `test_eeprom28c_chip_id`, `test_read_timing`, COBS suites,
-  `test_messages`). The reuse pattern (`test/native/avr/<name>/` + per-suite
-  `host_stubs.cpp` + `avr/pgmspace.h` shim) is documented in `firestarter/CLAUDE.md`.
-- **Host side:** pytest `>=8.0` + syrupy `>=5.0` (snapshot) + ruff `>=0.15.14`
-  + mypy `>=2.1.0` + pytest-cov `>=7.1.0` + pyserial `>=3.5`, all wired into
-  `.github/workflows/ci.yml` and `pre-commit`. The `conftest.py` `make_comm` /
-  `fake_serial` fixtures already let host tests drive the full INIT→MAIN→END
-  state machine **without a serial port**.
+**v1.14 needs no new third-party dependencies.** Every library, framework, and tool required for all four gaps already exists and is proven in the project. The work is entirely within the established dual-repo lockstep (Arduino C++ firmware + Python CLI host). The single external hardware question — whether the RURP boost regulator can physically produce 25V — is now resolved: **YES, the RURP hardware is rated 5–27V VPP**, making the 22V software ceiling a deliberate conservative limit that can be raised, not a physical constraint. All four gap implementations are software work with bench verification gates.
 
-So the genuinely-new work is **patterns + a thin harness layer + a golden-data
-convention + a couple of small dev tools**, not a new framework. This document
-names the few additions, and is explicit about the much larger "reuse, do not
-re-add" set. The native-vs-bench split is called out on every row.
+---
 
-The single most important new piece is a **chip-family validation matrix**
-(a declarative data file mapping the 6 algorithm families → representative
-chips → which assertions run native vs which require a bench) plus a **harness
-that consumes it**. That harness is mostly glue over the two existing stacks.
+## Current Flash Budget (critical constraint)
 
-## Recommended Stack
+**Leonardo flash ceiling: ~88% design target; current actual: 89.5%**
 
-### Core Technologies (all ALREADY PRESENT — reuse, do not re-add)
-
-| Technology | Version (pinned) | Purpose | Why Recommended | Native / Bench |
-|------------|------------------|---------|-----------------|----------------|
-| PlatformIO Unit Testing (`[env:native]`, `platform=native`) | PIO core 6.1.x | Cross-compile `src/proms/*.cpp` on host; run Unity suites with no AVR board | Already the firmware test substrate; `test_build_src=yes` + `build_src_filter=+<proms/>` links the real handler TUs into a host binary | **Native** |
-| Unity (`test_framework = unity`) | bundled w/ PIO | C test assertions / `RUN_TEST` registration | Standard PIO C test framework; every existing firmware suite uses it | **Native** |
-| ArduinoFake | `fabiobatsilva/ArduinoFake@^0.4.0` | Mock `Serial`, `delay`, `delayMicroseconds`, `digitalWrite` etc. so handlers link + run on host | Already pinned; current (tutorials still cite 0.3.1). FakeIt-based `When(Method(...))` mocking is the established pattern in `test_flash_intel_vpp` | **Native** |
-| pytest | `>=8.0` (`[test]` extra) | Host CLI + DB + serial-protocol unit/integration tests | First-class in this repo (40+ test modules); `conftest.py` fixtures bypass real serial I/O | Native (host) |
-| syrupy | `>=5.0` | Snapshot assertions (`.ambr`) for stable text/JSON outputs | Already used for `info`/characterization golden snapshots; ideal for pinning per-family expected wire dicts + CLI output | Native (host) |
-| pyserial | `>=3.5` | Real serial transport to the board | The only path to actual hardware; used by `serial_comm.py` | **Bench** |
-| ruff + mypy | `>=0.15.14` / `>=2.1.0` | Lint/format + type gate (strict on 8 modules; watermark on rest) | CI gate already enforced; any new host harness module must pass it | Native (host) |
-
-### Supporting Libraries / Tools (mix of present + NEW-but-tiny)
-
-| Item | Version | Purpose | When to Use | Status |
-|------|---------|---------|-------------|--------|
-| `jq` | system (already a script dependency) | Pull `size_bytes` / `chip_id_check` / type out of `chip_database.json` in bench shell scripts | Already used by `firestarter_test.sh` / `write_test.sh`; reuse for matrix-driven bench runs | REUSE |
-| `dd` / `tr` / `diff -y` / `xxd` | coreutils | Generate test images (random, all-0x00, all-0xFF, split) + byte-compare read-back | Already the `write_test.sh` pattern; the canonical HIL write→verify→read-back→diff loop | REUSE |
-| Validation-matrix data file (NEW) | n/a — `.json` or `.toml` in-repo | Declarative map: family → algorithm IDs → representative chip(s) → assertion set → `native`/`bench` tier | The spine of the milestone; consumed by both a native generator and a bench runner | **NEW (data)** |
-| Golden wire-vector catalog (NEW) | n/a — `.json` in-repo | Per-family expected JSON command dict (algorithm, vpp_mv, pulse-delay, flags, bus-config) for a fixed chip+image | Pins host-side command-building correctness without a board; syrupy or plain JSON fixtures | **NEW (data)** |
-| Golden binary images (NEW, small) | n/a — `.bin` fixtures | Deterministic test patterns (0x00, 0xFF, walking-1s, address-as-data, random-seeded) | Replaces ad-hoc `dd if=/dev/urandom` so native + bench compare against the *same* bytes; seed-pinned for reproducibility | **NEW (data)** |
-| `pytest` marker `@pytest.mark.hardware` (NEW marker, existing tool) | pytest config | Tag bench-only host tests so CI auto-skips them (`-m "not hardware"`) and operators opt in (`-m hardware`) | Formalizes the existing informal split (`test_hardware.py` already hand-documents a safety boundary) | **NEW (config)** |
-
-### Development Tools
-
-| Tool | Purpose | Notes |
-|------|---------|-------|
-| `pio test -e native -f "*test_<family>*"` | Run one family's native suite | Existing invocation; add one suite dir per family under `test/native/avr/` |
-| `pytest -m "not hardware"` / `-m hardware` | Split CI (autonomous) from bench (operator) host tests | Requires registering the `hardware` marker in `[tool.pytest.ini_options].markers` to avoid `PytestUnknownMarkWarning` |
-| `check_dispatch.py` / `diff_db.py` | Existing DB gates | Reuse as-is; the matrix should reference the same `chip_database.json` they validate, so the matrix can't drift from the shipped DB |
-| New bench-runner script (thin) | Drive matrix → `firestarter write/verify/read` per bench-tier chip, log structured results | Generalization of `firestarter_test.sh` + `write_test.sh`; matrix-driven instead of single `$EPROM` arg |
-
-## Installation
-
-**Nothing new to `pip install` or add to `lib_deps`.** The stack is already
-declared:
-
-```bash
-# Host (firestarter_app/) — already in pyproject.toml [test]/[dev] extras
-pip install -e '.[test]'      # pytest>=8, syrupy>=5, pytest-cov>=7.1, ruff, mypy, pyserial
-
-# Firmware (firestarter/) — already in platformio.ini [env:native]
-pio test -e native            # PlatformIO pulls fabiobatsilva/ArduinoFake@^0.4.0
+```
+Flash: [========= ]  89.5% (used 25,654 bytes from 28,672 bytes)
+Free:  3,018 bytes
+RAM:   78.1% (used 1,999 bytes from 2,560 bytes)
 ```
 
-The only repo changes are **data files + thin scripts + one pytest marker
-registration** — no dependency-graph changes, no CI runner changes beyond an
-added `-m "not hardware"` filter.
+Source: `pio run -e leonardo` on `v1.13-algo-validation` tip (2026-06-18). The prior v1.13 target was "stay under 88%" — Phase 74 FIX-02 (`CMD_CHECK_CHIP_ID` mirror in `configure_flash4`) pushed the ceiling to 89.5%. This is the hard constraint that determines phase ordering.
 
-## Reuse vs New — explicit ledger (the core deliverable of this research)
+**Flash-budget impact by gap (estimated):**
 
-### REUSE (present today — do NOT re-research, do NOT replace)
+| Gap | Files added / changed | Estimated flash impact | Notes |
+|-----|----------------------|----------------------|-------|
+| 999.4 Erase write-path | Host-only (`database.py` one-liner) | **0 bytes** — firmware unchanged | `eprom_write_init` already has the `FLAG_CAN_ERASE` guard; only the flag set is wrong |
+| 999.6 AT28C04/16 adapter | Host-only (remove refusal in `chip_resolver.py`) | **0 bytes** — firmware unchanged | `configure_eeprom28c` already exists and handles the protocol |
+| 999.7 25V NMOS ceiling | Host-only (`build_db.py` constant + `check_dispatch.py` invariant) | **0 bytes** — firmware unchanged | Ceiling check is entirely at DB-build + CI gate; no firmware VPP limit |
+| 999.5 X88C64 handler | New `eeprom_x88c64.cpp` + `eeprom_x88c64.h` + dispatch arm | **~1–3 KB** — new handler TU | The one gap that adds firmware code; must be measured before commit |
 
-- **Native dispatch test pattern** — `test/native/avr/test_dispatch/` builds a
-  minimal `firestarter_handle_t`, calls `configure_memory()`, asserts on
-  `response_code` + `firestarter_operation_main` (NOT register side effects).
-  This is the model for **algorithm-shape** native tests.
-- **Native safety/behavioral test pattern** — `test_flash_intel_vpp/` and
-  `test_eeprom28c_chip_id/` go further: per-suite `host_stubs.cpp` exposes
-  `set_mock_vpp_mv()` / `set_mock_hw_rev()` setters and a mock `set_control_register`
-  that *records* writes, so tests assert "VPP/P1 driven low on the unsafe path."
-  This is the model for **write/program correctness + VPP-safety** native tests
-  — the handlers' control-register sequencing is fully testable on host.
-- **Host state-machine test pattern** — `conftest.py` `make_comm()` + `fake_serial`
-  feed wire frames and drive `serial_comm.py` INIT→MAIN→END with no port. This is
-  the model for **host-side write/verify orchestration** tests.
-- **HIL integration scripts** — `firestarter_test.sh` (full info/firmware/eprom
-  sweep) and `write_test.sh` (write→verify→read-back→`diff -y`). These ARE the
-  bench harness today; v1.13 generalizes them to be matrix-driven, not rewrites them.
-- **DB correctness gates** — `check_dispatch.py` (VPP-safety, structural +
-  type-keyed), `diff_db.py` (per-chip diff vs baseline). The matrix consumes the
-  same `chip_database.json` these guard.
-- **Codegen drift-gate pattern** — v1.2/v1.10 `messages.toml` → both repos with
-  `<regen> && git diff --exit-code`. If golden wire-vectors are codegenerated,
-  reuse this exact drift-gate shape.
+**Critical implication:** Three of the four gaps (999.4, 999.6, 999.7) are host-only changes with zero firmware footprint. The only firmware-adding gap is 999.5 (X88C64). With 3,018 bytes free, a well-written 1–3 KB handler fits comfortably — but `pio run -e leonardo` must be run and verified as part of the phase gate before committing the new handler. The suggested build order (999.4 → 999.5 → 999.7 → 999.6) is correct.
 
-### NEW (genuinely needed, all thin)
+---
 
-1. **Validation-matrix data file** (`.json`/`.toml`, lives in `firestarter_app/`
-   alongside the DB it references; mirror or symlink into firmware test tree if
-   the native generator needs it). Rows: `{family, algorithm_ids[], rep_chip,
-   image_set[], assertions[], tier: native|bench, blocked_reason?}`.
-2. **Per-family native Unity suites** — one new dir per family under
-   `test/native/avr/test_<family>_program/` (e.g. `test_eprom_program`,
-   `test_flash3_program`, `test_eeprom28c_program`). Asserts pulse-delay defaults,
-   retry/mismatch-mask logic (`eprom_write_execute`), SDP sequence (`eeprom_28c`),
-   sector/chip-erase command words (`flash_type_3`) — all via recording mocks.
-3. **Golden wire-vector fixtures** — expected host→fw JSON command per family
-   for a pinned chip+image; assert in pytest (syrupy or plain JSON).
-4. **Golden binary image set** — small, deterministic, seed-pinned `.bin` patterns
-   shared by native expectation generation and bench `diff`.
-5. **Matrix-driven bench runner** — thin generalization of `write_test.sh`:
-   iterate the matrix's `tier: bench` rows for chips on hand, run write→verify→
-   read-back→diff, emit a structured results table (which family PASS/FAIL/SKIP-no-part).
-6. **`hardware` pytest marker** registration + a `not hardware` default in CI.
+## Recommended Stack (no changes from v1.13)
 
-## Native-testable vs Bench-only (the load-bearing split)
+### Firmware (Arduino C++ / PlatformIO)
 
-| Concern | Native (no hardware) | Bench (HIL) |
-|---------|----------------------|-------------|
-| Dispatch routing (algorithm → handler) | ✅ `configure_memory` asserts (existing) | — |
-| Pulse-delay defaults per protocol (0x07=1ms, 0x08=100µs, 0x0B=500µs) | ✅ read `handle->pulse_delay` after `configure_eprom` | — |
-| Write retry / mismatch-bitmask logic (`eprom_write_execute`) | ✅ recording mock `get_data` returns scripted mismatches; assert retry count + escalating delay | confirm convergence on real silicon |
-| VPP-safety sequencing (regulator/P1 low on error path) | ✅ recording `set_control_register` (existing flash_intel pattern) | confirm actual voltage with operator multimeter |
-| EEPROM SDP-disable 6-write magic sequence | ✅ assert `set_data` address/value order | confirm chip actually unlocks |
-| Flash AMD unlock + sector/chip erase command words | ✅ assert `set_data` command sequence | confirm erase completes |
-| Host command-dict correctness (algorithm/vpp_mv/flags/bus-config) | ✅ golden wire-vector (host pytest) | — |
-| Host INIT→MAIN→END orchestration + chunking | ✅ `make_comm`/`fake_serial` frames | confirm against real ack timing |
-| **Actual data integrity** (write→read-back byte-identical) | ❌ impossible | ✅ `write_test.sh`-style `diff -y` |
-| Real VPP voltage / brownout / chip-ID read | ❌ | ✅ Leonardo verify board only |
-| adapter-required chip pin remap | ❌ | ✅ requires the physical adapter |
+| Technology | Version | Purpose | Notes |
+|------------|---------|---------|-------|
+| PlatformIO | current | Build, upload, test runner | `pio run -e leonardo`, `pio test -e native` |
+| Arduino AVR framework | ATmega32U4 (Leonardo) | Firmware runtime | Leonardo is the only validated-PASS write board |
+| ArduinoFake | current | Host-side test stubs | Enables `pio test -e native` dispatch suite without hardware |
+| Unity | current | Native unit test framework | Already used in `test/native/avr/test_dispatch/` |
 
-**Rule for the matrix:** every assertion that does NOT require observing real
-silicon or real voltage goes `native`; everything that does goes `bench`.
-Native rows run in CI with no gate; bench rows gate only on chip+shield
-availability (hybrid gating per milestone context).
+### Host (Python 3)
+
+| Technology | Version | Purpose | Notes |
+|------------|---------|---------|-------|
+| Python | 3.9+ (CI), 3.12 (devcontainer) | Runtime | 3.9 is the CI floor; 3.12 devcontainer may mask f-string backslash issues |
+| Click | current | CLI framework | Established; all commands use `@cli.command()` |
+| pytest + pytest-cov | current | Test runner + coverage | Coverage floor 70%; 642 tests at v1.13 close |
+| ruff | current | Lint + format | Enforced in CI; all generated code must be ruff-clean |
+| mypy (strict) | current | Type checking | Enforced on 8 modules; any touched module stays in scope |
+
+### Infrastructure
+
+| Technology | Purpose | Notes |
+|------------|---------|-------|
+| GitHub Actions | CI gate | `beta-release.yml` + `ci.yml`; drift gate + ruff + mypy + pytest |
+| PyPI | Beta wheel distribution | `pip install --pre firestarter`; operator-gated stable |
+| `tools/build_db.py` | Chip database pipeline | Single canonical regeneration path; must stay deterministic |
+| `tools/check_dispatch.py` | VPP safety + dispatch correctness CI gate | Must pass after every DB change |
+| `tools/diff_db.py` | Per-chip diff gate | Must pass and be reviewed after any chip reclassification |
+
+---
+
+## Gap-by-Gap Stack Analysis
+
+### 999.4 — Erase Write-Path (FLAG_CAN_ERASE Wiring)
+
+**Nature:** Host-only fix. Zero firmware changes.
+
+**Exact change:**
+- `firestarter_app/firestarter/database.py:594–599` — `convert_to_programmer` currently gates `FLAG_CAN_ERASE` on `full_eprom_data.get("info-flags", 0) & 0x00000010`. All 7 EE-EPROM chips on protocol 0x07 (`electrical.type == "EEPROM"`: W27C512, W27E512, W27C257, W27E257, SST27SF256, SST27SF512, SST27VF256, SST27VF512) have `info-flags: 0x0` in `chip_database.json` — so the flag is never set. The fix: change the condition to check `full_eprom_data.get("electrical", {}).get("type") == "EEPROM"` (already present in the DB; derived by `build_db.py` Step 7 at `build_db.py:583–590`).
+
+**Firmware side (no change needed):** `eprom_write_init` (`eprom.cpp:100–106`) already contains:
+```cpp
+if (is_flag_set(FLAG_CAN_ERASE)) {
+    if (!is_flag_set(FLAG_SKIP_ERASE)) {
+        eprom_internal_erase(handle);
+    } else {
+        LOG_INFO_ID(MSG_INFO_SKIPPING_ERASE);
+    }
+}
+```
+The guard is correct; only the flag set was broken.
+
+**Erase electricals already confirmed:** `eprom_internal_erase` (`eprom.cpp:274–288`) drives `CTRL_VPP_REGULATOR_ENABLE`, `CTRL_VPP_A9_ENABLE`, `CTRL_VPE_ENABLE` — the W27C512 erase sequence (Phase 73 bench-confirmed standalone). The erase rail for W27C512 is 14V (OE/VPP=14V, A9=14V per datasheet); this is within the 22V ceiling and was confirmed in Phase 73. No new electrical path is added.
+
+**What to test:** Wire the fix → run 642 host tests → `check_dispatch.py` → `diff_db.py` → bench write on Leonardo/W27C512 (chip-OUT VPP dry-run first per memory protocol, then live write+verify).
+
+**Confidence:** HIGH. The gap is a single condition in one function, with all surrounding infrastructure correct.
+
+---
+
+### 999.5 — X88C64 0x34 Firmware Handler
+
+**Nature:** Firmware-adding gap. New handler TU. The hardest gap.
+
+**Interface architecture (from `X88C64-FEASIBILITY.md`):**
+The X88C64P presents an **8051-compatible multiplexed address/data bus**, not a standard /WE /OE /CE parallel bus:
+- Pins A/D0–A/D7 carry A0–A7 (during address phase) then D0–D7 (during data phase), sequenced by ALE.
+- ALE falling edge latches the lower address into the chip's internal latch.
+- A8–A12 are dedicated upper address pins (straightforward parallel drive).
+- /WR is the write strobe (analogous to /WE but with ALE-precondition sequencing).
+- WC (pin 5) is a write-control enable/abort signal — additional control pin.
+- /CE, /RD are standard active-LOW enables.
+- Toggle-bit polling on I/O6 (not DQ7 like `configure_eeprom28c`).
+- Page write: up to 32 bytes per internal write cycle.
+- 5V only — no VPP rail, no boost regulator involvement.
+
+**Open question — ALE routing (CRITICAL, must resolve before phase commit):**
+
+The RURP control register has 8 bits (legacy: `0x01` through `0x80`; HARDWARE_REVISION: 9-bit with `0x100`). The current bit assignments from `rurp_pinout.h`:
+
+| Bit | Name | Purpose |
+|-----|------|---------|
+| `0x01` | `CTRL_VPP_VPE_DROP_ENABLE` (legacy) / `CTRL_ADDRESS_LINE_16` (rev2) | Dual-use |
+| `0x02` | `CTRL_VPP_A9_ENABLE` | Route VPP to A9 |
+| `0x04` | `CTRL_VPE_ENABLE` | Apply VPE to PGM pin |
+| `0x08` | `CTRL_VPP_P1_ENABLE` | Route VPP to socket pin 1 |
+| `0x10` | `CTRL_ADDRESS_LINE_17` | A17 for 28-pin chips |
+| `0x20` | `CTRL_ADDRESS_LINE_18` / `CTRL_ADDRESS_LINE_16` (rev2) | A18/A16 |
+| `0x40` | `CTRL_READ_WRITE` | Bus direction |
+| `0x80` | `CTRL_VPP_REGULATOR_ENABLE` | Enable boost regulator |
+
+The X88C64P is DIP24, so A17/A18 (`0x10`, `0x20`) are unused. ALE could potentially be routed through `CTRL_VPP_A9_ENABLE` (since VPP is irrelevant for this 5V chip) or through `CTRL_VPE_ENABLE` (similarly unused for a 5V device). However, this is NOT confirmed — it depends on how those bits physically route to socket pins vs. the regulator circuit on the shield.
+
+**Action required for 999.5 phase planning:** Read `firestarter/src/rurp_shield.cpp` (or equivalent hardware register write implementation) to determine whether `CTRL_VPP_A9_ENABLE` or `CTRL_VPP_VPE_DROP_ENABLE` routes to a socket pin (DIP24 position) that could serve as ALE, or whether a direct Arduino GPIO pin is available for ALE toggling. This is the bench investigation prerequisite. If no available bit exists without PCB changes, the handler cannot be completed without a shield modification.
+
+**Code structure for the new handler:**
+```
+firestarter/src/proms/eeprom_x88c64.cpp  — new file
+firestarter/include/eeprom_x88c64.h      — declaration
+```
+
+Handler function signature: `void configure_x88c64(firestarter_handle_t* handle)`
+
+Dispatch wiring in `memory.cpp`: add `if (handle->protocol == 0x34) { configure_x88c64(handle); return; }` before the generic fail-closed guard (after the `configure_sram` arm at line ~99, before the named infeasibility arms at line ~107).
+
+**Code sharing with existing handlers:**
+- Toggle-bit I/O6 polling: structurally similar to `eeprom28c_wait_for_write` (`eeprom_28c.cpp`) but on bit 6 instead of bit 7 (DQ7). Can copy-adapt the polling pattern; no shared function needed (flash budget argument against factoring).
+- SDP disable: X88C64P has Software Block Protect per 1K block but the write sequence is address/data pairs, NOT the AT28C 6-write magic sequence. Do not reuse `EEPROM_SDP_DISABLE`.
+- Page write loop: analogous to `configure_flash4`'s page-write loop but with ALE-multiplexed address phase per byte.
+
+**Host side for 999.5:**
+- `build_db.py:KNOWN_PROTOCOLS` already includes `0x34` (verified at `build_db.py:146`).
+- `check_dispatch.py:KNOWN_PROTOCOLS` does NOT include `0x34` (by design — D-10 consistency assertion requires `0x34 NOT IN` the set for the `protocol-not-implemented` classification to pass).
+- When the handler is committed and the chip graduates to `supported`, `0x34` must be added to `check_dispatch.py:KNOWN_PROTOCOLS` AND removed from `build_db.py`'s special-case for protocol-not-implemented. The `diff_db.py` diff gate must be reviewed.
+
+**Bench note:** The X88C64P requires a DIP24→DIP32 adapter (same socket-size mismatch as AT28C04/16). The adapter pin-map for the X88C64P needs a separate derivation from the datasheet — do NOT reuse the AT28C04 adapter spec (different pin assignments).
+
+**Confidence:** MEDIUM. ALE routing is the primary risk; if a free control bit exists, the handler is implementable. If not, a PCB mod or shield revision is required.
+
+---
+
+### 999.7 — 25V NMOS VPP Ceiling Raise
+
+**Nature:** Host-only change + bench hardware verification gate.
+
+**The 25V question is now resolved: the RURP hardware CAN produce 25V.**
+
+Evidence:
+- RURP Rev 2.3 product page explicitly states "5-27V VPP" (imania.dk/product_info.php?products_id=7218).
+- Hackaday project page confirms the AP3012 boost regulator supports "up to 25V for TMS2532-style ROMs" and can go "4.5→36V-ish" depending on feedback resistors.
+- The `RURP_VPP_CEILING_MV = 22000` in `build_db.py:117` is a **deliberate conservative software limit**, not a hardware-physical ceiling.
+
+However, the actual ceiling achievable on any given shield revision depends on the R1/R2 feedback resistor values stored in EEPROM (`VALUE_R1 = 270000`, `VALUE_R2 = 44000` in `rurp_shield.h:49-50`). These determine the boost regulator setpoint. **The phase must begin with a chip-OUT VPP dry-run (`firestarter dev vpp`) on the operator's Rev 2.0/2.2 shield to confirm the regulator actually reaches 25V before any chip is inserted.** If the regulator does not reach 25V with the current R1/R2, an R1 recalibration (`firestarter dev calibrate-vpp`) or resistor change is required first.
+
+**Exact software changes:**
+1. `firestarter_app/tools/build_db.py:117` — raise `RURP_VPP_CEILING_MV` from `22000` to `25000`.
+2. `firestarter_app/tools/check_dispatch.py:79` — update `"configure_eprom": (0, 22000)` invariant to `(0, 25000)`.
+3. Regenerate `chip_database.json` via `python tools/build_db.py` — the 4 chips currently tagged `vpp-exceeds-max` (INTEL M2716, INTEL M2732, SGS-THOMSON ETC2716, ST M2716) will be reclassified.
+4. Run `diff_db.py` to review the 4-chip reclassification diff.
+5. Confirm the 4 chips now have `support_status: supported` and correct `vpp_mv: 25000`.
+
+**The 4 chips:** Per `NMOS_TRUE_VPP_MV` in `build_db.py:110–114`, M2716 and M2732 are already coded at 25V. M2732A (21V) is already `supported` and is unaffected. SGS-THOMSON ETC2716 and ST M2716 share the M2716 VPP.
+
+**Programming electricals for 25V NMOS:** The M2716/M2732 use the `configure_eprom` path (protocol 0x07/0x08). The existing `eprom_write_execute` drives `CTRL_VPP_REGULATOR_ENABLE | CTRL_VPP_VPE_DROP_ENABLE` for the 0x07/0x08 path. At 25V setpoint, this same path applies — no new firmware logic is needed. The regulator simply outputs a higher voltage (25V instead of 12–14V) because `vpp_mv: 25000` is passed in the JSON command and the firmware trusts the host to have pre-screened the chip.
+
+**Confidence:** HIGH for the software change. HARDWARE-GATED: operator must confirm 25V is achievable on the bench shield with a chip-OUT meter reading before classifying as PASS.
+
+---
+
+### 999.6 — AT28C04/16 Adapter Graduation
+
+**Nature:** Host-only change (remove host-guard refusal) + physical hardware gate.
+
+**Exact software change:**
+- `firestarter_app/firestarter/chip_resolver.py` — remove or conditionalize the `adapter-required` refusal for the 9 AT28C04/16 chips. Currently `resolve_chip` raises `ChipNotImplementedError` for `support_status: adapter-required`. After the physical adapter is built and verified, change `support_status` to `supported` for the 9 chips (via DB regeneration or override).
+
+**Firmware side (no change needed):** `configure_eeprom28c` (protocol `0x0D`) already handles these chips correctly. The handler runs SDP-disable + DQ7 page polling + 5V-only operation. The `DIP32_28C512_EEPROM` pinout is already wired. The only gap was the physical /WE reroute that the adapter provides.
+
+**Physical adapter spec:** Documented in `firestarter/doc/AT28C04-ADAPTER.md`. The critical reroute is chip pin 21 (/WE) → DIP32 socket pin 30 (/WE). Without the adapter, /WE lands on socket pin 21 which carries D7 — harmless electrically but write-disabling. The adapter is NOT a hazardous build (no VPP rail involved; worst case is a non-functioning write, not chip destruction).
+
+**HARDWARE-BLOCKED:** This gap cannot be completed until:
+1. The operator builds the physical DIP24→DIP32 adapter per `AT28C04-ADAPTER.md`.
+2. A golden write+read-back round-trip is verified on a physical AT28C04 or AT28C16 chip.
+
+Sequence last for this reason.
+
+**Confidence:** HIGH for the code change. HARDWARE-GATED on adapter construction.
+
+---
+
+## Code Sharing Map
+
+| Existing handler | Shared by | How |
+|-----------------|-----------|-----|
+| `configure_eprom` / `eprom_write_init` | 999.4 (no change) | The FLAG_CAN_ERASE guard is already there; only the host-side flag set changes |
+| `configure_eeprom28c` | 999.6 (no change) | Handler already correct for AT28C04/16; no new code |
+| `configure_eprom` | 999.7 (no change) | 25V NMOS uses the same handler; regulator just outputs higher voltage |
+| Toggle-bit polling concept | 999.5 (adapt) | I/O6 toggle pattern adapted from DQ7 in `eeprom_28c.cpp`; not shared function |
+
+The only new firmware TU is the X88C64 handler for 999.5. All other gaps reuse existing handlers unchanged.
+
+---
 
 ## Alternatives Considered
 
-| Recommended | Alternative | When to Use Alternative |
-|-------------|-------------|-------------------------|
-| Unity + ArduinoFake (existing) | GoogleTest / Catch2 for the C++ handlers | Only if abandoning PIO's `[env:native]` — not worth it; ArduinoFake's FakeIt mocking already covers `delay`/`Serial`/register stubs and is proven here |
-| Recording-mock `set_control_register` for VPP-safety native tests | Renode / QEMU / simavr full-MCU emulation | If you needed cycle-accurate AVR + analog VPP simulation — massive overkill; the handlers are pure logic over a register abstraction that mocks cover |
-| `@pytest.mark.hardware` + `-m` filter | A separate pytest *suite/dir* for bench tests | If bench tests grow large enough to warrant their own `tests/bench/` tree; a marker is lighter and keeps fixtures shared |
-| Declarative matrix data file | Parametrized-pytest-only (no shared data) | If the matrix were host-only; but firmware native suites also need the family→chip map, so a shared data file avoids duplicating it in two languages |
-| Golden `.bin` patterns (seed-pinned) | `dd if=/dev/urandom` per run (current `write_test.sh`) | Fine for a smoke read-back, but non-reproducible — a failing byte can't be re-run deterministically. Keep one random case, add pinned patterns |
-| syrupy snapshots for wire-vectors | Hand-written `assert cmd == {...}` | Both fine; prefer plain-dict asserts for the *safety-critical* fields (vpp_mv, algorithm, flags) so a snapshot-update can't silently bless a regression |
+| Decision | Chosen | Alternative | Why Not |
+|----------|--------|-------------|---------|
+| FLAG_CAN_ERASE source | `electrical.type == "EEPROM"` | `info-flags & 0x10` | `info-flags` is raw minipro XML and is 0x0 for all 7 affected chips; `electrical.type` is re-derived from the correct source in `build_db.py` |
+| X88C64 ALE via control register | Investigate existing CTRL_* bits (0x02 or 0x04 candidates) | Direct Arduino GPIO | Control register is the established pattern; GPIO would bypass the shield's 74HC573 register architecture — only fallback if no bit is free |
+| 25V ceiling host-only vs firmware check | Host-only (in `build_db.py` + `check_dispatch.py`) | Add firmware VPP ceiling check | Firmware trusts the host; adding a firmware check duplicates the gate for no safety gain and costs flash bytes |
+| AT28C04 adapter via `resolve_chip` flag | Change `support_status` in DB after bench verify | Keep `adapter-required` and add `--adapter` flag | `support_status: supported` is the correct post-adapter state; `--adapter` flag adds complexity for no benefit |
 
-## What NOT to Use
+---
 
-| Avoid | Why | Use Instead |
-|-------|-----|-------------|
-| A full MCU emulator (Renode/QEMU/simavr) for "hardware-in-the-loop without hardware" | The whole point of bench rows is real silicon + real VPP; emulating the AVR proves nothing about the chip-under-test and adds a heavy, drifting dependency | Native logic tests (mocks) for algorithm shape; real bench for integrity/voltage |
-| `pytest-embedded` / external HIL frameworks | Adds a heavyweight dependency for what `firestarter_test.sh` + `pyserial` already do; the project's bench flow is intentionally a shell+CLI loop the operator can read | Generalize the existing shell scripts; drive the `firestarter` CLI |
-| `hypothesis` property testing (for now) | Tempting for write-pattern fuzzing, but bench time is the scarce resource and native handler logic is deterministic; not worth the new dep this milestone | Seed-pinned golden patterns; revisit only if a fuzz need emerges |
-| Re-running `dd if=/dev/urandom` as the *only* image source | Non-reproducible failures; a flaky byte can't be deterministically replayed | Seed-pinned golden `.bin` set (+ keep one random case for breadth) |
-| Snapshotting safety-critical wire fields with auto-update enabled | `pytest --snapshot-update` could silently re-bless a wrong `vpp_mv`/`flags`, defeating the safety check | Explicit `assert` on vpp_mv/algorithm/flags; snapshots only for cosmetic/text output |
-| New native `[env:native]` config edits per suite beyond the allowlist | `firestarter/CLAUDE.md` says dropping `test_*.cpp` under `test/native/avr/<dir>/` needs no platformio.ini change — but the `test_filter` uses a **positive allowlist** + per-dir `-I` includes, so a new suite dir must be added there or it silently won't run | Add the new suite dir to the `test_filter` allowlist + an `-I` include line (the one config touch required) |
+## Absolute Constraints for v1.14
 
-## Stack Patterns by Variant
+1. **Leonardo flash: do not exceed 90% without explicit operator approval.** Current: 89.5%. Free: 3,018 bytes. The X88C64 handler (999.5) is the only gap that costs flash. Measure with `pio run -e leonardo` and record the percentage in the phase CONTEXT.
+2. **25V VPP: chip-OUT dry-run required before any 25V bench test.** Per memory protocol for VPP-raising operations.
+3. **X88C64 ALE routing: must be resolved (bench investigation of `rurp_pinout.h` + `rurp_shield.cpp`) before the 999.5 handler is coded.** If no free control bit exists, document the constraint and defer the handler.
+4. **AT28C04 adapter: must be physically built and bench-verified before `chip_resolver.py` refusal is removed.** Sequence 999.6 last.
+5. **Dual-repo lockstep:** Any firmware commit to `firestarter/` must be paired with a matching host commit in `firestarter_app/` (wire protocol, constants, messages) in the same git-push or branch tip. For 999.4/999.6/999.7 (host-only), the firmware sub-repo is untouched.
+6. **`check_dispatch.py` and `diff_db.py` must pass** after every DB change before a phase is verified.
 
-**If the assertion can be made by observing handler logic / register writes / host command dicts:**
-- Use a **native** test (Unity+ArduinoFake recording mock, or pytest+fake_serial).
-- Because it runs in CI with zero hardware gate and gives deterministic, fast feedback — the milestone's "software-first" mandate.
-
-**If the assertion requires real bytes on real silicon or a measured voltage:**
-- Use a **bench** row driven by the matrix runner against Leonardo (the trusted verify board).
-- Because data-integrity and VPP behavior are physically unobservable on host; per memory, avoid uno328pb (program-brownout) and Rev-0/2.0 (read faults).
-
-**If a family's representative chip / adapter is not on hand:**
-- Mark the matrix row `tier: bench, blocked_reason: "no part"` and let the runner emit SKIP.
-- Because hybrid gating allows closing the milestone without 100% family bench coverage.
-
-**If a golden wire-vector or message changes the firmware↔host contract:**
-- Wire it through the existing codegen drift-gate (`<regen> && git diff --exit-code`) in both repos.
-- Because lockstep is a hard project invariant (constants.py ↔ firestarter.h, messages.toml).
-
-## Version Compatibility
-
-| Package A | Compatible With | Notes |
-|-----------|-----------------|-------|
-| pytest `>=8.0` | syrupy `>=5.0`, pytest-cov `>=7.1.0` | Already co-installed and green in CI; no change |
-| ArduinoFake `^0.4.0` | PIO `platform=native`, Unity | Already pinned; `-std=gnu++17` set in `[env:native]` build_flags |
-| ruff `>=0.15.14` / mypy `>=2.1.0` (cfg `python_version=3.9`) | Devcontainer Python 3.12 | ⚠ Known trap (memory `reference_devcontainer_py312_masks_ci_py39`): validate `ruff check` + `ruff format --check` against the **py39** target before claiming CI green; new harness modules must be ruff-clean and respect the mypy watermark (`tools/check_mypy_watermark.py`) |
-| `chip_database.json` (744 chips, `support_status` taxonomy) | matrix data file | Matrix must reference only `support_status: supported` chips for bench write/program rows; `adapter-required` rows stay bench-blocked until the adapter exists |
-| Coverage floor `--cov-fail-under=70` | new host harness modules | Memory notes near-zero headroom historically; adding host harness code without tests can trip the floor — land tests in the same change |
-
-## Integration Points (where the new pieces live)
-
-- **Firmware native suites:** `firestarter/test/native/avr/test_<family>_program/`
-  (one per family) + `host_stubs.cpp` (extend only if a new `rurp_*` symbol is
-  referenced) + add dir to `[env:native]` `test_filter` + `-I` lines in `platformio.ini`.
-- **Host tests:** `firestarter_app/tests/test_<family>_program.py`; golden fixtures
-  under `firestarter_app/tests/golden/` (existing dir) or a new `tests/golden/wire/`.
-- **Matrix + images:** `firestarter_app/` (next to the DB) so `jq`-driven shell
-  scripts and pytest both read it; deterministic `.bin` fixtures under
-  `tests/golden/images/`.
-- **Bench runner:** alongside `firestarter_test.sh` / `write_test.sh` in
-  `firestarter_app/` (matrix-driven generalization).
-- **CI:** `firestarter_app/.github/workflows/ci.yml` runs `pytest -m "not hardware"`;
-  register the `hardware` marker in `pyproject.toml [tool.pytest.ini_options].markers`.
+---
 
 ## Sources
 
-- `firestarter/CLAUDE.md` — native test reuse pattern, `[env:native]` config, handler/protocol table (HIGH — repo canonical)
-- `firestarter/platformio.ini` — `[env:native]` `test_filter`, ArduinoFake `^0.4.0`, build_src_filter (HIGH)
-- `firestarter/test/native/avr/test_dispatch|test_flash_intel_vpp` — recording-mock + setter patterns (HIGH)
-- `firestarter/src/proms/{memory,eprom,flash_type_3,eeprom_28c}.cpp` — algorithm shapes confirming what is host-observable (HIGH)
-- `firestarter_app/pyproject.toml` — pinned pytest>=8, syrupy>=5, ruff>=0.15.14, mypy>=2.1.0, pytest-cov>=7.1.0, pyserial>=3.5 (HIGH)
-- `firestarter_app/tests/conftest.py` — `make_comm`/`fake_serial` no-port state-machine fixtures (HIGH)
-- `firestarter_app/{firestarter_test.sh,write_test.sh}` — existing HIL write→verify→read-back→diff loop (HIGH)
-- PlatformIO Unit Testing docs + ArduinoFake registry — confirmed `^0.4.0` is current vs tutorial-cited 0.3.1 (MEDIUM — version current)
-- Project memory: `reference_devcontainer_py312_masks_ci_py39`, `feedback_chip_out_before_sideload`, `feedback_verify_port_identity_each_task`, `project_uno328pb_vpp_recal_and_program_brownout` (HIGH — operator-confirmed bench constraints)
-
----
-*Stack research for: firmware write/program/verify validation harness + matrix (hybrid native/HIL)*
-*Researched: 2026-06-16*
+| Source | Confidence | How Used |
+|--------|-----------|---------|
+| `firestarter/src/proms/eprom.cpp:93–111` (verified 2026-06-18) | HIGH | FLAG_CAN_ERASE guard in `eprom_write_init`; erase electricals in `eprom_internal_erase` |
+| `firestarter_app/firestarter/database.py:594–599` (verified 2026-06-18) | HIGH | FLAG_CAN_ERASE gating on `info-flags & 0x10` |
+| `firestarter_app/tools/build_db.py:117, 110–114, 134–148` (verified 2026-06-18) | HIGH | RURP_VPP_CEILING_MV=22000; NMOS_TRUE_VPP_MV; KNOWN_PROTOCOLS |
+| `firestarter_app/tools/check_dispatch.py:79–85` (verified 2026-06-18) | HIGH | _FAMILY_VPP_INVARIANTS for configure_eprom ceiling |
+| `firestarter/include/rurp_pinout.h` (verified 2026-06-18) | HIGH | CTRL_* control register bit assignments; no free ALE bit confirmed |
+| `firestarter/include/rurp_shield.h:49–50` (verified 2026-06-18) | HIGH | R1=270000, R2=44000 default feedback values |
+| `.planning/X88C64-FEASIBILITY.md` (Phase 76, 2026-06-18) | HIGH | X88C64P bus architecture; ALE routing open question; MEDIUM verdict |
+| `firestarter/doc/AT28C04-ADAPTER.md` (verified 2026-06-18) | HIGH | DIP24→DIP32 pin-map; /WE reroute (chip pin 21 → socket pin 30) |
+| `.planning/v1.13-PROTOCOL-ENUMERATION.md §Gap Item Index` (2026-06-17) | HIGH | GAP-1/GAP-3 code-state pointers; ceiling constraint rationale |
+| `pio run -e leonardo` (run 2026-06-18) | HIGH | Current flash: 89.5% / 25,654 bytes; free: 3,018 bytes |
+| RURP Rev 2.3 product page (imania.dk, verified 2026-06-18) | HIGH | "5-27V VPP" — hardware rated above 25V |
+| Hackaday RURP project page (verified 2026-06-18) | HIGH | AP3012 boost regulator; "up to 25V for TMS2532-style ROMs"; 4.5→36V range |
