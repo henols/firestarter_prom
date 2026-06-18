@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.13
 milestone_name: — Programming Algorithm Validation + Gap Implementation
-status: verifying
+status: Awaiting next milestone
 stopped_at: Phase 76-02 complete — adapter spec + X88C64 feasibility verdict authored
-last_updated: "2026-06-18T12:15:25.143Z"
-last_activity: 2026-06-18
+last_updated: "2026-06-18T13:37:00.535Z"
+last_activity: 2026-06-18 — Milestone v1.13 completed and archived
 progress:
   total_phases: 11
   completed_phases: 5
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 76
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-06-18
+Phase: Milestone v1.13 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-06-18 — Milestone v1.13 completed and archived
 
 ## Project Reference
 
@@ -103,6 +103,7 @@ v1.10 SHIPPED 2026-06-07. v1.9 Read-Bug RCA DEFERRED (Phases 45–48; resume at 
   adapter graduation (hardware-blocked), 999.7 25V NMOS M2716/M2732 ceiling raise (was infeasible at 22V —
   operator opted to implement assuming HW can do 25V; gating risk = confirm a shield can produce 25V VPP).
   Promote via `/gsd-new-milestone v1.14` after v1.13 close (operator-gated beta cut still pending), NOT into v1.13.
+
 - v1.13 roadmap created 2026-06-16: 6 phases (71–76) derived from the HARN/RSCH/VAL/FIX/ERASE/GAP
   requirements along the research-derived harness→validate→fix→gaps spine, flash-ceiling-ordered.
   17/17 requirements mapped, no orphans/duplicates. FIX-01 (SRAM) is evidence-gated on VAL-06;
@@ -258,11 +259,11 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 
 ## Deferred Items
 
-7 items acknowledged and deferred at **v1.11 milestone close (2026-06-10)** and re-affirmed at
-**v1.12 milestone close (2026-06-16)** — none are v1.11/v1.12 work (all pre-existing / out-of-scope /
-v1.9 hardware-gated). v1.13 *guards against* 999.1/999.2 as confounders (live-R1 precondition,
-uno328pb=N/A) but does NOT fix them. See `.planning/milestones/v1.11-MILESTONE-AUDIT.md` +
-`.planning/milestones/v1.12-MILESTONE-AUDIT.md`.
+9 items acknowledged and deferred at **v1.13 milestone close (2026-06-18)** (carrying 7 re-affirmed
+from the v1.11 2026-06-10 / v1.12 2026-06-16 closes, plus 2 v1.13-surfaced) — none are v1.13 work
+(all pre-existing, out-of-scope, accepted tech debt, or hardware-gated). v1.13 *guards against*
+999.1/999.2 as confounders (live-R1 precondition, uno328pb=N/A) but does NOT fix them. See
+`.planning/milestones/v1.11-MILESTONE-AUDIT.md` + `.planning/milestones/v1.12-MILESTONE-AUDIT.md`.
 
 | Category | Item | Status | Disposition |
 |----------|------|--------|-------------|
@@ -273,19 +274,10 @@ uno328pb=N/A) but does NOT fix them. See `.planning/milestones/v1.11-MILESTONE-A
 | verification | Phase 08 / Phase 09 VERIFICATION.md | human_needed | v1.0-era logging phases; out of scope |
 | todo | avrdude-mcu-detection-fallback.md | low | Carry-forward; out of scope |
 | todo | cobs-decoder-framelevel-deadline-wr01.md | medium | v1.10 COBS follow-up (WR-01); deferred |
+| todo | flash4-page-size-datasheet-sourced-cr01.md | medium | v1.13 Phase 74 CR-01 — data-driven page size shipped; replace residual capacity heuristic with datasheet per-chip value (refinement) |
+| verification | Phase 71 (71-VERIFICATION.md) | gaps_found (stale) | Both verifier gaps CLOSED by follow-up plans 71-07 (non-vacuous oracle) + 71-08 (flash4 spec-trim); status line never re-run |
+| phase-deferral | Phase 74 Wave-2 (W29C040 HW re-bench) + Phase 75 (erase path) | deferred to v1.14 | Backlog 999.4; hardware-gated (Leonardo+Rev2.0 T-74-VPP multimeter gate; erase 12V→14V rail confirm under 22V ceiling) |
 
 ## Operator Next Steps
 
-- **v1.13 roadmap created (2026-06-16).** 6 phases (71–76), 17/17 requirements mapped, no orphans.
-  ROADMAP.md (active v1.13 section + phase details + Milestones list + Progress table) +
-  REQUIREMENTS.md traceability + STATE.md written. Prior-milestone collapsed sections + Backlog
-  999.1/999.2 preserved.
-
-- **Next:** `/gsd-plan-phase 71` (Validation Harness + Matrix — software, flash-free, un-gated).
-  Phases 75 + 76 flagged for `--research-phase` at planning time.
-
-- **Branch model reminder:** branches off `beta` in all 3 repos; merge back to `beta`; beta cut +
-  stable promotion operator-gated. First firmware-touching milestone since v1.12 — dual-repo lockstep
-  (meta-repo `messages.toml` only → regen both sub-repos) for any wire change; watch the
-  py3.12-masks-CI-3.11 ruff/codegen drift trap; firmware phases carry a `pio run -e leonardo` flash-%
-  ceiling criterion.
+- Start the next milestone with /gsd-new-milestone
