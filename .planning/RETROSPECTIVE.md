@@ -418,6 +418,70 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 
 ---
 
+## Milestone: v1.13 — Programming Algorithm Validation + Gap Implementation
+
+**Shipped:** 2026-06-18
+**Phases:** 5 delivering (71–74, 76) | **Plans:** 19 | **Timeline:** 2026-06-16 → 2026-06-18 (3 days)
+
+### What Was Built
+
+- A software-first **three-tier validation harness** (Tier-1 native recording-bus
+  register stub + per-family Unity suites; Tier-2 host pytest wire round-trips;
+  Tier-3 `dev validate-family` HIL runner) + a declarative per-family **matrix**,
+  carrying a non-vacuous PASS oracle (Leonardo-only-PASS / negative control /
+  live-R1 / uno328pb-N/A) — and zero production firmware flash.
+- Closed the v1.12 **hollow GATE-03 tech debt** by actually populating
+  `check_dispatch.py`'s `non_supported_dispatchable` detector.
+- Bench-validated the 6 families on Leonardo/Rev 2.0 (PARTIAL, hybrid-gated):
+  W27C512 Tier-3 authoritative PASS, SST39SF040 flash3 PASS, FM1608 SRAM PASS,
+  W29C040 flash4 real-FAIL → fixed (SDP-unlock + data-driven page write +
+  `CMD_CHECK_CHIP_ID`); Leonardo flash held at 89.5%.
+- Spec-only gaps: named AT28C04/16 `adapter-required` arm + DIP24→DIP32 adapter
+  pin-map spec; X88C64 0x34 MEDIUM feasibility verdict — NO chip graduated to
+  `supported` (deferred to v1.14).
+
+### What Worked
+
+- **Test-first / evidence-defines-missing** kept the firmware footprint minimal:
+  only one genuine bench failure (W29C040) drove a real handler change; the
+  suspected SRAM no-op was DISPROVEN by VAL-06 (FIX-01 closed not-needed) rather
+  than "fixed" speculatively.
+- Software-first tier ordering meant the harness/matrix/validation work consumed
+  zero flash, deferring all ceiling pressure to the small fix surface.
+- Hybrid bench gating let the milestone close cleanly at PARTIAL coverage —
+  SKIP-deferred matrix cells for chipless families are honest, not blocking.
+
+### What Was Inefficient
+
+- Phase 74 split into Wave 1 (software) shipped + Wave 2 (W29C040 HW re-bench)
+  deferred, and Phase 75 (erase) never executed — both pushed to v1.14. The
+  milestone delivered its *validation* mandate but left two implementation tails.
+- The write-path "Empty input" 0xA4 regression (resolved mid-milestone, Option C)
+  ate a debug cycle that the per-chunk INIT/END DATA-ack behavior could have
+  surfaced earlier.
+
+### Patterns Established
+
+- **Recording-bus register stub** as a flash-free way to prove VPP/algorithm
+  safety in native tests without touching hardware.
+- **Non-vacuous PASS oracle** — negative controls + board-class verdict mapping
+  to kill source==source self-compare false-PASS.
+
+### Key Lessons
+
+- "Feasible set complete" claims decay — RSCH-01 re-confirmed v1.12's set but the
+  bench still surfaced a real flash4 algorithm bug. Validation milestones earn
+  their keep.
+- Graduating chips to `supported` is a distinct, hardware-gated effort — keeping
+  it OUT of a validation milestone (→ v1.14) kept scope honest.
+
+### Cost Observations
+
+- 3-day milestone, mostly software; 9 items deferred at close (all pre-existing
+  or accepted tech debt, none v1.13 work).
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
