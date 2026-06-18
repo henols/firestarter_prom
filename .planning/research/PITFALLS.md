@@ -1,320 +1,348 @@
 # Pitfalls Research
 
-**Domain:** Firmware dispatch hardening + lockstep wire-protocol extension + skeleton handlers (v1.12)
-**Researched:** 2026-06-10
-**Confidence:** HIGH — all findings grounded in actual source files read above, v1.2/v1.10/v1.11 retrospectives, and the live flash-budget measurements from the current branch.
+**Domain:** Validating + extending write/program/verify algorithm families on an Arduino-based EPROM/Flash/EEPROM programmer (RURP shield), hardware-in-the-loop, dual-repo lockstep (firmware C++ + Python host CLI)
+**Researched:** 2026-06-16
+**Confidence:** HIGH (project-internal evidence: firmware source `eprom.cpp`/`flash_intel.cpp`/`eeprom_28c.cpp`, the `firmware-vpp-misread.md` + `write-verify-datapath-overflow.md` debug records, v1.9 Phase 44 RCA, v1.12 dispatch-hardening, and operator bench-protocol memory)
+
+> This milestone is **test-first validation of already-implemented algorithm families on real chips, then evidence-driven gap implementation**. The dominant hazards are (A) **false pass/fail** — believing a write succeeded (or failed) when the verify itself is untrustworthy — and (B) **chip destruction** — driving the wrong VPP / wrong algorithm / a brown-out program onto a physical part. Both are unforgiving: a false pass ships a corrupt image; a chip-destruction event burns the operator's silicon. Everything below is prioritized accordingly.
 
 ---
 
 ## Critical Pitfalls
 
-### Pitfall 1: Deleting the mem_type fallback before establishing a regression baseline — unmasking a WARNING-5-class hazard
+### Pitfall 1: False-PASS from an untrustworthy verify read board (verify is meaningless on Rev 0 / Rev 2.0 / uno328pb)
 
 **What goes wrong:**
-
-The `mem_type == TYPE_EPROM (1)` fallback at `memory.cpp:104` is the last stop before the existing `MSG_ERR_MEM_TYPE_UNSUPPORTED` error. It is currently only reachable when `handle->protocol == 0` (or some unknown non-zero value). Every chip in `chip_database.json` that the regenerated pipeline emits carries an explicit `algorithm` integer, so for those 743 chips the protocol-prefix chain always fires first and the fallback is never exercised. However, the fallback still provides safety for two real populations:
-
-1. **Hand-crafted JSON commands** — a developer or operator sending raw JSON with `"type": 1` and no `"algorithm"` key (or `"algorithm": 0`) will silently route to `configure_eprom`, which enables the 12V VPP boost regulator (`CTRL_VPP_REGULATOR_ENABLE`). If the chip seated in the socket is anything other than a UV-EPROM, that is a hardware-damage path. This population exists today and is explicitly called out in `firestarter/CLAUDE.md` as the backward-compatibility rationale for the fallback.
-
-2. **User-override database entries** — entries in `~/.firestarter/database.json` that predate the v1.0 `algorithm` field will arrive with `protocol == 0` and `mem_type == 1`. These also silently route to `configure_eprom`.
-
-Removing the fallback without auditing these populations first turns a latent hazard into a silent regression: any chip that was accidentally working through the fallback (even correctly) now gets `MSG_ERR_MEM_TYPE_UNSUPPORTED` at runtime with no warning that a fallback was removed.
-
-The v1.0 retrospective documents exactly this pattern: "Closing a blocker can unmask a deeper hazard. Phase 12 closed BLOCKER-1's 'Memory type not supported' safe-exit, which had been silently protecting 23 AT28C-family 5V EEPROMs from receiving 12V." Removing the fallback here is the same structural move — the net you are removing may be load-bearing for some edge case you have not yet enumerated.
+A `write`/`program` is declared correct because the post-write `verify` matched — but the verify ran on a board whose **read path is the v1.9-deferred read bug**. On Modified Rev 0 the read path has broad read-strobe-causal jitter (Phase 44 RCA); Rev 2.0 has the Bug B /CE-or-/OE timing + voltage-divider failure; uno328pb drifts (timeouts + up-to-99% `0xff`/`0x00` zero-drift during W27C512 reads). A verify built on any of those compares the file against **noise**, so it can both falsely pass (jitter happens to land on matching bytes, or a re-read returns the expected value by luck) and falsely fail (jitter on an actually-correct write). The firmware's own in-program verify loop (`eprom_write_execute` → `verify_and_update_mask`, `eprom.cpp:129`) reads the chip back through the **same** suspect read path, so even the firmware-internal "did it stick?" decision is corrupted on a bad board.
 
 **Why it happens:**
-
-The fallback looks vestigial once the protocol-prefix chain covers all 743 DB chips. The temptation is to delete it as part of the "fail-closed" cleanup without asking what would have fallen through it in practice.
+The read bug is *deferred*, not fixed — it is easy to forget that "deferred" means "still present on 2 of 3 shields + the 328PB board". Verify *looks* like an independent oracle, but on this hardware the read oracle shares the exact fault the milestone is designing around.
 
 **How to avoid:**
-
-Before deleting or neutering the fallback, run a concrete audit:
-
-1. **Grep the codebase and test fixtures** for any JSON command that omits `algorithm` or sets `algorithm: 0`. Collect the set. For each, determine whether the current behavior (routes to `configure_eprom`) is correct or coincidentally safe.
-2. **Build a dispatch-baseline test** (a native Unity test or a host-side pytest) that asserts the expected handler for every `(protocol, mem_type)` pair in the current DB — including the `(0, 1)` case — *before* changing anything. This baseline is the regression surface the fallback-removal can be diffed against.
-3. **Update `check_dispatch.py`'s `dispatch()` function** to mirror the new fail-closed logic before the firmware changes land — so the gate is testing the new behavior against the old DB, surfacing any chip that would newly route to ERROR.
-4. Only after the baseline is green and any fallback-dependent chips are explicitly handled (or documented as unsupported) should the fallback be replaced with the fail-closed not-implemented response.
+- **Pin the verify oracle to Leonardo + a clean shield and treat every other board's verify as advisory only.** Leonardo's write+verify is proven clean (EVEN-01; `write-verify-datapath-overflow.md` end-to-end: "Verify for W27C512 successful", full 64 KB host↔fw compare PASSED).
+- Build the validation matrix so each family's **PASS criterion is a Leonardo verify**, and explicitly mark uno328pb / Rev-0 / Rev-2.0 results as "read-unreliable — not a pass".
+- For any board other than the clean verify board, **require N≥5 byte-identical reads (SHA-256) of the just-written image before trusting a single verify** — a single read is never authoritative (operator rule: "never trust N=1").
+- Cross-check write success against a **second, read-independent signal** where the algorithm provides one: Intel-flash status-register polling (`flash_intel_poll_sr`) and AT28C DQ7/data-poll (`eeprom28c_wait_for_write`) are programming-completion signals that do NOT depend on the bulk read path.
 
 **Warning signs:**
-
-- Any chip whose `algorithm` resolves to 0 in the DB pipeline (e.g. a chip with `protocol_id` absent in `infoic.xml` that build_db.py silently drops to 0).
-- User-override DB entries in `~/.firestarter/database.json` that predate the v1.0 `algorithm` field.
-- Native dispatch tests that only cover the protocol-prefix chain, with no test for `(protocol=0, mem_type=1)`.
-- `check_dispatch.py` exit 0 even after the firmware fallback is removed — because `check_dispatch.py`'s `dispatch()` still has the mem_type fallback chain (lines 89-95 of the current file), so it would NOT catch a chip that the firmware now rejects.
+- A family "passes" on uno328pb but the read SHA changes between two consecutive reads of the same chip.
+- WORST-case zero-byte percentage > 0.1% in a `dev consistency-check` on the verify board.
+- Verify flips PASS↔FAIL on re-run — that is read noise, not write state.
 
 **Phase to address:**
-
-The phase that removes/guards the mem_type fallback must begin with a "capture pre-removal baseline" plan step. The baseline (native test + `check_dispatch.py` scan on the fallback-present state) must be pinned before the fallback is touched. This is a Phase 1 / foundational-dispatch phase concern.
+Harness/matrix phase (first phase) — bake "Leonardo is the verify oracle; other boards advisory" into the matrix schema and the PASS definition. Re-asserted in every bench-validation phase.
 
 ---
 
-### Pitfall 2: Lockstep wire-protocol desync — firmware emits the new "not implemented" message ID before the host catalog knows about it
+### Pitfall 2: Chip destruction by wrong VPP / wrong algorithm routed to a physical part
 
 **What goes wrong:**
-
-v1.12 introduces a new response code / message ID (e.g. `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED`) to distinguish "protocol unimplemented" from the existing `MSG_ERR_MEM_TYPE_UNSUPPORTED` (0xAE). The message must be added to three places in lockstep:
-
-1. `firestarter/tools/catalog/messages.toml` (canonical source, meta-repo)
-2. `firestarter/include/messages.h` (generated C++ header — firmware side)
-3. `firestarter_app/firestarter/messages.py` (generated Python module — host side)
-
-The codegen drift gate (`python3 tools/catalog/codegen.py --catalog ... --check && git diff --exit-code`) catches drift between the TOML and the generated files *within each repo*. However it does NOT catch the case where the two repos' `messages.toml` files diverge from each other. The canonical copy lives in the meta-repo; it is sync'd to both sub-repos via `tools/catalog/sync_to_subrepos.sh`. If someone edits the firmware sub-repo's `messages.toml` directly (bypassing the sync script) the host's catalog will not have the new ID, and any frame carrying that ID will be decoded as an unknown message. Depending on `serial_comm.py`'s error handling, this produces a cryptic `EpromOperationError` or a silent hang rather than "protocol not implemented."
-
-The v1.10 retrospective confirms: "dual-repo lockstep pinned by codegen + golden vectors … byte-compatibility was provable in CI before the bench, so the hardware session verified transport, not contract."
+A chip is driven with a programming voltage or sequence its silicon cannot survive: 12–13 V VPP onto a 5 V-only EEPROM/SRAM pin, 25 V NMOS VPP onto a 21 V part, or a UV-EPROM 1 ms VPE pulse onto a part that expects a 5 V page write. This is exactly the hazard v1.12's fail-closed dispatch + host `resolve_chip` guard exists to prevent (the silent `mem_type=1 → configure_eprom → 12 V VPP` fallback). During *validation* the danger re-enters through the back door: writing a chip whose DB classification is wrong, hand-crafting JSON to test a family (bypassing the host guard), or implementing a new per-family algorithm that asserts the wrong control-register bits (`CTRL_VPP_REGULATOR_ENABLE`, `CTRL_VPP_VPE_DROP_ENABLE`, `CTRL_VPP_P1_ENABLE`, `CTRL_VPP_A9_ENABLE`).
 
 **Why it happens:**
-
-The firmware dev makes the catalog change in the firmware sub-repo directly (it is faster than going through the meta-repo sync path). The host CI only checks its own catalog drift; it does not cross-check the firmware sub-repo's catalog. The desync is invisible until a real device is connected.
+- Bench testing tempts shortcuts (`--force`, hand-built JSON, user-override DB entries) that route around the v1.12 in-host refusal.
+- A new/corrected handler is one wrong `set_control_register` line from energizing VPP on the wrong pin; the dispatch tests assert on operation pointers, **not** register side effects (firmware CLAUDE.md native-test note), so a wrong-VPP bug compiles, passes native tests, and manifests only as a fried chip on the bench.
+- `FLAG_VPE_AS_VPP` / `protocol==0x0B` selects a **direct VPE path with no dropping resistor** (`eprom_write_execute`, `eprom.cpp:145`); the wrong flag on the wrong chip puts undropped VPE on the part.
 
 **How to avoid:**
-
-1. **Edit `messages.toml` ONLY in the meta-repo** and run `sync_to_subrepos.sh` to push the identical copy to both sub-repos. The sync script is the contract.
-2. **Add a cross-repo parity test** — a script (or a CI job in the meta-repo) that diffs `firestarter/tools/catalog/messages.toml` against `firestarter_app/tools/catalog/messages.toml` and fails on any difference. This is not currently in CI.
-3. **Assign consecutive IDs by appending to the catalog**, not by inserting in the middle — the drift gate is byte-identity, so any insertion shifts existing IDs and breaks every device running old firmware.
-4. **The new message ID must be in the 0xA0-0xBF ERROR band** (per the existing catalog layout) and must not collide with any existing `MSG_ERR_*` value. The current highest error ID is `MSG_ERR_MEM_SIZE_TOO_SMALL = 0xBA`. The next available slot is `0xBB`.
+- **Never bypass the host `resolve_chip` / `support_status` guard during validation.** Test only DB-classified chips through the normal path; if a hand-crafted JSON test is unavoidable, do it with **no chip in the socket** (the v1.12 fail-closed + VPP-check paths can be exercised chip-out).
+- For any new/corrected handler, **dry-run the VPP electrically with the chip OUT first**: assert the regulator, measure the socket VPP pin with a multimeter, confirm it matches `handle->vpp_mv` and is routed to the intended pin **before** ever seating a chip. The `vpp`/`vpe` monitors enable the regulator + measure only (no A9/VPE/P1 socket routing) — safe with or without a chip seated.
+- Lean on the existing pre-pulse VPP ADC compare (`eprom_check_vpp`, `flash_intel_check_vpp`): it errors-closed (`RESPONSE_CODE_ERROR`, regulator cleared) when measured VPP exceeds `vpp_mv + 500` — **but see Pitfall 3: that check is only as trustworthy as the calibration**.
+- Keep host `check_dispatch.py` / GATE-03 class guard green for any DB change a validation/gap phase makes; never re-promote an `adapter-required` / `vpp-exceeds-max` chip to a real handler without a fresh safety review.
+- For corrected handlers, add a **native test asserting the control-register bit sequence** (extend `host_stubs.cpp` to record register writes) so wrong-VPP routing is caught off-bench.
 
 **Warning signs:**
-
-- `serial_comm.py` logs an "unknown message id" warning during a `write` or `read` of an unimplemented-protocol chip.
-- The host prints a generic `EpromOperationError` or timeout instead of "protocol not implemented."
-- The codegen drift gate passes in both sub-repos individually but the two `messages.toml` files differ (no cross-repo gate today).
-- The host-side `messages.py` does not contain a constant for the new message ID but the firmware `messages.h` does (or vice versa).
+- A test plan that says "force-write to see what happens" on a seated chip.
+- A `diff_db.py` diff that moves a chip's `algorithm`/`vpp_mv`/`pinout` without a documented rationale.
+- A new handler calling `set_control_register(... CTRL_VPP_* ...)` without a matching chip-out VPP bench measurement.
 
 **Phase to address:**
-
-The phase that adds the new message ID to the catalog must include both: (a) editing and syncing the meta-repo `messages.toml`, and (b) regenerating + committing both sub-repo generated files in the same commit pair, with the codegen drift gate green in both repos. This lockstep-wire phase must come before any firmware dispatch logic uses the new ID.
+Per-family validation phases (chip-out VPP dry-run as a precondition gate) **and** per-family-fix / adapter-required-implementation phases (register-bit native tests + GATE-03 re-green). Harness phase encodes "chip-out VPP measurement precedes first seated write".
 
 ---
 
-### Pitfall 3: Codegen-drift CI gate masked by Python version skew (py3.12-on-devcontainer vs py3.11-in-CI)
+### Pitfall 3: Calibration confounder — stale-EEPROM R1 makes the VPP safety check (and program path) lie (backlog 999.1)
 
 **What goes wrong:**
-
-The codegen drift gate in both sub-repo CI workflows runs on Python 3.11 (`python-version: '3.11'` in `.github/workflows/ci.yml` and `build.yml`). The devcontainer runs Python 3.12. In v1.10 and v1.11 this caused the `ruff` formatter to produce different output on 3.12 (f-string backslash handling) and the codegen script to emit slightly different formatting. The developer runs `python3 tools/catalog/codegen.py --catalog ... --output messages.py` locally on 3.12 and commits the result; CI on 3.11 re-runs codegen and sees a diff, failing the drift gate at cut time.
-
-From the project memory: "py3.12-masks-py3.11 ruff/codegen issue seen at prior cuts" and "validate ruff check + ruff format --check against the target before claiming CI green."
+Firmware computes VPP as `Vin = Vadc * 1100 * (r1+r2) / (bandgap * r2)` with `r1/r2` read from **EEPROM**, not the code defaults. A board calibrated under `CONFIG_VERSION="VER06"` keeps its stale `r1` because `rurp_validate_config` re-applies defaults only when `version != CONFIG_VERSION` — and the Phase 44 fix (`VALUE_R1` 1000→270000) **did not bump CONFIG_VERSION**. On the affected uno328pb unit a true 12.2 V reads as ~1.8 V (≈6.8× under-read). Two downstream failures: (a) the program path stalls at the first chunk because `eprom_check_vpp` sees "VPP low" and errors; (b) more dangerously, a different miscalibration could under-read a genuinely-too-high VPP and let the safety check **pass a destructive voltage**. A validation run on a miscalibrated board produces VPP-dependent results that are pure measurement artifact — you "discover a bug" that is actually stale EEPROM.
 
 **Why it happens:**
-
-The drift gate is designed to be deterministic, but `ruff format` and the codegen script itself can produce different output across Python minor versions for edge cases (f-strings, string quoting, trailing comma rules). The developer only discovers this at beta-cut time because that is when CI runs against the pinned Python version. By then the commit is already made and the fix requires a follow-up commit.
+EEPROM is authoritative and persistent; the code-default fix is invisible to an already-calibrated board, and nothing in the normal flow surfaces the live `r1`.
 
 **How to avoid:**
-
-1. **Run codegen + drift gate using the CI Python version**, not the devcontainer default. In the devcontainer: `python3.11 tools/catalog/codegen.py ...` (or activate a venv pinned to 3.11 for codegen work).
-2. **After editing `messages.toml` and running codegen**, always run `ruff format --check` and `ruff check` against the generated output with the 3.11-compatible ruff version before committing.
-3. **Add a note to the catalog-sync plan step**: "regenerate using `python3.11`; if py3.11 is not installed in the devcontainer, install it with `apt-get install python3.11` or use the CI-equivalent environment."
-4. **At beta-cut time**, run the CI workflow on a draft PR first and watch the codegen drift step before pushing to `beta`. This has caught drift at both prior milestone cuts.
+- **At the start of every VPP-dependent bench task, read back the live calibration** (`firestarter config` / `hw_get_config` renders `R1: {r1}, R2: {r2}`) and confirm `r1 ≈ 270000`. A board showing `r1 ≈ 1000` is miscalibrated — recalibrate before trusting any VPP/program/verify result.
+- Independently confirm socket VPP with a **multimeter** the first time a given board+shield programs in this milestone; a persistent fixed-ratio divergence = stale divider constants.
+- Consider closing 999.1 properly (bump `CONFIG_VERSION` so the default propagates, or add a host recalibrate step) — but treat that as a firmware change subject to the flash-budget pitfall.
+- Prefer **Leonardo** for program/verify validation: its calibration is the known-good EVEN-01 baseline, sidestepping the stale-R1 unit entirely.
 
 **Warning signs:**
-
-- The devcontainer's `python3 --version` reports 3.12 while CI runs 3.11.
-- A newly generated `messages.py` or `messages.h` passes local `git diff --exit-code` but fails the drift gate in CI.
-- Ruff reports no issues locally but fails in CI — the py3.12-vs-3.11 f-string backslash issue presents exactly this way.
+- "VPP is low: 1.8V < 12.0V" while a meter reads ~12 V at the socket.
+- Program stalls at the very first chunk (`0x0200`) — classic 999.1/999.2 signature.
+- VPP "bugs" that appear on one board and never reproduce on Leonardo.
 
 **Phase to address:**
-
-Any phase that modifies `messages.toml` or its generated artifacts must include a "verify codegen with py3.11" plan step before the commit is pushed. The beta-cut phase must include this check as a blocking pre-cut gate.
+Harness phase (encode "read-back live R1/R2 + meter-reconcile VPP" as a per-board precondition). If testing elevates 999.1 to a committed gap, a dedicated firmware-fix phase (`CONFIG_VERSION` bump) — gated by the flash-budget check.
 
 ---
 
-### Pitfall 4: Skeleton handlers that accidentally touch hardware before returning not-implemented
+### Pitfall 4: uno328pb program-current brown-out hang (backlog 999.2) — never trust uno328pb for program/write tests
 
 **What goes wrong:**
-
-A skeleton handler for an unimplemented protocol is written as a stub that sets `handle->response_code = RESPONSE_CODE_ERROR` and emits `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED`, but the developer copies the structure from an existing handler (e.g. `configure_eprom`) and forgets to remove the hardware-setup calls that appear before the error return in the real handler. Specifically:
-
-- `configure_eprom` calls `eprom_check_vpp()` early in its body, which enables the VPP boost regulator (`CTRL_VPP_REGULATOR_ENABLE`) and samples the ADC.
-- Any skeleton that inherits this structure and calls `eprom_check_vpp()` before the not-implemented guard will enable 12V on the VPP regulator — exactly the hazard v1.12 is designed to close.
-- Similarly, calling `rurp_chip_enable()` or setting address-bus lines before returning not-implemented drives the socket bus with arbitrary state, which can latch data into a seated chip or stress address lines.
-
-The `configure_memory()` dispatch currently assigns `handle->firestarter_operation_main`, `_init`, and `_end` as function pointers via NULL initialization before calling `configure_X`. A skeleton that sets `firestarter_operation_init` to a function that enables the regulator as part of its "init" phase will trigger regulator enable even if the skeleton's configure function itself does not — because the state machine calls `firestarter_operation_init` later.
+When uno328pb drives programming current (chip PROGRAM phase), the board brown-outs and the firmware stalls (backlog 999.2; "uno328pb can't complete a program"; Phase 54 UAT). A validation run treats the resulting timeout/stall as an *algorithm* failure and chases a phantom firmware bug, or records the family as "fails on hardware" when the real cause is the board's power delivery.
 
 **Why it happens:**
-
-Copy-paste from working handlers is the fastest way to create a skeleton. The hardware-touching calls are deep inside the handler body or the init/end callbacks, not at the top, making them easy to miss in a quick review.
+The 999.2 brownout and the 999.1 stale-R1 misread present *similarly* (program stalls at first chunk), so they get conflated; uno328pb is a tempting test board because it is often on the bench.
 
 **How to avoid:**
-
-1. **Write skeleton handlers from a zero-hardware template**, not by copying existing handlers. The template: (a) do NOT assign `firestarter_operation_init`, `firestarter_operation_main`, or `firestarter_operation_end` — leave the NULL assignments from `configure_memory` in place; (b) immediately set `handle->response_code = RESPONSE_CODE_ERROR` and emit the not-implemented message with the protocol value; (c) return. The state machine will not call NULL operation callbacks.
-2. **Add a native Unity test** for each skeleton protocol that asserts: `handle->response_code == RESPONSE_CODE_ERROR` AND `handle->firestarter_operation_init == NULL` AND `handle->firestarter_operation_main == NULL` after `configure_memory()` is called with that protocol. This detects hardware-touching regressions in the host-side test suite without any hardware.
-3. **Code review checklist for each skeleton**: no VPP regulator enable, no chip enable, no address bus writes, all three operation pointers remain NULL.
-4. The existing `host_stubs.cpp` in `test/native/avr/test_dispatch/` provides no-op `rurp_*` stubs. The dispatch tests assert on `handle->firestarter_operation_main` and `handle->response_code` only — so a skeleton that incorrectly hooks in a hardware-touching init callback will cause the test to fail because `firestarter_operation_init != NULL`.
+- **Exclude uno328pb from program/write validation entirely.** Use it (at most) for read-only/dispatch observation. Leonardo is the program/verify board of record (PROJECT.md key context).
+- Mark uno328pb cells for write/program families **N/A — board power-delivery limitation (999.2)**, not failures.
+- Distinguish 999.1 (stale R1, fixable, reads ~1.8 V) from 999.2 (brownout, board limitation) via the live-R1 readback (Pitfall 3): correct R1 + still stalls under program current ⇒ 999.2.
 
 **Warning signs:**
-
-- A skeleton handler file that `#include`s `eprom.h`, `flash_intel.h`, or similar and calls any `*_check_vpp*`, `rurp_chip_enable`, or `rurp_write_to_register` function.
-- A native dispatch test for a skeleton that passes but does NOT assert `firestarter_operation_init == NULL`.
-- Flash measurement after adding skeletons shows unexpected increase caused by PROGMEM strings or function bodies from hardware-touching paths being compiled in.
+- Program completes on Leonardo but stalls on uno328pb at the same chip/algorithm.
+- The stall correlates with program/erase current draw, not with a specific data pattern.
 
 **Phase to address:**
-
-The skeleton-handler scaffolding phase must include a zero-hardware-template requirement and a native Unity test asserting both the not-implemented response code and the NULL operation pointers for every skeleton. This phase should not begin until the not-implemented message ID is defined and the catalog is synchronized.
+Harness phase (board-eligibility column: uno328pb = no program/write). Every bench-validation phase honors it.
 
 ---
 
-### Pitfall 5: `check_dispatch.py` drift — the guard does not model the new fail-closed outcome and gives false assurance
+### Pitfall 5: False-PASS from a stale/cached host-side buffer (verify reads what you wrote, not what the chip holds)
 
 **What goes wrong:**
-
-`check_dispatch.py`'s `dispatch()` function (lines 75-95) currently models the firmware dispatch including the `mem_type` fallback chain (lines 89-95). After v1.12 removes the fallback and adds the fail-closed not-implemented path, `dispatch()` must be updated to match. If it is not updated:
-
-1. Any chip whose `algorithm` is not in the currently-handled protocol set will still "resolve" to a `mem_type`-based handler in the simulation, masking the fact that the firmware now returns an error for that chip.
-2. The `errors` list (filled when `handler == "ERROR"`) will only fire for chips with `mem_type` outside {1, 3, 4, 5} — the same behavior as today — even though the firmware now returns not-implemented for every unknown protocol regardless of `mem_type`.
-3. The BLOCKER-2 SRAM safety guard (`sram_in_eprom` list) is correct only if `dispatch()` accurately models the firmware path. With a stale `dispatch()` the guard can give a false PASS.
-
-Additionally, `check_dispatch.py` has a pre-existing gap: it handles `0x05` explicitly but NOT `0x35` or `0x39` (the full `configure_flash4` set that the firmware dispatches together at `memory.cpp` line 88-89). For `0x35` chips, `dispatch()` falls through to the mem_type fallback (`mem_type=5 → configure_flash4`), which happens to give the correct answer coincidentally — not structurally. If the fallback is removed, `0x35` chips will route to `"ERROR"` in `check_dispatch.py` because the `dispatch()` function has no explicit case for them.
+The host `verify` compares the file image against bytes it *believes* came from the chip — but a code path returns a cached/echoed buffer, compares the just-sent write buffer to itself, or the read-back never actually round-trips to silicon. The compare passes vacuously. (Adjacent precedent: the v1.10 `write-verify-datapath-overflow.md` showed the host→fw data path was *unexercised* on hardware for a whole milestone because bench focus was the read path — a full class of write/verify behavior was never run end-to-end.)
 
 **Why it happens:**
-
-`check_dispatch.py` was written to mirror the firmware dispatch at the time of Phase 12. The firmware has been extended since (0x35/0x39 added), but `dispatch()` was not updated. The v1.12 fail-closed change is a second opportunity for the same pattern. Because the CI gate only runs `check_dispatch.py` (not a diff of `check_dispatch.py` against `memory.cpp`), the drift is invisible until someone audits the two files side-by-side.
+Verify-during-write reuses `handle->data_buffer` (`eprom_write_execute`); on the host side an optimization or a test stub can short-circuit the chip round-trip. It is invisible because the happy-path output looks identical to a real pass.
 
 **How to avoid:**
-
-1. **Update `check_dispatch.py`'s `dispatch()` to match the new `configure_memory` dispatch order** as the first step of the fail-closed dispatch phase — before any firmware changes. The updated `dispatch()` must: add explicit cases for `0x35` and `0x39`; replace the mem_type fallback with `"NOT_IMPLEMENTED"` (or a similar string); treat `"NOT_IMPLEMENTED"` as a distinct non-error outcome (not the same as `"ERROR"`) in the scan loop.
-2. **Add a new `not_implemented` list** in the main scan loop alongside `errors`, `sram_in_eprom`, etc., that collects chips resolving to `"NOT_IMPLEMENTED"`. The gate should print a summary (e.g. "N chips resolve to not-implemented") but NOT fail on it — that is the expected, safe outcome of the new dispatch.
-3. **Write a unit test for `dispatch()`** that exhaustively covers every protocol value in `KNOWN_PROTOCOLS` plus the new fail-closed case and the `0x35`/`0x39` protocols.
-4. **Review `check_dispatch.py` against `memory.cpp` as a paired artifact** at every phase that modifies dispatch logic. The CLAUDE.md note "Dispatch order in memory.cpp:configure_memory (source-of-truth — must match check_dispatch.py line-for-line)" must be enforced as a phase-close gate, not just documentation.
+- **Independent-read verify:** the authoritative validation is *write image A → power-cycle / re-handshake → fresh full read → compare SHA-256(read) to SHA-256(A)*, using a separately-loaded file, not the in-memory write buffer.
+- **Negative control on every family:** prove verify *fails* when it should — verify the written chip against a *different* file (must report a mismatch at a specific address), and verify a chip-out/blank read (the `write-verify-datapath-overflow.md` error leg "0xff != 0x03 at 0x000000" is exactly this control). A verify that can't fail isn't a verify.
+- Confirm the read genuinely traverses the firmware data path (COBS-framed, CRC8) — transport is proven byte-exact (v1.10), so a true read-back is trustworthy *on a clean board*; combine with Pitfall 1's board constraint.
 
 **Warning signs:**
-
-- `check_dispatch.py` exit 0 after the firmware fallback is removed, even though some chips now get not-implemented responses.
-- `0x35`-protocol chips routing to `configure_flash4` via the mem_type fallback in `dispatch()` rather than an explicit protocol branch.
-- The PASS message says "0 chips have no valid dispatch path" but does not mention the number of chips routing to not-implemented.
+- Verify passes against a deliberately-wrong file.
+- Verify of a blank/absent chip "passes".
+- Verify time implausibly short for the chip size (no real per-byte read traffic).
 
 **Phase to address:**
-
-The `check_dispatch.py` update is a prerequisite for the fail-closed dispatch phase and must be its own plan step or sub-phase. It should be committed before the firmware `memory.cpp` changes so that the updated gate is already in place when the firmware change is reviewed.
+Harness phase — the matrix PASS definition must require independent-read-then-SHA-compare **plus** a passing negative control per family.
 
 ---
 
-### Pitfall 6: "recognized-but-not-implemented" and "totally-unknown" conflated into one error code
+### Pitfall 6: A clean read masks a bad write (verify-during-write declared success via read jitter / retry convergence)
 
 **What goes wrong:**
-
-If the fail-closed dispatch emits a single `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` for both (a) a protocol the firmware has explicitly enumerated as "skeleton — not yet implemented" and (b) a completely unknown protocol value that has never been seen before, the host cannot distinguish between them. This matters because:
-
-- For case (a), the host should surface: "This chip's programming protocol (0x3C) is recognized but not yet implemented in the firmware. A future firmware update will add support." This is actionable for the user.
-- For case (b), the host should surface: "This chip's programming protocol (0x99) is unknown and may not be supported on this hardware." This signals a database or firmware mismatch.
-
-If both cases emit the same message ID with the same protocol-byte parameter, the host's error rendering falls back to a generic string and the operator loses diagnostic information. This is especially relevant for the v1.12 "protocol-gap enumeration" deliverable: the goal is to classify every protocol as implemented / skeleton / infeasible, and that classification should be reflected in the wire response.
+`eprom_write_execute` retries mismatched bytes up to `NUMBER_OF_RETRIES` (20) with escalating `pulse_delay`, then returns success when `verify_and_update_mask` reports zero mismatches. But that mask is computed from **chip reads on a possibly-jittery board** (Pitfall 1): a read that flickers to the *expected* value clears the mismatch bit, so the loop "converges" without the byte being correctly programmed. The chip is under-programmed (marginal cell charge) yet reported PASS; a later fresh read shows corruption.
 
 **Why it happens:**
-
-The simplest implementation is a single `else { emit NOT_IMPLEMENTED; }` at the bottom of `configure_memory()`. It handles both cases with one code path and one message ID. The distinction only becomes visible when a user encounters a chip with an unexpected protocol value and the error message gives no hint whether it is a known gap or something completely off the map.
+The in-loop verify and the success decision share the read path; escalating retries + read noise can manufacture false convergence. Marginal programming is invisible to a single immediate read-back.
 
 **How to avoid:**
-
-1. **Use the protocol-byte parameter** on the not-implemented message to carry the `protocol` value. The host can then look up the value in its own catalog (the v1.11 `protocol_id.md` classification) and render the distinction itself, without needing two separate message IDs from the firmware.
-2. **Alternatively, define two message IDs**: `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` (for explicitly-registered skeletons) and `MSG_ERR_PROTOCOL_UNKNOWN` (for unrecognized values). The firmware emits the former for protocols in the known-skeleton set and the latter for everything else. This is cleaner but costs one additional catalog entry.
-3. **The recommended approach for v1.12**: single `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` with the protocol value as a u8/u32 param; the host renders "Protocol 0xXX is recognized but not yet implemented" for protocols in the known-skeleton set (a Python-side lookup against the v1.11 classification), and "Protocol 0xXX is unrecognized" for values outside that set. This minimizes firmware flash cost (one message, not two) while preserving diagnostic quality.
-4. **Update `exceptions.py`** to carry a `protocol_id` field on whatever exception class surfaces the not-implemented response, so the CLI handler can render the appropriate message.
+- Require the **independent post-write full read** (Pitfall 5) as the PASS oracle, not the firmware's internal retry-convergence.
+- Watch the retry count: the firmware emits `MSG_INFO_RETRIES`. A family that "passes" only after many retries is a marginal-programming warning, not a clean pass — record retries in the matrix.
+- For UV-EPROM/Flash, use a clean verify board + N≥5 byte-identical reads so a single lucky read can't mask under-programming.
 
 **Warning signs:**
-
-- The host prints "Memory type 0x01 not supported" (the old `MSG_ERR_MEM_TYPE_UNSUPPORTED` wording) for an unimplemented protocol — indicates the host is not decoding the new message ID.
-- The host prints a generic "operation failed" without any protocol value — indicates the new message ID is being decoded but the protocol-byte param is not being extracted.
-- `serial_comm.py`'s error path uses `str(message)` or a default format that does not include the param bytes.
+- High retry counts before success.
+- Verify passes immediately after write but a re-read minutes later differs.
+- `MSG_ERR_WRITE_FAILED` with a small mismatch count that disappears on the next run (read noise, not a stable write).
 
 **Phase to address:**
-
-This distinction must be designed in the catalog-and-wire-protocol phase (before any firmware dispatch logic is written) and validated in the host-graceful-handling phase (the phase that adds the "protocol not implemented" user-facing error message to `exceptions.py` and `cli_handlers.py`).
+Harness phase (capture retry counts; PASS = independent read) + per-family validation phases.
 
 ---
 
-### Pitfall 7: Flash budget regression — new strings and handlers push Leonardo over the ceiling
+### Pitfall 7: Leonardo flash-budget overflow when adding/correcting firmware (≈88% TIGHT)
 
 **What goes wrong:**
-
-Current flash usage as of 2026-06-10 (measured from live build on `v1.11-infoic-decode-correctness`):
-
-- **Leonardo**: 88.4% (25,354 B of 28,672 B) — 3,318 B remaining
-- **Uno**: 72.0% (23,216 B of 32,256 B) — 9,040 B remaining
-
-Leonardo is the constrained board. The v1.12 changes add: (a) skeleton handler function bodies (small but non-zero); (b) at minimum one new `MSG_ERR_*` emit site in `configure_memory()` (costs the `rurp_log_id` call site plus the ID byte param); (c) additional dispatch branches in `configure_memory()`.
-
-The v1.2 retrospective established that helper-function refactors targeting flash savings often wash out on AVR-gcc with `-Os`: "AVR-gcc was already inlining the pack bodies efficiently — the CALL/RET overhead ate most of the dedup savings." The same caveat applies in reverse: what looks like "just a return statement" in a skeleton handler may be larger than expected after linking, because each new function introduces a function prologue/epilogue even if the body is trivial.
-
-At 88.4% on Leonardo, adding roughly 3% (approximately 860 B) of new code would put the board at ~91.4%. Still below the 98.7% danger level from before v1.2, but the margin is much tighter than Uno. The risk is real if the skeleton set is large (the v1.11 protocol-gap enumeration found multiple protocols without handlers) and each skeleton contributes even a 50-100 B function body.
+This is a firmware-touching milestone. Leonardo flash sat at **88.4% (25,354 / 28,672 B, ~3,318 B free)** at v1.12 start and is likely similar/tighter now. A corrected algorithm path, a new adapter-required handler, a `CONFIG_VERSION`-bump recalibration path, or extra log strings can push Leonardo over 100% — the build fails (or links but corrupts). Uno has more headroom (~72%), so a change can pass on Uno and overflow only on Leonardo.
 
 **Why it happens:**
-
-Flash cost is invisible during code writing and only surfaces at `pio run --target=size`. Developers writing skeletons focus on correctness, not binary size. Leonardo's 28KB ceiling is 13% smaller than Uno's 32KB, making it the binding constraint for every firmware change.
+Per-family fixes feel small; PROGMEM log strings + new dispatch arms accrete; the tightest board (Leonardo) is not always built first.
 
 **How to avoid:**
-
-1. **Measure flash after each skeleton is added**, not at the end. Run `pio run -e leonardo` after the first skeleton to establish the per-skeleton cost, then project whether the full set fits.
-2. **Prefer a single shared `configure_not_implemented()` function** called from all skeleton dispatch branches, rather than N separate stub functions. One function body; N if/return call sites (each ~4-8 B on AVR) rather than N full function bodies.
-3. **Use a single inlined response call in `configure_memory()` itself** for the fail-closed path — the not-implemented case does not need a per-protocol function at all if the only behavior is "emit message + set error code." The protocol value is already in `handle->protocol`. This is the most flash-efficient approach.
-4. **Set a flash-budget gate** in the phase acceptance criteria: `pio run -e leonardo` must report <= 90% after all skeletons are added. This is a hard go/no-go, not a suggestion.
+- **Build `pio run -e leonardo` (not just `-e uno`) and check the flash % on every firmware change**; set a hard ceiling (v1.12 used ≤90% post-change) as a phase success criterion.
+- Prefer host-side fixes where the gap allows (v1.11/v1.8 were host-only); push DB/classification corrections to `build_db.py` rather than firmware when possible.
+- Reuse existing message IDs / `DBG_*` sub-IDs instead of minting new PROGMEM strings; the v1.2 message-ID rework exists precisely to conserve Leonardo flash.
 
 **Warning signs:**
-
-- `pio run -e leonardo` after adding the first few skeletons shows the percentage growing faster than 0.1% per skeleton.
-- The skeleton function body inadvertently calls `rurp_shield.h` helpers (which pull in their dependency chain) rather than being truly minimal.
-- The `configure_memory()` if-chain grows significantly — each if/return is small but not free.
+- Leonardo build flash % creeping toward 90%+.
+- A change built only on Uno.
+- New `LOG_*` / `MSG_*` strings added casually.
 
 **Phase to address:**
+Any firmware-touching phase (per-family fix, adapter-required impl, 999.1 fix) — flash-% ceiling as an explicit success criterion. Re-check at milestone close.
 
-The skeleton-handler phase must include a post-skeleton flash measurement plan step with a leonardo gate. The measurement should be done on a branch off the final dispatch-logic state (not mid-refactor) so the number is stable. If the gate is at risk, a "consolidate not-implemented path" sub-task must be included before close.
+---
+
+### Pitfall 8: Lockstep / codegen drift — py3.12-masks-CI-py3.11 + dual-repo wire changes
+
+**What goes wrong:**
+Two recurring traps from prior firmware-touching milestones:
+1. The devcontainer runs **Python 3.12** but CI targets **3.9/3.11**; `ruff check` / `ruff format --check` and the codegen drift gate pass locally on 3.12 yet fail in CI. F-string backslashes + non-ruff-clean codegen output are the classic offenders.
+2. Any wire change (new message ID, changed command field) must be **edited in the meta-repo catalog only** and synced to both sub-repos (`sync_to_subrepos.sh` / `messages.toml`); editing one sub-repo directly desyncs firmware↔host and the codegen drift gate (`<regen> && git diff --exit-code`) fails — or worse, a silent host/fw mismatch ships.
+
+**Why it happens:**
+The local toolchain masks the CI toolchain; lockstep is a manual discipline; the codegen emitter is now ruff-clean (Phase 63) so hand-normalizing reintroduces drift.
+
+**How to avoid:**
+- **Validate `ruff check` + `ruff format --check` against the CI Python (3.11), not the devcontainer 3.12,** before claiming green (use the source-built 3.11.13 per the v1.12 D-04 pattern).
+- Edit wire/catalog definitions in the **meta-repo only**; regenerate; commit generated files; let the drift gate confirm byte-identity in both repos. Do **not** hand-normalize codegen output.
+- Bump the firmware version and cut a real firmware pre-release tag this milestone (firmware changed) — don't reuse a skipped-lockstep tag.
+- Two pre-existing `test_*` I001 ruff-debt errors are unrelated — don't chase them as new regressions.
+
+**Warning signs:**
+- Local CI-equivalent checks green but GitHub CI red on ruff/codegen.
+- A `messages.py` / generated-header diff in only one repo.
+- Host raises/handles a message ID the firmware never emits (or vice versa).
+
+**Phase to address:**
+Any wire-touching phase (catalog/codegen first, before firmware emits the new value — the v1.12 ordering: GATE → WIRE → FIRMWARE → HOST). Milestone-close/beta-cut phase for the lockstep tag + CI green.
+
+---
+
+### Pitfall 9: Bench-protocol safety — sideload-with-chip-seated, wrong shield rev, wrong port
+
+**What goes wrong:**
+Three operator-bench hazards that corrupt results or damage hardware:
+1. **Sideloading firmware to a Uno-class board (Uno or uno328pb) with a chip seated** drives the shield bus during upload and can damage the chip. (Leonardo is EXEMPT — its upload does not drive the shield bus.)
+2. **Assuming the shield revision** — Rev 2.2 / Rev 2.0 / modified Rev 0 are operator-owned and **indistinguishable by the EEPROM `hw_revision` byte**; the wrong-rev assumption silently attributes a Rev-0 read fault (or a Rev-2.0 Bug B) to the algorithm under test.
+3. **Trusting a stale port→board mapping** — `/dev/ttyACM*` / `ttyUSB*` numbers shuffle across every USB replug / board cycle / chip re-seat; a result gets recorded against the wrong board.
+
+**Why it happens:**
+These are physical-world facts the firmware/host cannot enforce; they rely on operator discipline and are easy to skip under time pressure.
+
+**How to avoid:**
+- **Chip OUT of the socket before any Uno-class sideload** (Uno + uno328pb only; Leonardo exempt). Codified as `feedback_chip_out_before_sideload`.
+- **ASK the operator which silkscreen rev is on the bench** at the start of any bench task; never infer it from EEPROM. Codified as `user_shield_revisions`.
+- **Verify `controller:` identity per port at every bench task start** (re-handshake; confirm board name on the port you're about to drive). Codified as `feedback_verify_port_identity_each_task`.
+- Record board + rev + port + chip state in every matrix row so a mis-attribution is auditable after the fact.
+
+**Warning signs:**
+- A bench plan that sideloads without an explicit chip-out step.
+- Results recorded with a board name but no per-task identity re-verification.
+- A read fault that "moves" between boards across a session (almost always a port-shuffle mis-attribution).
+
+**Phase to address:**
+Every bench-gated phase — encode chip-out, ask-rev, and verify-port as standing preconditions in the harness/matrix and in each bench plan's checklist.
+
+---
+
+### Pitfall 10: Over-claiming the gap set — re-deriving "feasible-but-unimplemented" without grounding
+
+**What goes wrong:**
+The milestone re-researches the protocol landscape to surface genuine gaps (revisiting v1.12's "the feasible set is already complete" finding). Risk: a phase commits to "implementing" a protocol that is in fact infeasible on RURP (e.g. `0x11` FWH = LPC-serial/3.3 V; `0x2A/0x2B/0x2C` = GAL/PLD/MCU with zero DIP memory chips) — wasting a firmware-touching phase (flash budget!) on a non-deliverable, or scaffolding a handler that becomes a future wrong-VPP hazard.
+
+**Why it happens:**
+"Unimplemented" reads as "missing feature" rather than "deliberately excluded as infeasible". The v1.11/v1.12 source-grounded findings are easy to re-litigate without re-citing them.
+
+**How to avoid:**
+- Ground any "new gap" claim in the **v1.11 field dictionary + minipro source**, not the bare `protocol_id` list; re-use the v1.12 classification (implemented / infeasible-on-RURP). The named-infeasibility arms (`configure_not_implemented` for 0x11/0x2A/0x2B/0x2C) already document the hardware reason in-code.
+- Treat the **deferred erase path (`firestarter erase` 0x07)** as the most credible real gap candidate, but confirm it against the firmware's existing `eprom_internal_erase` (which drives VPE+A9 — a VPP hazard surface) before committing.
+- For `adapter-required` chips, the gap is **physical (build/obtain the adapter)**; don't implement firmware for a chip the operator can't physically seat — keep it hardware-gated and deferrable (hybrid bench gating).
+
+**Warning signs:**
+- A proposed phase to "add support for protocol 0x11/0x2A/..." (infeasible).
+- A new handler with no corresponding seated-chip test path.
+- Re-opening the "feasible set" question without citing the v1.11/v1.12 source artifacts.
+
+**Phase to address:**
+The re-research / protocol-landscape phase (must reaffirm or overturn the v1.12 finding with citations before any gap-implementation phase is committed).
 
 ---
 
 ## Technical Debt Patterns
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
-|---|---|---|---|
-| Leaving `check_dispatch.py`'s `dispatch()` stale after firmware dispatch change | Saves one file edit | Gate gives false PASS; SRAM safety check may not cover new protocols | Never — update `dispatch()` in the same commit or PR that changes `configure_memory()` |
-| Emitting `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` without the protocol value as a param | Simpler catalog entry | Host cannot render a useful message; debugging requires serial capture | Never for v1.12 — the protocol value must be included |
-| Reusing `MSG_ERR_NOT_SUPPORTED (0xA5)` instead of defining a new message ID | No catalog change needed | Conflates "command not supported" with "protocol not implemented"; host cannot distinguish | Never — separate semantics deserve separate IDs |
-| Copying an existing handler as the skeleton template | Fast to write | Hardware-touching calls may be inherited silently | Never — use the zero-hardware template |
-| Not syncing `messages.toml` via `sync_to_subrepos.sh` | Faster dev loop | Both repos' catalogs drift; codegen drift gate only detects intra-repo drift | Never — the sync script is the contract |
+|----------|-------------------|----------------|-----------------|
+| Validate a family on uno328pb because it's on the bench | No board swap | Brownout (999.2) / stale-R1 (999.1) confounds → phantom bugs or false fails | Read-only/dispatch observation only; **never** for program/write |
+| Trust a single post-write verify read | Fast | A jittery board manufactures a false PASS or FAIL | Only on the clean Leonardo verify board, and even then a negative control is mandatory |
+| Hand-craft JSON to exercise a family bypassing the host guard | Tests firmware path directly | Re-opens the v1.12 wrong-VPP hazard (no `resolve_chip` refusal) | Only with the chip OUT of the socket |
+| Add a new PROGMEM log string for diagnostics | Easier debugging | Pushes Leonardo flash toward overflow | Reuse `DBG_*` sub-IDs; add new strings only after checking Leonardo flash % |
+| Hand-normalize codegen output to satisfy local ruff | Local green | Reintroduces py3.12↔3.11 drift; CI red | Never — the emitter is already ruff-clean (Phase 63) |
+| Mark a family "validated" without a negative-control verify | Faster matrix fill | Vacuous PASS ships a verify that can't fail | Never |
+| Skip live R1/R2 readback at bench-task start | One fewer step | VPP results become measurement artifacts (999.1) | Never on a VPP-dependent (UV-EPROM / Intel-flash) task |
 
 ## Integration Gotchas
 
 | Integration | Common Mistake | Correct Approach |
-|---|---|---|
-| meta-repo `messages.toml` to sub-repo sync | Edit firmware sub-repo `messages.toml` directly | Edit only the meta-repo copy; run `sync_to_subrepos.sh`; regenerate in both sub-repos |
-| Codegen drift gate with Python version | Run codegen locally on py3.12, commit, fail CI on py3.11 | Explicitly invoke `python3.11` (or a 3.11 venv) for codegen and drift gate before committing |
-| `check_dispatch.py` vs `memory.cpp` | Update `memory.cpp` dispatch without updating `dispatch()` in `check_dispatch.py` | Treat the two as a paired artifact; update `check_dispatch.py` first, verify gate, then change firmware |
-| Deferred v1.11 host work on `firestarter_app/beta` | Begin v1.12 host changes before the deferred v1.11 work is reconciled into `beta` | Confirm `firestarter_app/beta` tip is clean and post-v1.11 before branching `v1.12-*` off it |
+|-------------|----------------|------------------|
+| Firmware ↔ host wire (messages.toml) | Editing a sub-repo catalog directly | Edit meta-repo only; sync to both; let codegen drift gate confirm byte-identity |
+| Host↔fw data path (write/verify) | Assuming read-path bench coverage implies write/verify coverage | Exercise the **host→fw** chunk path on hardware explicitly (the v1.10 overflow bug hid here for a milestone) |
+| Chip ↔ programmer VPP | Trusting firmware-reported VPP | Reconcile against a multimeter at the socket the first time per board; confirm live R1/R2 |
+| Verify oracle ↔ read path | Using the same suspect board to read-verify a write | Pin verify to Leonardo + clean shield; advisory-only elsewhere |
+| DB classification ↔ firmware dispatch | Re-promoting an `adapter-required` / `vpp-exceeds-max` chip to a real handler | Keep GATE-03 / `check_dispatch.py` green; safety-review any re-promotion |
+
+## Performance Traps
+
+(Not a scale-of-users domain; "scale" here = chip size, retry counts, per-byte serial traffic.)
+
+| Trap | Symptoms | Prevention | When It Breaks |
+|------|----------|------------|----------------|
+| In-program retry convergence masks marginal programming | High `MSG_INFO_RETRIES` count, PASS that won't reproduce on re-read | Use independent N≥5 read as the oracle; record retry counts | Marginal cells / jittery read board |
+| Full-buffer chunk exceeds firmware decode cap | `Data error: -2` at first chunk | Host `MAX_DATA_CHUNK = BUFFER_SIZE-2` (fixed v1.10) — keep the lockstep test pinning the MAX on-wire chunk | If a future change re-touches chunk sizing without re-running the MAX-chunk test |
+| Intel-flash / EEPROM poll timeout vs slow chip | `MSG_ERR_INTEL_SR_TIMEOUT` / `MSG_ERR_EEPROM_TIMEOUT` on a healthy chip | Validate poll timeouts against datasheet t_prog before calling it an algorithm bug | Slow/old silicon at the edge of the hardcoded timeout |
+
+## Security Mistakes
+
+(Physical-safety analog — "what could destroy hardware or corrupt an image".)
+
+| Mistake | Risk | Prevention |
+|---------|------|------------|
+| `--force` to push past a VPP / chip-ID warning on a seated chip | Drives unsafe VPP / wrong-chip program → dead chip | Never `--force` a seated chip in validation; investigate the warning first |
+| Bypassing host `resolve_chip` refusal via raw JSON | Re-opens silent wrong-VPP fallback | Only chip-out for raw-JSON firmware-path tests |
+| Assuming the safety VPP check is reliable | A miscalibrated divider can pass a destructive voltage | Verify calibration (R1/R2) + meter before trusting the check |
+| Wrong control-register bits in a new handler | VPP on the wrong socket pin | Native test asserting register sequence + chip-out meter dry-run |
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **Fail-closed dispatch**: `check_dispatch.py` updated to match new `configure_memory()` order, including removal of mem_type fallback — verify `python tools/check_dispatch.py` exit 0 with the updated `dispatch()` function.
-- [ ] **New message ID**: appears in meta-repo `messages.toml`, synced to both sub-repos, both generated files (`messages.h`, `messages.py`) regenerated and committed, codegen drift gate green in both repos.
-- [ ] **Skeleton handlers**: each skeleton's native Unity test asserts `handle->response_code == RESPONSE_CODE_ERROR` AND all three operation pointers remain NULL.
-- [ ] **`check_dispatch.py` updated**: `0x35` and `0x39` have explicit cases (not relying on mem_type fallback), and a `"NOT_IMPLEMENTED"` outcome is distinct from `"ERROR"` in the scan logic.
-- [ ] **Flash budget**: `pio run -e leonardo` reports <= 90% after all skeletons are added.
-- [ ] **Host graceful handling**: `firestarter write <unimplemented-chip>` prints a message that includes the protocol value and distinguishes "not yet implemented" from "unrecognized protocol."
-- [ ] **Deferred v1.11 host work**: `firestarter_app/beta` is at the correct post-v1.11 state before any v1.12 host changes are committed.
-- [ ] **Regression baseline**: pre-removal dispatch baseline test exists and is pinned before the mem_type fallback is deleted.
+- [ ] **Family "validated":** Often missing the negative control — verify a deliberately-wrong file mismatches at a specific address, and a blank/chip-out read fails.
+- [ ] **Write PASS:** Often missing the independent post-write full read (SHA-256) — confirm verify isn't reading the in-memory write buffer.
+- [ ] **VPP-dependent result:** Often missing the live R1/R2 readback + meter reconcile — confirm it's not a 999.1 artifact.
+- [ ] **Firmware change:** Often missing the `-e leonardo` build + flash-% check — Uno-only builds hide Leonardo overflow.
+- [ ] **Wire change:** Often missing the CI-Python (3.11) ruff/codegen check + both-repo sync — devcontainer 3.12 masks it.
+- [ ] **Bench result:** Often missing per-task port-identity re-verification + recorded shield rev — port shuffle / wrong-rev mis-attribution.
+- [ ] **"New gap" to implement:** Often missing the v1.11/v1.12 source-grounded feasibility citation — may be an infeasible protocol.
+- [ ] **uno328pb cell in the matrix:** Often mislabeled "fail" when it's N/A (999.2 brownout / read-unreliable).
+
+## Recovery Strategies
+
+| Pitfall | Recovery Cost | Recovery Steps |
+|---------|---------------|----------------|
+| False PASS shipped (corrupt image believed good) | HIGH | Re-validate the family on Leonardo with independent read + negative control; invalidate prior matrix rows from the suspect board |
+| Chip destroyed by wrong VPP/algorithm | HIGH (physical) | Stop bench; root-cause the routing (register bits / DB classification / calibration); add the missing chip-out VPP dry-run gate before resuming |
+| 999.1 stale-R1 misattributed as algorithm bug | LOW | Read-back R1; recalibrate; re-run on corrected board (or switch to Leonardo) |
+| 999.2 brownout misrecorded as failure | LOW | Re-label matrix cell N/A; re-run on Leonardo |
+| Leonardo flash overflow | MEDIUM | Revert/trim PROGMEM strings; move fix host-side if possible; reuse DBG sub-IDs |
+| Lockstep wire desync | MEDIUM | Re-sync from meta-repo catalog; regenerate; re-run drift gate in both repos |
+| Wrong-rev / wrong-port mis-attribution | LOW–MEDIUM | Re-verify identity + rev with operator; re-run the affected matrix rows |
 
 ## Pitfall-to-Phase Mapping
 
 | Pitfall | Prevention Phase | Verification |
-|---|---|---|
-| 1 — mem_type fallback removal unmasks hazard | Phase that establishes pre-removal baseline (Phase 1 of v1.12 roadmap) | Native Unity test covering `(protocol=0, mem_type=1)` exits PASS before the baseline commit; `check_dispatch.py` scan with updated `dispatch()` shows 0 chips newly routing to ERROR that were previously routed to a real handler |
-| 2 — lockstep wire desync | Phase that adds the new message ID to the catalog (lockstep-wire phase) | Codegen drift gate green in both sub-repos; cross-repo `diff messages.toml` returns empty |
-| 3 — py3.12-vs-py3.11 codegen drift | Same lockstep-wire phase, plus every phase touching catalog artifacts | Explicitly run codegen with `python3.11` in the plan step; CI green on PR before push to beta |
-| 4 — skeleton hardware accidental access | Skeleton-handler scaffolding phase | Native Unity test asserts NULL operation pointers and error response code for every skeleton; code review against zero-hardware template checklist |
-| 5 — `check_dispatch.py` drift | `check_dispatch.py` update phase (must precede firmware dispatch changes) | `dispatch()` explicitly handles `0x35`/`0x39` and the new fail-closed path; unit test for `dispatch()` covers all known protocols |
-| 6 — recognized vs unknown conflated | Catalog-and-wire-protocol design phase + host-graceful-handling phase | Host test: chip with skeleton protocol prints "not yet implemented" including protocol value; chip with unknown protocol value prints "unrecognized protocol" |
-| 7 — flash budget regression | Skeleton-handler phase (measure after each batch) | `pio run -e leonardo` <= 90% gate in phase acceptance criteria |
+|---------|------------------|--------------|
+| 1. Untrustworthy verify board | Harness/matrix phase (PASS = Leonardo verify) | Matrix schema pins verify oracle; advisory-only flag on other boards |
+| 2. Wrong VPP / wrong algorithm | Per-family validation + per-family-fix / adapter-impl phases | Chip-out VPP meter dry-run precedes seated write; register-bit native test; GATE-03 green |
+| 3. Stale-R1 calibration (999.1) | Harness phase precondition (+ optional 999.1 firmware-fix phase) | Live R1/R2 readback + meter reconcile recorded per board |
+| 4. uno328pb brownout (999.2) | Harness phase (board-eligibility column) | uno328pb = N/A for program/write in matrix |
+| 5. Stale/cached verify buffer | Harness phase (PASS definition) | Independent read-then-SHA + passing negative control per family |
+| 6. Clean read masks bad write | Harness + per-family validation | Retry-count captured; PASS = independent N≥5 read |
+| 7. Leonardo flash overflow | Every firmware-touching phase | `pio run -e leonardo` flash % ≤ ceiling as success criterion |
+| 8. Lockstep / codegen drift | Wire-touching phase (catalog→fw→host order) + close phase | CI-3.11 ruff/codegen green; both-repo byte-identity; real fw tag at cut |
+| 9. Bench-protocol safety | Every bench-gated phase | Chip-out + ask-rev + verify-port preconditions in each bench plan |
+| 10. Over-claiming the gap set | Re-research / protocol-landscape phase | Feasibility claims cite v1.11 field dictionary + minipro source |
 
 ## Sources
 
-- `firestarter/src/proms/memory.cpp` — live dispatch chain and mem_type fallback (lines 73-118), read 2026-06-10
-- `firestarter/CLAUDE.md` — dispatch order documentation and backward-compatibility rationale for the fallback
-- `firestarter_app/tools/check_dispatch.py` — `dispatch()` function (lines 75-95); gap: no explicit 0x35/0x39 cases, read 2026-06-10
-- `firestarter/include/messages.h` + `firestarter_app/firestarter/messages.py` — generated catalog; current highest error ID 0xBA (`MSG_ERR_MEM_SIZE_TOO_SMALL`)
-- `firestarter/include/firestarter.h` — `firestarter_handle_t` struct; operation pointer fields
-- `firestarter/include/logging_id.h` — `LOG_ERROR_ID_U8` macro chain
-- `.planning/RETROSPECTIVE.md` §v1.2 — codegen drift gate; "measure before refactoring for size"; "read the host's expect_ack / probe path before changing the firmware ack shape"
-- `.planning/RETROSPECTIVE.md` §v1.10 — dual-repo lockstep pinned by codegen + golden vectors; cross-repo catalog sync pattern
-- `.planning/RETROSPECTIVE.md` §v1.0 — "closing a blocker can unmask a deeper hazard"; three-layer fix; audit-then-close
-- `.planning/PROJECT.md` §v1.12 — milestone goal statement; mem_type fallback as explicit safety hazard; dual-repo lockstep requirement
-- Live `pio run -e uno/leonardo` builds on `v1.11-infoic-decode-correctness` (2026-06-10): Uno 72.0% / Leonardo 88.4%
+- Firmware program/verify source: `firestarter/src/proms/eprom.cpp` (in-program verify loop `verify_and_update_mask`, `eprom_check_vpp` VPP safety gate, `eprom_internal_erase` VPE/A9 hazard), `flash_intel.cpp` (SR polling, VPP P1 routing), `eeprom_28c.cpp` (DQ7/data-poll, A9-12V chip-ID, `mem_size<64` underflow guard) — HIGH
+- `.planning/debug/firmware-vpp-misread.md` — 999.1 stale-EEPROM-R1 / CONFIG_VERSION-not-bumped diagnosis (6.8× under-read, program stall) — HIGH
+- `.planning/debug/write-verify-datapath-overflow.md` — host→fw data-path coverage gap; verify negative-control ("0xff != 0x03") precedent — HIGH
+- `.planning/PROJECT.md` v1.13 scope + v1.12 fail-closed dispatch archive + Known Gaps; `.planning/STATE.md` flash budget, lockstep pitfalls, deferred items — HIGH
+- v1.9 Phase 44 RCA (Rev 0 read-strobe-causal read fault) + Bug B (Rev 2.0) characterization; uno328pb bench-instability + brownout records (project memory) — HIGH
+- `firestarter/CLAUDE.md` dispatch table + native-test "asserts pointers, not register side effects" note; v1.12 STATE pitfalls (py3.12-masks-3.11, messages.toml meta-only, ≤90% Leonardo flash) — HIGH
+- Operator bench protocol memory: `feedback_chip_out_before_sideload`, `user_shield_revisions`, `feedback_verify_port_identity_each_task`, `reference_vpp_vpe_no_socket_routing` — HIGH
 
 ---
-*Pitfalls research for: v1.12 — Firmware Protocol Dispatch Hardening + Skeletons*
-*Researched: 2026-06-10*
+*Pitfalls research for: write/program/verify validation + gap implementation on the Firestarter RURP programmer*
+*Researched: 2026-06-16*

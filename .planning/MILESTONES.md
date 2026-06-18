@@ -1,5 +1,36 @@
 # Milestones
 
+## v1.13 Programming Algorithm Validation + Gap Implementation (Shipped: 2026-06-18)
+
+**Phases completed:** 5 phases, 19 plans, 31 tasks (Phase 75 erase path + Phase 74 Wave-2 HW re-bench deferred to v1.14)
+
+**Delivered:** Three-tier software-first validation harness + per-family matrix proving the 6 write/program/verify families correct (Tier-3 HIL on Leonardo, PARTIAL bench coverage); evidence-driven feasible-gap subset (flash4 `CMD_CHECK_CHIP_ID` + W29C040 SDP/page-write fix; spec-only AT28C04/16 adapter-required arm + DIP24→DIP32 adapter pin-map; X88C64 0x34 MEDIUM feasibility verdict). Dual-repo lockstep merged to `beta` (fw `a33513f` / app `34deccb` @ `3.0.0b9`, no tag — beta cut + stable operator-gated).
+
+**Known deferred items at close:** 9 (see STATE.md Deferred Items) — all pre-existing or accepted tech debt; none v1.13 blockers.
+
+**Key accomplishments:**
+
+- Define-guarded `HOST_STUBS_RECORD_BUS` opt-IN recording buffer in `host_stubs_common.inc`: four extern-C API symbols, 256-entry bound-checked array, byte-identical no-op fallback for all existing native suites.
+- Authored JSON matrix spec (D-01) + deterministic codegen script emit
+- Per-family VPP range invariants in check_dispatch.py with flash_intel DB enforcement + synthetic-fixture-proven non_supported_dispatchable population, closing v1.12 CR-01 hollow-GATE-03 tech debt.
+- test_val_eprom
+- Six pytest wire round-trip suites prove each family's rep chip (from the
+- `dev validate-family` Tier-3 runner composes cycle methods,
+- Replaced the vacuous source==source SHA self-compare in `dev_validate_family` verdict_int==0 branch with a direct board-class verdict mapping (`pass_type` = authoritative/advisory), proven non-vacuous by a distinct-hash mismatch test.
+- Trimmed flash4 host matrix to protocols=[5] (CR-02 resolution), regenerated 11-row header byte-identically (drift gate green), documented firmware/native vs host-matrix distinction durably, marked HARN-04 Complete.
+- 14-row per-protocol feasibility verdict table committed, with v1.12 overstated-claim review (3 items) and both open questions resolved by code trace to file:line
+- v1.13 protocol re-enumeration artifact confirmed complete: 5-item gap index + anti-feature block (0x11/0x2A/0x2B/0x2C + 25V NMOS) + 22V ceiling constraint, all internally consistent and cited — RSCH-01 closed
+- Confirmed all six families Tier-1/Tier-2 GREEN (28+26 tests), armed the R1 precondition gate (r1=270000 persisted to local config), and emitted three explicit SKIP-deferred Tier-3 matrix cells for the chipless families (eeprom28c/flash4/flash_intel).
+- W27C512 (electrically-erasable EEPROM, 12V VPP, configure_eprom 0x07) achieves authoritative Tier-3 PASS on Leonardo/Rev 2.0 — write_cycle_eprom erase+write+readback SHA match confirmed, negative control oracle proven non-vacuous (wrong-file verify exits 1)
+- flash3/VAL-03 recorded as SKIP-deferred (no AM29F040 on hand per operator 2026-06-17); flash4/VAL-04 upgraded from SKIP-deferred to real FAIL verdict on seated W29C040 (Winbond flash4, algorithm 5) with passing negative control and Phase-74 escalation
+- FM1608 FRAM two-pattern N=2 bench confirms VAL-06 = table-stakes-PASS: configure_sram writes via generic_memory_write_execute with zero mismatches across 0x5A/0xA5 patterns on both runs — FIX-01 closed not-needed with evidence
+- FIX-01 closed not-needed via VAL-06 bench evidence (configure_sram persists data); FIX-03 comment-reconciled across firmware CLAUDE.md and host database.py/ic_layout.py with consistent 0-DB-chip phantom framing for 0x35 and 0x39.
+- Flash4 CMD_CHECK_CHIP_ID dispatch mirror + W29C040 SDP/page-write fix, proven VPP-safe by recording-stub tests; flash budget mitigated to 89.5% via shared AMD chip-ID util.
+- Named `_AT28C_DIP24_NAMES` rule arm in build_db.py classifies 14 AT28C04/AT28C16 aliases as adapter-required with explicit adapter-spec reference, plus X88C64P reason reworded to datasheet-accurate 8051 multiplexed-bus description.
+- DIP24→DIP32 adapter pin-map spec (two-layer, verified against pinouts.json) + X88C64P 8051-multiplexed-bus feasibility verdict (MEDIUM; STORE/RECALL corrected; NO handler committed)
+
+---
+
 ## v1.12 Firmware Protocol Dispatch Hardening + Skeletons (Shipped: 2026-06-16)
 
 **Phases:** 8 delivering (62, 63, 64, 65, 66, 67.1, 69, 70) | **Plans:** 22 | **Timeline:** 2026-06-10 → 2026-06-16 (7 days) | **Ship:** Dual-repo lockstep (first firmware-touching milestone since v1.10); both sub-repos merged to `beta` (fw `b71c6fd` / app `6b5480f`), **no tag** — lockstep beta cut + stable promotion operator-gated. | **Audit:** tech_debt — 17/17 requirements satisfied, 8/8 phases passed, 5/5 E2E flows wired, security closed on every secure-gated phase (66/67.1/69/70, threats_open: 0) (`.planning/milestones/v1.12-MILESTONE-AUDIT.md`). | **Known deferred items at close:** 7 (carried from the v1.11 close — pre-existing / out-of-scope / v1.9-gated; none v1.12 work; see STATE.md Deferred Items).
