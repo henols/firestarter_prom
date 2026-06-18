@@ -484,7 +484,13 @@ Plans:
   3. **FIX-03:** the stale "0x39 = 0 chips, future-proofed" comment is corrected and the 2 current 0x39 DB chips are covered by validation.
   4. Any handler that touches VPP carries a register-bit-sequence native test + a chip-OUT VPP multimeter dry-run before any seated write; every firmware-touching fix builds `pio run -e leonardo` under the ~88% flash ceiling (flash-% recorded), and any wire-touching change is meta-repo `messages.toml`-only → regen both sub-repos with the py3.12-masks-CI-3.11 drift gate green.
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 74-01-PLAN.md — FIX-01 closed-with-evidence (VAL-06 PASS) + FIX-03 0x39/0x35 firmware↔host comment reconciliation (no code/wire change)
+- [ ] 74-02-PLAN.md — FIX-02 firmware: CMD_CHECK_CHIP_ID dispatch (A) + W29C040 SDP unlock & data-driven page size (B), VPP-safe, RED→GREEN native tests + Leonardo flash-% measured
+- [ ] 74-03-PLAN.md — Tier-3 W29C040 write+read-back re-bench on Leonardo (FAIL→PASS), gated by chip-OUT VPP multimeter dry-run
+
 **UI hint**: no
 
 ### Phase 75: Erase Path (`firestarter erase` W27C512, 0x07)
