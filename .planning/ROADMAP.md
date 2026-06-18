@@ -520,8 +520,10 @@ Plans:
   3. No chip becomes newly `supported` this milestone; `check_dispatch.py` / `diff_db.py` stay green; any firmware that does land builds `pio run -e leonardo` under the flash ceiling and follows dual-repo lockstep.
 
 **Plans**: 2 plans
+
 - [ ] 76-01-PLAN.md — Host-DB classification: named AT28C04/16 adapter-required arm (D-03) + datasheet-accurate X88C64 reason reword (D-02), regenerated + gates green
 - [ ] 76-02-PLAN.md — Spec docs: two-layer DIP24→DIP32 adapter pin-map (D-04) + X88C64 0x34 feasibility verdict/protocol (D-01)
+
 **UI hint**: no
 
 ### v1.13 Coverage
