@@ -387,7 +387,7 @@ Full detail: [`.planning/milestones/v1.12-ROADMAP.md`](milestones/v1.12-ROADMAP.
 - [x] **Phase 73: Bench-Validate the 6 Families on Leonardo (hybrid-gated)** — Run the matrix; populate PASS/FAIL/SKIP-deferred cells; resolve the SRAM no-op question. Tier 1/2 always; Tier 3 on parts-on-hand. Produces the evidence that defines the fix phases. (completed 2026-06-18)
 - [ ] **Phase 74: Per-Family Correctness Fixes (flash-gated)** — RED→GREEN fixes for the divergences the bench exposed: SRAM real read/write IF VAL-06 confirms the no-op (else closed-with-evidence); flash4 `CMD_CHECK_CHIP_ID`; the stale 0x39 comment + 2-chip coverage. Fixes-before-additions; `-e leonardo` flash ceiling held.
 - [ ] **Phase 75: Erase Path (`firestarter erase` W27C512, 0x07)** — Host `FLAG_CAN_ERASE` routing to the existing `eprom_internal_erase` electricals + 12V→14V erase-rail confirm under the 22V ceiling + datasheet-precondition validation; chip-OUT VPP meter dry-run before any seated erase. Closeable on Leonardo with a W27C512 on hand.
-- [ ] **Phase 76: Spec-Only Gaps — adapter-required + X88C64** — Documented DIP24 adapter pin-map spec + a `resolve_pinout_key` named rule arm for AT28C04/16 (stays `adapter-required`); X88C64 0x34 re-classified with a datasheet-sourced protocol verdict (handler committed ONLY if fully spec'd + RURP-feasible — else documented feasible-candidate). Graduation to `supported` is OUT of v1.13 scope.
+- [x] **Phase 76: Spec-Only Gaps — adapter-required + X88C64** — Documented DIP24 adapter pin-map spec + a `resolve_pinout_key` named rule arm for AT28C04/16 (stays `adapter-required`); X88C64 0x34 re-classified with a datasheet-sourced protocol verdict (handler committed ONLY if fully spec'd + RURP-feasible — else documented feasible-candidate). Graduation to `supported` is OUT of v1.13 scope. (completed 2026-06-18)
 
 ## Phase Details
 
@@ -597,7 +597,7 @@ Plans:
 | 73 | v1.13 | 4/4 | Complete    | 2026-06-18 |
 | 74 | v1.13 | 2/3 | In Progress|  |
 | 75 | v1.13 | 0/TBD | Not started | — |
-| 76 (close) | v1.13 | 2/2 | Complete   | 2026-06-18 |
+| 76 (close) | v1.13 | 2/2 | Complete    | 2026-06-18 |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
@@ -709,7 +709,7 @@ Plans:
   2. The same file (or a companion file) lists every intra-algorithm DB inconsistency — chips that share `pin_count` + `algorithm` but differ in `pulse_duration`, `chip_id_check`, or `pinout` — with each inconsistency labeled as a defect candidate for v1.4 or a sub-repo PR (no auto-fixes applied in v1.3).
   3. Operator can use the matrix to confirm that the six BENCH chips (BENCH-01..06) span the pinout classes and pulse-duration profiles actually represented in the DB, so bench results generalize to the rest of the 339 rows.
 
-**Plans:** 4/4 plans complete
+**Plans:** 2/2 plans complete
 
 - [x] 11-01-PLAN.md — Wave 0 failing-test scaffold for tests/test_audit_coverage_matrix.py (10 tests) ✅ 2026-05-19
 - [x] 11-02-PLAN.md — Wave 1 tool skeleton + CLI + §1 Summary + §2 DB Count Reconciliation ✅ 2026-05-19
