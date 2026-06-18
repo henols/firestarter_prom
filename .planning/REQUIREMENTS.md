@@ -42,8 +42,8 @@
 
 ### GAP — Spec-Only Feasibility (deferred bench/datasheet)
 
-- [ ] **GAP-01**: The AT28C04/AT28C16 24-pin EEPROM `adapter-required` path has a documented pin-map/adapter spec and a `resolve_pinout_key` named rule arm (NOT a resurrected guess table); the chips remain `support_status: adapter-required` (refused in-host) until a physical DIP24 adapter exists and a golden write+read-back round-trips — graduation to `supported` is explicitly out of v1.13 scope.
-- [ ] **GAP-02**: X88C64 (0x34) is re-classified with a documented feasibility verdict + the STORE/RECALL + byte/page write protocol sourced from the datasheet; a firmware handler is committed ONLY if the protocol is fully spec'd and RURP-feasible — otherwise it remains a documented feasible-candidate (no blind handler).
+- [x] **GAP-01**: The AT28C04/AT28C16 24-pin EEPROM `adapter-required` path has a documented pin-map/adapter spec and a `resolve_pinout_key` named rule arm (NOT a resurrected guess table); the chips remain `support_status: adapter-required` (refused in-host) until a physical DIP24 adapter exists and a golden write+read-back round-trips — graduation to `supported` is explicitly out of v1.13 scope.
+- [x] **GAP-02**: X88C64 (0x34) is re-classified with a documented feasibility verdict + the STORE/RECALL + byte/page write protocol sourced from the datasheet; a firmware handler is committed ONLY if the protocol is fully spec'd and RURP-feasible — otherwise it remains a documented feasible-candidate (no blind handler).
 
 ---
 
@@ -85,7 +85,7 @@
 | FIX-02 | Phase 74 | Complete |
 | FIX-03 | Phase 74 | Complete |
 | ERASE-01 | Phase 75 | Pending |
-| GAP-01 | Phase 76 | Pending |
-| GAP-02 | Phase 76 | Pending |
+| GAP-01 | Phase 76 | Complete |
+| GAP-02 | Phase 76 | Complete |
 
 **Mapped: 17/17 requirements** — every v1.13 requirement maps to exactly one phase; no orphans, no duplicates.

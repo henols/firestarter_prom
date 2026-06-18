@@ -4,14 +4,14 @@ milestone: v1.13
 milestone_name: — Programming Algorithm Validation + Gap Implementation
 status: executing
 stopped_at: Phase 76 context gathered
-last_updated: "2026-06-18T11:21:41.542Z"
-last_activity: 2026-06-18 -- Phase 76 planning complete
+last_updated: "2026-06-18T11:44:46.223Z"
+last_activity: 2026-06-18 -- Phase 76 execution started
 progress:
-  total_phases: 11
-  completed_phases: 4
-  total_plans: 27
-  completed_plans: 22
-  percent: 36
+  total_phases: 6
+  completed_phases: 3
+  total_plans: 19
+  completed_plans: 17
+  percent: 50
 ---
 
 # Project State
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 74 (per-family-correctness-fixes-flash-gated) — EXECUTING
-Plan: 3 of 3
+Phase: 76 (Spec-Only Gaps — adapter-required + X88C64) — EXECUTING
+Plan: 2 of 2
 Status: Ready to execute
-Last activity: 2026-06-18 -- Phase 76 planning complete
+Last activity: 2026-06-18 -- Phase 76 execution started
 
 ## Project Reference
 
@@ -148,7 +148,7 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-18T10:21:17.142Z
+Last session: 2026-06-18T11:44:39.756Z
 Stopped at: Phase 76 context gathered
 Resume: `/gsd-plan-phase 71`
 
@@ -202,6 +202,8 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 - [Phase 73-03]: configure_flash4 (algorithm 5) incompatible with W29C040 SDP/page-write sequence; erase "succeeds" but chip not erased to 0xFF; write init blank-check fails; standalone write -b times out at 0x3f
 - [Phase ?]: VAL-06 = table-stakes-PASS: configure_sram writes via generic_memory_write_execute; FIX-01 closed not-needed with evidence
 - [Phase ?]: FM1608 erase probe: exit 1 (Not supported) — configure_sram CMD_ERASE errors; write -b direct path is the only viable FRAM write approach (Pitfall 3 confirmed)
+- [Phase ?]: D-03 named arm fires AFTER Site B to overwrite generic reason with named-arm wording referencing AT28C04-ADAPTER.md; proto_id demotion stays in Site B
+- [Phase ?]: D-02 X88C64P reason: parallel DIP24 5V EEPROM, 8051 multiplexed-bus (ALE/WR/RD); feasible-candidate, handler not implemented; no support_status change
 
 ## Performance Metrics
 
@@ -243,6 +245,7 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 | Phase 73 P03 | 8min | 1 task | 6 files (flash3 SKIP-deferred + flash4 FAIL verdict W29C040) |
 | Phase 73 P04 | 8min | - tasks | - files |
 | Phase 74 P01 | 3min | 2 tasks | 4 files |
+| Phase 76 P01 | 8min | 3 tasks | 3 files |
 
 ## Deferred Items
 

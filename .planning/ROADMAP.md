@@ -521,7 +521,7 @@ Plans:
 
 **Plans**: 2 plans
 
-- [ ] 76-01-PLAN.md — Host-DB classification: named AT28C04/16 adapter-required arm (D-03) + datasheet-accurate X88C64 reason reword (D-02), regenerated + gates green
+- [x] 76-01-PLAN.md — Host-DB classification: named AT28C04/16 adapter-required arm (D-03) + datasheet-accurate X88C64 reason reword (D-02), regenerated + gates green
 - [ ] 76-02-PLAN.md — Spec docs: two-layer DIP24→DIP32 adapter pin-map (D-04) + X88C64 0x34 feasibility verdict/protocol (D-01)
 
 **UI hint**: no
@@ -597,7 +597,7 @@ Plans:
 | 73 | v1.13 | 4/4 | Complete    | 2026-06-18 |
 | 74 | v1.13 | 2/3 | In Progress|  |
 | 75 | v1.13 | 0/TBD | Not started | — |
-| 76 (close) | v1.13 | 0/TBD | Not started | — |
+| 76 (close) | v1.13 | 1/2 | In Progress|  |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
