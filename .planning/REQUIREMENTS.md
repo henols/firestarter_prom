@@ -32,9 +32,9 @@
 
 ### FIX — Per-Family Correctness Fixes (evidence-driven)
 
-- [ ] **FIX-01**: IF VAL-06 confirms `configure_sram` is a silent no-op, the handler is corrected to perform real read/write (operation pointers wired; never enables VPP), proven by a Tier-1 register-sequence native test (RED→GREEN) and a Tier-3 Leonardo write+read-back; if VAL-06 shows it already works, FIX-01 is closed as not-needed with evidence.
+- [x] **FIX-01**: IF VAL-06 confirms `configure_sram` is a silent no-op, the handler is corrected to perform real read/write (operation pointers wired; never enables VPP), proven by a Tier-1 register-sequence native test (RED→GREEN) and a Tier-3 Leonardo write+read-back; if VAL-06 shows it already works, FIX-01 is closed as not-needed with evidence.
 - [ ] **FIX-02**: Flash type-4 (`configure_flash4`) handles `CMD_CHECK_CHIP_ID` (mirroring the flash3 case), proven by a native test; no other family regresses.
-- [ ] **FIX-03**: The stale "0x39 = 0 chips, future-proofed" comment is corrected and the 2 current 0x39 DB chips are covered by validation.
+- [x] **FIX-03**: The stale "0x39 = 0 chips, future-proofed" comment is corrected and the 2 current 0x39 DB chips are covered by validation.
 
 ### ERASE — Erase Path Implementation
 
@@ -81,9 +81,9 @@
 | VAL-04 | Phase 73 | Complete |
 | VAL-05 | Phase 73 | Complete |
 | VAL-06 | Phase 73 | Complete |
-| FIX-01 | Phase 74 | Pending |
+| FIX-01 | Phase 74 | Complete |
 | FIX-02 | Phase 74 | Pending |
-| FIX-03 | Phase 74 | Pending |
+| FIX-03 | Phase 74 | Complete |
 | ERASE-01 | Phase 75 | Pending |
 | GAP-01 | Phase 76 | Pending |
 | GAP-02 | Phase 76 | Pending |

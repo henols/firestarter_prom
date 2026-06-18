@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.13
 milestone_name: — Programming Algorithm Validation + Gap Implementation
-status: verifying
+status: executing
 stopped_at: Phase 73 Plan 04 complete — VAL-06 FM1608 FRAM two-pattern HIL = table-stakes-PASS; FIX-01 closed not-needed; D-09 hard gate satisfied
-last_updated: "2026-06-18T06:57:07.879Z"
+last_updated: "2026-06-18T08:54:58.286Z"
 last_activity: 2026-06-18
 progress:
   total_phases: 11
   completed_phases: 4
-  total_plans: 22
-  completed_plans: 20
+  total_plans: 25
+  completed_plans: 21
   percent: 36
 ---
 
@@ -21,9 +21,9 @@ progress:
 
 ## Current Position
 
-Phase: 74
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 74 (per-family-correctness-fixes-flash-gated) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
 Last activity: 2026-06-18
 
 ## Project Reference
@@ -148,7 +148,7 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-17T14:05:48.562Z
+Last session: 2026-06-18T08:54:58.279Z
 Stopped at: Phase 73 Plan 04 complete — VAL-06 FM1608 FRAM two-pattern HIL = table-stakes-PASS; FIX-01 closed not-needed; D-09 hard gate satisfied
 Resume: `/gsd-plan-phase 71`
 
@@ -242,6 +242,7 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 | Phase 73 P02 | 3min | - tasks | - files |
 | Phase 73 P03 | 8min | 1 task | 6 files (flash3 SKIP-deferred + flash4 FAIL verdict W29C040) |
 | Phase 73 P04 | 8min | - tasks | - files |
+| Phase 74 P01 | 3min | 2 tasks | 4 files |
 
 ## Deferred Items
 

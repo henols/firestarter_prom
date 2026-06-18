@@ -487,7 +487,8 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 74-01-PLAN.md — FIX-01 closed-with-evidence (VAL-06 PASS) + FIX-03 0x39/0x35 firmware↔host comment reconciliation (no code/wire change)
+
+- [x] 74-01-PLAN.md — FIX-01 closed-with-evidence (VAL-06 PASS) + FIX-03 0x39/0x35 firmware↔host comment reconciliation (no code/wire change)
 - [ ] 74-02-PLAN.md — FIX-02 firmware: CMD_CHECK_CHIP_ID dispatch (A) + W29C040 SDP unlock & data-driven page size (B), VPP-safe, RED→GREEN native tests + Leonardo flash-% measured
 - [ ] 74-03-PLAN.md — Tier-3 W29C040 write+read-back re-bench on Leonardo (FAIL→PASS), gated by chip-OUT VPP multimeter dry-run
 
@@ -590,7 +591,7 @@ Plans:
 | 71 | v1.13 | 8/8 | Complete   | 2026-06-16 |
 | 72 | v1.13 | 2/2 | Complete    | 2026-06-17 |
 | 73 | v1.13 | 4/4 | Complete    | 2026-06-18 |
-| 74 | v1.13 | 0/TBD | Not started | — |
+| 74 | v1.13 | 1/3 | In Progress|  |
 | 75 | v1.13 | 0/TBD | Not started | — |
 | 76 (close) | v1.13 | 0/TBD | Not started | — |
 
