@@ -17,7 +17,7 @@ key_files:
     - firestarter_app/tests/test_build_db_inclusion.py
     - firestarter_app/firestarter/data/chip_database.json
 decisions:
-  - "D-03 named arm fires AFTER Site B (not before) so it overwrites Site B's generic reason string with the explicit named-arm wording; proto_id NOT demoted in the named arm (Site B owns that invariant)"
+  - "D-03 named arm fires AFTER Site B (not before) so its reason wins for any chip also matching Site B; proto_id NOT touched by the named arm. WR-01 correction: the matched AT28C04/16 chips carry 0x0D (VPP-free configure_eeprom28c) and never enter Site B — they are refused by support_status=adapter-required (host guard), not by proto_id demotion"
   - "D-02 X88C64P reason string: 'protocol not implemented: 0x34 (XICOR X88C64P — parallel DIP24 5V EEPROM, 8051 multiplexed-bus interface (ALE/WR/RD); feasible-candidate, handler not implemented)'"
   - "Test guard for AT28C16 uses 'AT28C04-ADAPTER.md' literal (not generic 'DIP24') to distinguish named-arm from Site B wording"
   - "diff_db reports 10-chip RULE_PHASE66 delta (9 adapter-required + X88C64P) — all reason-string-only, no support_status/dispatch change; accepted per plan Task 3"
@@ -36,7 +36,7 @@ metrics:
 
 ### GAP-01 (D-03): Named AT28C04/AT28C16 Rule Arm
 
-Added `_AT28C_DIP24_NAMES` set with 14 chip-name aliases (`AT28C04`, `AT28HC04`, `AT28C04E`, `AT28C04F`, `AT28C16`, `AT28HC16`, `AT28HC16L`, `AT28C16E`, `AT28C16F`, `28C04A`, `28C04AF`, `28C16A`, `28C16AF`, `UPD28C04`) in `build_db.py`. The arm fires AFTER Site B so it overwrites the generic Site B hazard reason with the named-arm wording referencing `firestarter/doc/AT28C04-ADAPTER.md`. proto_id demotion to `NON_DISPATCHABLE_ALGO` still occurs in Site B (not in the named arm). The arm makes the classification explicit, declarative, and audit-friendly.
+Added `_AT28C_DIP24_NAMES` set with 14 chip-name aliases (`AT28C04`, `AT28HC04`, `AT28C04E`, `AT28C04F`, `AT28C16`, `AT28HC16`, `AT28HC16L`, `AT28C16E`, `AT28C16F`, `28C04A`, `28C04AF`, `28C16A`, `28C16AF`, `UPD28C04`) in `build_db.py`. The arm fires AFTER Site B so its named-arm wording (referencing `firestarter/doc/AT28C04-ADAPTER.md`) wins over any generic Site B reason. **WR-01 correction:** the chips this arm actually matches (DIP24_2816, proto_id `0x0D`) do NOT pass through Site B's 0x07/0x08/0x0B demotion at all — proto_id stays `0x0D` (a real, VPP-free `configure_eeprom28c` handler). Their in-host refusal comes from `support_status="adapter-required"` (host guard in `chip_resolver.resolve_chip`), not from proto_id demotion. The arm makes the classification explicit, declarative, and audit-friendly.
 
 ### GAP-02 (D-02): X88C64P Reason Reword
 
@@ -77,8 +77,8 @@ All commits are inside the `firestarter_app/` submodule on branch `v1.13-algo-va
 
 **1. [Ordering] Named arm placement: AFTER Site B (not before)**
 - **Found during:** Task 2 implementation
-- **Issue:** PATTERNS.md showed the named arm before Site B, but placing it there caused Site B to overwrite the named-arm reason with the generic string (since Site B fires for the same chips).
-- **Fix:** Moved the named arm to AFTER Site B. The named arm overwrites Site B's reason string (the status remains correct since both set adapter-required). proto_id is already NON_DISPATCHABLE_ALGO from Site B.
+- **Issue:** PATTERNS.md showed the named arm before Site B. Placing it after Site B guarantees the named-arm reason wins for any chip that *also* satisfies Site B's predicate (DIP24 + 0x07/0x08/0x0B + electrically-erasable).
+- **Fix:** Moved the named arm to AFTER Site B; both set `adapter-required` so status stays correct, and the named arm's reason wins. **Correction (review WR-01):** the chips actually matched by this arm (AT28C04/16 family, DIP24_2816) carry proto_id `0x0D` (EEPROM_POLL → `configure_eeprom28c`, VPP-free) straight from infoic.xml — they do NOT match Site B's 0x07/0x08/0x0B predicate, so Site B does not fire for them and proto_id stays `0x0D` (NOT demoted to `NON_DISPATCHABLE_ALGO`). They are refused in-host by `support_status="adapter-required"` (host guard in `chip_resolver.resolve_chip`), not by proto_id demotion; the 0x0D handler is VPP-free so there is no 12V path regardless.
 - **Files modified:** `firestarter_app/tools/build_db.py`
 - **No impact on gates:** All tests pass, all gate checks green.
 
