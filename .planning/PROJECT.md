@@ -15,6 +15,22 @@
 **v1.11 shipped:** 2026-06-10 (Complete infoic.xml Decode & Database Correctness — 6 phases (56–61), 14 plans, 15/15 requirements; HOST-ONLY, firmware untouched like v1.8; beta-only, stable operator-gated). Authoritative source-grounded field dictionary + corrected decode docs; re-derived `build_db.py` (4 decode bugs fixed: `interpret_timing` ×100, VCC nibbles 0x02/0x03, vcc/vdd swap, PROTOCOL_MAP canonicalization); principled `resolve_pinout_key` replacing guess tables; 9 × 24-pin AT28C04/16 EEPROMs unblocked host-only (`DIP24_2816` + `0x0D`); full-class VPP-safety gate (`check_dispatch.py`, 743 chips, 0 violations) + per-chip diff gate (`diff_db.py`) + pinned baseline. Display layer (`firestarter info` + `list`/`search`) now reflects `electrical.type` ground truth (EEPROM vs UV-EPROM, no spurious SRAM VPP). Post-close FM1608 follow-up: SRAM/FRAM Vcc→5V normalization, zero-pulse-delay row suppression, chip-ID `-` placeholder. Audit PASSED 15/15, 5/5 E2E flows, 559 tests green. Meta tagged `v1.11`; lockstep beta cut (`3.0.0b9`) operator-gated.
 **v1.13 shipped:** 2026-06-18 (Programming Algorithm Validation + Gap Implementation — 5 delivering phases (71–74, 76), 19 plans, 17/17 requirements; first firmware-touching milestone since v1.12; dual-repo lockstep merged to `beta` — fw `a33513f` / app `34deccb` @ `3.0.0b9`, no tag; beta cut + stable operator-gated). Three-tier software-first validation harness + per-family matrix proving the 6 write/program/verify families (PARTIAL bench coverage, Leonardo Tier-3); evidence-driven feasible-gap subset (flash4 chip-id + W29C040 SDP/page-write; spec-only AT28C04/16 adapter arm + DIP24→DIP32 spec; X88C64 0x34 MEDIUM verdict, no handler). No chip graduated to `supported` (→ v1.14 Backlog 999.4–999.7). Phase 75 erase + Phase 74 Wave-2 HW re-bench deferred to v1.14. See `.planning/MILESTONES.md` §v1.13.
 
+## Current Milestone: v1.14 Feasible-Gap Implementation
+
+**Goal:** Graduate chips to `supported` by implementing the four evidence-surfaced, RURP-feasible gaps that v1.13's validation milestone deliberately scoped out — the first chips to become newly programmable since v1.0.
+
+**Target features** (captured 2026-06-18 in ROADMAP §v1.14, suggested build order 999.4 → 999.5 → 999.7 → 999.6):
+- **Erase write-path for 0x07 EE-EPROMs** (was v1.13 Phase 75 / ERASE-01) — wire `FLAG_CAN_ERASE` from `electrical.type == "EEPROM"` (not `info-flags & 0x10`) so writing a W27C512-class chip auto-erases first. Standalone erase electricals already bench-confirmed (Phase 73). Mostly software; most-ready.
+- **X88C64 0x34 firmware handler** (`configure_x88c64`) — XICOR X88C64P DIP24 5V EEPROM, 8051 multiplexed address/data bus (ALE/WR/RD), page write, toggle-bit (I/O6) polling. Resolve the open ALE-routing control-bit question before shipping. Per Phase 76 MEDIUM feasibility verdict.
+- **25V NMOS support** (M2716/M2732/ETC2716/ST M2716) — raise `RURP_VPP_CEILING_MV` 22000 → 25V and re-classify the 4 `vpp-exceeds-max` chips. **Verify a shield rev can physically produce 25V VPP FIRST** (operator multimeter, chip-OUT dry-run) — the ceiling reflects a hardware limit, not just a constant.
+- **AT28C04/16 adapter graduation** — graduate the 9 `adapter-required` chips via the existing `configure_eeprom28c` (0x0D, VPP-free) handler + a physical DIP24→DIP32 adapter (Phase 76 pin-map spec); remove the host-guard refusal. **Hardware-blocked until the adapter is built** → sequence last.
+
+**Key context:**
+- Firmware-touching → dual-repo lockstep; all four subject to flash-budget ordering (the ~88% Leonardo flash ceiling that drove v1.13). Branches off `beta` in all 3 repos, merge back to `beta`; beta→stable operator-gated.
+- Phase numbering continues from v1.13's last phase (76) → v1.14 starts at **Phase 77**.
+- Operator decision 2026-06-18: do all four; implement 25V NMOS assuming hardware can produce 25V.
+- Pre-req: v1.13's lockstep beta cut (`3.0.0b10`) is operator-gated; v1.14 branches off `beta`.
+
 ## v1.13 Archive: Programming Algorithm Validation + Gap Implementation — Shipped 2026-06-18
 
 **Goal (achieved):** Prove the firmware's existing write/program algorithm families work correctly on real hardware (test-first), then implement the genuine gaps that testing + research reveal — letting evidence define what "missing" means.
@@ -390,6 +406,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
+
+*Last updated: 2026-06-18 — v1.14 (Feasible-Gap Implementation) STARTED. Graduate chips to `supported` by implementing the four evidence-surfaced RURP-feasible gaps v1.13 scoped out (validation-only): 999.4 erase write-path (skipped Phase 75 / ERASE-01), 999.5 X88C64 0x34 handler, 999.7 25V NMOS ceiling raise, 999.6 AT28C04/16 adapter graduation. Suggested order 999.4 → 999.5 → 999.7 → 999.6 (hardware-blocked last). First chips newly programmable since v1.0. Firmware-touching, dual-repo lockstep off `beta`; flash-budget ordering applies. Phase numbering continues at Phase 77. Operator decision 2026-06-18: do all four; 25V NMOS assuming HW can produce 25V. Prior footer (v1.13 close) retained below.*
 
 *Last updated: 2026-06-18 — v1.13 (Programming Algorithm Validation + Gap Implementation) SHIPPED. 5 delivering phases (71–74, 76), 19 plans, 17/17 requirements; first firmware-touching milestone since v1.12. Software-first three-tier validation harness + per-family matrix proving the 6 write/program families (PARTIAL bench coverage, Leonardo Tier-3); evidence-driven feasible-gap subset (flash4 chip-id + W29C040 SDP/page-write; spec-only AT28C04/16 adapter arm + DIP24→DIP32 spec; X88C64 0x34 MEDIUM verdict, no handler). No chip graduated to `supported`. Dual-repo lockstep merged to `beta` (fw `a33513f` / app `34deccb` @ `3.0.0b9`, no tag); beta cut + stable promotion operator-gated. Phase 75 (erase) + Phase 74 Wave-2 (HW re-bench) deferred to v1.14 (Backlog 999.4–999.7). 9 deferred items acknowledged at close (pre-existing/accepted tech debt). Next: `/gsd-new-milestone v1.14`. Prior footer (v1.13 start) retained below.*
 
