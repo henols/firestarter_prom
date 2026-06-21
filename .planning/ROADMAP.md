@@ -78,12 +78,20 @@ Full detail: [`.planning/milestones/v1.10-ROADMAP.md`](milestones/v1.10-ROADMAP.
   4. **SAFE-01/02/03 (graduation gate, FINAL step):** the auto-erase wiring lands only after the native + wire + Leonardo bench evidence is on record; `check_dispatch.py`'s full-DB VPP-safety gate passes (no chip dispatches VPP above its family invariant); and any `FLAG_*`/protocol constant touched in `constants.py` + `firestarter.h` is changed in lockstep with parity tests green.
 
 **Plans**: 4 plans
-
 Plans:
+**Wave 1**
+
 - [ ] 77-01-PLAN.md — Canonical FLAG_CAN_ERASE derivation in convert_to_programmer (electrical-type) + 3 wire-level unit tests (ERASE-01)
 - [ ] 77-02-PLAN.md — D-07 0xA4 regression test: INIT/END DATA frames not acked (ack_data=False) (ERASE-01)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 77-03-PLAN.md — SAFE gates post-edit: check_dispatch.py green (SAFE-02), FLAG_CAN_ERASE parity (SAFE-03), SAFE-01 N/A-no-refusal + full suite/cov
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 77-04-PLAN.md — Leonardo bench proof: write→auto-erase→program→verify + chip-OUT 14V VPP dry-run + SHA match + negative control (ERASE-02, autonomous:false)
+
 **UI hint**: no
 
 ### Phase 78: X88C64 0x34 Firmware Handler
