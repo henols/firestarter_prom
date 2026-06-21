@@ -16,6 +16,7 @@
 - ✅ **v1.11 Complete infoic.xml Decode & Database Correctness** — Phases 56-61 (SHIPPED 2026-06-10; beta-only, stable operator-gated). HOST-ONLY decode-correctness + authoritative-docs milestone (firmware untouched like v1.8): source-grounded field dictionary + corrected decode docs, re-derived `build_db.py` (4 decode bugs fixed), principled `resolve_pinout_key`, 9 × 24-pin EEPROMs unblocked host-only, full-class VPP-safety + per-chip diff gates, display layer (`info`/`list`/`search`) reflects `electrical.type`. 15/15 requirements; audit PASSED (5/5 E2E flows, 559 tests, 743 chips). Full detail in `.planning/MILESTONES.md` §v1.11 + `.planning/milestones/v1.11-ROADMAP.md`.
 - ✅ **v1.12 Firmware Protocol Dispatch Hardening + Skeletons** — Phases 62–70 (SHIPPED 2026-06-16; dual-repo lockstep merged to `beta` — fw `b71c6fd` / app `6b5480f`, no tag; beta cut + stable operator-gated). First firmware-touching milestone since v1.10. Fail-closed dispatch (`MSG_ERR_PROTOCOL_NOT_IMPLEMENTED = 0xBB`, zero hardware side effects) eliminating the silent `mem_type` 12V-VPP fallback hazard; host `ProtocolNotImplementedError` + actionable CLI message; capability-honest DB inclusion (`support_status` taxonomy: `protocol-not-implemented` / `adapter-required` / `vpp-exceeds-max`; true NMOS VPP correction; principled pinout classification; in-host refusal before any serial byte). 17/17 requirements; audit tech_debt (8/8 phases passed, 5/5 E2E flows, all secure-gated phases threats_open:0). DB 743 → 744. Full detail in `.planning/MILESTONES.md` §v1.12 + [`.planning/milestones/v1.12-ROADMAP.md`](milestones/v1.12-ROADMAP.md).
 - ✅ **v1.13 Programming Algorithm Validation + Gap Implementation** — Phases 71–76 (SHIPPED 2026-06-18; dual-repo lockstep merged to `beta` — fw `a33513f` / app `34deccb` @ `3.0.0b9`, no tag; beta cut + stable operator-gated). Test-first validation milestone: proved the 6 existing write/program/verify algorithm families correct on real hardware behind a software-first three-tier validation harness + per-family matrix, then implemented only the evidence-surfaced RURP-feasible gaps (flash4 chip-id + SDP/page-write; spec-only adapter-required + X88C64). Hybrid bench gating (Tier 1 native + Tier 2 host ungated; Tier 3 HIL Leonardo-only-PASS, closed at PARTIAL bench coverage). First firmware-touching milestone since v1.12. 17/17 requirements (HARN/RSCH/VAL/FIX/ERASE/GAP). Phase 74 Wave-2 HW re-bench + Phase 75 erase path deferred to v1.14 (Backlog 999.4). Full detail in `.planning/MILESTONES.md` §v1.13 + [`.planning/milestones/v1.13-ROADMAP.md`](milestones/v1.13-ROADMAP.md).
+- 🚧 **v1.14 Feasible-Gap Implementation** — Phases 77–80 (ACTIVE; started 2026-06-18; branches off `beta` in all 3 repos, dual-repo lockstep, merge back to `beta`; beta→stable operator-gated). The first milestone since v1.0 where chips actually **graduate to `supported`** — implements the four evidence-surfaced, RURP-feasible gaps v1.13 scoped out (validation-only): erase write-path (Phase 77), X88C64 0x34 firmware handler (Phase 78), 25V NMOS ceiling raise (Phase 79), AT28C04/16 adapter graduation (Phase 80). Build order 999.4 → 999.5 → 999.7 → 999.6 (operator-locked). Each graduation removes the v1.12 `chip_resolver` host-guard refusal **as the final step**, gated behind native register-bit tests + wire round-trip + Leonardo bench proof. 15 requirements (ERASE/XIC/NMOS/ADPT/SAFE). Detail in the §v1.14 section below.
 
 <details>
 <summary>✅ <b>v1.10 — Serial Transport Hardening (COBS)</b> — Phases 49–55 (SHIPPED 2026-06-07) · 27/27 plans · 14/14 reqs · beta-only</summary>
@@ -37,6 +38,112 @@
 Full detail: [`.planning/milestones/v1.10-ROADMAP.md`](milestones/v1.10-ROADMAP.md) · [`v1.10-REQUIREMENTS.md`](milestones/v1.10-REQUIREMENTS.md) · [`MILESTONES.md`](MILESTONES.md) §v1.10.
 
 </details>
+
+## v1.14 — Feasible-Gap Implementation (ACTIVE — started 2026-06-18)
+
+**Milestone goal:** Graduate chips to `supported` by implementing the four evidence-surfaced, RURP-feasible gaps that v1.13's validation milestone deliberately scoped out — the first chips to become newly programmable since v1.0. Three of the four are HOST-ONLY with zero firmware flash cost (erase-wiring, 25V ceiling, adapter graduation); only the X88C64 0x34 handler (Phase 78) adds firmware code.
+
+**Build order (operator-locked 2026-06-18):** 999.4 → 999.5 → 999.7 → 999.6, i.e. **Phase 77 → 78 → 79 → 80**. The PITFALLS researcher noted a defensible flash-headroom swap (do 25V before X88C64); the operator-captured order has backing and stands.
+
+**Cross-cutting safety contract (SAFE-01/02/03):** Each graduation *removes* the v1.12 `chip_resolver.resolve_chip` host-guard refusal — the authoritative wrong-VPP-to-wrong-pin damage barrier. **The guard drop is always the FINAL step of a phase**, gated behind native register-bit tests (recording-stub) + host wire round-trip + a Leonardo bench proof (chip-OUT VPP multimeter dry-run first). After each graduation the `check_dispatch.py` full-DB VPP-safety gate must pass; any `FLAG_*`/protocol constant touched in `constants.py` + `firestarter.h` changes in lockstep with parity tests green. SAFE-01/02/03 are mapped to Phase 77 for traceability (first graduation establishing the pattern) and recur as success criteria in every graduation phase.
+
+**Standing bench precondition (EVERY hardware phase — 77, 78, 79, 80):** **Leonardo is the only board whose program/write/verify is a trustworthy PASS** (v1.9 read bug corrupts the oracle on Rev-0/Rev-2.0); **uno328pb is N/A for program/write** (999.2 brownout). Live R1/R2 readback (`r1 ≈ 270000`) each task; chip-OUT before any Uno-class sideload (Leonardo exempt); **ASK which silkscreen shield rev is mounted** (EEPROM byte can't distinguish Rev 2.2 / Rev 2.0 / Modified Rev 0); re-verify `controller:` port identity per task. Per `feedback_chip_out_before_sideload`, `feedback_verify_port_identity_each_task`, `user_shield_revisions`.
+
+**Flash budget:** Leonardo sits at ~89.5% / ~3 KB free post-v1.13. Only Phase 78 (X88C64 multiplexed-bus handler, ~1–3 KB) consumes it → `pio run -e leonardo` ≤ ~90% is an explicit Phase 78 gate.
+
+**Pre-req:** v1.13's `3.0.0b10` lockstep beta cut is operator-gated; v1.14 branches off `beta` once it has landed in both sub-repos. Branch setup is folded into Phase 77 (no thin precursor phase).
+
+**Granularity:** Comprehensive (one phase per gap; phases follow the natural graduation boundaries — not padded).
+**Phase numbering:** Continues from v1.13 last phase 76 → v1.14 starts at **Phase 77**.
+
+### Phases
+
+- [ ] **Phase 77: Erase Write-Path Graduation (0x07 EE-EPROMs)** — Wire `FLAG_CAN_ERASE` from `electrical.type=="EEPROM"` (not the always-zero `info-flags & 0x10`) so writing a W27C512-class chip auto-erases first; bench-confirm the write→erase→program→verify cycle on Leonardo. Establishes the SAFE-01/02/03 graduation pattern. Host-only; most-ready. (ERASE-01/02, SAFE-01/02/03)
+- [ ] **Phase 78: X88C64 0x34 Firmware Handler** — Resolve the ALE-routing question by bench investigation FIRST, then implement `configure_x88c64` (8051 multiplexed bus, page write, toggle-bit polling) registered before the not-implemented guard; flash-gated; graduate X88C64P. The only firmware-adding gap → dual-repo lockstep. (XIC-01/02/03/04)
+- [ ] **Phase 79: 25V NMOS Ceiling Raise** — Operator multimeter ≥25V chip-OUT dry-run FIRST, then raise `RURP_VPP_CEILING_MV` 22000→25000 + the `check_dispatch.py` invariant; re-classify + graduate the 4 NMOS chips. Host-only; hardware-gated on the 25V rail. (NMOS-01/02/03)
+- [ ] **Phase 80: AT28C04/16 Adapter Graduation** — Build the DIP24→DIP32 adapter per the Phase 76 spec + DMM continuity check FIRST, then wire the 9 chips through the existing `configure_eeprom28c` (0x0D, VPP-free) handler; remove the `adapter-required` refusal; graduate. Host-only but HARDWARE-BLOCKED on the physical adapter → sequence last; can defer cleanly without blocking 77–79. (ADPT-01/02/03)
+
+## Phase Details
+
+### Phase 77: Erase Write-Path Graduation (0x07 EE-EPROMs)
+
+**Goal**: Writing any of the 7–8 `electrical.type=="EEPROM"` chips on protocol 0x07 (W27C512/W27E512/W27C257/W27E257/SST27SF256/SST27SF512/SST27VF256/SST27VF512) auto-erases before programming, and the full write→erase→program→verify cycle is bench-proven clean on Leonardo. This is the skipped v1.13 Phase 75, and the first graduation that establishes the SAFE-01/02/03 host-guard-removal-last discipline for the milestone.
+**Depends on**: Nothing within v1.14 (first phase). Pre-req: v1.13 `3.0.0b10` lockstep beta cut landed in both sub-repos; branch v1.14 off `beta` (branch setup folded in here). Firmware guard `eprom_write_init` already honors `FLAG_CAN_ERASE`; standalone erase electricals already bench-confirmed (v1.13 Phase 73). Host-only change. **Standing bench precondition applies.**
+**Requirements**: ERASE-01, ERASE-02, SAFE-01, SAFE-02, SAFE-03
+**Success Criteria** (what must be TRUE):
+
+  1. `convert_to_programmer` (`firestarter_app/firestarter/database.py`) sets `FLAG_CAN_ERASE` from `electrical.type == "EEPROM"` (NOT `info-flags & 0x10`), so all 7–8 0x07 EE-EPROMs carry the flag; a host wire round-trip test proves the flag reaches the firmware handle for those chips and stays clear for non-EEPROM 0x07 parts.
+  2. On Leonardo with a real W27C512, a single `firestarter write` (no `-b`) of a non-blank chip drives the write→auto-erase→program→verify cycle to a clean completion, and an independent post-write full read SHA-matches the source file (non-vacuous: a wrong-file verify exits non-zero).
+  3. The 14V erase-rail setpoint is confirmed under the VPP ceiling, preceded by a chip-OUT VPP multimeter dry-run and a live R1/R2 reconcile (`r1 ≈ 270000`), with the measured VPP recorded.
+  4. **SAFE-01/02/03 (graduation gate, FINAL step):** the auto-erase wiring lands only after the native + wire + Leonardo bench evidence is on record; `check_dispatch.py`'s full-DB VPP-safety gate passes (no chip dispatches VPP above its family invariant); and any `FLAG_*`/protocol constant touched in `constants.py` + `firestarter.h` is changed in lockstep with parity tests green.
+
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 78: X88C64 0x34 Firmware Handler
+
+**Goal**: The XICOR X88C64P DIP24 5V EEPROM (protocol 0x34) graduates to `supported` via a new `configure_x88c64` firmware handler — IF and only IF the open 8051 ALE-routing control-bit question is first resolved by bench investigation. If ALE proves PCB-blocked, the phase closes cleanly with X88C64 documented-deferred (FUT-01) rather than forcing a blind handler.
+**Depends on**: Phase 77 (graduation pattern established; fixes/host-only work before the flash-consuming firmware addition). The ONLY firmware-adding gap → **dual-repo lockstep** (`memory.cpp` dispatch + new `eeprom_x88c64.cpp`/header + possible `rurp_pinout.h`/`constants.py`/`firestarter.h` ALE bit). Firmware sub-repo `firestarter/` work expected. **Standing bench precondition applies.** Research-flagged: ALE-routing (Assumption A6, LOW confidence).
+**Requirements**: XIC-01, XIC-02, XIC-03, XIC-04
+**Success Criteria** (what must be TRUE):
+
+  1. **(FIRST plan, gating)** The ALE-routing question is resolved by bench schematic trace: either a free `CTRL_*` bit to toggle the 8051 Address-Latch-Enable is identified and documented (`X88C64-FEASIBILITY.md` A6 closed), or the gap is recorded as PCB-blocked and X88C64 is deferred (FUT-01) — *before* any handler code is written.
+  2. A `configure_x88c64` handler implements protocol 0x34 (8051 multiplexed address/data via ALE/WR/RD, page write ≤32 bytes, toggle-bit I/O6 polling), registered in `memory.cpp` dispatch **before** the `protocol != 0 → configure_not_implemented` guard (after it = dead code), proven by a Tier-1 native recording-stub register-sequence test; STORE/RECALL is explicitly NOT implemented (X2210/X2212 family, out of scope).
+  3. `pio run -e leonardo` builds with the new handler at ≤ ~90% flash, measured and recorded as a phase gate.
+  4. **Graduation gate (FINAL step):** X88C64P flips to `supported` and its host-guard refusal is removed only after an N≥5 write + read-back SHA-match cycle is bench-confirmed on Leonardo with a non-vacuous negative control; `check_dispatch.py` passes and the lockstep constant parity (`constants.py` ↔ `firestarter.h`) holds.
+
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 79: 25V NMOS Ceiling Raise
+
+**Goal**: The 4 NMOS UV-EPROMs that are fail-closed at `vpp-exceeds-max` because they need 25V VPP (INTEL M2716, INTEL M2732, SGS-THOMSON ETC2716, ST M2716) graduate to `supported` — but only after the on-bench shield is multimeter-confirmed to safely produce ≥25V at the socket VPP pin, because the 22V ceiling reflects a hardware/calibration limit and the firmware does NO runtime VPP enforcement.
+**Depends on**: Phase 77 (graduation pattern). Host-only constant change (`RURP_VPP_CEILING_MV` + `check_dispatch.py` invariant) but **hardware-gated** on the 25V-rail dry-run. M2732A (21V) is already `supported`. **Standing bench precondition applies.** Research-flagged: 25V rail capability (rated-feasible per RURP Rev 2.3 5–27V spec, but R1/R2-calibration-dependent).
+**Requirements**: NMOS-01, NMOS-02, NMOS-03
+**Success Criteria** (what must be TRUE):
+
+  1. **(FIRST plan, gating, `autonomous: false`)** The on-bench shield's ability to safely produce ≥25V VPP at the socket pin is confirmed by operator multimeter (chip-OUT dry-run) with the measured voltage and the silkscreen shield rev recorded — *before* the ceiling constant changes.
+  2. `RURP_VPP_CEILING_MV` is raised 22000 → 25000 (`firestarter_app/tools/build_db.py`) and the `check_dispatch.py` `_FAMILY_VPP_INVARIANTS` ceiling is updated in step, so the 4 NMOS chips re-classify off `vpp-exceeds-max` and the full-DB VPP-safety gate stays green at the new ceiling (no chip exceeds its family invariant; >25V chips stay fail-closed per FUT-02).
+  3. **Graduation gate (FINAL step):** the 4 NMOS chips flip to `supported` and their host-guard refusal is removed only after a write + verify is bench-confirmed on Leonardo (independent post-write read SHA-match + non-vacuous negative control), with the live R1/R2 reconcile on record.
+
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 80: AT28C04/16 Adapter Graduation
+
+**Goal**: The 9 `adapter-required` AT28C04/AT28C16 DIP24 EEPROMs graduate to `supported` through the existing `configure_eeprom28c` handler (protocol 0x0D, VPP-free) + a physical DIP24→DIP32 adapter built per the Phase 76 pin-map spec. Sequenced last because it is hardware-blocked on the adapter; it can defer cleanly without blocking Phases 77–79.
+**Depends on**: Phase 77 (graduation pattern). HARDWARE-BLOCKED on the physical adapter being built. Host-only software (remove the `_AT28C_DIP24_NAMES` arm + the refusal); the firmware handler already exists. **Standing bench precondition applies.** Research-flagged: the /WE reroute (chip pin 21 → socket pin 30 against `DIP32_28C512_EEPROM`) is the critical wire — VPP-free, so a mis-wire degrades to non-function, not damage.
+**Requirements**: ADPT-01, ADPT-02, ADPT-03
+**Success Criteria** (what must be TRUE):
+
+  1. **(FIRST plan, gating)** A physical DIP24→DIP32 adapter is built per `firestarter/doc/AT28C04-ADAPTER.md` and validated by a DMM continuity check — especially the /WE chip-pin-21 → socket-pin-30 reroute against `DIP32_28C512_EEPROM` — *before* any chip is inserted.
+  2. The 9 AT28C04/AT28C16 chips are wired through the existing `configure_eeprom28c` (0x0D, VPP-free) handler: the `_AT28C_DIP24_NAMES` rule arm in `build_db.py` and the `adapter-required` refusal in `chip_resolver.resolve_chip` are removed, and a host wire round-trip proves correct dispatch.
+  3. **Graduation gate (FINAL step):** the 9 chips flip to `supported` only after a golden write + read-back round-trip is bench-confirmed on Leonardo with the adapter seated (SHA-match + non-vacuous negative control); `check_dispatch.py` passes and lockstep constant parity holds. If the adapter is not built, the phase defers cleanly with the chips remaining honestly `adapter-required`.
+
+**Plans**: TBD
+**UI hint**: no
+
+### v1.14 Coverage
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| ERASE-01 | Phase 77 | Pending |
+| ERASE-02 | Phase 77 | Pending |
+| SAFE-01 | Phase 77 | Pending |
+| SAFE-02 | Phase 77 | Pending |
+| SAFE-03 | Phase 77 | Pending |
+| XIC-01 | Phase 78 | Pending |
+| XIC-02 | Phase 78 | Pending |
+| XIC-03 | Phase 78 | Pending |
+| XIC-04 | Phase 78 | Pending |
+| NMOS-01 | Phase 79 | Pending |
+| NMOS-02 | Phase 79 | Pending |
+| NMOS-03 | Phase 79 | Pending |
+| ADPT-01 | Phase 80 | Pending |
+| ADPT-02 | Phase 80 | Pending |
+| ADPT-03 | Phase 80 | Pending |
+
+**Mapped: 15/15 requirements ✓** — no orphans, no duplicates. SAFE-01/02/03 are mapped to Phase 77 for accounting and recur as success criteria in Phases 78–80.
 
 ## v1.9 — Read-Bug RCA + Fix (STARTED 2026-05-29)
 
@@ -603,6 +710,10 @@ Plans:
 | 74 | v1.13 | 2/3 | ✅ Shipped (Wave-2 HW re-bench → v1.14) | 2026-06-18 |
 | 75 | v1.13 | 0/— | ⏸ Deferred to v1.14 (Backlog 999.4) | — |
 | 76 (close) | v1.13 | 2/2 | ✅ Shipped | 2026-06-18 |
+| 77 | v1.14 | 0/TBD | Not started | — |
+| 78 | v1.14 | 0/TBD | Not started | — |
+| 79 | v1.14 | 0/TBD | Not started | — |
+| 80 (close) | v1.14 | 0/TBD | Not started | — |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
@@ -864,18 +975,17 @@ Plans:
 
 ---
 
-### v1.14 — Feasible-Gap Implementation (planned milestone — captured 2026-06-18)
+### v1.14 — Feasible-Gap Implementation (✅ PROMOTED 2026-06-18 → active milestone, Phases 77–80)
 
-The four items below (999.4–999.7) are a coherent body of **implementation** work that
-**graduates chips to `supported`** — explicitly OUT of v1.13's validation-only scope. They are
-captured here pending the v1.13 close (operator-gated beta cut + `/gsd-complete-milestone v1.13`).
-**Promote them together via `/gsd-new-milestone v1.14`** (NOT `/gsd-review-backlog` into v1.13).
-All four are firmware-touching → subject to flash-budget ordering (the ~88% Leonardo flash ceiling
-that drove v1.13). Suggested order: 999.4 (most ready, mostly software) → 999.5 → 999.7 → 999.6
-(hardware-blocked last). Operator decision 2026-06-18: do all four; 25V NMOS implemented assuming
-hardware can produce 25V.
+> **PROMOTED.** The four items below (999.4–999.7) were promoted via `/gsd-new-milestone v1.14`
+> into the **active v1.14 milestone** as Phases **77–80** — see the `## v1.14 — Feasible-Gap
+> Implementation (ACTIVE)` section above for goals, requirements, and success criteria. The stubs
+> below are retained for their file:line origin pointers only; they are **no longer pending backlog**.
+> Promotion mapping: **999.4 → Phase 77** (erase write-path) · **999.5 → Phase 78** (X88C64 0x34
+> handler) · **999.7 → Phase 79** (25V NMOS ceiling) · **999.6 → Phase 80** (AT28C04/16 adapter).
+> Build order locked 999.4 → 999.5 → 999.7 → 999.6.
 
-### Phase 999.4: Erase write-path for 0x07 EE-EPROMs (FLAG_CAN_ERASE wiring) (BACKLOG → v1.14)
+### Phase 999.4: Erase write-path for 0x07 EE-EPROMs (FLAG_CAN_ERASE wiring) (✅ PROMOTED → Phase 77)
 
 **Goal:** [Captured for future planning] Writing a W27C512-class EE-EPROM (the 7 `electrical.type=="EEPROM"`
 chips on protocol 0x07) auto-erases before programming. The standalone erase electricals already work
@@ -886,15 +996,15 @@ gates `FLAG_CAN_ERASE` on `info-flags & 0x10`, which is `0x0` for all 7 chips �
 wire `FLAG_CAN_ERASE` from `electrical.type == "EEPROM"` (not `info-flags & 0x10`). Bench: 12V→14V
 erase-rail confirm under the 22V ceiling on Leonardo + W27C512 (chip-OUT VPP meter dry-run first).
 **This is the skipped v1.13 Phase 75 (ERASE-01).**
-**Requirements:** TBD (was ERASE-01)
+**Requirements:** ERASE-01, ERASE-02 (+ cross-cutting SAFE-01/02/03) — now **Phase 77**
 **Plans:** 0 plans
 **Origin:** v1.13 Phase 72 RSCH-01 GAP-1 (`.planning/v1.13-PROTOCOL-ENUMERATION.md` §Gap Item Index); Phase 75 was never executed (flash-budget ordering). Type: feature. Most-ready gap.
 
 Plans:
 
-- [ ] TBD (promote with /gsd-new-milestone v1.14 when ready)
+- [x] Promoted to the active v1.14 milestone — see Phase details above. (no longer a backlog stub)
 
-### Phase 999.5: X88C64 0x34 firmware handler (BACKLOG → v1.14)
+### Phase 999.5: X88C64 0x34 firmware handler (✅ PROMOTED → Phase 78)
 
 **Goal:** [Captured for future planning] Implement the `0x34` firmware handler (`configure_x88c64`) for the
 XICOR X88C64P — a parallel DIP24 5V EEPROM with an 8051 multiplexed address/data bus (ALE/WR/RD),
@@ -902,15 +1012,15 @@ byte/page write up to 32 bytes, toggle-bit (I/O6) polling — per the Phase 76 f
 ([.planning/X88C64-FEASIBILITY.md](X88C64-FEASIBILITY.md), MEDIUM). Resolve the open ALE-routing
 control-bit question in `rurp_pinout.h` (bench investigation) before shipping; graduate X88C64P off
 `protocol-not-implemented`; bench write+read-back on Leonardo. No STORE/RECALL (that's X2210/X2212).
-**Requirements:** TBD (was GAP-02 implementation half)
+**Requirements:** XIC-01, XIC-02, XIC-03, XIC-04 — now **Phase 78**
 **Plans:** 0 plans
 **Origin:** v1.13 Phase 76 GAP-02 — spec-only verdict authored, handler deferred (D-01). Type: feature. Has an open ALE-routing question → carries bench risk.
 
 Plans:
 
-- [ ] TBD (promote with /gsd-new-milestone v1.14 when ready)
+- [x] Promoted to the active v1.14 milestone — see Phase details above. (no longer a backlog stub)
 
-### Phase 999.6: AT28C04/16 adapter graduation (hardware-gated) (BACKLOG → v1.14)
+### Phase 999.6: AT28C04/16 adapter graduation (hardware-gated) (✅ PROMOTED → Phase 80)
 
 **Goal:** [Captured for future planning] Graduate the 9 `adapter-required` AT28C04/AT28C16 chips to
 `supported`. Build the physical DIP24→DIP32 adapter per the Phase 76 pin-map spec
@@ -919,15 +1029,15 @@ socket-pin-30 reroute against `DIP32_28C512_EEPROM`); the firmware handler alrea
 (`configure_eeprom28c`, protocol 0x0D, VPP-free); wire the chips through it; golden write+read-back
 round-trip; remove the `adapter-required` host-guard refusal in `chip_resolver.resolve_chip`.
 **HARDWARE-BLOCKED until the physical adapter is built.**
-**Requirements:** TBD (was GAP-01 graduation)
+**Requirements:** ADPT-01, ADPT-02, ADPT-03 — now **Phase 80**
 **Plans:** 0 plans
 **Origin:** v1.13 Phase 76 GAP-01 — two-layer adapter spec authored (D-04), graduation deferred. Type: feature. Hardware-blocked → sequence last.
 
 Plans:
 
-- [ ] TBD (promote with /gsd-new-milestone v1.14 when ready)
+- [x] Promoted to the active v1.14 milestone — see Phase details above. (no longer a backlog stub)
 
-### Phase 999.7: 25V NMOS support (M2716/M2732) — VPP ceiling raise (BACKLOG → v1.14)
+### Phase 999.7: 25V NMOS support (M2716/M2732) — VPP ceiling raise (✅ PROMOTED → Phase 79)
 
 **Goal:** [Captured for future planning] Support the 4 `vpp-exceeds-max` NMOS chips (INTEL M2716,
 INTEL M2732, SGS-THOMSON ETC2716, ST M2716) currently fail-closed because they need 25V VPP, above
@@ -938,13 +1048,13 @@ THEN raise the ceiling constant + the `check_dispatch.py` `_FAMILY_VPP_INVARIANT
 ([firestarter_app/tools/check_dispatch.py:79-85](../firestarter_app/tools/check_dispatch.py#L79-L85)),
 re-classify the 4 chips off `vpp-exceeds-max`, confirm/wire the 25V program electricals, bench
 write+verify on Leonardo. Note M2732A (21V) is already `supported`.
-**Requirements:** TBD
+**Requirements:** NMOS-01, NMOS-02, NMOS-03 — now **Phase 79**
 **Plans:** 0 plans
 **Origin:** Operator request 2026-06-18 ("implement assuming HW can do 25V"). Was classified infeasible in the v1.13 enumeration Anti-Feature Block (`.planning/v1.13-PROTOCOL-ENUMERATION.md` §25V NMOS) under the 22V ceiling. Type: feature. HARDWARE-GATED on 25V capability confirm.
 
 Plans:
 
-- [ ] TBD (promote with /gsd-new-milestone v1.14 when ready)
+- [x] Promoted to the active v1.14 milestone — see Phase details above. (no longer a backlog stub)
 
 <!-- Phase 61 (List/Search Display Correctness + Table Layout) shipped as part of v1.11 on
      2026-06-10 — moved out of Backlog into the v1.11 milestone section above. Full detail in

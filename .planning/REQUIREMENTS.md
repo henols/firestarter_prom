@@ -63,27 +63,29 @@ Which phases cover which requirements. Filled in by the roadmapper.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ERASE-01 | TBD | Pending |
-| ERASE-02 | TBD | Pending |
-| XIC-01 | TBD | Pending |
-| XIC-02 | TBD | Pending |
-| XIC-03 | TBD | Pending |
-| XIC-04 | TBD | Pending |
-| NMOS-01 | TBD | Pending |
-| NMOS-02 | TBD | Pending |
-| NMOS-03 | TBD | Pending |
-| ADPT-01 | TBD | Pending |
-| ADPT-02 | TBD | Pending |
-| ADPT-03 | TBD | Pending |
-| SAFE-01 | TBD | Pending |
-| SAFE-02 | TBD | Pending |
-| SAFE-03 | TBD | Pending |
+| ERASE-01 | Phase 77 | Pending |
+| ERASE-02 | Phase 77 | Pending |
+| XIC-01 | Phase 78 | Pending |
+| XIC-02 | Phase 78 | Pending |
+| XIC-03 | Phase 78 | Pending |
+| XIC-04 | Phase 78 | Pending |
+| NMOS-01 | Phase 79 | Pending |
+| NMOS-02 | Phase 79 | Pending |
+| NMOS-03 | Phase 79 | Pending |
+| ADPT-01 | Phase 80 | Pending |
+| ADPT-02 | Phase 80 | Pending |
+| ADPT-03 | Phase 80 | Pending |
+| SAFE-01 | Phase 77 | Pending |
+| SAFE-02 | Phase 77 | Pending |
+| SAFE-03 | Phase 77 | Pending |
 
 **Coverage:**
 - v1 requirements: 15 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 15 ⚠️
+- Mapped to phases: 15 ✓ (Phase 77: ERASE-01/02 + SAFE-01/02/03; Phase 78: XIC-01/02/03/04; Phase 79: NMOS-01/02/03; Phase 80: ADPT-01/02/03)
+- Unmapped: 0
+
+_SAFE-01/02/03 are cross-cutting; mapped to Phase 77 (first graduation, where the guard-removal-last pattern + check_dispatch gate + lockstep parity are established) and recur as success criteria in Phases 78–80._
 
 ---
 *Requirements defined: 2026-06-18*
-*Last updated: 2026-06-18 at milestone v1.14 start*
+*Last updated: 2026-06-18 — roadmap created; 15/15 requirements mapped to Phases 77–80*
