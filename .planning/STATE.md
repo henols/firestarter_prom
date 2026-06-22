@@ -4,13 +4,13 @@ milestone: v1.14
 milestone_name: — Feasible-Gap Implementation
 status: executing
 stopped_at: Phase 78 context gathered
-last_updated: "2026-06-22T09:51:11.948Z"
-last_activity: 2026-06-22 -- Phase 78 planning complete
+last_updated: "2026-06-22T10:04:52.471Z"
+last_activity: 2026-06-22
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 6
-  completed_plans: 4
+  completed_plans: 5
   percent: 25
 ---
 
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 78 — X88C64 0x34 Firmware Handler (not started)
-Plan: Not started
+Phase: 78 (x88c64-0x34-firmware-handler) — EXECUTING
+Plan: 2 of 2
 Status: Ready to execute
-Last activity: 2026-06-22 -- Phase 78 planning complete
+Last activity: 2026-06-22
 Sub-repo branch: firestarter_app on `v1.14-feasible-gap-implementation` (off beta); source commits inside submodule; meta gitlink PINNED until beta cut
 
 ## Project Reference
@@ -177,7 +177,7 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-22T09:02:46.551Z
+Last session: 2026-06-22T10:03:55.631Z
 Stopped at: Phase 78 context gathered
 Resume: `/gsd-plan-phase 77`
 
@@ -235,6 +235,8 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 - [Phase ?]: D-02 X88C64P reason: parallel DIP24 5V EEPROM, 8051 multiplexed-bus (ALE/WR/RD); feasible-candidate, handler not implemented; no support_status change
 - [Phase ?]: D-04: two-layer adapter spec (firestarter/doc/ + .planning/), pin-map verified, /WE reroute chip pin 21 → socket pin 30, DIP32_28C512_EEPROM confirmed
 - [Phase ?]: D-01: X88C64P NO STORE/RECALL pins (those are X2210/X2212 NOVRAM family); X88C64P is parallel DIP24 with 8051 multiplexed ALE/WR/RD bus; MEDIUM feasibility-candidate; handler deferred, 0x34 not committed
+- [Phase ?]: [Phase 78-01]: A6 VERDICT PCB-BLOCKED (HIGH) — control register fully allocated 0x01..0x80 (rurp_pinout.h:74-97); 0x100 non-transmissible via uint8_t rurp_write_data_buffer (rurp_shield.h:118); no free 74HC573 strobe; D-02 bar prohibits busy-bit reuse. Plan 02 takes deferral branch.
+- [Phase ?]: [Phase 78-01]: XIC-04 graduation deferred to FUT-01 — no physical X88C64P chip/adapter (D-04) + PCB-blocked ALE; X88C64 stays protocol-not-implemented + host-refused; SAFE-01/02/03 hold trivially (no code change).
 
 ## Performance Metrics
 
@@ -278,6 +280,7 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 | Phase 74 P01 | 3min | 2 tasks | 4 files |
 | Phase 76 P01 | 8min | 3 tasks | 3 files |
 | Phase 76 P02 | 12min | - tasks | - files |
+| Phase 78 P01 | 12min | 2 tasks | 1 files |
 
 ## Deferred Items
 

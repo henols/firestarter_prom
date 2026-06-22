@@ -16,7 +16,7 @@
 
 ### X88C64 0x34 Handler — 999.5 (firmware; dual-repo lockstep)
 
-- [ ] **XIC-01**: The X88C64 ALE-routing question is resolved by bench investigation — a control path to drive the 8051 Address-Latch-Enable is identified (or the gap is documented as PCB-blocked and X88C64 deferred again) — *before* any handler code is written. (`X88C64-FEASIBILITY.md` Assumption A6, LOW confidence.)
+- [x] **XIC-01**: The X88C64 ALE-routing question is resolved by bench investigation — a control path to drive the 8051 Address-Latch-Enable is identified (or the gap is documented as PCB-blocked and X88C64 deferred again) — *before* any handler code is written. (`X88C64-FEASIBILITY.md` Assumption A6, LOW confidence.)
 - [ ] **XIC-02**: A `configure_x88c64` firmware handler implements protocol 0x34 (8051 multiplexed address/data bus via ALE/WR/RD, page write ≤32 bytes, toggle-bit I/O6 polling), registered in `memory.cpp` dispatch *before* the `protocol != 0 → configure_not_implemented` guard. STORE/RECALL explicitly out of scope (X2210/X2212 family).
 - [ ] **XIC-03**: The new handler fits the Leonardo flash budget — `pio run -e leonardo` ≤ ~90% — measured and recorded as a phase gate.
 - [ ] **XIC-04**: X88C64P graduates to `supported`; an N≥5 write + read-back SHA-match cycle is bench-confirmed on Leonardo with a non-vacuous negative control.
@@ -65,7 +65,7 @@ Which phases cover which requirements. Filled in by the roadmapper.
 |-------------|-------|--------|
 | ERASE-01 | Phase 77 | Complete |
 | ERASE-02 | Phase 77 | Complete |
-| XIC-01 | Phase 78 | Pending |
+| XIC-01 | Phase 78 | Complete |
 | XIC-02 | Phase 78 | Pending |
 | XIC-03 | Phase 78 | Pending |
 | XIC-04 | Phase 78 | Pending |

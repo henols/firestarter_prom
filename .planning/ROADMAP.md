@@ -109,7 +109,7 @@ Plans:
 **Plans**: 2 plans
 **Wave 1**
 
-- [ ] 78-01-PLAN.md — Gating ALE-routing trace + A6 verdict + FUT-01 future-unblock spec + XIC-04 hardware-deferral (Wave 1)
+- [x] 78-01-PLAN.md — Gating ALE-routing trace + A6 verdict + FUT-01 future-unblock spec + XIC-04 hardware-deferral (Wave 1)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -733,7 +733,7 @@ Plans:
 | 75 | v1.13 | 0/— | ⏸ Deferred to v1.14 (Backlog 999.4) | — |
 | 76 (close) | v1.13 | 2/2 | ✅ Shipped | 2026-06-18 |
 | 77 | v1.14 | 4/4 | Complete    | 2026-06-22 |
-| 78 | v1.14 | 0/TBD | Not started | — |
+| 78 | v1.14 | 1/2 | In Progress|  |
 | 79 | v1.14 | 0/TBD | Not started | — |
 | 80 (close) | v1.14 | 0/TBD | Not started | — |
 
