@@ -113,7 +113,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 78-02-PLAN.md — CONTINGENT handler-write branch: leading [BLOCKING] verdict-gate, then configure_x88c64 + 0x34 dispatch arm + native recording-stub test + DIP24_X88C64 pinout + Leonardo flash gate; no-ops cleanly on PCB-block (Wave 2)
+- [x] 78-02-PLAN.md — CONTINGENT handler-write branch: leading [BLOCKING] verdict-gate took the DEFER path (A6 PCB-BLOCKED); recorded `Branch A — ALE PCB-blocked, no handler code; graduation deferred FUT-01.`; Tasks 2-5 (proceed-path) skipped; zero code changes (Wave 2)
 
 **UI hint**: no
 
@@ -154,10 +154,10 @@ Plans:
 | SAFE-01 | Phase 77 | Pending |
 | SAFE-02 | Phase 77 | Pending |
 | SAFE-03 | Phase 77 | Pending |
-| XIC-01 | Phase 78 | Pending |
-| XIC-02 | Phase 78 | Pending |
-| XIC-03 | Phase 78 | Pending |
-| XIC-04 | Phase 78 | Pending |
+| XIC-01 | Phase 78 | Complete (Plan 01: A6 verdict PCB-BLOCKED, line-cited trace) |
+| XIC-02 | Phase 78 | Complete (vacuous on PCB-blocked branch — no handler authorized) |
+| XIC-03 | Phase 78 | Complete (vacuous on PCB-blocked branch — no firmware flash added) |
+| XIC-04 | Phase 78 | Complete (deferral-with-evidence: graduation hardware-blocked, FUT-01) |
 | NMOS-01 | Phase 79 | Pending |
 | NMOS-02 | Phase 79 | Pending |
 | NMOS-03 | Phase 79 | Pending |
@@ -733,7 +733,7 @@ Plans:
 | 75 | v1.13 | 0/— | ⏸ Deferred to v1.14 (Backlog 999.4) | — |
 | 76 (close) | v1.13 | 2/2 | ✅ Shipped | 2026-06-18 |
 | 77 | v1.14 | 4/4 | Complete    | 2026-06-22 |
-| 78 | v1.14 | 1/2 | In Progress|  |
+| 78 | v1.14 | 2/2 | Complete | X88C64 0x34 defer-path: A6 PCB-BLOCKED → no handler; FUT-01 |
 | 79 | v1.14 | 0/TBD | Not started | — |
 | 80 (close) | v1.14 | 0/TBD | Not started | — |
 
