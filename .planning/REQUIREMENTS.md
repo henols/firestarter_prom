@@ -45,6 +45,7 @@
 
 - **FUT-01**: X88C64 graduation if v1.14 ALE investigation (XIC-01) finds it PCB-blocked — revisit with a shield modification.
 - **FUT-02**: Any NMOS chip requiring >25V VPP — stays fail-closed (anti-feature).
+- **FUT-03**: 25V VPP rail enablement for the 4 NMOS chips (INTEL M2716/M2732, SGS-THOMSON ETC2716, ST M2716). The Phase 79 NMOS-01 hardware gate (2026-06-22) returned NOT CLEARED: the on-bench shield's AP3012 boost converter is physically set by PCB feedback resistors to the ~12V EPROM programming setpoint (measured ~12V at the socket VPP pin; R1/R2 only scale the ADC readback). Unblocking Phase 79 (NMOS-02 ceiling raise 22000→25000 + NMOS-03 graduation) requires a **PCB feedback-resistor change** on the VPP boost converter to reach ≥25V, then a re-run of the chip-OUT dry-run to a CLEARED verdict. The AP3012 + RURP "5–27V VPP" spec confirm ≥25V is rated-feasible with the right resistors; this is purely a hardware-build task. Evidence: `.planning/phases/79-25v-nmos-ceiling-raise/79-01-SUMMARY.md`.
 
 ## Out of Scope
 

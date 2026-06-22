@@ -307,7 +307,10 @@ from the v1.11 2026-06-10 / v1.12 2026-06-16 closes, plus 2 v1.13-surfaced) — 
 | todo | flash4-page-size-datasheet-sourced-cr01.md | medium | v1.13 Phase 74 CR-01 — data-driven page size shipped; replace residual capacity heuristic with datasheet per-chip value (refinement) |
 | verification | Phase 71 (71-VERIFICATION.md) | gaps_found (stale) | Both verifier gaps CLOSED by follow-up plans 71-07 (non-vacuous oracle) + 71-08 (flash4 spec-trim); status line never re-run |
 | phase-deferral | Phase 74 Wave-2 (W29C040 HW re-bench) + Phase 75 (erase path) | deferred to v1.14 | Backlog 999.4; hardware-gated (Leonardo+Rev2.0 T-74-VPP multimeter gate; erase 12V→14V rail confirm under 22V ceiling) |
+| phase-deferral | Phase 79 NMOS-02/03 (25V ceiling raise + NMOS graduation) | hardware-blocked (FUT-03) | NMOS-01 gate NOT CLEARED 2026-06-22 (bench VPP ~12V at socket < 25V); AP3012 boost setpoint physically ~12V, needs a PCB feedback-resistor change to reach ≥25V (R1/R2 only scale ADC). Resume `/gsd-execute-phase 79` after the PCB change re-achieves a CLEARED ≥25V chip-OUT dry-run. Evidence: 79-01-SUMMARY.md |
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- **Phase 79 is hardware-blocked (FUT-03).** To unblock: change the VPP boost-converter feedback resistor(s) on the shield so `firestarter vpp` (chip-OUT) reaches ≥25V at the socket pin, then re-run `/gsd-execute-phase 79` — the NMOS-01 gate re-evaluates and only a CLEARED ≥25V verdict authorizes the ceiling raise + graduation.
+- **Phase 79 cannot ship in v1.14 without that hardware change.** Decision needed: (a) do the PCB resistor change now and resume, or (b) defer Phase 79 to a future milestone (FUT-03) and proceed to Phase 80 (AT28C04/16 adapter) so v1.14 still closes with 77/78/80.
+- Phases 78 + 79 both await `/gsd-verify-phase` + `/gsd-secure-phase` where applicable (78 verified PASSED; 79 halted pre-verify by the gate).

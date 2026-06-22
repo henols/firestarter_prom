@@ -60,7 +60,7 @@ Full detail: [`.planning/milestones/v1.10-ROADMAP.md`](milestones/v1.10-ROADMAP.
 
 - [x] **Phase 77: Erase Write-Path Graduation (0x07 EE-EPROMs)** — Wire `FLAG_CAN_ERASE` from `electrical.type=="EEPROM"` (not the always-zero `info-flags & 0x10`) so writing a W27C512-class chip auto-erases first; bench-confirm the write→erase→program→verify cycle on Leonardo. Establishes the SAFE-01/02/03 graduation pattern. Host-only; most-ready. (ERASE-01/02, SAFE-01/02/03) (completed 2026-06-22)
 - [x] **Phase 78: X88C64 0x34 Firmware Handler** — ALE-routing resolved by software/schematic trace: **A6 VERDICT: PCB-BLOCKED** (HIGH). Contingent handler-write plan correctly took the DEFER path — no handler code, X88C64 stays `protocol-not-implemented`/host-refused, graduation deferred to FUT-01. "No blind handler." Verified PASSED 7/7. (XIC-01 ✓; XIC-02/03 N/A on PCB-blocked branch; XIC-04 deferral-with-evidence)
-- [ ] **Phase 79: 25V NMOS Ceiling Raise** — Operator multimeter ≥25V chip-OUT dry-run FIRST, then raise `RURP_VPP_CEILING_MV` 22000→25000 + the `check_dispatch.py` invariant; re-classify + graduate the 4 NMOS chips. Host-only; hardware-gated on the 25V rail. (NMOS-01/02/03)
+- [ ] **Phase 79: 25V NMOS Ceiling Raise** — ⛔ **HARDWARE-BLOCKED at the gate (FUT-03).** The `autonomous: false` chip-OUT dry-run (NMOS-01) ran FIRST and returned **NOT CLEARED**: on leonardo/Rev 2.0/R1=270000, `firestarter vpp` held the rail at 12.3V and the operator multimeter confirmed ~12V at the socket pin — the AP3012 boost setpoint is physically the 12V EPROM config (R1/R2 only scale the ADC readback, not the output), so ≥25V needs a PCB feedback-resistor change. The ceiling raise (NMOS-02) and graduation (NMOS-03) are correctly withheld; zero source/DB changes. Resume after a PCB change re-achieves ≥25V. (NMOS-01 evaluated 2026-06-22; NMOS-02/03 deferred FUT-03)
 - [ ] **Phase 80: AT28C04/16 Adapter Graduation** — Build the DIP24→DIP32 adapter per the Phase 76 spec + DMM continuity check FIRST, then wire the 9 chips through the existing `configure_eeprom28c` (0x0D, VPP-free) handler; remove the `adapter-required` refusal; graduate. Host-only but HARDWARE-BLOCKED on the physical adapter → sequence last; can defer cleanly without blocking 77–79. (ADPT-01/02/03)
 
 ## Phase Details
@@ -119,6 +119,8 @@ Plans:
 
 ### Phase 79: 25V NMOS Ceiling Raise
 
+**Status (2026-06-22): ⛔ HARDWARE-BLOCKED at the NMOS-01 gate (FUT-03).** The chip-OUT dry-run measured ~12V at the socket VPP pin (firmware `vpp` cross-check 12.3V) — far below 25V — so the gate returned NOT CLEARED and the ceiling raise was correctly withheld. The AP3012 boost converter's output is fixed by PCB feedback resistors; R1/R2 (=270000/44000, calibrated) only scale the ADC readback, and the firmware/DMM readings agree, so this is a physical rail limit, not a calibration artifact. Resume the phase only after a PCB feedback-resistor change re-achieves ≥25V and the chip-OUT dry-run re-runs to CLEARED. Evidence in `79-01-SUMMARY.md`.
+
 **Goal**: The 4 NMOS UV-EPROMs that are fail-closed at `vpp-exceeds-max` because they need 25V VPP (INTEL M2716, INTEL M2732, SGS-THOMSON ETC2716, ST M2716) graduate to `supported` — but only after the on-bench shield is multimeter-confirmed to safely produce ≥25V at the socket VPP pin, because the 22V ceiling reflects a hardware/calibration limit and the firmware does NO runtime VPP enforcement.
 **Depends on**: Phase 77 (graduation pattern). Host-only constant change (`RURP_VPP_CEILING_MV` + `check_dispatch.py` invariant) but **hardware-gated** on the 25V-rail dry-run. M2732A (21V) is already `supported`. **Standing bench precondition applies.** Research-flagged: 25V rail capability (rated-feasible per RURP Rev 2.3 5–27V spec, but R1/R2-calibration-dependent).
 **Requirements**: NMOS-01, NMOS-02, NMOS-03
@@ -130,9 +132,9 @@ Plans:
 
 **Plans**: 3 plans
 
-- [x] 79-01-PLAN.md — NMOS-01 hardware gate: chip-OUT ≥25V VPP multimeter dry-run (autonomous:false) BEFORE any code change
-- [ ] 79-02-PLAN.md — NMOS-02: raise RURP_VPP_CEILING_MV 22000→25000 + check_dispatch invariant + DB regen + 7 broken-test fixes + 3 new tests (same wave)
-- [ ] 79-03-PLAN.md — NMOS-03/SAFE-03: positive resolve_chip graduation test + parity guard + Leonardo write/verify SHA-match bench proof (autonomous:false)
+- [x] 79-01-PLAN.md — NMOS-01 hardware gate: chip-OUT ≥25V VPP multimeter dry-run (autonomous:false) — **verdict NOT CLEARED** (~12V at socket; firmware 12.3V); ceiling raise withheld; evidence in 79-01-SUMMARY.md
+- [ ] 79-02-PLAN.md — ⛔ BLOCKED (FUT-03, needs CLEARED ≥25V gate) — NMOS-02: raise RURP_VPP_CEILING_MV 22000→25000 + check_dispatch invariant + DB regen + 7 broken-test fixes + 3 new tests (same wave)
+- [ ] 79-03-PLAN.md — ⛔ BLOCKED (FUT-03, depends on 79-02) — NMOS-03/SAFE-03: positive resolve_chip graduation test + parity guard + Leonardo write/verify SHA-match bench proof (autonomous:false)
 
 **UI hint**: no
 
@@ -163,9 +165,9 @@ Plans:
 | XIC-02 | Phase 78 | Complete (vacuous on PCB-blocked branch — no handler authorized) |
 | XIC-03 | Phase 78 | Complete (vacuous on PCB-blocked branch — no firmware flash added) |
 | XIC-04 | Phase 78 | Complete (deferral-with-evidence: graduation hardware-blocked, FUT-01) |
-| NMOS-01 | Phase 79 | Pending |
-| NMOS-02 | Phase 79 | Pending |
-| NMOS-03 | Phase 79 | Pending |
+| NMOS-01 | Phase 79 | Complete (gate evaluated 2026-06-22: **NOT CLEARED** — bench VPP ~12V < 25V; ceiling raise correctly withheld) |
+| NMOS-02 | Phase 79 | ⛔ Blocked — hardware-gated (≥25V rail not achievable on current bench; FUT-03) |
+| NMOS-03 | Phase 79 | ⛔ Blocked — hardware-gated (depends on NMOS-02; FUT-03) |
 | ADPT-01 | Phase 80 | Pending |
 | ADPT-02 | Phase 80 | Pending |
 | ADPT-03 | Phase 80 | Pending |
@@ -739,7 +741,7 @@ Plans:
 | 76 (close) | v1.13 | 2/2 | ✅ Shipped | 2026-06-18 |
 | 77 | v1.14 | 4/4 | Complete    | 2026-06-22 |
 | 78 | v1.14 | 2/2 | Complete | X88C64 0x34 defer-path: A6 PCB-BLOCKED → no handler; FUT-01 |
-| 79 | v1.14 | 1/3 | In Progress|  |
+| 79 | v1.14 | 1/3 | ⛔ Blocked  | NMOS-01 gate NOT CLEARED (bench VPP ~12V < 25V); NMOS-02/03 deferred FUT-03 (PCB resistor change needed) |
 | 80 (close) | v1.14 | 0/TBD | Not started | — |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
