@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.14
 milestone_name: — Feasible-Gap Implementation
 status: executing
-stopped_at: Phase 79 Plan 01 hardware gate NOT CLEARED (VPP ~12V < 25V) — Plans 02/03 BLOCKED
-last_updated: "2026-06-22T13:57:30.054Z"
-last_activity: 2026-06-22 -- Phase 79 hardware gate (NMOS-01) evaluated: NOT CLEARED
+stopped_at: Phase 80 Plan 01 hardware gate NOT CLEARED — adapter not built / no AT28C chip on hand; clean deferral (FUT-04), Plans 02/03/04 BLOCKED
+last_updated: "2026-06-22T21:20:45.102Z"
+last_activity: 2026-06-22 -- Phase 80 ADPT-01 gate NOT CLEARED, deferred cleanly (FUT-04)
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 9
+  total_plans: 13
   completed_plans: 7
-  percent: 56
+  percent: 50
 ---
 
 # Project State
@@ -21,12 +21,12 @@ progress:
 
 ## Current Position
 
-Phase: 79 (25v-nmos-ceiling-raise) — HALTED at Plan 01 (hardware gate NOT CLEARED)
-Plan: 1 of 3 (79-01 done with NOT-CLEARED verdict; 79-02/79-03 BLOCKED)
-Status: Hardware gate NMOS-01 failed — chip-OUT VPP dry-run measured ~12V at socket (firmware 12.3V), < 25V required. Plan 02 ceiling change NOT authorized. Phase cannot proceed until the bench VPP rail reaches ≥25V (PCB feedback-resistor change most likely) and the chip-OUT gate re-runs to CLEARED.
-Bench: leonardo @ /dev/ttyACM0, fw 3.0.0b8, shield Rev 2.0 (operator silkscreen), R1=270000/R2=44000
-Last activity: 2026-06-22 -- Phase 79 hardware gate (NMOS-01) evaluated: NOT CLEARED
-Sub-repo branch: firestarter_app on `v1.14-feasible-gap-implementation` (off beta); source commits inside submodule; meta gitlink PINNED until beta cut. NO source/DB changes made in Phase 79 (gate blocked Plan 02).
+Phase: 80 (at28c04-16-adapter-graduation) — ⛔ HARDWARE-BLOCKED (ADPT-01 gate NOT CLEARED; FUT-04)
+Plan: 1 of 4 done (deferral); 02/03/04 BLOCKED
+Status: Phase 80 deferred cleanly — adapter not built / no AT28C chip on hand
+Bench: leonardo @ /dev/ttyACM0, fw 3.0.0b8, shield Rev 2.0 (operator silkscreen), R1=270000/R2=44000 (last-known; no board connected at the 80-01 evaluation)
+Last activity: 2026-06-22 -- Phase 80 ADPT-01 gate NOT CLEARED, deferred cleanly (FUT-04)
+Sub-repo branch: firestarter_app on `v1.14-feasible-gap-implementation` (off beta); source commits inside submodule; meta gitlink PINNED until beta cut. NO source/DB changes made in Phase 80 (gate blocked Plans 02/03/04) — same clean-deferral discipline as Phase 78/79.
 
 ## Project Reference
 

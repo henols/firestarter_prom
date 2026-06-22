@@ -61,7 +61,7 @@ Full detail: [`.planning/milestones/v1.10-ROADMAP.md`](milestones/v1.10-ROADMAP.
 - [x] **Phase 77: Erase Write-Path Graduation (0x07 EE-EPROMs)** — Wire `FLAG_CAN_ERASE` from `electrical.type=="EEPROM"` (not the always-zero `info-flags & 0x10`) so writing a W27C512-class chip auto-erases first; bench-confirm the write→erase→program→verify cycle on Leonardo. Establishes the SAFE-01/02/03 graduation pattern. Host-only; most-ready. (ERASE-01/02, SAFE-01/02/03) (completed 2026-06-22)
 - [x] **Phase 78: X88C64 0x34 Firmware Handler** — ALE-routing resolved by software/schematic trace: **A6 VERDICT: PCB-BLOCKED** (HIGH). Contingent handler-write plan correctly took the DEFER path — no handler code, X88C64 stays `protocol-not-implemented`/host-refused, graduation deferred to FUT-01. "No blind handler." Verified PASSED 7/7. (XIC-01 ✓; XIC-02/03 N/A on PCB-blocked branch; XIC-04 deferral-with-evidence)
 - [ ] **Phase 79: 25V NMOS Ceiling Raise** — ⛔ **HARDWARE-BLOCKED at the gate (FUT-03).** The `autonomous: false` chip-OUT dry-run (NMOS-01) ran FIRST and returned **NOT CLEARED**: on leonardo/Rev 2.0/R1=270000, `firestarter vpp` held the rail at 12.3V and the operator multimeter confirmed ~12V at the socket pin — the AP3012 boost setpoint is physically the 12V EPROM config (R1/R2 only scale the ADC readback, not the output), so ≥25V needs a PCB feedback-resistor change. The ceiling raise (NMOS-02) and graduation (NMOS-03) are correctly withheld; zero source/DB changes. Resume after a PCB change re-achieves ≥25V. (NMOS-01 evaluated 2026-06-22; NMOS-02/03 deferred FUT-03)
-- [ ] **Phase 80: AT28C04/16 Adapter Graduation** — Build the DIP24→DIP32 adapter per the Phase 76 spec + DMM continuity check FIRST, then wire the 9 chips through the existing `configure_eeprom28c` (0x0D, VPP-free) handler; remove the `adapter-required` refusal; graduate. Host-only but HARDWARE-BLOCKED on the physical adapter → sequence last; can defer cleanly without blocking 77–79. (ADPT-01/02/03)
+- [ ] **Phase 80: AT28C04/16 Adapter Graduation** — ⛔ **HARDWARE-BLOCKED at the ADPT-01 gate (FUT-04).** The `autonomous: false` gating adapter-build step (80-01) returned **NOT CLEARED**: the physical DIP24→DIP32 adapter is not built and no AT28C04/AT28C16 chip is on hand (no board connected at evaluation). Per the operator the phase deferred cleanly — zero DB/code/constants change, the 9 AT28C chips stay honestly `adapter-required`, the v1.12 host-guard refusal preserved. Graduation (80-02/03) + bench proof (80-04) correctly withheld. Resume once the adapter is built + DMM-verified (/WE pin 21→30) and an AT28C chip is on hand. (ADPT-01 evaluated 2026-06-22; ADPT-02/03 deferred FUT-04)
 
 ## Phase Details
 
@@ -149,11 +149,13 @@ Plans:
   2. The 9 AT28C04/AT28C16 chips are wired through the existing `configure_eeprom28c` (0x0D, VPP-free) handler: the `_AT28C_DIP24_NAMES` rule arm in `build_db.py` and the `adapter-required` refusal in `chip_resolver.resolve_chip` are removed, and a host wire round-trip proves correct dispatch.
   3. **Graduation gate (FINAL step):** the 9 chips flip to `supported` only after a golden write + read-back round-trip is bench-confirmed on Leonardo with the adapter seated (SHA-match + non-vacuous negative control); `check_dispatch.py` passes and lockstep constant parity holds. If the adapter is not built, the phase defers cleanly with the chips remaining honestly `adapter-required`.
 
+**Status (2026-06-22): ⛔ HARDWARE-BLOCKED at the ADPT-01 gate (FUT-04).** The `autonomous: false` gating adapter-build step (80-01) returned **NOT CLEARED**: the physical DIP24→DIP32 adapter is not built and no AT28C04/AT28C16 chip is confirmed on hand (no board was even connected at evaluation). Per the operator decision the phase deferred cleanly — zero DB/code/constants change, the 9 AT28C chips stay honestly `adapter-required`, the v1.12 host-guard refusal is preserved. The graduation (80-02/03) and bench proof (80-04) are correctly withheld. Resume once the adapter is built + DMM-continuity-verified (esp. /WE pin 21→30) and an AT28C chip is on hand. (ADPT-01 evaluated 2026-06-22; ADPT-02/03 deferred FUT-04.) Evidence in `80-01-SUMMARY.md`.
+
 **Plans**: 4 plans
-- [ ] 80-01-PLAN.md — ADPT-01 (Wave 1, hardware gate): build DIP24→DIP32 adapter + DMM continuity check (esp. /WE pin 21→30) + standing bench precondition; clean deferral if adapter/chip absent
-- [ ] 80-02-PLAN.md — ADPT-02 (Wave 2, RED): write/invert AT28C04/16 graduation tests before the source edit
-- [ ] 80-03-PLAN.md — ADPT-02 + SAFE-01/02/03 (Wave 2, GREEN): delete the _AT28C_DIP24_NAMES arm, regenerate the DB, run SAFE gates, fix all test breakage in the same wave
-- [ ] 80-04-PLAN.md — ADPT-03 + SAFE-01 (Wave 3, hardware FINAL): adapter-seated Leonardo write + independent read SHA-match + negative control — the evidence-gated graduation
+- [x] 80-01-PLAN.md — ADPT-01 (Wave 1, hardware gate): gate evaluated **NOT CLEARED** — adapter not built / no chip on hand; clean deferral (no DB/code change, chips stay `adapter-required`, FUT-04)
+- [ ] 80-02-PLAN.md — ⛔ BLOCKED (FUT-04, needs CLEARED adapter gate) — ADPT-02 (RED): write/invert AT28C04/16 graduation tests before the source edit
+- [ ] 80-03-PLAN.md — ⛔ BLOCKED (FUT-04, depends on 80-02) — ADPT-02 + SAFE-01/02/03 (GREEN): delete the _AT28C_DIP24_NAMES arm, regenerate the DB, run SAFE gates, fix all test breakage in the same wave
+- [ ] 80-04-PLAN.md — ⛔ BLOCKED (FUT-04, depends on 80-03) — ADPT-03 + SAFE-01 (hardware FINAL): adapter-seated Leonardo write + independent read SHA-match + negative control — the evidence-gated graduation
 **UI hint**: no
 
 ### v1.14 Coverage
@@ -172,9 +174,9 @@ Plans:
 | NMOS-01 | Phase 79 | Complete (gate evaluated 2026-06-22: **NOT CLEARED** — bench VPP ~12V < 25V; ceiling raise correctly withheld) |
 | NMOS-02 | Phase 79 | ⛔ Blocked — hardware-gated (≥25V rail not achievable on current bench; FUT-03) |
 | NMOS-03 | Phase 79 | ⛔ Blocked — hardware-gated (depends on NMOS-02; FUT-03) |
-| ADPT-01 | Phase 80 | Pending |
-| ADPT-02 | Phase 80 | Pending |
-| ADPT-03 | Phase 80 | Pending |
+| ADPT-01 | Phase 80 | Complete (gate evaluated 2026-06-22: **NOT CLEARED** — adapter not built / no chip on hand; clean deferral, chips stay `adapter-required`, FUT-04) |
+| ADPT-02 | Phase 80 | ⛔ Blocked — hardware-gated (no adapter built; depends on a CLEARED ADPT-01 gate; FUT-04) |
+| ADPT-03 | Phase 80 | ⛔ Blocked — hardware-gated (depends on ADPT-02 + Leonardo bench proof; FUT-04) |
 
 **Mapped: 15/15 requirements ✓** — no orphans, no duplicates. SAFE-01/02/03 are mapped to Phase 77 for accounting and recur as success criteria in Phases 78–80.
 
@@ -746,6 +748,7 @@ Plans:
 | 77 | v1.14 | 4/4 | Complete    | 2026-06-22 |
 | 78 | v1.14 | 2/2 | Complete | X88C64 0x34 defer-path: A6 PCB-BLOCKED → no handler; FUT-01 |
 | 79 | v1.14 | 1/3 | ⛔ Blocked  | NMOS-01 gate NOT CLEARED (bench VPP ~12V < 25V); NMOS-02/03 deferred FUT-03 (PCB resistor change needed) |
+| 80 | v1.14 | 1/4 | ⛔ Blocked  | ADPT-01 gate NOT CLEARED (adapter not built / no AT28C chip on hand); ADPT-02/03 deferred FUT-04 (build adapter + DMM-verify /WE 21→30 + chip on hand) |
 | 80 (close) | v1.14 | 0/4 | Planned | 4 plans verified PASSED 2026-06-22; hardware-gated on adapter build (defers cleanly if absent) |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
