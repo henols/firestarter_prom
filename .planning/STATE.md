@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.14
 milestone_name: — Feasible-Gap Implementation
-status: executing
-stopped_at: Phase 77 wave 3 — 77-04 awaiting Leonardo bench checkpoint
-last_updated: "2026-06-22T06:57:09.684Z"
-last_activity: 2026-06-22 -- Phase 77 waves 1-2 executed (77-01/02/03 complete); 77-04 hardware bench checkpoint pending
+status: verifying
+stopped_at: Phase 77 context gathered
+last_updated: "2026-06-22T07:39:15.322Z"
+last_activity: 2026-06-22
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 4
-  completed_plans: 3
-  percent: 75
+  completed_plans: 4
+  percent: 25
 ---
 
 # Project State
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 77 — Erase Write-Path Graduation (0x07 EE-EPROMs)
-Plan: 77-04 (Wave 3) — Leonardo bench proof; **awaiting operator hardware checkpoint**
-Status: Waves 1-2 complete (77-01/02/03 ✓, all software gates green); 77-04 is `autonomous: false` (3 human bench tasks) — phase NOT verified/closed
-Last activity: 2026-06-22 -- Phase 77 waves 1-2 executed; 77-04 hardware bench checkpoint pending
+Phase: 78 — X88C64 0x34 Firmware Handler (not started)
+Plan: Not started
+Status: Phase 77 COMPLETE ✓ — verified passed 5/5 (ERASE-01/02, SAFE-01/02/03); bench-proven on Leonardo. W27C512-class chips now auto-erase on default write.
+Last activity: 2026-06-22 -- Phase 77 erase write-path graduation complete (software + Leonardo bench proof)
 Sub-repo branch: firestarter_app on `v1.14-feasible-gap-implementation` (off beta); source commits inside submodule; meta gitlink PINNED until beta cut
 
 ## Project Reference

@@ -11,8 +11,8 @@
 
 ### Erase Write-Path — 999.4 (was v1.13 ERASE-01, skipped Phase 75)
 
-- [ ] **ERASE-01**: Writing a W27C512-class EE-EPROM (the 7–8 `electrical.type=="EEPROM"` chips on protocol 0x07) auto-erases before programming — `FLAG_CAN_ERASE` wired from `electrical.type=="EEPROM"` in `convert_to_programmer` (`firestarter_app/firestarter/database.py`), not the always-zero `info-flags & 0x10`. Firmware `eprom_write_init` guard already honors the flag.
-- [ ] **ERASE-02**: The write → auto-erase → program → verify cycle is bench-confirmed on Leonardo with a real W27C512 (14V erase-rail chip-OUT VPP dry-run first, under the VPP ceiling).
+- [x] **ERASE-01**: Writing a W27C512-class EE-EPROM (the 7–8 `electrical.type=="EEPROM"` chips on protocol 0x07) auto-erases before programming — `FLAG_CAN_ERASE` wired from `electrical.type=="EEPROM"` in `convert_to_programmer` (`firestarter_app/firestarter/database.py`), not the always-zero `info-flags & 0x10`. Firmware `eprom_write_init` guard already honors the flag.
+- [x] **ERASE-02**: The write → auto-erase → program → verify cycle is bench-confirmed on Leonardo with a real W27C512 (14V erase-rail chip-OUT VPP dry-run first, under the VPP ceiling).
 
 ### X88C64 0x34 Handler — 999.5 (firmware; dual-repo lockstep)
 
@@ -35,9 +35,9 @@
 
 ### Safety & Regression — cross-cutting
 
-- [ ] **SAFE-01**: For each graduated chip family, the `chip_resolver.resolve_chip` host-guard refusal is removed only as the FINAL step, after native register-bit (recording-stub) + host wire round-trip + Leonardo bench validation are all on record.
-- [ ] **SAFE-02**: The `check_dispatch.py` full-DB VPP-safety gate passes after each graduation — no chip dispatches a VPP above its family invariant / the new 25V ceiling.
-- [ ] **SAFE-03**: Firmware ↔ host constant parity preserved — any `FLAG_*` / protocol constant touched in `firestarter_app/firestarter/constants.py` and `firestarter/include/firestarter.h` is changed in lockstep; parity tests stay green.
+- [x] **SAFE-01**: For each graduated chip family, the `chip_resolver.resolve_chip` host-guard refusal is removed only as the FINAL step, after native register-bit (recording-stub) + host wire round-trip + Leonardo bench validation are all on record.
+- [x] **SAFE-02**: The `check_dispatch.py` full-DB VPP-safety gate passes after each graduation — no chip dispatches a VPP above its family invariant / the new 25V ceiling.
+- [x] **SAFE-03**: Firmware ↔ host constant parity preserved — any `FLAG_*` / protocol constant touched in `firestarter_app/firestarter/constants.py` and `firestarter/include/firestarter.h` is changed in lockstep; parity tests stay green.
 
 ## v2 Requirements (deferred)
 
@@ -63,8 +63,8 @@ Which phases cover which requirements. Filled in by the roadmapper.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ERASE-01 | Phase 77 | Pending |
-| ERASE-02 | Phase 77 | Pending |
+| ERASE-01 | Phase 77 | Complete |
+| ERASE-02 | Phase 77 | Complete |
 | XIC-01 | Phase 78 | Pending |
 | XIC-02 | Phase 78 | Pending |
 | XIC-03 | Phase 78 | Pending |
@@ -75,11 +75,12 @@ Which phases cover which requirements. Filled in by the roadmapper.
 | ADPT-01 | Phase 80 | Pending |
 | ADPT-02 | Phase 80 | Pending |
 | ADPT-03 | Phase 80 | Pending |
-| SAFE-01 | Phase 77 | Pending |
-| SAFE-02 | Phase 77 | Pending |
-| SAFE-03 | Phase 77 | Pending |
+| SAFE-01 | Phase 77 | Complete |
+| SAFE-02 | Phase 77 | Complete |
+| SAFE-03 | Phase 77 | Complete |
 
 **Coverage:**
+
 - v1 requirements: 15 total
 - Mapped to phases: 15 ✓ (Phase 77: ERASE-01/02 + SAFE-01/02/03; Phase 78: XIC-01/02/03/04; Phase 79: NMOS-01/02/03; Phase 80: ADPT-01/02/03)
 - Unmapped: 0

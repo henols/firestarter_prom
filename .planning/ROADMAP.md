@@ -58,7 +58,7 @@ Full detail: [`.planning/milestones/v1.10-ROADMAP.md`](milestones/v1.10-ROADMAP.
 
 ### Phases
 
-- [ ] **Phase 77: Erase Write-Path Graduation (0x07 EE-EPROMs)** — Wire `FLAG_CAN_ERASE` from `electrical.type=="EEPROM"` (not the always-zero `info-flags & 0x10`) so writing a W27C512-class chip auto-erases first; bench-confirm the write→erase→program→verify cycle on Leonardo. Establishes the SAFE-01/02/03 graduation pattern. Host-only; most-ready. (ERASE-01/02, SAFE-01/02/03)
+- [x] **Phase 77: Erase Write-Path Graduation (0x07 EE-EPROMs)** — Wire `FLAG_CAN_ERASE` from `electrical.type=="EEPROM"` (not the always-zero `info-flags & 0x10`) so writing a W27C512-class chip auto-erases first; bench-confirm the write→erase→program→verify cycle on Leonardo. Establishes the SAFE-01/02/03 graduation pattern. Host-only; most-ready. (ERASE-01/02, SAFE-01/02/03) (completed 2026-06-22)
 - [ ] **Phase 78: X88C64 0x34 Firmware Handler** — Resolve the ALE-routing question by bench investigation FIRST, then implement `configure_x88c64` (8051 multiplexed bus, page write, toggle-bit polling) registered before the not-implemented guard; flash-gated; graduate X88C64P. The only firmware-adding gap → dual-repo lockstep. (XIC-01/02/03/04)
 - [ ] **Phase 79: 25V NMOS Ceiling Raise** — Operator multimeter ≥25V chip-OUT dry-run FIRST, then raise `RURP_VPP_CEILING_MV` 22000→25000 + the `check_dispatch.py` invariant; re-classify + graduate the 4 NMOS chips. Host-only; hardware-gated on the 25V rail. (NMOS-01/02/03)
 - [ ] **Phase 80: AT28C04/16 Adapter Graduation** — Build the DIP24→DIP32 adapter per the Phase 76 spec + DMM continuity check FIRST, then wire the 9 chips through the existing `configure_eeprom28c` (0x0D, VPP-free) handler; remove the `adapter-required` refusal; graduate. Host-only but HARDWARE-BLOCKED on the physical adapter → sequence last; can defer cleanly without blocking 77–79. (ADPT-01/02/03)
@@ -90,7 +90,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 77-04-PLAN.md — Leonardo bench proof: write→auto-erase→program→verify + chip-OUT 14V VPP dry-run + SHA match + negative control (ERASE-02, autonomous:false)
+- [x] 77-04-PLAN.md — Leonardo bench proof: write→auto-erase→program→verify + chip-OUT 14V VPP dry-run + SHA match + negative control (ERASE-02, autonomous:false)
 
 **UI hint**: no
 
@@ -724,7 +724,7 @@ Plans:
 | 74 | v1.13 | 2/3 | ✅ Shipped (Wave-2 HW re-bench → v1.14) | 2026-06-18 |
 | 75 | v1.13 | 0/— | ⏸ Deferred to v1.14 (Backlog 999.4) | — |
 | 76 (close) | v1.13 | 2/2 | ✅ Shipped | 2026-06-18 |
-| 77 | v1.14 | 3/4 | In Progress|  |
+| 77 | v1.14 | 4/4 | Complete    | 2026-06-22 |
 | 78 | v1.14 | 0/TBD | Not started | — |
 | 79 | v1.14 | 0/TBD | Not started | — |
 | 80 (close) | v1.14 | 0/TBD | Not started | — |
@@ -839,7 +839,7 @@ Plans:
   2. The same file (or a companion file) lists every intra-algorithm DB inconsistency — chips that share `pin_count` + `algorithm` but differ in `pulse_duration`, `chip_id_check`, or `pinout` — with each inconsistency labeled as a defect candidate for v1.4 or a sub-repo PR (no auto-fixes applied in v1.3).
   3. Operator can use the matrix to confirm that the six BENCH chips (BENCH-01..06) span the pinout classes and pulse-duration profiles actually represented in the DB, so bench results generalize to the rest of the 339 rows.
 
-**Plans:** 2/2 plans complete
+**Plans:** 4/4 plans complete
 
 - [x] 11-01-PLAN.md — Wave 0 failing-test scaffold for tests/test_audit_coverage_matrix.py (10 tests) ✅ 2026-05-19
 - [x] 11-02-PLAN.md — Wave 1 tool skeleton + CLI + §1 Summary + §2 DB Count Reconciliation ✅ 2026-05-19
