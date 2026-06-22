@@ -149,7 +149,11 @@ Plans:
   2. The 9 AT28C04/AT28C16 chips are wired through the existing `configure_eeprom28c` (0x0D, VPP-free) handler: the `_AT28C_DIP24_NAMES` rule arm in `build_db.py` and the `adapter-required` refusal in `chip_resolver.resolve_chip` are removed, and a host wire round-trip proves correct dispatch.
   3. **Graduation gate (FINAL step):** the 9 chips flip to `supported` only after a golden write + read-back round-trip is bench-confirmed on Leonardo with the adapter seated (SHA-match + non-vacuous negative control); `check_dispatch.py` passes and lockstep constant parity holds. If the adapter is not built, the phase defers cleanly with the chips remaining honestly `adapter-required`.
 
-**Plans**: TBD
+**Plans**: 4 plans
+- [ ] 80-01-PLAN.md — ADPT-01 (Wave 1, hardware gate): build DIP24→DIP32 adapter + DMM continuity check (esp. /WE pin 21→30) + standing bench precondition; clean deferral if adapter/chip absent
+- [ ] 80-02-PLAN.md — ADPT-02 (Wave 2, RED): write/invert AT28C04/16 graduation tests before the source edit
+- [ ] 80-03-PLAN.md — ADPT-02 + SAFE-01/02/03 (Wave 2, GREEN): delete the _AT28C_DIP24_NAMES arm, regenerate the DB, run SAFE gates, fix all test breakage in the same wave
+- [ ] 80-04-PLAN.md — ADPT-03 + SAFE-01 (Wave 3, hardware FINAL): adapter-seated Leonardo write + independent read SHA-match + negative control — the evidence-gated graduation
 **UI hint**: no
 
 ### v1.14 Coverage
