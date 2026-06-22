@@ -81,12 +81,12 @@ Full detail: [`.planning/milestones/v1.10-ROADMAP.md`](milestones/v1.10-ROADMAP.
 Plans:
 **Wave 1**
 
-- [ ] 77-01-PLAN.md — Canonical FLAG_CAN_ERASE derivation in convert_to_programmer (electrical-type) + 3 wire-level unit tests (ERASE-01)
-- [ ] 77-02-PLAN.md — D-07 0xA4 regression test: INIT/END DATA frames not acked (ack_data=False) (ERASE-01)
+- [x] 77-01-PLAN.md — Canonical FLAG_CAN_ERASE derivation in convert_to_programmer (electrical-type) + 3 wire-level unit tests (ERASE-01)
+- [x] 77-02-PLAN.md — D-07 0xA4 regression test: INIT/END DATA frames not acked (ack_data=False) (ERASE-01)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 77-03-PLAN.md — SAFE gates post-edit: check_dispatch.py green (SAFE-02), FLAG_CAN_ERASE parity (SAFE-03), SAFE-01 N/A-no-refusal + full suite/cov
+- [x] 77-03-PLAN.md — SAFE gates post-edit: check_dispatch.py green (SAFE-02), FLAG_CAN_ERASE parity (SAFE-03), SAFE-01 N/A-no-refusal + full suite/cov
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -724,7 +724,7 @@ Plans:
 | 74 | v1.13 | 2/3 | ✅ Shipped (Wave-2 HW re-bench → v1.14) | 2026-06-18 |
 | 75 | v1.13 | 0/— | ⏸ Deferred to v1.14 (Backlog 999.4) | — |
 | 76 (close) | v1.13 | 2/2 | ✅ Shipped | 2026-06-18 |
-| 77 | v1.14 | 0/TBD | Not started | — |
+| 77 | v1.14 | 3/4 | In Progress|  |
 | 78 | v1.14 | 0/TBD | Not started | — |
 | 79 | v1.14 | 0/TBD | Not started | — |
 | 80 (close) | v1.14 | 0/TBD | Not started | — |
