@@ -59,6 +59,7 @@ one structurally (the dangerous code was never created), and the live SAFE invar
 | Audit Date | Threats Total | Closed | Open | Run By |
 |------------|---------------|--------|------|--------|
 | 2026-06-22 | 4 | 4 | 0 | gsd-secure-phase (orchestrator; short-circuit — plan-time register, threats_open: 0) |
+| 2026-06-22 | 4 | 4 | 0 | gsd-secure-phase re-run (live re-verification — all closure evidence re-confirmed below; no drift) |
 
 **Closure evidence (verified live 2026-06-22):**
 - `git -C firestarter status --porcelain` → clean; no firmware src/include/test changes (T-78-01/02/03).
