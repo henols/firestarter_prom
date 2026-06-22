@@ -272,6 +272,110 @@ A future milestone implementing the 0x34 handler needs:
 
 ---
 
+## A6 ALE-Routing Verdict (Phase 78)
+
+A6 VERDICT: PCB-BLOCKED
+
+**Confidence:** HIGH. Resolved by a source/schematic trace by Claude (D-01) — NOT an
+operator bench trace — of the RURP control-register bit map (`rurp_pinout.h`), the
+register-write path (`rurp_register_utils.h`), and the 74HC573 strobe inventory
+(`rurp_shield.h`). This closes Assumption A6 (§6), which was LOW confidence.
+
+### Why PCB-BLOCKED
+
+The X88C64 needs a dedicated ALE (Address Latch Enable) signal at DIP socket pin 22 to
+sequence its 8051 multiplexed A/D bus (§2). The trace shows there is **no free `CTRL_*`
+bit and no free 74HC573 strobe** to drive ALE without a physical board change, and there
+is **no control line provably idle during an X88C64 write** that could be safely reused.
+
+### CTRL_* Bit Allocation — Every Bit Accounted For
+
+**8-bit layout** (`#ifndef HARDWARE_REVISION`, `rurp_pinout.h:74–83`):
+
+| Bit | CTRL_* function | Line | Free for ALE? |
+|-----|-----------------|------|---------------|
+| 0x01 | `CTRL_VPP_VPE_DROP_ENABLE` (aliased `CTRL_ADDRESS_LINE_16`) | rurp_pinout.h:75–76 | No — VPE drop / A16 |
+| 0x02 | `CTRL_VPP_A9_ENABLE` | rurp_pinout.h:77 | No — A9 VPP (chip-ID reads) |
+| 0x04 | `CTRL_VPE_ENABLE` | rurp_pinout.h:78 | No — VPE direct path |
+| 0x08 | `CTRL_VPP_P1_ENABLE` | rurp_pinout.h:79 | No — VPP to socket pin 1 (Intel flash) |
+| 0x10 | `CTRL_ADDRESS_LINE_17` | rurp_pinout.h:80 | No — address bit 17 |
+| 0x20 | `CTRL_ADDRESS_LINE_18` | rurp_pinout.h:81 | No — address bit 18 |
+| 0x40 | `CTRL_READ_WRITE` | rurp_pinout.h:82 | No — R/W direction, toggled on every bus access |
+| 0x80 | `CTRL_VPP_REGULATOR_ENABLE` | rurp_pinout.h:83 | No — VPP boost regulator |
+
+**Wide layout** (`#else` / `HARDWARE_REVISION`, `rurp_pinout.h:85–97`; production builds
+use `-D HARDWARE_REVISION` per `platformio.ini`):
+
+| Bit | CTRL_* function | Line | Free for ALE? |
+|-----|-----------------|------|---------------|
+| 0x01 | `CTRL_ADDRESS_LINE_16` | rurp_pinout.h:88 | No — A16 (split off from VPE_DROP) |
+| 0x02 | `CTRL_VPP_A9_ENABLE` | rurp_pinout.h:89 | No |
+| 0x04 | `CTRL_VPE_ENABLE` | rurp_pinout.h:90 | No |
+| 0x08 | `CTRL_VPP_P1_ENABLE` | rurp_pinout.h:91 | No |
+| 0x10 | `CTRL_ADDRESS_LINE_17` | rurp_pinout.h:92 | No |
+| 0x20 | `CTRL_ADDRESS_LINE_18` | rurp_pinout.h:93 | No |
+| 0x40 | `CTRL_READ_WRITE` | rurp_pinout.h:94 | No |
+| 0x80 | `CTRL_VPP_REGULATOR_ENABLE` | rurp_pinout.h:95 | No |
+| 0x100 | `CTRL_VPP_VPE_DROP_ENABLE` | rurp_pinout.h:96 | **Non-transmissible** (see below) |
+
+Both layouts allocate every bit position **0x01 through 0x80** to a named, actively-used
+`CTRL_*` function. There is no spare bit in the 8-bit-wide control register.
+
+The `#define CTRL_ADDRESS_LINE_13 0x20` at `rurp_pinout.h:99` is annotated "reserved — no
+current call-site" but it **collides** with `CTRL_ADDRESS_LINE_18` (also 0x20). It is a
+documentation artifact, not a free bit — setting 0x20 drives A18, so it cannot be
+repurposed for ALE.
+
+### The 0x100 Bit Cannot Reach the 74HC573 (uint8_t-truncation argument)
+
+The wide layout defines `CTRL_VPP_VPE_DROP_ENABLE = 0x100` (`rurp_pinout.h:96`). This looks
+like a 9th control bit, but it can never be physically transmitted:
+
+- `rurp_internal_write_to_register` (`rurp_register_utils.h:63–89`) pushes control data onto
+  the shared bus via `rurp_write_data_buffer(data)` at `rurp_register_utils.h:83`.
+- `rurp_write_data_buffer` is declared `void rurp_write_data_buffer(uint8_t data)`
+  (`rurp_shield.h:118`). The parameter is `uint8_t`, so any value `> 0xFF` is truncated to
+  8 bits before it ever reaches the 74HC573 — `0x100 & 0xFF == 0x00`.
+
+So the "9th bit" is a logical flag the firmware special-cases elsewhere; it is **not** a
+real, drivable hardware line that could be repurposed for ALE. A genuine 9th control bit
+would require a second 74HC573 control latch and a new strobe — a PCB change. (See §6 A6
+and the v1.7 Phase-33 0x01→0x100 relocation in the RESEARCH State-of-the-Art table.)
+
+### 74HC573 Strobe Inventory — No Free Strobe for ALE
+
+The RURP latches are strobed by the bit masks in `rurp_shield.h:53–57`:
+
+| Strobe constant | Value | Function | Line |
+|-----------------|-------|----------|------|
+| `LEAST_SIGNIFICANT_BYTE` | 0x01 | LSB address latch | rurp_shield.h:53 |
+| `MOST_SIGNIFICANT_BYTE` | 0x02 | MSB address latch | rurp_shield.h:54 |
+| `OUTPUT_ENABLE` | 0x04 | Chip /OE | rurp_shield.h:55 |
+| `CONTROL_REGISTER` | 0x08 | Control register latch | rurp_shield.h:56 |
+| `CHIP_ENABLE` | 0x20 | Chip /CE | rurp_shield.h:57 |
+
+`rurp_internal_write_to_register` (`rurp_register_utils.h:83–88`) writes by putting data on
+the shared 8-bit data bus then pulsing exactly one strobe (`rurp_set_control_pin(reg, 1)`
+HIGH, then LOW). This is a **shared-bus** architecture — only one latch is addressable at a
+time, and all five strobes above are already assigned to existing functions. There is **no
+unconnected strobe pin** available to clock an ALE latch without modifying the PCB.
+
+### D-02 Deferral Bar Honored — No Speculative Reuse Adopted
+
+No speculative reuse of a busy bit was adopted. The only superficially-tempting candidate is
+`CTRL_VPP_REGULATOR_ENABLE` (0x80, `rurp_pinout.h:83/95`) — it is "idle" for a 5V chip in the
+sense that the X88C64 uses no VPP. But pulsing it during an X88C64 write would briefly enable
+the VPP boost regulator, producing an **undamped VPP spike at the socket** — a chip-damage
+path on a 5V part. D-02 explicitly prohibits this class of creative multiplexing of a busy
+line, and the address-line and R/W bits are actively used on every bus access. Per the D-02
+bar, the verdict is therefore PCB-BLOCKED, not FREE-BIT-FOUND.
+
+### Verdict Consequence
+
+X88C64 stays `support_status: protocol-not-implemented` and host-refused. No `0x34` handler
+is written this phase (Plan 02 reads this verdict and no-ops on the handler-write branch).
+The future-unblock path is recorded in the FUT-01 spec below.
+
 ## 7. Sources
 
 | Source | Confidence | Notes |
