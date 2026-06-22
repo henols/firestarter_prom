@@ -442,6 +442,15 @@ This is a documentation-only plan; the safety invariants hold without action:
 - **SAFE-03:** No `FLAG_*` or protocol constant was touched, so the `constants.py` ↔
   `firestarter.h` parity is untouched — no lockstep change required.
 
+### Plan 02 Branch Decision (Phase 78)
+
+Plan 02's leading BLOCKING gate read the `A6 VERDICT: PCB-BLOCKED` line above and took the
+DEFER branch (Branch A) — no `configure_x88c64` handler, no 0x34 dispatch arm, no
+`test_val_x88c64` suite, no `DIP24_X88C64` pinout. X88C64 stays `protocol-not-implemented`
+and host-refused; the host-guard is intact; graduation stays open under FUT-01.
+
+Branch A — ALE PCB-blocked, no handler code; graduation deferred FUT-01.
+
 ## 7. Sources
 
 | Source | Confidence | Notes |
