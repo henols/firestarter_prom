@@ -746,7 +746,7 @@ Plans:
 | 77 | v1.14 | 4/4 | Complete    | 2026-06-22 |
 | 78 | v1.14 | 2/2 | Complete | X88C64 0x34 defer-path: A6 PCB-BLOCKED → no handler; FUT-01 |
 | 79 | v1.14 | 1/3 | ⛔ Blocked  | NMOS-01 gate NOT CLEARED (bench VPP ~12V < 25V); NMOS-02/03 deferred FUT-03 (PCB resistor change needed) |
-| 80 (close) | v1.14 | 0/TBD | Not started | — |
+| 80 (close) | v1.14 | 0/4 | Planned | 4 plans verified PASSED 2026-06-22; hardware-gated on adapter build (defers cleanly if absent) |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
