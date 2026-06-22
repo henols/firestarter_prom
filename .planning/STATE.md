@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.14
 milestone_name: — Feasible-Gap Implementation
 status: executing
-stopped_at: Phase 78 complete (Plan 02 DEFER branch — A6 PCB-BLOCKED)
-last_updated: "2026-06-22T10:07:32.000Z"
-last_activity: 2026-06-22
+stopped_at: Phase 79 Plan 01 hardware gate NOT CLEARED (VPP ~12V < 25V) — Plans 02/03 BLOCKED
+last_updated: "2026-06-22T13:57:30.054Z"
+last_activity: 2026-06-22 -- Phase 79 hardware gate (NMOS-01) evaluated: NOT CLEARED
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 6
-  completed_plans: 6
-  percent: 50
+  total_plans: 9
+  completed_plans: 7
+  percent: 56
 ---
 
 # Project State
@@ -21,11 +21,12 @@ progress:
 
 ## Current Position
 
-Phase: 78 (x88c64-0x34-firmware-handler) — COMPLETE (defer-path; ready for verify/secure)
-Plan: 2 of 2 (DONE)
-Status: Phase execution complete — Plan 02 took DEFER branch (A6 PCB-BLOCKED); zero code changes
-Last activity: 2026-06-22
-Sub-repo branch: firestarter_app on `v1.14-feasible-gap-implementation` (off beta); source commits inside submodule; meta gitlink PINNED until beta cut
+Phase: 79 (25v-nmos-ceiling-raise) — HALTED at Plan 01 (hardware gate NOT CLEARED)
+Plan: 1 of 3 (79-01 done with NOT-CLEARED verdict; 79-02/79-03 BLOCKED)
+Status: Hardware gate NMOS-01 failed — chip-OUT VPP dry-run measured ~12V at socket (firmware 12.3V), < 25V required. Plan 02 ceiling change NOT authorized. Phase cannot proceed until the bench VPP rail reaches ≥25V (PCB feedback-resistor change most likely) and the chip-OUT gate re-runs to CLEARED.
+Bench: leonardo @ /dev/ttyACM0, fw 3.0.0b8, shield Rev 2.0 (operator silkscreen), R1=270000/R2=44000
+Last activity: 2026-06-22 -- Phase 79 hardware gate (NMOS-01) evaluated: NOT CLEARED
+Sub-repo branch: firestarter_app on `v1.14-feasible-gap-implementation` (off beta); source commits inside submodule; meta gitlink PINNED until beta cut. NO source/DB changes made in Phase 79 (gate blocked Plan 02).
 
 ## Project Reference
 
@@ -177,11 +178,13 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-22T10:07:32.000Z
-Stopped at: Phase 78 complete (Plan 02 DEFER branch — A6 PCB-BLOCKED)
-Resume: `/gsd-verify-phase 78` (then `/gsd-secure-phase 78`)
+Last session: 2026-06-22T13:57:30.054Z
+Stopped at: Phase 79 Plan 01 hardware gate NOT CLEARED — VPP ~12V at socket (< 25V); Plans 02/03 BLOCKED
+Resume: hardware remediation required FIRST (raise bench VPP rail to ≥25V — PCB feedback-resistor change most likely; R1 recal unlikely since firmware 12.3V and DMM ~12V agree, so the scaling is correct and the rail is genuinely at the 12V setpoint). Then re-run `/gsd-execute-phase 79` to re-evaluate the chip-OUT gate; only a CLEARED ≥25V verdict authorizes Plan 02 (ceiling 22000→25000) and Plan 03 (graduation bench proof).
 
 ## Decisions
+
+- [Phase 79-01]: NMOS-01 HARDWARE GATE = NOT CLEARED. Chip-OUT VPP dry-run on leonardo @ /dev/ttyACM0, shield Rev 2.0 (operator silkscreen), R1=270000/R2=44000: `firestarter vpp` read steady 12.3V (default 12V EPROM setpoint, no parameter to request 25V), operator multimeter confirmed ~12V at the socket VPP pin — both ≪ 25000 mV. Firmware does NO runtime VPP-ceiling enforcement (79-RESEARCH.md Q3), so this physical measurement is the only safety boundary; it correctly blocked the Plan 02 ceiling raise. Plans 79-02/79-03 BLOCKED pending a ≥25V re-run. Mirrors the Phase 78 DEFER discipline (gate caught a blocker; phase halts cleanly, no code/DB change).
 
 _(v1.13 decisions will be recorded here as phases execute.)_
 

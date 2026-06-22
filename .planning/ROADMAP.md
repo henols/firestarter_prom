@@ -129,9 +129,11 @@ Plans:
   3. **Graduation gate (FINAL step):** the 4 NMOS chips flip to `supported` and their host-guard refusal is removed only after a write + verify is bench-confirmed on Leonardo (independent post-write read SHA-match + non-vacuous negative control), with the live R1/R2 reconcile on record.
 
 **Plans**: 3 plans
-- [ ] 79-01-PLAN.md — NMOS-01 hardware gate: chip-OUT ≥25V VPP multimeter dry-run (autonomous:false) BEFORE any code change
+
+- [x] 79-01-PLAN.md — NMOS-01 hardware gate: chip-OUT ≥25V VPP multimeter dry-run (autonomous:false) BEFORE any code change
 - [ ] 79-02-PLAN.md — NMOS-02: raise RURP_VPP_CEILING_MV 22000→25000 + check_dispatch invariant + DB regen + 7 broken-test fixes + 3 new tests (same wave)
 - [ ] 79-03-PLAN.md — NMOS-03/SAFE-03: positive resolve_chip graduation test + parity guard + Leonardo write/verify SHA-match bench proof (autonomous:false)
+
 **UI hint**: no
 
 ### Phase 80: AT28C04/16 Adapter Graduation
@@ -737,7 +739,7 @@ Plans:
 | 76 (close) | v1.13 | 2/2 | ✅ Shipped | 2026-06-18 |
 | 77 | v1.14 | 4/4 | Complete    | 2026-06-22 |
 | 78 | v1.14 | 2/2 | Complete | X88C64 0x34 defer-path: A6 PCB-BLOCKED → no handler; FUT-01 |
-| 79 | v1.14 | 0/TBD | Not started | — |
+| 79 | v1.14 | 1/3 | In Progress|  |
 | 80 (close) | v1.14 | 0/TBD | Not started | — |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
