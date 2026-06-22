@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.14
 milestone_name: — Feasible-Gap Implementation
 status: verifying
-stopped_at: Phase 77 context gathered
-last_updated: "2026-06-22T07:39:15.322Z"
-last_activity: 2026-06-22
+stopped_at: Phase 78 context gathered
+last_updated: "2026-06-22T09:02:46.558Z"
+last_activity: 2026-06-22 -- Phase 77 erase write-path graduation complete (software + Leonardo bench proof)
 progress:
   total_phases: 4
   completed_phases: 1
@@ -177,8 +177,8 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-21T20:41:49.489Z
-Stopped at: Phase 77 context gathered
+Last session: 2026-06-22T09:02:46.551Z
+Stopped at: Phase 78 context gathered
 Resume: `/gsd-plan-phase 77`
 
 ## Decisions
