@@ -128,7 +128,10 @@ Plans:
   2. `RURP_VPP_CEILING_MV` is raised 22000 → 25000 (`firestarter_app/tools/build_db.py`) and the `check_dispatch.py` `_FAMILY_VPP_INVARIANTS` ceiling is updated in step, so the 4 NMOS chips re-classify off `vpp-exceeds-max` and the full-DB VPP-safety gate stays green at the new ceiling (no chip exceeds its family invariant; >25V chips stay fail-closed per FUT-02).
   3. **Graduation gate (FINAL step):** the 4 NMOS chips flip to `supported` and their host-guard refusal is removed only after a write + verify is bench-confirmed on Leonardo (independent post-write read SHA-match + non-vacuous negative control), with the live R1/R2 reconcile on record.
 
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 79-01-PLAN.md — NMOS-01 hardware gate: chip-OUT ≥25V VPP multimeter dry-run (autonomous:false) BEFORE any code change
+- [ ] 79-02-PLAN.md — NMOS-02: raise RURP_VPP_CEILING_MV 22000→25000 + check_dispatch invariant + DB regen + 7 broken-test fixes + 3 new tests (same wave)
+- [ ] 79-03-PLAN.md — NMOS-03/SAFE-03: positive resolve_chip graduation test + parity guard + Leonardo write/verify SHA-match bench proof (autonomous:false)
 **UI hint**: no
 
 ### Phase 80: AT28C04/16 Adapter Graduation
