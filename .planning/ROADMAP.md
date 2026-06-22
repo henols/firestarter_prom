@@ -106,7 +106,9 @@ Plans:
   3. `pio run -e leonardo` builds with the new handler at ≤ ~90% flash, measured and recorded as a phase gate.
   4. **Graduation gate (FINAL step):** X88C64P flips to `supported` and its host-guard refusal is removed only after an N≥5 write + read-back SHA-match cycle is bench-confirmed on Leonardo with a non-vacuous negative control; `check_dispatch.py` passes and the lockstep constant parity (`constants.py` ↔ `firestarter.h`) holds.
 
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 78-01-PLAN.md — Gating ALE-routing trace + A6 verdict + FUT-01 future-unblock spec + XIC-04 hardware-deferral (Wave 1)
+- [ ] 78-02-PLAN.md — CONTINGENT handler-write branch: leading [BLOCKING] verdict-gate, then configure_x88c64 + 0x34 dispatch arm + native recording-stub test + DIP24_X88C64 pinout + Leonardo flash gate; no-ops cleanly on PCB-block (Wave 2)
 **UI hint**: no
 
 ### Phase 79: 25V NMOS Ceiling Raise
