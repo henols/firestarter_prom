@@ -1,10 +1,11 @@
 ---
 phase: 77
 slug: erase-write-path-graduation-0x07-ee-eproms
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: validated
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-06-21
+validated: 2026-06-22
 ---
 
 # Phase 77 — Validation Strategy
@@ -40,15 +41,14 @@ created: 2026-06-21
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 77-01-W0 | 01 | 0 | ERASE-01 | — | N/A | unit (stub) | `pytest tests/test_database_conversion.py -x` | ❌ W0 | ⬜ pending |
-| 77-01-01 | 01 | 1 | ERASE-01 | — | EEPROM (0x07) → FLAG_CAN_ERASE set | unit | `pytest tests/test_database_conversion.py::test_convert_w27c512_flag_can_erase -x` | ❌ W0 | ⬜ pending |
-| 77-01-02 | 01 | 1 | ERASE-01 | — | UV-EPROM → flag clear | unit | `pytest tests/test_database_conversion.py::test_convert_uv_eprom_no_flag_can_erase -x` | ❌ W0 | ⬜ pending |
-| 77-01-03 | 01 | 1 | ERASE-01 | — | Flash/EEPROM (AT28C256) → flag set | unit | `pytest tests/test_database_conversion.py::test_convert_at28c256_flash_eeprom_flag_can_erase -x` | ❌ W0 | ⬜ pending |
-| 77-02-01 | 02 | 1 | ERASE-01/D-07 | T-77-A4 | INIT/END DATA frames NOT acked | unit | `pytest tests/test_eprom_operations.py::test_init_phase_data_frames_not_acked -x` | ❌ W0 | ⬜ pending |
-| 77-03-01 | 03 | 2 | SAFE-02 | T-77-VPP | check_dispatch full-DB VPP gate clean | integration | `python3 tools/check_dispatch.py` | ✅ | ⬜ pending |
-| 77-03-02 | 03 | 2 | SAFE-03 | — | FLAG_CAN_ERASE parity constants.py=firestarter.h | unit (existing) | `pytest tests/test_revision_constants_parity.py -v` | ✅ | ⬜ pending |
-| 77-03-03 | 03 | 2 | SAFE-01 | — | 8 chips supported; resolve_chip no refusal | unit (existing) | `pytest tests/test_chip_resolver.py -v` | ✅ | ⬜ pending |
-| 77-04-01 | 04 | 3 | ERASE-02 | T-77-VPP | write→auto-erase→program→verify clean on Leonardo | hardware/bench | manual — Leonardo W27C512 + SHA match | N/A | ⬜ pending |
+| 77-01-01 | 01 | 1 | ERASE-01 | — | EEPROM (0x07) → FLAG_CAN_ERASE set | unit | `pytest tests/test_database_conversion.py::test_convert_w27c512_flag_can_erase -x` | ✅ | ✅ green |
+| 77-01-02 | 01 | 1 | ERASE-01 | — | UV-EPROM → flag clear | unit | `pytest tests/test_database_conversion.py::test_convert_uv_eprom_no_flag_can_erase -x` | ✅ | ✅ green |
+| 77-01-03 | 01 | 1 | ERASE-01 | — | Flash/EEPROM (AT28C256) → flag set | unit | `pytest tests/test_database_conversion.py::test_convert_at28c256_flash_eeprom_flag_can_erase -x` | ✅ | ✅ green |
+| 77-02-01 | 02 | 1 | ERASE-01/D-07 | T-77-A4 | INIT/END DATA frames NOT acked | unit | `pytest tests/test_eprom_operations.py::test_init_phase_data_frames_not_acked -x` | ✅ | ✅ green |
+| 77-03-01 | 03 | 2 | SAFE-02 | T-77-VPP | check_dispatch full-DB VPP gate clean | integration | `python3 tools/check_dispatch.py` | ✅ | ✅ green |
+| 77-03-02 | 03 | 2 | SAFE-03 | — | FLAG_CAN_ERASE parity constants.py=firestarter.h | unit (existing) | `pytest tests/test_revision_constants_parity.py -v` | ✅ | ✅ green |
+| 77-03-03 | 03 | 2 | SAFE-01 | — | 8 chips supported; resolve_chip no refusal | unit (existing) | `pytest tests/test_chip_resolver.py -v` | ✅ | ✅ green |
+| 77-04-01 | 04 | 3 | ERASE-02 | T-77-VPP | write→auto-erase→program→verify clean on Leonardo | hardware/bench | manual — Leonardo W27C512 + SHA match | N/A | ✅ bench-proven (manual) |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -56,8 +56,8 @@ created: 2026-06-21
 
 ## Wave 0 Requirements
 
-- [ ] `tests/test_database_conversion.py` — add 3 `convert_to_programmer` FLAG_CAN_ERASE tests (EEPROM/0x07 set, UV-EPROM clear, Flash/EEPROM set)
-- [ ] `tests/test_eprom_operations.py` — add D-07 `ack_data=False` (0xA4) INIT/END-DATA-not-acked regression test
+- [x] `tests/test_database_conversion.py` — add 3 `convert_to_programmer` FLAG_CAN_ERASE tests (EEPROM/0x07 set, UV-EPROM clear, Flash/EEPROM set) — **landed (77-01, commit `92898f8`)**
+- [x] `tests/test_eprom_operations.py` — add D-07 `ack_data=False` (0xA4) INIT/END-DATA-not-acked regression test — **landed (77-02, commit `5d8a5b1`)**
 
 *Existing infrastructure (`test_chip_resolver.py`, `test_revision_constants_parity.py`, `check_dispatch.py`) covers SAFE-01/02/03 with no new files.*
 
@@ -73,11 +73,29 @@ created: 2026-06-21
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 30s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 30s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** validated 2026-06-22
+
+---
+
+## Validation Audit 2026-06-22
+
+All 7 automatable per-task verifications confirmed present and green (live run); the single
+ERASE-02 row is genuinely hardware-bound and bench-proven (77-04: clean no-`-b`
+write→auto-erase→program→verify on Leonardo W27C512, readback SHA match, non-vacuous wrong-file
+negative control). Full suite green, 77.79% coverage (≥70), check_dispatch.py PASS. No gaps to
+fill — phase is Nyquist-compliant.
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
+| Automated (green) | 7 |
+| Manual-only (bench-proven) | 1 |
