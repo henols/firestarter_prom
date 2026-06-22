@@ -376,6 +376,72 @@ X88C64 stays `support_status: protocol-not-implemented` and host-refused. No `0x
 is written this phase (Plan 02 reads this verdict and no-ops on the handler-write branch).
 The future-unblock path is recorded in the FUT-01 spec below.
 
+### FUT-01 Future-Unblock Spec (D-03)
+
+`FUT-01` (REQUIREMENTS.md) stays OPEN. A future milestone that wants to drive the X88C64
+ALE line needs **ONE** of the following hardware paths (the control register is full and the
+strobe inventory is exhausted — see the verdict trace above):
+
+1. **New shield revision (≥ Rev 2.4) with a 9th control bit.** Add a second 74HC573 control
+   latch plus a dedicated Arduino GPIO strobe line so a genuine 9th control bit becomes
+   physically drivable (the current `0x100` define is non-transmissible through the 8-bit
+   `rurp_write_data_buffer` path). ALE would then be one bit on the new latch. This is the
+   cleanest path and aligns with the existing `CTRL_*` model.
+
+2. **Dedicated Arduino GPIO routed directly to socket pin 22 (ALE), bypassing the 74HC573.**
+   Pick an Arduino GPIO that is currently unused on the shield and wire it straight to the
+   X88C64 ALE pin (DIP socket pin 22), bit-banging ALE timing in firmware. Requires a board
+   trace/mod to confirm a free GPIO reaches the socket without colliding with an existing
+   signal.
+   - `TODO:` Check the Leonardo ATmega32u4 GPIO-to-RURP-socket map (RESEARCH Open-Question 2)
+     for a pin routed to the shield but currently unused, that could direct-drive ALE. This
+     schematic review is out of scope for Phase 78's software trace and belongs to the future
+     unblock milestone. The Uno (ATmega328P) socket map should be checked the same way if the
+     unblock targets Uno-class boards.
+
+3. **(NOT recommended) Idle-window reuse of `OUTPUT_ENABLE` or `CHIP_ENABLE` timing as a
+   pseudo-ALE.** This is speculative multiplexing of a busy strobe and is barred by D-02
+   absent a rigorous proof that the borrowed line is provably idle across the entire X88C64
+   write window. Documented here only for completeness; do NOT pursue without that proof.
+
+Once a hardware path exists and the A6 verdict can be re-opened as FREE/BIT-AVAILABLE, the
+handler-write branch (D-05) delivers `configure_x88c64` (8051 multiplexed bus: ALE-latch →
+/WR strobe, page write ≤ 32 B, I/O6 toggle-bit polling), modeled on `eeprom_28c.cpp`, plus a
+Tier-1 native recording-stub test and the Leonardo flash-budget gate.
+
+### Graduation Pending Hardware (SC#4 / XIC-04, D-04)
+
+**Graduation pending hardware.** SC#4 / XIC-04 (graduate X88C64P to `supported` after an
+N≥5 write + read-back SHA-match with a non-vacuous negative control) is **hardware-blocked
+this phase** and is satisfied as a deferral-with-evidence, tracked under FUT-01.
+
+- **Why blocked (D-04):** The operator has neither a physical X88C64P chip nor a DIP24→DIP32
+  adapter, so no bench write/read-back cycle is possible regardless of the ALE verdict. (The
+  PCB-BLOCKED A6 verdict is a second, independent blocker: with no ALE path, no handler can
+  be written to bench at all.)
+- **Status unchanged:** X88C64 stays `support_status: protocol-not-implemented` in
+  `chip_database.json` and remains **host-refused** by `chip_resolver.resolve_chip`. No DB
+  entry changes this phase.
+- **Eventual bench graduation (tracked under FUT-01):** N≥5 write + read-back SHA-match +
+  a non-vacuous negative control, **Leonardo only** (the v1.9 read bug corrupts the verify
+  oracle on Rev-0/Rev-2.0; uno328pb is N/A for program/write per 999.2). Standing bench
+  precondition: chip-OUT VPP multimeter dry-run first; ASK which silkscreen shield rev is
+  mounted; live `r1 ≈ 270000` readback; verify the `controller:` port identity per task.
+  Also requires the DIP24→DIP32 adapter (same adapter pattern as the AT28C04/AT28C16 work,
+  Phase 80) and — per the A6 verdict — a hardware ALE path from the FUT-01 spec above.
+
+### SAFE Invariants (SAFE-01/02/03) — Hold Trivially This Plan
+
+This is a documentation-only plan; the safety invariants hold without action:
+
+- **SAFE-01:** The `chip_resolver.resolve_chip` host-guard refusal is **NOT removed** this
+  phase. Guard removal is the FINAL graduation step (D-04/D-05) and stays deferred under
+  FUT-01.
+- **SAFE-02:** No DB entry changes and no dispatch changes → `check_dispatch.py` is unaffected
+  and stays green. 0x34 remains non-dispatchable.
+- **SAFE-03:** No `FLAG_*` or protocol constant was touched, so the `constants.py` ↔
+  `firestarter.h` parity is untouched — no lockstep change required.
+
 ## 7. Sources
 
 | Source | Confidence | Notes |
