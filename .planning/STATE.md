@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.14
 milestone_name: — Feasible-Gap Implementation
-status: Phase 80 deferred cleanly — adapter not built / no AT28C chip on hand
+status: executing
 stopped_at: Phase 79 context gathered (gate re-examined; reframed)
-last_updated: "2026-06-23T08:26:51.304Z"
-last_activity: 2026-06-22 -- Phase 80 ADPT-01 gate NOT CLEARED, deferred cleanly (FUT-04)
+last_updated: "2026-06-23T09:14:58.995Z"
+last_activity: 2026-06-23 -- Phase 79 planning complete
 progress:
   total_phases: 4
   completed_phases: 2
@@ -23,9 +23,9 @@ progress:
 
 Phase: 80 (at28c04-16-adapter-graduation) — ⛔ HARDWARE-BLOCKED (ADPT-01 gate NOT CLEARED; FUT-04)
 Plan: 1 of 4 done (deferral); 02/03/04 BLOCKED
-Status: Phase 80 deferred cleanly — adapter not built / no AT28C chip on hand
+Status: Ready to execute
 Bench: leonardo @ /dev/ttyACM0, fw 3.0.0b8, shield Rev 2.0 (operator silkscreen), R1=270000/R2=44000 (last-known; no board connected at the 80-01 evaluation)
-Last activity: 2026-06-22 -- Phase 80 ADPT-01 gate NOT CLEARED, deferred cleanly (FUT-04)
+Last activity: 2026-06-23 -- Phase 79 planning complete
 Sub-repo branch: firestarter_app on `v1.14-feasible-gap-implementation` (off beta); source commits inside submodule; meta gitlink PINNED until beta cut. NO source/DB changes made in Phase 80 (gate blocked Plans 02/03/04) — same clean-deferral discipline as Phase 78/79.
 
 ## Project Reference

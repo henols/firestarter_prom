@@ -131,9 +131,16 @@ Plans:
   3. **Graduation gate (FINAL step):** the 4 NMOS chips flip to `supported` (host guard self-clears from the DB regen) only after a write + verify is bench-confirmed on Leonardo (independent post-write read SHA-match + non-vacuous negative control), with the live R1/R2 reconcile on record.
 
 **Plans**: 3 plans
+**Wave 1**
 
 - [ ] 79-01-PLAN.md — NMOS-01 corrected hardware gate: chip-OUT direct-VPE ≥25V dry-run at max pot via `dev reg 0 0 0x86 -f` (autonomous:false, gating) — supersedes the prior `firestarter vpp` run
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 79-02-PLAN.md — NMOS-02: raise RURP_VPP_CEILING_MV 22000→25000 + check_dispatch invariant + DB regen + 7 broken-test fixes + 3 new non-vacuous tests (same wave) + FUT-03 doc correction
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 79-03-PLAN.md — NMOS-03/SAFE-03: positive resolve_chip graduation test + parity guard + Leonardo write/verify SHA-match bench proof with negative control (autonomous:false)
 
 **UI hint**: no
@@ -152,10 +159,12 @@ Plans:
 **Status (2026-06-22): ⛔ HARDWARE-BLOCKED at the ADPT-01 gate (FUT-04).** The `autonomous: false` gating adapter-build step (80-01) returned **NOT CLEARED**: the physical DIP24→DIP32 adapter is not built and no AT28C04/AT28C16 chip is confirmed on hand (no board was even connected at evaluation). Per the operator decision the phase deferred cleanly — zero DB/code/constants change, the 9 AT28C chips stay honestly `adapter-required`, the v1.12 host-guard refusal is preserved. The graduation (80-02/03) and bench proof (80-04) are correctly withheld. Resume once the adapter is built + DMM-continuity-verified (esp. /WE pin 21→30) and an AT28C chip is on hand. (ADPT-01 evaluated 2026-06-22; ADPT-02/03 deferred FUT-04.) Evidence in `80-01-SUMMARY.md`.
 
 **Plans**: 4 plans
+
 - [x] 80-01-PLAN.md — ADPT-01 (Wave 1, hardware gate): gate evaluated **NOT CLEARED** — adapter not built / no chip on hand; clean deferral (no DB/code change, chips stay `adapter-required`, FUT-04)
 - [ ] 80-02-PLAN.md — ⛔ BLOCKED (FUT-04, needs CLEARED adapter gate) — ADPT-02 (RED): write/invert AT28C04/16 graduation tests before the source edit
 - [ ] 80-03-PLAN.md — ⛔ BLOCKED (FUT-04, depends on 80-02) — ADPT-02 + SAFE-01/02/03 (GREEN): delete the _AT28C_DIP24_NAMES arm, regenerate the DB, run SAFE gates, fix all test breakage in the same wave
 - [ ] 80-04-PLAN.md — ⛔ BLOCKED (FUT-04, depends on 80-03) — ADPT-03 + SAFE-01 (hardware FINAL): adapter-seated Leonardo write + independent read SHA-match + negative control — the evidence-gated graduation
+
 **UI hint**: no
 
 ### v1.14 Coverage
