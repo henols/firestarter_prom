@@ -758,7 +758,7 @@ Plans:
 | 76 (close) | v1.13 | 2/2 | ✅ Shipped | 2026-06-18 |
 | 77 | v1.14 | 4/4 | Complete    | 2026-06-22 |
 | 78 | v1.14 | 2/2 | Complete | X88C64 0x34 defer-path: A6 PCB-BLOCKED → no handler; FUT-01 |
-| 79 | v1.14 | 1/3 | ⛔ Blocked  | Corrected NMOS-01 gate NOT CLEARED (direct VPE ~15-19V at max pot < 25V, 2026-06-23); NMOS-02/03 deferred FUT-03 (boost-stage HW change needed) |
+| 79 | v1.14 | 2/3 | 🟢 Graduated (best-effort) | Corrected NMOS-01 gate read ~15-19V (NOT CLEARED) but operator authorized best-effort graduation, no HW change (D-07); 79-02 raised the ceiling + graduated the 4 NMOS chips to `supported`; 79-03 demoted to informational bench validation (deferred, no chip on hand) |
 | 80 | v1.14 | 1/4 | ⛔ Blocked  | ADPT-01 gate NOT CLEARED (adapter not built / no AT28C chip on hand); ADPT-02/03 deferred FUT-04 (build adapter + DMM-verify /WE 21→30 + chip on hand) |
 | 80 (close) | v1.14 | 0/4 | Planned | 4 plans verified PASSED 2026-06-22; hardware-gated on adapter build (defers cleanly if absent) |
 

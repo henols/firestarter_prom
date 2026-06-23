@@ -70,9 +70,9 @@ Which phases cover which requirements. Filled in by the roadmapper.
 | XIC-02 | Phase 78 | Pending |
 | XIC-03 | Phase 78 | Pending |
 | XIC-04 | Phase 78 | Pending |
-| NMOS-01 | Phase 79 | Pending |
+| NMOS-01 | Phase 79 | Evaluated — corrected direct-VPE gate read ~15-19V (NOT CLEARED); ≥25V pre-gate RETIRED by D-07 operator override (no HW change ever) |
 | NMOS-02 | Phase 79 | Complete |
-| NMOS-03 | Phase 79 | Pending |
+| NMOS-03 | Phase 79 | Deferred — demoted to informational best-effort bench validation (D-07); chips already `supported`, bench SHA-match optional/non-gating |
 | ADPT-01 | Phase 80 | Pending |
 | ADPT-02 | Phase 80 | Pending |
 | ADPT-03 | Phase 80 | Pending |
