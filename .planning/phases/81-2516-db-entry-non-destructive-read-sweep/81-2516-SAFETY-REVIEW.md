@@ -360,6 +360,6 @@ the chip is irreplaceable (no UV eraser available).
 5. Confirm VPP = pin 21 in the 24-DIP diagram (fourth pin from top-right).
 6. Fill in the sign-off line below.
 
-**Operator sign-off:** [ ] Approved — _name / date_
+**Operator sign-off:** [x] Approved — Henrik / 2026-06-23
 
 *Phase 81 executor: Claude (Sonnet 4.6), 2026-06-23*
