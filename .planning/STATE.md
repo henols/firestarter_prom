@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.14
 milestone_name: — Feasible-Gap Implementation
-status: executing
-stopped_at: Phase 80 Plan 01 hardware gate NOT CLEARED — adapter not built / no AT28C chip on hand; clean deferral (FUT-04), Plans 02/03/04 BLOCKED
-last_updated: "2026-06-22T21:20:45.102Z"
+status: Phase 80 deferred cleanly — adapter not built / no AT28C chip on hand
+stopped_at: Phase 79 context gathered (gate re-examined; reframed)
+last_updated: "2026-06-23T08:26:51.304Z"
 last_activity: 2026-06-22 -- Phase 80 ADPT-01 gate NOT CLEARED, deferred cleanly (FUT-04)
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 13
-  completed_plans: 7
+  completed_plans: 8
   percent: 50
 ---
 
@@ -178,8 +178,8 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-22T13:57:30.054Z
-Stopped at: Phase 79 Plan 01 hardware gate NOT CLEARED — VPP ~12V at socket (< 25V); Plans 02/03 BLOCKED
+Last session: 2026-06-23T08:26:51.295Z
+Stopped at: Phase 79 context gathered (gate re-examined; reframed)
 Resume: hardware remediation required FIRST (raise bench VPP rail to ≥25V — PCB feedback-resistor change most likely; R1 recal unlikely since firmware 12.3V and DMM ~12V agree, so the scaling is correct and the rail is genuinely at the 12V setpoint). Then re-run `/gsd-execute-phase 79` to re-evaluate the chip-OUT gate; only a CLEARED ≥25V verdict authorizes Plan 02 (ceiling 22000→25000) and Plan 03 (graduation bench proof).
 
 ## Decisions
