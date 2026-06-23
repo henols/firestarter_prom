@@ -82,7 +82,14 @@ Full detail: [`.planning/milestones/v1.14-ROADMAP.md`](milestones/v1.14-ROADMAP.
   3. The blank-state of each of the 3 true UV-EPROMs (ST M27C512, AM27C020, 2516) is recorded — gating the Phase 83 spend-vs-preserve decision.
   4. A code review confirms `FLAG_CAN_ERASE` is derived correctly for BOTH `EEPROM` and `Flash/EEPROM` electrical types (before any write); any gap is fixed and pinned by a test, host suite green (incl. the 0xA4 `test_init_phase_data_frames_not_acked` guard).
   5. Every bench task records its preconditions (board=Leonardo, shield=Rev 2.0, `controller:` identity, live `r1 ≈ 270000`); no non-Leonardo read is treated as authoritative.
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+**Wave 1** *(parallel — no file overlap; software + the 2516 entry/safety review)*
+- [ ] 81-01-PLAN.md — DB-02 fresh adversarial FLAG_CAN_ERASE re-audit + Flash/EEPROM (W29C040) pinning test + 0xA4 guard green (DB-02, SAFE-02/03)
+- [ ] 81-02-PLAN.md — 2516 user-override entry (GRAD-01 research + GRAD-02 author) + 81-2516-SAFETY-REVIEW.md + operator sign-off + EVIDENCE.{md,json} scaffold (GRAD-01/02, EVID-01/02)
+
+**Wave 2** *(operator bench — depends on 81-02 for the 2516 entry per D-10)*
+- [ ] 81-03-PLAN.md — 11-chip non-destructive read + blank-check sweep on Leonardo + Rev 2.0; populate EVIDENCE; 3 UV gating blank-states (SWEEP-01/02, EVID-03, SAFE-01)
 **UI hint**: no
 
 #### Phase 82: Electrically-Rewritable Silicon Validation
@@ -692,7 +699,7 @@ Plans:
 | 79 | v1.14 | 2/3 | 🟢 Graduated (best-effort) | VPE rail 22.4V DMM / 23.9V fw at max pot (~90% of 25V; the ~15-19V was VPP); ≥25V bar retired by D-07 (best-effort, no HW change); 79-02 raised the ceiling + graduated the 4 NMOS chips to `supported`; 79-03 informational bench validation (deferred, no chip on hand) |
 | 80 | v1.14 | 1/4 | ⛔ Blocked  | ADPT-01 gate NOT CLEARED (adapter not built / no AT28C chip on hand); ADPT-02/03 deferred FUT-04 (build adapter + DMM-verify /WE 21→30 + chip on hand) |
 | 80 (close) | v1.14 | 0/4 | Planned | 4 plans verified PASSED 2026-06-22; hardware-gated on adapter build (defers cleanly if absent) |
-| 81 | v1.15 | 0/TBD | Not started | 2516 DB entry + non-destructive read sweep (all 11 chips); EVIDENCE record + bench-safety baseline; FLAG_CAN_ERASE review |
+| 81 | v1.15 | 0/3 | Planned | 2516 DB entry + non-destructive read sweep (all 11 chips); EVIDENCE record + bench-safety baseline; FLAG_CAN_ERASE review |
 | 82 | v1.15 | 0/TBD | Not started | Electrically-rewritable silicon validation (8 chips, write→verify, SHA) |
 | 83 | v1.15 | 0/TBD | Not started | UV-EPROM write proof (3 chips, gated on P81 blank-state); 2516 bench proof → closes FUT-03 |
 | 84 (close) | v1.15 | 0/TBD | Not started | DB decode audit + conditional defect RCA (FIX-01) + milestone evidence consolidation |
