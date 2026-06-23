@@ -20,87 +20,105 @@ progress:
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: Not started — Phase 81 of 84 (2516 DB Entry + Non-Destructive Read Sweep)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-06-23 — Milestone v1.15 started
+Status: Roadmap created — ready to plan Phase 81 (`/gsd-plan-phase 81`)
+Last activity: 2026-06-23 — v1.15 roadmap created (Phases 81–84; 23/23 requirements mapped)
+
+Progress: [░░░░░░░░░░] 0%
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (v1.14 Archive section + Key Decisions)
+See: `.planning/PROJECT.md` (v1.15 Current Milestone section + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
-from upstream XML → DB → wire JSON → firmware handler. No guessing.
+from upstream XML → DB → wire JSON → firmware handler. No guessing. **v1.15 proves that
+contract holds on real silicon** for the operator's 11-chip physical inventory.
 
-**Current focus:** No active milestone — v1.14 SHIPPED 2026-06-23. Plan the next milestone
-via `/gsd-new-milestone` (fresh requirements). v1.14 delivered the first chip graduations since
-v1.0 (erase write-path Phase 77 bench-proven; 25V NMOS best-effort Phase 79) with X88C64
-(Phase 78) + AT28C04/16 adapter (Phase 80) cleanly deferred to FUT-01/03/04. Meta tagged
-`v1.14`, gsd planning merged to `beta`; lockstep beta cut `3.0.0b11` + submodule gitlink bump
-remain OPERATOR-GATED (gitlinks PINNED). Standing carry-forward: deferred v1.9 read-bug RCA
-(resumes at Phase 45).
+**Current focus:** Phase 81 — author the `2516` user-override DB entry + run the non-destructive
+read+blank-check sweep across all 11 chips on Leonardo + RURP Rev 2.0, establishing the evidence
+record and the bench-safety baseline (SAFE-01/02/03) with zero chips consumed. Board LOCKED =
+Leonardo + Rev 2.0 (only trustworthy program/write/verify combo); mostly host-side; firmware
+untouched unless a bench-surfaced defect forces a lockstep fix. v1.14 `3.0.0b11` lockstep beta cut
+remains OPERATOR-GATED (gitlinks PINNED). Standing carry-forward: deferred v1.9 read-bug RCA
+(resumes at Phase 45 → FUT-C).
 
 ## Roadmap Summary
 
-**v1.14 ACTIVE — 4 phases (77–80), 15/15 requirements mapped:**
+**v1.15 ACTIVE — 4 phases (81–84), 23/23 requirements mapped. Non-destructive-first ordering:**
 
-- **Phase 77: Erase Write-Path Graduation** (ERASE-01, ERASE-02 + cross-cutting SAFE-01/02/03) —
-  host-only, most-ready. Wire `FLAG_CAN_ERASE` from `electrical.type=="EEPROM"` (not the always-zero
-  `info-flags & 0x10`) in `database.py::convert_to_programmer` so the 7–8 0x07 EE-EPROMs auto-erase
-  before write; firmware `eprom_write_init` guard already honors the flag. Bench-confirm
-  write→erase→program→verify on Leonardo with W27C512 (14V erase-rail chip-OUT VPP dry-run first).
-  This is the skipped v1.13 Phase 75; establishes the SAFE-01/02/03 graduation-gate-last pattern.
+- **Phase 81: 2516 DB Entry + Non-Destructive Read Sweep** (GRAD-01/02, SWEEP-01/02, EVID-01/02/03,
+  DB-02, SAFE-01/02/03) — host-only, zero chips consumed. Author the `2516` user-override entry in
+  `~/.firestarter/database.json` (algorithm 0x0B, pinout DIP24_2716, UV-EPROM, vpp_mv 25000, 2048 B)
+  + **manual safety review** (the override bypasses `check_dispatch.py`/`diff_db.py`). Read +
+  blank-check ALL 11 chips on Leonardo + Rev 2.0; record the per-chip EVIDENCE.{md,json} rows + the
+  3 UV-EPROM blank-states (gates Phase 83). **Pre-write code review:** confirm `FLAG_CAN_ERASE` is
+  derived for BOTH `EEPROM` and `Flash/EEPROM` types. Homes the SAFE-01/02/03 bench discipline.
 
-- **Phase 78: X88C64 0x34 Firmware Handler** (XIC-01..04) — the ONLY firmware-adding gap →
-  dual-repo lockstep. **ALE-routing bench investigation is the FIRST plan** (Assumption A6 LOW
-  confidence; if PCB-blocked, X88C64 defers as FUT-01 and the phase still closes). Then
-  `configure_x88c64` (8051 multiplexed bus, page write ≤32 B, toggle-bit I/O6 polling) registered in
-  `memory.cpp` **before** the `protocol != 0 → configure_not_implemented` guard. `pio run -e leonardo`
-  ≤ ~90% flash is a gate (~3 KB headroom). Graduate X88C64P after N≥5 Leonardo write+read-back.
+- **Phase 82: Electrically-Rewritable Silicon Validation** (REWR-01..05, DB-01) — full
+  write→(auto-erase)→read→verify with SHA for the 8 freely-rewritable chips: W27C512/W27E512/
+  SST27SF512 (0x07), W27E040 (0x08), SST39SF040 (0x06), W29C020+W29C040 (0x05, confirm Flash/EEPROM
+  auto-erase), FM1608 (0x40 overwrite). Reuse `write_test.sh` / `dev validate-family`; non-vacuous
+  PASS (N≥3 Leonardo read + negative control); confirm DB decode vs silicon per chip.
 
-- **Phase 79: 25V NMOS Ceiling Raise** (NMOS-01..03) — host-only but hardware-gated.
-  **Operator multimeter ≥25V chip-OUT dry-run is the FIRST plan (`autonomous: false`)** before the
-  constant changes (the 22V ceiling reflects a rail/calibration limit; firmware does NO runtime VPP
-  enforcement). Then `RURP_VPP_CEILING_MV` 22000→25000 + `check_dispatch.py` invariant; re-classify +
-  graduate the 4 NMOS chips (INTEL M2716/M2732, SGS-THOMSON ETC2716, ST M2716). M2732A (21V) already
-  supported; >25V chips stay fail-closed (FUT-02).
+- **Phase 83: UV-EPROM Write Proof** (UV-01..04, GRAD-03) — gated on Phase 81 blank-state; spend-vs-
+  preserve decided per chip live at the bench (operator has no eraser → every UV write is
+  irreversible). Blank → full image; non-blank → all-`0x00`/AND-mask (1→0 only). ST M27C512 (0x07) +
+  AM27C020 (0x08) read+decode + write-proof-if-spent. The `2516` bench proof on the ~22.4V VPE rail
+  (read via `firestarter vpe`, N≥3 SHA, fw under-voltage warning documented) **closes FUT-03**
+  (best-effort per v1.14 D-07; over-voltage stays blocked).
 
-- **Phase 80: AT28C04/16 Adapter Graduation** (ADPT-01..03) — host-only software but
-  HARDWARE-BLOCKED on the physical adapter → sequenced last; defers cleanly without blocking 77–79.
-  **Build the DIP24→DIP32 adapter + DMM /WE-reroute continuity check FIRST** (chip pin 21 → socket
-  pin 30 vs `DIP32_28C512_EEPROM`). Then wire the 9 chips through the existing `configure_eeprom28c`
-  (0x0D, VPP-free) handler; remove the `_AT28C_DIP24_NAMES` arm + the `adapter-required` refusal;
-  graduate after a golden Leonardo write+read-back round-trip with the adapter seated.
+- **Phase 84: DB Decode Audit + Conditional Defect RCA** (FIX-01) — consolidate the per-chip evidence
+  into a decode-correctness audit (all 11 chips vs DB: pinout/VPP/type/algorithm/size). Conditional:
+  any bench-surfaced defect is root-caused + fixed (host-only or dual-repo lockstep) + re-verified,
+  with `check_dispatch.py`/`diff_db.py`/host suite green; else records "none found / bench clean".
 
-**Build order (operator-locked 2026-06-18):** 999.4 → 999.5 → 999.7 → 999.6 (= Phase 77 → 78 → 79 →
-80). PITFALLS noted a defensible flash-headroom swap (25V before X88C64); operator-captured order
-stands. Three of four gaps are HOST-ONLY / zero firmware flash; only Phase 78 consumes the ceiling.
+**Build order (research-locked, safety-load-bearing):** 81 → 82 → 83 → 84 (non-destructive →
+rewritable → UV-spend → audit). Phases 81–83 are sequential (Phase 83 cannot start until Phase 81's
+UV blank-states are known). Phase 84 is conditional (documentation-only if 81–83 are clean).
 
-**Cross-cutting safety (SAFE-01/02/03, mapped to Phase 77, recur in 78–80):** each graduation removes
-the v1.12 `chip_resolver.resolve_chip` host-guard refusal **as the FINAL step**, gated behind native
-register-bit (recording-stub) tests + host wire round-trip + a Leonardo bench proof (chip-OUT VPP
-multimeter dry-run first); `check_dispatch.py` full-DB VPP-safety gate passes after each; any `FLAG_*`/
-protocol constant touched in `constants.py` + `firestarter.h` changes in lockstep (parity tests green).
+**Cross-cutting safety (SAFE-01/02/03, homed in Phase 81, recur in 82–84):** every bench task records
+board=Leonardo, shield=Rev 2.0 (operator-stated), `controller:` port identity, live R1/R2 readback
+(`r1 ≈ 270000`); host suite green incl. the 0xA4 `test_init_phase_data_frames_not_acked` guard before
+any session; no non-Leonardo read is authoritative; no UV part written before blank-check + explicit
+spend decision; over-voltage blocked (under-voltage warn-and-proceed accepted best-effort).
 
-**Standing bench precondition (every hardware phase 77–80):** **Leonardo is the ONLY trustworthy
-program/write/verify board** (v1.9 read bug corrupts the oracle on Rev-0/Rev-2.0); **uno328pb is N/A
-for program/write** (999.2 brownout); live R1/R2 readback (`r1 ≈ 270000`) each task; chip-OUT before
-any Uno-class sideload (Leonardo exempt); **ASK which silkscreen shield rev is mounted**; verify
-`controller:` port identity per task.
+**Standing bench precondition (every phase 81–84):** **Leonardo + RURP Rev 2.0 is the ONLY trustworthy
+program/write/verify combo** (v1.9 read bug corrupts the oracle on Rev-0/Rev-2.0 elsewhere; uno328pb
+N/A for program/write). For the 2516/0x0B NMOS rail use `firestarter vpe` (NOT `vpp` — that reads the
+~15–19V dropped rail); chip-OUT before any Uno-class sideload (Leonardo EXEMPT); ASK which silkscreen
+shield rev is mounted; verify `controller:` port identity per task after any USB event.
 
-**Flash budget at v1.14 start:** Leonardo ~89.5% / ~3 KB free post-v1.13. Only the Phase 78 X88C64
-handler (~1–3 KB) consumes it → measured `pio run -e leonardo` ≤ ~90% gate.
+**Reuse-first:** NO new harness or third-party dependency (EVID-02). Reuse `firestarter write/read/
+verify`, `dev validate-family`, `write_test.sh`, `check_dispatch.py`, `diff_db.py`. One new artifact:
+`.planning/v1.15/bench/EVIDENCE.{md,json}` (extends, not replaces, the v1.13 per-family matrix).
 
-**Pre-req:** v1.13's `3.0.0b10` lockstep beta cut is operator-gated; v1.14 branches off `beta` once it
-has landed in both sub-repos. Branch setup is folded into Phase 77 (no thin precursor phase).
+**Pre-req:** Branches off `beta`. v1.14's `3.0.0b11` lockstep beta cut is operator-gated (gitlinks
+PINNED); v1.15 host work proceeds on the `v1.14-feasible-gap-implementation` continuation / a v1.15
+branch per standing policy. Firmware likely untouched (Leonardo ~89.5% flash, `configure_eprom`
+0x07/0x08/0x0B handles all UV families incl. the 2516).
 
-**Prior milestones:** v1.13 SHIPPED 2026-06-18 (Phases 71–76; dual-repo lockstep on `beta` — fw
-`a33513f` / app `34deccb` @ `3.0.0b9`, no tag). v1.12 SHIPPED 2026-06-16. v1.11 SHIPPED 2026-06-10.
-v1.10 SHIPPED 2026-06-07. v1.9 Read-Bug RCA DEFERRED (Phases 45–48; resume at Phase 45).
+**Prior milestones:** v1.14 SHIPPED 2026-06-23 (Phases 77–80; first chip graduations since v1.0). v1.13
+SHIPPED 2026-06-18. v1.12 SHIPPED 2026-06-16. v1.11 SHIPPED 2026-06-10. v1.10 SHIPPED 2026-06-07. v1.9
+Read-Bug RCA DEFERRED (Phases 45–48; resume at Phase 45 → FUT-C).
 
 ## Accumulated Context
 
 ### Roadmap Evolution
+
+- v1.15 roadmap created 2026-06-23: 4 phases (81–84) derived from the 23 v1.15 requirements
+  (EVID/SWEEP/REWR/UV/GRAD/DB/FIX/SAFE) along the research-locked non-destructive-first spine
+  (81 read-sweep+2516-entry → 82 rewritable write/verify → 83 UV-spend → 84 audit/RCA). 23/23
+  mapped, no orphans/duplicates (Phase 81: 11 · Phase 82: 6 · Phase 83: 5 · Phase 84: 1).
+  SAFE-01/02/03 cross-cutting, homed in Phase 81 (first bench phase establishing the
+  port-identity + r1 + Leonardo-only-authoritative discipline) and recurring as preconditions/
+  success-criteria in 82–84 (v1.14 SAFE-pattern precedent). GRAD-01/02 (2516 research + entry +
+  manual review) home in Phase 81; GRAD-03 (2516 bench proof, closes FUT-03) in Phase 83. DB-02
+  (FLAG_CAN_ERASE Flash/EEPROM review) precedes any write → Phase 81; DB-01 (per-chip decode-vs-
+  silicon) in Phase 82. FIX-01 is conditional (closes "none found" if the bench is clean) → Phase
+  84. Phases 81→82→83 sequential (Phase 83 gated on Phase 81 UV blank-states); Phase 84
+  documentation-only if clean. Phase 83 (2516 NMOS under-voltage at ~22.4V VPE) flagged for
+  `--research-phase` at planning (no prior 2516 silicon data; second NMOS data point after Phase 79).
 
 - v1.14 roadmap created 2026-06-18: 4 phases (77–80) derived from the 15 v1.14 requirements
   (ERASE/XIC/NMOS/ADPT/SAFE) — one phase per feasible gap along the operator-locked build order

@@ -82,35 +82,35 @@ Populated during roadmap creation (each requirement maps to exactly one phase).
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| EVID-01 | TBD | Pending |
-| EVID-02 | TBD | Pending |
-| EVID-03 | TBD | Pending |
-| SWEEP-01 | TBD | Pending |
-| SWEEP-02 | TBD | Pending |
-| REWR-01 | TBD | Pending |
-| REWR-02 | TBD | Pending |
-| REWR-03 | TBD | Pending |
-| REWR-04 | TBD | Pending |
-| REWR-05 | TBD | Pending |
-| UV-01 | TBD | Pending |
-| UV-02 | TBD | Pending |
-| UV-03 | TBD | Pending |
-| UV-04 | TBD | Pending |
-| GRAD-01 | TBD | Pending |
-| GRAD-02 | TBD | Pending |
-| GRAD-03 | TBD | Pending |
-| DB-01 | TBD | Pending |
-| DB-02 | TBD | Pending |
-| FIX-01 | TBD | Pending |
-| SAFE-01 | TBD | Pending |
-| SAFE-02 | TBD | Pending |
-| SAFE-03 | TBD | Pending |
+| EVID-01 | Phase 81 | Pending |
+| EVID-02 | Phase 81 | Pending |
+| EVID-03 | Phase 81 | Pending |
+| SWEEP-01 | Phase 81 | Pending |
+| SWEEP-02 | Phase 81 | Pending |
+| REWR-01 | Phase 82 | Pending |
+| REWR-02 | Phase 82 | Pending |
+| REWR-03 | Phase 82 | Pending |
+| REWR-04 | Phase 82 | Pending |
+| REWR-05 | Phase 82 | Pending |
+| UV-01 | Phase 83 | Pending |
+| UV-02 | Phase 83 | Pending |
+| UV-03 | Phase 83 | Pending |
+| UV-04 | Phase 83 | Pending |
+| GRAD-01 | Phase 81 | Pending |
+| GRAD-02 | Phase 81 | Pending |
+| GRAD-03 | Phase 83 | Pending |
+| DB-01 | Phase 82 | Pending |
+| DB-02 | Phase 81 | Pending |
+| FIX-01 | Phase 84 | Pending |
+| SAFE-01 | Phase 81 | Pending |
+| SAFE-02 | Phase 81 | Pending |
+| SAFE-03 | Phase 81 | Pending |
 
 **Coverage:**
 - v1.15 requirements: 23 total
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 23 ⚠️ (resolved at roadmap creation)
+- Mapped to phases: 23 ✓ (Phase 81: 11 · Phase 82: 6 · Phase 83: 5 · Phase 84: 1)
+- Unmapped: 0 ✓ (every requirement maps to exactly one phase)
 
 ---
 *Requirements defined: 2026-06-23*
-*Last updated: 2026-06-23 after initial definition*
+*Last updated: 2026-06-23 after roadmap creation (traceability populated, Phases 81–84)*
