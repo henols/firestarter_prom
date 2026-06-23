@@ -119,22 +119,22 @@ Plans:
 
 ### Phase 79: 25V NMOS Ceiling Raise
 
-**Status (2026-06-22): ⛔ HARDWARE-BLOCKED at the NMOS-01 gate (FUT-03).** The chip-OUT dry-run measured ~12V at the socket VPP pin (firmware `vpp` cross-check 12.3V) — far below 25V — so the gate returned NOT CLEARED and the ceiling raise was correctly withheld. The AP3012 boost converter's output is fixed by PCB feedback resistors; R1/R2 (=270000/44000, calibrated) only scale the ADC readback, and the firmware/DMM readings agree, so this is a physical rail limit, not a calibration artifact. Resume the phase only after a PCB feedback-resistor change re-achieves ≥25V and the chip-OUT dry-run re-runs to CLEARED. Evidence in `79-01-SUMMARY.md`.
+**Status (2026-06-23): 🔁 RE-PLANNED — gate re-examined, NOT hardware-blocked.** The prior NOT-CLEARED verdict measured the WRONG electrical rail: it used `firestarter vpp`, but `CMD_READ_VPP` always forces the DROPPED ~13V path (hardware_operations.cpp:28), while the 4 NMOS chips are protocol 0x0B / EPROM_LEGACY = DIRECT VPE path. Corrected model (operator-authoritative, CONTEXT D-01/D-02): the VPP setpoint is a MANUAL shield potentiometer (not PCB feedback resistors, not firmware-controlled; R1/R2 only scale the ADC readback), and the firmware DOES enforce VPP (`eprom_check_vpp` blocks over-voltage, warns on under-voltage). The corrected NMOS-01 gate (79-01) cranks the pot to max and measures the DIRECT VPE rail via `dev reg 0 0 0x86 -f`. Per D-05, ≥25V on that rail stays a HARD pre-gate.
 
-**Goal**: The 4 NMOS UV-EPROMs that are fail-closed at `vpp-exceeds-max` because they need 25V VPP (INTEL M2716, INTEL M2732, SGS-THOMSON ETC2716, ST M2716) graduate to `supported` — but only after the on-bench shield is multimeter-confirmed to safely produce ≥25V at the socket VPP pin, because the 22V ceiling reflects a hardware/calibration limit and the firmware does NO runtime VPP enforcement.
-**Depends on**: Phase 77 (graduation pattern). Host-only constant change (`RURP_VPP_CEILING_MV` + `check_dispatch.py` invariant) but **hardware-gated** on the 25V-rail dry-run. M2732A (21V) is already `supported`. **Standing bench precondition applies.** Research-flagged: 25V rail capability (rated-feasible per RURP Rev 2.3 5–27V spec, but R1/R2-calibration-dependent).
+**Goal**: The 4 NMOS UV-EPROMs that are fail-closed at `vpp-exceeds-max` because they need 25V VPP (INTEL M2716, INTEL M2732, SGS-THOMSON ETC2716, ST M2716) graduate to `supported` — but only after the on-bench shield is multimeter-confirmed to safely produce ≥25V at the socket VPP pin **on the direct VPE rail at max pot**, because the firmware warns-but-proceeds on under-voltage and the operator chose a conservative ≥25V pre-gate.
+**Depends on**: Phase 77 (graduation pattern). Host-only constant change (`RURP_VPP_CEILING_MV` + `check_dispatch.py` invariant) but **hardware-gated** on the corrected direct-VPE ≥25V dry-run. M2732A (21V) is already `supported`. **Standing bench precondition applies.**
 **Requirements**: NMOS-01, NMOS-02, NMOS-03
 **Success Criteria** (what must be TRUE):
 
-  1. **(FIRST plan, gating, `autonomous: false`)** The on-bench shield's ability to safely produce ≥25V VPP at the socket pin is confirmed by operator multimeter (chip-OUT dry-run) with the measured voltage and the silkscreen shield rev recorded — *before* the ceiling constant changes.
-  2. `RURP_VPP_CEILING_MV` is raised 22000 → 25000 (`firestarter_app/tools/build_db.py`) and the `check_dispatch.py` `_FAMILY_VPP_INVARIANTS` ceiling is updated in step, so the 4 NMOS chips re-classify off `vpp-exceeds-max` and the full-DB VPP-safety gate stays green at the new ceiling (no chip exceeds its family invariant; >25V chips stay fail-closed per FUT-02).
-  3. **Graduation gate (FINAL step):** the 4 NMOS chips flip to `supported` and their host-guard refusal is removed only after a write + verify is bench-confirmed on Leonardo (independent post-write read SHA-match + non-vacuous negative control), with the live R1/R2 reconcile on record.
+  1. **(FIRST plan, gating, `autonomous: false`)** The shield's ability to produce ≥25V at the socket VPP pin is confirmed by operator multimeter on the DIRECT VPE rail (`dev reg 0 0 0x86 -f`, pot at max, chip-OUT) — NOT `firestarter vpp` — with the measured voltage, live R1/R2, and silkscreen shield rev recorded, *before* the ceiling constant changes.
+  2. `RURP_VPP_CEILING_MV` is raised 22000 → 25000 (`firestarter_app/tools/build_db.py`) and the `check_dispatch.py` `_FAMILY_VPP_INVARIANTS` ceiling is updated in step, so the 4 NMOS chips re-classify off `vpp-exceeds-max` and the full-DB VPP-safety gate stays green at the new ceiling (>25V chips stay fail-closed per FUT-02); REQUIREMENTS.md FUT-03 root cause corrected to the manual-potentiometer framing.
+  3. **Graduation gate (FINAL step):** the 4 NMOS chips flip to `supported` (host guard self-clears from the DB regen) only after a write + verify is bench-confirmed on Leonardo (independent post-write read SHA-match + non-vacuous negative control), with the live R1/R2 reconcile on record.
 
 **Plans**: 3 plans
 
-- [x] 79-01-PLAN.md — NMOS-01 hardware gate: chip-OUT ≥25V VPP multimeter dry-run (autonomous:false) — **verdict NOT CLEARED** (~12V at socket; firmware 12.3V); ceiling raise withheld; evidence in 79-01-SUMMARY.md
-- [ ] 79-02-PLAN.md — ⛔ BLOCKED (FUT-03, needs CLEARED ≥25V gate) — NMOS-02: raise RURP_VPP_CEILING_MV 22000→25000 + check_dispatch invariant + DB regen + 7 broken-test fixes + 3 new tests (same wave)
-- [ ] 79-03-PLAN.md — ⛔ BLOCKED (FUT-03, depends on 79-02) — NMOS-03/SAFE-03: positive resolve_chip graduation test + parity guard + Leonardo write/verify SHA-match bench proof (autonomous:false)
+- [ ] 79-01-PLAN.md — NMOS-01 corrected hardware gate: chip-OUT direct-VPE ≥25V dry-run at max pot via `dev reg 0 0 0x86 -f` (autonomous:false, gating) — supersedes the prior `firestarter vpp` run
+- [ ] 79-02-PLAN.md — NMOS-02: raise RURP_VPP_CEILING_MV 22000→25000 + check_dispatch invariant + DB regen + 7 broken-test fixes + 3 new non-vacuous tests (same wave) + FUT-03 doc correction
+- [ ] 79-03-PLAN.md — NMOS-03/SAFE-03: positive resolve_chip graduation test + parity guard + Leonardo write/verify SHA-match bench proof with negative control (autonomous:false)
 
 **UI hint**: no
 
@@ -171,9 +171,9 @@ Plans:
 | XIC-02 | Phase 78 | Complete (vacuous on PCB-blocked branch — no handler authorized) |
 | XIC-03 | Phase 78 | Complete (vacuous on PCB-blocked branch — no firmware flash added) |
 | XIC-04 | Phase 78 | Complete (deferral-with-evidence: graduation hardware-blocked, FUT-01) |
-| NMOS-01 | Phase 79 | Complete (gate evaluated 2026-06-22: **NOT CLEARED** — bench VPP ~12V < 25V; ceiling raise correctly withheld) |
-| NMOS-02 | Phase 79 | ⛔ Blocked — hardware-gated (≥25V rail not achievable on current bench; FUT-03) |
-| NMOS-03 | Phase 79 | ⛔ Blocked — hardware-gated (depends on NMOS-02; FUT-03) |
+| NMOS-01 | Phase 79 | Re-planned (corrected direct-VPE gate; prior NOT-CLEARED measured the wrong/dropped rail) |
+| NMOS-02 | Phase 79 | Pending (gated on 79-01 CLEARED ≥25V direct-VPE) |
+| NMOS-03 | Phase 79 | Pending (gated on 79-01 + 79-02) |
 | ADPT-01 | Phase 80 | Complete (gate evaluated 2026-06-22: **NOT CLEARED** — adapter not built / no chip on hand; clean deferral, chips stay `adapter-required`, FUT-04) |
 | ADPT-02 | Phase 80 | ⛔ Blocked — hardware-gated (no adapter built; depends on a CLEARED ADPT-01 gate; FUT-04) |
 | ADPT-03 | Phase 80 | ⛔ Blocked — hardware-gated (depends on ADPT-02 + Leonardo bench proof; FUT-04) |
