@@ -4,13 +4,13 @@ milestone: v1.15
 milestone_name: — Bench Validation of Operator Inventory
 status: executing
 stopped_at: Phase 81 context gathered
-last_updated: "2026-06-23T15:52:12.031Z"
-last_activity: 2026-06-23 -- Phase 81 planning complete
+last_updated: "2026-06-23T16:10:28.374Z"
+last_activity: 2026-06-23
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 3
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 ---
 
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: Not started — Phase 81 of 84 (2516 DB Entry + Non-Destructive Read Sweep)
-Plan: —
+Phase: 81 (2516-db-entry-non-destructive-read-sweep) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-06-23 -- Phase 81 planning complete
+Last activity: 2026-06-23
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -36,7 +36,7 @@ See: `.planning/PROJECT.md` (v1.15 Current Milestone section + Key Decisions)
 from upstream XML → DB → wire JSON → firmware handler. No guessing. **v1.15 proves that
 contract holds on real silicon** for the operator's 11-chip physical inventory.
 
-**Current focus:** Phase 81 — author the `2516` user-override DB entry + run the non-destructive
+**Current focus:** Phase 81 — 2516-db-entry-non-destructive-read-sweep
 read+blank-check sweep across all 11 chips on Leonardo + RURP Rev 2.0, establishing the evidence
 record and the bench-safety baseline (SAFE-01/02/03) with zero chips consumed. Board LOCKED =
 Leonardo + Rev 2.0 (only trustworthy program/write/verify combo); mostly host-side; firmware
@@ -192,7 +192,7 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-23T15:12:56.861Z
+Last session: 2026-06-23T16:10:28.369Z
 Stopped at: Phase 81 context gathered
 Resume: Start the next milestone with `/gsd-new-milestone` (fresh requirements). **OPERATOR-GATED & still open:** the lockstep beta cut (`3.0.0b11` — firestarter_app version bump + submodule gitlink bump + PyPI/GitHub pre-release) is deferred to operator authorization; gitlinks stay PINNED. Carry-forward: deferred v1.9 read-bug RCA (Phase 45); v1.14 FUT items (FUT-01 X88C64 ALE PCB-mod, FUT-03 NMOS bench SHA-match, FUT-04 AT28C04/16 adapter build).
 

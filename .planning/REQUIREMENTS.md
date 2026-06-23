@@ -42,7 +42,7 @@
 ### DB Decode Correctness (DB)
 
 - [ ] **DB-01**: For every chip exercised, the DB-recorded decode (pinout, VPP, electrical type, algorithm, size) is confirmed against real-silicon behavior; any mismatch is flagged in the evidence record.
-- [ ] **DB-02**: Before any rewritable-chip write bench, a code review confirms `FLAG_CAN_ERASE` is derived correctly for **both** `EEPROM` and `Flash/EEPROM` electrical types; any gap is fixed and pinned by a test.
+- [x] **DB-02**: Before any rewritable-chip write bench, a code review confirms `FLAG_CAN_ERASE` is derived correctly for **both** `EEPROM` and `Flash/EEPROM` electrical types; any gap is fixed and pinned by a test.
 
 ### Defect RCA & Fix (FIX)
 
@@ -51,8 +51,8 @@
 ### Bench Safety & Hygiene (SAFE) — cross-cutting
 
 - [ ] **SAFE-01**: Every bench task records and verifies its preconditions: board = Leonardo, shield rev = Rev 2.0 (operator-stated), `controller:` port identity, and a live R1/R2 readback (`r1 ≈ 270000`).
-- [ ] **SAFE-02**: The host test suite — including the 0xA4 `ack_data=False` regression guard (`test_init_phase_data_frames_not_acked`) — is green before any bench session.
-- [ ] **SAFE-03**: No non-Leonardo read is treated as authoritative; no UV part is written before blank-check + an explicit spend decision; over-voltage stays blocked (under-voltage warn-and-proceed accepted as best-effort).
+- [x] **SAFE-02**: The host test suite — including the 0xA4 `ack_data=False` regression guard (`test_init_phase_data_frames_not_acked`) — is green before any bench session.
+- [x] **SAFE-03**: No non-Leonardo read is treated as authoritative; no UV part is written before blank-check + an explicit spend decision; over-voltage stays blocked (under-voltage warn-and-proceed accepted as best-effort).
 
 ## v2 / Future Requirements
 
@@ -100,13 +100,14 @@ Populated during roadmap creation (each requirement maps to exactly one phase).
 | GRAD-02 | Phase 81 | Pending |
 | GRAD-03 | Phase 83 | Pending |
 | DB-01 | Phase 82 | Pending |
-| DB-02 | Phase 81 | Pending |
+| DB-02 | Phase 81 | Complete |
 | FIX-01 | Phase 84 | Pending |
 | SAFE-01 | Phase 81 | Pending |
-| SAFE-02 | Phase 81 | Pending |
-| SAFE-03 | Phase 81 | Pending |
+| SAFE-02 | Phase 81 | Complete |
+| SAFE-03 | Phase 81 | Complete |
 
 **Coverage:**
+
 - v1.15 requirements: 23 total
 - Mapped to phases: 23 ✓ (Phase 81: 11 · Phase 82: 6 · Phase 83: 5 · Phase 84: 1)
 - Unmapped: 0 ✓ (every requirement maps to exactly one phase)
