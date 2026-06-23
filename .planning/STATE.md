@@ -1,12 +1,13 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.15
-milestone_name: Bench Validation of Operator Inventory
+milestone_name: — Bench Validation of Operator Inventory
 status: planning
-last_updated: "2026-06-23T13:09:41.524Z"
-last_activity: 2026-06-23
+stopped_at: Phase 81 context gathered
+last_updated: "2026-06-23T15:12:56.869Z"
+last_activity: 2026-06-23 — v1.15 roadmap created (Phases 81–84; 23/23 requirements mapped)
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -50,6 +51,7 @@ remains OPERATOR-GATED (gitlinks PINNED). Standing carry-forward: deferred v1.9 
 - **Phase 81: 2516 DB Entry + Non-Destructive Read Sweep** (GRAD-01/02, SWEEP-01/02, EVID-01/02/03,
   DB-02, SAFE-01/02/03) — host-only, zero chips consumed. Author the `2516` user-override entry in
   `~/.firestarter/database.json` (algorithm 0x0B, pinout DIP24_2716, UV-EPROM, vpp_mv 25000, 2048 B)
+
   + **manual safety review** (the override bypasses `check_dispatch.py`/`diff_db.py`). Read +
   blank-check ALL 11 chips on Leonardo + Rev 2.0; record the per-chip EVIDENCE.{md,json} rows + the
   3 UV-EPROM blank-states (gates Phase 83). **Pre-write code review:** confirm `FLAG_CAN_ERASE` is
@@ -116,6 +118,7 @@ Read-Bug RCA DEFERRED (Phases 45–48; resume at Phase 45 → FUT-C).
   manual review) home in Phase 81; GRAD-03 (2516 bench proof, closes FUT-03) in Phase 83. DB-02
   (FLAG_CAN_ERASE Flash/EEPROM review) precedes any write → Phase 81; DB-01 (per-chip decode-vs-
   silicon) in Phase 82. FIX-01 is conditional (closes "none found" if the bench is clean) → Phase
+
   84. Phases 81→82→83 sequential (Phase 83 gated on Phase 81 UV blank-states); Phase 84
   documentation-only if clean. Phase 83 (2516 NMOS under-voltage at ~22.4V VPE) flagged for
   `--research-phase` at planning (no prior 2516 silicon data; second NMOS data point after Phase 79).
@@ -189,8 +192,8 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-23 — **Milestone v1.14 closed** (`/gsd-complete-milestone v1.14`): archived (ROADMAP/REQUIREMENTS/audit → `.planning/milestones/v1.14-*`), MILESTONES.md + PROJECT.md + RETROSPECTIVE.md updated, ROADMAP collapsed, REQUIREMENTS.md removed, meta tagged `v1.14`, gsd planning merged to meta `beta`.
-Stopped at: v1.14 complete. No active milestone.
+Last session: 2026-06-23T15:12:56.861Z
+Stopped at: Phase 81 context gathered
 Resume: Start the next milestone with `/gsd-new-milestone` (fresh requirements). **OPERATOR-GATED & still open:** the lockstep beta cut (`3.0.0b11` — firestarter_app version bump + submodule gitlink bump + PyPI/GitHub pre-release) is deferred to operator authorization; gitlinks stay PINNED. Carry-forward: deferred v1.9 read-bug RCA (Phase 45); v1.14 FUT items (FUT-01 X88C64 ALE PCB-mod, FUT-03 NMOS bench SHA-match, FUT-04 AT28C04/16 adapter build).
 
 ## Decisions
