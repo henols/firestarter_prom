@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.14
 milestone_name: — Feasible-Gap Implementation
 status: executing
-stopped_at: Phase 79 context gathered (gate re-examined; reframed)
-last_updated: "2026-06-23T09:14:58.995Z"
-last_activity: 2026-06-23 -- Phase 79 planning complete
+stopped_at: Phase 79 corrected NMOS-01 gate re-run = NOT CLEARED (~15-19V direct-VPE at max pot < 25V); phase halts after 79-01
+last_updated: "2026-06-23T09:51:36Z"
+last_activity: 2026-06-23 -- Phase 79 corrected NMOS-01 gate re-run (NOT CLEARED on direct VPE)
 progress:
   total_phases: 4
   completed_phases: 2
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 80 (at28c04-16-adapter-graduation) — ⛔ HARDWARE-BLOCKED (ADPT-01 gate NOT CLEARED; FUT-04)
-Plan: 1 of 4 done (deferral); 02/03/04 BLOCKED
-Status: Ready to execute
-Bench: leonardo @ /dev/ttyACM0, fw 3.0.0b8, shield Rev 2.0 (operator silkscreen), R1=270000/R2=44000 (last-known; no board connected at the 80-01 evaluation)
+Phase: 79 (25v-nmos-ceiling-raise) — ⛔ HARDWARE-BLOCKED at the corrected NMOS-01 gate (~15-19V direct-VPE at max pot < 25V; boost-stage HW change required). Phase 80 also blocked (ADPT-01; FUT-04).
+Plan: 79: 1 of 3 evaluated (79-01 gate NOT CLEARED); 79-02/79-03 BLOCKED
+Status: Halted at gate — phase NOT complete (no graduation)
+Bench: leonardo @ /dev/ttyACM0, fw 3.0.0b8, shield Rev 2.0 (operator silkscreen), R1=270000/R2=44000 (LIVE-VERIFIED 2026-06-23 during the 79-01 re-run)
 Last activity: 2026-06-23 -- Phase 79 planning complete
 Sub-repo branch: firestarter_app on `v1.14-feasible-gap-implementation` (off beta); source commits inside submodule; meta gitlink PINNED until beta cut. NO source/DB changes made in Phase 80 (gate blocked Plans 02/03/04) — same clean-deferral discipline as Phase 78/79.
 
@@ -178,13 +178,14 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-23T08:26:51.295Z
-Stopped at: Phase 79 context gathered (gate re-examined; reframed)
-Resume: hardware remediation required FIRST (raise bench VPP rail to ≥25V — PCB feedback-resistor change most likely; R1 recal unlikely since firmware 12.3V and DMM ~12V agree, so the scaling is correct and the rail is genuinely at the 12V setpoint). Then re-run `/gsd-execute-phase 79` to re-evaluate the chip-OUT gate; only a CLEARED ≥25V verdict authorizes Plan 02 (ceiling 22000→25000) and Plan 03 (graduation bench proof).
+Last session: 2026-06-23T09:51:36Z
+Stopped at: Phase 79 corrected NMOS-01 gate re-run = NOT CLEARED (~15-19V direct-VPE at max pot < 25V); phase HALTS after 79-01
+Resume: hardware remediation required FIRST — the corrected gate (direct VPE rail, drop disabled, `dev reg 0 0 0x86 -f`, pot at MAX) reads only ~15-19V at the socket VPP pin (the documented 0x0B "12-18V direct" band). "Crank the pot" (CONTEXT D-01) is NOT sufficient — the shield's AP3012 boost stage as wired cannot reach 25V, so a genuine boost-stage HARDWARE change is required (now established on the CORRECT rail, not a measurement artifact). After that change, re-run `/gsd-execute-phase 79` to re-evaluate the corrected chip-OUT direct-VPE gate; only a CLEARED ≥25V verdict authorizes Plan 02 (ceiling 22000→25000) and Plan 03 (graduation bench proof).
 
 ## Decisions
 
-- [Phase 79-01]: NMOS-01 HARDWARE GATE = NOT CLEARED. Chip-OUT VPP dry-run on leonardo @ /dev/ttyACM0, shield Rev 2.0 (operator silkscreen), R1=270000/R2=44000: `firestarter vpp` read steady 12.3V (default 12V EPROM setpoint, no parameter to request 25V), operator multimeter confirmed ~12V at the socket VPP pin — both ≪ 25000 mV. Firmware does NO runtime VPP-ceiling enforcement (79-RESEARCH.md Q3), so this physical measurement is the only safety boundary; it correctly blocked the Plan 02 ceiling raise. Plans 79-02/79-03 BLOCKED pending a ≥25V re-run. Mirrors the Phase 78 DEFER discipline (gate caught a blocker; phase halts cleanly, no code/DB change).
+- [Phase 79-01 RE-RUN, corrected methodology, 2026-06-23]: NMOS-01 HARDWARE GATE = NOT CLEARED on the CORRECT rail. Chip-OUT dry-run on leonardo @ /dev/ttyACM0, shield Rev 2.0 (operator silkscreen), R1=270000/R2=44000: pot cranked to MAX, DIRECT VPE rail held via `dev reg 0 0 0x86 -f` (drop disabled — the 0x0B path the 4 NMOS chips actually use, NOT `firestarter vpp`), operator DMM read **~15-19V** at the socket VPP pin — still < 25000 mV. NEW FINDING: the correct rail at max pot tops out in the documented 0x0B "12-18V direct" band, so reaching 25V needs a boost-stage HARDWARE change, not a pot adjustment (CONTEXT D-01 optimism not borne out) and not merely correcting the measurement method. Firmware enforces over-voltage block / under-voltage WARN-only (eprom_check_vpp), so this physical measurement is the only safety boundary against an under-driven write; it correctly withheld the Plan 02 ceiling raise + Plan 03 graduation (D-05 hard pre-gate). Plans 79-02/79-03 BLOCKED pending a ≥25V re-run. Mirrors Phase 78 DEFER discipline (clean halt, no code/DB change). Supersedes the 2026-06-22 wrong-rail run below.
+- [Phase 79-01 — SUPERSEDED 2026-06-22 wrong-rail run]: prior NOT-CLEARED used `firestarter vpp`, which forces the DROPPED 0x07/0x08 ~12V path (hardware_operations.cpp:28) — the wrong rail for these 0x0B chips. Verdict superseded by the corrected re-run above (CONTEXT D-03). Kept for history; do NOT treat its ~12V / PCB-resistor framing as current.
 
 _(v1.13 decisions will be recorded here as phases execute.)_
 
@@ -307,11 +308,11 @@ from the v1.11 2026-06-10 / v1.12 2026-06-16 closes, plus 2 v1.13-surfaced) — 
 | todo | flash4-page-size-datasheet-sourced-cr01.md | medium | v1.13 Phase 74 CR-01 — data-driven page size shipped; replace residual capacity heuristic with datasheet per-chip value (refinement) |
 | verification | Phase 71 (71-VERIFICATION.md) | gaps_found (stale) | Both verifier gaps CLOSED by follow-up plans 71-07 (non-vacuous oracle) + 71-08 (flash4 spec-trim); status line never re-run |
 | phase-deferral | Phase 74 Wave-2 (W29C040 HW re-bench) + Phase 75 (erase path) | deferred to v1.14 | Backlog 999.4; hardware-gated (Leonardo+Rev2.0 T-74-VPP multimeter gate; erase 12V→14V rail confirm under 22V ceiling) |
-| phase-deferral | Phase 79 NMOS-02/03 (25V ceiling raise + NMOS graduation) | hardware-blocked (FUT-03) | NMOS-01 gate NOT CLEARED 2026-06-22 (bench VPP ~12V at socket < 25V); AP3012 boost setpoint physically ~12V, needs a PCB feedback-resistor change to reach ≥25V (R1/R2 only scale ADC). Resume `/gsd-execute-phase 79` after the PCB change re-achieves a CLEARED ≥25V chip-OUT dry-run. Evidence: 79-01-SUMMARY.md |
+| phase-deferral | Phase 79 NMOS-02/03 (25V ceiling raise + NMOS graduation) | hardware-blocked (FUT-03) | CORRECTED NMOS-01 gate NOT CLEARED 2026-06-23 (direct VPE rail at MAX pot reads ~15-19V at socket < 25V — supersedes the 2026-06-22 wrong-rail ~12V run). The shield's boost stage tops out in the 0x0B "12-18V direct" band; reaching 25V needs a boost-stage HARDWARE change (NOT a pot adjustment, NOT just a measurement fix). Resume `/gsd-execute-phase 79` after that change re-achieves a CLEARED ≥25V direct-VPE chip-OUT dry-run. Evidence: 79-01-SUMMARY.md |
 
 ## Operator Next Steps
 
-- **Phase 79 is hardware-blocked (FUT-03).** To unblock: change the VPP boost-converter feedback resistor(s) on the shield so `firestarter vpp` (chip-OUT) reaches ≥25V at the socket pin, then re-run `/gsd-execute-phase 79` — the NMOS-01 gate re-evaluates and only a CLEARED ≥25V verdict authorizes the ceiling raise + graduation.
-- **Phase 79 cannot ship in v1.14 without that hardware change.** Decision needed: (a) do the PCB resistor change now and resume, or (b) defer Phase 79 to a future milestone (FUT-03) and proceed to Phase 80 (AT28C04/16 adapter) so v1.14 still closes with 77/78/80.
+- **Phase 79 is hardware-blocked (FUT-03) — confirmed on the CORRECT rail.** The corrected NMOS-01 gate (direct VPE, drop disabled, `dev reg 0 0 0x86 -f`, pot at MAX) reads only ~15-19V at the socket VPP pin. To unblock: change the VPP boost-converter stage on the shield so the DIRECT VPE rail (not `firestarter vpp`'s dropped path) reaches ≥25V at the socket pin at max pot, then re-run `/gsd-execute-phase 79` — the NMOS-01 gate re-evaluates and only a CLEARED ≥25V verdict authorizes the ceiling raise + graduation. Note: the corrected gate has retired the "just crank the pot" hypothesis (D-01) — the pot is already maxed; a component change is required.
+- **Phase 79 cannot ship in v1.14 without that hardware change.** Decision needed: (a) do the boost-stage hardware change now and resume, or (b) defer Phase 79 to a future milestone (FUT-03) and proceed/close v1.14 with 77/78 (80 also adapter-blocked). The FUT-03 root-cause text in REQUIREMENTS.md still carries the old "PCB feedback-resistor" framing and the D-01 manual-pot correction — both are now superseded by this max-pot direct-VPE finding; correcting it is bundled in the still-blocked 79-02 Task 3, so it stays as-is until the gate clears.
 - Phases 78 + 79 both await `/gsd-verify-phase` + `/gsd-secure-phase` where applicable (78 verified PASSED; 79 halted pre-verify by the gate).
 - **Phase 80 (AT28C04/16 adapter graduation) is PLANNED** (2026-06-22): 4 plans verified PASSED (research + Nyquist VALIDATION committed). Host-only, mirrors the Phase 77 graduation pattern; hardware-gated on building the DIP24→DIP32 adapter (Plan 01 DMM continuity gate) — defers cleanly (FUT-04) if the adapter/AT28C chip is absent. Execute with `/gsd-execute-phase 80`. Plan 01 will ASK whether the adapter is built + whether an AT28C04/16 chip is on hand.

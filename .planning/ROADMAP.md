@@ -60,7 +60,7 @@ Full detail: [`.planning/milestones/v1.10-ROADMAP.md`](milestones/v1.10-ROADMAP.
 
 - [x] **Phase 77: Erase Write-Path Graduation (0x07 EE-EPROMs)** — Wire `FLAG_CAN_ERASE` from `electrical.type=="EEPROM"` (not the always-zero `info-flags & 0x10`) so writing a W27C512-class chip auto-erases first; bench-confirm the write→erase→program→verify cycle on Leonardo. Establishes the SAFE-01/02/03 graduation pattern. Host-only; most-ready. (ERASE-01/02, SAFE-01/02/03) (completed 2026-06-22)
 - [x] **Phase 78: X88C64 0x34 Firmware Handler** — ALE-routing resolved by software/schematic trace: **A6 VERDICT: PCB-BLOCKED** (HIGH). Contingent handler-write plan correctly took the DEFER path — no handler code, X88C64 stays `protocol-not-implemented`/host-refused, graduation deferred to FUT-01. "No blind handler." Verified PASSED 7/7. (XIC-01 ✓; XIC-02/03 N/A on PCB-blocked branch; XIC-04 deferral-with-evidence)
-- [ ] **Phase 79: 25V NMOS Ceiling Raise** — ⛔ **HARDWARE-BLOCKED at the gate (FUT-03).** The `autonomous: false` chip-OUT dry-run (NMOS-01) ran FIRST and returned **NOT CLEARED**: on leonardo/Rev 2.0/R1=270000, `firestarter vpp` held the rail at 12.3V and the operator multimeter confirmed ~12V at the socket pin — the AP3012 boost setpoint is physically the 12V EPROM config (R1/R2 only scale the ADC readback, not the output), so ≥25V needs a PCB feedback-resistor change. The ceiling raise (NMOS-02) and graduation (NMOS-03) are correctly withheld; zero source/DB changes. Resume after a PCB change re-achieves ≥25V. (NMOS-01 evaluated 2026-06-22; NMOS-02/03 deferred FUT-03)
+- [ ] **Phase 79: 25V NMOS Ceiling Raise** — ⛔ **HARDWARE-BLOCKED at the CORRECTED gate (FUT-03).** The re-planned `autonomous: false` chip-OUT dry-run (NMOS-01) ran on the CORRECT rail this time — DIRECT VPE (drop disabled, `dev reg 0 0 0x86 -f`, the 0x0B path the NMOS chips use), pot cranked to MAX — and STILL returned **NOT CLEARED**: operator DMM read **~15-19V** at the socket VPP pin (leonardo/Rev 2.0/R1=270000, live-verified 2026-06-23), short of 25V. NEW FINDING: the correct rail at max pot tops out in the documented 0x0B "12-18V direct" band, so reaching 25V needs a boost-stage HARDWARE change — "crank the pot" (CONTEXT D-01) is NOT sufficient, and this is NOT the prior wrong-rail measurement artifact. The ceiling raise (NMOS-02) and graduation (NMOS-03) are correctly withheld; zero source/DB changes (D-05 hard pre-gate; Phase 78 DEFER discipline). Resume after a boost-stage change re-achieves ≥25V on the direct VPE rail. (Corrected NMOS-01 re-run 2026-06-23, supersedes the 2026-06-22 wrong-rail run; NMOS-02/03 deferred FUT-03)
 - [ ] **Phase 80: AT28C04/16 Adapter Graduation** — ⛔ **HARDWARE-BLOCKED at the ADPT-01 gate (FUT-04).** The `autonomous: false` gating adapter-build step (80-01) returned **NOT CLEARED**: the physical DIP24→DIP32 adapter is not built and no AT28C04/AT28C16 chip is on hand (no board connected at evaluation). Per the operator the phase deferred cleanly — zero DB/code/constants change, the 9 AT28C chips stay honestly `adapter-required`, the v1.12 host-guard refusal preserved. Graduation (80-02/03) + bench proof (80-04) correctly withheld. Resume once the adapter is built + DMM-verified (/WE pin 21→30) and an AT28C chip is on hand. (ADPT-01 evaluated 2026-06-22; ADPT-02/03 deferred FUT-04)
 
 ## Phase Details
@@ -180,9 +180,9 @@ Plans:
 | XIC-02 | Phase 78 | Complete (vacuous on PCB-blocked branch — no handler authorized) |
 | XIC-03 | Phase 78 | Complete (vacuous on PCB-blocked branch — no firmware flash added) |
 | XIC-04 | Phase 78 | Complete (deferral-with-evidence: graduation hardware-blocked, FUT-01) |
-| NMOS-01 | Phase 79 | Re-planned (corrected direct-VPE gate; prior NOT-CLEARED measured the wrong/dropped rail) |
-| NMOS-02 | Phase 79 | Pending (gated on 79-01 CLEARED ≥25V direct-VPE) |
-| NMOS-03 | Phase 79 | Pending (gated on 79-01 + 79-02) |
+| NMOS-01 | Phase 79 | Evaluated — corrected direct-VPE gate re-run NOT CLEARED (~15-19V at max pot < 25V, 2026-06-23); needs a boost-stage HW change |
+| NMOS-02 | Phase 79 | BLOCKED (gated on 79-01 CLEARED ≥25V direct-VPE — gate NOT CLEARED) |
+| NMOS-03 | Phase 79 | BLOCKED (gated on 79-01 + 79-02) |
 | ADPT-01 | Phase 80 | Complete (gate evaluated 2026-06-22: **NOT CLEARED** — adapter not built / no chip on hand; clean deferral, chips stay `adapter-required`, FUT-04) |
 | ADPT-02 | Phase 80 | ⛔ Blocked — hardware-gated (no adapter built; depends on a CLEARED ADPT-01 gate; FUT-04) |
 | ADPT-03 | Phase 80 | ⛔ Blocked — hardware-gated (depends on ADPT-02 + Leonardo bench proof; FUT-04) |
@@ -756,7 +756,7 @@ Plans:
 | 76 (close) | v1.13 | 2/2 | ✅ Shipped | 2026-06-18 |
 | 77 | v1.14 | 4/4 | Complete    | 2026-06-22 |
 | 78 | v1.14 | 2/2 | Complete | X88C64 0x34 defer-path: A6 PCB-BLOCKED → no handler; FUT-01 |
-| 79 | v1.14 | 1/3 | ⛔ Blocked  | NMOS-01 gate NOT CLEARED (bench VPP ~12V < 25V); NMOS-02/03 deferred FUT-03 (PCB resistor change needed) |
+| 79 | v1.14 | 1/3 | ⛔ Blocked  | Corrected NMOS-01 gate NOT CLEARED (direct VPE ~15-19V at max pot < 25V, 2026-06-23); NMOS-02/03 deferred FUT-03 (boost-stage HW change needed) |
 | 80 | v1.14 | 1/4 | ⛔ Blocked  | ADPT-01 gate NOT CLEARED (adapter not built / no AT28C chip on hand); ADPT-02/03 deferred FUT-04 (build adapter + DMM-verify /WE 21→30 + chip on hand) |
 | 80 (close) | v1.14 | 0/4 | Planned | 4 plans verified PASSED 2026-06-22; hardware-gated on adapter build (defers cleanly if absent) |
 
