@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.14
 milestone_name: — Feasible-Gap Implementation
 status: executing
-stopped_at: Phase 79 corrected NMOS-01 gate re-run = NOT CLEARED (~15-19V direct-VPE at max pot < 25V); phase halts after 79-01
-last_updated: "2026-06-23T09:51:36Z"
-last_activity: 2026-06-23 -- Phase 79 corrected NMOS-01 gate re-run (NOT CLEARED on direct VPE)
+stopped_at: Phase 79 plan 79-02 complete — VPP ceiling 22000->25000, 4 NMOS chips graduated supported (BEST-EFFORT per CONTEXT D-07 operator override; NOT-CLEARED 79-01 gate proceeded anyway)
+last_updated: "2026-06-23T10:30:00Z"
+last_activity: 2026-06-23 -- Phase 79 plan 79-02 executed (NMOS-02 ceiling raise + DB regen + tests + FUT-03 fix)
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 13
-  completed_plans: 8
-  percent: 50
+  completed_plans: 9
+  percent: 54
 ---
 
 # Project State
@@ -21,11 +21,11 @@ progress:
 
 ## Current Position
 
-Phase: 79 (25v-nmos-ceiling-raise) — ⛔ HARDWARE-BLOCKED at the corrected NMOS-01 gate (~15-19V direct-VPE at max pot < 25V; boost-stage HW change required). Phase 80 also blocked (ADPT-01; FUT-04).
-Plan: 79: 1 of 3 evaluated (79-01 gate NOT CLEARED); 79-02/79-03 BLOCKED
-Status: Halted at gate — phase NOT complete (no graduation)
+Phase: 79 (25v-nmos-ceiling-raise) — 79-02 COMPLETE (NMOS-02): host VPP ceiling raised 22000->25000, 4 NMOS chips graduated to `supported` (0x0B, vpp_mv=25000). BEST-EFFORT graduation under the CONTEXT D-07 operator override (no hardware change ever; the 79-01 ~15-19V NOT-CLEARED gate was superseded — chips attempt a write on the 0x0B direct-VPE rail where FW warns-and-proceeds on under-voltage). Phase 80 still blocked (ADPT-01; FUT-04).
+Plan: 79: 2 of 3 done (79-01 gate NOT CLEARED but overridden; 79-02 complete); 79-03 demoted to informational best-effort bench validation
+Status: 79-02 complete — 4 NMOS chips graduated software-side; 79-03 optional informational bench proof remains
 Bench: leonardo @ /dev/ttyACM0, fw 3.0.0b8, shield Rev 2.0 (operator silkscreen), R1=270000/R2=44000 (LIVE-VERIFIED 2026-06-23 during the 79-01 re-run)
-Last activity: 2026-06-23 -- Phase 79 planning complete
+Last activity: 2026-06-23 -- Phase 79 plan 79-02 executed (best-effort graduation)
 Sub-repo branch: firestarter_app on `v1.14-feasible-gap-implementation` (off beta); source commits inside submodule; meta gitlink PINNED until beta cut. NO source/DB changes made in Phase 80 (gate blocked Plans 02/03/04) — same clean-deferral discipline as Phase 78/79.
 
 ## Project Reference
@@ -178,12 +178,13 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-23T09:51:36Z
-Stopped at: Phase 79 corrected NMOS-01 gate re-run = NOT CLEARED (~15-19V direct-VPE at max pot < 25V); phase HALTS after 79-01
-Resume: hardware remediation required FIRST — the corrected gate (direct VPE rail, drop disabled, `dev reg 0 0 0x86 -f`, pot at MAX) reads only ~15-19V at the socket VPP pin (the documented 0x0B "12-18V direct" band). "Crank the pot" (CONTEXT D-01) is NOT sufficient — the shield's AP3012 boost stage as wired cannot reach 25V, so a genuine boost-stage HARDWARE change is required (now established on the CORRECT rail, not a measurement artifact). After that change, re-run `/gsd-execute-phase 79` to re-evaluate the corrected chip-OUT direct-VPE gate; only a CLEARED ≥25V verdict authorizes Plan 02 (ceiling 22000→25000) and Plan 03 (graduation bench proof).
+Last session: 2026-06-23T10:30:00Z
+Stopped at: Phase 79 plan 79-02 complete — host VPP ceiling raised 22000->25000, 4 NMOS chips graduated to `supported` BEST-EFFORT under the CONTEXT D-07 operator override
+Resume: 79-03 is now informational best-effort bench validation (per D-07) — chips stay `supported` even without a SHA-match; run it when an NMOS chip is on hand on Leonardo, no revert on a failed write. Otherwise Phase 79 is effectively complete on the software side; proceed to Phase 80 (still ADPT-01 hardware-blocked) or close the milestone. firestarter_app gitlink stays PINNED until the operator's beta cut.
 
 ## Decisions
 
+- [Phase 79-02, 2026-06-23]: NMOS-02 executed under the CONTEXT D-07 operator override (supersedes D-05/D-06). Despite the 79-01 NOT-CLEARED (~15-19V) gate, the operator authorized BEST-EFFORT graduation with NO hardware change ever. Raised RURP_VPP_CEILING_MV 22000->25000 (build_db.py) + check_dispatch.py configure_eprom invariant (0,22000)->(0,25000) in one commit; regenerated chip_database.json so INTEL M2716, INTEL 2732/2732A/M2732/M2732A, SGS-THOMSON ETC2716, ST ETC2716 graduate vpp-exceeds-max->supported (algo 0x0B, vpp_mv=25000); zero vpp-exceeds-max chips remain; M2732A (21V) untouched; check_dispatch.py exits 0 (734/10/0). The chips attempt a write on the existing 0x0B direct-VPE rail where the firmware warns-and-proceeds on under-voltage (over-voltage still blocked) — best-effort, the user opts in. FUT-02 (>25V fail-closed) preserved by the strict-greater compare + a new negative-control test. Re-anchored 7 vpp-exceeds-max test exemplars to X88C64P/AT28C04 + added 3 non-vacuous tests; regenerated the golden coverage matrix (4 chips 0x00->0x0B). REQUIREMENTS.md FUT-03 corrected to the manual-potentiometer + best-effort framing. Submodule commits 1498786 (feat) + 26cc62d (test) on v1.14-feasible-gap-implementation; gitlink pinned. 79-03 demoted to informational bench validation.
 - [Phase 79-01 RE-RUN, corrected methodology, 2026-06-23]: NMOS-01 HARDWARE GATE = NOT CLEARED on the CORRECT rail. Chip-OUT dry-run on leonardo @ /dev/ttyACM0, shield Rev 2.0 (operator silkscreen), R1=270000/R2=44000: pot cranked to MAX, DIRECT VPE rail held via `dev reg 0 0 0x86 -f` (drop disabled — the 0x0B path the 4 NMOS chips actually use, NOT `firestarter vpp`), operator DMM read **~15-19V** at the socket VPP pin — still < 25000 mV. NEW FINDING: the correct rail at max pot tops out in the documented 0x0B "12-18V direct" band, so reaching 25V needs a boost-stage HARDWARE change, not a pot adjustment (CONTEXT D-01 optimism not borne out) and not merely correcting the measurement method. Firmware enforces over-voltage block / under-voltage WARN-only (eprom_check_vpp), so this physical measurement is the only safety boundary against an under-driven write; it correctly withheld the Plan 02 ceiling raise + Plan 03 graduation (D-05 hard pre-gate). Plans 79-02/79-03 BLOCKED pending a ≥25V re-run. Mirrors Phase 78 DEFER discipline (clean halt, no code/DB change). Supersedes the 2026-06-22 wrong-rail run below.
 - [Phase 79-01 — SUPERSEDED 2026-06-22 wrong-rail run]: prior NOT-CLEARED used `firestarter vpp`, which forces the DROPPED 0x07/0x08 ~12V path (hardware_operations.cpp:28) — the wrong rail for these 0x0B chips. Verdict superseded by the corrected re-run above (CONTEXT D-03). Kept for history; do NOT treat its ~12V / PCB-resistor framing as current.
 

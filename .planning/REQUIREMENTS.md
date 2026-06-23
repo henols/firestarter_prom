@@ -24,7 +24,7 @@
 ### 25V NMOS Support — 999.7 (host-only ceiling raise; hardware-gated)
 
 - [ ] **NMOS-01**: The on-bench shield's ability to safely produce ≥25V VPP at the socket pin is confirmed by operator multimeter (chip-OUT dry-run) *before* the ceiling constant changes. (Rated-feasible per RURP Rev 2.3 5–27V spec, but shield-R1/R2-calibration-dependent.)
-- [ ] **NMOS-02**: `RURP_VPP_CEILING_MV` raised 22000 → 25000 (`firestarter_app/tools/build_db.py`) and the `check_dispatch.py` `_FAMILY_VPP_INVARIANTS` ceiling updated; the 4 NMOS chips (INTEL M2716, INTEL M2732, SGS-THOMSON ETC2716, ST M2716) re-classify off `vpp-exceeds-max`. (M2732A at 21V is already `supported`.)
+- [x] **NMOS-02**: `RURP_VPP_CEILING_MV` raised 22000 → 25000 (`firestarter_app/tools/build_db.py`) and the `check_dispatch.py` `_FAMILY_VPP_INVARIANTS` ceiling updated; the 4 NMOS chips (INTEL M2716, INTEL M2732, SGS-THOMSON ETC2716, ST M2716) re-classify off `vpp-exceeds-max`. (M2732A at 21V is already `supported`.)
 - [ ] **NMOS-03**: The 4 NMOS chips graduate to `supported`; a write + verify is bench-confirmed on Leonardo.
 
 ### AT28C04/16 Adapter Graduation — 999.6 (hardware-blocked; sequence last)
@@ -45,7 +45,7 @@
 
 - **FUT-01**: X88C64 graduation if v1.14 ALE investigation (XIC-01) finds it PCB-blocked — revisit with a shield modification.
 - **FUT-02**: Any NMOS chip requiring >25V VPP — stays fail-closed (anti-feature).
-- **FUT-03**: 25V VPP rail enablement for the 4 NMOS chips (INTEL M2716/M2732, SGS-THOMSON ETC2716, ST M2716). The Phase 79 NMOS-01 hardware gate (2026-06-22) returned NOT CLEARED: the on-bench shield's AP3012 boost converter is physically set by PCB feedback resistors to the ~12V EPROM programming setpoint (measured ~12V at the socket VPP pin; R1/R2 only scale the ADC readback). Unblocking Phase 79 (NMOS-02 ceiling raise 22000→25000 + NMOS-03 graduation) requires a **PCB feedback-resistor change** on the VPP boost converter to reach ≥25V, then a re-run of the chip-OUT dry-run to a CLEARED verdict. The AP3012 + RURP "5–27V VPP" spec confirm ≥25V is rated-feasible with the right resistors; this is purely a hardware-build task. Evidence: `.planning/phases/79-25v-nmos-ceiling-raise/79-01-SUMMARY.md`.
+- **FUT-03**: 25V VPP rail for the 4 NMOS chips (INTEL M2716/M2732, SGS-THOMSON ETC2716, ST M2716). **Root cause (corrected, CONTEXT D-07 supersedes the prior PCB-feedback-resistor framing):** the VPP boost-converter output is set by an operator-cranked **manual potentiometer on the shield** — NOT firmware-controlled and NOT fixed by PCB feedback resistors; R1/R2 in EEPROM only scale the ADC readback. The corrected Phase 79 NMOS-01 re-run (2026-06-23) measured the **direct VPE rail** (the 0x0B path, drop-disabled, held via `firestarter dev reg 0 0 0x86 -f` — NOT `firestarter vpp`'s dropped ~13V path) at **MAX potentiometer** and read only **~15–19V** at the socket VPP pin. So even cranking the pot to max does not reach 25V on this shield (the prior ~12V NOT-CLEARED verdict measured the wrong/dropped rail). **Operator decision (D-07): NO hardware change, ever.** The ≥25V hard pre-gate is retired and the 4 NMOS chips graduate to `supported` **best-effort** (NMOS-02/03 done in software): they resolve and attempt a write on the existing 0x0B direct-VPE path where the firmware **warns-and-proceeds on under-voltage** (no chip damage; the write may not verify; the user opts in). Over-voltage stays blocked by the firmware as the damage boundary. NMOS-03 bench validation is informational (best-effort) — chips stay `supported` even if a write does not SHA-match. Evidence: `.planning/phases/79-25v-nmos-ceiling-raise/79-01-SUMMARY.md` + `79-CONTEXT.md` D-07.
 
 ## Out of Scope
 
@@ -71,7 +71,7 @@ Which phases cover which requirements. Filled in by the roadmapper.
 | XIC-03 | Phase 78 | Pending |
 | XIC-04 | Phase 78 | Pending |
 | NMOS-01 | Phase 79 | Pending |
-| NMOS-02 | Phase 79 | Pending |
+| NMOS-02 | Phase 79 | Complete |
 | NMOS-03 | Phase 79 | Pending |
 | ADPT-01 | Phase 80 | Pending |
 | ADPT-02 | Phase 80 | Pending |
