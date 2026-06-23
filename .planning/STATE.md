@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.14
 milestone_name: — Feasible-Gap Implementation
-status: executing
-stopped_at: Phase 79 plan 79-02 complete — VPP ceiling 22000->25000, 4 NMOS chips graduated supported (BEST-EFFORT per CONTEXT D-07 operator override; NOT-CLEARED 79-01 gate proceeded anyway)
-last_updated: "2026-06-23T10:30:00Z"
-last_activity: 2026-06-23 -- Phase 79 plan 79-02 executed (NMOS-02 ceiling raise + DB regen + tests + FUT-03 fix)
+status: Awaiting next milestone
+stopped_at: Phase 79 plan 79-02 complete — host VPP ceiling raised 22000->25000, 4 NMOS chips graduated to `supported` BEST-EFFORT under the CONTEXT D-07 operator override
+last_updated: "2026-06-23T11:54:41.172Z"
+last_activity: 2026-06-23 — Milestone v1.14 completed and archived
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 13
   completed_plans: 9
-  percent: 54
+  percent: 50
 ---
 
 # Project State
@@ -21,31 +21,25 @@ progress:
 
 ## Current Position
 
-Phase: 79 (25v-nmos-ceiling-raise) — 79-02 COMPLETE (NMOS-02): host VPP ceiling raised 22000->25000, 4 NMOS chips graduated to `supported` (0x0B, vpp_mv=25000). BEST-EFFORT graduation under the CONTEXT D-07 operator override (no hardware change ever; the 79-01 ≥25V bar was retired — chips program on the 0x0B direct-VPE rail = **22.4V** operator DMM / 23.9V fw `firestarter vpe`, ~90% of 25V, where FW warns-and-proceeds on under-voltage). RAIL CORRECTION: the earlier ~15-19V was VPP, not VPE. Phase 80 still blocked (ADPT-01; FUT-04).
-Plan: 79: 2 of 3 done (79-01 gate NOT CLEARED but overridden; 79-02 complete); 79-03 demoted to informational best-effort bench validation
-Status: 79-02 complete — 4 NMOS chips graduated software-side; 79-03 optional informational bench proof remains
-Bench: leonardo @ /dev/ttyACM0, fw 3.0.0b8, shield Rev 2.0 (operator silkscreen), R1=270000/R2=44000 (LIVE-VERIFIED 2026-06-23 during the 79-01 re-run)
-Last activity: 2026-06-23 -- Phase 79 plan 79-02 executed (best-effort graduation)
-Sub-repo branch: firestarter_app on `v1.14-feasible-gap-implementation` (off beta); source commits inside submodule; meta gitlink PINNED until beta cut. NO source/DB changes made in Phase 80 (gate blocked Plans 02/03/04) — same clean-deferral discipline as Phase 78/79.
+Phase: Milestone v1.14 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-06-23 — Milestone v1.14 completed and archived
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (Current Milestone: v1.14 section)
+See: `.planning/PROJECT.md` (v1.14 Archive section + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
 from upstream XML → DB → wire JSON → firmware handler. No guessing.
 
-**Current focus (v1.14):** Graduate chips to `supported` by implementing the four
-evidence-surfaced, RURP-feasible gaps v1.13 scoped out — the first chips to become newly
-programmable since v1.0. Build order 999.4 → 999.5 → 999.7 → 999.6 (operator-locked):
-Phase 77 erase write-path (host-only, most-ready), Phase 78 X88C64 0x34 firmware handler (the
-only firmware-adding gap; dual-repo lockstep; flash-gated; ALE-routing investigation first),
-Phase 79 25V NMOS ceiling raise (host-only; operator multimeter ≥25V dry-run first), Phase 80
-AT28C04/16 adapter graduation (host-only but hardware-blocked on the adapter; last). Each
-graduation removes the v1.12 `chip_resolver` host-guard refusal as the FINAL step, gated behind
-native register-bit tests + wire round-trip + Leonardo bench proof (SAFE-01/02/03). Branches off
-`beta` in all 3 repos, merge back to `beta`; beta→stable operator-gated. Phase numbering continues
-from v1.13 (76) → v1.14 starts at **Phase 77**.
+**Current focus:** No active milestone — v1.14 SHIPPED 2026-06-23. Plan the next milestone
+via `/gsd-new-milestone` (fresh requirements). v1.14 delivered the first chip graduations since
+v1.0 (erase write-path Phase 77 bench-proven; 25V NMOS best-effort Phase 79) with X88C64
+(Phase 78) + AT28C04/16 adapter (Phase 80) cleanly deferred to FUT-01/03/04. Meta tagged
+`v1.14`, gsd planning merged to `beta`; lockstep beta cut `3.0.0b11` + submodule gitlink bump
+remain OPERATOR-GATED (gitlinks PINNED). Standing carry-forward: deferred v1.9 read-bug RCA
+(resumes at Phase 45).
 
 ## Roadmap Summary
 
@@ -178,9 +172,9 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-23T10:30:00Z
-Stopped at: Phase 79 plan 79-02 complete — host VPP ceiling raised 22000->25000, 4 NMOS chips graduated to `supported` BEST-EFFORT under the CONTEXT D-07 operator override
-Resume: 79-03 is now informational best-effort bench validation (per D-07) — chips stay `supported` even without a SHA-match; run it when an NMOS chip is on hand on Leonardo, no revert on a failed write. Otherwise Phase 79 is effectively complete on the software side; proceed to Phase 80 (still ADPT-01 hardware-blocked) or close the milestone. firestarter_app gitlink stays PINNED until the operator's beta cut.
+Last session: 2026-06-23 — **Milestone v1.14 closed** (`/gsd-complete-milestone v1.14`): archived (ROADMAP/REQUIREMENTS/audit → `.planning/milestones/v1.14-*`), MILESTONES.md + PROJECT.md + RETROSPECTIVE.md updated, ROADMAP collapsed, REQUIREMENTS.md removed, meta tagged `v1.14`, gsd planning merged to meta `beta`.
+Stopped at: v1.14 complete. No active milestone.
+Resume: Start the next milestone with `/gsd-new-milestone` (fresh requirements). **OPERATOR-GATED & still open:** the lockstep beta cut (`3.0.0b11` — firestarter_app version bump + submodule gitlink bump + PyPI/GitHub pre-release) is deferred to operator authorization; gitlinks stay PINNED. Carry-forward: deferred v1.9 read-bug RCA (Phase 45); v1.14 FUT items (FUT-01 X88C64 ALE PCB-mod, FUT-03 NMOS bench SHA-match, FUT-04 AT28C04/16 adapter build).
 
 ## Decisions
 
@@ -291,11 +285,12 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 
 ## Deferred Items
 
-9 items acknowledged and deferred at **v1.13 milestone close (2026-06-18)** (carrying 7 re-affirmed
-from the v1.11 2026-06-10 / v1.12 2026-06-16 closes, plus 2 v1.13-surfaced) — none are v1.13 work
-(all pre-existing, out-of-scope, accepted tech debt, or hardware-gated). v1.13 *guards against*
-999.1/999.2 as confounders (live-R1 precondition, uno328pb=N/A) but does NOT fix them. See
-`.planning/milestones/v1.11-MILESTONE-AUDIT.md` + `.planning/milestones/v1.12-MILESTONE-AUDIT.md`.
+**Re-acknowledged at v1.14 milestone close (2026-06-23):** the 9 cross-milestone open-artifact
+items below were re-confirmed via `gsd-tools audit-open` — **none are v1.14 work** (all pre-existing
+from v1.0–v1.13: out-of-scope, accepted tech debt, or hardware-gated). Plus **3 v1.14-specific
+hardware-gated deferrals** (FUT-01/03/04) — the intentional, operator-authorized gaps the v1.14
+milestone audit flagged (`gaps_found`, but deferrals-by-design, not failures). See
+`.planning/milestones/v1.14-MILESTONE-AUDIT.md` for the full v1.14 deferral rationale.
 
 | Category | Item | Status | Disposition |
 |----------|------|--------|-------------|
@@ -310,10 +305,11 @@ from the v1.11 2026-06-10 / v1.12 2026-06-16 closes, plus 2 v1.13-surfaced) — 
 | verification | Phase 71 (71-VERIFICATION.md) | gaps_found (stale) | Both verifier gaps CLOSED by follow-up plans 71-07 (non-vacuous oracle) + 71-08 (flash4 spec-trim); status line never re-run |
 | phase-deferral | Phase 74 Wave-2 (W29C040 HW re-bench) + Phase 75 (erase path) | deferred to v1.14 | Backlog 999.4; hardware-gated (Leonardo+Rev2.0 T-74-VPP multimeter gate; erase 12V→14V rail confirm under 22V ceiling) |
 | phase-graduated | Phase 79 NMOS-02 (25V ceiling raise + NMOS graduation) | DONE best-effort (D-07) | NMOS-02 shipped 2026-06-23: ceiling 22000→25000, 4 NMOS chips `supported` (0x0B). VPE rail = 22.4V DMM / 23.9V fw (~90% of 25V); ≥25V bar retired by operator (no HW change ever); chips program best-effort where FW warns under-voltage + proceeds. The earlier ~15-19V was VPP, not VPE. 79-03 bench write+SHA is informational, deferred (no chip on hand). Evidence: 79-01-SUMMARY.md + 79-CONTEXT.md D-07 |
+| FUT-01 (v1.14) | X88C64 0x34 graduation (Phase 78) | deferred — PCB-blocked | A6 ALE-routing PCB-BLOCKED (HIGH); control register fully allocated, no free 74HC573 strobe. X88C64 stays protocol-not-implemented/host-refused. Unblock requires a shield modification. XIC-02/03/04. |
+| FUT-03 (v1.14) | NMOS bench SHA-match (Phase 79 NMOS-03) | deferred — no chip | Definitive Leonardo write+verify SHA-match of the 4 graduated NMOS chips on the ~22.4V VPE rail; demoted to informational (chips stay `supported` without it); deferred for lack of an NMOS chip on hand. |
+| FUT-04 (v1.14) | AT28C04/16 adapter graduation (Phase 80) | deferred — adapter not built | ADPT-01 gate NOT CLEARED: DIP24→DIP32 adapter not built, no AT28C chip on hand. 9 chips stay honestly `adapter-required`. Unblock = build adapter + DMM-verify (/WE pin 21→30) + chip on hand. ADPT-01/02/03. |
+| release-gate (v1.14) | Lockstep beta cut `3.0.0b11` + submodule gitlink bump | OPERATOR-GATED | Standing v1.11/v1.12/v1.13 policy: sub-repos stay on their milestone branches, meta gitlinks PINNED; the beta cut (version bump + gitlink bump + PyPI/GitHub pre-release) + stable promotion are deferred to manual operator authorization. |
 
 ## Operator Next Steps
 
-- **Phase 79 NMOS-02 is DONE (best-effort, D-07).** The 4 NMOS chips are graduated to `supported` and program on the VPE rail (22.4V DMM / 23.9V fw `firestarter vpe`, ~90% of 25V). No hardware change is being made (operator decision). The firmware warns under-voltage and proceeds. The only open item is the **informational** 79-03 bench proof: when an M2716/M2732/ETC2716 is on hand, re-run `/gsd-execute-phase 79` for a Leonardo write + read-back SHA to confirm ~22.4V VPE actually programs a real 25V NMOS chip (chips stay `supported` regardless of the result).
-- **Phase 79 cannot ship in v1.14 without that hardware change.** Decision needed: (a) do the boost-stage hardware change now and resume, or (b) defer Phase 79 to a future milestone (FUT-03) and proceed/close v1.14 with 77/78 (80 also adapter-blocked). The FUT-03 root-cause text in REQUIREMENTS.md still carries the old "PCB feedback-resistor" framing and the D-01 manual-pot correction — both are now superseded by this max-pot direct-VPE finding; correcting it is bundled in the still-blocked 79-02 Task 3, so it stays as-is until the gate clears.
-- Phases 78 + 79 both await `/gsd-verify-phase` + `/gsd-secure-phase` where applicable (78 verified PASSED; 79 halted pre-verify by the gate).
-- **Phase 80 (AT28C04/16 adapter graduation) is PLANNED** (2026-06-22): 4 plans verified PASSED (research + Nyquist VALIDATION committed). Host-only, mirrors the Phase 77 graduation pattern; hardware-gated on building the DIP24→DIP32 adapter (Plan 01 DMM continuity gate) — defers cleanly (FUT-04) if the adapter/AT28C chip is absent. Execute with `/gsd-execute-phase 80`. Plan 01 will ASK whether the adapter is built + whether an AT28C04/16 chip is on hand.
+- Start the next milestone with /gsd-new-milestone

@@ -482,6 +482,79 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 
 ---
 
+## Milestone: v1.14 — Feasible-Gap Implementation
+
+**Shipped:** 2026-06-23
+**Phases:** 4 (77–80) | **Plans:** 9 executed of 13 (4 deferred hardware-gated) | **Timeline:** 2026-06-18 → 2026-06-23 (5 days)
+
+### What Was Built
+
+- The **first chip graduations since v1.0**: the 7–8 0x07 EE-EPROMs now auto-erase
+  before programming (`FLAG_CAN_ERASE` from canonical `electrical.type`, Phase 77,
+  bench-proven W27C512 write→auto-erase→program→verify on Leonardo with SHA match),
+  and 4 NMOS UV-EPROMs graduated `vpp-exceeds-max` → `supported` best-effort
+  (Phase 79, VPP ceiling 22000→25000 + DB regen).
+- Two genuine hardware blockers resolved as **clean, zero-code deferrals**: X88C64
+  0x34 (Phase 78 — A6 ALE-routing PCB-BLOCKED, control register fully allocated)
+  and AT28C04/16 adapter graduation (Phase 80 — adapter not built / no chip on hand).
+- The cross-cutting **SAFE-01/02/03 graduation-gate-last discipline** (drop the host
+  guard only after native + wire + bench evidence; `check_dispatch.py` full-DB gate
+  green; lockstep constant parity) established in Phase 77 and held milestone-wide.
+
+### What Worked
+
+- **Contingent / branched phase plans** — Phase 78's plan carried an explicit
+  proceed-vs-defer gate keyed on the A6 verdict; when ALE proved PCB-blocked the
+  DEFER branch executed with zero code and a verified 7/7. Designing the deferral
+  path INTO the plan made "no blind handler" a structural outcome, not a judgment call.
+- **Honest deferral over forced graduation** — 2 of 4 gaps were physically un-closable
+  without hardware the operator chose not to build; FUT-01/03/04 tracked them cleanly
+  instead of shipping unverifiable code.
+- **Integration check corroborated the verification-gapped phase** — Phase 79 closed
+  without a VERIFICATION.md, but the 744-chip dispatch gate + 650 green tests +
+  constants parity gave the milestone audit enough to confirm the DB state.
+
+### What Was Inefficient
+
+- A **wrong-rail measurement** (Phase 79 NMOS-01 first run used `firestarter vpp`,
+  forcing the dropped ~12V path) produced a superseded NOT-CLEARED verdict + a
+  PCB-feedback-resistor mis-diagnosis; the rail correction (VPP vs VPE, 22.4V at max
+  pot) only landed on a re-run. Knowing which rail a 0x0B chip actually programs on
+  (direct-VPE) up front would have saved a cycle.
+- **2 of 4 phases (79, 80) closed without a VERIFICATION.md** — defensible (79
+  integration-corroborated, 80 zero-change) but it left the audit at `gaps_found`
+  rather than a clean `passed`.
+
+### Patterns Established
+
+- **Best-effort graduation under operator override** — a chip can graduate to
+  `supported` on a rail below its rated VPP when the firmware warns-and-proceeds on
+  under-voltage (over-voltage stays the hard damage boundary) and the user opts in;
+  the definitive bench SHA-match is demoted to informational (FUT), not gating.
+- **Plan-level deferral branches with FUT tracking** — hardware-gated phases encode
+  the clean-deferral outcome (zero change, chips stay honestly refused, a FUT item
+  recorded) as a first-class branch, so a blocked gate is a valid completion.
+
+### Key Lessons
+
+- **Measure the right rail.** For 0x0B chips, VPP (`firestarter vpp`) is the dropped
+  path; they program on VPE. A confident wrong-rail reading drove a multi-day
+  mis-diagnosis (PCB resistor change "needed") that the operator's DMM later corrected.
+- **`gaps_found` ≠ failure.** When every gap is an intentional, operator-authorized,
+  FUT-tracked hardware deferral, the audit status is a coverage statement, not a defect
+  list — closing on it is the right call.
+- **Designing the deferral into the plan beats deciding at execution.** Phase 78/80's
+  pre-authored defer branches kept "no blind handler / no unverified graduation" a
+  structural guarantee.
+
+### Cost Observations
+
+- 5-day milestone, host-only delta (firmware untouched on `beta`); 55 meta commits +
+  5 host code commits. 2 of 4 gaps deferred on hardware (FUT-01/03/04); 9 cross-milestone
+  open artifacts re-acknowledged at close (none v1.14 work).
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -494,6 +567,8 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 | v1.10     | 7     | 27    | 5    | Decision-phase-first for a load-bearing mechanism choice (COBS vs SLIP, static proof before implementation); dual-repo lockstep pinned by shared golden-vector codegen + CI drift gate; insert-ahead sequencing to exonerate a variable; transport-exoneration as a first-class PASS verdict (hardware still fails → RCA deferred, not a milestone failure) |
 | v1.11     | 6     | 14    | 3    | Research-shrinks-scope (overturned "expand + firmware handlers" → host-only); field-dictionary-as-decode-authority (phase 0); single-source-of-truth helper for view parity (one `resolve_type_label` → divergence structurally impossible); display correctness as a follow-on phase pair (60→61); recurring checkbox-lag + auto-MILESTONES-noise confirmed as cross-milestone failure modes |
 | v1.12     | 8     | 22    | 7    | Baseline-and-gate before touching firmware (GATE-first ordering); catalog wire change as its own zero-call-site commit; defense-in-depth on the 12V-VPP hazard (firmware guard + data-layer 0x00 + host refusal); insert-phase agility (2 of 8 phases unplanned: 69 crash-fix, 70 integration); **stale fork base** surfaced an unplanned integration phase at merge; hollow-safety-gate shipped as accepted tech debt (host guard authoritative) |
+| v1.13     | 5 + close | 19 | 3 | Software-first / flash-free validation tiers; evidence-defines-missing (one bench-FAIL drove the only fix; a suspected bug DISPROVEN, not speculatively fixed); hybrid bench gating closes cleanly at PARTIAL coverage; non-vacuous PASS oracle kills source==source false-PASS |
+| v1.14     | 4     | 9 of 13 (4 deferred HW-gated) | 5 | First chip graduations since v1.0 (erase + 25V NMOS best-effort); plan-level deferral branches with FUT tracking (Phase 78/80 closed clean with zero code); best-effort graduation under operator override (warns-and-proceeds rail, definitive bench demoted to FUT); `gaps_found`≠failure when every gap is an intentional HW deferral; wrong-rail measurement cost a debug cycle (VPP vs VPE on 0x0B chips) |
 
 ### Cumulative Quality
 
@@ -502,6 +577,7 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 | v1.0      | 3/13 formal (11, 12, 13) + 10 via INTEGRATION-CHECK | gaps_found (REQ-SAF-01 Intel-flash) | 0 (Phase 13 closed AT28C256) |
 | v1.11     | 6/6 formal (56–61, all passed) | passed (15/15 reqs, 0 gaps) | 5/5 CLI E2E flows (info/list/search) green; both correctness gates 0-violation on 743 chips |
 | v1.12     | 8/8 formal (62–70, all passed) | tech_debt (17/17 reqs, 0 gaps; deferred non-blocking debt) | 5/5 E2E flows wired (fw→host dispatch, host refusal, DB gate, wire parity, beta-merge); 4/8 phases secure-gated threats_open:0; firmware 49/49 native, host 529/530, cov 76.27% |
+| v1.14     | 2/4 formal (77, 78 passed); 79/80 deferred without VERIFICATION.md (79 integration-corroborated, 80 zero-change) | gaps_found — but all gaps intentional/operator-authorized hardware deferrals (FUT-01/03/04), not failures | integration PASS (744-chip dispatch gate 0 violations, 0 regressions; 650 host tests; constants parity 8/8); first hardware graduation bench-proven (W27C512 erase cycle, Leonardo) |
 
 ### Top Lessons (Verified Across Milestones)
 

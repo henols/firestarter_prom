@@ -1,5 +1,30 @@
 # Milestones
 
+## v1.14 Feasible-Gap Implementation (Shipped: 2026-06-23)
+
+**Phases completed:** 4 phases (77–80), 9 executed plans of 13 (4 deferred plans are hardware-gated), 14 tasks. Host-only delta (firmware sub-repo untouched, stayed on `beta`). Git range: `d42fed3` (v1.14 start) → `3882377` (rail correction); 55 meta commits + 5 host code commits (Phase 77 ×3, Phase 79 ×2) on `firestarter_app@26cc62d`. Timeline: 2026-06-18 → 2026-06-23 (5 days).
+
+**Delivered:** The first milestone since v1.0 where chips actually **graduate to `supported`**, implementing the four evidence-surfaced, RURP-feasible gaps v1.13 scoped out. Of the four: **1 fully landed + bench-proven** (erase write-path), **1 landed software-side best-effort** (25V NMOS), **2 cleanly deferred on genuine hardware blockers** (X88C64 PCB-block, AT28C04/16 adapter-not-built) — every deferral FUT-tracked. The cross-cutting SAFE-01/02/03 graduation-gate-last discipline (drop the host-guard refusal only after native + wire + bench evidence; `check_dispatch.py` full-DB VPP-safety gate green; lockstep constant parity) was established in Phase 77 and held across the milestone. Audit `gaps_found` but **all gaps are intentional, operator-authorized, hardware-gated deferrals, not execution failures**; integration PASS (744-chip dispatch gate, 0 violations; 650 host tests; constants parity 8/8).
+
+**Key accomplishments:**
+
+- **Phase 77 (Erase write-path) — ERASE-01/02, SAFE-01/02/03, ✅ verified 5/5:** `convert_to_programmer` derives `FLAG_CAN_ERASE` from the canonical `electrical.type == "EEPROM"` (not the always-zero `info-flags & 0x10`), locked by 3 wire-level tests, so the 7–8 0x07 EE-EPROMs (W27C512-class) auto-erase before programming. A host regression test pins the `ack_data=False` invariant (INIT/END DATA frames not acked) so the default write path can't re-trigger the 0xA4 desync. **First hardware graduation:** the full write→auto-erase→program→verify cycle is bench-proven on a real non-blank W27C512 on the Leonardo (clean no-`-b` write, independent read SHA-match, wrong-file verify exits non-zero).
+- **Phase 78 (X88C64 0x34) — XIC-01 ✓, ✅ verified 7/7 (clean deferral):** source-traced the RURP control-register allocation + 74HC573 strobe; the A6 ALE-routing verdict is **PCB-BLOCKED (HIGH confidence)** — the control register is fully allocated and no free strobe exists. The contingent handler-write plan correctly took the DEFER branch — **zero firmware code**; X88C64 stays `protocol-not-implemented`/host-refused; graduation deferred to FUT-01. "No blind handler."
+- **Phase 79 (25V NMOS ceiling raise) — NMOS-02 ✅ (best-effort, D-07):** under the operator override (no hardware change, ever; the strict ≥25V pre-gate retired), raised the host VPP ceiling 22000→25000 in lockstep (`build_db.py` + `check_dispatch.py`) and regenerated `chip_database.json` so the 4 NMOS UV-EPROMs (INTEL M2716, INTEL 2732/M2732, SGS-THOMSON ETC2716, ST ETC2716) graduate `vpp-exceeds-max` → `supported` (0x0B, vpp_mv=25000); zero `vpp-exceeds-max` chips remain; M2732A (21V) untouched. The chips program on the existing 0x0B direct-VPE rail (22.4V DMM / 23.9V fw, ~90% of 25V) where the firmware warns-and-proceeds on under-voltage (over-voltage stays blocked). Rail correction (operator): the ~15–19V earlier mislogged as VPE was actually VPP.
+- **Phase 80 (AT28C04/16 adapter) — ADPT-01 evaluated NOT CLEARED (clean deferral):** the gating DIP24→DIP32 adapter is not built and no AT28C04/AT28C16 chip is on hand. Per the operator decision the phase deferred cleanly — **zero DB/code/constants change**, the 9 AT28C chips stay honestly `adapter-required`, the v1.12 host-guard refusal preserved; Plans 02/03/04 blocked; FUT-04 recorded.
+
+**Hardware-gated deferrals (FUT-tracked, carried forward):**
+
+- **FUT-01** — X88C64 graduation if the ALE PCB-block is later resolved by a shield modification (Phase 78; XIC-02/03/04).
+- **FUT-03** — Definitive Leonardo write+verify SHA-match bench proof of the 4 graduated NMOS chips on the ~22.4V VPE rail; demoted to informational best-effort (chips stay `supported` without it); deferred for lack of an NMOS chip on hand (Phase 79; NMOS-03).
+- **FUT-04** — AT28C04/16 graduation once the DIP24→DIP32 adapter is built + DMM-verified (/WE pin 21→30) and an AT28C chip is on hand (Phase 80; ADPT-01/02/03).
+
+**Branch/release state:** v1.14 forked off the gsd/v1.13 close tip (`f486ad4`) in the meta repo; sub-repo work on `v1.14-feasible-gap-implementation` (`firestarter_app` only — firmware untouched). Meta tagged `v1.14`; gsd planning merged to meta `beta`. **The lockstep beta cut (`3.0.0b11`) + submodule gitlink bump remain operator-gated** (gitlinks intentionally PINNED) — same standing policy as v1.11/v1.12/v1.13.
+
+See `.planning/milestones/v1.14-ROADMAP.md`, `.planning/milestones/v1.14-REQUIREMENTS.md`, `.planning/milestones/v1.14-MILESTONE-AUDIT.md`.
+
+---
+
 ## v1.13 Programming Algorithm Validation + Gap Implementation (Shipped: 2026-06-18)
 
 **Phases completed:** 5 phases, 19 plans, 31 tasks (Phase 75 erase path + Phase 74 Wave-2 HW re-bench deferred to v1.14)
