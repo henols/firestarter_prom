@@ -17,9 +17,23 @@
 
 **v1.14 shipped:** 2026-06-23 (Feasible-Gap Implementation — 4 phases (77–80), 9 executed plans of 13, host-only delta; the first milestone since v1.0 where chips actually **graduate to `supported`**. 1 fully landed + bench-proven (erase write-path, Phase 77), 1 software-side best-effort (25V NMOS, Phase 79), 2 cleanly deferred on hardware blockers (X88C64 PCB-block Phase 78 → FUT-01; AT28C04/16 adapter-not-built Phase 80 → FUT-04). 6 reqs verified · 2 software-complete · 7 hardware-gated deferrals. Audit `gaps_found` but all gaps intentional/operator-authorized; integration PASS (744-chip gate 0 violations, 650 tests). Meta tagged `v1.14`, gsd planning merged to `beta`; lockstep beta cut `3.0.0b11` + gitlink bump operator-gated. See `.planning/MILESTONES.md` §v1.14.)
 
-## Current Milestone: (none — planning next via `/gsd-new-milestone`)
+## Current Milestone: v1.15 Bench Validation of Operator Inventory
 
-v1.14 shipped 2026-06-23. No active milestone. The next milestone starts with `/gsd-new-milestone` (fresh requirements). Standing carry-forward: the deferred v1.9 read-bug RCA (resumes at Phase 45) and the v1.14 FUT items (FUT-01 X88C64 ALE PCB-mod, FUT-03 NMOS bench SHA-match, FUT-04 AT28C04/16 adapter build).
+**Goal:** Bench-validate the operator's physical chip inventory (11 chips spanning 5 algorithm families) on Leonardo + RURP Rev 2.0 via full write→read→verify — proving the on-paper `supported` claims true on real silicon, RCA-ing and fixing any failures, validating DB decode correctness, and graduating the one genuine gap (the `2516`, confirmed absent from minipro upstream).
+
+**Target features:**
+- **Reusable per-chip bench evidence record** — a repeatable write→read→verify procedure + a per-chip pass/fail/SHA matrix document, reusing `dev validate-family` + `write_test.sh` (no new harness).
+- **Validate the 8 electrically-rewritable chips on silicon** — W27C512, W27E512, SST27SF512 (0x07), W27E040 (0x08), SST39SF040 (0x06), W29C020 + W29C040 (0x05), FM1608 (0x40): full write→read→verify cycle, confirming the `supported` claim and the auto-erase path where applicable.
+- **UV-EPROM no-eraser test protocol** (ST M27C512, AM27C020, 2516) — non-destructive read + blank-check FIRST (validates read path / decode / VPP-for-read with zero chips consumed); then a per-chip spend-vs-preserve decision AT the bench (full real image if blank; else an AND-mask / all-0x00 bit-subset write proof, which only needs 1→0 transitions and is verifiable without an eraser).
+- **2516 investigation + graduation** — confirmed absent from minipro `infoic.xml` (the 28 "2516" hits are all `25160` SPI serial parts); author a datasheet-grounded DB entry (NMOS ~25V class, DIP24, alg 0x0B / 2716-family profile) and bench-prove it on the ~22.4V VPE rail — doubling as the deferred FUT-03 NMOS write+SHA evidence.
+- **DB decode-correctness validation** — confirm real-silicon behavior matches the DB (pinout, VPP, electrical type, algorithm, size) for every chip exercised; flag/fix any mismatch.
+- **Defect RCA + fix** (conditional) — any per-family write/program/verify failure the bench surfaces is root-caused and fixed in lockstep.
+
+**Key context:**
+- **Board/shield LOCKED: Leonardo + RURP Rev 2.0** — the only trustworthy program/write/verify combo (v1.9 read bug corrupts the oracle elsewhere; uno328pb N/A for program/write). Standing bench discipline applies: live R1/R2 readback (`r1 ≈ 270000`) each task, verify `controller:` port identity per task; Leonardo is chip-OUT-sideload-exempt.
+- **Most of the inventory is already `supported` on paper but unproven on silicon** — only W27C512 (P77), SST39SF040 + W29C040 (P74), FM1608 (P73) carry prior bench evidence. So the dominant goal is to *prove the claim*, not mass-graduate. The `2516` is the one true graduation candidate.
+- **UV-EPROMs are irreversibly written without an eraser** (operator has none) — hence read-only/blank-check first, spend decided per-chip live. W27C512/W27E512/SST27SF512 etc. are *electrically*-erasable EEPROMs (auto-erase) and are NOT affected by this constraint.
+- **Phase numbering continues from v1.14's last phase (80) → v1.15 starts at Phase 81.** Mostly host-side (2516 DB entry + evidence tooling); firmware likely untouched unless a bench-surfaced defect forces a lockstep fix. Branch off `beta` per standing policy; v1.14's `3.0.0b11` lockstep beta cut remains operator-gated (gitlinks PINNED).
 
 ## v1.14 Archive: Feasible-Gap Implementation — Shipped 2026-06-23
 
@@ -429,6 +443,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
+
+*Last updated: 2026-06-23 — v1.15 (Bench Validation of Operator Inventory) STARTED. Bench-validate 11 physical chips (5 algorithm families) on Leonardo + RURP Rev 2.0 via full write→read→verify: prove the on-paper `supported` claim on real silicon, RCA/fix any failures, validate DB decode correctness, and graduate the one genuine gap (the `2516`, confirmed absent from minipro `infoic.xml` — needs a datasheet-grounded entry + bench proof, doubling as deferred FUT-03 NMOS evidence). UV-EPROMs (M27C512/AM27C020/2516) get a no-eraser protocol: non-destructive read+blank-check first, spend-vs-preserve decided per-chip at the bench. Mostly host-side; firmware untouched unless a bench defect forces a lockstep fix. Phase numbering continues at Phase 81; branch off `beta`. Prior footer (v1.14 close) retained below.*
 
 *Last updated: 2026-06-23 — v1.14 (Feasible-Gap Implementation) SHIPPED. 4 phases (77–80), 9 executed plans of 13 (4 deferred hardware-gated), host-only delta (firmware untouched on `beta`). The first milestone since v1.0 to graduate chips to `supported`: erase write-path (Phase 77 ✅ bench-proven W27C512, first hardware graduation) + 25V NMOS best-effort (Phase 79 ✅ 4 chips, D-07 override, no HW change). X88C64 (Phase 78, ALE PCB-BLOCKED → FUT-01) + AT28C04/16 adapter (Phase 80, adapter-not-built → FUT-04) cleanly deferred. 15 reqs: 6 verified · 2 software-complete · 7 hardware-gated deferrals (FUT-01/03/04). Audit `gaps_found` but all gaps intentional/operator-authorized; integration PASS (744-chip gate 0 violations, 650 tests, parity 8/8). Meta tagged `v1.14`, gsd planning merged to `beta`; lockstep beta cut `3.0.0b11` + gitlink bump operator-gated (gitlinks PINNED). Next: `/gsd-new-milestone`. Prior footer (v1.14 start) retained below.*
 
