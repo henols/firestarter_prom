@@ -77,6 +77,30 @@ Scope (the 4 chips, host-only constants) is unchanged.
   guard self-clears from the DB) only after a Leonardo write+verify SHA-match
   with a non-vacuous negative control.
 
+### D-07 — Safety stance REVERSED to best-effort graduation (operator-authorized 2026-06-23, SUPERSEDES D-05/D-06)
+- **Context:** The corrected NMOS-01 gate (79-01 re-run) measured the direct VPE
+  rail at MAX pot and read **~15–19V** — still < 25V. Establishing that "crank
+  the pot" (D-01) cannot reach 25V on this shield, the only path to a true ≥25V
+  rail would be a boost-stage hardware change.
+- **Operator decision (authoritative):** **There will be NO hardware changes,
+  ever.** The ≥25V hard pre-gate (D-05) is **retired**. Instead:
+  1. The 4 NMOS chips graduate to `supported` via the host software path (79-02)
+     **regardless of the bench voltage** — graduation is NO LONGER gated on a
+     ≥25V reading or on a bench SHA-match.
+  2. A real write uses the existing **0x0B / direct-VPE** firmware path (already
+     drop-disabled — no firmware change). The firmware's `eprom_check_vpp` WARNs
+     on under-voltage and **proceeds**; over-voltage is still blocked. At
+     ~15–19V the write is **best-effort**: it may or may not verify, and an
+     under-driven write **cannot damage the chip**.
+  3. **79-03 is demoted** from a hard graduation gate to **informational
+     best-effort bench validation** — run it when a chip is on hand, but the
+     chips stay `supported` even if the write does not SHA-match ("any is fine
+     and will not hurt anything" — operator). No revert on a failed bench write.
+- **Why safe:** the firmware over-voltage block remains the damage boundary;
+  under-voltage is harmless; the SHA-match (when run) is informational. This
+  trades a guaranteed-correct write for best-effort programmability the user
+  opts into.
+
 ### Claude's Discretion
 - Exact register/`dev reg` incantation for the direct-VPE hold may be refined by
   research/planner against live firmware, provided it measures the **drop-disabled**
