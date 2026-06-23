@@ -1,224 +1,340 @@
-# Feature Research
+# Feature Landscape — v1.14 Feasible-Gap Implementation
 
-**Domain:** EPROM/Flash/EEPROM/SRAM parallel-memory programmer — firmware algorithm validation + feasible-gap implementation (Firestarter v1.13)
-**Researched:** 2026-06-16
-**Confidence:** HIGH (firmware source + DB read directly; datasheet/protocol facts web-grounded; bench-feasibility verdicts grounded in fixed RURP constraints)
-
----
-
-## Framing: validate vs implement vs infeasible
-
-v1.13 is **test-first validation of already-built algorithm families, then evidence-driven gap implementation.** This document categorizes every candidate against three buckets:
-
-- **Table Stakes = VALIDATE** — algorithm family code already exists and dispatches; the milestone must *prove it correct on hardware* (and fix bugs bench exposes). Missing this = the firmware is shipping unverified write paths.
-- **Differentiators = IMPLEMENT** — a genuinely RURP-feasible (DIP parallel, fixed 5V VCC, VPP ≤ ~22V) operation/chip that is currently unimplemented or only partially wired. Each must carry a feasibility verdict + citation.
-- **Anti-Features = KEEP REFUSED** — physically infeasible on RURP; already fail-closed by v1.12; must stay refused. No evidence-free "just add protocol X".
-
-### RURP hardware constraints (the feasibility ruler — used for every verdict)
-
-| Constraint | Value | Source |
-|---|---|---|
-| VCC | fixed 5V only | PROJECT.md "Out of Scope"; firmware has no VCC DAC |
-| VPP ceiling | `RURP_VPP_CEILING_MV = 22000` (~22V; practically ~21V tested) | v1.12 DB-03 (`check_dispatch.py`) |
-| Bus | DIP parallel, 19-bit address (512 KB), 8-bit data | PROJECT.md Key Decisions 2026-05-08 |
-| Packages | DIP 24 / 28 / 32 only | PROJECT.md |
-| No serial/LPC/SPI/I²C, no 3.3V rail, no ICSP | — | PROJECT.md; v1.12 infeasibility findings |
+**Domain:** EPROM/Flash/EEPROM programmer — chip graduation milestone (4 chip groups → `supported`)
+**Researched:** 2026-06-18
+**Based on:** Required reading from PROJECT.md, ROADMAP.md, v1.13-PROTOCOL-ENUMERATION.md,
+X88C64-FEASIBILITY.md, firestarter/doc/AT28C04-ADAPTER.md, MILESTONES.md §v1.13
 
 ---
 
-## Algorithm-family inventory (ground truth from firmware + DB)
+## Summary
 
-744 chips. Support-status distribution (read from `chip_database.json` 2026-06-16): **supported 730**, **adapter-required 9**, **vpp-exceeds-max 4**, **protocol-not-implemented 1**. Algorithm handler map:
+v1.14 is the first milestone since v1.0 in which chips actually graduate to `support_status: supported`
+— becoming newly programmable. It implements four evidence-surfaced, RURP-feasible gaps that v1.13
+deliberately scoped out. Each feature has a distinct acceptance shape:
 
-| Protocol | Family / handler | DB chips | CMD_WRITE | CMD_ERASE in firmware? | CMD_BLANK | CMD_CHECK_CHIP_ID | VPP |
-|---|---|---|---|---|---|---|---|
-| 0x07 EPROM_STD | `configure_eprom` | 170 | yes (retry+verify loop) | **YES** (`eprom_internal_erase`, A9+VPE 14V) | yes | yes (A9-12V) | 13V via VPE_DROP |
-| 0x08 EPROM_QUICK | `configure_eprom` | 127 | yes (100µs pulse) | YES (same path) | yes | yes | 13V |
-| 0x0B EPROM_LEGACY | `configure_eprom` | 26 | yes (500µs, direct VPE) | YES | yes | yes | 12–18V direct |
-| 0x0D EEPROM_POLL | `configure_eeprom28c` | 84 (75 supported + 9 adapter) | yes (SDP-disable + 64B page + DQ7-wait) | **NO** (no CMD_ERASE case) | yes | yes (A9-12V) | none (5V) |
-| 0x06 FLASH_AMD_ALT | `configure_flash3` | 190 | yes (unlock+verify DQ7) | YES (chip + sector erase) | yes | yes | none (5V) |
-| 0x05 FLASH_AMD_STD | `configure_flash4` | 27 | yes (64B page + poll) | YES (12V-on-OE erase) | yes | **NO case** | none(write); 12V in erase |
-| 0x35 FLASH_EEPROM | `configure_flash4` | (within 0x05/0x35) | yes | YES | yes | NO | none |
-| 0x39 FLASH_EEPROM2 | `configure_flash4` | 2 | yes (by analogy; **0 chips historically — now 2**) | YES | yes | NO | none |
-| 0x10 FLASH_INTEL | `configure_flash_intel` | 39 | yes (0x40 setup + SR poll) | YES (0x20/0xD0 + SR) | yes | yes (0x90) | 12V via P1 |
-| 0x0E/0x27/0x28/0x29 SRAM | `configure_sram` | 20+34+... | **NO** (handler is a no-op stub) | n/a | n/a | n/a | none (5V) |
-| 0x34 (52) XICOR | `configure_not_implemented` | 1 (X88C64) | refused (0xBB) | — | — | — | — |
-| 0x11 / 0x2A / 0x2B / 0x2C | `configure_not_implemented` | 0 in DB | refused (0xBB) | — | — | — | — |
-
-> **Two structural findings jump out of this table** and reshape the milestone (see Differentiators + Anti-Features):
-> 1. `configure_sram` is an **empty no-op** — it logs and returns, setting *no* operation pointers. SRAM "support" is unproven and may be non-functional.
-> 2. Several handlers **lack a `CMD_CHECK_CHIP_ID` case** (flash4) and one lacks `CMD_ERASE` (eeprom28c). The 0x39 "future-proofed, 0 chips" comment in CLAUDE.md is now **stale — the DB has 2 chips on 0x39**.
+| Feature | Chip group | Blocking dependency | Graduation path |
+|---------|-----------|--------------------|----|
+| 999.4 Erase write-path | 7 EE-EPROMs on 0x07 | Software-only (host `database.py`) | `write` auto-erases, verify clean |
+| 999.5 X88C64 0x34 handler | 1 chip (X88C64P) | ALE routing confirmation + new firmware handler | `write`+`read` round-trip verified |
+| 999.7 25V NMOS support | 4 `vpp-exceeds-max` chips | Operator multimeter dry-run confirming 25V VPP | ceiling raised, chips re-classified |
+| 999.6 AT28C04/16 adapter | 9 `adapter-required` chips | Physical DIP24→DIP32 adapter built + seated | `write`+`read` via existing 0x0D handler |
 
 ---
 
-## Feature Landscape
+## Table Stakes
 
-### Table Stakes (VALIDATE — code exists, prove it on hardware)
+Features users expect. Missing = the chip group is not "graduated to supported."
 
-Per-family hardware validation behind a reusable software-first **test harness + validation matrix** (the harness itself has no bench gate). Validation = write → read-back → byte-identical verify, plus erase/blank/chip-id where the family implements them.
+### Feature 1: `firestarter write -e W27C512` (or any 0x07 EE-EPROM) erases before programming
 
-| Feature (validate) | Why expected | Complexity | Notes / known-correctness risk |
-|---|---|---|---|
-| **Validation harness + matrix** (software) | Whole milestone hangs on it; reusable across families | MEDIUM | Build first, no bench gate; reuse `dev consistency-check` substrate; per-family per-op rows with PASS/FAIL/SKIP-with-reason |
-| **UV-EPROM 0x07/0x08/0x0B write+verify** | Core product op; 323 chips | LOW (validate) | Retry loop *grows* `pulse_delay` up to 20× — confirm convergence; legacy 0x0B uses direct VPE (no drop resistor) — distinct VPP path worth its own row |
-| **UV-EPROM 0x07 chip-ID (A9-12V)** | Identity gate before write | LOW | A9 driven to 12V; verify on real silicon (W27C512 chip-id `0xDA08`) |
-| **5V EEPROM 0x0D write (SDP+page+DQ7)** | 84 chips incl. AT28C256 | MEDIUM | SDP-disable magic sequence (0x5555/0x2AAA); 64-byte page boundary; DQ7 readback-equality poll (2000×10µs ceiling). Validate page-cross + last-partial-page |
-| **Flash AMD 0x06 write + sector/chip erase** | 190 chips — largest family | MEDIUM | Unlock 3-cycle; DQ7 toggle verify (double-read); `addr==0 → chip erase` else sector erase; 105 ms settle |
-| **Flash type-4 0x05/0x35 page write** | 27+ chips | MEDIUM | 64-byte page poll (1024×10µs); erase drives **12V on OE** — VPP path on a nominally-5V family, validate carefully |
-| **Flash Intel 0x10 write + erase (SR poll)** | 39 chips; 12V on P1 | MEDIUM | 0x40 program-setup; SR bit7 ready, bit4 VPP-error, bit3 program-error; `cleanup` resets to 0xFF read-array. Validate VPP-error + program-error branches |
-| **Blank check (all families)** | Pre-write safety + standalone op | LOW | Shared `mem_util_blank_check`; stateful 2KB-per-call progression (the flash3 re-entrancy bug history) |
-| **Read path (all families)** | Foundational | LOW | NOTE: large-read jitter on some shields is the **separate deferred v1.9 RCA** — validate on Leonardo/EVEN-01 clean board only; do NOT couple v1.13 to it |
+**Why expected:** W27C512, SST27VF512, W27E512, W27C257, SST27SF256, SST27SF512, SST27VF256 are
+**electrically erasable EEPROMs** (`electrical.type == "EEPROM"`). A user writing one of these
+chips to a different binary image today gets either a corrupt verify result or a chip full of
+partly-overwritten cells, because the firmware never auto-erases. The `firestarter info` display
+(since v1.11) correctly shows "Type: EEPROM" and "electrically erasable" — so the user has every
+reason to expect `write` to handle erase automatically. Currently it does not.
 
-**Bench gating:** validate the families for which the operator has chips + a working shield; defer families lacking parts with an explicit SKIP-with-reason row. Milestone is closeable without 100% family coverage (PROJECT.md "hybrid bench gating").
+**Observable acceptance (all must hold):**
 
-### Differentiators (IMPLEMENT — genuine RURP-feasible gaps with feasibility verdicts)
+1. `firestarter write -e W27C512 image.bin` (on a chip that has previously been programmed with
+   different data) returns clean verify — SHA of read-back matches `image.bin`.
+2. The same command does NOT require the user to pre-run `firestarter erase W27C512` manually.
+3. Running `firestarter write -e W27C512` on a blank chip also succeeds (no spurious double-erase
+   error; the erase path is a no-op when the chip is already blank — or at minimum produces no error
+   when re-erasing a blank chip, which is electrically safe per the W27C512 datasheet).
+4. `firestarter info W27C512` continues to show the correct "electrically erasable" display
+   (already works; must not regress).
+5. `check_dispatch.py` CI gate stays green after the change (`build_db.py` `FLAG_CAN_ERASE` now
+   wired from `electrical.type == "EEPROM"` instead of the always-zero `info-flags & 0x10`).
 
-| Feature (implement) | Feasibility verdict | Evidence / citation | Complexity | Notes |
-|---|---|---|---|---|
-| **`firestarter erase W27C512` end-to-end (0x07 electrically-erasable EEPROMs)** | **FEASIBLE — firmware already implements the erase electricals; the gap is host-side wiring + a voltage detail** | W27C512 erase mode = OE/VPP→**14V**, A9→**14V**, VCC=5V, A0 low, all other A low, all DQ high, 100 ms ([Winbond W27C512 datasheet](https://www.dosdays.co.uk/media/winbond/W27C512_Datasheet.pdf)). `eprom_internal_erase` (eprom.cpp:274) already asserts `CTRL_VPP_A9_ENABLE \| CTRL_VPE_ENABLE` with regulator on — electrically the correct sequence. | MEDIUM | **GAP DETAIL:** (1) Host must set `FLAG_CAN_ERASE` / route `erase` to these chips. `FLAG_CAN_ERASE` is derived from info-flag bit 0x10 "electrically erasable" (database.py:594) — verify it is set for W27C512 (DB `type:"EEPROM"`, has the bit). (2) **Voltage mismatch:** DB lists `vpp 12V` but erase needs **14V**; `eprom_internal_erase` runs the regulator *without* the drop resistor (so it outputs the raw VPE rail), but the rail target/ceiling for 14V must be confirmed against `RURP_VPP_CEILING_MV=22000` (OK) and the actual regulator setpoint. (3) The erase does NOT set A0-low / all-DQ-high explicitly — validate the chip still bulk-erases, or add the datasheet preconditions. This is the milestone's flagship "deferred erase path resurfaces via research" item (PROJECT.md). |
-| **`configure_sram` real read/write (0x0E/0x27/0x28/0x29)** | **FEASIBLE — pure 5V parallel SRAM is trivially in-scope; handler is currently a no-op** | `sram.cpp` `configure_sram` sets no operation pointers (logs + returns). 20 chips on 0x0E alone (plus 0x27/0x28/0x29). SRAM is 5V, DIP parallel, no VPP. | LOW–MEDIUM | Either the generic state-machine default already covers plain read/write (validate!) or these chips silently no-op on write. **Must validate first** — this is a "validate, and if broken, implement" hybrid. Battery-backed NVRAM (e.g. DS1220/FM1608) writes via the same SRAM path. If a write command reaching a no-op handler returns success without writing, that is a **correctness bug worth a fix**. |
-| **X88C64 (0x34 XICOR parallel NOVRAM/EEPROM, 24-pin DIP, 5V)** | **MAYBE-FEASIBLE — re-classify; currently the *only* `protocol-not-implemented` chip and it is NOT GAL/PLD/serial** | X88C64 = 8K×8 **parallel 5V 24-pin DIP** EEPROM/NOVRAM ([Elnec X88C64](https://www.elnec.com/en/device/Xicor/X88C64/); [eBay X88C64PI 24-pin DIP 5V](https://www.ebay.com/p/663635561)). Unlike 0x11/0x2A-0x2C, this is a parallel DIP memory — physically drivable. | MEDIUM–HIGH | v1.12 lumped 0x34 into "not implemented" but it is **categorically different** from the GAL/PLD/FWH infeasibles: it is a parallel 5V DIP memory. Gap = a 0x34 algorithm handler (NOVRAM has STORE/RECALL software sequences + standard 28C-like byte/page write). **Verdict pending datasheet of the exact write protocol**; do NOT promise — flag as "investigate protocol 0x34, likely feasible, needs algorithm spec." Pin-mapping caveat identical to the 24-pin EEPROM adapter issue below. |
-| **9× AT28C04/AT28C16 24-pin EEPROMs (adapter-required, 0x0D)** | **FEASIBLE *only with a physical DIP24 adapter* — firmware handler already exists** | `unsupported_reason`: "socket pin 21 = WE, which the RURP DIP24_2716 pinout maps to the 12V VPP rail (hardware-damage path)". `configure_eeprom28c` (0x0D) already programs these electrically; the blocker is pin-mapping, not protocol. | MEDIUM (hardware-dependent) | **Adapter mapping needed:** a DIP24 socket adapter that re-routes socket pin 21 from RURP's VPP-rail line to WE, and aligns the AT28C04/16 pinout to a RURP bus the firmware can drive (it is a 28C-family EEPROM → 0x0D handler). PROJECT.md explicitly lists "adapter-required chip support" as a v1.13 target, gated on *having/making* the adapter. Deliverable = adapter pin-map spec (extend `firestarter info --adapter`) + a `DIP24` pinout entry; bench-validate once adapter exists. |
-| **Flash type-4 (0x05/0x35) `CMD_CHECK_CHIP_ID`** | **FEASIBLE — trivial; missing handler case** | `configure_flash4` switch (flash_type_4.cpp:27) has no `CMD_CHECK_CHIP_ID` case → autoselect ID unavailable for 27+0x35 chips. AMD-style autoselect (0xAA/0x55/0x90) is standard. | LOW | Small firmware add; mirror `flash3_check_chip_id_execute`. Worth doing so identity-gating works for the flash4 family like every other family. |
-| **0x39 family validation (2 chips, comment says 0)** | **FEASIBLE — already dispatched; just stale doc + unvalidated** | DB now has **2 chips on algo 0x39**; CLAUDE.md says "0 chips, future-proofed". Routes to `configure_flash4`. | LOW | Validate the 2 real chips on the 0x39→flash4 path; update the stale "0 chips" comment. Cheap correctness win surfaced by the DB read. |
+**Complexity:** Low — the fix is two lines in `database.py:convert_to_programmer`. The
+`eprom_internal_erase` electricals and the `eprom_write_init` FLAG_CAN_ERASE guard already exist
+and are bench-proven (Phase 73 W27C512 Tier-3 PASS). The only open question is the
+erase-rail setpoint: the W27C512 datasheet specifies VPP=14V for erase (vs 12V for write), still
+under the 22V RURP ceiling. A chip-OUT multimeter dry-run must confirm the actual rail before
+seating any chip.
 
-### Anti-Features (KEEP REFUSED — infeasible on RURP; stay fail-closed)
+**Source file:** `firestarter_app/firestarter/database.py:594-597` (change `info-flags & 0x10`
+to `electrical.type == "EEPROM"`).
 
-| Feature | Why requested | Why infeasible on RURP | Correct behavior |
-|---|---|---|---|
-| FWH/LPC flash (0x11) | Appears in minipro DB | LPC serial interface + 3.3V rail; RURP is parallel + fixed 5V | Keep `configure_not_implemented` (0xBB) — v1.12 DISP-04 |
-| GAL/PLD (0x2A/0x2B/0x2C) | "It's a DIP chip" | Logic devices, not memory; need JEDEC fuse-map programming + non-memory pin protocols; many need >22V or special algorithms | Keep refused; not memory at all |
-| NMOS 2716/2732/M2716 (0x00, **vpp-exceeds-max**) | Classic EPROMs people own | Require **25V** VPP; `RURP_VPP_CEILING_MV=22000` | Keep `vpp-exceeds-max` refusal. **NOTE:** M2732A=21V is `supported` (under ceiling) — boundary already correct. Do not relax the ceiling. |
-| MCU / SMD-only / serial SPI-I²C EEPROM | minipro covers them | No ICSP, no SMD socket, no serial bus on RURP | Stay skipped/refused |
-| 6.5V VCC NMOS programming | Some NMOS parts want 6V VCC | RURP VCC fixed at 5V (no VCC DAC) | Out of scope per PROJECT.md |
+---
+
+### Feature 2: `firestarter write -e X88C64P image.bin` writes and verifies correctly
+
+**Why expected:** Once the 0x34 handler exists, the chip graduates from `protocol-not-implemented`
+to `supported`. At that point `write` + `read` must produce byte-identical results within the
+chip's 8K address space — that is the minimum bar for "programmable."
+
+**Observable acceptance (all must hold):**
+
+1. `firestarter write -e X88C64P image.bin` completes without error.
+2. `firestarter read -e X88C64P out.bin` on the same chip produces a file byte-identical to
+   `image.bin` (verified by SHA compare, or by `firestarter verify -e X88C64P image.bin` exiting 0).
+3. `firestarter info X88C64P` shows `support_status: supported` (not `protocol-not-implemented`).
+4. N>=5 trials on Leonardo produce the same result (confirms the toggle-bit polling is correct and
+   not racing).
+5. The existing `check_dispatch.py` CI gate accepts the chip under the new handler (no VPP pin, 5V
+   only — same safety profile as the AT28C series).
+
+**Complexity:** High — requires a new `configure_eeprom_x88c64()` firmware handler in a new
+`eeprom_x88c64.cpp` source file, plus a `0x34` dispatch arm in `memory.cpp`. The handler must
+implement the 8051-compatible ALE-latch + /WR-strobe write cycle (address-phase then data-phase on
+the same 8 A/D pins) plus I/O6 toggle-bit polling. The critical open question (LOW-confidence
+assumption A6 in X88C64-FEASIBILITY.md) is whether an existing RURP control-register bit can be
+freely routed to toggle ALE without a PCB change. That question must be resolved before the handler
+can be committed. Flash ceiling impact (89.5% at v1.13 close): each new handler adds 1-3 KB;
+must confirm Leonardo stays under ~88% or justify a ceiling adjustment.
+
+**Pre-condition for graduation:** ALE routing investigation completes with a positive finding
+(a free CTRL_* bit available in `rurp_pinout.h`).
+
+---
+
+### Feature 3: `firestarter info M2716` (and M2732, ETC2716, ST M2716) shows `supported`; `firestarter write` works
+
+**Why expected:** These four chips are NMOS UV-EPROMs that share protocol 0x07 (`configure_eprom`,
+the same handler that programs M27C512 and similar 5V CMOS EPROMs already). Their only blocker is
+VPP: they require 25V, while `RURP_VPP_CEILING_MV` is currently 22000. Raising the ceiling and
+re-classifying them is the entire implementation. The M2732A (21V < 22V) is already `supported`
+as a reference point — the four 25V chips are the same family, one voltage step higher.
+
+**Observable acceptance (all must hold):**
+
+1. `RURP_VPP_CEILING_MV` in `build_db.py` is raised from 22000 to 25000 (or 25500 for margin).
+2. The four chips (INTEL M2716, INTEL M2732, SGS-THOMSON ETC2716, ST M2716) are re-classified
+   from `support_status: vpp-exceeds-max` to `support_status: supported` in the regenerated
+   `chip_database.json`.
+3. `firestarter info INTEL_M2716` shows `support_status: supported` (no refusal message).
+4. A chip-OUT VPP multimeter dry-run confirms the RURP shield physically produces >=25V VPP on the
+   relevant shield revision **before any chip is seated** (operator measurement; mandatory gate).
+5. A golden write + read-back verify on Leonardo with a physical M2716 (or M2732) chip confirms
+   byte-identical result.
+6. `check_dispatch.py` CI gate remains green at the new ceiling; `diff_db.py` shows only the four
+   expected `support_status` changes.
+
+**Complexity:** Low-to-medium — the ceiling change is a one-line constant; the re-classification
+follows automatically from `build_db.py`. The risk is purely hardware: the ceiling was set at 22V
+for a reason (it is the RURP-measured safe operating range, not an arbitrary constant). The operator
+must verify via multimeter that the shield can physically produce 25V VPP before committing the
+code change. Operator decision 2026-06-18: "do all four; implement 25V NMOS assuming hardware can
+produce 25V" — this assumption must be validated by the dry-run gate before any chip is seated.
+
+---
+
+### Feature 4: `firestarter write -e AT28C16 image.bin` programs the chip via the DIP24->DIP32 adapter
+
+**Why expected:** The `configure_eeprom28c` (0x0D) handler for these chips is already correct and
+working (it handles AT28C256 and other 32-pin 5V EEPROMs). The adapter graduation removes the
+host-guard refusal (`ChipNotImplementedError` from `chip_resolver.resolve_chip`) that currently
+blocks all 9 AT28C04/AT28C16-family chips. Once the physical adapter exists and the guard is
+removed, the existing handler programs them correctly.
+
+**Observable acceptance (all must hold):**
+
+1. The 9 `adapter-required` chips (AT28C04, AT28HC04, AT28C04E, AT28C04F, AT28C16, AT28HC16,
+   AT28HC16L, AT28C16E, AT28C16F) are re-classified from `support_status: adapter-required` to
+   `support_status: supported` in `chip_database.json`.
+2. `firestarter write -e AT28C16 image.bin` (with the physical DIP24->DIP32 adapter installed in
+   the RURP socket) completes without error.
+3. `firestarter read -e AT28C16 out.bin` on the same chip produces a file byte-identical to
+   `image.bin`.
+4. The `ChipNotImplementedError` host-guard refusal in `chip_resolver.resolve_chip` is removed for
+   these chips (by removing the `adapter-required` status check for 0x0D chips promoted to
+   `supported`).
+5. The VPP regulator is never engaged during the operation (5V-only; no VPP pin in either
+   `DIP24_2816` or `DIP32_28C512_EEPROM` pinout — confirmed by `check_dispatch.py`).
+6. AT28C04 specifically: writing an image of 512 bytes to a 512-byte chip succeeds (the firmware
+   restricts address driving to 9 bits via `mem_size`; pins A9 and A10 are NC on the chip and
+   float harmlessly).
+
+**Complexity:** Low firmware (zero firmware changes needed — `configure_eeprom28c` already works).
+Medium host (remove the host-guard for these chips in `chip_resolver.py`; update `build_db.py`
+to reclassify `adapter-required` to `supported`). Hardware-blocked until the physical DIP24->DIP32
+adapter is built per `firestarter/doc/AT28C04-ADAPTER.md`.
+
+**Before the adapter exists:** The chip stays refused honestly (current behavior). `firestarter
+info AT28C16` shows `support_status: adapter-required` with the existing reason string referencing
+the adapter spec. No graduation code ships until the bench is ready.
+
+---
+
+## Differentiators
+
+Features that set this milestone apart — not expected by users unfamiliar with the `support_status`
+taxonomy, but demonstrably valuable once encountered.
+
+### Differentiator 1: Honest "before adapter" state preserved until hardware exists
+
+The AT28C16 graduation is hardware-gated. The existing `adapter-required` status + CLI message
+pointing to the adapter spec (`firestarter/doc/AT28C04-ADAPTER.md`) is the correct user experience
+until the adapter is built. This is better than silently failing or returning a generic error.
+No temporary workaround code is needed; the refusal is informative and correct.
+
+### Differentiator 2: 25V NMOS — verified-hardware ceiling, not blind constant
+
+The ceiling raise to 25V is gated on an operator multimeter measurement, not just a constant change.
+This means the code change is honest: it says the RURP can produce 25V because the operator
+confirmed it can. Users of shield revisions that cannot produce 25V would get an honest refusal if
+their hardware were re-characterized in the future.
+
+### Differentiator 3: X88C64P page-write throughput
+
+The X88C64P supports page writes of up to 32 bytes per internal write cycle. A correct implementation
+exploits this, writing a full 8K image in 256 page-write cycles rather than 8192 byte-by-byte
+cycles. This reduces write time substantially (EEPROM-class timing ~100 us per cycle x 256 = ~25 ms
+total internal write time, vs. potentially seconds for byte-at-a-time).
+
+---
+
+## Anti-Features
+
+Features to explicitly NOT build in v1.14.
+
+### Anti-Feature 1: X88C64P STORE/RECALL operations
+
+**What it is:** STORE (SRAM to EEPROM) and RECALL (EEPROM to SRAM) pin-activated operations from
+the Xicor NovRAM family (X2210/X2212/X2201A, 1985 Xicor Data Book).
+
+**Why explicitly out:** The X88C64P has NO STORE/RECALL pins — this is HIGH-confidence (surveyed
+10 of 14 datasheet pages; no STORE/RECALL mention anywhere). STORE/RECALL belongs to a completely
+different product line. The DB entry was labeled "XICOR NovRAM" misleadingly; this was corrected
+by Phase 76 plan 76-01. Implementing STORE/RECALL for the X88C64P is physically impossible.
+
+**What to do instead:** Implement the ALE/WR/RD byte+page write protocol from X88C64-FEASIBILITY.md
+§3. Only the standard read/write EEPROM programming operations are in scope.
+
+### Anti-Feature 2: 25V NMOS chips beyond the confirmed hardware ceiling
+
+**What it is:** Raising the ceiling above the voltage the shield can physically produce to support
+hypothetical chips needing 26V, 28V, or higher VPP.
+
+**Why explicitly out:** The RURP ceiling is a hardware constraint. Chips with VPP beyond the
+measured ceiling remain `vpp-exceeds-max` permanently. Only the four confirmed 25V chips (INTEL
+M2716, INTEL M2732, SGS-THOMSON ETC2716, ST M2716) are in scope for v1.14.
+
+**What to do instead:** Set ceiling at 25000 mV (or 25500 for margin) based on the multimeter
+dry-run. Any chip requiring more than the confirmed ceiling stays refused.
+
+### Anti-Feature 3: X88C64P handler without confirmed ALE routing
+
+**What it is:** Committing a firmware 0x34 handler using creative workarounds for ALE (e.g.,
+re-purposing an address line or data line momentarily as ALE).
+
+**Why explicitly out:** Per X88C64-FEASIBILITY.md and Phase 76 D-01: "No blind handler." ALE
+routing must be confirmed using a real, documented CTRL_* bit in `rurp_pinout.h` before any
+handler is committed. Undocumented signal re-use creates hidden hardware coupling.
+
+**What to do instead:** Investigate `rurp_pinout.h` CTRL_* bits first, before any code. If no
+free bit exists, document the constraint and keep the chip as `protocol-not-implemented` (feasible-
+candidate). Do not ship a handler that depends on undocumented signal multiplex.
+
+### Anti-Feature 4: Graduating chips before hardware bench verification
+
+**What it is:** Changing `support_status` in the DB from `adapter-required` or `vpp-exceeds-max`
+to `supported` in code, before the corresponding hardware test is complete.
+
+**Why explicitly out:** `support_status: supported` is a warranty that `firestarter write` produces
+a correct, verifiable result. Graduating without bench evidence is dishonest and could cause silent
+data corruption on real chips.
+
+**What to do instead:** Gate each graduation on a golden write+read-back bench run on Leonardo,
+per the standing bench precondition (live R1/R2 readback ~270000, chip-OUT before any Uno-class
+sideload, shield rev confirmed by asking the operator, port identity verified at each task).
+
+### Anti-Feature 5: Reopening the SRAM no-op question
+
+**What it is:** Revisiting whether `configure_sram` is correct, having closed FIX-01 in v1.13.
+
+**Why explicitly out:** FIX-01 was closed-with-evidence in v1.13 Phase 74: FM1608 FRAM two-pattern
+bench PASS confirmed `configure_sram` correctly persists data via `memory_write_execute`. Relitigating
+this wastes time and risks regressing working behavior.
+
+**What to do instead:** Leave `configure_sram` exactly as it is.
 
 ---
 
 ## Feature Dependencies
 
 ```
-[Validation harness + matrix]  (software, build FIRST, no bench gate)
-        └──enables──> [Per-family hardware validation rows]
-                            └──exposes──> [Per-family correctness fixes]
+999.4 (erase write-path)
+  depends on: nothing (host-only; database.py change; standalone)
+  enables: 7 EE-EPROMs (W27C512, W27E512, W27C257, W27E257, SST27SF256, SST27SF512,
+           SST27VF256, SST27VF512) to be correctly re-programmed without manual pre-erase
 
-[SRAM validation] ──may-promote-to──> [configure_sram real read/write IMPLEMENT]
-                            (no-op handler: validate decides validate-vs-implement)
+999.5 (X88C64 0x34 handler)
+  depends on: ALE routing investigation confirming a free CTRL_* bit (must pass before coding)
+  depends on: flash ceiling headroom (89.5% post-v1.13; handler must keep Leonardo under ~88%)
+  enables: 1 chip (X88C64P) graduates to supported
 
-[erase W27C512 host wiring] ──requires──> [FLAG_CAN_ERASE set + 14V rail confirm]
-        (firmware erase electricals already exist — eprom_internal_erase)
+999.7 (25V NMOS ceiling raise)
+  depends on: operator multimeter dry-run confirming >=25V VPP on the operator's shield rev
+  enables: 4 chips (INTEL M2716, INTEL M2732, SGS-THOMSON ETC2716, ST M2716) graduate to supported
 
-[AT28C04/16 24-pin support] ──requires──> [physical DIP24 adapter + DIP24 pinout entry]
-        └──requires──> [adapter pin-map spec / firestarter info --adapter]
-        (firmware 0x0D handler already correct — pure mapping/hardware dependency)
+999.6 (AT28C04/16 adapter graduation)
+  depends on: physical DIP24->DIP32 adapter built per firestarter/doc/AT28C04-ADAPTER.md
+  depends on: golden bench write+read-back on Leonardo with a real chip in the adapter
+  enables: 9 chips graduate to supported (zero firmware changes needed)
 
-[X88C64 0x34 support] ──requires──> [0x34 algorithm spec from datasheet]
-        └──then──> [new firmware handler] ──maybe-requires──> [DIP24 adapter]
-
-[flash4 CMD_CHECK_CHIP_ID] ──independent, LOW──> (mirror flash3)
-[0x39 stale-comment + 2-chip validation] ──independent, LOW──>
-
-[v1.9 read-bug RCA] ──CONFLICTS / DECOUPLED──> [v1.13 read validation]
-        (validate reads on clean Leonardo/EVEN-01 only; do not couple)
+Build order (from PROJECT.md §v1.14): 999.4 -> 999.5 -> 999.7 -> 999.6
+Rationale:
+  999.4 is software-only and most ready (deferred from v1.13 Phase 75); sequence first
+  999.5 requires the most firmware work and needs ALE investigation resolved; sequence second
+  999.7 is a ceiling-raise + re-classification, hardware-confirmed; sequence third
+  999.6 is hardware-blocked on the physical adapter; sequence last to avoid mid-milestone block
 ```
 
-### Dependency notes
+---
 
-- **Harness precedes everything.** It is the only un-gated deliverable and the spine of the milestone; build and land it before any bench session.
-- **SRAM is a validate→maybe-implement fork.** The no-op `configure_sram` means a write may silently succeed-without-writing. Validation determines whether SRAM moves from Table Stakes (works via generic path) to Differentiator (needs a real handler). This must be resolved early because 20+ chips claim support.
-- **erase W27C512 is mostly host-side.** The firmware electricals exist; the gap is `FLAG_CAN_ERASE` routing + the 12V→14V rail detail + datasheet preconditions. This is the lowest-risk Differentiator and the explicit "deferred erase path resurfaces" item.
-- **Adapter-required and X88C64 are hardware/spec-gated.** Both depend on artifacts the operator must supply (a physical adapter; a datasheet protocol). Plan them as bench-gated/research-gated, not autonomous.
-- **Decouple from v1.9.** The shield-fleet read-bug RCA is a separate deferred milestone; v1.13 must validate reads on the trustworthy board only (Leonardo/EVEN-01) to avoid importing that confound.
+## MVP Recommendation
+
+The minimal v1.14 that graduates any chips at all is **999.4 alone** — requires only a host-side
+`database.py` change (2 lines), graduates 7 chips, is fully software-testable, and closes the most
+user-visible gap (W27C512 silent write-without-erase). All other features require hardware.
+
+Given the operator decision 2026-06-18 to "do all four," the recommended delivery sequence is:
+
+1. **999.4 first** — software-only, ships early, de-risks the milestone
+2. **999.7 second** — one constant + re-classification, hardware confirmation is the only gate
+3. **999.5 third** — high complexity, ALE investigation is the critical path; do not rush
+4. **999.6 last** — hardware-blocked; if adapter is not built, close the milestone without it
+
+**Defer if blocked:**
+- 999.5: If ALE routing investigation finds no free CTRL_* bit, defer to a future milestone;
+  chip stays `protocol-not-implemented` (feasible-candidate documentation already correct).
+- 999.6: If the adapter is not built, do not ship graduation without bench verification; carry
+  to a future milestone rather than graduating without evidence.
 
 ---
 
-## MVP Definition (v1.13)
+## Phase-Specific Warnings
 
-### Launch With (core of the milestone)
-
-- [ ] **Validation harness + matrix (software)** — essential; everything else reports through it.
-- [ ] **Validate UV-EPROM 0x07/0x08/0x0B write+verify+chip-id** on bench (W27C512 etc., Leonardo) — the product's core path.
-- [ ] **Validate 5V EEPROM 0x0D (SDP+page+DQ7)** — 84 chips, AT28C256 representative.
-- [ ] **Validate Flash AMD 0x06 write+erase** — largest family (190).
-- [ ] **Resolve SRAM no-op question** — validate the 0x0E/0x27/0x28/0x29 path; if it silently no-ops on write, classify as a correctness bug.
-- [ ] **`firestarter erase W27C512` host wiring + 14V confirm** — the flagship feasible gap; firmware electricals already exist.
-- [ ] **Re-research write-up** — formally re-enumerate feasible-but-unimplemented (this document feeds it): SRAM no-op, X88C64 0x34, flash4 chip-id, 0x39 stale comment.
-
-### Add After Validation (within v1.13 if bench/parts allow)
-
-- [ ] **Flash type-4 0x05/0x35 validation** + **add `CMD_CHECK_CHIP_ID` case** — trigger: chips on hand.
-- [ ] **Flash Intel 0x10 validation** (12V P1; SR error branches) — trigger: a 28F-series chip on hand.
-- [ ] **Per-family correctness fixes** bench exposes — trigger: any FAIL row.
-- [ ] **0x39 2-chip validation + comment fix** — cheap, do alongside flash4.
-
-### Future Consideration (defer — hardware/spec dependent)
-
-- [ ] **AT28C04/AT28C16 24-pin support** — defer until a DIP24 adapter exists; deliver the adapter pin-map spec now, bench-validate later.
-- [ ] **X88C64 0x34 handler** — defer until the 0x34 write/STORE-RECALL protocol is spec'd from datasheet; do not promise feasibility blind.
-
----
-
-## Feature Prioritization Matrix
-
-| Feature | User Value | Implementation Cost | Priority |
-|---|---|---|---|
-| Validation harness + matrix | HIGH | MEDIUM | P1 |
-| UV-EPROM 0x07/08/0B validation | HIGH | LOW | P1 |
-| 5V EEPROM 0x0D validation | HIGH | MEDIUM | P1 |
-| Flash AMD 0x06 validation | HIGH | MEDIUM | P1 |
-| SRAM no-op resolution (validate→maybe-implement) | HIGH | LOW–MEDIUM | P1 |
-| `erase W27C512` host wiring + 14V | HIGH | MEDIUM | P1 |
-| Re-research write-up (this doc → requirements) | HIGH | LOW | P1 |
-| Flash type-4 0x05/0x35 validation + chip-id case | MEDIUM | LOW–MEDIUM | P2 |
-| Flash Intel 0x10 validation | MEDIUM | MEDIUM | P2 |
-| Per-family correctness fixes | HIGH | varies | P2 (triggered) |
-| 0x39 2-chip validation + stale comment | LOW | LOW | P2 |
-| AT28C04/16 24-pin adapter support | MEDIUM | MEDIUM (HW-gated) | P3 |
-| X88C64 0x34 handler | LOW–MEDIUM | HIGH (spec-gated) | P3 |
-| Keep 0x11/0x2A-0x2C/25V refused | — (safety) | none | P1 (invariant) |
-
-**Priority key:** P1 = milestone core; P2 = add when bench/parts allow; P3 = future / hardware-or-spec gated.
-
----
-
-## Re-examination verdict: does v1.12's "feasible set is complete" hold?
-
-**Partially — it overstated completeness.** v1.12 concluded "every RURP-feasible DIP parallel-memory protocol already has a handler." That is true for the *protocol-dispatch framework* but glosses three real gaps that this milestone exists to surface:
-
-1. **`configure_sram` is a no-op stub.** SRAM/NVRAM "support" (20+ chips on 0x0E plus 0x27/0x28/0x29) is dispatched to an empty function. Either the generic path covers it (validate) or write silently does nothing (implement). v1.12 counted these as "supported."
-2. **X88C64 (0x34) is mis-bucketed as infeasible.** It is a **parallel 5V 24-pin DIP** EEPROM/NOVRAM — categorically unlike the genuinely-infeasible 0x11/0x2A-0x2C. It is the single `protocol-not-implemented` chip and is plausibly feasible with a new handler.
-3. **The erase path was explicitly deferred, not absent.** Firmware *has* the 0x07 erase electricals; the host never wires `erase` to electrically-erasable EEPROMs. v1.12 listed this as out-of-scope backlog; v1.13 promotes it.
-
-Everything else v1.12 refused (FWH 0x11, GAL/PLD 0x2A-0x2C, 25V NMOS, serial/SMD/MCU) **remains correctly infeasible** — those verdicts hold and must stay fail-closed.
-
----
-
-## Competitor / prior-art Feature Analysis
-
-| Feature | minipro (TL866) | Arduino parallel-EEPROM libs | Firestarter (our approach) |
-|---|---|---|---|
-| Protocol coverage | Full XML DB incl. serial/PLD/MCU via dedicated HW | 28C/X28 byte+page only ([Andy4495/ParallelEEPROM](https://github.com/Andy4495/ParallelEEPROM)) | DIP-parallel memory subset; fail-closed on the rest |
-| Erase EE-EPROM (W27C512) | Yes (special erase algorithm) | n/a (UV parts) | **Gap to implement** — electricals exist, host wiring missing |
-| SRAM/NVRAM write | Yes | Yes (it's just SRAM) | **No-op stub — validate/implement** |
-| 24-pin AT28C04/16 | Yes (adapter/socket) | Yes (direct wiring) | **Adapter-required** — needs DIP24 adapter |
-| X88C64 NOVRAM | Yes (Elnec/BPM support it) | rare | **0x34 unimplemented — re-classify as feasible candidate** |
-| Capability honesty | silent on unsupported | n/a | fail-closed + `support_status` (v1.12) — keep |
+| Phase Topic | Likely Pitfall | Mitigation |
+|-------------|---------------|------------|
+| 999.4 erase path | W27C512 erase requires 14V VPP vs. 12V for write — must confirm rail before seating | chip-OUT multimeter dry-run; measure VPP at socket pins; record value in bench artifact |
+| 999.4 erase path | A blank chip writes fine without auto-erase; non-blank chip may silently corrupt if erase fails partway | Post-erase blank verify (all-0xFF SHA) is mandatory acceptance criterion |
+| 999.5 ALE routing | If no CTRL_* bit is free in `rurp_pinout.h`, the handler cannot ship without PCB changes | Make ALE routing investigation the FIRST plan in 999.5; no handler code before resolution |
+| 999.5 flash budget | At 89.5% flash post-v1.13, a new handler could push Leonardo over the ceiling | Run `pio run -e leonardo` after each firmware addition; share utility functions if needed |
+| 999.7 25V VPP | Shield may not produce 25V under load; open-circuit measurement is insufficient | Measure VPP at socket pins during a chip-OUT "dry run" with the VPP enable path active |
+| 999.7 25V VPP | M2716 programming timing may differ from M27C512 despite both using `configure_eprom` | Verify `pulse_duration` in chip_database.json for all 4 chips against their datasheets |
+| 999.6 adapter | A wiring error for /WE (chip pin 21 -> socket pin 30) makes chip non-writable but not damaged | Check adapter continuity with multimeter before seating any chip |
+| All features | diff_db.py will flag support_status changes; must update pinned baseline after graduation | Run diff_db.py post-regeneration; confirm only expected chips changed; commit new baseline |
 
 ---
 
 ## Sources
 
-- Firmware source (read directly): `firestarter/src/proms/{eprom,eeprom_28c,flash_type_3,flash_type_4,flash_intel,sram,flash_utils,not_implemented,memory}.cpp` — handler/erase/chip-id presence, no-op SRAM, dispatch chain
-- `firestarter_app/firestarter/data/chip_database.json` — 744-chip support_status + algorithm distribution (read 2026-06-16)
-- `firestarter_app/firestarter/database.py:594` — `FLAG_CAN_ERASE` derivation from info-flag bit 0x10
-- `.planning/PROJECT.md` — v1.13 milestone scope, RURP constraints, hybrid bench gating, deferred erase path
-- `.planning/milestones/v1.12-REQUIREMENTS.md` — v1.12 feasibility conclusion + support_status taxonomy + out-of-scope erase/adapter items
-- `.planning/research/SUMMARY.md` (v1.12) — prior infeasibility reasoning
-- [Winbond W27C512 datasheet (dosdays mirror)](https://www.dosdays.co.uk/media/winbond/W27C512_Datasheet.pdf) — erase mode: OE/VPP=14V, A9=14V, 5V VCC, 100 ms
-- [W27C512 datasheet (alldatasheet)](https://www.alldatasheet.com/datasheet-pdf/pdf/47653/WINBOND/W27C512.html) — +14V erase / +12V program, electrically erasable
-- [Elnec — Xicor X88C64 device support](https://www.elnec.com/en/device/Xicor/X88C64/) — X88C64 supported, adapter modules
-- [eBay — X88C64PI 8K×8 5V 24-pin DIP](https://www.ebay.com/p/663635561) — confirms parallel 5V 24-pin DIP package
-- [Andy4495/ParallelEEPROM (Arduino lib)](https://github.com/Andy4495/ParallelEEPROM) — prior-art for 28C256/X28256/28C16 parallel programming
+All findings are grounded in the required reading listed at the top. No external web search was
+needed — the v1.13 research and implementation artifacts provide authoritative, code-trace-verified
+ground truth for every claim.
 
----
-*Feature research for: Firestarter v1.13 — Programming Algorithm Validation + Gap Implementation*
-*Researched: 2026-06-16*
+- `.planning/PROJECT.md §Current Milestone: v1.14` — scope, build order, operator decisions
+- `.planning/ROADMAP.md §Phase 75 + §Phase 76` — original phase goals for the deferred items
+- `.planning/v1.13-PROTOCOL-ENUMERATION.md` — gap index, anti-feature block, ceiling constraint
+- `.planning/X88C64-FEASIBILITY.md` — interface architecture, write protocol, ALE open question
+- `firestarter/doc/AT28C04-ADAPTER.md` — pin table, key /WE reroute, safety notes
+- `.planning/MILESTONES.md §v1.13` — what was validated, what was deferred and why
+- `firestarter_app/firestarter/database.py:594-597` — FLAG_CAN_ERASE current gating
+- `firestarter/src/proms/eprom.cpp:100-106` — eprom_write_init FLAG_CAN_ERASE guard
+- `firestarter/src/proms/eprom.cpp:274-288` — eprom_internal_erase electricals
+- `firestarter_app/tools/build_db.py:117` — RURP_VPP_CEILING_MV = 22000

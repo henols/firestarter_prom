@@ -272,6 +272,185 @@ A future milestone implementing the 0x34 handler needs:
 
 ---
 
+## A6 ALE-Routing Verdict (Phase 78)
+
+A6 VERDICT: PCB-BLOCKED
+
+**Confidence:** HIGH. Resolved by a source/schematic trace by Claude (D-01) — NOT an
+operator bench trace — of the RURP control-register bit map (`rurp_pinout.h`), the
+register-write path (`rurp_register_utils.h`), and the 74HC573 strobe inventory
+(`rurp_shield.h`). This closes Assumption A6 (§6), which was LOW confidence.
+
+### Why PCB-BLOCKED
+
+The X88C64 needs a dedicated ALE (Address Latch Enable) signal at DIP socket pin 22 to
+sequence its 8051 multiplexed A/D bus (§2). The trace shows there is **no free `CTRL_*`
+bit and no free 74HC573 strobe** to drive ALE without a physical board change, and there
+is **no control line provably idle during an X88C64 write** that could be safely reused.
+
+### CTRL_* Bit Allocation — Every Bit Accounted For
+
+**8-bit layout** (`#ifndef HARDWARE_REVISION`, `rurp_pinout.h:74–83`):
+
+| Bit | CTRL_* function | Line | Free for ALE? |
+|-----|-----------------|------|---------------|
+| 0x01 | `CTRL_VPP_VPE_DROP_ENABLE` (aliased `CTRL_ADDRESS_LINE_16`) | rurp_pinout.h:75–76 | No — VPE drop / A16 |
+| 0x02 | `CTRL_VPP_A9_ENABLE` | rurp_pinout.h:77 | No — A9 VPP (chip-ID reads) |
+| 0x04 | `CTRL_VPE_ENABLE` | rurp_pinout.h:78 | No — VPE direct path |
+| 0x08 | `CTRL_VPP_P1_ENABLE` | rurp_pinout.h:79 | No — VPP to socket pin 1 (Intel flash) |
+| 0x10 | `CTRL_ADDRESS_LINE_17` | rurp_pinout.h:80 | No — address bit 17 |
+| 0x20 | `CTRL_ADDRESS_LINE_18` | rurp_pinout.h:81 | No — address bit 18 |
+| 0x40 | `CTRL_READ_WRITE` | rurp_pinout.h:82 | No — R/W direction, toggled on every bus access |
+| 0x80 | `CTRL_VPP_REGULATOR_ENABLE` | rurp_pinout.h:83 | No — VPP boost regulator |
+
+**Wide layout** (`#else` / `HARDWARE_REVISION`, `rurp_pinout.h:85–97`; production builds
+use `-D HARDWARE_REVISION` per `platformio.ini`):
+
+| Bit | CTRL_* function | Line | Free for ALE? |
+|-----|-----------------|------|---------------|
+| 0x01 | `CTRL_ADDRESS_LINE_16` | rurp_pinout.h:88 | No — A16 (split off from VPE_DROP) |
+| 0x02 | `CTRL_VPP_A9_ENABLE` | rurp_pinout.h:89 | No |
+| 0x04 | `CTRL_VPE_ENABLE` | rurp_pinout.h:90 | No |
+| 0x08 | `CTRL_VPP_P1_ENABLE` | rurp_pinout.h:91 | No |
+| 0x10 | `CTRL_ADDRESS_LINE_17` | rurp_pinout.h:92 | No |
+| 0x20 | `CTRL_ADDRESS_LINE_18` | rurp_pinout.h:93 | No |
+| 0x40 | `CTRL_READ_WRITE` | rurp_pinout.h:94 | No |
+| 0x80 | `CTRL_VPP_REGULATOR_ENABLE` | rurp_pinout.h:95 | No |
+| 0x100 | `CTRL_VPP_VPE_DROP_ENABLE` | rurp_pinout.h:96 | **Non-transmissible** (see below) |
+
+Both layouts allocate every bit position **0x01 through 0x80** to a named, actively-used
+`CTRL_*` function. There is no spare bit in the 8-bit-wide control register.
+
+The `#define CTRL_ADDRESS_LINE_13 0x20` at `rurp_pinout.h:99` is annotated "reserved — no
+current call-site" but it **collides** with `CTRL_ADDRESS_LINE_18` (also 0x20). It is a
+documentation artifact, not a free bit — setting 0x20 drives A18, so it cannot be
+repurposed for ALE.
+
+### The 0x100 Bit Cannot Reach the 74HC573 (uint8_t-truncation argument)
+
+The wide layout defines `CTRL_VPP_VPE_DROP_ENABLE = 0x100` (`rurp_pinout.h:96`). This looks
+like a 9th control bit, but it can never be physically transmitted:
+
+- `rurp_internal_write_to_register` (`rurp_register_utils.h:63–89`) pushes control data onto
+  the shared bus via `rurp_write_data_buffer(data)` at `rurp_register_utils.h:83`.
+- `rurp_write_data_buffer` is declared `void rurp_write_data_buffer(uint8_t data)`
+  (`rurp_shield.h:118`). The parameter is `uint8_t`, so any value `> 0xFF` is truncated to
+  8 bits before it ever reaches the 74HC573 — `0x100 & 0xFF == 0x00`.
+
+So the "9th bit" is a logical flag the firmware special-cases elsewhere; it is **not** a
+real, drivable hardware line that could be repurposed for ALE. A genuine 9th control bit
+would require a second 74HC573 control latch and a new strobe — a PCB change. (See §6 A6
+and the v1.7 Phase-33 0x01→0x100 relocation in the RESEARCH State-of-the-Art table.)
+
+### 74HC573 Strobe Inventory — No Free Strobe for ALE
+
+The RURP latches are strobed by the bit masks in `rurp_shield.h:53–57`:
+
+| Strobe constant | Value | Function | Line |
+|-----------------|-------|----------|------|
+| `LEAST_SIGNIFICANT_BYTE` | 0x01 | LSB address latch | rurp_shield.h:53 |
+| `MOST_SIGNIFICANT_BYTE` | 0x02 | MSB address latch | rurp_shield.h:54 |
+| `OUTPUT_ENABLE` | 0x04 | Chip /OE | rurp_shield.h:55 |
+| `CONTROL_REGISTER` | 0x08 | Control register latch | rurp_shield.h:56 |
+| `CHIP_ENABLE` | 0x20 | Chip /CE | rurp_shield.h:57 |
+
+`rurp_internal_write_to_register` (`rurp_register_utils.h:83–88`) writes by putting data on
+the shared 8-bit data bus then pulsing exactly one strobe (`rurp_set_control_pin(reg, 1)`
+HIGH, then LOW). This is a **shared-bus** architecture — only one latch is addressable at a
+time, and all five strobes above are already assigned to existing functions. There is **no
+unconnected strobe pin** available to clock an ALE latch without modifying the PCB.
+
+### D-02 Deferral Bar Honored — No Speculative Reuse Adopted
+
+No speculative reuse of a busy bit was adopted. The only superficially-tempting candidate is
+`CTRL_VPP_REGULATOR_ENABLE` (0x80, `rurp_pinout.h:83/95`) — it is "idle" for a 5V chip in the
+sense that the X88C64 uses no VPP. But pulsing it during an X88C64 write would briefly enable
+the VPP boost regulator, producing an **undamped VPP spike at the socket** — a chip-damage
+path on a 5V part. D-02 explicitly prohibits this class of creative multiplexing of a busy
+line, and the address-line and R/W bits are actively used on every bus access. Per the D-02
+bar, the verdict is therefore PCB-BLOCKED, not FREE-BIT-FOUND.
+
+### Verdict Consequence
+
+X88C64 stays `support_status: protocol-not-implemented` and host-refused. No `0x34` handler
+is written this phase (Plan 02 reads this verdict and no-ops on the handler-write branch).
+The future-unblock path is recorded in the FUT-01 spec below.
+
+### FUT-01 Future-Unblock Spec (D-03)
+
+`FUT-01` (REQUIREMENTS.md) stays OPEN. A future milestone that wants to drive the X88C64
+ALE line needs **ONE** of the following hardware paths (the control register is full and the
+strobe inventory is exhausted — see the verdict trace above):
+
+1. **New shield revision (≥ Rev 2.4) with a 9th control bit.** Add a second 74HC573 control
+   latch plus a dedicated Arduino GPIO strobe line so a genuine 9th control bit becomes
+   physically drivable (the current `0x100` define is non-transmissible through the 8-bit
+   `rurp_write_data_buffer` path). ALE would then be one bit on the new latch. This is the
+   cleanest path and aligns with the existing `CTRL_*` model.
+
+2. **Dedicated Arduino GPIO routed directly to socket pin 22 (ALE), bypassing the 74HC573.**
+   Pick an Arduino GPIO that is currently unused on the shield and wire it straight to the
+   X88C64 ALE pin (DIP socket pin 22), bit-banging ALE timing in firmware. Requires a board
+   trace/mod to confirm a free GPIO reaches the socket without colliding with an existing
+   signal.
+   - `TODO:` Check the Leonardo ATmega32u4 GPIO-to-RURP-socket map (RESEARCH Open-Question 2)
+     for a pin routed to the shield but currently unused, that could direct-drive ALE. This
+     schematic review is out of scope for Phase 78's software trace and belongs to the future
+     unblock milestone. The Uno (ATmega328P) socket map should be checked the same way if the
+     unblock targets Uno-class boards.
+
+3. **(NOT recommended) Idle-window reuse of `OUTPUT_ENABLE` or `CHIP_ENABLE` timing as a
+   pseudo-ALE.** This is speculative multiplexing of a busy strobe and is barred by D-02
+   absent a rigorous proof that the borrowed line is provably idle across the entire X88C64
+   write window. Documented here only for completeness; do NOT pursue without that proof.
+
+Once a hardware path exists and the A6 verdict can be re-opened as FREE/BIT-AVAILABLE, the
+handler-write branch (D-05) delivers `configure_x88c64` (8051 multiplexed bus: ALE-latch →
+/WR strobe, page write ≤ 32 B, I/O6 toggle-bit polling), modeled on `eeprom_28c.cpp`, plus a
+Tier-1 native recording-stub test and the Leonardo flash-budget gate.
+
+### Graduation Pending Hardware (SC#4 / XIC-04, D-04)
+
+**Graduation pending hardware.** SC#4 / XIC-04 (graduate X88C64P to `supported` after an
+N≥5 write + read-back SHA-match with a non-vacuous negative control) is **hardware-blocked
+this phase** and is satisfied as a deferral-with-evidence, tracked under FUT-01.
+
+- **Why blocked (D-04):** The operator has neither a physical X88C64P chip nor a DIP24→DIP32
+  adapter, so no bench write/read-back cycle is possible regardless of the ALE verdict. (The
+  PCB-BLOCKED A6 verdict is a second, independent blocker: with no ALE path, no handler can
+  be written to bench at all.)
+- **Status unchanged:** X88C64 stays `support_status: protocol-not-implemented` in
+  `chip_database.json` and remains **host-refused** by `chip_resolver.resolve_chip`. No DB
+  entry changes this phase.
+- **Eventual bench graduation (tracked under FUT-01):** N≥5 write + read-back SHA-match +
+  a non-vacuous negative control, **Leonardo only** (the v1.9 read bug corrupts the verify
+  oracle on Rev-0/Rev-2.0; uno328pb is N/A for program/write per 999.2). Standing bench
+  precondition: chip-OUT VPP multimeter dry-run first; ASK which silkscreen shield rev is
+  mounted; live `r1 ≈ 270000` readback; verify the `controller:` port identity per task.
+  Also requires the DIP24→DIP32 adapter (same adapter pattern as the AT28C04/AT28C16 work,
+  Phase 80) and — per the A6 verdict — a hardware ALE path from the FUT-01 spec above.
+
+### SAFE Invariants (SAFE-01/02/03) — Hold Trivially This Plan
+
+This is a documentation-only plan; the safety invariants hold without action:
+
+- **SAFE-01:** The `chip_resolver.resolve_chip` host-guard refusal is **NOT removed** this
+  phase. Guard removal is the FINAL graduation step (D-04/D-05) and stays deferred under
+  FUT-01.
+- **SAFE-02:** No DB entry changes and no dispatch changes → `check_dispatch.py` is unaffected
+  and stays green. 0x34 remains non-dispatchable.
+- **SAFE-03:** No `FLAG_*` or protocol constant was touched, so the `constants.py` ↔
+  `firestarter.h` parity is untouched — no lockstep change required.
+
+### Plan 02 Branch Decision (Phase 78)
+
+Plan 02's leading BLOCKING gate read the `A6 VERDICT: PCB-BLOCKED` line above and took the
+DEFER branch (Branch A) — no `configure_x88c64` handler, no 0x34 dispatch arm, no
+`test_val_x88c64` suite, no `DIP24_X88C64` pinout. X88C64 stays `protocol-not-implemented`
+and host-refused; the host-guard is intact; graduation stays open under FUT-01.
+
+Branch A — ALE PCB-blocked, no handler code; graduation deferred FUT-01.
+
 ## 7. Sources
 
 | Source | Confidence | Notes |
