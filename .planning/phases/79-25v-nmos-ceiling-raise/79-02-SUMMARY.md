@@ -6,7 +6,7 @@ tags: [nmos, vpp, 25v, ceiling, build-db, check-dispatch, db-regen, chip-resolve
 
 requires:
   - phase: 79-01
-    provides: "Corrected NMOS-01 hardware-gate evidence (~15-19V at MAX pot on the direct-VPE 0x0B rail, NOT CLEARED) — proceeded anyway under the CONTEXT D-07 operator override (best-effort graduation, no hardware change ever)"
+    provides: "NMOS-01 gate evidence (rail-corrected: VPE = 22.4V DMM / 23.9V fw at MAX pot, ~90% of 25V; the ~15-19V was VPP not VPE) — proceeded under the CONTEXT D-07 operator override (best-effort graduation, no hardware change ever)"
 provides:
   - "RURP_VPP_CEILING_MV raised 22000->25000 (build_db.py) and _FAMILY_VPP_INVARIANTS['configure_eprom'] (0,22000)->(0,25000) (check_dispatch.py), in one commit"
   - "chip_database.json regenerated: 4 NMOS chips (INTEL M2716,M2716M; INTEL 2732,2732A,M2732,M2732A; SGS-THOMSON ETC2716,M2716; ST ETC2716,M2716) graduated vpp-exceeds-max -> supported, algorithm 0->11 (0x0B), vpp_mv=25000, no unsupported_reason"
@@ -40,7 +40,7 @@ key-files:
     - ".planning/REQUIREMENTS.md (FUT-03 corrected)"
 
 key-decisions:
-  - "Proceeded with graduation despite the 79-01 NOT-CLEARED (~15-19V) gate, under the explicit CONTEXT D-07 operator override (best-effort graduation, no hardware change ever; the original CLEARED-gate clause was superseded)"
+  - "Proceeded with graduation despite the 79-01 gate being below the strict ≥25V bar (VPE = 22.4V DMM / 23.9V fw, ~90% of 25V; the ~15-19V was VPP not VPE), under the explicit CONTEXT D-07 operator override (best-effort graduation, no hardware change ever; the original CLEARED-gate clause was superseded)"
   - "Graduation is software-only via the build_db.py ceiling raise + DB regen; the host guard in chip_resolver.resolve_chip self-cleared from the regenerated support_status (no guard edit)"
   - "Re-anchored every vpp-exceeds-max test exemplar off M2716/M2732 (category now empty) to X88C64P (protocol-not-implemented) and AT28C04 (adapter-required)"
   - "Regenerated tests/golden/v1.3-COVERAGE-MATRIX.md — the only change is 4 chips moving algorithm 0x00->0x0B, a legitimate consequence of the graduation"
@@ -61,7 +61,7 @@ completed: 2026-06-23
 
 ## Best-Effort Graduation Framing (CONTEXT D-07 — important)
 
-This plan is NOT a "≥25V proven" graduation. The corrected 79-01 hardware gate measured the direct-VPE 0x0B rail at MAX potentiometer and read only **~15–19V** (NOT CLEARED). The operator authorized graduating the 4 NMOS chips anyway, with **no hardware change ever** (D-07 supersedes D-05/D-06). The chips now **resolve and attempt a write** on the existing 0x0B / direct-VPE firmware path, where `eprom_check_vpp` **warns-and-proceeds on under-voltage** (over-voltage stays blocked as the damage boundary). At ~15–19V the write is best-effort — it may or may not verify, and an under-driven write cannot damage the chip; the user opts in. Plan 79-03 is therefore informational best-effort bench validation: chips stay `supported` even if a write does not SHA-match. The original plan GATE (which required a CLEARED ≥25V verdict) was explicitly overridden — this is the sole reason this plan ran on a NOT-CLEARED gate.
+This plan is NOT a "≥25V proven" graduation. At MAX potentiometer the **VPE** (direct 0x0B) rail — the one these chips program on — measures **22.4V** (operator DMM) / 23.9V (fw `firestarter vpe`), ~90% of the rated 25V but still below it (the ~15–19V figure earlier attributed to VPE was actually VPP / 18.7V fw `firestarter vpp`). The operator authorized graduating the 4 NMOS chips anyway, with **no hardware change ever** (D-07 supersedes D-05/D-06). The chips now **resolve and attempt a write** on the existing 0x0B / direct-VPE firmware path, where `eprom_check_vpp` **warns-and-proceeds on under-voltage** (over-voltage stays blocked as the damage boundary). At ~22.4V the write is best-effort — it may or may not fully verify, and an under-driven write cannot damage the chip; the user opts in. Plan 79-03 is therefore informational best-effort bench validation: chips stay `supported` even if a write does not SHA-match. The original plan GATE (which required a CLEARED ≥25V verdict) was explicitly overridden — this is the sole reason this plan ran below the ≥25V bar.
 
 ## Performance
 

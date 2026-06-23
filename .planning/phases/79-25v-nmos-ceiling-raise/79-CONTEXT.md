@@ -78,10 +78,12 @@ Scope (the 4 chips, host-only constants) is unchanged.
   with a non-vacuous negative control.
 
 ### D-07 — Safety stance REVERSED to best-effort graduation (operator-authorized 2026-06-23, SUPERSEDES D-05/D-06)
-- **Context:** The corrected NMOS-01 gate (79-01 re-run) measured the direct VPE
-  rail at MAX pot and read **~15–19V** — still < 25V. Establishing that "crank
-  the pot" (D-01) cannot reach 25V on this shield, the only path to a true ≥25V
-  rail would be a boost-stage hardware change.
+- **Context (rail-corrected 2026-06-23):** At MAX pot the **VPE** (direct 0x0B)
+  rail — the one the 4 NMOS chips program on — measures **22.4V** (operator DMM)
+  / 23.9V (fw `firestarter vpe`), ~90% of 25V but still below it. (The ~15–19V
+  figure earlier attributed to VPE was actually VPP / 18.7V fw `firestarter vpp`.)
+  Reaching a true ≥25V rail would need a boost-stage hardware change — which the
+  operator declines.
 - **Operator decision (authoritative):** **There will be NO hardware changes,
   ever.** The ≥25V hard pre-gate (D-05) is **retired**. Instead:
   1. The 4 NMOS chips graduate to `supported` via the host software path (79-02)
@@ -90,8 +92,8 @@ Scope (the 4 chips, host-only constants) is unchanged.
   2. A real write uses the existing **0x0B / direct-VPE** firmware path (already
      drop-disabled — no firmware change). The firmware's `eprom_check_vpp` WARNs
      on under-voltage and **proceeds**; over-voltage is still blocked. At
-     ~15–19V the write is **best-effort**: it may or may not verify, and an
-     under-driven write **cannot damage the chip**.
+     the ~22.4V VPE rail (vs 25V) the write is **best-effort**: it may or may
+     not fully verify, and an under-driven write **cannot damage the chip**.
   3. **79-03 is demoted** from a hard graduation gate to **informational
      best-effort bench validation** — run it when a chip is on hand, but the
      chips stay `supported` even if the write does not SHA-match ("any is fine
