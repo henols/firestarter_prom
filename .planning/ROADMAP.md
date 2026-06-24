@@ -143,7 +143,7 @@ Plans:
 **Plans**: 3 plans (D-01 narrows scope to the 2 read-stable UV chips; GRAD-03/SC#4/FUT-03 → Phase 84)
 
 - [x] 83-01-PLAN.md — SAFE-02 software gate + generate the ST M27C512 64KB + AM27C020 256KB all-0x00 write images + scaffold the Phase 83 EVIDENCE section (autonomous, no chip)
-- [ ] 83-02-PLAN.md — ST M27C512 (0x07, BLANK) operator-gated write proof: full deterministic image, read-back SHA match, N≥3 read oracle + negative control (UV-01/02/03/04)
+- [x] 83-02-PLAN.md — ST M27C512 (0x07, BLANK) operator-gated write proof: full deterministic image, read-back SHA match, N≥3 read oracle + negative control (UV-01/02/03/04)
 - [ ] 83-03-PLAN.md — AM27C020 (0x08, NOT-BLANK) operator-gated write proof: all-0x00 wipe (1→0 only) + record the GRAD-03/2516 → Phase 84 handoff in EVIDENCE/REQUIREMENTS/ROADMAP (UV-01/02/03/04, GRAD-03)
 
 **UI hint**: no
@@ -734,7 +734,7 @@ Plans:
 | 80 (close) | v1.14 | 0/4 | Planned | 4 plans verified PASSED 2026-06-22; hardware-gated on adapter build (defers cleanly if absent) |
 | 81 | v1.15 | 3/3 | Complete    | 2026-06-24 |
 | 82 | v1.15 | 3/3 | Complete    | 2026-06-24 |
-| 83 | v1.15 | 1/3 | In Progress|  |
+| 83 | v1.15 | 2/3 | In Progress|  |
 | 84 (close) | v1.15 | 0/TBD | Not started | DB decode audit + conditional defect RCA (FIX-01) + milestone evidence consolidation |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
