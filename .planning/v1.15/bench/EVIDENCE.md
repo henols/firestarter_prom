@@ -11,6 +11,14 @@
 - **Negative control (EVID-03):** FIRED — wrong-file `verify` exited RC=1 on W27C512 (Task 1) and ST M27C512 (Task 2)
 - **Non-destructive:** reads apply NO VPP — **zero chips consumed**
 
+### Phase 82 SAFE-02 Gate (recorded Plan 82-01, 2026-06-24)
+
+- **`ruff check` (files added by 82-01):** PASS — `tools/gen_test_image.py`, `tests/test_gen_test_image.py` ruff-clean (pre-existing I001 errors in unrelated tools unchanged)
+- **`ruff format --check` (files added by 82-01):** PASS — both new files already formatted
+- **Full host suite:** PASS — **663 tests** (651 + 12 new gen_test_image pinning tests), 29 snapshots
+- **0xA4 guard `test_init_phase_data_frames_not_acked`:** PASS (1/1 — SAFE-02 ack_data=False guard green)
+- **Python:** 3.12.13 (devcontainer); CI targets py3.9/3.11 — new files use no 3.9-incompatible syntax
+
 ## Sweep Result — 10 PASS / 1 ANOMALY
 
 | # | Chip | Family / Algorithm | Board+Shield | Op | Blank-state | Read N | SHA-256 | Verdict | Anomalies |
@@ -41,4 +49,23 @@ The **2516** (0x0B Legacy, shared OE/VPP pin) read is **UNSTABLE** — 3 distinc
 
 - **Phase 83:** MUST NOT write or preserve-dump the irreplaceable 2516 until its read path is stable (blank-state/contents cannot be trusted).
 - **Phase 84 FIX-01:** investigate the 0x0B read-path VPP control + the FM1608 blank-check "Empty input" tooling gap.
+
+---
+
+## Phase 82 — Rewritable A→B Write Validation
+
+**Protocol (D-05/D-06):** For each of the 8 electrically-rewritable chips, write image A (seed=1,
+full-size deterministic pseudo-random), verify A; then write image B (seed=2, same size) **without
+an explicit erase step**, verify B. A clean B SHA-256 match proves auto-erase fired. Images generated
+by `tools/gen_test_image.py`; stored at `/tmp/firestarter_bench_p82/<chip>_img_{A,B}.bin`.
+
+**Known risk:** W29C020 (256KB flash4) carries **cr01_risk=yes** — `flash4_page_size(262144)` guesses
+128B but the real datasheet page is 256B. A mid-page-poll write failure is pre-attributed to CR-01
+and handed to Phase 84 FIX-01; it is NOT a surprise failure if it occurs.
+
+**Verdict key:** `PASS` / `FAIL (CR-01)` / `FAIL (genuine)` / `ANOMALY`
+
+| # | Chip | Family / Algorithm | Board+Shield | Op | Blank-state | SHA-256 (image B read-back) | Verdict | seed_A | sha256_image_A | seed_B | sha256_image_B | cr01_risk | Anomalies |
+|---|------|--------------------|--------------|-------|-------------|------------------------------|---------|--------|----------------|--------|----------------|-----------|-----------|
+| *(bench rows appended by Plans 82-02 / 82-03)* | | | | | | | | | | | | | |
 

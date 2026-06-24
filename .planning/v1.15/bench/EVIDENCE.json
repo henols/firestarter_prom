@@ -18,8 +18,30 @@
   ],
   "evid_extension_columns": [
     "read_count",
-    "blank_check_result"
+    "blank_check_result",
+    "write_image_seed_A",
+    "sha256_image_A",
+    "write_image_seed_B",
+    "sha256_image_B",
+    "cr01_risk"
   ],
+  "phase82": {
+    "description": "Electrically-Rewritable Silicon Validation — A→B write-cycle proof for 8 chips",
+    "op_values": {
+      "write_A+verify_A": "Write image A (seed=1, full-size deterministic pseudo-random) and read-back verify; SHA-256 must match gen_test_image.py output",
+      "write_B+verify_B": "Write image B (seed=2) WITHOUT an explicit erase; if auto-erase fired, B SHA-256 matches cleanly; any residual A-bits break B verify (SHA mismatch → RC=1)"
+    },
+    "combined_op": "write_A+verify_A → write_B+verify_B (A→B auto-erase proof D-05)",
+    "verdict_taxonomy": {
+      "PASS": "dev write-cycle exits 0, B SHA-256 matches B source image, no residual A-bits detected",
+      "FAIL (CR-01)": "W29C020 mid-page-poll write failure — pre-attributed: flash4_page_size(262144)→128B (heuristic under-sizes), real datasheet page=256B; RCA/fix deferred to Phase 84 FIX-01",
+      "FAIL (genuine)": "N=2 reseat+retry exhausted, non-CR-01 root cause",
+      "ANOMALY": "Flaky result (intermittent SHA mismatch), reseat/retry not deterministic"
+    },
+    "image_generator": "tools/gen_test_image.py — generate_image(size_bytes, seed) → bytes using random.Random(seed); CLI: python tools/gen_test_image.py <size_bytes> <seed> <output_path> prints SHA-256",
+    "storage_convention": "/tmp/firestarter_bench_p82/<chip>_img_A.bin (seed=1) and _img_B.bin (seed=2)",
+    "cr01_risk_note": "W29C020 (256KB flash4) is pre-flagged cr01_risk=yes; W29C040 (512KB) is unaffected by the heuristic"
+  },
   "cells": [
     {
       "chip": "W27C512",
