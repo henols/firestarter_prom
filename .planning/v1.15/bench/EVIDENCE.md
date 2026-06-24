@@ -19,6 +19,14 @@
 - **0xA4 guard `test_init_phase_data_frames_not_acked`:** PASS (1/1 — SAFE-02 ack_data=False guard green)
 - **Python:** 3.12.13 (devcontainer); CI targets py3.9/3.11 — new files use no 3.9-incompatible syntax
 
+### Phase 82 SAFE-01 Gate — Plan 82-02 write session (operator sign-off 2026-06-24)
+
+- **`controller:`** leonardo on **/dev/ttyACM0** (firmware `firestarter fw`), firmware 3.0.0b8
+- **Shield:** Rev 2.0 — **operator-confirmed silkscreen** this session ("Rev 2.0 — start now"); fw byte reports "Rev 2.0-class" (cannot distinguish revs, per policy)
+- **Calibration (live readback):** R1=270000, R2=44000 (NOT the 1000 default → VPP read trustworthy)
+- **SAFE-02:** green (Plan 82-01 — 663 tests + 0xA4 guard `test_init_phase_data_frames_not_acked` PASS)
+- **Authorization:** destructive A→B write session cleared; chips seated one at a time on Leonardo + Rev 2.0
+
 ## Sweep Result — 10 PASS / 1 ANOMALY
 
 | # | Chip | Family / Algorithm | Board+Shield | Op | Blank-state | Read N | SHA-256 | Verdict | Anomalies |
