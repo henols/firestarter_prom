@@ -41,7 +41,7 @@
 
 ### DB Decode Correctness (DB)
 
-- [ ] **DB-01**: For every chip exercised, the DB-recorded decode (pinout, VPP, electrical type, algorithm, size) is confirmed against real-silicon behavior; any mismatch is flagged in the evidence record.
+- [x] **DB-01**: For every chip exercised, the DB-recorded decode (pinout, VPP, electrical type, algorithm, size) is confirmed against real-silicon behavior; any mismatch is flagged in the evidence record.
 - [x] **DB-02**: Before any rewritable-chip write bench, a code review confirms `FLAG_CAN_ERASE` is derived correctly for **both** `EEPROM` and `Flash/EEPROM` electrical types; any gap is fixed and pinned by a test.
 
 ### Defect RCA & Fix (FIX)
@@ -100,7 +100,7 @@ Populated during roadmap creation (each requirement maps to exactly one phase).
 | GRAD-02 | Phase 81 | Complete |
 | GRAD-03 | Phase 83 | Pending |
 | FUT-03 *(v1.14 carry-over tracker, closed-by GRAD-03; not one of the 23 v1.15 reqs)* | Phase 83 | Pending — 2516 read attempted in Phase 81 (verdict ANOMALY: 0x0B read unstable, gates the write); write+SHA proof still owed |
-| DB-01 | Phase 82 | Pending |
+| DB-01 | Phase 82 | Complete |
 | DB-02 | Phase 81 | Complete |
 | FIX-01 | Phase 84 | Pending |
 | SAFE-01 | Phase 81 | Complete |

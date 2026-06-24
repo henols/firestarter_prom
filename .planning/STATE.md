@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.15
 milestone_name: — Bench Validation of Operator Inventory
 status: executing
-stopped_at: Phase 82 context gathered
-last_updated: "2026-06-24T09:31:18.253Z"
+stopped_at: Completed 82-01-PLAN.md
+last_updated: "2026-06-24T10:45:40.260Z"
 last_activity: 2026-06-24
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  total_plans: 6
+  completed_plans: 4
   percent: 25
 ---
 
@@ -21,8 +21,8 @@ progress:
 
 ## Current Position
 
-Phase: 82
-Plan: Not started
+Phase: 82 (electrically-rewritable-silicon-validation) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
 Last activity: 2026-06-24
 
@@ -36,7 +36,7 @@ See: `.planning/PROJECT.md` (v1.15 Current Milestone section + Key Decisions)
 from upstream XML → DB → wire JSON → firmware handler. No guessing. **v1.15 proves that
 contract holds on real silicon** for the operator's 11-chip physical inventory.
 
-**Current focus:** Phase 81 — 2516-db-entry-non-destructive-read-sweep
+**Current focus:** Phase 82 — electrically-rewritable-silicon-validation
 read+blank-check sweep across all 11 chips on Leonardo + RURP Rev 2.0, establishing the evidence
 record and the bench-safety baseline (SAFE-01/02/03) with zero chips consumed. Board LOCKED =
 Leonardo + Rev 2.0 (only trustworthy program/write/verify combo); mostly host-side; firmware
@@ -192,8 +192,8 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-24T09:31:18.245Z
-Stopped at: Phase 82 context gathered
+Last session: 2026-06-24T10:45:40.256Z
+Stopped at: Completed 82-01-PLAN.md
 Resume: Start the next milestone with `/gsd-new-milestone` (fresh requirements). **OPERATOR-GATED & still open:** the lockstep beta cut (`3.0.0b11` — firestarter_app version bump + submodule gitlink bump + PyPI/GitHub pre-release) is deferred to operator authorization; gitlinks stay PINNED. Carry-forward: deferred v1.9 read-bug RCA (Phase 45); v1.14 FUT items (FUT-01 X88C64 ALE PCB-mod, FUT-03 NMOS bench SHA-match, FUT-04 AT28C04/16 adapter build).
 
 ## Decisions
@@ -257,6 +257,7 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 - [Phase ?]: [Phase 78-01]: A6 VERDICT PCB-BLOCKED (HIGH) — control register fully allocated 0x01..0x80 (rurp_pinout.h:74-97); 0x100 non-transmissible via uint8_t rurp_write_data_buffer (rurp_shield.h:118); no free 74HC573 strobe; D-02 bar prohibits busy-bit reuse. Plan 02 takes deferral branch.
 - [Phase ?]: [Phase 78-01]: XIC-04 graduation deferred to FUT-01 — no physical X88C64P chip/adapter (D-04) + PCB-blocked ALE; X88C64 stays protocol-not-implemented + host-refused; SAFE-01/02/03 hold trivially (no code change).
 - [Phase 78-02]: Contingent handler-write plan took DEFER branch (Branch A) — leading [BLOCKING] gate read A6 VERDICT: PCB-BLOCKED directly; D-02 prohibits busy-bit reuse so proceed-path unauthorized. Appended `Branch A — ALE PCB-blocked, no handler code; graduation deferred FUT-01.` to X88C64-FEASIBILITY.md; Tasks 2-5 skipped; firestarter src/include/test + firestarter_app pinouts/DB/chip_resolver all CLEAN; X88C64P support_status unchanged (protocol-not-implemented); host-guard intact. XIC-02/03 vacuous on this branch.
+- [Phase ?]: gen_test_image.py uses random.Random(seed) for deterministic full-size images; seed recorded in EVIDENCE enables reproducible SHA oracle
 
 ## Performance Metrics
 
@@ -302,6 +303,7 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 | Phase 76 P02 | 12min | - tasks | - files |
 | Phase 78 P01 | 12min | 2 tasks | 1 files |
 | Phase 78 P02 | 6min | 1 task | 1 files (DEFER branch — zero code changes) |
+| Phase 82 P01 | 20min | - tasks | - files |
 
 ## Deferred Items
 
