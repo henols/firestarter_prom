@@ -20,11 +20,11 @@
 
 ### Electrically-Rewritable Validation (REWR)
 
-- [ ] **REWR-01**: W27C512, W27E512, SST27SF512 (0x07 EEPROM, 12V) each pass full write→auto-erase→read→verify with SHA match.
-- [ ] **REWR-02**: W27E040 (0x08 EEPROM, 512KB) passes full write→read→verify with SHA match.
-- [ ] **REWR-03**: SST39SF040 (0x06 flash3 / AMD-style) passes full write→read→verify with SHA match.
-- [ ] **REWR-04**: W29C020 and W29C040 (0x05 flash4 / Winbond) each pass full write→read→verify with SHA match, with auto-erase confirmed correct for the `Flash/EEPROM` electrical type.
-- [ ] **REWR-05**: FM1608 (0x40 FRAM) passes full write→read-back→verify (overwrite path, no erase).
+- [x] **REWR-01**: W27C512, W27E512, SST27SF512 (0x07 EEPROM, 12V) each pass full write→auto-erase→read→verify with SHA match.
+- [x] **REWR-02**: W27E040 (0x08 EEPROM, 512KB) passes full write→read→verify with SHA match.
+- [x] **REWR-03**: SST39SF040 (0x06 flash3 / AMD-style) passes full write→read→verify with SHA match.
+- [x] **REWR-04**: W29C020 and W29C040 (0x05 flash4 / Winbond) each pass full write→read→verify with SHA match, with auto-erase confirmed correct for the `Flash/EEPROM` electrical type.
+- [x] **REWR-05**: FM1608 (0x40 FRAM) passes full write→read-back→verify (overwrite path, no erase).
 
 ### UV-EPROM No-Eraser Protocol (UV)
 
@@ -87,11 +87,11 @@ Populated during roadmap creation (each requirement maps to exactly one phase).
 | EVID-03 | Phase 81 | Complete |
 | SWEEP-01 | Phase 81 | Complete |
 | SWEEP-02 | Phase 81 | Complete |
-| REWR-01 | Phase 82 | Pending |
-| REWR-02 | Phase 82 | Pending |
-| REWR-03 | Phase 82 | Pending |
-| REWR-04 | Phase 82 | Pending |
-| REWR-05 | Phase 82 | Pending |
+| REWR-01 | Phase 82 | Complete |
+| REWR-02 | Phase 82 | Complete |
+| REWR-03 | Phase 82 | Complete |
+| REWR-04 | Phase 82 | Complete |
+| REWR-05 | Phase 82 | Complete |
 | UV-01 | Phase 83 | Pending |
 | UV-02 | Phase 83 | Pending |
 | UV-03 | Phase 83 | Pending |

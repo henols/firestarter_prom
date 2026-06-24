@@ -119,11 +119,11 @@ Plans:
 
 **Wave 2** *(operator bench — depends on 82-01; appends EVIDENCE)*
 
-- [ ] 82-02-PLAN.md — A→B write→(auto-erase)→read→verify of the 6 lower-risk chips: W27C512/W27E512/SST27SF512 (0x07), W27E040 (0x08), SST39SF040 (0x06), FM1608 (0x40 overwrite); non-vacuous PASS + DB-01 (REWR-01/02/03/05, DB-01)
+- [x] 82-02-PLAN.md — A→B write→(auto-erase)→read→verify of the 6 lower-risk chips: W27C512/W27E512/SST27SF512 (0x07), W27E040 (0x08), SST39SF040 (0x06), FM1608 (0x40 overwrite); non-vacuous PASS + DB-01 (REWR-01/02/03/05, DB-01)
 
 **Wave 3** *(operator bench — depends on 82-02 for the EVIDENCE append order)*
 
-- [ ] 82-03-PLAN.md — flash4 pair A→B: W29C040 (Flash/EEPROM auto-erase proof) + W29C020 attempt-as-is with CR-01 pre-attribution handed to Phase 84; non-vacuous PASS + DB-01 (REWR-04, DB-01)
+- [x] 82-03-PLAN.md — flash4 pair A→B: W29C040 (Flash/EEPROM auto-erase proof) + W29C020 attempt-as-is with CR-01 pre-attribution handed to Phase 84; non-vacuous PASS + DB-01 (REWR-04, DB-01)
 
 **UI hint**: no
 
@@ -728,7 +728,7 @@ Plans:
 | 80 | v1.14 | 1/4 | ⛔ Blocked  | ADPT-01 gate NOT CLEARED (adapter not built / no AT28C chip on hand); ADPT-02/03 deferred FUT-04 (build adapter + DMM-verify /WE 21→30 + chip on hand) |
 | 80 (close) | v1.14 | 0/4 | Planned | 4 plans verified PASSED 2026-06-22; hardware-gated on adapter build (defers cleanly if absent) |
 | 81 | v1.15 | 3/3 | Complete    | 2026-06-24 |
-| 82 | v1.15 | 1/3 | In Progress|  |
+| 82 | v1.15 | 3/3 | Complete    | 2026-06-24 |
 | 83 | v1.15 | 0/TBD | Not started | UV-EPROM write proof (3 chips, gated on P81 blank-state); 2516 bench proof → closes FUT-03 |
 | 84 (close) | v1.15 | 0/TBD | Not started | DB decode audit + conditional defect RCA (FIX-01) + milestone evidence consolidation |
 
