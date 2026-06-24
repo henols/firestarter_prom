@@ -714,7 +714,7 @@ Plans:
 | 79 | v1.14 | 2/3 | 🟢 Graduated (best-effort) | VPE rail 22.4V DMM / 23.9V fw at max pot (~90% of 25V; the ~15-19V was VPP); ≥25V bar retired by D-07 (best-effort, no HW change); 79-02 raised the ceiling + graduated the 4 NMOS chips to `supported`; 79-03 informational bench validation (deferred, no chip on hand) |
 | 80 | v1.14 | 1/4 | ⛔ Blocked  | ADPT-01 gate NOT CLEARED (adapter not built / no AT28C chip on hand); ADPT-02/03 deferred FUT-04 (build adapter + DMM-verify /WE 21→30 + chip on hand) |
 | 80 (close) | v1.14 | 0/4 | Planned | 4 plans verified PASSED 2026-06-22; hardware-gated on adapter build (defers cleanly if absent) |
-| 81 | v1.15 | 3/3 | Complete   | 2026-06-24 |
+| 81 | v1.15 | 3/3 | Complete    | 2026-06-24 |
 | 82 | v1.15 | 0/TBD | Not started | Electrically-rewritable silicon validation (8 chips, write→verify, SHA) |
 | 83 | v1.15 | 0/TBD | Not started | UV-EPROM write proof (3 chips, gated on P81 blank-state); 2516 bench proof → closes FUT-03 |
 | 84 (close) | v1.15 | 0/TBD | Not started | DB decode audit + conditional defect RCA (FIX-01) + milestone evidence consolidation |
@@ -829,7 +829,7 @@ Plans:
   2. The same file (or a companion file) lists every intra-algorithm DB inconsistency — chips that share `pin_count` + `algorithm` but differ in `pulse_duration`, `chip_id_check`, or `pinout` — with each inconsistency labeled as a defect candidate for v1.4 or a sub-repo PR (no auto-fixes applied in v1.3).
   3. Operator can use the matrix to confirm that the six BENCH chips (BENCH-01..06) span the pinout classes and pulse-duration profiles actually represented in the DB, so bench results generalize to the rest of the 339 rows.
 
-**Plans:** 4/4 plans complete
+**Plans:** 3/3 plans complete
 
 - [x] 11-01-PLAN.md — Wave 0 failing-test scaffold for tests/test_audit_coverage_matrix.py (10 tests) ✅ 2026-05-19
 - [x] 11-02-PLAN.md — Wave 1 tool skeleton + CLI + §1 Summary + §2 DB Count Reconciliation ✅ 2026-05-19

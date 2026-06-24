@@ -9,14 +9,14 @@
 
 ### Evidence Record & Oracle (EVID)
 
-- [ ] **EVID-01**: A per-chip bench evidence record (`.planning/v1.15/bench/EVIDENCE.{md,json}`) captures, for every chip exercised: chip, family/algorithm, board + shield rev, blank-state, operation, SHA, verdict, and anomalies — extending (not replacing) the v1.13 per-family validation matrix.
-- [ ] **EVID-02**: All bench operations reuse existing tooling (`firestarter write/read/verify`, `dev validate-family`, `write_test.sh`) and existing gates (`check_dispatch.py`, `diff_db.py`); no new harness or third-party dependency is introduced.
-- [ ] **EVID-03**: Each chip's PASS verdict is non-vacuous — proven by a trustworthy Leonardo read (N≥3, byte-identical / SHA-matched) plus a negative control (a wrong-file `verify` exits non-zero).
+- [x] **EVID-01**: A per-chip bench evidence record (`.planning/v1.15/bench/EVIDENCE.{md,json}`) captures, for every chip exercised: chip, family/algorithm, board + shield rev, blank-state, operation, SHA, verdict, and anomalies — extending (not replacing) the v1.13 per-family validation matrix.
+- [x] **EVID-02**: All bench operations reuse existing tooling (`firestarter write/read/verify`, `dev validate-family`, `write_test.sh`) and existing gates (`check_dispatch.py`, `diff_db.py`); no new harness or third-party dependency is introduced.
+- [x] **EVID-03**: Each chip's PASS verdict is non-vacuous — proven by a trustworthy Leonardo read (N≥3, byte-identical / SHA-matched) plus a negative control (a wrong-file `verify` exits non-zero).
 
 ### Non-Destructive Read Sweep (SWEEP)
 
-- [ ] **SWEEP-01**: Every one of the 11 chips is read end-to-end and blank-checked on Leonardo + Rev 2.0 **before any write**, consuming zero chips, validating the read path + DB decode.
-- [ ] **SWEEP-02**: The blank-state of each of the 3 true UV-EPROMs (ST M27C512, AM27C020, 2516) is recorded in the evidence record — this gates each UV write decision.
+- [x] **SWEEP-01**: Every one of the 11 chips is read end-to-end and blank-checked on Leonardo + Rev 2.0 **before any write**, consuming zero chips, validating the read path + DB decode.
+- [x] **SWEEP-02**: The blank-state of each of the 3 true UV-EPROMs (ST M27C512, AM27C020, 2516) is recorded in the evidence record — this gates each UV write decision.
 
 ### Electrically-Rewritable Validation (REWR)
 
@@ -35,8 +35,8 @@
 
 ### 2516 Graduation (GRAD)
 
-- [ ] **GRAD-01**: The `2516` is researched to datasheet level (confirm its absence from minipro `infoic.xml`; capture NMOS / DIP24 / ~25V class / 2KB / 2716 read-compatibility) and the findings recorded.
-- [ ] **GRAD-02**: A `2516` entry is authored in `~/.firestarter/database.json` (algorithm `0x0B`, pinout `DIP24_2716`, `electrical.type` UV-EPROM, `vpp_mv` 25000, `size_bytes` 2048) and **manually safety-reviewed** (user-override entries bypass `check_dispatch.py`/`diff_db.py`); `firestarter info 2516` shows correct decode.
+- [x] **GRAD-01**: The `2516` is researched to datasheet level (confirm its absence from minipro `infoic.xml`; capture NMOS / DIP24 / ~25V class / 2KB / 2716 read-compatibility) and the findings recorded.
+- [x] **GRAD-02**: A `2516` entry is authored in `~/.firestarter/database.json` (algorithm `0x0B`, pinout `DIP24_2716`, `electrical.type` UV-EPROM, `vpp_mv` 25000, `size_bytes` 2048) and **manually safety-reviewed** (user-override entries bypass `check_dispatch.py`/`diff_db.py`); `firestarter info 2516` shows correct decode.
 - [ ] **GRAD-03**: The `2516` is bench-proven on Leonardo + Rev 2.0 (read + blank-check, then a write proof on the ~22.4V VPE rail), recording the result — closing the deferred **FUT-03** NMOS write+SHA evidence (best-effort per v1.14 D-07).
 
 ### DB Decode Correctness (DB)
@@ -50,7 +50,7 @@
 
 ### Bench Safety & Hygiene (SAFE) — cross-cutting
 
-- [ ] **SAFE-01**: Every bench task records and verifies its preconditions: board = Leonardo, shield rev = Rev 2.0 (operator-stated), `controller:` port identity, and a live R1/R2 readback (`r1 ≈ 270000`).
+- [x] **SAFE-01**: Every bench task records and verifies its preconditions: board = Leonardo, shield rev = Rev 2.0 (operator-stated), `controller:` port identity, and a live R1/R2 readback (`r1 ≈ 270000`).
 - [x] **SAFE-02**: The host test suite — including the 0xA4 `ack_data=False` regression guard (`test_init_phase_data_frames_not_acked`) — is green before any bench session.
 - [x] **SAFE-03**: No non-Leonardo read is treated as authoritative; no UV part is written before blank-check + an explicit spend decision; over-voltage stays blocked (under-voltage warn-and-proceed accepted as best-effort).
 
@@ -82,11 +82,11 @@ Populated during roadmap creation (each requirement maps to exactly one phase).
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| EVID-01 | Phase 81 | Pending |
-| EVID-02 | Phase 81 | Pending |
-| EVID-03 | Phase 81 | Pending |
-| SWEEP-01 | Phase 81 | Pending |
-| SWEEP-02 | Phase 81 | Pending |
+| EVID-01 | Phase 81 | Complete |
+| EVID-02 | Phase 81 | Complete |
+| EVID-03 | Phase 81 | Complete |
+| SWEEP-01 | Phase 81 | Complete |
+| SWEEP-02 | Phase 81 | Complete |
 | REWR-01 | Phase 82 | Pending |
 | REWR-02 | Phase 82 | Pending |
 | REWR-03 | Phase 82 | Pending |
@@ -96,13 +96,14 @@ Populated during roadmap creation (each requirement maps to exactly one phase).
 | UV-02 | Phase 83 | Pending |
 | UV-03 | Phase 83 | Pending |
 | UV-04 | Phase 83 | Pending |
-| GRAD-01 | Phase 81 | Pending |
-| GRAD-02 | Phase 81 | Pending |
+| GRAD-01 | Phase 81 | Complete |
+| GRAD-02 | Phase 81 | Complete |
 | GRAD-03 | Phase 83 | Pending |
+| FUT-03 *(v1.14 carry-over tracker, closed-by GRAD-03; not one of the 23 v1.15 reqs)* | Phase 83 | Pending — 2516 read attempted in Phase 81 (verdict ANOMALY: 0x0B read unstable, gates the write); write+SHA proof still owed |
 | DB-01 | Phase 82 | Pending |
 | DB-02 | Phase 81 | Complete |
 | FIX-01 | Phase 84 | Pending |
-| SAFE-01 | Phase 81 | Pending |
+| SAFE-01 | Phase 81 | Complete |
 | SAFE-02 | Phase 81 | Complete |
 | SAFE-03 | Phase 81 | Complete |
 
