@@ -17,6 +17,7 @@
 - ✅ **v1.12 Firmware Protocol Dispatch Hardening + Skeletons** — Phases 62–70 (SHIPPED 2026-06-16; dual-repo lockstep merged to `beta` — fw `b71c6fd` / app `6b5480f`, no tag; beta cut + stable operator-gated). First firmware-touching milestone since v1.10. Fail-closed dispatch (`MSG_ERR_PROTOCOL_NOT_IMPLEMENTED = 0xBB`, zero hardware side effects) eliminating the silent `mem_type` 12V-VPP fallback hazard; host `ProtocolNotImplementedError` + actionable CLI message; capability-honest DB inclusion (`support_status` taxonomy: `protocol-not-implemented` / `adapter-required` / `vpp-exceeds-max`; true NMOS VPP correction; principled pinout classification; in-host refusal before any serial byte). 17/17 requirements; audit tech_debt (8/8 phases passed, 5/5 E2E flows, all secure-gated phases threats_open:0). DB 743 → 744. Full detail in `.planning/MILESTONES.md` §v1.12 + [`.planning/milestones/v1.12-ROADMAP.md`](milestones/v1.12-ROADMAP.md).
 - ✅ **v1.13 Programming Algorithm Validation + Gap Implementation** — Phases 71–76 (SHIPPED 2026-06-18; dual-repo lockstep merged to `beta` — fw `a33513f` / app `34deccb` @ `3.0.0b9`, no tag; beta cut + stable operator-gated). Test-first validation milestone: proved the 6 existing write/program/verify algorithm families correct on real hardware behind a software-first three-tier validation harness + per-family matrix, then implemented only the evidence-surfaced RURP-feasible gaps (flash4 chip-id + SDP/page-write; spec-only adapter-required + X88C64). Hybrid bench gating (Tier 1 native + Tier 2 host ungated; Tier 3 HIL Leonardo-only-PASS, closed at PARTIAL bench coverage). First firmware-touching milestone since v1.12. 17/17 requirements (HARN/RSCH/VAL/FIX/ERASE/GAP). Phase 74 Wave-2 HW re-bench + Phase 75 erase path deferred to v1.14 (Backlog 999.4). Full detail in `.planning/MILESTONES.md` §v1.13 + [`.planning/milestones/v1.13-ROADMAP.md`](milestones/v1.13-ROADMAP.md).
 - ✅ **v1.14 Feasible-Gap Implementation** — Phases 77–80 (SHIPPED 2026-06-23; meta tagged `v1.14`, gsd planning merged to `beta`; lockstep beta cut + gitlink bump operator-gated). The first milestone since v1.0 where chips actually **graduate to `supported`**: erase write-path (Phase 77 ✅ bench-proven W27C512), 25V NMOS best-effort graduation (Phase 79 ✅ 4 chips, D-07 override), with X88C64 (Phase 78, PCB-blocked) + AT28C04/16 adapter (Phase 80, adapter-not-built) cleanly deferred to FUT-01/03/04. 15 requirements (6 verified · 2 software-complete · 7 hardware-gated deferrals). Full detail in `.planning/MILESTONES.md` §v1.14 + [`.planning/milestones/v1.14-ROADMAP.md`](milestones/v1.14-ROADMAP.md).
+- 🚧 **v1.15 Bench Validation of Operator Inventory** — Phases 81–84 (STARTED 2026-06-23; branches off `beta`, mostly host-side, firmware untouched unless a bench-surfaced defect forces a lockstep fix). Bench-validate the operator's 11 physical chips across 5 algorithm families on **Leonardo + RURP Rev 2.0** via full write→read→verify — proving the on-paper `supported` claim on real silicon, validating DB decode, RCA-ing/fixing any failure, producing a per-chip evidence record, and graduating the one genuine gap (the `2516`, confirmed absent from minipro upstream — closes deferred FUT-03 NMOS write+SHA). Non-destructive-first safety ordering: read+blank-check ALL 11 before any write; UV-EPROM spend decided per chip at the bench (no eraser). 23 requirements (EVID/SWEEP/REWR/UV/GRAD/DB/FIX/SAFE).
 
 <details>
 <summary>✅ <b>v1.10 — Serial Transport Hardening (COBS)</b> — Phases 49–55 (SHIPPED 2026-06-07) · 27/27 plans · 14/14 reqs · beta-only</summary>
@@ -60,6 +61,88 @@ Full detail: [`.planning/milestones/v1.10-ROADMAP.md`](milestones/v1.10-ROADMAP.
 Full detail: [`.planning/milestones/v1.14-ROADMAP.md`](milestones/v1.14-ROADMAP.md) · [`v1.14-REQUIREMENTS.md`](milestones/v1.14-REQUIREMENTS.md) · [`v1.14-MILESTONE-AUDIT.md`](milestones/v1.14-MILESTONE-AUDIT.md) · [`MILESTONES.md`](MILESTONES.md) §v1.14.
 
 </details>
+
+### 🚧 v1.15 — Bench Validation of Operator Inventory (STARTED 2026-06-23)
+
+**Milestone goal:** Bench-validate the operator's physical chip inventory (11 chips spanning 5 algorithm families) on **Leonardo + RURP Rev 2.0** via full write→read→verify — proving the on-paper `supported` claims true on real silicon, RCA-ing/fixing any failure, validating DB decode correctness, producing a curated per-chip evidence record, and graduating the one genuine gap (the `2516`, confirmed absent from minipro `infoic.xml`). Mostly host-side (one user-override DB entry + evidence record); firmware untouched unless a bench-surfaced defect forces a lockstep fix.
+
+**Non-destructive-first safety ordering (load-bearing):** read + blank-check ALL 11 chips BEFORE any write (Phase 81); validate the freely-rewritable silicon (Phase 82); only then spend/preserve the UV-EPROMs per chip live at the bench (Phase 83 — operator has no eraser, every UV write is irreversible); audit + conditional defect RCA last (Phase 84). The `2516` graduation is best-effort on the ~22.4V VPE rail per v1.14 D-07 (closes deferred FUT-03).
+
+**Bench discipline (recurring, every bench phase):** board = Leonardo, shield = Rev 2.0 (operator-stated), `controller:` port-identity verified per task, live R1/R2 readback (`r1 ≈ 270000`); host suite green incl. the 0xA4 `ack_data=False` guard before any session; no non-Leonardo read is authoritative. SAFE-01/02/03 are homed in Phase 81 and re-applied as preconditions in Phases 82–84 (v1.14 SAFE-pattern precedent).
+
+**Phase numbering:** Continues from v1.14 last phase 80 → v1.15 starts at **Phase 81**.
+
+#### Phase 81: 2516 DB Entry + Non-Destructive Read Sweep
+
+**Goal**: Author the `2516` user-override entry and establish the milestone's evidence record + bench-safety baseline by reading and blank-checking all 11 chips on Leonardo + Rev 2.0 — zero chips consumed, validating the read path and DB decode for every chip, and discovering the blank-state that gates every UV-EPROM write decision.
+**Depends on**: Nothing (first v1.15 phase; off `beta`)
+**Requirements**: GRAD-01, GRAD-02, SWEEP-01, SWEEP-02, EVID-01, EVID-02, EVID-03, DB-02, SAFE-01, SAFE-02, SAFE-03
+**Success Criteria** (what must be TRUE):
+
+  1. `firestarter info 2516` shows correct decode (algorithm 0x0B, pinout DIP24_2716, UV-EPROM, vpp_mv 25000, 2048 bytes) from a manually safety-reviewed `~/.firestarter/database.json` user-override entry (the entry bypasses `check_dispatch.py`/`diff_db.py` → manual review is recorded).
+  2. All 11 chips are read end-to-end and blank-checked on Leonardo + Rev 2.0 with zero chips consumed, and each produces a row in `.planning/v1.15/bench/EVIDENCE.{md,json}` (chip, family/algorithm, board+shield, blank-state, op=read+blank_check, SHA-or-N/A, verdict, anomalies).
+  3. The blank-state of each of the 3 true UV-EPROMs (ST M27C512, AM27C020, 2516) is recorded — gating the Phase 83 spend-vs-preserve decision.
+  4. A code review confirms `FLAG_CAN_ERASE` is derived correctly for BOTH `EEPROM` and `Flash/EEPROM` electrical types (before any write); any gap is fixed and pinned by a test, host suite green (incl. the 0xA4 `test_init_phase_data_frames_not_acked` guard).
+  5. Every bench task records its preconditions (board=Leonardo, shield=Rev 2.0, `controller:` identity, live `r1 ≈ 270000`); no non-Leonardo read is treated as authoritative.
+
+**Plans**: 3 plans
+Plans:
+**Wave 1** *(parallel — no file overlap; software + the 2516 entry/safety review)*
+
+- [x] 81-01-PLAN.md — DB-02 fresh adversarial FLAG_CAN_ERASE re-audit + Flash/EEPROM (W29C040) pinning test + 0xA4 guard green (DB-02, SAFE-02/03)
+- [x] 81-02-PLAN.md — 2516 user-override entry (GRAD-01 research + GRAD-02 author) + 81-2516-SAFETY-REVIEW.md + operator sign-off + EVIDENCE.{md,json} scaffold (GRAD-01/02, EVID-01/02)
+
+**Wave 2** *(operator bench — depends on 81-02 for the 2516 entry per D-10)*
+
+- [x] 81-03-PLAN.md — 11-chip non-destructive read + blank-check sweep on Leonardo + Rev 2.0; populate EVIDENCE; 3 UV gating blank-states (SWEEP-01/02, EVID-03, SAFE-01)
+
+**UI hint**: no
+
+#### Phase 82: Electrically-Rewritable Silicon Validation
+
+**Goal**: Prove the `supported` claim on real silicon for the 8 electrically-rewritable chips via full write→(auto-erase)→read→verify with SHA match, confirming the DB decode matches observed behaviour and auto-erase is correct for both EEPROM and Flash/EEPROM electrical types.
+**Depends on**: Phase 81 (read path validated; FLAG_CAN_ERASE review done)
+**Requirements**: REWR-01, REWR-02, REWR-03, REWR-04, REWR-05, DB-01
+**Success Criteria** (what must be TRUE):
+
+  1. W27C512, W27E512, SST27SF512 (0x07, 12V) each pass full write→auto-erase→read→verify with SHA match.
+  2. W27E040 (0x08), SST39SF040 (0x06), and FM1608 (0x40 overwrite, no erase) each pass full write→read-back→verify with SHA match.
+  3. W29C020 and W29C040 (0x05 flash4) each pass full write→read→verify with SHA match AND auto-erase confirmed correct for the `Flash/EEPROM` electrical type.
+  4. Each PASS is non-vacuous — a trustworthy Leonardo read (N≥3 byte-identical / SHA-matched) plus a negative control (wrong-file `verify` exits non-zero).
+  5. For every chip exercised, the DB-recorded decode (pinout, VPP, electrical type, algorithm, size) is confirmed against real-silicon behaviour and an EVIDENCE row is recorded (any mismatch flagged); reused tooling only (`write_test.sh` / `dev validate-family`), no new harness.
+
+**Plans**: TBD
+**UI hint**: no
+
+#### Phase 83: UV-EPROM Write Proof (gated on Phase 81 blank-state)
+
+**Goal**: Validate the write path for the 3 UV-EPROMs without an eraser — spend-vs-preserve decided per chip at the bench from the Phase 81 blank-state — and bench-prove the graduated `2516` on the ~22.4V VPE rail, closing the deferred FUT-03 NMOS write+SHA evidence.
+**Depends on**: Phase 81 (UV blank-state recorded), Phase 82 (write path proven on rewritable silicon)
+**Requirements**: UV-01, UV-02, UV-03, UV-04, GRAD-03
+**Success Criteria** (what must be TRUE):
+
+  1. No UV part is written until its blank-state is recorded and the operator has made an explicit spend-vs-preserve decision at the bench (read+blank-check precede every write).
+  2. Each spent UV part is write-proven without an eraser — a full known image if blank, else an all-`0x00`/AND-mask bit-subset write (1→0 transitions only) — and verified (read-back SHA / verify exit code).
+  3. ST M27C512 (0x07) and AM27C020 (0x08) each have a recorded read + decode validation plus a write proof if spent, captured in EVIDENCE.{md,json}.
+  4. The `2516` is bench-proven on Leonardo + Rev 2.0 (read + blank-check, then a write proof on the ~22.4V VPE rail read via `firestarter vpe`), with N≥3 read SHA table + the firmware under-voltage warning documented — closing FUT-03 (best-effort per v1.14 D-07).
+  5. Over-voltage stays blocked throughout; under-voltage warn-and-proceed is accepted and recorded as best-effort.
+
+**Plans**: TBD
+**UI hint**: no
+
+#### Phase 84: DB Decode Audit + Conditional Defect RCA + Milestone Evidence Consolidation
+
+**Goal**: Consolidate the per-chip evidence into a final decode-correctness audit confirming every exercised chip matches its DB claims; root-cause and fix (host-only, or dual-repo lockstep if firmware) any per-family defect the bench surfaced, re-verifying on the bench with the full-DB VPP-safety gate green.
+**Depends on**: Phase 82, Phase 83
+**Requirements**: FIX-01
+**Success Criteria** (what must be TRUE):
+
+  1. A consolidated decode-correctness audit confirms all 11 chips' real-silicon behaviour matches the DB (pinout, VPP, electrical type, algorithm, size), or each mismatch is flagged with a disposition.
+  2. Any per-family write/program/verify defect the bench surfaced is root-caused and fixed (host-only or dual-repo lockstep) and re-verified on Leonardo + Rev 2.0 — OR the audit records "none found / bench clean" with the evidence record as proof.
+  3. After any fix, the full-DB VPP-safety gate (`check_dispatch.py`), `diff_db.py`, and the host test suite are green (and `pio test -e native` + Leonardo flash ≤ ~90% if firmware was touched).
+
+**Plans**: TBD
+**UI hint**: no
 
 ## v1.9 — Read-Bug RCA + Fix (STARTED 2026-05-29)
 
@@ -631,6 +714,10 @@ Plans:
 | 79 | v1.14 | 2/3 | 🟢 Graduated (best-effort) | VPE rail 22.4V DMM / 23.9V fw at max pot (~90% of 25V; the ~15-19V was VPP); ≥25V bar retired by D-07 (best-effort, no HW change); 79-02 raised the ceiling + graduated the 4 NMOS chips to `supported`; 79-03 informational bench validation (deferred, no chip on hand) |
 | 80 | v1.14 | 1/4 | ⛔ Blocked  | ADPT-01 gate NOT CLEARED (adapter not built / no AT28C chip on hand); ADPT-02/03 deferred FUT-04 (build adapter + DMM-verify /WE 21→30 + chip on hand) |
 | 80 (close) | v1.14 | 0/4 | Planned | 4 plans verified PASSED 2026-06-22; hardware-gated on adapter build (defers cleanly if absent) |
+| 81 | v1.15 | 3/3 | Complete   | 2026-06-24 |
+| 82 | v1.15 | 0/TBD | Not started | Electrically-rewritable silicon validation (8 chips, write→verify, SHA) |
+| 83 | v1.15 | 0/TBD | Not started | UV-EPROM write proof (3 chips, gated on P81 blank-state); 2516 bench proof → closes FUT-03 |
+| 84 (close) | v1.15 | 0/TBD | Not started | DB decode audit + conditional defect RCA (FIX-01) + milestone evidence consolidation |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 

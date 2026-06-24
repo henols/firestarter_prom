@@ -1,246 +1,315 @@
-# Technology Stack — v1.14 Feasible-Gap Implementation
+# Technology Stack — v1.15 Bench Validation of Operator Inventory
 
 **Project:** Firestarter EPROM Programmer
-**Researched:** 2026-06-18
-**Confidence:** HIGH — all claims grounded in verified source files or cited hardware documentation
+**Researched:** 2026-06-23
+**Confidence:** HIGH — all claims grounded in verified source files at path, line, and field level
 
 ---
 
 ## Headline Finding
 
-**v1.14 needs no new third-party dependencies.** Every library, framework, and tool required for all four gaps already exists and is proven in the project. The work is entirely within the established dual-repo lockstep (Arduino C++ firmware + Python CLI host). The single external hardware question — whether the RURP boost regulator can physically produce 25V — is now resolved: **YES, the RURP hardware is rated 5–27V VPP**, making the 22V software ceiling a deliberate conservative limit that can be raised, not a physical constraint. All four gap implementations are software work with bench verification gates.
+**v1.15 needs no new third-party dependencies and almost certainly needs no new harness code.** Every mechanism needed to write→read→verify all 11 chips already exists. The only genuine software addition is a single user-override DB entry for the `2516` chip in `~/.firestarter/database.json`. The v1.13 three-tier harness, `write_test.sh`, `dev validate-family`, and `eprom_operations.write_cycle_eprom` are reused as-is. Firmware is untouched unless a bench-surfaced defect forces a fix.
 
 ---
 
-## Current Flash Budget (critical constraint)
+## Board / Shield Lock
 
-**Leonardo flash ceiling: ~88% design target; current actual: 89.5%**
+**Leonardo + RURP Rev 2.0 only.** Standing bench constraints (verified from project memory):
 
+- `/dev/ttyACM0` identity: verify `controller:` port identity at every task start — ACM numbers shuffle after any USB unplug/replug.
+- Leonardo is **chip-OUT-sideload-exempt** (v1.10 COBS transport; only Uno-class boards need chip-out during sideload).
+- R1 readback before each write session: `firestarter dev config` should show `r1 ≈ 270000` (recalibrated in Phase 54). The `dev validate-family` Tier-3 runner aborts if r1 is outside ±25% of 270000 — this is the live precondition gate.
+- VPE rail: ~22.4V DMM / ~23.9V firmware-reported. VPP is a separate ~15–19V rail. Both are measure-only (no routing to socket during `vpp`/`vpe` monitor commands).
+
+---
+
+## Reusable Stack — Exact Files and Commands
+
+### 1. Full Write→Read→Verify Cycle Commands
+
+The canonical per-chip cycle is already wired into `EpromOperator.write_cycle_eprom` (`firestarter_app/firestarter/eprom_operations.py:766–873`). It runs: erase → write → read-back N times → SHA-256 compare each read-back against source image. Returns 0 (PASS) / 1 (mismatch) / 2 (hw-error).
+
+**CLI surface** (from `firestarter_app/firestarter/cli_handlers.py`):
+
+```bash
+# Standard write (triggers auto-erase for EEPROM-class chips):
+firestarter write <chip> <image.bin>
+
+# Skip blank check / erase (for UV-EPROMs or pre-erased chips):
+firestarter write --no-blank-check <chip> <image.bin>
+
+# Write at byte offset (for partial-image writes in write_test.sh):
+firestarter write --no-blank-check -a <hex_offset> <chip> <image.bin>
+
+# Read to file:
+firestarter read <chip> <output.bin>
+
+# Verify image against chip:
+firestarter verify <chip> <image.bin>
+
+# Blank check:
+firestarter blank-check <chip>
 ```
-Flash: [========= ]  89.5% (used 25,654 bytes from 28,672 bytes)
-Free:  3,018 bytes
-RAM:   78.1% (used 1,999 bytes from 2,560 bytes)
+
+**SHA evidence capture** — use `sha256sum` (or Python `hashlib.sha256`) on the output `.bin` after read. `write_cycle_eprom` computes and logs SHA-256 internally; `consistency_check_eprom` (`eprom_operations.py:566–764`) does the same for N consecutive reads and prints a PASS/FAIL verdict block with SHA-256 values.
+
+**The `dev write-cycle` command** invokes `write_cycle_eprom` directly and is the cleanest single-command evidence artifact:
+
+```bash
+firestarter dev write-cycle --runs 3 --source <image.bin> --output-dir <dir> <chip>
 ```
 
-Source: `pio run -e leonardo` on `v1.13-algo-validation` tip (2026-06-18). The prior v1.13 target was "stay under 88%" — Phase 74 FIX-02 (`CMD_CHECK_CHIP_ID` mirror in `configure_flash4`) pushed the ceiling to 89.5%. This is the hard constraint that determines phase ordering.
+This produces a `write-cycle-<chip>-unknown-board-<timestamp>/` directory with per-run read-back binaries and SHA comparison logged to stdout — reusable as the per-chip evidence record without any new tooling.
 
-**Flash-budget impact by gap (estimated):**
+**The `dev validate-family` Tier-3 runner** (`cli_handlers.py:1419–1560`, spec at `tools/validation_matrix_spec.json`) composes `write_cycle_eprom` per family and emits `validation-matrix.{json,md}` artifacts. Use it for families where a spec entry already exists (eprom/flash3/flash4/sram). It requires `--board`, `--chip`, `--source`, and a configured `--port`.
 
-| Gap | Files added / changed | Estimated flash impact | Notes |
-|-----|----------------------|----------------------|-------|
-| 999.4 Erase write-path | Host-only (`database.py` one-liner) | **0 bytes** — firmware unchanged | `eprom_write_init` already has the `FLAG_CAN_ERASE` guard; only the flag set is wrong |
-| 999.6 AT28C04/16 adapter | Host-only (remove refusal in `chip_resolver.py`) | **0 bytes** — firmware unchanged | `configure_eeprom28c` already exists and handles the protocol |
-| 999.7 25V NMOS ceiling | Host-only (`build_db.py` constant + `check_dispatch.py` invariant) | **0 bytes** — firmware unchanged | Ceiling check is entirely at DB-build + CI gate; no firmware VPP limit |
-| 999.5 X88C64 handler | New `eeprom_x88c64.cpp` + `eeprom_x88c64.h` + dispatch arm | **~1–3 KB** — new handler TU | The one gap that adds firmware code; must be measured before commit |
+**`write_test.sh`** (`firestarter_app/write_test.sh`) is the integration-level harness: generates random/null/0xFF test images at full chip size, runs write→verify→read→compare for each, then does a two-part partial-address write. No new code needed — pass the chip name as `$1`.
 
-**Critical implication:** Three of the four gaps (999.4, 999.6, 999.7) are host-only changes with zero firmware footprint. The only firmware-adding gap is 999.5 (X88C64). With 3,018 bytes free, a well-written 1–3 KB handler fits comfortably — but `pio run -e leonardo` must be run and verified as part of the phase gate before committing the new handler. The suggested build order (999.4 → 999.5 → 999.7 → 999.6) is correct.
+```bash
+cd firestarter_app && ./write_test.sh W27C512
+```
+
+### 2. Blank-Check / `-b` / Auto-Erase Interaction by Family
+
+This is the critical decision point for each chip at the bench. The flag chain flows through `build_flags` (`eprom_operations.py:80–95`) and `convert_to_programmer` (`database.py:562–617`).
+
+**`FLAG_CAN_ERASE` (0x02) is now derived canonically from `electrical.type == "EEPROM"` or `"Flash/EEPROM"` in `database.py:convert_to_programmer:593–606` (Phase 77 / ERASE-01). This is the authoritative source.**
+
+| Family | Algorithm | `electrical.type` | `FLAG_CAN_ERASE` set? | Default write behavior | `-b` / `--no-blank-check` flag |
+|--------|-----------|-------------------|-----------------------|------------------------|-------------------------------|
+| 0x07 W27C512, W27E512, SST27SF512 | `configure_eprom` | `"EEPROM"` | YES | Blank-check → auto-erase → write | `--no-blank-check` skips blank-check AND sets `FLAG_SKIP_ERASE` (see `_build_op_flags` in `cli_handlers.py:158–165`) |
+| 0x08 W27E040 | `configure_eprom` | `"EEPROM"` | YES | Blank-check → auto-erase → write | Same as above |
+| 0x06 SST39SF040 | `configure_flash3` | `"Flash/EEPROM"` | YES | Blank-check → auto-erase → write | `--no-blank-check` skips blank-check AND erase |
+| 0x05 W29C020, W29C040 | `configure_flash4` | `"Flash/EEPROM"` | YES | Blank-check → auto-erase → write | Same |
+| 0x40 FM1608 | `configure_sram` | `"SRAM"` | NO | No VPP, no erase step | SRAM is always overwrite — `-b` not needed |
+| 0x07 ST M27C512, SGS-THOMSON M27C512 | `configure_eprom` | `"UV-EPROM"` | NO | Blank-check only — no auto-erase | `--no-blank-check` to skip (use for pre-erased chips) |
+| 0x08 AM27C020 | `configure_eprom` | `"UV-EPROM"` | NO | Blank-check only | `--no-blank-check` to skip |
+| 0x0B 2516 (new entry) | `configure_eprom` | `"UV-EPROM"` | NO | Blank-check only | `--no-blank-check` for write without eraser |
+
+**Key invariant for `--no-blank-check`:** `cli_handlers.py:158–165` — when `blank_check=False`, `_build_op_flags` passes `skip_erase=not blank_check` = `True`, which sets `FLAG_SKIP_ERASE (0x04)` in addition to `FLAG_SKIP_BLANK_CHECK (0x08)`. For EEPROM-class chips where `FLAG_CAN_ERASE` is already set, combining with `FLAG_SKIP_ERASE` suppresses the erase step. This is the correct behavior for appending a second partial image with `-b -a <offset>` as `write_test.sh` does.
+
+**0xA4 regression guard (Option C, Phase 77):** INIT/END DATA frames are NOT acked by the host (`_execute_phase:ack_data=False` at `eprom_operations.py:372`). This is required to prevent desync on the default write path for EEPROM chips. Do not revert this.
+
+### 3. UV-EPROM Non-Destructive Protocol
+
+For chips where the operator has no UV eraser (ST M27C512, AM27C020, 2516): read-first strategy.
+
+**Step 1 — Blank check (non-destructive):**
+```bash
+firestarter blank-check <chip>
+```
+Returns 0 if all bytes are 0xFF. If blank: proceed to full write+verify. If not blank: AND-mask strategy.
+
+**Step 2 — Read and inspect (non-destructive, validates read path + VPP routing):**
+```bash
+firestarter read <chip> <chip>_read.bin
+sha256sum <chip>_read.bin
+```
+This validates the read path, DB decode (pinout, VPP, size), and algorithm dispatch on real silicon.
+
+**Step 3 — Spend decision:** If chip is blank, write a known image and verify. If not blank but preserving the chip, an AND-mask write (only 1→0 bit transitions) can prove the write path without erasing. The host write command will succeed if the source image only sets bits that are already 0xFF in the chip.
+
+### 4. VPP Monitoring (Verification, Not Routing)
+
+From project memory: `vpp`/`vpe` monitor commands enable the regulator + measure only. No A9/VPE/P1 routing bits are set. A chip seated in the socket is safe during these commands.
+
+```bash
+# Continuous VPP monitor (capture 15 s):
+timeout -s INT 15 stdbuf -oL firestarter vpp
+
+# VPE rail check:
+firestarter vpe
+```
+
+Use `vpe` to confirm ~22.4V rail before any 0x0B NMOS write. Use `vpp` to confirm VPP rail separately.
 
 ---
 
-## Recommended Stack (no changes from v1.13)
+## 2516 — Add Mechanism: User-Override DB Entry
 
-### Firmware (Arduino C++ / PlatformIO)
+### Why `~/.firestarter/database.json`, Not `build_db.py`
 
-| Technology | Version | Purpose | Notes |
-|------------|---------|---------|-------|
-| PlatformIO | current | Build, upload, test runner | `pio run -e leonardo`, `pio test -e native` |
-| Arduino AVR framework | ATmega32U4 (Leonardo) | Firmware runtime | Leonardo is the only validated-PASS write board |
-| ArduinoFake | current | Host-side test stubs | Enables `pio test -e native` dispatch suite without hardware |
-| Unity | current | Native unit test framework | Already used in `test/native/avr/test_dispatch/` |
+The `2516` is confirmed absent from minipro's upstream `infoic.xml` (the 28 "2516" hits are all `25160` SPI serial parts — per project memory, Phase 78 research). `build_db.py` derives all entries from `infoic.xml` at runtime: there is no mechanism to hand-author an entry inside `build_db.py` without hacking the XML parser.
 
-### Host (Python 3)
+The user-override path at `~/.firestarter/database.json` is the correct mechanism per `CLAUDE.md` ("user overrides go in `~/.firestarter/database.json`") and `chip_resolver.py:resolve_chip:40` (constructs `EpromDatabase()` with default `skip_local_override=False` in production, honoring the override file). The `EpromDatabase` class merges the override file at construction time; `get_eprom_config` finds the chip by `part_number` alias match.
 
-| Technology | Version | Purpose | Notes |
-|------------|---------|---------|-------|
-| Python | 3.9+ (CI), 3.12 (devcontainer) | Runtime | 3.9 is the CI floor; 3.12 devcontainer may mask f-string backslash issues |
-| Click | current | CLI framework | Established; all commands use `@cli.command()` |
-| pytest + pytest-cov | current | Test runner + coverage | Coverage floor 70%; 642 tests at v1.13 close |
-| ruff | current | Lint + format | Enforced in CI; all generated code must be ruff-clean |
-| mypy (strict) | current | Type checking | Enforced on 8 modules; any touched module stays in scope |
+`build_db.py` would need a bespoke hand-authored entry section, which is architecturally wrong (it is a fetch-and-decode pipeline, not an authoring tool). `~/.firestarter/database.json` is the documented escape hatch for exactly this case.
 
-### Infrastructure
+**Note:** A `~/.firestarter/database.json` entry is NOT subject to `diff_db.py` or `check_dispatch.py` — those gates run against `chip_database.json` only. The 2516 entry must be manually validated for safety before use (no DB gate catches it). This is the tradeoff of the user-override path.
 
-| Technology | Purpose | Notes |
-|------------|---------|-------|
-| GitHub Actions | CI gate | `beta-release.yml` + `ci.yml`; drift gate + ruff + mypy + pytest |
-| PyPI | Beta wheel distribution | `pip install --pre firestarter`; operator-gated stable |
-| `tools/build_db.py` | Chip database pipeline | Single canonical regeneration path; must stay deterministic |
-| `tools/check_dispatch.py` | VPP safety + dispatch correctness CI gate | Must pass after every DB change |
-| `tools/diff_db.py` | Per-chip diff gate | Must pass and be reviewed after any chip reclassification |
+### Required Field Schema
 
----
+The `EpromDatabase._map_data` method (`database.py:385`) extracts fields from the stored dict. `convert_to_programmer` (`database.py:562`) reads `electrical-type` (the key is hyphenated in the `_map_data` output, different from the JSON storage key `electrical.type`). The override file must use the schema that `EpromDatabase` actually reads — which is the `get_eprom` flattened output schema, not the raw JSON storage schema.
 
-## Gap-by-Gap Stack Analysis
+Inspecting `_map_data` and the DB schema: the override file uses the same JSON structure as `chip_database.json` per-chip entries (nested `electrical`, `programming`, `pinout` keys). The `EpromDatabase` loader reads both formats.
 
-### 999.4 — Erase Write-Path (FLAG_CAN_ERASE Wiring)
+**Minimum viable 2516 entry for `~/.firestarter/database.json`:**
 
-**Nature:** Host-only fix. Zero firmware changes.
-
-**Exact change:**
-- `firestarter_app/firestarter/database.py:594–599` — `convert_to_programmer` currently gates `FLAG_CAN_ERASE` on `full_eprom_data.get("info-flags", 0) & 0x00000010`. All 7 EE-EPROM chips on protocol 0x07 (`electrical.type == "EEPROM"`: W27C512, W27E512, W27C257, W27E257, SST27SF256, SST27SF512, SST27VF256, SST27VF512) have `info-flags: 0x0` in `chip_database.json` — so the flag is never set. The fix: change the condition to check `full_eprom_data.get("electrical", {}).get("type") == "EEPROM"` (already present in the DB; derived by `build_db.py` Step 7 at `build_db.py:583–590`).
-
-**Firmware side (no change needed):** `eprom_write_init` (`eprom.cpp:100–106`) already contains:
-```cpp
-if (is_flag_set(FLAG_CAN_ERASE)) {
-    if (!is_flag_set(FLAG_SKIP_ERASE)) {
-        eprom_internal_erase(handle);
-    } else {
-        LOG_INFO_ID(MSG_INFO_SKIPPING_ERASE);
+```json
+{
+  "INTEL": [
+    {
+      "part_number": "2516",
+      "support_status": "supported",
+      "electrical": {
+        "type": "UV-EPROM",
+        "size_bytes": 2048,
+        "pin_count": 24,
+        "vpp": "25V",
+        "vpp_mv": 25000,
+        "vcc": "5V",
+        "vdd": "5V"
+      },
+      "programming": {
+        "algorithm": 11,
+        "pulse_duration": "500 us",
+        "chip_id_check": false,
+        "chip_id_value": "0x00000000"
+      },
+      "pinout": "DIP24_2716"
     }
+  ]
 }
 ```
-The guard is correct; only the flag set was broken.
 
-**Erase electricals already confirmed:** `eprom_internal_erase` (`eprom.cpp:274–288`) drives `CTRL_VPP_REGULATOR_ENABLE`, `CTRL_VPP_A9_ENABLE`, `CTRL_VPE_ENABLE` — the W27C512 erase sequence (Phase 73 bench-confirmed standalone). The erase rail for W27C512 is 14V (OE/VPP=14V, A9=14V per datasheet); this is within the 22V ceiling and was confirmed in Phase 73. No new electrical path is added.
+### Field-by-Field Rationale
 
-**What to test:** Wire the fix → run 642 host tests → `check_dispatch.py` → `diff_db.py` → bench write on Leonardo/W27C512 (chip-OUT VPP dry-run first per memory protocol, then live write+verify).
+| Field | Value | Rationale |
+|-------|-------|-----------|
+| `part_number` | `"2516"` | Bare name; `EpromDatabase.get_eprom_config` matches by alias split on comma |
+| `support_status` | `"supported"` | Graduation target; `chip_resolver.resolve_chip` checks this first |
+| `electrical.type` | `"UV-EPROM"` | Intel 2516 is UV-erase only (no electrically-erasable path); `FLAG_CAN_ERASE` must NOT be set |
+| `electrical.size_bytes` | `2048` | 2KB = 16Kbit — standard 2516 capacity |
+| `electrical.pin_count` | `24` | DIP24 package |
+| `electrical.vpp_mv` | `25000` | The Intel 2516 requires 25V VPP for programming (same NMOS family as M2716). The RURP VPE rail provides ~22.4V (~90% of 25V); firmware warns-and-proceeds on under-voltage per Phase 79 behavior |
+| `electrical.vpp` | `"25V"` | String form of vpp_mv for display |
+| `programming.algorithm` | `11` (= `0x0B`) | `EPROM_LEGACY` / `IC2_ALG_ROM24P_1` — the 24-pin UV-EPROM family handler (`configure_eprom`). All existing 2716-family chips use `0x0B` on `DIP24_2716`: INTEL M2716, AMD AM2716, FUJITSU MBM2716 (verified in `chip_database.json`) |
+| `pinout` | `"DIP24_2716"` | Standard 24-pin UV-EPROM layout. All `DIP24_2716` chips in the DB use this pinout for the 0x0B algorithm family. The pin layout: VPP=pin 21, OE=pin 20, CE=pin 18, PGM=pin 18 (shared on some variants) |
+| `programming.pulse_duration` | `"500 us"` | Conservative mid-range for 2516-family. Intel 2516 datasheet specifies 50ms programming pulse but the firmware's `configure_eprom` `pulse_delay` is in microseconds (verified `interpret_timing` BUG-2 fix in `build_db.py:273`). `500 us` matches the AMD AM2716 entry. Fine-tune during bench if needed |
+| `programming.chip_id_check` | `false` | The 2516 has no electronic chip ID (JEDEC ID not present on NMOS devices); the DB entries for all other 2716-family chips also show `chip_id_value: "0x00000000"` |
 
-**Confidence:** HIGH. The gap is a single condition in one function, with all surrounding infrastructure correct.
+**2716-family base profile confirmation** (from live DB query against `chip_database.json`):
+- INTEL M2716: algo=0x0B, pinout=DIP24_2716, vpp_mv=25000, etype=UV-EPROM, size=2048
+- AMD AM2716: algo=0x0B, pinout=DIP24_2716, vpp_mv=18000, etype=UV-EPROM, size=2048
+- FUJITSU MBM2716: algo=0x0B, pinout=DIP24_2716, vpp_mv=12000, etype=UV-EPROM, size=2048
 
----
+The 2516 maps onto the INTEL M2716 profile (same die era, NMOS, 25V VPP class) with `vpp_mv=25000`.
 
-### 999.5 — X88C64 0x34 Firmware Handler
+### Applying the Override
 
-**Nature:** Firmware-adding gap. New handler TU. The hardest gap.
-
-**Interface architecture (from `X88C64-FEASIBILITY.md`):**
-The X88C64P presents an **8051-compatible multiplexed address/data bus**, not a standard /WE /OE /CE parallel bus:
-- Pins A/D0–A/D7 carry A0–A7 (during address phase) then D0–D7 (during data phase), sequenced by ALE.
-- ALE falling edge latches the lower address into the chip's internal latch.
-- A8–A12 are dedicated upper address pins (straightforward parallel drive).
-- /WR is the write strobe (analogous to /WE but with ALE-precondition sequencing).
-- WC (pin 5) is a write-control enable/abort signal — additional control pin.
-- /CE, /RD are standard active-LOW enables.
-- Toggle-bit polling on I/O6 (not DQ7 like `configure_eeprom28c`).
-- Page write: up to 32 bytes per internal write cycle.
-- 5V only — no VPP rail, no boost regulator involvement.
-
-**Open question — ALE routing (CRITICAL, must resolve before phase commit):**
-
-The RURP control register has 8 bits (legacy: `0x01` through `0x80`; HARDWARE_REVISION: 9-bit with `0x100`). The current bit assignments from `rurp_pinout.h`:
-
-| Bit | Name | Purpose |
-|-----|------|---------|
-| `0x01` | `CTRL_VPP_VPE_DROP_ENABLE` (legacy) / `CTRL_ADDRESS_LINE_16` (rev2) | Dual-use |
-| `0x02` | `CTRL_VPP_A9_ENABLE` | Route VPP to A9 |
-| `0x04` | `CTRL_VPE_ENABLE` | Apply VPE to PGM pin |
-| `0x08` | `CTRL_VPP_P1_ENABLE` | Route VPP to socket pin 1 |
-| `0x10` | `CTRL_ADDRESS_LINE_17` | A17 for 28-pin chips |
-| `0x20` | `CTRL_ADDRESS_LINE_18` / `CTRL_ADDRESS_LINE_16` (rev2) | A18/A16 |
-| `0x40` | `CTRL_READ_WRITE` | Bus direction |
-| `0x80` | `CTRL_VPP_REGULATOR_ENABLE` | Enable boost regulator |
-
-The X88C64P is DIP24, so A17/A18 (`0x10`, `0x20`) are unused. ALE could potentially be routed through `CTRL_VPP_A9_ENABLE` (since VPP is irrelevant for this 5V chip) or through `CTRL_VPE_ENABLE` (similarly unused for a 5V device). However, this is NOT confirmed — it depends on how those bits physically route to socket pins vs. the regulator circuit on the shield.
-
-**Action required for 999.5 phase planning:** Read `firestarter/src/rurp_shield.cpp` (or equivalent hardware register write implementation) to determine whether `CTRL_VPP_A9_ENABLE` or `CTRL_VPP_VPE_DROP_ENABLE` routes to a socket pin (DIP24 position) that could serve as ALE, or whether a direct Arduino GPIO pin is available for ALE toggling. This is the bench investigation prerequisite. If no available bit exists without PCB changes, the handler cannot be completed without a shield modification.
-
-**Code structure for the new handler:**
-```
-firestarter/src/proms/eeprom_x88c64.cpp  — new file
-firestarter/include/eeprom_x88c64.h      — declaration
+```bash
+mkdir -p ~/.firestarter
+# Write the JSON above to ~/.firestarter/database.json
+firestarter info 2516   # verify the entry is found and shows correct fields
+firestarter blank-check 2516   # non-destructive first probe
 ```
 
-Handler function signature: `void configure_x88c64(firestarter_handle_t* handle)`
-
-Dispatch wiring in `memory.cpp`: add `if (handle->protocol == 0x34) { configure_x88c64(handle); return; }` before the generic fail-closed guard (after the `configure_sram` arm at line ~99, before the named infeasibility arms at line ~107).
-
-**Code sharing with existing handlers:**
-- Toggle-bit I/O6 polling: structurally similar to `eeprom28c_wait_for_write` (`eeprom_28c.cpp`) but on bit 6 instead of bit 7 (DQ7). Can copy-adapt the polling pattern; no shared function needed (flash budget argument against factoring).
-- SDP disable: X88C64P has Software Block Protect per 1K block but the write sequence is address/data pairs, NOT the AT28C 6-write magic sequence. Do not reuse `EEPROM_SDP_DISABLE`.
-- Page write loop: analogous to `configure_flash4`'s page-write loop but with ALE-multiplexed address phase per byte.
-
-**Host side for 999.5:**
-- `build_db.py:KNOWN_PROTOCOLS` already includes `0x34` (verified at `build_db.py:146`).
-- `check_dispatch.py:KNOWN_PROTOCOLS` does NOT include `0x34` (by design — D-10 consistency assertion requires `0x34 NOT IN` the set for the `protocol-not-implemented` classification to pass).
-- When the handler is committed and the chip graduates to `supported`, `0x34` must be added to `check_dispatch.py:KNOWN_PROTOCOLS` AND removed from `build_db.py`'s special-case for protocol-not-implemented. The `diff_db.py` diff gate must be reviewed.
-
-**Bench note:** The X88C64P requires a DIP24→DIP32 adapter (same socket-size mismatch as AT28C04/16). The adapter pin-map for the X88C64P needs a separate derivation from the datasheet — do NOT reuse the AT28C04 adapter spec (different pin assignments).
-
-**Confidence:** MEDIUM. ALE routing is the primary risk; if a free control bit exists, the handler is implementable. If not, a PCB mod or shield revision is required.
+`chip_resolver.resolve_chip("2516")` will find the entry via `EpromDatabase(skip_local_override=False)` and pass the support-status guard (status=`"supported"`).
 
 ---
 
-### 999.7 — 25V NMOS VPP Ceiling Raise
+## Evidence Record Artifact — Reusing Existing Tooling
 
-**Nature:** Host-only change + bench hardware verification gate.
+**No new harness.** The per-chip evidence record is produced by composing existing commands and capturing their output.
 
-**The 25V question is now resolved: the RURP hardware CAN produce 25V.**
+**Per-chip evidence procedure:**
 
-Evidence:
-- RURP Rev 2.3 product page explicitly states "5-27V VPP" (imania.dk/product_info.php?products_id=7218).
-- Hackaday project page confirms the AP3012 boost regulator supports "up to 25V for TMS2532-style ROMs" and can go "4.5→36V-ish" depending on feedback resistors.
-- The `RURP_VPP_CEILING_MV = 22000` in `build_db.py:117` is a **deliberate conservative software limit**, not a hardware-physical ceiling.
+```bash
+# 1. Identity check (verify port + R1)
+firestarter dev config
 
-However, the actual ceiling achievable on any given shield revision depends on the R1/R2 feedback resistor values stored in EEPROM (`VALUE_R1 = 270000`, `VALUE_R2 = 44000` in `rurp_shield.h:49-50`). These determine the boost regulator setpoint. **The phase must begin with a chip-OUT VPP dry-run (`firestarter dev vpp`) on the operator's Rev 2.0/2.2 shield to confirm the regulator actually reaches 25V before any chip is inserted.** If the regulator does not reach 25V with the current R1/R2, an R1 recalibration (`firestarter dev calibrate-vpp`) or resistor change is required first.
+# 2. Blank check (non-destructive)
+firestarter blank-check <chip>
 
-**Exact software changes:**
-1. `firestarter_app/tools/build_db.py:117` — raise `RURP_VPP_CEILING_MV` from `22000` to `25000`.
-2. `firestarter_app/tools/check_dispatch.py:79` — update `"configure_eprom": (0, 22000)` invariant to `(0, 25000)`.
-3. Regenerate `chip_database.json` via `python tools/build_db.py` — the 4 chips currently tagged `vpp-exceeds-max` (INTEL M2716, INTEL M2732, SGS-THOMSON ETC2716, ST M2716) will be reclassified.
-4. Run `diff_db.py` to review the 4-chip reclassification diff.
-5. Confirm the 4 chips now have `support_status: supported` and correct `vpp_mv: 25000`.
+# 3. Info dump (validates DB decode: VPP, algorithm, size, type)
+firestarter info <chip>
 
-**The 4 chips:** Per `NMOS_TRUE_VPP_MV` in `build_db.py:110–114`, M2716 and M2732 are already coded at 25V. M2732A (21V) is already `supported` and is unaffected. SGS-THOMSON ETC2716 and ST M2716 share the M2716 VPP.
+# 4. Write cycle with SHA evidence (electrically-rewritable chips):
+firestarter dev write-cycle \
+  --runs 3 \
+  --source <image.bin> \
+  --output-dir evidence/<chip>/ \
+  <chip>
 
-**Programming electricals for 25V NMOS:** The M2716/M2732 use the `configure_eprom` path (protocol 0x07/0x08). The existing `eprom_write_execute` drives `CTRL_VPP_REGULATOR_ENABLE | CTRL_VPP_VPE_DROP_ENABLE` for the 0x07/0x08 path. At 25V setpoint, this same path applies — no new firmware logic is needed. The regulator simply outputs a higher voltage (25V instead of 12–14V) because `vpp_mv: 25000` is passed in the JSON command and the firmware trusts the host to have pre-screened the chip.
+# 5. Independent read + SHA:
+firestarter read <chip> evidence/<chip>/final_read.bin
+sha256sum evidence/<chip>/final_read.bin
 
-**Confidence:** HIGH for the software change. HARDWARE-GATED: operator must confirm 25V is achievable on the bench shield with a chip-OUT meter reading before classifying as PASS.
+# 6. Verify against source:
+firestarter verify <chip> <image.bin>
+```
 
----
+The `dev write-cycle` output directory contains: per-run read-back `.bin` files (SHA-logged to stdout), the source image SHA, and PASS/FAIL verdict. This is the evidence artifact per chip. Store the directory under `.planning/phases/<phase-number>-*/` as part of the bench session.
 
-### 999.6 — AT28C04/16 Adapter Graduation
+**For UV-EPROMs (read-only session when not blank):** Steps 1–3 + step 5 (read + SHA) constitute a valid evidence record for the read path and DB decode correctness. The write path remains unproven until a blank chip is available.
 
-**Nature:** Host-only change (remove host-guard refusal) + physical hardware gate.
-
-**Exact software change:**
-- `firestarter_app/firestarter/chip_resolver.py` — remove or conditionalize the `adapter-required` refusal for the 9 AT28C04/16 chips. Currently `resolve_chip` raises `ChipNotImplementedError` for `support_status: adapter-required`. After the physical adapter is built and verified, change `support_status` to `supported` for the 9 chips (via DB regeneration or override).
-
-**Firmware side (no change needed):** `configure_eeprom28c` (protocol `0x0D`) already handles these chips correctly. The handler runs SDP-disable + DQ7 page polling + 5V-only operation. The `DIP32_28C512_EEPROM` pinout is already wired. The only gap was the physical /WE reroute that the adapter provides.
-
-**Physical adapter spec:** Documented in `firestarter/doc/AT28C04-ADAPTER.md`. The critical reroute is chip pin 21 (/WE) → DIP32 socket pin 30 (/WE). Without the adapter, /WE lands on socket pin 21 which carries D7 — harmless electrically but write-disabling. The adapter is NOT a hazardous build (no VPP rail involved; worst case is a non-functioning write, not chip destruction).
-
-**HARDWARE-BLOCKED:** This gap cannot be completed until:
-1. The operator builds the physical DIP24→DIP32 adapter per `AT28C04-ADAPTER.md`.
-2. A golden write+read-back round-trip is verified on a physical AT28C04 or AT28C16 chip.
-
-Sequence last for this reason.
-
-**Confidence:** HIGH for the code change. HARDWARE-GATED on adapter construction.
+**For `dev validate-family`** (when running a family sweep): use the `--output-dir` option to capture the `validation-matrix.json` artifact. This is appropriate for confirming full-family behavior across all chips in the inventory that share an algorithm family.
 
 ---
 
-## Code Sharing Map
+## DB Correctness Verification (Post-Bench)
 
-| Existing handler | Shared by | How |
-|-----------------|-----------|-----|
-| `configure_eprom` / `eprom_write_init` | 999.4 (no change) | The FLAG_CAN_ERASE guard is already there; only the host-side flag set changes |
-| `configure_eeprom28c` | 999.6 (no change) | Handler already correct for AT28C04/16; no new code |
-| `configure_eprom` | 999.7 (no change) | 25V NMOS uses the same handler; regulator just outputs higher voltage |
-| Toggle-bit polling concept | 999.5 (adapt) | I/O6 toggle pattern adapted from DQ7 in `eeprom_28c.cpp`; not shared function |
+**If a chip behaves differently from DB claims** (wrong size, wrong VPP trigger, wrong algorithm behavior), the mismatch is evidence of a DB decode error. Remediation path:
 
-The only new firmware TU is the X88C64 handler for 999.5. All other gaps reuse existing handlers unchanged.
+1. `firestarter info <chip>` — check all fields (VPP, type, algorithm, size, pinout).
+2. Cross-reference against `chip_database.json` entry for the exact `part_number`.
+3. If a field is wrong in the DB: trace back to `build_db.py` decode logic — specifically `VPP_MV` table (line 88–105), `PROTOCOL_MAP` (line 27–47), `resolve_pinout_key` (line 173–270), and `interpret_timing` (line 273–284).
+4. Fix `build_db.py`, regenerate with `python tools/build_db.py`, then run `python tools/check_dispatch.py` and `python tools/diff_db.py` (both must pass with zero violations).
 
----
+**The gates:**
+- `python tools/check_dispatch.py` — 744-chip VPP safety + dispatch correctness (exit 0 = clean)
+- `python tools/diff_db.py` — per-chip diff against `tools/baseline/chip_database.baseline.json` (exit 0 = all changes explained)
 
-## Alternatives Considered
-
-| Decision | Chosen | Alternative | Why Not |
-|----------|--------|-------------|---------|
-| FLAG_CAN_ERASE source | `electrical.type == "EEPROM"` | `info-flags & 0x10` | `info-flags` is raw minipro XML and is 0x0 for all 7 affected chips; `electrical.type` is re-derived from the correct source in `build_db.py` |
-| X88C64 ALE via control register | Investigate existing CTRL_* bits (0x02 or 0x04 candidates) | Direct Arduino GPIO | Control register is the established pattern; GPIO would bypass the shield's 74HC573 register architecture — only fallback if no bit is free |
-| 25V ceiling host-only vs firmware check | Host-only (in `build_db.py` + `check_dispatch.py`) | Add firmware VPP ceiling check | Firmware trusts the host; adding a firmware check duplicates the gate for no safety gain and costs flash bytes |
-| AT28C04 adapter via `resolve_chip` flag | Change `support_status` in DB after bench verify | Keep `adapter-required` and add `--adapter` flag | `support_status: supported` is the correct post-adapter state; `--adapter` flag adds complexity for no benefit |
+Both are required after any DB modification before a phase is verified.
 
 ---
 
-## Absolute Constraints for v1.14
+## Python Test Environment
 
-1. **Leonardo flash: do not exceed 90% without explicit operator approval.** Current: 89.5%. Free: 3,018 bytes. The X88C64 handler (999.5) is the only gap that costs flash. Measure with `pio run -e leonardo` and record the percentage in the phase CONTEXT.
-2. **25V VPP: chip-OUT dry-run required before any 25V bench test.** Per memory protocol for VPP-raising operations.
-3. **X88C64 ALE routing: must be resolved (bench investigation of `rurp_pinout.h` + `rurp_shield.cpp`) before the 999.5 handler is coded.** If no free control bit exists, document the constraint and defer the handler.
-4. **AT28C04 adapter: must be physically built and bench-verified before `chip_resolver.py` refusal is removed.** Sequence 999.6 last.
-5. **Dual-repo lockstep:** Any firmware commit to `firestarter/` must be paired with a matching host commit in `firestarter_app/` (wire protocol, constants, messages) in the same git-push or branch tip. For 999.4/999.6/999.7 (host-only), the firmware sub-repo is untouched.
-6. **`check_dispatch.py` and `diff_db.py` must pass** after every DB change before a phase is verified.
+No changes from v1.14. Current state (verified at v1.14 close):
+
+| Component | Version | Notes |
+|-----------|---------|-------|
+| Python (devcontainer) | 3.12 | CI runs 3.9/3.11; f-string backslash issues mask on 3.12 |
+| pytest + pytest-cov | current | 650 tests at v1.14 close; floor 70% |
+| ruff | current | check + format enforced in CI |
+| mypy (strict) | current | 8 modules; any touched module stays in scope |
+| Click | current | CLI framework |
+
+**Install in dev mode:**
+```bash
+cd firestarter_app && pip install -e '.[test]'
+```
+
+**Run suite:**
+```bash
+cd firestarter_app && pytest --cov-fail-under=70
+```
+
+---
+
+## Firmware Stack (Unchanged)
+
+| Component | Notes |
+|-----------|-------|
+| PlatformIO, `[env:leonardo]` | `pio run -e leonardo`; flash budget 89.5% at v1.14 close (3,018 bytes free) |
+| `configure_eprom` (0x07/0x08/0x0B) | Handles all 0x0B NMOS chips including the 2516 path — no new handler needed |
+| `configure_flash3` (0x06) | SST39SF040 |
+| `configure_flash4` (0x05) | W29C020, W29C040 |
+| `configure_sram` (0x28) | FM1608 (FRAM, type=4, Rule 3 override in build_db.py) |
+
+**Firmware is untouched for v1.15 unless a bench defect surfaces.** If a defect forces a fix, it requires dual-repo lockstep and flash budget verification.
+
+---
+
+## What NOT to Add
+
+- **No new Python packages.** All evidence capture uses existing `write_cycle_eprom`, `consistency_check_eprom`, and CLI commands.
+- **No new firmware handlers.** The 2516 uses the existing `configure_eprom` via `0x0B` — same as M2716, AM2716.
+- **No new harness.** `dev validate-family`, `dev write-cycle`, and `write_test.sh` are sufficient. Do not build a parallel bench runner.
+- **Do NOT add the 2516 to `build_db.py`.** It is absent from upstream `infoic.xml`; `build_db.py` is a fetch-and-decode pipeline, not an authoring tool. The user-override path is architecturally correct for this case.
+- **Do NOT add the 2516 to `chip_database.json` by hand.** That file is generated output from `build_db.py` and is committed; hand-editing it will be overwritten on the next `build_db.py` run and will trigger `diff_db.py` failures.
+- **No new `diff_db.py` root-cause rules** for v1.15 unless a DB regeneration is triggered by a bench-found decode error.
 
 ---
 
@@ -248,15 +317,19 @@ The only new firmware TU is the X88C64 handler for 999.5. All other gaps reuse e
 
 | Source | Confidence | How Used |
 |--------|-----------|---------|
-| `firestarter/src/proms/eprom.cpp:93–111` (verified 2026-06-18) | HIGH | FLAG_CAN_ERASE guard in `eprom_write_init`; erase electricals in `eprom_internal_erase` |
-| `firestarter_app/firestarter/database.py:594–599` (verified 2026-06-18) | HIGH | FLAG_CAN_ERASE gating on `info-flags & 0x10` |
-| `firestarter_app/tools/build_db.py:117, 110–114, 134–148` (verified 2026-06-18) | HIGH | RURP_VPP_CEILING_MV=22000; NMOS_TRUE_VPP_MV; KNOWN_PROTOCOLS |
-| `firestarter_app/tools/check_dispatch.py:79–85` (verified 2026-06-18) | HIGH | _FAMILY_VPP_INVARIANTS for configure_eprom ceiling |
-| `firestarter/include/rurp_pinout.h` (verified 2026-06-18) | HIGH | CTRL_* control register bit assignments; no free ALE bit confirmed |
-| `firestarter/include/rurp_shield.h:49–50` (verified 2026-06-18) | HIGH | R1=270000, R2=44000 default feedback values |
-| `.planning/X88C64-FEASIBILITY.md` (Phase 76, 2026-06-18) | HIGH | X88C64P bus architecture; ALE routing open question; MEDIUM verdict |
-| `firestarter/doc/AT28C04-ADAPTER.md` (verified 2026-06-18) | HIGH | DIP24→DIP32 pin-map; /WE reroute (chip pin 21 → socket pin 30) |
-| `.planning/v1.13-PROTOCOL-ENUMERATION.md §Gap Item Index` (2026-06-17) | HIGH | GAP-1/GAP-3 code-state pointers; ceiling constraint rationale |
-| `pio run -e leonardo` (run 2026-06-18) | HIGH | Current flash: 89.5% / 25,654 bytes; free: 3,018 bytes |
-| RURP Rev 2.3 product page (imania.dk, verified 2026-06-18) | HIGH | "5-27V VPP" — hardware rated above 25V |
-| Hackaday RURP project page (verified 2026-06-18) | HIGH | AP3012 boost regulator; "up to 25V for TMS2532-style ROMs"; 4.5→36V range |
+| `firestarter_app/firestarter/eprom_operations.py:766–873` (verified 2026-06-23) | HIGH | `write_cycle_eprom` API — the canonical per-chip evidence method |
+| `firestarter_app/firestarter/eprom_operations.py:80–95` (verified 2026-06-23) | HIGH | `build_flags` + `FLAG_SKIP_ERASE` / `FLAG_SKIP_BLANK_CHECK` interaction |
+| `firestarter_app/firestarter/database.py:562–617` (verified 2026-06-23) | HIGH | `convert_to_programmer`; `FLAG_CAN_ERASE` from `electrical-type` (Phase 77 canonical fix) |
+| `firestarter_app/firestarter/cli_handlers.py:158–165, 434–475, 1419–1560` (verified 2026-06-23) | HIGH | `_build_op_flags`; `--no-blank-check` flag; `dev validate-family` Tier-3 runner |
+| `firestarter_app/firestarter/chip_resolver.py:16–63` (verified 2026-06-23) | HIGH | `resolve_chip` support-status guard; `skip_local_override=False` production path |
+| `firestarter_app/tools/build_db.py:27–148, 173–270, 273–284` (verified 2026-06-23) | HIGH | PROTOCOL_MAP; resolve_pinout_key; interpret_timing; NMOS_TRUE_VPP_MV; RURP_VPP_CEILING_MV=25000 |
+| `firestarter_app/tools/check_dispatch.py:79, 117–131` (verified 2026-06-23) | HIGH | `_FAMILY_VPP_INVARIANTS["configure_eprom"]=(0,25000)`; KNOWN_PROTOCOLS (0x34 excluded) |
+| `firestarter_app/tools/validation_matrix_spec.json` (verified 2026-06-23) | HIGH | Tier-3 rep_chip for each family; skip_boards; oracle rules |
+| `firestarter_app/write_test.sh` (verified 2026-06-23) | HIGH | Integration test script mechanics; `-b -a <offset>` partial write pattern |
+| `firestarter_app/firestarter/data/chip_database.json` (live query 2026-06-23) | HIGH | 2716-family profile: M2716 algo=0x0B, DIP24_2716, vpp_mv=25000, size=2048; all 10 existing inventory chips verified fields |
+| `firestarter_app/firestarter/constants.py:77–88` (verified 2026-06-23) | HIGH | FLAG_CAN_ERASE=0x02, FLAG_SKIP_ERASE=0x04, FLAG_SKIP_BLANK_CHECK=0x08 |
+| Project memory: `reference_vpp_vpe_no_socket_routing.md` | HIGH | vpp/vpe monitor commands are measure-only; no routing bits set |
+| Project memory: `project_phase79_gate_reexamined.md` | HIGH | VPE=22.4V DMM / 23.9V fw; firmware warns-and-proceeds on under-voltage; 0x0B uses VPE rail directly |
+| Project memory: `project_phase77_shipped.md` | HIGH | FLAG_CAN_ERASE from electrical.type; 0xA4 guard; SAFE-01/02/03; bench-proven on W27C512 |
+| Project memory: `project_phase78_shipped.md` | HIGH | 2516 absent from infoic.xml confirmed |
+| `CLAUDE.md` (root): `~/.firestarter/database.json` | HIGH | User-override DB path documented as the canonical mechanism for custom entries |
