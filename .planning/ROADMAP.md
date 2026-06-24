@@ -111,7 +111,20 @@ Plans:
   4. Each PASS is non-vacuous — a trustworthy Leonardo read (N≥3 byte-identical / SHA-matched) plus a negative control (wrong-file `verify` exits non-zero).
   5. For every chip exercised, the DB-recorded decode (pinout, VPP, electrical type, algorithm, size) is confirmed against real-silicon behaviour and an EVIDENCE row is recorded (any mismatch flagged); reused tooling only (`write_test.sh` / `dev validate-family`), no new harness.
 
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+**Wave 1** *(host-side prep — no bench)*
+
+- [ ] 82-01-PLAN.md — Deterministic per-chip image generator (D-03/D-04) + SAFE-02 green gate (host suite incl. 0xA4 guard + ruff) + EVIDENCE.{md,json} Phase 82 write-column extension (EVID-02/03, DB-01)
+
+**Wave 2** *(operator bench — depends on 82-01; appends EVIDENCE)*
+
+- [ ] 82-02-PLAN.md — A→B write→(auto-erase)→read→verify of the 6 lower-risk chips: W27C512/W27E512/SST27SF512 (0x07), W27E040 (0x08), SST39SF040 (0x06), FM1608 (0x40 overwrite); non-vacuous PASS + DB-01 (REWR-01/02/03/05, DB-01)
+
+**Wave 3** *(operator bench — depends on 82-02 for the EVIDENCE append order)*
+
+- [ ] 82-03-PLAN.md — flash4 pair A→B: W29C040 (Flash/EEPROM auto-erase proof) + W29C020 attempt-as-is with CR-01 pre-attribution handed to Phase 84; non-vacuous PASS + DB-01 (REWR-04, DB-01)
+
 **UI hint**: no
 
 #### Phase 83: UV-EPROM Write Proof (gated on Phase 81 blank-state)
