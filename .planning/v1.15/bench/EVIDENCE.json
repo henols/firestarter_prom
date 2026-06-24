@@ -4,9 +4,22 @@
   "phase": "81-2516-db-entry-non-destructive-read-sweep",
   "board": "leonardo",
   "shield": "Rev 2.0",
-  "note": "Scaffold created by Plan 81-02. All rows seeded pending — Plan 81-03 sweep populates them.",
-  "locked_columns": ["chip", "family", "board", "shield", "blank_state", "op", "sha256", "verdict", "anomalies"],
-  "evid_extension_columns": ["read_count", "blank_check_result"],
+  "note": "Populated by Plan 81-03 bench sweep (2026-06-23/24). 10/11 PASS, 1 ANOMALY (2516). SAFE-01 preconditions verified per task: board=leonardo, shield=Rev 2.0 (operator-confirmed silkscreen; EEPROM hw byte reports 'Rev 2.0-class' but cannot distinguish revs), controller=leonardo on /dev/ttyACM0, live R1=270000 (R2=44000), firmware 3.0.0b8, host suite green (Plan 81-01). Negative control (EVID-03) FIRED: wrong-file `verify` exited RC=1 on W27C512 (Task 1) and ST M27C512 (Task 2). Reads apply NO VPP (non-destructive) — zero chips consumed. BENCH NOTE: VPP-regulator instability observed — chip-1 read-init refused at boot (VPP 18.8V>12V, cleared by board reset); benign VPP-low warnings on M27C512 (11.9V) read clean; 2516 (0x0B shared OE/VPP) read UNSTABLE at VPP 15.3V (see 2516 cell).",
+  "locked_columns": [
+    "chip",
+    "family",
+    "board",
+    "shield",
+    "blank_state",
+    "op",
+    "sha256",
+    "verdict",
+    "anomalies"
+  ],
+  "evid_extension_columns": [
+    "read_count",
+    "blank_check_result"
+  ],
   "cells": [
     {
       "chip": "W27C512",
@@ -15,11 +28,11 @@
       "shield": "Rev 2.0",
       "blank_state": "n/a — not factory-blank, current contents recorded",
       "op": "read+blank_check",
-      "sha256": null,
-      "verdict": "pending",
-      "anomalies": null,
-      "read_count": null,
-      "blank_check_result": null
+      "sha256": "9376dcd81713e7edc4f8df8e98b7c834eefcd880c2f9fef04ee1602397ad23c8",
+      "verdict": "PASS",
+      "anomalies": "VPP-high read refusal (~18.8V) cleared by board reset before this read; negative-control verify exited RC=1",
+      "read_count": 3,
+      "blank_check_result": "not-blank (data present, e.g. 0x94 at 0x2000)"
     },
     {
       "chip": "W27E512",
@@ -28,11 +41,11 @@
       "shield": "Rev 2.0",
       "blank_state": "n/a — not factory-blank, current contents recorded",
       "op": "read+blank_check",
-      "sha256": null,
-      "verdict": "pending",
-      "anomalies": null,
-      "read_count": null,
-      "blank_check_result": null
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "verdict": "PASS",
+      "anomalies": "none",
+      "read_count": 3,
+      "blank_check_result": "blank (all-0xFF, blank-check successful)"
     },
     {
       "chip": "SST27SF512",
@@ -41,11 +54,11 @@
       "shield": "Rev 2.0",
       "blank_state": "n/a — not factory-blank, current contents recorded",
       "op": "read+blank_check",
-      "sha256": null,
-      "verdict": "pending",
-      "anomalies": null,
-      "read_count": null,
-      "blank_check_result": null
+      "sha256": "f633b2f5c06c2aa69617fd027752434a660a499328e59b1c43d96167f8056360",
+      "verdict": "PASS",
+      "anomalies": "none",
+      "read_count": 3,
+      "blank_check_result": "not-blank (0x00 at 0x000000, data present)"
     },
     {
       "chip": "W27E040",
@@ -54,11 +67,11 @@
       "shield": "Rev 2.0",
       "blank_state": "n/a — not factory-blank, current contents recorded",
       "op": "read+blank_check",
-      "sha256": null,
-      "verdict": "pending",
-      "anomalies": null,
-      "read_count": null,
-      "blank_check_result": null
+      "sha256": "67f70ccdae300c32f957bbe2085eb6ef8dabac524d6d62e31a4aef21468b4254",
+      "verdict": "PASS",
+      "anomalies": "none",
+      "read_count": 3,
+      "blank_check_result": "not-blank (0x4f at 0x000000, data present)"
     },
     {
       "chip": "SST39SF040",
@@ -67,11 +80,11 @@
       "shield": "Rev 2.0",
       "blank_state": "n/a — not factory-blank, current contents recorded",
       "op": "read+blank_check",
-      "sha256": null,
-      "verdict": "pending",
-      "anomalies": null,
-      "read_count": null,
-      "blank_check_result": null
+      "sha256": "c19c3e07b94b12beb32fbb6afd3de432453a895d82406a38390db78fa348368d",
+      "verdict": "PASS",
+      "anomalies": "none",
+      "read_count": 3,
+      "blank_check_result": "not-blank (0xa3 at 0x000000, data present)"
     },
     {
       "chip": "W29C020",
@@ -80,11 +93,11 @@
       "shield": "Rev 2.0",
       "blank_state": "n/a — not factory-blank, current contents recorded",
       "op": "read+blank_check",
-      "sha256": null,
-      "verdict": "pending",
-      "anomalies": null,
-      "read_count": null,
-      "blank_check_result": null
+      "sha256": "93ff5287b7e6eff8b0e8463b86476baf4f2f97e412a3053551303d6566b53602",
+      "verdict": "PASS",
+      "anomalies": "none",
+      "read_count": 3,
+      "blank_check_result": "not-blank (0x24 at 0x000000, data present)"
     },
     {
       "chip": "W29C040",
@@ -93,11 +106,11 @@
       "shield": "Rev 2.0",
       "blank_state": "n/a — not factory-blank, current contents recorded",
       "op": "read+blank_check",
-      "sha256": null,
-      "verdict": "pending",
-      "anomalies": null,
-      "read_count": null,
-      "blank_check_result": null
+      "sha256": "d44736a9c4fa3a35f6d42ecd99718cfe17f4f1984ca7d74d6b39de891e3b48b3",
+      "verdict": "PASS",
+      "anomalies": "none",
+      "read_count": 3,
+      "blank_check_result": "not-blank (0x00 at 0x000000, data present)"
     },
     {
       "chip": "FM1608",
@@ -106,50 +119,66 @@
       "shield": "Rev 2.0",
       "blank_state": "n/a — not factory-blank, current contents recorded",
       "op": "read+blank_check",
-      "sha256": null,
-      "verdict": "pending",
-      "anomalies": null,
-      "read_count": null,
-      "blank_check_result": null
+      "sha256": "2ef1444bc950050c92f373cd2f5442022af98aa900aefd82c749cff93d4c0037",
+      "verdict": "PASS",
+      "anomalies": "blank-check 'Empty input' on FRAM (0x40) — read N=3 identical, flag for Phase 84 FIX-01 review (blank-check tooling gap, not a read fault)",
+      "read_count": 3,
+      "blank_check_result": "n/a — blank-check init errored 'Empty input' on 0x40 FRAM (no blank concept); read path unaffected"
     },
     {
       "chip": "ST M27C512",
       "family": "0x07 (EPROM_STD / UV-EPROM)",
       "board": "leonardo",
       "shield": "Rev 2.0",
-      "blank_state": "GATE: UV-EPROM blank state gates Phase 83 spend decision",
+      "blank_state": "BLANK",
       "op": "read+blank_check",
-      "sha256": null,
-      "verdict": "pending",
-      "anomalies": null,
-      "read_count": null,
-      "blank_check_result": null
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "verdict": "PASS",
+      "anomalies": "benign VPP-low warning 11.9V<13.0V on read (non-blocking; reads apply no VPP); negative-control verify RC=1",
+      "read_count": 3,
+      "blank_check_result": "BLANK (all-0xFF, blank-check successful)"
     },
     {
       "chip": "AM27C020",
       "family": "0x08 (EPROM_QUICK / UV-EPROM)",
       "board": "leonardo",
       "shield": "Rev 2.0",
-      "blank_state": "GATE: UV-EPROM blank state gates Phase 83 spend decision",
+      "blank_state": "NOT-BLANK",
       "op": "read+blank_check",
-      "sha256": null,
-      "verdict": "pending",
-      "anomalies": null,
-      "read_count": null,
-      "blank_check_result": null
+      "sha256": "08b687a3d7115303dbdf7c04008ba2b2c0cedda9041537abff9600ea177ed496",
+      "verdict": "PASS",
+      "anomalies": "none",
+      "read_count": 3,
+      "blank_check_result": "NOT-BLANK (data present, 0x02 at 0x000000)"
     },
     {
       "chip": "2516",
       "family": "0x0B (EPROM_LEGACY / UV-EPROM, NMOS)",
       "board": "leonardo",
       "shield": "Rev 2.0",
-      "blank_state": "GATE: UV-EPROM blank state gates Phase 83 spend decision",
+      "blank_state": "NOT-BLANK",
       "op": "read+blank_check",
       "sha256": null,
-      "verdict": "pending",
-      "anomalies": null,
-      "read_count": null,
-      "blank_check_result": null
+      "verdict": "ANOMALY",
+      "anomalies": "READ UNSTABLE: 3 distinct SHAs across N=3 on initial + 2 reseat cycles (D-07 exhausted). VPP pinned 15.3V<25.0V on shared OE/VPP pin during read (0x0B Legacy path) — same VPP-regulator instability family as chip-1 18.8V boot refusal. Signature is 0x0B-specific (all 0x07/0x08 UV chips read clean on this bench). GATES Phase 83 (no 2516 write/preserve until read path stable). Flag Phase 84 FIX-01.",
+      "read_count": 3,
+      "blank_check_result": "NOT-BLANK by inference (blank-check deterministically 'Not blank' 0x68@0x0000; all reads non-0xFF; blank chips read stable all-FF this sweep). Exact contents UNRELIABLE."
     }
-  ]
+  ],
+  "sweep_summary": {
+    "total": 11,
+    "pass": 10,
+    "anomaly": 1,
+    "skip": 0,
+    "anomaly_chips": [
+      "2516"
+    ],
+    "uv_blank_states": {
+      "ST M27C512": "BLANK",
+      "AM27C020": "NOT-BLANK",
+      "2516": "NOT-BLANK (read-unstable, exact contents unreliable)"
+    },
+    "phase83_gate": "2516 read path unstable (0x0B) — Phase 83 must NOT write/preserve the 2516 until reads stabilize; flag Phase 84 FIX-01."
+  },
+  "locked_columns_note": "read_count/blank_check_result are EVID extension columns per EVID-01."
 }

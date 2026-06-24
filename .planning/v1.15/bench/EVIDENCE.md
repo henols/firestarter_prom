@@ -1,51 +1,44 @@
-# V1.15 Bench Validation Evidence
+# v1.15 Bench Evidence — Phase 81 Non-Destructive Read Sweep
 
-**Phase:** 81-2516-db-entry-non-destructive-read-sweep  
-**Harness version:** 81  
-**Board (locked):** Leonardo  
-**Shield (locked):** Rev 2.0  
-**Scaffolded:** 2026-06-23  
-**Status:** Pending — Plan 81-03 sweep populates SHA, read_count, blank_check_result, and Verdict.
+**Harness version:** 81 · **Board:** leonardo · **Shield:** Rev 2.0 · **Generated:** 2026-06-23/24
 
-## Schema Notes
+## SAFE-01 Preconditions (verified per task)
 
-- **Locked columns** (never change after scaffold): Chip, Family/Algorithm, Board, Shield, Op, Anomalies structure.
-- **UV-EPROM blank state** (3 chips): blank_check result is a **Phase 83 gate** — if not blank, Phase 83 uses AND-mask (0x00 image) only; if blank, full write is possible.
-- **Non-UV chips** (8 chips): blank_state = n/a (EEPROMs/Flash/FRAM are never factory-blank). SHA records current contents. Blank check result noted for information.
-- **read_count**: minimum 3 reads required for a non-vacuous PASS (N≥3 byte-identical reads + negative control per EVID-03).
-- **Verdict**: PASS / ANOMALY / FAIL / pending. ANOMALY = suspect read after 2 reseat+retry cycles; deferred to Phase 84 FIX-01.
+- **Board:** leonardo (the only authoritative read board) · **Port:** /dev/ttyACM0 · **Firmware:** 3.0.0b8
+- **Shield:** Rev 2.0 — operator-confirmed silkscreen (EEPROM hw byte reports "Rev 2.0-class", cannot distinguish revs)
+- **Calibration:** R1=270000, R2=44000 (not the 1000 default)
+- **Host suite:** green (Plan 81-01, 651 tests)
+- **Negative control (EVID-03):** FIRED — wrong-file `verify` exited RC=1 on W27C512 (Task 1) and ST M27C512 (Task 2)
+- **Non-destructive:** reads apply NO VPP — **zero chips consumed**
 
-## Evidence Table
+## Sweep Result — 10 PASS / 1 ANOMALY
 
-| Chip | Family / Algorithm | Board | Shield | Blank State | Op | SHA256 (first 16) | Read Count | Verdict | Anomalies |
-|------|--------------------|-------|--------|-------------|-----|-------------------|------------|---------|-----------|
-| W27C512 | 0x07 EPROM_STD/EEPROM | leonardo | Rev 2.0 | n/a — non-UV | read+blank_check | pending | pending | pending | — |
-| W27E512 | 0x07 EPROM_STD/EEPROM | leonardo | Rev 2.0 | n/a — non-UV | read+blank_check | pending | pending | pending | — |
-| SST27SF512 | 0x07 EPROM_STD/EEPROM | leonardo | Rev 2.0 | n/a — non-UV | read+blank_check | pending | pending | pending | — |
-| W27E040 | 0x08 EPROM_QUICK/EEPROM | leonardo | Rev 2.0 | n/a — non-UV | read+blank_check | pending | pending | pending | — |
-| SST39SF040 | 0x06 FLASH_AMD_ALT/Flash | leonardo | Rev 2.0 | n/a — non-UV | read+blank_check | pending | pending | pending | — |
-| W29C020 | 0x05 FLASH_AMD_STD/Flash | leonardo | Rev 2.0 | n/a — non-UV | read+blank_check | pending | pending | pending | — |
-| W29C040 | 0x05 FLASH_AMD_STD/Flash | leonardo | Rev 2.0 | n/a — non-UV | read+blank_check | pending | pending | pending | — |
-| FM1608 | 0x40 SRAM_STD/FRAM | leonardo | Rev 2.0 | n/a — non-UV | read+blank_check | pending | pending | pending | — |
-| ST M27C512 | 0x07 EPROM_STD/UV-EPROM | leonardo | Rev 2.0 | **GATE (Phase 83)** | read+blank_check | pending | pending | pending | — |
-| AM27C020 | 0x08 EPROM_QUICK/UV-EPROM | leonardo | Rev 2.0 | **GATE (Phase 83)** | read+blank_check | pending | pending | pending | — |
-| 2516 | 0x0B EPROM_LEGACY/UV-EPROM | leonardo | Rev 2.0 | **GATE (Phase 83)** | read+blank_check | pending | pending | pending | — |
+| # | Chip | Family / Algorithm | Board+Shield | Op | Blank-state | Read N | SHA-256 | Verdict | Anomalies |
+|---|------|--------------------|--------------|----|-------------|--------|---------|---------|-----------|
+| 1 | W27C512 | 0x07 (EPROM_STD / EEPROM) | leonardo Rev 2.0 | read+blank_check | n/a — not factory-blank, current contents recorded | 3 | `9376dcd81713…97ad23c8` | **PASS** | VPP-high read refusal (~18.8V) cleared by board reset before this read; negative-control verify exited RC=1 |
+| 2 | W27E512 | 0x07 (EPROM_STD / EEPROM) | leonardo Rev 2.0 | read+blank_check | n/a — not factory-blank, current contents recorded | 3 | `71189f7fb6ae…48da9063` | **PASS** | none |
+| 3 | SST27SF512 | 0x07 (EPROM_STD / EEPROM) | leonardo Rev 2.0 | read+blank_check | n/a — not factory-blank, current contents recorded | 3 | `f633b2f5c06c…f8056360` | **PASS** | none |
+| 4 | W27E040 | 0x08 (EPROM_QUICK / EEPROM) | leonardo Rev 2.0 | read+blank_check | n/a — not factory-blank, current contents recorded | 3 | `67f70ccdae30…468b4254` | **PASS** | none |
+| 5 | SST39SF040 | 0x06 (FLASH_AMD_ALT / Flash) | leonardo Rev 2.0 | read+blank_check | n/a — not factory-blank, current contents recorded | 3 | `c19c3e07b94b…a348368d` | **PASS** | none |
+| 6 | W29C020 | 0x05 (FLASH_AMD_STD / Flash/EEPROM) | leonardo Rev 2.0 | read+blank_check | n/a — not factory-blank, current contents recorded | 3 | `93ff5287b7e6…66b53602` | **PASS** | none |
+| 7 | W29C040 | 0x05 (FLASH_AMD_STD / Flash/EEPROM) | leonardo Rev 2.0 | read+blank_check | n/a — not factory-blank, current contents recorded | 3 | `d44736a9c4fa…1e3b48b3` | **PASS** | none |
+| 8 | FM1608 | 0x40 (SRAM_STD / FRAM) | leonardo Rev 2.0 | read+blank_check | n/a — not factory-blank, current contents recorded | 3 | `2ef1444bc950…3d4c0037` | **PASS** | blank-check 'Empty input' on FRAM (0x40) — read N=3 identical, flag for Phase 84 FIX-01 review (blank-check tooling gap, not a read fault) |
+| 9 | ST M27C512 | 0x07 (EPROM_STD / UV-EPROM) | leonardo Rev 2.0 | read+blank_check | BLANK | 3 | `71189f7fb6ae…48da9063` | **PASS** | benign VPP-low warning 11.9V<13.0V on read (non-blocking; reads apply no VPP); negative-control verify RC=1 |
+| 10 | AM27C020 | 0x08 (EPROM_QUICK / UV-EPROM) | leonardo Rev 2.0 | read+blank_check | NOT-BLANK | 3 | `08b687a3d711…177ed496` | **PASS** | none |
+| 11 | 2516 | 0x0B (EPROM_LEGACY / UV-EPROM, NMOS) | leonardo Rev 2.0 | read+blank_check | NOT-BLANK | 3 | `—` | **ANOMALY** | READ UNSTABLE: 3 distinct SHAs across N=3 on initial + 2 reseat cycles (D-07 exhausted). VPP pinned 15.3V<25.0V on shared OE/VPP pin during read (0x0B Legacy path) — same VPP-regulator instability family as chip-1 18.8V boot refusal. Signature is 0x0B-specific (all 0x07/0x08 UV chips read clean on this bench). GATES Phase 83 (no 2516 write/preserve until read path stable). Flag Phase 84 FIX-01. |
 
-## UV-EPROM Blank State Legend
+## UV-EPROM Gating Blank-States (the Phase 83 gate)
 
-The three UV-EPROM chips (ST M27C512, AM27C020, 2516) carry `GATE (Phase 83)` in the Blank State column. The sweep result for each will be one of:
+| UV Chip | Gating blank-state | Notes |
+|---------|--------------------|-------|
+| ST M27C512 | **BLANK** | stable all-0xFF, N=3 byte-identical |
+| AM27C020 | **NOT-BLANK** | data present (0x02@0x0000), N=3 byte-identical |
+| 2516 | **NOT-BLANK** (read-unstable) | blank-check deterministically not-blank; reads jitter (3 SHAs) — exact contents unreliable |
 
-- **blank (0xFF throughout)** → Phase 83 may proceed with a full write → verify.
-- **non-blank (data present)** → Phase 83 uses AND-mask strategy (all-0x00 image) only; pristine data preserved.
-- **ANOMALY** → suspect read after reseat+retry; defer to Phase 84 FIX-01.
+## ⚠ Phase 83 Gate / Phase 84 FIX-01
 
-## Extends v1.13 Validation Matrix
+The **2516** (0x0B Legacy, shared OE/VPP pin) read is **UNSTABLE** — 3 distinct SHAs across the initial read + 2 reseat cycles (D-07 exhausted), with VPP pinned at 15.3V on the shared OE/VPP pin. Every 0x07/0x08 UV chip read clean on this same bench, so the signature is **0x0B-specific**, not seating. This is the same VPP-regulator-instability family as the chip-1 boot refusal (VPP 18.8V>12V, cleared by reset).
 
-This artifact extends the v1.13 per-family matrix
-(`firestarter_app/val-results/eprom/validation-matrix.json`, harness_version=71).
-The v1.13 matrix recorded per-family verdicts (eprom, flash3, flash4, sram).
-This v1.15 EVIDENCE record is per-chip (one row per physical device in the operator
-inventory), with additional fields: `blank_check_result`, `sha256`, `read_count`.
+- **Phase 83:** MUST NOT write or preserve-dump the irreplaceable 2516 until its read path is stable (blank-state/contents cannot be trusted).
+- **Phase 84 FIX-01:** investigate the 0x0B read-path VPP control + the FM1608 blank-check "Empty input" tooling gap.
 
-No new harness or dependency is introduced (EVID-02). The `firestarter dev write-cycle`
-and `firestarter read` commands are the existing tools used for read evidence.
