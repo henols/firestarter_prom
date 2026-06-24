@@ -27,6 +27,16 @@
 - **SAFE-02:** green (Plan 82-01 — 663 tests + 0xA4 guard `test_init_phase_data_frames_not_acked` PASS)
 - **Authorization:** destructive A→B write session cleared; chips seated one at a time on Leonardo + Rev 2.0
 
+### Phase 83 SAFE-02 Gate (recorded Plan 83-01, 2026-06-24)
+
+- **0xA4 guard `test_init_phase_data_frames_not_acked`:** PASS (1/1 — SAFE-02 `ack_data=False` guard green)
+- **Full host suite:** PASS — **663 tests** (unchanged from Phase 82; no source/test files modified this plan), 29 snapshots
+- **`ruff check firestarter/ tests/` (CI-authoritative scope):** PASS — `All checks passed!` (RC=0)
+- **`ruff format --check firestarter/ tests/` (CI-authoritative scope):** PASS — 73 files already formatted (RC=0)
+- **Broad `ruff check .` / `ruff format --check .`:** reports 4 pre-existing `tools/`-tree findings (`tools/audit_coverage_matrix.py`, `tools/catalog/codegen.py`, `tools/catalog/codegen_vectors.py` I001/UP031; `+ .github/scripts/update_version.py`, `tools/check_mypy_watermark.py` format) — **FLAGGED as out-of-CI-scope, NOT masked**: `ci.yml` gates ruff over `firestarter/ tests/` only (`.github/workflows/ci.yml:60,63`), which is green. These are NOT introduced by this plan (zero source changes) and match the Phase 82 "pre-existing I001 errors in unrelated tools unchanged" note. Not a py3.12-vs-CI version discrepancy — purely a path-scope difference between `ruff check .` and the CI gate.
+- **Python:** 3.12.13 (devcontainer); CI targets py3.9/3.11 — no source touched, so no new version-sensitive surface introduced
+- **Verdict:** SAFE-02 GREEN — bench session (Plans 02/03) may open on the CI-authoritative gate.
+
 ### Phase 82 SAFE-01 Gate — Plan 82-03 flash4 write session (operator sign-off 2026-06-24)
 
 - **`controller:`** leonardo on **/dev/ttyACM0** (re-verified `firestarter fw` for this session — no USB replug since 82-02), firmware 3.0.0b8
