@@ -144,7 +144,13 @@ Plans:
 
 - [x] 83-01-PLAN.md — SAFE-02 software gate + generate the ST M27C512 64KB + AM27C020 256KB all-0x00 write images + scaffold the Phase 83 EVIDENCE section (autonomous, no chip)
 - [x] 83-02-PLAN.md — ST M27C512 (0x07, BLANK) operator-gated write proof: full deterministic image, read-back SHA match, N≥3 read oracle + negative control (UV-01/02/03/04)
-- [ ] 83-03-PLAN.md — AM27C020 (0x08, NOT-BLANK) operator-gated write proof: all-0x00 wipe (1→0 only) + record the GRAD-03/2516 → Phase 84 handoff in EVIDENCE/REQUIREMENTS/ROADMAP (UV-01/02/03/04, GRAD-03)
+- [x] 83-03-PLAN.md — AM27C020 (0x08, NOT-BLANK) operator-gated write proof + record the GRAD-03/2516 → Phase 84 handoff in EVIDENCE/REQUIREMENTS/ROADMAP (UV-01/02/03/04, GRAD-03)
+
+**Outcome (2026-06-24, operator-gated bench, Leonardo + Rev 2.0):**
+- **ST M27C512 (0x07): PASS** — operator authorized a minimal **partial 16-byte spend** (deviation from the planned full-image D-05; chip kept mostly blank/reusable); write/`verify -a` RC=0, N=3 reads 1-distinct-SHA, neg-control RC=1. UV-04 decode confirmed.
+- **AM27C020 (0x08): ANOMALY** — operator authorized a partial 16-byte `0x00` spend; `write` deterministically failed (`bad bytes 15/16`, **0 bits programmed**, chip data intact) across initial + 2 retries (JP4 closed), plus a mild intermittent read glitch (12 bytes→0x00 @0x8000 in 1 of 3 reads). Signature = the **0x08 (32-pin Large EPROM) write/VPP path on this bench** (the 0x07 part wrote clean same session), not chip wear. **Flagged Phase 84 FIX-01**; phase not halted (D-14).
+- **GRAD-03 / SC#4 / FUT-03 → Phase 84** (per CONTEXT D-01): the irreplaceable 2516 is never written/dumped/re-read in Phase 83 (its 0x0B read path is unstable); reassignment recorded in EVIDENCE.{md,json} + REQUIREMENTS.md; D-08 Phase-84 PASS bar pre-recorded. Phase 84 owns the 2516 bench proof, contingent on FIX-01.
+- Success criterion #4 above (2516 bench-proven) is **DEFERRED → Phase 84** per D-01.
 
 **UI hint**: no
 

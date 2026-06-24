@@ -344,6 +344,39 @@
       "vpp_path": "standard 0x07 VPP path, over-voltage stayed blocked",
       "verdict": "PASS",
       "anomalies": "DEVIATION from D-05 full-image: operator authorized a minimal 16-byte partial-spend so the part remains mostly blank/reusable; equivalent non-vacuous proof assembled from write + `verify -a` + N=3 read + negative control."
+    },
+    {
+      "phase": "83",
+      "plan": "83-03",
+      "chip": "AM27C020",
+      "cli_name": "AM27C020",
+      "manufacturer": "AMD",
+      "chip_id": "0x197",
+      "family": "0x08 (Large EPROM / UV-EPROM)",
+      "package": "DIP32",
+      "board": "leonardo",
+      "shield": "Rev 2.0",
+      "port": "/dev/ttyACM0",
+      "r1": 270000,
+      "jumper": "JP4 closed (32-pin routing)",
+      "blank_state": "NOT-BLANK re-confirmed 2026-06-24 (data 0x02@0x0000, read SHA 08b687a3...177ed496 == Phase 81; blank RC=1)",
+      "spend_decision": "SPEND (partial, operator-directed)",
+      "op": "write 16B 0x00 @0x0000 (-b) -> FAILED",
+      "write_method": "partial-spend (operator-directed); -b skip-blank-check (chip not blank, UV cannot erase)",
+      "payload_hex": "00000000000000000000000000000000",
+      "payload_sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb",
+      "write_rc": 1,
+      "write_failure": "bad bytes 15/16, retries 20 at 0x000000; 0 bits programmed (read-back unchanged at 0x02); deterministic across initial + 2 retries (JP4 closed)",
+      "readback_sha256": "N/A — write did not program any bits",
+      "read_count": 3,
+      "distinct_sha_count": 2,
+      "read_instability": "2 of 3 reads byte-identical (08b687a3...); 3rd read had localized 12-byte glitch reading 0x00 at 0x008004-0x00800f (90cd45f5...). Distinct from the chip's clean Phase 81 read.",
+      "negative_control": "wrong-file verify -a 0x0000 RC=1 (0x00 != 0x02 @0x000000, confirms no programming)",
+      "decode_uv04": "UV-EPROM / 13V VPP / 262144 / protocol 0x08 / DIP32 (NB: DB VPP 13V, plan text stated 12V)",
+      "vpp_path": "standard 0x08 VPP path, over-voltage stayed blocked",
+      "verdict": "ANOMALY",
+      "fix01_flag": "Phase 84 FIX-01: 0x08 (32-pin Large EPROM) write/VPP path takes no programming on this bench (0x07 28-pin wrote clean same session) + intermittent localized read glitch-to-0x00",
+      "anomalies": "Chip silicon intact (0 bits programmed, reads mostly clean). NOT a write success and NOT chip wear; environmental/firmware 0x08 write-path ANOMALY. D-14 retry budget exhausted; phase NOT halted."
     }
   ],
   "sweep_summary": {
@@ -377,5 +410,18 @@
       "ST M27C512 full image (seed=1, 65536B)": "604d957094f7cb1f98f50d7408f64e7720e5ae5d4acab8d1047a9a081645d637",
       "AM27C020 all-0x00 (262144B)": "8a39d2abd3999ab73c34db2476849cddf303ce389b35826850f9a700589b4a90"
     }
+  },
+  "phase83_grad03": {
+    "requirement": "GRAD-03 (2516 VPE-rail write proof)",
+    "disposition": "DEFERRED → Phase 84 (D-01) — documented handoff, NOT a Phase-83 deliverable",
+    "rationale": "The entire 2516 is OUT of Phase 83: no write, no preserve-dump, no re-read. Its Phase 81 read was ANOMALOUS (3 distinct SHAs across N=3 + 2 reseats; VPP pinned 15.3V<25V on the shared OE/VPP pin; 0x0B-specific). Writing/dumping the IRREPLACEABLE 2516 on an untrusted read path would consume it for a vacuous PASS (EVID-03).",
+    "moves_to_phase84": [
+      "GRAD-03",
+      "SC#4 (2516 bench-proven)",
+      "FUT-03 close"
+    ],
+    "contingent_on": "Phase 84 FIX-01 stabilizing the 0x0B read-path VPP instability so the read oracle becomes trustworthy",
+    "phase84_pass_bar_D08": "clean read-back SHA match on the spent image after a stabilized N>=3 read; firmware under-voltage warning (~22.4V VPE < 25V NMOS spec) captured verbatim, result recorded best-effort (per v1.14 D-07); over-voltage stays blocked throughout (SC#5). Achieving this closes FUT-03 (best-effort).",
+    "note": "AM27C020 ANOMALY (this plan) also flagged for Phase 84 FIX-01 (0x08 write/VPP path), independent of the 2516/0x0B item."
   }
 }

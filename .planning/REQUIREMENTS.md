@@ -92,14 +92,14 @@ Populated during roadmap creation (each requirement maps to exactly one phase).
 | REWR-03 | Phase 82 | Complete |
 | REWR-04 | Phase 82 | Complete |
 | REWR-05 | Phase 82 | Complete |
-| UV-01 | Phase 83 | Pending |
-| UV-02 | Phase 83 | Pending |
-| UV-03 | Phase 83 | Pending |
-| UV-04 | Phase 83 | Pending |
+| UV-01 | Phase 83 | Complete — blank-state re-confirmed (no VPP) before write for both ST M27C512 (BLANK) + AM27C020 (NOT-BLANK) |
+| UV-02 | Phase 83 | Complete — operator spend authorization captured at the bench before any VPP for both chips |
+| UV-03 | Phase 83 | Complete — ST M27C512 write proof PASS (operator-directed partial 16B spend, read-back identical, N=3 1-distinct-SHA, neg-control RC=1); AM27C020 write ANOMALY recorded (0x08 write/VPP path, 0 bits programmed; flagged Phase 84 FIX-01) |
+| UV-04 | Phase 83 | Complete — DB decode confirmed vs silicon for both (ST: UV-EPROM/13V/65536/0x07; AM27C020: UV-EPROM/13V/262144/0x08/DIP32) |
 | GRAD-01 | Phase 81 | Complete |
 | GRAD-02 | Phase 81 | Complete |
-| GRAD-03 | Phase 83 | Pending |
-| FUT-03 *(v1.14 carry-over tracker, closed-by GRAD-03; not one of the 23 v1.15 reqs)* | Phase 83 | Pending — 2516 read attempted in Phase 81 (verdict ANOMALY: 0x0B read unstable, gates the write); write+SHA proof still owed |
+| GRAD-03 | Phase 84 *(reassigned from Phase 83 per CONTEXT D-01)* | Deferred → Phase 84 — the entire 2516 (write/preserve/re-read) is OUT of Phase 83: its Phase 81 read was ANOMALOUS (3 distinct SHAs, VPP pinned 15.3V on the 0x0B shared OE/VPP pin), so a write would risk a vacuous PASS on the irreplaceable part. Contingent on Phase 84 FIX-01 stabilizing the 0x0B read path. D-08 PASS bar pre-recorded in EVIDENCE. |
+| FUT-03 *(v1.14 carry-over tracker, closed-by GRAD-03; not one of the 23 v1.15 reqs)* | Phase 84 *(reassigned from Phase 83 per D-01)* | Deferred → Phase 84 — 2516 read ANOMALY (Phase 81) gates the write; write+SHA proof owed in Phase 84 after FIX-01 (best-effort per v1.14 D-07). |
 | DB-01 | Phase 82 | Complete |
 | DB-02 | Phase 81 | Complete |
 | FIX-01 | Phase 84 | Pending |

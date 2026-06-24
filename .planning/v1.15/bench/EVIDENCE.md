@@ -164,6 +164,21 @@ UV part once spent cannot be re-blanked — a "retry" re-writes the same all-`0x
 | # | Chip | Family / Algorithm | Board+Shield | Blank-state | Spend-vs-preserve decision | Op | Image SHA | Read-back SHA | Read N | Verdict | Anomalies |
 |---|------|--------------------|--------------|-------------|----------------------------|----|-----------|---------------|--------|---------|-----------|
 | 1 | ST M27C512 (CLI name `M27C512`, ST/SGS-THOMSON, chip-id 0x203D) | 0x07 (EPROM_STD / UV-EPROM) | leonardo Rev 2.0 /dev/ttyACM0, r1=270000 | BLANK re-confirmed 2026-06-24 (all-0xFF, read-back SHA `71189f7f…48da9063` == Phase 81; `blank` RC=0) | **SPEND (partial, operator-directed)** | write 16 B @0x0000 → `verify -a 0x0000` | payload `f705354e…873897a` (16 B `4420823cfde6f1c26b30f90ec7dd01e4` = first 16 B of seed=1 image) | `008948af…ec397c3f` (full-chip post-write: first 16 B = payload, rest 0xFF) | 3 (1 distinct SHA) | **PASS** | DEVIATION from D-05 (full-image): operator authorized a minimal 16-byte partial-spend so the part stays mostly blank/reusable. write RC=0, `verify`(written 16 B) RC=0, neg-control wrong-file `verify -a` RC=1 (`0x00 != 0x44 @0x000000`), N=3 byte-identical. UV-04 decode UV-EPROM/13V/65536/0x07 confirmed (DB VPP 13V, not the plan's stated 12V). Standard 0x07 VPP path, no over-voltage. "ST M27C512" is a human label; resolving DB name is `M27C512`. |
-| 2 | AM27C020 | 0x08 (EPROM_QUICK / UV-EPROM) | leonardo Rev 2.0 | NOT-BLANK (Phase 81) | _(operator, live — D-03 lean: SPEND)_ | write all-`0x00` → verify | `8a39d2ab…589b4a90` | _(pending)_ | _(pending)_ | _(pending)_ | _(pending)_ |
+| 2 | AM27C020 (AMD, DIP32, chip-id 0x197) | 0x08 (Large EPROM / UV-EPROM) | leonardo Rev 2.0 /dev/ttyACM0, r1=270000, JP4 closed (32-pin) | NOT-BLANK re-confirmed 2026-06-24 (data 0x02@0x0000, read SHA `08b687a3…177ed496` == Phase 81; `blank` RC=1) | **SPEND (partial, operator-directed)** | write 16 B `0x00` @0x0000 (`-b`) → FAILED | payload `374708ff…28ec37bb` (16 B all-`0x00`) | N/A — write did not program | 3 (2 distinct SHAs) | **ANOMALY** | D-14 retry budget exhausted (initial + 2 retries, JP4 closed): `write` deterministically fails `bad bytes 15/16, retries 20` at 0x000000, **0 bits programmed** (read-back unchanged at 0x02), so chip silicon intact — NOT a write success and NOT chip wear; signature = the **0x08 (32-pin Large EPROM) write/VPP path on this bench** (the 0x07 28-pin part wrote clean on the same bench this session). ALSO mild **read instability**: 2 of 3 N=3 reads byte-identical, the 3rd had a localized 12-byte glitch reading `0x00` at 0x008004–0x00800f (distinct from the chip's clean Phase 81 read). Negative-control `verify -a 0x0000` RC=1 (`0x00 != 0x02 @0x000000`, confirms no programming). UV-04 decode UV-EPROM/13V/262144/0x08/DIP32 confirmed (DB VPP 13V, not the plan's 12V). Over-voltage stayed blocked. **Flag Phase 84 FIX-01** (0x08 write/VPP path + intermittent read). |
 | — | 2516 | 0x0B (EPROM_LEGACY / UV-EPROM, NMOS) | — | NOT-BLANK, READ-UNSTABLE | **DEFERRED → Phase 84** (D-01) | — no write / no preserve-dump / no re-read in Phase 83 — | — | — | — | **DEFERRED** | GRAD-03 / SC#4 / FUT-03 move to Phase 84 (after FIX-01 stabilizes the 0x0B read); D-08 PASS bar pre-recorded above |
+
+**GRAD-03 / 2516 → Phase 84 (Task 3 handoff record):** The entire 2516 is OUT of Phase 83 — no
+write, no preserve-dump, no re-read (D-01). **GRAD-03** (2516 VPE-rail write proof), **SC#4** (2516
+bench-proven), and the **FUT-03** close are reassigned to **Phase 84**, contingent on **Phase 84
+FIX-01** stabilizing the 0x0B read-path VPP instability. The **D-08 Phase-84 PASS bar** is
+pre-recorded in the section header above (clean read-back SHA on a stabilized N≥3 read = PASS;
+firmware under-voltage warning ~22.4V VPE < 25V captured verbatim, best-effort per v1.14 D-07;
+over-voltage stays blocked). REQUIREMENTS.md GRAD-03/FUT-03 rows + ROADMAP Phase 83 reflect the
+reassignment. **No 2516 chip was selected, seated, or written anywhere in Phase 83.**
+
+**AM27C020 ANOMALY → Phase 84 FIX-01 (additional handoff):** independent of the 2516/0x0B item,
+the AM27C020 (0x08, 32-pin Large EPROM) write path takes **no programming** on this bench (0 bits
+programmed; deterministic) while the 0x07 28-pin part wrote clean the same session — plus an
+intermittent localized read glitch. Recorded as an ANOMALY (not chip wear, chip silicon intact)
+and flagged for **Phase 84 FIX-01** alongside the 0x0B read-path investigation.
 
