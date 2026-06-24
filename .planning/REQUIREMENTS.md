@@ -28,10 +28,10 @@
 
 ### UV-EPROM No-Eraser Protocol (UV)
 
-- [ ] **UV-01**: The UV-EPROM test protocol is non-destructive-first: read + blank-check precede any write, and no UV part is written until its blank-state is recorded (operator has no UV eraser — every write is irreversible).
-- [ ] **UV-02**: For each UV part the operator makes an explicit spend-vs-preserve decision at the bench before any write.
-- [ ] **UV-03**: A "spent" UV part is write-proven without an eraser — a full known image if blank, else an all-`0x00` / AND-mask bit-subset write (only 1→0 transitions) — and the result is verified (read-back SHA / verify exit code).
-- [ ] **UV-04**: ST M27C512 (0x07) and AM27C020 (0x08) each have a recorded read + decode validation, plus a write proof if spent.
+- [x] **UV-01**: The UV-EPROM test protocol is non-destructive-first: read + blank-check precede any write, and no UV part is written until its blank-state is recorded (operator has no UV eraser — every write is irreversible).
+- [x] **UV-02**: For each UV part the operator makes an explicit spend-vs-preserve decision at the bench before any write.
+- [x] **UV-03**: A "spent" UV part is write-proven without an eraser — a full known image if blank, else an all-`0x00` / AND-mask bit-subset write (only 1→0 transitions) — and the result is verified (read-back SHA / verify exit code). *(ST M27C512 PASS via partial 16B spend; AM27C020 write ANOMALY recorded under D-14 → Phase 84 FIX-01.)*
+- [x] **UV-04**: ST M27C512 (0x07) and AM27C020 (0x08) each have a recorded read + decode validation, plus a write proof if spent.
 
 ### 2516 Graduation (GRAD)
 
