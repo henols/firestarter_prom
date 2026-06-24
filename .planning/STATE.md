@@ -4,13 +4,13 @@ milestone: v1.15
 milestone_name: — Bench Validation of Operator Inventory
 status: executing
 stopped_at: Phase 83 context gathered
-last_updated: "2026-06-24T12:45:43.294Z"
+last_updated: "2026-06-24T13:33:04.731Z"
 last_activity: 2026-06-24
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 9
+  completed_plans: 7
   percent: 50
 ---
 
@@ -21,8 +21,8 @@ progress:
 
 ## Current Position
 
-Phase: 83
-Plan: Not started
+Phase: 83 (uv-eprom-write-proof-gated-on-phase-81-blank-state) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
 Last activity: 2026-06-24
 
@@ -36,7 +36,7 @@ See: `.planning/PROJECT.md` (v1.15 Current Milestone section + Key Decisions)
 from upstream XML → DB → wire JSON → firmware handler. No guessing. **v1.15 proves that
 contract holds on real silicon** for the operator's 11-chip physical inventory.
 
-**Current focus:** Phase 82 — electrically-rewritable-silicon-validation
+**Current focus:** Phase 83 — uv-eprom-write-proof-gated-on-phase-81-blank-state
 read+blank-check sweep across all 11 chips on Leonardo + RURP Rev 2.0, establishing the evidence
 record and the bench-safety baseline (SAFE-01/02/03) with zero chips consumed. Board LOCKED =
 Leonardo + Rev 2.0 (only trustworthy program/write/verify combo); mostly host-side; firmware
@@ -192,7 +192,7 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-24T12:45:43.285Z
+Last session: 2026-06-24T13:32:32.081Z
 Stopped at: Phase 83 context gathered
 Resume: Phase 83 (UV-EPROM Write Proof) — `/gsd-discuss-phase 83` or `/gsd-plan-phase 83`. **GATED:** Phase 83 needs the Phase-81 UV blank-states (ST M27C512 BLANK / AM27C020 NOT-BLANK / 2516 read-unstable→no write until read path stable); operator has no eraser so every UV write is irreversible (spend-vs-preserve decided live). **BENCH NOTE:** board is now **fw 3.0.0b10** (reflashed in Phase 82, was b8); flash4 has no bulk-erase (per-page auto-erase via `write -b`). Carry-forward: W29C040 flash4 page-write fault → Phase 84 / reopen Phase-74 Wave-2; deferred v1.9 read-bug RCA (Phase 45); v1.14 FUT-01/03/04; operator-gated lockstep beta cut (`3.0.0b11`, gitlinks PINNED).
 
@@ -262,6 +262,7 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 - [Phase ?]: [Phase 78-01]: XIC-04 graduation deferred to FUT-01 — no physical X88C64P chip/adapter (D-04) + PCB-blocked ALE; X88C64 stays protocol-not-implemented + host-refused; SAFE-01/02/03 hold trivially (no code change).
 - [Phase 78-02]: Contingent handler-write plan took DEFER branch (Branch A) — leading [BLOCKING] gate read A6 VERDICT: PCB-BLOCKED directly; D-02 prohibits busy-bit reuse so proceed-path unauthorized. Appended `Branch A — ALE PCB-blocked, no handler code; graduation deferred FUT-01.` to X88C64-FEASIBILITY.md; Tasks 2-5 skipped; firestarter src/include/test + firestarter_app pinouts/DB/chip_resolver all CLEAN; X88C64P support_status unchanged (protocol-not-implemented); host-guard intact. XIC-02/03 vacuous on this branch.
 - [Phase ?]: gen_test_image.py uses random.Random(seed) for deterministic full-size images; seed recorded in EVIDENCE enables reproducible SHA oracle
+- [Phase 83-01, 2026-06-24]: SAFE-02 software preflight GREEN — host suite 663 tests + 0xA4 guard `test_init_phase_data_frames_not_acked` + CI-scoped ruff (`firestarter/ tests/`) all pass. Generated the 2 UV write payloads in `/tmp/firestarter_bench_p83/`: `ST_M27C512_img.bin` (65536B, `gen_test_image 65536 seed=1`, SHA `604d9570…1645d637`, reproducible) + `AM27C020_zeros.bin` (262144B all-0x00, SHA `8a39d2ab…589b4a90` == sha256 of 262144 zero bytes). EVIDENCE.md Phase 83 section scaffolded: scope to 2 read-stable UV chips (ST M27C512 + AM27C020), 2516/GRAD-03/SC#4/FUT-03 DEFERRED to Phase 84 (D-01) with the D-08 PASS bar pre-recorded, empty write-proof results table. Zero source/firmware/dep change (EVID-02). Broad `ruff check .` `tools/`-tree findings flagged out-of-CI-scope (pre-existing, ci.yml gates `firestarter/ tests/` only), NOT masked.
 
 ## Performance Metrics
 
@@ -308,6 +309,7 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 | Phase 78 P01 | 12min | 2 tasks | 1 files |
 | Phase 78 P02 | 6min | 1 task | 1 files (DEFER branch — zero code changes) |
 | Phase 82 P01 | 20min | - tasks | - files |
+| Phase 83 P01 | 7min | 2 tasks | 1 files |
 
 ## Deferred Items
 
