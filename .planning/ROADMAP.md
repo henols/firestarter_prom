@@ -140,7 +140,10 @@ Plans:
   4. The `2516` is bench-proven on Leonardo + Rev 2.0 (read + blank-check, then a write proof on the ~22.4V VPE rail read via `firestarter vpe`), with N≥3 read SHA table + the firmware under-voltage warning documented — closing FUT-03 (best-effort per v1.14 D-07).
   5. Over-voltage stays blocked throughout; under-voltage warn-and-proceed is accepted and recorded as best-effort.
 
-**Plans**: TBD
+**Plans**: 3 plans (D-01 narrows scope to the 2 read-stable UV chips; GRAD-03/SC#4/FUT-03 → Phase 84)
+- [ ] 83-01-PLAN.md — SAFE-02 software gate + generate the ST M27C512 64KB + AM27C020 256KB all-0x00 write images + scaffold the Phase 83 EVIDENCE section (autonomous, no chip)
+- [ ] 83-02-PLAN.md — ST M27C512 (0x07, BLANK) operator-gated write proof: full deterministic image, read-back SHA match, N≥3 read oracle + negative control (UV-01/02/03/04)
+- [ ] 83-03-PLAN.md — AM27C020 (0x08, NOT-BLANK) operator-gated write proof: all-0x00 wipe (1→0 only) + record the GRAD-03/2516 → Phase 84 handoff in EVIDENCE/REQUIREMENTS/ROADMAP (UV-01/02/03/04, GRAD-03)
 **UI hint**: no
 
 #### Phase 84: DB Decode Audit + Conditional Defect RCA + Milestone Evidence Consolidation
