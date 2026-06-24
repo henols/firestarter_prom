@@ -166,7 +166,26 @@ Plans:
   2. Any per-family write/program/verify defect the bench surfaced is root-caused and fixed (host-only or dual-repo lockstep) and re-verified on Leonardo + Rev 2.0 — OR the audit records "none found / bench clean" with the evidence record as proof.
   3. After any fix, the full-DB VPP-safety gate (`check_dispatch.py`), `diff_db.py`, and the host test suite are green (and `pio test -e native` + Leonardo flash ≤ ~90% if firmware was touched).
 
-**Plans**: TBD
+**Plans**: 6 plans
+Plans:
+**Wave 1** *(parallel — no file overlap: firmware / host-ops / host-DB)*
+
+- [ ] 84-01-PLAN.md — Firmware VPP-skip (D-11): create the fw v1.15 branch off beta + Wave-0 native dispatch test (positive read/blank skip + negative write/erase/chip-id still gate) + operation-type-keyed skip in `eprom_generic_init` + Leonardo flash-fit gate (FIX-01 fw half)
+- [ ] 84-02-PLAN.md — Host FM1608/SRAM blank-check short-circuit (D-30): Wave-0 RED test + host-side guard in `eprom_operations.py` + SAFE-02 CI-scoped gate (FIX-01 host half)
+- [ ] 84-03-PLAN.md — DB relabel (D-40, `autonomous: false`, HALTS on the CAN_ERASE/VPP-display collision): build_db.py codegen override + `RULE_PHASE84_RELABEL` diff rule + CAN_ERASE pinning + label-only proof via diff_db.py/check_dispatch.py
+
+**Wave 2** *(doc/traceability — depends on Wave 1 outcomes)*
+
+- [ ] 84-04-PLAN.md — `.planning/v1.15/DECODE-AUDIT.md` consolidated 11-chip audit (SC#1, D-42) + REWR-01/02/04 silicon dispositions + UV-01..04 checkbox-drift fix (D-41)
+
+**Wave 3** *(operator bench — `autonomous: false`; depends on Waves 1)*
+
+- [ ] 84-05-PLAN.md — Re-flash Leonardo + SAFE-01/02 gate; 2516 read-ONLY re-validation (D-20/D-21, GRAD-03 stays DEFERRED D-22); AM27C020 0x08 + W29C040 flash4 RCA-and-defer re-bench (D-31/D-54); EVIDENCE appends
+
+**Wave 4** *(consolidation gate — depends on 84-04 + 84-05)*
+
+- [ ] 84-06-PLAN.md — Fill DECODE-AUDIT bench verdicts + FIX-01 close-statement (D-43) + REQUIREMENTS FIX-01/GRAD-03/FUT-03 dispositions + full software phase gate (SC#3)
+
 **UI hint**: no
 
 ## v1.9 — Read-Bug RCA + Fix (STARTED 2026-05-29)
