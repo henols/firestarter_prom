@@ -71,6 +71,7 @@ non-vacuous read bar) rather than by code controls.
 | Audit Date | Threats Total | Closed | Open | Run By |
 |------------|---------------|--------|------|--------|
 | 2026-06-24 | 12 | 12 | 0 | gsd-secure-phase (short-circuit: register_authored_at_plan_time=true, threats_open=0) |
+| 2026-06-24 | 12 | 12 | 0 | gsd-secure-phase re-verify (State A audit: register == union of 3 plan threat models; all 12 closures cross-confirmed against SUMMARY Threat Surface Notes; no new threats) |
 
 ---
 
