@@ -281,6 +281,38 @@
       "write_image_seed_B": 2,
       "sha256_image_B": "3c23e7fcbe88c5a09ab50cf8301e9adf884fcdd519b6f9fefc72583b34f75c90",
       "cr01_risk": "none"
+    },
+    {
+      "chip": "W29C040",
+      "family": "0x05 (FLASH_AMD_STD / Flash/EEPROM)",
+      "board": "leonardo",
+      "shield": "Rev 2.0",
+      "blank_state": "n/a \u2014 A\u2192B rewrite",
+      "op": "write_A+verify_A \u2192 write_B+verify_B",
+      "sha256": "\u2014",
+      "verdict": "FAIL (genuine)",
+      "anomalies": "FAIL (genuine, flash4 page-write): write A (-b) times out verifying byte @0x0000ff (256B page-0 boundary), reads 0x00 (page not auto-erased/programmed) \u2014 DETERMINISTIC across initial + 1 reseat (same offset/byte). Per-page auto-erase NOT confirmed \u2192 REWR-04 SC#3 NOT met on silicon. FW FLASHED b8\u2192b10 THIS SESSION (operator-authorized deviation) to get the Phase-74 W29C040 SDP/256B-page fix; standalone erase is a 0.06s no-op on both b8 and b10 (chip stays 0x00). KEY: this is the FIRST real-silicon test of the Phase-74 fix \u2014 Phase-74 Wave-2 (W29C040 re-bench) was DEFERRED, so the fix was only native-test-verified. Reopens Phase-74 Wave-2 / hands to Phase 84 FIX-01. Distinct from the W29C020 CR-01 128-vs-256 under-sizing. DB-01: DIP32/Flash-EEPROM/12V/524288 decode confirmed vs silicon (info read clean; failure is write-path, not decode).",
+      "write_image_seed_A": 1,
+      "sha256_image_A": "77a771b26acca207c670a22ade19f8d6f0258a79fefb789be2ea7a40f1662bbd",
+      "write_image_seed_B": 2,
+      "sha256_image_B": "a38b13b4d285756c1f385a75d0cdf89f72720764c21fd933ced75ebdd970b96b",
+      "cr01_risk": "none"
+    },
+    {
+      "chip": "W29C020",
+      "family": "0x05 (FLASH_AMD_STD / Flash/EEPROM)",
+      "board": "leonardo",
+      "shield": "Rev 2.0",
+      "blank_state": "n/a \u2014 A\u2192B rewrite",
+      "op": "write_A+verify_A \u2192 write_B+verify_B",
+      "sha256": "47304933ce388bfd97d23ea6bff1a5ed1f7728e99f2cc3e7d05c82a7c11ce58c",
+      "verdict": "PASS",
+      "anomalies": "PASS \u2014 A\u2192B auto-erase proven for the Flash/EEPROM type (write B over A, no explicit erase, clean B verify): THIS is the REWR-04 SC#3 silicon confirmation of the FLAG_CAN_ERASE Flash/EEPROM branch (landed on W29C020, not W29C040). Direct write -b path (write-cycle blank-checks; flash4 has no real bulk-erase \u2014 per-page auto-erase on write). write A/verify A RC=0, write B/verify B RC=0, consistency-check N=3 1-distinct-SHA == image B, neg-control verify(A) RC=1. CR-01 (flash4_page_size 128-vs-256 under-sizing) did NOT manifest on b10 \u2014 256B page handling was correct here. FW b10 (flashed this session). DB-01: DIP32/Flash-EEPROM/12V/262144 decode confirmed vs silicon. NB: contrast W29C040 (512KB) FAIL \u2014 reopen Phase-74 Wave-2 in Phase 84.",
+      "write_image_seed_A": 1,
+      "sha256_image_A": "b2fc5cbfcc25be3daa0e8e88e6977c7da6164a6fcf9c577ca943da940a133457",
+      "write_image_seed_B": 2,
+      "sha256_image_B": "47304933ce388bfd97d23ea6bff1a5ed1f7728e99f2cc3e7d05c82a7c11ce58c",
+      "cr01_risk": "no (CR-01 did NOT manifest)"
     }
   ],
   "sweep_summary": {
