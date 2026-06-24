@@ -114,3 +114,28 @@ manual item; the D-08 PASS bar is pre-recorded in EVIDENCE for Phase 84 to inher
 test-generator would have nothing legitimate to generate). All automatable behavior was already
 covered by the existing committed host suite (`test_init_phase_data_frames_not_acked` + full
 suite + CI-scoped ruff) and the inline preflight/doc verifies in Plans 83-01 and 83-03.
+
+---
+
+## Validation Audit 2026-06-24 (re-audit, State A)
+
+Re-ran the validate-phase audit against the live artifacts and git history. Findings reconfirmed:
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
+
+**Evidence checked this pass:**
+- `firestarter_app` git log shows **no Phase 83 commits** (HEAD = `646afae`, Phase 82); firmware
+  sub-repo on `beta` with no Phase 83 delta → confirms zero source/firmware code was added.
+- SAFE-02 guard `test_init_phase_data_frames_not_acked` confirmed present at
+  `firestarter_app/tests/test_eprom_operations.py:135` (the COVERED mapping is real, not phantom).
+- All three plan SUMMARYs carry `tech-stack.added: []`; only `.planning/` evidence + `/tmp/`
+  bench payloads changed.
+
+**Verdict:** no automatable gaps; Per-Task Map statuses, Manual-Only list, and frontmatter
+unchanged. Phase remains `nyquist_compliant: partial` (automatable behavior fully covered; UV
+write proofs inherently manual hardware — irreversible silicon, operator-gated VPP). Auditor not
+spawned (nothing to generate).
