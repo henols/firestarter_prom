@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.15
 milestone_name: — Bench Validation of Operator Inventory
 status: completed
-stopped_at: Phase 83 context gathered
-last_updated: "2026-06-24T14:28:35.765Z"
+stopped_at: Phase 84 context gathered
+last_updated: "2026-06-24T15:48:19.300Z"
 last_activity: 2026-06-24 -- Phase 83 marked complete
 progress:
   total_phases: 4
@@ -192,8 +192,8 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-24T13:32:32.081Z
-Stopped at: Phase 83 context gathered
+Last session: 2026-06-24T15:48:19.295Z
+Stopped at: Phase 84 context gathered
 Resume: Phase 83 (UV-EPROM Write Proof) — `/gsd-discuss-phase 83` or `/gsd-plan-phase 83`. **GATED:** Phase 83 needs the Phase-81 UV blank-states (ST M27C512 BLANK / AM27C020 NOT-BLANK / 2516 read-unstable→no write until read path stable); operator has no eraser so every UV write is irreversible (spend-vs-preserve decided live). **BENCH NOTE:** board is now **fw 3.0.0b10** (reflashed in Phase 82, was b8); flash4 has no bulk-erase (per-page auto-erase via `write -b`). Carry-forward: W29C040 flash4 page-write fault → Phase 84 / reopen Phase-74 Wave-2; deferred v1.9 read-bug RCA (Phase 45); v1.14 FUT-01/03/04; operator-gated lockstep beta cut (`3.0.0b11`, gitlinks PINNED).
 
 ## Decisions
