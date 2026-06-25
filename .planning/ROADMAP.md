@@ -145,7 +145,19 @@ Plans:
   4. `check_dispatch.py` exits 0 violations on the regenerated DB — no chip routes to a 12V-VPP path (`configure_eprom`) on a pinout with no VPP pin — proving the deleted WARNING-5 override did not reintroduce a hardware-damage path.
   5. The 11 on-hand bench-proven chips (v1.15 EVIDENCE) have unchanged wire values (`algorithm`/`vpp_mv`/`pinout`) in the regenerated DB, OR any chip whose wire value moved is flagged for Leonardo + RURP Rev 2.0 re-bench before Phase 90. Host tooling stays green (ruff/format/mypy/pytest against the CI py3.11 target; generated `messages.py` never hand-normalized).
 
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+**Wave 1**
+
+- [ ] 86-01-PLAN.md — VAR-01 decode documentation (DECODE-NOTES.md: high byte = algo_number, census, pinned minipro SHA, X88C64 0x34 rationale, honest gaps) + Wave-0 test scaffolds (FM1608/X88C64 assertions + EVIDENCE-11 wire-stability oracle)
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 86-02-PLAN.md — VAR-02/03/04: replace Rule 1/2/3 with principled classify(type,proto,pm_idx,flags,pinout); regenerate DB (FM1608->0x28, X88C64->EEPROM); extend diff_db.py VARIANT_DECODE label (exit 0 vs OLD baseline); check_dispatch.py 0 violations
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 86-03-PLAN.md — VAR-03/04 + SAFE-04: re-pin both baselines LAST (after diff reviewed); test_diff_db_gate identity pass; full py3.11 toolchain gate (ruff/format/mypy/pytest)
 **UI hint**: no
 
 ### Phase 87: Naming + Documentation Pass *(was 86)*
