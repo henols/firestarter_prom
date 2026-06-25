@@ -182,3 +182,76 @@ programmed; deterministic) while the 0x07 28-pin part wrote clean the same sessi
 intermittent localized read glitch. Recorded as an ANOMALY (not chip wear, chip silicon intact)
 and flagged for **Phase 84 FIX-01** alongside the 0x0B read-path investigation.
 
+---
+
+## Phase 84 — FIX-01 Re-bench (VPP-skip re-flash + 2516 re-read + 0x08/flash4 RCA-and-defer)
+
+**Session date:** 2026-06-25 · **Board:** leonardo · **Shield:** Rev 2.0 (operator-confirmed silkscreen) · **Port:** /dev/ttyACM0 (USB by-id `usb-Arduino_LLC_Arduino_Leonardo-if00`)
+
+### Phase 84 SAFE-01/02 Gate
+
+- **`controller:`** leonardo on **/dev/ttyACM0**; hw byte reports "Rev 2.0-class"; **operator-confirmed silkscreen = Rev 2.0** (D-50 — EEPROM hw byte cannot distinguish revs; operator stated silkscreen directly).
+- **Calibration (live readback):** R1=270000, R2=44000 (NOT the 1000 default → VPP trustworthy).
+- **Firmware re-flash:** Leonardo re-flashed with the Phase-84 VPP-skip build via `pio run -t upload -e leonardo` from the `firestarter` submodule at commit `cb947c7` (branch `v1.15-bench-validation-of-operator-inventory`). avrdude wrote + verified **25666 bytes**; Leonardo flash **89.5%** (confirmed ≤90%, per 84-01).
+- **VERSION STRING CAVEAT (record explicitly):** the firmware VERSION STRING still reports `3.0.0b10` — Plan 84-01 did NOT bump `FIRMWARE_VERSION`; the VPP-skip is a **behavioral source change**. The board carries the freshly-compiled v1.15-branch build, NOT the stock b10 release. Behavioral proof = Task 2 below (the Phase-81 ~18.8V boot-refusal is cleared after this re-flash).
+- **SAFE-02 host gate GREEN:** full host suite PASSED (29 snapshots passed); 0xA4 guard `test_init_phase_data_frames_not_acked` PASS; `ruff check firestarter/ tests/` clean; `ruff format --check` clean (73 files).
+
+### Task 2: 2516 (0x0B) Re-read — READ ONLY, N=3 (D-20/D-21)
+
+**Method:** `firestarter dev consistency-check 2516 --runs 3` (N≥3 read oracle, EVID-02 reuse).
+**HARD RULE D-21:** no write / no preserve-dump performed on the irreplaceable 2516.
+
+**Run results:**
+
+| Run | SHA-256 | Size | Duration |
+|-----|---------|------|----------|
+| 1 | `fee34d5ac3739fce151ade718450d9aa054a2da773d390d7494ef51d81015edd` | 2048 B | 4.15s |
+| 2 | `9e9134a1c060cbb005a11d229dff1dde063914992b4e7f52ca81b72344dbef0a` | 2048 B | 3.94s |
+| 3 | `506b43503e7f135dce969a56a5c47e095e3ea6c24a5d0fb86ddf0707cf70f432` | 2048 B | 4.02s |
+
+**Stability verdict: FAIL (still unstable)** — 3 distinct SHAs across N=3 reads. First divergence at offset `0x005F` (run1=`0x1A`, run2=`0x18`); **39/2048 bytes (1.9%) divergent**. First 10 divergent offsets: `0x005F`, `0x013C`, `0x015D`, `0x01FD`, `0x01FF`, `0x0219`, `0x0259`, `0x0264`, `0x0280`, `0x02F5`.
+
+**Blank-check result:** `firestarter blank 2516` → **NOT BLANK** (Not blank, at 0x000000, v: 0x68).
+
+**Decode vs DB (`firestarter info 2516`):** UV-EPROM / DIP24 / 0x800 (2048 B) / VPP 25.0V / "Can be erased: no (UV erase only)" / INTEL — **CONFIRMED matches the user-override entry** (algorithm 0x0B, DIP24_2716, UV-EPROM, vpp_mv 25000, 2048 B).
+
+**VPP-skip effect (explicit record):** the Phase-81 ~18.8V boot-refusal is **GONE** — all 3 reads + the blank-check completed with NO VPP refusal/error. In Phase 81 the read was VPP-refused / VPP pinned at 15.3V on the shared OE/VPP pin. The VPP-skip cleared the refusal. **BUT the data still jitters** → the read instability is NOT solely VPP-gated; it persists after the VPP-skip.
+
+**No write / No preserve-dump (D-21 confirmed):** Zero writes or dumps to the 2516 occurred in this session. **GRAD-03 / SC#4 / FUT-03 stay DEFERRED best-effort (D-22)** regardless of read stability. A still-unstable read is the EXPECTED trigger for the clean FUT-03 deferral.
+
+### Task 3a: AM27C020 (0x08, 32-pin Large EPROM) Re-bench (RCA-and-defer, N=2 per D-54)
+
+**Decode (`firestarter info AM27C020`):** UV-EPROM / DIP32 / 0x40000 (262144 B) / VPP 13.0V / chip-id 0x197 — matches Phase 83.
+
+**Write attempt (16×0x00 @0x0000, `-b` flag; AM27C020 already NOT-BLANK/spent so idempotent):**
+
+| Attempt | Result |
+|---------|--------|
+| 1 | ERROR "Failed to write memory, 0x000000, retries: 20, bad bytes: 15" |
+| 2 | Identical (bad bytes 15/16) |
+
+**Negative control `verify -a 0x0000` (zeros16):** ERROR "0x00 != 0x02 at 0x000000" — confirms **0 bits programmed**; chip still reads 0x02 (silicon intact, unchanged from Phase 81/83 baseline).
+
+**Verdict: FAIL — 0-bits-programmed CONFIRMED on silicon (deterministic, N=2 exhausted).** NOT VPP-skip-related (the VPP-skip gates read/blank-check only; the write path is unchanged — T-84-14). The 0x08 32-pin Large-EPROM write/VPP path on this bench is the defect signature (the 0x07 28-pin part wrote clean same bench in Phase 83). NOT a trivial fix.
+
+**Disposition: DEFERRED — FUT-06:** "AM27C020 / 0x08 32-pin Large-EPROM write-path takes 0 bits on Leonardo+Rev2.0; not VPP-skip-related; chip silicon intact." Unblock = root-cause the 0x08 32-pin write/VPP path (JP4/P1-as-VPP routing, firmware `eprom_write_execute` 0x08 branch vs 0x07) on the same board + shield + calibration.
+
+### Task 3c: W29C040 (0x05 flash4, 512KB) Re-bench (RCA-and-defer, N=2 per D-54)
+
+**Decode (`firestarter info W29C040`):** Flash/EEPROM (erasable) / DIP32 / 0x80000 (512KB) / VPP 12.0V / chip-id 0xda46 / protocol 0x05 (flash4) — matches Phase 82.
+
+**Write attempt (-b, 1024 B deterministic image from `tools/gen_test_image.py 1024 1`; SHA `9983e8de67c0a81ea203c12b257a9ce03f57b12717c3633ce1142c1f29eca883`; image crosses the 256/512/768 page boundaries):**
+
+| Attempt | Result |
+|---------|--------|
+| 1 | ERROR "Timeout verifying 0xd7 at 0x0000ff (got 0x00)" |
+| 2 | Identical |
+
+**Verdict: FAIL CONFIRMED** — timeout at the 256B page-0 boundary (`0x0000ff` = last byte of page 0; byte stays `0x00`), deterministic N=2. This re-bench ran on the Phase-84 build (= b10 base + VPP-skip), which **CARRIES the Phase-74 SDP/256B-page fix**. This re-confirms the Phase-82 finding: **the Phase-74 W29C040 flash4 fix does NOT work on real silicon.** NOT a trivial fix.
+
+**Disposition: DEFERRED — reopen Phase-74 Wave-2 / CR-01.** Future tracker: `flash4-page-size-datasheet-sourced-cr01.md` (already in Deferred Items — Phase-74 CR-01 todo). The 256B page-0 boundary fault requires deeper root-cause into the flash4 SDP/page-poll sequence on W29C040 silicon, likely a dual-repo lockstep firmware fix.
+
+### Excluded (D-32): W27E512 + W27E040
+
+W27E512 and W27E040 NOT re-benched — genuine silicon stuck-bit wear (Phase 82, deterministic across reseats; D-32 classification), not FIX-01 material.
+

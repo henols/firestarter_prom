@@ -423,5 +423,116 @@
     "contingent_on": "Phase 84 FIX-01 stabilizing the 0x0B read-path VPP instability so the read oracle becomes trustworthy",
     "phase84_pass_bar_D08": "clean read-back SHA match on the spent image after a stabilized N>=3 read; firmware under-voltage warning (~22.4V VPE < 25V NMOS spec) captured verbatim, result recorded best-effort (per v1.14 D-07); over-voltage stays blocked throughout (SC#5). Achieving this closes FUT-03 (best-effort).",
     "note": "AM27C020 ANOMALY (this plan) also flagged for Phase 84 FIX-01 (0x08 write/VPP path), independent of the 2516/0x0B item."
+  },
+  "phase84": {
+    "description": "FIX-01 Re-bench: VPP-skip re-flash + 2516 re-read (read-only, N=3) + AM27C020 0x08 + W29C040 flash4 RCA-and-defer",
+    "session_date": "2026-06-25",
+    "board": "leonardo",
+    "shield": "Rev 2.0",
+    "port": "/dev/ttyACM0",
+    "port_usb_by_id": "usb-Arduino_LLC_Arduino_Leonardo-if00",
+    "r1": 270000,
+    "r2": 44000,
+    "safe01": {
+      "controller": "leonardo",
+      "port": "/dev/ttyACM0",
+      "hw_byte": "Rev 2.0-class",
+      "silkscreen_operator_confirmed": "Rev 2.0",
+      "calibration_r1": 270000,
+      "calibration_r2": 44000,
+      "firmware_reflash": {
+        "submodule_commit": "cb947c7",
+        "branch": "v1.15-bench-validation-of-operator-inventory",
+        "command": "pio run -t upload -e leonardo",
+        "avrdude_bytes_written": 25666,
+        "flash_percent": 89.5,
+        "version_string_caveat": "VERSION STRING still reports 3.0.0b10 — Plan 84-01 did NOT bump FIRMWARE_VERSION; the VPP-skip is a behavioral source change; the board carries the freshly-compiled v1.15-branch build, NOT the stock b10 release"
+      }
+    },
+    "safe02": {
+      "host_suite": "PASS — 29 snapshots passed",
+      "ack_data_guard_test": "test_init_phase_data_frames_not_acked PASS",
+      "ruff_check": "PASS — ruff check firestarter/ tests/ clean",
+      "ruff_format_check": "PASS — 73 files already formatted"
+    },
+    "task2_2516_reread": {
+      "chip": "2516",
+      "cli_name": "2516",
+      "family": "0x0B (EPROM_LEGACY / UV-EPROM, NMOS)",
+      "op": "dev consistency-check --runs 3 (read-only oracle, EVID-02 reuse)",
+      "hard_rule_d21": "NO write / NO preserve-dump performed on the irreplaceable 2516",
+      "runs": [
+        {
+          "run": 1,
+          "sha256": "fee34d5ac3739fce151ade718450d9aa054a2da773d390d7494ef51d81015edd",
+          "size_bytes": 2048,
+          "duration_s": 4.15
+        },
+        {
+          "run": 2,
+          "sha256": "9e9134a1c060cbb005a11d229dff1dde063914992b4e7f52ca81b72344dbef0a",
+          "size_bytes": 2048,
+          "duration_s": 3.94
+        },
+        {
+          "run": 3,
+          "sha256": "506b43503e7f135dce969a56a5c47e095e3ea6c24a5d0fb86ddf0707cf70f432",
+          "size_bytes": 2048,
+          "duration_s": 4.02
+        }
+      ],
+      "distinct_sha_count": 3,
+      "stability_verdict": "FAIL (still unstable)",
+      "first_divergence_offset": "0x005F",
+      "first_divergence_values": {"run1": "0x1A", "run2": "0x18"},
+      "divergent_byte_count": 39,
+      "divergent_byte_pct": 1.9,
+      "first_10_divergent_offsets": ["0x005F", "0x013C", "0x015D", "0x01FD", "0x01FF", "0x0219", "0x0259", "0x0264", "0x0280", "0x02F5"],
+      "blank_check": "NOT BLANK (Not blank, at 0x000000, v: 0x68)",
+      "decode_confirmed": "UV-EPROM / DIP24 / 0x800 (2048 B) / VPP 25.0V / INTEL — matches user-override entry (algorithm 0x0B, DIP24_2716, UV-EPROM, vpp_mv 25000, 2048 B)",
+      "vpp_skip_effect": "Phase-81 ~18.8V boot-refusal is GONE — all 3 reads + blank-check completed with NO VPP refusal/error. Data still jitters → instability is NOT solely VPP-gated; persists after VPP-skip.",
+      "grad03_fut03_status": "DEFERRED best-effort (D-22) — GRAD-03 / SC#4 / FUT-03 stay deferred regardless of read stability; still-unstable read is the expected trigger for clean FUT-03 deferral"
+    },
+    "task3a_am27c020": {
+      "chip": "AM27C020",
+      "family": "0x08 (Large EPROM / UV-EPROM)",
+      "package": "DIP32",
+      "chip_id": "0x197",
+      "decode_confirmed": "UV-EPROM / DIP32 / 0x40000 (262144 B) / VPP 13.0V / chip-id 0x197 — matches Phase 83",
+      "op": "write 16×0x00 @0x0000 (-b; AM27C020 already NOT-BLANK/spent, idempotent)",
+      "attempts": [
+        {"attempt": 1, "result": "ERROR 'Failed to write memory, 0x000000, retries: 20, bad bytes: 15'"},
+        {"attempt": 2, "result": "identical (bad bytes 15/16)"}
+      ],
+      "negative_control": "verify -a 0x0000 (zeros16): ERROR '0x00 != 0x02 at 0x000000' — confirms 0 bits programmed; chip reads 0x02 (silicon intact, unchanged from Phase 81/83 baseline)",
+      "verdict": "FAIL — 0-bits-programmed CONFIRMED on silicon (deterministic, N=2 exhausted)",
+      "vpp_skip_relation": "NOT VPP-skip-related — VPP-skip gates read/blank-check only; write path is unchanged (T-84-14)",
+      "signature": "0x08 32-pin Large-EPROM write/VPP path on this bench (0x07 28-pin part wrote clean same bench in Phase 83)",
+      "trivial_fix": false,
+      "disposition": "DEFERRED",
+      "future_tracker": "FUT-06: AM27C020 / 0x08 32-pin Large-EPROM write-path takes 0 bits on Leonardo+Rev2.0; not VPP-skip-related; chip silicon intact. Unblock = root-cause 0x08 32-pin write/VPP path (JP4/P1-as-VPP routing, firmware eprom_write_execute 0x08 branch vs 0x07)"
+    },
+    "task3c_w29c040": {
+      "chip": "W29C040",
+      "family": "0x05 (FLASH_AMD_STD / Flash/EEPROM)",
+      "package": "DIP32",
+      "chip_id": "0xda46",
+      "protocol": "0x05 (flash4)",
+      "decode_confirmed": "Flash/EEPROM (erasable) / DIP32 / 0x80000 (512KB) / VPP 12.0V / chip-id 0xda46 / protocol 0x05 (flash4) — matches Phase 82",
+      "op": "write -b, 1024 B deterministic image (tools/gen_test_image.py 1024 1), SHA 9983e8de67c0a81ea203c12b257a9ce03f57b12717c3633ce1142c1f29eca883; crosses 256/512/768 page boundaries",
+      "attempts": [
+        {"attempt": 1, "result": "ERROR 'Timeout verifying 0xd7 at 0x0000ff (got 0x00)'"},
+        {"attempt": 2, "result": "identical"}
+      ],
+      "verdict": "FAIL CONFIRMED — timeout at 256B page-0 boundary (0x0000ff = last byte of page 0; byte stays 0x00), deterministic N=2",
+      "firmware_note": "re-bench ran on Phase-84 build (b10 base + VPP-skip) which CARRIES the Phase-74 SDP/256B-page fix; Phase-74 fix does NOT work on real silicon",
+      "trivial_fix": false,
+      "disposition": "DEFERRED — reopen Phase-74 Wave-2 / CR-01",
+      "future_tracker": "flash4-page-size-datasheet-sourced-cr01.md (already in Deferred Items — Phase-74 CR-01 todo). Root-cause the flash4 SDP/page-poll sequence on W29C040 silicon; likely dual-repo lockstep firmware fix."
+    },
+    "excluded_d32": {
+      "chips": ["W27E512", "W27E040"],
+      "reason": "Genuine silicon stuck-bit wear (Phase 82, deterministic across reseats; D-32 classification) — NOT FIX-01 material; not re-benched"
+    }
   }
 }
