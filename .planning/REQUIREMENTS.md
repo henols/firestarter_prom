@@ -23,7 +23,7 @@
 - [x] **REWR-01**: W27C512, W27E512, SST27SF512 (0x07 EEPROM, 12V) each pass full write→auto-erase→read→verify with SHA match. *(Silicon outcome: W27C512 PASS + SST27SF512 PASS; W27E512 FAIL — genuine stuck erase bit @0x3d, reads 0x7F want 0xFF, deterministic across N=3 reseats, D-32 silicon-limited. See EVIDENCE.md Phase 82 row #2. Status satisfied-by-disposition: 2 of 3 named chips confirmed on silicon; W27E512 is a worn unit, not a DB/algo fault.)*
 - [x] **REWR-02**: W27E040 (0x08 EEPROM, 512KB) passes full write→read→verify with SHA match. *(Silicon outcome: W27E040 FAIL — genuine stuck erase bit @0x7db, reads 0xEF want 0xFF, deterministic across N=2 reseats, D-32 silicon-limited. No positive 0x08 write PASS — this was the sole 0x08 rewritable chip on hand. Status satisfied-by-disposition: operator-deferred FUT-05. Unblock = a functional 0x08 chip. See EVIDENCE.md Phase 82 row #4.)*
 - [x] **REWR-03**: SST39SF040 (0x06 flash3 / AMD-style) passes full write→read→verify with SHA match.
-- [x] **REWR-04**: W29C020 and W29C040 (0x05 flash4 / Winbond) each pass full write→read→verify with SHA match, with auto-erase confirmed correct for the `Flash/EEPROM` electrical type. *(Silicon outcome: W29C020 PASS — FLAG_CAN_ERASE Flash/EEPROM branch first silicon confirmation (REWR-04 SC#3); W29C040 FAIL — flash4 256B page-write timeout at page-0 boundary @0x0000FF, deterministic across initial + 1 reseat. W29C040 disposition: handed to Phase 84 FIX-01 (re-bench pending 84-05). Status satisfied-by-disposition: W29C020 is the Flash/EEPROM auto-erase silicon proof; W29C040 FAIL is a write-path defect, not a DB/decode fault. See EVIDENCE.md Phase 82 rows #7 and #8.)*
+- [x] **REWR-04**: W29C020 and W29C040 (0x05 flash4 / Winbond) each pass full write→read→verify with SHA match, with auto-erase confirmed correct for the `Flash/EEPROM` electrical type. *(Silicon outcome: W29C020 PASS — FLAG_CAN_ERASE Flash/EEPROM branch first silicon confirmation (REWR-04 SC#3); W29C040 FAIL — flash4 256B page-write timeout at page-0 boundary @0x0000FF, deterministic across initial + 1 reseat (Phase 82) + confirmed on Phase-84 re-bench N=2 (Phase-74 fix not silicon-effective). Status satisfied-by-disposition: W29C020 is the Flash/EEPROM auto-erase silicon proof; W29C040 FAIL is a write-path defect, not a DB/decode fault. W29C040 DEFERRED Phase-74 Wave-2/CR-01 (D-43). See EVIDENCE.md Phase 82 rows #7/#8 + Phase 84 Task 3c.)*
 - [x] **REWR-05**: FM1608 (0x40 FRAM) passes full write→read-back→verify (overwrite path, no erase).
 
 ### UV-EPROM No-Eraser Protocol (UV)
@@ -46,7 +46,7 @@
 
 ### Defect RCA & Fix (FIX)
 
-- [x] **FIX-01**: Any per-family write/program/verify defect the bench surfaces is root-caused and fixed (host-only, or dual-repo lockstep if firmware), re-verified on the bench, with the full-DB VPP-safety gate green. *(Conditional — closes as "none found" if the bench is clean.)*
+- [x] **FIX-01**: Any per-family write/program/verify defect the bench surfaces is root-caused and fixed (host-only, or dual-repo lockstep if firmware), re-verified on the bench, with the full-DB VPP-safety gate green. *(Conditional — closes as "none found" if the bench is clean.)* **Status: CLOSED per D-43 — "fixed where in-posture; deeper write-path defects RCA'd + deferred with rationale + future trackers."** In-posture fixes SHIPPED + bench-confirmed: (1) VPP-skip firmware gate (Phase 84-01, commit cb947c7) — cleared 18.8V boot-refusal; (2) FM1608 blank-check host short-circuit (Phase 84-02) — eliminated 0xA4 MSG_ERR_EMPTY_INPUT; (3) FM1608 SRAM→FRAM relabel (Phase 84-03). Deeper defects RCA'd + deferred: AM27C020 0x08 32-pin write (0-bits-programmed, N=2 confirmed, not VPP-skip-related → FUT-06); W29C040 flash4 256B page-0 boundary fault (Phase-74 fix not silicon-effective, N=2 confirmed → Phase-74 Wave-2 / CR-01). Stuck-bit silicon wear (W27E512/W27E040) D-32 silicon-limited, not FIX-01 material. Milestone close + firmware beta-cut operator-gated (D-12/D-43). Cross-reference: `.planning/v1.15/DECODE-AUDIT.md` Part 4 (FIX-01 close-statement) + `EVIDENCE.md` Phase-84 section.*
 
 ### Bench Safety & Hygiene (SAFE) — cross-cutting
 
@@ -90,7 +90,7 @@ Populated during roadmap creation (each requirement maps to exactly one phase).
 | REWR-01 | Phase 82 | Complete *(partial silicon — W27C512 PASS + SST27SF512 PASS; W27E512 FAIL: genuine stuck bit @0x3d, silicon-limited D-32, not a DB/algo fault)* |
 | REWR-02 | Phase 82 | Complete *(satisfied-by-disposition — W27E040 FAIL: genuine stuck bit @0x7db, silicon-limited D-32; no positive 0x08 PASS; deferred FUT-05, needs a functional 0x08 chip)* |
 | REWR-03 | Phase 82 | Complete |
-| REWR-04 | Phase 82 | Complete *(partial silicon — W29C020 PASS (Flash/EEPROM auto-erase silicon proof); W29C040 FAIL: flash4 256B page-write timeout, handed to Phase 84 FIX-01 re-bench; disposition pending 84-05)* |
+| REWR-04 | Phase 82 | Complete *(partial silicon — W29C020 PASS (Flash/EEPROM auto-erase silicon proof); W29C040 FAIL: flash4 256B page-write timeout at 256B page-0 boundary — Phase-84 re-bench confirmed (N=2); Phase-74 fix NOT silicon-effective; DEFERRED Phase-74 Wave-2 / CR-01. See DECODE-AUDIT.md Part 4 item 5)* |
 | REWR-05 | Phase 82 | Complete |
 | UV-01 | Phase 83 | Complete — blank-state re-confirmed (no VPP) before write for both ST M27C512 (BLANK) + AM27C020 (NOT-BLANK) |
 | UV-02 | Phase 83 | Complete — operator spend authorization captured at the bench before any VPP for both chips |
@@ -98,11 +98,11 @@ Populated during roadmap creation (each requirement maps to exactly one phase).
 | UV-04 | Phase 83 | Complete — DB decode confirmed vs silicon for both (ST: UV-EPROM/13V/65536/0x07; AM27C020: UV-EPROM/13V/262144/0x08/DIP32) |
 | GRAD-01 | Phase 81 | Complete |
 | GRAD-02 | Phase 81 | Complete |
-| GRAD-03 | Phase 84 *(reassigned from Phase 83 per CONTEXT D-01)* | Deferred → Phase 84 — the entire 2516 (write/preserve/re-read) is OUT of Phase 83: its Phase 81 read was ANOMALOUS (3 distinct SHAs, VPP pinned 15.3V on the 0x0B shared OE/VPP pin), so a write would risk a vacuous PASS on the irreplaceable part. Contingent on Phase 84 FIX-01 stabilizing the 0x0B read path. D-08 PASS bar pre-recorded in EVIDENCE. |
-| FUT-03 *(v1.14 carry-over tracker, closed-by GRAD-03; not one of the 23 v1.15 reqs)* | Phase 84 *(reassigned from Phase 83 per D-01)* | Deferred → Phase 84 — 2516 read ANOMALY (Phase 81) gates the write; write+SHA proof owed in Phase 84 after FIX-01 (best-effort per v1.14 D-07). |
+| GRAD-03 | Phase 84 *(reassigned from Phase 83 per CONTEXT D-01)* | DEFERRED best-effort (D-22) — 2516 re-read under Phase-84 VPP-skip build confirmed STILL UNSTABLE (N=3, 3 distinct SHAs, 1.9% byte divergence). VPP boot-refusal cleared (VPP-skip worked) but data jitter persists — instability NOT solely VPP-gated. No write / no preserve-dump (D-21). This is a documented intentional best-effort deferral (D-22), NOT a failure or gap. The 2516 read re-validated Phase-84 (decode confirmed: UV-EPROM / DIP24 / 2048 B / VPP 25.0V / 0x0B). D-08 PASS bar pre-recorded in EVIDENCE.md. Milestone close is operator-gated (D-12). See DECODE-AUDIT.md Part 2(v) + Part 4 item 7. |
+| FUT-03 *(v1.14 carry-over tracker, closed-by GRAD-03; not one of the 23 v1.15 reqs)* | Phase 84 *(reassigned from Phase 83 per D-01)* | OPEN best-effort (D-22) — GRAD-03 deferred (see above). 2516 read still unstable after Phase-84 re-bench (N=3, 3 SHAs, 1.9% divergence). The shared OE/VPP pin instability is more fundamental than VPP-enable-on-read alone. Requires a future bench session after deeper root-cause. This is an intentional best-effort deferral (D-22) consistent with v1.14 D-07 framing. |
 | DB-01 | Phase 82 | Complete |
 | DB-02 | Phase 81 | Complete |
-| FIX-01 | Phase 84 | Complete |
+| FIX-01 | Phase 84 | CLOSED per D-43 — in-posture fixes (VPP-skip fw + FM1608 host + FRAM relabel) SHIPPED + bench-confirmed; AM27C020 0x08 DEFERRED FUT-06; W29C040 flash4 DEFERRED Phase-74 Wave-2/CR-01; stuck-bit FAILs D-32 silicon-limited; milestone close operator-gated (D-12/D-43). See DECODE-AUDIT.md Part 4 (full close-statement). |
 | SAFE-01 | Phase 81 | Complete |
 | SAFE-02 | Phase 81 | Complete |
 | SAFE-03 | Phase 81 | Complete |
@@ -115,4 +115,4 @@ Populated during roadmap creation (each requirement maps to exactly one phase).
 
 ---
 *Requirements defined: 2026-06-23*
-*Last updated: 2026-06-25 Plan 84-04 (D-41): REWR-01/02/04 annotated with silicon FAILs/deferrals; UV-01..04 checkbox drift already corrected in Phase 83 verification commit 3a9f18b*
+*Last updated: 2026-06-25 Plan 84-06: FIX-01 closed per D-43 (in-posture fixes + RCA'd deferrals); GRAD-03/FUT-03 DEFERRED best-effort (D-22) — 2516 still unstable; REWR-04 W29C040 Phase-74 fix not silicon-effective (D-43); traceability consistent with DECODE-AUDIT.md + EVIDENCE.md*
