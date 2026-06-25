@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
 status: executing
-stopped_at: Phase 86 Plan 01 complete — DECODE-NOTES.md (VAR-01) + Wave-0 test oracle (FM1608 GREEN / X88C64 RED-as-designed / EVIDENCE GREEN)
-last_updated: "2026-06-25T17:18:52.843Z"
-last_activity: 2026-06-25 -- Phase 86 Plan 01 executed
+stopped_at: Phase 86 Plan 02 complete — principled classify() replaces Rule 1/2/3; DB regenerated (FM1608 0x28/FRAM, X88C64 EEPROM); diff_db VARIANT_DECODE exit 0; check_dispatch 0 violations; EVIDENCE-11 wire-stable
+last_updated: "2026-06-25T17:57:00.000Z"
+last_activity: 2026-06-25 -- Phase 86 Plan 02 executed
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 7
-  completed_plans: 4
-  percent: 25
+  completed_plans: 5
+  percent: 29
 ---
 
 # Project State
@@ -22,11 +22,11 @@ progress:
 ## Current Position
 
 Phase: 86 (infoic.xml Variant-Field Decode + Correct DB Regen)
-Plan: 01 complete — 02 (classifier rewrite) next
+Plan: 02 complete — 86-04 (non-upstream supplement) then 86-03 (baseline re-pin) next
 Status: Executing
-Last activity: 2026-06-25 -- Phase 86 Plan 01 executed (VAR-01 docs + Wave-0 oracle)
+Last activity: 2026-06-25 -- Phase 86 Plan 02 executed (classify() rewrite + correct DB regen)
 
-Progress: [██░░░░░░░░] 25%
+Progress: [███░░░░░░░] 29%
 
 > **Scope amendment 2026-06-25:** Mid-discussion the operator pivoted v1.16 from a
 > pure behavior-preserving refactor to *fix the DB at its root* — decode the
@@ -142,6 +142,7 @@ Resume: Phase 86 Plan 02 (classifier rewrite — delete Rule 1/2/3, add classify
 - [Phase 85-01, 2026-06-25]: v1.16-protocol-first-architecture-rebuild branch forked from beta (not v1.15 tip) in firestarter sub-repo; datasheets-check.sh Wave-0 gate authored with 12-bucket %PDF contract (correctly RED at scaffold stage, PASS after Plans 02/03 populate the tree).
 - [Phase 85-02, 2026-06-25]: 17 datasheets committed; W27E512→0x07, FM1608→0x28 (DB-verified); 3 D-02 fallbacks: SST27SF512/W27E040/DS1250Y bot-blocked; SAFE-05 intact
 - [Phase 85-03, 2026-06-25]: datasheets/README.md authored (DSHEET-03); 12-bucket index + 6 exclusions + D-02/D-03 policy; phase-gate PASS (exit 0); SAFE-05 intact
+- [Phase 86-02, 2026-06-25]: VAR-02/03/04 — replaced build_db.py Rule 1/Rule 2(WARNING-5)/Rule 3 + two-pass _etype with one principled classify(type,proto,pm_idx,flags,pinout,mem_size) (D-06 full deletion, no residual override). Regenerated chip_database.json (744 chips): FM1608 0x28/FRAM/DIP28_JEDEC_SRAM_8K, X88C64 EEPROM/protocol-not-implemented (proto 0x34 arm), W27C512 stable. KEY: arm-2 scoped to EPROM-family proto for DIP28 clusters (DIP24_2816 any-proto) — first cut over-broadened and mis-flipped AT29C256/AT29LV256 (genuine 5V flash, proto 0x05) to 0x0D; fixed → 0 algorithm changes vs pre-regen. diff_db.py VARIANT_DECODE label (cites database.c#L1918 + minipro.h#L70) exit 0 (PASS all 72 changed chips explained, transcript tools/variant-decode-diff.txt). check_dispatch.py 0 dispatch regressions / 0 consistency violations. EVIDENCE-11 wire-stable (zero moved, no re-bench flag). MINIPRO_XML_URL pinned to a8efaedc. Baseline NOT re-pinned (86-03). Commits firestarter_app@cab9349/46efe6e/16fd2e2.
 - [Phase 86-01, 2026-06-25]: VAR-01 docs + Wave-0 oracle (host-only, build_db.py untouched). DECODE-NOTES.md pins minipro master SHA a8efaedc236c1d9718bd28299dfbb99536b010ff (= existing @ a8efaedc); high byte = T56/T76 algo_number (database.c#L1918), NOT a classifier — classification keys on type/proto/pm_idx/flags. Refactor-under-test oracle: FM1608 GREEN (algo 40/FRAM/DIP28_JEDEC_SRAM_8K), X88C64 RED-as-designed (UV-EPROM today → Plan 02 adds proto 0x34→EEPROM arm), 10 upstream-decoded EVIDENCE chips wire-stable vs OLD baseline (2516 excluded → owned by Plan 86-04). Commits firestarter_app@bd462fa/a6f7e88/68865c1.
 - [Phase 86 discuss, 2026-06-25]: MILESTONE RESTRUCTURED. Grounded in raw infoic.xml that FM1608=type4/proto0x07/variant0x4126 and X88C64=type1/proto0x34/variant0x3100/flags0x00414200 (flags&0x10==0 → why its type is mis-decoded). Operator pivoted: decode the variant field fully (incl. undecoded high byte) + delete build_db.py Rule1/2/3 → correct DB. Inserted new Phase 86 (host-only variant decode); renumbered 86→90; added VAR-01..04 (27 reqs). Decisions: full override deletion (check_dispatch 0-violations = structural backstop), every diff_db row explained + re-pin baseline, on-hand bench chips unchanged-or-rebenched.
 

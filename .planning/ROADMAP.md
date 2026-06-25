@@ -154,7 +154,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 86-02-PLAN.md — VAR-02/03/04: replace Rule 1/2/3 with principled classify(type,proto,pm_idx,flags,pinout); regenerate DB (FM1608->0x28, X88C64->EEPROM); extend diff_db.py VARIANT_DECODE label (exit 0 vs OLD baseline); check_dispatch.py 0 violations
+- [x] 86-02-PLAN.md — VAR-02/03/04: replace Rule 1/2/3 with principled classify(type,proto,pm_idx,flags,pinout); regenerate DB (FM1608->0x28, X88C64->EEPROM); extend diff_db.py VARIANT_DECODE label (exit 0 vs OLD baseline); check_dispatch.py 0 violations — ✅ 2026-06-25 (firestarter_app@cab9349/46efe6e/16fd2e2; 744 chips; diff_db exit 0 PASS all 72 explained; check_dispatch 0 violations; EVIDENCE-11 wire-stable, 0 moved; arm-2 EPROM-family-scope fix kept AT29C256/AT29LV256 5V flash on 0x05; baseline NOT re-pinned → 86-03)
 
 **Wave 3** *(blocked on Wave 2)*
 
@@ -799,7 +799,7 @@ Plans:
 | 83 | v1.15 | 3/3 | Complete   | 2026-06-24 |
 | 84 (close) | v1.15 | 6/6 | Complete   | 2026-06-25 |
 | 85 | v1.16 | 3/3 | Complete    | 2026-06-25 |
-| 86 | v1.16 | 1/4 | In Progress | 86-01 (VAR-01 docs + Wave-0 oracle) ✅ 2026-06-25; 02/04/03 pending |
+| 86 | v1.16 | 2/4 | In Progress | 86-01 (VAR-01 docs + Wave-0 oracle) ✅; 86-02 (classify() rewrite + correct DB regen) ✅ 2026-06-25; 04/03 pending |
 | 87 | v1.16 | 0/TBD | Not started | — |
 | 88 | v1.16 | 0/TBD | Not started | — |
 | 89 (close) | v1.16 | 0/TBD | Not started | — |
