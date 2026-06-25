@@ -46,7 +46,7 @@
 
 ### Defect RCA & Fix (FIX)
 
-- [ ] **FIX-01**: Any per-family write/program/verify defect the bench surfaces is root-caused and fixed (host-only, or dual-repo lockstep if firmware), re-verified on the bench, with the full-DB VPP-safety gate green. *(Conditional — closes as "none found" if the bench is clean.)*
+- [x] **FIX-01**: Any per-family write/program/verify defect the bench surfaces is root-caused and fixed (host-only, or dual-repo lockstep if firmware), re-verified on the bench, with the full-DB VPP-safety gate green. *(Conditional — closes as "none found" if the bench is clean.)*
 
 ### Bench Safety & Hygiene (SAFE) — cross-cutting
 
@@ -102,7 +102,7 @@ Populated during roadmap creation (each requirement maps to exactly one phase).
 | FUT-03 *(v1.14 carry-over tracker, closed-by GRAD-03; not one of the 23 v1.15 reqs)* | Phase 84 *(reassigned from Phase 83 per D-01)* | Deferred → Phase 84 — 2516 read ANOMALY (Phase 81) gates the write; write+SHA proof owed in Phase 84 after FIX-01 (best-effort per v1.14 D-07). |
 | DB-01 | Phase 82 | Complete |
 | DB-02 | Phase 81 | Complete |
-| FIX-01 | Phase 84 | Pending |
+| FIX-01 | Phase 84 | Complete |
 | SAFE-01 | Phase 81 | Complete |
 | SAFE-02 | Phase 81 | Complete |
 | SAFE-03 | Phase 81 | Complete |

@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.15
 milestone_name: — Bench Validation of Operator Inventory
-status: completed
+status: executing
 stopped_at: Phase 84 context gathered
-last_updated: "2026-06-24T15:48:19.300Z"
-last_activity: 2026-06-24 -- Phase 83 marked complete
+last_updated: "2026-06-25T09:03:48.625Z"
+last_activity: 2026-06-25
 progress:
   total_phases: 4
   completed_phases: 3
-  total_plans: 9
-  completed_plans: 9
-  percent: 75
+  total_plans: 15
+  completed_plans: 10
+  percent: 67
 ---
 
 # Project State
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 83 — COMPLETE
-Plan: 2 of 3
-Status: Phase 83 complete
-Last activity: 2026-06-24 -- Phase 83 marked complete
+Phase: 84 (db-decode-audit-conditional-defect-rca-milestone-evidence-co) — EXECUTING
+Plan: 2 of 6
+Status: Ready to execute
+Last activity: 2026-06-25
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -36,7 +36,7 @@ See: `.planning/PROJECT.md` (v1.15 Current Milestone section + Key Decisions)
 from upstream XML → DB → wire JSON → firmware handler. No guessing. **v1.15 proves that
 contract holds on real silicon** for the operator's 11-chip physical inventory.
 
-**Current focus:** Phase 83 — uv-eprom-write-proof-gated-on-phase-81-blank-state
+**Current focus:** Phase 84 — db-decode-audit-conditional-defect-rca-milestone-evidence-co
 read+blank-check sweep across all 11 chips on Leonardo + RURP Rev 2.0, establishing the evidence
 record and the bench-safety baseline (SAFE-01/02/03) with zero chips consumed. Board LOCKED =
 Leonardo + Rev 2.0 (only trustworthy program/write/verify combo); mostly host-side; firmware
@@ -192,7 +192,7 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-24T15:48:19.295Z
+Last session: 2026-06-25T09:03:48.621Z
 Stopped at: Phase 84 context gathered
 Resume: Phase 83 (UV-EPROM Write Proof) — `/gsd-discuss-phase 83` or `/gsd-plan-phase 83`. **GATED:** Phase 83 needs the Phase-81 UV blank-states (ST M27C512 BLANK / AM27C020 NOT-BLANK / 2516 read-unstable→no write until read path stable); operator has no eraser so every UV write is irreversible (spend-vs-preserve decided live). **BENCH NOTE:** board is now **fw 3.0.0b10** (reflashed in Phase 82, was b8); flash4 has no bulk-erase (per-page auto-erase via `write -b`). Carry-forward: W29C040 flash4 page-write fault → Phase 84 / reopen Phase-74 Wave-2; deferred v1.9 read-bug RCA (Phase 45); v1.14 FUT-01/03/04; operator-gated lockstep beta cut (`3.0.0b11`, gitlinks PINNED).
 
@@ -310,6 +310,7 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 | Phase 78 P02 | 6min | 1 task | 1 files (DEFER branch — zero code changes) |
 | Phase 82 P01 | 20min | - tasks | - files |
 | Phase 83 P01 | 7min | 2 tasks | 1 files |
+| Phase 84 P01 | 12 minutes | 3 tasks | 3 files |
 
 ## Deferred Items
 
