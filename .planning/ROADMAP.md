@@ -178,7 +178,11 @@ Plans:
   4. The FM1608 SRAM_STD and X88C64 EEPROM classifications (delivered structurally by the Phase 86 variant decode) are documented in the vocabulary with their true `infoic.xml` identity tuple (type/proto/variant); phantom (0x35/0x39) and infeasible (0x11/0x2A/0x2B/0x2C) buckets are explicitly named as honest non-protocols.
   5. `pio run -e leonardo` shows a near-zero flash delta (vocabulary is host-side + source comments only; no PROGMEM strings added to firmware); `diff_db.py` is empty against the Phase-86-repinned baseline (this phase changes no DB records).
 
-**Plans**: TBD
+**Plans**: 4 plans
+- [ ] 87-01-PLAN.md — Author firestarter/doc/PROTOCOLS.md: per-bucket vocabulary (two-name scheme) + NAME-04 FM1608/X88C64 corrections + Honest non-protocols section + INV-01..09 traceability matrix (NAME-01/03/04)
+- [ ] 87-02-PLAN.md — Per-handler datasheet-anchored rationale header blocks across all 10 firmware files, citing the INV ids (NAME-02, zero-flash)
+- [ ] 87-03-PLAN.md — Gap-fill native tests: map every INV-01..09 to a live greppable assertion in test_val_eprom/flash3/flash4/sram; pio test -e native green (NAME-03)
+- [ ] 87-04-PLAN.md — Frozen-world hard gates: check_dispatch 0-violations + diff_db empty + Leonardo near-zero flash delta + INV greppability + host py3.11 (NAME-05/SAFE-03/SAFE-06)
 **UI hint**: no
 
 ### Phase 88: Golden Traces + Dispatch-Mirror Guard *(was 87)*
