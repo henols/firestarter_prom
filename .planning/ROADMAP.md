@@ -158,7 +158,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 86-04-PLAN.md — VAR-05/SAFE-04: ship 2516 + 2532 (upstream-absent oddballs) first-class via curated provenance-cited non-upstream supplement (tools/extra_chips.json) merged post-decode; DIP24_2532 pinout if non-JEDEC; diff_db non-upstream-supplement rule + check_dispatch 0 violations; 2516 stays UNVERIFIED + wire-stable
+- [x] 86-04-PLAN.md — VAR-05/SAFE-04: ship 2516 + 2532 (upstream-absent oddballs) first-class via curated provenance-cited non-upstream supplement (tools/extra_chips.json) merged post-decode; DIP24_2532 pinout if non-JEDEC; diff_db non-upstream-supplement rule + check_dispatch 0 violations; 2516 stays UNVERIFIED + wire-stable — ✅ 2026-06-25 (firestarter_app@94ea3b5/4054bfe/5e368d1; DB 744→746; extra_chips.json + DIP24_2532 (non-JEDEC, VPP=pin21); build_db post-decode merge; diff_db EXTRA_CHIPS_SUPPLEMENT exit 0 PASS all; check_dispatch 0 violations; 8 supplement tests; 2516 UNVERIFIED + wire-stable via verification_status field; baselines NOT re-pinned → 86-03; 686 host tests green)
 
 **Wave 4** *(blocked on Waves 2 + 3)*
 
