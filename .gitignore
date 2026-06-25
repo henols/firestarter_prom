@@ -14,3 +14,10 @@ __pycache__/
 !.planning/v1.7/**/
 !.planning/v1.7/**/*.md
 .planning/v1.7/upstream-rurp/
+
+# firestarter dev-diagnostic run output (write-cycle / consistency-check).
+# New runs land under firestarter-runs/; the bare-prefixed patterns cover
+# folders left over from before they were grouped under a parent dir.
+firestarter-runs/
+consistency-check-*/
+write-cycle-*/
