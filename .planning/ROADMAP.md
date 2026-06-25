@@ -150,7 +150,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 86-01-PLAN.md — VAR-01 decode documentation (DECODE-NOTES.md: high byte = algo_number, census, pinned minipro SHA, X88C64 0x34 rationale, honest gaps) + Wave-0 test scaffolds (FM1608/X88C64 assertions + EVIDENCE wire-stability oracle; 2516 deferred to 86-04)
+- [x] 86-01-PLAN.md — VAR-01 decode documentation (DECODE-NOTES.md: high byte = algo_number, census, pinned minipro SHA, X88C64 0x34 rationale, honest gaps) + Wave-0 test scaffolds (FM1608/X88C64 assertions + EVIDENCE wire-stability oracle; 2516 deferred to 86-04) — ✅ 2026-06-25 (firestarter_app@bd462fa/a6f7e88/68865c1; FM1608 GREEN / X88C64 RED-as-designed / EVIDENCE GREEN; build_db.py untouched)
 
 **Wave 2** *(blocked on Wave 1)*
 
@@ -799,7 +799,7 @@ Plans:
 | 83 | v1.15 | 3/3 | Complete   | 2026-06-24 |
 | 84 (close) | v1.15 | 6/6 | Complete   | 2026-06-25 |
 | 85 | v1.16 | 3/3 | Complete    | 2026-06-25 |
-| 86 | v1.16 | 0/TBD | Not started | — |
+| 86 | v1.16 | 1/4 | In Progress | 86-01 (VAR-01 docs + Wave-0 oracle) ✅ 2026-06-25; 02/04/03 pending |
 | 87 | v1.16 | 0/TBD | Not started | — |
 | 88 | v1.16 | 0/TBD | Not started | — |
 | 89 (close) | v1.16 | 0/TBD | Not started | — |

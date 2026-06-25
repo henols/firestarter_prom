@@ -100,7 +100,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | DSHEET-01 | Phase 85 | Complete |
 | DSHEET-02 | Phase 85 | Complete |
 | DSHEET-03 | Phase 85 | Complete |
-| VAR-01 | Phase 86 | Pending |
+| VAR-01 | Phase 86 | In Progress (86-01: decode documented in full — DECODE-NOTES.md, pinned SHA a8efaedc, honest gaps; classifier application is 86-02) |
 | VAR-02 | Phase 86 | Pending |
 | VAR-03 | Phase 86 | Pending |
 | VAR-04 | Phase 86 | Pending |
