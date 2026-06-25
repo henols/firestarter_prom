@@ -184,7 +184,7 @@ Plans:
 
 **Wave 4** *(consolidation gate — depends on 84-04 + 84-05)*
 
-- [ ] 84-06-PLAN.md — Fill DECODE-AUDIT bench verdicts + FIX-01 close-statement (D-43) + REQUIREMENTS FIX-01/GRAD-03/FUT-03 dispositions + full software phase gate (SC#3)
+- [x] 84-06-PLAN.md — Fill DECODE-AUDIT bench verdicts + FIX-01 close-statement (D-43) + REQUIREMENTS FIX-01/GRAD-03/FUT-03 dispositions + full software phase gate (SC#3)
 
 **UI hint**: no
 
@@ -761,7 +761,7 @@ Plans:
 | 81 | v1.15 | 3/3 | Complete    | 2026-06-24 |
 | 82 | v1.15 | 3/3 | Complete    | 2026-06-24 |
 | 83 | v1.15 | 3/3 | Complete   | 2026-06-24 |
-| 84 (close) | v1.15 | 5/6 | In Progress|  |
+| 84 (close) | v1.15 | 6/6 | Complete   | 2026-06-25 |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 

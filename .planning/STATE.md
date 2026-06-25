@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.15
 milestone_name: — Bench Validation of Operator Inventory
-status: executing
-stopped_at: Phase 84 Plan 05 complete — EVIDENCE.md/json Phase-84 section appended; 2516 still-unstable (N=3/3 SHAs); AM27C020 FUT-06; W29C040 CR-01 reopen; FIX-01 closed by disposition
-last_updated: "2026-06-25T09:59:50.809Z"
+status: verifying
+stopped_at: "Phase 84 Plan 06 complete — DECODE-AUDIT.md finalized; FIX-01 closed per D-43; GRAD-03/FUT-03 DEFERRED D-22; SC#3 gate GREEN; ready for /gsd-verify-work"
+last_updated: "2026-06-25T10:12:21.735Z"
 last_activity: 2026-06-25
 progress:
   total_phases: 4
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 15
-  completed_plans: 14
-  percent: 75
+  completed_plans: 15
+  percent: 100
 ---
 
 # Project State
@@ -23,7 +23,7 @@ progress:
 
 Phase: 84 (db-decode-audit-conditional-defect-rca-milestone-evidence-co) — EXECUTING
 Plan: 6 of 6
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-06-25
 
 Progress: [░░░░░░░░░░] 0%
@@ -192,8 +192,8 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-25T09:59:50.800Z
-Stopped at: Phase 84 Plan 05 complete — EVIDENCE.md/json Phase-84 section appended; 2516 still-unstable (N=3/3 SHAs); AM27C020 FUT-06; W29C040 CR-01 reopen; FIX-01 closed by disposition
+Last session: 2026-06-25T10:12:21.730Z
+Stopped at: Phase 84 Plan 06 complete — DECODE-AUDIT.md finalized; FIX-01 closed per D-43; GRAD-03/FUT-03 DEFERRED D-22; SC#3 gate GREEN; ready for /gsd-verify-work
 Resume: Phase 83 (UV-EPROM Write Proof) — `/gsd-discuss-phase 83` or `/gsd-plan-phase 83`. **GATED:** Phase 83 needs the Phase-81 UV blank-states (ST M27C512 BLANK / AM27C020 NOT-BLANK / 2516 read-unstable→no write until read path stable); operator has no eraser so every UV write is irreversible (spend-vs-preserve decided live). **BENCH NOTE:** board is now **fw 3.0.0b10** (reflashed in Phase 82, was b8); flash4 has no bulk-erase (per-page auto-erase via `write -b`). Carry-forward: W29C040 flash4 page-write fault → Phase 84 / reopen Phase-74 Wave-2; deferred v1.9 read-bug RCA (Phase 45); v1.14 FUT-01/03/04; operator-gated lockstep beta cut (`3.0.0b11`, gitlinks PINNED).
 
 ## Decisions
@@ -267,6 +267,9 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 - [Phase ?]: Phase 84-03 sst-keep: SST39SF040 stays Flash/EEPROM; relabeling drops FLAG_CAN_ERASE; Phase-77/82 auto-erase preserved
 - [Phase ?]: Phase 84-03 fm-fram-full: FM1608 SRAM→FRAM at build_db.py codegen layer; _ELECTRICAL_TYPE_LABEL['FRAM']='FRAM'; VPP gate not-in-{SRAM,FRAM}; CAN_ERASE unaffected (FRAM not in {EEPROM,Flash/EEPROM}); 673/673 tests green
 - [Phase 84-05]: 2516 read still unstable (N=3, 3 distinct SHAs, 1.9% divergence) after VPP-skip; instability not solely VPP-gated; GRAD-03/FUT-03 DEFERRED (D-22); AM27C020 0x08 write 0-bits (FUT-06); W29C040 flash4 Phase-74 fix not silicon-effective (reopen CR-01/Phase-74-Wave-2); FIX-01 closed by disposition
+- [Phase ?]: FIX-01 CLOSED per D-43 — in-posture fixes shipped + bench-confirmed; deferrals named (FUT-06/CR-01); milestone close operator-gated
+- [Phase ?]: GRAD-03/FUT-03 DEFERRED best-effort (D-22) — 2516 read still unstable N=3 after Phase-84 VPP-skip re-bench; intentional deferral, not a gap
+- [Phase ?]: SC#3 full software gate GREEN — check_dispatch/diff_db/ruff/native all exit 0; pio native 87/87; live-board test artifact is pre-existing/non-regression
 
 ## Performance Metrics
 
@@ -317,6 +320,7 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 | Phase 84 P01 | 12 minutes | 3 tasks | 3 files |
 | Phase 84 P02 | 9min | - tasks | - files |
 | Phase 84 P05 | 15min | 3 tasks | 2 files |
+| Phase 84 P06 | 8min | 3 tasks | 2 files |
 
 ## Deferred Items
 
