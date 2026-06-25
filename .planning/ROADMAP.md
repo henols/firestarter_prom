@@ -95,7 +95,7 @@ Full detail: [`.planning/milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.
 
 ### Phases
 
-- [ ] **Phase 85: Datasheet Acquisition** — Commit datasheets for the 11 on-hand ICs + one representative per no-silicon bucket; author `datasheets/README.md` index. Zero code risk; unblocks the naming pass.
+- [ ] **Phase 85: Datasheet Acquisition** — Commit datasheets for the 11 on-hand ICs + one representative per no-silicon bucket; author `datasheets/README.md` index. Zero code risk; unblocks the naming pass. **(3 plans, 3 waves)**
 - [ ] **Phase 86: Naming + Documentation Pass** — Author the 12-bucket protocol vocabulary (hex ID → human name → datasheet-verified behavior), enumerate the 8 accreted one-off-fix invariants, apply the two NAME-04 decode corrections. Dispatch structure and wire values unchanged; near-zero flash delta.
 - [ ] **Phase 87: Golden Traces + Dispatch-Mirror Guard** — Pin per-family native register golden traces and add the `check_dispatch.py::dispatch()`-matches-documented-order invariant test before any code extraction. Establishes the recompose oracle.
 - [ ] **Phase 88: Incremental Primitive Recompose** — Extract P7 SDP-table dedup (warm-up) → P4 chip-ID compare/report → P3 VPP gate → P5 poll, each guarded by native suites + `check_dispatch.py` + `diff_db.py`; `pio run -e leonardo` measured at every step with net-non-increase gate; achieved flash % reported.
@@ -112,7 +112,19 @@ Full detail: [`.planning/milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.
   2. A `datasheets/<hex>-<NAME>/` folder exists for each of the 6 no-silicon protocol buckets (0x0D, 0x0E, 0x10, 0x27, 0x29, 0x34) with at least one representative datasheet PDF.
   3. `datasheets/README.md` indexes every folder (hex ID ↔ proposed name ↔ handler ↔ datasheet filename ↔ on-hand status), explicitly names the phantom (0x35/0x39) and infeasible (0x11/0x2A/0x2B/0x2C) bucket exclusions, and annotates provenance for hard-to-source parts.
   4. No new third-party tool or library is introduced — the only new artifact is the `datasheets/` folder tree.
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+**Wave 0**
+
+- [ ] 85-01-PLAN.md — Fork v1.16 branch in firestarter sub-repo + author datasheets/datasheets-check.sh Wave-0 validation (SAFE-05)
+
+**Wave 1** *(blocked on Wave 0)*
+
+- [ ] 85-02-PLAN.md — Download + commit 17 datasheet PDFs into 12 bucket folders (DSHEET-01 on-hand, DSHEET-02 no-silicon)
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 85-03-PLAN.md — Author datasheets/README.md index + exclusions + provenance, run phase-gate PASS (DSHEET-03, SAFE-05)
 
 ### Phase 86: Naming + Documentation Pass
 **Goal**: Every protocol bucket has an authored human name on the algorithm axis plus documented behavior, with the 8 one-off invariants enumerated and the two decode corrections applied — leaving dispatch structure and wire values byte-identical.
