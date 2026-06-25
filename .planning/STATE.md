@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.15
 milestone_name: — Bench Validation of Operator Inventory
 status: executing
-stopped_at: Phase 84 Plan 02 complete — SRAM/FRAM blank-check short-circuit (D-30)
-last_updated: "2026-06-25T09:12:13.530Z"
+stopped_at: Phase 84 Plan 03 complete — FM1608 SRAM→FRAM relabel (fm-fram-full); SST39SF040 sst-keep; diff_db RULE_PHASE84_RELABEL + 673 tests green
+last_updated: "2026-06-25T09:29:59.406Z"
 last_activity: 2026-06-25
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 15
-  completed_plans: 11
-  percent: 73
+  completed_plans: 12
+  percent: 75
 ---
 
 # Project State
@@ -22,7 +22,7 @@ progress:
 ## Current Position
 
 Phase: 84 (db-decode-audit-conditional-defect-rca-milestone-evidence-co) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Last activity: 2026-06-25
 
@@ -192,8 +192,8 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-25T09:12:13.525Z
-Stopped at: Phase 84 Plan 02 complete — SRAM/FRAM blank-check short-circuit (D-30)
+Last session: 2026-06-25T09:29:59.397Z
+Stopped at: Phase 84 Plan 03 complete — FM1608 SRAM→FRAM relabel (fm-fram-full); SST39SF040 sst-keep; diff_db RULE_PHASE84_RELABEL + 673 tests green
 Resume: Phase 83 (UV-EPROM Write Proof) — `/gsd-discuss-phase 83` or `/gsd-plan-phase 83`. **GATED:** Phase 83 needs the Phase-81 UV blank-states (ST M27C512 BLANK / AM27C020 NOT-BLANK / 2516 read-unstable→no write until read path stable); operator has no eraser so every UV write is irreversible (spend-vs-preserve decided live). **BENCH NOTE:** board is now **fw 3.0.0b10** (reflashed in Phase 82, was b8); flash4 has no bulk-erase (per-page auto-erase via `write -b`). Carry-forward: W29C040 flash4 page-write fault → Phase 84 / reopen Phase-74 Wave-2; deferred v1.9 read-bug RCA (Phase 45); v1.14 FUT-01/03/04; operator-gated lockstep beta cut (`3.0.0b11`, gitlinks PINNED).
 
 ## Decisions
@@ -264,6 +264,8 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 - [Phase ?]: gen_test_image.py uses random.Random(seed) for deterministic full-size images; seed recorded in EVIDENCE enables reproducible SHA oracle
 - [Phase 83-01, 2026-06-24]: SAFE-02 software preflight GREEN — host suite 663 tests + 0xA4 guard `test_init_phase_data_frames_not_acked` + CI-scoped ruff (`firestarter/ tests/`) all pass. Generated the 2 UV write payloads in `/tmp/firestarter_bench_p83/`: `ST_M27C512_img.bin` (65536B, `gen_test_image 65536 seed=1`, SHA `604d9570…1645d637`, reproducible) + `AM27C020_zeros.bin` (262144B all-0x00, SHA `8a39d2ab…589b4a90` == sha256 of 262144 zero bytes). EVIDENCE.md Phase 83 section scaffolded: scope to 2 read-stable UV chips (ST M27C512 + AM27C020), 2516/GRAD-03/SC#4/FUT-03 DEFERRED to Phase 84 (D-01) with the D-08 PASS bar pre-recorded, empty write-proof results table. Zero source/firmware/dep change (EVID-02). Broad `ruff check .` `tools/`-tree findings flagged out-of-CI-scope (pre-existing, ci.yml gates `firestarter/ tests/` only), NOT masked.
 - [Phase ?]: Phase 84-02: D-30 SRAM/FRAM blank-check short-circuit implemented in check_eprom_blank() via _SRAM_PROTO_IDS = frozenset({0x0E, 0x27, 0x28, 0x29}). Detection by electrical-type (SRAM/FRAM) OR protocol-id membership fires before _operation_context. Prevents 0xA4 MSG_ERR_EMPTY_INPUT for FM1608 and all SRAM families. Wire/firmware/messages.py unchanged (D-11/D-30).
+- [Phase ?]: Phase 84-03 sst-keep: SST39SF040 stays Flash/EEPROM; relabeling drops FLAG_CAN_ERASE; Phase-77/82 auto-erase preserved
+- [Phase ?]: Phase 84-03 fm-fram-full: FM1608 SRAM→FRAM at build_db.py codegen layer; _ELECTRICAL_TYPE_LABEL['FRAM']='FRAM'; VPP gate not-in-{SRAM,FRAM}; CAN_ERASE unaffected (FRAM not in {EEPROM,Flash/EEPROM}); 673/673 tests green
 
 ## Performance Metrics
 

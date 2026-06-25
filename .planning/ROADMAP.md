@@ -172,7 +172,7 @@ Plans:
 
 - [x] 84-01-PLAN.md — Firmware VPP-skip (D-11): create the fw v1.15 branch off beta + Wave-0 native dispatch test (positive read/blank skip + negative write/erase/chip-id still gate) + operation-type-keyed skip in `eprom_generic_init` + Leonardo flash-fit gate (FIX-01 fw half)
 - [x] 84-02-PLAN.md — Host FM1608/SRAM blank-check short-circuit (D-30): Wave-0 RED test + host-side guard in `eprom_operations.py` + SAFE-02 CI-scoped gate (FIX-01 host half)
-- [ ] 84-03-PLAN.md — DB relabel (D-40, `autonomous: false`, HALTS on the CAN_ERASE/VPP-display collision): build_db.py codegen override + `RULE_PHASE84_RELABEL` diff rule + CAN_ERASE pinning + label-only proof via diff_db.py/check_dispatch.py
+- [x] 84-03-PLAN.md — DB relabel (D-40, `autonomous: false`, HALTS on the CAN_ERASE/VPP-display collision): build_db.py codegen override + `RULE_PHASE84_RELABEL` diff rule + CAN_ERASE pinning + label-only proof via diff_db.py/check_dispatch.py
 
 **Wave 2** *(doc/traceability — depends on Wave 1 outcomes)*
 
@@ -761,7 +761,7 @@ Plans:
 | 81 | v1.15 | 3/3 | Complete    | 2026-06-24 |
 | 82 | v1.15 | 3/3 | Complete    | 2026-06-24 |
 | 83 | v1.15 | 3/3 | Complete   | 2026-06-24 |
-| 84 (close) | v1.15 | 2/6 | In Progress|  |
+| 84 (close) | v1.15 | 3/6 | In Progress|  |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
