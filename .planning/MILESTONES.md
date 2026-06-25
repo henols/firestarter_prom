@@ -1,5 +1,34 @@
 # Milestones
 
+## v1.15 Bench Validation of Operator Inventory (Shipped: 2026-06-25)
+
+**Phases completed:** 4 phases, 15 plans, 22 tasks
+
+**Key accomplishments:**
+
+- Fresh adversarial re-audit of the FLAG_CAN_ERASE decode chain for Flash/EEPROM (W29C040 / 0x05) confirmed SOUND; pinned by new test `test_convert_w29c040_flash_eeprom_flag_can_erase`; 651 tests green.
+- Hand-authored the irreplaceable Intel 2516 user-override DB entry (absent from minipro), captured a full SR-1 safety review verifying all 6 D-02 values against the TMS2516 datasheet, obtained the operator's blocking-human sign-off, and scaffolded the milestone EVIDENCE record with 11 pending chip rows.
+- Read + blank-checked all 11 physical chips on Leonardo + Rev 2.0 with zero chips consumed (reads apply no VPP); 10 PASS with N≥3 byte-identical SHAs, the 3 UV gating blank-states recorded, and the irreplaceable 2516 flagged ANOMALY (0x0B read path unstable) — gating Phase 83.
+- Deterministic full-size PRNG image generator (random.Random seed), 12 pinning tests, SAFE-02 green (663 tests + 0xA4 guard), and Phase 82 write-column schema added to EVIDENCE without dropping any Phase 81 row
+- Established the SAFE-02 software gate (663-test host suite + 0xA4 `ack_data=False` guard + CI-scoped ruff all green) and generated the two deterministic UV write payloads (ST M27C512 64KB pseudo-random image + AM27C020 256KB all-0x00) with recorded reproducible SHA-256 oracles, then scaffolded the Phase 83 EVIDENCE.md section scoping the work to the 2 read-stable UV chips and recording the 2516→Phase 84 deferral — all with zero source/firmware/dependency changes (EVID-02 reuse-first).
+- Bench-proved the WRITE PATH of the read-stable BLANK UV-EPROM ST M27C512 on Leonardo + Rev 2.0. After re-confirming the BLANK state non-destructively (no VPP) and obtaining the operator's irreversible spend authorization, executed an operator-directed **minimal 16-byte partial-spend** (deviation from the plan's D-05 full-image): write 16 B @0x0000 (RC=0), `verify -a` of those bytes (RC=0), full-chip read-back showing first 16 B = payload / rest 0xFF, N=3 byte-identical reads (1 distinct SHA), and a wrong-file negative control (RC=1). Verdict **PASS**; the part remains mostly blank/reusable.
+- Bench-tested the AM27C020 (0x08, NOT-BLANK, DIP32) write path on Leonardo + Rev 2.0. After re-confirming NOT-BLANK non-destructively and obtaining operator spend authorization (a minimal 16-byte 0x00 partial-spend, deviation from D-06), the `write` deterministically failed — `bad bytes 15/16`, **zero bits programmed**, chip data intact — across the initial attempt + 2 retries (incl. operator closing JP4), plus a mild intermittent read glitch. Operator classified it **ANOMALY** (0x08 write/VPP path on this bench, not silicon wear), flagged Phase 84 FIX-01, phase not halted (D-14). Then recorded the GRAD-03 / 2516 → Phase 84 handoff across EVIDENCE + REQUIREMENTS + ROADMAP.
+- Operation-type-keyed VPP-skip in `eprom_generic_init` — CMD_READ/CMD_BLANK_CHECK skip `eprom_check_vpp` entirely (clears chip-1 18.8V read refusal + benign low warnings); write/erase/chip-id still gate VPP; proven by 5-assertion native dispatch test (2 positive + 3 negative).
+- Host SRAM/FRAM blank-check short-circuit in `check_eprom_blank()` via `_SRAM_PROTO_IDS` frozenset, preventing firmware 0xA4 MSG_ERR_EMPTY_INPUT for FM1608 and all SRAM families.
+- Consolidated 11-chip decode-correctness audit (SC#1) in `.planning/v1.15/DECODE-AUDIT.md` with per-attribute CONFIRMED/MISMATCH verdicts cross-referencing EVIDENCE; REWR-01/02/04 traceability annotated with silicon FAIL/deferral dispositions; UV-01..04 checkbox drift confirmed already corrected (D-41).
+- VPP-skip re-flash proven (89.5% flash, 18.8V boot-refusal cleared); 2516 read still unstable (N=3, 3 distinct SHAs, 1.9% byte jitter) — GRAD-03/FUT-03 DEFERRED; AM27C020 0x08 takes 0 bits (FUT-06); W29C040 flash4 256B-page fault reconfirmed (Phase-74 fix not silicon-effective, reopen CR-01)
+- DECODE-AUDIT.md finalized (SC#1 complete); FIX-01 closed per D-43 with in-posture fixes + named deferrals; GRAD-03/FUT-03 explicitly deferred best-effort (D-22); SC#3 full software gate GREEN — milestone ready for `/gsd-verify-work`
+
+**Git range:** `afceb01` (v1.15 start) → `827e87f` (Phase 84 SECURED); 72 meta commits on `gsd/v1.15-bench-validation-of-operator-inventory`. Sub-repos: fw `cb947c7` (VPP-skip) / app `4d5b3de`, both on `v1.15-bench-validation-of-operator-inventory` (gitlinks PINNED). Timeline: 2026-06-23 → 2026-06-25 (3 days).
+
+**Outcome:** 23 reqs — 21 satisfied, GRAD-03 deferred best-effort (D-22; 2516 0x0B read instability → FUT-03), FIX-01 closed-by-disposition (D-43; in-posture fixes shipped + bench-confirmed, deeper write-path defects RCA'd + named-tracked → FUT-06 AM27C020 0x08, CR-01/Phase-74 Wave-2 W29C040 flash4). First Flash/EEPROM auto-erase silicon proof (W29C020). Genuine silicon FAILs (W27E512/W27E040 stuck bits) faithfully recorded — not DB/algo faults. Milestone audit `gaps_found` is stale (predates Phase 84); both gaps closed-by-disposition + operator-accepted. 3/4 phases Nyquist-compliant; Phase 84 SECURED (threats_open:0).
+
+**Known deferred items at close:** 12 open artifact items acknowledged & deferred (see STATE.md "Deferred Items") — all pre-existing carry-forwards or intentional v1.15 deferrals; operator chose Acknowledge & close.
+
+**Release state:** Meta tagged `v1.15`; gsd planning merged to meta `beta`. Lockstep beta cut (`3.0.0b11`) + submodule gitlink bump remain OPERATOR-GATED (gitlinks PINNED), per standing v1.11–v1.14 policy.
+
+---
+
 ## v1.14 Feasible-Gap Implementation (Shipped: 2026-06-23)
 
 **Phases completed:** 4 phases (77–80), 9 executed plans of 13 (4 deferred plans are hardware-gated), 14 tasks. Host-only delta (firmware sub-repo untouched, stayed on `beta`). Git range: `d42fed3` (v1.14 start) → `3882377` (rail correction); 55 meta commits + 5 host code commits (Phase 77 ×3, Phase 79 ×2) on `firestarter_app@26cc62d`. Timeline: 2026-06-18 → 2026-06-23 (5 days).

@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.15
 milestone_name: — Bench Validation of Operator Inventory
-status: verified
-stopped_at: "Phase 84 VERIFIED + operator-accepted (2026-06-25): 6/6 plans complete, 3/3 SC automated-PASS; operator accepted the 2516 GRAD-03/FUT-03 D-22 deferral + the FIX-01 closed-by-disposition (D-43). Next: /gsd-secure-phase 84 (threat models present, no SECURITY.md yet) → /gsd-complete-milestone v1.15"
-last_updated: "2026-06-25T10:12:21.735Z"
-last_activity: 2026-06-25
+status: Awaiting next milestone
+stopped_at: "Phase 84 Plan 06 complete — DECODE-AUDIT.md finalized; FIX-01 closed per D-43; GRAD-03/FUT-03 DEFERRED D-22; SC#3 gate GREEN; ready for /gsd-verify-work"
+last_updated: "2026-06-25T10:43:10.715Z"
+last_activity: 2026-06-25 — Milestone v1.15 completed and archived
 progress:
   total_phases: 4
   completed_phases: 4
@@ -21,12 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 84 (db-decode-audit-conditional-defect-rca-milestone-evidence-co) — VERIFIED (operator-accepted)
-Plan: 6 of 6
-Status: Phase 84 execution-complete + verified; FIX-01 closed-by-disposition (operator-accepted). v1.15 ready for /gsd-secure-phase 84 → /gsd-complete-milestone
-Last activity: 2026-06-25
-
-Progress: [██████████] 100%
+Phase: Milestone v1.15 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-06-25 — Milestone v1.15 completed and archived
 
 ## Project Reference
 
@@ -324,6 +322,16 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 
 ## Deferred Items
 
+**Re-acknowledged at v1.15 milestone close (2026-06-25):** the pre-close `audit-open` reported **12 open
+items** — all either pre-existing carry-forwards (re-confirmed below; none are v1.15 work) or intentional
+v1.15 deferrals. The operator chose **Acknowledge & close**. Notable v1.15-specific dispositions: Phase 84
+VERIFICATION reads `human_needed` only because the D-22/D-43 disposition sign-offs are operator judgment
+calls — **both already operator-accepted** (the frontmatter status line was simply not flipped); 2 new
+firmware/docs todos (`skip-vpp...on-reads` — VPP-skip already SHIPPED in 84-01; `gather-protocol-datasheets`
+— v1.16 seed) are deferred captures, not gaps. The stale `v1.15-MILESTONE-AUDIT.md` (`gaps_found`) predates
+Phase 84; its two gaps (GRAD-03, FIX-01) are now closed-by-disposition. See
+`.planning/milestones/v1.15-MILESTONE-AUDIT.md` (stale) + Phase-84 VERIFICATION/SECURITY for rationale.
+
 **Re-acknowledged at v1.14 milestone close (2026-06-23):** the 9 cross-milestone open-artifact
 items below were re-confirmed via `gsd-tools audit-open` — **none are v1.14 work** (all pre-existing
 from v1.0–v1.13: out-of-scope, accepted tech debt, or hardware-gated). Plus **3 v1.14-specific
@@ -348,8 +356,14 @@ milestone audit flagged (`gaps_found`, but deferrals-by-design, not failures). S
 | FUT-03 (v1.14) | NMOS bench SHA-match (Phase 79 NMOS-03) | deferred — no chip | Definitive Leonardo write+verify SHA-match of the 4 graduated NMOS chips on the ~22.4V VPE rail; demoted to informational (chips stay `supported` without it); deferred for lack of an NMOS chip on hand. |
 | FUT-04 (v1.14) | AT28C04/16 adapter graduation (Phase 80) | deferred — adapter not built | ADPT-01 gate NOT CLEARED: DIP24→DIP32 adapter not built, no AT28C chip on hand. 9 chips stay honestly `adapter-required`. Unblock = build adapter + DMM-verify (/WE pin 21→30) + chip on hand. ADPT-01/02/03. |
 | FUT-05 (v1.15) | REWR-02 0x08 write→read→verify SHA-match proof (Phase 82) | deferred — no functional 0x08 chip | Operator-deferred 2026-06-24: the only 0x08 rewritable chip (W27E040) FAILed on a genuine stuck bit @0x7db (deterministic; erase path engaged at correct decode params). No sibling 0x08 chip for positive proof. Unblock = a functional W27E040 (or other 0x08 rewritable chip) on hand. NOT a gap. |
-| Phase-84 input (v1.15) | W29C040 flash4 page-write fault (Phase 82) | open — RCA in Phase 84 | First real-silicon test of the Phase-74 W29C040 SDP/256B-page fix (Wave-2 was deferred): FAILs at 256B page boundary on b10. Reopen Phase-74 Wave-2 / Phase-84 FIX-01 (likely dual-repo lockstep firmware fix). W29C020 (256KB) passed clean — inverts the CR-01 expectation. |
-| release-gate (v1.14) | Lockstep beta cut `3.0.0b11` + submodule gitlink bump | OPERATOR-GATED | Standing v1.11/v1.12/v1.13 policy: sub-repos stay on their milestone branches, meta gitlinks PINNED; the beta cut (version bump + gitlink bump + PyPI/GitHub pre-release) + stable promotion are deferred to manual operator authorization. |
+| CR-01 / Phase-74 Wave-2 (v1.15) | W29C040 flash4 256B page-write fault | open — reopened by Phase 84 | Phase-84 FIX-01 re-bench (N=2) confirmed the Phase-74 SDP/256B-page fix is NOT silicon-effective: deterministic page-0 boundary timeout @0x0000FF. RCA'd, not fixed in-posture (D-43). Reopen Phase-74 Wave-2 (likely dual-repo lockstep firmware fix). W29C020 (256KB) passes clean — inverts CR-01 expectation. |
+| FUT-06 (v1.15) | AM27C020 0x08 32-pin write/VPP path (0-bits-programmed) | deferred — RCA'd, not trivially fixable | Phase-84 FIX-01 (N=2): deterministic 0-bits-programmed, NOT VPP-skip-related, chip silicon intact. Requires 0x08 32-pin Large EPROM write/VPP path root-cause. Named-tracked deferral per D-43, not a gap. |
+| FUT-03 (v1.15, ⊃ v1.14) | 2516 0x0B read instability + write proof (GRAD-03) | deferred best-effort (D-22) | Phase-84 VPP-skip cleared the 18.8V boot-refusal but the 2516 read remains unstable (N=3, 3 distinct SHAs, 1.9% byte jitter) — instability NOT solely VPP-gated (shared OE/VPP pin). No write / no preserve-dump (D-21). GRAD-03 deferred best-effort; closes v1.14 FUT-03 NMOS write+SHA when a future bench session root-causes the read path. info/read decode confirmed correct. |
+| todo (v1.15) | 2026-06-24-skip-vpp...on-reads.md | done-superseded | The VPP-skip on CMD_READ/CMD_BLANK_CHECK SHIPPED in Phase 84-01 (fw `cb947c7`); the captured todo predates the fix. Close on next triage. |
+| todo (v1.16 seed) | gather-protocol-datasheets.md | deferred | Feeds the v1.16 protocol-first architecture rebuild (datasheets verify; minipro DB stays ground truth). Out of v1.15 scope. |
+| verification (v1.15) | Phase 84 (84-VERIFICATION.md) | human_needed — operator-accepted | The 2 items are the D-22/D-43 disposition sign-offs, already operator-accepted (recorded in STATE stopped_at + this close). Frontmatter status line not flipped; not a gap. |
+| Phase-84 input (v1.15) — RESOLVED | W29C040 flash4 page-write fault (handed off from Phase 82) | resolved → see CR-01 row above | Phase 84 ran the RCA: Phase-74 fix not silicon-effective (N=2). Disposition moved to the CR-01 / Phase-74 Wave-2 row. |
+| release-gate (v1.14 → carries to v1.15) | Lockstep beta cut `3.0.0b11` + submodule gitlink bump | OPERATOR-GATED | Standing v1.11–v1.14 policy: sub-repos stay on their milestone branches, meta gitlinks PINNED; the beta cut (version bump + gitlink bump + PyPI/GitHub pre-release) + stable promotion are deferred to manual operator authorization. v1.15 sub-repo work (fw `cb947c7` / app `4d5b3de`) is NOT in the beta gitlink yet. |
 
 ## Operator Next Steps
 
