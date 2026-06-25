@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
 status: executing
-stopped_at: Phase 85 Plan 01 complete — v1.16 branch forked + datasheets-check.sh committed
-last_updated: "2026-06-25T14:36:30Z"
-last_activity: 2026-06-25 -- Phase 85 Plan 01 completed
+stopped_at: Phase 85 Plan 02 complete — 17 datasheets committed to firestarter sub-repo
+last_updated: "2026-06-25T14:51:15.464Z"
+last_activity: 2026-06-25
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
-  percent: 7
+  completed_plans: 2
+  percent: 0
 ---
 
 # Project State
@@ -22,9 +22,9 @@ progress:
 ## Current Position
 
 Phase: 85 (datasheet-acquisition) — EXECUTING
-Plan: 2 of 3
-Status: Executing Phase 85 (Plan 01 complete)
-Last activity: 2026-06-25 -- Phase 85 Plan 01 completed
+Plan: 3 of 3
+Status: Ready to execute
+Last activity: 2026-06-25
 
 Progress: [░░░░░░░░░░] 7%
 
@@ -124,8 +124,8 @@ ruff/codegen drift trap for any host-side NAME-04 corrections in Phase 86.
 
 ## Session Continuity
 
-Last session: 2026-06-25T14:36:30Z
-Stopped at: Phase 85 Plan 01 complete — v1.16 branch forked + datasheets-check.sh committed
+Last session: 2026-06-25T14:51:15.456Z
+Stopped at: Phase 85 Plan 02 complete — 17 datasheets committed to firestarter sub-repo
 Resume: Phase 85 Plan 02 (PDF download) — `/gsd-execute-phase 85`
 
 ## Decisions
@@ -134,12 +134,14 @@ Resume: Phase 85 Plan 02 (PDF download) — `/gsd-execute-phase 85`
 - [Phase 82, 2026-06-24]: Rewritable silicon validation: 5 PASS / 3 FAIL (W27E512/W27E040 stuck-bit silicon wear; W29C040 flash4 256B page-0 fault confirming Phase-74 fix not silicon-effective → CR-01). W29C020 auto-erase = first Flash/EEPROM auto-erase silicon proof.
 - [Phase 84-05, 2026-06-25]: FIX-01 closed by disposition D-43; GRAD-03/FUT-03 deferred best-effort D-22; 2516 read still unstable after VPP-skip.
 - [Phase 85-01, 2026-06-25]: v1.16-protocol-first-architecture-rebuild branch forked from beta (not v1.15 tip) in firestarter sub-repo; datasheets-check.sh Wave-0 gate authored with 12-bucket %PDF contract (correctly RED at scaffold stage, PASS after Plans 02/03 populate the tree).
+- [Phase ?]: [Phase 85-02, 2026-06-25]: 17 datasheets committed; W27E512→0x07, FM1608→0x28 (DB-verified); 3 D-02 fallbacks: SST27SF512/W27E040/DS1250Y bot-blocked; SAFE-05 intact
 
 ## Performance Metrics
 
 | Phase | Plan | Duration | Notes |
 |-------|------|----------|-------|
 | 85 | 01 | 4min | Wave-0 scaffold: branch fork + datasheets-check.sh |
+| Phase 85 P02 | 10min | - tasks | - files |
 
 ## Deferred Items
 

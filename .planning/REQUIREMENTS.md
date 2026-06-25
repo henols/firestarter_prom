@@ -14,8 +14,8 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Phase n
 
 ### Datasheet Acquisition
 
-- [ ] **DSHEET-01**: Operator/maintainer can find a committed datasheet PDF for each of the 11 on-hand ICs (W27C512, W27E512, SST27SF512, W27E040, SST39SF040, W29C020, W29C040, FM1608, ST M27C512, AM27C020, 2516) under a new top-level `datasheets/` folder.
-- [ ] **DSHEET-02**: Every no-silicon protocol bucket (0x0D, 0x0E, 0x10, 0x27, 0x29, 0x34) has at least one representative datasheet committed, so every protocol has a verification source.
+- [x] **DSHEET-01**: Operator/maintainer can find a committed datasheet PDF for each of the 11 on-hand ICs (W27C512, W27E512, SST27SF512, W27E040, SST39SF040, W29C020, W29C040, FM1608, ST M27C512, AM27C020, 2516) under a new top-level `datasheets/` folder.
+- [x] **DSHEET-02**: Every no-silicon protocol bucket (0x0D, 0x0E, 0x10, 0x27, 0x29, 0x34) has at least one representative datasheet committed, so every protocol has a verification source.
 - [ ] **DSHEET-03**: `datasheets/README.md` indexes hex id ↔ proposed name ↔ handler ↔ datasheet ↔ on-hand status, documents the phantom (0x35/0x39) and infeasible (0x11/0x2A/0x2B/0x2C) bucket exclusions, and annotates provenance for hard-to-source/generic parts (the 2516 representative, discontinued FM1608/AM27C020/X88C64).
 
 ### Naming + Documentation Vocabulary
@@ -84,8 +84,8 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DSHEET-01 | Phase 85 | Pending |
-| DSHEET-02 | Phase 85 | Pending |
+| DSHEET-01 | Phase 85 | Complete |
+| DSHEET-02 | Phase 85 | Complete |
 | DSHEET-03 | Phase 85 | Pending |
 | NAME-01 | Phase 86 | Pending |
 | NAME-02 | Phase 86 | Pending |
@@ -109,6 +109,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SAFE-06 | Phase 86 | Pending |
 
 **Coverage:**
+
 - Milestone v1.16 requirements: 23 total
 - Mapped to phases: 23 ✓
 - Unmapped: 0 ✓
