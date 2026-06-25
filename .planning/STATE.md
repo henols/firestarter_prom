@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
 status: executing
-stopped_at: Phase 86 Plan 04 complete — 2516 + 2532 shipped first-class via tools/extra_chips.json non-upstream supplement merged post-decode (DB 744→746); diff_db EXTRA_CHIPS_SUPPLEMENT exit 0; check_dispatch 0 violations; 2516 UNVERIFIED + wire-stable; baselines NOT re-pinned (86-03 next)
-last_updated: "2026-06-25T18:35:00.000Z"
-last_activity: 2026-06-25 -- Phase 86 Plan 04 executed
+stopped_at: Phase 86 COMPLETE (all 4 plans) — Plan 86-03 re-pinned both diff_db baselines LAST to the correct 746-chip DB (incl. 2516/2532 supplement); chip_database.baseline.json byte-identical, dispatch_baseline.json regenerated (746) w/ Phase-86/SHA-a8efaedc/VAR-05 provenance; diff_db.py now IDENTITY diff exit 0 (D-07 closed); check_dispatch 0 violations; 686 host tests + 77.69% cov + ruff/format/mypy-watermark all green (CI py3.11). Phase 86 gate-green → ready for /gsd-verify-work
+last_updated: "2026-06-25T19:05:00.000Z"
+last_activity: 2026-06-25 -- Phase 86 Plan 03 executed (baseline re-pin — phase complete)
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 7
-  completed_plans: 6
-  percent: 36
+  completed_plans: 7
+  percent: 43
 ---
 
 # Project State
@@ -21,12 +21,12 @@ progress:
 
 ## Current Position
 
-Phase: 86 (infoic.xml Variant-Field Decode + Correct DB Regen)
-Plan: 04 complete — 86-03 (baseline re-pin, Wave 4, LAST) next
-Status: Executing
-Last activity: 2026-06-25 -- Phase 86 Plan 04 executed (2516 + 2532 non-upstream supplement)
+Phase: 86 (infoic.xml Variant-Field Decode + Correct DB Regen) — COMPLETE (4/4 plans)
+Plan: 03 complete (LAST) — Phase 86 fully executed; ready for /gsd-verify-work
+Status: Phase execution complete (awaiting verification)
+Last activity: 2026-06-25 -- Phase 86 Plan 03 executed (baseline re-pin — phase complete)
 
-Progress: [████░░░░░░] 36%
+Progress: [████░░░░░░] 43%
 
 > **Scope amendment 2026-06-25:** Mid-discussion the operator pivoted v1.16 from a
 > pure behavior-preserving refactor to *fix the DB at its root* — decode the
@@ -130,12 +130,13 @@ ruff/codegen drift trap for any host-side NAME-04 corrections in Phase 86.
 
 ## Session Continuity
 
-Last session: 2026-06-25T18:35:00.000Z
-Stopped at: Phase 86 Plan 04 complete — 2516 + 2532 non-upstream supplement (extra_chips.json) merged post-decode; diff_db + check_dispatch green; baselines NOT re-pinned
-Resume: Phase 86 Plan 03 (baseline re-pin — LAST, Wave 4; re-pin chip_database.baseline.json + dispatch_baseline.json to the 746-chip DB) — `/gsd-execute-phase 86`
+Last session: 2026-06-25T19:05:00.000Z
+Stopped at: Phase 86 COMPLETE — Plan 86-03 re-pinned both diff_db baselines LAST to the correct 746-chip DB; diff_db.py now IDENTITY diff exit 0 (D-07 closed); check_dispatch 0 violations; full py3.11 gate green (686 tests / 77.69% cov / ruff / format / mypy-watermark)
+Resume: Phase 86 is gate-green and ready for verification — `/gsd-verify-work` (then Phase 87 Naming + Documentation Pass)
 
 ## Decisions
 
+- [Phase 86-03, 2026-06-25]: VAR-03/04/SAFE-04 — re-pinned BOTH diff_db baselines LAST (D-07 / RESEARCH Pitfall 4: only after the 86-02 + 86-04 classified diff was reviewed PASS-all incl. the 2516/2532 supplement rows). chip_database.baseline.json = byte-identical cp of the 746-chip correct DB (load-bearing diff_db gate). dispatch_baseline.json regenerated (746 chips) by faithfully mirroring check_dispatch.py main()'s own per-chip mem_type derivation + dispatch() (no committed generator exists — RESEARCH A2); meta provenance cites Phase 86 + minipro SHA a8efaedc + the VAR-05 supplement (supersedes the Phase 66 Plan 04 744-chip capture); 66 dispatch deltas are the legitimate 28C-EEPROM→configure_eeprom28c (0x0D) consolidation + 2 added supplement chips (X88C64P stays not_implemented; mem_type None→1 benign). RESULT: diff_db.py now an IDENTITY diff (0 changed/0 new/0 missing, exit 0). Full phase gate green vs CI py3.11: 686 host tests, 77.69% coverage (≥70 floor), ruff check + ruff format --check clean (firestarter/ tests/), mypy watermark 35==35 exit 0 (mypy 2.1.0 confirmed present, not the MISSING-prints-OK trap). 4 ruff errors in tools/ confirmed pre-existing (present @ dd541f6~1) AND out-of-CI-scope (ci.yml lints firestarter/ tests/ only). SAFE-04 intact: no write path / host guard / 2516 wire values touched; 2516 UNVERIFIED preserved. Commit firestarter_app@dd541f6. Phase 86 COMPLETE (4/4) → ready for /gsd-verify-work.
 - [Phase 86-04, 2026-06-25]: VAR-05/SAFE-04 — shipped 2516 + 2532 (upstream-absent 24-pin oddballs) first-class via curated provenance-cited non-upstream supplement tools/extra_chips.json (D-10), merged by build_db.py AFTER the infoic.xml decode loop / BEFORE json.dump (NOT routed through classify()/resolve_pinout_key — fully-specified). DB 744→746. KEY: 2516 UNVERIFIED expressed via a verification_status field, NOT support_status — support_status stays "supported" so the chip is resolvable for read/info (the host guard refuses ANY non-"supported" chip, which would block read); wire values verbatim from v1.15 user-override (0x0B/DIP24_2716/UV-EPROM/25000mV/2048B; SAFE-04). 2532 is non-JEDEC → new DIP24_2532 pinout (VPP=pin21, A11=pin18; distinct from DIP24_2732; vpp-pin satisfies GATE-03). diff_db EXTRA_CHIPS_SUPPLEMENT rule fences source=non-upstream-supplement NEW rows as cited (exit 0, PASS all 72). check_dispatch 0 violations (746 chips, 736 supported). 8 supplement tests green. Downstream goldens regen for the legitimate 744→746 (coverage matrix + test_characterization list; only the 2 new rows). Baselines NOT re-pinned (86-03 LAST). Commits firestarter_app@94ea3b5/4054bfe/5e368d1.
 - [Phase 79-02, 2026-06-23]: NMOS-02 executed under CONTEXT D-07 operator override. VPE = 22.4V DMM / 23.9V fw; ceiling 22000→25000; 4 NMOS chips graduated `vpp-exceeds-max`→`supported` (0x0B, 25000mV). Best-effort, no HW change ever. FUT-02 (>25V fail-closed) preserved.
 - [Phase 82, 2026-06-24]: Rewritable silicon validation: 5 PASS / 3 FAIL (W27E512/W27E040 stuck-bit silicon wear; W29C040 flash4 256B page-0 fault confirming Phase-74 fix not silicon-effective → CR-01). W29C020 auto-erase = first Flash/EEPROM auto-erase silicon proof.
@@ -156,6 +157,7 @@ Resume: Phase 86 Plan 03 (baseline re-pin — LAST, Wave 4; re-pin chip_database
 | 85 | 03 | 5min | README.md authored + phase-gate PASS (DSHEET-03) |
 | 86 | 01 | 14min | VAR-01 DECODE-NOTES.md + Wave-0 oracle (FM1608 GREEN / X88C64 RED-as-designed / EVIDENCE GREEN); build_db.py untouched |
 | 86 | 04 | 34min | VAR-05/SAFE-04 — 2516 + 2532 non-upstream supplement (extra_chips.json + DIP24_2532); post-decode merge (744→746); diff_db EXTRA_CHIPS_SUPPLEMENT exit 0; check_dispatch 0 violations; 8 supplement tests; 2516 UNVERIFIED + wire-stable; 686 host tests green |
+| 86 | 03 | 17min | VAR-03/04/SAFE-04 — re-pin both baselines LAST to the 746-chip correct DB (chip_database.baseline.json byte-identical; dispatch_baseline.json regenerated via check_dispatch mirror + Phase-86/SHA-a8efaedc/VAR-05 provenance); diff_db.py now IDENTITY diff exit 0 (D-07 closed); check_dispatch 0 violations; full py3.11 gate green (686 tests / 77.69% cov / ruff / format / mypy-watermark); 4 tools/ ruff errors pre-existing + out-of-CI-scope. Phase 86 COMPLETE |
 
 ## Deferred Items
 

@@ -98,7 +98,7 @@ Full detail: [`.planning/milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.
 ### Phases
 
 - [x] **Phase 85: Datasheet Acquisition** — Commit datasheets for the 11 on-hand ICs + one representative per no-silicon bucket; author `datasheets/README.md` index. Zero code risk; unblocks the naming pass. **(3 plans, 3 waves)** ✓ 2026-06-25
-- [ ] **Phase 86: infoic.xml Variant-Field Decode + Correct DB Regen** *(NEW — inserted 2026-06-25)* — Decode the `infoic.xml` `variant` field in full (low byte already used for pinout family; crack the previously-undecoded high byte, acquiring datasheets / consulting minipro source as needed); rewrite `build_db.py` to classify `electrical.type`/`algorithm`/`pinout` from principled variant-driven decode and **delete** the hand-maintained Rule 1/2/3 override stack; regenerate `chip_database.json`. Host-only. Gates: `check_dispatch.py` 0 violations + every `diff_db.py` row explained by a cited decode rule (baseline re-pinned) + the 11 on-hand bench-proven chips' wire values unchanged-or-rebenched.
+- [x] **Phase 86: infoic.xml Variant-Field Decode + Correct DB Regen** *(NEW — inserted 2026-06-25)* — Decode the `infoic.xml` `variant` field in full (low byte already used for pinout family; crack the previously-undecoded high byte, acquiring datasheets / consulting minipro source as needed); rewrite `build_db.py` to classify `electrical.type`/`algorithm`/`pinout` from principled variant-driven decode and **delete** the hand-maintained Rule 1/2/3 override stack; regenerate `chip_database.json`. Host-only. Gates: `check_dispatch.py` 0 violations + every `diff_db.py` row explained by a cited decode rule (baseline re-pinned) + the 11 on-hand bench-proven chips' wire values unchanged-or-rebenched.
 - [ ] **Phase 87: Naming + Documentation Pass** *(was 86)* — Author the 12-bucket protocol vocabulary (hex ID → slug + descriptive name → datasheet-verified behavior) in `firestarter/doc/PROTOCOLS.md`, document each handler's *why* inline + cited to its datasheet, enumerate all 9 accreted one-off-fix invariants as a native-test traceability matrix, and document the now-correct FM1608/X88C64 decode (delivered structurally by Phase 86). Dispatch structure and firmware wire values unchanged; near-zero flash delta.
 - [ ] **Phase 88: Golden Traces + Dispatch-Mirror Guard** *(was 87)* — Pin per-family native register golden traces and add the `check_dispatch.py::dispatch()`-matches-documented-order invariant test before any code extraction. Establishes the recompose oracle.
 - [ ] **Phase 89: Incremental Primitive Recompose** *(was 88)* — Extract P7 SDP-table dedup (warm-up) → P4 chip-ID compare/report → P3 VPP gate → P5 poll, each guarded by native suites + `check_dispatch.py` + `diff_db.py`; `pio run -e leonardo` measured at every step with net-non-increase gate; achieved flash % reported.
@@ -162,7 +162,7 @@ Plans:
 
 **Wave 4** *(blocked on Waves 2 + 3)*
 
-- [ ] 86-03-PLAN.md — VAR-03/04 + SAFE-04: re-pin both baselines LAST (after the 86-02 + 86-04 diff reviewed); test_diff_db_gate identity pass; full py3.11 toolchain gate (ruff/format/mypy/pytest)
+- [x] 86-03-PLAN.md — VAR-03/04 + SAFE-04: re-pin both baselines LAST (after the 86-02 + 86-04 diff reviewed); test_diff_db_gate identity pass; full py3.11 toolchain gate (ruff/format/mypy/pytest) — ✅ 2026-06-25 (firestarter_app@dd541f6; chip_database.baseline.json byte-identical re-pin to the 746-chip DB incl. 2516/2532; dispatch_baseline.json regenerated (746) via check_dispatch mirror + Phase-86/SHA-a8efaedc/VAR-05 provenance; diff_db.py now IDENTITY diff exit 0 (0 changed/0 new/0 missing, D-07 closed); check_dispatch 0 violations; 686 host tests green, 77.69% coverage; ruff/format/mypy-watermark clean (CI py3.11 scope); 4 ruff errors in tools/ confirmed pre-existing + out-of-CI-scope; SAFE-04 intact — 2516 UNVERIFIED + wire-stable, no host guard touched)
 **UI hint**: no
 
 ### Phase 87: Naming + Documentation Pass *(was 86)*
@@ -799,7 +799,7 @@ Plans:
 | 83 | v1.15 | 3/3 | Complete   | 2026-06-24 |
 | 84 (close) | v1.15 | 6/6 | Complete   | 2026-06-25 |
 | 85 | v1.16 | 3/3 | Complete    | 2026-06-25 |
-| 86 | v1.16 | 2/4 | In Progress | 86-01 (VAR-01 docs + Wave-0 oracle) ✅; 86-02 (classify() rewrite + correct DB regen) ✅ 2026-06-25; 04/03 pending |
+| 86 | v1.16 | 4/4 | Complete | 86-01 (VAR-01 docs + Wave-0 oracle) ✅; 86-02 (classify() rewrite + correct DB regen) ✅; 86-04 (2516/2532 non-upstream supplement, DB→746) ✅; 86-03 (baseline re-pin LAST → diff_db IDENTITY exit 0; full py3.11 gate green) ✅ 2026-06-25 |
 | 87 | v1.16 | 0/TBD | Not started | — |
 | 88 | v1.16 | 0/TBD | Not started | — |
 | 89 (close) | v1.16 | 0/TBD | Not started | — |
