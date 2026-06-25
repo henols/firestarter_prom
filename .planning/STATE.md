@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.14
-milestone_name: — Feasible-Gap Implementation
+milestone: v1.15
+milestone_name: — Bench Validation of Operator Inventory
 status: Awaiting next milestone
-stopped_at: Phase 79 plan 79-02 complete — host VPP ceiling raised 22000->25000, 4 NMOS chips graduated to `supported` BEST-EFFORT under the CONTEXT D-07 operator override
-last_updated: "2026-06-23T11:54:41.172Z"
-last_activity: 2026-06-23 — Milestone v1.14 completed and archived
+stopped_at: "Phase 84 Plan 06 complete — DECODE-AUDIT.md finalized; FIX-01 closed per D-43; GRAD-03/FUT-03 DEFERRED D-22; SC#3 gate GREEN; ready for /gsd-verify-work"
+last_updated: "2026-06-25T10:43:10.715Z"
+last_activity: 2026-06-25 — Milestone v1.15 completed and archived
 progress:
   total_phases: 4
-  completed_phases: 2
-  total_plans: 13
-  completed_plans: 9
-  percent: 50
+  completed_phases: 4
+  total_plans: 15
+  completed_plans: 15
+  percent: 100
 ---
 
 # Project State
@@ -21,87 +21,105 @@ progress:
 
 ## Current Position
 
-Phase: Milestone v1.14 complete
+Phase: Milestone v1.15 complete
 Plan: —
 Status: Awaiting next milestone
-Last activity: 2026-06-23 — Milestone v1.14 completed and archived
+Last activity: 2026-06-25 — Milestone v1.15 completed and archived
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (v1.14 Archive section + Key Decisions)
+See: `.planning/PROJECT.md` (v1.15 Current Milestone section + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative
-from upstream XML → DB → wire JSON → firmware handler. No guessing.
+from upstream XML → DB → wire JSON → firmware handler. No guessing. **v1.15 proves that
+contract holds on real silicon** for the operator's 11-chip physical inventory.
 
-**Current focus:** No active milestone — v1.14 SHIPPED 2026-06-23. Plan the next milestone
-via `/gsd-new-milestone` (fresh requirements). v1.14 delivered the first chip graduations since
-v1.0 (erase write-path Phase 77 bench-proven; 25V NMOS best-effort Phase 79) with X88C64
-(Phase 78) + AT28C04/16 adapter (Phase 80) cleanly deferred to FUT-01/03/04. Meta tagged
-`v1.14`, gsd planning merged to `beta`; lockstep beta cut `3.0.0b11` + submodule gitlink bump
-remain OPERATOR-GATED (gitlinks PINNED). Standing carry-forward: deferred v1.9 read-bug RCA
-(resumes at Phase 45).
+**Current focus:** Phase 84 — db-decode-audit-conditional-defect-rca-milestone-evidence-co
+read+blank-check sweep across all 11 chips on Leonardo + RURP Rev 2.0, establishing the evidence
+record and the bench-safety baseline (SAFE-01/02/03) with zero chips consumed. Board LOCKED =
+Leonardo + Rev 2.0 (only trustworthy program/write/verify combo); mostly host-side; firmware
+untouched unless a bench-surfaced defect forces a lockstep fix. v1.14 `3.0.0b11` lockstep beta cut
+remains OPERATOR-GATED (gitlinks PINNED). Standing carry-forward: deferred v1.9 read-bug RCA
+(resumes at Phase 45 → FUT-C).
 
 ## Roadmap Summary
 
-**v1.14 ACTIVE — 4 phases (77–80), 15/15 requirements mapped:**
+**v1.15 ACTIVE — 4 phases (81–84), 23/23 requirements mapped. Non-destructive-first ordering:**
 
-- **Phase 77: Erase Write-Path Graduation** (ERASE-01, ERASE-02 + cross-cutting SAFE-01/02/03) —
-  host-only, most-ready. Wire `FLAG_CAN_ERASE` from `electrical.type=="EEPROM"` (not the always-zero
-  `info-flags & 0x10`) in `database.py::convert_to_programmer` so the 7–8 0x07 EE-EPROMs auto-erase
-  before write; firmware `eprom_write_init` guard already honors the flag. Bench-confirm
-  write→erase→program→verify on Leonardo with W27C512 (14V erase-rail chip-OUT VPP dry-run first).
-  This is the skipped v1.13 Phase 75; establishes the SAFE-01/02/03 graduation-gate-last pattern.
+- **Phase 81: 2516 DB Entry + Non-Destructive Read Sweep** (GRAD-01/02, SWEEP-01/02, EVID-01/02/03,
+  DB-02, SAFE-01/02/03) — host-only, zero chips consumed. Author the `2516` user-override entry in
+  `~/.firestarter/database.json` (algorithm 0x0B, pinout DIP24_2716, UV-EPROM, vpp_mv 25000, 2048 B)
 
-- **Phase 78: X88C64 0x34 Firmware Handler** (XIC-01..04) — the ONLY firmware-adding gap →
-  dual-repo lockstep. **ALE-routing bench investigation is the FIRST plan** (Assumption A6 LOW
-  confidence; if PCB-blocked, X88C64 defers as FUT-01 and the phase still closes). Then
-  `configure_x88c64` (8051 multiplexed bus, page write ≤32 B, toggle-bit I/O6 polling) registered in
-  `memory.cpp` **before** the `protocol != 0 → configure_not_implemented` guard. `pio run -e leonardo`
-  ≤ ~90% flash is a gate (~3 KB headroom). Graduate X88C64P after N≥5 Leonardo write+read-back.
+  + **manual safety review** (the override bypasses `check_dispatch.py`/`diff_db.py`). Read +
+  blank-check ALL 11 chips on Leonardo + Rev 2.0; record the per-chip EVIDENCE.{md,json} rows + the
+  3 UV-EPROM blank-states (gates Phase 83). **Pre-write code review:** confirm `FLAG_CAN_ERASE` is
+  derived for BOTH `EEPROM` and `Flash/EEPROM` types. Homes the SAFE-01/02/03 bench discipline.
 
-- **Phase 79: 25V NMOS Ceiling Raise** (NMOS-01..03) — host-only but hardware-gated.
-  **Operator multimeter ≥25V chip-OUT dry-run is the FIRST plan (`autonomous: false`)** before the
-  constant changes (the 22V ceiling reflects a rail/calibration limit; firmware does NO runtime VPP
-  enforcement). Then `RURP_VPP_CEILING_MV` 22000→25000 + `check_dispatch.py` invariant; re-classify +
-  graduate the 4 NMOS chips (INTEL M2716/M2732, SGS-THOMSON ETC2716, ST M2716). M2732A (21V) already
-  supported; >25V chips stay fail-closed (FUT-02).
+- **Phase 82: Electrically-Rewritable Silicon Validation** (REWR-01..05, DB-01) — full
+  write→(auto-erase)→read→verify with SHA for the 8 freely-rewritable chips: W27C512/W27E512/
+  SST27SF512 (0x07), W27E040 (0x08), SST39SF040 (0x06), W29C020+W29C040 (0x05, confirm Flash/EEPROM
+  auto-erase), FM1608 (0x40 overwrite). Reuse `write_test.sh` / `dev validate-family`; non-vacuous
+  PASS (N≥3 Leonardo read + negative control); confirm DB decode vs silicon per chip.
 
-- **Phase 80: AT28C04/16 Adapter Graduation** (ADPT-01..03) — host-only software but
-  HARDWARE-BLOCKED on the physical adapter → sequenced last; defers cleanly without blocking 77–79.
-  **Build the DIP24→DIP32 adapter + DMM /WE-reroute continuity check FIRST** (chip pin 21 → socket
-  pin 30 vs `DIP32_28C512_EEPROM`). Then wire the 9 chips through the existing `configure_eeprom28c`
-  (0x0D, VPP-free) handler; remove the `_AT28C_DIP24_NAMES` arm + the `adapter-required` refusal;
-  graduate after a golden Leonardo write+read-back round-trip with the adapter seated.
+- **Phase 83: UV-EPROM Write Proof** (UV-01..04, GRAD-03) — gated on Phase 81 blank-state; spend-vs-
+  preserve decided per chip live at the bench (operator has no eraser → every UV write is
+  irreversible). Blank → full image; non-blank → all-`0x00`/AND-mask (1→0 only). ST M27C512 (0x07) +
+  AM27C020 (0x08) read+decode + write-proof-if-spent. The `2516` bench proof on the ~22.4V VPE rail
+  (read via `firestarter vpe`, N≥3 SHA, fw under-voltage warning documented) **closes FUT-03**
+  (best-effort per v1.14 D-07; over-voltage stays blocked).
 
-**Build order (operator-locked 2026-06-18):** 999.4 → 999.5 → 999.7 → 999.6 (= Phase 77 → 78 → 79 →
-80). PITFALLS noted a defensible flash-headroom swap (25V before X88C64); operator-captured order
-stands. Three of four gaps are HOST-ONLY / zero firmware flash; only Phase 78 consumes the ceiling.
+- **Phase 84: DB Decode Audit + Conditional Defect RCA** (FIX-01) — consolidate the per-chip evidence
+  into a decode-correctness audit (all 11 chips vs DB: pinout/VPP/type/algorithm/size). Conditional:
+  any bench-surfaced defect is root-caused + fixed (host-only or dual-repo lockstep) + re-verified,
+  with `check_dispatch.py`/`diff_db.py`/host suite green; else records "none found / bench clean".
 
-**Cross-cutting safety (SAFE-01/02/03, mapped to Phase 77, recur in 78–80):** each graduation removes
-the v1.12 `chip_resolver.resolve_chip` host-guard refusal **as the FINAL step**, gated behind native
-register-bit (recording-stub) tests + host wire round-trip + a Leonardo bench proof (chip-OUT VPP
-multimeter dry-run first); `check_dispatch.py` full-DB VPP-safety gate passes after each; any `FLAG_*`/
-protocol constant touched in `constants.py` + `firestarter.h` changes in lockstep (parity tests green).
+**Build order (research-locked, safety-load-bearing):** 81 → 82 → 83 → 84 (non-destructive →
+rewritable → UV-spend → audit). Phases 81–83 are sequential (Phase 83 cannot start until Phase 81's
+UV blank-states are known). Phase 84 is conditional (documentation-only if 81–83 are clean).
 
-**Standing bench precondition (every hardware phase 77–80):** **Leonardo is the ONLY trustworthy
-program/write/verify board** (v1.9 read bug corrupts the oracle on Rev-0/Rev-2.0); **uno328pb is N/A
-for program/write** (999.2 brownout); live R1/R2 readback (`r1 ≈ 270000`) each task; chip-OUT before
-any Uno-class sideload (Leonardo exempt); **ASK which silkscreen shield rev is mounted**; verify
-`controller:` port identity per task.
+**Cross-cutting safety (SAFE-01/02/03, homed in Phase 81, recur in 82–84):** every bench task records
+board=Leonardo, shield=Rev 2.0 (operator-stated), `controller:` port identity, live R1/R2 readback
+(`r1 ≈ 270000`); host suite green incl. the 0xA4 `test_init_phase_data_frames_not_acked` guard before
+any session; no non-Leonardo read is authoritative; no UV part written before blank-check + explicit
+spend decision; over-voltage blocked (under-voltage warn-and-proceed accepted best-effort).
 
-**Flash budget at v1.14 start:** Leonardo ~89.5% / ~3 KB free post-v1.13. Only the Phase 78 X88C64
-handler (~1–3 KB) consumes it → measured `pio run -e leonardo` ≤ ~90% gate.
+**Standing bench precondition (every phase 81–84):** **Leonardo + RURP Rev 2.0 is the ONLY trustworthy
+program/write/verify combo** (v1.9 read bug corrupts the oracle on Rev-0/Rev-2.0 elsewhere; uno328pb
+N/A for program/write). For the 2516/0x0B NMOS rail use `firestarter vpe` (NOT `vpp` — that reads the
+~15–19V dropped rail); chip-OUT before any Uno-class sideload (Leonardo EXEMPT); ASK which silkscreen
+shield rev is mounted; verify `controller:` port identity per task after any USB event.
 
-**Pre-req:** v1.13's `3.0.0b10` lockstep beta cut is operator-gated; v1.14 branches off `beta` once it
-has landed in both sub-repos. Branch setup is folded into Phase 77 (no thin precursor phase).
+**Reuse-first:** NO new harness or third-party dependency (EVID-02). Reuse `firestarter write/read/
+verify`, `dev validate-family`, `write_test.sh`, `check_dispatch.py`, `diff_db.py`. One new artifact:
+`.planning/v1.15/bench/EVIDENCE.{md,json}` (extends, not replaces, the v1.13 per-family matrix).
 
-**Prior milestones:** v1.13 SHIPPED 2026-06-18 (Phases 71–76; dual-repo lockstep on `beta` — fw
-`a33513f` / app `34deccb` @ `3.0.0b9`, no tag). v1.12 SHIPPED 2026-06-16. v1.11 SHIPPED 2026-06-10.
-v1.10 SHIPPED 2026-06-07. v1.9 Read-Bug RCA DEFERRED (Phases 45–48; resume at Phase 45).
+**Pre-req:** Branches off `beta`. v1.14's `3.0.0b11` lockstep beta cut is operator-gated (gitlinks
+PINNED); v1.15 host work proceeds on the `v1.14-feasible-gap-implementation` continuation / a v1.15
+branch per standing policy. Firmware likely untouched (Leonardo ~89.5% flash, `configure_eprom`
+0x07/0x08/0x0B handles all UV families incl. the 2516).
+
+**Prior milestones:** v1.14 SHIPPED 2026-06-23 (Phases 77–80; first chip graduations since v1.0). v1.13
+SHIPPED 2026-06-18. v1.12 SHIPPED 2026-06-16. v1.11 SHIPPED 2026-06-10. v1.10 SHIPPED 2026-06-07. v1.9
+Read-Bug RCA DEFERRED (Phases 45–48; resume at Phase 45 → FUT-C).
 
 ## Accumulated Context
 
 ### Roadmap Evolution
+
+- v1.15 roadmap created 2026-06-23: 4 phases (81–84) derived from the 23 v1.15 requirements
+  (EVID/SWEEP/REWR/UV/GRAD/DB/FIX/SAFE) along the research-locked non-destructive-first spine
+  (81 read-sweep+2516-entry → 82 rewritable write/verify → 83 UV-spend → 84 audit/RCA). 23/23
+  mapped, no orphans/duplicates (Phase 81: 11 · Phase 82: 6 · Phase 83: 5 · Phase 84: 1).
+  SAFE-01/02/03 cross-cutting, homed in Phase 81 (first bench phase establishing the
+  port-identity + r1 + Leonardo-only-authoritative discipline) and recurring as preconditions/
+  success-criteria in 82–84 (v1.14 SAFE-pattern precedent). GRAD-01/02 (2516 research + entry +
+  manual review) home in Phase 81; GRAD-03 (2516 bench proof, closes FUT-03) in Phase 83. DB-02
+  (FLAG_CAN_ERASE Flash/EEPROM review) precedes any write → Phase 81; DB-01 (per-chip decode-vs-
+  silicon) in Phase 82. FIX-01 is conditional (closes "none found" if the bench is clean) → Phase
+
+  84. Phases 81→82→83 sequential (Phase 83 gated on Phase 81 UV blank-states); Phase 84
+  documentation-only if clean. Phase 83 (2516 NMOS under-voltage at ~22.4V VPE) flagged for
+  `--research-phase` at planning (no prior 2516 silicon data; second NMOS data point after Phase 79).
 
 - v1.14 roadmap created 2026-06-18: 4 phases (77–80) derived from the 15 v1.14 requirements
   (ERASE/XIC/NMOS/ADPT/SAFE) — one phase per feasible gap along the operator-locked build order
@@ -172,9 +190,9 @@ applies to any wire-touching fix; watch the py3.12-masks-CI-3.11 ruff/codegen dr
 
 ## Session Continuity
 
-Last session: 2026-06-23 — **Milestone v1.14 closed** (`/gsd-complete-milestone v1.14`): archived (ROADMAP/REQUIREMENTS/audit → `.planning/milestones/v1.14-*`), MILESTONES.md + PROJECT.md + RETROSPECTIVE.md updated, ROADMAP collapsed, REQUIREMENTS.md removed, meta tagged `v1.14`, gsd planning merged to meta `beta`.
-Stopped at: v1.14 complete. No active milestone.
-Resume: Start the next milestone with `/gsd-new-milestone` (fresh requirements). **OPERATOR-GATED & still open:** the lockstep beta cut (`3.0.0b11` — firestarter_app version bump + submodule gitlink bump + PyPI/GitHub pre-release) is deferred to operator authorization; gitlinks stay PINNED. Carry-forward: deferred v1.9 read-bug RCA (Phase 45); v1.14 FUT items (FUT-01 X88C64 ALE PCB-mod, FUT-03 NMOS bench SHA-match, FUT-04 AT28C04/16 adapter build).
+Last session: 2026-06-25T10:12:21.730Z
+Stopped at: Phase 84 Plan 06 complete — DECODE-AUDIT.md finalized; FIX-01 closed per D-43; GRAD-03/FUT-03 DEFERRED D-22; SC#3 gate GREEN; ready for /gsd-verify-work
+Resume: Phase 83 (UV-EPROM Write Proof) — `/gsd-discuss-phase 83` or `/gsd-plan-phase 83`. **GATED:** Phase 83 needs the Phase-81 UV blank-states (ST M27C512 BLANK / AM27C020 NOT-BLANK / 2516 read-unstable→no write until read path stable); operator has no eraser so every UV write is irreversible (spend-vs-preserve decided live). **BENCH NOTE:** board is now **fw 3.0.0b10** (reflashed in Phase 82, was b8); flash4 has no bulk-erase (per-page auto-erase via `write -b`). Carry-forward: W29C040 flash4 page-write fault → Phase 84 / reopen Phase-74 Wave-2; deferred v1.9 read-bug RCA (Phase 45); v1.14 FUT-01/03/04; operator-gated lockstep beta cut (`3.0.0b11`, gitlinks PINNED).
 
 ## Decisions
 
@@ -183,6 +201,10 @@ Resume: Start the next milestone with `/gsd-new-milestone` (fresh requirements).
 - [Phase 79-01 — SUPERSEDED 2026-06-22 wrong-rail run]: prior NOT-CLEARED used `firestarter vpp`, which forces the DROPPED 0x07/0x08 ~12V path (hardware_operations.cpp:28) — the wrong rail for these 0x0B chips. Verdict superseded by the corrected re-run above (CONTEXT D-03). Kept for history; do NOT treat its ~12V / PCB-resistor framing as current.
 
 _(v1.13 decisions will be recorded here as phases execute.)_
+
+- [Phase 82, 2026-06-24]: SHIPPED — rewritable A→B silicon validation, 8 chips, **5 PASS / 3 FAIL**, verification PASSED (REWR-02 operator-deferred). PASS: W27C512, SST27SF512 (0x07), SST39SF040 (0x06), FM1608 (0x40 overwrite), W29C020 (0x05 — auto-erase proven = FLAG_CAN_ERASE Flash/EEPROM branch first silicon confirmation, REWR-04 SC#3). Every PASS non-vacuous (consistency-check N=3 + neg-control verify(A) RC=1). FAILs: W27E512 (0x07 stuck bit @0x3d) + W27E040 (0x08 stuck bit @0x7db) = genuine silicon wear (deterministic across reseats, decode/erase engaged correctly — NOT algo/DB faults); W29C040 (0x05) flash4 page-write timeout @0xff/256B boundary. EVIDENCE.{md,json} = 19 cells (11 Phase-81 read preserved + 8 Phase-82 write). One code artifact: firestarter_app/tools/gen_test_image.py (deterministic random.Random(seed) image oracle) + 12 pinning tests, ruff-clean, 663 host tests green (SAFE-02). No inline chip_database.json edit; 3 DB-01 type observations recorded for Phase 84.
+- [Phase 82, 2026-06-24] FW DEVIATION: board reflashed **3.0.0b8 → 3.0.0b10** mid-phase (operator-authorized) to get the Phase-74 flash4 W29C040 SDP/256B-page fix. NO firmware SOURCE changed (firestarter submodule untouched on beta; b10 is the existing v1.13 release via `firestarter fw --install --firmware-version 3.0.0b10`). Calibration persisted (R1=270000/R2=44000), port stayed /dev/ttyACM0. Phase 81 + 82-02 ran on b8; 82-03 on b10. flash4 has NO working bulk-erase on either (standalone `erase` is a 0.06s no-op) — per-page auto-erase fires during `write -b` (write-cycle blank-checks so it can't drive flash4; used direct `write -b` like FM1608).
+- [Phase 82, 2026-06-24] CRITICAL → Phase 84 / reopen Phase-74 Wave-2: **W29C040 (512KB flash4) FAILs on real silicon** at the 256B page-0 boundary (mid-page-poll timeout @0xff, byte stays 0x00) on b10 — this is the FIRST real-silicon test of the Phase-74 W29C040 SDP/256B-page fix (Phase-74 Wave-2 re-bench was DEFERRED, fix was native-test-only). Inverts the CR-01 expectation: the supposedly-affected W29C020 (256KB) PASSED clean, the supposedly-correct W29C040 (512KB) FAILED. Phase-84 FIX-01 headline (likely dual-repo lockstep firmware fix).
 
 <details>
 <summary>v1.12 decisions (archived — milestone shipped 2026-06-16)</summary>
@@ -237,6 +259,15 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 - [Phase ?]: [Phase 78-01]: A6 VERDICT PCB-BLOCKED (HIGH) — control register fully allocated 0x01..0x80 (rurp_pinout.h:74-97); 0x100 non-transmissible via uint8_t rurp_write_data_buffer (rurp_shield.h:118); no free 74HC573 strobe; D-02 bar prohibits busy-bit reuse. Plan 02 takes deferral branch.
 - [Phase ?]: [Phase 78-01]: XIC-04 graduation deferred to FUT-01 — no physical X88C64P chip/adapter (D-04) + PCB-blocked ALE; X88C64 stays protocol-not-implemented + host-refused; SAFE-01/02/03 hold trivially (no code change).
 - [Phase 78-02]: Contingent handler-write plan took DEFER branch (Branch A) — leading [BLOCKING] gate read A6 VERDICT: PCB-BLOCKED directly; D-02 prohibits busy-bit reuse so proceed-path unauthorized. Appended `Branch A — ALE PCB-blocked, no handler code; graduation deferred FUT-01.` to X88C64-FEASIBILITY.md; Tasks 2-5 skipped; firestarter src/include/test + firestarter_app pinouts/DB/chip_resolver all CLEAN; X88C64P support_status unchanged (protocol-not-implemented); host-guard intact. XIC-02/03 vacuous on this branch.
+- [Phase ?]: gen_test_image.py uses random.Random(seed) for deterministic full-size images; seed recorded in EVIDENCE enables reproducible SHA oracle
+- [Phase 83-01, 2026-06-24]: SAFE-02 software preflight GREEN — host suite 663 tests + 0xA4 guard `test_init_phase_data_frames_not_acked` + CI-scoped ruff (`firestarter/ tests/`) all pass. Generated the 2 UV write payloads in `/tmp/firestarter_bench_p83/`: `ST_M27C512_img.bin` (65536B, `gen_test_image 65536 seed=1`, SHA `604d9570…1645d637`, reproducible) + `AM27C020_zeros.bin` (262144B all-0x00, SHA `8a39d2ab…589b4a90` == sha256 of 262144 zero bytes). EVIDENCE.md Phase 83 section scaffolded: scope to 2 read-stable UV chips (ST M27C512 + AM27C020), 2516/GRAD-03/SC#4/FUT-03 DEFERRED to Phase 84 (D-01) with the D-08 PASS bar pre-recorded, empty write-proof results table. Zero source/firmware/dep change (EVID-02). Broad `ruff check .` `tools/`-tree findings flagged out-of-CI-scope (pre-existing, ci.yml gates `firestarter/ tests/` only), NOT masked.
+- [Phase ?]: Phase 84-02: D-30 SRAM/FRAM blank-check short-circuit implemented in check_eprom_blank() via _SRAM_PROTO_IDS = frozenset({0x0E, 0x27, 0x28, 0x29}). Detection by electrical-type (SRAM/FRAM) OR protocol-id membership fires before _operation_context. Prevents 0xA4 MSG_ERR_EMPTY_INPUT for FM1608 and all SRAM families. Wire/firmware/messages.py unchanged (D-11/D-30).
+- [Phase ?]: Phase 84-03 sst-keep: SST39SF040 stays Flash/EEPROM; relabeling drops FLAG_CAN_ERASE; Phase-77/82 auto-erase preserved
+- [Phase ?]: Phase 84-03 fm-fram-full: FM1608 SRAM→FRAM at build_db.py codegen layer; _ELECTRICAL_TYPE_LABEL['FRAM']='FRAM'; VPP gate not-in-{SRAM,FRAM}; CAN_ERASE unaffected (FRAM not in {EEPROM,Flash/EEPROM}); 673/673 tests green
+- [Phase 84-05]: 2516 read still unstable (N=3, 3 distinct SHAs, 1.9% divergence) after VPP-skip; instability not solely VPP-gated; GRAD-03/FUT-03 DEFERRED (D-22); AM27C020 0x08 write 0-bits (FUT-06); W29C040 flash4 Phase-74 fix not silicon-effective (reopen CR-01/Phase-74-Wave-2); FIX-01 closed by disposition
+- [Phase ?]: FIX-01 CLOSED per D-43 — in-posture fixes shipped + bench-confirmed; deferrals named (FUT-06/CR-01); milestone close operator-gated
+- [Phase ?]: GRAD-03/FUT-03 DEFERRED best-effort (D-22) — 2516 read still unstable N=3 after Phase-84 VPP-skip re-bench; intentional deferral, not a gap
+- [Phase ?]: SC#3 full software gate GREEN — check_dispatch/diff_db/ruff/native all exit 0; pio native 87/87; live-board test artifact is pre-existing/non-regression
 
 ## Performance Metrics
 
@@ -282,8 +313,24 @@ _(v1.13 decisions will be recorded here as phases execute.)_
 | Phase 76 P02 | 12min | - tasks | - files |
 | Phase 78 P01 | 12min | 2 tasks | 1 files |
 | Phase 78 P02 | 6min | 1 task | 1 files (DEFER branch — zero code changes) |
+| Phase 82 P01 | 20min | - tasks | - files |
+| Phase 83 P01 | 7min | 2 tasks | 1 files |
+| Phase 84 P01 | 12 minutes | 3 tasks | 3 files |
+| Phase 84 P02 | 9min | - tasks | - files |
+| Phase 84 P05 | 15min | 3 tasks | 2 files |
+| Phase 84 P06 | 8min | 3 tasks | 2 files |
 
 ## Deferred Items
+
+**Re-acknowledged at v1.15 milestone close (2026-06-25):** the pre-close `audit-open` reported **12 open
+items** — all either pre-existing carry-forwards (re-confirmed below; none are v1.15 work) or intentional
+v1.15 deferrals. The operator chose **Acknowledge & close**. Notable v1.15-specific dispositions: Phase 84
+VERIFICATION reads `human_needed` only because the D-22/D-43 disposition sign-offs are operator judgment
+calls — **both already operator-accepted** (the frontmatter status line was simply not flipped); 2 new
+firmware/docs todos (`skip-vpp...on-reads` — VPP-skip already SHIPPED in 84-01; `gather-protocol-datasheets`
+— v1.16 seed) are deferred captures, not gaps. The stale `v1.15-MILESTONE-AUDIT.md` (`gaps_found`) predates
+Phase 84; its two gaps (GRAD-03, FIX-01) are now closed-by-disposition. See
+`.planning/milestones/v1.15-MILESTONE-AUDIT.md` (stale) + Phase-84 VERIFICATION/SECURITY for rationale.
 
 **Re-acknowledged at v1.14 milestone close (2026-06-23):** the 9 cross-milestone open-artifact
 items below were re-confirmed via `gsd-tools audit-open` — **none are v1.14 work** (all pre-existing
@@ -308,7 +355,15 @@ milestone audit flagged (`gaps_found`, but deferrals-by-design, not failures). S
 | FUT-01 (v1.14) | X88C64 0x34 graduation (Phase 78) | deferred — PCB-blocked | A6 ALE-routing PCB-BLOCKED (HIGH); control register fully allocated, no free 74HC573 strobe. X88C64 stays protocol-not-implemented/host-refused. Unblock requires a shield modification. XIC-02/03/04. |
 | FUT-03 (v1.14) | NMOS bench SHA-match (Phase 79 NMOS-03) | deferred — no chip | Definitive Leonardo write+verify SHA-match of the 4 graduated NMOS chips on the ~22.4V VPE rail; demoted to informational (chips stay `supported` without it); deferred for lack of an NMOS chip on hand. |
 | FUT-04 (v1.14) | AT28C04/16 adapter graduation (Phase 80) | deferred — adapter not built | ADPT-01 gate NOT CLEARED: DIP24→DIP32 adapter not built, no AT28C chip on hand. 9 chips stay honestly `adapter-required`. Unblock = build adapter + DMM-verify (/WE pin 21→30) + chip on hand. ADPT-01/02/03. |
-| release-gate (v1.14) | Lockstep beta cut `3.0.0b11` + submodule gitlink bump | OPERATOR-GATED | Standing v1.11/v1.12/v1.13 policy: sub-repos stay on their milestone branches, meta gitlinks PINNED; the beta cut (version bump + gitlink bump + PyPI/GitHub pre-release) + stable promotion are deferred to manual operator authorization. |
+| FUT-05 (v1.15) | REWR-02 0x08 write→read→verify SHA-match proof (Phase 82) | deferred — no functional 0x08 chip | Operator-deferred 2026-06-24: the only 0x08 rewritable chip (W27E040) FAILed on a genuine stuck bit @0x7db (deterministic; erase path engaged at correct decode params). No sibling 0x08 chip for positive proof. Unblock = a functional W27E040 (or other 0x08 rewritable chip) on hand. NOT a gap. |
+| CR-01 / Phase-74 Wave-2 (v1.15) | W29C040 flash4 256B page-write fault | open — reopened by Phase 84 | Phase-84 FIX-01 re-bench (N=2) confirmed the Phase-74 SDP/256B-page fix is NOT silicon-effective: deterministic page-0 boundary timeout @0x0000FF. RCA'd, not fixed in-posture (D-43). Reopen Phase-74 Wave-2 (likely dual-repo lockstep firmware fix). W29C020 (256KB) passes clean — inverts CR-01 expectation. |
+| FUT-06 (v1.15) | AM27C020 0x08 32-pin write/VPP path (0-bits-programmed) | deferred — RCA'd, not trivially fixable | Phase-84 FIX-01 (N=2): deterministic 0-bits-programmed, NOT VPP-skip-related, chip silicon intact. Requires 0x08 32-pin Large EPROM write/VPP path root-cause. Named-tracked deferral per D-43, not a gap. |
+| FUT-03 (v1.15, ⊃ v1.14) | 2516 0x0B read instability + write proof (GRAD-03) | deferred best-effort (D-22) | Phase-84 VPP-skip cleared the 18.8V boot-refusal but the 2516 read remains unstable (N=3, 3 distinct SHAs, 1.9% byte jitter) — instability NOT solely VPP-gated (shared OE/VPP pin). No write / no preserve-dump (D-21). GRAD-03 deferred best-effort; closes v1.14 FUT-03 NMOS write+SHA when a future bench session root-causes the read path. info/read decode confirmed correct. |
+| todo (v1.15) | 2026-06-24-skip-vpp...on-reads.md | done-superseded | The VPP-skip on CMD_READ/CMD_BLANK_CHECK SHIPPED in Phase 84-01 (fw `cb947c7`); the captured todo predates the fix. Close on next triage. |
+| todo (v1.16 seed) | gather-protocol-datasheets.md | deferred | Feeds the v1.16 protocol-first architecture rebuild (datasheets verify; minipro DB stays ground truth). Out of v1.15 scope. |
+| verification (v1.15) | Phase 84 (84-VERIFICATION.md) | human_needed — operator-accepted | The 2 items are the D-22/D-43 disposition sign-offs, already operator-accepted (recorded in STATE stopped_at + this close). Frontmatter status line not flipped; not a gap. |
+| Phase-84 input (v1.15) — RESOLVED | W29C040 flash4 page-write fault (handed off from Phase 82) | resolved → see CR-01 row above | Phase 84 ran the RCA: Phase-74 fix not silicon-effective (N=2). Disposition moved to the CR-01 / Phase-74 Wave-2 row. |
+| release-gate (v1.14 → carries to v1.15) | Lockstep beta cut `3.0.0b11` + submodule gitlink bump | OPERATOR-GATED | Standing v1.11–v1.14 policy: sub-repos stay on their milestone branches, meta gitlinks PINNED; the beta cut (version bump + gitlink bump + PyPI/GitHub pre-release) + stable promotion are deferred to manual operator authorization. v1.15 sub-repo work (fw `cb947c7` / app `4d5b3de`) is NOT in the beta gitlink yet. |
 
 ## Operator Next Steps
 

@@ -555,6 +555,74 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 
 ---
 
+## Milestone: v1.15 — Bench Validation of Operator Inventory
+
+**Shipped:** 2026-06-25
+**Phases:** 4 (81–84) | **Plans:** 15 | **Timeline:** 2026-06-23 → 2026-06-25 (3 days, 72 meta commits)
+
+### What Was Built
+
+- A per-chip bench evidence record (`.planning/v1.15/bench/EVIDENCE.{md,json}`) + a consolidated
+  `DECODE-AUDIT.md` — every one of the operator's 11 physical chips read/blank-checked then
+  write→read→verify-exercised on Leonardo + RURP Rev 2.0, with DB decode confirmed against silicon
+  per chip. Reuse-first (EVID-02): no new harness, only `firestarter write/read/verify` + existing gates.
+- First Flash/EEPROM **auto-erase silicon proof** (W29C020, 0x05) — the `FLAG_CAN_ERASE` Flash/EEPROM
+  branch shipped in v1.11/v1.14 finally exercised on real silicon.
+- The Intel **2516 graduated** via a hand-authored `~/.firestarter/database.json` user-override entry
+  (genuinely absent from minipro `infoic.xml`), behind a full SR-1 datasheet safety review + operator
+  blocking sign-off.
+- FIX-01 in-posture fixes: firmware VPP-skip on CMD_READ/CMD_BLANK_CHECK (clears the 18.8V read
+  boot-refusal; write/erase/chip-id still gate VPP — 5-assertion native test), host SRAM/FRAM
+  blank-check short-circuit (kills the 0xA4 MSG_ERR_EMPTY_INPUT), FM1608 SRAM→FRAM relabel at the
+  `build_db.py` codegen layer.
+
+### What Worked
+
+- **Non-destructive-first ordering held up.** Reading + blank-checking all 11 chips before any write
+  (Phase 81), then deciding UV spend-vs-preserve per chip live at the bench (Phase 83), meant zero
+  irreplaceable parts were lost despite no eraser — operator-directed minimal partial spends kept the
+  UV parts mostly reusable.
+- **Honest FAIL recording.** Genuine silicon failures (W27E512/W27E040 stuck bits, W29C040 flash4
+  page fault, AM27C020 0x08 0-bits) were recorded as silicon/write-path defects with named trackers
+  rather than papered over as DB/algo successes — the DECODE-AUDIT cross-reference made this auditable.
+- **Conditional Phase 84 absorbed the surprises.** Designing Phase 84 as a conditional decode-audit +
+  defect-RCA phase meant the three bench anomalies (2516 read, AM27C020 write, W29C040 flash4) had a
+  home; FIX-01's "fix-in-posture-or-RCA-and-defer" framing (D-43) let the milestone close cleanly.
+
+### What Was Inefficient
+
+- **The milestone audit ran before Phase 84 existed.** `v1.15-MILESTONE-AUDIT.md` (`gaps_found`) was
+  generated 2026-06-24 when GRAD-03/FIX-01 were still open, then went stale within a day as Phase 84
+  ran. At close it had to be reasoned around rather than re-run. Auditing a milestone whose last phase
+  is still conditional/unplanned guarantees a stale artifact.
+- **Verification status lines lag operator acceptance.** Phase 84 VERIFICATION still reads
+  `human_needed` though the operator accepted the D-22/D-43 dispositions — a recurring pattern (cf.
+  Phase 71 `gaps_found` stale). The acceptance lives in STATE prose, not the frontmatter.
+
+### Patterns Established
+
+- **Best-effort graduation + closed-by-disposition** as first-class close outcomes: a chip can graduate
+  (2516 info/read decode) or a requirement can close (FIX-01) without a full positive bench proof, as
+  long as the gap is RCA'd and named-tracked (FUT-03/05/06, CR-01). Extends v1.14's D-07 precedent.
+- **One firmware delta in an otherwise host-side milestone** stayed dual-repo-lockstep-clean: the
+  VPP-skip fix landed on the fw v1.15 branch with native tests + flash-fit gate, gitlink pinned.
+
+### Key Lessons
+
+- Don't run `/gsd-audit-milestone` until the final phase is at least planned — a conditional last phase
+  makes the audit stale on contact.
+- When an operator accepts a `human_needed` verification verdict, flip the frontmatter `status` (or add
+  an `operator_accepted` field) at acceptance time, not just in STATE prose — otherwise `audit-open`
+  keeps surfacing it as an open gap at every subsequent milestone close.
+
+### Cost Observations
+
+- 3-day milestone, mostly host-side with one firmware delta (VPP-skip). 72 meta commits. 21/23 reqs
+  satisfied, 2 closed-by-disposition (no positive bench proof available on this bench/inventory). 12
+  open artifacts acknowledged at close (carry-forwards + intentional v1.15 deferrals).
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -569,6 +637,7 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 | v1.12     | 8     | 22    | 7    | Baseline-and-gate before touching firmware (GATE-first ordering); catalog wire change as its own zero-call-site commit; defense-in-depth on the 12V-VPP hazard (firmware guard + data-layer 0x00 + host refusal); insert-phase agility (2 of 8 phases unplanned: 69 crash-fix, 70 integration); **stale fork base** surfaced an unplanned integration phase at merge; hollow-safety-gate shipped as accepted tech debt (host guard authoritative) |
 | v1.13     | 5 + close | 19 | 3 | Software-first / flash-free validation tiers; evidence-defines-missing (one bench-FAIL drove the only fix; a suspected bug DISPROVEN, not speculatively fixed); hybrid bench gating closes cleanly at PARTIAL coverage; non-vacuous PASS oracle kills source==source false-PASS |
 | v1.14     | 4     | 9 of 13 (4 deferred HW-gated) | 5 | First chip graduations since v1.0 (erase + 25V NMOS best-effort); plan-level deferral branches with FUT tracking (Phase 78/80 closed clean with zero code); best-effort graduation under operator override (warns-and-proceeds rail, definitive bench demoted to FUT); `gaps_found`≠failure when every gap is an intentional HW deferral; wrong-rail measurement cost a debug cycle (VPP vs VPE on 0x0B chips) |
+| v1.15     | 4     | 15    | 3    | On-paper `supported` proven on real silicon (11 chips, 5 families) with a per-chip EVIDENCE + DECODE-AUDIT record; non-destructive-first ordering preserved irreplaceable UV parts (read/blank-check→spend-decide-live); closed-by-disposition + best-effort graduation as close outcomes (FIX-01/GRAD-03, RCA + named trackers); honest silicon-FAIL recording (stuck bits ≠ DB/algo fault); conditional last phase absorbed bench surprises; milestone-audit-ran-before-final-phase → stale artifact (anti-pattern); verification status-line lag recurs (operator acceptance lives in STATE prose) |
 
 ### Cumulative Quality
 

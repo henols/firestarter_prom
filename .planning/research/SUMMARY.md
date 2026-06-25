@@ -1,85 +1,174 @@
-# Project Research Summary — v1.14 Feasible-Gap Implementation
+# v1.15 Bench Validation of Operator Inventory — Research Summary
 
-**Project:** Firestarter — Protocol-Aware Programming Architecture
-**Domain:** EPROM/Flash/EEPROM programmer — chip graduation milestone (4 chip groups → `supported`) on an Arduino RURP shield (Python CLI host + Arduino C++ firmware, dual-repo lockstep)
-**Researched:** 2026-06-18
-**Confidence:** HIGH (all four dimensions converged; grounded in live source, v1.13 artifacts, and hardware datasheets/product specs — no contradictions)
+**Milestone:** v1.15 (Bench validation of operator chip inventory)  
+**Research Synthesis Date:** 2026-06-23  
+**Research Sources:** STACK.md, FEATURES.md, ARCHITECTURE.md, PITFALLS.md  
+**Confidence Level:** HIGH (all claims verified against source code, project memory, and bench artifacts)
+
+---
 
 ## Executive Summary
 
-**v1.14 is the first milestone since v1.0 where chips actually graduate to `supported`** — the four gaps v1.13 surfaced as feasible-but-deferred become fully programmable. The research converged on one structural insight: **three of four gaps are HOST-ONLY with zero firmware flash cost** (999.4 erase-wiring, 999.7 25V ceiling, 999.6 adapter graduation); only **999.5 (X88C64 0x34 handler)** adds firmware code.
+v1.15 is a silicon-validation milestone that validates 11 chips in the operator's inventory across 5 algorithm families, with a single genuine graduation candidate: the Intel/TI 2516 (24-pin NMOS UV-EPROM, 2K×8, 25V VPP class). The milestone is **software-minimal**: no new code dependencies, no firmware changes (unless a bench-surfaced defect forces a fix), and one new DB entry authored as a user-override (`~/.firestarter/database.json` for the absent-from-minipro 2516). The only delivery is a curated evidence record proving each chip's read/write path and DB decode on Leonardo + Rev 2.0.
 
-The **dominant cross-cutting risk is host-guard-removal timing.** The `chip_resolver.resolve_chip` `ChipNotImplementedError` refusal installed in v1.12 is the authoritative hardware-damage prevention layer — it refuses every non-`supported` chip before any serial byte. Each of the four features *removes* that barrier for a chip family, re-opening the wrong-VPP-to-wrong-pin damage path. The safety invariant: **the graduation step (flip `support_status` → `supported` + drop the host guard) must be the FINAL plan in each phase, gated behind complete validation** (native recording-stub register tests + wire round-trip + Leonardo bench with a chip-OUT VPP multimeter dry-run first).
+**Standing constraints:** All bench work uses Leonardo + RURP Rev 2.0 only (Rev 0 read-path fault; uno328pb program brownout and read instability disqualify both from authoritative verify). The three UV-EPROM chips (ST M27C512, AM27C020, 2516) require a non-destructive read-first protocol since the operator has no UV eraser. The 2516 is a best-effort NMOS graduation at ~22.4V VPE (90% of 25V spec, Phase 79 precedent), and simultaneous closure of the FUT-03 deferred NMOS write+SHA proof.
 
-Two hard open questions gate feasibility and must be the **first plan** of their respective phases (not handler/constant code):
-1. **X88C64 ALE routing** (999.5) — is a free `CTRL_*` bit available in `rurp_pinout.h` to toggle the 8051 Address-Latch-Enable without a PCB modification? Labeled LOW-confidence (Assumption A6 in `X88C64-FEASIBILITY.md`). If no free bit exists, the handler cannot ship and X88C64 defers again.
-2. **25V VPP capability** (999.7) — can the on-bench shield physically + safely produce ≥25V at the socket VPP pin? Resolved via operator multimeter, chip-OUT dry-run (`autonomous: false`), before the ceiling constant changes.
+**Key risks:** (1) Irreversible write to a UV-EPROM without eraser — mitigated by mandatory blank-check-first protocol. (2) False-PASS oracle from wrong board/shield — mitigated by Leonardo+Rev 2.0 lock, N≥5 reads, port identity verification per-task. (3) NMOS under-voltage programming at 22.4V VPE — mitigated by explicit rail measurement, firmware warning documentation, N≥3 read-backs. (4) 2516 user-override entry bypassing safety gates — mitigated by manual pre-bench review.
 
-25V is **rated-feasible** (RURP Rev 2.3 spec = 5–27V VPP; AP3012 boost regulator = 4.5–36V), so the `RURP_VPP_CEILING_MV = 22000` is a conservative software constant, not a hard hardware wall — but the dry-run is still mandatory because it depends on the specific shield's R1/R2 calibration.
+---
 
-**Flash budget** is the constraint for 999.5 only: Leonardo sits at **89.5% / ~3 KB free** post-v1.13. The X88C64 multiplexed-bus handler is the heaviest addition (~1–3 KB) and must be measured (`pio run -e leonardo`) as an explicit gate. This drives a build-order tension (below).
+## Key Findings Summary
 
-## Key Findings
+### From STACK.md
 
-### Recommended Stack
+**Headline:** v1.15 has zero new dependencies, reuses v1.13 existing harness, adds one user-override DB entry.
 
-No new third-party dependencies. All work lands in existing files with existing toolchains. See `STACK.md`.
+**Deliverables:**
+- Write→read→verify cycle: `EpromOperator.write_cycle_eprom` (already exists)
+- Evidence capture: `firestarter dev write-cycle --runs 3` produces per-run binaries + SHA
+- Family-level harness: `dev validate-family` (Tier-3 runner, Leonardo-only PASS oracle, R1 gate armed at 270000±25%)
+- Integration test: `write_test.sh` (existing, no new code)
+- Firmware: Leonardo untouched (89.5% flash, 3,018 bytes free). `configure_eprom` (0x07/0x08/0x0B) handles all.
+- 2516 user-override: `~/.firestarter/database.json` (operator-managed, bypasses check_dispatch.py/diff_db.py — manual pre-bench safety review required)
 
-| Gap | Firmware? | Primary surgery | Flash cost |
-|-----|-----------|-----------------|-----------|
-| **999.4** erase write-path | No | `database.py::convert_to_programmer` — wire `FLAG_CAN_ERASE` from `electrical.type=="EEPROM"` (not `info-flags & 0x10`); firmware guard `eprom_write_init` already correct | 0 |
-| **999.5** X88C64 0x34 | **Yes** | New `configure_x88c64` (+ `eeprom_x88c64.cpp`/header) registered in `memory.cpp` dispatch **before** the `protocol != 0 → configure_not_implemented` guard; possible `rurp_pinout.h` + lockstep `constants.py`/`firestarter.h` ALE bit; `build_db.py` reclassification | ~1–3 KB (measure) |
-| **999.7** 25V NMOS | No | `RURP_VPP_CEILING_MV` 22000→25000 (`build_db.py`) + `_FAMILY_VPP_INVARIANTS` ceiling (`check_dispatch.py`); 4 chips reclassify off `vpp-exceeds-max` | 0 |
-| **999.6** AT28C04/16 adapter | No | Remove `_AT28C_DIP24_NAMES` rule arm (`build_db.py`) + host-guard refusal (`chip_resolver.py`); existing `configure_eeprom28c` (0x0D, VPP-free) handler | 0 |
+**Critical invariant:** 0xA4 regression guard (Phase 77, Option C): INIT/END DATA frames NOT acked by host (`_execute_phase:ack_data=False`). Do not revert.
 
-### Feature Landscape
+### From FEATURES.md
 
-- **Table stakes per gap = "the chip writes + verifies correctly and reports `supported`."** Observable acceptance: N≥5 write→read-back SHA matches on Leonardo + a non-vacuous negative control (wrong-file verify exits non-zero).
-- **999.4** graduates 7–8 EE-EPROMs (W27C512/W27E512/W27C257/W27E257/SST27SF256/SST27SF512/SST27VF256/SST27VF512) to auto-erase-before-write.
-- **999.5** graduates X88C64P only. **Anti-feature: STORE/RECALL is explicitly OUT** (that's the X2210/X2212 NovRAM family — different product).
-- **999.7** graduates 4 NMOS UV-EPROMs (INTEL M2716/M2732, SGS-THOMSON ETC2716, ST M2716). M2732A (21V) is already `supported`. **Anti-feature: >25V chips stay fail-closed.**
-- **999.6** graduates 9 AT28C04/AT28C16 DIP24 EEPROMs. Before the physical adapter exists, the graceful behavior is the existing honest-refusal (`adapter-required`); after, full programmability.
+**Headline:** 11 chips, 5 algorithm families, 8 electrically-rewritable + 3 UV-EPROM with no eraser.
 
-### Architecture & Integration
+**Table stakes:**
+- Non-destructive read + blank-check for every chip (validates read path/decode with zero risk)
+- Full write→read→verify with SHA for 8 EE chips (W27C512 proven Phase 77; 7 unproven)
+- UV-EPROM no-eraser protocol for 3 chips (Phase A: read+blank-check; Phase B: write if blank; Phase C: AND-mask if programmed)
+- 2516 DB entry + bench SHA match (closes FUT-03 NMOS proof)
+- Per-chip evidence record (EVIDENCE.md / EVIDENCE.json schema)
+- **VERIFY ITEM:** FLAG_CAN_ERASE correctness for Flash/EEPROM type (W29C020/W29C040 are "Flash/EEPROM", not "EEPROM")
 
-- **Dispatch arm order is load-bearing:** any new 999.5 `memory.cpp` arm must insert BEFORE the generic `if (protocol != 0) → configure_not_implemented()` guard — after it, the arm is dead code.
-- **Only 999.5 requires a dual-repo lockstep phase**; 999.4/999.6/999.7 are host-only phases with bench-verification steps.
-- **refused → supported end-to-end** for each graduation: DB reclassification → host-guard refusal removed → wire → (firmware, 999.5 only) → Leonardo bench proof.
+### From ARCHITECTURE.md
 
-## Roadmap Implications
+**Headline:** 2516 user-override flow, 4-phase build order, Leonardo preconditions, per-chip evidence schema.
 
-**Suggested phase structure (Phase 77 onward — numbering continues from v1.13's Phase 76):**
+**2516 user-override safety (manual pre-bench review required):**
+1. algorithm=0x0B routes to configure_eprom ✓
+2. vpp_mv=25000 ≤ RURP_VPP_CEILING_MV=25000 ✓
+3. FLAG_CAN_ERASE NOT set (type=UV-EPROM) ✓
+4. DIP24_2716 pinout routes VPE correctly ✓
+5. Bench-verify on ~22.4V VPE rail ✓
 
-| Order | Backlog | Phase | Gate / first-plan |
-|-------|---------|-------|-------------------|
-| 1 | 999.4 | Erase write-path (host-only, most-ready) | 14V erase-rail chip-OUT VPP dry-run before seated erase |
-| 2 | 999.5 | X88C64 0x34 handler (firmware) | **ALE-routing investigation = Plan 1**, before any handler code; `pio run -e leonardo` flash gate ≤~90% |
-| 3 | 999.7 | 25V NMOS ceiling raise (host-only) | **Operator multimeter ≥25V chip-OUT dry-run = Plan 1 (`autonomous: false`)**, before constant change |
-| 4 | 999.6 | AT28C04/16 adapter graduation (host-only) | Physical DIP24→DIP32 adapter built + DMM /WE-reroute continuity check before any chip insertion |
+**Build order (sequential, dependencies on Phase 81):**
+- **Phase 81:** 2516 DB entry + non-destructive read sweep (all 11 chips, ~2–3 hours)
+- **Phase 82:** EE-EPROM write→verify (8 chips, ~4–6 hours)
+- **Phase 83:** UV-EPROM write proof (3 chips, ~3–5 hours, **FUT-03 closure**)
+- **Phase 84:** DB decode audit + conditional RCA (1–8 hours)
 
-**Build-order tension for the roadmapper to resolve:** PROJECT.md / operator-captured order is **999.4 → 999.5 → 999.7 → 999.6**. The PITFALLS researcher recommends swapping to **999.4 → 999.7 → 999.5 → 999.6** to land the zero-flash 25V change before the flash-consuming X88C64 handler, preserving headroom. Both are defensible; the captured order has operator backing. Flag for an explicit decision.
+**Leonardo preconditions:**
+- R1 ≈ 270000±25% (live readback at task start)
+- Port identity via `controller:` string (verified per-task after any USB event)
+- Chip seating + ZIF lever confirmed before any read
 
-**Per-phase shape:** the graduation gate (flip + guard-removal) is always the final plan, never mid-phase. 999.5 wants a dedicated ALE investigation sub-plan; 999.7 wants an `autonomous: false` VPP-measurement first plan; 999.6 gates on adapter-ready (defer cleanly without impacting the others if the adapter isn't built).
+**VPE rail for NMOS (2516):** 22.4V DMM / 23.9V firmware (Phase 79-01 corrected). Use `firestarter vpe` (NOT `vpp`). Under-voltage warning expected (22.4V < 23.75% threshold for 25V chip). Document rail + firmware warning explicitly.
 
-## Watch Out For (top pitfalls)
+### From PITFALLS.md
 
-1. **Host-guard removal before bench evidence** — re-opens the live 12V/25V-to-wrong-pin damage path. Graduation gate last, behind Tier-1/2/3.
-2. **25V assumed, not measured** — the ceiling reflects a physical rail limit; firmware does NO runtime VPP enforcement, it trusts host pre-screening entirely. Multimeter dry-run is non-negotiable.
-3. **Flash overrun on 999.5** — ~3 KB headroom; measure with `pio run -e leonardo`.
-4. **ALE infeasibility** — if no free `CTRL_*` bit, X88C64 cannot graduate without a PCB change.
-5. **Adapter mis-wire (999.6)** — VPP-free so damage is limited to non-function; the critical /WE reroute (chip pin 21 → socket pin 30) needs a DMM continuity check.
-6. **Lockstep / FLAG_* constant drift** — no automated parity gate for `FLAG_*` bits; change `constants.py` + `firestarter.h` together.
-7. **Bench-integrity standing rules** — Leonardo + clean shield is the only trustworthy PASS path; uno328pb is N/A for program/write; **always ASK which shield rev is on-bench** (Rev 2.2 / Rev 2.0 / Modified Rev 0 — EEPROM byte can't distinguish); verify per-port `controller:` identity at every task start; chip-OUT before sideload on Uno-class boards.
-8. **Pre-req:** confirm the v1.13 `3.0.0b10` lockstep beta cut has landed in both sub-repos before branching v1.14 off `beta`.
+**Critical pitfalls (top 3):**
+1. **Irreversible UV-EPROM write without eraser:** Mandatory blank-check FIRST. Phase A: read+blank-check. Phase B: write if blank. Phase C: AND-mask (all-0x00) if programmed. Spend decision at bench live.
+2. **False-PASS oracle (wrong board/shield):** Leonardo+Rev 2.0 ONLY. Port identity per-task. N≥5 reads with identical SHA. v1.9 read-bug RCA stands.
+3. **NMOS under-voltage at 22.4V VPE:** Record live rail reading, capture firmware warning, N≥3 read-backs with SHA table. Accept best-effort result per Phase 79 D-07 precedent.
+
+**Other critical pitfalls:**
+- UV-EPROM AND-mask misunderstanding (0→1 bit writes invalid)
+- 0xA4 empty-input desync (regression test must be green)
+- FLAG_CAN_ERASE boundary (Flash/EEPROM needs coverage)
+- 2516 user-override bypasses safety gates (manual review required)
+- DB decode mismatch (run `firestarter info` + `firestarter id` before write)
+- Stale R1 calibration (live readback at task start)
+- Chip seating faults (visual confirmation + reseat on all-0xFF)
+- Port-identity drift (verify per-task, not session-start)
+- Chip-OUT before Uno sideload (Leonardo EXEMPT)
+- Shield revision ID (ask operator; EEPROM byte cannot distinguish revs)
+
+---
+
+## Implications for Roadmap
+
+### Suggested Phase Structure
+
+**Phase 81: 2516 DB Entry + Non-Destructive Read Sweep**
+- **Goal:** Author 2516 user-override entry; validate read path + DB decode for all 11 chips with zero chip consumption. Discover blank_state for 3 UV-EPROMs (gates Phase 83).
+- **Deliverable:** EVIDENCE.md populated with read+blank-check rows for all 11 chips. No writes. Manual pre-bench safety review of 2516 entry passed.
+- **Time:** ~2–3 hours
+- **Success:** All 11 chips readable; blank_state recorded for each UV-EPROM
+
+**Phase 82: EE-EPROM Silicon Validation (8 Chips, Write+Verify)**
+- **Goal:** Validate write path for all electrically-erasable chips. Reuse v1.13 harness. Prior evidence: W27C512 (Phase 77), SST39SF040 (Phase 74), W29C040 (Phase 74), FM1608 (Phase 73). New: W27E512, SST27SF512, W27E040, W29C020.
+- **Deliverable:** EVIDENCE.md rows for each chip: op=write+verify, SHA match, verdict, anomalies
+- **Time:** ~4–6 hours
+- **Pre-bench gate:** **CODE REVIEW (5 min):** Confirm database.py sets `FLAG_CAN_ERASE` for "Flash/EEPROM" type. If missing, update to `if electrical_type in ("EEPROM", "Flash/EEPROM")` and re-run `pytest --cov-fail-under=70`.
+- **Success:** All 8 EE chips produce SHA-match on Leonardo+Rev 2.0, N≥5 reads per chip
+
+**Phase 83: UV-EPROM Write Proof (3 Chips, Spend vs Preserve Gated on Phase 81)**
+- **Goal:** Validate write path for UV-EPROMs gated on blank_state from Phase 81. For blank: write→verify. For non-blank: AND-mask (all-0x00)→verify. **2516 graduation closes FUT-03 deferred NMOS proof.**
+- **Deliverable:** EVIDENCE.md rows for M27C512, AM27C020, 2516. 2516 includes VPE rail reading, firmware warning log, N≥3 read SHA table.
+- **Time:** ~3–5 hours
+- **Success:** All 3 UV-EPROMs pass write+verify. 2516: SHA match N≥3 reads; VPE=22.4V ± tolerance; `MSG_WARN_VPP_LOW` documented. **FUT-03 closed.**
+
+**Phase 84: DB Decode Correctness Audit + Conditional Defect RCA**
+- **Goal:** If 81–83 clean, Phase 84 is documentation only. If defects surface, RCA and fix via lockstep pattern.
+- **Deliverable:** If clean: ".planning/v1.15-EVIDENCE-AUDIT.md" (all 11 chips validated, release ready). If defect: .planning/v1.15-DEFECT-RCA.md + code fix + re-bench.
+- **Time:** 1–2 hours if clean; 4–8 hours if defect
+- **Success:** All 11 chips match DB claims, OR defect identified and fixed with re-bench proof
+
+---
+
+## Research Flags
+
+**Pre-execution validation gates:**
+
+1. **CODE REVIEW (Phase 82 pre-bench, 5 min):** Confirm `firestarter_app/firestarter/database.py:convert_to_programmer:592–607` sets `FLAG_CAN_ERASE` for **both** "EEPROM" **and** "Flash/EEPROM" electrical types. If missing for Flash/EEPROM, W29C020/W29C040 write on non-blank chips fails at blank-check gate. If gap found: update conditional and re-run pytest (low-risk one-liner).
+
+2. **REGRESSION TEST CHECK (immediate):** Run `pytest` on host suite. Confirm `test_init_phase_data_frames_not_acked` (0xA4 guard, Phase 77) is green. If missing or failed, 0xA4 desync vulnerability is open.
+
+3. **2516 ENTRY MANUAL REVIEW (Phase 81 step 1):** Before any bench session, manually verify `~/.firestarter/database.json` 2516 entry against TMS2516 datasheet:
+   - VPP pin = pin 21 (DIP24)
+   - algorithm = 0x0B (11 decimal)
+   - vpp_mv = 25000
+   - electrical.type = "UV-EPROM"
+   - support_status = "supported"
+   - pinout = "DIP24_2716" (must exist in pinouts.json)
+
+**Phases with deferred research:**
+
+- **Phase 83 (2516 NMOS under-voltage):** No existing bench data on 2516 silicon under RURP/Leonardo. Phase 79 proved 4 NMOS chips at soft best-effort; the 2516 is the second data point. Bench work will answer whether 22.4V VPE is sufficient for 25V NMOS class. If write fails: investigate (a) VPE rail voltage actual? (b) TMS2516 datasheet VCC-at-programming requirement (25V) a blocker? (RURP applies 5V VCC; no mechanism to raise it). Treat any failure as under-voltage or electrical path issue first, not firmware bug.
+
+**Phases with well-documented patterns (no new research):**
+
+- Phase 81 (non-destructive read): Standard protocol, Leonardo/Rev 2.0 proven.
+- Phase 82 (EE-EPROM write): `write_cycle_eprom` reused from v1.13; all handlers exist.
+- Phase 84 (audit/RCA): Established lockstep pattern for firmware+host fixes (v1.13 precedent).
+
+---
 
 ## Confidence Assessment
 
-| Dimension | Confidence | Basis |
-|-----------|-----------|-------|
-| Stack | HIGH | Live source (2026-06-18); flash via `pio run`; RURP Rev 2.3 5–27V verified from two sources |
-| Features | HIGH | All four gaps defined in v1.13 artifacts with file:line origins; acceptance grounded in existing handlers + bench precedent |
-| Architecture | HIGH | Dispatch + host-guard verified against live code; lockstep needs explicit from v1.10–v1.13 history |
-| Pitfalls | HIGH | Grounded in v1.13 history (flash ceiling, uno328pb, Rev 0 Bug A, standing bench preconditions) |
-| X88C64 ALE routing | **MEDIUM/LOW** | Assumption A6 explicitly unresolved — needs a bench schematic trace |
+| Area | Confidence | Notes |
+|------|-----------|-------|
+| **Stack** | HIGH | All mechanisms verified live in source code at path/line. Firmware untouched. Single user-override entry minimal. |
+| **Features** | HIGH | All 11 chips live-queried from DB. Pinout/VPP/algorithm/size verified per family. **FLAG_CAN_ERASE for "Flash/EEPROM" needs 5-min code review before Phase 82.** |
+| **Architecture** | HIGH | 2516 user-override flow traced through EpromDatabase→chip_resolver→convert_to_programmer→memory.cpp dispatch. Build order sequential. Evidence schema matches v1.13. |
+| **Pitfalls** | HIGH | All grounded in project history. Preventions concrete. Recovery strategies documented. |
+| **2516 graduation (FUT-03)** | MEDIUM-HIGH | Electrically compatible with Phase 79 NMOS class. Phase 79 soft-graduated 4 chips at best-effort 22.4V. 2516 is second data point. Under-voltage at 90% spec accepted per Phase 79 D-07, but 2516 never silicon-verified. Bench proof will be authoritative. |
 
-**Overall: HIGH** — feasibility of three gaps is settled; the two genuine unknowns (ALE bit, 25V rail) are correctly framed as bench-gated first-plan investigations, not blockers to milestone scoping.
+**Gaps requiring validation at bench:** (1) FLAG_CAN_ERASE for Flash/EEPROM (code review before Phase 82). (2) 2516 silicon performance at 22.4V VPE. (3) W29C040 full-cycle erase+write (Phase 82 proof). (4) All chip DB decode (Phase 81 read + Phase 84 audit).
+
+---
+
+## Ready for Requirements Definition
+
+The four phases are well-defined with clear dependencies, deliverables, and success criteria. Phases 81–83 are sequential; Phase 84 is conditional on defects. Total estimated bench time: 9–16 hours for Phases 81–83 (serial execution). The 2516 write (Phase 83) is most time-intensive due to N≥3 re-read requirement and under-voltage documentation. FUT-03 closure achieved upon Phase 83 PASS.
+
+**Roadmapper input:** Use this research as foundational input for requirements and phase definition.
+
+---
+
+**Research synthesis completed 2026-06-23.**
