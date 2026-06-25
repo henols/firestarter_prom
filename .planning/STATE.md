@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
-status: completed
-stopped_at: Phase 85 Plan 03 complete — datasheets/README.md + phase-gate PASS (DSHEET-03)
-last_updated: "2026-06-25T15:29:38.409Z"
+status: in_progress
+stopped_at: Phase 86 context gathered — milestone restructured (variant-decode phase inserted; 86→90 renumber)
+last_updated: "2026-06-25T16:30:00.000Z"
 last_activity: 2026-06-25
 progress:
-  total_phases: 5
+  total_phases: 6
   completed_phases: 1
   total_plans: 3
   completed_plans: 3
-  percent: 20
+  percent: 17
 ---
 
 # Project State
@@ -21,12 +21,18 @@ progress:
 
 ## Current Position
 
-Phase: 86
-Plan: Not started
-Status: Phase 85 complete; Phase 86 next
+Phase: 86 (NEW — infoic.xml Variant-Field Decode + Correct DB Regen)
+Plan: Not started (context gathered)
+Status: Milestone restructured 2026-06-25 — variant-decode phase inserted ahead of the naming pass; original 86→90 renumbered. v1.16 now 6 phases (85–90), 27 reqs.
 Last activity: 2026-06-25
 
-Progress: [██░░░░░░░░] 20%
+Progress: [█░░░░░░░░░] 17%
+
+> **Scope amendment 2026-06-25:** Mid-discussion the operator pivoted v1.16 from a
+> pure behavior-preserving refactor to *fix the DB at its root* — decode the
+> `infoic.xml` `variant` field fully and delete the `build_db.py` Rule 1/2/3 override
+> edge-cases. New Phase 86 inserted (host-only); Naming→87, Golden Traces→88,
+> Recompose→89, Bench Ledger→90. See `.planning/phases/86-variant-decode-correct-db-regen/86-CONTEXT.md`.
 
 ## Quick Tasks Completed
 
@@ -136,6 +142,7 @@ Resume: Phase 86 (naming pass) — `/gsd-execute-phase 86`
 - [Phase 85-01, 2026-06-25]: v1.16-protocol-first-architecture-rebuild branch forked from beta (not v1.15 tip) in firestarter sub-repo; datasheets-check.sh Wave-0 gate authored with 12-bucket %PDF contract (correctly RED at scaffold stage, PASS after Plans 02/03 populate the tree).
 - [Phase 85-02, 2026-06-25]: 17 datasheets committed; W27E512→0x07, FM1608→0x28 (DB-verified); 3 D-02 fallbacks: SST27SF512/W27E040/DS1250Y bot-blocked; SAFE-05 intact
 - [Phase 85-03, 2026-06-25]: datasheets/README.md authored (DSHEET-03); 12-bucket index + 6 exclusions + D-02/D-03 policy; phase-gate PASS (exit 0); SAFE-05 intact
+- [Phase 86 discuss, 2026-06-25]: MILESTONE RESTRUCTURED. Grounded in raw infoic.xml that FM1608=type4/proto0x07/variant0x4126 and X88C64=type1/proto0x34/variant0x3100/flags0x00414200 (flags&0x10==0 → why its type is mis-decoded). Operator pivoted: decode the variant field fully (incl. undecoded high byte) + delete build_db.py Rule1/2/3 → correct DB. Inserted new Phase 86 (host-only variant decode); renumbered 86→90; added VAR-01..04 (27 reqs). Decisions: full override deletion (check_dispatch 0-violations = structural backstop), every diff_db row explained + re-pin baseline, on-hand bench chips unchanged-or-rebenched.
 
 ## Performance Metrics
 
@@ -161,4 +168,5 @@ Resume: Phase 86 (naming pass) — `/gsd-execute-phase 86`
 
 ## Operator Next Steps
 
-- Plan Phase 85: `/gsd-plan-phase 85`
+- Plan the new Phase 86 (variant decode): `/gsd-plan-phase 86`
+  - Recommend running with research (the variant high-byte decode needs minipro `database.c` + datasheet grounding).

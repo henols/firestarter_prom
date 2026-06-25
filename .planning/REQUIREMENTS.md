@@ -5,8 +5,13 @@
 
 > **Scope decisions (operator, 2026-06-25):**
 > - **Flash outcome = best-effort, measured.** Per-step `pio run -e leonardo` measurement + net-non-increase gate; report achieved %; no hard floor (the ~85–86.5% figure is a pre-LTO estimate).
-> - **Two decode corrections in scope** (FM1608 0x40→0x28 reconciliation + 0x34 X88C64 `electrical.type` UV-EPROM→EEPROM, host-only DB fix).
-> - **Pure behavior-preserving refactor.** Open defects W29C040/flash4 (CR-01) and AM27C020/0x08 (FUT-06) are preserved exactly as-is — NOT fixed this milestone. Firmware-only; NO dual-repo lockstep unless a behavior fix rides along (none planned).
+> - **Pure behavior-preserving refactor** applies to the *firmware recompose* phases (88–89): open defects W29C040/flash4 (CR-01) and AM27C020/0x08 (FUT-06) are preserved exactly as-is — NOT fixed this milestone.
+>
+> **Scope AMENDMENT (operator, 2026-06-25 — supersedes "two decode corrections + DB-frozen"):**
+> - A new **Phase 86 (infoic.xml Variant-Field Decode + Correct DB Regen)** was inserted ahead of the naming pass. `infoic.xml`'s `variant` field carries untapped signal (FM1608 = `type=4/proto=0x07/variant=0x4126`; X88C64 = `type=1/proto=0x34/variant=0x3100/flags=0x00414200`, `flags&0x10==0`). Phase 86 decodes `variant` in full, regenerates a **correct** DB from principled decode, and **deletes** the hand-maintained `build_db.py` Rule 1/2/3 override edge-cases.
+> - This **lifts the DB-frozen / "two decode corrections only" constraint for Phase 86**: the regenerated DB has a real (but fully-explained) `diff_db.py` diff and a re-pinned baseline. The two original NAME-04 corrections (FM1608, X88C64) now fall out of the variant decode structurally. The recompose phases (88–89) remain DB-frozen against the new baseline.
+> - **Still host-only / NO dual-repo lockstep.** Phase 86 changes `firestarter_app` only (`build_db.py` + regenerated `chip_database.json`); the firmware recompose is a separate later phase. They never share a commit pair.
+> - **Safety:** deleting the WARNING-5 override is gated by `check_dispatch.py` 0-violations (the structural 12V-on-no-VPP-pin guard) — the safety guarantee is *proven preserved by the structural gate*, not by the deleted special-case.
 
 ## Milestone v1.16 Requirements
 
@@ -18,12 +23,19 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Phase n
 - [x] **DSHEET-02**: Every no-silicon protocol bucket (0x0D, 0x0E, 0x10, 0x27, 0x29, 0x34) has at least one representative datasheet committed, so every protocol has a verification source.
 - [x] **DSHEET-03**: `datasheets/README.md` indexes hex id ↔ proposed name ↔ handler ↔ datasheet ↔ on-hand status, documents the phantom (0x35/0x39) and infeasible (0x11/0x2A/0x2B/0x2C) bucket exclusions, and annotates provenance for hard-to-source/generic parts (the 2516 representative, discontinued FM1608/AM27C020/X88C64).
 
+### infoic.xml Variant Decode + Correct DB *(Phase 86 — added by 2026-06-25 scope amendment)*
+
+- [ ] **VAR-01**: The `infoic.xml` `variant` field is decoded in full — the low byte (`variant & 0xFF`, the pinout-family discriminator already consumed) AND the previously-undecoded high byte — with every value that affects chip classification documented and grounded in minipro source (`database.c`) and/or a committed datasheet. Datasheets are acquired as needed to resolve high-byte ambiguity; any value no source resolves is recorded as an honest documented gap, never guessed.
+- [ ] **VAR-02**: `build_db.py` derives `electrical.type`, `algorithm`, and `pinout` from principled variant-driven decode, and the hand-maintained Rule 1 (28C-EEPROM force-0x0D), Rule 2 (WARNING-5 5V-EEPROM-on-EPROM-pinout flip), and Rule 3 (type=4 FRAM/SRAM → 0x28) override blocks are **removed**.
+- [ ] **VAR-03**: The regenerated `chip_database.json` resolves FM1608 → SRAM_STD (0x28) and X88C64 → `electrical.type` EEPROM via the general decode (no special-case); every changed record vs. the pinned baseline is explained by a cited variant-decode rule (`diff_db.py` classified-diff, v1.11 GATE-02 pattern), and the `chip_database.baseline.json` + `dispatch_baseline.json` baselines are re-pinned to the new correct DB.
+- [ ] **VAR-04**: `check_dispatch.py` exits 0 violations on the regenerated DB (no chip routes to a 12V-VPP path on a no-VPP pinout — the structural backstop replacing the deleted WARNING-5 override), and the 11 on-hand bench-proven chips (v1.15 EVIDENCE) keep their `algorithm`/`vpp_mv`/`pinout` wire values OR any moved value is flagged for Leonardo + RURP Rev 2.0 re-bench before Phase 90.
+
 ### Naming + Documentation Vocabulary
 
 - [ ] **NAME-01**: Every `protocol_id` present in `chip_database.json` has an authored human-readable name on the algorithm axis plus its datasheet-verified behavior (write algorithm, erase model, VPP behavior, pin roles).
 - [ ] **NAME-02**: Each firmware handler's *why* (the rationale for its current behavior) is documented and traceable to a datasheet.
-- [ ] **NAME-03**: The accreted per-handler one-off fixes are enumerated as named behavior-contract invariants (0x0B direct-VPE rail, 0x0B shared OE/VPP read-skip, 0x08 P1-as-VPP, flash4 256B page boundary, VPP-skip-on-read, pulse-delay defaults, FM1608 SRAM→FRAM, WARNING-5 0x07→0x0D override, SST39SF040 keep-Flash/EEPROM).
-- [ ] **NAME-04**: The two in-scope decode corrections are applied — FM1608 0x40→0x28 reconciliation (memory/doc) and 0x34 X88C64 `electrical.type` UV-EPROM→EEPROM (host DB) — and phantom/infeasible buckets are explicitly named as honest non-protocols.
+- [ ] **NAME-03**: The accreted per-handler one-off fixes are enumerated as named behavior-contract invariants, each mapped to an existing native-test assertion (traceability matrix) with minimal new tests only where a cell is empty. The enumeration has **9** items (the roadmap's "8" is a stale label): 0x0B direct-VPE rail, 0x0B shared OE/VPP read-skip, 0x08 P1-as-VPP, flash4 256B page boundary, VPP-skip-on-read, pulse-delay defaults, FM1608 SRAM→FRAM, WARNING-5 0x07→0x0D override, SST39SF040 keep-Flash/EEPROM. *(Note: the WARNING-5 and FM1608→FRAM behaviors are now achieved by Phase 86's variant decode rather than a build_db override, but they remain documented invariants the firmware/decode must preserve.)*
+- [ ] **NAME-04**: The corrected FM1608 (SRAM_STD / 0x28) and X88C64 (`electrical.type` EEPROM) classifications — now delivered structurally by the Phase 86 variant decode (VAR-03), not as host special-cases — are **documented** in the vocabulary with their true `infoic.xml` identity tuple (type/proto/variant); the historical "FM1608 0x40" framing is recorded as a decimal-40 ↔ hex-0x28 conflation. Phantom (0x35/0x39) and infeasible (0x11/0x2A/0x2B/0x2C) buckets are explicitly named as honest non-protocols.
 - [ ] **NAME-05**: The naming pass leaves the firmware dispatch structure and all wire/control values unchanged (`diff_db.py` shows only the enumerated NAME-04 corrections; near-zero Leonardo flash delta).
 
 ### Primitive Decomposition / Refactor
@@ -45,7 +57,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Phase n
 
 - [ ] **SAFE-01**: Every extracted primitive keys behavior on `handle->protocol`, never on `electrical.type`; the `novpp_in_eprom` / `eeprom28c_in_eprom` (WARNING-5) structural guards are preserved.
 - [ ] **SAFE-02**: All enumerated one-off-fix invariants (NAME-03) survive each recompose step, asserted under the native register-level tests.
-- [ ] **SAFE-03**: `check_dispatch.py` (0 violations) and `diff_db.py` exit clean every phase; `diff_db.py` shows only the intentional NAME-04 corrections (baseline re-pinned for those, enumerated) and is empty across all recompose phases.
+- [ ] **SAFE-03**: `check_dispatch.py` exits 0 violations every phase. `diff_db.py`: in **Phase 86** it shows the variant-decode diff with **every row explained by a cited decode rule**, after which the baseline is re-pinned (VAR-03); in the **naming pass (87) and the recompose phases (88–89)** `diff_db.py` is **empty** against that re-pinned baseline.
 - [ ] **SAFE-04**: Over-voltage stays blocked at the firmware VPP check; the `chip_resolver.resolve_chip` host guard is never bypassed; no irreplaceable UV part is written on an unstable read path (the 2516 stays `UNVERIFIED`, not spent).
 - [x] **SAFE-05**: No new third-party dependency is introduced — the existing harness (`check_dispatch.py`, `diff_db.py`, native `test_val_*` suites, `dev validate-family`, `write_test.sh`, `gen_test_image.py`, host ruff/mypy/pytest) is reused; the only new artifact is `datasheets/`. *(Phase 85-01: branch + check script only; verified via explicit git add + SAFE-05-OK gate)*
 - [ ] **SAFE-06**: The refactor ships firmware-first with NO dual-repo lockstep (wire/constant values unchanged, NAME-04 is host-only); ruff/format/mypy/codegen are validated against the CI target (py3.11), not the 3.12 devcontainer, and generated `messages.py` is never hand-normalized.
@@ -87,31 +99,35 @@ Which phases cover which requirements. Populated during roadmap creation.
 | DSHEET-01 | Phase 85 | Complete |
 | DSHEET-02 | Phase 85 | Complete |
 | DSHEET-03 | Phase 85 | Complete |
-| NAME-01 | Phase 86 | Pending |
-| NAME-02 | Phase 86 | Pending |
-| NAME-03 | Phase 86 | Pending |
-| NAME-04 | Phase 86 | Pending |
-| NAME-05 | Phase 86 | Pending |
-| PRIM-01 | Phase 87 | Pending |
-| PRIM-02 | Phase 88 | Pending |
-| PRIM-03 | Phase 88 | Pending |
-| PRIM-04 | Phase 88 | Pending |
-| PRIM-05 | Phase 88 | Pending |
-| PRIM-06 | Phase 88 | Pending |
-| LEDGER-01 | Phase 89 | Pending |
-| LEDGER-02 | Phase 89 | Pending |
-| LEDGER-03 | Phase 89 | Pending |
-| SAFE-01 | Phase 87 (recurring in 88) | Pending |
-| SAFE-02 | Phase 87 (recurring in 88) | Pending |
+| VAR-01 | Phase 86 | Pending |
+| VAR-02 | Phase 86 | Pending |
+| VAR-03 | Phase 86 | Pending |
+| VAR-04 | Phase 86 | Pending |
+| NAME-01 | Phase 87 | Pending |
+| NAME-02 | Phase 87 | Pending |
+| NAME-03 | Phase 87 | Pending |
+| NAME-04 | Phase 87 | Pending |
+| NAME-05 | Phase 87 | Pending |
+| PRIM-01 | Phase 88 | Pending |
+| PRIM-02 | Phase 89 | Pending |
+| PRIM-03 | Phase 89 | Pending |
+| PRIM-04 | Phase 89 | Pending |
+| PRIM-05 | Phase 89 | Pending |
+| PRIM-06 | Phase 89 | Pending |
+| LEDGER-01 | Phase 90 | Pending |
+| LEDGER-02 | Phase 90 | Pending |
+| LEDGER-03 | Phase 90 | Pending |
+| SAFE-01 | Phase 88 (recurring in 89) | Pending |
+| SAFE-02 | Phase 88 (recurring in 89) | Pending |
 | SAFE-03 | Phase 86 (recurring in 87/88/89) | Pending |
-| SAFE-04 | Phase 87 (recurring in 88/89) | Pending |
+| SAFE-04 | Phase 86 (recurring in 88/89/90) | Pending |
 | SAFE-05 | Phase 85 | Complete (85-01) |
-| SAFE-06 | Phase 86 | Pending |
+| SAFE-06 | Phase 87 | Pending |
 
 **Coverage:**
 
-- Milestone v1.16 requirements: 23 total
-- Mapped to phases: 23 ✓
+- Milestone v1.16 requirements: 27 total (23 original + 4 VAR added by 2026-06-25 scope amendment)
+- Mapped to phases: 27 ✓
 - Unmapped: 0 ✓
 
 ---
