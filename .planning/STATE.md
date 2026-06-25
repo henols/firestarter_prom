@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
 status: planning
-stopped_at: "Roadmap created — 5 phases (85–89), 23/23 requirements mapped"
-last_updated: "2026-06-25"
-last_activity: 2026-06-25 — v1.16 roadmap created (Phases 85–89)
+stopped_at: Phase 85 context gathered
+last_updated: "2026-06-25T12:23:49.563Z"
+last_activity: 2026-06-25 — v1.16 roadmap created (5 phases, 23/23 requirements mapped)
 progress:
   total_phases: 5
   completed_phases: 0
@@ -84,13 +84,17 @@ See: `.planning/PROJECT.md` (v1.16 Current Milestone section + Key Decisions)
 - **Firmware-only / host-untouched.** No dual-repo lockstep for the refactor (wire/constant values
   unchanged). NAME-04 decode corrections (FM1608 0x40→0x28 reconciliation + 0x34 UV-EPROM→EEPROM)
   are host-only DB fixes applied in Phase 86; `diff_db.py` shows only those 2 intentional changes.
+
 - **Flash outcome = best-effort measured, not a hard gate.** Per-step `pio run -e leonardo`
   net-non-increase gate + report achieved %; no hard ≤86.5% floor.
+
 - **Pure behavior-preserving refactor.** CR-01 (W29C040 flash4), FUT-06 (AM27C020 0x08), FUT-03
   (2516 0x0B read) preserved as-is; not fixed this milestone.
+
 - **12 live protocol buckets** in chip_database.json (744 chips): 0x05/06/07/08/0B/0D/0E/10/27/28/29/34.
   No 0x40 — FM1608 is decimal 40 = 0x28 (SRAM_STD/FRAM). Phantom 0x35/0x39 = zero DB chips
   (document as "dispatched-but-dead"). Infeasible 0x11/0x2A/0x2B/0x2C = fail-closed.
+
 - **Realistically recoverable: ~850–1,300 B** via P3 VPP gate (~350–450 B) + P4 chip-ID
   (~250–350 B) + P5 poll (~200–300 B) + P7 tables (~40–80 B) → 89.5% → ~85–86.5%.
 
@@ -120,8 +124,8 @@ ruff/codegen drift trap for any host-side NAME-04 corrections in Phase 86.
 
 ## Session Continuity
 
-Last session: 2026-06-25
-Stopped at: v1.16 roadmap created (5 phases 85–89; 23/23 requirements mapped; ROADMAP.md + STATE.md written; REQUIREMENTS.md traceability updated)
+Last session: 2026-06-25T12:23:49.558Z
+Stopped at: Phase 85 context gathered
 Resume: Phase 85 (Datasheet Acquisition) — `/gsd-plan-phase 85`
 
 ## Decisions
