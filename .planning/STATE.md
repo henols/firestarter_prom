@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
-status: in_progress
-stopped_at: Phase 86 context gathered — milestone restructured (variant-decode phase inserted; 86→90 renumber)
-last_updated: "2026-06-25T16:30:00.000Z"
-last_activity: 2026-06-25
+status: executing
+stopped_at: Phase 85 Plan 03 complete — datasheets/README.md + phase-gate PASS (DSHEET-03)
+last_updated: "2026-06-25T17:18:52.843Z"
+last_activity: 2026-06-25 -- Phase 86 planning complete
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 3
+  total_plans: 7
   completed_plans: 3
   percent: 17
 ---
@@ -23,8 +23,8 @@ progress:
 
 Phase: 86 (NEW — infoic.xml Variant-Field Decode + Correct DB Regen)
 Plan: Not started (context gathered)
-Status: Milestone restructured 2026-06-25 — variant-decode phase inserted ahead of the naming pass; original 86→90 renumbered. v1.16 now 6 phases (85–90), 27 reqs.
-Last activity: 2026-06-25
+Status: Ready to execute
+Last activity: 2026-06-25 -- Phase 86 planning complete
 
 Progress: [█░░░░░░░░░] 17%
 

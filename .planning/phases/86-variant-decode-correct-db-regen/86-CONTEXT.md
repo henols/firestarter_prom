@@ -89,7 +89,29 @@ decode); fixing the open write-path defects (CR-01 / FUT-06 / FUT-03 preserved).
   flagged for **Leonardo + RURP Rev 2.0 re-bench** before Phase 90 (operator chose the
   bench-aware gate over software-only).
 
+### Non-upstream chip support (VAR-05 — added 2026-06-25 operator directive)
+- **D-10:** **Support 2516 and 2532 even though they are absent from `infoic.xml`.** Operator:
+  *"2516 and 2532 are odd balls but we shall support them anyway, even if they aren't in the
+  infoic.xml."* These are 24-pin oddballs (non-JEDEC pinouts; 2532 ≠ 2732) that upstream omits.
+  Mechanism (operator-chosen): a **curated, provenance-cited non-upstream supplement** (e.g.
+  `tools/extra_chips.json`) that `build_db.py` merges into `chip_database.json` **after** the
+  `infoic.xml` decode — shipped first-class, NOT per-operator `~/.firestarter/database.json`
+  edits. The supplement is the legitimate home for "physically real, upstream-absent" chips;
+  it is **not** a return of the deleted Rule 1/2/3 (those misclassified chips already *in*
+  infoic.xml — a categorically different concern from chips with no upstream record at all).
+- **D-11:** **Supplement records go through the same gates** as decoded chips — `check_dispatch.py`
+  0 violations (24-pin VPP-pin safety matters for these UV parts) and `diff_db.py` shows them as
+  cited "non-upstream supplement" rows against the re-pinned baseline (D-07 extends to cover them).
+  Each supplement field cites a datasheet (the 2516 datasheet is already committed from Phase 85;
+  acquire a 2532 datasheet if needed per D-05). **2516 keeps its SAFE-04 UNVERIFIED status** —
+  it becomes resolvable but is NOT graduated to a write-proven part; its host guards stay. This
+  also revises the original 86-01 "2516 stays absent" assertion (now: 2516 is present via the
+  supplement, UNVERIFIED, wire values not silently moved).
+
 ### Claude's Discretion
+- Exact supplement file format/location (`tools/extra_chips.json` vs inline table) and how its
+  records are fenced/labelled non-upstream — planner/executor's call, as long as it merges
+  post-decode, ships in `chip_database.json`, and passes the D-07/D-08 gates.
 - Exact decode-table structure in `build_db.py`, the high-byte field-naming, and
   whether the decode is a lookup table vs. bitfield parse — planner/executor's call,
   as long as Rule 1/2/3 are gone and the gates (D-07/D-08/D-09) hold.

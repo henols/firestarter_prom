@@ -393,7 +393,9 @@ ruff check tools/ firestarter/ tests/ && ruff format --check tools/ firestarter/
 
 **No `[ASSUMED]` claims affect safety dispatch** — all dispatch-affecting facts are `[VERIFIED]` against source.
 
-## Open Questions
+## Open Questions (RESOLVED during planning)
+
+> All three resolved by plan design: Q1 (fetch SHA) → captured in DECODE-NOTES.md by 86-01 T1; Q2 (dispatch_baseline.json gate-vs-provenance) → 86-03 T1 treats it as provenance-only, `chip_database.baseline.json` is the live gate; Q3 (2516 DB presence) → CONTEXT.md D-10/D-11 + plan 86-04 ship it via the non-upstream supplement (UNVERIFIED).
 
 1. **Pin the infoic.xml fetch to a commit SHA?**
    - What we know: fetch is live against `master`; no vendored copy; existing citations pin `@ a8efaedc`.
