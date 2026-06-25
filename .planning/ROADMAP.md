@@ -176,7 +176,7 @@ Plans:
 
 **Wave 2** *(doc/traceability — depends on Wave 1 outcomes)*
 
-- [ ] 84-04-PLAN.md — `.planning/v1.15/DECODE-AUDIT.md` consolidated 11-chip audit (SC#1, D-42) + REWR-01/02/04 silicon dispositions + UV-01..04 checkbox-drift fix (D-41)
+- [x] 84-04-PLAN.md — `.planning/v1.15/DECODE-AUDIT.md` consolidated 11-chip audit (SC#1, D-42) + REWR-01/02/04 silicon dispositions + UV-01..04 checkbox-drift fix (D-41)
 
 **Wave 3** *(operator bench — `autonomous: false`; depends on Waves 1)*
 
@@ -761,7 +761,7 @@ Plans:
 | 81 | v1.15 | 3/3 | Complete    | 2026-06-24 |
 | 82 | v1.15 | 3/3 | Complete    | 2026-06-24 |
 | 83 | v1.15 | 3/3 | Complete   | 2026-06-24 |
-| 84 (close) | v1.15 | 3/6 | In Progress|  |
+| 84 (close) | v1.15 | 4/6 | In Progress|  |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
