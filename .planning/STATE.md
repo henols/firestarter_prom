@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
-status: executing
-stopped_at: Phase 85 Plan 03 complete — datasheets/README.md authored, phase-gate PASS (DSHEET-03)
-last_updated: "2026-06-25T15:00:00.000Z"
+status: completed
+stopped_at: Phase 85 Plan 03 complete — datasheets/README.md + phase-gate PASS (DSHEET-03)
+last_updated: "2026-06-25T15:29:38.409Z"
 last_activity: 2026-06-25
 progress:
   total_phases: 5
@@ -21,8 +21,8 @@ progress:
 
 ## Current Position
 
-Phase: 85 (datasheet-acquisition) — COMPLETE
-Plan: 3 of 3 (all plans done)
+Phase: 86
+Plan: Not started
 Status: Phase 85 complete; Phase 86 next
 Last activity: 2026-06-25
 
@@ -40,7 +40,7 @@ See: `.planning/PROJECT.md` (v1.16 Current Milestone section + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware handler. v1.16 makes that contract **legible** (named, datasheet-documented protocols) and **leaner** (shared-primitive handlers). Minipro DB stays ground truth; datasheets verify + document the *why*.
 
-**Current focus:** Phase 85 — datasheet-acquisition
+**Current focus:** Phase 86 — naming-+-documentation-pass (Phase 85 complete — 18 datasheets committed incl. operator-added W27C020)
 
 ## Roadmap Summary
 

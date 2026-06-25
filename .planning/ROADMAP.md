@@ -762,7 +762,7 @@ Plans:
 | 82 | v1.15 | 3/3 | Complete    | 2026-06-24 |
 | 83 | v1.15 | 3/3 | Complete   | 2026-06-24 |
 | 84 (close) | v1.15 | 6/6 | Complete   | 2026-06-25 |
-| 85 | v1.16 | 2/3 | In Progress|  |
+| 85 | v1.16 | 3/3 | Complete    | 2026-06-25 |
 | 86 | v1.16 | 0/TBD | Not started | — |
 | 87 | v1.16 | 0/TBD | Not started | — |
 | 88 | v1.16 | 0/TBD | Not started | — |
