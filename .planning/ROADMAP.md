@@ -116,7 +116,7 @@ Full detail: [`.planning/milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.
 Plans:
 **Wave 0**
 
-- [ ] 85-01-PLAN.md — Fork v1.16 branch in firestarter sub-repo + author datasheets/datasheets-check.sh Wave-0 validation (SAFE-05)
+- [x] 85-01-PLAN.md — Fork v1.16 branch in firestarter sub-repo + author datasheets/datasheets-check.sh Wave-0 validation (SAFE-05)
 
 **Wave 1** *(blocked on Wave 0)*
 

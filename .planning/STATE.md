@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
 status: executing
-stopped_at: Phase 85 context gathered
-last_updated: "2026-06-25T12:46:27.229Z"
-last_activity: 2026-06-25 -- Phase 85 planning complete
+stopped_at: Phase 85 Plan 01 complete — v1.16 branch forked + datasheets-check.sh committed
+last_updated: "2026-06-25T14:36:30Z"
+last_activity: 2026-06-25 -- Phase 85 Plan 01 completed
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 3
-  completed_plans: 0
-  percent: 0
+  completed_plans: 1
+  percent: 7
 ---
 
 # Project State
@@ -21,12 +21,12 @@ progress:
 
 ## Current Position
 
-Phase: Not started (Phase 85 ready to plan)
-Plan: —
-Status: Ready to execute
-Last activity: 2026-06-25 -- Phase 85 planning complete
+Phase: 85 (datasheet-acquisition) — EXECUTING
+Plan: 2 of 3
+Status: Executing Phase 85 (Plan 01 complete)
+Last activity: 2026-06-25 -- Phase 85 Plan 01 completed
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [░░░░░░░░░░] 7%
 
 ## Quick Tasks Completed
 
@@ -40,7 +40,7 @@ See: `.planning/PROJECT.md` (v1.16 Current Milestone section + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware handler. v1.16 makes that contract **legible** (named, datasheet-documented protocols) and **leaner** (shared-primitive handlers). Minipro DB stays ground truth; datasheets verify + document the *why*.
 
-**Current focus:** v1.16 (Protocol-First Architecture Rebuild) — Phase 85 ready to plan. Dependency-first staged shape: datasheets → vocabulary/invariants → golden-trace guards → recompose → bench ledger. Firmware-only / host-untouched (NAME-04 decode corrections are host-only DB fixes, no wire change). Phase numbering continues at Phase 85; bench oracle is Leonardo + RURP Rev 2.0 only. Standing carry-forwards: v1.14/v1.15 `3.0.0b11` lockstep beta cut OPERATOR-GATED (gitlinks PINNED); deferred v1.9 read-bug RCA (resumes at Phase 45).
+**Current focus:** Phase 85 — datasheet-acquisition
 
 ## Roadmap Summary
 
@@ -124,21 +124,22 @@ ruff/codegen drift trap for any host-side NAME-04 corrections in Phase 86.
 
 ## Session Continuity
 
-Last session: 2026-06-25T12:23:49.558Z
-Stopped at: Phase 85 context gathered
-Resume: Phase 85 (Datasheet Acquisition) — `/gsd-plan-phase 85`
+Last session: 2026-06-25T14:36:30Z
+Stopped at: Phase 85 Plan 01 complete — v1.16 branch forked + datasheets-check.sh committed
+Resume: Phase 85 Plan 02 (PDF download) — `/gsd-execute-phase 85`
 
 ## Decisions
 
 - [Phase 79-02, 2026-06-23]: NMOS-02 executed under CONTEXT D-07 operator override. VPE = 22.4V DMM / 23.9V fw; ceiling 22000→25000; 4 NMOS chips graduated `vpp-exceeds-max`→`supported` (0x0B, 25000mV). Best-effort, no HW change ever. FUT-02 (>25V fail-closed) preserved.
 - [Phase 82, 2026-06-24]: Rewritable silicon validation: 5 PASS / 3 FAIL (W27E512/W27E040 stuck-bit silicon wear; W29C040 flash4 256B page-0 fault confirming Phase-74 fix not silicon-effective → CR-01). W29C020 auto-erase = first Flash/EEPROM auto-erase silicon proof.
 - [Phase 84-05, 2026-06-25]: FIX-01 closed by disposition D-43; GRAD-03/FUT-03 deferred best-effort D-22; 2516 read still unstable after VPP-skip.
+- [Phase 85-01, 2026-06-25]: v1.16-protocol-first-architecture-rebuild branch forked from beta (not v1.15 tip) in firestarter sub-repo; datasheets-check.sh Wave-0 gate authored with 12-bucket %PDF contract (correctly RED at scaffold stage, PASS after Plans 02/03 populate the tree).
 
 ## Performance Metrics
 
 | Phase | Plan | Duration | Notes |
 |-------|------|----------|-------|
-| _(v1.16 metrics recorded here as plans execute)_ | | | |
+| 85 | 01 | 4min | Wave-0 scaffold: branch fork + datasheets-check.sh |
 
 ## Deferred Items
 

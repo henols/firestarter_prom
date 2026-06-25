@@ -47,7 +47,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Phase n
 - [ ] **SAFE-02**: All enumerated one-off-fix invariants (NAME-03) survive each recompose step, asserted under the native register-level tests.
 - [ ] **SAFE-03**: `check_dispatch.py` (0 violations) and `diff_db.py` exit clean every phase; `diff_db.py` shows only the intentional NAME-04 corrections (baseline re-pinned for those, enumerated) and is empty across all recompose phases.
 - [ ] **SAFE-04**: Over-voltage stays blocked at the firmware VPP check; the `chip_resolver.resolve_chip` host guard is never bypassed; no irreplaceable UV part is written on an unstable read path (the 2516 stays `UNVERIFIED`, not spent).
-- [ ] **SAFE-05**: No new third-party dependency is introduced — the existing harness (`check_dispatch.py`, `diff_db.py`, native `test_val_*` suites, `dev validate-family`, `write_test.sh`, `gen_test_image.py`, host ruff/mypy/pytest) is reused; the only new artifact is `datasheets/`.
+- [x] **SAFE-05**: No new third-party dependency is introduced — the existing harness (`check_dispatch.py`, `diff_db.py`, native `test_val_*` suites, `dev validate-family`, `write_test.sh`, `gen_test_image.py`, host ruff/mypy/pytest) is reused; the only new artifact is `datasheets/`. *(Phase 85-01: branch + check script only; verified via explicit git add + SAFE-05-OK gate)*
 - [ ] **SAFE-06**: The refactor ships firmware-first with NO dual-repo lockstep (wire/constant values unchanged, NAME-04 is host-only); ruff/format/mypy/codegen are validated against the CI target (py3.11), not the 3.12 devcontainer, and generated `messages.py` is never hand-normalized.
 
 ## Future Requirements
@@ -105,7 +105,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SAFE-02 | Phase 87 (recurring in 88) | Pending |
 | SAFE-03 | Phase 86 (recurring in 87/88/89) | Pending |
 | SAFE-04 | Phase 87 (recurring in 88/89) | Pending |
-| SAFE-05 | Phase 85 | Pending |
+| SAFE-05 | Phase 85 | Complete (85-01) |
 | SAFE-06 | Phase 86 | Pending |
 
 **Coverage:**
