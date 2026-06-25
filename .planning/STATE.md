@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
 status: executing
-stopped_at: Phase 87 context gathered — 87-CONTEXT.md written. 4 gray areas locked (all on recommended option): INV matrix lives in PROTOCOLS.md w/ stable INV-01..09 IDs greppable to native tests (D-05); gap-fill tests are minimal targeted assertions, golden traces deferred to P88 (D-06); per-handler file-header rationale comments w/ anchored datasheet cites (D-07); per-protocol sections + "Honest non-protocols" section (D-08). Doc=firestarter/doc/PROTOCOLS.md + two-name scheme carried from P86. Ready for /gsd-plan-phase 87.
-last_updated: "2026-06-25T19:30:00.000Z"
-last_activity: 2026-06-25 -- Phase 87 context gathered (discuss-phase complete)
+stopped_at: Phase 87 PLANNED — 4 plans in 3 waves, verification PASSED (1 revision loop: 0 blockers→4 warnings→1 blocker→clean; checker caught a RAM-vs-Flash parse bug in the flash-delta gate, fixed). W1=87-01 PROTOCOLS.md vocabulary + INV-01..09 matrix + flash baseline capture; W2=87-02 handler rationale comments / 87-03 INV gap-fill native tests (parallel, disjoint trees); W3=87-04 frozen-world hard gates (check_dispatch 0-viol + diff_db empty + failable Leonardo flash-delta + host-frozen). Ready for /gsd-execute-phase 87.
+last_updated: "2026-06-25T21:30:00.000Z"
+last_activity: 2026-06-25 -- Phase 87 planned (4 plans, verification passed)
 progress:
   total_phases: 6
   completed_phases: 2
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 87 (Naming + Documentation Pass) — context gathered (discuss-phase complete)
-Plan: none yet — ready for /gsd-plan-phase 87
-Status: Phase 86 COMPLETE (4/4 plans, gate-green); Phase 87 discussed
-Last activity: 2026-06-25 -- Phase 87 context gathered (discuss-phase complete)
+Phase: 87 (Naming + Documentation Pass) — PLANNED, ready to execute
+Plan: 4 plans (87-01..04) in 3 waves — verification PASSED
+Status: Phase 86 COMPLETE (4/4 plans, gate-green); Phase 87 planned (4 plans, gate-green)
+Last activity: 2026-06-25 -- Phase 87 planned (4 plans, verification passed)
 
 Progress: [████░░░░░░] 43%
 

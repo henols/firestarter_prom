@@ -179,10 +179,24 @@ Plans:
   5. `pio run -e leonardo` shows a near-zero flash delta (vocabulary is host-side + source comments only; no PROGMEM strings added to firmware); `diff_db.py` is empty against the Phase-86-repinned baseline (this phase changes no DB records).
 
 **Plans**: 4 plans
-- [ ] 87-01-PLAN.md — Author firestarter/doc/PROTOCOLS.md: per-bucket vocabulary (two-name scheme) + NAME-04 FM1608/X88C64 corrections + Honest non-protocols section + INV-01..09 traceability matrix (NAME-01/03/04)
-- [ ] 87-02-PLAN.md — Per-handler datasheet-anchored rationale header blocks across all 10 firmware files, citing the INV ids (NAME-02, zero-flash)
-- [ ] 87-03-PLAN.md — Gap-fill native tests: map every INV-01..09 to a live greppable assertion in test_val_eprom/flash3/flash4/sram; pio test -e native green (NAME-03)
-- [ ] 87-04-PLAN.md — Frozen-world hard gates: check_dispatch 0-violations + diff_db empty + Leonardo near-zero flash delta + INV greppability + host py3.11 (NAME-05/SAFE-03/SAFE-06)
+Plans:
+**Wave 1**
+
+- [ ] 87-01-PLAN.md — Author firestarter/doc/PROTOCOLS.md: per-bucket vocabulary (two-name scheme) + NAME-04 FM1608/X88C64 corrections + Honest non-protocols section + INV-01..09 traceability matrix + capture pre-phase Leonardo flash baseline (NAME-01/03/04/05, SAFE-06)
+
+**Wave 2** *(blocked on Wave 1 — both depend on the INV-01..09 contract from PROTOCOLS.md; disjoint file trees src/ vs test/)*
+
+- [ ] 87-02-PLAN.md — Per-handler datasheet-anchored rationale header blocks across all 10 firmware files, citing the INV ids (NAME-02, zero-flash, comment-only diff guard)
+- [ ] 87-03-PLAN.md — Gap-fill native tests: map every INV-01..09 to a live greppable assertion in its matrix-assigned test_val_eprom/flash3/flash4/sram suite; pio test -e native green (NAME-03, SAFE-06)
+
+**Wave 3** *(blocked on Waves 1+2)*
+
+- [ ] 87-04-PLAN.md — Frozen-world hard gates: check_dispatch 0-violations + diff_db empty + failable Leonardo flash-delta gate (DELTA≤16) + INV greppability + host frozen (no firestarter_app change) (NAME-05/SAFE-03/SAFE-06)
+
+**Cross-cutting constraints** *(must_haves.truths shared by 2+ plans):*
+- The INV-01..09 ids are greppable across the PROTOCOLS.md matrix ↔ native test name ↔ owning handler header (D-05; SAFE-02 handoff to Phase 88).
+- `diff_db.py` is empty and `check_dispatch.py` reports 0 violations against the Phase-86-repinned baseline — this phase changes no DB records (D-09).
+- No PROGMEM/flash growth: comments cost zero flash, enforced by the failable Leonardo flash-delta gate (D-10).
 **UI hint**: no
 
 ### Phase 88: Golden Traces + Dispatch-Mirror Guard *(was 87)*
