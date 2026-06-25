@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
 status: executing
-stopped_at: Phase 86 COMPLETE (all 4 plans) — Plan 86-03 re-pinned both diff_db baselines LAST to the correct 746-chip DB (incl. 2516/2532 supplement); chip_database.baseline.json byte-identical, dispatch_baseline.json regenerated (746) w/ Phase-86/SHA-a8efaedc/VAR-05 provenance; diff_db.py now IDENTITY diff exit 0 (D-07 closed); check_dispatch 0 violations; 686 host tests + 77.69% cov + ruff/format/mypy-watermark all green (CI py3.11). Phase 86 gate-green → ready for /gsd-verify-work
-last_updated: "2026-06-25T19:05:00.000Z"
-last_activity: 2026-06-25 -- Phase 86 Plan 03 executed (baseline re-pin — phase complete)
+stopped_at: Phase 87 context gathered — 87-CONTEXT.md written. 4 gray areas locked (all on recommended option): INV matrix lives in PROTOCOLS.md w/ stable INV-01..09 IDs greppable to native tests (D-05); gap-fill tests are minimal targeted assertions, golden traces deferred to P88 (D-06); per-handler file-header rationale comments w/ anchored datasheet cites (D-07); per-protocol sections + "Honest non-protocols" section (D-08). Doc=firestarter/doc/PROTOCOLS.md + two-name scheme carried from P86. Ready for /gsd-plan-phase 87.
+last_updated: "2026-06-25T19:30:00.000Z"
+last_activity: 2026-06-25 -- Phase 87 context gathered (discuss-phase complete)
 progress:
   total_phases: 6
   completed_phases: 2
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 86 (infoic.xml Variant-Field Decode + Correct DB Regen) — COMPLETE (4/4 plans)
-Plan: 03 complete (LAST) — Phase 86 fully executed; ready for /gsd-verify-work
-Status: Phase execution complete (awaiting verification)
-Last activity: 2026-06-25 -- Phase 86 Plan 03 executed (baseline re-pin — phase complete)
+Phase: 87 (Naming + Documentation Pass) — context gathered (discuss-phase complete)
+Plan: none yet — ready for /gsd-plan-phase 87
+Status: Phase 86 COMPLETE (4/4 plans, gate-green); Phase 87 discussed
+Last activity: 2026-06-25 -- Phase 87 context gathered (discuss-phase complete)
 
 Progress: [████░░░░░░] 43%
 
