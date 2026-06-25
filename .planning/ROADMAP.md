@@ -136,7 +136,7 @@ Plans:
 
 **Goal**: `build_db.py` generates a *correct* `chip_database.json` from a principled decode of the `infoic.xml` `variant` field (low + high byte), with the hand-maintained Rule 1/2/3 override edge-cases deleted — so FM1608, X88C64, and the WARNING-5 5V-EEPROM family resolve correctly by decode, not by special-case patches. Host-only; the structural `check_dispatch.py` VPP-safety gate proves the deleted overrides did not reopen the 12V-on-a-5V-pin hazard.
 **Depends on**: Phase 85 (datasheets in hand — the verification source for decoding ambiguous variant values)
-**Requirements**: VAR-01, VAR-02, VAR-03, VAR-04, SAFE-04
+**Requirements**: VAR-01, VAR-02, VAR-03, VAR-04, VAR-05, SAFE-04
 **Success Criteria** (what must be TRUE):
 
   1. The `infoic.xml` `variant` field is decoded in full: the low byte (`variant & 0xFF`, the pinout-family discriminator already used) AND the previously-undecoded high byte, with every value that affects classification documented and grounded in minipro source and/or a committed datasheet. Where the high byte is needed to disambiguate a chip's electrical type and no source resolves it, the residual ambiguity is documented (honest gap), not guessed.
@@ -144,12 +144,13 @@ Plans:
   3. The regenerated `chip_database.json` resolves FM1608 to SRAM_STD (algorithm 0x28) and X88C64 to `electrical.type` EEPROM via the general decode (not a special-case); every chip whose record changed vs. the pinned baseline is explained by a cited variant-decode rule (`diff_db.py` classified-diff, like the v1.11 GATE-02 pattern), and the `chip_database.baseline.json` + `dispatch_baseline.json` baselines are re-pinned to the new correct DB.
   4. `check_dispatch.py` exits 0 violations on the regenerated DB — no chip routes to a 12V-VPP path (`configure_eprom`) on a pinout with no VPP pin — proving the deleted WARNING-5 override did not reintroduce a hardware-damage path.
   5. The 11 on-hand bench-proven chips (v1.15 EVIDENCE) have unchanged wire values (`algorithm`/`vpp_mv`/`pinout`) in the regenerated DB, OR any chip whose wire value moved is flagged for Leonardo + RURP Rev 2.0 re-bench before Phase 90. Host tooling stays green (ruff/format/mypy/pytest against the CI py3.11 target; generated `messages.py` never hand-normalized).
+  6. *(VAR-05 — added 2026-06-25)* The 24-pin oddballs **2516** and **2532**, absent from upstream `infoic.xml`, are shipped first-class in `chip_database.json` via a curated, provenance-cited non-upstream supplement merged by `build_db.py` after the decode (not per-operator `~/.firestarter/database.json` edits); the supplement rows pass `check_dispatch.py` (0 violations) and are explained by `diff_db.py` as cited non-upstream rows; 2516 keeps its SAFE-04 UNVERIFIED status (resolvable, not write-graduated).
 
-**Plans**: 3 plans
+**Plans**: 4 plans
 Plans:
 **Wave 1**
 
-- [ ] 86-01-PLAN.md — VAR-01 decode documentation (DECODE-NOTES.md: high byte = algo_number, census, pinned minipro SHA, X88C64 0x34 rationale, honest gaps) + Wave-0 test scaffolds (FM1608/X88C64 assertions + EVIDENCE-11 wire-stability oracle)
+- [ ] 86-01-PLAN.md — VAR-01 decode documentation (DECODE-NOTES.md: high byte = algo_number, census, pinned minipro SHA, X88C64 0x34 rationale, honest gaps) + Wave-0 test scaffolds (FM1608/X88C64 assertions + EVIDENCE wire-stability oracle; 2516 deferred to 86-04)
 
 **Wave 2** *(blocked on Wave 1)*
 
@@ -157,7 +158,11 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 86-03-PLAN.md — VAR-03/04 + SAFE-04: re-pin both baselines LAST (after diff reviewed); test_diff_db_gate identity pass; full py3.11 toolchain gate (ruff/format/mypy/pytest)
+- [ ] 86-04-PLAN.md — VAR-05/SAFE-04: ship 2516 + 2532 (upstream-absent oddballs) first-class via curated provenance-cited non-upstream supplement (tools/extra_chips.json) merged post-decode; DIP24_2532 pinout if non-JEDEC; diff_db non-upstream-supplement rule + check_dispatch 0 violations; 2516 stays UNVERIFIED + wire-stable
+
+**Wave 4** *(blocked on Waves 2 + 3)*
+
+- [ ] 86-03-PLAN.md — VAR-03/04 + SAFE-04: re-pin both baselines LAST (after the 86-02 + 86-04 diff reviewed); test_diff_db_gate identity pass; full py3.11 toolchain gate (ruff/format/mypy/pytest)
 **UI hint**: no
 
 ### Phase 87: Naming + Documentation Pass *(was 86)*
