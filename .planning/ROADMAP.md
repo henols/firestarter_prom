@@ -95,7 +95,7 @@ Full detail: [`.planning/milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.
 
 ### Phases
 
-- [ ] **Phase 85: Datasheet Acquisition** — Commit datasheets for the 11 on-hand ICs + one representative per no-silicon bucket; author `datasheets/README.md` index. Zero code risk; unblocks the naming pass. **(3 plans, 3 waves)**
+- [x] **Phase 85: Datasheet Acquisition** — Commit datasheets for the 11 on-hand ICs + one representative per no-silicon bucket; author `datasheets/README.md` index. Zero code risk; unblocks the naming pass. **(3 plans, 3 waves)** ✓ 2026-06-25
 - [ ] **Phase 86: Naming + Documentation Pass** — Author the 12-bucket protocol vocabulary (hex ID → human name → datasheet-verified behavior), enumerate the 8 accreted one-off-fix invariants, apply the two NAME-04 decode corrections. Dispatch structure and wire values unchanged; near-zero flash delta.
 - [ ] **Phase 87: Golden Traces + Dispatch-Mirror Guard** — Pin per-family native register golden traces and add the `check_dispatch.py::dispatch()`-matches-documented-order invariant test before any code extraction. Establishes the recompose oracle.
 - [ ] **Phase 88: Incremental Primitive Recompose** — Extract P7 SDP-table dedup (warm-up) → P4 chip-ID compare/report → P3 VPP gate → P5 poll, each guarded by native suites + `check_dispatch.py` + `diff_db.py`; `pio run -e leonardo` measured at every step with net-non-increase gate; achieved flash % reported.
@@ -127,7 +127,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 85-03-PLAN.md — Author datasheets/README.md index + exclusions + provenance, run phase-gate PASS (DSHEET-03, SAFE-05)
+- [x] 85-03-PLAN.md — Author datasheets/README.md index + exclusions + provenance, run phase-gate PASS (DSHEET-03, SAFE-05)
 
 ### Phase 86: Naming + Documentation Pass
 
