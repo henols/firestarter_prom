@@ -20,10 +20,10 @@
 
 ### Electrically-Rewritable Validation (REWR)
 
-- [x] **REWR-01**: W27C512, W27E512, SST27SF512 (0x07 EEPROM, 12V) each pass full write→auto-erase→read→verify with SHA match.
-- [x] **REWR-02**: W27E040 (0x08 EEPROM, 512KB) passes full write→read→verify with SHA match.
+- [x] **REWR-01**: W27C512, W27E512, SST27SF512 (0x07 EEPROM, 12V) each pass full write→auto-erase→read→verify with SHA match. *(Silicon outcome: W27C512 PASS + SST27SF512 PASS; W27E512 FAIL — genuine stuck erase bit @0x3d, reads 0x7F want 0xFF, deterministic across N=3 reseats, D-32 silicon-limited. See EVIDENCE.md Phase 82 row #2. Status satisfied-by-disposition: 2 of 3 named chips confirmed on silicon; W27E512 is a worn unit, not a DB/algo fault.)*
+- [x] **REWR-02**: W27E040 (0x08 EEPROM, 512KB) passes full write→read→verify with SHA match. *(Silicon outcome: W27E040 FAIL — genuine stuck erase bit @0x7db, reads 0xEF want 0xFF, deterministic across N=2 reseats, D-32 silicon-limited. No positive 0x08 write PASS — this was the sole 0x08 rewritable chip on hand. Status satisfied-by-disposition: operator-deferred FUT-05. Unblock = a functional 0x08 chip. See EVIDENCE.md Phase 82 row #4.)*
 - [x] **REWR-03**: SST39SF040 (0x06 flash3 / AMD-style) passes full write→read→verify with SHA match.
-- [x] **REWR-04**: W29C020 and W29C040 (0x05 flash4 / Winbond) each pass full write→read→verify with SHA match, with auto-erase confirmed correct for the `Flash/EEPROM` electrical type.
+- [x] **REWR-04**: W29C020 and W29C040 (0x05 flash4 / Winbond) each pass full write→read→verify with SHA match, with auto-erase confirmed correct for the `Flash/EEPROM` electrical type. *(Silicon outcome: W29C020 PASS — FLAG_CAN_ERASE Flash/EEPROM branch first silicon confirmation (REWR-04 SC#3); W29C040 FAIL — flash4 256B page-write timeout at page-0 boundary @0x0000FF, deterministic across initial + 1 reseat. W29C040 disposition: handed to Phase 84 FIX-01 (re-bench pending 84-05). Status satisfied-by-disposition: W29C020 is the Flash/EEPROM auto-erase silicon proof; W29C040 FAIL is a write-path defect, not a DB/decode fault. See EVIDENCE.md Phase 82 rows #7 and #8.)*
 - [x] **REWR-05**: FM1608 (0x40 FRAM) passes full write→read-back→verify (overwrite path, no erase).
 
 ### UV-EPROM No-Eraser Protocol (UV)
@@ -87,10 +87,10 @@ Populated during roadmap creation (each requirement maps to exactly one phase).
 | EVID-03 | Phase 81 | Complete |
 | SWEEP-01 | Phase 81 | Complete |
 | SWEEP-02 | Phase 81 | Complete |
-| REWR-01 | Phase 82 | Complete |
-| REWR-02 | Phase 82 | Complete |
+| REWR-01 | Phase 82 | Complete *(partial silicon — W27C512 PASS + SST27SF512 PASS; W27E512 FAIL: genuine stuck bit @0x3d, silicon-limited D-32, not a DB/algo fault)* |
+| REWR-02 | Phase 82 | Complete *(satisfied-by-disposition — W27E040 FAIL: genuine stuck bit @0x7db, silicon-limited D-32; no positive 0x08 PASS; deferred FUT-05, needs a functional 0x08 chip)* |
 | REWR-03 | Phase 82 | Complete |
-| REWR-04 | Phase 82 | Complete |
+| REWR-04 | Phase 82 | Complete *(partial silicon — W29C020 PASS (Flash/EEPROM auto-erase silicon proof); W29C040 FAIL: flash4 256B page-write timeout, handed to Phase 84 FIX-01 re-bench; disposition pending 84-05)* |
 | REWR-05 | Phase 82 | Complete |
 | UV-01 | Phase 83 | Complete — blank-state re-confirmed (no VPP) before write for both ST M27C512 (BLANK) + AM27C020 (NOT-BLANK) |
 | UV-02 | Phase 83 | Complete — operator spend authorization captured at the bench before any VPP for both chips |
@@ -115,4 +115,4 @@ Populated during roadmap creation (each requirement maps to exactly one phase).
 
 ---
 *Requirements defined: 2026-06-23*
-*Last updated: 2026-06-23 after roadmap creation (traceability populated, Phases 81–84)*
+*Last updated: 2026-06-25 Plan 84-04 (D-41): REWR-01/02/04 annotated with silicon FAILs/deferrals; UV-01..04 checkbox drift already corrected in Phase 83 verification commit 3a9f18b*
