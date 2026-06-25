@@ -180,7 +180,7 @@ Plans:
 
 **Wave 3** *(operator bench — `autonomous: false`; depends on Waves 1)*
 
-- [ ] 84-05-PLAN.md — Re-flash Leonardo + SAFE-01/02 gate; 2516 read-ONLY re-validation (D-20/D-21, GRAD-03 stays DEFERRED D-22); AM27C020 0x08 + W29C040 flash4 RCA-and-defer re-bench (D-31/D-54); EVIDENCE appends
+- [x] 84-05-PLAN.md — Re-flash Leonardo + SAFE-01/02 gate; 2516 read-ONLY re-validation (D-20/D-21, GRAD-03 stays DEFERRED D-22); AM27C020 0x08 + W29C040 flash4 RCA-and-defer re-bench (D-31/D-54); EVIDENCE appends
 
 **Wave 4** *(consolidation gate — depends on 84-04 + 84-05)*
 
@@ -761,7 +761,7 @@ Plans:
 | 81 | v1.15 | 3/3 | Complete    | 2026-06-24 |
 | 82 | v1.15 | 3/3 | Complete    | 2026-06-24 |
 | 83 | v1.15 | 3/3 | Complete   | 2026-06-24 |
-| 84 (close) | v1.15 | 4/6 | In Progress|  |
+| 84 (close) | v1.15 | 5/6 | In Progress|  |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
