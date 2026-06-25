@@ -18,6 +18,7 @@
 - ✅ **v1.13 Programming Algorithm Validation + Gap Implementation** — Phases 71–76 (SHIPPED 2026-06-18; dual-repo lockstep merged to `beta` — fw `a33513f` / app `34deccb` @ `3.0.0b9`, no tag; beta cut + stable operator-gated). Test-first validation milestone: proved the 6 existing write/program/verify algorithm families correct on real hardware behind a software-first three-tier validation harness + per-family matrix, then implemented only the evidence-surfaced RURP-feasible gaps (flash4 chip-id + SDP/page-write; spec-only adapter-required + X88C64). Hybrid bench gating (Tier 1 native + Tier 2 host ungated; Tier 3 HIL Leonardo-only-PASS, closed at PARTIAL bench coverage). First firmware-touching milestone since v1.12. 17/17 requirements (HARN/RSCH/VAL/FIX/ERASE/GAP). Phase 74 Wave-2 HW re-bench + Phase 75 erase path deferred to v1.14 (Backlog 999.4). Full detail in `.planning/MILESTONES.md` §v1.13 + [`.planning/milestones/v1.13-ROADMAP.md`](milestones/v1.13-ROADMAP.md).
 - ✅ **v1.14 Feasible-Gap Implementation** — Phases 77–80 (SHIPPED 2026-06-23; meta tagged `v1.14`, gsd planning merged to `beta`; lockstep beta cut + gitlink bump operator-gated). The first milestone since v1.0 where chips actually **graduate to `supported`**: erase write-path (Phase 77 ✅ bench-proven W27C512), 25V NMOS best-effort graduation (Phase 79 ✅ 4 chips, D-07 override), with X88C64 (Phase 78, PCB-blocked) + AT28C04/16 adapter (Phase 80, adapter-not-built) cleanly deferred to FUT-01/03/04. 15 requirements (6 verified · 2 software-complete · 7 hardware-gated deferrals). Full detail in `.planning/MILESTONES.md` §v1.14 + [`.planning/milestones/v1.14-ROADMAP.md`](milestones/v1.14-ROADMAP.md).
 - ✅ **v1.15 Bench Validation of Operator Inventory** — Phases 81–84 (SHIPPED 2026-06-25; meta tagged `v1.15`, gsd planning merged to `beta`; sub-repo work on `v1.15-bench-validation-of-operator-inventory` — fw `cb947c7` VPP-skip / app `4d5b3de`; lockstep beta cut `3.0.0b11` + gitlink bump operator-gated). Bench-validated the operator's 11 physical chips across 5 algorithm families on **Leonardo + RURP Rev 2.0** via full write→read→verify — proving the on-paper `supported` claim on real silicon, validating DB decode, RCA-ing/fixing failures, producing a per-chip evidence record (`EVIDENCE.{md,json}` + `DECODE-AUDIT.md`), and graduating the `2516` (genuinely absent from minipro). 23 requirements: 21 satisfied · GRAD-03 deferred best-effort (D-22, 2516 0x0B read instability → FUT-03) · FIX-01 closed-by-disposition (D-43; in-posture fixes shipped, AM27C020 0x08 → FUT-06, W29C040 flash4 → CR-01/Phase-74 Wave-2). First Flash/EEPROM auto-erase silicon proof (W29C020). Full detail in `.planning/MILESTONES.md` §v1.15 + [`.planning/milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.md).
+- 🚧 **v1.16 Protocol-First Architecture Rebuild** — Phases 85–89 (STARTED 2026-06-25). Turn the inherited-from-minipro hex-ID protocol buckets into a named, datasheet-verified, primitive-decomposed architecture; shrink the Leonardo ~89.5% flash ceiling via shared-primitive reuse; author a per-protocol bench verification ledger. Firmware-only / host-untouched except the two NAME-04 decode corrections. 23 requirements (DSHEET/NAME/PRIM/LEDGER/SAFE). Phase numbering continues at **Phase 85**.
 
 <details>
 <summary>✅ <b>v1.10 — Serial Transport Hardening (COBS)</b> — Phases 49–55 (SHIPPED 2026-06-07) · 27/27 plans · 14/14 reqs · beta-only</summary>
@@ -83,6 +84,82 @@ Full detail: [`.planning/milestones/v1.14-ROADMAP.md`](milestones/v1.14-ROADMAP.
 Full detail: [`.planning/milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.md) · [`v1.15-REQUIREMENTS.md`](milestones/v1.15-REQUIREMENTS.md) · [`v1.15-MILESTONE-AUDIT.md`](milestones/v1.15-MILESTONE-AUDIT.md) · [`MILESTONES.md`](MILESTONES.md) §v1.15.
 
 </details>
+
+## v1.16 — Protocol-First Architecture Rebuild (STARTED 2026-06-25)
+
+**Milestone goal:** Turn Firestarter's inherited-from-minipro hex-ID `protocol_id` buckets into a named, datasheet-verified, primitive-decomposed architecture — shrinking the Leonardo flash ceiling (~89.5% today) via shared-primitive reuse, without changing the minipro DB as ground truth. Firmware-only / host-untouched (two NAME-04 decode corrections are host-only DB fixes, no wire change). The only genuinely new artifacts are a top-level `datasheets/` folder and `.planning/v1.16/ledger/PROTOCOL-LEDGER.{md,json}`. Bench oracle is **Leonardo + RURP Rev 2.0 only**.
+
+**Phase numbering:** Continues from v1.15 last phase (84) → v1.16 starts at **Phase 85**.
+
+**Branch:** `v1.16-protocol-first-architecture-rebuild` off `beta` in `firestarter` sub-repo; meta-repo off `beta`. Firmware-only refactor — `firestarter_app` sub-repo untouched unless a behavior fix rides along (none planned).
+
+### Phases
+
+- [ ] **Phase 85: Datasheet Acquisition** — Commit datasheets for the 11 on-hand ICs + one representative per no-silicon bucket; author `datasheets/README.md` index. Zero code risk; unblocks the naming pass.
+- [ ] **Phase 86: Naming + Documentation Pass** — Author the 12-bucket protocol vocabulary (hex ID → human name → datasheet-verified behavior), enumerate the 8 accreted one-off-fix invariants, apply the two NAME-04 decode corrections. Dispatch structure and wire values unchanged; near-zero flash delta.
+- [ ] **Phase 87: Golden Traces + Dispatch-Mirror Guard** — Pin per-family native register golden traces and add the `check_dispatch.py::dispatch()`-matches-documented-order invariant test before any code extraction. Establishes the recompose oracle.
+- [ ] **Phase 88: Incremental Primitive Recompose** — Extract P7 SDP-table dedup (warm-up) → P4 chip-ID compare/report → P3 VPP gate → P5 poll, each guarded by native suites + `check_dispatch.py` + `diff_db.py`; `pio run -e leonardo` measured at every step with net-non-increase gate; achieved flash % reported.
+- [ ] **Phase 89: Per-Protocol Bench Validation + Ledger** — Bench-prove each protocol with on-hand silicon on Leonardo + RURP Rev 2.0; author `PROTOCOL-LEDGER.{md,json}` composing with v1.13 matrix + v1.15 EVIDENCE; 6 no-silicon buckets recorded explicit UNVERIFIED.
+
+## Phase Details
+
+### Phase 85: Datasheet Acquisition
+**Goal**: Every protocol has a committed datasheet PDF so the naming pass and future bench sessions have a verification source for each algorithm.
+**Depends on**: Nothing (first v1.16 phase — no code changes)
+**Requirements**: DSHEET-01, DSHEET-02, DSHEET-03, SAFE-05
+**Success Criteria** (what must be TRUE):
+  1. A `datasheets/<hex>-<NAME>/` folder exists for each of the 11 on-hand chip families (W27C512, W27E512, SST27SF512, W27E040, SST39SF040, W29C020, W29C040, FM1608, ST M27C512, AM27C020, 2516 representative) with a committed PDF.
+  2. A `datasheets/<hex>-<NAME>/` folder exists for each of the 6 no-silicon protocol buckets (0x0D, 0x0E, 0x10, 0x27, 0x29, 0x34) with at least one representative datasheet PDF.
+  3. `datasheets/README.md` indexes every folder (hex ID ↔ proposed name ↔ handler ↔ datasheet filename ↔ on-hand status), explicitly names the phantom (0x35/0x39) and infeasible (0x11/0x2A/0x2B/0x2C) bucket exclusions, and annotates provenance for hard-to-source parts.
+  4. No new third-party tool or library is introduced — the only new artifact is the `datasheets/` folder tree.
+**Plans**: TBD
+
+### Phase 86: Naming + Documentation Pass
+**Goal**: Every protocol bucket has an authored human name on the algorithm axis plus documented behavior, with the 8 one-off invariants enumerated and the two decode corrections applied — leaving dispatch structure and wire values byte-identical.
+**Depends on**: Phase 85 (datasheets in hand for every protocol)
+**Requirements**: NAME-01, NAME-02, NAME-03, NAME-04, NAME-05, SAFE-03, SAFE-06
+**Success Criteria** (what must be TRUE):
+  1. A protocol vocabulary document exists mapping every `protocol_id` present in `chip_database.json` to a human name (e.g., "EPROM-Program-1ms"), datasheet-verified write algorithm, erase model, VPP behavior, and pin roles.
+  2. Each firmware handler's source has accompanying documentation of its *why* — the rationale for its current timing, VPP routing, and pin behavior — traceable to a committed datasheet.
+  3. The 8 one-off-fix invariants (0x0B direct-VPE rail, 0x0B shared OE/VPP read-skip, 0x08 P1-as-VPP, flash4 256B page boundary, VPP-skip-on-read, pulse-delay defaults, FM1608 SRAM→FRAM, WARNING-5 0x07→0x0D, SST39SF040 keep-Flash/EEPROM) are each named and asserted under at least one native test before any code is moved.
+  4. The FM1608 0x40→0x28 reconciliation and the 0x34 X88C64 `electrical.type` UV-EPROM→EEPROM correction are applied and visible in `diff_db.py` output; phantom/infeasible buckets are explicitly named as non-protocols.
+  5. `pio run -e leonardo` shows a near-zero flash delta (vocabulary is host-side only; no PROGMEM strings added to firmware); `diff_db.py` shows only the two enumerated NAME-04 corrections and is otherwise empty.
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 87: Golden Traces + Dispatch-Mirror Guard
+**Goal**: The recompose oracle is established — per-family native register traces are pinned and a dispatch-mirror invariant test exists — so every subsequent extraction step is a refactor-under-test, not a leap of faith.
+**Depends on**: Phase 86 (behavior contract documented and invariants enumerated before any extraction)
+**Requirements**: PRIM-01, SAFE-01, SAFE-02, SAFE-04
+**Success Criteria** (what must be TRUE):
+  1. Each of the five recompose-target families (eprom/0x07/08/0B, eeprom28c/0x0D, flash_intel/0x10, flash_type_3/0x06, flash_type_4/0x05) has a captured golden register-sequence fixture in its native `test_val_*` suite against the recording bus.
+  2. A `test_dispatch` test (or equivalent) asserts that `check_dispatch.py`'s dispatch table matches the documented protocol→handler order; `pio test -e native` runs green before any extraction begins.
+  3. `check_dispatch.py` exits with 0 violations; `diff_db.py` is empty (no DB change in this phase).
+  4. The over-voltage firmware check and the `chip_resolver.resolve_chip` host guard are verified present and unmodified; no irreplaceable UV part is written on an unstable read path.
+**Plans**: TBD
+
+### Phase 88: Incremental Primitive Recompose
+**Goal**: Shared primitives are extracted from the duplicated handlers in biggest-saving-first order (P7 → P4 → P3 → P5), each step guarded so the refactor is independently reversible and the native golden traces stay green, with Leonardo flash monotonically shrinking.
+**Depends on**: Phase 87 (golden traces and dispatch-mirror guard in place)
+**Requirements**: PRIM-02, PRIM-03, PRIM-04, PRIM-05, PRIM-06, SAFE-01, SAFE-02, SAFE-03
+**Success Criteria** (what must be TRUE):
+  1. After P7 (SDP const-table dedup): the duplicate `FLASH_ENABLE_WRITE_PROTECTION` table and `EEPROM_SDP_DISABLE` duplicate are removed; native `test_val_eeprom28c` + `test_val_flash3` golden traces unchanged; flash is measured (delta logged).
+  2. After P4 (chip-ID compare/report): a shared `chip_id_report` primitive handles compare + MSG frame + FORCE downgrade for all four call sites (eprom, flash_intel, eeprom28c, flash_utils); native traces for all four families unchanged.
+  3. After P3 (VPP gate): a shared `vpp_check_window` primitive handles the HIGH/LOW window-compare + byte-packing + FORCE downgrade; `eprom_check_vpp` and `flash_intel_check_vpp` each keep their own regulator-routing assertion and then call the shared check; native traces unchanged.
+  4. After P5 (poll primitive): a shared `poll_readback` primitive is used by `eeprom28c_wait_for_write`, `flash4_wait_for_page_write`, and the verify-readback half of `eprom_write_execute`; outer retry/page algorithms are untouched.
+  5. `check_dispatch.py` exits 0 violations and `diff_db.py` is empty at every extraction step; `pio run -e leonardo` shows net-non-increase flash at every step; the achieved final flash percentage is recorded.
+**Plans**: TBD
+
+### Phase 89: Per-Protocol Bench Validation + Ledger
+**Goal**: The rebuild's impact on real silicon is recorded — every protocol with on-hand silicon is bench-proven on Leonardo + RURP Rev 2.0, and every no-silicon bucket is recorded as explicit UNVERIFIED — composing the v1.16 picture with the v1.13 per-family matrix and the v1.15 per-chip evidence.
+**Depends on**: Phase 88 (recomposed firmware built and native-green before bench exposure)
+**Requirements**: LEDGER-01, LEDGER-02, LEDGER-03, SAFE-04
+**Success Criteria** (what must be TRUE):
+  1. `.planning/v1.16/ledger/PROTOCOL-LEDGER.{md,json}` exists with a row per protocol bucket (proposed name, datasheet citation, primitives used, flash delta, verification status), composing with — not replacing — `validation_matrix_spec.json` and `EVIDENCE.json`.
+  2. Each protocol with on-hand silicon (0x05 via W29C020, 0x06 via SST39SF040, 0x07 via W27C512, 0x28 via FM1608) has a PASS row with `oracle: leonardo+Rev2.0` and non-empty evidence references; an authoritative PASS cannot be recorded without those mandatory fields.
+  3. The 6 no-silicon buckets (0x0D, 0x0E, 0x10, 0x27, 0x29, 0x34) are recorded as explicit `UNVERIFIED`; the open-defect rows (W29C040/CR-01, AM27C020/FUT-06, 2516/FUT-03) are carried at their current documented status without modification.
+  4. Over-voltage remains blocked at the firmware VPP check throughout all bench sessions; the `chip_resolver.resolve_chip` host guard is never bypassed; no irreplaceable UV chip is written on an unstable read path.
+**Plans**: TBD
 
 ## v1.9 — Read-Bug RCA + Fix (STARTED 2026-05-29)
 
@@ -658,6 +735,11 @@ Plans:
 | 82 | v1.15 | 3/3 | Complete    | 2026-06-24 |
 | 83 | v1.15 | 3/3 | Complete   | 2026-06-24 |
 | 84 (close) | v1.15 | 6/6 | Complete   | 2026-06-25 |
+| 85 | v1.16 | 0/TBD | Not started | — |
+| 86 | v1.16 | 0/TBD | Not started | — |
+| 87 | v1.16 | 0/TBD | Not started | — |
+| 88 | v1.16 | 0/TBD | Not started | — |
+| 89 (close) | v1.16 | 0/TBD | Not started | — |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 

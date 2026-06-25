@@ -84,34 +84,34 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DSHEET-01 | TBD | Pending |
-| DSHEET-02 | TBD | Pending |
-| DSHEET-03 | TBD | Pending |
-| NAME-01 | TBD | Pending |
-| NAME-02 | TBD | Pending |
-| NAME-03 | TBD | Pending |
-| NAME-04 | TBD | Pending |
-| NAME-05 | TBD | Pending |
-| PRIM-01 | TBD | Pending |
-| PRIM-02 | TBD | Pending |
-| PRIM-03 | TBD | Pending |
-| PRIM-04 | TBD | Pending |
-| PRIM-05 | TBD | Pending |
-| PRIM-06 | TBD | Pending |
-| LEDGER-01 | TBD | Pending |
-| LEDGER-02 | TBD | Pending |
-| LEDGER-03 | TBD | Pending |
-| SAFE-01 | TBD | Pending |
-| SAFE-02 | TBD | Pending |
-| SAFE-03 | TBD | Pending |
-| SAFE-04 | TBD | Pending |
-| SAFE-05 | TBD | Pending |
-| SAFE-06 | TBD | Pending |
+| DSHEET-01 | Phase 85 | Pending |
+| DSHEET-02 | Phase 85 | Pending |
+| DSHEET-03 | Phase 85 | Pending |
+| NAME-01 | Phase 86 | Pending |
+| NAME-02 | Phase 86 | Pending |
+| NAME-03 | Phase 86 | Pending |
+| NAME-04 | Phase 86 | Pending |
+| NAME-05 | Phase 86 | Pending |
+| PRIM-01 | Phase 87 | Pending |
+| PRIM-02 | Phase 88 | Pending |
+| PRIM-03 | Phase 88 | Pending |
+| PRIM-04 | Phase 88 | Pending |
+| PRIM-05 | Phase 88 | Pending |
+| PRIM-06 | Phase 88 | Pending |
+| LEDGER-01 | Phase 89 | Pending |
+| LEDGER-02 | Phase 89 | Pending |
+| LEDGER-03 | Phase 89 | Pending |
+| SAFE-01 | Phase 87 (recurring in 88) | Pending |
+| SAFE-02 | Phase 87 (recurring in 88) | Pending |
+| SAFE-03 | Phase 86 (recurring in 87/88/89) | Pending |
+| SAFE-04 | Phase 87 (recurring in 88/89) | Pending |
+| SAFE-05 | Phase 85 | Pending |
+| SAFE-06 | Phase 86 | Pending |
 
 **Coverage:**
 - Milestone v1.16 requirements: 23 total
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 23 ⚠️ (filled by roadmapper)
+- Mapped to phases: 23 ✓
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-06-25*
