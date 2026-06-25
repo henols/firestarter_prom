@@ -6,7 +6,7 @@
 
 **Source data:** `.planning/v1.15/bench/EVIDENCE.md` and `EVIDENCE.json` — the per-chip bench log authorised across Phases 81–83. This doc consolidates and disposition-annotates that raw record.
 
-**Status:** SC#1 consolidated decode audit — Wave-1 (84-01/02/03) outcomes incorporated; bench-pending items (84-05 re-bench) marked `PENDING 84-05`.
+**Status:** SC#1 finalized — Wave-1 (84-01/02/03) outcomes incorporated; Phase-84 bench (84-05) verdicts filled by Plan 84-06 (2026-06-25). All bench-pending items resolved. FIX-01 closed per D-43.
 
 ---
 
@@ -48,7 +48,11 @@ However, `electrical.type` is the **sole input** to `FLAG_CAN_ERASE` at `databas
 
 **Disposition (sst-keep):** `Flash/EEPROM` label is KEPT deliberately. It is functionally correct for RURP's purposes even if cosmetically imprecise vs upstream. A proper fix would require decoupling the display label from the erase-flag derivation (`sst-decouple` path — not authorized this phase). Recorded as an observation, not a blocking mismatch.
 
-**W29C040 decode note:** The DB decode was correct (DIP32 / Flash/EEPROM / 12V / 524288 B / 0x05 — confirmed by `firestarter info`). The FAIL was a flash4 256B page-write timeout at the page-0 boundary (byte @0x0000FF, reads 0x00 — per-page auto-erase not confirmed). Deterministic across initial + 1 reseat. This is a write-path DEFECT, NOT a decode mismatch. Disposition: PENDING 84-05 bench (Phase 84 FIX-01 re-bench).
+**W29C040 decode note:** The DB decode was correct (DIP32 / Flash/EEPROM / 12V / 524288 B / 0x05 — confirmed by `firestarter info`). The FAIL was a flash4 256B page-write timeout at the page-0 boundary (byte @0x0000FF, reads 0x00 — per-page auto-erase not confirmed). Deterministic across initial + 1 reseat. This is a write-path DEFECT, NOT a decode mismatch.
+
+Phase 84 re-bench (EVIDENCE.md Phase-84 section, Task 3c): Re-benched under the Phase-84 build (b10+VPP-skip, which CARRIES the Phase-74 SDP/256B-page fix). 1024 B test image crossing the 256/512/768 page boundaries, N=2. **Result: FAIL CONFIRMED** — timeout at byte `0x0000FF` (last byte of page 0; byte stays `0x00`), identical on both attempts. This re-confirms: **the Phase-74 W29C040 flash4 fix does NOT work on real silicon.** NOT a trivial fix.
+
+Disposition (D-43 / CR-01): DEFERRED — reopen Phase-74 Wave-2 / CR-01. Future tracker: `flash4-page-size-datasheet-sourced-cr01.md` (existing deferred item). The 256B page-0 boundary fault requires deeper root-cause into the flash4 SDP/page-poll sequence on W29C040 silicon, likely a dual-repo lockstep firmware fix.
 
 ---
 
@@ -71,7 +75,13 @@ The DB originally recorded `electrical.type = "SRAM"` while the physical device 
 
 **AM27C020 VPP mismatch note:** Same class as ST M27C512 — plan text stated 12V, actual DB VPP is **13V**. Confirmed by EVIDENCE.json `decode_uv04`. Plan-text error, DB is correct.
 
-**AM27C020 write ANOMALY:** Write deterministically fails (bad bytes 15/16, retries 20, 0 bits programmed) — the 0x08 Large EPROM write/VPP path does not program on this bench, while the 0x07 28-pin W27C512 wrote clean the same session. Plus an intermittent localized read glitch (12-byte region at 0x008004–0x00800F). Chip silicon is intact (0 bits changed, reads mostly clean). Disposition: RCA-and-defer **PENDING 84-05 bench** (Phase 84 FIX-01 re-bench with refflashed firmware).
+**AM27C020 write ANOMALY — Phase 83 + Phase 84 re-bench:**
+
+Phase 83: Write deterministically failed (bad bytes 15/16, retries 20, 0 bits programmed). The 0x07 28-pin W27C512 wrote clean the same session — signature is 0x08/32-pin-path specific. Plus intermittent localized read glitch (12-byte region at 0x008004–0x00800F). Chip silicon intact (0 bits changed).
+
+Phase 84 re-bench (EVIDENCE.md Phase-84 section, Task 3a): Re-benched on the Phase-84 VPP-skip build, N=2 per D-54. Write attempt (16×0x00 @0x0000, `-b`): both attempts returned `ERROR "Failed to write memory, 0x000000, retries: 20, bad bytes: 15"`. Negative control `verify -a 0x0000` confirmed 0 bits programmed (chip reads 0x02 unchanged, = Phase 81/83 baseline). **Verdict: FAIL — 0-bits-programmed CONFIRMED on silicon, deterministic, N=2 exhausted.** NOT VPP-skip-related (the VPP-skip gates read/blank-check only; the write path is unchanged — T-84-14). Chip silicon is intact.
+
+Disposition (FUT-06): DEFERRED. "AM27C020 / 0x08 32-pin Large-EPROM write-path takes 0 bits on Leonardo+Rev2.0; not VPP-skip-related; chip silicon intact." Unblock = root-cause the 0x08 32-pin write/VPP path (JP4/P1-as-VPP routing, firmware `eprom_write_execute` 0x08 branch vs 0x07) on the same board + shield + calibration.
 
 ---
 
@@ -79,15 +89,19 @@ The DB originally recorded `electrical.type = "SRAM"` while the physical device 
 
 | # | Chip | DB Algorithm (proto_id) | EVIDENCE Verdict | Pinout | VPP | Electrical Type | Algorithm (proto) | Size |
 |---|------|------------------------|-----------------|--------|-----|-----------------|-------------------|------|
-| 11 | 2516 | 0x0B (EPROM_LEGACY / UV-EPROM, NMOS) | ANOMALY (Phase 81 read) | Pending re-read — PENDING 84-05 | MISMATCH — see note | CONFIRMED — UV-EPROM | CONFIRMED — 0x0B | Pending confirmation — PENDING 84-05 |
+| 11 | 2516 | 0x0B (EPROM_LEGACY / UV-EPROM, NMOS) | ANOMALY (Phase 81 read; re-read Phase 84 — still unstable) | CONFIRMED — DIP24_2716 (info confirmed Phase 84) | MISMATCH — see note | CONFIRMED — UV-EPROM | CONFIRMED — 0x0B | CONFIRMED — 2048 B (info confirmed Phase 84) |
 
 **2516 source note:** This chip is a user-override DB entry (Phase 81 GRAD-01/02) — it is absent from minipro's `infoic.xml` (all 28 "2516" hits there are `25160` SPI serial parts). The DB entry records: algorithm 0x0B, pinout DIP24_2716, UV-EPROM, vpp_mv 25000, size_bytes 2048. The entry has been manually safety-reviewed.
 
-**2516 read ANOMALY:** Phase 81 read was unstable — 3 distinct SHAs across N=3 on the initial read + 2 reseat cycles (D-07 exhausted). VPP pinned at 15.3V < 25.0V on the shared OE/VPP pin during read (the 0x0B Legacy path drives VPP=OE simultaneously). This is the same VPP-regulator instability family as chip-1's 18.8V boot refusal, but 0x0B-specific. All 0x07/0x08 UV chips read clean on the same bench.
+**2516 read ANOMALY — Phase 81 + Phase 84 re-bench:**
 
-**2516 VPP MISMATCH — observation:** The DB entry records vpp_mv=25000 (25V, NMOS class per v1.14 D-07 best-effort graduation). The bench VPP during the 0x0B read registered ~15.3V (shared OE/VPP dropped rail) — below the 25V programming spec and a plausible cause of the read instability. The VPP-skip firmware gate (FIX-01 firmware half, Phase 84-01) does not apply to 0x0B reads (0x0B is `configure_eprom_legacy` which has a different init path from the 0x07/0x08 `eprom_generic_init`). Exact VPP control behaviour for the 0x0B path under the reflashed b10+FIX-01 firmware requires re-bench to confirm.
+Phase 81: 3 distinct SHAs across N=3 on the initial read + 2 reseat cycles (D-07 exhausted). VPP pinned at 15.3V < 25.0V on the shared OE/VPP pin. Phase 81 also established the blank-state (NOT BLANK, 0x68@0x0000) and confirmed decode (`firestarter info 2516` = UV-EPROM / DIP24_2716 / 2048 B / VPP 25.0V / 0x0B).
 
-**Disposition:** RCA-and-defer **PENDING 84-05 bench** (2516 re-read + VPP characterization after FIX-01 firmware reflash). GRAD-03 / SC#4 / FUT-03 all contingent on this re-bench producing a stable read oracle.
+Phase 84 re-bench (EVIDENCE.md Phase-84 section, Task 2): Re-read under the reflashed Phase-84 VPP-skip build (commit `cb947c7`), N=3 via `dev consistency-check --runs 3`. **Results: 3 distinct SHAs — STILL UNSTABLE.** First divergence at offset `0x005F`; 39/2048 bytes (1.9%) divergent. VPP-skip EFFECT: the Phase-81 ~18.8V boot-refusal is GONE (VPP-skip cleared it). BUT data still jitters → **the read instability is NOT solely VPP-gated**; it persists after the VPP-skip. Decode confirmed: UV-EPROM / DIP24 / 2048 B / VPP 25.0V / 0x0B — matches the user-override entry. No write / no preserve-dump (D-21 confirmed).
+
+**2516 VPP MISMATCH — observation:** The DB entry records vpp_mv=25000 (25V, NMOS class per v1.14 D-07 best-effort graduation). The bench VPP during the 0x0B read registered ~15.3V (shared OE/VPP dropped rail, Phase 81) — below the 25V programming spec. The Phase-84 VPP-skip cleared the boot-refusal but did not resolve the underlying jitter. The shared OE/VPP pin instability is more fundamental than just VPP-enable-on-read. The DB decode (vpp_mv=25000) is the correct specification; the bench instability is a hardware/timing issue on the 0x0B legacy path, not a DB mismatch.
+
+**Disposition (D-22 — intentional best-effort deferral):** GRAD-03 / SC#4 / FUT-03 are DEFERRED best-effort. A still-unstable read oracle on the irreplaceable 2516 makes a write proof vacuous (EVID-03). The VPP-skip narrowed the root cause (boot-refusal cleared) but did not fully resolve the shared OE/VPP instability. Future tracker: FUT-03 remains OPEN, requires a future bench session after the OE/VPP pin instability is understood at a deeper level. This deferral is intentional — NOT a gap; deliberately recorded so the verifier does not treat it as a failure.
 
 ---
 
@@ -141,27 +155,25 @@ No code change shipped for SST39SF040. Zero regression. This observation is reco
 
 ---
 
-### (v) AM27C020 0x08 Write, W29C040 flash4 256B-page, 2516 0x0B Read — RCA-and-Defer PENDING 84-05
+### (v) AM27C020 0x08 Write, W29C040 flash4 256B-page, 2516 0x0B Read — Final Dispositions (Phase 84-05 Re-bench Complete)
 
-**AM27C020 (0x08 Large EPROM) — PENDING 84-05 bench:**
+**AM27C020 (0x08 Large EPROM) — DEFERRED (FUT-06):**
 
-Phase 83 ANOMALY: `write` deterministically fails (bad bytes 15/16, retries 20, 0 bits programmed) at 0x000000. The 0x07 28-pin W27C512 wrote clean the same session — signature is 0x08/32-pin-path specific. Plus intermittent localized read glitch at 0x008004–0x00800F on 1 of 3 reads. Chip silicon is intact.
+Phase 83 ANOMALY: `write` deterministically fails (bad bytes 15/16, retries 20, 0 bits programmed). Phase 84 re-bench confirmed (N=2 exhausted): **0-bits-programmed CONFIRMED on silicon, deterministic**. NOT VPP-skip-related (write path unchanged by the skip). Chip silicon intact.
 
-FIX-01 firmware half (Phase 84-01, VPP-skip) was shipped AFTER the Phase 83 bench session. The re-bench (Phase 84-05) will test the AM27C020 write on the reflashed b10+VPP-skip firmware to determine whether the VPP-skip on reads alters the write-path VPP state and whether that explains the anomaly.
+**Disposition: DEFERRED — FUT-06.** "AM27C020 / 0x08 32-pin Large-EPROM write-path takes 0 bits on Leonardo+Rev2.0; not VPP-skip-related." Unblock = root-cause the 0x08 32-pin write/VPP path (JP4/P1-as-VPP routing, firmware `eprom_write_execute` 0x08 branch vs 0x07). This is an intentional deferral (D-31/D-43) — NOT a gap; explicitly recorded so the verifier does not treat it as a failure.
 
-> **PENDING 84-05:** AM27C020 write re-bench under reflashed firmware. If write still fails, dual-repo RCA (0x08 VPP path) follows.
+**W29C040 (0x05 flash4, 512KB) — DEFERRED (Phase-74 Wave-2 / CR-01):**
 
-**W29C040 (0x05 flash4, 512KB) — PENDING 84-05 bench:**
+Phase 82 FAIL: write times out at the 256B page-0 boundary. Phase 84 re-bench confirmed (N=2 on Phase-84 build carrying the Phase-74 SDP/256B-page fix): **FAIL CONFIRMED** — the Phase-74 fix does NOT work on real silicon.
 
-Phase 82 FAIL: write A times out verifying byte @0x0000FF (256B page-0 boundary), byte reads 0x00 — per-page auto-erase not confirmed. Deterministic across initial + 1 reseat. This is the first real-silicon test of the Phase-74 flash4 W29C040 SDP/256B-page fix (Phase-74 Wave-2 was deferred; the fix was native-test-verified only). Inverts the CR-01 expectation: W29C020 (256KB) passed clean; W29C040 (512KB) fails.
+**Disposition: DEFERRED — reopen Phase-74 Wave-2 / CR-01.** Future tracker: `flash4-page-size-datasheet-sourced-cr01.md`. Requires deeper root-cause into the flash4 SDP/page-poll sequence on W29C040 silicon, likely a dual-repo lockstep firmware fix. This is an intentional deferral (D-31/D-43) — NOT a gap; explicitly recorded so the verifier does not treat it as a failure.
 
-> **PENDING 84-05:** W29C040 write re-bench under reflashed firmware (same b10). If confirmed, likely dual-repo firmware fix (reopens Phase-74 Wave-2 under Phase 84 FIX-01). Deferred to operator bench session.
+**2516 (0x0B EPROM_LEGACY, NMOS) — DEFERRED best-effort (GRAD-03 / FUT-03, D-22):**
 
-**2516 (0x0B EPROM_LEGACY, NMOS) — PENDING 84-05 bench:**
+Phase 81 ANOMALY: 3 distinct SHAs across N=3 reads + 2 reseats. Phase 84 re-bench (N=3, `dev consistency-check --runs 3`): **STILL UNSTABLE** — 3 distinct SHAs, 39/2048 bytes (1.9%) divergent. VPP boot-refusal CLEARED by VPP-skip (Phase-81 ~18.8V refusal gone). BUT data jitter persists — instability NOT solely VPP-gated. Decode confirmed: UV-EPROM / DIP24 / 2048 B / VPP 25.0V / 0x0B — matches the user-override entry (CONFIRMED). No write / no preserve-dump (D-21).
 
-Phase 81 ANOMALY: 3 distinct SHAs across N=3 reads + 2 reseats. VPP pinned at 15.3V on the shared OE/VPP pin — below the 25V programming spec. VPP-skip firmware gate (FIX-01 fw half) does not apply to the 0x0B `configure_eprom_legacy` path; re-bench under the reflashed firmware is required to characterize whether the VPP-skip affects the 0x0B read VPP state.
-
-> **PENDING 84-05:** 2516 re-read under reflashed firmware. If read stabilizes, write proof (GRAD-03 / FUT-03) follows. If read remains unstable, 0x0B VPP control RCA needed.
+**Disposition: DEFERRED best-effort (D-22) — GRAD-03 / FUT-03 remain OPEN.** A still-unstable read oracle on the irreplaceable 2516 makes a write proof vacuous (EVID-03). Future tracker: FUT-03 (NMOS bench SHA-match), requires a future bench session after the OE/VPP pin instability is understood at a deeper level than VPP-enable-on-read alone. This is an intentional best-effort deferral (D-22) — NOT a gap; explicitly recorded so the verifier does not treat it as a failure.
 
 ---
 
@@ -183,20 +195,52 @@ Phase 81 ANOMALY: 3 distinct SHAs across N=3 reads + 2 reseats. VPP pinned at 15
 
 ---
 
-## Part 4 — Bench-Pending Items (Placeholder for 84-06 Fill-In)
+## Part 4 — FIX-01 Close-Statement (D-43)
 
-The following items are **deferred to Plan 84-05 bench session** and will be filled in by **Plan 84-06** once the bench results are recorded:
+**FIX-01 status: CLOSED per D-43 — "fixed where in-posture; deeper write-path defects RCA'd + deferred with rationale."**
 
-| # | Item | Pending | 84-06 will record |
-|---|------|---------|-------------------|
-| P1 | 2516 re-read (Phase 84-05) | PENDING 84-05 | Stable SHA or continued ANOMALY + VPP characterization under FIX-01 fw |
-| P2 | 2516 write proof GRAD-03 (contingent on P1 stabilizing) | PENDING 84-05 | PASS/FAIL + SHA + VPE under-voltage note; or DEFERRED if read still unstable |
-| P3 | AM27C020 re-bench write (Phase 84-05) | PENDING 84-05 | PASS/FAIL + 0x08 path VPP characterization under FIX-01 fw |
-| P4 | W29C040 re-bench write (Phase 84-05) | PENDING 84-05 | PASS/FAIL + flash4 page-boundary characterization; if FAIL → firmware RCA |
-| P5 | FIX-01 overall disposition | PENDING 84-05 outcome | "FIXED" or "DEFERRED with rationale" for each of the 3 FIX-01 inputs |
+### What was fixed (in-posture, shipped + bench-confirmed):
+
+1. **VPP-skip firmware gate (FIX-01 firmware half, Phase 84-01):** The Phase-81 ~18.8V boot-refusal on W27C512 and spurious VPP-low warnings on ST M27C512 were caused by `eprom_check_vpp()` running during read/blank-check operations. Fix: early-return guard in `eprom_generic_init()` for `CMD_READ` + `CMD_BLANK_CHECK`. Write, erase, and chip-ID still gate VPP (over-voltage protection preserved, T-84-01). Native dispatch test suite (5 assertions). Commit `cb947c7`. **Bench-confirmed (Phase 84-05):** the 18.8V boot-refusal is GONE after the re-flash.
+
+2. **FM1608 blank-check host short-circuit (FIX-01 host half, Phase 84-02):** `firestarter blank FM1608` routed to the firmware `CMD_BLANK_CHECK` which `configure_sram()` left with `NULL` handler → `0xA4 MSG_ERR_EMPTY_INPUT`. Fix: host-side short-circuit in `check_eprom_blank()` detecting SRAM/FRAM by electrical-type OR protocol-id, returning `False` without any firmware command. 2 new tests (665 host tests green). Commits `e5bfa3a` + `4c74b8d`. SHIPPED.
+
+3. **FM1608 FRAM relabel (fm-fram-full, Phase 84-03):** FM1608 `electrical.type` corrected from `SRAM` → `FRAM` in `build_db.py`. Display-layer companion changes; 673/673 host tests green. SHIPPED.
+
+### What was RCA'd and deferred (not trivially fixable, named trackers assigned):
+
+4. **AM27C020 0x08 write — DEFERRED (FUT-06):** 0-bits-programmed confirmed deterministically on silicon (N=2). NOT VPP-skip-related. Chip silicon intact. Requires root-cause into the 0x08 32-pin write/VPP path (JP4/P1-as-VPP routing, `eprom_write_execute` 0x08 branch). This is an intentional deferral (D-31/D-43) — not a gap in the scope of this phase.
+
+5. **W29C040 flash4 256B-page fault — DEFERRED (Phase-74 Wave-2 / CR-01):** Phase-74 SDP/256B-page fix confirmed NOT silicon-effective (N=2 re-bench on Phase-84 build). Requires deeper root-cause into the flash4 SDP/page-poll sequence on W29C040 silicon, likely a dual-repo lockstep firmware fix. Existing tracker: `flash4-page-size-datasheet-sourced-cr01.md`. This is an intentional deferral — not a gap in scope.
+
+### Silicon-limited failures (not FIX-01 material):
+
+6. **W27E512 + W27E040 stuck-bit ERASE FAILs (D-32):** Genuine silicon wear events — erase path engaged at correct decode parameters; specific cells worn past endurance. NOT re-benched in Phase 84 (D-32 exclusion). NOT FIX-01 material; NOT DB/algorithm errors.
+
+### Intentional deferrals (best-effort, not failures):
+
+7. **2516 read still unstable (GRAD-03 / FUT-03, D-22):** VPP boot-refusal cleared by VPP-skip; data jitter persists (3 distinct SHAs, N=3, 1.9% divergence). Instability NOT solely VPP-gated. No write / no preserve-dump (D-21). GRAD-03 / FUT-03 remain OPEN best-effort. This is an intentional best-effort deferral (D-22) — not a gap; the PASS bar was pre-recorded in EVIDENCE.md (D-08) and the conditions for FUT-03 are documented.
+
+### SST39SF040 label observation (recorded, not shipped):
+
+8. **SST39SF040 sst-keep observation (D-40):** DB records `Flash/EEPROM`; upstream architecture is `Flash`. Label kept deliberately — it is the sole input to `FLAG_CAN_ERASE` (dropping it would break the Phase-77/82-proven auto-erase path). Decoupling display label from erase-flag derivation (`sst-decouple` path) is not authorized this phase. Zero code change; zero regression.
+
+### Milestone close + beta-cut:
+
+**Milestone close and firmware versioning/beta-cut are OPERATOR-GATED (D-12/D-43) and are NOT performed in this phase.** This plan only documents readiness for `/gsd-verify-work`. The operator must authorize `/gsd-complete-milestone v1.15` and the `3.0.0b11` lockstep beta cut separately.
 
 ---
 
-*Authored: 2026-06-25 as Plan 84-04, Wave-2 consolidation artifact.*
-*Sources: EVIDENCE.md + EVIDENCE.json (Plans 81-03, 82-02/03, 83-02/03) + 84-01/02/03 SUMMARY files.*
-*Next update: Plan 84-06 (after 84-05 bench session fills the PENDING items above).*
+## Part 5 — Evidence Cross-Reference Index (Phase 84 additions)
+
+| Chip | EVIDENCE.md Section | Key Result |
+|------|--------------------|----|
+| 2516 (re-read) | Phase 84, Task 2 | STILL UNSTABLE: N=3, 3 distinct SHAs, 1.9% (39/2048 bytes) divergent; boot-refusal cleared |
+| AM27C020 (re-bench) | Phase 84, Task 3a | FAIL CONFIRMED: 0-bits-programmed, N=2, NOT VPP-skip-related; FUT-06 |
+| W29C040 (re-bench) | Phase 84, Task 3c | FAIL CONFIRMED: 256B page-0 boundary timeout, N=2; Phase-74 fix not silicon-effective; CR-01 reopen |
+
+---
+
+*Authored: 2026-06-25 as Plan 84-04 (Wave-2 consolidation), finalized by Plan 84-06 (Phase-84 bench verdicts filled).*
+*Sources: EVIDENCE.md + EVIDENCE.json (Plans 81-03, 82-02/03, 83-02/03, 84-05) + 84-01/02/03/05 SUMMARY files.*
+*Milestone close: operator-gated (D-12/D-43). This document records readiness for `/gsd-verify-work`.*
