@@ -41,7 +41,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Phase n
 
 ### Primitive Decomposition / Refactor
 
-- [ ] **PRIM-01**: Before any extraction, per-family golden register traces (capture-before oracle) are pinned and a `check_dispatch.py::dispatch()`-matches-documented-order test exists.
+- [x] **PRIM-01**: Before any extraction, per-family golden register traces (capture-before oracle) are pinned and a `check_dispatch.py::dispatch()`-matches-documented-order test exists.
 - [ ] **PRIM-02**: The shared SDP/const-table duplication (P7 warm-up) is deduplicated, with handler behavior unchanged under the native suites.
 - [ ] **PRIM-03**: The shared chip-ID compare/report logic (P4) is extracted into a primitive, split from the protocol-specific read mechanism.
 - [ ] **PRIM-04**: The shared VPP-gate logic (P3) is extracted into a primitive keyed on `handle->protocol` (never `electrical.type`), with regulator-routing bits parameterized per protocol.
@@ -57,7 +57,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Phase n
 ### Cross-Cutting Safety / Invariants
 
 - [ ] **SAFE-01**: Every extracted primitive keys behavior on `handle->protocol`, never on `electrical.type`; the `novpp_in_eprom` / `eeprom28c_in_eprom` (WARNING-5) structural guards are preserved.
-- [ ] **SAFE-02**: All enumerated one-off-fix invariants (NAME-03) survive each recompose step, asserted under the native register-level tests.
+- [x] **SAFE-02**: All enumerated one-off-fix invariants (NAME-03) survive each recompose step, asserted under the native register-level tests.
 - [x] **SAFE-03**: `check_dispatch.py` exits 0 violations every phase. `diff_db.py`: in **Phase 86** it shows the variant-decode diff with **every row explained by a cited decode rule**, after which the baseline is re-pinned (VAR-03); in the **naming pass (87) and the recompose phases (88–89)** `diff_db.py` is **empty** against that re-pinned baseline.
 - [ ] **SAFE-04**: Over-voltage stays blocked at the firmware VPP check; the `chip_resolver.resolve_chip` host guard is never bypassed; no irreplaceable UV part is written on an unstable read path (the 2516 stays `UNVERIFIED`, not spent).
 - [x] **SAFE-05**: No new third-party dependency is introduced — the existing harness (`check_dispatch.py`, `diff_db.py`, native `test_val_*` suites, `dev validate-family`, `write_test.sh`, `gen_test_image.py`, host ruff/mypy/pytest) is reused; the only new artifact is `datasheets/`. *(Phase 85-01: branch + check script only; verified via explicit git add + SAFE-05-OK gate)*
@@ -110,7 +110,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | NAME-03 | Phase 87 | Complete |
 | NAME-04 | Phase 87 | Complete |
 | NAME-05 | Phase 87 | Complete |
-| PRIM-01 | Phase 88 | Pending |
+| PRIM-01 | Phase 88 | Complete |
 | PRIM-02 | Phase 89 | Pending |
 | PRIM-03 | Phase 89 | Pending |
 | PRIM-04 | Phase 89 | Pending |
@@ -120,7 +120,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | LEDGER-02 | Phase 90 | Pending |
 | LEDGER-03 | Phase 90 | Pending |
 | SAFE-01 | Phase 88 (recurring in 89) | Pending |
-| SAFE-02 | Phase 88 (recurring in 89) | Pending |
+| SAFE-02 | Phase 88 (recurring in 89) | Complete |
 | SAFE-03 | Phase 86 (recurring in 87/88/89) | Complete |
 | SAFE-04 | Phase 86 (recurring in 88/89/90) | Pending |
 | SAFE-05 | Phase 85 | Complete (85-01) |

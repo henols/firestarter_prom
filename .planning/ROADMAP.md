@@ -217,7 +217,7 @@ Plans:
 **Plans**: 5 plansPlans:
 **Wave 1**
 
-- [ ] 88-01-PLAN.md — Golden-trace harness (assert/bless helper) + eprom 0x07/0x08/0x0B write + chip-id traces
+- [x] 88-01-PLAN.md — Golden-trace harness (assert/bless helper) + eprom 0x07/0x08/0x0B write + chip-id traces
 - [ ] 88-04-PLAN.md — Host dispatch-mirror pytest: PROTOCOLS.md §0 ↔ check_dispatch ↔ native test_dispatch
 
 **Wave 2** *(blocked on Wave 1 completion)*
@@ -832,7 +832,7 @@ Plans:
 | 85 | v1.16 | 3/3 | Complete    | 2026-06-25 |
 | 86 | v1.16 | 4/4 | Complete | 86-01 (VAR-01 docs + Wave-0 oracle) ✅; 86-02 (classify() rewrite + correct DB regen) ✅; 86-04 (2516/2532 non-upstream supplement, DB→746) ✅; 86-03 (baseline re-pin LAST → diff_db IDENTITY exit 0; full py3.11 gate green) ✅ 2026-06-25 |
 | 87 | v1.16 | 4/4 | Complete    | 2026-06-26 |
-| 88 | v1.16 | 0/TBD | Not started | — |
+| 88 | v1.16 | 1/5 | In Progress|  |
 | 89 (close) | v1.16 | 0/TBD | Not started | — |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
