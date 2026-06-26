@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
 status: verifying
-stopped_at: Phase 89-04 complete — P5 poll_readback extracted; firestarter@abbbb5c
-last_updated: "2026-06-26T11:42:20.476Z"
+stopped_at: Phase 90 context gathered
+last_updated: "2026-06-26T11:59:50.521Z"
 last_activity: 2026-06-26
 progress:
   total_phases: 6
@@ -130,8 +130,8 @@ ruff/codegen drift trap for any host-side NAME-04 corrections in Phase 86.
 
 ## Session Continuity
 
-Last session: 2026-06-26T11:13:08.888Z
-Stopped at: Phase 89-04 complete — P5 poll_readback extracted; firestarter@abbbb5c
+Last session: 2026-06-26T11:59:50.517Z
+Stopped at: Phase 90 context gathered
 Resume: Phase 88 — Golden Traces + Dispatch-Mirror Guard
 
 ## Decisions
