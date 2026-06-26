@@ -218,13 +218,13 @@ Plans:
 **Wave 1**
 
 - [x] 88-01-PLAN.md — Golden-trace harness (assert/bless helper) + eprom 0x07/0x08/0x0B write + chip-id traces
-- [ ] 88-04-PLAN.md — Host dispatch-mirror pytest: PROTOCOLS.md §0 ↔ check_dispatch ↔ native test_dispatch
+- [x] 88-04-PLAN.md — Host dispatch-mirror pytest: PROTOCOLS.md §0 ↔ check_dispatch ↔ native test_dispatch
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 88-02-PLAN.md — eeprom28c (0x0D) + flash_intel (0x10) write + chip-id golden traces
-- [ ] 88-03-PLAN.md — flash3 (0x06) write + flash4 (0x05) write + chip-id golden traces
-- [ ] 88-05-PLAN.md — Frozen-world gates rerun + SC#4 safety-posture verification
+- [x] 88-02-PLAN.md — eeprom28c (0x0D) + flash_intel (0x10) write + chip-id golden traces
+- [x] 88-03-PLAN.md — flash3 (0x06) write + flash4 (0x05) write + chip-id golden traces
+- [x] 88-05-PLAN.md — Frozen-world gates rerun + SC#4 safety-posture verification
 
 ### Phase 89: Incremental Primitive Recompose *(was 88)*
 
@@ -832,7 +832,7 @@ Plans:
 | 85 | v1.16 | 3/3 | Complete    | 2026-06-25 |
 | 86 | v1.16 | 4/4 | Complete | 86-01 (VAR-01 docs + Wave-0 oracle) ✅; 86-02 (classify() rewrite + correct DB regen) ✅; 86-04 (2516/2532 non-upstream supplement, DB→746) ✅; 86-03 (baseline re-pin LAST → diff_db IDENTITY exit 0; full py3.11 gate green) ✅ 2026-06-25 |
 | 87 | v1.16 | 4/4 | Complete    | 2026-06-26 |
-| 88 | v1.16 | 1/5 | In Progress|  |
+| 88 | v1.16 | 5/5 | Complete   | 2026-06-26 |
 | 89 (close) | v1.16 | 0/TBD | Not started | — |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
