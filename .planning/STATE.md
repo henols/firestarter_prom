@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
-status: executing
-stopped_at: Phase 90 verified (UAT 5/5) + complete; 12V-VPP write regression spun out to Phase 91 RCA (not yet planned)
-last_updated: "2026-06-26T14:12:00.000Z"
-last_activity: 2026-06-26 -- Phase 90 UAT 5/5 PASS, marked complete; Phase 91 (12V-VPP write-path RCA) added
+status: Awaiting next milestone
+stopped_at: v1.16 milestone complete + archived
+last_updated: "2026-06-26T21:18:56.916Z"
+last_activity: 2026-06-26 — Milestone v1.16 completed and archived
 progress:
-  total_phases: 7
-  completed_phases: 6
-  total_plans: 25
-  completed_plans: 25
-  percent: 86
+  total_phases: 8
+  completed_phases: 8
+  total_plans: 29
+  completed_plans: 29
+  percent: 100
 ---
 
 # Project State
@@ -21,28 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 90 (per-protocol-bench-validation-ledger) — ✓ VERIFIED (UAT 5/5) + COMPLETE
-Plan: 4 of 4 complete (90-04 bench session)
-Status: Phase 90 closed — bench regression (0x06/0x07 FAIL-INVESTIGATE) dispositioned: carried as defect rows + spun out to Phase 91 RCA
-Next: Phase 91 (12V-VPP Write-Path Regression RCA) — not yet planned (`/gsd-plan-phase 91`)
-Last activity: 2026-06-26 -- Phase 90 UAT 5/5 PASS, marked complete; Phase 91 added
-
-Progress: [█████████░] 6/7 phases (Phase 91 RCA pending)
-
-> **⚠ Phase 90 bench finding (2026-06-26):** On the recompose (fw a296195, host e46549f),
-> all 4 on-hand READ paths are byte-identical to v1.15, but **2 of 4 WRITE paths fail
-> reproducibly** — W27C512 (0x07, bad bytes @write-start at a clean 12.0V rail) and
-> SST39SF040 (0x06, write-A timeout + write-B wrong content). The two 5V/no-VPP paths
-> (W29C020/0x05 flash4, FM1608/0x28 SRAM) PASS. The failure axis is the **12V-VPP write
-> path**. LEDGER-02 satisfied for 0x05+0x28 only; 0x06+0x07 recorded FAIL-INVESTIGATE
-> (D-03, not auto-passed). fw-vs-host not yet isolated (host is also a v1.16 build).
-> See `.planning/v1.16/ledger/bench/BENCH-LOG.md` Session Summary RCA scope.
-
-> **Scope amendment 2026-06-25:** Mid-discussion the operator pivoted v1.16 from a
-> pure behavior-preserving refactor to *fix the DB at its root* — decode the
-> `infoic.xml` `variant` field fully and delete the `build_db.py` Rule 1/2/3 override
-> edge-cases. New Phase 86 inserted (host-only); Naming→87, Golden Traces→88,
-> Recompose→89, Bench Ledger→90. See `.planning/phases/86-variant-decode-correct-db-regen/86-CONTEXT.md`.
+Phase: Milestone v1.16 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-06-26 — Milestone v1.16 completed and archived
 
 ## Quick Tasks Completed
 
@@ -56,11 +38,39 @@ See: `.planning/PROJECT.md` (v1.16 Current Milestone section + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware handler. v1.16 makes that contract **legible** (named, datasheet-documented protocols) and **leaner** (shared-primitive handlers). Minipro DB stays ground truth; datasheets verify + document the *why*.
 
-**Current focus:** Phase 90 — per-protocol-bench-validation-ledger
+**Current focus:** Planning next milestone (v1.16 shipped 2026-06-26)
+
+## Deferred Items
+
+Items acknowledged and deferred at milestone close on 2026-06-26 (operator chose Acknowledge & close). 12 are pre-existing carry-forwards from prior milestones; 2 are v1.16-born Phase-85 operator-confirmation gates on a zero-code-risk acquisition phase.
+
+| Category | Item | Status |
+|----------|------|--------|
+| debug | firmware-vpp-misread | diagnosed |
+| debug | fm1608-fresh-chip-baseline | parked-2026-05-18 |
+| uat_gap | Phase 08 — 08-HUMAN-UAT.md | partial (0 pending scenarios) |
+| uat_gap | Phase 85 — 85-HUMAN-UAT.md | partial (2 pending scenarios) |
+| verification_gap | Phase 08 — 08-VERIFICATION.md | human_needed |
+| verification_gap | Phase 09 — 09-VERIFICATION.md | human_needed |
+| verification_gap | Phase 71 — 71-VERIFICATION.md | gaps_found |
+| verification_gap | Phase 84 — 84-VERIFICATION.md | human_needed |
+| verification_gap | Phase 85 — 85-VERIFICATION.md | human_needed |
+| todo | 2026-06-24-skip-vpp-error-and-warning-checks-when-vpp-unused-on-reads (firmware) | pending |
+| todo | avrdude-mcu-detection-fallback | pending (low) |
+| todo | cobs-decoder-framelevel-deadline-wr01 | pending (medium) |
+| todo | flash4-page-size-datasheet-sourced-cr01 | pending (medium) |
+| todo | photograph-modified-rev-0 | pending (medium) |
+
+(audit-open reported `todos: 5`; the 5th surfaced row is `write-modifications-md-rework-trace`.)
 
 ## Roadmap Summary
 
-**v1.16 ACTIVE — 5 phases (85–89), 23/23 requirements mapped. Dependency-first ordering:**
+**v1.16 SHIPPED 2026-06-26 — 8 phases (85–92), 28/28 requirements Complete. Archived to `.planning/milestones/v1.16-{ROADMAP,REQUIREMENTS}.md`.**
+
+<details>
+<summary>v1.16 phase spine (historical)</summary>
+
+**Dependency-first ordering (85 → 86 → 87 → 88 → 89 → 90 → 91 → 92):**
 
 - **Phase 85: Datasheet Acquisition** (DSHEET-01/02/03, SAFE-05) — No code; commit datasheet PDFs for 11 on-hand chips + 1 representative per 6 no-silicon buckets; author `datasheets/README.md` index. Unblocks naming pass.
 
@@ -75,6 +85,8 @@ See: `.planning/PROJECT.md` (v1.16 Current Milestone section + Key Decisions)
 **Build order (dependency-first, safety-load-bearing):** 85 → 86 → 87 → 88 → 89. Cannot safely recompose a family before its behavior contract is written (Phase 86) and its golden trace pinned (Phase 87). Flash curve trends down monotonically during Phase 88 (P7→P4→P3→P5 order).
 
 **Cross-cutting safety (SAFE-01..06):** SAFE-01 (protocol-key, not electrical.type) homed in Phase 87, recurring in 88. SAFE-02 (one-off invariants survive recompose) homed in Phase 87, recurring in 88. SAFE-03 (check_dispatch.py 0 violations + diff_db.py empty every phase) homed in Phase 86 (naming applies NAME-04 corrections; baseline re-pinned for those), recurring in 87/88/89. SAFE-04 (over-voltage blocked, host guard never bypassed) homed in Phase 87, recurring in 88/89. SAFE-05 (no new 3rd-party deps; only new artifact is `datasheets/`) homed in Phase 85. SAFE-06 (firmware-first, no lockstep, CI target py3.11 not 3.12 devcontainer) homed in Phase 86.
+
+</details>
 
 ## Accumulated Context
 
@@ -223,5 +235,4 @@ Resume: Phase 88 — Golden Traces + Dispatch-Mirror Guard
 
 ## Operator Next Steps
 
-- Plan the new Phase 86 (variant decode): `/gsd-plan-phase 86`
-  - Recommend running with research (the variant high-byte decode needs minipro `database.c` + datasheet grounding).
+- Start the next milestone with /gsd-new-milestone

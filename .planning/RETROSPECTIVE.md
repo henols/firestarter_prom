@@ -623,6 +623,93 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 
 ---
 
+## Milestone: v1.16 — Protocol-First Architecture Rebuild
+
+**Shipped:** 2026-06-26
+**Phases:** 8 (85–92; Phase 92 a host-only follow-on with no separate phase dir) | **Plans:** 29 | **Timeline:** 2026-06-25 → 2026-06-26 (2 days, 88 meta commits)
+
+### What Was Built
+
+- **A principled `classify()` replacing a hand-maintained override stack.** Decoded `infoic.xml`'s
+  `variant` field in full (low byte = pinout discriminator; high byte = minipro `algo_number`,
+  proven NOT a classification axis) and rewrote `build_db.py` to derive
+  `electrical.type`/`algorithm`/`pinout` from one decode function, **deleting** the Rule 1/2/3
+  override blocks. FM1608→SRAM_STD (0x28) and X88C64→EEPROM now fall out structurally instead of as
+  special-cases. DB 744→746 with a provenance-cited non-upstream supplement (2516/2532); both
+  baselines re-pinned to a `diff_db.py` IDENTITY.
+- **A named, datasheet-grounded protocol architecture.** Top-level `datasheets/` (17 PDFs) +
+  `firestarter/doc/PROTOCOLS.md` 12-bucket vocabulary + an INV-01..09 one-off-fix traceability matrix
+  binding each invariant to a live native-test assertion.
+- **Primitives P7/P4/P3/P5 extracted with a net flash DECREASE** (25136 B / 87.7% / −518 B vs the
+  25654 B baseline) — behind per-family byte-exact golden register traces and a
+  `dispatch()`-matches-documented-order guard pinned *before* any code moved.
+- **A per-protocol bench ledger** (`PROTOCOL-LEDGER.{md,json}` + stdlib `check_ledger.py`) composing
+  with the v1.13 matrix + v1.15 EVIDENCE; all 4 on-hand protocols PASS, 6 no-silicon buckets explicit
+  UNVERIFIED.
+- **HARD-01 footgun fix:** `write -b`/`--no-blank-check` decoupled from skip-erase in the host;
+  pre-write erase still runs for `FLAG_CAN_ERASE` chips; new explicit `--skip-erase` opt-in.
+
+### What Worked
+
+- **Capture-the-oracle-before-extraction.** Pinning golden register traces + the dispatch-mirror
+  guard (Phase 88) *before* touching handler code (Phase 89) made the four primitive extractions
+  behavior-preserving by construction — each step gated by native suites + `check_dispatch.py` +
+  `diff_db.py`, with `pio run -e leonardo` measured every step. The refactor landed with a flash
+  *decrease* and zero wire-value drift.
+- **Decode-at-the-root beat decode-at-the-override.** Lifting the DB-frozen lock for one phase to fix
+  the decode properly (variant field) collapsed two NAME-04 special-cases into general structure and
+  left the recompose phases cleanly DB-frozen against the new baseline.
+- **Controlled A/B against the last-known-good build dispositioned the bench scare fast.** When Phase
+  90 surfaced two FAIL-INVESTIGATE write paths on the recompose, re-running the identical test on b10
+  (`a1953c2`) reproduced the failure → recompose **innocent** in one move, before any code spelunking.
+
+### What Was Inefficient
+
+- **A misleading CLI flag cost a whole RCA phase.** The Phase-90 "12V-VPP write-path regression" was
+  not a regression at all — `firestarter write -b` silently set `FLAG_SKIP_ERASE`, leaving NOR/EEPROM
+  bits unprogrammable while the firmware's DQ7-only poll reported "successful." A full Phase 91 RCA
+  (autonomous bench session) was spent proving the recompose innocent and isolating the flag
+  semantics. The footgun had been latent for many milestones; the rebuild's per-protocol bench just
+  happened to step on it.
+- **Behavior-preserving refactors still need explicit failure-case tests.** Phase 89 CR-01: golden
+  traces built with a *matching* chip id sailed past a WARNING-vs-ERROR severity regression (the
+  `id --force` path) because no trace exercised the mismatch fork. Caught and fixed, but it proves a
+  passing golden suite ≠ full behavior coverage.
+- **Stale verification frontmatter, again.** Phase 85 (`85-VERIFICATION.md` human_needed +
+  `85-HUMAN-UAT.md` 2 pending) surfaced at close on a zero-code-risk datasheet-acquisition phase —
+  the same lag pattern flagged in v1.15.
+
+### Patterns Established
+
+- **Oracle-first recompose:** golden traces + a dispatch-mirror guard pinned before extraction, with a
+  net-non-increase flash gate measured each step. Now the default shape for any firmware refactor.
+- **b10-A/B disposition:** reproduce a suspected regression on the last shipped build before debugging
+  the new one — exonerates (or convicts) the change in one step.
+- **Fix-the-decode-not-the-override:** when special-cases accrete in a generated artifact, decode the
+  upstream signal properly and delete the overrides, gated by an explained `diff_db.py` + re-pinned
+  baseline.
+
+### Key Lessons
+
+- A behavior-preserving refactor's test oracle must include the **failure/mismatch forks**, not just
+  the happy path — a green golden-trace suite with matching inputs can hide a severity/branch
+  regression (CR-01).
+- A "regression" that only appears at the bench deserves a **controlled A/B against the last-known-good
+  build first** — it's the cheapest way to separate the change-under-test from a pre-existing
+  test-method or environment fault.
+- CLI flags that bundle two effects (`-b` = skip-blank-check **and** skip-erase) are latent footguns;
+  decouple them and make the dangerous half an explicit opt-in (HARD-01).
+
+### Cost Observations
+
+- 2-day milestone, host-first with no dual-repo lockstep (the recompose lives on the firmware v1.16
+  branch; host-only phases changed `firestarter_app`). 88 meta commits, 29 plans, 28/28 reqs Complete.
+  One unplanned RCA phase (91) + one host-only hardening follow-on (92) spun out of the Phase 90 bench
+  finding. 14 open artifacts acknowledged at close (12 pre-existing carry-forwards + 2 v1.16-born
+  Phase-85 operator-confirmation gates).
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -638,6 +725,7 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 | v1.13     | 5 + close | 19 | 3 | Software-first / flash-free validation tiers; evidence-defines-missing (one bench-FAIL drove the only fix; a suspected bug DISPROVEN, not speculatively fixed); hybrid bench gating closes cleanly at PARTIAL coverage; non-vacuous PASS oracle kills source==source false-PASS |
 | v1.14     | 4     | 9 of 13 (4 deferred HW-gated) | 5 | First chip graduations since v1.0 (erase + 25V NMOS best-effort); plan-level deferral branches with FUT tracking (Phase 78/80 closed clean with zero code); best-effort graduation under operator override (warns-and-proceeds rail, definitive bench demoted to FUT); `gaps_found`≠failure when every gap is an intentional HW deferral; wrong-rail measurement cost a debug cycle (VPP vs VPE on 0x0B chips) |
 | v1.15     | 4     | 15    | 3    | On-paper `supported` proven on real silicon (11 chips, 5 families) with a per-chip EVIDENCE + DECODE-AUDIT record; non-destructive-first ordering preserved irreplaceable UV parts (read/blank-check→spend-decide-live); closed-by-disposition + best-effort graduation as close outcomes (FIX-01/GRAD-03, RCA + named trackers); honest silicon-FAIL recording (stuck bits ≠ DB/algo fault); conditional last phase absorbed bench surprises; milestone-audit-ran-before-final-phase → stale artifact (anti-pattern); verification status-line lag recurs (operator acceptance lives in STATE prose) |
+| v1.16     | 8     | 29    | 2    | Decode-at-the-root: full `infoic.xml` variant decode + single `classify()` deletes the Rule 1/2/3 override stack (FM1608/X88C64 fall out structurally); oracle-first recompose (golden traces + dispatch-mirror guard pinned before extraction) lands primitives P7/P4/P3/P5 with a net flash **decrease** (−518 B); per-protocol bench ledger (all 4 on-hand PASS, 6 buckets UNVERIFIED); b10-A/B disposition exonerated the recompose in one move when the bench surfaced a "regression"; the scare was a `write -b` skip-erase test-method footgun → HARD-01 decoupling; CR-01 lesson: golden traces need explicit mismatch/failure forks; stale-verification frontmatter recurs (Phase 85) |
 
 ### Cumulative Quality
 
