@@ -458,16 +458,22 @@ git -C ../firestarter diff --quiet && echo FW-CLEAN
 | A4 | The 0x08 and 0x0B buckets are represented by open-defect carries (FUT-06 / FUT-03), not separate UNVERIFIED-for-no-silicon rows, even though chips are on hand. | 12-Bucket Row Identities | If the operator wants 0x08/0x0B bench-proven via a sibling chip, scope expands; CONTEXT scope says the 4-chip set is fixed — confirm framing. |
 | A5 | `gen_test_image.py` output is byte-stable across Python 3.9/3.11/3.12 (stdlib `random.Random`). | Pitfalls / Stack | If a CPython `random` change altered the stream, baseline image SHAs would not reproduce; mitigated — the printed SHA is checked before any write, and `random.Random` MT stream is stable across these versions. |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> All three were resolved during planning — the plans (90-04) and CONTEXT.md scope
+> encode each resolution; recorded here so the section is closed, not carried open.
 
 1. **Are the on-hand chips still at v1.15 contents?**
    - Known: v1.15 read baselines recorded 2026-06-24; chips not factory-blank.
    - Unclear: whether anything wrote them since.
    - Recommendation: read-then-write ordering; if a read diverges from baseline, record the actual SHA as a fresh baseline + note the deviation (do NOT auto-FAIL the recompose for a content change unrelated to firmware).
+   - **RESOLVED:** read-before-write ordering catches content drift; a divergent read SHA is recorded as a fresh baseline + note, NOT an auto-FAIL of the recompose. Encoded in Plan 90-04 Task 2 how-to-verify.
 2. **Commit binaries or SHAs+log for D-09 evidence?**
    - Recommendation: commit per-run SHAs + `BENCH-LOG.md` (non-empty refs) and optionally the small binaries (FM1608 8 KB, W27C512 64 KB); skip committing the 512 KB SST39SF040 binary unless operator wants it.
+   - **RESOLVED:** commit per-run SHAs + `BENCH-LOG.md` as the non-empty D-09 evidence refs; skip the 512 KB SST39SF040 binary unless the operator explicitly requests it. Encoded in Plan 90-04 Task 2 acceptance criteria.
 3. **Does the operator want 0x08/0x0B bench-proven via sibling chips this phase?**
    - CONTEXT scope says no (4-chip set fixed; 0x08/0x0B carried as defect rows). Confirm before planning.
+   - **RESOLVED:** CONTEXT.md scope locks the 4-chip set (W29C020 / SST39SF040 / W27C512 / FM1608); 0x08 and 0x0B are carried as open-defect rows only (FUT-06 / FUT-03). No additional silicon needed.
 
 ## Environment Availability
 
