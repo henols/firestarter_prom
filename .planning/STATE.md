@@ -3,28 +3,28 @@ gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
 status: executing
-stopped_at: Phase 90 context gathered
-last_updated: "2026-06-26T12:28:23.133Z"
-last_activity: 2026-06-26 -- Phase 90 planning complete
+stopped_at: Phase 90 Plan 1 complete
+last_updated: "2026-06-26T13:00:00.000Z"
+last_activity: 2026-06-26 -- Phase 90 Plan 01 executed (Wave-0 ledger gate)
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 25
-  completed_plans: 21
-  percent: 83
+  completed_plans: 22
+  percent: 85
 ---
 
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-06-25
+**Updated:** 2026-06-26
 
 ## Current Position
 
-Phase: 90
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-06-26 -- Phase 90 planning complete
+Phase: 90 (Per-Protocol Bench Validation + Ledger) — EXECUTING
+Plan: 2 of 4
+Status: Executing Phase 90 — Plan 01 complete
+Last activity: 2026-06-26 -- Phase 90 Plan 01 complete (Wave-0 ledger gate: check_ledger.py + pytest + fixtures)
 
 Progress: [████████░░] 83%
 
@@ -46,7 +46,7 @@ See: `.planning/PROJECT.md` (v1.16 Current Milestone section + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware handler. v1.16 makes that contract **legible** (named, datasheet-documented protocols) and **leaner** (shared-primitive handlers). Minipro DB stays ground truth; datasheets verify + document the *why*.
 
-**Current focus:** Phase 89 — incremental-primitive-recompose
+**Current focus:** Phase 90 — Per-Protocol Bench Validation + Ledger
 
 ## Roadmap Summary
 
@@ -141,6 +141,7 @@ Resume: Phase 88 — Golden Traces + Dispatch-Mirror Guard
 - [Phase 79-02, 2026-06-23]: NMOS-02 executed under CONTEXT D-07 operator override. VPE = 22.4V DMM / 23.9V fw; ceiling 22000→25000; 4 NMOS chips graduated `vpp-exceeds-max`→`supported` (0x0B, 25000mV). Best-effort, no HW change ever. FUT-02 (>25V fail-closed) preserved.
 - [Phase 82, 2026-06-24]: Rewritable silicon validation: 5 PASS / 3 FAIL (W27E512/W27E040 stuck-bit silicon wear; W29C040 flash4 256B page-0 fault confirming Phase-74 fix not silicon-effective → CR-01). W29C020 auto-erase = first Flash/EEPROM auto-erase silicon proof.
 - [Phase 84-05, 2026-06-25]: FIX-01 closed by disposition D-43; GRAD-03/FUT-03 deferred best-effort D-22; 2516 read still unstable after VPP-skip.
+- [Phase 90-01, 2026-06-26]: LEDGER-01/02/03 + D-09 Wave-0 gate — check_ledger.py stdlib-only checker with 0/1/2 exit-code contract; placed under .planning/v1.16/ledger/tools/ (not firestarter_app/tools/) to avoid py3.11 CI ruff/mypy gates; 5 pytest tests green; valid fixture confirms all 12 buckets + D-04 no-copy compose-by-cross-reference. Commits d3b7ea6/983bb23.
 - [Phase 85-01, 2026-06-25]: v1.16-protocol-first-architecture-rebuild branch forked from beta (not v1.15 tip) in firestarter sub-repo; datasheets-check.sh Wave-0 gate authored with 12-bucket %PDF contract (correctly RED at scaffold stage, PASS after Plans 02/03 populate the tree).
 - [Phase 85-02, 2026-06-25]: 17 datasheets committed; W27E512→0x07, FM1608→0x28 (DB-verified); 3 D-02 fallbacks: SST27SF512/W27E040/DS1250Y bot-blocked; SAFE-05 intact
 - [Phase 85-03, 2026-06-25]: datasheets/README.md authored (DSHEET-03); 12-bucket index + 6 exclusions + D-02/D-03 policy; phase-gate PASS (exit 0); SAFE-05 intact
@@ -183,6 +184,7 @@ Resume: Phase 88 — Golden Traces + Dispatch-Mirror Guard
 | Phase 89 P89-03 | 18min | - tasks | - files |
 | Phase 89 P04 | 15min | 2 tasks | 4 files |
 | 89 | 05 | 8min | PRIM-06 — 89-FLASH-LEDGER.md: step table P7/P4/P3/P5; final 25090 B (87.5%, -564 B net); D-01 PASS; 102/102 native; check_dispatch 0 violations; diff_db empty; SAFE-04 intact; Phase 89 COMPLETE. meta@0c31bd4 |
+| 90 | 01 | 15min | LEDGER-01/02/03 — Wave-0 gate: check_ledger.py (273 lines, stdlib-only, 0/1/2 exit contract) + 5 pytest green + 3 JSON fixtures (valid 12-bucket ledger, evidence_min, matrix_min). Commits d3b7ea6/983bb23. |
 
 ## Deferred Items
 
