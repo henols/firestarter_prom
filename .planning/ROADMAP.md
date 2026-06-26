@@ -102,7 +102,8 @@ Full detail: [`.planning/milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.
 - [x] **Phase 87: Naming + Documentation Pass** *(was 86)* — Author the 12-bucket protocol vocabulary (hex ID → slug + descriptive name → datasheet-verified behavior) in `firestarter/doc/PROTOCOLS.md`, document each handler's *why* inline + cited to its datasheet, enumerate all 9 accreted one-off-fix invariants as a native-test traceability matrix, and document the now-correct FM1608/X88C64 decode (delivered structurally by Phase 86). Dispatch structure and firmware wire values unchanged; near-zero flash delta. ✓ 2026-06-26 (4/4 plans; flash delta=0, all gates green)
 - [x] **Phase 88: Golden Traces + Dispatch-Mirror Guard** *(was 87)* — Pin per-family native register golden traces and add the `check_dispatch.py::dispatch()`-matches-documented-order invariant test before any code extraction. Establishes the recompose oracle. (completed 2026-06-26)
 - [x] **Phase 89: Incremental Primitive Recompose** *(was 88)* — Extract P7 SDP-table dedup (warm-up) → P4 chip-ID compare/report → P3 VPP gate → P5 poll, each guarded by native suites + `check_dispatch.py` + `diff_db.py`; `pio run -e leonardo` measured at every step with net-non-increase gate; achieved flash % reported. (completed 2026-06-26)
-- [ ] **Phase 90: Per-Protocol Bench Validation + Ledger** *(was 89)* — Bench-prove each protocol with on-hand silicon on Leonardo + RURP Rev 2.0; author `PROTOCOL-LEDGER.{md,json}` composing with v1.13 matrix + v1.15 EVIDENCE; 6 no-silicon buckets recorded explicit UNVERIFIED.
+- [x] **Phase 90: Per-Protocol Bench Validation + Ledger** *(was 89)* — Bench-prove each protocol with on-hand silicon on Leonardo + RURP Rev 2.0; author `PROTOCOL-LEDGER.{md,json}` composing with v1.13 matrix + v1.15 EVIDENCE; 6 no-silicon buckets recorded explicit UNVERIFIED. ✓ 2026-06-26 — UAT 5/5; ledger + checker + SAFE-04 + frozen world all green. Bench verdict: 4/4 reads byte-identical to v1.15; **0x05 W29C020 + 0x28 FM1608 PASS**, **0x06 SST39SF040 + 0x07 W27C512 FAIL-INVESTIGATE** (12V-VPP write-path regression, recorded not auto-passed per D-03) → carried as defect rows + spun out to **Phase 91 RCA**.
+- [ ] **Phase 91: 12V-VPP Write-Path Regression RCA** *(added 2026-06-26 — Phase 90 disposition)* — Isolate the reproducible 12V-VPP write-path regression on recompose fw `a296195` (W27C512/0x07 + SST39SF040/0x06 write-cycles fail; reads + 5V/no-VPP writes clean). Controlled A/B (reflash b10 fw / check out v1.15 host) to confirm recompose-causality and isolate fw vs host; propose fix or accepted deferral; disposition the 0x06/0x07 ledger rows. Hardware-gated (Leonardo + Rev 2.0).
 
 ## Phase Details
 
@@ -286,6 +287,24 @@ Plans:
 **Wave 3** *(blocked on Wave 2 completion)*
 
 - [x] 90-04-PLAN.md — Bench-validate 4 on-hand chips on Leonardo+Rev2.0; flip rows to PASS w/ evidence refs (LEDGER-02)
+
+### Phase 91: 12V-VPP Write-Path Regression RCA *(added 2026-06-26 — Phase 90 disposition)*
+
+**Goal**: Isolate and propose a fix for the reproducible 12V-VPP write-path regression surfaced by the Phase 90 bench. On the recomposed firmware (a296195), the two **12V-VPP write paths** fail while everything else matches v1.15 byte-for-byte: W27C512 (0x07, EPROM-STD) and SST39SF040 (0x06, FLASH-AMD-ALT) write-cycles are FAIL-INVESTIGATE, but all 4 reads + the two 5V/no-VPP write paths (W29C020 0x05, FM1608 0x28) pass byte-identical. The 0x06/0x07 ledger rows are carried as FAIL-INVESTIGATE defect rows until this RCA dispositions them.
+**Depends on**: Phase 90 (bench evidence + PROTOCOL-LEDGER FAIL-INVESTIGATE rows)
+**Requirements**: TBD (set at planning)
+**Success Criteria** (what must be TRUE):
+
+  1. The regression is attributed to a specific cause (recompose-causal vs pre-existing) via a controlled A/B: reflash b10 fw (or check out the v1.15 host `98b3a92`) and re-run W27C512 + SST39SF040 on Leonardo + RURP Rev 2.0 — fw (`a296195`) vs host (`e46549f`) isolated.
+  2. The two distinct symptoms are explained: W27C512 = bad bytes ~921 @0x0 on a clean 12.0V rail; SST39SF040 = write-A fw timeout + write-B deterministically-wrong content (`ebca6266`). Note a P3-only `vpp_check_window` explanation does NOT cover both (0x06/flash3 uses P4/P7, no P3).
+  3. A fix (or a documented, accepted deferral) is proposed; the 0x06/0x07 PROTOCOL-LEDGER rows are dispositioned (graduate to PASS after fix+re-bench, or carried as named defects).
+
+**Notes**: Hardware-gated (Leonardo + RURP Rev 2.0, operator). Both failing chips currently hold partial/wrong content but are rewritable/recoverable. See `.planning/v1.16/ledger/bench/BENCH-LOG.md` and `90-04-SUMMARY.md`.
+**Plans**: 0 plans (run `/gsd-plan-phase 91` to break down)
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 91 to break down)
 
 ## v1.9 — Read-Bug RCA + Fix (STARTED 2026-05-29)
 
@@ -1124,8 +1143,6 @@ Plans:
 Plans:
 
 - [ ] TBD (promote with /gsd-review-backlog when ready)
-
----
 
 ### v1.14 — Feasible-Gap Implementation (✅ PROMOTED 2026-06-18 → active milestone, Phases 77–80)
 

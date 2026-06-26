@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
 status: executing
-stopped_at: Phase 90 plans complete (90-04 bench) — verification + regression disposition pending
-last_updated: "2026-06-26T13:40:00.000Z"
-last_activity: 2026-06-26 -- Phase 90 Wave 3 (90-04 bench) complete — 2 PASS / 2 FAIL-INVESTIGATE
+stopped_at: Phase 90 verified (UAT 5/5) + complete; 12V-VPP write regression spun out to Phase 91 RCA (not yet planned)
+last_updated: "2026-06-26T14:12:00.000Z"
+last_activity: 2026-06-26 -- Phase 90 UAT 5/5 PASS, marked complete; Phase 91 (12V-VPP write-path RCA) added
 progress:
-  total_phases: 6
-  completed_phases: 5
+  total_phases: 7
+  completed_phases: 6
   total_plans: 25
   completed_plans: 25
-  percent: 100
+  percent: 86
 ---
 
 # Project State
@@ -21,12 +21,13 @@ progress:
 
 ## Current Position
 
-Phase: 90 (per-protocol-bench-validation-ledger) — PLANS COMPLETE (4/4); verification + regression disposition pending
+Phase: 90 (per-protocol-bench-validation-ledger) — ✓ VERIFIED (UAT 5/5) + COMPLETE
 Plan: 4 of 4 complete (90-04 bench session)
-Status: Phase 90 plans done — bench surfaced a recompose 12V-VPP write-path regression (0x06/0x07 FAIL-INVESTIGATE)
-Last activity: 2026-06-26 -- Phase 90 Wave 3 (90-04 bench) complete — 2 PASS / 2 FAIL-INVESTIGATE
+Status: Phase 90 closed — bench regression (0x06/0x07 FAIL-INVESTIGATE) dispositioned: carried as defect rows + spun out to Phase 91 RCA
+Next: Phase 91 (12V-VPP Write-Path Regression RCA) — not yet planned (`/gsd-plan-phase 91`)
+Last activity: 2026-06-26 -- Phase 90 UAT 5/5 PASS, marked complete; Phase 91 added
 
-Progress: [██████████] 100% (plans)
+Progress: [█████████░] 6/7 phases (Phase 91 RCA pending)
 
 > **⚠ Phase 90 bench finding (2026-06-26):** On the recompose (fw a296195, host e46549f),
 > all 4 on-hand READ paths are byte-identical to v1.15, but **2 of 4 WRITE paths fail
@@ -90,6 +91,12 @@ See: `.planning/PROJECT.md` (v1.16 Current Milestone section + Key Decisions)
   At Comprehensive granularity, 5 phases matches the natural delivery boundaries (acquisition →
   vocabulary → oracle → refactor → validation). Research convergence: HIGH confidence on all
   four research dimensions (STACK/FEATURES/ARCHITECTURE/PITFALLS).
+
+- Phase 91 added 2026-06-26 (Phase 90 disposition): **12V-VPP Write-Path Regression RCA** — spun
+  out from the Phase 90 bench finding (0x06 SST39SF040 + 0x07 W27C512 write-cycles FAIL-INVESTIGATE
+  on recompose fw a296195). Carries the two 12V-VPP-write defect rows; goal is to isolate
+  recompose-causality (controlled b10/v1.15-host A/B) and propose a fix or accepted deferral.
+  Hardware-gated (Leonardo + Rev 2.0). Not yet planned.
 
 - v1.15 roadmap created 2026-06-23: 4 phases (81–84); shipped 2026-06-25.
 - v1.14 roadmap created 2026-06-18: 4 phases (77–80); shipped 2026-06-23.
