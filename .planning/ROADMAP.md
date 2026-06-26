@@ -214,12 +214,16 @@ Plans:
   3. `check_dispatch.py` exits with 0 violations; `diff_db.py` is empty (no DB change in this phase).
   4. The over-voltage firmware check and the `chip_resolver.resolve_chip` host guard are verified present and unmodified; no irreplaceable UV part is written on an unstable read path.
 
-**Plans**: 5 plans
-Plans:
+**Plans**: 5 plansPlans:
+**Wave 1**
+
 - [ ] 88-01-PLAN.md — Golden-trace harness (assert/bless helper) + eprom 0x07/0x08/0x0B write + chip-id traces
+- [ ] 88-04-PLAN.md — Host dispatch-mirror pytest: PROTOCOLS.md §0 ↔ check_dispatch ↔ native test_dispatch
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 88-02-PLAN.md — eeprom28c (0x0D) + flash_intel (0x10) write + chip-id golden traces
 - [ ] 88-03-PLAN.md — flash3 (0x06) write + flash4 (0x05) write + chip-id golden traces
-- [ ] 88-04-PLAN.md — Host dispatch-mirror pytest: PROTOCOLS.md §0 ↔ check_dispatch ↔ native test_dispatch
 - [ ] 88-05-PLAN.md — Frozen-world gates rerun + SC#4 safety-posture verification
 
 ### Phase 89: Incremental Primitive Recompose *(was 88)*
