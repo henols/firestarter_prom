@@ -162,3 +162,40 @@ the exact method that produced the baselines. The failed `dev write-cycle` attem
 
 
 
+
+---
+
+## Phase 91 A/B + Fix Results — 2026-06-26 (RCA + FIX-91)
+
+**The Phase-90 0x06/0x07 "12V-VPP write-path regression" was a TEST-METHOD error, not a
+firmware/host regression.** `firestarter write -b` sets `FLAG_SKIP_ERASE` (its `--no-blank-check`
+help reads "…and skip erase"). flash3 (SST39SF040) and the EEPROM-class W27C512 are
+electrically-erasable parts that REQUIRE an erase before write; with `-b` the erase is skipped, so
+bytes needing 0→1 transitions cannot be programmed.
+
+### Forensic (SST39SF040, on-chip `ebca6266` capture vs image B)
+- 524285 / 524288 bytes match image B (99.9994%); only 3 bytes differ, all @0x0–0x2, all
+  `== imgA & imgB` — the NOR incomplete-/skipped-erase signature. The per-byte DQ7 poll
+  (`& 0x80`) matched on bit 7, so the firmware reported "write successful"; only full verify caught
+  `0x1c != 0x04 @0x0`.
+
+### A/B (controlled, Leonardo + Rev 2.0, image B)
+| Leg | Firmware | `write -b` imgB | Verdict |
+|-----|----------|-----------------|---------|
+| recompose | a296195 (25136 B) | write RC=0; verify RC=1 `0x1c != 0x04 @0x0` | FAIL (erase skipped) |
+| b10 baseline | a1953c2 (25654 B, avrdude-verified) | write RC=0; verify RC=1 `0x1c != 0x04 @0x0` | FAIL — **identical** → recompose innocent |
+
+### FIX (SST39SF040, stock recompose a296195 — NO firmware edit)
+Erase-enabled plain `firestarter write` (writeA→verifyA→writeB→verifyB→consistency-check N=3):
+- writeA RC=0 (240 s) / verifyA RC=0 (erase proof) → writeB RC=0 (240 s) / verifyB RC=0 →
+  consistency-check N=3 **PASS, 1 distinct SHA = `a38b13b4…970b96b`** (== v1.15 gate); neg-control
+  verify(imgA) RC=1. Evidence: `bench/SST39SF040-fix/SHA256SUMS.txt`.
+- An exploratory firmware erase-delay bump (105→500 ms) was tried and **reverted** — silicon proved
+  the erase was *skipped*, not slow. Firmware byte-identical to a296195; SAFE-04 (`vpp_check_window`
+  +500 mV) intact.
+
+### Disposition
+- **0x06 SST39SF040 → PASS** (erase-enabled write, oracle leonardo+Rev2.0, evidence
+  `bench/SST39SF040-fix/`). LEDGER-02 satisfied for 0x06.
+- **0x07 W27C512 → bench-pending** (same root cause; fix = plain `write`; live re-bench DEFERRED to
+  operator — chip swap). See `rca/W27C512-OPERATOR-CHECKLIST.md`.

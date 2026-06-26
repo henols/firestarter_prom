@@ -111,10 +111,11 @@ vs image B (`a38b13b4…`). Raw map in `ebca6266-forensic.txt`. Key result:
 Clean `write -b SST39SF040 imgB` on the current recompose fw: write reported **"successful
 (177.66s)" RC=0**, but `verify` **RC=1: `0x1c != 0x04 at 0x000000`** — the SAME offset-0 failure,
 **reproduced deterministically**. `0x04` (= prior residue) is a bit-subset of target `0x1c`
-(needs bits 3,4 set → requires a completed erase). Confirms: the chip-erase is not finishing
-before the first bytes are programmed; the firmware reports success because the per-byte DQ7
-data-poll (`flash_util_verify_operation`, `& 0x80` only) matches on bit 7 (both `0x04` and `0x1c`
-have bit7=0) and never detects the un-set low bits. Only the final full verify catches it.
+(needs bits 3,4 set → requires an erase). Confirms an erase-completeness failure at the start. The
+firmware reports success because the per-byte DQ7 data-poll (`flash_util_verify_operation`, `& 0x80`
+only) matches on bit 7 (both `0x04` and `0x1c` have bit7=0) and never detects the un-set low bits;
+only the final full verify catches it. **[CORRECTED in "## Root Cause — DEFINITIVE": the erase was
+not merely "not finishing" — it was SKIPPED entirely, because `write -b` sets `FLAG_SKIP_ERASE`.]**
 
 > Note: VPP loaded-rail capture is N/A for flash3 — SST39SF040 is **5V-only and never enables the
 > VPP regulator** (CLAUDE.md handler table 0x06 = None/5V). Also, a single serial port cannot
@@ -272,3 +273,25 @@ for `write -b`) is exactly the added chip-erase + post-erase blank-check pass.
 - [x] Wave 3 — TRUE root cause (`write -b` skips required erase); fix = plain `write`; SST39SF040
       confirmed == a38b13b4 (3/3) on stock recompose; firmware reverted; SAFE-04 intact
 - [ ] Wave 4 — disposition ledger rows + W27C512 operator checklist
+
+## Phase 91 Wrap-Up
+
+- **RCA-91 (cause attribution + both symptoms):** the 0x06/0x07 "12V-VPP write-path regression" is a
+  **test-method error**, not a code regression. `firestarter write -b` sets `FLAG_SKIP_ERASE`; flash3
+  (SST39SF040, NOR) and the EEPROM-class W27C512 require erase-before-write, so `-b` leaves bits that
+  can't be programmed (SST39SF040: 3 stuck bytes @0x0-0x2 `== imgA & imgB`; W27C512: bad-bytes @0x0
+  on a non-blank chip). The DQ7-only poll masked it as "write successful." Controlled A/B: b10
+  (a1953c2) fails identically to the recompose (a296195) → recompose **innocent**; diff is
+  comment-only and DB wire params byte-identical. Both symptoms = one axis (erase-before-write), NOT
+  VPP — flash3 is 5V-only and never enables the regulator.
+- **FIX-91 (SST39SF040 / 0x06):** **CONFIRMED WORKING.** Erase-enabled plain `firestarter write`
+  (writeA→verifyA→writeB→verifyB→consistency-check N=3) is byte-identical to the v1.15 baseline
+  `a38b13b4…` (3/3, 1 distinct SHA) on **stock recompose firmware** (no code edit); neg-control RC=1;
+  SAFE-04 intact. 0x06 PROTOCOL-LEDGER row **graduated to PASS** (LEDGER-02 satisfied for 0x06).
+- **0x07 W27C512:** RCA + fix known (same cause; use plain `write`); live bench re-validation
+  DEFERRED to operator (chip swap). Ledger row set to **bench-pending** with the attribution; turnkey
+  `W27C512-OPERATOR-CHECKLIST.md` authored.
+- **LEDGER-02 status:** on-hand silicon now 3 PASS (0x05, 0x06, 0x28) + 0x07 bench-pending (operator).
+- **Recommended hardening (NOT applied — D-13.3 `-b` semantics are rationale-locked):** warn when
+  `-b`/`FLAG_SKIP_ERASE` is used on a `FLAG_CAN_ERASE` chip, so a skipped-erase NOR/EEPROM write
+  cannot silently report "successful." Left for operator decision.
