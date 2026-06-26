@@ -276,8 +276,8 @@ Plans:
 **Plans**: 4 plans (3 waves)
 **Wave 1**
 
-- [ ] 90-01-PLAN.md — Wave-0 ledger self-consistency checker (check_ledger.py) + pytest/fixtures
-- [ ] 90-03-PLAN.md — SAFE-04 verify-present-only (firmware VPP gate + host resolve_chip guard + 2516 UNVERIFIED) + frozen-world rerun
+- [x] 90-01-PLAN.md — Wave-0 ledger self-consistency checker (check_ledger.py) + pytest/fixtures
+- [x] 90-03-PLAN.md — SAFE-04 verify-present-only (firmware VPP gate + host resolve_chip guard + 2516 UNVERIFIED) + frozen-world rerun
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
