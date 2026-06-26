@@ -17,7 +17,7 @@ findings:
   warning: 2
   info: 1
   total: 4
-status: issues_found
+status: clean
 ---
 
 # Phase 89: Code Review Report
@@ -60,9 +60,32 @@ new code routes through `chip_id_report`, which keys on `FLAG_FORCE`, so the sam
 operation now downgrades a mismatch to WARNING. This is host-observable and is not
 caught by the golden chip-id trace (which uses a *matching* ID).
 
+## Resolution
+
+**CR-01 and WR-02 resolved** in firmware commit `a296195` on
+`v1.16-protocol-first-architecture-rebuild` (2026-06-26).
+
+Approach applied: (a) add explicit `bool force_warning` parameter to
+`chip_id_report()` — FLAG_FORCE is no longer read inside the primitive.
+`eprom_internal_check_chip_id` now passes `error_code == RESPONSE_CODE_WARNING`
+(not `is_flag_set(FLAG_FORCE)`) so the CHECK_CHIP_ID path gets `false` (ERROR
+unconditional) while the generic-init path still passes the FORCE-derived value.
+Three flash/eeprom28c call sites pass `is_flag_set(FLAG_FORCE)` explicitly.
+
+WR-02 gap closed by three new mismatch-fork tests in `test_val_eprom`:
+`test_wr02a` (CHECK_CHIP_ID + FORCE → ERROR), `test_wr02b` (generic-init + FORCE → WARNING),
+`test_wr02c` (generic-init without FORCE → ERROR).
+
+All 105 native tests pass; Leonardo build 25136 B (net -518 B vs baseline).
+
+WR-01 is resolved as a side-effect: the `error_code` parameter is no longer dead
+(the body now uses it); the `(void)error_code` suppression and stale comment are removed.
+
+IN-01 is informational (no code change required) — remains open/noted.
+
 ## Critical Issues
 
-### CR-01: EPROM `CMD_CHECK_CHIP_ID` no longer reports a mismatch as ERROR under `--force` (behavior regression)
+### CR-01: EPROM `CMD_CHECK_CHIP_ID` no longer reports a mismatch as ERROR under `--force` (behavior regression) — RESOLVED
 
 **File:** `firestarter/src/proms/eprom.cpp:310-314` (and call site `:137-140`)
 
@@ -133,7 +156,7 @@ with a *mismatched* ID under `FLAG_FORCE` should pin it.)
 
 ## Warnings
 
-### WR-01: `error_code` parameter is now dead/misleading — the regression vehicle
+### WR-01: `error_code` parameter is now dead/misleading — the regression vehicle — RESOLVED (side-effect of CR-01 fix)
 
 **File:** `firestarter/src/proms/eprom.cpp:310-313`
 
@@ -147,7 +170,7 @@ parameter is genuinely obsolete, drop it from the signature and both call sites
 (eprom.cpp:139 and :306) so the dead-arg cannot silently diverge again. Do not leave
 a `(void)`-suppressed parameter that two callers still populate differently.
 
-### WR-02: No mismatch-under-FLAG_FORCE test guards any of the four `chip_id_report` sites
+### WR-02: No mismatch-under-FLAG_FORCE test guards any of the four `chip_id_report` sites — RESOLVED
 
 **File:** `firestarter/src/proms/primitives.cpp:45-60`
 

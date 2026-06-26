@@ -129,3 +129,7 @@ None. P4 only extracted the compare/report tail; no regulator routing, dispatch,
 - Flash delta = -164 B (25654 → 25490 B, 88.9%)
 - Both host gates exit 0
 - INV-01..09 all >= 3 files
+
+## Post-Plan Gap Closure (CR-01 / WR-02) — 2026-06-26
+
+Review finding CR-01 (BLOCKER: CHECK_CHIP_ID unconditional ERROR silently changed to WARNING under FLAG_FORCE) fixed in fw commit `a296195`. Approach: added `bool force_warning` parameter to `chip_id_report()`; eprom CHECK_CHIP_ID path passes `false` (ERROR unconditional); generic-init path passes `error_code == RESPONSE_CODE_WARNING` (FORCE→WARNING unchanged). WR-02 (missing mismatch-fork test) fixed: 3 new tests in `test_val_eprom` (WR-02a/b/c). 105 native tests green; Leonardo 25136 B. 89-REVIEW.md status updated to `clean`.
