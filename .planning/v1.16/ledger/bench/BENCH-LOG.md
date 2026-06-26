@@ -44,4 +44,121 @@ Images staged at `/tmp/firestarter_bench_p90/<chip>_img_{A,B}.bin`.
 > operator confirms controller identity + port, confirms Rev 2.0 silkscreen, seats ONE
 > chip, authorizes the live op.
 
-<!-- Per-chip blocks appended below as the session proceeds (Task 2). -->
+### Harness deviation (grounded in v1.15 EVIDENCE) — applies to all flash/EPROM chips
+
+The plan's Task 2 prescribes `dev write-cycle` for W29C020/SST39SF040/W27C512. The v1.15
+EVIDENCE (`.planning/v1.15/bench/EVIDENCE.md` rows 1/5/6/8) shows **all four** baselines were
+produced via the **`write -b` direct path** (`write -b A` → verify → `write -b B` → verify →
+`consistency-check N=3`), which proves auto-erase by writing B over A with *no explicit erase*.
+`dev write-cycle` does erase→blank-checked-write, which (a) **fails on flash4** — confirmed: two
+`dev write-cycle` attempts on W29C020 returned `Not blank, at 0x000000, v:0x1c` (RC=2) because
+flash4 has no real bulk-erase (per-page auto-erase on write), and (b) would defeat the auto-erase
+proof even where it works. **Deviation: use the v1.15 `write -b` direct path for all 4 chips** —
+the exact method that produced the baselines. The failed `dev write-cycle` attempts wrote nothing
+(blank-check refused), so no chip state was altered by them.
+
+> **D-01 read-baseline nuance (all 4 chips):** v1.15's own write-cycle left image B on each chip,
+> overwriting the pre-write contents the v1.15 read-baseline measured (RESEARCH line 130). So each
+> Phase-90 pre-write read returns image B = the v1.15 **write-cycle-final** SHA, NOT the v1.15
+> read-baseline (which is unreachable by design). A read PASS = N≥3 internally consistent AND
+> byte-identical to the v1.15 write-cycle-final baseline (image B retained). Read path confirmed
+> behavior-preserving.
+
+---
+
+### Chip 1 — W29C020 (0x05 FLASH-AMD-STD, flash4, 262144 B) — **PASS**
+
+| Field | Value |
+|-------|-------|
+| Port identity | leonardo on `/dev/ttyACM0` (`firestarter fw` confirmed pre-op) |
+| Shield | Rev 2.0 (operator silkscreen confirmed) |
+| Operator authorize | Seated + authorized W29C020 live ops |
+| **READ** (N=3, ran FIRST) | `firestarter dev consistency-check W29C020 --runs 3 --output-dir bench/W29C020-read/` → RC=0, **PASS, 1 distinct SHA** |
+| Read SHA | `47304933ce388bfd97d23ea6bff1a5ed1f7728e99f2cc3e7d05c82a7c11ce58c` |
+| Read SHA-match | ✓ == v1.15 **write-cycle-final** baseline (chip holds image B; D-01 nuance above). Read path byte-identical. |
+| `dev write-cycle` attempt | RC=2 `Not blank @0x000000 v:0x1c` — expected flash4 limitation, wrote nothing (see deviation note). |
+| **WRITE-CYCLE A→B** (`write -b`) | `write -b A` RC=0 → `verify A` RC=0 (34.28s) → `write -b B` RC=0 → `verify B` RC=0 (34.26s). B over A, no explicit erase = **auto-erase proven**. |
+| Post-B readback (N=3) | `consistency-check --runs 3 --output-dir bench/W29C020-wcB/` → RC=0, PASS, 1 distinct SHA = `47304933ce388bfd97d23ea6bff1a5ed1f7728e99f2cc3e7d05c82a7c11ce58c` |
+| Write-cycle SHA-match | ✓ == v1.15 write-cycle-final baseline `47304933…c11ce58c` |
+| Negative control | `verify W29C020 img_A` → RC=1 ✓ (verify non-vacuous) |
+| Evidence refs | `bench/W29C020-read/run_{01,02,03}.bin`, `bench/W29C020-wcB/run_{01,02,03}.bin` |
+| **Verdict** | **PASS** — read + write-cycle both byte-identical to v1.15 baseline. |
+
+### Chip 2 — W27C512 (0x07 EPROM-STD, 65536 B) — **FAIL-INVESTIGATE** (write path; read PASS)
+
+| Field | Value |
+|-------|-------|
+| Port identity | leonardo on `/dev/ttyACM0` (confirmed pre-op + after reseat) |
+| Shield | Rev 2.0 (operator silkscreen confirmed) |
+| Operator authorize | Seated + authorized; reseat + 1 retry authorized after first fail |
+| **READ** (N=3, ran FIRST) | `consistency-check W27C512 --runs 3 --output-dir bench/W27C512-read/` → RC=0, **PASS, 1 distinct SHA** |
+| Read SHA | `e16b2a5b26d99440a8e596963faa0f2d64fff4e1dd9682b93b2f8f1ddc326ab5` |
+| Read SHA-match | ✓ == v1.15 **write-cycle-final** baseline (chip held image B; D-01 nuance). **Read path byte-identical — no regression on read.** |
+| VPP rail (diagnostic) | `firestarter vpp` → stable **12.0–12.1V** (VPE 13.8V, VCC 5.5V). NOT the v1.15 VPP-high issue; rail is on-target. |
+| **WRITE attempt 1** (`write -b`) | `write -b A` → **RC=1** `Failed to write memory, 0x000000, retries:20, bad bytes:921`; `write -b B` → RC=1 bad bytes:923. verify A/B RC=1. |
+| **WRITE attempt 2** (reseat) | Operator reseated chip. `write -b A` → **RC=1, bad bytes:921 @0x000000** (byte-identical to attempt 1); `write -b B` → RC=1 bad bytes:923. **Reproducible — reseat ruled out contact.** |
+| Post-fail chip state (N=3) | `consistency-check` → PASS, 1 distinct SHA = `ce12c20a1f8f64e575baa89c38157e0795b9774c4c0f7a5e949b9736bcb7b3c6` (partial/corrupt; first ~921 B did not program). Chip rewritable — recoverable once RCA'd. |
+| Write-cycle SHA-match | ✗ chip holds `ce12c20a…`, NOT the v1.15 write-cycle-final baseline `e16b2a5b…`. |
+| Negative control | `verify W27C512 img_A` → RC=1 ✓ (verify non-vacuous; confirms the fail is a real write failure, not a vacuous verify) |
+| Evidence refs | `bench/W27C512-read/run_{01,02,03}.bin` (read PASS), `bench/W27C512-wcB/run_{01,02,03}.bin` (post-fail `ce12c20a` capture) |
+| **Verdict** | **FAIL-INVESTIGATE (D-03).** Reproducible write-path failure on recompose firmware a296195 at a clean 12.0V rail. Read path clean. Candidate **P3 `vpp_check_window` recompose regression** (−402 B, biggest recompose change): W27C512 (0x07) is the ONLY of the 4 chips that exercises P3 on write; W29C020 (flash4, no P3) wrote clean. Failure at write-start (first ~921 B) is consistent with a VPP-gate engage/settle timing change at write-init. Row 0x07 NOT flipped to PASS. Needs RCA: diff a296195 `eprom_check_vpp`/`vpp_check_window` vs b10; consider reflash-b10 A/B test to confirm regression vs pre-existing. |
+
+### Chip 3 — FM1608 (0x28 SRAM-STD / FRAM, 8192 B) — **PASS**
+
+| Field | Value |
+|-------|-------|
+| Port identity | leonardo on `/dev/ttyACM0` (confirmed pre-op) |
+| Shield | Rev 2.0 (operator silkscreen confirmed) |
+| Operator authorize | Seated + authorized FM1608 live ops |
+| **READ** (N=3, ran FIRST) | `consistency-check FM1608 --runs 3 --output-dir bench/FM1608-read/` → RC=0, **PASS, 1 distinct SHA** |
+| Read SHA | `3c23e7fcbe88c5a09ab50cf8301e9adf884fcdd519b6f9fefc72583b34f75c90` |
+| Read SHA-match | ✓ == v1.15 write-cycle-final baseline (chip held image B; D-01 nuance). Read path byte-identical. |
+| **WRITE A→B** (`write -b`, FRAM method) | `write -b A` RC=0 (0.74s) → `verify A` RC=0 → `write -b B` RC=0 (0.75s) → `verify B` RC=0. B over A, no explicit erase (FRAM overwrite). |
+| Post-B readback (N=3) | `consistency-check --runs 3 --output-dir bench/FM1608-wcB/` → RC=0, PASS, 1 distinct SHA = `3c23e7fcbe88c5a09ab50cf8301e9adf884fcdd519b6f9fefc72583b34f75c90` |
+| Write-cycle SHA-match | ✓ == v1.15 write-cycle-final baseline `3c23e7fc…b34f75c90` |
+| Negative control | `verify FM1608 img_A` → RC=1 ✓ (verify non-vacuous) |
+| "Empty input" note | Not emitted — `-b` skips the blank-check, so the benign FRAM "Empty input" blank-check note (expected only on the default blank-check path) did not fire. Consistent with the FRAM exception. |
+| Evidence refs | `bench/FM1608-read/run_{01,02,03}.bin`, `bench/FM1608-wcB/run_{01,02,03}.bin` |
+| **Verdict** | **PASS** — read + write both byte-identical to v1.15 baseline. (No P3 — supports P3-isolated regression boundary for W27C512.) |
+
+### Chip 4 — SST39SF040 (0x06 FLASH-AMD-ALT, flash3, 524288 B) — **FAIL-INVESTIGATE** (write path; read PASS)
+
+| Field | Value |
+|-------|-------|
+| Port identity | leonardo on `/dev/ttyACM0` (confirmed pre-op + after reseat) |
+| Shield | Rev 2.0 (operator silkscreen confirmed) |
+| Operator authorize | Seated + authorized; reseat + 1 retry authorized |
+| **READ** (N=3, ran FIRST) | `consistency-check SST39SF040 --runs 3 --output-dir bench/SST39SF040-read/` → RC=0, **PASS, 1 distinct SHA** |
+| Read SHA | `a38b13b4d285756c1f385a75d0cdf89f72720764c21fd933ced75ebdd970b96b` |
+| Read SHA-match | ✓ == v1.15 write-cycle-final baseline (chip held image B; D-01 nuance). **Read path byte-identical.** |
+| **WRITE attempt 1** | `write -b A` → **RC=1 `Operation timed out`** (firmware-level, not bash); verify A RC=1; `write -b B` → RC=0 "successful (177.64s)" but **verify B RC=1**; chip held `ebca6266…` (not image B). |
+| **WRITE attempt 2** (reseat) | Operator reseated. `write -b A` → **RC=1 `Operation timed out`** (same); `write -b B` → RC=0 "successful (177.70s)", **verify B RC=1**; chip held **`ebca626663a78613a7572b792e00de11472aaefa84b41539ec5f5cfae3533e0b`** — byte-identical to attempt 1. **Reproducible, deterministic.** |
+| Post-fail chip state (N=3) | `consistency-check` → PASS, 1 distinct SHA = `ebca6266…3533e0b` (consistent but wrong; ≠ image B `a38b13b4…`). Chip rewritable. |
+| Write-cycle SHA-match | ✗ chip holds `ebca6266…`, NOT v1.15 write-cycle-final baseline `a38b13b4…`. |
+| Negative control | `verify SST39SF040 img_A` → RC=1 ✓ (verify non-vacuous) |
+| Evidence refs | `bench/SST39SF040-read/run_{01,02,03}.bin` (read PASS), `bench/SST39SF040-wcB/run_{01,02,03}.bin` (post-fail `ebca6266` capture) |
+| **Verdict** | **FAIL-INVESTIGATE (D-03).** Reproducible write-path failure on recompose a296195: write A times out, write B reports success but produces deterministically-wrong content. Read path clean. flash3 uses **P4/P7, NOT P3** — distinct symptom from W27C512, so the regression is NOT P3-isolated. Row 0x06 NOT flipped to PASS. |
+
+---
+
+## Session Summary — 2 PASS / 2 FAIL-INVESTIGATE
+
+| Bucket | Chip | Read (N≥3 vs v1.15) | Write-cycle (vs v1.15) | Verdict |
+|--------|------|---------------------|------------------------|---------|
+| 0x05 FLASH-AMD-STD | W29C020 | ✓ `47304933…` | ✓ `47304933…` (auto-erase proven) | **PASS** |
+| 0x06 FLASH-AMD-ALT | SST39SF040 | ✓ `a38b13b4…` | ✗ `ebca6266…` (write A timeout, write B wrong) | **FAIL-INVESTIGATE** |
+| 0x07 EPROM-STD | W27C512 | ✓ `e16b2a5b…` | ✗ `ce12c20a…` (bad bytes @0x0, write-start) | **FAIL-INVESTIGATE** |
+| 0x28 SRAM-STD | FM1608 | ✓ `3c23e7fc…` | ✓ `3c23e7fc…` | **PASS** |
+
+**All 4 READ paths byte-identical to v1.15 baseline.** **2 of 4 WRITE paths fail reproducibly.**
+
+### RCA scope (handed to follow-up; NOT resolved in this bench session)
+- **Failure axis:** the two **12V-VPP-listed flash/EPROM** write paths (0x06 flash3, 0x07 EPROM-STD) fail; the two **5V/no-VPP** paths (0x05 flash4 auto-erase-at-5V, 0x28 SRAM) pass. Reads (no VPP) all pass. ⇒ the regression is in the **VPP-gated / 12V write path**, with two distinct symptoms (W27C512 bad-bytes-at-start; SST39SF040 write-A-timeout + wrong-content).
+- **Primitive map:** P3 `vpp_check_window` (−402 B, biggest recompose change) is used by 0x07; flash3 (0x06) is mapped to P4/P7 only — so a single-primitive (P3-only) explanation does not cover both. Examine the recompose's VPP-application/ timing path for 12V writes across `eprom.cpp` (`eprom_check_vpp`) and `flash_type_3.cpp`.
+- **Host vs firmware:** firmware-under-test = `firestarter@a296195`; **host = `firestarter_app@e46549f`** (also a v1.16 build, NOT the v1.15 host `98b3a92`). Failure could be fw OR host. Recommended controlled A/B: reflash b10 fw (or check out v1.15 host) and re-run W27C512/SST39SF040 to confirm recompose-causality vs pre-existing.
+- **Recoverability:** both failing chips are rewritable; they currently hold partial/wrong content (`ce12c20a` / `ebca6266`) and can be restored once the write path is fixed.
+- **Disposition:** LEDGER-02 (each on-hand protocol → PASS) is **NOT satisfied for 0x06 and 0x07**. Operator/verifier decision required on milestone disposition (carry as defect rows vs pause for fw/host fix).
+
+
+
+
