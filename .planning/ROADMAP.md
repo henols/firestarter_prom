@@ -163,6 +163,7 @@ Plans:
 **Wave 4** *(blocked on Waves 2 + 3)*
 
 - [x] 86-03-PLAN.md — VAR-03/04 + SAFE-04: re-pin both baselines LAST (after the 86-02 + 86-04 diff reviewed); test_diff_db_gate identity pass; full py3.11 toolchain gate (ruff/format/mypy/pytest) — ✅ 2026-06-25 (firestarter_app@dd541f6; chip_database.baseline.json byte-identical re-pin to the 746-chip DB incl. 2516/2532; dispatch_baseline.json regenerated (746) via check_dispatch mirror + Phase-86/SHA-a8efaedc/VAR-05 provenance; diff_db.py now IDENTITY diff exit 0 (0 changed/0 new/0 missing, D-07 closed); check_dispatch 0 violations; 686 host tests green, 77.69% coverage; ruff/format/mypy-watermark clean (CI py3.11 scope); 4 ruff errors in tools/ confirmed pre-existing + out-of-CI-scope; SAFE-04 intact — 2516 UNVERIFIED + wire-stable, no host guard touched)
+
 **UI hint**: no
 
 ### Phase 87: Naming + Documentation Pass *(was 86)*
@@ -182,7 +183,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 87-01-PLAN.md — Author firestarter/doc/PROTOCOLS.md: per-bucket vocabulary (two-name scheme) + NAME-04 FM1608/X88C64 corrections + Honest non-protocols section + INV-01..09 traceability matrix + capture pre-phase Leonardo flash baseline (NAME-01/03/04/05, SAFE-06)
+- [x] 87-01-PLAN.md — Author firestarter/doc/PROTOCOLS.md: per-bucket vocabulary (two-name scheme) + NAME-04 FM1608/X88C64 corrections + Honest non-protocols section + INV-01..09 traceability matrix + capture pre-phase Leonardo flash baseline (NAME-01/03/04/05, SAFE-06)
 
 **Wave 2** *(blocked on Wave 1 — both depend on the INV-01..09 contract from PROTOCOLS.md; disjoint file trees src/ vs test/)*
 
@@ -194,9 +195,11 @@ Plans:
 - [ ] 87-04-PLAN.md — Frozen-world hard gates: check_dispatch 0-violations + diff_db empty + failable Leonardo flash-delta gate (DELTA≤16) + INV greppability + host frozen (no firestarter_app change) (NAME-05/SAFE-03/SAFE-06)
 
 **Cross-cutting constraints** *(must_haves.truths shared by 2+ plans):*
+
 - The INV-01..09 ids are greppable across the PROTOCOLS.md matrix ↔ native test name ↔ owning handler header (D-05; SAFE-02 handoff to Phase 88).
 - `diff_db.py` is empty and `check_dispatch.py` reports 0 violations against the Phase-86-repinned baseline — this phase changes no DB records (D-09).
 - No PROGMEM/flash growth: comments cost zero flash, enforced by the failable Leonardo flash-delta gate (D-10).
+
 **UI hint**: no
 
 ### Phase 88: Golden Traces + Dispatch-Mirror Guard *(was 87)*
@@ -818,7 +821,7 @@ Plans:
 | 84 (close) | v1.15 | 6/6 | Complete   | 2026-06-25 |
 | 85 | v1.16 | 3/3 | Complete    | 2026-06-25 |
 | 86 | v1.16 | 4/4 | Complete | 86-01 (VAR-01 docs + Wave-0 oracle) ✅; 86-02 (classify() rewrite + correct DB regen) ✅; 86-04 (2516/2532 non-upstream supplement, DB→746) ✅; 86-03 (baseline re-pin LAST → diff_db IDENTITY exit 0; full py3.11 gate green) ✅ 2026-06-25 |
-| 87 | v1.16 | 0/TBD | Not started | — |
+| 87 | v1.16 | 1/4 | In Progress|  |
 | 88 | v1.16 | 0/TBD | Not started | — |
 | 89 (close) | v1.16 | 0/TBD | Not started | — |
 

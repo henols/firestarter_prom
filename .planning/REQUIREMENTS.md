@@ -33,11 +33,11 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Phase n
 
 ### Naming + Documentation Vocabulary
 
-- [ ] **NAME-01**: Every `protocol_id` present in `chip_database.json` has an authored human-readable name on the algorithm axis plus its datasheet-verified behavior (write algorithm, erase model, VPP behavior, pin roles).
+- [x] **NAME-01**: Every `protocol_id` present in `chip_database.json` has an authored human-readable name on the algorithm axis plus its datasheet-verified behavior (write algorithm, erase model, VPP behavior, pin roles).
 - [ ] **NAME-02**: Each firmware handler's *why* (the rationale for its current behavior) is documented and traceable to a datasheet.
-- [ ] **NAME-03**: The accreted per-handler one-off fixes are enumerated as named behavior-contract invariants, each mapped to an existing native-test assertion (traceability matrix) with minimal new tests only where a cell is empty. The enumeration has **9** items (the roadmap's "8" is a stale label): 0x0B direct-VPE rail, 0x0B shared OE/VPP read-skip, 0x08 P1-as-VPP, flash4 256B page boundary, VPP-skip-on-read, pulse-delay defaults, FM1608 SRAM→FRAM, WARNING-5 0x07→0x0D override, SST39SF040 keep-Flash/EEPROM. *(Note: the WARNING-5 and FM1608→FRAM behaviors are now achieved by Phase 86's variant decode rather than a build_db override, but they remain documented invariants the firmware/decode must preserve.)*
-- [ ] **NAME-04**: The corrected FM1608 (SRAM_STD / 0x28) and X88C64 (`electrical.type` EEPROM) classifications — now delivered structurally by the Phase 86 variant decode (VAR-03), not as host special-cases — are **documented** in the vocabulary with their true `infoic.xml` identity tuple (type/proto/variant); the historical "FM1608 0x40" framing is recorded as a decimal-40 ↔ hex-0x28 conflation. Phantom (0x35/0x39) and infeasible (0x11/0x2A/0x2B/0x2C) buckets are explicitly named as honest non-protocols.
-- [ ] **NAME-05**: The naming pass leaves the firmware dispatch structure and all wire/control values unchanged (`diff_db.py` shows only the enumerated NAME-04 corrections; near-zero Leonardo flash delta).
+- [x] **NAME-03**: The accreted per-handler one-off fixes are enumerated as named behavior-contract invariants, each mapped to an existing native-test assertion (traceability matrix) with minimal new tests only where a cell is empty. The enumeration has **9** items (the roadmap's "8" is a stale label): 0x0B direct-VPE rail, 0x0B shared OE/VPP read-skip, 0x08 P1-as-VPP, flash4 256B page boundary, VPP-skip-on-read, pulse-delay defaults, FM1608 SRAM→FRAM, WARNING-5 0x07→0x0D override, SST39SF040 keep-Flash/EEPROM. *(Note: the WARNING-5 and FM1608→FRAM behaviors are now achieved by Phase 86's variant decode rather than a build_db override, but they remain documented invariants the firmware/decode must preserve.)*
+- [x] **NAME-04**: The corrected FM1608 (SRAM_STD / 0x28) and X88C64 (`electrical.type` EEPROM) classifications — now delivered structurally by the Phase 86 variant decode (VAR-03), not as host special-cases — are **documented** in the vocabulary with their true `infoic.xml` identity tuple (type/proto/variant); the historical "FM1608 0x40" framing is recorded as a decimal-40 ↔ hex-0x28 conflation. Phantom (0x35/0x39) and infeasible (0x11/0x2A/0x2B/0x2C) buckets are explicitly named as honest non-protocols.
+- [x] **NAME-05**: The naming pass leaves the firmware dispatch structure and all wire/control values unchanged (`diff_db.py` shows only the enumerated NAME-04 corrections; near-zero Leonardo flash delta).
 
 ### Primitive Decomposition / Refactor
 
@@ -61,7 +61,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Phase n
 - [ ] **SAFE-03**: `check_dispatch.py` exits 0 violations every phase. `diff_db.py`: in **Phase 86** it shows the variant-decode diff with **every row explained by a cited decode rule**, after which the baseline is re-pinned (VAR-03); in the **naming pass (87) and the recompose phases (88–89)** `diff_db.py` is **empty** against that re-pinned baseline.
 - [ ] **SAFE-04**: Over-voltage stays blocked at the firmware VPP check; the `chip_resolver.resolve_chip` host guard is never bypassed; no irreplaceable UV part is written on an unstable read path (the 2516 stays `UNVERIFIED`, not spent).
 - [x] **SAFE-05**: No new third-party dependency is introduced — the existing harness (`check_dispatch.py`, `diff_db.py`, native `test_val_*` suites, `dev validate-family`, `write_test.sh`, `gen_test_image.py`, host ruff/mypy/pytest) is reused; the only new artifact is `datasheets/`. *(Phase 85-01: branch + check script only; verified via explicit git add + SAFE-05-OK gate)*
-- [ ] **SAFE-06**: The refactor ships firmware-first with NO dual-repo lockstep (wire/constant values unchanged, NAME-04 is host-only); ruff/format/mypy/codegen are validated against the CI target (py3.11), not the 3.12 devcontainer, and generated `messages.py` is never hand-normalized.
+- [x] **SAFE-06**: The refactor ships firmware-first with NO dual-repo lockstep (wire/constant values unchanged, NAME-04 is host-only); ruff/format/mypy/codegen are validated against the CI target (py3.11), not the 3.12 devcontainer, and generated `messages.py` is never hand-normalized.
 
 ## Future Requirements
 
@@ -105,11 +105,11 @@ Which phases cover which requirements. Populated during roadmap creation.
 | VAR-03 | Phase 86 | Complete (86-02 decode + 86-04 supplement + 86-03 baseline re-pin; diff_db IDENTITY exit 0) |
 | VAR-04 | Phase 86 | Complete (86-02 EVIDENCE-stable + 86-03 gate; check_dispatch 0 violations, full py3.11 gate green) |
 | VAR-05 | Phase 86 | Complete (86-04) |
-| NAME-01 | Phase 87 | Pending |
+| NAME-01 | Phase 87 | Complete |
 | NAME-02 | Phase 87 | Pending |
-| NAME-03 | Phase 87 | Pending |
-| NAME-04 | Phase 87 | Pending |
-| NAME-05 | Phase 87 | Pending |
+| NAME-03 | Phase 87 | Complete |
+| NAME-04 | Phase 87 | Complete |
+| NAME-05 | Phase 87 | Complete |
 | PRIM-01 | Phase 88 | Pending |
 | PRIM-02 | Phase 89 | Pending |
 | PRIM-03 | Phase 89 | Pending |
@@ -124,7 +124,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SAFE-03 | Phase 86 (recurring in 87/88/89) | Pending |
 | SAFE-04 | Phase 86 (recurring in 88/89/90) | Pending |
 | SAFE-05 | Phase 85 | Complete (85-01) |
-| SAFE-06 | Phase 87 | Pending |
+| SAFE-06 | Phase 87 | Complete |
 
 **Coverage:**
 
