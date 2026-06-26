@@ -19,6 +19,7 @@
 - ✅ **v1.14 Feasible-Gap Implementation** — Phases 77–80 (SHIPPED 2026-06-23; meta tagged `v1.14`, gsd planning merged to `beta`; lockstep beta cut + gitlink bump operator-gated). The first milestone since v1.0 where chips actually **graduate to `supported`**: erase write-path (Phase 77 ✅ bench-proven W27C512), 25V NMOS best-effort graduation (Phase 79 ✅ 4 chips, D-07 override), with X88C64 (Phase 78, PCB-blocked) + AT28C04/16 adapter (Phase 80, adapter-not-built) cleanly deferred to FUT-01/03/04. 15 requirements (6 verified · 2 software-complete · 7 hardware-gated deferrals). Full detail in `.planning/MILESTONES.md` §v1.14 + [`.planning/milestones/v1.14-ROADMAP.md`](milestones/v1.14-ROADMAP.md).
 - ✅ **v1.15 Bench Validation of Operator Inventory** — Phases 81–84 (SHIPPED 2026-06-25; meta tagged `v1.15`, gsd planning merged to `beta`; sub-repo work on `v1.15-bench-validation-of-operator-inventory` — fw `cb947c7` VPP-skip / app `4d5b3de`; lockstep beta cut `3.0.0b11` + gitlink bump operator-gated). Bench-validated the operator's 11 physical chips across 5 algorithm families on **Leonardo + RURP Rev 2.0** via full write→read→verify — proving the on-paper `supported` claim on real silicon, validating DB decode, RCA-ing/fixing failures, producing a per-chip evidence record (`EVIDENCE.{md,json}` + `DECODE-AUDIT.md`), and graduating the `2516` (genuinely absent from minipro). 23 requirements: 21 satisfied · GRAD-03 deferred best-effort (D-22, 2516 0x0B read instability → FUT-03) · FIX-01 closed-by-disposition (D-43; in-posture fixes shipped, AM27C020 0x08 → FUT-06, W29C040 flash4 → CR-01/Phase-74 Wave-2). First Flash/EEPROM auto-erase silicon proof (W29C020). Full detail in `.planning/MILESTONES.md` §v1.15 + [`.planning/milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.md).
 - ✅ **v1.16 Protocol-First Architecture Rebuild** — Phases 85–92 (SHIPPED 2026-06-26; meta tagged `v1.16`, gsd planning to be merged to `beta`; sub-repo work on `v1.16-protocol-first-architecture-rebuild` — fw `a296195` primitive recompose / app `883c78f` decouple; lockstep beta cut `3.0.0b11` + gitlink bump operator-gated, gitlinks PINNED at b10). Turned the inherited-from-minipro hex-ID `protocol_id` buckets into a named, datasheet-verified, primitive-decomposed architecture: `infoic.xml`'s `variant` field decoded in full and `build_db.py` rewritten to a single principled `classify()` (Rule 1/2/3 override stack deleted; FM1608→SRAM_STD/0x28 + X88C64→EEPROM fall out structurally; DB 744→746 with the 2516/2532 non-upstream supplement); top-level `datasheets/` + `firestarter/doc/PROTOCOLS.md` 12-bucket vocabulary + INV-01..09 native-test matrix; primitives P7/P4/P3/P5 extracted behind golden traces + dispatch-mirror guard with a net flash **decrease** (final 25136 B / 87.7% / −518 B); `PROTOCOL-LEDGER.{md,json}` + self-consistency checker (all 4 on-hand protocols PASS, 6 no-silicon buckets explicit UNVERIFIED). The Phase-90/91 "12V-VPP regression" resolved as a `write -b` skipped-erase test-method error (recompose proven innocent), then hardened away in Phase 92 (HARD-01: `-b` decoupled from skip-erase + explicit `--skip-erase` opt-in). 28/28 requirements (DSHEET/VAR/NAME/PRIM/LEDGER/SAFE/HARD). Full detail in `.planning/MILESTONES.md` §v1.16 + [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.md).
+- 🚧 **v1.17 Implement & Test the W29C040 Programming Protocol** — Phases 93–96 (STARTED 2026-06-26; firmware-touching, dual-repo lockstep; firmware forks off the v1.16 tip `a296195` (primitives recompose), NOT firmware `beta`; meta on `gsd/v1.17-w29c040-programming-protocol`; lockstep beta cut + gitlink bump operator-gated, gitlinks PINNED at b10). Root-cause and fix the W29C040 flash4 (`0x05`) page-0 write defect on real silicon (page size already 256 B → the fault is NOT a page-size bug), generalize flash4 page sizing to a datasheet-sourced per-chip `page_size` DB field (CR-01), and bench-prove a byte-exact write→auto-erase→program→verify (SHA match) on the operator's seated W29C040 (Leonardo + RURP Rev 2.0) — graduating it to genuinely `supported` and closing CR-01 / Phase-74 Wave-2. 16 requirements (RCA/FIX/PGSZ/BENCH/LEDGER/SAFE). Active milestone — detail below.
 
 <details>
 <summary>✅ <b>v1.10 — Serial Transport Hardening (COBS)</b> — Phases 49–55 (SHIPPED 2026-06-07) · 27/27 plans · 14/14 reqs · beta-only</summary>
@@ -107,6 +108,74 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 
 </details>
 
+
+## v1.17 — Implement & Test the W29C040 Programming Protocol (STARTED 2026-06-26)
+
+**Milestone goal:** Root-cause and fix the W29C040 flash4 (`0x05`) page-0 write defect on real silicon, generalize flash4 page sizing to a datasheet-sourced per-chip DB field (CR-01), and bench-prove a byte-exact write→auto-erase→program→verify (SHA match) on the operator's seated W29C040 — graduating it to genuinely `supported` and closing CR-01 / Phase-74 Wave-2.
+
+**Branch base:** Firmware forks off the **v1.16 tip `a296195`** (the primitives recompose), NOT firmware `beta` (stale at v1.13 `a1953c2`; lacks v1.15 VPP-skip + v1.16 recompose). Dual-repo lockstep (`constants.py` ↔ `firestarter.h`) wherever the `page_size` datum crosses the wire. Reuse-first (no new third-party deps). Watch the py3.12-masks-CI-3.11 ruff/codegen drift trap for host DB-pipeline changes. Lockstep beta cut + gitlink bump remain operator-gated (gitlinks PINNED at b10) — out of scope this milestone.
+
+**Hardware-gated:** All bench operations (RCA reproduction, fix A/B, the graduation verify) are LOCKED to **Leonardo + RURP Rev 2.0** — the only trustworthy program/write/verify combo (the v1.9 read bug corrupts the oracle elsewhere). Standing bench discipline applies to every bench task: live R1/R2 readback (`r1 ≈ 270000`), verify `controller:` port identity per task, Leonardo is chip-OUT-sideload-exempt. Operator seats the W29C040 so the bench can be driven unattended.
+
+**Key sequencing fact:** The W29C040 page size is **already correct** (256 B), so the page-0 fault is NOT a page-size bug — the RCA must name the real cause (SDP unlock / page-write polling/timing / A18 512 KB addressing) before the fix can be designed. PGSZ (datasheet-sourced per-chip `page_size`) is a *distinct* CR-01 generalization for the OTHER under-sized 64 KB/256 KB flash4 families, co-delivered with the fix.
+
+**Phase numbering:** Continues from v1.16's last phase 92 → v1.17 starts at **Phase 93**.
+
+### Phases
+
+- [ ] **Phase 93: RCA — Root-Cause the W29C040 Page-0 Write Fault** — Reproduce the fault on the seated chip with a captured failure signature, differentially compare against the passing `0x05` sibling W29C020, and record a named root cause sufficient to design a targeted fix. Establishes the SAFE-01 over-voltage/host-guard non-bypass discipline.
+- [ ] **Phase 94: FIX + PGSZ — Firmware Write-Path Fix & Datasheet-Sourced Per-Chip Page Size** — Correct the flash4 write path on the v1.16 primitives recompose (keeping the golden traces + dispatch-mirror guard green), and generalize CR-01 by adding a datasheet-sourced per-chip `page_size` DB field consumed over the wire (replacing the capacity heuristic). Dual-repo lockstep; establishes the SAFE-02 lockstep-parity + py3.11-CI discipline.
+- [ ] **Phase 95: BENCH — Bench Validation & Graduation Gate** — Bench-prove a byte-exact write→auto-erase→program→verify (SHA match) on the seated W29C040, regression-check the passing sibling W29C020, and capture per-chip EVIDENCE — the hard graduation gate (no best-effort fallback).
+- [ ] **Phase 96 (close): LEDGER — Evidence, Ledger & Milestone Close** — Update the PROTOCOL-LEDGER (W29C040 `0x05` → PASS / `supported`; CR-01 / Phase-74 Wave-2 closed with the bench SHA), pass `check_ledger.py`, and close the milestone.
+
+## Phase Details
+
+### Phase 93: RCA — Root-Cause the W29C040 Page-0 Write Fault
+**Goal**: The W29C040 flash4 (`0x05`) page-0 write fault is reproduced on real silicon with a captured failure signature, differentially isolated against the passing `0x05` sibling W29C020, and named to a specific root cause (or ranked hypotheses each with disconfirming evidence) — classified as firmware-algorithm, timing, addressing, or silicon — sufficient to design a targeted fix.
+**Depends on**: Nothing in v1.17 (first phase). Inherits the v1.16 substrate (flash4 on primitives recompose `a296195`; `flash4_page_size(mem_size)` heuristic; flash4 golden traces + dispatch-mirror guard; PROTOCOL-LEDGER carrying W29C040 as open defect / CR-01). Bench hardware: Leonardo + RURP Rev 2.0 + operator-seated W29C040.
+**Requirements**: RCA-01, RCA-02, RCA-03, SAFE-01 (established here, recurs as a precondition through Phases 94–96)
+**Success Criteria** (what must be TRUE):
+  1. The W29C040 page-0 write fault reproduces on the seated chip (Leonardo + Rev 2.0) with a recorded failure signature — which addresses/bytes fail and the observed DQ7/DQ6 toggle-poll behavior at the failure — establishing a pre-fix baseline (operator-witnessed; port `controller:` identity + live R1/R2 readback recorded per standing bench discipline).
+  2. The W29C040 write path is differentially compared against the passing sibling W29C020 across the candidate axes (SDP unlock sequence, page-write polling/timing, address span / A18 512 KB addressing, page size) with the differing variable(s) isolated and the unchanged axes exonerated.
+  3. A named root cause (or ranked hypotheses each carrying disconfirming evidence) is recorded and classified as firmware-algorithm / timing / addressing / silicon, with enough detail that a targeted fix can be designed without further RCA.
+  4. Throughout the RCA, over-voltage stays blocked at the firmware VPP check and the host `chip_resolver.resolve_chip` guard is never bypassed (SAFE-01 baseline confirmed — the W29C040 flows through its normal dispatch, no test-only escape hatch).
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 94: FIX + PGSZ — Firmware Write-Path Fix & Datasheet-Sourced Per-Chip Page Size
+**Goal**: The flash4 firmware write path is corrected so the W29C040 programs page 0 and all subsequent pages without the page-write fault, AND flash4 page sizing is generalized to a datasheet-sourced per-chip `page_size` DB field (replacing the `flash4_page_size(mem_size)` capacity heuristic) so the under-sized 64 KB (128 B) and 256 KB (256 B) flash4 families are correctly sized too — both delivered dual-repo lockstep wherever they cross the wire, on the v1.16 primitives recompose.
+**Depends on**: Phase 93 (the named root cause governs the fix design). Firmware sub-repo `firestarter/` (`src/proms/flash_type_4.cpp`) + host `firestarter_app/` (`build_db.py` / `chip_database.json` / `constants.py`) work expected.
+**Requirements**: FIX-01, FIX-02, FIX-03, PGSZ-01, PGSZ-02, PGSZ-03, SAFE-02 (established here, recurs as a precondition through Phases 95–96)
+**Success Criteria** (what must be TRUE):
+  1. The flash4 write path (`flash_type_4.cpp`, on the v1.16 primitives recompose) is corrected per the Phase 93 root cause so the W29C040 programs page 0 and all subsequent pages without the page-write fault (verified in native tests; bench proof is Phase 95's gate).
+  2. The v1.16 flash4 golden register traces + dispatch-mirror guard stay green for the passing paths (W29C020 / SST29 family); where a trace legitimately changes, it is re-pinned with cited rationale, and native flash4 tests cover the corrected write path at page-0 and a page boundary.
+  3. Each flash4 chip in the DB carries a datasheet-sourced per-chip `page_size` field (cited datasheet values, authored in `build_db.py` / the DB source — not derived from capacity); the firmware consumes the per-chip `page_size` instead of `flash4_page_size(mem_size)`, removing the heuristic so the 64 KB (128 B) and 256 KB (256 B) families size correctly.
+  4. `page_size` is carried over the wire as a lockstep field with a safe default/fallback for any chip lacking the datum; the constants parity test is green, `check_dispatch.py` passes, and `diff_db.py` shows only the intended `page_size` additions.
+  5. Host CI is green against the **py3.11** target (ruff check + ruff format --check + mypy + diff_db + check_dispatch), avoiding the py3.12-masks-CI-3.11 trap; over-voltage stays blocked and the host guard is never bypassed (SAFE-01/SAFE-02 hold).
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 95: BENCH — Bench Validation & Graduation Gate
+**Goal**: A full write→auto-erase→program→verify cycle on the seated W29C040 (Leonardo + Rev 2.0) reads back byte-exact (SHA match) to the written image — the hard graduation gate, no best-effort fallback — with a passing-sibling regression check confirming the fix + `page_size` change broke nothing, all captured in a per-chip EVIDENCE record.
+**Depends on**: Phase 94 (the fix + `page_size` change must be committed and native-green before the bench gate). Bench hardware: Leonardo + RURP Rev 2.0 + operator-seated W29C040 (and W29C020 for the regression check).
+**Requirements**: BENCH-01, BENCH-02, BENCH-03
+**Success Criteria** (what must be TRUE):
+  1. A full write→auto-erase→program→verify cycle on the seated W29C040 reads back byte-exact — the read-back SHA matches the source image SHA — operator-witnessed on Leonardo + Rev 2.0; the hard graduation gate is met with no best-effort fallback.
+  2. A passing-sibling regression check confirms the fix + `page_size` change did not break a previously-passing chip: W29C020 (`0x05`, plus any other on-hand flash4 band) still writes→reads back byte-exact (SHA match).
+  3. Bench evidence is captured per standing bench discipline in a per-chip EVIDENCE record — exact commands, source + read-back SHAs, port / shield rev / live R1-R2 readback, `controller:` identity, and pass/fail verdict — for both the W29C040 graduation and the W29C020 regression.
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 96: LEDGER — Evidence, Ledger & Milestone Close
+**Goal**: The PROTOCOL-LEDGER reflects the graduation — W29C040 `0x05` moves from open-defect to PASS / `supported` and CR-01 / Phase-74 Wave-2 is closed with the bench SHA as evidence — the self-consistency gate passes, and the milestone is documented and closed.
+**Depends on**: Phase 95 (the bench PASS is the evidence the ledger records). All prior phases.
+**Requirements**: LEDGER-01, LEDGER-02
+**Success Criteria** (what must be TRUE):
+  1. The PROTOCOL-LEDGER (`.planning/v1.16/ledger/PROTOCOL-LEDGER.{md,json}` lineage) is updated so W29C040 `0x05` is recorded PASS / `supported`, citing the Phase 95 bench SHA; CR-01 / Phase-74 Wave-2 is closed with that evidence and its carry-forward status retired.
+  2. `check_ledger.py` self-consistency gate passes with the updated ledger state (no contradiction between ledger status and the EVIDENCE record).
+  3. MILESTONES.md gains a complete v1.17 entry covering the RCA root cause, the fix + `page_size` generalization, and the bench graduation result; SAFE-01/SAFE-02 hold at close (over-voltage blocked, host guard intact, constants parity + py3.11 CI green).
+**Plans**: TBD
+**UI hint**: no
 
 ## v1.9 — Read-Bug RCA + Fix (STARTED 2026-05-29)
 
@@ -690,6 +759,10 @@ Plans:
 | 90 | v1.16 | 4/4 | Complete    | 2026-06-26 |
 | 91 | v1.16 | 4/4 | Complete    | 2026-06-26 |
 | 92 (close) | v1.16 | host-only | Complete    | 2026-06-26 |
+| 93 | v1.17 | 0/TBD | Not started | — |
+| 94 | v1.17 | 0/TBD | Not started | — |
+| 95 | v1.17 | 0/TBD | Not started | — |
+| 96 (close) | v1.17 | 0/TBD | Not started | — |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 

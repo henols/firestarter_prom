@@ -64,23 +64,23 @@
 
 ## Traceability
 
-_(Filled by the roadmapper — every REQ-ID maps to exactly one phase.)_
+_Filled by the roadmapper 2026-06-26 — all 16 REQ-IDs mapped to exactly one phase (no orphans, no duplicates). SAFE-01/SAFE-02 home in their earliest establishing phase (93/94) and recur as preconditions through close._
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| RCA-01 | — | pending |
-| RCA-02 | — | pending |
-| RCA-03 | — | pending |
-| FIX-01 | — | pending |
-| FIX-02 | — | pending |
-| FIX-03 | — | pending |
-| PGSZ-01 | — | pending |
-| PGSZ-02 | — | pending |
-| PGSZ-03 | — | pending |
-| BENCH-01 | — | pending |
-| BENCH-02 | — | pending |
-| BENCH-03 | — | pending |
-| LEDGER-01 | — | pending |
-| LEDGER-02 | — | pending |
-| SAFE-01 | — | pending |
-| SAFE-02 | — | pending |
+| RCA-01 | Phase 93 | pending |
+| RCA-02 | Phase 93 | pending |
+| RCA-03 | Phase 93 | pending |
+| FIX-01 | Phase 94 | pending |
+| FIX-02 | Phase 94 | pending |
+| FIX-03 | Phase 94 | pending |
+| PGSZ-01 | Phase 94 | pending |
+| PGSZ-02 | Phase 94 | pending |
+| PGSZ-03 | Phase 94 | pending |
+| BENCH-01 | Phase 95 | pending |
+| BENCH-02 | Phase 95 | pending |
+| BENCH-03 | Phase 95 | pending |
+| LEDGER-01 | Phase 96 | pending |
+| LEDGER-02 | Phase 96 | pending |
+| SAFE-01 | Phase 93 | pending |
+| SAFE-02 | Phase 94 | pending |

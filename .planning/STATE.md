@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.17
 milestone_name: — Implement & Test the W29C040 Programming Protocol
-status: planning
+status: roadmapped
 stopped_at: ""
 last_updated: "2026-06-26T21:40:40.051Z"
-last_activity: 2026-06-26 — Milestone v1.17 started
+last_activity: 2026-06-26 — Roadmap created (Phases 93–96)
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 93 (RCA — Root-Cause the W29C040 Page-0 Write Fault) — not started
 Plan: —
-Status: Defining requirements
-Last activity: 2026-06-26 — Milestone v1.17 started
+Status: Roadmapped (Phases 93–96 defined; awaiting `/gsd-plan-phase 93`)
+Last activity: 2026-06-26 — Roadmap created (Phases 93–96, 16/16 requirements mapped)
 
 ## Project Reference
 
@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md` (v1.17 Current Milestone section + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware handler. v1.17 proves that contract on the W29C040 flash4 (`0x05`) write path: root-cause the page-0 write fault, make flash4 page sizing datasheet-sourced per-chip (CR-01), and bench-prove byte-exact write→read→verify on real silicon.
 
-**Current focus:** Defining v1.17 requirements (milestone started 2026-06-26).
+**Current focus:** Phase 93 — reproduce + root-cause the W29C040 `0x05` page-0 write fault on real silicon (Leonardo + Rev 2.0) before any fix is designed.
 
 ## Milestone Context (v1.17)
 
@@ -43,6 +43,21 @@ See: `.planning/PROJECT.md` (v1.17 Current Milestone section + Key Decisions)
 - **Dual-repo lockstep** (`constants.py` ↔ `firestarter.h`) if `page_size` crosses the wire; reuse-first; py3.12-masks-CI-3.11 ruff/codegen trap watch.
 - Phase numbering continues from v1.16's Phase 92 → **v1.17 starts at Phase 93**.
 - Closes **CR-01 / Phase-74 Wave-2** (W29C040 flash4 256 B page-0 fault; open since v1.13, confirmed not-silicon-effective at v1.15 Phase 82/84).
+
+## Roadmap Summary (v1.17 — Phases 93–96)
+
+Created 2026-06-26 · granularity Comprehensive · 16/16 requirements mapped (no orphans, no duplicates). Strict sequence: **RCA → FIX+PGSZ → BENCH → LEDGER**. SAFE-01 homes in Phase 93, SAFE-02 in Phase 94; both recur as preconditions through close.
+
+| Phase | Goal | Requirements | Bench-gated |
+|-------|------|--------------|-------------|
+| 93 — RCA | Reproduce + differentially isolate + name the W29C040 page-0 write-fault root cause | RCA-01, RCA-02, RCA-03, SAFE-01 | yes (Leonardo + Rev 2.0, seated W29C040) |
+| 94 — FIX + PGSZ | Fix flash4 write path (traces/guard green) + datasheet-sourced per-chip `page_size` over the wire (CR-01) | FIX-01/02/03, PGSZ-01/02/03, SAFE-02 | no (native + host CI) |
+| 95 — BENCH | Byte-exact write→auto-erase→program→verify (SHA) graduation gate + W29C020 sibling regression + EVIDENCE | BENCH-01, BENCH-02, BENCH-03 | yes (hard graduation gate, no fallback) |
+| 96 (close) — LEDGER | PROTOCOL-LEDGER → W29C040 PASS/`supported`, close CR-01/Phase-74 Wave-2, `check_ledger.py` green, milestone close | LEDGER-01, LEDGER-02 | no |
+
+**Dependency chain:** 93 → 94 → 95 → 96 (linear; RCA must name the cause before FIX is designable; BENCH gates on the committed fix + `page_size`; LEDGER records the bench PASS).
+
+**Firmware/host surfaces:** `firestarter/src/proms/flash_type_4.cpp` (fix, on the `a296195` recompose) + flash4 golden traces/dispatch-mirror guard (keep green); host `build_db.py` / `chip_database.json` / `constants.py` ↔ `firestarter.h` (per-chip `page_size` lockstep field); `check_dispatch.py` / `diff_db.py` / `check_ledger.py` gates.
 
 ## Accumulated Context
 
@@ -89,4 +104,5 @@ None at milestone start. v1.17 is hardware-gated only at the bench RCA + verify 
 
 ## Operator Next Steps
 
-- Requirements + roadmap being generated via `/gsd-new-milestone` (2026-06-26).
+- Roadmap created 2026-06-26 (Phases 93–96, 16/16 reqs mapped).
+- Next: `/gsd-plan-phase 93` (RCA — hardware-gated; operator seats the W29C040 on Leonardo + Rev 2.0).
