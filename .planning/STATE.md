@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
 status: executing
-stopped_at: Phase 89-03 complete — P3 vpp_check_window extracted; firestarter@a52fd0a
-last_updated: "2026-06-26T10:58:44.493Z"
+stopped_at: Phase 89-04 complete — P5 poll_readback extracted; firestarter@abbbb5c
+last_updated: "2026-06-26T11:07:50.021Z"
 last_activity: 2026-06-26
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 21
-  completed_plans: 19
+  completed_plans: 20
   percent: 67
 ---
 
@@ -22,7 +22,7 @@ progress:
 ## Current Position
 
 Phase: 89 (incremental-primitive-recompose) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 Last activity: 2026-06-26
 
@@ -130,8 +130,8 @@ ruff/codegen drift trap for any host-side NAME-04 corrections in Phase 86.
 
 ## Session Continuity
 
-Last session: 2026-06-26T10:58:44.489Z
-Stopped at: Phase 89-03 complete — P3 vpp_check_window extracted; firestarter@a52fd0a
+Last session: 2026-06-26T11:07:50.013Z
+Stopped at: Phase 89-04 complete — P5 poll_readback extracted; firestarter@abbbb5c
 Resume: Phase 88 — Golden Traces + Dispatch-Mirror Guard
 
 ## Decisions
@@ -158,6 +158,7 @@ Resume: Phase 88 — Golden Traces + Dispatch-Mirror Guard
 - [Phase 89-01, 2026-06-26]: PRIM-02/P7 — delete-not-merge const-table dedup: FLASH_ENABLE_WRITE_PROTECTION (zero callers, byte-identical to FLASH_ENABLE_WRITE) deleted from flash_utils.h; local EEPROM_SDP_DISABLE deleted from eeprom_28c.cpp and single caller redirected to shared FLASH_DISABLE_WRITE_PROTECTION. Both tables byte-identical verified at execution time. 102/102 native tests green, golden traces zero-diff, flash delta=0 B (25654→25654 B, 89.5%), check_dispatch 0 violations, diff_db empty, INV-01..09 all >=3 files. Pre-existing .gitignore change in firestarter_app noted (not source, not P7-caused). firestarter@0052c42.
 - [Phase ?]: [Phase 89-02, 2026-06-26]: PRIM-03/P4 — new primitives module (primitives.h/cpp) + chip_id_report shared across 4 call sites (flash_utils/eprom/eeprom28c/flash_intel); eprom error_code param retained as void (Assumption A3 resolved via golden trace); flash 25654→25490 B (-164 B, D-01 PASS); 102/102 native green; check_dispatch 0 violations; diff_db empty; INV-01..09 >=3 files. firestarter@a10871d
 - [Phase ?]: [Phase 89-03, 2026-06-26]: PRIM-04/P3 — vpp_check_window extracted; delay(100) handler-local; D-08 threshold byte-identical in primitives.cpp; REGULATOR=0 in primitive (D-06); flash 25490->25088 B (-402 B); 102/102 PASS; firestarter@a52fd0a
+- [Phase ?]: Phase 89-04: P5 extracted — poll_readback() shares bounded single-address poll kernel; each caller retains site-specific error frame (addr-first vs expected-first byte order preserved); eprom verify_and_update_mask untouched; zero-diff traces; +2 B flash delta; firestarter@abbbb5c
 
 ## Performance Metrics
 
@@ -179,6 +180,7 @@ Resume: Phase 88 — Golden Traces + Dispatch-Mirror Guard
 | 89 | 01 | 8min | PRIM-02/P7 — delete-not-merge const-table dedup: FLASH_ENABLE_WRITE_PROTECTION + EEPROM_SDP_DISABLE removed; caller redirected to FLASH_DISABLE_WRITE_PROTECTION; 102/102 native PASS, flash delta=0 B (25654→25654), check_dispatch 0 violations, diff_db empty, INV-01..09 >=3 files. firestarter@0052c42 |
 | Phase 89 P89-02 | 12min | 2 tasks | 6 files |
 | Phase 89 P89-03 | 18min | - tasks | - files |
+| Phase 89 P04 | 15min | 2 tasks | 4 files |
 
 ## Deferred Items
 

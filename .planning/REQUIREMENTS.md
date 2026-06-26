@@ -45,7 +45,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Phase n
 - [x] **PRIM-02**: The shared SDP/const-table duplication (P7 warm-up) is deduplicated, with handler behavior unchanged under the native suites.
 - [x] **PRIM-03**: The shared chip-ID compare/report logic (P4) is extracted into a primitive, split from the protocol-specific read mechanism.
 - [x] **PRIM-04**: The shared VPP-gate logic (P3) is extracted into a primitive keyed on `handle->protocol` (never `electrical.type`), with regulator-routing bits parameterized per protocol.
-- [ ] **PRIM-05**: The shared poll/readback verify logic (P5) is extracted into a primitive, leaving the per-protocol outer retry/page/erase algorithms intact.
+- [x] **PRIM-05**: The shared poll/readback verify logic (P5) is extracted into a primitive, leaving the per-protocol outer retry/page/erase algorithms intact.
 - [x] **PRIM-06**: Leonardo flash is measured (`pio run -e leonardo`) at every recompose step with a net-non-increase gate, and the achieved final flash % is reported.
 
 ### Per-Protocol Bench Validation + Ledger
@@ -114,7 +114,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | PRIM-02 | Phase 89 | Complete |
 | PRIM-03 | Phase 89 | Complete |
 | PRIM-04 | Phase 89 | Complete |
-| PRIM-05 | Phase 89 | Pending |
+| PRIM-05 | Phase 89 | Complete |
 | PRIM-06 | Phase 89 | Complete |
 | LEDGER-01 | Phase 90 | Pending |
 | LEDGER-02 | Phase 90 | Pending |

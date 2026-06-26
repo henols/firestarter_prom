@@ -255,7 +255,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3)*
 
-- [ ] 89-04-PLAN.md — P5 poll_readback: share the bounded single-address poll for eeprom28c+flash4 (cap + error-frame parameterized); leave eprom bitmask + outer loops intact (PRIM-05)
+- [x] 89-04-PLAN.md — P5 poll_readback: share the bounded single-address poll for eeprom28c+flash4 (cap + error-frame parameterized); leave eprom bitmask + outer loops intact (PRIM-05)
 
 **Wave 5** *(blocked on Wave 4)*
 
@@ -853,7 +853,7 @@ Plans:
 | 86 | v1.16 | 4/4 | Complete | 86-01 (VAR-01 docs + Wave-0 oracle) ✅; 86-02 (classify() rewrite + correct DB regen) ✅; 86-04 (2516/2532 non-upstream supplement, DB→746) ✅; 86-03 (baseline re-pin LAST → diff_db IDENTITY exit 0; full py3.11 gate green) ✅ 2026-06-25 |
 | 87 | v1.16 | 4/4 | Complete    | 2026-06-26 |
 | 88 | v1.16 | 5/5 | Complete    | 2026-06-26 |
-| 89 (close) | v1.16 | 3/5 | In Progress|  |
+| 89 (close) | v1.16 | 4/5 | In Progress|  |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
