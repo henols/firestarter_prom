@@ -103,7 +103,7 @@ Full detail: [`.planning/milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.
 - [x] **Phase 88: Golden Traces + Dispatch-Mirror Guard** *(was 87)* — Pin per-family native register golden traces and add the `check_dispatch.py::dispatch()`-matches-documented-order invariant test before any code extraction. Establishes the recompose oracle. (completed 2026-06-26)
 - [x] **Phase 89: Incremental Primitive Recompose** *(was 88)* — Extract P7 SDP-table dedup (warm-up) → P4 chip-ID compare/report → P3 VPP gate → P5 poll, each guarded by native suites + `check_dispatch.py` + `diff_db.py`; `pio run -e leonardo` measured at every step with net-non-increase gate; achieved flash % reported. (completed 2026-06-26)
 - [x] **Phase 90: Per-Protocol Bench Validation + Ledger** *(was 89)* — Bench-prove each protocol with on-hand silicon on Leonardo + RURP Rev 2.0; author `PROTOCOL-LEDGER.{md,json}` composing with v1.13 matrix + v1.15 EVIDENCE; 6 no-silicon buckets recorded explicit UNVERIFIED. ✓ 2026-06-26 — UAT 5/5; ledger + checker + SAFE-04 + frozen world all green. Bench verdict: 4/4 reads byte-identical to v1.15; **0x05 W29C020 + 0x28 FM1608 PASS**, **0x06 SST39SF040 + 0x07 W27C512 FAIL-INVESTIGATE** (12V-VPP write-path regression, recorded not auto-passed per D-03) → carried as defect rows + spun out to **Phase 91 RCA**.
-- [ ] **Phase 91: 12V-VPP Write-Path Regression RCA** *(added 2026-06-26 — Phase 90 disposition)* — Isolate the reproducible 12V-VPP write-path regression on recompose fw `a296195` (W27C512/0x07 + SST39SF040/0x06 write-cycles fail; reads + 5V/no-VPP writes clean). Controlled A/B (reflash b10 fw / check out v1.15 host) to confirm recompose-causality and isolate fw vs host; propose fix or accepted deferral; disposition the 0x06/0x07 ledger rows. Hardware-gated (Leonardo + Rev 2.0).
+- [x] **Phase 91: 12V-VPP Write-Path Regression RCA** *(added 2026-06-26 — Phase 90 disposition)* — ✓ 2026-06-26 (autonomous bench session, operator away). **Verdict: NOT a 12V-VPP nor a code regression — a TEST-METHOD error.** `firestarter write -b` sets `FLAG_SKIP_ERASE` (its help: "…and skip erase"); flash3 (SST39SF040, NOR) + EEPROM-class W27C512 REQUIRE erase-before-write, so `-b` left un-erased bits unprogrammable (SST39SF040: 3 stuck bytes @0x0-0x2 == imgA&imgB; W27C512: bad-bytes @0x0). Controlled A/B: b10 (`a1953c2`) fails identically to recompose (`a296195`) → recompose **innocent** (diff comment-only; DB wire params byte-identical). **FIX = erase-enabled plain `firestarter write`: SST39SF040 confirmed write+verify == v1.15 `a38b13b4` (consistency-check N=3, 1 distinct SHA) on stock recompose — no firmware/host code edit; SAFE-04 intact.** 0x06 → PASS (LEDGER-02 satisfied); 0x07 W27C512 → bench-pending (live re-bench DEFERRED — operator chip swap; turnkey checklist authored). Hardware: Leonardo + Rev 2.0. Recommended hardening (deferred, D-13.3-locked): warn on `-b`/skip-erase for `FLAG_CAN_ERASE` chips.
 
 ## Phase Details
 
@@ -306,19 +306,19 @@ Plans:
 
 **Wave 1** *(no hardware — analysis + prep)*
 
-- [ ] 91-01-PLAN.md — Diff-forensics (recompose innocence) + native golden-trace confirmation + A/B image & b10-build prep (RCA-91)
+- [x] 91-01-PLAN.md — Diff-forensics (recompose innocent) + native golden-traces green + A/B prep (RCA-91) ✓ 3079249
 
 **Wave 2** *(bench A/B — SST39SF040 seated, autonomous)*
 
-- [ ] 91-02-PLAN.md — ebca6266 content forensic + reproduce-on-recompose with loaded-rail VPP + decisive b10 A/B + decision gate (RCA-91)
+- [x] 91-02-PLAN.md — ebca6266 forensic (3 bytes @0x0 = imgA&imgB) + b10 A/B (fails identically → recompose innocent) + decision gate (RCA-91) ✓ 42e6cc5
 
 **Wave 3** *(fix + headline deliverable, autonomous)*
 
-- [ ] 91-03-PLAN.md — Optional host-axis A/B + apply fix + CONFIRM SST39SF040 write == a38b13b4… + restore recompose fw (FIX-91)
+- [x] 91-03-PLAN.md — TRUE root cause: `write -b` skips required erase; FIX = plain `write`; SST39SF040 CONFIRMED == a38b13b4 (3/3) on stock recompose; fw reverted; SAFE-04 intact (FIX-91) ✓ 2c3e157
 
 **Wave 4** *(disposition + W27C512 deferral)*
 
-- [ ] 91-04-PLAN.md — Disposition 0x06/0x07 ledger rows (checker RC=0) + BENCH-LOG update + ready-to-run W27C512 operator checklist (FIX-91); W27C512 live bench DEFERRED to operator
+- [x] 91-04-PLAN.md — 0x06 PASS (LEDGER-02), 0x07 bench-pending; BENCH-LOG + W27C512 operator checklist; checker RC=0 (FIX-91); W27C512 live bench DEFERRED to operator ✓ ae391af
 
 ## v1.9 — Read-Bug RCA + Fix (STARTED 2026-05-29)
 
