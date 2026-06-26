@@ -42,11 +42,11 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Phase n
 ### Primitive Decomposition / Refactor
 
 - [x] **PRIM-01**: Before any extraction, per-family golden register traces (capture-before oracle) are pinned and a `check_dispatch.py::dispatch()`-matches-documented-order test exists.
-- [ ] **PRIM-02**: The shared SDP/const-table duplication (P7 warm-up) is deduplicated, with handler behavior unchanged under the native suites.
+- [x] **PRIM-02**: The shared SDP/const-table duplication (P7 warm-up) is deduplicated, with handler behavior unchanged under the native suites.
 - [ ] **PRIM-03**: The shared chip-ID compare/report logic (P4) is extracted into a primitive, split from the protocol-specific read mechanism.
 - [ ] **PRIM-04**: The shared VPP-gate logic (P3) is extracted into a primitive keyed on `handle->protocol` (never `electrical.type`), with regulator-routing bits parameterized per protocol.
 - [ ] **PRIM-05**: The shared poll/readback verify logic (P5) is extracted into a primitive, leaving the per-protocol outer retry/page/erase algorithms intact.
-- [ ] **PRIM-06**: Leonardo flash is measured (`pio run -e leonardo`) at every recompose step with a net-non-increase gate, and the achieved final flash % is reported.
+- [x] **PRIM-06**: Leonardo flash is measured (`pio run -e leonardo`) at every recompose step with a net-non-increase gate, and the achieved final flash % is reported.
 
 ### Per-Protocol Bench Validation + Ledger
 
@@ -111,11 +111,11 @@ Which phases cover which requirements. Populated during roadmap creation.
 | NAME-04 | Phase 87 | Complete |
 | NAME-05 | Phase 87 | Complete |
 | PRIM-01 | Phase 88 | Complete |
-| PRIM-02 | Phase 89 | Pending |
+| PRIM-02 | Phase 89 | Complete |
 | PRIM-03 | Phase 89 | Pending |
 | PRIM-04 | Phase 89 | Pending |
 | PRIM-05 | Phase 89 | Pending |
-| PRIM-06 | Phase 89 | Pending |
+| PRIM-06 | Phase 89 | Complete |
 | LEDGER-01 | Phase 90 | Pending |
 | LEDGER-02 | Phase 90 | Pending |
 | LEDGER-03 | Phase 90 | Pending |

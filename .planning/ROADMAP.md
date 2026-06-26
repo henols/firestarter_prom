@@ -243,7 +243,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 89-01-PLAN.md — P7 SDP/const-table dedup: delete dead FLASH_ENABLE_WRITE_PROTECTION + redirect EEPROM_SDP_DISABLE to FLASH_DISABLE_WRITE_PROTECTION (PRIM-02; warm-up, delete-not-merge)
+- [x] 89-01-PLAN.md — P7 SDP/const-table dedup: delete dead FLASH_ENABLE_WRITE_PROTECTION + redirect EEPROM_SDP_DISABLE to FLASH_DISABLE_WRITE_PROTECTION (PRIM-02; warm-up, delete-not-merge)
 
 **Wave 2** *(blocked on Wave 1)*
 
@@ -853,7 +853,7 @@ Plans:
 | 86 | v1.16 | 4/4 | Complete | 86-01 (VAR-01 docs + Wave-0 oracle) ✅; 86-02 (classify() rewrite + correct DB regen) ✅; 86-04 (2516/2532 non-upstream supplement, DB→746) ✅; 86-03 (baseline re-pin LAST → diff_db IDENTITY exit 0; full py3.11 gate green) ✅ 2026-06-25 |
 | 87 | v1.16 | 4/4 | Complete    | 2026-06-26 |
 | 88 | v1.16 | 5/5 | Complete    | 2026-06-26 |
-| 89 (close) | v1.16 | 0/TBD | Not started | — |
+| 89 (close) | v1.16 | 1/5 | In Progress|  |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
