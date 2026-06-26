@@ -285,7 +285,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 90-04-PLAN.md — Bench-validate 4 on-hand chips on Leonardo+Rev2.0; flip rows to PASS w/ evidence refs (LEDGER-02)
+- [x] 90-04-PLAN.md — Bench-validate 4 on-hand chips on Leonardo+Rev2.0; flip rows to PASS w/ evidence refs (LEDGER-02)
 
 ## v1.9 — Read-Bug RCA + Fix (STARTED 2026-05-29)
 

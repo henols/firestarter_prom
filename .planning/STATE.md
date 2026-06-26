@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
 status: executing
-stopped_at: Phase 90 context gathered
-last_updated: "2026-06-26T12:53:50.453Z"
-last_activity: 2026-06-26 -- Phase 90 execution started
+stopped_at: Phase 90 plans complete (90-04 bench) — verification + regression disposition pending
+last_updated: "2026-06-26T13:40:00.000Z"
+last_activity: 2026-06-26 -- Phase 90 Wave 3 (90-04 bench) complete — 2 PASS / 2 FAIL-INVESTIGATE
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 25
-  completed_plans: 24
-  percent: 83
+  completed_plans: 25
+  percent: 100
 ---
 
 # Project State
@@ -21,12 +21,21 @@ progress:
 
 ## Current Position
 
-Phase: 90 (per-protocol-bench-validation-ledger) — EXECUTING
-Plan: 1 of 4
-Status: Executing Phase 90
-Last activity: 2026-06-26 -- Phase 90 execution started
+Phase: 90 (per-protocol-bench-validation-ledger) — PLANS COMPLETE (4/4); verification + regression disposition pending
+Plan: 4 of 4 complete (90-04 bench session)
+Status: Phase 90 plans done — bench surfaced a recompose 12V-VPP write-path regression (0x06/0x07 FAIL-INVESTIGATE)
+Last activity: 2026-06-26 -- Phase 90 Wave 3 (90-04 bench) complete — 2 PASS / 2 FAIL-INVESTIGATE
 
-Progress: [████████░░] 83%
+Progress: [██████████] 100% (plans)
+
+> **⚠ Phase 90 bench finding (2026-06-26):** On the recompose (fw a296195, host e46549f),
+> all 4 on-hand READ paths are byte-identical to v1.15, but **2 of 4 WRITE paths fail
+> reproducibly** — W27C512 (0x07, bad bytes @write-start at a clean 12.0V rail) and
+> SST39SF040 (0x06, write-A timeout + write-B wrong content). The two 5V/no-VPP paths
+> (W29C020/0x05 flash4, FM1608/0x28 SRAM) PASS. The failure axis is the **12V-VPP write
+> path**. LEDGER-02 satisfied for 0x05+0x28 only; 0x06+0x07 recorded FAIL-INVESTIGATE
+> (D-03, not auto-passed). fw-vs-host not yet isolated (host is also a v1.16 build).
+> See `.planning/v1.16/ledger/bench/BENCH-LOG.md` Session Summary RCA scope.
 
 > **Scope amendment 2026-06-25:** Mid-discussion the operator pivoted v1.16 from a
 > pure behavior-preserving refactor to *fix the DB at its root* — decode the
@@ -202,6 +211,7 @@ Resume: Phase 88 — Golden Traces + Dispatch-Mirror Guard
 | FUT-05 (v1.15) | REWR-02 0x08 write proof | deferred — no functional 0x08 chip | W27E040 stuck-bit; need sibling 0x08 rewritable chip. |
 | CR-01 / Phase-74 Wave-2 | W29C040 flash4 256B page-write fault | open — reopened by Phase 84 | Phase-74 fix not silicon-effective. Reopen Phase-74 Wave-2 (likely dual-repo lockstep firmware fix). |
 | FUT-06 (v1.15) | AM27C020 0x08 32-pin write/VPP path | deferred — RCA'd, not trivially fixable | 0-bits-programmed; requires 0x08 32-pin Large EPROM write/VPP root-cause. |
+| **REGR-90 (v1.16)** | **Recompose 12V-VPP write-path regression — W27C512 (0x07) + SST39SF040 (0x06)** | **OPEN — found Phase 90 / 90-04 bench** | Reads byte-identical to v1.15; writes fail reproducibly on the recompose (a296195/host e46549f). 0x07 bad-bytes@0x0 (clean 12.0V rail); 0x06 write-A timeout + write-B wrong content. 5V/no-VPP paths (0x05/0x28) PASS. RCA: reflash-b10 A/B + isolate fw-vs-host; diff recompose VPP/write path. Blocks LEDGER-02 graduation of 0x06/0x07; milestone disposition required. See BENCH-LOG.md RCA scope. |
 | release-gate | Lockstep beta cut `3.0.0b11` + gitlink bump | OPERATOR-GATED | Standing v1.11–v1.15 policy; gitlinks PINNED. |
 
 ## Operator Next Steps
