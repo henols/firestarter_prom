@@ -292,7 +292,7 @@ Plans:
 
 **Goal**: Isolate and propose a fix for the reproducible 12V-VPP write-path regression surfaced by the Phase 90 bench. On the recomposed firmware (a296195), the two **12V-VPP write paths** fail while everything else matches v1.15 byte-for-byte: W27C512 (0x07, EPROM-STD) and SST39SF040 (0x06, FLASH-AMD-ALT) write-cycles are FAIL-INVESTIGATE, but all 4 reads + the two 5V/no-VPP write paths (W29C020 0x05, FM1608 0x28) pass byte-identical. The 0x06/0x07 ledger rows are carried as FAIL-INVESTIGATE defect rows until this RCA dispositions them.
 **Depends on**: Phase 90 (bench evidence + PROTOCOL-LEDGER FAIL-INVESTIGATE rows)
-**Requirements**: TBD (set at planning)
+**Requirements**: RCA-91, FIX-91 (roll up to LEDGER-02 for 0x06; 0x07 graduation deferred to operator return)
 **Success Criteria** (what must be TRUE):
 
   1. The regression is attributed to a specific cause (recompose-causal vs pre-existing) via a controlled A/B: reflash b10 fw (or check out the v1.15 host `98b3a92`) and re-run W27C512 + SST39SF040 on Leonardo + RURP Rev 2.0 — fw (`a296195`) vs host (`e46549f`) isolated.
