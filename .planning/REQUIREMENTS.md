@@ -63,6 +63,10 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Phase n
 - [x] **SAFE-05**: No new third-party dependency is introduced — the existing harness (`check_dispatch.py`, `diff_db.py`, native `test_val_*` suites, `dev validate-family`, `write_test.sh`, `gen_test_image.py`, host ruff/mypy/pytest) is reused; the only new artifact is `datasheets/`. *(Phase 85-01: branch + check script only; verified via explicit git add + SAFE-05-OK gate)*
 - [x] **SAFE-06**: The refactor ships firmware-first with NO dual-repo lockstep (wire/constant values unchanged, NAME-04 is host-only); ruff/format/mypy/codegen are validated against the CI target (py3.11), not the 3.12 devcontainer, and generated `messages.py` is never hand-normalized.
 
+### Post-RCA Hardening *(Phase 92 — added 2026-06-26, Phase 91 follow-on)*
+
+- [x] **HARD-01**: `firestarter write -b`/`--no-blank-check` is decoupled from skip-erase — it skips ONLY the blank check; the pre-write erase still runs for electrically-erasable chips (`FLAG_CAN_ERASE`), so `write -b` on a non-blank flash/EEPROM erases-then-writes correctly. Skipping the erase is a separate explicit `--skip-erase` opt-in (carrying a hardware-damage warning) for already-blank/pre-erased/non-erasable parts. This removes the Phase-90/91 footgun (the old `skip_erase=not blank_check` coupling silently skipped the required erase while the firmware's DQ7-only poll reported "successful"). Host-only (`firestarter_app`); firmware byte-identical. — ✅ COMPLETE (Phase 92, 2026-06-26): `cli_handlers._build_op_flags`/`build_arg_flags` decoupled; `write` gains `--skip-erase`; `-b` help updated; new `test_write_b_decouples_skip_erase_phase92` regression test; ruff + format + mypy + full pytest (78.19% cov, 29 snapshots) green; bench-confirmed on the seated W27C512.
+
 ## Future Requirements
 
 Acknowledged but deferred — not in this milestone's roadmap.
