@@ -251,7 +251,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 — highest deferral risk)*
 
-- [ ] 89-03-PLAN.md — P3 vpp_check_window: share the HIGH/LOW window-compare body; keep regulator routing + REV0 guard + clear handler-local, protocol-keyed (PRIM-04, SAFE-04/D-08)
+- [x] 89-03-PLAN.md — P3 vpp_check_window: share the HIGH/LOW window-compare body; keep regulator routing + REV0 guard + clear handler-local, protocol-keyed (PRIM-04, SAFE-04/D-08)
 
 **Wave 4** *(blocked on Wave 3)*
 
@@ -853,7 +853,7 @@ Plans:
 | 86 | v1.16 | 4/4 | Complete | 86-01 (VAR-01 docs + Wave-0 oracle) ✅; 86-02 (classify() rewrite + correct DB regen) ✅; 86-04 (2516/2532 non-upstream supplement, DB→746) ✅; 86-03 (baseline re-pin LAST → diff_db IDENTITY exit 0; full py3.11 gate green) ✅ 2026-06-25 |
 | 87 | v1.16 | 4/4 | Complete    | 2026-06-26 |
 | 88 | v1.16 | 5/5 | Complete    | 2026-06-26 |
-| 89 (close) | v1.16 | 2/5 | In Progress|  |
+| 89 (close) | v1.16 | 3/5 | In Progress|  |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
