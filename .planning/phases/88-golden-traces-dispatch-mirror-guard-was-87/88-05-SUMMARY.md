@@ -132,7 +132,9 @@ Files created:
 - `.planning/phases/88-golden-traces-dispatch-mirror-guard-was-87/88-05-SUMMARY.md` — this file
 
 Commits:
-- `467a10f` in META repo (88-FROZEN-WORLD.md) — FOUND (git rev-parse --short HEAD after commit)
+- `467a10f` in META repo (88-FROZEN-WORLD.md) — FOUND
+- `09301e6` in META repo (88-05-SUMMARY.md + STATE.md) — FOUND
+- `4a7fed5` in META repo (ROADMAP.md + REQUIREMENTS.md) — FOUND
 
 Gates:
 - `pio test -e native` exits 0: CONFIRMED (16/16 PASSED)
@@ -143,6 +145,9 @@ Gates:
 - `flash_intel.cpp:65` over-voltage check: PRESENT + UNMODIFIED (CONFIRMED)
 - `chip_resolver.py:55` support_status guard: PRESENT + UNMODIFIED (CONFIRMED)
 - 2516 UNVERIFIED: CONFIRMED
+
+- Meta gitlinks NOT committed: CONFIRMED (firestarter + firestarter_app remain unstaged — PINNED)
+- config.json NOT committed: CONFIRMED
 
 ## Self-Check: PASSED
 
