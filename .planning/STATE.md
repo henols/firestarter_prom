@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.17
 milestone_name: — Implement & Test the W29C040 Programming Protocol
 status: executing
-last_updated: "2026-06-26T22:15:37.927Z"
-last_activity: 2026-06-26 -- Phase 93 planning complete
+last_updated: "2026-06-26T22:45:00.000Z"
+last_activity: 2026-06-26 -- Phase 93 Plan 01 complete (SAFE-01 pre-flight + T-93-CANERASE finding)
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 4
-  completed_plans: 0
-  percent: 0
+  completed_plans: 1
+  percent: 25
 ---
 
 # Project State
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 93 (RCA — Root-Cause the W29C040 Page-0 Write Fault) — not started
-Plan: —
-Status: Ready to execute
-Last activity: 2026-06-26 -- Phase 93 planning complete
+Phase: 93 (rca-root-cause-the-w29c040-page-0-write-fault) — EXECUTING
+Plan: 2 of 4 (Plan 01 complete)
+Status: Executing Phase 93 — Plan 02 next (bench-gated: hardware required)
+Last activity: 2026-06-26 -- Phase 93 Plan 01 complete (SAFE-01 pre-flight + T-93-CANERASE finding)
 
 ## Project Reference
 
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (v1.17 Current Milestone section + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware handler. v1.17 proves that contract on the W29C040 flash4 (`0x05`) write path: root-cause the page-0 write fault, make flash4 page sizing datasheet-sourced per-chip (CR-01), and bench-prove byte-exact write→read→verify on real silicon.
 
-**Current focus:** Phase 93 — reproduce + root-cause the W29C040 `0x05` page-0 write fault on real silicon (Leonardo + Rev 2.0) before any fix is designed.
+**Current focus:** Phase 93 — rca-root-cause-the-w29c040-page-0-write-fault
 
 ## Milestone Context (v1.17)
 
@@ -97,11 +97,18 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - `large-read-data-jitter-uno328pb.md` (HIGH, v1.8-seed) — v1.9 RCA target.
 - `photograph-modified-rev-0.md` (medium) — carry forward.
 
+### Decisions (v1.17)
+
+- **T-93-CANERASE (Phase 93 Plan 01, 2026-06-26):** FLAG_CAN_ERASE (0x02) IS set in W29C040 wire flags — `flash4_erase_execute` asserts 12V on a 5V-only chip. Bench plans 02–04 MUST use `--skip-erase`. Phase 94 FIX-01 scope: prevent FLAG_CAN_ERASE from reaching `flash4_erase_execute` for protocol 0x05 chips.
+- **Phase-74 traps ruled out (Phase 93 Plan 01, 2026-06-26):** SDP present and 256B page confirmed by native tests (11/11 PASS). RCA must search deeper than Phase-74 hypotheses.
+
 ### Blockers / Concerns
 
-None at milestone start. v1.17 is hardware-gated only at the bench RCA + verify steps (W29C040 on Leonardo + Rev 2.0, operator-seated). Primary technical risk: the page-0 fault root cause is unknown (page size already correct) — RCA must isolate SDP/timing/addressing before a fix can be designed.
+- **T-93-CANERASE (HIGH):** W29C040 wire flags=0x02 causes 12V erase on a 5V chip during any `firestarter write` without `--skip-erase`. This is a latent hardware-damage path that was previously believed non-existent. Bench mitigation: always use `--skip-erase` for W29C040 in RCA Plans 02–04. Permanent fix: Phase 94 FIX-01.
+- Hardware-gated: Plans 02–04 require operator to seat W29C040 on Leonardo + Rev 2.0.
 
 ## Operator Next Steps
 
-- Roadmap created 2026-06-26 (Phases 93–96, 16/16 reqs mapped).
-- Next: `/gsd-plan-phase 93` (RCA — hardware-gated; operator seats the W29C040 on Leonardo + Rev 2.0).
+- Plan 01 complete (autonomous, no hardware). SAFE-01 pre-flight done.
+- **CRITICAL: W29C040 write commands MUST use `--skip-erase` flag** (T-93-CANERASE — flags=0x02 routes 12V erase on 5V chip).
+- Next: Plan 02 (93-02) — bench repro of signature + post-fail read. Operator seats W29C040 on Leonardo + Rev 2.0; verify controller identity + R1/R2 readback before proceeding.

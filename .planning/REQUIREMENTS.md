@@ -3,6 +3,7 @@
 **Milestone goal:** Root-cause and fix the W29C040 flash4 (`0x05`) page-write defect on real silicon, generalize flash4 page sizing to a datasheet-sourced per-chip DB field (CR-01), and bench-prove a byte-exact write→read→verify on the operator's seated W29C040 — graduating it to genuinely `supported` and closing CR-01 / Phase-74 Wave-2.
 
 **Locked context:**
+
 - Firmware forks off the **v1.16 tip `a296195`** (primitives recompose), NOT firmware `beta` (stale at v1.13). Dual-repo lockstep where the change crosses the wire. Meta `.planning/` on `gsd/v1.17-w29c040-programming-protocol` (off the beta-tracking tip).
 - Bench LOCKED to **Leonardo + RURP Rev 2.0**; operator seats the W29C040. Standing bench discipline (live R1/R2 readback, `controller:` identity per task, Leonardo chip-OUT-sideload-exempt).
 - The W29C040 page size is **already correct** (256 B) — so the page-0 fault root cause is **distinct from** the CR-01 page-size generalization. RCA + FIX address the real fault; PGSZ generalizes page sizing for the *other* (under-sized) flash4 families.
@@ -43,7 +44,7 @@
 
 ### SAFE — Safety & Non-Regression
 
-- [ ] **SAFE-01**: Over-voltage stays blocked at the firmware VPP check and the host `chip_resolver.resolve_chip` guard is never bypassed; W29C040 graduation flows through the normal `supported` path.
+- [x] **SAFE-01**: Over-voltage stays blocked at the firmware VPP check and the host `chip_resolver.resolve_chip` guard is never bypassed; W29C040 graduation flows through the normal `supported` path.
 - [ ] **SAFE-02**: The lockstep wire contract stays in sync (constants parity test green) and host CI is green against the **py3.11** target (ruff check + ruff format --check + mypy + diff_db + check_dispatch), avoiding the py3.12-masks-CI-3.11 trap.
 
 ---
@@ -82,5 +83,5 @@ _Filled by the roadmapper 2026-06-26 — all 16 REQ-IDs mapped to exactly one ph
 | BENCH-03 | Phase 95 | pending |
 | LEDGER-01 | Phase 96 | pending |
 | LEDGER-02 | Phase 96 | pending |
-| SAFE-01 | Phase 93 | pending |
+| SAFE-01 | Phase 93 | Complete |
 | SAFE-02 | Phase 94 | pending |
