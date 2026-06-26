@@ -58,7 +58,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Phase n
 
 - [ ] **SAFE-01**: Every extracted primitive keys behavior on `handle->protocol`, never on `electrical.type`; the `novpp_in_eprom` / `eeprom28c_in_eprom` (WARNING-5) structural guards are preserved.
 - [ ] **SAFE-02**: All enumerated one-off-fix invariants (NAME-03) survive each recompose step, asserted under the native register-level tests.
-- [ ] **SAFE-03**: `check_dispatch.py` exits 0 violations every phase. `diff_db.py`: in **Phase 86** it shows the variant-decode diff with **every row explained by a cited decode rule**, after which the baseline is re-pinned (VAR-03); in the **naming pass (87) and the recompose phases (88–89)** `diff_db.py` is **empty** against that re-pinned baseline.
+- [x] **SAFE-03**: `check_dispatch.py` exits 0 violations every phase. `diff_db.py`: in **Phase 86** it shows the variant-decode diff with **every row explained by a cited decode rule**, after which the baseline is re-pinned (VAR-03); in the **naming pass (87) and the recompose phases (88–89)** `diff_db.py` is **empty** against that re-pinned baseline.
 - [ ] **SAFE-04**: Over-voltage stays blocked at the firmware VPP check; the `chip_resolver.resolve_chip` host guard is never bypassed; no irreplaceable UV part is written on an unstable read path (the 2516 stays `UNVERIFIED`, not spent).
 - [x] **SAFE-05**: No new third-party dependency is introduced — the existing harness (`check_dispatch.py`, `diff_db.py`, native `test_val_*` suites, `dev validate-family`, `write_test.sh`, `gen_test_image.py`, host ruff/mypy/pytest) is reused; the only new artifact is `datasheets/`. *(Phase 85-01: branch + check script only; verified via explicit git add + SAFE-05-OK gate)*
 - [x] **SAFE-06**: The refactor ships firmware-first with NO dual-repo lockstep (wire/constant values unchanged, NAME-04 is host-only); ruff/format/mypy/codegen are validated against the CI target (py3.11), not the 3.12 devcontainer, and generated `messages.py` is never hand-normalized.
@@ -121,7 +121,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | LEDGER-03 | Phase 90 | Pending |
 | SAFE-01 | Phase 88 (recurring in 89) | Pending |
 | SAFE-02 | Phase 88 (recurring in 89) | Pending |
-| SAFE-03 | Phase 86 (recurring in 87/88/89) | Pending |
+| SAFE-03 | Phase 86 (recurring in 87/88/89) | Complete |
 | SAFE-04 | Phase 86 (recurring in 88/89/90) | Pending |
 | SAFE-05 | Phase 85 | Complete (85-01) |
 | SAFE-06 | Phase 87 | Complete |

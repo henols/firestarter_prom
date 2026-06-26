@@ -821,7 +821,7 @@ Plans:
 | 84 (close) | v1.15 | 6/6 | Complete   | 2026-06-25 |
 | 85 | v1.16 | 3/3 | Complete    | 2026-06-25 |
 | 86 | v1.16 | 4/4 | Complete | 86-01 (VAR-01 docs + Wave-0 oracle) ✅; 86-02 (classify() rewrite + correct DB regen) ✅; 86-04 (2516/2532 non-upstream supplement, DB→746) ✅; 86-03 (baseline re-pin LAST → diff_db IDENTITY exit 0; full py3.11 gate green) ✅ 2026-06-25 |
-| 87 | v1.16 | 3/4 | In Progress|  |
+| 87 | v1.16 | 4/4 | Complete    | 2026-06-26 |
 | 88 | v1.16 | 0/TBD | Not started | — |
 | 89 (close) | v1.16 | 0/TBD | Not started | — |
 
@@ -935,7 +935,7 @@ Plans:
   2. The same file (or a companion file) lists every intra-algorithm DB inconsistency — chips that share `pin_count` + `algorithm` but differ in `pulse_duration`, `chip_id_check`, or `pinout` — with each inconsistency labeled as a defect candidate for v1.4 or a sub-repo PR (no auto-fixes applied in v1.3).
   3. Operator can use the matrix to confirm that the six BENCH chips (BENCH-01..06) span the pinout classes and pulse-duration profiles actually represented in the DB, so bench results generalize to the rest of the 339 rows.
 
-**Plans:** 3/3 plans complete
+**Plans:** 4/4 plans complete
 
 - [x] 11-01-PLAN.md — Wave 0 failing-test scaffold for tests/test_audit_coverage_matrix.py (10 tests) ✅ 2026-05-19
 - [x] 11-02-PLAN.md — Wave 1 tool skeleton + CLI + §1 Summary + §2 DB Count Reconciliation ✅ 2026-05-19
