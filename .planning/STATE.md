@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
-status: verifying
-stopped_at: Phase 90 Plan 02 complete
-last_updated: "2026-06-26T12:48:09.298Z"
-last_activity: 2026-06-26 -- Phase 90 Plan 02 executed (PROTOCOL-LEDGER.json + .md authored, check_ledger.py exits 0)
+status: executing
+stopped_at: Phase 90 context gathered
+last_updated: "2026-06-26T12:53:50.453Z"
+last_activity: 2026-06-26 -- Phase 90 execution started
 progress:
   total_phases: 6
   completed_phases: 5
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 90 (Per-Protocol Bench Validation + Ledger) — EXECUTING
-Plan: 4 of 4
-Status: Executing Phase 90 — Plan 02 complete
-Last activity: 2026-06-26 -- Phase 90 Plan 02 complete (PROTOCOL-LEDGER.json + .md authored bench-pending; check_ledger.py exits 0)
+Phase: 90 (per-protocol-bench-validation-ledger) — EXECUTING
+Plan: 1 of 4
+Status: Executing Phase 90
+Last activity: 2026-06-26 -- Phase 90 execution started
 
 Progress: [████████░░] 83%
 
@@ -46,7 +46,7 @@ See: `.planning/PROJECT.md` (v1.16 Current Milestone section + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware handler. v1.16 makes that contract **legible** (named, datasheet-documented protocols) and **leaner** (shared-primitive handlers). Minipro DB stays ground truth; datasheets verify + document the *why*.
 
-**Current focus:** Phase 90 — Per-Protocol Bench Validation + Ledger
+**Current focus:** Phase 90 — per-protocol-bench-validation-ledger
 
 ## Roadmap Summary
 
