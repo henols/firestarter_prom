@@ -288,10 +288,12 @@ for `write -b`) is exactly the added chip-erase + post-erase blank-check pass.
   (writeA→verifyA→writeB→verifyB→consistency-check N=3) is byte-identical to the v1.15 baseline
   `a38b13b4…` (3/3, 1 distinct SHA) on **stock recompose firmware** (no code edit); neg-control RC=1;
   SAFE-04 intact. 0x06 PROTOCOL-LEDGER row **graduated to PASS** (LEDGER-02 satisfied for 0x06).
-- **0x07 W27C512:** RCA + fix known (same cause; use plain `write`); live bench re-validation
-  DEFERRED to operator (chip swap). Ledger row set to **bench-pending** with the attribution; turnkey
-  `W27C512-OPERATOR-CHECKLIST.md` authored.
-- **LEDGER-02 status:** on-hand silicon now 3 PASS (0x05, 0x06, 0x28) + 0x07 bench-pending (operator).
+- **0x07 W27C512:** **NOW PASS (operator returned + W27C512 seated, 2026-06-26).** chip-ID check
+  PASSED (0xDA08); erase-enabled plain `firestarter write` (writeA→verifyA→writeB→verifyB→
+  consistency-check N=3) byte-identical to v1.15 `e16b2a5b…` on stock recompose a296195; no VPP-high
+  guard. Confirms the SAME `write -b` skipped-erase cause/fix as 0x06 (`eprom_internal_erase` gated
+  on FLAG_CAN_ERASE, which W27C512 has). Evidence: `bench/W27C512-fix/`.
+- **LEDGER-02 status: FULLY SATISFIED — all 4 on-hand protocols PASS (0x05, 0x06, 0x07, 0x28).**
 - **Recommended hardening (NOT applied — D-13.3 `-b` semantics are rationale-locked):** warn when
   `-b`/`FLAG_SKIP_ERASE` is used on a `FLAG_CAN_ERASE` chip, so a skipped-erase NOR/EEPROM write
   cannot silently report "successful." Left for operator decision.

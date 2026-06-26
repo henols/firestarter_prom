@@ -118,7 +118,7 @@
         "P4",
         "P3"
       ],
-      "verification_status": "bench-pending",
+      "verification_status": "PASS",
       "oracle": "leonardo+Rev2.0",
       "on_hand_chip": "W27C512",
       "evidence": {
@@ -133,12 +133,13 @@
         "p90_artifacts": [
           ".planning/v1.16/ledger/bench/W27C512-read/",
           ".planning/v1.16/ledger/bench/W27C512-wcB/",
-          ".planning/v1.16/ledger/bench/BENCH-LOG.md"
+          ".planning/v1.16/ledger/bench/BENCH-LOG.md",
+          ".planning/v1.16/ledger/bench/W27C512-fix/"
         ],
         "p90_read_sha_matches_v115": true,
-        "p90_writecycle_sha_matches_v115": false,
+        "p90_writecycle_sha_matches_v115": true,
         "p90_note": "FAIL-INVESTIGATE: recompose a296195 write path. Read N=3 byte-identical to v1.15; write-cycle reproducible-fail (bad bytes at write-start 0x0, ~921 bytes, at a clean 12.0V VPP rail; reseat ruled out contact; chip != image B). 0x07 uses P3 vpp_check_window (biggest recompose change). See BENCH-LOG.md Chip 2 + Session Summary RCA scope.",
-        "p91_note": "RCA-91 (Phase 91, 2026-06-26): SAME root cause as 0x06 \u2014 `write -b` skips the erase W27C512 (EEPROM-class, electrically erasable) requires; the Phase-90 bad-bytes-@0x0 symptom is skipped-erase chip-state, NOT a VPP-rail regression. Fix = plain `firestarter write` (erase). Bench re-validation DEFERRED to operator (chip swap is operator-only) \u2014 see rca/W27C512-OPERATOR-CHECKLIST.md. NOT auto-passed (D-03)."
+        "p91_note": "FIX (Phase 91, 2026-06-26, operator returned + W27C512 seated): chip-ID check PASSED (W27C512 0xDA08). The P90 FAIL was the SAME test-method error as 0x06 \u2014 `write -b` set FLAG_SKIP_ERASE so eprom_write_init skipped eprom_internal_erase (gated on FLAG_CAN_ERASE, which W27C512 has via electrical-type EEPROM); bad-bytes @0x0 = skipped erase, NOT a 12V-VPP regression. Re-bench via erase-enabled plain `firestarter write` (writeA->verifyA->writeB->verifyB->consistency-check N=3) is byte-identical to the v1.15 baseline on STOCK recompose a296195 (no firmware edit); oracle leonardo+Rev2.0; evidence bench/W27C512-fix/. No VPP-high guard fired."
       }
     },
     {

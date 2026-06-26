@@ -199,3 +199,11 @@ Erase-enabled plain `firestarter write` (writeA→verifyA→writeB→verifyB→c
   `bench/SST39SF040-fix/`). LEDGER-02 satisfied for 0x06.
 - **0x07 W27C512 → bench-pending** (same root cause; fix = plain `write`; live re-bench DEFERRED to
   operator — chip swap). See `rca/W27C512-OPERATOR-CHECKLIST.md`.
+
+### W27C512 (0x07) — operator-return bench (2026-06-26)
+Operator swapped in the W27C512; chip-ID check **PASSED** (0xDA08). Erase-enabled plain `firestarter
+write` (NO `-b`): writeA RC=0 (22.85 s) / verifyA RC=0 → writeB RC=0 / verifyB RC=0 →
+consistency-check N=3 **PASS, 1 distinct SHA = `e16b2a5b…`** (== v1.15 gate); neg-control
+verify(imgA) RC=1; no VPP-high guard fired. **0x07 → PASS** — confirms the SAME root cause/fix as
+0x06 (`write -b` skipped the required erase). Evidence: `bench/W27C512-fix/`. **All 4 on-hand
+protocols now PASS (0x05, 0x06, 0x07, 0x28) — LEDGER-02 fully satisfied.**

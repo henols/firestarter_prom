@@ -1,8 +1,14 @@
-# W27C512 (0x07) Bench Re-Validation — Operator Checklist (Phase 91, DEFERRED)
+# W27C512 (0x07) Bench Re-Validation — Operator Checklist (Phase 91)
 
-> **Why deferred:** this session ran with the **SST39SF040** seated. W27C512 re-validation needs a
-> **chip swap** — an operator-only physical action. The RCA, fix, and ledger disposition are done
-> autonomously; this checklist is turnkey for one bench session on your return.
+> **✅ EXECUTED 2026-06-26 — RESULT: PASS.** The operator returned and seated the W27C512; this
+> checklist was run end-to-end. chip-ID PASSED (0xDA08); erase-enabled plain `firestarter write`
+> (writeA→verifyA→writeB→verifyB→consistency-check N=3) byte-identical to v1.15 `e16b2a5b…`; no
+> VPP-high guard. **0x07 graduated to PASS** (evidence `bench/W27C512-fix/`); LEDGER-02 fully
+> satisfied (all 4 on-hand protocols PASS). The procedure below is retained for reference/re-runs.
+>
+> **Why this was deferred originally:** the prior session ran with the **SST39SF040** seated;
+> W27C512 needed a chip swap (operator-only). The RCA + fix were done autonomously; this was the
+> turnkey for return.
 >
 > **RCA verdict (Phase 91 — PROVEN on the SST39SF040, same axis applies to W27C512):**
 > The Phase-90 `bad bytes:921 @0x000000` on a clean 12.0 V rail was **NOT a VPP regression** and
