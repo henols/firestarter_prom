@@ -101,7 +101,7 @@ Full detail: [`.planning/milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.
 - [x] **Phase 86: infoic.xml Variant-Field Decode + Correct DB Regen** *(NEW — inserted 2026-06-25)* — Decode the `infoic.xml` `variant` field in full (low byte already used for pinout family; crack the previously-undecoded high byte, acquiring datasheets / consulting minipro source as needed); rewrite `build_db.py` to classify `electrical.type`/`algorithm`/`pinout` from principled variant-driven decode and **delete** the hand-maintained Rule 1/2/3 override stack; regenerate `chip_database.json`. Host-only. Gates: `check_dispatch.py` 0 violations + every `diff_db.py` row explained by a cited decode rule (baseline re-pinned) + the 11 on-hand bench-proven chips' wire values unchanged-or-rebenched.
 - [x] **Phase 87: Naming + Documentation Pass** *(was 86)* — Author the 12-bucket protocol vocabulary (hex ID → slug + descriptive name → datasheet-verified behavior) in `firestarter/doc/PROTOCOLS.md`, document each handler's *why* inline + cited to its datasheet, enumerate all 9 accreted one-off-fix invariants as a native-test traceability matrix, and document the now-correct FM1608/X88C64 decode (delivered structurally by Phase 86). Dispatch structure and firmware wire values unchanged; near-zero flash delta. ✓ 2026-06-26 (4/4 plans; flash delta=0, all gates green)
 - [x] **Phase 88: Golden Traces + Dispatch-Mirror Guard** *(was 87)* — Pin per-family native register golden traces and add the `check_dispatch.py::dispatch()`-matches-documented-order invariant test before any code extraction. Establishes the recompose oracle. (completed 2026-06-26)
-- [ ] **Phase 89: Incremental Primitive Recompose** *(was 88)* — Extract P7 SDP-table dedup (warm-up) → P4 chip-ID compare/report → P3 VPP gate → P5 poll, each guarded by native suites + `check_dispatch.py` + `diff_db.py`; `pio run -e leonardo` measured at every step with net-non-increase gate; achieved flash % reported.
+- [x] **Phase 89: Incremental Primitive Recompose** *(was 88)* — Extract P7 SDP-table dedup (warm-up) → P4 chip-ID compare/report → P3 VPP gate → P5 poll, each guarded by native suites + `check_dispatch.py` + `diff_db.py`; `pio run -e leonardo` measured at every step with net-non-increase gate; achieved flash % reported. (completed 2026-06-26)
 - [ ] **Phase 90: Per-Protocol Bench Validation + Ledger** *(was 89)* — Bench-prove each protocol with on-hand silicon on Leonardo + RURP Rev 2.0; author `PROTOCOL-LEDGER.{md,json}` composing with v1.13 matrix + v1.15 EVIDENCE; 6 no-silicon buckets recorded explicit UNVERIFIED.
 
 ## Phase Details
@@ -853,7 +853,7 @@ Plans:
 | 86 | v1.16 | 4/4 | Complete | 86-01 (VAR-01 docs + Wave-0 oracle) ✅; 86-02 (classify() rewrite + correct DB regen) ✅; 86-04 (2516/2532 non-upstream supplement, DB→746) ✅; 86-03 (baseline re-pin LAST → diff_db IDENTITY exit 0; full py3.11 gate green) ✅ 2026-06-25 |
 | 87 | v1.16 | 4/4 | Complete    | 2026-06-26 |
 | 88 | v1.16 | 5/5 | Complete    | 2026-06-26 |
-| 89 (close) | v1.16 | 5/5 | Complete   | 2026-06-26 |
+| 89 (close) | v1.16 | 5/5 | Complete    | 2026-06-26 |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
