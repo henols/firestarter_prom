@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
 status: executing
-stopped_at: Plan 87-02 COMPLETE — rationale header blocks in all 10 handler files; INV ids greppable in doc+handler
-last_updated: "2026-06-26T08:15:00.000Z"
+stopped_at: Plan 87-03 COMPLETE — INV-01..09 live native test assertions in matrix-assigned suite paths; SAFE-02 three-target contract complete
+last_updated: "2026-06-26T06:46:00.000Z"
 last_activity: 2026-06-26
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 11
-  completed_plans: 9
-  percent: 36
+  completed_plans: 10
+  percent: 39
 ---
 
 # Project State
@@ -22,8 +22,8 @@ progress:
 ## Current Position
 
 Phase: 87 (naming-documentation-pass) — EXECUTING
-Plan: 3 of 4
-Status: Executing — Plan 02 complete
+Plan: 4 of 4
+Status: Executing — Plan 03 complete
 Last activity: 2026-06-26
 
 Progress: [████░░░░░░] 43%
@@ -130,9 +130,9 @@ ruff/codegen drift trap for any host-side NAME-04 corrections in Phase 86.
 
 ## Session Continuity
 
-Last session: 2026-06-26T06:22:33.747Z
-Stopped at: Plan 87-01 COMPLETE — PROTOCOLS.md vocabulary + INV-01..09 matrix + flash baseline 25654 captured
-Resume: Plan 87-02 COMPLETE — ready for Plan 87-03 (invariant traceability gap-fill native tests)
+Last session: 2026-06-26T06:46:00.000Z
+Stopped at: Plan 87-03 COMPLETE — 9 INV native test assertions (b67acde); SAFE-02 doc+handler+test contract complete; 91/91 native tests pass
+Resume: Plan 87-04 — final gates (check_dispatch.py / diff_db.py / Leonardo flash delta)
 
 ## Decisions
 
@@ -148,6 +148,7 @@ Resume: Plan 87-02 COMPLETE — ready for Plan 87-03 (invariant traceability gap
 - [Phase 86-01, 2026-06-25]: VAR-01 docs + Wave-0 oracle (host-only, build_db.py untouched). DECODE-NOTES.md pins minipro master SHA a8efaedc236c1d9718bd28299dfbb99536b010ff (= existing @ a8efaedc); high byte = T56/T76 algo_number (database.c#L1918), NOT a classifier — classification keys on type/proto/pm_idx/flags. Refactor-under-test oracle: FM1608 GREEN (algo 40/FRAM/DIP28_JEDEC_SRAM_8K), X88C64 RED-as-designed (UV-EPROM today → Plan 02 adds proto 0x34→EEPROM arm), 10 upstream-decoded EVIDENCE chips wire-stable vs OLD baseline (2516 excluded → owned by Plan 86-04). Commits firestarter_app@bd462fa/a6f7e88/68865c1.
 - [Phase 86 discuss, 2026-06-25]: MILESTONE RESTRUCTURED. Grounded in raw infoic.xml that FM1608=type4/proto0x07/variant0x4126 and X88C64=type1/proto0x34/variant0x3100/flags0x00414200 (flags&0x10==0 → why its type is mis-decoded). Operator pivoted: decode the variant field fully (incl. undecoded high byte) + delete build_db.py Rule1/2/3 → correct DB. Inserted new Phase 86 (host-only variant decode); renumbered 86→90; added VAR-01..04 (27 reqs). Decisions: full override deletion (check_dispatch 0-violations = structural backstop), every diff_db row explained + re-pin baseline, on-hand bench chips unchanged-or-rebenched.
 - [Phase ?]: FM1608 decimal-40/hex-0x28 conflation retired in PROTOCOLS.md
+- [Phase 87-03, 2026-06-26]: NAME-03/SAFE-02 — 9 INV native test assertions in matrix-assigned suite paths; INV-04 page-boundary probe switched from 257-byte (recording-buffer overflow) to 65-byte (discriminates 64B vs 256B pages via SDP-count=1 proof); INV-03 uses pins=32+vpp_line=VPP_P1_32_DIP to activate using_p1_as_vpp() and observe CTRL_VPP_P1_ENABLE in execute phase; SAFE-02 three-target grep contract complete: doc+handler+test for all 9 INVs. firestarter@b67acde
 - [Phase 87-02, 2026-06-26]: NAME-02 — all 10 handler files carry datasheet-anchored rationale header blocks (plain C comments, zero flash). INV-01/02/03/05/06/08 in eprom.cpp; INV-04 in flash_type_4.cpp; INV-09 in flash_type_3.cpp; INV-07 in sram.cpp; plus dispatch rationale in flash_utils/memory/not_implemented/firestarter.cpp. Comment-only diff guard PASS (all 10 files). SAFE-02 greppability: INV ids now hit doc (87-01) + handler (87-02) — third target (test names) lands in Plan 03. Commits firestarter@f362263/3b8202d.
 
 ## Performance Metrics
@@ -161,6 +162,7 @@ Resume: Plan 87-02 COMPLETE — ready for Plan 87-03 (invariant traceability gap
 | 86 | 04 | 34min | VAR-05/SAFE-04 — 2516 + 2532 non-upstream supplement (extra_chips.json + DIP24_2532); post-decode merge (744→746); diff_db EXTRA_CHIPS_SUPPLEMENT exit 0; check_dispatch 0 violations; 8 supplement tests; 2516 UNVERIFIED + wire-stable; 686 host tests green |
 | 86 | 03 | 17min | VAR-03/04/SAFE-04 — re-pin both baselines LAST to the 746-chip correct DB (chip_database.baseline.json byte-identical; dispatch_baseline.json regenerated via check_dispatch mirror + Phase-86/SHA-a8efaedc/VAR-05 provenance); diff_db.py now IDENTITY diff exit 0 (D-07 closed); check_dispatch 0 violations; full py3.11 gate green (686 tests / 77.69% cov / ruff / format / mypy-watermark); 4 tools/ ruff errors pre-existing + out-of-CI-scope. Phase 86 COMPLETE |
 | 87 | 02 | 18min | NAME-02 — rationale header blocks in all 10 handler files; INV-01..INV-09 greppable in doc+handler; comment-only diff guard PASS (zero flash delta). firestarter@f362263/3b8202d |
+| 87 | 03 | 10min | NAME-03/SAFE-02 — 9 INV-id-bearing live Unity assertions across 4 test_val_* suites; recording-buffer overflow resolved for INV-04 (65-byte probe); 91/91 native tests pass. firestarter@b67acde |
 
 ## Deferred Items
 
