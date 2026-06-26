@@ -247,7 +247,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 89-02-PLAN.md — P4 chip_id_report: create NEW primitives.{cpp,h} module (D-03) + share the compare/report tail across eprom/flash_intel/eeprom28c/flash4 (PRIM-03)
+- [x] 89-02-PLAN.md — P4 chip_id_report: create NEW primitives.{cpp,h} module (D-03) + share the compare/report tail across eprom/flash_intel/eeprom28c/flash4 (PRIM-03)
 
 **Wave 3** *(blocked on Wave 2 — highest deferral risk)*
 
@@ -853,7 +853,7 @@ Plans:
 | 86 | v1.16 | 4/4 | Complete | 86-01 (VAR-01 docs + Wave-0 oracle) ✅; 86-02 (classify() rewrite + correct DB regen) ✅; 86-04 (2516/2532 non-upstream supplement, DB→746) ✅; 86-03 (baseline re-pin LAST → diff_db IDENTITY exit 0; full py3.11 gate green) ✅ 2026-06-25 |
 | 87 | v1.16 | 4/4 | Complete    | 2026-06-26 |
 | 88 | v1.16 | 5/5 | Complete    | 2026-06-26 |
-| 89 (close) | v1.16 | 1/5 | In Progress|  |
+| 89 (close) | v1.16 | 2/5 | In Progress|  |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 

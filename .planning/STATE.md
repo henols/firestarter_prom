@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
 status: executing
-stopped_at: "Phase 89-01 complete — P7 SDP/const-table dedup committed"
-last_updated: "2026-06-26T11:00:00.000Z"
+stopped_at: Phase 89-02 complete — P4 chip_id_report extracted; firestarter@a10871d
+last_updated: "2026-06-26T10:50:42.716Z"
 last_activity: 2026-06-26
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 21
-  completed_plans: 17
+  completed_plans: 18
   percent: 67
 ---
 
@@ -22,9 +22,9 @@ progress:
 ## Current Position
 
 Phase: 89 (incremental-primitive-recompose) — EXECUTING
-Plan: 2 of 5
-Status: Executing Phase 89
-Last activity: 2026-06-26 -- Phase 89-01 complete (P7 dedup committed; firestarter@0052c42)
+Plan: 3 of 5
+Status: Ready to execute
+Last activity: 2026-06-26
 
 Progress: [████░░░░░░] 43%
 
@@ -130,8 +130,8 @@ ruff/codegen drift trap for any host-side NAME-04 corrections in Phase 86.
 
 ## Session Continuity
 
-Last session: 2026-06-26T08:50:05.243Z
-Stopped at: Phase 88 context gathered
+Last session: 2026-06-26T10:50:42.711Z
+Stopped at: Phase 89-02 complete — P4 chip_id_report extracted; firestarter@a10871d
 Resume: Phase 88 — Golden Traces + Dispatch-Mirror Guard
 
 ## Decisions
@@ -156,6 +156,7 @@ Resume: Phase 88 — Golden Traces + Dispatch-Mirror Guard
 - [Phase 87-02, 2026-06-26]: NAME-02 — all 10 handler files carry datasheet-anchored rationale header blocks (plain C comments, zero flash). INV-01/02/03/05/06/08 in eprom.cpp; INV-04 in flash_type_4.cpp; INV-09 in flash_type_3.cpp; INV-07 in sram.cpp; plus dispatch rationale in flash_utils/memory/not_implemented/firestarter.cpp. Comment-only diff guard PASS (all 10 files). SAFE-02 greppability: INV ids now hit doc (87-01) + handler (87-02) — third target (test names) lands in Plan 03. Commits firestarter@f362263/3b8202d.
 - [Phase 88-05, 2026-06-26]: SAFE-04/D-07/D-08/D-09 — all frozen-world gates PASS: check_dispatch 0 violations (746 chips), diff_db empty (0 changed/0 new/0 missing), Leonardo flash=25654 B (0-byte delta vs Phase-87 baseline), native suite 16/16 PASS. SC#4 guards present+unmodified: eprom.cpp:282 + flash_intel.cpp:65 VPP check, chip_resolver.py:55 resolve_chip guard. 2516 stays UNVERIFIED (verification_status=UNVERIFIED + support_status=supported). Phase 88 COMPLETE. meta@467a10f.
 - [Phase 89-01, 2026-06-26]: PRIM-02/P7 — delete-not-merge const-table dedup: FLASH_ENABLE_WRITE_PROTECTION (zero callers, byte-identical to FLASH_ENABLE_WRITE) deleted from flash_utils.h; local EEPROM_SDP_DISABLE deleted from eeprom_28c.cpp and single caller redirected to shared FLASH_DISABLE_WRITE_PROTECTION. Both tables byte-identical verified at execution time. 102/102 native tests green, golden traces zero-diff, flash delta=0 B (25654→25654 B, 89.5%), check_dispatch 0 violations, diff_db empty, INV-01..09 all >=3 files. Pre-existing .gitignore change in firestarter_app noted (not source, not P7-caused). firestarter@0052c42.
+- [Phase ?]: [Phase 89-02, 2026-06-26]: PRIM-03/P4 — new primitives module (primitives.h/cpp) + chip_id_report shared across 4 call sites (flash_utils/eprom/eeprom28c/flash_intel); eprom error_code param retained as void (Assumption A3 resolved via golden trace); flash 25654→25490 B (-164 B, D-01 PASS); 102/102 native green; check_dispatch 0 violations; diff_db empty; INV-01..09 >=3 files. firestarter@a10871d
 
 ## Performance Metrics
 
@@ -175,6 +176,7 @@ Resume: Phase 88 — Golden Traces + Dispatch-Mirror Guard
 | 88 | 03 | 20min | PRIM-01/SAFE-02 — flash3 + flash4 golden traces: 3 fixtures (12+206+16 entries); 17 suite tests green; millis() stub added to flash3 setUp(); flash4 chip-id scripted mock (Pitfall 3); flash3 no chip-id (D-03 coverage). firestarter@1282c32/e6cce3e |
 | 88 | 05 | 10min | SAFE-04/D-07/D-08/D-09 — frozen-world gates + SC#4 posture: 16/16 native PASS, check_dispatch 0 violations, diff_db empty, flash=25654 B (0-byte delta), VPP checks + resolve_chip guard present+unmodified, 2516 UNVERIFIED. Phase 88 COMPLETE. meta@467a10f |
 | 89 | 01 | 8min | PRIM-02/P7 — delete-not-merge const-table dedup: FLASH_ENABLE_WRITE_PROTECTION + EEPROM_SDP_DISABLE removed; caller redirected to FLASH_DISABLE_WRITE_PROTECTION; 102/102 native PASS, flash delta=0 B (25654→25654), check_dispatch 0 violations, diff_db empty, INV-01..09 >=3 files. firestarter@0052c42 |
+| Phase 89 P89-02 | 12min | 2 tasks | 6 files |
 
 ## Deferred Items
 
