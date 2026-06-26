@@ -35,9 +35,15 @@
       "datasheet_slug": "0x05-FLASH-AMD-STD",
       "datasheet_citation": "datasheets/0x05-FLASH-AMD-STD/W29C020.pdf",
       "matrix_family": "flash4",
-      "matrix_protocols_dec": [5],
-      "primitives_used": ["P4", "P5", "P7"],
-      "verification_status": "bench-pending",
+      "matrix_protocols_dec": [
+        5
+      ],
+      "primitives_used": [
+        "P4",
+        "P5",
+        "P7"
+      ],
+      "verification_status": "PASS",
       "oracle": "leonardo+Rev2.0",
       "on_hand_chip": "W29C020",
       "evidence": {
@@ -49,9 +55,13 @@
           "evidence_chip": "W29C020",
           "op": "write_A+verify_A → write_B+verify_B"
         },
-        "p90_artifacts": [],
-        "p90_read_sha_matches_v115": null,
-        "p90_writecycle_sha_matches_v115": null
+        "p90_artifacts": [
+          ".planning/v1.16/ledger/bench/W29C020-read/",
+          ".planning/v1.16/ledger/bench/W29C020-wcB/",
+          ".planning/v1.16/ledger/bench/BENCH-LOG.md"
+        ],
+        "p90_read_sha_matches_v115": true,
+        "p90_writecycle_sha_matches_v115": true
       }
     },
     {
@@ -62,9 +72,14 @@
       "datasheet_slug": "0x06-FLASH-AMD-ALT",
       "datasheet_citation": "datasheets/0x06-FLASH-AMD-ALT/SST39SF040.pdf",
       "matrix_family": "flash3",
-      "matrix_protocols_dec": [6],
-      "primitives_used": ["P4", "P7"],
-      "verification_status": "bench-pending",
+      "matrix_protocols_dec": [
+        6
+      ],
+      "primitives_used": [
+        "P4",
+        "P7"
+      ],
+      "verification_status": "FAIL-INVESTIGATE",
       "oracle": "leonardo+Rev2.0",
       "on_hand_chip": "SST39SF040",
       "evidence": {
@@ -76,9 +91,14 @@
           "evidence_chip": "SST39SF040",
           "op": "write_A+verify_A → write_B+verify_B"
         },
-        "p90_artifacts": [],
-        "p90_read_sha_matches_v115": null,
-        "p90_writecycle_sha_matches_v115": null
+        "p90_artifacts": [
+          ".planning/v1.16/ledger/bench/SST39SF040-read/",
+          ".planning/v1.16/ledger/bench/SST39SF040-wcB/",
+          ".planning/v1.16/ledger/bench/BENCH-LOG.md"
+        ],
+        "p90_read_sha_matches_v115": true,
+        "p90_writecycle_sha_matches_v115": false,
+        "p90_note": "FAIL-INVESTIGATE: recompose a296195 write path. Read N=3 byte-identical to v1.15; write-cycle reproducible-fail (write A firmware timeout, write B reports success but produces deterministically-wrong content; chip != image B). flash3 uses P4/P7 (no P3). See BENCH-LOG.md Chip 4 + Session Summary RCA scope. Host firestarter_app@e46549f also v1.16 (not v1.15 host) — fw-vs-host not yet isolated."
       }
     },
     {
@@ -89,9 +109,14 @@
       "datasheet_slug": "0x07-EPROM-STD",
       "datasheet_citation": "datasheets/0x07-EPROM-STD/W27C512.pdf",
       "matrix_family": "eprom",
-      "matrix_protocols_dec": [7],
-      "primitives_used": ["P4", "P3"],
-      "verification_status": "bench-pending",
+      "matrix_protocols_dec": [
+        7
+      ],
+      "primitives_used": [
+        "P4",
+        "P3"
+      ],
+      "verification_status": "FAIL-INVESTIGATE",
       "oracle": "leonardo+Rev2.0",
       "on_hand_chip": "W27C512",
       "evidence": {
@@ -103,9 +128,14 @@
           "evidence_chip": "W27C512",
           "op": "write_A+verify_A → write_B+verify_B"
         },
-        "p90_artifacts": [],
-        "p90_read_sha_matches_v115": null,
-        "p90_writecycle_sha_matches_v115": null
+        "p90_artifacts": [
+          ".planning/v1.16/ledger/bench/W27C512-read/",
+          ".planning/v1.16/ledger/bench/W27C512-wcB/",
+          ".planning/v1.16/ledger/bench/BENCH-LOG.md"
+        ],
+        "p90_read_sha_matches_v115": true,
+        "p90_writecycle_sha_matches_v115": false,
+        "p90_note": "FAIL-INVESTIGATE: recompose a296195 write path. Read N=3 byte-identical to v1.15; write-cycle reproducible-fail (bad bytes at write-start 0x0, ~921 bytes, at a clean 12.0V VPP rail; reseat ruled out contact; chip != image B). 0x07 uses P3 vpp_check_window (biggest recompose change). See BENCH-LOG.md Chip 2 + Session Summary RCA scope."
       }
     },
     {
@@ -116,8 +146,13 @@
       "datasheet_slug": "0x08-EPROM-QUICK",
       "datasheet_citation": "datasheets/0x08-EPROM-QUICK/AM27C020.pdf",
       "matrix_family": "eprom",
-      "matrix_protocols_dec": [8],
-      "primitives_used": ["P4", "P3"],
+      "matrix_protocols_dec": [
+        8
+      ],
+      "primitives_used": [
+        "P4",
+        "P3"
+      ],
       "verification_status": "open-defect-carried",
       "oracle": null,
       "on_hand_chip": null,
@@ -132,8 +167,13 @@
       "datasheet_slug": "0x0B-EPROM-LEGACY",
       "datasheet_citation": "datasheets/0x0B-EPROM-LEGACY/2516_EPROM.pdf",
       "matrix_family": "eprom",
-      "matrix_protocols_dec": [11],
-      "primitives_used": ["P4", "P3"],
+      "matrix_protocols_dec": [
+        11
+      ],
+      "primitives_used": [
+        "P4",
+        "P3"
+      ],
       "verification_status": "open-defect-carried",
       "oracle": null,
       "on_hand_chip": null,
@@ -148,8 +188,14 @@
       "datasheet_slug": "0x0D-EEPROM-POLL",
       "datasheet_citation": "datasheets/0x0D-EEPROM-POLL/AT28C256.pdf",
       "matrix_family": "eeprom28c",
-      "matrix_protocols_dec": [13],
-      "primitives_used": ["P4", "P5", "P7"],
+      "matrix_protocols_dec": [
+        13
+      ],
+      "primitives_used": [
+        "P4",
+        "P5",
+        "P7"
+      ],
       "verification_status": "UNVERIFIED",
       "reason": "no on-hand silicon",
       "oracle": null,
@@ -165,7 +211,9 @@
       "datasheet_slug": "0x0E-SRAM-32PIN",
       "datasheet_citation": "datasheets/0x0E-SRAM-32PIN/DS1245Y.pdf",
       "matrix_family": "sram",
-      "matrix_protocols_dec": [14],
+      "matrix_protocols_dec": [
+        14
+      ],
       "primitives_used": [],
       "verification_status": "UNVERIFIED",
       "reason": "no on-hand silicon",
@@ -182,8 +230,13 @@
       "datasheet_slug": "0x10-FLASH-INTEL",
       "datasheet_citation": "datasheets/0x10-FLASH-INTEL/Intel-28F010.pdf",
       "matrix_family": "flash_intel",
-      "matrix_protocols_dec": [16],
-      "primitives_used": ["P4", "P3"],
+      "matrix_protocols_dec": [
+        16
+      ],
+      "primitives_used": [
+        "P4",
+        "P3"
+      ],
       "verification_status": "UNVERIFIED",
       "reason": "no on-hand silicon",
       "oracle": null,
@@ -199,7 +252,9 @@
       "datasheet_slug": "0x27-SRAM-24PIN",
       "datasheet_citation": "datasheets/0x27-SRAM-24PIN/6116.pdf",
       "matrix_family": "sram",
-      "matrix_protocols_dec": [39],
+      "matrix_protocols_dec": [
+        39
+      ],
       "primitives_used": [],
       "verification_status": "UNVERIFIED",
       "reason": "no on-hand silicon",
@@ -216,9 +271,11 @@
       "datasheet_slug": "0x28-SRAM-STD",
       "datasheet_citation": "datasheets/0x28-SRAM-STD/FM1608.pdf",
       "matrix_family": "sram",
-      "matrix_protocols_dec": [40],
+      "matrix_protocols_dec": [
+        40
+      ],
       "primitives_used": [],
-      "verification_status": "bench-pending",
+      "verification_status": "PASS",
       "oracle": "leonardo+Rev2.0",
       "on_hand_chip": "FM1608",
       "notes": "EVIDENCE.json labels FM1608 family as '0x40 (SRAM_STD / FRAM)' — the '0x40' is decimal 40 = hex 0x28 (NAME-04 decimal-40↔0x28 conflation, retired in PROTOCOLS.md §1.10). The ledger uses the corrected hex bucket id 0x28.",
@@ -231,9 +288,13 @@
           "evidence_chip": "FM1608",
           "op": "write_A+verify_A → write_B+verify_B"
         },
-        "p90_artifacts": [],
-        "p90_read_sha_matches_v115": null,
-        "p90_writecycle_sha_matches_v115": null
+        "p90_artifacts": [
+          ".planning/v1.16/ledger/bench/FM1608-read/",
+          ".planning/v1.16/ledger/bench/FM1608-wcB/",
+          ".planning/v1.16/ledger/bench/BENCH-LOG.md"
+        ],
+        "p90_read_sha_matches_v115": true,
+        "p90_writecycle_sha_matches_v115": true
       }
     },
     {
@@ -244,7 +305,9 @@
       "datasheet_slug": "0x29-SRAM-512K-1M",
       "datasheet_citation": "datasheets/0x29-SRAM-512K-1M/DS1245Y.pdf",
       "matrix_family": "sram",
-      "matrix_protocols_dec": [41],
+      "matrix_protocols_dec": [
+        41
+      ],
       "primitives_used": [],
       "verification_status": "UNVERIFIED",
       "reason": "no on-hand silicon",

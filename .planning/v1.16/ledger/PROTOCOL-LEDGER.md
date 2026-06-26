@@ -19,16 +19,16 @@
 
 | Bucket | Proposed Name | Handler (File) | Matrix Family | Primitives Used | On-Hand Chip | Verification Status | Evidence Refs |
 |--------|---------------|----------------|---------------|-----------------|--------------|--------------------:|---------------|
-| `0x05` | FLASH-AMD-STD | `configure_flash4()` (`flash_type_4.cpp`) | `flash4` [proto 5] | P4, P5, P7 | W29C020 | **bench-pending** | v1.15 EVIDENCE chip=W29C020 read+blank_check; write_A+verify_A → write_B+verify_B. P90 artifacts: empty (Plan 04) |
-| `0x06` | FLASH-AMD-ALT | `configure_flash3()` (`flash_type_3.cpp`) | `flash3` [proto 6] | P4, P7 | SST39SF040 | **bench-pending** | v1.15 EVIDENCE chip=SST39SF040 read+blank_check; write_A+verify_A → write_B+verify_B. P90 artifacts: empty (Plan 04) |
-| `0x07` | EPROM-STD | `configure_eprom()` (`eprom.cpp`) | `eprom` [proto 7] | P4, P3 | W27C512 | **bench-pending** | v1.15 EVIDENCE chip=W27C512 read+blank_check; write_A+verify_A → write_B+verify_B. P90 artifacts: empty (Plan 04) |
+| `0x05` | FLASH-AMD-STD | `configure_flash4()` (`flash_type_4.cpp`) | `flash4` [proto 5] | P4, P5, P7 | W29C020 | **PASS** | P90 (a296195, leonardo+Rev2.0): read N=3 + write-cycle A→B (auto-erase, `write -b`) both byte-identical to v1.15 baseline; neg-control verify(A) RC=1. Artifacts: `bench/W29C020-read/`, `bench/W29C020-wcB/`, `bench/BENCH-LOG.md` |
+| `0x06` | FLASH-AMD-ALT | `configure_flash3()` (`flash_type_3.cpp`) | `flash3` [proto 6] | P4, P7 | SST39SF040 | **FAIL-INVESTIGATE** | P90 (a296195): read N=3 byte-identical to v1.15; **write-cycle reproducible-FAIL** (write A firmware timeout; write B reports success but deterministically-wrong content; ≠ image B). flash3 = P4/P7, no P3. Artifacts: `bench/SST39SF040-read/`, `bench/SST39SF040-wcB/`, `bench/BENCH-LOG.md` (Chip 4 + RCA scope) |
+| `0x07` | EPROM-STD | `configure_eprom()` (`eprom.cpp`) | `eprom` [proto 7] | P4, P3 | W27C512 | **FAIL-INVESTIGATE** | P90 (a296195): read N=3 byte-identical to v1.15; **write-cycle reproducible-FAIL** (bad bytes at write-start 0x0 at a clean 12.0V rail; reseat ruled out contact; ≠ image B). 0x07 uses P3 `vpp_check_window`. Artifacts: `bench/W27C512-read/`, `bench/W27C512-wcB/`, `bench/BENCH-LOG.md` (Chip 2 + RCA scope) |
 | `0x08` | EPROM-QUICK | `configure_eprom()` (`eprom.cpp`) | `eprom` [proto 8] | P4, P3 | — | **open-defect-carried** (FUT-06) | See Open Defects below |
 | `0x0B` | EPROM-LEGACY | `configure_eprom()` (`eprom.cpp`) | `eprom` [proto 11] | P4, P3 | — | **open-defect-carried** (FUT-03) | See Open Defects below |
 | `0x0D` | EEPROM-POLL | `configure_eeprom28c()` (`eeprom_28c.cpp`) | `eeprom28c` [proto 13] | P4, P5, P7 | — | **UNVERIFIED** | No on-hand silicon. Rep chip: AT28C256 (`datasheets/0x0D-EEPROM-POLL/AT28C256.pdf`) |
 | `0x0E` | SRAM-32PIN | `configure_sram()` (`sram.cpp`) | `sram` [proto 14] | — | — | **UNVERIFIED** | No on-hand silicon. Rep chip: DS1245Y (`datasheets/0x0E-SRAM-32PIN/DS1245Y.pdf`) |
 | `0x10` | FLASH-INTEL | `configure_flash_intel()` (`flash_intel.cpp`) | `flash_intel` [proto 16] | P4, P3 | — | **UNVERIFIED** | No on-hand silicon. Rep chip: Intel-28F010 (`datasheets/0x10-FLASH-INTEL/Intel-28F010.pdf`) |
 | `0x27` | SRAM-24PIN | `configure_sram()` (`sram.cpp`) | `sram` [proto 39] | — | — | **UNVERIFIED** | No on-hand silicon. Rep chip: 6116 (`datasheets/0x27-SRAM-24PIN/6116.pdf`) |
-| `0x28` | SRAM-STD | `configure_sram()` (`sram.cpp`) | `sram` [proto 40] | — | FM1608 | **bench-pending** | v1.15 EVIDENCE chip=FM1608 read+blank_check; write_A+verify_A → write_B+verify_B. P90 artifacts: empty (Plan 04). Note: EVIDENCE labels FM1608 family `"0x40 (SRAM_STD / FRAM)"` — `0x40` is decimal 40 = hex `0x28` (NAME-04 conflation, retired in PROTOCOLS.md §1.10) |
+| `0x28` | SRAM-STD | `configure_sram()` (`sram.cpp`) | `sram` [proto 40] | — | FM1608 | **PASS** | P90 (a296195, leonardo+Rev2.0): read N=3 + write-cycle A→B (`write -b` FRAM method) both byte-identical to v1.15 baseline; neg-control verify(A) RC=1. Artifacts: `bench/FM1608-read/`, `bench/FM1608-wcB/`, `bench/BENCH-LOG.md`. Note: EVIDENCE labels FM1608 family `"0x40 (SRAM_STD / FRAM)"` — `0x40` is decimal 40 = hex `0x28` (NAME-04 conflation, retired in PROTOCOLS.md §1.10) |
 | `0x29` | SRAM-512K-1M | `configure_sram()` (`sram.cpp`) | `sram` [proto 41] | — | — | **UNVERIFIED** | No on-hand silicon. Rep chip: DS1245Y (`datasheets/0x29-SRAM-512K-1M/DS1245Y.pdf`; DS1250Y bot-blocked at Phase 85 D-02) |
 | `0x34` | EEPROM-X88C64 | `configure_not_implemented()` (`not_implemented.cpp`) | null (no matrix family) | — | — | **UNVERIFIED** | No on-hand silicon; handler returns `0xBB` (not_implemented); PCB-blocked FUT-01. Rep chip: X88C64 (`datasheets/0x34-EEPROM-X88C64/X88C64.pdf`) |
 
@@ -37,6 +37,7 @@
 - `UNVERIFIED` — no on-hand silicon; full row with datasheet-representative chip; bench-proven when silicon acquired
 - `open-defect-carried` — on-hand chip exists but under an open defect; carried verbatim from STATE.md (no status change)
 - `PASS` — bench-proven: oracle=leonardo+Rev2.0, p90 SHA regression matches v1.15 baseline (both read and write-cycle)
+- `FAIL-INVESTIGATE` — bench-tested, read matches v1.15 but write-cycle does NOT (reproducible recompose write-path regression; D-03 never-auto-pass). NOT graduated; see BENCH-LOG.md Session Summary RCA scope
 
 **Primitives key (Phase 89 recompose):**
 - P3 — `vpp_check_window` (extracted to `primitives.cpp`; handles the +500 mV over-voltage gate for VPP-gated families; −402 B net savings)
