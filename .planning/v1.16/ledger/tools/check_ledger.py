@@ -54,7 +54,7 @@ _REQUIRED_BUCKETS = {
 _UNVERIFIED_BUCKETS = {"0x0D", "0x0E", "0x10", "0x27", "0x29", "0x34"}
 
 # Valid verification_status enum values
-_VALID_STATUSES = {"PASS", "UNVERIFIED", "FAIL-INVESTIGATE", "open-defect-carried"}
+_VALID_STATUSES = {"PASS", "UNVERIFIED", "FAIL-INVESTIGATE", "open-defect-carried", "bench-pending"}
 
 # Regex for a raw 64-hex SHA string (D-04 no-copy guard)
 _RAW_SHA_RE = re.compile(r"\b[0-9a-f]{64}\b")
