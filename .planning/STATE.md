@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
-status: executing
-stopped_at: Phase 90 Plan 3 complete
-last_updated: "2026-06-26T12:47:00.000Z"
-last_activity: 2026-06-26 -- Phase 90 Plan 03 executed (SAFE-04 verify-present-only evidence)
+status: verifying
+stopped_at: Phase 90 Plan 02 complete
+last_updated: "2026-06-26T12:48:09.298Z"
+last_activity: 2026-06-26 -- Phase 90 Plan 02 executed (PROTOCOL-LEDGER.json + .md authored, check_ledger.py exits 0)
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 25
-  completed_plans: 23
-  percent: 88
+  completed_plans: 24
+  percent: 83
 ---
 
 # Project State
@@ -23,8 +23,8 @@ progress:
 
 Phase: 90 (Per-Protocol Bench Validation + Ledger) — EXECUTING
 Plan: 4 of 4
-Status: Executing Phase 90 — Plan 03 complete
-Last activity: 2026-06-26 -- Phase 90 Plan 03 complete (SAFE-04 verify-present-only: guard chain confirmed present + frozen world green)
+Status: Executing Phase 90 — Plan 02 complete
+Last activity: 2026-06-26 -- Phase 90 Plan 02 complete (PROTOCOL-LEDGER.json + .md authored bench-pending; check_ledger.py exits 0)
 
 Progress: [████████░░] 83%
 
@@ -130,7 +130,7 @@ ruff/codegen drift trap for any host-side NAME-04 corrections in Phase 86.
 
 ## Session Continuity
 
-Last session: 2026-06-26T11:59:50.517Z
+Last session: 2026-06-26T12:48:09.294Z
 Stopped at: Phase 90 context gathered
 Resume: Phase 88 — Golden Traces + Dispatch-Mirror Guard
 
@@ -143,6 +143,7 @@ Resume: Phase 88 — Golden Traces + Dispatch-Mirror Guard
 - [Phase 84-05, 2026-06-25]: FIX-01 closed by disposition D-43; GRAD-03/FUT-03 deferred best-effort D-22; 2516 read still unstable after VPP-skip.
 - [Phase 90-01, 2026-06-26]: LEDGER-01/02/03 + D-09 Wave-0 gate — check_ledger.py stdlib-only checker with 0/1/2 exit-code contract; placed under .planning/v1.16/ledger/tools/ (not firestarter_app/tools/) to avoid py3.11 CI ruff/mypy gates; 5 pytest tests green; valid fixture confirms all 12 buckets + D-04 no-copy compose-by-cross-reference. Commits d3b7ea6/983bb23.
 - [Phase 90-03, 2026-06-26]: SAFE-04 verify-present-only evidence — firmware HEAD a296195 confirmed; vpp_check_window +500 mV gate at primitives.cpp:106 PRESENT+UNMODIFIED; chip_resolver.py:55 support-status guard PRESENT+UNCHANGED; 2516 verification_status=UNVERIFIED (support_status=supported intentional — host guard would block read if non-supported); FW-CLEAN; HOST-DIRTY = pre-existing .gitignore-only delta (consistency* entry, noted Phase 89-01, not a source file — D-10 satisfied at source level); check_dispatch 0 violations (746 chips), diff_db identity (0 changed), native suite 105/105 PASS. SAFE-04 satisfied. meta@800872b.
+- [Phase 90-02, 2026-06-26]: LEDGER-01/03 — PROTOCOL-LEDGER.{json,md} authored in bench-pending state. 12 rows (4 bench-pending/on-hand, 6 UNVERIFIED/no-silicon, 2 open-defect-carried), 3 open_defects (CR-01/FUT-06/FUT-03) with status_changed=false. D-04 no-copy: no SHA in ledger (checker confirms). check_ledger.py exits 0 (LEDGER-01 join keys resolve + D-04 guard + 12 buckets; LEDGER-02/D-09 vacuously satisfied — no PASS rows; LEDGER-03 UNVERIFIED set + defect carries). bench-pending added to _VALID_STATUSES in checker (1-line fix, anticipated by plan). meta@520e133/e8a8036.
 - [Phase 85-01, 2026-06-25]: v1.16-protocol-first-architecture-rebuild branch forked from beta (not v1.15 tip) in firestarter sub-repo; datasheets-check.sh Wave-0 gate authored with 12-bucket %PDF contract (correctly RED at scaffold stage, PASS after Plans 02/03 populate the tree).
 - [Phase 85-02, 2026-06-25]: 17 datasheets committed; W27E512→0x07, FM1608→0x28 (DB-verified); 3 D-02 fallbacks: SST27SF512/W27E040/DS1250Y bot-blocked; SAFE-05 intact
 - [Phase 85-03, 2026-06-25]: datasheets/README.md authored (DSHEET-03); 12-bucket index + 6 exclusions + D-02/D-03 policy; phase-gate PASS (exit 0); SAFE-05 intact
@@ -187,6 +188,7 @@ Resume: Phase 88 — Golden Traces + Dispatch-Mirror Guard
 | 89 | 05 | 8min | PRIM-06 — 89-FLASH-LEDGER.md: step table P7/P4/P3/P5; final 25090 B (87.5%, -564 B net); D-01 PASS; 102/102 native; check_dispatch 0 violations; diff_db empty; SAFE-04 intact; Phase 89 COMPLETE. meta@0c31bd4 |
 | 90 | 01 | 15min | LEDGER-01/02/03 — Wave-0 gate: check_ledger.py (273 lines, stdlib-only, 0/1/2 exit contract) + 5 pytest green + 3 JSON fixtures (valid 12-bucket ledger, evidence_min, matrix_min). Commits d3b7ea6/983bb23. |
 | 90 | 03 | 8min | SAFE-04 verify-present-only: firmware a296195 confirmed; primitives.cpp:106 +500 mV gate PRESENT; chip_resolver.py:55 support-status guard PRESENT; 2516 UNVERIFIED; check_dispatch 0 violations; diff_db identity; native 105/105 PASS. meta@800872b. |
+| 90 | 02 | 20min | LEDGER-01/03 — PROTOCOL-LEDGER.{json,md} authored bench-pending state: 4 bench-pending + 6 UNVERIFIED + 2 open-defect-carried rows, 3 open_defects, D-04 no-SHA copy, checker exits 0. meta@520e133/e8a8036. |
 
 ## Deferred Items
 

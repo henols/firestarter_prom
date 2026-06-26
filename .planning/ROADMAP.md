@@ -281,7 +281,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 90-02-PLAN.md — Author PROTOCOL-LEDGER.{json,md}: 12 bucket rows, 6 UNVERIFIED, 3 open-defect carries (LEDGER-01/03)
+- [x] 90-02-PLAN.md — Author PROTOCOL-LEDGER.{json,md}: 12 bucket rows, 6 UNVERIFIED, 3 open-defect carries (LEDGER-01/03)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 

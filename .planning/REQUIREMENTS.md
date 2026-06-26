@@ -50,9 +50,9 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Phase n
 
 ### Per-Protocol Bench Validation + Ledger
 
-- [ ] **LEDGER-01**: A new `PROTOCOL-LEDGER.{md,json}` records a per-protocol row (proposed name, datasheet citation, primitives used, verification status) and composes with — does not replace — the v1.13 `validation_matrix_spec.json` (by family) and v1.15 `EVIDENCE.json` (by chip+sha).
+- [x] **LEDGER-01**: A new `PROTOCOL-LEDGER.{md,json}` records a per-protocol row (proposed name, datasheet citation, primitives used, verification status) and composes with — does not replace — the v1.13 `validation_matrix_spec.json` (by family) and v1.15 `EVIDENCE.json` (by chip+sha).
 - [ ] **LEDGER-02**: Each protocol with on-hand silicon is bench-validated on Leonardo + RURP Rev 2.0; a PASS row structurally requires `oracle: leonardo+Rev2.0` plus non-empty evidence references.
-- [ ] **LEDGER-03**: The 6 no-silicon buckets (0x0D, 0x0E, 0x10, 0x27, 0x29, 0x34) are recorded as explicit `UNVERIFIED`, and the open-defect rows (W29C040 CR-01, AM27C020 FUT-06, 2516 FUT-03) are carried at their current documented status (not silently changed).
+- [x] **LEDGER-03**: The 6 no-silicon buckets (0x0D, 0x0E, 0x10, 0x27, 0x29, 0x34) are recorded as explicit `UNVERIFIED`, and the open-defect rows (W29C040 CR-01, AM27C020 FUT-06, 2516 FUT-03) are carried at their current documented status (not silently changed).
 
 ### Cross-Cutting Safety / Invariants
 
@@ -116,9 +116,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 | PRIM-04 | Phase 89 | Complete |
 | PRIM-05 | Phase 89 | Complete |
 | PRIM-06 | Phase 89 | Complete |
-| LEDGER-01 | Phase 90 | Pending |
+| LEDGER-01 | Phase 90 | Complete |
 | LEDGER-02 | Phase 90 | Pending |
-| LEDGER-03 | Phase 90 | Pending |
+| LEDGER-03 | Phase 90 | Complete |
 | SAFE-01 | Phase 88 (recurring in 89) | Complete |
 | SAFE-02 | Phase 88 (recurring in 89) | Complete |
 | SAFE-03 | Phase 86 (recurring in 87/88/89) | Complete |
