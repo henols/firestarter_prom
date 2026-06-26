@@ -239,7 +239,27 @@ Plans:
   4. After P5 (poll primitive): a shared `poll_readback` primitive is used by `eeprom28c_wait_for_write`, `flash4_wait_for_page_write`, and the verify-readback half of `eprom_write_execute`; outer retry/page algorithms are untouched.
   5. `check_dispatch.py` exits 0 violations and `diff_db.py` is empty at every extraction step; `pio run -e leonardo` shows net-non-increase flash at every step; the achieved final flash percentage is recorded.
 
-**Plans**: TBD
+**Plans**: 5 plans
+Plans:
+**Wave 1**
+
+- [ ] 89-01-PLAN.md — P7 SDP/const-table dedup: delete dead FLASH_ENABLE_WRITE_PROTECTION + redirect EEPROM_SDP_DISABLE to FLASH_DISABLE_WRITE_PROTECTION (PRIM-02; warm-up, delete-not-merge)
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 89-02-PLAN.md — P4 chip_id_report: create NEW primitives.{cpp,h} module (D-03) + share the compare/report tail across eprom/flash_intel/eeprom28c/flash4 (PRIM-03)
+
+**Wave 3** *(blocked on Wave 2 — highest deferral risk)*
+
+- [ ] 89-03-PLAN.md — P3 vpp_check_window: share the HIGH/LOW window-compare body; keep regulator routing + REV0 guard + clear handler-local, protocol-keyed (PRIM-04, SAFE-04/D-08)
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 89-04-PLAN.md — P5 poll_readback: share the bounded single-address poll for eeprom28c+flash4 (cap + error-frame parameterized); leave eprom bitmask + outer loops intact (PRIM-05)
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 89-05-PLAN.md — Phase close: final Leonardo flash + achieved % (PRIM-06 net-decrease), per-step ledger, final frozen-world gate + SAFE-04 posture verification
 
 ### Phase 90: Per-Protocol Bench Validation + Ledger *(was 89)*
 
