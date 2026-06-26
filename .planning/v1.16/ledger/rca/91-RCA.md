@@ -121,17 +121,59 @@ have bit7=0) and never detects the un-set low bits. Only the final full verify c
 > monitor `vpp` and `write` concurrently. The "12V-VPP write-path" label never applied to 0x06;
 > the real axis is **erase-before-write completeness**.
 
-## Root Cause (RCA-91)
+## Root Cause (RCA-91) — DEFINITIVE
 
-`flash_type_3.cpp:flash3_write_init` issues one chip-erase (`flash_execute_command(FLASH_ERASE)`)
-then waits a **fixed `delay(FLASH_ERASE_DELAY_MS=105 ms)`** with **no poll for actual erase
-completion**, then `flash3_write_execute` programs byte-by-byte from address 0. On this seated
-SST39SF040 the chip-erase completes a few ms past 105 ms, so the first 1–3 bytes (programmed in
-the overlap window right after the delay) land on cells the erase had not yet finished → they
-retain `prev & new`. The DQ7-only per-byte poll masks it. This logic is **byte-identical across
-b10 (a1953c2) and the recompose (a296195)** (diff = comment-only on flash_type_3.cpp), so it is a
-**pre-existing marginal-timing bug, surfaced — not introduced — by the recompose.** This is why a
-P3 / VPP explanation cannot cover it (flash3 has no P3 and uses no VPP).
+**The erase was never running. `firestarter write -b` skips the erase that flash3 (NOR) requires.**
+
+> An earlier intermediate hypothesis (marginal 105 ms chip-erase *timing*) is **SUPERSEDED**: a
+> 105→500 ms firmware delay bump did NOT fix it (write B still `0x1c != 0x04 @0x0`), because the
+> erase code block is never entered on the `-b` path. That firmware change was reverted; the
+> recompose firmware is byte-identical and innocent.
+
+Chain of evidence:
+1. **`-b` sets `FLAG_SKIP_ERASE`.** Host `cli_handlers.py` write handler:
+   `build_flags(blank_check, …, skip_erase=not blank_check)`. The `-b/--no-blank-check` option help
+   literally reads *"Do not perform blank check before write (and skip erase)."* So `-b` →
+   `blank_check=False` → `skip_erase=True` → `FLAG_SKIP_ERASE (0x04)` set. (Same in v1.15 host
+   98b3a92 — documented, D-13.3 rationale-locked behavior.)
+2. **flash3 honors it.** `flash3_write_init`: `if (FLAG_CAN_ERASE) { if (!FLAG_SKIP_ERASE) { erase }
+   else { LOG skipping erase } }`. With `-b`, erase is **skipped**.
+3. **SST39SF040 is NOR flash — it MUST be erased before write.** Programming only clears bits
+   (1→0); setting a bit (0→1) requires erase to 0xFF. With no erase, any target byte that needs a
+   bit the current content lacks cannot be written.
+4. **Why it looked "99.99% correct":** the chip already held ≈image B from the prior write, so
+   bytes 3+ were no-op re-writes (already correct); only bytes 0x0–0x2 (which needed bits set)
+   stayed at `prev & new`. The DQ7-only per-byte poll (`flash_util_verify_operation`, `& 0x80`)
+   matched on bit 7 and falsely reported each byte "successful" — so the firmware reported the whole
+   write "successful" and only the final full verify caught it.
+5. **Confirmed by the fix:** plain `firestarter write SST39SF040 imgB` (NO `-b`) → `blank_check=True`
+   → `skip_erase=False` → flash3 erases (then post-erase blank-check passes, then programs) →
+   **write RC=0 (239.89 s) + verify RC=0** (chip == image B == `a38b13b4…`). The ~240 s vs ~177 s
+   delta is exactly the added chip-erase + blank-check pass.
+
+**Why a P3 / VPP explanation never fit:** flash3 (0x06) is 5V-only, uses no P3 and never enables
+the VPP regulator. The axis is **erase-before-write**. The W27C512 (0x07) `bad bytes:921 @0x0`
+symptom is the same axis (a non-blank chip written with `write -b` → erase skipped → first block
+can't take the new bits). The Phase-90 "12V-VPP write-path regression" was a **test-method error**:
+`write -b` was used for both NOR/erase-required chips, silently skipping the required erase. The
+firmware AND host are innocent of any v1.16 regression (b10 fails identically; the code is
+byte-identical / the `-b` coupling predates v1.16).
+
+## Fix Applied (FIX-91)
+
+**Fix = use the erase-enabled write path for flash3.** SST39SF040 (and any electrically-erasable
+NOR/EEPROM-class part) must be written with plain `firestarter write <chip> <file>` — which runs
+erase → blank-check → program — NOT `firestarter write -b` (which skips both blank-check AND erase
+and is only appropriate for already-blank or non-erasable/UV parts). No firmware or host **code**
+change is required; the recompose firmware stays byte-identical to a296195 (reverted the
+exploratory delay bump). The corrected method is recorded in BENCH-LOG, the ledger note, and the
+W27C512 operator checklist.
+
+**Recommended future hardening (NOT applied — touches D-13.3-locked `-b` semantics; left for
+operator decision):** when `-b`/`FLAG_SKIP_ERASE` is used on a chip that reports `FLAG_CAN_ERASE`
+(electrically erasable), emit a prominent WARNING (host pre-flight and/or firmware) that the erase
+was skipped, so a skipped-erase NOR write cannot silently report "successful" while corrupting the
+first bytes. This removes the footgun without changing the documented `-b` behavior.
 
 ## Decision Gate — Wave 2 Task 3
 
@@ -147,9 +189,11 @@ byte-identical between them (diff = comment-only). This is NOT recompose-fw and 
 write path runs on the firmware; the host merely streams bytes). It is a pre-existing marginal
 chip-erase-completion timing bug. No host-axis A/B is needed (fw-cause is established on both legs).
 
-**Indicated fix for Plan 03:** widen the flash3 chip-erase settle margin (105 ms → 500 ms) so the
-erase fully completes before programming begins. (Recommended future hardening: DQ7/toggle-bit
-erase-completion poll instead of a blind delay.)
+**Indicated fix for Plan 03 (initial hypothesis — later CORRECTED):** the gate first pointed at a
+flash3 chip-erase settle-timing margin. Wave-3 silicon testing **disproved** that (the 105→500 ms
+bump did not fix it) and revealed the true cause: **`write -b` skips the required erase**
+(`FLAG_SKIP_ERASE`). See "## Root Cause (RCA-91) — DEFINITIVE" and "## Fix Applied" below. The real
+fix is the erase-enabled plain `write` path; no firmware change.
 
 ## Both Symptoms Explained (RCA-91 Success Criterion 2)
 
@@ -190,10 +234,41 @@ environmental / slow-path / timeout effect (flash3 is a ~177–240 s/write slow 
 
 ---
 
+## SST39SF040 Working-Write Confirmation (FIX-91 — Wave 3)
+
+On **stock recompose firmware** (a296195, 25136 B, byte-identical — no firmware edit), Leonardo +
+RURP Rev 2.0, using the erase-enabled plain `firestarter write` path:
+
+| Step | Result |
+|------|--------|
+| `write SST39SF040 imgA` | RC=0 (240 s) — erase ran (chip held imgB; imgA needs bits erase must set) |
+| `verify SST39SF040 imgA` | **RC=0** — erase + program of fully-different content succeeded |
+| `write SST39SF040 imgB` | RC=0 (240 s) |
+| `verify SST39SF040 imgB` | **RC=0** — chip == image B |
+| `dev consistency-check --runs 3` | **PASS, 1 distinct SHA = `a38b13b4d285…970b96b`** (3/3) == v1.15 gate |
+| negative control `verify imgA` | **RC=1** (verify non-vacuous) |
+
+**FIX-91 GATE MET.** Evidence: `bench/SST39SF040-fix/SHA256SUMS.txt`. The ~240 s write (vs ~177 s
+for `write -b`) is exactly the added chip-erase + post-erase blank-check pass.
+
+## Board Restore + SAFE-04 (Wave 3)
+
+- **Board left on milestone firmware:** stock recompose a296195 (25136 B), `firestarter fw` →
+  leonardo on /dev/ttyACM0 (port re-settled to ACM0 after the final reflash). The exploratory
+  105→500 ms delay change was **reverted** — `git status --porcelain src include` is empty
+  (firmware byte-identical to a296195).
+- **SAFE-04 verified intact:** the VPP over-voltage guard `vpp_check_window` (+500 mV HIGH check,
+  D-08, `primitives.cpp:106`) is PRESENT + UNMODIFIED; BLOCKER-2 (no 12V to a no-VPP pinout)
+  unaffected (flash3 is 5V-only and never enables the regulator). No safety guard was weakened to
+  achieve the working write.
+- **Worktrees cleaned:** `/tmp/fs-b10` (b10 fw) and `/tmp/fsa-b8` (v1.15 host) removed. Meta
+  gitlinks NOT bumped (D-06).
+
 ## Status
 - [x] Wave 1 Task 1 — diff forensics captured + verdict (recompose innocent)
 - [x] Wave 1 Task 2 — native golden traces green (bus sequence preserved)
 - [x] Wave 1 Task 3 — A/B images SHA-verified + b10 baseline built + identity rule
-- [ ] Wave 2 — bench A/B + ebca6266 forensic + decision gate
-- [ ] Wave 3 — fix + confirm SST39SF040 write == a38b13b4…
+- [x] Wave 2 — bench A/B + ebca6266 forensic + decision gate (recompose innocent)
+- [x] Wave 3 — TRUE root cause (`write -b` skips required erase); fix = plain `write`; SST39SF040
+      confirmed == a38b13b4 (3/3) on stock recompose; firmware reverted; SAFE-04 intact
 - [ ] Wave 4 — disposition ledger rows + W27C512 operator checklist
