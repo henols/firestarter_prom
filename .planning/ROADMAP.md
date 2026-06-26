@@ -300,11 +300,25 @@ Plans:
   3. A fix (or a documented, accepted deferral) is proposed; the 0x06/0x07 PROTOCOL-LEDGER rows are dispositioned (graduate to PASS after fix+re-bench, or carried as named defects).
 
 **Notes**: Hardware-gated (Leonardo + RURP Rev 2.0, operator). Both failing chips currently hold partial/wrong content but are rewritable/recoverable. See `.planning/v1.16/ledger/bench/BENCH-LOG.md` and `90-04-SUMMARY.md`.
-**Plans**: 0 plans (run `/gsd-plan-phase 91` to break down)
+**Plans**: 4 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 91 to break down)
+**Wave 1** *(no hardware — analysis + prep)*
+
+- [ ] 91-01-PLAN.md — Diff-forensics (recompose innocence) + native golden-trace confirmation + A/B image & b10-build prep (RCA-91)
+
+**Wave 2** *(bench A/B — SST39SF040 seated, autonomous)*
+
+- [ ] 91-02-PLAN.md — ebca6266 content forensic + reproduce-on-recompose with loaded-rail VPP + decisive b10 A/B + decision gate (RCA-91)
+
+**Wave 3** *(fix + headline deliverable, autonomous)*
+
+- [ ] 91-03-PLAN.md — Optional host-axis A/B + apply fix + CONFIRM SST39SF040 write == a38b13b4… + restore recompose fw (FIX-91)
+
+**Wave 4** *(disposition + W27C512 deferral)*
+
+- [ ] 91-04-PLAN.md — Disposition 0x06/0x07 ledger rows (checker RC=0) + BENCH-LOG update + ready-to-run W27C512 operator checklist (FIX-91); W27C512 live bench DEFERRED to operator
 
 ## v1.9 — Read-Bug RCA + Fix (STARTED 2026-05-29)
 
