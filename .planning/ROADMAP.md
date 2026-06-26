@@ -259,7 +259,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4)*
 
-- [ ] 89-05-PLAN.md — Phase close: final Leonardo flash + achieved % (PRIM-06 net-decrease), per-step ledger, final frozen-world gate + SAFE-04 posture verification
+- [x] 89-05-PLAN.md — Phase close: final Leonardo flash + achieved % (PRIM-06 net-decrease), per-step ledger, final frozen-world gate + SAFE-04 posture verification
 
 ### Phase 90: Per-Protocol Bench Validation + Ledger *(was 89)*
 
@@ -853,7 +853,7 @@ Plans:
 | 86 | v1.16 | 4/4 | Complete | 86-01 (VAR-01 docs + Wave-0 oracle) ✅; 86-02 (classify() rewrite + correct DB regen) ✅; 86-04 (2516/2532 non-upstream supplement, DB→746) ✅; 86-03 (baseline re-pin LAST → diff_db IDENTITY exit 0; full py3.11 gate green) ✅ 2026-06-25 |
 | 87 | v1.16 | 4/4 | Complete    | 2026-06-26 |
 | 88 | v1.16 | 5/5 | Complete    | 2026-06-26 |
-| 89 (close) | v1.16 | 4/5 | In Progress|  |
+| 89 (close) | v1.16 | 5/5 | Complete   | 2026-06-26 |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 

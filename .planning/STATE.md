@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
-status: executing
-stopped_at: Phase 89-04 complete — P5 poll_readback extracted; firestarter@abbbb5c
-last_updated: "2026-06-26T11:07:50.021Z"
+status: verifying
+stopped_at: Phase 89-05 complete — PRIM-06 flash ledger authored; 89-FLASH-LEDGER.md; Phase 89 COMPLETE
+last_updated: "2026-06-26T11:13:08.893Z"
 last_activity: 2026-06-26
 progress:
   total_phases: 6
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 21
-  completed_plans: 20
-  percent: 67
+  completed_plans: 21
+  percent: 83
 ---
 
 # Project State
@@ -21,12 +21,12 @@ progress:
 
 ## Current Position
 
-Phase: 89 (incremental-primitive-recompose) — EXECUTING
-Plan: 5 of 5
-Status: Ready to execute
+Phase: 89 (incremental-primitive-recompose) — COMPLETE
+Plan: 5 of 5 (all plans complete)
+Status: Phase complete — ready for /gsd-verify-work
 Last activity: 2026-06-26
 
-Progress: [████░░░░░░] 43%
+Progress: [████████░░] 83%
 
 > **Scope amendment 2026-06-25:** Mid-discussion the operator pivoted v1.16 from a
 > pure behavior-preserving refactor to *fix the DB at its root* — decode the
@@ -130,7 +130,7 @@ ruff/codegen drift trap for any host-side NAME-04 corrections in Phase 86.
 
 ## Session Continuity
 
-Last session: 2026-06-26T11:07:50.013Z
+Last session: 2026-06-26T11:13:08.888Z
 Stopped at: Phase 89-04 complete — P5 poll_readback extracted; firestarter@abbbb5c
 Resume: Phase 88 — Golden Traces + Dispatch-Mirror Guard
 
@@ -159,6 +159,7 @@ Resume: Phase 88 — Golden Traces + Dispatch-Mirror Guard
 - [Phase ?]: [Phase 89-02, 2026-06-26]: PRIM-03/P4 — new primitives module (primitives.h/cpp) + chip_id_report shared across 4 call sites (flash_utils/eprom/eeprom28c/flash_intel); eprom error_code param retained as void (Assumption A3 resolved via golden trace); flash 25654→25490 B (-164 B, D-01 PASS); 102/102 native green; check_dispatch 0 violations; diff_db empty; INV-01..09 >=3 files. firestarter@a10871d
 - [Phase ?]: [Phase 89-03, 2026-06-26]: PRIM-04/P3 — vpp_check_window extracted; delay(100) handler-local; D-08 threshold byte-identical in primitives.cpp; REGULATOR=0 in primitive (D-06); flash 25490->25088 B (-402 B); 102/102 PASS; firestarter@a52fd0a
 - [Phase ?]: Phase 89-04: P5 extracted — poll_readback() shares bounded single-address poll kernel; each caller retains site-specific error frame (addr-first vs expected-first byte order preserved); eprom verify_and_update_mask untouched; zero-diff traces; +2 B flash delta; firestarter@abbbb5c
+- [Phase 89-05, 2026-06-26]: PRIM-06 closed — 89-FLASH-LEDGER.md authored: step table P7(0B)+P4(-164B)+P3(-402B)+P5(+2B)=-564B net; final flash 25090 B (87.5%) vs 25654 B baseline; D-01 PASS (25090 < 25654); no D-02 deferrals; all 4 primitives committed; 102/102 native PASS; check_dispatch 0 violations; diff_db identity; SAFE-04 intact (D-08 threshold in primitives.cpp:98, resolve_chip present, 2516 UNVERIFIED); INV-01..09 all >=3 files. Phase 89 COMPLETE. meta@0c31bd4
 
 ## Performance Metrics
 
@@ -181,6 +182,7 @@ Resume: Phase 88 — Golden Traces + Dispatch-Mirror Guard
 | Phase 89 P89-02 | 12min | 2 tasks | 6 files |
 | Phase 89 P89-03 | 18min | - tasks | - files |
 | Phase 89 P04 | 15min | 2 tasks | 4 files |
+| 89 | 05 | 8min | PRIM-06 — 89-FLASH-LEDGER.md: step table P7/P4/P3/P5; final 25090 B (87.5%, -564 B net); D-01 PASS; 102/102 native; check_dispatch 0 violations; diff_db empty; SAFE-04 intact; Phase 89 COMPLETE. meta@0c31bd4 |
 
 ## Deferred Items
 
