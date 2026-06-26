@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
 status: executing
-stopped_at: "Completed 88-04-PLAN.md"
-last_updated: "2026-06-26T08:55:11Z"
+stopped_at: "Completed 88-02-PLAN.md"
+last_updated: "2026-06-26T09:35:00Z"
 last_activity: 2026-06-26
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 16
-  completed_plans: 13
-  percent: 52
+  completed_plans: 14
+  percent: 56
 ---
 
 # Project State
@@ -23,7 +23,7 @@ progress:
 
 Phase: 88 (golden-traces-dispatch-mirror-guard-was-87) — EXECUTING
 Plan: 5 of 5 (dispatch-mirror guard complete; remaining: golden traces Plans 01-03 if not done)
-Status: Plan 04 complete
+Status: Plan 02 complete
 Last activity: 2026-06-26
 
 Progress: [████░░░░░░] 43%
@@ -151,6 +151,7 @@ Resume: Phase 88 — Golden Traces + Dispatch-Mirror Guard
 - [Phase 87-03, 2026-06-26]: NAME-03/SAFE-02 — 9 INV native test assertions in matrix-assigned suite paths; INV-04 page-boundary probe switched from 257-byte (recording-buffer overflow) to 65-byte (discriminates 64B vs 256B pages via SDP-count=1 proof); INV-03 uses pins=32+vpp_line=VPP_P1_32_DIP to activate using_p1_as_vpp() and observe CTRL_VPP_P1_ENABLE in execute phase; SAFE-02 three-target grep contract complete: doc+handler+test for all 9 INVs. firestarter@b67acde
 - [Phase 87-04, 2026-06-26]: NAME-05/SAFE-03/SAFE-06 — All five frozen-world gates PASS. check_dispatch.py exit 0 (746 chips, 0 violations). diff_db.py exit 0 (0 changed/0 new/0 missing, identity diff). pio run -e leonardo flash delta = 0 bytes (pre=25654 post=25654 — exact match, well within 16-byte threshold). All 9 INV ids hit >=3 files (PROTOCOLS.md + handler + test; INV-01 and INV-09 hit 4 files). Host repo git-diff exit 0 (zero source/tool/test files modified — SAFE-06 machine-verified, not py3.12-maskable toolchain run). Phase 87 COMPLETE.
 - [Phase 88-04, 2026-06-26]: SAFE-02/PRIM-01 — dispatch-mirror invariant test authored as host pytest (test_dispatch_mirror.py). Three-way bind: PROTOCOLS.md §0 doc-parse ↔ check_dispatch.dispatch() + _ALGO_MEM_TYPE ↔ test_configure_memory.cpp firmware-leg enumeration. Full §0 table (12 rows incl. SRAM 0x0E/0x27/0x28/0x29, 0x34→not_implemented). Phantom 0x35/0x39 excluded from doc/firmware-leg assertion (not in §0). 2 tests pass, ruff-clean, no firmware modified. firestarter_app@e46549f.
+- [Phase 88-02, 2026-06-26]: PRIM-01/SAFE-02 — eeprom28c + flash_intel golden register traces pinned. 4 fixtures committed. Key: eeprom28c has no CMD_CHECK_CHIP_ID handler — chip-id golden trace uses CMD_WRITE + chip_id=0x1F08 + operation_init only. flash_intel write golden test needed delayMicroseconds + millis() stubs added to setUp() (first time write_execute called in suite). SR poll exited via scripted get_data returning 0x80. All 10 suite tests green. firestarter@0b1ce93/fa0f908.
 - [Phase 87-02, 2026-06-26]: NAME-02 — all 10 handler files carry datasheet-anchored rationale header blocks (plain C comments, zero flash). INV-01/02/03/05/06/08 in eprom.cpp; INV-04 in flash_type_4.cpp; INV-09 in flash_type_3.cpp; INV-07 in sram.cpp; plus dispatch rationale in flash_utils/memory/not_implemented/firestarter.cpp. Comment-only diff guard PASS (all 10 files). SAFE-02 greppability: INV ids now hit doc (87-01) + handler (87-02) — third target (test names) lands in Plan 03. Commits firestarter@f362263/3b8202d.
 
 ## Performance Metrics
@@ -167,6 +168,7 @@ Resume: Phase 88 — Golden Traces + Dispatch-Mirror Guard
 | 87 | 03 | 10min | NAME-03/SAFE-02 — 9 INV-id-bearing live Unity assertions across 4 test_val_* suites; recording-buffer overflow resolved for INV-04 (65-byte probe); 91/91 native tests pass. firestarter@b67acde |
 | 87 | 04 | 2min | NAME-05/SAFE-03/SAFE-06 — All 5 frozen-world gates PASS: check_dispatch 0 violations (746 chips), diff_db empty (0 changed), flash delta=0 (25654/25654), all 9 INV >=3 files, host git-diff clean. Phase 87 COMPLETE. |
 | 88 | 04 | 8min | SAFE-02/PRIM-01 — dispatch-mirror invariant test: three-way bind doc↔tool↔firmware over full §0 table; 2 pytest pass; ruff-clean. firestarter_app@e46549f |
+| 88 | 02 | 30min | PRIM-01/SAFE-02 — eeprom28c + flash_intel golden traces: 4 fixtures (17+17+7+6 entries); 10 suite tests green; delayMicroseconds+millis() stubs added to flash_intel setUp(); eeprom28c chip-id via CMD_WRITE+init-only. firestarter@0b1ce93/fa0f908 |
 
 ## Deferred Items
 
