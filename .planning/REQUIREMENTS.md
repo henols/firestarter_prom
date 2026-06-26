@@ -34,7 +34,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Phase n
 ### Naming + Documentation Vocabulary
 
 - [x] **NAME-01**: Every `protocol_id` present in `chip_database.json` has an authored human-readable name on the algorithm axis plus its datasheet-verified behavior (write algorithm, erase model, VPP behavior, pin roles).
-- [ ] **NAME-02**: Each firmware handler's *why* (the rationale for its current behavior) is documented and traceable to a datasheet.
+- [x] **NAME-02**: Each firmware handler's *why* (the rationale for its current behavior) is documented and traceable to a datasheet.
 - [x] **NAME-03**: The accreted per-handler one-off fixes are enumerated as named behavior-contract invariants, each mapped to an existing native-test assertion (traceability matrix) with minimal new tests only where a cell is empty. The enumeration has **9** items (the roadmap's "8" is a stale label): 0x0B direct-VPE rail, 0x0B shared OE/VPP read-skip, 0x08 P1-as-VPP, flash4 256B page boundary, VPP-skip-on-read, pulse-delay defaults, FM1608 SRAM→FRAM, WARNING-5 0x07→0x0D override, SST39SF040 keep-Flash/EEPROM. *(Note: the WARNING-5 and FM1608→FRAM behaviors are now achieved by Phase 86's variant decode rather than a build_db override, but they remain documented invariants the firmware/decode must preserve.)*
 - [x] **NAME-04**: The corrected FM1608 (SRAM_STD / 0x28) and X88C64 (`electrical.type` EEPROM) classifications — now delivered structurally by the Phase 86 variant decode (VAR-03), not as host special-cases — are **documented** in the vocabulary with their true `infoic.xml` identity tuple (type/proto/variant); the historical "FM1608 0x40" framing is recorded as a decimal-40 ↔ hex-0x28 conflation. Phantom (0x35/0x39) and infeasible (0x11/0x2A/0x2B/0x2C) buckets are explicitly named as honest non-protocols.
 - [x] **NAME-05**: The naming pass leaves the firmware dispatch structure and all wire/control values unchanged (`diff_db.py` shows only the enumerated NAME-04 corrections; near-zero Leonardo flash delta).
@@ -106,7 +106,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | VAR-04 | Phase 86 | Complete (86-02 EVIDENCE-stable + 86-03 gate; check_dispatch 0 violations, full py3.11 gate green) |
 | VAR-05 | Phase 86 | Complete (86-04) |
 | NAME-01 | Phase 87 | Complete |
-| NAME-02 | Phase 87 | Pending |
+| NAME-02 | Phase 87 | Complete |
 | NAME-03 | Phase 87 | Complete |
 | NAME-04 | Phase 87 | Complete |
 | NAME-05 | Phase 87 | Complete |

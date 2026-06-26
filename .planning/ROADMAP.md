@@ -187,7 +187,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 — both depend on the INV-01..09 contract from PROTOCOLS.md; disjoint file trees src/ vs test/)*
 
-- [ ] 87-02-PLAN.md — Per-handler datasheet-anchored rationale header blocks across all 10 firmware files, citing the INV ids (NAME-02, zero-flash, comment-only diff guard)
+- [x] 87-02-PLAN.md — Per-handler datasheet-anchored rationale header blocks across all 10 firmware files, citing the INV ids (NAME-02, zero-flash, comment-only diff guard)
 - [ ] 87-03-PLAN.md — Gap-fill native tests: map every INV-01..09 to a live greppable assertion in its matrix-assigned test_val_eprom/flash3/flash4/sram suite; pio test -e native green (NAME-03, SAFE-06)
 
 **Wave 3** *(blocked on Waves 1+2)*
@@ -821,7 +821,7 @@ Plans:
 | 84 (close) | v1.15 | 6/6 | Complete   | 2026-06-25 |
 | 85 | v1.16 | 3/3 | Complete    | 2026-06-25 |
 | 86 | v1.16 | 4/4 | Complete | 86-01 (VAR-01 docs + Wave-0 oracle) ✅; 86-02 (classify() rewrite + correct DB regen) ✅; 86-04 (2516/2532 non-upstream supplement, DB→746) ✅; 86-03 (baseline re-pin LAST → diff_db IDENTITY exit 0; full py3.11 gate green) ✅ 2026-06-25 |
-| 87 | v1.16 | 1/4 | In Progress|  |
+| 87 | v1.16 | 2/4 | In Progress|  |
 | 88 | v1.16 | 0/TBD | Not started | — |
 | 89 (close) | v1.16 | 0/TBD | Not started | — |
 
