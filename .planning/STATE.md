@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: — Protocol-First Architecture Rebuild
 status: executing
-stopped_at: Plan 87-03 COMPLETE — INV-01..09 live native test assertions in matrix-assigned suite paths; SAFE-02 three-target contract complete
-last_updated: "2026-06-26T06:46:00.000Z"
+stopped_at: Plan 87-04 COMPLETE — All frozen-world gates PASS (check_dispatch 0 violations, diff_db empty, flash delta 0, INV >=3 files, host frozen); Phase 87 COMPLETE
+last_updated: "2026-06-26T06:52:21Z"
 last_activity: 2026-06-26
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 11
-  completed_plans: 10
-  percent: 39
+  completed_plans: 11
+  percent: 45
 ---
 
 # Project State
@@ -21,9 +21,9 @@ progress:
 
 ## Current Position
 
-Phase: 87 (naming-documentation-pass) — EXECUTING
-Plan: 4 of 4
-Status: Executing — Plan 03 complete
+Phase: 87 (naming-documentation-pass) — COMPLETE
+Plan: 4 of 4 (all done)
+Status: Phase 87 complete — ready for Phase 88 (Golden Traces + Dispatch-Mirror Guard)
 Last activity: 2026-06-26
 
 Progress: [████░░░░░░] 43%
@@ -130,9 +130,9 @@ ruff/codegen drift trap for any host-side NAME-04 corrections in Phase 86.
 
 ## Session Continuity
 
-Last session: 2026-06-26T06:46:00.000Z
-Stopped at: Plan 87-03 COMPLETE — 9 INV native test assertions (b67acde); SAFE-02 doc+handler+test contract complete; 91/91 native tests pass
-Resume: Plan 87-04 — final gates (check_dispatch.py / diff_db.py / Leonardo flash delta)
+Last session: 2026-06-26T06:52:21Z
+Stopped at: Plan 87-04 COMPLETE — All 5 frozen-world gates green; flash delta=0; all 9 INV >=3 files; host git-diff clean; Phase 87 COMPLETE
+Resume: Phase 88 — Golden Traces + Dispatch-Mirror Guard
 
 ## Decisions
 
@@ -149,6 +149,7 @@ Resume: Plan 87-04 — final gates (check_dispatch.py / diff_db.py / Leonardo fl
 - [Phase 86 discuss, 2026-06-25]: MILESTONE RESTRUCTURED. Grounded in raw infoic.xml that FM1608=type4/proto0x07/variant0x4126 and X88C64=type1/proto0x34/variant0x3100/flags0x00414200 (flags&0x10==0 → why its type is mis-decoded). Operator pivoted: decode the variant field fully (incl. undecoded high byte) + delete build_db.py Rule1/2/3 → correct DB. Inserted new Phase 86 (host-only variant decode); renumbered 86→90; added VAR-01..04 (27 reqs). Decisions: full override deletion (check_dispatch 0-violations = structural backstop), every diff_db row explained + re-pin baseline, on-hand bench chips unchanged-or-rebenched.
 - [Phase ?]: FM1608 decimal-40/hex-0x28 conflation retired in PROTOCOLS.md
 - [Phase 87-03, 2026-06-26]: NAME-03/SAFE-02 — 9 INV native test assertions in matrix-assigned suite paths; INV-04 page-boundary probe switched from 257-byte (recording-buffer overflow) to 65-byte (discriminates 64B vs 256B pages via SDP-count=1 proof); INV-03 uses pins=32+vpp_line=VPP_P1_32_DIP to activate using_p1_as_vpp() and observe CTRL_VPP_P1_ENABLE in execute phase; SAFE-02 three-target grep contract complete: doc+handler+test for all 9 INVs. firestarter@b67acde
+- [Phase 87-04, 2026-06-26]: NAME-05/SAFE-03/SAFE-06 — All five frozen-world gates PASS. check_dispatch.py exit 0 (746 chips, 0 violations). diff_db.py exit 0 (0 changed/0 new/0 missing, identity diff). pio run -e leonardo flash delta = 0 bytes (pre=25654 post=25654 — exact match, well within 16-byte threshold). All 9 INV ids hit >=3 files (PROTOCOLS.md + handler + test; INV-01 and INV-09 hit 4 files). Host repo git-diff exit 0 (zero source/tool/test files modified — SAFE-06 machine-verified, not py3.12-maskable toolchain run). Phase 87 COMPLETE.
 - [Phase 87-02, 2026-06-26]: NAME-02 — all 10 handler files carry datasheet-anchored rationale header blocks (plain C comments, zero flash). INV-01/02/03/05/06/08 in eprom.cpp; INV-04 in flash_type_4.cpp; INV-09 in flash_type_3.cpp; INV-07 in sram.cpp; plus dispatch rationale in flash_utils/memory/not_implemented/firestarter.cpp. Comment-only diff guard PASS (all 10 files). SAFE-02 greppability: INV ids now hit doc (87-01) + handler (87-02) — third target (test names) lands in Plan 03. Commits firestarter@f362263/3b8202d.
 
 ## Performance Metrics
@@ -163,6 +164,7 @@ Resume: Plan 87-04 — final gates (check_dispatch.py / diff_db.py / Leonardo fl
 | 86 | 03 | 17min | VAR-03/04/SAFE-04 — re-pin both baselines LAST to the 746-chip correct DB (chip_database.baseline.json byte-identical; dispatch_baseline.json regenerated via check_dispatch mirror + Phase-86/SHA-a8efaedc/VAR-05 provenance); diff_db.py now IDENTITY diff exit 0 (D-07 closed); check_dispatch 0 violations; full py3.11 gate green (686 tests / 77.69% cov / ruff / format / mypy-watermark); 4 tools/ ruff errors pre-existing + out-of-CI-scope. Phase 86 COMPLETE |
 | 87 | 02 | 18min | NAME-02 — rationale header blocks in all 10 handler files; INV-01..INV-09 greppable in doc+handler; comment-only diff guard PASS (zero flash delta). firestarter@f362263/3b8202d |
 | 87 | 03 | 10min | NAME-03/SAFE-02 — 9 INV-id-bearing live Unity assertions across 4 test_val_* suites; recording-buffer overflow resolved for INV-04 (65-byte probe); 91/91 native tests pass. firestarter@b67acde |
+| 87 | 04 | 2min | NAME-05/SAFE-03/SAFE-06 — All 5 frozen-world gates PASS: check_dispatch 0 violations (746 chips), diff_db empty (0 changed), flash delta=0 (25654/25654), all 9 INV >=3 files, host git-diff clean. Phase 87 COMPLETE. |
 
 ## Deferred Items
 
