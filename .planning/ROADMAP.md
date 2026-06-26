@@ -139,7 +139,16 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
   2. The W29C040 write path is differentially compared against the passing sibling W29C020 across the candidate axes (SDP unlock sequence, page-write polling/timing, address span / A18 512 KB addressing, page size) with the differing variable(s) isolated and the unchanged axes exonerated.
   3. A named root cause (or ranked hypotheses each carrying disconfirming evidence) is recorded and classified as firmware-algorithm / timing / addressing / silicon, with enough detail that a targeted fix can be designed without further RCA.
   4. Throughout the RCA, over-voltage stays blocked at the firmware VPP check and the host `chip_resolver.resolve_chip` guard is never bypassed (SAFE-01 baseline confirmed — the W29C040 flows through its normal dispatch, no test-only escape hatch).
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+**Wave 1**
+- [ ] 93-01-PLAN.md — SAFE-01 pre-flight (VPP-free write path, FLAG_CAN_ERASE absent, no escape hatch) + rule out Phase-74 traps (SDP + 256B page) + scaffold evidence/93-RCA-FINDINGS.md *(autonomous, no hardware)*
+**Wave 2** *(blocked on Wave 1)*
+- [ ] 93-02-PLAN.md — RCA-01: reproduce the page-0 fault N≥2 on the seated W29C040 + capture signature + post-fail settled read *(bench, operator-witnessed)*
+**Wave 3** *(blocked on Wave 2)*
+- [ ] 93-03-PLAN.md — RCA-02: W29C020 differential control + cheapest-first disconfirming matrix (single-byte fork, DEBUG_ADDRESS trace, non-page-0, A18=1) *(bench, operator-witnessed)*
+**Wave 4** *(blocked on Wave 3)*
+- [ ] 93-04-PLAN.md — RCA-03: name + classify the root cause, per-hypothesis disconfirming evidence, Phase-94 hand-off + SAFE-01 close-out *(autonomous synthesis)*
 **UI hint**: no
 
 ### Phase 94: FIX + PGSZ — Firmware Write-Path Fix & Datasheet-Sourced Per-Chip Page Size
