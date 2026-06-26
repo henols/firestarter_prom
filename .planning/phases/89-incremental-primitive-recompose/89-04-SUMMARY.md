@@ -25,7 +25,7 @@ decisions:
   - "P5 extracted as planned: poll_readback() shares only the bounded single-address poll kernel; each caller emits its own error frame to preserve per-site byte-order divergence (MSG_ERR_EEPROM_TIMEOUT addr-first vs MSG_ERR_FL4_VERIFY_TIMEOUT expected-first)"
   - "Signature chosen: bool poll_readback(handle, address, expected, max_iters, observed_out*) — returns bool, caller uses observed_out in its error frame on false; avoids frame-parameter complexity entirely"
   - "eprom.cpp verify_and_update_mask (whole-buffer bitmask, returns count, no timeout frame) left completely untouched — different algorithm, out of P5 scope per plan"
-  - "No D-02 deferral needed: both golden traces (eeprom28c + flash4 write) pass byte-identical; zero-diff achieved"
+  - "Both golden traces (eeprom28c + flash4 write) pass byte-identical; zero-diff achieved. ROADMAP SC#4 third poll site (eprom verify_and_update_mask) recorded post-verification as an operator-accepted D-02 deferral (different algorithm)"
 requirements-completed: [PRIM-05, PRIM-06, SAFE-01, SAFE-02, SAFE-03]
 
 metrics:
@@ -116,6 +116,16 @@ bounded polls — it is NOT routed through `poll_readback`. The outer retry loop
 `eprom_write_execute` (NUMBER_OF_RETRIES + pulse_delay ramp) is also entirely untouched.
 `poll_readback` count in eprom.cpp = 0, machine-verified.
 
+> **D-02 DEFERRAL (operator-accepted 2026-06-26, recorded post-verification).**
+> ROADMAP §Phase 89 SC#4 names a *third* `poll_readback` site — the verify-readback half of
+> `eprom_write_execute` (this `verify_and_update_mask`). It is intentionally NOT shared: routing
+> a whole-buffer bitmask (returns count, no timeout, no error MSG) through the single-address
+> bounded-poll kernel would change behavior, violating the behavior-preserving contract. The
+> gsd-verifier flagged the missing deferral record (status `human_needed`); the operator confirmed
+> the scope narrowing is correct and accepted it as a D-02 deferral rather than a defect. Treated
+> as aspirational ROADMAP wording. PRIM-05 / Truth #4 accepted SATISFIED on this basis. No code
+> change. See 89-VERIFICATION.md `operator_resolutions`.
+
 ### Phase-cumulative savings
 
 | Step | Pre-B | Post-B | Delta |
@@ -134,8 +144,10 @@ D-01 and PRIM-06.
 
 ## Deviations from Plan
 
-None — plan executed exactly as written. P5 was extracted cleanly with zero-diff golden
-traces; D-02 deferral was not triggered.
+Plan executed exactly as written; P5 was extracted cleanly with zero-diff golden traces.
+Post-verification, the ROADMAP SC#4 third poll site (eprom `verify_and_update_mask`) was
+recorded as an operator-accepted D-02 deferral (see the `eprom.cpp verify_and_update_mask`
+section above) — a documentation addition, not a code deviation.
 
 ## Known Stubs
 
