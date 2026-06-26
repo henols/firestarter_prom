@@ -3,6 +3,7 @@ created: 2026-06-25T00:00:00Z
 title: Gather + store protocol datasheets (datasheets/ folder)
 area: docs/firmware
 trigger: v1.16 protocol rebuild (start after v1.15 closes) — see seeds/protocol-first-architecture-rebuild.md
+resolves_phase: 85
 files:
   - datasheets/ (new folder — one subfolder/file per IC)
 ---

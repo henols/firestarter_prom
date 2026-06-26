@@ -1,531 +1,314 @@
-# Architecture Research
+# Architecture Research — Shared-Primitive Decomposition & Flash Breakdown (v1.16)
 
-**Domain:** EPROM programmer — bench validation milestone (silicon proof + single chip graduation)
-**Researched:** 2026-06-23
-**Confidence:** HIGH — all claims grounded in live source files verified at path and line level on the current gsd/v1.14 branch
+**Domain:** Internal architecture rebuild of an Arduino C++ EPROM/Flash/SRAM programmer firmware (PlatformIO, AVR, Leonardo target). Decompose duplicated per-protocol handlers into shared primitives to shrink the Leonardo flash footprint.
+**Researched:** 2026-06-25
+**Confidence:** HIGH (primitives derived from the actual handler source under `firestarter/src/proms/`; flash breakdown **measured** from the linked `firestarter_leonardo.elf` via `avr-nm --print-size`, not estimated)
 
----
-
-## Standard Architecture
-
-### System Overview
-
-```
-HOST (Python CLI — firestarter_app/)
-  ┌─────────────────────────────────────────────────────────────────────┐
-  │  ~/.firestarter/database.json    chip_database.json                 │
-  │  (user-override, 2516 entry)  ← merged by EpromDatabase.__init__() │
-  │         ↓ _merge_databases()                                        │
-  │  database.py EpromDatabase                                          │
-  │  get_eprom_config(name) → raw config (support_status read here)    │
-  │                  ↓                                                  │
-  │  chip_resolver.py resolve_chip()                                    │
-  │  support_status == "supported"?                                     │
-  │    YES → convert_to_programmer() → wire dict (flags, vpp_mv, algo) │
-  │    NO  → raise ChipNotImplementedError (BEFORE any serial byte)    │
-  │                  ↓                                                  │
-  │  eprom_operations.py write_cycle_eprom / consistency_check_eprom   │
-  │  (compose write→read→verify; called by dev validate-family)        │
-  │                  ↓                                                  │
-  │  serial_comm.py COBS+CRC8 JSON frame                                │
-  └──────────────────────────┬──────────────────────────────────────────┘
-                             │ JSON over COBS+CRC8 at 250000 baud
-  ┌──────────────────────────▼──────────────────────────────────────────┐
-  │  FIRMWARE (C++ — firestarter/) — Leonardo + RURP Rev 2.0           │
-  │  memory.cpp configure_memory()                                      │
-  │  protocol → configure_eprom (0x07/0x08/0x0B including 2516→0x0B)  │
-  │          → configure_flash3 (0x06 SST39SF040)                      │
-  │          → configure_flash4 (0x05 W29C020/W29C040)                 │
-  │          → configure_sram   (0x0E/0x27/0x28/0x29 FM1608)           │
-  │  [generic fail-closed: protocol != 0 → configure_not_implemented]  │
-  └──────────────────────────────────────────────────────────────────────┘
-
-  GATES (run after every code change)
-  ┌──────────────────────────────────────────────────────────────────────┐
-  │  tools/check_dispatch.py — mirrors memory.cpp dispatch in Python;   │
-  │    asserts all 744 chips reach correct handler; VPP invariants hold  │
-  │  tools/diff_db.py — every DB change cited against a root-cause rule  │
-  │  pytest --cov-fail-under=70 — host test suite + coverage floor      │
-  │  pio test -e native — firmware Unity test suites                    │
-  └──────────────────────────────────────────────────────────────────────┘
-
-  BENCH EVIDENCE RECORD (v1.15 NEW artifact — per chip, per session)
-  ┌──────────────────────────────────────────────────────────────────────┐
-  │  .planning/v1.15/bench/EVIDENCE.md + EVIDENCE.json                  │
-  │  columns: chip | family | board/shield | blank_state | op | SHA     │
-  │           verdict | anomalies                                        │
-  │                                                                      │
-  │  Populated by: write_test.sh or dev validate-family --output-dir    │
-  │  The v1.13 validation-matrix.{json,md} artifact is EXTENDED with    │
-  │  per-chip rows (one row per chip, not per family) and lives          │
-  │  separately from the family-level matrix in tools/.                  │
-  └──────────────────────────────────────────────────────────────────────┘
-```
-
-### Component Responsibilities
-
-| Component | Responsibility | File |
-|-----------|---------------|------|
-| `EpromDatabase` | Loads and merges `chip_database.json` + `~/.firestarter/database.json`; provides `get_eprom_config`, `_map_data`, `convert_to_programmer` | `firestarter_app/firestarter/database.py` |
-| `chip_resolver.resolve_chip` | Single chokepoint; reads `support_status` from raw config BEFORE building any wire dict; raises `ChipNotImplementedError` for non-`supported` chips | `firestarter_app/firestarter/chip_resolver.py` |
-| `eprom_operations.write_cycle_eprom` | Composes write→read→verify cycle; called by `dev validate-family` and `write_test.sh`; returns 0=PASS, 1=FAIL, 2=hw-error | `firestarter_app/firestarter/eprom_operations.py` |
-| `dev validate-family` | Tier-3 HIL runner; r1 precondition gate; emits `validation-matrix.{json,md}`; authoritative PASS only on Leonardo | `firestarter_app/firestarter/cli_handlers.py` lines 1259–1593 |
-| `validation_matrix_spec.json` | Authored spec: 6 families, rep_chip per family, boards/skip_boards per tier | `firestarter_app/tools/validation_matrix_spec.json` |
-| `memory.cpp configure_memory` | Firmware dispatch hub; protocol-prefix if-return chain; fail-closed `protocol != 0` guard | `firestarter/src/proms/memory.cpp` |
-| `check_dispatch.py` | CI correctness gate: mirrors `memory.cpp` dispatch; asserts every DB chip → correct handler; VPP invariants; D-10 consistency | `firestarter_app/tools/check_dispatch.py` |
-| `diff_db.py` | Per-chip diff gate: flags any DB change not cited by a root-cause rule against the pinned baseline | `firestarter_app/tools/diff_db.py` |
-| `build_db.py` | Sole DB classification authority; produces `support_status`, `algorithm`, `vpp_mv`, `pinout`, `unsupported_reason` | `firestarter_app/tools/build_db.py` |
-| `~/.firestarter/database.json` | User-override DB; merged on top of the generated DB by `EpromDatabase._merge_databases()`; NOT processed by `build_db.py` or guarded by `check_dispatch.py`/`diff_db.py` | operator-managed file |
+> Method note for the flash numbers: the per-handler `.o` files are **LTO/GIMPLE** (`__gnu_lto_slim`), so `avr-size` on the objects reports 0 — real machine code only exists in the final link. All sizes below come from `avr-nm --print-size --size-sort -C .pio/build/leonardo/firestarter_leonardo.elf`, aggregated per family. Whole-image `text+data = 25,430 + 236 = 25,666 B` against Leonardo's 28,672 B usable flash (32 KB − 4 KB Caterina bootloader) = **89.5%**, matching the documented ceiling. Code symbols attributable to the named families total ~9,186 B; the remaining ~16,100 B is USB-CDC/Serial/JSON/CRC/COBS/AVR runtime that this milestone does **not** touch.
 
 ---
 
-## Question 1: Matrix Integration and Per-Chip Evidence Record
+## Standard (current) Architecture
 
-### Where the v1.13 Matrix Lives and Its Schema
+### System Overview — the handler layer as it exists today
 
-The v1.13 validation matrix is a two-file artifact:
-
-- **Spec (authored, static):** `firestarter_app/tools/validation_matrix_spec.json` — defines 6 families, each with a `rep_chip`, tier1/tier2/tier3 descriptions, `boards`, and `skip_boards`. Schema version 1. This spec is NOT modified per chip; it defines the family-level structure.
-
-- **Results (generated, per-run):** `validation-matrix.json` and `validation-matrix.md` written to `--output-dir` by `dev validate-family`. Cell schema:
-
-```json
-{
-  "family": "eprom",
-  "board": "leonardo",
-  "tier": 3,
-  "verdict": "PASS",
-  "pass_type": "authoritative",
-  "evidence_sha": "<sha256 of source image>",
-  "retry_count": 1
-}
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│  Host (firestarter_app)  build_db.py → chip_database.json → JSON cmd   │
+│  algorithm (protocol_id) + vpp_mv + pins + bus-config + flags + cmd    │
+└───────────────────────────────┬──────────────────────────────────────┘
+                                 │ serial 250000 baud, COBS+CRC8
+┌───────────────────────────────▼──────────────────────────────────────┐
+│  memory.cpp :: configure_memory()   ── DISPATCH (protocol-first)       │
+│   wires handle->firestarter_get/set_data, set_address, *_control_reg   │
+│   then branches protocol → configure_<family>()                        │
+└───┬───────┬───────┬───────┬───────┬───────┬───────────┬───────────────┘
+    │0x07/08│0x0D   │0x06   │0x05/  │0x10   │0x0E/27/   │ !=0 / named     
+    │/0B    │       │       │35/39  │       │28/29      │ infeasible      
+    ▼       ▼       ▼       ▼       ▼       ▼           ▼                 
+ eprom   eeprom_  flash_  flash_  flash_  sram      not_implemented      
+ .cpp    28c.cpp  type_3  type_4  intel   .cpp      .cpp                 
+ 2364 B  842 B    776 B   882 B   1308 B  ~0 B      (shared w/ runtime)  
+    │       │       │       │       │                                    
+    └───────┴───┬───┴───────┴───────┘                                    
+         (each handler sets handle->firestarter_operation_{init,main,end})
+┌──────────────────────────────▼───────────────────────────────────────┐
+│  SHARED today (already-extracted primitives):                          │
+│   flash_utils.cpp  422 B  flash_util_byte_flipping / _get_chip_id /    │
+│                            _check_chip_id_execute / fu_flash_data_poll  │
+│   memory.cpp       mem_util_blank_check 510 B · mem_util_remap_address  │
+│                    _bus 392 B · mem_util_set_address 98 B · memory_     │
+│                    get/set_data 304 B · set/get_control_register 54 B   │
+│   operation_utils.cpp  INIT→MAIN→END state-machine engine (~1509 B)    │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
-The `pass_type` field distinguishes authoritative (Leonardo) from advisory (other boards). The `evidence_sha` is the SHA256 of the **source image written** — not the readback, which is compared internally by `write_cycle_eprom`.
+The dispatch + I/O substrate (`memory.cpp`) and the state-machine engine (`operation_utils.cpp`) are **already** well-factored shared layers. The duplication this milestone targets is concentrated **inside the seven `configure_*` handlers** — specifically the write/verify loops, the VPP-gate check, and the chip-ID compare/report.
 
-### How Per-Chip Results Get Recorded
+### Component Responsibilities (current, as built)
 
-`dev validate-family` records one cell per family per board. For v1.15, this is per-family (not per-chip within a family). The 11-chip inventory spans 6 families but multiple chips per family — e.g., W27C512 / W27E512 / SST27SF512 / ST M27C512 all map to `eprom` family (0x07/0x08).
-
-**The gap:** The existing matrix records one row per family, using the `rep_chip`. It does not record individual results for W27E512 vs SST27SF512 vs ST M27C512 separately — only the family's representative chip (W27C512) gets a row.
-
-**The v1.15 extension:** The per-chip evidence record is a **separate artifact** that augments the family-level matrix. It is not a replacement. Concretely:
-
-- The **family-level** `validation-matrix.{json,md}` is produced by `dev validate-family` as before (one row per family, rep_chip only). Already exists from v1.13 for the `eprom` family.
-- The **per-chip** evidence record is a new `.planning/v1.15/bench/EVIDENCE.md` (and companion `EVIDENCE.json`) written manually or semi-automatically by the bench executor during each session.
-
-### Proposed Per-Chip Evidence Record Format
-
-**EVIDENCE.json schema (one record per chip per bench session):**
-
-```json
-{
-  "schema_version": 1,
-  "milestone": "v1.15",
-  "generated": "2026-06-XX T...",
-  "records": [
-    {
-      "chip": "W27C512",
-      "family": "eprom",
-      "board": "leonardo",
-      "shield": "Rev 2.0",
-      "blank_state": "pre-erased",
-      "op": "write+verify",
-      "sha": "<sha256 of written image>",
-      "verdict": "PASS",
-      "anomalies": ""
-    },
-    {
-      "chip": "2516",
-      "family": "eprom_legacy",
-      "board": "leonardo",
-      "shield": "Rev 2.0",
-      "blank_state": "blank (confirmed)",
-      "op": "read+blank_check",
-      "sha": "N/A (read only)",
-      "verdict": "PASS",
-      "anomalies": "VPE rail 22.4V (under-voltage warning from FW; proceeded best-effort)"
-    }
-  ]
-}
-```
-
-**EVIDENCE.md — rendered Markdown table (same data):**
-
-| Chip | Family | Board/Shield | Blank State | Op | SHA (first 16) | Verdict | Anomalies |
-|------|--------|-------------|------------|-----|----------------|---------|-----------|
-| W27C512 | eprom (0x07) | leonardo/Rev 2.0 | pre-erased | write+verify | `abcd1234...` | PASS | — |
-| W27E512 | eprom (0x07) | leonardo/Rev 2.0 | auto-erased | write+verify | `efgh5678...` | PASS | — |
-| 2516 | eprom_legacy (0x0B) | leonardo/Rev 2.0 | blank | read+blank_check | N/A | PASS | under-voltage warn |
-
-**Column definitions:**
-
-- **chip** — canonical part_number (matches DB lookup key)
-- **family** — algorithm family id matching `validation_matrix_spec.json` + protocol hex in parens
-- **board/shield** — `leonardo/Rev 2.0` (fixed for this milestone)
-- **blank_state** — `blank (confirmed)`, `pre-erased (auto)`, `pre-erased (UV)`, `unknown (AND-mask write)`, `non-blank (skipped destructive)`
-- **op** — `read+blank_check`, `write+verify`, `and_mask_write+verify`, `read_only`
-- **sha** — SHA256 of the written image (from `write_test.sh` output or `evidence_sha` from `dev validate-family`); `N/A` for read-only ops
-- **verdict** — `PASS`, `FAIL`, `SKIP-deferred`, `PARTIAL` (if AND-mask proof only)
-- **anomalies** — firmware warnings, retry count, DB decode mismatches observed, anything deviating from expected behavior
-
-**Relationship to the family-level matrix:** The per-chip EVIDENCE record is complementary. The family-level matrix proves the algorithm family is correctly implemented. The per-chip EVIDENCE record proves individual silicon samples match the DB (pinout, VPP, size, electrical type). Reference the family-level matrix row from EVIDENCE.md via a note column or header comment.
+| Component | Responsibility | Already-shared? |
+|-----------|----------------|-----------------|
+| `memory.cpp::configure_memory` | Protocol-first dispatch; install `get/set_data`, `set_address`, `*_control_register` function pointers (656 B) | Yes — the dispatch spine |
+| `mem_util_set_address` / `_calculate_*_register` | Compose LSB/MSB/top-address register bytes from a linear address | Yes — used by every handler via `firestarter_set_address` |
+| `mem_util_remap_address_bus` | Apply `bus_config` line-remap + R/W + VPP-line + static-high (392 B) | Yes — called by `memory_get_data`/`memory_set_data` |
+| `memory_get_data` / `memory_set_data` | Drive the physical bus for one byte (address→/CE strobe→latch / write pulse) | Yes — the byte-level read/write primitive |
+| `mem_util_blank_check` | Stateful 2 KB-chunked 0xFF scan with progress (510 B) | Yes — called by every write-init + erase-end |
+| `operation_utils.cpp` | INIT→MAIN→END state machine, ACK/DONE/DATA framing, timeout | Yes — the engine all handlers plug into |
+| `flash_utils.cpp` | AMD/JEDEC command byte-flipping, DQ7 data-poll, AMD chip-ID read+compare (422 B) | Yes — shared by flash3 + flash4 + eeprom28c (SDP) |
+| `eprom.cpp` (0x07/08/0B) | UV-EPROM: VPP gate, A9-12V chip-ID, mismatch-retry write, erase pulse (2364 B) | **No — biggest duplication source** |
+| `flash_intel.cpp` (0x10) | Intel command-register write, status-register poll, VPP gate (1308 B) | **Partially — own VPP + chip-ID copies** |
+| `eeprom_28c.cpp` (0x0D) | AT28C SDP-disable, A9-12V chip-ID, 64 B page write + DQ7-style poll (842 B) | **Partially — own chip-ID + wait-loop copies** |
+| `flash_type_3.cpp` (0x06) | AMD unlock, sector/chip erase, per-byte write + DQ7 verify (776 B) | Mostly — leans on flash_utils |
+| `flash_type_4.cpp` (0x05) | Data-driven page-size write + page-poll, SDP unlock, custom erase (882 B) | Partially — own page-poll copy |
+| `sram.cpp` (0x0E/27/28/29) | No-op `configure_sram` (~0 B); rides the generic `memory_*_execute` path | N/A — already maximally shared |
+| `not_implemented.cpp` | Fail-closed `0xBB` response, zero side effects | N/A |
 
 ---
 
-## Question 2: 2516 User-Override Flow
+## Shared-Primitive Inventory (PRIMARY DELIVERABLE)
 
-### Where the 2516 Entry Lives
+Each row: the primitive, which handlers duplicate it today (with file:function citations), the **measured** flash it occupies, whether it is genuinely shareable, and a proposed C-style API consistent with the existing `firestarter_handle_t*`-threading convention.
 
-The 2516 (Intel/vintage 24-pin NMOS EPROM, 2K×8, 25V VPP) is **absent from minipro's `infoic.xml`** — confirmed: the 28 `2516` hits in the XML are all `25160` SPI serial parts, not parallel DIP EPROMs. Therefore:
+### P1 — Address setup  ✅ ALREADY SHARED (leave as-is)
 
-- `chip_database.json` (generated by `build_db.py` from `infoic.xml`) contains NO `2516` entry.
-- The entry must live in `~/.firestarter/database.json` as a user-override.
+- **Where:** `memory.cpp:173 mem_util_set_address` + `_calculate_lsb/msb/top_address_register` (149-189), `mem_util_remap_address_bus` (282-305). Every handler reaches the bus only through `handle->firestarter_set_address` / `firestarter_get_data` / `firestarter_set_data`, which already funnel here.
+- **Duplicates:** Only `flash_utils.cpp:61 fu_flash_fast_address` re-implements a *faster* 2-register-only address write (skips the top-address/control byte) for AMD command flips. That is a deliberate optimization, not accidental duplication — **keep it**, but document the *why* in the naming pass.
+- **Shareable:** Already is. **No action** beyond documentation.
+- **Flash:** ~490 B, single copy.
 
-### How User-Override Entries Flow Through the Stack
+### P2 — Byte-level data strobe (read latch / write pulse)  ✅ ALREADY SHARED
 
-**Step 1 — Load and merge** (`database.py` lines 200–251):
+- **Where:** `memory.cpp:201 memory_get_data` (read: address→settling→/CE→strobe→latch) and `memory.cpp:247 memory_set_data` (write: address→data→/CE→`pulse_delay`→/CE off). Installed as `handle->firestarter_get_data/set_data` for all non-flash handlers.
+- **Duplicates:** `flash_utils.cpp` has its own `fu_flash_flip_data` (52) + `fu_flash_data_poll` (68) because AMD command-flip timing differs (no `pulse_delay`, explicit data-output toggling). Genuinely protocol-specific — **keep**.
+- **Shareable:** Already is for the standard path. **No action.**
+- **Flash:** read 190 B + write 114 B, single copy each.
 
-```python
-# EpromDatabase._initialize_database_core()
-self.proms = _read_config_file("chip_database.json")   # base DB
+### P3 — VPP gate (read voltage, compare to target window, ERROR/WARN/FORCE)  ⚠️ DUPLICATED — TOP PRIORITY
 
-if not skip_local_override:
-    local_db = get_local_database()                     # ~/.firestarter/database.json
-    if local_db:
-        self.proms = self._merge_databases(self.proms, local_db)
-```
+- **Where + duplicates:**
+  - `eprom.cpp:209 eprom_check_vpp` — **532 B**. Contains the voltage-window check **twice** (HIGH branch 229-251, LOW branch 252-270), each with an identical ~16-line `_v0/_v1/_v2/_v3` → `_b[8]` byte-packing block.
+  - `flash_intel.cpp:26 flash_intel_check_vpp` — same HIGH/LOW window logic + identical `_b[8]` packing duplicated again (39-80). The byte-packing is byte-for-byte the eprom copy.
+  - `eeprom_28c.cpp` — no VPP gate (5V part), but `eeprom28c_check_chip_id` re-packs the same `_b[4]` mismatch bytes (covered under P4).
+- **Difference that is real (must parameterize, not delete):** the *regulator-enable bit pattern* differs — eprom uses `CTRL_VPP_REGULATOR_ENABLE | CTRL_VPP_VPE_DROP_ENABLE` (or direct `CTRL_VPP_REGULATOR_ENABLE` for 0x0B/`FLAG_VPE_AS_VPP`), intel uses `CTRL_VPP_REGULATOR_ENABLE | CTRL_VPP_P1_ENABLE` and asserts it in the *caller* (`flash_intel_write_init`) before calling check. Also the REV0-unsupported guard + the D-11 read/blank-check skip live in `eprom_generic_init`.
+- **Shareable:** YES — the measure + window-compare + report + FORCE-downgrade is identical. The regulator routing is the only variable.
+- **Proposed API** (new `vpp_gate.{h,cpp}` or fold into `operation_utils`):
+  ```c
+  /* Reads VPP via rurp_read_voltage_mv() and compares against handle->vpp_mv.
+   * Caller has ALREADY asserted the correct regulator/routing bits and delayed.
+   * Sets response_code (ERROR over-voltage unless FLAG_FORCE → WARNING;
+   * WARNING under-voltage). Emits the shared MSG_*_VPP_{HIGH,LOW} byte frame. */
+  void vpp_check_window(firestarter_handle_t* handle, uint16_t measured_mv);
 
-`_merge_databases` iterates `local_db` keys (manufacturers). For a new manufacturer key not in the base DB, the entire list is appended. For an existing key, it matches on `part_number` and updates fields, or appends the new entry if the name is absent. **Result:** the 2516 entry is indistinguishable from a built-in entry after merge.
+  /* Optional convenience: assert routing, delay, measure, check — used by eprom. */
+  void vpp_gate(firestarter_handle_t* handle, rurp_register_t regulator_bits);
+  ```
+- **Estimated savings:** the byte-packing blocks (~4 copies of ~110 B of packing logic across eprom HIGH/LOW + intel HIGH/LOW) collapse to one. **~350–450 B** recoverable — the single largest concentrated duplication in the codebase.
 
-**Step 2 — Lookup** (`database.py` lines 492–531, `get_eprom_config`):
+### P4 — Chip-ID read + compare + report  ⚠️ DUPLICATED ×4 — HIGH PRIORITY
 
-Searches `self.proms` — the merged dict — by `part_number` exact match and comma-separated alias match. The 2516 entry is found identically to any DB chip.
+- **Where + duplicates (the compare+report `_b[4]` block appears verbatim 4 times):**
+  - `eprom.cpp:306 eprom_internal_check_chip_id` — **260 B** (A9-12V read via `eprom_get_chip_id` 196 + compare/report).
+  - `flash_intel.cpp:187 flash_intel_check_chip_id` — **220 B** (0x90 autoselect read + compare/report).
+  - `flash_utils.cpp:89 flash_util_check_chip_id_execute` — **192 B** (AMD `FLASH_ENABLE_ID` read + compare/report) — *already shared by flash3+flash4*, proving the pattern factors cleanly.
+  - `eeprom_28c.cpp:56 eeprom28c_check_chip_id` — (A9-12V read at `mem_size-64` + compare/report; inside the 414 B `eeprom28c_write_init`).
+- **Difference that is real:** only the *read mechanism* differs (A9-12V vs autoselect 0x90 vs AMD unlock vs A9-12V-at-top). The **compare + report** (`if (chip_id != handle->chip_id) { pack _b[4]; FORCE? WARN : ERR; }`) is byte-identical in all four.
+- **Shareable:** YES — split into a read function (protocol-specific) + a shared compare/report. `flash_utils` already did exactly this for flash3/flash4; generalize it.
+- **Proposed API:**
+  ```c
+  /* Shared compare + MSG_*_CHIP_ID_MISMATCH report + FORCE downgrade.
+   * Callers supply the already-read id. Returns true on match. */
+  bool chip_id_report(firestarter_handle_t* handle, uint16_t read_id);
 
-**Step 3 — Support status guard** (`chip_resolver.py` lines 43–57):
+  /* A9-12V read primitive shared by eprom + eeprom28c (read 2 bytes at `base`).
+   * Handles regulator + A9 enable/disable. */
+  uint16_t chip_id_read_a9_12v(firestarter_handle_t* handle, uint32_t base_addr);
+  ```
+- **Estimated savings:** collapsing 4 report copies → 1 shared `chip_id_report`, plus merging the two A9-12V readers (`eprom_get_chip_id` + `eeprom28c_check_chip_id`'s read half). **~250–350 B**.
 
-```python
-raw_config, _ = db.get_eprom_config(name)         # finds 2516 in merged proms
-support_status = raw_config.get("support_status", "supported")
-if support_status != "supported":
-    raise ChipNotImplementedError(...)
-```
+### P5 — Write-with-verify / poll loop  ⚠️ DUPLICATED ×5 — MEDIUM (higher risk)
 
-The user-override entry must include `"support_status": "supported"`. If absent, the field defaults to `"supported"` (line 54: `raw_config.get("support_status", "supported")`). So a minimal override entry without `support_status` passes the guard as `supported` by default.
+- **Where + duplicates:**
+  - `eprom.cpp:143 eprom_write_execute` — **982 B (largest single function in the firmware)**. Mismatch-bitmask retry loop (`program_mismatched_bytes` + `verify_and_update_mask`, up to `NUMBER_OF_RETRIES=20` with escalating `pulse_delay`).
+  - `flash_type_3.cpp:96 flash3_write_execute` — 358 B (per-byte: enable-write cmd → set_data → `flash_util_verify_operation` DQ7).
+  - `flash_type_4.cpp:80 flash4_write_execute` — 468 B (page-buffered: SDP-unlock per page → fill → `flash4_wait_for_page_write` poll-until-readback).
+  - `eeprom_28c.cpp:119 eeprom28c_write_execute` — 240 B (64 B page → `eeprom28c_wait_for_write` readback poll, 188 B).
+  - `flash_intel.cpp:133 flash_intel_write_execute` — 204 B (0x40 setup → data → `flash_intel_poll_sr` status-register, 166 B).
+- **Difference that is real:** these are genuinely different *algorithms* (mismatch-retry vs DQ7-toggle vs page-readback-poll vs Intel SR-poll). The **completion-poll-with-timeout-and-error-frame** shape recurs but the success predicate differs per protocol.
+- **Shareable:** PARTIALLY. Extract a parameterized **poll primitive** (readback-until-equal-or-timeout with a shared `MSG_ERR_*_TIMEOUT` frame), used by `eeprom28c_wait_for_write` (188 B), `flash4_wait_for_page_write`, and the verify half of `eprom_write_execute`. The *outer* algorithm loops stay protocol-specific.
+  ```c
+  /* Poll address until get_data()==expected or `attempts` × `step_us` elapses.
+   * On timeout, emit a shared timeout frame with addr+expected+observed and set
+   * response_code=ERROR. Returns true on match. Folds eeprom28c_wait_for_write
+   * + flash4_wait_for_page_write + the readback half of eprom verify. */
+  bool poll_readback(firestarter_handle_t* handle, uint32_t address,
+                     uint8_t expected, uint16_t attempts, uint16_t step_us);
+  ```
+- **Estimated savings:** **~200–300 B** (the two `wait_for_write`/`wait_for_page_write` copies + part of eprom verify). Do NOT attempt to merge the outer retry algorithms — that risks behavior change on bench-proven write paths (W27C512, W29C020). Conservative.
 
-**Step 4 — Wire dict construction** (`database.py` `_map_data` + `convert_to_programmer`):
+### P6 — Page buffer write  ◆ PROTOCOL-SPECIFIC (keep separate, share only the poll)
 
-`_map_data` reads `electrical.pin_count`, `programming.algorithm`, `electrical.vpp_mv`, and the `pinout` key. It derives `determined_type` from `_ALGO_MEM_TYPE[protocol_id]` — for `0x0B` this gives `mem_type=1` (TYPE_EPROM). `convert_to_programmer` builds the wire dict including `algorithm: 0x0B` and `vpp_mv: 25000`.
+- **Where:** `eeprom_28c.cpp:119` (fixed 64 B `PAGE_SIZE`) vs `flash_type_4.cpp:80` (data-driven 64/128/256 B via `flash4_page_size`). The page-boundary detection (`(address+1) % PAGE_SIZE == 0`) is structurally identical; the page-*size derivation* and the SDP-unlock-per-page differ.
+- **Shareable:** Only the boundary-detect + the poll (P5). The page-fill bodies differ enough that merging them is net-negative on flash and risky. **Keep separate**; share `poll_readback` (P5).
 
-**Step 5 — Dispatch** (`memory.cpp`):
+### P7 — SDP unlock sequence  ✅ ALREADY SHARED (consolidate the tables)
 
-Protocol `0x0B` hits the arm `if (protocol in 0x07, 0x08, 0x0B) → configure_eprom()`. This is the 2716-family (EPROM_LEGACY) handler. The 2516 is electrically compatible with the 2716 protocol — same DIP24 pinout, same VPP class, same pulse structure.
+- **Where:** `flash_utils.h:24-60` defines `FLASH_ENABLE_ID/DISABLE_ID/ERASE/ENABLE_WRITE` byte-flip tables; `eeprom_28c.cpp:26 EEPROM_SDP_DISABLE` defines its own 6-write `{0x5555,0xAA}...` table; `flash_type_3.cpp:118 flash3_sector_erase` builds a 6-entry table inline. All run through the shared `flash_util_byte_flipping` (`flash_utils.cpp:20`, 180 B).
+- **Note:** `FLASH_ENABLE_WRITE` and `FLASH_ENABLE_WRITE_PROTECTION` in `flash_utils.h` are **byte-identical** (both `AA/55/A0`) — dead duplication in the header constant pool. `EEPROM_SDP_DISABLE` == `FLASH_DISABLE_WRITE_PROTECTION` (both `AA/55/80/AA/55/20`) — another duplicate table.
+- **Shareable:** The *executor* already is. The **tables** can be deduplicated (remove `FLASH_ENABLE_WRITE_PROTECTION`; point eeprom28c at `FLASH_DISABLE_WRITE_PROTECTION`). These const tables sit in flash; each 6-entry table is ~30 B.
+- **Estimated savings:** **~40–80 B** of constant pool, near-zero risk. Good "warm-up" task.
 
-### Minimum Valid 2516 User-Override Entry
+### P8 — Erase  ◆ MOSTLY PROTOCOL-SPECIFIC
 
-```json
-{
-  "INTEL": [
-    {
-      "part_number": "2516",
-      "support_status": "supported",
-      "pinout": "DIP24_2716",
-      "electrical": {
-        "type": "UV-EPROM",
-        "pin_count": 24,
-        "size_bytes": 2048,
-        "vcc": "5V",
-        "vpp": "25V",
-        "vpp_mv": 25000
-      },
-      "programming": {
-        "algorithm": 11,
-        "pulse_duration": "50000 us",
-        "chip_id_check": false
-      }
-    }
-  ]
-}
-```
+- **Where:** `eprom.cpp:274 eprom_internal_erase` (150 B, A9+VPE pulse), `flash_intel.cpp:145 flash_intel_erase_execute` (102 B, 0x20/0xD0 + SR-poll), `flash3_erase_execute` (192 B, chip vs sector AMD unlock), `flash4_erase_execute` (244 B, bespoke CE/OE/WE toggle sequence).
+- **Shareable:** Very little — these are 4 distinct silicon erase algorithms. Only the `is_flag_set(FLAG_CAN_ERASE) && !FLAG_SKIP_ERASE` *guard wrapper* in the four `*_write_init` functions repeats (~20 B each). **Low priority**; optionally fold the guard into a shared `write_init_preamble`.
 
-Notes on the entry:
-- `"algorithm": 11` is `0x0B` decimal — EPROM_LEGACY, the 2716-family path.
-- `"pinout": "DIP24_2716"` — this key must exist in `pinouts.json`. Verify it does: `pinouts.json` has a `DIP24_2716` entry (per v1.11 `resolve_pinout_key` rebuild). If it uses `DIP24_2816` instead, check which key is correct for 24-pin 25V NMOS.
-- `"electrical.type": "UV-EPROM"` — NOT `"EEPROM"` and NOT `"Flash/EEPROM"`. This prevents `convert_to_programmer` from setting `FLAG_CAN_ERASE` (line 605: `if ... in ("EEPROM", "Flash/EEPROM")`), which is correct — UV EPROMs are NOT electrically erasable.
-- `"pulse_duration": "50000 us"` — 50 ms, the long-pulse EPROM_LEGACY spec. The `_parse_pulse_duration` helper parses this format.
-- `"chip_id_check": false` — the 2516 has no software-readable chip ID.
-- `"vpp_mv": 25000` — uses the raised ceiling (22000→25000 from Phase 79 NMOS-02).
+### Primitive inventory summary
 
-### Safety Constraint: check_dispatch.py and diff_db.py Do NOT Cover User-Overrides
+| Primitive | Status today | Action | Est. flash saved | Risk |
+|-----------|-------------|--------|------------------|------|
+| P1 Address setup | ✅ shared | document only | 0 | — |
+| P2 Data strobe | ✅ shared | document only | 0 | — |
+| **P3 VPP gate** | ⚠️ dup ×2 (×4 packing) | **extract `vpp_check_window`** | **~350–450 B** | Low–Med |
+| **P4 Chip-ID compare/report** | ⚠️ dup ×4 | **extract `chip_id_report` + merge A9 readers** | **~250–350 B** | Low |
+| P5 Write/poll loop | ⚠️ dup ×5 | extract `poll_readback` only | ~200–300 B | Med |
+| P6 Page buffer | ◆ specific | share P5 poll only | (in P5) | Med |
+| P7 SDP tables/executor | ✅ executor shared | dedup const tables | ~40–80 B | Very low |
+| P8 Erase | ◆ specific | optional guard fold | ~40 B | Low |
 
-This is a critical safety caveat: `check_dispatch.py` loads `chip_database.json` directly (lines 24–33 set `DB_FILE`). It does NOT load or merge `~/.firestarter/database.json`. Similarly, `diff_db.py` compares against the pinned `chip_database.baseline.json`. The 2516 entry bypasses both gates entirely.
-
-**Manual safety review required:**
-
-1. Confirm `algorithm: 0x0B` routes to `configure_eprom` — it does (check_dispatch.py line 143: `if protocol in (0x07, 0x08, 0x0B): return "configure_eprom"`).
-2. Confirm `vpp_mv: 25000` is within the `configure_eprom` invariant: `(0, 25000)` (inclusive upper bound per Phase 79 raise). 25000 ≤ 25000 — passes.
-3. Confirm `FLAG_CAN_ERASE` is NOT set (electrical.type = UV-EPROM → not in `("EEPROM", "Flash/EEPROM")`).
-4. Confirm `DIP24_2716` pinout routes VPP correctly for 24-pin chips on the RURP socket (verify pin_conversions[24] mapping in database.py lines 80–97).
-5. Bench-verify on the ~22.4V VPE rail (0x0B hardwired to VPE-only path, same as M2716 graduated in Phase 79).
-
----
-
-## Question 3: Build Order for Phases
-
-### Recommended Phase Order
-
-```
-Phase 81: 2516 DB Entry + Initial Read Sweep (non-destructive, all 11 chips)
-Phase 82: EE-EPROM Silicon Validation (8 chips, write+verify, destructive OK)
-Phase 83: UV-EPROM Write Proof (3 chips, spend-vs-preserve decided per chip)
-Phase 84: DB Decode Correctness Audit + Defect RCA (conditional)
-```
-
-**Rationale:**
-
-**Phase 81 (2516 DB entry + non-destructive sweep) — do first:**
-
-The 2516 is the milestone's only graduation candidate and the one genuine software deliverable. Author the `~/.firestarter/database.json` entry first so `firestarter info 2516` works and the read path is exercisable. Then run a non-destructive read sweep across all 11 chips: `firestarter read <chip> -o /dev/null` (or `blank_check`) — this validates the read path, DB decode (pinout, size, VPP), and controller identity for every chip with zero destructive risk. UV-EPROMs survive this session regardless of whether they are blank or programmed.
-
-This session answers two questions cheaply: (a) does the DB entry produce a valid wire dict and connect to the chip? (b) is each UV-EPROM blank or programmed? The blank-state discovery gates the Phase 83 decision tree.
-
-**Phase 82 (EE-EPROM silicon validation) — second:**
-
-The 8 electrically-erasable chips (W27C512, W27E512, SST27SF512, W27E040, SST39SF040, W29C020, W29C040, FM1608) can be written and re-written without constraint. Validate each one via `write_test.sh` or `dev validate-family`. Prior bench evidence exists for W27C512 (Phase 77), SST39SF040 + W29C040 (Phase 74), FM1608 (Phase 73) — those can re-run as confirmation or be cited directly from prior evidence. New chips are W27E512, SST27SF512, W27E040, W29C020.
-
-**Phase 83 (UV-EPROM write proof) — third, gated on Phase 81 blank-state:**
-
-The 3 UV-EPROMs (ST M27C512, AM27C020, 2516) require an eraser to recycle. Since the operator has none, the Phase 81 blank-state discovery determines the op:
-- **Chip confirmed blank:** run full write→verify (spends the chip, non-recoverable without UV eraser).
-- **Chip programmed:** run AND-mask write — write a 0x00 pattern (or any byte that only clears 1→0 bits relative to the existing content) and verify it. This proves the write path works without requiring a blank start.
-
-The spend-vs-preserve decision is made live at the bench, per chip, after the Phase 81 blank-state result is known. This is why Phase 83 cannot run concurrently with Phase 81.
-
-The 2516 graduation (FUT-03 NMOS write+SHA) is the primary target of Phase 83.
-
-**Phase 84 (DB decode correctness + conditional defect RCA) — fourth:**
-
-Any mismatch between observed silicon behavior and DB declarations (wrong size, wrong VPP, wrong algorithm response) is root-caused and fixed here. If Phases 82–83 produce clean PASSes with no anomalies, Phase 84 is a documentation pass only. If a family fails, Phase 84 is a firmware/host fix in the established lockstep pattern.
-
-### New vs Modified Components Per Phase
-
-| Phase | New Components | Modified Components | Notes |
-|-------|---------------|---------------------|-------|
-| 81 | `~/.firestarter/database.json` (2516 entry) | None | Host-only; no code change; user-override; bypasses check_dispatch/diff_db |
-| 82 | `.planning/v1.15/bench/EVIDENCE.{md,json}` | None (software exists) | Reuse `write_test.sh` / `dev validate-family`; update evidence record per chip |
-| 83 | EVIDENCE.{md,json} rows for UV chips | None unless write fails | If write fails: fix in `eprom_operations.py` or firmware (lockstep if wire-level) |
-| 84 | None | `build_db.py` (if DB decode wrong), firmware (if algorithm bug) | Conditional — only if bench surfaces a defect |
+**Total realistically recoverable: ~850–1,300 B** (~3–4.5 percentage points of the 28,672 B Leonardo flash). That moves the build from 89.5% to roughly **85–86.5%** — meaningfully off the ~90% ceiling, restoring headroom for future per-protocol fixes without a single new feature.
 
 ---
 
-## Question 4: Bench-Session Integration Points
+## Per-Handler / Family Flash Breakdown (MEASURED)
 
-### R1/R2 Live Readback Precondition
+From `avr-nm --print-size` on `firestarter_leonardo.elf` (LTO-final machine code — the authoritative numbers):
 
-**Gate:** `r1 ≈ 270000 ± 25%` (range 202500–337500).
+| Family / module | Bytes | % of 28,672 | Top functions (bytes) |
+|-----------------|------:|------------:|------------------------|
+| **eprom (0x07/08/0B)** | **2,364** | 8.2% | `eprom_write_execute` **982**, `eprom_check_vpp` **532**, `eprom_internal_check_chip_id` 260, `configure_eprom` 224, `eprom_internal_erase` 150 |
+| memory.cpp dispatch + bus + blank-check | 2,592 | 9.0% | `configure_memory` 656, `mem_util_blank_check` 510, `mem_util_remap_address_bus` 392, `memory_verify_execute` 238 |
+| operation_utils (state-machine engine) | ~1,509 | 5.3% | `op_get_message` 394, `op_execute_stateful_operation` 196, house-keeping funcs |
+| **flash_intel (0x10)** | **1,308** | 4.6% | `flash_intel_write_init` **562** (incl. inlined VPP check), `flash_intel_check_chip_id` 220, `_write_execute` 204, `_poll_sr` 166 |
+| **flash_type_4 (0x05/35/39)** | **882** | 3.1% | `flash4_write_execute` 468, `flash4_erase_execute` 244 |
+| **eeprom_28c (0x0D)** | **842** | 2.9% | `eeprom28c_write_init` 414, `_write_execute` 240, `_wait_for_write` 188 |
+| **flash_type_3 (0x06)** | **776** | 2.7% | `flash3_write_execute` 358, `flash3_erase_execute` 192, `configure_flash3` 104 |
+| flash_utils (SHARED) | 422 | 1.5% | `flash_util_check_chip_id_execute` 192, `flash_util_byte_flipping` 180 |
+| sram (0x0E/27/28/29) | ~0 | 0% | `configure_sram` no-op (rides generic path) |
+| not_implemented | small | — | folds into runtime |
+| **Other** (USB-CDC, Serial, JSON, CRC8/COBS, malloc, AVR libgcc, `main`) | ~16,100 | 56% | `main` 4,944, USB vectors, `_process_*_data` — **out of scope** |
+| **TOTAL** | **25,666** (text+data) | **89.5%** | |
 
-**Source:** `dev validate-family` checks this in `_check_r1_precondition` (cli_handlers.py lines 1413–1416). If `r1_raw` is outside the band, it calls `sys.exit(2)` before any write cycle.
+**Where reuse buys the most headroom (ranked):**
+1. **eprom.cpp (2,364 B)** — biggest handler; `eprom_check_vpp` (532) and `eprom_internal_check_chip_id` (260) are pure P3/P4 duplication = ~790 B, of which ~400 B is recoverable.
+2. **flash_intel.cpp (1,308 B)** — `flash_intel_write_init` (562) carries an inlined second copy of the VPP-window/byte-pack; `flash_intel_check_chip_id` (220) is a 4th chip-ID copy.
+3. **eeprom_28c.cpp (842 B)** — `eeprom28c_check_chip_id` (within the 414 B init) + `_wait_for_write` (188) are P4 + P5 duplicates.
 
-**How to arm:** `firestarter config -r1` writes to Arduino EEPROM. The CLI reads back the live value via hardware config. The `r1=270000` value is persisted in `~/.firestarter/config.json` after the Phase 73 calibration session (per STATE.md: `firestarter config -r1 writes to Arduino EEPROM only; r1 gate armed by writing r1=270000 directly to ~/.firestarter/config.json`).
-
-**At each task start:** Run `firestarter info <chip>` or `firestarter dev reg 0 0 0 -r` as a quick live-readback before any VPP-dependent operation. This confirms R1 hasn't been reset (EEPROM is non-volatile but can be factory-reset).
-
-### Controller Port Identity Check
-
-**Gate:** Verify `controller:` in the firmware handshake output matches `leonardo` on the expected port before each task.
-
-**Why:** `/dev/ttyACM*` numbers shuffle after any USB unplug/replug. Trusting a session-start port mapping across a shield swap or board cycle risks driving the wrong board (per `feedback_verify_port_identity_each_task` memory).
-
-**How:** `firestarter info <any chip>` prints the controller identity from the handshake. Or `firestarter dev read <chip> -o /dev/null` — the handshake fires on connect. Confirm `"controller": "leonardo"` in the output before proceeding with any write cycle.
-
-**In phases:** Every bench plan that opens a serial connection must include a port-identity verification as step 1.
-
-### Leonardo Chip-OUT Sideload Exemption
-
-**Rule:** Leonardo does NOT require chip removal before sideloading firmware. Only Uno-class boards (Uno, uno328pb) need chip-out before sideload because their USB-serial bridge drives the shield bus during the upload sequence.
-
-**Source:** `feedback_chip_out_before_sideload` memory: "chip OUT before sideload — Uno-class ONLY (Uno + uno328pb); Leonardo EXEMPT". Also per `reference_vpp_vpe_no_socket_routing`: `hw_read_voltage` enables the regulator + measures only; no A9/VPE/P1 routing bits.
-
-**Practical implication for v1.15:** During bench sessions, re-flashing or updating firmware on Leonardo does not require removing the chip. This saves considerable time when iterating on a firmware fix for a family failure.
-
-### VPE Rail for NMOS (2516 and graduated NMOS chips)
-
-**Rail value:** VPE = 22.4V DMM / 23.9V firmware `firestarter vpe` (per Phase 79-01 corrected reading). This is ~90% of the 25V nominal spec.
-
-**Which rail:** The `0x0B` EPROM_LEGACY handler uses `CTRL_VPP_REGULATOR_ENABLE` (0x80) only — this is the direct VPE path (no VPE→VPP dropping resistor engaged). The firmware's `eprom_check_vpp` validates the ADC reading against `handle->vpp_mv` (25000) and emits an under-voltage warning (22.4V < 23.75V = 95% threshold) but proceeds. Over-voltage is still blocked.
-
-**For the 2516 bench session:** The chip programs (or attempts to program) on the ~22.4V VPE rail. The firmware warning is expected and informational. A clean SHA-match after write+verify is the definitive proof regardless of the warning.
-
-**VPP monitor gotcha:** `firestarter vpp` reads the DROPPED rail (0x07/0x08 path via VPE→VPP drop) — this reports ~15–19V, NOT the VPE rail. For NMOS/0x0B chips, always use `firestarter vpe` to read the programming rail (per Phase 79-01 rail correction, operator-confirmed 2026-06-23).
-
-**Hold-rail for DMM:** `firestarter dev reg 0 0 0x86 -f` holds the erase/VPE rail on for DMM measurement (per `reference_v114_bench_erase_rail_and_test_artifact`).
+The three handlers carrying VPP and/or chip-ID logic (eprom, flash_intel, eeprom_28c) hold **all** the recoverable duplication. flash3/flash4 already lean on `flash_utils`, so they yield little (P5 poll only).
 
 ---
 
-## Data Flow
+## Recompose Order + Integration Points
 
-### 2516 Entry → Wire Dict → Dispatch
+Incremental, **one primitive/family at a time**, each landing as its own guarded step. Order chosen for **biggest-saving × lowest-risk × dependency-first**:
 
-```
-~/.firestarter/database.json
-  └── {"INTEL": [{"part_number": "2516", "algorithm": 11, ...}]}
-      ↓ EpromDatabase._merge_databases()
-      merged self.proms["INTEL"] (appended)
-      ↓ get_eprom_config("2516")
-      raw_config (support_status defaults to "supported")
-      ↓ chip_resolver.resolve_chip("2516")
-      support_status == "supported" → proceed
-      ↓ get_eprom("2516") → _map_data()
-      determined_type = _ALGO_MEM_TYPE[0x0B] = 1 (TYPE_EPROM)
-      info_flags: electrical.type="UV-EPROM" → NOT in ("EEPROM","Flash/EEPROM") → 0x10 NOT set
-      ↓ convert_to_programmer()
-      FLAGS: electrical-type="UV-EPROM" → FLAG_CAN_ERASE NOT set → flags=0
-      wire dict: {algorithm: 11, vpp_mv: 25000, type: 1, flags: 0, pin-count: 24,
-                  memory-size: 2048, bus-config: <DIP24_2716 mapping>}
-      ↓ serial_comm.py COBS+CRC8 JSON frame → Leonardo
-      ↓ memory.cpp: protocol=0x0B → configure_eprom() → EPROM_LEGACY path
-      VPE rail (~22.4V) used; firmware warns under-voltage; proceeds
-```
+### Step 0 — Pin the golden register sequences (no code change)
+- Use the existing native recording bus (`test/native/avr/_shared/host_stubs_common.inc` — `clear_bus_recording()`, `recorded_reg(i)`, `recorded_data(i)`) and the per-family `test_val_*` suites (`test_val_eprom`, `test_val_flash_intel`, `test_val_eeprom28c`, `test_val_flash3`, `test_val_flash4`) to capture the **exact control-register + data write sequence** each handler emits today. These golden traces are the recompose oracle: a recomposed handler must reproduce them byte-for-byte.
+- **Guard:** `pio test -e native` green before touching anything.
 
-### Non-Destructive Read Sweep (Phase 81)
+### Step 1 — P7 SDP/const-table dedup (warm-up, ~40–80 B, very-low risk)
+- Remove the duplicate `FLASH_ENABLE_WRITE_PROTECTION` table; repoint `eeprom_28c.cpp:EEPROM_SDP_DISABLE` at `FLASH_DISABLE_WRITE_PROTECTION` (`flash_utils.h`). No logic change.
+- **Guard:** native `test_val_eeprom28c` + `test_val_flash3` golden traces unchanged; `pio run -e leonardo` size delta recorded.
 
-```
-For each of 11 chips:
-  firestarter read <chip> -o /tmp/<chip>.bin
-    → chip_resolver validates support_status (2516 via user-override)
-    → wire dict with cmd=READ (no VPP engagement on read for most families)
-    → firmware reads memory, streams binary via COBS
-    → host saves binary
-  firestarter blank-check <chip>
-    → reads and checks for 0xFF fill
-    → records blank_state in EVIDENCE.md
-```
+### Step 2 — P4 chip-ID compare/report (~250–350 B, low risk)
+- Add `chip_id_report(handle, read_id)` (generalize `flash_util_check_chip_id_execute`'s compare/report half into a callable). Repoint `eprom_internal_check_chip_id`, `flash_intel_check_chip_id`, `eeprom28c_check_chip_id`, and `flash_util_check_chip_id_execute` to call it. Add `chip_id_read_a9_12v` shared by eprom + eeprom28c.
+- **Why early:** lowest behavioral risk (report is pure formatting), and `flash_utils` already proves the split works.
+- **Guard:** native traces for all four families; the `MSG_*_CHIP_ID_MISMATCH` frame bytes are pinned by `test_messages` + `test_frame_vectors`.
 
-### Write+Verify Cycle (Phase 82 / 83)
+### Step 3 — P3 VPP gate (~350–450 B, biggest saving, low–med risk)
+- Add `vpp_check_window(handle, measured_mv)` carrying the single HIGH/LOW window-compare + the one `_b[8]` packing + FORCE downgrade. Repoint `eprom_check_vpp` and `flash_intel_check_vpp`; each keeps its own regulator-routing assertion + delay, then calls the shared window check.
+- **Why here:** highest single saving; depends on Step-2 framing patterns being settled.
+- **Guard:** `test_flash_intel_vpp` (already exists) + `test_val_eprom` recording traces; bench re-prove on Leonardo + RURP Rev 2.0 (W27C512 write — exercises the eprom VPP gate live).
 
-```
-write_test.sh <chip>   (or dev validate-family --chip <chip> --board leonardo ...)
-  → write_cycle_eprom(chip, eprom_data, source_image_path=<test_bin>, runs=1)
-      → firestarter write <chip> <image>
-          → erase first (FLAG_CAN_ERASE set for EE-EPROMs) → program → done
-      → firestarter read <chip> -o <readback>
-      → sha256(<image>) == sha256(<readback>)?
-          YES → verdict=PASS (authoritative on Leonardo)
-          NO  → verdict=FAIL → escalate to Phase 84
-  → record row in EVIDENCE.{md,json}
-```
+### Step 4 — P5 poll primitive (~200–300 B, med risk)
+- Add `poll_readback(handle, addr, expected, attempts, step_us)`. Repoint `eeprom28c_wait_for_write`, `flash4_wait_for_page_write`, and the verify-readback half of `eprom_write_execute`. **Leave the outer retry/page algorithms untouched.**
+- **Why last of the extractions:** touches bench-proven write paths (W29C020 auto-erase, W27C512); highest behavioral sensitivity.
+- **Guard:** native `test_val_flash4` + `test_val_eeprom28c` + `test_val_eprom`; **mandatory bench re-prove** of W29C020 (0x05/flash4), an AT28C-class write (0x0D), and W27C512 (0x07) on Leonardo + Rev 2.0, composing into the v1.16 per-protocol ledger.
+
+### Integration points
+
+| Boundary | What it touches | How guarded |
+|----------|-----------------|-------------|
+| **Dispatch (`memory.cpp::configure_memory`)** | **Unchanged** through the whole milestone — primitives are leaf helpers below the handlers; dispatch still installs the same `firestarter_operation_*` pointers. | `test_dispatch` (`test_configure_memory.cpp`, one case per `KNOWN_PROTOCOLS` entry) + host `check_dispatch.py` (744-chip resolve, 0 violations, GATE-03 VPP-safety) |
+| **Host (`firestarter_app`)** | **Untouched** — primitives are firmware-internal; no wire field changes, no `constants.py`↔`firestarter.h` delta, no `algorithm`/`vpp_mv`/`flags` semantics change. Avoids dual-repo lockstep entirely for the refactor steps. | `diff_db.py` per-chip diff vs pinned baseline must be **empty** (DB regen not invoked); host pytest suite unchanged |
+| **Frame/message catalog** | New shared functions must emit the *same* `MSG_*` IDs with the *same* byte layout. | `test_frame_vectors` + `test_messages` golden vectors; `logging_id.h` / `messages.h` IDs unchanged |
+| **Native register oracle** | Recomposed handler register/data sequence | `test/native/avr/_shared` recording bus + per-family `test_val_*`; capture-before / assert-after each step |
+| **Flash budget** | The whole point | `pio run -e leonardo` size logged per step; STATE notes the running % (target: 89.5% → ≤86.5%) |
+
+**Lockstep note:** because the refactor is leaf-helper extraction with zero wire/constant change, it is **host-untouched** and can ship firmware-only — *unless* a primitive extraction is paired with a behavior fix (then dual-repo lockstep + the py3.12-masks-CI-3.11 ruff/codegen discipline applies, per the seed constraints).
 
 ---
 
-## Architectural Patterns
+## Architectural Patterns (to follow during recompose)
 
-### Pattern 1: Non-Destructive-First Safety Ordering
+### Pattern 1: Handle-threaded leaf primitive
+**What:** Every primitive takes `firestarter_handle_t* handle` first and reaches hardware only via the installed `handle->firestarter_*` function pointers (never raw `rurp_*` unless it is itself the strobe primitive). Matches `flash_util_*` and `mem_util_*` exactly.
+**When:** all new P3/P4/P5 functions.
+**Trade-off:** the indirect call costs a few bytes per site but is what makes the native recording-bus test possible (stubs swap the pointers) — keep it.
 
-**What:** Run reads and blank-checks before any write. For UV-EPROMs, make the spend-vs-preserve decision based on observed blank state, never based on assumption.
+### Pattern 2: Split read-mechanism from compare/report
+**What:** protocol-specific *read* (A9-12V vs autoselect vs AMD unlock) stays in the handler; the *compare + MSG frame + FORCE downgrade* is shared. Already demonstrated by `flash_util_check_chip_id_execute` serving flash3+flash4.
+**When:** P4, and by analogy P3 (regulator routing in caller, window-compare shared).
+**Trade-off:** one extra small function vs ~4 duplicated report blocks — strongly net-positive.
 
-**When to use:** Any bench session touching UV-EPROMs (M27C512, AM27C020, 2516). The operator has no eraser — a write to a non-blank UV-EPROM produces a chip in an unknown state that cannot be recovered.
-
-**Trade-offs:** Adds one bench session (Phase 81) before any writes. Prevents irreversible chip loss.
-
-**Rule:** Blank-check every UV-EPROM in Phase 81. Record result in `blank_state` column of EVIDENCE.md. Only proceed to write in Phase 83 after the blank_state field is populated.
-
-### Pattern 2: User-Override Entry for Chips Absent from minipro
-
-**What:** Author a `~/.firestarter/database.json` entry that mirrors the chip_database.json schema fields needed by `_map_data` and `convert_to_programmer`. The merged DB is indistinguishable from a built-in entry to all downstream code.
-
-**When to use:** Any chip absent from minipro `infoic.xml` (confirmed absent, not merely missing from the RURP subset). Only the 2516 in v1.15 scope.
-
-**Critical fields:** `part_number`, `pinout` (must match an existing key in `pinouts.json`), `electrical.pin_count`, `electrical.size_bytes`, `electrical.vpp_mv`, `programming.algorithm` (integer, not hex string), `programming.pulse_duration` (format: `"50000 us"`), `support_status` (defaults to `"supported"` if absent).
-
-**Safety caveat:** User-override entries bypass `check_dispatch.py` and `diff_db.py`. All safety properties must be manually verified as listed in Question 2 above.
-
-### Pattern 3: Evidence Record Extends, Not Replaces, the Family Matrix
-
-**What:** The `validation-matrix.{json,md}` produced by `dev validate-family` records per-family results using the rep_chip. The `EVIDENCE.{md,json}` in `.planning/v1.15/bench/` records per-chip results for every chip in the inventory.
-
-**When to use:** Always in v1.15. The family matrix is the harness output (generated). The EVIDENCE record is the milestone artifact (curated, one row per physical chip exercised).
-
-**How they relate:** EVIDENCE.md references the family-level matrix result. Where `dev validate-family` was run for a family, cite the generated `validation-matrix.md` as the authoritative source. The EVIDENCE row for the rep_chip is the same result (PASS/FAIL/SHA); non-rep chips in the same family get their own EVIDENCE rows but do NOT get family-matrix rows.
-
-### Pattern 4: Guard-Removal-Last Discipline (from SAFE-01/02/03, v1.14 Phase 77)
-
-**What:** When graduating a chip to `supported`, the `support_status` change in `build_db.py` (or user-override entry set to `"supported"`) is the FINAL step, after: native recording-stub tests pass, host wire round-trip passes, and bench write+verify SHA-match proves the chip programs correctly.
-
-**When to use:** The 2516 graduation only (other 10 chips are already `support_status: supported` in the DB). Do not set `"support_status": "supported"` in the user-override entry until the read sweep (Phase 81) confirms the chip is reachable and the pinout/VPP decode is correct.
-
-**Practical sequence:** Author the entry with `"support_status": "needs-validation"` initially (which will raise `ChipNotImplementedError` via the guard) — OR start with `"supported"` since the entry is in `~/.firestarter/database.json` (local only, no CI gate). The choice is pragmatic: for a user-override, setting `"supported"` from the start and verifying during Phase 81 read sweep is cleaner.
+### Pattern 3: Capture-then-recompose (golden register trace)
+**What:** before extracting a primitive, record the handler's exact bus sequence in a native `test_val_*` suite; after extraction, assert the sequence is byte-identical.
+**When:** every extraction step.
+**Trade-off:** upfront test authoring; eliminates the "silent timing/sequence regression" class (the v1.13 flash4 256 B page bug, the v1.15 AM27C020 0-bits-programmed class) from the refactor.
 
 ---
 
-## Anti-Patterns
+## Anti-Patterns (avoid during this rebuild)
 
-### Anti-Pattern 1: Trusting Port Identity Without Verifying
+### Anti-Pattern 1: "Unify the write loops"
+**What people do:** merge `eprom_write_execute` / `flash4_write_execute` / `eeprom28c_write_execute` into one parameterized super-loop.
+**Why it's wrong:** they are genuinely different silicon algorithms (mismatch-retry vs page-buffer vs DQ7-toggle); a unified loop grows branchy, often *costs* flash after the branches, and risks the bench-proven write paths. The v1.15 ledger (W29C020, W27C512) is the thing not to break.
+**Do instead:** share only the **poll primitive** (P5) and the **report** (P4); keep the outer algorithm per-protocol.
 
-**What people do:** Assume `/dev/ttyACM0` is Leonardo throughout a multi-chip bench session because it was Leonardo at session start.
+### Anti-Pattern 2: Touching dispatch during the primitive pass
+**What people do:** "while I'm here, also reorganize `configure_memory`."
+**Why it's wrong:** the seed locks "dispatch structure unchanged through the naming pass; primitives land incrementally after." Dispatch changes are the highest-blast-radius (12V-VPP-hazard class) and would invalidate every `test_dispatch` + `check_dispatch.py` assumption at once.
+**Do instead:** dispatch stays line-for-line stable; only leaf helpers move.
 
-**Why it's wrong:** USB ACM numbers shuffle on any unplug/replug. A shield swap, cable bump, or devcontainer reconnect can silently reassign ports. Writing to the wrong board or driving the wrong shield is a hardware-damage path.
-
-**Do this instead:** Run `firestarter info <any_chip>` at the start of each bench task and confirm `"controller": "leonardo"` before any write cycle.
-
-### Anti-Pattern 2: Running AND-Mask Write Without Confirming Current Content
-
-**What people do:** Attempt an AND-mask write (0x00-fill) to a UV-EPROM without first reading the current content to determine which bits are already 0.
-
-**Why it's wrong:** An AND-mask write (`flags & 0x00 = 0x00`) always writes 0xFF→0x00 transitions, but a chip that's already partially written may have mixed content. The write proves the write path works on 1→0 transitions regardless — but the verify is against the written image, not the original. This is still valid as a bench proof; the issue is documentation: record `blank_state` and `op` accurately in EVIDENCE.md.
-
-**Do this instead:** Read the chip first (Phase 81). If non-blank, decide on AND-mask write with a known test pattern (e.g., all-0x00). Record `blank_state: "non-blank (see read SHA)"` and `op: "and_mask_write (0x00 fill)"` in EVIDENCE.md.
-
-### Anti-Pattern 3: Editing chip_database.json by Hand for the 2516
-
-**What people do:** Add the 2516 directly to `firestarter_app/firestarter/data/chip_database.json`.
-
-**Why it's wrong:** `chip_database.json` is a generated artifact overwritten by `python tools/build_db.py`. The 2516 is absent from `infoic.xml` so `build_db.py` will never emit it. Any hand edit is silently lost on the next `build_db.py` run. Additionally, adding it to the generated file triggers `diff_db.py` failures (unexplained chip).
-
-**Do this instead:** The entry belongs exclusively in `~/.firestarter/database.json`. This is the correct operator-override path for chips absent from the upstream source. Document the entry schema clearly so it can be reproduced after a clean install.
-
-### Anti-Pattern 4: Using `firestarter vpp` to Read the NMOS Programming Rail
-
-**What people do:** Run `firestarter vpp` to measure the VPP rail during a 2516/NMOS (0x0B) bench session and interpret the result as the programming voltage.
-
-**Why it's wrong:** `firestarter vpp` forces the DROPPED path (hardware_operations.cpp:28 — `0x07`/`0x08` style with VPE→VPP resistor drop). For `0x0B` chips, the programming rail is VPE (direct regulator output, no drop). `firestarter vpp` will report ~15–19V (the VPE→VPP dropped value), which is NOT the voltage reaching the chip's VPP pin on the 0x0B path.
-
-**Do this instead:** Use `firestarter vpe` to read the NMOS programming rail. This was corrected in Phase 79-01 (rail correction, operator-confirmed 2026-06-23). Expected reading: ~22.4V DMM / 23.9V firmware.
+### Anti-Pattern 3: Regenerating the DB to "tidy" alongside the refactor
+**What people do:** re-run `build_db.py` in the same commit as a primitive extraction.
+**Why it's wrong:** mixes a host-data change into a firmware-only refactor, defeats `diff_db.py`'s empty-diff guard, and breaks the "minipro DB stays ground truth, datasheets only verify" locked decision.
+**Do instead:** keep DB byte-identical; `diff_db.py` must show zero per-chip change across the whole milestone (except deliberate, separately-gated graduations).
 
 ---
 
-## Integration Check Gates
+## Integration Points (tooling summary)
 
-Every code or DB change in v1.15 must pass:
-
-| Gate | Command | What It Catches |
-|------|---------|-----------------|
-| Host tests + coverage | `pytest --cov-fail-under=70` | Regression in chip resolution, wire-dict emission |
-| Dispatch gate | `python tools/check_dispatch.py` | DB/dispatch mismatch, VPP invariant violations |
-| Diff gate | `python tools/diff_db.py` | Unexplained DB changes vs baseline |
-| Ruff + mypy | `ruff check . && ruff format --check && mypy ...` | Code quality on 8 strict modules |
-| Firmware tests | `pio test -e native` | Firmware dispatch regressions (only if firmware is touched) |
-| Flash ceiling | `pio run -e leonardo` ≤ ~90% | New firmware code exceeds budget (only if firmware is touched) |
-
-**User-override safety (manual, no CI gate):** For the `~/.firestarter/database.json` 2516 entry specifically, run the manual checks listed in Question 2 before any bench write attempt.
+| Tool / suite | Repo | Role in the recompose |
+|--------------|------|------------------------|
+| `pio test -e native` + `test_val_*` + `_shared` recording bus | firestarter | Per-family register-level golden oracle (capture before / assert after each step) |
+| `pio test -e native -f "*test_dispatch*"` | firestarter | Dispatch-unchanged invariant (one case per KNOWN_PROTOCOLS) |
+| `pio run -e leonardo` + `avr-size`/`avr-nm` | firestarter | Per-step flash-delta measurement against the 89.5%→≤86.5% target |
+| `tools/check_dispatch.py` | firestarter_app | 744-chip resolve + GATE-03 VPP-safety (host guard authoritative) — must stay 0 violations |
+| `tools/diff_db.py` | firestarter_app | Per-chip DB diff vs pinned baseline — must stay empty (DB untouched) |
+| `dev validate-family` / `write_test.sh` | firestarter_app | Tier-3 bench re-prove on Leonardo + RURP Rev 2.0, feeding the v1.16 per-protocol ledger (composes with v1.13 matrix + v1.15 EVIDENCE.{md,json}) |
 
 ---
 
 ## Sources
 
-- `firestarter_app/firestarter/chip_resolver.py` lines 16–63 — `resolve_chip`, support_status guard, skip_local_override seam (source-verified 2026-06-23)
-- `firestarter_app/firestarter/database.py` lines 194–251 — `EpromDatabase.__init__`, `_initialize_database_core`, `_merge_databases` (source-verified 2026-06-23)
-- `firestarter_app/firestarter/database.py` lines 385–609 — `_map_data`, `info_flags` derivation, `convert_to_programmer`, `FLAG_CAN_ERASE` path (source-verified 2026-06-23)
-- `firestarter_app/firestarter/config.py` lines 15–37 — `HOME_PATH`, `DATABASE_FILE` = `~/.firestarter/database.json`, `get_local_database()` (source-verified 2026-06-23)
-- `firestarter_app/firestarter/cli_handlers.py` lines 1259–1593 — `dev validate-family`, r1 precondition, validation-matrix artifact schema (source-verified 2026-06-23)
-- `firestarter_app/tools/validation_matrix_spec.json` full — 6 families, rep_chip per family, tier3 boards/skip_boards (source-verified 2026-06-23)
-- `firestarter_app/tools/check_dispatch.py` lines 1–158 — KNOWN_PROTOCOLS, `dispatch()`, `_FAMILY_VPP_INVARIANTS` including `configure_eprom: (0, 25000)` post-Phase 79 (source-verified 2026-06-23)
-- `.planning/PROJECT.md` §v1.15 — milestone goals, UV-EPROM protocol, 2516 graduation target, bench constraints (source-verified 2026-06-23)
-- `.planning/STATE.md` — r1 gate arming, standing bench preconditions, FUT-03 NMOS bench SHA (source-verified 2026-06-23)
-- `.planning/MILESTONES.md` §v1.13 — three-tier harness description, per-family matrix, non-vacuous PASS oracle (source-verified 2026-06-23)
-- `.planning/MILESTONES.md` §v1.14 — Phase 79 NMOS VPE rail readings, rail correction (22.4V DMM / 23.9V fw), FLAG_CAN_ERASE graduation (source-verified 2026-06-23)
-- `.planning/research/_archive-pre-v1.15/ARCHITECTURE.md` — dispatch diagram, component table, refused-to-supported path, check_dispatch mirror requirement (source-verified 2026-06-23, reused where accurate)
-- Project memory: `reference_vpp_vpe_no_socket_routing`, `feedback_chip_out_before_sideload`, `feedback_verify_port_identity_each_task`, `project_phase79_gate_reexamined`, `reference_v114_bench_erase_rail_and_test_artifact`
+- `firestarter/src/proms/{eprom,eeprom_28c,flash_intel,flash_type_3,flash_type_4,flash_utils,memory,sram,not_implemented}.cpp` (handler source — read in full) — **HIGH**
+- `firestarter/src/operation_utils.cpp`, `src/hardware_operations.cpp`; `include/{firestarter,rurp_pinout,flash_utils,memory_utils,operation_utils}.h` — **HIGH**
+- Measured: `avr-nm --print-size --size-sort -C .pio/build/leonardo/firestarter_leonardo.elf` (function-level sizes) + `avr-size` whole-image (25,666 B text+data = 89.5%) — **HIGH (direct measurement of the committed build)**
+- `firestarter/test/native/avr/{_shared,test_val_*,test_dispatch}` (existing native register-recording harness) — **HIGH**
+- `firestarter_app/tools/{check_dispatch.py,diff_db.py}` (guard gates) — **HIGH**
+- `.planning/seeds/protocol-first-architecture-rebuild.md`, `.planning/notes/protocol-rebuild-rationale.md`, `.planning/PROJECT.md` v1.16 section — **HIGH**
 
 ---
-*Architecture research for: Firestarter v1.15 Bench Validation of Operator Inventory*
-*Researched: 2026-06-23*
+*Architecture research for: Firestarter v1.16 shared-primitive decomposition*
+*Researched: 2026-06-25*

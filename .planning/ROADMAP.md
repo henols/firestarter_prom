@@ -18,6 +18,7 @@
 - ✅ **v1.13 Programming Algorithm Validation + Gap Implementation** — Phases 71–76 (SHIPPED 2026-06-18; dual-repo lockstep merged to `beta` — fw `a33513f` / app `34deccb` @ `3.0.0b9`, no tag; beta cut + stable operator-gated). Test-first validation milestone: proved the 6 existing write/program/verify algorithm families correct on real hardware behind a software-first three-tier validation harness + per-family matrix, then implemented only the evidence-surfaced RURP-feasible gaps (flash4 chip-id + SDP/page-write; spec-only adapter-required + X88C64). Hybrid bench gating (Tier 1 native + Tier 2 host ungated; Tier 3 HIL Leonardo-only-PASS, closed at PARTIAL bench coverage). First firmware-touching milestone since v1.12. 17/17 requirements (HARN/RSCH/VAL/FIX/ERASE/GAP). Phase 74 Wave-2 HW re-bench + Phase 75 erase path deferred to v1.14 (Backlog 999.4). Full detail in `.planning/MILESTONES.md` §v1.13 + [`.planning/milestones/v1.13-ROADMAP.md`](milestones/v1.13-ROADMAP.md).
 - ✅ **v1.14 Feasible-Gap Implementation** — Phases 77–80 (SHIPPED 2026-06-23; meta tagged `v1.14`, gsd planning merged to `beta`; lockstep beta cut + gitlink bump operator-gated). The first milestone since v1.0 where chips actually **graduate to `supported`**: erase write-path (Phase 77 ✅ bench-proven W27C512), 25V NMOS best-effort graduation (Phase 79 ✅ 4 chips, D-07 override), with X88C64 (Phase 78, PCB-blocked) + AT28C04/16 adapter (Phase 80, adapter-not-built) cleanly deferred to FUT-01/03/04. 15 requirements (6 verified · 2 software-complete · 7 hardware-gated deferrals). Full detail in `.planning/MILESTONES.md` §v1.14 + [`.planning/milestones/v1.14-ROADMAP.md`](milestones/v1.14-ROADMAP.md).
 - ✅ **v1.15 Bench Validation of Operator Inventory** — Phases 81–84 (SHIPPED 2026-06-25; meta tagged `v1.15`, gsd planning merged to `beta`; sub-repo work on `v1.15-bench-validation-of-operator-inventory` — fw `cb947c7` VPP-skip / app `4d5b3de`; lockstep beta cut `3.0.0b11` + gitlink bump operator-gated). Bench-validated the operator's 11 physical chips across 5 algorithm families on **Leonardo + RURP Rev 2.0** via full write→read→verify — proving the on-paper `supported` claim on real silicon, validating DB decode, RCA-ing/fixing failures, producing a per-chip evidence record (`EVIDENCE.{md,json}` + `DECODE-AUDIT.md`), and graduating the `2516` (genuinely absent from minipro). 23 requirements: 21 satisfied · GRAD-03 deferred best-effort (D-22, 2516 0x0B read instability → FUT-03) · FIX-01 closed-by-disposition (D-43; in-posture fixes shipped, AM27C020 0x08 → FUT-06, W29C040 flash4 → CR-01/Phase-74 Wave-2). First Flash/EEPROM auto-erase silicon proof (W29C020). Full detail in `.planning/MILESTONES.md` §v1.15 + [`.planning/milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.md).
+- ✅ **v1.16 Protocol-First Architecture Rebuild** — Phases 85–92 (SHIPPED 2026-06-26; meta tagged `v1.16`, gsd planning to be merged to `beta`; sub-repo work on `v1.16-protocol-first-architecture-rebuild` — fw `a296195` primitive recompose / app `883c78f` decouple; lockstep beta cut `3.0.0b11` + gitlink bump operator-gated, gitlinks PINNED at b10). Turned the inherited-from-minipro hex-ID `protocol_id` buckets into a named, datasheet-verified, primitive-decomposed architecture: `infoic.xml`'s `variant` field decoded in full and `build_db.py` rewritten to a single principled `classify()` (Rule 1/2/3 override stack deleted; FM1608→SRAM_STD/0x28 + X88C64→EEPROM fall out structurally; DB 744→746 with the 2516/2532 non-upstream supplement); top-level `datasheets/` + `firestarter/doc/PROTOCOLS.md` 12-bucket vocabulary + INV-01..09 native-test matrix; primitives P7/P4/P3/P5 extracted behind golden traces + dispatch-mirror guard with a net flash **decrease** (final 25136 B / 87.7% / −518 B); `PROTOCOL-LEDGER.{md,json}` + self-consistency checker (all 4 on-hand protocols PASS, 6 no-silicon buckets explicit UNVERIFIED). The Phase-90/91 "12V-VPP regression" resolved as a `write -b` skipped-erase test-method error (recompose proven innocent), then hardened away in Phase 92 (HARD-01: `-b` decoupled from skip-erase + explicit `--skip-erase` opt-in). 28/28 requirements (DSHEET/VAR/NAME/PRIM/LEDGER/SAFE/HARD). Full detail in `.planning/MILESTONES.md` §v1.16 + [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.md).
 
 <details>
 <summary>✅ <b>v1.10 — Serial Transport Hardening (COBS)</b> — Phases 49–55 (SHIPPED 2026-06-07) · 27/27 plans · 14/14 reqs · beta-only</summary>
@@ -83,6 +84,29 @@ Full detail: [`.planning/milestones/v1.14-ROADMAP.md`](milestones/v1.14-ROADMAP.
 Full detail: [`.planning/milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.md) · [`v1.15-REQUIREMENTS.md`](milestones/v1.15-REQUIREMENTS.md) · [`v1.15-MILESTONE-AUDIT.md`](milestones/v1.15-MILESTONE-AUDIT.md) · [`MILESTONES.md`](MILESTONES.md) §v1.15.
 
 </details>
+
+<details>
+<summary>✅ <b>v1.16 — Protocol-First Architecture Rebuild</b> — Phases 85–92 (SHIPPED 2026-06-26) · 29 plans · 28/28 reqs · host-first, NO dual-repo lockstep (gitlinks PINNED at b10)</summary>
+
+**Milestone goal:** Turn the inherited-from-minipro hex-ID `protocol_id` buckets into a named, datasheet-verified, primitive-decomposed architecture, shrinking the Leonardo flash ceiling via shared-primitive reuse. The minipro/`infoic.xml` data stays ground truth but is now **extracted correctly** (the `variant` field decoded in full so `build_db.py` derives `electrical.type`/`algorithm`/`pinout` from principled decode, not a hand-maintained override stack). Bench oracle: **Leonardo + RURP Rev 2.0 only**.
+
+**Phases:**
+
+- [x] Phase 85: Datasheet Acquisition — 3/3 — 2026-06-25 — top-level `datasheets/` (17 PDFs: 11 on-hand + 6 no-silicon reps) + README index (DSHEET-01/02/03, SAFE-05)
+- [x] Phase 86: infoic.xml Variant-Field Decode + Correct DB Regen *(NEW — inserted 2026-06-25)* — 4/4 — 2026-06-25 — single principled `classify()` replaces Rule 1/2/3; FM1608→0x28 + X88C64→EEPROM structural; DB 744→746 (+2516/2532 supplement); diff_db IDENTITY exit 0, baseline re-pinned (VAR-01..05)
+- [x] Phase 87: Naming + Documentation Pass *(was 86)* — 4/4 — 2026-06-26 — `firestarter/doc/PROTOCOLS.md` 12-bucket vocabulary + INV-01..09 native-test traceability matrix; flash delta 0 (NAME-01..05, SAFE-06)
+- [x] Phase 88: Golden Traces + Dispatch-Mirror Guard *(was 87)* — 5/5 — 2026-06-26 — per-family byte-exact golden register traces + dispatch()-matches-documented-order guard; recompose oracle established (PRIM-01, SAFE-01/02/04)
+- [x] Phase 89: Incremental Primitive Recompose *(was 88)* — 5/5 — 2026-06-26 — P7 SDP-dedup → P4 chip-ID → P3 VPP gate → P5 poll extracted; net flash **decrease** to 25136 B / 87.7% / −518 B; fw `a296195` (PRIM-02..06)
+- [x] Phase 90: Per-Protocol Bench Validation + Ledger *(was 89)* — 4/4 — 2026-06-26 — `PROTOCOL-LEDGER.{md,json}` + checker; UAT 5/5; 0x05/0x28 PASS, 0x06/0x07 carried FAIL-INVESTIGATE → Phase 91 (LEDGER-01/02/03, SAFE-04)
+- [x] Phase 91: 12V-VPP Write-Path Regression RCA *(added 2026-06-26)* — 4/4 — 2026-06-26 — verdict: TEST-METHOD error (`write -b` skips required erase), recompose proven innocent via b10 A/B; SST39SF040 + W27C512 both graduated PASS; LEDGER-02 fully satisfied (4/4 on-hand)
+- [x] Phase 92: `write -b` Erase-Decouple Hardening *(added 2026-06-26; host-only follow-on, no separate phase dir)* — 2026-06-26 — `-b`/`--no-blank-check` decoupled from skip-erase; pre-write erase still runs for `FLAG_CAN_ERASE`; new explicit `--skip-erase` opt-in; firmware byte-identical (HARD-01)
+
+**Requirements (28/28 ✓):** DSHEET-01/02/03 (P85); VAR-01..05 (P86); NAME-01..05 (P87); PRIM-01 (P88) · PRIM-02..06 (P89); LEDGER-01/02/03 (P90, LEDGER-02 completed P91); SAFE-01/02 (P88) · SAFE-03/04 (P86, recurring) · SAFE-05 (P85) · SAFE-06 (P87); HARD-01 (P92).
+
+Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.md) · [`v1.16-REQUIREMENTS.md`](milestones/v1.16-REQUIREMENTS.md) · [`MILESTONES.md`](MILESTONES.md) §v1.16.
+
+</details>
+
 
 ## v1.9 — Read-Bug RCA + Fix (STARTED 2026-05-29)
 
@@ -658,6 +682,14 @@ Plans:
 | 82 | v1.15 | 3/3 | Complete    | 2026-06-24 |
 | 83 | v1.15 | 3/3 | Complete   | 2026-06-24 |
 | 84 (close) | v1.15 | 6/6 | Complete   | 2026-06-25 |
+| 85 | v1.16 | 3/3 | Complete    | 2026-06-25 |
+| 86 | v1.16 | 4/4 | Complete | 86-01 (VAR-01 docs + Wave-0 oracle) ✅; 86-02 (classify() rewrite + correct DB regen) ✅; 86-04 (2516/2532 non-upstream supplement, DB→746) ✅; 86-03 (baseline re-pin LAST → diff_db IDENTITY exit 0; full py3.11 gate green) ✅ 2026-06-25 |
+| 87 | v1.16 | 4/4 | Complete    | 2026-06-26 |
+| 88 | v1.16 | 5/5 | Complete    | 2026-06-26 |
+| 89 | v1.16 | 5/5 | Complete    | 2026-06-26 |
+| 90 | v1.16 | 4/4 | Complete    | 2026-06-26 |
+| 91 | v1.16 | 4/4 | Complete    | 2026-06-26 |
+| 92 (close) | v1.16 | host-only | Complete    | 2026-06-26 |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
@@ -769,7 +801,7 @@ Plans:
   2. The same file (or a companion file) lists every intra-algorithm DB inconsistency — chips that share `pin_count` + `algorithm` but differ in `pulse_duration`, `chip_id_check`, or `pinout` — with each inconsistency labeled as a defect candidate for v1.4 or a sub-repo PR (no auto-fixes applied in v1.3).
   3. Operator can use the matrix to confirm that the six BENCH chips (BENCH-01..06) span the pinout classes and pulse-duration profiles actually represented in the DB, so bench results generalize to the rest of the 339 rows.
 
-**Plans:** 3/3 plans complete
+**Plans:** 5/5 plans complete
 
 - [x] 11-01-PLAN.md — Wave 0 failing-test scaffold for tests/test_audit_coverage_matrix.py (10 tests) ✅ 2026-05-19
 - [x] 11-02-PLAN.md — Wave 1 tool skeleton + CLI + §1 Summary + §2 DB Count Reconciliation ✅ 2026-05-19
@@ -916,8 +948,6 @@ Plans:
 Plans:
 
 - [ ] TBD (promote with /gsd-review-backlog when ready)
-
----
 
 ### v1.14 — Feasible-Gap Implementation (✅ PROMOTED 2026-06-18 → active milestone, Phases 77–80)
 
