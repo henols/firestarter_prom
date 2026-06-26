@@ -274,9 +274,17 @@ Plans:
   4. Over-voltage remains blocked at the firmware VPP check throughout all bench sessions; the `chip_resolver.resolve_chip` host guard is never bypassed; no irreplaceable UV chip is written on an unstable read path.
 
 **Plans**: 4 plans (3 waves)
+**Wave 1**
+
 - [ ] 90-01-PLAN.md — Wave-0 ledger self-consistency checker (check_ledger.py) + pytest/fixtures
-- [ ] 90-02-PLAN.md — Author PROTOCOL-LEDGER.{json,md}: 12 bucket rows, 6 UNVERIFIED, 3 open-defect carries (LEDGER-01/03)
 - [ ] 90-03-PLAN.md — SAFE-04 verify-present-only (firmware VPP gate + host resolve_chip guard + 2516 UNVERIFIED) + frozen-world rerun
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 90-02-PLAN.md — Author PROTOCOL-LEDGER.{json,md}: 12 bucket rows, 6 UNVERIFIED, 3 open-defect carries (LEDGER-01/03)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 90-04-PLAN.md — Bench-validate 4 on-hand chips on Leonardo+Rev2.0; flip rows to PASS w/ evidence refs (LEDGER-02)
 
 ## v1.9 — Read-Bug RCA + Fix (STARTED 2026-05-29)
