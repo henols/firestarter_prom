@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.17
 milestone_name: — Implement & Test the W29C040 Programming Protocol
 status: executing
-last_updated: "2026-06-27T08:10:00Z"
-last_activity: 2026-06-27 -- Phase 94 Plan 01 complete (FIX-01a T-93-CANERASE dual-repo)
+last_updated: "2026-06-27T12:00:00Z"
+last_activity: 2026-06-27 -- Phase 94 Plan 02 complete (PGSZ-01/02/03 page-size wire field end-to-end)
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 8
-  completed_plans: 5
-  percent: 31
+  completed_plans: 6
+  percent: 38
 ---
 
 # Project State
@@ -21,9 +21,9 @@ progress:
 ## Current Position
 
 Phase: 94 (fix-pgsz-firmware-write-path-fix-datasheet-sourced-per-chip-page-size) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Executing Phase 94
-Last activity: 2026-06-27 -- Phase 94 Plan 01 complete (FIX-01a T-93-CANERASE dual-repo)
+Last activity: 2026-06-27 -- Phase 94 Plan 02 complete (PGSZ-01/02/03 page-size wire field end-to-end)
 
 ## Project Reference
 
@@ -113,6 +113,13 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - **SAFE-01 = HELD (Phase 93 Plan 04, 2026-06-27):** Conditional — held only because --skip-erase was used throughout RCA. Underlying T-93-CANERASE hazard (FLAG_CAN_ERASE=0x02 → 12V on 5V chip) remains OPEN until Phase 94 FIX-01. Phase 94 must implement FIX-01 before any bench work without --skip-erase.
 - **Milestone done-bar impact noted (Phase 93 Plan 04, 2026-06-27):** If §6.6 lock is permanent (b), Phase 95 BENCH-01 byte-exact write→verify on page-0 is not achievable on current chip. Operator decision needed: new chip OR re-scope to addresses ≥0x4000.
 
+### Decisions (Phase 94 Plan 02, 2026-06-27)
+
+- **PGSZ wire field end-to-end (Phase 94 Plan 02, 2026-06-27):** JSON_KEY_PAGE_SIZE = "page-size" added host-side; emit-when-present mirrors read-strobe-us pattern; uint32_t page_size in firestarter_handle_t; key_page_size PROGMEM + get_page_size parser in json_parser.c. V5 bound-check: 0/absurd → handle->page_size=0 → firmware heuristic fallback.
+- **Cited values only: W29C040=256, W29C020=128 (Phase 94 Plan 02, 2026-06-27):** _PAGE_SIZE_BY_PART in build_db.py; W29C040/W29C042=256 from W29C040.pdf §6.2; W29C020/W29C020C/W29C022=128 from W29C020.pdf §6.2. No [ASSUMED] values graduated.
+- **flash4_page_size heuristic retained as fallback (Phase 94 Plan 02, 2026-06-27):** Safe-fallback form: handle->page_size ? handle->page_size : flash4_page_size(handle->mem_size). Zero-initialized handle → page_size==0 → heuristic. Heuristic NOT deleted.
+- **address=126/data_size=4 native test window (Phase 94 Plan 02, 2026-06-27):** address=0/data_size=129 exceeded 256-entry recording cap (8+128*3=392 entries). address=126/data_size=4 yields 31 entries; still crosses 128B boundary at addr 128. Discriminant preserved.
+
 ### Decisions (Phase 94 Plan 01, 2026-06-27)
 
 - **FIX-01a IMPLEMENTED (Phase 94 Plan 01, 2026-06-27):** T-93-CANERASE mitigated. Defense-in-depth: host `convert_to_programmer` now gates `FLAG_CAN_ERASE` on `algorithm != 5`; firmware `flash4_write_init` skips `flash4_erase_execute` when `handle->protocol == 0x05`. W29C040 wire flags now 0x00. Phase 95 bench can proceed without `--skip-erase`.
@@ -124,6 +131,6 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Operator Next Steps
 
-- **Phase 94 Plan 01 DONE.** T-93-CANERASE FIXED. `--skip-erase` no longer required.
-- **Phase 94 Plan 02 NEXT:** (PGSZ / per-chip page_size / CR-01 wire field, or next plan per ROADMAP).
+- **Phase 94 Plan 02 DONE.** PGSZ-01/02/03 wire field end-to-end. W29C040=256 / W29C020=128 cited. Native tests green.
+- **Phase 94 Plan 03 NEXT:** FIX-02 golden-trace pin + diff_db verification (page_size resolved → trace unchanged).
 - **Boot-block decision:** Phase 95 will target addresses ≥0x4000 or operator provides unlocked chip.

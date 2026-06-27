@@ -27,9 +27,9 @@
 
 ### PGSZ — Datasheet-Sourced Per-Chip Page Size (CR-01)
 
-- [ ] **PGSZ-01**: Each flash4 chip in the DB carries a datasheet-sourced per-chip `page_size` field (not derived from capacity), authored in the `build_db.py` pipeline / chip DB source with cited datasheet values.
-- [ ] **PGSZ-02**: The firmware consumes the per-chip `page_size` instead of `flash4_page_size(mem_size)`, removing the capacity heuristic so the under-sized 64 KB (128 B) and 256 KB (256 B) flash4 families are correctly sized.
-- [ ] **PGSZ-03**: `page_size` is carried over the wire (lockstep field) with a safe default/fallback for any chip lacking the datum; `check_dispatch.py` passes and `diff_db.py` shows only the intended `page_size` additions.
+- [x] **PGSZ-01**: Each flash4 chip in the DB carries a datasheet-sourced per-chip `page_size` field (not derived from capacity), authored in the `build_db.py` pipeline / chip DB source with cited datasheet values.
+- [x] **PGSZ-02**: The firmware consumes the per-chip `page_size` instead of `flash4_page_size(mem_size)`, removing the capacity heuristic so the under-sized 64 KB (128 B) and 256 KB (256 B) flash4 families are correctly sized.
+- [x] **PGSZ-03**: `page_size` is carried over the wire (lockstep field) with a safe default/fallback for any chip lacking the datum; `check_dispatch.py` passes and `diff_db.py` shows only the intended `page_size` additions.
 
 ### BENCH — Bench Validation & Graduation
 
@@ -45,7 +45,7 @@
 ### SAFE — Safety & Non-Regression
 
 - [x] **SAFE-01**: Over-voltage stays blocked at the firmware VPP check and the host `chip_resolver.resolve_chip` guard is never bypassed; W29C040 graduation flows through the normal `supported` path.
-- [ ] **SAFE-02**: The lockstep wire contract stays in sync (constants parity test green) and host CI is green against the **py3.11** target (ruff check + ruff format --check + mypy + diff_db + check_dispatch), avoiding the py3.12-masks-CI-3.11 trap.
+- [x] **SAFE-02**: The lockstep wire contract stays in sync (constants parity test green) and host CI is green against the **py3.11** target (ruff check + ruff format --check + mypy + diff_db + check_dispatch), avoiding the py3.12-masks-CI-3.11 trap.
 
 ---
 
@@ -75,13 +75,13 @@ _Filled by the roadmapper 2026-06-26 — all 16 REQ-IDs mapped to exactly one ph
 | FIX-01 | Phase 94 | FIX-01a Complete (94-01); FIX-01b diagnostics in subsequent plans |
 | FIX-02 | Phase 94 | pending (golden traces stayed green in 94-01) |
 | FIX-03 | Phase 94 | Complete (94-01) |
-| PGSZ-01 | Phase 94 | pending |
-| PGSZ-02 | Phase 94 | pending |
-| PGSZ-03 | Phase 94 | pending |
+| PGSZ-01 | Phase 94 | Complete (94-02) |
+| PGSZ-02 | Phase 94 | Complete (94-02) |
+| PGSZ-03 | Phase 94 | Complete (94-02) |
 | BENCH-01 | Phase 95 | pending |
 | BENCH-02 | Phase 95 | pending |
 | BENCH-03 | Phase 95 | pending |
 | LEDGER-01 | Phase 96 | pending |
 | LEDGER-02 | Phase 96 | pending |
 | SAFE-01 | Phase 93 | Complete |
-| SAFE-02 | Phase 94 | pending |
+| SAFE-02 | Phase 94 | Complete (94-02) |

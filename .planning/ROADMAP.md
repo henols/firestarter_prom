@@ -181,7 +181,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 94-02-PLAN.md — PGSZ: datasheet-sourced per-chip page_size over the wire (read-strobe-us precedent) + firmware safe-fallback consumption + diff_db/check_dispatch gates (wave 2; PGSZ-01/02/03, SAFE-02)
+- [x] 94-02-PLAN.md — PGSZ: datasheet-sourced per-chip page_size over the wire (read-strobe-us precedent) + firmware safe-fallback consumption + diff_db/check_dispatch gates (wave 2; PGSZ-01/02/03, SAFE-02) *(completed 2026-06-27)*
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
