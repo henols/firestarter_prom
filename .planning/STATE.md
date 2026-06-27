@@ -9,7 +9,7 @@ progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 4
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -21,9 +21,9 @@ progress:
 ## Current Position
 
 Phase: 93 (rca-root-cause-the-w29c040-page-0-write-fault) — EXECUTING
-Plan: 3 of 4 (Plan 02 complete)
-Status: Executing Phase 93 — Plan 03 next (bench-gated: hardware required)
-Last activity: 2026-06-27 -- Phase 93 Plan 02 complete (W29C040 page-0 fault reproduced N=2, H4 disconfirmed, signature captured)
+Plan: 4 of 4 (Plan 03 complete)
+Status: Executing Phase 93 — Plan 04 next (autonomous synthesis — no hardware required)
+Last activity: 2026-06-27 -- Phase 93 Plan 03 complete (RCA-02 differential isolation complete; H5 CONFIRMED = §6.6 first-16K boot block lock; H1-H4 all disconfirmed)
 
 ## Project Reference
 
@@ -104,6 +104,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - **H4 DISCONFIRMED (Phase 93 Plan 02, 2026-06-27):** Address 0x0000ff stays 0x00 (not 0x04) after N=5 settled reads following fault — page never committed. Poll did not merely give up on a late-completing write. H1 (T_BLC timing) and H3 (SDP rejection) remain active hypotheses.
 - **T-93-CANERASE gate cleared by operator (2026-06-27):** Proceed-with-skip-erase authorized. All Plan 02 writes used `--skip-erase`. Full fix (FIX-01) deferred to Phase 94.
 - **RCA-01 reproduction confirmed N=2 (Phase 93 Plan 02, 2026-06-27):** ERROR frame identical on both runs: `Timeout verifying 0x04 at 0x0000ff (got 0x00)`. Decoded: `[expected=0x04, A16=0x00, A8=0x00, A0=0xFF, observed=0x00]`. Same failing site (0x0000ff) as v1.15 Phase 82/84 baseline.
+- **H5 CONFIRMED as root cause (Phase 93 Plan 03, 2026-06-27):** W29C040 §6.6 first-16K boot block programming lockout permanently activated on this chip instance. Boundary sweep: 0x3F00 FAILS, 0x4000 PASSES — exact step at 16K boundary. H1/H2/H3/H4 all DISCONFIRMED with direct bench evidence. Firmware write algorithm is correct for unlocked pages.
+- **W29C020 live control DEFERRED per operator (Phase 93 Plan 03, 2026-06-27):** Datasheet-only differential done (SDP/pinout/VPP same in both; page size/A18/boot-block-boundary differ). Live write deferred as best-effort.
+- **SERIAL_DEBUG+DEBUG_ADDRESS overhead trap (Phase 93 Plan 03, 2026-06-27):** Combining both flags causes 5008+ poll messages per 1-byte write, swamping host protocol and causing Command 2 timed out. Future trace builds: use DEBUG_ADDRESS without SERIAL_DEBUG, or capture init-phase only.
+- **Phase 94 FIX-01 scope clarified (Phase 93 Plan 03, 2026-06-27):** Root cause is chip-instance-specific silicon, not firmware. Firmware write algorithm is correct. FIX-01 still needed for T-93-CANERASE (FLAG_CAN_ERASE=0x02 12V hazard). Unlocked W29C040 or addresses ≥0x4000 needed for BENCH graduation.
 
 ### Blockers / Concerns
 
@@ -112,6 +116,6 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Operator Next Steps
 
-- Plans 01 and 02 complete. RCA-01 baseline captured N=2 deterministically.
+- Plans 01, 02, and 03 complete. RCA named: H5 (§6.6 first-16K boot block lock).
 - **CRITICAL: W29C040 write commands MUST use `--skip-erase` flag** (T-93-CANERASE — flags=0x02 routes 12V erase on 5V chip).
-- Next: Plan 03 (93-03) — differential W29C020 vs W29C040 + disconfirming tests for H1/H2/H3/H5. Chip remains seated. Plan 03 is bench-gated (hardware required).
+- Next: Plan 04 (93-04) — RCA-03: name + classify root cause, per-hypothesis disconfirming evidence, Phase-94 hand-off + SAFE-01 close-out. Plan 04 is autonomous (no hardware required).

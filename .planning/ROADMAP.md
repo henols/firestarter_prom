@@ -153,7 +153,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 93-03-PLAN.md — RCA-02: W29C020 differential control + cheapest-first disconfirming matrix (single-byte fork, DEBUG_ADDRESS trace, non-page-0, A18=1) *(bench, operator-witnessed)*
+- [x] 93-03-PLAN.md — RCA-02: W29C020 differential control + cheapest-first disconfirming matrix (single-byte fork, DEBUG_ADDRESS trace, non-page-0, A18=1) *(bench, operator-witnessed)*
 
 **Wave 4** *(blocked on Wave 3)*
 
