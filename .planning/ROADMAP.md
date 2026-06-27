@@ -149,7 +149,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 93-02-PLAN.md — RCA-01: reproduce the page-0 fault N≥2 on the seated W29C040 + capture signature + post-fail settled read *(bench, operator-witnessed)*
+- [x] 93-02-PLAN.md — RCA-01: reproduce the page-0 fault N≥2 on the seated W29C040 + capture signature + post-fail settled read *(bench, operator-witnessed)*
 
 **Wave 3** *(blocked on Wave 2)*
 
@@ -787,7 +787,7 @@ Plans:
 | 90 | v1.16 | 4/4 | Complete    | 2026-06-26 |
 | 91 | v1.16 | 4/4 | Complete    | 2026-06-26 |
 | 92 (close) | v1.16 | host-only | Complete    | 2026-06-26 |
-| 93 | v1.17 | 1/4 | In Progress|  |
+| 93 | v1.17 | 2/4 | In Progress|  |
 | 94 | v1.17 | 0/TBD | Not started | — |
 | 95 | v1.17 | 0/TBD | Not started | — |
 | 96 (close) | v1.17 | 0/TBD | Not started | — |

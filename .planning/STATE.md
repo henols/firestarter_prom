@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.17
 milestone_name: — Implement & Test the W29C040 Programming Protocol
 status: executing
-last_updated: "2026-06-26T22:27:18.700Z"
-last_activity: 2026-06-26 -- Phase 93 Plan 01 complete (SAFE-01 pre-flight + T-93-CANERASE finding)
+last_updated: "2026-06-27T06:44:33.140Z"
+last_activity: 2026-06-27
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 4
-  completed_plans: 1
-  percent: 25
+  completed_plans: 2
+  percent: 0
 ---
 
 # Project State
@@ -21,9 +21,9 @@ progress:
 ## Current Position
 
 Phase: 93 (rca-root-cause-the-w29c040-page-0-write-fault) — EXECUTING
-Plan: 2 of 4 (Plan 01 complete)
-Status: Executing Phase 93 — Plan 02 next (bench-gated: hardware required)
-Last activity: 2026-06-26 -- Phase 93 Plan 01 complete (SAFE-01 pre-flight + T-93-CANERASE finding)
+Plan: 3 of 4 (Plan 02 complete)
+Status: Executing Phase 93 — Plan 03 next (bench-gated: hardware required)
+Last activity: 2026-06-27 -- Phase 93 Plan 02 complete (W29C040 page-0 fault reproduced N=2, H4 disconfirmed, signature captured)
 
 ## Project Reference
 
@@ -101,6 +101,9 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 - **T-93-CANERASE (Phase 93 Plan 01, 2026-06-26):** FLAG_CAN_ERASE (0x02) IS set in W29C040 wire flags — `flash4_erase_execute` asserts 12V on a 5V-only chip. Bench plans 02–04 MUST use `--skip-erase`. Phase 94 FIX-01 scope: prevent FLAG_CAN_ERASE from reaching `flash4_erase_execute` for protocol 0x05 chips.
 - **Phase-74 traps ruled out (Phase 93 Plan 01, 2026-06-26):** SDP present and 256B page confirmed by native tests (11/11 PASS). RCA must search deeper than Phase-74 hypotheses.
+- **H4 DISCONFIRMED (Phase 93 Plan 02, 2026-06-27):** Address 0x0000ff stays 0x00 (not 0x04) after N=5 settled reads following fault — page never committed. Poll did not merely give up on a late-completing write. H1 (T_BLC timing) and H3 (SDP rejection) remain active hypotheses.
+- **T-93-CANERASE gate cleared by operator (2026-06-27):** Proceed-with-skip-erase authorized. All Plan 02 writes used `--skip-erase`. Full fix (FIX-01) deferred to Phase 94.
+- **RCA-01 reproduction confirmed N=2 (Phase 93 Plan 02, 2026-06-27):** ERROR frame identical on both runs: `Timeout verifying 0x04 at 0x0000ff (got 0x00)`. Decoded: `[expected=0x04, A16=0x00, A8=0x00, A0=0xFF, observed=0x00]`. Same failing site (0x0000ff) as v1.15 Phase 82/84 baseline.
 
 ### Blockers / Concerns
 
@@ -109,6 +112,6 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Operator Next Steps
 
-- Plan 01 complete (autonomous, no hardware). SAFE-01 pre-flight done.
+- Plans 01 and 02 complete. RCA-01 baseline captured N=2 deterministically.
 - **CRITICAL: W29C040 write commands MUST use `--skip-erase` flag** (T-93-CANERASE — flags=0x02 routes 12V erase on 5V chip).
-- Next: Plan 02 (93-02) — bench repro of signature + post-fail read. Operator seats W29C040 on Leonardo + Rev 2.0; verify controller identity + R1/R2 readback before proceeding.
+- Next: Plan 03 (93-03) — differential W29C020 vs W29C040 + disconfirming tests for H1/H2/H3/H5. Chip remains seated. Plan 03 is bench-gated (hardware required).
