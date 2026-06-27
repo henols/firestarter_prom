@@ -17,7 +17,7 @@
 
 - [x] **RCA-01**: The W29C040 page-0 write fault is reproduced on the seated chip (Leonardo + Rev 2.0) with a captured failure signature — which addresses/bytes fail, and the DQ7/DQ6 toggle-poll behavior at the failure — establishing a pre-fix baseline.
 - [x] **RCA-02**: The W29C040 write path is differentially compared against the passing `0x05` sibling W29C020 across the candidate axes (SDP unlock sequence, page-write polling/timing, address span / A18 512 KB addressing, page size) to isolate the differing variable(s).
-- [ ] **RCA-03**: A named root cause (or ranked hypotheses each with disconfirming evidence) for the page-0 fault is recorded, classifying it as firmware-algorithm, timing, addressing, or silicon — sufficient to design a targeted fix.
+- [x] **RCA-03**: A named root cause (or ranked hypotheses each with disconfirming evidence) for the page-0 fault is recorded, classifying it as firmware-algorithm, timing, addressing, or silicon — sufficient to design a targeted fix.
 
 ### FIX — Firmware Write-Path Fix
 
@@ -71,7 +71,7 @@ _Filled by the roadmapper 2026-06-26 — all 16 REQ-IDs mapped to exactly one ph
 |--------|-------|--------|
 | RCA-01 | Phase 93 | Complete |
 | RCA-02 | Phase 93 | Complete |
-| RCA-03 | Phase 93 | pending |
+| RCA-03 | Phase 93 | Complete |
 | FIX-01 | Phase 94 | pending |
 | FIX-02 | Phase 94 | pending |
 | FIX-03 | Phase 94 | pending |

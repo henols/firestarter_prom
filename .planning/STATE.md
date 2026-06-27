@@ -3,27 +3,27 @@ gsd_state_version: 1.0
 milestone: v1.17
 milestone_name: — Implement & Test the W29C040 Programming Protocol
 status: executing
-last_updated: "2026-06-27T06:44:33.140Z"
+last_updated: "2026-06-27T07:55:00.000Z"
 last_activity: 2026-06-27
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 4
-  completed_plans: 3
-  percent: 0
+  completed_plans: 4
+  percent: 25
 ---
 
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-06-26
+**Updated:** 2026-06-27
 
 ## Current Position
 
-Phase: 93 (rca-root-cause-the-w29c040-page-0-write-fault) — EXECUTING
-Plan: 4 of 4 (Plan 03 complete)
-Status: Executing Phase 93 — Plan 04 next (autonomous synthesis — no hardware required)
-Last activity: 2026-06-27 -- Phase 93 Plan 03 complete (RCA-02 differential isolation complete; H5 CONFIRMED = §6.6 first-16K boot block lock; H1-H4 all disconfirmed)
+Phase: 93 (rca-root-cause-the-w29c040-page-0-write-fault) — COMPLETE
+Plan: 4 of 4 (ALL COMPLETE)
+Status: Phase 93 complete — Phase 94 (FIX + PGSZ) is next
+Last activity: 2026-06-27 -- Phase 93 Plan 04 complete (RCA-03: H5 CONFIRMED §6.6 boot-block lock; SAFE-01 phase-close; 93-VALIDATION.md signed off; nyquist_compliant=true)
 
 ## Project Reference
 
@@ -108,14 +108,20 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - **W29C020 live control DEFERRED per operator (Phase 93 Plan 03, 2026-06-27):** Datasheet-only differential done (SDP/pinout/VPP same in both; page size/A18/boot-block-boundary differ). Live write deferred as best-effort.
 - **SERIAL_DEBUG+DEBUG_ADDRESS overhead trap (Phase 93 Plan 03, 2026-06-27):** Combining both flags causes 5008+ poll messages per 1-byte write, swamping host protocol and causing Command 2 timed out. Future trace builds: use DEBUG_ADDRESS without SERIAL_DEBUG, or capture init-phase only.
 - **Phase 94 FIX-01 scope clarified (Phase 93 Plan 03, 2026-06-27):** Root cause is chip-instance-specific silicon, not firmware. Firmware write algorithm is correct. FIX-01 still needed for T-93-CANERASE (FLAG_CAN_ERASE=0x02 12V hazard). Unlocked W29C040 or addresses ≥0x4000 needed for BENCH graduation.
+- **RCA-03 NAMED: SILICON classification confirmed (Phase 93 Plan 04, 2026-06-27):** H5 CONFIRMED as sole surviving hypothesis. Classified SILICON/chip-instance-specific-hardware-feature-state. H1(timing)/H2(addressing)/H3(SDP)/H4(poll-site) all disconfirmed with direct bench evidence. Phase 44 D-07 causal bar met (exact 16K boundary is the variable that moves the failure).
+- **Lock reversibility fork (Phase 93 Plan 04, 2026-06-27):** Evidence is agnostic on whether §6.6 lock is software-reversible (a) or hardware-permanent (b). Research notes lean (b) but PDF not directly readable. Phase 94 FIRST STEP: read §6.6 for UNLOCK command. If (a): add boot-block unlock to flash4 write path; if (b): different chip or re-scope BENCH-01.
+- **SAFE-01 = HELD (Phase 93 Plan 04, 2026-06-27):** Conditional — held only because --skip-erase was used throughout RCA. Underlying T-93-CANERASE hazard (FLAG_CAN_ERASE=0x02 → 12V on 5V chip) remains OPEN until Phase 94 FIX-01. Phase 94 must implement FIX-01 before any bench work without --skip-erase.
+- **Milestone done-bar impact noted (Phase 93 Plan 04, 2026-06-27):** If §6.6 lock is permanent (b), Phase 95 BENCH-01 byte-exact write→verify on page-0 is not achievable on current chip. Operator decision needed: new chip OR re-scope to addresses ≥0x4000.
 
 ### Blockers / Concerns
 
-- **T-93-CANERASE (HIGH):** W29C040 wire flags=0x02 causes 12V erase on a 5V chip during any `firestarter write` without `--skip-erase`. This is a latent hardware-damage path that was previously believed non-existent. Bench mitigation: always use `--skip-erase` for W29C040 in RCA Plans 02–04. Permanent fix: Phase 94 FIX-01.
-- Hardware-gated: Plans 02–04 require operator to seat W29C040 on Leonardo + Rev 2.0.
+- **T-93-CANERASE (HIGH):** W29C040 wire flags=0x02 causes 12V erase on a 5V chip during any `firestarter write` without `--skip-erase`. Permanent fix: Phase 94 FIX-01 (host-side: do not set FLAG_CAN_ERASE for algorithm==5 chips in convert_to_programmer).
+- **Boot-block reversibility unknown:** Phase 94 must read §6.6 to determine if the lock can be undone. This governs whether the milestone done-bar is achievable on the seated chip.
 
 ## Operator Next Steps
 
-- Plans 01, 02, and 03 complete. RCA named: H5 (§6.6 first-16K boot block lock).
-- **CRITICAL: W29C040 write commands MUST use `--skip-erase` flag** (T-93-CANERASE — flags=0x02 routes 12V erase on 5V chip).
-- Next: Plan 04 (93-04) — RCA-03: name + classify root cause, per-hypothesis disconfirming evidence, Phase-94 hand-off + SAFE-01 close-out. Plan 04 is autonomous (no hardware required).
+- Phase 93 complete. All 4 plans done. RCA-01/02/03 + SAFE-01 all satisfied.
+- **Phase 94 FIX + PGSZ is next.**
+- **FIRST STEP Phase 94:** Read W29C040.pdf §6.6 for UNLOCK command — determines the fix path.
+- **FIX-01 REQUIRED:** T-93-CANERASE (FLAG_CAN_ERASE 12V hazard) must be fixed before Phase 95 bench work.
+- **CRITICAL until FIX-01:** W29C040 write commands MUST use `--skip-erase` flag.

@@ -157,7 +157,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3)*
 
-- [ ] 93-04-PLAN.md — RCA-03: name + classify the root cause, per-hypothesis disconfirming evidence, Phase-94 hand-off + SAFE-01 close-out *(autonomous synthesis)*
+- [x] 93-04-PLAN.md — RCA-03: name + classify the root cause, per-hypothesis disconfirming evidence, Phase-94 hand-off + SAFE-01 close-out *(autonomous synthesis)*
 
 **UI hint**: no
 
@@ -787,7 +787,7 @@ Plans:
 | 90 | v1.16 | 4/4 | Complete    | 2026-06-26 |
 | 91 | v1.16 | 4/4 | Complete    | 2026-06-26 |
 | 92 (close) | v1.16 | host-only | Complete    | 2026-06-26 |
-| 93 | v1.17 | 2/4 | In Progress|  |
+| 93 | v1.17 | 4/4 | Complete   | 2026-06-27 |
 | 94 | v1.17 | 0/TBD | Not started | — |
 | 95 | v1.17 | 0/TBD | Not started | — |
 | 96 (close) | v1.17 | 0/TBD | Not started | — |
