@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.17
 milestone_name: — Implement & Test the W29C040 Programming Protocol
 status: executing
-last_updated: "2026-06-27T12:00:00Z"
-last_activity: 2026-06-27 -- Phase 94 Plan 02 complete (PGSZ-01/02/03 page-size wire field end-to-end)
+last_updated: "2026-06-27T09:21:00Z"
+last_activity: 2026-06-27 -- Phase 94 Plan 04 complete (SAFE-02 py3.11 CI all-green + writable-region bench proof N=3 SHA match)
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 8
-  completed_plans: 6
-  percent: 38
+  completed_plans: 8
+  percent: 50
 ---
 
 # Project State
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 94 (fix-pgsz-firmware-write-path-fix-datasheet-sourced-per-chip-page-size) — EXECUTING
-Plan: 3 of 4
-Status: Executing Phase 94
-Last activity: 2026-06-27 -- Phase 94 Plan 02 complete (PGSZ-01/02/03 page-size wire field end-to-end)
+Phase: 94 (fix-pgsz-firmware-write-path-fix-datasheet-sourced-per-chip-page-size) — COMPLETE
+Plan: 4 of 4 (DONE)
+Status: Phase 94 complete; Phase 95 (BENCH) is next
+Last activity: 2026-06-27 -- Phase 94 Plan 04 complete (SAFE-02 py3.11 CI all-green + writable-region bench proof N=3 SHA match)
 
 ## Project Reference
 
@@ -129,8 +129,15 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 - **Boot-block lock on seated chip (carry-forward):** §6.6 lock is permanent (no unlock command). Phase 95 BENCH-01 requires addresses ≥0x4000 on current chip, or a new unlocked chip. Operator decision needed before Phase 95.
 
+### Decisions (Phase 94 Plan 04, 2026-06-27)
+
+- **SAFE-02 CLOSED (Phase 94 Plan 04, 2026-06-27):** Python 3.11.15 obtained via uv. All 9 ci.yml steps green on py3.11.15. py3.11 traps cleared (no f-string backslash SyntaxErrors; codegen drift-gate clean). Constants parity confirmed: all 8 FLAG_* bits match; JSON_KEY_PAGE_SIZE is a wire string (not a flag), parity unaffected.
+- **Writable region proof N=3 COMPLETE (Phase 94 Plan 04, 2026-06-27):** W29C040 writable region 0x4000+, 16KB, 3 write→verify cycles, all SHA match. Used -b (skip blank check only); FLAG_CAN_ERASE=0 post-FIX-01a → no 12V erase. W29C040 auto-erases per page via SDP. No --skip-erase used.
+- **read command output semantics confirmed (Phase 94 Plan 04, 2026-06-27):** `firestarter read -a ADDR --size SZ` returns (ADDR+SZ) bytes starting from address 0; target region data starts at offset ADDR in the output file.
+- **Boot-block detect live-trigger not achieved (Phase 94 Plan 04, 2026-06-27):** Blank check fires before write attempt (non-blank locked region). Confirmed via Plan-03 native test + Phase-93 silicon boundary evidence. No --skip-erase bypass was used.
+
 ## Operator Next Steps
 
-- **Phase 94 Plan 02 DONE.** PGSZ-01/02/03 wire field end-to-end. W29C040=256 / W29C020=128 cited. Native tests green.
-- **Phase 94 Plan 03 NEXT:** FIX-02 golden-trace pin + diff_db verification (page_size resolved → trace unchanged).
-- **Boot-block decision:** Phase 95 will target addresses ≥0x4000 or operator provides unlocked chip.
+- **Phase 94 COMPLETE.** FIX-01a+PGSZ+FIX-01b+SAFE-02+bench proof all done.
+- **Phase 95 NEXT (BENCH):** Byte-exact write→auto-erase→program→verify graduation gate.
+- **Boot-block constraint:** Phase 95 BENCH-01 requires unlocked W29C040 OR explicit re-scope to ≥0x4000. Operator decision needed before Phase 95 planning.

@@ -72,8 +72,8 @@ _Filled by the roadmapper 2026-06-26 — all 16 REQ-IDs mapped to exactly one ph
 | RCA-01 | Phase 93 | Complete |
 | RCA-02 | Phase 93 | Complete |
 | RCA-03 | Phase 93 | Complete |
-| FIX-01 | Phase 94 | FIX-01a Complete (94-01); FIX-01b diagnostics in subsequent plans |
-| FIX-02 | Phase 94 | pending (golden traces stayed green in 94-01) |
+| FIX-01 | Phase 94 | Complete (94-01 FIX-01a; 94-03 FIX-01b; 94-04 bench-confirmed no 12V) |
+| FIX-02 | Phase 94 | Complete (94-03: golden trace confirmed unchanged; native 110/110 PASS) |
 | FIX-03 | Phase 94 | Complete (94-01) |
 | PGSZ-01 | Phase 94 | Complete (94-02) |
 | PGSZ-02 | Phase 94 | Complete (94-02) |
@@ -84,4 +84,4 @@ _Filled by the roadmapper 2026-06-26 — all 16 REQ-IDs mapped to exactly one ph
 | LEDGER-01 | Phase 96 | pending |
 | LEDGER-02 | Phase 96 | pending |
 | SAFE-01 | Phase 93 | Complete |
-| SAFE-02 | Phase 94 | Complete (94-02) |
+| SAFE-02 | Phase 94 | Complete (94-04: py3.11.15 all-9-steps green; constants parity confirmed) |
