@@ -122,7 +122,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 
 ### Phases
 
-- [ ] **Phase 93: RCA — Root-Cause the W29C040 Page-0 Write Fault** — Reproduce the fault on the seated chip with a captured failure signature, differentially compare against the passing `0x05` sibling W29C020, and record a named root cause sufficient to design a targeted fix. Establishes the SAFE-01 over-voltage/host-guard non-bypass discipline.
+- [x] **Phase 93: RCA — Root-Cause the W29C040 Page-0 Write Fault** — Reproduce the fault on the seated chip with a captured failure signature, differentially compare against the passing `0x05` sibling W29C020, and record a named root cause sufficient to design a targeted fix. Establishes the SAFE-01 over-voltage/host-guard non-bypass discipline. (completed 2026-06-27)
 - [ ] **Phase 94: FIX + PGSZ — Firmware Write-Path Fix & Datasheet-Sourced Per-Chip Page Size** — Correct the flash4 write path on the v1.16 primitives recompose (keeping the golden traces + dispatch-mirror guard green), and generalize CR-01 by adding a datasheet-sourced per-chip `page_size` DB field consumed over the wire (replacing the capacity heuristic). Dual-repo lockstep; establishes the SAFE-02 lockstep-parity + py3.11-CI discipline.
 - [ ] **Phase 95: BENCH — Bench Validation & Graduation Gate** — Bench-prove a byte-exact write→auto-erase→program→verify (SHA match) on the seated W29C040, regression-check the passing sibling W29C020, and capture per-chip EVIDENCE — the hard graduation gate (no best-effort fallback).
 - [ ] **Phase 96 (close): LEDGER — Evidence, Ledger & Milestone Close** — Update the PROTOCOL-LEDGER (W29C040 `0x05` → PASS / `supported`; CR-01 / Phase-74 Wave-2 closed with the bench SHA), pass `check_ledger.py`, and close the milestone.
@@ -787,7 +787,7 @@ Plans:
 | 90 | v1.16 | 4/4 | Complete    | 2026-06-26 |
 | 91 | v1.16 | 4/4 | Complete    | 2026-06-26 |
 | 92 (close) | v1.16 | host-only | Complete    | 2026-06-26 |
-| 93 | v1.17 | 4/4 | Complete   | 2026-06-27 |
+| 93 | v1.17 | 4/4 | Complete    | 2026-06-27 |
 | 94 | v1.17 | 0/TBD | Not started | — |
 | 95 | v1.17 | 0/TBD | Not started | — |
 | 96 (close) | v1.17 | 0/TBD | Not started | — |
@@ -902,7 +902,7 @@ Plans:
   2. The same file (or a companion file) lists every intra-algorithm DB inconsistency — chips that share `pin_count` + `algorithm` but differ in `pulse_duration`, `chip_id_check`, or `pinout` — with each inconsistency labeled as a defect candidate for v1.4 or a sub-repo PR (no auto-fixes applied in v1.3).
   3. Operator can use the matrix to confirm that the six BENCH chips (BENCH-01..06) span the pinout classes and pulse-duration profiles actually represented in the DB, so bench results generalize to the rest of the 339 rows.
 
-**Plans:** 5/5 plans complete
+**Plans:** 4/4 plans complete
 
 - [x] 11-01-PLAN.md — Wave 0 failing-test scaffold for tests/test_audit_coverage_matrix.py (10 tests) ✅ 2026-05-19
 - [x] 11-02-PLAN.md — Wave 1 tool skeleton + CLI + §1 Summary + §2 DB Count Reconciliation ✅ 2026-05-19
