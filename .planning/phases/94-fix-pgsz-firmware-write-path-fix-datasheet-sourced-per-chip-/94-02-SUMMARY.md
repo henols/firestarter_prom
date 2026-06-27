@@ -121,6 +121,17 @@ None — plan executed exactly as written, save for the recording-buffer-cap iss
 - Plan 04 (validation) can assert the wire round-trip and firmware consumption on hardware
 - diff_db gate passes; no unexplained DB drift
 
+## Self-Check: PASSED
+
+- SUMMARY.md present at expected path
+- Meta docs commit bc658a0 on branch
+- JSON_KEY_PAGE_SIZE in constants.py
+- key_page_size in json_parser.c
+- page_size field in firestarter.h
+- flash4_page_size heuristic retained (>=2 occurrences in flash_type_4.cpp)
+- All sub-repo commits exist: 2b39f40, db338fb (firestarter_app); d1a2a9f, 8afced7 (firestarter)
+- 108/108 native tests green; 696/696 host tests green; leonardo build SUCCESS (88.4% flash)
+
 ---
 *Phase: 94-fix-pgsz-firmware-write-path-fix-datasheet-sourced-per-chip-*
 *Completed: 2026-06-27*

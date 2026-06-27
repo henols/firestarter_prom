@@ -141,3 +141,13 @@ None — no new network endpoints, auth paths, or file access patterns introduce
 ---
 *Phase: 94-fix-pgsz-firmware-write-path-fix-datasheet-sourced-per-chip-*
 *Completed: 2026-06-27*
+
+## Self-Check: PASSED
+
+- test_boot_block_hint.py: FOUND
+- 94-03-SUMMARY.md: FOUND
+- c4c68c4 (host heuristic hint): FOUND
+- d7d0a7e (messages.toml + messages.py 0xBC): FOUND
+- 2e91503 (firmware DETECT + native test): FOUND
+- f6818ff (meta gitlinks bump): FOUND
+- 8bb7f87 (metadata commit): FOUND
