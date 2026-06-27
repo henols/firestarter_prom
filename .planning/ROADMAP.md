@@ -175,10 +175,22 @@ Plans:
   5. Host CI is green against the **py3.11** target (ruff check + ruff format --check + mypy + diff_db + check_dispatch), avoiding the py3.12-masks-CI-3.11 trap; over-voltage stays blocked and the host guard is never bypassed (SAFE-01/SAFE-02 hold).
 
 **Plans**: 4 plans in 4 waves (planned 2026-06-27; scope REFRAMED by Phase 93 RCA — FIX-01 page-0 is hardware-blocked silicon §6.6 boot-block lockout, NOT a firmware bug; the genuine fixable items are T-93-CANERASE + diagnostics + PGSZ; see 94-RESEARCH.md "## FIX-01 Reframing"):
+**Wave 1**
+
 - [ ] 94-01-PLAN.md — FIX-01a T-93-CANERASE: host omits FLAG_CAN_ERASE for protocol 0x05 + firmware defense-in-depth erase-skip guard (wave 1; FIX-01/03, SAFE-02)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 94-02-PLAN.md — PGSZ: datasheet-sourced per-chip page_size over the wire (read-strobe-us precedent) + firmware safe-fallback consumption + diff_db/check_dispatch gates (wave 2; PGSZ-01/02/03, SAFE-02)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 94-03-PLAN.md — FIX-01b boot-block-locked host diagnostic (primary) + FIX-02 golden-trace pin + OPTIONAL firmware §6.6 DETECT (flash-budget gated) (wave 3; FIX-01/02)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 94-04-PLAN.md — SAFE-02 py3.11 CI sign-off + bench writable-region (≥0x4000) write→read→verify SHA proof (page-0 documented hardware-blocked, not faked) (wave 4; SAFE-02, FIX-01)
+
 **UI hint**: no
 
 ### Phase 95: BENCH — Bench Validation & Graduation Gate
