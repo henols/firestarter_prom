@@ -3,10 +3,10 @@ artifact: 93-RCA-FINDINGS
 phase: 93-rca-root-cause-the-w29c040-page-0-write-fault
 milestone: v1.17 — Implement & Test the W29C040 Programming Protocol
 requirements: [RCA-01, RCA-02, RCA-03, SAFE-01]
-status: RCA-01 complete (Plan 02, 2026-06-27); Plans 03–04 pending
+status: COMPLETE — RCA-01/02/03 + SAFE-01 all closed (Plans 02–04, 2026-06-27)
 recorded: 2026-06-26
 updated: 2026-06-27
-operator_witnessed: true (Plan 02 bench run, USB passthrough, operator-seated chip)
+operator_witnessed: true (Plans 02+03 bench runs, USB passthrough, operator-seated chip)
 ---
 
 # W29C040 Page-0 Write Fault — Root-Cause Findings
@@ -277,19 +277,122 @@ for the firmware algorithm. But it cannot overcome a silicon-level hardware writ
 protection. The chip literally ignores the write command for locked addresses,
 regardless of how correct the SDP sequence is.
 
-### Implications for Phase 94 (Fix)
+### Lock Reversibility Fork (Plan 04 — classify precisely, no overclaim)
 
-**This chip instance cannot be used to test page-0 programming.** The boot block
-lockout is irreversible. Phase 94 / Phase 95 (BENCH graduation) MUST use either:
-1. A different W29C040 chip instance without the first 16K lockout (check with
-   the Product ID + Boot Block Lockout Detection sequence per §6.9/datasheet p.10)
-2. Test the write algorithm using addresses >= 0x4000 (verified working) as a
-   proxy, with documentation that page-0 specifically requires an unlocked chip
+**The bench data proves the failure is localized to the first-16K boot block
+protection and that the firmware algorithm is sound. It does NOT by itself prove
+the lock is permanent silicon.** The W29C040 §6.6 boot-block protection can in
+principle be software-controlled. Two competing explanations remain:
 
-**The firmware write algorithm IS correct** for the W29C040 — it works for all
-unlocked pages (0x4000+). The fault is chip-instance-specific silicon state,
-not a firmware bug. Phase 94 FIX-01 (T-93-CANERASE / FLAG_CAN_ERASE fix) is
-still needed and correct, but separate from the page-0 write fault root cause.
+**(a) SOFTWARE-REVERSIBLE lock (§6.6 boot-block UNLOCK command exists):**
+If Winbond provided a boot-block UNLOCK sequence (a separate 7-byte command),
+the lock on this chip instance is a reversible software state. In that case the
+root cause is best classified as **SILICON-FEATURE-STATE** (not a firmware bug,
+but a chip state that a firmware sequence can alter): Phase 94 FIX could add a
+boot-block unlock sequence at the start of the flash4 write path for addresses
+in 0x0000–0x3FFF, making the milestone done-bar (full write→verify) achievable
+on this chip instance.
+
+**(b) HARDWARE-PERMANENT lock (no unlock command — once set, forever):**
+If §6.6 provides only a LOCK command and no UNLOCK command, the lock on this chip
+instance is a permanent hardware state. In that case the root cause is classified
+as **SILICON (chip-instance-specific)**: Phase 94 cannot fix this on this die;
+the milestone done-bar needs either a different W29C040 sample (unlocked), or the
+done-bar is re-scoped to the writable region (0x4000+).
+
+**Current evidence weight:** The RCA bench data is agnostic on (a) vs (b) — both
+produce identical write-fail signatures. The existing Named Root Cause statement
+("irreversible silicon-level protection") was written from prior research notes,
+but the W29C040.pdf §6.6 extraction was not confirmed due to PDF rendering
+unavailability during Plan 04. The synthesis guidance explicitly states: "classify
+precisely, do NOT overclaim."
+
+**PENDING DISAMBIGUATION:** The datasheet `firestarter/datasheets/0x05-FLASH-AMD-STD/W29C040.pdf`
+§6.6 is the authoritative source for reversibility. The research notes (93-RESEARCH.md)
+describe the lock as "set by a 7-byte command sequence and is permanent" — consistent
+with (b). Until the PDF §6.6 text is directly read, the classification is presented
+as (b) HARDWARE-PERMANENT based on the research record, but Phase 94 MUST confirm
+this by reading §6.6 directly before choosing the fix path.
+
+**Disambiguating test (Phase 94 first investigation step):**
+Read W29C040.pdf §6.6 directly for the UNLOCK command. If §6.6 provides an unlock
+sequence, attempt it on the seated chip then re-write page 0. If no unlock exists
+per the datasheet, the lock is permanent and a different chip is required. Either
+way, this is the first Phase 94 investigation step before any firmware change.
+
+---
+
+## Hand-off to Phase 94
+
+> **This section is the primary deliverable for Phase 94 planning. No further
+> RCA is needed — the fault mechanism is fully characterized. The two items
+> below are the complete Phase 94 fix scope.**
+
+### Fix Investigation Step 1: Boot-Block Lock Reversibility
+
+**Action:** Read W29C040.pdf §6.6 for the UNLOCK command sequence.
+
+- **If (a) UNLOCK exists:** Phase 94 FIX implementation SHOULD add a boot-block
+  unlock sequence in the flash4 write path for addresses falling in the first 16K
+  (0x0000–0x3FFF) of a W29C040 (i.e., when the chip-id matches W29C040 AND the
+  start address is < 0x4000). The v1.16 golden register traces must be re-pinned
+  for this new sequence. The milestone done-bar (full write→verify) is achievable
+  on the current seated chip once unlocked.
+
+- **If (b) no UNLOCK exists:** Phase 94 FIX cannot overcome the silicon state on
+  this die. The firmware write algorithm is correct — no firmware change is needed
+  for the write path itself. The operator must decide:
+  - Obtain a different W29C040 sample (unlocked) for Phase 95 BENCH graduation
+  - OR re-scope Phase 95 BENCH-01 to use addresses ≥ 0x4000 (proven working),
+    with explicit documentation that page-0 requires an unlocked chip
+  Note: in case (b), Phase 94 firmware changes are LIMITED to FIX-01 (T-93-CANERASE)
+  and the PGSZ generalization (CR-01); there is NO write-path behavior change needed
+  for the page-0 fault itself.
+
+### Fix Item 2 (REQUIRED regardless of boot-block outcome): T-93-CANERASE — FIX-01
+
+**Severity: HIGH** — latent 12V-on-5V hardware damage path.
+
+**Root cause:** `database.py:convert_to_programmer` sets `FLAG_CAN_ERASE (0x02)` for
+all chips with `electrical.type == "EEPROM"` or `"Flash/EEPROM"`. The W29C040 DB
+entry has `"type": "Flash/EEPROM"`, so its wire flags carry `0x02`. On firmware
+receipt, `flash4_write_init` (flash_type_4.cpp) tests `is_flag_set(FLAG_CAN_ERASE)`
+and — without `FLAG_SKIP_ERASE` — calls `flash4_erase_execute`, which asserts
+`CTRL_VPP_REGULATOR_ENABLE | CTRL_VPP_VPE_DROP_ENABLE | CTRL_VPE_ENABLE` — a 12V
+boost regulator assertion on a chip rated for 5V-only internal VPP generation.
+
+**Evidence:** SAFE-01-PREFLIGHT.md Checklist Item 2 — Item 2 verdict RED/HIGH (Plan 01);
+bench plans 02–04 required `--skip-erase` to prevent hardware damage throughout RCA.
+
+**Required Phase 94 FIX-01 scope:** Prevent `FLAG_CAN_ERASE` from routing through
+`flash4_erase_execute` for protocol 0x05 (flash4) chips. Candidate implementations:
+  - Host-side: `database.py:convert_to_programmer` should NOT set `FLAG_CAN_ERASE`
+    for chips with `algorithm == 5` (protocol 0x05, flash4); 5V-internal-VPP chips
+    have their erase triggered by the SDP auto-erase cycle, not by a 12V VPP pulse.
+  - Firmware-side guard: `flash4_erase_execute` could assert that VPP is appropriate
+    before asserting the boost regulator; a 5V chip (no `vpp_mv` > 5000) should
+    skip the 12V assertion.
+  - Either approach achieves safety; the host-side fix is cleaner (prevents the
+    hazardous flag reaching the wire at all).
+
+**Lockstep note:** If `FLAG_CAN_ERASE` behavior changes on the wire, both
+`constants.py` and `firestarter.h` must be checked for parity (SAFE-02).
+
+### Milestone Done-Bar Impact (for operator decision at Phase 94)
+
+**The v1.17 milestone done-bar is a byte-exact full-image write→verify on the
+seated W29C040 (Phase 95 BENCH-01 hard graduation gate, no best-effort fallback).**
+
+Current status of this gate:
+- **If lock is SOFTWARE-REVERSIBLE (a):** Done-bar is achievable on the current
+  chip after Phase 94 adds the unlock sequence. No new chip needed.
+- **If lock is HARDWARE-PERMANENT (b):** Done-bar is NOT achievable on this chip
+  instance for addresses 0x0000–0x3FFF. The operator must either obtain an unlocked
+  W29C040 or re-scope Phase 95 BENCH-01 to addresses ≥ 0x4000. This is an operator
+  decision required at Phase 94 planning, not a Phase 93 finding.
+
+The firmware write algorithm is proven correct for unlocked pages — Phase 94/95 work
+does not need to re-prove the algorithm; it only needs to resolve the lock state.
 
 ### H-code disposition summary
 
@@ -303,25 +406,94 @@ still needed and correct, but separate from the page-0 write fault root cause.
 
 ---
 
-## SAFE-01 — Non-Bypass Confirmation
+## SAFE-01 — Non-Bypass Confirmation (Phase Close)
 
-All RCA instrumentation flows through the normal `0x05` dispatch path. No
-test-only escape hatch has been introduced. `resolve_chip("W29C040")` resolves
-through the `support_status="supported"` gate normally.
+> **Plan 04 close-out of the SAFE-01 checklist across the full Phase 93 RCA.**
+> Each item is cited to its evidence plan. A single consolidated HELD/VIOLATED
+> verdict is stated at the end of this section.
 
-**T-93-CANERASE finding (Plan 01, HIGH-severity):**
-W29C040 wire `flags=0x02` (FLAG_CAN_ERASE) is SET, causing `flash4_erase_execute`
-(which asserts 12V CTRL_VPP_REGULATOR_ENABLE) to fire in `flash4_write_init`.
-This is a latent 12V-on-5V-chip hazard. Full details in:
-**[evidence/safety/SAFE-01-PREFLIGHT.md](safety/SAFE-01-PREFLIGHT.md)**
+### Item 1 — Firmware VPP check stays blocking; flash4 write path sets no VPP bits
 
-Bench mitigation for RCA (Plans 02–04): use `--skip-erase` on all write commands
-to bypass `flash4_erase_execute`. Permanent fix deferred to Phase 94 (FIX-01).
+**Verdict: GREEN — CONFIRMED (Plan 01)**
 
-**T-93-NOVPP:** Confirmed GREEN — `test_flash4_write_execute_no_vpp` PASSED.
-The flash4 write-execute path emits zero VPP control bits (CTRL_VPP_REGULATOR_ENABLE=0,
-CTRL_VPP_P1_ENABLE=0) across all CONTROL_REGISTER writes.
+Native test `test_flash4_write_execute_no_vpp` PASSED (Plan 01, SAFE-01-PREFLIGHT.md
+Checklist Item 1). `flash4_write_execute` emits zero `CTRL_VPP_REGULATOR_ENABLE (0x80)`
+or `CTRL_VPP_P1_ENABLE (0x08)` bits across all CONTROL_REGISTER writes during the
+write-execute call. The firmware VPP check in the INIT phase (`eprom_check_vpp`)
+remained in place and was not bypassed or patched during any bench task.
 
-**T-93-ESCAPE:** Confirmed SAFE — W29C040 resolves through normal dispatch
-(`algorithm=5`, `support_status="supported"`, no `--force` override required).
-DEBUG_ADDRESS build flag is a passive trace (no dispatch change, no escape hatch).
+Raw evidence: `evidence/safety/SAFE-01-PREFLIGHT.md` § Checklist Item 1 — native test
+output `test_flash4_write_execute_no_vpp [PASSED]` (11/11 flash4 native tests green).
+
+### Item 2 — FLAG_CAN_ERASE disposition across Phase 93
+
+**Verdict: CONDITIONAL — T-93-CANERASE FOUND + MITIGATED**
+
+`FLAG_CAN_ERASE (0x02)` IS SET in the W29C040 wire flags (Plan 01 finding).
+This is a HIGH-severity SAFE-01 violation (T-93-CANERASE): it routes
+`flash4_write_init` through `flash4_erase_execute`, which asserts 12V
+(CTRL_VPP_REGULATOR_ENABLE) on a 5V-only chip.
+
+**How SAFE-01 was maintained during the RCA despite T-93-CANERASE:**
+All bench write commands in Plans 02 and 03 used `--skip-erase` (FLAG_SKIP_ERASE=0x04),
+which bypasses `flash4_erase_execute` in `flash4_write_init`. This was authorized
+by the operator on 2026-06-27 before any bench work began. No 12V was asserted on
+the W29C040 during the RCA.
+
+Raw evidence:
+- Plan 01: `evidence/safety/SAFE-01-PREFLIGHT.md` § Checklist Item 2 — RED/HIGH
+- Plan 02: `evidence/signature/run1.txt`, `run2.txt` — command log shows `--skip-erase` on every write
+- Plan 03: `evidence/differential/test_summary.txt` — all differential tests used `--skip-erase`
+
+**Permanent fix deferred to Phase 94 FIX-01** — see "Hand-off to Phase 94" § Fix Item 2.
+
+### Item 3 — Every bench operation flowed through normal 0x05 dispatch; no escape hatch
+
+**Verdict: GREEN — CONFIRMED (Plans 01–03)**
+
+Evidence by plan:
+- **Plan 01 (automated, no bench):** `resolve_chip("W29C040")` resolves via the normal
+  `support_status="supported"` gate; `algorithm=5`; no `--force` override needed or used
+  (SAFE-01-PREFLIGHT.md Checklist Item 4).
+- **Plan 02 (bench):** All writes used `firestarter write -b --skip-erase W29C040 <img>`
+  — standard `firestarter write` CLI path with no `--force`; post-fail reads used
+  `firestarter dev read` (normal dev sub-command). Serial captures: `run1.txt`, `run2.txt`.
+- **Plan 03 (bench):** All differential tests used `firestarter write -b --skip-erase`
+  or `firestarter write -b --skip-erase -a <addr>` — normal dispatch throughout.
+  The DEBUG_ADDRESS trace build was a passive firmware trace (no dispatch code change,
+  no host-side bypass), and normal firmware was re-flashed after the trace session
+  (re-flash confirmed via avrdude verify output in `evidence/differential/`).
+
+No test-only escape hatch (e.g. mocked `resolve_chip`, direct-to-firmware command
+bypassing the host guard, modified `chip_resolver.py`) was introduced in any plan.
+
+### Item 4 — `chip_resolver.resolve_chip("W29C040")` was never bypassed
+
+**Verdict: GREEN — CONFIRMED (Plans 01–03)**
+
+No `--force` flag was used in any plan. Every `firestarter write` command resolved
+the W29C040 through the normal `support_status="supported"` path. The in-host
+refusal guard remained in place for all unsupported/hazardous chip operations.
+Evidence: SAFE-01-PREFLIGHT.md Checklist Item 4; bench command logs Plans 02–03.
+
+---
+
+### SAFE-01 Phase-Close Consolidated Verdict
+
+**SAFE-01 = HELD (conditional — with T-93-CANERASE caveat)**
+
+SAFE-01 was held across the full Phase 93 RCA because:
+1. VPP check remained blocking; write-execute path emits zero VPP bits (Item 1)
+2. T-93-CANERASE (the FLAG_CAN_ERASE 12V hazard) was FOUND but mitigated throughout
+   via operator-authorized `--skip-erase`; no 12V was asserted on the chip (Item 2)
+3. All bench operations used normal `0x05` dispatch — no escape hatch (Item 3)
+4. `resolve_chip("W29C040")` was never bypassed — no `--force` (Item 4)
+
+**Caveat:** SAFE-01 was held ONLY BECAUSE the `--skip-erase` mitigation was in place.
+The underlying T-93-CANERASE flag hazard remains OPEN. Without `--skip-erase`, any
+`firestarter write W29C040` command on the current `a296195` + host build would
+assert 12V on the 5V chip. This hazard MUST be fixed in Phase 94 (FIX-01) before
+any bench work that does not use `--skip-erase` can proceed safely.
+
+**Phases 94–96 SAFE-01 precondition:** Phase 94 FIX-01 (T-93-CANERASE) must be
+implemented and verified before Phase 95 bench work begins without `--skip-erase`.

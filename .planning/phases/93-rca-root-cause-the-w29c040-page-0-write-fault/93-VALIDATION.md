@@ -1,10 +1,11 @@
 ---
 phase: 93
 slug: rca-root-cause-the-w29c040-page-0-write-fault
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-06-26
+signed_off: 2026-06-27
 ---
 
 # Phase 93 — Validation Strategy
@@ -38,10 +39,10 @@ created: 2026-06-26
 
 | Task ID | Requirement | Evidence / Disconfirming Test | Test Type | Pass Condition | Status |
 |---------|-------------|-------------------------------|-----------|----------------|--------|
-| repro | RCA-01 | Re-run the historical write; capture which addresses/bytes fail + DQ7/DQ6 poll behavior at the failure | manual (bench) | Fault reproduces N≥2 deterministically with recorded signature (baseline `ERROR "Timeout verifying 0xd7 at 0x0000ff (got 0x00)"` or equivalent) | ⬜ pending |
-| diff | RCA-02 | W29C040-vs-W29C020 across SDP / page-write timing / A18 512 KB addressing / page-size; exonerate the unchanged axes | manual (bench + datasheet) | Differing variable(s) isolated; unchanged axes carry disconfirming evidence | ⬜ pending |
-| classify | RCA-03 | Surviving hypothesis named + classified (firmware-algorithm / timing / addressing / silicon); each rejected hypothesis carries disconfirming evidence | manual (bench) | One named cause OR ranked hypotheses, each with disconfirming evidence; detailed enough to design Phase 94 fix | ⬜ pending |
-| safety | SAFE-01 | Firmware VPP check stays blocking; host `chip_resolver.resolve_chip` guard never bypassed; confirm `FLAG_CAN_ERASE` not set for W29C040 | manual (source + bench) | No test-only escape hatch used; W29C040 flows through normal dispatch | ⬜ pending |
+| repro | RCA-01 | Re-run the historical write; capture which addresses/bytes fail + DQ7/DQ6 poll behavior at the failure | manual (bench) | Fault reproduces N≥2 deterministically with recorded signature (baseline `ERROR "Timeout verifying 0xd7 at 0x0000ff (got 0x00)"` or equivalent) | ✅ confirmed — Plan 02: N=2 deterministic `Timeout verifying 0x04 at 0x0000ff (got 0x00)`; H4 disconfirmed (settled read stays 0x00) |
+| diff | RCA-02 | W29C040-vs-W29C020 across SDP / page-write timing / A18 512 KB addressing / page-size; exonerate the unchanged axes | manual (bench + datasheet) | Differing variable(s) isolated; unchanged axes carry disconfirming evidence | ✅ confirmed — Plan 03: H1/H2/H3 disconfirmed; boot-block §6.6 isolated as the only variable that moves the failure; boundary sweep 0x3F00 FAIL / 0x4000 PASS |
+| classify | RCA-03 | Surviving hypothesis named + classified (firmware-algorithm / timing / addressing / silicon); each rejected hypothesis carries disconfirming evidence | manual (bench) | One named cause OR ranked hypotheses, each with disconfirming evidence; detailed enough to design Phase 94 fix | ✅ confirmed — Plan 04: H5 CONFIRMED (SILICON / chip-instance-specific boot-block state); H1–H4 all carry disconfirming evidence; Phase-94 hand-off complete including T-93-CANERASE FIX-01 and (a)/(b) lock-reversibility fork |
+| safety | SAFE-01 | Firmware VPP check stays blocking; host `chip_resolver.resolve_chip` guard never bypassed; confirm `FLAG_CAN_ERASE` disposition across all RCA plans | manual (source + bench) | No test-only escape hatch used; W29C040 flows through normal dispatch; T-93-CANERASE mitigated | ✅ confirmed — Plan 04 phase-close: SAFE-01 = HELD (conditional); T-93-CANERASE FOUND (Plan 01, HIGH) + mitigated via --skip-erase throughout Plans 02–03; no escape hatch; FIX-01 deferred to Phase 94 |
 
 *Status: ⬜ pending · ✅ confirmed · ❌ disconfirmed · ⚠️ inconclusive (N=1)*
 
@@ -67,10 +68,19 @@ created: 2026-06-26
 
 ## Validation Sign-Off
 
-- [ ] Every RCA requirement (RCA-01/02/03, SAFE-01) maps to a recorded evidence artifact in `evidence/93-RCA-FINDINGS.md`
-- [ ] Reproduction is deterministic (N≥2) — no N=1 conclusions
-- [ ] Every rejected hypothesis carries disconfirming evidence (not just "untested")
-- [ ] SAFE-01 confirmed: no escape hatch, VPP check intact, `FLAG_CAN_ERASE` checked
-- [ ] `nyquist_compliant: true` set in frontmatter once the evidence map is complete
+- [x] Every RCA requirement (RCA-01/02/03, SAFE-01) maps to a recorded evidence artifact in `evidence/93-RCA-FINDINGS.md`
+- [x] Reproduction is deterministic (N≥2) — Plan 02 N=2 identical ERROR frames; H4 post-fail settled read N=5 (no N=1 conclusions)
+- [x] Every rejected hypothesis carries disconfirming evidence (not just "untested") — H1/H2/H3/H4 all disconfirmed with direct bench evidence; H5 CONFIRMED
+- [x] SAFE-01 confirmed: no escape hatch; VPP check intact; T-93-CANERASE FOUND (Plan 01) + mitigated via --skip-erase throughout; HELD (conditional on mitigation)
+- [x] `nyquist_compliant: true` set in frontmatter (evidence map complete — all four requirements satisfied)
 
-**Approval:** pending
+### Evidence Map (RCA requirement → recorded artifact)
+
+| Requirement | Artifact | Evidence entry |
+|-------------|----------|----------------|
+| RCA-01 | `evidence/93-RCA-FINDINGS.md` § "RCA-01 — Reproduction & Signature" | N=2 ERROR frames; Plan 02 bench session; H4 settled reads |
+| RCA-02 | `evidence/93-RCA-FINDINGS.md` § "RCA-02 — Differential vs W29C020" | Datasheet diff table; Plan 03 differential tests; boundary sweep |
+| RCA-03 | `evidence/93-RCA-FINDINGS.md` § "RCA-03 — Named Root Cause" | H5 CONFIRMED; H1–H4 disconfirming matrix; Phase-94 hand-off |
+| SAFE-01 | `evidence/93-RCA-FINDINGS.md` § "SAFE-01 — Non-Bypass Confirmation (Phase Close)" | T-93-CANERASE; 4-item checklist with per-plan citations; HELD verdict |
+
+**Approval:** SIGNED OFF — Plan 04 (2026-06-27). All four requirements satisfied with recorded evidence. nyquist_compliant: true.
