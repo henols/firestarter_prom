@@ -133,3 +133,12 @@ None — no new network endpoints, auth paths, or file access patterns introduce
 ---
 *Phase: 94-fix-pgsz-firmware-write-path-fix-datasheet-sourced-per-chip-*
 *Completed: 2026-06-27*
+
+## Self-Check: PASSED
+
+- SAFE-02-CI-PY311.md: FOUND
+- WRITABLE-REGION-PROOF.md: FOUND
+- 94-04-SUMMARY.md: FOUND
+- e2c2670 (feat: SAFE-02 CI sign-off): FOUND
+- a370a36 (feat: bench proof N=3): FOUND
+- e34cc4d (docs: metadata commit): FOUND
