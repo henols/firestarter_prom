@@ -185,11 +185,11 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 94-03-PLAN.md — FIX-01b boot-block-locked host diagnostic (primary) + FIX-02 golden-trace pin + OPTIONAL firmware §6.6 DETECT (flash-budget gated) (wave 3; FIX-01/02)
+- [x] 94-03-PLAN.md — FIX-01b boot-block-locked host diagnostic (primary) + FIX-02 golden-trace pin + OPTIONAL firmware §6.6 DETECT (flash-budget gated) (wave 3; FIX-01/02)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 94-04-PLAN.md — SAFE-02 py3.11 CI sign-off + bench writable-region (≥0x4000) write→read→verify SHA proof (page-0 documented hardware-blocked, not faked) (wave 4; SAFE-02, FIX-01)
+- [x] 94-04-PLAN.md — SAFE-02 py3.11 CI sign-off + bench writable-region (≥0x4000) write→read→verify SHA proof (page-0 documented hardware-blocked, not faked) (wave 4; SAFE-02, FIX-01)
 
 **UI hint**: no
 
@@ -804,7 +804,7 @@ Plans:
 | 91 | v1.16 | 4/4 | Complete    | 2026-06-26 |
 | 92 (close) | v1.16 | host-only | Complete    | 2026-06-26 |
 | 93 | v1.17 | 4/4 | Complete    | 2026-06-27 |
-| 94 | v1.17 | 0/TBD | Not started | — |
+| 94 | v1.17 | 4/4 | Complete    | 2026-06-27 |
 | 95 | v1.17 | 0/TBD | Not started | — |
 | 96 (close) | v1.17 | 0/TBD | Not started | — |
 
