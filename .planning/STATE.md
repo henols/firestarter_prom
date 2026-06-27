@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.17
 milestone_name: — Implement & Test the W29C040 Programming Protocol
 status: executing
-last_updated: "2026-06-27T07:56:35.196Z"
-last_activity: 2026-06-27 -- Phase 94 planning complete
+last_updated: "2026-06-27T08:10:00Z"
+last_activity: 2026-06-27 -- Phase 94 Plan 01 complete (FIX-01a T-93-CANERASE dual-repo)
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 8
-  completed_plans: 4
-  percent: 25
+  completed_plans: 5
+  percent: 31
 ---
 
 # Project State
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 94
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-06-27 -- Phase 94 planning complete
+Phase: 94 (fix-pgsz-firmware-write-path-fix-datasheet-sourced-per-chip-page-size) — EXECUTING
+Plan: 2 of 4
+Status: Executing Phase 94
+Last activity: 2026-06-27 -- Phase 94 Plan 01 complete (FIX-01a T-93-CANERASE dual-repo)
 
 ## Project Reference
 
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (v1.17 Current Milestone section + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware handler. v1.17 proves that contract on the W29C040 flash4 (`0x05`) write path: root-cause the page-0 write fault, make flash4 page sizing datasheet-sourced per-chip (CR-01), and bench-prove byte-exact write→read→verify on real silicon.
 
-**Current focus:** Phase 93 — rca-root-cause-the-w29c040-page-0-write-fault
+**Current focus:** Phase 94 — fix-pgsz-firmware-write-path-fix-datasheet-sourced-per-chip-page-size
 
 ## Milestone Context (v1.17)
 
@@ -113,15 +113,17 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - **SAFE-01 = HELD (Phase 93 Plan 04, 2026-06-27):** Conditional — held only because --skip-erase was used throughout RCA. Underlying T-93-CANERASE hazard (FLAG_CAN_ERASE=0x02 → 12V on 5V chip) remains OPEN until Phase 94 FIX-01. Phase 94 must implement FIX-01 before any bench work without --skip-erase.
 - **Milestone done-bar impact noted (Phase 93 Plan 04, 2026-06-27):** If §6.6 lock is permanent (b), Phase 95 BENCH-01 byte-exact write→verify on page-0 is not achievable on current chip. Operator decision needed: new chip OR re-scope to addresses ≥0x4000.
 
+### Decisions (Phase 94 Plan 01, 2026-06-27)
+
+- **FIX-01a IMPLEMENTED (Phase 94 Plan 01, 2026-06-27):** T-93-CANERASE mitigated. Defense-in-depth: host `convert_to_programmer` now gates `FLAG_CAN_ERASE` on `algorithm != 5`; firmware `flash4_write_init` skips `flash4_erase_execute` when `handle->protocol == 0x05`. W29C040 wire flags now 0x00. Phase 95 bench can proceed without `--skip-erase`.
+- **D-06 guard keyed on protocol (Phase 94 Plan 01, 2026-06-27):** Firmware guard uses `handle->protocol == 0x05`, NOT `handle->vpp_mv`. W29C040 vpp_mv=12000 is a chip-ID datum, not a program rail — voltage heuristic would never fire (Pitfall 3).
+
 ### Blockers / Concerns
 
-- **T-93-CANERASE (HIGH):** W29C040 wire flags=0x02 causes 12V erase on a 5V chip during any `firestarter write` without `--skip-erase`. Permanent fix: Phase 94 FIX-01 (host-side: do not set FLAG_CAN_ERASE for algorithm==5 chips in convert_to_programmer).
-- **Boot-block reversibility unknown:** Phase 94 must read §6.6 to determine if the lock can be undone. This governs whether the milestone done-bar is achievable on the seated chip.
+- **Boot-block lock on seated chip (carry-forward):** §6.6 lock is permanent (no unlock command). Phase 95 BENCH-01 requires addresses ≥0x4000 on current chip, or a new unlocked chip. Operator decision needed before Phase 95.
 
 ## Operator Next Steps
 
-- Phase 93 complete. All 4 plans done. RCA-01/02/03 + SAFE-01 all satisfied.
-- **Phase 94 FIX + PGSZ is next.**
-- **FIRST STEP Phase 94:** Read W29C040.pdf §6.6 for UNLOCK command — determines the fix path.
-- **FIX-01 REQUIRED:** T-93-CANERASE (FLAG_CAN_ERASE 12V hazard) must be fixed before Phase 95 bench work.
-- **CRITICAL until FIX-01:** W29C040 write commands MUST use `--skip-erase` flag.
+- **Phase 94 Plan 01 DONE.** T-93-CANERASE FIXED. `--skip-erase` no longer required.
+- **Phase 94 Plan 02 NEXT:** (PGSZ / per-chip page_size / CR-01 wire field, or next plan per ROADMAP).
+- **Boot-block decision:** Phase 95 will target addresses ≥0x4000 or operator provides unlocked chip.

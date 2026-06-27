@@ -21,9 +21,9 @@
 
 ### FIX — Firmware Write-Path Fix
 
-- [ ] **FIX-01**: The firmware flash4 write path (`firestarter/src/proms/flash_type_4.cpp`, on the v1.16 primitives recompose) is corrected so the W29C040 programs page 0 and all subsequent pages without the page-write fault.
+- [x] **FIX-01**: T-93-CANERASE hazard removed (FIX-01a — Phase 94 Plan 01): host `convert_to_programmer` no longer sets FLAG_CAN_ERASE for algorithm==5 chips; firmware `flash4_write_init` guard prevents flash4_erase_execute on protocol==0x05. The firmware write algorithm is proven correct (0x4000+ writes byte-exact); page-0 is hardware-blocked (§6.6 silicon lockout, irreversible) — documented in 94-RESEARCH.md. FIX-01b boot-block diagnostics remain in subsequent plans.
 - [ ] **FIX-02**: The fix preserves the v1.16 flash4 golden register traces + dispatch-mirror guard for the passing paths (W29C020 / SST29 family); where a trace legitimately changes, it is re-pinned with cited rationale.
-- [ ] **FIX-03**: Native flash4 tests cover the corrected write path (page-0 + page-boundary), and the fix is delivered dual-repo lockstep wherever it crosses the wire (`constants.py` ↔ `firestarter.h`).
+- [x] **FIX-03**: Native flash4 test `test_flash4_init_no_vpp_when_can_erase_protocol5` proves the protocol==0x05 erase-skip guard (FIX-01a). Host wire test (`test_val_wire_flash4.py`) asserts W29C040 flags==0x00. Fix delivered dual-repo lockstep; no new constant values → constants.py ↔ firestarter.h parity unchanged.
 
 ### PGSZ — Datasheet-Sourced Per-Chip Page Size (CR-01)
 
@@ -72,9 +72,9 @@ _Filled by the roadmapper 2026-06-26 — all 16 REQ-IDs mapped to exactly one ph
 | RCA-01 | Phase 93 | Complete |
 | RCA-02 | Phase 93 | Complete |
 | RCA-03 | Phase 93 | Complete |
-| FIX-01 | Phase 94 | pending |
-| FIX-02 | Phase 94 | pending |
-| FIX-03 | Phase 94 | pending |
+| FIX-01 | Phase 94 | FIX-01a Complete (94-01); FIX-01b diagnostics in subsequent plans |
+| FIX-02 | Phase 94 | pending (golden traces stayed green in 94-01) |
+| FIX-03 | Phase 94 | Complete (94-01) |
 | PGSZ-01 | Phase 94 | pending |
 | PGSZ-02 | Phase 94 | pending |
 | PGSZ-03 | Phase 94 | pending |

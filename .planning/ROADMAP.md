@@ -177,7 +177,7 @@ Plans:
 **Plans**: 4 plans in 4 waves (planned 2026-06-27; scope REFRAMED by Phase 93 RCA — FIX-01 page-0 is hardware-blocked silicon §6.6 boot-block lockout, NOT a firmware bug; the genuine fixable items are T-93-CANERASE + diagnostics + PGSZ; see 94-RESEARCH.md "## FIX-01 Reframing"):
 **Wave 1**
 
-- [ ] 94-01-PLAN.md — FIX-01a T-93-CANERASE: host omits FLAG_CAN_ERASE for protocol 0x05 + firmware defense-in-depth erase-skip guard (wave 1; FIX-01/03, SAFE-02)
+- [x] 94-01-PLAN.md — FIX-01a T-93-CANERASE: host omits FLAG_CAN_ERASE for protocol 0x05 + firmware defense-in-depth erase-skip guard (wave 1; FIX-01/03, SAFE-02) *(completed 2026-06-27)*
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
