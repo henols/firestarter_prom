@@ -3,9 +3,10 @@ artifact: 93-RCA-FINDINGS
 phase: 93-rca-root-cause-the-w29c040-page-0-write-fault
 milestone: v1.17 — Implement & Test the W29C040 Programming Protocol
 requirements: [RCA-01, RCA-02, RCA-03, SAFE-01]
-status: scaffold (Plans 02–04 will fill the evidence sections)
+status: RCA-01 complete (Plan 02, 2026-06-27); Plans 03–04 pending
 recorded: 2026-06-26
-operator_witnessed: false (bench evidence pending)
+updated: 2026-06-27
+operator_witnessed: true (Plan 02 bench run, USB passthrough, operator-seated chip)
 ---
 
 # W29C040 Page-0 Write Fault — Root-Cause Findings
@@ -34,7 +35,7 @@ any chip operation. Per standing discipline from STATE.md / RESEARCH.md.
 
 | Plan | Timestamp | Controller identity (`firestarter --version` output) | Port | R1 readback | R2 readback | Board | Shield | Notes |
 |------|-----------|------------------------------------------------------|------|-------------|-------------|-------|--------|-------|
-| 02   | TBD       | TBD | TBD | TBD | TBD | Leonardo | Rev 2.0 | (Plan 02 fills) |
+| 02   | 2026-06-27T06:38:04Z | firestarter 3.0.0b10 (editable, v1.17 branch, post-HARD-01) | /dev/ttyACM0 | 270000 | 44000 | Leonardo | Rev 2.0-class (Override HW) | chip-id confirmed 0xda46; `hw` cmd → "Rev 2.0-class, Override HW: Rev 2.0-class" |
 | 03   | TBD       | TBD | TBD | TBD | TBD | Leonardo | Rev 2.0 | (Plan 03 fills) |
 | 04   | TBD       | TBD | TBD | TBD | TBD | Leonardo | Rev 2.0 | (Plan 04 fills) |
 
@@ -71,14 +72,63 @@ had different `FLAG_CAN_ERASE` behavior. On the current `a296195` host build,
 `flags=0x02` is sent, causing `flash4_erase_execute` (12V!) to fire unless
 `--skip-erase` is used. Plan 02 repro MUST use `--skip-erase`.
 
-### Plan 02 repro results (to be filled)
+### T-93-CANERASE gate resolution
 
-| Run | Command | Result (exact ERROR frame or PASS) | Post-fail page-0 read | Notes |
-|-----|---------|------------------------------------|-----------------------|-------|
-| 1 | `firestarter write -b --skip-erase W29C040 <img>` | TBD | TBD | (Plan 02 fills) |
-| 2 | `firestarter write -b --skip-erase W29C040 <img>` | TBD | TBD | (Plan 02 fills) |
+**T-93-CANERASE gate cleared by operator decision 2026-06-27** — The operator
+authorized proceeding with `--skip-erase` mitigation. All writes in Plan 02 used
+`firestarter write -b --skip-erase W29C040 <img>`, which sets `FLAG_SKIP_ERASE (0x04)`
+and bypasses `flash4_erase_execute`. Full fix (preventing `FLAG_CAN_ERASE` from routing
+through `flash4_erase_execute` for protocol 0x05 chips) deferred to Phase 94 FIX-01.
 
-Capture dirs: `evidence/signature/` (ERROR frames, DEBUG_ADDRESS traces, post-fail reads)
+### Plan 02 repro results — COMPLETED 2026-06-27
+
+**Test image:** `evidence/signature/w29c040_test_1024b_seed42.bin`
+- Size: 1024 bytes (covers pages 0–3, 256-byte boundaries at 0x100/0x200/0x300)
+- SHA-256: `1ba43bf584f5492eee63d3e590e65f1e1cdaf93dd988686d958f053713b7782f`
+- Generated with: `python tools/gen_test_image.py 1024 42 <path>` (seed=42, deterministic)
+- Key bytes: offset 0x00FF=`0x04`, offset 0x01FF=`0x81`, offset 0x02FF=`0x43`, offset 0x03FF=`0x07`
+
+| Run | Command | Result (exact ERROR frame) | Post-fail 0x0000ff | Verdict |
+|-----|---------|---------------------------|---------------------|---------|
+| 1 | `firestarter -p /dev/ttyACM0 write -b --skip-erase W29C040 evidence/signature/w29c040_test_1024b_seed42.bin` | `ERROR: Timeout verifying 0x04 at 0x0000ff (got 0x00)` | 0x00 (N=5 reads stable) | FAIL — fault reproduced |
+| 2 | identical | `ERROR: Timeout verifying 0x04 at 0x0000ff (got 0x00)` | 0x00 (stable) | FAIL — fault reproduced |
+
+**Decoded ERROR frame (from `flash4_wait_for_page_write` packing `[expected, A16, A8, A0, observed]`):**
+- expected byte: `0x04` (image byte at offset 255)
+- failing address: `0x0000ff` → A16=`0x00`, A8=`0x00`, A0=`0xFF`
+- failing address interpretation: **last byte of page 0** (256-byte page boundary)
+- observed byte: `0x00`
+
+**N=2 determinism verdict: CONFIRMED** — identical ERROR frame on both runs.
+
+### Post-fail page-0 read-back
+
+After Run 1 failure, page 0 (256 bytes) read:
+- Address 0x0000ff: **0x00** (stable across 5 repeated reads — does NOT settle to written `0x04`)
+- Address 0x0000: 0x00
+- Address 0x00fe: 0x00
+- Page 0 is NOT all-blank (0xFF) — contains partial prior-session data with non-zero bytes
+  at some offsets (old write-test fragments); see `page0_readback_hex_after_run1.txt`
+- Page 0 is NOT all-zero — some bytes contain previous-session data
+- Run 1 vs Run 2 page-0 state: IDENTICAL (no new data committed on Run 2)
+
+**H4 fork determination (settled read of 0x0000ff):**
+- 0x0000ff reads `0x00` stably across N=5 reads immediately after the timeout
+- It does NOT settle to the written value `0x04`
+- **Verdict: H4 DISCONFIRMED** — the page DID NOT commit; the poll did not merely give up
+  on a completed write. The `observed=0x00` is real: the page never committed.
+  This rules out the "poll exhausted iterations on a late-completing write" theory.
+  H1 (timing window violation) or H3 (SDP/timing rejection) must explain the `0x00` state.
+
+**Capture files (all under `evidence/signature/`):**
+- `run1.txt` — full serial output of Run 1
+- `run2.txt` — full serial output of Run 2
+- `page0_readback_after_run1.txt` — read command output
+- `page0_readback_hex_after_run1.txt` — hex dump of page 0 after Run 1
+- `page0_readback_hex_after_run2.txt` — hex dump of page 0 after Run 2 (identical)
+- `settled_read_0x0000ff.txt` — 5× repeated reads of address 0x0000ff (all 0x00)
+- `settled_read_after_run2.txt` — post-Run-2 point reads at 0x00ff, 0x0000, 0x00fe
+- `pages1to3_readback_hex_after_run2.txt` — addresses 0x100–0x3FF (partial prior-session data)
 
 ---
 
