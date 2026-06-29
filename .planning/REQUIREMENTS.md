@@ -54,6 +54,7 @@
 - **FUT-06** — AM27C020 `0x08` 32-pin write/VPP path (RCA'd, not trivially fixable; needs 0x08 32-pin Large EPROM write/VPP root-cause). Out of scope this milestone unless the W29C040 RCA surfaces a shared cause.
 - **FUT-03 / GRAD-03** — 2516 `0x0B` read instability + write proof (best-effort; shared OE/VPP pin). Unrelated family; deferred.
 - **FUT-05** — REWR-02 `0x08` write proof (W27E040 stuck-bit; needs a functional 0x08 rewritable chip).
+- **FUT-07** — **W29C040 bench graduation (BENCH-01/02/03 + LEDGER-01/02)** — the hard graduation gate cannot run on the operator's seated W29C040 (§6.6 first-16K boot block permanently locked, datasheet-confirmed irreversible). Operator has **no unlocked W29C040 sample** (2026-06-29) → deferred to a later bench session **to be confirmed by a third party** with an unlocked chip. All upstream software is complete + verified (Phases 93–94); the writable region (≥0x4000) is bench-proven (N=3 SHA). When an unlocked chip is available: re-run the page-0 pre-flight probe → if it programs+verifies, execute Phase 95 (full graduation + W29C020 sibling regression) → Phase 96 (PROTOCOL-LEDGER → `supported`). No software work remains. See `.planning/v1.17-MILESTONE-AUDIT.md` and `.planning/phases/95-bench-bench-validation-graduation-gate/evidence/95-PREFLIGHT-CHIP-CHECK.md`.
 
 ## Out of Scope
 
@@ -78,10 +79,10 @@ _Filled by the roadmapper 2026-06-26 — all 16 REQ-IDs mapped to exactly one ph
 | PGSZ-01 | Phase 94 | Complete (94-02) |
 | PGSZ-02 | Phase 94 | Complete (94-02) |
 | PGSZ-03 | Phase 94 | Complete (94-02) |
-| BENCH-01 | Phase 95 | pending |
-| BENCH-02 | Phase 95 | pending |
-| BENCH-03 | Phase 95 | pending |
-| LEDGER-01 | Phase 96 | pending |
-| LEDGER-02 | Phase 96 | pending |
+| BENCH-01 | Phase 95 | Deferred → FUT-07 (no unlocked W29C040; third-party bench confirmation, 2026-06-29) |
+| BENCH-02 | Phase 95 | Deferred → FUT-07 (W29C020 sibling regression rides the same deferred bench session) |
+| BENCH-03 | Phase 95 | Deferred → FUT-07 (EVIDENCE record produced at the deferred bench session) |
+| LEDGER-01 | Phase 96 | Deferred → FUT-07 (depends on BENCH-01 graduation) |
+| LEDGER-02 | Phase 96 | Deferred → FUT-07 (depends on LEDGER-01) |
 | SAFE-01 | Phase 93 | Complete |
 | SAFE-02 | Phase 94 | Complete (94-04: py3.11.15 all-9-steps green; constants parity confirmed) |
