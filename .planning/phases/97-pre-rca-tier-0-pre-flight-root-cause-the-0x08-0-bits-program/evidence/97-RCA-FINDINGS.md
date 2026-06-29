@@ -1,0 +1,237 @@
+---
+artifact: 97-RCA-FINDINGS
+phase: 97-pre-rca-tier-0-pre-flight-root-cause-the-0x08-0-bits-program
+milestone: v1.18 — AM27C020 0x08 Write-Path RCA & Fix
+requirements: [PRE-01, RCA-01, RCA-02, RCA-03, SAFE-01]
+status: SCAFFOLD — bench captures pending Plans 02-03
+recorded: 2026-06-29
+operator_witnessed: false (scaffold; flips true when Plans 02/03 fill the bench data)
+branch_base: firmware bccd995 (v1.17 tip) · host e0bdea4
+---
+
+# AM27C020 `0x08` 0-Bits-Programmed Fault — Root-Cause Findings
+
+> **RCA scope:** AM27C020 (AMD 256K×8 CMOS UV-EPROM, 32-pin DIP, protocol `0x08`
+> "EPROM-QUICK") programs **0 bits** on the current path — `write` fails
+> deterministically at `0x000000` (`bad bytes 15/16, retries 20`, v1.15 Phase
+> 83/84) while its `0x07` sibling W27C512 wrote clean the same session. This
+> document accumulates bench + code evidence across Plans 02–03 and culminates in
+> a named root cause (or ranked disconfirmed hypotheses) classified
+> firmware-algorithm / host-pinout / VPP-routing / addressing / silicon —
+> sufficient for **Phase 98** to design the fix without further RCA.
+>
+> **Branch base:** firmware `bccd995` (v1.17 tip) · host `e0bdea4`.
+> **Differential control:** W27C512 (`0x07`, same `configure_eprom()`, same
+> session/bench) — exonerates the unchanged axes.
+> **SAFE-01:** confirmed non-invasively in [SAFE-01-PREFLIGHT.md](SAFE-01-PREFLIGHT.md)
+> (over-voltage ERROR path intact, host guard never bypassed; read-only).
+>
+> **STATUS: SCAFFOLD (Wave-1, Plan 97-01).** All bench data below is marked
+> **TBD — Plan 02/03 fills**; per **D-02** nothing here is fabricated.
+
+---
+
+## Bench Discipline Log (D-08)
+
+All bench tasks (Plans 02–03) record their session identity here before any chip
+operation. Standing discipline from CONTEXT.md D-08.
+
+| Plan | Timestamp | Controller identity (`firestarter --version`) | Port | R1 | R2 | Board | Shield | JP4 position + silkscreen meaning | fw commit | Notes |
+|------|-----------|-----------------------------------------------|------|----|----|-------|--------|-----------------------------------|-----------|-------|
+| 02 | TBD | TBD | TBD | TBD (expect 270000) | TBD | Leonardo | Rev 2.0 | TBD — **ASK operator first (D-08)** | TBD | Plan 02 fills |
+| 03 | TBD | TBD | TBD | TBD (expect 270000) | TBD | Leonardo | Rev 2.0 | TBD — **ASK operator first (D-08)** | TBD | Plan 03 fills |
+
+R1 expected ≈ 270000 ± 25% (Leonardo). `controller:` re-verified per task (ACM ports shuffle). Leonardo is chip-OUT-sideload-EXEMPT. Every program on this UV part is irreversible (no eraser on hand).
+
+---
+
+## PRE-01 — Tier-0 Writability Pre-Flight
+
+> **Deliverable (D-02):** "writability **INDETERMINATE** pre-fix" — NOT a
+> pass/fail blocker. The phase does not stall on a definitive writability verdict;
+> the true writable/dead gate is the post-fix Phase 99 bench (D-04/D-06).
+
+| Item | Method | Result |
+|------|--------|--------|
+| Read oracle stable (N≥3 byte-identical) | `firestarter dev consistency-check AM27C020 --runs 3` | TBD — Plan 02 fills |
+| Blank-state SHA256 | consistency-check (known NOT-BLANK `0x02 @ 0x0000`) | TBD — Plan 02 fills |
+| Identity / protocol decode confirmed | `firestarter info AM27C020` (UV-EPROM, DIP32, 0x40000, VPP 13.0V, protocol 0x08, chip-id 0x00000197) | TBD — Plan 02 fills |
+| Micro-probe attempt result | combined Tier-0 probe = RCA-01 program attempt at `0x000000` (ONE attempt, D-01) | TBD — Plan 02 fills |
+
+**Framing (D-01/D-02):** the Tier-0 micro-probe and the RCA-01 reproduction are
+the **same single bench action** — one `1→0` program attempt at `0x000000` on the
+current (unfixed) path. On the broken path a **0-bit-flip is INDETERMINATE**
+(consistent with both "our path is broken" AND "chip is OTP") — it does **not**
+prove OTP and a **0-flip NEVER triggers deferral**. The chip stays pristine. Any
+bit flipping ⇒ RC-5 total-silicon-block is OUT and writability is partially proven
+(signature recorded as "partial").
+
+---
+
+## RCA-01 — Reproduction & Signature
+
+Failure Signature Capture Schema (filled by Plan 02 into `EVIDENCE.{md,json}` Cell A):
+
+| Field | Value |
+|-------|-------|
+| failing address(es) / bytes | TBD — Plan 02 fills |
+| bad bytes / retries | TBD — Plan 02 fills (v1.15 seed: `bad bytes 15/16, retries 20`) |
+| bits flipped | TBD — Plan 02 fills (0 expected → INDETERMINATE) |
+| VPP ADC readback | TBD — Plan 02 fills |
+| DMM pin 1 (held proxy) | TBD — Plan 02 fills (pass band 12.5–13.0V) |
+| DMM pin 31 (held proxy) | TBD — Plan 02 fills (VIL ≈ 0V expected by code) |
+| pre/post read SHA256 | TBD — Plan 02 fills (identical if chip pristine) |
+| controller / port / R1R2 / fw commit | TBD — Plan 02 fills |
+| JP4 position + silkscreen meaning | TBD — Plan 02 fills (ASK first, D-08) |
+
+> A3 (MEDIUM risk): the v1.15 `bad bytes 15/16, retries 20` signature is re-captured
+> on the current fw tip `bccd995` rather than cited as current; the write path is
+> believed untouched but the exact retry count is re-verified at the bench.
+
+---
+
+## RCA-02 — `0x07`-vs-`0x08` Differential Matrix
+
+> Method: same bench, same session, same `configure_eprom()` handler; vary only the
+> named axis; the passing W27C512 (`0x07`) exonerates the unchanged axes (v1.17
+> 2×N method). Verdicts TBD — Plan 03 fills.
+
+| Axis | 0x07 W27C512 (PASS) | 0x08 AM27C020 (0-bits) | Differs? | How 0x07 exonerates | Verified anchor |
+|------|---------------------|------------------------|----------|---------------------|-----------------|
+| Handler | `configure_eprom()` | `configure_eprom()` | NO | same path passes ⇒ not handler-selection | `memory.cpp:122` |
+| Pulse width | 100µs | 100µs | NO | identical ⇒ not pulse width | `eprom.cpp` pulse_delay |
+| Program pulse model | CE-only strobe | CE-only strobe | NO (same) | 0x07's PGM tied OK by 28-pin layout; 0x08 needs pin-31 PGM | `memory.cpp:274` |
+| **VPP routing** | `vpp_line=0xFF` ⇒ VPE-drop bus line, NOT P1 | `vpp_line=21` (VPP_P1_32_DIP=0x15) ⇒ **P1 / socket pin 1** | **YES** | 0x07 proves regulator+drop network; only the **P1 leg** is unproven on a UV part | `eprom.cpp:319-326`; `memory_utils.h:24` |
+| **Program-enable bit** | `CTRL_VPE_ENABLE` reaches VPE/PGM line | rewritten to `CTRL_VPP_P1_ENABLE` | **YES** | 0x07 proves CTRL_VPE_ENABLE path; the rewrite is 0x08-only | `eprom.cpp:319-326` |
+| **Pin 31 role** | 28-pin: no pin 31 issue | 32-pin: **pin 31 = bus line 22 (address-driven), not PGM** | **YES** | 0x07 has no 32-pin pin-31 mapping ⇒ exonerates all but the 32-pin axis | `database.py:141`; `pinouts.json DIP32_STD` |
+| Pin 1 role | VPP on a different bus line | VPP on socket pin 1 (P1) | YES | 32-pin VPP geometry | — |
+| FLAG_CAN_ERASE | set (EEPROM auto-erase) | 0 (UV — correct) | minor | not erase-related | — |
+
+**Two-axis collapse:** the matrix collapses to **P1-VPP-delivery** + **pin-31-as-address** — both in the 32-pin/`0x08` region, both absent on the passing `0x07` part. **W27C512 differential verdict: TBD — Plan 03 fills.**
+
+---
+
+## RCA-03 — RC-1..RC-5 Disconfirmation Table
+
+> **D-03 callout:** **RC-1 AND RC-2 must EACH carry an individual verdict**
+> (confirm-or-exonerate) before Phase-98 handoff — they may compound (a one-axis
+> fix could still flip 0 bits). **RC-3 (JP4) and RC-4 (addressing collision) are
+> pursued ONLY IF** RC-1+RC-2 do not fully account for the 0-bits symptom. RC-5 is
+> handled via the Tier-0 path and **never triggers deferral pre-fix** (D-01/D-06).
+
+| RC | Hypothesis | CONFIRM if… | EXONERATE (OUT) if… | Method | Gating? | Verdict |
+|----|-----------|-------------|---------------------|--------|---------|---------|
+| **RC-1** | PGM pin 31 modeled as address line, not held program-active | pin 31 DMM reads VIH/floats during held proxy | pin 31 DMM reads ~0V (VIL) AND code shows it driven low at addr0 | Held-rail static proxy (`0x188`) + code-analysis (`memory.cpp:274` + `database.py:141` + `pinouts.json`) | **YES (D-03)** | **TBD — Plan 02/03 fills** |
+| **RC-2** | VPP not reaching pin 1 at 12.5–13.0V during pulse | pin 1 DMM ≈0V/floats while ADC≈13V (routing), OR pin1 <12.5V (pot/level) | pin 1 DMM = 12.5–13.0V steady AND ADC agrees | Held-rail proxy (`0x188`) + DMM pin1 + `firestarter vpp` ADC cross-check | **YES (D-03)** | **TBD — Plan 02/03 fills** |
+| **RC-3** | JP4 (`JMP_VPP_P1_BYPASS`) position wrong for 32-pin VPP-to-pin-1 | toggling JP4 changes pin-1 VPP delivery decisively | neither JP4 position delivers 12.5–13.0V to pin 1 | [OP] toggle JP4 open↔closed, re-DMM pin 1 — **ASK silkscreen meaning first (D-08)** | only if RC-1+RC-2 incomplete | **TBD (conditional)** |
+| **RC-4** | 32-pin high-address / control-bit collision corrupts target | high-address write behaves differently than addr0 | addr0 still 0-bits with pin1=13V AND pin31=VIL | code-analysis (`memory.cpp:184-198` alias `A18==P1_ENABLE` 0x08) + optional high-addr inspect (NOT a second destructive spend) | only if RC-1+RC-2 incomplete | **TBD (conditional)** |
+| **RC-5** | Chip OTP/dead (total silicon block) | (cannot be confirmed pre-fix — D-01 INDETERMINATE) | any bit flips in the Tier-0 micro-probe | the combined micro-probe (PRE-01/RCA-01) | handled via Tier-0; **never triggers deferral pre-fix** | **TBD (INDETERMINATE pre-fix)** |
+
+**Conditional trigger (D-03):** pursue RC-3/RC-4 only if, after RC-1 and RC-2 each
+carry a verdict, the resolved pair does **not** fully account for 0-bits. If both
+RC-1 (pin 31 = VIL OK) and RC-2 (pin 1 = 13V OK) come back EXONERATED yet the chip
+still flipped 0 bits, the symptom is unexplained → escalate to RC-3 (JP4) and RC-4
+(addressing collision); the alias-collision finding (`0x08` = A18 == P1_ENABLE in
+the firmware physical layout) becomes the leading RC-4 lead.
+
+### Named Root Cause / Classification
+
+**Named root cause (or ranked hypotheses): TBD — Plans 02/03 fill.**
+
+**Classification: TBD** — one of: `firmware-algorithm` / `host-pinout` /
+`vpp-routing` / `addressing` / `silicon`. (RC-1 leading hypothesis is
+`host-pinout`: pin 31 modeled as an address line in `DIP32_STD`.)
+
+---
+
+## Held-Rail Static-Proxy Control Values (RC-1/RC-2/RC-4 decisive experiment, D-05)
+
+> Pinned against the **live host `dev reg -f` bit map** (re-read this session):
+> `firestarter_app/firestarter/cli_handlers.py:1012-1020`. In the host `-f`
+> (hardware-revision-remapped) namespace the bits are **DISTINCT**:
+
+| Host `-f` bit | Name (cli_handlers.py:1012-1020) |
+|---------------|----------------------------------|
+| `0x100` | CTRL_VPP_VPE_DROP_ENABLE |
+| `0x080` | CTRL_VPP_REGULATOR_ENABLE |
+| `0x040` | CTRL_READ_WRITE |
+| `0x020` | CTRL_ADDRESS_LINE_18 |
+| `0x010` | CTRL_ADDRESS_LINE_17 |
+| `0x008` | CTRL_VPP_P1_ENABLE |
+| `0x004` | CTRL_VPE_ENABLE |
+| `0x002` | CTRL_VPP_A9_ENABLE |
+| `0x001` | CTRL_ADDRESS_LINE_16 |
+
+**Program-window held value** (P1 route ON, A18/pin-31 bit clear, address 0):
+
+```
+CTRL = 0x080 | 0x100 | 0x008 = 0x188   (regulator + VPE-drop + P1-route)
+firestarter dev reg 0 0 0x188 -f       [ASSUMED — confirm at first bench reading, A1]
+```
+
+- `MSB=0 LSB=0` → address `0x0000` (all address lines low, matching the failing
+  address; pin 31 = bus line 22 = A18 = 0).
+- `-f` applies the Firestarter hw-rev-remapped bit definitions.
+
+**Alias-probe pair** (moves ONLY the host `0x008` P1_ENABLE bit):
+
+```
+firestarter dev reg 0 0 0x180 -f       (P1 route OFF: regulator + VPE-drop only)
+firestarter dev reg 0 0 0x188 -f       (P1 route ON: + CTRL_VPP_P1_ENABLE)
+```
+
+This single `0x180`-vs-`0x188` experiment touches RC-1, RC-2 and RC-4
+simultaneously — it reveals whether pin 31 and pin 1 move together.
+
+### Host-vs-firmware bit-alias caveat (CRITICAL — Pitfall 6)
+
+In the **firmware physical Rev2 layout** (`firestarter/include/rurp_pinout.h:122,128`)
+`CTRL_VPP_P1_ENABLE_REV2` and `CTRL_ADDRESS_LINE_18_REV2` are the **SAME control
+bit (0x08)**:
+
+```
+#define CTRL_VPP_P1_ENABLE_REV2     0x08      // rurp_pinout.h:122
+#define CTRL_ADDRESS_LINE_18_REV2   CTRL_VPP_P1_ENABLE_REV2   // rurp_pinout.h:128  (== 0x08)
+```
+
+But the host `dev reg -f` remap **presents them as distinct host bits**
+(`0x008` = P1_ENABLE, `0x020` = ADDRESS_LINE_18). Therefore the operator/Claude
+**MUST use the host `-f` values above** (`0x188` / `0x180`), NOT the firmware
+physical bit numbers. The held value **`0x188` is marked [ASSUMED — confirm at
+first bench reading]** per RESEARCH assumption A1 (derived from the verified
+program-time bits; the bench settles whether it faithfully reproduces the
+program-window state).
+
+For a 256K AM27C020, A18 is never set, so the firmware-side alias is dormant at
+the addresses in play — but it is directly relevant to the RC-1/RC-4 boundary and
+to any Phase-98 fix.
+
+---
+
+## SAFE-01 Close-Out
+
+SAFE-01 confirmed non-invasively in
+[SAFE-01-PREFLIGHT.md](SAFE-01-PREFLIGHT.md): over-voltage `vpp_check_window`
+HIGH→ERROR path intact (relaxes to WARNING only under FLAG_FORCE, which the
+procedure never passes); host `resolve_chip` guard never bypassed; normal `0x08`
+dispatch; zero code edits. Recurs as a standing precondition through Phases 98–99.
+
+---
+
+## Phase-98 Hand-Off
+
+> The named root cause (RCA-03) governs the Phase-98 fix surface. **TBD — set when
+> Plans 02/03 deliver the verdict.**
+
+Candidate fix surfaces per the RC ranking (for Phase-98 planning, not a Phase-97
+finding):
+
+- **RC-1 (host-pinout, leading):** a dedicated `DIP32_27C020` pinout entry
+  redirecting pin 31 from the address bus to a held PGM control, scoped to the
+  `0x08`-UV-32-pin class so existing 27C040/SST39SF040-family DIP32 users
+  (pin 31 = A18/WE) are not broken (`pinouts.json` + `database.py`).
+- **RC-2 (vpp-routing):** hold `CTRL_VPP_P1_ENABLE` (P1 route) across the full
+  program pulse window rather than only the per-byte data-write window
+  (`eprom.cpp`).
+- Possible new wire field (`firestarter.h` ↔ `constants.py` lockstep) if a new
+  control-pin concept is needed (precedent: v1.17 per-chip `page_size`).
