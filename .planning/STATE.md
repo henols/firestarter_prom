@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.17
-milestone_name: — Implement & Test the W29C040 Programming Protocol
-status: Awaiting next milestone
-last_updated: "2026-06-29T11:36:11.260Z"
-last_activity: 2026-06-29 — Milestone v1.17 completed and archived
+milestone: v1.18
+milestone_name: AM27C020 0x08 Write-Path RCA & Fix
+status: planning
+last_updated: "2026-06-29T12:15:57.443Z"
+last_activity: 2026-06-29
 progress:
-  total_phases: 4
-  completed_phases: 2
-  total_plans: 8
-  completed_plans: 8
-  percent: 50
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: Milestone v1.17 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-06-29 — Milestone v1.17 completed and archived
+Status: Defining requirements
+Last activity: 2026-06-29 — Milestone v1.18 started
 
 ## Project Reference
 
