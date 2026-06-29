@@ -7,7 +7,7 @@ type: bug
 target_milestone: v1.13+
 priority: medium
 related_phase: 74
-resolves_phase: null
+resolves_phase: 94
 source: .planning/phases/74-per-family-correctness-fixes-flash-gated/74-REVIEW.md (CR-01 + WR-04)
 ---
 
