@@ -139,5 +139,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 ## Operator Next Steps
 
 - **Phase 94 COMPLETE.** FIX-01a+PGSZ+FIX-01b+SAFE-02+bench proof all done.
-- **Phase 95 NEXT (BENCH):** Byte-exact write→auto-erase→program→verify graduation gate.
-- **Boot-block constraint:** Phase 95 BENCH-01 requires unlocked W29C040 OR explicit re-scope to ≥0x4000. Operator decision needed before Phase 95 planning.
+- **Phase 95 path DECIDED (operator 2026-06-27): "seat a different (unlocked) W29C040"** → orchestrator then completes BENCH-01 full graduation + Phase 96 LEDGER autonomously. Hard graduation gate preserved (no best-effort fallback).
+- **⛔ BLOCKED on physical chip swap (2026-06-29):** pre-flight page-0 probe shows the seated chip is STILL boot-block-locked (`boot block locked -- 0x00003f ... §6.6 irreversible lockout`) — unlocked chip not yet swapped in. See `.planning/phases/95-bench-bench-validation-graduation-gate/evidence/95-PREFLIGHT-CHIP-CHECK.md`. Phase 95 cannot run until an unlocked W29C040 is seated and the page-0 probe PASSES.
+- **Bonus (2026-06-29):** Phase-94 FIX-01b diagnostic + CANERASE fix CONFIRMED live on hardware via the probe (clean "boot block locked" message, no 12V) — closes the Phase-94 Plan-04 "detect live-trigger not achieved" item.
+- **Minor polish:** host diagnostic renders `§` as `ss` ("ss6.6") — cosmetic message-string fix when convenient.
