@@ -255,7 +255,19 @@ Plans:
   4. A named root cause (or ranked hypotheses each carrying disconfirming bench evidence) is recorded and classified firmware-algorithm / host-pinout / VPP-routing / addressing / silicon — sufficient to design a targeted fix; in particular: whether pin 31 (PGM) is driven program-active or left floating/address-driven during the CE pulse is determined from the DMM measurement and/or code analysis (RCA-03).
   5. Throughout the RCA, over-voltage stays blocked at the firmware VPP check (`vpp_check_window` HIGH→ERROR) and the host `chip_resolver.resolve_chip` guard is never bypassed; AM27C020 flows through its normal `0x08` dispatch with no test-only escape hatch (SAFE-01 baseline confirmed).
 
-**Plans**: TBD
+**Plans**: 3 plans in 3 waves (planned 2026-06-29; granularity Comprehensive; single irreversible bench session → bench tasks strictly sequential, code-analysis front-loaded autonomous):
+**Wave 1**
+
+- [ ] 97-01-PLAN.md — SAFE-01 non-invasive code-read + scaffold v1.18 EVIDENCE.{md,json} + 97-RCA-FINDINGS.md skeleton + pin the held-rail proxy values (0x188/0x180) against the live `dev reg -f` host bit map *(autonomous, no hardware; SAFE-01)*
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 97-02-PLAN.md — PRE-01 Tier-0 pre-flight (N≥3 read oracle + blank-state SHA + 0x08 decode) + RCA-01 combined micro-probe = reproduction (ONE 1→0 attempt) + held-rail pin-1/pin-31 DMM signature *(bench, operator DMM; PRE-01, RCA-01)*
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 97-03-PLAN.md — RCA-02 0x07 W27C512 differential control + RCA-03 resolve RC-1 & RC-2 (conditional RC-3/RC-4) + name/classify root cause + Phase-98 hand-off *(bench + analysis, operator reseat/JP4; RCA-02, RCA-03)*
+
 **UI hint**: no
 
 ### Phase 98: FIX — Correct the 0x08 32-Pin Write/VPP Path
