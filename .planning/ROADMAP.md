@@ -222,7 +222,6 @@ Plans:
 **Plans**: TBD
 **UI hint**: no
 
-
 ## v1.18 — AM27C020 0x08 Write-Path RCA & Fix (STARTED 2026-06-29)
 
 **Milestone goal:** Root-cause why the AM27C020 (`0x08` EPROM-QUICK, 32-pin, 256K×8 CMOS EPROM) programs **0 bits**, fix the firmware/host `0x08` 32-pin write/VPP path so it programs correctly, and bench-prove byte-exact write→verify on real silicon — gated on a Tier-0 silicon-writability pre-flight (the W29C040 lesson: confirm the chip is re-programmable before committing the bench graduation).
@@ -249,6 +248,7 @@ Plans:
 **Depends on**: Nothing in v1.18 (first phase). Inherits the v1.17/v1.16 firmware tip substrate; v1.15 Phase 83/84 bench symptom (0 bits, bad bytes 15/16 retries 20) as the pre-fix baseline seed. Bench hardware: Leonardo + RURP Rev 2.0 + operator-seated AM27C020, DMM at socket pin 1 (VPP) and pin 31 (PGM).
 **Requirements**: PRE-01, RCA-01, RCA-02, RCA-03, SAFE-01 (established here, recurs as a precondition through Phases 98–99)
 **Success Criteria** (what must be TRUE):
+
   1. Tier-0 writability pre-flight result is recorded (N≥3 stable reads confirming the read oracle, blank-state noted, single 1→0 micro-probe attempted): either the chip CAN accept a program (at least one bit flips and verifies stably) — which rules out RC-5 (total silicon block) and unblocks graduation — or the chip is definitively OTP/dead, in which case BENCH-01/02 defer to a FUT carry-forward and the milestone re-scopes to software-fix-only; the outcome is documented and never fabricated (PRE-01).
   2. The 0x08 0-bits-programmed failure reproduces on the seated chip (Leonardo + Rev 2.0) with a recorded failure signature — which bytes fail to flip 1→0, the VPP ADC readback, and the operator DMM reading at socket pin 1 (VPP) and pin 31 (PGM) during the program window — establishing a pre-fix baseline with `controller:` identity + live R1/R2 readback per standing bench discipline (RCA-01).
   3. The `0x08` write path is differentially compared against the passing `0x07` W27C512 across the candidate axes (PGM-pin handling / DIP32 pin-31 mapping as address-line vs program-pulse-pin, P1 VPP routing + level, JP4 32/28-pin position, 32-pin A16/A17 addressing) — with the differing variable(s) isolated and the unchanged axes exonerated (RCA-02).
@@ -258,7 +258,7 @@ Plans:
 **Plans**: 3 plans in 3 waves (planned 2026-06-29; granularity Comprehensive; single irreversible bench session → bench tasks strictly sequential, code-analysis front-loaded autonomous):
 **Wave 1**
 
-- [ ] 97-01-PLAN.md — SAFE-01 non-invasive code-read + scaffold v1.18 EVIDENCE.{md,json} + 97-RCA-FINDINGS.md skeleton + pin the held-rail proxy values (0x188/0x180) against the live `dev reg -f` host bit map *(autonomous, no hardware; SAFE-01)*
+- [x] 97-01-PLAN.md — SAFE-01 non-invasive code-read + scaffold v1.18 EVIDENCE.{md,json} + 97-RCA-FINDINGS.md skeleton + pin the held-rail proxy values (0x188/0x180) against the live `dev reg -f` host bit map *(autonomous, no hardware; SAFE-01)*
 
 **Wave 2** *(blocked on Wave 1)*
 
@@ -276,6 +276,7 @@ Plans:
 **Depends on**: Phase 97 (the named root cause governs the fix design). Firmware sub-repo `firestarter/` (`src/proms/eprom.cpp`, possibly `include/rurp_pinout.h`) + host `firestarter_app/` (`data/pinouts.json`, `data/chip_database.json`, `constants.py` ↔ `firestarter.h`) work expected depending on the RCA verdict.
 **Requirements**: FIX-01, FIX-02, FIX-03, SAFE-02 (established here, recurs as a precondition through Phase 99)
 **Success Criteria** (what must be TRUE):
+
   1. The `0x08` write path is corrected per the Phase 97 root cause so that the program pulse will actually assert the correct signals for the AM27C020 (e.g. PGM held low during the CE pulse, and/or P1 VPP routing held active for the full pulse window, and/or a `DIP32_27C020` pinout entry redirecting pin 31 from an address line to a PGM control concept) — with the fix scoped to the `0x08` UV 32-pin class and not breaking DIP32 chips that legitimately use pin 31 as A18/WE (FIX-01).
   2. The v1.16 golden register traces + dispatch-mirror guard stay byte-identical for the passing `0x07` and `0x0B` EPROM paths; where a trace legitimately changes for the `0x08` 32-pin path it is re-pinned with cited rationale; native tests cover the corrected `0x08` write path (program-pulse asserted correctly) and include at least one explicit failure-case / mismatch test (the v1.16 P89 CR-01 lesson) (FIX-02).
   3. Any fix that crosses the wire (new pinout entry in `pinouts.json` / `chip_database.json`, or a new flag/field in `firestarter.h` ↔ `constants.py`) is delivered dual-repo lockstep: `diff_db.py` shows only the intended changes, `check_dispatch.py` passes with 0 VPP violations, constants parity test is green (FIX-03).
@@ -290,6 +291,7 @@ Plans:
 **Depends on**: Phase 98 (fix committed and native-green before the bench gate). PRE-01 writability result from Phase 97 gates whether BENCH-01 is the graduation path or the deferral path. Bench hardware: Leonardo + RURP Rev 2.0 + operator-seated AM27C020.
 **Requirements**: BENCH-01, BENCH-02
 **Success Criteria** (what must be TRUE):
+
   1. **If PRE-01 confirmed writable:** a full write→verify cycle on the seated AM27C020 (Leonardo + Rev 2.0) reads back byte-exact (SHA match) to the written image — the graduation gate — operator-witnessed with `controller:` identity + live R1/R2 readback per standing bench discipline; OR **if PRE-01 determined OTP/dead:** the bench graduation is explicitly deferred to a FUT carry-forward with a documented evidence record (reason, pre-fix read SHA, writability result) — the deferral is recorded cleanly and never faked (BENCH-01).
   2. A bench EVIDENCE record is captured: the 1→0 program proof (or failing-vs-fixed signature if graduated, or writability-fail evidence if deferred), VPP rail reading at socket pin 1 during the program window, bench-discipline log row (port, shield rev, R1/R2 readback, `controller:` identity, firmware commit), sufficient to update the PROTOCOL-LEDGER `0x08` entry and stand as the authoritative bench record for v1.18 (BENCH-02).
   3. The PROTOCOL-LEDGER `0x08` entry (`.planning/v1.16/ledger/PROTOCOL-LEDGER.{md,json}`) is updated from `open-defect-carried (FUT-06)` to PASS (if graduated) or a documented residual-defect / FUT status (if deferred), citing the Phase 99 bench evidence; `check_ledger.py` passes with 0 contradictions; FUT-06 is retired or re-named per the actual outcome.
@@ -883,7 +885,7 @@ Plans:
 | 94 | v1.17 | 4/4 | Complete    | 2026-06-27 |
 | 95 | v1.17 | 0/TBD | Not started | — |
 | 96 (close) | v1.17 | 0/TBD | Not started | — |
-| 97 | v1.18 | 0/TBD | Not started | — |
+| 97 | v1.18 | 1/3 | In Progress|  |
 | 98 | v1.18 | 0/TBD | Not started | — |
 | 99 (close) | v1.18 | 0/TBD | Not started | — |
 

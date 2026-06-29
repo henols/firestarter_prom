@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.18
 milestone_name: — AM27C020 0x08 Write-Path RCA & Fix
 status: executing
-last_updated: "2026-06-29T15:39:45.251Z"
-last_activity: 2026-06-29 -- Phase 97 planning complete
+last_updated: "2026-06-29T15:50:13.169Z"
+last_activity: 2026-06-29 -- Phase 97 Plan 01 complete (SAFE-01 confirmed, EVIDENCE + RCA-FINDINGS scaffolded, Wave-0 gate scripts asserted)
 progress:
   total_phases: 7
   completed_phases: 2
   total_plans: 11
-  completed_plans: 8
+  completed_plans: 9
   percent: 29
 ---
 
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: Not started (roadmap created)
-Plan: —
-Status: Ready to execute
-Last activity: 2026-06-29 -- Phase 97 planning complete
+Phase: 97 (pre-rca-tier-0-pre-flight-root-cause-the-0x08-0-bits-program) — EXECUTING
+Plan: 2 of 3
+Status: Plan 97-01 complete (Wave-1 diagnostic scaffold) — ready to execute Plan 97-02
+Last activity: 2026-06-29 -- Phase 97 Plan 01 complete (SAFE-01 confirmed, EVIDENCE + RCA-FINDINGS scaffolded, Wave-0 gate scripts asserted)
 
 ## Project Reference
 
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (v1.18 Current Milestone section + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware handler. v1.18 proves that contract on the AM27C020 `0x08` EPROM-QUICK 32-pin write path: root-cause the 0-bits-programmed failure, fix the write/VPP path (RC-1 leading: PGM pin 31 mapped as address line rather than held program-active), and bench-prove byte-exact write→verify on real silicon — gated on Tier-0 writability pre-flight.
 
-**Current focus:** Phase 97 — PRE-flight + RCA (not yet started)
+**Current focus:** Phase 97 — pre-rca-tier-0-pre-flight-root-cause-the-0x08-0-bits-program
 
 ## Milestone Context (v1.18)
 
@@ -107,3 +107,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 ## Operator Next Steps
 
 - Start Phase 97 with `/gsd-plan-phase 97`
+
+## Decisions
+
+- [Phase ?]: SAFE-01 invariant: holds because Phase-97 procedure never passes --force (firmware HAS a FLAG_FORCE over-voltage relaxation at primitives.cpp:121); held-rail proxy pinned host-space 0x188/0x180 marked [ASSUMED] per A1; all bench fields TBD-bench never fabricated (D-02)
