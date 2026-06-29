@@ -56,4 +56,14 @@ _Filled by the roadmapper. All v1.18 REQ-IDs map to exactly one phase (no orphan
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| _(filled by roadmapper)_ | | |
+| PRE-01 | Phase 97 | Pending |
+| RCA-01 | Phase 97 | Pending |
+| RCA-02 | Phase 97 | Pending |
+| RCA-03 | Phase 97 | Pending |
+| SAFE-01 | Phase 97 | Pending (recurs as precondition through Phases 98–99) |
+| FIX-01 | Phase 98 | Pending |
+| FIX-02 | Phase 98 | Pending |
+| FIX-03 | Phase 98 | Pending |
+| SAFE-02 | Phase 98 | Pending (recurs as precondition through Phase 99) |
+| BENCH-01 | Phase 99 | Pending (contingent on PRE-01) |
+| BENCH-02 | Phase 99 | Pending |
