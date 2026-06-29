@@ -1,5 +1,22 @@
 # Milestones
 
+## v1.17 Implement & Test the W29C040 Programming Protocol (Shipped: 2026-06-29)
+
+**Phases completed:** 3 phases, 8 plans, 18 tasks
+
+**Key accomplishments:**
+
+- FLAG_CAN_ERASE (0x02) IS set in W29C040 wire flags (T-93-CANERASE HIGH-severity), flash4_write_execute is VPP-free, Phase-74 traps ruled out by native evidence (11/11 tests PASSED), and the canonical 93-RCA-FINDINGS.md H1–H5 scaffold is ready for bench Plans 02–04
+- W29C040 page-0 write fault reproduced N=2 deterministically (0x0000ff stays 0x00 after N=5 settled reads — H4 disconfirmed, page never committed)
+- W29C040 §6.6 first-16K boot block programming lockout confirmed as the sole root cause: silicon-level hardware protection on this chip instance, not a firmware timing/addressing/SDP bug.
+- W29C040 §6.6 first-16K boot-block programming lockout named as root cause (SILICON/chip-instance-specific state), firmware algorithm proven correct for unlocked pages, Phase-94 hand-off complete with T-93-CANERASE FIX-01 and lock-reversibility fork
+- Defense-in-depth removal of the FLAG_CAN_ERASE 12V-on-5V hazard for protocol 0x05 flash4 chips: host flag derivation gated on algorithm!=5, firmware guard keyed on handle->protocol==0x05, dual-repo lockstep.
+- Datasheet-sourced per-chip page_size carried over the wire (page-size JSON field) with emit-when-present host emission, json_parser.c struct population, and flash4 safe-fallback consumption — W29C040=256 / W29C020=128 cited only
+- W29C040 §6.6 boot-block lockout diagnosed host-side (heuristic hint) and firmware-side (DETECT read); MSG_ERR_FL4_BOOT_BLOCK_LOCKED 0xBC added via codegen; golden write trace confirmed unchanged
+- py3.11 CI all-green (703 tests, 78.35% coverage) + 3-run SHA-match bench proof on W29C040 writable region (0x4000+) with no 12V, proving FIX-01a
+
+---
+
 ## v1.16 Protocol-First Architecture Rebuild (Shipped: 2026-06-26)
 
 **Phases completed:** 8 phases (85–92; Phase 92 a host-only follow-on with no separate phase dir), 29 plans, 39 tasks

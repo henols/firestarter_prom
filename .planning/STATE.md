@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.17
 milestone_name: — Implement & Test the W29C040 Programming Protocol
-status: completed
-last_updated: "2026-06-27T09:33:41.762Z"
-last_activity: 2026-06-27
+status: Awaiting next milestone
+last_updated: "2026-06-29T11:36:11.260Z"
+last_activity: 2026-06-29 — Milestone v1.17 completed and archived
 progress:
   total_phases: 4
   completed_phases: 2
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 95
-Plan: Not started
-Status: Phase 94 complete; Phase 95 (BENCH) is next
-Last activity: 2026-06-27
+Phase: Milestone v1.17 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-06-29 — Milestone v1.17 completed and archived
 
 ## Project Reference
 
@@ -138,10 +138,4 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Operator Next Steps
 
-- **Phase 94 COMPLETE.** FIX-01a+PGSZ+FIX-01b+SAFE-02+bench proof all done.
-- **Phase 95 path DECIDED (operator 2026-06-27): "seat a different (unlocked) W29C040"** → orchestrator then completes BENCH-01 full graduation + Phase 96 LEDGER autonomously. Hard graduation gate preserved (no best-effort fallback).
-- **⛔→DEFERRED (operator 2026-06-29): no unlocked W29C040 available.** The graduation gate (BENCH-01/02/03 + LEDGER-01/02) is **deferred to a later bench session to be confirmed by a third party** with an unlocked chip → tracked as **FUT-07** in REQUIREMENTS.md. The seated chip's §6.6 first-16K boot block is permanently locked (datasheet-confirmed irreversible; pre-flight page-0 probe still fails). All upstream software is complete + verified (Phases 93–94); writable region ≥0x4000 bench-proven (N=3 SHA). When an unlocked chip exists: re-run the page-0 pre-flight probe → if it programs+verifies, execute Phase 95 (full graduation + W29C020 sibling regression) → Phase 96 (LEDGER → `supported`). No software work remains.
-- **Milestone disposition: PENDING operator decision** — close v1.17 now on the delivered software with the graduation deferred (FUT-07), OR keep v1.17 open until the third-party confirmation. Closing/tagging/beta cut is operator-gated.
-- **Audit (2026-06-29):** `.planning/v1.17-MILESTONE-AUDIT.md` — status `gaps_found` (11/16 reqs satisfied; the 5 unsatisfied = FUT-07 deferred). Integration 8/8 wired; break only at the hardware boundary.
-- **Bonus (2026-06-29):** Phase-94 FIX-01b diagnostic + CANERASE fix CONFIRMED live on hardware (clean "boot block locked" message, no 12V) — closed the Phase-94 Plan-04 "detect live-trigger not achieved" item.
-- **Post-audit enhancement (2026-06-29):** proactive §6.6 lockout detection added (error without `--force`, warning + proceed with `--force`); "ss6.6" cosmetic bug fixed → "section 6.6". Committed fw `bccd995` / app `e0bdea4` / meta `9ea029e`. Golden trace byte-identical; 114 native + 706 host green.
+- Start the next milestone with /gsd-new-milestone

@@ -742,3 +742,36 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 2. Three-layer fixes beat single-layer fixes for cross-cutting bugs (v1.0 BLOCKER-1, BLOCKER-2; reaffirmed v1.12 defense-in-depth on the 12V-VPP hazard)
 3. Audit-then-close — re-run the audit after closing a blocker to surface unmasked hazards (v1.0 WARNING-5 escalation; v1.12 first-audit gaps_found → Phase 67.1 closure → re-audit)
 4. Check a milestone branch's fork base before close — a stale base (v1.12 forked off pre-v1.11 beta) forces an unplanned integration phase if caught only at merge
+
+## Milestone: v1.17 — Implement & Test the W29C040 Programming Protocol
+
+**Shipped:** 2026-06-29 (software complete; W29C040 bench graduation deferred → FUT-07)
+**Phases:** 2 of 4 executed (93 RCA, 94 FIX+PGSZ) | **Plans:** 8 | 11/16 reqs satisfied
+
+### What Was Built
+- **RCA (Phase 93):** reproduced the W29C040 page-0 write fault N=2, differentially isolated it against W29C020, and named the root cause: the seated chip's **§6.6 first-16K boot block is permanently locked** (datasheet-irreversible silicon state) — NOT a firmware bug. H1–H4 disconfirmed; algorithm proven correct for unlocked pages.
+- **T-93-CANERASE fix (Phase 94):** removed a real HIGH-severity hazard — `write W29C040` was routing **12V onto a 5V chip** (FLAG_CAN_ERASE → flash4_erase_execute). Fixed host (gate on `algo!=5`) + firmware (guard on `protocol==0x05`), dual-repo lockstep.
+- **PGSZ/CR-01:** datasheet-sourced per-chip `page_size` wire field (W29C040=256/W29C020=128 cited; heuristic fallback).
+- **Proactive §6.6 lockout detection (post-audit):** reads the detection register up front → clear ERROR / `--force`→WARNING; bench-confirmed on the locked chip.
+- **Bench-proven:** N=3 byte-exact write→verify on the writable region (≥0x4000) with normal `write`, no 12V; py3.11 CI green; golden trace byte-identical.
+
+### What Worked
+- The v1.16 RCA discipline (reproduce → differential → disconfirming matrix → named cause) cleanly separated "firmware bug" from "silicon state" and prevented chasing a non-existent timing/SDP/addressing fix (the Phase-74 trap).
+- Building the §6.6 DETECT in firmware turned a cryptic timeout into ground-truth ("boot block locked"), and proactive detection made `write` fail-fast with a clear message.
+- Honest scoping: the RCA invalidated the roadmap's "fix page-0" premise; the phase pivoted to the genuinely-fixable items rather than faking the graduation.
+
+### What Was Inefficient
+- The milestone's hard done-bar (full-image graduation) was set before the RCA knew the chip was locked — the headline goal was unreachable on the available hardware, forcing a partial close + FUT-07 deferral.
+- Per-phase gitlink bumps drifted from the "pinned at b10" policy (must reconcile before any beta merge).
+
+### Patterns Established
+- Firmware-side hardware-protection DETECT (reusing existing ID-mode command tables) as a first-class diagnostic, surfaced through the message catalog with a `--force` downgrade-to-warning path.
+- "Writable-region proof" as honest partial evidence when a full graduation is hardware-blocked.
+
+### Key Lessons
+- A permanently-locked boot block is a chip-instance property, not a firmware defect — verify the irreversibility against the datasheet command set before promising a fix.
+- Discover-then-fix safety bugs (T-93-CANERASE) are often the highest real-world value even when the headline goal stalls.
+
+### Cost Observations
+- Model mix: opus (research/plan), sonnet (executors/checker/verifier).
+- Notable: the most valuable outcome (12V-on-5V safety fix) was a side-discovery of the RCA, not the milestone's stated goal.
