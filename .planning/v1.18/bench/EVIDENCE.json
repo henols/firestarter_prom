@@ -52,15 +52,15 @@
       "family": "0x07 (EPROM_STD)",
       "board": "leonardo",
       "shield": "Rev 2.0",
-      "blank_state": "TBD-bench",
+      "blank_state": "auto-erased then written (electrically-erasable; FLAG_CAN_ERASE)",
       "op": "differential_control_write",
-      "write_image_sha256": "TBD-bench",
-      "readback_sha256": "TBD-bench",
-      "vpp_adc_mv": "TBD-bench",
-      "dmm_pin1_v": "TBD-bench",
-      "verdict": "TBD-bench",
-      "sha256": "TBD-bench",
-      "anomalies": "TBD-bench"
+      "write_image_sha256": "d9471636ca34b84f863a666eff6ff6aa4fc44396b2ff11a38e036e54b4b39ee3",
+      "readback_sha256": "d9471636ca34b84f863a666eff6ff6aa4fc44396b2ff11a38e036e54b4b39ee3 (first-4096 region; == image \u2192 byte-exact)",
+      "vpp_adc_mv": "12000 (12.0\u201312.1V; W27C512 target 12.0V)",
+      "dmm_pin1_v": "not measured \u2014 held-rail proxy tooling-blocked; N/A for routing here (28-pin pin 1 = A15, not VPP)",
+      "verdict": "PASS \u2014 0x07 write\u2192verify\u2192readback byte-exact (write 6.52s, verify 0.64s). Differential CONTROL: the passing 0x07 sibling (same session, same configure_eprom) exonerates all shared axes; isolates the 0-bits cause to the 32-pin-only axes (P1-VPP-delivery + pin-31-as-address). VPP routing to pin 1 separately code-confirmed (H2 disproven) \u2192 cause = RC-1 (pin 31 = A18).",
+      "sha256": "d9471636ca34b84f863a666eff6ff6aa4fc44396b2ff11a38e036e54b4b39ee3",
+      "anomalies": "Operator first seated an ST M27C512 (id 0x203d, SGS-Thomson, UV-EPROM, VPP 13V) \u2014 chip-ID check aborted the write (no --force), M27C512 left pristine. Swapped to the intended Winbond W27C512 (id 0xda08, electrically-erasable EEPROM, VPP 12V) = correct reversible control. JP4 open (28-pin); VPP 12.0V."
     }
   ]
 }

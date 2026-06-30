@@ -77,12 +77,12 @@ Op: `differential_control_write` (passing-sibling control, same session/bench, s
 
 | Field | Source | Value |
 |-------|--------|-------|
-| write_image_sha256 | generated test image | TBD-bench |
-| readback_sha256 | post-write read | TBD-bench (== write image if PASS) |
-| vpp_adc_mv | `firestarter vpp` | TBD-bench |
-| dmm_pin1_v | [OP] | TBD-bench |
-| verdict | expect PASS (exonerates unchanged axes) | TBD-bench |
-| anomalies | — | TBD-bench |
+| write_image_sha256 | generated 4KB control image | `d9471636ca34b84f863a666eff6ff6aa4fc44396b2ff11a38e036e54b4b39ee3` |
+| readback_sha256 | post-write read (first-4096) | `d9471636…b39ee3` (**== image → byte-exact**) |
+| vpp_adc_mv | `firestarter vpp` | 12000 (12.0–12.1V; W27C512 target 12.0V) |
+| dmm_pin1_v | [OP] | not measured (proxy tooling-blocked; N/A — 28-pin pin 1 = A15, not VPP) |
+| verdict | expect PASS (exonerates unchanged axes) | **PASS** — write 6.52s + verify 0.64s + readback byte-exact; exonerates all shared axes → cause = RC-1 (32-pin pin-31=A18) |
+| anomalies | — | Operator first seated ST **M27C512** (id 0x203d, UV, 13V) → chip-ID aborted write (pristine); swapped to Winbond **W27C512** (0xda08, EEPROM, 12V) = correct reversible control. JP4 open (28-pin), VPP 12.0V |
 
 ---
 

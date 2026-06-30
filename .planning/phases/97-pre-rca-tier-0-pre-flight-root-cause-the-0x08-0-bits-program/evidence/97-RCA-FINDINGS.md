@@ -3,9 +3,9 @@ artifact: 97-RCA-FINDINGS
 phase: 97-pre-rca-tier-0-pre-flight-root-cause-the-0x08-0-bits-program
 milestone: v1.18 — AM27C020 0x08 Write-Path RCA & Fix
 requirements: [PRE-01, RCA-01, RCA-02, RCA-03, SAFE-01]
-status: SCAFFOLD — bench captures pending Plans 02-03
-recorded: 2026-06-29
-operator_witnessed: false (scaffold; flips true when Plans 02/03 fill the bench data)
+status: COMPLETE — RCA closed; root cause RC-1 named + classified; Phase-98 hand-off set
+recorded: 2026-06-30
+operator_witnessed: true (Plans 02/03 bench session, Leonardo + Rev 2.0, 2026-06-30)
 branch_base: firmware bccd995 (v1.17 tip) · host e0bdea4
 ---
 
@@ -39,7 +39,7 @@ operation. Standing discipline from CONTEXT.md D-08.
 | Plan | Timestamp | Controller identity (`firestarter --version`) | Port | R1 | R2 | Board | Shield | JP4 position + silkscreen meaning | fw commit | Notes |
 |------|-----------|-----------------------------------------------|------|----|----|-------|--------|-----------------------------------|-----------|-------|
 | 02 | 2026-06-30 ~07:29Z | leonardo (fw 3.0.0b10) | /dev/ttyACM0 | 270000 | 44000 | Leonardo | Rev 2.0 | **open** (operator-stated); meaning PENDING (D-08) — fw `info` says 32-pin=**Closed**, **discrepancy flagged** | bccd995 | R1 in-band (203k–338k); VPP adjusted 12.0→13.0V before Task-3 |
-| 03 | TBD | TBD | TBD | TBD (expect 270000) | TBD | Leonardo | Rev 2.0 | TBD — **ASK operator first (D-08)** | TBD | Plan 03 fills |
+| 03 | 2026-06-30 ~09:40Z | leonardo (fw 3.0.0b10) | /dev/ttyACM0 | 270000 | 44000 | Leonardo | Rev 2.0 | **open** (28-pin position for W27C512) | bccd995 | 0x07 control. VPP 12.0V (W27C512 target). First seated ST M27C512 (0x203d/13V/UV) → swapped to Winbond W27C512 (0xda08/12V/EEPROM) |
 
 R1 expected ≈ 270000 ± 25% (Leonardo). `controller:` re-verified per task (ACM ports shuffle). Leonardo is chip-OUT-sideload-EXEMPT. Every program on this UV part is irreversible (no eraser on hand).
 
@@ -109,7 +109,7 @@ Failure Signature Capture Schema (filled by Plan 02 into `EVIDENCE.{md,json}` Ce
 | Pin 1 role | VPP on a different bus line | VPP on socket pin 1 (P1) | YES | 32-pin VPP geometry | — |
 | FLAG_CAN_ERASE | set (EEPROM auto-erase) | 0 (UV — correct) | minor | not erase-related | — |
 
-**Two-axis collapse:** the matrix collapses to **P1-VPP-delivery** + **pin-31-as-address** — both in the 32-pin/`0x08` region, both absent on the passing `0x07` part. **W27C512 differential verdict: TBD — Plan 03 fills.**
+**Two-axis collapse:** the matrix collapses to **P1-VPP-delivery** + **pin-31-as-address** — both in the 32-pin/`0x08` region, both absent on the passing `0x07` part. **W27C512 differential verdict: PASS** — byte-exact `0x07` write→verify→readback (image SHA `d9471636…` matched; write 6.52s, verify 0.64s) on the seated Winbond W27C512 (12.0V VPP, JP4 open, same session/handler). The passing sibling **exonerates every shared axis**; only the two 32-pin axes remain. (Note: operator first seated an ST M27C512 (id `0x203d`, UV, 13V) — chip-ID check aborted the write so it stayed pristine — then swapped to the intended electrically-erasable Winbond W27C512 for a clean reversible control.)
 
 ---
 
@@ -123,11 +123,11 @@ Failure Signature Capture Schema (filled by Plan 02 into `EVIDENCE.{md,json}` Ce
 
 | RC | Hypothesis | CONFIRM if… | EXONERATE (OUT) if… | Method | Gating? | Verdict |
 |----|-----------|-------------|---------------------|--------|---------|---------|
-| **RC-1** | PGM pin 31 modeled as address line, not held program-active | pin 31 DMM reads VIH/floats during held proxy | pin 31 DMM reads ~0V (VIL) AND code shows it driven low at addr0 | Held-rail static proxy (`0x188`) + code-analysis (`memory.cpp:274` + `database.py:141` + `pinouts.json`) | **YES (D-03)** | **TBD — Plan 02/03 fills** |
-| **RC-2** | VPP not reaching pin 1 at 12.5–13.0V during pulse | pin 1 DMM ≈0V/floats while ADC≈13V (routing), OR pin1 <12.5V (pot/level) | pin 1 DMM = 12.5–13.0V steady AND ADC agrees | Held-rail proxy (`0x188`) + DMM pin1 + `firestarter vpp` ADC cross-check | **YES (D-03)** | **TBD — Plan 02/03 fills** |
-| **RC-3** | JP4 (`JMP_VPP_P1_BYPASS`) position wrong for 32-pin VPP-to-pin-1 | toggling JP4 changes pin-1 VPP delivery decisively | neither JP4 position delivers 12.5–13.0V to pin 1 | [OP] toggle JP4 open↔closed, re-DMM pin 1 — **ASK silkscreen meaning first (D-08)** | only if RC-1+RC-2 incomplete | **TBD (conditional)** |
-| **RC-4** | 32-pin high-address / control-bit collision corrupts target | high-address write behaves differently than addr0 | addr0 still 0-bits with pin1=13V AND pin31=VIL | code-analysis (`memory.cpp:184-198` alias `A18==P1_ENABLE` 0x08) + optional high-addr inspect (NOT a second destructive spend) | only if RC-1+RC-2 incomplete | **TBD (conditional)** |
-| **RC-5** | Chip OTP/dead (total silicon block) | (cannot be confirmed pre-fix — D-01 INDETERMINATE) | any bit flips in the Tier-0 micro-probe | the combined micro-probe (PRE-01/RCA-01) | handled via Tier-0; **never triggers deferral pre-fix** | **TBD (INDETERMINATE pre-fix)** |
+| **RC-1** | PGM pin 31 modeled as address line, not held program-active | pin 31 DMM reads VIH/floats during held proxy | pin 31 DMM reads ~0V (VIL) AND code shows it driven low at addr0 | Held-rail static proxy (`0x188`) + code-analysis (`memory.cpp:274` + `database.py:141` + `pinouts.json`) | **YES (D-03)** | **CONFIRMED (leading)** — code + differential + elimination. `database.py:141` `pin_conversions[32][31]=22` → pin 31 modeled as bus-line-22 **address (A18)**, not a held PGM; `memory.cpp:274` strobes **CE only**. The passing 0x07 28-pin sibling (no pin-31 mapping) + **RC-2 exonerated** (VPP reaches pin 1) ⇒ by elimination the 0-bits cause is **pin 31 never asserted program-active**. Direct pin-31 DMM was tooling-blocked ([debug](../../../debug/resolved/held-rail-dev-reg-timeout.md)); verdict rests on code + the 0x07/0x08 differential. |
+| **RC-2** | VPP not reaching pin 1 at 12.5–13.0V during pulse | pin 1 DMM ≈0V/floats while ADC≈13V (routing), OR pin1 <12.5V (pot/level) | pin 1 DMM = 12.5–13.0V steady AND ADC agrees | Held-rail proxy (`0x188`) + DMM pin1 + `firestarter vpp` ADC cross-check | **YES (D-03)** | **EXONERATED** — code + level. `-f 0x188` → physical `CTRL 0x89`, **P1-route asserted** (H2 disproven, [debug](../../../debug/resolved/held-rail-dev-reg-timeout.md)) ⇒ VPP routed to pin 1; level set 13.0V, ADC-confirmed, for the 0x08 attempt. The 0x07 sibling PASS proves regulator+VPE-drop+pulse. (Bench pin-1 DMM tooling-blocked → routing is **code-confirmed, not DMM-confirmed** — the one residual link.) |
+| **RC-3** | JP4 (`JMP_VPP_P1_BYPASS`) position wrong for 32-pin VPP-to-pin-1 | toggling JP4 changes pin-1 VPP delivery decisively | neither JP4 position delivers 12.5–13.0V to pin 1 | [OP] toggle JP4 open↔closed, re-DMM pin 1 — **ASK silkscreen meaning first (D-08)** | only if RC-1+RC-2 incomplete | **Not pursued** — D-03 trigger not met (RC-1 accounts for the symptom). JP4 was set **closed = 32-pin** for the 0x08 attempt per fw `info` guidance, so position was correct. |
+| **RC-4** | 32-pin high-address / control-bit collision corrupts target | high-address write behaves differently than addr0 | addr0 still 0-bits with pin1=13V AND pin31=VIL | code-analysis (`memory.cpp:184-198` alias `A18==P1_ENABLE` 0x08) + optional high-addr inspect (NOT a second destructive spend) | only if RC-1+RC-2 incomplete | **Not pursued** — D-03 trigger not met. The 0x08 firmware alias (`CTRL_VPP_P1_ENABLE_REV2 == CTRL_ADDRESS_LINE_18_REV2 == 0x08`, `rurp_pinout.h:128`) is **dormant at A18=0** (address 0); flagged as a **Phase-98 fix-design** concern, not a separate Phase-97 cause. |
+| **RC-5** | Chip OTP/dead (total silicon block) | (cannot be confirmed pre-fix — D-01 INDETERMINATE) | any bit flips in the Tier-0 micro-probe | the combined micro-probe (PRE-01/RCA-01) | handled via Tier-0; **never triggers deferral pre-fix** | **INDETERMINATE pre-fix** — the one attempt flipped 0 bits (consistent with both broken-path AND OTP). Per D-01/D-06 this **never triggers deferral** (deferral is a Phase-99 verdict only). |
 
 **Conditional trigger (D-03):** pursue RC-3/RC-4 only if, after RC-1 and RC-2 each
 carry a verdict, the resolved pair does **not** fully account for 0-bits. If both
@@ -138,11 +138,27 @@ the firmware physical layout) becomes the leading RC-4 lead.
 
 ### Named Root Cause / Classification
 
-**Named root cause (or ranked hypotheses): TBD — Plans 02/03 fill.**
+**Named root cause (RC-1, CONFIRMED leading):** On the `0x08` EPROM-QUICK 32-pin
+write path, **socket pin 31 is modeled as address line A18** (`DIP32_STD`
+`pin_conversions[32][31]=22`, `database.py:141`) rather than as a **held
+program-active (PGM/control) pin**. The program engine strobes **CE only**
+(`memory.cpp:274`), so the seated AM27C020 receives **VPP correctly at pin 1**
+(RC-2 exonerated: `-f 0x188` → physical `0x89`, P1 asserted; level 13.0V) yet
+**never sees a program-enable on pin 31** → the cell is never programmed →
+**0 bits flipped**. The passing `0x07` 28-pin sibling (no 32-pin pin-31 mapping)
+writes byte-exact in the same session, exonerating every shared axis.
 
-**Classification: TBD** — one of: `firmware-algorithm` / `host-pinout` /
-`vpp-routing` / `addressing` / `silicon`. (RC-1 leading hypothesis is
-`host-pinout`: pin 31 modeled as an address line in `DIP32_STD`.)
+**Classification: `host-pinout` (primary) + `firmware-algorithm` (secondary).**
+The pin-31 mapping lives in the host pinout/DB (`DIP32_STD` + `database.py`); the
+CE-only program-pulse model that assumes no separate PGM assertion is the
+firmware-algorithm half. NOT `vpp-routing` (RC-2 exonerated), NOT `silicon`
+(RC-5 INDETERMINATE, never deferral), NOT `addressing-collision` (RC-4 dormant at
+A18=0).
+
+**Residual (one unmeasured link):** the direct pin-31 DMM was tooling-blocked
+(held-rail proxy DTR-reset bug, [debug](../../../debug/resolved/held-rail-dev-reg-timeout.md));
+RC-1 rests on code + the 0x07/0x08 differential + RC-2 elimination. Phase-98 fix
+validation (byte-exact write after redirecting pin 31) closes it empirically.
 
 ---
 
@@ -237,10 +253,11 @@ dispatch; zero code edits. Recurs as a standing precondition through Phases 98�
 
 ## Phase-98 Hand-Off
 
-> The named root cause (RCA-03) governs the Phase-98 fix surface. **TBD — set when
-> Plans 02/03 deliver the verdict.**
+> The named root cause (RCA-03) governs the Phase-98 fix surface. **Verdict: RC-1
+> (host-pinout + firmware-algorithm) — pin 31 modeled as address line A18, not a
+> held PGM.** Fix surfaces below.
 
-Candidate fix surfaces per the RC ranking (for Phase-98 planning, not a Phase-97
+Fix surfaces per the confirmed RC-1 verdict (for Phase-98 planning, not a Phase-97
 finding):
 
 - **RC-1 (host-pinout, leading):** a dedicated `DIP32_27C020` pinout entry
