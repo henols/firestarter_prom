@@ -282,7 +282,15 @@ Plans:
   3. Any fix that crosses the wire (new pinout entry in `pinouts.json` / `chip_database.json`, or a new flag/field in `firestarter.h` ↔ `constants.py`) is delivered dual-repo lockstep: `diff_db.py` shows only the intended changes, `check_dispatch.py` passes with 0 VPP violations, constants parity test is green (FIX-03).
   4. Host CI is green against the **py3.11** target (ruff check + ruff format --check + mypy + diff_db + check_dispatch), avoiding the py3.12-masks-CI-3.11 trap; over-voltage stays blocked (`vpp_check_window` HIGH→ERROR without FLAG_FORCE) and the host `chip_resolver.resolve_chip` guard is never bypassed (SAFE-01/SAFE-02 hold).
 
-**Plans**: TBD
+**Plans**: 2 plans in 2 waves (planned 2026-06-30; granularity Comprehensive; blind/no-bench — host pinout/DB then firmware PGM-assert; strict host→firmware dependency):
+**Wave 1**
+
+- [ ] 98-01-PLAN.md — RC-1 host-pinout fix: new DIP32_27C020 (pin 31 off the address bus, VPP on pin 1) + size-keyed resolve_pinout_key arm (0x08 ≤256K only; 512K/1M stay DIP32_STD — host D-04 guard) + DB regen + diff_db/check_dispatch on py3.11 *(autonomous; FIX-03, SAFE-02)*
+
+**Wave 2** *(blocked on Wave 1 — reads the DIP32_27C020 bus-config shape)*
+
+- [ ] 98-02-PLAN.md — RC-1 firmware belt: gated deliberate PGM-assert across the per-byte CE pulse + per-byte P1-hold (gate protocol==0x08 && pins==32 && mem_size<=262144 — firmware D-04 belt) + corrected-path/gate-exclusion/mismatch native tests + 0x07/0x0B/chip-id golden byte-identity *(autonomous; FIX-01, FIX-02, SAFE-02)*
+
 **UI hint**: no
 
 ### Phase 99: BENCH + LEDGER — Graduation Gate, Evidence & Ledger Update
