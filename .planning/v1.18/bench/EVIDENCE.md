@@ -22,8 +22,8 @@
 
 | Field | Value |
 |-------|-------|
-| pre_01_result | **TBD-bench** — "writability indeterminate pre-fix" expected (D-01/D-02) |
-| blank_state_sha256 | **TBD-bench** (consistency-check N≥3 byte-identical read; known NOT-BLANK `0x02 @ 0x0000`) |
+| pre_01_result | PRE-01 reads captured 2026-06-30 (oracle N=3 PASS; decode 0x08/0x197 confirmed; NOT-BLANK 0x02@0x0000). Writability verdict = **INDETERMINATE pre-fix**, set by the Task-3 micro-probe (D-01/D-02) |
+| blank_state_sha256 | `90cd45f5343cd938006f20635de39479159c51b9d56c1b6f1fb23075ed567297` (consistency-check N=3 byte-identical; NOT-BLANK `0x02 @ 0x0000`) |
 
 PRE-01's Phase-97 deliverable is **"writability indeterminate pre-fix"** — NOT a
 pass/fail blocker (D-02). The Tier-0 micro-probe and the RCA-01 failure
@@ -37,7 +37,7 @@ and **never triggers deferral** (deferral is a Phase-99 verdict only, D-06).
 
 | Plan | Timestamp | Controller identity | Port | R1 | R2 | Board | Shield | JP4 position + silkscreen meaning | fw commit | Notes |
 |------|-----------|---------------------|------|----|----|-------|--------|-----------------------------------|-----------|-------|
-| 97-02 | TBD-bench | TBD-bench | TBD-bench | TBD-bench (expect 270000) | TBD-bench | Leonardo | Rev 2.0 | TBD-bench (ASK operator first — D-08) | TBD-bench | Plan 02 fills |
+| 97-02 | 2026-06-30 ~07:29Z | leonardo | /dev/ttyACM0 | 270000 | 44000 | Leonardo | Rev 2.0 | **open** (operator-stated); silkscreen meaning PENDING (D-08) — fw `info` says 32-pin=Closed, **discrepancy flagged** | bccd995 (3.0.0b10) | PRE-01 reads done; VPP adjusted 12.0→13.0V before Task-3 (operator) |
 | 97-03 | TBD-bench | TBD-bench | TBD-bench | TBD-bench (expect 270000) | TBD-bench | Leonardo | Rev 2.0 | TBD-bench (ASK operator first — D-08) | TBD-bench | Plan 03 fills |
 
 R1 expected ≈ 270000 ± 25% (Leonardo). `controller:` identity re-verified per task (ACM ports shuffle — D-08). Leonardo is chip-OUT-sideload-EXEMPT.
@@ -53,21 +53,21 @@ Op: `tier0_microprobe+rca01` (the combined single program attempt at `0x000000`)
 | failing_addresses | `firestarter write` stderr (`MSG_ERR_VERIFY`) | TBD-bench |
 | bad_bytes | write output | TBD-bench (v1.15 seed: 15/16) |
 | retries | write output | TBD-bench (v1.15 seed: 20) |
-| bits_flipped | post-attempt consistency-check vs pre-SHA | TBD-bench (0 expected → INDETERMINATE) |
-| vpp_adc_mv | `firestarter vpp` ADC node | TBD-bench |
-| dmm_pin1_v | [OP] held-rail proxy DMM at socket pin 1 | TBD-bench (pass band 12.5–13.0V) |
-| dmm_pin31_v | [OP] held-rail proxy DMM at socket pin 31 | TBD-bench (VIL ≈ 0V expected) |
-| pre_read_sha256 | consistency-check (pre-attempt) | TBD-bench |
-| post_read_sha256 | consistency-check (post-attempt) | TBD-bench (== pre if pristine) |
-| controller | `firestarter --version` / `hw` | TBD-bench |
-| port | `firestarter hw` | TBD-bench |
-| r1_readback | `firestarter hw` | TBD-bench |
-| r2_readback | `firestarter hw` | TBD-bench |
-| fw_commit | `git -C firestarter rev-parse HEAD` | TBD-bench |
-| jp4_position | [OP] | TBD-bench |
-| jp4_silkscreen_meaning | [OP] — ASK first (D-08) | TBD-bench |
-| verdict | RCA synthesis | TBD-bench |
-| anomalies | — | TBD-bench |
+| bits_flipped | post-attempt consistency-check vs pre-SHA | TBD-bench (Task-3; 0 expected → INDETERMINATE) |
+| vpp_adc_mv | `firestarter vpp` ADC node | baseline 12000 (as-found); adjusted to **13000** before Task-3; during-attempt value = Task-3 |
+| dmm_pin1_v | [OP] held-rail proxy DMM at socket pin 1 | TBD-bench (Task-3; pass band 12.5–13.0V) |
+| dmm_pin31_v | [OP] held-rail proxy DMM at socket pin 31 | TBD-bench (Task-3; VIL ≈ 0V expected) |
+| pre_read_sha256 | consistency-check (pre-attempt) | `90cd45f5343cd938006f20635de39479159c51b9d56c1b6f1fb23075ed567297` |
+| post_read_sha256 | consistency-check (post-attempt) | TBD-bench (Task-3; == pre if pristine) |
+| controller | `firestarter fw` / `hw` | leonardo |
+| port | `firestarter fw` | /dev/ttyACM0 |
+| r1_readback | `firestarter config` | 270000 |
+| r2_readback | `firestarter config` | 44000 |
+| fw_commit | `git -C firestarter rev-parse HEAD` | bccd995 (fw 3.0.0b10) |
+| jp4_position | [OP] | open (operator-stated 2026-06-30) |
+| jp4_silkscreen_meaning | [OP] — ASK first (D-08) | PENDING — fw `info` says 32-pin=Closed; operator has OPEN → discrepancy flagged, resolve before Task-3 |
+| verdict | RCA synthesis | TBD-bench (Task-3) |
+| anomalies | — | VPP as-found 12.0V (below band) → operator set 13.0V; VPE then 15.1V (shares regulator); decode pin 31 = A18 (RC-1 premise) |
 
 ---
 

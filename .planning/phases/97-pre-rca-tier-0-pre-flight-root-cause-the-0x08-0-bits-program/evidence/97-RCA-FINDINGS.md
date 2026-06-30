@@ -38,7 +38,7 @@ operation. Standing discipline from CONTEXT.md D-08.
 
 | Plan | Timestamp | Controller identity (`firestarter --version`) | Port | R1 | R2 | Board | Shield | JP4 position + silkscreen meaning | fw commit | Notes |
 |------|-----------|-----------------------------------------------|------|----|----|-------|--------|-----------------------------------|-----------|-------|
-| 02 | TBD | TBD | TBD | TBD (expect 270000) | TBD | Leonardo | Rev 2.0 | TBD — **ASK operator first (D-08)** | TBD | Plan 02 fills |
+| 02 | 2026-06-30 ~07:29Z | leonardo (fw 3.0.0b10) | /dev/ttyACM0 | 270000 | 44000 | Leonardo | Rev 2.0 | **open** (operator-stated); meaning PENDING (D-08) — fw `info` says 32-pin=**Closed**, **discrepancy flagged** | bccd995 | R1 in-band (203k–338k); VPP adjusted 12.0→13.0V before Task-3 |
 | 03 | TBD | TBD | TBD | TBD (expect 270000) | TBD | Leonardo | Rev 2.0 | TBD — **ASK operator first (D-08)** | TBD | Plan 03 fills |
 
 R1 expected ≈ 270000 ± 25% (Leonardo). `controller:` re-verified per task (ACM ports shuffle). Leonardo is chip-OUT-sideload-EXEMPT. Every program on this UV part is irreversible (no eraser on hand).
@@ -53,10 +53,12 @@ R1 expected ≈ 270000 ± 25% (Leonardo). `controller:` re-verified per task (AC
 
 | Item | Method | Result |
 |------|--------|--------|
-| Read oracle stable (N≥3 byte-identical) | `firestarter dev consistency-check AM27C020 --runs 3` | TBD — Plan 02 fills |
-| Blank-state SHA256 | consistency-check (known NOT-BLANK `0x02 @ 0x0000`) | TBD — Plan 02 fills |
-| Identity / protocol decode confirmed | `firestarter info AM27C020` (UV-EPROM, DIP32, 0x40000, VPP 13.0V, protocol 0x08, chip-id 0x00000197) | TBD — Plan 02 fills |
-| Micro-probe attempt result | combined Tier-0 probe = RCA-01 program attempt at `0x000000` (ONE attempt, D-01) | TBD — Plan 02 fills |
+| Read oracle stable (N≥3 byte-identical) | `firestarter dev consistency-check AM27C020 --runs 3` | **PASS** — 3/3 byte-identical, distinct SHAs = 1 (each run 262144 B, ~43s) |
+| Blank-state SHA256 | consistency-check (known NOT-BLANK `0x02 @ 0x0000`) | `90cd45f5343cd938006f20635de39479159c51b9d56c1b6f1fb23075ed567297` |
+| Identity / protocol decode confirmed | `firestarter info AM27C020` | **CONFIRMED** — UV-EPROM, DIP32, 0x40000, VPP 13.0V, protocol **0x08**, chip-id **0x197**. ⚠ pinout shows **pin 31 = A18** (RC-1 premise); fw jumper guidance **32-pin = JP4 Closed** (operator has open) |
+| Blank check | `firestarter blank AM27C020` | **NOT-BLANK** @ `0x000000` = `0x02` (matches v1.15) |
+| Baseline rails (RCA-01 instrumentation) | `firestarter vpp` / `vpe` | as-found VPP **12.0V** (below 12.5–13.0V band) → operator set **13.0V**; VPE 13.8V→**15.1V** (shares regulator) |
+| Micro-probe attempt result | combined Tier-0 probe = RCA-01 program attempt at `0x000000` (ONE attempt, D-01) | TBD — Plan 02 Task-3 (pending JP4 decision) |
 
 **Framing (D-01/D-02):** the Tier-0 micro-probe and the RCA-01 reproduction are
 the **same single bench action** — one `1→0` program attempt at `0x000000` on the
