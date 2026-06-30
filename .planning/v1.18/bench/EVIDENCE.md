@@ -50,15 +50,15 @@ Op: `tier0_microprobe+rca01` (the combined single program attempt at `0x000000`)
 
 | Field (Failure Signature Capture Schema) | Source | Value |
 |------------------------------------------|--------|-------|
-| failing_addresses | `firestarter write` stderr (`MSG_ERR_VERIFY`) | TBD-bench |
-| bad_bytes | write output | TBD-bench (v1.15 seed: 15/16) |
-| retries | write output | TBD-bench (v1.15 seed: 20) |
-| bits_flipped | post-attempt consistency-check vs pre-SHA | TBD-bench (Task-3; 0 expected → INDETERMINATE) |
+| failing_addresses | `firestarter write` stderr (`MSG_ERR_VERIFY`) | **0x000000** |
+| bad_bytes | write output | **1/1** |
+| retries | write output | **20** (matches v1.15 seed) |
+| bits_flipped | post-attempt consistency-check vs pre-SHA | **0** → writability INDETERMINATE pre-fix (D-01/D-02) |
 | vpp_adc_mv | `firestarter vpp` ADC node | baseline 12000 (as-found); adjusted to **13000** before Task-3; during-attempt value = Task-3 |
-| dmm_pin1_v | [OP] held-rail proxy DMM at socket pin 1 | TBD-bench (Task-3; pass band 12.5–13.0V) |
-| dmm_pin31_v | [OP] held-rail proxy DMM at socket pin 31 | TBD-bench (Task-3; VIL ≈ 0V expected) |
+| dmm_pin1_v | [OP] held-rail proxy DMM at socket pin 1 | **not measured** — held-rail proxy blocked by DTR-reset-on-close tooling bug (debug: held-rail-dev-reg-timeout, H1). VPP→pin-1 routing **confirmed by code** (-f 0x188 → physical 0x89, P1 asserted; H2 disproven) |
+| dmm_pin31_v | [OP] held-rail proxy DMM at socket pin 31 | **not measured** — same tooling block; pin-31 = A18 mapping confirmed by `info` decode (RC-1) |
 | pre_read_sha256 | consistency-check (pre-attempt) | `90cd45f5343cd938006f20635de39479159c51b9d56c1b6f1fb23075ed567297` |
-| post_read_sha256 | consistency-check (post-attempt) | TBD-bench (Task-3; == pre if pristine) |
+| post_read_sha256 | consistency-check (post-attempt) | `90cd45f5343cd938006f20635de39479159c51b9d56c1b6f1fb23075ed567297` (**== pre → chip pristine**) |
 | controller | `firestarter fw` / `hw` | leonardo |
 | port | `firestarter fw` | /dev/ttyACM0 |
 | r1_readback | `firestarter config` | 270000 |
@@ -66,8 +66,8 @@ Op: `tier0_microprobe+rca01` (the combined single program attempt at `0x000000`)
 | fw_commit | `git -C firestarter rev-parse HEAD` | bccd995 (fw 3.0.0b10) |
 | jp4_position | [OP] | open (operator-stated 2026-06-30) |
 | jp4_silkscreen_meaning | [OP] — ASK first (D-08) | PENDING — fw `info` says 32-pin=Closed; operator has OPEN → discrepancy flagged, resolve before Task-3 |
-| verdict | RCA synthesis | TBD-bench (Task-3) |
-| anomalies | — | VPP as-found 12.0V (below band) → operator set 13.0V; VPE then 15.1V (shares regulator); decode pin 31 = A18 (RC-1 premise) |
+| verdict | RCA synthesis | **RCA-01 REPRODUCED** — 0x08 writes 0 bits @ 0x000000 (1/1 bad, retries 20) at VPP=13.0V + JP4 **closed**; chip pristine. Writability INDETERMINATE. Confounds (VPP-level, JP4) exonerated → cause = RC-1 (pin31=A18) / RC-2-routing |
+| anomalies | — | VPP as-found 12.0V→13.0V (operator); VPE 13.8→15.1V; pin 31 = A18 (RC-1); flags=0x08 SkipBlankCheck only (SAFE-01 intact); `-b` used (chip non-blank — justified deviation, Phase-92 decouple = blank-check skip only) |
 
 ---
 

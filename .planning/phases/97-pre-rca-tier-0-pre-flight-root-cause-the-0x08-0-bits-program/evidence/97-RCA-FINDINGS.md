@@ -58,7 +58,7 @@ R1 expected ≈ 270000 ± 25% (Leonardo). `controller:` re-verified per task (AC
 | Identity / protocol decode confirmed | `firestarter info AM27C020` | **CONFIRMED** — UV-EPROM, DIP32, 0x40000, VPP 13.0V, protocol **0x08**, chip-id **0x197**. ⚠ pinout shows **pin 31 = A18** (RC-1 premise); fw jumper guidance **32-pin = JP4 Closed** (operator has open) |
 | Blank check | `firestarter blank AM27C020` | **NOT-BLANK** @ `0x000000` = `0x02` (matches v1.15) |
 | Baseline rails (RCA-01 instrumentation) | `firestarter vpp` / `vpe` | as-found VPP **12.0V** (below 12.5–13.0V band) → operator set **13.0V**; VPE 13.8V→**15.1V** (shares regulator) |
-| Micro-probe attempt result | combined Tier-0 probe = RCA-01 program attempt at `0x000000` (ONE attempt, D-01) | TBD — Plan 02 Task-3 (pending JP4 decision) |
+| Micro-probe attempt result | combined Tier-0 probe = RCA-01 program attempt at `0x000000` (ONE attempt, D-01) | **DONE** — `write -b` (blank-check skip only; chip non-blank), 0 bits flipped, chip pristine → **writability INDETERMINATE pre-fix** (NOT OTP; no deferral). Exactly one irreversible attempt spent; SAFE-01 held (flags=0x08, no FLAG_FORCE) |
 
 **Framing (D-01/D-02):** the Tier-0 micro-probe and the RCA-01 reproduction are
 the **same single bench action** — one `1→0` program attempt at `0x000000` on the
@@ -76,15 +76,15 @@ Failure Signature Capture Schema (filled by Plan 02 into `EVIDENCE.{md,json}` Ce
 
 | Field | Value |
 |-------|-------|
-| failing address(es) / bytes | TBD — Plan 02 fills |
-| bad bytes / retries | TBD — Plan 02 fills (v1.15 seed: `bad bytes 15/16, retries 20`) |
-| bits flipped | TBD — Plan 02 fills (0 expected → INDETERMINATE) |
-| VPP ADC readback | TBD — Plan 02 fills |
-| DMM pin 1 (held proxy) | TBD — Plan 02 fills (pass band 12.5–13.0V) |
-| DMM pin 31 (held proxy) | TBD — Plan 02 fills (VIL ≈ 0V expected by code) |
-| pre/post read SHA256 | TBD — Plan 02 fills (identical if chip pristine) |
-| controller / port / R1R2 / fw commit | TBD — Plan 02 fills |
-| JP4 position + silkscreen meaning | TBD — Plan 02 fills (ASK first, D-08) |
+| failing address(es) / bytes | **0x000000** (byte stays `0x02`, target `0x00`) |
+| bad bytes / retries | **1/1, retries 20** (`ERROR: Failed to write memory, 0x000000, retries: 20, bad bytes: 1`; retries matches v1.15 seed) |
+| bits flipped | **0** → writability INDETERMINATE pre-fix (D-01/D-02; NOT OTP, no deferral) |
+| VPP ADC readback | **13.0V** (operator-set; confirmed immediately pre-attempt) |
+| DMM pin 1 (held proxy) | **not measured** — held-rail proxy blocked by DTR-reset-on-close tooling bug ([debug: held-rail-dev-reg-timeout](../../../debug/resolved/held-rail-dev-reg-timeout.md), H1 confirmed). Routing **confirmed by code RCA** instead: `-f 0x188` → physical `CTRL 0x89`, P1-route asserted on Rev 2.0 (H2 disproven) — VPP **does** reach pin 1 |
+| DMM pin 31 (held proxy) | **not measured** — same tooling block; pin 31 = **A18** confirmed by `firestarter info` pinout decode (RC-1 premise) |
+| pre/post read SHA256 | `90cd45f5…ed567297` **== identical → chip pristine** (N=3 both before and after) |
+| controller / port / R1R2 / fw commit | leonardo / /dev/ttyACM0 / R1 270000 R2 44000 / bccd995 |
+| JP4 position + silkscreen meaning | **closed** for the attempt (operator moved open→closed, matching fw `info` 32-pin=Closed); silkscreen meaning still PENDING (D-08) |
 
 > A3 (MEDIUM risk): the v1.15 `bad bytes 15/16, retries 20` signature is re-captured
 > on the current fw tip `bccd995` rather than cited as current; the write path is
@@ -168,8 +168,23 @@ the firmware physical layout) becomes the leading RC-4 lead.
 
 ```
 CTRL = 0x080 | 0x100 | 0x008 = 0x188   (regulator + VPE-drop + P1-route)
-firestarter dev reg 0 0 0x188 -f       [ASSUMED — confirm at first bench reading, A1]
+firestarter dev reg 0 0 0x188 -f       [A1 RESOLVED by code RCA — see note below]
 ```
+
+> **A1 RESOLVED (2026-06-30, NOT by bench reading — by code decode).** The bench
+> held-rail DMM read was **blocked** by a tooling bug: `dev reg … -f` sets the rail
+> but `expect_ack()` times out (firmware busy-waits on the user button, UART down)
+> and the host `finally: _disconnect_programmer()` closes the port → pyserial
+> de-asserts DTR → **resets the Leonardo** → the `74HC573` latch zeroes → pin 1
+> drops to ~0V before it can be measured. Full RCA + non-invasive `hold_rail.py`
+> workaround + Phase-98 fix in
+> [debug/resolved/held-rail-dev-reg-timeout.md](../../../debug/resolved/held-rail-dev-reg-timeout.md).
+> The decisive question the proxy was for — *does `0x188` route VPP to pin 1?* — was
+> instead answered by code: `0x188` → `rurp_map_ctrl_reg_for_hardware_revision`
+> (REVISION_2_0) → physical **`CTRL 0x89` = REGULATOR + P1 + VPE_DROP_REV2**; the
+> `CTRL_VPP_P1_ENABLE_REV2 == CTRL_ADDRESS_LINE_18_REV2` alias is NOT triggered (A18
+> input bit `0x20` unset). **P1-route IS asserted → VPP reaches pin 1** (RC-2-routing
+> exonerated by code; H2 disproven).
 
 - `MSB=0 LSB=0` → address `0x0000` (all address lines low, matching the failing
   address; pin 31 = bus line 22 = A18 = 0).
