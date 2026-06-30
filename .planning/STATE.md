@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.18
 milestone_name: — AM27C020 0x08 Write-Path RCA & Fix
 status: executing
-last_updated: "2026-06-30T15:00:00.000Z"
-last_activity: 2026-06-30 -- Phase 98 Plan 01 complete (DIP32_27C020 pinout + DB regen + SAFE-02 gate)
+last_updated: "2026-06-30T14:36:00.000Z"
+last_activity: 2026-06-30 -- Phase 98 Plan 02 complete (firmware PGM hold-LOW + native tests + golden discipline; A5 confirmed)
 progress:
   total_phases: 7
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 13
-  completed_plans: 12
-  percent: 46
+  completed_plans: 13
+  percent: 54
 ---
 
 # Project State
@@ -20,11 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: 98 (fix-correct-the-0x08-32-pin-write-vpp-path) — EXECUTING
-Plan: 2 of 2
-Status: Plan 01 complete; Plan 02 (firmware PGM-assert) ready to execute
-Next: Phase 98 Plan 02 — firmware PGM-assert branch (memory_set_data hold-LOW for 0x08 ≤256K)
-Last activity: 2026-06-30 -- Phase 98 Plan 01 complete (DIP32_27C020 pinout + DB regen + SAFE-02 gate)
+Phase: 98 (fix-correct-the-0x08-32-pin-write-vpp-path) — COMPLETE
+Plan: 2 of 2 (both plans complete)
+Status: Phase 98 complete; Phase 99 (BENCH + LEDGER) next
+Next: Phase 99 — byte-exact write→verify bench gate (Leonardo + Rev 2.0, AM27C020)
+Last activity: 2026-06-30 -- Phase 98 Plan 02 complete (firmware PGM hold-LOW + native tests + golden discipline; A5 confirmed)
 
 ## Project Reference
 
@@ -115,3 +115,6 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase 98 Plan 01]: Q1 RESOLVED — static-high-pins RULED OUT as PGM vehicle (static_high_mask drives HIGH; PGM=VIL); DIP32_27C020 takes pin 31 off address bus only; PGM-assert is Plan 02 firmware branch (memory_set_data hold-LOW)
 - [Phase 98 Plan 01]: D-04 host-side alias guard — size gate (mem_size<=262144) structurally excludes 512K AM27C040 / 1M AM27C080 from DIP32_27C020; both stay DIP32_STD
 - [Phase 98 Plan 01]: Blast radius 88 chips accepted (entire ≤256K 0x08 32-pin class); architectural correctness is class-wide (A18 unused at ≤256K); LOW-7: baseline git diff is the audited artifact
+- [Phase 98 Plan 02]: A5 CONFIRMED — 0x08 golden trace byte-identical post-fix; test_golden_eprom_0x08_write uses pins=0 (default), gate fails, PGM-hold branch does not fire; no re-bless needed
+- [Phase 98 Plan 02]: MED-5 verified no-op — per-buffer P1-hold in program_mismatched_bytes already spans every per-byte CE pulse; no redundant per-byte P1 churn added; new code only asserts CTRL_ADDRESS_LINE_18 hold-LOW (distinct from P1 VPP routing)
+- [Phase 98 Plan 02]: HIGH-1 blind-fix honesty — addr-0 register state byte-unchanged under RC-1; Phase 99 is sole empirical gate; no over-claim that bits flip on silicon

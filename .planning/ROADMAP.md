@@ -289,7 +289,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 — reads the DIP32_27C020 bus-config shape)*
 
-- [ ] 98-02-PLAN.md — RC-1 firmware belt: gated deliberate PGM-assert across the per-byte CE pulse + per-byte P1-hold (gate protocol==0x08 && pins==32 && mem_size<=262144 — firmware D-04 belt) + corrected-path/gate-exclusion/mismatch native tests + 0x07/0x0B/chip-id golden byte-identity *(autonomous; FIX-01, FIX-02, SAFE-02)*
+- [x] 98-02-PLAN.md — RC-1 firmware belt: gated deliberate PGM-assert across the per-byte CE pulse + per-byte P1-hold (gate protocol==0x08 && pins==32 && mem_size<=262144 — firmware D-04 belt) + corrected-path/gate-exclusion/mismatch native tests + 0x07/0x0B/chip-id golden byte-identity *(autonomous; FIX-01, FIX-02, SAFE-02)*
 
 **UI hint**: no
 
