@@ -4,7 +4,7 @@ milestone: v1.18
 milestone_name: — AM27C020 0x08 Write-Path RCA & Fix
 status: executing
 last_updated: "2026-06-30T14:36:00.000Z"
-last_activity: 2026-06-30 -- Phase 98 Plan 02 complete (firmware PGM hold-LOW + native tests + golden discipline; A5 confirmed)
+last_activity: 2026-06-30 -- Phase 98 HELD: both plans executed + native-green, but code review CR-01 (BLOCKER) found the firmware PGM hold-LOW is a physical no-op on Rev 2.x (pin-31 control bit OR-aliased to VPP-P1 held HIGH). Operator investigating Rev-2 schematic before completion.
 progress:
   total_phases: 7
   completed_phases: 4
@@ -20,11 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: 98 (fix-correct-the-0x08-32-pin-write-vpp-path) — COMPLETE
-Plan: 2 of 2 (both plans complete)
-Status: Phase 98 complete; Phase 99 (BENCH + LEDGER) next
-Next: Phase 99 — byte-exact write→verify bench gate (Leonardo + Rev 2.0, AM27C020)
-Last activity: 2026-06-30 -- Phase 98 Plan 02 complete (firmware PGM hold-LOW + native tests + golden discipline; A5 confirmed)
+Phase: 98 (fix-correct-the-0x08-32-pin-write-vpp-path) — HELD (executed, NOT verified/complete)
+Plan: 2 of 2 (both plans executed + committed; native suite 117/117 green)
+Status: Phase 98 ON HOLD — code review CR-01 (BLOCKER) found the firmware PGM=VIL hold-LOW is a physical NO-OP on Rev 2.x. On Rev 2, pin-31's control bit is OR-aliased to CTRL_VPP_P1_ENABLE (both == phys 0x08), which is held HIGH for VPP across the whole program window, so `clear(logical A18)` cannot pull the shared physical bit LOW. Fix is correct on Rev 0/1 only. WR-01: native tests assert on the LOGICAL register and never run the Rev-2 remap → passed green-by-construction. See 98-REVIEW.md.
+Next: OPERATOR — confirm against the Rev-2 schematic whether pin 31 / PGM truly shares the P1 output node. If yes, the register-clear approach can't deliver VIL while VPP-on-P1 is active and the fix needs rethinking (dedicated PGM strobe, or sequence PGM outside the P1-high window). Then /gsd-plan-phase 98 --gaps (CR-01 fix + a Rev-2-physical native test that runs rurp_map_ctrl_reg_for_hardware_revision). Phase 99 bench spend is gated behind this.
+Last activity: 2026-06-30 -- Phase 98 HELD on CR-01 (see frontmatter)
 
 ## Project Reference
 
