@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.18
 milestone_name: — AM27C020 0x08 Write-Path RCA & Fix
 status: executing
-last_updated: "2026-06-30T09:45:00.000Z"
-last_activity: 2026-06-30 -- Phase 97 Plan 03 complete; ALL 3 plans done (RCA CLOSED: 0x07 W27C512 differential PASS exonerates shared axes; root cause RC-1 = pin 31 modeled as A18 not held PGM; host-pinout+firmware-algorithm; Phase-98 hand-off = DIP32_27C020 pin-31-as-PGM redirect)
+last_updated: "2026-06-30T09:50:00.000Z"
+last_activity: 2026-06-30 -- Phase 97 COMPLETE + VERIFIED (PASS-WITH-CONCERNS, 5/5 must-haves; all 4 gates green). RCA CLOSED: root cause RC-1 = pin 31 modeled as A18 not held PGM (host-pinout+firmware-algorithm); Phase-98 hand-off = DIP32_27C020 pin-31-as-PGM redirect
 progress:
   total_phases: 7
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 11
   completed_plans: 11
-  percent: 29
+  percent: 43
 ---
 
 # Project State
@@ -20,10 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: 97 (pre-rca-tier-0-pre-flight-root-cause-the-0x08-0-bits-program) — ALL PLANS COMPLETE (verification pending)
-Plan: 3 of 3 complete (97-01 scaffold, 97-02 PRE-01+RCA-01, 97-03 RCA-02+RCA-03)
+Phase: 97 (pre-rca-tier-0-pre-flight-root-cause-the-0x08-0-bits-program) — ✅ COMPLETE + VERIFIED
+Plan: 3 of 3 complete (97-01 scaffold, 97-02 PRE-01+RCA-01, 97-03 RCA-02+RCA-03); verifier PASS-WITH-CONCERNS (5/5, INFO-only cleanups done)
 Status: RCA CLOSED — root cause RC-1 (pin 31 = A18, not held PGM); classification host-pinout + firmware-algorithm; Phase-98 fix surfaces handed off (DIP32_27C020 pin-31-as-PGM redirect, scoped to 0x08-UV-32-pin)
-Last activity: 2026-06-30 -- Phase 97 Plan 03 complete (0x07 W27C512 differential PASS exonerates shared axes; RC-1 CONFIRMED + RC-2 EXONERATED)
+Next: Phase 98 (FIX) — correct the 0x08 32-pin write/VPP path per the RC-1 verdict
+Last activity: 2026-06-30 -- Phase 97 COMPLETE + VERIFIED (RCA closed, RC-1 named); ready for Phase 98
 
 ## Project Reference
 

@@ -6,13 +6,12 @@
 **Board / Shield (LOCKED):** Leonardo + RURP Rev 2.0
 **Branch base:** firmware `bccd995` (v1.17 tip) · host `e0bdea4`
 
-> **STATUS: SCAFFOLD (Wave-1, Plan 97-01).** This record is seeded with
-> schema-correct, **NEVER-fabricated** cells mirroring `EVIDENCE.json`. Cell A
-> (AM27C020 / `0x08`) is filled by **Plan 97-02** (combined Tier-0 micro-probe +
-> RCA-01 reproduction); Cell B (W27C512 / `0x07`) is filled by **Plan 97-03**
-> (differential control write). Every measured field below is a `TBD-bench`
-> placeholder. Per **D-02** the Tier-0 0-bit-flip is **INDETERMINATE pre-fix** and
-> is **never fabricated**; per **D-01** a 0-flip never triggers deferral.
+> **STATUS: COMPLETE (Plans 97-02/03, 2026-06-30).** **NEVER-fabricated** cells,
+> mirroring `EVIDENCE.json`. Cell A (AM27C020 / `0x08`) = the reproduced 0-bits
+> signature (Plan 97-02); Cell B (W27C512 / `0x07`) = the byte-exact
+> differential-control PASS (Plan 97-03). Per **D-02** the Tier-0 0-bit-flip is
+> **INDETERMINATE pre-fix** and is **never fabricated** (tooling-blocked DMM reads
+> recorded "not measured"); per **D-01** a 0-flip never triggers deferral.
 > Schema reuses the v1.15 `EVIDENCE.{md,json}` cell shape so Phase 99 + the
 > PROTOCOL-LEDGER consume the same format ("Don't Hand-Roll" §EVIDENCE format).
 
@@ -38,7 +37,7 @@ and **never triggers deferral** (deferral is a Phase-99 verdict only, D-06).
 | Plan | Timestamp | Controller identity | Port | R1 | R2 | Board | Shield | JP4 position + silkscreen meaning | fw commit | Notes |
 |------|-----------|---------------------|------|----|----|-------|--------|-----------------------------------|-----------|-------|
 | 97-02 | 2026-06-30 ~07:29Z | leonardo | /dev/ttyACM0 | 270000 | 44000 | Leonardo | Rev 2.0 | **open** (operator-stated); silkscreen meaning PENDING (D-08) — fw `info` says 32-pin=Closed, **discrepancy flagged** | bccd995 (3.0.0b10) | PRE-01 reads done; VPP adjusted 12.0→13.0V before Task-3 (operator) |
-| 97-03 | TBD-bench | TBD-bench | TBD-bench | TBD-bench (expect 270000) | TBD-bench | Leonardo | Rev 2.0 | TBD-bench (ASK operator first — D-08) | TBD-bench | Plan 03 fills |
+| 97-03 | 2026-06-30 ~09:40Z | leonardo | /dev/ttyACM0 | 270000 | 44000 | Leonardo | Rev 2.0 | **open** (28-pin position for W27C512) | bccd995 | 0x07 control; VPP 12.0V (W27C512 target). First seated ST M27C512 (0x203d/13V/UV) → swapped to Winbond W27C512 (0xda08/12V/EEPROM) |
 
 R1 expected ≈ 270000 ± 25% (Leonardo). `controller:` identity re-verified per task (ACM ports shuffle — D-08). Leonardo is chip-OUT-sideload-EXEMPT.
 

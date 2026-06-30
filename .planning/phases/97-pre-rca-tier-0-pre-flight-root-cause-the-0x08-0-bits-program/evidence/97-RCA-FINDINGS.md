@@ -26,8 +26,9 @@ branch_base: firmware bccd995 (v1.17 tip) · host e0bdea4
 > **SAFE-01:** confirmed non-invasively in [SAFE-01-PREFLIGHT.md](SAFE-01-PREFLIGHT.md)
 > (over-voltage ERROR path intact, host guard never bypassed; read-only).
 >
-> **STATUS: SCAFFOLD (Wave-1, Plan 97-01).** All bench data below is marked
-> **TBD — Plan 02/03 fills**; per **D-02** nothing here is fabricated.
+> **STATUS: COMPLETE (Plans 02–03, 2026-06-30).** All bench data below is filled
+> from real captures; per **D-02** nothing here is fabricated (tooling-blocked
+> measurements are recorded "not measured", never guessed).
 
 ---
 
@@ -96,7 +97,7 @@ Failure Signature Capture Schema (filled by Plan 02 into `EVIDENCE.{md,json}` Ce
 
 > Method: same bench, same session, same `configure_eprom()` handler; vary only the
 > named axis; the passing W27C512 (`0x07`) exonerates the unchanged axes (v1.17
-> 2×N method). Verdicts TBD — Plan 03 fills.
+> 2×N method). Verdicts recorded below (W27C512 0x07 control = PASS).
 
 | Axis | 0x07 W27C512 (PASS) | 0x08 AM27C020 (0-bits) | Differs? | How 0x07 exonerates | Verified anchor |
 |------|---------------------|------------------------|----------|---------------------|-----------------|

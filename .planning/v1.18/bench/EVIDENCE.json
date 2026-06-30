@@ -4,7 +4,7 @@
   "phase": "97-pre-rca-tier-0-pre-flight-root-cause-the-0x08-0-bits-program",
   "board": "leonardo",
   "shield": "Rev 2.0",
-  "note": "SCAFFOLD \u2014 Wave-1 (Plan 97-01) seeds this record with schema-correct, NEVER-fabricated cells. Cell A (AM27C020 / 0x08) is filled by Plan 97-02 (the combined Tier-0 micro-probe + RCA-01 reproduction). Cell B (W27C512 / 0x07) is filled by Plan 97-03 (the differential control write). All measured fields are 'TBD-bench' placeholders; per D-02 a 0-bit-flip is INDETERMINATE pre-fix and never fabricated. Reuses the v1.15 EVIDENCE.{md,json} cell schema (locked_columns + per-cell keys) so Phase 99 + the PROTOCOL-LEDGER consume the same shape.",
+  "note": "COMPLETE (Plans 97-02/03, 2026-06-30). Cell A (AM27C020 / 0x08) = reproduced 0-bits signature (bad 1/1, retries 20, 0 bits flipped, chip pristine). Cell B (W27C512 / 0x07) = byte-exact differential-control PASS. Per D-02 nothing fabricated; tooling-blocked DMM reads recorded 'not measured'. Reuses the v1.15 EVIDENCE.{md,json} cell schema so Phase 99 + the PROTOCOL-LEDGER consume the same shape.",
   "branch_base": "firmware bccd995 (v1.17 tip) / host e0bdea4",
   "locked_columns": [
     "chip",
@@ -44,7 +44,7 @@
       "jp4_position": "open (operator-stated 2026-06-30)",
       "jp4_silkscreen_meaning": "PENDING operator (D-08). Firmware `info` jumper guidance: 32-pin = CLOSED; operator has JP4 OPEN \u2014 discrepancy flagged, to be resolved before the Task-3 attempt.",
       "verdict": "RCA-01 REPRODUCED \u2014 0x08 write programs 0 bits at 0x000000 (bad bytes 1/1, retries 20) even with VPP=13.0V + JP4 closed (correct rig); chip pristine (post==pre SHA). Writability INDETERMINATE pre-fix. Confounds exonerated: VPP-level (was 12.0\u219213.0V) and JP4 position (open\u2192closed). Cause sharpened to RC-1 (pin31=A18) / RC-2-routing. dmm_pin1/pin31 = decisive next measurement.",
-      "sha256": "TBD-bench",
+      "sha256": "n/a \u2014 0 bits programmed (no resultant image); see pre_read_sha256/post_read_sha256 (identical \u2192 pristine)",
       "anomalies": "VPP as-found 12.0V (below band) \u2192 operator set 13.0V before attempt; VPE then 15.1V. Decode pin 31 = A18 (RC-1 premise). flags=0x08 SkipBlankCheck only (no FLAG_FORCE) \u2014 SAFE-01 intact. -b required because chip non-blank (0x02@0x0000); plain write aborts at blank-check (justified deviation from literal 'no -b' must-have; Phase-92 decouple means -b skips ONLY blank-check, not erase)."
     },
     {
