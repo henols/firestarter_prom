@@ -4,7 +4,7 @@ milestone: v1.18
 milestone_name: — AM27C020 0x08 Write-Path RCA & Fix
 status: executing
 last_updated: "2026-06-30T09:50:00.000Z"
-last_activity: 2026-06-30 -- Phase 97 COMPLETE + VERIFIED (PASS-WITH-CONCERNS, 5/5 must-haves; all 4 gates green). RCA CLOSED: root cause RC-1 = pin 31 modeled as A18 not held PGM (host-pinout+firmware-algorithm); Phase-98 hand-off = DIP32_27C020 pin-31-as-PGM redirect
+last_activity: 2026-06-30 -- Phase 98 CONTEXT gathered. Belt-and-suspenders 0x08 fix: new DIP32_27C020 pinout class (pin 31->PGM) + firmware deliberate PGM-assert across CE pulse; DB/pinout-only preferred; Rev2 P1==A18 alias guarded; blind/no-bench (Phase 99 = silicon gate). Ready for /gsd-plan-phase 98
 progress:
   total_phases: 7
   completed_phases: 3
@@ -23,8 +23,8 @@ progress:
 Phase: 97 (pre-rca-tier-0-pre-flight-root-cause-the-0x08-0-bits-program) — ✅ COMPLETE + VERIFIED
 Plan: 3 of 3 complete (97-01 scaffold, 97-02 PRE-01+RCA-01, 97-03 RCA-02+RCA-03); verifier PASS-WITH-CONCERNS (5/5, INFO-only cleanups done)
 Status: RCA CLOSED — root cause RC-1 (pin 31 = A18, not held PGM); classification host-pinout + firmware-algorithm; Phase-98 fix surfaces handed off (DIP32_27C020 pin-31-as-PGM redirect, scoped to 0x08-UV-32-pin)
-Next: Phase 98 (FIX) — correct the 0x08 32-pin write/VPP path per the RC-1 verdict
-Last activity: 2026-06-30 -- Phase 97 COMPLETE + VERIFIED (RCA closed, RC-1 named); ready for Phase 98
+Next: Phase 98 (FIX) — context gathered; ready to plan (`/gsd-plan-phase 98`)
+Last activity: 2026-06-30 -- Phase 98 CONTEXT gathered (belt-and-suspenders fix, DIP32_27C020 pinout class, alias-guarded, blind/no-bench)
 
 ## Project Reference
 
@@ -107,7 +107,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Operator Next Steps
 
-- Start Phase 97 with `/gsd-plan-phase 97`
+- Plan Phase 98 with `/gsd-plan-phase 98` (CONTEXT.md ready)
 
 ## Decisions
 
