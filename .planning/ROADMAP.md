@@ -262,7 +262,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 97-02-PLAN.md — PRE-01 Tier-0 pre-flight (N≥3 read oracle + blank-state SHA + 0x08 decode) + RCA-01 combined micro-probe = reproduction (ONE 1→0 attempt) + held-rail pin-1/pin-31 DMM signature *(bench, operator DMM; PRE-01, RCA-01)*
+- [x] 97-02-PLAN.md — PRE-01 Tier-0 pre-flight (N≥3 read oracle + blank-state SHA + 0x08 decode) + RCA-01 combined micro-probe = reproduction (ONE 1→0 attempt) + held-rail pin-1/pin-31 DMM signature *(bench, operator DMM; PRE-01, RCA-01)*
 
 **Wave 3** *(blocked on Wave 2)*
 
@@ -885,7 +885,7 @@ Plans:
 | 94 | v1.17 | 4/4 | Complete    | 2026-06-27 |
 | 95 | v1.17 | 0/TBD | Not started | — |
 | 96 (close) | v1.17 | 0/TBD | Not started | — |
-| 97 | v1.18 | 1/3 | In Progress|  |
+| 97 | v1.18 | 2/3 | In Progress|  |
 | 98 | v1.18 | 0/TBD | Not started | — |
 | 99 (close) | v1.18 | 0/TBD | Not started | — |
 

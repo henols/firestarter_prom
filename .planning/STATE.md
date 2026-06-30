@@ -3,27 +3,27 @@ gsd_state_version: 1.0
 milestone: v1.18
 milestone_name: — AM27C020 0x08 Write-Path RCA & Fix
 status: executing
-last_updated: "2026-06-29T15:50:13.169Z"
-last_activity: 2026-06-29 -- Phase 97 Plan 01 complete (SAFE-01 confirmed, EVIDENCE + RCA-FINDINGS scaffolded, Wave-0 gate scripts asserted)
+last_updated: "2026-06-30T09:25:55.376Z"
+last_activity: 2026-06-30 -- Phase 97 Plan 02 complete (PRE-01 + RCA-01: 0x08 writes 0 bits @ 0x0000, bad/retries 1/20, at corrected rig VPP 13.0V + JP4 closed; chip pristine; H2 disproven by code; held-rail tooling bug RCA'd -> Phase 98)
 progress:
   total_phases: 7
   completed_phases: 2
   total_plans: 11
-  completed_plans: 9
+  completed_plans: 10
   percent: 29
 ---
 
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-06-29
+**Updated:** 2026-06-30
 
 ## Current Position
 
 Phase: 97 (pre-rca-tier-0-pre-flight-root-cause-the-0x08-0-bits-program) — EXECUTING
-Plan: 2 of 3
-Status: Plan 97-01 complete (Wave-1 diagnostic scaffold) — ready to execute Plan 97-02
-Last activity: 2026-06-29 -- Phase 97 Plan 01 complete (SAFE-01 confirmed, EVIDENCE + RCA-FINDINGS scaffolded, Wave-0 gate scripts asserted)
+Plan: 2 of 3 complete — ready to execute Plan 97-03 (W27C512 0x07 differential control + RCA-03 named cause)
+Status: Plan 97-02 complete (PRE-01 + RCA-01 reproduced; chip pristine; held-rail tooling bug resolved → Phase 98)
+Last activity: 2026-06-30 -- Phase 97 Plan 02 complete (0x08 writes 0 bits @ 0x0000, bad/retries 1/20, corrected rig VPP 13.0V + JP4 closed; H2 disproven by code → cause sharpened to RC-1 pin31=A18)
 
 ## Project Reference
 
