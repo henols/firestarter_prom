@@ -266,7 +266,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 97-03-PLAN.md — RCA-02 0x07 W27C512 differential control + RCA-03 resolve RC-1 & RC-2 (conditional RC-3/RC-4) + name/classify root cause + Phase-98 hand-off *(bench + analysis, operator reseat/JP4; RCA-02, RCA-03)*
+- [x] 97-03-PLAN.md — RCA-02 0x07 W27C512 differential control + RCA-03 resolve RC-1 & RC-2 (conditional RC-3/RC-4) + name/classify root cause + Phase-98 hand-off *(bench + analysis, operator reseat/JP4; RCA-02, RCA-03)*
 
 **UI hint**: no
 
@@ -885,7 +885,7 @@ Plans:
 | 94 | v1.17 | 4/4 | Complete    | 2026-06-27 |
 | 95 | v1.17 | 0/TBD | Not started | — |
 | 96 (close) | v1.17 | 0/TBD | Not started | — |
-| 97 | v1.18 | 2/3 | In Progress|  |
+| 97 | v1.18 | 3/3 | Complete   | 2026-06-30 |
 | 98 | v1.18 | 0/TBD | Not started | — |
 | 99 (close) | v1.18 | 0/TBD | Not started | — |
 

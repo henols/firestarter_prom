@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.18
 milestone_name: — AM27C020 0x08 Write-Path RCA & Fix
 status: executing
-last_updated: "2026-06-30T09:25:55.376Z"
-last_activity: 2026-06-30 -- Phase 97 Plan 02 complete (PRE-01 + RCA-01: 0x08 writes 0 bits @ 0x0000, bad/retries 1/20, at corrected rig VPP 13.0V + JP4 closed; chip pristine; H2 disproven by code; held-rail tooling bug RCA'd -> Phase 98)
+last_updated: "2026-06-30T09:45:00.000Z"
+last_activity: 2026-06-30 -- Phase 97 Plan 03 complete; ALL 3 plans done (RCA CLOSED: 0x07 W27C512 differential PASS exonerates shared axes; root cause RC-1 = pin 31 modeled as A18 not held PGM; host-pinout+firmware-algorithm; Phase-98 hand-off = DIP32_27C020 pin-31-as-PGM redirect)
 progress:
   total_phases: 7
   completed_phases: 2
   total_plans: 11
-  completed_plans: 10
+  completed_plans: 11
   percent: 29
 ---
 
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 97 (pre-rca-tier-0-pre-flight-root-cause-the-0x08-0-bits-program) — EXECUTING
-Plan: 2 of 3 complete — ready to execute Plan 97-03 (W27C512 0x07 differential control + RCA-03 named cause)
-Status: Plan 97-02 complete (PRE-01 + RCA-01 reproduced; chip pristine; held-rail tooling bug resolved → Phase 98)
-Last activity: 2026-06-30 -- Phase 97 Plan 02 complete (0x08 writes 0 bits @ 0x0000, bad/retries 1/20, corrected rig VPP 13.0V + JP4 closed; H2 disproven by code → cause sharpened to RC-1 pin31=A18)
+Phase: 97 (pre-rca-tier-0-pre-flight-root-cause-the-0x08-0-bits-program) — ALL PLANS COMPLETE (verification pending)
+Plan: 3 of 3 complete (97-01 scaffold, 97-02 PRE-01+RCA-01, 97-03 RCA-02+RCA-03)
+Status: RCA CLOSED — root cause RC-1 (pin 31 = A18, not held PGM); classification host-pinout + firmware-algorithm; Phase-98 fix surfaces handed off (DIP32_27C020 pin-31-as-PGM redirect, scoped to 0x08-UV-32-pin)
+Last activity: 2026-06-30 -- Phase 97 Plan 03 complete (0x07 W27C512 differential PASS exonerates shared axes; RC-1 CONFIRMED + RC-2 EXONERATED)
 
 ## Project Reference
 
