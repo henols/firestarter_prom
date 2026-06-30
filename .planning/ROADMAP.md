@@ -285,7 +285,7 @@ Plans:
 **Plans**: 2 plans in 2 waves (planned 2026-06-30; granularity Comprehensive; blind/no-bench — host pinout/DB then firmware PGM-assert; strict host→firmware dependency):
 **Wave 1**
 
-- [ ] 98-01-PLAN.md — RC-1 host-pinout fix: new DIP32_27C020 (pin 31 off the address bus, VPP on pin 1) + size-keyed resolve_pinout_key arm (0x08 ≤256K only; 512K/1M stay DIP32_STD — host D-04 guard) + DB regen + diff_db/check_dispatch on py3.11 *(autonomous; FIX-03, SAFE-02)*
+- [x] 98-01-PLAN.md — RC-1 host-pinout fix: new DIP32_27C020 (pin 31 off the address bus, VPP on pin 1) + size-keyed resolve_pinout_key arm (0x08 ≤256K only; 512K/1M stay DIP32_STD — host D-04 guard) + DB regen + diff_db/check_dispatch on py3.11 *(autonomous; FIX-03, SAFE-02)*
 
 **Wave 2** *(blocked on Wave 1 — reads the DIP32_27C020 bus-config shape)*
 
@@ -894,7 +894,7 @@ Plans:
 | 95 | v1.17 | 0/TBD | Not started | — |
 | 96 (close) | v1.17 | 0/TBD | Not started | — |
 | 97 | v1.18 | 3/3 | Complete   | 2026-06-30 |
-| 98 | v1.18 | 0/TBD | Not started | — |
+| 98 | v1.18 | 1/2 | In Progress|  |
 | 99 (close) | v1.18 | 0/TBD | Not started | — |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)

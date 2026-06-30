@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.18
 milestone_name: — AM27C020 0x08 Write-Path RCA & Fix
 status: executing
-last_updated: "2026-06-30T14:02:33.795Z"
-last_activity: 2026-06-30 -- Phase 98 planning complete
+last_updated: "2026-06-30T15:00:00.000Z"
+last_activity: 2026-06-30 -- Phase 98 Plan 01 complete (DIP32_27C020 pinout + DB regen + SAFE-02 gate)
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 13
-  completed_plans: 11
-  percent: 43
+  completed_plans: 12
+  percent: 46
 ---
 
 # Project State
@@ -20,11 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: 97 (pre-rca-tier-0-pre-flight-root-cause-the-0x08-0-bits-program) — ✅ COMPLETE + VERIFIED
-Plan: 3 of 3 complete (97-01 scaffold, 97-02 PRE-01+RCA-01, 97-03 RCA-02+RCA-03); verifier PASS-WITH-CONCERNS (5/5, INFO-only cleanups done)
-Status: Ready to execute
-Next: Phase 98 (FIX) — context gathered; ready to plan (`/gsd-plan-phase 98`)
-Last activity: 2026-06-30 -- Phase 98 planning complete
+Phase: 98 (fix-correct-the-0x08-32-pin-write-vpp-path) — EXECUTING
+Plan: 2 of 2
+Status: Plan 01 complete; Plan 02 (firmware PGM-assert) ready to execute
+Next: Phase 98 Plan 02 — firmware PGM-assert branch (memory_set_data hold-LOW for 0x08 ≤256K)
+Last activity: 2026-06-30 -- Phase 98 Plan 01 complete (DIP32_27C020 pinout + DB regen + SAFE-02 gate)
 
 ## Project Reference
 
@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md` (v1.18 Current Milestone section + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware handler. v1.18 proves that contract on the AM27C020 `0x08` EPROM-QUICK 32-pin write path: root-cause the 0-bits-programmed failure, fix the write/VPP path (RC-1 leading: PGM pin 31 mapped as address line rather than held program-active), and bench-prove byte-exact write→verify on real silicon — gated on Tier-0 writability pre-flight.
 
-**Current focus:** Phase 97 — pre-rca-tier-0-pre-flight-root-cause-the-0x08-0-bits-program
+**Current focus:** Phase 98 — fix-correct-the-0x08-32-pin-write-vpp-path
 
 ## Milestone Context (v1.18)
 
@@ -112,3 +112,6 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 ## Decisions
 
 - [Phase ?]: SAFE-01 invariant: holds because Phase-97 procedure never passes --force (firmware HAS a FLAG_FORCE over-voltage relaxation at primitives.cpp:121); held-rail proxy pinned host-space 0x188/0x180 marked [ASSUMED] per A1; all bench fields TBD-bench never fabricated (D-02)
+- [Phase 98 Plan 01]: Q1 RESOLVED — static-high-pins RULED OUT as PGM vehicle (static_high_mask drives HIGH; PGM=VIL); DIP32_27C020 takes pin 31 off address bus only; PGM-assert is Plan 02 firmware branch (memory_set_data hold-LOW)
+- [Phase 98 Plan 01]: D-04 host-side alias guard — size gate (mem_size<=262144) structurally excludes 512K AM27C040 / 1M AM27C080 from DIP32_27C020; both stay DIP32_STD
+- [Phase 98 Plan 01]: Blast radius 88 chips accepted (entire ≤256K 0x08 32-pin class); architectural correctness is class-wide (A18 unused at ≤256K); LOW-7: baseline git diff is the audited artifact

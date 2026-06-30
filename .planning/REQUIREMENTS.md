@@ -26,7 +26,7 @@
 
 - [ ] **FIX-01**: The firmware/host `0x08` write path is corrected per the RCA so the AM27C020 program pulse actually flips bits (e.g. PGM / DIP32 pin 31 driven program-active for the 27C020 case rather than mapped as an address line, and/or the P1 VPP routing corrected) — without regressing the passing `0x07` (and other) EPROM paths.
 - [ ] **FIX-02**: The v1.16 flash/eprom golden register traces + dispatch-mirror guard stay green for the passing paths; where a trace legitimately changes it is re-pinned with cited rationale; native tests cover the corrected `0x08` write path (program-pulse asserted + no regression).
-- [ ] **FIX-03**: The fix is delivered dual-repo lockstep wherever it crosses the wire (`constants.py` ↔ `firestarter.h`; a per-chip pinout entry, e.g. `DIP32_27C020`, in the DB/pinout pipeline if the RCA shows the 32-pin map is the cause); native + host tests green.
+- [x] **FIX-03**: The fix is delivered dual-repo lockstep wherever it crosses the wire (`constants.py` ↔ `firestarter.h`; a per-chip pinout entry, e.g. `DIP32_27C020`, in the DB/pinout pipeline if the RCA shows the 32-pin map is the cause); native + host tests green.
 
 ### BENCH — Graduation (gated on PRE-01)
 
@@ -36,7 +36,7 @@
 ### SAFE — Safety & CI
 
 - [x] **SAFE-01**: Over-voltage stays blocked at the firmware VPP check and the host `chip_resolver.resolve_chip` guard is never bypassed; AM27C020 flows through its normal `0x08` dispatch with no test-only escape hatch (established here, recurs as a precondition through close).
-- [ ] **SAFE-02**: Host CI is green against the **py3.11** target (ruff check + ruff format --check + mypy + diff_db + check_dispatch), avoiding the py3.12-masks-CI-3.11 trap; constants/wire parity stays in sync if the fix crosses the wire.
+- [x] **SAFE-02**: Host CI is green against the **py3.11** target (ruff check + ruff format --check + mypy + diff_db + check_dispatch), avoiding the py3.12-masks-CI-3.11 trap; constants/wire parity stays in sync if the fix crosses the wire.
 
 ## Future Requirements (deferred — carried forward, out of scope for v1.18)
 
@@ -68,7 +68,7 @@ _Filled by the roadmapper. All v1.18 REQ-IDs map to exactly one phase (no orphan
 | SAFE-01 | Phase 97 | Pending (recurs as precondition through Phases 98–99) |
 | FIX-01 | Phase 98 | Pending |
 | FIX-02 | Phase 98 | Pending |
-| FIX-03 | Phase 98 | Pending |
+| FIX-03 | Phase 98 | Complete |
 | SAFE-02 | Phase 98 | Pending (recurs as precondition through Phase 99) |
 | BENCH-01 | Phase 99 | Pending (contingent on PRE-01) |
 | BENCH-02 | Phase 99 | Pending |
