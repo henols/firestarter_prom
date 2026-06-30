@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.18
 milestone_name: — AM27C020 0x08 Write-Path RCA & Fix
 status: executing
-last_updated: "2026-06-30T09:50:00.000Z"
-last_activity: 2026-06-30 -- Phase 98 CONTEXT gathered. Belt-and-suspenders 0x08 fix: new DIP32_27C020 pinout class (pin 31->PGM) + firmware deliberate PGM-assert across CE pulse; DB/pinout-only preferred; Rev2 P1==A18 alias guarded; blind/no-bench (Phase 99 = silicon gate). Ready for /gsd-plan-phase 98
+last_updated: "2026-06-30T13:34:42.639Z"
+last_activity: 2026-06-30 -- Phase 98 planning complete
 progress:
   total_phases: 7
   completed_phases: 3
-  total_plans: 11
+  total_plans: 13
   completed_plans: 11
   percent: 43
 ---
@@ -22,9 +22,9 @@ progress:
 
 Phase: 97 (pre-rca-tier-0-pre-flight-root-cause-the-0x08-0-bits-program) — ✅ COMPLETE + VERIFIED
 Plan: 3 of 3 complete (97-01 scaffold, 97-02 PRE-01+RCA-01, 97-03 RCA-02+RCA-03); verifier PASS-WITH-CONCERNS (5/5, INFO-only cleanups done)
-Status: RCA CLOSED — root cause RC-1 (pin 31 = A18, not held PGM); classification host-pinout + firmware-algorithm; Phase-98 fix surfaces handed off (DIP32_27C020 pin-31-as-PGM redirect, scoped to 0x08-UV-32-pin)
+Status: Ready to execute
 Next: Phase 98 (FIX) — context gathered; ready to plan (`/gsd-plan-phase 98`)
-Last activity: 2026-06-30 -- Phase 98 CONTEXT gathered (belt-and-suspenders fix, DIP32_27C020 pinout class, alias-guarded, blind/no-bench)
+Last activity: 2026-06-30 -- Phase 98 planning complete
 
 ## Project Reference
 
