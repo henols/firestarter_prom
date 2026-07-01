@@ -202,7 +202,10 @@ Plans:
   2. The name↔`datasheets/<hex>-<NAME>/` slug divergence is explicitly recorded — the frozen slug column is retained alongside the new name so old-slug-vs-new-name is visible at a glance — and the `datasheets/` folder slugs are NOT renamed (NAME-F1 deferred).
   3. GATE-01/GATE-02/GATE-03 hold at close — algorithm-first dispatch behavior unchanged (golden traces + dispatch-mirror guard green), `diff_db.py` identity + `check_dispatch.py` + constants-parity green (no DB/wire value change), CLI grammar unchanged — and the milestone is documented and closed.
 
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 103-01-PLAN.md — DOC-01/DOC-02: rename 12 §1.x headings to PROTO_ token form + regenerate 8 §3 cross-link anchors, augment 9 INV rows with tokens, purge 2 prose jargon sentences (3 D-02 retentions verbatim), add the Name↔Slug Divergence callout
+- [ ] 103-02-PLAN.md — D-05: re-verify GATE-01/02/03 (dispatch-mirror guard + diff_db.py identity + constants-parity) into 103-VERIFICATION.md + v1.19 milestone-close housekeeping (STATE/MILESTONES; gitlinks PINNED, beta cut operator-gated)
 **UI hint**: no
 
 ## v1.17 — Implement & Test the W29C040 Programming Protocol (STARTED 2026-06-26)
