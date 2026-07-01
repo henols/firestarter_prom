@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.18
 milestone_name: — AM27C020 0x08 Write-Path RCA & Fix
 status: executing
-last_updated: "2026-07-01T09:24:58.150Z"
-last_activity: 2026-07-01 -- Phase 98 planning complete
+last_updated: "2026-07-01T09:40:54.806Z"
+last_activity: "2026-07-01 -- Plan 98-03 executed (host CR-01 fix: DIP32_27C020 rw-pin:[31], diff_db WR-03, build_db WR-05/IN-02, host CI verified green)"
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 16
-  completed_plans: 13
+  completed_plans: 14
   percent: 43
 ---
 
@@ -20,11 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: 98 (fix-correct-the-0x08-32-pin-write-vpp-path) — HOLD LIFTED; gap-closure planned (3 new plans ready to execute)
-Plan: 2 of 5 executed (98-01/98-02 done + committed, native 117/117 green); 98-03/98-04/98-05 planned + verified (PASS), not yet executed
-Status: Ready to execute
-Next: /gsd-execute-phase 98 — runs the 3 gap-closure plans. CR-01 fork RESOLVED (operator schematic study): pin 31 = /PGM = RW line = CTRL_READ_WRITE (phys 0x40), DISTINCT from P1/VPP (0x08) and revision-invariant. Fix = host rw-pin:[31] on DIP32_27C020 (98-03) + firmware revert the inert A18-clear and rely on the existing rw_line mechanism (98-04) + WR-01 physical-remap test parametrized across Rev 2 AND Rev 0/1 + WR-02..05 + IN-01..03 (98-05). Then Phase 99 bench (Leonardo + Rev 2.0). NOTE: REQUIREMENTS.md FIX-01/02/03/SAFE-02 table still reads "Complete" from before the hold — correct at phase close, not now.
-Last activity: 2026-07-01 -- Phase 98 gap-closure planned + verified (3 plans: 98-03 host CR-01/WR-03/WR-05, 98-04 firmware CR-01/WR-01/WR-02/WR-04, 98-05 IN-01/02/03); hold lifted
+Phase: 98 (fix-correct-the-0x08-32-pin-write-vpp-path) — EXECUTING
+Plan: 2 of 5 (98-03 complete: host CR-01 fix rw-pin:[31] + WR-03 + WR-05 + IN-02 host half)
+Status: 98-03 complete; 98-04 (firmware) and 98-05 (tests) remain
+Next: /gsd-execute-phase 98 — continue with 98-04 (firmware revert of inert A18-clear branch, relies on existing rw_line mechanism) then 98-05 (WR-01 physical-remap test parametrized across Rev 2 AND Rev 0/1 + WR-02/04 + IN-01/03). Then Phase 99 bench (Leonardo + Rev 2.0). NOTE: REQUIREMENTS.md FIX-01/02/03/SAFE-02 table still reads "Complete" from before the hold — correct at phase close, not now.
+Last activity: 2026-07-01 -- Plan 98-03 executed (host CR-01 fix: DIP32_27C020 rw-pin:[31], diff_db WR-03, build_db WR-05/IN-02, host CI verified green)
 
 ## Project Reference
 
@@ -118,3 +118,6 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase 98 Plan 02]: A5 CONFIRMED — 0x08 golden trace byte-identical post-fix; test_golden_eprom_0x08_write uses pins=0 (default), gate fails, PGM-hold branch does not fire; no re-bless needed
 - [Phase 98 Plan 02]: MED-5 verified no-op — per-buffer P1-hold in program_mismatched_bytes already spans every per-byte CE pulse; no redundant per-byte P1 churn added; new code only asserts CTRL_ADDRESS_LINE_18 hold-LOW (distinct from P1 VPP routing)
 - [Phase 98 Plan 02]: HIGH-1 blind-fix honesty — addr-0 register state byte-unchanged under RC-1; Phase 99 is sole empirical gate; no over-claim that bits flip on silicon
+- [Phase 98 Plan 03]: rw-pin:[31] on DIP32_27C020 mirrors the working DIP32_SST39SF040 precedent — pin 31 resolves via pin_conversions[32][31]=22 to config.rw_line=22 -> CTRL_READ_WRITE (0x40), closing the corrected CR-01 fork (host half)
+- [Phase 98 Plan 03]: DB regen confirmed idempotent for rw-pin (pinouts.json runtime datum, never embedded in chip_database.json) — diff_db.py shows only the pre-existing Phase-94 PGSZ_PAGE_SIZE delta
+- [Phase 98 Plan 03]: py3.11 CI sign-off follows the 98-01 precedent (CI-PENDING/structurally-green) — no python3.11 binary in this devcontainer; all CI-scoped commands (ruff/mypy-watermark/diff_db/check_dispatch/parity) pass under 3.12.13

@@ -171,6 +171,15 @@ exit=0
 - `WR-03`, `WR-05` closed; `IN-02` host half (`MAX_27C020_SIZE`) delivered — the firmware-side `IN-02` half (a matching named constant in `firestarter/include/firestarter.h`) is 98-04's responsibility.
 - Host CI is green; no blockers for 98-04/98-05 or the eventual Phase-99 bench gate. Whether pin 31 flipping bits on silicon is unaffected by this plan alone — that remains the Phase-99 empirical verdict, as the plan's headline explicitly does not over-claim.
 
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/98-fix-correct-the-0x08-32-pin-write-vpp-path/98-03-SUMMARY.md`
+- FOUND: `firestarter_app/firestarter/data/pinouts.json`
+- FOUND: `firestarter_app/tools/diff_db.py`
+- FOUND: `firestarter_app/tools/build_db.py`
+- FOUND (submodule): `3659121`, `9e3d17e`
+- FOUND (meta-repo): `da34ba6`
+
 ---
 *Phase: 98-fix-correct-the-0x08-32-pin-write-vpp-path*
 *Completed: 2026-07-01*

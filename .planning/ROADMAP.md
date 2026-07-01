@@ -894,7 +894,7 @@ Plans:
 | 95 | v1.17 | 0/TBD | Not started | — |
 | 96 (close) | v1.17 | 0/TBD | Not started | — |
 | 97 | v1.18 | 3/3 | Complete   | 2026-06-30 |
-| 98 | v1.18 | 1/2 | In Progress|  |
+| 98 | v1.18 | 3/5 | In Progress|  |
 | 99 (close) | v1.18 | 0/TBD | Not started | — |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
