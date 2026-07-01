@@ -66,9 +66,9 @@ _Filled by the roadmapper. All v1.18 REQ-IDs map to exactly one phase (no orphan
 | RCA-02 | Phase 97 | Pending |
 | RCA-03 | Phase 97 | Pending |
 | SAFE-01 | Phase 97 | Pending (recurs as precondition through Phases 98–99) |
-| FIX-01 | Phase 98 | Complete (Plan 02 — gated PGM hold-LOW in memory_set_data) |
-| FIX-02 | Phase 98 | Complete (Plan 02 — golden traces byte-identical; RC-98A/B/C native tests) |
-| FIX-03 | Phase 98 | Complete |
-| SAFE-02 | Phase 98 | Complete (Plan 01 host CI + Plan 02 primitives.cpp untouched) |
+| FIX-01 | Phase 98 | Complete (Plan 04 — corrected fix: reverted Plan 02's inert A18-clear, relies on the existing rw_line mechanism / CTRL_READ_WRITE for pin-31 PGM hold, revision-agnostic) |
+| FIX-02 | Phase 98 | Complete (Plan 04 — golden traces byte-identical; RC-98A/B/C reconciled + WR-01 revision-parametrized native test added) |
+| FIX-03 | Phase 98 | Complete (Plan 03 — DIP32_27C020 rw-pin:[31] host half) |
+| SAFE-02 | Phase 98 | Complete (Plan 03 host CI + Plan 04 primitives.cpp/eprom.cpp untouched) |
 | BENCH-01 | Phase 99 | Pending (contingent on PRE-01) |
 | BENCH-02 | Phase 99 | Pending |
