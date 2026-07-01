@@ -1,5 +1,67 @@
 # Milestones
 
+## v1.19 Protocol Naming Labels (Shipped: 2026-07-01)
+
+**Phases completed:** 4 phases (100-103), 7 plans
+
+**Delivered:** A single canonical, behavior/datasheet-correct, human-readable name set for
+every protocol number (0x05/06/07/08/0B/0D/0E/10/27/28/29/34 + phantom 0x35/0x39), applied as
+a legibility layer on top of the unchanged algorithm-first dispatch contract — a `PROTO_<NAME>`
+C-token in firmware, a consolidated display name in the host CLI, and reconciled facet prose +
+an INV-01..09 traceability matrix + a name↔slug divergence record in `firestarter/doc/PROTOCOLS.md`.
+Protocol numbers stayed the dispatch key end to end throughout — no `chip_database.json` / wire
+/ lockstep-constant value change; CLI grammar unchanged (GATE-01/02/03 held in every phase that
+touched their surface, re-verified at close).
+
+**Audit:** GATE-01/02/03 re-verified at close (Phase 103 Plan 02) — dispatch-mirror guard
+green, `check_dispatch.py` green, `pio test -e native` 82/82 green, `diff_db.py` identity vs
+the documented Phase-94 baseline, constants-parity 6/6 green under py3.12 (py3.11-target leg
+CI-PENDING per the Phase-98 precedent — no python3.11 binary in the devcontainer), no CLI/source
+file touched. No `FAIL` verdict recorded for any gate. Report:
+`.planning/phases/103-docs-reconcile-prose-divergence-record/103-VERIFICATION.md`.
+
+**Release:** meta-tagged `v1.19`; gitlinks remain PINNED; lockstep beta cut `3.0.0b11` + gitlink
+bump stay operator-gated (standing v1.11–v1.18 policy) and were NOT triggered by this
+naming/legibility-layer milestone.
+
+**Known deferred items at close:** NAME-F1 (renaming the `datasheets/<hex>-<NAME>/` folder
+slugs to match the new vocabulary — avoids provenance churn; the name↔slug divergence is
+recorded, not resolved) and NAME-F2 (accepting a protocol name/alias as CLI input — chip
+selection stays by part number). Both explicitly out of scope per `.planning/REQUIREMENTS.md`.
+Pre-existing cross-milestone carry-forwards (FUT-01/03/04/05/07/08 etc.) are unchanged by this
+milestone — see STATE.md → Accumulated Context.
+
+**Key accomplishments:**
+
+- **Phase 100 (NAME):** Authored the single canonical 3-field name set (`PROTO_<NAME>` token +
+  short display name + datasheet-cited facet prose) for every protocol number + phantom ID +
+  an operator-approved handler-family name layer for the many-to-one handlers; resolved the
+  0x0E-vs-0x29 (both 32-pin SRAM) name collision at explicit operator approval — a blocking
+  gate that gated all downstream phases. Recorded in `firestarter/doc/PROTOCOLS.md`, revised
+  in place. Operator-approved deviations from draft: 0x29=`PROTO_SRAM_32PIN_NVRAM` (0x0E stays
+  `PROTO_SRAM_32PIN`), phantoms=`PROTO_PHANTOM_0x35`/`0x39`, 0x34=`PROTO_EEPROM_8051BUS`.
+- **Phase 101 (FW):** Defined the `PROTO_<NAME>` constants (numeric values unchanged — the
+  label *is* the number), relabeled the raw-hex dispatch chain in `memory.cpp` to named
+  constants (including honest phantom tokens for 0x35/0x39), and renamed the many-to-one
+  handler files/functions from the approved family-name layer. Dual-repo lockstep
+  (`constants.py` ↔ `firestarter.h`); GATE-01/02/03 first/primarily enforced here.
+- **Phase 102 (HOST):** Consolidated the two divergent host protocol vocabularies
+  (`ic_layout.proto_display` + `protocol_info_data`) onto the canonical display names via a
+  single `_PROTOCOL_DISPLAY_NAME` map, so `firestarter info` / `list` / `search` render one
+  consistent name per protocol (ASCII-normalized dashes — a documented punctuation deviation
+  from the doc's em-dash names).
+- **Phase 103 (DOCS, close):** Renamed all 12 §1.x PROTOCOLS.md headings to `PROTO_` token
+  form, regenerated the 8 dependent §3 cross-link anchors (grep-verified against actual
+  rendered headings, not hand-guessed), augmented all 9 INV-01..09 rows with their tokens
+  beside the raw hex (SAFE-02 grep-contract columns kept byte-identical), purged two residual
+  bucket-label jargon prose sentences respecting the three D-02 locked retentions (approved
+  0x06 name, frozen slug strings + citation paths, §2 minipro-provenance prose), and added a
+  "Name ↔ Slug Divergence" callout recording the frozen-slug map / NAME-F1 deferral / host
+  ASCII-dash deviation. Re-verified GATE-01/02/03 at close with zero FAIL verdicts and closed
+  the milestone.
+
+---
+
 ## v1.18 AM27C020 0x08 Write-Path RCA & Fix (Shipped: 2026-07-01)
 
 **Phases completed:** 3 phases, 12 plans, 26 tasks
