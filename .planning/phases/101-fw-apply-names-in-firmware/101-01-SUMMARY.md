@@ -125,3 +125,11 @@ None - no external service configuration required. This is a firmware-only, dual
 ---
 *Phase: 101-fw-apply-names-in-firmware*
 *Completed: 2026-07-01*
+
+## Self-Check: PASSED
+
+- FOUND: firestarter/include/proto_constants.h
+- FOUND: .planning/phases/101-fw-apply-names-in-firmware/101-01-SUMMARY.md
+- FOUND: firestarter commit 6925b5b (Task 1)
+- FOUND: firestarter commit 81b6993 (Task 2)
+- FOUND: meta commit b184102 (SUMMARY.md)
