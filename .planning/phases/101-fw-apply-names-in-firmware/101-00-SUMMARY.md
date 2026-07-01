@@ -112,3 +112,9 @@ None - no external service configuration required.
 ---
 *Phase: 101-fw-apply-names-in-firmware*
 *Completed: 2026-07-01*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/101-fw-apply-names-in-firmware/101-00-SUMMARY.md`
+- FOUND: `fb6d167` (submodule code commit, `firestarter_app` on branch `v1.19-protocol-naming-labels`)
+- FOUND: `b27bed7` (meta-repo SUMMARY commit)
