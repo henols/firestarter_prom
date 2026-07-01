@@ -21,7 +21,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (100–1
 
 ### Host Display (Phase 102 — apply names in the host CLI)
 
-- [ ] **HOST-01**: The divergent host protocol vocabularies (`ic_layout.proto_display` and `protocol_info_data`) are consolidated onto the canonical display names from the authoritative source, so `firestarter info` / `list` / `search` render one consistent name per protocol.
+- [x] **HOST-01**: The divergent host protocol vocabularies (`ic_layout.proto_display` and `protocol_info_data`) are consolidated onto the canonical display names from the authoritative source, so `firestarter info` / `list` / `search` render one consistent name per protocol.
 
 ### Docs (Phase 103 — reconcile prose + divergence record)
 
@@ -66,7 +66,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | FW-01 | Phase 101 | Complete |
 | FW-02 | Phase 101 | Complete |
 | FW-03 | Phase 101 | Complete |
-| HOST-01 | Phase 102 | Pending |
+| HOST-01 | Phase 102 | Complete |
 | DOC-01 | Phase 103 | Pending |
 | DOC-02 | Phase 103 | Pending |
 | GATE-01 | Phases 101–103 (primary: 101) | Complete |

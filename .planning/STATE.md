@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.19
 milestone_name: — Protocol Naming Labels
 current_phase: 102
-current_phase_name: HOST — Apply Names in the Host CLI Display
-status: executing
-stopped_at: Phase 102 context gathered
-last_updated: "2026-07-01T17:09:04.210Z"
+current_phase_name: host-apply-names-in-the-host-cli-display
+status: verifying
+stopped_at: Completed 102-01-PLAN.md
+last_updated: "2026-07-01T17:20:36.469Z"
 last_activity: 2026-07-01
-last_activity_desc: Phase 101 complete, transitioned to Phase 102
+last_activity_desc: Phase 102 execution started
 progress:
   total_phases: 4
-  completed_phases: 2
-  total_plans: 4
-  completed_plans: 4
-  percent: 50
+  completed_phases: 3
+  total_plans: 5
+  completed_plans: 5
+  percent: 75
 ---
 
 # Project State
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 102 — HOST — Apply Names in the Host CLI Display
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-07-01 — Phase 101 complete, transitioned to Phase 102
+Phase: 102 (host-apply-names-in-the-host-cli-display) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
+Last activity: 2026-07-01 — Phase 102 execution started
 
 ## Project Reference
 
@@ -35,7 +35,7 @@ See: `.planning/PROJECT.md` (v1.19 STARTED footer + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware handler; protocol numbers stay the dispatch key end to end. v1.19 adds a legibility layer on top of that unchanged contract: a single canonical, behavior/datasheet-correct, human-readable name set for every protocol, applied consistently across firmware constants, host display, and docs — names never become the dispatch key (GATE-01/02/03 non-regression).
 
-**Current focus:** Phase 101 — fw-apply-names-in-firmware
+**Current focus:** Phase 102 — host-apply-names-in-the-host-cli-display
 
 ## Milestone Context (v1.19)
 
@@ -153,6 +153,9 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase 99 Plan 01]: Chose minimal D-09 extension (option a, evidence-shape branch keyed on `v1_18_writeverify_sha_selfconsistent`) over a new status enum value — a v1.18-native 0x08 graduation is proven by write/read-back self-consistency (no v1.15 write baseline exists for AM27C020) without requiring a fabricated `p90_writecycle_sha_matches_v115` claim; honesty guard verified (bare 0x08 PASS claim without the marker still fails); FUT-06 retirement path (removal from open_defects[], not status_changed flip) proven by test; gate is now CAPABLE of a graduated 0x08 row but 99-04 decides the actual outcome from the bench result
 - [Phase Phase 99 Plan 02]: check_graduation.py filters on op prefix phase99* (never the Phase-97 tier0_microprobe+rca01 cell); branches PASS (write_image_sha256==readback_sha256 self-consistency) vs DEFER (bits_flipped+post_read_sha256 differential), validated against 9 synthetic fixture cells without ever mutating the real EVIDENCE.json
 - [Phase 99]: [Phase 99 Plan 04]: Took the DEFER branch decided by 99-03 (Phase-98 fix bench-effective-but-unreliable: write#1 60/64 byte-exact, write#2 0/64); retired FUT-06 by removal-and-replacement rather than in-place edit, opening FUT-08 (renumbered from the operator-requested "FUT-07" — that id is already taken by the v1.17 W29C040 defect in this same table) as an explicit successor citing the fix-effective-but-unreliable finding + the next diagnostic step (program-window VPP-under-load + write timing); 0x08 row stays open-defect-carried with on_hand_chip now AM27C020
+- [Phase ?]: D-01/D-02/D-04 applied: single _PROTOCOL_DISPLAY_NAME map in ic_layout.py feeds both proto_display fallback and info Protocol line; ASCII dashes; 0x34 added / 0x11 dropped
+- [Phase ?]: 0x34 description_points bullet chosen as minimal placeholder text, flagged Phase-103-DOC-01-owned
+- [Phase ?]: py3.11 CI recorded as CI-PENDING/structurally-green under py3.12.13 devcontainer (Phase-98 precedent)
 
 ## Performance Metrics
 
@@ -163,9 +166,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 99 P01 | 25min | 3 tasks | 2 files |
 | Phase 99 P02 | 15min | 2 tasks | 3 files |
 | Phase 99 P04 | 15min | 2 tasks | 4 files |
+| Phase 102 P01 | 25min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-07-01T16:49:35.116Z
-**Stopped at:** Phase 102 context gathered
-**Resume file:** .planning/phases/102-host-apply-names-in-the-host-cli-display/102-CONTEXT.md
+**Last session:** 2026-07-01T17:20:36.461Z
+**Stopped at:** Completed 102-01-PLAN.md
+**Resume file:** None
