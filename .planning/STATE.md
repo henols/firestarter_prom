@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.18
 milestone_name: — AM27C020 0x08 Write-Path RCA & Fix
 status: executing
-last_updated: "2026-06-30T14:36:00.000Z"
-last_activity: 2026-06-30 -- Phase 98 HELD: both plans executed + native-green, but code review CR-01 (BLOCKER) found the firmware PGM hold-LOW is a physical no-op on Rev 2.x (pin-31 control bit OR-aliased to VPP-P1 held HIGH). Operator investigating Rev-2 schematic before completion.
+last_updated: "2026-07-01T09:24:58.150Z"
+last_activity: 2026-07-01 -- Phase 98 planning complete
 progress:
   total_phases: 7
-  completed_phases: 4
-  total_plans: 13
+  completed_phases: 3
+  total_plans: 16
   completed_plans: 13
-  percent: 54
+  percent: 43
 ---
 
 # Project State
@@ -20,11 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: 98 (fix-correct-the-0x08-32-pin-write-vpp-path) — HELD (executed, NOT verified/complete)
-Plan: 2 of 2 (both plans executed + committed; native suite 117/117 green)
-Status: Phase 98 ON HOLD — code review CR-01 (BLOCKER) found the firmware PGM=VIL hold-LOW is a physical NO-OP on Rev 2.x. On Rev 2, pin-31's control bit is OR-aliased to CTRL_VPP_P1_ENABLE (both == phys 0x08), which is held HIGH for VPP across the whole program window, so `clear(logical A18)` cannot pull the shared physical bit LOW. Fix is correct on Rev 0/1 only. WR-01: native tests assert on the LOGICAL register and never run the Rev-2 remap → passed green-by-construction. See 98-REVIEW.md.
-Next: OPERATOR — confirm against the Rev-2 schematic whether pin 31 / PGM truly shares the P1 output node. If yes, the register-clear approach can't deliver VIL while VPP-on-P1 is active and the fix needs rethinking (dedicated PGM strobe, or sequence PGM outside the P1-high window). Then /gsd-plan-phase 98 --gaps (CR-01 fix + a Rev-2-physical native test that runs rurp_map_ctrl_reg_for_hardware_revision). Phase 99 bench spend is gated behind this.
-Last activity: 2026-06-30 -- Phase 98 HELD on CR-01 (see frontmatter)
+Phase: 98 (fix-correct-the-0x08-32-pin-write-vpp-path) — HOLD LIFTED; gap-closure planned (3 new plans ready to execute)
+Plan: 2 of 5 executed (98-01/98-02 done + committed, native 117/117 green); 98-03/98-04/98-05 planned + verified (PASS), not yet executed
+Status: Ready to execute
+Next: /gsd-execute-phase 98 — runs the 3 gap-closure plans. CR-01 fork RESOLVED (operator schematic study): pin 31 = /PGM = RW line = CTRL_READ_WRITE (phys 0x40), DISTINCT from P1/VPP (0x08) and revision-invariant. Fix = host rw-pin:[31] on DIP32_27C020 (98-03) + firmware revert the inert A18-clear and rely on the existing rw_line mechanism (98-04) + WR-01 physical-remap test parametrized across Rev 2 AND Rev 0/1 + WR-02..05 + IN-01..03 (98-05). Then Phase 99 bench (Leonardo + Rev 2.0). NOTE: REQUIREMENTS.md FIX-01/02/03/SAFE-02 table still reads "Complete" from before the hold — correct at phase close, not now.
+Last activity: 2026-07-01 -- Phase 98 gap-closure planned + verified (3 plans: 98-03 host CR-01/WR-03/WR-05, 98-04 firmware CR-01/WR-01/WR-02/WR-04, 98-05 IN-01/02/03); hold lifted
 
 ## Project Reference
 
