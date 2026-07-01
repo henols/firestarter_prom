@@ -204,8 +204,14 @@ Plans:
 
 **Plans**: 2 plans
 Plans:
+**Wave 1**
+
 - [ ] 103-01-PLAN.md — DOC-01/DOC-02: rename 12 §1.x headings to PROTO_ token form + regenerate 8 §3 cross-link anchors, augment 9 INV rows with tokens, purge 2 prose jargon sentences (3 D-02 retentions verbatim), add the Name↔Slug Divergence callout
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 103-02-PLAN.md — D-05: re-verify GATE-01/02/03 (dispatch-mirror guard + diff_db.py identity + constants-parity) into 103-VERIFICATION.md + v1.19 milestone-close housekeeping (STATE/MILESTONES; gitlinks PINNED, beta cut operator-gated)
+
 **UI hint**: no
 
 ## v1.17 — Implement & Test the W29C040 Programming Protocol (STARTED 2026-06-26)
