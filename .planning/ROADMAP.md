@@ -282,7 +282,7 @@ Plans:
   3. Any fix that crosses the wire (new pinout entry in `pinouts.json` / `chip_database.json`, or a new flag/field in `firestarter.h` ↔ `constants.py`) is delivered dual-repo lockstep: `diff_db.py` shows only the intended changes, `check_dispatch.py` passes with 0 VPP violations, constants parity test is green (FIX-03).
   4. Host CI is green against the **py3.11** target (ruff check + ruff format --check + mypy + diff_db + check_dispatch), avoiding the py3.12-masks-CI-3.11 trap; over-voltage stays blocked (`vpp_check_window` HIGH→ERROR without FLAG_FORCE) and the host `chip_resolver.resolve_chip` guard is never bypassed (SAFE-01/SAFE-02 hold).
 
-**Plans**: 2 plans in 2 waves (planned 2026-06-30; granularity Comprehensive; blind/no-bench — host pinout/DB then firmware PGM-assert; strict host→firmware dependency):
+**Plans**: 5 plans in 3 waves (2 planned 2026-06-30; +3 gap-closure plans added post-98-REVIEW.md; granularity Comprehensive; blind/no-bench — host pinout/DB then firmware PGM-assert, then a CR-01-corrected host→firmware re-fix + IN-01/02/03 cleanup; strict host→firmware dependency, exclusive file ownership enforces sequencing):
 **Wave 1**
 
 - [x] 98-01-PLAN.md — RC-1 host-pinout fix: new DIP32_27C020 (pin 31 off the address bus, VPP on pin 1) + size-keyed resolve_pinout_key arm (0x08 ≤256K only; 512K/1M stay DIP32_STD — host D-04 guard) + DB regen + diff_db/check_dispatch on py3.11 *(autonomous; FIX-03, SAFE-02)*
@@ -290,6 +290,12 @@ Plans:
 **Wave 2** *(blocked on Wave 1 — reads the DIP32_27C020 bus-config shape)*
 
 - [x] 98-02-PLAN.md — RC-1 firmware belt: gated deliberate PGM-assert across the per-byte CE pulse + per-byte P1-hold (gate protocol==0x08 && pins==32 && mem_size<=262144 — firmware D-04 belt) + corrected-path/gate-exclusion/mismatch native tests + 0x07/0x0B/chip-id golden byte-identity *(autonomous; FIX-01, FIX-02, SAFE-02)*
+
+**Gap-closure wave** *(added post-98-REVIEW.md code review — CR-01 Rev-2 PGM/P1 alias blocker + WR-01..05 + IN-01..03; sequenced host→firmware→cleanup on exclusive file ownership)*
+
+- [x] 98-03-PLAN.md — CR-01 corrected host fix: `DIP32_27C020` gains `rw-pin:[31]` (pin 31 resolves to `config.rw_line=22` -> `CTRL_READ_WRITE` 0x40, mirroring the working `DIP32_SST39SF040` precedent) + WR-03 (`diff_db.py` RC1 predicate hardened against compound voltage/type/vpp diffs) + WR-05 (`build_db.py` `interpret_timing` narrowed exception + WARN diagnostic) + IN-02 host half (`MAX_27C020_SIZE` named constant) + host CI green *(autonomous; FIX-01, FIX-03, SAFE-02)*
+- [x] 98-04-PLAN.md — CR-01 corrected firmware fix: reverted Plan 02's inert `CTRL_ADDRESS_LINE_18` clear (physical no-op on Rev 2 via the 0x08 P1/A18 alias), relies on the existing revision-agnostic `rw_line`/`CTRL_READ_WRITE` mechanism fed by 98-03's `rw-pin:[31]` + WR-01 (revision-parametrized native test proving the Rev-2 physical remap) + WR-02 (RC-98B pinned to `TEST_ASSERT_EQUAL(5,...)`) + RC-98A/C reconciled + Phase-99 HIGH-1 escape clause removed *(autonomous; FIX-01, FIX-02, SAFE-02)*
+- [x] 98-05-PLAN.md — IN-01 (`uint32_to_bytes` explicit-index serialization fix) + IN-03 (single-evaluation `mem_min` replacing the double-evaluation `min` macro) + IN-02 firmware half (`MAX_27C020_SIZE` in `firestarter.h` + cross-repo pytest parity assertion) + regression gate (native suite 119/119, golden traces byte-identical, host CI green on py3.11) *(autonomous; FIX-02, SAFE-02)*
 
 **UI hint**: no
 

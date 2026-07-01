@@ -3,28 +3,28 @@ gsd_state_version: 1.0
 milestone: v1.18
 milestone_name: — AM27C020 0x08 Write-Path RCA & Fix
 status: executing
-last_updated: "2026-07-01T09:52:49.586Z"
+last_updated: "2026-07-01T10:03:28Z"
 last_activity: 2026-07-01
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 16
-  completed_plans: 15
+  completed_plans: 16
   percent: 43
 ---
 
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-06-30
+**Updated:** 2026-07-01
 
 ## Current Position
 
-Phase: 98 (fix-correct-the-0x08-32-pin-write-vpp-path) — EXECUTING
-Plan: 4 of 5 (98-04 complete: firmware CR-01 fix — reverted inert A18-clear, relies on rw_line mechanism + WR-01/02/04 + escape-clause removal)
+Phase: 98 (fix-correct-the-0x08-32-pin-write-vpp-path) — COMPLETE (all 5 plans done: 98-01/02 original + 98-03/04/05 gap-closure)
+Plan: 5 of 5 (98-05 complete: IN-01/IN-02/IN-03 gap-closure — uint32_to_bytes explicit-index fix, single-eval mem_min, MAX_27C020_SIZE named constant + cross-repo parity test)
 Status: Ready to execute
-Next: /gsd-execute-phase 98 — continue with 98-05 (remaining IN-01/IN-03 gap-closure items). Then Phase 99 bench (Leonardo + Rev 2.0). NOTE: REQUIREMENTS.md FIX-01/02/03/SAFE-02 table still reads "Complete" from before the hold — correct at phase close, not now.
-Last activity: 2026-07-01 -- Plan 98-04 executed (firmware CR-01 fix: reverted inert A18-clear, relies on existing rw_line mechanism for pin-31 PGM hold; WR-01 revision-parametrized native test; WR-02/RC-98A/C reconciled; Phase-99 escape clause removed; golden traces byte-identical; native suite 119/119 green)
+Next: /gsd-execute-phase 99 — BENCH + LEDGER (Leonardo + Rev 2.0, seated AM27C020, PRE-01 writability pre-flight first). Phase 98 done bar met: native suite 119/119 green, golden traces byte-identical, host CI green on py3.11. REQUIREMENTS.md FIX-02/SAFE-02 traceability lines updated to reflect Plan 05's contribution.
+Last activity: 2026-07-01 -- Plan 98-05 executed (final gap-closure plan: IN-01 uint32_to_bytes explicit-index fix + IN-03 single-evaluation mem_min in firestarter/src/proms/memory.cpp; IN-02 MAX_27C020_SIZE named constant added to firestarter.h + mirrored to constants.py + cross-repo pytest parity assertion; native suite 119/119 green, golden traces byte-identical, host CI green on py3.11 target)
 
 ## Project Reference
 
@@ -107,7 +107,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Operator Next Steps
 
-- Plan Phase 98 with `/gsd-plan-phase 98` (CONTEXT.md ready)
+- Execute Phase 99 (BENCH + LEDGER) with `/gsd-execute-phase 99` — bench-gated (Leonardo + RURP Rev 2.0, seated AM27C020, PRE-01 writability pre-flight first).
 
 ## Decisions
 
@@ -123,9 +123,13 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase 98 Plan 03]: py3.11 CI sign-off follows the 98-01 precedent (CI-PENDING/structurally-green) — no python3.11 binary in this devcontainer; all CI-scoped commands (ruff/mypy-watermark/diff_db/check_dispatch/parity) pass under 3.12.13
 - [Phase 98 Plan 04]: Reverted 98-02's inert CTRL_ADDRESS_LINE_18 clear (physical no-op on Rev 2 via the 0x08 alias; wrong-pin on Rev 0/1); relies on existing rw_line mechanism (CTRL_READ_WRITE 0x40, revision-invariant) fed by 98-03's rw-pin:[31]
 - [Phase 98 Plan 04]: WR-01 revision-parametrized native test added via local replicas of rurp_map_ctrl_reg_for_hardware_revision (Rev 2 + Rev 0/1) — the missing RED state; WR-02 RC-98B pinned to EQUAL(5); IN-02 firmware constant deferred to 98-05 (no size literal survives the revert)
+- [Phase 98 Plan 05]: IN-03 macro replacement named `mem_min` (not `min`) to avoid any future collision with Arduino's own min() or std::min — static inline single-evaluation function, sole call site (memory_read_execute) updated, behavior identical (side-effect-free operands)
+- [Phase 98 Plan 05]: IN-02 host authoritative value moved from build_db.py-only literal (98-03) into constants.py (the established landing spot for every firmware-parity constant this codebase tracks) — build_db.py now imports it; parity test follows the file's REAL pattern (hardcoded literal + FW_ABSENT skipif + citing comment), not literal header-parsing, matching its 6 sibling assertions
+- [Phase 98 Plan 05]: Phase 98 CLOSED — all 5 plans complete (98-01/02 original fix attempt + 98-03/04 corrected CR-01 fix + 98-05 IN-01/02/03 cleanup); native suite 119/119 green, golden traces byte-identical, host CI green on py3.11 target; Phase 99 (BENCH + LEDGER) unblocked
 
 ## Performance Metrics
 
 | Phase | Plan | Duration | Notes |
 |-------|------|----------|-------|
 | Phase 98 P04 | 35min | 3 tasks | 2 files |
+| Phase 98 P05 | 25min | 3 tasks | 5 files |

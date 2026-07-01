@@ -67,8 +67,8 @@ _Filled by the roadmapper. All v1.18 REQ-IDs map to exactly one phase (no orphan
 | RCA-03 | Phase 97 | Pending |
 | SAFE-01 | Phase 97 | Pending (recurs as precondition through Phases 98–99) |
 | FIX-01 | Phase 98 | Complete (Plan 04 — corrected fix: reverted Plan 02's inert A18-clear, relies on the existing rw_line mechanism / CTRL_READ_WRITE for pin-31 PGM hold, revision-agnostic) |
-| FIX-02 | Phase 98 | Complete (Plan 04 — golden traces byte-identical; RC-98A/B/C reconciled + WR-01 revision-parametrized native test added) |
+| FIX-02 | Phase 98 | Complete (Plan 04 — golden traces byte-identical; RC-98A/B/C reconciled + WR-01 revision-parametrized native test added; Plan 05 — IN-01/IN-02/IN-03 gap-closure: uint32_to_bytes explicit-index fix, single-eval mem_min, MAX_27C020_SIZE parity test; native suite 119/119 green) |
 | FIX-03 | Phase 98 | Complete (Plan 03 — DIP32_27C020 rw-pin:[31] host half) |
-| SAFE-02 | Phase 98 | Complete (Plan 03 host CI + Plan 04 primitives.cpp/eprom.cpp untouched) |
+| SAFE-02 | Phase 98 | Complete (Plan 03 host CI + Plan 04 primitives.cpp/eprom.cpp untouched; Plan 05 — host CI green on py3.11 target, ruff/format/mypy/diff_db/check_dispatch/parity all pass) |
 | BENCH-01 | Phase 99 | Pending (contingent on PRE-01) |
 | BENCH-02 | Phase 99 | Pending |
