@@ -352,19 +352,21 @@ pytest tests/ --cov=firestarter --cov-report=term-missing --cov-fail-under=70
 | A4 | `test_audit_coverage_matrix.py` failure is unrelated to naming and out of Phase 101 scope | Guard Machinery §6 | LOW — it's a v1.3 coverage-matrix golden snapshot; verify it doesn't block the pytest run (it's an independent test). |
 | A5 | Reconciling the already-red `test_dispatch_mirror.py` is IN SCOPE for Phase 101 (GATE-01 names it explicitly and requires it green) | Guard Machinery §6 | MEDIUM — if treated as pre-existing-and-ignore, GATE-01 verification could be argued either way; recommend fixing it. Confirm in discuss-phase. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Should the `PROTO_<NAME>` tokens be mirrored into `firestarter_app/firestarter/constants.py` for lockstep parity?**
+> All three resolved by operator decisions captured in `101-CONTEXT.md` during /gsd-plan-phase (2026-07-01). Q1→D-02, Q2→D-03, Q3→D-01.
+
+1. **RESOLVED (→ D-02, firmware-only): Should the `PROTO_<NAME>` tokens be mirrored into `firestarter_app/firestarter/constants.py` for lockstep parity?**
    - What we know: `constants.py` currently defines ZERO protocol constants; the parity test asserts only `FLAG_*`/`CMD_*`/`CTRL_*`/`REVISION_*` (values that cross the wire). The wire carries the integer `algorithm` field, not the token name — so PROTO_ tokens are firmware-internal and do NOT strictly need a host twin. ROADMAP §Depends-on says "`constants.py` for lockstep parity" but also frames the phase as firmware-primary.
    - What's unclear: Whether the operator wants host-side PROTO_ constants for symmetry (would require a new `test_proto_values_match_firmware()` parity function), or whether host stays name-free (PROTO_ tokens are a firmware legibility layer only). Note Phase 102 will add DISPLAY names to the host (`ic_layout.py`), which is a separate concern from the C `PROTO_` tokens.
    - Recommendation: Default to **firmware-only** (no constants.py PROTO_ block) to keep the phase minimal and sidestep the py3.11 CI trap; the parity test stays green unchanged. Surface this in `/gsd-discuss-phase` for an explicit operator decision. If mirrored, follow the existing `@skipif(FW_ABSENT)` hard-literal parity pattern.
 
-2. **Disposition of the already-red `test_dispatch_mirror.py`.**
+2. **RESOLVED (→ D-03, fix parser in Wave 0): Disposition of the already-red `test_dispatch_mirror.py`.**
    - What we know: It is RED at baseline due to Phase 100's PROTOCOLS.md table restructure (parser returns empty). GATE-01 requires this guard green.
    - What's unclear: Fix the parser to read the new table shape (recommended) vs. broader re-pin.
    - Recommendation: Add a task to update `parse_protocols_md()`/`_ROW_RE` to parse the handler-family table (lines 49–57) or the §1.x `**Handler:**` lines, and confirm green. Cite the Phase-100 restructure as the rationale.
 
-3. **Does FW-03 require ANY actual rename?**
+3. **RESOLVED (→ D-01, conformance-confirm, no rename): Does FW-03 require ANY actual rename?**
    - What we know: Approved family names == current function/file names (verified identical).
    - What's unclear: Whether the operator intended a cosmetic conformance-confirmation or expected visible renames.
    - Recommendation: Treat FW-03 as "confirm conformance + add PROTO_-token cross-reference header comments"; do NOT rename. Confirm in discuss-phase (this materially changes the plan's task count).

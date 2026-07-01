@@ -21,7 +21,7 @@ No `chip_database.json` change and no wire/lockstep-constant value change (GATE-
 ## Implementation Decisions
 
 ### FW-03 handler naming — conformance-confirm, not wholesale rename
-- **D-01**: FW-03 is satisfied by **confirming conformance** of the existing family handler
+- **D-01:** FW-03 is satisfied by **confirming conformance** of the existing family handler
   files/functions to Phase 100's approved family-name layer, NOT by a wholesale rename.
   Research verified Phase 100's approved family names ARE the already-existing names
   (`configure_eprom`/`eprom.cpp`, `configure_flash4`/`flash_type_4.cpp`, `configure_eeprom28c`,
@@ -30,7 +30,7 @@ No `chip_database.json` change and no wire/lockstep-constant value change (GATE-
   the rest conformant. Groupings are not split.
 
 ### PROTO_<NAME> constant home — firmware-only
-- **D-02**: The `PROTO_<NAME>` constants live **only in the firmware** (a constant home in
+- **D-02:** The `PROTO_<NAME>` constants live **only in the firmware** (a constant home in
   `firestarter/include/`). They are NOT mirrored into host `firestarter_app/constants.py`.
   Host `constants.py` currently has ZERO protocol constants and the constants-parity test
   asserts none — keeping firmware-only holds parity green with no change, keeps GATE-02
@@ -38,14 +38,14 @@ No `chip_database.json` change and no wire/lockstep-constant value change (GATE-
   py3.12-masks-CI-py3.11 trap.
 
 ### Dispatch-mirror guard — fix the parser in-scope (Wave 0)
-- **D-03**: The pre-existing RED `firestarter_app/tests/test_dispatch_mirror.py` guard
+- **D-03:** The pre-existing RED `firestarter_app/tests/test_dispatch_mirror.py` guard
   (broken by Phase 100's PROTOCOLS.md table restructure — its parser returns an empty table)
   is reconciled **in-scope** as a Wave-0 task: fix the parser against Phase 100's new
   PROTOCOLS.md table layout so GATE-01 can be honestly claimed green. The baseline is NOT
   clean; the planner must not assume a green dispatch-mirror guard.
 
 ### Phantom / infeasible tokens
-- **D-04**: The 0x35/0x39 dispatch arm gets operator-approved honest, explicitly-non-real
+- **D-04:** The 0x35/0x39 dispatch arm gets operator-approved honest, explicitly-non-real
   phantom tokens (`PROTO_PHANTOM_0x35` / `PROTO_PHANTOM_0x39`) per Phase 100. The
   0x11/0x2A/0x2B/0x2C infeasible arm has NO approved tokens — leave it as raw hex; do not
   invent names here.
