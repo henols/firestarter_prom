@@ -30,8 +30,8 @@
 
 ### BENCH — Graduation (gated on PRE-01)
 
-- [ ] **BENCH-01**: A full write→verify cycle on the seated AM27C020 (Leonardo + Rev 2.0) reads back byte-exact (SHA match) to the written image — the graduation gate. **Contingent on PRE-01 passing**; if the chip is OTP/dead, this defers to a FUT carry-forward with documented evidence (not faked).
-- [ ] **BENCH-02**: A bench EVIDENCE record is captured (the `1→0` program proof / failing-vs-fixed signature, VPP rail readings, bench-discipline log row), sufficient to update the PROTOCOL-LEDGER `0x08` entry on graduation.
+- [x] **BENCH-01**: A full write→verify cycle on the seated AM27C020 (Leonardo + Rev 2.0) reads back byte-exact (SHA match) to the written image — the graduation gate. **Contingent on PRE-01 passing**; if the chip is OTP/dead, this defers to a FUT carry-forward with documented evidence (not faked).
+- [x] **BENCH-02**: A bench EVIDENCE record is captured (the `1→0` program proof / failing-vs-fixed signature, VPP rail readings, bench-discipline log row), sufficient to update the PROTOCOL-LEDGER `0x08` entry on graduation.
 
 ### SAFE — Safety & CI
 
@@ -41,7 +41,7 @@
 ## Future Requirements (deferred — carried forward, out of scope for v1.18)
 
 - **FUT-07** — W29C040 byte-exact graduation + LEDGER `supported` (§6.6 boot block permanently locked on the operator's chip; needs a different unlocked sample + third-party bench). All v1.17 software done.
-- **FUT-06 (this milestone)** — IS the v1.18 target (AM27C020 `0x08` 32-pin write/VPP). Closes on BENCH-01 (or re-scopes to software-fix-only via PRE-01).
+- **FUT-08 (successor to FUT-06, this milestone)** — AM27C020 `0x08` 32-pin write/VPP: Phase-98 fix is bench-proven effective (60/64 byte-exact write#1; Phase-97 0-bits signature refuted) but marginal/unreliable (write#2 0/64). FUT-06 retired-by-replacement; FUT-08 carries the next step (characterize program-window VPP-under-load at socket pin 1 + write timing). See PROTOCOL-LEDGER `0x08` / `.planning/v1.18/bench/EVIDENCE.json`.
 - **FUT-05** — REWR-02 `0x08` rewritable write proof (W27E040 stuck-bit; needs a functional `0x08` rewritable chip). May benefit from the v1.18 `0x08` fix.
 - **FUT-04** — AT28C04/16 adapter graduation (adapter not built; 9 chips `adapter-required`).
 - **FUT-03 / GRAD-03** — 2516 `0x0B` read instability + write proof (shared OE/VPP pin; the other in-hand defect — deferred, separate family).
@@ -70,5 +70,5 @@ _Filled by the roadmapper. All v1.18 REQ-IDs map to exactly one phase (no orphan
 | FIX-02 | Phase 98 | Complete (Plan 04 — golden traces byte-identical; RC-98A/B/C reconciled + WR-01 revision-parametrized native test added; Plan 05 — IN-01/IN-02/IN-03 gap-closure: uint32_to_bytes explicit-index fix, single-eval mem_min, MAX_27C020_SIZE parity test; native suite 119/119 green) |
 | FIX-03 | Phase 98 | Complete (Plan 03 — DIP32_27C020 rw-pin:[31] host half) |
 | SAFE-02 | Phase 98 | Complete (Plan 03 host CI + Plan 04 primitives.cpp/eprom.cpp untouched; Plan 05 — host CI green on py3.11 target, ruff/format/mypy/diff_db/check_dispatch/parity all pass) |
-| BENCH-01 | Phase 99 | Pending (contingent on PRE-01) |
-| BENCH-02 | Phase 99 | Pending |
+| BENCH-01 | Phase 99 | Complete (Plan 04 — DEFER outcome, documented not faked: write#1 60/64 byte-exact / write#2 0/64, no byte-exact graduation; PROTOCOL-LEDGER 0x08 stays open-defect-carried, FUT-06 -> FUT-08) |
+| BENCH-02 | Phase 99 | Complete (Plan 04 — EVIDENCE.json phase99_deferral cell + PROTOCOL-LEDGER FUT-08 update, both gates green) |

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.18
 milestone_name: — AM27C020 0x08 Write-Path RCA & Fix
 status: executing
-last_updated: "2026-07-01T11:05:23.037Z"
+last_updated: "2026-07-01T11:50:55.456Z"
 last_activity: 2026-07-01
 progress:
   total_phases: 7
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 20
-  completed_plans: 18
-  percent: 57
+  completed_plans: 20
+  percent: 71
 ---
 
 # Project State
@@ -20,11 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: 99 (BENCH + LEDGER — Graduation Gate, Evidence & Ledger Update) — EXECUTING
-Plan: 3 of 4
-Status: Wave 1 complete (99-01, 99-02); Wave 2 is OPERATOR-GATED bench (99-03/99-04)
-Next: 99-03 requires the operator at the physical bench (Leonardo + RURP Rev 2.0, seated AM27C020) — cannot proceed autonomously. 99-02 done bar met: imgA.bin (262144 bytes, seed 1) + annotated SHA256SUMS.txt (fw commit 35706c2, PENDING BENCH verdict) + check_graduation.py (anti-fabrication EVIDENCE gate, MISSING/exit-1 pre-bench confirmed, PASS/DEFER branch logic validated against 9 synthetic fixtures).
-Last activity: 2026-07-01 -- Phase 99 Plan 02 complete (bench-independent graduation prep: image + SHA256SUMS + check_graduation.py)
+Phase: 99 (BENCH + LEDGER — Graduation Gate, Evidence & Ledger Update) — COMPLETE
+Plan: 4 of 4 (all plans complete)
+Status: Phase 99 CLOSED — bench outcome DEFER (fix-effective-but-unreliable) transcribed into EVIDENCE.json (phase99_deferral cell) + PROTOCOL-LEDGER (0x08 stays open-defect-carried, FUT-06 retired -> FUT-08; renumbered from FUT-07 to avoid collision with the pre-existing v1.17 FUT-07/W29C040 defect below). All gates green: check_graduation.py, check_signature.py, check_pre01.py, check_ledger.py (0 contradictions), pytest test_check_ledger.py (8 passed).
+Next: v1.18 milestone close (Phase 99 was the last planned phase; operator to confirm milestone-close steps — lockstep beta cut remains OPERATOR-GATED per standing policy).
+Last activity: 2026-07-01 -- Phase 99 Plan 04 complete (EVIDENCE + PROTOCOL-LEDGER transcription, DEFER branch, FUT-08 opened)
 
 ## Project Reference
 
@@ -65,7 +65,7 @@ Created 2026-06-29 · granularity Comprehensive · 11/11 requirements mapped (no
 | Category | Item | Status | Disposition |
 |----------|------|--------|-------------|
 | FUT-07 (v1.17) | W29C040 byte-exact graduation + LEDGER `supported` | deferred — §6.6 boot block permanently locked on seated chip | Needs a different unlocked sample + third-party bench. All v1.17 software done. |
-| **FUT-06 (v1.15)** | **AM27C020 0x08 32-pin write/VPP path** | **ACTIVE — v1.18 target** | 0-bits-programmed; JP4-closed didn't fix; RC-1 (PGM pin 31 mapped as address line) is the leading hypothesis. **This milestone.** |
+| ~~FUT-06 (v1.15)~~ → **FUT-08 (v1.18)** | AM27C020 0x08 32-pin write/VPP path | **retired-by-replacement (v1.18 Phase 99 close, 2026-07-01)** | Phase-98 fix bench-proven effective (write#1 60/64 byte-exact; Phase-97 0-bits signature refuted) but marginal/unreliable (write#2 0/64) — no byte-exact graduation. FUT-08 carries the next step: characterize program-window VPP-under-load (DMM at socket pin 1) + write timing. See PROTOCOL-LEDGER `0x08` / `.planning/v1.18/bench/EVIDENCE.json`. |
 | FUT-05 (v1.15) | REWR-02 0x08 rewritable write proof | deferred — no functional 0x08 rewritable chip | W27E040 stuck-bit; may benefit from v1.18 `0x08` fix. |
 | FUT-04 (v1.14) | AT28C04/16 adapter graduation | deferred — adapter not built | 9 chips stay `adapter-required`. |
 | FUT-03 (v1.15) | 2516 0x0B read instability + write proof | deferred best-effort (D-22) | 3 distinct SHAs after VPP-skip; shared OE/VPP pin. |
@@ -128,6 +128,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase 98 Plan 05]: Phase 98 CLOSED — all 5 plans complete (98-01/02 original fix attempt + 98-03/04 corrected CR-01 fix + 98-05 IN-01/02/03 cleanup); native suite 119/119 green, golden traces byte-identical, host CI green on py3.11 target; Phase 99 (BENCH + LEDGER) unblocked
 - [Phase 99 Plan 01]: Chose minimal D-09 extension (option a, evidence-shape branch keyed on `v1_18_writeverify_sha_selfconsistent`) over a new status enum value — a v1.18-native 0x08 graduation is proven by write/read-back self-consistency (no v1.15 write baseline exists for AM27C020) without requiring a fabricated `p90_writecycle_sha_matches_v115` claim; honesty guard verified (bare 0x08 PASS claim without the marker still fails); FUT-06 retirement path (removal from open_defects[], not status_changed flip) proven by test; gate is now CAPABLE of a graduated 0x08 row but 99-04 decides the actual outcome from the bench result
 - [Phase Phase 99 Plan 02]: check_graduation.py filters on op prefix phase99* (never the Phase-97 tier0_microprobe+rca01 cell); branches PASS (write_image_sha256==readback_sha256 self-consistency) vs DEFER (bits_flipped+post_read_sha256 differential), validated against 9 synthetic fixture cells without ever mutating the real EVIDENCE.json
+- [Phase 99]: [Phase 99 Plan 04]: Took the DEFER branch decided by 99-03 (Phase-98 fix bench-effective-but-unreliable: write#1 60/64 byte-exact, write#2 0/64); retired FUT-06 by removal-and-replacement rather than in-place edit, opening FUT-08 (renumbered from the operator-requested "FUT-07" — that id is already taken by the v1.17 W29C040 defect in this same table) as an explicit successor citing the fix-effective-but-unreliable finding + the next diagnostic step (program-window VPP-under-load + write timing); 0x08 row stays open-defect-carried with on_hand_chip now AM27C020
 
 ## Performance Metrics
 
@@ -137,3 +138,4 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 98 P05 | 25min | 3 tasks | 5 files |
 | Phase 99 P01 | 25min | 3 tasks | 2 files |
 | Phase 99 P02 | 15min | 2 tasks | 3 files |
+| Phase 99 P04 | 15min | 2 tasks | 4 files |

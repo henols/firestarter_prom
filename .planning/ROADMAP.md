@@ -238,7 +238,7 @@ Plans:
 
 - [ ] **Phase 97: PRE + RCA** — Tier-0 silicon-writability pre-flight (PRE-01) + reproduce the 0x08 0-bits-programmed failure with captured signature (RCA-01) + differential comparison against the passing 0x07 W27C512 to isolate differing variables (RCA-02) + named root cause or ranked hypotheses (RCA-03). Establishes SAFE-01 over-voltage/host-guard non-bypass discipline. Bench-gated (Leonardo + Rev 2.0, seated AM27C020, DMM at pin 1 and pin 31).
 - [x] **Phase 98: FIX** — Correct the firmware/host `0x08` 32-pin write/VPP path per the Phase 97 root cause (FIX-01); keep v1.16 golden register traces + dispatch-mirror guard green for passing paths and re-pin any legitimately changed traces (FIX-02); deliver dual-repo lockstep for any wire-crossing change including a per-chip pinout entry if the PGM-as-address mapping is the cause (FIX-03). Host CI green on py3.11 (SAFE-02). No bench required for this phase.
-- [ ] **Phase 99: BENCH + LEDGER** — Byte-exact write→verify graduation on the seated AM27C020 (contingent on PRE-01 — deferral to FUT is a documented clean outcome, not a failure) (BENCH-01) + EVIDENCE record with program proof / VPP rail readings / bench-discipline log (BENCH-02) + PROTOCOL-LEDGER `0x08` entry updated (PASS or documented open-defect status).
+- [x] **Phase 99: BENCH + LEDGER** — Byte-exact write→verify graduation on the seated AM27C020 (contingent on PRE-01 — deferral to FUT is a documented clean outcome, not a failure) (BENCH-01) + EVIDENCE record with program proof / VPP rail readings / bench-discipline log (BENCH-02) + PROTOCOL-LEDGER `0x08` entry updated (PASS or documented open-defect status). **Outcome: DEFER (fix-effective-but-unreliable)** — Phase-98 fix bench-proven effective (60/64 byte-exact write#1, refuting Phase-97 0-bits) but marginal/unreliable (write#2 0/64); no byte-exact graduation; FUT-06 retired -> FUT-08.
 
 ## Phase Details
 
@@ -318,11 +318,11 @@ Plans:
 
 **Wave 2** *(blocked on 99-02; OPERATOR-GATED bench, autonomous:false)*
 
-- [ ] 99-03-PLAN.md — pre-spend discipline/firmware-commit/VPP gate + single operator-authorized `write -b` -> read-back -> SHA compare -> N>=3 stability on the seated AM27C020 (graduate or clean defer), captured in 99-03-BENCH-LOG.md *(BENCH-01, BENCH-02)*
+- [x] 99-03-PLAN.md — pre-spend discipline/firmware-commit/VPP gate + single operator-authorized `write -b` -> read-back -> SHA compare -> N>=3 stability on the seated AM27C020 (graduate or clean defer), captured in 99-03-BENCH-LOG.md *(BENCH-01, BENCH-02)*
 
 **Wave 3** *(blocked on 99-01/02/03)*
 
-- [ ] 99-04-PLAN.md — finalize: author the Phase-99 EVIDENCE cell + update PROTOCOL-LEDGER `0x08` row + FUT-06 (json/md lockstep) from the bench outcome; `check_graduation.py` + `check_ledger.py` exit 0 (graduate: PASS + FUT-06 removed; defer: residual + FUT-06 kept, status_changed:false) *(BENCH-01, BENCH-02)*
+- [x] 99-04-PLAN.md — finalize: author the Phase-99 EVIDENCE cell + update PROTOCOL-LEDGER `0x08` row + FUT-06 (json/md lockstep) from the bench outcome; `check_graduation.py` + `check_ledger.py` exit 0 (graduate: PASS + FUT-06 removed; defer: residual + FUT-06 kept, status_changed:false) *(BENCH-01, BENCH-02)*
 
 **UI hint**: no
 
@@ -914,7 +914,7 @@ Plans:
 | 96 (close) | v1.17 | 0/TBD | Not started | — |
 | 97 | v1.18 | 3/3 | Complete   | 2026-06-30 |
 | 98 | v1.18 | 4/5 | In Progress|  |
-| 99 (close) | v1.18 | 2/4 | In Progress|  |
+| 99 (close) | v1.18 | 4/4 | Complete   | 2026-07-01 |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
