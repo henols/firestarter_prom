@@ -81,7 +81,7 @@
       "pre_read_sha256": "90cd45f5343cd938006f20635de39479159c51b9d56c1b6f1fb23075ed567297",
       "post_read_sha256": "5586826791e919f0e3bb150d67ce4ab80d132290dc9d76d97cb32d836c679487",
       "readback": "write#1 read-back region 0x1da00..+64 = 60/64 byte-exact (full-chip readback SHA after write#1 = 4b192bbaeb928a5b99e0f5651f5c6c9439fa74efefe69c1cbcaa83962647a418, consistency-check --runs 3 PASS 1 distinct SHA); write#2 read-back region 0x16600..+64 = 0/64; post_read_sha256 is the full-chip SHA after write#2 (final chip state)",
-      "verdict": "DEFER (fix-effective-but-unreliable) \u2014 Phase-98 fix programs bits (Phase-97 0-bits refuted: 60/64 byte-exact) but marginal/unreliable (write#2 0/64); no byte-exact graduation \u2192 FUT-07.",
+      "verdict": "DEFER (fix-effective-but-unreliable) \u2014 Phase-98 fix programs bits (Phase-97 0-bits refuted: 60/64 byte-exact) but marginal/unreliable (write#2 0/64); no byte-exact graduation \u2192 FUT-08 (successor to FUT-06; FUT-07 is the unrelated v1.17 W29C040 defect).",
       "anomalies": "No UV eraser on hand; full 262144-byte imgA.bin was NOT written (AM27C020 is UV EPROM, 1\u21920 bits are permanent, writing the full pseudo-random image risked false-fail on 1\u21920 physics). Used a minimal, physically-valid pure-1\u21920 program proof instead: a distinctive 64-byte ramp (writeA.bin, 0x00..0x3F) written into a currently-all-0xFF scratch region. `firestarter dev write-cycle` correctly NOT used (erases first \u2192 fails on UV EPROM). Both writes used -b only, no --skip-erase, no --force (SAFE-01 intact)."
     }
   ]
