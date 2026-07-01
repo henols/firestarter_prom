@@ -14,13 +14,13 @@
 
 ### PRE — Tier-0 Silicon Writability Gate
 
-- [ ] **PRE-01**: A Tier-0 silicon-writability pre-flight (via the existing read/blank-check path + a single-bit `1→0` micro-probe, no escape hatch) determines whether the seated AM27C020 is re-programmable BEFORE the full graduation. If not writable (OTP / already-programmed / dead), the bench graduation (BENCH-01/02) is deferred to a FUT carry-forward and the milestone re-scopes to software-fix-only — recorded as such, never faked.
+- [x] **PRE-01**: A Tier-0 silicon-writability pre-flight (via the existing read/blank-check path + a single-bit `1→0` micro-probe, no escape hatch) determines whether the seated AM27C020 is re-programmable BEFORE the full graduation. If not writable (OTP / already-programmed / dead), the bench graduation (BENCH-01/02) is deferred to a FUT carry-forward and the milestone re-scopes to software-fix-only — recorded as such, never faked.
 
 ### RCA — Root-Cause the 0x08 0-Bits-Programmed Fault
 
-- [ ] **RCA-01**: The AM27C020 `0x08` 0-bits-programmed failure is reproduced on the seated chip (Leonardo + Rev 2.0) with a captured signature — which bytes fail to flip `1→0`, the VPP rail readings at socket pin 1 (and pin 31), and the PGM-pin state during the program window — establishing a pre-fix baseline.
-- [ ] **RCA-02**: The `0x08` write path is differentially compared against the passing `0x07` W27C512 (28-pin) across the candidate axes (PGM-pin handling / DIP32 pin-31 mapping, P1 VPP routing + level, JP4 32/28-pin, 32-pin A16/A17 addressing) to isolate the differing variable(s) and exonerate the unchanged axes.
-- [ ] **RCA-03**: A named root cause (or ranked hypotheses each carrying disconfirming evidence) is recorded, classified firmware-algorithm / host-pinout / VPP-routing / addressing / silicon — sufficient to design a targeted fix without further RCA.
+- [x] **RCA-01**: The AM27C020 `0x08` 0-bits-programmed failure is reproduced on the seated chip (Leonardo + Rev 2.0) with a captured signature — which bytes fail to flip `1→0`, the VPP rail readings at socket pin 1 (and pin 31), and the PGM-pin state during the program window — establishing a pre-fix baseline.
+- [x] **RCA-02**: The `0x08` write path is differentially compared against the passing `0x07` W27C512 (28-pin) across the candidate axes (PGM-pin handling / DIP32 pin-31 mapping, P1 VPP routing + level, JP4 32/28-pin, 32-pin A16/A17 addressing) to isolate the differing variable(s) and exonerate the unchanged axes.
+- [x] **RCA-03**: A named root cause (or ranked hypotheses each carrying disconfirming evidence) is recorded, classified firmware-algorithm / host-pinout / VPP-routing / addressing / silicon — sufficient to design a targeted fix without further RCA.
 
 ### FIX — Correct the 0x08 32-Pin Write/VPP Path
 
@@ -61,11 +61,11 @@ _Filled by the roadmapper. All v1.18 REQ-IDs map to exactly one phase (no orphan
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| PRE-01 | Phase 97 | Pending |
-| RCA-01 | Phase 97 | Pending |
-| RCA-02 | Phase 97 | Pending |
-| RCA-03 | Phase 97 | Pending |
-| SAFE-01 | Phase 97 | Pending (recurs as precondition through Phases 98–99) |
+| PRE-01 | Phase 97 | Complete (97-VERIFICATION PASS — N=3 read oracle + blank-state SHA + micro-probe; INDETERMINATE writability honored per D-01/D-02, not fabricated) |
+| RCA-01 | Phase 97 | Complete (97-VERIFICATION PASS — 0-bits signature reproduced: bad bytes 1/1, retries 20, bits_flipped=0, VPP 13.0V; pin-1/31 DMM tooling-blocked, documented "not measured") |
+| RCA-02 | Phase 97 | Complete (97-VERIFICATION PASS — 0x07 W27C512 byte-exact differential control; 8-row axis matrix; 32-pin-only axes isolated) |
+| RCA-03 | Phase 97 | Complete (97-VERIFICATION PASS — RC-1 CONFIRMED pin-31-as-A18 / host-pinout+firmware-algorithm; RC-2 EXONERATED; Phase-98 fix surfaces named) |
+| SAFE-01 | Phase 97 | Complete (97-VERIFICATION PASS; recurs as precondition through Phases 98–99 — over-voltage ERROR-blocked, chip_resolver guard never bypassed, no escape hatch, integration WIRED) |
 | FIX-01 | Phase 98 | Complete (Plan 04 — corrected fix: reverted Plan 02's inert A18-clear, relies on the existing rw_line mechanism / CTRL_READ_WRITE for pin-31 PGM hold, revision-agnostic) |
 | FIX-02 | Phase 98 | Complete (Plan 04 — golden traces byte-identical; RC-98A/B/C reconciled + WR-01 revision-parametrized native test added; Plan 05 — IN-01/IN-02/IN-03 gap-closure: uint32_to_bytes explicit-index fix, single-eval mem_min, MAX_27C020_SIZE parity test; native suite 119/119 green) |
 | FIX-03 | Phase 98 | Complete (Plan 03 — DIP32_27C020 rw-pin:[31] host half) |
