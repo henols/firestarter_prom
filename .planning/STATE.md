@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.18
 milestone_name: — AM27C020 0x08 Write-Path RCA & Fix
 status: executing
-last_updated: "2026-07-01T10:49:55.269Z"
-last_activity: 2026-07-01 -- Phase 99 planning complete
+last_updated: "2026-07-01T10:56:27.000Z"
+last_activity: 2026-07-01 -- Phase 99 Plan 01 complete (ledger gate extension)
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 20
-  completed_plans: 16
-  percent: 57
+  completed_plans: 17
+  percent: 60
 ---
 
 # Project State
@@ -20,11 +20,11 @@ progress:
 
 ## Current Position
 
-Phase: 98 (fix-correct-the-0x08-32-pin-write-vpp-path) — COMPLETE (all 5 plans done: 98-01/02 original + 98-03/04/05 gap-closure)
-Plan: 5 of 5 (98-05 complete: IN-01/IN-02/IN-03 gap-closure — uint32_to_bytes explicit-index fix, single-eval mem_min, MAX_27C020_SIZE named constant + cross-repo parity test)
-Status: Ready to execute
-Next: /gsd-execute-phase 99 — BENCH + LEDGER (Leonardo + Rev 2.0, seated AM27C020, PRE-01 writability pre-flight first). Phase 98 done bar met: native suite 119/119 green, golden traces byte-identical, host CI green on py3.11. REQUIREMENTS.md FIX-02/SAFE-02 traceability lines updated to reflect Plan 05's contribution.
-Last activity: 2026-07-01 -- Phase 99 planning complete
+Phase: 99 (BENCH + LEDGER — Graduation Gate, Evidence & Ledger Update) — EXECUTING
+Plan: 2 of 4
+Status: Executing Phase 99 (Wave 1 continuing — 99-02 next; Wave 2 is OPERATOR-GATED bench)
+Next: /gsd-execute-phase 99 — 99-02-PLAN.md (bench-prep: deterministic 262144-byte write image + SHA256SUMS.txt header convention + check_graduation.py). 99-01 done bar met: check_ledger.py D-09 extended for a v1.18-native 0x08 graduation (self-consistency, no v1.15 write baseline); 8/8 tests green; live 11-row ledger still exits 0; honesty guard verified.
+Last activity: 2026-07-01 -- Phase 99 Plan 01 complete (ledger gate extension)
 
 ## Project Reference
 
@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md` (v1.18 Current Milestone section + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware handler. v1.18 proves that contract on the AM27C020 `0x08` EPROM-QUICK 32-pin write path: root-cause the 0-bits-programmed failure, fix the write/VPP path (RC-1 leading: PGM pin 31 mapped as address line rather than held program-active), and bench-prove byte-exact write→verify on real silicon — gated on Tier-0 writability pre-flight.
 
-**Current focus:** Phase 98 — fix-correct-the-0x08-32-pin-write-vpp-path
+**Current focus:** Phase 99 — BENCH + LEDGER — Graduation Gate, Evidence & Ledger Update
 
 ## Milestone Context (v1.18)
 
@@ -126,6 +126,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase 98 Plan 05]: IN-03 macro replacement named `mem_min` (not `min`) to avoid any future collision with Arduino's own min() or std::min — static inline single-evaluation function, sole call site (memory_read_execute) updated, behavior identical (side-effect-free operands)
 - [Phase 98 Plan 05]: IN-02 host authoritative value moved from build_db.py-only literal (98-03) into constants.py (the established landing spot for every firmware-parity constant this codebase tracks) — build_db.py now imports it; parity test follows the file's REAL pattern (hardcoded literal + FW_ABSENT skipif + citing comment), not literal header-parsing, matching its 6 sibling assertions
 - [Phase 98 Plan 05]: Phase 98 CLOSED — all 5 plans complete (98-01/02 original fix attempt + 98-03/04 corrected CR-01 fix + 98-05 IN-01/02/03 cleanup); native suite 119/119 green, golden traces byte-identical, host CI green on py3.11 target; Phase 99 (BENCH + LEDGER) unblocked
+- [Phase 99 Plan 01]: Chose minimal D-09 extension (option a, evidence-shape branch keyed on `v1_18_writeverify_sha_selfconsistent`) over a new status enum value — a v1.18-native 0x08 graduation is proven by write/read-back self-consistency (no v1.15 write baseline exists for AM27C020) without requiring a fabricated `p90_writecycle_sha_matches_v115` claim; honesty guard verified (bare 0x08 PASS claim without the marker still fails); FUT-06 retirement path (removal from open_defects[], not status_changed flip) proven by test; gate is now CAPABLE of a graduated 0x08 row but 99-04 decides the actual outcome from the bench result
 
 ## Performance Metrics
 
@@ -133,3 +134,4 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 |-------|------|----------|-------|
 | Phase 98 P04 | 35min | 3 tasks | 2 files |
 | Phase 98 P05 | 25min | 3 tasks | 5 files |
+| Phase 99 P01 | 25min | 3 tasks | 2 files |

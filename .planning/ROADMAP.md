@@ -312,7 +312,7 @@ Plans:
 
 **Plans**: 4 plans in 3 waves (planned 2026-07-01; granularity Comprehensive; ONE required code task = the ledger-gate extension, isolated operator bench in its own wave, graduate AND defer branches both planned and non-faked):
 **Wave 1** *(autonomous, no hardware)*
-- [ ] 99-01-PLAN.md — extend `check_ledger.py` + `test_check_ledger.py` to admit a v1.18-native `0x08` graduation (written-image SHA == read-back SHA) WITHOUT a v1.15 write baseline, keeping the 5 tests + 11 rows green (TDD) *(BENCH-02)*
+- [x] 99-01-PLAN.md — extend `check_ledger.py` + `test_check_ledger.py` to admit a v1.18-native `0x08` graduation (written-image SHA == read-back SHA) WITHOUT a v1.15 write baseline, keeping the 5 tests + 11 rows green (TDD) *(BENCH-02)* — [SUMMARY](phases/99-bench-ledger-graduation-gate-evidence-ledger-update/99-01-SUMMARY.md)
 - [ ] 99-02-PLAN.md — bench-prep: deterministic 262144-byte write image (`gen_test_image` seed 1) + annotated `AM27C020-graduation/SHA256SUMS.txt` header + `check_graduation.py` EVIDENCE-completeness/anti-fabrication gate *(BENCH-02)*
 
 **Wave 2** *(blocked on 99-02; OPERATOR-GATED bench, autonomous:false)*
