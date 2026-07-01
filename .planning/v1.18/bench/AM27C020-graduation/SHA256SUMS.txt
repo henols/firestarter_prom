@@ -1,0 +1,13 @@
+# AM27C020 (0x08) GRADUATION write image — Leonardo + RURP Rev 2.0
+# Firmware: submodule commit 35706c2 (Phase 98-05 HEAD, corrected DIP32_27C020 rw-pin:[31]
+# -> CTRL_READ_WRITE 0x40 fix). Record the COMMIT, not the version string (both Phase-98 and
+# pre-fix builds report the same "3.0.0b10" version — the version-string caveat).
+# Controller: leonardo. Shield: Rev 2.0.
+# Method: manual write -b (chip is NOT-BLANK, 0x02@0x0000; -b skips ONLY blank-check) ->
+# read/verify -> independent host-side SHA compare. UV EPROM: NO electrical erase, so
+# NO --skip-erase; NO --force (SAFE-01 over-voltage guard keys on FLAG_FORCE only).
+# Image: firestarter_app/tools/gen_test_image.py 262144 1 imgA.bin (seed 1 = image A convention).
+#
+# verdict: PENDING BENCH
+#
+b2fc5cbfcc25be3daa0e8e88e6977c7da6164a6fcf9c577ca943da940a133457  imgA.bin
