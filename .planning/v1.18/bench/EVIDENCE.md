@@ -85,6 +85,44 @@ Op: `differential_control_write` (passing-sibling control, same session/bench, s
 
 ---
 
+## Cell C — AM27C020 (`0x08` EPROM_QUICK) — Plan 99-03/04 (post-fix bench)
+
+Op: `phase99_deferral` (Phase-98 fix bench-tested; small pure-1→0 writes, no UV eraser on hand).
+
+**Method deviation (operator-driven, honest):** the staged full 262144-byte `imgA.bin` was NOT
+written — AM27C020 is a UV EPROM with no electrical erase and no UV eraser on hand, so every
+programmed bit is permanent and a full pseudo-random image could false-fail on 1→0 physics.
+Instead, a distinctive 64-byte ramp (`writeA.bin`, bytes `0x00..0x3F`) was written into scratch
+regions that were confirmed all-`0xFF` against the pre-write baseline, so a byte-exact read-back
+isolates exactly "does the `0x08` write path program?". `firestarter dev write-cycle` was
+correctly NOT used (it erases first, which fails on a UV EPROM).
+
+| Field | Source | Value |
+|-------|--------|-------|
+| controller | `firestarter fw` / `hw` | leonardo |
+| port | `firestarter fw` | /dev/ttyACM0 |
+| r1_readback | `firestarter config` | 270000 |
+| r2_readback | `firestarter config` | 44000 |
+| fw_commit | `git -C firestarter rev-parse HEAD` (reflashed + avrdude-verified this session) | **35706c2** (Phase 98-05 fix; version string 3.0.0b10, does not distinguish the fix) |
+| jp4_position | [OP] | not recorded this session |
+| vpp_adc_mv | `firestarter vpp` ADC node | **12900–13000** (idle, before write#1 and after write#2; stable, 12.75±0.25 band) |
+| dmm_pin1_v | [OP] held-rail proxy DMM at socket pin 1 | **not measured** — held-rail proxy blocked (DTR-reset-on-close, Phase-97 precedent). Program-window VPP droop under load is the leading marginality hypothesis but was not instrumented; idle ADC is the only VPP evidence |
+| write_image_sha256 | `writeA.bin` (64-byte ramp) | `fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108` |
+| pre_read_sha256 | `prewrite.bin` (full chip, pre-any-write) | `90cd45f5343cd938006f20635de39479159c51b9d56c1b6f1fb23075ed567297` |
+| post_read_sha256 | `readback2.bin` (full chip, after write#2, final chip state) | `5586826791e919f0e3bb150d67ce4ab80d132290dc9d76d97cb32d836c679487` (**!= pre → bits DID program**, unlike the Phase-97 pristine result) |
+| bits_flipped | write#1/#2 read-back comparison | **write#1 @0x1da00: 60/64 bytes byte-exact** (ramp `+0x04`…`+0x3F`; first 4 bytes stayed `0xFF`; bad_bytes 4, retries 20). **write#2 @0x16600 (confirmatory, different region): 0/64** (bad_bytes 64, retries 20) — marginal/unreliable, not a deterministic leading-byte-offset bug |
+| readback | full-chip readback SHA after write#1 | `4b192bbaeb928a5b99e0f5651f5c6c9439fa74efefe69c1cbcaa83962647a418`; `firestarter dev consistency-check --runs 3` = **PASS**, 1 distinct SHA (partial-program state is real and stable, not a read glitch) |
+| verdict | bench synthesis | **DEFER (fix-effective-but-unreliable)** — Phase-98 fix (rw-pin:[31] → `CTRL_READ_WRITE 0x40`) programs bits (Phase-97 absolute "0 bits" REFUTED: 60/64 byte-exact once) but programming is marginal/unreliable (write#2 0/64 at the same stable idle VPP); no byte-exact graduation → `0x08` does not graduate to PASS. Carry-forward: **FUT-07** (successor to FUT-06) — characterize program-window VPP-under-load droop (DMM at pin 1) + write timing |
+| anomalies | — | No UV eraser on hand; full `imgA.bin` NOT written (see Method deviation above). Both writes used `-b` only — no `--skip-erase`, no `--force` (SAFE-01 intact) |
+
+**Positive, RCA-critical finding:** the Phase-98 fix WORKS — `pre_read_sha256 != post_read_sha256`
+proves the `0x08` write path programs 1→0 bits post-fix, categorically refuting the Phase-97 cell's
+"0 bits programmed" signature. The residual defect is a **new, qualitatively different** one:
+marginal/unreliable programming (60/64 vs 0/64 across two attempts at the same stable idle VPP),
+not the deterministic 0-bits failure RCA'd in Phase 97.
+
+---
+
 ## Differential collapse (RCA-02 framing)
 
 The matrix collapses to **two converging differing axes** — both absent on the

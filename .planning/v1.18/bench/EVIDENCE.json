@@ -61,6 +61,28 @@
       "verdict": "PASS \u2014 0x07 write\u2192verify\u2192readback byte-exact (write 6.52s, verify 0.64s). Differential CONTROL: the passing 0x07 sibling (same session, same configure_eprom) exonerates all shared axes; isolates the 0-bits cause to the 32-pin-only axes (P1-VPP-delivery + pin-31-as-address). VPP routing to pin 1 separately code-confirmed (H2 disproven) \u2192 cause = RC-1 (pin 31 = A18).",
       "sha256": "d9471636ca34b84f863a666eff6ff6aa4fc44396b2ff11a38e036e54b4b39ee3",
       "anomalies": "Operator first seated an ST M27C512 (id 0x203d, SGS-Thomson, UV-EPROM, VPP 13V) \u2014 chip-ID check aborted the write (no --force), M27C512 left pristine. Swapped to the intended Winbond W27C512 (id 0xda08, electrically-erasable EEPROM, VPP 12V) = correct reversible control. JP4 open (28-pin); VPP 12.0V."
+    },
+    {
+      "chip": "AM27C020",
+      "family": "0x08 (EPROM_QUICK)",
+      "board": "leonardo",
+      "shield": "Rev 2.0",
+      "op": "phase99_deferral",
+      "controller": "leonardo",
+      "port": "/dev/ttyACM0",
+      "r1_readback": "270000",
+      "r2_readback": "44000",
+      "fw_commit": "35706c2 (Phase 98-05 fix; REFLASHED + avrdude-verified this session; version string 3.0.0b10)",
+      "jp4_position": "not recorded this session",
+      "vpp_adc_mv": "12900-13000 (idle confirmation reads before write#1 and after write#2; stable, in the 12.75\u00b10.25 band)",
+      "dmm_pin1_v": "not measured \u2014 held-rail proxy blocked (DTR-reset-on-close, Phase-97 precedent). Program-window VPP droop under load is the leading marginality hypothesis but was not instrumented this session; idle ADC value is the only VPP evidence.",
+      "write_image_sha256": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108",
+      "bits_flipped": "write#1 @0x1da00: 60/64 bytes programmed byte-exact (ramp +0x04..+0x3F, first 4 bytes 0x1da00-0x1da03 stayed 0xFF, bad_bytes 4, retries 20); write#2 @0x16600 (confirmatory, different region): 0/64 bytes programmed, bad_bytes 64, retries 20 \u2014 marginal/unreliable, not a deterministic leading-byte offset",
+      "pre_read_sha256": "90cd45f5343cd938006f20635de39479159c51b9d56c1b6f1fb23075ed567297",
+      "post_read_sha256": "5586826791e919f0e3bb150d67ce4ab80d132290dc9d76d97cb32d836c679487",
+      "readback": "write#1 read-back region 0x1da00..+64 = 60/64 byte-exact (full-chip readback SHA after write#1 = 4b192bbaeb928a5b99e0f5651f5c6c9439fa74efefe69c1cbcaa83962647a418, consistency-check --runs 3 PASS 1 distinct SHA); write#2 read-back region 0x16600..+64 = 0/64; post_read_sha256 is the full-chip SHA after write#2 (final chip state)",
+      "verdict": "DEFER (fix-effective-but-unreliable) \u2014 Phase-98 fix programs bits (Phase-97 0-bits refuted: 60/64 byte-exact) but marginal/unreliable (write#2 0/64); no byte-exact graduation \u2192 FUT-07.",
+      "anomalies": "No UV eraser on hand; full 262144-byte imgA.bin was NOT written (AM27C020 is UV EPROM, 1\u21920 bits are permanent, writing the full pseudo-random image risked false-fail on 1\u21920 physics). Used a minimal, physically-valid pure-1\u21920 program proof instead: a distinctive 64-byte ramp (writeA.bin, 0x00..0x3F) written into a currently-all-0xFF scratch region. `firestarter dev write-cycle` correctly NOT used (erases first \u2192 fails on UV EPROM). Both writes used -b only, no --skip-erase, no --force (SAFE-01 intact)."
     }
   ]
 }
