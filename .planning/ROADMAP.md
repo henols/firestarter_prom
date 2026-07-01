@@ -170,7 +170,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 101-02-PLAN.md — Wave 2: confirm FW-03 handler-family conformance (no-op rename, D-01) + sync `firestarter/CLAUDE.md` + full GATE-01/02/03 integration assertion
+- [x] 101-02-PLAN.md — Wave 2: confirm FW-03 handler-family conformance (no-op rename, D-01) + sync `firestarter/CLAUDE.md` + full GATE-01/02/03 integration assertion
 
 **UI hint**: no
 
