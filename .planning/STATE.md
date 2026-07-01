@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.18
 milestone_name: — AM27C020 0x08 Write-Path RCA & Fix
-status: executing
-last_updated: "2026-07-01T11:50:55.456Z"
-last_activity: 2026-07-01
+status: Awaiting next milestone
+last_updated: "2026-07-01T12:31:25.225Z"
+last_activity: 2026-07-01 — Milestone v1.18 completed and archived
 progress:
   total_phases: 7
   completed_phases: 5
@@ -20,11 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 99 (BENCH + LEDGER — Graduation Gate, Evidence & Ledger Update) — COMPLETE
-Plan: 4 of 4 (all plans complete)
-Status: Phase 99 CLOSED — bench outcome DEFER (fix-effective-but-unreliable) transcribed into EVIDENCE.json (phase99_deferral cell) + PROTOCOL-LEDGER (0x08 stays open-defect-carried, FUT-06 retired -> FUT-08; renumbered from FUT-07 to avoid collision with the pre-existing v1.17 FUT-07/W29C040 defect below). All gates green: check_graduation.py, check_signature.py, check_pre01.py, check_ledger.py (0 contradictions), pytest test_check_ledger.py (8 passed).
-Next: v1.18 milestone close (Phase 99 was the last planned phase; operator to confirm milestone-close steps — lockstep beta cut remains OPERATOR-GATED per standing policy).
-Last activity: 2026-07-01 -- Phase 99 Plan 04 complete (EVIDENCE + PROTOCOL-LEDGER transcription, DEFER branch, FUT-08 opened)
+Phase: Milestone v1.18 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-07-01 — Milestone v1.18 completed and archived
 
 ## Project Reference
 
@@ -32,7 +31,7 @@ See: `.planning/PROJECT.md` (v1.18 Current Milestone section + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware handler. v1.18 proves that contract on the AM27C020 `0x08` EPROM-QUICK 32-pin write path: root-cause the 0-bits-programmed failure, fix the write/VPP path (RC-1 leading: PGM pin 31 mapped as address line rather than held program-active), and bench-prove byte-exact write→verify on real silicon — gated on Tier-0 writability pre-flight.
 
-**Current focus:** Phase 99 — BENCH + LEDGER — Graduation Gate, Evidence & Ledger Update
+**Current focus:** Planning next milestone (v1.18 shipped 2026-07-01; run `/gsd-new-milestone`). AM27C020 `0x08` write reliability carried forward as **FUT-08** (program-window VPP-under-load + timing characterization).
 
 ## Milestone Context (v1.18)
 
@@ -72,6 +71,27 @@ Created 2026-06-29 · granularity Comprehensive · 11/11 requirements mapped (no
 | FUT-01 (v1.14) | X88C64 0x34 graduation | deferred — PCB-blocked | A6 ALE-routing PCB-BLOCKED (HIGH); stays `protocol-not-implemented`. |
 | release-gate | Lockstep beta cut `3.0.0b11` + gitlink bump | OPERATOR-GATED | Standing v1.11–v1.17 policy; gitlinks PINNED. |
 
+### Deferred Items — acknowledged at v1.18 milestone close (2026-07-01)
+
+14 open artifact items (from `audit-open`) acknowledged-and-deferred at v1.18 close. **None originate in v1.18 (Phases 97–99)** — all are pre-existing cross-milestone carry-forwards, unchanged by this milestone.
+
+| Category | Item | Status |
+|----------|------|--------|
+| debug | firmware-vpp-misread | diagnosed (uno328pb VPP divider ~6.8x under-read) |
+| debug | fm1608-fresh-chip-baseline | parked-2026-05-18 |
+| uat_gap | Phase 08 — 08-HUMAN-UAT.md | partial (0 pending scenarios) |
+| uat_gap | Phase 85 — 85-HUMAN-UAT.md | partial (2 pending scenarios) |
+| verification_gap | Phase 08 — 08-VERIFICATION.md | human_needed |
+| verification_gap | Phase 09 — 09-VERIFICATION.md | human_needed |
+| verification_gap | Phase 71 — 71-VERIFICATION.md | gaps_found |
+| verification_gap | Phase 84 — 84-VERIFICATION.md | human_needed |
+| verification_gap | Phase 85 — 85-VERIFICATION.md | human_needed |
+| todo | 2026-06-24-skip-vpp-error-and-warning-checks-when-vpp-unused-on-reads | firmware |
+| todo | avrdude-mcu-detection-fallback | low |
+| todo | cobs-decoder-framelevel-deadline-wr01 | medium |
+| todo | photograph-modified-rev-0 | MEDIUM |
+| todo | write-modifications-md-rework-trace | MEDIUM |
+
 ### v1.9 DEFERRED (operator 2026-06-08 — resumes later at Phase 45)
 
 v1.9 (Read-Bug RCA + Fix) is paused. Phase 44 (Bug A RCA) complete; remaining Phases 45–48. The v1.18 bench oracle is pinned to Leonardo + Rev 2.0 precisely to avoid the v1.9 shield-fleet read bug.
@@ -107,7 +127,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Operator Next Steps
 
-- Execute Phase 99 (BENCH + LEDGER) with `/gsd-execute-phase 99` — bench-gated (Leonardo + RURP Rev 2.0, seated AM27C020, PRE-01 writability pre-flight first).
+- Start the next milestone with /gsd-new-milestone
 
 ## Decisions
 
