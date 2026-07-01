@@ -155,6 +155,12 @@ None — no external service configuration required.
 - **Phase 103 (docs — reconcile PROTOCOLS.md prose + INV matrix)** has no open dependency on this plan.
 - Gitlinks remain PINNED per standing policy — this plan did not bump the meta-repo submodule pointer (per `<submodule_commit_protocol>`); the orchestrator owns that after the wave completes.
 
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/101-fw-apply-names-in-firmware/101-02-SUMMARY.md`
+- FOUND: firestarter commit `89e9e56` (docs(101-02): sync CLAUDE.md dispatch/handler tables to PROTO_ tokens)
+- FOUND: meta commit `15b3e33` (docs(101-02): add plan 02 SUMMARY)
+
 ---
 *Phase: 101-fw-apply-names-in-firmware*
 *Completed: 2026-07-01*
