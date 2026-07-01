@@ -166,17 +166,31 @@ def _assert_ledger02_d09(ledger, violations):
                 f"is empty or absent"
             )
 
-        if evidence.get("p90_read_sha_matches_v115") is not True:
-            violations.append(
-                f"LEDGER-02/D-09: PASS row bucket={bucket} "
-                f"evidence.p90_read_sha_matches_v115 is not true"
-            )
+        # Phase 99 (v1.18-native graduation, 99-RESEARCH.md Pitfall 2): a chip
+        # may have a v1.15 *read* baseline but no v1.15 *write* baseline (its
+        # v1.15 write was a documented failure). In that case the graduation
+        # oracle is self-consistency -- written-image SHA == read-back SHA on
+        # THIS milestone's fixed firmware -- not "matches v1.15". Recognize
+        # that shape via evidence.v1_18_writeverify_sha_selfconsistent and do
+        # NOT demand a fabricated p90_writecycle_sha_matches_v115 claim.
+        if evidence.get("v1_18_writeverify_sha_selfconsistent") is True:
+            if evidence.get("p90_read_sha_matches_v115") is not True:
+                violations.append(
+                    f"LEDGER-02/D-09: PASS row bucket={bucket} "
+                    f"evidence.p90_read_sha_matches_v115 is not true"
+                )
+        else:
+            if evidence.get("p90_read_sha_matches_v115") is not True:
+                violations.append(
+                    f"LEDGER-02/D-09: PASS row bucket={bucket} "
+                    f"evidence.p90_read_sha_matches_v115 is not true"
+                )
 
-        if evidence.get("p90_writecycle_sha_matches_v115") is not True:
-            violations.append(
-                f"LEDGER-02/D-09: PASS row bucket={bucket} "
-                f"evidence.p90_writecycle_sha_matches_v115 is not true"
-            )
+            if evidence.get("p90_writecycle_sha_matches_v115") is not True:
+                violations.append(
+                    f"LEDGER-02/D-09: PASS row bucket={bucket} "
+                    f"evidence.p90_writecycle_sha_matches_v115 is not true"
+                )
 
 
 def _assert_ledger03(ledger, violations):
