@@ -159,8 +159,8 @@
       ],
       "verification_status": "open-defect-carried",
       "oracle": null,
-      "on_hand_chip": null,
-      "defect_ref": "FUT-06",
+      "on_hand_chip": "AM27C020",
+      "defect_ref": "FUT-08",
       "evidence": null
     },
     {
@@ -348,11 +348,11 @@
       "status_changed": false
     },
     {
-      "id": "FUT-06",
+      "id": "FUT-08",
       "chip": "AM27C020",
       "bucket": "0x08",
-      "disposition": "AM27C020 0x08 32-pin write/VPP path \u2014 deferred, RCA'd, not trivially fixable. 0-bits-programmed; requires 0x08 32-pin Large EPROM write/VPP root-cause. Silicon intact; not VPP-skip-related.",
-      "source_link": ".planning/STATE.md#deferred-items / .planning/v1.15/bench/EVIDENCE.json#phase84.task3a_am27c020",
+      "disposition": "Supersedes FUT-06 (renumbered FUT-08 to avoid collision with the pre-existing v1.17 FUT-07/W29C040 defect). Phase-98 fix (rw-pin:[31] \u2192 CTRL_READ_WRITE 0x40) landed and is bench-effective \u2014 0x08 write path programs bits (Phase-97 0-bits refuted, 60/64 byte-exact at Phase-99 bench), BUT programming is marginal/unreliable (write#2 0/64). Next: characterize program-window VPP-under-load (DMM at socket pin 1) + write timing.",
+      "source_link": ".planning/phases/99-bench-ledger-graduation-gate-evidence-ledger-update/99-03-BENCH-LOG.md / .planning/v1.18/bench/EVIDENCE.json",
       "status_changed": false
     },
     {

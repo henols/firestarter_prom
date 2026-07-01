@@ -775,3 +775,34 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 ### Cost Observations
 - Model mix: opus (research/plan), sonnet (executors/checker/verifier).
 - Notable: the most valuable outcome (12V-on-5V safety fix) was a side-discovery of the RCA, not the milestone's stated goal.
+
+## Milestone: v1.18 — AM27C020 0x08 Write-Path RCA & Fix
+
+**Shipped:** 2026-07-01 (fix bench-effective-but-unreliable; AM27C020 bench graduation deferred → FUT-08)
+**Phases:** 3 of 3 executed (97 PRE+RCA, 98 FIX, 99 BENCH+LEDGER) | **Plans:** 12 | 11/11 reqs satisfied
+
+### What Was Built
+- **RCA (Phase 97):** reproduced the 0-bits-programmed failure on the seated AM27C020, ran a same-session passing 0x07 W27C512 byte-exact differential control (exonerating every shared axis), and named **RC-1** — DIP32 socket pin 31 is modeled as address line A18 (`DIP32_STD`) rather than a held program-active /PGM, so the chip gets VPP but never a program strobe. Classified host-pinout + firmware-algorithm; RC-2 (VPP routing) exonerated by control-register decode.
+- **FIX (Phase 98):** scoped `DIP32_27C020` pinout with `rw-pin:[31]` resolving pin 31 to `CTRL_READ_WRITE` (0x40) via the existing revision-invariant `rw_line` mechanism — distinct from the `0x08` VPP alias. Dual-repo lockstep `MAX_27C020_SIZE=262144`, size-gated ≤256K (27C040/27C080 stay `DIP32_STD`), 119/119 native tests, golden traces byte-identical, host CI green.
+- **BENCH+LEDGER (Phase 99):** operator-witnessed bench proved the fix **effective** (write#1 60/64 byte-exact, refuting the Phase-97 0-bits) but **marginal/unreliable** (write#2 0/64). Honest DEFER: EVIDENCE deferral cell + PROTOCOL-LEDGER `0x08` open-defect-carried, FUT-06 retired-by-replacement → FUT-08.
+
+### What Worked
+- The v1.16/v1.17 RCA discipline (reproduce → same-session passing differential → disconfirming matrix → named cause) again cleanly isolated the causal axis (32-pin pin-31 role) and exonerated the shared ones with a real control write.
+- Catching CR-01 in code review: the first fix attempt (clearing logical `CTRL_ADDRESS_LINE_18`) was a **physical no-op on Rev 2.x** because that bit OR-aliases onto `CTRL_VPP_P1_ENABLE` (0x08). The review caught it before bench, and the corrected fix reused the proven `rw_line`/`CTRL_READ_WRITE` mechanism (same as `DIP32_SST39SF040`) rather than a novel path.
+- The two-branch BENCH-01 (byte-exact graduation OR documented deferral) let the milestone close honestly on a real-but-unreliable result instead of faking a pass or stalling.
+
+### What Was Inefficient
+- The blind (no-bench) fix phase shipped a mechanism that was later proven marginal on silicon — a Tier-0 held-rail DMM measurement during the program window would have surfaced the VPP-under-load droop earlier, but the held-rail proxy was blocked by a DTR-reset-on-close tooling bug (root-caused, workaround `hold_rail.py`, but the direct pin-1 program-window read stayed unmeasured).
+- Two AM27C020 milestones (v1.15 seed → v1.18) to reach "fix works but chip is unreliable" — the underlying program-window VPP characterization (FUT-08) is the real remaining unknown and could have been scoped as the Tier-0 gate from the start.
+
+### Patterns Established
+- **Alias-aware control-bit fixes:** before clearing/asserting a logical control bit, verify it doesn't OR-alias onto another physical output on the target revision (the CR-01 lesson). Prefer a proven, revision-invariant mechanism (`rw_line`→`CTRL_READ_WRITE`) over a new bit.
+- **Class-wide-but-single-verified scope:** the size-gated `DIP32_27C020` reassigns 88 ≤256K 0x08 chips on architectural grounds with only AM27C020 datasheet-verified — accepted as class-wide correctness, flagged as a future-bench residual.
+
+### Key Lessons
+- "Fix effective but unreliable" is a legitimate, honestly-recordable outcome — a partial-program signature (60/64 then 0/64) refutes the original 0-bits RCA yet doesn't graduate; the DEFER branch + a successor FUT (VPP-under-load characterization) is the correct disposition.
+- A blind fix needs an empirical gate that measures the actual failure mechanism (program-window VPP), not just byte-exactness — otherwise "native-green + one good write" can mask a marginal rail.
+
+### Cost Observations
+- Model mix: opus (research/plan), sonnet (executors/integration-checker/verifier).
+- Notable: the fix was correct in mechanism (bits do program, refuting the 0-bits signature) yet the chip still didn't graduate — the bottleneck moved from firmware/host logic to an unmeasured analog rail characteristic (FUT-08).

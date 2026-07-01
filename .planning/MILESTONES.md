@@ -1,5 +1,34 @@
 # Milestones
 
+## v1.18 AM27C020 0x08 Write-Path RCA & Fix (Shipped: 2026-07-01)
+
+**Phases completed:** 3 phases, 12 plans, 26 tasks
+
+**Delivered:** Root-caused the AM27C020 `0x08` 0-bits-programmed fault (RC-1: DIP32 pin 31 modeled as address line A18, not held /PGM), shipped a scoped `DIP32_27C020` + `rw-pin:[31]` → `CTRL_READ_WRITE` (0x40) fix dual-repo lockstep, and bench-proved it **effective** (write#1 60/64 byte-exact, refuting the 0-bits signature) but **marginal/unreliable** (write#2 0/64). No byte-exact graduation → honest **DEFER**; AM27C020 carried forward as **FUT-08** (FUT-06 retired-by-replacement).
+
+**Audit:** `tech_debt` — 11/11 requirements satisfied, 3/3 phases verified passed, cross-phase integration 6/6 WIRED, 0 broken flows. BENCH-01 satisfied via the documented deferral branch. Report: `.planning/milestones/v1.18-MILESTONE-AUDIT.md`.
+
+**Release:** meta tagged `v1.18` + gsd planning merged to `beta`; lockstep beta cut + gitlink bump remain operator-gated (standing v1.11–v1.17 policy; gitlinks PINNED).
+
+**Known deferred items at close:** 14 (all pre-existing cross-milestone carry-forwards, none from v1.18 Phases 97–99; see STATE.md → Accumulated Context → "Deferred Items — acknowledged at v1.18 milestone close").
+
+**Key accomplishments:**
+
+- No-hardware Wave-1 foundation for the AM27C020 `0x08` RCA: SAFE-01 confirmed non-invasively by file:line code-read (over-voltage ERROR path intact, host guard unbypassed), the v1.18 bench EVIDENCE record + 97-RCA-FINDINGS verdict skeleton stood up with never-fabricated TBD cells, held-rail proxy values 0x188/0x180 pinned against the live host `dev reg -f` bit map, and the four committed Wave-0 gate scripts asserted present/tracked/parse-clean.
+- Operator-witnessed bench session (Leonardo + RURP Rev 2.0, fw 3.0.0b10 / bccd995) that captured the PRE-01 writability pre-flight and reproduced the RCA-01 0-bits-programmed failure on the seated AM27C020 — at a CORRECTED rig (VPP 13.0V, JP4 closed) so the 0-bits outcome is unambiguous — with exactly ONE irreversible program attempt, the chip left pristine, and SAFE-01 held throughout. A held-rail DMM tooling bug surfaced mid-session was root-caused (debug session), worked around (hold_rail.py), and the routing question it blocked was answered by code instead.
+- Closed the RCA: the passing 0x07 Winbond W27C512 control wrote byte-exact in the same session (write 6.52s, verify 0.64s, readback SHA `d9471636…` matched) where the 0x08 AM27C020 programmed 0 bits — exonerating every shared axis. Combined with Plan 02's code-level H2-disproof (VPP IS routed to pin 1), the cause is named RC-1: socket pin 31 is modeled as address line A18 (DIP32_STD) rather than a held program-active PGM pin, so the chip gets VPP but never a program strobe. Classified host-pinout + firmware-algorithm; Phase-98 fix surfaces handed off. RC-1 CONFIRMED + RC-2 EXONERATED (D-03 exit bar met), RC-3/RC-4 not-pursued, RC-5 INDETERMINATE (no deferral).
+- DIP32_27C020 scoped pinout (pin 31 off address bus) assigned to 88 ≤256K 0x08/32-pin chips via size-keyed build_db.py arm; diff_db PASS; host CI gate green (ruff+mypy+check_dispatch); upstream bus-config contract for Plan 02 firmware PGM-assert delivered
+- Gated deliberate PGM=VIL hold-LOW in memory_set_data for 0x08 32-pin ≤256K (AM27C020), backed by TDD CODE-STRUCTURE tests (RC-98A/B/C); golden traces 0x07/0x0B/chip-id byte-identical; 0x08 trace unchanged (A5); full native suite 117/117 green
+- Host half of the corrected CR-01 fix: DIP32_27C020 gains `rw-pin:[31]`, resolving pin 31 to `config.rw_line=22` so the firmware's existing rw_line mechanism drives CTRL_READ_WRITE (0x40) as the AM27C020's /PGM write strobe — plus WR-03/WR-05 hardening and the IN-02 host-side named constant.
+- Reverted Plan 02's physically-inert `CTRL_ADDRESS_LINE_18` clear in `memory_set_data` and relies on the existing, revision-agnostic `rw_line` mechanism (fed by 98-03's `rw-pin:[31]` on `DIP32_27C020`) to hold pin 31 (/PGM = RW = `CTRL_READ_WRITE` physical 0x40) program-active LOW across the full write pulse — closing the CR-01 physical-no-op blocker with a native-test-provable, revision-agnostic fix.
+- Closed all three INFO findings from 98-REVIEW.md: uint32_to_bytes now writes its four bytes to distinct indices (IN-01), the double-evaluation `min` macro is replaced with a single-evaluation inline function (IN-03), and the 262144-byte AM27C020 size boundary is now a named `MAX_27C020_SIZE` constant on both sides of the wire with a cross-repo pytest parity assertion (IN-02) — closing Phase 98's gap-closure work with the native suite and host CI both green.
+- Extended check_ledger.py's D-09 PASS constraint to admit a v1.18-native 0x08 graduation (self-consistent write/read-back SHA) without fabricating a nonexistent v1.15 write baseline, while keeping the honesty guard and all 11 existing ledger rows green.
+- Staged the deterministic AM27C020 write image, its annotated SHA256SUMS provenance header, and a Phase-99 anti-fabrication EVIDENCE gate (check_graduation.py) so the operator bench session (99-03) is a pure execute-and-record step.
+- BENCH-01, BENCH-02
+- Transcribed the 99-03 bench outcome (Phase-98 fix bench-effective-but-unreliable on AM27C020) into a new EVIDENCE.json phase99_deferral cell and a superseding FUT-08 ledger defect, both gates green with zero fabrication.
+
+---
+
 ## v1.17 Implement & Test the W29C040 Programming Protocol (Shipped: 2026-06-29)
 
 **Phases completed:** 3 phases, 8 plans, 18 tasks

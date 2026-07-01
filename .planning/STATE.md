@@ -1,141 +1,161 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.17
-milestone_name: — Implement & Test the W29C040 Programming Protocol
+milestone: v1.18
+milestone_name: — AM27C020 0x08 Write-Path RCA & Fix
 status: Awaiting next milestone
-last_updated: "2026-06-29T11:36:11.260Z"
-last_activity: 2026-06-29 — Milestone v1.17 completed and archived
+last_updated: "2026-07-01T12:31:25.225Z"
+last_activity: 2026-07-01 — Milestone v1.18 completed and archived
 progress:
-  total_phases: 4
-  completed_phases: 2
-  total_plans: 8
-  completed_plans: 8
-  percent: 50
+  total_phases: 7
+  completed_phases: 5
+  total_plans: 20
+  completed_plans: 20
+  percent: 71
 ---
 
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-06-27
+**Updated:** 2026-07-01
 
 ## Current Position
 
-Phase: Milestone v1.17 complete
+Phase: Milestone v1.18 complete
 Plan: —
 Status: Awaiting next milestone
-Last activity: 2026-06-29 — Milestone v1.17 completed and archived
+Last activity: 2026-07-01 — Milestone v1.18 completed and archived
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (v1.17 Current Milestone section + Key Decisions)
+See: `.planning/PROJECT.md` (v1.18 Current Milestone section + Key Decisions)
 
-**Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware handler. v1.17 proves that contract on the W29C040 flash4 (`0x05`) write path: root-cause the page-0 write fault, make flash4 page sizing datasheet-sourced per-chip (CR-01), and bench-prove byte-exact write→read→verify on real silicon.
+**Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware handler. v1.18 proves that contract on the AM27C020 `0x08` EPROM-QUICK 32-pin write path: root-cause the 0-bits-programmed failure, fix the write/VPP path (RC-1 leading: PGM pin 31 mapped as address line rather than held program-active), and bench-prove byte-exact write→verify on real silicon — gated on Tier-0 writability pre-flight.
 
-**Current focus:** Phase 94 — fix-pgsz-firmware-write-path-fix-datasheet-sourced-per-chip-page-size
+**Current focus:** Planning next milestone (v1.18 shipped 2026-07-01; run `/gsd-new-milestone`). AM27C020 `0x08` write reliability carried forward as **FUT-08** (program-window VPP-under-load + timing characterization).
 
-## Milestone Context (v1.17)
+## Milestone Context (v1.18)
 
-- **Scope (operator-confirmed 2026-06-26):** widest — W29C040 RCA + fix **and** generalize CR-01 (datasheet-sourced per-chip `page_size` DB field).
-- **Branch base:** firmware forks off the **v1.16 tip `a296195`** (primitives recompose), NOT firmware `beta` (stale at v1.13 `a1953c2`). Mirrors v1.15/v1.16 precedent; gitlinks PINNED at b10; lockstep beta cut operator-gated. Meta `.planning/` proceeds per convention.
-- **Done bar:** byte-exact write→auto-erase→program→verify SHA on the seated W29C040 (Leonardo + Rev 2.0). Hard graduation gate — no best-effort fallback authorized.
-- **Bench LOCKED to Leonardo + RURP Rev 2.0.** Standing discipline: live R1/R2 readback each task, verify `controller:` port identity per task, Leonardo chip-OUT-sideload-exempt. Operator seats the W29C040 so the bench can be driven unattended.
-- **Dual-repo lockstep** (`constants.py` ↔ `firestarter.h`) if `page_size` crosses the wire; reuse-first; py3.12-masks-CI-3.11 ruff/codegen trap watch.
-- Phase numbering continues from v1.16's Phase 92 → **v1.17 starts at Phase 93**.
-- Closes **CR-01 / Phase-74 Wave-2** (W29C040 flash4 256 B page-0 fault; open since v1.13, confirmed not-silicon-effective at v1.15 Phase 82/84).
+- **Scope (operator-confirmed 2026-06-29):** Single-chip RCA→fix→bench: AM27C020 `0x08` 32-pin write/VPP path. FUT-06 (carried from v1.15) elevated to the primary target.
+- **Branch base:** Firmware forks off the v1.17 tip (continues prior base), NOT firmware `beta` (stale at v1.13 `a1953c2`; lacks v1.15 VPP-skip + v1.16 recompose + v1.17 fixes). Mirrors v1.15–v1.17 precedent; gitlinks PINNED; lockstep beta cut operator-gated.
+- **Done bar:** byte-exact write→verify SHA on the seated AM27C020 (Leonardo + Rev 2.0). Hard graduation gate contingent on PRE-01 writability — if OTP/dead, clean deferral to FUT is the acceptable alternate outcome.
+- **Bench LOCKED to Leonardo + RURP Rev 2.0.** Standing discipline: live R1/R2 readback each task, verify `controller:` port identity per task, Leonardo chip-OUT-sideload-exempt.
+- **Dual-repo lockstep** (`constants.py` ↔ `firestarter.h`; pinout DB) wherever the fix crosses the wire. Reuse-first. Watch the py3.12-masks-CI-3.11 ruff/codegen drift trap.
+- Phase numbering continues from v1.17's Phase 96 → **v1.18 starts at Phase 97**.
+- Closes **FUT-06** (AM27C020 `0x08` 32-pin write/VPP path; RCA'd at v1.15 Phase 83/84, not trivially fixable, 0-bits-programmed).
 
-## Roadmap Summary (v1.17 — Phases 93–96)
+## Roadmap Summary (v1.18 — Phases 97–99)
 
-Created 2026-06-26 · granularity Comprehensive · 16/16 requirements mapped (no orphans, no duplicates). Strict sequence: **RCA → FIX+PGSZ → BENCH → LEDGER**. SAFE-01 homes in Phase 93, SAFE-02 in Phase 94; both recur as preconditions through close.
+Created 2026-06-29 · granularity Comprehensive · 11/11 requirements mapped (no orphans, no duplicates). Strict sequence: **PRE+RCA → FIX → BENCH+LEDGER**. SAFE-01 homes in Phase 97, SAFE-02 in Phase 98; both recur as preconditions through close.
 
 | Phase | Goal | Requirements | Bench-gated |
 |-------|------|--------------|-------------|
-| 93 — RCA | Reproduce + differentially isolate + name the W29C040 page-0 write-fault root cause | RCA-01, RCA-02, RCA-03, SAFE-01 | yes (Leonardo + Rev 2.0, seated W29C040) |
-| 94 — FIX + PGSZ | Fix flash4 write path (traces/guard green) + datasheet-sourced per-chip `page_size` over the wire (CR-01) | FIX-01/02/03, PGSZ-01/02/03, SAFE-02 | no (native + host CI) |
-| 95 — BENCH | Byte-exact write→auto-erase→program→verify (SHA) graduation gate + W29C020 sibling regression + EVIDENCE | BENCH-01, BENCH-02, BENCH-03 | yes (hard graduation gate, no fallback) |
-| 96 (close) — LEDGER | PROTOCOL-LEDGER → W29C040 PASS/`supported`, close CR-01/Phase-74 Wave-2, `check_ledger.py` green, milestone close | LEDGER-01, LEDGER-02 | no |
+| 97 — PRE + RCA | Tier-0 writability pre-flight + reproduce failure signature + differential isolation + named root cause | PRE-01, RCA-01, RCA-02, RCA-03, SAFE-01 | yes (Leonardo + Rev 2.0, seated AM27C020, DMM at pin 1 + pin 31) |
+| 98 — FIX | Correct 0x08 32-pin write/VPP path (golden traces green, dual-repo lockstep, py3.11 CI) | FIX-01, FIX-02, FIX-03, SAFE-02 | no (native + host CI) |
+| 99 — BENCH + LEDGER | Byte-exact write→verify graduation (contingent on PRE-01) or documented FUT deferral + EVIDENCE + PROTOCOL-LEDGER updated | BENCH-01, BENCH-02 | yes (hard graduation gate; deferral is a clean documented outcome) |
 
-**Dependency chain:** 93 → 94 → 95 → 96 (linear; RCA must name the cause before FIX is designable; BENCH gates on the committed fix + `page_size`; LEDGER records the bench PASS).
+**Dependency chain:** 97 → 98 → 99 (linear; RCA must name the cause before FIX is designable; BENCH gates on the committed fix AND on the Tier-0 writability result from Phase 97).
 
-**Firmware/host surfaces:** `firestarter/src/proms/flash_type_4.cpp` (fix, on the `a296195` recompose) + flash4 golden traces/dispatch-mirror guard (keep green); host `build_db.py` / `chip_database.json` / `constants.py` ↔ `firestarter.h` (per-chip `page_size` lockstep field); `check_dispatch.py` / `diff_db.py` / `check_ledger.py` gates.
+**Firmware/host surfaces:** `firestarter/src/proms/eprom.cpp` (program-pulse / VPP-routing for `using_p1_as_vpp` 32-pin parts); possibly `firestarter_app/firestarter/data/pinouts.json` (new `DIP32_27C020` entry if PGM-as-address-line is the cause); lockstep `firestarter.h` ↔ `constants.py` if a new wire field is needed; `check_dispatch.py` / `diff_db.py` / `PROTOCOL-LEDGER` gates.
 
 ## Accumulated Context
 
-### Deferred Items (carry-forward at v1.16 close — 2026-06-26)
+### Deferred Items (carry-forward at v1.17 close — 2026-06-29)
 
 | Category | Item | Status | Disposition |
 |----------|------|--------|-------------|
-| FUT-01 (v1.14) | X88C64 0x34 graduation | deferred — PCB-blocked | A6 ALE-routing PCB-BLOCKED (HIGH); stays `protocol-not-implemented`. |
-| FUT-03 (v1.15) | 2516 0x0B read instability + write proof | deferred best-effort (D-22) | 3 distinct SHAs after VPP-skip; shared OE/VPP pin. |
+| FUT-07 (v1.17) | W29C040 byte-exact graduation + LEDGER `supported` | deferred — §6.6 boot block permanently locked on seated chip | Needs a different unlocked sample + third-party bench. All v1.17 software done. |
+| ~~FUT-06 (v1.15)~~ → **FUT-08 (v1.18)** | AM27C020 0x08 32-pin write/VPP path | **retired-by-replacement (v1.18 Phase 99 close, 2026-07-01)** | Phase-98 fix bench-proven effective (write#1 60/64 byte-exact; Phase-97 0-bits signature refuted) but marginal/unreliable (write#2 0/64) — no byte-exact graduation. FUT-08 carries the next step: characterize program-window VPP-under-load (DMM at socket pin 1) + write timing. See PROTOCOL-LEDGER `0x08` / `.planning/v1.18/bench/EVIDENCE.json`. |
+| FUT-05 (v1.15) | REWR-02 0x08 rewritable write proof | deferred — no functional 0x08 rewritable chip | W27E040 stuck-bit; may benefit from v1.18 `0x08` fix. |
 | FUT-04 (v1.14) | AT28C04/16 adapter graduation | deferred — adapter not built | 9 chips stay `adapter-required`. |
-| FUT-05 (v1.15) | REWR-02 0x08 write proof | deferred — no functional 0x08 chip | W27E040 stuck-bit; need sibling 0x08 rewritable chip. |
-| FUT-06 (v1.15) | AM27C020 0x08 32-pin write/VPP path | deferred — RCA'd, not trivially fixable | 0-bits-programmed; needs 0x08 32-pin Large EPROM write/VPP root-cause. |
-| **CR-01 / Phase-74 Wave-2** | **W29C040 flash4 256 B page-0 write fault** | **ACTIVE — v1.17 target** | Phase-74 fix not silicon-effective; page size already correct (256 B) → deeper RCA. **This milestone.** |
-| release-gate | Lockstep beta cut `3.0.0b11` + gitlink bump | OPERATOR-GATED | Standing v1.11–v1.16 policy; gitlinks PINNED at b10. |
-| uat_gap | Phase 85 — 85-HUMAN-UAT.md (2 pending scenarios) | partial | v1.16 carry-forward. |
+| FUT-03 (v1.15) | 2516 0x0B read instability + write proof | deferred best-effort (D-22) | 3 distinct SHAs after VPP-skip; shared OE/VPP pin. |
+| FUT-01 (v1.14) | X88C64 0x34 graduation | deferred — PCB-blocked | A6 ALE-routing PCB-BLOCKED (HIGH); stays `protocol-not-implemented`. |
+| release-gate | Lockstep beta cut `3.0.0b11` + gitlink bump | OPERATOR-GATED | Standing v1.11–v1.17 policy; gitlinks PINNED. |
+
+### Deferred Items — acknowledged at v1.18 milestone close (2026-07-01)
+
+14 open artifact items (from `audit-open`) acknowledged-and-deferred at v1.18 close. **None originate in v1.18 (Phases 97–99)** — all are pre-existing cross-milestone carry-forwards, unchanged by this milestone.
+
+| Category | Item | Status |
+|----------|------|--------|
+| debug | firmware-vpp-misread | diagnosed (uno328pb VPP divider ~6.8x under-read) |
+| debug | fm1608-fresh-chip-baseline | parked-2026-05-18 |
+| uat_gap | Phase 08 — 08-HUMAN-UAT.md | partial (0 pending scenarios) |
+| uat_gap | Phase 85 — 85-HUMAN-UAT.md | partial (2 pending scenarios) |
+| verification_gap | Phase 08 — 08-VERIFICATION.md | human_needed |
+| verification_gap | Phase 09 — 09-VERIFICATION.md | human_needed |
+| verification_gap | Phase 71 — 71-VERIFICATION.md | gaps_found |
+| verification_gap | Phase 84 — 84-VERIFICATION.md | human_needed |
+| verification_gap | Phase 85 — 85-VERIFICATION.md | human_needed |
+| todo | 2026-06-24-skip-vpp-error-and-warning-checks-when-vpp-unused-on-reads | firmware |
+| todo | avrdude-mcu-detection-fallback | low |
+| todo | cobs-decoder-framelevel-deadline-wr01 | medium |
+| todo | photograph-modified-rev-0 | MEDIUM |
+| todo | write-modifications-md-rework-trace | MEDIUM |
 
 ### v1.9 DEFERRED (operator 2026-06-08 — resumes later at Phase 45)
 
-v1.9 (Read-Bug RCA + Fix) is paused. Phase 44 (Bug A RCA) complete; remaining Phases 45–48. The v1.17 bench oracle is pinned to Leonardo + Rev 2.0 precisely to avoid the v1.9 shield-fleet read bug.
+v1.9 (Read-Bug RCA + Fix) is paused. Phase 44 (Bug A RCA) complete; remaining Phases 45–48. The v1.18 bench oracle is pinned to Leonardo + Rev 2.0 precisely to avoid the v1.9 shield-fleet read bug.
 
 ### v1.10 Substrate (carry-forward)
 
 Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. GATE-1.8d ring-fence intact.
 
-### v1.16 Substrate (carry-forward, directly relevant to v1.17)
+### v1.17 Substrate (carry-forward, directly relevant to v1.18)
 
-- **flash4 lives on the primitives recompose** (`a296195`): `flash_type_4.cpp` uses P7/P4/P3/P5 shared primitives; `flash4_page_size(mem_size)` capacity heuristic still in place (the CR-01 target).
-- **PROTOCOL-LEDGER** at `.planning/v1.16/ledger/PROTOCOL-LEDGER.{md,json}` + `check_ledger.py`; W29C040 0x05 carried as an open defect (CR-01). v1.17 must update this on bench PASS.
-- **Golden register traces + dispatch-mirror guard** pinned for flash4 (Phase 88-03, 206-entry write trace) — the recompose oracle the W29C040 fix must keep green.
-- **datasheets/** folder exists in the firestarter sub-repo; no W29C040 datasheet committed yet (Phase 85 bot-blocked some). May need acquisition for the datasheet-sourced `page_size`.
+- **T-93-CANERASE fix shipped (Phase 94 Plan 01):** `FLAG_CAN_ERASE` gated on `algorithm != 5` in host; firmware `flash4_write_init` skips erase when `handle->protocol == 0x05`. No equivalent issue for `0x08` — but establishes the dual-repo lockstep discipline for protocol-keyed defense-in-depth.
+- **Per-chip `page_size` wire field added (Phase 94 Plan 02):** precedent for a new wire datum from pinout DB → host → firmware. Same pattern may apply if `DIP32_27C020` needs a new control-pin concept.
+- **PROTOCOL-LEDGER at `.planning/v1.16/ledger/PROTOCOL-LEDGER.{md,json}`** carries `0x08` as `open-defect-carried (FUT-06)`. v1.18 must update this on bench PASS (or re-record at new FUT status).
+- **Golden register traces + dispatch-mirror guard** pinned for `eprom` family (0x07/0x08/0x0B, Phase 88). Any `eprom.cpp` change must keep 0x07 + 0x0B traces byte-identical and add an explicit 0x08 32-pin trace/case (v1.16 P89 CR-01 lesson: need a failure-case/mismatch test).
+
+### v1.18 Research Findings (pre-loaded from `.planning/research/v1.18-AM27C020-27C-EPROM.md`)
+
+- **RC-1 (LEADING):** PGM pin (DIP pin 31) not held program-active; modeled as an address line in `DIP32_STD`. The 27C020's PGM requirement (CE=VIL AND PGM=VIL) is never satisfied — firmware strobes CE only, pin 31 tracks address bits. The 27C040 (where pin 31 = A18) is the chip `DIP32_STD` was authored for.
+- **RC-2:** P1 VPP routing/level never proven on a `0x08` UV part. `CTRL_VPP_P1_ENABLE` is only toggled during the per-byte data-write window, not held across the full pulse.
+- **RC-3:** JP4 (JMP_VPP_P1_BYPASS) position — JP4-closed alone didn't fix it (Phase 83/84). Cross-confirm with Rev 2.0 schematic semantics.
+- **RC-4:** 32-pin high-address / control-bit collision (lower rank — symptom is clean 0-bits at address 0 where collisions are least likely).
+- **RC-5:** Chip is OTP/already-programmed/dead (silicon). The Tier-0 pre-flight (PRE-01) determines this definitively before any graduation spend.
+- **VPP measurement method:** `firestarter dev reg 0 0 0x86 -f` holds rail for DMM. DMM at socket pin 1 (VPP) AND pin 31 (PGM) during a write attempt is the most decisive measurement.
+- **Fix surfaces:** `eprom.cpp` (program-pulse / `using_p1_as_vpp` 32-pin sequencing); `pinouts.json` (possible `DIP32_27C020` entry redirecting pin 31 from address-bus to PGM control); `firestarter.h` ↔ `constants.py` if a new wire flag/field is needed.
 
 ### Pending Todos (carried forward)
 
-- `flash4-page-size-datasheet-sourced-cr01.md` (medium) — **directly resolved by v1.17** (datasheet-sourced per-chip `page_size`).
 - `avrdude-mcu-detection-fallback.md` (low) — out of scope, carry forward.
 - `cobs-decoder-framelevel-deadline-wr01.md` (medium) — v1.10 COBS follow-up; deferred.
 - `2026-06-24-skip-vpp-error-and-warning-checks-when-vpp-unused-on-reads.md` (firmware) — carry forward.
 - `large-read-data-jitter-uno328pb.md` (HIGH, v1.8-seed) — v1.9 RCA target.
 - `photograph-modified-rev-0.md` (medium) — carry forward.
 
-### Decisions (v1.17)
-
-- **T-93-CANERASE (Phase 93 Plan 01, 2026-06-26):** FLAG_CAN_ERASE (0x02) IS set in W29C040 wire flags — `flash4_erase_execute` asserts 12V on a 5V-only chip. Bench plans 02–04 MUST use `--skip-erase`. Phase 94 FIX-01 scope: prevent FLAG_CAN_ERASE from reaching `flash4_erase_execute` for protocol 0x05 chips.
-- **Phase-74 traps ruled out (Phase 93 Plan 01, 2026-06-26):** SDP present and 256B page confirmed by native tests (11/11 PASS). RCA must search deeper than Phase-74 hypotheses.
-- **H4 DISCONFIRMED (Phase 93 Plan 02, 2026-06-27):** Address 0x0000ff stays 0x00 (not 0x04) after N=5 settled reads following fault — page never committed. Poll did not merely give up on a late-completing write. H1 (T_BLC timing) and H3 (SDP rejection) remain active hypotheses.
-- **T-93-CANERASE gate cleared by operator (2026-06-27):** Proceed-with-skip-erase authorized. All Plan 02 writes used `--skip-erase`. Full fix (FIX-01) deferred to Phase 94.
-- **RCA-01 reproduction confirmed N=2 (Phase 93 Plan 02, 2026-06-27):** ERROR frame identical on both runs: `Timeout verifying 0x04 at 0x0000ff (got 0x00)`. Decoded: `[expected=0x04, A16=0x00, A8=0x00, A0=0xFF, observed=0x00]`. Same failing site (0x0000ff) as v1.15 Phase 82/84 baseline.
-- **H5 CONFIRMED as root cause (Phase 93 Plan 03, 2026-06-27):** W29C040 §6.6 first-16K boot block programming lockout permanently activated on this chip instance. Boundary sweep: 0x3F00 FAILS, 0x4000 PASSES — exact step at 16K boundary. H1/H2/H3/H4 all DISCONFIRMED with direct bench evidence. Firmware write algorithm is correct for unlocked pages.
-- **W29C020 live control DEFERRED per operator (Phase 93 Plan 03, 2026-06-27):** Datasheet-only differential done (SDP/pinout/VPP same in both; page size/A18/boot-block-boundary differ). Live write deferred as best-effort.
-- **SERIAL_DEBUG+DEBUG_ADDRESS overhead trap (Phase 93 Plan 03, 2026-06-27):** Combining both flags causes 5008+ poll messages per 1-byte write, swamping host protocol and causing Command 2 timed out. Future trace builds: use DEBUG_ADDRESS without SERIAL_DEBUG, or capture init-phase only.
-- **Phase 94 FIX-01 scope clarified (Phase 93 Plan 03, 2026-06-27):** Root cause is chip-instance-specific silicon, not firmware. Firmware write algorithm is correct. FIX-01 still needed for T-93-CANERASE (FLAG_CAN_ERASE=0x02 12V hazard). Unlocked W29C040 or addresses ≥0x4000 needed for BENCH graduation.
-- **RCA-03 NAMED: SILICON classification confirmed (Phase 93 Plan 04, 2026-06-27):** H5 CONFIRMED as sole surviving hypothesis. Classified SILICON/chip-instance-specific-hardware-feature-state. H1(timing)/H2(addressing)/H3(SDP)/H4(poll-site) all disconfirmed with direct bench evidence. Phase 44 D-07 causal bar met (exact 16K boundary is the variable that moves the failure).
-- **Lock reversibility fork (Phase 93 Plan 04, 2026-06-27):** Evidence is agnostic on whether §6.6 lock is software-reversible (a) or hardware-permanent (b). Research notes lean (b) but PDF not directly readable. Phase 94 FIRST STEP: read §6.6 for UNLOCK command. If (a): add boot-block unlock to flash4 write path; if (b): different chip or re-scope BENCH-01.
-- **SAFE-01 = HELD (Phase 93 Plan 04, 2026-06-27):** Conditional — held only because --skip-erase was used throughout RCA. Underlying T-93-CANERASE hazard (FLAG_CAN_ERASE=0x02 → 12V on 5V chip) remains OPEN until Phase 94 FIX-01. Phase 94 must implement FIX-01 before any bench work without --skip-erase.
-- **Milestone done-bar impact noted (Phase 93 Plan 04, 2026-06-27):** If §6.6 lock is permanent (b), Phase 95 BENCH-01 byte-exact write→verify on page-0 is not achievable on current chip. Operator decision needed: new chip OR re-scope to addresses ≥0x4000.
-
-### Decisions (Phase 94 Plan 02, 2026-06-27)
-
-- **PGSZ wire field end-to-end (Phase 94 Plan 02, 2026-06-27):** JSON_KEY_PAGE_SIZE = "page-size" added host-side; emit-when-present mirrors read-strobe-us pattern; uint32_t page_size in firestarter_handle_t; key_page_size PROGMEM + get_page_size parser in json_parser.c. V5 bound-check: 0/absurd → handle->page_size=0 → firmware heuristic fallback.
-- **Cited values only: W29C040=256, W29C020=128 (Phase 94 Plan 02, 2026-06-27):** _PAGE_SIZE_BY_PART in build_db.py; W29C040/W29C042=256 from W29C040.pdf §6.2; W29C020/W29C020C/W29C022=128 from W29C020.pdf §6.2. No [ASSUMED] values graduated.
-- **flash4_page_size heuristic retained as fallback (Phase 94 Plan 02, 2026-06-27):** Safe-fallback form: handle->page_size ? handle->page_size : flash4_page_size(handle->mem_size). Zero-initialized handle → page_size==0 → heuristic. Heuristic NOT deleted.
-- **address=126/data_size=4 native test window (Phase 94 Plan 02, 2026-06-27):** address=0/data_size=129 exceeded 256-entry recording cap (8+128*3=392 entries). address=126/data_size=4 yields 31 entries; still crosses 128B boundary at addr 128. Discriminant preserved.
-
-### Decisions (Phase 94 Plan 01, 2026-06-27)
-
-- **FIX-01a IMPLEMENTED (Phase 94 Plan 01, 2026-06-27):** T-93-CANERASE mitigated. Defense-in-depth: host `convert_to_programmer` now gates `FLAG_CAN_ERASE` on `algorithm != 5`; firmware `flash4_write_init` skips `flash4_erase_execute` when `handle->protocol == 0x05`. W29C040 wire flags now 0x00. Phase 95 bench can proceed without `--skip-erase`.
-- **D-06 guard keyed on protocol (Phase 94 Plan 01, 2026-06-27):** Firmware guard uses `handle->protocol == 0x05`, NOT `handle->vpp_mv`. W29C040 vpp_mv=12000 is a chip-ID datum, not a program rail — voltage heuristic would never fire (Pitfall 3).
-
-### Blockers / Concerns
-
-- **Boot-block lock on seated chip (carry-forward):** §6.6 lock is permanent (no unlock command). Phase 95 BENCH-01 requires addresses ≥0x4000 on current chip, or a new unlocked chip. Operator decision needed before Phase 95.
-
-### Decisions (Phase 94 Plan 04, 2026-06-27)
-
-- **SAFE-02 CLOSED (Phase 94 Plan 04, 2026-06-27):** Python 3.11.15 obtained via uv. All 9 ci.yml steps green on py3.11.15. py3.11 traps cleared (no f-string backslash SyntaxErrors; codegen drift-gate clean). Constants parity confirmed: all 8 FLAG_* bits match; JSON_KEY_PAGE_SIZE is a wire string (not a flag), parity unaffected.
-- **Writable region proof N=3 COMPLETE (Phase 94 Plan 04, 2026-06-27):** W29C040 writable region 0x4000+, 16KB, 3 write→verify cycles, all SHA match. Used -b (skip blank check only); FLAG_CAN_ERASE=0 post-FIX-01a → no 12V erase. W29C040 auto-erases per page via SDP. No --skip-erase used.
-- **read command output semantics confirmed (Phase 94 Plan 04, 2026-06-27):** `firestarter read -a ADDR --size SZ` returns (ADDR+SZ) bytes starting from address 0; target region data starts at offset ADDR in the output file.
-- **Boot-block detect live-trigger not achieved (Phase 94 Plan 04, 2026-06-27):** Blank check fires before write attempt (non-blank locked region). Confirmed via Plan-03 native test + Phase-93 silicon boundary evidence. No --skip-erase bypass was used.
-
 ## Operator Next Steps
 
 - Start the next milestone with /gsd-new-milestone
+
+## Decisions
+
+- [Phase ?]: SAFE-01 invariant: holds because Phase-97 procedure never passes --force (firmware HAS a FLAG_FORCE over-voltage relaxation at primitives.cpp:121); held-rail proxy pinned host-space 0x188/0x180 marked [ASSUMED] per A1; all bench fields TBD-bench never fabricated (D-02)
+- [Phase 98 Plan 01]: Q1 RESOLVED — static-high-pins RULED OUT as PGM vehicle (static_high_mask drives HIGH; PGM=VIL); DIP32_27C020 takes pin 31 off address bus only; PGM-assert is Plan 02 firmware branch (memory_set_data hold-LOW)
+- [Phase 98 Plan 01]: D-04 host-side alias guard — size gate (mem_size<=262144) structurally excludes 512K AM27C040 / 1M AM27C080 from DIP32_27C020; both stay DIP32_STD
+- [Phase 98 Plan 01]: Blast radius 88 chips accepted (entire ≤256K 0x08 32-pin class); architectural correctness is class-wide (A18 unused at ≤256K); LOW-7: baseline git diff is the audited artifact
+- [Phase 98 Plan 02]: A5 CONFIRMED — 0x08 golden trace byte-identical post-fix; test_golden_eprom_0x08_write uses pins=0 (default), gate fails, PGM-hold branch does not fire; no re-bless needed
+- [Phase 98 Plan 02]: MED-5 verified no-op — per-buffer P1-hold in program_mismatched_bytes already spans every per-byte CE pulse; no redundant per-byte P1 churn added; new code only asserts CTRL_ADDRESS_LINE_18 hold-LOW (distinct from P1 VPP routing)
+- [Phase 98 Plan 02]: HIGH-1 blind-fix honesty — addr-0 register state byte-unchanged under RC-1; Phase 99 is sole empirical gate; no over-claim that bits flip on silicon
+- [Phase 98 Plan 03]: rw-pin:[31] on DIP32_27C020 mirrors the working DIP32_SST39SF040 precedent — pin 31 resolves via pin_conversions[32][31]=22 to config.rw_line=22 -> CTRL_READ_WRITE (0x40), closing the corrected CR-01 fork (host half)
+- [Phase 98 Plan 03]: DB regen confirmed idempotent for rw-pin (pinouts.json runtime datum, never embedded in chip_database.json) — diff_db.py shows only the pre-existing Phase-94 PGSZ_PAGE_SIZE delta
+- [Phase 98 Plan 03]: py3.11 CI sign-off follows the 98-01 precedent (CI-PENDING/structurally-green) — no python3.11 binary in this devcontainer; all CI-scoped commands (ruff/mypy-watermark/diff_db/check_dispatch/parity) pass under 3.12.13
+- [Phase 98 Plan 04]: Reverted 98-02's inert CTRL_ADDRESS_LINE_18 clear (physical no-op on Rev 2 via the 0x08 alias; wrong-pin on Rev 0/1); relies on existing rw_line mechanism (CTRL_READ_WRITE 0x40, revision-invariant) fed by 98-03's rw-pin:[31]
+- [Phase 98 Plan 04]: WR-01 revision-parametrized native test added via local replicas of rurp_map_ctrl_reg_for_hardware_revision (Rev 2 + Rev 0/1) — the missing RED state; WR-02 RC-98B pinned to EQUAL(5); IN-02 firmware constant deferred to 98-05 (no size literal survives the revert)
+- [Phase 98 Plan 05]: IN-03 macro replacement named `mem_min` (not `min`) to avoid any future collision with Arduino's own min() or std::min — static inline single-evaluation function, sole call site (memory_read_execute) updated, behavior identical (side-effect-free operands)
+- [Phase 98 Plan 05]: IN-02 host authoritative value moved from build_db.py-only literal (98-03) into constants.py (the established landing spot for every firmware-parity constant this codebase tracks) — build_db.py now imports it; parity test follows the file's REAL pattern (hardcoded literal + FW_ABSENT skipif + citing comment), not literal header-parsing, matching its 6 sibling assertions
+- [Phase 98 Plan 05]: Phase 98 CLOSED — all 5 plans complete (98-01/02 original fix attempt + 98-03/04 corrected CR-01 fix + 98-05 IN-01/02/03 cleanup); native suite 119/119 green, golden traces byte-identical, host CI green on py3.11 target; Phase 99 (BENCH + LEDGER) unblocked
+- [Phase 99 Plan 01]: Chose minimal D-09 extension (option a, evidence-shape branch keyed on `v1_18_writeverify_sha_selfconsistent`) over a new status enum value — a v1.18-native 0x08 graduation is proven by write/read-back self-consistency (no v1.15 write baseline exists for AM27C020) without requiring a fabricated `p90_writecycle_sha_matches_v115` claim; honesty guard verified (bare 0x08 PASS claim without the marker still fails); FUT-06 retirement path (removal from open_defects[], not status_changed flip) proven by test; gate is now CAPABLE of a graduated 0x08 row but 99-04 decides the actual outcome from the bench result
+- [Phase Phase 99 Plan 02]: check_graduation.py filters on op prefix phase99* (never the Phase-97 tier0_microprobe+rca01 cell); branches PASS (write_image_sha256==readback_sha256 self-consistency) vs DEFER (bits_flipped+post_read_sha256 differential), validated against 9 synthetic fixture cells without ever mutating the real EVIDENCE.json
+- [Phase 99]: [Phase 99 Plan 04]: Took the DEFER branch decided by 99-03 (Phase-98 fix bench-effective-but-unreliable: write#1 60/64 byte-exact, write#2 0/64); retired FUT-06 by removal-and-replacement rather than in-place edit, opening FUT-08 (renumbered from the operator-requested "FUT-07" — that id is already taken by the v1.17 W29C040 defect in this same table) as an explicit successor citing the fix-effective-but-unreliable finding + the next diagnostic step (program-window VPP-under-load + write timing); 0x08 row stays open-defect-carried with on_hand_chip now AM27C020
+
+## Performance Metrics
+
+| Phase | Plan | Duration | Notes |
+|-------|------|----------|-------|
+| Phase 98 P04 | 35min | 3 tasks | 2 files |
+| Phase 98 P05 | 25min | 3 tasks | 5 files |
+| Phase 99 P01 | 25min | 3 tasks | 2 files |
+| Phase 99 P02 | 15min | 2 tasks | 3 files |
+| Phase 99 P04 | 15min | 2 tasks | 4 files |

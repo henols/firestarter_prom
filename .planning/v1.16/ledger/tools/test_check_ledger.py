@@ -15,6 +15,12 @@ Tests:
   4. Exit 1 — a ledger row with a matrix_family not present in the matrix
      fixture (LEDGER-01 join-key violation).
   5. Exit 2 — FIRESTARTER_LEDGER_FILE points at a missing path (load error).
+  6. Exit 0 — a v1.18-native `0x08` graduation (self-consistent write/read-back
+     SHA, no v1.15 write baseline) (Phase 99 / D-09 schema extension).
+  7. Exit 1 — a `0x08` PASS row claiming graduation WITHOUT the
+     v1_18_writeverify_sha_selfconsistent evidence (honesty guard).
+  8. Exit 0 — the v1.18-native `0x08` graduation with the FUT-06 open_defect
+     removed entirely (retirement-by-removal, not status_changed flip).
 """
 
 import json
@@ -164,4 +170,107 @@ def test_missing_ledger_file_exits_2():
     assert result.returncode == 2, (
         f"Expected exit 2 (load error) but got {result.returncode}.\n"
         f"stdout: {result.stdout}\nstderr: {result.stderr}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Helpers for the Phase-99 0x08 v1.18-native graduation tests
+# ---------------------------------------------------------------------------
+def _find_0x08_row(ledger):
+    for row in ledger["rows"]:
+        if row.get("bucket") == "0x08":
+            return row
+    raise AssertionError("fixture has no bucket=0x08 row")
+
+
+def _graduate_0x08_row(row):
+    """Mutate a 0x08 row in-place into a v1.18-native graduation (Test A shape).
+
+    No v1.15 write baseline exists for AM27C020 (its v1.15 write was the
+    0-bits failure) — self-consistency (written-image SHA == read-back SHA
+    on the Phase-98 fixed firmware) is the graduation oracle instead of
+    "matches v1.15". SHAs are referenced by artifact path only (D-04).
+    """
+    row["verification_status"] = "PASS"
+    row["oracle"] = "leonardo+Rev2.0"
+    row["on_hand_chip"] = "AM27C020"
+    row["evidence"] = {
+        "v1_18_writeverify_sha_selfconsistent": True,
+        "p90_read_sha_matches_v115": True,
+        "p90_artifacts": [".planning/v1.18/bench/AM27C020-graduation/"],
+    }
+
+
+# ---------------------------------------------------------------------------
+# Test 6: v1.18-native 0x08 graduation (self-consistent, no v1.15 write
+# baseline) → exit 0  (Phase 99 / D-09 schema extension)
+# ---------------------------------------------------------------------------
+def test_0x08_v1_18_native_graduation_exits_0():
+    """A v1.18-native 0x08 graduation (written-image SHA == read-back SHA on
+    the fixed firmware, no v1.15 write baseline) passes the gate at exit 0."""
+    ledger = _load_valid_ledger()
+    row = _find_0x08_row(ledger)
+    _graduate_0x08_row(row)
+
+    path = _write_tmp_ledger(ledger)
+    try:
+        result = _run_checker(path)
+    finally:
+        os.unlink(path)
+
+    assert result.returncode == 0, (
+        f"Expected exit 0 (v1.18-native 0x08 graduation) but got {result.returncode}.\n"
+        f"stdout: {result.stdout}\nstderr: {result.stderr}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Test 7: 0x08 PASS row WITHOUT the self-consistency evidence → exit 1
+# (honesty guard — the extension must not admit a bare PASS claim)
+# ---------------------------------------------------------------------------
+def test_0x08_pass_without_selfconsistency_exits_1():
+    """A 0x08 PASS row missing v1_18_writeverify_sha_selfconsistent must still
+    fail the gate — the honesty guard holds (no dishonest v1.15-write-baseline
+    fabrication, and no free pass either)."""
+    ledger = _load_valid_ledger()
+    row = _find_0x08_row(ledger)
+    _graduate_0x08_row(row)
+    # Omit the self-consistency marker entirely (Test B).
+    del row["evidence"]["v1_18_writeverify_sha_selfconsistent"]
+
+    path = _write_tmp_ledger(ledger)
+    try:
+        result = _run_checker(path)
+    finally:
+        os.unlink(path)
+
+    assert result.returncode == 1, (
+        f"Expected exit 1 (0x08 PASS without self-consistency evidence) but got "
+        f"{result.returncode}.\nstdout: {result.stdout}\nstderr: {result.stderr}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Test 8: 0x08 graduation + FUT-06 removed from open_defects[] → exit 0
+# (retirement-by-removal, not by flipping status_changed)
+# ---------------------------------------------------------------------------
+def test_0x08_graduation_with_fut06_removed_exits_0():
+    """Retiring FUT-06 by removing its block from open_defects[] (not by
+    flipping status_changed) still satisfies the gate at exit 0."""
+    ledger = _load_valid_ledger()
+    row = _find_0x08_row(ledger)
+    _graduate_0x08_row(row)
+    ledger["open_defects"] = [
+        d for d in ledger.get("open_defects", []) if d.get("id") != "FUT-06"
+    ]
+
+    path = _write_tmp_ledger(ledger)
+    try:
+        result = _run_checker(path)
+    finally:
+        os.unlink(path)
+
+    assert result.returncode == 0, (
+        f"Expected exit 0 (0x08 graduation + FUT-06 retired by removal) but got "
+        f"{result.returncode}.\nstdout: {result.stdout}\nstderr: {result.stderr}"
     )
