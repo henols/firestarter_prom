@@ -352,16 +352,18 @@ I enumerated `chip_database.json` algorithm counts this session `[VERIFIED: chip
 | A2 | mypy is actually installed in this devcontainer (the watermark gate prints OK even when mypy is absent — prior-milestone memory) | Environment Availability | Low — verify `mypy --version` before trusting the type gate. |
 | A3 | `nyquist_validation` is enabled (config not read in this session) | Validation Architecture | Low — section is additive; if disabled it's simply extra guidance. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **`0x34` (X88C64) `description_points` bullets.** D-03 says name-only, and D-04 adds `0x34` to `protocol_info_data`. A new tuple needs *a* bullet payload. PROTOCOLS.md §1.12 has rich prose, but D-03 defers prose to Phase 103.
+> All three questions are resolved in PLAN `102-01` (see the plan's `<open_decision_for_executor>` block and constraint notes). Markers added post-plan-check (Dimension 11 hygiene).
+
+1. **(RESOLVED — PLAN 102-01, D-05 / `<open_decision_for_executor>`)** **`0x34` (X88C64) `description_points` bullets.** D-03 says name-only, and D-04 adds `0x34` to `protocol_info_data`. A new tuple needs *a* bullet payload. PROTOCOLS.md §1.12 has rich prose, but D-03 defers prose to Phase 103.
    - What we know: name comes from the canonical map; X88C64 is `support_status: protocol-not-implemented` (surfaced separately in `info`).
    - What's unclear: whether to add empty/minimal bullets now or a placeholder.
    - Recommendation: add the `0x34` tuple with the canonical name and **minimal, non-minipro-heritage** bullets (e.g. a single "XICOR 8051-multiplexed bus; not implemented on RURP (FUT-01)") OR an empty bullet tuple — since Phase 103 owns prose reconciliation, minimize prose here. Planner should pick one and note it for Phase 103 (DOC-01).
 
-2. **Exact string form for `0x0B`/`0x0D`/`0x34`** where PROTOCOLS.md header table, §1 call-out, and CONTEXT §specifics differ slightly (see Canonical Name Set ⚠ block). Recommendation: use the CONTEXT §specifics forms verbatim (they are the operator-facing examples and agree with the header table modulo dashes).
+2. **(RESOLVED — PLAN 102-01: "CONTEXT §specifics wins")** **Exact string form for `0x0B`/`0x0D`/`0x34`** where PROTOCOLS.md header table, §1 call-out, and CONTEXT §specifics differ slightly (see Canonical Name Set ⚠ block). Recommendation: use the CONTEXT §specifics forms verbatim (they are the operator-facing examples and agree with the header table modulo dashes).
 
-3. **Should `resolve_type_label`'s legacy fallback now render the long canonical name in the 12-char Type column** for user-override entries lacking `electrical.type`? Recommendation: leave the existing `[:12]` clamp untouched (pre-existing behavior, CONTEXT-confirmed). No DB chip triggers this path.
+3. **(RESOLVED — PLAN 102-01: leave the `[:12]` clamp untouched)** **Should `resolve_type_label`'s legacy fallback now render the long canonical name in the 12-char Type column** for user-override entries lacking `electrical.type`? Recommendation: leave the existing `[:12]` clamp untouched (pre-existing behavior, CONTEXT-confirmed). No DB chip triggers this path.
 
 ## Sources
 
