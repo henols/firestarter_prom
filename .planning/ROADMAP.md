@@ -312,13 +312,16 @@ Plans:
 
 **Plans**: 4 plans in 3 waves (planned 2026-07-01; granularity Comprehensive; ONE required code task = the ledger-gate extension, isolated operator bench in its own wave, graduate AND defer branches both planned and non-faked):
 **Wave 1** *(autonomous, no hardware)*
+
 - [x] 99-01-PLAN.md — extend `check_ledger.py` + `test_check_ledger.py` to admit a v1.18-native `0x08` graduation (written-image SHA == read-back SHA) WITHOUT a v1.15 write baseline, keeping the 5 tests + 11 rows green (TDD) *(BENCH-02)* — [SUMMARY](phases/99-bench-ledger-graduation-gate-evidence-ledger-update/99-01-SUMMARY.md)
-- [ ] 99-02-PLAN.md — bench-prep: deterministic 262144-byte write image (`gen_test_image` seed 1) + annotated `AM27C020-graduation/SHA256SUMS.txt` header + `check_graduation.py` EVIDENCE-completeness/anti-fabrication gate *(BENCH-02)*
+- [x] 99-02-PLAN.md — bench-prep: deterministic 262144-byte write image (`gen_test_image` seed 1) + annotated `AM27C020-graduation/SHA256SUMS.txt` header + `check_graduation.py` EVIDENCE-completeness/anti-fabrication gate *(BENCH-02)* — [SUMMARY](phases/99-bench-ledger-graduation-gate-evidence-ledger-update/99-02-SUMMARY.md)
 
 **Wave 2** *(blocked on 99-02; OPERATOR-GATED bench, autonomous:false)*
+
 - [ ] 99-03-PLAN.md — pre-spend discipline/firmware-commit/VPP gate + single operator-authorized `write -b` -> read-back -> SHA compare -> N>=3 stability on the seated AM27C020 (graduate or clean defer), captured in 99-03-BENCH-LOG.md *(BENCH-01, BENCH-02)*
 
 **Wave 3** *(blocked on 99-01/02/03)*
+
 - [ ] 99-04-PLAN.md — finalize: author the Phase-99 EVIDENCE cell + update PROTOCOL-LEDGER `0x08` row + FUT-06 (json/md lockstep) from the bench outcome; `check_graduation.py` + `check_ledger.py` exit 0 (graduate: PASS + FUT-06 removed; defer: residual + FUT-06 kept, status_changed:false) *(BENCH-01, BENCH-02)*
 
 **UI hint**: no
@@ -911,7 +914,7 @@ Plans:
 | 96 (close) | v1.17 | 0/TBD | Not started | — |
 | 97 | v1.18 | 3/3 | Complete   | 2026-06-30 |
 | 98 | v1.18 | 4/5 | In Progress|  |
-| 99 (close) | v1.18 | 0/TBD | Not started | — |
+| 99 (close) | v1.18 | 2/4 | In Progress|  |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 

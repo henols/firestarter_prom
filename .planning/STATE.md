@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.18
 milestone_name: — AM27C020 0x08 Write-Path RCA & Fix
 status: executing
-last_updated: "2026-07-01T10:56:27.000Z"
-last_activity: 2026-07-01 -- Phase 99 Plan 01 complete (ledger gate extension)
+last_updated: "2026-07-01T11:05:23.037Z"
+last_activity: 2026-07-01
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 20
-  completed_plans: 17
-  percent: 60
+  completed_plans: 18
+  percent: 57
 ---
 
 # Project State
@@ -21,10 +21,10 @@ progress:
 ## Current Position
 
 Phase: 99 (BENCH + LEDGER — Graduation Gate, Evidence & Ledger Update) — EXECUTING
-Plan: 2 of 4
-Status: Executing Phase 99 (Wave 1 continuing — 99-02 next; Wave 2 is OPERATOR-GATED bench)
-Next: /gsd-execute-phase 99 — 99-02-PLAN.md (bench-prep: deterministic 262144-byte write image + SHA256SUMS.txt header convention + check_graduation.py). 99-01 done bar met: check_ledger.py D-09 extended for a v1.18-native 0x08 graduation (self-consistency, no v1.15 write baseline); 8/8 tests green; live 11-row ledger still exits 0; honesty guard verified.
-Last activity: 2026-07-01 -- Phase 99 Plan 01 complete (ledger gate extension)
+Plan: 3 of 4
+Status: Wave 1 complete (99-01, 99-02); Wave 2 is OPERATOR-GATED bench (99-03/99-04)
+Next: 99-03 requires the operator at the physical bench (Leonardo + RURP Rev 2.0, seated AM27C020) — cannot proceed autonomously. 99-02 done bar met: imgA.bin (262144 bytes, seed 1) + annotated SHA256SUMS.txt (fw commit 35706c2, PENDING BENCH verdict) + check_graduation.py (anti-fabrication EVIDENCE gate, MISSING/exit-1 pre-bench confirmed, PASS/DEFER branch logic validated against 9 synthetic fixtures).
+Last activity: 2026-07-01 -- Phase 99 Plan 02 complete (bench-independent graduation prep: image + SHA256SUMS + check_graduation.py)
 
 ## Project Reference
 
@@ -127,6 +127,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase 98 Plan 05]: IN-02 host authoritative value moved from build_db.py-only literal (98-03) into constants.py (the established landing spot for every firmware-parity constant this codebase tracks) — build_db.py now imports it; parity test follows the file's REAL pattern (hardcoded literal + FW_ABSENT skipif + citing comment), not literal header-parsing, matching its 6 sibling assertions
 - [Phase 98 Plan 05]: Phase 98 CLOSED — all 5 plans complete (98-01/02 original fix attempt + 98-03/04 corrected CR-01 fix + 98-05 IN-01/02/03 cleanup); native suite 119/119 green, golden traces byte-identical, host CI green on py3.11 target; Phase 99 (BENCH + LEDGER) unblocked
 - [Phase 99 Plan 01]: Chose minimal D-09 extension (option a, evidence-shape branch keyed on `v1_18_writeverify_sha_selfconsistent`) over a new status enum value — a v1.18-native 0x08 graduation is proven by write/read-back self-consistency (no v1.15 write baseline exists for AM27C020) without requiring a fabricated `p90_writecycle_sha_matches_v115` claim; honesty guard verified (bare 0x08 PASS claim without the marker still fails); FUT-06 retirement path (removal from open_defects[], not status_changed flip) proven by test; gate is now CAPABLE of a graduated 0x08 row but 99-04 decides the actual outcome from the bench result
+- [Phase Phase 99 Plan 02]: check_graduation.py filters on op prefix phase99* (never the Phase-97 tier0_microprobe+rca01 cell); branches PASS (write_image_sha256==readback_sha256 self-consistency) vs DEFER (bits_flipped+post_read_sha256 differential), validated against 9 synthetic fixture cells without ever mutating the real EVIDENCE.json
 
 ## Performance Metrics
 
@@ -135,3 +136,4 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 98 P04 | 35min | 3 tasks | 2 files |
 | Phase 98 P05 | 25min | 3 tasks | 5 files |
 | Phase 99 P01 | 25min | 3 tasks | 2 files |
+| Phase 99 P02 | 15min | 2 tasks | 3 files |
