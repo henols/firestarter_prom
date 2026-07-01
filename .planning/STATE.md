@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.19
 milestone_name: — Protocol Naming Labels
 current_phase: 103
-current_phase_name: DOCS — Reconcile Prose + Divergence Record
+current_phase_name: docs-reconcile-prose-divergence-record
 status: executing
 stopped_at: Phase 103 context gathered
-last_updated: "2026-07-01T21:49:56.365Z"
+last_updated: "2026-07-01T21:58:49.324Z"
 last_activity: 2026-07-01
-last_activity_desc: Phase 102 complete, transitioned to Phase 103
+last_activity_desc: Phase 103 execution started
 progress:
   total_phases: 4
   completed_phases: 3
-  total_plans: 5
-  completed_plans: 5
+  total_plans: 7
+  completed_plans: 6
   percent: 75
 ---
 
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 103 — DOCS — Reconcile Prose + Divergence Record
-Plan: Not started
+Phase: 103 (docs-reconcile-prose-divergence-record) — EXECUTING
+Plan: 2 of 2
 Status: Ready to execute
-Last activity: 2026-07-01 — Phase 102 complete, transitioned to Phase 103
+Last activity: 2026-07-01 — Phase 103 execution started
 
 ## Project Reference
 
@@ -35,7 +35,7 @@ See: `.planning/PROJECT.md` (v1.19 STARTED footer + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware handler; protocol numbers stay the dispatch key end to end. v1.19 adds a legibility layer on top of that unchanged contract: a single canonical, behavior/datasheet-correct, human-readable name set for every protocol, applied consistently across firmware constants, host display, and docs — names never become the dispatch key (GATE-01/02/03 non-regression).
 
-**Current focus:** Phase 102 — host-apply-names-in-the-host-cli-display
+**Current focus:** Phase 103 — docs-reconcile-prose-divergence-record
 
 ## Milestone Context (v1.19)
 
@@ -156,6 +156,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: D-01/D-02/D-04 applied: single _PROTOCOL_DISPLAY_NAME map in ic_layout.py feeds both proto_display fallback and info Protocol line; ASCII dashes; 0x34 added / 0x11 dropped
 - [Phase ?]: 0x34 description_points bullet chosen as minimal placeholder text, flagged Phase-103-DOC-01-owned
 - [Phase ?]: py3.11 CI recorded as CI-PENDING/structurally-green under py3.12.13 devcontainer (Phase-98 precedent)
+- [Phase ?]: Phase 103 Plan 01: Heading token substitutions copied verbatim from §0 canonical bucket table; cross-link anchors regenerated + grep-verified against actual rendered headings (not hand-guessed); INV row edits scoped to behavior column only, SAFE-02 grep-contract columns kept byte-identical; D-04 callout placed above §0 table reusing existing blockquote style
 
 ## Performance Metrics
 
@@ -167,9 +168,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 99 P02 | 15min | 2 tasks | 3 files |
 | Phase 99 P04 | 15min | 2 tasks | 4 files |
 | Phase 102 P01 | 25min | 3 tasks | 3 files |
+| Phase 103 P01 | 8min | 3 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-07-01T21:16:54.849Z
+**Last session:** 2026-07-01T21:58:02.303Z
 **Stopped at:** Phase 103 context gathered
 **Resume file:** .planning/phases/103-docs-reconcile-prose-divergence-record/103-CONTEXT.md

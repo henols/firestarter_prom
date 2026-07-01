@@ -25,8 +25,8 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (100–1
 
 ### Docs (Phase 103 — reconcile prose + divergence record)
 
-- [ ] **DOC-01**: `firestarter/doc/PROTOCOLS.md` prose (the §1 four-facet bucket descriptions) and the INV-01..09 native-test traceability matrix are reconciled to the new names/tokens, with no dangling references to the old minipro-heritage jargon.
-- [ ] **DOC-02**: The name↔`datasheets/<hex>-<NAME>/` slug divergence is explicitly recorded (the frozen slug column retained alongside the new name so old-slug vs new-name is visible at a glance); the `datasheets/` folder slugs are NOT renamed.
+- [x] **DOC-01**: `firestarter/doc/PROTOCOLS.md` prose (the §1 four-facet bucket descriptions) and the INV-01..09 native-test traceability matrix are reconciled to the new names/tokens, with no dangling references to the old minipro-heritage jargon.
+- [x] **DOC-02**: The name↔`datasheets/<hex>-<NAME>/` slug divergence is explicitly recorded (the frozen slug column retained alongside the new name so old-slug vs new-name is visible at a glance); the `datasheets/` folder slugs are NOT renamed.
 
 ### Non-Regression Gates (cross-cutting — verified in every phase that touches its surface)
 
@@ -67,8 +67,8 @@ Which phases cover which requirements. Populated during roadmap creation.
 | FW-02 | Phase 101 | Complete |
 | FW-03 | Phase 101 | Complete |
 | HOST-01 | Phase 102 | Complete |
-| DOC-01 | Phase 103 | Pending |
-| DOC-02 | Phase 103 | Pending |
+| DOC-01 | Phase 103 | Complete |
+| DOC-02 | Phase 103 | Complete |
 | GATE-01 | Phases 101–103 (primary: 101) | Complete |
 | GATE-02 | Phases 101–103 (primary: 101) | Complete |
 | GATE-03 | Phases 101–103 (primary: 102) | Complete |

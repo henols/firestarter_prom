@@ -206,7 +206,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 103-01-PLAN.md — DOC-01/DOC-02: rename 12 §1.x headings to PROTO_ token form + regenerate 8 §3 cross-link anchors, augment 9 INV rows with tokens, purge 2 prose jargon sentences (3 D-02 retentions verbatim), add the Name↔Slug Divergence callout
+- [x] 103-01-PLAN.md — DOC-01/DOC-02: rename 12 §1.x headings to PROTO_ token form + regenerate 8 §3 cross-link anchors, augment 9 INV rows with tokens, purge 2 prose jargon sentences (3 D-02 retentions verbatim), add the Name↔Slug Divergence callout
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
