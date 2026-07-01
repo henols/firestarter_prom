@@ -142,7 +142,12 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
   2. The draft name set renders as a single reviewable table and the operator explicitly approves it at a blocking gate — with the 0x0E-vs-0x29 (both 32-pin SRAM) name collision resolved at approval — before any downstream phase (101/102/103) begins; there is no silent auto-approval.
   3. The approved name set is recorded in one identifiable authoritative source — `firestarter/doc/PROTOCOLS.md`, revised in place — that is the single source of truth Phases 101/102/103 cite by section, with the frozen `datasheets/<hex>-<NAME>/` slug column retained alongside the new names as the DOC-02 divergence anchor.
 
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+**Wave 1**
+
+- [ ] 100-01-PLAN.md — author the 3-field name set (12 real + 2 phantom rows) + handler-family layer + phantom tokens in PROTOCOLS.md, BLOCKING operator-approval gate (0x0E/0x29 tiebreak resolved at approval), finalize the approved set + record provenance *(revise-in-place; NOT autonomous — blocking human-verify gate)*
+
 **UI hint**: no
 
 ### Phase 101: FW — Apply Names in Firmware
