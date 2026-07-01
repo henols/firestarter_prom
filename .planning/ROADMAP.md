@@ -310,7 +310,17 @@ Plans:
   2. A bench EVIDENCE record is captured: the 1→0 program proof (or failing-vs-fixed signature if graduated, or writability-fail evidence if deferred), VPP rail reading at socket pin 1 during the program window, bench-discipline log row (port, shield rev, R1/R2 readback, `controller:` identity, firmware commit), sufficient to update the PROTOCOL-LEDGER `0x08` entry and stand as the authoritative bench record for v1.18 (BENCH-02).
   3. The PROTOCOL-LEDGER `0x08` entry (`.planning/v1.16/ledger/PROTOCOL-LEDGER.{md,json}`) is updated from `open-defect-carried (FUT-06)` to PASS (if graduated) or a documented residual-defect / FUT status (if deferred), citing the Phase 99 bench evidence; `check_ledger.py` passes with 0 contradictions; FUT-06 is retired or re-named per the actual outcome.
 
-**Plans**: TBD
+**Plans**: 4 plans in 3 waves (planned 2026-07-01; granularity Comprehensive; ONE required code task = the ledger-gate extension, isolated operator bench in its own wave, graduate AND defer branches both planned and non-faked):
+**Wave 1** *(autonomous, no hardware)*
+- [ ] 99-01-PLAN.md — extend `check_ledger.py` + `test_check_ledger.py` to admit a v1.18-native `0x08` graduation (written-image SHA == read-back SHA) WITHOUT a v1.15 write baseline, keeping the 5 tests + 11 rows green (TDD) *(BENCH-02)*
+- [ ] 99-02-PLAN.md — bench-prep: deterministic 262144-byte write image (`gen_test_image` seed 1) + annotated `AM27C020-graduation/SHA256SUMS.txt` header + `check_graduation.py` EVIDENCE-completeness/anti-fabrication gate *(BENCH-02)*
+
+**Wave 2** *(blocked on 99-02; OPERATOR-GATED bench, autonomous:false)*
+- [ ] 99-03-PLAN.md — pre-spend discipline/firmware-commit/VPP gate + single operator-authorized `write -b` -> read-back -> SHA compare -> N>=3 stability on the seated AM27C020 (graduate or clean defer), captured in 99-03-BENCH-LOG.md *(BENCH-01, BENCH-02)*
+
+**Wave 3** *(blocked on 99-01/02/03)*
+- [ ] 99-04-PLAN.md — finalize: author the Phase-99 EVIDENCE cell + update PROTOCOL-LEDGER `0x08` row + FUT-06 (json/md lockstep) from the bench outcome; `check_graduation.py` + `check_ledger.py` exit 0 (graduate: PASS + FUT-06 removed; defer: residual + FUT-06 kept, status_changed:false) *(BENCH-01, BENCH-02)*
+
 **UI hint**: no
 
 ## v1.9 — Read-Bug RCA + Fix (STARTED 2026-05-29)
