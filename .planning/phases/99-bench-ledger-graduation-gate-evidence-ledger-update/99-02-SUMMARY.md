@@ -105,3 +105,13 @@ None - no external service configuration required. This plan is bench-independen
 ---
 *Phase: 99-bench-ledger-graduation-gate-evidence-ledger-update*
 *Completed: 2026-07-01*
+
+## Self-Check: PASSED
+
+- FOUND: .planning/v1.18/bench/AM27C020-graduation/imgA.bin
+- FOUND: .planning/v1.18/bench/AM27C020-graduation/SHA256SUMS.txt
+- FOUND: .planning/v1.18/bench/check_graduation.py
+- FOUND: .planning/phases/99-bench-ledger-graduation-gate-evidence-ledger-update/99-02-SUMMARY.md
+- FOUND commit: b210619 (feat, Task 1)
+- FOUND commit: a73c87c (feat, Task 2)
+- FOUND commit: aa9ff36 (docs, summary)
