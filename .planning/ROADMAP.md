@@ -162,7 +162,10 @@ Plans:
   3. The many-to-one handler files and functions are renamed from the approved family-name layer (`configure_flash3`/`flash_type_3.cpp`, `configure_flash4`/`flash_type_4.cpp`, `configure_eeprom28c`, the SRAM/EPROM family handlers) — a rename only, the groupings are not split.
   4. GATE-01/GATE-02 hold: no name/token becomes a dispatch or lookup key (algorithm-first dispatch unchanged); no `chip_database.json` content change and no wire / lockstep-constant *value* change — `diff_db.py` shows identity, `check_dispatch.py` passes, the constants-parity test (`constants.py` ↔ `firestarter.h`) is green, and host CI is green against the py3.11 target (ruff / mypy / diff_db / check_dispatch), avoiding the py3.12-masks-CI-3.11 trap.
 
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 101-00-PLAN.md — Wave 0: fix the RED `test_dispatch_mirror.py` parser for the Phase-100 two-table PROTOCOLS.md layout (D-03; GATE-01 predecessor)
+- [ ] 101-01-PLAN.md — Wave 1: create `proto_constants.h` (14 PROTO_ tokens, FW-01) + relabel the `memory.cpp` dispatch chain incl. phantom tokens (FW-02)
+- [ ] 101-02-PLAN.md — Wave 2: confirm FW-03 handler-family conformance (no-op rename, D-01) + sync `firestarter/CLAUDE.md` + full GATE-01/02/03 integration assertion
 **UI hint**: no
 
 ### Phase 102: HOST — Apply Names in the Host CLI Display
