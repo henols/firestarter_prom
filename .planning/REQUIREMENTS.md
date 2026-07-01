@@ -15,9 +15,9 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (100–1
 
 ### Firmware Labels (Phase 101 — apply names in firmware)
 
-- [ ] **FW-01**: Firmware defines the `PROTO_<NAME>` constants for every protocol number with numeric values unchanged (the label *is* the number), so the dispatch site reads by name (`handle->protocol == PROTO_...`).
-- [ ] **FW-02**: The raw-hex dispatch chain (`firestarter/src/proms/memory.cpp`) is relabeled to the named constants — including honest, explicitly-non-real phantom tokens for the 0x35/0x39 dispatch arm — preserving dispatch order and behavior.
-- [ ] **FW-03**: The many-to-one handler files and functions are renamed from the approved family-name layer (`configure_flash3`/`flash_type_3.cpp`, `configure_flash4`/`flash_type_4.cpp`, `configure_eeprom28c`, …).
+- [x] **FW-01**: Firmware defines the `PROTO_<NAME>` constants for every protocol number with numeric values unchanged (the label *is* the number), so the dispatch site reads by name (`handle->protocol == PROTO_...`).
+- [x] **FW-02**: The raw-hex dispatch chain (`firestarter/src/proms/memory.cpp`) is relabeled to the named constants — including honest, explicitly-non-real phantom tokens for the 0x35/0x39 dispatch arm — preserving dispatch order and behavior.
+- [x] **FW-03**: The many-to-one handler files and functions are renamed from the approved family-name layer (`configure_flash3`/`flash_type_3.cpp`, `configure_flash4`/`flash_type_4.cpp`, `configure_eeprom28c`, …).
 
 ### Host Display (Phase 102 — apply names in the host CLI)
 
@@ -30,9 +30,9 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (100–1
 
 ### Non-Regression Gates (cross-cutting — verified in every phase that touches its surface)
 
-- [ ] **GATE-01**: Protocol numbers remain the dispatch key end to end; no name/token becomes a dispatch or lookup key, and algorithm-first dispatch behavior is unchanged (firmware golden register traces + dispatch-mirror guard stay green).
-- [ ] **GATE-02**: No `chip_database.json` content change and no wire / lockstep-constant *value* change — only C-token *names* change in firmware, not their numeric values; `diff_db.py` shows identity, `check_dispatch.py` passes, and the constants-parity test holds.
-- [ ] **GATE-03**: CLI grammar is unchanged — chip selection stays by part number; no protocol name/alias is accepted as CLI input.
+- [x] **GATE-01**: Protocol numbers remain the dispatch key end to end; no name/token becomes a dispatch or lookup key, and algorithm-first dispatch behavior is unchanged (firmware golden register traces + dispatch-mirror guard stay green).
+- [x] **GATE-02**: No `chip_database.json` content change and no wire / lockstep-constant *value* change — only C-token *names* change in firmware, not their numeric values; `diff_db.py` shows identity, `check_dispatch.py` passes, and the constants-parity test holds.
+- [x] **GATE-03**: CLI grammar is unchanged — chip selection stays by part number; no protocol name/alias is accepted as CLI input.
 
 ## Future Requirements
 
@@ -63,17 +63,18 @@ Which phases cover which requirements. Populated during roadmap creation.
 | NAME-01 | Phase 100 | Pending |
 | NAME-02 | Phase 100 | Pending |
 | NAME-03 | Phase 100 | Pending |
-| FW-01 | Phase 101 | Pending |
-| FW-02 | Phase 101 | Pending |
-| FW-03 | Phase 101 | Pending |
+| FW-01 | Phase 101 | Complete |
+| FW-02 | Phase 101 | Complete |
+| FW-03 | Phase 101 | Complete |
 | HOST-01 | Phase 102 | Pending |
 | DOC-01 | Phase 103 | Pending |
 | DOC-02 | Phase 103 | Pending |
-| GATE-01 | Phases 101–103 (primary: 101) | Pending |
-| GATE-02 | Phases 101–103 (primary: 101) | Pending |
-| GATE-03 | Phases 101–103 (primary: 102) | Pending |
+| GATE-01 | Phases 101–103 (primary: 101) | Complete |
+| GATE-02 | Phases 101–103 (primary: 101) | Complete |
+| GATE-03 | Phases 101–103 (primary: 102) | Complete |
 
 **Coverage:**
+
 - v1 requirements: 12 total
 - Mapped to phases: 12
 - Unmapped: 0 ✓

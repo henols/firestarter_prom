@@ -125,7 +125,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 ### Phases
 
 - [x] **Phase 100: NAME — Canonical Protocol Name Set + Operator Approval** — 1/1 — ✅ verified 5/5 — 2026-07-01 — Author the single canonical name set (3-field entry: `PROTO_<NAME>` token + display name + datasheet-cited facet prose) for every protocol number + phantom + handler-family layer, resolve the 0x0E-vs-0x29 collision, get explicit operator approval at a blocking gate, and record it in `firestarter/doc/PROTOCOLS.md`. Gates all downstream phases. Operator-approved deviations from draft: 0x29=`PROTO_SRAM_32PIN_NVRAM` (0x0E stays `PROTO_SRAM_32PIN`), phantoms=`PROTO_PHANTOM_0x35/0x39`, 0x34=`PROTO_EEPROM_8051BUS`. Sub-repo `firestarter` on `v1.19-protocol-naming-labels` (forked off beta + PROTOCOLS.md seeded from v1.16 tip) at `6e7bd38`; gitlink PINNED (not bumped). SAFE-02 INV matrix byte-intact (34); GATE-01/02/03 held (doc-only). (NAME-01/02/03 ✓)
-- [ ] **Phase 101: FW — Apply Names in Firmware** — Define the `PROTO_<NAME>` constants (values unchanged), relabel the raw-hex dispatch chain in `memory.cpp` to named constants (incl. honest phantom tokens for 0x35/0x39), and rename the many-to-one handler files/functions from the approved family-name layer. Dual-repo lockstep; GATE-01/02/03 first/primarily enforced here.
+- [x] **Phase 101: FW — Apply Names in Firmware** — Define the `PROTO_<NAME>` constants (values unchanged), relabel the raw-hex dispatch chain in `memory.cpp` to named constants (incl. honest phantom tokens for 0x35/0x39), and rename the many-to-one handler files/functions from the approved family-name layer. Dual-repo lockstep; GATE-01/02/03 first/primarily enforced here. (completed 2026-07-01)
 - [ ] **Phase 102: HOST — Apply Names in the Host CLI Display** — Consolidate the two divergent host protocol vocabularies (`ic_layout.proto_display` + `protocol_info_data`) onto the canonical display names so `firestarter info` / `list` / `search` render one consistent name per protocol. GATE-01/02/03 re-verified.
 - [ ] **Phase 103 (close): DOCS — Reconcile Prose + Divergence Record** — Reconcile the PROTOCOLS.md §1 four-facet bucket prose + the INV-01..09 native-test traceability matrix to the new names/tokens (no dangling minipro-heritage jargon), and explicitly record the name↔`datasheets/<hex>-<NAME>/` slug divergence (frozen slug column retained; slugs NOT renamed). GATE-01/02/03 re-verified at close.
 
@@ -1015,7 +1015,7 @@ Plans:
   2. The same file (or a companion file) lists every intra-algorithm DB inconsistency — chips that share `pin_count` + `algorithm` but differ in `pulse_duration`, `chip_id_check`, or `pinout` — with each inconsistency labeled as a defect candidate for v1.4 or a sub-repo PR (no auto-fixes applied in v1.3).
   3. Operator can use the matrix to confirm that the six BENCH chips (BENCH-01..06) span the pinout classes and pulse-duration profiles actually represented in the DB, so bench results generalize to the rest of the 339 rows.
 
-**Plans:** 4/4 plans complete
+**Plans:** 3/3 plans complete
 
 - [x] 11-01-PLAN.md — Wave 0 failing-test scaffold for tests/test_audit_coverage_matrix.py (10 tests) ✅ 2026-05-19
 - [x] 11-02-PLAN.md — Wave 1 tool skeleton + CLI + §1 Summary + §2 DB Count Reconciliation ✅ 2026-05-19
