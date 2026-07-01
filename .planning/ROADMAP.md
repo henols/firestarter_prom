@@ -21,6 +21,7 @@
 - ✅ **v1.16 Protocol-First Architecture Rebuild** — Phases 85–92 (SHIPPED 2026-06-26; meta tagged `v1.16`, gsd planning to be merged to `beta`; sub-repo work on `v1.16-protocol-first-architecture-rebuild` — fw `a296195` primitive recompose / app `883c78f` decouple; lockstep beta cut `3.0.0b11` + gitlink bump operator-gated, gitlinks PINNED at b10). Turned the inherited-from-minipro hex-ID `protocol_id` buckets into a named, datasheet-verified, primitive-decomposed architecture: `infoic.xml`'s `variant` field decoded in full and `build_db.py` rewritten to a single principled `classify()` (Rule 1/2/3 override stack deleted; FM1608→SRAM_STD/0x28 + X88C64→EEPROM fall out structurally; DB 744→746 with the 2516/2532 non-upstream supplement); top-level `datasheets/` + `firestarter/doc/PROTOCOLS.md` 12-bucket vocabulary + INV-01..09 native-test matrix; primitives P7/P4/P3/P5 extracted behind golden traces + dispatch-mirror guard with a net flash **decrease** (final 25136 B / 87.7% / −518 B); `PROTOCOL-LEDGER.{md,json}` + self-consistency checker (all 4 on-hand protocols PASS, 6 no-silicon buckets explicit UNVERIFIED). The Phase-90/91 "12V-VPP regression" resolved as a `write -b` skipped-erase test-method error (recompose proven innocent), then hardened away in Phase 92 (HARD-01: `-b` decoupled from skip-erase + explicit `--skip-erase` opt-in). 28/28 requirements (DSHEET/VAR/NAME/PRIM/LEDGER/SAFE/HARD). Full detail in `.planning/MILESTONES.md` §v1.16 + [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.md).
 - ✅ **v1.17 Implement & Test the W29C040 Programming Protocol** — Phases 93–96 (SHIPPED 2026-06-29; software complete, W29C040 bench graduation deferred → FUT-07; firmware-touching, dual-repo lockstep; firmware forks off the v1.16 tip `a296195`; meta on `gsd/v1.17-…`; lockstep beta cut + gitlink reconciliation operator-gated). RCA proved the W29C040 page-0 "fault" is NOT a firmware bug — the seated chip's §6.6 first-16K boot block is **permanently locked** (datasheet-irreversible), so the byte-exact full-image graduation is hardware-blocked and needs a different unlocked sample (→ third-party bench, FUT-07). Delivered + verified: T-93-CANERASE 12V-on-5V safety fix (host+fw), proactive §6.6 boot-block lockout detection (error / `--force`→warning), datasheet-sourced per-chip `page_size` wire field (CR-01), writable-region (≥0x4000) N=3 SHA bench proof, py3.11 CI green. 16 requirements: **11 satisfied** (RCA/FIX/PGSZ/SAFE — Phases 93–94 verified); **5 deferred → FUT-07** (BENCH/LEDGER, hardware-blocked). Full detail in `.planning/MILESTONES.md` §v1.17 + [`.planning/milestones/v1.17-ROADMAP.md`](milestones/v1.17-ROADMAP.md).
 - ✅ **v1.18 AM27C020 0x08 Write-Path RCA & Fix** — Phases 97–99 (SHIPPED 2026-07-01; firmware-touching, dual-repo lockstep; meta tagged `v1.18` + gsd planning merged to `beta`; lockstep beta cut + gitlink bump operator-gated). Root-caused why the AM27C020 (`0x08` EPROM-QUICK, 32-pin) programs 0 bits — **RC-1**: DIP32 pin 31 modeled as address line A18 rather than a held program-active /PGM (0x07 W27C512 byte-exact differential exonerated all shared axes). Corrected fix via a scoped `DIP32_27C020` pinout + `rw-pin:[31]` → `CTRL_READ_WRITE` (0x40, revision-invariant, distinct from the `0x08` VPP alias that made the first attempt CR-01 a physical no-op); dual-repo lockstep `MAX_27C020_SIZE`, 119/119 native tests, golden traces byte-identical. Bench proved the fix **effective** (write#1 60/64 byte-exact, refuting the Phase-97 0-bits) but **marginal/unreliable** (write#2 0/64) → honest **DEFER**: AM27C020 graduation carried forward as **FUT-08** (FUT-06 retired-by-replacement), PROTOCOL-LEDGER `0x08` stays open-defect-carried. 11/11 requirements (PRE/RCA/FIX/BENCH/SAFE); audit `tech_debt` (3/3 phases passed, integration 6/6 WIRED, 14 pre-existing cross-milestone items acknowledged-deferred). Full detail in `.planning/MILESTONES.md` §v1.18 + [`.planning/milestones/v1.18-ROADMAP.md`](milestones/v1.18-ROADMAP.md) + [`v1.18-MILESTONE-AUDIT.md`](milestones/v1.18-MILESTONE-AUDIT.md).
+- 🚧 **v1.19 Protocol Naming Labels** — Phases 100–103 (STARTED 2026-07-01; firmware-touching for the `PROTO_<NAME>` constants, dual-repo lockstep; on `gsd/v1.19-protocol-naming-labels`; gitlinks PINNED, lockstep beta cut operator-gated). A legibility layer on top of the unchanged algorithm-first dispatch contract: author a single canonical, behavior/datasheet-correct, human-readable name set for every protocol number in `chip_database.json` (0x05/06/07/08/0B/0D/0E/10/27/28/29/34 + phantom 0x35/0x39) at a blocking operator-approval gate (Phase 100), then apply it across firmware constants + dispatch + handler-file renames (Phase 101), the host CLI display vocabularies (Phase 102), and doc prose + INV-matrix + slug-divergence record (Phase 103). Names never become the dispatch key — numbers stay authoritative end to end; no `chip_database.json` / wire / lockstep-constant *value* change; CLI grammar unchanged (GATE-01/02/03 non-regression). 12 requirements (NAME/FW/HOST/DOC/GATE). Requirements: [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md).
 
 <details>
 <summary>✅ <b>v1.10 — Serial Transport Hardening (COBS)</b> — Phases 49–55 (SHIPPED 2026-06-07) · 27/27 plans · 14/14 reqs · beta-only</summary>
@@ -108,6 +109,84 @@ Full detail: [`.planning/milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.
 Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.md) · [`v1.16-REQUIREMENTS.md`](milestones/v1.16-REQUIREMENTS.md) · [`MILESTONES.md`](MILESTONES.md) §v1.16.
 
 </details>
+
+## v1.19 — Protocol Naming Labels (STARTED 2026-07-01)
+
+**Milestone goal:** Apply a single canonical, behavior/datasheet-correct, human-readable name set for every protocol number across firmware constants, host display, and docs — a legibility layer on top of the unchanged algorithm-first dispatch contract. Author + operator-approve the name set at a blocking gate (Phase 100), then apply it in firmware (Phase 101), host CLI display (Phase 102), and docs (Phase 103). Names never become the dispatch key.
+
+**Non-regression invariant (GATE-01/02/03):** Protocol numbers stay the authoritative dispatch key end to end; no name/token becomes a dispatch or lookup key; algorithm-first dispatch behavior unchanged (golden register traces + dispatch-mirror guard stay green). No `chip_database.json` content change and no wire / lockstep-constant *value* change — only C-token *names* change, not their numeric values (`diff_db.py` identity, `check_dispatch.py` pass, constants-parity test holds). CLI grammar unchanged — chip selection stays by part number; no protocol name/alias accepted as CLI input. These gates are verified in every downstream phase that touches their surface (101/102/103).
+
+**Firmware-touching (Phase 101):** Dual-repo lockstep for the `PROTO_<NAME>` constants (`constants.py` ↔ `firestarter.h`); the label *is* the number (numeric values unchanged). Reuse-first; watch the py3.12-masks-CI-3.11 ruff/codegen drift trap for host DB-pipeline / codegen changes. gitlinks PINNED; lockstep beta cut operator-gated — out of scope this milestone.
+
+**Dependency chain is strictly linear:** 100 → 101 → 102 → 103. Phase 100's operator-approved name set (recorded in `firestarter/doc/PROTOCOLS.md`, revised in place) is the single source of truth every later phase cites; no downstream work begins before Phase 100 closes. Downstream phases conform to the approved names — they do not re-open naming.
+
+**Phase numbering:** Continues from v1.18's Phase 99 → v1.19 starts at **Phase 100** (context already gathered at `.planning/phases/100-name-canonical-protocol-name-set-operator-approval/100-CONTEXT.md`).
+
+### Phases
+
+- [ ] **Phase 100: NAME — Canonical Protocol Name Set + Operator Approval** — Author the single canonical name set (3-field entry: `PROTO_<NAME>` token + display name + datasheet-cited facet prose) for every protocol number + phantom + handler-family layer, resolve the 0x0E-vs-0x29 collision, get explicit operator approval at a blocking gate, and record it in `firestarter/doc/PROTOCOLS.md`. Gates all downstream phases.
+- [ ] **Phase 101: FW — Apply Names in Firmware** — Define the `PROTO_<NAME>` constants (values unchanged), relabel the raw-hex dispatch chain in `memory.cpp` to named constants (incl. honest phantom tokens for 0x35/0x39), and rename the many-to-one handler files/functions from the approved family-name layer. Dual-repo lockstep; GATE-01/02/03 first/primarily enforced here.
+- [ ] **Phase 102: HOST — Apply Names in the Host CLI Display** — Consolidate the two divergent host protocol vocabularies (`ic_layout.proto_display` + `protocol_info_data`) onto the canonical display names so `firestarter info` / `list` / `search` render one consistent name per protocol. GATE-01/02/03 re-verified.
+- [ ] **Phase 103 (close): DOCS — Reconcile Prose + Divergence Record** — Reconcile the PROTOCOLS.md §1 four-facet bucket prose + the INV-01..09 native-test traceability matrix to the new names/tokens (no dangling minipro-heritage jargon), and explicitly record the name↔`datasheets/<hex>-<NAME>/` slug divergence (frozen slug column retained; slugs NOT renamed). GATE-01/02/03 re-verified at close.
+
+## Phase Details
+
+### Phase 100: NAME — Canonical Protocol Name Set + Operator Approval
+
+**Goal**: A single canonical, human-readable, behavior/datasheet-correct name set exists and is operator-approved for every protocol number present in `chip_database.json` (0x05, 0x06, 0x07, 0x08, 0x0B, 0x0D, 0x0E, 0x10, 0x27, 0x28, 0x29, 0x34) plus the phantom IDs (0x35, 0x39), recorded as the ONE authoritative source (`firestarter/doc/PROTOCOLS.md`, revised in place) that Phases 101/102/103 each cite. This is a naming/decision phase — the deliverable is a vocabulary, not code.
+**Depends on**: Nothing in v1.19 (first phase). Inherits the v1.16 substrate — the current `firestarter/doc/PROTOCOLS.md` 12-bucket vocabulary (§Canonical bucket set, §1 four-facet prose, §2 phantom/infeasible non-protocols, §3 INV-01..09 matrix), the frozen top-level `datasheets/<hex>-<NAME>/` slugs, and the FM1608 (0x28→SRAM/FRAM) + X88C64 (0x34→EEPROM) identity corrections (carried forward, not re-litigated).
+**Requirements**: NAME-01, NAME-02, NAME-03
+**Success Criteria** (what must be TRUE):
+
+  1. Every protocol number in `chip_database.json` (0x05/06/07/08/0B/0D/0E/10/27/28/29/34) and the phantom IDs (0x35/0x39, explicitly flagged non-real) has one canonical 3-field entry — a C-identifier-safe `PROTO_<NAME>` token + a short human display name + datasheet-cited behavioral facet prose (write algorithm / erase model / VPP behavior / pin roles) — using a chip-family/behavior axis (pin-count-primary; voltage/hazard detail in the facet prose), carrying forward the FM1608 (0x28) and X88C64 (0x34) identity corrections; and an operator-approved handler-family name layer covers the many-to-one handlers (one EPROM handler for 0x07/0x08/0x0B; one SRAM handler for 0x0E/0x27/0x28/0x29; the single-protocol handlers) so Phase 101's FW-03 renames draw from this source.
+  2. The draft name set renders as a single reviewable table and the operator explicitly approves it at a blocking gate — with the 0x0E-vs-0x29 (both 32-pin SRAM) name collision resolved at approval — before any downstream phase (101/102/103) begins; there is no silent auto-approval.
+  3. The approved name set is recorded in one identifiable authoritative source — `firestarter/doc/PROTOCOLS.md`, revised in place — that is the single source of truth Phases 101/102/103 cite by section, with the frozen `datasheets/<hex>-<NAME>/` slug column retained alongside the new names as the DOC-02 divergence anchor.
+
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 101: FW — Apply Names in Firmware
+
+**Goal**: The firmware reads protocols by name — `PROTO_<NAME>` constants are defined for every protocol number with numeric values unchanged (the label *is* the number), the raw-hex dispatch chain in `firestarter/src/proms/memory.cpp` is relabeled to those named constants (including honest non-real phantom tokens for the 0x35/0x39 arm), and the many-to-one handler files/functions are renamed from the approved family-name layer — all while dispatch order, behavior, and every numeric value stay identical.
+**Depends on**: Phase 100 (the approved name set + handler-family layer is the contract this phase consumes; no naming is invented here). Firmware sub-repo `firestarter/` (`src/proms/memory.cpp`, handler files, a new `PROTO_<NAME>` constant home in `firestarter/include/`) + host `firestarter_app/` (`constants.py` for lockstep parity). Dual-repo lockstep.
+**Requirements**: FW-01, FW-02, FW-03, GATE-01 (first/primarily enforced here), GATE-02 (first/primarily enforced here), GATE-03 (holds — no CLI change)
+**Success Criteria** (what must be TRUE):
+
+  1. Firmware defines a `PROTO_<NAME>` constant for every protocol number with its numeric value unchanged, and the dispatch site reads by name (`handle->protocol == PROTO_...`) rather than raw hex — the label is the number, so no dispatch value changes.
+  2. The raw-hex dispatch chain in `firestarter/src/proms/memory.cpp` is relabeled entirely to the named constants — including explicitly-non-real phantom tokens for the 0x35/0x39 dispatch arm — with dispatch order and behavior preserved (the v1.16 golden register traces + dispatch-mirror guard stay green, or re-pin with cited rationale for a purely-cosmetic token change).
+  3. The many-to-one handler files and functions are renamed from the approved family-name layer (`configure_flash3`/`flash_type_3.cpp`, `configure_flash4`/`flash_type_4.cpp`, `configure_eeprom28c`, the SRAM/EPROM family handlers) — a rename only, the groupings are not split.
+  4. GATE-01/GATE-02 hold: no name/token becomes a dispatch or lookup key (algorithm-first dispatch unchanged); no `chip_database.json` content change and no wire / lockstep-constant *value* change — `diff_db.py` shows identity, `check_dispatch.py` passes, the constants-parity test (`constants.py` ↔ `firestarter.h`) is green, and host CI is green against the py3.11 target (ruff / mypy / diff_db / check_dispatch), avoiding the py3.12-masks-CI-3.11 trap.
+
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 102: HOST — Apply Names in the Host CLI Display
+
+**Goal**: The two divergent host protocol vocabularies (`ic_layout.proto_display` and `protocol_info_data`) are consolidated onto the canonical display names from the authoritative source, so `firestarter info` / `list` / `search` render one consistent name per protocol — a display-only change that leaves the CLI grammar and the dispatch/lookup keys untouched.
+**Depends on**: Phase 100 (canonical display names) and Phase 101 (named-constant precedent). Host sub-repo `firestarter_app/` — `firestarter/ic_layout.py` (`proto_display` ~lines 216–234 and `protocol_info_data` ~line 261+) + `firestarter/eprom_info.py` (the presenter consuming `ic_layout` specs).
+**Requirements**: HOST-01, GATE-03 (primarily enforced here — CLI grammar unchanged), GATE-01/GATE-02 (re-verified — no dispatch-key or DB-value change)
+**Success Criteria** (what must be TRUE):
+
+  1. The divergent host protocol vocabularies (`ic_layout.proto_display` and `protocol_info_data`) are consolidated onto the canonical display names from `firestarter/doc/PROTOCOLS.md`, so a given protocol renders the same name everywhere.
+  2. `firestarter info`, `list`, and `search` each render one consistent canonical display name per protocol (no lingering divergence between the two former vocabularies).
+  3. GATE-03 holds — the CLI grammar is unchanged: chip selection stays by part number and no protocol name/alias is accepted as CLI input; GATE-01/GATE-02 re-verified (display names are not a lookup/dispatch key; no `chip_database.json` value change; host CI green on the py3.11 target).
+
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 103: DOCS — Reconcile Prose + Divergence Record
+
+**Goal**: The `firestarter/doc/PROTOCOLS.md` prose (the §1 four-facet bucket descriptions) and the INV-01..09 native-test traceability matrix are reconciled to the new names/tokens with no dangling minipro-heritage jargon, and the name↔`datasheets/<hex>-<NAME>/` slug divergence is explicitly recorded (frozen slug column retained alongside the new name; the `datasheets/` folder slugs are NOT renamed) — closing the milestone.
+**Depends on**: Phases 100 (name set), 101 (firmware tokens), 102 (host display names) all landed, so the prose/matrix/divergence record reflect the applied state. Work surface: `firestarter/doc/PROTOCOLS.md` (§1 prose + §3 INV matrix) and the frozen top-level `datasheets/` slug listing.
+**Requirements**: DOC-01, DOC-02, GATE-01/GATE-02/GATE-03 (re-verified at close)
+**Success Criteria** (what must be TRUE):
+
+  1. The PROTOCOLS.md §1 four-facet bucket prose and the INV-01..09 native-test traceability matrix are reconciled to the new names/tokens, with no dangling references to the old minipro-heritage jargon (`AMD`, `QUICK`, `ALT`, raw-hex-only bucket names).
+  2. The name↔`datasheets/<hex>-<NAME>/` slug divergence is explicitly recorded — the frozen slug column is retained alongside the new name so old-slug-vs-new-name is visible at a glance — and the `datasheets/` folder slugs are NOT renamed (NAME-F1 deferred).
+  3. GATE-01/GATE-02/GATE-03 hold at close — algorithm-first dispatch behavior unchanged (golden traces + dispatch-mirror guard green), `diff_db.py` identity + `check_dispatch.py` + constants-parity green (no DB/wire value change), CLI grammar unchanged — and the milestone is documented and closed.
+
+**Plans**: TBD
+**UI hint**: no
 
 ## v1.17 — Implement & Test the W29C040 Programming Protocol (STARTED 2026-06-26)
 

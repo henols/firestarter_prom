@@ -69,9 +69,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 | HOST-01 | Phase 102 | Pending |
 | DOC-01 | Phase 103 | Pending |
 | DOC-02 | Phase 103 | Pending |
-| GATE-01 | Phases 101–103 | Pending |
-| GATE-02 | Phases 101–103 | Pending |
-| GATE-03 | Phases 101–103 | Pending |
+| GATE-01 | Phases 101–103 (primary: 101) | Pending |
+| GATE-02 | Phases 101–103 (primary: 101) | Pending |
+| GATE-03 | Phases 101–103 (primary: 102) | Pending |
 
 **Coverage:**
 - v1 requirements: 12 total
@@ -80,4 +80,4 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 ---
 *Requirements defined: 2026-07-01*
-*Last updated: 2026-07-01 after initial definition*
+*Last updated: 2026-07-01 after roadmap creation (Phases 100–103 mapped; 12/12 covered)*

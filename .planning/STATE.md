@@ -2,11 +2,11 @@
 gsd_state_version: 1.0
 milestone: v1.19
 milestone_name: Protocol Naming Labels
-status: planning
+status: roadmapped
 last_updated: "2026-07-01T13:57:06.501Z"
 last_activity: 2026-07-01
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: Phase 100 (NAME) — not started
 Plan: —
-Status: Defining requirements
-Last activity: 2026-07-01 — Milestone v1.19 started
+Status: Roadmapped (4 phases 100–103, 12/12 reqs mapped); ready to plan Phase 100
+Last activity: 2026-07-01 — v1.19 roadmap created
 
 ## Project Reference
 
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (v1.19 STARTED footer + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware handler; protocol numbers stay the dispatch key end to end. v1.19 adds a legibility layer on top of that unchanged contract: a single canonical, behavior/datasheet-correct, human-readable name set for every protocol, applied consistently across firmware constants, host display, and docs — names never become the dispatch key (GATE-01/02/03 non-regression).
 
-**Current focus:** Defining v1.19 (Protocol Naming Labels) requirements + roadmap. Phase 100 (NAME) context + discussion log already gathered on `gsd/v1.19-protocol-naming-labels` (preserved).
+**Current focus:** v1.19 (Protocol Naming Labels) roadmap complete (Phases 100–103, 12/12 reqs). Phase 100 (NAME) context already gathered; next step is `/gsd-plan-phase 100`.
 
 ## Milestone Context (v1.19)
 
@@ -44,7 +44,18 @@ See: `.planning/PROJECT.md` (v1.19 STARTED footer + Key Decisions)
 
 ## Roadmap Summary (v1.19)
 
-_Pending — populated by the roadmapper (Phases 100–103) after requirements are defined._
+**Phases:** 4 (100–103) · **Granularity:** Comprehensive · **Coverage:** 12/12 requirements mapped ✓ · **Dependency chain:** strictly linear 100 → 101 → 102 → 103.
+
+| Phase | Goal | Requirements | Success Criteria |
+|-------|------|--------------|------------------|
+| 100 — NAME | Author + operator-approve the single canonical name set (3-field: `PROTO_<NAME>` token + display name + facet prose) for every DB protocol number + phantoms + handler-family layer; record in `firestarter/doc/PROTOCOLS.md`. Blocking gate; gates all downstream. | NAME-01, NAME-02, NAME-03 | 3 |
+| 101 — FW | Define `PROTO_<NAME>` constants (values unchanged), relabel the `memory.cpp` dispatch chain to named constants (honest phantom tokens for 0x35/0x39), rename many-to-one handler files/functions from the family layer. Dual-repo lockstep. | FW-01, FW-02, FW-03, GATE-01/02 (primary), GATE-03 | 4 |
+| 102 — HOST | Consolidate the two divergent host vocabularies (`ic_layout.proto_display` + `protocol_info_data`) onto canonical display names so `info`/`list`/`search` render one consistent name per protocol. | HOST-01, GATE-03 (primary), GATE-01/02 | 3 |
+| 103 — DOCS (close) | Reconcile PROTOCOLS.md §1 prose + INV-01..09 matrix to new names (no dangling minipro jargon); record the name↔`datasheets/` slug divergence (slugs NOT renamed). | DOC-01, DOC-02, GATE-01/02/03 | 3 |
+
+**Non-regression gates (GATE-01/02/03):** numbers stay the dispatch key end to end; no `chip_database.json` / wire / lockstep-constant *value* change (`diff_db.py` identity, `check_dispatch.py`, constants-parity green); CLI grammar unchanged. Verified in every downstream phase that touches their surface.
+
+Detail: `.planning/ROADMAP.md` §v1.19.
 
 ## Accumulated Context
 
