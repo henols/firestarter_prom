@@ -185,7 +185,8 @@ Plans:
   2. `firestarter info`, `list`, and `search` each render one consistent canonical display name per protocol (no lingering divergence between the two former vocabularies).
   3. GATE-03 holds — the CLI grammar is unchanged: chip selection stays by part number and no protocol name/alias is accepted as CLI input; GATE-01/GATE-02 re-verified (display names are not a lookup/dispatch key; no `chip_database.json` value change; host CI green on the py3.11 target).
 
-**Plans**: TBD
+**Plans**: 1 plan
+- [ ] 102-01-PLAN.md — Add canonical `_PROTOCOL_DISPLAY_NAME` single-source map, rewire both host vocabularies (D-01/D-02/D-04: add 0x34, drop 0x11), add single-source + coverage tests, regenerate the one snapshot, re-verify GATE-01/02/03.
 **UI hint**: no
 
 ### Phase 103: DOCS — Reconcile Prose + Divergence Record
