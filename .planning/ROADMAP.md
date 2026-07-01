@@ -165,8 +165,8 @@ Plans:
 **Plans**: 3 plans
 **Wave 1**
 
-- [ ] 101-00-PLAN.md — Wave 0: fix the RED `test_dispatch_mirror.py` parser for the Phase-100 two-table PROTOCOLS.md layout (D-03; GATE-01 predecessor)
-- [ ] 101-01-PLAN.md — Wave 1: create `proto_constants.h` (14 PROTO_ tokens, FW-01) + relabel the `memory.cpp` dispatch chain incl. phantom tokens (FW-02)
+- [x] 101-00-PLAN.md — Wave 0: fix the RED `test_dispatch_mirror.py` parser for the Phase-100 two-table PROTOCOLS.md layout (D-03; GATE-01 predecessor)
+- [x] 101-01-PLAN.md — Wave 1: create `proto_constants.h` (14 PROTO_ tokens, FW-01) + relabel the `memory.cpp` dispatch chain incl. phantom tokens (FW-02)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 

@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.19
 milestone_name: — Protocol Naming Labels
-current_phase: 100
+current_phase: 101
+current_phase_name: fw-apply-names-in-firmware
 status: executing
 stopped_at: Phase 100 context gathered
-last_updated: "2026-07-01T16:06:35.395Z"
+last_updated: "2026-07-01T16:15:14.494Z"
 last_activity: 2026-07-01
-last_activity_desc: Phase 100 marked complete
+last_activity_desc: Phase 101 execution started
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 1
+  total_plans: 4
   completed_plans: 1
   percent: 25
-current_phase_name: name-canonical-protocol-name-set-operator-approval
 ---
 
 # Project State
@@ -24,10 +24,10 @@ current_phase_name: name-canonical-protocol-name-set-operator-approval
 
 ## Current Position
 
-Phase: 100 — COMPLETE
-Plan: 1 of 1
-Status: Ready to execute
-Last activity: 2026-07-01 — Phase 100 marked complete
+Phase: 101 (fw-apply-names-in-firmware) — EXECUTING
+Plan: 1 of 3
+Status: Executing Phase 101
+Last activity: 2026-07-01 — Phase 101 execution started
 
 ## Project Reference
 
@@ -35,7 +35,7 @@ See: `.planning/PROJECT.md` (v1.19 STARTED footer + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware handler; protocol numbers stay the dispatch key end to end. v1.19 adds a legibility layer on top of that unchanged contract: a single canonical, behavior/datasheet-correct, human-readable name set for every protocol, applied consistently across firmware constants, host display, and docs — names never become the dispatch key (GATE-01/02/03 non-regression).
 
-**Current focus:** Phase 100 — name-canonical-protocol-name-set-operator-approval
+**Current focus:** Phase 101 — fw-apply-names-in-firmware
 
 ## Milestone Context (v1.19)
 
