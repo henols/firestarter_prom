@@ -4,17 +4,17 @@ milestone: v1.20
 milestone_name: — Protocol-Only Dispatch — Remove the Legacy `mem_type` Axis
 current_phase: 106
 current_phase_name: host-host-mem-type-removal
-status: executing
-stopped_at: Completed 106-02-PLAN.md
-last_updated: "2026-07-02T13:28:41.518Z"
+status: verifying
+stopped_at: Completed 106-03-PLAN.md
+last_updated: "2026-07-02T13:40:50.085Z"
 last_activity: 2026-07-02
 last_activity_desc: Phase 106 execution started
 progress:
   total_phases: 3
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 4
-  completed_plans: 3
-  percent: 33
+  completed_plans: 4
+  percent: 67
 ---
 
 # Project State
@@ -26,7 +26,7 @@ progress:
 
 Phase: 106 (host-host-mem-type-removal) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-02 — Phase 106 execution started
 
 ## Project Reference
@@ -187,6 +187,8 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase 106-02]: resolve_type_label signature shrunk to (self, electrical_type, protocol_id=None) - type_int param deleted; delegates to get_chip_type_string(protocol_id)
 - [Phase 106-02]: __main__ self-test block repurposed to exercise protocol tier (0x08 known, 0x99 unknown) replacing removed numeric-tier calls
 - [Phase 106-02]: eprom_info.py:69 string-typed 'type': 'unknown' raw-JSON field left untouched - different axis from numeric mem_type
+- [Phase ?]: [Phase 106-03]: Guard placement and read-path exactly mirror the existing support_status guard (same raw_config object, same exception, same pre-serial ordering); reject rule is a plain falsy-check covering both absent and explicit-0, no KNOWN_PROTOCOLS gate added (D-01 pass-through preserved)
+- [Phase ?]: [Phase 106-03]: Rule 1 auto-fix applied to test_consistency_check.py's dispatch-chain mock (missing programming.algorithm key), directly caused by the new HOST-04 guard; confirmed via git stash that test_audit_coverage_matrix.py golden-fixture drift and the 4 pre-existing ruff/format failures in tools/*.py are unrelated and out of scope
 
 ## Performance Metrics
 
@@ -206,10 +208,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 105 P01 | 32min | 3 tasks | 6 files |
 | Phase 106 P01 | 20min | 3 tasks | 8 files |
 | Phase 106 P02 | 12min | 3 tasks | 3 files |
+| Phase 106 P03 | 12min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-07-02T13:28:41.499Z
-**Stopped at:** Completed 106-02-PLAN.md
+**Last session:** 2026-07-02T13:40:50.063Z
+**Stopped at:** Completed 106-03-PLAN.md
 **Resume file:** 
-None

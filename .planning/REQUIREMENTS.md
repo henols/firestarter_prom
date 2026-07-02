@@ -22,7 +22,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 - [x] **HOST-01**: The host emits no `type` key in any serial command payload (the command-dict builder in `eprom_operations.py` / callers).
 - [x] **HOST-02**: `database.py` drops `_ALGO_MEM_TYPE`, the derived `mem_type`, and the "Generic Flash (legacy fallback only)" substring default; `algorithm` is the sole dispatch datum carried to the wire.
 - [x] **HOST-03**: The `mem_type`-keyed legacy display-label fallbacks in `ic_layout.py` (and `eprom_info.py`) are removed; `info`/`list`/`search` derive labels from `electrical.type` / protocol only.
-- [ ] **HOST-04**: A chip entry (built-in or user-override) lacking a usable `algorithm` is rejected with a clear error before any serial byte — no silent fallback dispatch.
+- [x] **HOST-04**: A chip entry (built-in or user-override) lacking a usable `algorithm` is rejected with a clear error before any serial byte — no silent fallback dispatch.
 
 ### Docs & Migration (DOC)
 
@@ -69,7 +69,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | HOST-01 | Phase 106 | Complete |
 | HOST-02 | Phase 106 | Complete |
 | HOST-03 | Phase 106 | Complete |
-| HOST-04 | Phase 106 | Pending |
+| HOST-04 | Phase 106 | Complete |
 | DOC-01 | Phase 107 | Pending |
 | GATE-01 | Phase 107 | Pending |
 | GATE-02 | Phase 107 | Pending |

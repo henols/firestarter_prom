@@ -1295,7 +1295,7 @@ Plans:
 ### Phases
 
 - [x] **Phase 105: FW — Firmware `mem_type` Removal** — Delete the `mem_type` fallback dispatch chain (`memory.cpp` steps 7–11) so `protocol == 0` fail-closes to `configure_not_implemented()`; drop `handle->mem_type` from `firestarter_handle_t`; stop parsing the `type` JSON field in `json_parser.c`; retire `MSG_ERR_MEM_TYPE_UNSUPPORTED (0xAE)` and the `TYPE_EPROM`/`TYPE_SRAM`/`TYPE_FLASH_TYPE_3`/`TYPE_FLASH_TYPE_4` constants. Dual-repo lockstep. (FW-01, FW-02, FW-03, WIRE-01) (completed 2026-07-02)
-- [ ] **Phase 106: HOST — Host `mem_type` Removal** — Stop emitting the `type` key in any serial command payload; drop `_ALGO_MEM_TYPE`, the derived `mem_type`, and the "Generic Flash (legacy fallback only)" default from `database.py`; remove the `mem_type`-keyed legacy display-label fallbacks in `ic_layout.py`/`eprom_info.py`; reject any chip entry (built-in or user-override) lacking a usable `algorithm` with a clear pre-flight error before any serial byte. Completes WIRE-01's emit-side removal, closing the wire contract change opened in Phase 105. (HOST-01, HOST-02, HOST-03, HOST-04)
+- [x] **Phase 106: HOST — Host `mem_type` Removal** — Stop emitting the `type` key in any serial command payload; drop `_ALGO_MEM_TYPE`, the derived `mem_type`, and the "Generic Flash (legacy fallback only)" default from `database.py`; remove the `mem_type`-keyed legacy display-label fallbacks in `ic_layout.py`/`eprom_info.py`; reject any chip entry (built-in or user-override) lacking a usable `algorithm` with a clear pre-flight error before any serial byte. Completes WIRE-01's emit-side removal, closing the wire contract change opened in Phase 105. (HOST-01, HOST-02, HOST-03, HOST-04) (completed 2026-07-02)
 - [ ] **Phase 107 (close): DOCS + GATE — Documentation & Non-Regression Close** — Update `firestarter/CLAUDE.md` (dispatch steps 7–11 removed), `firestarter/doc/PROTOCOLS.md`, and the JSON wire-field docs to drop `type`/`mem_type`; record the breaking change + the "every entry needs `algorithm`" requirement in the sub-repo READMEs/changelog; re-verify the v1.16 golden traces + dispatch-mirror guard, `check_dispatch.py` (0 violations), `diff_db.py` (no value change), full native + host suites, dual-repo constants parity, and py3.11-target CI — closing the milestone with zero regressions. (DOC-01, GATE-01, GATE-02, SAFE-01)
 
 ## Phase Details
@@ -1331,13 +1331,13 @@ Plans:
   3. `ic_layout.py` (and `eprom_info.py`) no longer contain `mem_type`-keyed legacy display-label fallbacks — `info`/`list`/`search` derive labels solely from `electrical.type` / protocol, with no behavior regression for any chip that already resolved correctly.
   4. A chip entry (built-in or user-override) lacking a usable `algorithm` is rejected with a clear, actionable error message before any serial byte is sent — no silent fallback dispatch — verified by a host test exercising a deliberately-broken user-override entry.
 
-**Plans**: 2/3 plans executed
+**Plans**: 3/3 plans complete
 Plans:
 **Wave 1** *(all three file-disjoint runtime files — fully parallel)*
 
 - [x] 106-01-PLAN.md — HOST-01/02: delete `_ALGO_MEM_TYPE` + `determined_type` + both `"type"` dict keys from `database.py` (wire-emit + mapped-dict); invert the 7 `test_val_wire_*` fns + `test_eprom_database.py` required-keys to prove `type` absent (D-04/D-05)
 - [x] 106-02-PLAN.md — HOST-03: drop the numeric `type_map` tier + `type_int`/`chip_type_int` param from `ic_layout.py` `resolve_type_label`/`get_chip_type_string` (→ `"Unknown"`); clean the `eprom_info.py` + self-test + `test_ic_layout.py` callers (D-03)
-- [ ] 106-03-PLAN.md — HOST-04: add the algorithm-presence guard to `chip_resolver.resolve_chip` (reuse `ChipNotImplementedError`, absent/0 → refuse before serial); add the D-06 broken-override test + invert `test_chip_resolver.py:43`; wave-close full-suite + non-regression gates (D-01/D-02/D-06)
+- [x] 106-03-PLAN.md — HOST-04: add the algorithm-presence guard to `chip_resolver.resolve_chip` (reuse `ChipNotImplementedError`, absent/0 → refuse before serial); add the D-06 broken-override test + invert `test_chip_resolver.py:43`; wave-close full-suite + non-regression gates (D-01/D-02/D-06)
 
 **UI hint**: no
 
