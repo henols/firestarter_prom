@@ -15,8 +15,14 @@
       "firestarter_app"
     ]
   },
-  "model_profile": "adaptive",
+  "model_profile": "balanced",
+  "models": {
+    "research": "opus"
+  },
   "git": {
     "branching_strategy": "milestone"
+  },
+  "graphify": {
+    "enabled": true
   }
 }

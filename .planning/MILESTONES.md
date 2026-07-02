@@ -1,5 +1,88 @@
 # Milestones
 
+## v1.19 Protocol Naming Labels (Shipped: 2026-07-02)
+
+**Phases completed:** 5 phases (100–104), 10 plans
+
+**Delivered:** A single canonical, behavior/datasheet-correct, human-readable name set for
+every protocol number (0x05/06/07/08/0B/0D/0E/10/27/28/29/34 + phantom 0x35/0x39), applied as
+a legibility layer on top of the unchanged algorithm-first dispatch contract — a `PROTO_<NAME>`
+C-token in firmware, a consolidated display name in the host CLI, and reconciled facet prose +
+an INV-01..09 traceability matrix + a name↔slug divergence record in `firestarter/doc/PROTOCOLS.md`.
+Protocol numbers stayed the dispatch key end to end throughout — no `chip_database.json` / wire
+/ lockstep-constant value change; CLI grammar unchanged (GATE-01/02/03 held in every phase that
+touched their surface, re-verified at close).
+
+**Audit:** GATE-01/02/03 re-verified at close (Phase 103 Plan 02) — dispatch-mirror guard
+green, `check_dispatch.py` green, `pio test -e native` 82/82 green, `diff_db.py` identity vs
+the documented Phase-94 baseline, constants-parity 6/6 green under py3.12 (py3.11-target leg
+CI-PENDING per the Phase-98 precedent — no python3.11 binary in the devcontainer), no CLI/source
+file touched. No `FAIL` verdict recorded for any gate. Report:
+`.planning/phases/103-docs-reconcile-prose-divergence-record/103-VERIFICATION.md`.
+
+**Release:** meta tagged `v1.19` + milestone branch `gsd/v1.19-protocol-naming-labels`
+`--no-ff` merged into `beta`; both the tag and `beta` **pushed to origin** at this close
+(operator-authorized override of the usual keep-local policy, 2026-07-02). Sub-repo lockstep
+beta cut `3.0.0b11` + gitlink bump remain operator-gated (standing v1.11–v1.18 policy);
+gitlinks stay PINNED at b10 — NOT triggered by this naming/legibility-layer milestone.
+
+**Known deferred items at close:** NAME-F1 (renaming the `datasheets/<hex>-<NAME>/` folder
+slugs to match the new vocabulary — avoids provenance churn; the name↔slug divergence is
+recorded, not resolved) and NAME-F2 (accepting a protocol name/alias as CLI input — chip
+selection stays by part number). Both explicitly out of scope per `.planning/REQUIREMENTS.md`.
+Pre-existing cross-milestone carry-forwards (FUT-01/03/04/05/07/08 etc.) are unchanged by this
+milestone — see STATE.md → Accumulated Context.
+
+**Key accomplishments:**
+
+- **Phase 100 (NAME):** Authored the single canonical 3-field name set (`PROTO_<NAME>` token +
+  short display name + datasheet-cited facet prose) for every protocol number + phantom ID +
+  an operator-approved handler-family name layer for the many-to-one handlers; resolved the
+  0x0E-vs-0x29 (both 32-pin SRAM) name collision at explicit operator approval — a blocking
+  gate that gated all downstream phases. Recorded in `firestarter/doc/PROTOCOLS.md`, revised
+  in place. Operator-approved deviations from draft: 0x29=`PROTO_SRAM_32PIN_NVRAM` (0x0E stays
+  `PROTO_SRAM_32PIN`), phantoms=`PROTO_PHANTOM_0x35`/`0x39`, 0x34=`PROTO_EEPROM_8051BUS`.
+
+- **Phase 101 (FW):** Defined the `PROTO_<NAME>` constants (numeric values unchanged — the
+  label *is* the number), relabeled the raw-hex dispatch chain in `memory.cpp` to named
+  constants (including honest phantom tokens for 0x35/0x39), and renamed the many-to-one
+  handler files/functions from the approved family-name layer. Dual-repo lockstep
+  (`constants.py` ↔ `firestarter.h`); GATE-01/02/03 first/primarily enforced here.
+
+- **Phase 102 (HOST):** Consolidated the two divergent host protocol vocabularies
+  (`ic_layout.proto_display` + `protocol_info_data`) onto the canonical display names via a
+  single `_PROTOCOL_DISPLAY_NAME` map, so `firestarter info` / `list` / `search` render one
+  consistent name per protocol (ASCII-normalized dashes — a documented punctuation deviation
+  from the doc's em-dash names).
+
+- **Phase 103 (DOCS, close):** Renamed all 12 §1.x PROTOCOLS.md headings to `PROTO_` token
+  form, regenerated the 8 dependent §3 cross-link anchors (grep-verified against actual
+  rendered headings, not hand-guessed), augmented all 9 INV-01..09 rows with their tokens
+  beside the raw hex (SAFE-02 grep-contract columns kept byte-identical), purged two residual
+  bucket-label jargon prose sentences respecting the three D-02 locked retentions (approved
+  0x06 name, frozen slug strings + citation paths, §2 minipro-provenance prose), and added a
+  "Name ↔ Slug Divergence" callout recording the frozen-slug map / NAME-F1 deferral / host
+  ASCII-dash deviation. Re-verified GATE-01/02/03 at close with zero FAIL verdicts.
+
+- **Phase 104 (RENAME, post-close follow-on):** Renamed the two remaining minipro-heritage flash
+  handler file-pairs + entry functions in dual-repo lockstep — `flash_type_3.{h,cpp}` →
+  `flash_nor_unlock.{h,cpp}` / `configure_flash3` → `configure_flash_nor_unlock` (0x06);
+  `flash_type_4.{h,cpp}` → `flash_5v_page.{h,cpp}` / `configure_flash4` →
+  `configure_flash_5v_page` (0x05 + phantom); fixed two long-mismatched header guards; updated
+  all 4 `memory.cpp` dispatch call sites (Wave 1). Brought host GATE-01 dispatch-mirror tooling
+  into lockstep — `check_dispatch.py`, `validation_matrix_spec.json`, regenerated
+  `validation_matrix.h`, host doc tables (Wave 2). Renamed native validation suites
+  `test_val_flash3/4` → `test_val_nor_unlock`/`test_val_5v_page`, updated `platformio.ini`,
+  `PROTOCOLS.md` §0/§1/§3 + SAFE-02 INV suite-path contract, `firestarter/CLAUDE.md`, and closed
+  the doc↔tool↔firmware dispatch-mirror bind (Wave 3). `git mv` preserved rename history. Full
+  phase gate green: `pio test -e native` 82/82, both boards build byte-identical (25654 B /
+  89.5% Leonardo — pure rename, zero flash delta), host `pytest` 14/14, `diff_db.py` GATE-02
+  identity, `cli_handlers.py` never touched (GATE-03). Verifier passed 9/9 must-haves. Disclosed
+  non-blocking backlog item: `cli_handlers.py`'s `dev validate-family` Click Choice still lists
+  retired `flash3`/`flash4` ids (left alone per GATE-03).
+
+---
+
 ## v1.18 AM27C020 0x08 Write-Path RCA & Fix (Shipped: 2026-07-01)
 
 **Phases completed:** 3 phases, 12 plans, 26 tasks
