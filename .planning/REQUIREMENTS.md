@@ -94,13 +94,38 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (populated by `/gsd-new-milestone` roadmapper) | — | Pending |
+| SWEEP-01 | Phase 108 | Pending |
+| SWEEP-02 | Phase 108 | Pending |
+| SWEEP-03 | Phase 108 | Pending |
+| SWEEP-04 | Phase 108 | Pending |
+| SWEEP-05 | Phase 109 | Pending |
+| PATT-01 | Phase 108 | Pending |
+| PATT-02 | Phase 108 | Pending |
+| PATT-03 | Phase 109 | Pending |
+| SAFE-01 | Phase 109 | Pending |
+| SAFE-02 | Phase 109 | Pending |
+| SAFE-03 | Phase 109 | Pending |
+| RPT-01 | Phase 110 | Pending |
+| RPT-02 | Phase 110 | Pending |
+| RPT-03 | Phase 108 | Pending |
+| RPT-04 | Phase 110 | Pending |
+| RPT-05 | Phase 110 | Pending |
+| VOLT-01 | Phase 111 | Pending |
+| XPORT-01 | Phase 110 | Pending |
+| SUB-01 | Phase 113 | Pending |
+| SUB-02 | Phase 113 | Pending |
+| SUB-03 | Phase 113 | Pending |
+| DISP-01 | Phase 114 | Pending |
+| GRAD-01 | Phase 114 | Pending |
+| INBOX-01 | Phase 114 | Pending |
 
 **Coverage:**
-- v1 requirements: 20 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 20 ⚠️
+- v1 requirements: 24 total (corrected — the initial definition's stated count of 20 undercounted the actual 24 REQ-IDs enumerated above: SWEEP×5, PATT×3, SAFE×3, RPT×5, VOLT×1, XPORT×1, SUB×3, DISP×1, GRAD×1, INBOX×1)
+- Mapped to phases: 24/24 ✓
+- Unmapped: 0
+
+**Phase spine:** Phase 108 (test-plan engine + address-derived pattern + fingerprint) → Phase 109 (destructiveness gate + safety) → Phase 110 (diagnostic report + provenance) → Phase 111 (measured-voltage sampler, hardware-gated) → Phase 112 (`dev test` CLI wiring — integration only, no new v1 REQ-ID) → Phase 113 (submission flow) → Phase 114 (disposition / no-auto-graduate lock, close).
 
 ---
 *Requirements defined: 2026-07-02*
-*Last updated: 2026-07-02 after initial v1.21 definition*
+*Last updated: 2026-07-02 after v1.21 roadmap creation (24/24 requirements mapped across Phases 108–114; the "20 total" count in the original definition is corrected to the actual 24 enumerated REQ-IDs)*
