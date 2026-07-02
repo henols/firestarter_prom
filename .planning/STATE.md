@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.19
 milestone_name: — Protocol Naming Labels
-current_phase: 103
-status: v1.19 milestone CLOSED
-stopped_at: v1.19 milestone CLOSED — Phase 103 complete (DOC-01/DOC-02 delivered, GATE-01/02/03 re-verified PASS, no FAIL verdicts)
-last_updated: "2026-07-01T22:15:35.021Z"
-last_activity: 2026-07-01
-last_activity_desc: Phase 103 complete
+current_phase: 104
+current_phase_name: rename-protocol-header-and-cpp-files-to-descriptive-protocol
+status: executing
+stopped_at: Completed 104-01-PLAN.md
+last_updated: "2026-07-02T07:25:23.290Z"
+last_activity: 2026-07-02
+last_activity_desc: Phase 104 execution started
 progress:
   total_phases: 4
   completed_phases: 4
   total_plans: 7
   completed_plans: 7
   percent: 100
-current_phase_name: docs-reconcile-prose-divergence-record
 ---
 
 # Project State
@@ -24,10 +24,10 @@ current_phase_name: docs-reconcile-prose-divergence-record
 
 ## Current Position
 
-Phase: 103
-Plan: Not started
-Status: v1.19 milestone CLOSED
-Last activity: 2026-07-01 — Phase 103 complete
+Phase: 104 (rename-protocol-header-and-cpp-files-to-descriptive-protocol) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-07-02 — Phase 104 execution started
 
 **Phase 103 close summary:** DOC-01 + DOC-02 delivered (103-01: 12 §1.x headings renamed to
 `PROTO_` token form, 8 §3 cross-link anchors regenerated, 9 INV-01..09 rows augmented with
@@ -54,7 +54,7 @@ See: `.planning/PROJECT.md` (v1.19 STARTED footer + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware handler; protocol numbers stay the dispatch key end to end. v1.19 adds a legibility layer on top of that unchanged contract: a single canonical, behavior/datasheet-correct, human-readable name set for every protocol, applied consistently across firmware constants, host display, and docs — names never become the dispatch key (GATE-01/02/03 non-regression).
 
-**Current focus:** Phase 103 — docs-reconcile-prose-divergence-record
+**Current focus:** Phase 104 — rename-protocol-header-and-cpp-files-to-descriptive-protocol
 
 ## Milestone Context (v1.19)
 
@@ -148,6 +148,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - `large-read-data-jitter-uno328pb.md` (HIGH, v1.8-seed) — v1.9 RCA target.
 - `photograph-modified-rev-0.md` (medium) — carry forward.
 
+### Roadmap Evolution
+
+- Phase 104 added: Rename protocol header and .cpp files to descriptive protocol-type names (replace hard-to-read flash type N naming)
+
 ## Operator Next Steps
 
 - Start the next milestone with /gsd-new-milestone
@@ -178,6 +182,8 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: Phase 103 Plan 01: Heading token substitutions copied verbatim from §0 canonical bucket table; cross-link anchors regenerated + grep-verified against actual rendered headings (not hand-guessed); INV row edits scoped to behavior column only, SAFE-02 grep-contract columns kept byte-identical; D-04 callout placed above §0 table reusing existing blockquote style
 - [Phase 103 Plan 02]: D-05 GATE re-verification used existing tooling only (no new tests/scripts) — `pio` was present this session so the GATE-01 firmware leg (`pio test -e native`, 82/82) is a real executed PASS, not deferred; `python3.11` was absent so only the constants-parity py3.11-target leg is recorded CI-PENDING (structurally-green under py3.12), per the deterministic Phase-98 CI-PENDING guard (never a fabricated PASS for an absent-tool leg)
 - [Phase 103 Plan 02]: Milestone-CLOSED narrative written only after confirming zero GATE-01/02/03 FAIL verdicts in 103-VERIFICATION.md (precondition honored); no beta cut, no gitlink bump, no `chip_database.json`/code change triggered — v1.19 close is docs+planning-artifacts only
+- [Phase ?]: Renamed file-internal flash3_*/flash4_* static helpers to flash_nor_unlock_*/flash_5v_page_* stems for full identifier consistency (discretionary per 104-PATTERNS.md); no cross-file impact since file-internal — Plan 104-01
+- [Phase ?]: Left pre-existing unrelated platformio.ini whitespace diff untouched (out of plan scope, not introduced by this work) — Plan 104-01
 
 ## Performance Metrics
 
@@ -191,9 +197,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 102 P01 | 25min | 3 tasks | 3 files |
 | Phase 103 P01 | 8min | 3 tasks | 1 files |
 | Phase 103 P02 | 18min | 2 tasks | 1 files |
+| Phase 104 P01 | 20min | 3 tasks | 7 files |
 
 ## Session
 
-**Last session:** 2026-07-01T22:10:00.000Z
-**Stopped at:** v1.19 milestone CLOSED — Phase 103 complete (DOC-01/DOC-02 delivered, GATE-01/02/03 re-verified PASS, no FAIL verdicts)
-**Resume file:** None — milestone closed; start next milestone with /gsd-new-milestone
+**Last session:** 2026-07-02T07:25:23.272Z
+**Stopped at:** Completed 104-01-PLAN.md
+**Resume file:** None
