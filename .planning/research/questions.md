@@ -21,3 +21,22 @@ Source: `/gsd-explore` session 2026-06-25. See `seeds/protocol-first-architectur
 5. **Verification ledger format.** How to represent per-protocol bench status (PASS on
    Leonardo / `UNVERIFIED` / chip-needed) so it composes with the existing v1.13 per-family
    matrix + v1.15 EVIDENCE.{md,json} rather than replacing them.
+
+## Community chip-validation command (dev test) — added 2026-07-02
+
+Source: `/gsd-explore` session 2026-07-02. See `seeds/community-chip-validation-command.md`
+and `notes/dev-test-design-decisions.md`.
+
+1. **Health-proving write/verify pattern.** What data pattern does the write/verify step
+   use? A fixed pattern (e.g. 0x00/0xFF/0xAA) is simple but blind to stuck/shorted address
+   lines — a chip can pass while mis-addressing. An **address-derived pattern** (each byte a
+   function of its address) makes verify catch address-line faults directly. This ties to the
+   old Bug A "upper-address jitter" history — the exact failure class an address-derived
+   pattern would surface. Decide before planning; also decide the UV small-region variant.
+
+2. **Community PASS → support_status graduation.** Does a community-submitted PASS
+   automatically graduate a chip's `support_status` (spec-only → supported), or only flag it
+   for maintainer confirmation? Affects trust model: auto-graduation risks a bad bench
+   config promoting a chip falsely; manual keeps the maintainer authoritative but adds
+   triage load. How does the structured report reconcile/diff against the current DB entry
+   inside `gsd-inbox`?
