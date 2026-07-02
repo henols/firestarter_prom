@@ -1,20 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.20
-milestone_name: — Protocol-Only Dispatch — Remove the Legacy `mem_type` Axis
-current_phase: 20
-status: Awaiting next milestone
-stopped_at: Completed 107-03-PLAN.md (final gate sweep, v1.20 milestone verified non-regression at close)
-last_updated: "2026-07-02T15:37:44.244Z"
+milestone: v1.21
+milestone_name: Community Chip-Validation Command
+status: planning
+last_updated: "2026-07-02T16:30:15.200Z"
 last_activity: 2026-07-02
-last_activity_desc: Milestone v1.20 completed and archived
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 7
-  completed_plans: 7
-  percent: 100
-current_phase_name: docs-gate-documentation-non-regression-close
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -24,10 +20,10 @@ current_phase_name: docs-gate-documentation-non-regression-close
 
 ## Current Position
 
-Phase: Milestone v1.20 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-07-02 — Milestone v1.20 completed and archived
+Status: Defining requirements
+Last activity: 2026-07-02 — Milestone v1.21 started
 
 ## Project Reference
 
