@@ -189,9 +189,15 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
   5. A CI check (grep/AST-based) asserts that no commit under `dev test`'s code paths adds a new firmware dispatch table entry or a new VPP-set call site; the check fails the build if either is detected, making the orchestrator-only contract machine-enforced rather than merely documented.
 
 **Plans**: 3 plans (Wave 1: 109-01 · Wave 2: 109-02, 109-03)
+**Wave 1**
+
 - [ ] 109-01-PLAN.md — chip_test.py engine: SAFE-01 derive_plan strip + Plan.locked_destructive advisory field; PATT-03 UV small-region top-anchored write cap (engine constant, DB cannot widen)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 109-02-PLAN.md — SWEEP-05 applicable-only N-of-M banner DATA from the single Plan; SAFE-02 orchestrator-only verification test (resolve_chip-only, no VPP/wire-dict/--force, VPP refusal is a finding)
 - [ ] 109-03-PLAN.md — SAFE-03 AST checker tools/check_devtest_orchestrator.py + paired anti-hollow pytest (clean-pass + planted VPP-set/raw-wire-dict/--force fixtures)
+
 **UI hint**: no
 
 ### Phase 110: Diagnostic Report Model + Dual Output + Provenance Prompts
