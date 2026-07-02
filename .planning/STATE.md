@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.19
 milestone_name: — Protocol Naming Labels
-current_phase: 104
-status: verifying
+current_phase: 19
+status: Awaiting next milestone
 stopped_at: Completed 104-03-PLAN.md
-last_updated: "2026-07-02T08:10:09.894Z"
+last_updated: "2026-07-02T08:17:21.785Z"
 last_activity: 2026-07-02
-last_activity_desc: Phase 104 complete
+last_activity_desc: Milestone v1.19 completed and archived
 progress:
   total_phases: 4
   completed_phases: 4
@@ -24,37 +24,18 @@ current_phase_name: rename-protocol-header-and-cpp-files-to-descriptive-protocol
 
 ## Current Position
 
-Phase: 104
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-07-02 — Phase 104 complete
-
-**Phase 103 close summary:** DOC-01 + DOC-02 delivered (103-01: 12 §1.x headings renamed to
-`PROTO_` token form, 8 §3 cross-link anchors regenerated, 9 INV-01..09 rows augmented with
-tokens, 2 jargon prose sentences purged, "Name ↔ Slug Divergence" callout added). GATE-01/02/03
-re-verified at close (103-02) — see `.planning/phases/103-docs-reconcile-prose-divergence-record/103-VERIFICATION.md`:
-GATE-01 PASS (dispatch-mirror guard green, check_dispatch.py green, `pio test -e native` 82/82
-green, all 12 headings + 8 anchors resolve), GATE-02 PASS (`diff_db.py` identity vs documented
-Phase-94 baseline, constants-parity 6/6 green under py3.12; py3.11-target leg CI-PENDING per
-Phase-98 precedent — no python3.11 binary in this devcontainer), GATE-03 PASS (no CLI/source
-file touched, no name/alias accepted as CLI input). No `FAIL` verdict on any gate.
-
-**v1.19 — Protocol Naming Labels: CLOSED 2026-07-01.** All 4 phases (100-103) landed. Naming is
-a legibility layer only — numbers stayed the dispatch key end to end; no `chip_database.json`
-/ wire / lockstep-constant value change. Gitlinks remain PINNED; lockstep beta cut `3.0.0b11`
-
-+ gitlink bump stay operator-gated (standing policy) and were NOT triggered by this docs-only
-
-phase. NAME-F1 (`datasheets/` slug rename) and NAME-F2 (protocol name as CLI input) remain
-deferred, as scoped.
+Phase: Milestone v1.19 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-07-02 — Milestone v1.19 completed and archived
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (v1.19 STARTED footer + Key Decisions)
+See: `.planning/PROJECT.md` (v1.19 Phase 104 close footer + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware handler; protocol numbers stay the dispatch key end to end. v1.19 adds a legibility layer on top of that unchanged contract: a single canonical, behavior/datasheet-correct, human-readable name set for every protocol, applied consistently across firmware constants, host display, and docs — names never become the dispatch key (GATE-01/02/03 non-regression).
 
-**Current focus:** Phase 104 — rename-protocol-header-and-cpp-files-to-descriptive-protocol
+**Current focus:** Planning next milestone (v1.19 SHIPPED + tagged + merged to beta + pushed, 2026-07-02)
 
 ## Milestone Context (v1.19)
 
@@ -93,6 +74,10 @@ Detail: `.planning/ROADMAP.md` §v1.19.
 | FUT-03 (v1.15) | 2516 0x0B read instability + write proof | deferred best-effort (D-22) | 3 distinct SHAs after VPP-skip; shared OE/VPP pin. |
 | FUT-01 (v1.14) | X88C64 0x34 graduation | deferred — PCB-blocked | A6 ALE-routing PCB-BLOCKED (HIGH); stays `protocol-not-implemented`. |
 | release-gate | Lockstep beta cut `3.0.0b11` + gitlink bump | OPERATOR-GATED | Standing v1.11–v1.17 policy; gitlinks PINNED. |
+
+### Deferred Items — acknowledged at v1.19 milestone close (2026-07-02)
+
+The **same 14** open artifact items (from `audit-open`) were re-confirmed acknowledged-and-deferred at the v1.19 close (operator: "Acknowledge & proceed"). **None originate in v1.19 (Phases 100–104)** — all are the identical pre-existing cross-milestone carry-forwards listed in the v1.18-close table below (2 debug sessions, 2 UAT gaps, 5 verification gaps, 5 pending todos), unchanged by this naming/rename milestone. NAME-01/02/03 REQUIREMENTS bookkeeping (previously showing Pending though delivered in Phase 100) was reconciled to Complete at this close.
 
 ### Deferred Items — acknowledged at v1.18 milestone close (2026-07-01)
 

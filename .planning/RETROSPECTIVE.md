@@ -806,3 +806,34 @@ A canonical 1-byte-message-ID log protocol replacing every firmware text-prefix 
 ### Cost Observations
 - Model mix: opus (research/plan), sonnet (executors/integration-checker/verifier).
 - Notable: the fix was correct in mechanism (bits do program, refuting the 0-bits signature) yet the chip still didn't graduate — the bottleneck moved from firmware/host logic to an unmeasured analog rail characteristic (FUT-08).
+
+---
+
+## Milestone: v1.19 — Protocol Naming Labels
+
+**Shipped:** 2026-07-02
+**Phases:** 5 (100–104) | **Plans:** 10
+
+### What Was Built
+A legibility layer over the unchanged algorithm-first dispatch contract: a single operator-approved 3-field canonical name set (`PROTO_<NAME>` token + display name + datasheet-cited facet prose) for every protocol number + phantom + handler-family (Phase 100), applied across firmware constants + `memory.cpp` dispatch (Phase 101), the host CLI display vocabularies via one `_PROTOCOL_DISPLAY_NAME` map (Phase 102), and PROTOCOLS.md prose + the INV-01..09 matrix + a name↔slug divergence record (Phase 103). A post-close follow-on (Phase 104) then renamed the two remaining minipro-heritage flash handler file-pairs/functions (`flash_type_3/4`→`flash_nor_unlock`/`flash_5v_page`) across firmware + host GATE-01 tooling + native suites + docs. Protocol numbers stayed the dispatch key end to end throughout — zero `chip_database.json`/wire/lockstep-constant value change.
+
+### What Worked
+- **Gate-first non-regression discipline:** GATE-01/02/03 (dispatch-mirror guard, `check_dispatch.py`, `diff_db.py` identity, byte-identical firmware builds) were re-run in every touching phase, so "pure legibility, zero behavior change" was continuously proven, not asserted. Phase 104's Leonardo build was byte-identical to its own pre-rename baseline — the cleanest possible proof a rename changed nothing.
+- **`git mv` for renames** preserved file history across the handler-file rename, keeping blame/log intact.
+- **Wave-per-repo-layer sequencing** (firmware → host tooling → native suites/docs) kept the dispatch-mirror bind closable at the end with all three sides already consistent.
+
+### What Was Inefficient
+- **Premature "CLOSED" bookkeeping:** Phase 103 wrote "v1.19 milestone CLOSED" + a MILESTONES entry claiming a `v1.19` tag before any git tag/merge existed, and a follow-on Phase 104 was then added on the same branch. The real close had to reconcile a duplicate MILESTONES entry, a milestone missing Phase 104 from its span, and NAME-01/02/03 still showing Pending though delivered in Phase 100.
+- **Requirements traceability drift:** Phase 100 delivered NAME-01/02/03 but the checkboxes/traceability rows were never flipped, surfacing as false "incomplete" at close.
+
+### Patterns Established
+- **Don't narrate a milestone as CLOSED until the git close ritual (tag/merge) actually runs** — the close command owns that transition, not the last phase.
+- **Post-close follow-on phases** are legitimate (Phase 104) but must be folded back into the milestone span + MILESTONES entry at the real close.
+
+### Key Lessons
+- A rename milestone's strongest evidence is a byte-identical build artifact — lean on it as the primary gate.
+- Reconcile requirements-checkbox bookkeeping at phase close, not milestone close, to avoid false-gap noise.
+
+### Cost Observations
+- Model mix: opus (orchestration/close), sonnet (executors + verifier).
+- Notable: cheapest milestone to verify — pure rename means the toolchain (diff_db identity + byte-identical build) does the proving; human/agent judgment load was low.
