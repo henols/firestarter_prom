@@ -5,8 +5,8 @@ milestone_name: — Protocol-Only Dispatch — Remove the Legacy `mem_type` Axis
 current_phase: 106
 current_phase_name: HOST — Host `mem_type` Removal
 status: verifying
-stopped_at: Completed 105-01-PLAN.md
-last_updated: "2026-07-02T10:29:38.052Z"
+stopped_at: Phase 106 context gathered
+last_updated: "2026-07-02T12:46:27.143Z"
 last_activity: 2026-07-02
 last_activity_desc: Phase 105 complete, transitioned to Phase 106
 progress:
@@ -201,6 +201,6 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Session
 
-**Last session:** 2026-07-02T10:18:34.734Z
-**Stopped at:** Completed 105-01-PLAN.md
-**Resume file:** None
+**Last session:** 2026-07-02T12:46:27.114Z
+**Stopped at:** Phase 106 context gathered
+**Resume file:** .planning/phases/106-host-host-mem-type-removal/106-CONTEXT.md
