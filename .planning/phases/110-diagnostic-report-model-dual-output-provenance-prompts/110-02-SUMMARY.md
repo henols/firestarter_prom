@@ -150,3 +150,14 @@ None - no external service configuration required.
 ---
 *Phase: 110-diagnostic-report-model-dual-output-provenance-prompts*
 *Completed: 2026-07-02*
+
+## Self-Check: PASSED
+
+- FOUND: firestarter_app/tests/test_provenance.py
+- FOUND: firestarter_app/firestarter/diagnostic_report.py
+- FOUND: .planning/phases/110-diagnostic-report-model-dual-output-provenance-prompts/110-02-SUMMARY.md
+- FOUND commit (submodule v1.21-community-chip-validation-command branch): 2e05918 (test RED, injectable seam)
+- FOUND commit (submodule): fb49e02 (feat GREEN, Provenance model + prompt_provenance + is_submittable)
+- FOUND commit (submodule): 3aa9752 (test RED, composition into DiagnosticReport)
+- FOUND commit (submodule): ad197f3 (feat GREEN, composition into DiagnosticReport)
+- FOUND commit (meta repo): dcfbbd0 (docs SUMMARY)
