@@ -5,15 +5,15 @@ milestone_name: — Community Chip-Validation Command
 current_phase: 108
 current_phase_name: test-plan-engine-address-derived-pattern-fingerprint
 status: executing
-stopped_at: Completed 108-02-PLAN.md
-last_updated: "2026-07-02T17:58:33.503Z"
+stopped_at: Completed 108-03-PLAN.md
+last_updated: "2026-07-02T18:14:15.828Z"
 last_activity: 2026-07-02
 last_activity_desc: Phase 108 execution started
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 4
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 108 (test-plan-engine-address-derived-pattern-fingerprint) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-07-02 — Phase 108 execution started
 
@@ -239,6 +239,9 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: [Phase 107-03]: Host pytest missing final summary line (syrupy plugin display quirk) cross-verified independently via pytest --collect-only (711 total minus 1 named failure = 710 passed), matching RESEARCH.md baseline exactly
 - [Phase 108-01]: Added error_code=response.id to the ProtocolNotImplementedError branch too (discretionary symmetry), not just the generic EpromOperationError branch — The id is always MSG_ERR_PROTOCOL_NOT_IMPLEMENTED (0xBB) there, so this gives every EpromOperationError-family exception a consistent .error_code at zero cost
 - [Phase 108-02]: Restricted address-line candidate bits to 8 <= k < (cmp_len-1).bit_length() -- bits at/above the compared region size never toggle within [0, cmp_len) and would spuriously score 100% clustering on scattered data
+- [Phase ?]: [Phase 108-03]: id-check NA rule keyed on the programmer-dict chip-id sentinel value 0, not key presence -- every DB entry carries a chip-id key but many carry the literal sentinel 0 meaning no real id to compare
+- [Phase ?]: [Phase 108-03]: blank-check NA condition checks BOTH electrical-type in {SRAM,FRAM} AND protocol-id in the SRAM proto-id set, mirroring check_eprom_blank's own short-circuit so derive_plan owns the decision up front
+- [Phase ?]: [Phase 108-03]: No named protocol constant exists for flash4 (0x05) in constants.py; added a local _PROTOCOL_FLASH4 module constant in chip_test.py mirroring database.py's own algo != 5 check
 
 ## Performance Metrics
 
@@ -264,9 +267,11 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 107 P03 | 20min | 2 tasks | 0 files |
 | Phase 108 P01 | 20min | 3 tasks | 3 files |
 | Phase 108 P02 | 25min | 3 tasks | 2 files |
+| Phase 108 P03 | 25min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-02T17:58:33.463Z
-**Stopped at:** Completed 108-02-PLAN.md
+**Last session:** 2026-07-02T18:14:15.817Z
+**Stopped at:** Completed 108-03-PLAN.md
 **Resume file:** 
+None

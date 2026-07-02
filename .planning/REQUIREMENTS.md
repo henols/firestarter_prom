@@ -11,7 +11,7 @@ Requirements for milestone v1.21. Each maps to a roadmap phase.
 
 ### Sweep Engine (SWEEP)
 
-- [ ] **SWEEP-01**: `firestarter dev test <chip>` derives a per-chip test plan from the chip's DB fields (`protocol`/`electrical-type`/`FLAG_CAN_ERASE`), running only the operations that chip supports — without re-invoking build-time `classify()`, and bypassing the `resolve_chip` support-status guard for plan derivation only.
+- [x] **SWEEP-01**: `firestarter dev test <chip>` derives a per-chip test plan from the chip's DB fields (`protocol`/`electrical-type`/`FLAG_CAN_ERASE`), running only the operations that chip supports — without re-invoking build-time `classify()`, and bypassing the `resolve_chip` support-status guard for plan derivation only.
 - [ ] **SWEEP-02**: Each operation (id, read, write, verify, erase, blank-check) runs as an independent, non-fatal step with an explicit per-op verdict (`OK`/`BAD`/`NA`/`SKIPPED`); a failure in one step never aborts the remaining steps.
 - [ ] **SWEEP-03**: The sweep runs id-check first; a chip-ID mismatch hard-gates the destructive steps (fail-safe — chip left pristine) while still recording the read/id findings.
 - [ ] **SWEEP-04**: Destructive/verify steps run N≥2 times; disagreement across runs is reported as `marginal` rather than PASS or FAIL.
@@ -94,7 +94,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SWEEP-01 | Phase 108 | Pending |
+| SWEEP-01 | Phase 108 | Complete |
 | SWEEP-02 | Phase 108 | Pending |
 | SWEEP-03 | Phase 108 | Pending |
 | SWEEP-04 | Phase 108 | Pending |
