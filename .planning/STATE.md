@@ -5,8 +5,8 @@ milestone_name: — Community Chip-Validation Command
 current_phase: 111
 current_phase_name: hardware-gated
 status: verifying
-stopped_at: Completed 110-03-PLAN.md
-last_updated: "2026-07-02T21:48:38.492Z"
+stopped_at: Phase 111 context gathered
+last_updated: "2026-07-02T22:06:01.572Z"
 last_activity: 2026-07-02
 last_activity_desc: Phase 110 complete, transitioned to Phase 111
 progress:
@@ -291,7 +291,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Session
 
-**Last session:** 2026-07-02T21:39:50.308Z
-**Stopped at:** Completed 110-03-PLAN.md
+**Last session:** 2026-07-02T22:06:01.561Z
+**Stopped at:** Phase 111 context gathered
 **Resume file:** 
-None
+.planning/phases/111-measured-voltage-sampler-hardware-gated/111-CONTEXT.md
