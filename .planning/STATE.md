@@ -5,15 +5,15 @@ milestone_name: — Protocol-Only Dispatch — Remove the Legacy `mem_type` Axis
 current_phase: 106
 current_phase_name: host-host-mem-type-removal
 status: executing
-stopped_at: Completed 106-01-PLAN.md
-last_updated: "2026-07-02T13:20:18.315Z"
+stopped_at: Completed 106-02-PLAN.md
+last_updated: "2026-07-02T13:28:41.518Z"
 last_activity: 2026-07-02
 last_activity_desc: Phase 106 execution started
 progress:
   total_phases: 3
   completed_phases: 1
   total_plans: 4
-  completed_plans: 2
+  completed_plans: 3
   percent: 33
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 106 (host-host-mem-type-removal) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-07-02 — Phase 106 execution started
 
@@ -183,6 +183,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase 105]: Kept the vestigial mem_type parameter in native test make_handle() (both suites) after removing the struct field, rather than dropping it and touching ~25 call sites — Lower-churn mechanical choice explicitly left to Claude's Discretion in CONTEXT.md and RESEARCH.md
 - [Phase 106-01]: Kept dispatch(algo, 0) rather than changing dispatch()'s signature since the mem_type fallback chain is protocol==0-only (dead for every real chip's non-zero algorithm)
 - [Phase 106-01]: Logged pre-existing test_audit_coverage_matrix.py golden-fixture drift and the expected test_chip_resolver.py ripple (owned by Plan 03) to deferred-items.md rather than fixing them - both explicitly out of scope
+- [Phase 106-02]: get_chip_type_string signature shrunk to (self, protocol_id=None) - chip_type_int param and the local type_map dict deleted; unresolved falls to bare 'Unknown'
+- [Phase 106-02]: resolve_type_label signature shrunk to (self, electrical_type, protocol_id=None) - type_int param deleted; delegates to get_chip_type_string(protocol_id)
+- [Phase 106-02]: __main__ self-test block repurposed to exercise protocol tier (0x08 known, 0x99 unknown) replacing removed numeric-tier calls
+- [Phase 106-02]: eprom_info.py:69 string-typed 'type': 'unknown' raw-JSON field left untouched - different axis from numeric mem_type
 
 ## Performance Metrics
 
@@ -201,9 +205,11 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 104 P03 | 55min | 3 tasks | 15 files |
 | Phase 105 P01 | 32min | 3 tasks | 6 files |
 | Phase 106 P01 | 20min | 3 tasks | 8 files |
+| Phase 106 P02 | 12min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-07-02T13:20:18.291Z
-**Stopped at:** Completed 106-01-PLAN.md
+**Last session:** 2026-07-02T13:28:41.499Z
+**Stopped at:** Completed 106-02-PLAN.md
 **Resume file:** 
+None
