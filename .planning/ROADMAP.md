@@ -213,7 +213,10 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
   4. The report embeds a DB-diff section showing the chip's `support_status` at test time alongside the proposed change implied by the sweep's results, so a maintainer can triage on the diff alone without re-deriving it.
   5. The report includes a transport-health section (COBS/CRC/retry/timeout counters captured during the sweep) and flags the run `transport-suspect` when those counters are elevated; when the counters are unavailable, the field reads "not measured" rather than a false zero.
 
-**Plans**: TBD
+**Plans**: 3 plans (host-only, `firestarter_app/`, zero firmware change; sequential waves — all three write the single new `diagnostic_report.py` module)
+- [ ] 110-01-PLAN.md — Core module: `SCHEMA_VERSION`/`NOT_MEASURED` constants, `AutoCapture` + `TransportHealth` sub-dataclasses, `DiagnosticReport` aggregate with single-source `to_dict()`/`render()`/`to_json_block()`; transport "not measured" honest fallback (RPT-01, RPT-02, XPORT-01) [wave 1]
+- [ ] 110-02-PLAN.md — Provenance layer: `Provenance` dataclass + injectable `prompt_provenance()` seam + `is_submittable()` ("not sure" is submittable, never auto-derived from `hw_revision`), composed into the report (RPT-04) [wave 2]
+- [ ] 110-03-PLAN.md — Read-only advisory DB-diff: `DbDiff` + `build_db_diff()` (current `support_status` + advisory proposed-disposition string, read-only by construction, no taxonomy write), composed into the report; full-suite phase gate (RPT-05) [wave 3]
 **UI hint**: no
 
 ### Phase 111: Measured-Voltage Sampler (hardware-gated)
@@ -1090,7 +1093,7 @@ Plans:
 | 107 (close) | v1.20 | 3/3 | ✅ Shipped | 2026-07-02 |
 | 108 | v1.21 | 4/4 | Complete    | 2026-07-02 |
 | 109 | v1.21 | 3/3 | Complete    | 2026-07-02 |
-| 110 | v1.21 | 0/TBD | Not started | — |
+| 110 | v1.21 | 0/3 | Planned | — |
 | 111 | v1.21 | 0/TBD | Not started | — |
 | 112 | v1.21 | 0/TBD | Not started | — |
 | 113 | v1.21 | 0/TBD | Not started | — |
