@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — Community Chip-Validation Command
-current_phase: 110
-current_phase_name: Diagnostic Report Model + Dual Output + Provenance Prompts
+current_phase: 111
+current_phase_name: hardware-gated
 status: verifying
 stopped_at: Completed 110-03-PLAN.md
-last_updated: "2026-07-02T21:39:50.327Z"
+last_updated: "2026-07-02T21:48:38.492Z"
 last_activity: 2026-07-02
-last_activity_desc: Phase 110 execution started
+last_activity_desc: Phase 110 complete, transitioned to Phase 111
 progress:
   total_phases: 7
   completed_phases: 3
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 110 (Diagnostic Report Model + Dual Output + Provenance Prompts) — EXECUTING
-Plan: 3 of 3
+Phase: 111 — Measured-Voltage Sampler (hardware-gated)
+Plan: Not started
 Status: Phase complete — ready for verification
-Last activity: 2026-07-02 — Phase 110 execution started
+Last activity: 2026-07-02 — Phase 110 complete, transitioned to Phase 111
 
 ## Project Reference
 
