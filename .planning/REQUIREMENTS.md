@@ -31,8 +31,8 @@ Requirements for milestone v1.21. Each maps to a roadmap phase.
 
 ### Diagnostic Report (RPT)
 
-- [ ] **RPT-01**: One run produces a single self-contained report rendered two ways from one source object — a human-readable `rich` results table and a compact fenced JSON block — carrying a `schema_version` key.
-- [ ] **RPT-02**: The report auto-captures the full diagnostic field set the host/firmware already know: FW+board+host version (MSG_OK identity), chip-ID expected-vs-actual, protocol path, per-op exact firmware error code, and the byte-mismatch fingerprint.
+- [x] **RPT-01**: One run produces a single self-contained report rendered two ways from one source object — a human-readable `rich` results table and a compact fenced JSON block — carrying a `schema_version` key.
+- [x] **RPT-02**: The report auto-captures the full diagnostic field set the host/firmware already know: FW+board+host version (MSG_OK identity), chip-ID expected-vs-actual, protocol path, per-op exact firmware error code, and the byte-mismatch fingerprint.
 - [x] **RPT-03**: `EpromOperationError` preserves the firmware `response.id` byte via a backward-compatible `error_code` seam (currently discarded) so per-step results carry the exact error code.
 - [x] **RPT-04**: Provenance the firmware cannot self-report (shield revision — with an explicit "not sure", never auto-derived from the ambiguous `hw_revision` byte — chip origin, pot adjustments) is prompted **before** the sweep; a report with blank provenance is not submittable.
 - [x] **RPT-05**: The report embeds a DB-diff (chip's `support_status` at test time + the proposed change) to support flag-only triage.
@@ -43,7 +43,7 @@ Requirements for milestone v1.21. Each maps to a roadmap phase.
 
 ### Transport Health (XPORT)
 
-- [ ] **XPORT-01**: The sweep captures transport-health counters (COBS/CRC/retry/timeout) and flags a run `transport-suspect` when they are elevated, so transport instability is not mis-read as a chip fault; degrades to "not measured" if unavailable.
+- [x] **XPORT-01**: The sweep captures transport-health counters (COBS/CRC/retry/timeout) and flags a run `transport-suspect` when they are elevated, so transport instability is not mis-read as a chip fault; degrades to "not measured" if unavailable.
 
 ### Submission (SUB)
 
@@ -105,13 +105,13 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SAFE-01 | Phase 109 | Complete |
 | SAFE-02 | Phase 109 | Complete |
 | SAFE-03 | Phase 109 | Complete |
-| RPT-01 | Phase 110 | Pending |
-| RPT-02 | Phase 110 | Pending |
+| RPT-01 | Phase 110 | Complete |
+| RPT-02 | Phase 110 | Complete |
 | RPT-03 | Phase 108 | Complete |
 | RPT-04 | Phase 110 | Complete |
 | RPT-05 | Phase 110 | Complete |
 | VOLT-01 | Phase 111 | Pending |
-| XPORT-01 | Phase 110 | Pending |
+| XPORT-01 | Phase 110 | Complete |
 | SUB-01 | Phase 113 | Pending |
 | SUB-02 | Phase 113 | Pending |
 | SUB-03 | Phase 113 | Pending |
