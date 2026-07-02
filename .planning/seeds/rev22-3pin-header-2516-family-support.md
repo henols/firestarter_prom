@@ -1,6 +1,6 @@
 ---
 title: "Rev 2.2/2.3 3-pin header + 2516-family jumper support"
-trigger_condition: "When a jumper-modeling or 2516/TI-25xx chip-support effort is scoped"
+trigger_condition: "Queued as milestone v1.24 (Jumper-Display Correctness & 2516-Family Support) — activate when that milestone is scoped"
 planted_date: 2026-07-02
 ---
 
