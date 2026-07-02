@@ -19,8 +19,8 @@ Requirements for milestone v1.21. Each maps to a roadmap phase.
 
 ### Pattern & Diagnosis (PATT)
 
-- [ ] **PATT-01**: The write/verify step uses an **address-derived** data pattern (byte = f(address), folding high address bits in), preceded by a cheap all-0x00/all-0xFF pre-pass — never a fixed pattern that is blind to stuck/shorted address lines.
-- [ ] **PATT-02**: A byte-mismatch fingerprint classifier categorizes verify failures (blank/contact fault vs address-line fault vs transport fault) from the mismatch distribution; it is coupled to the address-derived pattern in the same phase.
+- [x] **PATT-01**: The write/verify step uses an **address-derived** data pattern (byte = f(address), folding high address bits in), preceded by a cheap all-0x00/all-0xFF pre-pass — never a fixed pattern that is blind to stuck/shorted address lines.
+- [x] **PATT-02**: A byte-mismatch fingerprint classifier categorizes verify failures (blank/contact fault vs address-line fault vs transport fault) from the mismatch distribution; it is coupled to the address-derived pattern in the same phase.
 - [ ] **PATT-03**: UV EPROMs use a small-region write variant (high-address contiguous window for upper-address-line coverage) so an eraser-less tester can retry; the region is capped by the engine, not by any DB field.
 
 ### Safety & Destructiveness (SAFE)
@@ -99,8 +99,8 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SWEEP-03 | Phase 108 | Pending |
 | SWEEP-04 | Phase 108 | Pending |
 | SWEEP-05 | Phase 109 | Pending |
-| PATT-01 | Phase 108 | Pending |
-| PATT-02 | Phase 108 | Pending |
+| PATT-01 | Phase 108 | Complete |
+| PATT-02 | Phase 108 | Complete |
 | PATT-03 | Phase 109 | Pending |
 | SAFE-01 | Phase 109 | Pending |
 | SAFE-02 | Phase 109 | Pending |

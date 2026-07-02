@@ -5,15 +5,15 @@ milestone_name: — Community Chip-Validation Command
 current_phase: 108
 current_phase_name: test-plan-engine-address-derived-pattern-fingerprint
 status: executing
-stopped_at: Completed 108-01-PLAN.md
-last_updated: "2026-07-02T17:46:47.989Z"
+stopped_at: Completed 108-02-PLAN.md
+last_updated: "2026-07-02T17:58:33.503Z"
 last_activity: 2026-07-02
 last_activity_desc: Phase 108 execution started
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 4
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 108 (test-plan-engine-address-derived-pattern-fingerprint) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-07-02 — Phase 108 execution started
 
@@ -238,6 +238,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: [Phase 107-03]: Applied D-07 pass bar literally - confirmed each of the 5 pre-existing failing/dirty artifacts (1 pytest failure + 4 ruff errors + 1 ruff-format file) is outside git diff beta..HEAD before accepting as prior debt; zero new regressions from v1.20
 - [Phase ?]: [Phase 107-03]: Host pytest missing final summary line (syrupy plugin display quirk) cross-verified independently via pytest --collect-only (711 total minus 1 named failure = 710 passed), matching RESEARCH.md baseline exactly
 - [Phase 108-01]: Added error_code=response.id to the ProtocolNotImplementedError branch too (discretionary symmetry), not just the generic EpromOperationError branch — The id is always MSG_ERR_PROTOCOL_NOT_IMPLEMENTED (0xBB) there, so this gives every EpromOperationError-family exception a consistent .error_code at zero cost
+- [Phase 108-02]: Restricted address-line candidate bits to 8 <= k < (cmp_len-1).bit_length() -- bits at/above the compared region size never toggle within [0, cmp_len) and would spuriously score 100% clustering on scattered data
 
 ## Performance Metrics
 
@@ -262,10 +263,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 107 P02 | 22min | 2 tasks | 5 files |
 | Phase 107 P03 | 20min | 2 tasks | 0 files |
 | Phase 108 P01 | 20min | 3 tasks | 3 files |
+| Phase 108 P02 | 25min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-02T17:46:47.973Z
-**Stopped at:** Completed 108-01-PLAN.md
+**Last session:** 2026-07-02T17:58:33.463Z
+**Stopped at:** Completed 108-02-PLAN.md
 **Resume file:** 
-None
