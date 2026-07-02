@@ -159,10 +159,19 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
   6. `EpromOperationError` carries the firmware `response.id` byte through a new backward-compatible `error_code` attribute (currently discarded), so every per-step result in the sweep has access to the exact firmware error code that produced it.
 
 **Plans**: 4 plans
+**Wave 1**
+
 - [ ] 108-01-PLAN.md — `EpromOperationError.error_code` seam + `_raise_for_error_response` pass-through (RPT-03; wave 1, foundational)
 - [ ] 108-02-PLAN.md — `chip_test.py` pure layer: address-derived XOR-fold pattern generator + 4-bucket fingerprint classifier (PATT-01/02; wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 108-03-PLAN.md — `derive_plan()` guard-bypassing per-chip op derivation (SWEEP-01; wave 2)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 108-04-PLAN.md — `run_plan()` non-fatal executor + id-first destructive gate + N≥2 marginal + error_code capture (SWEEP-02/03/04, RPT-03; wave 3)
+
 **UI hint**: no
 
 ### Phase 109: Destructiveness Gate + Safety
