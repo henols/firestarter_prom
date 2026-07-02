@@ -224,7 +224,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 110-03-PLAN.md — Read-only advisory DB-diff: `DbDiff` + `build_db_diff()` (current `support_status` + advisory proposed-disposition string, read-only by construction, no taxonomy write), composed into the report; full-suite phase gate (RPT-05) [wave 3]
+- [x] 110-03-PLAN.md — Read-only advisory DB-diff: `DbDiff` + `build_db_diff()` (current `support_status` + advisory proposed-disposition string, read-only by construction, no taxonomy write), composed into the report; full-suite phase gate (RPT-05) [wave 3]
 
 **UI hint**: no
 
@@ -1102,7 +1102,7 @@ Plans:
 | 107 (close) | v1.20 | 3/3 | ✅ Shipped | 2026-07-02 |
 | 108 | v1.21 | 4/4 | Complete    | 2026-07-02 |
 | 109 | v1.21 | 3/3 | Complete    | 2026-07-02 |
-| 110 | v1.21 | 2/3 | In Progress|  |
+| 110 | v1.21 | 3/3 | Complete   | 2026-07-02 |
 | 111 | v1.21 | 0/TBD | Not started | — |
 | 112 | v1.21 | 0/TBD | Not started | — |
 | 113 | v1.21 | 0/TBD | Not started | — |

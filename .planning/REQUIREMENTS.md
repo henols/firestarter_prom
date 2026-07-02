@@ -35,7 +35,7 @@ Requirements for milestone v1.21. Each maps to a roadmap phase.
 - [ ] **RPT-02**: The report auto-captures the full diagnostic field set the host/firmware already know: FW+board+host version (MSG_OK identity), chip-ID expected-vs-actual, protocol path, per-op exact firmware error code, and the byte-mismatch fingerprint.
 - [x] **RPT-03**: `EpromOperationError` preserves the firmware `response.id` byte via a backward-compatible `error_code` seam (currently discarded) so per-step results carry the exact error code.
 - [x] **RPT-04**: Provenance the firmware cannot self-report (shield revision — with an explicit "not sure", never auto-derived from the ambiguous `hw_revision` byte — chip origin, pot adjustments) is prompted **before** the sweep; a report with blank provenance is not submittable.
-- [ ] **RPT-05**: The report embeds a DB-diff (chip's `support_status` at test time + the proposed change) to support flag-only triage.
+- [x] **RPT-05**: The report embeds a DB-diff (chip's `support_status` at test time + the proposed change) to support flag-only triage.
 
 ### Measured Voltage Capture (VOLT)
 
@@ -109,7 +109,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | RPT-02 | Phase 110 | Pending |
 | RPT-03 | Phase 108 | Complete |
 | RPT-04 | Phase 110 | Complete |
-| RPT-05 | Phase 110 | Pending |
+| RPT-05 | Phase 110 | Complete |
 | VOLT-01 | Phase 111 | Pending |
 | XPORT-01 | Phase 110 | Pending |
 | SUB-01 | Phase 113 | Pending |
