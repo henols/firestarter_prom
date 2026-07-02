@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.20
 milestone_name: — Protocol-Only Dispatch — Remove the Legacy `mem_type` Axis
 current_phase: 106
-current_phase_name: HOST — Host `mem_type` Removal
+current_phase_name: host-host-mem-type-removal
 status: executing
-stopped_at: Phase 106 context gathered
-last_updated: "2026-07-02T13:09:54.147Z"
+stopped_at: Completed 106-01-PLAN.md
+last_updated: "2026-07-02T13:20:18.315Z"
 last_activity: 2026-07-02
-last_activity_desc: Phase 105 complete, transitioned to Phase 106
+last_activity_desc: Phase 106 execution started
 progress:
   total_phases: 3
   completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
+  total_plans: 4
+  completed_plans: 2
   percent: 33
 ---
 
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 106 — HOST — Host `mem_type` Removal
-Plan: Not started
+Phase: 106 (host-host-mem-type-removal) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-07-02 — Phase 105 complete, transitioned to Phase 106
+Last activity: 2026-07-02 — Phase 106 execution started
 
 ## Project Reference
 
@@ -35,7 +35,7 @@ See: `.planning/PROJECT.md` (v1.19 Phase 104 close footer + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). v1.20 removes the last vestige that violates that contract: the `mem_type`/`type` backward-compat fallback axis. After v1.20 the firmware, wire, and host trust **only** the real protocol.
 
-**Current focus:** Phase 105 — fw-firmware-mem-type-removal
+**Current focus:** Phase 106 — host-host-mem-type-removal
 
 ## Milestone Context (v1.20)
 
@@ -181,6 +181,8 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase 105]: Executed D-01 setup (merge v1.19->beta lockstep in both sub-repos, no tag; fork v1.20-protocol-only-dispatch off updated beta) as a hard precondition since it had not yet been performed despite operator authorization — Research flagged neither beta nor origin/beta contained the v1.19 PROTO_ layer this plan's edits reference; without it no v1.20 branch existed to work on
 - [Phase 105]: Collapsed configure_memory() dispatch tail to a single unconditional terminal configure_not_implemented(handle) call (D-04) instead of an if/else on protocol==0 — Matches the codebase's existing named-infeasibility-arm fail-closed style; protocol==0 and any unrecognized non-zero protocol now share one exit
 - [Phase 105]: Kept the vestigial mem_type parameter in native test make_handle() (both suites) after removing the struct field, rather than dropping it and touching ~25 call sites — Lower-churn mechanical choice explicitly left to Claude's Discretion in CONTEXT.md and RESEARCH.md
+- [Phase 106-01]: Kept dispatch(algo, 0) rather than changing dispatch()'s signature since the mem_type fallback chain is protocol==0-only (dead for every real chip's non-zero algorithm)
+- [Phase 106-01]: Logged pre-existing test_audit_coverage_matrix.py golden-fixture drift and the expected test_chip_resolver.py ripple (owned by Plan 03) to deferred-items.md rather than fixing them - both explicitly out of scope
 
 ## Performance Metrics
 
@@ -198,9 +200,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 104 P02 | 12min | 3 tasks | 6 files |
 | Phase 104 P03 | 55min | 3 tasks | 15 files |
 | Phase 105 P01 | 32min | 3 tasks | 6 files |
+| Phase 106 P01 | 20min | 3 tasks | 8 files |
 
 ## Session
 
-**Last session:** 2026-07-02T12:46:27.114Z
-**Stopped at:** Phase 106 context gathered
-**Resume file:** .planning/phases/106-host-host-mem-type-removal/106-CONTEXT.md
+**Last session:** 2026-07-02T13:20:18.291Z
+**Stopped at:** Completed 106-01-PLAN.md
+**Resume file:** 
