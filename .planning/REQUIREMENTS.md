@@ -9,9 +9,9 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (100–1
 
 ### Naming (Phase 100 — authoritative name set + operator approval)
 
-- [ ] **NAME-01**: A single canonical entry — a C-identifier-safe `PROTO_<NAME>` token + a short human display name + datasheet-cited behavioral facet prose (write algorithm / erase model / VPP behavior / pin roles) — exists for every protocol number present in `chip_database.json` (0x05, 0x06, 0x07, 0x08, 0x0B, 0x0D, 0x0E, 0x10, 0x27, 0x28, 0x29, 0x34) and for the phantom IDs (0x35, 0x39, flagged non-real). Names use a chip-family/behavior axis (pin-count-primary; voltage/hazard detail lives in the facet prose), carrying forward the FM1608 (0x28) and X88C64 (0x34) identity corrections.
-- [ ] **NAME-02**: The operator explicitly approves the canonical name set at a blocking gate — the draft table is presented for review and the 0x0E-vs-0x29 (both 32-pin SRAM) name collision is resolved at approval — before any downstream phase (101/102/103) begins. No silent auto-approval.
-- [ ] **NAME-03**: The approved name set is recorded in one identifiable authoritative source — `firestarter/doc/PROTOCOLS.md`, revised in place — that Phases 101/102/103 each cite as their single source of truth, and it includes an operator-approved handler-family name layer for the many-to-one handlers (one EPROM handler for 0x07/0x08/0x0B; one SRAM handler for 0x0E/0x27/0x28/0x29; the single-protocol handlers) so downstream renames draw from this source rather than being invented mid-refactor.
+- [x] **NAME-01**: A single canonical entry — a C-identifier-safe `PROTO_<NAME>` token + a short human display name + datasheet-cited behavioral facet prose (write algorithm / erase model / VPP behavior / pin roles) — exists for every protocol number present in `chip_database.json` (0x05, 0x06, 0x07, 0x08, 0x0B, 0x0D, 0x0E, 0x10, 0x27, 0x28, 0x29, 0x34) and for the phantom IDs (0x35, 0x39, flagged non-real). Names use a chip-family/behavior axis (pin-count-primary; voltage/hazard detail lives in the facet prose), carrying forward the FM1608 (0x28) and X88C64 (0x34) identity corrections.
+- [x] **NAME-02**: The operator explicitly approves the canonical name set at a blocking gate — the draft table is presented for review and the 0x0E-vs-0x29 (both 32-pin SRAM) name collision is resolved at approval — before any downstream phase (101/102/103) begins. No silent auto-approval.
+- [x] **NAME-03**: The approved name set is recorded in one identifiable authoritative source — `firestarter/doc/PROTOCOLS.md`, revised in place — that Phases 101/102/103 each cite as their single source of truth, and it includes an operator-approved handler-family name layer for the many-to-one handlers (one EPROM handler for 0x07/0x08/0x0B; one SRAM handler for 0x0E/0x27/0x28/0x29; the single-protocol handlers) so downstream renames draw from this source rather than being invented mid-refactor.
 
 ### Firmware Labels (Phase 101 — apply names in firmware)
 
@@ -60,9 +60,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| NAME-01 | Phase 100 | Pending |
-| NAME-02 | Phase 100 | Pending |
-| NAME-03 | Phase 100 | Pending |
+| NAME-01 | Phase 100 | Complete |
+| NAME-02 | Phase 100 | Complete |
+| NAME-03 | Phase 100 | Complete |
 | FW-01 | Phase 101 | Complete |
 | FW-02 | Phase 101 | Complete |
 | FW-03 | Phase 101 | Complete |
@@ -81,4 +81,4 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 ---
 *Requirements defined: 2026-07-01*
-*Last updated: 2026-07-01 after roadmap creation (Phases 100–103 mapped; 12/12 covered)*
+*Last updated: 2026-07-02 at v1.19 milestone close — all 12 v1 requirements Complete (NAME-01/02/03 delivered in Phase 100; bookkeeping reconciled at close). A post-close follow-on Phase 104 (protocol handler file/function rename to descriptive names) carried its own phase-local RENAME-01..05 IDs (not tracked here by design) and re-verified GATE-01/02/03 non-regression.*
