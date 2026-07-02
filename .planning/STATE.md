@@ -6,7 +6,7 @@ current_phase: 104
 current_phase_name: rename-protocol-header-and-cpp-files-to-descriptive-protocol
 status: executing
 stopped_at: Completed 104-01-PLAN.md
-last_updated: "2026-07-02T07:25:23.290Z"
+last_updated: "2026-07-02T07:31:31.596Z"
 last_activity: 2026-07-02
 last_activity_desc: Phase 104 execution started
 progress:
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 104 (rename-protocol-header-and-cpp-files-to-descriptive-protocol) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-07-02 — Phase 104 execution started
 
@@ -184,6 +184,8 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase 103 Plan 02]: Milestone-CLOSED narrative written only after confirming zero GATE-01/02/03 FAIL verdicts in 103-VERIFICATION.md (precondition honored); no beta cut, no gitlink bump, no `chip_database.json`/code change triggered — v1.19 close is docs+planning-artifacts only
 - [Phase ?]: Renamed file-internal flash3_*/flash4_* static helpers to flash_nor_unlock_*/flash_5v_page_* stems for full identifier consistency (discretionary per 104-PATTERNS.md); no cross-file impact since file-internal — Plan 104-01
 - [Phase ?]: Left pre-existing unrelated platformio.ini whitespace diff untouched (out of plan scope, not introduced by this work) — Plan 104-01
+- [Phase 104-02]: New family-id strings introduced for Plan 03: nor_unlock (was flash3) and 5v_page (was flash4) — become the test-suite directory names in Plan 03
+- [Phase 104-02]: Preserved validation_matrix_spec.json protocols_note prose factual content verbatim, only substituting handler/test-module name references
 
 ## Performance Metrics
 
@@ -198,9 +200,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 103 P01 | 8min | 3 tasks | 1 files |
 | Phase 103 P02 | 18min | 2 tasks | 1 files |
 | Phase 104 P01 | 20min | 3 tasks | 7 files |
+| Phase 104 P02 | 12min | 3 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-07-02T07:25:23.272Z
+**Last session:** 2026-07-02T07:31:04.259Z
 **Stopped at:** Completed 104-01-PLAN.md
 **Resume file:** None
