@@ -152,3 +152,13 @@ None - no external service configuration required.
 ---
 *Phase: 110-diagnostic-report-model-dual-output-provenance-prompts*
 *Completed: 2026-07-02*
+
+## Self-Check: PASSED
+
+- FOUND: firestarter_app/firestarter/diagnostic_report.py
+- FOUND: firestarter_app/tests/test_diagnostic_report.py
+- FOUND: .planning/phases/110-diagnostic-report-model-dual-output-provenance-prompts/110-01-SUMMARY.md
+- FOUND commit (submodule v1.21-community-chip-validation-command branch): 92d97c1 (test RED)
+- FOUND commit (submodule): 721cded (feat constants+sub-dataclasses)
+- FOUND commit (submodule): f2d3ce5 (feat aggregate GREEN)
+- FOUND commit (meta repo): 94ca3a7 (docs SUMMARY)
