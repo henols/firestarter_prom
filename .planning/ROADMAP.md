@@ -214,9 +214,18 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
   5. The report includes a transport-health section (COBS/CRC/retry/timeout counters captured during the sweep) and flags the run `transport-suspect` when those counters are elevated; when the counters are unavailable, the field reads "not measured" rather than a false zero.
 
 **Plans**: 3 plans (host-only, `firestarter_app/`, zero firmware change; sequential waves — all three write the single new `diagnostic_report.py` module)
+**Wave 1**
+
 - [ ] 110-01-PLAN.md — Core module: `SCHEMA_VERSION`/`NOT_MEASURED` constants, `AutoCapture` + `TransportHealth` sub-dataclasses, `DiagnosticReport` aggregate with single-source `to_dict()`/`render()`/`to_json_block()`; transport "not measured" honest fallback (RPT-01, RPT-02, XPORT-01) [wave 1]
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 110-02-PLAN.md — Provenance layer: `Provenance` dataclass + injectable `prompt_provenance()` seam + `is_submittable()` ("not sure" is submittable, never auto-derived from `hw_revision`), composed into the report (RPT-04) [wave 2]
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 110-03-PLAN.md — Read-only advisory DB-diff: `DbDiff` + `build_db_diff()` (current `support_status` + advisory proposed-disposition string, read-only by construction, no taxonomy write), composed into the report; full-suite phase gate (RPT-05) [wave 3]
+
 **UI hint**: no
 
 ### Phase 111: Measured-Voltage Sampler (hardware-gated)
