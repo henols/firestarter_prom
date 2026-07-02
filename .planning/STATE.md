@@ -1,10 +1,14 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.20
-milestone_name: Protocol-Only Dispatch — Remove the Legacy mem_type Axis
+milestone_name: — Protocol-Only Dispatch — Remove the Legacy `mem_type` Axis
+current_phase: 105
+current_phase_name: roadmap ready — Phase 105 up next
 status: roadmapped
-last_updated: "2026-07-02T09:30:00.000Z"
+stopped_at: Phase 105 context gathered
+last_updated: "2026-07-02T09:34:54.385Z"
 last_activity: 2026-07-02
+last_activity_desc: Milestone v1.20 roadmap created (Phases 105–107)
 progress:
   total_phases: 3
   completed_phases: 0
@@ -193,6 +197,6 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Session
 
-**Last session:** 2026-07-02T09:30:00.000Z
-**Stopped at:** v1.20 roadmap created (Phases 105–107, 12/12 requirements mapped)
-**Resume file:** None
+**Last session:** 2026-07-02T09:34:54.366Z
+**Stopped at:** Phase 105 context gathered
+**Resume file:** .planning/phases/105-fw-firmware-mem-type-removal/105-CONTEXT.md
