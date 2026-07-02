@@ -5,15 +5,15 @@ milestone_name: — Protocol-Only Dispatch — Remove the Legacy `mem_type` Axis
 current_phase: 107
 current_phase_name: docs-gate-documentation-non-regression-close
 status: executing
-stopped_at: Completed 107-01-PLAN.md
-last_updated: "2026-07-02T14:54:43.464Z"
+stopped_at: Completed 107-02-PLAN.md
+last_updated: "2026-07-02T15:09:18.432Z"
 last_activity: 2026-07-02
 last_activity_desc: Phase 107 execution started
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 7
-  completed_plans: 5
+  completed_plans: 6
   percent: 67
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 107 (docs-gate-documentation-non-regression-close) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-07-02 — Phase 107 execution started
 
@@ -191,6 +191,8 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: [Phase 106-03]: Rule 1 auto-fix applied to test_consistency_check.py's dispatch-chain mock (missing programming.algorithm key), directly caused by the new HOST-04 guard; confirmed via git stash that test_audit_coverage_matrix.py golden-fixture drift and the 4 pre-existing ruff/format failures in tools/*.py are unrelated and out of scope
 - [Phase 107-01]: Reworded three explanatory mentions of the retired mem_type axis in firestarter/CLAUDE.md to avoid the literal substring 'mem_type' (legacy-integer/backward-compat phrasing), satisfying the plan's strict grep-based acceptance criteria while preserving meaning
 - [Phase 107-01]: Kept protocol==0 as its own explicit numbered terminal dispatch step (renumbered to 7) rather than folding into the generic 6b non-zero-unrecognized guard, matching the plan's required wording
+- [Phase ?]: [Phase 107-02]: Restored MSG_WARN_FL4_BOOT_BLOCK_LOCKED (0x85) / MSG_ERR_FL4_BOOT_BLOCK_LOCKED (0xBC) to the meta canonical messages.toml before finalizing the 0xAE removal sync -- these Phase-95 host-only messages were never present in canonical and the sync would have silently deleted them from messages.py, breaking tests/test_val_wire_5v_page.py (Rule 1 auto-fix, caught pre-commit)
+- [Phase ?]: [Phase 107-02]: Firmware include/messages.h gained the same restored 0x85/0xBC #define constants as an inert byproduct (firmware source never references either name) -- accepted as a correction of the canonical source of truth, not a firmware behavior change
 
 ## Performance Metrics
 
@@ -212,10 +214,11 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 106 P02 | 12min | 3 tasks | 3 files |
 | Phase 106 P03 | 12min | 3 tasks | 3 files |
 | Phase 107 P01 | 18min | 3 tasks | 4 files |
+| Phase 107 P02 | 22min | 2 tasks | 5 files |
 
 ## Session
 
-**Last session:** 2026-07-02T14:54:43.454Z
-**Stopped at:** Completed 107-01-PLAN.md
+**Last session:** 2026-07-02T15:09:18.423Z
+**Stopped at:** Completed 107-02-PLAN.md
 **Resume file:** 
 None
