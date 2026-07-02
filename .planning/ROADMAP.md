@@ -1312,7 +1312,11 @@ Plans:
   3. `MSG_ERR_MEM_TYPE_UNSUPPORTED (0xAE)` and the `TYPE_EPROM` / `TYPE_SRAM` / `TYPE_FLASH_TYPE_3` / `TYPE_FLASH_TYPE_4` constants are removed from firmware headers/messages in the same commit as the dispatch-chain deletion (no orphaned dead constants).
   4. Every currently-dispatchable DB chip still reaches its identical handler via `protocol` — native dispatch tests (one per `KNOWN_PROTOCOLS` entry) pass unchanged, and the v1.16 golden register traces + dispatch-mirror guard stay green, proving the deleted fallback was dead code for every real chip.
 
-**Plans**: TBD
+**Plans**: 1 plan
+**Wave 1**
+
+- [ ] 105-01-PLAN.md — Delete the `mem_type` fallback dispatch chain + collapse to one terminal fail-closed exit (D-04), remove `handle->mem_type` + all four `json_parser.c` `type` touchpoints, retire `0xAE` + `TYPE_*` in the same commit (SC#3); add the net-new `protocol == 0` fail-closed assertion (D-06); delete the two fallback test cases (D-05); full native + AVR-build + `check_dispatch.py` non-regression gate.
+
 **UI hint**: no
 
 ### Phase 106: HOST — Host `mem_type` Removal
