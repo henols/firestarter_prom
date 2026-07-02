@@ -62,24 +62,24 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FW-01 | TBD | Pending |
-| FW-02 | TBD | Pending |
-| FW-03 | TBD | Pending |
-| WIRE-01 | TBD | Pending |
-| HOST-01 | TBD | Pending |
-| HOST-02 | TBD | Pending |
-| HOST-03 | TBD | Pending |
-| HOST-04 | TBD | Pending |
-| DOC-01 | TBD | Pending |
-| GATE-01 | TBD | Pending |
-| GATE-02 | TBD | Pending |
-| SAFE-01 | TBD | Pending |
+| FW-01 | Phase 105 | Pending |
+| FW-02 | Phase 105 | Pending |
+| FW-03 | Phase 105 | Pending |
+| WIRE-01 | Phase 105 | Pending |
+| HOST-01 | Phase 106 | Pending |
+| HOST-02 | Phase 106 | Pending |
+| HOST-03 | Phase 106 | Pending |
+| HOST-04 | Phase 106 | Pending |
+| DOC-01 | Phase 107 | Pending |
+| GATE-01 | Phase 107 | Pending |
+| GATE-02 | Phase 107 | Pending |
+| SAFE-01 | Phase 107 | Pending |
 
 **Coverage:**
 - v1 requirements: 12 total
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 12 ⚠️
+- Mapped to phases: 12 (roadmap complete)
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-02*
-*Last updated: 2026-07-02 after initial definition*
+*Last updated: 2026-07-02 after roadmap creation (Phases 105–107)*

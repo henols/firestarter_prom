@@ -1279,3 +1279,68 @@ Plans:
 - [x] 104-01-PLAN.md — Firmware handler files + functions + guards + dispatch (RENAME-01/02); both boards compile [Wave 1]
 - [x] 104-02-PLAN.md — Host GATE-01 guard tooling lockstep + regenerate validation_matrix.h (RENAME-03); GATE-02 identity [Wave 2]
 - [x] 104-03-PLAN.md — Native test suites + PROTOCOLS.md §0/§1/§3 + CLAUDE.md + dispatch-mirror bind + full gate (RENAME-04/05) [Wave 3]
+
+## v1.20 — Protocol-Only Dispatch — Remove the Legacy `mem_type` Axis (STARTED 2026-07-02)
+
+**Milestone goal:** Delete the vestigial `mem_type`/`type` backward-compat dispatch axis so Firestarter trusts *only* the real protocol (`handle->protocol` / `algorithm`) end to end — firmware, wire, and host. The fallback is already dead code for every DB chip (all carry `algorithm`); this is a legibility/safety cleanup, not a behavior change for real chips. Accepted consequence: user-override DB entries lacking `algorithm` will no longer work (must specify a protocol).
+
+**Non-regression invariant (GATE-01/02, SAFE-01):** The v1.16 golden register traces + dispatch-mirror guard stay green; `check_dispatch.py` reports 0 violations; `diff_db.py` shows no `chip_database.json` value change for real chips; over-voltage stays blocked; every currently-dispatchable DB chip still routes to the identical handler via `protocol` (regression-proving the removed fallback was dead for all real chips). Verified across every phase that touches dispatch and re-verified explicitly at close.
+
+**Firmware-touching, dual-repo lockstep (Phase 105):** `constants.py` ↔ `firestarter.h` parity. Removing the `type` field from the JSON wire is a breaking wire-contract change — firmware stops parsing `type` first (safe: `json_parser.c` silently skips unknown fields, so a host that briefly still emits `type` is unaffected), then the host stops emitting it (Phase 106) — the wire contract is never left half-broken. Watch the py3.12-masks-CI-3.11 ruff/codegen drift trap for host changes. Branches off `beta` in all 3 repos; gitlinks PINNED; lockstep beta cut + stable promotion operator-gated — NOT a phase in this milestone.
+
+**Out of scope:** `FLAG_VPE_AS_VPP (0x10)` removal (→ LEGACY-01, v2), `EPROM_LEGACY` naming cleanup (→ LEGACY-02, v2), the canonical `electrical.type` *string* (v1.16 classification, unrelated to numeric `mem_type`), phantom arms (0x35/0x39) and named-infeasibility arms (0x11/0x2A–0x2C) — these are fail-closed forward-compat/infeasible dispatch, not legacy.
+
+**Phase numbering:** Continues from v1.19's Phase 104 → v1.20 starts at **Phase 105**.
+
+### Phases
+
+- [ ] **Phase 105: FW — Firmware `mem_type` Removal** — Delete the `mem_type` fallback dispatch chain (`memory.cpp` steps 7–11) so `protocol == 0` fail-closes to `configure_not_implemented()`; drop `handle->mem_type` from `firestarter_handle_t`; stop parsing the `type` JSON field in `json_parser.c`; retire `MSG_ERR_MEM_TYPE_UNSUPPORTED (0xAE)` and the `TYPE_EPROM`/`TYPE_SRAM`/`TYPE_FLASH_TYPE_3`/`TYPE_FLASH_TYPE_4` constants. Dual-repo lockstep. (FW-01, FW-02, FW-03, WIRE-01)
+- [ ] **Phase 106: HOST — Host `mem_type` Removal** — Stop emitting the `type` key in any serial command payload; drop `_ALGO_MEM_TYPE`, the derived `mem_type`, and the "Generic Flash (legacy fallback only)" default from `database.py`; remove the `mem_type`-keyed legacy display-label fallbacks in `ic_layout.py`/`eprom_info.py`; reject any chip entry (built-in or user-override) lacking a usable `algorithm` with a clear pre-flight error before any serial byte. Completes WIRE-01's emit-side removal, closing the wire contract change opened in Phase 105. (HOST-01, HOST-02, HOST-03, HOST-04)
+- [ ] **Phase 107 (close): DOCS + GATE — Documentation & Non-Regression Close** — Update `firestarter/CLAUDE.md` (dispatch steps 7–11 removed), `firestarter/doc/PROTOCOLS.md`, and the JSON wire-field docs to drop `type`/`mem_type`; record the breaking change + the "every entry needs `algorithm`" requirement in the sub-repo READMEs/changelog; re-verify the v1.16 golden traces + dispatch-mirror guard, `check_dispatch.py` (0 violations), `diff_db.py` (no value change), full native + host suites, dual-repo constants parity, and py3.11-target CI — closing the milestone with zero regressions. (DOC-01, GATE-01, GATE-02, SAFE-01)
+
+## Phase Details
+
+### Phase 105: FW — Firmware `mem_type` Removal
+
+**Goal**: The firmware dispatches only on `handle->protocol` — the `mem_type` fallback chain is gone, `protocol == 0` fail-closes instead of silently falling back, and the wire no longer carries a `type` field for the firmware to parse.
+**Depends on**: Nothing in v1.20 (first phase). Inherits the v1.19 dispatch structure (`memory.cpp` steps 1–6b named-constant dispatch, unchanged) and the v1.16 golden traces + dispatch-mirror guard.
+**Requirements**: FW-01, FW-02, FW-03, WIRE-01
+**Success Criteria** (what must be TRUE):
+
+  1. When `protocol == 0` and no recognized dispatch arm matches, `configure_memory()` returns `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED (0xBB)` via `configure_not_implemented()` — the `mem_type` fallback dispatch chain (former steps 7–11 in `memory.cpp`) is deleted outright, with no path in the firmware dispatching on `mem_type`.
+  2. `handle->mem_type` no longer exists on `firestarter_handle_t`, and `json_parser.c` no longer extracts or stores a `type` JSON field — a hand-crafted JSON command including `"type"` is silently ignored (unknown-field-skip behavior, unchanged) rather than acted on.
+  3. `MSG_ERR_MEM_TYPE_UNSUPPORTED (0xAE)` and the `TYPE_EPROM` / `TYPE_SRAM` / `TYPE_FLASH_TYPE_3` / `TYPE_FLASH_TYPE_4` constants are removed from firmware headers/messages in the same commit as the dispatch-chain deletion (no orphaned dead constants).
+  4. Every currently-dispatchable DB chip still reaches its identical handler via `protocol` — native dispatch tests (one per `KNOWN_PROTOCOLS` entry) pass unchanged, and the v1.16 golden register traces + dispatch-mirror guard stay green, proving the deleted fallback was dead code for every real chip.
+
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 106: HOST — Host `mem_type` Removal
+
+**Goal**: The host never sends a `type` field and never derives a `mem_type` — `algorithm` is the sole dispatch datum carried to the wire, and any chip entry lacking a usable `algorithm` is refused in-host before a single serial byte is sent, completing the wire-contract removal opened in Phase 105.
+**Depends on**: Phase 105 (firmware no longer parses `type`, so removing host emission cannot desync an in-flight wire contract). Host sub-repo `firestarter_app/` — `eprom_operations.py` (command-dict builder + callers), `database.py` (`_ALGO_MEM_TYPE`, derived `mem_type`, "Generic Flash (legacy fallback only)" default), `ic_layout.py` / `eprom_info.py` (legacy display-label fallbacks), `chip_resolver.py` (algorithm-presence guard).
+**Requirements**: HOST-01, HOST-02, HOST-03, HOST-04
+**Success Criteria** (what must be TRUE):
+
+  1. No serial command payload emitted by the host (via `eprom_operations.py`'s command-dict builder or any caller) includes a `type` key — the wire carries only `algorithm` as the dispatch datum, realizing WIRE-01's emit-side removal.
+  2. `database.py` no longer defines `_ALGO_MEM_TYPE` or derives a `mem_type` value, and the "Generic Flash (legacy fallback only)" substring default is gone — every code path that used to consult `mem_type` now consults `algorithm` only.
+  3. `ic_layout.py` (and `eprom_info.py`) no longer contain `mem_type`-keyed legacy display-label fallbacks — `info`/`list`/`search` derive labels solely from `electrical.type` / protocol, with no behavior regression for any chip that already resolved correctly.
+  4. A chip entry (built-in or user-override) lacking a usable `algorithm` is rejected with a clear, actionable error message before any serial byte is sent — no silent fallback dispatch — verified by a host test exercising a deliberately-broken user-override entry.
+
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 107: DOCS + GATE — Documentation & Non-Regression Close
+
+**Goal**: The firmware and host documentation reflect the removed `mem_type` axis with no dangling references to the deleted dispatch chain or fields, the breaking wire-contract change and the "every entry needs `algorithm`" requirement are recorded for future readers, and every non-regression gate is re-verified green at close.
+**Depends on**: Phase 105 (firmware removal) and Phase 106 (host removal) both landed, so the documentation and final gate reflect the fully-applied state.
+**Requirements**: DOC-01, GATE-01, GATE-02, SAFE-01
+**Success Criteria** (what must be TRUE):
+
+  1. `firestarter/CLAUDE.md`'s dispatch section no longer describes the removed steps 7–11 `mem_type` fallback chain, `firestarter/doc/PROTOCOLS.md` and the JSON wire-field docs no longer list `type`/`mem_type` as a wire field, and the breaking change + the "every chip entry needs `algorithm`" requirement are recorded in the sub-repo READMEs/changelog for future readers and pre-v1.20 hosts.
+  2. The v1.16 golden register traces + dispatch-mirror guard are re-verified green, `check_dispatch.py` reports 0 violations, and `diff_db.py` shows no `chip_database.json` value change for any real chip — confirming the removal changed no dispatch outcome.
+  3. Full native (`pio test -e native`) and host (`pytest`) suites pass, dual-repo constants parity holds, and py3.11-target CI (ruff / ruff-format / mypy) is clean — no regression introduced by either removal phase.
+  4. Over-voltage stays blocked at the firmware VPP check, and every currently-dispatchable DB chip is re-confirmed routing to its identical handler via `protocol` alone (SAFE-01) — the milestone closes with the removed fallback proven dead for every real chip, not just asserted.
+
+**Plans**: TBD
+**UI hint**: no
