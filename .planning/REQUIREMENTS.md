@@ -9,13 +9,13 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Firmware (FW)
 
-- [ ] **FW-01**: When `protocol == 0`, `configure_memory()` fail-closes to `configure_not_implemented()` — the `mem_type` fallback dispatch chain (`memory.cpp` steps 7–11) is deleted so no path dispatches on `mem_type`.
-- [ ] **FW-02**: The `mem_type` field is removed from `firestarter_handle_t` and `json_parser.c` no longer extracts the `type` field.
-- [ ] **FW-03**: `MSG_ERR_MEM_TYPE_UNSUPPORTED (0xAE)` and the now-unused `TYPE_EPROM / TYPE_SRAM / TYPE_FLASH_TYPE_3 / TYPE_FLASH_TYPE_4` constants are retired from firmware headers/messages in lockstep.
+- [x] **FW-01**: When `protocol == 0`, `configure_memory()` fail-closes to `configure_not_implemented()` — the `mem_type` fallback dispatch chain (`memory.cpp` steps 7–11) is deleted so no path dispatches on `mem_type`.
+- [x] **FW-02**: The `mem_type` field is removed from `firestarter_handle_t` and `json_parser.c` no longer extracts the `type` field.
+- [x] **FW-03**: `MSG_ERR_MEM_TYPE_UNSUPPORTED (0xAE)` and the now-unused `TYPE_EPROM / TYPE_SRAM / TYPE_FLASH_TYPE_3 / TYPE_FLASH_TYPE_4` constants are retired from firmware headers/messages in lockstep.
 
 ### Wire Contract (WIRE)
 
-- [ ] **WIRE-01**: The `type` (mem_type) field is removed from the host→firmware JSON command contract; the wire carries only `algorithm` as the dispatch key. Breaking change vs hand-crafted JSON / pre-v1.20 hosts (documented).
+- [x] **WIRE-01**: The `type` (mem_type) field is removed from the host→firmware JSON command contract; the wire carries only `algorithm` as the dispatch key. Breaking change vs hand-crafted JSON / pre-v1.20 hosts (documented).
 
 ### Host (HOST)
 
@@ -62,10 +62,10 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FW-01 | Phase 105 | Pending |
-| FW-02 | Phase 105 | Pending |
-| FW-03 | Phase 105 | Pending |
-| WIRE-01 | Phase 105 | Pending |
+| FW-01 | Phase 105 | Complete |
+| FW-02 | Phase 105 | Complete |
+| FW-03 | Phase 105 | Complete |
+| WIRE-01 | Phase 105 | Complete |
 | HOST-01 | Phase 106 | Pending |
 | HOST-02 | Phase 106 | Pending |
 | HOST-03 | Phase 106 | Pending |
@@ -76,6 +76,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SAFE-01 | Phase 107 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 12 total
 - Mapped to phases: 12 (roadmap complete)
 - Unmapped: 0 ✓

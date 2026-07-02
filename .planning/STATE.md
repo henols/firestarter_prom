@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.20
 milestone_name: — Protocol-Only Dispatch — Remove the Legacy `mem_type` Axis
 current_phase: 105
-current_phase_name: roadmap ready — Phase 105 up next
-status: roadmapped
-stopped_at: Phase 105 context gathered
-last_updated: "2026-07-02T09:34:54.385Z"
+current_phase_name: fw-firmware-mem-type-removal
+status: verifying
+stopped_at: Completed 105-01-PLAN.md
+last_updated: "2026-07-02T10:18:34.923Z"
 last_activity: 2026-07-02
-last_activity_desc: Milestone v1.20 roadmap created (Phases 105–107)
+last_activity_desc: Phase 105 execution started
 progress:
   total_phases: 3
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
+  percent: 33
 ---
 
 # Project State
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: Not started (roadmap ready — Phase 105 up next)
-Plan: —
-Status: Roadmapped — awaiting `/gsd-plan-phase 105`
-Last activity: 2026-07-02 — Milestone v1.20 roadmap created (Phases 105–107)
+Phase: 105 (fw-firmware-mem-type-removal) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
+Last activity: 2026-07-02 — Phase 105 execution started
 
 ## Project Reference
 
@@ -35,7 +35,7 @@ See: `.planning/PROJECT.md` (v1.19 Phase 104 close footer + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). v1.20 removes the last vestige that violates that contract: the `mem_type`/`type` backward-compat fallback axis. After v1.20 the firmware, wire, and host trust **only** the real protocol.
 
-**Current focus:** Executing v1.20 — Phase 105 (firmware `mem_type` removal) is next.
+**Current focus:** Phase 105 — fw-firmware-mem-type-removal
 
 ## Milestone Context (v1.20)
 
@@ -178,6 +178,9 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase 104-02]: Preserved validation_matrix_spec.json protocols_note prose factual content verbatim, only substituting handler/test-module name references
 - [Phase 104-03]: Rule 1 fixed 4 latent firestarter_app test regressions caused by Plan 02's flash3/flash4->nor_unlock/5v_page spec rename (test_val_wire_flash3/4.py StopIteration + stale handler assertions in test_matrix_schema/test_validate_family_cmd/test_gen_validation_header); surfaced only when the full suite was run beyond the plan's declared verification scope
 - [Phase 104-03]: Left cli_handlers.py dev validate-family Choice list stale (still lists flash3/flash4) and tools/baseline/dispatch_baseline.json (orphaned, zero Python consumers) untouched -- both explicitly out of plan scope (GATE-03 cli_handlers.py prohibition; no regression risk from the unconsumed baseline file)
+- [Phase 105]: Executed D-01 setup (merge v1.19->beta lockstep in both sub-repos, no tag; fork v1.20-protocol-only-dispatch off updated beta) as a hard precondition since it had not yet been performed despite operator authorization — Research flagged neither beta nor origin/beta contained the v1.19 PROTO_ layer this plan's edits reference; without it no v1.20 branch existed to work on
+- [Phase 105]: Collapsed configure_memory() dispatch tail to a single unconditional terminal configure_not_implemented(handle) call (D-04) instead of an if/else on protocol==0 — Matches the codebase's existing named-infeasibility-arm fail-closed style; protocol==0 and any unrecognized non-zero protocol now share one exit
+- [Phase 105]: Kept the vestigial mem_type parameter in native test make_handle() (both suites) after removing the struct field, rather than dropping it and touching ~25 call sites — Lower-churn mechanical choice explicitly left to Claude's Discretion in CONTEXT.md and RESEARCH.md
 
 ## Performance Metrics
 
@@ -194,9 +197,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 104 P01 | 20min | 3 tasks | 7 files |
 | Phase 104 P02 | 12min | 3 tasks | 6 files |
 | Phase 104 P03 | 55min | 3 tasks | 15 files |
+| Phase 105 P01 | 32min | 3 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-07-02T09:34:54.366Z
-**Stopped at:** Phase 105 context gathered
-**Resume file:** .planning/phases/105-fw-firmware-mem-type-removal/105-CONTEXT.md
+**Last session:** 2026-07-02T10:18:34.734Z
+**Stopped at:** Completed 105-01-PLAN.md
+**Resume file:** None
