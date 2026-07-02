@@ -1296,7 +1296,7 @@ Plans:
 
 - [x] **Phase 105: FW — Firmware `mem_type` Removal** — Delete the `mem_type` fallback dispatch chain (`memory.cpp` steps 7–11) so `protocol == 0` fail-closes to `configure_not_implemented()`; drop `handle->mem_type` from `firestarter_handle_t`; stop parsing the `type` JSON field in `json_parser.c`; retire `MSG_ERR_MEM_TYPE_UNSUPPORTED (0xAE)` and the `TYPE_EPROM`/`TYPE_SRAM`/`TYPE_FLASH_TYPE_3`/`TYPE_FLASH_TYPE_4` constants. Dual-repo lockstep. (FW-01, FW-02, FW-03, WIRE-01) (completed 2026-07-02)
 - [x] **Phase 106: HOST — Host `mem_type` Removal** — Stop emitting the `type` key in any serial command payload; drop `_ALGO_MEM_TYPE`, the derived `mem_type`, and the "Generic Flash (legacy fallback only)" default from `database.py`; remove the `mem_type`-keyed legacy display-label fallbacks in `ic_layout.py`/`eprom_info.py`; reject any chip entry (built-in or user-override) lacking a usable `algorithm` with a clear pre-flight error before any serial byte. Completes WIRE-01's emit-side removal, closing the wire contract change opened in Phase 105. (HOST-01, HOST-02, HOST-03, HOST-04) (completed 2026-07-02)
-- [ ] **Phase 107 (close): DOCS + GATE — Documentation & Non-Regression Close** — Update `firestarter/CLAUDE.md` (dispatch steps 7–11 removed), `firestarter/doc/PROTOCOLS.md`, and the JSON wire-field docs to drop `type`/`mem_type`; record the breaking change + the "every entry needs `algorithm`" requirement in the sub-repo READMEs/changelog; re-verify the v1.16 golden traces + dispatch-mirror guard, `check_dispatch.py` (0 violations), `diff_db.py` (no value change), full native + host suites, dual-repo constants parity, and py3.11-target CI — closing the milestone with zero regressions. (DOC-01, GATE-01, GATE-02, SAFE-01)
+- [x] **Phase 107 (close): DOCS + GATE — Documentation & Non-Regression Close** — Update `firestarter/CLAUDE.md` (dispatch steps 7–11 removed), `firestarter/doc/PROTOCOLS.md`, and the JSON wire-field docs to drop `type`/`mem_type`; record the breaking change + the "every entry needs `algorithm`" requirement in the sub-repo READMEs/changelog; re-verify the v1.16 golden traces + dispatch-mirror guard, `check_dispatch.py` (0 violations), `diff_db.py` (no value change), full native + host suites, dual-repo constants parity, and py3.11-target CI — closing the milestone with zero regressions. (DOC-01, GATE-01, GATE-02, SAFE-01) (completed 2026-07-02)
 
 ## Phase Details
 
@@ -1353,7 +1353,7 @@ Plans:
   3. Full native (`pio test -e native`) and host (`pytest`) suites pass, dual-repo constants parity holds, and py3.11-target CI (ruff / ruff-format / mypy) is clean — no regression introduced by either removal phase.
   4. Over-voltage stays blocked at the firmware VPP check, and every currently-dispatchable DB chip is re-confirmed routing to its identical handler via `protocol` alone (SAFE-01) — the milestone closes with the removed fallback proven dead for every real chip, not just asserted.
 
-**Plans**: 2/3 plans executed
+**Plans**: 3/3 plans complete
 
 Plans:
 **Wave 1** *(file-disjoint — docs scrub vs codegen removal, fully parallel)*
@@ -1363,6 +1363,6 @@ Plans:
 
 **Wave 2** *(gate sweep — runs after doc + codegen changes land)*
 
-- [ ] 107-03-PLAN.md — GATE-01/GATE-02/SAFE-01: re-run native + dispatch-mirror + `check_dispatch.py` (0 violations) + `diff_db.py` (no real-chip change) + host `pytest`/ruff/mypy scoped to `git diff beta..HEAD`; over-voltage stays blocked; pre-existing baseline (D-07) baked in; any real regression STOPS as a blocker (D-04/D-05)
+- [x] 107-03-PLAN.md — GATE-01/GATE-02/SAFE-01: re-run native + dispatch-mirror + `check_dispatch.py` (0 violations) + `diff_db.py` (no real-chip change) + host `pytest`/ruff/mypy scoped to `git diff beta..HEAD`; over-voltage stays blocked; pre-existing baseline (D-07) baked in; any real regression STOPS as a blocker (D-04/D-05)
 
 **UI hint**: no

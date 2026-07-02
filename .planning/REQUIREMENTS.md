@@ -30,9 +30,9 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Non-Regression Gates (GATE / SAFE)
 
-- [ ] **GATE-01**: v1.16 golden register traces + the dispatch-mirror guard stay green; `check_dispatch.py` reports 0 violations; `diff_db.py` shows no `chip_database.json` value change for real chips.
-- [ ] **GATE-02**: Full native (`pio test -e native`) + host (`pytest`) suites pass with dual-repo constants parity; py3.11-target CI clean (ruff / ruff-format / mypy).
-- [ ] **SAFE-01**: Over-voltage stays blocked; every currently-dispatchable DB chip still routes to the identical handler via `protocol` (regression-proving the removed fallback was dead for all real chips).
+- [x] **GATE-01**: v1.16 golden register traces + the dispatch-mirror guard stay green; `check_dispatch.py` reports 0 violations; `diff_db.py` shows no `chip_database.json` value change for real chips.
+- [x] **GATE-02**: Full native (`pio test -e native`) + host (`pytest`) suites pass with dual-repo constants parity; py3.11-target CI clean (ruff / ruff-format / mypy).
+- [x] **SAFE-01**: Over-voltage stays blocked; every currently-dispatchable DB chip still routes to the identical handler via `protocol` (regression-proving the removed fallback was dead for all real chips).
 
 ## v2 Requirements
 
@@ -71,9 +71,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 | HOST-03 | Phase 106 | Complete |
 | HOST-04 | Phase 106 | Complete |
 | DOC-01 | Phase 107 | Complete |
-| GATE-01 | Phase 107 | Pending |
-| GATE-02 | Phase 107 | Pending |
-| SAFE-01 | Phase 107 | Pending |
+| GATE-01 | Phase 107 | Complete |
+| GATE-02 | Phase 107 | Complete |
+| SAFE-01 | Phase 107 | Complete |
 
 **Coverage:**
 

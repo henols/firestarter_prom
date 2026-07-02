@@ -4,17 +4,17 @@ milestone: v1.20
 milestone_name: — Protocol-Only Dispatch — Remove the Legacy `mem_type` Axis
 current_phase: 107
 current_phase_name: docs-gate-documentation-non-regression-close
-status: executing
-stopped_at: Completed 107-02-PLAN.md
-last_updated: "2026-07-02T15:09:18.432Z"
+status: verifying
+stopped_at: Completed 107-03-PLAN.md (final gate sweep, v1.20 milestone verified non-regression at close)
+last_updated: "2026-07-02T15:20:48.161Z"
 last_activity: 2026-07-02
 last_activity_desc: Phase 107 execution started
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 7
-  completed_plans: 6
-  percent: 67
+  completed_plans: 7
+  percent: 100
 ---
 
 # Project State
@@ -26,7 +26,7 @@ progress:
 
 Phase: 107 (docs-gate-documentation-non-regression-close) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-02 — Phase 107 execution started
 
 ## Project Reference
@@ -193,6 +193,8 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase 107-01]: Kept protocol==0 as its own explicit numbered terminal dispatch step (renumbered to 7) rather than folding into the generic 6b non-zero-unrecognized guard, matching the plan's required wording
 - [Phase ?]: [Phase 107-02]: Restored MSG_WARN_FL4_BOOT_BLOCK_LOCKED (0x85) / MSG_ERR_FL4_BOOT_BLOCK_LOCKED (0xBC) to the meta canonical messages.toml before finalizing the 0xAE removal sync -- these Phase-95 host-only messages were never present in canonical and the sync would have silently deleted them from messages.py, breaking tests/test_val_wire_5v_page.py (Rule 1 auto-fix, caught pre-commit)
 - [Phase ?]: [Phase 107-02]: Firmware include/messages.h gained the same restored 0x85/0xBC #define constants as an inert byproduct (firmware source never references either name) -- accepted as a correction of the canonical source of truth, not a firmware behavior change
+- [Phase ?]: [Phase 107-03]: Applied D-07 pass bar literally - confirmed each of the 5 pre-existing failing/dirty artifacts (1 pytest failure + 4 ruff errors + 1 ruff-format file) is outside git diff beta..HEAD before accepting as prior debt; zero new regressions from v1.20
+- [Phase ?]: [Phase 107-03]: Host pytest missing final summary line (syrupy plugin display quirk) cross-verified independently via pytest --collect-only (711 total minus 1 named failure = 710 passed), matching RESEARCH.md baseline exactly
 
 ## Performance Metrics
 
@@ -215,10 +217,11 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 106 P03 | 12min | 3 tasks | 3 files |
 | Phase 107 P01 | 18min | 3 tasks | 4 files |
 | Phase 107 P02 | 22min | 2 tasks | 5 files |
+| Phase 107 P03 | 20min | 2 tasks | 0 files |
 
 ## Session
 
-**Last session:** 2026-07-02T15:09:18.423Z
-**Stopped at:** Completed 107-02-PLAN.md
+**Last session:** 2026-07-02T15:20:48.152Z
+**Stopped at:** Completed 107-03-PLAN.md (final gate sweep, v1.20 milestone verified non-regression at close)
 **Resume file:** 
 None
