@@ -4,9 +4,9 @@ milestone: v1.19
 milestone_name: — Protocol Naming Labels
 current_phase: 104
 current_phase_name: rename-protocol-header-and-cpp-files-to-descriptive-protocol
-status: executing
-stopped_at: Completed 104-01-PLAN.md
-last_updated: "2026-07-02T07:31:31.596Z"
+status: verifying
+stopped_at: Completed 104-03-PLAN.md
+last_updated: "2026-07-02T07:57:29.739Z"
 last_activity: 2026-07-02
 last_activity_desc: Phase 104 execution started
 progress:
@@ -26,7 +26,7 @@ progress:
 
 Phase: 104 (rename-protocol-header-and-cpp-files-to-descriptive-protocol) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-02 — Phase 104 execution started
 
 **Phase 103 close summary:** DOC-01 + DOC-02 delivered (103-01: 12 §1.x headings renamed to
@@ -186,6 +186,8 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: Left pre-existing unrelated platformio.ini whitespace diff untouched (out of plan scope, not introduced by this work) — Plan 104-01
 - [Phase 104-02]: New family-id strings introduced for Plan 03: nor_unlock (was flash3) and 5v_page (was flash4) — become the test-suite directory names in Plan 03
 - [Phase 104-02]: Preserved validation_matrix_spec.json protocols_note prose factual content verbatim, only substituting handler/test-module name references
+- [Phase 104-03]: Rule 1 fixed 4 latent firestarter_app test regressions caused by Plan 02's flash3/flash4->nor_unlock/5v_page spec rename (test_val_wire_flash3/4.py StopIteration + stale handler assertions in test_matrix_schema/test_validate_family_cmd/test_gen_validation_header); surfaced only when the full suite was run beyond the plan's declared verification scope
+- [Phase 104-03]: Left cli_handlers.py dev validate-family Choice list stale (still lists flash3/flash4) and tools/baseline/dispatch_baseline.json (orphaned, zero Python consumers) untouched -- both explicitly out of plan scope (GATE-03 cli_handlers.py prohibition; no regression risk from the unconsumed baseline file)
 
 ## Performance Metrics
 
@@ -201,9 +203,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 103 P02 | 18min | 2 tasks | 1 files |
 | Phase 104 P01 | 20min | 3 tasks | 7 files |
 | Phase 104 P02 | 12min | 3 tasks | 6 files |
+| Phase 104 P03 | 55min | 3 tasks | 15 files |
 
 ## Session
 
-**Last session:** 2026-07-02T07:31:04.259Z
-**Stopped at:** Completed 104-01-PLAN.md
+**Last session:** 2026-07-02T07:57:29.727Z
+**Stopped at:** Completed 104-03-PLAN.md
 **Resume file:** None

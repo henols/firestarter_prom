@@ -1271,10 +1271,10 @@ _Backlog items 999.1 / 999.2 are firmware bench-investigation items (Phase 54 UA
 **Goal:** Rename the two remaining minipro-heritage flash handler file-pairs + functions (`flash_type_3/4` → `flash_nor_unlock`/`flash_5v_page`, `configure_flash3/4` → descriptive) to protocol-type names derived from the operator-approved `PROTO_<NAME>` tokens, in dual-repo lockstep across firmware, host GATE-01 guard tooling, native test suites, and docs — with no numeric/wire/DB value change.
 **Requirements**: RENAME-01, RENAME-02, RENAME-03, RENAME-04, RENAME-05 (phase-local; carries GATE-01/02/03 non-regression)
 **Depends on:** Phase 103
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 
 - [x] 104-01-PLAN.md — Firmware handler files + functions + guards + dispatch (RENAME-01/02); both boards compile [Wave 1]
 - [x] 104-02-PLAN.md — Host GATE-01 guard tooling lockstep + regenerate validation_matrix.h (RENAME-03); GATE-02 identity [Wave 2]
-- [ ] 104-03-PLAN.md — Native test suites + PROTOCOLS.md §0/§1/§3 + CLAUDE.md + dispatch-mirror bind + full gate (RENAME-04/05) [Wave 3]
+- [x] 104-03-PLAN.md — Native test suites + PROTOCOLS.md §0/§1/§3 + CLAUDE.md + dispatch-mirror bind + full gate (RENAME-04/05) [Wave 3]
