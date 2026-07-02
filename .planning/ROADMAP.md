@@ -195,7 +195,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 109-02-PLAN.md — SWEEP-05 applicable-only N-of-M banner DATA from the single Plan; SAFE-02 orchestrator-only verification test (resolve_chip-only, no VPP/wire-dict/--force, VPP refusal is a finding)
+- [x] 109-02-PLAN.md — SWEEP-05 applicable-only N-of-M banner DATA from the single Plan; SAFE-02 orchestrator-only verification test (resolve_chip-only, no VPP/wire-dict/--force, VPP refusal is a finding)
 - [ ] 109-03-PLAN.md — SAFE-03 AST checker tools/check_devtest_orchestrator.py + paired anti-hollow pytest (clean-pass + planted VPP-set/raw-wire-dict/--force fixtures)
 
 **UI hint**: no
@@ -1089,7 +1089,7 @@ Plans:
 | 106 | v1.20 | 3/3 | ✅ Complete | 2026-07-02 |
 | 107 (close) | v1.20 | 3/3 | ✅ Shipped | 2026-07-02 |
 | 108 | v1.21 | 4/4 | Complete    | 2026-07-02 |
-| 109 | v1.21 | 1/3 | In Progress|  |
+| 109 | v1.21 | 2/3 | In Progress|  |
 | 110 | v1.21 | 0/TBD | Not started | — |
 | 111 | v1.21 | 0/TBD | Not started | — |
 | 112 | v1.21 | 0/TBD | Not started | — |

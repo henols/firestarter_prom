@@ -5,15 +5,15 @@ milestone_name: — Community Chip-Validation Command
 current_phase: 109
 current_phase_name: destructiveness-gate-safety
 status: executing
-stopped_at: Completed 109-01-PLAN.md
-last_updated: "2026-07-02T19:45:12.807Z"
+stopped_at: Completed 109-02-PLAN.md
+last_updated: "2026-07-02T20:02:05.553Z"
 last_activity: 2026-07-02
 last_activity_desc: Phase 109 execution started
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 7
-  completed_plans: 5
+  completed_plans: 6
   percent: 14
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 109 (destructiveness-gate-safety) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-07-02 — Phase 109 execution started
 
@@ -247,6 +247,8 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: runs<2 rejected before any resolve/operator call; write/erase/verify disagreement reports marginal, never coerced to OK/BAD; read disagreement is a divergence metric only
 - [Phase ?]: [Phase 109 Plan 01]: derive_plan(destructive=False) structurally omits write/erase from Plan.steps into an advisory Plan.locked_destructive list; run_plan never iterates it (SAFE-01, D-01)
 - [Phase ?]: [Phase 109 Plan 01]: UV detection at execution time uses algorithm==0x0B (EPROM_LEGACY, UV-EPROM-exclusive DB-wide) as a fallback signal because resolve_chip's programmer dict drops electrical-type; _UV_WRITE_REGION_LENGTH (256) is an engine constant no DB field can widen (PATT-03, SC4)
+- [Phase ?]: [Phase 109 Plan 02]: count_applicable(plan, results) computes SWEEP-05 M from the single Plan object (supported steps + locked_destructive), never re-deriving; N counts OK/BAD/marginal, excluding NA/SKIPPED
+- [Phase ?]: [Phase 109 Plan 02]: SAFE-02 source-scan test uses ast.walk (not raw substring grep) to avoid false positives on docstring prose describing the safety property (e.g. 'passes no --force')
 
 ## Performance Metrics
 
@@ -275,10 +277,11 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 108 P03 | 25min | 2 tasks | 2 files |
 | Phase 108 P04 | 45min | 3 tasks | 2 files |
 | Phase 109 P01 | 35min | 2 tasks | 2 files |
+| Phase 109 P02 | 22min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-02T19:45:12.792Z
-**Stopped at:** Completed 109-01-PLAN.md
+**Last session:** 2026-07-02T20:02:05.543Z
+**Stopped at:** Completed 109-02-PLAN.md
 **Resume file:** 
 None
