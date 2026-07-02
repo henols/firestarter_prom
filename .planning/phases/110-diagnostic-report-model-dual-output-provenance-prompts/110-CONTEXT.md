@@ -52,8 +52,7 @@ Phase 113/114.
 ## Implementation Decisions
 
 ### Single-source dual-render (RPT-01)
-- **D-01 (LOCKED): One composed `@dataclass` → JSON is canonical, the table is a
-  derived view.** `DiagnosticReport` is a dataclass composing the existing
+- **D-01 (LOCKED): One composed `@dataclass`; JSON is canonical, the table is a derived view** — `DiagnosticReport` is a dataclass composing the existing
   Phase-108 `Plan`, `list[StepResult]`, and per-step `Fingerprint` objects plus
   new sub-dataclasses (`AutoCapture`/identity, `Provenance`, `TransportHealth`,
   `DbDiff`). A single `to_dict()` produces the serializable mapping →
@@ -64,8 +63,7 @@ Phase 113/114.
   duplicated logic" contract: add a field once, both renders pick it up.
   Rejected: assembling the JSON dict independently from the table rows (two
   lists that silently drift — the exact failure RPT-01 forbids).
-- **D-02 (LOCKED): `schema_version` is a module/class constant serialized into
-  the dict.** A single source-of-truth constant (e.g. `SCHEMA_VERSION = "1.0"`)
+- **D-02 (LOCKED): `schema_version` is a single-sourced module/class constant serialized into the dict** — A single source-of-truth constant (e.g. `SCHEMA_VERSION = "1.0"`)
   written into `to_dict()` output so consumers (`gsd-inbox` parsing in Phase 113)
   can detect format changes. Exact starting value/format string is discretion
   (see below), but it MUST be present in the JSON and single-sourced.
@@ -76,8 +74,7 @@ Phase 113/114.
   `rich.prompt`/`rich.table` are available.
 
 ### Transport-health capture + honest fallback (XPORT-01)
-- **D-03 (LOCKED): NO new transport instrumentation — best-effort capture +
-  explicit `"not measured"` sentinel.** The report captures ONLY the
+- **D-03 (LOCKED): NO new transport instrumentation; best-effort capture + explicit `"not measured"` sentinel** — The report captures ONLY the
   COBS/CRC/retry/timeout counters the serial/COBS layer **already** exposes. It
   does **not** add new counters to `serial_comm.py` / the hot serial path — that
   would be scope creep and risks the milestone's zero-firmware-touch / SAFE-02
@@ -97,16 +94,14 @@ Phase 113/114.
   outcome, not a gap to paper over.
 
 ### Provenance component: model + submittable-gate here, invocation in Phase 112 (RPT-04)
-- **D-04 (LOCKED): Build the `Provenance` model + prompt component + `is_submittable`
-  predicate in THIS phase; Phase 112 only calls it.** Mirrors Phase 109's split
+- **D-04 (LOCKED): Build the `Provenance` model + prompt component + `is_submittable` predicate in THIS phase; Phase 112 only calls it** — Mirrors Phase 109's split
   (banner *data* in 109, banner *rendering* in 110/112): the report owns the
   provenance data model, the prompt-collecting function (returns a `Provenance`),
   and the predicate that decides submittability. Phase 112's handler invokes the
   prompt function before running the sweep. Rejected: deferring the whole
   provenance concern to Phase 112 — that would leave RPT-04 hollow here (the
   submittable predicate and model belong with the report object).
-- **D-05 (LOCKED): "not sure" is a *filled* (submittable) answer; only an
-  unanswered/blank field blocks submission.** Shield revision offers an explicit
+- **D-05 (LOCKED): "not sure" is a filled (submittable) answer; only a blank/unanswered field blocks submission** — Shield revision offers an explicit
   **"not sure"** option and NEVER auto-derives from the `hw_revision` byte
   (the byte cannot distinguish Rev 2.2 / 2.0 / modified Rev 0 — decisive lesson
   from Bug A). Choosing "not sure" is a valid, submittable answer; leaving a
@@ -122,8 +117,7 @@ Phase 113/114.
   mock-operator seam so the component stays unit-testable without a human.
 
 ### DB-diff proposed-change without auto-graduating (RPT-05)
-- **D-07 (LOCKED): Advisory, read-only proposed-disposition string — never a DB
-  write, never the taxonomy state-machine.** The DB-diff shows the chip's
+- **D-07 (LOCKED): Advisory, read-only proposed-disposition string; never a DB write, never the taxonomy state-machine** — The DB-diff shows the chip's
   **current `support_status`** (read via the existing `chip_resolver` /
   `get_eprom` path at test time) beside a plainly-labeled, human-readable
   **proposed disposition derived purely from the sweep verdicts** — e.g.
