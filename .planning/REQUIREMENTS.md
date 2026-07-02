@@ -33,7 +33,7 @@ Requirements for milestone v1.21. Each maps to a roadmap phase.
 
 - [ ] **RPT-01**: One run produces a single self-contained report rendered two ways from one source object — a human-readable `rich` results table and a compact fenced JSON block — carrying a `schema_version` key.
 - [ ] **RPT-02**: The report auto-captures the full diagnostic field set the host/firmware already know: FW+board+host version (MSG_OK identity), chip-ID expected-vs-actual, protocol path, per-op exact firmware error code, and the byte-mismatch fingerprint.
-- [ ] **RPT-03**: `EpromOperationError` preserves the firmware `response.id` byte via a backward-compatible `error_code` seam (currently discarded) so per-step results carry the exact error code.
+- [x] **RPT-03**: `EpromOperationError` preserves the firmware `response.id` byte via a backward-compatible `error_code` seam (currently discarded) so per-step results carry the exact error code.
 - [ ] **RPT-04**: Provenance the firmware cannot self-report (shield revision — with an explicit "not sure", never auto-derived from the ambiguous `hw_revision` byte — chip origin, pot adjustments) is prompted **before** the sweep; a report with blank provenance is not submittable.
 - [ ] **RPT-05**: The report embeds a DB-diff (chip's `support_status` at test time + the proposed change) to support flag-only triage.
 
@@ -107,7 +107,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SAFE-03 | Phase 109 | Pending |
 | RPT-01 | Phase 110 | Pending |
 | RPT-02 | Phase 110 | Pending |
-| RPT-03 | Phase 108 | Pending |
+| RPT-03 | Phase 108 | Complete |
 | RPT-04 | Phase 110 | Pending |
 | RPT-05 | Phase 110 | Pending |
 | VOLT-01 | Phase 111 | Pending |
@@ -120,6 +120,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | INBOX-01 | Phase 114 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 24 total (corrected — the initial definition's stated count of 20 undercounted the actual 24 REQ-IDs enumerated above: SWEEP×5, PATT×3, SAFE×3, RPT×5, VOLT×1, XPORT×1, SUB×3, DISP×1, GRAD×1, INBOX×1)
 - Mapped to phases: 24/24 ✓
 - Unmapped: 0

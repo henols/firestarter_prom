@@ -161,7 +161,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 **Plans**: 4 plans
 **Wave 1**
 
-- [ ] 108-01-PLAN.md — `EpromOperationError.error_code` seam + `_raise_for_error_response` pass-through (RPT-03; wave 1, foundational)
+- [x] 108-01-PLAN.md — `EpromOperationError.error_code` seam + `_raise_for_error_response` pass-through (RPT-03; wave 1, foundational)
 - [ ] 108-02-PLAN.md — `chip_test.py` pure layer: address-derived XOR-fold pattern generator + 4-bucket fingerprint classifier (PATT-01/02; wave 1)
 
 **Wave 2** *(blocked on Wave 1 completion)*
@@ -1078,7 +1078,7 @@ Plans:
 | 105 | v1.20 | 1/1 | ✅ Complete | 2026-07-02 |
 | 106 | v1.20 | 3/3 | ✅ Complete | 2026-07-02 |
 | 107 (close) | v1.20 | 3/3 | ✅ Shipped | 2026-07-02 |
-| 108 | v1.21 | 0/TBD | Not started | — |
+| 108 | v1.21 | 1/4 | In Progress|  |
 | 109 | v1.21 | 0/TBD | Not started | — |
 | 110 | v1.21 | 0/TBD | Not started | — |
 | 111 | v1.21 | 0/TBD | Not started | — |
