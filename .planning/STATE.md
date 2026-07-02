@@ -1,65 +1,66 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.19
-milestone_name: — Protocol Naming Labels
-current_phase: 19
+milestone: v1.20
+milestone_name: — Protocol-Only Dispatch — Remove the Legacy `mem_type` Axis
+current_phase: 20
 status: Awaiting next milestone
-stopped_at: Completed 104-03-PLAN.md
-last_updated: "2026-07-02T08:17:21.785Z"
+stopped_at: Completed 107-03-PLAN.md (final gate sweep, v1.20 milestone verified non-regression at close)
+last_updated: "2026-07-02T15:37:44.244Z"
 last_activity: 2026-07-02
-last_activity_desc: Milestone v1.19 completed and archived
+last_activity_desc: Milestone v1.20 completed and archived
 progress:
-  total_phases: 4
-  completed_phases: 4
+  total_phases: 3
+  completed_phases: 3
   total_plans: 7
   completed_plans: 7
   percent: 100
-current_phase_name: rename-protocol-header-and-cpp-files-to-descriptive-protocol
+current_phase_name: docs-gate-documentation-non-regression-close
 ---
 
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-07-01
+**Updated:** 2026-07-02
 
 ## Current Position
 
-Phase: Milestone v1.19 complete
+Phase: Milestone v1.20 complete
 Plan: —
 Status: Awaiting next milestone
-Last activity: 2026-07-02 — Milestone v1.19 completed and archived
+Last activity: 2026-07-02 — Milestone v1.20 completed and archived
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (v1.19 Phase 104 close footer + Key Decisions)
+See: `.planning/PROJECT.md` (updated 2026-07-02 — v1.20 milestone-close footer + Key Decisions)
 
-**Core value:** Algorithm-first dispatch — minipro `protocol_id` flows authoritative from upstream XML → DB → wire JSON → firmware handler; protocol numbers stay the dispatch key end to end. v1.19 adds a legibility layer on top of that unchanged contract: a single canonical, behavior/datasheet-correct, human-readable name set for every protocol, applied consistently across firmware constants, host display, and docs — names never become the dispatch key (GATE-01/02/03 non-regression).
+**Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol.
 
-**Current focus:** Planning next milestone (v1.19 SHIPPED + tagged + merged to beta + pushed, 2026-07-02)
+**Current focus:** Planning next milestone (v1.20 shipped 2026-07-02). Standing operator-gated release work outstanding: lockstep sub-repo beta cut `3.0.0b11` + gitlink bump (gitlinks PINNED at b10).
 
-## Milestone Context (v1.19)
+## Milestone Context (v1.20)
 
-- **Scope (from Phase 100 context, operator-confirmed 2026-07-01):** Rename the inherited-from-minipro hex-ID protocol jargon into a canonical name set and apply it across firmware (Phase 101), host display (Phase 102), and docs (Phase 103). Phase 100 authors + operator-approves the name set — a **blocking approval gate** that gates all downstream phases.
-- **Name schema (Phase 100 D-01/D-02/D-03):** 3 fields per protocol — C-token `PROTO_<NAME>` (firmware) + short display name (host) + datasheet-cited facet prose (docs); chip-family/behavior axis, pin-count-primary, voltage/hazard detail → facet prose. Authoritative source = `firestarter/doc/PROTOCOLS.md` revised in place; frozen `datasheets/` slug column retained as the DOC-02 divergence record.
-- **Non-regression invariant:** names are a legibility layer only — numbers stay the dispatch key; algorithm-first dispatch unchanged; no `chip_database.json` / wire / lockstep-constant *value* change (GATE-01/02/03). Many-to-one dispatch preserved (not split); CLI grammar unchanged.
-- **Firmware-touching (Phase 101):** dual-repo lockstep for the `PROTO_<NAME>` constants (`constants.py` ↔ `firestarter.h`); reuse-first; watch the py3.12-masks-CI-3.11 ruff/codegen drift trap. gitlinks PINNED; lockstep beta cut operator-gated.
-- Phase numbering continues from v1.18's Phase 99 → **v1.19 starts at Phase 100** (context already gathered).
-- **Deferred:** NAME-F1 (rename `datasheets/` folder slugs), NAME-F2 (name-as-CLI-input), infeasible-bucket naming (0x11/0x2A/0x2B/0x2C — not in the DB).
+- **Scope (from REQUIREMENTS.md, defined 2026-07-02):** Delete the vestigial `mem_type`/`type` backward-compat dispatch axis end to end. 12 v1 requirements across firmware (FW-01..03), the wire contract (WIRE-01), the host (HOST-01..04), docs (DOC-01), and non-regression gates (GATE-01/02, SAFE-01).
+- **Sequencing invariant:** the wire contract must never be left half-broken. Firmware stops parsing `type` FIRST (Phase 105) — safe because `json_parser.c` silently skips unknown fields, so a host that briefly still emits `type` is unaffected. The host then stops emitting `type` (Phase 106), completing WIRE-01's removal in lockstep across both phases.
+- **Dead-code framing:** the `mem_type` fallback is already dead code for every DB chip (all carry `algorithm`) — this is a legibility/safety cleanup, not a behavior change for real chips. Accepted consequence: user-override DB entries lacking `algorithm` will no longer work (must specify a protocol) — enforced by HOST-04's pre-flight rejection.
+- **Firmware-touching (Phase 105):** dual-repo lockstep (`constants.py` ↔ `firestarter.h`); watch the py3.12-masks-CI-3.11 ruff/codegen drift trap for host changes (Phase 106/107).
+- **Guards held throughout:** v1.16 golden register traces + dispatch-mirror guard, `check_dispatch.py` (0 violations), `diff_db.py` (chip_database.json identity), dual-repo constants parity, py3.11-target CI. Over-voltage stays blocked (SAFE-01).
+- Phase numbering continues from v1.19's Phase 104 → **v1.20 starts at Phase 105**.
+- **Out of scope (v2/LEGACY):** `FLAG_VPE_AS_VPP (0x10)` removal (LEGACY-01), `EPROM_LEGACY` naming cleanup (LEGACY-02) — deferred, tracked in REQUIREMENTS.md v2 section.
+- Branches off `beta` in all 3 repos; gitlinks PINNED; lockstep beta cut + stable promotion operator-gated — NOT a phase in this milestone.
 
-## Roadmap Summary (v1.19)
+## Roadmap Summary (v1.20)
 
-**Phases:** 4 (100–103) · **Granularity:** Comprehensive · **Coverage:** 12/12 requirements mapped ✓ · **Dependency chain:** strictly linear 100 → 101 → 102 → 103.
+**Phases:** 3 (105–107) · **Granularity:** Comprehensive (tight removal milestone — 3 phases per the FW → HOST → DOCS+GATE natural sequencing) · **Coverage:** 12/12 requirements mapped ✓ · **Dependency chain:** strictly linear 105 → 106 → 107.
 
 | Phase | Goal | Requirements | Success Criteria |
 |-------|------|--------------|------------------|
-| 100 — NAME | Author + operator-approve the single canonical name set (3-field: `PROTO_<NAME>` token + display name + facet prose) for every DB protocol number + phantoms + handler-family layer; record in `firestarter/doc/PROTOCOLS.md`. Blocking gate; gates all downstream. | NAME-01, NAME-02, NAME-03 | 3 |
-| 101 — FW | Define `PROTO_<NAME>` constants (values unchanged), relabel the `memory.cpp` dispatch chain to named constants (honest phantom tokens for 0x35/0x39), rename many-to-one handler files/functions from the family layer. Dual-repo lockstep. | FW-01, FW-02, FW-03, GATE-01/02 (primary), GATE-03 | 4 |
-| 102 — HOST | Consolidate the two divergent host vocabularies (`ic_layout.proto_display` + `protocol_info_data`) onto canonical display names so `info`/`list`/`search` render one consistent name per protocol. | HOST-01, GATE-03 (primary), GATE-01/02 | 3 |
-| 103 — DOCS (close) | Reconcile PROTOCOLS.md §1 prose + INV-01..09 matrix to new names (no dangling minipro jargon); record the name↔`datasheets/` slug divergence (slugs NOT renamed). | DOC-01, DOC-02, GATE-01/02/03 | 3 |
+| 105 — FW | Delete the `mem_type` fallback dispatch chain (`memory.cpp` steps 7–11); `protocol == 0` fail-closes; drop `handle->mem_type` + stop parsing `type` in `json_parser.c`; retire `MSG_ERR_MEM_TYPE_UNSUPPORTED (0xAE)` + `TYPE_*` constants. Dual-repo lockstep. | FW-01, FW-02, FW-03, WIRE-01 | 4 |
+| 106 — HOST | Stop emitting `type`; drop `_ALGO_MEM_TYPE` + the "Generic Flash (legacy fallback only)" default in `database.py`; remove `mem_type`-keyed legacy label fallbacks in `ic_layout.py`; reject any chip entry lacking `algorithm` before any serial byte. Completes WIRE-01's emit-side removal. | HOST-01, HOST-02, HOST-03, HOST-04 | 4 |
+| 107 — DOCS + GATE (close) | Update `firestarter/CLAUDE.md`, `PROTOCOLS.md`, wire-field docs to drop `type`/`mem_type`; record the breaking change; re-verify golden traces + dispatch-mirror guard, `check_dispatch.py`, `diff_db.py`, full native + host suites, constants parity, py3.11-target CI. | DOC-01, GATE-01, GATE-02, SAFE-01 | 4 |
 
-**Non-regression gates (GATE-01/02/03):** numbers stay the dispatch key end to end; no `chip_database.json` / wire / lockstep-constant *value* change (`diff_db.py` identity, `check_dispatch.py`, constants-parity green); CLI grammar unchanged. Verified in every downstream phase that touches their surface.
+**Non-regression gates (GATE-01/02, SAFE-01):** v1.16 golden traces + dispatch-mirror guard green; `check_dispatch.py` 0 violations; `diff_db.py` no value change for real chips; over-voltage blocked; every dispatchable DB chip routes identically via `protocol` alone. Verified in every phase that touches dispatch, re-verified explicitly at Phase 107 close.
 
-Detail: `.planning/ROADMAP.md` §v1.19.
+Detail: `.planning/ROADMAP.md` §v1.20.
 
 ## Accumulated Context
 
@@ -73,7 +74,30 @@ Detail: `.planning/ROADMAP.md` §v1.19.
 | FUT-04 (v1.14) | AT28C04/16 adapter graduation | deferred — adapter not built | 9 chips stay `adapter-required`. |
 | FUT-03 (v1.15) | 2516 0x0B read instability + write proof | deferred best-effort (D-22) | 3 distinct SHAs after VPP-skip; shared OE/VPP pin. |
 | FUT-01 (v1.14) | X88C64 0x34 graduation | deferred — PCB-blocked | A6 ALE-routing PCB-BLOCKED (HIGH); stays `protocol-not-implemented`. |
-| release-gate | Lockstep beta cut `3.0.0b11` + gitlink bump | OPERATOR-GATED | Standing v1.11–v1.17 policy; gitlinks PINNED. |
+| LEGACY-01 (v1.20 v2) | `FLAG_VPE_AS_VPP (0x10)` removal if confirmed unused | deferred to v2 | Operator scoped v1.20 to the `mem_type` axis only, not the broader vestige sweep. |
+| LEGACY-02 (v1.20 v2) | `EPROM_LEGACY` (0x0B) label rename + remaining "legacy fallback" prose scrub | deferred to v2 | Naming, not the dispatch axis; do after v1.20 lands. |
+| release-gate | Lockstep beta cut `3.0.0b11` + gitlink bump | OPERATOR-GATED | Standing v1.11–v1.19 policy; gitlinks PINNED. |
+
+### Deferred Items — acknowledged at v1.20 milestone close (2026-07-02)
+
+Close type: **override_closeout** — all v1.20 phases (105–107) are `phase_complete` + `verification_status: passed`, but `audit-open` reports 14 open artifact items, so the close is recorded as an override with the items acknowledged-and-deferred (operator: "Acknowledge & proceed"). **None originate in v1.20 (Phases 105–107)** — they are the identical pre-existing cross-milestone carry-forwards re-confirmed at the v1.18 and v1.19 closes (unchanged by this dead-code-removal milestone). Known verification overrides: 14 (see table below).
+
+| Category | Item | Status |
+|----------|------|--------|
+| debug | firmware-vpp-misread | diagnosed |
+| debug | fm1608-fresh-chip-baseline | parked-2026-05-18 |
+| uat_gap | Phase 08 — 08-HUMAN-UAT.md | partial (0 pending scenarios) |
+| uat_gap | Phase 85 — 85-HUMAN-UAT.md | partial (2 pending scenarios) |
+| verification_gap | Phase 08 — 08-VERIFICATION.md | human_needed |
+| verification_gap | Phase 09 — 09-VERIFICATION.md | human_needed |
+| verification_gap | Phase 71 — 71-VERIFICATION.md | gaps_found |
+| verification_gap | Phase 84 — 84-VERIFICATION.md | human_needed |
+| verification_gap | Phase 85 — 85-VERIFICATION.md | human_needed |
+| todo | 2026-06-24-skip-vpp-error-and-warning-checks-when-vpp-unused-on-reads | firmware |
+| todo | avrdude-mcu-detection-fallback | low |
+| todo | cobs-decoder-framelevel-deadline-wr01 | medium |
+| todo | photograph-modified-rev-0 | MEDIUM |
+| todo | write-modifications-md-rework-trace | MEDIUM |
 
 ### Deferred Items — acknowledged at v1.19 milestone close (2026-07-02)
 
@@ -135,6 +159,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ### Roadmap Evolution
 
+- v1.20 roadmap created 2026-07-02: 3 phases (105–107), 12/12 requirements mapped. FW → HOST → DOCS+GATE strictly linear sequencing (wire-contract removal ordered so it's never half-broken).
 - Phase 104 added: Rename protocol header and .cpp files to descriptive protocol-type names (replace hard-to-read flash type N naming)
 
 ## Operator Next Steps
@@ -143,6 +168,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Decisions
 
+- [v1.20 roadmap]: WIRE-01 assigned primarily to Phase 105 (firmware stops parsing `type`) with Phase 106 (host stops emitting `type`) realizing the emit-side removal — sequenced FW-first because `json_parser.c` silently skips unknown fields, so a host briefly still emitting `type` during the gap is harmless; the reverse order (host-first) would leave firmware still trusting a fallback the host stopped feeding, which is safe too, but FW-first keeps the fail-closed guarantee active earliest.
 - [Phase ?]: SAFE-01 invariant: holds because Phase-97 procedure never passes --force (firmware HAS a FLAG_FORCE over-voltage relaxation at primitives.cpp:121); held-rail proxy pinned host-space 0x188/0x180 marked [ASSUMED] per A1; all bench fields TBD-bench never fabricated (D-02)
 - [Phase 98 Plan 01]: Q1 RESOLVED — static-high-pins RULED OUT as PGM vehicle (static_high_mask drives HIGH; PGM=VIL); DIP32_27C020 takes pin 31 off address bus only; PGM-assert is Plan 02 firmware branch (memory_set_data hold-LOW)
 - [Phase 98 Plan 01]: D-04 host-side alias guard — size gate (mem_size<=262144) structurally excludes 512K AM27C040 / 1M AM27C080 from DIP32_27C020; both stay DIP32_STD
@@ -173,6 +199,23 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase 104-02]: Preserved validation_matrix_spec.json protocols_note prose factual content verbatim, only substituting handler/test-module name references
 - [Phase 104-03]: Rule 1 fixed 4 latent firestarter_app test regressions caused by Plan 02's flash3/flash4->nor_unlock/5v_page spec rename (test_val_wire_flash3/4.py StopIteration + stale handler assertions in test_matrix_schema/test_validate_family_cmd/test_gen_validation_header); surfaced only when the full suite was run beyond the plan's declared verification scope
 - [Phase 104-03]: Left cli_handlers.py dev validate-family Choice list stale (still lists flash3/flash4) and tools/baseline/dispatch_baseline.json (orphaned, zero Python consumers) untouched -- both explicitly out of plan scope (GATE-03 cli_handlers.py prohibition; no regression risk from the unconsumed baseline file)
+- [Phase 105]: Executed D-01 setup (merge v1.19->beta lockstep in both sub-repos, no tag; fork v1.20-protocol-only-dispatch off updated beta) as a hard precondition since it had not yet been performed despite operator authorization — Research flagged neither beta nor origin/beta contained the v1.19 PROTO_ layer this plan's edits reference; without it no v1.20 branch existed to work on
+- [Phase 105]: Collapsed configure_memory() dispatch tail to a single unconditional terminal configure_not_implemented(handle) call (D-04) instead of an if/else on protocol==0 — Matches the codebase's existing named-infeasibility-arm fail-closed style; protocol==0 and any unrecognized non-zero protocol now share one exit
+- [Phase 105]: Kept the vestigial mem_type parameter in native test make_handle() (both suites) after removing the struct field, rather than dropping it and touching ~25 call sites — Lower-churn mechanical choice explicitly left to Claude's Discretion in CONTEXT.md and RESEARCH.md
+- [Phase 106-01]: Kept dispatch(algo, 0) rather than changing dispatch()'s signature since the mem_type fallback chain is protocol==0-only (dead for every real chip's non-zero algorithm)
+- [Phase 106-01]: Logged pre-existing test_audit_coverage_matrix.py golden-fixture drift and the expected test_chip_resolver.py ripple (owned by Plan 03) to deferred-items.md rather than fixing them - both explicitly out of scope
+- [Phase 106-02]: get_chip_type_string signature shrunk to (self, protocol_id=None) - chip_type_int param and the local type_map dict deleted; unresolved falls to bare 'Unknown'
+- [Phase 106-02]: resolve_type_label signature shrunk to (self, electrical_type, protocol_id=None) - type_int param deleted; delegates to get_chip_type_string(protocol_id)
+- [Phase 106-02]: __main__ self-test block repurposed to exercise protocol tier (0x08 known, 0x99 unknown) replacing removed numeric-tier calls
+- [Phase 106-02]: eprom_info.py:69 string-typed 'type': 'unknown' raw-JSON field left untouched - different axis from numeric mem_type
+- [Phase ?]: [Phase 106-03]: Guard placement and read-path exactly mirror the existing support_status guard (same raw_config object, same exception, same pre-serial ordering); reject rule is a plain falsy-check covering both absent and explicit-0, no KNOWN_PROTOCOLS gate added (D-01 pass-through preserved)
+- [Phase ?]: [Phase 106-03]: Rule 1 auto-fix applied to test_consistency_check.py's dispatch-chain mock (missing programming.algorithm key), directly caused by the new HOST-04 guard; confirmed via git stash that test_audit_coverage_matrix.py golden-fixture drift and the 4 pre-existing ruff/format failures in tools/*.py are unrelated and out of scope
+- [Phase 107-01]: Reworded three explanatory mentions of the retired mem_type axis in firestarter/CLAUDE.md to avoid the literal substring 'mem_type' (legacy-integer/backward-compat phrasing), satisfying the plan's strict grep-based acceptance criteria while preserving meaning
+- [Phase 107-01]: Kept protocol==0 as its own explicit numbered terminal dispatch step (renumbered to 7) rather than folding into the generic 6b non-zero-unrecognized guard, matching the plan's required wording
+- [Phase ?]: [Phase 107-02]: Restored MSG_WARN_FL4_BOOT_BLOCK_LOCKED (0x85) / MSG_ERR_FL4_BOOT_BLOCK_LOCKED (0xBC) to the meta canonical messages.toml before finalizing the 0xAE removal sync -- these Phase-95 host-only messages were never present in canonical and the sync would have silently deleted them from messages.py, breaking tests/test_val_wire_5v_page.py (Rule 1 auto-fix, caught pre-commit)
+- [Phase ?]: [Phase 107-02]: Firmware include/messages.h gained the same restored 0x85/0xBC #define constants as an inert byproduct (firmware source never references either name) -- accepted as a correction of the canonical source of truth, not a firmware behavior change
+- [Phase ?]: [Phase 107-03]: Applied D-07 pass bar literally - confirmed each of the 5 pre-existing failing/dirty artifacts (1 pytest failure + 4 ruff errors + 1 ruff-format file) is outside git diff beta..HEAD before accepting as prior debt; zero new regressions from v1.20
+- [Phase ?]: [Phase 107-03]: Host pytest missing final summary line (syrupy plugin display quirk) cross-verified independently via pytest --collect-only (711 total minus 1 named failure = 710 passed), matching RESEARCH.md baseline exactly
 
 ## Performance Metrics
 
@@ -189,9 +232,17 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 104 P01 | 20min | 3 tasks | 7 files |
 | Phase 104 P02 | 12min | 3 tasks | 6 files |
 | Phase 104 P03 | 55min | 3 tasks | 15 files |
+| Phase 105 P01 | 32min | 3 tasks | 6 files |
+| Phase 106 P01 | 20min | 3 tasks | 8 files |
+| Phase 106 P02 | 12min | 3 tasks | 3 files |
+| Phase 106 P03 | 12min | 3 tasks | 3 files |
+| Phase 107 P01 | 18min | 3 tasks | 4 files |
+| Phase 107 P02 | 22min | 2 tasks | 5 files |
+| Phase 107 P03 | 20min | 2 tasks | 0 files |
 
 ## Session
 
-**Last session:** 2026-07-02T07:57:29.727Z
-**Stopped at:** Completed 104-03-PLAN.md
-**Resume file:** None
+**Last session:** 2026-07-02T15:20:48.152Z
+**Stopped at:** Completed 107-03-PLAN.md (final gate sweep, v1.20 milestone verified non-regression at close)
+**Resume file:** 
+None

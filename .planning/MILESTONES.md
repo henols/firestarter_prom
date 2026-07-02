@@ -1,5 +1,29 @@
 # Milestones
 
+## v1.20 Protocol-Only Dispatch (Shipped: 2026-07-02)
+
+**Phases completed:** 3 phases (105–107), 7 plans, 19 tasks
+
+**Delivered:** Removed the vestigial `mem_type`/`type` backward-compat dispatch axis end to end — firmware, wire, and host now trust *only* the real protocol (`algorithm`); 12/12 v1 requirements (FW/WIRE/HOST/DOC/GATE/SAFE).
+
+**Closeout type:** `override_closeout` — all 3 phases verified (`passed`), but `audit-open` reported 14 pre-existing cross-milestone open artifact items. Known verification overrides: 14 (see STATE.md → *Deferred Items — acknowledged at v1.20 milestone close*). None originate in v1.20.
+
+**Requirements:** 12/12 v1 complete. LEGACY-01 (`FLAG_VPE_AS_VPP`) + LEGACY-02 (`EPROM_LEGACY` naming) deferred to v2.
+
+**Release state:** meta tagged `v1.20` + `gsd/v1.20-protocol-only-dispatch-remove-the-legacy-mem-type-axis` merged to `beta`, both pushed to origin at close (operator override). Firmware/host sub-repo work on the v1.20 branch; gitlinks PINNED at b10 (fw `2d93379` / app `e0bdea4`); lockstep beta cut `3.0.0b11` + gitlink bump remain operator-gated per standing v1.11–v1.19 policy.
+
+**Key accomplishments:**
+
+- 1. [Rule 3 - Blocking] Executed the D-01 v1.19→beta merge + v1.20 branch fork (both sub-repos) as a precondition
+- Deleted the `_ALGO_MEM_TYPE` fallback dict, `determined_type` derivation, and both `type` dict keys from `database.py`, completing the host emit-side of WIRE-01 — the wire dict now carries `algorithm` as the sole dispatch datum, proven by 8 inverted test functions asserting `type`'s absence.
+- Removed the last numeric `mem_type`-keyed display fallback (`type_map`) from `ic_layout.py`'s shared label helper — `info`/`list`/`search` now derive labels solely from `electrical.type` then protocol, landing on bare `"Unknown"` for anything else.
+- Added the fail-closed algorithm-presence guard to `chip_resolver.resolve_chip` mirroring firmware `protocol == 0 → 0xBB`, proved by a D-06 regression test, and closed out the wave-close integration gate for Phase 106.
+- Rewrote firestarter/CLAUDE.md's dispatch narrative to protocol-only dispatch, scrubbed the stale numeric `type` wire references from both agent-facing CLAUDE.md files, and recorded the v1.20 wire-contract break in both sub-repo READMEs.
+- Removed the retired `MSG_ERR_MEM_TYPE_UNSUPPORTED (0xAE)` message from the canonical catalog and regenerated host/firmware artifacts, incidentally catching and fixing an unrelated pre-existing Phase-95 catalog desync (`MSG_WARN`/`MSG_ERR_FL4_BOOT_BLOCK_LOCKED`) that the naive sync would otherwise have silently deleted from the host, breaking a live test.
+- Re-ran every GATE-01/GATE-02/SAFE-01 non-regression gate on the fully-applied v1.20 state (post 107-01 doc scrub + 107-02 codegen fix) — all green or exactly matching the documented pre-existing beta baseline, zero new regressions, mem_type-axis removal proven dead code for all 746 chips.
+
+---
+
 ## v1.19 Protocol Naming Labels (Shipped: 2026-07-02)
 
 **Phases completed:** 5 phases (100–104), 10 plans
