@@ -69,6 +69,37 @@ phantom / named-infeasibility dispatch arms.
   the dispatch-mirror guard are **RUN as-is for re-verification only — never
   regenerated** in this phase. Regenerating would erase the non-regression
   signal GATE-01 / SAFE-01 depend on.
+  - **Naming clarification (from RESEARCH.md):** `stable-*.h` are VERSION-string
+    fixtures; the real frozen dispatch vectors live in `test_frame_vectors.cpp`,
+    run inside `pio test -e native`. `check_dispatch.py`'s own `_ALGO_MEM_TYPE`
+    is an intentional verification-tool artifact — do NOT flag it stale.
+
+### Post-research scope additions (operator-decided 2026-07-02)
+- **D-06 — 0xAE codegen desync → RECONCILE NOW:** The retired
+  `MSG_ERR_MEM_TYPE_UNSUPPORTED (0xAE)` constant still lives in the meta
+  canonical `tools/catalog/messages.toml` and the host `messages.py` /
+  `messages.toml` (firmware already clean from Phase 105). Operator chose to
+  reconcile it **in this phase** so v1.20 closes with no `mem_type` residue
+  anywhere: edit the canonical `messages.toml` to drop 0xAE, then **regenerate**
+  `messages.py`/`messages.h` via `codegen.py` (NEVER hand-edit generated files —
+  see [[reference_firmware_messages_h_is_codegen_generated]] /
+  [[reference_codegen_ruff_clean_emitter.md]]). Verify the codegen drift gate is
+  clean afterward. This is the one sanctioned CODE/codegen change in an otherwise
+  docs+gate phase — scoped strictly to removing the dead 0xAE constant.
+- **D-07 — GATE-02 pass bar = NO NEW regression vs `beta`:** Host `pytest` is
+  not absolute-green on the branch — 1 pre-existing failure
+  (`test_golden_file_matches`) plus pre-existing ruff/format dirt, all in files
+  v1.20 never touched. GATE-02 passes iff **v1.20 introduced zero new
+  failures/lint vs the `beta` baseline** (`git diff beta..HEAD` scope). The
+  pre-existing red baseline is documented as prior debt, NOT fixed here.
+- **D-08 — Extend the doc scrub to `firestarter_app/CLAUDE.md`:** RESEARCH found a
+  live `"type": 1` wire example there, contradicting the earlier "host docs
+  grep-confirmed clean" note. Fold this stale example into the DOC-01 scrub
+  (D-02's surface now includes `firestarter_app/CLAUDE.md`). Re-grep both
+  sub-repos for any remaining `type`/`mem_type` wire references at close.
+- **D-09 — Breaking-change record template:** Both READMEs already carry a
+  `## Breaking Changes (v1.10)` section — add a parallel `## Breaking Changes
+  (v1.20)` section in the same style (net-new; neither README has a v1.20 entry yet).
 
 ### Claude's Discretion
 - Exact prose of doc edits and section headings.
