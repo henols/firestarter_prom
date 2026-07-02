@@ -1,20 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.19
-milestone_name: — Protocol Naming Labels
-current_phase: 19
-status: Awaiting next milestone
-stopped_at: Completed 104-03-PLAN.md
-last_updated: "2026-07-02T08:17:21.785Z"
+milestone: v1.20
+milestone_name: Protocol-Only Dispatch — Remove the Legacy mem_type Axis
+status: planning
+last_updated: "2026-07-02T09:06:06.735Z"
 last_activity: 2026-07-02
-last_activity_desc: Milestone v1.19 completed and archived
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 7
-  completed_plans: 7
-  percent: 100
-current_phase_name: rename-protocol-header-and-cpp-files-to-descriptive-protocol
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -24,10 +20,10 @@ current_phase_name: rename-protocol-header-and-cpp-files-to-descriptive-protocol
 
 ## Current Position
 
-Phase: Milestone v1.19 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-07-02 — Milestone v1.19 completed and archived
+Status: Defining requirements
+Last activity: 2026-07-02 — Milestone v1.20 started
 
 ## Project Reference
 
