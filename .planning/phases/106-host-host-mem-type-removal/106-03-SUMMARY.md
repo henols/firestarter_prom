@@ -163,3 +163,13 @@ Phase 106 (host mem_type removal) is now fully complete across all 3 plans (106-
 ---
 *Phase: 106-host-host-mem-type-removal*
 *Completed: 2026-07-02*
+
+## Self-Check: PASSED
+
+- FOUND: firestarter_app/firestarter/chip_resolver.py
+- FOUND: firestarter_app/tests/test_chip_resolver.py
+- FOUND: .planning/phases/106-host-host-mem-type-removal/106-03-SUMMARY.md
+- FOUND commit (firestarter_app): 7658fb6
+- FOUND commit (firestarter_app): a542b08
+- FOUND commit (firestarter_app): bda63ae
+- FOUND commit (meta-repo): 3431d71
