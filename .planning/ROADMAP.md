@@ -220,7 +220,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 110-02-PLAN.md — Provenance layer: `Provenance` dataclass + injectable `prompt_provenance()` seam + `is_submittable()` ("not sure" is submittable, never auto-derived from `hw_revision`), composed into the report (RPT-04) [wave 2]
+- [x] 110-02-PLAN.md — Provenance layer: `Provenance` dataclass + injectable `prompt_provenance()` seam + `is_submittable()` ("not sure" is submittable, never auto-derived from `hw_revision`), composed into the report (RPT-04) [wave 2]
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -1102,7 +1102,7 @@ Plans:
 | 107 (close) | v1.20 | 3/3 | ✅ Shipped | 2026-07-02 |
 | 108 | v1.21 | 4/4 | Complete    | 2026-07-02 |
 | 109 | v1.21 | 3/3 | Complete    | 2026-07-02 |
-| 110 | v1.21 | 1/3 | In Progress|  |
+| 110 | v1.21 | 2/3 | In Progress|  |
 | 111 | v1.21 | 0/TBD | Not started | — |
 | 112 | v1.21 | 0/TBD | Not started | — |
 | 113 | v1.21 | 0/TBD | Not started | — |

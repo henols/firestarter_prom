@@ -5,15 +5,15 @@ milestone_name: — Community Chip-Validation Command
 current_phase: 110
 current_phase_name: Diagnostic Report Model + Dual Output + Provenance Prompts
 status: executing
-stopped_at: Completed 110-01-PLAN.md
-last_updated: "2026-07-02T21:15:31.649Z"
+stopped_at: Completed 110-02-PLAN.md
+last_updated: "2026-07-02T21:25:11.462Z"
 last_activity: 2026-07-02
 last_activity_desc: Phase 110 execution started
 progress:
   total_phases: 7
   completed_phases: 2
   total_plans: 10
-  completed_plans: 8
+  completed_plans: 9
   percent: 29
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 110 (Diagnostic Report Model + Dual Output + Provenance Prompts) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-07-02 — Phase 110 execution started
 
@@ -253,6 +253,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: test_report_module_is_orchestrator_only rewritten from raw substring grep to AST-based import/literal scan -- the module's own docstrings describe the SAFE-02 invariant in prose, which a substring check false-positives on (mirrors Phase-109 SAFE-02 ast.walk lesson)
 - [Phase ?]: Reworded diagnostic_report.py docstring prose to avoid literal substrings SerialCommunicator/HardwareManager so the plan's shell-grep verification command passes cleanly, meaning preserved
 - [Phase ?]: DiagnosticReport, AutoCapture, TransportHealth implemented in one file write (Tasks 2+3 land in one module) since to_dict()/render() depend directly on the sub-dataclass shapes; committed as two separate git commits to preserve per-task traceability
+- [Phase 110-02]: Provenance model + injectable prompt_provenance + is_submittable added to diagnostic_report.py; composed into DiagnosticReport append-only (RPT-04) — shield revision never auto-derived from hw_revision byte (D-05); not sure counts as filled/submittable
 
 ## Performance Metrics
 
@@ -284,10 +285,11 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 109 P02 | 22min | 2 tasks | 2 files |
 | Phase 109 P03 | 35min | 2 tasks | 2 files |
 | Phase 110 P01 | 25min | 3 tasks | 2 files |
+| Phase 110 P02 | 20min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-07-02T21:15:31.632Z
-**Stopped at:** Completed 110-01-PLAN.md
+**Last session:** 2026-07-02T21:25:11.446Z
+**Stopped at:** Completed 110-02-PLAN.md
 **Resume file:** 
 None
