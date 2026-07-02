@@ -216,7 +216,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 **Plans**: 3 plans (host-only, `firestarter_app/`, zero firmware change; sequential waves — all three write the single new `diagnostic_report.py` module)
 **Wave 1**
 
-- [ ] 110-01-PLAN.md — Core module: `SCHEMA_VERSION`/`NOT_MEASURED` constants, `AutoCapture` + `TransportHealth` sub-dataclasses, `DiagnosticReport` aggregate with single-source `to_dict()`/`render()`/`to_json_block()`; transport "not measured" honest fallback (RPT-01, RPT-02, XPORT-01) [wave 1]
+- [x] 110-01-PLAN.md — Core module: `SCHEMA_VERSION`/`NOT_MEASURED` constants, `AutoCapture` + `TransportHealth` sub-dataclasses, `DiagnosticReport` aggregate with single-source `to_dict()`/`render()`/`to_json_block()`; transport "not measured" honest fallback (RPT-01, RPT-02, XPORT-01) [wave 1]
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -1102,7 +1102,7 @@ Plans:
 | 107 (close) | v1.20 | 3/3 | ✅ Shipped | 2026-07-02 |
 | 108 | v1.21 | 4/4 | Complete    | 2026-07-02 |
 | 109 | v1.21 | 3/3 | Complete    | 2026-07-02 |
-| 110 | v1.21 | 0/3 | Planned | — |
+| 110 | v1.21 | 1/3 | In Progress|  |
 | 111 | v1.21 | 0/TBD | Not started | — |
 | 112 | v1.21 | 0/TBD | Not started | — |
 | 113 | v1.21 | 0/TBD | Not started | — |
