@@ -36,7 +36,7 @@ close (Phase 107), and the milestone-level out-of-scope items (`FLAG_VPE_AS_VPP`
 ## Implementation Decisions
 
 ### Branch base / lockstep setup (prerequisite before planning execution)
-- **D-01:** The v1.20 sub-repo branches fork off **beta, but only after v1.19 is
+- **D-01 [informational]:** The v1.20 sub-repo branches fork off **beta, but only after v1.19 is
   merged into beta first.** Confirmed state: `beta` in the fw sub-repo does NOT
   contain the v1.19 PROTO_ naming layer — beta's `memory.cpp` still dispatches on
   raw hex (`0x10`, `0x0D`, …), there is no `include/proto_constants.h`, and the
@@ -46,12 +46,12 @@ close (Phase 107), and the milestone-level out-of-scope items (`FLAG_VPE_AS_VPP`
   renamed handlers, and `PROTOCOLS.md`, forking off unmerged beta would mismatch
   those refs and risk a Phase-70-style collision. **Operator authorized merging
   v1.19 → beta first**, then forking v1.20 off the updated beta.
-- **D-02:** The authorization is for the **v1.19 branch merge into beta only** —
+- **D-02 [informational]:** The authorization is for the **v1.19 branch merge into beta only** —
   NOT the beta **release cut**. The `3.0.0bXX` beta tag + gitlink bump remain
   operator-gated per the standing "nothing is stable until I say so" rule;
   gitlinks stay PINNED (`2d93379` fw / `e0bdea4` app). Apply this to BOTH
   sub-repos (`firestarter/` + `firestarter_app/`) in lockstep.
-- **D-03:** The v1.19→beta merge is a **setup action performed before Phase 105
+- **D-03 [informational]:** The v1.19→beta merge is a **setup action performed before Phase 105
   execution**, not part of the discuss step. It was NOT done during discussion.
 
 ### `memory.cpp` dispatch code shape
