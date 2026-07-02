@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.20
 milestone_name: — Protocol-Only Dispatch — Remove the Legacy `mem_type` Axis
-current_phase: 105
-current_phase_name: fw-firmware-mem-type-removal
+current_phase: 106
+current_phase_name: HOST — Host `mem_type` Removal
 status: verifying
 stopped_at: Completed 105-01-PLAN.md
-last_updated: "2026-07-02T10:18:34.923Z"
+last_updated: "2026-07-02T10:29:38.052Z"
 last_activity: 2026-07-02
-last_activity_desc: Phase 105 execution started
+last_activity_desc: Phase 105 complete, transitioned to Phase 106
 progress:
   total_phases: 3
   completed_phases: 1
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 105 (fw-firmware-mem-type-removal) — EXECUTING
-Plan: 1 of 1
+Phase: 106 — HOST — Host `mem_type` Removal
+Plan: Not started
 Status: Phase complete — ready for verification
-Last activity: 2026-07-02 — Phase 105 execution started
+Last activity: 2026-07-02 — Phase 105 complete, transitioned to Phase 106
 
 ## Project Reference
 
