@@ -188,3 +188,13 @@ None - no external service configuration required. (The D-01 branch merge/fork w
 ---
 *Phase: 105-fw-firmware-mem-type-removal*
 *Completed: 2026-07-02*
+
+## Self-Check: PASSED
+
+All claimed files and commits verified present:
+- `.planning/phases/105-fw-firmware-mem-type-removal/105-01-SUMMARY.md` — FOUND
+- `firestarter` commit `0ae2513` (merge v1.19→beta) — FOUND
+- `firestarter` commit `56396aa` (Task 1 test) — FOUND
+- `firestarter` commit `0b7e65f` (Task 2 dispatch removal) — FOUND
+- `firestarter_app` commit `abdc733` (merge v1.19→beta) — FOUND
+- meta repo commit `2695a9e` (docs: SUMMARY) — FOUND
