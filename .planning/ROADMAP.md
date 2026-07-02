@@ -191,7 +191,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 **Plans**: 3 plans (Wave 1: 109-01 · Wave 2: 109-02, 109-03)
 **Wave 1**
 
-- [ ] 109-01-PLAN.md — chip_test.py engine: SAFE-01 derive_plan strip + Plan.locked_destructive advisory field; PATT-03 UV small-region top-anchored write cap (engine constant, DB cannot widen)
+- [x] 109-01-PLAN.md — chip_test.py engine: SAFE-01 derive_plan strip + Plan.locked_destructive advisory field; PATT-03 UV small-region top-anchored write cap (engine constant, DB cannot widen)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -1089,7 +1089,7 @@ Plans:
 | 106 | v1.20 | 3/3 | ✅ Complete | 2026-07-02 |
 | 107 (close) | v1.20 | 3/3 | ✅ Shipped | 2026-07-02 |
 | 108 | v1.21 | 4/4 | Complete    | 2026-07-02 |
-| 109 | v1.21 | 0/TBD | Not started | — |
+| 109 | v1.21 | 1/3 | In Progress|  |
 | 110 | v1.21 | 0/TBD | Not started | — |
 | 111 | v1.21 | 0/TBD | Not started | — |
 | 112 | v1.21 | 0/TBD | Not started | — |

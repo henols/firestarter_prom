@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — Community Chip-Validation Command
 current_phase: 109
-current_phase_name: Destructiveness Gate + Safety
+current_phase_name: destructiveness-gate-safety
 status: executing
-stopped_at: Phase 109 context gathered
-last_updated: "2026-07-02T19:15:32.843Z"
+stopped_at: Completed 109-01-PLAN.md
+last_updated: "2026-07-02T19:45:12.807Z"
 last_activity: 2026-07-02
-last_activity_desc: Phase 108 complete, transitioned to Phase 109
+last_activity_desc: Phase 109 execution started
 progress:
   total_phases: 7
   completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 7
+  completed_plans: 5
   percent: 14
 ---
 
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 109 — Destructiveness Gate + Safety
-Plan: Not started
+Phase: 109 (destructiveness-gate-safety) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-07-02 — Phase 108 complete, transitioned to Phase 109
+Last activity: 2026-07-02 — Phase 109 execution started
 
 ## Project Reference
 
@@ -35,7 +35,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-02 — v1.20 milestone-close footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.21 extends this trust outward: the community can now prove chip support on hardware the maintainer doesn't own, via a pure orchestration layer over the existing algorithm-first dispatch — never a new dispatch path.
 
-**Current focus:** Phase 108 — test-plan-engine-address-derived-pattern-fingerprint
+**Current focus:** Phase 109 — destructiveness-gate-safety
 
 ## Milestone Context (v1.21)
 
@@ -245,6 +245,8 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: run_plan re-resolves every executed step via resolve_chip (guard-honoring), never reusing derive_plan's bypassing dict
 - [Phase ?]: id-gate closes on ANY id-step uncertainty (BAD or SKIPPED), not just an explicit numeric mismatch (conservative Pitfall 4 reading)
 - [Phase ?]: runs<2 rejected before any resolve/operator call; write/erase/verify disagreement reports marginal, never coerced to OK/BAD; read disagreement is a divergence metric only
+- [Phase ?]: [Phase 109 Plan 01]: derive_plan(destructive=False) structurally omits write/erase from Plan.steps into an advisory Plan.locked_destructive list; run_plan never iterates it (SAFE-01, D-01)
+- [Phase ?]: [Phase 109 Plan 01]: UV detection at execution time uses algorithm==0x0B (EPROM_LEGACY, UV-EPROM-exclusive DB-wide) as a fallback signal because resolve_chip's programmer dict drops electrical-type; _UV_WRITE_REGION_LENGTH (256) is an engine constant no DB field can widen (PATT-03, SC4)
 
 ## Performance Metrics
 
@@ -272,10 +274,11 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 108 P02 | 25min | 3 tasks | 2 files |
 | Phase 108 P03 | 25min | 2 tasks | 2 files |
 | Phase 108 P04 | 45min | 3 tasks | 2 files |
+| Phase 109 P01 | 35min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-02T18:55:34.846Z
-**Stopped at:** Phase 109 context gathered
+**Last session:** 2026-07-02T19:45:12.792Z
+**Stopped at:** Completed 109-01-PLAN.md
 **Resume file:** 
-.planning/phases/109-destructiveness-gate-safety/109-CONTEXT.md
+None

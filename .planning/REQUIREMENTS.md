@@ -21,11 +21,11 @@ Requirements for milestone v1.21. Each maps to a roadmap phase.
 
 - [x] **PATT-01**: The write/verify step uses an **address-derived** data pattern (byte = f(address), folding high address bits in), preceded by a cheap all-0x00/all-0xFF pre-pass — never a fixed pattern that is blind to stuck/shorted address lines.
 - [x] **PATT-02**: A byte-mismatch fingerprint classifier categorizes verify failures (blank/contact fault vs address-line fault vs transport fault) from the mismatch distribution; it is coupled to the address-derived pattern in the same phase.
-- [ ] **PATT-03**: UV EPROMs use a small-region write variant (high-address contiguous window for upper-address-line coverage) so an eraser-less tester can retry; the region is capped by the engine, not by any DB field.
+- [x] **PATT-03**: UV EPROMs use a small-region write variant (high-address contiguous window for upper-address-line coverage) so an eraser-less tester can retry; the region is capped by the engine, not by any DB field.
 
 ### Safety & Destructiveness (SAFE)
 
-- [ ] **SAFE-01**: The `--destructive` flag gates write/erase at plan-construction time (a non-destructive plan literally lacks those steps); it is per-invocation only and is never read from config or env.
+- [x] **SAFE-01**: The `--destructive` flag gates write/erase at plan-construction time (a non-destructive plan literally lacks those steps); it is per-invocation only and is never read from config or env.
 - [ ] **SAFE-02**: `dev test` is a pure orchestrator of existing commands — it routes every operation through `chip_resolver.resolve_chip`/the existing serial path, sets no VPP, builds no raw protocol commands, and passes no `--force`; the firmware VPP guard's refusals are recorded as findings.
 - [ ] **SAFE-03**: A CI gate asserts `dev test` adds zero new firmware dispatch entries and zero new VPP-set call sites (the orchestrator-only contract is machine-enforced).
 
@@ -101,8 +101,8 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SWEEP-05 | Phase 109 | Pending |
 | PATT-01 | Phase 108 | Complete |
 | PATT-02 | Phase 108 | Complete |
-| PATT-03 | Phase 109 | Pending |
-| SAFE-01 | Phase 109 | Pending |
+| PATT-03 | Phase 109 | Complete |
+| SAFE-01 | Phase 109 | Complete |
 | SAFE-02 | Phase 109 | Pending |
 | SAFE-03 | Phase 109 | Pending |
 | RPT-01 | Phase 110 | Pending |
