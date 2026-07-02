@@ -12,9 +12,9 @@ Requirements for milestone v1.21. Each maps to a roadmap phase.
 ### Sweep Engine (SWEEP)
 
 - [x] **SWEEP-01**: `firestarter dev test <chip>` derives a per-chip test plan from the chip's DB fields (`protocol`/`electrical-type`/`FLAG_CAN_ERASE`), running only the operations that chip supports — without re-invoking build-time `classify()`, and bypassing the `resolve_chip` support-status guard for plan derivation only.
-- [ ] **SWEEP-02**: Each operation (id, read, write, verify, erase, blank-check) runs as an independent, non-fatal step with an explicit per-op verdict (`OK`/`BAD`/`NA`/`SKIPPED`); a failure in one step never aborts the remaining steps.
-- [ ] **SWEEP-03**: The sweep runs id-check first; a chip-ID mismatch hard-gates the destructive steps (fail-safe — chip left pristine) while still recording the read/id findings.
-- [ ] **SWEEP-04**: Destructive/verify steps run N≥2 times; disagreement across runs is reported as `marginal` rather than PASS or FAIL.
+- [x] **SWEEP-02**: Each operation (id, read, write, verify, erase, blank-check) runs as an independent, non-fatal step with an explicit per-op verdict (`OK`/`BAD`/`NA`/`SKIPPED`); a failure in one step never aborts the remaining steps.
+- [x] **SWEEP-03**: The sweep runs id-check first; a chip-ID mismatch hard-gates the destructive steps (fail-safe — chip left pristine) while still recording the read/id findings.
+- [x] **SWEEP-04**: Destructive/verify steps run N≥2 times; disagreement across runs is reported as `marginal` rather than PASS or FAIL.
 - [ ] **SWEEP-05**: Non-destructive by default (id + read + blank-check only); the run prints a loud "only N of M tests ran — pass `--destructive` on a scrap chip for the rest" banner whenever N < M.
 
 ### Pattern & Diagnosis (PATT)
@@ -95,9 +95,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | SWEEP-01 | Phase 108 | Complete |
-| SWEEP-02 | Phase 108 | Pending |
-| SWEEP-03 | Phase 108 | Pending |
-| SWEEP-04 | Phase 108 | Pending |
+| SWEEP-02 | Phase 108 | Complete |
+| SWEEP-03 | Phase 108 | Complete |
+| SWEEP-04 | Phase 108 | Complete |
 | SWEEP-05 | Phase 109 | Pending |
 | PATT-01 | Phase 108 | Complete |
 | PATT-02 | Phase 108 | Complete |

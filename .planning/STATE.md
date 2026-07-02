@@ -4,17 +4,17 @@ milestone: v1.21
 milestone_name: — Community Chip-Validation Command
 current_phase: 108
 current_phase_name: test-plan-engine-address-derived-pattern-fingerprint
-status: executing
-stopped_at: Completed 108-03-PLAN.md
-last_updated: "2026-07-02T18:14:15.828Z"
+status: verifying
+stopped_at: Completed 108-04-PLAN.md — phase 108 fully complete, ready for verification
+last_updated: "2026-07-02T18:29:18.367Z"
 last_activity: 2026-07-02
 last_activity_desc: Phase 108 execution started
 progress:
   total_phases: 7
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 4
-  completed_plans: 3
-  percent: 0
+  completed_plans: 4
+  percent: 14
 ---
 
 # Project State
@@ -26,7 +26,7 @@ progress:
 
 Phase: 108 (test-plan-engine-address-derived-pattern-fingerprint) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-02 — Phase 108 execution started
 
 ## Project Reference
@@ -242,6 +242,9 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: [Phase 108-03]: id-check NA rule keyed on the programmer-dict chip-id sentinel value 0, not key presence -- every DB entry carries a chip-id key but many carry the literal sentinel 0 meaning no real id to compare
 - [Phase ?]: [Phase 108-03]: blank-check NA condition checks BOTH electrical-type in {SRAM,FRAM} AND protocol-id in the SRAM proto-id set, mirroring check_eprom_blank's own short-circuit so derive_plan owns the decision up front
 - [Phase ?]: [Phase 108-03]: No named protocol constant exists for flash4 (0x05) in constants.py; added a local _PROTOCOL_FLASH4 module constant in chip_test.py mirroring database.py's own algo != 5 check
+- [Phase ?]: run_plan re-resolves every executed step via resolve_chip (guard-honoring), never reusing derive_plan's bypassing dict
+- [Phase ?]: id-gate closes on ANY id-step uncertainty (BAD or SKIPPED), not just an explicit numeric mismatch (conservative Pitfall 4 reading)
+- [Phase ?]: runs<2 rejected before any resolve/operator call; write/erase/verify disagreement reports marginal, never coerced to OK/BAD; read disagreement is a divergence metric only
 
 ## Performance Metrics
 
@@ -268,10 +271,11 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 108 P01 | 20min | 3 tasks | 3 files |
 | Phase 108 P02 | 25min | 3 tasks | 2 files |
 | Phase 108 P03 | 25min | 2 tasks | 2 files |
+| Phase 108 P04 | 45min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-02T18:14:15.817Z
-**Stopped at:** Completed 108-03-PLAN.md
+**Last session:** 2026-07-02T18:29:18.357Z
+**Stopped at:** Completed 108-04-PLAN.md — phase 108 fully complete, ready for verification
 **Resume file:** 
 None
