@@ -837,3 +837,34 @@ A legibility layer over the unchanged algorithm-first dispatch contract: a singl
 ### Cost Observations
 - Model mix: opus (orchestration/close), sonnet (executors + verifier).
 - Notable: cheapest milestone to verify — pure rename means the toolchain (diff_db identity + byte-identical build) does the proving; human/agent judgment load was low.
+
+## Milestone: v1.20 — Protocol-Only Dispatch (Remove the Legacy `mem_type` Axis)
+
+**Shipped:** 2026-07-02
+**Phases:** 3 (105–107) | **Plans:** 7
+
+### What Was Built
+The removal of the last vestige violating algorithm-first dispatch — the `mem_type`/`type` backward-compat fallback axis — end to end. Firmware deleted the `memory.cpp` fallback dispatch chain so `protocol == 0` fail-closes to `configure_not_implemented()`/`0xBB`, dropped `handle->mem_type`, stopped parsing the `type` JSON field, and retired `MSG_ERR_MEM_TYPE_UNSUPPORTED (0xAE)` + the `TYPE_*` constants (Phase 105). The host stopped emitting `type` on the wire, dropped `_ALGO_MEM_TYPE` + the "Generic Flash (legacy fallback only)" default + the `mem_type`-keyed label fallbacks, and added a fail-closed algorithm-presence guard in `chip_resolver.resolve_chip` before any serial byte (Phase 106). Docs were scrubbed, the breaking wire change recorded in both sub-repo READMEs, and `0xAE` removed from the canonical catalog; all GATE-01/02/SAFE-01 non-regression gates were re-verified green with the removal proven dead code for all 746 chips (Phase 107).
+
+### What Worked
+- **FW-first wire-contract sequencing:** firmware stopped parsing `type` (Phase 105) before the host stopped emitting it (Phase 106) — safe because `json_parser.c` silently skips unknown fields, so the intermediate state (host still emitting a stray `type`) was harmless. The breaking wire change was never left half-broken.
+- **Dead-code framing kept scope honest:** the fallback was already unreachable for every DB chip (all carry `algorithm`), so this was continuously provable as a legibility/safety cleanup, not a behavior change — `check_dispatch.py` (0 violations / 746 chips) + `diff_db.py` identity did the proving.
+- **Codegen catalog as source of truth caught a latent bug:** removing `0xAE` from the canonical `messages.toml` + regenerating surfaced two Phase-95 messages (`0x85`/`0xBC`) that had been missing from canonical — a net-zero-regression correctness fix the naive per-file edit would have silently deleted, breaking a live host test.
+
+### What Was Inefficient
+- **A near-miss hand-edit of a codegen artifact:** Phase 105 initially hand-edited `messages.h` (a codegen-generated file), leaving the canonical `messages.toml` stale (FW-03 near-miss, fixed in-phase). The `messages.h is codegen-generated` rule had to be re-learned mid-milestone.
+- **py3.12-masks-CI-3.11 trap still lurks:** host changes had to be validated against the py3.11 target manually since the devcontainer runs 3.12 — a standing friction across every host-touching milestone, not new to v1.20.
+
+### Patterns Established
+- **When removing a wire field, order firmware (stop reading) before host (stop writing)** — the unknown-field-skip on the reader keeps the contract safe through the transition.
+- **Replace a removed silent fallback with an explicit fail-closed guard** (HOST-04 mirrors firmware `0xBB`) so the removed leniency becomes a clear pre-flight error, not a new silent failure mode.
+- **Treat the codegen catalog (`messages.toml`) as the only editable source** — regenerate, never hand-edit `messages.{h,py}`; the regen diff doubles as a drift/desync detector.
+
+### Key Lessons
+- Deleting "dead" code is safest when a cheap invariant (dispatch-mirror + `check_dispatch.py` + `diff_db.py` identity) can continuously prove it was dead for all inputs — lean on that, don't just reason about it.
+- A source-of-truth regeneration step is a free correctness audit: it surfaces drift (the missing 0x85/0xBC) that scattered manual edits hide.
+
+### Cost Observations
+- Model mix: opus (orchestration/close), sonnet (executors + verifier).
+- Sessions: single-day execution (2026-07-02), roadmap → all 3 phases → close.
+- Notable: like v1.19, cheap to verify — the removal's correctness rides on existing gates (dispatch-mirror, `check_dispatch.py`, `diff_db.py` identity, byte-level build parity) rather than new test authoring.

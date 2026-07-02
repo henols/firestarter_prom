@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.20
 milestone_name: — Protocol-Only Dispatch — Remove the Legacy `mem_type` Axis
-current_phase: 107
-status: verifying
+current_phase: 20
+status: Awaiting next milestone
 stopped_at: Completed 107-03-PLAN.md (final gate sweep, v1.20 milestone verified non-regression at close)
-last_updated: "2026-07-02T15:28:54.223Z"
+last_updated: "2026-07-02T15:37:44.244Z"
 last_activity: 2026-07-02
-last_activity_desc: Phase 107 complete
+last_activity_desc: Milestone v1.20 completed and archived
 progress:
   total_phases: 3
   completed_phases: 3
@@ -24,18 +24,18 @@ current_phase_name: docs-gate-documentation-non-regression-close
 
 ## Current Position
 
-Phase: 107
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-07-02 — Phase 107 complete
+Phase: Milestone v1.20 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-07-02 — Milestone v1.20 completed and archived
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (v1.19 Phase 104 close footer + Key Decisions)
+See: `.planning/PROJECT.md` (updated 2026-07-02 — v1.20 milestone-close footer + Key Decisions)
 
-**Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). v1.20 removes the last vestige that violates that contract: the `mem_type`/`type` backward-compat fallback axis. After v1.20 the firmware, wire, and host trust **only** the real protocol.
+**Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol.
 
-**Current focus:** Phase 107 — docs-gate-documentation-non-regression-close
+**Current focus:** Planning next milestone (v1.20 shipped 2026-07-02). Standing operator-gated release work outstanding: lockstep sub-repo beta cut `3.0.0b11` + gitlink bump (gitlinks PINNED at b10).
 
 ## Milestone Context (v1.20)
 
@@ -77,6 +77,27 @@ Detail: `.planning/ROADMAP.md` §v1.20.
 | LEGACY-01 (v1.20 v2) | `FLAG_VPE_AS_VPP (0x10)` removal if confirmed unused | deferred to v2 | Operator scoped v1.20 to the `mem_type` axis only, not the broader vestige sweep. |
 | LEGACY-02 (v1.20 v2) | `EPROM_LEGACY` (0x0B) label rename + remaining "legacy fallback" prose scrub | deferred to v2 | Naming, not the dispatch axis; do after v1.20 lands. |
 | release-gate | Lockstep beta cut `3.0.0b11` + gitlink bump | OPERATOR-GATED | Standing v1.11–v1.19 policy; gitlinks PINNED. |
+
+### Deferred Items — acknowledged at v1.20 milestone close (2026-07-02)
+
+Close type: **override_closeout** — all v1.20 phases (105–107) are `phase_complete` + `verification_status: passed`, but `audit-open` reports 14 open artifact items, so the close is recorded as an override with the items acknowledged-and-deferred (operator: "Acknowledge & proceed"). **None originate in v1.20 (Phases 105–107)** — they are the identical pre-existing cross-milestone carry-forwards re-confirmed at the v1.18 and v1.19 closes (unchanged by this dead-code-removal milestone). Known verification overrides: 14 (see table below).
+
+| Category | Item | Status |
+|----------|------|--------|
+| debug | firmware-vpp-misread | diagnosed |
+| debug | fm1608-fresh-chip-baseline | parked-2026-05-18 |
+| uat_gap | Phase 08 — 08-HUMAN-UAT.md | partial (0 pending scenarios) |
+| uat_gap | Phase 85 — 85-HUMAN-UAT.md | partial (2 pending scenarios) |
+| verification_gap | Phase 08 — 08-VERIFICATION.md | human_needed |
+| verification_gap | Phase 09 — 09-VERIFICATION.md | human_needed |
+| verification_gap | Phase 71 — 71-VERIFICATION.md | gaps_found |
+| verification_gap | Phase 84 — 84-VERIFICATION.md | human_needed |
+| verification_gap | Phase 85 — 85-VERIFICATION.md | human_needed |
+| todo | 2026-06-24-skip-vpp-error-and-warning-checks-when-vpp-unused-on-reads | firmware |
+| todo | avrdude-mcu-detection-fallback | low |
+| todo | cobs-decoder-framelevel-deadline-wr01 | medium |
+| todo | photograph-modified-rev-0 | MEDIUM |
+| todo | write-modifications-md-rework-trace | MEDIUM |
 
 ### Deferred Items — acknowledged at v1.19 milestone close (2026-07-02)
 
@@ -143,7 +164,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Operator Next Steps
 
-- `/gsd-plan-phase 105` to begin firmware `mem_type` removal.
+- Start the next milestone with /gsd-new-milestone
 
 ## Decisions
 
