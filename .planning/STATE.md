@@ -4,17 +4,17 @@ milestone: v1.21
 milestone_name: — Community Chip-Validation Command
 current_phase: 109
 current_phase_name: destructiveness-gate-safety
-status: executing
+status: verifying
 stopped_at: Completed 109-02-PLAN.md
-last_updated: "2026-07-02T20:02:05.553Z"
+last_updated: "2026-07-02T20:12:05.556Z"
 last_activity: 2026-07-02
 last_activity_desc: Phase 109 execution started
 progress:
   total_phases: 7
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 7
-  completed_plans: 6
-  percent: 14
+  completed_plans: 7
+  percent: 29
 ---
 
 # Project State
@@ -26,7 +26,7 @@ progress:
 
 Phase: 109 (destructiveness-gate-safety) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-02 — Phase 109 execution started
 
 ## Project Reference
@@ -249,6 +249,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: [Phase 109 Plan 01]: UV detection at execution time uses algorithm==0x0B (EPROM_LEGACY, UV-EPROM-exclusive DB-wide) as a fallback signal because resolve_chip's programmer dict drops electrical-type; _UV_WRITE_REGION_LENGTH (256) is an engine constant no DB field can widen (PATT-03, SC4)
 - [Phase ?]: [Phase 109 Plan 02]: count_applicable(plan, results) computes SWEEP-05 M from the single Plan object (supported steps + locked_destructive), never re-deriving; N counts OK/BAD/marginal, excluding NA/SKIPPED
 - [Phase ?]: [Phase 109 Plan 02]: SAFE-02 source-scan test uses ast.walk (not raw substring grep) to avoid false positives on docstring prose describing the safety property (e.g. 'passes no --force')
+- [Phase 109]: SAFE-03: AST-based checker (fresh ast.parse walk) + mandatory anti-hollow paired pytest with 4 planted-violation fixtures via FIRESTARTER_DEVTEST_SRC env-override -- closes v1.12 hollow-GATE-03 tech debt
 
 ## Performance Metrics
 
@@ -278,10 +279,11 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 108 P04 | 45min | 3 tasks | 2 files |
 | Phase 109 P01 | 35min | 2 tasks | 2 files |
 | Phase 109 P02 | 22min | 2 tasks | 2 files |
+| Phase 109 P03 | 35min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-02T20:02:05.543Z
+**Last session:** 2026-07-02T20:11:29.461Z
 **Stopped at:** Completed 109-02-PLAN.md
 **Resume file:** 
 None
