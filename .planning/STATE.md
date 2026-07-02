@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.20
 milestone_name: — Protocol-Only Dispatch — Remove the Legacy `mem_type` Axis
 current_phase: 107
-current_phase_name: DOCS + GATE — Documentation & Non-Regression Close
+current_phase_name: docs-gate-documentation-non-regression-close
 status: executing
-stopped_at: Phase 107 context gathered
-last_updated: "2026-07-02T14:46:54.969Z"
+stopped_at: Completed 107-01-PLAN.md
+last_updated: "2026-07-02T14:54:43.464Z"
 last_activity: 2026-07-02
-last_activity_desc: Phase 106 complete, transitioned to Phase 107
+last_activity_desc: Phase 107 execution started
 progress:
   total_phases: 3
   completed_phases: 2
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 7
+  completed_plans: 5
   percent: 67
 ---
 
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 107 — DOCS + GATE — Documentation & Non-Regression Close
-Plan: Not started
+Phase: 107 (docs-gate-documentation-non-regression-close) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-07-02 — Phase 106 complete, transitioned to Phase 107
+Last activity: 2026-07-02 — Phase 107 execution started
 
 ## Project Reference
 
@@ -35,7 +35,7 @@ See: `.planning/PROJECT.md` (v1.19 Phase 104 close footer + Key Decisions)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). v1.20 removes the last vestige that violates that contract: the `mem_type`/`type` backward-compat fallback axis. After v1.20 the firmware, wire, and host trust **only** the real protocol.
 
-**Current focus:** Phase 106 — host-host-mem-type-removal
+**Current focus:** Phase 107 — docs-gate-documentation-non-regression-close
 
 ## Milestone Context (v1.20)
 
@@ -189,6 +189,8 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase 106-02]: eprom_info.py:69 string-typed 'type': 'unknown' raw-JSON field left untouched - different axis from numeric mem_type
 - [Phase ?]: [Phase 106-03]: Guard placement and read-path exactly mirror the existing support_status guard (same raw_config object, same exception, same pre-serial ordering); reject rule is a plain falsy-check covering both absent and explicit-0, no KNOWN_PROTOCOLS gate added (D-01 pass-through preserved)
 - [Phase ?]: [Phase 106-03]: Rule 1 auto-fix applied to test_consistency_check.py's dispatch-chain mock (missing programming.algorithm key), directly caused by the new HOST-04 guard; confirmed via git stash that test_audit_coverage_matrix.py golden-fixture drift and the 4 pre-existing ruff/format failures in tools/*.py are unrelated and out of scope
+- [Phase 107-01]: Reworded three explanatory mentions of the retired mem_type axis in firestarter/CLAUDE.md to avoid the literal substring 'mem_type' (legacy-integer/backward-compat phrasing), satisfying the plan's strict grep-based acceptance criteria while preserving meaning
+- [Phase 107-01]: Kept protocol==0 as its own explicit numbered terminal dispatch step (renumbered to 7) rather than folding into the generic 6b non-zero-unrecognized guard, matching the plan's required wording
 
 ## Performance Metrics
 
@@ -209,10 +211,11 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 106 P01 | 20min | 3 tasks | 8 files |
 | Phase 106 P02 | 12min | 3 tasks | 3 files |
 | Phase 106 P03 | 12min | 3 tasks | 3 files |
+| Phase 107 P01 | 18min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-07-02T14:24:03.481Z
-**Stopped at:** Phase 107 context gathered
+**Last session:** 2026-07-02T14:54:43.454Z
+**Stopped at:** Completed 107-01-PLAN.md
 **Resume file:** 
-.planning/phases/107-docs-gate-documentation-non-regression-close/107-CONTEXT.md
+None

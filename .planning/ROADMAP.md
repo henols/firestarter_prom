@@ -1353,12 +1353,12 @@ Plans:
   3. Full native (`pio test -e native`) and host (`pytest`) suites pass, dual-repo constants parity holds, and py3.11-target CI (ruff / ruff-format / mypy) is clean — no regression introduced by either removal phase.
   4. Over-voltage stays blocked at the firmware VPP check, and every currently-dispatchable DB chip is re-confirmed routing to its identical handler via `protocol` alone (SAFE-01) — the milestone closes with the removed fallback proven dead for every real chip, not just asserted.
 
-**Plans**: 3 plans
+**Plans**: 1/3 plans executed
 
 Plans:
 **Wave 1** *(file-disjoint — docs scrub vs codegen removal, fully parallel)*
 
-- [ ] 107-01-PLAN.md — DOC-01: scrub steps 7–11 `mem_type` dispatch narrative + legacy `type` wire bullet from `firestarter/CLAUDE.md`, drop stale `"type": 1` example from `firestarter_app/CLAUDE.md`, add `## Breaking Changes (v1.20)` to both sub-repo READMEs (D-01/D-02/D-03/D-08/D-09; PROTOCOLS.md verify-only)
+- [x] 107-01-PLAN.md — DOC-01: scrub steps 7–11 `mem_type` dispatch narrative + legacy `type` wire bullet from `firestarter/CLAUDE.md`, drop stale `"type": 1` example from `firestarter_app/CLAUDE.md`, add `## Breaking Changes (v1.20)` to both sub-repo READMEs (D-01/D-02/D-03/D-08/D-09; PROTOCOLS.md verify-only)
 - [ ] 107-02-PLAN.md — DOC-01 (D-06): remove retired `MSG_ERR_MEM_TYPE_UNSUPPORTED (0xAE)` from the canonical `messages.toml` + regenerate `messages.py`/`messages.h` via `sync_to_subrepos.sh`/`codegen.py`; verify codegen drift gate clean (only sanctioned code/codegen change)
 
 **Wave 2** *(gate sweep — runs after doc + codegen changes land)*

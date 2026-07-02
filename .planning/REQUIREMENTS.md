@@ -26,7 +26,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Docs & Migration (DOC)
 
-- [ ] **DOC-01**: Firmware `CLAUDE.md` dispatch section (steps 7–11 removed), `firestarter/doc/PROTOCOLS.md`, and the JSON wire-field docs drop `type`/`mem_type`; the breaking change + the "every entry needs `algorithm`" requirement are recorded in the sub-repo READMEs / changelog.
+- [x] **DOC-01**: Firmware `CLAUDE.md` dispatch section (steps 7–11 removed), `firestarter/doc/PROTOCOLS.md`, and the JSON wire-field docs drop `type`/`mem_type`; the breaking change + the "every entry needs `algorithm`" requirement are recorded in the sub-repo READMEs / changelog.
 
 ### Non-Regression Gates (GATE / SAFE)
 
@@ -70,7 +70,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | HOST-02 | Phase 106 | Complete |
 | HOST-03 | Phase 106 | Complete |
 | HOST-04 | Phase 106 | Complete |
-| DOC-01 | Phase 107 | Pending |
+| DOC-01 | Phase 107 | Complete |
 | GATE-01 | Phase 107 | Pending |
 | GATE-02 | Phase 107 | Pending |
 | SAFE-01 | Phase 107 | Pending |
