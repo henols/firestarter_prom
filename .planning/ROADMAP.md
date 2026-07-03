@@ -295,7 +295,11 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
   2. Before anything is sent, the report is sanitized — only a whitelisted field set is included, local filesystem paths and other PII are scrubbed, and any raw byte dumps are hex/base64-encoded — and the sanitized, final body is shown to the tester for explicit confirmation; submission never happens as a side effect of a bare `dev test` run (it requires the explicit `--submit` flag and an interactive confirm).
   3. Every submitted report carries a deterministic dedup fingerprint (derived from chip identity + key result fields) so a maintainer triaging the `gsd-inbox` label can recognize repeat reports for the same chip at a glance.
 
-**Plans**: TBD
+**Plans**: 4 plans
+- [ ] 113-01-PLAN.md — SUB-03 dedup fingerprint helper + `to_dict()` field in diagnostic_report.py (Wave 1)
+- [ ] 113-02-PLAN.md — submit.py foundations: constants (hardcoded repo), sanitize_dict, body/title/URL builders, gh tier (Wave 2)
+- [ ] 113-03-PLAN.md — submit.py orchestration: browser tier + D-05 oversize + submit_report refuse/TTY gate (Wave 3)
+- [ ] 113-04-PLAN.md — `--submit` flag wiring in dev_test + SAFE-03 submit.py scan leg (Wave 4)
 **UI hint**: no
 
 ### Phase 114: Disposition / No-Auto-Graduate Lock + Graduation Ladder + Inbox Reconciliation
