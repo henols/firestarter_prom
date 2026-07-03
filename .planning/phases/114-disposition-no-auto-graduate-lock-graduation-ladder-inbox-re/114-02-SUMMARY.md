@@ -134,3 +134,12 @@ None - no external service configuration required. The parser is invoked manuall
 ---
 *Phase: 114-disposition-no-auto-graduate-lock-graduation-ladder-inbox-re*
 *Completed: 2026-07-03*
+
+## Self-Check: PASSED
+
+- FOUND: firestarter_app/tools/parse_devtest_issue.py
+- FOUND: firestarter_app/tests/test_parse_devtest_issue.py
+- FOUND: .planning/phases/114-disposition-no-auto-graduate-lock-graduation-ladder-inbox-re/114-02-SUMMARY.md
+- FOUND commit: 50b07c4 (feat, firestarter_app)
+- FOUND commit: 8b6962d (test, firestarter_app)
+- FOUND commit: 71b8d8f (docs, meta)
