@@ -1,7 +1,7 @@
 ---
 phase: 112-dev-test-handler-wiring
 verified: 2026-07-03T13:00:00Z
-status: human_needed
+status: passed
 score: 9/9 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
@@ -9,6 +9,7 @@ re_verification:
   previous_status: gaps_found
   previous_score: 8/9
   gaps_closed:
+
     - "SC2 / SWEEP-05 (derive_plan non-destructive plan = id+read+blank-check only): directly reproduced live, non-mocked, this session — derive_plan('M8720'|'W27C512', db, destructive=False).steps == ['id','read','blank-check'] exactly, OP_VERIFY absent and recorded on locked_destructive as ('verify', 'destructive=False: verify omitted (D-01)'); derive_plan(..., destructive=True).steps unchanged: ['id','read','blank-check','write','verify','erase'] (verify after write, before erase). Fix commit 7a74fcc (chip_test.py), test commit b88649f (test_chip_test.py / test_dev_test_cmd.py) confirmed present in firestarter_app submodule on branch v1.21-community-chip-validation-command."
   gaps_remaining: []
   regressions: []
