@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — Community Chip-Validation Command
-current_phase: 111
-current_phase_name: measured-voltage-sampler-hardware-gated
-status: verifying
-stopped_at: Completed 111-02-PLAN.md
-last_updated: "2026-07-03T07:35:04.738Z"
+current_phase: 112
+current_phase_name: `dev test` Handler Wiring
+status: planning
+stopped_at: Phase 111 complete + verified (UAT passed); ready to plan Phase 112
+last_updated: "2026-07-03T07:55:09.824Z"
 last_activity: 2026-07-03
-last_activity_desc: Phase 111 execution started
+last_activity_desc: Phase 111 complete, transitioned to Phase 112
 progress:
   total_phases: 7
   completed_phases: 4
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 111 (measured-voltage-sampler-hardware-gated) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
-Last activity: 2026-07-03 — Phase 111 execution started
+Phase: 112 — `dev test` Handler Wiring
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-07-03 — Phase 111 complete + verified (UAT passed), transitioned to Phase 112
 
 ## Project Reference
 
@@ -35,7 +35,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-02 — v1.20 milestone-close footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.21 extends this trust outward: the community can now prove chip support on hardware the maintainer doesn't own, via a pure orchestration layer over the existing algorithm-first dispatch — never a new dispatch path.
 
-**Current focus:** Phase 111 — measured-voltage-sampler-hardware-gated
+**Current focus:** Phase 112 — `dev test` Handler Wiring (integrates 108–111 into the Click CLI)
 
 ## Milestone Context (v1.21)
 
@@ -181,8 +181,8 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Operator Next Steps
 
-- Review the v1.21 roadmap (`.planning/ROADMAP.md` §v1.21) and REQUIREMENTS.md traceability.
-- Start Phase 108 with `/gsd-plan-phase 108` (consider `--research-phase 108` per the flagged pattern-math/fingerprint-threshold research need).
+- Phases 108–111 complete (4/7). Next: plan Phase 112 (`dev test` Handler Wiring) with `/gsd-plan-phase 112` — the `@dev.command("test")` integration of 108–111, unit-testable via the mock-operator seam.
+- Phase 112 is where the Phase-111 sampler (`sample_vpp_mv`/`sample_vpe_mv`) finally gets a write-step call site around `run_plan` — carry the deferred before/after voltage-capture UAT (see `111/deferred-items.md`) into Phase 112 verification, ideally with an electrically-erasable chip (W27C512/W29C020).
 
 ## Decisions
 
@@ -262,6 +262,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: [Phase 111-03]: Old combined vpp_vpe_mv slot fully removed (0 occurrences) rather than kept as a deprecated alias, satisfying the negative-grep acceptance criterion and the D-01 split
 - [Phase ?]: [Phase 111-03]: _voltage_dict modeled byte-for-byte on the existing _transport_dict pattern (six explicit NOT_MEASURED-if-None branches) matching the file's established idiom
 - [Phase ?]: [Phase 111-03]: Voltage render() row placed after banner, before provenance, as a single add_row sourced only from to_dict()['voltage'] (single-source contract, Phase 110 D-01)
+- [Phase 111 close]: UAT Test 1 (live-hardware VPP/VPE parity, SC2 hardware half / D-05) PASS on Leonardo + Rev 2.0 (ACM0 = "Rev 2.0-class"); VERIFICATION.md flipped human_needed→passed. UAT Test 2 (before/after write-step capture) reclassified out of the blocking UAT set → deferred to Phase 112 (operator decision) since no write-step call site exists in Phase 111 by design; logged in 111/deferred-items.md — NOT a Phase 111 gap.
 
 ## Performance Metrics
 
@@ -301,7 +302,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Session
 
-**Last session:** 2026-07-03T07:34:27.059Z
-**Stopped at:** Completed 111-02-PLAN.md
-**Resume file:** 
+**Last session:** 2026-07-03T07:55:09Z
+**Stopped at:** Phase 111 complete + verified (UAT passed); ready to plan Phase 112
+**Resume file:** None 
 None
