@@ -260,7 +260,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
   3. The command's exit code reflects the sweep outcome (e.g. zero for a clean PASS-only run, non-zero when any step recorded `BAD`), so it is scriptable in CI-like community workflows.
   4. The handler is unit-testable without hardware via `EpromDatabase(skip_local_override=True)` plus a mock operator — the same test seam `dev validate-family` already established — proving the wiring itself needs no bench access.
 
-**Plans**: 4 plans (3 original + 1 gap-closure)
+**Plans**: 5 plans (3 original + 2 gap-closure)
 **Wave 1**
 
 - [x] 112-01-PLAN.md — Engine sampler hook: optional `sampler` param threaded through `run_plan` bracketing OP_WRITE (D-04); `sampler=None` no-op; no `hardware.py` import
@@ -276,6 +276,10 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 **Gap closure** *(from 112-UAT.md test 2, major; operator-approved descope)*
 
 - [x] 112-04-PLAN.md — Descope interactive provenance (deletes the four prompts + the `/`-in-choice trigger bug); auto-capture `hw_revision`/`fw_board_identity`/`protocol`; auto-capture-only `is_submittable`; KEEP `--destructive` safety confirm (SAFE-03). REVERSES RPT-04 / D-04 / D-05 / D-06.
+
+**Gap closure** *(from 112-VERIFICATION.md re-verify; SC2 / SWEEP-05)*
+
+- [ ] 112-05-PLAN.md — Gate OP_VERIFY behind `destructive` in `derive_plan` so the non-destructive plan is genuinely id+read+blank-check (SC2/SWEEP-05); non-mocked composition + non-masking behavioral regression tests; repair the 3 tests that codified the 4-step bug; reword stale RPT-04 in REQUIREMENTS.md to the 112-04 auto-capture model.
 
 **UI hint**: no
 
