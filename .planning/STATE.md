@@ -4,17 +4,17 @@ milestone: v1.21
 milestone_name: — Community Chip-Validation Command
 current_phase: 111
 current_phase_name: measured-voltage-sampler-hardware-gated
-status: executing
+status: verifying
 stopped_at: Completed 111-02-PLAN.md
-last_updated: "2026-07-03T07:29:30.220Z"
+last_updated: "2026-07-03T07:35:04.738Z"
 last_activity: 2026-07-03
 last_activity_desc: Phase 111 execution started
 progress:
   total_phases: 7
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 13
-  completed_plans: 12
-  percent: 43
+  completed_plans: 13
+  percent: 57
 ---
 
 # Project State
@@ -26,7 +26,7 @@ progress:
 
 Phase: 111 (measured-voltage-sampler-hardware-gated) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-03 — Phase 111 execution started
 
 ## Project Reference
@@ -259,6 +259,9 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase 111-01]: Asserted the render() single-source contract for the voltage split by scanning rendered table cells for the expected value rather than inspecting render() source text, since Plan 03 has not yet decided the exact voltage row wording
 - [Phase ?]: [Phase 111-02]: Used RESEARCH Pattern A (regex re-parse of Response.message) per plan directive, superseding CONTEXT D-05's raw-payload premise -- Response.payload is None for 0xE4/0xE5 frames
 - [Phase ?]: [Phase 111-02]: sample_vpp_mv/sample_vpe_mv placed strictly after _read_voltage_loop/read_vpp_voltage/read_vpe_voltage with zero lines changed in those methods (SC3 verified via git diff)
+- [Phase ?]: [Phase 111-03]: Old combined vpp_vpe_mv slot fully removed (0 occurrences) rather than kept as a deprecated alias, satisfying the negative-grep acceptance criterion and the D-01 split
+- [Phase ?]: [Phase 111-03]: _voltage_dict modeled byte-for-byte on the existing _transport_dict pattern (six explicit NOT_MEASURED-if-None branches) matching the file's established idiom
+- [Phase ?]: [Phase 111-03]: Voltage render() row placed after banner, before provenance, as a single add_row sourced only from to_dict()['voltage'] (single-source contract, Phase 110 D-01)
 
 ## Performance Metrics
 
@@ -294,10 +297,11 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 110-diagnostic-report-model-dual-output-provenance-prompts P03 | 25min | 3 tasks | 2 files |
 | Phase 111 P01 | 20min | 2 tasks | 2 files |
 | Phase 111 P02 | 12min | 2 tasks | 1 files |
+| Phase 111 P03 | 12min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-07-03T07:29:30.201Z
+**Last session:** 2026-07-03T07:34:27.059Z
 **Stopped at:** Completed 111-02-PLAN.md
 **Resume file:** 
 None

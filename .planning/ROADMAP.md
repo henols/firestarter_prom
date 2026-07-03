@@ -243,7 +243,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 
 - [x] 111-01-PLAN.md — Wave-0 RED test scaffolds (sampler parse/median/none/format-pin + report voltage-split) against synthetic 0xE4/0xE5 frames
 - [x] 111-02-PLAN.md — sample_vpp_mv/sample_vpe_mv sampler in hardware.py (Pattern A: parse Response.message, 100 mV grid, median, None-not-0; SC3 additive)
-- [ ] 111-03-PLAN.md — split the combined report voltage slot into VPP/VPE before/after + standalone fields (D-01/D-03/D-04), single-source to_dict/render + NOT_MEASURED fallback
+- [x] 111-03-PLAN.md — split the combined report voltage slot into VPP/VPE before/after + standalone fields (D-01/D-03/D-04), single-source to_dict/render + NOT_MEASURED fallback
 
 **UI hint**: no
 
@@ -1108,7 +1108,7 @@ Plans:
 | 108 | v1.21 | 4/4 | Complete    | 2026-07-02 |
 | 109 | v1.21 | 3/3 | Complete    | 2026-07-02 |
 | 110 | v1.21 | 3/3 | Complete    | 2026-07-02 |
-| 111 | v1.21 | 2/3 | In Progress|  |
+| 111 | v1.21 | 3/3 | Complete   | 2026-07-03 |
 | 112 | v1.21 | 0/TBD | Not started | — |
 | 113 | v1.21 | 0/TBD | Not started | — |
 | 114 (close) | v1.21 | 0/TBD | Not started | — |
