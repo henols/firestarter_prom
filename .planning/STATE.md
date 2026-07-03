@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — Community Chip-Validation Command
-current_phase: 114
-current_phase_name: disposition-no-auto-graduate-lock-graduation-ladder-inbox-re
-status: verifying
-stopped_at: Completed 114-03-PLAN.md
-last_updated: "2026-07-03T19:36:00.599Z"
+current_phase: 114.1
+current_phase_name: dev test absent-chip hard-fail (SAFE-04)
+status: pending
+stopped_at: Phase 114 complete + verified (3/3); Phase 114.1 (SAFE-04) is next and unplanned
+last_updated: "2026-07-03T19:43:30.777Z"
 last_activity: 2026-07-03
-last_activity_desc: Phase 114 execution started
+last_activity_desc: Phase 114 complete + verified (3/3 must-haves); hand-corrected transition to Phase 114.1 (SAFE-04, unplanned)
 progress:
   total_phases: 9
   completed_phases: 7
@@ -24,12 +24,12 @@ progress:
 
 ## Current Position
 
-Phase: 114 (disposition-no-auto-graduate-lock-graduation-ladder-inbox-re) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
-Last activity: 2026-07-03 — Phase 114 execution started
+Phase: 114.1 — `dev test` Absent-Chip Hard-Fail (SAFE-04) — micro-phase, not yet planned
+Plan: Not started (run `/gsd-plan-phase 114.1`)
+Status: Phase 114 complete + verified (3/3 must-haves) — Phase 114.1 next, unplanned
+Last activity: 2026-07-03 — Phase 114 complete + verified; hand-corrected transition to Phase 114.1
 
-<!-- NOTE: RECURRING `phase.complete` bug — it mis-advanced current_phase→115 (the `(close)` phase) again because Phase 114 has no directory on disk yet; hand-corrected to 114 per the roadmap dependency spine 112 → 113 → 114 → 115 (same fix applied at the 112→113 boundary). Expect this again at the 114→115 boundary until 114 has a phase dir. -->
+<!-- NOTE: RECURRING `phase.complete` bug — it mis-advanced current_phase→115 (the `(close)` phase) AGAIN at the 114→114.1 boundary because micro-phase 114.1 has no directory on disk yet (it was inserted mid-`/gsd-plan-phase 114` for SAFE-04). Hand-corrected to 114.1 per the roadmap dependency spine 112 → 113 → 114 → 114.1 → 115 (the first `[ ]` checkbox after 114). Expect this again at the 114.1→115 boundary until 114.1 has a phase dir. -->
 
 ## Project Reference
 
@@ -37,7 +37,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-02 — v1.20 milestone-close footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.21 extends this trust outward: the community can now prove chip support on hardware the maintainer doesn't own, via a pure orchestration layer over the existing algorithm-first dispatch — never a new dispatch path.
 
-**Current focus:** Phase 114 — disposition-no-auto-graduate-lock-graduation-ladder-inbox-re
+**Current focus:** Phase 114.1 — `dev test` absent-chip hard-fail (SAFE-04); then Phase 115 (close capstone)
 
 ## Milestone Context (v1.21)
 
