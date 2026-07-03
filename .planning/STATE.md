@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — Community Chip-Validation Command
-current_phase: 113
-current_phase_name: submission-flow
-status: verifying
-stopped_at: Completed 113-03-PLAN.md
-last_updated: "2026-07-03T17:36:51.190Z"
+current_phase: 114
+current_phase_name: disposition-no-auto-graduate-lock
+status: complete
+stopped_at: Phase 113 complete (113-04-PLAN.md)
+last_updated: "2026-07-03T17:56:21.511Z"
 last_activity: 2026-07-03
-last_activity_desc: Phase 113 execution started
+last_activity_desc: Phase 113 complete + verified, transitioned to Phase 114
 progress:
   total_phases: 8
   completed_phases: 6
@@ -24,12 +24,12 @@ progress:
 
 ## Current Position
 
-Phase: 113 (submission-flow) — EXECUTING
-Plan: 4 of 4
-Status: Phase complete — ready for verification
-Last activity: 2026-07-03 — Phase 113 execution started
+Phase: 114 — Disposition / No-Auto-Graduate Lock + Graduation Ladder + Inbox Reconciliation (feature close)
+Plan: Not started
+Status: Phase 113 complete + verified (3/3 must-haves) — Phase 114 not yet planned
+Last activity: 2026-07-03 — Phase 113 complete, transitioned to Phase 114
 
-<!-- NOTE: `phase.complete 112` mis-set current_phase→115 (the `(close)` phase) because phases 113/114 have no phase directory on disk yet; corrected to 113 per the roadmap dependency spine 112 → 113 → 114 → 115. -->
+<!-- NOTE: RECURRING `phase.complete` bug — it mis-advanced current_phase→115 (the `(close)` phase) again because Phase 114 has no directory on disk yet; hand-corrected to 114 per the roadmap dependency spine 112 → 113 → 114 → 115 (same fix applied at the 112→113 boundary). Expect this again at the 114→115 boundary until 114 has a phase dir. -->
 
 ## Project Reference
 
@@ -37,7 +37,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-02 — v1.20 milestone-close footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.21 extends this trust outward: the community can now prove chip support on hardware the maintainer doesn't own, via a pure orchestration layer over the existing algorithm-first dispatch — never a new dispatch path.
 
-**Current focus:** Phase 113 — submission-flow
+**Current focus:** Phase 114 — disposition / no-auto-graduate lock (feature close)
 
 ## Milestone Context (v1.21)
 
