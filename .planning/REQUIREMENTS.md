@@ -48,8 +48,8 @@ Requirements for milestone v1.21. Each maps to a roadmap phase.
 
 ### Submission (SUB)
 
-- [ ] **SUB-01**: `--submit` files the report via a tiered flow: `gh issue create --body-file -` (stdin, auto-labeled `gsd-inbox`) when `gh` is present and authed, else a prefilled `issues/new` browser URL guarded to stay under the ~8 KB server cap (escalate/omit the JSON past ~7.5 KB encoded); a gist/attachment path is reserved for verbose failure logs.
-- [ ] **SUB-02**: Before submitting, the report is sanitized (field whitelist, local paths/PII scrubbed, byte dumps hex/base64-encoded) and shown to the tester for preview-before-submit; submission is explicit/interactive only, never on a bare run.
+- [x] **SUB-01**: `--submit` files the report via a tiered flow: `gh issue create --body-file -` (stdin, auto-labeled `gsd-inbox`) when `gh` is present and authed, else a prefilled `issues/new` browser URL guarded to stay under the ~8 KB server cap (escalate/omit the JSON past ~7.5 KB encoded); a gist/attachment path is reserved for verbose failure logs.
+- [x] **SUB-02**: Before submitting, the report is sanitized (field whitelist, local paths/PII scrubbed, byte dumps hex/base64-encoded) and shown to the tester for preview-before-submit; submission is explicit/interactive only, never on a bare run.
 - [x] **SUB-03**: Submission carries a dedup fingerprint so repeat reports for the same chip are recognizable in triage.
 
 ### Disposition & Graduation (DISP / GRAD / INBOX)
@@ -123,8 +123,8 @@ Which phases cover which requirements. Populated during roadmap creation.
 | RPT-05 | Phase 110 | Complete |
 | VOLT-01 | Phase 111 | Complete |
 | XPORT-01 | Phase 110 | Complete |
-| SUB-01 | Phase 113 | Pending |
-| SUB-02 | Phase 113 | Pending |
+| SUB-01 | Phase 113 | Complete |
+| SUB-02 | Phase 113 | Complete |
 | SUB-03 | Phase 113 | Complete |
 | DISP-01 | Phase 114 | Pending |
 | GRAD-01 | Phase 114 | Pending |

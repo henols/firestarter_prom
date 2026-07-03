@@ -4,17 +4,17 @@ milestone: v1.21
 milestone_name: — Community Chip-Validation Command
 current_phase: 113
 current_phase_name: submission-flow
-status: executing
+status: verifying
 stopped_at: Completed 113-03-PLAN.md
-last_updated: "2026-07-03T17:27:09.121Z"
+last_updated: "2026-07-03T17:36:51.190Z"
 last_activity: 2026-07-03
 last_activity_desc: Phase 113 execution started
 progress:
   total_phases: 8
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 22
-  completed_plans: 21
-  percent: 63
+  completed_plans: 22
+  percent: 75
 ---
 
 # Project State
@@ -26,7 +26,7 @@ progress:
 
 Phase: 113 (submission-flow) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-03 — Phase 113 execution started
 
 <!-- NOTE: `phase.complete 112` mis-set current_phase→115 (the `(close)` phase) because phases 113/114 have no phase directory on disk yet; corrected to 113 per the roadmap dependency spine 112 → 113 → 114 → 115. -->
@@ -284,6 +284,8 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: [Phase 113-02]: gh_available never calls run_fn when which_fn('gh') is falsy -- PATH-short-circuited before any subprocess spawn
 - [Phase ?]: [Phase 113-03]: submit_via_browser drops the JSON fence by splitting the pre-built body string on its own '\n\n```json\n' marker rather than re-invoking build_body(include_json=False) -- the plan-mandated signature (title, body, saved_json_path) never receives sanitized_dict/results — Only implementation consistent with the required function signature while satisfying every behavior clause
 - [Phase ?]: [Phase 113-03]: Left SUB-01/SUB-02 unchecked in REQUIREMENTS.md -- both are also 113-04's frontmatter requirements (the --submit CLI flag + call site); until that lands a bare dev test run cannot reach submit_report — Requirement isn't fully satisfied from a user's perspective until the CLI wiring plan lands
+- [Phase ?]: [Phase 113-04]: Patched firestarter.submit.submit_report (module attribute) as the stable seam for both mocked-call-site and real-submit_report end-to-end tests, since the dev_test call site imports submit lazily inside the if submit: block
+- [Phase ?]: [Phase 113-04]: submit.py scanned in FULL via _scan_file (not the scoped _scan_target_functions handler path) for the new SAFE-03 leg -- it is a fresh Phase-113 module with zero pre-existing force/VPP/wire-dict usage, mirroring chip_test.py
 
 ## Performance Metrics
 
@@ -328,9 +330,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 113 P01 | 20min | 2 tasks | 2 files |
 | Phase 113 P02 | 30min | 3 tasks | 2 files |
 | Phase 113 P03 | 35min | 2 tasks | 2 files |
+| Phase 113 P04 | 35min | 2 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-07-03T17:27:09.104Z
+**Last session:** 2026-07-03T17:36:51.180Z
 **Stopped at:** Completed 113-03-PLAN.md
 **Resume file:** .planning/phases/113-submission-flow/113-04-PLAN.md
