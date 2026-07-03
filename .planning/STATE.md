@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — Community Chip-Validation Command
 current_phase: 114
-current_phase_name: feature close
-status: complete
+current_phase_name: disposition-no-auto-graduate-lock-graduation-ladder-inbox-re
+status: executing
 stopped_at: Phase 114 context gathered
-last_updated: "2026-07-03T18:15:03.144Z"
+last_updated: "2026-07-03T19:06:00.049Z"
 last_activity: 2026-07-03
-last_activity_desc: Phase 113 complete, transitioned to Phase 114
+last_activity_desc: Phase 114 execution started
 progress:
-  total_phases: 8
+  total_phases: 9
   completed_phases: 6
-  total_plans: 22
-  completed_plans: 22
-  percent: 75
+  total_plans: 25
+  completed_plans: 23
+  percent: 67
 ---
 
 # Project State
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 114 — Disposition / No-Auto-Graduate Lock + Graduation Ladder + Inbox Reconciliation (feature close)
-Plan: Not started
-Status: Phase 113 complete + verified (3/3 must-haves) — Phase 114 not yet planned
-Last activity: 2026-07-03 — Phase 113 complete, transitioned to Phase 114
+Phase: 114 (disposition-no-auto-graduate-lock-graduation-ladder-inbox-re) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-07-03 — Phase 114 execution started
 
 <!-- NOTE: RECURRING `phase.complete` bug — it mis-advanced current_phase→115 (the `(close)` phase) again because Phase 114 has no directory on disk yet; hand-corrected to 114 per the roadmap dependency spine 112 → 113 → 114 → 115 (same fix applied at the 112→113 boundary). Expect this again at the 114→115 boundary until 114 has a phase dir. -->
 
@@ -37,7 +37,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-02 — v1.20 milestone-close footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.21 extends this trust outward: the community can now prove chip support on hardware the maintainer doesn't own, via a pure orchestration layer over the existing algorithm-first dispatch — never a new dispatch path.
 
-**Current focus:** Phase 114 — disposition / no-auto-graduate lock (feature close)
+**Current focus:** Phase 114 — disposition-no-auto-graduate-lock-graduation-ladder-inbox-re
 
 ## Milestone Context (v1.21)
 
@@ -286,6 +286,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: [Phase 113-03]: Left SUB-01/SUB-02 unchecked in REQUIREMENTS.md -- both are also 113-04's frontmatter requirements (the --submit CLI flag + call site); until that lands a bare dev test run cannot reach submit_report — Requirement isn't fully satisfied from a user's perspective until the CLI wiring plan lands
 - [Phase ?]: [Phase 113-04]: Patched firestarter.submit.submit_report (module attribute) as the stable seam for both mocked-call-site and real-submit_report end-to-end tests, since the dev_test call site imports submit lazily inside the if submit: block
 - [Phase ?]: [Phase 113-04]: submit.py scanned in FULL via _scan_file (not the scoped _scan_target_functions handler path) for the new SAFE-03 leg -- it is a fresh Phase-113 module with zero pre-existing force/VPP/wire-dict usage, mirroring chip_test.py
+- [Phase 114-01]: ladder_state derived in the SAME verdict-branch structure as proposed_disposition (BAD/marginal-indeterminate/all-OK/else); community-confirmed formalized as a named-but-unused constant, never producible by build_db_diff (GRAD-01 SC2 by construction)
 
 ## Performance Metrics
 
@@ -331,9 +332,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 113 P02 | 30min | 3 tasks | 2 files |
 | Phase 113 P03 | 35min | 2 tasks | 2 files |
 | Phase 113 P04 | 35min | 2 tasks | 4 files |
+| Phase 114 P01 | 12min | 2 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-07-03T18:15:03.132Z
+**Last session:** 2026-07-03T19:05:15.280Z
 **Stopped at:** Phase 114 context gathered
 **Resume file:** .planning/phases/114-disposition-no-auto-graduate-lock-graduation-ladder-inbox-re/114-CONTEXT.md

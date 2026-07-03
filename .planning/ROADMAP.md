@@ -330,7 +330,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 
 **Wave 1** *(independent, parallel — no file overlap)*
 
-- [ ] 114-01-PLAN.md — GRAD-01: report-side `ladder_state` on `DbDiff`/`build_db_diff`/`to_dict` in `diagnostic_report.py` + ladder tests + `doc/community-validation.md` taxonomy & N≥2 promotion process (D-01/D-02)
+- [x] 114-01-PLAN.md — GRAD-01: report-side `ladder_state` on `DbDiff`/`build_db_diff`/`to_dict` in `diagnostic_report.py` + ladder tests + `doc/community-validation.md` taxonomy & N≥2 promotion process (D-01/D-02)
 - [ ] 114-02-PLAN.md — INBOX-01 (+ GRAD-01 N≥2): stdlib `tools/parse_devtest_issue.py` — detect `[dev test]`+`schema_version`, surface DB-diff, count matching `dedup_fingerprint`s + unit tests (D-03/D-04)
 
 **Wave 2** *(depends on Wave 1 — scans both 01+02 files)*
@@ -1190,7 +1190,7 @@ Plans:
 | 111 | v1.21 | 3/3 | Complete    | 2026-07-03 |
 | 112 | v1.21 | 5/5 | Complete    | 2026-07-03 |
 | 113 | v1.21 | 4/4 | Complete    | 2026-07-03 |
-| 114 (close) | v1.21 | 0/TBD | Not started | — |
+| 114 (close) | v1.21 | 1/3 | In Progress|  |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
