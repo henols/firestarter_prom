@@ -5,15 +5,15 @@ milestone_name: — Community Chip-Validation Command
 current_phase: 114
 current_phase_name: disposition-no-auto-graduate-lock-graduation-ladder-inbox-re
 status: executing
-stopped_at: Phase 114 context gathered
-last_updated: "2026-07-03T19:06:00.049Z"
+stopped_at: Completed 114-02-PLAN.md
+last_updated: "2026-07-03T19:20:39.815Z"
 last_activity: 2026-07-03
 last_activity_desc: Phase 114 execution started
 progress:
   total_phases: 9
   completed_phases: 6
   total_plans: 25
-  completed_plans: 23
+  completed_plans: 24
   percent: 67
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 114 (disposition-no-auto-graduate-lock-graduation-ladder-inbox-re) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-07-03 — Phase 114 execution started
 
@@ -287,6 +287,9 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: [Phase 113-04]: Patched firestarter.submit.submit_report (module attribute) as the stable seam for both mocked-call-site and real-submit_report end-to-end tests, since the dev_test call site imports submit lazily inside the if submit: block
 - [Phase ?]: [Phase 113-04]: submit.py scanned in FULL via _scan_file (not the scoped _scan_target_functions handler path) for the new SAFE-03 leg -- it is a fresh Phase-113 module with zero pre-existing force/VPP/wire-dict usage, mirroring chip_test.py
 - [Phase 114-01]: ladder_state derived in the SAME verdict-branch structure as proposed_disposition (BAD/marginal-indeterminate/all-OK/else); community-confirmed formalized as a named-but-unused constant, never producible by build_db_diff (GRAD-01 SC2 by construction)
+- [Phase ?]: [Phase 114-02]: CLI shape (discretionary D-04) -- single-body mode takes --title + --body-file/stdin as separate inputs (mirroring two gh issue view --json invocations); --dir/--glob N-agreeing mode operates on plain saved-body files, no title needed
+- [Phase ?]: [Phase 114-02]: schema_version matched by presence only (any value), never an exact-version comparison -- survives Plan 01's 1.0->1.1 bump and any future schema change with zero parser code change
+- [Phase ?]: [Phase 114-02]: No rich import in parse_devtest_issue.py (even though rich is already a project dependency) -- plain-text render_diff() only, satisfying the literal no-third-party-import-errors acceptance criterion
 
 ## Performance Metrics
 
@@ -333,9 +336,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 113 P03 | 35min | 2 tasks | 2 files |
 | Phase 113 P04 | 35min | 2 tasks | 4 files |
 | Phase 114 P01 | 12min | 2 tasks | 3 files |
+| Phase 114 P02 | 15min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-03T19:05:15.280Z
-**Stopped at:** Phase 114 context gathered
-**Resume file:** .planning/phases/114-disposition-no-auto-graduate-lock-graduation-ladder-inbox-re/114-CONTEXT.md
+**Last session:** 2026-07-03T19:20:39.805Z
+**Stopped at:** Completed 114-02-PLAN.md
+**Resume file:** None
