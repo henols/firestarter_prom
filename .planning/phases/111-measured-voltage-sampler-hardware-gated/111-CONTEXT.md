@@ -92,8 +92,8 @@ was built in Phase 110 (this phase fills — and expands — its voltage slot).
   fallback pattern).
 
 ### Bench validation scope (the hardware gate)
-- **D-05 (LOCKED): Ship software-complete + unit-tested now; DEFER the live
-  SC2 check.** Build + unit-test the sampler against **recorded/synthetic
+- **D-05 (LOCKED): Ship software-complete + unit-tested now; DEFER the live SC2 check.**
+  Build + unit-test the sampler against **recorded/synthetic
   0xE4/0xE5 frames** (4×u16: VPP/VPE whole.frac + internal VCC whole.frac);
   defer the live "parsed mV == printed monitor value" confirmation on
   Leonardo + Rev 2.0 to a bench session as a **HUMAN-UAT / FUT item**. Matches
