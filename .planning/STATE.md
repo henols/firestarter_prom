@@ -4,30 +4,30 @@ milestone: v1.21
 milestone_name: — Community Chip-Validation Command
 current_phase: 112
 current_phase_name: dev-test-handler-wiring
-status: verifying
-stopped_at: Completed 112-03-PLAN.md
-last_updated: "2026-07-03T09:34:29.815Z"
+status: executing
+stopped_at: Completed 112-04-PLAN.md (gap closure)
+last_updated: "2026-07-03T11:02:16.788Z"
 last_activity: 2026-07-03
-last_activity_desc: Phase 112 execution started
+last_activity_desc: Phase 112 gap-closure plan 04 executed (provenance-prompt descope)
 progress:
   total_phases: 7
   completed_phases: 5
-  total_plans: 16
-  completed_plans: 16
+  total_plans: 17
+  completed_plans: 17
   percent: 71
 ---
 
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-07-02
+**Updated:** 2026-07-03
 
 ## Current Position
 
-Phase: 112 (dev-test-handler-wiring) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
-Last activity: 2026-07-03 — Phase 112 execution started
+Phase: 112 (dev-test-handler-wiring) — COMPLETE (4/4 plans, incl. gap-closure 112-04)
+Plan: 4 of 4 (gap-closure)
+Status: Phase 112 complete; ready for Phase 113 (Submission Flow)
+Last activity: 2026-07-03 — Phase 112 gap-closure plan 04 executed (provenance-prompt descope)
 
 ## Project Reference
 
@@ -268,6 +268,9 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: TTY isatty() check factored into a private _is_interactive() seam because CliRunner.invoke() replaces sys.stdin, breaking direct sys.stdin.isatty() patching in tests
 - [Phase ?]: chip_id_actual/chip_id_mismatch_reason recovered by parsing the id StepResult.reason text rather than widening chip_test.py's StepResult schema
 - [Phase 112-03]: Scoped the SAFE-03 handler AST scan to dev_test + its private helpers via a new AST function-name filter (_scan_target_functions) instead of whole-file, because cli_handlers.py has 10 pre-existing legitimate --force flags on unrelated commands that a whole-file scan would false-positive on
+- [Phase ?]: simple test decision
+- [Phase ?]: [Phase 112-04]: REVERSED RPT-04 / D-04 / D-05 / D-06 (operator-approved, 112-UAT.md test 2) -- deleted prompt_provenance/Provenance/SHIELD_REV_CHOICES/_CHIP_ORIGIN_CHOICES outright (the path-separator-in-choice-string bug rejecting new/used/2.0); is_submittable now derived from AutoCapture completeness only (chip+protocol+host_version), never a human-provenance field
+- [Phase ?]: [Phase 112-04]: fw_board_identity stays honest None -- re-confirmed EpromOperator.comm is torn down after every op (no live comm to read post-run_plan); FirmwareManager.check_current_firmware evaluated and rejected as a source since it opens its own extraneous connection (SAFE-02 violation). hw_revision IS auto-captured via new HardwareManager.read_hardware_revision_value() (dedicated clean energize/query connection). --pot-adjusted flag confirmed out of scope, not implemented
 
 ## Performance Metrics
 
@@ -307,10 +310,11 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 112 P01 | 20min | 2 tasks | 2 files |
 | Phase 112 P02 | 45min | 2 tasks | 2 files |
 | Phase 112 P03 | 35min | 2 tasks | 3 files |
+| Phase 112 P04 | 40min | 3 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-07-03T09:34:29.805Z
-**Stopped at:** Completed 112-03-PLAN.md
+**Last session:** 2026-07-03T11:02:16.777Z
+**Stopped at:** Completed 112-04-PLAN.md (gap closure)
 **Resume file:** None
 None

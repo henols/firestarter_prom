@@ -275,7 +275,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 
 **Gap closure** *(from 112-UAT.md test 2, major; operator-approved descope)*
 
-- [ ] 112-04-PLAN.md — Descope interactive provenance (deletes the four prompts + the `/`-in-choice trigger bug); auto-capture `hw_revision`/`fw_board_identity`/`protocol`; auto-capture-only `is_submittable`; KEEP `--destructive` safety confirm (SAFE-03). REVERSES RPT-04 / D-04 / D-05 / D-06.
+- [x] 112-04-PLAN.md — Descope interactive provenance (deletes the four prompts + the `/`-in-choice trigger bug); auto-capture `hw_revision`/`fw_board_identity`/`protocol`; auto-capture-only `is_submittable`; KEEP `--destructive` safety confirm (SAFE-03). REVERSES RPT-04 / D-04 / D-05 / D-06.
 
 **UI hint**: no
 
@@ -1126,7 +1126,7 @@ Plans:
 | 109 | v1.21 | 3/3 | Complete    | 2026-07-02 |
 | 110 | v1.21 | 3/3 | Complete    | 2026-07-02 |
 | 111 | v1.21 | 3/3 | Complete    | 2026-07-03 |
-| 112 | v1.21 | 3/3 | Complete   | 2026-07-03 |
+| 112 | v1.21 | 4/4 | Complete   | 2026-07-03 |
 | 113 | v1.21 | 0/TBD | Not started | — |
 | 114 (close) | v1.21 | 0/TBD | Not started | — |
 
