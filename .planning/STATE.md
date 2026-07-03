@@ -5,15 +5,15 @@ milestone_name: — Community Chip-Validation Command
 current_phase: 113
 current_phase_name: submission-flow
 status: executing
-stopped_at: Phase 113 planned — 4 plans across 4 waves, plan-checker VERIFICATION PASSED
-last_updated: "2026-07-03T16:59:09.147Z"
+stopped_at: Completed 113-02-PLAN.md
+last_updated: "2026-07-03T17:13:39.226Z"
 last_activity: 2026-07-03
 last_activity_desc: Phase 113 execution started
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 22
-  completed_plans: 19
+  completed_plans: 20
   percent: 63
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 113 (submission-flow) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-07-03 — Phase 113 execution started
 
@@ -279,6 +279,9 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: [Phase 112-05]: Repaired 8 tests broken by the verify-gate fix (5 more than the plan's named 3) -- all same bug class, discovered via the plan's own required full targeted-suite verification step
 - [Phase ?]: [Phase 112-05]: RPT-04 reworded to the 112-04 auto-capture model, closing the documentation debt flagged in 112-VERIFICATION.md
 - [Phase ?]: [Phase 113-01]: dedup_fingerprint reads report.results directly (not report.to_dict()['steps']) to avoid a circular call back into to_dict(), which itself now calls dedup_fingerprint(self)
+- [Phase ?]: [Phase 113-02]: overall_verdict is FAIL-dominant (BAD beats marginal) for the issue title -- deliberately distinct from cli_handlers.py's exit-code max() ordering where marginal(2) > BAD(1)
+- [Phase ?]: [Phase 113-02]: build_issue_url omits the labels query param entirely (RESEARCH Pitfall 1) -- GitHub drops/404s labels for non-write community testers; triage relies on the [dev test] title marker + fenced-JSON schema_version instead
+- [Phase ?]: [Phase 113-02]: gh_available never calls run_fn when which_fn('gh') is falsy -- PATH-short-circuited before any subprocess spawn
 
 ## Performance Metrics
 
@@ -321,9 +324,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 112 P04 | 40min | 3 tasks | 6 files |
 | Phase 112 P05 | 35min | 3 tasks | 4 files |
 | Phase 113 P01 | 20min | 2 tasks | 2 files |
+| Phase 113 P02 | 30min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-03T16:58:27.342Z
-**Stopped at:** Phase 113 context gathered
-**Resume file:** .planning/phases/113-submission-flow/113-CONTEXT.md
+**Last session:** 2026-07-03T17:13:39.216Z
+**Stopped at:** Completed 113-02-PLAN.md
+**Resume file:** .planning/phases/113-submission-flow/113-03-PLAN.md

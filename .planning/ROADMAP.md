@@ -302,7 +302,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 113-02-PLAN.md — submit.py foundations: constants (hardcoded repo), sanitize_dict, body/title/URL builders, gh tier (Wave 2)
+- [x] 113-02-PLAN.md — submit.py foundations: constants (hardcoded repo), sanitize_dict, body/title/URL builders, gh tier (Wave 2)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -1164,7 +1164,7 @@ Plans:
 | 110 | v1.21 | 3/3 | Complete    | 2026-07-02 |
 | 111 | v1.21 | 3/3 | Complete    | 2026-07-03 |
 | 112 | v1.21 | 5/5 | Complete    | 2026-07-03 |
-| 113 | v1.21 | 1/4 | In Progress|  |
+| 113 | v1.21 | 2/4 | In Progress|  |
 | 114 (close) | v1.21 | 0/TBD | Not started | — |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
