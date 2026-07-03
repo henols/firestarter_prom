@@ -5,10 +5,10 @@ milestone_name: — Community Chip-Validation Command
 current_phase: 112
 current_phase_name: `dev test` Handler Wiring
 status: planning
-stopped_at: Phase 111 complete + verified (UAT passed); ready to plan Phase 112
-last_updated: "2026-07-03T07:55:09.824Z"
+stopped_at: Phase 112 context gathered
+last_updated: "2026-07-03T08:16:26.862Z"
 last_activity: 2026-07-03
-last_activity_desc: Phase 111 complete, transitioned to Phase 112
+last_activity_desc: Phase 111 complete + verified (UAT passed), transitioned to Phase 112
 progress:
   total_phases: 7
   completed_phases: 4
@@ -302,7 +302,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Session
 
-**Last session:** 2026-07-03T07:55:09Z
-**Stopped at:** Phase 111 complete + verified (UAT passed); ready to plan Phase 112
-**Resume file:** None 
+**Last session:** 2026-07-03T08:16:26.852Z
+**Stopped at:** Phase 112 context gathered
+**Resume file:** .planning/phases/112-dev-test-handler-wiring/112-CONTEXT.md
 None
