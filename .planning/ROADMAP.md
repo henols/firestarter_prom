@@ -259,7 +259,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
   3. The command's exit code reflects the sweep outcome (e.g. zero for a clean PASS-only run, non-zero when any step recorded `BAD`), so it is scriptable in CI-like community workflows.
   4. The handler is unit-testable without hardware via `EpromDatabase(skip_local_override=True)` plus a mock operator — the same test seam `dev validate-family` already established — proving the wiring itself needs no bench access.
 
-**Plans**: 3 plans
+**Plans**: 4 plans (3 original + 1 gap-closure)
 **Wave 1**
 
 - [x] 112-01-PLAN.md — Engine sampler hook: optional `sampler` param threaded through `run_plan` bracketing OP_WRITE (D-04); `sampler=None` no-op; no `hardware.py` import
@@ -271,6 +271,10 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 **Wave 3** *(blocked on Wave 2 completion)*
 
 - [x] 112-03-PLAN.md — SAFE-03 checker repoint to the real handler + anti-hollow fixture, and hardware-free CliRunner handler unit tests (SC4, SAFE-01/02/03)
+
+**Gap closure** *(from 112-UAT.md test 2, major; operator-approved descope)*
+
+- [ ] 112-04-PLAN.md — Descope interactive provenance (deletes the four prompts + the `/`-in-choice trigger bug); auto-capture `hw_revision`/`fw_board_identity`/`protocol`; auto-capture-only `is_submittable`; KEEP `--destructive` safety confirm (SAFE-03). REVERSES RPT-04 / D-04 / D-05 / D-06.
 
 **UI hint**: no
 
