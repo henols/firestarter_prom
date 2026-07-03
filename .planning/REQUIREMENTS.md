@@ -28,6 +28,7 @@ Requirements for milestone v1.21. Each maps to a roadmap phase.
 - [x] **SAFE-01**: The `--destructive` flag gates write/erase at plan-construction time (a non-destructive plan literally lacks those steps); it is per-invocation only and is never read from config or env.
 - [x] **SAFE-02**: `dev test` is a pure orchestrator of existing commands — it routes every operation through `chip_resolver.resolve_chip`/the existing serial path, sets no VPP, builds no raw protocol commands, and passes no `--force`; the firmware VPP guard's refusals are recorded as findings.
 - [x] **SAFE-03**: A CI gate asserts `dev test` adds zero new firmware dispatch entries and zero new VPP-set call sites (the orchestrator-only contract is machine-enforced).
+- [ ] **SAFE-04**: `dev test <chip>` hard-fails (exit 1, bare `Error: <chip>: not found in database`, no "did you mean") when the chip name is **absent from the DB** (`db.get_eprom` empty), short-circuiting **before** any hardware is energized or report rendered — while a chip that is present-but-unsupported (support-status refusal, case B) STILL runs the full sweep (SWEEP-01). The guard keys off `get_eprom` emptiness, never a `resolve_chip` refusal, so it cannot swallow case B. Added post-roadmap via `/gsd-explore` 2026-07-03 as Phase-112-handler hardening.
 
 ### Diagnostic Report (RPT)
 
@@ -49,7 +50,7 @@ Requirements for milestone v1.21. Each maps to a roadmap phase.
 
 - [ ] **SUB-01**: `--submit` files the report via a tiered flow: `gh issue create --body-file -` (stdin, auto-labeled `gsd-inbox`) when `gh` is present and authed, else a prefilled `issues/new` browser URL guarded to stay under the ~8 KB server cap (escalate/omit the JSON past ~7.5 KB encoded); a gist/attachment path is reserved for verbose failure logs.
 - [ ] **SUB-02**: Before submitting, the report is sanitized (field whitelist, local paths/PII scrubbed, byte dumps hex/base64-encoded) and shown to the tester for preview-before-submit; submission is explicit/interactive only, never on a bare run.
-- [ ] **SUB-03**: Submission carries a dedup fingerprint so repeat reports for the same chip are recognizable in triage.
+- [x] **SUB-03**: Submission carries a dedup fingerprint so repeat reports for the same chip are recognizable in triage.
 
 ### Disposition & Graduation (DISP / GRAD / INBOX)
 
@@ -114,6 +115,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SAFE-01 | Phase 109 | Complete |
 | SAFE-02 | Phase 109 | Complete |
 | SAFE-03 | Phase 109 | Complete |
+| SAFE-04 | Phase 114 | Pending |
 | RPT-01 | Phase 110 | Complete |
 | RPT-02 | Phase 110 | Complete |
 | RPT-03 | Phase 108 | Complete |
@@ -123,7 +125,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | XPORT-01 | Phase 110 | Complete |
 | SUB-01 | Phase 113 | Pending |
 | SUB-02 | Phase 113 | Pending |
-| SUB-03 | Phase 113 | Pending |
+| SUB-03 | Phase 113 | Complete |
 | DISP-01 | Phase 114 | Pending |
 | GRAD-01 | Phase 114 | Pending |
 | INBOX-01 | Phase 114 | Pending |
@@ -134,8 +136,8 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 **Coverage:**
 
-- v1 requirements: 28 total (SWEEP×5, PATT×3, SAFE×3, RPT×5, VOLT×1, XPORT×1, SUB×3, DISP×1, GRAD×1, INBOX×1, ONBOARD×4 — the initial definition's stated count of 20 undercounted the original REQ-IDs; Phase 115 added ONBOARD×4)
-- Mapped to phases: 28/28 ✓
+- v1 requirements: 29 total (SWEEP×5, PATT×3, SAFE×4, RPT×5, VOLT×1, XPORT×1, SUB×3, DISP×1, GRAD×1, INBOX×1, ONBOARD×4 — the initial definition's stated count of 20 undercounted the original REQ-IDs; Phase 115 added ONBOARD×4; SAFE-04 added mid-milestone via `/gsd-explore` 2026-07-03)
+- Mapped to phases: 29/29 ✓
 - Unmapped: 0
 
 **Phase spine:** Phase 108 (test-plan engine + address-derived pattern + fingerprint) → Phase 109 (destructiveness gate + safety) → Phase 110 (diagnostic report + provenance) → Phase 111 (measured-voltage sampler, hardware-gated) → Phase 112 (`dev test` CLI wiring — integration only, no new v1 REQ-ID) → Phase 113 (submission flow) → Phase 114 (disposition / no-auto-graduate lock, feature close) → Phase 115 (beta install + firmware-flash bench validation & community-onboarding doc, hardware-gated close).
@@ -143,3 +145,4 @@ Which phases cover which requirements. Populated during roadmap creation.
 ---
 *Requirements defined: 2026-07-02*
 *Last updated: 2026-07-03 — Phase 115 (beta install & firmware-flash bench validation, community onboarding) appended via `/gsd-explore`; ONBOARD×4 added → 28/28 requirements mapped across Phases 108–115.*
+*Last updated: 2026-07-03 — SAFE-04 (`dev test` hard-fails on absent chip before energizing hardware) added via `/gsd-explore`; mapped to Phase 114 → 29/29.*

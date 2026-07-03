@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — Community Chip-Validation Command
 current_phase: 113
-current_phase_name: Submission Flow
+current_phase_name: submission-flow
 status: executing
 stopped_at: Phase 113 planned — 4 plans across 4 waves, plan-checker VERIFICATION PASSED
-last_updated: "2026-07-03T16:45:07.967Z"
+last_updated: "2026-07-03T16:59:09.147Z"
 last_activity: 2026-07-03
-last_activity_desc: Phase 113 planned — 4 plans (4 waves), plan-checker VERIFICATION PASSED
+last_activity_desc: Phase 113 execution started
 progress:
   total_phases: 8
   completed_phases: 5
-  total_plans: 18
-  completed_plans: 18
+  total_plans: 22
+  completed_plans: 19
   percent: 63
 ---
 
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 113 — Submission Flow (planned — ready to execute)
-Plan: 4 plans across 4 waves (not yet executed)
+Phase: 113 (submission-flow) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-07-03 — Phase 113 planned (4 plans, 4 waves); plan-checker VERIFICATION PASSED
+Last activity: 2026-07-03 — Phase 113 execution started
 
 <!-- NOTE: `phase.complete 112` mis-set current_phase→115 (the `(close)` phase) because phases 113/114 have no phase directory on disk yet; corrected to 113 per the roadmap dependency spine 112 → 113 → 114 → 115. -->
 
@@ -37,7 +37,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-02 — v1.20 milestone-close footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.21 extends this trust outward: the community can now prove chip support on hardware the maintainer doesn't own, via a pure orchestration layer over the existing algorithm-first dispatch — never a new dispatch path.
 
-**Current focus:** Phase 113 — Submission Flow
+**Current focus:** Phase 113 — submission-flow
 
 ## Milestone Context (v1.21)
 
@@ -278,6 +278,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: [Phase 112-05]: Gated OP_VERIFY behind destructive in derive_plan (SC2/SWEEP-05 fix direction (a), pre-decided) -- mirrors OP_WRITE/OP_ERASE D-01 pattern exactly; _DESTRUCTIVE_OPS/_MULTI_RUN_OPS untouched
 - [Phase ?]: [Phase 112-05]: Repaired 8 tests broken by the verify-gate fix (5 more than the plan's named 3) -- all same bug class, discovered via the plan's own required full targeted-suite verification step
 - [Phase ?]: [Phase 112-05]: RPT-04 reworded to the 112-04 auto-capture model, closing the documentation debt flagged in 112-VERIFICATION.md
+- [Phase ?]: [Phase 113-01]: dedup_fingerprint reads report.results directly (not report.to_dict()['steps']) to avoid a circular call back into to_dict(), which itself now calls dedup_fingerprint(self)
 
 ## Performance Metrics
 
@@ -319,9 +320,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 112 P03 | 35min | 2 tasks | 3 files |
 | Phase 112 P04 | 40min | 3 tasks | 6 files |
 | Phase 112 P05 | 35min | 3 tasks | 4 files |
+| Phase 113 P01 | 20min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-03T15:29:33.665Z
+**Last session:** 2026-07-03T16:58:27.342Z
 **Stopped at:** Phase 113 context gathered
 **Resume file:** .planning/phases/113-submission-flow/113-CONTEXT.md
