@@ -77,3 +77,60 @@ and `seeds/rev22-3pin-header-2516-family-support.md`.
    header on Rev 2.2/2.3 is what physically reroutes the strobe to pin 20, and
    Firestarter cannot program these parts on Rev 2.0/2.1 at all. Verify on-bench
    (operator owns Rev 2.2).
+
+## 27C programming-algorithm fidelity — added 2026-07-02
+
+Source: `/gsd-explore` session 2026-07-02. See
+`seeds/27c-algorithm-fidelity-param-table-refactor.md`. Researcher confirmed the
+firmware runs an iterative program→verify loop but diverges from every 27C
+datasheet (escalating pulse instead of fixed 100µs; flat retry cap of 20 vs
+per-part 10/25; no over-program margin; no 6.25V VCC). These items were
+`[ASSUMED]` and must be verified before drafting the parameter table:
+
+1. **Exact max-pulse count per part.** Intel's 25-pulse cap is confirmed for
+   27C010 but assumed for 27C256/512; Microchip's count (~10) is assumed. Pull
+   the per-part cap from each primary datasheet so the table's `max_pulses` rows
+   are verified, not inherited.
+
+2. **Which on-hand parts (if any) need the 3× over-program margin?** Only the
+   older Intel "Intelligent" 27C algorithm applies an over-program pulse of 3×
+   the pulses used; Quick-Pulse / Flashrite / PRESTO do NOT. Map each on-hand 27C
+   part to its algorithm variant and decide whether the `overprogram_factor`
+   column is ever non-zero for real inventory, or is purely forward-looking.
+
+3. **Is a true fixed-100µs pulse achievable given the firmware's page-write pulse
+   model?** Today the "pulse" is `CTRL_VPE_ENABLE` asserted/de-asserted around a
+   whole page write (`eprom.cpp:115-125`), and width comes from `pulse_delay`.
+   Confirm the timing granularity actually lets us hold 100µs per unit, or whether
+   the page-oriented pulse shape needs rethinking to match the byte-level
+   datasheet algorithm.
+
+4. **Legacy NMOS 50ms path.** Confirm which parts currently mapped to 0x0B are
+   the fixed-50ms-single-pulse NMOS parts vs. adaptive CMOS, so the "legacy" row
+   is correct and we don't force a 50ms cadence onto a CMOS part that wants 100µs.
+
+## White-box voltage calibration (v1.25) — added 2026-07-03
+
+Source: `/gsd-explore` session 2026-07-03. See
+`seeds/voltage-reading-whitebox-calibration.md` and
+`notes/voltage-cal-design-decisions.md`. Resolve before scoping/planning:
+
+1. **Is the bandgap really the dominant term?** Measure the true bandgap
+   `V_bg = VCC_dmm × bandgap_adc / 1024` on 2–3 bench boards (Uno, Leonardo,
+   uno328pb) and compare each to the hardcoded 1100 mV. Confirms Stage 1 carries
+   the accuracy and quantifies the per-board spread (is it really ~±10 %?).
+2. **Does the Stage-2 VPP fit show a real offset, or is it pure gain?** After
+   applying the calibrated `V_bg`, measure VPP at 2+ pot levels and check whether
+   the residual is a clean scale factor (one trim point suffices) or has an
+   intercept (need two points). Decides how many Stage-2 points the wizard asks for.
+3. **`CONFIG_VERSION` migration.** How to upgrade an existing user's stored EEPROM
+   config to the new layout without silently mis-scaling readings — confirm the
+   new bandgap field defaults to 1100 mV (identity) on migration and that the
+   version-bump path is covered by existing config tests.
+4. **Confirmation-read mechanism.** What's the cleanest way for firmware to return
+   one raw `(bandgap_adc, voltage_adc)` sample on demand for the wizard — extend an
+   existing `dev`/config command, or add a dedicated calibration command? Must not
+   drive any rail as a side effect (safety).
+5. **DMM/ground-truth tolerance.** What DMM accuracy do we assume, and should the
+   wizard record the meter/measurement so a later re-cal can tell instrument error
+   from real drift?
