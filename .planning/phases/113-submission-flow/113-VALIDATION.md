@@ -1,8 +1,8 @@
 ---
 phase: 113
 slug: submission-flow
-status: draft
-nyquist_compliant: false
+status: approved
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-07-03
 ---
@@ -82,11 +82,13 @@ Task/Plan/Wave IDs are assigned by the planner; rows below are the requirementâ†
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references (`tests/test_submit.py` and extensions above)
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 30s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies (all 10 per-task rows map 1:1 to a plan task `<automated>` command â€” plan-checker confirmed)
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references (`tests/test_submit.py` + extensions above)
+- [x] No watch-mode flags (`pytest -x`, not `--watch`)
+- [x] Feedback latency < 30s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+*`wave_0_complete` stays `false` until execution actually writes the Wave 0 test files.*
+
+**Approval:** approved 2026-07-03

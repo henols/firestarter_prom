@@ -296,10 +296,22 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
   3. Every submitted report carries a deterministic dedup fingerprint (derived from chip identity + key result fields) so a maintainer triaging the `gsd-inbox` label can recognize repeat reports for the same chip at a glance.
 
 **Plans**: 4 plans
+**Wave 1**
+
 - [ ] 113-01-PLAN.md — SUB-03 dedup fingerprint helper + `to_dict()` field in diagnostic_report.py (Wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 113-02-PLAN.md — submit.py foundations: constants (hardcoded repo), sanitize_dict, body/title/URL builders, gh tier (Wave 2)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 113-03-PLAN.md — submit.py orchestration: browser tier + D-05 oversize + submit_report refuse/TTY gate (Wave 3)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 113-04-PLAN.md — `--submit` flag wiring in dev_test + SAFE-03 submit.py scan leg (Wave 4)
+
 **UI hint**: no
 
 ### Phase 114: Disposition / No-Auto-Graduate Lock + Graduation Ladder + Inbox Reconciliation

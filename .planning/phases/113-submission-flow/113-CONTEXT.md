@@ -59,8 +59,7 @@ submission tier, not a hardware path. Fully unit-testable via injected seams
   host-side; Rejected: configurable target — extra surface area that risks a misrouted report.)
 
 ### Dedup fingerprint (SUB-03)
-- **D-02 (LOCKED): Fingerprint = deterministic short hash over `chip name + protocol +
-  ordered per-step verdicts + byte-mismatch fingerprint classifications`.** Emitted as a
+- **D-02 (LOCKED): Fingerprint = deterministic short hash over `chip name + protocol + ordered per-step verdicts + byte-mismatch fingerprint classifications`.** Emitted as a
   field in the report JSON **and** surfaced in the issue **title** so a triager sees repeats
   at a glance. Volatile fields are EXCLUDED from the hash (`generated` timestamp, host
   version, measured VPP/VPE mV) so a clean re-test of the same chip with the same outcome

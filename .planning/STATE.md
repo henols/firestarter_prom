@@ -4,9 +4,9 @@ milestone: v1.21
 milestone_name: — Community Chip-Validation Command
 current_phase: 113
 current_phase_name: ready to plan
-status: ready
+status: executing
 stopped_at: Phase 113 context gathered
-last_updated: "2026-07-03T15:29:33.680Z"
+last_updated: "2026-07-03T16:45:07.967Z"
 last_activity: 2026-07-03
 last_activity_desc: Phase 112 complete; UAT passed (SC2 voltage bench + test-2 verified descope)
 progress:
@@ -26,7 +26,7 @@ progress:
 
 Phase: 113 — Submission Flow (ready to plan)
 Plan: Not started
-Status: Phase 112 complete (UAT passed 2/2) — ready to plan Phase 113 (Submission Flow)
+Status: Ready to execute
 Last activity: 2026-07-03 — Phase 112 complete; UAT passed (SC2 voltage bench + test-2 verified descope)
 
 <!-- NOTE: `phase.complete 112` mis-set current_phase→115 (the `(close)` phase) because phases 113/114 have no phase directory on disk yet; corrected to 113 per the roadmap dependency spine 112 → 113 → 114 → 115. -->
