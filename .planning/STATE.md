@@ -5,15 +5,15 @@ milestone_name: — Community Chip-Validation Command
 current_phase: 113
 current_phase_name: submission-flow
 status: executing
-stopped_at: Completed 113-02-PLAN.md
-last_updated: "2026-07-03T17:13:39.226Z"
+stopped_at: Completed 113-03-PLAN.md
+last_updated: "2026-07-03T17:27:09.121Z"
 last_activity: 2026-07-03
 last_activity_desc: Phase 113 execution started
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 22
-  completed_plans: 20
+  completed_plans: 21
   percent: 63
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 113 (submission-flow) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-07-03 — Phase 113 execution started
 
@@ -282,6 +282,8 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: [Phase 113-02]: overall_verdict is FAIL-dominant (BAD beats marginal) for the issue title -- deliberately distinct from cli_handlers.py's exit-code max() ordering where marginal(2) > BAD(1)
 - [Phase ?]: [Phase 113-02]: build_issue_url omits the labels query param entirely (RESEARCH Pitfall 1) -- GitHub drops/404s labels for non-write community testers; triage relies on the [dev test] title marker + fenced-JSON schema_version instead
 - [Phase ?]: [Phase 113-02]: gh_available never calls run_fn when which_fn('gh') is falsy -- PATH-short-circuited before any subprocess spawn
+- [Phase ?]: [Phase 113-03]: submit_via_browser drops the JSON fence by splitting the pre-built body string on its own '\n\n```json\n' marker rather than re-invoking build_body(include_json=False) -- the plan-mandated signature (title, body, saved_json_path) never receives sanitized_dict/results — Only implementation consistent with the required function signature while satisfying every behavior clause
+- [Phase ?]: [Phase 113-03]: Left SUB-01/SUB-02 unchecked in REQUIREMENTS.md -- both are also 113-04's frontmatter requirements (the --submit CLI flag + call site); until that lands a bare dev test run cannot reach submit_report — Requirement isn't fully satisfied from a user's perspective until the CLI wiring plan lands
 
 ## Performance Metrics
 
@@ -325,9 +327,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 112 P05 | 35min | 3 tasks | 4 files |
 | Phase 113 P01 | 20min | 2 tasks | 2 files |
 | Phase 113 P02 | 30min | 3 tasks | 2 files |
+| Phase 113 P03 | 35min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-03T17:13:39.216Z
-**Stopped at:** Completed 113-02-PLAN.md
-**Resume file:** .planning/phases/113-submission-flow/113-03-PLAN.md
+**Last session:** 2026-07-03T17:27:09.104Z
+**Stopped at:** Completed 113-03-PLAN.md
+**Resume file:** .planning/phases/113-submission-flow/113-04-PLAN.md
