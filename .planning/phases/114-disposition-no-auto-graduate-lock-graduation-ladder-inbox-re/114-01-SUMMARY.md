@@ -136,3 +136,12 @@ None - no external service configuration required.
 ---
 *Phase: 114-disposition-no-auto-graduate-lock-graduation-ladder-inbox-re*
 *Completed: 2026-07-03*
+
+## Self-Check: PASSED
+
+- FOUND: firestarter_app/firestarter/diagnostic_report.py
+- FOUND: firestarter_app/doc/community-validation.md
+- FOUND: .planning/phases/114-disposition-no-auto-graduate-lock-graduation-ladder-inbox-re/114-01-SUMMARY.md
+- FOUND commit: 355981a (test RED)
+- FOUND commit: 3cb68ab (feat GREEN)
+- FOUND commit: e6e55bb (docs taxonomy)
