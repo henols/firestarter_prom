@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — Community Chip-Validation Command
 current_phase: 114
-current_phase_name: disposition-no-auto-graduate-lock
+current_phase_name: feature close
 status: complete
-stopped_at: Phase 113 complete (113-04-PLAN.md)
-last_updated: "2026-07-03T17:56:21.511Z"
+stopped_at: Phase 114 context gathered
+last_updated: "2026-07-03T18:15:03.144Z"
 last_activity: 2026-07-03
-last_activity_desc: Phase 113 complete + verified, transitioned to Phase 114
+last_activity_desc: Phase 113 complete, transitioned to Phase 114
 progress:
   total_phases: 8
   completed_phases: 6
@@ -334,6 +334,6 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Session
 
-**Last session:** 2026-07-03T17:36:51.180Z
-**Stopped at:** Completed 113-03-PLAN.md
-**Resume file:** .planning/phases/113-submission-flow/113-04-PLAN.md
+**Last session:** 2026-07-03T18:15:03.132Z
+**Stopped at:** Phase 114 context gathered
+**Resume file:** .planning/phases/114-disposition-no-auto-graduate-lock-graduation-ladder-inbox-re/114-CONTEXT.md
