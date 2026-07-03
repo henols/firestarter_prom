@@ -270,7 +270,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 112-03-PLAN.md — SAFE-03 checker repoint to the real handler + anti-hollow fixture, and hardware-free CliRunner handler unit tests (SC4, SAFE-01/02/03)
+- [x] 112-03-PLAN.md — SAFE-03 checker repoint to the real handler + anti-hollow fixture, and hardware-free CliRunner handler unit tests (SC4, SAFE-01/02/03)
 
 **UI hint**: no
 
@@ -1121,7 +1121,7 @@ Plans:
 | 109 | v1.21 | 3/3 | Complete    | 2026-07-02 |
 | 110 | v1.21 | 3/3 | Complete    | 2026-07-02 |
 | 111 | v1.21 | 3/3 | Complete    | 2026-07-03 |
-| 112 | v1.21 | 2/3 | In Progress|  |
+| 112 | v1.21 | 3/3 | Complete   | 2026-07-03 |
 | 113 | v1.21 | 0/TBD | Not started | — |
 | 114 (close) | v1.21 | 0/TBD | Not started | — |
 

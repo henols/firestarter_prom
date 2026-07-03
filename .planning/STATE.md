@@ -4,17 +4,17 @@ milestone: v1.21
 milestone_name: — Community Chip-Validation Command
 current_phase: 112
 current_phase_name: dev-test-handler-wiring
-status: executing
-stopped_at: Completed 112-02-PLAN.md
-last_updated: "2026-07-03T09:15:22.863Z"
+status: verifying
+stopped_at: Completed 112-03-PLAN.md
+last_updated: "2026-07-03T09:34:29.815Z"
 last_activity: 2026-07-03
 last_activity_desc: Phase 112 execution started
 progress:
   total_phases: 7
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 16
-  completed_plans: 15
-  percent: 57
+  completed_plans: 16
+  percent: 71
 ---
 
 # Project State
@@ -26,7 +26,7 @@ progress:
 
 Phase: 112 (dev-test-handler-wiring) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-03 — Phase 112 execution started
 
 ## Project Reference
@@ -267,6 +267,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: Sampler bracket scoped strictly to the OP_WRITE branch operator.write_eprom call, not OP_VERIFY/OP_ERASE or the whole run_plan loop -- write-droop-vs-read-droop distinguishability (D-04)
 - [Phase ?]: TTY isatty() check factored into a private _is_interactive() seam because CliRunner.invoke() replaces sys.stdin, breaking direct sys.stdin.isatty() patching in tests
 - [Phase ?]: chip_id_actual/chip_id_mismatch_reason recovered by parsing the id StepResult.reason text rather than widening chip_test.py's StepResult schema
+- [Phase 112-03]: Scoped the SAFE-03 handler AST scan to dev_test + its private helpers via a new AST function-name filter (_scan_target_functions) instead of whole-file, because cli_handlers.py has 10 pre-existing legitimate --force flags on unrelated commands that a whole-file scan would false-positive on
 
 ## Performance Metrics
 
@@ -305,10 +306,11 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 111 P03 | 12min | 2 tasks | 1 files |
 | Phase 112 P01 | 20min | 2 tasks | 2 files |
 | Phase 112 P02 | 45min | 2 tasks | 2 files |
+| Phase 112 P03 | 35min | 2 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-07-03T09:15:22.851Z
-**Stopped at:** Completed 112-02-PLAN.md
+**Last session:** 2026-07-03T09:34:29.805Z
+**Stopped at:** Completed 112-03-PLAN.md
 **Resume file:** None
 None
