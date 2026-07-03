@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — Community Chip-Validation Command
 current_phase: 111
-current_phase_name: hardware-gated
+current_phase_name: measured-voltage-sampler-hardware-gated
 status: executing
 stopped_at: Phase 111 context gathered
-last_updated: "2026-07-03T07:04:44.420Z"
-last_activity: 2026-07-02
-last_activity_desc: Phase 110 complete, transitioned to Phase 111
+last_updated: "2026-07-03T07:21:17.121Z"
+last_activity: 2026-07-03
+last_activity_desc: Phase 111 execution started
 progress:
   total_phases: 7
   completed_phases: 3
-  total_plans: 10
-  completed_plans: 10
+  total_plans: 13
+  completed_plans: 11
   percent: 43
 ---
 
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 111 — Measured-Voltage Sampler (hardware-gated)
-Plan: Not started
+Phase: 111 (measured-voltage-sampler-hardware-gated) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-07-02 — Phase 110 complete, transitioned to Phase 111
+Last activity: 2026-07-03 — Phase 111 execution started
 
 ## Project Reference
 
@@ -35,7 +35,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-02 — v1.20 milestone-close footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.21 extends this trust outward: the community can now prove chip support on hardware the maintainer doesn't own, via a pure orchestration layer over the existing algorithm-first dispatch — never a new dispatch path.
 
-**Current focus:** Phase 110 — Diagnostic Report Model + Dual Output + Provenance Prompts
+**Current focus:** Phase 111 — measured-voltage-sampler-hardware-gated
 
 ## Milestone Context (v1.21)
 
@@ -255,6 +255,8 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: DiagnosticReport, AutoCapture, TransportHealth implemented in one file write (Tasks 2+3 land in one module) since to_dict()/render() depend directly on the sub-dataclass shapes; committed as two separate git commits to preserve per-task traceability
 - [Phase 110-02]: Provenance model + injectable prompt_provenance + is_submittable added to diagnostic_report.py; composed into DiagnosticReport append-only (RPT-04) — shield revision never auto-derived from hw_revision byte (D-05); not sure counts as filled/submittable
 - [Phase ?]: DbDiff is read-only by construction (write-method-less Mock DB proof + structural no-write scan); proposed_disposition is always advisory descriptive text, never a concrete support_status value
+- [Phase 111-01]: Named the honest-fallback test test_sample_none_returns_none_on_error (not test_sample_returns_none_on_error) so the -k sample_none selector required by 111-VALIDATION.md actually matches
+- [Phase 111-01]: Asserted the render() single-source contract for the voltage split by scanning rendered table cells for the expected value rather than inspecting render() source text, since Plan 03 has not yet decided the exact voltage row wording
 
 ## Performance Metrics
 
@@ -288,10 +290,11 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 110 P01 | 25min | 3 tasks | 2 files |
 | Phase 110 P02 | 20min | 3 tasks | 3 files |
 | Phase 110-diagnostic-report-model-dual-output-provenance-prompts P03 | 25min | 3 tasks | 2 files |
+| Phase 111 P01 | 20min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-02T22:06:01.561Z
+**Last session:** 2026-07-03T07:20:24.591Z
 **Stopped at:** Phase 111 context gathered
 **Resume file:** 
-.planning/phases/111-measured-voltage-sampler-hardware-gated/111-CONTEXT.md
+None
