@@ -115,7 +115,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SAFE-01 | Phase 109 | Complete |
 | SAFE-02 | Phase 109 | Complete |
 | SAFE-03 | Phase 109 | Complete |
-| SAFE-04 | Phase 114 | Pending |
+| SAFE-04 | Phase 114.1 | Pending |
 | RPT-01 | Phase 110 | Complete |
 | RPT-02 | Phase 110 | Complete |
 | RPT-03 | Phase 108 | Complete |
@@ -140,9 +140,10 @@ Which phases cover which requirements. Populated during roadmap creation.
 - Mapped to phases: 29/29 ✓
 - Unmapped: 0
 
-**Phase spine:** Phase 108 (test-plan engine + address-derived pattern + fingerprint) → Phase 109 (destructiveness gate + safety) → Phase 110 (diagnostic report + provenance) → Phase 111 (measured-voltage sampler, hardware-gated) → Phase 112 (`dev test` CLI wiring — integration only, no new v1 REQ-ID) → Phase 113 (submission flow) → Phase 114 (disposition / no-auto-graduate lock, feature close) → Phase 115 (beta install + firmware-flash bench validation & community-onboarding doc, hardware-gated close).
+**Phase spine:** Phase 108 (test-plan engine + address-derived pattern + fingerprint) → Phase 109 (destructiveness gate + safety) → Phase 110 (diagnostic report + provenance) → Phase 111 (measured-voltage sampler, hardware-gated) → Phase 112 (`dev test` CLI wiring — integration only, no new v1 REQ-ID) → Phase 113 (submission flow) → Phase 114 (disposition / no-auto-graduate lock, feature close) → Phase 114.1 (`dev test` absent-chip hard-fail — SAFE-04 micro-phase, Phase-112-handler hardening) → Phase 115 (beta install + firmware-flash bench validation & community-onboarding doc, hardware-gated close).
 
 ---
 *Requirements defined: 2026-07-02*
 *Last updated: 2026-07-03 — Phase 115 (beta install & firmware-flash bench validation, community onboarding) appended via `/gsd-explore`; ONBOARD×4 added → 28/28 requirements mapped across Phases 108–115.*
 *Last updated: 2026-07-03 — SAFE-04 (`dev test` hard-fails on absent chip before energizing hardware) added via `/gsd-explore`; mapped to Phase 114 → 29/29.*
+*Last updated: 2026-07-03 — SAFE-04 remapped Phase 114 → Phase 114.1 (new micro-phase) during `/gsd-plan-phase 114`: CONTEXT.md deliberately scoped SAFE-04 out of the disposition close-phase (it is Phase-112-handler hardening); operator chose a separate micro-phase over folding it in. Coverage unchanged (29/29).*
