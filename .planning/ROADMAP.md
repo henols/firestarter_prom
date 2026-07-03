@@ -335,7 +335,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 
 **Wave 2** *(depends on Wave 1 — scans both 01+02 files)*
 
-- [ ] 114-03-PLAN.md — DISP-01: AST audit `tools/check_no_community_support_status_write.py` (mirrors SAFE-03) + anti-hollow paired planted-fixture test (D-05)
+- [x] 114-03-PLAN.md — DISP-01: AST audit `tools/check_no_community_support_status_write.py` (mirrors SAFE-03) + anti-hollow paired planted-fixture test (D-05)
 
 **UI hint**: no
 
@@ -1190,7 +1190,7 @@ Plans:
 | 111 | v1.21 | 3/3 | Complete    | 2026-07-03 |
 | 112 | v1.21 | 5/5 | Complete    | 2026-07-03 |
 | 113 | v1.21 | 4/4 | Complete    | 2026-07-03 |
-| 114 (close) | v1.21 | 2/3 | In Progress|  |
+| 114 (close) | v1.21 | 3/3 | Complete   | 2026-07-03 |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 

@@ -54,7 +54,7 @@ Requirements for milestone v1.21. Each maps to a roadmap phase.
 
 ### Disposition & Graduation (DISP / GRAD / INBOX)
 
-- [ ] **DISP-01**: No code path writes a chip's `support_status` from a parsed community report — graduation is flag-only and human-gated (locked anti-feature: no auto-graduation).
+- [x] **DISP-01**: No code path writes a chip's `support_status` from a parsed community report — graduation is flag-only and human-gated (locked anti-feature: no auto-graduation).
 - [x] **GRAD-01**: The `support_status` taxonomy gains community graduation-ladder states (`community-reported` / `community-confirmed` / `community-fail`); transitions to a `confirmed`/`supported` state require a human step keyed on N≥2 consistency.
 - [x] **INBOX-01**: `gsd-inbox` triage can auto-parse the report's fenced JSON on issue arrival and surface its DB-diff against the current database for maintainer review.
 
@@ -126,7 +126,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SUB-01 | Phase 113 | Complete |
 | SUB-02 | Phase 113 | Complete |
 | SUB-03 | Phase 113 | Complete |
-| DISP-01 | Phase 114 | Pending |
+| DISP-01 | Phase 114 | Complete |
 | GRAD-01 | Phase 114 | Complete |
 | INBOX-01 | Phase 114 | Complete |
 | ONBOARD-01 | Phase 115 | Pending |

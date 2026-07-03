@@ -4,17 +4,17 @@ milestone: v1.21
 milestone_name: — Community Chip-Validation Command
 current_phase: 114
 current_phase_name: disposition-no-auto-graduate-lock-graduation-ladder-inbox-re
-status: executing
-stopped_at: Completed 114-02-PLAN.md
-last_updated: "2026-07-03T19:20:39.815Z"
+status: verifying
+stopped_at: Completed 114-03-PLAN.md
+last_updated: "2026-07-03T19:36:00.599Z"
 last_activity: 2026-07-03
 last_activity_desc: Phase 114 execution started
 progress:
   total_phases: 9
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 25
-  completed_plans: 24
-  percent: 67
+  completed_plans: 25
+  percent: 78
 ---
 
 # Project State
@@ -26,7 +26,7 @@ progress:
 
 Phase: 114 (disposition-no-auto-graduate-lock-graduation-ladder-inbox-re) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-03 — Phase 114 execution started
 
 <!-- NOTE: RECURRING `phase.complete` bug — it mis-advanced current_phase→115 (the `(close)` phase) again because Phase 114 has no directory on disk yet; hand-corrected to 114 per the roadmap dependency spine 112 → 113 → 114 → 115 (same fix applied at the 112→113 boundary). Expect this again at the 114→115 boundary until 114 has a phase dir. -->
@@ -290,6 +290,9 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: [Phase 114-02]: CLI shape (discretionary D-04) -- single-body mode takes --title + --body-file/stdin as separate inputs (mirroring two gh issue view --json invocations); --dir/--glob N-agreeing mode operates on plain saved-body files, no title needed
 - [Phase ?]: [Phase 114-02]: schema_version matched by presence only (any value), never an exact-version comparison -- survives Plan 01's 1.0->1.1 bump and any future schema change with zero parser code change
 - [Phase ?]: [Phase 114-02]: No rich import in parse_devtest_issue.py (even though rich is already a project dependency) -- plain-text render_diff() only, satisfying the literal no-third-party-import-errors acceptance criterion
+- [Phase ?]: DISP-01 checker uses exact-string match against support_status (not substring) to avoid false-positive on current_support_status near-name
+- [Phase ?]: Both DISP-01 scan targets (diagnostic_report.py, parse_devtest_issue.py) treated as mandatory; missing-target check fails closed before the scan loop
+- [Phase ?]: Task 1 RED phase wrote the full 7-test anti-hollow suite covering both Task 1 and Task 2 acceptance criteria; Task 2 verified-complete with no separate commit (mirrors 109-03 SAFE-03 precedent)
 
 ## Performance Metrics
 
@@ -337,9 +340,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 113 P04 | 35min | 2 tasks | 4 files |
 | Phase 114 P01 | 12min | 2 tasks | 3 files |
 | Phase 114 P02 | 15min | 2 tasks | 2 files |
+| Phase 114 P03 | 30min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-03T19:20:39.805Z
-**Stopped at:** Completed 114-02-PLAN.md
+**Last session:** 2026-07-03T19:36:00.589Z
+**Stopped at:** Completed 114-03-PLAN.md
 **Resume file:** None
