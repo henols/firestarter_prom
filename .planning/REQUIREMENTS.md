@@ -57,6 +57,15 @@ Requirements for milestone v1.21. Each maps to a roadmap phase.
 - [ ] **GRAD-01**: The `support_status` taxonomy gains community graduation-ladder states (`community-reported` / `community-confirmed` / `community-fail`); transitions to a `confirmed`/`supported` state require a human step keyed on N≥2 consistency.
 - [ ] **INBOX-01**: `gsd-inbox` triage can auto-parse the report's fenced JSON on issue arrival and surface its DB-diff against the current database for maintainer review.
 
+### Community Onboarding (ONBOARD)
+
+Validation + docs for the beta-channel install/flash chain a community tester must traverse before they can run `dev test`. The install/flash/channel-select feature already exists (`firmware.py`, `cli_handlers.py` `fw`, `avr_tool.py`) — these requirements PROVE it on hardware and document it; they do not build it.
+
+- [ ] **ONBOARD-01**: On a fresh machine/venv, `pip install --pre firestarter` installs the current `3.0.0bN` prerelease from PyPI and `firestarter --version` reports it — verified per bench board (Uno, Leonardo, uno328pb). Step 0 first confirms the prerelease is actually published to PyPI (operator-gated `gh` dispatch) or halts on a publish-first blocker.
+- [ ] **ONBOARD-02**: A bare `firestarter fw -i` from the prerelease-installed app auto-routes to the `--pre` channel (D-23/D-24), downloads the board-matching `firestarter_<board>.hex` from the GitHub prerelease, and avrdude flashes + verifies it — verified per bench board. Step 0 first confirms the GitHub prerelease exposes a `.hex` asset for each board.
+- [ ] **ONBOARD-03**: After flashing, a smoke test passes per board — `firestarter fw` reports the expected beta version + correct board and one minimal live protocol op (e.g. `hw`/identify) succeeds. Explicitly NOT a full chip write/verify (that is `dev test`'s job).
+- [ ] **ONBOARD-04**: A community-facing "install the beta & flash beta firmware to help test PROMs" doc exists in the `firestarter_app` sub-repo (operator-canonical, per the two-layer doc pattern), written for a stranger on a fresh machine: per-board commands, the avrdude prerequisite, the per-port controller-identity gotcha, the correct `.hex` per board, and the hand-off into `dev test <chip>`.
+
 ## v2 / Future Requirements
 
 Deferred beyond v1.21. Tracked, not in the current roadmap.
@@ -118,15 +127,19 @@ Which phases cover which requirements. Populated during roadmap creation.
 | DISP-01 | Phase 114 | Pending |
 | GRAD-01 | Phase 114 | Pending |
 | INBOX-01 | Phase 114 | Pending |
+| ONBOARD-01 | Phase 115 | Pending |
+| ONBOARD-02 | Phase 115 | Pending |
+| ONBOARD-03 | Phase 115 | Pending |
+| ONBOARD-04 | Phase 115 | Pending |
 
 **Coverage:**
 
-- v1 requirements: 24 total (corrected — the initial definition's stated count of 20 undercounted the actual 24 REQ-IDs enumerated above: SWEEP×5, PATT×3, SAFE×3, RPT×5, VOLT×1, XPORT×1, SUB×3, DISP×1, GRAD×1, INBOX×1)
-- Mapped to phases: 24/24 ✓
+- v1 requirements: 28 total (SWEEP×5, PATT×3, SAFE×3, RPT×5, VOLT×1, XPORT×1, SUB×3, DISP×1, GRAD×1, INBOX×1, ONBOARD×4 — the initial definition's stated count of 20 undercounted the original REQ-IDs; Phase 115 added ONBOARD×4)
+- Mapped to phases: 28/28 ✓
 - Unmapped: 0
 
-**Phase spine:** Phase 108 (test-plan engine + address-derived pattern + fingerprint) → Phase 109 (destructiveness gate + safety) → Phase 110 (diagnostic report + provenance) → Phase 111 (measured-voltage sampler, hardware-gated) → Phase 112 (`dev test` CLI wiring — integration only, no new v1 REQ-ID) → Phase 113 (submission flow) → Phase 114 (disposition / no-auto-graduate lock, close).
+**Phase spine:** Phase 108 (test-plan engine + address-derived pattern + fingerprint) → Phase 109 (destructiveness gate + safety) → Phase 110 (diagnostic report + provenance) → Phase 111 (measured-voltage sampler, hardware-gated) → Phase 112 (`dev test` CLI wiring — integration only, no new v1 REQ-ID) → Phase 113 (submission flow) → Phase 114 (disposition / no-auto-graduate lock, feature close) → Phase 115 (beta install + firmware-flash bench validation & community-onboarding doc, hardware-gated close).
 
 ---
 *Requirements defined: 2026-07-02*
-*Last updated: 2026-07-02 after v1.21 roadmap creation (24/24 requirements mapped across Phases 108–114; the "20 total" count in the original definition is corrected to the actual 24 enumerated REQ-IDs)*
+*Last updated: 2026-07-03 — Phase 115 (beta install & firmware-flash bench validation, community onboarding) appended via `/gsd-explore`; ONBOARD×4 added → 28/28 requirements mapped across Phases 108–115.*

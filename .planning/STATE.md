@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — Community Chip-Validation Command
-current_phase: 112
-current_phase_name: dev-test-handler-wiring
-status: executing
+current_phase: 115
+current_phase_name: close
+status: completed
 stopped_at: Completed 112-05-PLAN.md (gap closure — SC2/SWEEP-05 verify-gate fix)
-last_updated: "2026-07-03T12:07:56.106Z"
+last_updated: "2026-07-03T15:04:10.315Z"
 last_activity: 2026-07-03
-last_activity_desc: Phase 112 gap-closure plan 05 completed (SC2/SWEEP-05 verify-gate fix)
+last_activity_desc: Phase 112 complete, transitioned to Phase 115
 progress:
-  total_phases: 7
+  total_phases: 8
   completed_phases: 5
   total_plans: 18
   completed_plans: 18
-  percent: 71
+  percent: 63
 ---
 
 # Project State
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 112 (dev-test-handler-wiring) — COMPLETE (gap-closure plan 05 closed the last open gap)
-Plan: 5 of 5 (all plans complete, including gap-closure plan 05)
+Phase: 115 — Beta Install & Firmware-Flash Bench Validation — Community Onboarding (close)
+Plan: Not started
 Status: Phase 112 complete — ready to advance to Phase 113 (Submission Flow)
-Last activity: 2026-07-03 — Phase 112 gap-closure plan 05 completed (SC2/SWEEP-05 verify-gate fix)
+Last activity: 2026-07-03 — Phase 112 complete, transitioned to Phase 115
 
 ## Project Reference
 
@@ -178,6 +178,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - v1.21 roadmap created 2026-07-02: 7 phases (108–114), 24/24 requirements mapped (corrected from the REQUIREMENTS.md draft's stale "20 total" count). Phase spine per research SUMMARY.md §Implications for Roadmap: 108 (engine+pattern+fingerprint) → 109 (safety gate) → 110 (report+provenance) → 111 (voltage sampler, hardware-gated, isolated) → 112 (CLI wiring) → 113 (submission) → 114 (disposition lock, close).
 - v1.20 roadmap created 2026-07-02: 3 phases (105–107), 12/12 requirements mapped. FW → HOST → DOCS+GATE strictly linear sequencing (wire-contract removal ordered so it's never half-broken).
 - Phase 104 added: Rename protocol header and .cpp files to descriptive protocol-type names (replace hard-to-read flash type N naming)
+- Phase 115 added: Beta install & firmware-flash bench validation (community onboarding) — hardware-gated capstone of v1.21
 
 ## Operator Next Steps
 
