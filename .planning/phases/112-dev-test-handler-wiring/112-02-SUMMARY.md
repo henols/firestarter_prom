@@ -200,6 +200,14 @@ None - no external service configuration required.
 - Plan 112-03 can now: (a) repoint `check_devtest_orchestrator.py`'s `_DEVTEST_CLI_HANDLER` constant at the real `cli_handlers.py` location (this handler lives there, not a separate `dev_test_cli.py`, per the pattern map) and de-stub its scope-tolerance, and (b) write the dedicated `tests/test_dev_test_cmd.py` CliRunner unit-test module — this plan intentionally left that codified test file to 112-03 per the plan's own `files_modified` split, and the `_is_interactive` patch seam documented above is exactly what that test module should use.
 - No blockers. `ruff check`/`ruff format --check`/`python tools/check_mypy_watermark.py` all green on `cli_handlers.py`; `python tools/check_devtest_orchestrator.py` exits 0 (still scanning only `chip_test.py`, as expected pre-112-03); full `pytest tests/` suite green except the one pre-existing, unrelated `test_audit_coverage_matrix.py` failure (deferred, not this plan's origin).
 
+## Self-Check: PASSED
+
+- FOUND: firestarter_app/firestarter/cli_handlers.py
+- FOUND: .planning/phases/112-dev-test-handler-wiring/112-02-SUMMARY.md
+- FOUND: commit ccfb7e6 (Task 1+2, firestarter_app submodule)
+- FOUND: commit 009c296 (snapshot update, firestarter_app submodule)
+- FOUND: commit d5c49fc (docs: complete plan, meta-repo)
+
 ---
 *Phase: 112-dev-test-handler-wiring*
 *Completed: 2026-07-03*

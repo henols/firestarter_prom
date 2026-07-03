@@ -266,7 +266,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 112-02-PLAN.md — `@dev.command("test")` handler: flags + provenance/plan/sweep/report/render composition + 3-way exit + TTY-gated prompts + dual-artifact write (SC1–SC3, D-01..D-05)
+- [x] 112-02-PLAN.md — `@dev.command("test")` handler: flags + provenance/plan/sweep/report/render composition + 3-way exit + TTY-gated prompts + dual-artifact write (SC1–SC3, D-01..D-05)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -1121,7 +1121,7 @@ Plans:
 | 109 | v1.21 | 3/3 | Complete    | 2026-07-02 |
 | 110 | v1.21 | 3/3 | Complete    | 2026-07-02 |
 | 111 | v1.21 | 3/3 | Complete    | 2026-07-03 |
-| 112 | v1.21 | 1/3 | In Progress|  |
+| 112 | v1.21 | 2/3 | In Progress|  |
 | 113 | v1.21 | 0/TBD | Not started | — |
 | 114 (close) | v1.21 | 0/TBD | Not started | — |
 

@@ -5,15 +5,15 @@ milestone_name: — Community Chip-Validation Command
 current_phase: 112
 current_phase_name: dev-test-handler-wiring
 status: executing
-stopped_at: Phase 112 context gathered
-last_updated: "2026-07-03T08:58:31.367Z"
+stopped_at: Completed 112-02-PLAN.md
+last_updated: "2026-07-03T09:15:22.863Z"
 last_activity: 2026-07-03
 last_activity_desc: Phase 112 execution started
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 16
-  completed_plans: 14
+  completed_plans: 15
   percent: 57
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 112 (dev-test-handler-wiring) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-07-03 — Phase 112 execution started
 
@@ -265,6 +265,8 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase 111 close]: UAT Test 1 (live-hardware VPP/VPE parity, SC2 hardware half / D-05) PASS on Leonardo + Rev 2.0 (ACM0 = "Rev 2.0-class"); VERIFICATION.md flipped human_needed→passed. UAT Test 2 (before/after write-step capture) reclassified out of the blocking UAT set → deferred to Phase 112 (operator decision) since no write-step call site exists in Phase 111 by design; logged in 111/deferred-items.md — NOT a Phase 111 gap.
 - [Phase ?]: sampler kwarg threaded through all 4 call-chain levels (run_plan -> _run_step -> _dispatch_step -> _dispatch_multi_run) with default None at every level, per D-04 backward-compat guarantee
 - [Phase ?]: Sampler bracket scoped strictly to the OP_WRITE branch operator.write_eprom call, not OP_VERIFY/OP_ERASE or the whole run_plan loop -- write-droop-vs-read-droop distinguishability (D-04)
+- [Phase ?]: TTY isatty() check factored into a private _is_interactive() seam because CliRunner.invoke() replaces sys.stdin, breaking direct sys.stdin.isatty() patching in tests
+- [Phase ?]: chip_id_actual/chip_id_mismatch_reason recovered by parsing the id StepResult.reason text rather than widening chip_test.py's StepResult schema
 
 ## Performance Metrics
 
@@ -302,10 +304,11 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 111 P02 | 12min | 2 tasks | 1 files |
 | Phase 111 P03 | 12min | 2 tasks | 1 files |
 | Phase 112 P01 | 20min | 2 tasks | 2 files |
+| Phase 112 P02 | 45min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-03T08:58:19.819Z
-**Stopped at:** Phase 112 context gathered
-**Resume file:** .planning/phases/112-dev-test-handler-wiring/112-CONTEXT.md
+**Last session:** 2026-07-03T09:15:22.851Z
+**Stopped at:** Completed 112-02-PLAN.md
+**Resume file:** None
 None
