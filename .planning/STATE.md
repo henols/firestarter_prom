@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — Community Chip-Validation Command
-current_phase: 115
-current_phase_name: close
-status: completed
-stopped_at: Completed 112-05-PLAN.md (gap closure — SC2/SWEEP-05 verify-gate fix)
+current_phase: 113
+current_phase_name: submission-flow
+status: ready
+stopped_at: Phase 112 complete (UAT passed 2/2), ready to plan Phase 113 (Submission Flow)
 last_updated: "2026-07-03T15:04:10.315Z"
 last_activity: 2026-07-03
-last_activity_desc: Phase 112 complete, transitioned to Phase 115
+last_activity_desc: Phase 112 complete — UAT passed (SC2 voltage bench + test-2 verified descope); ready to plan Phase 113
 progress:
   total_phases: 8
   completed_phases: 5
@@ -24,10 +24,13 @@ progress:
 
 ## Current Position
 
-Phase: 115 — Beta Install & Firmware-Flash Bench Validation — Community Onboarding (close)
+Phase: 113 — Submission Flow (ready to plan)
 Plan: Not started
-Status: Phase 112 complete — ready to advance to Phase 113 (Submission Flow)
-Last activity: 2026-07-03 — Phase 112 complete, transitioned to Phase 115
+Status: Phase 112 complete (UAT passed 2/2) — ready to plan Phase 113 (Submission Flow)
+Last activity: 2026-07-03 — Phase 112 complete; UAT passed (SC2 voltage bench + test-2 verified descope)
+
+<!-- NOTE: `phase.complete 112` mis-set current_phase→115 (the `(close)` phase) because phases 113/114 have no phase directory on disk yet; corrected to 113 per the roadmap dependency spine 112 → 113 → 114 → 115. -->
+
 
 ## Project Reference
 
@@ -35,7 +38,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-02 — v1.20 milestone-close footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.21 extends this trust outward: the community can now prove chip support on hardware the maintainer doesn't own, via a pure orchestration layer over the existing algorithm-first dispatch — never a new dispatch path.
 
-**Current focus:** Phase 112 — dev-test-handler-wiring
+**Current focus:** Phase 113 — Submission Flow
 
 ## Milestone Context (v1.21)
 
@@ -182,8 +185,9 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Operator Next Steps
 
-- Phases 108–111 complete (4/7). Next: plan Phase 112 (`dev test` Handler Wiring) with `/gsd-plan-phase 112` — the `@dev.command("test")` integration of 108–111, unit-testable via the mock-operator seam.
-- Phase 112 is where the Phase-111 sampler (`sample_vpp_mv`/`sample_vpe_mv`) finally gets a write-step call site around `run_plan` — carry the deferred before/after voltage-capture UAT (see `111/deferred-items.md`) into Phase 112 verification, ideally with an electrically-erasable chip (W27C512/W29C020).
+- Phases 108–112 complete (5/8). Next: plan Phase 113 (Submission Flow) with `/gsd-plan-phase 113` — tiered `gh`/browser-URL `--submit` with PII/path sanitization + preview, dedup fingerprint, explicit/interactive-only (SUB-01..03). Software-only, unit-testable via the mock-operator seam.
+- Phase 112 UAT closed 2026-07-03: Test 1 (SC2 measured-voltage bench, Leonardo + Rev 2.0, W27C512) PASS — voltage rows render with plausible rail values (see `chip-test/dev-test-w27c512.md`); Test 2 (interactive provenance prompts) resolved-by-descope in 112-04 and re-verified 9/9, recorded as pass.
+- Remaining v1.21 phases after 113: 114 (Disposition / No-Auto-Graduate Lock, feature close) → 115 (Beta Install & Firmware-Flash Bench Validation, hardware-gated capstone). 113/114 have no phase dir yet.
 
 ## Decisions
 
@@ -319,7 +323,6 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Session
 
-**Last session:** 2026-07-03T12:07:56.090Z
-**Stopped at:** Completed 112-05-PLAN.md (gap closure — SC2/SWEEP-05 verify-gate fix)
+**Last session:** 2026-07-03T15:04Z
+**Stopped at:** Phase 112 complete (UAT passed 2/2), ready to plan Phase 113 (Submission Flow)
 **Resume file:** None
-None
