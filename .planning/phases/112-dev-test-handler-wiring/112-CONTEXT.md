@@ -81,8 +81,7 @@ already exist (108–111) — this phase only *invokes and renders* them.
   correct outcome, not a gap.
 
 ### Sampler bracketing topology (the deferred Phase-111 UAT item)
-- **D-04 (LOCKED): Optional `sampler` callback threaded into `run_plan`,
-  invoked immediately before and after the write step.** Add an optional
+- **D-04 (LOCKED): Optional `sampler` callback threaded into `run_plan`, invoked immediately before and after the write step.** Add an optional
   parameter to `run_plan` (e.g. `sampler=None`); when present, `run_plan` calls
   it right before and right after the `OP_WRITE` step to fill
   `vpp_before_mv`/`vpp_after_mv`/`vpe_before_mv`/`vpe_after_mv`. This tightly
@@ -104,8 +103,7 @@ already exist (108–111) — this phase only *invokes and renders* them.
     droop).
 
 ### Output & rendering (the "one run → two artifacts" contract)
-- **D-05 (LOCKED): Rich table to stdout on every run; file artifacts only when
-  `--output-dir` is given.** `report.render(console)` prints the human summary
+- **D-05 (LOCKED): Rich table to stdout on every run; file artifacts only when `--output-dir` is given.** `report.render(console)` prints the human summary
   table to the terminal always. When (and only when) `--output-dir` is passed,
   write two files there: `dev-test-<chip>.json` (the canonical `to_dict()`
   machine report) and `dev-test-<chip>.md` (the **self-contained issue body** —

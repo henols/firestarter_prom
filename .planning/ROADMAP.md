@@ -260,9 +260,18 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
   4. The handler is unit-testable without hardware via `EpromDatabase(skip_local_override=True)` plus a mock operator — the same test seam `dev validate-family` already established — proving the wiring itself needs no bench access.
 
 **Plans**: 3 plans
+**Wave 1**
+
 - [ ] 112-01-PLAN.md — Engine sampler hook: optional `sampler` param threaded through `run_plan` bracketing OP_WRITE (D-04); `sampler=None` no-op; no `hardware.py` import
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 112-02-PLAN.md — `@dev.command("test")` handler: flags + provenance/plan/sweep/report/render composition + 3-way exit + TTY-gated prompts + dual-artifact write (SC1–SC3, D-01..D-05)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 112-03-PLAN.md — SAFE-03 checker repoint to the real handler + anti-hollow fixture, and hardware-free CliRunner handler unit tests (SC4, SAFE-01/02/03)
+
 **UI hint**: no
 
 ### Phase 113: Submission Flow
