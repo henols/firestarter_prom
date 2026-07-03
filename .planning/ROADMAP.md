@@ -239,7 +239,10 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
   2. The write step in the sweep calls the new sampler and records the tester's actual measured rail voltage into the diagnostic report — verified on real hardware (Leonardo + RURP Rev 2.0, the project's standing bench oracle) against a known-good chip, confirming the parsed mV value matches the previously-printed value for the same physical measurement.
   3. No existing `firestarter vpp`/`vpe` monitor command output or behavior changes — the new sampler is additive (a return-value variant), not a replacement, so the operator's existing live-monitor workflow is unaffected.
 
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 111-01-PLAN.md — Wave-0 RED test scaffolds (sampler parse/median/none/format-pin + report voltage-split) against synthetic 0xE4/0xE5 frames
+- [ ] 111-02-PLAN.md — sample_vpp_mv/sample_vpe_mv sampler in hardware.py (Pattern A: parse Response.message, 100 mV grid, median, None-not-0; SC3 additive)
+- [ ] 111-03-PLAN.md — split the combined report voltage slot into VPP/VPE before/after + standalone fields (D-01/D-03/D-04), single-source to_dict/render + NOT_MEASURED fallback
 **UI hint**: no
 
 ### Phase 112: `dev test` Handler Wiring
