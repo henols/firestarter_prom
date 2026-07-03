@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — Community Chip-Validation Command
 current_phase: 113
-current_phase_name: submission-flow
+current_phase_name: ready to plan
 status: ready
-stopped_at: Phase 112 complete (UAT passed 2/2), ready to plan Phase 113 (Submission Flow)
-last_updated: "2026-07-03T15:04:10.315Z"
+stopped_at: Phase 113 context gathered
+last_updated: "2026-07-03T15:29:33.680Z"
 last_activity: 2026-07-03
-last_activity_desc: Phase 112 complete — UAT passed (SC2 voltage bench + test-2 verified descope); ready to plan Phase 113
+last_activity_desc: Phase 112 complete; UAT passed (SC2 voltage bench + test-2 verified descope)
 progress:
   total_phases: 8
   completed_phases: 5
@@ -30,7 +30,6 @@ Status: Phase 112 complete (UAT passed 2/2) — ready to plan Phase 113 (Submiss
 Last activity: 2026-07-03 — Phase 112 complete; UAT passed (SC2 voltage bench + test-2 verified descope)
 
 <!-- NOTE: `phase.complete 112` mis-set current_phase→115 (the `(close)` phase) because phases 113/114 have no phase directory on disk yet; corrected to 113 per the roadmap dependency spine 112 → 113 → 114 → 115. -->
-
 
 ## Project Reference
 
@@ -323,6 +322,6 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Session
 
-**Last session:** 2026-07-03T15:04Z
-**Stopped at:** Phase 112 complete (UAT passed 2/2), ready to plan Phase 113 (Submission Flow)
-**Resume file:** None
+**Last session:** 2026-07-03T15:29:33.665Z
+**Stopped at:** Phase 113 context gathered
+**Resume file:** .planning/phases/113-submission-flow/113-CONTEXT.md
