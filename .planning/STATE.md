@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — Community Chip-Validation Command
 current_phase: 112
-current_phase_name: `dev test` Handler Wiring
+current_phase_name: dev-test-handler-wiring
 status: executing
 stopped_at: Phase 112 context gathered
-last_updated: "2026-07-03T08:44:26.259Z"
+last_updated: "2026-07-03T08:58:31.367Z"
 last_activity: 2026-07-03
-last_activity_desc: Phase 111 complete + verified (UAT passed), transitioned to Phase 112
+last_activity_desc: Phase 112 execution started
 progress:
   total_phases: 7
   completed_phases: 4
-  total_plans: 13
-  completed_plans: 13
+  total_plans: 16
+  completed_plans: 14
   percent: 57
 ---
 
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 112 — `dev test` Handler Wiring
-Plan: Not started
+Phase: 112 (dev-test-handler-wiring) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-07-03 — Phase 111 complete + verified (UAT passed), transitioned to Phase 112
+Last activity: 2026-07-03 — Phase 112 execution started
 
 ## Project Reference
 
@@ -35,7 +35,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-02 — v1.20 milestone-close footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.21 extends this trust outward: the community can now prove chip support on hardware the maintainer doesn't own, via a pure orchestration layer over the existing algorithm-first dispatch — never a new dispatch path.
 
-**Current focus:** Phase 112 — `dev test` Handler Wiring (integrates 108–111 into the Click CLI)
+**Current focus:** Phase 112 — dev-test-handler-wiring
 
 ## Milestone Context (v1.21)
 
@@ -263,6 +263,8 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: [Phase 111-03]: _voltage_dict modeled byte-for-byte on the existing _transport_dict pattern (six explicit NOT_MEASURED-if-None branches) matching the file's established idiom
 - [Phase ?]: [Phase 111-03]: Voltage render() row placed after banner, before provenance, as a single add_row sourced only from to_dict()['voltage'] (single-source contract, Phase 110 D-01)
 - [Phase 111 close]: UAT Test 1 (live-hardware VPP/VPE parity, SC2 hardware half / D-05) PASS on Leonardo + Rev 2.0 (ACM0 = "Rev 2.0-class"); VERIFICATION.md flipped human_needed→passed. UAT Test 2 (before/after write-step capture) reclassified out of the blocking UAT set → deferred to Phase 112 (operator decision) since no write-step call site exists in Phase 111 by design; logged in 111/deferred-items.md — NOT a Phase 111 gap.
+- [Phase ?]: sampler kwarg threaded through all 4 call-chain levels (run_plan -> _run_step -> _dispatch_step -> _dispatch_multi_run) with default None at every level, per D-04 backward-compat guarantee
+- [Phase ?]: Sampler bracket scoped strictly to the OP_WRITE branch operator.write_eprom call, not OP_VERIFY/OP_ERASE or the whole run_plan loop -- write-droop-vs-read-droop distinguishability (D-04)
 
 ## Performance Metrics
 
@@ -299,10 +301,11 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 111 P01 | 20min | 2 tasks | 2 files |
 | Phase 111 P02 | 12min | 2 tasks | 1 files |
 | Phase 111 P03 | 12min | 2 tasks | 1 files |
+| Phase 112 P01 | 20min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-03T08:16:26.852Z
+**Last session:** 2026-07-03T08:58:19.819Z
 **Stopped at:** Phase 112 context gathered
 **Resume file:** .planning/phases/112-dev-test-handler-wiring/112-CONTEXT.md
 None

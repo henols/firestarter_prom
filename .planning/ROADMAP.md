@@ -262,7 +262,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 **Plans**: 3 plans
 **Wave 1**
 
-- [ ] 112-01-PLAN.md — Engine sampler hook: optional `sampler` param threaded through `run_plan` bracketing OP_WRITE (D-04); `sampler=None` no-op; no `hardware.py` import
+- [x] 112-01-PLAN.md — Engine sampler hook: optional `sampler` param threaded through `run_plan` bracketing OP_WRITE (D-04); `sampler=None` no-op; no `hardware.py` import
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -1121,7 +1121,7 @@ Plans:
 | 109 | v1.21 | 3/3 | Complete    | 2026-07-02 |
 | 110 | v1.21 | 3/3 | Complete    | 2026-07-02 |
 | 111 | v1.21 | 3/3 | Complete    | 2026-07-03 |
-| 112 | v1.21 | 0/TBD | Not started | — |
+| 112 | v1.21 | 1/3 | In Progress|  |
 | 113 | v1.21 | 0/TBD | Not started | — |
 | 114 (close) | v1.21 | 0/TBD | Not started | — |
 
