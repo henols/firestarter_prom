@@ -5,15 +5,15 @@ milestone_name: — Community Chip-Validation Command
 current_phase: 111
 current_phase_name: measured-voltage-sampler-hardware-gated
 status: executing
-stopped_at: Phase 111 context gathered
-last_updated: "2026-07-03T07:21:17.121Z"
+stopped_at: Completed 111-02-PLAN.md
+last_updated: "2026-07-03T07:29:30.220Z"
 last_activity: 2026-07-03
 last_activity_desc: Phase 111 execution started
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 13
-  completed_plans: 11
+  completed_plans: 12
   percent: 43
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 111 (measured-voltage-sampler-hardware-gated) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-07-03 — Phase 111 execution started
 
@@ -257,6 +257,8 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: DbDiff is read-only by construction (write-method-less Mock DB proof + structural no-write scan); proposed_disposition is always advisory descriptive text, never a concrete support_status value
 - [Phase 111-01]: Named the honest-fallback test test_sample_none_returns_none_on_error (not test_sample_returns_none_on_error) so the -k sample_none selector required by 111-VALIDATION.md actually matches
 - [Phase 111-01]: Asserted the render() single-source contract for the voltage split by scanning rendered table cells for the expected value rather than inspecting render() source text, since Plan 03 has not yet decided the exact voltage row wording
+- [Phase ?]: [Phase 111-02]: Used RESEARCH Pattern A (regex re-parse of Response.message) per plan directive, superseding CONTEXT D-05's raw-payload premise -- Response.payload is None for 0xE4/0xE5 frames
+- [Phase ?]: [Phase 111-02]: sample_vpp_mv/sample_vpe_mv placed strictly after _read_voltage_loop/read_vpp_voltage/read_vpe_voltage with zero lines changed in those methods (SC3 verified via git diff)
 
 ## Performance Metrics
 
@@ -291,10 +293,11 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 110 P02 | 20min | 3 tasks | 3 files |
 | Phase 110-diagnostic-report-model-dual-output-provenance-prompts P03 | 25min | 3 tasks | 2 files |
 | Phase 111 P01 | 20min | 2 tasks | 2 files |
+| Phase 111 P02 | 12min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-07-03T07:20:24.591Z
-**Stopped at:** Phase 111 context gathered
+**Last session:** 2026-07-03T07:29:30.201Z
+**Stopped at:** Completed 111-02-PLAN.md
 **Resume file:** 
 None

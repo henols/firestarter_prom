@@ -39,7 +39,7 @@ Requirements for milestone v1.21. Each maps to a roadmap phase.
 
 ### Measured Voltage Capture (VOLT)
 
-- [ ] **VOLT-01**: A value-returning VPP/VPE mV sampler in `hardware.py` (parsing the `MSG_DATA_VPP/VPE_VOLTAGE` frames the current monitor only prints) captures the tester's actual rail voltage during the write step into the report.
+- [x] **VOLT-01**: A value-returning VPP/VPE mV sampler in `hardware.py` (parsing the `MSG_DATA_VPP/VPE_VOLTAGE` frames the current monitor only prints) captures the tester's actual rail voltage during the write step into the report.
 
 ### Transport Health (XPORT)
 
@@ -110,7 +110,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | RPT-03 | Phase 108 | Complete |
 | RPT-04 | Phase 110 | Complete |
 | RPT-05 | Phase 110 | Complete |
-| VOLT-01 | Phase 111 | Pending |
+| VOLT-01 | Phase 111 | Complete |
 | XPORT-01 | Phase 110 | Complete |
 | SUB-01 | Phase 113 | Pending |
 | SUB-02 | Phase 113 | Pending |
