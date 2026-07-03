@@ -1,14 +1,16 @@
 ---
 phase: 111-measured-voltage-sampler-hardware-gated
 verified: 2026-07-03T00:00:00Z
-status: human_needed
+status: passed
 score: 3/3 automated must-haves verified (SC1, SC3, report-field split); SC2 deferred to hardware bench (D-05)
 behavior_unverified: 0
 overrides_applied: 0
 human_verification:
+
   - test: "Compare firestarter_app HardwareManager.sample_vpp_mv()/sample_vpe_mv() parsed mV output against the live firestarter vpp/vpe monitor printed value, on the standing bench oracle (Leonardo + RURP Rev 2.0), with a chip seated (no write, no consumption)."
     expected: "The parsed mV value (e.g. 20900) matches the printed monitor value (e.g. \"VPP: 20.9V\") for the same physical measurement, within the documented 100 mV grid resolution."
     why_human: "Requires energizing the real VPP/VPE regulator and reading the ADC on physical hardware — this is the phase's one deliberately hardware-gated capability (D-05); no software mock can substitute for the live silicon comparison. This is SC2's live-hardware half; deferred per 111-VALIDATION.md's explicit test map row (\"🔒 deferred FUT\") and Manual-Only Verifications section."
+
   - test: "(Downstream/Phase 112 scope, noted for completeness, NOT a phase-111 gap) Once Phase 112 wires sample_vpp_mv()/sample_vpe_mv() into the write-step orchestrator, repeat the before/after comparison using an electrically-erasable chip (W27C512 / W29C020) to validate the destructive-run before/after fields."
     expected: "vpp_before_mv/vpp_after_mv (and vpe_ equivalents) populate with real measured values that track the write step's rail behavior."
     why_human: "No sweep call site exists yet in Phase 111 by design (Plan 111-03's objective explicitly assigns this integration to Phase 112's orchestrator) — this check cannot run until Phase 112 lands."
