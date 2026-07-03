@@ -279,7 +279,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 
 **Gap closure** *(from 112-VERIFICATION.md re-verify; SC2 / SWEEP-05)*
 
-- [ ] 112-05-PLAN.md — Gate OP_VERIFY behind `destructive` in `derive_plan` so the non-destructive plan is genuinely id+read+blank-check (SC2/SWEEP-05); non-mocked composition + non-masking behavioral regression tests; repair the 3 tests that codified the 4-step bug; reword stale RPT-04 in REQUIREMENTS.md to the 112-04 auto-capture model.
+- [x] 112-05-PLAN.md — Gate OP_VERIFY behind `destructive` in `derive_plan` so the non-destructive plan is genuinely id+read+blank-check (SC2/SWEEP-05); non-mocked composition + non-masking behavioral regression tests; repair the 3 tests that codified the 4-step bug; reword stale RPT-04 in REQUIREMENTS.md to the 112-04 auto-capture model.
 
 **UI hint**: no
 
@@ -1130,7 +1130,7 @@ Plans:
 | 109 | v1.21 | 3/3 | Complete    | 2026-07-02 |
 | 110 | v1.21 | 3/3 | Complete    | 2026-07-02 |
 | 111 | v1.21 | 3/3 | Complete    | 2026-07-03 |
-| 112 | v1.21 | 4/4 | Complete   | 2026-07-03 |
+| 112 | v1.21 | 5/5 | Complete   | 2026-07-03 |
 | 113 | v1.21 | 0/TBD | Not started | — |
 | 114 (close) | v1.21 | 0/TBD | Not started | — |
 

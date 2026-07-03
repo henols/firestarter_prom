@@ -5,15 +5,15 @@ milestone_name: — Community Chip-Validation Command
 current_phase: 112
 current_phase_name: dev-test-handler-wiring
 status: executing
-stopped_at: Completed 112-04-PLAN.md (gap closure)
-last_updated: "2026-07-03T11:51:07.743Z"
+stopped_at: Completed 112-05-PLAN.md (gap closure — SC2/SWEEP-05 verify-gate fix)
+last_updated: "2026-07-03T12:07:56.106Z"
 last_activity: 2026-07-03
-last_activity_desc: Phase 112 gap-closure plan 04 executed (provenance-prompt descope)
+last_activity_desc: Phase 112 gap-closure plan 05 completed (SC2/SWEEP-05 verify-gate fix)
 progress:
   total_phases: 7
   completed_phases: 5
-  total_plans: 17
-  completed_plans: 17
+  total_plans: 18
+  completed_plans: 18
   percent: 71
 ---
 
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 112 (dev-test-handler-wiring) — COMPLETE (4/4 plans, incl. gap-closure 112-04)
-Plan: 4 of 4 (gap-closure)
-Status: Ready to execute
-Last activity: 2026-07-03 — Phase 112 gap-closure plan 04 executed (provenance-prompt descope)
+Phase: 112 (dev-test-handler-wiring) — COMPLETE (gap-closure plan 05 closed the last open gap)
+Plan: 5 of 5 (all plans complete, including gap-closure plan 05)
+Status: Phase 112 complete — ready to advance to Phase 113 (Submission Flow)
+Last activity: 2026-07-03 — Phase 112 gap-closure plan 05 completed (SC2/SWEEP-05 verify-gate fix)
 
 ## Project Reference
 
@@ -271,6 +271,9 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: simple test decision
 - [Phase ?]: [Phase 112-04]: REVERSED RPT-04 / D-04 / D-05 / D-06 (operator-approved, 112-UAT.md test 2) -- deleted prompt_provenance/Provenance/SHIELD_REV_CHOICES/_CHIP_ORIGIN_CHOICES outright (the path-separator-in-choice-string bug rejecting new/used/2.0); is_submittable now derived from AutoCapture completeness only (chip+protocol+host_version), never a human-provenance field
 - [Phase ?]: [Phase 112-04]: fw_board_identity stays honest None -- re-confirmed EpromOperator.comm is torn down after every op (no live comm to read post-run_plan); FirmwareManager.check_current_firmware evaluated and rejected as a source since it opens its own extraneous connection (SAFE-02 violation). hw_revision IS auto-captured via new HardwareManager.read_hardware_revision_value() (dedicated clean energize/query connection). --pot-adjusted flag confirmed out of scope, not implemented
+- [Phase ?]: [Phase 112-05]: Gated OP_VERIFY behind destructive in derive_plan (SC2/SWEEP-05 fix direction (a), pre-decided) -- mirrors OP_WRITE/OP_ERASE D-01 pattern exactly; _DESTRUCTIVE_OPS/_MULTI_RUN_OPS untouched
+- [Phase ?]: [Phase 112-05]: Repaired 8 tests broken by the verify-gate fix (5 more than the plan's named 3) -- all same bug class, discovered via the plan's own required full targeted-suite verification step
+- [Phase ?]: [Phase 112-05]: RPT-04 reworded to the 112-04 auto-capture model, closing the documentation debt flagged in 112-VERIFICATION.md
 
 ## Performance Metrics
 
@@ -311,10 +314,11 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 112 P02 | 45min | 2 tasks | 2 files |
 | Phase 112 P03 | 35min | 2 tasks | 3 files |
 | Phase 112 P04 | 40min | 3 tasks | 6 files |
+| Phase 112 P05 | 35min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-07-03T11:02:16.777Z
-**Stopped at:** Completed 112-04-PLAN.md (gap closure)
+**Last session:** 2026-07-03T12:07:56.090Z
+**Stopped at:** Completed 112-05-PLAN.md (gap closure — SC2/SWEEP-05 verify-gate fix)
 **Resume file:** None
 None
