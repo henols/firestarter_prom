@@ -326,7 +326,17 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
   2. The `support_status` taxonomy gains new community states (`community-reported`, `community-confirmed`, `community-fail`) that a report can be tagged with automatically, but promotion out of `community-reported` into `community-confirmed` (or into `supported`) requires an explicit human step and is only reachable once N≥2 independent reports agree — a single report can never itself trigger a state transition.
   3. `gsd-inbox` triage, when it encounters an issue labeled `gsd-inbox`, auto-parses the report's fenced JSON block and surfaces the embedded DB-diff (current `support_status` vs. the report's proposed change) directly in the triage view, so a maintainer reviewing the issue sees the actionable diff without manually re-deriving it from the raw report.
 
-**Plans**: TBD
+**Plans**: 3 plans (planned 2026-07-03 — host + tooling only, firmware untouched; SAFE-04 deliberately excluded → Phase 114.1)
+
+**Wave 1** *(independent, parallel — no file overlap)*
+
+- [ ] 114-01-PLAN.md — GRAD-01: report-side `ladder_state` on `DbDiff`/`build_db_diff`/`to_dict` in `diagnostic_report.py` + ladder tests + `doc/community-validation.md` taxonomy & N≥2 promotion process (D-01/D-02)
+- [ ] 114-02-PLAN.md — INBOX-01 (+ GRAD-01 N≥2): stdlib `tools/parse_devtest_issue.py` — detect `[dev test]`+`schema_version`, surface DB-diff, count matching `dedup_fingerprint`s + unit tests (D-03/D-04)
+
+**Wave 2** *(depends on Wave 1 — scans both 01+02 files)*
+
+- [ ] 114-03-PLAN.md — DISP-01: AST audit `tools/check_no_community_support_status_write.py` (mirrors SAFE-03) + anti-hollow paired planted-fixture test (D-05)
+
 **UI hint**: no
 
 ### Phase 114.1: `dev test` Absent-Chip Hard-Fail (SAFE-04)
