@@ -108,3 +108,9 @@ None - no external service configuration required.
 ---
 *Phase: 115-beta-channel-install-and-firmware-flash-bench-validation-for*
 *Completed: 2026-07-10*
+
+## Self-Check: PASSED
+
+- FOUND: firestarter_app/doc/beta-testing-install.md
+- FOUND: 544b5da (firestarter_app submodule)
+- FOUND: 1e1df25 (firestarter_app submodule)
