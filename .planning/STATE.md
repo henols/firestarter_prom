@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — Community Chip-Validation Command
 current_phase: 114.1
-current_phase_name: SAFE-04
-status: executing
+current_phase_name: dev-test-absent-chip-hard-fail-safe-04
+status: verifying
 stopped_at: Phase 114 complete + verified (3/3); Phase 114.1 (SAFE-04) is next and unplanned
-last_updated: "2026-07-10T18:19:15.330Z"
-last_activity: 2026-07-03
-last_activity_desc: Phase 114 complete + verified; hand-corrected transition to Phase 114.1
+last_updated: "2026-07-10T18:34:22.685Z"
+last_activity: 2026-07-10
+last_activity_desc: Phase 114.1 execution started
 progress:
   total_phases: 9
-  completed_phases: 7
-  total_plans: 25
-  completed_plans: 25
-  percent: 78
+  completed_phases: 8
+  total_plans: 26
+  completed_plans: 26
+  percent: 89
 ---
 
 # Project State
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 114.1 — `dev test` Absent-Chip Hard-Fail (SAFE-04) — micro-phase, not yet planned
-Plan: Not started (run `/gsd-plan-phase 114.1`)
-Status: Ready to execute
-Last activity: 2026-07-03 — Phase 114 complete + verified; hand-corrected transition to Phase 114.1
+Phase: 114.1 (dev-test-absent-chip-hard-fail-safe-04) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
+Last activity: 2026-07-10 — Phase 114.1 execution started
 
 <!-- NOTE: RECURRING `phase.complete` bug — it mis-advanced current_phase→115 (the `(close)` phase) AGAIN at the 114→114.1 boundary because micro-phase 114.1 has no directory on disk yet (it was inserted mid-`/gsd-plan-phase 114` for SAFE-04). Hand-corrected to 114.1 per the roadmap dependency spine 112 → 113 → 114 → 114.1 → 115 (the first `[ ]` checkbox after 114). Expect this again at the 114.1→115 boundary until 114.1 has a phase dir. -->
 
@@ -37,7 +37,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-02 — v1.20 milestone-close footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.21 extends this trust outward: the community can now prove chip support on hardware the maintainer doesn't own, via a pure orchestration layer over the existing algorithm-first dispatch — never a new dispatch path.
 
-**Current focus:** Phase 114.1 — `dev test` absent-chip hard-fail (SAFE-04); then Phase 115 (close capstone)
+**Current focus:** Phase 114.1 — dev-test-absent-chip-hard-fail-safe-04
 
 ## Milestone Context (v1.21)
 
@@ -293,6 +293,8 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: DISP-01 checker uses exact-string match against support_status (not substring) to avoid false-positive on current_support_status near-name
 - [Phase ?]: Both DISP-01 scan targets (diagnostic_report.py, parse_devtest_issue.py) treated as mandatory; missing-target check fails closed before the scan loop
 - [Phase ?]: Task 1 RED phase wrote the full 7-test anti-hollow suite covering both Task 1 and Task 2 acceptance criteria; Task 2 verified-complete with no separate commit (mirrors 109-03 SAFE-03 precedent)
+- [Phase ?]: Phase 114.1: guard placed strictly between --destructive confirm block and derive_plan, keyed on app.db.get_eprom(chip) emptiness only — never on a resolve_chip support-status refusal — so case B (present-but-unsupported chips like AT28C16) still runs the full community-validation sweep — Protects the community-validation command's entire purpose (proving support on chips the maintainer's DB refuses)
+- [Phase ?]: Phase 114.1: reused existing ChipNotFoundError + @map_typed_errors -> click.ClickException path (no new exception type, no new exit-code branch, no logger.error+sys.exit style) — Minimal, self-contained hardening; matches how every other command already rejects unknown chips
 
 ## Performance Metrics
 
@@ -341,9 +343,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 114 P01 | 12min | 2 tasks | 3 files |
 | Phase 114 P02 | 15min | 2 tasks | 2 files |
 | Phase 114 P03 | 30min | 2 tasks | 2 files |
+| Phase 114.1 P01 | 12min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-03T19:36:00.589Z
+**Last session:** 2026-07-10T18:33:52.564Z
 **Stopped at:** Completed 114-03-PLAN.md
 **Resume file:** None

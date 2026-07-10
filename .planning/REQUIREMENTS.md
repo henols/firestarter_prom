@@ -28,7 +28,7 @@ Requirements for milestone v1.21. Each maps to a roadmap phase.
 - [x] **SAFE-01**: The `--destructive` flag gates write/erase at plan-construction time (a non-destructive plan literally lacks those steps); it is per-invocation only and is never read from config or env.
 - [x] **SAFE-02**: `dev test` is a pure orchestrator of existing commands — it routes every operation through `chip_resolver.resolve_chip`/the existing serial path, sets no VPP, builds no raw protocol commands, and passes no `--force`; the firmware VPP guard's refusals are recorded as findings.
 - [x] **SAFE-03**: A CI gate asserts `dev test` adds zero new firmware dispatch entries and zero new VPP-set call sites (the orchestrator-only contract is machine-enforced).
-- [ ] **SAFE-04**: `dev test <chip>` hard-fails (exit 1, bare `Error: <chip>: not found in database`, no "did you mean") when the chip name is **absent from the DB** (`db.get_eprom` empty), short-circuiting **before** any hardware is energized or report rendered — while a chip that is present-but-unsupported (support-status refusal, case B) STILL runs the full sweep (SWEEP-01). The guard keys off `get_eprom` emptiness, never a `resolve_chip` refusal, so it cannot swallow case B. Added post-roadmap via `/gsd-explore` 2026-07-03 as Phase-112-handler hardening.
+- [x] **SAFE-04**: `dev test <chip>` hard-fails (exit 1, bare `Error: <chip>: not found in database`, no "did you mean") when the chip name is **absent from the DB** (`db.get_eprom` empty), short-circuiting **before** any hardware is energized or report rendered — while a chip that is present-but-unsupported (support-status refusal, case B) STILL runs the full sweep (SWEEP-01). The guard keys off `get_eprom` emptiness, never a `resolve_chip` refusal, so it cannot swallow case B. Added post-roadmap via `/gsd-explore` 2026-07-03 as Phase-112-handler hardening.
 
 ### Diagnostic Report (RPT)
 
@@ -115,7 +115,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SAFE-01 | Phase 109 | Complete |
 | SAFE-02 | Phase 109 | Complete |
 | SAFE-03 | Phase 109 | Complete |
-| SAFE-04 | Phase 114.1 | Pending |
+| SAFE-04 | Phase 114.1 | Complete |
 | RPT-01 | Phase 110 | Complete |
 | RPT-02 | Phase 110 | Complete |
 | RPT-03 | Phase 108 | Complete |

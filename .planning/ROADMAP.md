@@ -352,7 +352,9 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 
 **Plans**: 1 plan (planned 2026-07-10 — host-only; 2-line `get_eprom`-keyed guard in `dev_test` + case-A/case-B regression tests; firmware + chip_database.json untouched)
 Plans:
-- [ ] 114.1-01-PLAN.md — Absent-chip hard-fail guard in `dev_test` (case A) + case-A/case-B regression tests (SAFE-04)
+
+- [x] 114.1-01-PLAN.md — Absent-chip hard-fail guard in `dev_test` (case A) + case-A/case-B regression tests (SAFE-04)
+
 **UI hint**: no
 
 ### Phase 115: Beta Install & Firmware-Flash Bench Validation — Community Onboarding (close)
