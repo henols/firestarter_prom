@@ -374,7 +374,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 115-01-PLAN.md — Draft the community onboarding doc + README pointer (ONBOARD-04, draft-first D-04) [Wave 1]
+- [x] 115-01-PLAN.md — Draft the community onboarding doc + README pointer (ONBOARD-04, draft-first D-04) [Wave 1]
 - [ ] 115-02-PLAN.md — Release pre-flight: mirror app+firmware CI gates locally + operator gh/secrets/trigger precondition [Wave 1]
 
 **Wave 2** *(blocked on Wave 1 completion)*

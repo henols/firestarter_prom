@@ -65,7 +65,7 @@ Validation + docs for the beta-channel install/flash chain a community tester mu
 - [ ] **ONBOARD-01**: On a fresh machine/venv, `pip install --pre firestarter` installs the current `3.0.0bN` prerelease from PyPI and `firestarter --version` reports it — verified per bench board (Uno, Leonardo, uno328pb). Step 0 first confirms the prerelease is actually published to PyPI (operator-gated `gh` dispatch) or halts on a publish-first blocker.
 - [ ] **ONBOARD-02**: A bare `firestarter fw -i` from the prerelease-installed app auto-routes to the `--pre` channel (D-23/D-24), downloads the board-matching `firestarter_<board>.hex` from the GitHub prerelease, and avrdude flashes + verifies it — verified per bench board. Step 0 first confirms the GitHub prerelease exposes a `.hex` asset for each board.
 - [ ] **ONBOARD-03**: After flashing, a smoke test passes per board — `firestarter fw` reports the expected beta version + correct board and one minimal live protocol op (e.g. `hw`/identify) succeeds. Explicitly NOT a full chip write/verify (that is `dev test`'s job).
-- [ ] **ONBOARD-04**: A community-facing "install the beta & flash beta firmware to help test PROMs" doc exists in the `firestarter_app` sub-repo (operator-canonical, per the two-layer doc pattern), written for a stranger on a fresh machine: per-board commands, the avrdude prerequisite, the per-port controller-identity gotcha, the correct `.hex` per board, and the hand-off into `dev test <chip>`.
+- [x] **ONBOARD-04**: A community-facing "install the beta & flash beta firmware to help test PROMs" doc exists in the `firestarter_app` sub-repo (operator-canonical, per the two-layer doc pattern), written for a stranger on a fresh machine: per-board commands, the avrdude prerequisite, the per-port controller-identity gotcha, the correct `.hex` per board, and the hand-off into `dev test <chip>`.
 
 ## v2 / Future Requirements
 
@@ -132,7 +132,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | ONBOARD-01 | Phase 115 | Pending |
 | ONBOARD-02 | Phase 115 | Pending |
 | ONBOARD-03 | Phase 115 | Pending |
-| ONBOARD-04 | Phase 115 | Pending |
+| ONBOARD-04 | Phase 115 | Complete |
 
 **Coverage:**
 

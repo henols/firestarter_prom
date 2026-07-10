@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — Community Chip-Validation Command
 current_phase: 115
-current_phase_name: close
-status: ready-to-plan
+current_phase_name: beta-channel-install-and-firmware-flash-bench-validation-for
+status: executing
 stopped_at: Phase 115 context gathered
-last_updated: "2026-07-10T19:07:17.673Z"
+last_updated: "2026-07-10T20:06:45.476Z"
 last_activity: 2026-07-10
-last_activity_desc: Phase 114.1 complete, transitioned to Phase 115
+last_activity_desc: Phase 115 execution started
 progress:
   total_phases: 9
   completed_phases: 8
-  total_plans: 26
-  completed_plans: 26
-  percent: 89
+  total_plans: 34
+  completed_plans: 27
+  percent: 79
 ---
 
 # Project State
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 115 — Beta Install & Firmware-Flash Bench Validation — Community Onboarding (close)
-Plan: Not started
-Status: Phase 114.1 complete + verified (3/3 must-haves) — Phase 115 ready to plan
-Last activity: 2026-07-10 — Phase 114.1 complete, transitioned to Phase 115
+Phase: 115 (beta-channel-install-and-firmware-flash-bench-validation-for) — EXECUTING
+Plan: 2 of 8
+Status: Ready to execute
+Last activity: 2026-07-10 — Phase 115 execution started
 
 <!-- NOTE: the 114.1→115 `phase.complete` transition landed CORRECTLY on 2026-07-10 (115 is the first `[ ]` roadmap checkbox and its dir exists on disk), unlike the recurring mis-advance seen at 113→114 and 114→114.1 (both had a dir-less next phase). Frontmatter name/status still needed hand-correction (`close`/`verifying` → real slug/ready-to-plan). -->
 
@@ -37,7 +37,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-02 — v1.20 milestone-close footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.21 extends this trust outward: the community can now prove chip support on hardware the maintainer doesn't own, via a pure orchestration layer over the existing algorithm-first dispatch — never a new dispatch path.
 
-**Current focus:** Phase 115 (close) — Beta Install & Firmware-Flash Bench Validation — Community Onboarding (hardware-gated capstone; not yet planned)
+**Current focus:** Phase 115 — beta-channel-install-and-firmware-flash-bench-validation-for
 
 ## Milestone Context (v1.21)
 
@@ -295,6 +295,9 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: Task 1 RED phase wrote the full 7-test anti-hollow suite covering both Task 1 and Task 2 acceptance criteria; Task 2 verified-complete with no separate commit (mirrors 109-03 SAFE-03 precedent)
 - [Phase ?]: Phase 114.1: guard placed strictly between --destructive confirm block and derive_plan, keyed on app.db.get_eprom(chip) emptiness only — never on a resolve_chip support-status refusal — so case B (present-but-unsupported chips like AT28C16) still runs the full community-validation sweep — Protects the community-validation command's entire purpose (proving support on chips the maintainer's DB refuses)
 - [Phase ?]: Phase 114.1: reused existing ChipNotFoundError + @map_typed_errors -> click.ClickException path (no new exception type, no new exit-code branch, no logger.error+sys.exit style) — Minimal, self-contained hardening; matches how every other command already rejects unknown chips
+- [Phase 115]: Doc structure mirrors community-validation.md voice (audience/purpose lead, what-this-is-NOT framing, tables, fenced commands)
+- [Phase 115]: 328PB-Uno guidance: try -b uno328pb first, fall back to -b uno only on avrdude signature-check rejection - never guess/force
+- [Phase 115]: README gets exactly one pointer link; per-board matrix NOT duplicated (D-09)
 
 ## Performance Metrics
 
@@ -344,9 +347,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 114 P02 | 15min | 2 tasks | 2 files |
 | Phase 114 P03 | 30min | 2 tasks | 2 files |
 | Phase 114.1 P01 | 12min | 2 tasks | 2 files |
+| Phase 115 P01 | 5min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-10T19:07:17.663Z
+**Last session:** 2026-07-10T20:06:19.159Z
 **Stopped at:** Phase 115 context gathered
 **Resume file:** .planning/phases/115-beta-channel-install-and-firmware-flash-bench-validation-for/115-CONTEXT.md
