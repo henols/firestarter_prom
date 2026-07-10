@@ -350,7 +350,9 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
   2. A chip that is present-but-unsupported (in the DB but `resolve_chip` would refuse on support-status — case B) STILL runs the full sweep: the guard keys strictly off `get_eprom` emptiness (case A), never a `resolve_chip` refusal, so it cannot swallow case B.
   3. The guard is covered by a test mirroring the established anti-hollow discipline (absent-chip → exit 1 + no-hardware-call assertion; present-but-unsupported → sweep still runs), unit-testable via the `EpromDatabase(skip_local_override=True)` + mock-operator seam.
 
-**Plans**: TBD
+**Plans**: 1 plan (planned 2026-07-10 — host-only; 2-line `get_eprom`-keyed guard in `dev_test` + case-A/case-B regression tests; firmware + chip_database.json untouched)
+Plans:
+- [ ] 114.1-01-PLAN.md — Absent-chip hard-fail guard in `dev_test` (case A) + case-A/case-B regression tests (SAFE-04)
 **UI hint**: no
 
 ### Phase 115: Beta Install & Firmware-Flash Bench Validation — Community Onboarding (close)
