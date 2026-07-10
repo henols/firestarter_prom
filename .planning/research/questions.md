@@ -134,3 +134,26 @@ Source: `/gsd-explore` session 2026-07-03. See
 5. **DMM/ground-truth tolerance.** What DMM accuracy do we assume, and should the
    wizard record the meter/measurement so a later re-cal can tell instrument error
    from real drift?
+
+## Jumper display correctness (per pin map) — added 2026-07-10
+
+Source: `/gsd-explore` session 2026-07-10. See `notes/jumper-display-ground-truth.md`
+and seed `seeds/jumper-settings-per-pin-map.md`.
+
+1. **Rev 2.x JP4 vs 32-pin pin-1-VPP chips.** JP4 routes VPP to "socket pin 1"
+   (P1_VPP_JMP). On Rev 0/1 the 3-position JP3 selects between the 32-pin and
+   28-pin seating of a chip's pin 1 — Rev 2.0/2.1/2.2 have only the single
+   open/closed JP4. Does JP4 serve W27C010-class 32-pin pin-1-VPP chips as well
+   as 28-pin ones, or only one seating? Does the Rev 2.3 3-pole 2x2 selector
+   footprint restore the seating choice? Check Rev 2.x KiCad routing of
+   `P1_VPP_ENABLE` relative to ZIF positions 1 vs 3.
+2. **24-pin VPP chips (2716/2732/2532, 32 chips).** Protocol 0x0B applies VPE
+   directly to the PGM pin, so no pin-1 routing should be needed and the
+   current "no JP3/JP4 guidance" display is plausibly right — confirm against
+   `rurp_schematics_rev1.pdf` (and Rev 2.x) that no jumper participates in the
+   24-pin VPP path.
+3. **`PROTOCOLS.md:136` wording.** It says 0x07-family VPP is applied "via JP4
+   jumper routing", which contradicts pin-1-only JP4 routing for pin-22-VPP
+   chips (DIP28_27512 → CTRL_VPP_VPE_DROP path). Establish the correct
+   statement and fix the doc (lockstep with the meta-repo shield docs if §
+   overlap).
