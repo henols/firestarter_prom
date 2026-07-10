@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — Community Chip-Validation Command
-current_phase: 114.1
-current_phase_name: dev-test-absent-chip-hard-fail-safe-04
-status: verifying
-stopped_at: Phase 114 complete + verified (3/3); Phase 114.1 (SAFE-04) is next and unplanned
-last_updated: "2026-07-10T18:34:22.685Z"
+current_phase: 115
+current_phase_name: beta-channel-install-and-firmware-flash-bench-validation-for
+status: ready-to-plan
+stopped_at: Completed 114.1-01-PLAN.md
+last_updated: "2026-07-10T18:47:30.383Z"
 last_activity: 2026-07-10
-last_activity_desc: Phase 114.1 execution started
+last_activity_desc: Phase 114.1 complete, transitioned to Phase 115
 progress:
   total_phases: 9
   completed_phases: 8
@@ -24,12 +24,12 @@ progress:
 
 ## Current Position
 
-Phase: 114.1 (dev-test-absent-chip-hard-fail-safe-04) — EXECUTING
-Plan: 1 of 1
-Status: Phase complete — ready for verification
-Last activity: 2026-07-10 — Phase 114.1 execution started
+Phase: 115 — Beta Install & Firmware-Flash Bench Validation — Community Onboarding (close)
+Plan: Not started
+Status: Phase 114.1 complete + verified (3/3 must-haves) — Phase 115 ready to plan
+Last activity: 2026-07-10 — Phase 114.1 complete, transitioned to Phase 115
 
-<!-- NOTE: RECURRING `phase.complete` bug — it mis-advanced current_phase→115 (the `(close)` phase) AGAIN at the 114→114.1 boundary because micro-phase 114.1 has no directory on disk yet (it was inserted mid-`/gsd-plan-phase 114` for SAFE-04). Hand-corrected to 114.1 per the roadmap dependency spine 112 → 113 → 114 → 114.1 → 115 (the first `[ ]` checkbox after 114). Expect this again at the 114.1→115 boundary until 114.1 has a phase dir. -->
+<!-- NOTE: the 114.1→115 `phase.complete` transition landed CORRECTLY on 2026-07-10 (115 is the first `[ ]` roadmap checkbox and its dir exists on disk), unlike the recurring mis-advance seen at 113→114 and 114→114.1 (both had a dir-less next phase). Frontmatter name/status still needed hand-correction (`close`/`verifying` → real slug/ready-to-plan). -->
 
 ## Project Reference
 
@@ -37,7 +37,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-02 — v1.20 milestone-close footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.21 extends this trust outward: the community can now prove chip support on hardware the maintainer doesn't own, via a pure orchestration layer over the existing algorithm-first dispatch — never a new dispatch path.
 
-**Current focus:** Phase 114.1 — dev-test-absent-chip-hard-fail-safe-04
+**Current focus:** Phase 115 (close) — Beta Install & Firmware-Flash Bench Validation — Community Onboarding (hardware-gated capstone; not yet planned)
 
 ## Milestone Context (v1.21)
 
@@ -184,9 +184,9 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Operator Next Steps
 
-- Phases 108–112 complete (5/8). Next: plan Phase 113 (Submission Flow) with `/gsd-plan-phase 113` — tiered `gh`/browser-URL `--submit` with PII/path sanitization + preview, dedup fingerprint, explicit/interactive-only (SUB-01..03). Software-only, unit-testable via the mock-operator seam.
+- Phases 108–114.1 complete (8/9). Next: plan Phase 115 (close) with `/gsd-plan-phase 115` — Beta Install & Firmware-Flash Bench Validation (ONBOARD-01..04). Hardware-gated + operator-witnessed (Phase-111 shape); Step 0 verifies the beta is public on BOTH channels (PyPI `--pre` + GitHub prerelease with `.hex` assets) or surfaces a publish-first blocker — note gitlinks are still PINNED at b10 and the 3.0.0b11 lockstep cut remains operator-gated, so the publish-first blocker is the likely Step-0 outcome to resolve first.
+- Phase 114.1 closed 2026-07-10: SAFE-04 absent-chip hard-fail guard in `dev_test` + case-A/case-B tests (TestAbsentChipHardFail); verifier independently reproduced RED→GREEN by stripping/restoring the guard; todo `dev-test-hard-fail-unknown-chip` auto-closed.
 - Phase 112 UAT closed 2026-07-03: Test 1 (SC2 measured-voltage bench, Leonardo + Rev 2.0, W27C512) PASS — voltage rows render with plausible rail values (see `chip-test/dev-test-w27c512.md`); Test 2 (interactive provenance prompts) resolved-by-descope in 112-04 and re-verified 9/9, recorded as pass.
-- Remaining v1.21 phases after 113: 114 (Disposition / No-Auto-Graduate Lock, feature close) → 115 (Beta Install & Firmware-Flash Bench Validation, hardware-gated capstone). 113/114 have no phase dir yet.
 
 ## Decisions
 
@@ -348,5 +348,5 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 ## Session
 
 **Last session:** 2026-07-10T18:33:52.564Z
-**Stopped at:** Completed 114-03-PLAN.md
+**Stopped at:** Completed 114.1-01-PLAN.md
 **Resume file:** None
