@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — Community Chip-Validation Command
 current_phase: 115
-current_phase_name: beta-channel-install-and-firmware-flash-bench-validation-for
+current_phase_name: close
 status: ready-to-plan
-stopped_at: Completed 114.1-01-PLAN.md
-last_updated: "2026-07-10T18:47:30.383Z"
+stopped_at: Phase 115 context gathered
+last_updated: "2026-07-10T19:07:17.673Z"
 last_activity: 2026-07-10
 last_activity_desc: Phase 114.1 complete, transitioned to Phase 115
 progress:
@@ -347,6 +347,6 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Session
 
-**Last session:** 2026-07-10T18:33:52.564Z
-**Stopped at:** Completed 114.1-01-PLAN.md
-**Resume file:** None
+**Last session:** 2026-07-10T19:07:17.663Z
+**Stopped at:** Phase 115 context gathered
+**Resume file:** .planning/phases/115-beta-channel-install-and-firmware-flash-bench-validation-for/115-CONTEXT.md
