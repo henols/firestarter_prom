@@ -71,15 +71,13 @@ bench and documents it.
   separate operator-gated close step:** the `v1.21` git tag, any final `--no-ff`
   merge to `beta`, and the `/gsd-ship` / `/gsd-complete-milestone` ceremony —
   those happen AFTER this phase's verification passes. See D-06.
-- **D-03 (LOCKED): Irreversible/outward-facing publish steps get an explicit
-  operator-authorization checkpoint at execution time.** The PyPI `gh` dispatch
+- **D-03 (LOCKED): Irreversible/outward-facing publish steps get an explicit operator-authorization checkpoint at execution time.** The PyPI `gh` dispatch
   and the GitHub-prerelease publish are outward-facing and hard to reverse (PyPI
   versions cannot be re-used; a prerelease is public). The plan must pause for
   explicit operator go-ahead immediately before each, rather than firing them
   autonomously. (Standing "beta cuts are operator-gated" policy — folding the cut
   into the phase does not remove the human gate on the irreversible act.)
-- **D-04 (LOCKED): Doc is draft-first, published in b11, then finalized from
-  bench findings.** Write the ONBOARD-04 doc from known facts BEFORE the cut so
+- **D-04 (LOCKED): Doc is draft-first, published in b11, then finalized from bench findings.** Write the ONBOARD-04 doc from known facts BEFORE the cut so
   `3.0.0b11` ships with it; run the per-board validation; fold any
   newly-discovered gotchas back into the doc as a repo update on the `beta`/v1.21
   branch (the community reads docs from GitHub/`beta` regardless of which pip
@@ -87,8 +85,7 @@ bench and documents it.
   findings.
 
 ### Per-board scope — uno328pb is best-effort
-- **D-05 (LOCKED): Uno + Leonardo are HARD pass/fail gates; uno328pb is
-  best-effort.** A flaky or failed uno328pb run is recorded (with the specific
+- **D-05 (LOCKED): Uno + Leonardo are HARD pass/fail gates; uno328pb is best-effort.** A flaky or failed uno328pb run is recorded (with the specific
   failure mode) but does NOT block milestone close — it becomes a known-instability
   note + a FUT item. Rationale: memory documents uno328pb as bench-unstable
   (`project_uno328pb_bench_instability_27_04`: read timeouts + 0xff drift, VPP
@@ -102,16 +99,14 @@ bench and documents it.
   its outcome from a close-blocker to advisory.)
 
 ### Milestone close ordering
-- **D-06 (LOCKED): Close ceremony is a SEPARATE operator-gated step after
-  verification.** Order within/after the phase: (1) draft doc → (2) release cut
+- **D-06 (LOCKED): Close ceremony is a SEPARATE operator-gated step after verification.** Order within/after the phase: (1) draft doc → (2) release cut
   + publish b11 (D-01/D-02/D-03) → (3) per-board bench validation → (4) finalize
   doc from findings (D-04) → (5) phase verification → (6) **then** the
   operator-gated `v1.21` tag + final merge + ship/complete-milestone (NOT this
   phase's plan).
 
 ### Bench validation execution model
-- **D-07 (LOCKED): Fresh-venv + `FIRESTARTER_CONFIG_DIR` isolation to make the
-  "stranger on a fresh machine" claim credible.** Each per-board run uses a
+- **D-07 (LOCKED): Fresh-venv + `FIRESTARTER_CONFIG_DIR` isolation to make the "stranger on a fresh machine" claim credible.** Each per-board run uses a
   throwaway virtualenv (`pip install --pre firestarter` into it, NOT the
   operator's editable `-e` install) and points `FIRESTARTER_CONFIG_DIR` at a
   clean temp dir so `~/.firestarter` / any local DB override does not contaminate
