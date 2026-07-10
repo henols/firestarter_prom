@@ -370,7 +370,16 @@ Plans:
   4. For each board: after flashing, `firestarter fw` reports the expected beta firmware version + correct board, and one minimal live protocol op (e.g. `hw`/identify) succeeds — the flashed beta stack is alive end to end. Explicitly NOT a full chip write/verify (that is `dev test`'s job). (ONBOARD-03)
   5. A community-facing doc — "Install the beta & flash beta firmware to help test PROMs" — lives in the `firestarter_app` sub-repo (operator-canonical home, per the two-layer doc pattern), written for a stranger on a fresh machine: exact per-board commands, the avrdude prerequisite, the per-port controller-identity gotcha (`/dev/ttyACM*` shuffle across replug), the correct `.hex` per board, and the hand-off into `dev test <chip>`. (ONBOARD-04)
 
-**Plans**: TBD (run /gsd-plan-phase 115 to break down)
+**Plans**: 8 plans in 5 waves (planned 2026-07-10 — VALIDATION + DOCS capstone; ZERO source modules built; two irreversible publishes are `autonomous: false` operator-authorization checkpoints per D-03; uno328pb is best-effort/advisory per D-05; v1.21 tag + beta merge OUT of scope per D-02/D-06)
+Plans:
+- [ ] 115-01-PLAN.md — Draft the community onboarding doc + README pointer (ONBOARD-04, draft-first D-04) [Wave 1]
+- [ ] 115-02-PLAN.md — Release pre-flight: mirror app+firmware CI gates locally + operator gh/secrets/trigger precondition [Wave 1]
+- [ ] 115-03-PLAN.md — Publish firmware `.hex` prerelease 3.0.0b11 (operator-authorized) + per-board reachability verify (ONBOARD-02 Step 0) [Wave 2]
+- [ ] 115-04-PLAN.md — Publish app `3.0.0b11` to PyPI (operator-authorized) + `pip --pre` reachability verify (ONBOARD-01 Step 0) [Wave 3]
+- [ ] 115-05-PLAN.md — Uno bench: fresh-venv install → `fw -i` flash → `fw`/`hw` smoke + evidence record (HARD gate) [Wave 4]
+- [ ] 115-06-PLAN.md — Leonardo bench: fresh-venv install → `fw -i` flash → `fw`/`hw` smoke + evidence record (HARD gate) [Wave 4]
+- [ ] 115-07-PLAN.md — uno328pb bench: full chain + evidence record (best-effort/advisory D-05) [Wave 4]
+- [ ] 115-08-PLAN.md — Finalize onboarding doc from bench findings (D-04) + meta gitlink bump off PINNED b10 → b11 (D-01) [Wave 5]
 **UI hint**: no
 
 ## v1.19 — Protocol Naming Labels (STARTED 2026-07-01)
