@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — Community Chip-Validation Command
 current_phase: 114.1
-current_phase_name: dev test absent-chip hard-fail (SAFE-04)
-status: pending
+current_phase_name: SAFE-04
+status: executing
 stopped_at: Phase 114 complete + verified (3/3); Phase 114.1 (SAFE-04) is next and unplanned
-last_updated: "2026-07-03T19:43:30.777Z"
+last_updated: "2026-07-10T18:19:15.330Z"
 last_activity: 2026-07-03
-last_activity_desc: Phase 114 complete + verified (3/3 must-haves); hand-corrected transition to Phase 114.1 (SAFE-04, unplanned)
+last_activity_desc: Phase 114 complete + verified; hand-corrected transition to Phase 114.1
 progress:
   total_phases: 9
   completed_phases: 7
@@ -26,7 +26,7 @@ progress:
 
 Phase: 114.1 — `dev test` Absent-Chip Hard-Fail (SAFE-04) — micro-phase, not yet planned
 Plan: Not started (run `/gsd-plan-phase 114.1`)
-Status: Phase 114 complete + verified (3/3 must-haves) — Phase 114.1 next, unplanned
+Status: Ready to execute
 Last activity: 2026-07-03 — Phase 114 complete + verified; hand-corrected transition to Phase 114.1
 
 <!-- NOTE: RECURRING `phase.complete` bug — it mis-advanced current_phase→115 (the `(close)` phase) AGAIN at the 114→114.1 boundary because micro-phase 114.1 has no directory on disk yet (it was inserted mid-`/gsd-plan-phase 114` for SAFE-04). Hand-corrected to 114.1 per the roadmap dependency spine 112 → 113 → 114 → 114.1 → 115 (the first `[ ]` checkbox after 114). Expect this again at the 114.1→115 boundary until 114.1 has a phase dir. -->
