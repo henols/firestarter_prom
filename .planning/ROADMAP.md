@@ -383,7 +383,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 115-04-PLAN.md — Publish app `3.0.0b11` to PyPI (operator-authorized) + `pip --pre` reachability verify (ONBOARD-01 Step 0) [Wave 3]
+- [x] 115-04-PLAN.md — Publish app `3.0.0b11` to PyPI (operator-authorized) + `pip --pre` reachability verify (ONBOARD-01 Step 0) [Wave 3]
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
