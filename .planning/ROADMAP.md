@@ -379,7 +379,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 115-03-PLAN.md — Publish firmware `.hex` prerelease 3.0.0b11 (operator-authorized) + per-board reachability verify (ONBOARD-02 Step 0) [Wave 2]
+- [x] 115-03-PLAN.md — Publish firmware `.hex` prerelease 3.0.0b11 (operator-authorized) + per-board reachability verify (ONBOARD-02 Step 0) [Wave 2]
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
