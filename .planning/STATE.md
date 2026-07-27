@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
-current_phase: 116
-current_phase_name: GROUND TRUTH + TRACE HARNESS
+current_phase: 117
+current_phase_name: FIX — remap-aware `0x0D` emitter + honest completion signal
 status: verifying
-stopped_at: Completed 116-06-PLAN.md
-last_updated: "2026-07-27T22:25:57.172Z"
+stopped_at: Phase 116 complete + verified 6/6 — Phase 117 next, unplanned
+last_updated: "2026-07-27T22:36:54.377Z"
 last_activity: 2026-07-27
-last_activity_desc: Phase 116 execution started
+last_activity_desc: Phase 116 complete, transitioned to Phase 117
 progress:
   total_phases: 7
   completed_phases: 1
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 116 (GROUND TRUTH + TRACE HARNESS) — EXECUTING
-Plan: 7 of 7
+Phase: 117 — FIX — remap-aware `0x0D` emitter + honest completion signal
+Plan: Not started
 Status: Phase complete — ready for verification
-Last activity: 2026-07-27 — Phase 116 execution started
+Last activity: 2026-07-27 — Phase 116 complete, transitioned to Phase 117
 
 <!-- NOTE: `query state.planned-phase` returned `"updated": []` and did not write this block or `progress.total_plans` — hand-corrected. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. -->
 
