@@ -34,7 +34,13 @@ key-decisions:
   - "Window scoped strictly to eeprom28c_write_init's own body via brace-matching (never a whole-file scan) — this makes the out-of-window control (Task 2 test 3) trivially correct: a LOG_* call inside eeprom28c_wait_for_write's own body (a separate, later function in the file) is never seen by the scan, because the brace-matcher never leaves eeprom28c_write_init's braces"
   - "Comment-stripping implemented as a length/newline-preserving blank-out pass over the whole cleaned text (not a per-window strip) so both the brace-matcher and the anchor/deny-list regexes operate on the same comment-free text and every reported line number stays correct against the original file"
 
-requirements-completed: [TRACE-03]
+requirements-completed: []  # TRACE-03 partial: only the planted-LOG_ sub-negative (TRACE-03c)
+                             # lands here. TRACE-03's other 3 sub-negatives (unlock-table
+                             # mutated to 0x10, lock-table swapped for write prefix,
+                             # protocol != 0x0D -> 0xBB) land in 116-05's always-green harness
+                             # suite per D-04/116-PATTERNS.md -- REQUIREMENTS.md checkbox stays
+                             # unchecked until all 4 land, mirroring the 116-01 precedent
+                             # (commit 8d8c42f reverted an identical premature TRACE-01/03 mark)
 
 coverage:
   - id: D1
@@ -127,7 +133,9 @@ Each task was committed atomically inside `firestarter_app`:
 
 ## Deviations from Plan
 
-None — plan executed exactly as written. Both tasks' acceptance criteria (clean-tree PASS naming the resolved range, fail-closed on missing-path/missing-anchor, 6-test paired pytest with the planted-violation proof, out-of-window and comment-not-a-call discrimination) are met verbatim.
+None in the code — plan executed exactly as written. Both tasks' acceptance criteria (clean-tree PASS naming the resolved range, fail-closed on missing-path/missing-anchor, 6-test paired pytest with the planted-violation proof, out-of-window and comment-not-a-call discrimination) are met verbatim.
+
+**Requirements bookkeeping correction:** this plan's frontmatter lists `requirements: [TRACE-03]`, but TRACE-03 itself names **four** first-class negative traces (unlock table mutated to `0x10`, lock table swapped for the write prefix, a planted `LOG_` inside the timing window, and `protocol != 0x0D` reaching `0xBB`). This plan (116-04) delivers only the third of those four — the planted-`LOG_` scan (TRACE-03c). The other three are built in 116-05's always-green harness suite as test-local `byte_flip_t` copies + a `test_not_implemented`-pattern positive test (D-04, `116-PATTERNS.md`). Marking the `TRACE-03` checkbox in `REQUIREMENTS.md` complete here would repeat the exact premature-completion mistake `116-01`'s commit `8d8c42f` ("revert premature TRACE-01/03 completion marks (3 of 4 negatives pending)") already caught and reverted. `requirements mark-complete TRACE-03` was run and then manually reverted in `REQUIREMENTS.md` (both the checklist line and the traceability table row) before this plan's final commit — the checkbox stays unchecked until 116-05 lands the remaining three negatives.
 
 ## Issues Encountered
 
