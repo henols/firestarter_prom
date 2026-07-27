@@ -163,3 +163,10 @@ None.
 ---
 *Phase: 116-ground-truth-trace-harness*
 *Completed: 2026-07-27*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/116-ground-truth-trace-harness/116-PREMISE.md`
+- FOUND: `.planning/phases/116-ground-truth-trace-harness/116-07-SUMMARY.md`
+- FOUND commit `f8264c2` (meta): docs(116-07) premise + third PROJECT.md correction block
+- FOUND commit `39cbb79` (meta): docs(116-07) plan summary
