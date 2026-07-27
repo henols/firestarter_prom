@@ -23,6 +23,11 @@
 - ✅ **v1.18 AM27C020 0x08 Write-Path RCA & Fix** — Phases 97–99 (SHIPPED 2026-07-01; firmware-touching, dual-repo lockstep; meta tagged `v1.18` + gsd planning merged to `beta`; lockstep beta cut + gitlink bump operator-gated). Root-caused why the AM27C020 (`0x08` EPROM-QUICK, 32-pin) programs 0 bits — **RC-1**: DIP32 pin 31 modeled as address line A18 rather than a held program-active /PGM (0x07 W27C512 byte-exact differential exonerated all shared axes). Corrected fix via a scoped `DIP32_27C020` pinout + `rw-pin:[31]` → `CTRL_READ_WRITE` (0x40, revision-invariant, distinct from the `0x08` VPP alias that made the first attempt CR-01 a physical no-op); dual-repo lockstep `MAX_27C020_SIZE`, 119/119 native tests, golden traces byte-identical. Bench proved the fix **effective** (write#1 60/64 byte-exact, refuting the Phase-97 0-bits) but **marginal/unreliable** (write#2 0/64) → honest **DEFER**: AM27C020 graduation carried forward as **FUT-08** (FUT-06 retired-by-replacement), PROTOCOL-LEDGER `0x08` stays open-defect-carried. 11/11 requirements (PRE/RCA/FIX/BENCH/SAFE); audit `tech_debt` (3/3 phases passed, integration 6/6 WIRED, 14 pre-existing cross-milestone items acknowledged-deferred). Full detail in `.planning/MILESTONES.md` §v1.18 + [`.planning/milestones/v1.18-ROADMAP.md`](milestones/v1.18-ROADMAP.md) + [`v1.18-MILESTONE-AUDIT.md`](milestones/v1.18-MILESTONE-AUDIT.md).
 - ✅ **v1.19 Protocol Naming Labels** — Phases 100–104 (SHIPPED 2026-07-02; meta tagged `v1.19` + `gsd/v1.19-protocol-naming-labels` merged to `beta`, both pushed to origin at close per operator override; gitlinks PINNED at b10, lockstep beta cut `3.0.0b11` operator-gated). A legibility layer on top of the unchanged algorithm-first dispatch contract: authored a single canonical, behavior/datasheet-correct, human-readable name set for every protocol number in `chip_database.json` (0x05/06/07/08/0B/0D/0E/10/27/28/29/34 + phantom 0x35/0x39) at a blocking operator-approval gate (Phase 100), applied across firmware constants + dispatch + handler-file renames (Phase 101), the host CLI display vocabularies (Phase 102), doc prose + INV-matrix + slug-divergence record (Phase 103), and a post-close follow-on that renamed the last two minipro-heritage flash handler file-pairs/functions (`flash_type_3/4`→`flash_nor_unlock`/`flash_5v_page`) across firmware + host GATE-01 tooling + native suites + docs (Phase 104). Names never become the dispatch key — numbers stay authoritative end to end; no `chip_database.json` / wire / lockstep-constant *value* change; CLI grammar unchanged (GATE-01/02/03 non-regression, re-verified in every touching phase incl. Phase 104's 9/9). 12 v1 requirements (NAME/FW/HOST/DOC/GATE) + Phase-104-local RENAME-01..05. Full detail in `.planning/MILESTONES.md` §v1.19 + [`.planning/milestones/v1.19-ROADMAP.md`](milestones/v1.19-ROADMAP.md).
 - ✅ **v1.20 Protocol-Only Dispatch** — Phases 105–107 (SHIPPED 2026-07-02; firmware-touching, dual-repo lockstep; meta tagged `v1.20` + `gsd/v1.20-protocol-only-dispatch-remove-the-legacy-mem-type-axis` merged to `beta`, both pushed to origin at close per operator override; gitlinks PINNED at b10, lockstep beta cut `3.0.0b11` operator-gated). Removed the last vestige violating algorithm-first dispatch — the `mem_type`/`type` backward-compat fallback axis — end to end. Firmware deletes the `mem_type` fallback dispatch chain (`memory.cpp` steps 7–11), so `protocol == 0` fail-closes to `configure_not_implemented()` (`0xBB`); drops `handle->mem_type` + stops parsing the `type` JSON field; retires `MSG_ERR_MEM_TYPE_UNSUPPORTED (0xAE)` + the `TYPE_*` constants (Phase 105). Host stops emitting `type` on the wire, drops `_ALGO_MEM_TYPE` + the "Generic Flash (legacy fallback only)" default + the `mem_type`-keyed label fallbacks, and adds a fail-closed algorithm-presence guard mirroring firmware `0xBB` before any serial byte (Phase 106) — the wire now carries only `algorithm` as the dispatch key (breaking change vs pre-v1.20 hosts, FW-first sequencing so the contract is never half-broken). Docs scrubbed of `type`/`mem_type` + breaking change recorded in both sub-repo READMEs; `0xAE` removed from the canonical catalog (incidentally fixing a pre-existing Phase-95 `FL4_BOOT_BLOCK` catalog desync); all GATE-01/02/SAFE-01 non-regression gates re-verified green with the removal proven dead code for all 746 chips (Phase 107). 12/12 v1 requirements (FW/WIRE/HOST/DOC/GATE/SAFE). LEGACY-01 (`FLAG_VPE_AS_VPP`) + LEGACY-02 (`EPROM_LEGACY` naming) deferred to v2. Full detail in `.planning/MILESTONES.md` §v1.20 + [`.planning/milestones/v1.20-ROADMAP.md`](milestones/v1.20-ROADMAP.md).
+- ✅ **v1.21 Community Chip-Validation Command** — Phases 108–115 (SHIPPED 2026-07-27; all phases verified, Phase 115 close 5/5; `3.0.0b11` PUBLISHED on both channels — PyPI `pip install --pre firestarter` + GitHub prerelease carrying per-board `.hex`; three bench boards validated fresh-machine install→flash→smoke (Uno + Leonardo HARD gates, uno328pb best-effort); meta gitlinks bumped off PINNED-b10 → the b11 commits. Remaining operator-gated close step: `v1.21` tag + sub-repo `--no-ff` beta merges + pushes). Ships `firestarter dev test <chip>` — a per-chip capability sweep + dual-output diagnostic report + tiered GitHub submission flow, letting the community prove chip support on hardware the maintainer doesn't own. 28 v1 requirements (SWEEP/PATT/SAFE/RPT/VOLT/XPORT/SUB/DISP/GRAD/INBOX/ONBOARD) across 8 phases: test-plan engine + address-derived pattern + fingerprint (108), destructiveness gate + safety (109), diagnostic report + provenance (110), measured-voltage sampler (111, hardware-gated), `dev test` CLI wiring (112), submission flow (113), disposition/no-auto-graduate lock (114, feature close), beta install + firmware-flash bench validation & community-onboarding doc (115, hardware-gated close). Full detail in `.planning/ROADMAP.md` §v1.21.
+- ⬜ **v1.22 Binary Command Protocol** — Phases TBD (QUEUED — next milestone; not yet scoped/activated). Replace the jsmn-tokenized JSON command layer with a fixed-layout binary command decoder decoded straight into `firestarter_handle_t` (no tokenizer, no string-key compares, no `key_parsers` table). Primary prize: **~512 B RAM reclaimed** (the `static jsmntok_t tokens[64]` array, `firestarter.cpp:56`) — on the Uno that's ~25% of SRAM, potentially ~doubling `DATA_BUFFER_SIZE` (512→~1024) → fewer ack round-trips → faster programming; plus ~1–1.5 KB net flash. Rides the existing COBS transport (v1.10) + ack-chunking (CAP-01) — changes the *command* encoding, not the framing. Breaking wire change (firmware+host lockstep, CLAUDE.md protocol-parity); deletes `lib/jsmn/`, `src/json_parser.c`; native dispatch tests + golden traces reworked. **De-risk first:** spike the `DATA_BUFFER_SIZE` bump to confirm the speed payoff *before* the rewrite. Sequence ahead of v1.23 (also breaking) — the two may bundle into one protocol-layer milestone. Seed: [`.planning/seeds/binary-command-protocol.md`](seeds/binary-command-protocol.md) · Note: [`.planning/notes/binary-protocol-savings-analysis.md`](notes/binary-protocol-savings-analysis.md).
+- ⬜ **v1.23 Bus-Config Mask-Model Redesign** — Phases TBD (QUEUED — not yet scoped/activated). Clean redesign of the address-bus config: the host (`database.py`/`pinouts.json`) resolves all per-pin policy — always-high, always-low, multiple control pins, read-vs-write levels — into precomputed masks (`read_static_mask`/`write_static_mask` + the `address_lines[]` permutation), collapsing the firmware per-byte hot path in `mem_util_remap_address_bus` to `permute(address) | static_mask[dir]` (drops the per-byte `rw_line`/`vpp_line`/`using_p1_as_vpp` branches). More expressive **and** faster; always-LOW needs zero firmware support (a bit the host never sets). Breaking wire change (firmware+host lockstep) + full chip-DB regen + golden-trace rewrite; sequence deliberately against the pending `binary-command-protocol` seed (also breaking) — consider bundling into one protocol-layer milestone. **Open gate before scoping:** validate the perf premise (may be 250kbaud-serial-bound, not remap-bound) — see `.planning/research/questions.md`. Seed: [`.planning/seeds/bus-config-clean-redesign.md`](seeds/bus-config-clean-redesign.md) · Note: [`.planning/notes/bus-config-mask-model.md`](notes/bus-config-mask-model.md).
+- ⬜ **v1.24 Jumper-Display Correctness & 2516-Family Support** — Phases TBD (QUEUED — not yet scoped/activated). Fix and complete the jumper settings shown by `firestarter info <CHIP>`. Two slices of escalating depth: **(1)** the safe display-only fix — correct JP4's copy-pasted `28pin`/`32pin` labels ([ic_layout.py:169-184](../firestarter_app/firestarter/ic_layout.py#L169-L184)), relabel the Rev-2 block to name 2.0/2.1/2.2/2.3, and delete the dead phantom-`JP5` `_get_rev2_2_jumper_settings_data` method (no DB/firmware change); **(2)** model the **3-pin angled header on Rev 2.2/2.3** whose 3rd position supports the TI 2516 family — requires a *new per-chip DB field* (the 2516/2532 are indistinguishable from ordinary 24-pin parts by `pin_count`/`vpp`/`pinout`/`algorithm`; datasheet distinguisher = program strobe on **pin 20 (PD/PGM)** vs Intel's **pin 18**), a 3-state jumper model replacing the binary JP4, `build_db.py` support, firmware strobe-routing verification, and Rev 2.2 bench validation. The safety heuristic (`vpp-pin → JP4 Closed`, consistent with GATE-03) already holds and is unchanged. **Open gate before scoping:** confirm whether Firestarter can even *program* a 2516/2532 today (firmware 0x0B may strobe pin 18) — a `supported`-status honesty question, see `.planning/research/questions.md`. Note: [`.planning/notes/info-jumper-display-design-audit.md`](notes/info-jumper-display-design-audit.md) · Seed: [`.planning/seeds/rev22-3pin-header-2516-family-support.md`](seeds/rev22-3pin-header-2516-family-support.md) · Todo: [`.planning/todos/pending/fix-jp4-labels-and-rev2-revision-block.md`](todos/pending/fix-jp4-labels-and-rev2-revision-block.md).
+- ⬜ **v1.25 White-Box Voltage-Reading Calibration** — Phases TBD (QUEUED — not yet scoped/activated). A guided, two-stage calibration procedure so the firmware's VPP/VPE/VCC readings are accurate per physical board, replacing today's hand-tuned-`r1` hack with a physically-meaningful white-box correction. **Stage 1 (bandgap — the big ±10 % win, MCU-specific):** DMM on the fixed 5 V line, firmware back-solves the true internal bandgap `V_bg = VCC_dmm × bandgap_adc / 1024` and stores it in place of the hardcoded `1100` — fixing **both** VCC (`1126400 = 1100 × 1024`) and VPP/VPE reads in [`rurp_common.cpp:42-71`](../firestarter/src/boards/rurp_common.cpp#L42-L71). **Stage 2 (divider trim — ±1–2 % residual, shield-specific):** operator pots the VPP rail to a stated level, DMMs it, reports back, firmware takes **one** confirmation read (no live loop), and `(r1+r2)/r2` is trimmed. One sense node (`PIN_VPP_VOLTAGE_ADC`) serves both rails; the error model is *measured* (collapses to pure gain if no offset). Firmware-touching, dual-repo lockstep: new `rurp_configuration_t` bandgap field → `CONFIG_VERSION` bump + EEPROM migration (defaults to 1100 = identity); host guided wizard (`firestarter dev calibrate`); safety is load-bearing (plausibility bounds + confirm-before-write + reset-to-defaults, since a bad cal makes the firmware *trust* wrong programming voltages). **Open gates before scoping:** confirm the bandgap is really the dominant term + whether Stage-2 needs one or two points — see `.planning/research/questions.md`. Seed: [`.planning/seeds/voltage-reading-whitebox-calibration.md`](seeds/voltage-reading-whitebox-calibration.md) · Note: [`.planning/notes/voltage-cal-design-decisions.md`](notes/voltage-cal-design-decisions.md).
 
 <details>
 <summary>✅ <b>v1.10 — Serial Transport Hardening (COBS)</b> — Phases 49–55 (SHIPPED 2026-06-07) · 27/27 plans · 14/14 reqs · beta-only</summary>
@@ -110,6 +115,287 @@ Full detail: [`.planning/milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.
 Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.md) · [`v1.16-REQUIREMENTS.md`](milestones/v1.16-REQUIREMENTS.md) · [`MILESTONES.md`](MILESTONES.md) §v1.16.
 
 </details>
+
+## v1.21 — Community Chip-Validation Command (PLANNING)
+
+**Milestone goal:** Ship a `firestarter dev test <chip>` command that lets a community member run a full, technology-aware capability sweep on a chip the maintainer doesn't own, then file an actionable diagnostic report back — turning chip coverage from "what's on Henrik's bench" into "what's on everyone's bench." `dev test` is a pure orchestrator over existing `EpromOperator`/`chip_resolver` service methods (sibling of the shipped `dev validate-family`): zero new firmware dispatch entries, zero new VPP-set call sites, zero new third-party dependencies.
+
+**Non-regression invariant (SAFE-01/02/03):** Every operation routes through `chip_resolver.resolve_chip` and the existing serial path; `dev test` sets no VPP, builds no raw protocol commands, and passes no `--force` — the firmware VPP guard's refusals are recorded as findings, never bypassed. A CI gate machine-enforces the orchestrator-only contract (zero new dispatch entries, zero new VPP-set call sites). `--destructive` gates write/erase at plan-construction time, is per-invocation only (never config/env), and a non-destructive plan literally lacks those steps.
+
+**Software-first, hardware-gated last:** Phases 108, 109, 110, 112, 113, 114 are fully unit-testable without a bench (reusing the `EpromDatabase(skip_local_override=True)` + mock-operator seam `dev validate-family` established). Phases 111 (the measured-voltage sampler) and 115 (the beta-install/firmware-flash bench validation + onboarding doc) are the hardware-gated validations, isolated so the software MVP is never blocked on bench access.
+
+**Locked anti-features (do not re-litigate during planning):** no auto-graduation of `support_status` from a parsed community report (DISP-01, human-gated always); no fixed/checkerboard write pattern (address-derived only, PATT-01); no fail-fast sweep (independent non-fatal steps only, SWEEP-02); no silent/automatic issue submission (SUB-02, explicit preview-before-submit only); no new third-party Python dependencies (`click`/`rich`/`requests` + stdlib cover everything; `gh` is an optional runtime tool, not a pip dep).
+
+**Dependency spine:** the address-derived pattern and byte-mismatch fingerprint are coupled and ship together (Phase 108); the destructiveness gate must lock before any write path is exposed (Phase 109); provenance must be captured before the sweep, feeding the report (Phase 110); the CLI handler (Phase 112) integrates 108–111; submission (Phase 113) depends on the report existing; graduation disposition (Phase 114) depends only on the DB-diff (Phase 110), never on any auto-promotion code; and the release-validation capstone (Phase 115) depends on the `dev test` surface (Phase 112) plus the beta being publicly published (PyPI `--pre` + a GitHub prerelease carrying board `.hex` assets), closing the milestone.
+
+**Phase numbering:** Continues from v1.20's Phase 107 → v1.21 starts at **Phase 108**.
+
+**Branch model:** Per standing policy (forks off `beta`); **sequencing flag** — v1.20's protocol-only-dispatch code is not yet on `beta` (its lockstep beta cut `3.0.0b11` + gitlink bump stay operator-gated, gitlinks PINNED at b10) — resolve the branch base at execute time to avoid a v1.12-style base collision.
+
+**Key context:** Promoted from the `/gsd-explore` 2026-07-02 seed `.planning/seeds/community-chip-validation-command.md` (design decisions in `.planning/notes/dev-test-design-decisions.md`; research `.planning/research/SUMMARY.md`, HIGH confidence, 4-stream convergent). Two open research questions resolved with cited evidence: the write pattern must be address-derived (never fixed — a fixed pattern is blind to the address-line faults this tool exists to catch), and community PASS must be FLAG-only/human-gated (never auto-graduate — this project's own false-PASS history, Rev-0 shield Bug A / ST-vs-Winbond chip-ID mixup / AM27C020 write#1 60/64 vs write#2 0/64, proves a naive grader mis-promotes).
+
+### Phases
+
+- [x] **Phase 108: Test-Plan Engine + Address-Derived Pattern + Fingerprint** — `chip_test.py` `derive_plan()` (protocol/`electrical-type`/`FLAG_CAN_ERASE` → per-chip op list, bypassing the `resolve_chip` support-status guard for plan derivation only via `get_eprom()`/`convert_to_programmer()`); independent non-fatal per-op steps with `OK`/`BAD`/`NA`/`SKIPPED` verdicts; id-first ordering with chip-ID-mismatch hard-gating destructive steps; address-derived write/verify pattern generator (byte = f(address), folding high address bits, preceded by a cheap all-0x00/all-0xFF pre-pass) coupled with a byte-mismatch fingerprint classifier (blank/contact vs address-line vs transport fault); N≥2 execution on destructive/verify steps with disagreement reported `marginal`; the foundational `EpromOperationError.error_code` seam preserving the firmware `response.id` byte. (SWEEP-01, SWEEP-02, SWEEP-03, SWEEP-04, PATT-01, PATT-02, RPT-03) (completed 2026-07-02)
+- [x] **Phase 109: Destructiveness Gate + Safety** — `--destructive` gates write/erase at plan-construction time (per-invocation only, never config/env; a non-destructive plan literally lacks those steps); non-destructive-by-default plan (id + read + blank-check); loud "only N of M tests ran — pass `--destructive` on a scrap chip for the rest" banner whenever N < M; UV-EPROM small-region write variant (engine-capped high-address contiguous window, never DB-configurable) so an eraser-less tester can retry; CI gate asserting `dev test` adds zero new firmware dispatch entries and zero new VPP-set call sites, with every op routed through the existing resolver/serial path. (SAFE-01, SAFE-02, SAFE-03, SWEEP-05, PATT-03) (completed 2026-07-02)
+- [x] **Phase 110: Diagnostic Report Model + Dual Output + Provenance Prompts** — Two-tier `DiagnosticReport` dataclass (auto-capture: FW/board/host version, chip-ID expected-vs-actual, protocol path, per-op exact firmware error code via the Phase 108 `error_code` seam, byte-mismatch fingerprint, transport-health counters degrading to "not measured"; prompted: shield revision with an explicit "not sure" — never auto-derived from the ambiguous `hw_revision` byte — chip provenance, pot adjustments, captured before the sweep runs); one source object rendered two ways (`rich` table + fenced compact JSON) with a `schema_version` key; embedded DB-diff (`support_status` at test time + proposed change); a report with blank provenance is not submittable. (RPT-01, RPT-02, RPT-04, RPT-05, XPORT-01) (completed 2026-07-02)
+- [x] **Phase 111: Measured-Voltage Sampler (hardware-gated)** — Value-returning `sample_vpp_mv`/`sample_vpe_mv` in `hardware.py` parsing the `MSG_DATA_VPP/VPE_VOLTAGE` frames the current monitor only prints; wired into the write step to capture the tester's actual rail voltage into the report. The single genuinely-new hardware-touching component in the milestone; isolated so Phases 108–110/112–114 remain fully unit-testable without a bench. (VOLT-01) (completed 2026-07-03)
+- [x] **Phase 112: `dev test` Handler Wiring** — `@dev.command("test")` in `cli_handlers.py` (sibling of `dev_validate_family`): chip arg, `--destructive`/`--output-dir` flags, provenance prompts invoked before the sweep, non-destructive default, exit-code semantics reflecting sweep outcome; integrates the Phase 108–111 engine, pattern/fingerprint, report, and sampler into one runnable CLI surface; unit-testable via `EpromDatabase(skip_local_override=True)` + mock operator (the `validate-family` test seam). (Integration phase — no new v1 REQ-ID; delivers the user-facing surface for SWEEP/PATT/SAFE/RPT/VOLT/XPORT) (completed 2026-07-03)
+- [x] **Phase 113: Submission Flow** — `submit.py` tiered `--submit`: `gh issue create --body-file -` (stdin, auto-labeled `gsd-inbox`) when `gh` is present and authed, else a prefilled `issues/new` browser URL guarded to stay under the ~8 KB server cap (escalate/omit the JSON past ~7.5 KB encoded); gist/attachment path reserved (not wired) for verbose failure logs; sanitization (field whitelist, local paths/PII scrubbed, byte dumps hex/base64-encoded) with preview-before-submit; submission explicit/interactive-only, never on a bare run; dedup fingerprint so repeat reports for the same chip are recognizable in triage. (SUB-01, SUB-02, SUB-03) (completed 2026-07-03)
+- [x] **Phase 114 (feature close): Disposition / No-Auto-Graduate Lock + Graduation Ladder + Inbox Reconciliation** — Lock "FLAG-only, human-gated" disposition: no code path writes a chip's `support_status` from a parsed community report; `suggested_status`/DB-diff is advisory only. `support_status` taxonomy gains graduation-ladder states (`community-reported` / `community-confirmed` / `community-fail`); transitions to a `confirmed`/`supported` state require a human step keyed on N≥2 consistency, never a single result. `gsd-inbox` triage auto-parses the report's fenced JSON on issue arrival and surfaces its DB-diff against the current database for maintainer review. (DISP-01, GRAD-01, INBOX-01) (completed 2026-07-03)
+- [x] **Phase 114.1: `dev test` Absent-Chip Hard-Fail (SAFE-04)** *(micro-phase, inserted 2026-07-03 via `/gsd-plan-phase 114` scope reconciliation)* — `dev test <chip>` hard-fails (exit 1, bare `Error: <chip>: not found in database`, no "did you mean") when the chip name is **absent from the DB** (`db.get_eprom` empty), short-circuiting in `dev_test` (`cli_handlers.py`) **before** `read_hardware_revision_value()` / any `AutoCapture` / report render — while a present-but-unsupported chip (support-status refusal, case B) STILL runs the full sweep. Guards case A only (keys off `get_eprom` emptiness, never a `resolve_chip` refusal, so it cannot swallow case B). Phase-112-handler hardening extracted from Phase 114 (operator-chosen separate micro-phase) to keep the disposition close-phase pure; ships before the Phase 115 close capstone. (SAFE-04) (completed 2026-07-10)
+- [x] **Phase 115 (close): Beta Install & Firmware-Flash Bench Validation — Community Onboarding** — VALIDATION + DOCS capstone (the install/flash/channel-select feature already exists in `firmware.py` / `cli_handlers.py` / `avr_tool.py` — this phase does not build it). Prove the full community path end to end on real hardware for each bench board (Uno, Leonardo, uno328pb): `pip install --pre firestarter` lands the `3.0.0bN` prerelease → a bare `firestarter fw -i` auto-routes to the `--pre` channel (D-23/D-24), pulls the board-matching `firestarter_<board>.hex` from the GitHub prerelease, avrdude flashes it → smoke test (`firestarter fw` reports beta version+board + one live `hw`/identify op) passes. Step 0 verifies the beta is actually public on BOTH channels (PyPI `--pre` + a GitHub prerelease carrying the `.hex` assets) or surfaces a publish-first blocker. Ships a community-facing install/flash doc in `firestarter_app` (operator-canonical) that hands off into `dev test <chip>`. The capstone that makes the milestone's community chip-validation actually reachable by strangers. Hardware-gated + operator-witnessed (same shape as Phase 111). (ONBOARD-01, ONBOARD-02, ONBOARD-03, ONBOARD-04) (completed 2026-07-27)
+
+## Phase Details
+
+### Phase 108: Test-Plan Engine + Address-Derived Pattern + Fingerprint
+
+**Goal**: Given any chip in the database — including ones the maintainer has never touched — `dev test` can derive exactly the operations that chip's protocol supports, run each as an independent non-fatal step, and (for write/verify) use a pattern that actually exposes address-line and stuck-bit faults rather than hiding them.
+**Depends on**: Nothing in v1.21 (first phase). Builds on the existing `EpromOperator` service methods (`check_eprom_id`, `read_eprom`, `write_eprom`, `verify_eprom`, `erase_eprom`, `check_eprom_blank`), `chip_resolver.resolve_chip`, and the DB fields `classify()` already froze into `chip_database.json` (`protocol`, `electrical.type`, `FLAG_CAN_ERASE`). Reuses `consistency_check_eprom`'s divergence math for the fingerprint.
+**Requirements**: SWEEP-01, SWEEP-02, SWEEP-03, SWEEP-04, PATT-01, PATT-02, RPT-03
+**Success Criteria** (what must be TRUE):
+
+  1. Running `dev test <chip>` against any chip in the database derives a test plan strictly from that chip's `protocol`/`electrical-type`/`FLAG_CAN_ERASE` fields (never re-invoking build-time `classify()`), listing only the operations (id, read, write, verify, erase, blank-check) that chip's protocol actually supports — and this derivation works even for chips whose `support_status` would otherwise cause `resolve_chip` to refuse them, because plan derivation alone bypasses that guard.
+  2. Each operation in the plan executes independently with an explicit per-op verdict (`OK`/`BAD`/`NA`/`SKIPPED`) recorded in the results; a `BAD` or exception on one step (e.g. a locked boot block on erase) never prevents the remaining steps from running — reproducing the W29C040-lesson contract, not a fail-fast sweep.
+  3. The sweep always runs id-check first; when the read-back chip ID mismatches the expected DB value, the plan gates all destructive steps (write/erase) shut for that run — leaving the chip physically untouched — while the id/read findings are still recorded in the results.
+  4. Destructive and verify steps execute at least twice per run; when two runs on the same step disagree, the step's verdict is reported as `marginal` rather than being forced to `PASS` or `FAIL` — never a silent single-run conclusion.
+  5. The write/verify pattern generator derives each byte from its address (folding in high address bits) rather than using any fixed byte pattern, preceded by a cheap all-0x00/all-0xFF pre-pass; a byte-mismatch fingerprint classifier consumes the resulting mismatch distribution and categorizes verify failures as blank/contact fault, address-line fault, or transport fault.
+  6. `EpromOperationError` carries the firmware `response.id` byte through a new backward-compatible `error_code` attribute (currently discarded), so every per-step result in the sweep has access to the exact firmware error code that produced it.
+
+**Plans**: 4 plans
+**Wave 1**
+
+- [x] 108-01-PLAN.md — `EpromOperationError.error_code` seam + `_raise_for_error_response` pass-through (RPT-03; wave 1, foundational)
+- [x] 108-02-PLAN.md — `chip_test.py` pure layer: address-derived XOR-fold pattern generator + 4-bucket fingerprint classifier (PATT-01/02; wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 108-03-PLAN.md — `derive_plan()` guard-bypassing per-chip op derivation (SWEEP-01; wave 2)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 108-04-PLAN.md — `run_plan()` non-fatal executor + id-first destructive gate + N≥2 marginal + error_code capture (SWEEP-02/03/04, RPT-03; wave 3)
+
+**UI hint**: no
+
+### Phase 109: Destructiveness Gate + Safety
+
+**Goal**: A tester can never accidentally run a destructive step — write/erase only exist in the plan when `--destructive` was passed on that exact invocation — and a machine-enforced gate proves `dev test` never grows a new way to touch hardware outside the existing, already-safe command paths.
+**Depends on**: Phase 108 (the plan structure and per-op step contract this phase gates).
+**Requirements**: SAFE-01, SAFE-02, SAFE-03, SWEEP-05, PATT-03
+**Success Criteria** (what must be TRUE):
+
+  1. A run without `--destructive` produces a plan containing only id, read, and blank-check steps — write and erase are structurally absent from the plan object, not merely skipped at execution time — and `--destructive` is read only from the current invocation's CLI argument, never from a config file or environment variable.
+  2. Every operation `dev test` performs — destructive or not — routes through `chip_resolver.resolve_chip` and the existing serial/operator path; the command sets no VPP itself, constructs no raw protocol command, and passes no `--force` to any underlying call; any firmware VPP-guard refusal encountered along the way is captured as a step finding, not silently retried around.
+  3. When a non-destructive run completes with N of M possible tests executed (M being what `--destructive` would have unlocked) and N < M, the output prints a loud, unmissable banner stating "only N of M tests ran" and instructing the tester to pass `--destructive` on a scrap chip for the rest.
+  4. For UV-EPROM chips, the destructive write plan is capped to a small, engine-defined high-address contiguous region (for upper-address-line coverage) regardless of any DB field value — a misconfigured or malicious DB entry cannot widen the write region — so an eraser-less tester can safely retry.
+  5. A CI check (grep/AST-based) asserts that no commit under `dev test`'s code paths adds a new firmware dispatch table entry or a new VPP-set call site; the check fails the build if either is detected, making the orchestrator-only contract machine-enforced rather than merely documented.
+
+**Plans**: 3 plans (Wave 1: 109-01 · Wave 2: 109-02, 109-03)
+**Wave 1**
+
+- [x] 109-01-PLAN.md — chip_test.py engine: SAFE-01 derive_plan strip + Plan.locked_destructive advisory field; PATT-03 UV small-region top-anchored write cap (engine constant, DB cannot widen)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 109-02-PLAN.md — SWEEP-05 applicable-only N-of-M banner DATA from the single Plan; SAFE-02 orchestrator-only verification test (resolve_chip-only, no VPP/wire-dict/--force, VPP refusal is a finding)
+- [x] 109-03-PLAN.md — SAFE-03 AST checker tools/check_devtest_orchestrator.py + paired anti-hollow pytest (clean-pass + planted VPP-set/raw-wire-dict/--force fixtures)
+
+**UI hint**: no
+
+### Phase 110: Diagnostic Report Model + Dual Output + Provenance Prompts
+
+**Goal**: Every `dev test` run — whether or not it's ever submitted — produces one self-contained, versioned diagnostic artifact that a maintainer can read as a table or parse as JSON, carrying everything the firmware/host already know automatically plus the provenance only a human tester can supply.
+**Depends on**: Phase 108 (per-op verdicts, fingerprint, `error_code` seam feed the report's auto-capture fields) and Phase 109 (the `destructive`/`tests_run`/`tests_total` state the report must carry).
+**Requirements**: RPT-01, RPT-02, RPT-04, RPT-05, XPORT-01
+**Success Criteria** (what must be TRUE):
+
+  1. A single run produces one `DiagnosticReport` source object rendered two ways with no duplicated logic — a human-readable `rich` results table and a compact fenced JSON block — and the JSON carries a `schema_version` key so future format changes are detectable by consumers.
+  2. The report auto-captures, without any tester input, the full field set already crossing the wire today: FW+board+host version (from `MSG_OK` identity), chip-ID expected-vs-actual, the protocol path taken, each step's exact firmware error code (via the Phase 108 seam), and the byte-mismatch fingerprint classification.
+  3. Before the sweep begins, the tester is prompted for provenance the firmware cannot self-report — shield revision (with an explicit "not sure" option; never auto-derived from the ambiguous `hw_revision` byte), chip origin, and any pot adjustments made — and a report with any of these fields left blank cannot be marked submittable.
+  4. The report embeds a DB-diff section showing the chip's `support_status` at test time alongside the proposed change implied by the sweep's results, so a maintainer can triage on the diff alone without re-deriving it.
+  5. The report includes a transport-health section (COBS/CRC/retry/timeout counters captured during the sweep) and flags the run `transport-suspect` when those counters are elevated; when the counters are unavailable, the field reads "not measured" rather than a false zero.
+
+**Plans**: 3 plans (host-only, `firestarter_app/`, zero firmware change; sequential waves — all three write the single new `diagnostic_report.py` module)
+**Wave 1**
+
+- [x] 110-01-PLAN.md — Core module: `SCHEMA_VERSION`/`NOT_MEASURED` constants, `AutoCapture` + `TransportHealth` sub-dataclasses, `DiagnosticReport` aggregate with single-source `to_dict()`/`render()`/`to_json_block()`; transport "not measured" honest fallback (RPT-01, RPT-02, XPORT-01) [wave 1]
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 110-02-PLAN.md — Provenance layer: `Provenance` dataclass + injectable `prompt_provenance()` seam + `is_submittable()` ("not sure" is submittable, never auto-derived from `hw_revision`), composed into the report (RPT-04) [wave 2]
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 110-03-PLAN.md — Read-only advisory DB-diff: `DbDiff` + `build_db_diff()` (current `support_status` + advisory proposed-disposition string, read-only by construction, no taxonomy write), composed into the report; full-suite phase gate (RPT-05) [wave 3]
+
+**UI hint**: no
+
+### Phase 111: Measured-Voltage Sampler (hardware-gated)
+
+**Goal**: A diagnostic report can state the actual VPP/VPE rail voltage measured during the write step, not just whether the firmware's own guard accepted or rejected it — turning "the write failed" into "the write failed at 18.2V on a chip that needs 21V."
+**Depends on**: Phase 110 (the report's field slot this sampler's value fills). Independent of Phase 109/112 in code terms; sequenced after the report model so the value has somewhere to land.
+**Requirements**: VOLT-01
+**Success Criteria** (what must be TRUE):
+
+  1. `hardware.py` exposes a value-returning `sample_vpp_mv()` / `sample_vpe_mv()` pair that parses the existing `MSG_DATA_VPP_VOLTAGE`/`MSG_DATA_VPE_VOLTAGE` wire frames and returns the millivolt reading, where today's `read_vpp_voltage`/`read_vpe_voltage` only print and return a `bool`.
+  2. The write step in the sweep calls the new sampler and records the tester's actual measured rail voltage into the diagnostic report — verified on real hardware (Leonardo + RURP Rev 2.0, the project's standing bench oracle) against a known-good chip, confirming the parsed mV value matches the previously-printed value for the same physical measurement.
+  3. No existing `firestarter vpp`/`vpe` monitor command output or behavior changes — the new sampler is additive (a return-value variant), not a replacement, so the operator's existing live-monitor workflow is unaffected.
+
+**Plans**: 3 plans
+
+- [x] 111-01-PLAN.md — Wave-0 RED test scaffolds (sampler parse/median/none/format-pin + report voltage-split) against synthetic 0xE4/0xE5 frames
+- [x] 111-02-PLAN.md — sample_vpp_mv/sample_vpe_mv sampler in hardware.py (Pattern A: parse Response.message, 100 mV grid, median, None-not-0; SC3 additive)
+- [x] 111-03-PLAN.md — split the combined report voltage slot into VPP/VPE before/after + standalone fields (D-01/D-03/D-04), single-source to_dict/render + NOT_MEASURED fallback
+
+**UI hint**: no
+
+### Phase 112: `dev test` Handler Wiring
+
+**Goal**: `firestarter dev test <chip>` exists as a runnable command a community member can actually type — every piece built in Phases 108–111 is reachable from one CLI invocation with sensible defaults and a clear exit code.
+**Depends on**: Phase 108 (engine), Phase 109 (safety gate), Phase 110 (report), Phase 111 (voltage sampler) — this phase is pure integration, wiring existing pieces into the Click CLI rather than building new logic.
+**Requirements**: None new (integration phase; delivers the user-facing entry point for SWEEP-01..05, PATT-01..03, RPT-01..05, VOLT-01, XPORT-01)
+**Success Criteria** (what must be TRUE):
+
+  1. `firestarter dev test <chip>` is a registered Click subcommand (sibling of `dev validate-family` in `cli_handlers.py`) accepting a chip identifier, `--destructive`, and `--output-dir` flags, and running it against a real or mocked chip produces the full sweep → report flow end to end.
+  2. Running the command without `--destructive` defaults to the non-destructive plan (id + read + blank-check) with the Phase 109 banner behavior intact; running with `--destructive` unlocks the full plan including write/erase/verify.
+  3. The command's exit code reflects the sweep outcome (e.g. zero for a clean PASS-only run, non-zero when any step recorded `BAD`), so it is scriptable in CI-like community workflows.
+  4. The handler is unit-testable without hardware via `EpromDatabase(skip_local_override=True)` plus a mock operator — the same test seam `dev validate-family` already established — proving the wiring itself needs no bench access.
+
+**Plans**: 5 plans (3 original + 2 gap-closure)
+**Wave 1**
+
+- [x] 112-01-PLAN.md — Engine sampler hook: optional `sampler` param threaded through `run_plan` bracketing OP_WRITE (D-04); `sampler=None` no-op; no `hardware.py` import
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 112-02-PLAN.md — `@dev.command("test")` handler: flags + provenance/plan/sweep/report/render composition + 3-way exit + TTY-gated prompts + dual-artifact write (SC1–SC3, D-01..D-05)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 112-03-PLAN.md — SAFE-03 checker repoint to the real handler + anti-hollow fixture, and hardware-free CliRunner handler unit tests (SC4, SAFE-01/02/03)
+
+**Gap closure** *(from 112-UAT.md test 2, major; operator-approved descope)*
+
+- [x] 112-04-PLAN.md — Descope interactive provenance (deletes the four prompts + the `/`-in-choice trigger bug); auto-capture `hw_revision`/`fw_board_identity`/`protocol`; auto-capture-only `is_submittable`; KEEP `--destructive` safety confirm (SAFE-03). REVERSES RPT-04 / D-04 / D-05 / D-06.
+
+**Gap closure** *(from 112-VERIFICATION.md re-verify; SC2 / SWEEP-05)*
+
+- [x] 112-05-PLAN.md — Gate OP_VERIFY behind `destructive` in `derive_plan` so the non-destructive plan is genuinely id+read+blank-check (SC2/SWEEP-05); non-mocked composition + non-masking behavioral regression tests; repair the 3 tests that codified the 4-step bug; reword stale RPT-04 in REQUIREMENTS.md to the 112-04 auto-capture model.
+
+**UI hint**: no
+
+### Phase 113: Submission Flow
+
+**Goal**: A tester who wants to help can file their diagnostic report to the project's GitHub issue tracker with one flag, safely — without leaking their filesystem paths, without a report so large it silently truncates, and never by accident.
+**Depends on**: Phase 110 (the report object being submitted) and Phase 112 (the `--submit` flag's home on the CLI). Independent of Phase 111/114 in code terms.
+**Requirements**: SUB-01, SUB-02, SUB-03
+**Success Criteria** (what must be TRUE):
+
+  1. Passing `--submit` after a completed run files the report via a tiered flow: `gh issue create --body-file -` (piping the body over stdin, auto-labeled `gsd-inbox`) when `gh` is detected (`shutil.which`) and authenticated; otherwise a prefilled `issues/new` browser URL is opened, with the encoded URL length measured and the JSON block escalated/omitted once the encoded size would approach the ~8 KB GitHub server cap (escalating past ~7.5 KB).
+  2. Before anything is sent, the report is sanitized — only a whitelisted field set is included, local filesystem paths and other PII are scrubbed, and any raw byte dumps are hex/base64-encoded — and the sanitized, final body is shown to the tester for explicit confirmation; submission never happens as a side effect of a bare `dev test` run (it requires the explicit `--submit` flag and an interactive confirm).
+  3. Every submitted report carries a deterministic dedup fingerprint (derived from chip identity + key result fields) so a maintainer triaging the `gsd-inbox` label can recognize repeat reports for the same chip at a glance.
+
+**Plans**: 4 plans
+**Wave 1**
+
+- [x] 113-01-PLAN.md — SUB-03 dedup fingerprint helper + `to_dict()` field in diagnostic_report.py (Wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 113-02-PLAN.md — submit.py foundations: constants (hardcoded repo), sanitize_dict, body/title/URL builders, gh tier (Wave 2)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 113-03-PLAN.md — submit.py orchestration: browser tier + D-05 oversize + submit_report refuse/TTY gate (Wave 3)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [x] 113-04-PLAN.md — `--submit` flag wiring in dev_test + SAFE-03 submit.py scan leg (Wave 4)
+
+**UI hint**: no
+
+### Phase 114: Disposition / No-Auto-Graduate Lock + Graduation Ladder + Inbox Reconciliation
+
+**Goal**: Community-submitted reports make chip-support triage easier for the maintainer without ever being trusted enough, on their own, to change what the project claims a chip can do — closing the trust loop the whole milestone exists to open safely.
+**Depends on**: Phase 110 (the DB-diff the disposition logic keys on) and Phase 113 (reports actually arriving via `gsd-inbox`). This is the milestone's closing *feature* phase — the Phase 115 release-validation + community-onboarding capstone is appended after it.
+**Requirements**: DISP-01, GRAD-01, INBOX-01
+**Success Criteria** (what must be TRUE):
+
+  1. No function anywhere in the codebase writes a chip's `support_status` field as a direct or indirect result of parsing a community-submitted report — grep/AST-auditable: every write site to `support_status` remains the existing human-authored DB-entry / `build_db.py` paths, unchanged by this milestone.
+  2. The `support_status` taxonomy gains new community states (`community-reported`, `community-confirmed`, `community-fail`) that a report can be tagged with automatically, but promotion out of `community-reported` into `community-confirmed` (or into `supported`) requires an explicit human step and is only reachable once N≥2 independent reports agree — a single report can never itself trigger a state transition.
+  3. `gsd-inbox` triage, when it encounters an issue labeled `gsd-inbox`, auto-parses the report's fenced JSON block and surfaces the embedded DB-diff (current `support_status` vs. the report's proposed change) directly in the triage view, so a maintainer reviewing the issue sees the actionable diff without manually re-deriving it from the raw report.
+
+**Plans**: 3 plans (planned 2026-07-03 — host + tooling only, firmware untouched; SAFE-04 deliberately excluded → Phase 114.1)
+
+**Wave 1** *(independent, parallel — no file overlap)*
+
+- [x] 114-01-PLAN.md — GRAD-01: report-side `ladder_state` on `DbDiff`/`build_db_diff`/`to_dict` in `diagnostic_report.py` + ladder tests + `doc/community-validation.md` taxonomy & N≥2 promotion process (D-01/D-02)
+- [x] 114-02-PLAN.md — INBOX-01 (+ GRAD-01 N≥2): stdlib `tools/parse_devtest_issue.py` — detect `[dev test]`+`schema_version`, surface DB-diff, count matching `dedup_fingerprint`s + unit tests (D-03/D-04)
+
+**Wave 2** *(depends on Wave 1 — scans both 01+02 files)*
+
+- [x] 114-03-PLAN.md — DISP-01: AST audit `tools/check_no_community_support_status_write.py` (mirrors SAFE-03) + anti-hollow paired planted-fixture test (D-05)
+
+**UI hint**: no
+
+### Phase 114.1: `dev test` Absent-Chip Hard-Fail (SAFE-04)
+
+**Goal**: A tester who typos a chip name (or names a chip the DB has never heard of) gets an immediate, unambiguous `exit 1` failure *before* any serial connection is opened or hardware energized — never a full-but-hollow diagnostic report for a chip that doesn't exist.
+**Depends on**: Phase 112 (the `dev_test` handler this guards). Independent of Phase 114's disposition work. Micro-phase inserted 2026-07-03 during `/gsd-plan-phase 114` when the SAFE-04 → Phase-114 traceability mapping was reconciled against CONTEXT.md's deliberate exclusion of it (operator chose a separate micro-phase over folding it into the close phase). Ships before the Phase 115 close capstone.
+**Requirements**: SAFE-04
+**Success Criteria** (what must be TRUE):
+
+  1. `dev test <chip>` on a name absent from the database (`app.db.get_eprom(chip)` empty) exits 1 with a bare `Error: <chip>: not found in database` message (no "did you mean"/fuzzy suggestion), and short-circuits in `dev_test` **before** `read_hardware_revision_value()` or any `AutoCapture` / report rendering — no serial connection is opened.
+  2. A chip that is present-but-unsupported (in the DB but `resolve_chip` would refuse on support-status — case B) STILL runs the full sweep: the guard keys strictly off `get_eprom` emptiness (case A), never a `resolve_chip` refusal, so it cannot swallow case B.
+  3. The guard is covered by a test mirroring the established anti-hollow discipline (absent-chip → exit 1 + no-hardware-call assertion; present-but-unsupported → sweep still runs), unit-testable via the `EpromDatabase(skip_local_override=True)` + mock-operator seam.
+
+**Plans**: 1 plan (planned 2026-07-10 — host-only; 2-line `get_eprom`-keyed guard in `dev_test` + case-A/case-B regression tests; firmware + chip_database.json untouched)
+Plans:
+
+- [x] 114.1-01-PLAN.md — Absent-chip hard-fail guard in `dev_test` (case A) + case-A/case-B regression tests (SAFE-04)
+
+**UI hint**: no
+
+### Phase 115: Beta Install & Firmware-Flash Bench Validation — Community Onboarding (close)
+
+**Goal**: A community member on a fresh machine can go from zero to a working beta stack and start running `dev test <chip>` — proven on real hardware for every bench board (Uno, Leonardo, uno328pb) and captured as a community-facing doc. The full chain works end to end: `pip install --pre firestarter` lands the `3.0.0bN` prerelease → a bare `firestarter fw -i` auto-routes to the `--pre` channel (D-23/D-24), pulls the board-matching `firestarter_<board>.hex` from the GitHub prerelease, and avrdude flashes it → a smoke test confirms the flashed beta stack is alive and speaks the protocol. This is the capstone that makes the milestone's community chip-validation actually reachable by strangers. **VALIDATION + DOCS only** — the install / flash / channel-select feature already exists (`firmware.py` channel select + GitHub-prerelease pagination; `cli_handlers.py` `fw` 3-way `--pre`/`--firmware-version`/`--stable` mutex + bare-`fw -i` auto-route; `avr_tool.py` avrdude wrapper); this phase does not build it.
+**Depends on**: Phase 112 (the `dev test` surface the doc hands testers off into) and Phase 114 (feature close). **Hard external precondition (Step 0):** the beta must be publicly published on BOTH channels — `3.0.0bN` live on PyPI (the operator-gated manual `gh` dispatch) AND a GitHub prerelease carrying board-matching `.hex` assets — or the community path is impossible; Step 0 verifies/ensures both before any per-board run, surfacing a publish-first blocker rather than proceeding.
+**Requirements**: ONBOARD-01, ONBOARD-02, ONBOARD-03, ONBOARD-04
+**Success Criteria** (what must be TRUE):
+
+  1. Step 0 confirms the current beta is publicly reachable: PyPI exposes the `3.0.0bN` prerelease to `pip install --pre` (e.g. `pip index versions firestarter --pre`), and the matching GitHub prerelease exposes a `firestarter_<board>.hex` asset for each target board — if either is missing the phase halts on a publish-first blocker instead of testing a chain the community can't use. (ONBOARD-01/02)
+  2. For each bench board (Uno, Leonardo, uno328pb): a fresh venv `pip install --pre firestarter` installs the prerelease and `firestarter --version` reports the `3.0.0bN` string (not a stale stable), recorded in the per-board evidence record. (ONBOARD-01)
+  3. For each board: a bare `firestarter fw -i` (no `--stable`, no `--firmware-version`) auto-routes to the `--pre` channel, downloads the board-matching `firestarter_<board>.hex` from the GitHub prerelease, and avrdude reports a successful flash + verify — proving the beta-app-installs-beta-firmware auto-route (D-23/D-24) works on real hardware, not just in unit tests. (ONBOARD-02)
+  4. For each board: after flashing, `firestarter fw` reports the expected beta firmware version + correct board, and one minimal live protocol op (e.g. `hw`/identify) succeeds — the flashed beta stack is alive end to end. Explicitly NOT a full chip write/verify (that is `dev test`'s job). (ONBOARD-03)
+  5. A community-facing doc — "Install the beta & flash beta firmware to help test PROMs" — lives in the `firestarter_app` sub-repo (operator-canonical home, per the two-layer doc pattern), written for a stranger on a fresh machine: exact per-board commands, the avrdude prerequisite, the per-port controller-identity gotcha (`/dev/ttyACM*` shuffle across replug), the correct `.hex` per board, and the hand-off into `dev test <chip>`. (ONBOARD-04)
+
+**Plans**: 8 plans in 5 waves (planned 2026-07-10 — VALIDATION + DOCS capstone; ZERO source modules built; two irreversible publishes are `autonomous: false` operator-authorization checkpoints per D-03; uno328pb is best-effort/advisory per D-05; v1.21 tag + beta merge OUT of scope per D-02/D-06)
+Plans:
+**Wave 1**
+
+- [x] 115-01-PLAN.md — Draft the community onboarding doc + README pointer (ONBOARD-04, draft-first D-04) [Wave 1]
+- [x] 115-02-PLAN.md — Release pre-flight: mirror app+firmware CI gates locally + operator gh/secrets/trigger precondition [Wave 1]
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 115-03-PLAN.md — Publish firmware `.hex` prerelease 3.0.0b11 (operator-authorized) + per-board reachability verify (ONBOARD-02 Step 0) [Wave 2]
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 115-04-PLAN.md — Publish app `3.0.0b11` to PyPI (operator-authorized) + `pip --pre` reachability verify (ONBOARD-01 Step 0) [Wave 3]
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [x] 115-05-PLAN.md — Uno bench: fresh-venv install → `fw -i` flash → `fw`/`hw` smoke + evidence record (HARD gate) [Wave 4]
+- [x] 115-06-PLAN.md — Leonardo bench: fresh-venv install → `fw -i` flash → `fw`/`hw` smoke + evidence record (HARD gate) [Wave 4]
+- [x] 115-07-PLAN.md — uno328pb bench: full chain + evidence record (best-effort/advisory D-05) [Wave 4]
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [x] 115-08-PLAN.md — Finalize onboarding doc from bench findings (D-04) + meta gitlink bump off PINNED b10 → b11 (D-01) [Wave 5]
+
+**UI hint**: no
 
 ## v1.19 — Protocol Naming Labels (STARTED 2026-07-01)
 
@@ -926,6 +1212,13 @@ Plans:
 | 105 | v1.20 | 1/1 | ✅ Complete | 2026-07-02 |
 | 106 | v1.20 | 3/3 | ✅ Complete | 2026-07-02 |
 | 107 (close) | v1.20 | 3/3 | ✅ Shipped | 2026-07-02 |
+| 108 | v1.21 | 4/4 | Complete    | 2026-07-02 |
+| 109 | v1.21 | 3/3 | Complete    | 2026-07-02 |
+| 110 | v1.21 | 3/3 | Complete    | 2026-07-02 |
+| 111 | v1.21 | 3/3 | Complete    | 2026-07-03 |
+| 112 | v1.21 | 5/5 | Complete    | 2026-07-03 |
+| 113 | v1.21 | 4/4 | Complete    | 2026-07-03 |
+| 114 (close) | v1.21 | 3/3 | Complete    | 2026-07-03 |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
@@ -1037,7 +1330,7 @@ Plans:
   2. The same file (or a companion file) lists every intra-algorithm DB inconsistency — chips that share `pin_count` + `algorithm` but differ in `pulse_duration`, `chip_id_check`, or `pinout` — with each inconsistency labeled as a defect candidate for v1.4 or a sub-repo PR (no auto-fixes applied in v1.3).
   3. Operator can use the matrix to confirm that the six BENCH chips (BENCH-01..06) span the pinout classes and pulse-duration profiles actually represented in the DB, so bench results generalize to the rest of the 339 rows.
 
-**Plans:** 2/2 plans complete
+**Plans:** 8/8 plans complete
 
 - [x] 11-01-PLAN.md — Wave 0 failing-test scaffold for tests/test_audit_coverage_matrix.py (10 tests) ✅ 2026-05-19
 - [x] 11-02-PLAN.md — Wave 1 tool skeleton + CLI + §1 Summary + §2 DB Count Reconciliation ✅ 2026-05-19
