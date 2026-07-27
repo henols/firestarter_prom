@@ -190,7 +190,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 116-06-PLAN.md — Wave 4 · fw · The parked RED `test_eeprom28c_sdp` suite: five ordered-stream cases (four pinouts + a second DIP32 band as a deliberate stale-upper-address case per CORRECTION 3) plus the two RED identity-gate cases, `-I` but no `test_filter` entry (D-01), and the committed `RED-BASELINE.md` (D-02)
+- [x] 116-06-PLAN.md — Wave 4 · fw · The parked RED `test_eeprom28c_sdp` suite: five ordered-stream cases (four pinouts + a second DIP32 band as a deliberate stale-upper-address case per CORRECTION 3) plus the two RED identity-gate cases, `-I` but no `test_filter` entry (D-01), and the committed `RED-BASELINE.md` (D-02)
 
 **Wave 5** *(blocked on Wave 4 completion)*
 

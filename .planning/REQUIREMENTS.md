@@ -38,11 +38,11 @@ The promoting backlog note (999.19/999.18) asserted protocol `0x0D` "has no SDP 
 ### Trace Harness (the oracle — no production code changes)
 
 - [x] **TRACE-01**: Native register-trace recording captures data bytes and `/CE`//`/OE` edges in the **same ordered stream** as register writes, behind a new opt-in flag so every existing suite stays byte-exact
-- [ ] **TRACE-02**: A `0x0D` SDP trace suite pins the exact ordered `(LSB, MSB, data, CE-pulse)` stream `eeprom28c_write_init` emits for **each of the four `0x0D` pinouts**, and is **RED against today's tree**
+- [x] **TRACE-02**: A `0x0D` SDP trace suite pins the exact ordered `(LSB, MSB, data, CE-pulse)` stream `eeprom28c_write_init` emits for **each of the four `0x0D` pinouts**, and is **RED against today's tree**
 - [x] **TRACE-03**: First-class negative traces go RED — unlock table mutated to `0x10`, lock table swapped for the write prefix, a planted `LOG_` inside the timing window, and `protocol != 0x0D` reaching `configure_not_implemented()`/`0xBB`
-- [ ] **TRACE-04**: The call-ordered scripted mock is replaced by an **address-keyed** `mock_get_data`, retiring the fixture that cements the inverted success check as expected behaviour (`test_eeprom28c_chip_id.cpp:104`)
+- [x] **TRACE-04**: The call-ordered scripted mock is replaced by an **address-keyed** `mock_get_data`, retiring the fixture that cements the inverted success check as expected behaviour (`test_eeprom28c_chip_id.cpp:104`)
 - [x] **TRACE-05**: A DB-invariant host test pins `chip_id_check: false` across all **84** `algorithm == 13` entries, making the dead identity gate a machine-checked fact
-- [ ] **TRACE-06**: A written premise-verification artifact settles whether `write at28c256` aborts at INIT on `3.0.0b11`, and records every PROJECT.md correction the finding implies
+- [x] **TRACE-06**: A written premise-verification artifact settles whether `write at28c256` aborts at INIT on `3.0.0b11`, and records every PROJECT.md correction the finding implies
 
 ### Emitter Fix (make the sequences reach silicon)
 
@@ -151,11 +151,11 @@ Filled during roadmap creation (`/gsd-new-project` → roadmapper, 2026-07-27). 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | TRACE-01 | Phase 116 | Complete |
-| TRACE-02 | Phase 116 | Pending |
+| TRACE-02 | Phase 116 | Complete |
 | TRACE-03 | Phase 116 | Complete |
-| TRACE-04 | Phase 116 | Pending |
+| TRACE-04 | Phase 116 | Complete |
 | TRACE-05 | Phase 116 | Complete |
-| TRACE-06 | Phase 116 | Pending |
+| TRACE-06 | Phase 116 | Complete |
 | FIX-01 | Phase 117 | Pending |
 | FIX-02 | Phase 117 | Pending |
 | FIX-03 | Phase 117 | Pending |
