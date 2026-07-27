@@ -128,6 +128,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 **No AT28C part on the operator's bench — software-only validation, no bench phase.** Every success criterion in this milestone is verifiable without silicon: native register-trace assertions, host pytest, source-scan gates, and measured host-side timing. `0x0D` stays `UNVERIFIED` in `PROTOCOL-LEDGER` at close; zero chips change `support_status`; the 84-chip count is unchanged. See `.planning/REQUIREMENTS.md` §"Validation Ceiling" for the exact permitted claim ("the SDP lock and unlock sequences are emitted exactly as specified, verified byte-exact by golden register trace... with a documented and measured host-side timing assumption") and forbidden claim ("SDP lock/unlock works on an AT28C256") — never write or accept a plan/success-criterion that crosses that line.
 
 **Ordering invariants (non-negotiable, not preferences):**
+
 - **Harness before any firmware behaviour change** (116 before 117) — all four research streams agree; without the oracle, every trace claim is hollow (abandoned commit `0052c42` swapped the SDP tables and still reported "22 tests PASS (zero-diff)").
 - **Fix before observability** (117 before 118) — advertising success for a sequence that doesn't reach silicon is worse than silence.
 - **Observability before lock** (118 before 119) — lock is the only new state-mutating capability this milestone adds; it lands on top of proven observability, and reuses the message-catalog + high-flag-bit plumbing 118 builds.
@@ -173,12 +174,26 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 **Plans**: 7 plans (5 waves; strictly ordered — the sub-repo v1.22 branch fork off `beta` is the first task executed, before any sub-repo file write)
 
 Plans:
+**Wave 1**
+
 - [ ] 116-01-PLAN.md — Wave 1 · fw · Fork the v1.22 branch off `beta` in both sub-repos (F10), extend `host_stubs_common.inc` with the `HOST_STUBS_REAL_REGISTER_UTILS` ordered-strobe recorder (TRACE-01, D-05/D-07), prove flag-off byte-exactness at 80/80, and land TRACE-03's `protocol != 0x0D` → `0xBB` negative
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 116-02-PLAN.md — Wave 2 · app+fw · `tools/gen_sdp_bus_config.py` deriving `bus_config_t` from the host's own `convert_to_programmer` (D-08), the committed `DO NOT EDIT` `_shared/sdp_bus_config.h` (D-10), and the `FW_ABSENT`-skipif regenerate-and-diff gate (D-11)
 - [ ] 116-03-PLAN.md — Wave 2 · app · `test_sdp_db_invariant.py` pinning `chip_id_check: false` across all 84 `algorithm == 13` entries **and** the count itself, no skipif (TRACE-05); `test_sdp_table_parity.py` closing the F6 transcription gap on the unlock table
 - [ ] 116-04-PLAN.md — Wave 2 · app · `check_no_log_in_sdp_window.py` structural scan + committed planted-violation fixture + paired anti-hollow pytest (TRACE-03c, D-04)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 116-05-PLAN.md — Wave 3 · fw · The always-green `test_sdp_harness` suite (D-03): ordered-capture and elision proof, the two in-suite table negatives, the fixed-stream reference-emitter guard, the migrated address-keyed identity-gate tests, and retirement of `test_eeprom28c_chip_id/` (TRACE-01/03/04, D-06/D-12/D-13)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 116-06-PLAN.md — Wave 4 · fw · The parked RED `test_eeprom28c_sdp` suite: five ordered-stream cases (four pinouts + a second DIP32 band as a deliberate stale-upper-address case per CORRECTION 3) plus the two RED identity-gate cases, `-I` but no `test_filter` entry (D-01), and the committed `RED-BASELINE.md` (D-02)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 116-07-PLAN.md — Wave 5 · meta · Full non-regression gate + datasheet-presence audit, `116-PREMISE.md` and the third ⚠ `PROJECT.md` correction block carrying the measured *66 of 84* figure (TRACE-06, D-14, CORRECTION 4), behind a blocking operator wording review
 
 **Research flag**: yes — discharged. `116-RESEARCH.md` (2026-07-27) built and ran the harness in-session: it settles TRACE-06 (INIT abort confirmed on every pinout), supplies the byte-exact per-pinout streams, and raises four corrections the plans reconcile. The "acquire/confirm the AT28C64B + doc0270 PDFs" prerequisite is **not** discharged and is carried as an explicit presence/absence audit in plan 116-07.

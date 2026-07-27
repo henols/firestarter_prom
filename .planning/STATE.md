@@ -2,13 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.22
 milestone_name: AT28C Software Data Protection Lifecycle
-status: planning
-last_updated: "2026-07-27T12:44:27.765Z"
+current_phase: 116
+current_phase_name: GROUND TRUTH + TRACE HARNESS
+status: executing
+stopped_at: Phase 116 planned (7 plans, 5 waves) — ready for /gsd-execute-phase 116
+last_updated: "2026-07-27T20:36:35.000Z"
 last_activity: 2026-07-27
+last_activity_desc: Phase 116 planned — 7 plans / 5 waves, plan-checker PASSED, coverage 6/6 reqs + 14/14 decisions
 progress:
   total_phases: 7
   completed_phases: 0
-  total_plans: 0
+  total_plans: 7
   completed_plans: 0
   percent: 0
 ---
@@ -20,10 +24,22 @@ progress:
 
 ## Current Position
 
-Phase: Not started (roadmap created — ready for `/gsd-plan-phase 116`)
-Plan: —
-Status: Roadmap created, awaiting phase planning
-Last activity: 2026-07-27 — v1.22 ROADMAP.md + STATE.md + REQUIREMENTS.md traceability created (roadmapper)
+Phase: 116 — GROUND TRUTH + TRACE HARNESS (planned: 7 plans, 5 waves)
+Plan: 0 of 7
+Status: Ready to execute
+Last activity: 2026-07-27 — Phase 116 planned; plan-checker VERIFICATION PASSED (1 non-blocking WARNING); requirements 6/6, decisions 14/14
+
+<!-- NOTE: `query state.planned-phase` returned `"updated": []` and did not write this block or `progress.total_plans` — hand-corrected. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. -->
+
+**Phase 116 plan graph:**
+
+| Wave | Plans | Sub-repo | What it builds |
+|------|-------|----------|----------------|
+| 1 | 116-01 | firmware | v1.22 branch off `beta` in both sub-repos; opt-in ordered bus-recording extension; `0xBB` dispatch negative (80/80 byte-exactness pinned before count → 82) |
+| 2 | 116-02, 116-03, 116-04 | app→fw, app, app | generated `sdp_bus_config.h` + drift gate; `chip_id_check` DB invariant (84, no skipif); planted-`LOG_` timing-window scan |
+| 3 | 116-05 | firmware | always-green SDP harness suite; address-keyed `mock_get_data`; ordered full-stream equality asserts |
+| 4 | 116-06 | firmware | parked RED `0x0D` suite (`-I` only, no `test_filter`) + `RED-BASELINE.md` |
+| 5 | 116-07 | meta | `116-PREMISE.md` + PROJECT.md third ⚠ correction block (1 operator checkpoint, `autonomous: false`) |
 
 ## Project Reference
 
@@ -31,7 +47,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-27 — v1.22 milestone-start footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.22 completes the write-protection lifecycle on protocol `0x0D` without adding a second dispatch axis — `handle->protocol` stays the sole dispatch key; `handle->cmd` is extended only as an operation selector *inside* the existing `0x0D` handler, exactly as v1.13 Phase 74 extended `flash_5v_page.cpp`.
 
-**Current focus:** v1.22 — roadmap created (7 phases, 116–122, 36/36 requirements mapped); next step is `/gsd-plan-phase 116`
+**Current focus:** v1.22 — Phase 116 (GROUND TRUTH + TRACE HARNESS) planned, 7 plans / 5 waves; next step is `/gsd-execute-phase 116`. Wave 1 creates the `v1.22-*` branch off `beta` in both sub-repos (verified: neither sub-repo has one yet; both sit on `v1.21-community-chip-validation-command`; `beta` contains the v1.21 tip in both — firmware `ecf35ea`, host `7c5dd13`).
 
 ## Milestone Context (v1.22)
 
@@ -189,7 +205,8 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Execute Phase 116 with `/gsd-execute-phase 116` (Wave 1 must land before anything else — it creates the sub-repo branches)
+- Phase 116 Plan 07 carries one operator checkpoint (`autonomous: false`) — the PROJECT.md ⚠ correction wording
 
 ## Decisions
 
@@ -354,6 +371,6 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Session
 
-**Last session:** 2026-07-10T20:06:19.159Z
-**Stopped at:** Phase 115 context gathered
-**Resume file:** .planning/phases/115-beta-channel-install-and-firmware-flash-bench-validation-for/115-CONTEXT.md
+**Last session:** 2026-07-27T20:36:35.000Z
+**Stopped at:** Phase 116 planned (7 plans, 5 waves) — plan-checker PASSED
+**Resume file:** .planning/phases/116-ground-truth-trace-harness/116-01-PLAN.md
