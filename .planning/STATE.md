@@ -1,20 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.21
-milestone_name: — Community Chip-Validation Command
-current_phase: 21
-status: Awaiting next milestone
-stopped_at: Phase 115 context gathered
-last_updated: "2026-07-27T09:08:39.130Z"
+milestone: v1.22
+milestone_name: AT28C Software Data Protection Lifecycle
+status: planning
+last_updated: "2026-07-27T12:44:27.765Z"
 last_activity: 2026-07-27
-last_activity_desc: Milestone v1.21 completed and archived
 progress:
-  total_phases: 9
-  completed_phases: 9
-  total_plans: 34
-  completed_plans: 34
-  percent: 100
-current_phase_name: beta-channel-install-and-firmware-flash-bench-validation-for
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -24,18 +20,18 @@ current_phase_name: beta-channel-install-and-firmware-flash-bench-validation-for
 
 ## Current Position
 
-Phase: Milestone v1.21 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-07-27 — Milestone v1.21 completed and archived
+Status: Defining requirements
+Last activity: 2026-07-27 — Milestone v1.22 started
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-07-02 — v1.20 milestone-close footer + Key Decisions)
+See: `.planning/PROJECT.md` (updated 2026-07-27 — v1.22 milestone-start footer + Current Milestone section)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.21 extends this trust outward: the community can now prove chip support on hardware the maintainer doesn't own, via a pure orchestration layer over the existing algorithm-first dispatch — never a new dispatch path.
 
-**Current focus:** Phase 115 — beta-channel-install-and-firmware-flash-bench-validation-for
+**Current focus:** v1.22 — defining requirements (no phase started; roadmap will number from Phase 116)
 
 ## Milestone Context (v1.21)
 
