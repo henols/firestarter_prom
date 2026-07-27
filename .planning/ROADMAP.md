@@ -194,7 +194,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 116-07-PLAN.md — Wave 5 · meta · Full non-regression gate + datasheet-presence audit, `116-PREMISE.md` and the third ⚠ `PROJECT.md` correction block carrying the measured *66 of 84* figure (TRACE-06, D-14, CORRECTION 4), behind a blocking operator wording review
+- [x] 116-07-PLAN.md — Wave 5 · meta · Full non-regression gate + datasheet-presence audit, `116-PREMISE.md` and the third ⚠ `PROJECT.md` correction block carrying the measured *66 of 84* figure (TRACE-06, D-14, CORRECTION 4), behind a blocking operator wording review
 
 **Research flag**: yes — discharged. `116-RESEARCH.md` (2026-07-27) built and ran the harness in-session: it settles TRACE-06 (INIT abort confirmed on every pinout), supplies the byte-exact per-pinout streams, and raises four corrections the plans reconcile. The "acquire/confirm the AT28C64B + doc0270 PDFs" prerequisite is **not** discharged and is carried as an explicit presence/absence audit in plan 116-07.
 **UI hint**: no
