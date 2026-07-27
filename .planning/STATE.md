@@ -6,14 +6,14 @@ current_phase: 116
 current_phase_name: GROUND TRUTH + TRACE HARNESS
 status: executing
 stopped_at: Phase 116 planned (7 plans, 5 waves) — ready for /gsd-execute-phase 116
-last_updated: "2026-07-27T20:47:44.959Z"
+last_updated: "2026-07-27T20:59:40.041Z"
 last_activity: 2026-07-27
 last_activity_desc: Phase 116 execution started
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 7
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 116 (GROUND TRUTH + TRACE HARNESS) — EXECUTING
-Plan: 2 of 7
+Plan: 3 of 7
 Status: Ready to execute
 Last activity: 2026-07-27 — Phase 116 execution started
 
@@ -321,6 +321,8 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: Both sub-repos re-verified merge-base ancestry live before forking v1.22 off beta (Task 1, F10) — 0 commits ahead at creation, no pre-existing operator work destroyed
 - [Phase ?]: HOST_STUBS_REAL_REGISTER_UTILS hooks exactly rurp_write_data_buffer + rurp_set_control_pin — rurp_shield.h's single pin namespace covers latch strobes AND /CE+/OE with no third hook
 - [Phase ?]: s_strobe_overflow is an explicit saturation flag (not silent drop), and TRACE-01b baseline is pinned at 80/80 before TRACE-03d raises it to 82/82
+- [Phase ?]: EpromDatabase has no constructor seam for an alternate pinouts.json path -- the --pinouts override loads JSON directly onto db.pin_maps before derivation
+- [Phase ?]: Wrote exactly 4 drift-gate tests (not 5) to match the plan's literal 4-tests-passing acceptance criterion
 
 ## Performance Metrics
 
@@ -372,9 +374,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 114.1 P01 | 12min | 2 tasks | 2 files |
 | Phase 115 P01 | 5min | 2 tasks | 2 files |
 | Phase 116 P01 | 25min | 3 tasks | 2 files |
+| Phase 116 P02 | 30min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-07-27T20:46:48.073Z
+**Last session:** 2026-07-27T20:58:53.327Z
 **Stopped at:** Phase 116 planned (7 plans, 5 waves) — plan-checker PASSED
 **Resume file:** .planning/phases/116-ground-truth-trace-harness/116-01-PLAN.md

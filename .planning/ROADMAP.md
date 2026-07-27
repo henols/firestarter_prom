@@ -180,7 +180,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 116-02-PLAN.md — Wave 2 · app+fw · `tools/gen_sdp_bus_config.py` deriving `bus_config_t` from the host's own `convert_to_programmer` (D-08), the committed `DO NOT EDIT` `_shared/sdp_bus_config.h` (D-10), and the `FW_ABSENT`-skipif regenerate-and-diff gate (D-11)
+- [x] 116-02-PLAN.md — Wave 2 · app+fw · `tools/gen_sdp_bus_config.py` deriving `bus_config_t` from the host's own `convert_to_programmer` (D-08), the committed `DO NOT EDIT` `_shared/sdp_bus_config.h` (D-10), and the `FW_ABSENT`-skipif regenerate-and-diff gate (D-11)
 - [ ] 116-03-PLAN.md — Wave 2 · app · `test_sdp_db_invariant.py` pinning `chip_id_check: false` across all 84 `algorithm == 13` entries **and** the count itself, no skipif (TRACE-05); `test_sdp_table_parity.py` closing the F6 transcription gap on the unlock table
 - [ ] 116-04-PLAN.md — Wave 2 · app · `check_no_log_in_sdp_window.py` structural scan + committed planted-violation fixture + paired anti-hollow pytest (TRACE-03c, D-04)
 
