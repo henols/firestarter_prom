@@ -6,14 +6,14 @@ current_phase: 116
 current_phase_name: GROUND TRUTH + TRACE HARNESS
 status: executing
 stopped_at: Completed 116-04-PLAN.md
-last_updated: "2026-07-27T21:18:29.783Z"
+last_updated: "2026-07-27T21:47:11.608Z"
 last_activity: 2026-07-27
 last_activity_desc: Phase 116 execution started
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 7
-  completed_plans: 4
+  completed_plans: 5
   percent: 0
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 116 (GROUND TRUTH + TRACE HARNESS) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
 Last activity: 2026-07-27 — Phase 116 execution started
 
@@ -329,6 +329,9 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase ?]: [Phase 116-04]: Deny list implemented as one regex covering every logging_id.h LOG_* macro rather than a hand-enumerated name list
 - [Phase ?]: [Phase 116-04]: Window scoped strictly to eeprom28c_write_init's brace-matched body so the out-of-window control is correct by construction
 - [Phase 116-04]: TRACE-03 checkbox left unchecked in REQUIREMENTS.md — this plan lands only the planted-LOG_ sub-negative (TRACE-03c) of TRACE-03's four required first-class negatives; the other three (unlock-table mutation, lock-table swap, protocol!=0x0D positive) land in 116-05's always-green harness suite per D-04. Mirrors the 116-01 precedent (commit 8d8c42f) that reverted an identical premature TRACE-01/03 completion mark.
+- [Phase ?]: SDP_SHIPPED is a single array (not one per pinout) -- fu_flash_fast_address never consults bus_config, so the shipped stream is byte-identical across all four 0x0D pinouts by construction
+- [Phase ?]: 5 reference-emitter guard cases (one per SDP_BUS_CONFIGS row, not one per distinct pinout) -- AT28C010/AT28C040 both independently assert against the shared SDP_FIXED_DIP32_28C512_EEPROM array
+- [Phase ?]: Bumped sdp_assert_stream_equals failure-message buffer 192->320 bytes after the mandatory corrupted-array check showed truncation
 
 ## Performance Metrics
 
@@ -383,9 +386,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 116 P02 | 30min | 3 tasks | 3 files |
 | Phase 116 P03 | 25min | 2 tasks | 2 files |
 | Phase 116 P04 | 20min | 2 tasks | 3 files |
+| Phase 116 P05 | 70min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-07-27T21:18:29.771Z
+**Last session:** 2026-07-27T21:46:38.836Z
 **Stopped at:** Completed 116-04-PLAN.md
 **Resume file:** .planning/phases/116-ground-truth-trace-harness/116-05-PLAN.md

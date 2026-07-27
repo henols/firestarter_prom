@@ -186,7 +186,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 116-05-PLAN.md — Wave 3 · fw · The always-green `test_sdp_harness` suite (D-03): ordered-capture and elision proof, the two in-suite table negatives, the fixed-stream reference-emitter guard, the migrated address-keyed identity-gate tests, and retirement of `test_eeprom28c_chip_id/` (TRACE-01/03/04, D-06/D-12/D-13)
+- [x] 116-05-PLAN.md — Wave 3 · fw · The always-green `test_sdp_harness` suite (D-03): ordered-capture and elision proof, the two in-suite table negatives, the fixed-stream reference-emitter guard, the migrated address-keyed identity-gate tests, and retirement of `test_eeprom28c_chip_id/` (TRACE-01/03/04, D-06/D-12/D-13)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
