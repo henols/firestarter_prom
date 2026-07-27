@@ -6,7 +6,7 @@ status: planning
 last_updated: "2026-07-27T12:44:27.765Z"
 last_activity: 2026-07-27
 progress:
-  total_phases: 0
+  total_phases: 7
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -16,52 +16,56 @@ progress:
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-07-03
+**Updated:** 2026-07-27
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: Not started (roadmap created — ready for `/gsd-plan-phase 116`)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-07-27 — Milestone v1.22 started
+Status: Roadmap created, awaiting phase planning
+Last activity: 2026-07-27 — v1.22 ROADMAP.md + STATE.md + REQUIREMENTS.md traceability created (roadmapper)
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-07-27 — v1.22 milestone-start footer + Current Milestone section)
+See: `.planning/PROJECT.md` (updated 2026-07-27 — v1.22 milestone-start footer + Current Milestone section, incl. both ⚠ correction blocks)
 
-**Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.21 extends this trust outward: the community can now prove chip support on hardware the maintainer doesn't own, via a pure orchestration layer over the existing algorithm-first dispatch — never a new dispatch path.
+**Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.22 completes the write-protection lifecycle on protocol `0x0D` without adding a second dispatch axis — `handle->protocol` stays the sole dispatch key; `handle->cmd` is extended only as an operation selector *inside* the existing `0x0D` handler, exactly as v1.13 Phase 74 extended `flash_5v_page.cpp`.
 
-**Current focus:** v1.22 — defining requirements (no phase started; roadmap will number from Phase 116)
+**Current focus:** v1.22 — roadmap created (7 phases, 116–122, 36/36 requirements mapped); next step is `/gsd-plan-phase 116`
 
-## Milestone Context (v1.21)
+## Milestone Context (v1.22)
 
-- **Scope (from REQUIREMENTS.md, defined 2026-07-02):** Ship `firestarter dev test <chip>` — a per-chip capability sweep + dual-output diagnostic report + tiered GitHub submission flow. 24 v1 requirements across the sweep engine (SWEEP-01..05), pattern/diagnosis (PATT-01..03), safety (SAFE-01..03), diagnostic report (RPT-01..05), measured voltage (VOLT-01), transport health (XPORT-01), submission (SUB-01..03), and disposition/graduation (DISP-01, GRAD-01, INBOX-01).
-- **Requirement-count correction:** REQUIREMENTS.md's original header stated "20 total" but actually enumerates 24 distinct v1 REQ-IDs (SWEEP×5, PATT×3, SAFE×3, RPT×5, VOLT×1, XPORT×1, SUB×3, DISP×1, GRAD×1, INBOX×1) — corrected during roadmap creation; all 24 are mapped, 0 unmapped.
-- **Architecture:** `dev test` is a pure orchestrator over existing `EpromOperator`/`chip_resolver` service methods — architecturally a sibling of the shipped `dev validate-family`. Zero new firmware dispatch entries, zero new VPP-set call sites, zero new third-party Python dependencies (`click`/`rich`/`requests` + stdlib cover everything; `gh` is an optional runtime tool, not a pip dep).
-- **Software-first, hardware-gated last:** Phases 108/109/110/112/113/114 are fully unit-testable without a bench (reusing the `EpromDatabase(skip_local_override=True)` + mock-operator seam `dev validate-family` established). Phase 111 (measured-voltage sampler) is the single hardware-gated validation, isolated deliberately.
-- **Locked anti-features:** no auto-graduation of `support_status` from a community report (DISP-01, always human-gated); no fixed/checkerboard write pattern (address-derived only, PATT-01); no fail-fast sweep (independent non-fatal steps, SWEEP-02); no silent/automatic issue submission (SUB-02); no new third-party deps.
-- **Dependency spine:** address-derived pattern + fingerprint coupled in Phase 108; destructiveness gate locks before any write path is exposed (Phase 109); provenance captured before the sweep, feeding the report (Phase 110); CLI handler (Phase 112) integrates 108–111; submission (Phase 113) depends on the report existing; graduation disposition (Phase 114) depends only on the DB-diff (Phase 110), never on any auto-promotion code.
-- Phase numbering continues from v1.20's Phase 107 → **v1.21 starts at Phase 108**.
-- **Branch model / sequencing flag:** Forks off `beta` in all 3 repos per standing policy — BUT v1.20's protocol-only-dispatch code is not yet on `beta` (its lockstep beta cut `3.0.0b11` + gitlink bump stay operator-gated, gitlinks PINNED at b10). Resolve the branch base at execute time to avoid a v1.12-style base collision.
-- **Key context:** Promoted from the `/gsd-explore` 2026-07-02 seed `.planning/seeds/community-chip-validation-command.md` (design decisions `.planning/notes/dev-test-design-decisions.md`; research `.planning/research/SUMMARY.md`, HIGH confidence, 4-stream convergent). Two open research questions resolved with cited evidence: write pattern must be address-derived (never fixed); community PASS must be FLAG-only/human-gated (never auto-graduate — this project's own false-PASS history, Rev-0 shield Bug A / ST-vs-Winbond chip-ID mixup / AM27C020 write#1 60/64 vs write#2 0/64, proves a naive grader mis-promotes).
+- **Scope (from REQUIREMENTS.md, defined 2026-07-27; research `.planning/research/SUMMARY.md`, 4-stream synthesis):** Make Software Data Protection on protocol `0x0D` (`configure_eeprom28c`) explicit, observable, and bidirectional. 36 v1 requirements: the trace harness/oracle (TRACE-01..06), the remap-aware emitter + honest completion-signal fix (FIX-01..06), auto-unlock observability (OBS-01..05), the new SDP-lock capability (LOCK-01..06), the host CLI/wire surface (HOST-01..06), the `dev test` phantom-erase correctness fix (DEVTEST-01), non-regression gates + docs (GATE-01..03), and the honesty-ledger close (CLOSE-01..03).
+- **The milestone opens with a FIX, not a feature.** Four independent research streams converged: the SDP-disable sequence already shipped in `3.0.0b11` almost certainly never reaches silicon (`flash_util_byte_flipping` bypasses `mem_util_remap_address_bus`, so `/WE` is inhibited on ≥1 command write across all 84 `0x0D` chips), and its `eeprom28c_wait_for_write(handle, 0x5555, 0x20)` success check is INVERTED (both datasheets state the command-sequence data "is not written to the device"). This reverses the milestone's own kickoff framing twice (see PROJECT.md's two ⚠ correction blocks) and the planned gh#11/gh#12 closeout tone — they may be live defects, not stale 2024 reports.
+- **No AT28C part on the operator's bench → software-only validation, no bench phase.** Every success criterion is verifiable without silicon (native register-trace assertions, host pytest, source-scan gates, measured host-side timing). `0x0D` stays `UNVERIFIED` in `PROTOCOL-LEDGER` at close; zero chips change `support_status`; the 84-chip count is unchanged. See REQUIREMENTS.md §"Validation Ceiling" for the exact permitted/forbidden claims — never write or accept a criterion crossing that line.
+- **Ordering invariants (non-negotiable):** harness before any firmware change (116→117, else every trace claim is hollow — the abandoned commit `0052c42` lesson); fix before observability (117→118, advertising a sequence that doesn't reach silicon is worse than silence); observability before lock (118→119, lock is the only new state-mutating capability); firmware before host, unambiguously (119/118→120, a host emitting `0x100` against `3.0.0b11` firmware today is silently ignored — HOST-06); the `dev test` phantom-erase fix before the closeout comments (121→122, else every community re-test auto-tags `community-fail`).
+- **Locked decisions (operator, 2026-07-27 — do not re-litigate):** full SDP lifecycle is core scope; auto-unlock stays default-on + reported + `--skip-sdp-unlock` opt-out (`--sdp-relock` deferred to v1.23+); CLI surface `firestarter dev sdp <chip> enable|disable`; gh#11's 1-byte-in-64 poll defect is in scope (FIX-06); `dev test` phantom-erase fix in scope (DEVTEST-01); `lock-status` + hand-curated protection table stay out of scope (planted seed).
+- Phase numbering continues from v1.21's Phase 115 → **v1.22 starts at Phase 116**.
+- **Branch model:** v1.21 IS merged into `beta` in both sub-repos, so v1.22 forks off `beta` per standing policy (reversing the v1.15/v1.21 fork-off-prior-version exception) — verify with `git` at execute time regardless.
+- **Key context:** Promoted from Backlog 999.19 (root cause, leads) + 999.18 (verification, follows). Reframed twice at kickoff (see PROJECT.md §"Current Milestone: v1.22", both ⚠ correction blocks). Precedent in-tree: v1.13 Phase 74 (SDP + page write on `flash_5v_page`), v1.14 Phase 77 (erase write-path wired from `electrical.type`).
+- **Established fact, do not re-litigate:** `include/primitives.h`/`src/proms/primitives.cpp` do NOT exist; `a296195` and `0052c42` are ancestors of neither `beta` nor the v1.21 line — the v1.16 Phase-89 primitive recompose sits on an unmerged branch. The real shared seam is `flash_utils.{h,cpp}`; the real trace mechanism is `HOST_STUBS_RECORD_BUS`, which records only `rurp_write_to_register` (not data bytes, not strobes — Phase 116 must extend it). `page-size` does NOT exist on the wire (`constants.py`'s "Firmware sync" comment is false).
 
-## Roadmap Summary (v1.21)
+## Roadmap Summary (v1.22)
 
-**Phases:** 7 (108–114) · **Granularity:** Comprehensive (per config) · **Coverage:** 24/24 requirements mapped ✓ · **Dependency chain:** 108 → 109 → 110 → 111 → 112 → 113 → 114 (mostly linear; 111 is hardware-gated and isolated).
+**Phases:** 7 (116–122) · **Granularity:** research-recommended spine, adopted verbatim (no coverage gaps found) · **Coverage:** 36/36 requirements mapped ✓, 0 unmapped · **Dependency chain:** 116 → 117 → 118 → 119 → 120 → 121 → 122 (strictly linear — every ordering invariant above is load-bearing, not a preference).
 
 | Phase | Goal | Requirements | Success Criteria |
 |-------|------|--------------|------------------|
-| 108 — Test-Plan Engine + Pattern + Fingerprint | Per-chip test-plan derivation, independent non-fatal steps, id-first ordering + chip-ID mismatch gate, address-derived pattern + fingerprint classifier, N≥2 execution, `error_code` seam | SWEEP-01..04, PATT-01/02, RPT-03 | 6 |
-| 109 — Destructiveness Gate + Safety | Plan-construction-time `--destructive` gate, non-destructive default + "N of M" banner, UV small-region cap, CI gate (zero new dispatch/VPP-set) | SAFE-01..03, SWEEP-05, PATT-03 | 5 |
-| 110 — Diagnostic Report + Dual Output + Provenance | Two-tier `DiagnosticReport` (auto-capture + prompted), `rich`+JSON dual render, `schema_version`, DB-diff, transport-health field, pre-sweep provenance prompts | RPT-01/02/04/05, XPORT-01 | 5 |
-| 111 — Measured-Voltage Sampler (hardware-gated) | Value-returning `sample_vpp_mv`/`sample_vpe_mv` parsing `MSG_DATA_VPP/VPE_VOLTAGE`, wired into write step | VOLT-01 | 3 |
-| 112 — `dev test` Handler Wiring | `@dev.command("test")` integration of 108–111 into the Click CLI; unit-testable via mock operator | (integration; no new REQ-ID) | 4 |
-| 113 — Submission Flow | Tiered `gh`/browser-URL submit, PII/path sanitization + preview, dedup fingerprint, explicit/interactive-only | SUB-01..03 | 3 |
-| 114 (close) — Disposition / No-Auto-Graduate Lock | No code path writes `support_status` from a report; graduation-ladder states + N≥2-gated human promotion; `gsd-inbox` DB-diff surfacing | DISP-01, GRAD-01, INBOX-01 | 3 |
+| 116 — Ground Truth + Trace Harness | Extend `HOST_STUBS_RECORD_BUS` (opt-in, ordered data+strobe stream); new `0x0D` SDP trace suite RED against today's tree; 4 planted-fault negative traces; address-keyed `mock_get_data`; DB-invariant `chip_id_check` test; premise-verification artifact (INIT-abort prediction) | TRACE-01..06 | 6 |
+| 117 — FIX: remap-aware emitter + honest completion signal | Replace `flash_execute_command(EEPROM_SDP_DISABLE)` with a `0x0D`-local emitter on `handle->firestarter_set_data`; delete the inverted `(0x5555,0x20)` check; terminal-byte guards; correct the 1-byte-in-64 page poll; flash_utils/flash_5v_page/flash_nor_unlock byte-untouched; Phase 116 suite RED→GREEN | FIX-01..06 | 6 |
+| 118 — OBSERVE: auto-unlock visible + opt-out-able (FW half) | Report line before/after (never inside) the sequence + planted-`LOG_` timing-window test; `FLAG_SKIP_SDP_UNLOCK` (0x100) honored; named `AT28C_TBLC_MAX_US=100`; `micros()`-measured duration logged; default `write` byte-identical to b11 | OBS-01..05 | 5 |
+| 119 — LOCK: SDP-enable + command surface (FW half) | `CMD_SDP_UNLOCK`/`CMD_SDP_LOCK` standalone (no payload, no DONE round-trip); lock body = 3 loads + `t_WC`, no payload; `is_memory_cmd()` replacing the ordinal admission guard (DEV_TOOLS-invariant); `default:`→`MSG_ERR_NOT_SUPPORTED`; `FLASH_ENABLE_WRITE_PROTECTION` preserved; flash-delta reported | LOCK-01..06 | 6 |
+| 120 — HOST: CLI surface, wire emission, capability refusal | `firestarter dev sdp <chip> enable\|disable` behind v1.21 destructiveness gate + SAFE-04; `write --skip-sdp-unlock`; lockstep `CMD_*`/`FLAG_*` + `COMMAND_NAMES` + parity test; pre-wire refusal for the 2 FRAM + pre-SDP `2804`/`2816`/`2817` class; honest non-fabricated SDP-outcome reporting; FW-before-host sequencing enforced | HOST-01..06 | 5 |
+| 121 — `dev test` FIX + GATES + DOCS | `OP_ERASE`→`NA` for `0x0D` + firmware `CMD_ERASE` fail-closed; AST capability gate + planted-violation pytest; docs corrected (`PROTOCOLS.md` §1.6, `lockable-proms.md`, `protocol-id.md`, both CLAUDE.md, both READMEs) incl. "0x0D has no erase"; full non-regression set green (native, `check_dispatch.py`, host pytest, ruff/format py3.9/3.11, `diff_db.py` identity) | DEVTEST-01, GATE-01..03 | 5 |
+| 122 — CLOSE: honesty ledger, community ask, release decision | `0x0D` stays `UNVERIFIED`, 0 `support_status` changes, 84-chip count unchanged; gh#12 answered with the decided policy + gh#11 followed up (never "verified fixed"); accept/avoid/cleanup beta-push decision recorded BEFORE any push; every closing claim matches the validation-ceiling's permitted claim only | CLOSE-01..03 | 4 |
 
-**Non-regression invariant (SAFE-01/02/03):** every op routes through `chip_resolver.resolve_chip`/existing serial path; no new VPP-set call sites; no new firmware dispatch entries; CI-enforced. Verified starting Phase 109, re-affirmed through Phase 114 close.
+**Non-negotiable ordering invariants (repeated from Milestone Context — these gate plan sequencing, not just phase numbering):** harness-before-fix, fix-before-observe, observe-before-lock, firmware-before-host, `dev-test`-fix-before-closeout.
 
-Detail: `.planning/ROADMAP.md` §v1.21.
+**Research flags carried from `.planning/research/SUMMARY.md`:** Phases 116, 119, 121 likely need `/gsd-plan-phase --research-phase <N>`. Phases 117, 118, 120, 122 are standard patterns (existing in-tree precedents).
+
+**Hardware-gated work:** NONE — this milestone has no bench phase (no AT28C part in operator inventory). Every phase and every success criterion above is verifiable in software alone.
+
+Detail: `.planning/ROADMAP.md` §v1.22.
 
 ## Accumulated Context
 
@@ -177,6 +181,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ### Roadmap Evolution
 
+- v1.22 roadmap created 2026-07-27: 7 phases (116–122), 36/36 requirements mapped, 0 unmapped. Adopted the research SUMMARY.md §"The reconciled spine" verbatim — no coverage gaps found, no deviation needed. Strictly linear dependency chain (116→117→118→119→120→121→122); every adjacent-phase link is one of the milestone's non-negotiable ordering invariants (harness-before-fix, fix-before-observe, observe-before-lock, firmware-before-host, dev-test-fix-before-close), not a planning convenience. No bench phase — first milestone since the community-validation-command era with zero hardware-gated success criteria (no AT28C part in operator inventory).
 - v1.21 roadmap created 2026-07-02: 7 phases (108–114), 24/24 requirements mapped (corrected from the REQUIREMENTS.md draft's stale "20 total" count). Phase spine per research SUMMARY.md §Implications for Roadmap: 108 (engine+pattern+fingerprint) → 109 (safety gate) → 110 (report+provenance) → 111 (voltage sampler, hardware-gated, isolated) → 112 (CLI wiring) → 113 (submission) → 114 (disposition lock, close).
 - v1.20 roadmap created 2026-07-02: 3 phases (105–107), 12/12 requirements mapped. FW → HOST → DOCS+GATE strictly linear sequencing (wire-contract removal ordered so it's never half-broken).
 - Phase 104 added: Rename protocol header and .cpp files to descriptive protocol-type names (replace hard-to-read flash type N naming)

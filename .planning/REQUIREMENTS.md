@@ -146,24 +146,52 @@ The promoting backlog note (999.19/999.18) asserted protocol `0x0D` "has no SDP 
 
 ## Traceability
 
-Filled during roadmap creation.
+Filled during roadmap creation (`/gsd-new-project` → roadmapper, 2026-07-27). Every v1 requirement maps to exactly one phase.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TRACE-01 … TRACE-06 | TBD | Pending |
-| FIX-01 … FIX-06 | TBD | Pending |
-| OBS-01 … OBS-05 | TBD | Pending |
-| LOCK-01 … LOCK-06 | TBD | Pending |
-| HOST-01 … HOST-06 | TBD | Pending |
-| DEVTEST-01 | TBD | Pending |
-| GATE-01 … GATE-03 | TBD | Pending |
-| CLOSE-01 … CLOSE-03 | TBD | Pending |
+| TRACE-01 | Phase 116 | Pending |
+| TRACE-02 | Phase 116 | Pending |
+| TRACE-03 | Phase 116 | Pending |
+| TRACE-04 | Phase 116 | Pending |
+| TRACE-05 | Phase 116 | Pending |
+| TRACE-06 | Phase 116 | Pending |
+| FIX-01 | Phase 117 | Pending |
+| FIX-02 | Phase 117 | Pending |
+| FIX-03 | Phase 117 | Pending |
+| FIX-04 | Phase 117 | Pending |
+| FIX-05 | Phase 117 | Pending |
+| FIX-06 | Phase 117 | Pending |
+| OBS-01 | Phase 118 | Pending |
+| OBS-02 | Phase 118 | Pending |
+| OBS-03 | Phase 118 | Pending |
+| OBS-04 | Phase 118 | Pending |
+| OBS-05 | Phase 118 | Pending |
+| LOCK-01 | Phase 119 | Pending |
+| LOCK-02 | Phase 119 | Pending |
+| LOCK-03 | Phase 119 | Pending |
+| LOCK-04 | Phase 119 | Pending |
+| LOCK-05 | Phase 119 | Pending |
+| LOCK-06 | Phase 119 | Pending |
+| HOST-01 | Phase 120 | Pending |
+| HOST-02 | Phase 120 | Pending |
+| HOST-03 | Phase 120 | Pending |
+| HOST-04 | Phase 120 | Pending |
+| HOST-05 | Phase 120 | Pending |
+| HOST-06 | Phase 120 | Pending |
+| DEVTEST-01 | Phase 121 | Pending |
+| GATE-01 | Phase 121 | Pending |
+| GATE-02 | Phase 121 | Pending |
+| GATE-03 | Phase 121 | Pending |
+| CLOSE-01 | Phase 122 | Pending |
+| CLOSE-02 | Phase 122 | Pending |
+| CLOSE-03 | Phase 122 | Pending |
 
 **Coverage:**
 - v1 requirements: **36** total (TRACE 6 · FIX 6 · OBS 5 · LOCK 6 · HOST 6 · DEVTEST 1 · GATE 3 · CLOSE 3)
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 36 ⚠️
+- Mapped to phases: **36/36** (Phase 116: TRACE ×6 · Phase 117: FIX ×6 · Phase 118: OBS ×5 · Phase 119: LOCK ×6 · Phase 120: HOST ×6 · Phase 121: DEVTEST ×1 + GATE ×3 · Phase 122: CLOSE ×3)
+- Unmapped: **0** ✓
 
 ---
 *Requirements defined: 2026-07-27*
-*Last updated: 2026-07-27 after v1.22 milestone kickoff + 4-stream research synthesis*
+*Last updated: 2026-07-27 after roadmap creation — 36/36 requirements mapped to Phases 116-122, 0 unmapped*
