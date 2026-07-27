@@ -170,8 +170,18 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
   5. A host test pins `chip_id_check: false` across all 84 `algorithm == 13` DB entries as a machine-checked fact.
   6. A written premise-verification artifact states, with evidence produced by this phase's harness, whether `firestarter write at28c256` aborts at INIT on the current tree — and records any PROJECT.md correction that finding implies.
 
-**Plans**: TBD
-**Research flag**: yes — likely needs `/gsd-plan-phase --research-phase 116` (the recording-stub's ordered-stream requirement is new; the RED-baseline expected-stream derivation per pinout needs care; also carries the "acquire/confirm the AT28C64B + doc0270 PDFs" prerequisite CONFLICT-1 rests on).
+**Plans**: 7 plans (5 waves; strictly ordered — the sub-repo v1.22 branch fork off `beta` is the first task executed, before any sub-repo file write)
+
+Plans:
+- [ ] 116-01-PLAN.md — Wave 1 · fw · Fork the v1.22 branch off `beta` in both sub-repos (F10), extend `host_stubs_common.inc` with the `HOST_STUBS_REAL_REGISTER_UTILS` ordered-strobe recorder (TRACE-01, D-05/D-07), prove flag-off byte-exactness at 80/80, and land TRACE-03's `protocol != 0x0D` → `0xBB` negative
+- [ ] 116-02-PLAN.md — Wave 2 · app+fw · `tools/gen_sdp_bus_config.py` deriving `bus_config_t` from the host's own `convert_to_programmer` (D-08), the committed `DO NOT EDIT` `_shared/sdp_bus_config.h` (D-10), and the `FW_ABSENT`-skipif regenerate-and-diff gate (D-11)
+- [ ] 116-03-PLAN.md — Wave 2 · app · `test_sdp_db_invariant.py` pinning `chip_id_check: false` across all 84 `algorithm == 13` entries **and** the count itself, no skipif (TRACE-05); `test_sdp_table_parity.py` closing the F6 transcription gap on the unlock table
+- [ ] 116-04-PLAN.md — Wave 2 · app · `check_no_log_in_sdp_window.py` structural scan + committed planted-violation fixture + paired anti-hollow pytest (TRACE-03c, D-04)
+- [ ] 116-05-PLAN.md — Wave 3 · fw · The always-green `test_sdp_harness` suite (D-03): ordered-capture and elision proof, the two in-suite table negatives, the fixed-stream reference-emitter guard, the migrated address-keyed identity-gate tests, and retirement of `test_eeprom28c_chip_id/` (TRACE-01/03/04, D-06/D-12/D-13)
+- [ ] 116-06-PLAN.md — Wave 4 · fw · The parked RED `test_eeprom28c_sdp` suite: five ordered-stream cases (four pinouts + a second DIP32 band as a deliberate stale-upper-address case per CORRECTION 3) plus the two RED identity-gate cases, `-I` but no `test_filter` entry (D-01), and the committed `RED-BASELINE.md` (D-02)
+- [ ] 116-07-PLAN.md — Wave 5 · meta · Full non-regression gate + datasheet-presence audit, `116-PREMISE.md` and the third ⚠ `PROJECT.md` correction block carrying the measured *66 of 84* figure (TRACE-06, D-14, CORRECTION 4), behind a blocking operator wording review
+
+**Research flag**: yes — discharged. `116-RESEARCH.md` (2026-07-27) built and ran the harness in-session: it settles TRACE-06 (INIT abort confirmed on every pinout), supplies the byte-exact per-pinout streams, and raises four corrections the plans reconcile. The "acquire/confirm the AT28C64B + doc0270 PDFs" prerequisite is **not** discharged and is carried as an explicit presence/absence audit in plan 116-07.
 **UI hint**: no
 
 ### Phase 117: FIX — remap-aware `0x0D` emitter + honest completion signal
