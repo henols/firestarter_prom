@@ -24,10 +24,10 @@
 - ✅ **v1.19 Protocol Naming Labels** — Phases 100–104 (SHIPPED 2026-07-02; meta tagged `v1.19` + `gsd/v1.19-protocol-naming-labels` merged to `beta`, both pushed to origin at close per operator override; gitlinks PINNED at b10, lockstep beta cut `3.0.0b11` operator-gated). A legibility layer on top of the unchanged algorithm-first dispatch contract: authored a single canonical, behavior/datasheet-correct, human-readable name set for every protocol number in `chip_database.json` (0x05/06/07/08/0B/0D/0E/10/27/28/29/34 + phantom 0x35/0x39) at a blocking operator-approval gate (Phase 100), applied across firmware constants + dispatch + handler-file renames (Phase 101), the host CLI display vocabularies (Phase 102), doc prose + INV-matrix + slug-divergence record (Phase 103), and a post-close follow-on that renamed the last two minipro-heritage flash handler file-pairs/functions (`flash_type_3/4`→`flash_nor_unlock`/`flash_5v_page`) across firmware + host GATE-01 tooling + native suites + docs (Phase 104). Names never become the dispatch key — numbers stay authoritative end to end; no `chip_database.json` / wire / lockstep-constant *value* change; CLI grammar unchanged (GATE-01/02/03 non-regression, re-verified in every touching phase incl. Phase 104's 9/9). 12 v1 requirements (NAME/FW/HOST/DOC/GATE) + Phase-104-local RENAME-01..05. Full detail in `.planning/MILESTONES.md` §v1.19 + [`.planning/milestones/v1.19-ROADMAP.md`](milestones/v1.19-ROADMAP.md).
 - ✅ **v1.20 Protocol-Only Dispatch** — Phases 105–107 (SHIPPED 2026-07-02; firmware-touching, dual-repo lockstep; meta tagged `v1.20` + `gsd/v1.20-protocol-only-dispatch-remove-the-legacy-mem-type-axis` merged to `beta`, both pushed to origin at close per operator override; gitlinks PINNED at b10, lockstep beta cut `3.0.0b11` operator-gated). Removed the last vestige violating algorithm-first dispatch — the `mem_type`/`type` backward-compat fallback axis — end to end. Firmware deletes the `mem_type` fallback dispatch chain (`memory.cpp` steps 7–11), so `protocol == 0` fail-closes to `configure_not_implemented()` (`0xBB`); drops `handle->mem_type` + stops parsing the `type` JSON field; retires `MSG_ERR_MEM_TYPE_UNSUPPORTED (0xAE)` + the `TYPE_*` constants (Phase 105). Host stops emitting `type` on the wire, drops `_ALGO_MEM_TYPE` + the "Generic Flash (legacy fallback only)" default + the `mem_type`-keyed label fallbacks, and adds a fail-closed algorithm-presence guard mirroring firmware `0xBB` before any serial byte (Phase 106) — the wire now carries only `algorithm` as the dispatch key (breaking change vs pre-v1.20 hosts, FW-first sequencing so the contract is never half-broken). Docs scrubbed of `type`/`mem_type` + breaking change recorded in both sub-repo READMEs; `0xAE` removed from the canonical catalog (incidentally fixing a pre-existing Phase-95 `FL4_BOOT_BLOCK` catalog desync); all GATE-01/02/SAFE-01 non-regression gates re-verified green with the removal proven dead code for all 746 chips (Phase 107). 12/12 v1 requirements (FW/WIRE/HOST/DOC/GATE/SAFE). LEGACY-01 (`FLAG_VPE_AS_VPP`) + LEGACY-02 (`EPROM_LEGACY` naming) deferred to v2. Full detail in `.planning/MILESTONES.md` §v1.20 + [`.planning/milestones/v1.20-ROADMAP.md`](milestones/v1.20-ROADMAP.md).
 - ✅ **v1.21 Community Chip-Validation Command** — Phases 108–115 (SHIPPED 2026-07-27; all phases verified, Phase 115 close 5/5; `3.0.0b11` PUBLISHED on both channels — PyPI `pip install --pre firestarter` + GitHub prerelease carrying per-board `.hex`; three bench boards validated fresh-machine install→flash→smoke (Uno + Leonardo HARD gates, uno328pb best-effort); meta gitlinks bumped off PINNED-b10 → the b11 commits. Remaining operator-gated close step: `v1.21` tag + sub-repo `--no-ff` beta merges + pushes). Ships `firestarter dev test <chip>` — a per-chip capability sweep + dual-output diagnostic report + tiered GitHub submission flow, letting the community prove chip support on hardware the maintainer doesn't own. 28 v1 requirements (SWEEP/PATT/SAFE/RPT/VOLT/XPORT/SUB/DISP/GRAD/INBOX/ONBOARD) across 8 phases: test-plan engine + address-derived pattern + fingerprint (108), destructiveness gate + safety (109), diagnostic report + provenance (110), measured-voltage sampler (111, hardware-gated), `dev test` CLI wiring (112), submission flow (113), disposition/no-auto-graduate lock (114, feature close), beta install + firmware-flash bench validation & community-onboarding doc (115, hardware-gated close). Full detail in `.planning/ROADMAP.md` §v1.21.
-- ⬜ **v1.22 Binary Command Protocol** — Phases TBD (QUEUED — next milestone; not yet scoped/activated). Replace the jsmn-tokenized JSON command layer with a fixed-layout binary command decoder decoded straight into `firestarter_handle_t` (no tokenizer, no string-key compares, no `key_parsers` table). Primary prize: **~512 B RAM reclaimed** (the `static jsmntok_t tokens[64]` array, `firestarter.cpp:56`) — on the Uno that's ~25% of SRAM, potentially ~doubling `DATA_BUFFER_SIZE` (512→~1024) → fewer ack round-trips → faster programming; plus ~1–1.5 KB net flash. Rides the existing COBS transport (v1.10) + ack-chunking (CAP-01) — changes the *command* encoding, not the framing. Breaking wire change (firmware+host lockstep, CLAUDE.md protocol-parity); deletes `lib/jsmn/`, `src/json_parser.c`; native dispatch tests + golden traces reworked. **De-risk first:** spike the `DATA_BUFFER_SIZE` bump to confirm the speed payoff *before* the rewrite. Sequence ahead of v1.23 (also breaking) — the two may bundle into one protocol-layer milestone. Seed: [`.planning/seeds/binary-command-protocol.md`](seeds/binary-command-protocol.md) · Note: [`.planning/notes/binary-protocol-savings-analysis.md`](notes/binary-protocol-savings-analysis.md).
+- ⬜ **v1.22 Binary Command Protocol** — Phases TBD (QUEUED — next milestone; not yet scoped/activated). Replace the jsmn-tokenized JSON command layer with a fixed-layout binary command decoder decoded straight into `firestarter_handle_t` (no tokenizer, no string-key compares, no `key_parsers` table). Primary prize: **~512 B RAM reclaimed** (the `static jsmntok_t tokens[64]` array, `firestarter.cpp:56`) — on the Uno that's ~25% of SRAM, potentially ~doubling `DATA_BUFFER_SIZE` (512→~1024) → fewer ack round-trips → faster programming; plus ~1–1.5 KB net flash. Rides the existing COBS transport (v1.10) + ack-chunking (CAP-01) — changes the *command* encoding, not the framing. Breaking wire change (firmware+host lockstep, CLAUDE.md protocol-parity); deletes `lib/jsmn/`, `src/json_parser.c`; native dispatch tests + golden traces reworked. **De-risk first:** spike the `DATA_BUFFER_SIZE` bump to confirm the speed payoff *before* the rewrite. Sequence ahead of v1.23 (also breaking) — the two may bundle into one protocol-layer milestone. **Consider carrying Backlog 999.3** (backlog review 2026-07-27): the cosmetic blank-check progress-batching bug is a com-mode progress-delivery issue in the same command/ack layer this milestone reworks — cheap to fix here, not worth its own phase. Seed: [`.planning/seeds/binary-command-protocol.md`](seeds/binary-command-protocol.md) · Note: [`.planning/notes/binary-protocol-savings-analysis.md`](notes/binary-protocol-savings-analysis.md).
 - ⬜ **v1.23 Bus-Config Mask-Model Redesign** — Phases TBD (QUEUED — not yet scoped/activated). Clean redesign of the address-bus config: the host (`database.py`/`pinouts.json`) resolves all per-pin policy — always-high, always-low, multiple control pins, read-vs-write levels — into precomputed masks (`read_static_mask`/`write_static_mask` + the `address_lines[]` permutation), collapsing the firmware per-byte hot path in `mem_util_remap_address_bus` to `permute(address) | static_mask[dir]` (drops the per-byte `rw_line`/`vpp_line`/`using_p1_as_vpp` branches). More expressive **and** faster; always-LOW needs zero firmware support (a bit the host never sets). Breaking wire change (firmware+host lockstep) + full chip-DB regen + golden-trace rewrite; sequence deliberately against the pending `binary-command-protocol` seed (also breaking) — consider bundling into one protocol-layer milestone. **Open gate before scoping:** validate the perf premise (may be 250kbaud-serial-bound, not remap-bound) — see `.planning/research/questions.md`. Seed: [`.planning/seeds/bus-config-clean-redesign.md`](seeds/bus-config-clean-redesign.md) · Note: [`.planning/notes/bus-config-mask-model.md`](notes/bus-config-mask-model.md).
 - ⬜ **v1.24 Jumper-Display Correctness & 2516-Family Support** — Phases TBD (QUEUED — not yet scoped/activated). Fix and complete the jumper settings shown by `firestarter info <CHIP>`. Two slices of escalating depth: **(1)** the safe display-only fix — correct JP4's copy-pasted `28pin`/`32pin` labels ([ic_layout.py:169-184](../firestarter_app/firestarter/ic_layout.py#L169-L184)), relabel the Rev-2 block to name 2.0/2.1/2.2/2.3, and delete the dead phantom-`JP5` `_get_rev2_2_jumper_settings_data` method (no DB/firmware change); **(2)** model the **3-pin angled header on Rev 2.2/2.3** whose 3rd position supports the TI 2516 family — requires a *new per-chip DB field* (the 2516/2532 are indistinguishable from ordinary 24-pin parts by `pin_count`/`vpp`/`pinout`/`algorithm`; datasheet distinguisher = program strobe on **pin 20 (PD/PGM)** vs Intel's **pin 18**), a 3-state jumper model replacing the binary JP4, `build_db.py` support, firmware strobe-routing verification, and Rev 2.2 bench validation. The safety heuristic (`vpp-pin → JP4 Closed`, consistent with GATE-03) already holds and is unchanged. **Open gate before scoping:** confirm whether Firestarter can even *program* a 2516/2532 today (firmware 0x0B may strobe pin 18) — a `supported`-status honesty question, see `.planning/research/questions.md`. Note: [`.planning/notes/info-jumper-display-design-audit.md`](notes/info-jumper-display-design-audit.md) · Seed: [`.planning/seeds/rev22-3pin-header-2516-family-support.md`](seeds/rev22-3pin-header-2516-family-support.md) · Todo: [`.planning/todos/pending/fix-jp4-labels-and-rev2-revision-block.md`](todos/pending/fix-jp4-labels-and-rev2-revision-block.md).
-- ⬜ **v1.25 White-Box Voltage-Reading Calibration** — Phases TBD (QUEUED — not yet scoped/activated). A guided, two-stage calibration procedure so the firmware's VPP/VPE/VCC readings are accurate per physical board, replacing today's hand-tuned-`r1` hack with a physically-meaningful white-box correction. **Stage 1 (bandgap — the big ±10 % win, MCU-specific):** DMM on the fixed 5 V line, firmware back-solves the true internal bandgap `V_bg = VCC_dmm × bandgap_adc / 1024` and stores it in place of the hardcoded `1100` — fixing **both** VCC (`1126400 = 1100 × 1024`) and VPP/VPE reads in [`rurp_common.cpp:42-71`](../firestarter/src/boards/rurp_common.cpp#L42-L71). **Stage 2 (divider trim — ±1–2 % residual, shield-specific):** operator pots the VPP rail to a stated level, DMMs it, reports back, firmware takes **one** confirmation read (no live loop), and `(r1+r2)/r2` is trimmed. One sense node (`PIN_VPP_VOLTAGE_ADC`) serves both rails; the error model is *measured* (collapses to pure gain if no offset). Firmware-touching, dual-repo lockstep: new `rurp_configuration_t` bandgap field → `CONFIG_VERSION` bump + EEPROM migration (defaults to 1100 = identity); host guided wizard (`firestarter dev calibrate`); safety is load-bearing (plausibility bounds + confirm-before-write + reset-to-defaults, since a bad cal makes the firmware *trust* wrong programming voltages). **Open gates before scoping:** confirm the bandgap is really the dominant term + whether Stage-2 needs one or two points — see `.planning/research/questions.md`. Seed: [`.planning/seeds/voltage-reading-whitebox-calibration.md`](seeds/voltage-reading-whitebox-calibration.md) · Note: [`.planning/notes/voltage-cal-design-decisions.md`](notes/voltage-cal-design-decisions.md).
+- ⬜ **v1.25 White-Box Voltage-Reading Calibration** — Phases TBD (QUEUED — not yet scoped/activated). A guided, two-stage calibration procedure so the firmware's VPP/VPE/VCC readings are accurate per physical board, replacing today's hand-tuned-`r1` hack with a physically-meaningful white-box correction. **Stage 1 (bandgap — the big ±10 % win, MCU-specific):** DMM on the fixed 5 V line, firmware back-solves the true internal bandgap `V_bg = VCC_dmm × bandgap_adc / 1024` and stores it in place of the hardcoded `1100` — fixing **both** VCC (`1126400 = 1100 × 1024`) and VPP/VPE reads in [`rurp_common.cpp:42-71`](../firestarter/src/boards/rurp_common.cpp#L42-L71). **Stage 2 (divider trim — ±1–2 % residual, shield-specific):** operator pots the VPP rail to a stated level, DMMs it, reports back, firmware takes **one** confirmation read (no live loop), and `(r1+r2)/r2` is trimmed. One sense node (`PIN_VPP_VOLTAGE_ADC`) serves both rails; the error model is *measured* (collapses to pure gain if no offset). Firmware-touching, dual-repo lockstep: new `rurp_configuration_t` bandgap field → `CONFIG_VERSION` bump + EEPROM migration (defaults to 1100 = identity); host guided wizard (`firestarter dev calibrate`); safety is load-bearing (plausibility bounds + confirm-before-write + reset-to-defaults, since a bad cal makes the firmware *trust* wrong programming voltages). **Open gates before scoping:** confirm the bandgap is really the dominant term + whether Stage-2 needs one or two points — see `.planning/research/questions.md`. **Absorbs Backlog 999.1** (backlog review 2026-07-27): the stale-`r1` propagation bug — `CONFIG_VERSION` still `"VER06"` while `VALUE_R1` moved 1000→270000 in Phase 44 — must be folded into this milestone's requirement set, since v1.25 already owns the `CONFIG_VERSION` bump + EEPROM migration that fixes it. Seed: [`.planning/seeds/voltage-reading-whitebox-calibration.md`](seeds/voltage-reading-whitebox-calibration.md) · Note: [`.planning/notes/voltage-cal-design-decisions.md`](notes/voltage-cal-design-decisions.md).
 
 <details>
 <summary>✅ <b>v1.10 — Serial Transport Hardening (COBS)</b> — Phases 49–55 (SHIPPED 2026-06-07) · 27/27 plans · 14/14 reqs · beta-only</summary>
@@ -1445,16 +1445,18 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 
 ## Backlog
 
-### Phase 999.1: Firmware calibration-default propagation (CONFIG_VERSION gate) (BACKLOG)
+### Phase 999.1: Firmware calibration-default propagation (CONFIG_VERSION gate) (BACKLOG → ABSORBED BY v1.25)
 
 **Goal:** [Captured for future planning] Make corrected R1/R2 calibration defaults reach already-calibrated boards. `rurp_validate_config` ([firestarter/src/rurp_config_utils.cpp:32-39](../firestarter/src/rurp_config_utils.cpp#L32-L39)) re-applies defaults only when `config->version != CONFIG_VERSION` ("VER06"); Phase 44 changed `VALUE_R1` 1000→270000 ([firestarter/include/rurp_shield.h:49](../firestarter/include/rurp_shield.h#L49)) without bumping `CONFIG_VERSION`, so VER06-calibrated boards silently keep a stale `r1` → wildly wrong VPP reading (true 12.2V reported as ~1.8V). Fix options: bump `CONFIG_VERSION` on any default change (resets all users' calibration — communicate), OR add a sanity-range guard rejecting implausible `r1`, OR a targeted `r1==1000` migration.
-**Requirements:** TBD
+**Requirements:** TBD — to be scoped as part of the v1.25 requirement set, not as a standalone phase.
 **Plans:** 0 plans
 **Origin:** Phase 54 UAT diagnosis — [`.planning/debug/firmware-vpp-misread.md`](debug/firmware-vpp-misread.md). Severity: major. Out of EVEN-01 scope.
 
+**Disposition (backlog review 2026-07-27): ABSORBED BY v1.25 — do not promote standalone.** Re-verified still live at review time: `CONFIG_VERSION` is *still* `"VER06"` ([firestarter/include/rurp_shield.h:46](../firestarter/include/rurp_shield.h#L46)) and `VALUE_R1` is *still* `270000` ([:49](../firestarter/include/rurp_shield.h#L49)) — the Phase-44 default change has never been version-gated, so any board calibrated before Phase 44 continues to carry a stale `r1`. The queued **v1.25 White-Box Voltage-Reading Calibration** milestone already scopes exactly this mechanism (new `rurp_configuration_t` bandgap field → `CONFIG_VERSION` bump + EEPROM migration defaulting to identity), so fixing it separately would duplicate the migration work and risk two competing `CONFIG_VERSION` bumps. **Action when v1.25 is scoped:** fold this stale-`r1` migration (and the plausibility-bound guard) into the v1.25 requirement set, and retire this stub. Seed: [`.planning/seeds/voltage-reading-whitebox-calibration.md`](seeds/voltage-reading-whitebox-calibration.md).
+
 Plans:
 
-- [ ] TBD (promote with /gsd-review-backlog when ready)
+- [ ] TBD (absorbed into v1.25 scoping — do NOT promote as its own phase)
 
 ### Phase 999.2: uno328pb + Rev 2.0 chip-PROGRAM brownout hang (bench/hardware) (BACKLOG)
 
@@ -1462,6 +1464,8 @@ Plans:
 **Requirements:** TBD
 **Plans:** 0 plans
 **Origin:** Phase 54 UAT Test 2 (uno328pb). Severity: major. Out of EVEN-01 scope.
+
+**Disposition (backlog review 2026-07-27): KEEP — still open, still unverified.** v1.21 Phase 115-07 did exercise the uno328pb on the bench and the board was stable — but that run was **smoke-only** (fresh-machine install → `fw -i -b uno328pb` flash → `fw`/`hw` liveness); it never drove a program/write cycle, so it is *not* evidence the brownout is gone. Nothing is blocked by leaving this parked: the standing "**uno328pb is N/A for any program/write**" bench precondition is already baked into every hardware-touching milestone, and Leonardo remains the program-path board. Promote only when a dedicated bench-investigation milestone is activated (scope: VPP regulator level under program load, VCC stability, board power).
 
 Plans:
 
@@ -1474,9 +1478,248 @@ Plans:
 **Plans:** 0 plans
 **Origin:** v1.13 bench follow-up (2026-06-17) during the `write-empty-input-regression` debug session. Severity: minor (cosmetic). Out of scope for the write-path fix.
 
+**Disposition (backlog review 2026-07-27): KEEP — cosmetic, root cause preserved.** Re-verified still live: the comm-mode progress flush in `_single_step_operation_callback` ([firestarter/src/operation_utils.cpp:281](../firestarter/src/operation_utils.cpp#L281), fw `83d186f`) landed **2026-06-02**, i.e. *before* the 2026-06-17 observation — so that per-step flush is already in the binary that batched, and does **not** cure the jump. Not worth its own phase at cosmetic severity, but the ruled-out list (not the Option-C write fix, not Python buffering) and the com-mode-gating root cause are worth keeping for whoever next touches the progress path. **Natural carrier:** the queued **v1.22 Binary Command Protocol** milestone reworks the command/ack layer — cross-link this item when v1.22 is scoped rather than planning it separately.
+
 Plans:
 
 - [ ] TBD (promote with /gsd-review-backlog when ready)
+
+---
+
+## Backlog — imported from GitHub (`henols/firestarter_prom`, 2026-07-27)
+
+> **Import provenance.** All **17 open issues** in [`henols/firestarter_prom`](https://github.com/henols/firestarter_prom/issues) — the project's central issue tracker per gh#6/gh#9 — were read in full and captured below as backlog stubs **999.8–999.24**, one per issue, numbered in issue order (999.8 ← gh#1 … 999.24 ← gh#17). No issue was merged, split, or dropped. None are promoted; none are planned. GitHub remains the source of truth for issue text and status — these stubs carry the *project-side* triage (feasibility, dedupe against shipped work, conflicts with existing decisions) that GitHub does not.
+>
+> **Triage findings worth reading before scoping any of them** (evidence gathered at import):
+> - **999.21 (gh#14, TMS27C010A won't write) is almost certainly a duplicate of FUT-08.** `TI / TMS27C010A,TMS27PC010A` is in the DB at `algorithm 8` (`0x08`) / `pinout DIP32_27C020` / `supported` — i.e. the exact class the v1.18 pin-31-as-`/PGM` RCA fixed and whose bench proof came back **marginal** (write#1 60/64 byte-exact, write#2 0/64 → DEFER/FUT-08). The report predates the fix (app 1.2.2 / fw 1.2.3, 2024-11). **Do not RCA from scratch** — re-test on current firmware first, then fold into FUT-08.
+> - **999.20 (gh#13, add 27C1024) is not feasible as requested, and the requested alias would be unsafe.** The DB contains **only** 24/28/32-pin parts (58/249/439) — **zero DIP40 entries and no 16-bit data path anywhere**. The 27C1024 is a **64K×16** DIP40 device, not the 128K×8 the issue describes; RURP drives an 8-bit data bus, so aliasing it onto the 128K×8 27C010 family (issue's "Option A, preferred") would mis-drive a physically different part. Correct disposition is a `support_status` refusal class (à la `adapter-required` / `vpp-exceeds-max`), not an alias.
+> - **999.17 (gh#10, TMS27C512 write regression) sits in a genuine evidence gap.** `TI / SMJ27C512,TMS27C512,TMS27PC512` is `algorithm 7` (`0x07`) / 13V / **UV-EPROM**. Every `0x07` write proof this project holds was taken on the **Winbond W27C512, a 12V EEPROM** (see `reference_st_m27c512_vs_winbond_w27c512`) — so a UV-specific `0x07` write regression would pass straight through our existing bench evidence. The reporter's bisect window (worked at app 1.5.6 / fw 1.4.3) is the strongest lead.
+> - **999.15 (gh#8, gate the `dev` group out of production) collides head-on with v1.21.** v1.21 shipped `firestarter dev test <chip>` **specifically so the community can validate chips on hardware the maintainer doesn't own**; gh#8 requires the `dev` group be absent from production help and shell completion and rejected on direct invocation. Applied as written, it removes the v1.21 community-validation entry point from every released package. Resolve the conflict at scoping time — most likely by promoting `dev test` out of `dev` into a supported diagnostics namespace before gating the rest.
+> - **999.9 (gh#2, repo rename) invalidates identifiers used throughout this planning repo.** `firestarter_prom` → `firestarter` and `firestarter` → `firestarter_fw` would break the firmware-download URL the app depends on, every `henols/firestarter*` reference in `.planning/`, both sub-repo `CLAUDE.md` files, the gitlink remotes, and the `fw -i` prerelease-asset route that v1.21 Phase 115 just bench-validated. Sequence it as its own milestone with a repo-wide reference sweep — never as a side task.
+> - **999.13 (gh#6, PR-only `main`) changes the GSD close procedure.** Branch protection on `main` in all three repos means `/gsd-complete-milestone`'s direct merge + push at close (used through v1.21) must become a PR flow, or the operator needs a documented admin bypass.
+
+### Phase 999.8: Verify reports all mismatched address ranges, not just the first (BACKLOG — gh#1)
+
+**Goal:** [Captured from GitHub] Make `verify` scan the whole requested range and report **every** mismatch, grouping consecutive mismatched addresses into inclusive ranges (`0x000120-0x00012F (16 bytes)`), with a range count + total mismatched-byte count, a clearly distinct success result, and bounded output when a large part of the device differs. Optional verbose mode shows byte-level expected/actual. Acceptance requires tests for: no mismatch, one mismatch, consecutive, separated, and mismatch at both first and last address.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`henols/firestarter_prom#1`](https://github.com/henols/firestarter_prom/issues/1) — henols, 2026-07-11, label `enhancement`. Type: feature. Scope: host app (verify result path); firmware likely untouched.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.9: Rename repositories without breaking installation (BACKLOG — gh#2)
+
+**Goal:** [Captured from GitHub] Rename `firestarter_prom` → `firestarter` and `firestarter` → `firestarter_fw` (firmware first, to free the name), then repoint every hard-coded URL: firmware release/asset/manifest/version-check endpoints in the app (`https://github.com/henols/firestarter_fw`), READMEs, Wiki, badges, issue templates, CI/release workflows, package metadata, clone URLs, and external hardware-project links. The app must **not** depend on GitHub's redirect, and must raise a clear error when the firmware release endpoint is unreachable. Validation is a full clean-environment install → query → locate release → download asset → flash → update-check → repeat-after-cache-clear.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`henols/firestarter_prom#2`](https://github.com/henols/firestarter_prom/issues/2) — henols, 2026-07-11, label `enhancement`. Type: infrastructure. Severity: high blast radius.
+
+**Triage note (2026-07-27):** Highest-blast-radius item in the import — see the import header. This also invalidates `.planning/` cross-references, both sub-repo `CLAUDE.md` files, and the `fw -i` prerelease route bench-validated in v1.21 Phase 115. Own milestone + repo-wide reference sweep; do not bundle.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.10: Disable development-only features in production builds (policy) (BACKLOG — gh#3)
+
+**Goal:** [Captured from GitHub] Inventory every development-only feature across app and firmware and classify each as remove / gate behind an explicit flag / hide behind an advanced setting with warning / promote to supported. Introduce central opt-in flags (`FIRESTARTER_DEV_FEATURES=1`, firmware `-D FIRESTARTER_ENABLE_DEV_FEATURES=1`) rather than branch-dependent behavior or scattered hard-coded checks; production packages and firmware releases must build with them off, and the app must never offer a command production firmware cannot handle.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`henols/firestarter_prom#3`](https://github.com/henols/firestarter_prom/issues/3) — henols, 2026-07-11, label `enhancement`. Type: policy/infrastructure.
+
+**Triage note (2026-07-27):** This is the **policy umbrella**; gh#8 (→ 999.15) is the concrete, beta-aware implementation and explicitly supersedes this issue's main-branch-only notes. Scope them together, implement via 999.15.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.11: Document programming limitations of shield revisions 0 and 1 (BACKLOG — gh#4)
+
+**Goal:** [Captured from GitHub] Establish and document what Rev 0 / Rev 1 shields *cannot* program — the reporter's hypothesis is that dual use of VPP and address lines limits programming of larger EPROMs on those revisions.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`henols/firestarter_prom#4`](https://github.com/henols/firestarter_prom/issues/4) — henols, 2026-07-11, label `enhancement`. Type: investigation + docs. One-line issue; needs scoping.
+
+**Triage note (2026-07-27):** Substantially pre-researched in this repo — [`.planning/v1.7-SHIELD-REVS.md`](v1.7-SHIELD-REVS.md) (investigation-canonical) + `firestarter/doc/SHIELD-REVISIONS.md` (operator-canonical subset) already hold the per-rev capability table, and v1.9 Phase 44 root-caused a **Rev 0 shield read-path fault**. Likely a docs-consolidation + targeted-confirmation item rather than fresh investigation. Keep the two doc layers in lockstep (`project_v17_shield_docs_layering`).
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.12: Move documentation from app + firmware repos into the project Wiki (BACKLOG — gh#5)
+
+**Goal:** [Captured from GitHub] Move all relevant documentation out of the app and firmware repos into the Wiki of the central project repo.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`henols/firestarter_prom#5`](https://github.com/henols/firestarter_prom/issues/5) — henols, 2026-07-11, label `enhancement`. Type: docs. One-line issue; needs scoping.
+
+**Triage note (2026-07-27):** Interacts with the deliberate two-layer doc split this project maintains (meta investigation-canonical vs sub-repo operator-canonical) and with the v1.21 community-onboarding doc `firestarter_app/doc/beta-testing-install.md`, which is intentionally *shipped with the package*. Decide per-document which layer moves; a blanket move would strand operator-facing docs away from the code they describe. Overlaps gh#7 (→ 999.14), which proposes a generated site instead of a Wiki — **pick one destination before either is scoped.**
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.13: Protect `main` branches + centralize issue tracking (BACKLOG — gh#6)
+
+**Goal:** [Captured from GitHub] Make `henols/firestarter_prom` the single issue tracker (issues disabled in the app + firmware repos, both linking to it, existing open issues migrated/cross-referenced first), and put all three repos' `main` behind rulesets: no direct pushes, PR required, no force-push, no deletion, admins included absent a documented emergency bypass, required status checks + resolved conversations where applicable. Approval count may stay 0 for a single-maintainer workflow provided a PR is still mandatory.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`henols/firestarter_prom#6`](https://github.com/henols/firestarter_prom/issues/6) — henols, 2026-07-11, label `enhancement`. Type: infrastructure/process.
+
+**Triage note (2026-07-27):** The issue-centralization half is already in force in practice (this import found all 17 issues living in `firestarter_prom`). The branch-protection half **changes the GSD close procedure** — `/gsd-complete-milestone` merged and pushed `main`/`beta` directly through v1.21; under PR-only `main` that becomes a PR flow or a documented admin bypass. Also note this repo's milestone convention pushes to `beta`, not `main` (`feedback_branching`), so protection must not block the beta lockstep cut.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.14: Generated device/algorithm documentation site for discoverability (BACKLOG — gh#7)
+
+**Goal:** [Captured from GitHub] Publish a searchable, SEO-indexable static docs site (MkDocs Material / Docusaurus) **generated from the existing chip database** — one page per supported device, family pages (27Cxxx, 28Cxxx, 29Cxxx, 39SFxxx, AM29Fxxx, Intel/Winbond/Atmel…), a searchable compatibility matrix of supported operations, programming-algorithm/command-set docs, task tutorials, README/metadata keywords, and GitHub Pages deployment. Gated behind an off-by-default flag (`FIRESTARTER_BUILD_DEVICE_DOCS=1` or `python -m firestarter.docs --generate-device-pages`) so normal build/test is unchanged. Pages must be generated from project data, never hand-maintained.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`henols/firestarter_prom#7`](https://github.com/henols/firestarter_prom/issues/7) — henols, 2026-07-11, label `feature`. Type: feature/docs.
+
+**Triage note (2026-07-27):** Well-matched to existing assets — `chip_database.json` (746 chips), the `support_status` taxonomy, `PROTOCOL-LEDGER.{md,json}`, and `firestarter/doc/PROTOCOLS.md`'s 12-bucket vocabulary are already the structured inputs such a generator needs. **Honesty constraint:** generated pages must render `support_status` faithfully (`protocol-not-implemented` / `adapter-required` / `vpp-exceeds-max` / UNVERIFIED ledger buckets) — an SEO page claiming blanket support for an unverified chip is exactly the false-PASS failure mode v1.21 was built to prevent. Overlaps gh#5 (→ 999.12) on docs destination.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.15: Gate development tools out of production builds — beta implementation (BACKLOG — gh#8)
+
+**Goal:** [Captured from GitHub] The concrete, beta-aware implementation of the gh#3 policy. **Firmware:** remove `-D DEV_TOOLS` from the shared `[env]` block in `platformio.ini` (it currently leaks into `uno`/`uno328pb`/`leonardo` *and* the native env), add explicit `*-dev` environments, keep `default_envs` production-only, keep the `#ifdef DEV_TOOLS` guards on `CMD_DEV_REGISTER`/`CMD_DEV_ADDRESS`, and prove a production build neither links `dev_tools.cpp` nor desynchronizes the COBS/CRC stream when it rejects a dev command ID. **App:** because Click registers at import time, move the whole `dev` group to `firestarter/dev_cli.py` and attach it only when enabled (preferred), so it is absent from `--help` and shell completion. **Service layer:** a reusable guard (`DevelopmentToolsDisabledError` → stable non-zero exit) on `dev_read_eprom`, `dev_set_registers`, `dev_set_address_mode`, `consistency_check_eprom`, `write_cycle_eprom`, `fault_inject_cycle`, `measure_command_nak_latency`, so importing `EpromOperator` directly cannot bypass CLI gating. Plus the explicit 2×2 app/firmware capability matrix, and CI covering both configurations. Explicitly does **not** restore the removed `SERIAL_DEBUG` bootstrap.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`henols/firestarter_prom#8`](https://github.com/henols/firestarter_prom/issues/8) — henols, 2026-07-11, label `enhancement`. Supersedes the main-branch-only notes in gh#3 (→ 999.10). Type: infrastructure/safety.
+
+**Triage note (2026-07-27): ⚠ Conflicts with v1.21 as written.** The issue enumerates the beta `dev` surface as `read / reg / addr / consistency-check / write-cycle / fault-inject` — it **predates `dev test`**, which v1.21 shipped *for community use* and which v1.21 Phase 115 documented as the community entry point in `beta-testing-install.md`. Gating the whole `dev` group out of released packages would remove the community-validation flow this project just built. Resolve before scoping — most likely by promoting `dev test` (and possibly `consistency-check`) into a supported diagnostics namespace first, then gating the genuinely hazardous direct-hardware commands (`reg`, `addr`) as specified. The issue's own §5 defers that namespace decision to "a later issue"; v1.21 has since forced it.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.16: Repository structure and contribution guide (BACKLOG — gh#9)
+
+**Goal:** [Captured from GitHub] Publish the contributor-facing orientation doc: `firestarter_prom` is the central repo (roadmap, feature requests, bug reports, release + documentation planning, cross-repo coordination) and the **only** repo with Issues enabled; `firestarter_app` holds the Python app and `firestarter` the AVR firmware, both Issues-disabled and both pointing bug/feature reports at `firestarter_prom/issues`; PRs go to the repo containing the code being changed.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`henols/firestarter_prom#9`](https://github.com/henols/firestarter_prom/issues/9) — henols, 2026-07-11, no labels. Type: docs/process.
+
+**Triage note (2026-07-27):** Reads as a **pinned reference issue rather than a work item** — it documents the end-state gh#6 (→ 999.13) configures. Likely no phase of its own: fold into 999.13's docs step (READMEs + templates + support links), or leave as a standing GitHub-side pinned issue. Note it will need rewriting after the gh#2 rename (→ 999.9) changes all three repo names.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.17: TMS27C512 cannot be written — post-1.5.6 write regression (BACKLOG — gh#10)
+
+**Goal:** [Captured from GitHub] Root-cause and fix a reported write regression: TMS27C512 wrote correctly on app **1.5.6 / fw 1.4.3**, and sometime after those versions writing stopped changing any bits. Reads work and the chip ID is detected correctly — only the write path is affected.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`henols/firestarter_prom#10`](https://github.com/henols/firestarter_prom/issues/10) — VaiOnko, 2025-09-24. Type: bug. Severity: major (silent write failure). Community-reported hardware.
+
+**Triage note (2026-07-27): evidence gap, not a known defect.** DB entry `TI / SMJ27C512,TMS27C512,TMS27PC512` → `algorithm 7` (`0x07`), `pinout DIP28_27512`, **13V UV-EPROM**, `supported`. Every `0x07` write proof this project holds was taken on the **Winbond W27C512 — a 12V EEPROM**, a different part sharing the "512" name (`reference_st_m27c512_vs_winbond_w27c512`); the v1.18 differential that "exonerated all shared axes" for `0x07` also used the Winbond part. **A UV-specific `0x07` write regression is therefore fully compatible with our green bench evidence.** Best lead is the reporter's bisect window (app 1.5.6 / fw 1.4.3 → broken). Interacts with 999.22 (gh#15), which would rewrite the `0x07` write algorithm outright. Needs a UV 27C512 on the bench — operator inventory is Winbond (`project_phase83_shipped`).
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.18: AT28C256 writes only partially (BACKLOG — gh#11)
+
+**Goal:** [Captured from GitHub] Investigate an AT28C256 that reads fine and accepts a write (32 KB in 339 s) but read-back shows only part of the image actually burned. Reporter is on a Rev 2-modded shield with jumpers believed correct.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`henols/firestarter_prom#11`](https://github.com/henols/firestarter_prom/issues/11) — datapaganism, 2024-09-26 (app 1.0.13). Type: bug. Severity: major (partial/silent write corruption). Community-reported hardware.
+
+**Triage note (2026-07-27):** DB entry `ATMEL / AT28C256,AT28C256E,AT28C256F,AT28HC256,…` → `algorithm 13` (`0x0D`, VPP-free 28C EEPROM path), `pinout DIP28_28C256`, `supported`. The 339 s write time points at byte-at-a-time programming with no page write. **Strongly suspect the same root cause as 999.19 (gh#12): Atmel Software Data Protection.** An SDP-locked AT28C256 accepts writes and silently ignores most of them — exactly this symptom — and gh#12's reporter had to disable SDP with a separate Arduino before Firestarter could write at all. Triage 999.18 and 999.19 together; the report is 2024-vintage (app 1.0.13) so re-test on current firmware first.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.19: AT28Cxxx software data protection enable/disable missing (BACKLOG — gh#12)
+
+**Goal:** [Captured from GitHub] Implement Atmel Software Data Protection lock/unlock for the AT28C family (AT28C64/256/512…) — the datasheet address/data sequences (AT28C256 datasheet p. 8) that enable and disable write protection. The reporter had to build a separate Arduino circuit to run the "Software Data Protection Disable Algorithm" before Firestarter could use the chip at all.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`henols/firestarter_prom#12`](https://github.com/henols/firestarter_prom/issues/12) — humbertocsjr, 2024-09-15. Type: feature (unblocks a whole family). Severity: major.
+
+**Triage note (2026-07-27):** Likely the root cause behind 999.18 (gh#11) — pair them. Protocol `0x0D` (`configure_eeprom28c`) currently has no SDP path. Precedent exists in-tree: v1.13 Phase 74 added SST-style SDP + page-write for the flash4 path (`flash_5v_page`), and v1.14 Phase 77 wired the erase write-path from `electrical.type`. Note the safety posture — an unlock command is a *destructive-capability* addition and must land behind the v1.21 destructiveness gate + explicit opt-in, not silently on every write.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.20: 27C1024 support request (DIP40) (BACKLOG — gh#13)
+
+**Goal:** [Captured from GitHub] Reporter asks for 27C1024 support — `firestarter info 27c1024` returns "not found" — proposing either an alias onto the existing 27C010/27C1001 family definitions ("Option A, preferred") or an explicit entry, on the stated premise that the part is 128 K × 8, DIP-40, 17 address lines, and electrically consistent with the 27C010 family.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`henols/firestarter_prom#13`](https://github.com/henols/firestarter_prom/issues/13) — azagramac, 2026-06-08 (fw 2.0.6, Uno R3). Type: feature request. Severity: minor.
+
+**Triage note (2026-07-27): NOT feasible as requested, and the preferred fix would be unsafe.** Confirmed absent from the DB (0 hits). But the DB holds **only 24/28/32-pin parts (58 / 249 / 439) — zero DIP40 entries and no 16-bit data path anywhere**, and the issue's own premise is internally inconsistent: 128 K × 8 with 17 address lines is a *DIP32* part (that's the 27C010 already supported), whereas the DIP40 27C1024 is a **64 K × 16** device. RURP drives an 8-bit data bus, so aliasing 27C1024 onto the 128 K × 8 27C010 family would mis-drive physically different silicon. **Correct disposition: a `support_status` refusal class** (the existing `adapter-required` / `vpp-exceeds-max` pattern, extended for "data-bus-width-unsupported") so `info 27c1024` explains *why* instead of saying "not found" — plus a reply on the issue correcting the x8/x16 premise. True support would need 16 data lines: new hardware, not a DB entry.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.21: Cannot write TMS27C010A (BACKLOG — gh#14)
+
+**Goal:** [Captured from GitHub] Investigate a TMS27C010A that blank-checks clean, then fails immediately on write (`Failed to write memory, at 0x000000, nr 0`); a follow-up blank check reports not-blank at `0x000000` value `0x00`, and a read-back returns an empty image. Reporter is on Rev 2 + Arduino Uno R3 + Raspberry Pi.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`henols/firestarter_prom#14`](https://github.com/henols/firestarter_prom/issues/14) — fdanapfel, 2024-11-27 (app 1.2.2 / fw 1.2.3). Type: bug. Severity: major. Community-reported hardware.
+
+**Triage note (2026-07-27): almost certainly a duplicate of FUT-08 — do not RCA from scratch.** DB entry `TI / TMS27C010A,TMS27PC010A` → `algorithm 8` (`0x08` EPROM-QUICK), `pinout DIP32_27C020`, 13V, `supported` — the exact class of the v1.18 AM27C020 RCA (RC-1: DIP32 pin 31 modeled as address line A18 instead of a held program-active `/PGM`). That fix shipped as the scoped `DIP32_27C020` + `rw-pin:[31]` redirect, which **this chip already inherits** (`mem_size` 131072 ≤ 262144, so it is inside the scope guard). Bench proof was *effective but marginal* — write#1 60/64 byte-exact, write#2 0/64 → DEFER/FUT-08, `0x08` carried as an open defect in the PROTOCOL-LEDGER. This report predates all of it (2024, fw 1.2.3). **Action: ask the reporter to re-test on current firmware, then fold the result into FUT-08 as a second data point** — a community-reported second `0x08` part is exactly the additional silicon FUT-08 needs.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.22: Per-protocol EPROM programming algorithms in firmware (0x07 / 0x08 / 0x0B) (BACKLOG — gh#15)
+
+**Goal:** [Captured from GitHub] Replace the single shared block-level write loop in `firestarter/src/proms/eprom.cpp` — program mismatching bytes → verify chunk → retry ×20 → grow a shared pulse — with three protocol-owned state machines dispatched from `configure_eprom()`: `0x07 → eprom_regular_write_execute()` (per-byte fixed 1 ms pulse + verify, ≤25 pulses, then an overprogram pulse of 3× the byte's accumulated program time capped at 75 ms, then final verify), `0x08 → eprom_quick_write_execute()` (fixed 100 µs pulses, verify per pulse, protocol-appropriate finishing pulse; PRESTO margin verification documented as not-yet-implemented), `0x0B → eprom_legacy_write_execute()` (single fixed 50 ms pulse, 1 attempt, no overpulse — replacing today's generic 500 µs default). Shared helpers for *electrical* operations only (`eprom_enable_vpp`, `eprom_program_pulse`, `eprom_verify_byte`, …), with a safe 32-bit delay (never a bare `delayMicroseconds(50000)`), protocol-correct VPP routing preserved (`0x07`/`0x08` regulator + VPE-to-VPP drop; `0x0B` direct legacy path) and **every** exit path — including verify failure — disabling all high-voltage routes. Removes `program_mismatched_bytes()`, `verify_and_update_mask()`, the `NUMBER_OF_RETRIES` block loop, and adaptive `handle->pulse_delay` growth. Explicitly adds **no** new DB algorithm field and **no** second firmware algorithm selector — the protocol ID stays the single source of truth. Native tests must cover dispatch, per-pulse verify, overpulse derivation, failure limits, `0xFF`/already-matching skips, VPP cleanup on every path; all four targets build.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`henols/firestarter_prom#15`](https://github.com/henols/firestarter_prom/issues/15) — henols, 2026-07-12, no labels. Type: firmware feature/correctness. Severity: high — largest firmware item in the import.
+
+**Triage note (2026-07-27):** The single most consequential import. Directly relevant to **999.17 (gh#10, `0x07` UV regression)**, **999.21 (gh#14) / FUT-08 (`0x08` marginal)** — a correct per-byte `0x08` handler with real pulse accounting is a plausible fix for the AM27C020 write#2 0/64 instability — and to the v1.13 six-family validation harness, which must be re-run against the rewritten handlers. Sits squarely inside the project's algorithm-first contract (protocol ID as sole dispatch key), so it needs no architectural exception. **Firmware-touching → dual-repo lockstep, golden register traces + dispatch-mirror guard will need rework, Leonardo-only bench validity.** Sequence relative to v1.22 (binary command protocol), which also rewrites firmware internals.
+
+**⚠ Competing design already on file.** The dormant seed [`.planning/seeds/27c-algorithm-fidelity-param-table-refactor.md`](seeds/27c-algorithm-fidelity-param-table-refactor.md) (planted 2026-07-02) targets the *same* defect from the same evidence — escalating-instead-of-fixed pulse (`eprom.cpp:177`), flat `NUMBER_OF_RETRIES = 20` where datasheets want 10 (Microchip) or 25 (Intel/AMD), missing over-program pulse, wrong legacy NMOS default — but prescribes the **opposite architecture**: keep ONE shared program→verify loop driven by a `const` parameter table keyed by `protocol_id` ("the regular/fast/legacy split collapses to rows in a table, not separate implementations", ~80–85% reuse of the existing routine), whereas gh#15 mandates three separate handlers each owning its own state machine and timing constants, with sharing limited to electrical primitives. **Both cannot be built.** Decide the architecture at scoping time — table-driven is cheaper on AVR flash (a real constraint: v1.16 fought for a 518 B decrease) and keeps one verified loop; separate handlers are more legible and let `0x08` PRESTO/margin behavior diverge freely later. Whichever wins, retire the other and record the decision.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.23: Prepare firmware HAL for PY32F071 (BACKLOG — gh#16)
+
+**Goal:** [Captured from GitHub] Refactor the firmware HAL so a native non-AVR backend can be added **without touching the PROM programming algorithms**: keep the HAL boundary as functions with per-board implementations (Uno / Leonardo / PY32F071), using compile-time capability macros only to exclude facilities small AVR builds lack (e.g. DAC); add `include/rurp_platform.h` with normalized platform identifiers that hide AVR-only `PROGMEM` details from common headers; keep physical pin maps board-local while logical identifiers (`LEAST_SIGNIFICANT_BYTE`, `OUTPUT_ENABLE`, `CONTROL_REGISTER`, `CHIP_ENABLE`, …) stay platform-independent; introduce `rurp_millis()` / `rurp_delay_ms()` / `rurp_delay_us()` so common code never calls Arduino timing APIs; two-point board calibration over a VREFINT-compensated 12-bit ADC; CRC-validated dual-slot flash config records (PY32F071 has no EEPROM). Acceptance explicitly requires Uno, ATmega328PB, Leonardo and native tests remain unaffected. The `beta` Leonardo implementation is the model for separating logical buses from physical pins.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`henols/firestarter_prom#16`](https://github.com/henols/firestarter_prom/issues/16) — henols, 2026-07-17, no labels. Type: firmware architecture. Prerequisite for 999.24 (gh#17). Scope note in issue: PY32F071 only; RP2040/RP2350 out of scope.
+
+**Triage note (2026-07-27):** New-platform groundwork, and the ADC/VREFINT + two-point calibration half **overlaps queued v1.25** (white-box voltage calibration), which introduces exactly that calibrated-bandgap model for AVR. Scope the two together so the calibration model is designed once, cross-platform, rather than twice.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.24: Native PY32F071 firmware backend (no Arduino framework) (BACKLOG — gh#17)
+
+**Goal:** [Captured from GitHub] Add a native `PY32F071xB` target (128 KiB flash / 16 KiB SRAM / Cortex-M0+) built with CMake + `arm-none-eabi-gcc` — no Arduino framework, no RTOS initially — on the official Puya CMSIS/LL package, with a `platform/py32f071/` tree (board/gpio/timing/usb/adc/dac/storage) implementing the existing `rurp_*` HAL boundary while PROM sources stay platform-independent. Data bus on eight contiguous pins of one GPIO port: read via a single `IDR` snapshot, write atomically via `BSRR`, direction via `MODER` preserving unrelated pins, pulls disabled while the PROM drives the bus, safe inactive states before enabling the socket or VPP. Native USB CDC via the official CherryUSB PY32 port, active during programmer operations, framing protocol unchanged, with no `SERIAL_ON_IO`, no Uno UART/data-bus switching, no deferred-log port. SysTick milliseconds + hardware-timer microseconds/programming pulses, never disabling interrupts across long waits. 12-bit ADC with VREFINT + the common two-point calibration, on-chip 12-bit DAC for closed-loop VPP with an independent overvoltage shutdown, flash-backed config. CI publishes ELF/BIN/HEX.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`henols/firestarter_prom#17`](https://github.com/henols/firestarter_prom/issues/17) — henols, 2026-07-17, no labels. Depends on gh#16 (→ 999.23). Replaces an earlier STM32F411 Black Pill target (out of scope, as are RP2040/RP2350). Type: firmware — new platform.
+
+**Triage note (2026-07-27):** Largest single item in the import — a **fourth board target on a new MCU architecture**, which multiplies every board-gated bench procedure this project runs. The issue states implementation is already tracked in `henols/firestarter` **PR #46**, so check that PR's state before scoping — this may be further along than a backlog stub implies. Note the closed-loop DAC VPP control is a genuine capability change (today's VPP is a hand-set pot, per `feedback_operator_adjusts_pot_solo`) and would supersede part of queued v1.25.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+---
 
 ### v1.14 — Feasible-Gap Implementation (✅ PROMOTED 2026-06-18 → active milestone, Phases 77–80)
 
@@ -1563,7 +1806,9 @@ Plans:
      2026-06-10 — moved out of Backlog into the v1.11 milestone section above. Full detail in
      the v1.11 archive: .planning/milestones/v1.11-ROADMAP.md. -->
 
-_Backlog items 999.1 / 999.2 are firmware bench-investigation items (Phase 54 UAT origin) — promote with `/gsd-review-backlog` when bench hardware is available._
+_**Backlog reviewed 2026-07-27** (`/gsd-review-backlog`, run with no active milestone — v1.21 closed the same day). All three open items re-verified against current code and **all three kept; none promoted, none removed**: **999.1** absorbed by v1.25 (fold into that requirement set, don't promote standalone — the `CONFIG_VERSION` bump would collide), **999.2** still open + unverified (Phase 115-07's uno328pb bench pass was smoke-only, no program cycle), **999.3** still live (the 2026-06-02 comm-mode flush predates the symptom) and cross-linked to v1.22. 999.1 / 999.2 remain firmware bench-investigation items (Phase 54 UAT origin)._
+
+_**GitHub import 2026-07-27** (same session): all 17 open `henols/firestarter_prom` issues captured as **999.8–999.24** — see `## Backlog — imported from GitHub` above for the per-item stubs and the six cross-cutting triage findings (FUT-08 duplicate, 27C1024 infeasibility, `0x07` UV evidence gap, the gh#8-vs-v1.21 `dev test` conflict, rename blast radius, PR-only-`main` vs the GSD close flow). **Backlog now holds 20 open items** (999.1–999.3 + 999.8–999.24); 999.4–999.7 were promoted to v1.14._
 
 <!-- Phase 70 (v1.11 + v1.12 DB-Pipeline Integration for Beta Merge) shipped as part of v1.12
      on 2026-06-16 — inserted for the beta merge, not a backlog item. Full detail in the v1.12
