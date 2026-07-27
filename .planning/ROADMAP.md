@@ -387,9 +387,9 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 115-05-PLAN.md — Uno bench: fresh-venv install → `fw -i` flash → `fw`/`hw` smoke + evidence record (HARD gate) [Wave 4]
-- [ ] 115-06-PLAN.md — Leonardo bench: fresh-venv install → `fw -i` flash → `fw`/`hw` smoke + evidence record (HARD gate) [Wave 4]
-- [ ] 115-07-PLAN.md — uno328pb bench: full chain + evidence record (best-effort/advisory D-05) [Wave 4]
+- [x] 115-05-PLAN.md — Uno bench: fresh-venv install → `fw -i` flash → `fw`/`hw` smoke + evidence record (HARD gate) [Wave 4]
+- [x] 115-06-PLAN.md — Leonardo bench: fresh-venv install → `fw -i` flash → `fw`/`hw` smoke + evidence record (HARD gate) [Wave 4]
+- [x] 115-07-PLAN.md — uno328pb bench: full chain + evidence record (best-effort/advisory D-05) [Wave 4]
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
