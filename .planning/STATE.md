@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — Community Chip-Validation Command
-current_phase: 115
-status: executing
+current_phase: 21
+status: Awaiting next milestone
 stopped_at: Phase 115 context gathered
-last_updated: "2026-07-27T08:57:05.384Z"
+last_updated: "2026-07-27T09:08:39.130Z"
 last_activity: 2026-07-27
-last_activity_desc: Phase 115 complete
+last_activity_desc: Milestone v1.21 completed and archived
 progress:
   total_phases: 9
   completed_phases: 9
@@ -24,12 +24,10 @@ current_phase_name: beta-channel-install-and-firmware-flash-bench-validation-for
 
 ## Current Position
 
-Phase: 115
-Plan: Not started
-Status: Executing Phase 115
-Last activity: 2026-07-27 — Phase 115 complete
-
-<!-- NOTE: the 114.1→115 `phase.complete` transition landed CORRECTLY on 2026-07-10 (115 is the first `[ ]` roadmap checkbox and its dir exists on disk), unlike the recurring mis-advance seen at 113→114 and 114→114.1 (both had a dir-less next phase). Frontmatter name/status still needed hand-correction (`close`/`verifying` → real slug/ready-to-plan). -->
+Phase: Milestone v1.21 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-07-27 — Milestone v1.21 completed and archived
 
 ## Project Reference
 
@@ -84,6 +82,12 @@ Detail: `.planning/ROADMAP.md` §v1.21.
 | LEGACY-01 (v1.20 v2) | `FLAG_VPE_AS_VPP (0x10)` removal if confirmed unused | deferred to v2 | Operator scoped v1.20 to the `mem_type` axis only, not the broader vestige sweep. |
 | LEGACY-02 (v1.20 v2) | `EPROM_LEGACY` (0x0B) label rename + remaining "legacy fallback" prose scrub | deferred to v2 | Naming, not the dispatch axis; do after v1.20 lands. |
 | release-gate | Lockstep beta cut `3.0.0b11` + gitlink bump | OPERATOR-GATED | Standing v1.11–v1.20 policy; gitlinks PINNED. |
+
+### Deferred Items — acknowledged at v1.21 milestone close (2026-07-27)
+
+Close type: **override_closeout** — all v1.21 phases (108–115) are `phase_complete` + `verification_status: passed` (Phase 115 verified 5/5), but `audit-open` reports 14 open artifact items, so the close is recorded as an override with the items acknowledged-and-deferred (operator: "Acknowledge & proceed"). **None originate in v1.21 (Phases 108–115)** — they are the identical pre-existing cross-milestone carry-forwards re-confirmed at the v1.18/v1.19/v1.20 closes (see the v1.20 table below for the full item list; unchanged by this VALIDATION+DOCS milestone). Known verification overrides: 14.
+
+**Resolved this milestone (was OPERATOR-GATED at v1.20 close):** the `release-gate` carry-forward — the lockstep `3.0.0b11` beta cut is now PUBLISHED on both channels (PyPI + GitHub prerelease) and the meta gitlinks are bumped off PINNED-b10 to the b11 commits (Phase 115).
 
 ### Deferred Items — acknowledged at v1.20 milestone close (2026-07-02)
 
@@ -184,9 +188,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 ## Operator Next Steps
 
-- Phases 108–114.1 complete (8/9). Next: plan Phase 115 (close) with `/gsd-plan-phase 115` — Beta Install & Firmware-Flash Bench Validation (ONBOARD-01..04). Hardware-gated + operator-witnessed (Phase-111 shape); Step 0 verifies the beta is public on BOTH channels (PyPI `--pre` + GitHub prerelease with `.hex` assets) or surfaces a publish-first blocker — note gitlinks are still PINNED at b10 and the 3.0.0b11 lockstep cut remains operator-gated, so the publish-first blocker is the likely Step-0 outcome to resolve first.
-- Phase 114.1 closed 2026-07-10: SAFE-04 absent-chip hard-fail guard in `dev_test` + case-A/case-B tests (TestAbsentChipHardFail); verifier independently reproduced RED→GREEN by stripping/restoring the guard; todo `dev-test-hard-fail-unknown-chip` auto-closed.
-- Phase 112 UAT closed 2026-07-03: Test 1 (SC2 measured-voltage bench, Leonardo + Rev 2.0, W27C512) PASS — voltage rows render with plausible rail values (see `chip-test/dev-test-w27c512.md`); Test 2 (interactive provenance prompts) resolved-by-descope in 112-04 and re-verified 9/9, recorded as pass.
+- Start the next milestone with /gsd-new-milestone
 
 ## Decisions
 
