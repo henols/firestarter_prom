@@ -393,7 +393,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 115-08-PLAN.md — Finalize onboarding doc from bench findings (D-04) + meta gitlink bump off PINNED b10 → b11 (D-01) [Wave 5]
+- [x] 115-08-PLAN.md — Finalize onboarding doc from bench findings (D-04) + meta gitlink bump off PINNED b10 → b11 (D-01) [Wave 5]
 
 **UI hint**: no
 
