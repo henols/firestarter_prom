@@ -176,7 +176,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 Plans:
 **Wave 1**
 
-- [ ] 116-01-PLAN.md — Wave 1 · fw · Fork the v1.22 branch off `beta` in both sub-repos (F10), extend `host_stubs_common.inc` with the `HOST_STUBS_REAL_REGISTER_UTILS` ordered-strobe recorder (TRACE-01, D-05/D-07), prove flag-off byte-exactness at 80/80, and land TRACE-03's `protocol != 0x0D` → `0xBB` negative
+- [x] 116-01-PLAN.md — Wave 1 · fw · Fork the v1.22 branch off `beta` in both sub-repos (F10), extend `host_stubs_common.inc` with the `HOST_STUBS_REAL_REGISTER_UTILS` ordered-strobe recorder (TRACE-01, D-05/D-07), prove flag-off byte-exactness at 80/80, and land TRACE-03's `protocol != 0x0D` → `0xBB` negative
 
 **Wave 2** *(blocked on Wave 1 completion)*
 

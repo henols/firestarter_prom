@@ -136,3 +136,12 @@ None - no external service configuration required.
 ---
 *Phase: 116-ground-truth-trace-harness*
 *Completed: 2026-07-27*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/116-ground-truth-trace-harness/116-01-SUMMARY.md`
+- FOUND: `firestarter/test/native/avr/_shared/host_stubs_common.inc`
+- FOUND: `firestarter/test/native/avr/test_not_implemented/test_not_implemented.cpp`
+- FOUND commit `e197779` (firestarter): feat(116-01) strobe recorder
+- FOUND commit `f604278` (firestarter): test(116-01) TRACE-03d
+- FOUND commit `f946785` (meta): docs(116-01) plan summary

@@ -1,19 +1,19 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.22
-milestone_name: AT28C Software Data Protection Lifecycle
+milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 116
 current_phase_name: GROUND TRUTH + TRACE HARNESS
 status: executing
 stopped_at: Phase 116 planned (7 plans, 5 waves) — ready for /gsd-execute-phase 116
-last_updated: "2026-07-27T20:36:35.000Z"
+last_updated: "2026-07-27T20:47:44.959Z"
 last_activity: 2026-07-27
-last_activity_desc: Phase 116 planned — 7 plans / 5 waves, plan-checker PASSED, coverage 6/6 reqs + 14/14 decisions
+last_activity_desc: Phase 116 execution started
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 7
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 ---
 
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 116 — GROUND TRUTH + TRACE HARNESS (planned: 7 plans, 5 waves)
-Plan: 0 of 7
+Phase: 116 (GROUND TRUTH + TRACE HARNESS) — EXECUTING
+Plan: 2 of 7
 Status: Ready to execute
-Last activity: 2026-07-27 — Phase 116 planned; plan-checker VERIFICATION PASSED (1 non-blocking WARNING); requirements 6/6, decisions 14/14
+Last activity: 2026-07-27 — Phase 116 execution started
 
 <!-- NOTE: `query state.planned-phase` returned `"updated": []` and did not write this block or `progress.total_plans` — hand-corrected. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. -->
 
@@ -47,7 +47,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-27 — v1.22 milestone-start footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.22 completes the write-protection lifecycle on protocol `0x0D` without adding a second dispatch axis — `handle->protocol` stays the sole dispatch key; `handle->cmd` is extended only as an operation selector *inside* the existing `0x0D` handler, exactly as v1.13 Phase 74 extended `flash_5v_page.cpp`.
 
-**Current focus:** v1.22 — Phase 116 (GROUND TRUTH + TRACE HARNESS) planned, 7 plans / 5 waves; next step is `/gsd-execute-phase 116`. Wave 1 creates the `v1.22-*` branch off `beta` in both sub-repos (verified: neither sub-repo has one yet; both sit on `v1.21-community-chip-validation-command`; `beta` contains the v1.21 tip in both — firmware `ecf35ea`, host `7c5dd13`).
+**Current focus:** Phase 116 — GROUND TRUTH + TRACE HARNESS
 
 ## Milestone Context (v1.22)
 
@@ -318,6 +318,9 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase 115]: Doc structure mirrors community-validation.md voice (audience/purpose lead, what-this-is-NOT framing, tables, fenced commands)
 - [Phase 115]: 328PB-Uno guidance: try -b uno328pb first, fall back to -b uno only on avrdude signature-check rejection - never guess/force
 - [Phase 115]: README gets exactly one pointer link; per-board matrix NOT duplicated (D-09)
+- [Phase ?]: Both sub-repos re-verified merge-base ancestry live before forking v1.22 off beta (Task 1, F10) — 0 commits ahead at creation, no pre-existing operator work destroyed
+- [Phase ?]: HOST_STUBS_REAL_REGISTER_UTILS hooks exactly rurp_write_data_buffer + rurp_set_control_pin — rurp_shield.h's single pin namespace covers latch strobes AND /CE+/OE with no third hook
+- [Phase ?]: s_strobe_overflow is an explicit saturation flag (not silent drop), and TRACE-01b baseline is pinned at 80/80 before TRACE-03d raises it to 82/82
 
 ## Performance Metrics
 
@@ -368,9 +371,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 114 P03 | 30min | 2 tasks | 2 files |
 | Phase 114.1 P01 | 12min | 2 tasks | 2 files |
 | Phase 115 P01 | 5min | 2 tasks | 2 files |
+| Phase 116 P01 | 25min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-27T20:36:35.000Z
+**Last session:** 2026-07-27T20:46:48.073Z
 **Stopped at:** Phase 116 planned (7 plans, 5 waves) — plan-checker PASSED
 **Resume file:** .planning/phases/116-ground-truth-trace-harness/116-01-PLAN.md
