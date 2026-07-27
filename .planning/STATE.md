@@ -5,15 +5,15 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 116
 current_phase_name: GROUND TRUTH + TRACE HARNESS
 status: executing
-stopped_at: Phase 116 planned (7 plans, 5 waves) — ready for /gsd-execute-phase 116
-last_updated: "2026-07-27T21:09:59.040Z"
+stopped_at: Completed 116-04-PLAN.md
+last_updated: "2026-07-27T21:18:29.783Z"
 last_activity: 2026-07-27
 last_activity_desc: Phase 116 execution started
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 7
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 116 (GROUND TRUTH + TRACE HARNESS) — EXECUTING
-Plan: 4 of 7
+Plan: 5 of 7
 Status: Ready to execute
 Last activity: 2026-07-27 — Phase 116 execution started
 
@@ -326,6 +326,8 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - [Phase 116-03]: Reworded 'no FW_ABSENT-style skipif' to 'no FW_ABSENT-style skip marker' in test_sdp_db_invariant.py's docstring so the literal grep -c 'skipif' acceptance criterion returns 0 while preserving the meaning (Phase 107-01 wording-fix precedent)
 - [Phase 116-03]: Factored shared _select_0x0d_chips/_assert_chip_id_check_false helpers so the TRACE-05 non-vacuity test exercises the same code path as the real-DB assertion, not a parallel reimplementation
 - [Phase 116-03]: Brace-scoped {address, byte} extraction (not a file-wide regex) for the unlock-table parity gate, because eeprom_28c.cpp has a non-initializer call site (eeprom28c_wait_for_write) using the identical literal bytes that would false-positive a loose pattern
+- [Phase ?]: [Phase 116-04]: Deny list implemented as one regex covering every logging_id.h LOG_* macro rather than a hand-enumerated name list
+- [Phase ?]: [Phase 116-04]: Window scoped strictly to eeprom28c_write_init's brace-matched body so the out-of-window control is correct by construction
 
 ## Performance Metrics
 
@@ -379,9 +381,10 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | Phase 116 P01 | 25min | 3 tasks | 2 files |
 | Phase 116 P02 | 30min | 3 tasks | 3 files |
 | Phase 116 P03 | 25min | 2 tasks | 2 files |
+| Phase 116 P04 | 20min | 2 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-07-27T21:09:21.300Z
-**Stopped at:** Phase 116 planned (7 plans, 5 waves) — plan-checker PASSED
-**Resume file:** .planning/phases/116-ground-truth-trace-harness/116-01-PLAN.md
+**Last session:** 2026-07-27T21:18:29.771Z
+**Stopped at:** Completed 116-04-PLAN.md
+**Resume file:** .planning/phases/116-ground-truth-trace-harness/116-05-PLAN.md
