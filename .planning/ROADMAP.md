@@ -222,7 +222,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1; refuses to start if the RED capture is not in the committed record)*
 
-- [ ] 117-02-PLAN.md — Wave 2 · fw · D-03 **commit 2**: `eeprom28c_emit_command_sequence` on `handle->firestarter_set_data` replacing `flash_execute_command` (FIX-01, closing the A16-A18 gap for the 18 chips ≥64 KB as a by-product — FIX-03); the inverted `(0x5555, 0x20)` read-back deleted for an unconditional `AT28C_TWC_MAX_MS` wait plus a bounded, silent DQ6 toggle poll (FIX-02, D-04/D-05/D-06); one explicit `rurp_set_data_output()` (D-12); `EEPROM_SDP_DISABLE` given external linkage for FIX-05's guard (D-10); `PAGE_SIZE 64` documented as a conservative floor (D-13); suite flips GREEN and the GREEN capture lands beside the RED one. (FIX-01, FIX-02, FIX-03)
+- [x] 117-02-PLAN.md — Wave 2 · fw · D-03 **commit 2**: `eeprom28c_emit_command_sequence` on `handle->firestarter_set_data` replacing `flash_execute_command` (FIX-01, closing the A16-A18 gap for the 18 chips ≥64 KB as a by-product — FIX-03); the inverted `(0x5555, 0x20)` read-back deleted for an unconditional `AT28C_TWC_MAX_MS` wait plus a bounded, silent DQ6 toggle poll (FIX-02, D-04/D-05/D-06); one explicit `rurp_set_data_output()` (D-12); `EEPROM_SDP_DISABLE` given external linkage for FIX-05's guard (D-10); `PAGE_SIZE 64` documented as a conservative floor (D-13); suite flips GREEN and the GREEN capture lands beside the RED one. (FIX-01, FIX-02, FIX-03)
 
 **Wave 3** *(blocked on Wave 2)*
 

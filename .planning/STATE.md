@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 117
 current_phase_name: fix-remap-aware-0x0d-emitter-honest-completion-signal
 status: executing
-stopped_at: Completed 117-01-PLAN.md — D-03 commit 1 (oracle enabled, RED against unfixed tree). Ready for 117-02.
-last_updated: "2026-07-28T09:51:21.687Z"
+stopped_at: Completed 117-02-PLAN.md — D-03 commit 2 (remap-aware emitter + honest completion signal), suite flipped 8/8 GREEN. FIX-01/02/03 Complete. Ready for 117-03.
+last_updated: "2026-07-28T10:04:35.902Z"
 last_activity: 2026-07-28
-last_activity_desc: Phase 117 Plan 01 complete (D-03 commit 1) — oracle enabled, RED against unfixed tree
+last_activity_desc: Phase 117 Plan 02 complete (D-03 commit 2) — FIX-01/02/03 Complete
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 12
-  completed_plans: 8
-  percent: 14
+  completed_plans: 9
+  percent: 75
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 117 (fix-remap-aware-0x0d-emitter-honest-completion-signal) — EXECUTING
-Plan: 2 of 5
-Status: Executing Phase 117 — Plan 01 complete, Plan 02 next
-Last activity: 2026-07-28 — Phase 117 Plan 01 complete (D-03 commit 1)
+Plan: 3 of 5
+Status: Executing Phase 117 — Plan 02 complete (FIX-01/02/03 Complete), Plan 03 next
+Last activity: 2026-07-28 — Phase 117 Plan 02 complete (D-03 commit 2, remap-aware emitter + honest completion signal, suite flipped 8/8 GREEN)
 
 <!-- NOTE: `query state.planned-phase` under-writes this file. Phase 116 planning: returned `"updated": []`. Phase 117 planning: returned `"updated": ["Status"]` — it wrote only the body `Status:` line and left `status`, `stopped_at`, `last_activity_desc`, and `progress.total_plans` in the frontmatter stale. Hand-corrected both times. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. -->
 
@@ -365,6 +365,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: Datasheet audit recorded as an honest present/unconfirmed/absent finding rather than a general statement (Phase 116 Plan 07)
 - [Phase ?]: Task 3 human-verify checkpoint auto-approved per this run's explicit orchestrator auto-mode instruction; self-review against RESEARCH Pitfall 7 and the 66-of-84 figure performed directly (Phase 116 Plan 07)
 - [Phase 117-01]: Followed 117-CONTEXT.md D-01/D-02/D-03 exactly: un-mocked set_data, flipped+reordered five response-code assertions, added permanent case 8, captured the edited-and-RED intermediate before any production change; ticked no requirement (oracle half only, closes jointly with 117-02)
+- [Phase 117-02]: eeprom28c_write_init rebuilt on a 0x0D-local remap-aware eeprom28c_emit_command_sequence driven through handle->firestarter_set_data, closing FIX-01 and FIX-03 (A16-A18 staleness) as one routing change — flash_execute_command bypasses handle->bus_config and CONTROL_REGISTER entirely; memory_set_data applies the full remap and rewrites CONTROL on every address change
+- [Phase 117-02]: Inverted (0x5555, 0x20) read-back deleted outright; replaced by eeprom28c_wait_for_sdp_completion (t_WC wait + bounded silent DQ6 toggle poll, never writes response_code) closing FIX-02 — Both AT28C datasheets state the command sequence byte is never written to the device, so the old check could only pass when the sequence was NOT recognised
+- [Phase 117-02]: Reworded 3 in-code comments to avoid literal-substring collisions with non-comment-filtered acceptance-criteria greps (rurp_set_data_output exactly 1; eeprom28c_wait_for_write(handle, 0x5555 exactly 0) — Meaning fully preserved; matches the project's established pattern of wording around literal-substring gates rather than weakening them
 
 ## Performance Metrics
 
@@ -423,9 +426,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 116 P06 | 65min | 2 tasks | 4 files |
 | Phase 116 P07 | 45min | 3 tasks | 2 files |
 | Phase 117 P01 | 12min | 3 tasks | 3 files |
+| Phase 117 P02 | 15min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-28T09:51:21.675Z
-**Stopped at:** Completed 117-01-PLAN.md — D-03 commit 1 (oracle enabled, RED against unfixed tree). Ready for 117-02.
+**Last session:** 2026-07-28T10:04:35.890Z
+**Stopped at:** Completed 117-02-PLAN.md — D-03 commit 2 (remap-aware emitter + honest completion signal), suite flipped 8/8 GREEN. FIX-01/02/03 Complete. Ready for 117-03.
 **Resume file:** 
+None
