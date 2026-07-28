@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 117
 current_phase_name: fix-remap-aware-0x0d-emitter-honest-completion-signal
 status: executing
-stopped_at: Completed 117-03-PLAN.md — FIX-06 conflation fix (DQ7-complement completion poll split from always-on data-landed read-back), planted-partial-write contrast + isolation control + page-boundary case, anti-hollow proof recorded. FIX-06 Complete. Ready for 117-04.
-last_updated: "2026-07-28T10:20:44.187Z"
+stopped_at: Completed 117-04-PLAN.md — FIX-05 terminal-byte + table-identity guards (production array via extern, planted-violation counterpart, anti-hollow proof recorded). FIX-05 Complete. Ready for 117-05 (FIX-04 close).
+last_updated: "2026-07-28T10:34:16.680Z"
 last_activity: 2026-07-28
-last_activity_desc: Phase 117 Plan 03 complete (FIX-06 conflation fix, planted-partial-write contrast + isolation control + page-boundary case, anti-hollow proof recorded)
+last_activity_desc: "Phase 117 Plan 04 complete (FIX-05 terminal-byte + table-identity guards on the production 0x0D table, planted-violation counterpart, anti-hollow proof recorded)"
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 12
-  completed_plans: 10
-  percent: 83
+  completed_plans: 11
+  percent: 92
 ---
 
 # Project State
@@ -25,11 +25,11 @@ progress:
 ## Current Position
 
 Phase: 117 (fix-remap-aware-0x0d-emitter-honest-completion-signal) — EXECUTING
-Plan: 4 of 5
-Status: Executing Phase 117 — Plan 03 complete (FIX-06 Complete), Plan 04 next
-Last activity: 2026-07-28 — Phase 117 Plan 03 complete (FIX-06 conflation fix: DQ7-complement completion poll split from always-on data-landed read-back, planted-partial-write contrast + isolation control + page-boundary case, anti-hollow proof recorded)
+Plan: 5 of 5
+Status: Executing Phase 117 — Plan 04 complete (FIX-05 Complete), Plan 05 next
+Last activity: 2026-07-28 — Phase 117 Plan 04 complete (FIX-05 terminal-byte + table-identity guards on the production 0x0D table, planted-violation counterpart, anti-hollow proof recorded)
 
-<!-- NOTE: `query state.planned-phase` under-writes this file. Phase 116 planning: returned `"updated": []`. Phase 117 planning: returned `"updated": ["Status"]` — it wrote only the body `Status:` line and left `status`, `stopped_at`, `last_activity_desc`, and `progress.total_plans` in the frontmatter stale. Hand-corrected both times. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. -->
+<!-- NOTE: `query state.planned-phase` under-writes this file. Phase 116 planning: returned `"updated": []`. Phase 117 planning: returned `"updated": ["Status"]` — it wrote only the body `Status:` line and left `status`, `stopped_at`, `last_activity_desc`, and `progress.total_plans` in the frontmatter stale. Hand-corrected both times. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. ALSO OBSERVED (117-04): `state.advance-plan` + `state.record-session` similarly leave the frontmatter `progress.percent` and body `Status`/`Last activity` lines stale (percent dropped to 14 instead of 92; Status/Last-activity still cited Plan 03) — hand-corrected again. -->
 
 **Phase 117 plan graph** (planned 2026-07-28 — firmware-only, `firestarter/` sub-repo; `firestarter_app/` untouched):
 
@@ -38,7 +38,7 @@ Last activity: 2026-07-28 — Phase 117 Plan 03 complete (FIX-06 conflation fix:
 | 1 | 117-01 | FIX-01, FIX-02 *(oracle half — closes neither)* | D-03 **commit 1**: `test_filter` line, `set_data` un-mock ×4 (D-01), five assertion flips + new case 8 (D-02), cases 1-3 renamed, verbatim RED capture of the *edited* suite against the unfixed tree (expected 8/8 fail). No production file touched. |
 | 2 | 117-02 | FIX-01, FIX-02, FIX-03 | D-03 **commit 2**: `eeprom28c_emit_command_sequence` on `handle->firestarter_set_data`; inverted `(0x5555,0x20)` read-back deleted for `AT28C_TWC_MAX_MS` wait + bounded silent DQ6 poll; explicit `rurp_set_data_output()` (D-12); `EEPROM_SDP_DISABLE` external linkage (D-10); `PAGE_SIZE 64` documented (D-13); suite flips GREEN |
 | 3 | 117-03 | FIX-06 | FIX-06 as a **conflation** fix: `eeprom28c_wait_for_page_write` (DQ7-complement) split from `eeprom28c_verify_page_readback`; `eeprom28c_wait_for_write` deleted; 3 `test_val_eeprom28c` cases incl. the executable old-vs-new contrast + isolation control (D-07/08/09) |
-| 4 | 117-04 | FIX-05 | Four-part terminal-byte + table-identity guard on the **production** array in `test_sdp_harness` (D-11), plus planted-violation counterpart |
+| 4 | 117-04 | FIX-05 | **DONE.** Terminal-byte + table-identity guard on the **production** array in `test_sdp_harness` (D-11), plus planted-violation counterpart. `353ce8a`. |
 | 5 | 117-05 | FIX-04 | Six frozen artifacts proven byte-identical by literal git blob SHA vs phase base `ada4bdc7`; full suite, both board builds, flash delta, host-untouched, validation-ceiling record |
 
 Strictly sequential (not merely wave-2-onward): every plan invokes `pio` against the single shared `firestarter/.pio/build/` tree, so concurrent runs would corrupt each other's outputs.
@@ -370,6 +370,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 117-02]: Reworded 3 in-code comments to avoid literal-substring collisions with non-comment-filtered acceptance-criteria greps (rurp_set_data_output exactly 1; eeprom28c_wait_for_write(handle, 0x5555 exactly 0) — Meaning fully preserved; matches the project's established pattern of wording around literal-substring gates rather than weakening them
 - [Phase 117-03]: FIX-06: eeprom28c_write_execute's conflated eeprom28c_wait_for_write split into eeprom28c_wait_for_page_write (DQ7-complement completion poll) and eeprom28c_verify_page_readback (always-on per-byte data-landed read-back over the current flush window, failing-address attribution via MSG_ERR_VERIFY); conflated function deleted outright
 - [Phase 117-03]: Anti-hollow proof executed: read-back temporarily removed, both planted-violation cases went RED and the isolation control stayed GREEN, recorded verbatim in 117-03-SUMMARY.md; temporary revert never staged/committed (confirmed byte-identical restore)
+- [Phase 117-04]: Followed 117-CONTEXT.md D-10/D-11 exactly: FIX-05 guard lives in test_sdp_harness, reads the production EEPROM_SDP_DISABLE array via extern (plan 117-02's linkage grant), and the planted-violation counterpart reuses TEST_UNLOCK_MUTATED_TERMINAL rather than adding a second copy — Matches the plan's discretion resolutions and D-11's cross-guard requirement
+- [Phase 117-04]: Reworded two in-code comment mentions of the two new test-case names to avoid a third literal occurrence, since acceptance criteria required each name to appear exactly twice (definition + RUN_TEST) — Meaning preserved (both comments still cite FIX-05/D-11); mirrors 117-02's identical literal-substring-grep adjustment pattern
 
 ## Performance Metrics
 
@@ -430,10 +432,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 117 P01 | 12min | 3 tasks | 3 files |
 | Phase 117 P02 | 15min | 3 tasks | 2 files |
 | Phase 117 P03 | 20min | 2 tasks | 2 files |
+| Phase 117 P04 | 25min | 1 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-07-28T10:20:11.248Z
-**Stopped at:** Completed 117-02-PLAN.md — D-03 commit 2 (remap-aware emitter + honest completion signal), suite flipped 8/8 GREEN. FIX-01/02/03 Complete. Ready for 117-03.
+**Last session:** 2026-07-28T10:34:16.666Z
+**Stopped at:** Completed 117-04-PLAN.md — FIX-05 terminal-byte + table-identity guards (production array via extern, planted-violation counterpart, anti-hollow proof recorded). FIX-05 Complete. Ready for 117-05 (FIX-04 close).
 **Resume file:** 
 None

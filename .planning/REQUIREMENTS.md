@@ -50,7 +50,7 @@ The promoting backlog note (999.19/999.18) asserted protocol `0x0D` "has no SDP 
 - [x] **FIX-02**: The inverted `(0x5555, 0x20)` read-back is **deleted, not salvaged**, and replaced by a `t_WC` wait and/or toggle-bit poll — a success condition that is not anti-correlated with success
 - [x] **FIX-03**: Upper-address staleness (A16–A18 retaining whatever the previous operation left) is closed for the **18 chips ≥64 KB**, as a by-product of routing through the full remap
 - [ ] **FIX-04**: `flash_utils.{h,cpp}`, `flash_5v_page.cpp` and `flash_nor_unlock.cpp` are **byte-untouched**, and the `0x05`/`0x06`/`0x07`/`0x10`/SRAM traces stay byte-identical
-- [ ] **FIX-05**: Terminal-byte constant guards pin each table's last byte and assert SDP-disable (`…0x20`) and `FLASH_ERASE` (`…0x10`) are not the same object — the one-nibble chip-erase hazard
+- [x] **FIX-05**: Terminal-byte constant guards pin each table's last byte and assert SDP-disable (`…0x20`) and `FLASH_ERASE` (`…0x10`) are not the same object — the one-nibble chip-erase hazard
 - [x] **FIX-06**: Per-page write polling is corrected so a **partial write cannot report success** — today `eeprom28c_write_execute` polls 1 byte in 64, the more likely root cause of gh#11's symptom than SDP
 
 ### Observability (make the unlock visible and declinable)
@@ -160,7 +160,7 @@ Filled during roadmap creation (`/gsd-new-project` → roadmapper, 2026-07-27). 
 | FIX-02 | Phase 117 | Complete |
 | FIX-03 | Phase 117 | Complete |
 | FIX-04 | Phase 117 | Pending |
-| FIX-05 | Phase 117 | Pending |
+| FIX-05 | Phase 117 | Complete |
 | FIX-06 | Phase 117 | Complete |
 | OBS-01 | Phase 118 | Pending |
 | OBS-02 | Phase 118 | Pending |

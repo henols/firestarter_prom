@@ -230,7 +230,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3)*
 
-- [ ] 117-04-PLAN.md — Wave 4 · fw · FIX-05 constant-level guard in the always-green `test_sdp_harness`, reading the **production** `EEPROM_SDP_DISABLE` array: terminal bytes pinned `0x20` vs `0x10`, the two tables asserted distinct objects differing at exactly one field, and byte-identity with `FLASH_DISABLE_WRITE_PROTECTION` so D-10's deliberate duplication cannot silently diverge (D-11); paired planted-violation case plus a recorded mutate-and-observe RED run. (FIX-05)
+- [x] 117-04-PLAN.md — Wave 4 · fw · FIX-05 constant-level guard in the always-green `test_sdp_harness`, reading the **production** `EEPROM_SDP_DISABLE` array: terminal bytes pinned `0x20` vs `0x10`, the two tables asserted distinct objects differing at exactly one field, and byte-identity with `FLASH_DISABLE_WRITE_PROTECTION` so D-10's deliberate duplication cannot silently diverge (D-11); paired planted-violation case plus a recorded mutate-and-observe RED run. (FIX-05)
 
 **Wave 5** *(blocked on Wave 4)*
 
