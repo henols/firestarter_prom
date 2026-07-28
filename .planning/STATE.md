@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
-current_phase: 119
-current_phase_name: LOCK — SDP-enable + command surface (FW half)
-status: verifying
-stopped_at: Completed 119-11-PLAN.md
-last_updated: "2026-07-28T21:36:09.480Z"
+current_phase: 120
+current_phase_name: HOST — CLI surface, wire emission, capability refusal
+status: Phase 119 COMPLETE (verification passed 6/6) — ready for /gsd-discuss-phase 120
+stopped_at: Phase 119 complete and verified
+last_updated: "2026-07-28T21:50:53.156Z"
 last_activity: 2026-07-28
-last_activity_desc: Completed 119-11-PLAN.md
+last_activity_desc: Phase 119 complete, transitioned to Phase 120
 progress:
   total_phases: 7
   completed_phases: 4
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 119 (LOCK — SDP-enable + command surface (FW half)) — EXECUTING
-Plan: 11 of 11
+Phase: 120 — HOST — CLI surface, wire emission, capability refusal
+Plan: Not started
 Status: Phase complete — ready for verification (Plan 119-11 complete: three-board page-load bench measurement recorded in 119-MEASUREMENT.md; no requirement re-opened, LOCK-01 through LOCK-06 all Complete, DEVTEST-01 Pending)
-Last activity: 2026-07-28 — Completed 119-11-PLAN.md
+Last activity: 2026-07-28 — Phase 119 complete, transitioned to Phase 120
 
 > **⚠ Phase 119 planning note — CONTEXT.md's D-NN bullets were re-formatted (`c90b76d`).** The blocking decision-coverage gate could not parse `119-CONTEXT.md`: four bullets tripped the parse-miss guard (three wrapped bold labels — D-01/D-14/D-17 — plus D-06's second colon inside the label), and seven more (D-05/07/08/10/15/16/18) were **silently invisible** because the `⚠` glyph sat inside the bold run *before* the ID, which the parser's `**D-` anchor requires. Before the fix the gate tracked only **8 of 19** decisions and returned `reason: could-not-parse`. Formatting-only repair: `⚠` moved to just after the colon, wrapped labels reflowed onto one line, D-06's second colon → em-dash. Word-level diff confirmed zero wording change. **Applies to every future phase in this project: `- **D-NN: text**` must close its bold run on ONE line, must contain at most one colon before the closing `**`, and must not open with a glyph.**
 
