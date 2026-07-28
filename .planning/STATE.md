@@ -4,17 +4,17 @@ milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 118
 current_phase_name: OBSERVE — auto-unlock visible + opt-out-able (FW half)
-status: executing
-stopped_at: Completed 118-06-PLAN.md
-last_updated: "2026-07-28T15:19:41.538Z"
+status: ready_for_verification
+stopped_at: Completed 118-07-PLAN.md
+last_updated: "2026-07-28T15:31:57.878Z"
 last_activity: 2026-07-28
-last_activity_desc: Completed Phase 118 Plan 06 (non-regression sweep; OBS-01/OBS-05 Complete)
+last_activity_desc: Completed Phase 118 Plan 07 (OBS-04 Leonardo SDP emit duration measured: 572us vs 600us budget; all five OBS requirements Complete; Phase 118 requirement-complete)
 progress:
   total_phases: 7
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 19
-  completed_plans: 18
-  percent: 29
+  completed_plans: 19
+  percent: 43
 ---
 
 # Project State
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 118 (OBSERVE — auto-unlock visible + opt-out-able (FW half)) — EXECUTING
-Plan: 7 of 7
-Status: Plan 118-06 complete — full three-repo non-regression sweep (native 112/112, both board builds +152 B flash re-derived vs f8d10a5, all 9 CORRECTION-4 gate rows PASS, host pytest 974 passed/1 pre-existing failure, catalog three-way identity clean, 3 _shared/ blob SHAs re-derived identical); 118-NONREGRESSION.md written enumerating OBS-05's 4-id serial-channel exception; OBS-01/OBS-05 marked Complete
-Last activity: 2026-07-28 — Completed Phase 118 Plan 06
+Phase: 118 (OBSERVE — auto-unlock visible + opt-out-able (FW half)) — READY FOR VERIFICATION
+Plan: 7 of 7 (all complete)
+Status: Plan 118-07 complete — one real Leonardo run (`firestarter write at28c256 --force`) against an empty socket, port identity verified by command (`/dev/ttyACM0` = leonardo), build matched 118-NONREGRESSION.md's figures (Flash 25680/28672, RAM 1998/2560) before upload; measured SDP-disable emit duration 572us against the 600us (6x AT28C_TBLC_MAX_US) budget, MSG_WARN_SDP_TBLC_EXCEEDED confirmed absent; 118-MEASUREMENT.md written with full command/identity/build provenance, reviewed line-by-line against the validation ceiling (0x0D stays UNVERIFIED); OBS-04 marked Complete, closing all five OBS requirements. No operator checkpoint of any kind, per D-12.
+Last activity: 2026-07-28 — Completed Phase 118 Plan 07 — Phase 118 requirement-complete, all 7 plans done
 
 <!-- NOTE: `query state.planned-phase` under-writes this file. Phase 116 planning: returned `"updated": []`. Phase 117 planning: returned `"updated": ["Status"]` — it wrote only the body `Status:` line and left `status`, `stopped_at`, `last_activity_desc`, and `progress.total_plans` in the frontmatter stale. Hand-corrected both times. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. ALSO OBSERVED (117-04): `state.advance-plan` + `state.record-session` similarly leave the frontmatter `progress.percent` and body `Status`/`Last activity` lines stale (percent dropped to 14 instead of 92; Status/Last-activity still cited Plan 03) — hand-corrected again. ALSO OBSERVED (Phase 117 close): `query phase.complete 117` advanced `current_phase` to 118 correctly (the recurring jump-to-close-phase mis-advance did NOT fire), but it mangled `current_phase_name` to the bare parenthetical `FW half` (it split the roadmap title on the em-dash/parenthesis), left `status: verifying` and `stopped_at: Completed 117-05-PLAN.md` stale, and wrote a body `Status: Phase complete — ready for verification` line that contradicted the already-passed 117-VERIFICATION.md. All four hand-corrected. Verify `current_phase_name` specifically whenever a roadmap phase title contains an em-dash or a trailing parenthetical. ALSO OBSERVED (Phase 118 planning, 2026-07-28): `query state.planned-phase --phase 118 --name "…" --plans 7` returned `"updated": []` — yet it DID mutate the file: it bumped `last_updated`, overwrote `last_activity_desc` with the body `Last activity:` text, and **re-mangled `current_phase_name` from the full title down to the bare parenthetical `FW half`** (the same em-dash split as at Phase 117 close, now confirmed to fire on the planning path too), while leaving `status`, `stopped_at`, and `progress.total_plans` stale. So `"updated": []` does NOT mean "no writes" — it means the report is unreliable. Always diff STATE.md before/after the call; never trust the returned `updated` array. ALSO OBSERVED (118-01 execution, 2026-07-28): `state.record-session --stopped-at "Completed 118-01-PLAN.md"` (called during plan execution, not planning/close) reported `"updated": ["Last session","Stopped At","Resume File"]` yet ALSO silently dropped the trailing `)` off `current_phase_name` (this time truncating mid-parenthetical rather than reducing to the bare parenthetical) and reverted `progress.percent` from 68 back to 29 despite an intervening `state.update-progress` call that had correctly set it to 68 moments earlier. So this defect class fires on the plan-execution path too, not only planning/phase-complete, and a later state-mutating call can silently re-clobber a field an earlier call in the SAME session already fixed. Both hand-corrected again. ALSO OBSERVED (118-02 execution, 2026-07-28): `state.record-session --stopped-at "Completed 118-02-PLAN.md"` again dropped the trailing `)` off `current_phase_name` and again reverted `progress.percent` from 74 back to 29, despite an intervening `state.update-progress` call in the SAME session having correctly set it to 74 moments earlier — identical failure mode to 118-01. Both hand-corrected again. Pattern is now stable: always call `state.record-session` FIRST, then `state.update-progress`/`state.record-metric`/`state.add-decision` LAST, then hand-verify `current_phase_name` and `progress.percent` regardless of call order. -->
 
@@ -403,6 +403,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 118-06]: 9-row CORRECTION-4 gate table: gen_sdp_bus_config.py + its drift test as 2 rows, check_dispatch.py + build_db.py combined as 1 row (single shared disposition, no dedicated pytest)
 - [Phase 118-06]: Re-derived (not copied) both boards' phase-base flash/RAM figures via a throwaway git worktree at f8d10a5
 - [Phase 118-06]: test_no_programmer_found_* divergence recorded honestly: live serial devices ARE present this run yet the pair still passed 2/2 -- not explained by board-absence
+- [Phase 118]: OBS-04: measured Leonardo SDP-disable emit duration at 572us against a 600us (6x AT28C_TBLC_MAX_US) budget, full provenance in 118-MEASUREMENT.md; no operator checkpoint per D-12 — Milestone's only empirical result; D-13 requires raw output with provenance, kept out of PROTOCOL-LEDGER to avoid a validation-ceiling misread
+- [Phase 118]: Chip-id mismatch warning did not appear because at28c256's DB entry carries chip-id: 0 (skip ID check) -- documented as a stronger confirmation of D-01's unconditional report lines, not a deviation — at28c256 chip-id field bypasses eeprom28c_check_chip_id's early-return entirely, regardless of socket contents
 
 ## Performance Metrics
 
@@ -470,10 +472,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 118 P04 | 20min | 3 tasks | 1 files |
 | Phase 118 P05 | 55min | 3 tasks | 3 files |
 | Phase 118 P06 | 45min | 2 tasks | 2 files |
+| Phase 118 P07 | 25min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-28T15:19:41.525Z
+**Last session:** 2026-07-28T15:30:52.741Z
 **Stopped at:** Completed 118-06-PLAN.md
 **Resume file:** 
 None

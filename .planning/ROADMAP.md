@@ -282,7 +282,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 118-07-PLAN.md — One Leonardo run, measured emit duration with provenance in `118-MEASUREMENT.md` (meta)
+- [x] 118-07-PLAN.md — One Leonardo run, measured emit duration with provenance in `118-MEASUREMENT.md` (meta)
 
 **Research flag**: no — standard pattern (the codegen ritual and the AST-scan-with-planted-violation pattern both have multiple in-tree precedents).
 **UI hint**: no
