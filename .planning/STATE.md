@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 117
 current_phase_name: fix-remap-aware-0x0d-emitter-honest-completion-signal
 status: executing
-stopped_at: Completed 117-02-PLAN.md — D-03 commit 2 (remap-aware emitter + honest completion signal), suite flipped 8/8 GREEN. FIX-01/02/03 Complete. Ready for 117-03.
-last_updated: "2026-07-28T10:04:35.902Z"
+stopped_at: Completed 117-03-PLAN.md — FIX-06 conflation fix (DQ7-complement completion poll split from always-on data-landed read-back), planted-partial-write contrast + isolation control + page-boundary case, anti-hollow proof recorded. FIX-06 Complete. Ready for 117-04.
+last_updated: "2026-07-28T10:20:44.187Z"
 last_activity: 2026-07-28
-last_activity_desc: Phase 117 Plan 02 complete (D-03 commit 2) — FIX-01/02/03 Complete
+last_activity_desc: Phase 117 Plan 03 complete (FIX-06 conflation fix, planted-partial-write contrast + isolation control + page-boundary case, anti-hollow proof recorded)
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 12
-  completed_plans: 9
-  percent: 75
+  completed_plans: 10
+  percent: 83
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 117 (fix-remap-aware-0x0d-emitter-honest-completion-signal) — EXECUTING
-Plan: 3 of 5
-Status: Executing Phase 117 — Plan 02 complete (FIX-01/02/03 Complete), Plan 03 next
-Last activity: 2026-07-28 — Phase 117 Plan 02 complete (D-03 commit 2, remap-aware emitter + honest completion signal, suite flipped 8/8 GREEN)
+Plan: 4 of 5
+Status: Executing Phase 117 — Plan 03 complete (FIX-06 Complete), Plan 04 next
+Last activity: 2026-07-28 — Phase 117 Plan 03 complete (FIX-06 conflation fix: DQ7-complement completion poll split from always-on data-landed read-back, planted-partial-write contrast + isolation control + page-boundary case, anti-hollow proof recorded)
 
 <!-- NOTE: `query state.planned-phase` under-writes this file. Phase 116 planning: returned `"updated": []`. Phase 117 planning: returned `"updated": ["Status"]` — it wrote only the body `Status:` line and left `status`, `stopped_at`, `last_activity_desc`, and `progress.total_plans` in the frontmatter stale. Hand-corrected both times. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. -->
 
@@ -368,6 +368,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 117-02]: eeprom28c_write_init rebuilt on a 0x0D-local remap-aware eeprom28c_emit_command_sequence driven through handle->firestarter_set_data, closing FIX-01 and FIX-03 (A16-A18 staleness) as one routing change — flash_execute_command bypasses handle->bus_config and CONTROL_REGISTER entirely; memory_set_data applies the full remap and rewrites CONTROL on every address change
 - [Phase 117-02]: Inverted (0x5555, 0x20) read-back deleted outright; replaced by eeprom28c_wait_for_sdp_completion (t_WC wait + bounded silent DQ6 toggle poll, never writes response_code) closing FIX-02 — Both AT28C datasheets state the command sequence byte is never written to the device, so the old check could only pass when the sequence was NOT recognised
 - [Phase 117-02]: Reworded 3 in-code comments to avoid literal-substring collisions with non-comment-filtered acceptance-criteria greps (rurp_set_data_output exactly 1; eeprom28c_wait_for_write(handle, 0x5555 exactly 0) — Meaning fully preserved; matches the project's established pattern of wording around literal-substring gates rather than weakening them
+- [Phase 117-03]: FIX-06: eeprom28c_write_execute's conflated eeprom28c_wait_for_write split into eeprom28c_wait_for_page_write (DQ7-complement completion poll) and eeprom28c_verify_page_readback (always-on per-byte data-landed read-back over the current flush window, failing-address attribution via MSG_ERR_VERIFY); conflated function deleted outright
+- [Phase 117-03]: Anti-hollow proof executed: read-back temporarily removed, both planted-violation cases went RED and the isolation control stayed GREEN, recorded verbatim in 117-03-SUMMARY.md; temporary revert never staged/committed (confirmed byte-identical restore)
 
 ## Performance Metrics
 
@@ -427,10 +429,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 116 P07 | 45min | 3 tasks | 2 files |
 | Phase 117 P01 | 12min | 3 tasks | 3 files |
 | Phase 117 P02 | 15min | 3 tasks | 2 files |
+| Phase 117 P03 | 20min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-28T10:04:35.890Z
+**Last session:** 2026-07-28T10:20:11.248Z
 **Stopped at:** Completed 117-02-PLAN.md — D-03 commit 2 (remap-aware emitter + honest completion signal), suite flipped 8/8 GREEN. FIX-01/02/03 Complete. Ready for 117-03.
 **Resume file:** 
 None

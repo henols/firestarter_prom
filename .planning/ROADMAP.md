@@ -226,7 +226,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 117-03-PLAN.md — Wave 3 · fw · FIX-06 as a **conflation** fix, not a sampling-rate fix: `eeprom28c_wait_for_page_write` (DQ7-complement, completion only) split from `eeprom28c_verify_page_readback` (per-byte, always on, failing address attributed) with `eeprom28c_wait_for_write` deleted outright (D-07/D-08); three new `test_val_eeprom28c` cases carrying the planted partial write, an executable replica of the deleted last-byte-equality poll asserted to PASS it, an isolation control, and a two-window page-boundary case (D-09). (FIX-06)
+- [x] 117-03-PLAN.md — Wave 3 · fw · FIX-06 as a **conflation** fix, not a sampling-rate fix: `eeprom28c_wait_for_page_write` (DQ7-complement, completion only) split from `eeprom28c_verify_page_readback` (per-byte, always on, failing address attributed) with `eeprom28c_wait_for_write` deleted outright (D-07/D-08); three new `test_val_eeprom28c` cases carrying the planted partial write, an executable replica of the deleted last-byte-equality poll asserted to PASS it, an isolation control, and a two-window page-boundary case (D-09). (FIX-06)
 
 **Wave 4** *(blocked on Wave 3)*
 
