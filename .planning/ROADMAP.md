@@ -322,7 +322,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 119-05-PLAN.md — four dump-authored `SDP_FIXED_LOCK_*` goldens, scripted `micros()` queue, per-pinout stream + no-payload + exact-divergence cases (closes LOCK-01)
+- [x] 119-05-PLAN.md — four dump-authored `SDP_FIXED_LOCK_*` goldens, scripted `micros()` queue, per-pinout stream + no-payload + exact-divergence cases (closes LOCK-01)
 
 **Wave 6** *(blocked on Wave 5 completion)*
 

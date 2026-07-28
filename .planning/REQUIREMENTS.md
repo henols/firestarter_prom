@@ -63,7 +63,7 @@ The promoting backlog note (999.19/999.18) asserted protocol `0x0D` "has no SDP 
 
 ### SDP Lock (the genuinely new capability)
 
-- [ ] **LOCK-01**: SDP-enable is emitted as **3 loads + `t_WC` with no data payload** (`AA→0x5555`, `55→0x2AAA`, `A0→0x5555`), per Atmel doc0270 `0270L–PEEPR–2/09` §19 note 2
+- [x] **LOCK-01**: SDP-enable is emitted as **3 loads + `t_WC` with no data payload** (`AA→0x5555`, `55→0x2AAA`, `A0→0x5555`), per Atmel doc0270 `0270L–PEEPR–2/09` §19 note 2 (Plan 119-05: four dump-authored `SDP_FIXED_LOCK_*` goldens pin the production `CMD_SDP_LOCK` stream on all four `0x0D` pinouts, `delay(AT28C_TWC_MAX_MS)` follows, and the no-payload termination is asserted positionally — Case 17)
 - [ ] **LOCK-02**: `CMD_SDP_UNLOCK` and `CMD_SDP_LOCK` are invocable **in their own right** — no data payload, no host `DONE` round-trip, `init`/`end` left NULL so those phases are skipped
 - [x] **LOCK-03**: The ordinal `cmd < CMD_DEV_ADDRESS` admission guard (`firestarter.cpp:79`) is replaced by an explicit predicate enumerating the memory commands, proven **identical with and without `-D DEV_TOOLS`** — a prerequisite for LOCK-02, since no free command slot exists below the guard (D-04's two oracles: the two-env truth table over all 256 `cmd` values, Plan 119-02; and `check_is_memory_cmd_no_ifdef.py`'s brace-matched source-scan gate + planted-violation fixture proving no build-configuration conditional in the predicate's body, Plan 119-03)
 - [ ] **LOCK-04**: `configure_eeprom28c` gains a `default:` → `MSG_ERR_NOT_SUPPORTED` arm, and lock/unlock are fail-closed for any `protocol != 0x0D`
@@ -167,7 +167,7 @@ Filled during roadmap creation (`/gsd-new-project` → roadmapper, 2026-07-27). 
 | OBS-03 | Phase 118 | Complete |
 | OBS-04 | Phase 118 | Complete |
 | OBS-05 | Phase 118 | Complete |
-| LOCK-01 | Phase 119 | Pending |
+| LOCK-01 | Phase 119 | Complete |
 | LOCK-02 | Phase 119 | Pending |
 | LOCK-03 | Phase 119 | Complete |
 | LOCK-04 | Phase 119 | Pending |
