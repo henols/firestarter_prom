@@ -318,7 +318,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 119-04-PLAN.md — `EEPROM_SDP_ENABLE[3]`, the shared timed-emit helper, both standalone SDP ops, dispatch + `loop()` wiring, and the host emit-anchor repair in the same plan
+- [x] 119-04-PLAN.md — `EEPROM_SDP_ENABLE[3]`, the shared timed-emit helper, both standalone SDP ops, dispatch + `loop()` wiring, and the host emit-anchor repair in the same plan
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
