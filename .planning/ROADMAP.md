@@ -330,7 +330,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 119-07-PLAN.md — Open Question 1 spike, then the single generic NULL-`main` refusal and the full command-by-protocol matrix (closes LOCK-04 + LOCK-02; DEVTEST-01 firmware half)
+- [x] 119-07-PLAN.md — Open Question 1 spike, then the single generic NULL-`main` refusal and the full command-by-protocol matrix (closes LOCK-04 + LOCK-02; DEVTEST-01 firmware half)
 
 **Wave 8** *(blocked on Wave 7 completion)*
 

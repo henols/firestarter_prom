@@ -64,9 +64,9 @@ The promoting backlog note (999.19/999.18) asserted protocol `0x0D` "has no SDP 
 ### SDP Lock (the genuinely new capability)
 
 - [x] **LOCK-01**: SDP-enable is emitted as **3 loads + `t_WC` with no data payload** (`AA→0x5555`, `55→0x2AAA`, `A0→0x5555`), per Atmel doc0270 `0270L–PEEPR–2/09` §19 note 2 (Plan 119-05: four dump-authored `SDP_FIXED_LOCK_*` goldens pin the production `CMD_SDP_LOCK` stream on all four `0x0D` pinouts, `delay(AT28C_TWC_MAX_MS)` follows, and the no-payload termination is asserted positionally — Case 17)
-- [ ] **LOCK-02**: `CMD_SDP_UNLOCK` and `CMD_SDP_LOCK` are invocable **in their own right** — no data payload, no host `DONE` round-trip, `init`/`end` left NULL so those phases are skipped
+- [x] **LOCK-02**: `CMD_SDP_UNLOCK` and `CMD_SDP_LOCK` are invocable **in their own right** — no data payload, no host `DONE` round-trip, `init`/`end` left NULL so those phases are skipped (Plan 119-04 wired the standalone entry points and dispatch arms; Plan 119-07 closes the dispatch proof — case group 3 in `test_configure_memory.cpp` machine-checks non-NULL `main` and NULL `init`/`end` for both commands on `0x0D`, with RESEARCH F-T's correction recorded in-source: NULL `init`/`end` does not skip the INIT/END frame pairs, only the `DONE` round-trip and any `#` data frame are absent; cases 24/25 in `test_eeprom28c_sdp.cpp` prove the op-layer refusal end to end, including `CMD_ERASE`'s DEVTEST-01 firmware-half fix)
 - [x] **LOCK-03**: The ordinal `cmd < CMD_DEV_ADDRESS` admission guard (`firestarter.cpp:79`) is replaced by an explicit predicate enumerating the memory commands, proven **identical with and without `-D DEV_TOOLS`** — a prerequisite for LOCK-02, since no free command slot exists below the guard (D-04's two oracles: the two-env truth table over all 256 `cmd` values, Plan 119-02; and `check_is_memory_cmd_no_ifdef.py`'s brace-matched source-scan gate + planted-violation fixture proving no build-configuration conditional in the predicate's body, Plan 119-03)
-- [ ] **LOCK-04**: `configure_eeprom28c` gains a `default:` → `MSG_ERR_NOT_SUPPORTED` arm, and lock/unlock are fail-closed for any `protocol != 0x0D`
+- [x] **LOCK-04**: `configure_eeprom28c` gains a `default:` → `MSG_ERR_NOT_SUPPORTED` arm, and lock/unlock are fail-closed for any `protocol != 0x0D` (mechanism-corrected, intent-satisfied — D-05 disproved the literal `default:` arm against live source: `configure_memory` pre-sets the generic `main` for `CMD_READ`/`CMD_WRITE`/`CMD_VERIFY` before `configure_eeprom28c` runs, so that arm would have refused read and verify on all 84 `0x0D` chips, and `configure_eeprom28c` only ever runs for `0x0D` so it could never refuse another protocol either. D-06's single generic NULL-`main` refusal at `operation_utils.cpp` satisfies the intent instead — Plan 119-07: the refusal reuses the existing `MSG_ERR_NOT_SUPPORTED` id, no `default:` arm was added to `configure_eeprom28c` or any other `configure_*` handler, and case groups 1/2 in `test_configure_memory.cpp` machine-check that read/write/verify stay non-NULL for every protocol while `CMD_SDP_UNLOCK`/`CMD_SDP_LOCK` are NULL-main for every protocol other than `0x0D`)
 - [x] **LOCK-05**: `FLASH_ENABLE_WRITE_PROTECTION` is **preserved, not deduped** — it is byte-identical to `FLASH_ENABLE_WRITE` because `AA-55-A0` is genuinely dual-purpose, so the name is the only discriminator (Plan 119-06: `test_lock05_three_way_enable_table_identity` machine-checks the three-way byte-identity against the production objects, `test_lock05_enable_table_objects_distinct` machine-checks the three-way pairwise distinctness, Plan 119-05's Case 17 pins the no-payload stream absence, and `test_sdp_table_parity.py`'s `test_eeprom_sdp_enable_matches_flash_enable_write_and_write_protection` gives a second, independent source-text oracle)
 - [ ] **LOCK-06**: A `pio run -e leonardo` flash delta is reported and stays within the measured 3348 B headroom
 
@@ -168,9 +168,9 @@ Filled during roadmap creation (`/gsd-new-project` → roadmapper, 2026-07-27). 
 | OBS-04 | Phase 118 | Complete |
 | OBS-05 | Phase 118 | Complete |
 | LOCK-01 | Phase 119 | Complete |
-| LOCK-02 | Phase 119 | Pending |
+| LOCK-02 | Phase 119 | Complete |
 | LOCK-03 | Phase 119 | Complete |
-| LOCK-04 | Phase 119 | Pending |
+| LOCK-04 | Phase 119 | Complete (mechanism-corrected, intent-satisfied) |
 | LOCK-05 | Phase 119 | Complete |
 | LOCK-06 | Phase 119 | Pending |
 | HOST-01 | Phase 120 | Pending |
