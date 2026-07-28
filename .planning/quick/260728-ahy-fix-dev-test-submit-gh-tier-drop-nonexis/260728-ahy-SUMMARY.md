@@ -257,3 +257,100 @@ was scoped out on purpose; it is a one-line follow-up if wanted.
 **Gitlinks NOT bumped** — the meta repo's `firestarter_app` gitlink stays PINNED
 per standing policy; the three commits live on the submodule's
 `v1.22-at28c-software-data-protection-lifecycle` branch.
+
+## Second Addendum — retarget, live validation, success receipt (2026-07-28)
+
+### Commit `e615b4c` — `SUBMIT_REPO` retargeted to `henols/firestarter_prom`
+
+Operator direction: *"the issue is reported in firestarter_app but it shall be
+reported to firestarter_prom."* Authority found in-repo: **`firestarter_prom#6`**
+— *"New GitHub issues must be allowed only in `henols/firestarter_prom`"*, with
+issue creation to be **disabled** on `henols/firestarter` and
+`henols/firestarter_app`. This reverses the v1.21 Phase 113 D-01 *target* (not
+the D-01 mechanism, which is unchanged and reinforced).
+
+The planted seed `submit-repo-target-live-tracker-drift.md` was **deleted**: it
+framed this as a dormant open question, but a decided policy already existed in
+`firestarter_prom#6`. Filing it as a seed was the wrong disposition.
+
+Drift-proofing: the repo name now appears in exactly ONE place. Every test
+derives its URL/argv expectation from `submit.SUBMIT_REPO`; the single remaining
+literal is the D-01 lock assertion, so a silent retarget fails loudly.
+
+### Commit `36a9bb5` — echo the created issue URL on gh success
+
+Live test 1 filed `firestarter_prom#18` and printed **nothing** — a successful
+submission was indistinguishable from a failed one, and confirming it required
+querying the GitHub API. `submit_report` now prints `Report filed: <url>`. The
+browser tier stays quiet on success (the opened tab is its own receipt, and
+nothing is filed until the tester presses Submit). Two paired tests, both
+verified RED against the parent commit.
+
+### Live bench validation — all three tiers, real hardware
+
+Board: Rev 2.0-class on `/dev/ttyACM0`; chip FM1608 (FRAM); non-destructive
+sweep (`id` + `read` + `blank-check`), chip left pristine. Driven through a real
+pty (`script -qec`) so `isatty()` was genuinely true — the confirm gate was
+exercised, not stubbed.
+
+| # | Scenario | Result |
+|---|----------|--------|
+| 1 | `gh` present + authed → real `gh issue create` | **PASS** — filed `firestarter_prom#18`. **0 labels** (the fix), title `[dev test] fm1608 — PASS (a6915f4437ee)`, body = human table + complete fenced JSON |
+| 2a | `gh` absent AND no browser reachable | **PASS** — printed the full issue URL + local report path instead of phantom success (the D-2 fix, live) |
+| 2b | `gh` absent, browser reachable | **PASS** — real prefilled `issues/new` tab opened via the VS Code browser helper; **nothing filed**, as designed |
+| 3 | `gh` present, after `36a9bb5` | **PASS** — `Report filed: https://github.com/henols/firestarter_prom/issues/19` |
+
+**SUB-02 sanitizer verified on a real public issue** (`prom#18` body): zero hits
+for `/home/vscode`, `/dev/ttyACM`, `/dev/ttyUSB`, the username, and `/tmp/`.
+
+**D-05 byte math on the real report:** 4254 bytes encoded — under the 7500
+escalate threshold, so the fenced JSON was retained and the browser opened.
+Neither degradation path was reached, and both were exercised separately.
+
+**SUB-03 dedup verified across independent runs:** three separate sweeps
+(`app#43`, `prom#18`, `prom#19`) all produced fingerprint `a6915f4437ee`.
+
+**Fidelity check:** the JSON inlined in `prom#18` is the complete sanitized
+report — all 10 top-level keys, identical to the local file except `generated`
+(a later test run overwrote the local copy).
+
+### Bench cleanup
+
+- `firestarter_prom#19` — **deleted** (duplicate created purely by live test 3).
+- `firestarter_app#43` — **closed** with a comment pointing at `firestarter_prom#18`.
+  Same dedup fingerprint, no information lost.
+- Surviving report: **`firestarter_prom#18`**.
+
+### JSON-as-an-attached-file: investigated, NOT possible
+
+Operator asked for the JSON attached to the issue as a file rather than a gist.
+**GitHub exposes no API for issue attachments** — upload is bound to a browser
+session and does not accept PATs, OAuth apps, or GitHub Apps; `gh` has no flag
+(cli/cli#3348, #4465, #12960, all blocked on the platform API). Third-party
+extensions (`gh-attach`, `gh-image`) replay the private browser endpoint and
+were rejected as a dependency for community testers.
+
+Decisive counter-argument for keeping the fenced block: **attachment *downloads*
+are equally browser-session-only**, so an attached JSON could never be fetched
+by `tools/parse_devtest_issue.py` — an attachment would actively break INBOX-01
+triage automation while being less durable than body text. The current design
+already satisfies "everything sticks together": the complete report is inside
+the issue body, self-contained, with no external link (the original v1.21
+dual-output intent). **No code change made.**
+
+### Two operator-owned follow-ups this created
+
+1. **Repo settings not applied.** `firestarter_prom#6` also calls for disabling
+   issue creation on `henols/firestarter` and `henols/firestarter_app`; both are
+   still enabled (verified 2026-07-28). Repo-settings change, not code.
+2. **Published `3.0.0b11` still files into `firestarter_app`.** Anyone testing
+   against the released beta submits to the wrong repo until a release carries
+   this fix.
+
+### Final verification after all five commits
+
+- `tests/test_submit.py` — **60 passed** (50 at task start; +10)
+- Full suite — **973 passed, 1 failed**; the single failure is
+  `test_audit_coverage_matrix::test_golden_file_matches`, whose test file is
+  byte-identical to `cf85507` (pre-task). Known stale golden, not a regression.
+- `ruff check` + `ruff format --check` — clean on both changed files

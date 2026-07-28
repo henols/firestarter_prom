@@ -199,9 +199,15 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
-| 260728-ahy | Fix `dev test --submit` gh tier: drop the nonexistent `gsd-inbox` label from the create argv + surface the swallowed `gh` stderr | 2026-07-28 | `688bf10..0245828` (firestarter_app submodule; gitlink NOT bumped) | [260728-ahy-fix-dev-test-submit-gh-tier-drop-nonexis](./quick/260728-ahy-fix-dev-test-submit-gh-tier-drop-nonexis/) |
+| 260728-ahy | Fix `dev test --submit`: drop the nonexistent `gsd-inbox` label from the `gh` create argv, retarget `SUBMIT_REPO` → `henols/firestarter_prom`, and stop both tiers reporting phantom success | 2026-07-28 | `688bf10..36a9bb5` (firestarter_app submodule; gitlink NOT bumped) | [260728-ahy-fix-dev-test-submit-gh-tier-drop-nonexis](./quick/260728-ahy-fix-dev-test-submit-gh-tier-drop-nonexis/) |
 
-Planted seed: `.planning/seeds/submit-repo-target-live-tracker-drift.md` — `SUBMIT_REPO` still names `henols/firestarter_app` while open-issue triage appears to have moved to `henols/firestarter_prom`. Flagged, deliberately not folded into the quick task (operator call).
+**Submission target settled (operator, 2026-07-28):** `SUBMIT_REPO` = `henols/firestarter_prom`, reversing the v1.21 Phase 113 D-01 choice of `henols/firestarter_app`. Authority is `henols/firestarter_prom#6` — *"New GitHub issues must be allowed only in `henols/firestarter_prom`"*, with issue creation to be **disabled** on `henols/firestarter` and `henols/firestarter_app`. A `dev test` report spans host + firmware + shield and cannot attribute itself to one layer, so the cross-repository tracker is the only correct destination. D-01 itself is unchanged and reinforced (hardcoded constant, never remote-inferred); the repo name now lives in exactly one place, with tests deriving every URL/argv expectation from it and one literal lock assertion so a silent retarget fails loudly.
+
+Two open follow-ups this created, both operator-owned and outside the quick task:
+- **Repo settings not yet applied** — `firestarter_prom#6` also calls for *disabling* issue creation on `henols/firestarter` and `henols/firestarter_app`. Still enabled on both (verified 2026-07-28); that is a GitHub repo-settings change, not a code change.
+- **`3.0.0b11` in the wild still files into `firestarter_app`.** Anyone testing against the published beta submits to the wrong repo until the next release carries this fix.
+
+Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed with a pointer to `firestarter_prom#18`; the duplicate test issue `firestarter_prom#19` deleted. Surviving report: `firestarter_prom#18`.
 
 ### Roadmap Evolution
 
