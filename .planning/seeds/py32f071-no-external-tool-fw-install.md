@@ -80,6 +80,26 @@ Because the board is still paper, these are cheap now and expensive later:
 External tools are acceptable on the recovery path — that path is for the
 maintainer and the factory, never for an end user.
 
+## Status: the USB DFU half is implemented (2026-07-28)
+
+The operator asked for the USB install to be built rather than only designed, so
+the **factory-USB-DFU** route — the runner-up in the table above, not the
+self-flash bootloader — now exists on `firestarter_app` branch
+`feature/py32f071-fw-install` @ `311eacf` (off `beta`), queued as milestone
+**v1.29** in [`ROADMAP.md`](../ROADMAP.md). It is a pure-Python DFU client
+(`firestarter/py32_dfu.py`), so no external *binary* is needed; the residual cost
+is `pyusb` + a libusb backend, and a WinUSB driver on Windows.
+
+That does **not** retire this seed. The self-flash bootloader is still the only
+route with zero host-side USB plumbing, and it is what removes both the driver
+friction and the `BOOT0` strap. The DFU path shortens the road to it rather than
+replacing it: it proves the transfer sequence, and it stays as the
+maintainer/manufacturing recovery route the PCB requirements below already
+assume.
+
+Operator-facing procedure and bootloader-entry table:
+`firestarter_app/doc/PY32F071-FIRMWARE-INSTALL.md` on that branch.
+
 ## Open questions
 
 - Does the Puya factory USB bootloader enumerate as something `dfu-util` can

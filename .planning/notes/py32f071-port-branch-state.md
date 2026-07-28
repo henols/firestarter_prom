@@ -101,6 +101,29 @@ bootloader, then flashes what reappears. The install flow already tolerates the
 port vanishing and coming back as a different USB device — which is precisely
 what any bootloader-based PY32 path needs.
 
+## Update 2026-07-28 — the host half is built
+
+Seam 3 (the flasher) and seam 4 (CLI surface) are implemented on `firestarter_app`
+branch `feature/py32f071-fw-install` @ `311eacf`, queued as milestone **v1.29**
+in [`ROADMAP.md`](../ROADMAP.md) — see that entry for scope, gate results and the
+remaining blockers. Seam 2 (release-asset publication) is the one that still
+blocks an end-to-end install, and it lives in the **firmware** repo's CI, not
+here.
+
+Two safety defects surfaced only when the code met a real USB bus and a real
+board, neither of which a unit test would have caught:
+
+- DFU **runtime** interfaces are common on unrelated peripherals (this
+  devcontainer's webcam, `04f2:b751`, advertises one). Selecting `interfaces[0]`
+  would have sent it `DFU_DETACH` and flashed Firestarter firmware into it.
+- `board_to_use = current_board or board_override` lets a detected board silently
+  beat a typed `--board`. With a Leonardo attached, `fw --install --board
+  py32f071` flashed the **Leonardo** (`3.0.0b11` → `3.0.0b13`). Harmless as it
+  happened — the entire b11→b13 firmware delta is `include/version.h`, so b12/b13
+  are the spurious auto-fired beta builds that
+  [[reference_beta_merge_push_autofires_ci_new_beta]] predicts — but the
+  wrong-target path was real.
+
 ## Sizing
 
 Host-side is **one phase**. The complexity is all firmware- and bench-side: real
