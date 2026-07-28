@@ -81,7 +81,7 @@ The promoting backlog note (999.19/999.18) asserted protocol `0x0D` "has no SDP 
 
 ### `dev test` Correctness (unblocks usable community evidence)
 
-- [ ] **DEVTEST-01**: `OP_ERASE` is marked `NA` for protocol `0x0D` with a named reason, and firmware fail-closes on `CMD_ERASE` for `0x0D` — today the sweep reports OK having done nothing and auto-tags `ladder_state = "community-fail"` even when write and verify pass
+- [ ] **DEVTEST-01**: `OP_ERASE` is marked `NA` for protocol `0x0D` with a named reason, and firmware fail-closes on `CMD_ERASE` for `0x0D` — today the sweep reports OK having done nothing and auto-tags `ladder_state = "community-fail"` even when write and verify pass (**split by phase, Plan 119-09:** the firmware half — fail-closed on `CMD_ERASE` for `0x0D`, via a generic op-layer NULL-`main` refusal, not a `0x0D`-local arm — landed in **Phase 119** under D-06/D-07/D-08; the host half — `OP_ERASE` marked `NA` for `0x0D` with a named reason in the `dev test` sweep — remains **Phase 121**. Checkbox stays unticked pending the host half.)
 
 ### Gates & Documentation
 
@@ -179,7 +179,7 @@ Filled during roadmap creation (`/gsd-new-project` → roadmapper, 2026-07-27). 
 | HOST-04 | Phase 120 | Pending |
 | HOST-05 | Phase 120 | Pending |
 | HOST-06 | Phase 120 | Pending |
-| DEVTEST-01 | Phase 121 | Pending |
+| DEVTEST-01 | Phase 119 (firmware half, landed) + Phase 121 (host half) | Pending |
 | GATE-01 | Phase 121 | Pending |
 | GATE-02 | Phase 121 | Pending |
 | GATE-03 | Phase 121 | Pending |
@@ -190,7 +190,7 @@ Filled during roadmap creation (`/gsd-new-project` → roadmapper, 2026-07-27). 
 **Coverage:**
 
 - v1 requirements: **36** total (TRACE 6 · FIX 6 · OBS 5 · LOCK 6 · HOST 6 · DEVTEST 1 · GATE 3 · CLOSE 3)
-- Mapped to phases: **36/36** (Phase 116: TRACE ×6 · Phase 117: FIX ×6 · Phase 118: OBS ×5 · Phase 119: LOCK ×6 · Phase 120: HOST ×6 · Phase 121: DEVTEST ×1 + GATE ×3 · Phase 122: CLOSE ×3)
+- Mapped to phases: **36/36** (Phase 116: TRACE ×6 · Phase 117: FIX ×6 · Phase 118: OBS ×5 · Phase 119: LOCK ×6 + DEVTEST's firmware half (Plan 119-09 amendment, D-08) · Phase 120: HOST ×6 · Phase 121: DEVTEST ×1 (host half only) + GATE ×3 · Phase 122: CLOSE ×3). DEVTEST-01 itself is still counted once, mapped to both phases by split — the 36/36 total and the 0-unmapped count are unaffected by the split.
 - Unmapped: **0** ✓
 
 ---
