@@ -4,11 +4,11 @@ milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 118
 current_phase_name: OBSERVE — auto-unlock visible + opt-out-able (FW half)
-status: Phase 117 CLOSED (verified 6/6, passed) — Phase 118 not yet discussed or planned
-stopped_at: Phase 117 complete and verified — ready for `/gsd-discuss-phase 118`
-last_updated: "2026-07-28T11:09:02.974Z"
+status: Phase 118 context gathered — ready for /gsd-plan-phase 118
+stopped_at: Phase 118 context gathered
+last_updated: "2026-07-28T11:57:55.932Z"
 last_activity: 2026-07-28
-last_activity_desc: "Phase 117 CLOSED — 5/5 plans, verification passed 6/6, FIX-01..06 all Complete; regression gate caught + fixed 4 broken Phase-116 host gates"
+last_activity_desc: "Phase 118 discuss complete — 118-CONTEXT.md written (14 decisions across 4 gray areas); 2 relevant todos reviewed-not-folded"
 progress:
   total_phases: 7
   completed_phases: 2
@@ -26,8 +26,8 @@ progress:
 
 Phase: 118 — OBSERVE — auto-unlock visible + opt-out-able (FW half)
 Plan: Not started (not yet planned)
-Status: Phase 117 CLOSED — verification passed 6/6; Phase 118 awaiting discuss/plan
-Last activity: 2026-07-28 — Phase 117 closed: 5/5 plans, 117-VERIFICATION.md passed 6/6, FIX-01..06 all Complete
+Status: Phase 118 context gathered — ready for /gsd-plan-phase 118
+Last activity: 2026-07-28 — Phase 118 discussed: 118-CONTEXT.md written (D-01..D-14 across 4 gray areas), awaiting `/gsd-plan-phase 118`
 
 <!-- NOTE: `query state.planned-phase` under-writes this file. Phase 116 planning: returned `"updated": []`. Phase 117 planning: returned `"updated": ["Status"]` — it wrote only the body `Status:` line and left `status`, `stopped_at`, `last_activity_desc`, and `progress.total_plans` in the frontmatter stale. Hand-corrected both times. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. ALSO OBSERVED (117-04): `state.advance-plan` + `state.record-session` similarly leave the frontmatter `progress.percent` and body `Status`/`Last activity` lines stale (percent dropped to 14 instead of 92; Status/Last-activity still cited Plan 03) — hand-corrected again. ALSO OBSERVED (Phase 117 close): `query phase.complete 117` advanced `current_phase` to 118 correctly (the recurring jump-to-close-phase mis-advance did NOT fire), but it mangled `current_phase_name` to the bare parenthetical `FW half` (it split the roadmap title on the em-dash/parenthesis), left `status: verifying` and `stopped_at: Completed 117-05-PLAN.md` stale, and wrote a body `Status: Phase complete — ready for verification` line that contradicted the already-passed 117-VERIFICATION.md. All four hand-corrected. Verify `current_phase_name` specifically whenever a roadmap phase title contains an em-dash or a trailing parenthetical. -->
 
@@ -445,7 +445,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-07-28T10:47:25.737Z
-**Stopped at:** Completed 117-05-PLAN.md
+**Last session:** 2026-07-28T11:57:15.992Z
+**Stopped at:** Phase 118 context gathered
 **Resume file:** 
-None
+.planning/phases/118-observe-auto-unlock-visible-opt-out-able-fw-half/118-CONTEXT.md
