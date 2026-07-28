@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 118
 current_phase_name: OBSERVE — auto-unlock visible + opt-out-able (FW half)
 status: executing
-stopped_at: Completed 118-05-PLAN.md
-last_updated: "2026-07-28T15:02:29.312Z"
+stopped_at: Completed 118-06-PLAN.md
+last_updated: "2026-07-28T15:19:41.538Z"
 last_activity: 2026-07-28
-last_activity_desc: Completed Phase 118 Plan 05 (skip/no-skip stream pair + budget-WARN-fires proof + golden blob-SHA identity; OBS-02/OBS-03 Complete)
+last_activity_desc: Completed Phase 118 Plan 06 (non-regression sweep; OBS-01/OBS-05 Complete)
 progress:
   total_phases: 7
   completed_phases: 2
   total_plans: 19
-  completed_plans: 17
-  percent: 89
+  completed_plans: 18
+  percent: 29
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 118 (OBSERVE — auto-unlock visible + opt-out-able (FW half)) — EXECUTING
-Plan: 6 of 7
-Status: Plan 118-05 complete — four new native cases prove FLAG_SKIP_SDP_UNLOCK's content-positional absence from the recorded bus stream (skip/no-skip pair from one handle factory) and the t_BLC budget WARN observed to fire and not-fire; per-case Serial-frame capture machine-checks OBS-05's serial-channel exception; all three _shared/ files proven blob-SHA-identical to the phase base; OBS-02/OBS-03 marked Complete; native suite 112/112
-Last activity: 2026-07-28 — Completed Phase 118 Plan 05
+Plan: 7 of 7
+Status: Plan 118-06 complete — full three-repo non-regression sweep (native 112/112, both board builds +152 B flash re-derived vs f8d10a5, all 9 CORRECTION-4 gate rows PASS, host pytest 974 passed/1 pre-existing failure, catalog three-way identity clean, 3 _shared/ blob SHAs re-derived identical); 118-NONREGRESSION.md written enumerating OBS-05's 4-id serial-channel exception; OBS-01/OBS-05 marked Complete
+Last activity: 2026-07-28 — Completed Phase 118 Plan 06
 
 <!-- NOTE: `query state.planned-phase` under-writes this file. Phase 116 planning: returned `"updated": []`. Phase 117 planning: returned `"updated": ["Status"]` — it wrote only the body `Status:` line and left `status`, `stopped_at`, `last_activity_desc`, and `progress.total_plans` in the frontmatter stale. Hand-corrected both times. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. ALSO OBSERVED (117-04): `state.advance-plan` + `state.record-session` similarly leave the frontmatter `progress.percent` and body `Status`/`Last activity` lines stale (percent dropped to 14 instead of 92; Status/Last-activity still cited Plan 03) — hand-corrected again. ALSO OBSERVED (Phase 117 close): `query phase.complete 117` advanced `current_phase` to 118 correctly (the recurring jump-to-close-phase mis-advance did NOT fire), but it mangled `current_phase_name` to the bare parenthetical `FW half` (it split the roadmap title on the em-dash/parenthesis), left `status: verifying` and `stopped_at: Completed 117-05-PLAN.md` stale, and wrote a body `Status: Phase complete — ready for verification` line that contradicted the already-passed 117-VERIFICATION.md. All four hand-corrected. Verify `current_phase_name` specifically whenever a roadmap phase title contains an em-dash or a trailing parenthetical. ALSO OBSERVED (Phase 118 planning, 2026-07-28): `query state.planned-phase --phase 118 --name "…" --plans 7` returned `"updated": []` — yet it DID mutate the file: it bumped `last_updated`, overwrote `last_activity_desc` with the body `Last activity:` text, and **re-mangled `current_phase_name` from the full title down to the bare parenthetical `FW half`** (the same em-dash split as at Phase 117 close, now confirmed to fire on the planning path too), while leaving `status`, `stopped_at`, and `progress.total_plans` stale. So `"updated": []` does NOT mean "no writes" — it means the report is unreliable. Always diff STATE.md before/after the call; never trust the returned `updated` array. ALSO OBSERVED (118-01 execution, 2026-07-28): `state.record-session --stopped-at "Completed 118-01-PLAN.md"` (called during plan execution, not planning/close) reported `"updated": ["Last session","Stopped At","Resume File"]` yet ALSO silently dropped the trailing `)` off `current_phase_name` (this time truncating mid-parenthetical rather than reducing to the bare parenthetical) and reverted `progress.percent` from 68 back to 29 despite an intervening `state.update-progress` call that had correctly set it to 68 moments earlier. So this defect class fires on the plan-execution path too, not only planning/phase-complete, and a later state-mutating call can silently re-clobber a field an earlier call in the SAME session already fixed. Both hand-corrected again. ALSO OBSERVED (118-02 execution, 2026-07-28): `state.record-session --stopped-at "Completed 118-02-PLAN.md"` again dropped the trailing `)` off `current_phase_name` and again reverted `progress.percent` from 74 back to 29, despite an intervening `state.update-progress` call in the SAME session having correctly set it to 74 moments earlier — identical failure mode to 118-01. Both hand-corrected again. Pattern is now stable: always call `state.record-session` FIRST, then `state.update-progress`/`state.record-metric`/`state.add-decision` LAST, then hand-verify `current_phase_name` and `progress.percent` regardless of call order. -->
 
@@ -400,6 +400,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: Left the after-line's format string carrying only the measured duration; the budget lives solely in the runtime WARN branch, avoiding a duplicate AT28C_TBLC_MAX_US literal (118-04, Claude's Discretion)
 - [Phase 118]: 118-05: make_sdp_handle gained a default-arg extra_flags parameter (not a sibling function) so cases 9/10 share one factory/row with zero churn to the 8 existing call sites
 - [Phase 118]: 118-05: AT28C_TBLC_MAX_US is private to eeprom_28c.cpp's TU (not exported) -- Case 11 mirrors the value as a cited local constant while deriving sdp_seq_len from the real exported EEPROM_SDP_DISABLE array
+- [Phase 118-06]: 9-row CORRECTION-4 gate table: gen_sdp_bus_config.py + its drift test as 2 rows, check_dispatch.py + build_db.py combined as 1 row (single shared disposition, no dedicated pytest)
+- [Phase 118-06]: Re-derived (not copied) both boards' phase-base flash/RAM figures via a throwaway git worktree at f8d10a5
+- [Phase 118-06]: test_no_programmer_found_* divergence recorded honestly: live serial devices ARE present this run yet the pair still passed 2/2 -- not explained by board-absence
 
 ## Performance Metrics
 
@@ -466,10 +469,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 118 P02 | 25min | 3 tasks | 5 files |
 | Phase 118 P04 | 20min | 3 tasks | 1 files |
 | Phase 118 P05 | 55min | 3 tasks | 3 files |
+| Phase 118 P06 | 45min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-28T15:02:06.991Z
-**Stopped at:** Completed 118-05-PLAN.md
+**Last session:** 2026-07-28T15:19:41.525Z
+**Stopped at:** Completed 118-06-PLAN.md
 **Resume file:** 
 None

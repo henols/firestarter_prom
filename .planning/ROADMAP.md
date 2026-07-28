@@ -278,7 +278,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 118-06-PLAN.md — Full three-repo non-regression sweep, the mandatory cross-repo gate checklist, and `118-NONREGRESSION.md` (meta)
+- [x] 118-06-PLAN.md — Full three-repo non-regression sweep, the mandatory cross-repo gate checklist, and `118-NONREGRESSION.md` (meta)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
