@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 117
-current_phase_name: FIX — remap-aware `0x0D` emitter + honest completion signal
-status: Ready to execute — Phase 117 planned (5 plans, 5 waves, strictly sequential)
+current_phase_name: fix-remap-aware-0x0d-emitter-honest-completion-signal
+status: executing
 stopped_at: Phase 117 planned — ready for `/gsd-execute-phase 117`
-last_updated: "2026-07-28T09:03:37.162Z"
+last_updated: "2026-07-28T09:37:56.684Z"
 last_activity: 2026-07-28
-last_activity_desc: "Phase 117 planned — 5 plans in 5 sequential waves; plan-checker PASSED (0 blockers, 0 warnings); requirements 6/6 and decisions 13/13 covered"
+last_activity_desc: Phase 117 execution started
 progress:
   total_phases: 7
   completed_phases: 1
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 117 — FIX — remap-aware `0x0D` emitter + honest completion signal
-Plan: Not started (5 planned)
-Status: Ready to execute
-Last activity: 2026-07-28 — Phase 117 planned: 5 plans in 5 sequential waves; plan-checker PASSED (0 blockers, 0 warnings); requirements 6/6, decisions 13/13 covered
+Phase: 117 (fix-remap-aware-0x0d-emitter-honest-completion-signal) — EXECUTING
+Plan: 1 of 5
+Status: Executing Phase 117
+Last activity: 2026-07-28 — Phase 117 execution started
 
 <!-- NOTE: `query state.planned-phase` under-writes this file. Phase 116 planning: returned `"updated": []`. Phase 117 planning: returned `"updated": ["Status"]` — it wrote only the body `Status:` line and left `status`, `stopped_at`, `last_activity_desc`, and `progress.total_plans` in the frontmatter stale. Hand-corrected both times. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. -->
 
@@ -59,7 +59,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-27 — v1.22 milestone-start footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.22 completes the write-protection lifecycle on protocol `0x0D` without adding a second dispatch axis — `handle->protocol` stays the sole dispatch key; `handle->cmd` is extended only as an operation selector *inside* the existing `0x0D` handler, exactly as v1.13 Phase 74 extended `flash_5v_page.cpp`.
 
-**Current focus:** Phase 117 — FIX: remap-aware `0x0D` emitter + honest completion signal
+**Current focus:** Phase 117 — fix-remap-aware-0x0d-emitter-honest-completion-signal
 
 ## Milestone Context (v1.22)
 
@@ -215,10 +215,12 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 **Submission target settled (operator, 2026-07-28):** `SUBMIT_REPO` = `henols/firestarter_prom`, reversing the v1.21 Phase 113 D-01 choice of `henols/firestarter_app`. Authority is `henols/firestarter_prom#6` — *"New GitHub issues must be allowed only in `henols/firestarter_prom`"*, with issue creation to be **disabled** on `henols/firestarter` and `henols/firestarter_app`. A `dev test` report spans host + firmware + shield and cannot attribute itself to one layer, so the cross-repository tracker is the only correct destination. D-01 itself is unchanged and reinforced (hardcoded constant, never remote-inferred); the repo name now lives in exactly one place, with tests deriving every URL/argv expectation from it and one literal lock assertion so a silent retarget fails loudly.
 
-Two open follow-ups this created, both operator-owned and outside the quick task:
+**`firestarter_prom#6` repo settings APPLIED (2026-07-28).** `has_issues` set to `false` on `henols/firestarter` and `henols/firestarter_app` via `gh api -X PATCH`; `henols/firestarter_prom` stays `true`. Verified: `gh issue create --repo henols/firestarter_app` now refuses with *"the 'henols/firestarter_app' repository has disabled issues"*.
 
-- **Repo settings not yet applied** — `firestarter_prom#6` also calls for *disabling* issue creation on `henols/firestarter` and `henols/firestarter_app`. Still enabled on both (verified 2026-07-28); that is a GitHub repo-settings change, not a code change.
-- **`3.0.0b11` in the wild still files into `firestarter_app`.** Anyone testing against the published beta submits to the wrong repo until the next release carries this fix.
+- The soft half was **already** in place before this and needed no change: both repos carry `.github/ISSUE_TEMPLATE/config.yml` with `blank_issues_enabled: false` + a `contact_links` redirect to `firestarter_prom/issues/new/choose`, and no other templates. That governs only the **New issue button** — a template config cannot block direct-URL or API creation, which is exactly how the misfiled `firestarter_app#43` got there. `has_issues: false` is the only hard block.
+- **Side effect (accepted):** disabling issues hides the repos' existing issues — 7 on `firestarter`, 16 on `firestarter_app`, **all closed**, so only closed history is hidden. Fully reversible: `gh api -X PATCH repos/henols/firestarter_app -F has_issues=true` restores every issue; nothing is deleted.
+
+**Remaining follow-up — release sequencing (operator-owned).** Published `3.0.0b11` still has `SUBMIT_REPO = henols/firestarter_app`, and its browser tier now hits **HTTP 404** on `firestarter_app/issues/new` (measured 2026-07-28; `firestarter_prom/issues/new` returns 302). So for b11 installs `--submit` now fails visibly instead of misfiling — arguably the better failure, but it is a dead end until a release carries the retarget. The five fix commits are cherry-picked onto **local** `beta` (`591c819..0050277`, on top of `ec74474`) and **not pushed**; pushing `beta` auto-fires the beta CI and cuts the next beta (the stray `3.0.0b12` mechanism from the v1.21 close), so that push is a deliberate release decision.
 
 Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed with a pointer to `firestarter_prom#18`; the duplicate test issue `firestarter_prom#19` deleted. Surviving report: `firestarter_prom#18`.
 
