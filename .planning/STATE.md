@@ -5,15 +5,15 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 117
 current_phase_name: fix-remap-aware-0x0d-emitter-honest-completion-signal
 status: executing
-stopped_at: Phase 117 planned — ready for `/gsd-execute-phase 117`
-last_updated: "2026-07-28T09:37:56.684Z"
+stopped_at: Completed 117-01-PLAN.md — D-03 commit 1 (oracle enabled, RED against unfixed tree). Ready for 117-02.
+last_updated: "2026-07-28T09:51:21.687Z"
 last_activity: 2026-07-28
-last_activity_desc: Phase 117 execution started
+last_activity_desc: Phase 117 Plan 01 complete (D-03 commit 1) — oracle enabled, RED against unfixed tree
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 12
-  completed_plans: 7
+  completed_plans: 8
   percent: 14
 ---
 
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 117 (fix-remap-aware-0x0d-emitter-honest-completion-signal) — EXECUTING
-Plan: 1 of 5
-Status: Executing Phase 117
-Last activity: 2026-07-28 — Phase 117 execution started
+Plan: 2 of 5
+Status: Executing Phase 117 — Plan 01 complete, Plan 02 next
+Last activity: 2026-07-28 — Phase 117 Plan 01 complete (D-03 commit 1)
 
 <!-- NOTE: `query state.planned-phase` under-writes this file. Phase 116 planning: returned `"updated": []`. Phase 117 planning: returned `"updated": ["Status"]` — it wrote only the body `Status:` line and left `status`, `stopped_at`, `last_activity_desc`, and `progress.total_plans` in the frontmatter stale. Hand-corrected both times. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. -->
 
@@ -364,6 +364,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 116]: DIP32 RED cases (4-5) assert against a dynamically-driven reference-emitter snapshot under the same stale seed, not the canonical zero-seed SDP_FIXED_DIP32_28C512_EEPROM constant — A plain zero-seed comparison only reproduces the same incidental /OE-ordering divergence Cases 1-3 already show and proves nothing about the real write-inhibit bug (CORRECTION 3)
 - [Phase ?]: Datasheet audit recorded as an honest present/unconfirmed/absent finding rather than a general statement (Phase 116 Plan 07)
 - [Phase ?]: Task 3 human-verify checkpoint auto-approved per this run's explicit orchestrator auto-mode instruction; self-review against RESEARCH Pitfall 7 and the 66-of-84 figure performed directly (Phase 116 Plan 07)
+- [Phase 117-01]: Followed 117-CONTEXT.md D-01/D-02/D-03 exactly: un-mocked set_data, flipped+reordered five response-code assertions, added permanent case 8, captured the edited-and-RED intermediate before any production change; ticked no requirement (oracle half only, closes jointly with 117-02)
 
 ## Performance Metrics
 
@@ -421,9 +422,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 116 P05 | 70min | 3 tasks | 4 files |
 | Phase 116 P06 | 65min | 2 tasks | 4 files |
 | Phase 116 P07 | 45min | 3 tasks | 2 files |
+| Phase 117 P01 | 12min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-07-28T08:06:40.914Z
-**Stopped at:** Phase 117 context gathered
-**Resume file:** .planning/phases/117-fix-remap-aware-0x0d-emitter-honest-completion-signal/117-CONTEXT.md
+**Last session:** 2026-07-28T09:51:21.675Z
+**Stopped at:** Completed 117-01-PLAN.md — D-03 commit 1 (oracle enabled, RED against unfixed tree). Ready for 117-02.
+**Resume file:** 

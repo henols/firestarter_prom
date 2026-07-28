@@ -218,7 +218,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 117-01-PLAN.md — Wave 1 · fw · D-03 **commit 1**: add the `test_filter` line, un-mock `set_data` at all four sites (D-01), flip the five response-code assertions and add the severity-preservation regression case (D-02), rename cases 1-3, then capture the verbatim RED output of the *edited* suite against the still-unfixed tree into `RED-BASELINE.md`. No production file touched. (oracle half of FIX-01/FIX-02 — closes neither)
+- [x] 117-01-PLAN.md — Wave 1 · fw · D-03 **commit 1**: add the `test_filter` line, un-mock `set_data` at all four sites (D-01), flip the five response-code assertions and add the severity-preservation regression case (D-02), rename cases 1-3, then capture the verbatim RED output of the *edited* suite against the still-unfixed tree into `RED-BASELINE.md`. No production file touched. (oracle half of FIX-01/FIX-02 — closes neither)
 
 **Wave 2** *(blocked on Wave 1; refuses to start if the RED capture is not in the committed record)*
 
