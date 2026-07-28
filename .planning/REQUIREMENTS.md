@@ -58,7 +58,7 @@ The promoting backlog note (999.19/999.18) asserted protocol `0x0D` "has no SDP 
 - [x] **OBS-01**: The auto-unlock is reported — one line before and one after the sequence, **never inside it**
 - [x] **OBS-02**: `FLAG_SKIP_SDP_UNLOCK` (`0x100`) is honoured in firmware, so the user can decline the unlock
 - [x] **OBS-03**: A named `AT28C_TBLC_MAX_US = 100` constant is cited at every call site, and a source-scan test with a planted `LOG_` fixture proves no logging occurs inside the timing window
-- [ ] **OBS-04**: The emitted sequence's host-side duration is **measured** per board via `micros()` and logged after the sequence — one of the few v1.22 claims provable without an AT28C
+- [x] **OBS-04**: The emitted sequence's host-side duration is **measured** per board via `micros()` and logged after the sequence — one of the few v1.22 claims provable without an AT28C (measured on a real Leonardo: 572 µs, budget 600 µs; full provenance in `118-MEASUREMENT.md`)
 - [x] **OBS-05**: With no new flag set, `write` behaviour is **byte-identical to `3.0.0b11`** apart from the corrected emitter and the added report lines
 
 ### SDP Lock (the genuinely new capability)
@@ -165,7 +165,7 @@ Filled during roadmap creation (`/gsd-new-project` → roadmapper, 2026-07-27). 
 | OBS-01 | Phase 118 | Complete |
 | OBS-02 | Phase 118 | Complete |
 | OBS-03 | Phase 118 | Complete |
-| OBS-04 | Phase 118 | Pending |
+| OBS-04 | Phase 118 | Complete |
 | OBS-05 | Phase 118 | Complete |
 | LOCK-01 | Phase 119 | Pending |
 | LOCK-02 | Phase 119 | Pending |
