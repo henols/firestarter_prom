@@ -255,12 +255,32 @@ Plans:
 **Plans**: 7 plans — strictly sequential (waves 1–7). Every plan touching firmware invokes `pio` against the single shared `firestarter/.pio/build/` tree, and several plans commit into the same submodule working trees, so concurrent execution would corrupt outputs. Ordering is also load-bearing: the rewritten no-log gate (118-01) lands *before* the report lines it polices (118-04), mirroring the milestone's harness-before-fix discipline.
 
 Plans:
+**Wave 1**
+
 - [ ] 118-01-PLAN.md — Redefine the SDP no-log gate's window as the emitter body plus the completion-poll body; re-plant the committed fixture inside it; repair all four broken pytest cases (`firestarter_app`)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 118-02-PLAN.md — Add four report-line catalog ids (0x5E/0x5F/0x86/0x87) and run the three-repo codegen ritual (meta + both sub-repos)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 118-03-PLAN.md — Define `FLAG_SKIP_SDP_UNLOCK 0x100` and `AT28C_TBLC_MAX_US 100`, cite t_BLC at the page-load loop, mock `micros()` in both native SDP suites — behaviourally inert (`firestarter`)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 118-04-PLAN.md — Emit the two unconditional report lines with a `micros()` bracket, enforce the t_BLC budget at runtime, honour `FLAG_SKIP_SDP_UNLOCK` with an honest WARN (`firestarter`)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 118-05-PLAN.md — Native proof: skip/no-skip stream pair, budget-WARN fires, exactly-two-report-frames enumeration, golden blob-SHA identity (`firestarter`)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 118-06-PLAN.md — Full three-repo non-regression sweep, the mandatory cross-repo gate checklist, and `118-NONREGRESSION.md` (meta)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 118-07-PLAN.md — One Leonardo run, measured emit duration with provenance in `118-MEASUREMENT.md` (meta)
 
 **Research flag**: no — standard pattern (the codegen ritual and the AST-scan-with-planted-violation pattern both have multiple in-tree precedents).

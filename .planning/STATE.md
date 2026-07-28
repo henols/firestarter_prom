@@ -4,15 +4,15 @@ milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 118
 current_phase_name: OBSERVE — auto-unlock visible + opt-out-able (FW half)
-status: Phase 118 context gathered — ready for /gsd-plan-phase 118
-stopped_at: Phase 118 context gathered
-last_updated: "2026-07-28T11:57:55.932Z"
+status: Phase 118 planned — 7 plans (waves 1–7, strictly sequential), ready for /gsd-execute-phase 118
+stopped_at: Phase 118 planned
+last_updated: "2026-07-28T13:35:00.000Z"
 last_activity: 2026-07-28
-last_activity_desc: "Phase 118 discuss complete — 118-CONTEXT.md written (14 decisions across 4 gray areas); 2 relevant todos reviewed-not-folded"
+last_activity_desc: "Phase 118 planned: 7 PLAN.md files, plan-checker PASSED first iteration (0 blockers/0 warnings); 5/5 OBS reqs + 13/13 D-IDs covered; research skipped per ROADMAP research-flag"
 progress:
   total_phases: 7
   completed_phases: 2
-  total_plans: 12
+  total_plans: 19
   completed_plans: 12
   percent: 29
 ---
@@ -25,11 +25,25 @@ progress:
 ## Current Position
 
 Phase: 118 — OBSERVE — auto-unlock visible + opt-out-able (FW half)
-Plan: Not started (not yet planned)
-Status: Phase 118 context gathered — ready for /gsd-plan-phase 118
-Last activity: 2026-07-28 — Phase 118 discussed: 118-CONTEXT.md written (D-01..D-14 across 4 gray areas), awaiting `/gsd-plan-phase 118`
+Plan: Not started — 7 plans written, none executed (next: 118-01)
+Status: Phase 118 planned — 7 plans (waves 1–7, strictly sequential), ready for /gsd-execute-phase 118
+Last activity: 2026-07-28 — Phase 118 planned: 118-01..118-07 written; plan-checker PASSED on the first iteration (0 blockers, 0 warnings); 5/5 OBS reqs + 13/13 trackable D-IDs covered; research skipped per the ROADMAP research-flag (so no RESEARCH.md/VALIDATION.md — Nyquist Dimension 8 out of scope, operator-accepted at plan time)
 
-<!-- NOTE: `query state.planned-phase` under-writes this file. Phase 116 planning: returned `"updated": []`. Phase 117 planning: returned `"updated": ["Status"]` — it wrote only the body `Status:` line and left `status`, `stopped_at`, `last_activity_desc`, and `progress.total_plans` in the frontmatter stale. Hand-corrected both times. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. ALSO OBSERVED (117-04): `state.advance-plan` + `state.record-session` similarly leave the frontmatter `progress.percent` and body `Status`/`Last activity` lines stale (percent dropped to 14 instead of 92; Status/Last-activity still cited Plan 03) — hand-corrected again. ALSO OBSERVED (Phase 117 close): `query phase.complete 117` advanced `current_phase` to 118 correctly (the recurring jump-to-close-phase mis-advance did NOT fire), but it mangled `current_phase_name` to the bare parenthetical `FW half` (it split the roadmap title on the em-dash/parenthesis), left `status: verifying` and `stopped_at: Completed 117-05-PLAN.md` stale, and wrote a body `Status: Phase complete — ready for verification` line that contradicted the already-passed 117-VERIFICATION.md. All four hand-corrected. Verify `current_phase_name` specifically whenever a roadmap phase title contains an em-dash or a trailing parenthetical. -->
+<!-- NOTE: `query state.planned-phase` under-writes this file. Phase 116 planning: returned `"updated": []`. Phase 117 planning: returned `"updated": ["Status"]` — it wrote only the body `Status:` line and left `status`, `stopped_at`, `last_activity_desc`, and `progress.total_plans` in the frontmatter stale. Hand-corrected both times. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. ALSO OBSERVED (117-04): `state.advance-plan` + `state.record-session` similarly leave the frontmatter `progress.percent` and body `Status`/`Last activity` lines stale (percent dropped to 14 instead of 92; Status/Last-activity still cited Plan 03) — hand-corrected again. ALSO OBSERVED (Phase 117 close): `query phase.complete 117` advanced `current_phase` to 118 correctly (the recurring jump-to-close-phase mis-advance did NOT fire), but it mangled `current_phase_name` to the bare parenthetical `FW half` (it split the roadmap title on the em-dash/parenthesis), left `status: verifying` and `stopped_at: Completed 117-05-PLAN.md` stale, and wrote a body `Status: Phase complete — ready for verification` line that contradicted the already-passed 117-VERIFICATION.md. All four hand-corrected. Verify `current_phase_name` specifically whenever a roadmap phase title contains an em-dash or a trailing parenthetical. ALSO OBSERVED (Phase 118 planning, 2026-07-28): `query state.planned-phase --phase 118 --name "…" --plans 7` returned `"updated": []` — yet it DID mutate the file: it bumped `last_updated`, overwrote `last_activity_desc` with the body `Last activity:` text, and **re-mangled `current_phase_name` from the full title down to the bare parenthetical `FW half`** (the same em-dash split as at Phase 117 close, now confirmed to fire on the planning path too), while leaving `status`, `stopped_at`, and `progress.total_plans` stale. So `"updated": []` does NOT mean "no writes" — it means the report is unreliable. Always diff STATE.md before/after the call; never trust the returned `updated` array. -->
+
+**Phase 118 plan graph** (planned 2026-07-28 — spans all three repos; research skipped per ROADMAP research-flag, so no RESEARCH.md/VALIDATION.md):
+
+| Wave | Plan | Repo(s) | Requirements | What it lands |
+|------|------|---------|--------------|---------------|
+| 1 | 118-01 | host | OBS-01, OBS-03 | D-06 gate-window rewrite: `check_no_log_in_sdp_window.py` brace-matches the **emitter body + completion-poll body** instead of the call-site span; fixture re-planted; **all four** broken pytest cases (2/3/4/6) repaired by name + a new poll-body negative. D-11 keeps the gate to ONE job (no citation-presence assertion). |
+| 2 | 118-02 | meta + both subs | OBS-01..OBS-04 | Four catalog ids (`0x5E`/`0x5F` INFO, `0x86`/`0x87` WARN), all names ≤32 chars to avoid `messages.h` column reflow; full D-03 three-repo codegen ritual (`messages.toml` → `sync_to_subrepos.sh` → regen both generated artifacts); D-04's separate-ids-not-parameterised shape. |
+| 3 | 118-03 | firmware | OBS-02, OBS-03 | `FLAG_SKIP_SDP_UNLOCK 0x100` (9th flag; `ctrl_flags` is `uint32_t`, `FLAG_VERBOSE 0x80` was the ceiling), `AT28C_TBLC_MAX_US 100`, D-10's page-load citation comment at `eeprom28c_write_execute`, `micros` mocks in both native suites. Behaviourally inert. |
+| 4 | 118-04 | firmware | OBS-01..OBS-04 | The phase's payload: two **unconditional** report lines via `LOG_ID`/`LOG_ID_U32` (D-01 — the tree's first non-`FLAG_VERBOSE`-gated INFO call sites, argued in-source), `micros()` bracket OUTSIDE the emit loop (D-05), D-09 runtime t_BLC budget check, skip-path WARN (D-02, no `response_code` write). Hard ordering precondition on 118-01. |
+| 5 | 118-05 | firmware | OBS-02, OBS-03, OBS-05 | D-08's skip/no-skip stream pair on **production** `eeprom28c_write_init` (content assertions, never call counts), budget-WARN-fires case, exactly-two-new-serial-frames enumeration, D-07 golden blob-SHA identity with no regeneration. |
+| 6 | 118-06 | meta | OBS-01, OBS-05 | Full three-repo sweep + 9-row cross-repo gate checklist + `118-NONREGRESSION.md`; records `catalog-sync-check.yml` as **expected-red-until-milestone-merge** (it pins both subs at `ref: main`) with a local three-way `cmp` as the real in-phase proof; names the deliberately-not-taken items. |
+| 7 | 118-07 | meta | OBS-04 | One Leonardo `write at28c256 --force` run → `118-MEASUREMENT.md` (D-12/13/14). `autonomous: true`, **no** operator socket-state checkpoint (operator stated 2026-07-28 the Leonardo is connected with an empty socket); Claude still verifies `controller:` port identity in-task. D-14: on failure, PROCEED and record not-measured with the reason. |
+
+Strictly sequential, not merely wave-ordered: every firmware plan invokes `pio` against the single shared `firestarter/.pio/build/` tree, and several plans commit into the same submodule working trees. Ordering is load-bearing — 118-01 must land the rewritten gate **before** 118-04 adds the after-line into the span the old gate scanned.
 
 **Phase 117 plan graph** (planned 2026-07-28 — firmware-only, `firestarter/` sub-repo; `firestarter_app/` untouched):
 
@@ -59,7 +73,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-27 — v1.22 milestone-start footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.22 completes the write-protection lifecycle on protocol `0x0D` without adding a second dispatch axis — `handle->protocol` stays the sole dispatch key; `handle->cmd` is extended only as an operation selector *inside* the existing `0x0D` handler, exactly as v1.13 Phase 74 extended `flash_5v_page.cpp`.
 
-**Current focus:** Phase 117 — fix-remap-aware-0x0d-emitter-honest-completion-signal
+**Current focus:** Phase 118 — observe-auto-unlock-visible-opt-out-able-fw-half
 
 ## Milestone Context (v1.22)
 
