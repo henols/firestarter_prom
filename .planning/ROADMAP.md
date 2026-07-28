@@ -213,7 +213,29 @@ Plans:
   5. For the 18 chips at 64 KB and above, the fixed emitter routes through the full address remap (closing the A16-A18 staleness gap) as a verified by-product, not a separate change.
   6. Per-page write polling in `eeprom28c_write_execute` is corrected so a partial write cannot report success — a native test plants a partial-write scenario and shows the old 1-byte-in-64 poll would have passed it while the fix fails it.
 
-**Plans**: TBD
+**Plans**: 5 plans (5 waves; strictly sequential — D-03's two-commit RED-then-fix discipline is enforced by the 117-01 → 117-02 wave boundary, and every plan invokes `pio` against the single shared `firestarter/.pio/build/` tree, so no two may run concurrently)
+
+Plans:
+**Wave 1**
+
+- [ ] 117-01-PLAN.md — Wave 1 · fw · D-03 **commit 1**: add the `test_filter` line, un-mock `set_data` at all four sites (D-01), flip the five response-code assertions and add the severity-preservation regression case (D-02), rename cases 1-3, then capture the verbatim RED output of the *edited* suite against the still-unfixed tree into `RED-BASELINE.md`. No production file touched. (oracle half of FIX-01/FIX-02 — closes neither)
+
+**Wave 2** *(blocked on Wave 1; refuses to start if the RED capture is not in the committed record)*
+
+- [ ] 117-02-PLAN.md — Wave 2 · fw · D-03 **commit 2**: `eeprom28c_emit_command_sequence` on `handle->firestarter_set_data` replacing `flash_execute_command` (FIX-01, closing the A16-A18 gap for the 18 chips ≥64 KB as a by-product — FIX-03); the inverted `(0x5555, 0x20)` read-back deleted for an unconditional `AT28C_TWC_MAX_MS` wait plus a bounded, silent DQ6 toggle poll (FIX-02, D-04/D-05/D-06); one explicit `rurp_set_data_output()` (D-12); `EEPROM_SDP_DISABLE` given external linkage for FIX-05's guard (D-10); `PAGE_SIZE 64` documented as a conservative floor (D-13); suite flips GREEN and the GREEN capture lands beside the RED one. (FIX-01, FIX-02, FIX-03)
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 117-03-PLAN.md — Wave 3 · fw · FIX-06 as a **conflation** fix, not a sampling-rate fix: `eeprom28c_wait_for_page_write` (DQ7-complement, completion only) split from `eeprom28c_verify_page_readback` (per-byte, always on, failing address attributed) with `eeprom28c_wait_for_write` deleted outright (D-07/D-08); three new `test_val_eeprom28c` cases carrying the planted partial write, an executable replica of the deleted last-byte-equality poll asserted to PASS it, an isolation control, and a two-window page-boundary case (D-09). (FIX-06)
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 117-04-PLAN.md — Wave 4 · fw · FIX-05 constant-level guard in the always-green `test_sdp_harness`, reading the **production** `EEPROM_SDP_DISABLE` array: terminal bytes pinned `0x20` vs `0x10`, the two tables asserted distinct objects differing at exactly one field, and byte-identity with `FLASH_DISABLE_WRITE_PROTECTION` so D-10's deliberate duplication cannot silently diverge (D-11); paired planted-violation case plus a recorded mutate-and-observe RED run. (FIX-05)
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 117-05-PLAN.md — Wave 5 · fw · FIX-04 non-regression gate: the four frozen production files and the two frozen shared test headers proven byte-identical to phase base `ada4bdc7` by literal git blob SHA; all five other protocol families' golden-trace suites green; full native suite green at an explained case count; both board targets built with the signed Leonardo flash delta measured; `firestarter_app`, `include/messages.h` and `include/firestarter.h` all unchanged (no new `MSG_*`/`FLAG_*`, firmware-before-host intact); validation-ceiling statement committed. (FIX-04)
+
 **Research flag**: no — standard pattern (`memory_set_data` is the function `eeprom28c_write_execute` already uses at an existing read seam; the change is small against a known call site).
 **UI hint**: no
 
