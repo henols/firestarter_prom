@@ -261,7 +261,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 118-02-PLAN.md — Add four report-line catalog ids (0x5E/0x5F/0x86/0x87) and run the three-repo codegen ritual (meta + both sub-repos)
+- [x] 118-02-PLAN.md — Add four report-line catalog ids (0x5E/0x5F/0x86/0x87) and run the three-repo codegen ritual (meta + both sub-repos)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
