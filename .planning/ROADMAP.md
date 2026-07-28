@@ -269,7 +269,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 118-04-PLAN.md — Emit the two unconditional report lines with a `micros()` bracket, enforce the t_BLC budget at runtime, honour `FLAG_SKIP_SDP_UNLOCK` with an honest WARN (`firestarter`)
+- [x] 118-04-PLAN.md — Emit the two unconditional report lines with a `micros()` bracket, enforce the t_BLC budget at runtime, honour `FLAG_SKIP_SDP_UNLOCK` with an honest WARN (`firestarter`)
 
 **Wave 5** *(blocked on Wave 4 completion)*
 

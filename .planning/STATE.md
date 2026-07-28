@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 118
 current_phase_name: OBSERVE — auto-unlock visible + opt-out-able (FW half)
 status: executing
-stopped_at: Completed 118-03-PLAN.md
-last_updated: "2026-07-28T14:19:40.059Z"
+stopped_at: Completed 118-04-PLAN.md
+last_updated: "2026-07-28T14:37:49.267Z"
 last_activity: 2026-07-28
-last_activity_desc: Completed Phase 118 Plan 03 (FLAG_SKIP_SDP_UNLOCK + AT28C_TBLC_MAX_US + micros mocks)
+last_activity_desc: Completed Phase 118 Plan 04 (report lines + micros() bracket + t_BLC budget check + FLAG_SKIP_SDP_UNLOCK skip-gate)
 progress:
   total_phases: 7
   completed_phases: 2
   total_plans: 19
-  completed_plans: 15
-  percent: 79
+  completed_plans: 16
+  percent: 29
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 118 (OBSERVE — auto-unlock visible + opt-out-able (FW half)) — EXECUTING
-Plan: 4 of 7
-Status: Plan 118-03 complete — FLAG_SKIP_SDP_UNLOCK 0x100 + AT28C_TBLC_MAX_US 100 defined, D-10 page-load citation, micros() mocks pre-landed; behaviourally inert
-Last activity: 2026-07-28 — Completed Phase 118 Plan 03
+Plan: 5 of 7
+Status: Plan 118-04 complete — eeprom28c_write_init now reports the SDP auto-unlock unconditionally (LOG_ID/LOG_ID_U32), brackets the emit call with micros(), enforces the t_BLC budget at runtime, and honours FLAG_SKIP_SDP_UNLOCK with one honest WARN; emitter/poll bodies byte-unchanged, native suite 108/108, +152 B flash on both boards
+Last activity: 2026-07-28 — Completed Phase 118 Plan 04
 
 <!-- NOTE: `query state.planned-phase` under-writes this file. Phase 116 planning: returned `"updated": []`. Phase 117 planning: returned `"updated": ["Status"]` — it wrote only the body `Status:` line and left `status`, `stopped_at`, `last_activity_desc`, and `progress.total_plans` in the frontmatter stale. Hand-corrected both times. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. ALSO OBSERVED (117-04): `state.advance-plan` + `state.record-session` similarly leave the frontmatter `progress.percent` and body `Status`/`Last activity` lines stale (percent dropped to 14 instead of 92; Status/Last-activity still cited Plan 03) — hand-corrected again. ALSO OBSERVED (Phase 117 close): `query phase.complete 117` advanced `current_phase` to 118 correctly (the recurring jump-to-close-phase mis-advance did NOT fire), but it mangled `current_phase_name` to the bare parenthetical `FW half` (it split the roadmap title on the em-dash/parenthesis), left `status: verifying` and `stopped_at: Completed 117-05-PLAN.md` stale, and wrote a body `Status: Phase complete — ready for verification` line that contradicted the already-passed 117-VERIFICATION.md. All four hand-corrected. Verify `current_phase_name` specifically whenever a roadmap phase title contains an em-dash or a trailing parenthetical. ALSO OBSERVED (Phase 118 planning, 2026-07-28): `query state.planned-phase --phase 118 --name "…" --plans 7` returned `"updated": []` — yet it DID mutate the file: it bumped `last_updated`, overwrote `last_activity_desc` with the body `Last activity:` text, and **re-mangled `current_phase_name` from the full title down to the bare parenthetical `FW half`** (the same em-dash split as at Phase 117 close, now confirmed to fire on the planning path too), while leaving `status`, `stopped_at`, and `progress.total_plans` stale. So `"updated": []` does NOT mean "no writes" — it means the report is unreliable. Always diff STATE.md before/after the call; never trust the returned `updated` array. ALSO OBSERVED (118-01 execution, 2026-07-28): `state.record-session --stopped-at "Completed 118-01-PLAN.md"` (called during plan execution, not planning/close) reported `"updated": ["Last session","Stopped At","Resume File"]` yet ALSO silently dropped the trailing `)` off `current_phase_name` (this time truncating mid-parenthetical rather than reducing to the bare parenthetical) and reverted `progress.percent` from 68 back to 29 despite an intervening `state.update-progress` call that had correctly set it to 68 moments earlier. So this defect class fires on the plan-execution path too, not only planning/phase-complete, and a later state-mutating call can silently re-clobber a field an earlier call in the SAME session already fixed. Both hand-corrected again. ALSO OBSERVED (118-02 execution, 2026-07-28): `state.record-session --stopped-at "Completed 118-02-PLAN.md"` again dropped the trailing `)` off `current_phase_name` and again reverted `progress.percent` from 74 back to 29, despite an intervening `state.update-progress` call in the SAME session having correctly set it to 74 moments earlier — identical failure mode to 118-01. Both hand-corrected again. Pattern is now stable: always call `state.record-session` FIRST, then `state.update-progress`/`state.record-metric`/`state.add-decision` LAST, then hand-verify `current_phase_name` and `progress.percent` regardless of call order. -->
 
@@ -397,6 +397,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 118-01]: scan()'s return contract widened to (violations, emitter_range, poll_range); anchor tuples repurposed as a write_init rename tripwire, no longer computing the window — Plan 118-04's own verification depends on knowing this contract
 - [Phase 118-01]: Case 2's expected planted-line number derived from the fixture at test time instead of a second hardcoded literal — Prevents a future re-plant from silently desyncing the assertion from the fixture
 - [Phase ?]: D-04 shape reused verbatim: four separate SDP catalog ids with literal format strings, not one parameterised id with an unlock/lock discriminator
+- [Phase ?]: Left the after-line's format string carrying only the measured duration; the budget lives solely in the runtime WARN branch, avoiding a duplicate AT28C_TBLC_MAX_US literal (118-04, Claude's Discretion)
 
 ## Performance Metrics
 
@@ -461,10 +462,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 117 P05 | 24min | 2 tasks | 2 files |
 | Phase 118 P01 | 55min | 3 tasks | 3 files |
 | Phase 118 P02 | 25min | 3 tasks | 5 files |
+| Phase 118 P04 | 20min | 3 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-07-28T14:19:39.858Z
-**Stopped at:** Completed 118-01-PLAN.md
+**Last session:** 2026-07-28T14:37:49.254Z
+**Stopped at:** Completed 118-04-PLAN.md
 **Resume file:** 
 None
