@@ -5,10 +5,10 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 117
 current_phase_name: FIX — remap-aware `0x0D` emitter + honest completion signal
 status: verifying
-stopped_at: Phase 116 complete + verified 6/6 — Phase 117 next, unplanned
-last_updated: "2026-07-27T22:36:54.377Z"
+stopped_at: Phase 117 context gathered
+last_updated: "2026-07-28T08:06:40.938Z"
 last_activity: 2026-07-28
-last_activity_desc: "Quick task 260728-ahy: dev test --submit gh-tier label/silent-failure fix"
+last_activity_desc: "Completed quick task 260728-ahy: `dev test --submit` gh-tier label/silent-failure fix (Phase 117 still unplanned, unaffected)"
 progress:
   total_phases: 7
   completed_phases: 1
@@ -403,6 +403,6 @@ Planted seed: `.planning/seeds/submit-repo-target-live-tracker-drift.md` — `SU
 
 ## Session
 
-**Last session:** 2026-07-27T22:25:22.065Z
-**Stopped at:** Completed 116-06-PLAN.md
-**Resume file:** None
+**Last session:** 2026-07-28T08:06:40.914Z
+**Stopped at:** Phase 117 context gathered
+**Resume file:** .planning/phases/117-fix-remap-aware-0x0d-emitter-honest-completion-signal/117-CONTEXT.md
