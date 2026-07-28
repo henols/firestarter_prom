@@ -7,8 +7,8 @@ current_phase_name: FIX — remap-aware `0x0D` emitter + honest completion signa
 status: verifying
 stopped_at: Phase 116 complete + verified 6/6 — Phase 117 next, unplanned
 last_updated: "2026-07-27T22:36:54.377Z"
-last_activity: 2026-07-27
-last_activity_desc: Phase 116 complete, transitioned to Phase 117
+last_activity: 2026-07-28
+last_activity_desc: "Quick task 260728-ahy: dev test --submit gh-tier label/silent-failure fix"
 progress:
   total_phases: 7
   completed_phases: 1
@@ -27,7 +27,7 @@ progress:
 Phase: 117 — FIX — remap-aware `0x0D` emitter + honest completion signal
 Plan: Not started
 Status: Phase complete — ready for verification
-Last activity: 2026-07-27 — Phase 116 complete, transitioned to Phase 117
+Last activity: 2026-07-28 — Completed quick task 260728-ahy: `dev test --submit` gh-tier label/silent-failure fix (Phase 117 still unplanned, unaffected)
 
 <!-- NOTE: `query state.planned-phase` returned `"updated": []` and did not write this block or `progress.total_plans` — hand-corrected. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. -->
 
@@ -194,6 +194,14 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - `2026-06-24-skip-vpp-error-and-warning-checks-when-vpp-unused-on-reads.md` (firmware) — carry forward.
 - `large-read-data-jitter-uno328pb.md` (HIGH, v1.8-seed) — v1.9 RCA target.
 - `photograph-modified-rev-0.md` (medium) — carry forward.
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260728-ahy | Fix `dev test --submit` gh tier: drop the nonexistent `gsd-inbox` label from the create argv + surface the swallowed `gh` stderr | 2026-07-28 | `688bf10..0245828` (firestarter_app submodule; gitlink NOT bumped) | [260728-ahy-fix-dev-test-submit-gh-tier-drop-nonexis](./quick/260728-ahy-fix-dev-test-submit-gh-tier-drop-nonexis/) |
+
+Planted seed: `.planning/seeds/submit-repo-target-live-tracker-drift.md` — `SUBMIT_REPO` still names `henols/firestarter_app` while open-issue triage appears to have moved to `henols/firestarter_prom`. Flagged, deliberately not folded into the quick task (operator call).
 
 ### Roadmap Evolution
 
