@@ -157,3 +157,37 @@ and seed `seeds/jumper-settings-per-pin-map.md`.
    chips (DIP28_27512 → CTRL_VPP_VPE_DROP path). Establish the correct
    statement and fix the doc (lockstep with the meta-repo shield docs if §
    overlap).
+
+## Dev-tools gating via release channel (999.15 / gh#8) — added 2026-07-28
+
+Source: `/gsd-explore` session 2026-07-28. See `notes/dev-tools-gating-channel-split.md`
+for the full design and the 999.15 stub rewrite in `ROADMAP.md`.
+
+1. **What is the source-checkout override, and does it fail safe?** The design gates the
+   host `dev` group off the package's own `__version__` (`firestarter_app/firestarter/__init__.py:1`;
+   pre-release forms carry `bN`/`rcN`, stable is bare `X.Y.Z`). But the operator works from an
+   **editable install** in the devcontainer, so the moment that string is a bare `X.Y.Z` —
+   between betas, or at a stable cut — the bench silently loses `dev reg`, which is load-bearing
+   project tooling (`dev reg 0 0 0x86 -f` is the held-erase-rail DMM proxy). Decide the override
+   mechanism *before* implementation: an explicit env var (`FIRESTARTER_DEV_TOOLS=1`), detection
+   of an editable/VCS install, or a separate `[dev]` pip extra. Whichever is chosen must fail
+   **closed** for a wheel installed from PyPI and **open** for a source checkout — and must not
+   be settable from a config file (same SAFE-01 reasoning that made `--destructive` CLI-only).
+2. **Does a rejected dev command ID actually desync the COBS/CRC stream?** gh#8 asks for this
+   proof, and the channel split makes it **load-bearing** rather than incidental: because the app
+   and firmware channels install independently (`pip install --pre` vs `firestarter fw --pre`),
+   **beta-app + stable-firmware becomes a likely pairing**, and in it the app offers `reg`/`addr`
+   that the firmware will reject. Empirical: build a `DEV_TOOLS`-off firmware, send `cmd: 7` and
+   `cmd: 8`, and confirm the next legitimate command still round-trips — i.e. the rejection path
+   consumes its frame and does not leave the decoder mid-frame. Relevant precedent: the v1.12
+   fail-closed `0xBB` path + host `ProtocolNotImplementedError` (`project_v112_milestone_closed`)
+   may already be the correct rejection shape to reuse rather than inventing a second one.
+3. **Is welding "beta channel" → "dev tools enabled" acceptable, or is a third tier needed?**
+   The design makes every future beta a dev-tools build, so community beta testers — the exact
+   audience v1.21 built `dev test` for and documented in `beta-testing-install.md` — receive the
+   full hazardous surface (`reg`, `addr`, `write-cycle`, `fault-inject`) whether they want it or
+   not. The gate then protects stable users and no one else. Options to weigh: accept it (opting
+   into `--pre` is a deliberate act); or split "pre-release" from "dev-tools-enabled" into two
+   axes, which reintroduces the second-artifact cost the channel split was chosen to avoid; or
+   keep the beta CLI surface narrow and put only the *firmware* dev tools behind `--pre`. Needs
+   an operator decision at scoping, not an implementer's guess.
