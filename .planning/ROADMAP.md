@@ -306,7 +306,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 119-01-PLAN.md — three new INFO catalog ids (lock report pair + page-load worst-interval) through the full three-repo codegen ritual
+- [x] 119-01-PLAN.md — three new INFO catalog ids (lock report pair + page-load worst-interval) through the full three-repo codegen ritual
 
 **Wave 2** *(blocked on Wave 1 completion)*
 

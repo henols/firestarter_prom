@@ -4,17 +4,17 @@ milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 119
 current_phase_name: LOCK — SDP-enable + command surface (FW half)
-status: Ready to execute — Phase 119 planned (11 plans)
-stopped_at: Phase 119 planned
-last_updated: "2026-07-28T20:30:00.000Z"
+status: executing
+stopped_at: Completed 119-01-PLAN.md
+last_updated: "2026-07-28T18:43:36.983Z"
 last_activity: 2026-07-28
-last_activity_desc: Phase 119 planned — 11 plans, research + patterns + validation written; plan-checker PASSED
+last_activity_desc: Completed 119-01-PLAN.md
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 30
-  completed_plans: 19
-  percent: 43
+  completed_plans: 20
+  percent: 67
 ---
 
 # Project State
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 119 — LOCK — SDP-enable + command surface (FW half)
-Plan: Not started — 11 plans written, none executed
-Status: Phase 119 PLANNED — 11 plans (`6787d3d`), strictly sequential waves 1→11. Research (`90183e3`), PATTERNS.md, VALIDATION.md written; gsd-plan-checker returned VERIFICATION PASSED (0 blockers, 2 doc warnings since fixed). Requirements 6/6 + DEVTEST-01 covered; decision-coverage gate 19/19. Ready for `/gsd-execute-phase 119`.
-Last activity: 2026-07-28 — Phase 119 planned (11 plans); ready for execution
+Phase: 119 (LOCK — SDP-enable + command surface (FW half)) — EXECUTING
+Plan: 2 of 11
+Status: Executing Phase 119 — Plan 119-01 complete, Plan 119-02 next
+Last activity: 2026-07-28 — Completed 119-01-PLAN.md
 
 > **⚠ Phase 119 planning note — CONTEXT.md's D-NN bullets were re-formatted (`c90b76d`).** The blocking decision-coverage gate could not parse `119-CONTEXT.md`: four bullets tripped the parse-miss guard (three wrapped bold labels — D-01/D-14/D-17 — plus D-06's second colon inside the label), and seven more (D-05/07/08/10/15/16/18) were **silently invisible** because the `⚠` glyph sat inside the bold run *before* the ID, which the parser's `**D-` anchor requires. Before the fix the gate tracked only **8 of 19** decisions and returned `reason: could-not-parse`. Formatting-only repair: `⚠` moved to just after the colon, wrapped labels reflowed onto one line, D-06's second colon → em-dash. Word-level diff confirmed zero wording change. **Applies to every future phase in this project: `- **D-NN: text**` must close its bold run on ONE line, must contain at most one colon before the closing `**`, and must not open with a glyph.**
 
@@ -102,7 +102,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-27 — v1.22 milestone-start footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.22 completes the write-protection lifecycle on protocol `0x0D` without adding a second dispatch axis — `handle->protocol` stays the sole dispatch key; `handle->cmd` is extended only as an operation selector *inside* the existing `0x0D` handler, exactly as v1.13 Phase 74 extended `flash_5v_page.cpp`.
 
-**Current focus:** Phase 118 — OBSERVE — auto-unlock visible + opt-out-able (FW half)
+**Current focus:** Phase 119 — LOCK — SDP-enable + command surface (FW half)
 
 ## Milestone Context (v1.22)
 
@@ -434,6 +434,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 118-06]: test_no_programmer_found_* divergence recorded honestly: live serial devices ARE present this run yet the pair still passed 2/2 -- not explained by board-absence
 - [Phase 118]: OBS-04: measured Leonardo SDP-disable emit duration at 572us against a 600us (6x AT28C_TBLC_MAX_US) budget, full provenance in 118-MEASUREMENT.md; no operator checkpoint per D-12 — Milestone's only empirical result; D-13 requires raw output with provenance, kept out of PROTOCOL-LEDGER to avoid a validation-ceiling misread
 - [Phase 118]: Chip-id mismatch warning did not appear because at28c256's DB entry carries chip-id: 0 (skip ID check) -- documented as a stronger confirmation of D-01's unconditional report lines, not a deviation — at28c256 chip-id field bypasses eeprom28c_check_chip_id's early-return entirely, regardless of socket contents
+- [Phase 119-01]: 0x61's format string carries both D-12 clauses in one line: sequence emitted AND protection state not readable
+- [Phase 119-01]: messages.h carries only numeric #defines (no PROGMEM string table); three new unreferenced ids cost 0 bytes flash this plan
 
 ## Performance Metrics
 
@@ -502,10 +504,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 118 P05 | 55min | 3 tasks | 3 files |
 | Phase 118 P06 | 45min | 2 tasks | 2 files |
 | Phase 118 P07 | 25min | 2 tasks | 2 files |
+| Phase 119 P01 | 10min | 2 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-07-28T16:47:05.314Z
-**Stopped at:** Phase 119 context gathered
+**Last session:** 2026-07-28T18:43:36.963Z
+**Stopped at:** Completed 119-01-PLAN.md
 **Resume file:** 
-.planning/phases/119-lock-sdp-enable-command-surface-fw-half/119-CONTEXT.md
+None

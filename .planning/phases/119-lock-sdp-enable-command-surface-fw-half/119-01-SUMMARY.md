@@ -147,3 +147,10 @@ None. No new call sites emit these ids yet — that is this plan's explicit, int
 ---
 *Phase: 119-lock-sdp-enable-command-surface-fw-half*
 *Completed: 2026-07-28*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/119-lock-sdp-enable-command-surface-fw-half/119-01-SUMMARY.md`
+- FOUND: `5bf07da` (meta commit)
+- FOUND: `36a85ad` (firestarter commit)
+- FOUND: `2821907` (firestarter_app commit)
