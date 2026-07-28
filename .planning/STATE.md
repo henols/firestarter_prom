@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 119
 current_phase_name: LOCK — SDP-enable + command surface (FW half)
 status: executing
-stopped_at: Completed 119-08-PLAN.md
-last_updated: "2026-07-28T20:50:21.082Z"
+stopped_at: Completed 119-09-PLAN.md
+last_updated: "2026-07-28T20:59:29.119Z"
 last_activity: 2026-07-28
-last_activity_desc: Completed 119-08-PLAN.md
+last_activity_desc: Completed 119-09-PLAN.md
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 30
-  completed_plans: 27
-  percent: 90
+  completed_plans: 28
+  percent: 93
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 119 (LOCK — SDP-enable + command surface (FW half)) — EXECUTING
-Plan: 9 of 11
-Status: Executing Phase 119 — Plan 119-08 complete (page-load worst-per-byte-interval tracker landed on eeprom28c_write_execute via D-16, single-exit restructure, reported once via MSG_INFO_PAGE_LOAD_WORST_US; +100 B all boards, landing at 2600 B free against the live 2992 B headroom; no requirement closed, LOCK-06 stays Pending for Plans 119-10/119-11), Plan 119-09 next
-Last activity: 2026-07-28 — Completed 119-08-PLAN.md
+Plan: 10 of 11
+Status: Executing Phase 119 — Plan 119-09 complete (D-08's owned amendment: Phase 121's ROADMAP scope and REQUIREMENTS.md's DEVTEST-01 mapping amended to record the firmware half landed in Phase 119, checkbox stays unticked; PROJECT.md's SIXTH CORRECTION block gathers LOCK-04's mechanism correction, LOCK-06's superseded headroom figure, the three command behaviour deltas, and the _SRAM_PROTO_IDS keep-disposition for Phase 120; todo item 4 folded with the 1292 B DEV_TOOLS-cost figure added, items 1-3 still open under 999.15/gh#8; no requirement marked Complete), Plan 119-10 next
+Last activity: 2026-07-28 — Completed 119-09-PLAN.md
 
 > **⚠ Phase 119 planning note — CONTEXT.md's D-NN bullets were re-formatted (`c90b76d`).** The blocking decision-coverage gate could not parse `119-CONTEXT.md`: four bullets tripped the parse-miss guard (three wrapped bold labels — D-01/D-14/D-17 — plus D-06's second colon inside the label), and seven more (D-05/07/08/10/15/16/18) were **silently invisible** because the `⚠` glyph sat inside the bold run *before* the ID, which the parser's `**D-` anchor requires. Before the fix the gate tracked only **8 of 19** decisions and returned `reason: could-not-parse`. Formatting-only repair: `⚠` moved to just after the colon, wrapped labels reflowed onto one line, D-06's second colon → em-dash. Word-level diff confirmed zero wording change. **Applies to every future phase in this project: `- **D-NN: text**` must close its bold run on ONE line, must contain at most one colon before the closing `**`, and must not open with a glyph.**
 
@@ -59,6 +59,13 @@ Last activity: 2026-07-28 — Completed 119-08-PLAN.md
 | 11 | 119-11 | meta | LOCK-06 | Three-board bench run → `119-MEASUREMENT.md`. `autonomous: true` with **no** socket-state checkpoint per D-18 item 1 (operator stated 2026-07-28 all three sockets are empty; 118-07 precedent); Claude still verifies `controller:` identity per port. D-19: on any board's failure, PROCEED and record not-measured with the reason. The lock's own hardware duration is **unreachable this phase** — waits for Phase 120's `dev sdp` CLI (D-17). |
 
 Strictly sequential, not merely wave-ordered: every firmware plan invokes `pio` against the single shared `firestarter/.pio/build/` tree and several commit into the same submodule working trees. `depends_on` encodes a strict linear chain 01→02→…→11; zero parallelism is available.
+
+**Plan 119-09 outcome (meta, D-08's owned amendment — no firmware/host code touched):** Three cross-phase consequences landed, all detailed in `PROJECT.md`'s new **SIXTH CORRECTION** block (do not duplicate the full text here):
+1. **The DEVTEST-01 move.** `ROADMAP.md`'s Phase 121 one-line entry and Phase Details criterion 2, plus `REQUIREMENTS.md`'s DEVTEST-01 requirement text and traceability row, now record that the firmware half (fail-closed `CMD_ERASE` on `0x0D` via the generic op-layer NULL-`main` refusal) landed early, in Phase 119 — not Phase 121. DEVTEST-01's checkbox stays **unticked**; only its host half (`OP_ERASE` → `NA` in the `dev test` sweep) remains Phase 121's.
+2. **LOCK-04's mechanism correction, LOCK-06's superseded headroom, and criterion 5's relocated comment** are all recorded in `ROADMAP.md`'s Phase 119 Phase Details block and `PROJECT.md`'s SIXTH CORRECTION — none of `REQUIREMENTS.md`'s LOCK-04/LOCK-06 wording was edited.
+3. **The `_SRAM_PROTO_IDS` keep-disposition for Phase 120** (F-F2 — the host workaround fires before D-06's guard is reachable, so it is not dead code) is recorded, not acted on; `firestarter_app/firestarter/eprom_operations.py` was not touched by this plan.
+
+The folded todo `prove-pio-dev-flag-fails-closed.md` had its item 4 (already answered by Plan 119-02) extended with the 1292 B `-D DEV_TOOLS` flash-cost figure measured in Plan 119-08; items 1-3 remain open, scoped to 999.15/gh#8. No requirement was marked Complete by this plan; both sub-repo working trees stayed clean throughout.
 
 **Phase 118 plan graph** (planned 2026-07-28 — spans all three repos; research skipped per ROADMAP research-flag, so no RESEARCH.md/VALIDATION.md):
 
@@ -451,6 +458,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 119]: LOCK-04 marked Complete as mechanism-corrected, intent-satisfied (D-05's disproof + D-06's guard), requirement wording unchanged; LOCK-02 marked Complete via the dispatch proof (case group 3) plus the wiring proof (cases 24/25)
 - [Phase ?]: Plan 119-08: verified structural precondition (nothing followed write_execute's per-byte loop) before the single-exit restructure; tracker+report line landed at +100 B all boards
 - [Phase ?]: Plan 119-08: host_stubs_common.inc is NOT blob-identical to phase base (Plan 119-07 added op_reset_timeout stub) -- corrected the stale acceptance-criterion claim rather than restating it
+- [Phase 119]: Plan 119-09: amended Phase 121 ROADMAP scope + REQUIREMENTS.md DEVTEST-01 mapping to record the firmware half (fail-closed CMD_ERASE via generic NULL-main refusal) landed early in Phase 119; DEVTEST-01 checkbox stays unticked, host half stays Phase 121 — D-08: an unamended Phase 121 would lead a future planner to re-implement a fix that already shipped, or mark DEVTEST-01 failed
+- [Phase 119]: PROJECT.md's SIXTH CORRECTION block records: LOCK-04 mechanism-corrected/intent-satisfied (D-05/D-06); LOCK-06's 3348B superseded by live 2992B (D-15), DEV_TOOLS build confirmed binding at 1292B cost; three command-behaviour deltas incl. CMD_IDLE (F-B2); _SRAM_PROTO_IDS KEEP disposition for Phase 120 (F-F2) — Gathers this phase's four mechanism-vs-intent divergences and three deliberate behaviour deltas in one place per D-08, so they read as decisions rather than surprises
 
 ## Performance Metrics
 
@@ -527,10 +536,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 119 P06 | 45min | 3 tasks | 3 files |
 | Phase 119 P07 | ~25min | 3 tasks | 7 files |
 | Phase 119 P08 | 55min | 3 tasks | 3 files |
+| Phase 119 P09 | ~20min | 2 tasks | 5 files |
 
 ## Session
 
-**Last session:** 2026-07-28T20:49:53.988Z
+**Last session:** 2026-07-28T20:57:45.569Z
 **Stopped at:** Completed 119-03-PLAN.md
 **Resume file:** 
 None

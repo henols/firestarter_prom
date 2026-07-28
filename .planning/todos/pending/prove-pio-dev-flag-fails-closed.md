@@ -76,3 +76,16 @@ This answers item 4 ONLY. Items 1 through 3 (the `sysenv.FIRESTARTER_DEV_TOOLS` 
 vs fail-closed matrix and the `avr-nm` symbol capture) are **untouched** — they remain
 scoped to 999.15 / gh#8 and were explicitly out of bounds for Plan 119-02 (LOCK-03/LOCK-02
 firmware work), not this item's concern.
+
+**Additional evidence folded in (v1.22 Phase 119 Plan 08/09, 2026-07-28):** RESEARCH's
+temporary `[env:leonardo_nodevtools]` measurement at the phase base (commit `1880054`,
+before any Phase 119 change) recorded **24388/28672** for a release-config (`-D DEV_TOOLS`
+absent) Leonardo build, against `25680/28672` with the flag present — i.e. **`-D DEV_TOOLS`
+costs 1292 B** (25680 − 24388) rather than saving it. Since it costs flash, the `DEV_TOOLS`
+build carries the SMALLER headroom of the two configurations and is therefore the binding
+constraint for LOCK-06's judgement (`.planning/PROJECT.md`'s SIXTH CORRECTION item 3).
+This remains evidence for item 4 only (the env now compiles and its tests pass with the
+flag absent) — it is not new evidence toward items 1 through 3's fail-open/fail-closed
+`sysenv.*` matrix question, which stays open under 999.15 / gh#8. The env itself is now
+permanent in `platformio.ini` as `[env:native_nodevtools]` with a CI step, per Plan 119-02.
+Items 1 through 3 remain OPEN; this todo stays open pending them.
