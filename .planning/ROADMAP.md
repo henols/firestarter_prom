@@ -352,7 +352,7 @@ Plans:
 
 **Wave 11** *(blocked on Wave 10 completion)*
 
-- [ ] 119-11-PLAN.md — three-board bench measurement and `119-MEASUREMENT.md` with per-board provenance
+- [x] 119-11-PLAN.md — three-board bench measurement and `119-MEASUREMENT.md` with per-board provenance
 
 **Research flag**: yes — research completed 2026-07-28 (`119-RESEARCH.md`, `119-PATTERNS.md`, `119-VALIDATION.md`). ⚠ Criteria 4, 5 and 6 above are **superseded** — see the correction note under Success Criteria and `119-CONTEXT.md` D-05, D-15 and RESEARCH F-K.
 **UI hint**: no

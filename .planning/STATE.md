@@ -4,17 +4,17 @@ milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 119
 current_phase_name: LOCK — SDP-enable + command surface (FW half)
-status: executing
-stopped_at: Completed 119-10-PLAN.md
-last_updated: "2026-07-28T21:19:40.171Z"
+status: verifying
+stopped_at: Completed 119-11-PLAN.md
+last_updated: "2026-07-28T21:36:09.480Z"
 last_activity: 2026-07-28
-last_activity_desc: Completed 119-10-PLAN.md
+last_activity_desc: Completed 119-11-PLAN.md
 progress:
   total_phases: 7
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 30
-  completed_plans: 29
-  percent: 97
+  completed_plans: 30
+  percent: 57
 ---
 
 # Project State
@@ -26,8 +26,8 @@ progress:
 
 Phase: 119 (LOCK — SDP-enable + command surface (FW half)) — EXECUTING
 Plan: 11 of 11
-Status: Executing Phase 119 — Plan 119-10 complete (non-regression sweep + `119-NONREGRESSION.md`; LOCK-06 closed against the live 2992 B headroom, +392 B measured delta, 2600 B free; LOCK-01 through LOCK-06 all Complete; DEVTEST-01 stays Pending), Plan 119-11 next
-Last activity: 2026-07-28 — Completed 119-10-PLAN.md
+Status: Phase complete — ready for verification (Plan 119-11 complete: three-board page-load bench measurement recorded in 119-MEASUREMENT.md; no requirement re-opened, LOCK-01 through LOCK-06 all Complete, DEVTEST-01 Pending)
+Last activity: 2026-07-28 — Completed 119-11-PLAN.md
 
 > **⚠ Phase 119 planning note — CONTEXT.md's D-NN bullets were re-formatted (`c90b76d`).** The blocking decision-coverage gate could not parse `119-CONTEXT.md`: four bullets tripped the parse-miss guard (three wrapped bold labels — D-01/D-14/D-17 — plus D-06's second colon inside the label), and seven more (D-05/07/08/10/15/16/18) were **silently invisible** because the `⚠` glyph sat inside the bold run *before* the ID, which the parser's `**D-` anchor requires. Before the fix the gate tracked only **8 of 19** decisions and returned `reason: could-not-parse`. Formatting-only repair: `⚠` moved to just after the colon, wrapped labels reflowed onto one line, D-06's second colon → em-dash. Word-level diff confirmed zero wording change. **Applies to every future phase in this project: `- **D-NN: text**` must close its bold run on ONE line, must contain at most one colon before the closing `**`, and must not open with a glyph.**
 
@@ -69,6 +69,8 @@ Strictly sequential, not merely wave-ordered: every firmware plan invokes `pio` 
 The folded todo `prove-pio-dev-flag-fails-closed.md` had its item 4 (already answered by Plan 119-02) extended with the 1292 B `-D DEV_TOOLS` flash-cost figure measured in Plan 119-08; items 1-3 remain open, scoped to 999.15/gh#8. No requirement was marked Complete by this plan; both sub-repo working trees stayed clean throughout.
 
 **Plan 119-10 outcome (meta, non-regression sweep — LOCK-06 closed, the last open LOCK requirement):** Re-ran the full three-repo sweep at the phase's final commit (`0048b3d` firmware, `9ead17f` host) rather than trusting any prior plan's SUMMARY: both native envs **141/141** across 17 suites (identical, confirming `DEV_TOOLS`-invariance holds for the whole phase); `pio run` **3/3 SUCCESS** (Leonardo 26072/28672, Uno 23932/32256, uno328pb 23976/32384); six named host-gate pytest modules **30 passed**; full host pytest **981 passed, 1 failed** (`test_audit_coverage_matrix`, pre-existing). Wrote `119-NONREGRESSION.md` in `118-NONREGRESSION.md`'s eight-section shape: the claim as three precise statements (byte-identical six-family bus streams; a bounded new-frame set; one class of silent outcomes now explicit refusals); the complete command-by-protocol matrix restated with every changed cell flagged and the honest finding that **zero** pre-existing test cases had their expectation moved; the golden identity story (`sdp_bus_config.h` blob-identical, `sdp_expected.h`'s retired whole-file shorthand replaced by re-verified per-array identity, `host_stubs_common.inc`'s true non-identity recorded with its cause — Plan 119-07's `op_reset_timeout` stub); the **nine-row** CORRECTION-4 gate table (new: `check_is_memory_cmd_no_ifdef.py`), explicitly handed to Phases 120-122; all four known-and-explained conditions; the validation-ceiling quote plus the "no bench byte could lock a real part" safety argument; and every deliberately-not-taken option. **Closed LOCK-06**: full-phase Leonardo flash delta **+392 B**, judged against the live **2992 B** phase-base headroom (`28672−25680`, not the requirement's superseded `3348 B`), landing at **2600 B free** — no threshold claim beyond "fits". `-D DEV_TOOLS` confirmed the tighter, binding build (1292 B flag cost). `REQUIREMENTS.md` edited via scoped `Edit`, touching only LOCK-06's checkbox/parenthetical/traceability row. **LOCK-01 through LOCK-06 — the entire LOCK set — now all read Complete.** DEVTEST-01 stays Pending (Phase 121's host half). Both sub-repo working trees clean throughout; commit `bebeff0`. Plan 119-11 (bench measurement) is next — it does not re-close LOCK-06.
+
+**Plan 119-11 outcome (meta, three-board bench measurement — Phase 119's last plan, does not re-open LOCK-06):** Bench-measured the page-load worst-per-byte interval and SDP-unlock duration on all three attached boards (Leonardo/Uno/uno328pb) at firmware `0048b3d`. `controller:` identity re-verified per port before and after each upload (map unchanged from Phase 118's: `/dev/ttyACM0`=leonardo, `/dev/ttyACM1`=uno, `/dev/ttyUSB0`=uno328pb); all three flash/RAM figures matched `119-NONREGRESSION.md` §4 exactly. Ran exactly one `firestarter write at28c256 -b --force <128-byte payload>` per board. **Leonardo's write completed fully successfully** — SDP unlock 568 µs (near-identical to F-118-01's 572 µs), page-load worst interval **6080 µs**. **Uno and uno328pb both failed identically** at page 1's readback verify (`0x00 != 0x03 at 0x000000`) — SDP unlock 412/424 µs, page-load worst interval **84/88 µs**. Traced `eeprom28c_write_execute`'s source to explain the ~70x gap: the Leonardo's write crossed the page-1→page-2 boundary, so its reported interval structurally folds in page 1's entire completion-poll-plus-64-byte-readback-verify latency (not a clean per-byte figure); the Uno-class boards aborted before that boundary, so their figures are clean within-page numbers directly comparable to the 100 µs/byte datasheet max — named explicitly in `119-MEASUREMENT.md` §1/§4 so the two kinds of number are never compared as if they measured the same thing. `MSG_WARN_SDP_TBLC_EXCEEDED` did not fire on any board; no brownout occurred on uno328pb (first-attempt success, no retry needed). The Leonardo/Uno-class divergence from the plan's own anticipated abort-at-first-page flow is recorded as an honest finding, not smoothed over — attributed to `-b` skipping the blank check entirely (leaving only the floating-bus completion-poll/readback-verify gate, which the two MCU families answered differently), with no further hardware run to probe it (plan forbids repeated sweeps). Wrote `119-MEASUREMENT.md` mirroring `118-MEASUREMENT.md`'s shape; validation-ceiling line-by-line review found zero affirmative silicon-validation claims. **No requirement marked Complete** — LOCK-06 stays closed by Plan 119-10 on the flash axis; LOCK-01 through LOCK-06 re-confirmed Complete, DEVTEST-01 re-confirmed Pending; `REQUIREMENTS.md` byte-unchanged. Both sub-repo working trees clean throughout; commit `a12e632`. **This was Phase 119's last plan (11 of 11) — the phase is ready for verification.**
 
 **Phase 118 plan graph** (planned 2026-07-28 — spans all three repos; research skipped per ROADMAP research-flag, so no RESEARCH.md/VALIDATION.md):
 
@@ -465,6 +467,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 119]: PROJECT.md's SIXTH CORRECTION block records: LOCK-04 mechanism-corrected/intent-satisfied (D-05/D-06); LOCK-06's 3348B superseded by live 2992B (D-15), DEV_TOOLS build confirmed binding at 1292B cost; three command-behaviour deltas incl. CMD_IDLE (F-B2); _SRAM_PROTO_IDS KEEP disposition for Phase 120 (F-F2) — Gathers this phase's four mechanism-vs-intent divergences and three deliberate behaviour deltas in one place per D-08, so they read as decisions rather than surprises
 - [Phase 119]: LOCK-06 closed: full-phase Leonardo flash delta +392 B measured against the live 2992 B phase-base headroom (28672-25680), landing at 2600 B free -- fits, no threshold claim beyond that; -D DEV_TOOLS confirmed the binding, tighter build (1292 B flag cost)
 - [Phase 119]: 119-NONREGRESSION.md written: nine-row CORRECTION-4 gate checklist handed to Phases 120-122; host_stubs_common.inc's true non-identity recorded with its cause; sdp_expected.h's retired whole-file blob-SHA shorthand replaced by re-verified per-array byte-identity
+- [Phase 119]: Plan 119-11: Leonardo's page-boundary-crossing write (6080us) is not directly comparable to the Uno-class boards' clean within-page figures (84/88us) -- traced via source, not guessed
+- [Phase 119]: Plan 119-11: All three boards measured; Leonardo write succeeded (empty socket, -b skips blank check), Uno/uno328pb both failed identically at page-1 readback verify; no board recorded not-measured
 
 ## Performance Metrics
 
@@ -543,10 +547,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 119 P08 | 55min | 3 tasks | 3 files |
 | Phase 119 P09 | ~20min | 2 tasks | 5 files |
 | Phase 119 P10 | ~50min | 3 tasks | 2 files |
+| Phase 119 P11 | 50min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-07-28T21:19:40.147Z
-**Stopped at:** Completed 119-10-PLAN.md
+**Last session:** 2026-07-28T21:36:09.463Z
+**Stopped at:** Completed 119-11-PLAN.md
 **Resume file:** 
 None
