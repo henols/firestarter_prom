@@ -4,15 +4,15 @@ milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 119
 current_phase_name: LOCK — SDP-enable + command surface (FW half)
-status: Phase 119 context gathered — ready for /gsd-plan-phase 119
-stopped_at: Phase 119 context gathered
-last_updated: "2026-07-28T16:47:05.327Z"
+status: Ready to execute — Phase 119 planned (11 plans)
+stopped_at: Phase 119 planned
+last_updated: "2026-07-28T20:30:00.000Z"
 last_activity: 2026-07-28
-last_activity_desc: Phase 119 CONTEXT.md written (20 decisions); ready for planning
+last_activity_desc: Phase 119 planned — 11 plans, research + patterns + validation written; plan-checker PASSED
 progress:
   total_phases: 7
   completed_phases: 3
-  total_plans: 19
+  total_plans: 30
   completed_plans: 19
   percent: 43
 ---
@@ -25,9 +25,11 @@ progress:
 ## Current Position
 
 Phase: 119 — LOCK — SDP-enable + command surface (FW half)
-Plan: Not started — context gathered, not yet planned
-Status: Phase 119 DISCUSSED — `119-CONTEXT.md` written (20 decisions, `42c24e4`). Ready for `/gsd-plan-phase 119` (ROADMAP research flag: **yes**).
-Last activity: 2026-07-28 — Phase 119 CONTEXT.md written; ready for planning
+Plan: Not started — 11 plans written, none executed
+Status: Phase 119 PLANNED — 11 plans (`6787d3d`), strictly sequential waves 1→11. Research (`90183e3`), PATTERNS.md, VALIDATION.md written; gsd-plan-checker returned VERIFICATION PASSED (0 blockers, 2 doc warnings since fixed). Requirements 6/6 + DEVTEST-01 covered; decision-coverage gate 19/19. Ready for `/gsd-execute-phase 119`.
+Last activity: 2026-07-28 — Phase 119 planned (11 plans); ready for execution
+
+> **⚠ Phase 119 planning note — CONTEXT.md's D-NN bullets were re-formatted (`c90b76d`).** The blocking decision-coverage gate could not parse `119-CONTEXT.md`: four bullets tripped the parse-miss guard (three wrapped bold labels — D-01/D-14/D-17 — plus D-06's second colon inside the label), and seven more (D-05/07/08/10/15/16/18) were **silently invisible** because the `⚠` glyph sat inside the bold run *before* the ID, which the parser's `**D-` anchor requires. Before the fix the gate tracked only **8 of 19** decisions and returned `reason: could-not-parse`. Formatting-only repair: `⚠` moved to just after the colon, wrapped labels reflowed onto one line, D-06's second colon → em-dash. Word-level diff confirmed zero wording change. **Applies to every future phase in this project: `- **D-NN: text**` must close its bold run on ONE line, must contain at most one colon before the closing `**`, and must not open with a glyph.**
 
 > **⚠ Phase 119 discussion produced three cross-phase consequences — read `119-CONTEXT.md` before planning 119, 121 or 122.**
 > 1. **LOCK-04's mechanism is SUPERSEDED (D-05).** `configure_memory` pre-sets the generic `main` for `CMD_READ`/`CMD_WRITE`/`CMD_VERIFY` (`memory.cpp:48-58`) *before* calling `configure_eeprom28c`, so the literal `default: → MSG_ERR_NOT_SUPPORTED` arm LOCK-04 prescribes would **refuse `read` and `verify` on all 84 `0x0D` chips**. LOCK-04's *intent* is met instead by a single op-layer NULL-`main` refusal (D-06). Record the correction in the SUMMARY and VERIFICATION; do **not** edit `REQUIREMENTS.md`, and do not read LOCK-04 as failed.
@@ -39,6 +41,24 @@ Last activity: 2026-07-28 — Phase 119 CONTEXT.md written; ready for planning
 > **⚠ FINDING F-118-01 — carry into Phase 119 (LOCK-06) and Phase 122.** The real-hardware measurement came in at **572 µs against the 600 µs budget** (`6 × AT28C_TBLC_MAX_US`) — only **28 µs / 4.7 % headroom**, i.e. ~95 µs per byte against a 100 µs per-byte datasheet maximum. CONTEXT.md D-09 framed the runtime check as a latent invariant that "should never fire" on a 16 MHz AVR; the measurement says it *barely* does not fire. The implementation is correct and the check is load-bearing (independently proven by inverting the comparison and watching cases 11/12 go RED) — this is a note that the **decision's premise was optimistic**, not a defect. It bears directly on D-10: `eeprom28c_write_execute`'s page-load loop runs under the *identical* t_BLC constraint, is where gh#11's slow/failed writes actually live (per Phase 117's conflation correction), and received a citation comment only — no runtime check. If the unlock emitter sits at ~95 % of the per-byte spec, the page-load loop's margin deserves measuring before LOCK-06's flash/headroom judgement is settled.
 
 <!-- NOTE: `query state.planned-phase` under-writes this file. Phase 116 planning: returned `"updated": []`. Phase 117 planning: returned `"updated": ["Status"]` — it wrote only the body `Status:` line and left `status`, `stopped_at`, `last_activity_desc`, and `progress.total_plans` in the frontmatter stale. Hand-corrected both times. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. ALSO OBSERVED (117-04): `state.advance-plan` + `state.record-session` similarly leave the frontmatter `progress.percent` and body `Status`/`Last activity` lines stale (percent dropped to 14 instead of 92; Status/Last-activity still cited Plan 03) — hand-corrected again. ALSO OBSERVED (Phase 117 close): `query phase.complete 117` advanced `current_phase` to 118 correctly (the recurring jump-to-close-phase mis-advance did NOT fire), but it mangled `current_phase_name` to the bare parenthetical `FW half` (it split the roadmap title on the em-dash/parenthesis), left `status: verifying` and `stopped_at: Completed 117-05-PLAN.md` stale, and wrote a body `Status: Phase complete — ready for verification` line that contradicted the already-passed 117-VERIFICATION.md. All four hand-corrected. Verify `current_phase_name` specifically whenever a roadmap phase title contains an em-dash or a trailing parenthetical. ALSO OBSERVED (Phase 118 planning, 2026-07-28): `query state.planned-phase --phase 118 --name "…" --plans 7` returned `"updated": []` — yet it DID mutate the file: it bumped `last_updated`, overwrote `last_activity_desc` with the body `Last activity:` text, and **re-mangled `current_phase_name` from the full title down to the bare parenthetical `FW half`** (the same em-dash split as at Phase 117 close, now confirmed to fire on the planning path too), while leaving `status`, `stopped_at`, and `progress.total_plans` stale. So `"updated": []` does NOT mean "no writes" — it means the report is unreliable. Always diff STATE.md before/after the call; never trust the returned `updated` array. ALSO OBSERVED (118-01 execution, 2026-07-28): `state.record-session --stopped-at "Completed 118-01-PLAN.md"` (called during plan execution, not planning/close) reported `"updated": ["Last session","Stopped At","Resume File"]` yet ALSO silently dropped the trailing `)` off `current_phase_name` (this time truncating mid-parenthetical rather than reducing to the bare parenthetical) and reverted `progress.percent` from 68 back to 29 despite an intervening `state.update-progress` call that had correctly set it to 68 moments earlier. So this defect class fires on the plan-execution path too, not only planning/phase-complete, and a later state-mutating call can silently re-clobber a field an earlier call in the SAME session already fixed. Both hand-corrected again. ALSO OBSERVED (118-02 execution, 2026-07-28): `state.record-session --stopped-at "Completed 118-02-PLAN.md"` again dropped the trailing `)` off `current_phase_name` and again reverted `progress.percent` from 74 back to 29, despite an intervening `state.update-progress` call in the SAME session having correctly set it to 74 moments earlier — identical failure mode to 118-01. Both hand-corrected again. Pattern is now stable: always call `state.record-session` FIRST, then `state.update-progress`/`state.record-metric`/`state.add-decision` LAST, then hand-verify `current_phase_name` and `progress.percent` regardless of call order. -->
+
+**Phase 119 plan graph** (planned 2026-07-28 — 11 plans, `6787d3d`; RESEARCH.md `90183e3` + PATTERNS.md + VALIDATION.md all present):
+
+| Wave | Plan | Repo(s) | Requirements | What it lands |
+|------|------|---------|--------------|---------------|
+| 1 | 119-01 | meta + both subs | LOCK-02 | Three new INFO ids (`0x60` `MSG_INFO_SDP_LOCK`, `0x61` `MSG_INFO_SDP_LOCK_DONE_US`, `0x62` `MSG_INFO_PAGE_LOAD_WORST_US`) through the full D-03 three-repo codegen ritual. **Third id is a planner-resolved gap** (D-13 names two; D-16's page-load report needs its own) — flagged in `must_haves`, not scope creep. |
+| 2 | 119-02 | firmware | LOCK-03, LOCK-02 | `is_memory_cmd()` replaces the `#ifdef`-conditional ordinal guard; `CMD_SDP_UNLOCK 9` / `CMD_SDP_LOCK 10`; `[env:native_nodevtools]` + CI step; exhaustive two-env truth table over all 256 cmd values. Carries the cmd 7/8 **and `CMD_IDLE`** behaviour deltas as deliberate (D-01 names only 7/8). `firestarter.cpp:128`'s second ordinal guard deliberately NOT converted — comment records why. |
+| 3 | 119-03 | host | LOCK-03 *(closes)* | `check_is_memory_cmd_no_ifdef.py` (brace-matched extraction + fail-closed `FIRESTARTER_*_SRC` seam) + paired pytest + planted-violation fixture. |
+| 4 | 119-04 | fw + host | LOCK-01, LOCK-02, LOCK-05 | `EEPROM_SDP_ENABLE[3]`, the shared timed-emit helper, both SDP ops wired with NULL `init`/`end`. **Task 3 repairs `check_no_log_in_sdp_window.py`'s emit anchor in the SAME plan as the Task 1 refactor that breaks it** — the cross-repo trap that bit Phase 117 four times. |
+| 5 | 119-05 | firmware | LOCK-01 *(closes)*, LOCK-05 | Four dump-authored `SDP_FIXED_LOCK_*` goldens; `micros()` mock upgraded from 2-slot parity alternator to a scripted queue **with cases 11 and 12 re-verified by name**; no-payload + exact-divergence-index cases. Per-array byte-identity replaces whole-file blob SHA (D-10 forces the SHA to change). |
+| 6 | 119-06 | fw + host | LOCK-05 *(closes)*, LOCK-02 | Three-way identity + distinctness (the two-way leg already exists at `test_sdp_harness.cpp:291-310`), D-12 report proof, D-14 budget-WARN fires/does-not-fire pair, host parity leg. |
+| 7 | 119-07 | firmware | LOCK-04 *(closes)*, LOCK-02 *(closes)*, DEVTEST-01 | **Task 1 = RESEARCH Open Question 1 spike** (widen `[env:native]` `build_src_filter` with `+<operation_utils.cpp>`, fallback to a `static inline` helper) — decides whether LOCK-04/DEVTEST-01 are proven by tests or prose. Then D-06's generic op-layer NULL-`main` ⇒ `MSG_ERR_NOT_SUPPORTED` refusal + the full cmd × protocol matrix. **No `default:` arm in `configure_eeprom28c` at all** (D-05). |
+| 8 | 119-08 | firmware | LOCK-06 | D-16 page-load worst-interval tracker on `eeprom28c_write_execute`'s loop, single-exit restructure. |
+| 9 | 119-09 | meta | DEVTEST-01 | D-08's Phase 121 ROADMAP amendment + `REQUIREMENTS.md` DEVTEST-01 mapping + PROJECT.md sixth-correction block. DEVTEST-01 stays **Pending** — its host half is Phase 121. |
+| 10 | 119-10 | meta | LOCK-06 *(flash half closes)* | Non-regression sweep, 9-row cross-repo gate table, flash delta judged against the **live 2992 B** (not LOCK-06's stale 3348 B). |
+| 11 | 119-11 | meta | LOCK-06 | Three-board bench run → `119-MEASUREMENT.md`. `autonomous: true` with **no** socket-state checkpoint per D-18 item 1 (operator stated 2026-07-28 all three sockets are empty; 118-07 precedent); Claude still verifies `controller:` identity per port. D-19: on any board's failure, PROCEED and record not-measured with the reason. The lock's own hardware duration is **unreachable this phase** — waits for Phase 120's `dev sdp` CLI (D-17). |
+
+Strictly sequential, not merely wave-ordered: every firmware plan invokes `pio` against the single shared `firestarter/.pio/build/` tree and several commit into the same submodule working trees. `depends_on` encodes a strict linear chain 01→02→…→11; zero parallelism is available.
 
 **Phase 118 plan graph** (planned 2026-07-28 — spans all three repos; research skipped per ROADMAP research-flag, so no RESEARCH.md/VALIDATION.md):
 

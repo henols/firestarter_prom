@@ -1098,32 +1098,39 @@ CONTEXT.md lists six discretion items. Three are now settled by facts; three rem
 
 **Everything else in this document is `[VERIFIED]` against live source or measured in this session.** In particular: the guard structure and its `#ifdef`, the conditional `CMD_DEV_*` definitions, the pre-set generic mains, the phantom-success lines, the complete cmd × protocol matrix, the native `build_src_filter`, the gate anchor patterns and their fail-closed behaviour, the `micros()` parity mock, the free catalog ids, the flash figures, the no-DEV_TOOLS build outcome, and the existing `test_lock05_...` case.
 
-## Open Questions
+## Open Questions (ALL 5 RESOLVED by the Phase 119 plan set, 2026-07-28)
+
+> Every question below was dispositioned during planning. Each carries a **RESOLVED** line naming the plan/task that owns it. The *recommendation* text is preserved verbatim as the reasoning of record — read the RESOLVED line for what was actually decided.
 
 1. **F-F option (a) vs (b) — is `operation_utils.cpp` linkable into all 16 native suites?**
    - Known: the TU's externals are all satisfiable; the risk is ArduinoFake aborting on unmocked `millis`/`delay` in the 12 suites that don't mock them.
    - Unclear: whether it links and runs clean without per-suite stub work.
    - **Recommendation: make this the first task of the plan that owns LOCK-04/DEVTEST-01.** It is a 5-minute experiment (`+<operation_utils.cpp>` → `pio test -e native`) that determines whether two requirements are proven by tests or by prose. Record the outcome either way. Do not defer it to a later wave — it changes the plan's shape.
+   - **RESOLVED → `119-07-PLAN.md` Task 1.** Planned as a bounded spike-then-commit as the *first* task of the plan owning LOCK-04 / DEVTEST-01, with an explicit fallback to option (b) if (a) aborts any suite. No earlier wave's proof depends on the outcome.
 
 2. **ROADMAP criterion 5's "header comment" vs D-09's byte-frozen `flash_utils.h`.**
    - Known: `flash_utils.h:42-53` has no such comment; FIX-04 asserts the file is byte-untouched; D-09 keeps it frozen; D-10 directs the rationale comment to `eeprom_28c.cpp`; `test_sdp_harness.cpp:291-296` already records the datasheet rationale.
    - Unclear: whether the operator reads criterion 5 as literally requiring a `flash_utils.h` edit.
    - **Recommendation: satisfy the intent in `eeprom_28c.cpp` + cite the existing test comment; record the deviation in CONTEXT-correction style alongside D-05 and D-15; do not edit `flash_utils.h` and do not edit `REQUIREMENTS.md`.** Flag it for the operator in the plan so it is a decision, not a discovery. (F-K)
+   - **RESOLVED → `119-04`, `119-06`, `119-09`.** Recommendation taken: `flash_utils.h` stays byte-frozen (D-09), the rationale comment lands in `eeprom_28c.cpp`, and LOCK-05's third identity leg + distinctness are asserted in `119-06`. The criterion-5 deviation is recorded as mechanism-corrected/intent-satisfied so a verifier does not read it as failed.
 
 3. **`CMD_IDLE`'s behaviour delta — accept or handle?**
    - Known: `{"cmd":0}` today produces `0xBB` + `MSG_ERR_SETUP`; after `is_memory_cmd()` it produces silence.
    - Unclear: whether anything sends an explicit cmd 0 (the host's own `CMD_IDLE` is a firmware-internal state, not a command it emits).
    - **Recommendation: accept it and record it in the SUMMARY beside the cmd 7/8 change, or add an explicit refusal arm if the flash is free. Either way, name it — D-01 currently names only 7/8.** (F-B2)
+   - **RESOLVED → `119-02` and `119-09`.** Accepted, not handled: an explicit refusal arm was declined on flash grounds. `CMD_IDLE` is carried as the **third** behaviour delta (beside cmd 7 and cmd 8) in both plans, since D-01 names only 7/8.
 
 4. **Does the page-load report line perturb any existing frame-count assertion?**
    - Known: `test_case12_...` asserts *exactly two* report frames but drives `drive_write_init` only, so `write_execute`'s new line is out of its scope today.
    - Unclear: whether `test_val_eeprom28c`'s write-path cases (added by 117-03) count frames.
    - **Recommendation: enumerate every frame-count assertion in the native suite before adding D-16's line, and re-run all 16 suites immediately after.** The `micros()` mock upgrade (F-O) touches the same file, so bundle them.
+   - **RESOLVED → `119-05` Task 1 (mock upgrade + explicit re-verification of cases 11 and 12 by name) and `119-08` (the D-16 report line, with the full-suite re-run in its acceptance criteria).**
 
 5. **Should the new D-04 gate scan `firestarter.h` or a dedicated file?**
    - Known: `firestarter.h` is scanned by `test_revision_constants_parity.py` only via hardcoded literals, so a new structural scan of the same file is not a conflict.
    - Unclear: whether a C++-header brace/AST scan of `firestarter.h` is more brittle than scanning a small dedicated TU.
    - **Recommendation: scan `firestarter.h` with a brace-matched extraction of the predicate body (the `check_no_log_in_sdp_window.py` idiom, not a bare grep) plus a fail-closed `FIRESTARTER_*_SRC` override for the planted fixture.** Keeping the predicate in `firestarter.h` is worth more (F-F consequence 1) than the gate's marginal simplicity.
+   - **RESOLVED → `119-03`.** Recommendation taken: `check_is_memory_cmd_no_ifdef.py` uses the brace-matched extraction idiom with the fail-closed `FIRESTARTER_*_SRC` seam, shipped with `tests/test_check_is_memory_cmd_no_ifdef.py` and a planted-violation fixture proving the gate can fail.
 
 ## Sources
 

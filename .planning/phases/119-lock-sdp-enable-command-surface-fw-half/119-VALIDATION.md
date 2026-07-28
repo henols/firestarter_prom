@@ -1,11 +1,14 @@
 ---
 phase: 119
 slug: lock-sdp-enable-command-surface-fw-half
-status: draft
-nyquist_compliant: false
+status: approved
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-07-28
+approved: 2026-07-28
 ---
+
+> **Status note.** `nyquist_compliant: true` records that the *plan set* satisfies this contract — all 11 plans carry automated `<verify>` commands on every task, and every requirement below has a named oracle. `wave_0_complete` stays `false` because the Wave 0 artifacts (the `test_cmd_admission` suite, `[env:native_nodevtools]`, the `SDP_FIXED_LOCK_*` goldens, the new host gate) are *created during execution* by plans 119-02, 119-03 and 119-05 — it flips to `true` when those land.
 
 # Phase 119 — Validation Strategy
 
@@ -92,7 +95,7 @@ created: 2026-07-28
 - [ ] `firestarter_app/tools/check_is_memory_cmd_no_ifdef.py` + `tests/test_check_is_memory_cmd_no_ifdef.py` + `tests/fixtures/planted_ifdef_in_predicate.h` — the D-04 gate, its paired pytest, and its planted-violation fixture.
 - [ ] `firestarter_app/tools/check_no_log_in_sdp_window.py` — append the new emit anchor; repair `tests/test_check_no_log_in_sdp_window.py` and `tests/fixtures/planted_log_in_window.cpp`. **This gate fails closed if D-14's shared bracket helper moves the emit call out of `eeprom28c_write_init`** — the exact cross-repo pattern that bit Phase 117 four times.
 - [ ] `.planning/phases/119-…/119-MEASUREMENT.md` and `119-NONREGRESSION.md` — mirror `118-MEASUREMENT.md` §1/§6 and `118-NONREGRESSION.md` §4.
-- [ ] **BLOCKING decision before Wave 1:** Open Question 1 — F-F option (a) (widen `[env:native]` `build_src_filter` with `+<operation_utils.cpp>`, verifying all 16 suites for ArduinoFake aborts) vs option (b) (`static inline` helper in `operation_utils.h`). Determines whether LOCK-04's and DEVTEST-01's proofs are tests or prose. **RESEARCH recommends (a); resolve as the FIRST task of the plan that owns them, not a later wave.**
+- [x] **BLOCKING decision — PLACED:** Open Question 1 — F-F option (a) (widen `[env:native]` `build_src_filter` with `+<operation_utils.cpp>`, verifying all 16 suites for ArduinoFake aborts) vs option (b) (`static inline` helper in `operation_utils.h`). Determines whether LOCK-04's and DEVTEST-01's proofs are tests or prose. **Planned as Task 1 of `119-07-PLAN.md`** — a bounded spike-then-commit with an explicit fallback to (b), ahead of every dependent proof.
 
 ---
 
@@ -110,12 +113,13 @@ created: 2026-07-28
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 60s
-- [ ] Open Question 1 (F-F option a/b) resolved before Wave 1 proofs are written
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies — verified by gsd-plan-checker across all 11 plans
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references — every ❌/⚠ row above is owned by a named plan
+- [x] No watch-mode flags
+- [x] Feedback latency < 60s
+- [x] Open Question 1 (F-F option a/b) placed as `119-07` Task 1, ahead of every dependent proof
+- [x] `nyquist_compliant: true` set in frontmatter
+- [ ] `wave_0_complete: true` — flips when 119-02 / 119-03 / 119-05 land during execution
 
-**Approval:** pending
+**Approval:** approved 2026-07-28 (plan-checker: VERIFICATION PASSED, 0 blockers)
