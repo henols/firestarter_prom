@@ -159,3 +159,13 @@ None. This plan lands a source-scanning gate, its paired test, and a fixture —
 ---
 *Phase: 119-lock-sdp-enable-command-surface-fw-half*
 *Completed: 2026-07-28*
+
+## Self-Check: PASSED
+
+- FOUND: `firestarter_app/tools/check_is_memory_cmd_no_ifdef.py`
+- FOUND: `firestarter_app/tests/test_check_is_memory_cmd_no_ifdef.py`
+- FOUND: `firestarter_app/tests/fixtures/planted_ifdef_in_predicate.h`
+- FOUND: `.planning/phases/119-lock-sdp-enable-command-surface-fw-half/119-03-SUMMARY.md`
+- FOUND: `51b2618` (Task 1 commit, firestarter_app submodule)
+- FOUND: `84ce9fd` (Task 2 commit, firestarter_app submodule)
+- FOUND: `4fb01f3` (meta commit, staging gitlink + REQUIREMENTS.md + SUMMARY.md)
