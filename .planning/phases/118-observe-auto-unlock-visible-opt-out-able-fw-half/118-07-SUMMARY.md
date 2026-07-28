@@ -129,6 +129,13 @@ None — no external service configuration required.
 - FOUND: commit `6b07a0e` in `/workspaces` (meta repo)
 - FOUND: `.planning/REQUIREMENTS.md` shows `OBS-04` as `[x]` and `Complete` in the traceability table
 
+## Self-Check: PASSED (post-write verification)
+
+- FOUND: `/workspaces/.planning/phases/118-observe-auto-unlock-visible-opt-out-able-fw-half/118-MEASUREMENT.md`
+- FOUND: `/workspaces/.planning/phases/118-observe-auto-unlock-visible-opt-out-able-fw-half/118-07-SUMMARY.md`
+- FOUND: commit `6b07a0e` in git log
+- FOUND: commit `70b320d` in git log
+
 ---
 *Phase: 118-observe-auto-unlock-visible-opt-out-able-fw-half*
 *Completed: 2026-07-28*
