@@ -194,7 +194,7 @@ regions, unchanged bytes), which is exactly gh#11's shape.
 
 ### Claude's Discretion
 
-- **D-06's poll shape** (delay-then-poll vs. `t_WC`-as-deadline) and the poll's read address.
+- **The poll shape left open by D-06** (delay-then-poll vs. `t_WC`-as-deadline) and the poll's read address.
   Constraint: it must read through `handle->firestarter_get_data`. Note that a read through
   `memory_get_data` folds `READ_FLAG` into `DIP32_28C512_EEPROM`'s CONTROL bit `0x10` — the same
   stale-state mechanism RED-BASELINE case 5 exploits — so the following `set_data` must be relied
