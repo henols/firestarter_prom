@@ -4,15 +4,15 @@ milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 117
 current_phase_name: FIX — remap-aware `0x0D` emitter + honest completion signal
-status: verifying
-stopped_at: Phase 117 context gathered
-last_updated: "2026-07-28T08:06:40.938Z"
+status: Ready to execute — Phase 117 planned (5 plans, 5 waves, strictly sequential)
+stopped_at: Phase 117 planned — ready for `/gsd-execute-phase 117`
+last_updated: "2026-07-28T09:03:37.162Z"
 last_activity: 2026-07-28
-last_activity_desc: "Completed quick task 260728-ahy: `dev test --submit` gh-tier label/silent-failure fix (Phase 117 still unplanned, unaffected)"
+last_activity_desc: "Phase 117 planned — 5 plans in 5 sequential waves; plan-checker PASSED (0 blockers, 0 warnings); requirements 6/6 and decisions 13/13 covered"
 progress:
   total_phases: 7
   completed_phases: 1
-  total_plans: 7
+  total_plans: 12
   completed_plans: 7
   percent: 14
 ---
@@ -20,16 +20,28 @@ progress:
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-07-27
+**Updated:** 2026-07-28
 
 ## Current Position
 
 Phase: 117 — FIX — remap-aware `0x0D` emitter + honest completion signal
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-07-28 — Completed quick task 260728-ahy: `dev test --submit` gh-tier label/silent-failure fix (Phase 117 still unplanned, unaffected)
+Plan: Not started (5 planned)
+Status: Ready to execute
+Last activity: 2026-07-28 — Phase 117 planned: 5 plans in 5 sequential waves; plan-checker PASSED (0 blockers, 0 warnings); requirements 6/6, decisions 13/13 covered
 
-<!-- NOTE: `query state.planned-phase` returned `"updated": []` and did not write this block or `progress.total_plans` — hand-corrected. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. -->
+<!-- NOTE: `query state.planned-phase` under-writes this file. Phase 116 planning: returned `"updated": []`. Phase 117 planning: returned `"updated": ["Status"]` — it wrote only the body `Status:` line and left `status`, `stopped_at`, `last_activity_desc`, and `progress.total_plans` in the frontmatter stale. Hand-corrected both times. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. -->
+
+**Phase 117 plan graph** (planned 2026-07-28 — firmware-only, `firestarter/` sub-repo; `firestarter_app/` untouched):
+
+| Wave | Plan | Requirements | What it lands |
+|------|------|--------------|---------------|
+| 1 | 117-01 | FIX-01, FIX-02 *(oracle half — closes neither)* | D-03 **commit 1**: `test_filter` line, `set_data` un-mock ×4 (D-01), five assertion flips + new case 8 (D-02), cases 1-3 renamed, verbatim RED capture of the *edited* suite against the unfixed tree (expected 8/8 fail). No production file touched. |
+| 2 | 117-02 | FIX-01, FIX-02, FIX-03 | D-03 **commit 2**: `eeprom28c_emit_command_sequence` on `handle->firestarter_set_data`; inverted `(0x5555,0x20)` read-back deleted for `AT28C_TWC_MAX_MS` wait + bounded silent DQ6 poll; explicit `rurp_set_data_output()` (D-12); `EEPROM_SDP_DISABLE` external linkage (D-10); `PAGE_SIZE 64` documented (D-13); suite flips GREEN |
+| 3 | 117-03 | FIX-06 | FIX-06 as a **conflation** fix: `eeprom28c_wait_for_page_write` (DQ7-complement) split from `eeprom28c_verify_page_readback`; `eeprom28c_wait_for_write` deleted; 3 `test_val_eeprom28c` cases incl. the executable old-vs-new contrast + isolation control (D-07/08/09) |
+| 4 | 117-04 | FIX-05 | Four-part terminal-byte + table-identity guard on the **production** array in `test_sdp_harness` (D-11), plus planted-violation counterpart |
+| 5 | 117-05 | FIX-04 | Six frozen artifacts proven byte-identical by literal git blob SHA vs phase base `ada4bdc7`; full suite, both board builds, flash delta, host-untouched, validation-ceiling record |
+
+Strictly sequential (not merely wave-2-onward): every plan invokes `pio` against the single shared `firestarter/.pio/build/` tree, so concurrent runs would corrupt each other's outputs.
 
 **Phase 116 plan graph:**
 
@@ -47,7 +59,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-27 — v1.22 milestone-start footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.22 completes the write-protection lifecycle on protocol `0x0D` without adding a second dispatch axis — `handle->protocol` stays the sole dispatch key; `handle->cmd` is extended only as an operation selector *inside* the existing `0x0D` handler, exactly as v1.13 Phase 74 extended `flash_5v_page.cpp`.
 
-**Current focus:** Phase 116 — GROUND TRUTH + TRACE HARNESS
+**Current focus:** Phase 117 — FIX: remap-aware `0x0D` emitter + honest completion signal
 
 ## Milestone Context (v1.22)
 
@@ -204,6 +216,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 **Submission target settled (operator, 2026-07-28):** `SUBMIT_REPO` = `henols/firestarter_prom`, reversing the v1.21 Phase 113 D-01 choice of `henols/firestarter_app`. Authority is `henols/firestarter_prom#6` — *"New GitHub issues must be allowed only in `henols/firestarter_prom`"*, with issue creation to be **disabled** on `henols/firestarter` and `henols/firestarter_app`. A `dev test` report spans host + firmware + shield and cannot attribute itself to one layer, so the cross-repository tracker is the only correct destination. D-01 itself is unchanged and reinforced (hardcoded constant, never remote-inferred); the repo name now lives in exactly one place, with tests deriving every URL/argv expectation from it and one literal lock assertion so a silent retarget fails loudly.
 
 Two open follow-ups this created, both operator-owned and outside the quick task:
+
 - **Repo settings not yet applied** — `firestarter_prom#6` also calls for *disabling* issue creation on `henols/firestarter` and `henols/firestarter_app`. Still enabled on both (verified 2026-07-28); that is a GitHub repo-settings change, not a code change.
 - **`3.0.0b11` in the wild still files into `firestarter_app`.** Anyone testing against the published beta submits to the wrong repo until the next release carries this fix.
 
