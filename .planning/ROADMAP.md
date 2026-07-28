@@ -310,7 +310,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 119-02-PLAN.md — `is_memory_cmd()` replaces the ordinal guard; `CMD_SDP_UNLOCK 9` / `CMD_SDP_LOCK 10`; `[env:native_nodevtools]` + CI step; exhaustive two-env truth-table suite
+- [x] 119-02-PLAN.md — `is_memory_cmd()` replaces the ordinal guard; `CMD_SDP_UNLOCK 9` / `CMD_SDP_LOCK 10`; `[env:native_nodevtools]` + CI step; exhaustive two-env truth-table suite
 
 **Wave 3** *(blocked on Wave 2 completion)*
 

@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 119
 current_phase_name: LOCK — SDP-enable + command surface (FW half)
 status: executing
-stopped_at: Completed 119-01-PLAN.md
-last_updated: "2026-07-28T18:43:36.983Z"
+stopped_at: Completed 119-02-PLAN.md
+last_updated: "2026-07-28T19:01:50.690Z"
 last_activity: 2026-07-28
-last_activity_desc: Completed 119-01-PLAN.md
+last_activity_desc: Completed 119-02-PLAN.md
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 30
-  completed_plans: 20
-  percent: 67
+  completed_plans: 21
+  percent: 70
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 119 (LOCK — SDP-enable + command surface (FW half)) — EXECUTING
-Plan: 2 of 11
-Status: Executing Phase 119 — Plan 119-01 complete, Plan 119-02 next
-Last activity: 2026-07-28 — Completed 119-01-PLAN.md
+Plan: 3 of 11
+Status: Executing Phase 119 — Plan 119-02 complete, Plan 119-03 next
+Last activity: 2026-07-28 — Completed 119-02-PLAN.md
 
 > **⚠ Phase 119 planning note — CONTEXT.md's D-NN bullets were re-formatted (`c90b76d`).** The blocking decision-coverage gate could not parse `119-CONTEXT.md`: four bullets tripped the parse-miss guard (three wrapped bold labels — D-01/D-14/D-17 — plus D-06's second colon inside the label), and seven more (D-05/07/08/10/15/16/18) were **silently invisible** because the `⚠` glyph sat inside the bold run *before* the ID, which the parser's `**D-` anchor requires. Before the fix the gate tracked only **8 of 19** decisions and returned `reason: could-not-parse`. Formatting-only repair: `⚠` moved to just after the colon, wrapped labels reflowed onto one line, D-06's second colon → em-dash. Word-level diff confirmed zero wording change. **Applies to every future phase in this project: `- **D-NN: text**` must close its bold run on ONE line, must contain at most one colon before the closing `**`, and must not open with a glyph.**
 
@@ -436,6 +436,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 118]: Chip-id mismatch warning did not appear because at28c256's DB entry carries chip-id: 0 (skip ID check) -- documented as a stronger confirmation of D-01's unconditional report lines, not a deviation — at28c256 chip-id field bypasses eeprom28c_check_chip_id's early-return entirely, regardless of socket contents
 - [Phase 119-01]: 0x61's format string carries both D-12 clauses in one line: sequence emitted AND protection state not readable
 - [Phase 119-01]: messages.h carries only numeric #defines (no PROGMEM string table); three new unreferenced ids cost 0 bytes flash this plan
+- [Phase ?]: 119-02: is_memory_cmd() is a header-inline switch over exactly eight named CMD_* macros with zero preprocessor conditionals in its body -- never names CMD_DEV_ADDRESS/CMD_DEV_REGISTER, which is what makes it DEV_TOOLS-invariant
+- [Phase ?]: 119-02: three named behaviour deltas (cmd 7, cmd 8, cmd 0/CMD_IDLE) accepted as deliberate safety tightening / firmware-internal-state exclusion, not preserved behaviour
+- [Phase ?]: 119-02: firestarter.cpp's second ordinal-range guard (three debug-only lines) deliberately left unconverted -- diagnostics only, not an admission gate
 
 ## Performance Metrics
 
@@ -505,10 +508,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 118 P06 | 45min | 2 tasks | 2 files |
 | Phase 118 P07 | 25min | 2 tasks | 2 files |
 | Phase 119 P01 | 10min | 2 tasks | 6 files |
+| Phase 119 P02 | ~35min | 3 tasks | 9 files |
 
 ## Session
 
-**Last session:** 2026-07-28T18:43:36.963Z
+**Last session:** 2026-07-28T19:01:03.760Z
 **Stopped at:** Completed 119-01-PLAN.md
 **Resume file:** 
 None

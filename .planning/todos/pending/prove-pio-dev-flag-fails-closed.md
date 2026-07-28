@@ -63,3 +63,16 @@ already produced a +204 B Leonardo delta that contradicted a size-based predicti
   var-unset, on at least one AVR target.
 - An explicit statement of which mechanism was chosen and which was rejected, with the
   observed expansion behaviour — so the phase does not re-derive it.
+
+## Item 4 — ANSWERED (v1.22 Phase 119 Plan 02, 2026-07-28)
+
+`pio test -e native_nodevtools` (a new env compiling and running the full 16-suite
+`test_filter` without `-D DEV_TOOLS`) passes **112/112 across 16/16 suites**, identical to
+`[env:native]`'s baseline, with **zero test-code changes**. This confirms the grep-based
+prediction empirically: no test file under `firestarter/test/` references `DEV_TOOLS` or
+`CMD_DEV_*`, so the suites are DEV_TOOLS-invariant by construction.
+
+This answers item 4 ONLY. Items 1 through 3 (the `sysenv.FIRESTARTER_DEV_TOOLS` fail-open
+vs fail-closed matrix and the `avr-nm` symbol capture) are **untouched** — they remain
+scoped to 999.15 / gh#8 and were explicitly out of bounds for Plan 119-02 (LOCK-03/LOCK-02
+firmware work), not this item's concern.
