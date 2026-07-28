@@ -257,7 +257,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 118-01-PLAN.md — Redefine the SDP no-log gate's window as the emitter body plus the completion-poll body; re-plant the committed fixture inside it; repair all four broken pytest cases (`firestarter_app`)
+- [x] 118-01-PLAN.md — Redefine the SDP no-log gate's window as the emitter body plus the completion-poll body; re-plant the committed fixture inside it; repair all four broken pytest cases (`firestarter_app`)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 

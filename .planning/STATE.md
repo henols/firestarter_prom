@@ -4,17 +4,17 @@ milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 118
 current_phase_name: OBSERVE — auto-unlock visible + opt-out-able (FW half)
-status: Phase 118 planned — 7 plans (waves 1–7, strictly sequential), ready for /gsd-execute-phase 118
-stopped_at: Phase 118 planned
-last_updated: "2026-07-28T13:35:00.000Z"
+status: executing
+stopped_at: Completed 118-01-PLAN.md
+last_updated: "2026-07-28T13:52:50.759Z"
 last_activity: 2026-07-28
-last_activity_desc: "Phase 118 planned: 7 PLAN.md files, plan-checker PASSED first iteration (0 blockers/0 warnings); 5/5 OBS reqs + 13/13 D-IDs covered; research skipped per ROADMAP research-flag"
+last_activity_desc: Completed Phase 118 Plan 01 (D-06 SDP no-log gate window rewrite)
 progress:
   total_phases: 7
   completed_phases: 2
   total_plans: 19
-  completed_plans: 12
-  percent: 29
+  completed_plans: 13
+  percent: 68
 ---
 
 # Project State
@@ -24,12 +24,12 @@ progress:
 
 ## Current Position
 
-Phase: 118 — OBSERVE — auto-unlock visible + opt-out-able (FW half)
-Plan: Not started — 7 plans written, none executed (next: 118-01)
-Status: Phase 118 planned — 7 plans (waves 1–7, strictly sequential), ready for /gsd-execute-phase 118
-Last activity: 2026-07-28 — Phase 118 planned: 118-01..118-07 written; plan-checker PASSED on the first iteration (0 blockers, 0 warnings); 5/5 OBS reqs + 13/13 trackable D-IDs covered; research skipped per the ROADMAP research-flag (so no RESEARCH.md/VALIDATION.md — Nyquist Dimension 8 out of scope, operator-accepted at plan time)
+Phase: 118 (OBSERVE — auto-unlock visible + opt-out-able (FW half)) — EXECUTING
+Plan: 2 of 7
+Status: Plan 118-01 complete — D-06 SDP no-log gate window rewrite landed
+Last activity: 2026-07-28 — Completed Phase 118 Plan 01
 
-<!-- NOTE: `query state.planned-phase` under-writes this file. Phase 116 planning: returned `"updated": []`. Phase 117 planning: returned `"updated": ["Status"]` — it wrote only the body `Status:` line and left `status`, `stopped_at`, `last_activity_desc`, and `progress.total_plans` in the frontmatter stale. Hand-corrected both times. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. ALSO OBSERVED (117-04): `state.advance-plan` + `state.record-session` similarly leave the frontmatter `progress.percent` and body `Status`/`Last activity` lines stale (percent dropped to 14 instead of 92; Status/Last-activity still cited Plan 03) — hand-corrected again. ALSO OBSERVED (Phase 117 close): `query phase.complete 117` advanced `current_phase` to 118 correctly (the recurring jump-to-close-phase mis-advance did NOT fire), but it mangled `current_phase_name` to the bare parenthetical `FW half` (it split the roadmap title on the em-dash/parenthesis), left `status: verifying` and `stopped_at: Completed 117-05-PLAN.md` stale, and wrote a body `Status: Phase complete — ready for verification` line that contradicted the already-passed 117-VERIFICATION.md. All four hand-corrected. Verify `current_phase_name` specifically whenever a roadmap phase title contains an em-dash or a trailing parenthetical. ALSO OBSERVED (Phase 118 planning, 2026-07-28): `query state.planned-phase --phase 118 --name "…" --plans 7` returned `"updated": []` — yet it DID mutate the file: it bumped `last_updated`, overwrote `last_activity_desc` with the body `Last activity:` text, and **re-mangled `current_phase_name` from the full title down to the bare parenthetical `FW half`** (the same em-dash split as at Phase 117 close, now confirmed to fire on the planning path too), while leaving `status`, `stopped_at`, and `progress.total_plans` stale. So `"updated": []` does NOT mean "no writes" — it means the report is unreliable. Always diff STATE.md before/after the call; never trust the returned `updated` array. -->
+<!-- NOTE: `query state.planned-phase` under-writes this file. Phase 116 planning: returned `"updated": []`. Phase 117 planning: returned `"updated": ["Status"]` — it wrote only the body `Status:` line and left `status`, `stopped_at`, `last_activity_desc`, and `progress.total_plans` in the frontmatter stale. Hand-corrected both times. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. ALSO OBSERVED (117-04): `state.advance-plan` + `state.record-session` similarly leave the frontmatter `progress.percent` and body `Status`/`Last activity` lines stale (percent dropped to 14 instead of 92; Status/Last-activity still cited Plan 03) — hand-corrected again. ALSO OBSERVED (Phase 117 close): `query phase.complete 117` advanced `current_phase` to 118 correctly (the recurring jump-to-close-phase mis-advance did NOT fire), but it mangled `current_phase_name` to the bare parenthetical `FW half` (it split the roadmap title on the em-dash/parenthesis), left `status: verifying` and `stopped_at: Completed 117-05-PLAN.md` stale, and wrote a body `Status: Phase complete — ready for verification` line that contradicted the already-passed 117-VERIFICATION.md. All four hand-corrected. Verify `current_phase_name` specifically whenever a roadmap phase title contains an em-dash or a trailing parenthetical. ALSO OBSERVED (Phase 118 planning, 2026-07-28): `query state.planned-phase --phase 118 --name "…" --plans 7` returned `"updated": []` — yet it DID mutate the file: it bumped `last_updated`, overwrote `last_activity_desc` with the body `Last activity:` text, and **re-mangled `current_phase_name` from the full title down to the bare parenthetical `FW half`** (the same em-dash split as at Phase 117 close, now confirmed to fire on the planning path too), while leaving `status`, `stopped_at`, and `progress.total_plans` stale. So `"updated": []` does NOT mean "no writes" — it means the report is unreliable. Always diff STATE.md before/after the call; never trust the returned `updated` array. ALSO OBSERVED (118-01 execution, 2026-07-28): `state.record-session --stopped-at "Completed 118-01-PLAN.md"` (called during plan execution, not planning/close) reported `"updated": ["Last session","Stopped At","Resume File"]` yet ALSO silently dropped the trailing `)` off `current_phase_name` (this time truncating mid-parenthetical rather than reducing to the bare parenthetical) and reverted `progress.percent` from 68 back to 29 despite an intervening `state.update-progress` call that had correctly set it to 68 moments earlier. So this defect class fires on the plan-execution path too, not only planning/phase-complete, and a later state-mutating call can silently re-clobber a field an earlier call in the SAME session already fixed. Both hand-corrected again. -->
 
 **Phase 118 plan graph** (planned 2026-07-28 — spans all three repos; research skipped per ROADMAP research-flag, so no RESEARCH.md/VALIDATION.md):
 
@@ -73,7 +73,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-27 — v1.22 milestone-start footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.22 completes the write-protection lifecycle on protocol `0x0D` without adding a second dispatch axis — `handle->protocol` stays the sole dispatch key; `handle->cmd` is extended only as an operation selector *inside* the existing `0x0D` handler, exactly as v1.13 Phase 74 extended `flash_5v_page.cpp`.
 
-**Current focus:** Phase 118 — observe-auto-unlock-visible-opt-out-able-fw-half
+**Current focus:** Phase 118 — OBSERVE — auto-unlock visible + opt-out-able (FW half)
 
 ## Milestone Context (v1.22)
 
@@ -394,6 +394,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 117 regression gate]: **Narrowed the host-untouched claim rather than deleting it.** True and load-bearing: Phase 117 introduced no wire, protocol, or behavioral host change (no `MSG_*`/`FLAG_*`/command/CLI/serialized field) -- the two changed host files are source-scanning test gates, which cannot participate in firmware/host version skew, so the firmware-before-host ordering invariant is intact and FIX-04's substantive blob-SHA content is unaffected. Meta gitlink still not bumped.
 - [Phase 117 regression gate]: **Root cause is a PLAN-COVERAGE gap, not an implementation defect.** Phase 116 anticipated this exact case in its own source comments and the checker's stderr ("ADD the new anchor ... rather than deleting this gate"); none of Phase 117's five plans owned that step. **Carry into Phase 118+ planning:** any firmware rename/deletion must be checked against the host-side source-scanning gates (`tools/check_*.py`, `tests/test_sdp_*`, `tests/test_check_*`) before the phase closes -- Phase 118's OBS-01 touches this same SDP window and will trip the same class of gate.
 - [Phase 117 regression gate]: `test_audit_coverage_matrix::test_golden_file_matches` confirmed the only other host failure and proven unrelated -- fails identically with the gate fixes stashed, reads the chip database, references no firmware path. Same stale golden carried since v1.21; still needs its own regeneration commit.
+- [Phase 118-01]: scan()'s return contract widened to (violations, emitter_range, poll_range); anchor tuples repurposed as a write_init rename tripwire, no longer computing the window — Plan 118-04's own verification depends on knowing this contract
+- [Phase 118-01]: Case 2's expected planted-line number derived from the fixture at test time instead of a second hardcoded literal — Prevents a future re-plant from silently desyncing the assertion from the fixture
 
 ## Performance Metrics
 
@@ -456,10 +458,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 117 P03 | 20min | 2 tasks | 2 files |
 | Phase 117 P04 | 25min | 1 tasks | 1 files |
 | Phase 117 P05 | 24min | 2 tasks | 2 files |
+| Phase 118 P01 | 55min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-07-28T11:57:15.992Z
-**Stopped at:** Phase 118 context gathered
+**Last session:** 2026-07-28T13:52:50.737Z
+**Stopped at:** Completed 118-01-PLAN.md
 **Resume file:** 
-.planning/phases/118-observe-auto-unlock-visible-opt-out-able-fw-half/118-CONTEXT.md
+None
