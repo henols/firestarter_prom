@@ -274,7 +274,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 118-05-PLAN.md — Native proof: skip/no-skip stream pair, budget-WARN fires, exactly-two-report-frames enumeration, golden blob-SHA identity (`firestarter`)
+- [x] 118-05-PLAN.md — Native proof: skip/no-skip stream pair, budget-WARN fires, exactly-two-report-frames enumeration, golden blob-SHA identity (`firestarter`)
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
