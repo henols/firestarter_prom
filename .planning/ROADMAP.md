@@ -314,7 +314,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 119-03-PLAN.md — D-04's textual oracle: `check_is_memory_cmd_no_ifdef.py` + paired pytest + planted-violation fixture (closes LOCK-03)
+- [x] 119-03-PLAN.md — D-04's textual oracle: `check_is_memory_cmd_no_ifdef.py` + paired pytest + planted-violation fixture (closes LOCK-03)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
