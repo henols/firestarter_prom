@@ -334,7 +334,7 @@ Plans:
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 119-08-PLAN.md — D-16's worst per-byte page-load tracker with one report line reachable on both exits
+- [x] 119-08-PLAN.md — D-16's worst per-byte page-load tracker with one report line reachable on both exits
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
