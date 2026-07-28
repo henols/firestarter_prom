@@ -344,11 +344,11 @@ Plans:
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 119-09-PLAN.md — D-08's owned amendment: Phase 121 scope, DEVTEST-01 mapping, PROJECT.md's sixth correction block, STATE.md
+- [x] 119-09-PLAN.md — D-08's owned amendment: Phase 121 scope, DEVTEST-01 mapping, PROJECT.md's sixth correction block, STATE.md
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
-- [ ] 119-10-PLAN.md — three-repo non-regression sweep, nine-row gate table, measured flash delta against the live 2992 B headroom (closes LOCK-06)
+- [x] 119-10-PLAN.md — three-repo non-regression sweep, nine-row gate table, measured flash delta against the live 2992 B headroom (closes LOCK-06)
 
 **Wave 11** *(blocked on Wave 10 completion)*
 
