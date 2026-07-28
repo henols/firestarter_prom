@@ -234,7 +234,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4)*
 
-- [ ] 117-05-PLAN.md — Wave 5 · fw · FIX-04 non-regression gate: the four frozen production files and the two frozen shared test headers proven byte-identical to phase base `ada4bdc7` by literal git blob SHA; all five other protocol families' golden-trace suites green; full native suite green at an explained case count; both board targets built with the signed Leonardo flash delta measured; `firestarter_app`, `include/messages.h` and `include/firestarter.h` all unchanged (no new `MSG_*`/`FLAG_*`, firmware-before-host intact); validation-ceiling statement committed. (FIX-04)
+- [x] 117-05-PLAN.md — Wave 5 · fw · FIX-04 non-regression gate: the four frozen production files and the two frozen shared test headers proven byte-identical to phase base `ada4bdc7` by literal git blob SHA; all five other protocol families' golden-trace suites green; full native suite green at an explained case count; both board targets built with the signed Leonardo flash delta measured; `firestarter_app`, `include/messages.h` and `include/firestarter.h` all unchanged (no new `MSG_*`/`FLAG_*`, firmware-before-host intact); validation-ceiling statement committed. (FIX-04)
 
 **Research flag**: no — standard pattern (`memory_set_data` is the function `eeprom28c_write_execute` already uses at an existing read seam; the change is small against a known call site).
 **UI hint**: no
