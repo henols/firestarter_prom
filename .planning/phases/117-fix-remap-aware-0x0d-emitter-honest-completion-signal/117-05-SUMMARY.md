@@ -134,7 +134,24 @@ None — plan executed exactly as written. All Task 1 and Task 2 acceptance crit
 
 ## Issues Encountered
 
-None. `test_flash_intel_vpp` — named in the plan as the expected KNOWN-FLAKY exception — turned out not to be reachable at all under `pio test -e native` (it is absent from `[env:native]`'s `test_filter` allowlist), so the "no suite other than KNOWN-FLAKY reports FAILED/ERRORED" criterion was satisfied vacuously rather than by observing and citing an actual `[ERRORED]` line; this is recorded explicitly in the gate section rather than silently treated as identical to the plan's anticipated scenario.
+> **POST-CLOSE CORRECTION — the host-untouched claim in this SUMMARY is superseded (Phase 117 regression gate, 2026-07-28).**
+>
+> This SUMMARY's `zero firestarter_app files changed` / `committed history unmoved at 36a9bb5` statements were true when written and are now **false**. The phase's regression gate — run after this plan committed, before phase verification — found that Phase 117 broke **four Phase-116 host-side gates** that scan `eeprom_28c.cpp`'s source text and were keyed to pre-117 identifiers and declaration syntax:
+>
+> - `tests/test_sdp_table_parity.py` (3 cases) — `_extract_byte_flip_pairs`'s declaration regex requires **empty** brackets (`NAME[] =`); 117-02 changed the definition to `EEPROM_SDP_DISABLE[6] = {`, because a C++ `extern` declaration cannot name an incomplete array type. Regex matched zero times → `ValueError`.
+> - `tests/test_check_no_log_in_sdp_window.py::test_checker_exits_zero_on_clean_source` — `check_no_log_in_sdp_window.py`'s emit anchor was `flash_execute_command(EEPROM_SDP_DISABLE)` (replaced by 117-02) and its wait anchor was `eeprom28c_wait_for_write(` (deleted outright by 117-03). Both tuples matched zero times → checker exit 1.
+>
+> **Proven Phase-117-caused, not pre-existing debt:** injecting phase-base `ada4bdc`'s `eeprom_28c.cpp` via the `FIRESTARTER_SDP_SRC` env seam flips the parity cases green, and the base source contains both anchors (emit ×1, wait ×4). Host CI runs these (`ci.yml` → `pytest --cov`; `beta-release.yml` → `pytest tests/ -v`), so the host suite and any beta cut were red. Both gates fail **closed**, never a silent pass — and Phase 116 anticipated this exact case in its own comments (*"ADD the new anchor … rather than deleting this gate"*); Phase 117's five plans simply had no task that did so. **This is a plan-coverage gap, not an implementation defect.**
+>
+> **Fixed under operator authorization at the regression gate:**
+> - `firestarter_app@9dd11a9` — `fix(117): re-anchor Phase-116 host SDP gates onto the Phase-117 emitter`. Both anchor tuples extended **append-only** (superseded patterns retained, per the anti-hollow contract); parity bracket group widened to `\[\s*\d*\s*\]`, still requiring the trailing `=` so it matches only the initializer and never the bare `extern` declaration. Array bytes unchanged. ruff check + format clean.
+> - `firestarter@f8d10a5` — the same correction appended to the committed `## FIX-04 non-regression gate` section in `RED-BASELINE.md`, so the firmware-side record is not left asserting something false.
+>
+> **Narrowed claim that IS true, and that the ordering invariant actually needs:** Phase 117 introduced **no wire, protocol, or behavioral change on the host** — no `MSG_*`, no `FLAG_*`, no command, no CLI surface, no serialized field. The two changed host files are source-scanning **test gates**, which cannot participate in firmware/host version skew. The firmware-before-host ordering invariant is intact. FIX-04's substantive content — the six frozen artifacts byte-identical by blob SHA, goldens not regenerated, other families' traces unchanged — is **unaffected** and still holds. `firestarter_app`'s pre-existing dirty working tree was left untouched; meta gitlink still not bumped.
+>
+> **Remaining known-red, proven unrelated:** `test_audit_coverage_matrix::test_golden_file_matches` is the only other host failure. It fails identically with the two gate fixes stashed away and reads the chip database, referencing no firmware path — the same stale golden carried since v1.21, needing its own regeneration commit.
+
+`test_flash_intel_vpp` — named in the plan as the expected KNOWN-FLAKY exception — turned out not to be reachable at all under `pio test -e native` (it is absent from `[env:native]`'s `test_filter` allowlist), so the "no suite other than KNOWN-FLAKY reports FAILED/ERRORED" criterion was satisfied vacuously rather than by observing and citing an actual `[ERRORED]` line; this is recorded explicitly in the gate section rather than silently treated as identical to the plan's anticipated scenario.
 
 ## Validation Ceiling Compliance
 
