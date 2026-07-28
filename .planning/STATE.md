@@ -4,11 +4,11 @@ milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 119
 current_phase_name: LOCK — SDP-enable + command surface (FW half)
-status: Phase 118 complete (verification passed 5/5) — ready for /gsd-discuss-phase 119
-stopped_at: Phase 118 complete — all 7 plans executed, VERIFICATION.md status passed
-last_updated: "2026-07-28T15:45:22.494Z"
+status: Phase 119 context gathered — ready for /gsd-plan-phase 119
+stopped_at: Phase 119 context gathered
+last_updated: "2026-07-28T16:47:05.327Z"
 last_activity: 2026-07-28
-last_activity_desc: Phase 118 complete, transitioned to Phase 119
+last_activity_desc: Phase 119 CONTEXT.md written (20 decisions); ready for planning
 progress:
   total_phases: 7
   completed_phases: 3
@@ -25,9 +25,14 @@ progress:
 ## Current Position
 
 Phase: 119 — LOCK — SDP-enable + command surface (FW half)
-Plan: Not started (not yet discussed or planned)
-Status: Phase 118 COMPLETE — 7/7 plans executed, `118-VERIFICATION.md` status `passed` (5/5 ROADMAP success criteria, 12/12 must-haves, all five OBS requirements Complete). Ready for `/gsd-discuss-phase 119`.
-Last activity: 2026-07-28 — Phase 118 complete, transitioned to Phase 119
+Plan: Not started — context gathered, not yet planned
+Status: Phase 119 DISCUSSED — `119-CONTEXT.md` written (20 decisions, `42c24e4`). Ready for `/gsd-plan-phase 119` (ROADMAP research flag: **yes**).
+Last activity: 2026-07-28 — Phase 119 CONTEXT.md written; ready for planning
+
+> **⚠ Phase 119 discussion produced three cross-phase consequences — read `119-CONTEXT.md` before planning 119, 121 or 122.**
+> 1. **LOCK-04's mechanism is SUPERSEDED (D-05).** `configure_memory` pre-sets the generic `main` for `CMD_READ`/`CMD_WRITE`/`CMD_VERIFY` (`memory.cpp:48-58`) *before* calling `configure_eeprom28c`, so the literal `default: → MSG_ERR_NOT_SUPPORTED` arm LOCK-04 prescribes would **refuse `read` and `verify` on all 84 `0x0D` chips**. LOCK-04's *intent* is met instead by a single op-layer NULL-`main` refusal (D-06). Record the correction in the SUMMARY and VERIFICATION; do **not** edit `REQUIREMENTS.md`, and do not read LOCK-04 as failed.
+> 2. **DEVTEST-01's firmware half MOVES INTO PHASE 119 (D-07/D-08).** `op_execute_stateful_operation` returns `false` at `operation_utils.cpp:83` when `main` is NULL, so the caller reports finished with `response_code == OK` and **no error at all** — the phantom-erase mechanism, and it is a whole-dispatch-layer defect, not a `0x0D` one. The operator chose to fix the class generically in 119. **Phase 121's ROADMAP scope and the `REQUIREMENTS.md` DEVTEST-01 mapping must be amended as an owned task in Phase 119**, and a full cross-family native trace + regression sweep is mandatory. DEVTEST-01's host half (`OP_ERASE` → `NA` in the `dev test` sweep) stays in Phase 121.
+> 3. **LOCK-06's `3348 B` headroom is a superseded pre-117 figure (D-15).** `+204 B` (117) and `+152 B` (118) are spent; Leonardo sits at **25680/28672**, leaving **2992 B**. Judge this phase's delta against the live number with the arithmetic shown, no threshold claim beyond "fits". Also: **F-118-01's page-load directive is TAKEN (D-16)** — worst-case per-byte t_BLC bracketed on `eeprom28c_write_execute`'s loop, reported once, measured on **all three** attached boards (D-18, reversing 118's Leonardo-only D-12; operator confirmed all three sockets empty 2026-07-28).
 
 **Phase 118 outcome (OBSERVE — auto-unlock visible + opt-out-able, FW half):** the auto-unlock now reports one unconditional INFO line before the SDP-disable sequence and one after it carrying the `micros()`-measured duration, via `LOG_ID`/`LOG_ID_U32` rather than the `FLAG_VERBOSE`-gated `LOG_INFO_ID*` family (D-01 — the tree's first non-verbose-gated INFO call sites, argued in-source). `FLAG_SKIP_SDP_UNLOCK 0x100` lets the user decline, reporting `MSG_WARN_SDP_UNLOCK_SKIPPED` in place of the pair and writing nothing to `handle->response_code` (D-02, preserving Phase 117's D-05). `AT28C_TBLC_MAX_US 100` became a real runtime budget check (D-09), not a comment. The no-log gate was redefined to brace-match the emitter and completion-poll bodies (D-06), which is where inter-byte timing actually lives. Flash cost **+152 B** on both Leonardo and Uno; RAM unchanged. Bus-stream byte-identity held: all three `test/native/avr/_shared/` goldens are blob-SHA identical to phase base `f8d10a5` with zero regeneration (D-07).
 
@@ -480,7 +485,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-07-28T15:30:52.741Z
-**Stopped at:** Completed 118-06-PLAN.md
+**Last session:** 2026-07-28T16:47:05.314Z
+**Stopped at:** Phase 119 context gathered
 **Resume file:** 
-None
+.planning/phases/119-lock-sdp-enable-command-surface-fw-half/119-CONTEXT.md
