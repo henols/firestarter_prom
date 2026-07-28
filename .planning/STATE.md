@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
-current_phase: 117
-current_phase_name: fix-remap-aware-0x0d-emitter-honest-completion-signal
-status: ready_for_verification
-stopped_at: Completed 117-05-PLAN.md
-last_updated: "2026-07-28T10:47:25.749Z"
+current_phase: 118
+current_phase_name: OBSERVE — auto-unlock visible + opt-out-able (FW half)
+status: Phase 117 CLOSED (verified 6/6, passed) — Phase 118 not yet discussed or planned
+stopped_at: Phase 117 complete and verified — ready for `/gsd-discuss-phase 118`
+last_updated: "2026-07-28T11:09:02.974Z"
 last_activity: 2026-07-28
-last_activity_desc: Phase 117 Plan 05 complete (FIX-04 non-regression gate — six frozen artifacts byte-identical by blob SHA vs phase base ada4bdc7, full native suite 108/108, both board builds, +204 B Leonardo flash delta measured, host-untouched proof; FIX-01 through FIX-06 all Complete, phase ready for verification)
+last_activity_desc: "Phase 117 CLOSED — 5/5 plans, verification passed 6/6, FIX-01..06 all Complete; regression gate caught + fixed 4 broken Phase-116 host gates"
 progress:
   total_phases: 7
   completed_phases: 2
@@ -24,12 +24,12 @@ progress:
 
 ## Current Position
 
-Phase: 117 (fix-remap-aware-0x0d-emitter-honest-completion-signal) — READY FOR VERIFICATION
-Plan: 5 of 5 (all plans complete)
-Status: Phase complete — ready for verification
-Last activity: 2026-07-28 — Phase 117 Plan 05 complete (FIX-04 non-regression gate — six frozen artifacts byte-identical by blob SHA vs phase base ada4bdc7, full native suite 108/108, both board builds, +204 B Leonardo flash delta measured, host-untouched proof; FIX-01 through FIX-06 all Complete)
+Phase: 118 — OBSERVE — auto-unlock visible + opt-out-able (FW half)
+Plan: Not started (not yet planned)
+Status: Phase 117 CLOSED — verification passed 6/6; Phase 118 awaiting discuss/plan
+Last activity: 2026-07-28 — Phase 117 closed: 5/5 plans, 117-VERIFICATION.md passed 6/6, FIX-01..06 all Complete
 
-<!-- NOTE: `query state.planned-phase` under-writes this file. Phase 116 planning: returned `"updated": []`. Phase 117 planning: returned `"updated": ["Status"]` — it wrote only the body `Status:` line and left `status`, `stopped_at`, `last_activity_desc`, and `progress.total_plans` in the frontmatter stale. Hand-corrected both times. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. ALSO OBSERVED (117-04): `state.advance-plan` + `state.record-session` similarly leave the frontmatter `progress.percent` and body `Status`/`Last activity` lines stale (percent dropped to 14 instead of 92; Status/Last-activity still cited Plan 03) — hand-corrected again. -->
+<!-- NOTE: `query state.planned-phase` under-writes this file. Phase 116 planning: returned `"updated": []`. Phase 117 planning: returned `"updated": ["Status"]` — it wrote only the body `Status:` line and left `status`, `stopped_at`, `last_activity_desc`, and `progress.total_plans` in the frontmatter stale. Hand-corrected both times. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. ALSO OBSERVED (117-04): `state.advance-plan` + `state.record-session` similarly leave the frontmatter `progress.percent` and body `Status`/`Last activity` lines stale (percent dropped to 14 instead of 92; Status/Last-activity still cited Plan 03) — hand-corrected again. ALSO OBSERVED (Phase 117 close): `query phase.complete 117` advanced `current_phase` to 118 correctly (the recurring jump-to-close-phase mis-advance did NOT fire), but it mangled `current_phase_name` to the bare parenthetical `FW half` (it split the roadmap title on the em-dash/parenthesis), left `status: verifying` and `stopped_at: Completed 117-05-PLAN.md` stale, and wrote a body `Status: Phase complete — ready for verification` line that contradicted the already-passed 117-VERIFICATION.md. All four hand-corrected. Verify `current_phase_name` specifically whenever a roadmap phase title contains an em-dash or a trailing parenthetical. -->
 
 **Phase 117 plan graph** (planned 2026-07-28 — firmware-only, `firestarter/` sub-repo; `firestarter_app/` untouched):
 
