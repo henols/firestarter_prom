@@ -265,7 +265,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 118-03-PLAN.md — Define `FLAG_SKIP_SDP_UNLOCK 0x100` and `AT28C_TBLC_MAX_US 100`, cite t_BLC at the page-load loop, mock `micros()` in both native SDP suites — behaviourally inert (`firestarter`)
+- [x] 118-03-PLAN.md — Define `FLAG_SKIP_SDP_UNLOCK 0x100` and `AT28C_TBLC_MAX_US 100`, cite t_BLC at the page-load loop, mock `micros()` in both native SDP suites — behaviourally inert (`firestarter`)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 

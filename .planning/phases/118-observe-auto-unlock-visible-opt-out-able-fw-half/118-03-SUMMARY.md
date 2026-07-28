@@ -176,13 +176,14 @@ None — no external service configuration required.
 
 ## Self-Check: PASSED
 
-- FOUND: `/workspaces/firestarter/include/firestarter.h` (`FLAG_SKIP_SDP_UNLOCK 0x100` present)
-- FOUND: `/workspaces/firestarter/src/proms/eeprom_28c.cpp` (`AT28C_TBLC_MAX_US 100` and the D-10 citation present)
-- FOUND: `/workspaces/firestarter/test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp` (`s_micros_ticks` present)
-- FOUND: `/workspaces/firestarter/test/native/avr/test_sdp_harness/test_sdp_harness.cpp` (`micros` mock present)
-- FOUND: commit `12ae733` in `firestarter` (`git -C firestarter log --oneline --all`)
-- FOUND: commit `34a520e` in `firestarter` (`git -C firestarter log --oneline --all`)
-- FOUND: commit `5bfa0fa` in `firestarter` (`git -C firestarter log --oneline --all`)
+- FOUND: `/workspaces/firestarter/include/firestarter.h`
+- FOUND: `/workspaces/firestarter/src/proms/eeprom_28c.cpp`
+- FOUND: `/workspaces/firestarter/test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp`
+- FOUND: `/workspaces/firestarter/test/native/avr/test_sdp_harness/test_sdp_harness.cpp`
+- FOUND: commit `12ae733` in `firestarter`
+- FOUND: commit `34a520e` in `firestarter`
+- FOUND: commit `5bfa0fa` in `firestarter`
+- FOUND: commit `01cbb59` in meta-repo (SUMMARY.md commit)
 
 ---
 *Phase: 118-observe-auto-unlock-visible-opt-out-able-fw-half*
