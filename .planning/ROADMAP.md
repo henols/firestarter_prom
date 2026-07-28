@@ -326,7 +326,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 119-06-PLAN.md — three-way `AA-55-A0` identity + distinctness guard, D-12 report-shape proof, D-14 budget pair, host source-text parity leg (closes LOCK-05)
+- [x] 119-06-PLAN.md — three-way `AA-55-A0` identity + distinctness guard, D-12 report-shape proof, D-14 budget pair, host source-text parity leg (closes LOCK-05)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 

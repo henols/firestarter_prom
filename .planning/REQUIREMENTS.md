@@ -67,7 +67,7 @@ The promoting backlog note (999.19/999.18) asserted protocol `0x0D` "has no SDP 
 - [ ] **LOCK-02**: `CMD_SDP_UNLOCK` and `CMD_SDP_LOCK` are invocable **in their own right** — no data payload, no host `DONE` round-trip, `init`/`end` left NULL so those phases are skipped
 - [x] **LOCK-03**: The ordinal `cmd < CMD_DEV_ADDRESS` admission guard (`firestarter.cpp:79`) is replaced by an explicit predicate enumerating the memory commands, proven **identical with and without `-D DEV_TOOLS`** — a prerequisite for LOCK-02, since no free command slot exists below the guard (D-04's two oracles: the two-env truth table over all 256 `cmd` values, Plan 119-02; and `check_is_memory_cmd_no_ifdef.py`'s brace-matched source-scan gate + planted-violation fixture proving no build-configuration conditional in the predicate's body, Plan 119-03)
 - [ ] **LOCK-04**: `configure_eeprom28c` gains a `default:` → `MSG_ERR_NOT_SUPPORTED` arm, and lock/unlock are fail-closed for any `protocol != 0x0D`
-- [ ] **LOCK-05**: `FLASH_ENABLE_WRITE_PROTECTION` is **preserved, not deduped** — it is byte-identical to `FLASH_ENABLE_WRITE` because `AA-55-A0` is genuinely dual-purpose, so the name is the only discriminator
+- [x] **LOCK-05**: `FLASH_ENABLE_WRITE_PROTECTION` is **preserved, not deduped** — it is byte-identical to `FLASH_ENABLE_WRITE` because `AA-55-A0` is genuinely dual-purpose, so the name is the only discriminator (Plan 119-06: `test_lock05_three_way_enable_table_identity` machine-checks the three-way byte-identity against the production objects, `test_lock05_enable_table_objects_distinct` machine-checks the three-way pairwise distinctness, Plan 119-05's Case 17 pins the no-payload stream absence, and `test_sdp_table_parity.py`'s `test_eeprom_sdp_enable_matches_flash_enable_write_and_write_protection` gives a second, independent source-text oracle)
 - [ ] **LOCK-06**: A `pio run -e leonardo` flash delta is reported and stays within the measured 3348 B headroom
 
 ### Host Surface (lands strictly after firmware)
@@ -171,7 +171,7 @@ Filled during roadmap creation (`/gsd-new-project` → roadmapper, 2026-07-27). 
 | LOCK-02 | Phase 119 | Pending |
 | LOCK-03 | Phase 119 | Complete |
 | LOCK-04 | Phase 119 | Pending |
-| LOCK-05 | Phase 119 | Pending |
+| LOCK-05 | Phase 119 | Complete |
 | LOCK-06 | Phase 119 | Pending |
 | HOST-01 | Phase 120 | Pending |
 | HOST-02 | Phase 120 | Pending |

@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 119
 current_phase_name: LOCK — SDP-enable + command surface (FW half)
 status: executing
-stopped_at: Completed 119-05-PLAN.md
-last_updated: "2026-07-28T19:52:39.771Z"
+stopped_at: Completed 119-06-PLAN.md
+last_updated: "2026-07-28T20:09:04.533Z"
 last_activity: 2026-07-28
-last_activity_desc: Completed 119-05-PLAN.md
+last_activity_desc: Completed 119-06-PLAN.md
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 30
-  completed_plans: 24
-  percent: 80
+  completed_plans: 25
+  percent: 83
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 119 (LOCK — SDP-enable + command surface (FW half)) — EXECUTING
-Plan: 6 of 11
-Status: Executing Phase 119 — Plan 119-05 complete (LOCK-01 closed; LOCK-05 advanced but stays open pending Plan 119-06), Plan 119-06 next
-Last activity: 2026-07-28 — Completed 119-05-PLAN.md
+Plan: 7 of 11
+Status: Executing Phase 119 — Plan 119-06 complete (LOCK-05 closed via a two-oracle three-way identity/distinctness guard; LOCK-02 advanced but stays open pending Plan 119-07), Plan 119-07 next
+Last activity: 2026-07-28 — Completed 119-06-PLAN.md
 
 > **⚠ Phase 119 planning note — CONTEXT.md's D-NN bullets were re-formatted (`c90b76d`).** The blocking decision-coverage gate could not parse `119-CONTEXT.md`: four bullets tripped the parse-miss guard (three wrapped bold labels — D-01/D-14/D-17 — plus D-06's second colon inside the label), and seven more (D-05/07/08/10/15/16/18) were **silently invisible** because the `⚠` glyph sat inside the bold run *before* the ID, which the parser's `**D-` anchor requires. Before the fix the gate tracked only **8 of 19** decisions and returned `reason: could-not-parse`. Formatting-only repair: `⚠` moved to just after the colon, wrapped labels reflowed onto one line, D-06's second colon → em-dash. Word-level diff confirmed zero wording change. **Applies to every future phase in this project: `- **D-NN: text**` must close its bold run on ONE line, must contain at most one colon before the closing `**`, and must not open with a glyph.**
 
@@ -445,6 +445,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 119-04]: Two standalone ops (eeprom28c_sdp_unlock_execute/eeprom28c_sdp_lock_execute) rather than one cmd-discriminated function; check_no_log_in_sdp_window.py repaired in the same plan as the D-14 helper refactor that broke it
 - [Phase ?]: Kept the temporary SDP_TRACE_DUMP dump helper permanently behind #ifdef (test_sdp_harness.cpp style) rather than deleting after use
 - [Phase ?]: DIP32_28C512_EEPROM's lock golden recorded under the deliberately stale upper-address CONTROL seed -- length 33 with an extra CONTROL_REGISTER-clearing write, not 30/index-27 like the other three pinouts
+- [Phase 119]: LOCK-05 closed: three-way byte-identity + distinctness guard over EEPROM_SDP_ENABLE/FLASH_ENABLE_WRITE_PROTECTION/FLASH_ENABLE_WRITE (link-time firmware oracle + independent source-text host oracle); D-12 report-shape, D-14 budget-WARN fires/does-not-fire pair, D-13 standalone-unlock==auto-unlock stream equality all proven; criterion-5 header-comment deviation recorded (same class as D-05/D-15, flash_utils.h stays byte-frozen)
 
 ## Performance Metrics
 
@@ -518,10 +519,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 119 P03 | 25min | 2 tasks | 3 files |
 | Phase 119 P04 | 55min | 3 tasks | 5 files |
 | Phase 119 P05 | ~50min | 3 tasks | 2 files |
+| Phase 119 P06 | 45min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-07-28T19:52:06.323Z
+**Last session:** 2026-07-28T20:08:02.368Z
 **Stopped at:** Completed 119-03-PLAN.md
 **Resume file:** 
 None
