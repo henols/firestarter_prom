@@ -60,8 +60,8 @@ review.
 
 ### Command admission and the fail-closed surface
 
-- **D-01: `is_memory_cmd()` enumerates the memory commands, and the resulting behaviour change
-  for cmd 7/8 is TAKEN, not preserved.** The predicate is
+- **D-01: `is_memory_cmd()` enumerates the memory commands, and the resulting behaviour change for cmd 7/8 is TAKEN, not preserved.**
+  The predicate is
   `{CMD_READ, CMD_WRITE, CMD_ERASE, CMD_BLANK_CHECK, CMD_CHECK_CHIP_ID, CMD_VERIFY,
   CMD_SDP_UNLOCK, CMD_SDP_LOCK}` with **no `#ifdef` inside it**. Verified during discussion: the
   guard at `firestarter.cpp:79` is `#ifdef DEV_TOOLS`-conditional, so a **release** build (no
@@ -104,7 +104,7 @@ review.
 
 ### Where the protocol/capability refusal lives — LOCK-04's mechanism CORRECTED
 
-- **⚠ D-05: LOCK-04 CANNOT be implemented as written, and the mechanism is superseded.**
+- **D-05: ⚠ LOCK-04 CANNOT be implemented as written, and the mechanism is superseded.**
   Verified during discussion: `configure_memory` **pre-sets** the generic `main` for `CMD_READ`,
   `CMD_WRITE` and `CMD_VERIFY` (`memory.cpp:48-58`) and *then* calls `configure_eeprom28c`, whose
   switch only overrides `CMD_WRITE` and adds `CMD_BLANK_CHECK`. A literal
@@ -117,7 +117,7 @@ review.
   LOCK-04 as failed. Any `default:` arm that *is* added to `configure_eeprom28c` must be narrowly
   scoped to commands `0x0D` genuinely cannot do and must leave the pre-set generic mains alone.
 
-- **D-06: One guard, at the op layer: NULL `main` ⇒ `MSG_ERR_NOT_SUPPORTED`.** Single site,
+- **D-06: One guard, at the op layer — NULL `main` ⇒ `MSG_ERR_NOT_SUPPORTED`.** Single site,
   smallest flash cost, and **provably total** — any protocol whose handler has no arm for a
   command is refused, present and future, with no per-handler maintenance. Rejected: a
   pre-dispatch `protocol != 0x0D` check in `configure_memory` (puts `0x0D`-specific knowledge
@@ -125,7 +125,7 @@ review.
   rejected: a `default:` arm in every `configure_*` handler (six sites, most flash against
   2992 B remaining, and each arm has to be written not to swallow the pre-set generic mains).
 
-- **⚠ D-07: The guard is GENERIC — the whole phantom-success class is fixed here.** Verified:
+- **D-07: ⚠ The guard is GENERIC — the whole phantom-success class is fixed here.** Verified:
   `op_execute_stateful_operation` returns `false` immediately when `main` is NULL
   (`operation_utils.cpp:63,83`), so the calling `eprom_*` returns "finished" with
   `response_code == RESPONSE_CODE_OK` **and no error logged at all**. That is precisely
@@ -134,7 +134,7 @@ review.
   cost. Rejected: scoping the guard to the SDP path only; rejected: a generic guard behind an
   enumerated allowlist.
 
-- **⚠ D-08: D-07's consequences are owned, not discovered later.**
+- **D-08: ⚠ D-07's consequences are owned, not discovered later.**
   1. **Phase 121's DEVTEST-01 firmware half lands early.** Its ROADMAP scope, its plan set, and
      `REQUIREMENTS.md`'s LOCK/DEVTEST mapping must be amended — as an **explicit task in this
      phase**, with the amendment recorded in `STATE.md` and `PROJECT.md`. DEVTEST-01's host half
@@ -161,10 +161,8 @@ review.
   (a comment is the decorative-invariant shape v1.12's hollow GATE-03 and 118's D-09 argue
   against).
 
-- **⚠ D-10: The dual-purpose hazard is a whole-TABLE identity, not a one-nibble one, and it is
-  a safety property.** `AA-55-A0` is byte-identical to `FLASH_ENABLE_WRITE` — the **protected-
-  write prefix**. The only thing separating "lock the chip" from "write a byte" is that **no data
-  write follows**. FIX-05 pinned a one-nibble hazard (`…0x20` unlock vs `…0x10` erase); this is
+- **D-10: ⚠ The dual-purpose hazard is a whole-TABLE identity, not a one-nibble one, and it is a safety property.**
+  `AA-55-A0` is byte-identical to `FLASH_ENABLE_WRITE` — the **protected- write prefix**. The only thing separating "lock the chip" from "write a byte" is that **no data write follows**. FIX-05 pinned a one-nibble hazard (`…0x20` unlock vs `…0x10` erase); this is
   strictly worse. So LOCK-02's "no data payload" is a hard safety invariant, not a convenience.
   **LOCK-05 is discharged by a three-way guard plus a no-payload trace assertion:** the guard
   asserts `EEPROM_SDP_ENABLE` == `FLASH_ENABLE_WRITE_PROTECTION` == `FLASH_ENABLE_WRITE`
@@ -210,8 +208,8 @@ review.
   same operation?" question 118 D-04 closed); rejected: one line for the lock with no duration
   (breaks the D-14 symmetry).
 
-- **D-14: The lock gets the same `micros()` bracket and t_BLC budget check, via a shared
-  helper.** Phase 118's budget is already length-parameterised
+- **D-14: The lock gets the same `micros()` bracket and t_BLC budget check, via a shared helper.**
+  Phase 118's budget is already length-parameterised
   (`sdp_seq_len × AT28C_TBLC_MAX_US`, measured 572 vs 600 µs), so factoring the bracket + check
   into one helper both sequences call is nearly free in flash. At 3 writes the lock's budget is
   300 µs and, at F-118-01's ~95 µs/byte, it lands near ~286 µs — **the same ~4.7 % margin**, so
@@ -222,7 +220,7 @@ review.
 
 ### LOCK-06's headroom and the page-load measurement
 
-- **⚠ D-15: LOCK-06's `3348 B` is a superseded pre-117 figure; judge against the live number.**
+- **D-15: ⚠ LOCK-06's `3348 B` is a superseded pre-117 figure; judge against the live number.**
   `+204 B` (Phase 117) and `+152 B` (Phase 118) are already spent, so Leonardo sits at
   **25680/28672**, leaving **2992 B**. Measure this phase's own delta against that live figure
   and show the arithmetic. **No threshold claim beyond "fits"** — matching how 117 and 118
@@ -233,7 +231,7 @@ review.
   cumulative milestone budget (LOCK-06 then can't be judged from this phase's artifacts alone);
   rejected: reporting both framings (invites a later reader quoting whichever is more flattering).
 
-- **⚠ D-16: The page-load t_BLC measurement is TAKEN — worst-case, reported once.** PROJECT.md's
+- **D-16: ⚠ The page-load t_BLC measurement is TAKEN — worst-case, reported once.** PROJECT.md's
   FIFTH CORRECTION item 3 directs it at this phase. Apply the D-14 shared bracket to
   `eeprom28c_write_execute`'s per-byte `set_data` loop, track the **worst** per-byte interval
   across all pages, and report it in a **single** line after the write completes. A naive
@@ -245,8 +243,8 @@ review.
   making it a runtime WARN check (a compare in the hot per-byte path is what 118 D-10 declined,
   and D-16 already surfaces the number); rejected: deferring with a recorded declination.
 
-- **D-17: Bench scope — page-load now on all three boards; the lock's hardware duration waits
-  for Phase 120.** The page-load loop is reachable with the **shipped** CLI
+- **D-17: Bench scope — page-load now on all three boards; the lock's hardware duration waits for Phase 120.**
+  The page-load loop is reachable with the **shipped** CLI
   (`write -b --force`, which gets past the blank check an empty socket fails; `0x0D` has no
   erase, so `-b` skips nothing else on this family). `CMD_SDP_LOCK` is **not** reachable — the
   `dev sdp` command is Phase 120 — so every bench byte in this phase is driven by released host
@@ -255,7 +253,7 @@ review.
   all three numbers in one session, but exercises a brand-new state-mutating command on hardware
   via an unreviewed instrument); rejected: native-only with the margin recorded not-measured.
 
-- **⚠ D-18: THREE boards, not one — reversing 118's D-12 Leonardo-only scope.** Operator
+- **D-18: ⚠ THREE boards, not one — reversing 118's D-12 Leonardo-only scope.** Operator
   decision, 2026-07-28: *"Same as 118 and test uno and uno328pb that is also connected."* Per
   `118-MEASUREMENT.md` §2 the ports were `/dev/ttyACM0` = leonardo, `/dev/ttyACM1` = uno,
   `/dev/ttyUSB0` = uno328pb — **re-verify `controller:` identity per candidate port before
