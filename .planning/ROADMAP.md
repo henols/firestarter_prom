@@ -301,8 +301,22 @@ Plans:
   5. `FLASH_ENABLE_WRITE_PROTECTION` remains present and byte-identical to `FLASH_ENABLE_WRITE` (not deduplicated), with a header comment recording why the duplication is datasheet-correct.
   6. A measured `pio run -e leonardo` flash-size delta is reported and stays within the pre-measured 3348 B headroom (or the trade-off taken to stay within it is explicitly recorded).
 
-**Plans**: TBD
-**Research flag**: yes — likely needs `/gsd-plan-phase --research-phase 119` (the `is_memory_cmd()` refactor touches a safety-relevant admission gate with a pre-existing `#ifdef`-conditional divergence; the defence-in-depth `default:`-arm-across-other-handlers flash-budget trade is an open question).
+**Plans**: 11 plans (strictly sequential — every firmware plan invokes `pio` against the single shared `firestarter/.pio/build/` tree, and several commit into the same submodule working trees)
+
+Plans:
+- [ ] 119-01-PLAN.md — three new INFO catalog ids (lock report pair + page-load worst-interval) through the full three-repo codegen ritual
+- [ ] 119-02-PLAN.md — `is_memory_cmd()` replaces the ordinal guard; `CMD_SDP_UNLOCK 9` / `CMD_SDP_LOCK 10`; `[env:native_nodevtools]` + CI step; exhaustive two-env truth-table suite
+- [ ] 119-03-PLAN.md — D-04's textual oracle: `check_is_memory_cmd_no_ifdef.py` + paired pytest + planted-violation fixture (closes LOCK-03)
+- [ ] 119-04-PLAN.md — `EEPROM_SDP_ENABLE[3]`, the shared timed-emit helper, both standalone SDP ops, dispatch + `loop()` wiring, and the host emit-anchor repair in the same plan
+- [ ] 119-05-PLAN.md — four dump-authored `SDP_FIXED_LOCK_*` goldens, scripted `micros()` queue, per-pinout stream + no-payload + exact-divergence cases (closes LOCK-01)
+- [ ] 119-06-PLAN.md — three-way `AA-55-A0` identity + distinctness guard, D-12 report-shape proof, D-14 budget pair, host source-text parity leg (closes LOCK-05)
+- [ ] 119-07-PLAN.md — Open Question 1 spike, then the single generic NULL-`main` refusal and the full command-by-protocol matrix (closes LOCK-04 + LOCK-02; DEVTEST-01 firmware half)
+- [ ] 119-08-PLAN.md — D-16's worst per-byte page-load tracker with one report line reachable on both exits
+- [ ] 119-09-PLAN.md — D-08's owned amendment: Phase 121 scope, DEVTEST-01 mapping, PROJECT.md's sixth correction block, STATE.md
+- [ ] 119-10-PLAN.md — three-repo non-regression sweep, nine-row gate table, measured flash delta against the live 2992 B headroom (closes LOCK-06)
+- [ ] 119-11-PLAN.md — three-board bench measurement and `119-MEASUREMENT.md` with per-board provenance
+
+**Research flag**: yes — research completed 2026-07-28 (`119-RESEARCH.md`, `119-PATTERNS.md`, `119-VALIDATION.md`). ⚠ Criteria 4, 5 and 6 above are **superseded** — see the correction note under Success Criteria and `119-CONTEXT.md` D-05, D-15 and RESEARCH F-K.
 **UI hint**: no
 
 ### Phase 120: HOST — CLI surface, wire emission, capability refusal
