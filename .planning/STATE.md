@@ -5,15 +5,15 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 120
 current_phase_name: host-cli-surface-wire-emission-capability-refusal
 status: executing
-stopped_at: Completed 120-03-PLAN.md
-last_updated: "2026-07-29T10:53:34.306Z"
+stopped_at: Completed 120-06-PLAN.md
+last_updated: "2026-07-29T11:03:24.142Z"
 last_activity: 2026-07-29
-last_activity_desc: Completed 120-03-PLAN.md (INFO-band frame promotion — _log_rurp_feedback logging.DEBUG to logging.INFO)
+last_activity_desc: Completed 120-06-PLAN.md (sdp_unlock/sdp_lock payload-free ops + build_flags skip_sdp_unlock wire flag mapping)
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 42
-  completed_plans: 35
+  completed_plans: 36
   percent: 57
 ---
 
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 120 (host-cli-surface-wire-emission-capability-refusal) — EXECUTING
-Plan: 5 of 12
+Plan: 7 of 12
 Status: Ready to execute
-Last activity: 2026-07-29 — Completed 120-03-PLAN.md (INFO-band frame promotion — _log_rurp_feedback logging.DEBUG to logging.INFO)
+Last activity: 2026-07-29 — Completed 120-06-PLAN.md (sdp_unlock/sdp_lock payload-free ops + build_flags skip_sdp_unlock wire flag mapping)
 
 > **⚠ Phase 120 planning superseded D-01/D-02's curated allow-set — the partition is now DERIVED (`120-SDP-PARTITION.md`, `6ad8688`).**
 > Operator directive, 2026-07-29: *"there shall be no guessing the ground truth is the infoic.xml"*. Executed: the SDP-capability
@@ -533,6 +533,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 120-03]: Promotion kept to exactly one elif arm; NON_RESPONSE_PREFIXES and get_response() left untouched so INFO frames still never reach the operation layer (load-bearing for plan 120-08's D-10). — Scoping the change minimizes risk and keeps the negative-scoped-promotion test meaningful.
 - [Phase 120-05]: Task 1's five HOST-04 named-refusal/structural-invariant legs reuse the module's existing minimal-literal-dict idiom; only the F-06 shape leg (Task 2) uses a real EpromDatabase(skip_local_override=True)+resolve_chip(), per the plan's explicit prohibition against faking the shape it exists to prove
 - [Phase 120-05]: Local-override leg isolates the config dir via patch("firestarter.config.DATABASE_FILE", ...) (test_config.py's existing idiom), not FIRESTARTER_CONFIG_DIR — config.py's DATABASE_FILE/PIN_MAP_FILE constants are fixed at import time
+- [Phase 120-06]: sdp_unlock/sdp_lock are payload-free copies of erase_eprom's shape (no main_phase_handler); True means the sequence was emitted, never a silicon-state claim
+- [Phase 120-06]: build_flags gains skip_sdp_unlock as a keyword-only parameter (bare * after skip_erase) mapping FLAG_SKIP_SDP_UNLOCK, because both production callers pass the first four args positionally (D-19)
+- [Phase 120-06]: Emitted command_dict flags == 2 for 0x0D chips (DB FLAG_CAN_ERASE) is pinned as firmware-inert at the wire boundary, not suppressed
 
 ## Performance Metrics
 
@@ -616,10 +619,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 120 P02 | 10min | 2 tasks | 1 files |
 | Phase 120 P03 | 12min | 2 tasks | 2 files |
 | Phase 120 P05 | 20min | 2 tasks | 1 files |
+| Phase 120 P06 | 20min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-29T10:52:51.956Z
+**Last session:** 2026-07-29T11:02:55.564Z
 **Stopped at:** Completed 120-03-PLAN.md
 **Resume file:** 
 None
