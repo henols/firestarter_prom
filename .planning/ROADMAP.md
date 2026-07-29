@@ -473,7 +473,7 @@ Plans:
 
 **Wave 10**
 
-- [ ] 121-14-PLAN.md — the full non-regression sweep at the final commit under CI parity + `121-NONREGRESSION.md` + row-by-row requirement re-verification (**closes GATE-03**)
+- [x] 121-14-PLAN.md — the full non-regression sweep at the final commit under CI parity + `121-NONREGRESSION.md` + row-by-row requirement re-verification (**closes GATE-03**)
 
 **Research flag**: yes — done. `121-RESEARCH.md` (HIGH confidence, every load-bearing claim executed live), `121-PATTERNS.md` (22 files classified) and `121-VALIDATION.md` are present. RESEARCH's `## Corrections to CONTEXT.md / ROADMAP Framings` table (C-1..C-9) corrects nine stated mechanisms against the live tree, including this block's own claim above that the closed op vocabulary is consumed by the issue parser — `tools/parse_devtest_issue.py` has **no op vocabulary at all**. Plan from RESEARCH.md, not from this prose. Per the established response, the corrections are recorded in the phase artifacts and `REQUIREMENTS.md` is **not** edited.
 **UI hint**: no
