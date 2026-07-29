@@ -370,8 +370,23 @@ Plans:
   4. The reported SDP outcome never states a fabricated lock/unlock boolean — when state can't be confirmed, the report says so in words, not a guessed flag.
   5. This phase's flags and commands are not emitted, and this phase does not land, ahead of Phase 119's firmware landing — the milestone's host-firmware sequencing invariant is upheld in practice, not just documented.
 
-**Plans**: TBD
-**Research flag**: no — standard pattern (`erase_eprom` and the v1.21 confirm gate are copy-shaped precedents).
+**Plans**: 12 plans
+
+Plans:
+- [ ] 120-01-PLAN.md — `firestarter/sdp_capability.py`: the derived 43/41 allow-set + the pure name-keyed predicate + the core exhaustiveness gate (HOST-04)
+- [ ] 120-02-PLAN.md — `constants.py`: `COMMAND_SDP_UNLOCK 9` / `COMMAND_SDP_LOCK 10` / `FLAG_SKIP_SDP_UNLOCK 0x100` + the two mandatory `COMMAND_NAMES` entries (HOST-03)
+- [ ] 120-03-PLAN.md — D-09: promote INFO-band frames from DEBUG to INFO in `_log_rurp_feedback`, so Phase 118's OBS-01 lines are visible at all (HOST-05)
+- [ ] 120-04-PLAN.md — derivation record: `120-VALIDATION.md` corrected to 43/41, `120-WATCHLIST.md`'s nine residual-risk entries, an append-only scoped exception on the 2026-07-10 infoic note (HOST-04)
+- [ ] 120-05-PLAN.md — HOST-04 gate extension: named refusals, the two structural invariants, the F-06 dict-shape anti-vacuity leg, import purity, runtime local-override refusal (HOST-04)
+- [ ] 120-06-PLAN.md — `eprom_operations.py`: payload-free `sdp_unlock` / `sdp_lock` + `build_flags`' keyword-only `skip_sdp_unlock` + BUG-1 re-check (HOST-01, HOST-02)
+- [ ] 120-07-PLAN.md — D-12/D-13: rebuild the constants-parity test as a real two-way header-parsing gate with three planted fixtures (HOST-03 *closes*)
+- [ ] 120-08-PLAN.md — `dev sdp <chip> <enable|disable>`: D-08's four gates in order, D-14's firmware-too-old mapping, D-10's honest summary, D-11's exit code (HOST-01 *closes*, HOST-05 *closes*)
+- [ ] 120-09-PLAN.md — `write --skip-sdp-unlock` + D-04's capability-refused auto-set with a mandatory report line + D-18's warn-and-proceed (HOST-02 *closes*, HOST-04 *closes*)
+- [ ] 120-10-PLAN.md — D-15: require firmware's `0x86` ack when the flag was set and fail loudly when absent; D-16's landing-order fact, no version floor (HOST-06 *closes*)
+- [ ] 120-11-PLAN.md — D-20's owned amendment: ROADMAP Phase 121 scope + new `REQUIREMENTS.md` ids + PROJECT.md's SEVENTH CORRECTION block (meta-only, no implementation)
+- [ ] 120-12-PLAN.md — the nine-row CORRECTION-4 sweep, `120-NONREGRESSION.md`, and the `dev test --submit` repo-target verification (all six HOST ids verified)
+
+**Research flag**: no — standard pattern (`erase_eprom` and the v1.21 confirm gate are copy-shaped precedents). Research was nonetheless run: `120-RESEARCH.md`, `120-PATTERNS.md`, `120-VALIDATION.md`, plus `120-SDP-PARTITION.md` + `120-sdp-partition.json`, which **supersede** RESEARCH § F-01's curated 37/47 partition with a 43/41 partition derived from `infoic.xml` `INFOIC2PLUS` `flags` bit 15.
 **UI hint**: no
 
 ### Phase 121: `dev test` FIX + GATES + DOCS
