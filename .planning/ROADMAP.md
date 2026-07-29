@@ -447,7 +447,7 @@ Plans:
 
 **Wave 4**
 
-- [ ] 121-06-PLAN.md — D-06/D-07: `OP_WRITE_PARTIAL`, both frozensets, `_write_region_for` reads instead of guessing, production-path + chip-ID-gate proofs (DEVTEST-03/04 contrib)
+- [x] 121-06-PLAN.md — D-06/D-07: `OP_WRITE_PARTIAL`, both frozensets, `_write_region_for` reads instead of guessing, production-path + chip-ID-gate proofs (DEVTEST-03/04 contrib)
 
 **Wave 5** *(parallel)*
 
