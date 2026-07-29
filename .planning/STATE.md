@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 120
-current_phase_name: host-cli-surface-wire-emission-capability-refusal
+current_phase_name: HOST — CLI surface, wire emission, capability refusal
 status: executing
-stopped_at: Completed 120-10-PLAN.md
-last_updated: "2026-07-29T12:35:00.363Z"
+stopped_at: Completed 120-11-PLAN.md
+last_updated: "2026-07-29T13:10:00.000Z"
 last_activity: 2026-07-29
-last_activity_desc: Completed 120-09-PLAN.md (write --skip-sdp-unlock + D-04 capability-refused auto-set with mandatory report line + D-18 warn-and-proceed; HOST-02 + HOST-04 closed)
+last_activity_desc: Completed 120-11-PLAN.md (D-20's owned amendment — ROADMAP Phase 121 scope + REQUIREMENTS.md DEVTEST-02..06 + PROJECT.md SEVENTH CORRECTION; meta-only, no implementation)
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 42
-  completed_plans: 40
-  percent: 57
+  completed_plans: 41
+  percent: 98
 ---
 
 # Project State
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 120 (host-cli-surface-wire-emission-capability-refusal) — EXECUTING
-Plan: 11 of 12
+Phase: 120 (HOST — CLI surface, wire emission, capability refusal) — EXECUTING
+Plan: 12 of 12 next (120-11 of 12 complete)
 Status: Ready to execute
-Last activity: 2026-07-29 — Completed 120-09-PLAN.md (write --skip-sdp-unlock + D-04 capability-refused auto-set with mandatory report line + D-18 warn-and-proceed; HOST-02 + HOST-04 closed)
+Last activity: 2026-07-29 — Completed 120-11-PLAN.md (D-20's owned amendment — ROADMAP Phase 121 scope + REQUIREMENTS.md DEVTEST-02..06 + PROJECT.md SEVENTH CORRECTION; meta-only, no implementation, no requirement ticked)
 
 > **⚠ Phase 120 planning superseded D-01/D-02's curated allow-set — the partition is now DERIVED (`120-SDP-PARTITION.md`, `6ad8688`).**
 > Operator directive, 2026-07-29: *"there shall be no guessing the ground truth is the infoic.xml"*. Executed: the SDP-capability
@@ -97,6 +97,25 @@ Last activity: 2026-07-29 — Completed 120-09-PLAN.md (write --skip-sdp-unlock 
 > **⚠ FINDING F-118-01 — carry into Phase 119 (LOCK-06) and Phase 122.** The real-hardware measurement came in at **572 µs against the 600 µs budget** (`6 × AT28C_TBLC_MAX_US`) — only **28 µs / 4.7 % headroom**, i.e. ~95 µs per byte against a 100 µs per-byte datasheet maximum. CONTEXT.md D-09 framed the runtime check as a latent invariant that "should never fire" on a 16 MHz AVR; the measurement says it *barely* does not fire. The implementation is correct and the check is load-bearing (independently proven by inverting the comparison and watching cases 11/12 go RED) — this is a note that the **decision's premise was optimistic**, not a defect. It bears directly on D-10: `eeprom28c_write_execute`'s page-load loop runs under the *identical* t_BLC constraint, is where gh#11's slow/failed writes actually live (per Phase 117's conflation correction), and received a citation comment only — no runtime check. If the unlock emitter sits at ~95 % of the per-byte spec, the page-load loop's margin deserves measuring before LOCK-06's flash/headroom judgement is settled.
 
 <!-- NOTE: `query state.planned-phase` under-writes this file. Phase 116 planning: returned `"updated": []`. Phase 117 planning: returned `"updated": ["Status"]` — it wrote only the body `Status:` line and left `status`, `stopped_at`, `last_activity_desc`, and `progress.total_plans` in the frontmatter stale. Hand-corrected both times. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. ALSO OBSERVED (117-04): `state.advance-plan` + `state.record-session` similarly leave the frontmatter `progress.percent` and body `Status`/`Last activity` lines stale (percent dropped to 14 instead of 92; Status/Last-activity still cited Plan 03) — hand-corrected again. ALSO OBSERVED (Phase 117 close): `query phase.complete 117` advanced `current_phase` to 118 correctly (the recurring jump-to-close-phase mis-advance did NOT fire), but it mangled `current_phase_name` to the bare parenthetical `FW half` (it split the roadmap title on the em-dash/parenthesis), left `status: verifying` and `stopped_at: Completed 117-05-PLAN.md` stale, and wrote a body `Status: Phase complete — ready for verification` line that contradicted the already-passed 117-VERIFICATION.md. All four hand-corrected. Verify `current_phase_name` specifically whenever a roadmap phase title contains an em-dash or a trailing parenthetical. ALSO OBSERVED (Phase 118 planning, 2026-07-28): `query state.planned-phase --phase 118 --name "…" --plans 7` returned `"updated": []` — yet it DID mutate the file: it bumped `last_updated`, overwrote `last_activity_desc` with the body `Last activity:` text, and **re-mangled `current_phase_name` from the full title down to the bare parenthetical `FW half`** (the same em-dash split as at Phase 117 close, now confirmed to fire on the planning path too), while leaving `status`, `stopped_at`, and `progress.total_plans` stale. So `"updated": []` does NOT mean "no writes" — it means the report is unreliable. Always diff STATE.md before/after the call; never trust the returned `updated` array. ALSO OBSERVED (118-01 execution, 2026-07-28): `state.record-session --stopped-at "Completed 118-01-PLAN.md"` (called during plan execution, not planning/close) reported `"updated": ["Last session","Stopped At","Resume File"]` yet ALSO silently dropped the trailing `)` off `current_phase_name` (this time truncating mid-parenthetical rather than reducing to the bare parenthetical) and reverted `progress.percent` from 68 back to 29 despite an intervening `state.update-progress` call that had correctly set it to 68 moments earlier. So this defect class fires on the plan-execution path too, not only planning/phase-complete, and a later state-mutating call can silently re-clobber a field an earlier call in the SAME session already fixed. Both hand-corrected again. ALSO OBSERVED (118-02 execution, 2026-07-28): `state.record-session --stopped-at "Completed 118-02-PLAN.md"` again dropped the trailing `)` off `current_phase_name` and again reverted `progress.percent` from 74 back to 29, despite an intervening `state.update-progress` call in the SAME session having correctly set it to 74 moments earlier — identical failure mode to 118-01. Both hand-corrected again. Pattern is now stable: always call `state.record-session` FIRST, then `state.update-progress`/`state.record-metric`/`state.add-decision` LAST, then hand-verify `current_phase_name` and `progress.percent` regardless of call order. -->
+
+**Phase 120 plan graph** (planned 2026-07-29 — 12 plans, host-only; `120-RESEARCH.md` + `120-PATTERNS.md` + `120-VALIDATION.md` + `120-SDP-PARTITION.md`/`120-sdp-partition.json` all present, superseding RESEARCH F-01's curated 37/47 with the derived 43/41):
+
+| Wave | Plan | Requirements | What it lands |
+|------|------|--------------|----------------|
+| 1 | 120-01 | HOST-04 | `firestarter/sdp_capability.py`: the derived 43/41 allow-set + the pure name-keyed predicate + the core exhaustiveness gate |
+| 1 | 120-02 | HOST-03 | `constants.py`: `COMMAND_SDP_UNLOCK 9` / `COMMAND_SDP_LOCK 10` / `FLAG_SKIP_SDP_UNLOCK 0x100` + the two mandatory `COMMAND_NAMES` entries |
+| 1 | 120-03 | HOST-05 | D-09: promote INFO-band frames from DEBUG to INFO in `_log_rurp_feedback` |
+| 1 | 120-04 | HOST-04 | Derivation record: `120-VALIDATION.md` corrected to 43/41, `120-WATCHLIST.md`'s nine residual-risk entries, an append-only scoped exception on the 2026-07-10 infoic note |
+| 2 | 120-05 | HOST-04 | HOST-04 gate extension: named refusals, two structural invariants, the F-06 dict-shape anti-vacuity leg, import purity, runtime local-override refusal |
+| 2 | 120-06 | HOST-01, HOST-02 | `eprom_operations.py`: payload-free `sdp_unlock`/`sdp_lock` + `build_flags`' keyword-only `skip_sdp_unlock` + BUG-1 re-check |
+| 2 | 120-07 | HOST-03 *(closes)* | D-12/D-13: rebuild the constants-parity test as a real two-way header-parsing gate with three planted fixtures |
+| 3 | 120-08 | HOST-01 *(closes)*, HOST-05 *(closes)* | `dev sdp <chip> <enable\|disable>`: D-08's four gates in order, D-14's firmware-too-old mapping, D-10's honest summary, D-11's exit code |
+| 4 | 120-09 | HOST-02 *(closes)*, HOST-04 *(closes)* | `write --skip-sdp-unlock` + D-04's capability-refused auto-set with a mandatory report line + D-18's warn-and-proceed |
+| 5 | 120-10 | HOST-06 *(closes)* | D-15: require firmware's `0x86` ack when the flag was set and fail loudly when absent; D-16's landing-order fact, no version floor |
+| 6 | 120-11 | (amendment only, no requirement ticked) | D-20's owned amendment: `ROADMAP.md` Phase 121 scope + `REQUIREMENTS.md` DEVTEST-02..06 + `PROJECT.md`'s SEVENTH CORRECTION block |
+| 7 | 120-12 | (all six HOST ids verified) | Nine-row CORRECTION-4 sweep, `120-NONREGRESSION.md`, `dev test --submit` repo-target verification |
+
+**Plan 120-11 outcome (meta, D-20's owned amendment — no firmware/host code touched):** Amended `ROADMAP.md`'s Phase 121 one-line entry and Phase Details block (Goal, Requirements, five new Success Criteria 6-10, a reversal note) to carry the operator's `dev test` redesign (2026-07-29): no flags, destructiveness scoped to UV-erasable EPROMs on an explicit axis, a stop-and-ask partial-write third mode, ask-to-file-an-issue with prior-report dedup, and `gh`-first submission with the negative `--label` argv. Added `REQUIREMENTS.md`'s DEVTEST-02 through DEVTEST-06 (all Pending, mapped to Phase 121), recorded the v1.21 SUB-01/SUB-02 submit contract as reversed without editing its archived wording, and corrected the Coverage arithmetic to 41/41 mapped, 0 unmapped. Added `PROJECT.md`'s SEVENTH CORRECTION block (9 items) recording the redesign as a reversal of three locked decisions (Phase 112 Plan 04/`112-UAT.md`, SAFE-01, SAFE-03), both structural collisions (the `derive_plan` partial-write contract change and the UV-axis 32-of-301 coverage gap), the `--submit` wrong-repo defect as a released-artifact fact already fixed at `e615b4c` (no source change), the SIXTH CORRECTION item 6 `_SRAM_PROTO_IDS` reason-correction, and the derived 43/41 HOST-04 partition restated with provenance. `ROADMAP.md` grew from 2241 to 2248 lines (scoped `Edit` calls only, both `### Phase 121`/`### Phase 122` headings still exactly one each). **No requirement was ticked** — DEVTEST-01 and all five new DEVTEST ids stay `[ ]`; all six HOST ids re-confirmed `[x]`. Both sub-repo working trees clean throughout (verified `git -C /workspaces/firestarter status --porcelain` empty, tip `0048b3d`; `git -C /workspaces/firestarter_app status --porcelain` unchanged from plan start); no submodule gitlink staged.
 
 **Phase 119 plan graph** (planned 2026-07-28 — 11 plans, `6787d3d`; RESEARCH.md `90183e3` + PATTERNS.md + VALIDATION.md all present):
 
