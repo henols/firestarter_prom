@@ -443,7 +443,7 @@ Plans:
 
 **Wave 3**
 
-- [ ] 121-05-PLAN.md — D-02: `is_uv_eprom` (301/301 exact), `Plan.is_uv`, `Step.write_region`, three-valued `write_scope` replacing `destructive` — behaviour-preserving (DEVTEST-03/04 contrib)
+- [x] 121-05-PLAN.md — D-02: `is_uv_eprom` (301/301 exact), `Plan.is_uv`, `Step.write_region`, three-valued `write_scope` replacing `destructive` — behaviour-preserving (DEVTEST-03/04 contrib)
 
 **Wave 4**
 
