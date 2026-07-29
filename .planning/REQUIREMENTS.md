@@ -83,6 +83,14 @@ The promoting backlog note (999.19/999.18) asserted protocol `0x0D` "has no SDP 
 
 - [ ] **DEVTEST-01**: `OP_ERASE` is marked `NA` for protocol `0x0D` with a named reason, and firmware fail-closes on `CMD_ERASE` for `0x0D` — today the sweep reports OK having done nothing and auto-tags `ladder_state = "community-fail"` even when write and verify pass (**split by phase, Plan 119-09:** the firmware half — fail-closed on `CMD_ERASE` for `0x0D`, via a generic op-layer NULL-`main` refusal, not a `0x0D`-local arm — landed in **Phase 119** under D-06/D-07/D-08; the host half — `OP_ERASE` marked `NA` for `0x0D` with a named reason in the `dev test` sweep — remains **Phase 121**. Checkbox stays unticked pending the host half.)
 
+**`dev test` redesign — operator directive 2026-07-29, folded into Phase 121 as a REVERSAL (Phase 120 D-20 amendment; see `PROJECT.md`'s SEVENTH CORRECTION for the full record). Every id below is new, Pending, and mapped to Phase 121 only.**
+
+- [ ] **DEVTEST-02**: `dev test` takes **no flags** — the current `--destructive`/`-y`-style CLI surface is removed from this command specifically. **Reverses** SAFE-01's lock that `--destructive` is CLI-only and never read from config or environment (`cli_handlers.py:1760-1762`).
+- [ ] **DEVTEST-03**: Destructiveness is scoped to **UV-erasable EPROMs only**, on an explicitly-chosen structural axis rather than a DB type-string dependency. The existing execution-time proxy (`_write_region_for`'s `algorithm == 0x0B` fallback, `chip_test.py:637-663`) covers a measured **32 of 301** UV-EPROM parts identified by `electrical.type`; the structural alternative is widening the execution-time signal to `{0x07, 0x08, 0x0B}` (the algorithm axis, matching this project's stated preference for `protocol_id` over type-strings) or threading `derive_plan`'s `full` DB dict through to the execution layer.
+- [ ] **DEVTEST-04**: When a destructive write applies, the sweep **stops and asks** whether to proceed — **yes** means the full device may be written, **no** means only a small part of it is written. This is a **third mode requiring a new representation, not a flag flip**: `derive_plan(destructive=False)` (`chip_test.py:319-425`) structurally omits `OP_WRITE`/`OP_VERIFY`/`OP_ERASE` from `Plan.steps` today, and `Plan.locked_destructive`'s docstring (`:298-316`) states `run_plan` **MUST NOT** iterate that field — it is advisory-only.
+- [ ] **DEVTEST-05**: **Every** `dev test` run asks whether to file an issue; the check for an identical prior report (by the same user) runs first, and a new issue is created only when the run's evidence differs from that report. This **reverses** v1.21 SUB-01/SUB-02's *"explicit + interactive-only; never on a bare run"* submission contract.
+- [ ] **DEVTEST-06**: Wherever the `gh` CLI path can replace the browser/URL path for filing an issue, it does — and any `gh`-first design must assert the **negative** argv for `gh issue create --label` (the flag is never sent), because that command **aborts before creating** unless the label pre-exists **and** the user has write access, which community testers generally have neither of (the idiom already at `tests/test_submit.py:301-320`).
+
 ### Gates & Documentation
 
 - [ ] **GATE-01**: An AST capability gate is paired with a planted-violation pytest proving the gate actually fails — the anti-hollow discipline that closed this project's v1.12 hollow-GATE-03 debt
@@ -103,6 +111,7 @@ The promoting backlog note (999.19/999.18) asserted protocol `0x0D` "has no SDP 
 
 - **SDP-F1**: `--sdp-relock` opt-in post-write re-lock, gated on verify success. Deselected for v1.22. Note the constraint if it returns: an unconditional step in a conditional pipeline is the Phase-112 `if destructive:` lesson repeating, and a re-lock after a failed verify strands the user with a locked chip they cannot retry on.
 - **SDP-F2**: The full three-field SDP report shape (`sdp_command_issued` / `sdp_sequence_ack` / `sdp_state_after`). Deselected; HOST-05 retains the honesty floor.
+- **v1.21 SUB-01/SUB-02 contract REVERSED, not silently dropped (Phase 120 D-20 amendment, 2026-07-29).** `.planning/milestones/v1.21-REQUIREMENTS.md`'s SUB-01/SUB-02 lock `--submit` as *"explicit + interactive-only; never on a bare run"*. DEVTEST-05 above (Phase 121) contradicts that: every `dev test` run now asks whether to file an issue. SUB-01's and SUB-02's own wording in the v1.21 archive is unedited — this entry is the record of the reversal, not a correction to that closed milestone's text.
 
 ### Deferred on research grounds
 
@@ -180,6 +189,11 @@ Filled during roadmap creation (`/gsd-new-project` → roadmapper, 2026-07-27). 
 | HOST-05 | Phase 120 | Complete |
 | HOST-06 | Phase 120 | Complete |
 | DEVTEST-01 | Phase 119 (firmware half, landed) + Phase 121 (host half) | Pending |
+| DEVTEST-02 | Phase 121 | Pending |
+| DEVTEST-03 | Phase 121 | Pending |
+| DEVTEST-04 | Phase 121 | Pending |
+| DEVTEST-05 | Phase 121 | Pending |
+| DEVTEST-06 | Phase 121 | Pending |
 | GATE-01 | Phase 121 | Pending |
 | GATE-02 | Phase 121 | Pending |
 | GATE-03 | Phase 121 | Pending |
@@ -189,10 +203,10 @@ Filled during roadmap creation (`/gsd-new-project` → roadmapper, 2026-07-27). 
 
 **Coverage:**
 
-- v1 requirements: **36** total (TRACE 6 · FIX 6 · OBS 5 · LOCK 6 · HOST 6 · DEVTEST 1 · GATE 3 · CLOSE 3)
-- Mapped to phases: **36/36** (Phase 116: TRACE ×6 · Phase 117: FIX ×6 · Phase 118: OBS ×5 · Phase 119: LOCK ×6 + DEVTEST's firmware half (Plan 119-09 amendment, D-08) · Phase 120: HOST ×6 · Phase 121: DEVTEST ×1 (host half only) + GATE ×3 · Phase 122: CLOSE ×3). DEVTEST-01 itself is still counted once, mapped to both phases by split — the 36/36 total and the 0-unmapped count are unaffected by the split.
+- v1 requirements: **41** total (TRACE 6 · FIX 6 · OBS 5 · LOCK 6 · HOST 6 · DEVTEST 6 · GATE 3 · CLOSE 3)
+- Mapped to phases: **41/41** (Phase 116: TRACE ×6 · Phase 117: FIX ×6 · Phase 118: OBS ×5 · Phase 119: LOCK ×6 + DEVTEST's firmware half (Plan 119-09 amendment, D-08) · Phase 120: HOST ×6 · Phase 121: DEVTEST ×5 (host half of DEVTEST-01, plus new DEVTEST-02..06 from the Phase 120 D-20 `dev test` redesign amendment, 2026-07-29) + GATE ×3 · Phase 122: CLOSE ×3). DEVTEST-01 itself is still counted once, mapped to both phases by split — the 41/41 total and the 0-unmapped count are unaffected by the split.
 - Unmapped: **0** ✓
 
 ---
 *Requirements defined: 2026-07-27*
-*Last updated: 2026-07-27 after roadmap creation — 36/36 requirements mapped to Phases 116-122, 0 unmapped*
+*Last updated: 2026-07-29 — Phase 120 D-20 amendment (Plan 120-11): +5 new `dev test` redesign requirement ids (DEVTEST-02..06, Pending, mapped to Phase 121), the v1.21 SUB-01/SUB-02 contract recorded as reversed; 41/41 requirements mapped to Phases 116-122, 0 unmapped*
