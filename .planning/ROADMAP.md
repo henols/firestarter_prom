@@ -396,7 +396,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 120-10-PLAN.md — D-15: require firmware's `0x86` ack when the flag was set and fail loudly when absent; D-16's landing-order fact, no version floor (HOST-06 *closes*)
+- [x] 120-10-PLAN.md — D-15: require firmware's `0x86` ack when the flag was set and fail loudly when absent; D-16's landing-order fact, no version floor (HOST-06 *closes*)
 
 **Wave 6** *(blocked on Wave 5 completion)*
 

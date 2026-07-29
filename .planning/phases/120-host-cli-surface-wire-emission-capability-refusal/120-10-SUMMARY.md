@@ -208,6 +208,18 @@ None - no external service configuration required.
 - Carried-forward finding on the double-swallowed `EpromOperationError`/`MSG_ERR_UNKNOWN_CMD` propagation path remains open; flagged above for plan 120-12 or a later phase.
 - Full `firestarter_app` test suite green apart from the pre-existing, out-of-scope `test_audit_coverage_matrix.py::test_golden_file_matches` RED (stale golden, 186034 vs 184631 bytes) — not a regression from this plan.
 
+## Self-Check: PASSED
+
+- FOUND: firestarter_app/firestarter/serial_comm.py
+- FOUND: firestarter_app/firestarter/eprom_operations.py
+- FOUND: firestarter_app/tests/test_eprom_operations.py
+- FOUND: .planning/REQUIREMENTS.md
+- FOUND: .planning/phases/120-host-cli-surface-wire-emission-capability-refusal/120-10-SUMMARY.md
+- FOUND commit a9db4d8 (firestarter_app)
+- FOUND commit da001f4 (firestarter_app)
+- FOUND commit dfe70e3 (firestarter_app)
+- FOUND commit d057e4f (meta repo, this SUMMARY)
+
 ---
 *Phase: 120-host-cli-surface-wire-emission-capability-refusal*
 *Completed: 2026-07-29*

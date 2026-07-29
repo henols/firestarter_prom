@@ -5,15 +5,15 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 120
 current_phase_name: host-cli-surface-wire-emission-capability-refusal
 status: executing
-stopped_at: Completed 120-09-PLAN.md
-last_updated: "2026-07-29T12:08:49.176Z"
+stopped_at: Completed 120-10-PLAN.md
+last_updated: "2026-07-29T12:35:00.363Z"
 last_activity: 2026-07-29
 last_activity_desc: Completed 120-09-PLAN.md (write --skip-sdp-unlock + D-04 capability-refused auto-set with mandatory report line + D-18 warn-and-proceed; HOST-02 + HOST-04 closed)
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 42
-  completed_plans: 39
+  completed_plans: 40
   percent: 57
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 120 (host-cli-surface-wire-emission-capability-refusal) — EXECUTING
-Plan: 10 of 12
+Plan: 11 of 12
 Status: Ready to execute
 Last activity: 2026-07-29 — Completed 120-09-PLAN.md (write --skip-sdp-unlock + D-04 capability-refused auto-set with mandatory report line + D-18 warn-and-proceed; HOST-02 + HOST-04 closed)
 
@@ -546,6 +546,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: D-10 summary line uses click.echo, not logger.info, after logger.info proved unreliable under CliRunner capture for a mocked-operator invocation
 - [Phase 120]: D-04: capability-refused protocol-0x0D chips get FLAG_SKIP_SDP_UNLOCK force-set on write, with a mandatory default-visible report line (deliberate divergence from 3.0.0b11)
 - [Phase 120]: D-18: --skip-sdp-unlock on a non-0x0D chip warns and proceeds; bit still emitted, write not refused or aborted
+- [Phase 120]: D-15: write_eprom requires firmware's 0x86 (MSG_WARN_SDP_UNLOCK_SKIPPED) ack when --skip-sdp-unlock was set on a protocol-0x0D chip; absence fails the write loudly, naming firestarter fw --install — Closes HOST-06's flag-bit half; detects after the fact rather than preventing
+- [Phase 120]: D-16: no version floor introduced for HOST-06 -- the firmware/host landing-order invariant is recorded as fact (firmware Phase 119 tip 0048b3d, host Phase 120) rather than enforced by a version comparator — Host cannot see the firmware pre-release suffix; a version floor would tie correctness to Phase 122's CLOSE-03 release decision
 
 ## Performance Metrics
 
@@ -633,10 +635,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 120 P07 | 45min | 3 tasks | 5 files |
 | Phase 120 P08 | 55min | 3 tasks | 4 files |
 | Phase 120 P09 | 35min | 3 tasks | 3 files |
+| Phase 120 P10 | 45min | 3 tasks | 8 files |
 
 ## Session
 
-**Last session:** 2026-07-29T12:07:59.690Z
-**Stopped at:** Completed 120-08-PLAN.md
+**Last session:** 2026-07-29T12:35:00.336Z
+**Stopped at:** Completed 120-10-PLAN.md
 **Resume file:** 
 None
