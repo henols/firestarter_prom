@@ -392,7 +392,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 120-09-PLAN.md — `write --skip-sdp-unlock` + D-04's capability-refused auto-set with a mandatory report line + D-18's warn-and-proceed (HOST-02 *closes*, HOST-04 *closes*)
+- [x] 120-09-PLAN.md — `write --skip-sdp-unlock` + D-04's capability-refused auto-set with a mandatory report line + D-18's warn-and-proceed (HOST-02 *closes*, HOST-04 *closes*)
 
 **Wave 5** *(blocked on Wave 4 completion)*
 

@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 120
 current_phase_name: host-cli-surface-wire-emission-capability-refusal
 status: executing
-stopped_at: Completed 120-08-PLAN.md
-last_updated: "2026-07-29T11:50:31.674Z"
+stopped_at: Completed 120-09-PLAN.md
+last_updated: "2026-07-29T12:08:49.176Z"
 last_activity: 2026-07-29
-last_activity_desc: Completed 120-08-PLAN.md (dev sdp CLI surface — D-08 four-gate order, D-14 firmware-too-old mapping, D-10 honest summary line; HOST-01 + HOST-05 closed)
+last_activity_desc: Completed 120-09-PLAN.md (write --skip-sdp-unlock + D-04 capability-refused auto-set with mandatory report line + D-18 warn-and-proceed; HOST-02 + HOST-04 closed)
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 42
-  completed_plans: 38
-  percent: 90
+  completed_plans: 39
+  percent: 57
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 120 (host-cli-surface-wire-emission-capability-refusal) — EXECUTING
-Plan: 9 of 12
+Plan: 10 of 12
 Status: Ready to execute
-Last activity: 2026-07-29 — Completed 120-08-PLAN.md (dev sdp CLI surface — D-08 four-gate order, D-14 firmware-too-old mapping, D-10 honest summary line; HOST-01 + HOST-05 closed)
+Last activity: 2026-07-29 — Completed 120-09-PLAN.md (write --skip-sdp-unlock + D-04 capability-refused auto-set with mandatory report line + D-18 warn-and-proceed; HOST-02 + HOST-04 closed)
 
 > **⚠ Phase 120 planning superseded D-01/D-02's curated allow-set — the partition is now DERIVED (`120-SDP-PARTITION.md`, `6ad8688`).**
 > Operator directive, 2026-07-29: *"there shall be no guessing the ground truth is the infoic.xml"*. Executed: the SDP-capability
@@ -544,6 +544,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: dev sdp refuses off-TTY without -y (D-06), inverting dev test's off-TTY-proceeds behaviour, since dev sdp has no flag that could stand in for consent
 - [Phase ?]: MSG_ERR_UNKNOWN_CMD keyed by message id (not text) and mapped to FirmwareOutdatedError naming 'firestarter fw --install' (D-14)
 - [Phase ?]: D-10 summary line uses click.echo, not logger.info, after logger.info proved unreliable under CliRunner capture for a mocked-operator invocation
+- [Phase 120]: D-04: capability-refused protocol-0x0D chips get FLAG_SKIP_SDP_UNLOCK force-set on write, with a mandatory default-visible report line (deliberate divergence from 3.0.0b11)
+- [Phase 120]: D-18: --skip-sdp-unlock on a non-0x0D chip warns and proceeds; bit still emitted, write not refused or aborted
 
 ## Performance Metrics
 
@@ -630,10 +632,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 120 P06 | 20min | 3 tasks | 2 files |
 | Phase 120 P07 | 45min | 3 tasks | 5 files |
 | Phase 120 P08 | 55min | 3 tasks | 4 files |
+| Phase 120 P09 | 35min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-07-29T11:50:31.660Z
+**Last session:** 2026-07-29T12:07:59.690Z
 **Stopped at:** Completed 120-08-PLAN.md
 **Resume file:** 
 None
