@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 121
 current_phase_name: dev-test-fix-gates-docs-redesign
 status: executing
-stopped_at: Completed 121-11-PLAN.md
-last_updated: "2026-07-29T21:36:11.880Z"
+stopped_at: Completed 121-12-PLAN.md
+last_updated: "2026-07-29T21:50:37.504Z"
 last_activity: 2026-07-29
-last_activity_desc: Completed 121-11-PLAN.md (DEVTEST-05/06 closed)
+last_activity_desc: Completed 121-12-PLAN.md (D-15 SDP unlock-done message symmetry, GATE-02 contributes-only)
 progress:
   total_phases: 7
   completed_phases: 5
   total_plans: 56
-  completed_plans: 53
-  percent: 95
+  completed_plans: 54
+  percent: 96
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 121 (dev-test-fix-gates-docs-redesign) — EXECUTING
-Plan: 11 of 14 complete (next: 121-12)
+Plan: 12 of 14 complete (next: 121-13)
 Status: Executing Phase 121
-Last activity: 2026-07-29 — Completed 121-11-PLAN.md (DEVTEST-05/06 closed)
+Last activity: 2026-07-29 — Completed 121-12-PLAN.md (D-15 SDP unlock-done message symmetry, GATE-02 contributes-only)
 
 > **⚠ Phase 120 planning superseded D-01/D-02's curated allow-set — the partition is now DERIVED (`120-SDP-PARTITION.md`, `6ad8688`).**
 > Operator directive, 2026-07-29: *"there shall be no guessing the ground truth is the infoic.xml"*. Executed: the SDP-capability
@@ -600,6 +600,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 120-12]: 120-VALIDATION.md's Wave-0 rows corrected in place where the originally-authored test reference did not match the landed test, before flipping nyquist_compliant/wave_0_complete true
 - [Phase 120-12]: The dev test submit repo-target ask discharged as verification only: SUBMIT_REPO already correct at e615b4c/2b9e8dd; released-artifact caveat recorded, not re-fixed
 - [Phase 121]: find_prior_report/comment_via_gh added as injected-seam gh functions; submit_report restructured to dedup-first/always-ask/comment-on-duplicate (D-09/D-10/D-11); negative argv widened to a deny-set on both gh paths incl. short forms (DEVTEST-06, RESEARCH Pitfall 6)
+- [Phase 121]: D-15's mechanism corrected per RESEARCH C-7: edit meta catalog only, run sync_to_subrepos.sh to regenerate both mirrors; three-way byte-identity + sync idempotence proven
 
 ## Performance Metrics
 
@@ -690,10 +691,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 120 P10 | 45min | 3 tasks | 8 files |
 | Phase 120 P12 | 55min | 3 tasks | 3 files |
 | Phase 121 P11 | 30min | 3 tasks | 2 files |
+| Phase 121 P12 | 35min | 2 tasks | 5 files |
 
 ## Session
 
-**Last session:** 2026-07-29T21:35:17.656Z
+**Last session:** 2026-07-29T21:50:17.800Z
 **Stopped at:** Phase 121 context gathered
 **Resume file:** 
 None

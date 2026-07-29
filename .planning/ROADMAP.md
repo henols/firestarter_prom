@@ -465,7 +465,7 @@ Plans:
 
 **Wave 8**
 
-- [ ] 121-12-PLAN.md — D-15: the `0x5F` honesty caveat via the canonical meta catalog + both regenerated mirrors + the both-directions cross-repo gate check (GATE-02 contrib)
+- [x] 121-12-PLAN.md — D-15: the `0x5F` honesty caveat via the canonical meta catalog + both regenerated mirrors + the both-directions cross-repo gate check (GATE-02 contrib)
 
 **Wave 9**
 
