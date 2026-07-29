@@ -72,11 +72,11 @@ The promoting backlog note (999.19/999.18) asserted protocol `0x0D` "has no SDP 
 
 ### Host Surface (lands strictly after firmware)
 
-- [ ] **HOST-01**: `firestarter dev sdp <chip> <enable|disable>` exists, behind the v1.21 destructiveness confirm + `-y` + the SAFE-04 absent-chip hard-fail
+- [x] **HOST-01**: `firestarter dev sdp <chip> <enable|disable>` exists, behind the v1.21 destructiveness confirm + `-y` + the SAFE-04 absent-chip hard-fail (Plan 120-08: the locked surface `firestarter dev sdp <chip> <enable|disable>` — chip first, mode second, `click.Choice` argument, no mode flag — lands behind D-08's four-gate order (absent → capability → support-status → confirm → serial), with the three deliberate inversions from `dev test`'s analog named and applied: gate order reversed (confirm no longer precedes the absent-chip hard-fail), the `--destructive`-style mode flag dropped per D-05, and off-TTY refuses without `-y` per D-06 rather than proceeding. Refusal is proven by "no confirm shown" + "no port opened" + reason text on every leg — including all nine `adapter-required` `0x0D` parts, parametrised individually — never by exit code alone.)
 - [ ] **HOST-02**: `write --skip-sdp-unlock` emits the `0x100` flag, following the in-tree rule that `--skip-X` skips a chip-state-modifying operation
 - [x] **HOST-03**: New `CMD_*`/`FLAG_*` values land in the same commit pair across `firestarter.h` ↔ `constants.py`, **with mandatory `COMMAND_NAMES` entries**, and the constants-parity test is extended (`COMMAND_SDP_UNLOCK 9` / `COMMAND_SDP_LOCK 10` / `FLAG_SKIP_SDP_UNLOCK 0x100` plus two mandatory `COMMAND_NAMES` entries landed in Plan 120-02; the parity test itself was **rebuilt** in Plan 120-07 from hardcoded literals into a real two-way header-parsing gate with three planted-violation fixtures, a `COMMAND_NAMES`-coverage leg, a fail-closed path, and a machine-checked conditional-compilation assertion. Honest reading of "same commit pair": firmware landed the defines in **Phase 119** and the host lands them here, deliberately, since HOST-06 forbids the reverse order — what the requirement demands and what is now proven is that the pair *agrees*, machine-checked in both directions.)
 - [ ] **HOST-04**: A pre-wire capability refusal keeps SDP commands away from non-SDP parts inside the `0x0D` bucket — the 2 FRAM parts and the pre-SDP `2804`/`2816`/`2817` class — resolved in code, with **zero DB change**
-- [ ] **HOST-05**: The SDP outcome is reported honestly and **never as a fabricated state boolean** — where state is unreadable, the report says so
+- [x] **HOST-05**: The SDP outcome is reported honestly and **never as a fabricated state boolean** — where state is unreadable, the report says so (Plan 120-08: the honesty floor is met by D-09's INFO promotion (Plan 120-03), which is what makes the firmware report lines visible at default verbosity at all, plus D-10's symmetric host summary line — carrying the unreadable-state caveat on both `enable` and `disable`, and no duration figure (mechanically enforced by `get_response()`'s INFO-band filtering, not merely by discipline) — plus D-11's plain 0/1 exit code, with a `0x87` `MSG_WARN_SDP_TBLC_EXCEEDED` frame staying in the text and never changing the code. The deferred three-field SDP report shape (SDP-F2) is unchanged; this is the retained minimal floor.)
 - [ ] **HOST-06**: The host half never lands before the firmware half; a host emitting `0x100` against `3.0.0b11` would be silently ignored and would run the unlock the user declined
 
 ### `dev test` Correctness (unblocks usable community evidence)
@@ -173,11 +173,11 @@ Filled during roadmap creation (`/gsd-new-project` → roadmapper, 2026-07-27). 
 | LOCK-04 | Phase 119 | Complete (mechanism-corrected, intent-satisfied) |
 | LOCK-05 | Phase 119 | Complete |
 | LOCK-06 | Phase 119 | Complete |
-| HOST-01 | Phase 120 | Pending |
+| HOST-01 | Phase 120 | Complete |
 | HOST-02 | Phase 120 | Pending |
 | HOST-03 | Phase 120 | Complete |
 | HOST-04 | Phase 120 | Pending |
-| HOST-05 | Phase 120 | Pending |
+| HOST-05 | Phase 120 | Complete |
 | HOST-06 | Phase 120 | Pending |
 | DEVTEST-01 | Phase 119 (firmware half, landed) + Phase 121 (host half) | Pending |
 | GATE-01 | Phase 121 | Pending |
