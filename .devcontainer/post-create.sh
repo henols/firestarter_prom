@@ -56,4 +56,36 @@ with open(p, "w") as f:
 print("  ensured enabledPlugins.discord + extraKnownMarketplaces.claude-plugins-official")
 PYEOF
 
+echo "=== Gating Discord plugin to a single bot instance (no bot per GSD worker) ==="
+# Every Claude process (interactive + GSD/Agent-spawned workers) starts the plugin's MCP
+# server, so without this each one launches a Discord bot on the same token and they
+# collide. Claude Code has no interactive-only scope for plugin MCP servers, so we repoint
+# the plugin's launcher at discord-singleton.sh (an flock guard: first process wins, the
+# rest no-op). Re-applied here every rebuild so it survives plugin reinstalls.
+WRAPPER="/workspaces/.devcontainer/discord-singleton.sh"
+chmod +x "$WRAPPER" 2>/dev/null || true
+DISCORD_WRAPPER="$WRAPPER" python3 - <<'PYEOF'
+import glob, json, os
+wrapper = os.environ["DISCORD_WRAPPER"]
+roots = sorted(glob.glob(os.path.expanduser("~/.claude/plugins/cache/claude-plugins-official/discord/*/")))
+if not roots:
+    print("  discord plugin not installed yet; wrapper will apply on a later run")
+else:
+    p = os.path.join(roots[-1], ".mcp.json")
+    try:
+        d = json.load(open(p))
+        srv = d["mcpServers"]["discord"]
+        if srv.get("command") == "bash" and srv.get("args", [None])[:1] == [wrapper]:
+            print("  already gated:", p)
+        else:
+            srv["command"] = "bash"
+            srv["args"] = [wrapper]
+            with open(p, "w") as f:
+                json.dump(d, f, indent=2)
+                f.write("\n")
+            print("  gated:", p)
+    except Exception as e:
+        print(f"  could not patch plugin .mcp.json: {e}")
+PYEOF
+
 echo "=== Done ==="
