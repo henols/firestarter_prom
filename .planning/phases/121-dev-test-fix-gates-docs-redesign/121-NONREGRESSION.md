@@ -201,4 +201,243 @@ assertion used.
 **All nine rows verify.** None required a report of a non-holding claim.
 
 ---
-<!-- gsd:write-continue -->
+
+## 5. Corrections recorded, not acted on in `REQUIREMENTS.md`
+
+Per the established response this milestone has used since LOCK-04/LOCK-06/HOST-04 (Phase 119/120):
+**satisfy the intent, record the correction in phase artifacts, do not edit `REQUIREMENTS.md`'s
+own wording.** Every correction `121-RESEARCH.md` recorded, restated here for a reader who does
+not open that file:
+
+| # | Stated | Verified reality | What the phase did instead |
+|---|---|---|---|
+| C-1 | D-06: `diagnostic_report.py`'s renderer and `to_dict` are "owned task work" for the new op string | The renderer/`to_dict` are fully op-string-agnostic — no `OP_*` import, no literal op string anywhere; `_step_dict` passes `result.op` straight through | **Zero edits** to `diagnostic_report.py`'s renderer; only the optional `SCHEMA_VERSION` bump landed (Plan 121-07) |
+| C-2 | D-06/D-18: the audit-matrix golden is part of D-06's ripple; "this phase genuinely changes the matrix" | `tools/audit_coverage_matrix.py` has zero `chip_test`/`OP_*`/`dev test` references; the pre-existing drift was a Phase-98 pinout split, unrelated to this phase | D-18's regen-first-and-alone ordering stood; the **second** regeneration (this plan) was proven byte-identical (§3) — confirming the matrix genuinely did not move this phase |
+| C-3 | D-05: "82 references across 6 test files" need reworking for the flag removal | The `dev test`-scoped ripple is 25 literal references, 23 in one file (`test_dev_test_cmd.py`); the other 46+ belong to four **other** `dev` sub-commands' identically-named `--output-dir`/`-y` and must not be touched | Plan 121-09 touched only `test_dev_test_cmd.py` (26 tests after rework, was 23); the four sibling `dev` command test modules confirmed untouched and green |
+| C-4 | D-05: `check_devtest_orchestrator.py` "fails closed when its scoped scan matches zero functions" would trip on the flag removal | The gate filters on function **names**, not options — removing `@click.option` decorators does not rename `dev_test`; the real hazard is the **inverse** (a violation in a new, unlisted helper passes vacuously, proven live in RESEARCH) | Plan 121-09 extended `_HANDLER_FUNCTION_NAMES` with `_is_uv_eprom`/`_resolve_write_scope` and added a permanent completeness pytest so no name can dangle again — this sweep's §2 row 11 re-confirms the gate non-vacuous against the grown list |
+| C-5 | D-06: "the `chip_test.py` frozensets `_DESTRUCTIVE_OPS` and `_MULTI_RUN_OPS`" are both owned task work | `_DESTRUCTIVE_OPS` is live (the chip-ID safety gate); `_MULTI_RUN_OPS` had **zero** references anywhere in the tree at research time | **Deliberate deviation from the research recommendation** (documented in `STATE.md`): rather than stating `_MULTI_RUN_OPS` dead in-source, Plan 121-06 made it **live** as the fail-closed dispatch allow-list (`_dispatch_multi_run`'s Pitfall-1a guard reads it), so both frozensets are now safety-critical, not one live and one cosmetic |
+| C-6 | `<specifics>`: `count_applicable`'s N-of-M banner "never fires again" once every run writes | The banner row renders unconditionally and `n_ran` excludes NA/SKIPPED, so it still carries signal whenever the chip-ID gate closes | `locked_destructive` was **kept**, not deleted — `derive_plan`'s `write_scope` parameter is genuinely three-valued (`"none"`/`"partial"`/`"full"`) at the API level (Plan 121-05's deliberate choice, per `STATE.md`), even though the live `dev_test` handler never invokes it with `"none"` under D-04's always-writes contract. This makes 121-05 a pure refactor rather than a narrowing, and keeps the banner's own machinery live for any future caller that does pass `"none"` |
+| C-7 | D-15: "edit only `messages.toml`, then regenerate" | There are three byte-identical `messages.toml` copies; `tools/catalog/sync_to_subrepos.sh` is the one command that copies the meta catalog to both sub-repos **and** regenerates both codegen artifacts | Plan 121-12 edited the **meta** copy only, then ran `sync_to_subrepos.sh` — never hand-copied or hand-normalised any generated file. Re-confirmed in this sweep (§2 rows 17-20) |
+| C-8 | D-13 (as originally worded): "`--skip-erase` and `-b` on a `0x0D` chip warn and proceed" | `-b`/`--no-blank-check` has skipped only the blank check since Phase 92's decouple — it no longer implies skip-erase, and is genuinely useful on `0x0D` (required for a non-blank AT28C, since there is no erase to make it blank) | The **warn** landed on `--skip-erase` only (Plan 121-10); `-b`'s `0x0D` treatment became a **documentation** statement (GATE-02, Plan 121-13), not a runtime warning — a factually-wrong warning on `-b` was avoided |
+| C-9 | `REQUIREMENTS.md:88` cites SAFE-01's lock at `cli_handlers.py:1760-1762` | Line-number drift only — the actual anchors moved to `:1838-1846` (declaration) / `:1880` (`dev_test` def) by the time plans executed | Plans used the live anchors, not the cited ones; no requirement wording was edited for a line-number drift |
+| D-06 (own correction) | ROADMAP framing: the closed six/seven-string op vocabulary is "consumed by the issue parser" | `tools/parse_devtest_issue.py` has **no op vocabulary at all** — it keys on the `[dev test]` title marker, `schema_version` presence, and `dedup_fingerprint` grouping; it never reads step ops or verdicts | Recorded as a correction to the ROADMAP's own framing (D-06); `REQUIREMENTS.md` and `ROADMAP.md` text left unedited per the established response |
+| D-17 (own correction) | GATE-02's requirement text names five docs + both READMEs | D-04's always-writes reality most affects two docs GATE-02's literal text never named: `doc/community-validation.md` and `doc/beta-testing-install.md` | Plan 121-13 corrected both anyway (the named-list **widening**), recorded the correction in the traceability sentence, and left `REQUIREMENTS.md`'s own GATE-02 wording unedited |
+
+**Established response restated explicitly, so no future reader misreads any of the above as an
+open gap:** satisfy the intent, record the correction, do not edit `REQUIREMENTS.md`'s stated
+mechanism. Every row above was intent-satisfied; none is an open item.
+
+---
+
+## 6. The three recorded reversals
+
+This phase carries **three** reversals, each named as a reversal per the established
+`119-NONREGRESSION.md`/`120-NONREGRESSION.md` discipline (a policy reversal is recorded as a
+reversal, with its constraints named, never silently absorbed):
+
+1. **The `dev test` redesign itself.** Operator directive 2026-07-29 (Phase 120 D-20 amendment,
+   folded into Phase 121) reverses **three** locked decisions:
+   - Phase 112 Plan 04's deliberate removal of all interactive prompts from `dev test`
+     (`112-UAT.md`) — this phase reintroduces exactly one prompt, the UV-only stop-and-ask
+     (DEVTEST-04).
+   - SAFE-01's lock that `--destructive` is CLI-only and never read from config/environment
+     (`cli_handlers.py:1760-1762`, now `:1838-1846`) — this phase removes the flag entirely
+     (DEVTEST-02), so the lock's own subject no longer exists.
+   - SAFE-03's statement that interactive input was reduced to "only" the confirm prompt — this
+     phase adds a second interactive point (the filing ask, DEVTEST-05) and reframes destructive
+     confirmation around the UV axis rather than a blanket `--destructive` gate.
+   Constraint carried: the reversal does not re-open Phase 109's original destructiveness-gate
+   *safety* concern — it re-scopes the gate from "all writable parts" to "UV-erasable parts only"
+   (DEVTEST-03), a narrower and more precise axis than the one SAFE-01 originally locked around.
+
+2. **The erase-capability note in the database transform (D-12).** `database.py:592` (now
+   rewritten) previously carried an explicit note that leaving `FLAG_CAN_ERASE` set on protocol
+   `0x0D` was firmware-inert and "must stay unchanged" (a Phase 121 D-03-era note, itself
+   predating this phase). D-12 reverses that **policy**, not the underlying **fact**: the `0x0D`
+   firmware path genuinely never reads the flag — that half of the old note remains true — but an
+   inert-but-false capability advertisement is still false, and DEVTEST-01 needed the host to stop
+   making it. The rewritten comment block (quoted in full in `121-08-SUMMARY.md`) states this
+   explicitly as a reversal, names the blast radius re-verification performed before landing it,
+   and names the one benign behavioural delta (`firestarter erase` on `0x0D` now refused one layer
+   earlier, same wire id).
+
+3. **v1.21's submission contract (SUB-01/SUB-02).** `.planning/milestones/v1.21-REQUIREMENTS.md`
+   locks `--submit` as *"explicit + interactive-only; never on a bare run."* DEVTEST-05
+   contradicts that outright: every `dev test` run now asks whether to file an issue, with no
+   flag required. The v1.21 archive's own SUB-01/SUB-02 wording was **not edited** — Phase 120's
+   D-20 amendment recorded the reversal as a new entry in the "Deferred by operator decision"
+   section of the live `REQUIREMENTS.md` (line 114), and this plan's independent re-verification
+   (DEVTEST-05's row above) confirms the reversal is fully landed: `submit_report` is reached
+   unconditionally, with no `--submit` flag surviving to gate it (DEVTEST-02 removed it).
+
+Each reversal's constraint (what does NOT change alongside the reversed policy) is named above so
+a future reader does not treat the reversal as unbounded.
+
+---
+
+## 7. Known and explained conditions — never silent
+
+**1. The meta `.github/workflows/catalog-sync-check.yml` remains expected-red-until-milestone-merge.**
+Unchanged cause, re-confirmed in this sweep: it checks out both `firestarter` and `firestarter_app`
+at `ref: main` (lines 33/40), and v1.22 has not merged to `main` in either sub-repo. Not this
+phase's damage — the Phase 118/119/120 pattern continues. **This phase's real firmware footprint
+is narrower than that CI gate's failure would suggest**: the only tracked firmware file this phase
+changed outside documentation is `tools/catalog/messages.toml` (§3), and the compiled
+`messages.h` is byte-identical to phase base.
+
+**2. A py3.9 pytest run is structurally impossible, reproduced live in this sweep.** `[test]`
+requires `syrupy>=5.0`, and every `syrupy>=5.0` release requires Python ≥3.10 (the one
+`2026.4.6...` release that would satisfy `>=5.0` on 3.9 is yanked). Provisioning a real Python
+3.9.25 via `uv` and attempting `uv pip install -e '.[test]'` against it fails to resolve, with `uv`
+naming the exact conflict:
+
+```
+$ uv venv --python 3.9 /tmp/venv39 && uv pip install --python /tmp/venv39/bin/python -e '.[test]'
+...
+And because firestarter[test]==3.0.0b11 depends on syrupy>=5.0, we can conclude that
+firestarter[test]==3.0.0b11 cannot be used.
+...your requirements are unsatisfiable.
+```
+
+**Two consequences follow, both recorded rather than smoothed over:** (a) the milestone's py3.9
+support claim rests entirely on **config-pinned** tooling — `ruff`'s `target-version = "py39"` and
+`mypy`'s `python_version = "3.9"` — plus the `requires-python = ">=3.9"` packaging classifier, not
+on any executed test run; (b) **ruff at the `py39` target does not diagnose 3.10-only syntax** (a
+probe file containing a `match` statement and a bare `int | None` runtime annotation produces only
+style diagnostics, no version error, per `121-RESEARCH.md`'s own probe) — so ruff's presence is not
+itself a py3.9 compatibility gate, only a style-linter running under a pinned target.
+
+**3. The GitHub issue-search index's eventual consistency limits `find_prior_report`'s dedup
+check, by design, not by oversight.** A `dev test` filed seconds earlier may not yet be returnable
+by `gh issue list --search`. `find_prior_report`'s own docstring records this (Plan 121-11), and
+the ask is worded "you appear to have already reported this" — hedged, never a certainty. This is
+not engineered around because `count_agreeing` groups by `dedup_fingerprint` on arrival, so a
+duplicate still lands **visibly grouped** rather than silently lost — the limitation is bounded by
+that downstream grouping, not eliminated.
+
+**4. Assumption A1 (comment-permission for `gh issue comment`) is non-load-bearing by design.**
+DEVTEST-06/D-11's `comment_via_gh` assumes a public repo needs only an authenticated `gh` account,
+never write access, to comment — true for `henols/firestarter_prom` today. The phase did **not**
+add a human-verify checkpoint for this assumption (a deliberate choice, named in `STATE.md`'s
+"three deliberate deviations"): if the assumption is ever wrong, `comment_via_gh` degrades exactly
+like `submit_via_gh` — a failed `gh` call falls back to the browser tier pointed at the existing
+issue (`test_duplicate_comment_fails_falls_back_to_browser_on_existing_issue`, Plan 121-11). The
+assumption's truth value is therefore irrelevant to correctness; a checkpoint would have added
+process cost for no safety gain.
+
+**5. D-03's owned trade-off: an off-TTY `dev test` run writes to silicon without anyone
+consenting.** An absent TTY is treated as a **declined prompt**, not absent consent — so a piped
+or CI run still writes the UV-only 256-byte partial region (never the full device; the region
+width is a module constant, `_UV_WRITE_REGION_LENGTH`, never DB-sourced — SC4). This was put to
+the operator explicitly as a real cost (today's off-TTY default writes nothing at all) and chosen
+anyway, because the milestone's own purpose is community write-evidence and a silent-no-write
+off-TTY default would defeat that purpose. The consequence is bounded to a small, fixed region and
+mitigated only by the unconditional, first-printed always-writes notice (DEVTEST-04's own
+mechanism) and by the docs (GATE-02) — there is no runtime confirmation gate for the off-TTY case,
+by design, and this document does not pretend otherwise.
+
+---
+
+## 8. Deliberately not taken
+
+Recorded here so the next owner finds these as explicit decisions, not inherited silence:
+
+**1. Deleting the advisory `Plan.locked_destructive` field and its N-of-M banner.** Declined.
+Under D-04's always-writes contract, `dev_test`'s own handler never populates
+`locked_destructive` (it is always empty in that command's live path) — but `derive_plan`'s
+`write_scope` parameter is genuinely three-valued at the API level (`"none"`/`"partial"`/`"full"`,
+Plan 121-05), and `count_applicable`'s banner logic still reads `locked_destructive` correctly for
+any future caller that does pass `"none"`. Deleting the field would have required deleting or
+reworking that generic machinery for a narrowing this phase does not need; kept intact instead.
+
+**2. Deleting `_MULTI_RUN_OPS` as dead code.** RESEARCH found it had zero references at research
+time and recommended stating it dead in-source. **Declined** — Plan 121-06 instead made it
+**live**, repurposing it as the fail-closed dispatch allow-list `_dispatch_multi_run` checks before
+falling through to any op arm (Pitfall 1a's mitigation). This is a deliberate deviation from the
+research recommendation, recorded in `STATE.md`, and it makes both `_DESTRUCTIVE_OPS` and
+`_MULTI_RUN_OPS` safety-critical rather than one live and one cosmetic.
+
+**3. Pinning the ruff version instead of excluding the golden directory.** RESEARCH's Pitfall 2
+named two fixes for the `ruff format`-vs-golden collision: pin `ruff==0.15.*` in `[test]`
+(freezing lint hygiene project-wide), or `extend-exclude = ["tests/golden", "tests/fixtures"]`.
+Plan 121-01 chose the exclude — narrower, does not freeze the whole project's tooling to an old
+ruff release. **Note recorded in this sweep:** the devcontainer's own globally-installed `ruff`
+has since drifted to 0.16.0 (matching the CI-resolved version), so Pitfall 2's original
+divergence is no longer reproducible here — but the `extend-exclude` fix remains correct and in
+place regardless of whether the divergence currently reproduces.
+
+**4. Adding a partner `OP_VERIFY_PARTIAL` op string (D-07).** Declined — a verify's region is
+definitionally the preceding write's region; it never has independent scope, so a distinct string
+would encode zero new information. The vocabulary stops at seven strings
+(`id`/`read`/`blank-check`/`write`/`verify`/`erase`/`write-partial`).
+
+**5. Adding a `--read-only` mode (D-04).** Declined — would cost a flag DEVTEST-02 removes, and
+would partially walk back the "zero options" contract. If community feedback later shows testers
+want a safe first-contact sweep, it wants its own phase and its own flag-surface decision — not
+folded in here.
+
+**6. A provenance/uncertainty header on `doc/lockable-proms.md` (D-16).** Declined. The document
+ships ~300 rows compiled from third-party datasheets with no statement of its evidentiary basis,
+in the exact milestone whose validation ceiling forbids claims about SDP behaviour on real
+silicon. This is an **owned trade-off**, put to the operator explicitly and chosen anyway — the
+first 10 lines of the file are confirmed byte-identical to the pre-commit working tree (no header
+was added), recorded here so no downstream agent re-opens it.
+
+---
+
+## Validation-Ceiling Review
+
+Every sentence in this document was read against `.planning/REQUIREMENTS.md`'s Validation Ceiling
+section before this plan's final commit. The review's outcome:
+
+- **Zero affirmative claims that SDP, or the `0x0D` erase model, has been demonstrated on real
+  AT28C silicon appear anywhere in this document.** Every claim above has a software artifact as
+  its subject — a git blob/md5 identity, a `pio run` size report, a pytest exit code, a source-read
+  confirmation, a `cmp` byte comparison — never a silicon observation.
+- **No AT28C part was on the bench during this phase.** This sweep performed zero hardware
+  operations; every command in §2/§4 ran against native/host test doubles or static source
+  analysis. The three attached devices (`/dev/ttyACM0`, `/dev/ttyACM1`, `/dev/ttyUSB0`) were used
+  only for `pio run`'s build step (no upload, no serial I/O).
+- **`0x0D` stays `UNVERIFIED`.** Nothing in this phase's changes — the catalog string (D-15), the
+  `FLAG_CAN_ERASE` clear (D-12), the `dev test` redesign, or GATE-01's AST gate — touches or claims
+  to touch the `PROTOCOL-LEDGER`'s `0x0D` entry.
+- **Zero chips changed `support_status`.** Confirmed by this sweep's own `diff_db.py` identity
+  check (§2 row 16): the only two changed chips are the pre-existing Phase-94 `PGSZ_PAGE_SIZE`
+  entries, neither a `support_status` change.
+- **The 84-chip count is unchanged.** No entry was added to or removed from the `0x0D` bucket by
+  this phase; `check_dispatch.py`'s re-run (§2 row 10) confirms the same 746-scanned / 736-supported
+  / 10-non-dispatchable figures as every prior phase's sweep.
+
+This document sits entirely on the permitted side of the ceiling. The permitted closing claim
+(*"The SDP lock and unlock sequences are emitted exactly as specified, verified byte-exact by
+golden register trace across all four `0x0D` pinouts, with a documented and measured host-side
+timing assumption"*) is unaffected and unextended by anything in this phase; the forbidden claim
+(*"SDP lock/unlock works on an AT28C256"*) appears nowhere in this document, in any form.
+
+---
+
+## Sweep Summary
+
+| Gate | Result |
+|---|---|
+| Native (`native`) | 141/141, 17 suites |
+| Native (`native_nodevtools`) | 141/141 — identical |
+| AVR builds (`pio run`) | 3/3 SUCCESS, unchanged from Phase 119's final measurement |
+| Host pytest, devcontainer (3.12.13) | 1134 passed, 0 failed |
+| Host pytest, CI-parity venv (3.11.15) | 1134 passed, 0 failed — identical |
+| Coverage | 81.86% (floor 70%) |
+| `ruff check` / `format --check` (0.16.0, CI-resolved) | 4 pre-existing findings, 0 in this phase's diff |
+| mypy watermark | 1 error (watermark 35, 34 below) |
+| `check_dispatch.py` | PASS, 0 regressions |
+| `check_devtest_orchestrator.py` | PASS, allow-list extended and confirmed non-vacuous |
+| `check_sdp_capability_invariants.py` (NEW, GATE-01) | PASS on real source; FAILS correctly on both planted classes |
+| `diff_db.py` | PASS — 2 explained changes, 0 new, 0 removed (identity ≠ zero) |
+| Catalog three-way identity + both codegen drift gates | Clean, md5 `8c9f79af841537310e2db197decc62b2` |
+| Second audit-matrix regeneration | Byte-identical to golden — proven no-op |
+| Both sub-repo working trees | Clean by `git status --porcelain` (only named pre-existing dirt); tips `firestarter@48c36e5`, `firestarter_app@c3c9424` |
+| py3.9 pytest | Structurally impossible (reproduced live); py3.9 claim rests on config-pinned ruff/mypy + classifier |
+
+**All nine requirement rows re-verified against the live tree. `GATE-03`, `DEVTEST-01`,
+`DEVTEST-02`, `DEVTEST-03`, `DEVTEST-04` and `GATE-01` ticked by this plan. `DEVTEST-05`,
+`DEVTEST-06` and `GATE-02` (already Complete) left byte-intact. `CLOSE-01`/`02`/`03` remain
+unticked — Phase 122's own scope.**
