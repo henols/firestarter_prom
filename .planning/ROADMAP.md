@@ -429,8 +429,53 @@ Plans:
 
 **Reversal note (Phase 120 D-20, PROJECT.md SEVENTH CORRECTION item 1):** criteria 6-10 above **reverse three locked decisions** — Phase 112 Plan 04's deliberate removal of every interactive `dev test` prompt (operator-approved per `112-UAT.md`), SAFE-01's CLI-only, never-config/env `--destructive` flag, and SAFE-03's statement that `--destructive` is the *only* interactive input left in the `dev test` handler. This is recorded **as a reversal**, following Phase 119 D-18's pattern, so this phase's researcher and planner read it as a deliberate policy change, not the pre-existing default. Two structural collisions the redesign must resolve, not rediscover mid-execution: **(b)** "non-destructive means a partial write" is a **contract change**, not a flag change — `derive_plan` (`chip_test.py:319-425`) structurally omits `OP_WRITE`/`OP_VERIFY`/`OP_ERASE` from `Plan.steps` when `destructive=False` and records them only on the advisory-only `Plan.locked_destructive` list, which `run_plan` is forbidden from iterating — a third partial-write mode needs a new representation, with a ripple set spanning the closed six-string `OP_*` vocabulary, `tools/parse_devtest_issue.py`, `diagnostic_report.py`'s renderer/`ladder_state`/`dedup_fingerprint`, and the already-RED `tests/test_audit_coverage_matrix.py` golden; **(c)** "destructive only for UV-erasable" needs an explicit axis pick — the execution-layer proxy (`_write_region_for`'s `algorithm == 0x0B` fallback) covers a measured **32 of 301** UV-EPROM parts, so the structural alternative is widening to `{0x07, 0x08, 0x0B}` or threading the `full` DB dict to the execution layer.
 
-**Plans**: TBD
-**Research flag**: yes — likely needs `/gsd-plan-phase --research-phase 121` (the `dev test` op vocabulary is a closed six-string set consumed by the issue parser, report renderer, ladder-state taxonomy, and the `audit_coverage_matrix` golden — even the NA-marking fix ripples; the operator's redesign reinforces this need, since it adds a new partial-write representation and a `gh`-first submission flow on top of the same closed vocabulary).
+**Plans**: 14 plans across 10 waves (planned 2026-07-29). Ordering is load-bearing, not merely wave-ordered — six hard sequencing constraints are encoded in the wave/`depends_on` structure: D-18's golden regen is the first commit alone with zero DEVTEST code in the tree; the ruff `extend-exclude` lands before any formatter run (RESEARCH Pitfall 2 — the CI-resolved ruff reformats the byte-asserted golden); the fail-closed dispatch guard lands before `OP_WRITE_PARTIAL` exists (Pitfall 1a — an unhandled op calls `erase_eprom()` twice and reports `OK`, proven empirically); D-06's op string precedes every consumer; D-02's plan-side UV decision precedes the execution-layer read; and D-15's catalog edit precedes both mirror regenerations.
+
+**Wave 1**
+
+- [ ] 121-01-PLAN.md — D-18: regenerate the stale audit-matrix golden alone + `[tool.ruff] extend-exclude` + the CI-parity py3.11 venv (GATE-03 contrib)
+
+**Wave 2** *(parallel; zero `files_modified` overlap)*
+
+- [ ] 121-02-PLAN.md — Pitfall 1a: fail-closed `_dispatch_step`/`_dispatch_multi_run` arms, RED-then-GREEN, before the 7th op string (DEVTEST-04 contrib)
+- [ ] 121-03-PLAN.md — D-14: the GATE-01 AST checker over `sdp_capability.py` + two planted fixtures + the anti-hollow pytest (**closes GATE-01**)
+- [ ] 121-04-PLAN.md — D-19: harden the no-programmer-found characterizations at the real port-enumeration seam (operator-authorised scope addition)
+
+**Wave 3**
+
+- [ ] 121-05-PLAN.md — D-02: `is_uv_eprom` (301/301 exact), `Plan.is_uv`, `Step.write_region`, three-valued `write_scope` replacing `destructive` — behaviour-preserving (DEVTEST-03/04 contrib)
+
+**Wave 4**
+
+- [ ] 121-06-PLAN.md — D-06/D-07: `OP_WRITE_PARTIAL`, both frozensets, `_write_region_for` reads instead of guessing, production-path + chip-ID-gate proofs (DEVTEST-03/04 contrib)
+
+**Wave 5** *(parallel)*
+
+- [ ] 121-07-PLAN.md — D-06/D-08 report side: `schema_version` 1.2, fingerprint differentiation, cross-agreement impossibility, b11 back-compat (DEVTEST-04 contrib)
+- [ ] 121-08-PLAN.md — D-12: clear the erase-capability flag for `0x0D` + the family-fact NA reason + two inverted pins (**closes DEVTEST-01**)
+
+**Wave 6**
+
+- [ ] 121-09-PLAN.md — D-01/D-03/D-04/D-05: zero options, unconditional first-line always-writes notice, UV-only stop-and-ask, gate allow-list (**closes DEVTEST-02, DEVTEST-03, DEVTEST-04**)
+
+**Wave 7** *(parallel)*
+
+- [ ] 121-10-PLAN.md — D-13: `write --skip-erase` warns and proceeds on `0x0D`; deliberately not extended to `-b` per RESEARCH C-8 (GATE-02 contrib)
+- [ ] 121-11-PLAN.md — D-09/D-10/D-11: dedup-first `gh` query, ask every run, comment path, deny-set negative argv (**closes DEVTEST-05, DEVTEST-06**)
+
+**Wave 8**
+
+- [ ] 121-12-PLAN.md — D-15: the `0x5F` honesty caveat via the canonical meta catalog + both regenerated mirrors + the both-directions cross-repo gate check (GATE-02 contrib)
+
+**Wave 9**
+
+- [ ] 121-13-PLAN.md — D-16/D-17: all eight docs corrected; `lockable-proms.md` first-committed with §17 fixed and no provenance header (**closes GATE-02**)
+
+**Wave 10**
+
+- [ ] 121-14-PLAN.md — the full non-regression sweep at the final commit under CI parity + `121-NONREGRESSION.md` + row-by-row requirement re-verification (**closes GATE-03**)
+
+**Research flag**: yes — done. `121-RESEARCH.md` (HIGH confidence, every load-bearing claim executed live), `121-PATTERNS.md` (22 files classified) and `121-VALIDATION.md` are present. RESEARCH's `## Corrections to CONTEXT.md / ROADMAP Framings` table (C-1..C-9) corrects nine stated mechanisms against the live tree, including this block's own claim above that the closed op vocabulary is consumed by the issue parser — `tools/parse_devtest_issue.py` has **no op vocabulary at all**. Plan from RESEARCH.md, not from this prose. Per the established response, the corrections are recorded in the phase artifacts and `REQUIREMENTS.md` is **not** edited.
 **UI hint**: no
 
 ### Phase 122: CLOSE — honesty ledger, community ask, release decision
