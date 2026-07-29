@@ -456,7 +456,7 @@ Plans:
 
 **Wave 6**
 
-- [ ] 121-09-PLAN.md — D-01/D-03/D-04/D-05: zero options, unconditional first-line always-writes notice, UV-only stop-and-ask, gate allow-list (**closes DEVTEST-02, DEVTEST-03, DEVTEST-04**)
+- [x] 121-09-PLAN.md — D-01/D-03/D-04/D-05: zero options, unconditional first-line always-writes notice, UV-only stop-and-ask, gate allow-list (**closes DEVTEST-02, DEVTEST-03, DEVTEST-04**)
 
 **Wave 7** *(parallel)*
 
