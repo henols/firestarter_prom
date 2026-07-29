@@ -148,6 +148,20 @@ None - no external service configuration required.
 - `REQUIREMENTS.md` untouched — DEVTEST-04 remains Pending, to be closed by Plan 121-09.
 - No blockers for Wave 2's remaining plans (121-03, 121-04).
 
+## Self-Check: PASSED
+
+- FOUND: firestarter_app/firestarter/chip_test.py
+- FOUND: firestarter_app/tests/test_chip_test.py
+- FOUND commit 0431473 (RED, test-only)
+- FOUND commit 9ec8e21 (GREEN, fix)
+- Full suite: 1055 passed, 0 failed (`python3 -m pytest tests/ -p no:cacheprovider`)
+- `ruff check firestarter/ tests/`: All checks passed
+- `ruff format --check firestarter/ tests/`: 96 files already formatted
+- `tools/check_devtest_orchestrator.py`: PASS, exit 0
+- `sorted(_MULTI_RUN_OPS)` == `['erase', 'verify', 'write']`; `sorted(_DESTRUCTIVE_OPS)` == `['erase', 'write']`
+- `git -C /workspaces/firestarter_app status --short`: no untracked/modified files outside this plan's scope
+- `.planning/REQUIREMENTS.md`: byte-unchanged (verified via `git status`, not staged/modified)
+
 ---
 *Phase: 121-dev-test-fix-gates-docs-redesign*
 *Completed: 2026-07-29*
