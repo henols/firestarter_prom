@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 120
 current_phase_name: host-cli-surface-wire-emission-capability-refusal
 status: executing
-stopped_at: Completed 120-01-PLAN.md
-last_updated: "2026-07-29T10:27:30.686Z"
+stopped_at: Completed 120-02-PLAN.md
+last_updated: "2026-07-29T10:32:49.011Z"
 last_activity: 2026-07-29
-last_activity_desc: Phase 120 execution started
+last_activity_desc: Completed 120-02-PLAN.md (wire constants — COMMAND_SDP_UNLOCK/LOCK + FLAG_SKIP_SDP_UNLOCK)
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 42
-  completed_plans: 31
-  percent: 74
+  completed_plans: 32
+  percent: 76
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 120 (host-cli-surface-wire-emission-capability-refusal) — EXECUTING
-Plan: 2 of 12
-Status: Executing Phase 120 — Plan 01 complete
-Last activity: 2026-07-29 — Completed 120-01-PLAN.md (SDP capability predicate + exhaustiveness gate)
+Plan: 3 of 12
+Status: Executing Phase 120 — Plan 02 complete
+Last activity: 2026-07-29 — Completed 120-02-PLAN.md (wire constants — COMMAND_SDP_UNLOCK/LOCK + FLAG_SKIP_SDP_UNLOCK)
 
 > **⚠ Phase 120 planning superseded D-01/D-02's curated allow-set — the partition is now DERIVED (`120-SDP-PARTITION.md`, `6ad8688`).**
 > Operator directive, 2026-07-29: *"there shall be no guessing the ground truth is the infoic.xml"*. Executed: the SDP-capability
@@ -527,6 +527,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 119]: Plan 119-11: All three boards measured; Leonardo write succeeded (empty socket, -b skips blank check), Uno/uno328pb both failed identically at page-1 readback verify; no board recorded not-measured
 - [Phase ?]: sdp_capability predicate is name-keyed (db.get_eprom) with an injected db, not DB-loader-decoupled — resolve_chip's programmer dict has no protocol-id/name (D-03 mechanism correction, RESEARCH F-06)
 - [Phase ?]: sdp_capability_for_entry raises KeyError (never a silent default) on a dict missing protocol-id, naming resolve_chip as the likely wrong dict — anti-vacuity by construction
+- [Phase ?]: F-120-05 corrected in constants.py: firmware FLAG_* block ends at FLAG_SKIP_SDP_UNLOCK 0x100 -- no 0x200 flag exists; ROADMAP.md:363 and Phase 120 Depends-on line are wrong; REQUIREMENTS.md deliberately not edited
+- [Phase ?]: COMMAND_NAMES has two dereference sites (eprom_operations.py:301 and :377), not one; both CMD_SDP_* are unconditional in firmware, never DEV_TOOLS-gated
 
 ## Performance Metrics
 
@@ -607,10 +609,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 119 P10 | ~50min | 3 tasks | 2 files |
 | Phase 119 P11 | 50min | 2 tasks | 1 files |
 | Phase 120 P01 | 15min | 3 tasks | 2 files |
+| Phase 120 P02 | 10min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-07-29T10:27:30.672Z
+**Last session:** 2026-07-29T10:32:17.390Z
 **Stopped at:** Completed 120-01-PLAN.md
 **Resume file:** 
 None
