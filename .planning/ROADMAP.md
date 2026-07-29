@@ -469,7 +469,7 @@ Plans:
 
 **Wave 9**
 
-- [ ] 121-13-PLAN.md — D-16/D-17: all eight docs corrected; `lockable-proms.md` first-committed with §17 fixed and no provenance header (**closes GATE-02**)
+- [x] 121-13-PLAN.md — D-16/D-17: all eight docs corrected; `lockable-proms.md` first-committed with §17 fixed and no provenance header (**closes GATE-02**)
 
 **Wave 10**
 

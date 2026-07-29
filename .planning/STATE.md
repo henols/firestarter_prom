@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 121
 current_phase_name: dev-test-fix-gates-docs-redesign
 status: executing
-stopped_at: Completed 121-12-PLAN.md
-last_updated: "2026-07-29T21:50:37.504Z"
+stopped_at: Completed 121-13-PLAN.md
+last_updated: "2026-07-29T22:12:19.490Z"
 last_activity: 2026-07-29
-last_activity_desc: Completed 121-12-PLAN.md (D-15 SDP unlock-done message symmetry, GATE-02 contributes-only)
+last_activity_desc: Completed 121-13-PLAN.md (GATE-02 closed -- 8 cross-repo docs corrected for the post-fix SDP/erase model + always-writes reality; doc/lockable-proms.md first-committed)
 progress:
   total_phases: 7
   completed_phases: 5
   total_plans: 56
-  completed_plans: 54
-  percent: 96
+  completed_plans: 55
+  percent: 98
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 121 (dev-test-fix-gates-docs-redesign) — EXECUTING
-Plan: 12 of 14 complete (next: 121-13)
+Plan: 13 of 14 complete (next: 121-14)
 Status: Executing Phase 121
-Last activity: 2026-07-29 — Completed 121-12-PLAN.md (D-15 SDP unlock-done message symmetry, GATE-02 contributes-only)
+Last activity: 2026-07-29 — Completed 121-13-PLAN.md (GATE-02 closed -- 8 cross-repo docs corrected for the post-fix SDP/erase model + always-writes reality; doc/lockable-proms.md first-committed)
 
 > **⚠ Phase 120 planning superseded D-01/D-02's curated allow-set — the partition is now DERIVED (`120-SDP-PARTITION.md`, `6ad8688`).**
 > Operator directive, 2026-07-29: *"there shall be no guessing the ground truth is the infoic.xml"*. Executed: the SDP-capability
@@ -601,6 +601,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 120-12]: The dev test submit repo-target ask discharged as verification only: SUBMIT_REPO already correct at e615b4c/2b9e8dd; released-artifact caveat recorded, not re-fixed
 - [Phase 121]: find_prior_report/comment_via_gh added as injected-seam gh functions; submit_report restructured to dedup-first/always-ask/comment-on-duplicate (D-09/D-10/D-11); negative argv widened to a deny-set on both gh paths incl. short forms (DEVTEST-06, RESEARCH Pitfall 6)
 - [Phase 121]: D-15's mechanism corrected per RESEARCH C-7: edit meta catalog only, run sync_to_subrepos.sh to regenerate both mirrors; three-way byte-identity + sync idempotence proven
+- [Phase ?]: GATE-02 closed (Plan 121-13): all eight docs corrected across both sub-repos for the post-fix SDP/erase model and the always-writes reality; doc/lockable-proms.md first-committed with its wrong AT28C16/64 row split against sdp_capability.py's derived allow-set, no provenance header (D-16); GATE-02's named doc list widened per D-17 (community-validation.md, beta-testing-install.md), REQUIREMENTS.md wording unedited
 
 ## Performance Metrics
 
@@ -692,10 +693,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 120 P12 | 55min | 3 tasks | 3 files |
 | Phase 121 P11 | 30min | 3 tasks | 2 files |
 | Phase 121 P12 | 35min | 2 tasks | 5 files |
+| Phase 121 P13 | 50min | 2 tasks | 9 files |
 
 ## Session
 
-**Last session:** 2026-07-29T21:50:17.800Z
+**Last session:** 2026-07-29T22:11:10.263Z
 **Stopped at:** Phase 121 context gathered
 **Resume file:** 
 None

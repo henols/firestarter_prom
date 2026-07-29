@@ -94,7 +94,7 @@ The promoting backlog note (999.19/999.18) asserted protocol `0x0D` "has no SDP 
 ### Gates & Documentation
 
 - [ ] **GATE-01**: An AST capability gate is paired with a planted-violation pytest proving the gate actually fails — the anti-hollow discipline that closed this project's v1.12 hollow-GATE-03 debt
-- [ ] **GATE-02**: Docs are corrected where they describe behaviour that does not reach silicon — `doc/PROTOCOLS.md` §1.6, `doc/lockable-proms.md`, `doc/protocol-id.md`, `firestarter/CLAUDE.md`, both READMEs — including an explicit note that `0x0D` has **no erase**, so `-b` is required for a non-blank AT28C and skips nothing else on this family
+- [x] **GATE-02**: Docs are corrected where they describe behaviour that does not reach silicon — `doc/PROTOCOLS.md` §1.6, `doc/lockable-proms.md`, `doc/protocol-id.md`, `firestarter/CLAUDE.md`, both READMEs — including an explicit note that `0x0D` has **no erase**, so `-b` is required for a non-blank AT28C and skips nothing else on this family. **Closed by Plan 121-13:** all eight named docs corrected across both sub-repos — the named doc list was widened per Phase 121 D-17 to add `doc/community-validation.md` and `doc/beta-testing-install.md` (the two docs D-04's always-writes reality most affects); that widening is recorded here in the phase artifacts, and `REQUIREMENTS.md`'s own wording above is left unedited per D-17. `doc/lockable-proms.md` was first-committed by this plan with its wrong §17 Atmel row corrected against `sdp_capability.py`'s derived allow-set (D-16) and deliberately no provenance header (an owned trade-off, not to be re-opened).
 - [ ] **GATE-03**: The full non-regression set is green — native suite, `check_dispatch.py`, host pytest, ruff/format against the **py3.9/3.11 CI targets** (not the devcontainer's 3.12), and `diff_db.py` identity proving the DB is untouched
 
 ### Close (honesty ledger)
@@ -195,7 +195,7 @@ Filled during roadmap creation (`/gsd-new-project` → roadmapper, 2026-07-27). 
 | DEVTEST-05 | Plan 121-11 | Complete |
 | DEVTEST-06 | Plan 121-11 | Complete |
 | GATE-01 | Phase 121 | Pending |
-| GATE-02 | Phase 121 | Pending |
+| GATE-02 | Plan 121-13 | Complete |
 | GATE-03 | Phase 121 | Pending |
 | CLOSE-01 | Phase 122 | Pending |
 | CLOSE-02 | Phase 122 | Pending |
