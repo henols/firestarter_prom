@@ -6,15 +6,15 @@ current_phase: 120
 current_phase_name: host-cli-surface-wire-emission-capability-refusal
 status: executing
 stopped_at: Completed 120-03-PLAN.md
-last_updated: "2026-07-29T10:39:44.732Z"
+last_updated: "2026-07-29T10:53:34.306Z"
 last_activity: 2026-07-29
 last_activity_desc: Completed 120-03-PLAN.md (INFO-band frame promotion — _log_rurp_feedback logging.DEBUG to logging.INFO)
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 42
-  completed_plans: 33
-  percent: 79
+  completed_plans: 35
+  percent: 57
 ---
 
 # Project State
@@ -25,8 +25,8 @@ progress:
 ## Current Position
 
 Phase: 120 (host-cli-surface-wire-emission-capability-refusal) — EXECUTING
-Plan: 4 of 12
-Status: Executing Phase 120 — Plan 03 complete
+Plan: 5 of 12
+Status: Ready to execute
 Last activity: 2026-07-29 — Completed 120-03-PLAN.md (INFO-band frame promotion — _log_rurp_feedback logging.DEBUG to logging.INFO)
 
 > **⚠ Phase 120 planning superseded D-01/D-02's curated allow-set — the partition is now DERIVED (`120-SDP-PARTITION.md`, `6ad8688`).**
@@ -531,6 +531,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: COMMAND_NAMES has two dereference sites (eprom_operations.py:301 and :377), not one; both CMD_SDP_* are unconditional in firmware, never DEV_TOOLS-gated
 - [Phase 120-03]: Confirmed both CONTEXT.md corrections live before fixing: target is _log_rurp_feedback (not _log_response), and the blast radius is six unconditional INFO-band ids (0x5E/0x5F/0x60/0x61/0x62 + 0x5B MSG_INFO_HW), not five. — 0x5B is emitted via the unconditional LOG_WARN_ID_U8 alias despite catalog severity INFO, so the fix also partially resolves Phase 35's CR-02 hard-fail-loud warning.
 - [Phase 120-03]: Promotion kept to exactly one elif arm; NON_RESPONSE_PREFIXES and get_response() left untouched so INFO frames still never reach the operation layer (load-bearing for plan 120-08's D-10). — Scoping the change minimizes risk and keeps the negative-scoped-promotion test meaningful.
+- [Phase 120-05]: Task 1's five HOST-04 named-refusal/structural-invariant legs reuse the module's existing minimal-literal-dict idiom; only the F-06 shape leg (Task 2) uses a real EpromDatabase(skip_local_override=True)+resolve_chip(), per the plan's explicit prohibition against faking the shape it exists to prove
+- [Phase 120-05]: Local-override leg isolates the config dir via patch("firestarter.config.DATABASE_FILE", ...) (test_config.py's existing idiom), not FIRESTARTER_CONFIG_DIR — config.py's DATABASE_FILE/PIN_MAP_FILE constants are fixed at import time
 
 ## Performance Metrics
 
@@ -613,10 +615,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 120 P01 | 15min | 3 tasks | 2 files |
 | Phase 120 P02 | 10min | 2 tasks | 1 files |
 | Phase 120 P03 | 12min | 2 tasks | 2 files |
+| Phase 120 P05 | 20min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-07-29T10:39:27.640Z
+**Last session:** 2026-07-29T10:52:51.956Z
 **Stopped at:** Completed 120-03-PLAN.md
 **Resume file:** 
 None
