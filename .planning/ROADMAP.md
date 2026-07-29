@@ -433,7 +433,7 @@ Plans:
 
 **Wave 1**
 
-- [ ] 121-01-PLAN.md — D-18: regenerate the stale audit-matrix golden alone + `[tool.ruff] extend-exclude` + the CI-parity py3.11 venv (GATE-03 contrib)
+- [x] 121-01-PLAN.md — D-18: regenerate the stale audit-matrix golden alone + `[tool.ruff] extend-exclude` + the CI-parity py3.11 venv (GATE-03 contrib)
 
 **Wave 2** *(parallel; zero `files_modified` overlap)*
 

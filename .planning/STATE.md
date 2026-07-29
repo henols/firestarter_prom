@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 121
-current_phase_name: `dev test` FIX + GATES + DOCS + REDESIGN
-status: Ready to execute — Phase 121 planned (14 plans, 10 waves); 9/9 requirements + 19/19 decisions covered
+current_phase_name: dev-test-fix-gates-docs-redesign
+status: executing
 stopped_at: Phase 121 planned
-last_updated: "2026-07-29T16:05:00.000Z"
+last_updated: "2026-07-29T16:14:55.085Z"
 last_activity: 2026-07-29
-last_activity_desc: Phase 121 planned — 14 plans in 10 waves; planned from RESEARCH.md (corrections C-1..C-9), six hard sequencing constraints encoded structurally
+last_activity_desc: Phase 121 execution started
 progress:
   total_phases: 7
   completed_phases: 5
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 121 of 7 (`dev test` FIX + GATES + DOCS + REDESIGN)
-Plan: 0/14 complete
-Status: **Planned** — 14 plans in 10 waves committed (`a12b0c6`); plan-checker PASSED (zero BLOCKER, zero WARNING); requirements 9/9 and decisions D-01..D-19 19/19 covered. Ready for `/gsd-execute-phase 121`.
-Last activity: 2026-07-29 — Phase 121 planned (14 plans, 10 waves; RESEARCH.md + PATTERNS.md + VALIDATION.md all present)
+Phase: 121 (dev-test-fix-gates-docs-redesign) — EXECUTING
+Plan: 1 of 14
+Status: Executing Phase 121
+Last activity: 2026-07-29 — Phase 121 execution started
 
 > **⚠ Phase 120 planning superseded D-01/D-02's curated allow-set — the partition is now DERIVED (`120-SDP-PARTITION.md`, `6ad8688`).**
 > Operator directive, 2026-07-29: *"there shall be no guessing the ground truth is the infoic.xml"*. Executed: the SDP-capability
@@ -212,7 +212,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-27 — v1.22 milestone-start footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.22 completes the write-protection lifecycle on protocol `0x0D` without adding a second dispatch axis — `handle->protocol` stays the sole dispatch key; `handle->cmd` is extended only as an operation selector *inside* the existing `0x0D` handler, exactly as v1.13 Phase 74 extended `flash_5v_page.cpp`.
 
-**Current focus:** Phase 121 — `dev test` FIX + GATES + DOCS + REDESIGN
+**Current focus:** Phase 121 — dev-test-fix-gates-docs-redesign
 
 ## Milestone Context (v1.22)
 
