@@ -74,7 +74,7 @@ The promoting backlog note (999.19/999.18) asserted protocol `0x0D` "has no SDP 
 
 - [ ] **HOST-01**: `firestarter dev sdp <chip> <enable|disable>` exists, behind the v1.21 destructiveness confirm + `-y` + the SAFE-04 absent-chip hard-fail
 - [ ] **HOST-02**: `write --skip-sdp-unlock` emits the `0x100` flag, following the in-tree rule that `--skip-X` skips a chip-state-modifying operation
-- [ ] **HOST-03**: New `CMD_*`/`FLAG_*` values land in the same commit pair across `firestarter.h` ↔ `constants.py`, **with mandatory `COMMAND_NAMES` entries**, and the constants-parity test is extended
+- [x] **HOST-03**: New `CMD_*`/`FLAG_*` values land in the same commit pair across `firestarter.h` ↔ `constants.py`, **with mandatory `COMMAND_NAMES` entries**, and the constants-parity test is extended (`COMMAND_SDP_UNLOCK 9` / `COMMAND_SDP_LOCK 10` / `FLAG_SKIP_SDP_UNLOCK 0x100` plus two mandatory `COMMAND_NAMES` entries landed in Plan 120-02; the parity test itself was **rebuilt** in Plan 120-07 from hardcoded literals into a real two-way header-parsing gate with three planted-violation fixtures, a `COMMAND_NAMES`-coverage leg, a fail-closed path, and a machine-checked conditional-compilation assertion. Honest reading of "same commit pair": firmware landed the defines in **Phase 119** and the host lands them here, deliberately, since HOST-06 forbids the reverse order — what the requirement demands and what is now proven is that the pair *agrees*, machine-checked in both directions.)
 - [ ] **HOST-04**: A pre-wire capability refusal keeps SDP commands away from non-SDP parts inside the `0x0D` bucket — the 2 FRAM parts and the pre-SDP `2804`/`2816`/`2817` class — resolved in code, with **zero DB change**
 - [ ] **HOST-05**: The SDP outcome is reported honestly and **never as a fabricated state boolean** — where state is unreadable, the report says so
 - [ ] **HOST-06**: The host half never lands before the firmware half; a host emitting `0x100` against `3.0.0b11` would be silently ignored and would run the unlock the user declined
@@ -175,7 +175,7 @@ Filled during roadmap creation (`/gsd-new-project` → roadmapper, 2026-07-27). 
 | LOCK-06 | Phase 119 | Complete |
 | HOST-01 | Phase 120 | Pending |
 | HOST-02 | Phase 120 | Pending |
-| HOST-03 | Phase 120 | Pending |
+| HOST-03 | Phase 120 | Complete |
 | HOST-04 | Phase 120 | Pending |
 | HOST-05 | Phase 120 | Pending |
 | HOST-06 | Phase 120 | Pending |
