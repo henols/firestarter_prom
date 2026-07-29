@@ -451,8 +451,8 @@ Plans:
 
 **Wave 5** *(parallel)*
 
-- [ ] 121-07-PLAN.md — D-06/D-08 report side: `schema_version` 1.2, fingerprint differentiation, cross-agreement impossibility, b11 back-compat (DEVTEST-04 contrib)
-- [ ] 121-08-PLAN.md — D-12: clear the erase-capability flag for `0x0D` + the family-fact NA reason + two inverted pins (**closes DEVTEST-01**)
+- [x] 121-07-PLAN.md — D-06/D-08 report side: `schema_version` 1.2, fingerprint differentiation, cross-agreement impossibility, b11 back-compat (DEVTEST-04 contrib)
+- [x] 121-08-PLAN.md — D-12: clear the erase-capability flag for `0x0D` + the family-fact NA reason + two inverted pins (**closes DEVTEST-01**)
 
 **Wave 6**
 
