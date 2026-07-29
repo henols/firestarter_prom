@@ -81,7 +81,7 @@ The promoting backlog note (999.19/999.18) asserted protocol `0x0D` "has no SDP 
 
 ### `dev test` Correctness (unblocks usable community evidence)
 
-- [x] **DEVTEST-01**: `OP_ERASE` is marked `NA` for protocol `0x0D` with a named reason, and firmware fail-closes on `CMD_ERASE` for `0x0D` — today the sweep reports OK having done nothing and auto-tags `ladder_state = "community-fail"` even when write and verify pass (**split by phase, Plan 119-09:** the firmware half — fail-closed on `CMD_ERASE` for `0x0D`, via a generic op-layer NULL-`main` refusal, not a `0x0D`-local arm — landed in **Phase 119** under D-06/D-07/D-08; the host half landed in **Plan 121-08**: `database.py:convert_to_programmer` clears `FLAG_CAN_ERASE` for protocol `0x0D` at the root (D-12, reversing the prior D-03 note that leaving it set was inert-and-must-stay), so `derive_plan`'s existing generic NA-erase branch fires for free with a new family-fact reason arm — never the flag name. Verified end to end: a full-scope `AT28C256` sweep's erase step is `NA` with `operator.erase_eprom` never called, and the resulting `ladder_state` is `community-reported`, not `community-fail`. Checkbox now ticked — both halves landed.)
+- [ ] **DEVTEST-01**: `OP_ERASE` is marked `NA` for protocol `0x0D` with a named reason, and firmware fail-closes on `CMD_ERASE` for `0x0D` — today the sweep reports OK having done nothing and auto-tags `ladder_state = "community-fail"` even when write and verify pass (**split by phase, Plan 119-09:** the firmware half — fail-closed on `CMD_ERASE` for `0x0D`, via a generic op-layer NULL-`main` refusal, not a `0x0D`-local arm — landed in **Phase 119** under D-06/D-07/D-08; the host half landed in **Plan 121-08**: `database.py:convert_to_programmer` clears `FLAG_CAN_ERASE` for protocol `0x0D` at the root (D-12, reversing the prior D-03 note that leaving it set was inert-and-must-stay), so `derive_plan`'s existing generic NA-erase branch fires for free with a new family-fact reason arm — never the flag name. Verified end to end: a full-scope `AT28C256` sweep's erase step is `NA` with `operator.erase_eprom` never called, and the resulting `ladder_state` is `community-reported`, not `community-fail`. Both halves have landed; the checkbox stays unticked until Plan 121-14 re-verifies every row at the phase's final commit.)
 
 **`dev test` redesign — operator directive 2026-07-29, folded into Phase 121 as a REVERSAL (Phase 120 D-20 amendment; see `PROJECT.md`'s SEVENTH CORRECTION for the full record). Every id below is new, Pending, and mapped to Phase 121 only.**
 
@@ -188,7 +188,7 @@ Filled during roadmap creation (`/gsd-new-project` → roadmapper, 2026-07-27). 
 | HOST-04 | Phase 120 | Complete |
 | HOST-05 | Phase 120 | Complete |
 | HOST-06 | Phase 120 | Complete |
-| DEVTEST-01 | Phase 119 (firmware half) + Plan 121-08 (host half) | Complete |
+| DEVTEST-01 | Phase 119 (firmware half) + Plan 121-08 (host half) | Pending |
 | DEVTEST-02 | Phase 121 | Pending |
 | DEVTEST-03 | Phase 121 | Pending |
 | DEVTEST-04 | Phase 121 | Pending |
