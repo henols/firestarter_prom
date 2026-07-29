@@ -172,3 +172,10 @@ None — no external service configuration required.
 ---
 *Phase: 121-dev-test-fix-gates-docs-redesign*
 *Completed: 2026-07-29*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/121-dev-test-fix-gates-docs-redesign/121-NONREGRESSION.md`
+- FOUND: `.planning/phases/121-dev-test-fix-gates-docs-redesign/121-14-SUMMARY.md`
+- FOUND: `.planning/REQUIREMENTS.md`
+- FOUND (meta): `7bc36c1`, `ebd1000`, `73d68a1`, `98fe95c`
