@@ -157,3 +157,14 @@ None - no external service configuration required.
 ---
 *Phase: 121-dev-test-fix-gates-docs-redesign*
 *Completed: 2026-07-29*
+
+## Self-Check: PASSED
+
+- FOUND: `tools/catalog/messages.toml`
+- FOUND: `.planning/phases/121-dev-test-fix-gates-docs-redesign/121-12-SUMMARY.md`
+- FOUND: `firestarter/include/messages.h`
+- FOUND: `firestarter_app/firestarter/messages.py`
+- FOUND: meta commit `8cbdab9`
+- FOUND: meta commit `dbdf3c6`
+- FOUND: firestarter commit `8c2e177`
+- FOUND: firestarter_app commit `38e597f`
