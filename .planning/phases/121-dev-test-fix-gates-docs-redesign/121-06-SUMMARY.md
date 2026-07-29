@@ -166,3 +166,12 @@ Each task was committed atomically in `firestarter_app` on branch `v1.22-at28c-s
 ---
 *Phase: 121-dev-test-fix-gates-docs-redesign*
 *Completed: 2026-07-29*
+
+## Self-Check: PASSED
+
+- FOUND: `firestarter_app/firestarter/chip_test.py`, `firestarter_app/tests/test_chip_test.py`
+- FOUND: commit `ce63514` (feat, Task 1)
+- FOUND: commit `927de2c` (refactor, Task 2)
+- FOUND: commit `cd7f56b` (test, Task 3)
+- FOUND: `.planning/phases/121-dev-test-fix-gates-docs-redesign/121-06-SUMMARY.md`
+- FOUND: commit `fdb06a2` (docs, meta-repo SUMMARY commit)
