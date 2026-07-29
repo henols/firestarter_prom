@@ -4,15 +4,15 @@ milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 120
 current_phase_name: HOST — CLI surface, wire emission, capability refusal
-status: Phase 120 context gathered (120-CONTEXT.md, 20 decisions) — ready for /gsd-plan-phase 120
-stopped_at: Phase 120 context gathered
-last_updated: "2026-07-29T08:01:24.345Z"
+status: Ready to execute — Phase 120 planned (12 plans, 7 waves); allow-set derived from infoic.xml b15 (43/41)
+stopped_at: Phase 120 planned
+last_updated: "2026-07-29T09:40:00.000Z"
 last_activity: 2026-07-29
-last_activity_desc: Phase 120 context gathered — 6 areas discussed, 20 decisions captured
+last_activity_desc: Phase 120 planned — 12 plans in 7 waves; SDP allow-set derived from infoic.xml, superseding the curated partition
 progress:
   total_phases: 7
   completed_phases: 4
-  total_plans: 30
+  total_plans: 42
   completed_plans: 30
   percent: 57
 ---
@@ -25,9 +25,59 @@ progress:
 ## Current Position
 
 Phase: 120 — HOST — CLI surface, wire emission, capability refusal
-Plan: Not started
-Status: Context gathered — `120-CONTEXT.md` + `120-DISCUSSION-LOG.md` committed (`c5547ea`); 6 areas discussed, D-01..D-20 captured, HOST-01..06 all still Pending. Ready for `/gsd-plan-phase 120`.
-Last activity: 2026-07-29 — Phase 120 context gathered (6 areas, 20 decisions)
+Plan: 0/12 complete
+Status: **Planned** — 12 plans in 7 waves committed (`b3cddbe`); plan-checker PASSED; requirements 6/6 and decisions 20/20 covered. Ready for `/gsd-execute-phase 120`.
+Last activity: 2026-07-29 — Phase 120 planned (12 plans, 7 waves)
+
+> **⚠ Phase 120 planning superseded D-01/D-02's curated allow-set — the partition is now DERIVED (`120-SDP-PARTITION.md`, `6ad8688`).**
+> Operator directive, 2026-07-29: *"there shall be no guessing the ground truth is the infoic.xml"*. Executed: the SDP-capability
+> partition is derived from minipro `infoic.xml` @ `a8efaedc236c1d9718bd28299dfbb99536b010ff`, section
+> `<database type="INFOIC2PLUS">`, `flags` **bit 15** (`0x8000` `MP_PROTECT_AFTER`) — the section `build_db.py:450` already
+> treats as authoritative. **ALLOW 43 / REFUSE 41 = 84**, all 84 matched, zero unmatched, zero MIXED.
+> - **Three ground-truth probes all pass with no special cases:** HOST-04's 8 named pre-SDP entries → b15=0 (8/8, six of them
+>   `flags=0x00000000`); both FRAM parts → b15=0 (2/2); the datasheet-of-record Atmel parts (`AT28C256`/`64B`/`010`/`040`) → b15=1 (4/4).
+> - **Supersedes** `120-RESEARCH.md` § F-01's curated **37/47** and its five judgement calls (2 right, 2 wrong, 1 right), and the
+>   interim operator placeholder "allow both disputed groups" (~74/10) — that pick existed only because the alternative was guessing.
+> - **D-01/D-02's mechanism is unchanged**: a static fail-closed allow-list in `firestarter/sdp_capability.py`, refusing anything not
+>   on it including user `~/.firestarter/database.json` additions, plus the runtime exhaustiveness gate. Only *provenance* changed.
+>   Nothing reads `infoic.xml` at runtime or in CI; it is added to neither sub-repo.
+> - **Derived structure nobody coded for:** all 19 `DIP24_2816` refuse · all 18 `DIP32_28C512_EEPROM` allow · the only two
+>   `DIP28_28C256` refusals are exactly the two FRAM parts (HOST-04's own text, now derived) · all 9 `adapter-required` parts refuse,
+>   so D-08's capability-before-support-status ordering is load-bearing on **all 9**, not a hypothetical subset.
+>   RESEARCH § F-03 still holds: no structural or lexical rule expresses the partition (`DIP28_28C64` splits 15/20) — the table is
+>   transcribed, never regenerated.
+> - **The refusal-cost trade-off dissolved rather than being decided.** Over-refusal only costs a working `write` (via D-04's
+>   auto-set) if the part *has* SDP; for a part with no SDP there is nothing to unlock, so suppressing its auto-unlock is a no-op
+>   *and* avoids F-120-01's three stored bytes. Residual risk is confined to `120-WATCHLIST.md`'s **9 entries** (b15=0 but
+>   `page_size > 1`).
+> - **The 2026-07-10 infoic note is NOT overturned — it is scoped.** `.planning/notes/infoic-xml-protection-flags-research.md`
+>   concluded b14/b15 are too coarse for the `status_readable` / `protection_kind` taxonomy and said "do not re-investigate."
+>   That remains TRUE (`W29C020C` ≡ `W29EE011` on flags; neither is a `0x0D` part). This phase answered a strictly narrower
+>   question — *does this 28C-family part have an SDP command decoder* — and validated the axis against three independent probes.
+>   Both findings are correct about different questions; 120-04 appends a scoped exception rather than replacing the verdict.
+>   Also refuted as an equivalence: b15 is **not** a page-write proxy — it disagrees with `page_size` on **12 of 84**.
+> - **New finding for GATE-02 (Phase 121):** `doc/lockable-proms.md` §17 is **wrong about `AT28C16`** — it lists "Atmel
+>   AT28C16 / 64 / 256" as SDP-capable, but `AT28C16`, `AT28C16E,F` and plain `AT28C64` are all b15=0 with `page_size=1`
+>   (byte write). Recorded; no doc edited in this phase.
+> - **Answers RESEARCH § F-17** ("the DB splits alias groups and we cannot see why"): `chip_database.json` mirrors `infoic.xml`'s
+>   own split — `AT28C64` `0x10`/byte-write/no-SDP vs `AT28C64B` `0xc010`/64-byte-page/SDP. F-02 rule 1 ("do not strip
+>   parentheticals") is therefore load-bearing on **correctness**, not just stability.
+> - **`dev test --submit` is VERIFY-ONLY, not a code change.** The operator asked to pull the wrong-repo fix in from Phase 121;
+>   it is already fixed on this branch (`submit.py:73` = `henols/firestarter_prom`, commit `e615b4c`, pinned by
+>   `test_submit.py:237`). The `v1.21` tag still carries the old target, which is why shipped `3.0.0b11` misfiles — a
+>   **released-artifact** fact reaching users at the next beta cut, not a source defect.
+> - **Two CONTEXT.md corrections applied by the plans:** D-09's target is `_log_rurp_feedback`, **not** `_log_response`
+>   (line numbers were right, the name was wrong); and the blast radius is **six** unconditional INFO-band ids, not five —
+>   `MSG_INFO_HW` (`0x5B`) is also emitted unconditionally via `LOG_WARN_ID_U8` while its catalog severity is INFO, so D-09
+>   fixes a second, older observability defect. Zero existing tests move.
+> - **D-03's mechanism corrected:** the predicate must be **name-keyed** via `db.get_eprom(name)`. `resolve_chip` returns the
+>   *programmer* dict, which has no `protocol-id`, no `electrical-type` and no part number — so CONTEXT.md's "no DB-loader
+>   coupling" is unachievable. The same finding proves `check_eprom_blank`'s `_SRAM_PROTO_IDS` short-circuit is **vacuous in
+>   production** (both callers pass the programmer dict), so PROJECT.md SIXTH CORRECTION item 6's stated reason for keeping it
+>   is false — the keep-disposition stands, the reason does not. The new gate carries a dict-shape anti-vacuity leg so the
+>   predicate cannot reproduce that silent failure.
+> - **Ceiling unchanged.** Derivation makes the partition *reproducible*, not *bench-verified*. No AT28C part is on the bench;
+>   `0x0D` stays `UNVERIFIED`; zero `support_status` changes; the 84-chip count is unchanged.
 
 > **⚠ Phase 120 discussion produced four cross-phase consequences — read `120-CONTEXT.md` before planning 120, 121 or 122.**
 > 1. **The `dev test` redesign is folded into Phase 121, and Phase 120 owns the amendment (D-20).** Operator specification, 2026-07-29: `dev test` takes **no flags**; "destructive" applies only to UV-erasable EPROMs; the sweep **stops and asks** whether to do a destructive write (yes = full device may be written, no = only a small part is written); **every** run asks whether to file an issue, checking first whether the user already reported an identical one and creating a new issue only when it differs; `gh` replaces the URL/browser path wherever it can. Phase 120 lands only the `ROADMAP.md` Phase 121 + `REQUIREMENTS.md` + `PROJECT.md` amendment (119-09's precedent) — **no implementation**. The amendment must record that this **reverses three locked decisions**: Phase 112 Plan 04's deliberate removal of all interactive prompts (`112-UAT.md`), SAFE-01's CLI-only `--destructive`, and SAFE-03's "only interactive input left" statement.
