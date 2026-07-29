@@ -437,9 +437,9 @@ Plans:
 
 **Wave 2** *(parallel; zero `files_modified` overlap)*
 
-- [ ] 121-02-PLAN.md — Pitfall 1a: fail-closed `_dispatch_step`/`_dispatch_multi_run` arms, RED-then-GREEN, before the 7th op string (DEVTEST-04 contrib)
-- [ ] 121-03-PLAN.md — D-14: the GATE-01 AST checker over `sdp_capability.py` + two planted fixtures + the anti-hollow pytest (**closes GATE-01**)
-- [ ] 121-04-PLAN.md — D-19: harden the no-programmer-found characterizations at the real port-enumeration seam (operator-authorised scope addition)
+- [x] 121-02-PLAN.md — Pitfall 1a: fail-closed `_dispatch_step`/`_dispatch_multi_run` arms, RED-then-GREEN, before the 7th op string (DEVTEST-04 contrib)
+- [x] 121-03-PLAN.md — D-14: the GATE-01 AST checker over `sdp_capability.py` + two planted fixtures + the anti-hollow pytest (**closes GATE-01**)
+- [x] 121-04-PLAN.md — D-19: harden the no-programmer-found characterizations at the real port-enumeration seam (operator-authorised scope addition)
 
 **Wave 3**
 
