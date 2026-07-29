@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
-current_phase: 120
-current_phase_name: HOST — CLI surface, wire emission, capability refusal
-status: verifying
-stopped_at: Completed 120-12-PLAN.md
-last_updated: "2026-07-29T13:06:13.671Z"
+current_phase: 121
+current_phase_name: `dev test` FIX + GATES + DOCS + REDESIGN
+status: ready
+stopped_at: Phase 120 complete and verified (12/12 plans, 5/5 must-haves) — Phase 121 not started
+last_updated: "2026-07-29T13:24:29.367Z"
 last_activity: 2026-07-29
-last_activity_desc: Completed 120-12-PLAN.md (non-regression capstone — nine-row CORRECTION-4 gate re-run, both frozen-artifact fences verified, 120-NONREGRESSION.md written, 120-VALIDATION.md settled, dev test --submit repo-target verified not re-fixed; Phase 120 is now 12/12 plans complete, ready for phase-level verification)
+last_activity_desc: Phase 120 complete, transitioned to Phase 121
 progress:
   total_phases: 7
   completed_phases: 5
   total_plans: 42
   completed_plans: 42
-  percent: 100
+  percent: 71
 ---
 
 # Project State
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 120 (HOST — CLI surface, wire emission, capability refusal) — 12 of 12 plans complete
-Plan: none next — phase plan set exhausted
-Status: Phase complete — ready for verification
-Last activity: 2026-07-29 — Completed 120-12-PLAN.md (non-regression capstone: nine-row CORRECTION-4 gate re-run, both frozen-artifact fences verified non-vacuously, 120-NONREGRESSION.md written, 120-VALIDATION.md settled with nyquist_compliant/wave_0_complete true, dev test --submit repo-target verified — not re-fixed — with released-artifact caveat recorded. All six HOST-01..HOST-06 re-verified Complete; zero requirement rows changed.)
+Phase: 121 of 7 (`dev test` FIX + GATES + DOCS + REDESIGN)
+Plan: Not started
+Status: Phase 120 complete and verified (5/5 must-haves) — Phase 121 awaiting discuss/plan
+Last activity: 2026-07-29 — Phase 120 complete, transitioned to Phase 121
 
 > **⚠ Phase 120 planning superseded D-01/D-02's curated allow-set — the partition is now DERIVED (`120-SDP-PARTITION.md`, `6ad8688`).**
 > Operator directive, 2026-07-29: *"there shall be no guessing the ground truth is the infoic.xml"*. Executed: the SDP-capability
