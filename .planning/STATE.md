@@ -4,17 +4,17 @@ milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 120
 current_phase_name: HOST — CLI surface, wire emission, capability refusal
-status: executing
-stopped_at: Completed 120-11-PLAN.md
-last_updated: "2026-07-29T12:48:28.051Z"
+status: verifying
+stopped_at: Completed 120-12-PLAN.md
+last_updated: "2026-07-29T13:06:13.671Z"
 last_activity: 2026-07-29
-last_activity_desc: Completed 120-11-PLAN.md (D-20's owned amendment — ROADMAP Phase 121 scope + REQUIREMENTS.md DEVTEST-02..06 + PROJECT.md SEVENTH CORRECTION; meta-only, no implementation, no requirement ticked)
+last_activity_desc: Completed 120-12-PLAN.md (non-regression capstone — nine-row CORRECTION-4 gate re-run, both frozen-artifact fences verified, 120-NONREGRESSION.md written, 120-VALIDATION.md settled, dev test --submit repo-target verified not re-fixed; Phase 120 is now 12/12 plans complete, ready for phase-level verification)
 progress:
   total_phases: 7
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 42
-  completed_plans: 41
-  percent: 98
+  completed_plans: 42
+  percent: 100
 ---
 
 # Project State
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 120 (HOST — CLI surface, wire emission, capability refusal) — EXECUTING
-Plan: 12 of 12 next (120-11 of 12 complete)
-Status: Ready to execute
-Last activity: 2026-07-29 — Completed 120-11-PLAN.md (D-20's owned amendment — ROADMAP Phase 121 scope + REQUIREMENTS.md DEVTEST-02..06 + PROJECT.md SEVENTH CORRECTION; meta-only, no implementation, no requirement ticked)
+Phase: 120 (HOST — CLI surface, wire emission, capability refusal) — 12 of 12 plans complete
+Plan: none next — phase plan set exhausted
+Status: Phase complete — ready for verification
+Last activity: 2026-07-29 — Completed 120-12-PLAN.md (non-regression capstone: nine-row CORRECTION-4 gate re-run, both frozen-artifact fences verified non-vacuously, 120-NONREGRESSION.md written, 120-VALIDATION.md settled with nyquist_compliant/wave_0_complete true, dev test --submit repo-target verified — not re-fixed — with released-artifact caveat recorded. All six HOST-01..HOST-06 re-verified Complete; zero requirement rows changed.)
 
 > **⚠ Phase 120 planning superseded D-01/D-02's curated allow-set — the partition is now DERIVED (`120-SDP-PARTITION.md`, `6ad8688`).**
 > Operator directive, 2026-07-29: *"there shall be no guessing the ground truth is the infoic.xml"*. Executed: the SDP-capability
@@ -116,6 +116,8 @@ Last activity: 2026-07-29 — Completed 120-11-PLAN.md (D-20's owned amendment �
 | 7 | 120-12 | (all six HOST ids verified) | Nine-row CORRECTION-4 sweep, `120-NONREGRESSION.md`, `dev test --submit` repo-target verification |
 
 **Plan 120-11 outcome (meta, D-20's owned amendment — no firmware/host code touched):** Amended `ROADMAP.md`'s Phase 121 one-line entry and Phase Details block (Goal, Requirements, five new Success Criteria 6-10, a reversal note) to carry the operator's `dev test` redesign (2026-07-29): no flags, destructiveness scoped to UV-erasable EPROMs on an explicit axis, a stop-and-ask partial-write third mode, ask-to-file-an-issue with prior-report dedup, and `gh`-first submission with the negative `--label` argv. Added `REQUIREMENTS.md`'s DEVTEST-02 through DEVTEST-06 (all Pending, mapped to Phase 121), recorded the v1.21 SUB-01/SUB-02 submit contract as reversed without editing its archived wording, and corrected the Coverage arithmetic to 41/41 mapped, 0 unmapped. Added `PROJECT.md`'s SEVENTH CORRECTION block (9 items) recording the redesign as a reversal of three locked decisions (Phase 112 Plan 04/`112-UAT.md`, SAFE-01, SAFE-03), both structural collisions (the `derive_plan` partial-write contract change and the UV-axis 32-of-301 coverage gap), the `--submit` wrong-repo defect as a released-artifact fact already fixed at `e615b4c` (no source change), the SIXTH CORRECTION item 6 `_SRAM_PROTO_IDS` reason-correction, and the derived 43/41 HOST-04 partition restated with provenance. `ROADMAP.md` grew from 2241 to 2248 lines (scoped `Edit` calls only, both `### Phase 121`/`### Phase 122` headings still exactly one each). **No requirement was ticked** — DEVTEST-01 and all five new DEVTEST ids stay `[ ]`; all six HOST ids re-confirmed `[x]`. Both sub-repo working trees clean throughout (verified `git -C /workspaces/firestarter status --porcelain` empty, tip `0048b3d`; `git -C /workspaces/firestarter_app status --porcelain` unchanged from plan start); no submodule gitlink staged.
+
+**Plan 120-12 outcome (meta + host, the phase's non-regression capstone — Phase 120's last plan, 12 of 12 complete):** Re-ran all nine CORRECTION-4 cross-repo gate rows verbatim at this plan's final commit rather than trusting any prior plan's SUMMARY — row 5's `gen_sdp_bus_config.py` generator was actually re-executed with the firmware tree confirmed empty **afterward** (idempotence, not a bare exit code); row 7 (`test_revision_constants_parity.py`) recorded honestly as **CHANGED BY DESIGN** (13 tests post-120-07 rebuild vs 6 pre-phase); row 9 (`check_dispatch.py`/`check_devtest_orchestrator.py`, which scans `cli_handlers.py`) named as the one host-side row at real risk and confirmed green. Full host suite **1050 passed, 1 failed** (the pre-existing `test_audit_coverage_matrix` stale golden, reproduced and named), coverage **82.47%**; `test_no_programmer_found_*` did not reproduce despite three live boards attached. mypy watermark: error count **1** (35-watermark, 34-slack caveat recorded). Both frozen-artifact fences confirmed non-vacuously: firmware `status --porcelain` empty, tip `0048b3d`, `version.h` still `3.0.0b11`; app-repo DB/catalog/`build_db.py` diff empty. **`dev test --submit`'s repo-target ask discharged as verification, not a re-fix**: `SUBMIT_REPO == "henols/firestarter_prom"` confirmed present at `e615b4c` (this branch) / `2b9e8dd` (`beta`), one new negative-argv test added (`test_submit_via_gh_argv_targets_the_project_wide_tracker`), `firestarter/submit.py` byte-unchanged; the released-artifact caveat (shipped `3.0.0b11` still misfiles until the next beta cut) recorded. Both carried-forward findings recorded in `120-NONREGRESSION.md`, neither fixed (out of this plan's file scope): the double-swallowed `MSG_ERR_UNKNOWN_CMD` propagation path (120-10's finding), and the pre-existing stale audit-matrix golden. Wrote `120-NONREGRESSION.md` in `119-NONREGRESSION.md`'s eight-section shape. Settled `120-VALIDATION.md` (`status: complete`, `nyquist_compliant: true`, `wave_0_complete: true`) only after individually re-verifying every originally-`❌ W0` Wave-0 row against the real, landed test names — three rows' file/command references were corrected in place (HOST-02's D-18 test and HOST-04's D-04 auto-set test both actually landed in `tests/test_write_skip_sdp_unlock.py`, not `tests/test_dev_sdp_cmd.py`; HOST-03's fail-closed test matched by `-k fails_closed`, not the originally-written `fail_closed` substring). **Zero requirement rows changed** — all six HOST-01..HOST-06 re-verified `[x]` Complete, `DEVTEST-01..06` re-verified `[ ]` Pending; nothing newly ticked. **Phase 120 (HOST — CLI surface, wire emission, capability refusal) is now fully executed, 12 of 12 plans complete, ready for phase-level verification.**
 
 **Phase 119 plan graph** (planned 2026-07-28 — 11 plans, `6787d3d`; RESEARCH.md `90183e3` + PATTERNS.md + VALIDATION.md all present):
 
@@ -570,6 +572,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 120-11]: dev test redesign folded into Phase 121 ROADMAP scope as a recorded REVERSAL of Phase 112 Plan 04 (112-UAT.md), SAFE-01 and SAFE-03 (D-20) -- amendment only, no implementation
 - [Phase 120-11]: REQUIREMENTS.md DEVTEST-02..06 added Pending/Phase 121; v1.21 SUB-01/SUB-02 recorded as reversed without editing archived wording; coverage corrected to 41/41 mapped, 0 unmapped
 - [Phase 120-11]: PROJECT.md SEVENTH CORRECTION records the derived 43/41 HOST-04 partition provenance and corrects SIXTH CORRECTION item 6's stated reason (_SRAM_PROTO_IDS is vacuous in production; KEEP disposition still stands)
+- [Phase 120-12]: Row 7 (test_revision_constants_parity.py) recorded CHANGED BY DESIGN, not unchanged, per this phase's own rebuild
+- [Phase 120-12]: 120-VALIDATION.md's Wave-0 rows corrected in place where the originally-authored test reference did not match the landed test, before flipping nyquist_compliant/wave_0_complete true
+- [Phase 120-12]: The dev test submit repo-target ask discharged as verification only: SUBMIT_REPO already correct at e615b4c/2b9e8dd; released-artifact caveat recorded, not re-fixed
 
 ## Performance Metrics
 
@@ -658,10 +663,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 120 P08 | 55min | 3 tasks | 4 files |
 | Phase 120 P09 | 35min | 3 tasks | 3 files |
 | Phase 120 P10 | 45min | 3 tasks | 8 files |
+| Phase 120 P12 | 55min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-07-29T12:48:28.025Z
-**Stopped at:** Completed 120-11-PLAN.md
+**Last session:** 2026-07-29T13:06:13.650Z
+**Stopped at:** Completed 120-12-PLAN.md
 **Resume file:** 
 None

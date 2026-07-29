@@ -404,7 +404,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 120-12-PLAN.md — the nine-row CORRECTION-4 sweep, `120-NONREGRESSION.md`, and the `dev test --submit` repo-target verification (all six HOST ids verified)
+- [x] 120-12-PLAN.md — the nine-row CORRECTION-4 sweep, `120-NONREGRESSION.md`, and the `dev test --submit` repo-target verification (all six HOST ids verified)
 
 **Research flag**: no — standard pattern (`erase_eprom` and the v1.21 confirm gate are copy-shaped precedents). Research was nonetheless run: `120-RESEARCH.md`, `120-PATTERNS.md`, `120-VALIDATION.md`, plus `120-SDP-PARTITION.md` + `120-sdp-partition.json`, which **supersede** RESEARCH § F-01's curated 37/47 partition with a 43/41 partition derived from `infoic.xml` `INFOIC2PLUS` `flags` bit 15.
 **UI hint**: no
