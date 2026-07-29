@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 120
-current_phase_name: HOST — CLI surface, wire emission, capability refusal
-status: Ready to execute — Phase 120 planned (12 plans, 7 waves); allow-set derived from infoic.xml b15 (43/41)
-stopped_at: Phase 120 planned
-last_updated: "2026-07-29T09:40:00.000Z"
+current_phase_name: host-cli-surface-wire-emission-capability-refusal
+status: executing
+stopped_at: Completed 120-01-PLAN.md
+last_updated: "2026-07-29T10:27:30.686Z"
 last_activity: 2026-07-29
-last_activity_desc: Phase 120 planned — 12 plans in 7 waves; SDP allow-set derived from infoic.xml, superseding the curated partition
+last_activity_desc: Phase 120 execution started
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 42
-  completed_plans: 30
-  percent: 57
+  completed_plans: 31
+  percent: 74
 ---
 
 # Project State
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 120 — HOST — CLI surface, wire emission, capability refusal
-Plan: 0/12 complete
-Status: **Planned** — 12 plans in 7 waves committed (`b3cddbe`); plan-checker PASSED; requirements 6/6 and decisions 20/20 covered. Ready for `/gsd-execute-phase 120`.
-Last activity: 2026-07-29 — Phase 120 planned (12 plans, 7 waves)
+Phase: 120 (host-cli-surface-wire-emission-capability-refusal) — EXECUTING
+Plan: 2 of 12
+Status: Executing Phase 120 — Plan 01 complete
+Last activity: 2026-07-29 — Completed 120-01-PLAN.md (SDP capability predicate + exhaustiveness gate)
 
 > **⚠ Phase 120 planning superseded D-01/D-02's curated allow-set — the partition is now DERIVED (`120-SDP-PARTITION.md`, `6ad8688`).**
 > Operator directive, 2026-07-29: *"there shall be no guessing the ground truth is the infoic.xml"*. Executed: the SDP-capability
@@ -170,7 +170,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-27 — v1.22 milestone-start footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.22 completes the write-protection lifecycle on protocol `0x0D` without adding a second dispatch axis — `handle->protocol` stays the sole dispatch key; `handle->cmd` is extended only as an operation selector *inside* the existing `0x0D` handler, exactly as v1.13 Phase 74 extended `flash_5v_page.cpp`.
 
-**Current focus:** Phase 119 — LOCK — SDP-enable + command surface (FW half)
+**Current focus:** Phase 120 — host-cli-surface-wire-emission-capability-refusal
 
 ## Milestone Context (v1.22)
 
@@ -525,6 +525,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 119]: 119-NONREGRESSION.md written: nine-row CORRECTION-4 gate checklist handed to Phases 120-122; host_stubs_common.inc's true non-identity recorded with its cause; sdp_expected.h's retired whole-file blob-SHA shorthand replaced by re-verified per-array byte-identity
 - [Phase 119]: Plan 119-11: Leonardo's page-boundary-crossing write (6080us) is not directly comparable to the Uno-class boards' clean within-page figures (84/88us) -- traced via source, not guessed
 - [Phase 119]: Plan 119-11: All three boards measured; Leonardo write succeeded (empty socket, -b skips blank check), Uno/uno328pb both failed identically at page-1 readback verify; no board recorded not-measured
+- [Phase ?]: sdp_capability predicate is name-keyed (db.get_eprom) with an injected db, not DB-loader-decoupled — resolve_chip's programmer dict has no protocol-id/name (D-03 mechanism correction, RESEARCH F-06)
+- [Phase ?]: sdp_capability_for_entry raises KeyError (never a silent default) on a dict missing protocol-id, naming resolve_chip as the likely wrong dict — anti-vacuity by construction
 
 ## Performance Metrics
 
@@ -604,10 +606,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 119 P09 | ~20min | 2 tasks | 5 files |
 | Phase 119 P10 | ~50min | 3 tasks | 2 files |
 | Phase 119 P11 | 50min | 2 tasks | 1 files |
+| Phase 120 P01 | 15min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-29T08:01:24.308Z
-**Stopped at:** Phase 120 context gathered
+**Last session:** 2026-07-29T10:27:30.672Z
+**Stopped at:** Completed 120-01-PLAN.md
 **Resume file:** 
-.planning/phases/120-host-cli-surface-wire-emission-capability-refusal/120-CONTEXT.md
+None
