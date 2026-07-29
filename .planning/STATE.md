@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 120
 current_phase_name: host-cli-surface-wire-emission-capability-refusal
 status: executing
-stopped_at: Completed 120-02-PLAN.md
-last_updated: "2026-07-29T10:32:49.011Z"
+stopped_at: Completed 120-03-PLAN.md
+last_updated: "2026-07-29T10:39:44.732Z"
 last_activity: 2026-07-29
-last_activity_desc: Completed 120-02-PLAN.md (wire constants — COMMAND_SDP_UNLOCK/LOCK + FLAG_SKIP_SDP_UNLOCK)
+last_activity_desc: Completed 120-03-PLAN.md (INFO-band frame promotion — _log_rurp_feedback logging.DEBUG to logging.INFO)
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 42
-  completed_plans: 32
-  percent: 76
+  completed_plans: 33
+  percent: 79
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 120 (host-cli-surface-wire-emission-capability-refusal) — EXECUTING
-Plan: 3 of 12
-Status: Executing Phase 120 — Plan 02 complete
-Last activity: 2026-07-29 — Completed 120-02-PLAN.md (wire constants — COMMAND_SDP_UNLOCK/LOCK + FLAG_SKIP_SDP_UNLOCK)
+Plan: 4 of 12
+Status: Executing Phase 120 — Plan 03 complete
+Last activity: 2026-07-29 — Completed 120-03-PLAN.md (INFO-band frame promotion — _log_rurp_feedback logging.DEBUG to logging.INFO)
 
 > **⚠ Phase 120 planning superseded D-01/D-02's curated allow-set — the partition is now DERIVED (`120-SDP-PARTITION.md`, `6ad8688`).**
 > Operator directive, 2026-07-29: *"there shall be no guessing the ground truth is the infoic.xml"*. Executed: the SDP-capability
@@ -529,6 +529,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: sdp_capability_for_entry raises KeyError (never a silent default) on a dict missing protocol-id, naming resolve_chip as the likely wrong dict — anti-vacuity by construction
 - [Phase ?]: F-120-05 corrected in constants.py: firmware FLAG_* block ends at FLAG_SKIP_SDP_UNLOCK 0x100 -- no 0x200 flag exists; ROADMAP.md:363 and Phase 120 Depends-on line are wrong; REQUIREMENTS.md deliberately not edited
 - [Phase ?]: COMMAND_NAMES has two dereference sites (eprom_operations.py:301 and :377), not one; both CMD_SDP_* are unconditional in firmware, never DEV_TOOLS-gated
+- [Phase 120-03]: Confirmed both CONTEXT.md corrections live before fixing: target is _log_rurp_feedback (not _log_response), and the blast radius is six unconditional INFO-band ids (0x5E/0x5F/0x60/0x61/0x62 + 0x5B MSG_INFO_HW), not five. — 0x5B is emitted via the unconditional LOG_WARN_ID_U8 alias despite catalog severity INFO, so the fix also partially resolves Phase 35's CR-02 hard-fail-loud warning.
+- [Phase 120-03]: Promotion kept to exactly one elif arm; NON_RESPONSE_PREFIXES and get_response() left untouched so INFO frames still never reach the operation layer (load-bearing for plan 120-08's D-10). — Scoping the change minimizes risk and keeps the negative-scoped-promotion test meaningful.
 
 ## Performance Metrics
 
@@ -610,10 +612,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 119 P11 | 50min | 2 tasks | 1 files |
 | Phase 120 P01 | 15min | 3 tasks | 2 files |
 | Phase 120 P02 | 10min | 2 tasks | 1 files |
+| Phase 120 P03 | 12min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-29T10:32:17.390Z
-**Stopped at:** Completed 120-01-PLAN.md
+**Last session:** 2026-07-29T10:39:27.640Z
+**Stopped at:** Completed 120-03-PLAN.md
 **Resume file:** 
 None

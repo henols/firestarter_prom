@@ -377,7 +377,7 @@ Plans:
 
 - [x] 120-01-PLAN.md — `firestarter/sdp_capability.py`: the derived 43/41 allow-set + the pure name-keyed predicate + the core exhaustiveness gate (HOST-04)
 - [x] 120-02-PLAN.md — `constants.py`: `COMMAND_SDP_UNLOCK 9` / `COMMAND_SDP_LOCK 10` / `FLAG_SKIP_SDP_UNLOCK 0x100` + the two mandatory `COMMAND_NAMES` entries (HOST-03)
-- [ ] 120-03-PLAN.md — D-09: promote INFO-band frames from DEBUG to INFO in `_log_rurp_feedback`, so Phase 118's OBS-01 lines are visible at all (HOST-05)
+- [x] 120-03-PLAN.md — D-09: promote INFO-band frames from DEBUG to INFO in `_log_rurp_feedback`, so Phase 118's OBS-01 lines are visible at all (HOST-05)
 - [ ] 120-04-PLAN.md — derivation record: `120-VALIDATION.md` corrected to 43/41, `120-WATCHLIST.md`'s nine residual-risk entries, an append-only scoped exception on the 2026-07-10 infoic note (HOST-04)
 
 **Wave 2** *(blocked on Wave 1 completion)*
