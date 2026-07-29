@@ -145,3 +145,13 @@ None - no external service configuration required.
 ---
 *Phase: 121-dev-test-fix-gates-docs-redesign*
 *Completed: 2026-07-29*
+
+## Self-Check: PASSED
+
+- FOUND: firestarter_app/tools/check_sdp_capability_invariants.py
+- FOUND: firestarter_app/tests/test_check_sdp_capability.py
+- FOUND: firestarter_app/tests/fixtures/planted_permit_by_default.py
+- FOUND: firestarter_app/tests/fixtures/planted_widenable_allowset.py
+- FOUND: .planning/phases/121-dev-test-fix-gates-docs-redesign/121-03-SUMMARY.md
+- FOUND (firestarter_app): a3bee52, f33aef8, 69c7a72
+- FOUND (meta): 7fad125
