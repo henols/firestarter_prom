@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 120
 current_phase_name: host-cli-surface-wire-emission-capability-refusal
 status: executing
-stopped_at: Completed 120-07-PLAN.md
-last_updated: "2026-07-29T11:26:36.804Z"
+stopped_at: Completed 120-08-PLAN.md
+last_updated: "2026-07-29T11:50:31.674Z"
 last_activity: 2026-07-29
-last_activity_desc: Completed 120-07-PLAN.md (constants parity gate rebuilt into a real two-way header-parsing check; HOST-03 closed)
+last_activity_desc: Completed 120-08-PLAN.md (dev sdp CLI surface — D-08 four-gate order, D-14 firmware-too-old mapping, D-10 honest summary line; HOST-01 + HOST-05 closed)
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 42
-  completed_plans: 37
-  percent: 88
+  completed_plans: 38
+  percent: 90
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 120 (host-cli-surface-wire-emission-capability-refusal) — EXECUTING
-Plan: 8 of 12
+Plan: 9 of 12
 Status: Ready to execute
-Last activity: 2026-07-29 — Completed 120-07-PLAN.md (constants parity gate rebuilt into a real two-way header-parsing check; HOST-03 closed)
+Last activity: 2026-07-29 — Completed 120-08-PLAN.md (dev sdp CLI surface — D-08 four-gate order, D-14 firmware-too-old mapping, D-10 honest summary line; HOST-01 + HOST-05 closed)
 
 > **⚠ Phase 120 planning superseded D-01/D-02's curated allow-set — the partition is now DERIVED (`120-SDP-PARTITION.md`, `6ad8688`).**
 > Operator directive, 2026-07-29: *"there shall be no guessing the ground truth is the infoic.xml"*. Executed: the SDP-capability
@@ -539,6 +539,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: Rebuilt constants parity gate is header-guard-aware: whole-file #ifndef __FIRESTARTER_H__ include guard excluded from depth tracking, else every define sits at depth >= 1 making the conditional-compilation assertion vacuous
 - [Phase ?]: Exemptions for CMD_IDLE/CMD_FRAME_MAX/CMD_DEV_ADDRESS/CMD_DEV_REGISTER are a frozen four-entry name-pair map (never a skip-set), deliberately not auto-derived
 - [Phase ?]: HOST-03's same-commit-pair wording read honestly: firmware landed CMD_SDP_UNLOCK/LOCK in Phase 119, host lands the parity gate in Phase 120 deliberately per HOST-06 ordering -- proven bidirectional agreement, not single-commit landing
+- [Phase ?]: dev sdp's four gates run in D-08 order (absent -> capability -> support-status -> confirm -> serial), the exact reverse of dev test's confirm-before-absent-chip ordering
+- [Phase ?]: No --destructive-style mode flag for dev sdp (D-05): the enable/disable subcommand argument IS the mode
+- [Phase ?]: dev sdp refuses off-TTY without -y (D-06), inverting dev test's off-TTY-proceeds behaviour, since dev sdp has no flag that could stand in for consent
+- [Phase ?]: MSG_ERR_UNKNOWN_CMD keyed by message id (not text) and mapped to FirmwareOutdatedError naming 'firestarter fw --install' (D-14)
+- [Phase ?]: D-10 summary line uses click.echo, not logger.info, after logger.info proved unreliable under CliRunner capture for a mocked-operator invocation
 
 ## Performance Metrics
 
@@ -624,10 +629,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 120 P05 | 20min | 2 tasks | 1 files |
 | Phase 120 P06 | 20min | 3 tasks | 2 files |
 | Phase 120 P07 | 45min | 3 tasks | 5 files |
+| Phase 120 P08 | 55min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-07-29T11:25:47.687Z
-**Stopped at:** Completed 120-03-PLAN.md
+**Last session:** 2026-07-29T11:50:31.660Z
+**Stopped at:** Completed 120-08-PLAN.md
 **Resume file:** 
 None

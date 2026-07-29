@@ -210,3 +210,10 @@ None — the four STRIDE threats named in the plan's threat model (T-120-27 thro
 ---
 *Phase: 120-host-cli-surface-wire-emission-capability-refusal*
 *Completed: 2026-07-29*
+
+## Self-Check: PASSED
+
+- FOUND: `firestarter_app/firestarter/cli_handlers.py`
+- FOUND: `firestarter_app/tests/test_dev_sdp_cmd.py`
+- FOUND (submodule): `e0582f2`, `4bc515d`, `3ae0238`, `ad5e63d`
+- FOUND (meta): `bc9a56e`, `24f8ef0`

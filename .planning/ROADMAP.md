@@ -388,7 +388,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 120-08-PLAN.md — `dev sdp <chip> <enable|disable>`: D-08's four gates in order, D-14's firmware-too-old mapping, D-10's honest summary, D-11's exit code (HOST-01 *closes*, HOST-05 *closes*)
+- [x] 120-08-PLAN.md — `dev sdp <chip> <enable|disable>`: D-08's four gates in order, D-14's firmware-too-old mapping, D-10's honest summary, D-11's exit code (HOST-01 *closes*, HOST-05 *closes*)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
