@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
-current_phase: 121
-current_phase_name: dev-test-fix-gates-docs-redesign
-status: executing
+current_phase: 122
+current_phase_name: CLOSE — honesty ledger, community ask, release decision
+status: completed
 stopped_at: Completed 121-14-PLAN.md
-last_updated: "2026-07-29T22:44:59.903Z"
+last_updated: "2026-07-29T22:58:51.463Z"
 last_activity: 2026-07-29
-last_activity_desc: Completed 121-14-PLAN.md (GATE-03 closed -- full nine-row non-regression sweep re-run at the phase final commit under both devcontainer and uv-provisioned CI-parity Python 3.11; DEVTEST-01/02/03/04 + GATE-01 independently re-verified and ticked; 121-NONREGRESSION.md written -- Phase 121 all 14 plans complete)
+last_activity_desc: Phase 121 complete, transitioned to Phase 122
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 56
   completed_plans: 56
-  percent: 100
+  percent: 86
 ---
 
 # Project State
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 121 (dev-test-fix-gates-docs-redesign) — ALL PLANS COMPLETE, ready for phase-level verification
-Plan: 14 of 14 complete
+Phase: 122 — CLOSE — honesty ledger, community ask, release decision
+Plan: Not started
 Status: Phase 121 execution complete
-Last activity: 2026-07-29 — Completed 121-14-PLAN.md (GATE-03 closed -- full nine-row non-regression sweep re-run at the phase final commit under both devcontainer and uv-provisioned CI-parity Python 3.11; DEVTEST-01/02/03/04 + GATE-01 independently re-verified and ticked; 121-NONREGRESSION.md written -- Phase 121 all 14 plans complete)
+Last activity: 2026-07-29 — Phase 121 complete, transitioned to Phase 122
 
 > **⚠ Phase 120 planning superseded D-01/D-02's curated allow-set — the partition is now DERIVED (`120-SDP-PARTITION.md`, `6ad8688`).**
 > Operator directive, 2026-07-29: *"there shall be no guessing the ground truth is the infoic.xml"*. Executed: the SDP-capability
