@@ -159,6 +159,15 @@ None - no external service configuration required.
 - D-13's runtime half is closed; plan 121-13 can now write the GATE-02 documentation statement citing this arm plus the RESEARCH C-8 scope split (why `-b` is exempt) as settled fact rather than a wart.
 - No blockers for 121-11 (submit.py, untouched) or 121-12/121-13 (GATE-02 documentation, still open).
 
+## Self-Check: PASSED
+
+- FOUND: `firestarter_app/firestarter/cli_handlers.py`
+- FOUND: `firestarter_app/tests/test_write_skip_erase_0x0d.py`
+- FOUND: `.planning/phases/121-dev-test-fix-gates-docs-redesign/121-10-SUMMARY.md`
+- FOUND commit `40811a4` (firestarter_app, feat)
+- FOUND commit `48ec222` (firestarter_app, test)
+- FOUND commit `085878d` (meta, docs)
+
 ---
 *Phase: 121-dev-test-fix-gates-docs-redesign*
 *Completed: 2026-07-29*
