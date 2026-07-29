@@ -62,3 +62,49 @@ The cheap decodable win is bits 14/15 as write-path metadata — see todo
 
 Sources: minipro `src/database.c`, `src/main.c` (`write_page_file`,
 `action_write`), `src/tl866iiplus.c` @ `a8efaed` (gitlab.com/DavidGriffith/minipro).
+
+---
+
+## Scoped exception — 2026-07-29 (Phase 120 / HOST-04)
+
+**What is unchanged.** This note's verdict stands: bits 14 and 15 are too coarse to derive
+lock-status metadata, `status_readable` is not derivable, and the taxonomy question should not be
+re-investigated. `W29C020C` with its permanent boot-block lockout and `W29EE011` with SDP only are
+still flag-identical, so readability is still not derivable. **Neither of those parts is in the
+`0x0D` bucket.**
+
+**The narrower question Phase 120 asked.** Not "what kind of protection does this part have and can
+its state be read" but only "does this 28C-family protocol-`0x0D` part have an SDP command decoder at
+all". Bit 15 was tested against that single, narrower question.
+
+**Three independent probes, all passing.** HOST-04's eight named pre-SDP entries plus
+identical-generation second sources: bit 15 clear on all eight (**8/8**), six of them with flags
+exactly zero. Both FRAM parts, a different memory technology with no EEPROM command decoder: bit 15
+clear on both (**2/2**), both with flags exactly zero. The four datasheet-of-record Atmel parts
+(`AT28C256`, `AT28C64B`, `AT28C010`, `AT28C040`): bit 15 set on all four (**4/4**). No probe failed
+and nothing needed a special case.
+
+**Result and where it lives.** All 84 protocol-`0x0D` entries matched; zero unmatched, zero MIXED
+under exact-token keying; ALLOW 43 / REFUSE 41. See
+`.planning/phases/120-host-cli-surface-wire-emission-capability-refusal/120-SDP-PARTITION.md` and
+`.planning/phases/120-host-cli-surface-wire-emission-capability-refusal/120-sdp-partition.json`.
+
+**The hedge this sharpens.** This note called bit 15 "roughly an SDP page-write family marker" (see
+Conclusions above). Tested directly, bit 15 and a page size greater than one **disagree on twelve of
+the eighty-four**, so bit 15 is not a page-write proxy — it carries information page size does not,
+which is what makes it usable as its own signal. See
+`.planning/phases/120-host-cli-surface-wire-emission-capability-refusal/120-WATCHLIST.md` for the nine
+residual-risk entries this disagreement produces.
+
+**Both findings are correct about different questions.** The 2026-07-10 verdict above (taxonomy:
+`protection_kind` / `status_readable` / `unlockability`) and this 2026-07-29 result (capability: does
+an SDP command decoder exist at all) are both correct, and neither overturns the other — treat neither
+as overturned by the other. Nothing reads `infoic.xml` at runtime or in CI; `infoic.xml` is not
+committed to either sub-repo; the shipped artifact is a static transcribed token table
+(`firestarter/sdp_capability.py`).
+
+**The loose ends stay loose.** This note's bit 22 and bit 9 observations, and its routing of decodable
+bits 14/15 work to the pending
+`decode-infoic-flags-bits-14-15-protect-metadata` todo, are unaffected by this exception. Decoding
+those bits into the DB proper would later make the Phase 120 table generated rather than transcribed —
+narrowing the curation, not removing the need for a partition.
