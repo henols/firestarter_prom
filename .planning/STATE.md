@@ -4,11 +4,11 @@ milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 120
 current_phase_name: HOST — CLI surface, wire emission, capability refusal
-status: Phase 119 COMPLETE (verification passed 6/6) — ready for /gsd-discuss-phase 120
-stopped_at: Phase 119 complete and verified
-last_updated: "2026-07-28T21:50:53.156Z"
-last_activity: 2026-07-28
-last_activity_desc: Phase 119 complete, transitioned to Phase 120
+status: Phase 120 context gathered (120-CONTEXT.md, 20 decisions) — ready for /gsd-plan-phase 120
+stopped_at: Phase 120 context gathered
+last_updated: "2026-07-29T08:01:24.345Z"
+last_activity: 2026-07-29
+last_activity_desc: Phase 120 context gathered — 6 areas discussed, 20 decisions captured
 progress:
   total_phases: 7
   completed_phases: 4
@@ -20,14 +20,20 @@ progress:
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-07-28
+**Updated:** 2026-07-29
 
 ## Current Position
 
 Phase: 120 — HOST — CLI surface, wire emission, capability refusal
 Plan: Not started
-Status: Phase complete — ready for verification (Plan 119-11 complete: three-board page-load bench measurement recorded in 119-MEASUREMENT.md; no requirement re-opened, LOCK-01 through LOCK-06 all Complete, DEVTEST-01 Pending)
-Last activity: 2026-07-28 — Phase 119 complete, transitioned to Phase 120
+Status: Context gathered — `120-CONTEXT.md` + `120-DISCUSSION-LOG.md` committed (`c5547ea`); 6 areas discussed, D-01..D-20 captured, HOST-01..06 all still Pending. Ready for `/gsd-plan-phase 120`.
+Last activity: 2026-07-29 — Phase 120 context gathered (6 areas, 20 decisions)
+
+> **⚠ Phase 120 discussion produced four cross-phase consequences — read `120-CONTEXT.md` before planning 120, 121 or 122.**
+> 1. **The `dev test` redesign is folded into Phase 121, and Phase 120 owns the amendment (D-20).** Operator specification, 2026-07-29: `dev test` takes **no flags**; "destructive" applies only to UV-erasable EPROMs; the sweep **stops and asks** whether to do a destructive write (yes = full device may be written, no = only a small part is written); **every** run asks whether to file an issue, checking first whether the user already reported an identical one and creating a new issue only when it differs; `gh` replaces the URL/browser path wherever it can. Phase 120 lands only the `ROADMAP.md` Phase 121 + `REQUIREMENTS.md` + `PROJECT.md` amendment (119-09's precedent) — **no implementation**. The amendment must record that this **reverses three locked decisions**: Phase 112 Plan 04's deliberate removal of all interactive prompts (`112-UAT.md`), SAFE-01's CLI-only `--destructive`, and SAFE-03's "only interactive input left" statement.
+> 2. **HOST-04's mechanism is widened, and the `write` path is in scope (D-01/D-04).** The partition is a **fail-closed allow-list**, not HOST-04's literal 5-part deny-list — because on a part with no SDP decoder the sequence is **not inert**: post-117 the command writes reach silicon, so `0xAA`/`0x55`/`0xA0` are stored as data at the bus-truncated magic addresses (F-120-01). That also means today's `write` on a pre-SDP `0x0D` part already leaves `0x2AAA←0x55` / `0x5555←0x20` before the payload, so the host now auto-sets `FLAG_SKIP_SDP_UNLOCK` for refused parts **with a mandatory report line**. `write` behaviour for that subset therefore diverges from `3.0.0b11` deliberately. Do **not** edit `REQUIREMENTS.md`; record the correction in the phase artifacts. Both FRAM parts (`FM28V020`, `MB85R256H`) are typed `EEPROM` in the DB, so no structural rule can find them.
+> 3. **Phase 118's OBS-01 was invisible in practice for a whole phase (F-120-02).** `_log_response` special-cases only `ERROR`/`WARN`, so the whole INFO band falls to `logging.DEBUG` (`serial_comm.py:234-238`) while root is `INFO` unless `-v` — every 118/119 SDP report line was discarded by the host. D-09 promotes INFO→INFO; blast radius verified as exactly the five unconditional ids (`0x5E`/`0x5F`/`0x60`/`0x61`/`0x62`), since every other INFO id is `FLAG_VERBOSE`-gated in firmware. **Class lesson: a two-repo requirement can pass its own phase's verification and still be false end to end.**
+> 4. **Two ROADMAP/catalog corrections.** There is **no `0x200` flag** — firmware's flag block ends at `FLAG_SKIP_SDP_UNLOCK 0x100`, so ROADMAP:136 and Phase 120's *Depends on* are wrong and the host wires **one** flag (F-120-05). And `MSG_INFO_SDP_UNLOCK_DONE_US` (`0x5F`) lacks the honesty caveat that `0x61` carries (F-120-03) — answered host-side by D-10, since a catalog fix needs both sub-repos to regenerate; queued for Phase 121/122. Separately, the host **cannot distinguish `b11` from `b12`** (`_probe_port`'s `[\d.x]+` capture, `serial_comm.py:643`), so HOST-06 is discharged by `MSG_ERR_UNKNOWN_CMD` mapping plus a required `0x86` ack — **no version floor** (F-120-04).
 
 > **⚠ Phase 119 planning note — CONTEXT.md's D-NN bullets were re-formatted (`c90b76d`).** The blocking decision-coverage gate could not parse `119-CONTEXT.md`: four bullets tripped the parse-miss guard (three wrapped bold labels — D-01/D-14/D-17 — plus D-06's second colon inside the label), and seven more (D-05/07/08/10/15/16/18) were **silently invisible** because the `⚠` glyph sat inside the bold run *before* the ID, which the parser's `**D-` anchor requires. Before the fix the gate tracked only **8 of 19** decisions and returned `reason: could-not-parse`. Formatting-only repair: `⚠` moved to just after the colon, wrapped labels reflowed onto one line, D-06's second colon → em-dash. Word-level diff confirmed zero wording change. **Applies to every future phase in this project: `- **D-NN: text**` must close its bold run on ONE line, must contain at most one colon before the closing `**`, and must not open with a glyph.**
 
@@ -551,7 +557,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-07-28T21:36:09.463Z
-**Stopped at:** Completed 119-11-PLAN.md
+**Last session:** 2026-07-29T08:01:24.308Z
+**Stopped at:** Phase 120 context gathered
 **Resume file:** 
-None
+.planning/phases/120-host-cli-surface-wire-emission-capability-refusal/120-CONTEXT.md
