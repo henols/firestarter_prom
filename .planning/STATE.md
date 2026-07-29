@@ -6,9 +6,9 @@ current_phase: 120
 current_phase_name: HOST — CLI surface, wire emission, capability refusal
 status: executing
 stopped_at: Completed 120-11-PLAN.md
-last_updated: "2026-07-29T13:10:00.000Z"
+last_updated: "2026-07-29T12:48:28.051Z"
 last_activity: 2026-07-29
-last_activity_desc: Completed 120-11-PLAN.md (D-20's owned amendment — ROADMAP Phase 121 scope + REQUIREMENTS.md DEVTEST-02..06 + PROJECT.md SEVENTH CORRECTION; meta-only, no implementation)
+last_activity_desc: Completed 120-11-PLAN.md (D-20's owned amendment — ROADMAP Phase 121 scope + REQUIREMENTS.md DEVTEST-02..06 + PROJECT.md SEVENTH CORRECTION; meta-only, no implementation, no requirement ticked)
 progress:
   total_phases: 7
   completed_phases: 4
@@ -567,6 +567,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 120]: D-18: --skip-sdp-unlock on a non-0x0D chip warns and proceeds; bit still emitted, write not refused or aborted
 - [Phase 120]: D-15: write_eprom requires firmware's 0x86 (MSG_WARN_SDP_UNLOCK_SKIPPED) ack when --skip-sdp-unlock was set on a protocol-0x0D chip; absence fails the write loudly, naming firestarter fw --install — Closes HOST-06's flag-bit half; detects after the fact rather than preventing
 - [Phase 120]: D-16: no version floor introduced for HOST-06 -- the firmware/host landing-order invariant is recorded as fact (firmware Phase 119 tip 0048b3d, host Phase 120) rather than enforced by a version comparator — Host cannot see the firmware pre-release suffix; a version floor would tie correctness to Phase 122's CLOSE-03 release decision
+- [Phase 120-11]: dev test redesign folded into Phase 121 ROADMAP scope as a recorded REVERSAL of Phase 112 Plan 04 (112-UAT.md), SAFE-01 and SAFE-03 (D-20) -- amendment only, no implementation
+- [Phase 120-11]: REQUIREMENTS.md DEVTEST-02..06 added Pending/Phase 121; v1.21 SUB-01/SUB-02 recorded as reversed without editing archived wording; coverage corrected to 41/41 mapped, 0 unmapped
+- [Phase 120-11]: PROJECT.md SEVENTH CORRECTION records the derived 43/41 HOST-04 partition provenance and corrects SIXTH CORRECTION item 6's stated reason (_SRAM_PROTO_IDS is vacuous in production; KEEP disposition still stands)
 
 ## Performance Metrics
 
@@ -658,7 +661,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-07-29T12:35:00.336Z
-**Stopped at:** Completed 120-10-PLAN.md
+**Last session:** 2026-07-29T12:48:28.025Z
+**Stopped at:** Completed 120-11-PLAN.md
 **Resume file:** 
 None

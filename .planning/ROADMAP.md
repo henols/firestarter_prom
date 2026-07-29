@@ -400,7 +400,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 120-11-PLAN.md — D-20's owned amendment: ROADMAP Phase 121 scope + new `REQUIREMENTS.md` ids + PROJECT.md's SEVENTH CORRECTION block (meta-only, no implementation)
+- [x] 120-11-PLAN.md — D-20's owned amendment: ROADMAP Phase 121 scope + new `REQUIREMENTS.md` ids + PROJECT.md's SEVENTH CORRECTION block (meta-only, no implementation)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
