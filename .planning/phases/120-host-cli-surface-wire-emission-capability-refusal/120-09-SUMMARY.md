@@ -162,3 +162,12 @@ None - no external service configuration required.
 ---
 *Phase: 120-host-cli-surface-wire-emission-capability-refusal*
 *Completed: 2026-07-29*
+
+## Self-Check: PASSED
+
+- FOUND: `firestarter_app/tests/test_write_skip_sdp_unlock.py`
+- FOUND: `.planning/phases/120-host-cli-surface-wire-emission-capability-refusal/120-09-SUMMARY.md`
+- FOUND commit `c1995a3` (Task 1, firestarter_app)
+- FOUND commit `da896d7` (Task 2, firestarter_app)
+- FOUND commit `075a152` (Task 3, firestarter_app)
+- FOUND commit `f4e0552` (final docs commit, meta repo)
