@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 121
 current_phase_name: dev-test-fix-gates-docs-redesign
 status: executing
-stopped_at: Phase 121 planned
-last_updated: "2026-07-29T16:14:55.085Z"
+stopped_at: Completed 121-11-PLAN.md
+last_updated: "2026-07-29T21:36:11.880Z"
 last_activity: 2026-07-29
-last_activity_desc: Phase 121 execution started
+last_activity_desc: Completed 121-11-PLAN.md (DEVTEST-05/06 closed)
 progress:
   total_phases: 7
   completed_phases: 5
   total_plans: 56
-  completed_plans: 42
-  percent: 71
+  completed_plans: 53
+  percent: 95
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 121 (dev-test-fix-gates-docs-redesign) — EXECUTING
-Plan: 1 of 14
+Plan: 11 of 14 complete (next: 121-12)
 Status: Executing Phase 121
-Last activity: 2026-07-29 — Phase 121 execution started
+Last activity: 2026-07-29 — Completed 121-11-PLAN.md (DEVTEST-05/06 closed)
 
 > **⚠ Phase 120 planning superseded D-01/D-02's curated allow-set — the partition is now DERIVED (`120-SDP-PARTITION.md`, `6ad8688`).**
 > Operator directive, 2026-07-29: *"there shall be no guessing the ground truth is the infoic.xml"*. Executed: the SDP-capability
@@ -599,6 +599,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 120-12]: Row 7 (test_revision_constants_parity.py) recorded CHANGED BY DESIGN, not unchanged, per this phase's own rebuild
 - [Phase 120-12]: 120-VALIDATION.md's Wave-0 rows corrected in place where the originally-authored test reference did not match the landed test, before flipping nyquist_compliant/wave_0_complete true
 - [Phase 120-12]: The dev test submit repo-target ask discharged as verification only: SUBMIT_REPO already correct at e615b4c/2b9e8dd; released-artifact caveat recorded, not re-fixed
+- [Phase 121]: find_prior_report/comment_via_gh added as injected-seam gh functions; submit_report restructured to dedup-first/always-ask/comment-on-duplicate (D-09/D-10/D-11); negative argv widened to a deny-set on both gh paths incl. short forms (DEVTEST-06, RESEARCH Pitfall 6)
 
 ## Performance Metrics
 
@@ -688,10 +689,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 120 P09 | 35min | 3 tasks | 3 files |
 | Phase 120 P10 | 45min | 3 tasks | 8 files |
 | Phase 120 P12 | 55min | 3 tasks | 3 files |
+| Phase 121 P11 | 30min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-29T14:28:52.493Z
+**Last session:** 2026-07-29T21:35:17.656Z
 **Stopped at:** Phase 121 context gathered
 **Resume file:** 
-.planning/phases/121-dev-test-fix-gates-docs-redesign/121-CONTEXT.md
+None

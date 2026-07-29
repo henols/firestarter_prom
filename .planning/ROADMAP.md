@@ -460,8 +460,8 @@ Plans:
 
 **Wave 7** *(parallel)*
 
-- [ ] 121-10-PLAN.md — D-13: `write --skip-erase` warns and proceeds on `0x0D`; deliberately not extended to `-b` per RESEARCH C-8 (GATE-02 contrib)
-- [ ] 121-11-PLAN.md — D-09/D-10/D-11: dedup-first `gh` query, ask every run, comment path, deny-set negative argv (**closes DEVTEST-05, DEVTEST-06**)
+- [x] 121-10-PLAN.md — D-13: `write --skip-erase` warns and proceeds on `0x0D`; deliberately not extended to `-b` per RESEARCH C-8 (GATE-02 contrib)
+- [x] 121-11-PLAN.md — D-09/D-10/D-11: dedup-first `gh` query, ask every run, comment path, deny-set negative argv (**closes DEVTEST-05, DEVTEST-06**)
 
 **Wave 8**
 
