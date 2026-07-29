@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 120
 current_phase_name: host-cli-surface-wire-emission-capability-refusal
 status: executing
-stopped_at: Completed 120-06-PLAN.md
-last_updated: "2026-07-29T11:03:24.142Z"
+stopped_at: Completed 120-07-PLAN.md
+last_updated: "2026-07-29T11:26:36.804Z"
 last_activity: 2026-07-29
-last_activity_desc: Completed 120-06-PLAN.md (sdp_unlock/sdp_lock payload-free ops + build_flags skip_sdp_unlock wire flag mapping)
+last_activity_desc: Completed 120-07-PLAN.md (constants parity gate rebuilt into a real two-way header-parsing check; HOST-03 closed)
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 42
-  completed_plans: 36
-  percent: 57
+  completed_plans: 37
+  percent: 88
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 120 (host-cli-surface-wire-emission-capability-refusal) — EXECUTING
-Plan: 7 of 12
+Plan: 8 of 12
 Status: Ready to execute
-Last activity: 2026-07-29 — Completed 120-06-PLAN.md (sdp_unlock/sdp_lock payload-free ops + build_flags skip_sdp_unlock wire flag mapping)
+Last activity: 2026-07-29 — Completed 120-07-PLAN.md (constants parity gate rebuilt into a real two-way header-parsing check; HOST-03 closed)
 
 > **⚠ Phase 120 planning superseded D-01/D-02's curated allow-set — the partition is now DERIVED (`120-SDP-PARTITION.md`, `6ad8688`).**
 > Operator directive, 2026-07-29: *"there shall be no guessing the ground truth is the infoic.xml"*. Executed: the SDP-capability
@@ -536,6 +536,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 120-06]: sdp_unlock/sdp_lock are payload-free copies of erase_eprom's shape (no main_phase_handler); True means the sequence was emitted, never a silicon-state claim
 - [Phase 120-06]: build_flags gains skip_sdp_unlock as a keyword-only parameter (bare * after skip_erase) mapping FLAG_SKIP_SDP_UNLOCK, because both production callers pass the first four args positionally (D-19)
 - [Phase 120-06]: Emitted command_dict flags == 2 for 0x0D chips (DB FLAG_CAN_ERASE) is pinned as firmware-inert at the wire boundary, not suppressed
+- [Phase ?]: Rebuilt constants parity gate is header-guard-aware: whole-file #ifndef __FIRESTARTER_H__ include guard excluded from depth tracking, else every define sits at depth >= 1 making the conditional-compilation assertion vacuous
+- [Phase ?]: Exemptions for CMD_IDLE/CMD_FRAME_MAX/CMD_DEV_ADDRESS/CMD_DEV_REGISTER are a frozen four-entry name-pair map (never a skip-set), deliberately not auto-derived
+- [Phase ?]: HOST-03's same-commit-pair wording read honestly: firmware landed CMD_SDP_UNLOCK/LOCK in Phase 119, host lands the parity gate in Phase 120 deliberately per HOST-06 ordering -- proven bidirectional agreement, not single-commit landing
 
 ## Performance Metrics
 
@@ -620,10 +623,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 120 P03 | 12min | 2 tasks | 2 files |
 | Phase 120 P05 | 20min | 2 tasks | 1 files |
 | Phase 120 P06 | 20min | 3 tasks | 2 files |
+| Phase 120 P07 | 45min | 3 tasks | 5 files |
 
 ## Session
 
-**Last session:** 2026-07-29T11:02:55.564Z
+**Last session:** 2026-07-29T11:25:47.687Z
 **Stopped at:** Completed 120-03-PLAN.md
 **Resume file:** 
 None

@@ -384,7 +384,7 @@ Plans:
 
 - [x] 120-05-PLAN.md — HOST-04 gate extension: named refusals, the two structural invariants, the F-06 dict-shape anti-vacuity leg, import purity, runtime local-override refusal (HOST-04)
 - [x] 120-06-PLAN.md — `eprom_operations.py`: payload-free `sdp_unlock` / `sdp_lock` + `build_flags`' keyword-only `skip_sdp_unlock` + BUG-1 re-check (HOST-01, HOST-02)
-- [ ] 120-07-PLAN.md — D-12/D-13: rebuild the constants-parity test as a real two-way header-parsing gate with three planted fixtures (HOST-03 *closes*)
+- [x] 120-07-PLAN.md — D-12/D-13: rebuild the constants-parity test as a real two-way header-parsing gate with three planted fixtures (HOST-03 *closes*)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
