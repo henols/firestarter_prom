@@ -500,7 +500,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 122-03-PLAN.md — Wave 2 · both sub-repos · D-06 inbound merge: `beta` → branch. App conflicts in **exactly two** files resolved whole-file `--ours` with an EMPTY-diff proof (C-11/C-12 — hunk-level resolution is forbidden); firmware merge is **conflict-free**, `version.h` auto-merges b11→b13 (C-1/C-2). Nothing pushed
+- [x] 122-03-PLAN.md — Wave 2 · both sub-repos · D-06 inbound merge: `beta` → branch. App conflicts in **exactly two** files resolved whole-file `--ours` with an EMPTY-diff proof (C-11/C-12 — hunk-level resolution is forbidden); firmware merge is **conflict-free**, `version.h` auto-merges b11→b13 (C-1/C-2). Nothing pushed
 
 **Wave 3** *(blocked on Wave 2)*
 

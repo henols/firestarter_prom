@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 122
 current_phase_name: close-honesty-ledger-community-ask-release-decision
 status: executing
-stopped_at: Completed 122-02-PLAN.md
-last_updated: "2026-07-30T13:06:37.629Z"
+stopped_at: Completed 122-03-PLAN.md
+last_updated: "2026-07-30T13:15:56.410Z"
 last_activity: 2026-07-30
-last_activity_desc: Plan 122-02 complete — CLOSE-03 beta-push decision (D-05 ACCEPT) + live pre-flight evidence recorded in 122-DECISION.md, zero divergence from 122-RESEARCH.md
+last_activity_desc: Plan 122-02 complete
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 69
-  completed_plans: 58
-  percent: 84
+  completed_plans: 59
+  percent: 86
 ---
 
 # Project State
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 122 (close-honesty-ledger-community-ask-release-decision) — EXECUTING
-Plan: 2 of 13 complete (next: 122-03)
+Plan: 3 of 13 complete (next: 122-03)
 Status: Plan 122-02 complete — 122-DECISION.md records CLOSE-03's D-05 ACCEPT verdict + live pre-flight evidence (zero divergence from 122-RESEARCH.md), committed at d5c49d4 before any push
 Last activity: 2026-07-30 — Plan 122-02 complete
 
@@ -632,6 +632,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 122]: 122-01: FIRESTARTER_CLAIMSCAN_TARGETS uses os.environ.get with no default so absent-vs-empty is unambiguous (None=defaults, empty string=zero targets, fail closed)
 - [Phase 122]: 122-01: check_permitted_claims.py's own docstring states a green run is only the mechanizable half of ROADMAP criterion 4, never sufficient alone
 - [Phase 122]: 122-02: D-05 recorded ACCEPT for the beta-push auto-fire; live pre-flight re-measurement matched 122-RESEARCH.md with zero divergence
+- [Phase 122]: Whole-file --ours resolution applied to exactly submit.py and test_submit.py; empty-diff proof (0 bytes pre- and post-commit) taken as sole acceptance criterion for the app inbound merge
+- [Phase 122]: Firmware inbound merge required no resolution decision — conflict-free per live re-probe, matching C-1 exactly
+- [Phase 122]: Task 3's literal automated verify (test -z on submodule status --porcelain) is over-strict against the expected unstaged gitlink drift documented in 122-DECISION.md; relied on the more precise acceptance_criteria wording (no staged change) instead — no fix applied, documented as a finding
 
 ## Performance Metrics
 
@@ -727,9 +730,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 121 P14 | 110min | 3 tasks | 2 files |
 | Phase 122 P01 | 15min | 3 tasks | 6 files |
 | Phase 122 P02 | 20min | 2 tasks | 1 files |
+| Phase 122 P03 | 7min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-07-30T13:06:37.611Z
-**Stopped at:** Completed 122-02-PLAN.md
+**Last session:** 2026-07-30T13:15:56.395Z
+**Stopped at:** Completed 122-03-PLAN.md
 **Resume file:** 
+None

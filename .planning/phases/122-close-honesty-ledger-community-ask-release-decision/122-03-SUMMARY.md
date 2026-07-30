@@ -221,3 +221,10 @@ None — no external service configuration required. Nothing was pushed; no GitH
 ---
 *Phase: 122-close-honesty-ledger-community-ask-release-decision*
 *Completed: 2026-07-30*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/122-close-honesty-ledger-community-ask-release-decision/122-03-SUMMARY.md`
+- FOUND: `98423c7` (meta-repo SUMMARY commit)
+- FOUND: `4001396` (app inbound merge commit, `firestarter_app`)
+- FOUND: `953f748` (firmware inbound merge commit, `firestarter`)
