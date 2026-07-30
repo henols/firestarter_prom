@@ -5,15 +5,15 @@ milestone_name: — PY32F071 Integration
 current_phase: 123
 current_phase_name: non-regression-baselines-gate-hardening
 status: executing
-stopped_at: Completed 123-10-PLAN.md
-last_updated: "2026-07-30T23:07:21.156Z"
+stopped_at: Completed 123-02-PLAN.md
+last_updated: "2026-07-30T23:17:35.288Z"
 last_activity: 2026-07-30
 last_activity_desc: Phase 123 execution started
 progress:
   total_phases: 8
   completed_phases: 0
   total_plans: 11
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 123 (non-regression-baselines-gate-hardening) — EXECUTING
-Plan: 3 of 11
+Plan: 4 of 11
 Status: Ready to execute
 Last activity: 2026-07-30 — Phase 123 execution started
 
@@ -505,6 +505,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 123]: Reused FIRESTARTER_CLAIMSCAN_TARGETS env-var name across phase dirs per RESEARCH A3 (checkers never coexist in one process)
 - [Phase 123]: D-16 implemented as a 3-line window (PROXIMITY_WINDOW=1) over line-scoped matching, not sentence segmentation
 - [Phase 123]: D-15 arming (UNARMED/armed-incomplete) applies only to the default-target path; argv/env-seam targets keep the ordinary fail-closed guard
+- [Phase 123]: check_size_baseline.py uses manual argv parsing (no argparse) to stay strictly stdlib-only, matching the check_permitted_claims.py house convention
+- [Phase 123]: check_uno_ram.sh deletion recorded as superseding an already-red gate (floor 545 B vs measured 475 B free), referenced by no workflow in either sub-repo
 
 ## Performance Metrics
 
@@ -613,10 +615,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 122 P13 | 35min | 3 tasks | 3 files |
 | Phase 123 P01 | 9 | 3 tasks | 8 files |
 | Phase 123 P10 | 20min | 3 tasks | 7 files |
+| Phase 123 P02 | 20 | 3 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-07-30T23:07:21.142Z
-**Stopped at:** Completed 123-10-PLAN.md
+**Last session:** 2026-07-30T23:17:35.266Z
+**Stopped at:** Completed 123-02-PLAN.md
 **Resume file:** 
 None
