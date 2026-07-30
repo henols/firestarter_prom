@@ -154,3 +154,10 @@ None — no external service configuration required.
 ---
 *Phase: 122-close-honesty-ledger-community-ask-release-decision*
 *Completed: 2026-07-30*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/122-close-honesty-ledger-community-ask-release-decision/122-LEDGER.md`
+- FOUND: `.planning/phases/122-close-honesty-ledger-community-ask-release-decision/122-05-SUMMARY.md`
+- FOUND: `79be6f0` (ledger content commit)
+- FOUND: `50cd797` (plan summary commit)
