@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 122
 current_phase_name: close-honesty-ledger-community-ask-release-decision
 status: executing
-stopped_at: Completed 122-11-PLAN.md
-last_updated: "2026-07-30T15:51:41.082Z"
+stopped_at: Completed 122-12-PLAN.md
+last_updated: "2026-07-30T16:05:34.166Z"
 last_activity: 2026-07-30
-last_activity_desc: Plan 122-11 complete
+last_activity_desc: Plan 122-12 complete
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 69
-  completed_plans: 67
-  percent: 86
+  completed_plans: 68
+  percent: 99
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 122 (close-honesty-ledger-community-ask-release-decision) — EXECUTING
-Plan: 11 of 13 complete (next: 122-12)
-Status: Plan 122-11 complete — D-16's blocking operator wording review of all five closing artifacts (`122-LEDGER.md`, both release bodies, both gh#11/gh#12 comment drafts) is done. The operator was shown the eight-element review packet (final default-target scanner PASS, the five artifacts by audience, the mechanizable/judgement/unsampleable three-way split, the flagged C-5/D-14 divergence in full, the A1 disposition, ledger-traceability tables, four judgement questions, and the post-approval delivery plan) and answered verbatim: "Approve — accept the C-5 correction." Zero content edits were made to any artifact. The C-5/D-14 divergence is now CLOSED as ACCEPTED (not overturned) — `122-GH12-COMMENT.md`'s size-class `No-Hazmats` answer stands as final text; D-14's original "AT28C parts should now work" prescription is superseded and never reaches the public draft. All five artifacts frozen by committed git blob SHA + byte length (recorded in `122-11-SUMMARY.md`) for `122-12`'s byte-equality assertion before and after posting. Final scanner run against the true default five-target set (no env seam) confirmed green, with the explicit restatement that a green scan is the mechanizable half of ROADMAP criterion 4 only. Nothing posted: both release bodies still length 0, both issues still OPEN with unchanged comment counts (12/8). No requirement ticked (CLOSE-02 spans multiple plans, closes only at 122-13).
-Last activity: 2026-07-30 — Plan 122-11 complete
+Plan: 12 of 13 complete (next: 122-13)
+Status: Plan 122-12 complete — all four outward-facing deliveries posted. Pre-flight re-asserted all four in-scope frozen artifacts' blob SHAs against `122-11-SUMMARY.md`'s freeze table (all matched, working tree clean); both observed cut tags read from `122-CUT.md` (`3.0.0b14` == `3.0.0b14`). Task 2's blocking final go/no-go was satisfied per the dispatch prompt's `<operator_final_go_granted>` block — operator's verbatim verdict "Post it — all four calls," already recorded ahead of execution; no re-prompt issued. Both `gh release edit --notes-file` calls (firmware, app) published live bodies verified byte-equal to their committed sources (GitHub appended exactly one trailing newline in each case — the only difference); `isPrerelease` still true, asset inventories unchanged, `3.0.0b12` untouched in both repos. Both `gh issue comment --body-file` calls (`henols/firestarter_prom` #11, #12) posted comments verified byte-equal under the same normalization; both issues incremented by exactly one comment (12→13, 8→9), stayed `OPEN`, carried zero labels before and after; `gh issue close` never invoked. `122-DELIVERY.md` written (193 lines): four-call table, negative-flag audit, seven-constraint satisfaction ledger plus the observed-tag rule. No requirement ticked (CLOSE-02/CLOSE-03 close only at 122-13, after re-reading REQUIREMENTS.md prose).
+Last activity: 2026-07-30 — Plan 122-12 complete
 
 > **⚠ Phase 122 planning corrected 13 CONTEXT/ROADMAP framings — plan from `122-RESEARCH.md`, not the ROADMAP prose.**
 > The three that changed the plan's shape:
@@ -644,6 +644,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: D-05 accepted: outbound merge pushed to beta in both sub-repos; CI cut 3.0.0b14 in both (firmware verified green first; app hit a standalone-CI test gap, fixed inline, and re-cut). Recorded in 122-CUT.md.
 - [Phase 122]: Operator authorization for the PyPI publish and both-channels verification was pre-granted by the orchestrator with explicit evidence (b14 live both repos, PyPI still b13, C-3's 46% miss rate); verbatim response 'Publish to PyPI' recorded in 122-08-SUMMARY.md
 - [Phase 122]: Operator approved all five 122-11 closing artifacts as written (2026-07-30); C-5/D-14 divergence ruled ACCEPT, corrected size-class No-Hazmats answer is final
+- [Phase ?]: Operator final go/no-go verdict, verbatim: "Post it — all four calls."
+- [Phase ?]: Both gh release edit / gh issue comment calls used --notes-file / --body-file exclusively; no inline string form was ever constructed
+- [Phase ?]: Neither henols/firestarter_prom issue was closed and no label flag was ever sent (D-13) - both remain OPEN with zero labels
 
 ## Performance Metrics
 
@@ -748,10 +751,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 122 P09 | 12min | 3 tasks | 3 files |
 | Phase 122 P10 | 25min | 3 tasks | 2 files |
 | Phase 122 P11 | 20 | 3 tasks | 1 files |
+| Phase 122 P12 | 25min | 3 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-07-30T15:51:41.064Z
-**Stopped at:** Completed 122-11-PLAN.md
+**Last session:** 2026-07-30T16:05:34.148Z
+**Stopped at:** Completed 122-12-PLAN.md
 **Resume file:** 
 None

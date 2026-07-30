@@ -533,7 +533,7 @@ Plans:
 
 **Wave 10** *(blocked on Wave 9)*
 
-- [ ] 122-12-PLAN.md — Wave 10 · meta · Delivery: two `gh release edit --notes-file` + two `gh issue comment --body-file`, each verified **byte-equal** to the frozen file; both issues stay **OPEN** with zero labels; a **BLOCKING** final go/no-go once the rendered bodies are live → `122-DELIVERY.md` + the seven-constraint satisfaction ledger
+- [x] 122-12-PLAN.md — Wave 10 · meta · Delivery: two `gh release edit --notes-file` + two `gh issue comment --body-file`, each verified **byte-equal** to the frozen file; both issues stay **OPEN** with zero labels; a **BLOCKING** final go/no-go once the rendered bodies are live → `122-DELIVERY.md` + the seven-constraint satisfaction ledger
 
 **Wave 11** *(blocked on Wave 10)*
 
