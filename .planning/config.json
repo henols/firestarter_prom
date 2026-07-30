@@ -12,7 +12,9 @@
   "planning": {
     "sub_repos": [
       "firestarter",
-      "firestarter_app"
+      "firestarter_app",
+      "firestarter_app_py32",
+      "firestarter_py32_ci"
     ]
   },
   "model_profile": "balanced",

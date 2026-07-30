@@ -21,3 +21,21 @@ __pycache__/
 firestarter-runs/
 consistency-check-*/
 write-cycle-*/
+
+# Knowledge-graph output (graphify / gsd-graphify). Regenerable from the tree,
+# and the payloads are large: graph.json is ~23 MB in each location plus ~24 MB
+# of graphify-out/cache/. Only the distilled .planning/graphs/GRAPH_REPORT.md is
+# tracked; graphify-out/ at the repo root is scratch output that duplicates it.
+.planning/graphs/graph.json
+graphify-out/
+
+# Extra git worktrees of the two sub-repos, checked out alongside the tracked
+# gitlinks for parallel branch work. Temporary by nature — never gitlinked.
+firestarter_app_py32/
+firestarter_py32_ci/
+chip-test/
+
+# Bench artifacts that land at the repo root instead of under a run directory:
+# raw chip dumps (chip-test/ above holds `dev test` reports plus the v1.21
+# Phase 115 fresh-machine onboarding transcripts).
+/*.bin
