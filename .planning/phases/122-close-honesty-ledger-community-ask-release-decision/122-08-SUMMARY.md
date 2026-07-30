@@ -144,3 +144,10 @@ None — no external service configuration required. (The PyPI publish itself is
 ---
 *Phase: 122-close-honesty-ledger-community-ask-release-decision*
 *Completed: 2026-07-30*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/122-close-honesty-ledger-community-ask-release-decision/122-CHANNELS.md`
+- FOUND: `.planning/phases/122-close-honesty-ledger-community-ask-release-decision/122-08-SUMMARY.md`
+- FOUND: commit `1fd340e` (122-CHANNELS.md)
+- FOUND: commit `5ae1501` (this SUMMARY)
