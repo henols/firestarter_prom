@@ -124,3 +124,10 @@ None — no external service configuration required.
 ---
 *Phase: 122-close-honesty-ledger-community-ask-release-decision*
 *Completed: 2026-07-30*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/PROJECT.md`
+- FOUND: `.planning/phases/122-close-honesty-ledger-community-ask-release-decision/122-06-SUMMARY.md`
+- FOUND commit: `c80a9ac` (EIGHTH CORRECTION edit)
+- FOUND commit: `6e3c924` (this SUMMARY)
