@@ -2016,7 +2016,7 @@ Plans:
   4. The orphan-provisional-macro checker exits non-zero against a fixture defining a `RURP_*_PROVISIONAL`-style flag with zero consumers, and the warning-count gate exits non-zero against a fixture introducing one macro-redefinition warning.
   5. `check_permitted_claims.py` (v1.23 phrase table) exits non-zero when its target-file list is empty (fails closed) and exits non-zero against a fixture containing one of the milestone's forbidden phrases; every checker introduced this phase ships with its own committed planted-violation fixture and a pytest proving the non-zero exit.
 
-**Plans**: 4/11 plans executed
+**Plans**: 5/11 plans executed
 **Wave 1**
 
 - [x] 123-01-PLAN.md — Milestone branches in both sub-repos; re-measure all six AVR figures and both native pairs on clean builds; commit the verbatim captures and the BASE-01 baseline JSON
@@ -2029,7 +2029,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 123-03-PLAN.md — `check_build_warnings.py`: AVR exact-zero plus the native 360 watermark, proven by a host-`g++` compile and a real pio-framed excerpt
+- [x] 123-03-PLAN.md — `check_build_warnings.py`: AVR exact-zero plus the native 360 watermark, proven by a host-`g++` compile and a real pio-framed excerpt
 - [ ] 123-08-PLAN.md — Rekey all 7 proxy modules (24 decorator legs + the inline guard) and create the D-11 cross-repo scan-path inventory with its resolving test
 
 **Wave 4** *(blocked on Wave 3 completion)*
