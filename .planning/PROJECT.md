@@ -35,6 +35,10 @@
 
 ## Current Milestone: v1.22 AT28C Software Data Protection Lifecycle
 
+**Status (2026-07-30): all 7 phases (116–122) COMPLETE — CLOSE-01/02/03 validated in Phase 122, verification passed 5/5.** `3.0.0b14` is published on both channels (PyPI wheel + sdist; GitHub prereleases in both repos, firmware carrying its three board `.hex` assets) and the two community reporters have been answered on `henols/firestarter_prom` #11 and #12 — both issues deliberately left **OPEN** pending a real silicon re-test, because nothing here is silicon-verified.
+**⚠ The milestone ships at its validation ceiling, not past it.** The SDP lock/unlock sequences are emitted byte-exact across all four `0x0D` pinouts and verified in software, with measured host-side timing — **no AT28C silicon was tested.** `0x0D` remains `UNVERIFIED` in `PROTOCOL-LEDGER`, zero chips changed `support_status`, and the 84-chip count is unchanged. The one asymmetry (EIGHTH CORRECTION below): the headline **defect** is now community-corroborated on real AT28C256 silicon; the **fix** is not. `.planning/phases/122-*/122-LEDGER.md` is the honesty ledger — nine claim classes, each pairing a permitted wording with an explicit non-claim, plus what this milestone chose not to prove.
+**Still owed to `/gsd-complete-milestone`:** the `v1.22` tag and the meta-repo gitlink bump (both deferred by D-07, gitlinks still `0048b3d`/`96e0622`); **the app CI test fix `81fa53c` currently lives on `beta` ONLY, not the milestone branch**; and **no STABLE release** — stable stays operator-gated.
+
 **Goal:** Make Software Data Protection on protocol `0x0D` (`configure_eeprom28c`) explicit, observable, and bidirectional — wire the missing SDP lock path, expose lock/unlock as gated user-facing operations, and replace today's silent unconditional auto-unlock with one the user can see and opt out of.
 
 **Target features:**
