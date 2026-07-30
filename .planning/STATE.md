@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 122
 current_phase_name: close-honesty-ledger-community-ask-release-decision
 status: executing
-stopped_at: Completed 122-08-PLAN.md
-last_updated: "2026-07-30T15:22:41.007Z"
+stopped_at: Completed 122-09-PLAN.md
+last_updated: "2026-07-30T15:32:29.736Z"
 last_activity: 2026-07-30
-last_activity_desc: Plan 122-08 complete
+last_activity_desc: Plan 122-09 complete
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 69
-  completed_plans: 64
-  percent: 93
+  completed_plans: 65
+  percent: 94
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 122 (close-honesty-ledger-community-ask-release-decision) — EXECUTING
-Plan: 8 of 13 complete (next: 122-09)
-Status: Plan 122-08 complete — PyPI publish + both-channels-public verification, the gate the community ask depends on. Read the observed app tag (`3.0.0b14`) from `122-CUT.md`, confirmed it live in `henols/firestarter_app`'s release list, then dispatched exactly one `gh workflow run publish.yml -f tag=3.0.0b14` (run `30555530238`, success — no re-dispatch, no local twine/build, no `.github/` edit). Verified PyPI three independent ways (JSON API — first read stale due to eventual-consistency lag, retried ~15s later and confirmed; clean-env `pip index versions --pre`; `pip download --no-deps`), all agreeing `3.0.0b14` is the live latest prerelease; `info.version` still `2.0.7` (no stable published). Verified the firmware GitHub prerelease carries all three `.hex` assets and the app release exists with 0 assets (expected, C-7). Committed `122-CHANNELS.md` (165 lines) as the transcript. Comment counts on issues 11/12 unchanged (12/8) and both release bodies still length 0 — no comment posted yet. The Task 3 blocking operator gate was pre-granted by the orchestrator (evidence shown: b14 live both repos, PyPI still b13 pre-dispatch, C-3's 46% historical miss rate; verbatim response "Publish to PyPI"), recorded in `122-08-SUMMARY.md`. No v1.22 tag, no gitlink bump. No requirement ticked (CLOSE-03 spans 7 plans, closes only at 122-13).
-Last activity: 2026-07-30 — Plan 122-08 complete
+Plan: 9 of 13 complete (next: 122-10)
+Status: Plan 122-09 complete — wrote and committed the two hand-authored, ceiling-compliant prerelease bodies (`122-RELEASE-NOTES-fw.md`, `122-RELEASE-NOTES-app.md`), gated green by the Wave 0 claim scanner (`PASS: scanned 122-RELEASE-NOTES-fw.md, 122-RELEASE-NOTES-app.md`, exit 0, pattern set unchanged) and a full claim-sentence-to-ledger-claim-class traceability pass recorded in `122-09-SUMMARY.md`. Both bodies carry the "no AT28C silicon was tested" caveat, the measured host-side timing (568/412/424us vs 600us budget, firmware body only), and the `43 ALLOW / 41 REFUSE` capability boundary naming the FRAM parts and the pre-SDP `2804`/`2816`/`2817` generation — so "all four pinouts" cannot be read as broader capability than shipped. The app body carries the `dev test` always-writes warning verbatim per the standing Phase 121 obligation. Neither body was posted: both GitHub release bodies confirmed still length 0, and issue 11/12 comment counts unchanged (12/8). Both bodies use "this prerelease" rather than a hardcoded version string, so there is nothing to drift from `122-CUT.md`'s observed `3.0.0b14`. One inline fix during authoring: a markdown line-wrap had split the canonical caveat sentence across two lines in the firmware draft, breaking the literal grep-based acceptance check — reflowed before committing. No requirement ticked (CLOSE-02/CLOSE-03 span multiple plans, close only at 122-13).
+Last activity: 2026-07-30 — Plan 122-09 complete
 
 > **⚠ Phase 122 planning corrected 13 CONTEXT/ROADMAP framings — plan from `122-RESEARCH.md`, not the ROADMAP prose.**
 > The three that changed the plan's shape:
@@ -744,10 +744,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 122 P06 | 35min | 2 tasks | 1 files |
 | Phase 122 P07 | 47min | 3 tasks | 3 files |
 | Phase 122 P08 | 20min | 3 tasks | 1 files |
+| Phase 122 P09 | 12min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-07-30T15:20:53.999Z
-**Stopped at:** Completed 122-08-PLAN.md
+**Last session:** 2026-07-30T15:31:40.066Z
+**Stopped at:** Completed 122-09-PLAN.md
 **Resume file:** 
 None
