@@ -229,3 +229,15 @@ None — no external service configuration required.
 ---
 *Phase: 122-close-honesty-ledger-community-ask-release-decision*
 *Completed: 2026-07-30*
+
+## Self-Check: PASSED
+
+- `122-CUT.md` — FOUND
+- `122-07-SUMMARY.md` — FOUND
+- `122-DECISION.md` commit `d5c49d4` — FOUND (meta repo)
+- `122-CUT.md` commit `4285571` — FOUND (meta repo)
+- `122-07-SUMMARY.md` commit `303392c` — FOUND (meta repo)
+- Firmware: `6611fba` (pre-merge beta), `b9bb6b7` (outbound merge), `5c9160a` (CI auto-commit),
+  `953f748` (milestone branch HEAD, unchanged) — all FOUND in `firestarter`
+- App: `1bb5599` (pre-merge beta), `0adfb4f` (outbound merge), `81fa53c` (fix), `e7d3ee8` (CI
+  auto-commit), `4001396` (milestone branch HEAD, unchanged) — all FOUND in `firestarter_app`
