@@ -99,9 +99,9 @@ The promoting backlog note (999.19/999.18) asserted protocol `0x0D` "has no SDP 
 
 ### Close (honesty ledger)
 
-- [ ] **CLOSE-01**: `0x0D` stays `UNVERIFIED` in `PROTOCOL-LEDGER`, **zero** chips change `support_status`, and the 84-chip count is unchanged
-- [ ] **CLOSE-02**: gh#12 is answered with the decided auto-unlock policy (its reporter's own 2024 question) and gh#11 is followed up — both framed as *"here is what changed and why we believe it addresses your report; please re-test"*, **never as a verified fix**
-- [ ] **CLOSE-03**: The accept/avoid/cleanup decision for the `beta` push is made and recorded **before** any push — v1.21's close auto-cut a stray `3.0.0b12`
+- [x] **CLOSE-01**: `0x0D` stays `UNVERIFIED` in `PROTOCOL-LEDGER`, **zero** chips change `support_status`, and the 84-chip count is unchanged (re-verified live by Plan 122-13 on the merged/pushed tree, not merely cited from `122-NONREGRESSION.md`: `grep -c '^| \`0x0D\` .*\*\*UNVERIFIED\*\*' .planning/v1.16/ledger/PROTOCOL-LEDGER.md` → **1**, with `git status --porcelain -- .planning/v1.16/ledger/` empty both before and after — the ledger was read, never written; `tools/diff_db.py` exit 0, identity still exactly 2 explained `PGSZ_PAGE_SIZE` changes / 0 new / 0 removed (D-09: identity means "still exactly 2," not "zero diff"); `tools/check_no_community_support_status_write.py` exit 0, 0 write loci; `pytest tests/test_sdp_db_invariant.py -q` → 4 passed, pinning the 84-chip `algorithm == 13` count. All four ran on the tree that was actually pushed to `beta` (`firestarter@953f748` / `firestarter_app@4001396`), per `122-NONREGRESSION.md`. `check_ledger.py` was **not** used as a gate — it is pre-existing RED from v1.19 Phase 104's `flash_type_3`/`flash_type_4` → `flash_nor_unlock`/`flash_5v_page` rename, CLOSE-01's text does not name it, and fixing it would edit a closed milestone's artifact (D-09) — closing artifact `122-NONREGRESSION.md`) — **ticked**.
+- [x] **CLOSE-02**: gh#12 is answered with the decided auto-unlock policy (its reporter's own 2024 question) and gh#11 is followed up — both framed as *"here is what changed and why we believe it addresses your report; please re-test"*, **never as a verified fix** (re-verified live by Plan 122-13: both comments posted to `henols/firestarter_prom` #11 and #12 via `gh issue comment --body-file` from the committed, blob-SHA-frozen drafts, and re-confirmed byte-equal to the posted bodies — in both cases the only difference is GitHub appending one trailing newline; both issues remain `OPEN` with zero labels (13/9 comments, up from 12/8); the never-as-a-verified-fix clause is closed by the **D-16 blocking operator wording review** (Plan 122-11: "Approve — accept the C-5 correction"), not by the claim scanner — the scanner (`check_permitted_claims.py`, re-run in Plan 122-13, exit 0, all five default targets named in one `PASS:` line) is the mechanizable half of ROADMAP criterion 4 only and does not by itself satisfy this clause; the corrected size-class `No-Hazmats` answer (all 19 `DIP24_2816` 2K×8 chips refused) replaces D-14's overclaiming "should now work" prescription, per the operator's explicit ACCEPT ruling — closing artifacts `122-DELIVERY.md`, `122-GH11-COMMENT.md`, `122-GH12-COMMENT.md`) — **ticked**.
+- [x] **CLOSE-03**: The accept/avoid/cleanup decision for the `beta` push is made and recorded **before** any push — v1.21's close auto-cut a stray `3.0.0b12` (re-verified live by Plan 122-13: `122-DECISION.md` committed `d5c49d4` at `2026-07-30T13:03:38Z`, strictly earlier — by more than an hour — than both outbound merge/push events (`b9bb6b7` firmware @14:24:48Z, `0adfb4f` app @14:30:00Z), proving the required ordering by timestamp; ACCEPT was chosen (the merge IS the cut — both `beta`-push workflows fire unconditionally and auto-increment via a live git-tag scan) with AVOID (editing either workflow's trigger) and CLEANUP (deleting the stray public `3.0.0b12`) both explicitly declined and their reasons recorded; the observed cut tag `3.0.0b14` was read from the actual release list, never assumed in advance; PyPI publish was one explicit manual `gh workflow run publish.yml -f tag=3.0.0b14` dispatch, never a side effect of the merge; both channels re-verified public in this plan (PyPI JSON API lists `3.0.0b14`, `info.version` still `2.0.7`; firmware prerelease still carries its 3 named `.hex` assets) — closing artifacts `122-DECISION.md`, `122-CUT.md`, `122-CHANNELS.md`) — **ticked**.
 
 ---
 
@@ -197,9 +197,9 @@ Filled during roadmap creation (`/gsd-new-project` → roadmapper, 2026-07-27). 
 | GATE-01 | Plan 121-03 | Complete (re-verified Plan 121-14) |
 | GATE-02 | Plan 121-13 | Complete |
 | GATE-03 | Plan 121-14 | Complete |
-| CLOSE-01 | Phase 122 | Pending |
-| CLOSE-02 | Phase 122 | Pending |
-| CLOSE-03 | Phase 122 | Pending |
+| CLOSE-01 | Phase 122 | Complete |
+| CLOSE-02 | Phase 122 | Complete |
+| CLOSE-03 | Phase 122 | Complete |
 
 **Coverage:**
 
@@ -209,4 +209,4 @@ Filled during roadmap creation (`/gsd-new-project` → roadmapper, 2026-07-27). 
 
 ---
 *Requirements defined: 2026-07-27*
-*Last updated: 2026-07-29 — Phase 120 D-20 amendment (Plan 120-11): +5 new `dev test` redesign requirement ids (DEVTEST-02..06, Pending, mapped to Phase 121), the v1.21 SUB-01/SUB-02 contract recorded as reversed; 41/41 requirements mapped to Phases 116-122, 0 unmapped*
+*Last updated: 2026-07-30 — Phase 122 close (Plan 122-13): CLOSE-01/02/03 re-verified clause-by-clause against this file's own prose and ticked Complete, with the three traceability rows moved from Pending to Complete; 41/41 requirements mapped to Phases 116-122, 0 unmapped*
