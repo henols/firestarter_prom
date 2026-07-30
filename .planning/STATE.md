@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 122
-status: verifying
+status: Awaiting next milestone
 stopped_at: Completed 122-13-PLAN.md — Phase 122 CLOSE complete
-last_updated: "2026-07-30T16:42:19.192Z"
+last_updated: "2026-07-30T16:57:52.479Z"
 last_activity: 2026-07-30
-last_activity_desc: Phase 122 complete
+last_activity_desc: Milestone v1.22 completed and archived
 progress:
   total_phases: 7
   completed_phases: 7
@@ -24,219 +24,18 @@ current_phase_name: close-honesty-ledger-community-ask-release-decision
 
 ## Current Position
 
-Phase: 122
-Plan: Not started
-Status: Plan 122-13 complete — CLOSE-01, CLOSE-02, CLOSE-03 re-verified clause-by-clause against `REQUIREMENTS.md`'s own prose (live commands, not cited SUMMARYs) and ticked Complete with evidence parentheticals; the three traceability rows moved Pending→Complete. `122-VALIDATION.md` settled (`status: complete`, `nyquist_compliant: true`, `wave_0_complete: true`) after individually re-verifying both rows originally marked `❌ W0` against the real landed `check_permitted_claims.py`. All eleven phase-end assertions held: meta gitlinks still pinned at `0048b3d`/`96e0622` with nothing staged; no `v1.22*` tag in either sub-repo; both sub-repos still on the milestone branch at 122-03's merge SHAs; claim scanner green on all five default targets (restated: this alone does not satisfy ROADMAP criterion 4); both channels (PyPI, firmware GitHub prerelease) re-verified public; both issues `OPEN` with byte-equal comments and zero labels; `3.0.0b12` untouched; `PROTOCOL-LEDGER`/`check_ledger.py` untouched; no `.github/` change in either sub-repo. Six-item hand-over written for `/gsd-complete-milestone` (gitlink bump, `v1.22` tag, the `beta`-only app CI fix `81fa53c` that must be reintroduced at the next merge, `check_ledger.py`'s pre-existing RED, no stable release, the stray `3.0.0b12` prereleases). Phase 122 — and this milestone's phase sequence — is now fully executed; the tag/gitlink bump/main-merge/stable-release remain deliberately for `/gsd-complete-milestone`.
-Last activity: 2026-07-30 — Phase 122 complete
-
-> **⚠ Phase 122 planning corrected 13 CONTEXT/ROADMAP framings — plan from `122-RESEARCH.md`, not the ROADMAP prose.**
-> The three that changed the plan's shape:
-> - **C-5 — locked decision D-14 as written would post an overclaim.** D-14 prescribes telling `No-Hazmats` their "AT28C parts
->   should now work". Measured over all 84 `0x0D` entries: every 2K×8 part sits on pinout `DIP24_2816`, and **all 19 of 19 are
->   REFUSED** by the SDP allow-set (7 `pre-SDP generation`, 12 `unrecognised`); `AT28C16` is additionally `adapter-required`, and
->   SDP-F7/SDP-F8 name that family as deferred. An overclaim reached a locked decision **inside the one phase whose job is not
->   overclaiming**. Threaded through 122-05/06/10/11 as an explicit operator **accept-or-overturn** at the D-16 wording review.
-> - **C-1/C-2/C-11/C-12 — D-06's conflict set is wrong.** The **firmware** inbound merge has **zero** conflicts (`version.h`
->   b11→b13 auto-merges). The **app** conflicts in **exactly two** files: `submit.py`, `test_submit.py`. Resolution is whole-file
->   `--ours` with an empty-`git diff HEAD` proof; **hunk-level resolution is forbidden** — hunks 3/4 sandwich a region HEAD needs
->   twice, so a textual "ours" leaves a dangling `elif url:` bound to the wrong `if`, which compiles and passes.
-> - **C-4 — `check_ledger.py` is RED today** (2 pre-existing `LEDGER-01` violations from v1.19 Phase 104's `flash3`/`flash4`
->   rename). Unrelated to v1.22. **CLOSE-01 never gates on it and this phase does not fix it** — fixing would edit a closed
->   milestone's artifact.
->
-> Also corrected: 6 of 13 app GH betas never reached PyPI (b4/b5/b6/b9/b10/b12) so the manual `publish.yml` dispatch is the norm
-> at a 46% failure rate (C-3); release bodies are *empty*, not auto-generated (C-6); only the firmware release carries assets
-> (C-7); `ci.yml` never runs on a `beta` push (C-8); v1.22 *did* fork off `beta` (C-9); PROJECT.md has six ordinal ⚠ blocks so
-> **EIGHTH** is the right ordinal for D-10 (C-10); `diff_db.py` interprets its own result and exits 0 (C-13).
->
-> **`122-RESEARCH.md` is valid only until ~2026-08-02** — `origin/beta` moves on any push and the b13/b14 boundary is this
-> phase's whole premise. Plan 122-03 re-runs the dry-run merge probe immediately before merging. RESEARCH **A3**: the b14 tag is
-> *derived, not executed* — every downstream step reads the **observed** cut tag, never a hardcoded `3.0.0b14`.
-
-> **⚠ Phase 120 planning superseded D-01/D-02's curated allow-set — the partition is now DERIVED (`120-SDP-PARTITION.md`, `6ad8688`).**
-> Operator directive, 2026-07-29: *"there shall be no guessing the ground truth is the infoic.xml"*. Executed: the SDP-capability
-> partition is derived from minipro `infoic.xml` @ `a8efaedc236c1d9718bd28299dfbb99536b010ff`, section
-> `<database type="INFOIC2PLUS">`, `flags` **bit 15** (`0x8000` `MP_PROTECT_AFTER`) — the section `build_db.py:450` already
-> treats as authoritative. **ALLOW 43 / REFUSE 41 = 84**, all 84 matched, zero unmatched, zero MIXED.
-> - **Three ground-truth probes all pass with no special cases:** HOST-04's 8 named pre-SDP entries → b15=0 (8/8, six of them
->   `flags=0x00000000`); both FRAM parts → b15=0 (2/2); the datasheet-of-record Atmel parts (`AT28C256`/`64B`/`010`/`040`) → b15=1 (4/4).
-> - **Supersedes** `120-RESEARCH.md` § F-01's curated **37/47** and its five judgement calls (2 right, 2 wrong, 1 right), and the
->   interim operator placeholder "allow both disputed groups" (~74/10) — that pick existed only because the alternative was guessing.
-> - **D-01/D-02's mechanism is unchanged**: a static fail-closed allow-list in `firestarter/sdp_capability.py`, refusing anything not
->   on it including user `~/.firestarter/database.json` additions, plus the runtime exhaustiveness gate. Only *provenance* changed.
->   Nothing reads `infoic.xml` at runtime or in CI; it is added to neither sub-repo.
-> - **Derived structure nobody coded for:** all 19 `DIP24_2816` refuse · all 18 `DIP32_28C512_EEPROM` allow · the only two
->   `DIP28_28C256` refusals are exactly the two FRAM parts (HOST-04's own text, now derived) · all 9 `adapter-required` parts refuse,
->   so D-08's capability-before-support-status ordering is load-bearing on **all 9**, not a hypothetical subset.
->   RESEARCH § F-03 still holds: no structural or lexical rule expresses the partition (`DIP28_28C64` splits 15/20) — the table is
->   transcribed, never regenerated.
-> - **The refusal-cost trade-off dissolved rather than being decided.** Over-refusal only costs a working `write` (via D-04's
->   auto-set) if the part *has* SDP; for a part with no SDP there is nothing to unlock, so suppressing its auto-unlock is a no-op
->   *and* avoids F-120-01's three stored bytes. Residual risk is confined to `120-WATCHLIST.md`'s **9 entries** (b15=0 but
->   `page_size > 1`).
-> - **The 2026-07-10 infoic note is NOT overturned — it is scoped.** `.planning/notes/infoic-xml-protection-flags-research.md`
->   concluded b14/b15 are too coarse for the `status_readable` / `protection_kind` taxonomy and said "do not re-investigate."
->   That remains TRUE (`W29C020C` ≡ `W29EE011` on flags; neither is a `0x0D` part). This phase answered a strictly narrower
->   question — *does this 28C-family part have an SDP command decoder* — and validated the axis against three independent probes.
->   Both findings are correct about different questions; 120-04 appends a scoped exception rather than replacing the verdict.
->   Also refuted as an equivalence: b15 is **not** a page-write proxy — it disagrees with `page_size` on **12 of 84**.
-> - **New finding for GATE-02 (Phase 121):** `doc/lockable-proms.md` §17 is **wrong about `AT28C16`** — it lists "Atmel
->   AT28C16 / 64 / 256" as SDP-capable, but `AT28C16`, `AT28C16E,F` and plain `AT28C64` are all b15=0 with `page_size=1`
->   (byte write). Recorded; no doc edited in this phase.
-> - **Answers RESEARCH § F-17** ("the DB splits alias groups and we cannot see why"): `chip_database.json` mirrors `infoic.xml`'s
->   own split — `AT28C64` `0x10`/byte-write/no-SDP vs `AT28C64B` `0xc010`/64-byte-page/SDP. F-02 rule 1 ("do not strip
->   parentheticals") is therefore load-bearing on **correctness**, not just stability.
-> - **`dev test --submit` is VERIFY-ONLY, not a code change.** The operator asked to pull the wrong-repo fix in from Phase 121;
->   it is already fixed on this branch (`submit.py:73` = `henols/firestarter_prom`, commit `e615b4c`, pinned by
->   `test_submit.py:237`). The `v1.21` tag still carries the old target, which is why shipped `3.0.0b11` misfiles — a
->   **released-artifact** fact reaching users at the next beta cut, not a source defect.
-> - **Two CONTEXT.md corrections applied by the plans:** D-09's target is `_log_rurp_feedback`, **not** `_log_response`
->   (line numbers were right, the name was wrong); and the blast radius is **six** unconditional INFO-band ids, not five —
->   `MSG_INFO_HW` (`0x5B`) is also emitted unconditionally via `LOG_WARN_ID_U8` while its catalog severity is INFO, so D-09
->   fixes a second, older observability defect. Zero existing tests move.
-> - **D-03's mechanism corrected:** the predicate must be **name-keyed** via `db.get_eprom(name)`. `resolve_chip` returns the
->   *programmer* dict, which has no `protocol-id`, no `electrical-type` and no part number — so CONTEXT.md's "no DB-loader
->   coupling" is unachievable. The same finding proves `check_eprom_blank`'s `_SRAM_PROTO_IDS` short-circuit is **vacuous in
->   production** (both callers pass the programmer dict), so PROJECT.md SIXTH CORRECTION item 6's stated reason for keeping it
->   is false — the keep-disposition stands, the reason does not. The new gate carries a dict-shape anti-vacuity leg so the
->   predicate cannot reproduce that silent failure.
-> - **Ceiling unchanged.** Derivation makes the partition *reproducible*, not *bench-verified*. No AT28C part is on the bench;
->   `0x0D` stays `UNVERIFIED`; zero `support_status` changes; the 84-chip count is unchanged.
-
-> **⚠ Phase 120 discussion produced four cross-phase consequences — read `120-CONTEXT.md` before planning 120, 121 or 122.**
-> 1. **The `dev test` redesign is folded into Phase 121, and Phase 120 owns the amendment (D-20).** Operator specification, 2026-07-29: `dev test` takes **no flags**; "destructive" applies only to UV-erasable EPROMs; the sweep **stops and asks** whether to do a destructive write (yes = full device may be written, no = only a small part is written); **every** run asks whether to file an issue, checking first whether the user already reported an identical one and creating a new issue only when it differs; `gh` replaces the URL/browser path wherever it can. Phase 120 lands only the `ROADMAP.md` Phase 121 + `REQUIREMENTS.md` + `PROJECT.md` amendment (119-09's precedent) — **no implementation**. The amendment must record that this **reverses three locked decisions**: Phase 112 Plan 04's deliberate removal of all interactive prompts (`112-UAT.md`), SAFE-01's CLI-only `--destructive`, and SAFE-03's "only interactive input left" statement.
-> 2. **HOST-04's mechanism is widened, and the `write` path is in scope (D-01/D-04).** The partition is a **fail-closed allow-list**, not HOST-04's literal 5-part deny-list — because on a part with no SDP decoder the sequence is **not inert**: post-117 the command writes reach silicon, so `0xAA`/`0x55`/`0xA0` are stored as data at the bus-truncated magic addresses (F-120-01). That also means today's `write` on a pre-SDP `0x0D` part already leaves `0x2AAA←0x55` / `0x5555←0x20` before the payload, so the host now auto-sets `FLAG_SKIP_SDP_UNLOCK` for refused parts **with a mandatory report line**. `write` behaviour for that subset therefore diverges from `3.0.0b11` deliberately. Do **not** edit `REQUIREMENTS.md`; record the correction in the phase artifacts. Both FRAM parts (`FM28V020`, `MB85R256H`) are typed `EEPROM` in the DB, so no structural rule can find them.
-> 3. **Phase 118's OBS-01 was invisible in practice for a whole phase (F-120-02).** `_log_response` special-cases only `ERROR`/`WARN`, so the whole INFO band falls to `logging.DEBUG` (`serial_comm.py:234-238`) while root is `INFO` unless `-v` — every 118/119 SDP report line was discarded by the host. D-09 promotes INFO→INFO; blast radius verified as exactly the five unconditional ids (`0x5E`/`0x5F`/`0x60`/`0x61`/`0x62`), since every other INFO id is `FLAG_VERBOSE`-gated in firmware. **Class lesson: a two-repo requirement can pass its own phase's verification and still be false end to end.**
-> 4. **Two ROADMAP/catalog corrections.** There is **no `0x200` flag** — firmware's flag block ends at `FLAG_SKIP_SDP_UNLOCK 0x100`, so ROADMAP:136 and Phase 120's *Depends on* are wrong and the host wires **one** flag (F-120-05). And `MSG_INFO_SDP_UNLOCK_DONE_US` (`0x5F`) lacks the honesty caveat that `0x61` carries (F-120-03) — answered host-side by D-10, since a catalog fix needs both sub-repos to regenerate; queued for Phase 121/122. Separately, the host **cannot distinguish `b11` from `b12`** (`_probe_port`'s `[\d.x]+` capture, `serial_comm.py:643`), so HOST-06 is discharged by `MSG_ERR_UNKNOWN_CMD` mapping plus a required `0x86` ack — **no version floor** (F-120-04).
-
-> **⚠ Phase 119 planning note — CONTEXT.md's D-NN bullets were re-formatted (`c90b76d`).** The blocking decision-coverage gate could not parse `119-CONTEXT.md`: four bullets tripped the parse-miss guard (three wrapped bold labels — D-01/D-14/D-17 — plus D-06's second colon inside the label), and seven more (D-05/07/08/10/15/16/18) were **silently invisible** because the `⚠` glyph sat inside the bold run *before* the ID, which the parser's `**D-` anchor requires. Before the fix the gate tracked only **8 of 19** decisions and returned `reason: could-not-parse`. Formatting-only repair: `⚠` moved to just after the colon, wrapped labels reflowed onto one line, D-06's second colon → em-dash. Word-level diff confirmed zero wording change. **Applies to every future phase in this project: `- **D-NN: text**` must close its bold run on ONE line, must contain at most one colon before the closing `**`, and must not open with a glyph.**
-
-> **⚠ Phase 119 discussion produced three cross-phase consequences — read `119-CONTEXT.md` before planning 119, 121 or 122.**
-> 1. **LOCK-04's mechanism is SUPERSEDED (D-05).** `configure_memory` pre-sets the generic `main` for `CMD_READ`/`CMD_WRITE`/`CMD_VERIFY` (`memory.cpp:48-58`) *before* calling `configure_eeprom28c`, so the literal `default: → MSG_ERR_NOT_SUPPORTED` arm LOCK-04 prescribes would **refuse `read` and `verify` on all 84 `0x0D` chips**. LOCK-04's *intent* is met instead by a single op-layer NULL-`main` refusal (D-06). Record the correction in the SUMMARY and VERIFICATION; do **not** edit `REQUIREMENTS.md`, and do not read LOCK-04 as failed.
-> 2. **DEVTEST-01's firmware half MOVES INTO PHASE 119 (D-07/D-08).** `op_execute_stateful_operation` returns `false` at `operation_utils.cpp:83` when `main` is NULL, so the caller reports finished with `response_code == OK` and **no error at all** — the phantom-erase mechanism, and it is a whole-dispatch-layer defect, not a `0x0D` one. The operator chose to fix the class generically in 119. **Phase 121's ROADMAP scope and the `REQUIREMENTS.md` DEVTEST-01 mapping must be amended as an owned task in Phase 119**, and a full cross-family native trace + regression sweep is mandatory. DEVTEST-01's host half (`OP_ERASE` → `NA` in the `dev test` sweep) stays in Phase 121.
-> 3. **LOCK-06's `3348 B` headroom is a superseded pre-117 figure (D-15).** `+204 B` (117) and `+152 B` (118) are spent; Leonardo sits at **25680/28672**, leaving **2992 B**. Judge this phase's delta against the live number with the arithmetic shown, no threshold claim beyond "fits". Also: **F-118-01's page-load directive is TAKEN (D-16)** — worst-case per-byte t_BLC bracketed on `eeprom28c_write_execute`'s loop, reported once, measured on **all three** attached boards (D-18, reversing 118's Leonardo-only D-12; operator confirmed all three sockets empty 2026-07-28).
-
-**Phase 118 outcome (OBSERVE — auto-unlock visible + opt-out-able, FW half):** the auto-unlock now reports one unconditional INFO line before the SDP-disable sequence and one after it carrying the `micros()`-measured duration, via `LOG_ID`/`LOG_ID_U32` rather than the `FLAG_VERBOSE`-gated `LOG_INFO_ID*` family (D-01 — the tree's first non-verbose-gated INFO call sites, argued in-source). `FLAG_SKIP_SDP_UNLOCK 0x100` lets the user decline, reporting `MSG_WARN_SDP_UNLOCK_SKIPPED` in place of the pair and writing nothing to `handle->response_code` (D-02, preserving Phase 117's D-05). `AT28C_TBLC_MAX_US 100` became a real runtime budget check (D-09), not a comment. The no-log gate was redefined to brace-match the emitter and completion-poll bodies (D-06), which is where inter-byte timing actually lives. Flash cost **+152 B** on both Leonardo and Uno; RAM unchanged. Bus-stream byte-identity held: all three `test/native/avr/_shared/` goldens are blob-SHA identical to phase base `f8d10a5` with zero regeneration (D-07).
-
-> **⚠ FINDING F-118-01 — carry into Phase 119 (LOCK-06) and Phase 122.** The real-hardware measurement came in at **572 µs against the 600 µs budget** (`6 × AT28C_TBLC_MAX_US`) — only **28 µs / 4.7 % headroom**, i.e. ~95 µs per byte against a 100 µs per-byte datasheet maximum. CONTEXT.md D-09 framed the runtime check as a latent invariant that "should never fire" on a 16 MHz AVR; the measurement says it *barely* does not fire. The implementation is correct and the check is load-bearing (independently proven by inverting the comparison and watching cases 11/12 go RED) — this is a note that the **decision's premise was optimistic**, not a defect. It bears directly on D-10: `eeprom28c_write_execute`'s page-load loop runs under the *identical* t_BLC constraint, is where gh#11's slow/failed writes actually live (per Phase 117's conflation correction), and received a citation comment only — no runtime check. If the unlock emitter sits at ~95 % of the per-byte spec, the page-load loop's margin deserves measuring before LOCK-06's flash/headroom judgement is settled.
-
-<!-- NOTE: `query state.planned-phase` under-writes this file. Phase 116 planning: returned `"updated": []`. Phase 117 planning: returned `"updated": ["Status"]` — it wrote only the body `Status:` line and left `status`, `stopped_at`, `last_activity_desc`, and `progress.total_plans` in the frontmatter stale. Hand-corrected both times. Same tooling class as the recurring `phase.complete` mis-advance; verify STATE.md by hand after every planning/transition step. ALSO OBSERVED (117-04): `state.advance-plan` + `state.record-session` similarly leave the frontmatter `progress.percent` and body `Status`/`Last activity` lines stale (percent dropped to 14 instead of 92; Status/Last-activity still cited Plan 03) — hand-corrected again. ALSO OBSERVED (Phase 117 close): `query phase.complete 117` advanced `current_phase` to 118 correctly (the recurring jump-to-close-phase mis-advance did NOT fire), but it mangled `current_phase_name` to the bare parenthetical `FW half` (it split the roadmap title on the em-dash/parenthesis), left `status: verifying` and `stopped_at: Completed 117-05-PLAN.md` stale, and wrote a body `Status: Phase complete — ready for verification` line that contradicted the already-passed 117-VERIFICATION.md. All four hand-corrected. Verify `current_phase_name` specifically whenever a roadmap phase title contains an em-dash or a trailing parenthetical. ALSO OBSERVED (Phase 118 planning, 2026-07-28): `query state.planned-phase --phase 118 --name "…" --plans 7` returned `"updated": []` — yet it DID mutate the file: it bumped `last_updated`, overwrote `last_activity_desc` with the body `Last activity:` text, and **re-mangled `current_phase_name` from the full title down to the bare parenthetical `FW half`** (the same em-dash split as at Phase 117 close, now confirmed to fire on the planning path too), while leaving `status`, `stopped_at`, and `progress.total_plans` stale. So `"updated": []` does NOT mean "no writes" — it means the report is unreliable. Always diff STATE.md before/after the call; never trust the returned `updated` array. ALSO OBSERVED (118-01 execution, 2026-07-28): `state.record-session --stopped-at "Completed 118-01-PLAN.md"` (called during plan execution, not planning/close) reported `"updated": ["Last session","Stopped At","Resume File"]` yet ALSO silently dropped the trailing `)` off `current_phase_name` (this time truncating mid-parenthetical rather than reducing to the bare parenthetical) and reverted `progress.percent` from 68 back to 29 despite an intervening `state.update-progress` call that had correctly set it to 68 moments earlier. So this defect class fires on the plan-execution path too, not only planning/phase-complete, and a later state-mutating call can silently re-clobber a field an earlier call in the SAME session already fixed. Both hand-corrected again. ALSO OBSERVED (118-02 execution, 2026-07-28): `state.record-session --stopped-at "Completed 118-02-PLAN.md"` again dropped the trailing `)` off `current_phase_name` and again reverted `progress.percent` from 74 back to 29, despite an intervening `state.update-progress` call in the SAME session having correctly set it to 74 moments earlier — identical failure mode to 118-01. Both hand-corrected again. Pattern is now stable: always call `state.record-session` FIRST, then `state.update-progress`/`state.record-metric`/`state.add-decision` LAST, then hand-verify `current_phase_name` and `progress.percent` regardless of call order. ALSO OBSERVED (Phase 121 planning, 2026-07-29): `query state.planned-phase --phase 121 --name "…" --plans 14` returned `"updated": []` and this time wrote **literally nothing** — `git diff .planning/STATE.md` was empty immediately after the call, leaving `status`, `stopped_at`, `last_updated`, `last_activity_desc` and `progress.total_plans` (42, should be 56) all stale. So the call has now been observed in all three modes: silent-partial-write (117), mutate-while-reporting-nothing (118), and complete no-op (121). `current_phase_name` survived intact here because the Phase 121 title contains backticks but no em-dash — consistent with the em-dash-split diagnosis. Hand-corrected. Also note `query roadmap.annotate-dependencies 121` returned `{"updated": false, "waves": 10, "cross_cutting_constraints": 0}` — it read the plan graph correctly but wrote no wave headers into ROADMAP.md, because the Phase 121 section's `**Plans**:` line still reads `TBD` rather than an enumerated plan list. -->
-
-**Phase 121 plan graph** (planned 2026-07-29 — 14 plans, 10 waves, `a12b0c6`; `121-RESEARCH.md` + `121-PATTERNS.md` + `121-VALIDATION.md` all present. **Planned from RESEARCH.md, not the ROADMAP prose** — the research recorded nine live-verified corrections C-1..C-9 to CONTEXT/ROADMAP framings, and the plans honour those, not the stated mechanisms):
-
-| Wave | Plan | Requirements | What it lands |
-|------|------|--------------|----------------|
-| 1 | 121-01 | GATE-03 | D-18's audit-matrix golden regen **alone**, zero DEVTEST code in tree (asserted via `--stat`), plus `[tool.ruff] extend-exclude = ["tests/golden"]` **before** any formatter run and the py3.11 CI-parity venv |
-| 2 | 121-02 | DEVTEST-04 | Pitfall-1a fail-closed `_dispatch_step`/`_dispatch_multi_run` guard + RED-then-GREEN test using a deliberately *different* unmapped op string — lands **before** `OP_WRITE_PARTIAL` exists |
-| 2 | 121-03 | GATE-01 *(closes)* | D-14's AST checker `tools/check_sdp_capability_invariants.py` + companion pytest + two planted-violation fixtures (permit-by-default, widenable allow-set) |
-| 2 | 121-04 | GATE-03 | D-19: harden the no-programmer-found characterization tests at the real port-enumeration seam so they pass with a board attached |
-| 3 | 121-05 | DEVTEST-03, DEVTEST-04 | D-02: `is_uv_eprom` decided once in `derive_plan` (301/301 exact) + carried `write_scope` on `Plan`/`Step`. Pure refactor — `test_dev_test_cmd.py` must stay byte-clean |
-| 4 | 121-06 | DEVTEST-03, DEVTEST-04 | D-06's `OP_WRITE_PARTIAL` + **both** frozensets (`_DESTRUCTIVE_OPS` is live and safety-critical per C-5/Pitfall 1b) + `_write_region_for` converted from guessing to reading |
-| 5 | 121-07 | DEVTEST-04 | Report-side: `schema_version` bump, `dedup_fingerprint` partial-vs-full divergence (D-06/D-08), b11 six-string back-compat. **Zero renderer edits** (C-1) |
-| 5 | 121-08 | DEVTEST-01 *(closes)* | D-12: clear `FLAG_CAN_ERASE` for `0x0D` in `convert_to_programmer` + the family-fact `NA` reason (Pitfall 9); inverts exactly two deliberately-pinned host tests |
-| 6 | 121-09 | DEVTEST-02 *(closes)*, DEVTEST-03 *(closes)*, DEVTEST-04 *(closes)* | D-05's zero options, D-04's unconditional first-line always-writes notice, D-01/D-03's UV stop-and-ask incl. off-TTY→partial, and C-4's mandatory `_HANDLER_FUNCTION_NAMES` extension |
-| 7 | 121-10 | GATE-02 | D-13 warn-and-proceed on `--skip-erase` **only** — C-8's split; a `-b` warning would be factually wrong, so `-b`'s `0x0D` treatment is a docs statement in 121-13 |
-| 7 | 121-11 | DEVTEST-05 *(closes)*, DEVTEST-06 *(closes)* | D-09/D-10/D-11: dedup-before-ask, ask-anyway-on-failure, comment-on-duplicate; deny-set argv widened for the short forms `-l`/`-a`/`-m`/`-p` (Pitfall 6) |
-| 8 | 121-12 | GATE-02 | D-15 via C-7's corrected mechanism: edit the **meta** `/workspaces/tools/catalog/messages.toml`, then `sync_to_subrepos.sh` regenerates both mirrors; cross-repo gates checked in both directions (Pitfall 5) |
-| 9 | 121-13 | GATE-02 *(closes)* | All 8 doc targets incl. D-16's `lockable-proms.md` committed as-is with §17 fixed, and the explicit "`0x0D` has no erase, so `-b` is required for a non-blank AT28C" statement |
-| 10 | 121-14 | GATE-03 *(closes)* | Full nine-row sweep at the final commit + `121-NONREGRESSION.md`; records why the literal py3.9 pytest criterion is **structurally impossible** (`syrupy>=5.0` needs ≥3.10) rather than claiming it |
-
-Zero `files_modified` overlap within any wave (verified mechanically). Three deliberate deviations from RESEARCH's recommendations are recorded in the plans: `_MULTI_RUN_OPS` is made *live* as the dispatch allow-list rather than documented dead; `write_scope` is three-valued (`none`/`partial`/`full`) so 121-05 is a pure refactor; and no human-verify checkpoint for the `gh issue comment` permission assumption — 121-11 requires a browser-tier fallback instead, making the assumption's truth value irrelevant to correctness.
-
-**Phase 120 plan graph** (planned 2026-07-29 — 12 plans, host-only; `120-RESEARCH.md` + `120-PATTERNS.md` + `120-VALIDATION.md` + `120-SDP-PARTITION.md`/`120-sdp-partition.json` all present, superseding RESEARCH F-01's curated 37/47 with the derived 43/41):
-
-| Wave | Plan | Requirements | What it lands |
-|------|------|--------------|----------------|
-| 1 | 120-01 | HOST-04 | `firestarter/sdp_capability.py`: the derived 43/41 allow-set + the pure name-keyed predicate + the core exhaustiveness gate |
-| 1 | 120-02 | HOST-03 | `constants.py`: `COMMAND_SDP_UNLOCK 9` / `COMMAND_SDP_LOCK 10` / `FLAG_SKIP_SDP_UNLOCK 0x100` + the two mandatory `COMMAND_NAMES` entries |
-| 1 | 120-03 | HOST-05 | D-09: promote INFO-band frames from DEBUG to INFO in `_log_rurp_feedback` |
-| 1 | 120-04 | HOST-04 | Derivation record: `120-VALIDATION.md` corrected to 43/41, `120-WATCHLIST.md`'s nine residual-risk entries, an append-only scoped exception on the 2026-07-10 infoic note |
-| 2 | 120-05 | HOST-04 | HOST-04 gate extension: named refusals, two structural invariants, the F-06 dict-shape anti-vacuity leg, import purity, runtime local-override refusal |
-| 2 | 120-06 | HOST-01, HOST-02 | `eprom_operations.py`: payload-free `sdp_unlock`/`sdp_lock` + `build_flags`' keyword-only `skip_sdp_unlock` + BUG-1 re-check |
-| 2 | 120-07 | HOST-03 *(closes)* | D-12/D-13: rebuild the constants-parity test as a real two-way header-parsing gate with three planted fixtures |
-| 3 | 120-08 | HOST-01 *(closes)*, HOST-05 *(closes)* | `dev sdp <chip> <enable\|disable>`: D-08's four gates in order, D-14's firmware-too-old mapping, D-10's honest summary, D-11's exit code |
-| 4 | 120-09 | HOST-02 *(closes)*, HOST-04 *(closes)* | `write --skip-sdp-unlock` + D-04's capability-refused auto-set with a mandatory report line + D-18's warn-and-proceed |
-| 5 | 120-10 | HOST-06 *(closes)* | D-15: require firmware's `0x86` ack when the flag was set and fail loudly when absent; D-16's landing-order fact, no version floor |
-| 6 | 120-11 | (amendment only, no requirement ticked) | D-20's owned amendment: `ROADMAP.md` Phase 121 scope + `REQUIREMENTS.md` DEVTEST-02..06 + `PROJECT.md`'s SEVENTH CORRECTION block |
-| 7 | 120-12 | (all six HOST ids verified) | Nine-row CORRECTION-4 sweep, `120-NONREGRESSION.md`, `dev test --submit` repo-target verification |
-
-**Plan 120-11 outcome (meta, D-20's owned amendment — no firmware/host code touched):** Amended `ROADMAP.md`'s Phase 121 one-line entry and Phase Details block (Goal, Requirements, five new Success Criteria 6-10, a reversal note) to carry the operator's `dev test` redesign (2026-07-29): no flags, destructiveness scoped to UV-erasable EPROMs on an explicit axis, a stop-and-ask partial-write third mode, ask-to-file-an-issue with prior-report dedup, and `gh`-first submission with the negative `--label` argv. Added `REQUIREMENTS.md`'s DEVTEST-02 through DEVTEST-06 (all Pending, mapped to Phase 121), recorded the v1.21 SUB-01/SUB-02 submit contract as reversed without editing its archived wording, and corrected the Coverage arithmetic to 41/41 mapped, 0 unmapped. Added `PROJECT.md`'s SEVENTH CORRECTION block (9 items) recording the redesign as a reversal of three locked decisions (Phase 112 Plan 04/`112-UAT.md`, SAFE-01, SAFE-03), both structural collisions (the `derive_plan` partial-write contract change and the UV-axis 32-of-301 coverage gap), the `--submit` wrong-repo defect as a released-artifact fact already fixed at `e615b4c` (no source change), the SIXTH CORRECTION item 6 `_SRAM_PROTO_IDS` reason-correction, and the derived 43/41 HOST-04 partition restated with provenance. `ROADMAP.md` grew from 2241 to 2248 lines (scoped `Edit` calls only, both `### Phase 121`/`### Phase 122` headings still exactly one each). **No requirement was ticked** — DEVTEST-01 and all five new DEVTEST ids stay `[ ]`; all six HOST ids re-confirmed `[x]`. Both sub-repo working trees clean throughout (verified `git -C /workspaces/firestarter status --porcelain` empty, tip `0048b3d`; `git -C /workspaces/firestarter_app status --porcelain` unchanged from plan start); no submodule gitlink staged.
-
-**Plan 120-12 outcome (meta + host, the phase's non-regression capstone — Phase 120's last plan, 12 of 12 complete):** Re-ran all nine CORRECTION-4 cross-repo gate rows verbatim at this plan's final commit rather than trusting any prior plan's SUMMARY — row 5's `gen_sdp_bus_config.py` generator was actually re-executed with the firmware tree confirmed empty **afterward** (idempotence, not a bare exit code); row 7 (`test_revision_constants_parity.py`) recorded honestly as **CHANGED BY DESIGN** (13 tests post-120-07 rebuild vs 6 pre-phase); row 9 (`check_dispatch.py`/`check_devtest_orchestrator.py`, which scans `cli_handlers.py`) named as the one host-side row at real risk and confirmed green. Full host suite **1050 passed, 1 failed** (the pre-existing `test_audit_coverage_matrix` stale golden, reproduced and named), coverage **82.47%**; `test_no_programmer_found_*` did not reproduce despite three live boards attached. mypy watermark: error count **1** (35-watermark, 34-slack caveat recorded). Both frozen-artifact fences confirmed non-vacuously: firmware `status --porcelain` empty, tip `0048b3d`, `version.h` still `3.0.0b11`; app-repo DB/catalog/`build_db.py` diff empty. **`dev test --submit`'s repo-target ask discharged as verification, not a re-fix**: `SUBMIT_REPO == "henols/firestarter_prom"` confirmed present at `e615b4c` (this branch) / `2b9e8dd` (`beta`), one new negative-argv test added (`test_submit_via_gh_argv_targets_the_project_wide_tracker`), `firestarter/submit.py` byte-unchanged; the released-artifact caveat (shipped `3.0.0b11` still misfiles until the next beta cut) recorded. Both carried-forward findings recorded in `120-NONREGRESSION.md`, neither fixed (out of this plan's file scope): the double-swallowed `MSG_ERR_UNKNOWN_CMD` propagation path (120-10's finding), and the pre-existing stale audit-matrix golden. Wrote `120-NONREGRESSION.md` in `119-NONREGRESSION.md`'s eight-section shape. Settled `120-VALIDATION.md` (`status: complete`, `nyquist_compliant: true`, `wave_0_complete: true`) only after individually re-verifying every originally-`❌ W0` Wave-0 row against the real, landed test names — three rows' file/command references were corrected in place (HOST-02's D-18 test and HOST-04's D-04 auto-set test both actually landed in `tests/test_write_skip_sdp_unlock.py`, not `tests/test_dev_sdp_cmd.py`; HOST-03's fail-closed test matched by `-k fails_closed`, not the originally-written `fail_closed` substring). **Zero requirement rows changed** — all six HOST-01..HOST-06 re-verified `[x]` Complete, `DEVTEST-01..06` re-verified `[ ]` Pending; nothing newly ticked. **Phase 120 (HOST — CLI surface, wire emission, capability refusal) is now fully executed, 12 of 12 plans complete, ready for phase-level verification.**
-
-**Phase 119 plan graph** (planned 2026-07-28 — 11 plans, `6787d3d`; RESEARCH.md `90183e3` + PATTERNS.md + VALIDATION.md all present):
-
-| Wave | Plan | Repo(s) | Requirements | What it lands |
-|------|------|---------|--------------|---------------|
-| 1 | 119-01 | meta + both subs | LOCK-02 | Three new INFO ids (`0x60` `MSG_INFO_SDP_LOCK`, `0x61` `MSG_INFO_SDP_LOCK_DONE_US`, `0x62` `MSG_INFO_PAGE_LOAD_WORST_US`) through the full D-03 three-repo codegen ritual. **Third id is a planner-resolved gap** (D-13 names two; D-16's page-load report needs its own) — flagged in `must_haves`, not scope creep. |
-| 2 | 119-02 | firmware | LOCK-03, LOCK-02 | `is_memory_cmd()` replaces the `#ifdef`-conditional ordinal guard; `CMD_SDP_UNLOCK 9` / `CMD_SDP_LOCK 10`; `[env:native_nodevtools]` + CI step; exhaustive two-env truth table over all 256 cmd values. Carries the cmd 7/8 **and `CMD_IDLE`** behaviour deltas as deliberate (D-01 names only 7/8). `firestarter.cpp:128`'s second ordinal guard deliberately NOT converted — comment records why. |
-| 3 | 119-03 | host | LOCK-03 *(closes)* | `check_is_memory_cmd_no_ifdef.py` (brace-matched extraction + fail-closed `FIRESTARTER_*_SRC` seam) + paired pytest + planted-violation fixture. |
-| 4 | 119-04 | fw + host | LOCK-01, LOCK-02, LOCK-05 | `EEPROM_SDP_ENABLE[3]`, the shared timed-emit helper, both SDP ops wired with NULL `init`/`end`. **Task 3 repairs `check_no_log_in_sdp_window.py`'s emit anchor in the SAME plan as the Task 1 refactor that breaks it** — the cross-repo trap that bit Phase 117 four times. |
-| 5 | 119-05 | firmware | LOCK-01 *(closes)*, LOCK-05 | Four dump-authored `SDP_FIXED_LOCK_*` goldens; `micros()` mock upgraded from 2-slot parity alternator to a scripted queue **with cases 11 and 12 re-verified by name**; no-payload + exact-divergence-index cases. Per-array byte-identity replaces whole-file blob SHA (D-10 forces the SHA to change). |
-| 6 | 119-06 | fw + host | LOCK-05 *(closes)*, LOCK-02 | Three-way identity + distinctness (the two-way leg already exists at `test_sdp_harness.cpp:291-310`), D-12 report proof, D-14 budget-WARN fires/does-not-fire pair, host parity leg. |
-| 7 | 119-07 | firmware | LOCK-04 *(closes)*, LOCK-02 *(closes)*, DEVTEST-01 | **Task 1 = RESEARCH Open Question 1 spike** (widen `[env:native]` `build_src_filter` with `+<operation_utils.cpp>`, fallback to a `static inline` helper) — decides whether LOCK-04/DEVTEST-01 are proven by tests or prose. Then D-06's generic op-layer NULL-`main` ⇒ `MSG_ERR_NOT_SUPPORTED` refusal + the full cmd × protocol matrix. **No `default:` arm in `configure_eeprom28c` at all** (D-05). |
-| 8 | 119-08 | firmware | LOCK-06 | D-16 page-load worst-interval tracker on `eeprom28c_write_execute`'s loop, single-exit restructure. |
-| 9 | 119-09 | meta | DEVTEST-01 | D-08's Phase 121 ROADMAP amendment + `REQUIREMENTS.md` DEVTEST-01 mapping + PROJECT.md sixth-correction block. DEVTEST-01 stays **Pending** — its host half is Phase 121. |
-| 10 | 119-10 | meta | LOCK-06 *(flash half closes)* | Non-regression sweep, 9-row cross-repo gate table, flash delta judged against the **live 2992 B** (not LOCK-06's stale 3348 B). |
-| 11 | 119-11 | meta | LOCK-06 | Three-board bench run → `119-MEASUREMENT.md`. `autonomous: true` with **no** socket-state checkpoint per D-18 item 1 (operator stated 2026-07-28 all three sockets are empty; 118-07 precedent); Claude still verifies `controller:` identity per port. D-19: on any board's failure, PROCEED and record not-measured with the reason. The lock's own hardware duration is **unreachable this phase** — waits for Phase 120's `dev sdp` CLI (D-17). |
-
-Strictly sequential, not merely wave-ordered: every firmware plan invokes `pio` against the single shared `firestarter/.pio/build/` tree and several commit into the same submodule working trees. `depends_on` encodes a strict linear chain 01→02→…→11; zero parallelism is available.
-
-**Plan 119-09 outcome (meta, D-08's owned amendment — no firmware/host code touched):** Three cross-phase consequences landed, all detailed in `PROJECT.md`'s new **SIXTH CORRECTION** block (do not duplicate the full text here):
-
-1. **The DEVTEST-01 move.** `ROADMAP.md`'s Phase 121 one-line entry and Phase Details criterion 2, plus `REQUIREMENTS.md`'s DEVTEST-01 requirement text and traceability row, now record that the firmware half (fail-closed `CMD_ERASE` on `0x0D` via the generic op-layer NULL-`main` refusal) landed early, in Phase 119 — not Phase 121. DEVTEST-01's checkbox stays **unticked**; only its host half (`OP_ERASE` → `NA` in the `dev test` sweep) remains Phase 121's.
-2. **LOCK-04's mechanism correction, LOCK-06's superseded headroom, and criterion 5's relocated comment** are all recorded in `ROADMAP.md`'s Phase 119 Phase Details block and `PROJECT.md`'s SIXTH CORRECTION — none of `REQUIREMENTS.md`'s LOCK-04/LOCK-06 wording was edited.
-3. **The `_SRAM_PROTO_IDS` keep-disposition for Phase 120** (F-F2 — the host workaround fires before D-06's guard is reachable, so it is not dead code) is recorded, not acted on; `firestarter_app/firestarter/eprom_operations.py` was not touched by this plan.
-
-The folded todo `prove-pio-dev-flag-fails-closed.md` had its item 4 (already answered by Plan 119-02) extended with the 1292 B `-D DEV_TOOLS` flash-cost figure measured in Plan 119-08; items 1-3 remain open, scoped to 999.15/gh#8. No requirement was marked Complete by this plan; both sub-repo working trees stayed clean throughout.
-
-**Plan 119-10 outcome (meta, non-regression sweep — LOCK-06 closed, the last open LOCK requirement):** Re-ran the full three-repo sweep at the phase's final commit (`0048b3d` firmware, `9ead17f` host) rather than trusting any prior plan's SUMMARY: both native envs **141/141** across 17 suites (identical, confirming `DEV_TOOLS`-invariance holds for the whole phase); `pio run` **3/3 SUCCESS** (Leonardo 26072/28672, Uno 23932/32256, uno328pb 23976/32384); six named host-gate pytest modules **30 passed**; full host pytest **981 passed, 1 failed** (`test_audit_coverage_matrix`, pre-existing). Wrote `119-NONREGRESSION.md` in `118-NONREGRESSION.md`'s eight-section shape: the claim as three precise statements (byte-identical six-family bus streams; a bounded new-frame set; one class of silent outcomes now explicit refusals); the complete command-by-protocol matrix restated with every changed cell flagged and the honest finding that **zero** pre-existing test cases had their expectation moved; the golden identity story (`sdp_bus_config.h` blob-identical, `sdp_expected.h`'s retired whole-file shorthand replaced by re-verified per-array identity, `host_stubs_common.inc`'s true non-identity recorded with its cause — Plan 119-07's `op_reset_timeout` stub); the **nine-row** CORRECTION-4 gate table (new: `check_is_memory_cmd_no_ifdef.py`), explicitly handed to Phases 120-122; all four known-and-explained conditions; the validation-ceiling quote plus the "no bench byte could lock a real part" safety argument; and every deliberately-not-taken option. **Closed LOCK-06**: full-phase Leonardo flash delta **+392 B**, judged against the live **2992 B** phase-base headroom (`28672−25680`, not the requirement's superseded `3348 B`), landing at **2600 B free** — no threshold claim beyond "fits". `-D DEV_TOOLS` confirmed the tighter, binding build (1292 B flag cost). `REQUIREMENTS.md` edited via scoped `Edit`, touching only LOCK-06's checkbox/parenthetical/traceability row. **LOCK-01 through LOCK-06 — the entire LOCK set — now all read Complete.** DEVTEST-01 stays Pending (Phase 121's host half). Both sub-repo working trees clean throughout; commit `bebeff0`. Plan 119-11 (bench measurement) is next — it does not re-close LOCK-06.
-
-**Plan 119-11 outcome (meta, three-board bench measurement — Phase 119's last plan, does not re-open LOCK-06):** Bench-measured the page-load worst-per-byte interval and SDP-unlock duration on all three attached boards (Leonardo/Uno/uno328pb) at firmware `0048b3d`. `controller:` identity re-verified per port before and after each upload (map unchanged from Phase 118's: `/dev/ttyACM0`=leonardo, `/dev/ttyACM1`=uno, `/dev/ttyUSB0`=uno328pb); all three flash/RAM figures matched `119-NONREGRESSION.md` §4 exactly. Ran exactly one `firestarter write at28c256 -b --force <128-byte payload>` per board. **Leonardo's write completed fully successfully** — SDP unlock 568 µs (near-identical to F-118-01's 572 µs), page-load worst interval **6080 µs**. **Uno and uno328pb both failed identically** at page 1's readback verify (`0x00 != 0x03 at 0x000000`) — SDP unlock 412/424 µs, page-load worst interval **84/88 µs**. Traced `eeprom28c_write_execute`'s source to explain the ~70x gap: the Leonardo's write crossed the page-1→page-2 boundary, so its reported interval structurally folds in page 1's entire completion-poll-plus-64-byte-readback-verify latency (not a clean per-byte figure); the Uno-class boards aborted before that boundary, so their figures are clean within-page numbers directly comparable to the 100 µs/byte datasheet max — named explicitly in `119-MEASUREMENT.md` §1/§4 so the two kinds of number are never compared as if they measured the same thing. `MSG_WARN_SDP_TBLC_EXCEEDED` did not fire on any board; no brownout occurred on uno328pb (first-attempt success, no retry needed). The Leonardo/Uno-class divergence from the plan's own anticipated abort-at-first-page flow is recorded as an honest finding, not smoothed over — attributed to `-b` skipping the blank check entirely (leaving only the floating-bus completion-poll/readback-verify gate, which the two MCU families answered differently), with no further hardware run to probe it (plan forbids repeated sweeps). Wrote `119-MEASUREMENT.md` mirroring `118-MEASUREMENT.md`'s shape; validation-ceiling line-by-line review found zero affirmative silicon-validation claims. **No requirement marked Complete** — LOCK-06 stays closed by Plan 119-10 on the flash axis; LOCK-01 through LOCK-06 re-confirmed Complete, DEVTEST-01 re-confirmed Pending; `REQUIREMENTS.md` byte-unchanged. Both sub-repo working trees clean throughout; commit `a12e632`. **This was Phase 119's last plan (11 of 11) — the phase is ready for verification.**
-
-**Phase 118 plan graph** (planned 2026-07-28 — spans all three repos; research skipped per ROADMAP research-flag, so no RESEARCH.md/VALIDATION.md):
-
-| Wave | Plan | Repo(s) | Requirements | What it lands |
-|------|------|---------|--------------|---------------|
-| 1 | 118-01 | host | OBS-01, OBS-03 | D-06 gate-window rewrite: `check_no_log_in_sdp_window.py` brace-matches the **emitter body + completion-poll body** instead of the call-site span; fixture re-planted; **all four** broken pytest cases (2/3/4/6) repaired by name + a new poll-body negative. D-11 keeps the gate to ONE job (no citation-presence assertion). |
-| 2 | 118-02 | meta + both subs | OBS-01..OBS-04 | Four catalog ids (`0x5E`/`0x5F` INFO, `0x86`/`0x87` WARN), all names ≤32 chars to avoid `messages.h` column reflow; full D-03 three-repo codegen ritual (`messages.toml` → `sync_to_subrepos.sh` → regen both generated artifacts); D-04's separate-ids-not-parameterised shape. |
-| 3 | 118-03 | firmware | OBS-02, OBS-03 | `FLAG_SKIP_SDP_UNLOCK 0x100` (9th flag; `ctrl_flags` is `uint32_t`, `FLAG_VERBOSE 0x80` was the ceiling), `AT28C_TBLC_MAX_US 100`, D-10's page-load citation comment at `eeprom28c_write_execute`, `micros` mocks in both native suites. Behaviourally inert. |
-| 4 | 118-04 | firmware | OBS-01..OBS-04 | The phase's payload: two **unconditional** report lines via `LOG_ID`/`LOG_ID_U32` (D-01 — the tree's first non-`FLAG_VERBOSE`-gated INFO call sites, argued in-source), `micros()` bracket OUTSIDE the emit loop (D-05), D-09 runtime t_BLC budget check, skip-path WARN (D-02, no `response_code` write). Hard ordering precondition on 118-01. |
-| 5 | 118-05 | firmware | OBS-02, OBS-03, OBS-05 | D-08's skip/no-skip stream pair on **production** `eeprom28c_write_init` (content assertions, never call counts), budget-WARN-fires case, exactly-two-new-serial-frames enumeration, D-07 golden blob-SHA identity with no regeneration. |
-| 6 | 118-06 | meta | OBS-01, OBS-05 | Full three-repo sweep + 9-row cross-repo gate checklist + `118-NONREGRESSION.md`; records `catalog-sync-check.yml` as **expected-red-until-milestone-merge** (it pins both subs at `ref: main`) with a local three-way `cmp` as the real in-phase proof; names the deliberately-not-taken items. |
-| 7 | 118-07 | meta | OBS-04 | One Leonardo `write at28c256 --force` run → `118-MEASUREMENT.md` (D-12/13/14). `autonomous: true`, **no** operator socket-state checkpoint (operator stated 2026-07-28 the Leonardo is connected with an empty socket); Claude still verifies `controller:` port identity in-task. D-14: on failure, PROCEED and record not-measured with the reason. |
-
-Strictly sequential, not merely wave-ordered: every firmware plan invokes `pio` against the single shared `firestarter/.pio/build/` tree, and several plans commit into the same submodule working trees. Ordering is load-bearing — 118-01 must land the rewritten gate **before** 118-04 adds the after-line into the span the old gate scanned.
-
-**Phase 117 plan graph** (planned 2026-07-28 — firmware-only, `firestarter/` sub-repo; `firestarter_app/` untouched):
-
-| Wave | Plan | Requirements | What it lands |
-|------|------|--------------|---------------|
-| 1 | 117-01 | FIX-01, FIX-02 *(oracle half — closes neither)* | D-03 **commit 1**: `test_filter` line, `set_data` un-mock ×4 (D-01), five assertion flips + new case 8 (D-02), cases 1-3 renamed, verbatim RED capture of the *edited* suite against the unfixed tree (expected 8/8 fail). No production file touched. |
-| 2 | 117-02 | FIX-01, FIX-02, FIX-03 | D-03 **commit 2**: `eeprom28c_emit_command_sequence` on `handle->firestarter_set_data`; inverted `(0x5555,0x20)` read-back deleted for `AT28C_TWC_MAX_MS` wait + bounded silent DQ6 poll; explicit `rurp_set_data_output()` (D-12); `EEPROM_SDP_DISABLE` external linkage (D-10); `PAGE_SIZE 64` documented (D-13); suite flips GREEN |
-| 3 | 117-03 | FIX-06 | FIX-06 as a **conflation** fix: `eeprom28c_wait_for_page_write` (DQ7-complement) split from `eeprom28c_verify_page_readback`; `eeprom28c_wait_for_write` deleted; 3 `test_val_eeprom28c` cases incl. the executable old-vs-new contrast + isolation control (D-07/08/09) |
-| 4 | 117-04 | FIX-05 | **DONE.** Terminal-byte + table-identity guard on the **production** array in `test_sdp_harness` (D-11), plus planted-violation counterpart. `353ce8a`. |
-| 5 | 117-05 | FIX-04 | **DONE.** Six frozen artifacts proven byte-identical by literal git blob SHA vs phase base `ada4bdc7`; full suite 108/108, both board builds, +204 B Leonardo flash delta, host-untouched, validation-ceiling record. `cdf71a1`. FIX-01 through FIX-06 all Complete. |
-
-Strictly sequential (not merely wave-2-onward): every plan invokes `pio` against the single shared `firestarter/.pio/build/` tree, so concurrent runs would corrupt each other's outputs.
-
-**Phase 116 plan graph:**
-
-| Wave | Plans | Sub-repo | What it builds |
-|------|-------|----------|----------------|
-| 1 | 116-01 | firmware | v1.22 branch off `beta` in both sub-repos; opt-in ordered bus-recording extension; `0xBB` dispatch negative (80/80 byte-exactness pinned before count → 82) |
-| 2 | 116-02, 116-03, 116-04 | app→fw, app, app | generated `sdp_bus_config.h` + drift gate; `chip_id_check` DB invariant (84, no skipif); planted-`LOG_` timing-window scan |
-| 3 | 116-05 | firmware | always-green SDP harness suite; address-keyed `mock_get_data`; ordered full-stream equality asserts |
-| 4 | 116-06 | firmware | parked RED `0x0D` suite (`-I` only, no `test_filter`) + `RED-BASELINE.md` |
-| 5 | 116-07 | meta | `116-PREMISE.md` + PROJECT.md third ⚠ correction block (1 operator checkpoint, `autonomous: false`) |
+Phase: Milestone v1.22 complete — archived 2026-07-30
+Plan: —
+Status: Awaiting next milestone. v1.22 closed as `override_closeout`: all 7 phases (116–122) `phase_complete` + `verification_status: passed` (Phase 122 verified 5/5) and 41/41 v1 requirements Complete, but `audit-open` reported the same 14 pre-existing cross-milestone open artifact items, acknowledged-and-deferred below. Archived to `.planning/milestones/v1.22-ROADMAP.md` + `v1.22-REQUIREMENTS.md`; `REQUIREMENTS.md` removed via `git rm` (fresh one comes with `/gsd-new-milestone`). Tagged `v1.22` in all three repos and pushed; meta gitlinks bumped off PINNED-at-b11 to the published `3.0.0b14` commits (firmware `5c9160a` / app `e7d3ee8`). **No stable release — `main` untouched in all three repos.**
+Last activity: 2026-07-30 — Milestone v1.22 completed and archived
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-07-27 — v1.22 milestone-start footer + Current Milestone section, incl. both ⚠ correction blocks)
+See: `.planning/PROJECT.md` (updated 2026-07-30 — v1.22 milestone-close footer + v1.22 Archive section incl. all eight ⚠ correction blocks + 13 new Key Decisions rows)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.22 completes the write-protection lifecycle on protocol `0x0D` without adding a second dispatch axis — `handle->protocol` stays the sole dispatch key; `handle->cmd` is extended only as an operation selector *inside* the existing `0x0D` handler, exactly as v1.13 Phase 74 extended `flash_5v_page.cpp`.
 
-**Current focus:** Phase 122 — close-honesty-ledger-community-ask-release-decision
+**Current focus:** Planning the next milestone. **v1.29 PY32F071 USB Firmware Install (host-side)** is queued next — a *land-and-verify* milestone, not a build-it milestone: the implementation already exists and is green on `firestarter_app` branch `feature/py32f071-fw-install` @ `311eacf` (44 new unit tests, mypy identical to pristine `origin/beta`). The hard blocker is cross-repo: the firmware's PY32 CI publishes an *Actions artifact* named `firestarter-py32f071.hex` while the host resolves a *release asset* `firestarter_py32f071.bin`/`.hex`, so `fw --install` can resolve nothing until the firmware repo changes it. Bench validation is deferred — no PY32F071 PCB exists. Start with `/gsd-new-milestone`.
 
 ## Milestone Context (v1.22)
 
@@ -287,6 +86,44 @@ Detail: `.planning/ROADMAP.md` §v1.22.
 | LEGACY-01 (v1.20 v2) | `FLAG_VPE_AS_VPP (0x10)` removal if confirmed unused | deferred to v2 | Operator scoped v1.20 to the `mem_type` axis only, not the broader vestige sweep. |
 | LEGACY-02 (v1.20 v2) | `EPROM_LEGACY` (0x0B) label rename + remaining "legacy fallback" prose scrub | deferred to v2 | Naming, not the dispatch axis; do after v1.20 lands. |
 | release-gate | Lockstep beta cut `3.0.0b11` + gitlink bump | OPERATOR-GATED | Standing v1.11–v1.20 policy; gitlinks PINNED. |
+
+### Deferred Items — acknowledged at v1.22 milestone close (2026-07-30)
+
+Close type: **override_closeout** — all v1.22 phases (116–122) are `phase_complete` + `verification_status: passed` (Phase 122 verified 5/5) and all 41 v1 requirements are Complete, but `audit-open` reports 14 open artifact items, so the close is recorded as an override with the items acknowledged-and-deferred (operator: "Acknowledge & proceed"). **None originate in v1.22 (Phases 116–122)** — they are the identical pre-existing cross-milestone carry-forwards re-confirmed at the v1.18/v1.19/v1.20/v1.21 closes. Known verification overrides: 14.
+
+| Category | Item | Status |
+|----------|------|--------|
+| debug | firmware-vpp-misread | diagnosed |
+| debug | fm1608-fresh-chip-baseline | parked-2026-05-18 |
+| uat_gap | Phase 08 — 08-HUMAN-UAT.md | partial (0 pending scenarios) |
+| uat_gap | Phase 85 — 85-HUMAN-UAT.md | partial (2 pending scenarios) |
+| verification_gap | Phase 08 — 08-VERIFICATION.md | human_needed |
+| verification_gap | Phase 09 — 09-VERIFICATION.md | human_needed |
+| verification_gap | Phase 71 — 71-VERIFICATION.md | gaps_found |
+| verification_gap | Phase 84 — 84-VERIFICATION.md | human_needed |
+| verification_gap | Phase 85 — 85-VERIFICATION.md | human_needed |
+| todo | 2026-06-24-skip-vpp-error-and-warning-checks-when-vpp-unused-on-reads | firmware |
+| todo | avrdude-mcu-detection-fallback | low |
+| todo | cobs-decoder-framelevel-deadline-wr01 | medium |
+| todo | correct-v128-py32-roadmap-prior-art | medium |
+| todo | decode-infoic-flags-bits-14-15-protect-metadata | low |
+
+*(+8 further todos beyond the 5 the audit enumerates — `audit-open` reports 5 with a `_remainder_count: 8`.)*
+
+**⚠ This is the fifth consecutive close to acknowledge the same 14 items.** Recorded here as a standing carry-forward rather than a fresh finding. The two debug sessions and the five verification gaps all predate v1.17; a deliberate one-pass resolution is worth more than a sixth acknowledgement.
+
+**New v1.22-originated carry-forwards (NOT counted in the 14 — none is an `audit-open` artifact type):**
+
+| Item | Status | Disposition |
+|------|--------|-------------|
+| `0x0D` SDP silicon graduation | **deferred — no AT28C part on the bench** | Sampling rate zero, by design and by stated ceiling. Unblocks on a community re-test (gh#11 / gh#12, both left OPEN) or a future bench session. `PROTOCOL-LEDGER` `0x0D` stays `UNVERIFIED`. |
+| AT28C 2K×8 class (19 chips on `DIP24_2816`) | **REFUSED by the derived allow-set** | 7 `pre-SDP generation`, 12 `unrecognised`; SDP-F7/SDP-F8 name the family deferred. `AT28C16` additionally `adapter-required` (see FUT-04). Correcting D-14's overclaim about this class is what surfaced it. |
+| ⚠ App CI fix `81fa53c` on `beta` ONLY | **must be reintroduced at the next merge toward `main`** | Adds a `pytest.mark.skipif` guard to `test_check_is_memory_cmd_no_ifdef.py` + `test_check_no_log_in_sdp_window.py`'s `test_checker_exits_zero_on_clean_source` legs, which hard-fail in a standalone checkout with no sibling `firestarter` repo. Cherry-picked onto the milestone branch then **reverted** to keep branch HEAD byte-matching Plan 122-03's recorded merge SHA. `ci.yml` carries the same standalone-checkout risk. Recorded in `122-CUT.md` §8. |
+| `check_ledger.py` pre-existing RED | **deliberately not fixed in v1.22** | 2 `LEDGER-01` violations from v1.19 Phase 104's `flash_type_3`/`flash_type_4` → `flash_nor_unlock`/`flash_5v_page` rename. Fixing it would edit a closed milestone's artifact; CLOSE-01 never gated on it. **Recommended as a backlog seed.** |
+| Stray `3.0.0b12` prereleases | **left public (D-05, CLEANUP declined)** | Both repos. Operator decision at the `122-DECISION.md` gate; revisit only if it confuses a community installer. |
+| `catalog-sync-check.yml` + firmware `build.yml`'s `native_nodevtools` step | **red-until-`main`-merge by design** | Both carry `ref: main` in their checkout steps, and `main` is never merged under this project's branch model. A known property, not a defect to chase. |
+| `--sdp-relock`, three-field SDP report shape, `lock-status` + protection table | **deferred / out of scope** | `--sdp-relock` → v1.23+; the report shape retains a minimal honesty floor (HOST-05); `lock-status` stays a planted seed at `.planning/seeds/lock-status-command-hand-curated-protection-table.md`. |
+| release-gate: stable promotion | **OPERATOR-GATED** | Standing v1.11–v1.22 policy. PyPI `info.version` remains `2.0.7`; `main` untouched in all three repos (firmware lags `beta` by 268 commits, app by 544, meta by 1267). |
 
 ### Deferred Items — acknowledged at v1.21 milestone close (2026-07-27)
 
@@ -415,8 +252,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Operator Next Steps
 
-- Execute Phase 116 with `/gsd-execute-phase 116` (Wave 1 must land before anything else — it creates the sub-repo branches)
-- Phase 116 Plan 07 carries one operator checkpoint (`autonomous: false`) — the PROJECT.md ⚠ correction wording
+- **Start the next milestone with `/gsd-new-milestone`.** Queued next: **v1.29 PY32F071 USB Firmware Install (host-side)** — land-and-verify, implementation already green on `firestarter_app` branch `feature/py32f071-fw-install` @ `311eacf`.
+- **Before v1.29 can ship:** resolve the cross-repo release-asset naming blocker — the firmware's PY32 CI publishes an Actions *artifact* `firestarter-py32f071.hex`; the host resolves a release *asset* `firestarter_py32f071.bin`/`.hex`. Nothing installs until the firmware repo changes it.
+- **Carry into the next merge toward `main`:** reintroduce `firestarter_app`'s `81fa53c` (see the v1.22 Deferred Items table) or `ci.yml`'s standalone-checkout failure resurfaces.
+- **Worth one deliberate pass:** the same 14 `audit-open` items have now been acknowledged at five consecutive closes. Also `check_ledger.py`'s 2 pre-existing `LEDGER-01` REDs — a small, self-contained backlog seed.
+- **Watch for:** a community re-test on [gh#11](https://github.com/henols/firestarter_prom/issues/11) / [gh#12](https://github.com/henols/firestarter_prom/issues/12) — both left OPEN. Real AT28C silicon is the only thing that can move `0x0D` off `UNVERIFIED`.
 
 ## Decisions
 
