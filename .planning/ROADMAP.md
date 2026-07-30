@@ -1965,6 +1965,7 @@ Plans:
 **Structural verification discipline (applies to every phase below):** "the merge had no conflicts" is never used as a quality statement — verification is structural: manifest paths resolve, flash/RAM/native-case-count equal the recorded Phase-123 baseline, the nine gates *run* (not skip) and pass, and anything claimed untouched is proven with `git status --porcelain` empty or literal blob SHAs — **never** a path-scoped `git diff`, which passes vacuously on a wrong path. Success criteria assert **counts** (141 native cases / 17 suites), never bare "tests pass" — a suite that stops being collected also reports green.
 
 **Ordering — load-bearing, not preference:**
+
 - **123 → 124**: gates and baselines must predate the changes they detect; a gate authored afterward can only bless what already happened.
 - **124 is atomic**: `agent/portability-macros` cherry-picked alone takes native from 141/141 to 0 passing / 17 ERRORED (its repair `780a3fb` lives on the stacked branch). No commit on the integration branch may carry the portability half without the full py32 stack.
 - **125 → 126**: both touch `src/rurp_config_utils.cpp`; landing the VPP seam first, with a gate proving that file untouched, keeps the "no `CONFIG_VERSION` bump" claim attributable to a specific phase.
@@ -2016,17 +2017,36 @@ Plans:
   5. `check_permitted_claims.py` (v1.23 phrase table) exits non-zero when its target-file list is empty (fails closed) and exits non-zero against a fixture containing one of the milestone's forbidden phrases; every checker introduced this phase ships with its own committed planted-violation fixture and a pytest proving the non-zero exit.
 
 **Plans**: 11 plans across 7 waves (firmware chain 01→02→03→04→05→06 and host chain 07→08→09 run in parallel — different sub-repos, no shared file; meta 10 is independent; 11 closes)
+**Wave 1**
 
 - [ ] 123-01-PLAN.md — Milestone branches in both sub-repos; re-measure all six AVR figures and both native pairs on clean builds; commit the verbatim captures and the BASE-01 baseline JSON
-- [ ] 123-02-PLAN.md — `check_size_baseline.py` comparator with three-way exit taxonomy, its planted logs and pytest; retire the superseded `check_uno_ram.sh`
-- [ ] 123-03-PLAN.md — `check_build_warnings.py`: AVR exact-zero plus the native 360 watermark, proven by a host-`g++` compile and a real pio-framed excerpt
-- [ ] 123-04-PLAN.md — `check_cmake_manifest.py`: variable-scoped enforcement, FetchContent exemption, reasoned `PY32_EXCLUDED` allow-list, coarse-key arming
-- [ ] 123-05-PLAN.md — `check_orphan_provisional.py`: repo-wide `RURP_*_PROVISIONAL` definition scan with consumer search, coarse-key armed
-- [ ] 123-06-PLAN.md — `test_checker_convention.py` (BASE-08 meta-test with hardcoded floors) plus the firmware-side verification run against a fresh build
-- [ ] 123-07-PLAN.md — `tests/fw_presence.py` single presence probe, the committed incomplete fake sibling, and the hard-failure-not-skip proofs
-- [ ] 123-08-PLAN.md — Rekey all 7 proxy modules (24 decorator legs + the inline guard) and create the D-11 cross-repo scan-path inventory with its resolving test
-- [ ] 123-09-PLAN.md — Skip census with a reason allow-list and no pinned count, plus the AST recurrence lint and its planted Python fixture
 - [ ] 123-10-PLAN.md — v1.23 `check_permitted_claims.py`: 8-phrase table, PY32F071 caveat, D-16 proximity scoping, D-15 all-or-nothing arming, five fixtures
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 123-02-PLAN.md — `check_size_baseline.py` comparator with three-way exit taxonomy, its planted logs and pytest; retire the superseded `check_uno_ram.sh`
+- [ ] 123-07-PLAN.md — `tests/fw_presence.py` single presence probe, the committed incomplete fake sibling, and the hard-failure-not-skip proofs
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 123-03-PLAN.md — `check_build_warnings.py`: AVR exact-zero plus the native 360 watermark, proven by a host-`g++` compile and a real pio-framed excerpt
+- [ ] 123-08-PLAN.md — Rekey all 7 proxy modules (24 decorator legs + the inline guard) and create the D-11 cross-repo scan-path inventory with its resolving test
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 123-04-PLAN.md — `check_cmake_manifest.py`: variable-scoped enforcement, FetchContent exemption, reasoned `PY32_EXCLUDED` allow-list, coarse-key arming
+- [ ] 123-09-PLAN.md — Skip census with a reason allow-list and no pinned count, plus the AST recurrence lint and its planted Python fixture
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 123-05-PLAN.md — `check_orphan_provisional.py`: repo-wide `RURP_*_PROVISIONAL` definition scan with consumer search, coarse-key armed
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 123-06-PLAN.md — `test_checker_convention.py` (BASE-08 meta-test with hardcoded floors) plus the firmware-side verification run against a fresh build
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 123-11-PLAN.md — Full cross-repo gate sweep, `123-NONREGRESSION.md` evidence artifact, and the BASE-01…BASE-08 requirement ticks
 
 **UI hint**: no
