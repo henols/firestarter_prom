@@ -6,14 +6,14 @@ current_phase: 122
 current_phase_name: close-honesty-ledger-community-ask-release-decision
 status: executing
 stopped_at: Completed 122-03-PLAN.md
-last_updated: "2026-07-30T13:15:56.410Z"
+last_updated: "2026-07-30T13:44:42.704Z"
 last_activity: 2026-07-30
 last_activity_desc: Plan 122-02 complete
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 69
-  completed_plans: 59
+  completed_plans: 60
   percent: 86
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 122 (close-honesty-ledger-community-ask-release-decision) — EXECUTING
-Plan: 3 of 13 complete (next: 122-03)
+Plan: 4 of 13 complete (next: 122-03)
 Status: Plan 122-02 complete — 122-DECISION.md records CLOSE-03's D-05 ACCEPT verdict + live pre-flight evidence (zero divergence from 122-RESEARCH.md), committed at d5c49d4 before any push
 Last activity: 2026-07-30 — Plan 122-02 complete
 
@@ -635,6 +635,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 122]: Whole-file --ours resolution applied to exactly submit.py and test_submit.py; empty-diff proof (0 bytes pre- and post-commit) taken as sole acceptance criterion for the app inbound merge
 - [Phase 122]: Firmware inbound merge required no resolution decision — conflict-free per live re-probe, matching C-1 exactly
 - [Phase 122]: Task 3's literal automated verify (test -z on submodule status --porcelain) is over-strict against the expected unstaged gitlink drift documented in 122-DECISION.md; relied on the more precise acceptance_criteria wording (no staged change) instead — no fix applied, documented as a finding
+- [Phase ?]: Investigated 1134-vs-1150 app pytest delta via git log; traced to a documentation inconsistency in prior phase-122 artifacts (true pre-merge baseline is 1134, per Phase 121's own record), not a regression
+- [Phase ?]: Cited REQUIREMENTS.md's forbidden claim by file:line instead of quoting it verbatim in 122-NONREGRESSION.md, since the exact wording is the claim-scanner's own trigger phrase and fails the scanner regardless of quotation context
 
 ## Performance Metrics
 
@@ -731,10 +733,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 122 P01 | 15min | 3 tasks | 6 files |
 | Phase 122 P02 | 20min | 2 tasks | 1 files |
 | Phase 122 P03 | 7min | 3 tasks | 4 files |
+| Phase 122 P04 | 25min | 3 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-07-30T13:15:56.395Z
+**Last session:** 2026-07-30T13:43:47.084Z
 **Stopped at:** Completed 122-03-PLAN.md
 **Resume file:** 
 None

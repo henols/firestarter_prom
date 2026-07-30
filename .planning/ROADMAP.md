@@ -504,7 +504,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 122-04-PLAN.md — Wave 3 · app+fw · The load-bearing sample (constraints 2+6): CLOSE-01's four existing mechanisms + an independent second measurement path + the 43/41 per-pinout split + the eleven nine-row commands + both full suites + **both beta workflows' gate sets pre-validated locally** → `122-NONREGRESSION.md`. `check_ledger.py` is never run (C-4, pre-existing RED)
+- [x] 122-04-PLAN.md — Wave 3 · app+fw · The load-bearing sample (constraints 2+6): CLOSE-01's four existing mechanisms + an independent second measurement path + the 43/41 per-pinout split + the eleven nine-row commands + both full suites + **both beta workflows' gate sets pre-validated locally** → `122-NONREGRESSION.md`. `check_ledger.py` is never run (C-4, pre-existing RED)
 
 **Wave 4** *(blocked on Wave 3)*
 
