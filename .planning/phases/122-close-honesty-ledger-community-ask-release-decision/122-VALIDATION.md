@@ -1,10 +1,11 @@
 ---
 phase: 122
 slug: close-honesty-ledger-community-ask-release-decision
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-07-30
+settled: 2026-07-30 (Plan 122-13)
 ---
 
 # Phase 122 — Validation Strategy
@@ -77,21 +78,21 @@ split reproducing STATE.md exactly.
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| TBD | TBD | TBD | CLOSE-01 | — | `0x0D` stays `UNVERIFIED` — never edited | gate | `grep -c '^\| \`0x0D\` .*\*\*UNVERIFIED\*\*' .planning/v1.16/ledger/PROTOCOL-LEDGER.md` → `1` | ✅ | ⬜ pending |
-| TBD | TBD | TBD | CLOSE-01 | — | 84-chip count + `chip_id_check` unchanged | unit | `python3 -m pytest tests/test_sdp_db_invariant.py -q` | ✅ | ⬜ pending |
-| TBD | TBD | TBD | CLOSE-01 | — | zero `support_status` change / DB identity | gate | `python3 tools/diff_db.py` (exit 0) | ✅ | ⬜ pending |
-| TBD | TBD | TBD | CLOSE-01 | — | no code path writes `support_status` | gate | `python3 tools/check_no_community_support_status_write.py` | ✅ | ⬜ pending |
-| TBD | TBD | TBD | CLOSE-01 | T-122-03 | the four above hold **on the merged tree** (constraint 6) | integration | re-run all four after the inbound merge, before the outbound merge | ✅ | ⬜ pending |
-| TBD | TBD | TBD | CLOSE-01 | T-122-03 | cross-repo non-regression survives the merge | integration | the eleven nine-row commands | ✅ | ⬜ pending |
-| TBD | TBD | TBD | CLOSE-02 | — | both comments posted, issues still OPEN | gate | `gh issue view {11,12} --json state,comments -q '{state:.state,n:(.comments\|length)}'` — `state == OPEN`, `n` incremented | ✅ | ⬜ pending |
-| TBD | TBD | TBD | CLOSE-02 | T-122-01 | posted text == reviewed draft | gate | deliver with `--body-file <committed path>`, then `gh issue view … -q '.comments[-1].body'` compared to the committed file | ✅ | ⬜ pending |
-| TBD | TBD | TBD | CLOSE-02 | T-122-01 | **no forbidden phrasing** in any closing artifact | gate | forbidden-phrase scan over `122-LEDGER.md`, both release-note files, both comment drafts | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | CLOSE-02 | T-122-06 | wording is *honest*, not merely non-matching | **manual** | **D-16 blocking operator wording review** | n/a | ⬜ pending |
-| TBD | TBD | TBD | CLOSE-03 | T-122-04 | decision recorded before any push | gate | decision-artifact commit is an ancestor of / earlier-dated than the pushed merge commit | ✅ | ⬜ pending |
-| TBD | TBD | TBD | CLOSE-03 | — | b14 live on PyPI | gate | PyPI JSON API contains `3.0.0b14` (read the **observed** tag — see A3) | ✅ | ⬜ pending |
-| TBD | TBD | TBD | CLOSE-03 | — | b14 firmware prerelease carries 3 `.hex` | gate | `gh release view <observed-tag> --repo henols/firestarter --json assets` → 3 names | ✅ | ⬜ pending |
-| TBD | TBD | TBD | CLOSE-03 | T-122-01 | both bodies carry the permitted claim + silicon caveat | gate | `gh release view … -q '.body'` non-empty **and** passes the forbidden-phrase scan | ❌ W0 | ⬜ pending |
-| — | — | — | — | — | SDP works on real AT28C silicon | **UNVERIFIABLE** | **none — this is the forbidden claim** | n/a | n/a |
+| Task 1 | 122-04 (re-verified 122-13) | 3 | CLOSE-01 | — | `0x0D` stays `UNVERIFIED` — never edited | gate | `grep -c '^\| \`0x0D\` .*\*\*UNVERIFIED\*\*' .planning/v1.16/ledger/PROTOCOL-LEDGER.md` → `1` | ✅ | ✅ green |
+| Task 1 | 122-04 (re-verified 122-13) | 3 | CLOSE-01 | — | 84-chip count + `chip_id_check` unchanged | unit | `python3 -m pytest tests/test_sdp_db_invariant.py -q` | ✅ | ✅ green (4 passed) |
+| Task 1 | 122-04 (re-verified 122-13) | 3 | CLOSE-01 | — | zero `support_status` change / DB identity | gate | `python3 tools/diff_db.py` (exit 0) | ✅ | ✅ green |
+| Task 1 | 122-04 (re-verified 122-13) | 3 | CLOSE-01 | — | no code path writes `support_status` | gate | `python3 tools/check_no_community_support_status_write.py` | ✅ | ✅ green |
+| Task 1-2 | 122-04 (re-verified 122-13) | 3 | CLOSE-01 | T-122-03 | the four above hold **on the merged tree** (constraint 6) | integration | re-run all four after the inbound merge, before the outbound merge — 122-13 re-ran again after the outbound push | ✅ | ✅ green |
+| Task 2 | 122-04 (re-verified 122-13) | 3 | CLOSE-01 | T-122-03 | cross-repo non-regression survives the merge | integration | the eleven nine-row commands | ✅ | ✅ green (11/11) |
+| Task 3 | 122-12 (re-verified 122-13) | 10 | CLOSE-02 | — | both comments posted, issues still OPEN | gate | `gh issue view {11,12} --json state,comments -q '{state:.state,n:(.comments\|length)}'` — `state == OPEN`, `n` incremented | ✅ | ✅ green (13/9, both OPEN) |
+| Task 3 | 122-12 (re-verified 122-13) | 10 | CLOSE-02 | T-122-01 | posted text == reviewed draft | gate | deliver with `--body-file <committed path>`, then `gh issue view … -q '.comments[-1].body'` compared to the committed file | ✅ | ✅ green (byte-equal modulo GitHub's one trailing newline, re-diffed in 122-13) |
+| Wave 0 (122-01); default-target run 122-11, re-run 122-13 | 122-01 / 122-11 / 122-13 | 0 | CLOSE-02 | T-122-01 | **no forbidden phrasing** in any closing artifact | gate | `check_permitted_claims.py` (no args) over `122-LEDGER.md`, both release-note files, both comment drafts | ✅ (corrected from ❌ W0 — the scanner and its planted-fixture pytest were built in Wave 0 / Plan 122-01, and 122-13 re-ran the default-target invocation: `PASS: scanned 122-LEDGER.md, 122-RELEASE-NOTES-fw.md, 122-RELEASE-NOTES-app.md, 122-GH11-COMMENT.md, 122-GH12-COMMENT.md`, exit 0) | ✅ green |
+| Task 2 | 122-11 | 9 | CLOSE-02 | T-122-06 | wording is *honest*, not merely non-matching | **manual** | **D-16 blocking operator wording review** — verdict "Approve — accept the C-5 correction" | n/a | ✅ green (human judgement recorded verbatim) |
+| Task 2 | 122-02 (ordering proof completed 122-07 §13, re-verified 122-13) | 1 | CLOSE-03 | T-122-04 | decision recorded before any push | gate | `122-DECISION.md` commit timestamp (`d5c49d4` @ 13:03:38Z) strictly earlier than both outbound merge/push timestamps (14:24:48Z / 14:30:00Z) | ✅ | ✅ green |
+| Task 1-2 | 122-08 (re-verified 122-13) | 7 | CLOSE-03 | — | b14 live on PyPI | gate | PyPI JSON API contains `3.0.0b14` (read the **observed** tag — see A3) | ✅ | ✅ green |
+| Task 1-2 | 122-08 (re-verified 122-13) | 7 | CLOSE-03 | — | b14 firmware prerelease carries 3 `.hex` | gate | `gh release view <observed-tag> --repo henols/firestarter --json assets` → 3 names | ✅ | ✅ green |
+| Wave 0 (122-01); delivered 122-12, re-verified 122-13 | 122-01 / 122-12 / 122-13 | 0 | CLOSE-03 | T-122-01 | both bodies carry the permitted claim + silicon caveat | gate | `gh release view … -q '.body'` non-empty (re-confirmed byte-equal to the frozen draft in 122-13) **and** passes the default-target `check_permitted_claims.py` scan | ✅ (corrected from ❌ W0 — same scanner as CLOSE-02's row, both release-note files are two of its five default targets) | ✅ green |
+| — | — | — | — | — | SDP works on real AT28C silicon | **UNVERIFIABLE** | **none — this is the forbidden claim; sampling rate zero, permanently, by design** | n/a | n/a |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -148,12 +149,12 @@ silicon; the **fix** is not. **Sampling rate for this class is zero, permanently
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references (the claim scanner **and** its planted fixture)
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 140 s
-- [ ] The three-way split above is reflected in the plans — no plan claims a scan satisfies criterion 4
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references (the claim scanner **and** its planted fixture) — built in Plan 122-01, its own paired anti-hollow test re-run by Plan 122-13 (`test_check_permitted_claims.py -q` → 7 passed)
+- [x] No watch-mode flags
+- [x] Feedback latency < 140 s
+- [x] The three-way split above is reflected in the plans — no plan claims a scan satisfies criterion 4. Restated once more, plainly, at phase close: the green `check_permitted_claims.py` run is the mechanizable half of ROADMAP criterion 4 only; the D-16 operator wording review (Plan 122-11) is the judgement half; and "SDP works on real AT28C silicon" has a sampling rate of zero, permanently, by design — no AT28C part was on the bench during this milestone.
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** Settled 2026-07-30 by Plan 122-13, after individually re-verifying every row originally marked `❌ W0` against the real landed file (`check_permitted_claims.py`) and command names (both rows corrected in place above — the scanner exists, runs with no arguments, and both affected rows' release-note files are two of its five default targets).
