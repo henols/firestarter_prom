@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 122
-current_phase_name: close-honesty-ledger-community-ask-release-decision
-status: executing
-stopped_at: Completed 122-13-PLAN.md — Phase 122 CLOSE complete, all 13 plans done; hand-over to /gsd-complete-milestone recorded
-last_updated: "2026-07-30T17:05:00.000Z"
+status: verifying
+stopped_at: Completed 122-13-PLAN.md — Phase 122 CLOSE complete
+last_updated: "2026-07-30T16:42:19.192Z"
 last_activity: 2026-07-30
-last_activity_desc: Plan 122-13 complete — CLOSE-01/02/03 ticked with re-verified evidence; 122-VALIDATION.md settled
+last_activity_desc: Phase 122 complete
 progress:
   total_phases: 7
   completed_phases: 7
   total_plans: 69
   completed_plans: 69
   percent: 100
+current_phase_name: close-honesty-ledger-community-ask-release-decision
 ---
 
 # Project State
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 122 (close-honesty-ledger-community-ask-release-decision) — COMPLETE (all 13 plans)
-Plan: 13 of 13 complete
+Phase: 122
+Plan: Not started
 Status: Plan 122-13 complete — CLOSE-01, CLOSE-02, CLOSE-03 re-verified clause-by-clause against `REQUIREMENTS.md`'s own prose (live commands, not cited SUMMARYs) and ticked Complete with evidence parentheticals; the three traceability rows moved Pending→Complete. `122-VALIDATION.md` settled (`status: complete`, `nyquist_compliant: true`, `wave_0_complete: true`) after individually re-verifying both rows originally marked `❌ W0` against the real landed `check_permitted_claims.py`. All eleven phase-end assertions held: meta gitlinks still pinned at `0048b3d`/`96e0622` with nothing staged; no `v1.22*` tag in either sub-repo; both sub-repos still on the milestone branch at 122-03's merge SHAs; claim scanner green on all five default targets (restated: this alone does not satisfy ROADMAP criterion 4); both channels (PyPI, firmware GitHub prerelease) re-verified public; both issues `OPEN` with byte-equal comments and zero labels; `3.0.0b12` untouched; `PROTOCOL-LEDGER`/`check_ledger.py` untouched; no `.github/` change in either sub-repo. Six-item hand-over written for `/gsd-complete-milestone` (gitlink bump, `v1.22` tag, the `beta`-only app CI fix `81fa53c` that must be reintroduced at the next merge, `check_ledger.py`'s pre-existing RED, no stable release, the stray `3.0.0b12` prereleases). Phase 122 — and this milestone's phase sequence — is now fully executed; the tag/gitlink bump/main-merge/stable-release remain deliberately for `/gsd-complete-milestone`.
-Last activity: 2026-07-30 — Plan 122-13 complete, Phase 122 fully executed
+Last activity: 2026-07-30 — Phase 122 complete
 
 > **⚠ Phase 122 planning corrected 13 CONTEXT/ROADMAP framings — plan from `122-RESEARCH.md`, not the ROADMAP prose.**
 > The three that changed the plan's shape:
