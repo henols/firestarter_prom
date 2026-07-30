@@ -1,20 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.22
-milestone_name: — AT28C Software Data Protection Lifecycle
-current_phase: 122
-status: Awaiting next milestone
-stopped_at: Completed 122-13-PLAN.md — Phase 122 CLOSE complete
-last_updated: "2026-07-30T16:57:52.479Z"
+milestone: v1.23
+milestone_name: PY32F071 Integration
+status: planning
+last_updated: "2026-07-30T18:18:17.352Z"
 last_activity: 2026-07-30
-last_activity_desc: Milestone v1.22 completed and archived
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 69
-  completed_plans: 69
-  percent: 100
-current_phase_name: close-honesty-ledger-community-ask-release-decision
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -24,52 +20,39 @@ current_phase_name: close-honesty-ledger-community-ask-release-decision
 
 ## Current Position
 
-Phase: Milestone v1.22 complete — archived 2026-07-30
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone. v1.22 closed as `override_closeout`: all 7 phases (116–122) `phase_complete` + `verification_status: passed` (Phase 122 verified 5/5) and 41/41 v1 requirements Complete, but `audit-open` reported the same 14 pre-existing cross-milestone open artifact items, acknowledged-and-deferred below. Archived to `.planning/milestones/v1.22-ROADMAP.md` + `v1.22-REQUIREMENTS.md`; `REQUIREMENTS.md` removed via `git rm` (fresh one comes with `/gsd-new-milestone`). Tagged `v1.22` in all three repos and pushed; meta gitlinks bumped off PINNED-at-b11 to the published `3.0.0b14` commits (firmware `5c9160a` / app `e7d3ee8`). **No stable release — `main` untouched in all three repos.**
-Last activity: 2026-07-30 — Milestone v1.22 completed and archived
+Status: Defining requirements
+Last activity: 2026-07-30 — Milestone v1.23 started
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-07-30 — v1.22 milestone-close footer + v1.22 Archive section incl. all eight ⚠ correction blocks + 13 new Key Decisions rows)
+See: `.planning/PROJECT.md` (updated 2026-07-30 — v1.23 Current Milestone section + v1.23 start footer; v1.22 Archive section retained with all eight ⚠ correction blocks)
 
-**Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.22 completes the write-protection lifecycle on protocol `0x0D` without adding a second dispatch axis — `handle->protocol` stays the sole dispatch key; `handle->cmd` is extended only as an operation selector *inside* the existing `0x0D` handler, exactly as v1.13 Phase 74 extended `flash_5v_page.cpp`.
+**Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.23 adds a fourth board target beneath that contract without disturbing it: the PROM programming algorithms stay platform-independent and the HAL boundary absorbs the new MCU, so protocol dispatch is untouched by the port.
 
-**Current focus:** Planning the next milestone. **v1.29 PY32F071 USB Firmware Install (host-side)** is queued next — a *land-and-verify* milestone, not a build-it milestone: the implementation already exists and is green on `firestarter_app` branch `feature/py32f071-fw-install` @ `311eacf` (44 new unit tests, mypy identical to pristine `origin/beta`). The hard blocker is cross-repo: the firmware's PY32 CI publishes an *Actions artifact* named `firestarter-py32f071.hex` while the host resolves a *release asset* `firestarter_py32f071.bin`/`.hex`, so `fw --install` can resolve nothing until the firmware repo changes it. Bench validation is deferred — no PY32F071 PCB exists. Start with `/gsd-new-milestone`.
+**Current focus:** Defining v1.23 requirements. **v1.23 PY32F071 Integration** — land the in-flight firmware port (`agent/portability-macros` + PR #48, 52 commits, 72 behind `beta`) and the host USB-DFU installer (`feature/py32f071-fw-install` @ `4ee64a1`) onto `beta` as one lockstep integration, fold the py32 image into `beta-build.yml` so it publishes as a real release asset, add flash-persistent config, land the VPP control **seam only**, and record the flash-path/PCB requirements before the first schematic. **No PY32F071 PCB exists** → software-only close like v1.22. Phase numbering continues at Phase 123.
 
-## Milestone Context (v1.22)
+## Milestone Context (v1.23)
 
-- **Scope (from REQUIREMENTS.md, defined 2026-07-27; research `.planning/research/SUMMARY.md`, 4-stream synthesis):** Make Software Data Protection on protocol `0x0D` (`configure_eeprom28c`) explicit, observable, and bidirectional. 36 v1 requirements: the trace harness/oracle (TRACE-01..06), the remap-aware emitter + honest completion-signal fix (FIX-01..06), auto-unlock observability (OBS-01..05), the new SDP-lock capability (LOCK-01..06), the host CLI/wire surface (HOST-01..06), the `dev test` phantom-erase correctness fix (DEVTEST-01), non-regression gates + docs (GATE-01..03), and the honesty-ledger close (CLOSE-01..03).
-- **The milestone opens with a FIX, not a feature.** Four independent research streams converged: the SDP-disable sequence already shipped in `3.0.0b11` almost certainly never reaches silicon (`flash_util_byte_flipping` bypasses `mem_util_remap_address_bus`, so `/WE` is inhibited on ≥1 command write across all 84 `0x0D` chips), and its `eeprom28c_wait_for_write(handle, 0x5555, 0x20)` success check is INVERTED (both datasheets state the command-sequence data "is not written to the device"). This reverses the milestone's own kickoff framing twice (see PROJECT.md's two ⚠ correction blocks) and the planned gh#11/gh#12 closeout tone — they may be live defects, not stale 2024 reports.
-- **No AT28C part on the operator's bench → software-only validation, no bench phase.** Every success criterion is verifiable without silicon (native register-trace assertions, host pytest, source-scan gates, measured host-side timing). `0x0D` stays `UNVERIFIED` in `PROTOCOL-LEDGER` at close; zero chips change `support_status`; the 84-chip count is unchanged. See REQUIREMENTS.md §"Validation Ceiling" for the exact permitted/forbidden claims — never write or accept a criterion crossing that line.
-- **Ordering invariants (non-negotiable):** harness before any firmware change (116→117, else every trace claim is hollow — the abandoned commit `0052c42` lesson); fix before observability (117→118, advertising a sequence that doesn't reach silicon is worse than silence); observability before lock (118→119, lock is the only new state-mutating capability); firmware before host, unambiguously (119/118→120, a host emitting `0x100` against `3.0.0b11` firmware today is silently ignored — HOST-06); the `dev test` phantom-erase fix before the closeout comments (121→122, else every community re-test auto-tags `community-fail`).
-- **Locked decisions (operator, 2026-07-27 — do not re-litigate):** full SDP lifecycle is core scope; auto-unlock stays default-on + reported + `--skip-sdp-unlock` opt-out (`--sdp-relock` deferred to v1.23+); CLI surface `firestarter dev sdp <chip> enable|disable`; gh#11's 1-byte-in-64 poll defect is in scope (FIX-06); `dev test` phantom-erase fix in scope (DEVTEST-01); `lock-status` + hand-curated protection table stay out of scope (planted seed).
-- Phase numbering continues from v1.21's Phase 115 → **v1.22 starts at Phase 116**.
-- **Branch model:** v1.21 IS merged into `beta` in both sub-repos, so v1.22 forks off `beta` per standing policy (reversing the v1.15/v1.21 fork-off-prior-version exception) — verify with `git` at execute time regardless.
-- **Key context:** Promoted from Backlog 999.19 (root cause, leads) + 999.18 (verification, follows). Reframed twice at kickoff (see PROJECT.md §"Current Milestone: v1.22", both ⚠ correction blocks). Precedent in-tree: v1.13 Phase 74 (SDP + page write on `flash_5v_page`), v1.14 Phase 77 (erase write-path wired from `electrical.type`).
-- **Established fact, do not re-litigate:** `include/primitives.h`/`src/proms/primitives.cpp` do NOT exist; `a296195` and `0052c42` are ancestors of neither `beta` nor the v1.21 line — the v1.16 Phase-89 primitive recompose sits on an unmerged branch. The real shared seam is `flash_utils.{h,cpp}`; the real trace mechanism is `HOST_STUBS_RECORD_BUS`, which records only `rurp_write_to_register` (not data bytes, not strobes — Phase 116 must extend it). `page-size` does NOT exist on the wire (`constants.py`'s "Firmware sync" comment is false).
+- **Scope:** Land the in-flight PY32F071 firmware port and the host USB-DFU firmware installer onto `beta` as one lockstep integration, plus the cross-repo release-asset unblock, without touching the three AVR targets. Eight target features — see PROJECT.md §"Current Milestone: v1.23 PY32F071 Integration". Requirements not yet defined (this is the requirements step).
+- **This is an integration milestone, not a build-it milestone.** Both halves already exist and are green: the firmware stack on `agent/py32f071-toolchain` (PR #48, OPEN draft, stacked on `agent/portability-macros`) with **PY32F071 CI green three consecutive times on 2026-07-21** compiling the *shared* command processor, framing and PROM algorithms for Cortex-M0+; the host installer on `firestarter_app` `feature/py32f071-fw-install` @ `4ee64a1` (44 unit tests, mypy identical to pristine `origin/beta`). The "does this architecture even build" risk is retired. **The work is the rebase, the release plumbing, and the honesty.**
+- **Every py32 branch is 72 commits behind `beta`.** Measure against `beta`, never `main` — `main` lags `beta` by ~268 commits in firmware and ~544 in the app, which makes live branches look abandoned. The rebase is real work, not a fast-forward.
+- **No PY32F071 PCB exists (operator, 2026-07-28) → software-only validation, no bench phase.** PR #48's pin map (PB0–PB7 data, PA0–PA5 control, VPP on PA4/ADC ch4) is an explicitly provisional placeholder so the target compiles before a schematic and **must not be trusted near a PROM**. Permitted claims: the target builds clean, native + host suites pass, the DFU sequence is exercised against device descriptors and mocks. Forbidden: *"the firmware runs on a PY32F071"* or *"the install works end to end."* Never write or accept a success criterion crossing that line.
+- **Hard acceptance constraint:** Uno, ATmega328PB, Leonardo and the native test suite remain unaffected. Golden register traces, the dispatch-mirror guard, `check_dispatch.py`, `diff_db.py` identity, and the nine cross-repo source-scanning gates all stay green.
+- **Locked decisions (operator, 2026-07-30 — do not re-litigate):** scope is port + host install + VPP **seam**; the DAC closed loop and the calibration model stay OUT (see the collision note below); slot is **v1.23**, retiring the queued v1.28/v1.29 py32 slots into it and renumbering `Binary Command Protocol` v1.23 → v1.28 while v1.24–v1.27 stay untouched.
+- **⚠ The DAC-VPP / calibration collision — settled, do not reopen.** PR #45 (`feature/common-vpp-calibration`, closed, 10 commits) is ONE API spanning two concerns and the closed loop *depends* on the calibration half: `rurp_set_vpp_target_mv()` closes its loop on `rurp_read_voltage_mv()` (the **calibrated** read), and `rurp_calibrate_vpp_two_point()` **is** the White-Box Voltage Calibration milestone's Stage-2 divider trim, already cross-platform. Three of its ten commits reach into that milestone's files: `9134f2a` (`src/boards/rurp_common.cpp`, its exact Stage-1 target), `768580f` (`include/rurp_types.h`) and `b964ee6` (`src/rurp_config_utils.cpp`) — the latter two being `CONFIG_VERSION`-bump + EEPROM-migration territory, which is also where Backlog 999.1's stale-`r1` fix lives. **Resolution: seam only** — capability macros, `rurp_vpp_control_mode_t`/`rurp_vpp_result_t`, `RURP_VPP_CONTROL_MANUAL` on every board, `rurp_set_vpp_target_mv()` returning `MANUAL_ADJUSTMENT_REQUIRED`; no AVR measurement reroute, no `CONFIG_VERSION` bump. Two supporting facts: PR #45 does **not** contain the Stage-1 bandgap back-solve, so that milestone's ±10 % win is unaffected either way; and with no PCB a closed loop **cannot be validated at all**.
+- **⚠ Start from PR #48. Never from PR #47.** `feature/py32f071-full-support` (closed) has a 24-file `platform/py32f071/` tree and an all-inclusive CMake list, so it reads as the most finished branch — but `src/usb.c` (141 lines) is a ring buffer over `__attribute__((weak))` **no-op** low-level hooks. It links, and a board flashed with it would be **silent on USB**. `vpp_target.c` is 13 lines; there is no SDK fetch.
+- **⚠ The v1.28 ROADMAP entry's prior-art paragraph is stale** — it claims the work is "not in flight" citing PR #46 closed-unmerged and `feature/py32f071-toolchain` @ `2c2ed10` (the smallest of five branches) as the place to start scoping. All three claims were re-verified wrong against `origin` on 2026-07-30. Pending todo `correct-v128-py32-roadmap-prior-art` owns the correction and warns explicitly that `/gsd-new-milestone` reads that entry to seed scope. **Scope from PROJECT.md §"Current Milestone: v1.23", not from the ROADMAP's v1.28 entry.**
+- **The self-flash bootloader is the intended primary install route; the DFU path landing here is the runner-up.** `.planning/seeds/py32f071-no-external-tool-fw-install.md` decides for a bootloader in the first few KB of the 128 KiB flash speaking the existing USB CDC + COBS framing — zero new host dependencies, structurally identical to how the Uno works. Every factory-bootloader route was rejected on host-side grounds (Puya `PY32DfuTool` is Windows-x64-only; `dfu-util` reintroduces avrdude's PATH-discovery burden; `puyaisp` needs a second USB-serial dongle on a board with native USB). The pyusb DFU client is that table's *vendored-Python-over-libusb* row, accepted at operator request so the transfer sequence gets proven; residual cost is `pyusb` + libusb, and a WinUSB driver via Zadig on Windows. **Landing it does not retire the seed** — what this milestone must capture is the PCB consequences, because the board is still paper and they are cheap now and expensive after layout.
+- Phase numbering continues from v1.22's Phase 122 → **v1.23 starts at Phase 123**.
+- **Branch model:** meta branch `gsd/v1.23-py32f071-integration` forked off the v1.22 tip `8be00ee` (NOT `main`, which lags by ~1267 commits). Sub-repos fork off `beta` per standing policy, then the py32 branches merge in — verify with `git` at execute time regardless. Extra worktrees `firestarter_py32_ci/` (fw @ `feature/py32f071-release-assets`) and `firestarter_app_py32/` (app @ `feature/py32f071-fw-install`) are checkouts of the same two repos, gitignored in meta, never gitlinked.
+- **Release hazard, unchanged:** pushing `beta` in either sub-repo auto-fires CI and cuts a new beta — the cut is a deliberate decision, never a side effect. `firestarter_app`'s CI fix `81fa53c` lives on `beta` only and must be reintroduced whenever the milestone branch next merges toward `main`.
+- **Release-asset mechanics (already designed, not yet implemented).** `py32f071.yml` deliberately does **not** cut releases: `beta-build.yml` runs `.github/scripts/update_version.py`, which rewrites `include/version.h` and auto-commits *before* building, so an image built in any other job carries a stale `VERSION` — and the host's entire update decision is that string compared against the release tag. `feature/py32f071-release-assets` @ `ad47c3b` already renames the output to `firestarter_py32f071.hex` (correct prefix and separator) but it is still an **Actions artifact**. The fold is 3 steps plus one `files:` line, spelled out in `platform/py32f071/README.md` §"Release integration" — use a **glob**, not a literal path, because `softprops/action-gh-release` warns on an unmatched glob but *fails* on a missing literal file, so a broken ARM build must never block the AVR beta.
 
-## Roadmap Summary (v1.22)
+## Roadmap Summary (v1.23)
 
-**Phases:** 7 (116–122) · **Granularity:** research-recommended spine, adopted verbatim (no coverage gaps found) · **Coverage:** 36/36 requirements mapped ✓, 0 unmapped · **Dependency chain:** 116 → 117 → 118 → 119 → 120 → 121 → 122 (strictly linear — every ordering invariant above is load-bearing, not a preference).
-
-| Phase | Goal | Requirements | Success Criteria |
-|-------|------|--------------|------------------|
-| 116 — Ground Truth + Trace Harness | Extend `HOST_STUBS_RECORD_BUS` (opt-in, ordered data+strobe stream); new `0x0D` SDP trace suite RED against today's tree; 4 planted-fault negative traces; address-keyed `mock_get_data`; DB-invariant `chip_id_check` test; premise-verification artifact (INIT-abort prediction) | TRACE-01..06 | 6 |
-| 117 — FIX: remap-aware emitter + honest completion signal | Replace `flash_execute_command(EEPROM_SDP_DISABLE)` with a `0x0D`-local emitter on `handle->firestarter_set_data`; delete the inverted `(0x5555,0x20)` check; terminal-byte guards; correct the 1-byte-in-64 page poll; flash_utils/flash_5v_page/flash_nor_unlock byte-untouched; Phase 116 suite RED→GREEN | FIX-01..06 | 6 |
-| 118 — OBSERVE: auto-unlock visible + opt-out-able (FW half) | Report line before/after (never inside) the sequence + planted-`LOG_` timing-window test; `FLAG_SKIP_SDP_UNLOCK` (0x100) honored; named `AT28C_TBLC_MAX_US=100`; `micros()`-measured duration logged; default `write` byte-identical to b11 | OBS-01..05 | 5 |
-| 119 — LOCK: SDP-enable + command surface (FW half) | `CMD_SDP_UNLOCK`/`CMD_SDP_LOCK` standalone (no payload, no DONE round-trip); lock body = 3 loads + `t_WC`, no payload; `is_memory_cmd()` replacing the ordinal admission guard (DEV_TOOLS-invariant); `default:`→`MSG_ERR_NOT_SUPPORTED`; `FLASH_ENABLE_WRITE_PROTECTION` preserved; flash-delta reported | LOCK-01..06 | 6 |
-| 120 — HOST: CLI surface, wire emission, capability refusal | `firestarter dev sdp <chip> enable\|disable` behind v1.21 destructiveness gate + SAFE-04; `write --skip-sdp-unlock`; lockstep `CMD_*`/`FLAG_*` + `COMMAND_NAMES` + parity test; pre-wire refusal for the 2 FRAM + pre-SDP `2804`/`2816`/`2817` class; honest non-fabricated SDP-outcome reporting; FW-before-host sequencing enforced | HOST-01..06 | 5 |
-| 121 — `dev test` FIX + GATES + DOCS | `OP_ERASE`→`NA` for `0x0D` + firmware `CMD_ERASE` fail-closed; AST capability gate + planted-violation pytest; docs corrected (`PROTOCOLS.md` §1.6, `lockable-proms.md`, `protocol-id.md`, both CLAUDE.md, both READMEs) incl. "0x0D has no erase"; full non-regression set green (native, `check_dispatch.py`, host pytest, ruff/format py3.9/3.11, `diff_db.py` identity) | DEVTEST-01, GATE-01..03 | 5 |
-| 122 — CLOSE: honesty ledger, community ask, release decision | `0x0D` stays `UNVERIFIED`, 0 `support_status` changes, 84-chip count unchanged; gh#12 answered with the decided policy + gh#11 followed up (never "verified fixed"); accept/avoid/cleanup beta-push decision recorded BEFORE any push; every closing claim matches the validation-ceiling's permitted claim only | CLOSE-01..03 | 4 |
-
-**Non-negotiable ordering invariants (repeated from Milestone Context — these gate plan sequencing, not just phase numbering):** harness-before-fix, fix-before-observe, observe-before-lock, firmware-before-host, `dev-test`-fix-before-closeout.
-
-**Research flags carried from `.planning/research/SUMMARY.md`:** Phases 116, 119, 121 likely need `/gsd-plan-phase --research-phase <N>`. Phases 117, 118, 120, 122 are standard patterns (existing in-tree precedents).
-
-**Hardware-gated work:** NONE — this milestone has no bench phase (no AT28C part in operator inventory). Every phase and every success criterion above is verifiable in software alone.
-
-Detail: `.planning/ROADMAP.md` §v1.22.
+Not yet created — `gsd-roadmapper` writes this section when the v1.23 roadmap is approved.
 
 ## Accumulated Context
 
@@ -252,8 +235,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Operator Next Steps
 
-- **Start the next milestone with `/gsd-new-milestone`.** Queued next: **v1.29 PY32F071 USB Firmware Install (host-side)** — land-and-verify, implementation already green on `firestarter_app` branch `feature/py32f071-fw-install` @ `311eacf`.
-- **Before v1.29 can ship:** resolve the cross-repo release-asset naming blocker — the firmware's PY32 CI publishes an Actions *artifact* `firestarter-py32f071.hex`; the host resolves a release *asset* `firestarter_py32f071.bin`/`.hex`. Nothing installs until the firmware repo changes it.
+- **v1.23 PY32F071 Integration is ACTIVE** (started 2026-07-30, branch `gsd/v1.23-py32f071-integration`). Next: define requirements, then `/gsd-plan-phase 123`.
+- **The release-asset blocker is half-resolved, and the remaining half is designed.** `feature/py32f071-release-assets` @ `ad47c3b` already fixes the *name* (`firestarter_py32f071.hex` — correct prefix and separator), but the image is still an Actions **artifact**. Publishing it as a release asset means folding the ARM build into `beta-build.yml` *after* the version bump: 3 steps plus one `files:` glob, spelled out in `platform/py32f071/README.md` §"Release integration".
+- **⚠ Two ROADMAP corrections owed as part of this milestone:** the stale v1.28 prior-art paragraph (pending todo `correct-v128-py32-roadmap-prior-art`, all five corrections — it warns that `/gsd-new-milestone` reads that entry to seed scope), and the slot renumber (retire v1.28/v1.29 into v1.23; `Binary Command Protocol` v1.23 → v1.28; leave v1.24–v1.27 alone).
+- **⚠ GSD footgun hit on 2026-07-30 — watch for it.** `gsd-tools query commit` silently switched the checkout off `gsd/v1.22-…` onto the divergent `gsd/v1.21-community-chip-validation-command` and committed there, because `init.new-milestone` reported `current_milestone: "v1.21"` while STATE.md frontmatter said `v1.22`, and `branching_strategy: milestone` acted on the stale value. Side effect: HEAD's gitlinks reverted to the **b11** commits, silently undoing the v1.22 b14 bump. Recovered (housekeeping re-landed as `8be00ee` on the right branch, v1.21 branch reset, gitlinks re-verified at `5c9160a`/`e7d3ee8`). **Check `git rev-parse --abbrev-ref HEAD` after every `gsd-tools query commit`.**
 - **Carry into the next merge toward `main`:** reintroduce `firestarter_app`'s `81fa53c` (see the v1.22 Deferred Items table) or `ci.yml`'s standalone-checkout failure resurfaces.
 - **Worth one deliberate pass:** the same 14 `audit-open` items have now been acknowledged at five consecutive closes. Also `check_ledger.py`'s 2 pre-existing `LEDGER-01` REDs — a small, self-contained backlog seed.
 - **Watch for:** a community re-test on [gh#11](https://github.com/henols/firestarter_prom/issues/11) / [gh#12](https://github.com/henols/firestarter_prom/issues/12) — both left OPEN. Real AT28C silicon is the only thing that can move `0x0D` off `UNVERIFIED`.
