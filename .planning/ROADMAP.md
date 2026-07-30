@@ -516,7 +516,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5)*
 
-- [ ] 122-07-PLAN.md — Wave 6 · both sub-repos · **BLOCKING operator authorization**, then D-05's accepted auto-fire: outbound `--no-ff` merge to `beta` + push, firmware first and verified cut before the app. `122-CUT.md` records the **OBSERVED** tag (A3 — never a hardcoded `3.0.0b14`). No tag, no gitlink bump (D-07); b12 stays public
+- [x] 122-07-PLAN.md — Wave 6 · both sub-repos · **BLOCKING operator authorization**, then D-05's accepted auto-fire: outbound `--no-ff` merge to `beta` + push, firmware first and verified cut before the app. `122-CUT.md` records the **OBSERVED** tag (A3 — never a hardcoded `3.0.0b14`). No tag, no gitlink bump (D-07); b12 stays public
 
 **Wave 7** *(blocked on Wave 6)*
 

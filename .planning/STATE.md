@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 122
 current_phase_name: close-honesty-ledger-community-ask-release-decision
 status: executing
-stopped_at: Completed 122-06-PLAN.md
-last_updated: "2026-07-30T14:12:36.859Z"
+stopped_at: Completed 122-07-PLAN.md
+last_updated: "2026-07-30T15:06:15.759Z"
 last_activity: 2026-07-30
-last_activity_desc: Plan 122-06 complete
+last_activity_desc: Plan 122-07 complete
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 69
-  completed_plans: 62
-  percent: 90
+  completed_plans: 63
+  percent: 91
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 122 (close-honesty-ledger-community-ask-release-decision) — EXECUTING
-Plan: 6 of 13 complete (next: 122-07)
-Status: Plan 122-06 complete — PROJECT.md carries a new EIGHTH CORRECTION block (9 items) recording D-10's community-corroborated defect / unproven-fix asymmetry, the honest gh#11 provenance, and the flagged (unresolved) C-5/D-14 divergence deferred to 122-11; purely additive (0 deletions), all seven ordinals present exactly once in increasing order, claim scanner green on a temporary extract of the new block; PROTOCOL-LEDGER.{md,json} and REQUIREMENTS.md both untouched; no requirement ticked
-Last activity: 2026-07-30 — Plan 122-06 complete
+Plan: 7 of 13 complete (next: 122-08)
+Status: Plan 122-07 complete — the phase's one irreversible outward act. Operator pre-authorized the push (orchestrator-relayed "Authorize the push", verified against origin/beta unmoved + 122-DECISION.md's commit predating by >1h). Firmware `--no-ff` merged to `beta` and pushed first, CI cut `3.0.0b14` clean (3 .hex assets). App merged and pushed second; its first CI run failed on two clean-source control tests lacking a standalone-CI firmware-checkout skip guard (Rule 1/3 auto-fix: added the guard, mirroring 8+ sibling tests, `beta`-branch-only commit `81fa53c`); re-pushed, CI cut `3.0.0b14` clean (0 assets, per C-7). Both observed tags match D-04's derivation exactly. `122-CUT.md` records both tags, both run ids, both asset inventories, and the CLOSE-03 ordering proof — every downstream plan (122-08/09/12) reads the tag from there, never hardcoded. No v1.22 tag, no gitlink bump, no --force, b12/b13 untouched, both repos back on the milestone branch at their unchanged 122-03 SHAs. Carry-forward: the test fix lives on `beta` only, not the milestone branch — flag for `/gsd-complete-milestone`. No requirement ticked.
+Last activity: 2026-07-30 — Plan 122-07 complete
 
 > **⚠ Phase 122 planning corrected 13 CONTEXT/ROADMAP framings — plan from `122-RESEARCH.md`, not the ROADMAP prose.**
 > The three that changed the plan's shape:
@@ -641,6 +641,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 122]: 122-05: the C-5/D-14 No-Hazmats divergence is recorded in 122-LEDGER.md as an explicit flagged, traceable, overturnable item for Plan 122-11's operator wording review -- not silently corrected
 - [Phase ?]: D-10 EIGHTH CORRECTION: gh#11 community reproduction of the exact predicted INIT abort on real AT28C256 raises TRACE-06 to community-corroborated while the fix stays unproven; 0x0D stays UNVERIFIED, zero support_status changes
 - [Phase ?]: C-5/D-14 divergence flagged in PROJECT.md item 3 as unresolved, awaiting operator accept-or-overturn at plan 122-11's D-16 wording review
+- [Phase ?]: D-05 accepted: outbound merge pushed to beta in both sub-repos; CI cut 3.0.0b14 in both (firmware verified green first; app hit a standalone-CI test gap, fixed inline, and re-cut). Recorded in 122-CUT.md.
 
 ## Performance Metrics
 
@@ -740,10 +741,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 122 P04 | 25min | 3 tasks | 1 files |
 | Phase 122 P05 | 35min | 3 tasks | 1 files |
 | Phase 122 P06 | 35min | 2 tasks | 1 files |
+| Phase 122 P07 | 47min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-07-30T14:11:36.490Z
-**Stopped at:** Completed 122-05-PLAN.md
+**Last session:** 2026-07-30T15:06:15.742Z
+**Stopped at:** Completed 122-07-PLAN.md
 **Resume file:** 
 None
