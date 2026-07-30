@@ -1,8 +1,8 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.23
-milestone_name: is a RAM/throughput optimization. The architecture choice below stays deferred exactly as recorded — queueing the milestone does **not** pick a design.
-current_phase_name: defining requirements
+milestone_name: PY32F071 Integration
+current_phase_name: non-regression-baselines-gate-hardening
 status: planning
 stopped_at: Phase 123 context gathered
 last_updated: "2026-07-30T20:24:39.589Z"
