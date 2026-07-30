@@ -5,15 +5,15 @@ milestone_name: — PY32F071 Integration
 current_phase: 123
 current_phase_name: non-regression-baselines-gate-hardening
 status: executing
-stopped_at: Completed 123-02-PLAN.md
-last_updated: "2026-07-30T23:17:35.288Z"
+stopped_at: Completed 123-07-PLAN.md
+last_updated: "2026-07-30T23:44:43.188Z"
 last_activity: 2026-07-30
 last_activity_desc: Phase 123 execution started
 progress:
   total_phases: 8
   completed_phases: 0
   total_plans: 11
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 123 (non-regression-baselines-gate-hardening) — EXECUTING
-Plan: 4 of 11
+Plan: 5 of 11
 Status: Ready to execute
 Last activity: 2026-07-30 — Phase 123 execution started
 
@@ -507,6 +507,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 123]: D-15 arming (UNARMED/armed-incomplete) applies only to the default-target path; argv/env-seam targets keep the ordinary fail-closed guard
 - [Phase 123]: check_size_baseline.py uses manual argv parsing (no argparse) to stay strictly stdlib-only, matching the check_permitted_claims.py house convention
 - [Phase 123]: check_uno_ram.sh deletion recorded as superseding an already-red gate (floor 545 B vs measured 475 B free), referenced by no workflow in either sub-repo
+- [Phase ?]: 123-07: Used RESEARCH Mechanism 1 (committed tree without .git marker + tmp_path-materialised marker) for the fake firmware sibling fixture, per D-12; CONTEXT's .git-gitfile workaround was confirmed not to work
 
 ## Performance Metrics
 
@@ -616,10 +617,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 123 P01 | 9 | 3 tasks | 8 files |
 | Phase 123 P10 | 20min | 3 tasks | 7 files |
 | Phase 123 P02 | 20 | 3 tasks | 6 files |
+| Phase 123 P07 | 45min | 3 tasks | 5 files |
 
 ## Session
 
-**Last session:** 2026-07-30T23:17:35.266Z
-**Stopped at:** Completed 123-02-PLAN.md
+**Last session:** 2026-07-30T23:44:43.174Z
+**Stopped at:** Completed 123-07-PLAN.md
 **Resume file:** 
 None
