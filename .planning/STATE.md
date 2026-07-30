@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 122
-current_phase_name: CLOSE — honesty ledger, community ask, release decision
-status: Ready to execute — Phase 122 planned (13 plans, 11 waves); research corrected 13 CONTEXT/ROADMAP framings, incl. an overclaim inside locked decision D-14
-stopped_at: Phase 122 planned
-last_updated: "2026-07-30T11:07:16.980Z"
+current_phase_name: close-honesty-ledger-community-ask-release-decision
+status: executing
+stopped_at: Completed 122-01-PLAN.md
+last_updated: "2026-07-30T12:57:39.323Z"
 last_activity: 2026-07-30
-last_activity_desc: Phase 122 planned — 13 plans in 11 waves; RESEARCH C-5 proved D-14's prescribed wording an overclaim (all 19 DIP24_2816 2K×8 chips are SDP-REFUSED), threaded to the D-16 operator review as accept-or-overturn
+last_activity_desc: Plan 122-01 complete — forbidden-overclaim/required-caveat gate (check_permitted_claims.py) + anti-hollow pytest pairing, GATE-01 discipline verified via deliberate-break control
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 69
-  completed_plans: 56
-  percent: 86
+  completed_plans: 57
+  percent: 83
 ---
 
 # Project State
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 122 — CLOSE — honesty ledger, community ask, release decision
-Plan: 0/13 complete
-Status: **Planned** — 13 plans in 11 waves committed; plan-checker PASSED (2 non-blocking warnings, one fixed); requirements 3/3 and decisions 16/16 covered. Ready for `/gsd-execute-phase 122`.
-Last activity: 2026-07-30 — Phase 122 planned (13 plans, 11 waves)
+Phase: 122 (close-honesty-ledger-community-ask-release-decision) — EXECUTING
+Plan: 1 of 13 complete (next: 122-02)
+Status: Plan 122-01 (Wave 0 dependency) complete — check_permitted_claims.py + anti-hollow pytest pairing + 4 fixtures, all committed
+Last activity: 2026-07-30 — Plan 122-01 complete
 
 > **⚠ Phase 122 planning corrected 13 CONTEXT/ROADMAP framings — plan from `122-RESEARCH.md`, not the ROADMAP prose.**
 > The three that changed the plan's shape:
@@ -236,7 +236,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-27 — v1.22 milestone-start footer
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.22 completes the write-protection lifecycle on protocol `0x0D` without adding a second dispatch axis — `handle->protocol` stays the sole dispatch key; `handle->cmd` is extended only as an operation selector *inside* the existing `0x0D` handler, exactly as v1.13 Phase 74 extended `flash_5v_page.cpp`.
 
-**Current focus:** Phase 121 — dev-test-fix-gates-docs-redesign
+**Current focus:** Phase 122 — close-honesty-ledger-community-ask-release-decision
 
 ## Milestone Context (v1.22)
 
@@ -629,6 +629,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: GATE-03 closed: full non-regression sweep re-run at the phase final commit under both devcontainer (3.12.13) and uv-provisioned CI-parity Python 3.11.15; 1134 passed/0 failed both interpreters
 - [Phase ?]: DEVTEST-01/02/03/04 and GATE-01 independently re-verified against the live tree and ticked, per orchestrator-resolved ambiguity overriding the plan's stale Tick-GATE-03-only text
 - [Phase ?]: py3.9 pytest impossibility reproduced live (syrupy>=5.0 needs >=3.10); py3.9 claim rests on config-pinned ruff/mypy + packaging classifier, not a test run
+- [Phase 122]: 122-01: FIRESTARTER_CLAIMSCAN_TARGETS uses os.environ.get with no default so absent-vs-empty is unambiguous (None=defaults, empty string=zero targets, fail closed)
+- [Phase 122]: 122-01: check_permitted_claims.py's own docstring states a green run is only the mechanizable half of ROADMAP criterion 4, never sufficient alone
 
 ## Performance Metrics
 
@@ -722,10 +724,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 121 P12 | 35min | 2 tasks | 5 files |
 | Phase 121 P13 | 50min | 2 tasks | 9 files |
 | Phase 121 P14 | 110min | 3 tasks | 2 files |
+| Phase 122 P01 | 15min | 3 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-07-30T11:06:36.751Z
-**Stopped at:** Phase 122 context gathered
+**Last session:** 2026-07-30T12:57:39.294Z
+**Stopped at:** Completed 122-01-PLAN.md
 **Resume file:** 
-.planning/phases/122-close-honesty-ledger-community-ask-release-decision/122-CONTEXT.md
+None

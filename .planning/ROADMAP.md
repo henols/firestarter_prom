@@ -495,7 +495,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 122-01-PLAN.md — Wave 1 · meta · The Wave 0 dependency: `check_permitted_claims.py` forbidden-phrase/required-caveat gate + two committed planted-violation fixtures + 7 subprocess pytest legs (GATE-01 anti-hollow). Carries the phase-wide multi-source coverage audit
+- [x] 122-01-PLAN.md — Wave 1 · meta · The Wave 0 dependency: `check_permitted_claims.py` forbidden-phrase/required-caveat gate + two committed planted-violation fixtures + 7 subprocess pytest legs (GATE-01 anti-hollow). Carries the phase-wide multi-source coverage audit
 - [ ] 122-02-PLAN.md — Wave 1 · meta · `122-DECISION.md`: CLOSE-03's accept/avoid/cleanup decision **committed before any push** (constraint 1) plus the live pre-flight evidence — branch tips, both `beta` version files, the dry-run `merge-tree` conflict set, the `--ours` superset proof
 
 **Wave 2** *(blocked on Wave 1)*
