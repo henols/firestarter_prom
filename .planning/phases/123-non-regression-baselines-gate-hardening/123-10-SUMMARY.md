@@ -167,3 +167,7 @@ None - no external service configuration required.
 ---
 *Phase: 123-non-regression-baselines-gate-hardening*
 *Completed: 2026-07-30*
+
+## Self-Check: PASSED
+
+All 7 created files found on disk; all 3 task commits (`04a55e0`, `503e207`, `3db280d`) plus the SUMMARY commit (`707de49`) found in `git log --oneline --all`.
