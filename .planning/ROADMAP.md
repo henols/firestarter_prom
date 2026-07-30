@@ -490,8 +490,56 @@ Plans:
   3. A recorded accept/avoid/cleanup decision for the `beta` push exists and precedes any actual push to `beta` (v1.21's close auto-cut a stray `3.0.0b12` by skipping this step).
   4. Every claim made in the closing documentation matches the validation-ceiling's permitted claim (byte-exact traces across all four pinouts, measured host-side timing) and none matches its forbidden claim (SDP works on real AT28C silicon).
 
-**Plans**: TBD
-**Research flag**: no — standard pattern (the close ritual is well-trodden; the beta-push decision is the only novel item, already documented).
+**Plans**: 13 plans (11 waves; near-linear because CONTEXT.md's **seven hard sequencing constraints** plus RESEARCH A3's observed-tag rule are structural, not preferences — reordering any of them breaks a requirement or publishes an unproven artifact. Only wave 1 and wave 8 carry parallelism.)
+
+Plans:
+**Wave 1**
+
+- [ ] 122-01-PLAN.md — Wave 1 · meta · The Wave 0 dependency: `check_permitted_claims.py` forbidden-phrase/required-caveat gate + two committed planted-violation fixtures + 7 subprocess pytest legs (GATE-01 anti-hollow). Carries the phase-wide multi-source coverage audit
+- [ ] 122-02-PLAN.md — Wave 1 · meta · `122-DECISION.md`: CLOSE-03's accept/avoid/cleanup decision **committed before any push** (constraint 1) plus the live pre-flight evidence — branch tips, both `beta` version files, the dry-run `merge-tree` conflict set, the `--ours` superset proof
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 122-03-PLAN.md — Wave 2 · both sub-repos · D-06 inbound merge: `beta` → branch. App conflicts in **exactly two** files resolved whole-file `--ours` with an EMPTY-diff proof (C-11/C-12 — hunk-level resolution is forbidden); firmware merge is **conflict-free**, `version.h` auto-merges b11→b13 (C-1/C-2). Nothing pushed
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 122-04-PLAN.md — Wave 3 · app+fw · The load-bearing sample (constraints 2+6): CLOSE-01's four existing mechanisms + an independent second measurement path + the 43/41 per-pinout split + the eleven nine-row commands + both full suites + **both beta workflows' gate sets pre-validated locally** → `122-NONREGRESSION.md`. `check_ledger.py` is never run (C-4, pre-existing RED)
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 122-05-PLAN.md — Wave 4 · meta · `122-LEDGER.md`: nine claim-class rows each pairing a permitted wording with an explicit non-claim (D-11), the pinout-composition section carrying the emission-traced-vs-operation-permitted distinction, five recorded mechanism corrections incl. the flagged C-5/D-14 divergence, and D-12's negative space (SDP-F1..F8 + three owned trade-offs)
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 122-06-PLAN.md — Wave 5 · meta · D-10's **EIGHTH CORRECTION** in `PROJECT.md` (C-10 confirms the ordinal): the defect community-corroborated on real AT28C256 silicon while the fix stays unproven, with honest provenance; purely additive edit proven by zero deleted lines
+
+**Wave 6** *(blocked on Wave 5)*
+
+- [ ] 122-07-PLAN.md — Wave 6 · both sub-repos · **BLOCKING operator authorization**, then D-05's accepted auto-fire: outbound `--no-ff` merge to `beta` + push, firmware first and verified cut before the app. `122-CUT.md` records the **OBSERVED** tag (A3 — never a hardcoded `3.0.0b14`). No tag, no gitlink bump (D-07); b12 stays public
+
+**Wave 7** *(blocked on Wave 6)*
+
+- [ ] 122-08-PLAN.md — Wave 7 · meta · Constraint 7: the **manual** `publish.yml` dispatch (C-3 — 6 of 13 app betas historically missed PyPI), then D-03's both-channels-public verification via the PyPI JSON API + a clean-env resolution check + the firmware `.hex` assets → `122-CHANNELS.md`, behind a **BLOCKING** operator confirmation. Never via the editable install, never a green CI tick
+
+**Wave 8** *(blocked on Wave 7)*
+
+- [ ] 122-09-PLAN.md — Wave 8 · meta · D-08's two hand-written prerelease bodies (`122-RELEASE-NOTES-fw.md` / `-app.md`), authored from the ledger, gated by the claim scanner + hygiene assertions + a claim→claim-class traceability pass. C-6: the body is an *add*; C-7: only the firmware release carries assets
+- [ ] 122-10-PLAN.md — Wave 8 · meta · D-15's gh#11 draft (both defects, the apparent-regression explanation, the credit, D-02's plain-write-first ask with the always-writes warning) and D-13/D-14's gh#12 draft — including the **C-5-CORRECTED** `No-Hazmats` answer by size class, plus A1 resolved rather than asserted
+
+**Wave 9** *(blocked on Wave 8)*
+
+- [ ] 122-11-PLAN.md — Wave 9 · meta · Constraint 4: the **D-16 BLOCKING operator wording review** of all five closing artifacts together, with the claim scanner's first default-target run and the C-5/D-14 divergence put as an explicit accept-or-overturn question. Freezes all five by blob SHA
+
+**Wave 10** *(blocked on Wave 9)*
+
+- [ ] 122-12-PLAN.md — Wave 10 · meta · Delivery: two `gh release edit --notes-file` + two `gh issue comment --body-file`, each verified **byte-equal** to the frozen file; both issues stay **OPEN** with zero labels; a **BLOCKING** final go/no-go once the rendered bodies are live → `122-DELIVERY.md` + the seven-constraint satisfaction ledger
+
+**Wave 11** *(blocked on Wave 10)*
+
+- [ ] 122-13-PLAN.md — Wave 11 · meta · The **only** plan permitted to tick: CLOSE-01/02/03 re-verified clause-by-clause against their own prose, then ticked with evidence parentheticals; A5's gitlink assertion, no `v1.22*` tag, the gate's paired test still 7-passed, `122-VALIDATION.md` settled, and the six-item hand-over to `/gsd-complete-milestone`
+
+**Research flag**: no per the original entry — **but discharged anyway, and the research was load-bearing.** `122-RESEARCH.md` (2026-07-30, every claim live-executed), `122-PATTERNS.md` (13 files classified) and `122-VALIDATION.md` are all present. RESEARCH returned **13 corrections C-1..C-13** to CONTEXT/ROADMAP framings; plan from RESEARCH, not from this prose. The three that reshaped the plans: **C-5** — D-14's prescribed public answer to `No-Hazmats` is measured false (all 19 of 19 `DIP24_2816` chips are REFUSED), so a *locked decision* would have posted an overclaim in the one phase whose job is not overclaiming; **C-1/C-2/C-11/C-12** — the firmware inbound merge has **zero** conflicts and the app conflicts in exactly two files whose correct resolution is provably `--ours` wholesale, while hunk-level resolution yields code that compiles and passes and is wrong; **C-4** — `check_ledger.py` is pre-existing RED from v1.19 Phase 104's rename, so CLOSE-01 must never gate on it and this phase must not fix it. Per the established response the corrections are recorded in `122-LEDGER.md` and `PROJECT.md`'s EIGHTH CORRECTION, and `REQUIREMENTS.md` is **not** edited. RESEARCH is stamped valid only ~3 days because `origin/beta` moves on any push — plans 122-02 and 122-03 both re-run the dry-run merge probe live.
 **UI hint**: no
 
 ## v1.21 — Community Chip-Validation Command (PLANNING)
