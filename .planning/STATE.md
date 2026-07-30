@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 122
 current_phase_name: close-honesty-ledger-community-ask-release-decision
 status: executing
-stopped_at: Completed 122-07-PLAN.md
-last_updated: "2026-07-30T15:06:15.759Z"
+stopped_at: Completed 122-08-PLAN.md
+last_updated: "2026-07-30T15:22:41.007Z"
 last_activity: 2026-07-30
-last_activity_desc: Plan 122-07 complete
+last_activity_desc: Plan 122-08 complete
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 69
-  completed_plans: 63
-  percent: 91
+  completed_plans: 64
+  percent: 93
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 122 (close-honesty-ledger-community-ask-release-decision) — EXECUTING
-Plan: 7 of 13 complete (next: 122-08)
-Status: Plan 122-07 complete — the phase's one irreversible outward act. Operator pre-authorized the push (orchestrator-relayed "Authorize the push", verified against origin/beta unmoved + 122-DECISION.md's commit predating by >1h). Firmware `--no-ff` merged to `beta` and pushed first, CI cut `3.0.0b14` clean (3 .hex assets). App merged and pushed second; its first CI run failed on two clean-source control tests lacking a standalone-CI firmware-checkout skip guard (Rule 1/3 auto-fix: added the guard, mirroring 8+ sibling tests, `beta`-branch-only commit `81fa53c`); re-pushed, CI cut `3.0.0b14` clean (0 assets, per C-7). Both observed tags match D-04's derivation exactly. `122-CUT.md` records both tags, both run ids, both asset inventories, and the CLOSE-03 ordering proof — every downstream plan (122-08/09/12) reads the tag from there, never hardcoded. No v1.22 tag, no gitlink bump, no --force, b12/b13 untouched, both repos back on the milestone branch at their unchanged 122-03 SHAs. Carry-forward: the test fix lives on `beta` only, not the milestone branch — flag for `/gsd-complete-milestone`. No requirement ticked.
-Last activity: 2026-07-30 — Plan 122-07 complete
+Plan: 8 of 13 complete (next: 122-09)
+Status: Plan 122-08 complete — PyPI publish + both-channels-public verification, the gate the community ask depends on. Read the observed app tag (`3.0.0b14`) from `122-CUT.md`, confirmed it live in `henols/firestarter_app`'s release list, then dispatched exactly one `gh workflow run publish.yml -f tag=3.0.0b14` (run `30555530238`, success — no re-dispatch, no local twine/build, no `.github/` edit). Verified PyPI three independent ways (JSON API — first read stale due to eventual-consistency lag, retried ~15s later and confirmed; clean-env `pip index versions --pre`; `pip download --no-deps`), all agreeing `3.0.0b14` is the live latest prerelease; `info.version` still `2.0.7` (no stable published). Verified the firmware GitHub prerelease carries all three `.hex` assets and the app release exists with 0 assets (expected, C-7). Committed `122-CHANNELS.md` (165 lines) as the transcript. Comment counts on issues 11/12 unchanged (12/8) and both release bodies still length 0 — no comment posted yet. The Task 3 blocking operator gate was pre-granted by the orchestrator (evidence shown: b14 live both repos, PyPI still b13 pre-dispatch, C-3's 46% historical miss rate; verbatim response "Publish to PyPI"), recorded in `122-08-SUMMARY.md`. No v1.22 tag, no gitlink bump. No requirement ticked (CLOSE-03 spans 7 plans, closes only at 122-13).
+Last activity: 2026-07-30 — Plan 122-08 complete
 
 > **⚠ Phase 122 planning corrected 13 CONTEXT/ROADMAP framings — plan from `122-RESEARCH.md`, not the ROADMAP prose.**
 > The three that changed the plan's shape:
@@ -642,6 +642,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: D-10 EIGHTH CORRECTION: gh#11 community reproduction of the exact predicted INIT abort on real AT28C256 raises TRACE-06 to community-corroborated while the fix stays unproven; 0x0D stays UNVERIFIED, zero support_status changes
 - [Phase ?]: C-5/D-14 divergence flagged in PROJECT.md item 3 as unresolved, awaiting operator accept-or-overturn at plan 122-11's D-16 wording review
 - [Phase ?]: D-05 accepted: outbound merge pushed to beta in both sub-repos; CI cut 3.0.0b14 in both (firmware verified green first; app hit a standalone-CI test gap, fixed inline, and re-cut). Recorded in 122-CUT.md.
+- [Phase 122]: Operator authorization for the PyPI publish and both-channels verification was pre-granted by the orchestrator with explicit evidence (b14 live both repos, PyPI still b13, C-3's 46% miss rate); verbatim response 'Publish to PyPI' recorded in 122-08-SUMMARY.md
 
 ## Performance Metrics
 
@@ -742,10 +743,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 122 P05 | 35min | 3 tasks | 1 files |
 | Phase 122 P06 | 35min | 2 tasks | 1 files |
 | Phase 122 P07 | 47min | 3 tasks | 3 files |
+| Phase 122 P08 | 20min | 3 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-07-30T15:06:15.742Z
-**Stopped at:** Completed 122-07-PLAN.md
+**Last session:** 2026-07-30T15:20:53.999Z
+**Stopped at:** Completed 122-08-PLAN.md
 **Resume file:** 
 None

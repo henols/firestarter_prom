@@ -520,7 +520,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6)*
 
-- [ ] 122-08-PLAN.md — Wave 7 · meta · Constraint 7: the **manual** `publish.yml` dispatch (C-3 — 6 of 13 app betas historically missed PyPI), then D-03's both-channels-public verification via the PyPI JSON API + a clean-env resolution check + the firmware `.hex` assets → `122-CHANNELS.md`, behind a **BLOCKING** operator confirmation. Never via the editable install, never a green CI tick
+- [x] 122-08-PLAN.md — Wave 7 · meta · Constraint 7: the **manual** `publish.yml` dispatch (C-3 — 6 of 13 app betas historically missed PyPI), then D-03's both-channels-public verification via the PyPI JSON API + a clean-env resolution check + the firmware `.hex` assets → `122-CHANNELS.md`, behind a **BLOCKING** operator confirmation. Never via the editable install, never a green CI tick
 
 **Wave 8** *(blocked on Wave 7)*
 
