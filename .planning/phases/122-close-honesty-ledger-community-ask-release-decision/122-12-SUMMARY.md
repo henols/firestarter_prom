@@ -229,3 +229,10 @@ None — no external service configuration required.
 ---
 *Phase: 122-close-honesty-ledger-community-ask-release-decision*
 *Completed: 2026-07-30*
+
+## Self-Check: PASSED
+
+- `122-DELIVERY.md` exists: FOUND
+- `122-12-SUMMARY.md` exists: FOUND
+- Commit `4d30194` (deliver both prerelease bodies and both community comments) exists: FOUND
+- Commit `553c52c` (summarize delivery) exists: FOUND
