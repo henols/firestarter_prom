@@ -1,20 +1,20 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.23
-milestone_name: PY32F071 Integration
+milestone_name: — PY32F071 Integration
+current_phase: 123
 current_phase_name: non-regression-baselines-gate-hardening
 status: executing
-stopped_at: Phase 123 planned — 11 plans, 7 waves, ready to execute
-last_updated: "2026-07-30T22:39:32.280Z"
+stopped_at: Completed 123-01-PLAN.md
+last_updated: "2026-07-30T22:55:39.888Z"
 last_activity: 2026-07-30
-last_activity_desc: Milestone v1.23 started
+last_activity_desc: Phase 123 execution started
 progress:
   total_phases: 8
   completed_phases: 0
   total_plans: 11
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
-current_phase: 123
 ---
 
 # Project State
@@ -24,10 +24,10 @@ current_phase: 123
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
+Phase: 123 (non-regression-baselines-gate-hardening) — EXECUTING
+Plan: 2 of 11
 Status: Ready to execute
-Last activity: 2026-07-30 — Milestone v1.23 started
+Last activity: 2026-07-30 — Phase 123 execution started
 
 ## Project Reference
 
@@ -35,7 +35,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-30 — v1.23 Current Milestone sect
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.23 adds a fourth board target beneath that contract without disturbing it: the PROM programming algorithms stay platform-independent and the HAL boundary absorbs the new MCU, so protocol dispatch is untouched by the port.
 
-**Current focus:** Defining v1.23 requirements. **v1.23 PY32F071 Integration** — land the in-flight firmware port (`agent/portability-macros` + PR #48, 52 commits, 72 behind `beta`) and the host USB-DFU installer (`feature/py32f071-fw-install` @ `4ee64a1`) onto `beta` as one lockstep integration, fold the py32 image into `beta-build.yml` so it publishes as a real release asset, add flash-persistent config, land the VPP control **seam only**, and record the flash-path/PCB requirements before the first schematic. **No PY32F071 PCB exists** → software-only close like v1.22. Phase numbering continues at Phase 123.
+**Current focus:** Phase 123 — non-regression-baselines-gate-hardening
 
 ## Milestone Context (v1.23)
 
@@ -500,6 +500,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 122]: CLOSE-01/02/03 ticked only after clause-by-clause re-verification against REQUIREMENTS.md's own prose (Plan 122-13) — the only plan in Phase 122 permitted to tick a requirement checkbox
 - [Phase 122]: Phase 122 gitlink bump, the v1.22 annotated tag, the main-branch merges, and the stable release are all deliberately left for /gsd-complete-milestone (D-07); Plan 122-13 asserts the gitlinks still read 0048b3d/96e0622 with nothing staged
 - [Phase 122]: Criterion 4 (community non-overclaim) is recorded as a three-way split: the green check_permitted_claims.py scan is the mechanizable half only, the D-16 operator wording review is the judgement half, and 'SDP works on real AT28C silicon' has a sampling rate of zero, permanently, by design
+- [Phase 123-01]: Recorded firmware_tree_sha as the fork-point SHA (5c9160a), the actual HEAD at measurement time, not the later fixture-commit SHA
+- [Phase 123-01]: captured_native_warnings_excerpt.log documents real pio-test framing (Processing/Building) rather than the plan's assumed 'Compiling .pio/build/...' line, which pio test never emits (verified default/-v/-vvv on a clean rebuild)
 
 ## Performance Metrics
 
@@ -606,10 +608,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 122 P11 | 20 | 3 tasks | 1 files |
 | Phase 122 P12 | 25min | 3 tasks | 1 files |
 | Phase 122 P13 | 35min | 3 tasks | 3 files |
+| Phase 123 P01 | 9 | 3 tasks | 8 files |
 
 ## Session
 
-**Last session:** 2026-07-30T20:24:39.575Z
-**Stopped at:** Phase 123 context gathered
+**Last session:** 2026-07-30T22:55:39.875Z
+**Stopped at:** Completed 123-01-PLAN.md
 **Resume file:** 
-.planning/phases/123-non-regression-baselines-gate-hardening/123-CONTEXT.md
+None
