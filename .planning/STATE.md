@@ -4,15 +4,15 @@ milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 122
 current_phase_name: CLOSE — honesty ledger, community ask, release decision
-status: in-progress
-stopped_at: Phase 122 context gathered
+status: Ready to execute — Phase 122 planned (13 plans, 11 waves); research corrected 13 CONTEXT/ROADMAP framings, incl. an overclaim inside locked decision D-14
+stopped_at: Phase 122 planned
 last_updated: "2026-07-30T11:07:16.980Z"
-last_activity: 2026-07-29
-last_activity_desc: Phase 121 complete, transitioned to Phase 122
+last_activity: 2026-07-30
+last_activity_desc: Phase 122 planned — 13 plans in 11 waves; RESEARCH C-5 proved D-14's prescribed wording an overclaim (all 19 DIP24_2816 2K×8 chips are SDP-REFUSED), threaded to the D-16 operator review as accept-or-overturn
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 56
+  total_plans: 69
   completed_plans: 56
   percent: 86
 ---
@@ -20,14 +20,38 @@ progress:
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-07-29
+**Updated:** 2026-07-30
 
 ## Current Position
 
 Phase: 122 — CLOSE — honesty ledger, community ask, release decision
-Plan: Not started
-Status: in-progress
-Last activity: 2026-07-29 — Phase 121 complete, transitioned to Phase 122
+Plan: 0/13 complete
+Status: **Planned** — 13 plans in 11 waves committed; plan-checker PASSED (2 non-blocking warnings, one fixed); requirements 3/3 and decisions 16/16 covered. Ready for `/gsd-execute-phase 122`.
+Last activity: 2026-07-30 — Phase 122 planned (13 plans, 11 waves)
+
+> **⚠ Phase 122 planning corrected 13 CONTEXT/ROADMAP framings — plan from `122-RESEARCH.md`, not the ROADMAP prose.**
+> The three that changed the plan's shape:
+> - **C-5 — locked decision D-14 as written would post an overclaim.** D-14 prescribes telling `No-Hazmats` their "AT28C parts
+>   should now work". Measured over all 84 `0x0D` entries: every 2K×8 part sits on pinout `DIP24_2816`, and **all 19 of 19 are
+>   REFUSED** by the SDP allow-set (7 `pre-SDP generation`, 12 `unrecognised`); `AT28C16` is additionally `adapter-required`, and
+>   SDP-F7/SDP-F8 name that family as deferred. An overclaim reached a locked decision **inside the one phase whose job is not
+>   overclaiming**. Threaded through 122-05/06/10/11 as an explicit operator **accept-or-overturn** at the D-16 wording review.
+> - **C-1/C-2/C-11/C-12 — D-06's conflict set is wrong.** The **firmware** inbound merge has **zero** conflicts (`version.h`
+>   b11→b13 auto-merges). The **app** conflicts in **exactly two** files: `submit.py`, `test_submit.py`. Resolution is whole-file
+>   `--ours` with an empty-`git diff HEAD` proof; **hunk-level resolution is forbidden** — hunks 3/4 sandwich a region HEAD needs
+>   twice, so a textual "ours" leaves a dangling `elif url:` bound to the wrong `if`, which compiles and passes.
+> - **C-4 — `check_ledger.py` is RED today** (2 pre-existing `LEDGER-01` violations from v1.19 Phase 104's `flash3`/`flash4`
+>   rename). Unrelated to v1.22. **CLOSE-01 never gates on it and this phase does not fix it** — fixing would edit a closed
+>   milestone's artifact.
+>
+> Also corrected: 6 of 13 app GH betas never reached PyPI (b4/b5/b6/b9/b10/b12) so the manual `publish.yml` dispatch is the norm
+> at a 46% failure rate (C-3); release bodies are *empty*, not auto-generated (C-6); only the firmware release carries assets
+> (C-7); `ci.yml` never runs on a `beta` push (C-8); v1.22 *did* fork off `beta` (C-9); PROJECT.md has six ordinal ⚠ blocks so
+> **EIGHTH** is the right ordinal for D-10 (C-10); `diff_db.py` interprets its own result and exits 0 (C-13).
+>
+> **`122-RESEARCH.md` is valid only until ~2026-08-02** — `origin/beta` moves on any push and the b13/b14 boundary is this
+> phase's whole premise. Plan 122-03 re-runs the dry-run merge probe immediately before merging. RESEARCH **A3**: the b14 tag is
+> *derived, not executed* — every downstream step reads the **observed** cut tag, never a hardcoded `3.0.0b14`.
 
 > **⚠ Phase 120 planning superseded D-01/D-02's curated allow-set — the partition is now DERIVED (`120-SDP-PARTITION.md`, `6ad8688`).**
 > Operator directive, 2026-07-29: *"there shall be no guessing the ground truth is the infoic.xml"*. Executed: the SDP-capability
