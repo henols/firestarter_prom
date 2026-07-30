@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 122
 current_phase_name: close-honesty-ledger-community-ask-release-decision
 status: executing
-stopped_at: Completed 122-12-PLAN.md
-last_updated: "2026-07-30T16:05:34.166Z"
+stopped_at: Completed 122-13-PLAN.md — Phase 122 CLOSE complete, all 13 plans done; hand-over to /gsd-complete-milestone recorded
+last_updated: "2026-07-30T17:05:00.000Z"
 last_activity: 2026-07-30
-last_activity_desc: Plan 122-12 complete
+last_activity_desc: Plan 122-13 complete — CLOSE-01/02/03 ticked with re-verified evidence; 122-VALIDATION.md settled
 progress:
   total_phases: 7
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 69
-  completed_plans: 68
-  percent: 99
+  completed_plans: 69
+  percent: 100
 ---
 
 # Project State
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 122 (close-honesty-ledger-community-ask-release-decision) — EXECUTING
-Plan: 12 of 13 complete (next: 122-13)
-Status: Plan 122-12 complete — all four outward-facing deliveries posted. Pre-flight re-asserted all four in-scope frozen artifacts' blob SHAs against `122-11-SUMMARY.md`'s freeze table (all matched, working tree clean); both observed cut tags read from `122-CUT.md` (`3.0.0b14` == `3.0.0b14`). Task 2's blocking final go/no-go was satisfied per the dispatch prompt's `<operator_final_go_granted>` block — operator's verbatim verdict "Post it — all four calls," already recorded ahead of execution; no re-prompt issued. Both `gh release edit --notes-file` calls (firmware, app) published live bodies verified byte-equal to their committed sources (GitHub appended exactly one trailing newline in each case — the only difference); `isPrerelease` still true, asset inventories unchanged, `3.0.0b12` untouched in both repos. Both `gh issue comment --body-file` calls (`henols/firestarter_prom` #11, #12) posted comments verified byte-equal under the same normalization; both issues incremented by exactly one comment (12→13, 8→9), stayed `OPEN`, carried zero labels before and after; `gh issue close` never invoked. `122-DELIVERY.md` written (193 lines): four-call table, negative-flag audit, seven-constraint satisfaction ledger plus the observed-tag rule. No requirement ticked (CLOSE-02/CLOSE-03 close only at 122-13, after re-reading REQUIREMENTS.md prose).
-Last activity: 2026-07-30 — Plan 122-12 complete
+Phase: 122 (close-honesty-ledger-community-ask-release-decision) — COMPLETE (all 13 plans)
+Plan: 13 of 13 complete
+Status: Plan 122-13 complete — CLOSE-01, CLOSE-02, CLOSE-03 re-verified clause-by-clause against `REQUIREMENTS.md`'s own prose (live commands, not cited SUMMARYs) and ticked Complete with evidence parentheticals; the three traceability rows moved Pending→Complete. `122-VALIDATION.md` settled (`status: complete`, `nyquist_compliant: true`, `wave_0_complete: true`) after individually re-verifying both rows originally marked `❌ W0` against the real landed `check_permitted_claims.py`. All eleven phase-end assertions held: meta gitlinks still pinned at `0048b3d`/`96e0622` with nothing staged; no `v1.22*` tag in either sub-repo; both sub-repos still on the milestone branch at 122-03's merge SHAs; claim scanner green on all five default targets (restated: this alone does not satisfy ROADMAP criterion 4); both channels (PyPI, firmware GitHub prerelease) re-verified public; both issues `OPEN` with byte-equal comments and zero labels; `3.0.0b12` untouched; `PROTOCOL-LEDGER`/`check_ledger.py` untouched; no `.github/` change in either sub-repo. Six-item hand-over written for `/gsd-complete-milestone` (gitlink bump, `v1.22` tag, the `beta`-only app CI fix `81fa53c` that must be reintroduced at the next merge, `check_ledger.py`'s pre-existing RED, no stable release, the stray `3.0.0b12` prereleases). Phase 122 — and this milestone's phase sequence — is now fully executed; the tag/gitlink bump/main-merge/stable-release remain deliberately for `/gsd-complete-milestone`.
+Last activity: 2026-07-30 — Plan 122-13 complete, Phase 122 fully executed
 
 > **⚠ Phase 122 planning corrected 13 CONTEXT/ROADMAP framings — plan from `122-RESEARCH.md`, not the ROADMAP prose.**
 > The three that changed the plan's shape:
@@ -647,6 +647,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: Operator final go/no-go verdict, verbatim: "Post it — all four calls."
 - [Phase ?]: Both gh release edit / gh issue comment calls used --notes-file / --body-file exclusively; no inline string form was ever constructed
 - [Phase ?]: Neither henols/firestarter_prom issue was closed and no label flag was ever sent (D-13) - both remain OPEN with zero labels
+- [Phase 122]: CLOSE-01/02/03 ticked only after clause-by-clause re-verification against REQUIREMENTS.md's own prose (Plan 122-13) — the only plan in Phase 122 permitted to tick a requirement checkbox
+- [Phase 122]: Phase 122 gitlink bump, the v1.22 annotated tag, the main-branch merges, and the stable release are all deliberately left for /gsd-complete-milestone (D-07); Plan 122-13 asserts the gitlinks still read 0048b3d/96e0622 with nothing staged
+- [Phase 122]: Criterion 4 (community non-overclaim) is recorded as a three-way split: the green check_permitted_claims.py scan is the mechanizable half only, the D-16 operator wording review is the judgement half, and 'SDP works on real AT28C silicon' has a sampling rate of zero, permanently, by design
 
 ## Performance Metrics
 
@@ -752,10 +755,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 122 P10 | 25min | 3 tasks | 2 files |
 | Phase 122 P11 | 20 | 3 tasks | 1 files |
 | Phase 122 P12 | 25min | 3 tasks | 1 files |
+| Phase 122 P13 | 35min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-07-30T16:05:34.148Z
-**Stopped at:** Completed 122-12-PLAN.md
+**Last session:** 2026-07-30T16:14:33.573Z
+**Stopped at:** Completed 122-13-PLAN.md — Phase 122 CLOSE complete
 **Resume file:** 
 None
