@@ -29,10 +29,26 @@ green scan must never be presented as satisfying success criterion 4.
 | **Config file (firmware)** | `/workspaces/firestarter/platformio.ini` (`default_envs = uno, uno328pb, leonardo`) |
 | **Standalone gates** | `firestarter_app/tools/*.py` — plain scripts, exit-code contract |
 | **Quick run command** | `cd /workspaces/firestarter_app && python3 -m pytest tests/test_sdp_db_invariant.py -q && python3 tools/diff_db.py && python3 tools/check_no_community_support_status_write.py` |
-| **Full suite command** | `cd /workspaces/firestarter_app && python3 -m pytest -q` (1150 tests) **+** `cd /workspaces/firestarter && pio test -e native` (141 cases) **+** the eleven nine-row non-regression commands |
+| **Full suite command** | `cd /workspaces/firestarter_app && python3 -m pytest -q` (**1134** tests — see the baseline correction below) **+** `cd /workspaces/firestarter && pio test -e native` (141 cases) **+** the eleven nine-row non-regression commands |
 | **Estimated runtime** | quick ~6 s · full ~140 s + nine-row gate |
 
-**Live baselines established 2026-07-30 (pre-merge):** app pytest **1150 passed** · firmware native
+> **⚠ BASELINE CORRECTION (2026-07-30, wave 3).** The app pytest baseline recorded below and in
+> `122-RESEARCH.md` § Validation Architecture as **1150 passed** is **wrong**. The true figure at the
+> pre-merge branch HEAD (`c3c9424`, Phase 121's own final commit) is **1134**, which is what Phase 121
+> independently recorded. Plan 122-04 observed 1134 on the merged tree and flagged the discrepancy.
+>
+> **This was investigated as a possible merge-induced test loss and cleared.** Independent proof: the
+> set of unique `test_*` function names on the merged tree is **identical** to the set at the pre-merge
+> branch HEAD (**1033 each**, `diff` empty) — so the wave-2 `--ours` resolution dropped nothing. The 24
+> test names present on `origin/beta` but absent from the branch were **already absent before the
+> merge**; Phase 121's `dev test` zero-option redesign removed or renamed them by design (e.g.
+> `test_clean_destructive_run_exits_0`, `test_on_tty_destructive_confirm_gates`, the `non_destructive_*`
+> family — all superseded when `--destructive` was removed and three-valued `write_scope` replaced it).
+> `beta` carries 906 unique test names to the branch's 1033, consistent with being 75 commits behind.
+>
+> **Use 1134 as the baseline.** Do not treat 1134 as a regression against 1150.
+
+**Live baselines established 2026-07-30 (pre-merge):** app pytest **1134 passed** (corrected — see above) · firmware native
 **141/141** · firmware script tests **8 passed** · all eleven nine-row commands **PASS** · catalog
 three-way identity clean · mypy 1/35 · four `0x0D` pinouts at 35/19/18/12 with a 43/41 ALLOW/REFUSE
 split reproducing STATE.md exactly.
