@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 122
 current_phase_name: close-honesty-ledger-community-ask-release-decision
 status: executing
-stopped_at: Completed 122-01-PLAN.md
-last_updated: "2026-07-30T12:57:39.323Z"
+stopped_at: Completed 122-02-PLAN.md
+last_updated: "2026-07-30T13:06:37.629Z"
 last_activity: 2026-07-30
-last_activity_desc: Plan 122-01 complete — forbidden-overclaim/required-caveat gate (check_permitted_claims.py) + anti-hollow pytest pairing, GATE-01 discipline verified via deliberate-break control
+last_activity_desc: Plan 122-02 complete — CLOSE-03 beta-push decision (D-05 ACCEPT) + live pre-flight evidence recorded in 122-DECISION.md, zero divergence from 122-RESEARCH.md
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 69
-  completed_plans: 57
-  percent: 83
+  completed_plans: 58
+  percent: 84
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 122 (close-honesty-ledger-community-ask-release-decision) — EXECUTING
-Plan: 1 of 13 complete (next: 122-02)
-Status: Plan 122-01 (Wave 0 dependency) complete — check_permitted_claims.py + anti-hollow pytest pairing + 4 fixtures, all committed
-Last activity: 2026-07-30 — Plan 122-01 complete
+Plan: 2 of 13 complete (next: 122-03)
+Status: Plan 122-02 complete — 122-DECISION.md records CLOSE-03's D-05 ACCEPT verdict + live pre-flight evidence (zero divergence from 122-RESEARCH.md), committed at d5c49d4 before any push
+Last activity: 2026-07-30 — Plan 122-02 complete
 
 > **⚠ Phase 122 planning corrected 13 CONTEXT/ROADMAP framings — plan from `122-RESEARCH.md`, not the ROADMAP prose.**
 > The three that changed the plan's shape:
@@ -631,6 +631,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: py3.9 pytest impossibility reproduced live (syrupy>=5.0 needs >=3.10); py3.9 claim rests on config-pinned ruff/mypy + packaging classifier, not a test run
 - [Phase 122]: 122-01: FIRESTARTER_CLAIMSCAN_TARGETS uses os.environ.get with no default so absent-vs-empty is unambiguous (None=defaults, empty string=zero targets, fail closed)
 - [Phase 122]: 122-01: check_permitted_claims.py's own docstring states a green run is only the mechanizable half of ROADMAP criterion 4, never sufficient alone
+- [Phase 122]: 122-02: D-05 recorded ACCEPT for the beta-push auto-fire; live pre-flight re-measurement matched 122-RESEARCH.md with zero divergence
 
 ## Performance Metrics
 
@@ -725,10 +726,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 121 P13 | 50min | 2 tasks | 9 files |
 | Phase 121 P14 | 110min | 3 tasks | 2 files |
 | Phase 122 P01 | 15min | 3 tasks | 6 files |
+| Phase 122 P02 | 20min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-07-30T12:57:39.294Z
-**Stopped at:** Completed 122-01-PLAN.md
+**Last session:** 2026-07-30T13:06:37.611Z
+**Stopped at:** Completed 122-02-PLAN.md
 **Resume file:** 
-None
