@@ -529,7 +529,7 @@ Plans:
 
 **Wave 9** *(blocked on Wave 8)*
 
-- [ ] 122-11-PLAN.md — Wave 9 · meta · Constraint 4: the **D-16 BLOCKING operator wording review** of all five closing artifacts together, with the claim scanner's first default-target run and the C-5/D-14 divergence put as an explicit accept-or-overturn question. Freezes all five by blob SHA
+- [x] 122-11-PLAN.md — Wave 9 · meta · Constraint 4: the **D-16 BLOCKING operator wording review** of all five closing artifacts together, with the claim scanner's first default-target run and the C-5/D-14 divergence put as an explicit accept-or-overturn question. Freezes all five by blob SHA
 
 **Wave 10** *(blocked on Wave 9)*
 

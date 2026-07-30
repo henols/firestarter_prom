@@ -5,15 +5,15 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 122
 current_phase_name: close-honesty-ledger-community-ask-release-decision
 status: executing
-stopped_at: Completed 122-10-PLAN.md
-last_updated: "2026-07-30T15:41:53.098Z"
+stopped_at: Completed 122-11-PLAN.md
+last_updated: "2026-07-30T15:51:41.082Z"
 last_activity: 2026-07-30
-last_activity_desc: Plan 122-10 complete
+last_activity_desc: Plan 122-11 complete
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 69
-  completed_plans: 66
+  completed_plans: 67
   percent: 86
 ---
 
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 122 (close-honesty-ledger-community-ask-release-decision) — EXECUTING
-Plan: 10 of 13 complete (next: 122-11)
-Status: Plan 122-10 complete — wrote and committed the gh#11 follow-up (`122-GH11-COMMENT.md`) and gh#12 reply (`122-GH12-COMMENT.md`) community comment drafts, authored from `122-LEDGER.md`'s permitted-wording column. gh#11 credits `datapaganism`'s 2026-07-27 real-hardware reproduction, names both defects (the `/WE`-inhibited command emitter and the page-verify conflation), explains why the re-test looked worse than 2024 without being a regression, and asks for plain `write`+`verify` first with `dev test` offered second and optional, carrying the always-writes warning. gh#12 answers the maintainer's own unanswered 2024 auto-unlock design question with the shipped four-element policy, states the 43-allow/41-refuse boundary, and answers all three drifted participants inline — including the CORRECTED `No-Hazmats` answer, which diverges from locked decision D-14's overclaim (research C-5) by stating the refusal plainly, phrased by size class. The divergence is flagged in `122-10-SUMMARY.md` as an explicit accept-or-overturn for the 122-11 operator wording review, consistent with `122-LEDGER.md` and `PROJECT.md`'s EIGHTH CORRECTION item 3. RESEARCH's A1 assumption (the `pdr0663` firmware version and exception name) resolved to CONFIRMED via a re-retrieval against the per-comment API payload — both facts now appear in the gh#12 draft. Both drafts pass `check_permitted_claims.py` (exit 0, pattern set unchanged) and a draft-specific overclaim-shape grep (0 matches). Nothing posted: both issues confirmed still OPEN with unchanged comment counts (12/8). No requirement ticked (CLOSE-02 spans multiple plans, closes only at 122-13).
-Last activity: 2026-07-30 — Plan 122-10 complete
+Plan: 11 of 13 complete (next: 122-12)
+Status: Plan 122-11 complete — D-16's blocking operator wording review of all five closing artifacts (`122-LEDGER.md`, both release bodies, both gh#11/gh#12 comment drafts) is done. The operator was shown the eight-element review packet (final default-target scanner PASS, the five artifacts by audience, the mechanizable/judgement/unsampleable three-way split, the flagged C-5/D-14 divergence in full, the A1 disposition, ledger-traceability tables, four judgement questions, and the post-approval delivery plan) and answered verbatim: "Approve — accept the C-5 correction." Zero content edits were made to any artifact. The C-5/D-14 divergence is now CLOSED as ACCEPTED (not overturned) — `122-GH12-COMMENT.md`'s size-class `No-Hazmats` answer stands as final text; D-14's original "AT28C parts should now work" prescription is superseded and never reaches the public draft. All five artifacts frozen by committed git blob SHA + byte length (recorded in `122-11-SUMMARY.md`) for `122-12`'s byte-equality assertion before and after posting. Final scanner run against the true default five-target set (no env seam) confirmed green, with the explicit restatement that a green scan is the mechanizable half of ROADMAP criterion 4 only. Nothing posted: both release bodies still length 0, both issues still OPEN with unchanged comment counts (12/8). No requirement ticked (CLOSE-02 spans multiple plans, closes only at 122-13).
+Last activity: 2026-07-30 — Plan 122-11 complete
 
 > **⚠ Phase 122 planning corrected 13 CONTEXT/ROADMAP framings — plan from `122-RESEARCH.md`, not the ROADMAP prose.**
 > The three that changed the plan's shape:
@@ -640,9 +640,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 122]: 122-05: nine claim-class rows written instead of D-11's 'roughly eight' -- the timing claim splits into the emitter measurement (gating) and the page-load measurement (context-only), different sources and dispositions
 - [Phase 122]: 122-05: the C-5/D-14 No-Hazmats divergence is recorded in 122-LEDGER.md as an explicit flagged, traceable, overturnable item for Plan 122-11's operator wording review -- not silently corrected
 - [Phase ?]: D-10 EIGHTH CORRECTION: gh#11 community reproduction of the exact predicted INIT abort on real AT28C256 raises TRACE-06 to community-corroborated while the fix stays unproven; 0x0D stays UNVERIFIED, zero support_status changes
-- [Phase ?]: C-5/D-14 divergence flagged in PROJECT.md item 3 as unresolved, awaiting operator accept-or-overturn at plan 122-11's D-16 wording review
+- [Phase ?]: C-5/D-14 divergence flagged in PROJECT.md item 3 — RESOLVED at plan 122-11's D-16 wording review, operator ruled ACCEPT (see the 122-11 decision entry below)
 - [Phase ?]: D-05 accepted: outbound merge pushed to beta in both sub-repos; CI cut 3.0.0b14 in both (firmware verified green first; app hit a standalone-CI test gap, fixed inline, and re-cut). Recorded in 122-CUT.md.
 - [Phase 122]: Operator authorization for the PyPI publish and both-channels verification was pre-granted by the orchestrator with explicit evidence (b14 live both repos, PyPI still b13, C-3's 46% miss rate); verbatim response 'Publish to PyPI' recorded in 122-08-SUMMARY.md
+- [Phase 122]: Operator approved all five 122-11 closing artifacts as written (2026-07-30); C-5/D-14 divergence ruled ACCEPT, corrected size-class No-Hazmats answer is final
 
 ## Performance Metrics
 
@@ -746,10 +747,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 122 P08 | 20min | 3 tasks | 1 files |
 | Phase 122 P09 | 12min | 3 tasks | 3 files |
 | Phase 122 P10 | 25min | 3 tasks | 2 files |
+| Phase 122 P11 | 20 | 3 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-07-30T15:41:53.081Z
-**Stopped at:** Completed 122-10-PLAN.md
+**Last session:** 2026-07-30T15:51:41.064Z
+**Stopped at:** Completed 122-11-PLAN.md
 **Resume file:** 
 None
