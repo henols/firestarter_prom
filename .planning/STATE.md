@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 122
 current_phase_name: close-honesty-ledger-community-ask-release-decision
 status: executing
-stopped_at: Completed 122-05-PLAN.md
-last_updated: "2026-07-30T13:58:47.221Z"
+stopped_at: Completed 122-06-PLAN.md
+last_updated: "2026-07-30T14:12:36.859Z"
 last_activity: 2026-07-30
-last_activity_desc: Plan 122-05 complete
+last_activity_desc: Plan 122-06 complete
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 69
-  completed_plans: 61
-  percent: 88
+  completed_plans: 62
+  percent: 90
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 122 (close-honesty-ledger-community-ask-release-decision) — EXECUTING
-Plan: 5 of 13 complete (next: 122-06)
-Status: Plan 122-05 complete — 122-LEDGER.md written (nine claim-class rows, four-pinout composition table, five mechanism corrections including the flagged C-5/D-14 divergence, D-12 negative space, three-way sampling split); check_permitted_claims.py exits 0 against it; PROTOCOL-LEDGER.{md,json} and REQUIREMENTS.md both untouched
-Last activity: 2026-07-30 — Plan 122-05 complete
+Plan: 6 of 13 complete (next: 122-07)
+Status: Plan 122-06 complete — PROJECT.md carries a new EIGHTH CORRECTION block (9 items) recording D-10's community-corroborated defect / unproven-fix asymmetry, the honest gh#11 provenance, and the flagged (unresolved) C-5/D-14 divergence deferred to 122-11; purely additive (0 deletions), all seven ordinals present exactly once in increasing order, claim scanner green on a temporary extract of the new block; PROTOCOL-LEDGER.{md,json} and REQUIREMENTS.md both untouched; no requirement ticked
+Last activity: 2026-07-30 — Plan 122-06 complete
 
 > **⚠ Phase 122 planning corrected 13 CONTEXT/ROADMAP framings — plan from `122-RESEARCH.md`, not the ROADMAP prose.**
 > The three that changed the plan's shape:
@@ -639,6 +639,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: Cited REQUIREMENTS.md's forbidden claim by file:line instead of quoting it verbatim in 122-NONREGRESSION.md, since the exact wording is the claim-scanner's own trigger phrase and fails the scanner regardless of quotation context
 - [Phase 122]: 122-05: nine claim-class rows written instead of D-11's 'roughly eight' -- the timing claim splits into the emitter measurement (gating) and the page-load measurement (context-only), different sources and dispositions
 - [Phase 122]: 122-05: the C-5/D-14 No-Hazmats divergence is recorded in 122-LEDGER.md as an explicit flagged, traceable, overturnable item for Plan 122-11's operator wording review -- not silently corrected
+- [Phase ?]: D-10 EIGHTH CORRECTION: gh#11 community reproduction of the exact predicted INIT abort on real AT28C256 raises TRACE-06 to community-corroborated while the fix stays unproven; 0x0D stays UNVERIFIED, zero support_status changes
+- [Phase ?]: C-5/D-14 divergence flagged in PROJECT.md item 3 as unresolved, awaiting operator accept-or-overturn at plan 122-11's D-16 wording review
 
 ## Performance Metrics
 
@@ -737,10 +739,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 122 P03 | 7min | 3 tasks | 4 files |
 | Phase 122 P04 | 25min | 3 tasks | 1 files |
 | Phase 122 P05 | 35min | 3 tasks | 1 files |
+| Phase 122 P06 | 35min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-07-30T13:58:12.710Z
+**Last session:** 2026-07-30T14:11:36.490Z
 **Stopped at:** Completed 122-05-PLAN.md
 **Resume file:** 
 None

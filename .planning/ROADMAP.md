@@ -512,7 +512,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4)*
 
-- [ ] 122-06-PLAN.md — Wave 5 · meta · D-10's **EIGHTH CORRECTION** in `PROJECT.md` (C-10 confirms the ordinal): the defect community-corroborated on real AT28C256 silicon while the fix stays unproven, with honest provenance; purely additive edit proven by zero deleted lines
+- [x] 122-06-PLAN.md — Wave 5 · meta · D-10's **EIGHTH CORRECTION** in `PROJECT.md` (C-10 confirms the ordinal): the defect community-corroborated on real AT28C256 silicon while the fix stays unproven, with honest provenance; purely additive edit proven by zero deleted lines
 
 **Wave 6** *(blocked on Wave 5)*
 
