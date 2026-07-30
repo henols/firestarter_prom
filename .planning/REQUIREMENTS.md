@@ -154,23 +154,23 @@ Explicitly excluded, with reasoning, to prevent scope creep.
 
 ## Traceability
 
-Populated during roadmap creation.
+Populated 2026-07-30 by the v1.23 roadmap (`/gsd-new-milestone` → roadmapper). Exact 1:1 category→phase mapping — every requirement in a category maps to that category's single delivering phase; see `.planning/ROADMAP.md` §"v1.23 — PY32F071 Integration" for full success-criteria detail.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BASE-01 … BASE-08 | TBD | Pending |
-| MERGE-01 … MERGE-08 | TBD | Pending |
-| VPP-01 … VPP-03 | TBD | Pending |
-| CFG-01 … CFG-07 | TBD | Pending |
-| HOST-01 … HOST-08 | TBD | Pending |
-| REL-01 … REL-04 | TBD | Pending |
-| PCB-01 … PCB-05 | TBD | Pending |
-| CLOSE-01 … CLOSE-04 | TBD | Pending |
+| BASE-01 … BASE-08 | Phase 123 | Pending |
+| MERGE-01 … MERGE-08 | Phase 124 | Pending |
+| VPP-01 … VPP-03 | Phase 125 | Pending |
+| CFG-01 … CFG-07 | Phase 126 | Pending |
+| HOST-01 … HOST-08 | Phase 127 | Pending |
+| REL-01 … REL-04 | Phase 128 | Pending |
+| PCB-01 … PCB-05 | Phase 129 | Pending |
+| CLOSE-01 … CLOSE-04 | Phase 130 | Pending |
 
 **Coverage:**
 - v1 requirements: **47** total (BASE 8 · MERGE 8 · VPP 3 · CFG 7 · HOST 8 · REL 4 · PCB 5 · CLOSE 4)
-- Mapped to phases: 0
-- Unmapped: 47 ⚠ (roadmap not yet created)
+- Mapped to phases: **47**
+- Unmapped: **0** ✓
 
 ---
 

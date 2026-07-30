@@ -54,7 +54,26 @@ See: `.planning/PROJECT.md` (updated 2026-07-30 — v1.23 Current Milestone sect
 
 ## Roadmap Summary (v1.23)
 
-Not yet created — `gsd-roadmapper` writes this section when the v1.23 roadmap is approved.
+**Created:** 2026-07-30 — adopted research SUMMARY.md's reconciled 8-phase spine (123–130) verbatim; no coverage gaps found requiring deviation.
+
+**Phases:** 8 (123–130). **Granularity:** Comprehensive (config). **Coverage:** 47/47 v1 requirements mapped, 0 unmapped — exact 1:1 category→phase mapping (BASE→123, MERGE→124, VPP→125, CFG→126, HOST→127, REL→128, PCB→129, CLOSE→130).
+
+| Phase | Goal | Requirements | Research |
+|-------|------|--------------|----------|
+| 123 Non-Regression Baselines & Gate Hardening | Record AVR flash/RAM + native counts; split the fail-open FW-absent proxy; ship every checker with a planted-violation fixture — before any firmware moves | BASE-01…08 | skip |
+| 124 Firmware Integration Merge (atomic) | Land `agent/portability-macros` + the py32 stack as one commit-pair; fix C-1 (CMake rename); add ARM `push` trigger; make the pinmap refusal fire | MERGE-01…08 | skip |
+| 125 VPP Control Seam | Hand-authored `rurp_vpp.h`/`.cpp`; every board → `MANUAL_ADJUSTMENT_REQUIRED`; prove `rurp_config_utils.cpp` untouched | VPP-01…03 | skip |
+| 126 Flash-Persistent Config ⚠ highest-risk | Dual-slot CRC32 py32 config backend behind a common/per-platform seam; AVR EEPROM path proven a pure move | CFG-01…07 | **yes** |
+| 127 Host DFU Installer *(parallel w/ 125-126)* | Merge `feature/py32f071-fw-install`; close the 8 remaining host gaps | HOST-01…08 | skip |
+| 128 Release-Asset Fold | Fold ARM build into `beta-build.yml` after the version bump; publish `firestarter_py32f071.hex` as a real release asset | REL-01…04 | skip |
+| 129 Flash-Path Decision & PCB Record | Record the 3-tier flash path + PCB requirements before any schematic, citing Phase 126's actually-reserved flash map | PCB-01…05 | **yes** |
+| 130 Close | Apply R-1…R-18; honesty ledger; ROADMAP slot renumber; release-decision artifact before any push | CLOSE-01…04 | skip |
+
+**Load-bearing ordering (not preference):** 123→124 (gates predate the moves they detect) · 124 atomic (A-4: portability-macros alone breaks native 141/141→0/17-ERRORED) · 125→126 (shared-file attribution: both touch `rurp_config_utils.cpp`) · 127→128 (asset-name contract direction) · 126→129 (real map, not intended) · 128 after the `beta-build.yml` version bump. **Genuinely parallel: {125, 126} ∥ {127}** — different repo, disjoint files, no shared gate; the one real parallelisation opportunity in this spine.
+
+**Deviation from research spine:** none. The 8-phase spine in `.planning/research/SUMMARY.md` §"Implications for Roadmap" was adopted verbatim; the category→phase mapping is exact and required no coverage-gap resolution.
+
+**Full detail:** `.planning/ROADMAP.md` §"v1.23 — PY32F071 Integration (PLANNING)".
 
 ## Accumulated Context
 

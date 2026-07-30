@@ -1953,3 +1953,180 @@ Plans:
 - [x] 107-03-PLAN.md — GATE-01/GATE-02/SAFE-01: re-run native + dispatch-mirror + `check_dispatch.py` (0 violations) + `diff_db.py` (no real-chip change) + host `pytest`/ruff/mypy scoped to `git diff beta..HEAD`; over-voltage stays blocked; pre-existing baseline (D-07) baked in; any real regression STOPS as a blocker (D-04/D-05)
 
 **UI hint**: no
+
+## v1.23 — PY32F071 Integration (PLANNING)
+
+**Milestone goal:** Land the in-flight PY32F071 firmware port and the host USB-DFU firmware installer onto `beta` as one lockstep integration — including the cross-repo release-asset unblock — without touching the three AVR targets, and without claiming anything about silicon that does not exist.
+
+**Validation ceiling (non-negotiable, read before writing or accepting any criterion):** No PY32F071 PCB exists. Permitted claims: the target builds clean; the native and host suites pass at their recorded case *and* suite counts; the DFU sequence is exercised against device descriptors and mocks; host-side timing/sizes are measured where a tool exists to measure them. Forbidden: *"the firmware runs on a PY32F071"* · *"the install works end to end"* · unqualified *"bench-validated"/"hardware-validated"/"silicon-verified"* · *"closed-loop VPP works"* · *"the pin map is correct/verified/validated"*. ARM flash/RAM are unmeasurable in this devcontainer (`arm-none-eabi-gcc`/`cmake`/`ninja` absent) — every ARM size claim cites a **CI workflow run URL + commit SHA**, never a local `pio` run.
+
+**Non-regression invariant:** Uno, ATmega328PB, Leonardo and the native test suite remain unaffected throughout. Golden register traces, the dispatch-mirror guard, `check_dispatch.py` and the nine cross-repo source-scanning gates all stay green — proven by *running*, never by a silently-skipped leg (A-7: a firmware-file rename flips gate legs PASS→SKIP at exit 0 with a false "firmware absent" reason, and this milestone's whole premise is moving firmware files).
+
+**Structural verification discipline (applies to every phase below):** "the merge had no conflicts" is never used as a quality statement — verification is structural: manifest paths resolve, flash/RAM/native-case-count equal the recorded Phase-123 baseline, the nine gates *run* (not skip) and pass, and anything claimed untouched is proven with `git status --porcelain` empty or literal blob SHAs — **never** a path-scoped `git diff`, which passes vacuously on a wrong path. Success criteria assert **counts** (141 native cases / 17 suites), never bare "tests pass" — a suite that stops being collected also reports green.
+
+**Ordering — load-bearing, not preference:**
+- **123 → 124**: gates and baselines must predate the changes they detect; a gate authored afterward can only bless what already happened.
+- **124 is atomic**: `agent/portability-macros` cherry-picked alone takes native from 141/141 to 0 passing / 17 ERRORED (its repair `780a3fb` lives on the stacked branch). No commit on the integration branch may carry the portability half without the full py32 stack.
+- **125 → 126**: both touch `src/rurp_config_utils.cpp`; landing the VPP seam first, with a gate proving that file untouched, keeps the "no `CONFIG_VERSION` bump" claim attributable to a specific phase.
+- **127 → 128**: the host defines the asset-name contract the release fold must match.
+- **126 → 129**: the PCB record cites the flash map as actually reserved, not as intended.
+- **128 must run after the version bump** in `beta-build.yml` — an image built in any other job carries a stale `VERSION`, and that string *is* the host's whole update decision.
+- **Genuinely parallel: {125, 126} ∥ {127}** — different repo, disjoint files, no shared gate. This is the one real parallelisation opportunity in the spine.
+
+```
+123 (gates + baselines, no code moves)      ← LOAD-BEARING first
+ └─► 124 (atomic merge + C-1 fix + push trigger + pinmap refusal)
+      ├─► 125 (VPP seam)  ─►  126 (flash config ⚠) ─► 129 (PCB/flash-path record)
+      └─► 127 (host DFU)  ─►  128 (release fold)
+                                     └────────────► 130 (close; push is its own gate)
+```
+
+**Phase numbering:** Continues from v1.22's Phase 122 → v1.23 starts at **Phase 123**.
+
+**Branch model:** meta forks off the v1.22 tip (`gsd/v1.23-py32f071-integration` off `8be00ee`); sub-repos fork off `beta` per standing policy, then the py32 branches merge in — verify with `git` at execute time regardless.
+
+**Release hazard, unchanged:** pushing `beta` in either sub-repo auto-fires CI and cuts a new beta prerelease — it has happened twice already in this project (stray `3.0.0b12`s remain public). The cut is a deliberate decision, never a side effect, and Phase 130's push is its own gate (see below).
+
+**Research flags:** Phase 126 (flash config) and Phase 129 (PCB record) need `/gsd-plan-phase --research-phase <N>` — both have genuinely undesigned/LOW-confidence content. Phases 123, 124, 125, 127, 128 are standard patterns with in-tree precedents — research-skip.
+
+### Phases
+
+- [ ] **Phase 123: Non-Regression Baselines & Gate Hardening** — Record AVR flash+RAM and native case/suite-count baselines, split the fail-open FW-absent gate proxy, and ship every checker (CMake-manifest-drift, orphan-provisional-macro, warning-count, `check_permitted_claims.py`) with a planted-violation fixture — before any firmware code moves.
+- [ ] **Phase 124: Firmware Integration Merge** — Land `agent/portability-macros` + the py32 stack as one atomic commit-pair, fix the CMake source-list rename (C-1), add the ARM `push` CI trigger, and make the provisional-pinmap refusal guard structurally able to fire.
+- [ ] **Phase 125: VPP Control Seam** — Hand-author `rurp_vpp.h`/`rurp_vpp.cpp` (nothing cherry-picked from PR #45); every board returns `MANUAL_ADJUSTMENT_REQUIRED`; prove `rurp_config_utils.cpp` untouched before Phase 126 touches it.
+- [ ] **Phase 126: Flash-Persistent Config** — Design and land the dual-slot CRC32 py32 config backend behind a common/per-platform storage seam, with the AVR EEPROM backend proven a pure move.
+- [ ] **Phase 127: Host DFU Installer** — Merge `feature/py32f071-fw-install`, close the remaining 8 host gaps (pyusb CI leg, coverage, opcode anchoring, channel-gating both ways), parallel with Phases 125/126.
+- [ ] **Phase 128: Release-Asset Fold** — Fold the ARM build into `beta-build.yml` after the version bump so `firestarter_py32f071.hex` publishes as a real release asset.
+- [ ] **Phase 129: Flash-Path Decision & PCB Requirements Record** — Record the three-tier flash-path decision and the PCB requirements (straps, pads, port, VID/PID, reserved flash map) before any schematic exists.
+- [ ] **Phase 130: Close — Honesty Ledger, Claim Gate, Release Decision** — Apply all 18 research corrections to the planning record, write the claim ledger, land the ROADMAP slot renumber, and make the `beta` push its own explicit, operator-gated release decision.
+
+## Phase Details
+
+### Phase 123: Non-Regression Baselines & Gate Hardening
+
+**Goal**: Every gate and baseline this milestone will judge later phases against exists — and is proven able to fail on a planted violation — before a single firmware file moves.
+**Depends on**: Nothing in v1.23 (first phase; continues numbering from v1.22's Phase 122). Builds on the v1.21/v1.22 checker+planted-fixture house style (9 legs / 7 legs+4 fixtures).
+**Requirements**: BASE-01, BASE-02, BASE-03, BASE-04, BASE-05, BASE-06, BASE-07, BASE-08
+**Success Criteria** (what must be TRUE):
+
+  1. A committed baseline file records flash **and RAM** for all three AVR targets (Leonardo 26072/2014, Uno 23932/1573, uno328pb 23976) and the native **case and suite** counts (141 cases / 17 suites) — a number every later phase cites by reading this file, never by recomputing or remembering it.
+  2. With a merged `firestarter` sibling present, the split FW-absent proxy (keyed on `../firestarter/.git`) turns a renamed/missing scan target into a **hard failure** rather than a silent skip, and the skip-census assertion fails the suite if any skip reason claims the firmware checkout is absent while `../firestarter/.git` exists — both proven against a committed planted-violation fixture, not merely described.
+  3. The CMake manifest-drift gate exits non-zero against a fixture with one deliberately mismatched source path, and exits zero against a fixture whose omission is listed in a commented `PY32_EXCLUDED` allow-list — proving it distinguishes deliberate omission from rename damage.
+  4. The orphan-provisional-macro checker exits non-zero against a fixture defining a `RURP_*_PROVISIONAL`-style flag with zero consumers, and the warning-count gate exits non-zero against a fixture introducing one macro-redefinition warning.
+  5. `check_permitted_claims.py` (v1.23 phrase table) exits non-zero when its target-file list is empty (fails closed) and exits non-zero against a fixture containing one of the milestone's forbidden phrases; every checker introduced this phase ships with its own committed planted-violation fixture and a pytest proving the non-zero exit.
+
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 124: Firmware Integration Merge
+
+**Goal**: `agent/portability-macros` and the py32 firmware stack exist on the integration branch as one atomic landing, the ARM target actually configures and builds, and the provisional pin map cannot energise a PROM.
+**Depends on**: Phase 123 (baselines and gates must exist before this phase's changes are judged against them).
+**Requirements**: MERGE-01, MERGE-02, MERGE-03, MERGE-04, MERGE-05, MERGE-06, MERGE-07, MERGE-08
+**Success Criteria** (what must be TRUE):
+
+  1. `git log` on the integration branch shows no commit where the portability-macro files are present without the full py32 stack (including `780a3fb`) — the landing is one atomic commit or merge, never a two-step sequence — and after it lands, `pio test -e native` and `-e native_nodevtools` report **exactly** the Phase-123 baseline counts (141 cases / 17 suites), asserted as a count.
+  2. `platform/py32f071/CMakeLists.txt` names `flash_nor_unlock.cpp`/`flash_5v_page.cpp` (not `flash_type_3/4.cpp`), the ARM target reaches a successful CMake configure **and** build cited by a **CI workflow run URL + commit SHA** (no local ARM toolchain exists to verify this), and `py32f071.yml` carries a `push: branches: [beta]` trigger verified by reading the workflow file.
+  3. While `RURP_PY32F071_PINMAP_PROVISIONAL` is 1, a native test proves every operation that can energise a PROM is refused on the py32 target, and the `#error` guard is restructured so a planted-violation build (an unset `RURP_PY32F071_PINMAP_CONFIGURED`) proves it can actually fire — not structurally dead as found on the source branch.
+  4. AVR flash and RAM, recorded against the Phase-123 baseline, show Leonardo flash **not growing**, Uno-class flash growth **≤ 64 B**, and RAM unchanged on Uno/Leonardo — each a measured build output; golden register traces stay byte-identical, checked **per-array** for `_shared/sdp_expected.h`.
+  5. All nine cross-repo source-scanning gates are shown to **run** (never SKIP) and pass, executed from a directory literally named `firestarter_app` with a merged `firestarter` sibling, and the three named in-branch defects are each independently verifiable as fixed: `FLASH_LATENCY_1` (not `_ACR_LATENCY_1`) is the constant in use at 48 MHz, `write_checksums.cmake` is deleted or has a real consumer, and ARM `DEV_TOOLS`-off is an explicit commented decision in the CMake defines.
+
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 125: VPP Control Seam
+
+**Goal**: The py32 port compiles against a final VPP capability shape — every board manually-controlled, nothing cherry-picked from the closed calibration PR — without touching a single byte of the shared config file the next phase edits.
+**Depends on**: Phase 124 (the merged `rurp_shield.h` this seam's one new `#include` line attaches to).
+**Requirements**: VPP-01, VPP-02, VPP-03
+**Success Criteria** (what must be TRUE):
+
+  1. `include/rurp_vpp.h` and `src/rurp_vpp.cpp` are new, hand-authored files — none of PR #45's commit SHAs (`05f4a77`, `9134f2a`, etc.) appear as ancestors of the integration branch, checked by `git log --all --grep`/SHA lookup, not by prose assertion.
+  2. A single parametrized native test asserts `rurp_set_vpp_target_mv()` returns `MANUAL_ADJUSTMENT_REQUIRED` across **every** board macro-set (Uno, Leonardo, uno328pb, py32f071) in one run, not a single-board spot check.
+  3. A diff gate proves `src/boards/rurp_common.cpp`, `include/rurp_types.h`, and `src/rurp_config_utils.cpp` are byte-identical to their pre-phase state — via `git status --porcelain` empty or a literal blob-SHA match, **never** a path-scoped `git diff` that could pass vacuously on a wrong path — and `CONFIG_VERSION` is still literally `"VER06"`.
+  4. The AVR flash delta introduced by this phase is measured against the Phase-124 baseline and recorded (not assumed to be zero), for all three AVR targets.
+
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 126: Flash-Persistent Config via a Storage-Backend Seam ⚠ highest-risk phase
+
+**Goal**: The py32 target — which has no EEPROM — persists its configuration in flash through a CRC-protected dual-slot scheme, behind a common/per-platform seam that leaves the AVR EEPROM path byte-identical and the config schema unchanged.
+**Depends on**: Phase 125 (the "config file untouched" gate from Phase 125 makes any regression here attributable to this phase alone).
+**Requirements**: CFG-01, CFG-02, CFG-03, CFG-04, CFG-05, CFG-06, CFG-07
+**Success Criteria** (what must be TRUE):
+
+  1. The in-scope flash-config design is vendored onto the milestone branch citing blob `4b1a441` (the closed-PR origin) by name in a comment or doc, with every part of that design superseded by PR #48's actual module layout explicitly marked as superseded rather than silently followed.
+  2. A commit recording the PY32F071xB flash page/erase-unit size (read from the Puya reference manual, cited) exists and **precedes**, in commit history, any commit that edits `PY32F071xB_FLASH.ld` — the size is read before the linker script is touched, not guessed or reverse-derived from it.
+  3. `src/rurp_config_utils.cpp` is split into a common policy layer plus a two-function byte-blob backend per platform, and a regression test asserts `EEPROM.get`/`put` at offset 48 with `sizeof(rurp_configuration_t)`, behavior-identical to the pre-refactor code — proven by an **empty `git diff` on the test file itself**, not merely "tests pass."
+  4. The py32 dual-slot CRC32 backend passes a native fake-backend suite with six distinctly named test functions, one each for: blank, newest-wins, CRC rejection, both-slots-corrupt, interrupted write, and slot alternation — never one aggregate pass/fail.
+  5. `PY32F071xB_FLASH.ld` reserves two config pages in **different erase units** (verified against the CFG-02 page size), exposed as linker symbols the host's `FLASH_BASE`/`FLASH_SIZE` stay consistent with; `rurp_configuration_t` and `CONFIG_VERSION` are unchanged; and PR #48's `config.cpp` policy drift — including a `rurp_save_config()` that persists nothing — is deleted, verified by its absence from the tree.
+
+**Plans**: TBD
+**Research flag**: yes — `/gsd-plan-phase --research-phase 126` (A-6/R-8: `PORTING.md` is stranded on closed PRs and partly superseded; the flash page size is stated nowhere in-tree)
+**UI hint**: no
+
+### Phase 127: Host DFU Installer
+
+**Goal**: `firestarter_app` gains a working, tested, channel-gated py32 DFU install path with the eight remaining gaps closed — landed independently of the firmware seams, in parallel with Phases 125–126.
+**Depends on**: Phase 124 (the merge that makes the firmware side of this integration real; this phase is otherwise independent of Phases 125/126's firmware-only seams and runs in parallel with them).
+**Requirements**: HOST-01, HOST-02, HOST-03, HOST-04, HOST-05, HOST-06, HOST-07, HOST-08
+**Success Criteria** (what must be TRUE):
+
+  1. `feature/py32f071-fw-install` @ `4ee64a1` is merged (the merge commit's parent SHAs include `4ee64a1`), `--usb-id` is rejected on a simulated stable channel by the same mechanism `--dfu-probe` already uses, and the full host suite passes in the sibling layout at its **exact collected-test count**, 0 failures — not merely "green."
+  2. A CI leg installs `.[test,py32]` (distinct from the existing `.[test]`-only leg) and a test genuinely imports `pyusb`, exercising real calls (`usb.core.find`, `ctrl_transfer`) rather than a mock of the module.
+  3. `PyusbMissingError`'s `# pragma: no cover` is removed and a test exercises that code path directly; a separate test proves `fw --list` and `fw --help` both work (exit 0, expected output) with `pyusb` genuinely uninstalled in that test's environment.
+  4. `DFU_UPLOAD` readback verification fails **soft** (no exception, a recorded soft-fail state) when a mock device reports `bitCanUpload = 0`, and one test anchors the DFU opcode literals to UM1504/DFU 1.1 values written independently in the test file, not imported from the module under test and asserted against themselves.
+  5. The `pyusb` floor is `>=1.3.1,<2` in packaging metadata, and channel gating is proven **both ways** in one test module: a simulated stable `__version__` hides `py32f071` from `fw --help`'s board choices and rejects `--dfu-probe`; a simulated pre-release version exposes both — with an explicit assertion that `_BOARD_CHOICES` is computed at import time, not cached stale across a version change.
+
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 128: Release-Asset Fold
+
+**Goal**: `firestarter_py32f071.hex` publishes as a real GitHub release asset carrying the correct release `VERSION`, and a broken ARM build can never block the three AVR assets from publishing.
+**Depends on**: Phase 124 (the ARM target must configure before it can be folded into the release job) and Phase 127 (the host's `asset_candidates()` contract this phase's filename must match).
+**Requirements**: REL-01, REL-02, REL-03, REL-04
+**Success Criteria** (what must be TRUE):
+
+  1. In `beta-build.yml`, the ARM build steps are ordered strictly **after** the `update_version.py` auto-commit step within the same job — verified by reading the YAML step order — so the published image carries the release `VERSION` string the host's update decision depends on.
+  2. `firestarter_py32f071.hex` is published as a GitHub **release asset** (not an Actions artifact), matched by a glob in the release-action config, verified present in a real release **cited by a CI workflow run URL + commit SHA** (no local ARM build exists to check this against).
+  3. A deliberately-broken ARM build (a planted-violation CI run) still publishes all three AVR `.hex` assets — proven by an "AVR assets present" assertion step that runs before the `Release` step and demonstrably fails the build if any AVR asset is missing.
+  4. CI logs the resolved SDK commit SHA and asserts the emitted filename matches `asset_candidates("py32f071")[0]` via a mechanical string-equality check in the workflow, not a human read of the release page.
+
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 129: Flash-Path Decision & PCB Requirements Record
+
+**Goal**: Every PCB decision that is free today and unrecoverable after layout is written down, citing the flash map Phase 126 actually reserved rather than one merely intended.
+**Depends on**: Phase 126 (the real, reserved flash-config addresses this record must cite).
+**Requirements**: PCB-01, PCB-02, PCB-03, PCB-04, PCB-05
+**Success Criteria** (what must be TRUE):
+
+  1. A committed ADR-style record names the three-tier flash path — self-flash bootloader over CDC+COBS as intended primary, factory USB DFU as maintainer/manufacturing recovery, SWD as last resort — and states explicitly, in the same document, that landing the DFU path this milestone does **not** retire the self-flash seed.
+  2. The record lists PCB requirements as distinct, checkable line items — BOOT0/nBOOT1 strap reachability, exposed SWD pads, a contiguous 8-bit GPIO port for the data bus, and a depopulated HSE footprint — not prose paragraphs.
+  3. The record's flash-budget section cites the actual reserved addresses/sizes from Phase 126's linker symbols (not a pre-Phase-126 estimate), including the bootloader region and a stated vector-relocation implication for a part with no VTOR.
+  4. The record names a specific USB VID/PID decision (replacing the undocumented `0x36B7`/`0xFFFF` placeholder) with its sourcing basis and an explicit statement that squatting becomes a liability the moment a board ships.
+  5. The socket-empty-before-any-py32-firmware-install safety instruction is documented somewhere a future installer/tester will read it, with an explicit statement of why it is stronger here than the comparable warning in other projects (the provisional pin map).
+
+**Plans**: TBD
+**Research flag**: yes — `/gsd-plan-phase --research-phase 129` (USB VID/PID route, BOOT0/nBOOT1 strap details, bootloader-region/vector-relocation implications are all currently LOW-confidence web sourcing)
+**UI hint**: no
+
+### Phase 130: Close — Honesty Ledger, Claim Gate, Release Decision
+
+**Goal**: The planning record carries every research correction, an honesty ledger pairs each permitted claim with its non-claim, the ROADMAP slot renumber lands, and pushing `beta` is a deliberate, recorded decision rather than a side effect.
+**Depends on**: Phase 128 (release fold) and Phase 129 (PCB record) — everything else this milestone delivers must exist before the close artifacts describe it.
+**Requirements**: CLOSE-01, CLOSE-02, CLOSE-03, CLOSE-04
+**Success Criteria** (what must be TRUE):
+
+  1. All of R-1…R-18 are individually corrected in PROJECT.md, STATE.md, ROADMAP.md and `.planning/notes/py32f071-port-branch-state.md` — verified by grepping for each specific superseded figure/claim (e.g. "2992 B", py32 buffer "1024", "27 commits behind") and confirming zero remaining occurrences outside a labeled correction/history block.
+  2. An honesty ledger (mirroring v1.22's `122-LEDGER.md` shape) pairs each permitted claim with its explicit non-claim, covering at minimum: the provisional pin map, the absent ARM bus-trace oracle, unmeasured USB-ISR-vs-PROM timing, and the mock-only ceiling on HOST-03's DFU_UPLOAD readback.
+  3. The ROADMAP slot renumber lands in the same change as the stale v1.28 prior-art correction: the v1.28/v1.29 py32 slots are retired into the v1.23 record, `Binary Command Protocol` is renumbered v1.23 → v1.28, and v1.24–v1.27 are byte-unchanged (`git diff` shows zero line changes in those four entries).
+  4. A `13X-DECISION.md` release-decision artifact is committed **before any push** of `beta` in either sub-repo; once pushed, the actually-cut prerelease tag is read from `gh release list` (never computed from a version-bump script), and PyPI resolution is verified directly (`pip index`/`pip download` from a clean temp env) — never inferred from a green CI tick.
+
+**Ordering note — this phase's push is its own gate.** Pushing `beta` auto-fires CI and cuts a beta prerelease; it has happened twice already in this project, and the repos currently carry stray public `3.0.0b12` prereleases alongside the real `3.0.0b14` cut. **`--auto`/`--chain` auto-approves human-verify checkpoints, and `autonomous: false` does not protect an outward-facing gate** — the push decision must be gated explicitly, separately from any autonomous-mode flag. Decide up front whether v1.23 accepts *"the merge IS the cut"* as v1.22 did.
+
+**Plans**: TBD
+**UI hint**: no
