@@ -5,16 +5,16 @@ milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 122
 current_phase_name: close-honesty-ledger-community-ask-release-decision
 status: executing
-stopped_at: Completed 122-09-PLAN.md
-last_updated: "2026-07-30T15:32:29.736Z"
+stopped_at: Completed 122-10-PLAN.md
+last_updated: "2026-07-30T15:41:53.098Z"
 last_activity: 2026-07-30
-last_activity_desc: Plan 122-09 complete
+last_activity_desc: Plan 122-10 complete
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 69
-  completed_plans: 65
-  percent: 94
+  completed_plans: 66
+  percent: 86
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 122 (close-honesty-ledger-community-ask-release-decision) — EXECUTING
-Plan: 9 of 13 complete (next: 122-10)
-Status: Plan 122-09 complete — wrote and committed the two hand-authored, ceiling-compliant prerelease bodies (`122-RELEASE-NOTES-fw.md`, `122-RELEASE-NOTES-app.md`), gated green by the Wave 0 claim scanner (`PASS: scanned 122-RELEASE-NOTES-fw.md, 122-RELEASE-NOTES-app.md`, exit 0, pattern set unchanged) and a full claim-sentence-to-ledger-claim-class traceability pass recorded in `122-09-SUMMARY.md`. Both bodies carry the "no AT28C silicon was tested" caveat, the measured host-side timing (568/412/424us vs 600us budget, firmware body only), and the `43 ALLOW / 41 REFUSE` capability boundary naming the FRAM parts and the pre-SDP `2804`/`2816`/`2817` generation — so "all four pinouts" cannot be read as broader capability than shipped. The app body carries the `dev test` always-writes warning verbatim per the standing Phase 121 obligation. Neither body was posted: both GitHub release bodies confirmed still length 0, and issue 11/12 comment counts unchanged (12/8). Both bodies use "this prerelease" rather than a hardcoded version string, so there is nothing to drift from `122-CUT.md`'s observed `3.0.0b14`. One inline fix during authoring: a markdown line-wrap had split the canonical caveat sentence across two lines in the firmware draft, breaking the literal grep-based acceptance check — reflowed before committing. No requirement ticked (CLOSE-02/CLOSE-03 span multiple plans, close only at 122-13).
-Last activity: 2026-07-30 — Plan 122-09 complete
+Plan: 10 of 13 complete (next: 122-11)
+Status: Plan 122-10 complete — wrote and committed the gh#11 follow-up (`122-GH11-COMMENT.md`) and gh#12 reply (`122-GH12-COMMENT.md`) community comment drafts, authored from `122-LEDGER.md`'s permitted-wording column. gh#11 credits `datapaganism`'s 2026-07-27 real-hardware reproduction, names both defects (the `/WE`-inhibited command emitter and the page-verify conflation), explains why the re-test looked worse than 2024 without being a regression, and asks for plain `write`+`verify` first with `dev test` offered second and optional, carrying the always-writes warning. gh#12 answers the maintainer's own unanswered 2024 auto-unlock design question with the shipped four-element policy, states the 43-allow/41-refuse boundary, and answers all three drifted participants inline — including the CORRECTED `No-Hazmats` answer, which diverges from locked decision D-14's overclaim (research C-5) by stating the refusal plainly, phrased by size class. The divergence is flagged in `122-10-SUMMARY.md` as an explicit accept-or-overturn for the 122-11 operator wording review, consistent with `122-LEDGER.md` and `PROJECT.md`'s EIGHTH CORRECTION item 3. RESEARCH's A1 assumption (the `pdr0663` firmware version and exception name) resolved to CONFIRMED via a re-retrieval against the per-comment API payload — both facts now appear in the gh#12 draft. Both drafts pass `check_permitted_claims.py` (exit 0, pattern set unchanged) and a draft-specific overclaim-shape grep (0 matches). Nothing posted: both issues confirmed still OPEN with unchanged comment counts (12/8). No requirement ticked (CLOSE-02 spans multiple plans, closes only at 122-13).
+Last activity: 2026-07-30 — Plan 122-10 complete
 
 > **⚠ Phase 122 planning corrected 13 CONTEXT/ROADMAP framings — plan from `122-RESEARCH.md`, not the ROADMAP prose.**
 > The three that changed the plan's shape:
@@ -745,10 +745,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 122 P07 | 47min | 3 tasks | 3 files |
 | Phase 122 P08 | 20min | 3 tasks | 1 files |
 | Phase 122 P09 | 12min | 3 tasks | 3 files |
+| Phase 122 P10 | 25min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-30T15:31:40.066Z
-**Stopped at:** Completed 122-09-PLAN.md
+**Last session:** 2026-07-30T15:41:53.081Z
+**Stopped at:** Completed 122-10-PLAN.md
 **Resume file:** 
 None

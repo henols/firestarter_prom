@@ -525,7 +525,7 @@ Plans:
 **Wave 8** *(blocked on Wave 7)*
 
 - [x] 122-09-PLAN.md — Wave 8 · meta · D-08's two hand-written prerelease bodies (`122-RELEASE-NOTES-fw.md` / `-app.md`), authored from the ledger, gated by the claim scanner + hygiene assertions + a claim→claim-class traceability pass. C-6: the body is an *add*; C-7: only the firmware release carries assets
-- [ ] 122-10-PLAN.md — Wave 8 · meta · D-15's gh#11 draft (both defects, the apparent-regression explanation, the credit, D-02's plain-write-first ask with the always-writes warning) and D-13/D-14's gh#12 draft — including the **C-5-CORRECTED** `No-Hazmats` answer by size class, plus A1 resolved rather than asserted
+- [x] 122-10-PLAN.md — Wave 8 · meta · D-15's gh#11 draft (both defects, the apparent-regression explanation, the credit, D-02's plain-write-first ask with the always-writes warning) and D-13/D-14's gh#12 draft — including the **C-5-CORRECTED** `No-Hazmats` answer by size class, plus A1 resolved rather than asserted
 
 **Wave 9** *(blocked on Wave 8)*
 
