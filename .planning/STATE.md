@@ -1,18 +1,20 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.23
-milestone_name: PY32F071 Integration
+milestone_name: is a RAM/throughput optimization. The architecture choice below stays deferred exactly as recorded — queueing the milestone does **not** pick a design.
+current_phase_name: defining requirements
 status: planning
-last_updated: "2026-07-30T18:18:17.352Z"
+stopped_at: Phase 123 context gathered
+last_updated: "2026-07-30T20:24:39.589Z"
 last_activity: 2026-07-30
-current_phase: 123
-current_phase_name: non-regression-baselines-gate-hardening
+last_activity_desc: Milestone v1.23 started
 progress:
   total_phases: 8
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
   percent: 0
+current_phase: 123
 ---
 
 # Project State
@@ -607,7 +609,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-07-30T16:14:33.573Z
-**Stopped at:** Completed 122-13-PLAN.md — Phase 122 CLOSE complete
+**Last session:** 2026-07-30T20:24:39.575Z
+**Stopped at:** Phase 123 context gathered
 **Resume file:** 
-None
+.planning/phases/123-non-regression-baselines-gate-hardening/123-CONTEXT.md
