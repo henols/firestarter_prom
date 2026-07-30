@@ -508,7 +508,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3)*
 
-- [ ] 122-05-PLAN.md — Wave 4 · meta · `122-LEDGER.md`: nine claim-class rows each pairing a permitted wording with an explicit non-claim (D-11), the pinout-composition section carrying the emission-traced-vs-operation-permitted distinction, five recorded mechanism corrections incl. the flagged C-5/D-14 divergence, and D-12's negative space (SDP-F1..F8 + three owned trade-offs)
+- [x] 122-05-PLAN.md — Wave 4 · meta · `122-LEDGER.md`: nine claim-class rows each pairing a permitted wording with an explicit non-claim (D-11), the pinout-composition section carrying the emission-traced-vs-operation-permitted distinction, five recorded mechanism corrections incl. the flagged C-5/D-14 divergence, and D-12's negative space (SDP-F1..F8 + three owned trade-offs)
 
 **Wave 5** *(blocked on Wave 4)*
 
