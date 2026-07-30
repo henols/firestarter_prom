@@ -4,9 +4,9 @@ milestone: v1.22
 milestone_name: — AT28C Software Data Protection Lifecycle
 current_phase: 122
 current_phase_name: CLOSE — honesty ledger, community ask, release decision
-status: completed
-stopped_at: Completed 121-14-PLAN.md
-last_updated: "2026-07-29T22:58:51.463Z"
+status: in-progress
+stopped_at: Phase 122 context gathered
+last_updated: "2026-07-30T11:07:16.980Z"
 last_activity: 2026-07-29
 last_activity_desc: Phase 121 complete, transitioned to Phase 122
 progress:
@@ -26,7 +26,7 @@ progress:
 
 Phase: 122 — CLOSE — honesty ledger, community ask, release decision
 Plan: Not started
-Status: Phase 121 execution complete
+Status: in-progress
 Last activity: 2026-07-29 — Phase 121 complete, transitioned to Phase 122
 
 > **⚠ Phase 120 planning superseded D-01/D-02's curated allow-set — the partition is now DERIVED (`120-SDP-PARTITION.md`, `6ad8688`).**
@@ -701,7 +701,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-07-29T22:44:59.887Z
-**Stopped at:** Completed 121-14-PLAN.md
+**Last session:** 2026-07-30T11:06:36.751Z
+**Stopped at:** Phase 122 context gathered
 **Resume file:** 
-None
+.planning/phases/122-close-honesty-ledger-community-ask-release-decision/122-CONTEXT.md
