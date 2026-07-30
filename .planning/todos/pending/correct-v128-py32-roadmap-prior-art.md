@@ -5,8 +5,17 @@ captured: 2026-07-28
 status: pending
 type: docs
 priority: medium
+resolves_phase: 130
 source: /gsd-explore 2026-07-28 (notes/py32f071-port-branch-state.md)
 ---
+
+> **Linked to v1.23 Phase 130 (CLOSE-03), 2026-07-30.** That phase owns the
+> ROADMAP slot renumber and this prior-art correction in the same change. Note
+> the v1.23 research independently re-verified all five corrections below AND
+> found a sixth: `platform/py32f071/PORTING.md` — which this entry's item 4 and
+> the ROADMAP both cite — exists **only** on the two CLOSED PRs (#46/#47, blob
+> `4b1a441`), not on the live stack, and its prescribed module layout does not
+> match what #48 built. See `.planning/research/SUMMARY.md` A-6/R-8.
 
 # Correct the v1.28 PY32F071 ROADMAP entry
 

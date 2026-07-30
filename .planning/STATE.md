@@ -5,8 +5,10 @@ milestone_name: PY32F071 Integration
 status: planning
 last_updated: "2026-07-30T18:18:17.352Z"
 last_activity: 2026-07-30
+current_phase: 123
+current_phase_name: non-regression-baselines-gate-hardening
 progress:
-  total_phases: 0
+  total_phases: 8
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
