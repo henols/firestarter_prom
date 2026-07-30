@@ -162,3 +162,10 @@ None — no external service configuration required. Nothing was pushed; no GitH
 ---
 *Phase: 122-close-honesty-ledger-community-ask-release-decision*
 *Completed: 2026-07-30*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/122-close-honesty-ledger-community-ask-release-decision/122-NONREGRESSION.md`
+- FOUND: `.planning/phases/122-close-honesty-ledger-community-ask-release-decision/122-04-SUMMARY.md`
+- FOUND: `14e6b06` (122-NONREGRESSION.md commit)
+- FOUND: `2ce567a` (initial SUMMARY commit)
