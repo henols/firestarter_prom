@@ -5,16 +5,16 @@ milestone_name: — PY32F071 Integration
 current_phase: 123
 current_phase_name: non-regression-baselines-gate-hardening
 status: executing
-stopped_at: Completed 123-08-PLAN.md
-last_updated: "2026-07-31T00:19:33.355Z"
+stopped_at: Completed 123-04-PLAN.md
+last_updated: "2026-07-31T00:34:10.317Z"
 last_activity: 2026-07-31
-last_activity_desc: Executed 123-08 (rekey 7 proxy modules + D-11 scan-path inventory)
+last_activity_desc: Executed 123-04 (BASE-04 check_cmake_manifest.py CMake source-list drift gate + 4 fixture trees)
 progress:
   total_phases: 8
   completed_phases: 0
   total_plans: 11
-  completed_plans: 6
-  percent: 55
+  completed_plans: 7
+  percent: 64
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 123 (non-regression-baselines-gate-hardening) — EXECUTING
-Plan: 8 of 11 (completed)
+Plan: 9 of 11 (completed)
 Status: Ready to execute next plan
-Last activity: 2026-07-31 — Executed 123-08 (rekey 7 proxy modules + D-11 scan-path inventory)
+Last activity: 2026-07-31 — Executed 123-04 (BASE-04 check_cmake_manifest.py CMake source-list drift gate + 4 fixture trees; firmware suite 33 passed)
 
 ## Project Reference
 
@@ -513,6 +513,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: PlatformIO-invisibility verified via test_filter entry counts (17 per native env), not pio test --list-tests, which enumerates all on-disk suite dirs (18) regardless of test_filter
 - [Phase 123-08]: Rekeyed all 7 proxy-carrying host test modules onto tests.fw_presence.requires_fw (24 decorator legs + 1 non-decorator inline guard promoted to a decorator); every per-module reason= string and FW_ABSENT-shaped constant removed
 - [Phase 123-08]: Created tests/scan_paths.py (D-11) covering both cross-repo populations; verifying RESEARCH's 11 tool files individually found 7 of them are same-repo package look-alikes, not cross-repo resolvers, despite matching the grep that found them
+- [Phase 123]: PATH_RE requires a (?!\w) boundary after the recognised extension so a greedy backtrack can never misclassify CMAKE_TOOLCHAIN_FILE's .cmake as a bogus .c source entry
+- [Phase 123]: Missing/unparseable manifest under an armed key, and an unrecognised source-list name, both exit 2 (config/parse error class), consistent with this phase's other two checkers
 
 ## Performance Metrics
 
@@ -625,10 +627,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 123 P07 | 45min | 3 tasks | 5 files |
 | Phase 123 P03 | 30 | 3 tasks | 6 files |
 | Phase 123 P08 | 70min | 3 tasks | 9 files |
+| Phase 123 P04 | 35 | 3 tasks | 20 files |
 
 ## Session
 
-**Last session:** 2026-07-31T00:19:33.341Z
-**Stopped at:** Completed 123-07-PLAN.md
+**Last session:** 2026-07-31T00:34:10.295Z
+**Stopped at:** Completed 123-04-PLAN.md
 **Resume file:** 
 None
