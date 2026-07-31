@@ -2207,8 +2207,71 @@ Plans:
   4. The py32 dual-slot CRC32 backend passes a native fake-backend suite with six distinctly named test functions, one each for: blank, newest-wins, CRC rejection, both-slots-corrupt, interrupted write, and slot alternation — never one aggregate pass/fail.
   5. `PY32F071xB_FLASH.ld` reserves two config pages in **different erase units** (verified against the CFG-02 page size), exposed as linker symbols the host's `FLASH_BASE`/`FLASH_SIZE` stay consistent with; `rurp_configuration_t` and `CONFIG_VERSION` are unchanged; and PR #48's `config.cpp` policy drift — including a `rurp_save_config()` that persists nothing — is deleted, verified by its absence from the tree.
 
-**Plans**: TBD
+> **⚠ Three locked decisions were amended during research and planning (2026-07-31).** The criteria
+> above stand; three *mechanisms* they rest on are superseded, and the plans implement the corrected
+> shapes rather than the original wording.
+> **(a) D-16 is not implementable as written (RESEARCH C-2).** *"Program the header/CRC word LAST"*
+> has no primitive on this part: `IS_FLASH_TYPEPROGRAM` accepts exactly one value,
+> `FLASH_Program_Page` writes 64 words unconditionally, and RM V0.2 §4.2.3.2 hard-faults on any
+> non-32-bit write. The property D-16 protects survives through a different mechanism — the active
+> slot is never touched and the completion of the single 256-byte page program **is** the commit, with
+> a torn page rejected by CRC on the next load. The amendment is recorded in
+> `platform/py32f071/CONFIG-STORAGE.md`, not silently substituted.
+> **(b) D-18 refines D-10/D-11's shrink quantum (from RESEARCH C-5).** One whole 8 KiB sector rather
+> than two 256 B pages: `FLASH` `LENGTH` 128K → 120K, `CONFIG` at `0x0801E000` + 8K, slots at
+> `0x0801E000` (page 480) and `0x0801E100` (page 481). D-10's top-of-flash placement, the shrunk
+> `LENGTH`, the second `MEMORY` region and the `PROVIDE`d symbols are untouched.
+> **(c) D-08's manifest churn is four edits, not three (RESEARCH C-3), and they are deliberately split
+> across two commits.** `py32f071_hal_flash.c` is absent from `PY32_SDK_SOURCES` entirely, so the first
+> `HAL_FLASH_` call would fail at link. Separately, promoting `src/rurp_config_utils.cpp` into the ARM
+> build before `platform/py32f071/src/config.cpp` is deleted would give the ARM link two definitions of
+> each of the four public config functions — undetectable locally. Plan 126-03 lands only the new
+> exclusion; Plan 126-08 lands the retirement, the promotion and the flash-driver entry in the same
+> commit as the deletion.
+
+**Plans**: 12/12 plans
 **Research flag**: yes — `/gsd-plan-phase --research-phase 126` (A-6/R-8: `PORTING.md` is stranded on closed PRs and partly superseded; the flash page size is stated nowhere in-tree)
+
+Plans:
+**Wave 1**
+
+- [ ] 126-01-PLAN.md — Record the pre-phase pin (eleven blob SHAs, gate counts, native counts, AVR figures), then land `platform/py32f071/CONFIG-STORAGE.md` as a commit **of its own** — the CFG-02 ordering anchor every later linker edit is measured against — plus its CFG-01 content gate with a planted-violation RED leg
+- [ ] 126-02-PLAN.md — CFG-04's regression test authored against the **pre-refactor** `src/rurp_config_utils.cpp` with a hand-written fake `EEPROM.h`, proven green, its blob SHA recorded, and each of its four assertions demonstrated able to fail (D-04's first half — the half that cannot be done later)
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 126-03-PLAN.md — The atomic AVR split in ONE commit: seam header + policy-only TU + `src/boards/rurp_config_storage_eeprom.cpp` (a pure move keeping the typed EEPROM call) + the one exclusion the new TU forces + the checker docstring; then D-04's proof — the recorded test blob SHA re-hashes identical and the test is still green
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 126-04-PLAN.md — CFG-04's measurement at the only attributable point: three cold AVR builds, flash **and** RAM, under both named comparators against their named baseline files; a delta is recorded with its cause and re-baselined in its own justified commit, never absorbed ∥
+- [ ] 126-05-PLAN.md — CFG-03's structural gate: two declarations, C linkage with includes outside the wrapper, and an includer census written to be correct both before and after the third includer lands — with twelve mutation demonstrations
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 126-06-PLAN.md — Reserve Sector 15 in `platform/py32f071/linker/PY32F071xB_FLASH.ld` (D-18's quantum, D-13's zero-length bootloader seam with its migration-cost comment), plus CFG-02's ordering as an exit code with a non-vacuity guard and a synthetic-repo RED demo, plus CFG-06's map gate
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 126-07-PLAN.md — The HAL-free dual-slot core: the vendored `StoredConfiguration`, `CONFIG_MAGIC 0x52555250`, a table-free reflected CRC-32, and the scan/validate/select/alternate algorithm over three injected primitives — with the V5 order (`magic` → bounds-checked `length` → `crc32`) implemented as an ordering
+
+**Wave 6** *(blocked on Wave 5)*
+
+- [ ] 126-08-PLAN.md — The PY32 flash primitives via the HAL only, PR #48's non-persisting `config.cpp` **deleted**, and the manifest closed at 26 enforced sources with C-3's flash driver named — one commit, so the duplicate-definition ARM link window is never opened; plus the local detector for C-3
+
+**Wave 7** *(blocked on Wave 6)*
+
+- [ ] 126-09-PLAN.md — Criterion 4's six distinctly named tests plus D-05's independent CRC known-answer anchor, against the shipped core compiled by path, with ten mutation demonstrations ∥
+- [ ] 126-10-PLAN.md — CFG-07's gate: the four-field schema in order, the `VER06` literal, the four public functions defined exactly once and never under `platform/`, and `config.cpp` verified **by absence from the tree**
+
+**Wave 8** *(blocked on Wave 7)*
+
+- [ ] 126-11-PLAN.md — The ARM CI evidence behind a **structural operator gate** (D-13/D-14 shape): no task runs `git push` or `gh workflow run`; the plan prints them and stops, then re-derives every fact read-only including the per-step Configure and Build conclusions and the pushed ref's content
+
+**Wave 9** *(blocked on Wave 8)*
+
+- [ ] 126-12-PLAN.md — Closing: every row re-executed against the live trees, the eleven cross-repo gate rows shown to have **RUN**, `126-NONREGRESSION.md` written with all nineteen decisions and all five criteria accounted for, the claim gate run with named targets, and CFG-01…CFG-07 ticked — the only plan permitted to tick them
+
 **UI hint**: no
 
 ### Phase 127: Host DFU Installer
