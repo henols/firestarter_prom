@@ -2151,7 +2151,33 @@ Plans:
   3. A diff gate proves `src/boards/rurp_common.cpp`, `include/rurp_types.h`, and `src/rurp_config_utils.cpp` are byte-identical to their pre-phase state — via `git status --porcelain` empty or a literal blob-SHA match, **never** a path-scoped `git diff` that could pass vacuously on a wrong path — and `CONFIG_VERSION` is still literally `"VER06"`.
   4. The AVR flash delta introduced by this phase is measured against the Phase-124 baseline and recorded (not assumed to be zero), for all three AVR targets.
 
-**Plans**: TBD
+> **⚠ Two mechanisms named above were falsified by measurement during planning (2026-07-31).** The
+> criteria themselves stand; two of their *named mechanisms* are superseded by `125-RESEARCH.md`
+> §"Corrections", and the plans implement the corrected shapes.
+> **(a) Criterion 1's mechanism (C-2).** A commit-message search finds SHAs in *messages*, returns
+> zero rows today, and would still return zero after a cherry-pick with a rewritten message — the
+> exact evasion the criterion exists to catch; and any repository-wide reachability scope finds all
+> ten PR #45 commits because their ref is fetched locally. The criterion is discharged instead by a
+> per-commit object-existence check plus a `HEAD`-scoped ancestry check, with explicit tool-error
+> handling and an examined-count assertion (Plan 125-03).
+> **(b) The `Depends on` line's `#include`.** Adding `#include "rurp_vpp.h"` to
+> `include/rurp_shield.h` was measured to take `pio test -e native` from 141 cases / 141 succeeded to
+> 17 suites / 0 succeeded (C-1) — the A-4 signature this milestone already paid for once. The
+> operator resolved it as **Option A: `include/rurp_shield.h` is not touched at all.** This phase's
+> production-visible change is two new files plus two lines in
+> `platform/py32f071/CMakeLists.txt`. No success criterion mentions the `#include`; it appeared only
+> in prose.
+
+**Plans**: 6 plans
+
+Plans:
+- [ ] 125-01-PLAN.md — Record the pre-phase pin, then land the seam atomically: `include/rurp_vpp.h` + `src/rurp_vpp.cpp` (two guards, each proven able to fire) plus the two `platform/py32f071/CMakeLists.txt` lines, in ONE commit — the manifest reverse check leaves no green intermediate state. Fires the C-1 native tripwire in the authoring task, at exact counts
+- [ ] 125-02-PLAN.md — VPP-02's proof: one parametrized pytest compiling **and running** the seam on all four board macro-sets, plus a forced-capability leg against the source file's own `#error` (C-4: the header alone exits 0), the unset-non-AVR leg, the drift leg on anchors that actually exist (C-6), the dependency-freedom leg and the no-skip self-enforcement leg
+- [ ] 125-03-PLAN.md — Criterion 1 as an exit code: `tests/test_pr45_non_ancestry.py` over the ten PR #45 commits, object-existence first, `HEAD`-scoped ancestry, tool-error exit handled explicitly, examined-count assertion, plus blob divergence from PR #45's two seam blobs
+- [ ] 125-04-PLAN.md — Criterion 4 measured, not cited: three cold AVR builds with the clean-then-single-invocation discipline, the two-directional non-vacuity pair (object file present; seam symbols absent against a non-zero unrelated-symbol count), the already-armed strict comparator, and D-16's recorded disposition. Records without gating (D-15)
+- [ ] 125-05-PLAN.md — D-13's own ARM configure-and-build evidence as a CI run URL + head SHA. **Structural operator gate (D-14)**: no task runs `git push` or `gh workflow run`; the plan prints the commands and stops
+- [ ] 125-06-PLAN.md — Closing: every row re-executed against the live trees, `125-NONREGRESSION.md` written, the claim gate run with the target named explicitly (C-16), and VPP-01/02/03 ticked — the only plan permitted to tick them
+
 **UI hint**: no
 
 ### Phase 126: Flash-Persistent Config via a Storage-Backend Seam ⚠ highest-risk phase
