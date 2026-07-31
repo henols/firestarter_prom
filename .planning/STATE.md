@@ -4,17 +4,17 @@ milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 124
 current_phase_name: firmware-integration-merge
-status: executing
-stopped_at: Completed 124-11-PLAN.md (operator gate cleared and independently re-verified; MERGE-02 ARM CI evidence + MERGE-03 confirmed on the pushed ref); 11/12 plans complete, 124-12 (close-out) remains
-last_updated: "2026-07-31T13:45:00.000Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 124-12-PLAN.md (Phase 124 complete -- 12/12 plans, all MERGE-01..08 ticked)
+last_updated: "2026-07-31T14:06:57.455Z"
 last_activity: 2026-07-31
-last_activity_desc: Plan 124-11 complete -- CI run 30634186514 @ a145081b (Configure+Build both success) is MERGE-02's evidence; MERGE-03 confirmed on origin/v1.23-py32f071-integration
+last_activity_desc: "Plan 124-12 complete: all nine MERGE-07 cross-repo gates re-run and passing (zero skips, host suite 1158/0/0), `124-NONREGRESSION.md` written as the closing D-16 evidence artifact, and MERGE-01..MERGE-08 all ticked in `REQUIREMENTS.md` citing specific re-executed rows."
 progress:
   total_phases: 8
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 23
-  completed_plans: 22
-  percent: 13
+  completed_plans: 23
+  percent: 25
 ---
 
 # Project State
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 124 (firmware-integration-merge) — EXECUTING (11/12 plans complete)
-Plan: 124-11 — COMPLETE (all 3 tasks: pre-flight, operator gate, evidence capture)
-Status: Ready to execute 124-12 (close-out).
-Last activity: 2026-07-31 — Plan 124-11 complete: MERGE-02 ARM CI evidence (run 30634186514 @ a145081b, Configure+Build both success) and MERGE-03 confirmed on the pushed `origin/v1.23-py32f071-integration` ref.
+Phase: 124 (firmware-integration-merge) — COMPLETE (12/12 plans complete)
+Plan: 124-12 — COMPLETE (all 3 tasks: full cross-repo sweep, 124-NONREGRESSION.md, requirement ticks)
+Status: Phase 124 complete — ready for verification.
+Last activity: 2026-07-31 — Plan 124-12 complete: all nine MERGE-07 cross-repo gates re-run and passing (zero skips, host suite 1158/0/0), `124-NONREGRESSION.md` written as the closing D-16 evidence artifact, and MERGE-01..MERGE-08 all ticked in `REQUIREMENTS.md` citing specific re-executed rows.
 
 ### Operator gate resolution (124-11, Wave 7) — RESOLVED
 
@@ -547,6 +547,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: Native watermark set to the COLD figure (1166/138), not warm, per check_build_warnings.py's below-watermark-is-INFO-not-FAIL asymmetry — CI always builds cold; a warm-set watermark would go red on the next cold CI run
 - [Phase ?]: MERGE-05 policy_* planted fixtures left un-re-derived on re-baseline — They are asserted only against the frozen size_baseline_base01.json, which this plan never modifies
 - [Phase 124]: Plan 124-11: relayed operator-action claims (push+dispatch already done) were not trusted as authorization -- every fact independently re-derived via read-only gh/git before accepting the gate as cleared; MERGE-02 evidence is CI run 30634186514 @ a145081b (Configure+Build both success), MERGE-03 confirmed on the pushed origin ref
+- [Phase 124-12]: MERGE-01/05/06's premature ticks (from 124-01/02/03) re-justified against 124-12's own re-executed rows rather than left standing unexamined
+- [Phase 124-12]: Both Phase-123 non-regression claims this phase violates (no baseline/watermark adjusted; no push/gh occurred) carried in 124-NONREGRESSION.md as explicit reasoned exceptions with exact numbers, not silently dropped
 
 ## Performance Metrics
 
@@ -675,10 +677,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 124-firmware-integration-merge P09 | 40min | 3 tasks | 4 files |
 | Phase 124 P10 | 30min | 3 tasks | 11 files |
 | Phase 124 P11 | ~20min | 3 tasks | 0 files |
+| Phase 124 P12 | 75min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-31T13:31:06.203Z
-**Stopped at:** Completed 124-09-PLAN.md
+**Last session:** 2026-07-31T14:06:57.439Z
+**Stopped at:** Completed 124-12-PLAN.md (Phase 124 complete -- 12/12 plans, all MERGE-01..08 ticked)
 **Resume file:** 
 None

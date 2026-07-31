@@ -1993,7 +1993,7 @@ Plans:
 ### Phases
 
 - [x] **Phase 123: Non-Regression Baselines & Gate Hardening** — Record AVR flash+RAM and native case/suite-count baselines, split the fail-open FW-absent gate proxy, and ship every checker (CMake-manifest-drift, orphan-provisional-macro, warning-count, `check_permitted_claims.py`) with a planted-violation fixture — before any firmware code moves. (completed 2026-07-31)
-- [ ] **Phase 124: Firmware Integration Merge** — Land `agent/portability-macros` + the py32 stack as one atomic commit-pair, fix the CMake source-list rename (C-1), add the ARM `push` CI trigger, and make the provisional-pinmap refusal guard structurally able to fire.
+- [x] **Phase 124: Firmware Integration Merge** — Land `agent/portability-macros` + the py32 stack as one atomic commit-pair, fix the CMake source-list rename (C-1), add the ARM `push` CI trigger, and make the provisional-pinmap refusal guard structurally able to fire. (completed 2026-07-31)
 - [ ] **Phase 125: VPP Control Seam** — Hand-author `rurp_vpp.h`/`rurp_vpp.cpp` (nothing cherry-picked from PR #45); every board returns `MANUAL_ADJUSTMENT_REQUIRED`; prove `rurp_config_utils.cpp` untouched before Phase 126 touches it.
 - [ ] **Phase 126: Flash-Persistent Config** — Design and land the dual-slot CRC32 py32 config backend behind a common/per-platform storage seam, with the AVR EEPROM backend proven a pure move.
 - [ ] **Phase 127: Host DFU Installer** — Merge `feature/py32f071-fw-install`, close the remaining 8 host gaps (pyusb CI leg, coverage, opcode anchoring, channel-gating both ways), parallel with Phases 125/126.
@@ -2064,7 +2064,7 @@ Plans:
   4. AVR flash and RAM, recorded against the Phase-123 baseline, show Leonardo flash **not growing**, Uno-class flash growth **≤ 64 B**, and RAM unchanged on Uno/Leonardo — each a measured build output; golden register traces stay byte-identical, checked **per-array** for `_shared/sdp_expected.h`.
   5. All nine cross-repo source-scanning gates are shown to **run** (never SKIP) and pass, executed from a directory literally named `firestarter_app` with a merged `firestarter` sibling, and the three named in-branch defects are each independently verifiable as fixed: `FLASH_LATENCY_1` (not `_ACR_LATENCY_1`) is the constant in use at 48 MHz, `write_checksums.cmake` is deleted or has a real consumer, and ARM `DEV_TOOLS`-off is an explicit commented decision in the CMake defines.
 
-**Plans**: 11/12 plans executed
+**Plans**: 12/12 plans complete
 **Wave 1** *(pre-landing gates — authored before the tree they judge)*
 
 - [x] 124-01-PLAN.md — `check_landing_range.py`: MERGE-01/D-06 range checker with a never-vacuous guard, paired pytest, planted replayed-history fixture, and the BASE-08 `FLOOR` bump 4 → 5
@@ -2099,7 +2099,7 @@ Plans:
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 124-12-PLAN.md — MERGE-07 nine-gate cross-repo sweep (shown to run, never skip) and `124-NONREGRESSION.md`, carrying as reasoned exceptions the two Phase-123 section-8 claims this phase deliberately violates
+- [x] 124-12-PLAN.md — MERGE-07 nine-gate cross-repo sweep (shown to run, never skip) and `124-NONREGRESSION.md`, carrying as reasoned exceptions the two Phase-123 section-8 claims this phase deliberately violates
 
 **UI hint**: no
 
