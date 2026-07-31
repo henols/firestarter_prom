@@ -2,7 +2,7 @@
 title: Reply on gh#12 (and correct the b14 app release notes) after `dev sdp` is retired
 date: 2026-07-31
 priority: medium
-blocked_by: Backlog Phase 999.25 landing — do not post before the removal is real
+blocked_by: the removal shipping — provisional milestone v1.30 (queued NEXT after v1.23, from Backlog 999.25). Do not post before the removal is real.
 ---
 
 # gh#12 follow-up owed once `dev sdp` is retired

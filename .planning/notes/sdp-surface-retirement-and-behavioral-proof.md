@@ -2,7 +2,9 @@
 
 **Date:** 2026-07-31
 **Context:** `/gsd-explore` session — "is the `dev sdp` option needed, does it bring any real value?"
-**Status:** operator decision made this session; implementation unscheduled → Backlog Phase 999.25
+**Status:** decided and **queued as the NEXT milestone after v1.23** (operator, 2026-07-31) — provisional
+`v1.30 SDP Surface Retirement & Behavioral Lock Proof`, promoted from Backlog Phase 999.25, pending
+`/gsd-new-milestone`. Scope this milestone from this note.
 **Touches:** `firestarter_app` only (host). **No firmware change** — see §7.
 
 ---
