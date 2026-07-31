@@ -1992,7 +1992,7 @@ Plans:
 
 ### Phases
 
-- [ ] **Phase 123: Non-Regression Baselines & Gate Hardening** — Record AVR flash+RAM and native case/suite-count baselines, split the fail-open FW-absent gate proxy, and ship every checker (CMake-manifest-drift, orphan-provisional-macro, warning-count, `check_permitted_claims.py`) with a planted-violation fixture — before any firmware code moves.
+- [x] **Phase 123: Non-Regression Baselines & Gate Hardening** — Record AVR flash+RAM and native case/suite-count baselines, split the fail-open FW-absent gate proxy, and ship every checker (CMake-manifest-drift, orphan-provisional-macro, warning-count, `check_permitted_claims.py`) with a planted-violation fixture — before any firmware code moves. (completed 2026-07-31)
 - [ ] **Phase 124: Firmware Integration Merge** — Land `agent/portability-macros` + the py32 stack as one atomic commit-pair, fix the CMake source-list rename (C-1), add the ARM `push` CI trigger, and make the provisional-pinmap refusal guard structurally able to fire.
 - [ ] **Phase 125: VPP Control Seam** — Hand-author `rurp_vpp.h`/`rurp_vpp.cpp` (nothing cherry-picked from PR #45); every board returns `MANUAL_ADJUSTMENT_REQUIRED`; prove `rurp_config_utils.cpp` untouched before Phase 126 touches it.
 - [ ] **Phase 126: Flash-Persistent Config** — Design and land the dual-slot CRC32 py32 config backend behind a common/per-platform storage seam, with the AVR EEPROM backend proven a pure move.
@@ -2016,7 +2016,7 @@ Plans:
   4. The orphan-provisional-macro checker exits non-zero against a fixture defining a `RURP_*_PROVISIONAL`-style flag with zero consumers, and the warning-count gate exits non-zero against a fixture introducing one macro-redefinition warning.
   5. `check_permitted_claims.py` (v1.23 phrase table) exits non-zero when its target-file list is empty (fails closed) and exits non-zero against a fixture containing one of the milestone's forbidden phrases; every checker introduced this phase ships with its own committed planted-violation fixture and a pytest proving the non-zero exit.
 
-**Plans**: 10/11 plans executed
+**Plans**: 11/11 plans complete
 **Wave 1**
 
 - [x] 123-01-PLAN.md — Milestone branches in both sub-repos; re-measure all six AVR figures and both native pairs on clean builds; commit the verbatim captures and the BASE-01 baseline JSON
