@@ -4,11 +4,11 @@ milestone: v1.23
 milestone_name: PY32F071 Integration
 current_phase: 125
 current_phase_name: VPP Control Seam
-status: complete
-stopped_at: Phase 124 CLOSED and VERIFIED (12/12 plans, MERGE-01..08 all ticked, verification passed 8/8 reqs + 5/5 success criteria)
-last_updated: "2026-07-31T14:44:23.122Z"
+status: in-progress
+stopped_at: Phase 125 context gathered
+last_updated: "2026-07-31T15:18:04.799Z"
 last_activity: 2026-07-31
-last_activity_desc: Phase 124 complete, transitioned to Phase 125
+last_activity_desc: "Phase 125 context gathered — 4 gray areas discussed, D-01..D-16 locked in 125-CONTEXT.md; next step is /gsd-plan-phase 125"
 progress:
   total_phases: 8
   completed_phases: 2
@@ -25,9 +25,18 @@ progress:
 ## Current Position
 
 Phase: 125 — VPP Control Seam
-Plan: Not started — next step is /gsd-discuss-phase 125
-Status: Phase 124 CLOSED and VERIFIED. Ready to start Phase 125.
-Last activity: 2026-07-31 — Phase 124 closed: 12/12 plans, verification passed (8/8 requirements, 5/5 ROADMAP success criteria), MERGE-01..MERGE-08 all ticked against re-executed rows
+Plan: Not started — context gathered, next step is /gsd-plan-phase 125
+Status: in-progress
+Last activity: 2026-07-31 — Phase 125 context gathered: 4 gray areas discussed (four-board proof mechanics, capability-macro declaration site, seam API surface, ARM landing), D-01..D-16 locked in `125-CONTEXT.md`
+
+### Phase 125 context highlights (read `125-CONTEXT.md` before planning)
+
+- The four-board `MANUAL_ADJUSTMENT_REQUIRED` proof is a **pytest + host-`g++` harness** (6 legs), not a fourth PIO env — both pinned native envs stay untouched at 141 cases / 17 suites.
+- `src/rurp_vpp.cpp` is **dependency-free by construction** (only `rurp_vpp.h` + `<stdint.h>`), which is what makes the harness stub-free and ARM compilation near risk-free.
+- Operator fact: **no Arduino-class board will ever carry a VPP DAC** — AVR manual control is permanent, not provisional. `__AVR__` resolves the capability macro; every non-AVR board must declare it, py32 via the CMake defines (Phase 124 D-14's lesson).
+- Three functions, two enumerators per enum, **zero production callers**; no calibration, no DAC hooks, no `rurp_read_voltage_mv` reroute.
+- `src/rurp_vpp.cpp` is **named in the py32 `FIRESTARTER_COMMON_SOURCES`** (the manifest reverse-check forces name-or-exclude), and the phase takes **its own operator-gated ARM CI run** — no task may run `git push` or `gh workflow run`.
+- Criterion 4's flash figures are **recorded, not gated** (deliberate operator exception); but `check_size_baseline.py`'s strict comparator is already armed, so a nonzero delta goes red anyway and is handled by re-baselining in a named commit that states why.
 
 ### Operator gate resolution (124-11, Wave 7) — RESOLVED
 
@@ -687,7 +696,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-07-31T14:06:57.439Z
-**Stopped at:** Completed 124-12-PLAN.md (Phase 124 complete -- 12/12 plans, all MERGE-01..08 ticked)
+**Last session:** 2026-07-31T15:17:21.434Z
+**Stopped at:** Phase 125 context gathered
 **Resume file:** 
-None
+.planning/phases/125-vpp-control-seam/125-CONTEXT.md
