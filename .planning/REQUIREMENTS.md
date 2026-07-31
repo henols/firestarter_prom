@@ -160,7 +160,7 @@ Populated 2026-07-30 by the v1.23 roadmap (`/gsd-new-milestone` → roadmapper).
 |-------------|-------|--------|
 | BASE-01 … BASE-08 | Phase 123 | Complete |
 | MERGE-01 … MERGE-08 | Phase 124 | Complete — all 8 ticked, see `124-NONREGRESSION.md` §3/§4 for the row cited per requirement |
-| VPP-01 … VPP-03 | Phase 125 | Pending |
+| VPP-01 … VPP-03 | Phase 125 | Complete — all 3 ticked, see `125-NONREGRESSION.md` for the row re-executed per requirement |
 | CFG-01 … CFG-07 | Phase 126 | Pending |
 | HOST-01 … HOST-08 | Phase 127 | Pending |
 | REL-01 … REL-04 | Phase 128 | Pending |
