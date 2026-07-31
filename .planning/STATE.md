@@ -5,16 +5,16 @@ milestone_name: — PY32F071 Integration
 current_phase: 123
 current_phase_name: non-regression-baselines-gate-hardening
 status: executing
-stopped_at: Completed 123-07-PLAN.md
-last_updated: "2026-07-30T23:58:39.472Z"
-last_activity: 2026-07-30
-last_activity_desc: Phase 123 execution started
+stopped_at: Completed 123-08-PLAN.md
+last_updated: "2026-07-31T00:19:33.355Z"
+last_activity: 2026-07-31
+last_activity_desc: Executed 123-08 (rekey 7 proxy modules + D-11 scan-path inventory)
 progress:
   total_phases: 8
   completed_phases: 0
   total_plans: 11
-  completed_plans: 5
-  percent: 0
+  completed_plans: 6
+  percent: 55
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 123 (non-regression-baselines-gate-hardening) — EXECUTING
-Plan: 6 of 11
-Status: Ready to execute
-Last activity: 2026-07-30 — Phase 123 execution started
+Plan: 8 of 11 (completed)
+Status: Ready to execute next plan
+Last activity: 2026-07-31 — Executed 123-08 (rekey 7 proxy modules + D-11 scan-path inventory)
 
 ## Project Reference
 
@@ -511,6 +511,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: AVR FAIL messages name the offending macro(s), added during Task 3 to satisfy the end-to-end anti-hollow test
 - [Phase ?]: planted_build_warnings_native_excess.log required 361 appended synthetic lines (not a small number) since the truncated captured_test_native_summary.log base carries 0 real warnings
 - [Phase ?]: PlatformIO-invisibility verified via test_filter entry counts (17 per native env), not pio test --list-tests, which enumerates all on-disk suite dirs (18) regardless of test_filter
+- [Phase 123-08]: Rekeyed all 7 proxy-carrying host test modules onto tests.fw_presence.requires_fw (24 decorator legs + 1 non-decorator inline guard promoted to a decorator); every per-module reason= string and FW_ABSENT-shaped constant removed
+- [Phase 123-08]: Created tests/scan_paths.py (D-11) covering both cross-repo populations; verifying RESEARCH's 11 tool files individually found 7 of them are same-repo package look-alikes, not cross-repo resolvers, despite matching the grep that found them
 
 ## Performance Metrics
 
@@ -622,10 +624,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 123 P02 | 20 | 3 tasks | 6 files |
 | Phase 123 P07 | 45min | 3 tasks | 5 files |
 | Phase 123 P03 | 30 | 3 tasks | 6 files |
+| Phase 123 P08 | 70min | 3 tasks | 9 files |
 
 ## Session
 
-**Last session:** 2026-07-30T23:58:04.896Z
+**Last session:** 2026-07-31T00:19:33.341Z
 **Stopped at:** Completed 123-07-PLAN.md
 **Resume file:** 
 None
