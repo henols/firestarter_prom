@@ -218,6 +218,14 @@ Per this plan's dispatch instructions, `.planning/REQUIREMENTS.md` was **not** t
 - FOUND commit `e1aaef0` (firestarter submodule) — `git log --oneline --all | grep e1aaef0` matches
 - FOUND commit `dbbd1da` (firestarter submodule) — `git log --oneline --all | grep dbbd1da` matches
 
+## Self-Check: PASSED (re-verified after commit)
+
+- FOUND: `.planning/phases/124-firmware-integration-merge/124-05-SUMMARY.md`
+- FOUND: `firestarter/platform/py32f071/CMakeLists.txt`
+- FOUND: `firestarter/.github/workflows/py32f071.yml`
+- FOUND: `firestarter/tests/test_check_cmake_manifest.py`
+- FOUND commit `dae7d23`, `e1aaef0`, `dbbd1da` (all present in `git log --oneline --all`)
+
 ---
 *Phase: 124-firmware-integration-merge*
 *Completed: 2026-07-31*
