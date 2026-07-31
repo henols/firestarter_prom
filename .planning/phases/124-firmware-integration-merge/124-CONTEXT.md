@@ -1,7 +1,43 @@
 # Phase 124: Firmware Integration Merge - Context
 
 **Gathered:** 2026-07-31
-**Status:** Ready for planning
+**Status:** Ready for planning — **partially superseded by research, see below**
+
+> **⚠ CORRECTED BY RESEARCH (2026-07-31). Read `124-RESEARCH.md` §"Corrections to
+> `124-CONTEXT.md` and the upstream record" (C-1…C-18) BEFORE acting on anything here.**
+> Research was run despite the ROADMAP flagging Phase 124 `research-skip`, and it falsified
+> or under-specified seven claims in this file. The decision **ids** D-01…D-16 stay stable
+> and binding; several of their **mechanisms** do not. Where this file and RESEARCH.md
+> disagree, **RESEARCH.md wins**. The load-bearing corrections:
+>
+> - **C-4 → D-11:** the refusal cannot sit where D-11 implies. `build_src_filter` excludes
+>   `src/firestarter.cpp`, home of `is_memory_cmd`'s only caller, so a native test would
+>   never see it. It must go at `configure_memory()` (`src/proms/memory.cpp:42`).
+> - **C-12 → D-14:** `check_orphan_provisional.py`'s `SCAN_DIRS` are `include/ src/
+>   platform/ test/` — **`tests/` is not scanned**, so the fire-proof pytest does NOT
+>   satisfy the provisional-macro consumer rule. A real consumer must live in one of the four.
+> - **C-5/C-6 → D-04:** the preferred compile-time assertion is **not achievable**
+>   (`RCC_HSICALIBRATION_24MHz` dereferences a factory-trim address at runtime), and
+>   `FLASH_ACR_LATENCY_1` is **not a typo** — it is commit `91c6e45`, a deliberate
+>   workaround for a then-missing `HAL_FLASH_MODULE_ENABLED` that `d76910c` fixed three
+>   minutes later without reverting the workaround. Two wait states at 48 MHz is
+>   over-conservative but safe, not a fault. Say so.
+> - **C-1 → canonical_refs:** `check_size_baseline.py` does **not** make MERGE-05 an exit
+>   code — `compare_avr()` is strict equality and fails on the *permitted* −56/+22/+28.
+>   MERGE-06's arm is genuinely green. This is Wave-0 work item W-1.
+> - **C-2/C-3:** two Phase-123 pytests **expire at this landing** (both assert
+>   `startswith("UNARMED:")`), and the armed CMake gate fires **9** violations, not the 2
+>   that 123-NONREGRESSION predicted. The native warning watermark also fires, unpredicted
+>   (360 → 998 — and the recorded 360 is a warm-cache artifact; the same tree measures 456 cold).
+> - **C-18:** the `_find_header_guard_line_indices` trap named below **does not fire** — but
+>   placement A passes only by arithmetic cancellation, so use placement B
+>   (precedent at `firestarter.h:16-18`).
+> - **C-8:** *"72 commits behind `beta`"* applies to the py32 **source** branches. The
+>   integration branch is **14 ahead / 0 behind** `origin/beta` — no rebase is needed.
+>
+> **Verified unchanged:** D-01 (C-15), D-05's ancestry+reachability argument (C-16),
+> D-08's push safety (C-14), D-15's five `PY32_EXCLUDED` lines (C-17), and D-02's
+> zero AVR flash/RAM cost (measured).
 
 <domain>
 ## Phase Boundary
