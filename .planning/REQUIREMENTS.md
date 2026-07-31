@@ -40,7 +40,7 @@ Research: `.planning/research/SUMMARY.md` (4 streams + synthesis; 18 corrections
 
 ### Firmware Integration Merge
 
-- [ ] **MERGE-01**: `agent/portability-macros` and the py32 stack land as one atomic landing including `780a3fb`, with no commit on the integration branch where the portability half is present and the py32 stack is not
+- [x] **MERGE-01**: `agent/portability-macros` and the py32 stack land as one atomic landing including `780a3fb`, with no commit on the integration branch where the portability half is present and the py32 stack is not
 - [ ] **MERGE-02**: The CMake source list names `flash_nor_unlock.cpp` and `flash_5v_page.cpp`, and the ARM target reaches a successful CMake configure
 - [ ] **MERGE-03**: `py32f071.yml` gains `push: branches: [beta]`, so the ARM target is built on `beta` rather than only on pull requests
 - [ ] **MERGE-04**: While the pin map is provisional, the py32 target refuses every operation that can energise a PROM, and the guard is restructured so its `#error` is provably able to fire
@@ -168,6 +168,7 @@ Populated 2026-07-30 by the v1.23 roadmap (`/gsd-new-milestone` → roadmapper).
 | CLOSE-01 … CLOSE-04 | Phase 130 | Pending |
 
 **Coverage:**
+
 - v1 requirements: **47** total (BASE 8 · MERGE 8 · VPP 3 · CFG 7 · HOST 8 · REL 4 · PCB 5 · CLOSE 4)
 - Mapped to phases: **47**
 - Unmapped: **0** ✓

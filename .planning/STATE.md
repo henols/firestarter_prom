@@ -1,19 +1,19 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.23
-milestone_name: PY32F071 Integration
+milestone_name: — PY32F071 Integration
 current_phase: 124
 current_phase_name: firmware-integration-merge
 status: executing
-stopped_at: Phase 124 planned — 12 plans, 8 waves, ready to execute
-last_updated: "2026-07-31T07:56:00.000Z"
+stopped_at: Completed 124-01-PLAN.md
+last_updated: "2026-07-31T08:15:37.765Z"
 last_activity: 2026-07-31
-last_activity_desc: Phase 124 planned — 12 plans / 8 waves; plan-checker VERIFICATION PASSED (0 blockers, 0 warnings); MERGE-01..08 8/8 covered, CONTEXT decisions 16/16 covered
+last_activity_desc: Phase 124 execution started
 progress:
   total_phases: 8
   completed_phases: 1
   total_plans: 23
-  completed_plans: 11
+  completed_plans: 12
   percent: 13
 ---
 
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 124 (firmware-integration-merge) — PLANNED (12 plans, 8 waves, 0 executed)
-Plan: none executed — next step is /gsd-execute-phase 124
-Status: Ready to execute Phase 124 (Firmware Integration Merge)
-Last activity: 2026-07-31 — Phase 124 planned: 12 plans across 8 waves, plan-checker VERIFICATION PASSED (0 blockers / 0 warnings); MERGE-01..MERGE-08 all covered; 16/16 CONTEXT decisions covered
+Phase: 124 (firmware-integration-merge) — EXECUTING
+Plan: 2 of 12
+Status: Ready to execute
+Last activity: 2026-07-31 — Phase 124 execution started
 
 **⚠ Wave 7 (124-11) is operator-gated.** MERGE-02's ARM evidence requires pushing the firmware milestone branch and dispatching the `py32f071.yml` workflow. Per D-09 the gate is **structural**, not a flag: plan 124-11 contains no task that runs `git push` or `gh workflow run` — it prints the commands and stops. `--auto`/`--chain` cannot wave it through, but an autonomous chain will still halt there awaiting the operator.
 
@@ -37,7 +37,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-30 — v1.23 Current Milestone sect
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.23 adds a fourth board target beneath that contract without disturbing it: the PROM programming algorithms stay platform-independent and the HAL boundary absorbs the new MCU, so protocol dispatch is untouched by the port.
 
-**Current focus:** Phase 123 — non-regression-baselines-gate-hardening
+**Current focus:** Phase 124 — firmware-integration-merge
 
 ## Milestone Context (v1.23)
 
@@ -525,6 +525,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: Scoped BASE-08 checker-convention meta-test to firestarter/scripts/check_*.py only (non-recursive), naming the 3 pre-existing firestarter_app/tools/ violators (incl. check_mypy_watermark.py's missing test) in the docstring rather than allow-listing or fixing them
 - [Phase ?]: 123-11: cited REQUIREMENTS.md's forbidden-claim list by location (not verbatim) in 123-NONREGRESSION.md to avoid tripping check_permitted_claims.py's own courtesy claim-scan, matching 122-NONREGRESSION.md's precedent
 - [Phase ?]: 123-11: both native envs re-confirmed agreeing at 141 cases / 17 suites on a fresh build; MERGE-06 remains satisfiable as worded, no amendment needed for Phase 124
+- [Phase 124]: 124-01: Violation counting is per violating commit, not per marker, in check_landing_range.py (matches the plan's own FAIL: 1 acceptance criterion and RESEARCH's measured true-merge figure)
+- [Phase 124]: 124-01: ScanError caught only at the __main__ entry point in check_landing_range.py, never inside main() itself
 
 ## Performance Metrics
 
@@ -642,10 +644,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 123 P05 | 22 | 2 tasks | 10 files |
 | Phase 123 P06 | 12min | 2 tasks | 1 files |
 | Phase 123 P11 | 55 | 3 tasks | 3 files |
+| Phase 124 P01 | 12min | 2 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-07-31T06:00:26.047Z
-**Stopped at:** Phase 124 context gathered
+**Last session:** 2026-07-31T08:15:37.741Z
+**Stopped at:** Completed 124-01-PLAN.md
 **Resume file:** 
-.planning/phases/124-firmware-integration-merge/124-CONTEXT.md
+None
