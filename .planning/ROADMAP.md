@@ -2030,7 +2030,7 @@ Plans:
 
 - [x] **Phase 123: Non-Regression Baselines & Gate Hardening** — Record AVR flash+RAM and native case/suite-count baselines, split the fail-open FW-absent gate proxy, and ship every checker (CMake-manifest-drift, orphan-provisional-macro, warning-count, `check_permitted_claims.py`) with a planted-violation fixture — before any firmware code moves. (completed 2026-07-31)
 - [x] **Phase 124: Firmware Integration Merge** — Land `agent/portability-macros` + the py32 stack as one atomic commit-pair, fix the CMake source-list rename (C-1), add the ARM `push` CI trigger, and make the provisional-pinmap refusal guard structurally able to fire. (completed 2026-07-31)
-- [ ] **Phase 125: VPP Control Seam** — Hand-author `rurp_vpp.h`/`rurp_vpp.cpp` (nothing cherry-picked from PR #45); every board returns `MANUAL_ADJUSTMENT_REQUIRED`; prove `rurp_config_utils.cpp` untouched before Phase 126 touches it.
+- [x] **Phase 125: VPP Control Seam** — Hand-author `rurp_vpp.h`/`rurp_vpp.cpp` (nothing cherry-picked from PR #45); every board returns `MANUAL_ADJUSTMENT_REQUIRED`; prove `rurp_config_utils.cpp` untouched before Phase 126 touches it. (completed 2026-07-31)
 - [ ] **Phase 126: Flash-Persistent Config** — Design and land the dual-slot CRC32 py32 config backend behind a common/per-platform storage seam, with the AVR EEPROM backend proven a pure move.
 - [ ] **Phase 127: Host DFU Installer** — Merge `feature/py32f071-fw-install`, close the remaining 8 host gaps (pyusb CI leg, coverage, opcode anchoring, channel-gating both ways), parallel with Phases 125/126.
 - [ ] **Phase 128: Release-Asset Fold** — Fold the ARM build into `beta-build.yml` after the version bump so `firestarter_py32f071.hex` publishes as a real release asset.
@@ -2168,7 +2168,7 @@ Plans:
 > `platform/py32f071/CMakeLists.txt`. No success criterion mentions the `#include`; it appeared only
 > in prose.
 
-**Plans**: 5/6 plans executed
+**Plans**: 6/6 plans complete
 
 Plans:
 **Wave 1**
@@ -2190,7 +2190,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 125-06-PLAN.md — Closing: every row re-executed against the live trees, `125-NONREGRESSION.md` written, the claim gate run with the target named explicitly (C-16), and VPP-01/02/03 ticked — the only plan permitted to tick them
+- [x] 125-06-PLAN.md — Closing: every row re-executed against the live trees, `125-NONREGRESSION.md` written, the claim gate run with the target named explicitly (C-16), and VPP-01/02/03 ticked — the only plan permitted to tick them
 
 **UI hint**: no
 

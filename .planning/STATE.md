@@ -4,17 +4,17 @@ milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 125
 current_phase_name: VPP Control Seam
-status: executing
-stopped_at: Completed 125-04-PLAN.md
-last_updated: "2026-07-31T17:54:41.247Z"
+status: verifying
+stopped_at: Completed 125-06-PLAN.md
+last_updated: "2026-07-31T18:26:15.800Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 125 execution started
 progress:
   total_phases: 8
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 29
-  completed_plans: 28
-  percent: 25
+  completed_plans: 29
+  percent: 38
 ---
 
 # Project State
@@ -26,7 +26,7 @@ progress:
 
 Phase: 125 (VPP Control Seam) — EXECUTING
 Plan: 6 of 6
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-31 — Phase 125 execution started
 
 ### Phase 125 plan structure (2026-07-31)
@@ -591,6 +591,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: D-16 Branch A taken (Plan 125-04): check_size_baseline.py exited 0 against fresh three-target build logs, so the re-baseline contingency was evaluated and deliberately not exercised; both baseline files re-hashed unchanged against HEAD
 - [Phase ?]: Elimination mechanism corrected (Plan 125-04): the seam's zero flash/RAM cost is attributable to link-time optimisation (-flto, confirmed in platform-atmelavr@5.2.0's real flag set) AND section garbage collection together, not section GC alone
 - [Phase 125]: 125-05: ARM CI evidence obtained -- run 30652530756, head SHA 2b5e8c875bb04d728b5e08d16cc2d29e0d43c1d7, Configure+Build both success, src/rurp_vpp.cpp confirmed compiled; no beta prerelease cut; relayed resume datum independently re-derived read-only before acceptance
+- [Phase 125-vpp-control-seam]: Gitlinks (firestarter, firestarter_app) not bumped in either 125-06 commit, per standing policy that gitlink bumps happen at milestone close, not per-plan
+- [Phase 125-vpp-control-seam]: One rewording applied to 125-NONREGRESSION.md's claim-gate artifact: added an exact-lowercase second occurrence of the canonical caveat sentence to satisfy the plan's literal case-sensitive grep check (the gate itself, case-insensitive, had already passed on the first invocation)
 
 ## Performance Metrics
 
@@ -725,10 +727,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 125 P03 | 30min | 2 tasks | 1 files |
 | Phase 125 P04 | 25min | 2 tasks | 0 files |
 | Phase 125 P05 | ~20min | 1 tasks | 0 files |
+| Phase 125-vpp-control-seam P06 | 28min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-31T17:54:15.497Z
-**Stopped at:** Completed 125-04-PLAN.md
+**Last session:** 2026-07-31T18:26:15.781Z
+**Stopped at:** Completed 125-06-PLAN.md
 **Resume file:** 
 None
