@@ -1,14 +1,14 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.23
-milestone_name: PY32F071 Integration
+milestone_name: — PY32F071 Integration
 current_phase: 126
-current_phase_name: Flash-Persistent Config via a Storage-Backend Seam
+current_phase_name: Flash-Persistent Config via a Storage-Backend Seam ⚠ **highest-risk phase of the milestone**
 status: complete
-stopped_at: Phase 125 CLOSED and VERIFIED (6/6 plans, VPP-01..03 ticked, verification passed 15/15 must-haves)
-last_updated: "2026-07-31T18:43:02.527Z"
+stopped_at: Phase 126 context gathered
+last_updated: "2026-07-31T19:19:09.948Z"
 last_activity: 2026-07-31
-last_activity_desc: "Phase 125 CLOSED and VERIFIED — 6/6 plans, VPP-01..03 ticked, 15/15 must-haves; ARM CI run 30652530756 at head SHA 2b5e8c8; next step is /gsd-discuss-phase 126"
+last_activity_desc: "Phase 125 CLOSED and VERIFIED: 6/6 plans, VPP-01..03 ticked, verification passed 15/15 must-haves with no gaps and no human-verification items"
 progress:
   total_phases: 8
   completed_phases: 3
@@ -743,7 +743,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-07-31T18:26:15.781Z
-**Stopped at:** Completed 125-06-PLAN.md
+**Last session:** 2026-07-31T19:19:09.922Z
+**Stopped at:** Phase 126 context gathered
 **Resume file:** 
-None
+.planning/phases/126-flash-persistent-config-via-a-storage-backend-seam-highest-r/126-CONTEXT.md
