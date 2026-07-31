@@ -1,14 +1,14 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.23
-milestone_name: — PY32F071 Integration
-current_phase: 125
-current_phase_name: VPP Control Seam
-status: verifying
-stopped_at: Completed 125-06-PLAN.md
-last_updated: "2026-07-31T18:26:15.800Z"
+milestone_name: PY32F071 Integration
+current_phase: 126
+current_phase_name: Flash-Persistent Config via a Storage-Backend Seam
+status: complete
+stopped_at: Phase 125 CLOSED and VERIFIED (6/6 plans, VPP-01..03 ticked, verification passed 15/15 must-haves)
+last_updated: "2026-07-31T18:43:02.527Z"
 last_activity: 2026-07-31
-last_activity_desc: Phase 125 execution started
+last_activity_desc: "Phase 125 CLOSED and VERIFIED — 6/6 plans, VPP-01..03 ticked, 15/15 must-haves; ARM CI run 30652530756 at head SHA 2b5e8c8; next step is /gsd-discuss-phase 126"
 progress:
   total_phases: 8
   completed_phases: 3
@@ -24,10 +24,22 @@ progress:
 
 ## Current Position
 
-Phase: 125 (VPP Control Seam) — EXECUTING
-Plan: 6 of 6
-Status: Phase complete — ready for verification
-Last activity: 2026-07-31 — Phase 125 execution started
+Phase: 126 — Flash-Persistent Config via a Storage-Backend Seam ⚠ **highest-risk phase of the milestone**
+Plan: Not started — next step is `/gsd-discuss-phase 126`
+Status: complete (Phase 125 closed; Phase 126 not started)
+Last activity: 2026-07-31 — Phase 125 CLOSED and VERIFIED: 6/6 plans, VPP-01..03 ticked, verification passed 15/15 must-haves with no gaps and no human-verification items
+
+### Phase 125 close-out (2026-07-31)
+
+`125-VERIFICATION.md`: **passed** — 15/15 must-haves re-executed against the live trees rather than accepted from SUMMARY prose. The verifier independently re-ran both new pytest modules, all three native envs cold, the manifest gate, a 7-file blob-SHA re-hash, and re-queried the ARM CI run read-only.
+
+**What Phase 125 landed:** `include/rurp_vpp.h` + `src/rurp_vpp.cpp` (hand-authored, dependency-free, zero production callers) and two lines in `platform/py32f071/CMakeLists.txt`. Firmware tip `2b5e8c875bb04d728b5e08d16cc2d29e0d43c1d7`, pushed to `origin`; meta gitlink bumped to match in `4bb038e`.
+
+**ARM evidence:** CI run [`30652530756`](https://github.com/henols/firestarter/actions/runs/30652530756) — `workflow_dispatch`, `conclusion=success`, head SHA string-equal to the firmware tip, **Configure and Build each independently `success`**, and log line `[4/39] Building CXX object …src/rurp_vpp.cpp.obj` (39 objects vs Phase 124's 38) proving the seam reached the ARM compiler. The operator ran the push and dispatch personally; the structural gate held — no agent executed `git push` or `gh workflow run`. No beta prerelease was cut (newest `beta-build.yml` run remains `30551682616`, 2026-07-30).
+
+**The finding that changed the phase:** research measured that the one `#include "rurp_vpp.h"` line in `include/rurp_shield.h` — which the ROADMAP, CONTEXT.md and research/SUMMARY.md all described as this phase's entire header change — takes `pio test -e native` from 141 cases/141 succeeded to **17 suites / 0 succeeded**. Operator chose Option A: `rurp_shield.h` is untouched. See `125-RESEARCH.md` C-1.
+
+**Two informational findings carried forward (non-blocking):** all six `125-0N-SUMMARY.md` files trip the claim-ceiling gate when scanned directly, because they quote the forbidden phrases inside their own compliance paragraphs — the exact self-reference trap `125-RESEARCH.md` C-16 documents; the required artifact `125-NONREGRESSION.md` avoids it correctly. And `125-06-SUMMARY.md` claims gitlink bumps are deferred to milestone close, which was not this phase's actual practice — corrected out-of-band by `4bb038e`.
 
 ### Phase 125 plan structure (2026-07-31)
 
