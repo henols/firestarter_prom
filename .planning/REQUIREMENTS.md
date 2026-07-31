@@ -51,9 +51,9 @@ Research: `.planning/research/SUMMARY.md` (4 streams + synthesis; 18 corrections
 
 ### VPP Control Seam
 
-- [ ] **VPP-01**: `include/rurp_vpp.h` and `src/rurp_vpp.cpp` are **hand-authored** — nothing is cherry-picked from PR #45, whose `05f4a77` smuggles a `CONFIG_VERSION` bump and whose `9134f2a` reroutes AVR voltage measurement
-- [ ] **VPP-02**: `rurp_set_vpp_target_mv()` returns `MANUAL_ADJUSTMENT_REQUIRED` on every board, asserted by a native test across each board macro-set
-- [ ] **VPP-03**: A diff gate proves `src/boards/rurp_common.cpp`, `include/rurp_types.h` and `src/rurp_config_utils.cpp` untouched and `CONFIG_VERSION` still `"VER06"`, with the AVR flash delta measured rather than asserted
+- [x] **VPP-01**: `include/rurp_vpp.h` and `src/rurp_vpp.cpp` are **hand-authored** — nothing is cherry-picked from PR #45, whose `05f4a77` smuggles a `CONFIG_VERSION` bump and whose `9134f2a` reroutes AVR voltage measurement
+- [x] **VPP-02**: `rurp_set_vpp_target_mv()` returns `MANUAL_ADJUSTMENT_REQUIRED` on every board, asserted by a native test across each board macro-set
+- [x] **VPP-03**: A diff gate proves `src/boards/rurp_common.cpp`, `include/rurp_types.h` and `src/rurp_config_utils.cpp` untouched and `CONFIG_VERSION` still `"VER06"`, with the AVR flash delta measured rather than asserted
 
 ### Flash-Persistent Config
 
