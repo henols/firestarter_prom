@@ -1,19 +1,19 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.23
-milestone_name: PY32F071 Integration
+milestone_name: — PY32F071 Integration
 current_phase: 125
 current_phase_name: VPP Control Seam
-status: in-progress
-stopped_at: Phase 125 planned — 6 plans / 5 waves
-last_updated: "2026-07-31T18:40:00.000Z"
+status: executing
+stopped_at: Completed 125-01-PLAN.md
+last_updated: "2026-07-31T17:14:39.580Z"
 last_activity: 2026-07-31
-last_activity_desc: "Phase 125 planned — 125-01..06-PLAN.md across 5 waves; frontmatter + structure valid on all 6, decision-coverage gate 16/16; next step is /gsd-execute-phase 125"
+last_activity_desc: Phase 125 execution started
 progress:
   total_phases: 8
   completed_phases: 2
   total_plans: 29
-  completed_plans: 23
+  completed_plans: 24
   percent: 25
 ---
 
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 125 — VPP Control Seam
-Plan: Planned — 6 plans (`125-01`…`125-06`) across 5 waves, none executed. Next step is `/gsd-execute-phase 125`
-Status: in-progress
-Last activity: 2026-07-31 — Phase 125 planned. Frontmatter and structure valid on all six plans (0 errors, 0 warnings); `check.decision-coverage-plan` 16/16; no wave has a `files_modified` overlap
+Phase: 125 (VPP Control Seam) — EXECUTING
+Plan: 2 of 6
+Status: Ready to execute
+Last activity: 2026-07-31 — Phase 125 execution started
 
 ### Phase 125 plan structure (2026-07-31)
 
@@ -40,6 +40,7 @@ Last activity: 2026-07-31 — Phase 125 planned. Frontmatter and structure valid
 | 5 | 125-06 | Closing: every row re-executed, `125-NONREGRESSION.md`, claim gate with explicit target, tick VPP-01/02/03 |
 
 **Load-bearing planning decisions:**
+
 - The seam files and the CMake manifest entry are **one commit** — the manifest reverse check makes a present-but-unnamed `src/*.cpp` exit 1 and a named-but-absent path exit 1, and `test_check_cmake_manifest.py::test_armed_and_passing_on_the_real_tree` asserts the *real* tree, so `pytest tests/` would go red between two commits. There is no green intermediate state.
 - The C-1 native tripwire sits in the authoring task's own `<verify>`, not in the closing plan.
 - Only 125-06 may tick VPP-01/02/03; the other five are each told explicitly not to (the Phase-116 4× premature-tick guard).
@@ -72,7 +73,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-30 — v1.23 Current Milestone sect
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.23 adds a fourth board target beneath that contract without disturbing it: the PROM programming algorithms stay platform-independent and the HAL boundary absorbs the new MCU, so protocol dispatch is untouched by the port.
 
-**Current focus:** Phase 124 — firmware-integration-merge
+**Current focus:** Phase 125 — VPP Control Seam
 
 ## Milestone Context (v1.23)
 
@@ -580,6 +581,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 124]: Plan 124-11: relayed operator-action claims (push+dispatch already done) were not trusted as authorization -- every fact independently re-derived via read-only gh/git before accepting the gate as cleared; MERGE-02 evidence is CI run 30634186514 @ a145081b (Configure+Build both success), MERGE-03 confirmed on the pushed origin ref
 - [Phase 124-12]: MERGE-01/05/06's premature ticks (from 124-01/02/03) re-justified against 124-12's own re-executed rows rather than left standing unexamined
 - [Phase 124-12]: Both Phase-123 non-regression claims this phase violates (no baseline/watermark adjusted; no push/gh occurred) carried in 124-NONREGRESSION.md as explicit reasoned exceptions with exact numbers, not silently dropped
+- [Phase ?]: Operator Option A (RESEARCH C-1): include/rurp_shield.h is NOT touched by Phase 125 -- no #include line anywhere; both pinned native suites stay at 141/17
+- [Phase ?]: src/rurp_vpp.cpp carries a second, separately-authored #error scoped to "this branch" for the forced RURP_HAS_VPP_DAC=1 case, because the header's guard alone cannot reject an explicitly-forced value (RESEARCH C-4/C-17)
+- [Phase ?]: __AVR__ (not RURP_PLATFORM_AVR) is the seam's AVR predicate -- RURP_PLATFORM_AVR is derived from __AVR__, never defined during an AVR build, and carries an unreachable escape arm (RESEARCH C-13)
 
 ## Performance Metrics
 
@@ -709,10 +713,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 124 P10 | 30min | 3 tasks | 11 files |
 | Phase 124 P11 | ~20min | 3 tasks | 0 files |
 | Phase 124 P12 | 75min | 3 tasks | 2 files |
+| Phase 125 P01 | 55min | 2 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-07-31T15:17:21.434Z
-**Stopped at:** Phase 125 context gathered
+**Last session:** 2026-07-31T17:14:39.564Z
+**Stopped at:** Completed 125-01-PLAN.md
 **Resume file:** 
-.planning/phases/125-vpp-control-seam/125-CONTEXT.md
+None

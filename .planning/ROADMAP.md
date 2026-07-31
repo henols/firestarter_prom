@@ -2168,12 +2168,12 @@ Plans:
 > `platform/py32f071/CMakeLists.txt`. No success criterion mentions the `#include`; it appeared only
 > in prose.
 
-**Plans**: 6 plans
+**Plans**: 1/6 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 125-01-PLAN.md — Record the pre-phase pin, then land the seam atomically: `include/rurp_vpp.h` + `src/rurp_vpp.cpp` (two guards, each proven able to fire) plus the two `platform/py32f071/CMakeLists.txt` lines, in ONE commit — the manifest reverse check leaves no green intermediate state. Fires the C-1 native tripwire in the authoring task, at exact counts
+- [x] 125-01-PLAN.md — Record the pre-phase pin, then land the seam atomically: `include/rurp_vpp.h` + `src/rurp_vpp.cpp` (two guards, each proven able to fire) plus the two `platform/py32f071/CMakeLists.txt` lines, in ONE commit — the manifest reverse check leaves no green intermediate state. Fires the C-1 native tripwire in the authoring task, at exact counts
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
