@@ -2229,7 +2229,7 @@ Plans:
 > exclusion; Plan 126-08 lands the retirement, the promotion and the flash-driver entry in the same
 > commit as the deletion.
 
-**Plans**: 3/12 plans executed
+**Plans**: 4/12 plans executed
 **Research flag**: yes — `/gsd-plan-phase --research-phase 126` (A-6/R-8: `PORTING.md` is stranded on closed PRs and partly superseded; the flash page size is stated nowhere in-tree)
 
 Plans:
@@ -2244,7 +2244,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 126-04-PLAN.md — CFG-04's measurement at the only attributable point: three cold AVR builds, flash **and** RAM, under both named comparators against their named baseline files; a delta is recorded with its cause and re-baselined in its own justified commit, never absorbed ∥
+- [x] 126-04-PLAN.md — CFG-04's measurement at the only attributable point: three cold AVR builds, flash **and** RAM, under both named comparators against their named baseline files; a delta is recorded with its cause and re-baselined in its own justified commit, never absorbed ∥
 - [ ] 126-05-PLAN.md — CFG-03's structural gate: two declarations, C linkage with includes outside the wrapper, and an includer census written to be correct both before and after the third includer lands — with twelve mutation demonstrations
 
 **Wave 4** *(blocked on Wave 3)*
