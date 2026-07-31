@@ -5,15 +5,15 @@ milestone_name: — PY32F071 Integration
 current_phase: 124
 current_phase_name: firmware-integration-merge
 status: executing
-stopped_at: Completed 124-04-PLAN.md (THE LANDING)
-last_updated: "2026-07-31T09:16:44.695Z"
+stopped_at: Completed 124-06-PLAN.md (DEV_TOOLS value-semantics conversion, D-02)
+last_updated: "2026-07-31T09:39:53.593Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 124 execution started
 progress:
   total_phases: 8
   completed_phases: 1
   total_plans: 23
-  completed_plans: 16
+  completed_plans: 17
   percent: 13
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 124 (firmware-integration-merge) — EXECUTING
-Plan: 6 of 12
+Plan: 7 of 12
 Status: Ready to execute
 Last activity: 2026-07-31 — Phase 124 execution started
 
@@ -534,6 +534,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: 124-04: all AVR flash/RAM and native 141/17 counts match RESEARCH's predicted post-landing figures exactly; MERGE-05/MERGE-06 pass by exit code; five expected-red gates (W-1..W-5) fired for their pre-declared owners
 - [Phase 124]: D-15's src/dev_tools.cpp PY32_EXCLUDED reason written already amended per D-02's uniform value-semantics mechanism (124-05)
 - [Phase 124]: PyYAML absent from devcontainer; substituted structural read of py32f071.yml on: block per plan's own fallback instruction, gh workflow view deferred to 124-11 (124-05)
+- [Phase ?]: D-02: DEV_TOOLS converted to value-semantics (six sites + one shared default at placement B), measured zero AVR flash/RAM cost against Plan 124-04's landing figures
+- [Phase ?]: Placement B (inside __FIRESTARTER_H__, beside DATA_BUFFER_SIZE) used per C-18; placement above the guard was rejected as a false green
 
 ## Performance Metrics
 
@@ -656,10 +658,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 124 P03 | 22min | 2 tasks | 2 files |
 | Phase 124 P04 | 20min | 3 tasks | 22 files |
 | Phase 124 P05 | ~25min | 3 tasks | 3 files |
+| Phase 124 P06 | ~20min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-07-31T09:15:59.828Z
-**Stopped at:** Completed 124-04-PLAN.md (THE LANDING)
+**Last session:** 2026-07-31T09:39:53.564Z
+**Stopped at:** Completed 124-06-PLAN.md (DEV_TOOLS value-semantics conversion, D-02)
 **Resume file:** 
 None

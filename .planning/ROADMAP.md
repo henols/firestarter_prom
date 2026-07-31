@@ -2064,7 +2064,7 @@ Plans:
   4. AVR flash and RAM, recorded against the Phase-123 baseline, show Leonardo flash **not growing**, Uno-class flash growth **≤ 64 B**, and RAM unchanged on Uno/Leonardo — each a measured build output; golden register traces stay byte-identical, checked **per-array** for `_shared/sdp_expected.h`.
   5. All nine cross-repo source-scanning gates are shown to **run** (never SKIP) and pass, executed from a directory literally named `firestarter_app` with a merged `firestarter` sibling, and the three named in-branch defects are each independently verifiable as fixed: `FLASH_LATENCY_1` (not `_ACR_LATENCY_1`) is the constant in use at 48 MHz, `write_checksums.cmake` is deleted or has a real consumer, and ARM `DEV_TOOLS`-off is an explicit commented decision in the CMake defines.
 
-**Plans**: 5/12 plans executed
+**Plans**: 6/12 plans executed
 **Wave 1** *(pre-landing gates — authored before the tree they judge)*
 
 - [x] 124-01-PLAN.md — `check_landing_range.py`: MERGE-01/D-06 range checker with a never-vacuous guard, paired pytest, planted replayed-history fixture, and the BASE-08 `FLOOR` bump 4 → 5
@@ -2078,7 +2078,7 @@ Plans:
 **Wave 3** *(blocked on Wave 2 completion — each defect a separately attributable commit, per D-03)*
 
 - [x] 124-05-PLAN.md — MERGE-02 textual half + MERGE-03: CMake manifest rename to `flash_nor_unlock.cpp`/`flash_5v_page.cpp`, `push: branches: [beta]` trigger, and the manifest gate driven 9 → 0 violations via D-15's reasoned `PY32_EXCLUDED` allow-list
-- [ ] 124-06-PLAN.md — D-02 `DEV_TOOLS` presence-semantics → value-semantics on all four targets (one shared default + six value-tested conditionals), with a measured zero AVR cost
+- [x] 124-06-PLAN.md — D-02 `DEV_TOOLS` presence-semantics → value-semantics on all four targets (one shared default + six value-tested conditionals), with a measured zero AVR cost
 - [ ] 124-07-PLAN.md — The other two MERGE-08 defects: delete the orphaned `write_checksums.cmake`, switch to `FLASH_LATENCY_1` at 48 MHz, and add a compile-time regression guard against the ACR mask
 
 **Wave 4** *(blocked on Wave 3 completion)*
