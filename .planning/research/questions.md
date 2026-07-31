@@ -191,3 +191,30 @@ for the full design and the 999.15 stub rewrite in `ROADMAP.md`.
    axes, which reintroduces the second-artifact cost the channel split was chosen to avoid; or
    keep the beta CLI surface narrow and put only the *firmware* dev tools behind `--pre`. Needs
    an operator decision at scoping, not an implementer's guess.
+
+## SDP surface retirement + behavioral proof (999.25) — added 2026-07-31
+
+> Design: [`.planning/notes/sdp-surface-retirement-and-behavioral-proof.md`](../notes/sdp-surface-retirement-and-behavioral-proof.md).
+> Stub: Phase 999.25 in `ROADMAP.md`.
+
+1. **Can the inhibited-write leg be proven at all without AT28C silicon on the bench?** The leg's
+   whole value is an inverted assertion — after `sdp_lock`, a write carrying `FLAG_SKIP_SDP_UNLOCK`
+   must leave the chip **unchanged**. Nothing in operator inventory can exercise that end to end
+   (`0x0D` is `UNVERIFIED`; no AT28C part — `project_phase83_shipped`). Decide before scoping what
+   evidence the phase can actually produce: the Phase 116 trace harness can prove the *emission*
+   (correct sequence, correct pinout remap, `/WE` asserted) and the native envs can prove the
+   *plan derivation* and the read-back comparison logic, but the causal claim "the lock inhibited
+   the write" is reachable **only** on real silicon, i.e. only from a community `dev test` report.
+   State that split explicitly, or the phase will close claiming a proof it does not hold — the
+   same overclaim class as v1.22's C-5 correction. Related: does the trace harness need a new
+   fixture for a *locked* part, and is that even representable in a host-side stub, given the stub
+   models the bus and not the die's protection state?
+2. **Does `--sdp-relock` gate on verify success?** The v1.22 research recorded the relock as
+   "opt-in only, gated on verify success" (`v1.22-research/SUMMARY.md:157`), and the reasoning is
+   sound — relocking a part whose write did not verify protects a bad image behind a lock that
+   cannot be read back and can only be cleared by another write. But the gate was never
+   implemented or re-decided, and the deferral label ("v1.23+") now points at the wrong milestone.
+   Confirm the polarity at scoping: does `--sdp-relock` silently skip the relock on verify
+   failure (and say so loudly), refuse the whole operation up front, or relock regardless? The
+   first is the only one consistent with "the attractor should be the state the user can recover
+   from" (the rationale behind auto-unlock policy (d), `PROJECT.md:671`).

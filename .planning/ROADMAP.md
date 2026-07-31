@@ -1751,6 +1751,35 @@ Plans:
 
 - [ ] TBD (promote with /gsd-review-backlog when ready)
 
+### Phase 999.25: Retire `dev sdp`; prove the SDP lock behaviorally in `dev test`; land `write --sdp-relock` (BACKLOG — operator decision 2026-07-31)
+
+> **Full design, traps, insertion points and accepted costs: [`.planning/notes/sdp-surface-retirement-and-behavioral-proof.md`](notes/sdp-surface-retirement-and-behavioral-proof.md).** Scope from that note.
+
+**Goal:** Replace v1.22's standalone `firestarter dev sdp <chip> enable|disable` with a *self-verifying* SDP lifecycle. Three parts, decided together by the operator in a `/gsd-explore` session on 2026-07-31: **(1) delete `dev sdp`** (`cli_handlers.py:2098`, live in `3.0.0b14`) — its `disable` half duplicates the auto-unlock firmware already performs on every protocol-`0x0D` write, and its `enable` half changes a state that provably cannot be read back on this family, so neither direction can ever produce evidence; **(2) move the proof into `dev test`** as a plan-derived leg for the 43 SDP-capable chips — baseline write+verify, `sdp_lock`, an inhibited write with `FLAG_SKIP_SDP_UNLOCK`, then a **read-back equality assertion against the baseline pattern**, then `sdp_unlock` + write + verify to leave the part unlocked and prove it writable again; **(3) land `write --sdp-relock`** as the single user-facing way to deliberately protect a part.
+
+**Why this is worth doing at all:** on `0x0D` the protection bit is unreadable, so protection is observable **only through its effect**. Lock → inhibited-write → read-back is therefore the *sole* evidence path that exists for this feature, and a standalone command can never carry it. `dev test` also already writes on every run (Phase 121 D-04), is the community-validation entry point for hardware the maintainer does not own, files its report through `submit_report`, and **survives the 999.15 channel split into stable** — so the evidence comes back to the repo and the capability stays reachable without shipping a footgun.
+
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** `/gsd-explore` session 2026-07-31 (topic: "is the `dev sdp` option needed, does it bring any real value?"). Not GitHub-linked, but interacts with [gh#12](https://github.com/henols/firestarter_prom/issues/12) (see the outward-facing debt below). Type: host CLI surface + test oracle.
+
+**Scoping notes the phase must carry:**
+
+- **Host-only — no firmware change, no dual-repo lockstep.** `CMD_SDP_LOCK`/`CMD_SDP_UNLOCK` stay exactly as Phase 119 shipped them; the firmware is what the new leg *exercises*. No `.hex` re-cut, no version-pair coupling. Keep `constants.py:72-73` **and** their `COMMAND_NAMES` entries (dereferenced at `eprom_operations.py:301,377` — a missing entry is a `KeyError` at operation setup) and both `EpromOperator.sdp_lock`/`sdp_unlock`; the leg and `--sdp-relock` need all of it.
+- **⚠ The leg is a false-green magnet — the oracle is read-back equality, NOT an exit code.** Its load-bearing assertion is that a write *fails*, and every unrelated failure (transport error, brownout, absent chip) yields the same non-zero result. Same class as the SAFE-04 absent-chip trap, whose real assertion turned out to be `read_hardware_revision_value.assert_not_called()`. A *partial* change is gh#11's exact symptom and must read **BAD**, never OK.
+- **⚠ Keep the sensitivity pointing the right way.** If the lock never reaches silicon (the v1.22 defect class), the inhibited write *succeeds* and the leg must report **BAD** — never downgrade an unexpected success to `SKIPPED`/`NA`. That inversion is the whole value of the leg.
+- **⚠ The leg cannot be flag-gated.** `dev test` takes **zero options** since Phase 121 D-05; the leg must be derived in `derive_plan` from `sdp_capability()` (43 ALLOW / 41 REFUSE of 84), with REFUSED chips getting an `NA`/`SKIPPED` step carrying the reason.
+- **The run must end unlocked, and the report must say so.** An abort between lock and unlock ships a locked chip back to a stranger. Recovery is a plain `firestarter write` (auto-unlock is default-on) — note `0x0D` has **no erase operation at all**, so the recovery wording is "rewrite", never "erase".
+- **Removal is safe *because* auto-unlock is default-on.** If that default is ever revisited, this decision must be revisited with it.
+- **Fixes a stale label:** `--sdp-relock` is deferred to "v1.23+" in `STATE.md:154` and `PROJECT.md:671`, but v1.23 has since been activated as *PY32F071 Integration*, so the flag currently has no home. This phase is its home; correct both rows when scoping.
+- **Outward-facing debt.** `dev sdp` is named in the gh#12 reply and the b14 app release notes, both published 2026-07-30 — one day before this decision. A follow-up reply is owed, stating the substitution honestly (gh#12 asked for "enable/disable" and gets neither by that name) and without letting "now provable" drift into "now proven". Todo: [`gh12-followup-after-dev-sdp-retirement.md`](todos/pending/gh12-followup-after-dev-sdp-retirement.md).
+- **Cheap now, dearer later.** The command has existed publicly for one day, on the pre-release channel only; no stable release ever carried it.
+- **Two open questions for scoping** (appended to [`.planning/research/questions.md`](research/questions.md)): whether the inhibited-write leg can be proven at all without AT28C silicon on the bench, and whether `--sdp-relock` gates on verify success.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
 ---
 
 ### v1.14 — Feasible-Gap Implementation (✅ PROMOTED 2026-06-18 → active milestone, Phases 77–80)
