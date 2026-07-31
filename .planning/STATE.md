@@ -5,29 +5,29 @@ milestone_name: — PY32F071 Integration
 current_phase: 123
 current_phase_name: non-regression-baselines-gate-hardening
 status: executing
-stopped_at: Completed 123-09-PLAN.md
-last_updated: "2026-07-31T01:29:07.786Z"
+stopped_at: Completed 123-05-PLAN.md
+last_updated: "2026-07-31T01:42:25.376Z"
 last_activity: 2026-07-31
-last_activity_desc: Executed 123-09 (BASE-03 skip census + D-09 recurrence lint against the absence-proxy idiom; host suite 1158 passed, 0 skipped)
+last_activity_desc: Executed 123-05 (BASE-05 orphan-provisional-macro gate — check_orphan_provisional.py + 2 fixture trees + 8-test anti-hollow pytest; firmware suite 41 passed, 0 skipped)
 progress:
   total_phases: 8
   completed_phases: 0
   total_plans: 11
-  completed_plans: 8
-  percent: 73
+  completed_plans: 9
+  percent: 82
 ---
 
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-07-30
+**Updated:** 2026-07-31
 
 ## Current Position
 
 Phase: 123 (non-regression-baselines-gate-hardening) — EXECUTING
-Plan: 9 of 11 (completed) — next up: 10
+Plan: 9 of 11 completed (123-05 just executed; plans complete out of numeric order per wave dependency, not sequentially) — remaining: 123-06, 123-11
 Status: Ready to execute next plan
-Last activity: 2026-07-31 — Executed 123-09 (BASE-03 skip census + D-09 recurrence lint against the absence-proxy idiom; host suite 1158 passed, 0 skipped)
+Last activity: 2026-07-31 — Executed 123-05 (BASE-05 orphan-provisional-macro gate — check_orphan_provisional.py + 2 fixture trees + 8-test anti-hollow pytest; firmware suite 41 passed, 0 skipped)
 
 ## Project Reference
 
@@ -517,6 +517,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 123]: Missing/unparseable manifest under an armed key, and an unrecognised source-list name, both exit 2 (config/parse error class), consistent with this phase's other two checkers
 - [Phase 123]: 123-09: ALLOWED_SKIP_REASONS seeded with all four known-legitimate skip reasons found by static inspection (not only ones observed in this 0-skip local run), since two are standalone-CI-only conditions that would otherwise trip the census the first time it runs in GitHub Actions
 - [Phase 123]: 123-09: census liveness signal switched from the run's trailing summary line to a --collect-only per-file count sum, after measuring pytest 9.1.1 in this environment intermittently omits that trailing line from captured stdout under -q
+- [Phase ?]: Arming reading (a) chosen over (b) for BASE-05: gate is UNARMED until platform/py32f071/ exists, matching D-07 literally; rejected always-armed reading recorded in the docstring
+- [Phase ?]: Comment mentions do not count as consumers for check_orphan_provisional.py -- bundled with #undef exclusion as one defect class per threat T-123-05-01, implemented via a comment-stripping pass before the consumer regex
+- [Phase ?]: RURP_PY32F071_PINMAP_CONFIGURED structurally-dead #error is explicitly out of check_orphan_provisional.py's scope -- MERGE-04's problem, not BASE-05's
 
 ## Performance Metrics
 
@@ -631,10 +634,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 123 P08 | 70min | 3 tasks | 9 files |
 | Phase 123 P04 | 35 | 3 tasks | 20 files |
 | Phase 123 P09 | 55min | 2 tasks | 4 files |
+| Phase 123 P05 | 22 | 2 tasks | 10 files |
 
 ## Session
 
-**Last session:** 2026-07-31T01:29:07.766Z
-**Stopped at:** Completed 123-09-PLAN.md
+**Last session:** 2026-07-31T01:41:57.432Z
+**Stopped at:** Completed 123-05-PLAN.md
 **Resume file:** 
 None
