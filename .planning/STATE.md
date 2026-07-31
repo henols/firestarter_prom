@@ -6,14 +6,14 @@ current_phase: 125
 current_phase_name: VPP Control Seam
 status: executing
 stopped_at: Completed 125-04-PLAN.md
-last_updated: "2026-07-31T17:41:58.974Z"
+last_updated: "2026-07-31T17:54:41.247Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 125 execution started
 progress:
   total_phases: 8
   completed_phases: 2
   total_plans: 29
-  completed_plans: 27
+  completed_plans: 28
   percent: 25
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 125 (VPP Control Seam) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 Status: Ready to execute
 Last activity: 2026-07-31 — Phase 125 execution started
 
@@ -590,6 +590,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: Split module authoring into two commits matching the plan's two tasks (Coverage 1+2 then Coverage 3+4), each verified against its own exact count acceptance criteria before committing
 - [Phase ?]: D-16 Branch A taken (Plan 125-04): check_size_baseline.py exited 0 against fresh three-target build logs, so the re-baseline contingency was evaluated and deliberately not exercised; both baseline files re-hashed unchanged against HEAD
 - [Phase ?]: Elimination mechanism corrected (Plan 125-04): the seam's zero flash/RAM cost is attributable to link-time optimisation (-flto, confirmed in platform-atmelavr@5.2.0's real flag set) AND section garbage collection together, not section GC alone
+- [Phase 125]: 125-05: ARM CI evidence obtained -- run 30652530756, head SHA 2b5e8c875bb04d728b5e08d16cc2d29e0d43c1d7, Configure+Build both success, src/rurp_vpp.cpp confirmed compiled; no beta prerelease cut; relayed resume datum independently re-derived read-only before acceptance
 
 ## Performance Metrics
 
@@ -723,10 +724,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 125 P02 | 35min | 2 tasks | 1 files |
 | Phase 125 P03 | 30min | 2 tasks | 1 files |
 | Phase 125 P04 | 25min | 2 tasks | 0 files |
+| Phase 125 P05 | ~20min | 1 tasks | 0 files |
 
 ## Session
 
-**Last session:** 2026-07-31T17:41:58.943Z
+**Last session:** 2026-07-31T17:54:15.497Z
 **Stopped at:** Completed 125-04-PLAN.md
 **Resume file:** 
 None

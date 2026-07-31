@@ -2168,7 +2168,7 @@ Plans:
 > `platform/py32f071/CMakeLists.txt`. No success criterion mentions the `#include`; it appeared only
 > in prose.
 
-**Plans**: 4/6 plans executed
+**Plans**: 5/6 plans executed
 
 Plans:
 **Wave 1**
@@ -2186,7 +2186,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 125-05-PLAN.md — D-13's own ARM configure-and-build evidence as a CI run URL + head SHA. **Structural operator gate (D-14)**: no task runs `git push` or `gh workflow run`; the plan prints the commands and stops
+- [x] 125-05-PLAN.md — D-13's own ARM configure-and-build evidence as a CI run URL + head SHA. **Structural operator gate (D-14)**: no task runs `git push` or `gh workflow run`; the plan prints the commands and stops
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
