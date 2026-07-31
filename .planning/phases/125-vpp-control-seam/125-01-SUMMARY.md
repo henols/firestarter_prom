@@ -239,3 +239,11 @@ This SUMMARY makes no claim that the firmware runs on a PY32F071, that closed-lo
 ---
 *Phase: 125-vpp-control-seam*
 *Completed: 2026-07-31*
+
+## Self-Check: PASSED
+
+- FOUND: `/workspaces/firestarter/include/rurp_vpp.h`
+- FOUND: `/workspaces/firestarter/src/rurp_vpp.cpp`
+- FOUND: `/workspaces/.planning/phases/125-vpp-control-seam/125-01-SUMMARY.md`
+- FOUND: firmware commit `fb76287` (`git log --oneline --all` in `/workspaces/firestarter`)
+- FOUND: meta commit `e2bc8d4` (`git log --oneline --all` in `/workspaces`)
