@@ -5,14 +5,14 @@ milestone_name: PY32F071 Integration
 current_phase: 125
 current_phase_name: VPP Control Seam
 status: in-progress
-stopped_at: Phase 125 context gathered
-last_updated: "2026-07-31T15:18:04.799Z"
+stopped_at: Phase 125 planned — 6 plans / 5 waves
+last_updated: "2026-07-31T18:40:00.000Z"
 last_activity: 2026-07-31
-last_activity_desc: "Phase 125 context gathered — 4 gray areas discussed, D-01..D-16 locked in 125-CONTEXT.md; next step is /gsd-plan-phase 125"
+last_activity_desc: "Phase 125 planned — 125-01..06-PLAN.md across 5 waves; frontmatter + structure valid on all 6, decision-coverage gate 16/16; next step is /gsd-execute-phase 125"
 progress:
   total_phases: 8
   completed_phases: 2
-  total_plans: 23
+  total_plans: 29
   completed_plans: 23
   percent: 25
 ---
@@ -25,11 +25,27 @@ progress:
 ## Current Position
 
 Phase: 125 — VPP Control Seam
-Plan: Not started — context gathered, next step is /gsd-plan-phase 125
+Plan: Planned — 6 plans (`125-01`…`125-06`) across 5 waves, none executed. Next step is `/gsd-execute-phase 125`
 Status: in-progress
-Last activity: 2026-07-31 — Phase 125 context gathered: 4 gray areas discussed (four-board proof mechanics, capability-macro declaration site, seam API surface, ARM landing), D-01..D-16 locked in `125-CONTEXT.md`
+Last activity: 2026-07-31 — Phase 125 planned. Frontmatter and structure valid on all six plans (0 errors, 0 warnings); `check.decision-coverage-plan` 16/16; no wave has a `files_modified` overlap
 
-### Phase 125 context highlights (read `125-CONTEXT.md` before planning)
+### Phase 125 plan structure (2026-07-31)
+
+| Wave | Plan | Scope |
+|---|---|---|
+| 1 | 125-01 | Pre-phase pin, then the atomic landing: `include/rurp_vpp.h` + `src/rurp_vpp.cpp` + the two `platform/py32f071/CMakeLists.txt` lines in ONE commit. Fires the C-1 native tripwire in the authoring task |
+| 2 | 125-02 ∥ 125-03 | VPP-02's parametrized compile-and-run harness (10 cases / 7 functions) ∥ Criterion 1's PR #45 non-ancestry gate (4 cases) |
+| 3 | 125-04 | Criterion 4 measured: three cold AVR builds, two-directional non-vacuity, armed comparator, D-16 disposition |
+| 4 | 125-05 | D-13 ARM CI evidence behind the structural operator gate (no task runs `git push` / `gh workflow run`) |
+| 5 | 125-06 | Closing: every row re-executed, `125-NONREGRESSION.md`, claim gate with explicit target, tick VPP-01/02/03 |
+
+**Load-bearing planning decisions:**
+- The seam files and the CMake manifest entry are **one commit** — the manifest reverse check makes a present-but-unnamed `src/*.cpp` exit 1 and a named-but-absent path exit 1, and `test_check_cmake_manifest.py::test_armed_and_passing_on_the_real_tree` asserts the *real* tree, so `pytest tests/` would go red between two commits. There is no green intermediate state.
+- The C-1 native tripwire sits in the authoring task's own `<verify>`, not in the closing plan.
+- Only 125-06 may tick VPP-01/02/03; the other five are each told explicitly not to (the Phase-116 4× premature-tick guard).
+- Expected suite counts as the plans land: `pytest tests/` 72 → 78 → 82 → 86; manifest gate 23 → 24 enforced sources; native envs unchanged at 141/17 and 10/1.
+
+### Phase 125 context highlights (read `125-CONTEXT.md` and then `125-RESEARCH.md` — RESEARCH wins on conflict)
 
 - The four-board `MANUAL_ADJUSTMENT_REQUIRED` proof is a **pytest + host-`g++` harness** (6 legs), not a fourth PIO env — both pinned native envs stay untouched at 141 cases / 17 suites.
 - `src/rurp_vpp.cpp` is **dependency-free by construction** (only `rurp_vpp.h` + `<stdint.h>`), which is what makes the harness stub-free and ARM compilation near risk-free.
