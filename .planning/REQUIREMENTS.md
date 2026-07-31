@@ -41,13 +41,13 @@ Research: `.planning/research/SUMMARY.md` (4 streams + synthesis; 18 corrections
 ### Firmware Integration Merge
 
 - [x] **MERGE-01**: `agent/portability-macros` and the py32 stack land as one atomic landing including `780a3fb`, with no commit on the integration branch where the portability half is present and the py32 stack is not
-- [ ] **MERGE-02**: The CMake source list names `flash_nor_unlock.cpp` and `flash_5v_page.cpp`, and the ARM target reaches a successful CMake configure
-- [ ] **MERGE-03**: `py32f071.yml` gains `push: branches: [beta]`, so the ARM target is built on `beta` rather than only on pull requests
-- [ ] **MERGE-04**: While the pin map is provisional, the py32 target refuses every operation that can energise a PROM, and the guard is restructured so its `#error` is provably able to fire
+- [x] **MERGE-02**: The CMake source list names `flash_nor_unlock.cpp` and `flash_5v_page.cpp`, and the ARM target reaches a successful CMake configure
+- [x] **MERGE-03**: `py32f071.yml` gains `push: branches: [beta]`, so the ARM target is built on `beta` rather than only on pull requests
+- [x] **MERGE-04**: While the pin map is provisional, the py32 target refuses every operation that can energise a PROM, and the guard is restructured so its `#error` is provably able to fire
 - [x] **MERGE-05**: Leonardo flash does not grow; Uno-class flash growth is ≤ 64 B and recorded; flash **and RAM** are recorded for all three AVR targets against BASE-01
 - [x] **MERGE-06**: `pio test -e native` and `-e native_nodevtools` report the BASE-01 case **and suite** counts, and the golden register traces are byte-identical (per-array for `_shared/sdp_expected.h`)
-- [ ] **MERGE-07**: All nine cross-repo source-scanning gates are shown to **run** — not skip — and pass, in a directory literally named `firestarter_app` with a merged `firestarter` sibling
-- [ ] **MERGE-08**: Three in-branch defects are fixed: the flash-latency constant (`FLASH_ACR_LATENCY_1` → `FLASH_LATENCY_1`, two wait states → one at 48 MHz), the orphaned `write_checksums.cmake`, and `DEV_TOOLS`-off on ARM made an explicit commented decision rather than an accident of the CMake defines
+- [x] **MERGE-07**: All nine cross-repo source-scanning gates are shown to **run** — not skip — and pass, in a directory literally named `firestarter_app` with a merged `firestarter` sibling
+- [x] **MERGE-08**: Three in-branch defects are fixed: the flash-latency constant (`FLASH_ACR_LATENCY_1` → `FLASH_LATENCY_1`, two wait states → one at 48 MHz), the orphaned `write_checksums.cmake`, and `DEV_TOOLS`-off on ARM made an explicit commented decision rather than an accident of the CMake defines
 
 ### VPP Control Seam
 
@@ -159,7 +159,7 @@ Populated 2026-07-30 by the v1.23 roadmap (`/gsd-new-milestone` → roadmapper).
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | BASE-01 … BASE-08 | Phase 123 | Complete |
-| MERGE-01 … MERGE-08 | Phase 124 | Pending |
+| MERGE-01 … MERGE-08 | Phase 124 | Complete — all 8 ticked, see `124-NONREGRESSION.md` §3/§4 for the row cited per requirement |
 | VPP-01 … VPP-03 | Phase 125 | Pending |
 | CFG-01 … CFG-07 | Phase 126 | Pending |
 | HOST-01 … HOST-08 | Phase 127 | Pending |
