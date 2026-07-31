@@ -142,3 +142,14 @@ None. This plan adds no new network endpoint, auth path, file-access pattern, or
 ## Next Phase Readiness
 
 The CFG-02 ordering anchor (`fd84820`) exists and precedes every later commit in this phase — Plan 126-06 can safely wrap `git rev-list --is-ancestor` around it once it lands the linker edit. Plan 126-02 (parallel, same wave) can proceed independently — it authors `tests/test_config_storage_eeprom_regression.py` against the pre-refactor `src/rurp_config_utils.cpp` blob recorded here (`6705fd46e07a2d359d161dc2e7728cb4e45f89c7`). Plan 126-03's D-08 manifest edits and Plan 126-07's HAL-free core (`CONFIG_MAGIC`, `StoredConfiguration`, the D-16-corrected commit shape) now have a committed design record to build against rather than only the closed-PR blob and CONTEXT/RESEARCH prose.
+
+## Self-Check: PASSED
+
+- FOUND: `firestarter/platform/py32f071/CONFIG-STORAGE.md`
+- FOUND: `firestarter/tests/test_config_storage_design_vendored.py`
+- FOUND: `.planning/phases/126-flash-persistent-config-via-a-storage-backend-seam-highest-r/126-01-SUMMARY.md`
+- FOUND (firmware repo): commit `fd84820` (CONFIG-STORAGE.md)
+- FOUND (firmware repo): commit `be503cb` (test module)
+- FOUND (meta repo): commit `f5515c8` (this SUMMARY)
+
+No missing items.
