@@ -2229,7 +2229,7 @@ Plans:
 > exclusion; Plan 126-08 lands the retirement, the promotion and the flash-driver entry in the same
 > commit as the deletion.
 
-**Plans**: 5/12 plans executed
+**Plans**: 6/12 plans executed
 **Research flag**: yes — `/gsd-plan-phase --research-phase 126` (A-6/R-8: `PORTING.md` is stranded on closed PRs and partly superseded; the flash page size is stated nowhere in-tree)
 
 Plans:
@@ -2249,7 +2249,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3)*
 
-- [ ] 126-06-PLAN.md — Reserve Sector 15 in `platform/py32f071/linker/PY32F071xB_FLASH.ld` (D-18's quantum, D-13's zero-length bootloader seam with its migration-cost comment), plus CFG-02's ordering as an exit code with a non-vacuity guard and a synthetic-repo RED demo, plus CFG-06's map gate
+- [x] 126-06-PLAN.md — Reserve Sector 15 in `platform/py32f071/linker/PY32F071xB_FLASH.ld` (D-18's quantum, D-13's zero-length bootloader seam with its migration-cost comment), plus CFG-02's ordering as an exit code with a non-vacuity guard and a synthetic-repo RED demo, plus CFG-06's map gate
 
 **Wave 5** *(blocked on Wave 4)*
 

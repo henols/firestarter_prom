@@ -6,14 +6,14 @@ current_phase: 126
 current_phase_name: Flash-Persistent Config via a Storage-Backend Seam
 status: executing
 stopped_at: Completed 126-04-PLAN.md
-last_updated: "2026-07-31T23:30:12.164Z"
+last_updated: "2026-07-31T23:46:40.329Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 126 execution started
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 41
-  completed_plans: 34
+  completed_plans: 35
   percent: 38
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 126 (Flash-Persistent Config via a Storage-Backend Seam) — EXECUTING
-Plan: 6 of 12
+Plan: 7 of 12
 Status: Ready to execute
 Last activity: 2026-07-31 — Phase 126 execution started
 
@@ -638,6 +638,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 126]: 126-03: ARM manifest split kept to ONE new PY32_EXCLUDED line; retiring src/rurp_config_utils.cpp's exclusion and promoting it into FIRESTARTER_COMMON_SOURCES is deferred to Plan 126-08, same commit that deletes config.cpp
 - [Phase 126]: 126-04: Arm A taken: AVR flash/RAM measured cold on all three targets, byte-identical to the pre-existing baseline under both named comparators (compare_avr strict + compare_avr_policy_merge05 band); zero delta from the 126-03 policy split, attributed to D-03 (dual-slot core is ARM-only, not yet authored) and -flto/--gc-sections; no re-baseline commit needed.
 - [Phase ?]: Named a spurious 12th test function was not fabricated; implemented all 11 plan-specified functions exactly, flagged the plan's 'twelve' phrasing as a discrepancy
+- [Phase 126-06]: D-18's whole-Sector-15 reservation implemented exactly: CONFIG at 0x0801E000/8K, not the minimal 512B two-erase-unit reading
+- [Phase 126-06]: No linker ASSERT uses modulo on a region origin (RESEARCH A6); sector-alignment/bounds arithmetic lives in tests/test_py32_flash_map.py instead
+- [Phase 126-06]: BOOTLOADER region shape used over the A7 PROVIDE-pair fallback; named contingency pending Plan 126-11's ARM CI confirmation
 
 ## Performance Metrics
 
@@ -778,10 +781,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 126 P03 | 35min | 2 tasks | 6 files |
 | Phase 126 P04 | 25min | 2 tasks | 0 files |
 | Phase 126 P05 | 40min | 2 tasks | 1 files |
+| Phase 126 P06 | 25min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-07-31T23:30:12.147Z
+**Last session:** 2026-07-31T23:45:54.789Z
 **Stopped at:** Completed 126-04-PLAN.md
 **Resume file:** 
 None
