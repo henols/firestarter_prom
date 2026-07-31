@@ -6,14 +6,14 @@ current_phase: 125
 current_phase_name: VPP Control Seam
 status: executing
 stopped_at: Completed 125-01-PLAN.md
-last_updated: "2026-07-31T17:14:39.580Z"
+last_updated: "2026-07-31T17:26:01.356Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 125 execution started
 progress:
   total_phases: 8
   completed_phases: 2
   total_plans: 29
-  completed_plans: 24
+  completed_plans: 25
   percent: 25
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 125 (VPP Control Seam) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-07-31 — Phase 125 execution started
 
@@ -584,6 +584,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: Operator Option A (RESEARCH C-1): include/rurp_shield.h is NOT touched by Phase 125 -- no #include line anywhere; both pinned native suites stay at 141/17
 - [Phase ?]: src/rurp_vpp.cpp carries a second, separately-authored #error scoped to "this branch" for the forced RURP_HAS_VPP_DAC=1 case, because the header's guard alone cannot reject an explicitly-forced value (RESEARCH C-4/C-17)
 - [Phase ?]: __AVR__ (not RURP_PLATFORM_AVR) is the seam's AVR predicate -- RURP_PLATFORM_AVR is derived from __AVR__, never defined during an AVR build, and carries an unreachable escape arm (RESEARCH C-13)
+- [Phase 125-02]: fixed the #error message regex to tolerate an indented directive (header nests it two preprocessor levels deep) -- caught by the task's own automated verify before commit
+- [Phase 125-02]: two distinct expected-message helper functions (header vs .cpp), never one shared 'exactly one directive' assertion across both files
 
 ## Performance Metrics
 
@@ -714,10 +716,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 124 P11 | ~20min | 3 tasks | 0 files |
 | Phase 124 P12 | 75min | 3 tasks | 2 files |
 | Phase 125 P01 | 55min | 2 tasks | 3 files |
+| Phase 125 P02 | 35min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-07-31T17:14:39.564Z
+**Last session:** 2026-07-31T17:25:17.986Z
 **Stopped at:** Completed 125-01-PLAN.md
 **Resume file:** 
 None
