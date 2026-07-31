@@ -6,15 +6,15 @@ current_phase: 123
 current_phase_name: non-regression-baselines-gate-hardening
 status: executing
 stopped_at: Completed 123-05-PLAN.md
-last_updated: "2026-07-31T01:42:25.376Z"
+last_updated: "2026-07-31T01:52:04.176Z"
 last_activity: 2026-07-31
 last_activity_desc: Executed 123-05 (BASE-05 orphan-provisional-macro gate — check_orphan_provisional.py + 2 fixture trees + 8-test anti-hollow pytest; firmware suite 41 passed, 0 skipped)
 progress:
   total_phases: 8
   completed_phases: 0
   total_plans: 11
-  completed_plans: 9
-  percent: 82
+  completed_plans: 10
+  percent: 0
 ---
 
 # Project State
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 123 (non-regression-baselines-gate-hardening) — EXECUTING
-Plan: 9 of 11 completed (123-05 just executed; plans complete out of numeric order per wave dependency, not sequentially) — remaining: 123-06, 123-11
+Plan: 10 of 11 completed (123-05 just executed; plans complete out of numeric order per wave dependency, not sequentially) — remaining: 123-06, 123-11
 Status: Ready to execute next plan
 Last activity: 2026-07-31 — Executed 123-05 (BASE-05 orphan-provisional-macro gate — check_orphan_provisional.py + 2 fixture trees + 8-test anti-hollow pytest; firmware suite 41 passed, 0 skipped)
 
@@ -520,6 +520,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: Arming reading (a) chosen over (b) for BASE-05: gate is UNARMED until platform/py32f071/ exists, matching D-07 literally; rejected always-armed reading recorded in the docstring
 - [Phase ?]: Comment mentions do not count as consumers for check_orphan_provisional.py -- bundled with #undef exclusion as one defect class per threat T-123-05-01, implemented via a comment-stripping pass before the consumer regex
 - [Phase ?]: RURP_PY32F071_PINMAP_CONFIGURED structurally-dead #error is explicitly out of check_orphan_provisional.py's scope -- MERGE-04's problem, not BASE-05's
+- [Phase ?]: Scoped BASE-08 checker-convention meta-test to firestarter/scripts/check_*.py only (non-recursive), naming the 3 pre-existing firestarter_app/tools/ violators (incl. check_mypy_watermark.py's missing test) in the docstring rather than allow-listing or fixing them
 
 ## Performance Metrics
 
@@ -635,10 +636,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 123 P04 | 35 | 3 tasks | 20 files |
 | Phase 123 P09 | 55min | 2 tasks | 4 files |
 | Phase 123 P05 | 22 | 2 tasks | 10 files |
+| Phase 123 P06 | 12min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-07-31T01:41:57.432Z
+**Last session:** 2026-07-31T01:51:20.148Z
 **Stopped at:** Completed 123-05-PLAN.md
 **Resume file:** 
 None

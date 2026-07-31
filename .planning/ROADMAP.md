@@ -2016,7 +2016,7 @@ Plans:
   4. The orphan-provisional-macro checker exits non-zero against a fixture defining a `RURP_*_PROVISIONAL`-style flag with zero consumers, and the warning-count gate exits non-zero against a fixture introducing one macro-redefinition warning.
   5. `check_permitted_claims.py` (v1.23 phrase table) exits non-zero when its target-file list is empty (fails closed) and exits non-zero against a fixture containing one of the milestone's forbidden phrases; every checker introduced this phase ships with its own committed planted-violation fixture and a pytest proving the non-zero exit.
 
-**Plans**: 9/11 plans executed
+**Plans**: 10/11 plans executed
 **Wave 1**
 
 - [x] 123-01-PLAN.md — Milestone branches in both sub-repos; re-measure all six AVR figures and both native pairs on clean builds; commit the verbatim captures and the BASE-01 baseline JSON
@@ -2043,7 +2043,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 123-06-PLAN.md — `test_checker_convention.py` (BASE-08 meta-test with hardcoded floors) plus the firmware-side verification run against a fresh build
+- [x] 123-06-PLAN.md — `test_checker_convention.py` (BASE-08 meta-test with hardcoded floors) plus the firmware-side verification run against a fresh build
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
