@@ -4,15 +4,15 @@ milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 126
 current_phase_name: Flash-Persistent Config via a Storage-Backend Seam ⚠ **highest-risk phase of the milestone**
-status: context-gathered
-stopped_at: Phase 126 context gathered
-last_updated: "2026-07-31T19:19:46.016Z"
+status: Phase 126 planned — 12 plans (waves 1–9), ready for /gsd-execute-phase 126
+stopped_at: Phase 126 planned — 12 plans across 9 waves; plan-checker PASSED; 7/7 requirements (CFG-01..07) and 19/19 decisions (D-01..D-19) covered
+last_updated: "2026-07-31T22:10:22.000Z"
 last_activity: 2026-07-31
-last_activity_desc: "Phase 125 CLOSED and VERIFIED: 6/6 plans, VPP-01..03 ticked, verification passed 15/15 must-haves with no gaps and no human-verification items"
+last_activity_desc: "Phase 126 planned: 12 plans / 9 waves, verification passed with one categorization warning fixed in-loop (141/17 native-count pin promoted to a first-class prohibition in 126-03 and 126-12)"
 progress:
   total_phases: 8
   completed_phases: 3
-  total_plans: 29
+  total_plans: 41
   completed_plans: 29
   percent: 38
 ---
@@ -25,9 +25,32 @@ progress:
 ## Current Position
 
 Phase: 126 — Flash-Persistent Config via a Storage-Backend Seam ⚠ **highest-risk phase of the milestone**
-Plan: Not started — CONTEXT.md written; next step is `/gsd-plan-phase 126 --research-phase 126`
-Status: context-gathered
-Last activity: 2026-07-31 — Phase 126 context gathered: 17 decisions locked across 4 discussed gray areas (test venue vs the 141/17 native pin, storage-seam API contract, py32 flash map + host contract, blank/corrupt-slot recovery). Research flag is `yes` (blob `4b1a441` verified readable locally; PY32F071xB erase-unit size still unsourced)
+Plan: **12 plans across 9 waves** — `126-01-PLAN.md` … `126-12-PLAN.md`. Ready to execute.
+Status: Ready to execute
+Last activity: 2026-07-31 — Phase 126 planned. Research used existing `126-RESEARCH.md` (14 verified corrections C-1..C-14); pattern map written; `126-VALIDATION.md` created. Plan-checker returned **VERIFICATION PASSED** on all 12 plans, with all six pinned blob SHAs in 126-01 re-verified byte-for-byte against the live submodule. Coverage gates: **7/7 requirements** (CFG-01..CFG-07), **19/19 decisions** (D-01..D-19). One non-blocking categorization warning was fixed in-loop rather than carried (`f87c1d6`).
+
+### Phase 126 plan structure (2026-07-31)
+
+| Wave | Plan | Scope |
+|---|---|---|
+| 1 | 126-01 ∥ 126-02 | Pre-phase pin + `platform/py32f071/CONFIG-STORAGE.md` as a commit of its own (the CFG-02 ordering anchor) ∥ CFG-04's regression test authored **pre-refactor**, blob SHA recorded |
+| 2 | 126-03 | The atomic AVR split in ONE commit: seam header + policy-only TU + `src/boards/rurp_config_storage_eeprom.cpp` + the one exclusion + checker docstring; then D-04's re-hash proof |
+| 3 | 126-04 ∥ 126-05 | AVR flash/RAM measured cold under both named comparators against their named baselines ∥ CFG-03's structural gate |
+| 4 | 126-06 | Reserve Sector 15 in `platform/py32f071/linker/PY32F071xB_FLASH.ld`; CFG-02 ordering as an exit code with a non-vacuity guard; CFG-06 map gate |
+| 5 | 126-07 | HAL-free dual-slot core: `StoredConfiguration`, `CONFIG_MAGIC 0x52555250`, table-free reflected CRC-32, V5 validation ordering |
+| 6 | 126-08 | HAL primitives, `platform/py32f071/src/config.cpp` deleted, manifest closed at 26, C-3 flash-driver detector |
+| 7 | 126-09 ∥ 126-10 | Criterion 4's six named tests + the seventh CRC32 known-answer anchor ∥ CFG-07 schema/deletion gate |
+| 8 | 126-11 | ARM CI evidence behind the structural operator gate (`autonomous: false`) |
+| 9 | 126-12 | Closing: re-execute everything, `126-NONREGRESSION.md`, tick CFG-01..CFG-07 |
+
+**Load-bearing planning decisions:**
+
+- **Two corrections the planner made to the planning record.** (a) D-08's manifest churn is split across two commits: naming `src/rurp_config_utils.cpp` in the ARM manifest *before* `platform/py32f071/src/config.cpp` is deleted would give the ARM link two definitions of each of the four public config functions — and nothing local detects it (`arm-none-eabi-gcc`/`cmake`/`ninja` are absent and `py32f071.yml` does not fire on this branch), so it would surface only in the gated CI run several plans later. 126-03 lands only the new exclusion; 126-08 lands the retirement, the promotion and C-3's flash-driver entry in the same commit as the deletion. (b) The sector-alignment `ASSERT` moved out of the linker script into `tests/test_py32_flash_map.py` — there is no ARM linker here to try modulo-on-a-region-origin against.
+- **Criterion 2 is satisfiable only by construction:** `CONFIG-STORAGE.md` is a single-file commit in Wave 1; Wave 4's gate wraps `git merge-base --is-ancestor` with a **non-vacuity guard** (it fails if no in-phase linker commit exists) plus a synthetic-repo RED demonstration.
+- **Criterion 3's blob SHA is recorded in 126-02's SUMMARY and re-hashed in 126-03.** If 126-02 does not record it, the proof is unrecoverable. A path-scoped `git diff` is corroboration only — `124-VERIFICATION.md` records that shape passing vacuously.
+- **Plan 126-11 is `autonomous: false`** and no task in it may run `git push` or `gh workflow run`. The structural separation *is* the gate, not the checkpoint type — `--auto`/`--chain` auto-approve human-verify checkpoints.
+- **Live figures used throughout:** Leonardo free flash **2656 B** (CONTEXT.md's 2600 B is stale), `pytest tests/` at **86**, manifest gate **24 → 26** enforced sources, native pinned at **141 cases / 17 suites** on both envs.
+- Only 126-12 may tick CFG-01..CFG-07 (the Phase-116 4× premature-tick guard).
 
 ### Phase 125 close-out (2026-07-31)
 
