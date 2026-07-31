@@ -1,14 +1,14 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.23
-milestone_name: — PY32F071 Integration
-current_phase: 123
-current_phase_name: non-regression-baselines-gate-hardening
-status: complete
+milestone_name: PY32F071 Integration
+current_phase: 124
+current_phase_name: firmware-integration-merge
+status: planning
 stopped_at: Phase 124 context gathered
 last_updated: "2026-07-31T06:00:26.072Z"
 last_activity: 2026-07-31
-last_activity_desc: Executed 123-11 (full cross-repo gate sweep + 123-NONREGRESSION.md evidence artifact + BASE-01..08 requirement ticks)
+last_activity_desc: Phase 124 context gathered — 16 decisions (D-01..D-16); MERGE-08 discussed with operator, landing/CI/pin-map recorded as defaults
 progress:
   total_phases: 8
   completed_phases: 1
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 123 (non-regression-baselines-gate-hardening) — COMPLETE (11/11 plans; BASE-01..BASE-08 all Complete)
-Plan: 11 of 11 completed — none remaining
-Status: Ready to advance to Phase 124 (Firmware Integration Merge)
-Last activity: 2026-07-31 — Executed 123-11 (full cross-repo gate sweep + 123-NONREGRESSION.md evidence artifact + BASE-01..08 requirement ticks)
+Phase: 124 (firmware-integration-merge) — CONTEXT GATHERED (0 plans yet)
+Plan: none created — next step is /gsd-plan-phase 124
+Status: Ready to plan Phase 124 (Firmware Integration Merge)
+Last activity: 2026-07-31 — Phase 124 context gathered (124-CONTEXT.md, 16 decisions; Phase 123 CLOSED 11/11, BASE-01..BASE-08 all Complete)
 
 ## Project Reference
 
