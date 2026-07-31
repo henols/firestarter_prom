@@ -6,14 +6,14 @@ current_phase: 124
 current_phase_name: firmware-integration-merge
 status: executing
 stopped_at: Completed 124-09-PLAN.md
-last_updated: "2026-07-31T10:24:45.462Z"
+last_updated: "2026-07-31T10:48:16.981Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 124 execution started
 progress:
   total_phases: 8
   completed_phases: 1
   total_plans: 23
-  completed_plans: 20
+  completed_plans: 21
   percent: 13
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 124 (firmware-integration-merge) — EXECUTING
-Plan: 10 of 12
+Plan: 11 of 12
 Status: Ready to execute
 Last activity: 2026-07-31 — Phase 124 execution started
 
@@ -540,6 +540,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 124]: MERGE-04's refusal placed at configure_memory() (C-4 chokepoint), delegating to is_memory_cmd() (D-12), reusing MSG_ERR_NOT_SUPPORTED (D-13); proven via a dedicated third native env (Pitfall 5) — is_memory_cmd()'s only caller (src/firestarter.cpp) is excluded by [env:native]'s build_src_filter, so the refusal had to move to the reachable chokepoint
 - [Phase ?]: Pin-map #error guard hoisted into dependency-free fragment header; configured macro moved from header #define to CMake target_compile_definitions (D-14)
 - [Phase ?]: Three discriminating g++ -E arms (unset/=1/=0) proven with a permanent pytest fire-proof; firestarter/tests/ now 72 passed, 0 failed
+- [Phase ?]: Native watermark set to the COLD figure (1166/138), not warm, per check_build_warnings.py's below-watermark-is-INFO-not-FAIL asymmetry — CI always builds cold; a warm-set watermark would go red on the next cold CI run
+- [Phase ?]: MERGE-05 policy_* planted fixtures left un-re-derived on re-baseline — They are asserted only against the frozen size_baseline_base01.json, which this plan never modifies
 
 ## Performance Metrics
 
@@ -666,10 +668,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 124 P07 | ~15min | 2 tasks | 2 files |
 | Phase 124 P08 | ~55min | 3 tasks | 8 files |
 | Phase 124-firmware-integration-merge P09 | 40min | 3 tasks | 4 files |
+| Phase 124 P10 | 30min | 3 tasks | 11 files |
 
 ## Session
 
-**Last session:** 2026-07-31T10:24:45.445Z
+**Last session:** 2026-07-31T10:47:51.728Z
 **Stopped at:** Completed 124-09-PLAN.md
 **Resume file:** 
 None
