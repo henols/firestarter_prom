@@ -5,15 +5,15 @@ milestone_name: — PY32F071 Integration
 current_phase: 125
 current_phase_name: VPP Control Seam
 status: executing
-stopped_at: Completed 125-01-PLAN.md
-last_updated: "2026-07-31T17:34:56.286Z"
+stopped_at: Completed 125-04-PLAN.md
+last_updated: "2026-07-31T17:41:58.974Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 125 execution started
 progress:
   total_phases: 8
   completed_phases: 2
   total_plans: 29
-  completed_plans: 26
+  completed_plans: 27
   percent: 25
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 125 (VPP Control Seam) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 Status: Ready to execute
 Last activity: 2026-07-31 — Phase 125 execution started
 
@@ -588,6 +588,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 125-02]: two distinct expected-message helper functions (header vs .cpp), never one shared 'exactly one directive' assertion across both files
 - [Phase ?]: Landed as tests/test_pr45_non_ancestry.py (never scripts/check_*.py) -- RESEARCH C-11 measured the scripts/ shape costs 4 extra artifacts + 2 floor bumps; the tests/ shape costs zero
 - [Phase ?]: Split module authoring into two commits matching the plan's two tasks (Coverage 1+2 then Coverage 3+4), each verified against its own exact count acceptance criteria before committing
+- [Phase ?]: D-16 Branch A taken (Plan 125-04): check_size_baseline.py exited 0 against fresh three-target build logs, so the re-baseline contingency was evaluated and deliberately not exercised; both baseline files re-hashed unchanged against HEAD
+- [Phase ?]: Elimination mechanism corrected (Plan 125-04): the seam's zero flash/RAM cost is attributable to link-time optimisation (-flto, confirmed in platform-atmelavr@5.2.0's real flag set) AND section garbage collection together, not section GC alone
 
 ## Performance Metrics
 
@@ -720,10 +722,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 125 P01 | 55min | 2 tasks | 3 files |
 | Phase 125 P02 | 35min | 2 tasks | 1 files |
 | Phase 125 P03 | 30min | 2 tasks | 1 files |
+| Phase 125 P04 | 25min | 2 tasks | 0 files |
 
 ## Session
 
-**Last session:** 2026-07-31T17:34:34.749Z
-**Stopped at:** Completed 125-01-PLAN.md
+**Last session:** 2026-07-31T17:41:58.943Z
+**Stopped at:** Completed 125-04-PLAN.md
 **Resume file:** 
 None

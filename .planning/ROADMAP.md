@@ -2168,7 +2168,7 @@ Plans:
 > `platform/py32f071/CMakeLists.txt`. No success criterion mentions the `#include`; it appeared only
 > in prose.
 
-**Plans**: 3/6 plans executed
+**Plans**: 4/6 plans executed
 
 Plans:
 **Wave 1**
@@ -2182,7 +2182,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 125-04-PLAN.md — Criterion 4 measured, not cited: three cold AVR builds with the clean-then-single-invocation discipline, the two-directional non-vacuity pair (object file present; seam symbols absent against a non-zero unrelated-symbol count), the already-armed strict comparator, and D-16's recorded disposition. Records without gating (D-15)
+- [x] 125-04-PLAN.md — Criterion 4 measured, not cited: three cold AVR builds with the clean-then-single-invocation discipline, the two-directional non-vacuity pair (object file present; seam symbols absent against a non-zero unrelated-symbol count), the already-armed strict comparator, and D-16's recorded disposition. Records without gating (D-15)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 

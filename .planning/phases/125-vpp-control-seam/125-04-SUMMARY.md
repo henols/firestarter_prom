@@ -198,3 +198,9 @@ This SUMMARY makes no claim that the firmware runs on a PY32F071, that closed-lo
 ---
 *Phase: 125-vpp-control-seam*
 *Completed: 2026-07-31*
+
+## Self-Check: PASSED
+
+- FOUND: `/workspaces/.planning/phases/125-vpp-control-seam/125-04-SUMMARY.md`
+- FOUND: meta commit `adfa702` (`git log --oneline --all` in `/workspaces`)
+- Firmware repo `/workspaces/firestarter`: `git status --porcelain` = 0 lines (no firmware commit expected — measurement-only plan, D-16 Branch A took no re-baseline action)
