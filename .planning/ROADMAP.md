@@ -2229,7 +2229,7 @@ Plans:
 > exclusion; Plan 126-08 lands the retirement, the promotion and the flash-driver entry in the same
 > commit as the deletion.
 
-**Plans**: 2/12 plans executed
+**Plans**: 3/12 plans executed
 **Research flag**: yes — `/gsd-plan-phase --research-phase 126` (A-6/R-8: `PORTING.md` is stranded on closed PRs and partly superseded; the flash page size is stated nowhere in-tree)
 
 Plans:
@@ -2240,7 +2240,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 126-03-PLAN.md — The atomic AVR split in ONE commit: seam header + policy-only TU + `src/boards/rurp_config_storage_eeprom.cpp` (a pure move keeping the typed EEPROM call) + the one exclusion the new TU forces + the checker docstring; then D-04's proof — the recorded test blob SHA re-hashes identical and the test is still green
+- [x] 126-03-PLAN.md — The atomic AVR split in ONE commit: seam header + policy-only TU + `src/boards/rurp_config_storage_eeprom.cpp` (a pure move keeping the typed EEPROM call) + the one exclusion the new TU forces + the checker docstring; then D-04's proof — the recorded test blob SHA re-hashes identical and the test is still green
 
 **Wave 3** *(blocked on Wave 2)*
 

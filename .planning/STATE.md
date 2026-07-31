@@ -5,15 +5,15 @@ milestone_name: — PY32F071 Integration
 current_phase: 126
 current_phase_name: Flash-Persistent Config via a Storage-Backend Seam
 status: executing
-stopped_at: Completed 126-02-PLAN.md
-last_updated: "2026-07-31T22:42:13.355Z"
+stopped_at: Completed 126-03-PLAN.md
+last_updated: "2026-07-31T23:00:53.494Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 126 execution started
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 41
-  completed_plans: 31
+  completed_plans: 32
   percent: 38
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 126 (Flash-Persistent Config via a Storage-Backend Seam) — EXECUTING
-Plan: 3 of 12
+Plan: 4 of 12
 Status: Ready to execute
 Last activity: 2026-07-31 — Phase 126 execution started
 
@@ -634,6 +634,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 126]: CONFIG_MAGIC 0x52555250 recorded as a this-milestone choice, explicitly NOT vendored (guards the Phase-122 C-5 overclaim shape)
 - [Phase ?]: D-04 discharged as a two-commit proof: 126-02 authors and proves the pre-refactor test, records blob SHA 0ef805ff8e915f9321bda5dc50d61b8a8dd26eaf; 126-03 re-hashes it after the split
 - [Phase 126-02]: Non-vacuity check scoped to the load phase (not summed across phases); driver seeds the live config global directly so a deleted EEPROM.get produces a genuinely empty access list
+- [Phase 126]: 126-03: D-04's primary blob-SHA re-hash did not hold unmodified; the plan's own documented fallback was applied -- one named, justified line change (-DARDUINO_AVR_UNO) to tests/test_config_storage_eeprom_regression.py, both blob SHAs recorded (0ef805f -> 12bd237)
+- [Phase 126]: 126-03: ARM manifest split kept to ONE new PY32_EXCLUDED line; retiring src/rurp_config_utils.cpp's exclusion and promoting it into FIRESTARTER_COMMON_SOURCES is deferred to Plan 126-08, same commit that deletes config.cpp
 
 ## Performance Metrics
 
@@ -771,10 +773,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 125-vpp-control-seam P06 | 28min | 3 tasks | 2 files |
 | Phase 126 P01 | 7min | 3 tasks | 2 files |
 | Phase 126 P02 | 20min | 2 tasks | 1 files |
+| Phase 126 P03 | 35min | 2 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-07-31T22:42:13.340Z
-**Stopped at:** Completed 126-02-PLAN.md
+**Last session:** 2026-07-31T23:00:53.478Z
+**Stopped at:** Completed 126-03-PLAN.md
 **Resume file:** 
 None
