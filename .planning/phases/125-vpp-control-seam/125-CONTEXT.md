@@ -1,7 +1,107 @@
 # Phase 125: VPP Control Seam - Context
 
 **Gathered:** 2026-07-31
-**Status:** Ready for planning
+**Status:** Ready for planning — **partially superseded by research, see below**
+
+> **⚠ CORRECTED BY RESEARCH (2026-07-31). Read `125-RESEARCH.md`
+> §"Corrections to `125-CONTEXT.md` and the upstream record" (C-1…C-18) BEFORE acting on
+> anything here.** Research was run despite the ROADMAP flagging Phase 125 `research-skip`,
+> and it measured — not reasoned — several claims in this file to be wrong. The decision
+> **ids** D-01…D-16 stay stable and binding; several of their **mechanisms** do not. Where
+> this file and RESEARCH.md disagree, **RESEARCH.md wins**.
+>
+> **C-1 — BLOCKING, and resolved by the operator on 2026-07-31 → Option A.**
+> D-06's `#error` arm plus the one `#include "rurp_vpp.h"` line in `include/rurp_shield.h`
+> takes `pio test -e native` from **141 cases / 141 succeeded to 17 suites / 0 succeeded**
+> (all 17 ERRORED) — the same A-4 signature this milestone already paid for once with
+> `agent/portability-macros`. `rurp_shield.h` has 46 include sites, 14 of them native
+> `host_stubs.cpp` files; host `g++` defines no `__AVR__` (measured: 0 matches) and no native
+> env declares `RURP_HAS_VPP_DAC` (measured: 0), so D-06's `#else` arm is reached in every
+> native TU.
+>
+> **Operator decision (Option A): `include/rurp_shield.h` is NOT touched by this phase.**
+> Both new files land; there is no `#include` line anywhere. Measured green: native
+> 141/141 at 17 suites, and 0 B flash / 0 B RAM delta on all three AVR targets. Grounds, all
+> checked by research: D-11 already names the macro's only consumers as the `#if` in
+> `src/rurp_vpp.cpp` and the `#if !defined` in `include/rurp_vpp.h`; `src/rurp_vpp.cpp` is
+> still compiled by all three AVR envs (no AVR env has a `build_src_filter`) and by the ARM
+> target (D-12 names it), so D-07's CMake declaration stays load-bearing; `rurp_shield.h` is
+> not in Criterion 3's pinned set and no ROADMAP success criterion mentions the `#include` —
+> it appears only in prose. Option B (keep the `#include`, add `-D RURP_HAS_VPP_DAC=0` to two
+> native envs) was also measured green but was **declined**: it contradicts D-06's own stated
+> reason for choosing `__AVR__` and puts a build-flag edit inside the phase whose premise is
+> that nothing else moved.
+>
+> **Therefore the following statements in this file are now WRONG and must not be planned
+> against:** `<domain>`'s *"one `#include` line in `include/rurp_shield.h`"*;
+> `<canonical_refs>`'s *"`include/rurp_shield.h` — the single `#include` line"*;
+> `<code_context>` §Integration Points' *"gains the one `#include`"*; and `<specifics>`'s
+> framing of it as the only production-visible edit to an existing shared header. The phase's
+> production-visible change is: **two new files, plus two lines in
+> `platform/py32f071/CMakeLists.txt`** (one source-list entry, one `RURP_HAS_VPP_DAC=0`
+> define). `include/rurp_shield.h` and `platformio.ini` are both untouched.
+>
+> **Other load-bearing mechanism corrections (ids unchanged, mechanisms replaced):**
+>
+> - **C-4 → D-03/D-06:** D-06's quoted block does **not** satisfy D-03 — measured,
+>   `-DRURP_HAS_VPP_DAC=1` exits **0**. A *second*, separately-authored `#error` is required
+>   **in `src/rurp_vpp.cpp`**, and D-03's forced-DAC leg must therefore compile the `.cpp`,
+>   not merely include the header. Per C-17 the message must be scoped to *this branch*
+>   (`origin/feature/py32f071-full-support`, PR #47 closed, really does implement a py32 VPP
+>   DAC with `RURP_HAS_VPP_DAC=1`), never phrased as a universal claim.
+> - **C-2 → Criterion 1 / Claude's-discretion default:** the ROADMAP's named mechanism
+>   (`git log --all --grep`) is wrong twice — `--grep` searches messages (0 rows today,
+>   forever) and any `--all`-scoped reachability test finds all ten PR #45 SHAs because the
+>   ref is fetched locally. Use `git cat-file -e <sha>^{commit}` + `git merge-base
+>   --is-ancestor <sha> HEAD`, scoped to HEAD, with explicit exit-128 handling and an
+>   `n_checked == 10` non-vacuity assertion.
+> - **C-11 → Criterion 1 shape:** implement it as **`tests/test_pr45_non_ancestry.py`**, not
+>   `scripts/check_*.py`. Proven by planting one: a new `scripts/check_*.py` costs four
+>   artifacts plus `FLOOR 5→6` and `FIXTURE_FLOOR 10→11` (2 failed → remove → 7 passed).
+> - **C-6 → D-04:** the drift leg's anchor as written **fails on arrival** —
+>   `ARDUINO_AVR_UNO`/`_LEONARDO`/`_ATmega328PB` are supplied by the framework and board JSON
+>   and appear **nowhere** in `platformio.ini`. Honest anchors: the `[env:<name>]` header plus
+>   `board = <uno|ATmega328PB|leonardo>` for AVR, and `RURP_PLATFORM_PY32F071=1` +
+>   `RURP_BOARD_NAME="py32f071"` for ARM. Also: the four board legs prove **one AVR fact plus
+>   one ARM declaration**, not four independent per-board facts — say so in the artifact.
+> - **C-5 → D-11/D-15/D-16:** Criterion 4 is now **measured**, non-vacuously: **0 B flash and
+>   0 B RAM on all three AVR targets**, with the `.o` present in all three build dirs and
+>   `avr-nm` finding zero of the three seam symbols in the ELF (while finding five unrelated
+>   pre-existing `vpp` symbols, so the grep is not matching nothing by accident). The real
+>   flags include **`-flto`**, which no upstream document names — the seam's `.o` is an LTO
+>   slim object, so LTO and `--gc-sections` both contribute. `check_size_baseline.py` exits 0
+>   against the seam tree, so D-16's re-baseline stays a documented contingency and must
+>   **not** be pre-emptively performed.
+> - **C-7 → D-01:** the new harness runs in **zero CI legs on this branch** — `pytest tests/`
+>   appears only in `build.yml` (push/PR to `main`) and `beta-build.yml` (push to `beta`);
+>   `py32f071.yml` has no pytest step. Criterion 2 is discharged by an in-phase **local**
+>   `pytest` run whose verbatim output lands in `125-NONREGRESSION.md`. Do not claim CI
+>   coverage this branch does not have. D-13's push safety was independently re-read on the
+>   current tree and **stands**.
+> - **C-9 → the `rurp_shield.h` discretion item:** moot under Option A, but recorded as a
+>   checked fact — `test_revision_constants_parity.py` parses **only** `include/firestarter.h`
+>   (`:145`), `_extract_defines` (`:288`) follows no `#include`, and a bare `#include` matches
+>   none of its three line classifiers. Full host suite: 1158 passed, 0 failed, 0 skipped.
+> - **C-15 → Criterion 3:** `git status --porcelain` empty is a **post-commit corroboration
+>   only** — during the phase the new files make it non-empty by design. The primary proof is
+>   the blob-SHA re-hash. Any porcelain row must name the **firmware** repo explicitly;
+>   `firestarter_app`'s porcelain is legitimately non-empty right now.
+> - **C-16:** `check_permitted_claims.py`'s `_DEFAULT_TARGETS` are four **Phase-130** files —
+>   it does not scan Phase 125's artifacts unless named via `FIRESTARTER_CLAIMSCAN_TARGETS`.
+>   The closing plan must pass the target explicitly and include the canonical
+>   *"no PY32F071 hardware exists"* caveat verbatim.
+> - **C-18 → VPP-01:** the record warns that `05f4a77` smuggles a `CONFIG_VERSION` bump
+>   (verified, `VER06`→`VER07`). Research found worse: **`768580f`** adds the
+>   `rurp_configuration_t` calibration fields *before* the bump — cherry-picking it alone
+>   would change the struct layout while `CONFIG_VERSION` stays literally `"VER06"`, a silent
+>   schema change with no migration signal. That is the sentence VPP-01 should cite.
+>
+> **Verified unchanged:** C-3 (all ten PR #45 SHAs enumerated, none an ancestor of `HEAD`),
+> C-8 (`compare_avr()` strict equality, armed, never-vacuous; `size_baseline_base01.json`
+> genuinely separate), C-10 (no host scan-path inventory entry needed), C-12
+> (`check_cmake_manifest.py`'s reverse check behaves exactly as documented — proven both
+> directions), C-13 (`__AVR__` is the right predicate, and `RURP_PLATFORM_AVR` is a trap that
+> is never defined during an AVR build), C-14 (the ARM defines block; no `-Werror` anywhere).
 
 <domain>
 ## Phase Boundary
