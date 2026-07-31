@@ -2229,14 +2229,14 @@ Plans:
 > exclusion; Plan 126-08 lands the retirement, the promotion and the flash-driver entry in the same
 > commit as the deletion.
 
-**Plans**: 1/12 plans executed
+**Plans**: 2/12 plans executed
 **Research flag**: yes — `/gsd-plan-phase --research-phase 126` (A-6/R-8: `PORTING.md` is stranded on closed PRs and partly superseded; the flash page size is stated nowhere in-tree)
 
 Plans:
 **Wave 1**
 
 - [x] 126-01-PLAN.md — Record the pre-phase pin (eleven blob SHAs, gate counts, native counts, AVR figures), then land `platform/py32f071/CONFIG-STORAGE.md` as a commit **of its own** — the CFG-02 ordering anchor every later linker edit is measured against — plus its CFG-01 content gate with a planted-violation RED leg
-- [ ] 126-02-PLAN.md — CFG-04's regression test authored against the **pre-refactor** `src/rurp_config_utils.cpp` with a hand-written fake `EEPROM.h`, proven green, its blob SHA recorded, and each of its four assertions demonstrated able to fail (D-04's first half — the half that cannot be done later)
+- [x] 126-02-PLAN.md — CFG-04's regression test authored against the **pre-refactor** `src/rurp_config_utils.cpp` with a hand-written fake `EEPROM.h`, proven green, its blob SHA recorded, and each of its four assertions demonstrated able to fail (D-04's first half — the half that cannot be done later)
 
 **Wave 2** *(blocked on Wave 1)*
 

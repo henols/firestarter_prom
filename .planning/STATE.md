@@ -5,15 +5,15 @@ milestone_name: — PY32F071 Integration
 current_phase: 126
 current_phase_name: Flash-Persistent Config via a Storage-Backend Seam
 status: executing
-stopped_at: Completed 126-01-PLAN.md -- pre-phase pin recorded, CONFIG-STORAGE.md landed as its own commit (fd84820), CFG-01 gate committed (be503cb)
-last_updated: "2026-07-31T22:27:09.075Z"
+stopped_at: Completed 126-02-PLAN.md
+last_updated: "2026-07-31T22:42:13.355Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 126 execution started
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 41
-  completed_plans: 30
+  completed_plans: 31
   percent: 38
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 126 (Flash-Persistent Config via a Storage-Backend Seam) — EXECUTING
-Plan: 2 of 12
+Plan: 3 of 12
 Status: Ready to execute
 Last activity: 2026-07-31 — Phase 126 execution started
 
@@ -632,6 +632,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 126]: D-16 recorded as an explicit amendment: the completion of one 256-byte page program IS the commit (RM V0.2 section 4.2.3.2; IS_FLASH_TYPEPROGRAM has one accepted value)
 - [Phase 126]: D-18 shrink-quantum amendment recorded: reserve Sector 15 whole (8K), not two 256B pages, keeping D-10/D-11's untouched elements
 - [Phase 126]: CONFIG_MAGIC 0x52555250 recorded as a this-milestone choice, explicitly NOT vendored (guards the Phase-122 C-5 overclaim shape)
+- [Phase ?]: D-04 discharged as a two-commit proof: 126-02 authors and proves the pre-refactor test, records blob SHA 0ef805ff8e915f9321bda5dc50d61b8a8dd26eaf; 126-03 re-hashes it after the split
+- [Phase 126-02]: Non-vacuity check scoped to the load phase (not summed across phases); driver seeds the live config global directly so a deleted EEPROM.get produces a genuinely empty access list
 
 ## Performance Metrics
 
@@ -768,9 +770,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 125 P05 | ~20min | 1 tasks | 0 files |
 | Phase 125-vpp-control-seam P06 | 28min | 3 tasks | 2 files |
 | Phase 126 P01 | 7min | 3 tasks | 2 files |
+| Phase 126 P02 | 20min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-07-31T22:27:09.041Z
-**Stopped at:** Completed 126-01-PLAN.md -- pre-phase pin recorded, CONFIG-STORAGE.md landed as its own commit (fd84820), CFG-01 gate committed (be503cb)
+**Last session:** 2026-07-31T22:42:13.340Z
+**Stopped at:** Completed 126-02-PLAN.md
 **Resume file:** 
+None
