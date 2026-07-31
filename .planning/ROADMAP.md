@@ -2064,7 +2064,43 @@ Plans:
   4. AVR flash and RAM, recorded against the Phase-123 baseline, show Leonardo flash **not growing**, Uno-class flash growth **≤ 64 B**, and RAM unchanged on Uno/Leonardo — each a measured build output; golden register traces stay byte-identical, checked **per-array** for `_shared/sdp_expected.h`.
   5. All nine cross-repo source-scanning gates are shown to **run** (never SKIP) and pass, executed from a directory literally named `firestarter_app` with a merged `firestarter` sibling, and the three named in-branch defects are each independently verifiable as fixed: `FLASH_LATENCY_1` (not `_ACR_LATENCY_1`) is the constant in use at 48 MHz, `write_checksums.cmake` is deleted or has a real consumer, and ARM `DEV_TOOLS`-off is an explicit commented decision in the CMake defines.
 
-**Plans**: TBD
+**Plans**: 0/12 plans complete (planned 2026-07-31 — 12 plans in 8 waves; every gate that judges the landing is authored *before* it, per the 123-precedes-124 discipline; Plan 124-11's operator push/dispatch is a **structural** gate — that plan contains no outward-facing command for `--auto` to wave through)
+**Wave 1** *(pre-landing gates — authored before the tree they judge)*
+
+- [ ] 124-01-PLAN.md — `check_landing_range.py`: MERGE-01/D-06 range checker with a never-vacuous guard, paired pytest, planted replayed-history fixture, and the BASE-08 `FLOOR` bump 4 → 5
+- [ ] 124-02-PLAN.md — W-1 half (a): `--policy merge05` band comparator (Leonardo no-growth · Uno-class ≤ 64 B · RAM unchanged) plus a frozen `size_baseline_base01.json` so Plan 124-10's re-baseline cannot move MERGE-05's reference point
+- [ ] 124-03-PLAN.md — MERGE-06 golden-trace identity: blob-SHA pin **plus** a per-array name/entry-count inventory for `_shared/sdp_expected.h`, catching an array deleted alongside its own assertions
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 124-04-PLAN.md — The landing: `agent/portability-macros` + the py32 toolchain stack squashed onto the integration branch as ONE commit (D-05, zero MERGE-01 violations vs a true merge's five), then measure the landed tree
+
+**Wave 3** *(blocked on Wave 2 completion — each defect a separately attributable commit, per D-03)*
+
+- [ ] 124-05-PLAN.md — MERGE-02 textual half + MERGE-03: CMake manifest rename to `flash_nor_unlock.cpp`/`flash_5v_page.cpp`, `push: branches: [beta]` trigger, and the manifest gate driven 9 → 0 violations via D-15's reasoned `PY32_EXCLUDED` allow-list
+- [ ] 124-06-PLAN.md — D-02 `DEV_TOOLS` presence-semantics → value-semantics on all four targets (one shared default + six value-tested conditionals), with a measured zero AVR cost
+- [ ] 124-07-PLAN.md — The other two MERGE-08 defects: delete the orphaned `write_checksums.cmake`, switch to `FLASH_LATENCY_1` at 48 MHz, and add a compile-time regression guard against the ACR mask
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 124-08-PLAN.md — MERGE-04 refusal at `configure_memory()` (the reachable chokepoint per C-4, not `is_memory_cmd`'s caller), reusing D-12's command set, proven by a native suite in a **third** env so both pinned envs stay at 141/17
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 124-09-PLAN.md — D-14 pin-map `#error` guard made able to fire: dependency-free fragment header, `#define` moved into the CMake defines, and a three-armed host-preprocessor fire-proof (unset fails · `=1` succeeds · `=0` fails)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 124-10-PLAN.md — W-1 half (b) + W-2: re-baseline the live `size_baseline.json` to the post-landing tree, re-measure the native warning watermark honestly recording BOTH cold and warm figures, and discharge MERGE-05/MERGE-06 as exit codes on the final tree
+
+**Wave 7** *(blocked on Wave 6 completion — operator-gated)*
+
+- [ ] 124-11-PLAN.md — MERGE-02 ARM evidence as a CI run URL + head SHA (no local ARM toolchain exists). **Structural operator gate**: no task runs `git push` or `gh workflow run`; the plan prints the commands and stops
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
+- [ ] 124-12-PLAN.md — MERGE-07 nine-gate cross-repo sweep (shown to run, never skip) and `124-NONREGRESSION.md`, carrying as reasoned exceptions the two Phase-123 section-8 claims this phase deliberately violates
+
 **UI hint**: no
 
 ### Phase 125: VPP Control Seam

@@ -4,15 +4,15 @@ milestone: v1.23
 milestone_name: PY32F071 Integration
 current_phase: 124
 current_phase_name: firmware-integration-merge
-status: planning
-stopped_at: Phase 124 context gathered
-last_updated: "2026-07-31T06:00:26.072Z"
+status: executing
+stopped_at: Phase 124 planned — 12 plans, 8 waves, ready to execute
+last_updated: "2026-07-31T07:56:00.000Z"
 last_activity: 2026-07-31
-last_activity_desc: Phase 124 context gathered — 16 decisions (D-01..D-16); MERGE-08 discussed with operator, landing/CI/pin-map recorded as defaults
+last_activity_desc: Phase 124 planned — 12 plans / 8 waves; plan-checker VERIFICATION PASSED (0 blockers, 0 warnings); MERGE-01..08 8/8 covered, CONTEXT decisions 16/16 covered
 progress:
   total_phases: 8
   completed_phases: 1
-  total_plans: 11
+  total_plans: 23
   completed_plans: 11
   percent: 13
 ---
@@ -24,10 +24,12 @@ progress:
 
 ## Current Position
 
-Phase: 124 (firmware-integration-merge) — CONTEXT GATHERED (0 plans yet)
-Plan: none created — next step is /gsd-plan-phase 124
-Status: Ready to plan Phase 124 (Firmware Integration Merge)
-Last activity: 2026-07-31 — Phase 124 context gathered (124-CONTEXT.md, 16 decisions; Phase 123 CLOSED 11/11, BASE-01..BASE-08 all Complete)
+Phase: 124 (firmware-integration-merge) — PLANNED (12 plans, 8 waves, 0 executed)
+Plan: none executed — next step is /gsd-execute-phase 124
+Status: Ready to execute Phase 124 (Firmware Integration Merge)
+Last activity: 2026-07-31 — Phase 124 planned: 12 plans across 8 waves, plan-checker VERIFICATION PASSED (0 blockers / 0 warnings); MERGE-01..MERGE-08 all covered; 16/16 CONTEXT decisions covered
+
+**⚠ Wave 7 (124-11) is operator-gated.** MERGE-02's ARM evidence requires pushing the firmware milestone branch and dispatching the `py32f071.yml` workflow. Per D-09 the gate is **structural**, not a flag: plan 124-11 contains no task that runs `git push` or `gh workflow run` — it prints the commands and stops. `--auto`/`--chain` cannot wave it through, but an autonomous chain will still halt there awaiting the operator.
 
 ## Project Reference
 
