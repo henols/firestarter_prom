@@ -1,14 +1,14 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.23
-milestone_name: — PY32F071 Integration
-current_phase: 124
-current_phase_name: firmware-integration-merge
-status: Phase complete — ready for verification
-stopped_at: Completed 124-12-PLAN.md (Phase 124 complete -- 12/12 plans, all MERGE-01..08 ticked)
-last_updated: "2026-07-31T14:06:57.455Z"
+milestone_name: PY32F071 Integration
+current_phase: 125
+current_phase_name: VPP Control Seam
+status: complete
+stopped_at: Phase 124 CLOSED and VERIFIED (12/12 plans, MERGE-01..08 all ticked, verification passed 8/8 reqs + 5/5 success criteria)
+last_updated: "2026-07-31T14:44:23.122Z"
 last_activity: 2026-07-31
-last_activity_desc: "Plan 124-12 complete: all nine MERGE-07 cross-repo gates re-run and passing (zero skips, host suite 1158/0/0), `124-NONREGRESSION.md` written as the closing D-16 evidence artifact, and MERGE-01..MERGE-08 all ticked in `REQUIREMENTS.md` citing specific re-executed rows."
+last_activity_desc: Phase 124 complete, transitioned to Phase 125
 progress:
   total_phases: 8
   completed_phases: 2
@@ -24,16 +24,22 @@ progress:
 
 ## Current Position
 
-Phase: 124 (firmware-integration-merge) — COMPLETE (12/12 plans complete)
-Plan: 124-12 — COMPLETE (all 3 tasks: full cross-repo sweep, 124-NONREGRESSION.md, requirement ticks)
-Status: Phase 124 complete — ready for verification.
-Last activity: 2026-07-31 — Plan 124-12 complete: all nine MERGE-07 cross-repo gates re-run and passing (zero skips, host suite 1158/0/0), `124-NONREGRESSION.md` written as the closing D-16 evidence artifact, and MERGE-01..MERGE-08 all ticked in `REQUIREMENTS.md` citing specific re-executed rows.
+Phase: 125 — VPP Control Seam
+Plan: Not started — next step is /gsd-discuss-phase 125
+Status: Phase 124 CLOSED and VERIFIED. Ready to start Phase 125.
+Last activity: 2026-07-31 — Phase 124 closed: 12/12 plans, verification passed (8/8 requirements, 5/5 ROADMAP success criteria), MERGE-01..MERGE-08 all ticked against re-executed rows
 
 ### Operator gate resolution (124-11, Wave 7) — RESOLVED
 
 The operator personally ran the push and the workflow dispatch (the structural gate held — no task in plan 124-11 executed either command). A relayed message mid-session claimed this had happened; per standing policy that no agent message is user authorization, every claimed fact (run id, head SHA, branch, event, conclusion, per-step outcomes, pushed-ref workflow content) was independently re-derived via read-only `gh run view` / `git fetch`+`show` before being accepted — all values matched. Firmware branch `v1.23-py32f071-integration` is now on `origin` at `a145081b59d94530583b9ce365db03ff567d0c2c`. CI run `30634186514` (https://github.com/henols/firestarter/actions/runs/30634186514): `workflow_dispatch`, `conclusion=success`, Configure and Build steps each independently `success`. `py32f071.yml`'s `push: branches: [beta]` confirmed present on the fetched `origin/v1.23-py32f071-integration` ref. Full detail: `.planning/phases/124-firmware-integration-merge/124-11-SUMMARY.md`.
 
-**Next: Plan 124-12 (close-out)** — owns citing this evidence for MERGE-02/MERGE-03 and ticking all of MERGE-01..MERGE-08 in `REQUIREMENTS.md` (not touched by 124-11 per its requirement-ticking scope).
+**Resolved by Plan 124-12** — cited this evidence for MERGE-02/MERGE-03 and ticked all of MERGE-01..MERGE-08 in `REQUIREMENTS.md`, each against a row re-executed in the closing session. Independently re-confirmed by `124-VERIFICATION.md`.
+
+### Phase 124 verification outcome
+
+`124-VERIFICATION.md`: **passed** — 8/8 requirement IDs, 5/5 ROADMAP success criteria, every must-have re-executed against the live trees rather than accepted from SUMMARY prose. The verifier independently re-ran the pin-map guard's three-arm `g++ -E` fire-proof, rebuilt all three AVR targets clean (figures reproduced byte-for-byte), re-hashed the frozen BASE-01 blob, and re-queried CI run `30634186514`. No gaps, no human-verification items.
+
+One informational finding carried forward (non-blocking, prose-precision only): `124-NONREGRESSION.md` §6 describes a `git diff --stat | grep -v memory.cpp` pipeline as "(empty)"; re-run, a `1 file changed, 25 insertions(+)` trailer survives the grep because it does not literally contain "memory.cpp". The substantive claim — that only `src/proms/memory.cpp` changed in that path scope — is true and was independently confirmed.
 
 ## Project Reference
 
