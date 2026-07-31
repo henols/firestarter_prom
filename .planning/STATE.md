@@ -5,15 +5,15 @@ milestone_name: — PY32F071 Integration
 current_phase: 124
 current_phase_name: firmware-integration-merge
 status: executing
-stopped_at: Completed 124-08-PLAN.md
-last_updated: "2026-07-31T10:10:29.515Z"
+stopped_at: Completed 124-09-PLAN.md
+last_updated: "2026-07-31T10:24:45.462Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 124 execution started
 progress:
   total_phases: 8
   completed_phases: 1
   total_plans: 23
-  completed_plans: 19
+  completed_plans: 20
   percent: 13
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 124 (firmware-integration-merge) — EXECUTING
-Plan: 9 of 12
+Plan: 10 of 12
 Status: Ready to execute
 Last activity: 2026-07-31 — Phase 124 execution started
 
@@ -538,6 +538,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: Placement B (inside __FIRESTARTER_H__, beside DATA_BUFFER_SIZE) used per C-18; placement above the guard was rejected as a false green
 - [Phase 124]: D-01/D-04 re-proven against landed tree; write_checksums.cmake deleted; main.cpp flash-latency corrected to FLASH_LATENCY_1 with static_assert regression guard against FLASH_ACR_LATENCY_1, framed per C-5/C-6 as an over-conservative-but-safe deliberate 2026-07-21 workaround never reverted, not a typo
 - [Phase 124]: MERGE-04's refusal placed at configure_memory() (C-4 chokepoint), delegating to is_memory_cmd() (D-12), reusing MSG_ERR_NOT_SUPPORTED (D-13); proven via a dedicated third native env (Pitfall 5) — is_memory_cmd()'s only caller (src/firestarter.cpp) is excluded by [env:native]'s build_src_filter, so the refusal had to move to the reachable chokepoint
+- [Phase ?]: Pin-map #error guard hoisted into dependency-free fragment header; configured macro moved from header #define to CMake target_compile_definitions (D-14)
+- [Phase ?]: Three discriminating g++ -E arms (unset/=1/=0) proven with a permanent pytest fire-proof; firestarter/tests/ now 72 passed, 0 failed
 
 ## Performance Metrics
 
@@ -663,10 +665,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 124 P06 | ~20min | 3 tasks | 4 files |
 | Phase 124 P07 | ~15min | 2 tasks | 2 files |
 | Phase 124 P08 | ~55min | 3 tasks | 8 files |
+| Phase 124-firmware-integration-merge P09 | 40min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-07-31T10:10:29.499Z
-**Stopped at:** Completed 124-08-PLAN.md
+**Last session:** 2026-07-31T10:24:45.445Z
+**Stopped at:** Completed 124-09-PLAN.md
 **Resume file:** 
 None
