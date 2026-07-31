@@ -293,3 +293,12 @@ No PY32F071 PCB exists. This plan makes no ARM claim at all: every measurement a
 ---
 *Phase: 126-flash-persistent-config-via-a-storage-backend-seam-highest-r*
 *Completed: 2026-07-31*
+
+## Self-Check: PASSED
+
+- FOUND: `firestarter/include/rurp_config_storage.h`
+- FOUND: `firestarter/src/boards/rurp_config_storage_eeprom.cpp`
+- FOUND: commit `1d1ab28` in `firestarter` repo history
+- FOUND: commit `62b1b73` in `firestarter` repo history
+- FOUND: `.planning/phases/126-flash-persistent-config-via-a-storage-backend-seam-highest-r/126-03-SUMMARY.md`
+- FOUND: commit `d7198fc` in meta repo history
