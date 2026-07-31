@@ -1,7 +1,15 @@
 # Phase 126: Flash-Persistent Config via a Storage-Backend Seam - Context
 
 **Gathered:** 2026-07-31
-**Status:** Ready for planning — **research flag is `yes`; run `/gsd-plan-phase 126 --research-phase 126`**
+**Amended:** 2026-07-31 — research complete (`126-RESEARCH.md`, commit `2fb4dfa`); two escalated
+decisions answered by the operator and locked as **D-18** (flash shrink quantum = Sector 15 whole)
+and **D-19** (`CONFIG_MAGIC` = `0x52555250`). Research also lodges 14 corrections C-1…C-14, three of
+which amend locked decisions — **D-08** (three edits → four: `py32f071_hal_flash.c` is absent from
+`CMakeLists.txt`), **D-10/D-11** (refined by D-18), **D-16** (its "program the header/CRC word LAST"
+step is **not implementable** on this part — one 256 B program primitive, no partial-word write).
+**Read `126-RESEARCH.md` before planning; where it and this file disagree, RESEARCH.md wins on
+verified facts.**
+**Status:** Ready for planning — research done; run `/gsd-plan-phase 126`
 
 > **⚠ This phase is flagged ⚠ highest-risk in the ROADMAP for two independent reasons.**
 > It is the **only** phase in v1.23 that edits a file compiled into **all three AVR targets**
@@ -185,6 +193,19 @@ and is proven first**, *then* the ARM backend. Otherwise a failing test cannot b
   record the bootloader budget as an *intent with that cost attached* — never as a number that
   looks already paid for. Rejected: picking a real size now (a guess about code that does not
   exist — precisely what CFG-02 exists to prevent for the config pages).
+- **D-18:** The shrink quantum is **one whole 8 KiB sector (Sector 15), not two 256 B pages** —
+  `FLASH` `LENGTH` goes `128K → 120K`, `CONFIG` is `0x0801E000` + `8K`, slots at `0x0801E000`
+  (page 480) and `0x0801E100` (page 481). **Operator decision taken 2026-07-31 after research
+  C-5, amending D-10's "shrinks by two erase units" wording.** This refines D-10's *quantum*
+  only — top-of-flash placement, the shrunk `LENGTH`, the second `MEMORY` region and the
+  `PROVIDE`d symbols (D-11) are all untouched. Reason it is not the literal 512 B: page erase
+  *is* a first-class primitive here (`FLASH_TYPEERASE_PAGEERASE`, no sector alignment required),
+  so 512 B does satisfy CFG-06's letter — but at `0x0801FE00` the app region ends at
+  `0x0801FDFF`, **inside Sector 15**, so a sector-granular DFU erase of the app's last block is
+  exactly the block holding config. D-10 was chosen to avoid needing that hazard; the
+  sector-aligned reservation removes it rather than stating it. **Accepted cost:** 7680 B of the
+  8192 B is slack (6.25% of flash) — claimable later by FUT-N05 or additional slots **without
+  moving any address**. Rejected: 512 B at `0x0801FE00` (see above).
 
 ### Record format and recovery (CFG-01, CFG-05, CFG-07)
 
@@ -228,6 +249,16 @@ and is proven first**, *then* the ARM backend. Otherwise a failing test cannot b
   blank-rejection into a CRC-collision inference); rejected: redesigning it (CFG-01 asks for
   the closed-PR design vendored with superseded parts **marked**, and storage is precisely the
   part PR #48 did not supersede).
+- **D-19:** `CONFIG_MAGIC` is **`0x52555250`** — the ASCII four-CC `'R','U','R','P'`, tying the
+  record to the shield name already used throughout the firmware (`rurp_configuration_t`,
+  `rurp_config_utils.cpp`), and readable as `RURP` in a hex dump. Defined **once** in D-03's
+  HAL-free core local header. **Operator decision taken 2026-07-31 after research open-question
+  3.** It must be recorded in `CONFIG-STORAGE.md` as a **this-milestone choice, explicitly NOT
+  vendored** — blob `4b1a441` specifies the *field* but supplies no value, so calling the
+  constant vendored would be exactly the overclaim Phase 122's C-5 had to correct. Satisfies the
+  two hard constraints: it is neither `0xFFFFFFFF` (blank flash) nor `0x00000000`. Rejected:
+  `'FSC1'` = `0x46534331` (the research recommendation — a format-version digit the `version`
+  u16 in D-17 already carries, so the digit would be a second, competing version axis).
 
 ### Claude's Discretion
 
