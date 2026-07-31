@@ -186,6 +186,16 @@ None - no external service configuration required.
 - `check_landing_range.py` is ready to be run against the real merge once a later 124 plan lands `agent/portability-macros` + the py32 stack — it will report the exact commit(s), if any, where a portability marker appears without `platform/py32f071/`.
 - No blockers for 124-02 onward. The full firmware pytest suite (`tests/ -q`) is green at 55 passed; `124-NONREGRESSION.md` (a later plan's artifact) should re-record this count rather than the 123-01 baseline of 48.
 
+## Self-Check: PASSED
+
+- FOUND: `firestarter/scripts/check_landing_range.py`
+- FOUND: `firestarter/tests/test_check_landing_range.py`
+- FOUND: `firestarter/tests/fixtures/planted_landing_range_replayed_history/README.md`
+- FOUND: `.planning/phases/124-firmware-integration-merge/124-01-SUMMARY.md`
+- FOUND commit `b71408f` (firestarter submodule)
+- FOUND commit `bc0ba55` (firestarter submodule)
+- FOUND commit `5002b98` (meta repo)
+
 ---
 *Phase: 124-firmware-integration-merge*
 *Completed: 2026-07-31*
