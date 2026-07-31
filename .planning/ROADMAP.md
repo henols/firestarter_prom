@@ -2064,7 +2064,7 @@ Plans:
   4. AVR flash and RAM, recorded against the Phase-123 baseline, show Leonardo flash **not growing**, Uno-class flash growth **≤ 64 B**, and RAM unchanged on Uno/Leonardo — each a measured build output; golden register traces stay byte-identical, checked **per-array** for `_shared/sdp_expected.h`.
   5. All nine cross-repo source-scanning gates are shown to **run** (never SKIP) and pass, executed from a directory literally named `firestarter_app` with a merged `firestarter` sibling, and the three named in-branch defects are each independently verifiable as fixed: `FLASH_LATENCY_1` (not `_ACR_LATENCY_1`) is the constant in use at 48 MHz, `write_checksums.cmake` is deleted or has a real consumer, and ARM `DEV_TOOLS`-off is an explicit commented decision in the CMake defines.
 
-**Plans**: 10/12 plans executed
+**Plans**: 11/12 plans executed
 **Wave 1** *(pre-landing gates — authored before the tree they judge)*
 
 - [x] 124-01-PLAN.md — `check_landing_range.py`: MERGE-01/D-06 range checker with a never-vacuous guard, paired pytest, planted replayed-history fixture, and the BASE-08 `FLOOR` bump 4 → 5
@@ -2095,7 +2095,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion — operator-gated)*
 
-- [ ] 124-11-PLAN.md — MERGE-02 ARM evidence as a CI run URL + head SHA (no local ARM toolchain exists). **Structural operator gate**: no task runs `git push` or `gh workflow run`; the plan prints the commands and stops
+- [x] 124-11-PLAN.md — MERGE-02 ARM evidence as a CI run URL + head SHA (no local ARM toolchain exists). **Structural operator gate**: no task runs `git push` or `gh workflow run`; the plan prints the commands and stops
 
 **Wave 8** *(blocked on Wave 7 completion)*
 

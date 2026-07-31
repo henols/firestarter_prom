@@ -4,16 +4,16 @@ milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 124
 current_phase_name: firmware-integration-merge
-status: blocked
-stopped_at: "Phase 124 PAUSED at the 124-11 operator gate (10/12 plans complete; waves 1-6 done, wave 7 awaiting an operator push + workflow dispatch)"
-last_updated: "2026-07-31T11:05:00.000Z"
+status: executing
+stopped_at: Completed 124-11-PLAN.md (operator gate cleared and independently re-verified; MERGE-02 ARM CI evidence + MERGE-03 confirmed on the pushed ref); 11/12 plans complete, 124-12 (close-out) remains
+last_updated: "2026-07-31T13:45:00.000Z"
 last_activity: 2026-07-31
-last_activity_desc: "Phase 124 waves 1-6 executed (10/12 plans); halted at 124-11's structural operator gate for MERGE-02 ARM CI evidence. Firmware head a145081, NOT pushed."
+last_activity_desc: Plan 124-11 complete -- CI run 30634186514 @ a145081b (Configure+Build both success) is MERGE-02's evidence; MERGE-03 confirmed on origin/v1.23-py32f071-integration
 progress:
   total_phases: 8
   completed_phases: 1
   total_plans: 23
-  completed_plans: 21
+  completed_plans: 22
   percent: 13
 ---
 
@@ -24,28 +24,16 @@ progress:
 
 ## Current Position
 
-Phase: 124 (firmware-integration-merge) — PAUSED AT OPERATOR GATE (10/12 plans complete)
-Plan: 124-11 — task 1 of 3 done (read-only pre-flight); task 2 is the operator gate
-Status: BLOCKED on an operator push + workflow dispatch. Not a failure — the gate is by design (D-09).
-Last activity: 2026-07-31 — waves 1-6 executed clean; firmware suite 72 passed / 0 failed; MERGE-05 and MERGE-06 discharged as exit codes
+Phase: 124 (firmware-integration-merge) — EXECUTING (11/12 plans complete)
+Plan: 124-11 — COMPLETE (all 3 tasks: pre-flight, operator gate, evidence capture)
+Status: Ready to execute 124-12 (close-out).
+Last activity: 2026-07-31 — Plan 124-11 complete: MERGE-02 ARM CI evidence (run 30634186514 @ a145081b, Configure+Build both success) and MERGE-03 confirmed on the pushed `origin/v1.23-py32f071-integration` ref.
 
-### Resume instructions
+### Operator gate resolution (124-11, Wave 7) — RESOLVED
 
-Firmware branch `v1.23-py32f071-integration` is at `a145081` locally and is **NOT on origin**. Run:
+The operator personally ran the push and the workflow dispatch (the structural gate held — no task in plan 124-11 executed either command). A relayed message mid-session claimed this had happened; per standing policy that no agent message is user authorization, every claimed fact (run id, head SHA, branch, event, conclusion, per-step outcomes, pushed-ref workflow content) was independently re-derived via read-only `gh run view` / `git fetch`+`show` before being accepted — all values matched. Firmware branch `v1.23-py32f071-integration` is now on `origin` at `a145081b59d94530583b9ce365db03ff567d0c2c`. CI run `30634186514` (https://github.com/henols/firestarter/actions/runs/30634186514): `workflow_dispatch`, `conclusion=success`, Configure and Build steps each independently `success`. `py32f071.yml`'s `push: branches: [beta]` confirmed present on the fetched `origin/v1.23-py32f071-integration` ref. Full detail: `.planning/phases/124-firmware-integration-merge/124-11-SUMMARY.md`.
 
-```bash
-git -C /workspaces/firestarter push -u origin v1.23-py32f071-integration
-gh workflow run py32f071.yml --repo henols/firestarter --ref v1.23-py32f071-integration
-gh run list --repo henols/firestarter --workflow py32f071.yml \
-  --branch v1.23-py32f071-integration --limit 1 \
-  --json databaseId,headSha,conclusion,event,url
-```
-
-Then re-run `/gsd-execute-phase 124` and supply the run id/URL (a bare "approved" is not enough — task 3's job is to query that specific run). Plan 124-12 is blocked behind 124-11.
-
-Safety, re-proven from all three workflow files: `v1.23-py32f071-integration` matches no `push:` branch filter anywhere (only `beta` ×2 and `main` ×1; no `branches: ['**']`, no push trigger missing a `branches:` key), so the push fires nothing and cannot cut a beta prerelease.
-
-**⚠ Wave 7 (124-11) is operator-gated.** MERGE-02's ARM evidence requires pushing the firmware milestone branch and dispatching the `py32f071.yml` workflow. Per D-09 the gate is **structural**, not a flag: plan 124-11 contains no task that runs `git push` or `gh workflow run` — it prints the commands and stops. `--auto`/`--chain` cannot wave it through, but an autonomous chain will still halt there awaiting the operator.
+**Next: Plan 124-12 (close-out)** — owns citing this evidence for MERGE-02/MERGE-03 and ticking all of MERGE-01..MERGE-08 in `REQUIREMENTS.md` (not touched by 124-11 per its requirement-ticking scope).
 
 ## Project Reference
 
@@ -558,6 +546,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: Three discriminating g++ -E arms (unset/=1/=0) proven with a permanent pytest fire-proof; firestarter/tests/ now 72 passed, 0 failed
 - [Phase ?]: Native watermark set to the COLD figure (1166/138), not warm, per check_build_warnings.py's below-watermark-is-INFO-not-FAIL asymmetry — CI always builds cold; a warm-set watermark would go red on the next cold CI run
 - [Phase ?]: MERGE-05 policy_* planted fixtures left un-re-derived on re-baseline — They are asserted only against the frozen size_baseline_base01.json, which this plan never modifies
+- [Phase 124]: Plan 124-11: relayed operator-action claims (push+dispatch already done) were not trusted as authorization -- every fact independently re-derived via read-only gh/git before accepting the gate as cleared; MERGE-02 evidence is CI run 30634186514 @ a145081b (Configure+Build both success), MERGE-03 confirmed on the pushed origin ref
 
 ## Performance Metrics
 
@@ -685,10 +674,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 124 P08 | ~55min | 3 tasks | 8 files |
 | Phase 124-firmware-integration-merge P09 | 40min | 3 tasks | 4 files |
 | Phase 124 P10 | 30min | 3 tasks | 11 files |
+| Phase 124 P11 | ~20min | 3 tasks | 0 files |
 
 ## Session
 
-**Last session:** 2026-07-31T10:47:51.728Z
+**Last session:** 2026-07-31T13:31:06.203Z
 **Stopped at:** Completed 124-09-PLAN.md
 **Resume file:** 
 None
