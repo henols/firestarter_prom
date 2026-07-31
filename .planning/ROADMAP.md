@@ -2064,7 +2064,7 @@ Plans:
   4. AVR flash and RAM, recorded against the Phase-123 baseline, show Leonardo flash **not growing**, Uno-class flash growth **≤ 64 B**, and RAM unchanged on Uno/Leonardo — each a measured build output; golden register traces stay byte-identical, checked **per-array** for `_shared/sdp_expected.h`.
   5. All nine cross-repo source-scanning gates are shown to **run** (never SKIP) and pass, executed from a directory literally named `firestarter_app` with a merged `firestarter` sibling, and the three named in-branch defects are each independently verifiable as fixed: `FLASH_LATENCY_1` (not `_ACR_LATENCY_1`) is the constant in use at 48 MHz, `write_checksums.cmake` is deleted or has a real consumer, and ARM `DEV_TOOLS`-off is an explicit commented decision in the CMake defines.
 
-**Plans**: 3/12 plans executed
+**Plans**: 4/12 plans executed
 **Wave 1** *(pre-landing gates — authored before the tree they judge)*
 
 - [x] 124-01-PLAN.md — `check_landing_range.py`: MERGE-01/D-06 range checker with a never-vacuous guard, paired pytest, planted replayed-history fixture, and the BASE-08 `FLOOR` bump 4 → 5
@@ -2073,7 +2073,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 124-04-PLAN.md — The landing: `agent/portability-macros` + the py32 toolchain stack squashed onto the integration branch as ONE commit (D-05, zero MERGE-01 violations vs a true merge's five), then measure the landed tree
+- [x] 124-04-PLAN.md — The landing: `agent/portability-macros` + the py32 toolchain stack squashed onto the integration branch as ONE commit (D-05, zero MERGE-01 violations vs a true merge's five), then measure the landed tree
 
 **Wave 3** *(blocked on Wave 2 completion — each defect a separately attributable commit, per D-03)*
 
