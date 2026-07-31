@@ -6,14 +6,14 @@ current_phase: 124
 current_phase_name: firmware-integration-merge
 status: executing
 stopped_at: Completed 124-06-PLAN.md (DEV_TOOLS value-semantics conversion, D-02)
-last_updated: "2026-07-31T09:39:53.593Z"
+last_updated: "2026-07-31T09:49:15.264Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 124 execution started
 progress:
   total_phases: 8
   completed_phases: 1
   total_plans: 23
-  completed_plans: 17
+  completed_plans: 18
   percent: 13
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 124 (firmware-integration-merge) — EXECUTING
-Plan: 7 of 12
+Plan: 8 of 12
 Status: Ready to execute
 Last activity: 2026-07-31 — Phase 124 execution started
 
@@ -536,6 +536,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 124]: PyYAML absent from devcontainer; substituted structural read of py32f071.yml on: block per plan's own fallback instruction, gh workflow view deferred to 124-11 (124-05)
 - [Phase ?]: D-02: DEV_TOOLS converted to value-semantics (six sites + one shared default at placement B), measured zero AVR flash/RAM cost against Plan 124-04's landing figures
 - [Phase ?]: Placement B (inside __FIRESTARTER_H__, beside DATA_BUFFER_SIZE) used per C-18; placement above the guard was rejected as a false green
+- [Phase 124]: D-01/D-04 re-proven against landed tree; write_checksums.cmake deleted; main.cpp flash-latency corrected to FLASH_LATENCY_1 with static_assert regression guard against FLASH_ACR_LATENCY_1, framed per C-5/C-6 as an over-conservative-but-safe deliberate 2026-07-21 workaround never reverted, not a typo
 
 ## Performance Metrics
 
@@ -659,10 +660,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 124 P04 | 20min | 3 tasks | 22 files |
 | Phase 124 P05 | ~25min | 3 tasks | 3 files |
 | Phase 124 P06 | ~20min | 3 tasks | 4 files |
+| Phase 124 P07 | ~15min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-31T09:39:53.564Z
+**Last session:** 2026-07-31T09:48:23.946Z
 **Stopped at:** Completed 124-06-PLAN.md (DEV_TOOLS value-semantics conversion, D-02)
 **Resume file:** 
 None
