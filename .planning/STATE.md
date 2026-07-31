@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 126
-current_phase_name: Flash-Persistent Config via a Storage-Backend Seam ⚠ **highest-risk phase of the milestone**
-status: Phase 126 planned — 12 plans (waves 1–9), ready for /gsd-execute-phase 126
-stopped_at: Phase 126 planned — 12 plans across 9 waves; plan-checker PASSED; 7/7 requirements (CFG-01..07) and 19/19 decisions (D-01..D-19) covered
-last_updated: "2026-07-31T22:10:22.000Z"
+current_phase_name: Flash-Persistent Config via a Storage-Backend Seam
+status: executing
+stopped_at: Completed 126-01-PLAN.md -- pre-phase pin recorded, CONFIG-STORAGE.md landed as its own commit (fd84820), CFG-01 gate committed (be503cb)
+last_updated: "2026-07-31T22:27:09.075Z"
 last_activity: 2026-07-31
-last_activity_desc: "Phase 126 planned: 12 plans / 9 waves, verification passed with one categorization warning fixed in-loop (141/17 native-count pin promoted to a first-class prohibition in 126-03 and 126-12)"
+last_activity_desc: Phase 126 execution started
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 41
-  completed_plans: 29
+  completed_plans: 30
   percent: 38
 ---
 
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 126 — Flash-Persistent Config via a Storage-Backend Seam ⚠ **highest-risk phase of the milestone**
-Plan: **12 plans across 9 waves** — `126-01-PLAN.md` … `126-12-PLAN.md`. Ready to execute.
+Phase: 126 (Flash-Persistent Config via a Storage-Backend Seam) — EXECUTING
+Plan: 2 of 12
 Status: Ready to execute
-Last activity: 2026-07-31 — Phase 126 planned. Research used existing `126-RESEARCH.md` (14 verified corrections C-1..C-14); pattern map written; `126-VALIDATION.md` created. Plan-checker returned **VERIFICATION PASSED** on all 12 plans, with all six pinned blob SHAs in 126-01 re-verified byte-for-byte against the live submodule. Coverage gates: **7/7 requirements** (CFG-01..CFG-07), **19/19 decisions** (D-01..D-19). One non-blocking categorization warning was fixed in-loop rather than carried (`f87c1d6`).
+Last activity: 2026-07-31 — Phase 126 execution started
 
 ### Phase 126 plan structure (2026-07-31)
 
@@ -108,7 +108,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-30 — v1.23 Current Milestone sect
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.23 adds a fourth board target beneath that contract without disturbing it: the PROM programming algorithms stay platform-independent and the HAL boundary absorbs the new MCU, so protocol dispatch is untouched by the port.
 
-**Current focus:** Phase 125 — VPP Control Seam
+**Current focus:** Phase 126 — Flash-Persistent Config via a Storage-Backend Seam
 
 ## Milestone Context (v1.23)
 
@@ -628,6 +628,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 125]: 125-05: ARM CI evidence obtained -- run 30652530756, head SHA 2b5e8c875bb04d728b5e08d16cc2d29e0d43c1d7, Configure+Build both success, src/rurp_vpp.cpp confirmed compiled; no beta prerelease cut; relayed resume datum independently re-derived read-only before acceptance
 - [Phase 125-vpp-control-seam]: Gitlinks (firestarter, firestarter_app) not bumped in either 125-06 commit, per standing policy that gitlink bumps happen at milestone close, not per-plan
 - [Phase 125-vpp-control-seam]: One rewording applied to 125-NONREGRESSION.md's claim-gate artifact: added an exact-lowercase second occurrence of the canonical caveat sentence to satisfy the plan's literal case-sensitive grep check (the gate itself, case-insensitive, had already passed on the first invocation)
+- [Phase 126]: CFG-01 vendored design landed as its own commit (fd84820), the CFG-02 ordering anchor for the phase
+- [Phase 126]: D-16 recorded as an explicit amendment: the completion of one 256-byte page program IS the commit (RM V0.2 section 4.2.3.2; IS_FLASH_TYPEPROGRAM has one accepted value)
+- [Phase 126]: D-18 shrink-quantum amendment recorded: reserve Sector 15 whole (8K), not two 256B pages, keeping D-10/D-11's untouched elements
+- [Phase 126]: CONFIG_MAGIC 0x52555250 recorded as a this-milestone choice, explicitly NOT vendored (guards the Phase-122 C-5 overclaim shape)
 
 ## Performance Metrics
 
@@ -763,10 +767,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 125 P04 | 25min | 2 tasks | 0 files |
 | Phase 125 P05 | ~20min | 1 tasks | 0 files |
 | Phase 125-vpp-control-seam P06 | 28min | 3 tasks | 2 files |
+| Phase 126 P01 | 7min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-07-31T19:19:09.922Z
-**Stopped at:** Phase 126 context gathered
+**Last session:** 2026-07-31T22:27:09.041Z
+**Stopped at:** Completed 126-01-PLAN.md -- pre-phase pin recorded, CONFIG-STORAGE.md landed as its own commit (fd84820), CFG-01 gate committed (be503cb)
 **Resume file:** 
-.planning/phases/126-flash-persistent-config-via-a-storage-backend-seam-highest-r/126-CONTEXT.md
