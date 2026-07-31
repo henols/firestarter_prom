@@ -2168,7 +2168,7 @@ Plans:
 > `platform/py32f071/CMakeLists.txt`. No success criterion mentions the `#include`; it appeared only
 > in prose.
 
-**Plans**: 2/6 plans executed
+**Plans**: 3/6 plans executed
 
 Plans:
 **Wave 1**
@@ -2178,7 +2178,7 @@ Plans:
 **Wave 2** *(blocked on Wave 1 completion)*
 
 - [x] 125-02-PLAN.md — VPP-02's proof: one parametrized pytest compiling **and running** the seam on all four board macro-sets, plus a forced-capability leg against the source file's own `#error` (C-4: the header alone exits 0), the unset-non-AVR leg, the drift leg on anchors that actually exist (C-6), the dependency-freedom leg and the no-skip self-enforcement leg
-- [ ] 125-03-PLAN.md — Criterion 1 as an exit code: `tests/test_pr45_non_ancestry.py` over the ten PR #45 commits, object-existence first, `HEAD`-scoped ancestry, tool-error exit handled explicitly, examined-count assertion, plus blob divergence from PR #45's two seam blobs
+- [x] 125-03-PLAN.md — Criterion 1 as an exit code: `tests/test_pr45_non_ancestry.py` over the ten PR #45 commits, object-existence first, `HEAD`-scoped ancestry, tool-error exit handled explicitly, examined-count assertion, plus blob divergence from PR #45's two seam blobs
 
 **Wave 3** *(blocked on Wave 2 completion)*
 

@@ -6,14 +6,14 @@ current_phase: 125
 current_phase_name: VPP Control Seam
 status: executing
 stopped_at: Completed 125-01-PLAN.md
-last_updated: "2026-07-31T17:26:01.356Z"
+last_updated: "2026-07-31T17:34:56.286Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 125 execution started
 progress:
   total_phases: 8
   completed_phases: 2
   total_plans: 29
-  completed_plans: 25
+  completed_plans: 26
   percent: 25
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 125 (VPP Control Seam) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Last activity: 2026-07-31 — Phase 125 execution started
 
@@ -586,6 +586,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: __AVR__ (not RURP_PLATFORM_AVR) is the seam's AVR predicate -- RURP_PLATFORM_AVR is derived from __AVR__, never defined during an AVR build, and carries an unreachable escape arm (RESEARCH C-13)
 - [Phase 125-02]: fixed the #error message regex to tolerate an indented directive (header nests it two preprocessor levels deep) -- caught by the task's own automated verify before commit
 - [Phase 125-02]: two distinct expected-message helper functions (header vs .cpp), never one shared 'exactly one directive' assertion across both files
+- [Phase ?]: Landed as tests/test_pr45_non_ancestry.py (never scripts/check_*.py) -- RESEARCH C-11 measured the scripts/ shape costs 4 extra artifacts + 2 floor bumps; the tests/ shape costs zero
+- [Phase ?]: Split module authoring into two commits matching the plan's two tasks (Coverage 1+2 then Coverage 3+4), each verified against its own exact count acceptance criteria before committing
 
 ## Performance Metrics
 
@@ -717,10 +719,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 124 P12 | 75min | 3 tasks | 2 files |
 | Phase 125 P01 | 55min | 2 tasks | 3 files |
 | Phase 125 P02 | 35min | 2 tasks | 1 files |
+| Phase 125 P03 | 30min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-07-31T17:25:17.986Z
+**Last session:** 2026-07-31T17:34:34.749Z
 **Stopped at:** Completed 125-01-PLAN.md
 **Resume file:** 
 None
