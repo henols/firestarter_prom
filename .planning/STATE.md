@@ -4,9 +4,9 @@ milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 126
 current_phase_name: Flash-Persistent Config via a Storage-Backend Seam ⚠ **highest-risk phase of the milestone**
-status: complete
+status: context-gathered
 stopped_at: Phase 126 context gathered
-last_updated: "2026-07-31T19:19:09.948Z"
+last_updated: "2026-07-31T19:19:46.016Z"
 last_activity: 2026-07-31
 last_activity_desc: "Phase 125 CLOSED and VERIFIED: 6/6 plans, VPP-01..03 ticked, verification passed 15/15 must-haves with no gaps and no human-verification items"
 progress:
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 126 — Flash-Persistent Config via a Storage-Backend Seam ⚠ **highest-risk phase of the milestone**
-Plan: Not started — next step is `/gsd-discuss-phase 126`
-Status: complete (Phase 125 closed; Phase 126 not started)
-Last activity: 2026-07-31 — Phase 125 CLOSED and VERIFIED: 6/6 plans, VPP-01..03 ticked, verification passed 15/15 must-haves with no gaps and no human-verification items
+Plan: Not started — CONTEXT.md written; next step is `/gsd-plan-phase 126 --research-phase 126`
+Status: context-gathered
+Last activity: 2026-07-31 — Phase 126 context gathered: 17 decisions locked across 4 discussed gray areas (test venue vs the 141/17 native pin, storage-seam API contract, py32 flash map + host contract, blank/corrupt-slot recovery). Research flag is `yes` (blob `4b1a441` verified readable locally; PY32F071xB erase-unit size still unsourced)
 
 ### Phase 125 close-out (2026-07-31)
 
