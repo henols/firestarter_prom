@@ -29,14 +29,14 @@ Research: `.planning/research/SUMMARY.md` (4 streams + synthesis; 18 corrections
 
 *Authored before any firmware moves — a gate written afterwards can only bless what already happened.*
 
-- [ ] **BASE-01**: A committed baseline file records flash **and RAM** for all three AVR targets (Leonardo 26072/2014, Uno 23932/1573, uno328pb 23976) plus the native case **and** suite counts (141 cases / 17 suites), so every later delta is judged against a recorded number rather than a remembered one
-- [ ] **BASE-02**: The host suite's "firmware absent" proxy is split — repo presence is keyed on `../firestarter/.git`, and a present repo with a missing scan target is a **hard failure**, never a skip
-- [ ] **BASE-03**: A skip-census assertion fails the suite if any skip reason claims the firmware checkout is absent while `../firestarter/.git` exists
-- [ ] **BASE-04**: A CMake source-list drift gate verifies every path named in `platform/py32f071/CMakeLists.txt` resolves in the tree, with an explicit commented `PY32_EXCLUDED` allow-list so a reader can tell deliberate omissions from rename damage
-- [ ] **BASE-05**: An orphan-provisional-macro checker asserts every `RURP_*_PROVISIONAL`-style flag has at least one consumer outside its own definition
-- [ ] **BASE-06**: A warning-count gate holds macro-redefinition warnings at zero, so the next real warning is not buried
-- [ ] **BASE-07**: `check_permitted_claims.py` with a v1.23 phrase table mechanically forbids the Validation Ceiling's forbidden claims across every closing artifact, and fails closed when its target list is empty
-- [ ] **BASE-08**: Every checker introduced in this milestone ships with a committed planted-violation fixture and a pytest proving the checker exits non-zero on it
+- [x] **BASE-01**: A committed baseline file records flash **and RAM** for all three AVR targets (Leonardo 26072/2014, Uno 23932/1573, uno328pb 23976) plus the native case **and** suite counts (141 cases / 17 suites), so every later delta is judged against a recorded number rather than a remembered one
+- [x] **BASE-02**: The host suite's "firmware absent" proxy is split — repo presence is keyed on `../firestarter/.git`, and a present repo with a missing scan target is a **hard failure**, never a skip
+- [x] **BASE-03**: A skip-census assertion fails the suite if any skip reason claims the firmware checkout is absent while `../firestarter/.git` exists
+- [x] **BASE-04**: A CMake source-list drift gate verifies every path named in `platform/py32f071/CMakeLists.txt` resolves in the tree, with an explicit commented `PY32_EXCLUDED` allow-list so a reader can tell deliberate omissions from rename damage
+- [x] **BASE-05**: An orphan-provisional-macro checker asserts every `RURP_*_PROVISIONAL`-style flag has at least one consumer outside its own definition
+- [x] **BASE-06**: A warning-count gate holds macro-redefinition warnings at zero, so the next real warning is not buried
+- [x] **BASE-07**: `check_permitted_claims.py` with a v1.23 phrase table mechanically forbids the Validation Ceiling's forbidden claims across every closing artifact, and fails closed when its target list is empty
+- [x] **BASE-08**: Every checker introduced in this milestone ships with a committed planted-violation fixture and a pytest proving the checker exits non-zero on it
 
 ### Firmware Integration Merge
 
@@ -158,7 +158,7 @@ Populated 2026-07-30 by the v1.23 roadmap (`/gsd-new-milestone` → roadmapper).
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BASE-01 … BASE-08 | Phase 123 | Pending |
+| BASE-01 … BASE-08 | Phase 123 | Complete |
 | MERGE-01 … MERGE-08 | Phase 124 | Pending |
 | VPP-01 … VPP-03 | Phase 125 | Pending |
 | CFG-01 … CFG-07 | Phase 126 | Pending |

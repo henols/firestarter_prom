@@ -2047,7 +2047,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 123-11-PLAN.md — Full cross-repo gate sweep, `123-NONREGRESSION.md` evidence artifact, and the BASE-01…BASE-08 requirement ticks
+- [x] 123-11-PLAN.md — Full cross-repo gate sweep, `123-NONREGRESSION.md` evidence artifact, and the BASE-01…BASE-08 requirement ticks
 
 **UI hint**: no
 
