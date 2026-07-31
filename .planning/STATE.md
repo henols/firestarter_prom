@@ -5,15 +5,15 @@ milestone_name: — PY32F071 Integration
 current_phase: 124
 current_phase_name: firmware-integration-merge
 status: executing
-stopped_at: Completed 124-06-PLAN.md (DEV_TOOLS value-semantics conversion, D-02)
-last_updated: "2026-07-31T09:49:15.264Z"
+stopped_at: Completed 124-08-PLAN.md
+last_updated: "2026-07-31T10:10:29.515Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 124 execution started
 progress:
   total_phases: 8
   completed_phases: 1
   total_plans: 23
-  completed_plans: 18
+  completed_plans: 19
   percent: 13
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 124 (firmware-integration-merge) — EXECUTING
-Plan: 8 of 12
+Plan: 9 of 12
 Status: Ready to execute
 Last activity: 2026-07-31 — Phase 124 execution started
 
@@ -537,6 +537,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: D-02: DEV_TOOLS converted to value-semantics (six sites + one shared default at placement B), measured zero AVR flash/RAM cost against Plan 124-04's landing figures
 - [Phase ?]: Placement B (inside __FIRESTARTER_H__, beside DATA_BUFFER_SIZE) used per C-18; placement above the guard was rejected as a false green
 - [Phase 124]: D-01/D-04 re-proven against landed tree; write_checksums.cmake deleted; main.cpp flash-latency corrected to FLASH_LATENCY_1 with static_assert regression guard against FLASH_ACR_LATENCY_1, framed per C-5/C-6 as an over-conservative-but-safe deliberate 2026-07-21 workaround never reverted, not a typo
+- [Phase 124]: MERGE-04's refusal placed at configure_memory() (C-4 chokepoint), delegating to is_memory_cmd() (D-12), reusing MSG_ERR_NOT_SUPPORTED (D-13); proven via a dedicated third native env (Pitfall 5) — is_memory_cmd()'s only caller (src/firestarter.cpp) is excluded by [env:native]'s build_src_filter, so the refusal had to move to the reachable chokepoint
 
 ## Performance Metrics
 
@@ -661,10 +662,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 124 P05 | ~25min | 3 tasks | 3 files |
 | Phase 124 P06 | ~20min | 3 tasks | 4 files |
 | Phase 124 P07 | ~15min | 2 tasks | 2 files |
+| Phase 124 P08 | ~55min | 3 tasks | 8 files |
 
 ## Session
 
-**Last session:** 2026-07-31T09:48:23.946Z
-**Stopped at:** Completed 124-06-PLAN.md (DEV_TOOLS value-semantics conversion, D-02)
+**Last session:** 2026-07-31T10:10:29.499Z
+**Stopped at:** Completed 124-08-PLAN.md
 **Resume file:** 
 None

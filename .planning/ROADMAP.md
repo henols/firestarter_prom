@@ -2064,7 +2064,7 @@ Plans:
   4. AVR flash and RAM, recorded against the Phase-123 baseline, show Leonardo flash **not growing**, Uno-class flash growth **≤ 64 B**, and RAM unchanged on Uno/Leonardo — each a measured build output; golden register traces stay byte-identical, checked **per-array** for `_shared/sdp_expected.h`.
   5. All nine cross-repo source-scanning gates are shown to **run** (never SKIP) and pass, executed from a directory literally named `firestarter_app` with a merged `firestarter` sibling, and the three named in-branch defects are each independently verifiable as fixed: `FLASH_LATENCY_1` (not `_ACR_LATENCY_1`) is the constant in use at 48 MHz, `write_checksums.cmake` is deleted or has a real consumer, and ARM `DEV_TOOLS`-off is an explicit commented decision in the CMake defines.
 
-**Plans**: 7/12 plans executed
+**Plans**: 8/12 plans executed
 **Wave 1** *(pre-landing gates — authored before the tree they judge)*
 
 - [x] 124-01-PLAN.md — `check_landing_range.py`: MERGE-01/D-06 range checker with a never-vacuous guard, paired pytest, planted replayed-history fixture, and the BASE-08 `FLOOR` bump 4 → 5
@@ -2083,7 +2083,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 124-08-PLAN.md — MERGE-04 refusal at `configure_memory()` (the reachable chokepoint per C-4, not `is_memory_cmd`'s caller), reusing D-12's command set, proven by a native suite in a **third** env so both pinned envs stay at 141/17
+- [x] 124-08-PLAN.md — MERGE-04 refusal at `configure_memory()` (the reachable chokepoint per C-4, not `is_memory_cmd`'s caller), reusing D-12's command set, proven by a native suite in a **third** env so both pinned envs stay at 141/17
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
