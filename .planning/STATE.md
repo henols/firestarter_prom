@@ -1,14 +1,14 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.23
-milestone_name: — PY32F071 Integration
+milestone_name: PY32F071 Integration
 current_phase: 123
 current_phase_name: non-regression-baselines-gate-hardening
-status: executing
-stopped_at: Completed 123-11-PLAN.md — Phase 123 CLOSED (11/11 plans, BASE-01..08 all Complete)
+status: complete
+stopped_at: Phase 123 CLOSED and VERIFIED (11/11 plans, BASE-01..08 Complete, verification passed 8/8)
 last_updated: "2026-07-31T02:12:06.473Z"
 last_activity: 2026-07-31
-last_activity_desc: Executed 123-05 (BASE-05 orphan-provisional-macro gate — check_orphan_provisional.py + 2 fixture trees + 8-test anti-hollow pytest; firmware suite 41 passed, 0 skipped)
+last_activity_desc: Phase 123 verified — all 5 ROADMAP success criteria independently re-executed; next is Phase 124 (Firmware Integration Merge)
 progress:
   total_phases: 8
   completed_phases: 1
