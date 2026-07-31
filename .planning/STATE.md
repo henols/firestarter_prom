@@ -6,14 +6,14 @@ current_phase: 124
 current_phase_name: firmware-integration-merge
 status: executing
 stopped_at: Completed 124-01-PLAN.md
-last_updated: "2026-07-31T08:15:37.765Z"
+last_updated: "2026-07-31T08:26:54.132Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 124 execution started
 progress:
   total_phases: 8
   completed_phases: 1
   total_plans: 23
-  completed_plans: 12
+  completed_plans: 13
   percent: 13
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 124 (firmware-integration-merge) — EXECUTING
-Plan: 2 of 12
+Plan: 3 of 12
 Status: Ready to execute
 Last activity: 2026-07-31 — Phase 124 execution started
 
@@ -527,6 +527,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: 123-11: both native envs re-confirmed agreeing at 141 cases / 17 suites on a fresh build; MERGE-06 remains satisfiable as worded, no amendment needed for Phase 124
 - [Phase 124]: 124-01: Violation counting is per violating commit, not per marker, in check_landing_range.py (matches the plan's own FAIL: 1 acceptance criterion and RESEARCH's measured true-merge figure)
 - [Phase 124]: 124-01: ScanError caught only at the __main__ entry point in check_landing_range.py, never inside main() itself
+- [Phase ?]: MERGE-05 band mode: leonardo effective band=0, uno-class band=MERGE05_UNO_CLASS_FLASH_BAND(64), single named constant governs the uno-class rule while leonardo's stricter must-not-grow rule reuses band=0 locally
+- [Phase ?]: BASE-01 frozen byte-identically as size_baseline_base01.json (blob SHA b940c91655600a57ad7ef67cba723943af929daf) so Plan 124-10's re-baseline of size_baseline.json cannot move MERGE-05's reference point
 
 ## Performance Metrics
 
@@ -645,10 +647,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 123 P06 | 12min | 2 tasks | 1 files |
 | Phase 123 P11 | 55 | 3 tasks | 3 files |
 | Phase 124 P01 | 12min | 2 tasks | 4 files |
+| Phase 124 P02 | 10min | 3 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-07-31T08:15:37.741Z
+**Last session:** 2026-07-31T08:26:25.448Z
 **Stopped at:** Completed 124-01-PLAN.md
 **Resume file:** 
 None

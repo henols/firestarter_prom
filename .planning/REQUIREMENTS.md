@@ -44,7 +44,7 @@ Research: `.planning/research/SUMMARY.md` (4 streams + synthesis; 18 corrections
 - [ ] **MERGE-02**: The CMake source list names `flash_nor_unlock.cpp` and `flash_5v_page.cpp`, and the ARM target reaches a successful CMake configure
 - [ ] **MERGE-03**: `py32f071.yml` gains `push: branches: [beta]`, so the ARM target is built on `beta` rather than only on pull requests
 - [ ] **MERGE-04**: While the pin map is provisional, the py32 target refuses every operation that can energise a PROM, and the guard is restructured so its `#error` is provably able to fire
-- [ ] **MERGE-05**: Leonardo flash does not grow; Uno-class flash growth is ≤ 64 B and recorded; flash **and RAM** are recorded for all three AVR targets against BASE-01
+- [x] **MERGE-05**: Leonardo flash does not grow; Uno-class flash growth is ≤ 64 B and recorded; flash **and RAM** are recorded for all three AVR targets against BASE-01
 - [ ] **MERGE-06**: `pio test -e native` and `-e native_nodevtools` report the BASE-01 case **and suite** counts, and the golden register traces are byte-identical (per-array for `_shared/sdp_expected.h`)
 - [ ] **MERGE-07**: All nine cross-repo source-scanning gates are shown to **run** — not skip — and pass, in a directory literally named `firestarter_app` with a merged `firestarter` sibling
 - [ ] **MERGE-08**: Three in-branch defects are fixed: the flash-latency constant (`FLASH_ACR_LATENCY_1` → `FLASH_LATENCY_1`, two wait states → one at 48 MHz), the orphaned `write_checksums.cmake`, and `DEV_TOOLS`-off on ARM made an explicit commented decision rather than an accident of the CMake defines

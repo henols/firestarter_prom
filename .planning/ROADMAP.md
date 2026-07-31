@@ -2064,11 +2064,11 @@ Plans:
   4. AVR flash and RAM, recorded against the Phase-123 baseline, show Leonardo flash **not growing**, Uno-class flash growth **≤ 64 B**, and RAM unchanged on Uno/Leonardo — each a measured build output; golden register traces stay byte-identical, checked **per-array** for `_shared/sdp_expected.h`.
   5. All nine cross-repo source-scanning gates are shown to **run** (never SKIP) and pass, executed from a directory literally named `firestarter_app` with a merged `firestarter` sibling, and the three named in-branch defects are each independently verifiable as fixed: `FLASH_LATENCY_1` (not `_ACR_LATENCY_1`) is the constant in use at 48 MHz, `write_checksums.cmake` is deleted or has a real consumer, and ARM `DEV_TOOLS`-off is an explicit commented decision in the CMake defines.
 
-**Plans**: 1/12 plans executed
+**Plans**: 2/12 plans executed
 **Wave 1** *(pre-landing gates — authored before the tree they judge)*
 
 - [x] 124-01-PLAN.md — `check_landing_range.py`: MERGE-01/D-06 range checker with a never-vacuous guard, paired pytest, planted replayed-history fixture, and the BASE-08 `FLOOR` bump 4 → 5
-- [ ] 124-02-PLAN.md — W-1 half (a): `--policy merge05` band comparator (Leonardo no-growth · Uno-class ≤ 64 B · RAM unchanged) plus a frozen `size_baseline_base01.json` so Plan 124-10's re-baseline cannot move MERGE-05's reference point
+- [x] 124-02-PLAN.md — W-1 half (a): `--policy merge05` band comparator (Leonardo no-growth · Uno-class ≤ 64 B · RAM unchanged) plus a frozen `size_baseline_base01.json` so Plan 124-10's re-baseline cannot move MERGE-05's reference point
 - [ ] 124-03-PLAN.md — MERGE-06 golden-trace identity: blob-SHA pin **plus** a per-array name/entry-count inventory for `_shared/sdp_expected.h`, catching an array deleted alongside its own assertions
 
 **Wave 2** *(blocked on Wave 1 completion)*
