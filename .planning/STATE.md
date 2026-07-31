@@ -1,14 +1,14 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.23
-milestone_name: PY32F071 Integration
+milestone_name: — PY32F071 Integration
 current_phase: 123
 current_phase_name: non-regression-baselines-gate-hardening
 status: complete
-stopped_at: Phase 123 CLOSED and VERIFIED (11/11 plans, BASE-01..08 Complete, verification passed 8/8)
-last_updated: "2026-07-31T02:12:06.473Z"
+stopped_at: Phase 124 context gathered
+last_updated: "2026-07-31T06:00:26.072Z"
 last_activity: 2026-07-31
-last_activity_desc: Phase 123 verified — all 5 ROADMAP success criteria independently re-executed; next is Phase 124 (Firmware Integration Merge)
+last_activity_desc: Executed 123-11 (full cross-repo gate sweep + 123-NONREGRESSION.md evidence artifact + BASE-01..08 requirement ticks)
 progress:
   total_phases: 8
   completed_phases: 1
@@ -643,7 +643,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-07-31T02:12:06.460Z
-**Stopped at:** Completed 123-11-PLAN.md — Phase 123 CLOSED (11/11 plans, BASE-01..08 all Complete)
+**Last session:** 2026-07-31T06:00:26.047Z
+**Stopped at:** Phase 124 context gathered
 **Resume file:** 
-None
+.planning/phases/124-firmware-integration-merge/124-CONTEXT.md
