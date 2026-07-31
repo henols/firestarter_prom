@@ -4,11 +4,11 @@ milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 124
 current_phase_name: firmware-integration-merge
-status: executing
-stopped_at: Completed 124-09-PLAN.md
-last_updated: "2026-07-31T10:48:16.981Z"
+status: blocked
+stopped_at: "Phase 124 PAUSED at the 124-11 operator gate (10/12 plans complete; waves 1-6 done, wave 7 awaiting an operator push + workflow dispatch)"
+last_updated: "2026-07-31T11:05:00.000Z"
 last_activity: 2026-07-31
-last_activity_desc: Phase 124 execution started
+last_activity_desc: "Phase 124 waves 1-6 executed (10/12 plans); halted at 124-11's structural operator gate for MERGE-02 ARM CI evidence. Firmware head a145081, NOT pushed."
 progress:
   total_phases: 8
   completed_phases: 1
@@ -24,10 +24,26 @@ progress:
 
 ## Current Position
 
-Phase: 124 (firmware-integration-merge) — EXECUTING
-Plan: 11 of 12
-Status: Ready to execute
-Last activity: 2026-07-31 — Phase 124 execution started
+Phase: 124 (firmware-integration-merge) — PAUSED AT OPERATOR GATE (10/12 plans complete)
+Plan: 124-11 — task 1 of 3 done (read-only pre-flight); task 2 is the operator gate
+Status: BLOCKED on an operator push + workflow dispatch. Not a failure — the gate is by design (D-09).
+Last activity: 2026-07-31 — waves 1-6 executed clean; firmware suite 72 passed / 0 failed; MERGE-05 and MERGE-06 discharged as exit codes
+
+### Resume instructions
+
+Firmware branch `v1.23-py32f071-integration` is at `a145081` locally and is **NOT on origin**. Run:
+
+```bash
+git -C /workspaces/firestarter push -u origin v1.23-py32f071-integration
+gh workflow run py32f071.yml --repo henols/firestarter --ref v1.23-py32f071-integration
+gh run list --repo henols/firestarter --workflow py32f071.yml \
+  --branch v1.23-py32f071-integration --limit 1 \
+  --json databaseId,headSha,conclusion,event,url
+```
+
+Then re-run `/gsd-execute-phase 124` and supply the run id/URL (a bare "approved" is not enough — task 3's job is to query that specific run). Plan 124-12 is blocked behind 124-11.
+
+Safety, re-proven from all three workflow files: `v1.23-py32f071-integration` matches no `push:` branch filter anywhere (only `beta` ×2 and `main` ×1; no `branches: ['**']`, no push trigger missing a `branches:` key), so the push fires nothing and cannot cut a beta prerelease.
 
 **⚠ Wave 7 (124-11) is operator-gated.** MERGE-02's ARM evidence requires pushing the firmware milestone branch and dispatching the `py32f071.yml` workflow. Per D-09 the gate is **structural**, not a flag: plan 124-11 contains no task that runs `git push` or `gh workflow run` — it prints the commands and stops. `--auto`/`--chain` cannot wave it through, but an autonomous chain will still halt there awaiting the operator.
 
