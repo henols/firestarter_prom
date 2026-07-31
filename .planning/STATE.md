@@ -5,16 +5,16 @@ milestone_name: — PY32F071 Integration
 current_phase: 123
 current_phase_name: non-regression-baselines-gate-hardening
 status: executing
-stopped_at: Completed 123-04-PLAN.md
-last_updated: "2026-07-31T00:34:10.317Z"
+stopped_at: Completed 123-09-PLAN.md
+last_updated: "2026-07-31T01:29:07.786Z"
 last_activity: 2026-07-31
-last_activity_desc: Executed 123-04 (BASE-04 check_cmake_manifest.py CMake source-list drift gate + 4 fixture trees)
+last_activity_desc: Executed 123-09 (BASE-03 skip census + D-09 recurrence lint against the absence-proxy idiom; host suite 1158 passed, 0 skipped)
 progress:
   total_phases: 8
   completed_phases: 0
   total_plans: 11
-  completed_plans: 7
-  percent: 64
+  completed_plans: 8
+  percent: 73
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 123 (non-regression-baselines-gate-hardening) — EXECUTING
-Plan: 9 of 11 (completed)
+Plan: 9 of 11 (completed) — next up: 10
 Status: Ready to execute next plan
-Last activity: 2026-07-31 — Executed 123-04 (BASE-04 check_cmake_manifest.py CMake source-list drift gate + 4 fixture trees; firmware suite 33 passed)
+Last activity: 2026-07-31 — Executed 123-09 (BASE-03 skip census + D-09 recurrence lint against the absence-proxy idiom; host suite 1158 passed, 0 skipped)
 
 ## Project Reference
 
@@ -515,6 +515,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 123-08]: Created tests/scan_paths.py (D-11) covering both cross-repo populations; verifying RESEARCH's 11 tool files individually found 7 of them are same-repo package look-alikes, not cross-repo resolvers, despite matching the grep that found them
 - [Phase 123]: PATH_RE requires a (?!\w) boundary after the recognised extension so a greedy backtrack can never misclassify CMAKE_TOOLCHAIN_FILE's .cmake as a bogus .c source entry
 - [Phase 123]: Missing/unparseable manifest under an armed key, and an unrecognised source-list name, both exit 2 (config/parse error class), consistent with this phase's other two checkers
+- [Phase 123]: 123-09: ALLOWED_SKIP_REASONS seeded with all four known-legitimate skip reasons found by static inspection (not only ones observed in this 0-skip local run), since two are standalone-CI-only conditions that would otherwise trip the census the first time it runs in GitHub Actions
+- [Phase 123]: 123-09: census liveness signal switched from the run's trailing summary line to a --collect-only per-file count sum, after measuring pytest 9.1.1 in this environment intermittently omits that trailing line from captured stdout under -q
 
 ## Performance Metrics
 
@@ -628,10 +630,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 123 P03 | 30 | 3 tasks | 6 files |
 | Phase 123 P08 | 70min | 3 tasks | 9 files |
 | Phase 123 P04 | 35 | 3 tasks | 20 files |
+| Phase 123 P09 | 55min | 2 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-07-31T00:34:10.295Z
-**Stopped at:** Completed 123-04-PLAN.md
+**Last session:** 2026-07-31T01:29:07.766Z
+**Stopped at:** Completed 123-09-PLAN.md
 **Resume file:** 
 None
