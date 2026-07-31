@@ -80,6 +80,14 @@
 
 **Release hazard, unchanged:** pushing `beta` in either sub-repo auto-fires CI and cuts a new beta, so the cut is a deliberate decision and never a side effect. `firestarter_app`'s CI fix `81fa53c` lives on `beta` only and must be reintroduced whenever the milestone branch next merges toward `main`.
 
+**Phase progress — 3 of 8 complete (updated 2026-07-31):**
+
+- ✅ **Phase 123** Non-Regression Baselines & Gate Hardening — 11/11 plans, verified 8/8 reqs. Six fail-provable gates and the BASE-01 baseline JSON exist before any firmware moved.
+- ✅ **Phase 124** Firmware Integration Merge — 12/12 plans, verified 8/8 reqs + 5/5 criteria. The py32 stack landed as one squashed commit; ARM configure+build cited by CI run `30634186514`.
+- ✅ **Phase 125** VPP Control Seam — 6/6 plans, verified 15/15 must-haves, VPP-01…03 closed. Hand-authored `include/rurp_vpp.h` + `src/rurp_vpp.cpp`, dependency-free, **zero production callers**, named in the ARM manifest with `RURP_HAS_VPP_DAC=0`. **0 B flash and 0 B RAM** on all three AVR targets, non-vacuous in both directions. ARM evidence: CI run [`30652530756`](https://github.com/henols/firestarter/actions/runs/30652530756) at head SHA `2b5e8c8`, Configure and Build each independently green, with `[4/39] Building CXX object …src/rurp_vpp.cpp.obj` proving the seam reached the ARM compiler.
+  **Two decisions worth carrying forward.** The `#include "rurp_vpp.h"` line in `include/rurp_shield.h` that this milestone's own planning documents all described as the phase's header change was measured to collapse `pio test -e native` from 141/141 to 17 suites / 0 succeeded; the operator chose to omit it entirely, so `rurp_shield.h` is untouched (`125-RESEARCH.md` C-1). And **AVR-class manual VPP control is permanent, not provisional** — no Arduino-class board will ever carry the DAC (operator, 2026-07-31) — so `__AVR__` resolves the capability macro and every non-AVR board must declare it explicitly.
+- ⬜ Phases 126 (flash config ⚠ highest-risk), 127 (host DFU), 128 (release fold), 129 (PCB record), 130 (close) remain.
+
 ## v1.22 Archive: AT28C Software Data Protection Lifecycle — Shipped 2026-07-30
 
 **Status (2026-07-30): all 7 phases (116–122) COMPLETE — CLOSE-01/02/03 validated in Phase 122, verification passed 5/5.** `3.0.0b14` is published on both channels (PyPI wheel + sdist; GitHub prereleases in both repos, firmware carrying its three board `.hex` assets) and the two community reporters have been answered on `henols/firestarter_prom` #11 and #12 — both issues deliberately left **OPEN** pending a real silicon re-test, because nothing here is silicon-verified.
