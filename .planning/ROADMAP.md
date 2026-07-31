@@ -1777,7 +1777,7 @@ Plans:
 - **Cheap now, dearer later.** The command has existed publicly for one day, on the pre-release channel only; no stable release ever carried it.
 - **Two open questions for scoping** (appended to [`.planning/research/questions.md`](research/questions.md)): whether the inhibited-write leg can be proven at all without AT28C silicon on the bench, and whether `--sdp-relock` gates on verify success.
 
-**⏫ QUEUED as the NEXT milestone after v1.23 (operator, 2026-07-31) — given its own milestone slot as provisional `v1.30 SDP Surface Retirement & Behavioral Lock Proof`**, listed in the `## Milestones` section above and pending `/gsd-new-milestone` for its version number and activation. It is **sequenced, not numbered**: the milestone starts when v1.23 (PY32F071 Integration) completes. Provisional **v1.30** rather than v1.29 only because v1.23's **Phase 130** has not yet retired the outgoing `v1.29 PY32F071 USB Firmware Install` slot; compact to v1.29 at activation if that renumber has landed by then. Phase numbering continues from v1.23's last phase (**Phase 130** → this milestone starts at **Phase 131**) — reconfirm at activation, since v1.23 may still insert micro-phases.
+**⏫ QUEUED as the NEXT milestone after v1.23 (operator, 2026-07-31) — given its own milestone slot as provisional `v1.30 SDP Surface Retirement & Behavioral Lock Proof`**, listed in the `Milestones` section above and pending `/gsd-new-milestone` for its version number and activation. It is **sequenced, not numbered**: the milestone starts when v1.23 (PY32F071 Integration) completes. Provisional **v1.30** rather than v1.29 only because v1.23's **Phase 130** has not yet retired the outgoing `v1.29 PY32F071 USB Firmware Install` slot; compact to v1.29 at activation if that renumber has landed by then. Phase numbering continues from v1.23's last phase (**Phase 130** → this milestone starts at **Phase 131**) — reconfirm at activation, since v1.23 may still insert micro-phases.
 
 **Why it can be worked immediately after v1.23, with no waiting:** host-only (`firestarter_app`), so no dual-repo lockstep, no firmware branch, no `.hex` re-cut, and **no bench hardware needed to build it** — the AT28C part this milestone reasons about has never been in operator inventory, and the whole design is arranged so that the *causal* proof is supplied later by a community `dev test` report rather than gating the close. It does **not** collide with any queued firmware milestone (v1.24 bus-config, v1.26 voltage cal, v1.27 per-protocol algorithms, v1.28 binary command protocol all rewrite firmware internals; this touches `cli_handlers.py`, `chip_test.py`, `diagnostic_report.py`). One sequencing interaction worth stating: **999.15** (gh#8 dev-tools channel gating) also edits the `dev` group surface — whichever lands first shrinks the other's diff, and this milestone deletes a subcommand 999.15 would otherwise have to classify.
 
@@ -2171,11 +2171,25 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 125-01-PLAN.md — Record the pre-phase pin, then land the seam atomically: `include/rurp_vpp.h` + `src/rurp_vpp.cpp` (two guards, each proven able to fire) plus the two `platform/py32f071/CMakeLists.txt` lines, in ONE commit — the manifest reverse check leaves no green intermediate state. Fires the C-1 native tripwire in the authoring task, at exact counts
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 125-02-PLAN.md — VPP-02's proof: one parametrized pytest compiling **and running** the seam on all four board macro-sets, plus a forced-capability leg against the source file's own `#error` (C-4: the header alone exits 0), the unset-non-AVR leg, the drift leg on anchors that actually exist (C-6), the dependency-freedom leg and the no-skip self-enforcement leg
 - [ ] 125-03-PLAN.md — Criterion 1 as an exit code: `tests/test_pr45_non_ancestry.py` over the ten PR #45 commits, object-existence first, `HEAD`-scoped ancestry, tool-error exit handled explicitly, examined-count assertion, plus blob divergence from PR #45's two seam blobs
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 125-04-PLAN.md — Criterion 4 measured, not cited: three cold AVR builds with the clean-then-single-invocation discipline, the two-directional non-vacuity pair (object file present; seam symbols absent against a non-zero unrelated-symbol count), the already-armed strict comparator, and D-16's recorded disposition. Records without gating (D-15)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 125-05-PLAN.md — D-13's own ARM configure-and-build evidence as a CI run URL + head SHA. **Structural operator gate (D-14)**: no task runs `git push` or `gh workflow run`; the plan prints the commands and stops
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 125-06-PLAN.md — Closing: every row re-executed against the live trees, `125-NONREGRESSION.md` written, the claim gate run with the target named explicitly (C-16), and VPP-01/02/03 ticked — the only plan permitted to tick them
 
 **UI hint**: no
