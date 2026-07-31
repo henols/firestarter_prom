@@ -220,3 +220,11 @@ No PY32F071 PCB exists; `arm-none-eabi-gcc`, `cmake` and `ninja` are absent from
 ---
 *Phase: 126-flash-persistent-config-via-a-storage-backend-seam-highest-r*
 *Completed: 2026-07-31*
+
+## Self-Check: PASSED
+
+- FOUND: `firestarter/tests/test_config_storage_seam_shape.py`
+- FOUND: commit `34a67ec` in `firestarter` repo history
+- FOUND: `.planning/phases/126-flash-persistent-config-via-a-storage-backend-seam-highest-r/126-05-SUMMARY.md`
+- FOUND: commit `47aba4f` in meta repo history
+- Branch re-check: `firestarter` on `v1.23-py32f071-integration`; meta on `gsd/v1.23-py32f071-integration`

@@ -6,14 +6,14 @@ current_phase: 126
 current_phase_name: Flash-Persistent Config via a Storage-Backend Seam
 status: executing
 stopped_at: Completed 126-04-PLAN.md
-last_updated: "2026-07-31T23:12:57.691Z"
+last_updated: "2026-07-31T23:30:12.164Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 126 execution started
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 41
-  completed_plans: 33
+  completed_plans: 34
   percent: 38
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 126 (Flash-Persistent Config via a Storage-Backend Seam) — EXECUTING
-Plan: 5 of 12
+Plan: 6 of 12
 Status: Ready to execute
 Last activity: 2026-07-31 — Phase 126 execution started
 
@@ -637,6 +637,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 126]: 126-03: D-04's primary blob-SHA re-hash did not hold unmodified; the plan's own documented fallback was applied -- one named, justified line change (-DARDUINO_AVR_UNO) to tests/test_config_storage_eeprom_regression.py, both blob SHAs recorded (0ef805f -> 12bd237)
 - [Phase 126]: 126-03: ARM manifest split kept to ONE new PY32_EXCLUDED line; retiring src/rurp_config_utils.cpp's exclusion and promoting it into FIRESTARTER_COMMON_SOURCES is deferred to Plan 126-08, same commit that deletes config.cpp
 - [Phase 126]: 126-04: Arm A taken: AVR flash/RAM measured cold on all three targets, byte-identical to the pre-existing baseline under both named comparators (compare_avr strict + compare_avr_policy_merge05 band); zero delta from the 126-03 policy split, attributed to D-03 (dual-slot core is ARM-only, not yet authored) and -flto/--gc-sections; no re-baseline commit needed.
+- [Phase ?]: Named a spurious 12th test function was not fabricated; implemented all 11 plan-specified functions exactly, flagged the plan's 'twelve' phrasing as a discrepancy
 
 ## Performance Metrics
 
@@ -776,10 +777,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 126 P02 | 20min | 2 tasks | 1 files |
 | Phase 126 P03 | 35min | 2 tasks | 6 files |
 | Phase 126 P04 | 25min | 2 tasks | 0 files |
+| Phase 126 P05 | 40min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-07-31T23:12:57.673Z
+**Last session:** 2026-07-31T23:30:12.147Z
 **Stopped at:** Completed 126-04-PLAN.md
 **Resume file:** 
 None
