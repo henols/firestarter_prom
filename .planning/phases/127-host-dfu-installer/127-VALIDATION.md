@@ -28,7 +28,9 @@ updated: 2026-08-01
 | **Quick run command** | `python -m pytest tests/test_py32_dfu.py -q` |
 | **Full suite command** | `python -m pytest -q` |
 | **Estimated runtime** | ~60 s full suite; ~3 s for the py32 subset |
-| **Post-merge baseline** | 1216 collected · 1213 passed · 3 skipped · 0 failed · coverage 81.35% (MEASURED, `127-RESEARCH.md` §Q1) |
+| **Pre-merge baseline** | 1158 collected · 1158 passed · **0 skipped** · 0 failed (MEASURED in the real checkout during planning) |
+| **Post-merge expectation** | 1216 collected · 1216 passed · **0 skipped** · 0 failed · coverage ≥70% (1158 + 58 from `test_py32_dfu.py`) |
+| **Why not research's 1213/3-skipped** | `127-RESEARCH.md` §Q1 measured **1216 collected · 1213 passed · 3 skipped** in a *scratch worktree*. Those 3 skips are a worktree artifact — they fire only when `.planning/` is unreachable. In the real sibling checkout `.planning/` resolves, so those tests **run** rather than skip. Expect **0 skipped**; a non-zero skip count in the evidence run means the layout is wrong, not that the suite regressed. |
 | **Second leg** | `ci-py32` — `pip install -e .[test,py32]`, runs the pyusb-API-surface tests only (D-02) |
 
 ---
