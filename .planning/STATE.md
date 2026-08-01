@@ -5,15 +5,15 @@ milestone_name: — PY32F071 Integration
 current_phase: 128
 current_phase_name: Release-Asset Fold
 status: executing
-stopped_at: Phase 128 Plan 01 complete
-last_updated: "2026-08-01T20:51:44.261Z"
+stopped_at: Phase 128 Plan 02 complete
+last_updated: "2026-08-01T20:58:39.104Z"
 last_activity: 2026-08-01
-last_activity_desc: Phase 128 Plan 01 executed — check_release_assets.py checker + 3 fixture trees landed (firestarter)
+last_activity_desc: Phase 128 Plan 02 executed
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 63
-  completed_plans: 54
+  completed_plans: 55
   percent: 63
 ---
 
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 128 (Release-Asset Fold) — EXECUTING
-Plan: 1/10 complete — 128-01 (AVR-assets-present gate) landed in firestarter
-Status: Plan 01 done (check_release_assets.py + paired test + fixtures); 9 plans remain
-Last activity: 2026-08-01 — Phase 128 Plan 01 executed
+Plan: 2/10 complete — 128-02 (composite action for ARM build, D-06) landed in firestarter
+Status: Plan 02 done (.github/actions/build-py32f071/action.yml — hex_path + sdk_sha outputs); 8 plans remain
+Last activity: 2026-08-01 — Phase 128 Plan 02 executed
 
 ### Phase 127 context highlights (2026-08-01)
 
@@ -751,6 +751,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 128]: Task 2's checker + paired test + floor bump landed in ONE commit per the plan's explicit override of the generic RED/GREEN TDD split
 - [Phase 128]: FIXTURE_FLOOR corrected from 10 to 15 (not just 14) -- pre-existing drift left by Phases 124/126 corrected in the same commit as this phase's own additions
 - [Phase 128]: Did not mark REL-02 or REL-03 complete in REQUIREMENTS.md -- both are multi-plan requirements; Plan 128-10 owns closure
+- [Phase 128]: D-06 composite action: shopt -s nullglob added before hex_path glob-count guard so a miss expands to zero words, making the count!=1 guard actually catch a missing image
 
 ## Performance Metrics
 
@@ -911,10 +912,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 127 P11 | 70min | 3 tasks | 1 files |
 | Phase 127 P12 | 130min | 3 tasks | 2 files |
 | Phase 128 P01 | 25min | 3 tasks | 15 files |
+| Phase 128 P02 | 15min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-01T20:51:44.233Z
+**Last session:** 2026-08-01T20:58:29.656Z
 **Stopped at:** Phase 128 Plan 01 complete
 **Resume file:** 
 None
