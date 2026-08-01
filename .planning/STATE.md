@@ -6,14 +6,14 @@ current_phase: 126
 current_phase_name: Flash-Persistent Config via a Storage-Backend Seam
 status: executing
 stopped_at: Completed 126-04-PLAN.md
-last_updated: "2026-08-01T00:16:58.453Z"
+last_updated: "2026-08-01T00:44:50.210Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 126 execution started
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 41
-  completed_plans: 37
+  completed_plans: 38
   percent: 38
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 126 (Flash-Persistent Config via a Storage-Backend Seam) — EXECUTING
-Plan: 9 of 12
+Plan: 10 of 12
 Status: Ready to execute
 Last activity: 2026-07-31 — Phase 126 execution started
 
@@ -645,6 +645,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 126]: CONFIG_MAGIC = 0x52555250 documented as this-milestone choice, explicitly not vendored (D-19)
 - [Phase 126]: length bounds-check ordered strictly before crc32 and before any copy (V5 validation ordering)
 - [Phase 126-08]: config.cpp deleted (verified absent); config_storage_flash.cpp supplies HAL-routed primitives; manifest closed at 26 enforced sources with py32f071_hal_flash.c named (C-3)
+- [Phase ?]: 126-09: interrupted-write test asserts the corrected invariant (load always valid; winner depends on N vs 12-word footprint), confirming 126-07's finding
+- [Phase ?]: 126-09: mutation 4 required removing BOTH validate_record's length check and load()'s defensive min-clamp; the clamp alone is documented defence-in-depth
 
 ## Performance Metrics
 
@@ -788,10 +790,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 126 P06 | 25min | 3 tasks | 3 files |
 | Phase 126 P07 | 55min | 2 tasks | 3 files |
 | Phase 126 P08 | 70min | 2 tasks | 5 files |
+| Phase 126 P09 | 70min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-01T00:16:36.527Z
+**Last session:** 2026-08-01T00:44:13.592Z
 **Stopped at:** Completed 126-04-PLAN.md
 **Resume file:** 
 None

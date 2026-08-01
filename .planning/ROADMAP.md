@@ -2229,7 +2229,7 @@ Plans:
 > exclusion; Plan 126-08 lands the retirement, the promotion and the flash-driver entry in the same
 > commit as the deletion.
 
-**Plans**: 8/12 plans executed
+**Plans**: 9/12 plans executed
 **Research flag**: yes — `/gsd-plan-phase --research-phase 126` (A-6/R-8: `PORTING.md` is stranded on closed PRs and partly superseded; the flash page size is stated nowhere in-tree)
 
 Plans:
@@ -2261,7 +2261,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6)*
 
-- [ ] 126-09-PLAN.md — Criterion 4's six distinctly named tests plus D-05's independent CRC known-answer anchor, against the shipped core compiled by path, with ten mutation demonstrations ∥
+- [x] 126-09-PLAN.md — Criterion 4's six distinctly named tests plus D-05's independent CRC known-answer anchor, against the shipped core compiled by path, with ten mutation demonstrations ∥
 - [ ] 126-10-PLAN.md — CFG-07's gate: the four-field schema in order, the `VER06` literal, the four public functions defined exactly once and never under `platform/`, and `config.cpp` verified **by absence from the tree**
 
 **Wave 8** *(blocked on Wave 7)*
