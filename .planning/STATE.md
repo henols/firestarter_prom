@@ -6,14 +6,14 @@ current_phase: 127
 current_phase_name: host-dfu-installer
 status: executing
 stopped_at: Completed 127-03-PLAN.md
-last_updated: "2026-08-01T12:37:30.603Z"
+last_updated: "2026-08-01T12:50:38.129Z"
 last_activity: 2026-08-01
 last_activity_desc: Phase 127 execution started
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 53
-  completed_plans: 45
+  completed_plans: 46
   percent: 50
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 127 (host-dfu-installer) — EXECUTING
-Plan: 5 of 12
+Plan: 6 of 12
 (disjoint `files_modified`); every later wave is serialized on a shared file.
 Status: Ready to execute
 Last activity: 2026-08-01 — Phase 127 execution started
@@ -733,6 +733,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 127]: 127-02: Both packaging gates (pyusb floor, D-17 record) proven to fail via live on-disk revert + restore, not only via pytest.raises monkeypatch
 - [Phase ?]: 127-03: C-2 re-derived first-hand — tests/test_py32_dfu.py blob SHA f9678411 unchanged, scan for source==source opcode assertion returns zero matches; HOST-06 is purely additive
 - [Phase ?]: 127-03: A1 partially discharged — USB DFU 1.1 spec (usb.org) independently fetched and read this plan (genuine oracle for 7 request codes + functional-descriptor type + bitCanUpload bit); UM1504 not obtainable (st.com unreachable from sandbox), residual carried to Plan 127-12
+- [Phase 127]: D-13/D-14 (127-05): _check_envelope tightened from FLASH_SIZE (physical 128 KiB) to APP_REGION_END (0x0801E000, the linker script's real application region); held honest by a fail-closed cross-repo parity gate over tests/test_py32_flash_map_host.py. HOST-03 is NOT discharged by this plan.
 
 ## Performance Metrics
 
@@ -884,10 +885,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 127 P04 | 45min | 3 tasks | 4 files |
 | Phase 127 P02 | 25min | 2 tasks | 2 files |
 | Phase 127 P03 | 35min | 2 tasks | 1 files |
+| Phase 127 P05 | 45min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-01T12:37:30.560Z
+**Last session:** 2026-08-01T12:50:11.030Z
 **Stopped at:** Completed 127-03-PLAN.md
 **Resume file:** 
 None
