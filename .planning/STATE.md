@@ -6,14 +6,14 @@ current_phase: 126
 current_phase_name: Flash-Persistent Config via a Storage-Backend Seam
 status: executing
 stopped_at: Completed 126-04-PLAN.md
-last_updated: "2026-08-01T00:44:50.210Z"
+last_updated: "2026-08-01T00:58:31.716Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 126 execution started
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 41
-  completed_plans: 38
+  completed_plans: 39
   percent: 38
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 126 (Flash-Persistent Config via a Storage-Backend Seam) — EXECUTING
-Plan: 10 of 12
+Plan: 11 of 12
 Status: Ready to execute
 Last activity: 2026-07-31 — Phase 126 execution started
 
@@ -647,6 +647,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 126-08]: config.cpp deleted (verified absent); config_storage_flash.cpp supplies HAL-routed primitives; manifest closed at 26 enforced sources with py32f071_hal_flash.c named (C-3)
 - [Phase ?]: 126-09: interrupted-write test asserts the corrected invariant (load always valid; winner depends on N vs 12-word footprint), confirming 126-07's finding
 - [Phase ?]: 126-09: mutation 4 required removing BOTH validate_record's length check and load()'s defensive min-clamp; the clamp alone is documented defence-in-depth
+- [Phase 126]: 126-10: Corrected RESEARCH.md's C-14 'seven consumers' mislabel to the verified nine call sites its own enumeration lists; kept the plan-specified test name but asserted the correct count.
+- [Phase 126]: 126-10: Added a dedicated tenth RED-demonstration function proving the config.cpp absence check fires on a planted scratch file, per this dispatch's anti-vacuity directive.
 
 ## Performance Metrics
 
@@ -791,10 +793,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 126 P07 | 55min | 2 tasks | 3 files |
 | Phase 126 P08 | 70min | 2 tasks | 5 files |
 | Phase 126 P09 | 70min | 2 tasks | 1 files |
+| Phase 126 P10 | 35 | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-01T00:44:13.592Z
+**Last session:** 2026-08-01T00:58:01.963Z
 **Stopped at:** Completed 126-04-PLAN.md
 **Resume file:** 
 None
