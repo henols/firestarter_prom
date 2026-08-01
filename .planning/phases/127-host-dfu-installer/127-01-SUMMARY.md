@@ -155,3 +155,5 @@ This plan proves the py32 DFU host code (`py32_dfu.py`, `channel.py`, the 58 new
 - Every later plan in Phase 127 that reads or edits a file under `firestarter/py32_dfu.py`, `channel.py`, or `firmware.py` is now unblocked — those files exist on the branch.
 - **Open finding to resolve, not yet assigned to a specific plan:** `tests/test_characterization.py::test_help_fw`'s snapshot needs a decision — regenerate it to include `py32f071` in the `fw --help` board-choice list (the behaviorally correct outcome, since the board is real and gated by channel, not by help text), or some other resolution. This is a real CI-gate-red item on the milestone branch right now and should be triaged before Phase 127 closes (127-12) or before any `git push`/CI dispatch (127-11).
 - `firestarter/firmware.py`'s `asset_candidates()` is confirmed untouched — Phase 128's Criterion 4 dependency is intact.
+
+## Self-Check: PASSED
