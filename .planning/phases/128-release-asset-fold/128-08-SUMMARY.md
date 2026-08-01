@@ -178,3 +178,10 @@ Plan 128-09's app-side test asserts this same tree is clean (`_git_porcelain(FW_
 ---
 *Phase: 128-release-asset-fold*
 *Completed: 2026-08-01*
+
+## Self-Check: PASSED
+
+- FOUND: `/workspaces/firestarter/platform/py32f071/README.md`
+- FOUND: `/workspaces/.planning/phases/128-release-asset-fold/128-08-SUMMARY.md`
+- FOUND commit `0de57da` (Task 1) in `firestarter`
+- FOUND commit `bacf300` (SUMMARY.md) in the meta-repo
