@@ -191,3 +191,12 @@ None — no external service configuration required.
 ---
 *Phase: 126-flash-persistent-config-via-a-storage-backend-seam-highest-r*
 *Completed: 2026-07-31*
+
+## Self-Check: PASSED
+
+- FOUND: firestarter/platform/py32f071/src/config_storage_dualslot.h
+- FOUND: firestarter/platform/py32f071/src/config_storage_dualslot.cpp
+- FOUND: .planning/phases/126-.../126-07-SUMMARY.md (this file)
+- FOUND: commit 64e449d (Task 1, firestarter repo)
+- FOUND: commit 4d3557a (Task 2, firestarter repo)
+- FOUND: commit bc4c960 (SUMMARY, meta repo)
