@@ -2033,7 +2033,7 @@ Plans:
 - [x] **Phase 125: VPP Control Seam** — Hand-author `rurp_vpp.h`/`rurp_vpp.cpp` (nothing cherry-picked from PR #45); every board returns `MANUAL_ADJUSTMENT_REQUIRED`; prove `rurp_config_utils.cpp` untouched before Phase 126 touches it. (completed 2026-07-31)
 - [x] **Phase 126: Flash-Persistent Config** — Design and land the dual-slot CRC32 py32 config backend behind a common/per-platform storage seam, with the AVR EEPROM backend proven a pure move. (completed 2026-08-01)
 - [x] **Phase 127: Host DFU Installer** — Merge `feature/py32f071-fw-install`, close the remaining 8 host gaps (pyusb CI leg, coverage, opcode anchoring, channel-gating both ways), parallel with Phases 125/126. (completed 2026-08-01)
-- [ ] **Phase 128: Release-Asset Fold** — Fold the ARM build into `beta-build.yml` after the version bump so `firestarter_py32f071.hex` publishes as a real release asset.
+- [x] **Phase 128: Release-Asset Fold** — Fold the ARM build into `beta-build.yml` after the version bump so `firestarter_py32f071.hex` publishes as a real release asset. (completed 2026-08-01)
 - [ ] **Phase 129: Flash-Path Decision & PCB Requirements Record** — Record the three-tier flash-path decision and the PCB requirements (straps, pads, port, VID/PID, reserved flash map) before any schematic exists.
 - [ ] **Phase 130: Close — Honesty Ledger, Claim Gate, Release Decision** — Apply all 18 research corrections to the planning record, write the claim ledger, land the ROADMAP slot renumber, and make the `beta` push its own explicit, operator-gated release decision.
 
@@ -2366,7 +2366,7 @@ Plans:
   3. A deliberately-broken ARM build (a planted-violation CI run) still publishes all three AVR `.hex` assets — proven by an "AVR assets present" assertion step that runs before the `Release` step and demonstrably fails the build if any AVR asset is missing.
   4. CI logs the resolved SDK commit SHA and asserts the emitted filename matches `asset_candidates("py32f071")[0]` via a mechanical string-equality check in the workflow, not a human read of the release page.
 
-**Plans**: 9/10 plans executed
+**Plans**: 10/10 plans complete
 
 Plans:
 **Wave 1**
@@ -2398,7 +2398,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 128-10-PLAN.md — W7 · `autonomous: false` · `128-NONREGRESSION.md` (D-18) with every local row executed in-session and every ARM row citing a run URL + SHA; the operator-gated rehearsal runs A and B (D-01/D-02/D-03); the only plan permitted to tick REL-01…REL-04
+- [x] 128-10-PLAN.md — W7 · `autonomous: false` · `128-NONREGRESSION.md` (D-18) with every local row executed in-session and every ARM row citing a run URL + SHA; the operator-gated rehearsal runs A and B (D-01/D-02/D-03); the only plan permitted to tick REL-01…REL-04
 
 **UI hint**: no
 

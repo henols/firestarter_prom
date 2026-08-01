@@ -174,3 +174,8 @@ None - no external service configuration required.
 ---
 *Phase: 128-release-asset-fold*
 *Completed: 2026-08-01*
+
+## Self-Check: PASSED
+- FOUND: .planning/phases/128-release-asset-fold/128-10-SUMMARY.md
+- FOUND: commit 39e2d4b (this task's docs commit)
+- FOUND: commit fa1324f (Task 1's earlier commit)
