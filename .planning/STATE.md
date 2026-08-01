@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.23
 milestone_name: — PY32F071 Integration
-current_phase: 128
-current_phase_name: Release-Asset Fold
+current_phase: 129
+current_phase_name: Flash-Path Decision & PCB Requirements Record
 status: verifying
 stopped_at: Completed 128-10-PLAN.md
-last_updated: "2026-08-01T23:15:47.813Z"
+last_updated: "2026-08-01T23:44:00.313Z"
 last_activity: 2026-08-01
-last_activity_desc: Phase 128 Plan 10 executed — REL-01..REL-04 discharged, phase complete
+last_activity_desc: Phase 128 complete, transitioned to Phase 129
 progress:
   total_phases: 8
   completed_phases: 6
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 128 (Release-Asset Fold) — EXECUTING
-Plan: 10 of 10
+Phase: 129 — Flash-Path Decision & PCB Requirements Record
+Plan: Not started
 Status: Phase complete — ready for verification. Plan 128-10 recorded both operator-authorised rehearsal dispatches (run 30722352902 healthy, run 30722537152 planted ARM break) into `128-NONREGRESSION.md` §3/§7/§8 and ticked REL-01..REL-04 in REQUIREMENTS.md, each with named backing evidence; REL-03's "assertion fails on missing AVR asset" half is stated as local-only (not CI-exercised this phase). Three deviations recorded: the plan's own §4 step-5 CMake-rename break is unusable (would trip the Phase 123 manifest-drift gate before ARM ever built) and was substituted with a scoped ARM-only compile error; a false "confirmed by observation" claim in beta-build.yml was found and fixed pre-dispatch (firmware commit 7a0a375); firmware HEAD moved from 0de57da to 7a0a375 as a consequence. Both rehearsal drafts and the throwaway branch are deleted; no public footprint remains.
-Last activity: 2026-08-01 — Phase 128 Plan 10 executed — REL-01..REL-04 discharged, phase complete
+Last activity: 2026-08-01 — Phase 128 complete, transitioned to Phase 129
 
 ### Phase 127 context highlights (2026-08-01)
 
