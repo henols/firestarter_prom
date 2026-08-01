@@ -166,3 +166,11 @@ None. All new surface (the `rehearsal` input reaching shell, the `continue-on-er
 ---
 *Phase: 128-release-asset-fold*
 *Completed: 2026-08-01*
+
+## Self-Check: PASSED
+- FOUND: `/workspaces/.planning/phases/128-release-asset-fold/128-05-SUMMARY.md`
+- FOUND: `/workspaces/firestarter/.github/workflows/beta-build.yml`
+- FOUND: commit `45d2bce` (firestarter submodule)
+- FOUND: commit `db8b258` (firestarter submodule)
+- FOUND: commit `0aed689` (firestarter submodule)
+- FOUND: commit `11b0d40` (meta repo, SUMMARY.md)
