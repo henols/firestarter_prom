@@ -5,15 +5,15 @@ milestone_name: — PY32F071 Integration
 current_phase: 127
 current_phase_name: host-dfu-installer
 status: executing
-stopped_at: Phase 127 planned
-last_updated: "2026-08-01T12:21:54.928Z"
+stopped_at: Completed 127-03-PLAN.md
+last_updated: "2026-08-01T12:37:30.603Z"
 last_activity: 2026-08-01
 last_activity_desc: Phase 127 execution started
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 53
-  completed_plans: 44
+  completed_plans: 45
   percent: 50
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 127 (host-dfu-installer) — EXECUTING
-Plan: 4 of 12
+Plan: 5 of 12
 (disjoint `files_modified`); every later wave is serialized on a shared file.
 Status: Ready to execute
 Last activity: 2026-08-01 — Phase 127 execution started
@@ -731,6 +731,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 127]: 127-04: _reject_py32_only_option reads _PY32_ENABLED at call time (module global, not a captured default) so it is both frozen-at-import for Click and directly monkeypatch-testable
 - [Phase 127]: 127-04: test_help_fw fix calls cli_handlers.cli.main() directly instead of CliRunner -- CliRunner forces FORCED_WIDTH=80, which wraps --help text differently than the real, unforced firestarter subprocess
 - [Phase 127]: 127-02: Both packaging gates (pyusb floor, D-17 record) proven to fail via live on-disk revert + restore, not only via pytest.raises monkeypatch
+- [Phase ?]: 127-03: C-2 re-derived first-hand — tests/test_py32_dfu.py blob SHA f9678411 unchanged, scan for source==source opcode assertion returns zero matches; HOST-06 is purely additive
+- [Phase ?]: 127-03: A1 partially discharged — USB DFU 1.1 spec (usb.org) independently fetched and read this plan (genuine oracle for 7 request codes + functional-descriptor type + bitCanUpload bit); UM1504 not obtainable (st.com unreachable from sandbox), residual carried to Plan 127-12
 
 ## Performance Metrics
 
@@ -881,11 +883,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 127 P01 | 20min | 2 tasks | 9 files |
 | Phase 127 P04 | 45min | 3 tasks | 4 files |
 | Phase 127 P02 | 25min | 2 tasks | 2 files |
+| Phase 127 P03 | 35min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-01T12:21:22.314Z
-**Stopped at:** Phase 127 context gathered
+**Last session:** 2026-08-01T12:37:30.560Z
+**Stopped at:** Completed 127-03-PLAN.md
 **Resume file:** 
 None
 
