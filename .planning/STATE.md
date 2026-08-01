@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.23
 milestone_name: — PY32F071 Integration
-current_phase: 126
-current_phase_name: Flash-Persistent Config via a Storage-Backend Seam
-status: Phase 126 CLOSED and VERIFIED — ready for /gsd-discuss-phase 127
-stopped_at: Phase 126 CLOSED + VERIFIED — 12/12 plans, verification passed-with-findings (5/5 criteria substantively achieved, 7/7 CFG requirements). Firmware `240fb19` and meta `a55df99` pushed; ARM CI run 30676982030 green (Configure + Build independently success, 42 objects). Two findings carried: F-126-01 informational (Criterion 3's literal "empty git diff" not met — one pre-authorised compile-argv line change, substantive property independently confirmed); F-126-02 warning (planning-process: plans 126-02 and 126-03 were mutually inconsistent as written).
-last_updated: "2026-08-01T01:37:30.645Z"
-last_activity: 2026-07-31
-last_activity_desc: Phase 126 execution started
+current_phase: 127
+current_phase_name: Host DFU Installer
+status: Phase 127 context gathered — ready for /gsd-plan-phase 127
+stopped_at: Phase 127 context gathered
+last_updated: "2026-08-01T08:22:11.252Z"
+last_activity: 2026-08-01
+last_activity_desc: "Phase 127 CONTEXT.md written — 16 decisions locked across 4 gray areas (D-01..D-16), D-17..D-19 at Claude's discretion"
 progress:
   total_phases: 8
   completed_phases: 4
@@ -24,10 +24,48 @@ progress:
 
 ## Current Position
 
-Phase: 126 (Flash-Persistent Config via a Storage-Backend Seam) — CLOSED (2026-08-01)
-Plan: 12 of 12 — all complete
-Status: Phase complete — ready for verification
-Last activity: 2026-08-01 — 126-12 closing plan executed: 126-NONREGRESSION.md written, CFG-01..CFG-07 ticked
+Phase: 127 (Host DFU Installer) — context gathered (2026-08-01); Phase 126 CLOSED + VERIFIED
+Plan: not yet planned — run `/gsd-plan-phase 127` (ROADMAP flags this phase **research-skip**)
+Status: Phase 127 context gathered — ready for /gsd-plan-phase 127
+Last activity: 2026-08-01 — `127-CONTEXT.md` + `127-DISCUSSION-LOG.md` written and committed (`ed53a29`)
+
+### Phase 127 context highlights (2026-08-01)
+
+**Different repo.** This phase is entirely in `firestarter_app`; it runs in **parallel** with
+Phases 125/126 and writes nothing into the firmware repo. Phase 128 depends on **it** for the
+`asset_candidates()` filename contract.
+
+**Sixteen decisions locked (D-01…D-16), plus D-17…D-19 at Claude's discretion.** Read
+`.planning/phases/127-host-dfu-installer/127-CONTEXT.md`.
+
+| Area | Locked |
+|---|---|
+| CI evidence | `workflow_dispatch:` added to `ci.yml`; **operator** pushes + dispatches (`autonomous: false`, no task runs `git push`/`gh workflow run`). Separate `ci-py32` job on `.[test,py32]`, py32 tests only. Real `usb.core.find` + `inspect.signature`-pinned `ctrl_transfer`. Collected count **recorded, not gated** |
+| pyusb / channel | Genuine absence via a **subprocess `sys.meta_path` blocker** (needs no `ALLOWED_SKIP_REASONS` entry); a separate in-process test covers the de-pragma'd `PyusbMissingError`; HOST-08 proven subprocess-per-version, **no `importlib.reload`**; HOST-02 via one shared refusal helper |
+| HOST-03 readback | **DfuSe only** (plain DFU records "load address not under host control"); `verify_result` enum on the flasher, `flash()` keeps its `bool`; **MISMATCH is a hard exit 1**, soft is reserved for "could not verify"; full payload byte-for-byte, **before `_finish()`** |
+| Flash map / merge | Envelope guard tightened to `0x0801E000` **in this phase** (no HOST id — a deliberate in-scope addition); kept honest by a **fail-CLOSED** cross-repo linker-script gate with `@requires_fw` + a non-vacuity assertion; doc updated for 127's facts only; **real merge commit** with `4ee64a1` as parent, fixups in separate commits |
+
+**Measured live during the discussion (re-verify at plan time, do not inherit):**
+
+- `git merge-tree --write-tree HEAD 4ee64a1` from the app milestone branch → **exit 0, clean** —
+  but `4ee64a1` is **87 commits behind** it (79 behind `beta`; merge base `1bb5599`), and both
+  `cli_handlers.py` and `firmware.py` moved substantially. **Textual ≠ semantic; plan for fixups.**
+- App suite on the milestone branch: **1158 collected**; `tests/test_py32_dfu.py` adds **58**.
+- **`pyusb` is not installed in this devcontainer, but `libusb-1.0.so.0` is** — the `.[test,py32]`
+  leg can be rehearsed locally before the operator dispatches CI.
+- **No serial devices attached**, so the known live-board artifact
+  (`test_no_programmer_found_read/erase`) will not confound the baseline. Re-check before recording.
+- **Pushing the app milestone branch fires nothing**: `beta-release.yml` is `beta`-only,
+  `release.yml` and `ci.yml`'s `push` are `main`-only, `publish.yml` is release/dispatch-only.
+  D-01 carries **zero** release hazard.
+- Live py32 flash map (`PY32F071xB_FLASH.ld`): `FLASH 0x08000000/120K` · `CONFIG 0x0801E000/8K`
+  (Sector 15) · `BOOTLOADER 0x08000000/**LENGTH 0**` — a named seam; giving it a length **moves the
+  application's ORIGIN**, which is why D-13's constant is carried forward to Phase 129.
+
+**D-16 is deliberately the opposite of Phase 124 D-05.** 124 squashed because its own Criterion 1
+forbade any reachable commit with the portability files but not the py32 stack (an ancestor-branch
+constraint). Phase 127's Criterion 1 instead *requires* `4ee64a1` among the merge commit's parents.
+Not drift — both are recorded so a reader does not mistake it for drift.
 
 ### Phase 126 plan structure (2026-07-31)
 
@@ -801,7 +839,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-01T01:35:43.188Z
-**Stopped at:** Completed 126-12-PLAN.md — Phase 126 CLOSED (all 7 CFG requirements ticked)
+**Last session:** 2026-08-01T08:21:27.484Z
+**Stopped at:** Phase 127 context gathered
 **Resume file:** 
-None
+.planning/phases/127-host-dfu-installer/127-CONTEXT.md
