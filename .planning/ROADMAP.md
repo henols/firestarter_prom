@@ -2306,7 +2306,7 @@ Plans:
   4. `DFU_UPLOAD` readback verification fails **soft** (no exception, a recorded soft-fail state) when a mock device reports `bitCanUpload = 0`, and one test anchors the DFU opcode literals to UM1504/DFU 1.1 values written independently in the test file, not imported from the module under test and asserted against themselves.
   5. The `pyusb` floor is `>=1.3.1,<2` in packaging metadata, and channel gating is proven **both ways** in one test module: a simulated stable `__version__` hides `py32f071` from `fw --help`'s board choices and rejects `--dfu-probe`; a simulated pre-release version exposes both — with an explicit assertion that `_BOARD_CHOICES` is computed at import time, not cached stale across a version change.
 
-**Plans**: 9/12 plans executed
+**Plans**: 10/12 plans executed
 **Research flag**: no in the ROADMAP — research was run anyway at the operator's direction and produced `127-RESEARCH.md`, whose corrections **C-1…C-8** supersede claims inside four locked decisions. Plan from RESEARCH; where a `CORRECTED by` note in `127-CONTEXT.md` disagrees with its surrounding decision text, **the note wins**.
 
 > **Four corrections that change the plan set, recorded so the criteria's original wording does not mislead a later reader** (see `127-NONREGRESSION.md` §5 for the full nineteen-row decision-coverage table):
@@ -2342,7 +2342,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 127-10-PLAN.md — D-15's scoped install-doc update (the reserved 120K map, the readback step and its three non-`VERIFIED` outcomes, the raised floor) with everything Phase 129 owns untouched, held by a parity gate derived from `APP_REGION_END` rather than a literal
+- [x] 127-10-PLAN.md — D-15's scoped install-doc update (the reserved 120K map, the readback step and its three non-`VERIFIED` outcomes, the raised floor) with everything Phase 129 owns untouched, held by a parity gate derived from `APP_REGION_END` rather than a literal
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
