@@ -150,3 +150,10 @@ None. This plan introduces no new surface beyond what its own `<threat_model>` a
 ---
 *Phase: 128-release-asset-fold*
 *Completed: 2026-08-01*
+
+## Self-Check: PASSED
+
+- FOUND: `/workspaces/.planning/phases/128-release-asset-fold/128-04-SUMMARY.md`
+- FOUND: `/workspaces/firestarter/.github/workflows/py32f071.yml`
+- FOUND: commit `6158342` (firestarter submodule)
+- FOUND: commit `7a7ce59` (meta repo, SUMMARY.md)
