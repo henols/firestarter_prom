@@ -2229,7 +2229,7 @@ Plans:
 > exclusion; Plan 126-08 lands the retirement, the promotion and the flash-driver entry in the same
 > commit as the deletion.
 
-**Plans**: 10/12 plans executed
+**Plans**: 11/12 plans executed
 **Research flag**: yes — `/gsd-plan-phase --research-phase 126` (A-6/R-8: `PORTING.md` is stranded on closed PRs and partly superseded; the flash page size is stated nowhere in-tree)
 
 Plans:
@@ -2266,7 +2266,7 @@ Plans:
 
 **Wave 8** *(blocked on Wave 7)*
 
-- [ ] 126-11-PLAN.md — The ARM CI evidence behind a **structural operator gate** (D-13/D-14 shape): no task runs `git push` or `gh workflow run`; the plan prints them and stops, then re-derives every fact read-only including the per-step Configure and Build conclusions and the pushed ref's content
+- [x] 126-11-PLAN.md — The ARM CI evidence behind a **structural operator gate** (D-13/D-14 shape): no task runs `git push` or `gh workflow run`; the plan prints them and stops, then re-derives every fact read-only including the per-step Configure and Build conclusions and the pushed ref's content
 
 **Wave 9** *(blocked on Wave 8)*
 
