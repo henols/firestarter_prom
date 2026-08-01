@@ -6,14 +6,14 @@ current_phase: 127
 current_phase_name: host-dfu-installer
 status: executing
 stopped_at: Completed 127-03-PLAN.md
-last_updated: "2026-08-01T14:00:25.595Z"
+last_updated: "2026-08-01T14:27:30.846Z"
 last_activity: 2026-08-01
 last_activity_desc: Phase 127 execution started
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 53
-  completed_plans: 48
+  completed_plans: 49
   percent: 50
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 127 (host-dfu-installer) — EXECUTING
-Plan: 8 of 12
+Plan: 9 of 12
 (disjoint `files_modified`); every later wave is serialized on a shared file.
 Status: Ready to execute
 Last activity: 2026-08-01 — Phase 127 execution started
@@ -737,6 +737,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 127]: 127-06: collect_ignore (not a skip marker) gates tests/test_pyusb_api_surface.py on pyusb availability -- non-collection needs no ALLOWED_SKIP_REASONS entry and does not suppress an explicit path argument — First optional-dependency test gate in this repo; ci-py32 names the file explicitly so a missing extra is a hard collection error, never a quiet pass
 - [Phase 127]: 127-06: Tasks 1+2 landed in one commit (e20e9e5) per the plan's explicit fallback -- the gated-module-exists guard cannot pass until the module exists — No green intermediate state existed between the two tasks as separately-committed units
 - [Phase 127]: 127-07: removed the last _require_usb() pragma (C-3/C-4 corrections applied), covered in-process, proved CLI survives real pyusb absence via a sys.meta_path blocker rehearsed with pyusb genuinely installed
+- [Phase 127]: 127-08: hoisted _finish() into flash() (D-12/C-5 shape b) as the sole call site; both downloaders now return (base, next_block).
+- [Phase 127]: 127-08: behaviour-neutrality (A5) measured via device.calls captured before/after the hoist, identical element-by-element for both dfuse and plain dialects.
+- [Phase 127]: 127-08: extended _FakeUsbDevice (not replaced) with a DFU_UPLOAD arm + pyusb-1.3.1-shaped ctrl_transfer signature (C-6); all 58 pre-existing tests unaffected.
 
 ## Performance Metrics
 
@@ -891,10 +894,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 127 P05 | 45min | 3 tasks | 2 files |
 | Phase 127 P06 | 35min | 3 tasks | 4 files |
 | Phase 127 P07 | 30min | 2 tasks | 2 files |
+| Phase 127 P08 | ~55min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-01T13:59:46.503Z
+**Last session:** 2026-08-01T14:27:30.815Z
 **Stopped at:** Completed 127-03-PLAN.md
 **Resume file:** 
 None
