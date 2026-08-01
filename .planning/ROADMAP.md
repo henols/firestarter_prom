@@ -2032,7 +2032,7 @@ Plans:
 - [x] **Phase 124: Firmware Integration Merge** — Land `agent/portability-macros` + the py32 stack as one atomic commit-pair, fix the CMake source-list rename (C-1), add the ARM `push` CI trigger, and make the provisional-pinmap refusal guard structurally able to fire. (completed 2026-07-31)
 - [x] **Phase 125: VPP Control Seam** — Hand-author `rurp_vpp.h`/`rurp_vpp.cpp` (nothing cherry-picked from PR #45); every board returns `MANUAL_ADJUSTMENT_REQUIRED`; prove `rurp_config_utils.cpp` untouched before Phase 126 touches it. (completed 2026-07-31)
 - [x] **Phase 126: Flash-Persistent Config** — Design and land the dual-slot CRC32 py32 config backend behind a common/per-platform storage seam, with the AVR EEPROM backend proven a pure move. (completed 2026-08-01)
-- [ ] **Phase 127: Host DFU Installer** — Merge `feature/py32f071-fw-install`, close the remaining 8 host gaps (pyusb CI leg, coverage, opcode anchoring, channel-gating both ways), parallel with Phases 125/126.
+- [x] **Phase 127: Host DFU Installer** — Merge `feature/py32f071-fw-install`, close the remaining 8 host gaps (pyusb CI leg, coverage, opcode anchoring, channel-gating both ways), parallel with Phases 125/126. (completed 2026-08-01)
 - [ ] **Phase 128: Release-Asset Fold** — Fold the ARM build into `beta-build.yml` after the version bump so `firestarter_py32f071.hex` publishes as a real release asset.
 - [ ] **Phase 129: Flash-Path Decision & PCB Requirements Record** — Record the three-tier flash-path decision and the PCB requirements (straps, pads, port, VID/PID, reserved flash map) before any schematic exists.
 - [ ] **Phase 130: Close — Honesty Ledger, Claim Gate, Release Decision** — Apply all 18 research corrections to the planning record, write the claim ledger, land the ROADMAP slot renumber, and make the `beta` push its own explicit, operator-gated release decision.
@@ -2306,7 +2306,7 @@ Plans:
   4. `DFU_UPLOAD` readback verification fails **soft** (no exception, a recorded soft-fail state) when a mock device reports `bitCanUpload = 0`, and one test anchors the DFU opcode literals to UM1504/DFU 1.1 values written independently in the test file, not imported from the module under test and asserted against themselves.
   5. The `pyusb` floor is `>=1.3.1,<2` in packaging metadata, and channel gating is proven **both ways** in one test module: a simulated stable `__version__` hides `py32f071` from `fw --help`'s board choices and rejects `--dfu-probe`; a simulated pre-release version exposes both — with an explicit assertion that `_BOARD_CHOICES` is computed at import time, not cached stale across a version change.
 
-**Plans**: 11/12 plans executed
+**Plans**: 12/12 plans complete
 **Research flag**: no in the ROADMAP — research was run anyway at the operator's direction and produced `127-RESEARCH.md`, whose corrections **C-1…C-8** supersede claims inside four locked decisions. Plan from RESEARCH; where a `CORRECTED by` note in `127-CONTEXT.md` disagrees with its surrounding decision text, **the note wins**.
 
 > **Four corrections that change the plan set, recorded so the criteria's original wording does not mislead a later reader** (see `127-NONREGRESSION.md` §5 for the full nineteen-row decision-coverage table):
@@ -2350,7 +2350,7 @@ Plans:
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 127-12-PLAN.md — Closing: every row re-executed in-session, `127-NONREGRESSION.md` written (all nineteen decisions, D-04's recorded-not-gated count, C-8's pyusb-present measurement, the quotable mock-only HOST-03 ceiling for Phase 130's CLOSE-02), and HOST-01…HOST-08 ticked — the only plan permitted to tick them
+- [x] 127-12-PLAN.md — Closing: every row re-executed in-session, `127-NONREGRESSION.md` written (all nineteen decisions, D-04's recorded-not-gated count, C-8's pyusb-present measurement, the quotable mock-only HOST-03 ceiling for Phase 130's CLOSE-02), and HOST-01…HOST-08 ticked — the only plan permitted to tick them
 
 **UI hint**: no
 

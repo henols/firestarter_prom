@@ -4,17 +4,17 @@ milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 127
 current_phase_name: host-dfu-installer
-status: executing
-stopped_at: Completed 127-11-PLAN.md
-last_updated: "2026-08-01T16:43:51.245Z"
+status: verifying
+stopped_at: Completed 127-12-PLAN.md
+last_updated: "2026-08-01T17:15:29.822Z"
 last_activity: 2026-08-01
 last_activity_desc: Phase 127 execution started
 progress:
   total_phases: 8
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 53
-  completed_plans: 52
-  percent: 50
+  completed_plans: 53
+  percent: 63
 ---
 
 # Project State
@@ -27,7 +27,7 @@ progress:
 Phase: 127 (host-dfu-installer) — EXECUTING
 Plan: 12 of 12
 (disjoint `files_modified`); every later wave is serialized on a shared file.
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-08-01 — Phase 127 execution started
 flag and **overturned claims inside four locked decisions** (see the correction block below)
 
@@ -747,6 +747,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 127]: 127-11: HOST-04 CI evidence obtained (run 30707902225) -- ci-py32 green (pyusb 1.3.1, 6/6), primary ci RED at mypy watermark gate; orchestrator (not operator, not task) ran the push+dispatch under explicit operator authorisation
 - [Phase 127]: 127-11: fixed 3 func-returns-value mypy errors (127-04's) via bare-call assertions; measured mypy count 69 (pre-127) -> 72 (post-127) -> 69 (after fix) -- zero net debt
 - [Phase 127]: 127-11: found tools/check_mypy_watermark.py has two stacked fail-open defects (bare PATH mypy + py3.12/python_version=3.9 numpy-stub abort collapsing to 1 error); NOT fixed per operator instruction, carried to 127-12 as an open finding; inherited 69 mypy errors remain OPEN and primary ci job stays RED until a dedicated phase addresses them
+- [Phase 127]: 127-12: HOST-04 ticked against CI run 30708836339 (head SHA string-equal to the final tree's HEAD), not the earlier 30707902225 -- the primary ci job's separate mypy-debt RED is recorded but not folded into HOST-04's own claim
+- [Phase 127]: 127-12: claim-gate trip on its own ceiling prose was resolved by rewording in the author's own words, never by narrowing the gate's forbidden-phrase list or py32-proximity window
 
 ## Performance Metrics
 
@@ -905,11 +907,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 127 P09 | 65min | 3 tasks | 4 files |
 | Phase 127 P10 | 35min | 2 tasks | 2 files |
 | Phase 127 P11 | 70min | 3 tasks | 1 files |
+| Phase 127 P12 | 130min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-01T16:43:51.227Z
-**Stopped at:** Completed 127-11-PLAN.md
+**Last session:** 2026-08-01T17:15:29.798Z
+**Stopped at:** Completed 127-12-PLAN.md
 **Resume file:** 
 None
 
