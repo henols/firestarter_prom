@@ -2229,7 +2229,7 @@ Plans:
 > exclusion; Plan 126-08 lands the retirement, the promotion and the flash-driver entry in the same
 > commit as the deletion.
 
-**Plans**: 7/12 plans executed
+**Plans**: 8/12 plans executed
 **Research flag**: yes — `/gsd-plan-phase --research-phase 126` (A-6/R-8: `PORTING.md` is stranded on closed PRs and partly superseded; the flash page size is stated nowhere in-tree)
 
 Plans:
@@ -2257,7 +2257,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5)*
 
-- [ ] 126-08-PLAN.md — The PY32 flash primitives via the HAL only, PR #48's non-persisting `config.cpp` **deleted**, and the manifest closed at 26 enforced sources with C-3's flash driver named — one commit, so the duplicate-definition ARM link window is never opened; plus the local detector for C-3
+- [x] 126-08-PLAN.md — The PY32 flash primitives via the HAL only, PR #48's non-persisting `config.cpp` **deleted**, and the manifest closed at 26 enforced sources with C-3's flash driver named — one commit, so the duplicate-definition ARM link window is never opened; plus the local detector for C-3
 
 **Wave 7** *(blocked on Wave 6)*
 
