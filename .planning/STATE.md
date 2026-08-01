@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 127
-current_phase_name: Host DFU Installer
-status: Phase 127 PLANNED — ready to execute (12 plans, 8 waves)
+current_phase_name: host-dfu-installer
+status: executing
 stopped_at: Phase 127 planned
-last_updated: "2026-08-01T10:26:31.383Z"
+last_updated: "2026-08-01T11:31:57.714Z"
 last_activity: 2026-08-01
-last_activity_desc: "Phase 127 planned — 12 plans / 8 waves, checker PASSED with no blockers; research ran despite the research-skip flag and overturned claims inside 4 locked decisions (C-1..C-8)"
+last_activity_desc: Phase 127 execution started
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 53
-  completed_plans: 41
+  completed_plans: 42
   percent: 50
 ---
 
@@ -24,11 +24,11 @@ progress:
 
 ## Current Position
 
-Phase: 127 (Host DFU Installer) — **PLANNED** (2026-08-01); Phase 126 CLOSED + VERIFIED
-Plan: **12 plans across 8 waves** — run `/gsd-execute-phase 127`. Wave 2 runs five plans in parallel
+Phase: 127 (host-dfu-installer) — EXECUTING
+Plan: 2 of 12
 (disjoint `files_modified`); every later wave is serialized on a shared file.
-Status: Phase 127 planned — plan-checker PASSED, no blockers; requirements 8/8, decisions 16/16
-Last activity: 2026-08-01 — planned Phase 127; research was run despite the ROADMAP's research-skip
+Status: Ready to execute
+Last activity: 2026-08-01 — Phase 127 execution started
 flag and **overturned claims inside four locked decisions** (see the correction block below)
 
 ### Phase 127 context highlights (2026-08-01)
@@ -183,7 +183,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-30 — v1.23 Current Milestone sect
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.23 adds a fourth board target beneath that contract without disturbing it: the PROM programming algorithms stay platform-independent and the HAL boundary absorbs the new MCU, so protocol dispatch is untouched by the port.
 
-**Current focus:** Phase 126 — Flash-Persistent Config via a Storage-Backend Seam
+**Current focus:** Phase 127 — host-dfu-installer
 
 ## Milestone Context (v1.23)
 
@@ -726,6 +726,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 126]: 126-10: Added a dedicated tenth RED-demonstration function proving the config.cpp absence check fires on a planted scratch file, per this dispatch's anti-vacuity directive.
 - [Phase ?]: 126-11: ARM CI run 30676982030 re-derived read-only -- Configure and Build independently success, head SHA string-equal, 42 objects (py32f071_hal_flash.c.obj linked), pushed manifest/linker byte-identical to local; no task ran git push or gh workflow run
 - [Phase 126]: 126-NONREGRESSION.md written: all 7 CFG requirements ticked, Criterion 3 recorded honestly as amended (documented fallback, not empty diff), all 19 decisions accounted for with D-08/D-16/D-18/D-19 amendments
+- [Phase ?]: 127-01: real --no-ff merge of feature/py32f071-fw-install @ 4ee64a1 (not squash) per D-16, landing 4ee64a1 literally as a merge-commit parent
+- [Phase ?]: 127-01: D-17 accepted-deviation comment recorded at flash_method() in firmware.py, in its own commit; asset_candidates() left byte-identical
 
 ## Performance Metrics
 
@@ -873,10 +875,15 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 126 P10 | 35 | 2 tasks | 1 files |
 | Phase 126 P11 | 30min | 3 tasks | 0 files |
 | Phase 126 P12 | ~2h | 3 tasks | 1 files |
+| Phase 127 P01 | 20min | 2 tasks | 9 files |
 
 ## Session
 
-**Last session:** 2026-08-01T08:21:27.484Z
+**Last session:** 2026-08-01T11:31:57.697Z
 **Stopped at:** Phase 127 context gathered
 **Resume file:** 
-.planning/phases/127-host-dfu-installer/127-CONTEXT.md
+None
+
+### Blockers
+
+- 127-01: tests/test_characterization.py::test_help_fw fails post-merge (stale --board help snapshot missing py32f071) — contradicts C-1's zero-fixup prediction; not fixed per plan instruction, needs a resolution decision before Phase 127 closes / before any push
