@@ -5,15 +5,15 @@ milestone_name: — PY32F071 Integration
 current_phase: 128
 current_phase_name: Release-Asset Fold
 status: executing
-stopped_at: Phase 128 Plan 02 complete
-last_updated: "2026-08-01T20:58:39.104Z"
+stopped_at: Phase 128 Plan 03 complete
+last_updated: "2026-08-01T21:05:10.152Z"
 last_activity: 2026-08-01
-last_activity_desc: Phase 128 Plan 02 executed
+last_activity_desc: Phase 128 Plan 03 executed — py32f071 CMake output rename (firestarter)
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 63
-  completed_plans: 55
+  completed_plans: 56
   percent: 63
 ---
 
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 128 (Release-Asset Fold) — EXECUTING
-Plan: 2/10 complete — 128-02 (composite action for ARM build, D-06) landed in firestarter
-Status: Plan 02 done (.github/actions/build-py32f071/action.yml — hex_path + sdk_sha outputs); 8 plans remain
-Last activity: 2026-08-01 — Phase 128 Plan 02 executed
+Plan: 3/10 complete — 128-03 (py32f071 CMake output rename, D-14) landed in firestarter
+Status: Plan 03 done (platform/py32f071/CMakeLists.txt hyphen→underscore rename + corrected MISMATCH-2 comment; non-vacuous equality proof vs asset_candidates()); 7 plans remain
+Last activity: 2026-08-01 — Phase 128 Plan 03 executed
 
 ### Phase 127 context highlights (2026-08-01)
 
@@ -752,6 +752,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 128]: FIXTURE_FLOOR corrected from 10 to 15 (not just 14) -- pre-existing drift left by Phases 124/126 corrected in the same commit as this phase's own additions
 - [Phase 128]: Did not mark REL-02 or REL-03 complete in REQUIREMENTS.md -- both are multi-plan requirements; Plan 128-10 owns closure
 - [Phase 128]: D-06 composite action: shopt -s nullglob added before hex_path glob-count guard so a miss expands to zero words, making the count!=1 guard actually catch a missing image
+- [Phase 128]: 128-03: re-applied ad47c3b's CMake hyphen->underscore rename by hand (never cherry-picked) and rewrote its final sentence, which falsely claimed the rename alone kept beta-build.yml's glob covering both trees (MISMATCH-2); proved firestarter_py32f071.hex equals asset_candidates("py32f071")[0] via a non-vacuous guard
+- [Phase 128]: 128-03: did not mark REL-04 complete in REQUIREMENTS.md -- this plan closes only the emitted-CMake-filename slice; Plan 128-10 owns REL-04 closure
 
 ## Performance Metrics
 
@@ -913,11 +915,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 127 P12 | 130min | 3 tasks | 2 files |
 | Phase 128 P01 | 25min | 3 tasks | 15 files |
 | Phase 128 P02 | 15min | 2 tasks | 1 files |
+| Phase 128 P03 | 20min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-01T20:58:29.656Z
-**Stopped at:** Phase 128 Plan 01 complete
+**Last session:** 2026-08-01T21:06:05.000Z
+**Stopped at:** Phase 128 Plan 03 complete
 **Resume file:** 
 None
 

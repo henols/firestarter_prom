@@ -2366,14 +2366,14 @@ Plans:
   3. A deliberately-broken ARM build (a planted-violation CI run) still publishes all three AVR `.hex` assets — proven by an "AVR assets present" assertion step that runs before the `Release` step and demonstrably fails the build if any AVR asset is missing.
   4. CI logs the resolved SDK commit SHA and asserts the emitted filename matches `asset_candidates("py32f071")[0]` via a mechanical string-equality check in the workflow, not a human read of the release page.
 
-**Plans**: 2/10 plans executed
+**Plans**: 3/10 plans executed
 
 Plans:
 **Wave 1**
 
 - [x] 128-01-PLAN.md — W1 · the D-11/D-12 AVR-assets checker triple: three `pio_build/` fixture trees (never `.pio/`, which `.gitignore:1` swallows at any depth), `scripts/check_release_assets.py` with the new `FIRESTARTER_PIO_BUILD_ROOT` seam, its paired pytest incl. the comment-stripped `fail_on_unmatched_files` invariant, and the `FLOOR` 5→6 / `FIXTURE_FLOOR` 10→recounted bump in the same commit
 - [x] 128-02-PLAN.md — W1 · the repo's first composite action, `.github/actions/build-py32f071/action.yml` (D-06/D-17), emitting glob-guarded `hex_path` and measured-path `sdk_sha`; `shell: bash` on every step and no containment key anywhere inside it
-- [ ] 128-03-PLAN.md — W1 · D-14's four-site hyphen→underscore rename in `platform/py32f071/CMakeLists.txt`, re-applied by hand with `ad47c3b`'s false "needs no new pattern" sentence rewritten
+- [x] 128-03-PLAN.md — W1 · D-14's four-site hyphen→underscore rename in `platform/py32f071/CMakeLists.txt`, re-applied by hand with `ad47c3b`'s false "needs no new pattern" sentence rewritten
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
