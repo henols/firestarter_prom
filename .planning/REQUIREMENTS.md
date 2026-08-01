@@ -82,10 +82,10 @@ Research: `.planning/research/SUMMARY.md` (4 streams + synthesis; 18 corrections
 
 *The only new work that makes any of the 21 existing host capabilities reachable.*
 
-- [ ] **REL-01**: The ARM build runs inside `beta-build.yml`'s job **after** `update_version.py` rewrites and auto-commits `include/version.h`, so the published image carries the release `VERSION` the host compares against the tag
-- [ ] **REL-02**: `firestarter_py32f071.hex` is published as a GitHub **release asset** — not an Actions artifact — matched by a **glob**, because the release action warns on an unmatched glob but fails on a missing literal path
-- [ ] **REL-03**: A deliberately broken ARM build still publishes all three AVR `.hex` assets, proven rather than assumed, with an AVR-assets-present assertion before the release step
-- [ ] **REL-04**: CI asserts the emitted filename matches `asset_candidates("py32f071")[0]`, and logs the resolved SDK commit SHA
+- [x] **REL-01**: The ARM build runs inside `beta-build.yml`'s job **after** `update_version.py` rewrites and auto-commits `include/version.h`, so the published image carries the release `VERSION` the host compares against the tag — verified by YAML step order (§2.1) AND on a real dispatch, run `30722352902` (SHA `7a0a375`), whose published image asserted `3.0.0b99:py32f071`; see `128-NONREGRESSION.md` §3.5/§7
+- [x] **REL-02**: `firestarter_py32f071.hex` is published as a GitHub **release asset** — not an Actions artifact — matched by a **glob**, because the release action warns on an unmatched glob but fails on a missing literal path — `firestarter_py32f071.hex` (77284 B) confirmed present in run `30722352902`'s release assets, cited by run URL + SHA `7a0a375`; draft since deleted, run URL + `128-NONREGRESSION.md` §3.2 are the durable record
+- [x] **REL-03**: A deliberately broken ARM build still publishes all three AVR `.hex` assets, proven rather than assumed, with an AVR-assets-present assertion before the release step — CI half proven on run `30722537152` (SHA `6c1c31f`): ARM step contained (`outcome=failure`, `conclusion=success`), unconditional AVR-assets step ran and passed, exactly 3 AVR assets published, no py32 asset; **the "assertion demonstrably fails on missing AVR asset" half is proven LOCALLY only** (`128-NONREGRESSION.md` §2.5/§2.6 exit-1 fixtures), not exercised in CI this phase — see §7 Criterion 3 for the explicit seam
+- [x] **REL-04**: CI asserts the emitted filename matches `asset_candidates("py32f071")[0]`, and logs the resolved SDK commit SHA — both mechanical in-CI assertions passed on run `30722352902` (steps 17-18), resolved SDK SHA `0ed2f4b4d3391eccfd4491006a30295fd78e32c2` equals the pinned `GIT_TAG`; cross-repo three-way binding proven locally (10 passed, 0 skipped) but NOT enforced by app CI (F-8 — neither app CI workflow checks out the firmware sibling)
 
 ### Flash-Path Decision & PCB Requirements
 
@@ -163,7 +163,7 @@ Populated 2026-07-30 by the v1.23 roadmap (`/gsd-new-milestone` → roadmapper).
 | VPP-01 … VPP-03 | Phase 125 | Complete — all 3 ticked, see `125-NONREGRESSION.md` for the row re-executed per requirement |
 | CFG-01 … CFG-07 | Phase 126 | Complete — all 7 ticked, see `126-NONREGRESSION.md` §4/§5 for the row cited per requirement |
 | HOST-01 … HOST-08 | Phase 127 | Complete — all 8 ticked, see `127-NONREGRESSION.md` §4/§5 for the row cited per requirement |
-| REL-01 … REL-04 | Phase 128 | Pending |
+| REL-01 … REL-04 | Phase 128 | Complete — all 4 ticked, see `128-NONREGRESSION.md` §3/§7 for the row cited per requirement (REL-03's second half is local-only evidence, stated explicitly) |
 | PCB-01 … PCB-05 | Phase 129 | Pending |
 | CLOSE-01 … CLOSE-04 | Phase 130 | Pending |
 
