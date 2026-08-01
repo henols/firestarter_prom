@@ -2229,7 +2229,7 @@ Plans:
 > exclusion; Plan 126-08 lands the retirement, the promotion and the flash-driver entry in the same
 > commit as the deletion.
 
-**Plans**: 6/12 plans executed
+**Plans**: 7/12 plans executed
 **Research flag**: yes — `/gsd-plan-phase --research-phase 126` (A-6/R-8: `PORTING.md` is stranded on closed PRs and partly superseded; the flash page size is stated nowhere in-tree)
 
 Plans:
@@ -2253,7 +2253,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4)*
 
-- [ ] 126-07-PLAN.md — The HAL-free dual-slot core: the vendored `StoredConfiguration`, `CONFIG_MAGIC 0x52555250`, a table-free reflected CRC-32, and the scan/validate/select/alternate algorithm over three injected primitives — with the V5 order (`magic` → bounds-checked `length` → `crc32`) implemented as an ordering
+- [x] 126-07-PLAN.md — The HAL-free dual-slot core: the vendored `StoredConfiguration`, `CONFIG_MAGIC 0x52555250`, a table-free reflected CRC-32, and the scan/validate/select/alternate algorithm over three injected primitives — with the V5 order (`magic` → bounds-checked `length` → `crc32`) implemented as an ordering
 
 **Wave 6** *(blocked on Wave 5)*
 

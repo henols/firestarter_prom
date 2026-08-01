@@ -6,14 +6,14 @@ current_phase: 126
 current_phase_name: Flash-Persistent Config via a Storage-Backend Seam
 status: executing
 stopped_at: Completed 126-04-PLAN.md
-last_updated: "2026-07-31T23:46:40.329Z"
+last_updated: "2026-08-01T00:01:25.538Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 126 execution started
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 41
-  completed_plans: 35
+  completed_plans: 36
   percent: 38
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 126 (Flash-Persistent Config via a Storage-Backend Seam) — EXECUTING
-Plan: 7 of 12
+Plan: 8 of 12
 Status: Ready to execute
 Last activity: 2026-07-31 — Phase 126 execution started
 
@@ -641,6 +641,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 126-06]: D-18's whole-Sector-15 reservation implemented exactly: CONFIG at 0x0801E000/8K, not the minimal 512B two-erase-unit reading
 - [Phase 126-06]: No linker ASSERT uses modulo on a region origin (RESEARCH A6); sector-alignment/bounds arithmetic lives in tests/test_py32_flash_map.py instead
 - [Phase 126-06]: BOOTLOADER region shape used over the A7 PROVIDE-pair fallback; named contingency pending Plan 126-11's ARM CI confirmation
+- [Phase 126]: D-16 implemented as amended by C-2 (whole-page-program-is-the-commit), not its locked literal text
+- [Phase 126]: CONFIG_MAGIC = 0x52555250 documented as this-milestone choice, explicitly not vendored (D-19)
+- [Phase 126]: length bounds-check ordered strictly before crc32 and before any copy (V5 validation ordering)
 
 ## Performance Metrics
 
@@ -782,10 +785,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 126 P04 | 25min | 2 tasks | 0 files |
 | Phase 126 P05 | 40min | 2 tasks | 1 files |
 | Phase 126 P06 | 25min | 3 tasks | 3 files |
+| Phase 126 P07 | 55min | 2 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-07-31T23:45:54.789Z
+**Last session:** 2026-08-01T00:00:36.725Z
 **Stopped at:** Completed 126-04-PLAN.md
 **Resume file:** 
 None
