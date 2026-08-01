@@ -69,14 +69,14 @@ Research: `.planning/research/SUMMARY.md` (4 streams + synthesis; 18 corrections
 
 ### Host DFU Installer
 
-- [ ] **HOST-01**: `firestarter_app` `feature/py32f071-fw-install` @ `4ee64a1` is merged, with the `flash_method()` router and the untouched `_install_with_avrdude` recorded as an **accepted deviation** from the prescribed flasher-strategy extraction rather than a defect to fix
-- [ ] **HOST-02**: `--usb-id` is rejected on a stable channel exactly as `--dfu-probe` already is
-- [ ] **HOST-03**: Written flash is read back and verified via `DFU_UPLOAD`, failing soft when the device reports `bitCanUpload = 0`, so py32 is not the project's only install path that writes without verifying
-- [ ] **HOST-04**: A CI leg installs `.[test,py32]` and exercises the real `pyusb` import and API surface, which no test reaches today
-- [ ] **HOST-05**: `PyusbMissingError` is covered by a test with its `# pragma: no cover` removed, and `fw --list` / `--help` are proven to work with `pyusb` absent
-- [ ] **HOST-06**: DFU opcode literals are anchored to UM1504 / DFU 1.1 in one test, rather than imported from the module under test and asserted against themselves
-- [ ] **HOST-07**: The `pyusb` floor is raised to `>=1.3.1,<2`
-- [ ] **HOST-08**: Channel gating is proven both ways — a simulated stable `__version__` hides `py32f071` from `fw --help` and rejects `--dfu-probe`; a pre-release exposes both — remembering `_BOARD_CHOICES` is computed at import time
+- [x] **HOST-01**: `firestarter_app` `feature/py32f071-fw-install` @ `4ee64a1` is merged, with the `flash_method()` router and the untouched `_install_with_avrdude` recorded as an **accepted deviation** from the prescribed flasher-strategy extraction rather than a defect to fix
+- [x] **HOST-02**: `--usb-id` is rejected on a stable channel exactly as `--dfu-probe` already is
+- [x] **HOST-03**: Written flash is read back and verified via `DFU_UPLOAD`, failing soft when the device reports `bitCanUpload = 0`, so py32 is not the project's only install path that writes without verifying — **asserted against a mock only, see `127-NONREGRESSION.md` §7**
+- [x] **HOST-04**: A CI leg installs `.[test,py32]` and exercises the real `pyusb` import and API surface, which no test reaches today — confirmed green on CI run `30708836339` (final tree, head SHA string-equal to HEAD); the primary `ci` job's separate mypy-debt failure is not this requirement's claim, see `127-NONREGRESSION.md` §3/§6
+- [x] **HOST-05**: `PyusbMissingError` is covered by a test with its `# pragma: no cover` removed, and `fw --list` / `--help` are proven to work with `pyusb` absent
+- [x] **HOST-06**: DFU opcode literals are anchored to UM1504 / DFU 1.1 in one test, rather than imported from the module under test and asserted against themselves — the USB DFU 1.1 half independently fetched and read; **UM1504 itself remains an unresolved residual (A1), network-unreachable, see `127-NONREGRESSION.md` §6**
+- [x] **HOST-07**: The `pyusb` floor is raised to `>=1.3.1,<2`
+- [x] **HOST-08**: Channel gating is proven both ways — a simulated stable `__version__` hides `py32f071` from `fw --help` and rejects `--dfu-probe`; a pre-release exposes both — remembering `_BOARD_CHOICES` is computed at import time
 
 ### Release-Asset Publication
 
@@ -162,7 +162,7 @@ Populated 2026-07-30 by the v1.23 roadmap (`/gsd-new-milestone` → roadmapper).
 | MERGE-01 … MERGE-08 | Phase 124 | Complete — all 8 ticked, see `124-NONREGRESSION.md` §3/§4 for the row cited per requirement |
 | VPP-01 … VPP-03 | Phase 125 | Complete — all 3 ticked, see `125-NONREGRESSION.md` for the row re-executed per requirement |
 | CFG-01 … CFG-07 | Phase 126 | Complete — all 7 ticked, see `126-NONREGRESSION.md` §4/§5 for the row cited per requirement |
-| HOST-01 … HOST-08 | Phase 127 | Pending |
+| HOST-01 … HOST-08 | Phase 127 | Complete — all 8 ticked, see `127-NONREGRESSION.md` §4/§5 for the row cited per requirement |
 | REL-01 … REL-04 | Phase 128 | Pending |
 | PCB-01 … PCB-05 | Phase 129 | Pending |
 | CLOSE-01 … CLOSE-04 | Phase 130 | Pending |
