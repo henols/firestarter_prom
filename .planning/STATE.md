@@ -4,15 +4,15 @@ milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 128
 current_phase_name: Release-Asset Fold
-status: Phase 127 CLOSED and VERIFIED — ready for /gsd-discuss-phase 128
-stopped_at: Phase 128 context gathered
-last_updated: "2026-08-01T19:26:07.507Z"
+status: Phase 128 PLANNED — 10 plans / 7 waves, dual-repo — ready for /gsd-execute-phase 128
+stopped_at: Phase 128 planned
+last_updated: "2026-08-01T20:35:57.000Z"
 last_activity: 2026-08-01
-last_activity_desc: Phase 127 complete, transitioned to Phase 128
+last_activity_desc: Phase 128 planned — 10 plans / 7 waves, plan-checker PASSED
 progress:
   total_phases: 8
   completed_phases: 5
-  total_plans: 53
+  total_plans: 63
   completed_plans: 53
   percent: 63
 ---
@@ -25,11 +25,9 @@ progress:
 ## Current Position
 
 Phase: 128 — Release-Asset Fold
-Plan: Not started
-(disjoint `files_modified`); every later wave is serialized on a shared file.
-Status: Phase 127 closed and verified (5/5 criteria, 8/8 requirements) — ready for /gsd-discuss-phase 128
-Last activity: 2026-08-01 — Phase 127 complete, transitioned to Phase 128
-flag and **overturned claims inside four locked decisions** (see the correction block below)
+Plan: 0/10 complete — planned, not started
+Status: Phase 128 PLANNED — 10 plans / 7 waves, dual-repo (firmware + one host commit); plan-checker PASSED, 0 blockers / 0 warnings; coverage 4/4 REL ids and 13/13 trackable decisions — ready for /gsd-execute-phase 128
+Last activity: 2026-08-01 — Phase 128 planned (10 plans, 7 waves)
 
 ### Phase 127 context highlights (2026-08-01)
 

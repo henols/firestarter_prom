@@ -2369,15 +2369,35 @@ Plans:
 **Plans**: 10 plans / 7 waves. **Dual-repo** — nine firmware commits then one host commit (D-19, encoded in the wave graph because the host test asserts the firmware tree is clean). Wave 7 is `autonomous: false` and carries no executable push or dispatch: D-04's gate is the structural separation, not the checkpoint type.
 
 Plans:
+**Wave 1**
+
 - [ ] 128-01-PLAN.md — W1 · the D-11/D-12 AVR-assets checker triple: three `pio_build/` fixture trees (never `.pio/`, which `.gitignore:1` swallows at any depth), `scripts/check_release_assets.py` with the new `FIRESTARTER_PIO_BUILD_ROOT` seam, its paired pytest incl. the comment-stripped `fail_on_unmatched_files` invariant, and the `FLOOR` 5→6 / `FIXTURE_FLOOR` 10→recounted bump in the same commit
 - [ ] 128-02-PLAN.md — W1 · the repo's first composite action, `.github/actions/build-py32f071/action.yml` (D-06/D-17), emitting glob-guarded `hex_path` and measured-path `sdk_sha`; `shell: bash` on every step and no containment key anywhere inside it
 - [ ] 128-03-PLAN.md — W1 · D-14's four-site hyphen→underscore rename in `platform/py32f071/CMakeLists.txt`, re-applied by hand with `ad47c3b`'s false "needs no new pattern" sentence rewritten
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 128-04-PLAN.md — W2 · `py32f071.yml` → composite call, remaining renames, D-16's single-image artifact, and MERGE-03's comment updated to state the D-05 resolution it was written to await
 - [ ] 128-05-PLAN.md — W2 · the structural fold into `beta-build.yml`: the permanent `rehearsal` boolean input, a single normalised `mode` step echoed to the step summary of every run (A1), the ARM call placed strictly after the version-bump auto-commit with `continue-on-error` at the call site only, and D-07's report keyed on `outcome` not `conclusion`
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 128-06-PLAN.md — W3 · the three success-path exit codes: D-08(a) filename equality (labelled a transcription), D-10's SDK-pin equality with 40-hex guards on both sides, and F-9's `objcopy`+`strings` proof that the published image carries the bumped `VERSION`
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 128-07-PLAN.md — W4 · the release path: the assets gate called unconditionally immediately before `Release`, `files:` converted to the two-entry block that finally reaches `build/py32f071/`, the unmatched-files omission pinned with F-1's corrected mechanism, and `draft:`/`tag_name:` wired to the rehearsal switch
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 128-08-PLAN.md — W5 · D-15's `## Release integration` section **added** (MISMATCH-1: it does not exist today), with D-05's and D-13's triggers recorded, a README↔workflow parity gate, and the repo-wide D-14 rename proof
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 128-09-PLAN.md — W6 · the host repo's only commit: `tests/test_py32_asset_name_host.py`, D-09's three-way equality with one non-vacuity assertion **per parse**, observed PASS-not-SKIP locally (F-8 says app CI skips it)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 128-10-PLAN.md — W7 · `autonomous: false` · `128-NONREGRESSION.md` (D-18) with every local row executed in-session and every ARM row citing a run URL + SHA; the operator-gated rehearsal runs A and B (D-01/D-02/D-03); the only plan permitted to tick REL-01…REL-04
 
 **UI hint**: no
