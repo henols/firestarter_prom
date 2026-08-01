@@ -2031,7 +2031,7 @@ Plans:
 - [x] **Phase 123: Non-Regression Baselines & Gate Hardening** — Record AVR flash+RAM and native case/suite-count baselines, split the fail-open FW-absent gate proxy, and ship every checker (CMake-manifest-drift, orphan-provisional-macro, warning-count, `check_permitted_claims.py`) with a planted-violation fixture — before any firmware code moves. (completed 2026-07-31)
 - [x] **Phase 124: Firmware Integration Merge** — Land `agent/portability-macros` + the py32 stack as one atomic commit-pair, fix the CMake source-list rename (C-1), add the ARM `push` CI trigger, and make the provisional-pinmap refusal guard structurally able to fire. (completed 2026-07-31)
 - [x] **Phase 125: VPP Control Seam** — Hand-author `rurp_vpp.h`/`rurp_vpp.cpp` (nothing cherry-picked from PR #45); every board returns `MANUAL_ADJUSTMENT_REQUIRED`; prove `rurp_config_utils.cpp` untouched before Phase 126 touches it. (completed 2026-07-31)
-- [ ] **Phase 126: Flash-Persistent Config** — Design and land the dual-slot CRC32 py32 config backend behind a common/per-platform storage seam, with the AVR EEPROM backend proven a pure move.
+- [x] **Phase 126: Flash-Persistent Config** — Design and land the dual-slot CRC32 py32 config backend behind a common/per-platform storage seam, with the AVR EEPROM backend proven a pure move. (completed 2026-08-01)
 - [ ] **Phase 127: Host DFU Installer** — Merge `feature/py32f071-fw-install`, close the remaining 8 host gaps (pyusb CI leg, coverage, opcode anchoring, channel-gating both ways), parallel with Phases 125/126.
 - [ ] **Phase 128: Release-Asset Fold** — Fold the ARM build into `beta-build.yml` after the version bump so `firestarter_py32f071.hex` publishes as a real release asset.
 - [ ] **Phase 129: Flash-Path Decision & PCB Requirements Record** — Record the three-tier flash-path decision and the PCB requirements (straps, pads, port, VID/PID, reserved flash map) before any schematic exists.
@@ -2229,8 +2229,27 @@ Plans:
 > exclusion; Plan 126-08 lands the retirement, the promotion and the flash-driver entry in the same
 > commit as the deletion.
 
-**Plans**: 11/12 plans executed
+**Plans**: 12/12 plans complete
 **Research flag**: yes — `/gsd-plan-phase --research-phase 126` (A-6/R-8: `PORTING.md` is stranded on closed PRs and partly superseded; the flash page size is stated nowhere in-tree)
+
+> **Three decision amendments, recorded so the criteria's original wording does not mislead a later
+> reader** (see `126-NONREGRESSION.md` §5 for the full nineteen-row decision-coverage table):
+> **(a) D-08's manifest churn landed as four edits, not three, deliberately split across two commits**
+> (Plan 126-03 lands only the new exclusion; Plan 126-08 lands the retirement, the promotion and the
+> flash-driver entry in the same commit as `config.cpp`'s deletion) — closing the ARM link's
+> duplicate-definition window that promoting the policy TU before deleting `config.cpp` would have
+> opened. **(b) D-18 refines D-10/D-11's shrink quantum** to one whole 8 KiB sector (Sector 15) rather
+> than two 256 B pages — `FLASH` `LENGTH` 128K→120K, `CONFIG` at `0x0801E000`+8K, slots at `0x0801E000`
+> and `0x0801E100` — with D-10's top-of-flash placement and D-11's `PROVIDE`d symbols untouched.
+> **(c) D-16 is superseded by RESEARCH C-2**, not implemented literally — *"program the header/CRC word
+> LAST"* has no primitive on this part (`FLASH_Program_Page` writes 64 words unconditionally, RM V0.2
+> §4.2.3.2 hard-faults on a non-32-bit write); the corrected shape erases the inactive slot, stages the
+> whole 256-byte record in a 0xFF-filled page buffer, and programs it once — completion of that single
+> program call **is** the commit, per `CONFIG-STORAGE.md`'s own `## Amendment to D-16` section.
+> **Criterion 3's "empty `git diff` on the test file" was also not achieved literally** — Plan 126-03's
+> mandatory AVR board guard forced one named, justified line change to the test's compile invocation
+> (both blob SHAs recorded); the substantive property (assertions unchanged, still green) held. See
+> `126-NONREGRESSION.md` §Criterion 3 for the full accounting.
 
 Plans:
 **Wave 1**
@@ -2270,7 +2289,7 @@ Plans:
 
 **Wave 9** *(blocked on Wave 8)*
 
-- [ ] 126-12-PLAN.md — Closing: every row re-executed against the live trees, the eleven cross-repo gate rows shown to have **RUN**, `126-NONREGRESSION.md` written with all nineteen decisions and all five criteria accounted for, the claim gate run with named targets, and CFG-01…CFG-07 ticked — the only plan permitted to tick them
+- [x] 126-12-PLAN.md — Closing: every row re-executed against the live trees, the eleven cross-repo gate rows shown to have **RUN**, `126-NONREGRESSION.md` written with all nineteen decisions and all five criteria accounted for, the claim gate run with named targets, and CFG-01…CFG-07 ticked — the only plan permitted to tick them
 
 **UI hint**: no
 

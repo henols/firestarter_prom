@@ -59,13 +59,13 @@ Research: `.planning/research/SUMMARY.md` (4 streams + synthesis; 18 corrections
 
 *The only phase editing a file compiled into all three AVR targets — and partly design work, because its cited specification is stranded on closed PRs.*
 
-- [ ] **CFG-01**: The in-scope design is vendored onto the milestone branch from blob `4b1a441` so the contract is not stranded on closed PRs #46/#47, with the closed branch cited as its origin and the parts superseded by PR #48 marked as such
-- [ ] **CFG-02**: The PY32F071xB flash page/erase-unit size is read from the Puya reference manual and recorded **before** the linker script is edited
-- [ ] **CFG-03**: `src/rurp_config_utils.cpp` is split by concern — policy stays common, and only a two-function byte-blob backend goes per platform
-- [ ] **CFG-04**: The AVR EEPROM backend is a pure move, proven by a regression test asserting `EEPROM.get`/`put` at offset 48 with `sizeof(rurp_configuration_t)` and byte-identical behaviour to pre-refactor
-- [ ] **CFG-05**: The py32 backend implements dual-slot CRC32 storage, covered by a native fake backend across blank, newest-wins, CRC rejection, both-slots-corrupt, interrupted write, and slot alternation
-- [ ] **CFG-06**: Two config pages are reserved in `PY32F071xB_FLASH.ld` in **different erase units**, exposed as linker symbols, with the host's `FLASH_BASE`/`FLASH_SIZE` kept consistent
-- [ ] **CFG-07**: The `rurp_configuration_t` schema and `CONFIG_VERSION` are unchanged, and PR #48's `config.cpp` policy drift — including a `rurp_save_config()` that persists nothing — is deleted
+- [x] **CFG-01**: The in-scope design is vendored onto the milestone branch from blob `4b1a441` so the contract is not stranded on closed PRs #46/#47, with the closed branch cited as its origin and the parts superseded by PR #48 marked as such
+- [x] **CFG-02**: The PY32F071xB flash page/erase-unit size is read from the Puya reference manual and recorded **before** the linker script is edited
+- [x] **CFG-03**: `src/rurp_config_utils.cpp` is split by concern — policy stays common, and only a two-function byte-blob backend goes per platform
+- [x] **CFG-04**: The AVR EEPROM backend is a pure move, proven by a regression test asserting `EEPROM.get`/`put` at offset 48 with `sizeof(rurp_configuration_t)` and byte-identical behaviour to pre-refactor
+- [x] **CFG-05**: The py32 backend implements dual-slot CRC32 storage, covered by a native fake backend across blank, newest-wins, CRC rejection, both-slots-corrupt, interrupted write, and slot alternation
+- [x] **CFG-06**: Two config pages are reserved in `PY32F071xB_FLASH.ld` in **different erase units**, exposed as linker symbols, with the host's `FLASH_BASE`/`FLASH_SIZE` kept consistent
+- [x] **CFG-07**: The `rurp_configuration_t` schema and `CONFIG_VERSION` are unchanged, and PR #48's `config.cpp` policy drift — including a `rurp_save_config()` that persists nothing — is deleted
 
 ### Host DFU Installer
 
@@ -161,7 +161,7 @@ Populated 2026-07-30 by the v1.23 roadmap (`/gsd-new-milestone` → roadmapper).
 | BASE-01 … BASE-08 | Phase 123 | Complete |
 | MERGE-01 … MERGE-08 | Phase 124 | Complete — all 8 ticked, see `124-NONREGRESSION.md` §3/§4 for the row cited per requirement |
 | VPP-01 … VPP-03 | Phase 125 | Complete — all 3 ticked, see `125-NONREGRESSION.md` for the row re-executed per requirement |
-| CFG-01 … CFG-07 | Phase 126 | Pending |
+| CFG-01 … CFG-07 | Phase 126 | Complete — all 7 ticked, see `126-NONREGRESSION.md` §4/§5 for the row cited per requirement |
 | HOST-01 … HOST-08 | Phase 127 | Pending |
 | REL-01 … REL-04 | Phase 128 | Pending |
 | PCB-01 … PCB-05 | Phase 129 | Pending |

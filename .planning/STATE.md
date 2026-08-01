@@ -4,17 +4,17 @@ milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 126
 current_phase_name: Flash-Persistent Config via a Storage-Backend Seam
-status: executing
-stopped_at: Completed 126-04-PLAN.md
-last_updated: "2026-08-01T01:12:47.193Z"
+status: verifying
+stopped_at: Completed 126-12-PLAN.md — Phase 126 CLOSED (all 7 CFG requirements ticked)
+last_updated: "2026-08-01T01:37:30.645Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 126 execution started
 progress:
   total_phases: 8
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 41
-  completed_plans: 40
-  percent: 38
+  completed_plans: 41
+  percent: 50
 ---
 
 # Project State
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 126 (Flash-Persistent Config via a Storage-Backend Seam) — EXECUTING
-Plan: 12 of 12
-Status: Ready to execute
-Last activity: 2026-07-31 — Phase 126 execution started
+Phase: 126 (Flash-Persistent Config via a Storage-Backend Seam) — CLOSED (2026-08-01)
+Plan: 12 of 12 — all complete
+Status: Phase complete — ready for verification
+Last activity: 2026-08-01 — 126-12 closing plan executed: 126-NONREGRESSION.md written, CFG-01..CFG-07 ticked
 
 ### Phase 126 plan structure (2026-07-31)
 
@@ -650,6 +650,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 126]: 126-10: Corrected RESEARCH.md's C-14 'seven consumers' mislabel to the verified nine call sites its own enumeration lists; kept the plan-specified test name but asserted the correct count.
 - [Phase 126]: 126-10: Added a dedicated tenth RED-demonstration function proving the config.cpp absence check fires on a planted scratch file, per this dispatch's anti-vacuity directive.
 - [Phase ?]: 126-11: ARM CI run 30676982030 re-derived read-only -- Configure and Build independently success, head SHA string-equal, 42 objects (py32f071_hal_flash.c.obj linked), pushed manifest/linker byte-identical to local; no task ran git push or gh workflow run
+- [Phase 126]: 126-NONREGRESSION.md written: all 7 CFG requirements ticked, Criterion 3 recorded honestly as amended (documented fallback, not empty diff), all 19 decisions accounted for with D-08/D-16/D-18/D-19 amendments
 
 ## Performance Metrics
 
@@ -796,10 +797,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 126 P09 | 70min | 2 tasks | 1 files |
 | Phase 126 P10 | 35 | 2 tasks | 1 files |
 | Phase 126 P11 | 30min | 3 tasks | 0 files |
+| Phase 126 P12 | ~2h | 3 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-01T01:12:20.141Z
-**Stopped at:** Completed 126-04-PLAN.md
+**Last session:** 2026-08-01T01:35:43.188Z
+**Stopped at:** Completed 126-12-PLAN.md — Phase 126 CLOSED (all 7 CFG requirements ticked)
 **Resume file:** 
 None
