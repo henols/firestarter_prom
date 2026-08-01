@@ -6,14 +6,14 @@ current_phase: 127
 current_phase_name: host-dfu-installer
 status: executing
 stopped_at: Phase 127 planned
-last_updated: "2026-08-01T11:31:57.714Z"
+last_updated: "2026-08-01T12:05:51.440Z"
 last_activity: 2026-08-01
 last_activity_desc: Phase 127 execution started
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 53
-  completed_plans: 42
+  completed_plans: 43
   percent: 50
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 127 (host-dfu-installer) — EXECUTING
-Plan: 2 of 12
+Plan: 3 of 12
 (disjoint `files_modified`); every later wave is serialized on a shared file.
 Status: Ready to execute
 Last activity: 2026-08-01 — Phase 127 execution started
@@ -728,6 +728,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 126]: 126-NONREGRESSION.md written: all 7 CFG requirements ticked, Criterion 3 recorded honestly as amended (documented fallback, not empty diff), all 19 decisions accounted for with D-08/D-16/D-18/D-19 amendments
 - [Phase ?]: 127-01: real --no-ff merge of feature/py32f071-fw-install @ 4ee64a1 (not squash) per D-16, landing 4ee64a1 literally as a merge-commit parent
 - [Phase ?]: 127-01: D-17 accepted-deviation comment recorded at flash_method() in firmware.py, in its own commit; asset_candidates() left byte-identical
+- [Phase 127]: 127-04: _reject_py32_only_option reads _PY32_ENABLED at call time (module global, not a captured default) so it is both frozen-at-import for Click and directly monkeypatch-testable
+- [Phase 127]: 127-04: test_help_fw fix calls cli_handlers.cli.main() directly instead of CliRunner -- CliRunner forces FORCED_WIDTH=80, which wraps --help text differently than the real, unforced firestarter subprocess
 
 ## Performance Metrics
 
@@ -876,10 +878,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 126 P11 | 30min | 3 tasks | 0 files |
 | Phase 126 P12 | ~2h | 3 tasks | 1 files |
 | Phase 127 P01 | 20min | 2 tasks | 9 files |
+| Phase 127 P04 | 45min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-01T11:31:57.697Z
+**Last session:** 2026-08-01T12:04:59.756Z
 **Stopped at:** Phase 127 context gathered
 **Resume file:** 
 None
