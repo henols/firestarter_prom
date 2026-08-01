@@ -5,16 +5,16 @@ milestone_name: — PY32F071 Integration
 current_phase: 128
 current_phase_name: Release-Asset Fold
 status: executing
-stopped_at: Phase 128 Plan 04 complete
-last_updated: "2026-08-01T21:14:10.865Z"
+stopped_at: Phase 128 Plan 05 complete
+last_updated: "2026-08-01T21:21:42.094Z"
 last_activity: 2026-08-01
-last_activity_desc: Phase 128 Plan 04 executed — py32f071.yml composite-action fold + literal rename (firestarter)
+last_activity_desc: Phase 128 Plan 05 executed — beta-build.yml release-job fold (rehearsal input, ARM call site, D-07 report) (firestarter)
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 63
-  completed_plans: 58
-  percent: 92
+  completed_plans: 59
+  percent: 94
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 128 (Release-Asset Fold) — EXECUTING
-Plan: 4/10 complete — 128-04 (py32f071.yml composite-action fold + literal rename, D-05/D-06/D-14/D-16) landed in firestarter
-Status: Plan 04 done (py32f071.yml now calls ./.github/actions/build-py32f071 with no continue-on-error, LOUD gate preserved; MERGE-03 comment updated to record D-05 resolution; all 21 remaining hyphenated literals renamed to underscore form; artifact upload collapsed to the single install image per D-16); 6 plans remain
-Last activity: 2026-08-01 — Phase 128 Plan 04 executed
+Plan: 5/10 complete — 128-05 (beta-build.yml release-job fold: rehearsal input, ARM call site, D-07 report, D-01/D-05/D-06/D-07) landed in firestarter
+Status: Plan 05 done (beta-build.yml gained a permanent boolean rehearsal dispatch input normalised into steps.mode.outputs.rehearsal; a Build PY32F071 firmware step (id: arm) calling ./.github/actions/build-py32f071 strictly after the version-bump auto-commit, continue-on-error: true at this call site only; a Report a missing PY32F071 image step keyed on steps.arm.outcome, never .conclusion; Release step untouched); 5 plans remain
+Last activity: 2026-08-01 — Phase 128 Plan 05 executed
 
 ### Phase 127 context highlights (2026-08-01)
 
@@ -755,6 +755,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 128]: 128-03: re-applied ad47c3b's CMake hyphen->underscore rename by hand (never cherry-picked) and rewrote its final sentence, which falsely claimed the rename alone kept beta-build.yml's glob covering both trees (MISMATCH-2); proved firestarter_py32f071.hex equals asset_candidates("py32f071")[0] via a non-vacuous guard
 - [Phase 128]: 128-03: did not mark REL-04 complete in REQUIREMENTS.md -- this plan closes only the emitted-CMake-filename slice; Plan 128-10 owns REL-04 closure
 - [Phase 128]: 128-04: py32f071.yml step names match the plan's literal wording (Report firmware size / Verify the install image exists and is non-empty / Upload firmware install image), differing from pre-existing names — Plan's acceptance criteria and automated verify script check for these exact renamed step names as part of the structure assertions.
+- [Phase 128]: 128-05: reworded the D-07 report-step comment to say "the step's outcome, never its conclusion" instead of the plan's literal "steps.arm.conclusion" phrase, because the plan's own Task 3 automated verify script asserts zero occurrences of that exact dotted substring anywhere in the file -- writing it in the explanatory comment would fail the plan's own check
+- [Phase 128]: 128-05: did not mark REL-01 or REL-03 complete in REQUIREMENTS.md -- this plan advances only the ordering slice of REL-01 and the containment slice of REL-03; Plan 128-10 owns closure
 
 ## Performance Metrics
 
@@ -918,11 +920,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 128 P02 | 15min | 2 tasks | 1 files |
 | Phase 128 P03 | 20min | 2 tasks | 1 files |
 | Phase 128 P04 | ~15min | 3 tasks | 1 files |
+| Phase 128 P05 | ~15min | 3 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-01T21:13:54.897Z
-**Stopped at:** Phase 128 Plan 04 complete
+**Last session:** 2026-08-01T21:21:42.094Z
+**Stopped at:** Phase 128 Plan 05 complete
 **Resume file:** 
 None
 

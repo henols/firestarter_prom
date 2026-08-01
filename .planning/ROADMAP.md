@@ -2366,7 +2366,7 @@ Plans:
   3. A deliberately-broken ARM build (a planted-violation CI run) still publishes all three AVR `.hex` assets — proven by an "AVR assets present" assertion step that runs before the `Release` step and demonstrably fails the build if any AVR asset is missing.
   4. CI logs the resolved SDK commit SHA and asserts the emitted filename matches `asset_candidates("py32f071")[0]` via a mechanical string-equality check in the workflow, not a human read of the release page.
 
-**Plans**: 4/10 plans executed
+**Plans**: 5/10 plans executed
 
 Plans:
 **Wave 1**
@@ -2378,7 +2378,7 @@ Plans:
 **Wave 2** *(blocked on Wave 1 completion)*
 
 - [x] 128-04-PLAN.md — W2 · `py32f071.yml` → composite call, remaining renames, D-16's single-image artifact, and MERGE-03's comment updated to state the D-05 resolution it was written to await
-- [ ] 128-05-PLAN.md — W2 · the structural fold into `beta-build.yml`: the permanent `rehearsal` boolean input, a single normalised `mode` step echoed to the step summary of every run (A1), the ARM call placed strictly after the version-bump auto-commit with `continue-on-error` at the call site only, and D-07's report keyed on `outcome` not `conclusion`
+- [x] 128-05-PLAN.md — W2 · the structural fold into `beta-build.yml`: the permanent `rehearsal` boolean input, a single normalised `mode` step echoed to the step summary of every run (A1), the ARM call placed strictly after the version-bump auto-commit with `continue-on-error` at the call site only, and D-07's report keyed on `outcome` not `conclusion`
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
