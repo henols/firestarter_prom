@@ -148,3 +148,13 @@ None - no external service configuration required. All work is local pytest-prov
 ---
 *Phase: 128-release-asset-fold*
 *Completed: 2026-08-01*
+
+## Self-Check: PASSED
+
+- FOUND: `/workspaces/firestarter/scripts/check_release_assets.py`
+- FOUND: `/workspaces/firestarter/tests/test_check_release_assets.py`
+- FOUND: `/workspaces/.planning/phases/128-release-asset-fold/128-01-SUMMARY.md`
+- FOUND commit `e40593d` (Task 1) in `firestarter`
+- FOUND commit `98d5baf` (Task 2) in `firestarter`
+- FOUND commit `2bac870` (Task 3) in `firestarter`
+- FOUND commit `9dc90ff` (SUMMARY.md) in the meta-repo
