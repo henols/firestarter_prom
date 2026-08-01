@@ -2306,7 +2306,52 @@ Plans:
   4. `DFU_UPLOAD` readback verification fails **soft** (no exception, a recorded soft-fail state) when a mock device reports `bitCanUpload = 0`, and one test anchors the DFU opcode literals to UM1504/DFU 1.1 values written independently in the test file, not imported from the module under test and asserted against themselves.
   5. The `pyusb` floor is `>=1.3.1,<2` in packaging metadata, and channel gating is proven **both ways** in one test module: a simulated stable `__version__` hides `py32f071` from `fw --help`'s board choices and rejects `--dfu-probe`; a simulated pre-release version exposes both — with an explicit assertion that `_BOARD_CHOICES` is computed at import time, not cached stale across a version change.
 
-**Plans**: TBD
+**Plans**: 12 plans
+**Research flag**: no in the ROADMAP — research was run anyway at the operator's direction and produced `127-RESEARCH.md`, whose corrections **C-1…C-8** supersede claims inside four locked decisions. Plan from RESEARCH; where a `CORRECTED by` note in `127-CONTEXT.md` disagrees with its surrounding decision text, **the note wins**.
+
+> **Four corrections that change the plan set, recorded so the criteria's original wording does not mislead a later reader** (see `127-NONREGRESSION.md` §5 for the full nineteen-row decision-coverage table):
+> **(a) C-1 discharges D-16's fixup caution.** A real `git merge --no-ff 4ee64a1` in a correct sibling layout produced 1216 collected / 0 failed with all eight `ci.yml` gates green. **No fixup task, no fixup budget, no expected red commit** is scheduled.
+> **(b) C-2 makes HOST-06 purely ADDITIVE.** D-18 orders the removal of *self-referential assertions in `tests/test_py32_dfu.py`*; a targeted scan returns **no matches** — every use is a label inside a sequencing assertion, i.e. exactly what D-18's own next sentence orders kept. Following the struck wording would damage 58 working tests.
+> **(c) C-5 relocates D-12's readback.** `flash()` **never calls `_finish()`**; each downloader does, as its last statement, so the edit D-12 names would land after the device has left DFU mode. Operator decision 2026-08-01: **shape (b), hoist** — `_finish()` moves to a single call site in `flash()` (Plan 127-08) and the readback goes immediately above it (Plan 127-09).
+> **(d) C-3/C-4 correct HOST-05's anchors.** The pragma is at `py32_dfu.py:375` (not `:374`) and excludes two statements; the message names `WinUSB`, and the driver-installer tool D-06 cites appears nowhere in the file. **D-13 and D-14 carry no HOST id** — they are a deliberate in-scope addition closing a host/linker divergence Phase 126 created.
+
+Plans:
+**Wave 1**
+
+- [ ] 127-01-PLAN.md — Pin the 1158-collected pre-merge baseline in the sibling layout, land `4ee64a1` as a **real merge commit** whose parents include it (D-16), verify 1216/1216 plus all eight `ci.yml` gates locally, then record D-17's accepted deviation at `flash_method()` in a commit of its own
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 127-02-PLAN.md — Raise the `[py32]` floor to `pyusb>=1.3.1,<2` (D-19) and hold it plus D-17's in-code record with non-vacuous textual gates that parse no TOML (py39 floor), each proven able to fail against a planted file
+- [ ] 127-03-PLAN.md — HOST-06's independent UM1504 / DFU 1.1 opcode anchors as one **additive** module (C-2), plus a forward-holding test so the source==source oracle cannot return; A1's unfetched-spec residual recorded in the module docstring
+- [ ] 127-04-PLAN.md — HOST-02's shared `_reject_py32_only_option()` closing the live `--usb-id`-accepted-on-stable gap, and HOST-08 proven both ways by one subprocess per simulated version with Criterion 5's explicit import-time assertion (D-07/D-08)
+- [ ] 127-05-PLAN.md — D-13's envelope tightened to `APP_REGION_END` (`FLASH_SIZE` retained), and D-14's fail-CLOSED cross-repo linker-script gate with a non-vacuity assertion, a planted-mutation RED and no new `ALLOWED_SKIP_REASONS` entry
+- [ ] 127-06-PLAN.md — HOST-04's `ci-py32` job and `workflow_dispatch:` (D-01/D-02), the real-`usb.core.find` + `ctrl_transfer` API-surface module (D-03), and **the phase's one undecided mechanism settled by probe**: a conditional `collect_ignore` in `tests/conftest.py` — non-collection, not a skip, and fail-closed on an explicitly named path
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 127-07-PLAN.md — HOST-05: the `_require_usb()` pragma removed at `:375` and covered in-process (the other two pragmas untouched), plus the subprocess `sys.meta_path` blocker proving `fw --list` / `--help` exit 0 with `usb` never imported — validated in a venv where pyusb IS installed
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 127-08-PLAN.md — C-5's hoist: `_finish()` to a single call site in `flash()`, proven behaviour-neutral by comparing recorded `device.calls` before and after (converting A5 from inferred to measured), plus the `_FakeUsbDevice` UPLOAD arm and its real-pyusb signature alignment (C-6)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 127-09-PLAN.md — HOST-03: `VerifyResult` and the `DFU_UPLOAD` full-payload readback ordered `download → readback → _finish`; soft-fail only for *could not verify*, `MISMATCH` a hard exit 1 naming the first differing offset and never manifesting; `written but NOT verified` at the CLI (D-09…D-12)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 127-10-PLAN.md — D-15's scoped install-doc update (the reserved 120K map, the readback step and its three non-`VERIFIED` outcomes, the raised floor) with everything Phase 129 owns untouched, held by a parity gate derived from `APP_REGION_END` rather than a literal
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
+- [ ] 127-11-PLAN.md — HOST-04's CI evidence behind the **structural operator gate** (D-01): no task runs `git push` or `gh workflow run`; the plan prints them and stops, then re-derives run id, head SHA, both job conclusions and every `ci-py32` step read-only
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
+- [ ] 127-12-PLAN.md — Closing: every row re-executed in-session, `127-NONREGRESSION.md` written (all nineteen decisions, D-04's recorded-not-gated count, C-8's pyusb-present measurement, the quotable mock-only HOST-03 ceiling for Phase 130's CLOSE-02), and HOST-01…HOST-08 ticked — the only plan permitted to tick them
+
 **UI hint**: no
 
 ### Phase 128: Release-Asset Fold
