@@ -4,16 +4,16 @@ milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 128
 current_phase_name: Release-Asset Fold
-status: Phase 128 PLANNED — 10 plans / 7 waves, dual-repo — ready for /gsd-execute-phase 128
-stopped_at: Phase 128 planned
-last_updated: "2026-08-01T20:35:57.000Z"
+status: executing
+stopped_at: Phase 128 Plan 01 complete
+last_updated: "2026-08-01T20:51:44.261Z"
 last_activity: 2026-08-01
-last_activity_desc: Phase 128 planned — 10 plans / 7 waves, plan-checker PASSED
+last_activity_desc: Phase 128 Plan 01 executed — check_release_assets.py checker + 3 fixture trees landed (firestarter)
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 63
-  completed_plans: 53
+  completed_plans: 54
   percent: 63
 ---
 
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 128 — Release-Asset Fold
-Plan: 0/10 complete — planned, not started
-Status: Phase 128 PLANNED — 10 plans / 7 waves, dual-repo (firmware + one host commit); plan-checker PASSED, 0 blockers / 0 warnings; coverage 4/4 REL ids and 13/13 trackable decisions — ready for /gsd-execute-phase 128
-Last activity: 2026-08-01 — Phase 128 planned (10 plans, 7 waves)
+Phase: 128 (Release-Asset Fold) — EXECUTING
+Plan: 1/10 complete — 128-01 (AVR-assets-present gate) landed in firestarter
+Status: Plan 01 done (check_release_assets.py + paired test + fixtures); 9 plans remain
+Last activity: 2026-08-01 — Phase 128 Plan 01 executed
 
 ### Phase 127 context highlights (2026-08-01)
 
@@ -181,7 +181,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-30 — v1.23 Current Milestone sect
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.23 adds a fourth board target beneath that contract without disturbing it: the PROM programming algorithms stay platform-independent and the HAL boundary absorbs the new MCU, so protocol dispatch is untouched by the port.
 
-**Current focus:** Phase 127 — host-dfu-installer
+**Current focus:** Phase 128 — release-asset-fold
 
 ## Milestone Context (v1.23)
 
@@ -747,6 +747,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 127]: 127-11: found tools/check_mypy_watermark.py has two stacked fail-open defects (bare PATH mypy + py3.12/python_version=3.9 numpy-stub abort collapsing to 1 error); NOT fixed per operator instruction, carried to 127-12 as an open finding; inherited 69 mypy errors remain OPEN and primary ci job stays RED until a dedicated phase addresses them
 - [Phase 127]: 127-12: HOST-04 ticked against CI run 30708836339 (head SHA string-equal to the final tree's HEAD), not the earlier 30707902225 -- the primary ci job's separate mypy-debt RED is recorded but not folded into HOST-04's own claim
 - [Phase 127]: 127-12: claim-gate trip on its own ceiling prose was resolved by rewording in the author's own words, never by narrowing the gate's forbidden-phrase list or py32-proximity window
+- [Phase 128]: D-11/D-12 implemented exactly: check_release_assets.py derives its required AVR set from size_baseline.json's avr_targets keys, never hardcoded filenames
+- [Phase 128]: Task 2's checker + paired test + floor bump landed in ONE commit per the plan's explicit override of the generic RED/GREEN TDD split
+- [Phase 128]: FIXTURE_FLOOR corrected from 10 to 15 (not just 14) -- pre-existing drift left by Phases 124/126 corrected in the same commit as this phase's own additions
+- [Phase 128]: Did not mark REL-02 or REL-03 complete in REQUIREMENTS.md -- both are multi-plan requirements; Plan 128-10 owns closure
 
 ## Performance Metrics
 
@@ -906,13 +910,14 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 127 P10 | 35min | 2 tasks | 2 files |
 | Phase 127 P11 | 70min | 3 tasks | 1 files |
 | Phase 127 P12 | 130min | 3 tasks | 2 files |
+| Phase 128 P01 | 25min | 3 tasks | 15 files |
 
 ## Session
 
-**Last session:** 2026-08-01T19:26:07.486Z
-**Stopped at:** Phase 128 context gathered
+**Last session:** 2026-08-01T20:51:44.233Z
+**Stopped at:** Phase 128 Plan 01 complete
 **Resume file:** 
-.planning/phases/128-release-asset-fold/128-CONTEXT.md
+None
 
 ### Blockers
 
