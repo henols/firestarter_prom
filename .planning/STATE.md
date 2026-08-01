@@ -4,8 +4,8 @@ milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 126
 current_phase_name: Flash-Persistent Config via a Storage-Backend Seam
-status: verifying
-stopped_at: Completed 126-12-PLAN.md — Phase 126 CLOSED (all 7 CFG requirements ticked)
+status: Phase 126 CLOSED and VERIFIED — ready for /gsd-discuss-phase 127
+stopped_at: Phase 126 CLOSED + VERIFIED — 12/12 plans, verification passed-with-findings (5/5 criteria substantively achieved, 7/7 CFG requirements). Firmware `240fb19` and meta `a55df99` pushed; ARM CI run 30676982030 green (Configure + Build independently success, 42 objects). Two findings carried: F-126-01 informational (Criterion 3's literal "empty git diff" not met — one pre-authorised compile-argv line change, substantive property independently confirmed); F-126-02 warning (planning-process: plans 126-02 and 126-03 were mutually inconsistent as written).
 last_updated: "2026-08-01T01:37:30.645Z"
 last_activity: 2026-07-31
 last_activity_desc: Phase 126 execution started
