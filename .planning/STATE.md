@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.23
 milestone_name: — PY32F071 Integration
-current_phase: 127
-current_phase_name: host-dfu-installer
-status: verifying
+current_phase: 128
+current_phase_name: Release-Asset Fold
+status: Phase 127 CLOSED and VERIFIED — ready for /gsd-discuss-phase 128
 stopped_at: Completed 127-12-PLAN.md
-last_updated: "2026-08-01T17:15:29.822Z"
+last_updated: "2026-08-01T17:32:26.343Z"
 last_activity: 2026-08-01
-last_activity_desc: Phase 127 execution started
+last_activity_desc: Phase 127 complete, transitioned to Phase 128
 progress:
   total_phases: 8
   completed_phases: 5
@@ -24,11 +24,11 @@ progress:
 
 ## Current Position
 
-Phase: 127 (host-dfu-installer) — EXECUTING
-Plan: 12 of 12
+Phase: 128 — Release-Asset Fold
+Plan: Not started
 (disjoint `files_modified`); every later wave is serialized on a shared file.
-Status: Phase complete — ready for verification
-Last activity: 2026-08-01 — Phase 127 execution started
+Status: Phase 127 closed and verified (5/5 criteria, 8/8 requirements) — ready for /gsd-discuss-phase 128
+Last activity: 2026-08-01 — Phase 127 complete, transitioned to Phase 128
 flag and **overturned claims inside four locked decisions** (see the correction block below)
 
 ### Phase 127 context highlights (2026-08-01)
