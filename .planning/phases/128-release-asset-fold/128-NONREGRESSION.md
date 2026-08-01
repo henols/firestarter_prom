@@ -17,9 +17,10 @@
 Task 1), against the trees exactly as they now stand — nothing is copied from any of this
 phase's nine prior plans' (128-01 through 128-09) SUMMARY files. Where a prior SUMMARY made a
 claim (an exit code, a test count, a parsed literal), this document re-checked it
-independently against the live tree and says so below. Every row in §3 is `PENDING —
-operator dispatch` until Task 3 replaces it with operator-supplied, independently
-re-verified evidence.
+independently against the live tree and says so below. §3's rows were written as `PENDING —
+operator dispatch` by Task 1 and were replaced by Task 3 with evidence from the two
+operator-authorised rehearsal runs, each value re-verified read-only against the GitHub API
+(see §4's discharge note for what is and is not re-inspectable after cleanup).
 
 ---
 
@@ -183,11 +184,17 @@ dispatch — see step 2's consequence if it is omitted.
      a real `beta` push) would silently stop publishing real public betas — if this is ever
      observed on a non-rehearsal run, it is a severe regression, not a rehearsal artifact.
 
-**After the operator returns evidence, paste back:** both run URLs, both head commit SHAs,
-both asset lists (names + sizes), the resolved SDK SHA, the resolved rehearsal boolean, and
-whether the D-07 warning appeared on run B. Task 3 replaces §3's `PENDING` cells with these
-values and re-verifies each one read-only where possible (`gh run view`, `gh api` GETs,
-`gh release view --json assets`) — never by dispatching or pushing anything itself.
+**DISCHARGED.** The procedure above was executed under explicit operator authorisation, and
+§3 now carries the resulting evidence: both run URLs, both head commit SHAs, both asset lists
+(names + sizes), the resolved SDK SHA, the resolved rehearsal boolean, and the D-07 warning's
+presence on run B / absence on run A. Each value was re-verified read-only via `gh api` GETs
+against the runs, the release assets, the check-run annotations, and the tag/branch refs.
+
+Both rehearsal releases were **drafts and have since been deleted**, so a reader cannot
+re-inspect the asset lists on the release page today. The run URLs in §3 and the values
+recorded here are the durable record. Verified after cleanup: zero draft releases, zero
+`rehearsal-*` tag refs, zero `3.0.0b99` tag refs, zero rehearsal branch refs, and the newest
+real release still `3.0.0b14` — no public beta was created by either run.
 
 ### 4a. Procedure defect discovered during dispatch (deviation — recorded for Phase 130)
 
