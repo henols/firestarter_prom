@@ -4,15 +4,15 @@ milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 127
 current_phase_name: Host DFU Installer
-status: Phase 127 context gathered — ready for /gsd-plan-phase 127
-stopped_at: Phase 127 context gathered
-last_updated: "2026-08-01T08:22:11.252Z"
+status: Phase 127 PLANNED — ready to execute (12 plans, 8 waves)
+stopped_at: Phase 127 planned
+last_updated: "2026-08-01T10:26:31.383Z"
 last_activity: 2026-08-01
-last_activity_desc: "Phase 127 CONTEXT.md written — 16 decisions locked across 4 gray areas (D-01..D-16), D-17..D-19 at Claude's discretion"
+last_activity_desc: "Phase 127 planned — 12 plans / 8 waves, checker PASSED with no blockers; research ran despite the research-skip flag and overturned claims inside 4 locked decisions (C-1..C-8)"
 progress:
   total_phases: 8
   completed_phases: 4
-  total_plans: 41
+  total_plans: 53
   completed_plans: 41
   percent: 50
 ---
@@ -24,10 +24,12 @@ progress:
 
 ## Current Position
 
-Phase: 127 (Host DFU Installer) — context gathered (2026-08-01); Phase 126 CLOSED + VERIFIED
-Plan: not yet planned — run `/gsd-plan-phase 127` (ROADMAP flags this phase **research-skip**)
-Status: Phase 127 context gathered — ready for /gsd-plan-phase 127
-Last activity: 2026-08-01 — `127-CONTEXT.md` + `127-DISCUSSION-LOG.md` written and committed (`ed53a29`)
+Phase: 127 (Host DFU Installer) — **PLANNED** (2026-08-01); Phase 126 CLOSED + VERIFIED
+Plan: **12 plans across 8 waves** — run `/gsd-execute-phase 127`. Wave 2 runs five plans in parallel
+(disjoint `files_modified`); every later wave is serialized on a shared file.
+Status: Phase 127 planned — plan-checker PASSED, no blockers; requirements 8/8, decisions 16/16
+Last activity: 2026-08-01 — planned Phase 127; research was run despite the ROADMAP's research-skip
+flag and **overturned claims inside four locked decisions** (see the correction block below)
 
 ### Phase 127 context highlights (2026-08-01)
 
@@ -49,15 +51,50 @@ Phases 125/126 and writes nothing into the firmware repo. Phase 128 depends on *
 
 - `git merge-tree --write-tree HEAD 4ee64a1` from the app milestone branch → **exit 0, clean** —
   but `4ee64a1` is **87 commits behind** it (79 behind `beta`; merge base `1bb5599`), and both
-  `cli_handlers.py` and `firmware.py` moved substantially. **Textual ≠ semantic; plan for fixups.**
+  `cli_handlers.py` and `firmware.py` moved substantially. ~~Textual ≠ semantic; plan for fixups.~~
+  → **SUPERSEDED at plan time: the merge was performed for real and nothing breaks.** See below.
+
 - App suite on the milestone branch: **1158 collected**; `tests/test_py32_dfu.py` adds **58**.
 - **`pyusb` is not installed in this devcontainer, but `libusb-1.0.so.0` is** — the `.[test,py32]`
   leg can be rehearsed locally before the operator dispatches CI.
+
 - **No serial devices attached**, so the known live-board artifact
   (`test_no_programmer_found_read/erase`) will not confound the baseline. Re-check before recording.
+
 - **Pushing the app milestone branch fires nothing**: `beta-release.yml` is `beta`-only,
   `release.yml` and `ci.yml`'s `push` are `main`-only, `publish.yml` is release/dispatch-only.
   D-01 carries **zero** release hazard.
+
+### Phase 127 research corrections (2026-08-01, at plan time)
+
+The ROADMAP flagged Phase 127 **research-skip**. Research was run anyway and **overturned claims
+inside four locked decisions** — the third consecutive milestone where that has happened (v1.22
+P122, v1.23 P125, now P127). `127-CONTEXT.md` carries inline `CORRECTED by 127-RESEARCH.md §C-N`
+notes; **the note wins over the surrounding decision text**, whose original wording is preserved as
+the superseded claim.
+
+| # | Decision | Correction | Effect |
+|---|---|---|---|
+| **C-1** | D-16 | A real `git merge --no-ff 4ee64a1` in a scratch worktree: **1216 collected · 0 failed**, all 8 `ci.yml` gates green, coverage 81.35%. **Zero fixups.** | Shrinks the phase — no fixup budget, no expected red commit |
+| **C-2** | D-18 | The self-referential assertions D-18 orders removed **do not exist**; every constant use in `test_py32_dfu.py` is a *sequencing* assertion, which D-18's own next sentence orders kept. | **HOST-06 is purely additive** — following the struck wording would have damaged 58 working tests |
+| **C-5** | D-12 | `flash()` **never calls `_finish()`** — it is the last statement of `_download_dfuse()` (`:768`) and `_download_plain()` (`:777`). The edit as written was impossible. | **Operator chose shape (b): hoist** `_finish()` to one call site in `flash()`, making D-12's ordering structural rather than conventional |
+| **C-4** | D-06 | `Zadig` appears nowhere in the codebase; the message says `WinUSB`. | A literal reading would have been red on day one |
+| C-3 | D-06 | Pragma is at `py32_dfu.py:**375**`, excluding statements 375–376 — and removing it can only *raise* coverage. | Anchor correction |
+| C-6 | D-03 | `_FakeUsbDevice.ctrl_transfer`'s 5th param is `data`; real pyusb 1.3.1 is `data_or_wLength`, plus a `timeout` the fake lacks. | D-03 upgraded from "good idea" to provably targeting a **real, present** drift |
+| C-7 | D-13 | The linker-map transcription CONTEXT asked to be distrusted is **correct**. | Confirmation |
+| C-8 | D-02 | The whole suite run under pyusb-**present**: identical result. D-02's accepted cost measures as **zero today**. | Grounds the acceptance rather than asserting it |
+
+**Baseline, corrected again at plan time:** research's `1213 passed / 3 skipped` was a *scratch-worktree*
+artifact — those tests skip only when `.planning/` is unreachable. In the real sibling checkout expect
+**1216 collected / 1216 passed / 0 skipped**. A non-zero skip count in the evidence run means the
+layout is wrong, not that the suite regressed.
+
+**The phase's one genuinely undecided mechanism, settled by probe** (plan 127-06): keeping
+`test_pyusb_api_surface.py` out of the primary `.[test]` leg via a conditional `collect_ignore` in
+`tests/conftest.py` keyed on `importlib.util.find_spec("usb")`. Non-collection, **not a skip** — so no
+new `ALLOWED_SKIP_REASONS` entry — and fail-closed, because `collect_ignore` does not suppress a path
+named explicitly on the command line, which is how `ci-py32` invokes it.
+
 - Live py32 flash map (`PY32F071xB_FLASH.ld`): `FLASH 0x08000000/120K` · `CONFIG 0x0801E000/8K`
   (Sector 15) · `BOOTLOADER 0x08000000/**LENGTH 0**` — a named seam; giving it a length **moves the
   application's ORIGIN**, which is why D-13's constant is carried forward to Phase 129.
