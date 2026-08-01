@@ -5,15 +5,15 @@ milestone_name: — PY32F071 Integration
 current_phase: 127
 current_phase_name: host-dfu-installer
 status: executing
-stopped_at: Completed 127-03-PLAN.md
-last_updated: "2026-08-01T14:27:30.846Z"
+stopped_at: Completed 127-09-PLAN.md
+last_updated: "2026-08-01T14:54:48.809Z"
 last_activity: 2026-08-01
 last_activity_desc: Phase 127 execution started
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 53
-  completed_plans: 49
+  completed_plans: 50
   percent: 50
 ---
 
@@ -25,7 +25,7 @@ progress:
 ## Current Position
 
 Phase: 127 (host-dfu-installer) — EXECUTING
-Plan: 9 of 12
+Plan: 10 of 12
 (disjoint `files_modified`); every later wave is serialized on a shared file.
 Status: Ready to execute
 Last activity: 2026-08-01 — Phase 127 execution started
@@ -740,6 +740,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 127]: 127-08: hoisted _finish() into flash() (D-12/C-5 shape b) as the sole call site; both downloaders now return (base, next_block).
 - [Phase 127]: 127-08: behaviour-neutrality (A5) measured via device.calls captured before/after the hoist, identical element-by-element for both dfuse and plain dialects.
 - [Phase 127]: 127-08: extended _FakeUsbDevice (not replaced) with a DFU_UPLOAD arm + pyusb-1.3.1-shaped ctrl_transfer signature (C-6); all 58 pre-existing tests unaffected.
+- [Phase 127]: 127-09: D-10 enum shape implemented literally -- VerifyResult(enum.Enum) with 4 members, flash() still returns bool
+- [Phase 127]: 127-09: D-09/D-11/D-12 wired -- readback runs between download and the single _finish() call; MISMATCH raises before _finish(), leaving device in DFU mode
+- [Phase 127]: 127-09: _install_with_dfu now says 'written but NOT verified' when verify_result is not VERIFIED; MISMATCH still reaches exit 1 via existing DfuError chain
 
 ## Performance Metrics
 
@@ -895,11 +898,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 127 P06 | 35min | 3 tasks | 4 files |
 | Phase 127 P07 | 30min | 2 tasks | 2 files |
 | Phase 127 P08 | ~55min | 3 tasks | 3 files |
+| Phase 127 P09 | 65min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-01T14:27:30.815Z
-**Stopped at:** Completed 127-03-PLAN.md
+**Last session:** 2026-08-01T14:54:48.776Z
+**Stopped at:** Completed 127-09-PLAN.md
 **Resume file:** 
 None
 
