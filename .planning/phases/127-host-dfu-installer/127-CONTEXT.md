@@ -1,7 +1,17 @@
 # Phase 127: Host DFU Installer - Context
 
 **Gathered:** 2026-08-01
-**Status:** Ready for planning — ROADMAP flags this phase **research-skip**; run `/gsd-plan-phase 127`
+**Status:** Ready for planning — ROADMAP flagged this phase **research-skip**, but research was run anyway
+at the operator's direction and **overturned claims inside four locked decisions**.
+**Superseded in part by:** [`127-RESEARCH.md`](127-RESEARCH.md) §Corrections (C-1…C-8), 2026-08-01.
+
+> **Read this before acting on any decision below.** Research measured the merge and the code and
+> contradicted D-06, D-12, D-16 and D-18. Each affected decision below carries an inline
+> `CORRECTED by 127-RESEARCH.md §C-N` note; the **original wording is preserved verbatim** as the
+> superseded claim. Where a note and the surrounding decision text disagree, **the note wins.**
+> The two that would otherwise damage the phase: **C-2** (D-18 orders the removal of assertions
+> that do not exist — following it literally damages 58 working tests) and **C-5** (D-12 names a
+> call-site that is not reachable from `flash()` — the edit as written is impossible).
 
 > **This phase is in `firestarter_app`, not `firestarter`.** It runs in **parallel** with Phases
 > 125/126 (different repo, disjoint files, no shared gate — the one real parallelisation
@@ -78,6 +88,12 @@ guard is tightened to the application region Phase 126 actually reserved.
   depends on pyusb's absence *ambiently*.
   Rejected: a `strategy.matrix.extras` dimension (doubles the four codegen-drift gates and the
   smoke test, which have nothing to do with pyusb).
+  > **REFINED by `127-RESEARCH.md` §C-8 [MEASURED]:** the "accepted cost" above measures as **zero
+  > today** — the entire merged suite was run inside a pyusb-present venv and returned **1213
+  > passed / 3 skipped / 0 failed**, identical to the pyusb-absent run, same three skips. The
+  > risk is real in principle but currently unrealised; **record that measurement in the evidence
+  > artifact** so the acceptance is grounded rather than merely asserted. Residual risk applies
+  > only to code added after this measurement. No plan change.
 - **D-03:** The "real API surface" test does two things, both device-free:
   (a) calls **`usb.core.find(find_all=True)` for real**, asserting it either enumerates or raises
   `usb.core.NoBackendError` **explicitly** — never a bare `pass`, which would be vacuous; and
@@ -88,6 +104,17 @@ guard is tightened to the application region Phase 126 actually reserved.
   Rejected: a fake `usb.backend` implementation so real `Device` objects are constructed (highest
   fidelity, but ~100+ lines of untested shim that can drift from libusb's semantics);
   rejected: `find`-only (leaves `ctrl_transfer`, named in Criterion 2, unverified).
+  > **REFINED by `127-RESEARCH.md` §C-6 + §Q3 [MEASURED]:** D-03 is well-founded and targets a
+  > **real, present** drift. Measured facts to build against: (i) `usb.core.find(find_all=True)`
+  > **enumerates** in this devcontainer (8 devices) — it does *not* raise, and `NoBackendError`
+  > subclasses `ValueError`, so a broad `except ValueError` would silently make the test vacuous;
+  > (ii) real pyusb 1.3.1 is
+  > `ctrl_transfer(self, bmRequestType, bRequest, wValue=0, wIndex=0, data_or_wLength=None, timeout=None)`,
+  > while `_FakeUsbDevice.ctrl_transfer` (`tests/test_py32_dfu.py:57`) names its 5th param `data`
+  > and has **no `timeout`** — it works only because all five production call-sites
+  > (`py32_dfu.py:671, 680, 688, 691, 714`) pass positionally. Pin the first five parameter names
+  > **in order** against a literal list written in the test, and add an assertion that no
+  > production call-site passes the 5th argument **by keyword**.
 - **D-04:** Criterion 1's *"exact collected-test count"* is discharged as a **recorded** number in
   the phase evidence artifact — the verbatim `pytest --collect-only` trailer and run summary, with
   the measured baseline (**1158** on the milestone branch, **+58** from `test_py32_dfu.py`, plus a
@@ -97,6 +124,10 @@ guard is tightened to the application region Phase 126 actually reserved.
   Rejected: a `test_suite_collected_count.py` asserting `== N` (it is the exact shape D-10
   rejected, and would go red on every legitimate addition in Phases 128–130);
   rejected: a `>=` floor plus a recorded exact (two mechanisms for one criterion).
+  > **MEASURED by `127-RESEARCH.md` §Q1:** the post-merge count is **1216 collected · 1213 passed ·
+  > 3 skipped · 0 failed** (1158 baseline + 58 from `test_py32_dfu.py`, exactly as predicted),
+  > coverage **81.35%** against the 70 floor. The recorded-not-gated position is unchanged; this is
+  > the number the evidence artifact records, re-measured at evidence time.
 
 ### pyusb present-vs-absent, and channel gating (HOST-02, HOST-04, HOST-05, HOST-08; Criteria 3 & 5)
 
@@ -122,6 +153,17 @@ guard is tightened to the application region Phase 126 actually reserved.
   Rejected: one subprocess test plus `COVERAGE_PROCESS_START`/`sitecustomize` plumbing — it
   degrades silently to "no data", which would show the de-pragma'd line as uncovered with no
   indication why.
+  > **CORRECTED by `127-RESEARCH.md` §C-3 [MEASURED]:** the pragma is at **`py32_dfu.py:375`**, not
+  > `:374` (`:374` is `import usb.util`), and it excludes **two** statements — `375` and `376`
+  > (`376` is the first line of the multi-line `raise PyusbMissingError(...)`). `_require_usb()` is
+  > **already reached** by the existing suite (`372`/`373` execute, `373` raises when pyusb is
+  > absent) — the handler runs but is unmeasured, so removing the pragma **adds two covered
+  > statements and cannot lower coverage**. Two *other* pragmas at `:659-660` and `:665-666`
+  > (`_dev`/`_index` guards) are **out of scope** — HOST-05 touches only the `_require_usb()` one.
+  > **CORRECTED by `127-RESEARCH.md` §C-4 [MEASURED]:** the message body (`py32_dfu.py:376-382`)
+  > names `pip install 'firestarter[py32]'`, `libusb` and **`WinUSB`** — the word **`Zadig` appears
+  > nowhere in the file**. Assert on the three strings that exist; a test asserting `"Zadig"` is red
+  > on day one. Do **not** add the word to the message: D-15 scopes this phase to facts it changed.
 - **D-07:** HOST-08 is proven by **one subprocess per simulated version**, reusing D-05's harness:
   each child patches `firestarter.__version__` **before** `firestarter.cli_handlers` is imported
   (a `-c` preamble or a stub module placed on `sys.path`), then runs `fw --help` and
@@ -188,6 +230,21 @@ guard is tightened to the application region Phase 126 actually reserved.
   Rejected: head/tail spot-check ("verified" would then mean "the ends match" — exactly the kind
   of claim this milestone's honesty ledger exists to catch); rejected: adding a progress line
   (the download path currently prints nothing either, so it would be inconsistent).
+  > **CORRECTED by `127-RESEARCH.md` §C-5 [MEASURED] — the named call-site does not exist.**
+  > `flash()` (`py32_dfu.py:614-642`) **never calls `_finish()`**. It calls `_download_dfuse()`
+  > (`:631`) or `_download_plain()` (`:639`) and returns; `_finish()` is the **last statement of
+  > each downloader** — `py32_dfu.py:768` and `py32_dfu.py:777`. The obvious edit ("in `flash()`,
+  > after the download") therefore lands **after** the device has already left DFU mode and reset
+  > off the bus — precisely the failure D-12 exists to prevent.
+  > **Operator decision, 2026-08-01 — shape (b), hoist:** remove the `self._finish(...)` call from
+  > **both** downloaders, have them return the `base`/`next_block` they currently pass, and call
+  > readback-then-`_finish()` **once from `flash()`**. One call-site, one ordering guarantee —
+  > D-12's constraint becomes **structural rather than convention**. Both downloaders are private
+  > and the existing 58 tests assert on `device.calls` / `dnloads()` sequences, which the hoist
+  > leaves unchanged. (Rejected: in-place insertion before `:768` and `:777` — smaller diff, but it
+  > duplicates the call and leaves the ordering rule as a convention a future edit can break.)
+  > The byte-for-byte full-payload compare and the "readback strictly before `_finish()`" rule are
+  > **unchanged** — only the site that enforces them moves.
 
 ### Flash-map reconciliation and the merge (D-13…D-16)
 
@@ -205,6 +262,11 @@ guard is tightened to the application region Phase 126 actually reserved.
   created, in the only repo that can close it.
   Rejected: warn-don't-refuse (the branch's design position is that the envelope refusal is
   non-overridable); rejected: deferring the code to Phase 129 (see D-15 for where the line is).
+  > **CONFIRMED by `127-RESEARCH.md` §C-7 + §Q2 [MEASURED]:** the transcription above asked to be
+  > distrusted; it should not have been. Read live on the firmware milestone branch, the map is
+  > exactly `FLASH : ORIGIN = 0x08000000, LENGTH = 120K` · `CONFIG : ORIGIN = 0x0801E000,
+  > LENGTH = 8K` · `BOOTLOADER : ORIGIN = 0x08000000, LENGTH = 0`. Phase 126 closing did not move
+  > it. Build D-13's constants against these values.
 - **D-14:** The host constant is kept honest by a **cross-repo gate that parses the linker
   script** — a test reading `../firestarter/platform/py32f071/linker/PY32F071xB_FLASH.ld`,
   extracting `ORIGIN(CONFIG)` and `LENGTH(FLASH)`, and asserting the host constants match.
@@ -217,6 +279,12 @@ guard is tightened to the application region Phase 126 actually reserved.
   PASS→SKIP at exit 0 with a false reason — and moving firmware files is this milestone's premise.
   Rejected: a hardcoded constant with a citing comment (nothing detects it when Phase 129 gives
   `BOOTLOADER` a length and the map moves).
+  > **RESOLVED by `127-RESEARCH.md` §Q2 + §Q4 [MEASURED]:** two open questions in this decision now
+  > have definite answers. (a) The `@requires_fw` binding needs **NO new `ALLOWED_SKIP_REASONS`
+  > entry** — `FW_ABSENT_REASON` is already entry 1 and is *imported*, not re-typed; CONTEXT's
+  > "may" resolves to **no**. (b) **Do not re-derive the parser** — a working linker-script parser
+  > already exists at `firestarter/tests/test_py32_flash_map.py:172,234`; copy it. The
+  > non-vacuity requirement stands and is the part that must not be dropped in the copy.
 - **D-15:** `doc/PY32F071-FIRMWARE-INSTALL.md` (273 lines) is updated **only for facts this phase
   changed**: the 120K/8K map as actually reserved, the readback-verification step and its three
   non-`VERIFIED` outcomes, and the `[py32]` extra's raised floor. **Phase 129 keeps** the
@@ -243,6 +311,18 @@ guard is tightened to the application region Phase 126 actually reserved.
   repairs become invisible inside a merge commit nobody can diff);
   rejected: rebasing `4ee64a1` first (rewrites the SHAs, so `4ee64a1` is no longer a parent of
   anything — fails Criterion 1 literally).
+  > **CORRECTED by `127-RESEARCH.md` §C-1 + §Q1 [MEASURED] — the caution is discharged; nothing
+  > breaks.** A real `git merge --no-ff 4ee64a1` was performed in a scratch worktree in a correct
+  > sibling layout: merge-commit parents include `4ee64a1` (Criterion 1 satisfied literally),
+  > **1216 collected · 1213 passed · 3 skipped · 0 failed**, **all 8 `ci.yml` gate steps green**
+  > (both codegen-drift gates, `ruff check`, `ruff format --check`, mypy watermark 1-vs-35, smoke
+  > test), coverage 81.35%. **Schedule no fixup tasks, no fixup budget, and no expected red
+  > commit.** The contingency wording above may stand as history, but nothing is planned against
+  > it. Record the measurement with its reproduction command in the evidence artifact.
+  > **Load-bearing mechanical detail:** the suite is **not** location-independent —
+  > `test_sdp_bus_config_drift.py:22` and `test_gen_validation_header.py:21` hardcode
+  > `_REPO_ROOT / "firestarter_app"`, so a wrongly-named working directory produced **6 failures**
+  > in the first probe. Criterion 1's *"in the sibling layout"* is mechanical, not decorative.
 
 ### Claude's Discretion
 
@@ -265,6 +345,18 @@ locked above. The planner should implement them as described and flag any surpri
   or converted**, not merely supplemented: leaving them means the source==source oracle research
   finding 7 identified still exists. The **sequencing** assertions in that file are genuinely
   independent and stay. Same discipline as 126 D-05's CRC32 known-answer vector.
+  > **CORRECTED by `127-RESEARCH.md` §C-2 [MEASURED] — the assertions ordered removed do not
+  > exist.** A targeted scan
+  > (`grep -nE "assert\s+(py32_dfu\.)?(DFU|DFUSE|FLASH)_[A-Z_]+\s*==\s*(0x)?[0-9]"`) over
+  > `tests/test_py32_dfu.py` returns **no matches**. Every use of `DFUSE_ERASE_PAGE`,
+  > `DFUSE_SET_ADDRESS`, `DFUSE_VERSION` and `FLASH_BASE` in that file is as a **label inside a
+  > sequencing assertion** (e.g. `:242` `assert (DFUSE_ERASE_PAGE, FLASH_BASE) in commands`) — i.e.
+  > the assertions this decision orders removed **are** the ones its own next sentence orders kept.
+  > `SUMMARY.md:217` (finding 7) prescribes only *"anchor the literals to UM1504 / DFU 1.1 in one
+  > test"* — it never says remove.
+  > **Corrected decision: HOST-06 is purely ADDITIVE.** Create one new anchoring module; **delete
+  > and convert nothing** in `tests/test_py32_dfu.py`. Following the struck wording literally would
+  > damage 58 working tests to satisfy an instruction its own source never gave.
 - **D-19 (HOST-07):** `pyusb>=1.3.1,<2` in the `[py32]` extra (from `>=1.2.1`). Zero cost —
   research measured 1.3.1 as the current release (2025-01-08, `python_requires >=3.9.0`) against
   the project's py39 floor.
