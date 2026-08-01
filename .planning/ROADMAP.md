@@ -2366,7 +2366,7 @@ Plans:
   3. A deliberately-broken ARM build (a planted-violation CI run) still publishes all three AVR `.hex` assets — proven by an "AVR assets present" assertion step that runs before the `Release` step and demonstrably fails the build if any AVR asset is missing.
   4. CI logs the resolved SDK commit SHA and asserts the emitted filename matches `asset_candidates("py32f071")[0]` via a mechanical string-equality check in the workflow, not a human read of the release page.
 
-**Plans**: 6/10 plans executed
+**Plans**: 7/10 plans executed
 
 Plans:
 **Wave 1**
@@ -2386,7 +2386,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 128-07-PLAN.md — W4 · the release path: the assets gate called unconditionally immediately before `Release`, `files:` converted to the two-entry block that finally reaches `build/py32f071/`, the unmatched-files omission pinned with F-1's corrected mechanism, and `draft:`/`tag_name:` wired to the rehearsal switch
+- [x] 128-07-PLAN.md — W4 · the release path: the assets gate called unconditionally immediately before `Release`, `files:` converted to the two-entry block that finally reaches `build/py32f071/`, the unmatched-files omission pinned with F-1's corrected mechanism, and `draft:`/`tag_name:` wired to the rehearsal switch
 
 **Wave 5** *(blocked on Wave 4 completion)*
 

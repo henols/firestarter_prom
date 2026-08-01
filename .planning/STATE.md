@@ -5,15 +5,15 @@ milestone_name: — PY32F071 Integration
 current_phase: 128
 current_phase_name: Release-Asset Fold
 status: executing
-stopped_at: Phase 128 Plan 06 complete
-last_updated: "2026-08-01T21:32:43.584Z"
+stopped_at: Phase 128 Plan 07 complete
+last_updated: "2026-08-01T21:50:00.000Z"
 last_activity: 2026-08-01
-last_activity_desc: Phase 128 Plan 06 executed
+last_activity_desc: Phase 128 Plan 07 executed
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 63
-  completed_plans: 59
+  completed_plans: 60
   percent: 63
 ---
 
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 128 (Release-Asset Fold) — EXECUTING
-Plan: 6/10 complete — 128-06 (beta-build.yml release-job assertions: emitted-filename transcription (D-08(a)), SDK-pin equality (D-10, F-15-corrected rationale), bumped-VERSION strings check (F-9/REL-01)) landed in firestarter
-Status: Plan 06 done (three exit-code assertions added between the D-07 report step and Resolve release target SHA, each guarded steps.arm.outcome == 'success': asset basename == firestarter_py32f071.hex; sdk_sha == 40-hex GIT_TAG from CMakeLists.txt; strings-over-objcopy'd-image contains steps.version.outputs.version:py32f071, never tag_name; Release step untouched); 4 plans remain
-Last activity: 2026-08-01 — Phase 128 Plan 06 executed
+Plan: 7/10 complete — 128-07 (beta-build.yml release-path closure: unconditional AVR-assets gate call site (REL-03), two-entry files: block list (REL-02/D-15), rehearsal-wired draft:/tag_name: (D-01/D-03)) landed in firestarter
+Status: Plan 07 done (Assert all AVR release assets are present step added immediately before Release with no if: guard; files: converted to a two-entry block list reaching both .pio/build/ and build/py32f071/, with the fail_on_unmatched_files omission pinned by the F-1-corrected comment; draft: and tag_name: now resolve exclusively through steps.mode.outputs.rehearsal; this is the last change to beta-build.yml in this phase); 3 plans remain
+Last activity: 2026-08-01 — Phase 128 Plan 07 executed
 
 ### Phase 127 context highlights (2026-08-01)
 
@@ -759,6 +759,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 128]: 128-05: did not mark REL-01 or REL-03 complete in REQUIREMENTS.md -- this plan advances only the ordering slice of REL-01 and the containment slice of REL-03; Plan 128-10 owns closure
 - [Phase 128]: 128-06: three release-job exit-code assertions added (D-08(a) filename transcription, D-10 SDK-pin equality with F-15 corrected rationale, F-9/REL-01 bumped-VERSION strings check), all guarded on steps.arm.outcome == 'success', between the D-07 report step and Resolve release target SHA
 - [Phase 128]: 128-06: did not mark REL-01 or REL-04 complete in REQUIREMENTS.md -- this plan advances only the mechanical-assertion slice of each; Plan 128-10 owns closure and REL-04 additionally needs Plan 128-09's cross-repo binding
+- [Phase 128]: 128-07: added the unconditional AVR-assets gate call site immediately before Release (REL-03), converted files: to a two-entry block list reaching both .pio/build/ and build/py32f071/ with the fail_on_unmatched_files omission pinned by research F-1's corrected mechanism (REL-02), and wired draft:/tag_name: to steps.mode.outputs.rehearsal, never inputs.rehearsal (D-01/D-03) -- this is the last change to beta-build.yml in this phase
+- [Phase 128]: 128-07: did not mark REL-02 or REL-03 complete in REQUIREMENTS.md -- this plan lands the publication mechanism and gate call site only; Plan 128-10 owns closure and additionally needs run A's observed asset list (REL-02) and run B's observed cascade (REL-03)
 
 ## Performance Metrics
 
@@ -924,6 +926,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 128 P04 | ~15min | 3 tasks | 1 files |
 | Phase 128 P05 | ~15min | 3 tasks | 1 files |
 | Phase 128 P06 | ~15min | 3 tasks | 1 files |
+| Phase 128 P07 | ~20min | 3 tasks | 1 files |
 
 ## Session
 

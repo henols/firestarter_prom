@@ -148,3 +148,12 @@ None. All new surface introduced here is already named in this plan's own `<thre
 ---
 *Phase: 128-release-asset-fold*
 *Completed: 2026-08-01*
+
+## Self-Check: PASSED
+
+- FOUND: `/workspaces/firestarter/.github/workflows/beta-build.yml`
+- FOUND: `/workspaces/.planning/phases/128-release-asset-fold/128-07-SUMMARY.md`
+- FOUND commit `542a25c` (Task 1) in `firestarter`
+- FOUND commit `c49955e` (Task 2) in `firestarter`
+- FOUND commit `88386db` (Task 3) in `firestarter`
+- FOUND commit `8ad7107` (SUMMARY.md) in the meta-repo
