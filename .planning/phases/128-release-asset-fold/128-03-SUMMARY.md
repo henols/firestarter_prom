@@ -136,3 +136,10 @@ None - no external service configuration required.
 ---
 *Phase: 128-release-asset-fold*
 *Completed: 2026-08-01*
+
+## Self-Check: PASSED
+
+- FOUND: `/workspaces/.planning/phases/128-release-asset-fold/128-03-SUMMARY.md`
+- FOUND: `/workspaces/firestarter/platform/py32f071/CMakeLists.txt`
+- FOUND: commit `9039b43` (meta repo, SUMMARY.md)
+- FOUND: commit `a7db7b7` (firestarter repo, CMake rename)
