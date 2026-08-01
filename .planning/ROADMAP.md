@@ -2366,7 +2366,7 @@ Plans:
   3. A deliberately-broken ARM build (a planted-violation CI run) still publishes all three AVR `.hex` assets — proven by an "AVR assets present" assertion step that runs before the `Release` step and demonstrably fails the build if any AVR asset is missing.
   4. CI logs the resolved SDK commit SHA and asserts the emitted filename matches `asset_candidates("py32f071")[0]` via a mechanical string-equality check in the workflow, not a human read of the release page.
 
-**Plans**: 5/10 plans executed
+**Plans**: 6/10 plans executed
 
 Plans:
 **Wave 1**
@@ -2382,7 +2382,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 128-06-PLAN.md — W3 · the three success-path exit codes: D-08(a) filename equality (labelled a transcription), D-10's SDK-pin equality with 40-hex guards on both sides, and F-9's `objcopy`+`strings` proof that the published image carries the bumped `VERSION`
+- [x] 128-06-PLAN.md — W3 · the three success-path exit codes: D-08(a) filename equality (labelled a transcription), D-10's SDK-pin equality with 40-hex guards on both sides, and F-9's `objcopy`+`strings` proof that the published image carries the bumped `VERSION`
 
 **Wave 4** *(blocked on Wave 3 completion)*
 

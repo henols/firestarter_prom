@@ -5,16 +5,16 @@ milestone_name: — PY32F071 Integration
 current_phase: 128
 current_phase_name: Release-Asset Fold
 status: executing
-stopped_at: Phase 128 Plan 05 complete
-last_updated: "2026-08-01T21:21:42.094Z"
+stopped_at: Phase 128 Plan 06 complete
+last_updated: "2026-08-01T21:32:43.584Z"
 last_activity: 2026-08-01
-last_activity_desc: Phase 128 Plan 05 executed — beta-build.yml release-job fold (rehearsal input, ARM call site, D-07 report) (firestarter)
+last_activity_desc: Phase 128 Plan 06 executed
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 63
   completed_plans: 59
-  percent: 94
+  percent: 63
 ---
 
 # Project State
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 128 (Release-Asset Fold) — EXECUTING
-Plan: 5/10 complete — 128-05 (beta-build.yml release-job fold: rehearsal input, ARM call site, D-07 report, D-01/D-05/D-06/D-07) landed in firestarter
-Status: Plan 05 done (beta-build.yml gained a permanent boolean rehearsal dispatch input normalised into steps.mode.outputs.rehearsal; a Build PY32F071 firmware step (id: arm) calling ./.github/actions/build-py32f071 strictly after the version-bump auto-commit, continue-on-error: true at this call site only; a Report a missing PY32F071 image step keyed on steps.arm.outcome, never .conclusion; Release step untouched); 5 plans remain
-Last activity: 2026-08-01 — Phase 128 Plan 05 executed
+Plan: 6/10 complete — 128-06 (beta-build.yml release-job assertions: emitted-filename transcription (D-08(a)), SDK-pin equality (D-10, F-15-corrected rationale), bumped-VERSION strings check (F-9/REL-01)) landed in firestarter
+Status: Plan 06 done (three exit-code assertions added between the D-07 report step and Resolve release target SHA, each guarded steps.arm.outcome == 'success': asset basename == firestarter_py32f071.hex; sdk_sha == 40-hex GIT_TAG from CMakeLists.txt; strings-over-objcopy'd-image contains steps.version.outputs.version:py32f071, never tag_name; Release step untouched); 4 plans remain
+Last activity: 2026-08-01 — Phase 128 Plan 06 executed
 
 ### Phase 127 context highlights (2026-08-01)
 
@@ -757,6 +757,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 128]: 128-04: py32f071.yml step names match the plan's literal wording (Report firmware size / Verify the install image exists and is non-empty / Upload firmware install image), differing from pre-existing names — Plan's acceptance criteria and automated verify script check for these exact renamed step names as part of the structure assertions.
 - [Phase 128]: 128-05: reworded the D-07 report-step comment to say "the step's outcome, never its conclusion" instead of the plan's literal "steps.arm.conclusion" phrase, because the plan's own Task 3 automated verify script asserts zero occurrences of that exact dotted substring anywhere in the file -- writing it in the explanatory comment would fail the plan's own check
 - [Phase 128]: 128-05: did not mark REL-01 or REL-03 complete in REQUIREMENTS.md -- this plan advances only the ordering slice of REL-01 and the containment slice of REL-03; Plan 128-10 owns closure
+- [Phase 128]: 128-06: three release-job exit-code assertions added (D-08(a) filename transcription, D-10 SDK-pin equality with F-15 corrected rationale, F-9/REL-01 bumped-VERSION strings check), all guarded on steps.arm.outcome == 'success', between the D-07 report step and Resolve release target SHA
+- [Phase 128]: 128-06: did not mark REL-01 or REL-04 complete in REQUIREMENTS.md -- this plan advances only the mechanical-assertion slice of each; Plan 128-10 owns closure and REL-04 additionally needs Plan 128-09's cross-repo binding
 
 ## Performance Metrics
 
@@ -921,11 +923,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 128 P03 | 20min | 2 tasks | 1 files |
 | Phase 128 P04 | ~15min | 3 tasks | 1 files |
 | Phase 128 P05 | ~15min | 3 tasks | 1 files |
+| Phase 128 P06 | ~15min | 3 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-01T21:21:42.094Z
-**Stopped at:** Phase 128 Plan 05 complete
+**Last session:** 2026-08-01T21:32:25.633Z
+**Stopped at:** Phase 128 Plan 06 complete
 **Resume file:** 
 None
 
