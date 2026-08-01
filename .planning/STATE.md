@@ -5,15 +5,15 @@ milestone_name: — PY32F071 Integration
 current_phase: 128
 current_phase_name: Release-Asset Fold
 status: executing
-stopped_at: Phase 128 Plan 08 complete
-last_updated: "2026-08-01T21:52:03.413Z"
+stopped_at: Phase 128 Plan 09 complete
+last_updated: "2026-08-01T22:08:12.333Z"
 last_activity: 2026-08-01
-last_activity_desc: Phase 128 Plan 08 executed
+last_activity_desc: Phase 128 Plan 09 executed
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 63
-  completed_plans: 61
+  completed_plans: 62
   percent: 63
 ---
 
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 128 (Release-Asset Fold) — EXECUTING
-Plan: 8/10 complete — 128-08 (platform/py32f071/README.md `## Release integration` section added in corrected form (D-14/D-15); README-to-workflow parity + repo-wide hyphen-to-underscore rename consistency proven; firmware working tree closed) landed in firestarter
-Status: Plan 08 done (README gained the section ad47c3b intended, with its literal corrected to a glob, its glob rationale replaced by the real fail_on_unmatched_files mechanism (research F-1), D-05's continue-on-error removal trigger and D-13's build.yml graduation trigger recorded as decisions, and the claim ceiling stated; README's two release-file entries proven to equal beta-build.yml's shipped files: entries; zero hyphenated firestarter-py32f071 occurrences repo-wide; firmware tree clean at HEAD 0de57da, pytest 180 passed, native/native_nodevtools 141/141 each unchanged; REL-02/REL-03 deliberately NOT marked complete -- Plan 128-10 owns closure); this is the last firmware commit of the phase (D-19); 2 plans remain (128-09 app-repo commit, 128-10 close)
-Last activity: 2026-08-01 — Phase 128 Plan 08 executed
+Plan: 9/10 complete — 128-09 (firestarter_app/tests/test_py32_asset_name_host.py added: three-way cross-repo binding of the CMake-emitted hex basename, the beta-build.yml REL-04 transcription, and asset_candidates("py32f071")[0], each parse non-vacuity-guarded (D-08(b)/D-09)) landed in firestarter_app
+Status: Plan 09 done (10 tests, 0 skipped, locally: 6 @requires_fw parity legs + 4 unmarked RED demonstrations; planted-mutation test proves the parity check can fail and never touches the read-only firmware sibling (blob SHA + porcelain unchanged); tests/test_skip_census.py green, no new ALLOWED_SKIP_REASONS entry (FW_ABSENT_REASON already covers it); full host suite 1303 passed; firmware tree still clean at HEAD 0de57da, untouched by this plan; REL-04 deliberately NOT marked complete -- this closes only the cross-repo binding slice, Plan 128-06 and Plan 128-10 own the other two halves); this is the phase's second and final commit (D-19), closing the dual-repo commit sequence; 1 plan remains (128-10 close)
+Last activity: 2026-08-01 — Phase 128 Plan 09 executed
 
 ### Phase 127 context highlights (2026-08-01)
 
@@ -763,6 +763,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 128]: 128-07: did not mark REL-02 or REL-03 complete in REQUIREMENTS.md -- this plan lands the publication mechanism and gate call site only; Plan 128-10 owns closure and additionally needs run A's observed asset list (REL-02) and run B's observed cascade (REL-03)
 - [Phase 128]: 128-08: D-15 corrected -- README release-file entry is the glob build/py32f071/firestarter_*.hex; the glob-vs-literal justification is the real fail_on_unmatched_files mechanism (research F-1), not folklore
 - [Phase 128]: 128-08: D-05/D-13 continue-on-error removal trigger and build.yml graduation trigger recorded as decisions in the README, not left as suggestions
+- [Phase 128]: 128-09: test_planted_mutated_cmake_name_is_detected carries @requires_fw (deviation from the 127 analog, which carries none) -- reading and hashing the real firmware file makes an absent sibling a hard error, not an honest skip; FW_ABSENT_REASON already covers it
+- [Phase 128]: 128-09: did not mark REL-04 complete in REQUIREMENTS.md -- this plan closes only the cross-repo binding slice; Plan 128-06's in-workflow assertions and Plan 128-10's rehearsal-run evidence are the other two halves
 
 ## Performance Metrics
 
@@ -933,8 +935,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-01T21:51:24.484Z
-**Stopped at:** Phase 128 Plan 06 complete
+**Last session:** 2026-08-01T22:08:12.310Z
+**Stopped at:** Phase 128 Plan 09 complete
 **Resume file:** 
 None
 

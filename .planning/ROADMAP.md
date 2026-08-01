@@ -2366,7 +2366,7 @@ Plans:
   3. A deliberately-broken ARM build (a planted-violation CI run) still publishes all three AVR `.hex` assets — proven by an "AVR assets present" assertion step that runs before the `Release` step and demonstrably fails the build if any AVR asset is missing.
   4. CI logs the resolved SDK commit SHA and asserts the emitted filename matches `asset_candidates("py32f071")[0]` via a mechanical string-equality check in the workflow, not a human read of the release page.
 
-**Plans**: 8/10 plans executed
+**Plans**: 9/10 plans executed
 
 Plans:
 **Wave 1**
@@ -2394,7 +2394,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 128-09-PLAN.md — W6 · the host repo's only commit: `tests/test_py32_asset_name_host.py`, D-09's three-way equality with one non-vacuity assertion **per parse**, observed PASS-not-SKIP locally (F-8 says app CI skips it)
+- [x] 128-09-PLAN.md — W6 · the host repo's only commit: `tests/test_py32_asset_name_host.py`, D-09's three-way equality with one non-vacuity assertion **per parse**, observed PASS-not-SKIP locally (F-8 says app CI skips it)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
