@@ -5,15 +5,15 @@ milestone_name: — PY32F071 Integration
 current_phase: 128
 current_phase_name: Release-Asset Fold
 status: executing
-stopped_at: Phase 128 Plan 07 complete
-last_updated: "2026-08-01T21:50:00.000Z"
+stopped_at: Phase 128 Plan 08 complete
+last_updated: "2026-08-01T21:52:03.413Z"
 last_activity: 2026-08-01
-last_activity_desc: Phase 128 Plan 07 executed
+last_activity_desc: Phase 128 Plan 08 executed
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 63
-  completed_plans: 60
+  completed_plans: 61
   percent: 63
 ---
 
@@ -25,9 +25,9 @@ progress:
 ## Current Position
 
 Phase: 128 (Release-Asset Fold) — EXECUTING
-Plan: 7/10 complete — 128-07 (beta-build.yml release-path closure: unconditional AVR-assets gate call site (REL-03), two-entry files: block list (REL-02/D-15), rehearsal-wired draft:/tag_name: (D-01/D-03)) landed in firestarter
-Status: Plan 07 done (Assert all AVR release assets are present step added immediately before Release with no if: guard; files: converted to a two-entry block list reaching both .pio/build/ and build/py32f071/, with the fail_on_unmatched_files omission pinned by the F-1-corrected comment; draft: and tag_name: now resolve exclusively through steps.mode.outputs.rehearsal; this is the last change to beta-build.yml in this phase); 3 plans remain
-Last activity: 2026-08-01 — Phase 128 Plan 07 executed
+Plan: 8/10 complete — 128-08 (platform/py32f071/README.md `## Release integration` section added in corrected form (D-14/D-15); README-to-workflow parity + repo-wide hyphen-to-underscore rename consistency proven; firmware working tree closed) landed in firestarter
+Status: Plan 08 done (README gained the section ad47c3b intended, with its literal corrected to a glob, its glob rationale replaced by the real fail_on_unmatched_files mechanism (research F-1), D-05's continue-on-error removal trigger and D-13's build.yml graduation trigger recorded as decisions, and the claim ceiling stated; README's two release-file entries proven to equal beta-build.yml's shipped files: entries; zero hyphenated firestarter-py32f071 occurrences repo-wide; firmware tree clean at HEAD 0de57da, pytest 180 passed, native/native_nodevtools 141/141 each unchanged; REL-02/REL-03 deliberately NOT marked complete -- Plan 128-10 owns closure); this is the last firmware commit of the phase (D-19); 2 plans remain (128-09 app-repo commit, 128-10 close)
+Last activity: 2026-08-01 — Phase 128 Plan 08 executed
 
 ### Phase 127 context highlights (2026-08-01)
 
@@ -761,6 +761,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 128]: 128-06: did not mark REL-01 or REL-04 complete in REQUIREMENTS.md -- this plan advances only the mechanical-assertion slice of each; Plan 128-10 owns closure and REL-04 additionally needs Plan 128-09's cross-repo binding
 - [Phase 128]: 128-07: added the unconditional AVR-assets gate call site immediately before Release (REL-03), converted files: to a two-entry block list reaching both .pio/build/ and build/py32f071/ with the fail_on_unmatched_files omission pinned by research F-1's corrected mechanism (REL-02), and wired draft:/tag_name: to steps.mode.outputs.rehearsal, never inputs.rehearsal (D-01/D-03) -- this is the last change to beta-build.yml in this phase
 - [Phase 128]: 128-07: did not mark REL-02 or REL-03 complete in REQUIREMENTS.md -- this plan lands the publication mechanism and gate call site only; Plan 128-10 owns closure and additionally needs run A's observed asset list (REL-02) and run B's observed cascade (REL-03)
+- [Phase 128]: 128-08: D-15 corrected -- README release-file entry is the glob build/py32f071/firestarter_*.hex; the glob-vs-literal justification is the real fail_on_unmatched_files mechanism (research F-1), not folklore
+- [Phase 128]: 128-08: D-05/D-13 continue-on-error removal trigger and build.yml graduation trigger recorded as decisions in the README, not left as suggestions
 
 ## Performance Metrics
 
@@ -927,10 +929,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 128 P05 | ~15min | 3 tasks | 1 files |
 | Phase 128 P06 | ~15min | 3 tasks | 1 files |
 | Phase 128 P07 | ~20min | 3 tasks | 1 files |
+| Phase 128 P08 | ~25min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-01T21:32:25.633Z
+**Last session:** 2026-08-01T21:51:24.484Z
 **Stopped at:** Phase 128 Plan 06 complete
 **Resume file:** 
 None
