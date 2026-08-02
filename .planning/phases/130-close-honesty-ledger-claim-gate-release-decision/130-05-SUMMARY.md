@@ -196,11 +196,12 @@ Per-label `unlabeled` breakdown, the four labels named in this plan's acceptance
 
 ## Task Commits
 
-Three atomic content commits, one per task, matching the plan's own file-scope split:
+Four content commits (three task commits + one same-session fix), matching the plan's own file-scope split:
 
 1. **Task 1: D-15 subject-set measurement** (`130-05-SUMMARY.md` only, no ROADMAP edit) — `b15530c` (docs)
 2. **Task 2: Retire 999.23/999.24, repair pointers, correct v1.30, add the supersession note** (`.planning/ROADMAP.md` only) — `b2830ee` (docs)
-3. **Task 3: Todo move + D-16 re-proof + checker delta + SUMMARY completion** (the two `todos/` paths + this SUMMARY.md) — see `git log --oneline -1` immediately following this commit (docs)
+3. **Task 3: Todo rename + D-16 re-proof + checker delta + SUMMARY completion** (the git-mv rename + this SUMMARY.md) — `f33a1b6` (docs)
+4. **Fix: land the completed-todo's content edits that `f33a1b6` staged as a bare rename** (Rule 1, self-caught) — `a2a67f0` (docs)
 
 `git -C /workspaces diff --stat` for commit `b2830ee` shows exactly one file: `.planning/ROADMAP.md`.
 
@@ -230,8 +231,18 @@ Three atomic content commits, one per task, matching the plan's own file-scope s
 
 ---
 
-**Total deviations:** 1 auto-fixed (Rule 3, blocking environment repair — a pre-existing branch mis-naming from a prior plan's execution, not caused by this plan's own edits).
-**Impact on plan:** No scope creep; the fix was a non-destructive ref move verified safe before being applied, and this plan's own three content commits all landed correctly once fixed. All of this plan's own acceptance criteria pass.
+**2. [Rule 1 — bug, self-caught in own execution] Task 3's own commit missed the completed-todo's content edits, staging only the bare rename**
+- **Found during:** post-commit `git status` check after Task 3's commit (`f33a1b6`)
+- **Issue:** `git mv` had staged the pending→completed rename early in Task 3, before the frontmatter (`status`/`resolved`/`resolution`) and the appended `## Resolution` section were written via `Edit`. Those `Edit` calls updated the working-tree file but the index still held the pre-edit staged blob from the `git mv`, so `git commit` for Task 3 recorded a content-identical rename (0 insertions/deletions for that file) while the SUMMARY.md commit in the same operation correctly described content that had not actually landed yet. `git status` immediately after the commit showed the file as still modified, which is what caught it.
+- **Fix:** Staged the file again (`git add`) and created a **new** commit (`a2a67f0`) carrying the missed content, rather than amending `f33a1b6` — consistent with the "always a new commit" policy. `git log --follow` across both commits confirms the rename history and the content both landed correctly, and `git diff -M` across the two-commit span shows the expected combined diff.
+- **Files modified:** `.planning/todos/completed/correct-v128-py32-roadmap-prior-art.md` (no new files; same file, split across two commits instead of one)
+- **Verification:** `git status --short` after `a2a67f0` shows the file clean; `git diff -M HEAD~4 HEAD -- .planning/todos/` shows exactly the intended rename + content diff.
+- **Committed in:** `a2a67f0`
+
+---
+
+**Total deviations:** 2 auto-fixed (1 Rule 3 blocking environment repair inherited from a prior plan's execution; 1 Rule 1 self-caught staging bug in this plan's own Task 3 commit, fixed with a follow-up commit rather than an amend).
+**Impact on plan:** No scope creep; both were caught and corrected before this plan finished, with the fixes documented rather than silently folded away. All of this plan's own acceptance criteria pass, and the final git state matches what this SUMMARY describes.
 
 ## Issues Encountered
 
@@ -256,7 +267,8 @@ None — no external service configuration required.
 - `[ -f /workspaces/.planning/phases/130-close-honesty-ledger-claim-gate-release-decision/130-05-SUMMARY.md ]` → FOUND (this file)
 - Task 1 commit `b15530c` → verified present in `git log --oneline --all`
 - Task 2 commit `b2830ee` → verified present in `git log --oneline --all`
-- Task 3 commit → verified present immediately after this self-check is committed (see `git log --oneline -1`)
+- Task 3 commit `f33a1b6` + fix commit `a2a67f0` → verified present in `git log --oneline --all`
+- `git status --short` after `a2a67f0` → clean for all of this plan's files (only pre-existing, unrelated submodule dirtiness remains)
 - `git status --short -- .planning/REQUIREMENTS.md .planning/STATE.md .planning/PROJECT.md` → empty (untouched, confirmed)
 - `git -C /workspaces diff --stat` for commit `b2830ee` → touches only `.planning/ROADMAP.md`
 - No ROADMAP.md plan-checkbox or progress-table edits made — confirmed via the 6-hunk `git diff -U0` list (lines 35, 1723, 1732, 1738, 1749, 1883 only; none in the tracking region near `130-05-PLAN.md`'s own checkbox)
