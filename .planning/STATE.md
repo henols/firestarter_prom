@@ -4,11 +4,11 @@ milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 129
 current_phase_name: Flash-Path Decision & PCB Requirements Record
-status: Phase 129 PLANNED — 9 plans / 9 serial waves, dual-repo — ready for /gsd-execute-phase 129
+status: executing
 stopped_at: Phase 129 planned
-last_updated: "2026-08-02T10:05:00.000Z"
+last_updated: "2026-08-02T10:57:39.334Z"
 last_activity: 2026-08-02
-last_activity_desc: Phase 129 planned — 9 plans / 9 waves, plan-checker PASSED; research overturned 4 locked positions, 2 escalated and decided
+last_activity_desc: Phase 129 execution started
 progress:
   total_phases: 8
   completed_phases: 6
@@ -24,10 +24,10 @@ progress:
 
 ## Current Position
 
-Phase: 129 — Flash-Path Decision & PCB Requirements Record
+Phase: 129 — Flash-Path Decision & PCB Requirements Record (EXECUTING)
 Plans: 0/9 complete
-Status: **PLANNED — ready to execute.** 9 plans in 9 deliberately serial waves; plan-checker PASSED (0 blockers, 0 warnings). Requirements coverage 5/5, decision coverage 18/18. Research ran and overturned **four** locked positions; two were escalated to the operator during planning and decided. Next: `/gsd-execute-phase 129`.
-Last activity: 2026-08-02 — Phase 129 planned
+Status: **EXECUTING** — 9 plans in 9 serial waves, dual-repo (meta + `firestarter`). Sequential, no worktree isolation (every plan's automated criteria are pinned to absolute `/workspaces` paths and cross the submodule boundary).
+Last activity: 2026-08-02 — Phase 129 execution started
 
 ### Phase 129 planning outcome (2026-08-02)
 
@@ -240,7 +240,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-30 — v1.23 Current Milestone sect
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.23 adds a fourth board target beneath that contract without disturbing it: the PROM programming algorithms stay platform-independent and the HAL boundary absorbs the new MCU, so protocol dispatch is untouched by the port.
 
-**Current focus:** Phase 128 — release-asset-fold
+**Current focus:** Phase 129 — flash-path-decision-pcb-requirements-record
 
 ## Milestone Context (v1.23)
 
