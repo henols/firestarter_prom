@@ -2474,15 +2474,15 @@ Plans:
 
 **Research flag**: yes — research ran and **found three broken mechanisms in the tooling this phase is contractually bound to, all invisible until executed.** C-2: `check_permitted_claims.py`'s `_DEFAULT_TARGETS` resolved into *Phase 123's* directory, so a default-mode run printed `UNARMED:` and exited **0** — a green claim gate that scanned nothing, on the milestone's only outward-facing overclaim gate. C-3: that checker's own pytest suite was already RED (`1 failed / 9 passed`), broken by the mere existence of `130-CONTEXT.md`, with no CI leg able to notice. C-1: `130-CONTEXT.md`'s own decision block was unparseable and silently dropped **9 of 16** decisions — fixed pre-planning at `0f9a709`, now 16/16. Research also widened D-11's lockstep footprint to **§5(a) + §5(d)** (C-4); found that §5(c)'s ship gate forbids exactly what D-11 does (C-5 — escalated and settled as **D-17**: §5(c) stays byte-unchanged and the tension is carried as an owned residual, because amending a ship gate so the act about to be taken clears it destroys the mechanism); corrected *"the source warning pid.codes' terms require"* to **ask**, not require (C-6); established that R-10 needs **no substantive correction**, since every live `2992 B` is a labeled correction or historically-accurate archive text (C-7); found that `ROADMAP.md:2468` quotes three of the CLOSE-01 checker's own needles, so the checker can never go green without an explicit self-reference exemption (C-8); named a **third** live no-VTOR prose site at `ROADMAP.md:2414` (C-9) and an unnamed high-risk stale footer at `PROJECT.md:836` (C-10); and added an **eleventh** hard sequencing constraint CONTEXT's ten do not contain — CLOSE-03's collapse must precede CLOSE-01's ROADMAP sweep (C-11). See `130-RESEARCH.md` §"Corrections to CONTEXT.md".
 
-**Plans**: 16 plans across 9 waves
+**Plans**: 4/16 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 130-01-PLAN.md — Repair the claim gate: repoint `_DEFAULT_TARGETS` at the Phase 130 directory (C-2), make the side-effect guard differential with a reachability proof (C-3), re-assert the decision parse (C-1)
-- [ ] 130-02-PLAN.md — New `check_record_corrections.py` + suite + six fixtures (D-08/BASE-08): twelve falsifiable needles, label-and-history awareness, a self-reference exemption, and the machine-derived CLOSE-01 worklist
-- [ ] 130-03-PLAN.md — D-11: land pid.codes `1209:0001` in `usb_cdc.c`, rewrite §5(a)+§5(d) identically in both `[SHARED:S4]` copies, re-run the 41-leg sync gate, record a confined ARM delta
-- [ ] 130-04-PLAN.md — CLOSE-03 part 1: v1.23 gains its SHIPPED entry, BCP renumbers to v1.28 in version order, the two py32 slots collapse into one dated retirement line, D-16's before/after hashes captured
+- [x] 130-01-PLAN.md — Repair the claim gate: repoint `_DEFAULT_TARGETS` at the Phase 130 directory (C-2), make the side-effect guard differential with a reachability proof (C-3), re-assert the decision parse (C-1)
+- [x] 130-02-PLAN.md — New `check_record_corrections.py` + suite + six fixtures (D-08/BASE-08): twelve falsifiable needles, label-and-history awareness, a self-reference exemption, and the machine-derived CLOSE-01 worklist
+- [x] 130-03-PLAN.md — D-11: land pid.codes `1209:0001` in `usb_cdc.c`, rewrite §5(a)+§5(d) identically in both `[SHARED:S4]` copies, re-run the 41-leg sync gate, record a confined ARM delta
+- [x] 130-04-PLAN.md — CLOSE-03 part 1: v1.23 gains its SHIPPED entry, BCP renumbers to v1.28 in version order, the two py32 slots collapse into one dated retirement line, D-16's before/after hashes captured
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
