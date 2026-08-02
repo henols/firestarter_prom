@@ -91,11 +91,11 @@ Research: `.planning/research/SUMMARY.md` (4 streams + synthesis; 18 corrections
 
 *The board is still paper. Every item here is free now and unrecoverable after layout.*
 
-- [ ] **PCB-01**: The three-tier flash path is recorded as a decision — self-flash bootloader over the existing CDC + COBS transport as intended primary, factory USB DFU as maintainer/manufacturing recovery, SWD as last resort — stating explicitly that landing the DFU path **does not retire** the self-flash seed
-- [ ] **PCB-02**: PCB requirements are recorded before the first schematic: BOOT0/nBOOT1 strapping reachable, SWD pads exposed, a contiguous 8-bit GPIO port for the data bus, and a depopulated HSE footprint as a crystal-less-USB hedge
-- [ ] **PCB-03**: The flash budget is recorded **as actually reserved** by CFG-06, including the bootloader region and its vector-relocation implication on a part with no VTOR
-- [ ] **PCB-04**: A real USB VID/PID decision replaces `usb_cdc.c`'s undocumented `0x36B7`/`0xFFFF` placeholder, noting that squatting becomes a liability the moment a board ships
-- [ ] **PCB-05**: The socket-empty-before-any-py32-firmware-install safety instruction is documented, the provisional pin map being the reason it is stronger here than the comparable warning in other projects
+- [x] **PCB-01**: The three-tier flash path is recorded as a decision — self-flash bootloader over the existing CDC + COBS transport as intended primary, factory USB DFU as maintainer/manufacturing recovery, SWD as last resort — stating explicitly that landing the DFU path **does not retire** the self-flash seed — recorded in `.planning/v1.23-FLASH-PATH-DECISION.md` §2 `[SHARED:S1]`, mirrored byte-identical in `firestarter/platform/py32f071/FLASH-PATH-AND-PCB.md`, and mechanically gated by `test_three_tiers_and_non_retirement[meta]`/`[fw]`; see `129-NONREGRESSION.md` §4 Criterion 1
+- [x] **PCB-02**: PCB requirements are recorded before the first schematic: BOOT0/nBOOT1 strapping reachable, SWD pads exposed, a contiguous 8-bit GPIO port for the data bus, and a depopulated HSE footprint as a crystal-less-USB hedge — recorded as seven checkable rows (R1–R7) in §3 `[SHARED:S2]`, each with a `*Why:*`/`*Breaks if omitted:*` pair, gated by `test_pcb_checklist_rows_are_wellformed[meta]`/`[fw]`; see `129-NONREGRESSION.md` §4 Criterion 2
+- [x] **PCB-03**: The flash budget is recorded **as actually reserved** by CFG-06, including the bootloader region and its vector-relocation implication on a part with no VTOR — recorded in §4 `[SHARED:S3]`, citing the linker-reserved addresses verbatim; **this requirement's own "on a part with no VTOR" wording is superseded** — research finding C-1 (independently re-verified this plan) establishes the part **has** a VTOR, and the record's §1.6/§4(d) state the corrected migration cost instead (the vector-table move is cheap; the fleet re-flash is the real cost). This wording is **not amended here**; Phase 130 **CLOSE-01** owns correcting this line's prose. See `129-NONREGRESSION.md` §4 Criterion 3 (AMENDED) for the full account
+- [x] **PCB-04**: A real USB VID/PID decision replaces `usb_cdc.c`'s undocumented `0x36B7`/`0xFFFF` placeholder, noting that squatting becomes a liability the moment a board ships — recorded in §5 `[SHARED:S4]`: pid.codes VID `0x1209`, interim `1209:0001`, and a hard ship gate (no board ships, no release advertises a USB identity, until a real PID is allocated); `usb_cdc.c` itself stays **unedited** this phase per **D-06** (the decision plus a tracked obligation satisfy the requirement's "replaces" verb, not a code change), and the placeholder's provenance is now recorded (Puya Semiconductor, copied verbatim from the pinned SDK's own CDC example) rather than merely called undocumented; see `129-NONREGRESSION.md` §4 Criterion 4
+- [x] **PCB-05**: The socket-empty-before-any-py32-firmware-install safety instruction is documented, the provisional pin map being the reason it is stronger here than the comparable warning in other projects — recorded verbatim in §6 `[SHARED:S5]` and the firmware subset, pointed to from `platform/py32f071/README.md`, gated by `test_socket_empty_instruction_present[meta]`/`[fw]`/`[readme]`; see `129-NONREGRESSION.md` §4 Criterion 5
 
 ### Close
 
@@ -164,7 +164,7 @@ Populated 2026-07-30 by the v1.23 roadmap (`/gsd-new-milestone` → roadmapper).
 | CFG-01 … CFG-07 | Phase 126 | Complete — all 7 ticked, see `126-NONREGRESSION.md` §4/§5 for the row cited per requirement |
 | HOST-01 … HOST-08 | Phase 127 | Complete — all 8 ticked, see `127-NONREGRESSION.md` §4/§5 for the row cited per requirement |
 | REL-01 … REL-04 | Phase 128 | Complete — all 4 ticked, see `128-NONREGRESSION.md` §3/§7 for the row cited per requirement (REL-03's second half is local-only evidence, stated explicitly) |
-| PCB-01 … PCB-05 | Phase 129 | Pending |
+| PCB-01 … PCB-05 | Phase 129 | Complete — all 5 ticked, see `129-NONREGRESSION.md` §4 for the criterion cited per requirement (PCB-03/PCB-04 carry honest amendment qualifiers) |
 | CLOSE-01 … CLOSE-04 | Phase 130 | Pending |
 
 **Coverage:**
