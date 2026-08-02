@@ -4,11 +4,11 @@ milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 129
 current_phase_name: Flash-Path Decision & PCB Requirements Record
-status: verifying
-stopped_at: Completed 128-10-PLAN.md
-last_updated: "2026-08-01T23:44:00.313Z"
-last_activity: 2026-08-01
-last_activity_desc: Phase 128 complete, transitioned to Phase 129
+status: planning
+stopped_at: Phase 129 context gathered
+last_updated: "2026-08-02T08:40:13.182Z"
+last_activity: 2026-08-02
+last_activity_desc: Phase 129 context gathered — 18 decisions locked, ready for research + planning
 progress:
   total_phases: 8
   completed_phases: 6
@@ -26,8 +26,29 @@ progress:
 
 Phase: 129 — Flash-Path Decision & PCB Requirements Record
 Plan: Not started
-Status: Phase complete — ready for verification. Plan 128-10 recorded both operator-authorised rehearsal dispatches (run 30722352902 healthy, run 30722537152 planted ARM break) into `128-NONREGRESSION.md` §3/§7/§8 and ticked REL-01..REL-04 in REQUIREMENTS.md, each with named backing evidence; REL-03's "assertion fails on missing AVR asset" half is stated as local-only (not CI-exercised this phase). Three deviations recorded: the plan's own §4 step-5 CMake-rename break is unusable (would trip the Phase 123 manifest-drift gate before ARM ever built) and was substituted with a scoped ARM-only compile error; a false "confirmed by observation" claim in beta-build.yml was found and fixed pre-dispatch (firmware commit 7a0a375); firmware HEAD moved from 0de57da to 7a0a375 as a consequence. Both rehearsal drafts and the throwaway branch are deleted; no public footprint remains.
-Last activity: 2026-08-01 — Phase 128 complete, transitioned to Phase 129
+Status: Context gathered — ready for research + planning. `129-CONTEXT.md` locks 18 decisions (D-01…D-18) across four discussed areas plus the seed disposition; two areas (PCB-05 placement, sourcing/confidence discipline) are explicitly delegated to research and the planner. Next: `/gsd-plan-phase 129` (ROADMAP research flag: **yes**).
+Last activity: 2026-08-02 — Phase 129 context gathered
+
+### Phase 129 context highlights (2026-08-02)
+
+**Docs-only phase, two repos.** Meta `.planning/` + `firestarter`; **`firestarter_app` is out
+of scope** (D-04). Read `.planning/phases/129-flash-path-decision-pcb-requirements-record/129-CONTEXT.md`.
+
+| Area | Locked |
+|---|---|
+| Record shape | **Two-layered** — authoritative meta milestone-prefixed decision doc (v1.9/v1.10 shape, **no ADR numbering**) + a firmware `platform/py32f071/` **subset** behind a **fail-closed sync gate with a planted-violation fixture**. Gitlinks bumped **in-phase** (Phase 125/128 precedent) |
+| VID/PID | **pid.codes / VID `0x1209`** is the decision; **`usb_cdc.c` is NOT edited** (`0x36B7`/`0xFFFF` stays). Allocation is a public PR the **operator** files — no agent. Record carries a **hard ship gate**: no board ships, no release advertises a USB identity, until a real PID exists |
+| Flash budget | **Sector-quantised** bootloader figure, research-sized, **always printed with its ORIGIN-migration cost**. Linker gets a **comment-only** back-reference; `BOOTLOADER … LENGTH = 0` stands. Vector relocation: state the cost, enumerate **confidence-tagged** candidates |
+| PCB list | Four PCB-02 names **plus** VPP on PA4/ADC ch4, data-bus test points, USB connector/D+ pullup. Seed item 5 (reboot-to-bootloader) recorded as an **open question with its board cost**, not decided. Each row: **checkbox + rationale + failure mode** |
+| Seed | `.planning/seeds/py32f071-no-external-tool-fw-install.md` — trigger already fired (v1.28 activated as v1.23) while `status:` still reads `dormant`. → **partially-realised, seed stays live for FUT-N05**; the new record is canonical |
+
+**No operator-gated ARM CI run this phase (D-13)** — the only firmware edits are a new `.md`
+and a linker comment, so no translation unit is added; prove byte-identical output locally in
+the non-regression doc. Phases 125/126/128 each needed CI because they added TUs. The standing
+rule still holds: no task may run `git push` or `gh workflow run`.
+
+**Todo matches: none folded.** `correct-v128-py32-roadmap-prior-art` is the only substantive
+hit and is already owned by **CLOSE-03 / Phase 130**.
 
 ### Phase 127 context highlights (2026-08-01)
 
@@ -939,10 +960,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-01T23:15:47.790Z
-**Stopped at:** Completed 128-10-PLAN.md
+**Last session:** 2026-08-02T08:40:13.167Z
+**Stopped at:** Phase 129 context gathered
 **Resume file:** 
-None
+.planning/phases/129-flash-path-decision-pcb-requirements-record/129-CONTEXT.md
 
 ### Blockers
 
