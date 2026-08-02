@@ -151,3 +151,10 @@ None - no external service configuration required.
 ---
 *Phase: 130-close-honesty-ledger-claim-gate-release-decision*
 *Completed: 2026-08-02*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/130-close-honesty-ledger-claim-gate-release-decision/130-DECISION.md`
+- FOUND: `.planning/phases/130-close-honesty-ledger-claim-gate-release-decision/130-13-SUMMARY.md`
+- FOUND: commit `db797860` (`docs(130-13): record beta-push decision before any push (CLOSE-04)`)
+- Re-confirmed post-summary-commit: `git -C firestarter rev-parse origin/beta` → `5c9160a34b665878b05403ab014b959926feb6bf`; `git -C firestarter_app rev-parse origin/beta` → `e7d3ee8c8a41cd20e9159ab43b5cd969603d773e` — both unchanged. `git rev-parse --abbrev-ref HEAD` → `gsd/v1.23-py32f071-integration`. `git status --short` in `/workspaces` shows only the expected, unstaged ` M firestarter` / ` m firestarter_app` gitlink deltas.
