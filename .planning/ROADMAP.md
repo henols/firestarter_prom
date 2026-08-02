@@ -2474,7 +2474,7 @@ Plans:
 
 **Research flag**: yes — research ran and **found three broken mechanisms in the tooling this phase is contractually bound to, all invisible until executed.** C-2: `check_permitted_claims.py`'s `_DEFAULT_TARGETS` resolved into *Phase 123's* directory, so a default-mode run printed `UNARMED:` and exited **0** — a green claim gate that scanned nothing, on the milestone's only outward-facing overclaim gate. C-3: that checker's own pytest suite was already RED (`1 failed / 9 passed`), broken by the mere existence of `130-CONTEXT.md`, with no CI leg able to notice. C-1: `130-CONTEXT.md`'s own decision block was unparseable and silently dropped **9 of 16** decisions — fixed pre-planning at `0f9a709`, now 16/16. Research also widened D-11's lockstep footprint to **§5(a) + §5(d)** (C-4); found that §5(c)'s ship gate forbids exactly what D-11 does (C-5 — escalated and settled as **D-17**: §5(c) stays byte-unchanged and the tension is carried as an owned residual, because amending a ship gate so the act about to be taken clears it destroys the mechanism); corrected *"the source warning pid.codes' terms require"* to **ask**, not require (C-6); established that R-10 needs **no substantive correction**, since every live `2992 B` is a labeled correction or historically-accurate archive text (C-7); found that `ROADMAP.md:2468` quotes three of the CLOSE-01 checker's own needles, so the checker can never go green without an explicit self-reference exemption (C-8); named a **third** live no-VTOR prose site at `ROADMAP.md:2414` (C-9) and an unnamed high-risk stale footer at `PROJECT.md:836` (C-10); and added an **eleventh** hard sequencing constraint CONTEXT's ten do not contain — CLOSE-03's collapse must precede CLOSE-01's ROADMAP sweep (C-11). See `130-RESEARCH.md` §"Corrections to CONTEXT.md".
 
-**Plans**: 4/16 plans executed
+**Plans**: 9/16 plans executed
 
 Plans:
 **Wave 1**
@@ -2486,11 +2486,11 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 130-05-PLAN.md — CLOSE-03 part 2: retire backlog stubs 999.23/999.24, repair every broken `→ v1.28` pointer and the v1.30 back-reference, one inline supersession note at `:1883`, move the owning todo to completed
-- [ ] 130-07-PLAN.md — CLOSE-01 in `PROJECT.md`: a labeled `⚠ CORRECTION` block, R-2 corrected, the `:836` start-here-next footer disarmed (C-10), the historically-accurate `2992 B` records preserved with stated reasons
-- [ ] 130-08-PLAN.md — CLOSE-01 in `STATE.md`: in-place per D-05, Milestone Context brought up to date, two history markers, and the measured no-stale-assertion finding recorded
-- [ ] 130-09-PLAN.md — CLOSE-01 in `notes/py32f071-port-branch-state.md`: an append-only SUPERSEDED section, with the dated body proven byte-unchanged by hash
-- [ ] 130-10-PLAN.md — CLOSE-01 in `REQUIREMENTS.md`: D-06's two VTOR clauses corrected with their superseded wording preserved, D-07's toolchain premise narrowed while its conclusion survives — and no checkbox touched
+- [x] 130-05-PLAN.md — CLOSE-03 part 2: retire backlog stubs 999.23/999.24, repair every broken `→ v1.28` pointer and the v1.30 back-reference, one inline supersession note at `:1883`, move the owning todo to completed
+- [x] 130-07-PLAN.md — CLOSE-01 in `PROJECT.md`: a labeled `⚠ CORRECTION` block, R-2 corrected, the `:836` start-here-next footer disarmed (C-10), the historically-accurate `2992 B` records preserved with stated reasons
+- [x] 130-08-PLAN.md — CLOSE-01 in `STATE.md`: in-place per D-05, Milestone Context brought up to date, two history markers, and the measured no-stale-assertion finding recorded
+- [x] 130-09-PLAN.md — CLOSE-01 in `notes/py32f071-port-branch-state.md`: an append-only SUPERSEDED section, with the dated body proven byte-unchanged by hash
+- [x] 130-10-PLAN.md — CLOSE-01 in `REQUIREMENTS.md`: D-06's two VTOR clauses corrected with their superseded wording preserved, D-07's toolchain premise narrowed while its conclusion survives — and no checkbox touched
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
