@@ -173,3 +173,7 @@ None. This plan edits only `.planning/REQUIREMENTS.md` prose and inline HTML com
 ---
 *Phase: 130-close-honesty-ledger-claim-gate-release-decision*
 *Completed: 2026-08-02*
+
+## Self-Check: PASSED
+
+`.planning/phases/130-close-honesty-ledger-claim-gate-release-decision/130-10-SUMMARY.md` found on disk; all three commit hashes (`7c2ad58`, `d320e30`, `085b051`) found in `git log --oneline --all`.
