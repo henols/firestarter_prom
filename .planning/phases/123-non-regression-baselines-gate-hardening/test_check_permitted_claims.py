@@ -8,8 +8,12 @@ fail because nothing concrete was asserted against it. Every planted-
 violation test below invokes the checker as a real subprocess against a
 committed fixture file via the FIRESTARTER_CLAIMSCAN_TARGETS env seam --
 never an in-process import -- so a passing test suite proves the checker
-itself (not the test) fails the build on a real violation. The scanner is
-never imported directly in this module.
+itself (not the test) fails the build on a real violation. The scanner's
+scan/violation behaviour is never exercised via in-process import in this
+module; the sole exception is `_CONTRACTED_ARTIFACT_NAMES`, a plain data
+tuple imported so the differential side-effect guard (test 8) and its
+reachability proof (test 11) cannot desynchronise from the gate's own
+contracted name list.
 
 Coverage:
   1. Clean-pass baseline via the seam: exits 0, PASS: in stdout.
@@ -31,10 +35,19 @@ Coverage:
      tmp_path reports UNARMED + exit 0 with zero of the four named
      artifacts present, then becomes armed and FAILS naming the three
      still-missing targets once exactly one is created -- entirely inside
-     tmp_path, never touching the real Phase 130 directory.
+     tmp_path, never touching the real Phase 130 directory. Its side-effect
+     guard is DIFFERENTIAL (before/after snapshot of the four contracted
+     basenames), not an absolute-absence assertion -- the four artifacts
+     are this phase's own deliverables and will legitimately exist in that
+     directory by design (RESEARCH C-3).
   9. Positional argv overrides the env seam (documented precedence, pinned
      against a future silent inversion).
   10. PASS-line names both scanned files at once (anti-skip).
+  11. The differential side-effect guard is reachable and fires for the
+      right reason: a dedicated tmp_path test proves
+      _assert_no_new_contracted_artifacts raises when a contracted basename
+      is added, without ever writing into the real Phase 130 directory --
+      the guard is live, not vacuous (Phase 129 unreachable-leg lesson).
 """
 
 import os
@@ -43,8 +56,40 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
+from check_permitted_claims import _CONTRACTED_ARTIFACT_NAMES, _PHASE_130_DIRNAME
+
 _HERE = Path(__file__).parent
 _SCANNER = _HERE / "check_permitted_claims.py"
+
+
+def _snapshot_contracted_artifacts(directory):
+    """Return a frozenset of the members of `_CONTRACTED_ARTIFACT_NAMES`
+    that currently exist as files in `directory`. Imports the four names
+    from the scanner module rather than re-typing them, so a future rename
+    there cannot desynchronise this test from the gate it is pinning.
+    Returns an empty frozenset when `directory` does not exist."""
+    directory = Path(directory)
+    if not directory.exists():
+        return frozenset()
+    return frozenset(
+        name for name in _CONTRACTED_ARTIFACT_NAMES if (directory / name).is_file()
+    )
+
+
+def _assert_no_new_contracted_artifacts(directory, before):
+    """Re-snapshot `directory` and raise AssertionError if any contracted
+    basename is present now that was not present in `before`. The message
+    names the added basenames -- this is the differential replacement for
+    an absolute-absence assertion, which would be self-invalidating once
+    the four contracted artifacts legitimately exist (RESEARCH C-3)."""
+    after = _snapshot_contracted_artifacts(directory)
+    added = after - before
+    assert not added, (
+        f"test must not create real contracted artifact(s) as a side "
+        f"effect: {sorted(added)}"
+    )
 
 
 def _run_scanner(targets=None, argv=None):
@@ -235,21 +280,38 @@ def test_fail_closed_on_nonexistent_target():
 
 
 def test_d15_arming_both_directions(tmp_path):
-    """Mechanism: copy check_permitted_claims.py itself into tmp_path and
-    run the COPY directly (no env seam, no argv) -- its `_HERE` then
-    resolves to tmp_path, so `_DEFAULT_TARGETS` names
-    tmp_path/130-{LEDGER,DECISION,RELEASE-NOTES-fw,RELEASE-NOTES-app}.md.
-    This drives the real default-target-resolution and D-15 arming code
-    path without ever creating a real 130-*.md file inside the actual
-    Phase 130 directory (which does not exist yet and must not be created
-    as a side effect of this test).
+    """Mechanism: recreate the real sibling-directory layout inside
+    tmp_path (a fake `123-.../` holding the scanner COPY next to a fake
+    `130-close-.../` holding the artifacts), and run the COPY directly (no
+    env seam, no argv). Its `_HERE` then resolves to the fake 123 dir, so
+    `_DEFAULT_TARGETS` names
+    fake_130_dir/130-{LEDGER,DECISION,RELEASE-NOTES-fw,RELEASE-NOTES-app}.md
+    -- exactly mirroring how the real checker resolves its sibling Phase
+    130 directory (RESEARCH C-2 repoint). This drives the real
+    default-target-resolution and D-15 arming code path entirely inside
+    tmp_path, without ever creating a real 130-*.md file inside the actual
+    Phase 130 directory (which holds this phase's own in-progress
+    deliverables and must not be touched as a side effect of this test).
 
-    Direction 1: zero of the four named artifacts exist in tmp_path ->
-    UNARMED, exit 0 (the close has not started).
+    Direction 1: zero of the four named artifacts exist in the fake 130 dir
+    -> UNARMED, exit 0 (the close has not started).
     Direction 2: create exactly one -> armed but incomplete -> exit
     non-zero, naming the three still-missing targets (a half-written close
     is a hard failure)."""
-    scanner_copy = tmp_path / "check_permitted_claims.py"
+    # Snapshot the REAL Phase 130 directory before touching anything, so the
+    # differential side-effect guard at the end of this test can prove it
+    # created no new contracted artifact there -- differential, not an
+    # absolute-absence assertion, because the four artifacts are this
+    # phase's own deliverables and will legitimately exist in that
+    # directory by design (RESEARCH C-3; an absolute-absence assertion is
+    # self-invalidating once that happens).
+    real_phase_130_dir = _HERE.parent / _PHASE_130_DIRNAME
+    before = _snapshot_contracted_artifacts(real_phase_130_dir)
+
+    fake_123_dir = tmp_path / "123-non-regression-baselines-gate-hardening"
+    fake_123_dir.mkdir()
+    fake_130_dir = tmp_path / _PHASE_130_DIRNAME
+    scanner_copy = fake_123_dir / "check_permitted_claims.py"
     shutil.copy(_SCANNER, scanner_copy)
 
     env = {**os.environ}
@@ -257,25 +319,26 @@ def test_d15_arming_both_directions(tmp_path):
 
     result_unarmed = subprocess.run(
         [sys.executable, str(scanner_copy)],
-        cwd=str(tmp_path),
+        cwd=str(fake_123_dir),
         capture_output=True,
         text=True,
         env=env,
     )
     assert result_unarmed.returncode == 0, (
         f"expected UNARMED exit 0 with zero of the four named artifacts "
-        f"present in the isolated tmp_path.\nstdout:\n{result_unarmed.stdout}\n"
-        f"stderr:\n{result_unarmed.stderr}"
+        f"present in the isolated fake Phase 130 dir.\n"
+        f"stdout:\n{result_unarmed.stdout}\nstderr:\n{result_unarmed.stderr}"
     )
     assert "UNARMED:" in result_unarmed.stdout, (
         f"Expected the UNARMED: notice in output but got:\n{result_unarmed.stdout}"
     )
 
-    (tmp_path / "130-LEDGER.md").write_text("no PY32F071 hardware exists.\n")
+    fake_130_dir.mkdir()
+    (fake_130_dir / "130-LEDGER.md").write_text("no PY32F071 hardware exists.\n")
 
     result_armed = subprocess.run(
         [sys.executable, str(scanner_copy)],
-        cwd=str(tmp_path),
+        cwd=str(fake_123_dir),
         capture_output=True,
         text=True,
         env=env,
@@ -297,11 +360,11 @@ def test_d15_arming_both_directions(tmp_path):
         )
 
     # This test must never create a real Phase 130 artifact as a side
-    # effect -- everything above happened inside tmp_path only.
-    real_phase_130_dir = _HERE.parent / "130-close-honesty-ledger-claim-gate-release-decision"
-    assert not real_phase_130_dir.exists() or not any(
-        real_phase_130_dir.glob("130-*.md")
-    ), "test must not create a real 130-*.md artifact as a side effect"
+    # effect -- everything above happened inside tmp_path only. Differential
+    # (before/after), not absolute-absence: see the module docstring's note
+    # above `before` for why an absolute-absence assertion is
+    # self-invalidating for these four names.
+    _assert_no_new_contracted_artifacts(real_phase_130_dir, before)
 
 
 # ---------------------------------------------------------------------------
@@ -347,3 +410,25 @@ def test_pass_line_names_every_scanned_file():
     assert "clean_control_second.md" in result.stdout, (
         f"Expected both basenames in the PASS: line but got:\n{result.stdout}"
     )
+
+
+# ---------------------------------------------------------------------------
+# Test 11: the differential side-effect guard is reachable and fires
+# ---------------------------------------------------------------------------
+
+
+def test_side_effect_guard_fires_on_a_new_contracted_artifact(tmp_path):
+    """RED-preserving reachability proof for `_assert_no_new_contracted_artifacts`
+    (Phase 129 unreachable-leg lesson: a gate that has never been seen to
+    fail for the right reason is not yet known to be reachable). Snapshots
+    an empty tmp_path, writes a file named `130-LEDGER.md` into it, and
+    asserts the helper raises AssertionError naming that basename -- proving
+    the guard is live, not vacuous, without ever writing into the real
+    Phase 130 directory."""
+    before = _snapshot_contracted_artifacts(tmp_path)
+    assert before == frozenset()
+
+    (tmp_path / "130-LEDGER.md").write_text("no PY32F071 hardware exists.\n")
+
+    with pytest.raises(AssertionError, match="130-LEDGER.md"):
+        _assert_no_new_contracted_artifacts(tmp_path, before)
