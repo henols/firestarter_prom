@@ -72,8 +72,8 @@ commit**.
   **Rejected:** accept gated on a fresh rehearsal dispatch — re-derives evidence that already
   exists from run `30722352902` and costs an operator round-trip plus a draft cleanup.
 
-- **D-02: Both b15 release bodies are hand-written and sit behind a blocking operator wording
-  review.** `130-RELEASE-NOTES-fw.md` and `130-RELEASE-NOTES-app.md` are committed drafts carrying
+- **D-02: Both b15 release bodies are hand-written and sit behind a blocking operator wording review.**
+  `130-RELEASE-NOTES-fw.md` and `130-RELEASE-NOTES-app.md` are committed drafts carrying
   the ceiling verbatim, PCB-05's socket-empty instruction, the USB identity statement (D-11), and
   an explicit statement that the py32 image has never run on silicon and no PCB exists. The claim
   scanner's own module docstring says a green run is the **mechanizable half only** — it cannot
@@ -92,8 +92,8 @@ commit**.
   gate, which would leave REL-02's real-cut evidence a rehearsal artifact permanently.
   **Rejected:** gate with one diagnostic re-dispatch — the loud run is already available read-only.
 
-- **D-04: Publish in-phase; the `v1.23` tag and any merge toward `main` stay with
-  `/gsd-complete-milestone`.** Mirrors v1.22 D-07 and v1.21 Phase 115: the tag then points at a beta
+- **D-04: Publish in-phase; the `v1.23` tag and any merge toward `main` stay with `/gsd-complete-milestone`.**
+  Mirrors v1.22 D-07 and v1.21 Phase 115: the tag then points at a beta
   already published and channel-verified. This phase **asserts** the meta gitlinks still match the
   milestone-branch tips at phase end, re-bumping only if its own commits move a tip — which honors
   this milestone's own in-phase gitlink practice (Phases 125/128/129) rather than v1.22's pinned
@@ -114,8 +114,8 @@ commit**.
   destroys the what-did-we-once-believe trail and silently rewrites a dated capture.
   **Rejected:** correction blocks everywhere — STATE.md and the note become block sprawl.
 
-- **D-06: CLOSE-01 amends `REQUIREMENTS.md`'s two VTOR clauses, each with an inline supersession
-  note.** PCB-03's *"on a part with no VTOR"* and FUT-N04's *"Cortex-M0+ has no VTOR"* are both
+- **D-06: CLOSE-01 amends `REQUIREMENTS.md`'s two VTOR clauses, each with an inline supersession note.**
+  PCB-03's *"on a part with no VTOR"* and FUT-N04's *"Cortex-M0+ has no VTOR"* are both
   corrected, citing `129-RESEARCH.md` C-1 and preserving the superseded wording. Justified because
   these are false **facts**, not narrower **mechanisms** — a distinction the standing
   don't-edit-REQUIREMENTS discipline (LOCK-04, LOCK-06, HOST-04, 121 D-06/D-17) does not cover —
@@ -125,8 +125,8 @@ commit**.
   while FUT-N04 states the falsehood bare as the first of four deferral reasons on a live
   forward-looking item. **Rejected:** FUT-N04 only. **Rejected:** leaving REQUIREMENTS.md untouched.
 
-- **D-07: The Validation Ceiling's toolchain clause is narrowed in place; the reproduction recipe
-  goes in `130-NONREGRESSION.md`.** The false premise (*"arm-none-eabi-gcc, cmake and ninja are
+- **D-07: The Validation Ceiling's toolchain clause is narrowed in place; the reproduction recipe goes in `130-NONREGRESSION.md`.**
+  The false premise (*"arm-none-eabi-gcc, cmake and ninja are
   absent… unmeasurable locally, by anyone"*) is replaced: the toolchain **is** installable here,
   but a local build's **absolute** size may never be compared against a CI figure — measured
   `text=27260` local against `text=27344` CI — so every absolute ARM size claim still cites a run
@@ -136,8 +136,8 @@ commit**.
   **Rejected:** putting the recipe in the ceiling — a claims-policy statement should not become a
   how-to. **Rejected:** ledger-only, leaving the governing document asserting something disproven.
 
-- **D-08: CLOSE-01 is proven by a committed, label-aware checker with a planted-violation
-  fixture.** A phrase table of every superseded figure/claim, skipping hits inside labeled
+- **D-08: CLOSE-01 is proven by a committed, label-aware checker with a planted-violation fixture.**
+  A phrase table of every superseded figure/claim, skipping hits inside labeled
   correction blocks, with a fixture proving it exits non-zero on **both** a planted stale figure and
   a mislabeled block — BASE-08's milestone-wide discipline applies to any checker this milestone
   introduces, and label-awareness is exactly where a fail-open bug would hide. The forward payoff is
@@ -174,8 +174,8 @@ commit**.
   **Rejected:** deferrals only — F-10 especially deserves top billing. **Rejected:** residuals only,
   pointing at REQUIREMENTS.md §Future Requirements, which v1.22 D-12 considered and rejected.
 
-- **D-11: The interim pid.codes `1209:0001` lands in `usb_cdc.c` before the cut, and the release
-  body states it.** D-01 publishes an image whose USB device descriptor currently presents
+- **D-11 — The interim pid.codes `1209:0001` lands in `usb_cdc.c` before the cut, and the release body states it.**
+  D-01 publishes an image whose USB device descriptor currently presents
   `0x36B7`/`0xFFFF` — **Puya Semiconductor's registered vendor identity**, copied verbatim from the
   pinned SDK's CDC example — against a hard ship gate that reads *"no PY32F071 board ships, and no
   release advertises a USB identity, until a PID allocated under VID 0x1209 exists"*
@@ -211,8 +211,8 @@ commit**.
 
 ### The ROADMAP renumber — CLOSE-03
 
-- **D-13: The two py32 slots collapse into one pointer line, and v1.23 gains its real SHIPPED
-  entry.** `ROADMAP.md`'s `## Milestones` list currently has **no `v1.23 PY32F071 Integration`
+- **D-13: The two py32 slots collapse into one pointer line, and v1.23 gains its real SHIPPED entry.**
+  `ROADMAP.md`'s `## Milestones` list currently has **no `v1.23 PY32F071 Integration`
   entry at all** — it runs `✅ v1.22` (line 27) straight to `⬜ v1.23 Binary Command Protocol`
   (line 28), with the active milestone existing only as a detail section at line 1993. So: lines 33
   (`v1.28 PY32F071 Port`) and 34 (`v1.29 PY32F071 USB Firmware Install`) collapse into a single
@@ -225,8 +225,8 @@ commit**.
   **Rejected:** keeping both marked RETIRED with bodies intact — the option the todo explicitly
   warns against, since a scoping pass reads the body regardless of the marker.
 
-- **D-14: Binary Command Protocol moves into version order; `v1.30` stays `v1.30`; BCP's stale
-  sequence sentence is annotated.** BCP is renumbered v1.23 → v1.28 and **moves** to after v1.27,
+- **D-14: Binary Command Protocol moves into version order; `v1.30` stays `v1.30`; BCP's stale sequence sentence is annotated.**
+  BCP is renumbered v1.23 → v1.28 and **moves** to after v1.27,
   preserving the list's strict version ordering (v1.15…v1.30) rather than breaking it for the first
   time. Its *"Sequence ahead of v1.24 (also breaking)"* sentence gets a short note that the number
   is bookkeeping while the sequence claim is the substance — the project's own stated convention,
@@ -236,8 +236,8 @@ commit**.
   now — contradicts that entry's written instruction and risks two renumbers disagreeing.
   **Rejected:** a pure renumber with no annotation, leaving unexplained residue.
 
-- **D-15: Backlog stubs 999.23 and 999.24 retire as shipped-into-v1.23, and the v1.29
-  back-references are corrected.** Both stubs' work landed in Phases 123–130, so they retire the way
+- **D-15: Backlog stubs 999.23 and 999.24 retire as shipped-into-v1.23, and the v1.29 back-references are corrected.**
+  Both stubs' work landed in Phases 123–130, so they retire the way
   999.4–999.7 did when promoted — marked with the phases that delivered them. Their
   *"→ v1.28, leads/follows"* pointers are actively wrong once v1.28 is Binary Command Protocol, and
   the renumber is what breaks them, so fixing them is in scope by consequence. The `v1.30` entry's
