@@ -4,11 +4,11 @@ milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 130
 current_phase_name: Close — Honesty Ledger, Claim Gate, Release Decision
-status: Phase 129 COMPLETE — verified 5/5; Phase 130 (close) not yet started
-stopped_at: Phase 129 complete and verified
-last_updated: "2026-08-02T12:48:44.138Z"
+status: Phase 130 (close) — context gathered, 16 decisions locked; not yet planned
+stopped_at: Phase 130 context gathered
+last_updated: "2026-08-02T13:52:31.886Z"
 last_activity: 2026-08-02
-last_activity_desc: Phase 129 complete, transitioned to Phase 130
+last_activity_desc: Phase 130 context gathered; ready to plan
 progress:
   total_phases: 8
   completed_phases: 7
@@ -26,8 +26,36 @@ progress:
 
 Phase: 130 — Close — Honesty Ledger, Claim Gate, Release Decision
 Plans: not yet planned
-Status: **NOT STARTED.** Phase 129 closed 2026-08-02 (9/9 plans, verifier PASSED 5/5). Next: `/gsd-discuss-phase 130`.
-Last activity: 2026-08-02 — Phase 129 complete and verified
+Status: **CONTEXT GATHERED.** `130-CONTEXT.md` committed (`0005077`) with 16 locked decisions
+(D-01…D-16) and ten hard sequencing constraints. Next: `/gsd-plan-phase 130`.
+Last activity: 2026-08-02 — Phase 130 context gathered
+
+### Phase 130 context highlights (2026-08-02)
+
+Read `.planning/phases/130-close-honesty-ledger-claim-gate-release-decision/130-CONTEXT.md`.
+
+| Area | Locked |
+|---|---|
+| Push / cut | **Accept the auto-fire — the merge IS the `3.0.0b15` cut**, both repos (D-01). Both sub-repos measured **0 behind `origin/beta`**, so there is **no inbound catch-up merge and no conflict resolution** to plan — unlike v1.22. Tag ceiling b14 in both; b14 is live on GitHub **and** PyPI. Tag + merge-toward-`main` stay with `/gsd-complete-milestone` (D-04) |
+| Release bodies | Both hand-written, behind a **blocking operator wording review** (D-02). The py32 asset's presence on the real b15 release is a **gate**, not a note (D-03) — `beta-build.yml`'s ARM steps are `continue-on-error`, so b15 can publish green with no asset, and REL-02's only evidence is a rehearsal draft that was deleted |
+| CLOSE-01 | Corrections land **per document kind** (D-05): `⚠ CORRECTION` blocks in PROJECT.md + ROADMAP.md, in-place in STATE.md, append-only SUPERSEDED in the dated note. **`REQUIREMENTS.md` is amended** — PCB-03 and FUT-N04's VTOR clauses (D-06) and the Validation Ceiling's toolchain clause (D-07) — a deliberate widening of CLOSE-01's stated four-file list. Proof is a **label-aware checker + planted-violation fixture** (D-08) |
+| CLOSE-02 | `130-LEDGER.md` organised as claim classes **by evidence tier** (D-09) — CI-compile-only / AVR-measured / native-simulated / mock-only / real-published-artifact / decision-only-unverified. Full negative space: 8 deferrals **plus** every owned residual incl. F-10 (D-10). Both sourcing and claim-status axes (D-12) |
+| CLOSE-03 | v1.28/v1.29 collapse into **one dated retirement line**; line 28 becomes the real `✅ v1.23 PY32F071 Integration` entry — the list currently has **none** (D-13). BCP moves into version order as v1.28; **v1.30 stays v1.30**; v1.29 left vacant (D-14). Backlog 999.23/999.24 retire as shipped (D-15). v1.24–v1.27 proven byte-unchanged **one-shot, deliberately without a checker** (D-16) |
+
+**One scope addition, chosen deliberately (D-11).** b15 would publish an image whose USB descriptor
+presents `0x36B7`/`0xFFFF` — **Puya Semiconductor's registered vendor identity** — against
+`v1.23-FLASH-PATH-DECISION.md` §5(c)'s hard ship gate. The interim pid.codes `1209:0001` lands in
+`platform/py32f071/src/usb_cdc.c` **before** the cut, reversing Phase 129 D-06 on new facts. Carries
+two obligations: a real ARM pass before the merge, and a **lockstep `[SHARED:S4]` body edit** in both
+copies of the record, or the 41-leg sync gate goes red.
+
+**The four closing artifact names are a pre-existing contract**, not a choice —
+`123/check_permitted_claims.py`'s `_DEFAULT_TARGETS` names `130-LEDGER.md`, `130-DECISION.md`,
+`130-RELEASE-NOTES-fw.md`, `130-RELEASE-NOTES-app.md` with **all-or-nothing arming**; three of four
+is a hard failure. Adding or renaming one requires amending that list in the same commit.
+
+**Todo matches: none folded.** `correct-v128-py32-roadmap-prior-art` is the one substantive hit and
+is already owned by CLOSE-03 by requirement; D-13 discharges it.
 
 ### Phase 129 outcome (2026-08-02) — COMPLETE
 
@@ -1022,10 +1050,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-02T08:40:13.167Z
-**Stopped at:** Phase 129 context gathered
+**Last session:** 2026-08-02T13:51:40.138Z
+**Stopped at:** Phase 130 context gathered
 **Resume file:** 
-.planning/phases/129-flash-path-decision-pcb-requirements-record/129-CONTEXT.md
+.planning/phases/130-close-honesty-ledger-claim-gate-release-decision/130-CONTEXT.md
 
 ### Blockers
 
