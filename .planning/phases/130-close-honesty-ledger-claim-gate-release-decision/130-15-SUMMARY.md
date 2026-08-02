@@ -95,3 +95,14 @@ None - no external service configuration required. This plan performed no privil
 ---
 *Phase: 130-close-honesty-ledger-claim-gate-release-decision*
 *Completed: 2026-08-02*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/130-close-honesty-ledger-claim-gate-release-decision/130-CHANNELS.md`
+- FOUND: `.planning/phases/130-close-honesty-ledger-claim-gate-release-decision/130-15-SUMMARY.md`
+- FOUND commit: `8cc6136` (task 2)
+- FOUND commit: `bfd881a` (task 3)
+- FOUND commit: `0755ff3` (plan completion)
+- Branch unchanged: `gsd/v1.23-py32f071-integration`
+- `origin/beta` unchanged across this plan's execution: `firestarter` `0933bd7d602efb30e4a666e8231ecf724e90ab09`, `firestarter_app` `16a313a040389aa7c88a98b85f79a7d667ca2f6f`
+- Neither gitlink staged or committed by this plan (still the pre-existing ` M firestarter` / ` M firestarter_app` working-tree deltas from before this plan started)
