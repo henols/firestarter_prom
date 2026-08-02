@@ -2,34 +2,58 @@
 gsd_state_version: 1.0
 milestone: v1.23
 milestone_name: — PY32F071 Integration
-current_phase: 129
-current_phase_name: Flash-Path Decision & PCB Requirements Record
-status: executing
-stopped_at: Phase 129 planned
-last_updated: "2026-08-02T10:57:39.334Z"
+current_phase: 130
+current_phase_name: Close — Honesty Ledger, Claim Gate, Release Decision
+status: Phase 129 COMPLETE — verified 5/5; Phase 130 (close) not yet started
+stopped_at: Phase 129 complete and verified
+last_updated: "2026-08-02T12:48:44.138Z"
 last_activity: 2026-08-02
-last_activity_desc: Phase 129 execution started
+last_activity_desc: Phase 129 complete, transitioned to Phase 130
 progress:
   total_phases: 8
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 72
-  completed_plans: 63
-  percent: 75
+  completed_plans: 72
+  percent: 88
 ---
 
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-07-31
+**Updated:** 2026-08-02
 
 ## Current Position
 
-Phase: 129 — Flash-Path Decision & PCB Requirements Record (EXECUTING)
-Plans: 0/9 complete
-Status: **EXECUTING** — 9 plans in 9 serial waves, dual-repo (meta + `firestarter`). Sequential, no worktree isolation (every plan's automated criteria are pinned to absolute `/workspaces` paths and cross the submodule boundary).
-Last activity: 2026-08-02 — Phase 129 execution started
+Phase: 130 — Close — Honesty Ledger, Claim Gate, Release Decision
+Plans: not yet planned
+Status: **NOT STARTED.** Phase 129 closed 2026-08-02 (9/9 plans, verifier PASSED 5/5). Next: `/gsd-discuss-phase 130`.
+Last activity: 2026-08-02 — Phase 129 complete and verified
 
-### Phase 129 planning outcome (2026-08-02)
+### Phase 129 outcome (2026-08-02) — COMPLETE
+
+**Shipped:** `.planning/v1.23-FLASH-PATH-DECISION.md` (authoritative, §1–§9 + claim ceiling) and
+its firmware subset `firestarter/platform/py32f071/FLASH-PATH-AND-PCB.md`, held in lockstep by a
+41-leg cross-repo sync gate (`firestarter/tests/test_flash_path_record_sync.py`). PCB-01…PCB-05
+ticked; meta gitlink bumped `7a0a375` → `5a89ee7`; firmware suite **221 passed** (from a 180
+baseline). `firestarter_app` untouched and unbumped.
+
+**The gate preceded the content it judges** — authored at `3393137`/`42395cf`, before the meta
+record (`8515a59`) and the subset (`8102d0f`) existed. It went 31 RED → 0 RED purely through
+content written afterwards. Verifier confirmed the ordering from git history independently.
+
+**One deviation, operator-authorized.** `test_linker_comment_cross_references_record` as authored
+by 129-02 was UNREACHABLE: it located the MEMORY block by requiring `MEMORY` and `{` on one
+source line, but `PY32F071xB_FLASH.ld` has them on lines 8 and 9. A locator-only fix landed as
+`2ef7b57` after a RED-preserving proof — with the locator fixed and the comment reverted, the leg
+still failed on missing needles, not on the locator. Re-verified by 129-09 and again by the
+verifier. No assertion was weakened.
+
+**Carried into Phase 130 (CLOSE-01).** The four research corrections below are the input to the
+honesty ledger: ROADMAP criterion 3 is recorded **AMENDED** and criterion 4 partially amended;
+REQUIREMENTS/ROADMAP/FUT-N04 prose corrections and the Validation-Ceiling narrowing are
+deliberately unfixed and belong to CLOSE-01.
+
+#### Research corrections (input to CLOSE-01)
 
 **Research overturned four locked positions.** Read `129-RESEARCH.md` §"Corrections to CONTEXT.md".
 
