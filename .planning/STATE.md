@@ -4,17 +4,17 @@ milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 130
 current_phase_name: Close — Honesty Ledger, Claim Gate, Release Decision
-status: Phase 130 (close) — PLANNED, 16 plans / 9 waves; ready to execute
+status: executing
 stopped_at: Phase 130 planned
-last_updated: "2026-08-02T13:52:31.886Z"
+last_updated: "2026-08-02T15:52:01.249Z"
 last_activity: 2026-08-02
-last_activity_desc: Phase 130 planned — 16 plans / 9 waves, research found 18 corrections
+last_activity_desc: Phase 130 execution started
 progress:
   total_phases: 8
   completed_phases: 7
-  total_plans: 72
+  total_plans: 88
   completed_plans: 72
-  percent: 88
+  percent: 82
 ---
 
 # Project State
@@ -24,14 +24,14 @@ progress:
 
 ## Current Position
 
-Phase: 130 — Close — Honesty Ledger, Claim Gate, Release Decision
+Phase: 130 (Close — Honesty Ledger, Claim Gate, Release Decision) — EXECUTING
 Plans: 16 (130-01…130-16) in 9 waves — 0/16 complete
-Status: **PLANNED — ready to execute.** Research (`130-RESEARCH.md`) returned **18 corrections**,
-three of them CRITICAL tooling defects that predate the phase; plan-checker returned VERIFICATION
+Status: **EXECUTING.** Research (`130-RESEARCH.md`) returned **18 corrections**, three of them
+CRITICAL tooling defects that predate the phase; plan-checker returned VERIFICATION
 PASSED with 0 blockers / 0 warnings. Decision coverage 16/16 (real run, not a skip).
-Next: `/gsd-execute-phase 130` — but the phase has a **genuine operator gate between wave 7 and
-wave 8**; do not run it with `--auto`/`--chain` expecting a single pass.
-Last activity: 2026-08-02 — Phase 130 planned
+Next: the phase has a **genuine operator gate between wave 7 and wave 8**; it cannot complete in a
+single unattended pass.
+Last activity: 2026-08-02 — Phase 130 execution started
 
 ### Phase 130 planning outcome (2026-08-02)
 
@@ -341,7 +341,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-30 — v1.23 Current Milestone sect
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single authoritative dispatch key end to end (XML → DB → wire JSON → firmware handler). As of v1.20 the last vestige violating that contract — the `mem_type`/`type` backward-compat fallback axis — is gone; firmware, wire, and host trust **only** the real protocol. v1.23 adds a fourth board target beneath that contract without disturbing it: the PROM programming algorithms stay platform-independent and the HAL boundary absorbs the new MCU, so protocol dispatch is untouched by the port.
 
-**Current focus:** Phase 129 — flash-path-decision-pcb-requirements-record
+**Current focus:** Phase 130 — Close — Honesty Ledger, Claim Gate, Release Decision
 
 ## Milestone Context (v1.23)
 
