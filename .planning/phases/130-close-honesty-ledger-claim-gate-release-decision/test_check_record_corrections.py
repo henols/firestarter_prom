@@ -44,6 +44,21 @@ Coverage:
       pinned against a future silent inversion.
   15. test_pass_line_names_every_scanned_file: pointing the checker at two
       clean fixtures at once produces one PASS: line naming both basenames.
+
+Mechanism-3 tests (Plan 130-09, `recordscan:supersedes` retroactive
+supersession -- see the module docstring's "Why a fourth mechanism exists"
+paragraph in check_record_corrections.py):
+
+  16. superseded_section_control.md (one of two occurrences named) still
+      FAILs on the uncovered line -- the narrow-scoping negative direction.
+  17. superseded_section_full_control.md (both occurrences named) exits 0
+      -- the positive direction.
+  18. Suppression is real: stripping the recordscan:supersedes marker from
+      the full-control fixture (in tmp_path) makes BOTH lines FAIL again.
+  19. An unrecognised/misspelled needle label in the marker exempts nothing
+      -- fails closed on a typo rather than silently passing.
+  20. A recordscan:supersedes marker with no reason text does not exempt,
+      mirroring test 10's requirement for mechanisms 1/2.
 """
 
 import os
@@ -378,3 +393,148 @@ def test_pass_line_names_every_scanned_file():
     assert "labeled_correction_control.md" in result.stdout, (
         f"Expected both basenames in the PASS: line but got:\n{result.stdout}"
     )
+
+
+# ---------------------------------------------------------------------------
+# Mechanism 3 (Plan 130-09): recordscan:supersedes retroactive supersession.
+#
+# `.planning/notes/py32f071-port-branch-state.md` is a dated D-05 append-only
+# capture: stale lines in its ORIGINAL body cannot be edited or annotated
+# in place, yet must still go green. Mechanisms 1/2 are both forward- or
+# same-line-scoped and cannot reach backwards across an appended section, so
+# this mechanism lets a trailing section declare "(needle label, line
+# number)" pairs elsewhere in the SAME file as retroactively covered --
+# scoped narrowly by requiring a real needle label AND an explicit,
+# enumerated line-number list AND a stated reason (tests 19/20 below prove
+# each guard independently).
+# ---------------------------------------------------------------------------
+
+
+def test_superseded_section_control_fails_on_the_uncovered_line_only():
+    """superseded_section_control.md plants the SAME needle on two lines but
+    its recordscan:supersedes marker names only one of them (line 12) --
+    the narrow-scoping negative direction: naming one line must not exempt
+    a sibling occurrence of the same label elsewhere in the file."""
+    result = _run_checker(targets="fixtures/superseded_section_control.md")
+    assert result.returncode != 0, (
+        f"checker exited 0 on a fixture with a deliberately uncovered "
+        f"occurrence.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+    )
+    assert "FAIL:" in result.stdout
+    assert "superseded_section_control.md:14" in result.stdout, (
+        f"expected the UNCOVERED line (14) to be named in the FAIL bucket:\n{result.stdout}"
+    )
+    assert "superseded_section_control.md:12" not in result.stdout, (
+        f"the COVERED line (12) must not appear in the FAIL bucket -- mechanism 3 "
+        f"exempted it, so only line 14 should surface:\n{result.stdout}"
+    )
+
+
+def test_superseded_section_full_control_exits_zero():
+    """superseded_section_full_control.md names BOTH occurrences in one
+    marker -- the positive direction."""
+    fixture_text = (
+        _HERE / "fixtures" / "superseded_section_full_control.md"
+    ).read_text()
+    assert "recordscan:supersedes" in fixture_text
+    assert "lines=12,14" in fixture_text
+    result = _run_checker(targets="fixtures/superseded_section_full_control.md")
+    assert result.returncode == 0, (
+        f"checker exited {result.returncode} on a fully-covered supersession "
+        f"fixture.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+    )
+    assert "PASS:" in result.stdout
+
+
+def test_supersedes_marker_suppression_is_real_not_accidental(tmp_path):
+    """Strip the recordscan:supersedes marker entirely from the full-control
+    fixture. Without this test, the previous test could pass merely because
+    the needle never matches this fixture's text at all, rather than
+    because mechanism 3 actively exempted both lines. Stripping the marker
+    must make BOTH lines FAIL again."""
+    original = (
+        _HERE / "fixtures" / "superseded_section_full_control.md"
+    ).read_text()
+    marker_line = (
+        "Both claims above are corrected: the imaginary branches are now 0 "
+        "behind. <!-- recordscan:supersedes needle=branches-27-behind "
+        "lines=12,14 reason: fixture proves mechanism 3 retroactively "
+        "exempts every named line in one marker, not just the first -->"
+    )
+    assert marker_line in original, "the full marker line must actually be present to strip"
+    mutated = original.replace(
+        marker_line,
+        "Both claims above are corrected: the imaginary branches are now 0 behind.",
+    )
+    assert mutated != original
+    target = tmp_path / "mutated_full_control_no_marker.md"
+    target.write_text(mutated)
+
+    result = _run_checker(targets=str(target))
+    assert result.returncode != 0, (
+        "expected the mutated fixture (recordscan:supersedes marker stripped) "
+        f"to FAIL on both lines.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+    )
+    assert "FAIL:" in result.stdout
+    assert ":12" in result.stdout
+    assert ":14" in result.stdout
+
+
+def test_supersedes_marker_with_unknown_needle_label_does_not_exempt(tmp_path):
+    """A misspelled/unrecognised needle= label in the marker must exempt
+    NOTHING -- fails closed on a typo rather than silently passing, per the
+    module docstring's guard (a). This is exactly the shape of failure this
+    milestone's research kept finding elsewhere (fail-open on a renamed/
+    misspelled subject), so it gets its own explicit proof here."""
+    original = (
+        _HERE / "fixtures" / "superseded_section_full_control.md"
+    ).read_text()
+    assert "needle=branches-27-behind" in original
+    mutated = original.replace(
+        "needle=branches-27-behind", "needle=branches-27-behnid"
+    )
+    assert mutated != original
+    target = tmp_path / "mutated_full_control_bad_label.md"
+    target.write_text(mutated)
+
+    result = _run_checker(targets=str(target))
+    assert result.returncode != 0, (
+        "expected a misspelled needle label to exempt nothing (both lines "
+        f"FAIL).\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+    )
+    assert "FAIL:" in result.stdout
+    assert ":12" in result.stdout
+    assert ":14" in result.stdout
+
+
+def test_supersedes_marker_with_no_reason_does_not_exempt(tmp_path):
+    """A recordscan:supersedes marker with the needle/lines fields present
+    but no reason text does NOT exempt -- mirrors test 10's requirement for
+    mechanisms 1/2: an exemption with no stated reason is the fail-open
+    shape this milestone keeps finding, and mechanism 3 must not reintroduce
+    it."""
+    original = (
+        _HERE / "fixtures" / "superseded_section_full_control.md"
+    ).read_text()
+    marker_full = (
+        "<!-- recordscan:supersedes needle=branches-27-behind lines=12,14 "
+        "reason: fixture proves mechanism 3 retroactively exempts every "
+        "named line in one marker, not just the first -->"
+    )
+    assert marker_full in original
+    mutated = original.replace(
+        marker_full,
+        "<!-- recordscan:supersedes needle=branches-27-behind lines=12,14 -->",
+    )
+    assert mutated != original
+    target = tmp_path / "mutated_full_control_no_reason.md"
+    target.write_text(mutated)
+
+    result = _run_checker(targets=str(target))
+    assert result.returncode != 0, (
+        "expected a bare recordscan:supersedes marker (no stated reason) to "
+        f"NOT exempt.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+    )
+    assert "FAIL:" in result.stdout
+    assert ":12" in result.stdout
+    assert ":14" in result.stdout

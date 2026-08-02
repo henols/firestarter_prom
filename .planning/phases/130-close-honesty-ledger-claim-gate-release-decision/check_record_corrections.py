@@ -31,7 +31,7 @@ proves nothing about staleness this table does not name -- the six R-Ns
 with zero live occurrences, and any correction this milestone's research did
 not surface, are outside this gate's reach by construction.
 
-**Why two exemption mechanisms, not one:** `130-RESEARCH.md` C-7 found that
+**Why three exemption mechanisms, not one:** `130-RESEARCH.md` C-7 found that
 all six live `2992 B` hits in the current tree are either labeled correction
 blocks or historically-correct v1.22-archive/decision-log prose that was
 true when it was written and is preserved deliberately. A single "labeled
@@ -46,6 +46,36 @@ several of this checker's own needles verbatim because it *defines* them --
 that is neither a correction nor history, it is the table describing itself,
 so a third inline marker (`<!-- recordscan:allow ... -->`) exists for that
 self-reference case alone.
+
+**Why a fourth mechanism exists (Plan 130-09, mechanism 3 in the code below):**
+`.planning/notes/py32f071-port-branch-state.md` is a dated (`2026-07-28`)
+`/gsd-explore` capture. D-05 assigns it an **append-only SUPERSEDED section**
+rather than in-place correction, specifically so the "what did we once
+believe" trail survives byte-for-byte. Mechanisms 1 and 2 are both *forward*
+or *same-line*: `exempt_regions()` only extends a block forward from an
+opener, and the two inline markers must sit on the same physical line as the
+needle they exempt. Neither can retroactively cover a stale line that sits
+*above* an appended section without editing that line -- which is exactly
+what D-05 forbids for this file. Plan 130-09 therefore adds a narrowly-scoped
+**retroactive supersession marker**,
+`<!-- recordscan:supersedes needle=<label> lines=<n,n,...> reason: <text> -->`,
+which may appear anywhere in the file (in practice: inside the appended
+SUPERSEDED section, itself already exempt via mechanism 1) and declares that
+one specific needle *label*, on specific 1-based line *numbers* elsewhere in
+the SAME file, is retroactively covered. This is deliberately NOT "the whole
+file is superseded" or "any line near the word SUPERSEDED is exempt": (a) the
+needle label must be one of the twelve real labels in `_NEEDLE_LABELS` --
+an unrecognised or misspelled label exempts nothing; (b) the line numbers are
+an explicit enumerated list, not a range or "the rest of the file" -- a line
+not named stays `unlabeled`; (c) a reason is mandatory, exactly as mechanisms
+2's markers require (`_marker_has_reason`); and (d) the trigger is the exact
+`recordscan:supersedes` marker syntax, never the English word "superseded"
+appearing in a heading or prose. Merely titling a section "## SUPERSEDED"
+with no marker exempts nothing under this mechanism (mechanism 1 may still
+apply to lines physically inside that section, but that is unchanged,
+already-existing behaviour, not this new path). See
+`test_check_record_corrections.py`'s "mechanism 3" test group for the
+positive, narrow-scoping-negative, and reachability proofs.
 
 **Why the target list is resolved from a repo root, not from this file's
 directory:** RESEARCH C-2 reproduced exactly this defect in the sibling
@@ -273,6 +303,47 @@ def _marker_has_reason(raw_reason_span):
     return bool(raw_reason_span.strip())
 
 
+# Exemption mechanism 3 -- retroactive supersession (Plan 130-09). See the
+# module docstring's "Why a fourth mechanism exists" paragraph. Deliberately
+# a DIFFERENT marker keyword (`supersedes`, not `history`/`allow`) so a
+# grep for the mechanism-2 keywords never accidentally matches this one, and
+# deliberately requires BOTH a known needle label AND an explicit line-number
+# list -- there is no spelling of this marker that exempts "the whole file"
+# or "every line near this word".
+_SUPERSEDE_MARKER_RE = re.compile(
+    r"<!--\s*recordscan:supersedes\s+needle=([a-zA-Z0-9-]+)\s+lines=([0-9,\s]+?)\s+(.*?)-->",
+    re.DOTALL,
+)
+
+
+def _collect_superseded_targets(lines):
+    """Scan all `lines` of one file for `recordscan:supersedes` markers and
+    return a dict of `{needle_label: {line_number, ...}}` -- the set of
+    1-based line numbers that marker declares retroactively covered for that
+    needle label.
+
+    Fails closed on both axes: a label not present in `_NEEDLE_LABELS` (a
+    typo, or a label for a needle that does not exist) contributes NOTHING
+    -- it does not raise, and it does not exempt anything, so a mistyped
+    label leaves the real hit `unlabeled` rather than silently passing. A
+    marker whose reason span is blank once stripped (`_marker_has_reason`)
+    is likewise ignored entirely, matching mechanism 2's requirement that an
+    exemption always carries a stated reason."""
+    targets = collections.defaultdict(set)
+    for line in lines:
+        for m in _SUPERSEDE_MARKER_RE.finditer(line):
+            label, line_csv, reason = m.group(1), m.group(2), m.group(3)
+            if label not in _NEEDLE_LABELS:
+                continue
+            if not _marker_has_reason(reason):
+                continue
+            for tok in line_csv.split(","):
+                tok = tok.strip()
+                if tok.isdigit():
+                    targets[label].add(int(tok))
+    return targets
+
+
 def exempt_regions(lines):
     """Return the set of zero-based line indices covered by an open labeled
     block, so `scan_text` can ask one question per needle hit."""
@@ -299,10 +370,13 @@ def exempt_regions(lines):
 Record = collections.namedtuple("Record", ["path", "lineno", "label", "verdict"])
 
 
-def _verdict_for_line(i, line, exempt_line_indices):
+def _verdict_for_line(i, line, exempt_line_indices, label, superseded_targets):
     """Return the verdict for a needle hit on zero-based line index `i` /
-    text `line`: `inline-history` or `inline-allow` (mechanism 2, reason
-    required), `line-label` or `block` (mechanism 1), else `unlabeled`."""
+    text `line` / needle `label`: `inline-history` or `inline-allow`
+    (mechanism 2, reason required), `line-label` or `block` (mechanism 1),
+    `superseded` (mechanism 3, Plan 130-09 -- a `recordscan:supersedes`
+    marker elsewhere in the file names this exact label and this exact
+    1-based line number), else `unlabeled`."""
     m = _INLINE_MARKER_RE.search(line)
     if m and _marker_has_reason(m.group(2)):
         keyword = m.group(1)
@@ -311,6 +385,8 @@ def _verdict_for_line(i, line, exempt_line_indices):
         return "line-label"
     if i in exempt_line_indices:
         return "block"
+    if (i + 1) in superseded_targets.get(label, ()):
+        return "superseded"
     return "unlabeled"
 
 
@@ -322,11 +398,12 @@ def scan_text(text, path):
     included; `main` filters. `lineno` is one-based."""
     lines = text.splitlines()
     exempt = exempt_regions(lines)
+    superseded_targets = _collect_superseded_targets(lines)
     records = []
     for label, pattern in _NEEDLES:
         for i, line in enumerate(lines):
             if pattern.search(line):
-                verdict = _verdict_for_line(i, line, exempt)
+                verdict = _verdict_for_line(i, line, exempt, label, superseded_targets)
                 records.append(Record(path, i + 1, label, verdict))
     return records
 
