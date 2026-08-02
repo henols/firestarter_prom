@@ -172,3 +172,13 @@ None — no external service configuration required.
 ---
 *Phase: 130-close-honesty-ledger-claim-gate-release-decision*
 *Completed: 2026-08-02*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/130-close-honesty-ledger-claim-gate-release-decision/130-LEDGER.md`
+- FOUND: `.planning/phases/130-close-honesty-ledger-claim-gate-release-decision/130-11-SUMMARY.md`
+- FOUND: commit `63de93d6` (Task 1)
+- FOUND: commit `a4c4a874` (Task 2)
+- FOUND: commit `84c5041` (this SUMMARY)
+- `git status --short .planning/REQUIREMENTS.md .planning/ROADMAP.md .planning/STATE.md .planning/PROJECT.md` → empty (all four untouched)
+- `git rev-parse --abbrev-ref HEAD` → `gsd/v1.23-py32f071-integration` (confirmed)
