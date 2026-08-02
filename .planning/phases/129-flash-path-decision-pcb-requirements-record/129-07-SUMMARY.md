@@ -180,3 +180,11 @@ None beyond the gate defect documented above.
 ---
 *Phase: 129-flash-path-decision-pcb-requirements-record*
 *Completed: 2026-08-02*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/129-flash-path-decision-pcb-requirements-record/129-07-SUMMARY.md`
+- FOUND: firmware commit `2ef7b57` (locator fix)
+- FOUND: firmware commit `5a89ee7` (D-11 comment edit)
+- Firmware working tree clean at HEAD `5a89ee7` on branch `v1.23-py32f071-integration`
+- Meta repo shows only ` M firestarter` (gitlink deliberately unbumped) and ` M firestarter_app` (pre-existing, unrelated) after this SUMMARY's own commit
