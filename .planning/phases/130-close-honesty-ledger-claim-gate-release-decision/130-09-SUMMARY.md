@@ -238,3 +238,12 @@ None — no external service configuration required.
 ---
 *Phase: 130-close-honesty-ledger-claim-gate-release-decision*
 *Completed: 2026-08-02*
+
+## Self-Check: PASSED
+
+All created/modified files found on disk (`check_record_corrections.py`, `test_check_record_corrections.py`,
+both new fixtures, `notes/py32f071-port-branch-state.md`, this SUMMARY). All three task commit hashes
+(`3fb6a04`, `f33e787`, `f70ac72`) found in `git log --oneline --all`. `REQUIREMENTS.md`/`ROADMAP.md`/
+`STATE.md`/`PROJECT.md` confirmed untouched (`git status --short` empty for all four). Full 20-test suite
+re-run green. `check_record_corrections.py` re-run against the note alone: exit 0, 0 unlabeled, 12
+superseded, 13 block. `git rev-parse --abbrev-ref HEAD` confirmed `gsd/v1.23-py32f071-integration`.
