@@ -4,7 +4,7 @@
 **Firmware branch (`firestarter`):** `v1.23-py32f071-integration` · **HEAD at this writing:** `05c20bf59a4f0f73acf28d48d5dbbedab5724c5f`
 **Host branch (`firestarter_app`):** `v1.23-py32f071-integration` · **HEAD at this writing:** `cc9452f4db9a814ffb221bab767c24db67288365`
 **Meta branch:** `gsd/v1.23-py32f071-integration`
-**Published cut tag:** **not yet observed.** Plan 130-15 fills this field after reading the real tag from `gh release list` against both repos; no version string is predicted here.
+**Published cut tag:** **`3.0.0b15`** — observed, not predicted, quoted verbatim from `gh release list` in both `henols/firestarter` and `henols/firestarter_app` (`130-CHANNELS.md` §1: `3.0.0b15 Pre-release 3.0.0b15 2026-08-02T21:22:42Z` / `2026-08-02T21:21:19Z`). Both channels are public at this tag: the firmware GitHub prerelease carries four `.hex` assets including `firestarter_py32f071.hex` (first-ever publication of that asset), and PyPI carries the host app (`firestarter==3.0.0b15`, resolved from a clean venv). No stable release exists — PyPI `info.version` remains `2.0.7`. Filled by plan 130-16.
 **Oracle:** software-only — native register trace (`pio test -e native` / `-e native_nodevtools`), host pytest (`firestarter_app`), source-scan gates (`tools/check_*.py`, this phase's `check_permitted_claims.py` / `check_record_corrections.py`), a local ARM configure+build (delta and byte-identity claims only), and two operator-authorised CI rehearsal dispatches of `beta-build.yml`. **No PY32F071 hardware exists**, so no board-level oracle contributed anything below.
 **Generated:** 2026-08-02
 

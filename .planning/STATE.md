@@ -24,22 +24,24 @@ progress:
 
 ## Current Position
 
-Phase: 130 (Close — Honesty Ledger, Claim Gate, Release Decision) — EXECUTING, PAUSED AT THE OPERATOR GATE
-Plans: 16 (130-01…130-16) in 9 waves — **14/16 complete** (waves 1–7 done; 130-15 and 130-16 remain)
-Status: **PAUSED at the wave-8 operator gate**, as planned. Waves 1–7 executed sequentially on the
-main checkout (worktree isolation off for the whole phase — every plan's `<automated>` criteria pin
-to absolute `/workspaces` paths, 130-03 crosses the `firestarter` submodule, and five plans write
-`ROADMAP.md`/`STATE.md` as deliverables). Both record gates are **green**:
-`check_permitted_claims.py` exit 0 scanning all four contracted artifacts (it scanned *nothing* and
-still exited 0 before 130-01 repaired it), and `check_record_corrections.py` exit 0 across all five
-planning files, 0 unlabeled of 60 needle records.
-**Nothing outward-facing has happened.** Both channels remain at `3.0.0b14`; no push, no tag, no
-release, no PyPI dispatch; neither submodule gitlink bumped. `130-HANDOFF.md` §2 carries the 8-step
-operator procedure, D-02's blocking wording review first.
-Next: the operator performs `130-HANDOFF.md` §2 steps 1–7, then `/gsd-execute-phase 130` resumes at
-130-15, which fails closed unless the observed tag is strictly newer than the recorded ceiling
-`3.0.0b14`.
-Last activity: 2026-08-02 — Phase 130 waves 1–7 executed; paused at the 130-15 operator gate
+Phase: 130 (Close — Honesty Ledger, Claim Gate, Release Decision) — COMPLETE
+Plans: 16 (130-01…130-16) in 9 waves — **16/16 complete**
+Status: **CLOSED.** The operator performed `130-HANDOFF.md` §2 steps 1–7 (the D-02 blocking wording
+review, the `--no-ff` merges and pushes in both sub-repos, the manual `publish.yml` dispatch, and
+posting both release bodies); plan 130-15 independently re-verified both channels public at the
+observed cut tag `3.0.0b15` (`130-CHANNELS.md`); plan 130-16 re-executed every gate in this session
+(`130-NONREGRESSION.md`), asserted and bumped the meta gitlinks against the milestone-branch tips
+(`firestarter` `5a89ee7 → 05c20bf`; `firestarter_app` unchanged), and ticked CLOSE-01…CLOSE-04.
+Both record gates are **green**: `check_permitted_claims.py` exit 0 scanning all four contracted
+artifacts, and `check_record_corrections.py` exit 0 across all five planning files, 0 unlabeled of
+60 needle records.
+**Outward-facing work is done.** Both channels are public at `3.0.0b15`: the firmware GitHub
+prerelease carries four `.hex` assets including `firestarter_py32f071.hex` (first-ever publication
+of that asset); PyPI carries `firestarter==3.0.0b15`; no stable release exists (`info.version`
+still `2.0.7`). The `v1.23` annotated tag and any merge toward `main` stay with
+`/gsd-complete-milestone`, per D-04.
+Next: `/gsd-complete-milestone` for the v1.23 tag, the merge toward `main`, and milestone archival.
+Last activity: 2026-08-02 — Phase 130 wave 9 (130-16) executed; phase closed
 
 ### Phase 130 planning outcome (2026-08-02)
 
@@ -113,6 +115,44 @@ is a hard failure. Adding or renaming one requires amending that list in the sam
 
 **Todo matches: none folded.** `correct-v128-py32-roadmap-prior-art` is the one substantive hit and
 is already owned by CLOSE-03 by requirement; D-13 discharges it.
+
+### Phase 130 outcome (2026-08-02) — COMPLETE
+
+**Shipped:** `130-NONREGRESSION.md` — every gate re-executed in this session, D-16's before/after
+SHA-256 proof, D-07's toolchain reproduction recipe, A-5 recorded discharged at Phase 124, all
+seventeen decision-coverage rows (D-01…D-17, with D-17's out-of-`130-CONTEXT.md` provenance
+stated), all four ROADMAP success criteria discharged with named evidence including criterion 4's
+`13X-DECISION.md`-vs-`130-DECISION.md` naming discrepancy. CLOSE-01…CLOSE-04 ticked in
+`REQUIREMENTS.md`, each with an evidence clause and its honest qualifier; the Traceability row
+updated from `Pending` to Complete.
+
+**Gitlinks asserted, not pinned.** `firestarter` bumped `5a89ee7 → 05c20bf` (plan 130-03's two
+commits moved the milestone-branch tip); `firestarter_app` unchanged (`cc9452f`, nothing in this
+phase committed inside it). Both assertions are scoped to the milestone-branch tips, not the
+post-publish `beta` state the working directories now sit on.
+
+**Both channels verified public at `3.0.0b15`**, read from `gh release list`, never computed:
+firmware GitHub prerelease carries four `.hex` assets including `firestarter_py32f071.hex`
+(first-ever publication); PyPI carries `firestarter==3.0.0b15`, resolved from a clean venv; no
+stable release (`info.version` unchanged at `2.0.7`). Full transcript in `130-CHANNELS.md`.
+
+**One out-of-plan finding carried forward.** The real cut's first CI attempt failed in both repos
+on three pre-existing CI-only sibling-checkout test defects — invisible in this devcontainer,
+which has the sibling layout standalone CI lacks. Fixed on `beta` directly during the operator's
+hand-off (`firestarter` `1c511e8`, `firestarter_app` `5934a54`), outside any plan. One of the three
+**softened a Phase-129-authored hard assert** to a skip — a defect-class change, recorded as such
+rather than a routine fix. Both fixes are confirmed ancestors of `origin/beta`; neither reached
+either milestone branch — a divergence recorded, not silently reconciled.
+
+**Three residuals carried forward, unresolved by design.** (1) D-17's USB-identity tension — the
+interim pid.codes `1209:0001` pair is not an allocation, and `v1.23-FLASH-PATH-DECISION.md` §5(c)'s
+ship gate stays byte-unchanged. (2) The ARM pass stays delta-and-byte-identity only — no absolute
+ARM figure is a milestone-level claim. (3) The community inbox is not empty (gh#18, gh#20, both
+out of scope).
+
+**This phase's own diff scope, self-checked.** `git -C /workspaces diff -- .planning/STATE.md`
+touches no hunk inside the YAML frontmatter block; `git -C /workspaces diff -- .planning/REQUIREMENTS.md`
+is confined to the four CLOSE lines and the one Traceability row.
 
 ### Phase 129 outcome (2026-08-02) — COMPLETE
 
