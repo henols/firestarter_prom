@@ -4,17 +4,17 @@ milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 130
 current_phase_name: Close — Honesty Ledger, Claim Gate, Release Decision
-status: executing — paused at the wave-8 operator gate
-stopped_at: Phase 130 wave 7 complete; 130-15 Task 1 awaiting the operator
-last_updated: "2026-08-02T19:40:00.000Z"
+status: complete
+stopped_at: Phase 130 complete — v1.23 published at 3.0.0b15; ready for /gsd-complete-milestone
+last_updated: "2026-08-02T22:26:09.869Z"
 last_activity: 2026-08-02
-last_activity_desc: Phase 130 waves 1-7 executed (14/16 plans); paused at the 130-15 operator gate
+last_activity_desc: Phase 130 complete — v1.23 published at 3.0.0b15 on both channels
 progress:
   total_phases: 8
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 88
-  completed_plans: 86
-  percent: 98
+  completed_plans: 88
+  percent: 100
 ---
 
 # Project State
@@ -41,7 +41,7 @@ of that asset); PyPI carries `firestarter==3.0.0b15`; no stable release exists (
 still `2.0.7`). The `v1.23` annotated tag and any merge toward `main` stay with
 `/gsd-complete-milestone`, per D-04.
 Next: `/gsd-complete-milestone` for the v1.23 tag, the merge toward `main`, and milestone archival.
-Last activity: 2026-08-02 — Phase 130 wave 9 (130-16) executed; phase closed
+Last activity: 2026-08-02 — Phase 130 wave 9 (130-16) executed; phase closed, verifier PASSED 4/4
 
 ### Phase 130 planning outcome (2026-08-02)
 
