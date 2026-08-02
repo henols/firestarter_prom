@@ -136,3 +136,17 @@ None — no external service configuration required. This plan performed no priv
 ---
 *Phase: 130-close-honesty-ledger-claim-gate-release-decision*
 *Completed: 2026-08-02*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/130-close-honesty-ledger-claim-gate-release-decision/130-NONREGRESSION.md`
+- FOUND: `.planning/phases/130-close-honesty-ledger-claim-gate-release-decision/130-16-SUMMARY.md`
+- FOUND commit: `62babf2c` (Task 1 + gitlink bump)
+- FOUND commit: `f69abc2f` (Task 2)
+- FOUND commit: `f00c7ef2` (Task 3)
+- FOUND commit: `f96a613c` (plan completion, this SUMMARY)
+- Branch unchanged: `gsd/v1.23-py32f071-integration`
+- `origin/beta` unchanged across this plan's execution: `firestarter` `0933bd7d602efb30e4a666e8231ecf724e90ab09`, `firestarter_app` `16a313a040389aa7c88a98b85f79a7d667ca2f6f`
+- Gitlink bump confirmed via `git ls-tree HEAD firestarter firestarter_app`: `firestarter` now `05c20bf59a4f0f73acf28d48d5dbbedab5724c5f`, `firestarter_app` unchanged `cc9452f4db9a814ffb221bab767c24db67288365`
+- All four CLOSE requirement lines confirmed `[x]` with `130-NONREGRESSION` citations; zero other `- [ ]` requirement lines remain in `REQUIREMENTS.md`
+- `check_permitted_claims.py` re-confirmed exit 0 on the final tree; `check_record_corrections.py` re-confirmed exit 0 on the final tree
