@@ -2415,8 +2415,47 @@ Plans:
   4. The record names a specific USB VID/PID decision (replacing the undocumented `0x36B7`/`0xFFFF` placeholder) with its sourcing basis and an explicit statement that squatting becomes a liability the moment a board ships.
   5. The socket-empty-before-any-py32-firmware-install safety instruction is documented somewhere a future installer/tester will read it, with an explicit statement of why it is stronger here than the comparable warning in other projects (the provisional pin map).
 
-**Plans**: TBD
-**Research flag**: yes — `/gsd-plan-phase --research-phase 129` (USB VID/PID route, BOOT0/nBOOT1 strap details, bootloader-region/vector-relocation implications are all currently LOW-confidence web sourcing)
+**Plans**: 9 plans
+
+**Deliberately serial — 9 waves for 9 plans.** Every plan either writes into one of the two copies of the record or discharges legs of one shared gate module, so parallelism would make every expected-count criterion order-dependent. Determinism is worth more here than wall-clock: this milestone has already paid four times for gates that passed without observing anything.
+
+**Wave 1**
+
+- [ ] 129-01-PLAN.md — `tests/meta_presence.py` (unrenameable `.git` marker, `FIRESTARTER_META_ROOT` seam, `MissingScanTargetError`) plus the fail-closed half of `tests/test_flash_path_record_sync.py`: one shared-section extractor and ten committed fixtures covering all five of RESEARCH F-14's fail-open modes
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 129-02-PLAN.md — The 31 parity and content legs, committed **RED before either record exists**: the three exact gated literals, eight needle sets, the D-16 row-shape parser, the D-10 proximity rule, and the planted-mutation ceremony. The RED is `MissingScanTargetError`, not a skip
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 129-03-PLAN.md — `.planning/v1.23-FLASH-PATH-DECISION.md`: header, reader routing, the five-tag confidence legend, §1 Context (F-1/F-5/F-8/F-9/F-10/F-11), §1.6's Revision Note recording all three corrections with their supersessions, and §2 the three-tier decision `[SHARED:S1]`
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 129-04-PLAN.md — §3 the seven-row pre-schematic PCB checklist `[SHARED:S2]` with its `### Deliberately undecided` subsection, and §4 the flash budget as actually reserved `[SHARED:S3]` — three sectors / 24 KiB, with the corrected fleet-migration cost inside every row
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 129-05-PLAN.md — §5 the USB identity decision `[SHARED:S4]` (Puya provenance, pid.codes `0x1209`, interim `1209:0001`, the verbatim ship gate, the sequencing constraint and the date-stamped queue figures), §6 the socket instruction `[SHARED:S5]`, §7 rejected routes, §8 tracked obligations, §9 open questions, and the claim ceiling
+
+**Wave 6** *(blocked on Wave 5)*
+
+- [ ] 129-06-PLAN.md — `platform/py32f071/FLASH-PATH-AND-PCB.md`, built by **extraction** so byte-identity is a property of construction; plus the README socket instruction and pointer, and the `firestarter/CLAUDE.md` sync obligation keyed on the same five markers
+
+**Wave 7** *(blocked on Wave 6)*
+
+- [ ] 129-07-PLAN.md — D-11's linker cross-reference with the C-1 clause corrected by wholesale block replacement, and D-13's byte-identity proof executed **locally** with the relink confirmed (no CI run, no push)
+
+**Wave 8** *(blocked on Wave 7)*
+
+- [ ] 129-08-PLAN.md — D-17's seed status update within its unchanged four-field schema, pointing at the record as canonical (D-18), scoping the one superseded number and transferring the stale slot reference to CLOSE-03
+
+**Wave 9** *(blocked on Wave 8)*
+
+- [ ] 129-09-PLAN.md — Closing: every row re-executed in-session, the D-13 sequence re-run on the final tree, `129-NONREGRESSION.md` (criterion 3 recorded **AMENDED**, D-01…D-18 coverage, all three discretion resolutions), the meta gitlink bump (D-05), and the PCB-01…PCB-05 ticks — the only plan permitted to tick them
+
+**Research flag**: yes — `/gsd-plan-phase --research-phase 129` (USB VID/PID route, BOOT0/nBOOT1 strap details, bootloader-region/vector-relocation implications are all currently LOW-confidence web sourcing). **Research ran and overturned four locked positions** (C-1 the part has a VTOR; C-2 `0x36B7` is Puya's registered VID; C-3 the ARM toolchain installs and the D-13 proof was executed; C-4 the seed's bootloader size is ~5× optimistic) and surfaced one requirement absent from every source (F-10: the contiguous PB0–PB7 bus is impossible on QFN56 and QFN32 — a **part-selection** constraint). C-1 and C-2 were escalated to the operator during planning and decided; see `129-RESEARCH.md` §"Corrections to CONTEXT.md".
 **UI hint**: no
 
 ### Phase 130: Close — Honesty Ledger, Claim Gate, Release Decision
