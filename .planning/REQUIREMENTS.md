@@ -99,10 +99,10 @@ Research: `.planning/research/SUMMARY.md` (4 streams + synthesis; 18 corrections
 
 ### Close
 
-- [ ] **CLOSE-01**: All of R-1…R-18 are applied to PROJECT.md, STATE.md, ROADMAP.md and `.planning/notes/py32f071-port-branch-state.md`
-- [ ] **CLOSE-02**: An honesty ledger pairs each permitted claim with its explicit non-claim, covering at minimum the provisional pin map, the absent ARM bus-trace oracle, unmeasured USB-ISR-versus-PROM timing, and the mock-only ceiling on HOST-03
-- [ ] **CLOSE-03**: The ROADMAP slot renumber lands (v1.28/v1.29 py32 slots retired into v1.23; `Binary Command Protocol` v1.23 → v1.28; v1.24–v1.27 untouched) together with the stale v1.28 prior-art correction owed by todo `correct-v128-py32-roadmap-prior-art`
-- [ ] **CLOSE-04**: A release-decision artifact is committed **before any push**, the cut tag is read from `gh release list` rather than computed, and PyPI resolution is verified directly — 6 of 13 published app betas never reached PyPI, so manual `publish.yml` dispatch is the norm, not a contingency
+- [x] **CLOSE-01**: All of R-1…R-18 are applied to PROJECT.md, STATE.md, ROADMAP.md and `.planning/notes/py32f071-port-branch-state.md` — see `130-NONREGRESSION.md` §A3/§B Criterion 1: `check_record_corrections.py` default-mode exit 0, 60 exempt hits, 0 unlabeled. **Qualifier:** six R-Ns had no live occurrence and are recorded as discharged with evidence rather than given checker legs; R-10 needed no substantive correction because its remaining occurrences are historically accurate (§A7)
+- [x] **CLOSE-02**: An honesty ledger pairs each permitted claim with its explicit non-claim, covering at minimum the provisional pin map, the absent ARM bus-trace oracle, unmeasured USB-ISR-versus-PROM timing, and the mock-only ceiling on HOST-03 — see `130-NONREGRESSION.md` §B Criterion 2, citing `130-LEDGER.md`'s six evidence tiers and the four named minimum-coverage items. **Qualifier:** the claim gate's green run is the mechanizable half only; D-02's operator wording review is the other half and it preceded posting
+- [x] **CLOSE-03**: The ROADMAP slot renumber lands (v1.28/v1.29 py32 slots retired into v1.23; `Binary Command Protocol` v1.23 → v1.28; v1.24–v1.27 untouched) together with the stale v1.28 prior-art correction owed by todo `correct-v128-py32-roadmap-prior-art` — see `130-NONREGRESSION.md` §A4/§B Criterion 3 (plans 130-04/130-05, D-16's hash proof). **Qualifier:** the v1.29 number is left vacant by design, v1.30 keeps its own number by its own instruction, and D-15's 999.25 half was verified to have no subject and is recorded as a no-op
+- [x] **CLOSE-04**: A release-decision artifact is committed **before any push**, the cut tag is read from `gh release list` rather than computed, and PyPI resolution is verified directly — 6 of 13 published app betas never reached PyPI, so manual `publish.yml` dispatch is the norm, not a contingency — see `130-NONREGRESSION.md` §B Criterion 4, citing `130-DECISION.md`'s commit timestamp, `130-CHANNELS.md`'s quoted observed tag `3.0.0b15`, the py32 asset assertion on the real release, and the clean-venv PyPI check. **Qualifier:** the merge, the push, the manual `publish.yml` dispatch and the release-body posting were operator acts, structurally excluded from every plan in this phase; the `v1.23` tag and any merge toward `main` stay with `/gsd-complete-milestone`
 
 ---
 
@@ -167,7 +167,7 @@ Populated 2026-07-30 by the v1.23 roadmap (`/gsd-new-milestone` → roadmapper).
 | HOST-01 … HOST-08 | Phase 127 | Complete — all 8 ticked, see `127-NONREGRESSION.md` §4/§5 for the row cited per requirement |
 | REL-01 … REL-04 | Phase 128 | Complete — all 4 ticked, see `128-NONREGRESSION.md` §3/§7 for the row cited per requirement (REL-03's second half is local-only evidence, stated explicitly) |
 | PCB-01 … PCB-05 | Phase 129 | Complete — all 5 ticked, see `129-NONREGRESSION.md` §4 for the criterion cited per requirement (PCB-03/PCB-04 carry honest amendment qualifiers) |
-| CLOSE-01 … CLOSE-04 | Phase 130 | Pending |
+| CLOSE-01 … CLOSE-04 | Phase 130 | Complete — all 4 ticked, see `130-NONREGRESSION.md` §B for the criterion cited per requirement (CLOSE-02/CLOSE-04 carry honest mechanizable-half/operator-act qualifiers) |
 
 **Coverage:**
 
