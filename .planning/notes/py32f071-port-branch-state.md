@@ -132,3 +132,48 @@ bench-cost multiplier the ROADMAP already flags. With no PCB, the honest
 closeable scope is: land the portability + py32 stack onto `beta` (27 commits
 behind), the host flasher seam, flash config, and the install-path design — all
 software-testable.
+
+## Update 2026-08-02 — Supersession Section (Phase 130 Plan 09, CLOSE-01)
+
+**⚠ SUPERSEDED (2026-08-02, Phase 130 Plan 09, CLOSE-01)** — this note is a
+`2026-07-28` `/gsd-explore` capture. The body above (lines 1–134) is preserved
+verbatim, byte-for-byte, as the record of what was believed on that day;
+nothing above this heading was edited to produce this section. The rows below
+supersede specific claims in that body as of Phase 130 (v1.23 PY32F071
+Integration), requirement CLOSE-01. Each row pairs the superseded claim with
+its corrected value and its evidence, so this section is never itself a new
+stale source.
+
+| Site (line, as of 2026-07-28) | Superseded claim | Corrected value | Evidence |
+|---|---|---|---|
+| Opening paragraph, line 12 | Cites `2c2ed10` / "603 additions across 8 files" as the surviving prior art (quoting the ROADMAP's own since-corrected claim) | The real inventory is five branches (below); `2c2ed10` (`feature/py32f071-toolchain`, PR #46) is the smallest of the five, not the sole survivor — the live attempt is `agent/py32f071-toolchain` (PR #48, 52 ahead) | This note's own `## Real inventory` table (lines 16–33); `130-RESEARCH.md` R-14 |
+| Real-inventory table, lines 20–24 | Every branch listed "27 behind" `beta` | Both firmware and app sub-repos are now measured **0 behind** `origin/beta` — the milestone branches are ahead only (Phase 124 landed the merge) | `PROJECT.md` "Research corrections" C-11/R-3: branch tips `5a89ee7`/`cc9452f`, 83/0 and 37/0 ahead of `origin/beta`; `130-RESEARCH.md` R-3 |
+| Prose, line 29 | "Every branch is 27 commits behind `beta`, not stale-by-hundreds" | Same correction as above — 0 behind, not 27 | Same evidence as the table row above |
+| "PR #48 is much further along" section, line 53 | `DATA_BUFFER_SIZE = 1024` | py32's `DATA_BUFFER_SIZE` is **512**, not 1024 (`CMakeLists.txt:113`), deliberately not bumped to match Leonardo's 1024 because it is wire-visible via v1.10 CAP-01 and a bump would be a behaviour change needing its own justification | `130-RESEARCH.md` R-2; `REQUIREMENTS.md` §"Out of Scope" |
+| "What is NOT done" section, line 61 | "the CRC-validated dual-slot flash scheme `PORTING.md` specifies is still unwritten" | `PORTING.md` exists only on the two CLOSED PRs (#46/#47, blob `4b1a441`) and its prescribed layout does not match what PR #48 built — never an existing, live specification. The dual-slot design was instead authored in-milestone (Phase 126, CFG-01/CFG-05) as dual-slot CRC32 flash-persistent config, and it landed | `130-RESEARCH.md` R-8/A-6; `PROJECT.md` Phase 126 entry |
+| Host-side seams table, line 94 | "the extension is baked into the pattern too" (the hardcoded `firestarter_{board}.hex` extension seam) | Already fixed on the branch: `asset_candidates()` / `_pick_asset()` cover all four call sites, and `.bin` is accepted | `130-RESEARCH.md` R-7; `PROJECT.md` Phase 127/128 entries |
+| Host-side seams table, line 96 | `cli_handlers.py:821` | The board list moved to `cli_handlers.py:932` | `130-RESEARCH.md` R-6 |
+| "Update 2026-07-28" section, line 107 | `feature/py32f071-fw-install` @ `311eacf`, "queued as milestone v1.29" | That branch landed as a real merge commit at `4ee64a1` (`firestarter_app@63ce44e`); the v1.29 slot was retired into v1.23 by CLOSE-03, not carried forward as a separate milestone | `PROJECT.md` Phase 127 entry ("`feature/py32f071-fw-install` @ `4ee64a1` landed as a **real merge commit**"); `130-RESEARCH.md` R-11 |
+| "Sizing" section, lines 131–134 (checker miss: "27 commits" / "behind" split across two physical lines by the markdown wrap, so this site is not machine-flagged; addressed here for completeness per this plan's truths, not because the gate requires it) | "the honest closeable scope is: land the portability + py32 stack onto `beta` (27 commits behind), the host flasher seam, flash config, and the install-path design — all software-testable" | That scope did not merely stay closeable — it **closed**: the port stack landed (Phase 124), the host installer landed (Phase 127), flash config landed (Phase 126), and the install-path design is recorded (Phase 129, PCB-01…05). The branches are 0 behind, not 27 | `PROJECT.md` "Phase progress — 6 of 8 complete" (Phases 124/126/127/129 entries) |
+
+Still useful, unmoved by anything above: the four host-side FW-install seams
+this note identified (board identity, release asset, flasher, CLI surface),
+the PR #47 weak-stub trap (`__attribute__((weak))` no-op USB hooks), and the
+PR #48-versus-#46 distinction (#48 is the one with a real stack). Only the
+figures and locations superseded above have moved; the qualitative findings
+stand.
+
+Machine-readable exemption index for `check_record_corrections.py` (Plan
+130-09, mechanism 3 — each marker names one needle label and the exact
+1-based line number(s) in the body above it retroactively covers; see
+`check_record_corrections.py`'s module docstring, "Why a fourth mechanism
+exists"):
+
+<!-- recordscan:supersedes needle=third-stack-2c2ed10 lines=12 reason: opening paragraph line 12 quotes the ROADMAP's own since-corrected 2c2ed10/603-additions citation; corrected value and evidence are in the table row above -->
+<!-- recordscan:supersedes needle=branches-27-behind lines=20,21,22,23,24,29 reason: both sub-repos are now 0 behind origin/beta per Phase 124; corrected value and evidence are in the table rows above -->
+<!-- recordscan:supersedes needle=py32-buffer-1024 lines=53 reason: py32 DATA_BUFFER_SIZE is 512, not 1024, per R-2; corrected value and evidence are in the table row above -->
+<!-- recordscan:supersedes needle=porting-md-dual-slot lines=61 reason: PORTING.md is stranded on two closed PRs and the dual-slot design landed in-milestone instead, per R-8/A-6; corrected value and evidence are in the table row above -->
+<!-- recordscan:supersedes needle=hex-extension-hardcoded lines=94 reason: the extension hardcoding is already fixed on the branch per R-7; corrected value and evidence are in the table row above -->
+<!-- recordscan:supersedes needle=cli-handlers-821 lines=96 reason: the board list moved to cli_handlers.py:932 per R-6; corrected value and evidence are in the table row above -->
+<!-- recordscan:supersedes needle=host-head-311eacf lines=107 reason: the branch landed at 4ee64a1 as a real merge commit per R-11; corrected value and evidence are in the table row above -->
+
