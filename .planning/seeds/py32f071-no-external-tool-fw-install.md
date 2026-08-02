@@ -2,7 +2,7 @@
 title: PY32F071 firmware install with no external tools (self-flash bootloader over the existing transport)
 trigger_condition: v1.28 PY32F071 Port is activated, OR the first PY32F071 PCB/schematic is specified — whichever comes first, because this decision imposes PCB requirements
 planted_date: 2026-07-28
-status: dormant
+status: partially realised — the factory-USB-DFU runner-up shipped in v1.23 (the trigger fired); the self-flash primary route has not, and the seed stays live for FUT-N05
 ---
 
 # PY32F071 firmware install with no external tools
@@ -99,6 +99,55 @@ assume.
 
 Operator-facing procedure and bootloader-entry table:
 `firestarter_app/doc/PY32F071-FIRMWARE-INSTALL.md` on that branch.
+
+**Phase 129, 2026-08-02.** This trigger has now fired, and half of this seed
+shipped while the other half did not.
+
+1. **The trigger fired.** The port milestone above was activated — as
+   **v1.23**, not the slot it was originally queued under (see point 5 below)
+   — so the first of this seed's two trigger disjuncts has been met. The
+   second disjunct, a specified PCB or schematic, has **not**: the board is
+   still paper, which is exactly why the PCB consequences this seed already
+   lists were recorded now, in a phase of that same milestone, rather than
+   waiting for a schematic that does not exist yet.
+2. **What landed and what did not.** The **factory-USB-DFU** route — the
+   *runner-up* in this seed's own rejected-routes table above, never the
+   decision — is what shipped in v1.23, exactly as the paragraph above this
+   note already says. The **self-flash bootloader**, this seed's *primary*
+   route, did **not** land. Landing the runner-up does not retire this seed:
+   the sentence two paragraphs above already states this in the seed's own
+   terms, and it remains true.
+3. **Where the decision now lives.** [`../v1.23-FLASH-PATH-DECISION.md`](../v1.23-FLASH-PATH-DECISION.md)
+   is now **canonical** for the flash-path decision: it is the only document
+   citing the flash addresses Phase 126 actually reserved, and it carries the
+   PCB checklist that this seed's five PCB requirements above fed into.
+   **FUT-N05** is the requirement that owns the remaining self-flash
+   bootloader work.
+4. **One number this seed no longer gets to assert.** The record's
+   §"Flash budget, as actually reserved" supersedes this seed's estimate,
+   above, that the bootloader fits "in the first few KB" of flash: this
+   tree's own measured objects that such a bootloader must carry already
+   total roughly 14.6 KiB before any bootloader logic exists, and the
+   record's flash-budget section holds the replacement figure — a 3-sector
+   (24 KiB) reservation — with its migration cost attached. This
+   supersession is scoped to that one number only; the rest of this seed
+   stands.
+5. **One stale reference, flagged rather than rewritten.** The paragraph
+   above this note refers to the DFU work as "queued as milestone v1.29" in
+   `ROADMAP.md`. That reference is stale — the work was activated as
+   **v1.23** instead (point 1 above) — and correcting it belongs to
+   **Phase 130 CLOSE-03**, which owns the milestone-slot renumber together
+   with the stale prior-art correction. It is flagged here so a reader is
+   not misled, and is deliberately not rewritten in this phase: two phases
+   editing the same claim in different directions is how a correction gets
+   lost.
+6. **One open question this seed can now close by reference.** The PCB
+   requirement above about confirming the contiguous data bus against the
+   final package and pin multiplexing is discharged by the record's PCB
+   checklist row **R3** ("Contiguous PB0–PB7 data bus, and a package that can
+   carry it"), which names the packages that cannot carry the bus at all
+   (`QFN56`, `QFN32`) and those that can (`LQFP64`, `CSP64`, `QFN64`,
+   `LQFP48`, `QFN48`).
 
 ## Open questions
 
