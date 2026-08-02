@@ -2035,7 +2035,7 @@ Plans:
 - [x] **Phase 127: Host DFU Installer** — Merge `feature/py32f071-fw-install`, close the remaining 8 host gaps (pyusb CI leg, coverage, opcode anchoring, channel-gating both ways), parallel with Phases 125/126. (completed 2026-08-01)
 - [x] **Phase 128: Release-Asset Fold** — Fold the ARM build into `beta-build.yml` after the version bump so `firestarter_py32f071.hex` publishes as a real release asset. (completed 2026-08-01)
 - [x] **Phase 129: Flash-Path Decision & PCB Requirements Record** — Record the three-tier flash-path decision and the PCB requirements (straps, pads, port, VID/PID, reserved flash map) before any schematic exists. (completed 2026-08-02)
-- [ ] **Phase 130: Close — Honesty Ledger, Claim Gate, Release Decision** — Apply all 18 research corrections to the planning record, write the claim ledger, land the ROADMAP slot renumber, and make the `beta` push its own explicit, operator-gated release decision.
+- [x] **Phase 130: Close — Honesty Ledger, Claim Gate, Release Decision** — Apply all 18 research corrections to the planning record, write the claim ledger, land the ROADMAP slot renumber, and make the `beta` push its own explicit, operator-gated release decision. (completed 2026-08-02)
 
 ## Phase Details
 
@@ -2474,7 +2474,7 @@ Plans:
 
 **Research flag**: yes — research ran and **found three broken mechanisms in the tooling this phase is contractually bound to, all invisible until executed.** C-2: `check_permitted_claims.py`'s `_DEFAULT_TARGETS` resolved into *Phase 123's* directory, so a default-mode run printed `UNARMED:` and exited **0** — a green claim gate that scanned nothing, on the milestone's only outward-facing overclaim gate. C-3: that checker's own pytest suite was already RED (`1 failed / 9 passed`), broken by the mere existence of `130-CONTEXT.md`, with no CI leg able to notice. C-1: `130-CONTEXT.md`'s own decision block was unparseable and silently dropped **9 of 16** decisions — fixed pre-planning at `0f9a709`, now 16/16. Research also widened D-11's lockstep footprint to **§5(a) + §5(d)** (C-4); found that §5(c)'s ship gate forbids exactly what D-11 does (C-5 — escalated and settled as **D-17**: §5(c) stays byte-unchanged and the tension is carried as an owned residual, because amending a ship gate so the act about to be taken clears it destroys the mechanism); corrected *"the source warning pid.codes' terms require"* to **ask**, not require (C-6); established that R-10 needs **no substantive correction**, since every live `2992 B` is a labeled correction or historically-accurate archive text (C-7) <!-- recordscan:allow leonardo-headroom-2992: reports research finding C-7 *about* the "2992 B" needle -- that every live occurrence is already a labeled correction or historically-accurate archive text -- not a new live "2992 B" claim being asserted here; see 130-RESEARCH.md C-7. -->; found that `ROADMAP.md:2468` quotes three of the CLOSE-01 checker's own needles, so the checker can never go green without an explicit self-reference exemption (C-8); named a **third** live no-VTOR prose site at `ROADMAP.md:2414` (C-9) and an unnamed high-risk stale footer at `PROJECT.md:836` (C-10); and added an **eleventh** hard sequencing constraint CONTEXT's ten do not contain — CLOSE-03's collapse must precede CLOSE-01's ROADMAP sweep (C-11). See `130-RESEARCH.md` §"Corrections to CONTEXT.md".
 
-**Plans**: 15/16 plans executed
+**Plans**: 16/16 plans complete
 
 Plans:
 **Wave 1**
@@ -2518,6 +2518,6 @@ Plans:
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 130-16-PLAN.md — Closing: `130-NONREGRESSION.md` fully re-executed in-session, the D-16/D-07/A-5 sections, D-01…D-17 coverage, the gitlink assertion, and the CLOSE-01…04 ticks — the only plan permitted to tick them
+- [x] 130-16-PLAN.md — Closing: `130-NONREGRESSION.md` fully re-executed in-session, the D-16/D-07/A-5 sections, D-01…D-17 coverage, the gitlink assertion, and the CLOSE-01…04 ticks — the only plan permitted to tick them
 
 **UI hint**: no
