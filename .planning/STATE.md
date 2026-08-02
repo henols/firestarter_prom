@@ -4,17 +4,17 @@ milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 130
 current_phase_name: Close — Honesty Ledger, Claim Gate, Release Decision
-status: executing
-stopped_at: Phase 130 planned
-last_updated: "2026-08-02T15:52:01.249Z"
+status: executing — paused at the wave-8 operator gate
+stopped_at: Phase 130 wave 7 complete; 130-15 Task 1 awaiting the operator
+last_updated: "2026-08-02T19:40:00.000Z"
 last_activity: 2026-08-02
-last_activity_desc: Phase 130 execution started
+last_activity_desc: Phase 130 waves 1-7 executed (14/16 plans); paused at the 130-15 operator gate
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 88
-  completed_plans: 72
-  percent: 82
+  completed_plans: 86
+  percent: 98
 ---
 
 # Project State
@@ -24,14 +24,22 @@ progress:
 
 ## Current Position
 
-Phase: 130 (Close — Honesty Ledger, Claim Gate, Release Decision) — EXECUTING
-Plans: 16 (130-01…130-16) in 9 waves — 0/16 complete
-Status: **EXECUTING.** Research (`130-RESEARCH.md`) returned **18 corrections**, three of them
-CRITICAL tooling defects that predate the phase; plan-checker returned VERIFICATION
-PASSED with 0 blockers / 0 warnings. Decision coverage 16/16 (real run, not a skip).
-Next: the phase has a **genuine operator gate between wave 7 and wave 8**; it cannot complete in a
-single unattended pass.
-Last activity: 2026-08-02 — Phase 130 execution started
+Phase: 130 (Close — Honesty Ledger, Claim Gate, Release Decision) — EXECUTING, PAUSED AT THE OPERATOR GATE
+Plans: 16 (130-01…130-16) in 9 waves — **14/16 complete** (waves 1–7 done; 130-15 and 130-16 remain)
+Status: **PAUSED at the wave-8 operator gate**, as planned. Waves 1–7 executed sequentially on the
+main checkout (worktree isolation off for the whole phase — every plan's `<automated>` criteria pin
+to absolute `/workspaces` paths, 130-03 crosses the `firestarter` submodule, and five plans write
+`ROADMAP.md`/`STATE.md` as deliverables). Both record gates are **green**:
+`check_permitted_claims.py` exit 0 scanning all four contracted artifacts (it scanned *nothing* and
+still exited 0 before 130-01 repaired it), and `check_record_corrections.py` exit 0 across all five
+planning files, 0 unlabeled of 60 needle records.
+**Nothing outward-facing has happened.** Both channels remain at `3.0.0b14`; no push, no tag, no
+release, no PyPI dispatch; neither submodule gitlink bumped. `130-HANDOFF.md` §2 carries the 8-step
+operator procedure, D-02's blocking wording review first.
+Next: the operator performs `130-HANDOFF.md` §2 steps 1–7, then `/gsd-execute-phase 130` resumes at
+130-15, which fails closed unless the observed tag is strictly newer than the recorded ceiling
+`3.0.0b14`.
+Last activity: 2026-08-02 — Phase 130 waves 1–7 executed; paused at the 130-15 operator gate
 
 ### Phase 130 planning outcome (2026-08-02)
 
