@@ -151,3 +151,9 @@ None — no external service configuration required.
 ---
 *Phase: 129-flash-path-decision-pcb-requirements-record*
 *Completed: 2026-08-02*
+
+## Self-Check: PASSED
+
+- `.planning/v1.23-FLASH-PATH-DECISION.md` — FOUND
+- Commits `0170810`, `b5a971e`, `7c80810`, `a81e8c2` — FOUND in `git log --oneline --all`
+- This SUMMARY.md itself, committed as `bc30f6b` — FOUND
