@@ -2477,21 +2477,47 @@ Plans:
 **Plans**: 16 plans across 9 waves
 
 Plans:
+**Wave 1**
+
 - [ ] 130-01-PLAN.md — Repair the claim gate: repoint `_DEFAULT_TARGETS` at the Phase 130 directory (C-2), make the side-effect guard differential with a reachability proof (C-3), re-assert the decision parse (C-1)
 - [ ] 130-02-PLAN.md — New `check_record_corrections.py` + suite + six fixtures (D-08/BASE-08): twelve falsifiable needles, label-and-history awareness, a self-reference exemption, and the machine-derived CLOSE-01 worklist
 - [ ] 130-03-PLAN.md — D-11: land pid.codes `1209:0001` in `usb_cdc.c`, rewrite §5(a)+§5(d) identically in both `[SHARED:S4]` copies, re-run the 41-leg sync gate, record a confined ARM delta
 - [ ] 130-04-PLAN.md — CLOSE-03 part 1: v1.23 gains its SHIPPED entry, BCP renumbers to v1.28 in version order, the two py32 slots collapse into one dated retirement line, D-16's before/after hashes captured
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 130-05-PLAN.md — CLOSE-03 part 2: retire backlog stubs 999.23/999.24, repair every broken `→ v1.28` pointer and the v1.30 back-reference, one inline supersession note at `:1883`, move the owning todo to completed
-- [ ] 130-06-PLAN.md — CLOSE-01 ROADMAP sweep: correct `:2414`'s no-VTOR criterion (C-9), add the `:2468` self-reference marker (C-8), and prove CLOSE-01 with one green default-mode run over five files
 - [ ] 130-07-PLAN.md — CLOSE-01 in `PROJECT.md`: a labeled `⚠ CORRECTION` block, R-2 corrected, the `:836` start-here-next footer disarmed (C-10), the historically-accurate `2992 B` records preserved with stated reasons
 - [ ] 130-08-PLAN.md — CLOSE-01 in `STATE.md`: in-place per D-05, Milestone Context brought up to date, two history markers, and the measured no-stale-assertion finding recorded
 - [ ] 130-09-PLAN.md — CLOSE-01 in `notes/py32f071-port-branch-state.md`: an append-only SUPERSEDED section, with the dated body proven byte-unchanged by hash
 - [ ] 130-10-PLAN.md — CLOSE-01 in `REQUIREMENTS.md`: D-06's two VTOR clauses corrected with their superseded wording preserved, D-07's toolchain premise narrowed while its conclusion survives — and no checkbox touched
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 130-06-PLAN.md — CLOSE-01 ROADMAP sweep: correct `:2414`'s no-VTOR criterion (C-9), add the `:2468` self-reference marker (C-8), and prove CLOSE-01 with one green default-mode run over five files
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 130-11-PLAN.md — `130-LEDGER.md` (D-09/D-10/D-12/D-17): six evidence tiers ordered weakest to strongest, both axes per row, the full negative space with F-10 first, and the §5(c) residual owned rather than resolved
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 130-12-PLAN.md — Both b15 release bodies hand-written as committed drafts (D-02), scanner-green and mutually consistent; nothing posted
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 130-13-PLAN.md — `130-DECISION.md` before any push (CONSTRAINT 1): twelve re-measured pre-flight sections with AGREES/DRIFTED verdicts, the three-option table, the accepted sequence naming owners, D-17 and A3 recorded
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 130-14-PLAN.md — `130-HANDOFF.md`: the operator procedure written as instructions, live state re-measured minutes before hand-off, and the absence of every privileged command proven mechanically across all 16 plans
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 130-15-PLAN.md — `130-CHANNELS.md`: a fail-closed precondition, the observed tag read from `gh release list`, D-03's py32 asset assertion on the real cut, PyPI proven from a clean venv
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
 - [ ] 130-16-PLAN.md — Closing: `130-NONREGRESSION.md` fully re-executed in-session, the D-16/D-07/A-5 sections, D-01…D-17 coverage, the gitlink assertion, and the CLOSE-01…04 ticks — the only plan permitted to tick them
 
 **UI hint**: no

@@ -4,11 +4,11 @@ milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 130
 current_phase_name: Close — Honesty Ledger, Claim Gate, Release Decision
-status: Phase 130 (close) — context gathered, 16 decisions locked; not yet planned
-stopped_at: Phase 130 context gathered
+status: Phase 130 (close) — PLANNED, 16 plans / 9 waves; ready to execute
+stopped_at: Phase 130 planned
 last_updated: "2026-08-02T13:52:31.886Z"
 last_activity: 2026-08-02
-last_activity_desc: Phase 130 context gathered; ready to plan
+last_activity_desc: Phase 130 planned — 16 plans / 9 waves, research found 18 corrections
 progress:
   total_phases: 8
   completed_phases: 7
@@ -25,10 +25,59 @@ progress:
 ## Current Position
 
 Phase: 130 — Close — Honesty Ledger, Claim Gate, Release Decision
-Plans: not yet planned
-Status: **CONTEXT GATHERED.** `130-CONTEXT.md` committed (`0005077`) with 16 locked decisions
-(D-01…D-16) and ten hard sequencing constraints. Next: `/gsd-plan-phase 130`.
-Last activity: 2026-08-02 — Phase 130 context gathered
+Plans: 16 (130-01…130-16) in 9 waves — 0/16 complete
+Status: **PLANNED — ready to execute.** Research (`130-RESEARCH.md`) returned **18 corrections**,
+three of them CRITICAL tooling defects that predate the phase; plan-checker returned VERIFICATION
+PASSED with 0 blockers / 0 warnings. Decision coverage 16/16 (real run, not a skip).
+Next: `/gsd-execute-phase 130` — but the phase has a **genuine operator gate between wave 7 and
+wave 8**; do not run it with `--auto`/`--chain` expecting a single pass.
+Last activity: 2026-08-02 — Phase 130 planned
+
+### Phase 130 planning outcome (2026-08-02)
+
+**Waves:** 1 → `130-01..04` · 2 → `130-05, 07, 08, 09, 10` · 3 → `130-06` · 4 → `130-11` ·
+5 → `130-12` · 6 → `130-13` · 7 → `130-14` · 8 → `130-15` · 9 → `130-16`. Waves 4–9 are serial by
+constraint. Three plans write `ROADMAP.md` (`130-04`, `130-05`, `130-06`) in three distinct
+consecutive waves, never concurrently.
+
+**Research corrections that changed the plan (`130-RESEARCH.md` C-1…C-18).** Every live-measured
+figure from the discussion re-verified **AGREES** — branch tips `5a89ee7`/`cc9452f`, 83/0 and 37/0
+ahead of `origin/beta`, both b14 tag ceilings, gitlinks, `gh` scopes. Unlike Phases 121/127/128/129,
+**no locked decision rested on a false premise about the world.** What research found instead was
+three broken mechanisms in tooling this phase is contractually bound to:
+
+| # | Finding | Consequence |
+|---|---|---|
+| **C-1** | `130-CONTEXT.md`'s decision block was unparseable — 7 of 16 `D-NN` ids extracted, nine silently dropped (wrapped bold runs) | Fixed pre-planning at `0f9a709`; parser now `outcome: parsed`, 16/16 trackable. The dropped nine were the highest-stakes set (D-11, D-13/14/15) |
+| **C-2** | `123/check_permitted_claims.py:74` resolves `_DEFAULT_TARGETS` against **Phase 123's** dir, so the four `130-*` artifacts scan as `UNARMED:` + **exit 0** | A green run that scanned nothing, on the milestone's only outward-facing overclaim gate. Repointed in wave 1 (`130-01`), not via `argv` — arming applies only to the default set |
+| **C-3** | That checker's own suite was **already RED** (`1 failed, 9 passed`) — the side-effect guard globs `130-*.md`, broken by the discussion commit `0005077`. Meta runs no pytest workflow, so CI cannot see it | Fixed locator-only as a **differential** snapshot guard (`130-01`), because the narrowing research proposed would re-plant the RED once `130-LEDGER.md` legitimately lands |
+| **C-11** | ROADMAP lines 33–34 (which D-13 deletes) carry R-1, R-5, R-8, R-9, R-11, R-14 verbatim | New **11th hard sequencing constraint**: CLOSE-03's collapse runs before CLOSE-01's ROADMAP sweep, else CLOSE-01 writes correction blocks into lines that then vanish |
+| **C-7** | All six live `2992 B` hits are labeled corrections or historically-correct v1.22 archive text | R-10 needs **no substantive fix** — recorded as discharged. A sweep would have deleted accurate history |
+| **C-8** | `ROADMAP.md:2468` is Phase 130's own criterion 1 and quotes **three** of the checker's own needles; `:2414` carries "no VTOR" bare | D-08's checker needs a self-reference exemption **and** history-block awareness, each with a fixture, or it can never go green on an honest tree |
+| **C-4** | D-11's lockstep footprint is larger than D-11 states: §5(d) also becomes false, and §5(a) cites `usb_cdc.c:20`/`:24` verbatim | The source warning goes **below** line 24; footprint is §5(a)+§5(d) in both copies |
+| **C-13** | The app b15 cut is gated on a full green `pytest tests/` plus two codegen gates, all blocking, all before the version bump | A RED there means no app b15 **after** the firmware half published — asymmetric lockstep breakage. Pre-flight suite state recorded as a measured gate in `130-DECISION.md` |
+
+**D-17 — new operator decision, made during planning.** Research C-5 found D-11 collides with its own
+ship gate: `v1.23-FLASH-PATH-DECISION.md` §5(c) forbids *"no release advertises a USB identity"* until
+an allocated `0x1209` PID exists, and `1209:0001` is pid.codes' private-testing id, not an allocation.
+Escalated to the operator and delegated back. Resolution: **§5(c) stays byte-unchanged and the tension
+is carried as an owned residual** — §5(c) says outright it is *"deliberately a condition… so a future
+reader can fail it"*, and amending a ship gate so your own act clears it is the fail-open move BASE-08
+exists to prevent. Consequences: §5(c) and `_L2_SHIP_GATE` are **not** touched (holding D-11 to
+§5(a)+§5(d)); `130-DECISION.md` records why a caveated disclosure is not "advertising"; `130-LEDGER.md`
+carries it as a negative-space row. Per **C-6**, no artifact may say the warning is *"required by
+pid.codes' terms"* — the terms say **should**.
+
+**Structural gating, not flag-based.** No `<automated>` block in any of the 16 plans contains
+`git push`, `git merge` into beta, `git tag`, `gh workflow run`, `gh release create|edit|delete` or
+`twine upload` — verified independently by the plan-checker. The privileged commands exist only as
+prose in `130-HANDOFF.md`'s operator procedure. `130-14` re-runs that scan as an acceptance criterion
+and `130-16` runs it again at closeout. `130-15` opens with a fail-closed precondition so an
+auto-approved checkpoint produces a visible stop rather than a phantom cut.
+
+**Environment drift (helpful).** `arm-none-eabi-gcc` 14.2.1, `cmake` 4.4.0 and `ninja` 1.13.0 measured
+**present** at plan time, so D-11's ARM pass needs no install. Per D-07 a local build supports
+**delta / byte-identity** claims only — never an absolute size, which needs a CI run URL + SHA.
 
 ### Phase 130 context highlights (2026-08-02)
 
