@@ -170,3 +170,16 @@ None beyond the `.gitignore` finding above.
 ---
 *Phase: 130-close-honesty-ledger-claim-gate-release-decision*
 *Completed: 2026-08-02*
+
+## Self-Check: PASSED
+
+- FOUND: `firestarter/platform/py32f071/src/usb_cdc.c`
+- FOUND: `firestarter/platform/py32f071/FLASH-PATH-AND-PCB.md`
+- FOUND: `.planning/v1.23-FLASH-PATH-DECISION.md`
+- FOUND: `.planning/phases/130-close-honesty-ledger-claim-gate-release-decision/130-03-SUMMARY.md`
+- FOUND: `firestarter@c96b576` (Task 1 commit)
+- FOUND: `firestarter@05c20bf` (Task 2 firmware-copy commit)
+- FOUND: meta `8aa25f0` (Task 2 meta-copy commit)
+- FOUND: meta `e233426` (plan-completion SUMMARY commit)
+- `git -C /workspaces diff --cached --stat -- firestarter` → empty (gitlink not staged)
+- `git -C firestarter rev-parse --abbrev-ref HEAD` → `v1.23-py32f071-integration` (not detached)
