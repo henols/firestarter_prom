@@ -4,15 +4,15 @@ milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 129
 current_phase_name: Flash-Path Decision & PCB Requirements Record
-status: planning
-stopped_at: Phase 129 context gathered
-last_updated: "2026-08-02T08:40:13.182Z"
+status: Phase 129 PLANNED — 9 plans / 9 serial waves, dual-repo — ready for /gsd-execute-phase 129
+stopped_at: Phase 129 planned
+last_updated: "2026-08-02T10:05:00.000Z"
 last_activity: 2026-08-02
-last_activity_desc: Phase 129 context gathered — 18 decisions locked, ready for research + planning
+last_activity_desc: Phase 129 planned — 9 plans / 9 waves, plan-checker PASSED; research overturned 4 locked positions, 2 escalated and decided
 progress:
   total_phases: 8
   completed_phases: 6
-  total_plans: 63
+  total_plans: 72
   completed_plans: 63
   percent: 75
 ---
@@ -25,11 +25,49 @@ progress:
 ## Current Position
 
 Phase: 129 — Flash-Path Decision & PCB Requirements Record
-Plan: Not started
-Status: Context gathered — ready for research + planning. `129-CONTEXT.md` locks 18 decisions (D-01…D-18) across four discussed areas plus the seed disposition; two areas (PCB-05 placement, sourcing/confidence discipline) are explicitly delegated to research and the planner. Next: `/gsd-plan-phase 129` (ROADMAP research flag: **yes**).
-Last activity: 2026-08-02 — Phase 129 context gathered
+Plans: 0/9 complete
+Status: **PLANNED — ready to execute.** 9 plans in 9 deliberately serial waves; plan-checker PASSED (0 blockers, 0 warnings). Requirements coverage 5/5, decision coverage 18/18. Research ran and overturned **four** locked positions; two were escalated to the operator during planning and decided. Next: `/gsd-execute-phase 129`.
+Last activity: 2026-08-02 — Phase 129 planned
+
+### Phase 129 planning outcome (2026-08-02)
+
+**Research overturned four locked positions.** Read `129-RESEARCH.md` §"Corrections to CONTEXT.md".
+
+| # | Correction | Disposition |
+|---|---|---|
+| **C-1** | The PY32F071 **has** a VTOR (`__VTOR_PRESENT 1` in the pinned SDK's CMSIS header) and the firmware **already writes** `SCB->VTOR = FLASH_BASE` at every boot. "A part with no VTOR" appears in D-12, REQUIREMENTS PCB-03, ROADMAP criterion 3, FUT-N04 and the linker comment | **Operator decision: correct in record + linker, defer prose.** The record states the corrected fact and names the supersession; the linker comment's false clause is fixed in-phase (rides D-11's edit); REQUIREMENTS/ROADMAP/FUT-N04 prose is left to **Phase 130 CLOSE-01**. Criterion 3 is recorded **AMENDED**. D-12's three no-VTOR mitigations are deliberately **not** enumerated |
+| **C-2** | `0x36B7` is **registered to Puya Semiconductor**, and `0x36B7`/`0xFFFF` is copied verbatim from the pinned SDK's own CDC example — the board presents another company's vendor identity, not an unallocated squat | **Operator decision: interim `1209:0001` + target `1209:<pid>`.** D-09's ship gate survives verbatim; its *premise* is rewritten with the upstream provenance cited. `usb_cdc.c` still **not** edited (D-06). Record also states pid.codes' PCB-design-files prerequisite (the D-08 request may not be fileable before a schematic) and its date-stamped queue latency |
+| **C-3** | The ARM toolchain **installs and works** in this devcontainer; the D-13 byte-identity proof was *executed* during research (41/41 objects, `.bin`/`.hex` identical across a simulated comment edit) | D-13 uses the **byte-identical** form, run **locally**. Delta claim only — a local build's absolute size may never be compared against a CI figure (local `text=27260` vs CI `text=27344`); byte-identity never implies the image *runs*. The "toolchain absent from this environment" ceiling wording needs narrowing by CLOSE-01 |
+| **C-4** | The seed's "a small bootloader in the **first few KB**" is ~5× optimistic — measured components already total ≈14.6 KiB | Budget is **3 sectors / 24 KiB**; the record supersedes the seed for this number specifically |
+
+**One requirement absent from every source (F-10):** the provisional contiguous PB0–PB7 data bus
+is **physically impossible on QFN56 and QFN32** (PB2/PB3 not bonded) — a **part-selection**
+constraint, unrecoverable earlier than layout. Viable: LQFP64, CSP64, QFN64, LQFP48, QFN48.
+Planned as its own checklist row (R3).
+
+**Discretion resolved at plan time** (not passed to executors): PCB-05 lands in three gated
+locations (meta §6, subset `[SHARED:S5]`, and `platform/py32f071/README.md`) as documentation,
+imperative — no installer prompt, the host repo being out of scope; sourcing uses **per-claim
+tags** plus a blanket `## Claim ceiling`, adding a fifth tag `[UNVERIFIED-UNTIL-SILICON]`;
+filenames are `.planning/v1.23-FLASH-PATH-DECISION.md` and
+`firestarter/platform/py32f071/FLASH-PATH-AND-PCB.md`, with the sync gate keyed on
+`[SHARED:S1]`…`[SHARED:S5]` heading suffixes and body-only comparison.
+
+**Verified at plan time, not inherited:** the sibling import `from tests.meta_presence import …`
+resolves under both `python -m pytest tests/` and the bare `pytest` script (PATTERNS' precedent-thin
+risk retired, **no `conftest.py`**); firmware suite baseline is **180 passed / 0 skipped** at
+`7a0a375`; `firestarter/` has no `build/` gitignore entry, so 129-07's scratch build directory sits
+outside both working trees.
+
+**Open questions recorded, not guessed:** `nBOOT1`'s factory default (a bad option byte may strand
+a board without SWD — the strongest justification for the SWD-pads row) and whether the USB PHY
+provides an internal D+ pull-up or a discrete 1.5 kΩ is required.
 
 ### Phase 129 context highlights (2026-08-02)
+
+> Snapshot of what discuss-phase locked. **Three rows below were superseded by research** — see
+> the planning-outcome table above: the VID/PID premise (C-2), the vector-relocation candidate
+> enumeration (C-1), and the seed's bootloader size (C-4). Plan to the outcome table, not to this.
 
 **Docs-only phase, two repos.** Meta `.planning/` + `firestarter`; **`firestarter_app` is out
 of scope** (D-04). Read `.planning/phases/129-flash-path-decision-pcb-requirements-record/129-CONTEXT.md`.
