@@ -46,7 +46,14 @@ below are a contract recorded seven phases before anyone writes them. Phase
 list **in the same commit** that renames or adds one -- D-15's
 all-or-nothing arming makes a renamed-but-not-reflected artifact a hard
 failure by design, and that coupling is the entire point of naming the
-targets this early.
+targets this early. The four names now resolve inside the sibling Phase 130
+directory (named by `_PHASE_130_DIRNAME` below), not `_HERE` (this module's
+own Phase 123 directory) -- RESEARCH C-2 reproduced the old `_HERE`-relative
+form as an `UNARMED:` + exit-0 run that scanned nothing, because the
+artifacts are Phase 130's, not Phase 123's. This relocation is itself the
+sanctioned same-commit amendment this paragraph requires, taken in Phase
+130 plan 130-01 ahead of the artifacts so the gate is armed *before* the
+first one lands rather than after.
 
 **Why line-scoped proximity, not sentence segmentation (D-16):** markdown
 tables, bullet lists and code blocks have no reliable sentence terminators,
@@ -83,11 +90,30 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 # every default-mode run. See the module docstring's "Phase 130 coupling"
 # paragraph: Phase 130 must produce exactly these four names, or amend this
 # list in the same commit that renames one.
+#
+# RESEARCH C-2 fix: this list used to resolve onto `_HERE` (this module's
+# OWN Phase 123 directory), so a default-mode run scanned four paths that
+# could never exist -- `UNARMED:` + exit 0, a green run that scanned
+# nothing. The four names now resolve into the SIBLING Phase 130 directory
+# instead, because that is where the artifacts actually land. The fix is a
+# repoint of this list, deliberately NOT a switch to `argv` or
+# `FIRESTARTER_CLAIMSCAN_TARGETS`: `main()`'s `used_defaults` branch below
+# means D-15's all-or-nothing arming guarantee applies only to the DEFAULT
+# target set, so routing this through an explicit seam instead would lose
+# that guarantee for the one call site that matters most (an unqualified
+# `python3 check_permitted_claims.py` in CI or by hand).
+_PHASE_130_DIRNAME = "130-close-honesty-ledger-claim-gate-release-decision"
+_CONTRACTED_ARTIFACT_NAMES = (
+    "130-LEDGER.md",
+    "130-DECISION.md",
+    "130-RELEASE-NOTES-fw.md",
+    "130-RELEASE-NOTES-app.md",
+)
+_PHASE_130_DIR = os.path.normpath(
+    os.path.join(_HERE, os.pardir, _PHASE_130_DIRNAME)
+)
 _DEFAULT_TARGETS = [
-    os.path.join(_HERE, "130-LEDGER.md"),
-    os.path.join(_HERE, "130-DECISION.md"),
-    os.path.join(_HERE, "130-RELEASE-NOTES-fw.md"),
-    os.path.join(_HERE, "130-RELEASE-NOTES-app.md"),
+    os.path.join(_PHASE_130_DIR, name) for name in _CONTRACTED_ARTIFACT_NAMES
 ]
 
 # Env-override seam (mirrors check_no_community_support_status_write.py's
