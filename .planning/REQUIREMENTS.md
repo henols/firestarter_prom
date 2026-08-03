@@ -140,8 +140,14 @@ free. Must land before the watermark is re-baselined or the number moves within 
 - [x] **RETIRE-03**: The four honesty assertions carried only by `test_dev_sdp_cmd.py` survive the move
       (`git mv`, retargeted onto the new leg), proven by a grep acceptance criterion showing no net loss.
 
-- [ ] **RETIRE-04**: `COMMAND_SDP_LOCK`/`COMMAND_SDP_UNLOCK` and their `COMMAND_NAMES` entries survive,
+- [x] **RETIRE-04**: `COMMAND_SDP_LOCK`/`COMMAND_SDP_UNLOCK` and their `COMMAND_NAMES` entries survive,
       with a test that dereferences both so a `KeyError` at operation setup cannot regress.
+      Evidence: `firestarter_app` commit `831c95f` (132-08 task 1) —
+      `tests/test_revision_constants_parity.py::test_command_names_dereferences_both_sdp_commands`
+      dereferences `COMMAND_NAMES` with both `COMMAND_SDP_UNLOCK` and `COMMAND_SDP_LOCK`
+      unconditionally (no `requires_fw` skip, so host-only CI catches a regression too), proven a
+      real gate by two separate RED demonstrations — one per entry removed — each naming the
+      missing constant and the operation-setup consequence.
 
 - [x] **RETIRE-05**: A typed `AppContext` fixture exists in `tests/conftest.py` **before** any new test
       module is authored, so new modules cannot add errors of the 30-error pattern being fixed.
@@ -153,8 +159,23 @@ free. Must land before the watermark is re-baselined or the number moves within 
       a comment at the auto-unlock site plus a test named for the dependency, so that revisiting
       auto-unlock's default forces this decision to be revisited with it.
 
-- [ ] **RETIRE-08**: The three in-tree stale `301`/`377` `COMMAND_NAMES` comment references are
-      corrected to `329`/`405`.
+- [x] **RETIRE-08**: The stale `301`/`377` `COMMAND_NAMES` comment references are corrected to name
+      `_setup_operation` (`eprom_operations.py:329`) first and `_operation_context` (`:405`) second,
+      with each corrected line number alongside the function name (D-11) — a citation of the number
+      alone re-stales, which is the defect this correction fixes.
+      **Corrected in-phase: measured five stale references, not three, across two files.**
+      `firestarter_app/firestarter/constants.py` carries one (the comment above
+      `COMMAND_SDP_UNLOCK`/`COMMAND_SDP_LOCK`); `firestarter_app/tests/test_revision_constants_parity.py`
+      carries four (a module-docstring citation, the `_check_command_names_coverage` docstring, one
+      citation sitting inside an assertion *message* string — correcting it changed that test's
+      failure text only, not its pass/fail behaviour — and the final test's docstring citation). The
+      ring-fenced `eprom_operations.py` itself contains **zero** stale tokens and needed no edit,
+      which is what makes the correction's two-file, five-site scope surprising against this
+      requirement's original "three" text. Corrected here rather than deferred to Phase 137's
+      CLOSE-01 (D-12): fixing five satisfies "three" a fortiori, but ticking this requirement while
+      knowing its own text was wrong is the shape that closes as "three corrected" with two left
+      behind, and deferring the wording would leave a wrong number in this file for five phases.
+      Evidence: `firestarter_app` commit `42a1971` (132-08 task 2).
 
 ### The `dev test` SDP Leg — the Oracle (LEG)
 
@@ -356,11 +377,11 @@ Populated during roadmap creation.
 | RETIRE-01 | Phase 132 | Complete |
 | RETIRE-02 | Phase 132 | Complete |
 | RETIRE-03 | Phase 132 | Complete |
-| RETIRE-04 | Phase 132 | Pending |
+| RETIRE-04 | Phase 132 | Complete |
 | RETIRE-05 | Phase 132 | Complete |
 | RETIRE-06 | Phase 132 | Pending |
 | RETIRE-07 | Phase 132 | Complete |
-| RETIRE-08 | Phase 132 | Pending |
+| RETIRE-08 | Phase 132 | Complete |
 | LEG-01 | Phase 134 | Pending |
 | LEG-02 | Phase 134 | Pending |
 | LEG-03 | Phase 134 | Pending |
