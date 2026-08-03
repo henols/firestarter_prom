@@ -150,3 +150,11 @@ None — no external service configuration required.
 ---
 *Phase: 131-gate-hardening-ci-parity*
 *Completed: 2026-08-03*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/131-gate-hardening-ci-parity/131-01-SUMMARY.md`
+- FOUND: `firestarter_app/tools/check_mypy_watermark.py`
+- FOUND commit `228e783` (meta: fork + backlog + supersede)
+- FOUND commit `9465c4c` (firestarter_app: gate hardening + python_version)
+- FOUND commit `060e64f` (meta: SUMMARY + GATE-05 tick)
