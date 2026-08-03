@@ -148,3 +148,16 @@ None — no external service configuration required.
 ---
 *Phase: 132-retire-dev-sdp-discharge-the-mypy-debt*
 *Completed: 2026-08-03*
+
+## Self-Check: PASSED
+
+Created/modified files verified present on disk:
+- `.planning/phases/132-retire-dev-sdp-discharge-the-mypy-debt/132-06-SUMMARY.md` — FOUND
+- `firestarter_app/firestarter/config.py` — FOUND
+- `firestarter_app/firestarter/database.py` — FOUND
+- `.planning/phases/132-retire-dev-sdp-discharge-the-mypy-debt/132-MYPY-LEDGER.md` — FOUND
+
+Commits verified present in the owning repo's history:
+- `b76b9db` — FOUND (`firestarter_app` submodule)
+- `db990e8` — FOUND (`firestarter_app` submodule)
+- `d06048c` — FOUND (meta-repo)
