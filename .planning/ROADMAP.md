@@ -408,7 +408,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 132-02-PLAN.md — `firestarter/sdp_honesty.py` + rewire the live subcommand through it (the one-time equivalence proof) + strict-island registration (D-01/D-02)
+- [x] 132-02-PLAN.md — `firestarter/sdp_honesty.py` + rewire the live subcommand through it (the one-time equivalence proof) + strict-island registration (D-01/D-02)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 

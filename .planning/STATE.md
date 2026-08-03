@@ -5,15 +5,15 @@ milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 132
 current_phase_name: Retire `dev sdp` & Discharge the mypy Debt
 status: executing
-stopped_at: Phase 132 executing -- plan 132-01 complete, wave 1 of 9 done
-last_updated: "2026-08-03T17:49:30.989Z"
+stopped_at: Phase 132 executing -- plan 132-02 complete, wave 2 of 9 done
+last_updated: "2026-08-03T18:23:11.095Z"
 last_activity: 2026-08-03
-last_activity_desc: Phase 132 plan 01 complete (measuring instrument + pre-change readings) -- 132-02 next, wave 2 of 9
+last_activity_desc: Phase 132 plan 02 complete (sdp_honesty carrier + one-time equivalence proof) -- 132-03 next, wave 3 of 9
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 16
-  completed_plans: 8
+  completed_plans: 9
   percent: 14
 ---
 
@@ -38,7 +38,8 @@ unscoped; v1.29 stays deliberately vacant.
 ## Current Position
 
 Phase: 132 — Retire `dev sdp` & Discharge the mypy Debt — **EXECUTING**
-Plan: 9 plans (`132-01`…`132-09`), waves 1-9 **strictly sequential** — wave 1 of 9 dispatching
+Plan: 9 plans (`132-01`…`132-09`), waves 1-9 **strictly sequential** — 132-01 and 132-02 complete,
+wave 3 of 9 (132-03) next
 Status: Phase 131 CLOSED and verified (10/10 GATE requirements). Phase 132 is PLANNED and under
 execution; `/gsd-execute-phase 132` is running. Research was SKIPPED per ROADMAP's own
 `Research flag: SKIP`; **Nyquist Dimension 8 was operator-acknowledged as unavailable for 132's
@@ -1172,6 +1173,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 131]: The other nine GATE ticks (GATE-01..06, GATE-08..10) were verified, not re-ticked or reworded -- no gap found
 - [Phase 131]: D-17's correction reuses 131-01's exact bracketed house shape for the REQUIREMENTS.md Out-of-Scope annotation rather than inventing a second style
 - [Phase 132-01]: git-status-clean checks interpreted as delta-vs-pre-existing-dirt, not literal absolute emptiness; leg 4 (mypy watermark gate) runs mypy exactly once, reusing check_mypy_watermark.py's pure functions rather than re-invoking mypy for the raw summary line
+- [Phase 132]: Removed the now-unused firestarter.messages.MSG_ERR_UNKNOWN_CMD import in plan 132-02's Task 2 commit (not deferred to plan 132-04), because ruff F401 flagged it as soon as the D-14 arm moved into sdp_honesty.py -- the plan itself pre-authorized this contingency. — Plan 132-04's own acceptance criteria should account for this import already being gone.
+- [Phase 132]: Reworded one word in dev_sdp's docstring (dropped 'resulting') to remove a pre-existing accidental duplicate of the caveat's exact substring, unrelated to plan 132-02's own edits, so the plan's no-duplication acceptance criterion could be satisfied without touching prose the plan's action text didn't authorize. — Meaning unchanged, prose-only; no behavior or test impact.
 
 ## Performance Metrics
 
@@ -1348,11 +1351,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 131 P05 | 5m | 3 tasks | 3 files |
 | Phase 131 P07 | 65min | 2 tasks | 2 files |
 | Phase 132 P01 | 35min | 3 tasks | 3 files |
+| Phase 132 P02 | 40min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-03T17:49:30.952Z
-**Stopped at:** Phase 132 executing -- plan 132-01 complete, wave 1 of 9 done
+**Last session:** 2026-08-03T18:23:11.065Z
+**Stopped at:** Phase 132 executing -- plan 132-02 complete, wave 2 of 9 done
 **Resume file:** 
 None
 
