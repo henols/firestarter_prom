@@ -4,15 +4,15 @@ milestone: v1.30
 milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 131
 current_phase_name: Gate Hardening & CI Parity
-status: planning
-stopped_at: Phase 131 context gathered
-last_updated: "2026-08-03T08:18:21.658Z"
+status: Ready to execute — Phase 131 planned (7 plans, 4 waves)
+stopped_at: Phase 131 planned
+last_updated: "2026-08-03T11:13:59.227Z"
 last_activity: 2026-08-03
-last_activity_desc: "Phase 131 context gathered — 18 decisions locked, all operator-delegated; one research-record correction"
+last_activity_desc: "Phase 131 planned — 7 plans in 4 waves; plan-checker VERIFICATION PASSED (0 blockers, 1 non-blocking warning, folded in); requirements 10/10 and decisions 18/18 covered"
 progress:
   total_phases: 7
   completed_phases: 0
-  total_plans: 0
+  total_plans: 7
   completed_plans: 0
   percent: 0
 ---
@@ -36,19 +36,36 @@ deliberately vacant.
 
 ## Current Position
 
-Phase: 131 (Gate Hardening & CI Parity) — context gathered, not yet planned
-Plan: — (ROADMAP.md + 131-CONTEXT.md written; no PLAN.md authored yet)
-Status: `131-CONTEXT.md` committed at `4ff377b2` — 18 decisions (D-01…D-18), **all** operator-delegated
-("You decide" to both question sets). Ready for `/gsd-plan-phase 131`. Research flag for this phase is
-**SKIP**, so plan-phase may be run with `--skip-research`. **⚠ `131-CONTEXT.md` D-17 corrects
-`.planning/research/PITFALLS.md` P-18 item 4 and `SUMMARY.md` §"Operator Decisions Needed" item 7(a)**
-— both name the wrong repo *and* the wrong commit for the "softened Phase-129 hard assert", and the
-change is a scoped *premise*, not a weakened assertion. Read D-17 before acting on either.
-Last activity: 2026-08-03 — ROADMAP.md + REQUIREMENTS.md traceability written for v1.30 (Phases
-131-137). Phase 133/134 is a deliberate split of the research spine's single combined "leg" phase
-(18 LEG requirements judged too large for one phase at this project's `Comprehensive` granularity).
+Phase: 131 (Gate Hardening & CI Parity) — PLANNED, ready to execute
+Plan: 7 plans in 4 waves — `131-01`…`131-07`, committed `a405dc2f` + `cda12c1a`
+Status: plan-checker returned **VERIFICATION PASSED** (0 blockers; 1 non-blocking warning, folded into
+`131-07` step (f) and committed). Requirements 10/10 (GATE-01…GATE-10, each ticked by exactly one
+owning plan); CONTEXT decisions 18/18. Research was **SKIPPED** per the ROADMAP's `Research flag: SKIP`
+— STACK §1 and PITFALLS P-13 give the fix line by line. No `131-RESEARCH.md` and **no
+`131-VALIDATION.md`** exist for this phase; Nyquist Dimension 8 was operator-acknowledged as
+unavailable this run rather than disabled, so the gate is still live for Phase 132 onward.
+Ready for `/gsd-execute-phase 131`.
+
+**⚠ Six plan-time corrections amend locked decisions** — all measured live, all recorded in-plan
+(`F-01`…`F-06`, aggregated in `131-RECORD.md`). The two that change what gets built: **F-01** —
+D-06 leg 1 is not implementable as written, because `chip_database.json` carries **zero** `flags`
+fields and `tools/infoic*.xml` is gitignored (`.gitignore:29`) and absent, so a literal reading
+collapses into self-parity — exactly P-10's hole; replaced by a committed 43-name ALLOW snapshot as
+the independent side (triple re-measured **43/41/84**, holds). **F-02** — `test_sdp_table_parity.py`
+is `requires_fw`-skipped under CI-parity recipe leg 1, so all DB-only count legs go in
+`test_sdp_db_invariant.py` instead.
+
+**⚠ `131-CONTEXT.md` D-17 corrects `.planning/research/PITFALLS.md` P-18 item 4 and `SUMMARY.md`
+§"Operator Decisions Needed" item 7(a)** — both name the wrong repo *and* the wrong commit for the
+"softened Phase-129 hard assert", and the change is a scoped *premise*, not a weakened assertion.
+Read D-17 before acting on either. `131-07` step (f) now also annotates the matching
+`REQUIREMENTS.md` Out-of-Scope row, which repeated the same disproven claim.
+
+Last activity: 2026-08-03 — Phase 131 planned. Phase 133/134 is a deliberate split of the research
+spine's single combined "leg" phase (18 LEG requirements judged too large for one phase at this
+project's `Comprehensive` granularity).
 **This milestone must NOT be run under `--auto`/`--chain`** — Phase 137 (CLOSE-06) carries a blocking
-operator wording-review gate.
+operator wording-review gate, and `131-05`'s CI dispatch is itself a blocking human-action gate.
 
 **Milestone branches.** Meta: `gsd/v1.30-sdp-surface-retirement`, forked off the v1.23 tip
 `d1b9ce9e` — the same shape as v1.23 forking off the v1.22 tip, since `main` lags and stays untouched
