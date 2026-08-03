@@ -402,14 +402,40 @@ non-negotiable, and three files are each touched by three different concerns
 collide on file ownership.
 
 Plans:
+**Wave 1**
+
 - [ ] 132-01-PLAN.md — Pre-change CI-parity baseline + the committed numpy-free CI-replica venv script (D-06/D-07)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 132-02-PLAN.md — `firestarter/sdp_honesty.py` + rewire the live subcommand through it (the one-time equivalence proof) + strict-island registration (D-01/D-02)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 132-03-PLAN.md — Same-commit file move + gate target list, retarget the four honesty assertions, counted prune (RETIRE-02/03, D-03/D-04)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 132-04-PLAN.md — Delete the subcommand and its four gates, one orphaned import, node-scoped snapshot update (RETIRE-01, D-13)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 132-05-PLAN.md — Typed `AppContext` factory + fixture in `conftest.py`, migrate the four surviving copies (RETIRE-05, D-10)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 132-06-PLAN.md — The six missing collection annotations, then measure the post-fix count (D-09)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 132-07-PLAN.md — The three-site auto-unlock tripwire + the test named for the dependency (RETIRE-07, D-14)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 132-08-PLAN.md — The command-name dereference test, all five stale reference corrections, RETIRE-08's own text (RETIRE-04/08, D-11/D-12)
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
 - [ ] 132-09-PLAN.md — After-half parity run, operator push + dispatch, read the evidence, phase record (RETIRE-06, D-08) — **`autonomous: false`**
 
 **Research flag**: SKIP — three researchers independently mapped every trace; the only judgement call

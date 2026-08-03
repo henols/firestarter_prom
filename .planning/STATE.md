@@ -5,14 +5,14 @@ milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 132
 current_phase_name: Retire `dev sdp` & Discharge the mypy Debt
 status: ready
-stopped_at: Phase 132 context gathered
-last_updated: "2026-08-03T15:52:51.647Z"
+stopped_at: Phase 132 planned — 9 plans, waves 1-9
+last_updated: "2026-08-03T17:05:00.000Z"
 last_activity: 2026-08-03
-last_activity_desc: Phase 132 context gathered — 14 decisions locked, 3 live corrections recorded
+last_activity_desc: Phase 132 planned — 9 plans in 9 sequential waves, plan-checker PASSED with zero findings
 progress:
   total_phases: 7
   completed_phases: 1
-  total_plans: 7
+  total_plans: 16
   completed_plans: 7
   percent: 14
 ---
@@ -37,10 +37,36 @@ unscoped; v1.29 stays deliberately vacant.
 ## Current Position
 
 Phase: 132 — Retire `dev sdp` & Discharge the mypy Debt
-Plan: Not started — no CONTEXT.md, no plans yet
-Status: Phase 131 CLOSED and verified (10/10 GATE requirements). Phase 132 is unstarted; next step is
-`/gsd-discuss-phase 132`. Nyquist Dimension 8 remains live for Phase 132 onward (it was
-operator-acknowledged as unavailable during 131, not disabled).
+Plan: 9 plans (`132-01`…`132-09`), waves 1-9 **strictly sequential** — 0/9 executed
+Status: Phase 131 CLOSED and verified (10/10 GATE requirements). Phase 132 is PLANNED and ready to
+execute; next step is `/gsd-execute-phase 132`. Research was SKIPPED per ROADMAP's own
+`Research flag: SKIP`; **Nyquist Dimension 8 was operator-acknowledged as unavailable for 132's
+planning run** (no RESEARCH.md ⇒ no VALIDATION.md) — acknowledged, not disabled, same as 131.
+Compensated by making every acceptance criterion a runnable command or grep-provable source
+assertion; the plan-checker returned zero BLOCKER/WARNING findings against that bar.
+
+**Waves are sequential by necessity, not caution.** Three files each carry three separate concerns
+(`cli_handlers.py`, `constants.py`, `tests/test_write_skip_sdp_unlock.py`), so same-wave parallelism
+would collide on file ownership.
+
+**⚠ Phase 132 needs exactly TWO operator actions, in order** (D-06, both verified live at plan time):
+push `gsd/v1.30-sdp-surface-retirement` to origin in `firestarter_app` (the branch is genuinely
+absent from origin; local is 9 ahead of `origin/beta`), then `workflow_dispatch` `Host CI` against
+that ref. `ci.yml`'s `push:` trigger is `branches: [main]` **only** (`:9-11`), so the milestone
+branch never auto-builds; `workflow_dispatch:` exists at `:25` with no inputs. Plan `132-09` is
+`autonomous: false` and carries the literal commands. **Branch names differ per repo** — meta-repo is
+on `gsd/v1.30-sdp-surface-retirement-behavioral-lock-proof`, the submodule on
+`gsd/v1.30-sdp-surface-retirement`.
+
+**⚠ Two plan-time findings the dispatch did not anticipate.** (1) `ci.yml:73` runs
+`pytest --cov-fail-under=70` while `ci_parity.sh` legs 1-2 run bare `pytest -q` — the local recipe
+**cannot** catch a coverage drop, and this phase deletes ~126 covered production lines and ~550 test
+lines. `132-01`'s new `ci_replica_venv.sh` leg 5 closes that gap, and `132-09` runs it *before* the
+operator turn so a doomed dispatch is not spent. (2) D-12's "same commit" for RETIRE-08's text is
+**literally impossible** — the code fixes are in the submodule, `REQUIREMENTS.md` is in the meta-repo,
+and two git repos cannot share a commit. Honoured as adjacent cross-citing commits with the
+impossibility stated in the commit message and record. D-03's same-commit binding is unaffected: it
+is submodule-only and stays one real commit.
 
 **⚠ Phase 132 consumes Phase 131's measured number.** The fork-base mypy count is **69** (watermark
 35), read verbatim from CI run `30822281624` (`workflow_dispatch` on `beta` @ `16a313a`, mypy 2.3.0,
