@@ -91,9 +91,13 @@ actually fail.
       same commit (F-06).
 - [ ] **GATE-07**: One real `gh workflow run ci.yml` dispatch is recorded on the fork base, producing
       the current post-fork error count the watermark is later set from.
-- [ ] **GATE-08**: A `sdp_capability` 43 ALLOW / 41 REFUSE / 84 total count gate exists, **derived from
+- [x] **GATE-08**: A `sdp_capability` 43 ALLOW / 41 REFUSE / 84 total count gate exists, **derived from
       the database rather than literal**, so narrowing a chip to REFUSE in order to green a failing
-      field cannot pass silently.
+      field cannot pass silently. Evidence: `firestarter_app/tests/test_sdp_db_invariant.py`'s
+      `test_sdp_partition_matches_committed_allow_list_element_wise` (element-wise parity against a
+      committed 43-entry ALLOW snapshot) and `test_sdp_partition_counts_are_43_41_84` (the derived
+      43/41/84 triple), both non-vacuous per
+      `test_partition_flags_a_moved_chip_non_vacuous` (131-03).
 - [ ] **GATE-09**: The CI-parity recipe is documented and runnable as an acceptance leg — suite run
       once with the firmware-sibling root pointed at an empty directory and once with the sibling
       present, CI-scoped ruff, and one run with no board attached.
@@ -285,7 +289,7 @@ Populated during roadmap creation.
 | GATE-05 | Phase 131 | Complete |
 | GATE-06 | Phase 131 | Complete |
 | GATE-07 | Phase 131 | Pending |
-| GATE-08 | Phase 131 | Pending |
+| GATE-08 | Phase 131 | Complete |
 | GATE-09 | Phase 131 | Pending |
 | GATE-10 | Phase 131 | Pending |
 | RETIRE-01 | Phase 132 | Pending |
