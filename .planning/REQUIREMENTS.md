@@ -143,7 +143,7 @@ free. Must land before the watermark is re-baselined or the number moves within 
 - [ ] **RETIRE-04**: `COMMAND_SDP_LOCK`/`COMMAND_SDP_UNLOCK` and their `COMMAND_NAMES` entries survive,
       with a test that dereferences both so a `KeyError` at operation setup cannot regress.
 
-- [ ] **RETIRE-05**: A typed `AppContext` fixture exists in `tests/conftest.py` **before** any new test
+- [x] **RETIRE-05**: A typed `AppContext` fixture exists in `tests/conftest.py` **before** any new test
       module is authored, so new modules cannot add errors of the 30-error pattern being fixed.
 
 - [ ] **RETIRE-06**: `firestarter_app`'s primary `ci` job is GREEN at the existing watermark of 35,
@@ -357,7 +357,7 @@ Populated during roadmap creation.
 | RETIRE-02 | Phase 132 | Complete |
 | RETIRE-03 | Phase 132 | Complete |
 | RETIRE-04 | Phase 132 | Pending |
-| RETIRE-05 | Phase 132 | Pending |
+| RETIRE-05 | Phase 132 | Complete |
 | RETIRE-06 | Phase 132 | Pending |
 | RETIRE-07 | Phase 132 | Pending |
 | RETIRE-08 | Phase 132 | Pending |

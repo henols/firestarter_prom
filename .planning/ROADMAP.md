@@ -420,7 +420,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 132-05-PLAN.md — Typed `AppContext` factory + fixture in `conftest.py`, migrate the four surviving copies (RETIRE-05, D-10)
+- [x] 132-05-PLAN.md — Typed `AppContext` factory + fixture in `conftest.py`, migrate the four surviving copies (RETIRE-05, D-10)
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
