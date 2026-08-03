@@ -98,9 +98,12 @@ actually fail.
       committed 43-entry ALLOW snapshot) and `test_sdp_partition_counts_are_43_41_84` (the derived
       43/41/84 triple), both non-vacuous per
       `test_partition_flags_a_moved_chip_non_vacuous` (131-03).
-- [ ] **GATE-09**: The CI-parity recipe is documented and runnable as an acceptance leg — suite run
+- [x] **GATE-09**: The CI-parity recipe is documented and runnable as an acceptance leg — suite run
       once with the firmware-sibling root pointed at an empty directory and once with the sibling
-      present, CI-scoped ruff, and one run with no board attached.
+      present, CI-scoped ruff, and one run with no board attached. Evidence:
+      `firestarter_app/tools/ci_parity.sh` (four labelled legs, per-leg exit code, aggregate exit,
+      `BOARD-ATTACHED` stamp) and `131-CI-PARITY.md`'s recorded run (`BOARD-ATTACHED: none`; legs
+      1-3 exit 0, leg 4 exit 2 explained as the hardened gate working).
 - [x] **GATE-10**: `check_devtest_orchestrator.py`'s handler-function list is derived, so a newly added
       `dev_test` helper cannot go silently unscanned. Evidence:
       `firestarter_app/tests/test_check_devtest_orchestrator.py`'s
@@ -295,7 +298,7 @@ Populated during roadmap creation.
 | GATE-06 | Phase 131 | Complete |
 | GATE-07 | Phase 131 | Pending |
 | GATE-08 | Phase 131 | Complete |
-| GATE-09 | Phase 131 | Pending |
+| GATE-09 | Phase 131 | Complete |
 | GATE-10 | Phase 131 | Complete |
 | RETIRE-01 | Phase 132 | Pending |
 | RETIRE-02 | Phase 132 | Pending |
