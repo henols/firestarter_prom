@@ -2,10 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.30
 milestone_name: SDP Surface Retirement & Behavioral Lock Proof
+current_phase: 131
+current_phase_name: Gate Hardening & CI Parity
 status: planning
-last_updated: "2026-08-03T07:30:00.000Z"
+stopped_at: Phase 131 context gathered
+last_updated: "2026-08-03T08:18:21.658Z"
 last_activity: 2026-08-03
-last_activity_desc: ROADMAP.md created — 7 phases (131-137), 56/56 requirements mapped
+last_activity_desc: "Phase 131 context gathered — 18 decisions locked, all operator-delegated; one research-record correction"
 progress:
   total_phases: 7
   completed_phases: 0
@@ -33,10 +36,14 @@ deliberately vacant.
 
 ## Current Position
 
-Phase: 131 (Gate Hardening & CI Parity) — not yet started
-Plan: — (ROADMAP.md written; no PLAN.md authored yet)
-Status: Roadmap created — 7 phases (131-137), 56/56 requirements mapped, 0 orphans. Ready for
-`/gsd-plan-phase 131`.
+Phase: 131 (Gate Hardening & CI Parity) — context gathered, not yet planned
+Plan: — (ROADMAP.md + 131-CONTEXT.md written; no PLAN.md authored yet)
+Status: `131-CONTEXT.md` committed at `4ff377b2` — 18 decisions (D-01…D-18), **all** operator-delegated
+("You decide" to both question sets). Ready for `/gsd-plan-phase 131`. Research flag for this phase is
+**SKIP**, so plan-phase may be run with `--skip-research`. **⚠ `131-CONTEXT.md` D-17 corrects
+`.planning/research/PITFALLS.md` P-18 item 4 and `SUMMARY.md` §"Operator Decisions Needed" item 7(a)**
+— both name the wrong repo *and* the wrong commit for the "softened Phase-129 hard assert", and the
+change is a scoped *premise*, not a weakened assertion. Read D-17 before acting on either.
 Last activity: 2026-08-03 — ROADMAP.md + REQUIREMENTS.md traceability written for v1.30 (Phases
 131-137). Phase 133/134 is a deliberate split of the research spine's single combined "leg" phase
 (18 LEG requirements judged too large for one phase at this project's `Comprehensive` granularity).
@@ -1246,10 +1253,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-02T13:51:40.138Z
-**Stopped at:** Phase 130 context gathered
+**Last session:** 2026-08-03T08:18:21.640Z
+**Stopped at:** Phase 131 context gathered
 **Resume file:** 
-.planning/phases/130-close-honesty-ledger-claim-gate-release-decision/130-CONTEXT.md
+.planning/phases/131-gate-hardening-ci-parity/131-CONTEXT.md
 
 ### Blockers
 
