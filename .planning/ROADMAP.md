@@ -291,10 +291,35 @@ no watermark, so it does not have to wait on Phase 132's deletion).
      the sibling present, CI-scoped ruff, one run with no board attached) is documented and runnable as
      a standalone acceptance leg every later phase reuses.
 
-**Plans**: TBD
+**Plans**: 7 plans in 4 waves — wave 1 `131-01`, `131-05` · wave 2 `131-02`, `131-03`, `131-04` ·
+wave 3 `131-06` · wave 4 `131-07`. Only `131-05` is non-autonomous (the operator-run `ci.yml`
+dispatch). Each plan names exhaustively, in its body, which GATE IDs it alone may mark Complete:
+`131-01` → GATE-05 · `131-02` → GATE-01/02/03/04/06 · `131-03` → GATE-08 · `131-04` → GATE-10 ·
+`131-05` → none (GATE-07 delivered, ticked by `131-07`) · `131-06` → GATE-09 · `131-07` → GATE-07.
+
+- [ ] 131-01-PLAN.md — Fork the milestone branch, file backlog 999.26/999.27, make the mypy watermark gate fail closed, and make `python_version` honest
+- [ ] 131-02-PLAN.md — The gate's first paired pytest suite (six legs) plus the D-03 RED-preserving proof
+- [ ] 131-03-PLAN.md — The 43/41/84 `sdp_capability` narrowing gate, committed ALLOW snapshot and non-vacuity proof
+- [ ] 131-04-PLAN.md — AST-derived `dev_test` helper-subset gate over `_HANDLER_FUNCTION_NAMES`
+- [ ] 131-05-PLAN.md — `131-HANDOFF.md`, the operator-run `ci.yml` dispatch, and `131-CI-BASELINE.md`
+- [ ] 131-06-PLAN.md — `tools/ci_parity.sh` and one recorded no-board run, plus the D-10 confirmation
+- [ ] 131-07-PLAN.md — `131-RECORD.md`, the ten-tick verification, and the phase-wide prohibition scan
+
 **Research flag**: SKIP — STACK §1 and PITFALLS P-13 give the fix line by line, both reproduced live.
 **Cross-cutting**: Run the CI-parity recipe as this phase's own acceptance leg (it is the phase that
 authors it). At dispatch, name exactly which of GATE-01…GATE-10 each plan may mark Complete.
+
+**⚠ Six corrections amend locked decisions, made on facts measured 2026-08-03 at plan time and
+tabled in `131-01-PLAN.md`.** F-01: D-06 leg 1's "recompute from the `flags` bit-15 decode" is not
+implementable — `chip_database.json` has zero `flags` fields and `tools/infoic*.xml` is gitignored
+and absent — so the independent side becomes a committed 43-name ALLOW snapshot; the 43/41/84 triple
+itself re-measured and holds. F-02: the DB-only count legs go in `test_sdp_db_invariant.py`, not
+`test_sdp_table_parity.py`, which is `requires_fw`-skipped under recipe leg 1. F-03: D-13 supersedes
+`REQUIREMENTS.md`'s Out-of-Scope row deferring the py3.9 backlog stub. F-04: D-15's AST derivation
+must walk `dev_test`'s body only — including the decorator list injects `_complete_eprom` and the leg
+is RED on day one. F-05: D-02 layer 3's count-line assertion is unsatisfiable post-hardening in this
+devcontainer, replaced by a two-shape mutually-exclusive terminal assertion. F-06: the new test
+module is registered in `check_no_exists_proxy.py`'s explicit target list in the same commit.
 
 ### Phase 132: Retire `dev sdp` & Discharge the mypy Debt
 
