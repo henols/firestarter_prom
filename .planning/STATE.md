@@ -5,15 +5,15 @@ milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 132
 current_phase_name: Retire `dev sdp` & Discharge the mypy Debt
 status: executing
-stopped_at: Phase 132 executing — wave 1 of 9
-last_updated: "2026-08-03T17:16:30.636Z"
+stopped_at: Phase 132 executing -- plan 132-01 complete, wave 1 of 9 done
+last_updated: "2026-08-03T17:49:30.989Z"
 last_activity: 2026-08-03
-last_activity_desc: Phase 132 executing — 9 plans in 9 sequential waves, worktree isolation OFF phase-wide
+last_activity_desc: Phase 132 plan 01 complete (measuring instrument + pre-change readings) -- 132-02 next, wave 2 of 9
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 16
-  completed_plans: 7
+  completed_plans: 8
   percent: 14
 ---
 
@@ -1171,6 +1171,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 131]: GATE-07 ticked only after independently re-reading 131-CI-BASELINE.md's run id, event, branch, head SHA, and verbatim mypy count line -- not inherited from 131-05's own SUMMARY
 - [Phase 131]: The other nine GATE ticks (GATE-01..06, GATE-08..10) were verified, not re-ticked or reworded -- no gap found
 - [Phase 131]: D-17's correction reuses 131-01's exact bracketed house shape for the REQUIREMENTS.md Out-of-Scope annotation rather than inventing a second style
+- [Phase 132-01]: git-status-clean checks interpreted as delta-vs-pre-existing-dirt, not literal absolute emptiness; leg 4 (mypy watermark gate) runs mypy exactly once, reusing check_mypy_watermark.py's pure functions rather than re-invoking mypy for the raw summary line
 
 ## Performance Metrics
 
@@ -1346,13 +1347,14 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 131 P06 | 50min | 2 tasks | 3 files |
 | Phase 131 P05 | 5m | 3 tasks | 3 files |
 | Phase 131 P07 | 65min | 2 tasks | 2 files |
+| Phase 132 P01 | 35min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-03T15:52:51.619Z
-**Stopped at:** Phase 132 context gathered
+**Last session:** 2026-08-03T17:49:30.952Z
+**Stopped at:** Phase 132 executing -- plan 132-01 complete, wave 1 of 9 done
 **Resume file:** 
-.planning/phases/132-retire-dev-sdp-discharge-the-mypy-debt/132-CONTEXT.md
+None
 
 ### Blockers
 

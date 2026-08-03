@@ -404,7 +404,7 @@ collide on file ownership.
 Plans:
 **Wave 1**
 
-- [ ] 132-01-PLAN.md — Pre-change CI-parity baseline + the committed numpy-free CI-replica venv script (D-06/D-07)
+- [x] 132-01-PLAN.md — Pre-change CI-parity baseline + the committed numpy-free CI-replica venv script (D-06/D-07)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
