@@ -424,7 +424,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 132-06-PLAN.md — The six missing collection annotations, then measure the post-fix count (D-09)
+- [x] 132-06-PLAN.md — The six missing collection annotations, then measure the post-fix count (D-09)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 

@@ -5,16 +5,16 @@ milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 132
 current_phase_name: Retire `dev sdp` & Discharge the mypy Debt
 status: executing
-stopped_at: Phase 132 executing -- plan 132-05 complete, wave 5 of 9 done
-last_updated: "2026-08-03T20:05:42.983Z"
+stopped_at: Phase 132 executing -- plan 132-06 complete, wave 6 of 9 done
+last_updated: "2026-08-03T20:45:00.000Z"
 last_activity: 2026-08-03
-last_activity_desc: Phase 132 plan 05 complete (typed AppContext factory in conftest.py; four surviving mock-typing factories migrated/retyped; mypy 63 -> 38; RETIRE-05 complete) -- 132-06 next, wave 6 of 9
+last_activity_desc: Phase 132 plan 06 complete (six [var-annotated] collection annotations in config.py + database.py; mypy 38 -> 32, 3 below watermark 35; RETIRE-06 NOT marked -- owned by plan 132-09's certifying dispatch) -- 132-07 next, wave 7 of 9
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 16
-  completed_plans: 12
-  percent: 75
+  completed_plans: 13
+  percent: 81
 ---
 
 # Project State
@@ -39,7 +39,9 @@ unscoped; v1.29 stays deliberately vacant.
 
 Phase: 132 — Retire `dev sdp` & Discharge the mypy Debt — **EXECUTING**
 Plan: 9 plans (`132-01`…`132-09`), waves 1-9 **strictly sequential** — 132-01, 132-02, 132-03,
-132-04 and 132-05 complete, wave 6 of 9 (132-06) next
+132-04, 132-05 and 132-06 complete, wave 7 of 9 (132-07) next. 132-06's measured mypy count is
+**32** (checked 122 source files), 3 below the watermark of 35 (`132-MYPY-LEDGER.md` §6-8) — a
+local reading, not a green `ci` job; RETIRE-06 stays owned by plan 132-09's certifying dispatch.
 Status: Phase 131 CLOSED and verified (10/10 GATE requirements). Phase 132 is PLANNED and under
 execution; `/gsd-execute-phase 132` is running. Research was SKIPPED per ROADMAP's own
 `Research flag: SKIP`; **Nyquist Dimension 8 was operator-acknowledged as unavailable for 132's
@@ -1182,6 +1184,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 132]: 132-04: Task 3's code sweep found 5 in-tree '.py' hits for the phrase 'dev sdp', not the plan's acceptance-criterion-expected 0 -- all 5 are legitimate historical-provenance prose in sdp_honesty.py/test_sdp_honesty.py docstrings (out of this plan's files_modified scope); recorded as a plan-measurement discrepancy, not edited.
 - [Phase 132]: 132-05: mypy special-cases unittest.mock.Mock as assignable to any real class in argument/return position -- confirmed via a minimal repro; the factory's explicit casts remain per D-10 (load-bearing against non-double wrong types, not against Mock itself).
 - [Phase 132]: 132-05: measured test_write_skip_erase_0x0d.py's write_eprom.return_value=True preset as inert before dropping it in the pure factory substitution -- no test inspects the value, and cli_handlers.py's sys.exit(0 if ok else 1) treats an auto-created Mock as truthy either way; all six tests pass unchanged.
+- [Phase 132]: 132-06: config.py's _instances/_initialized_configs annotated as keyed by config-file-path string (not by class), derived from __new__'s actual body over the plan's own generic action-text description of the pattern.
+- [Phase 132]: 132-06: measured mypy count 38 -> 32 (checked 122 source files), 3 below watermark 35; watermark not touched (D-09), ring-fence not opened; RETIRE-06 NOT marked Complete -- owned by plan 132-09's certifying dispatch.
+- [Phase 132]: 132-06: ledger's section-4 projection attributed the 69->63 step to plan 132-03's prose, but the number only measured as landed once 132-04 physically deleted dev_sdp -- recorded as a plan-attribution mismatch in 132-MYPY-LEDGER.md §6, not reconciled away.
 
 ## Performance Metrics
 
@@ -1361,11 +1366,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 132 P02 | 40min | 3 tasks | 4 files |
 | Phase 132 P04 | 25min | 3 tasks | 2 files |
 | Phase 132 P05 | 45min | 3 tasks | 5 files |
+| Phase 132 P06 | 40min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-03T20:05:42.940Z
-**Stopped at:** Completed 132-05-PLAN.md
+**Last session:** 2026-08-03T20:45:00.000Z
+**Stopped at:** Completed 132-06-PLAN.md
 **Resume file:** 
 None
 
