@@ -56,8 +56,12 @@ actually fail.
       so a run that silently checks a subset fails instead of reporting a low count.
 - [ ] **GATE-04**: The gate invokes mypy as `sys.executable -m mypy`, not a bare `mypy` resolved from
       `PATH`.
-- [ ] **GATE-05**: `python_version` states mypy's true effective target (`3.10`), with a comment
+- [x] **GATE-05**: `python_version` states mypy's true effective target (`3.10`), with a comment
       recording that the previous `"3.9"` value was silently discarded and never took effect.
+      Evidence: `firestarter_app/pyproject.toml:139-155` (`[tool.mypy] python_version = "3.10"`,
+      commit `9465c4c` on `gsd/v1.30-sdp-surface-retirement`) — `python3 -c "import tomllib,
+      pathlib; print(tomllib.loads(pathlib.Path('pyproject.toml').read_text())['tool']['mypy']
+      ['python_version'])"` prints `3.10`.
 - [ ] **GATE-06**: The gate has a paired pytest suite — its first ever — covering truncated-run ⇒
       exit 2, config-rejection ⇒ exit 2, over-watermark ⇒ exit 1, and below-coverage-floor ⇒ exit 2.
 - [ ] **GATE-07**: One real `gh workflow run ci.yml` dispatch is recorded on the fork base, producing
@@ -253,7 +257,7 @@ Populated during roadmap creation.
 | GATE-02 | Phase 131 | Pending |
 | GATE-03 | Phase 131 | Pending |
 | GATE-04 | Phase 131 | Pending |
-| GATE-05 | Phase 131 | Pending |
+| GATE-05 | Phase 131 | Complete |
 | GATE-06 | Phase 131 | Pending |
 | GATE-07 | Phase 131 | Pending |
 | GATE-08 | Phase 131 | Pending |
