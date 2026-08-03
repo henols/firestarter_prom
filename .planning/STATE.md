@@ -6,14 +6,14 @@ current_phase: 131
 current_phase_name: Gate Hardening & CI Parity
 status: executing
 stopped_at: Phase 131 executing
-last_updated: "2026-08-03T11:32:46.235Z"
+last_updated: "2026-08-03T11:52:10.588Z"
 last_activity: 2026-08-03
-last_activity_desc: "Phase 131 execution started — 7 plans in 4 waves; worktree isolation DISABLED phase-wide (5/7 plans touch the firestarter_app submodule; the other 2 hardcode /workspaces absolute paths in their gates)"
+last_activity_desc: "Plan 131-01 complete — mypy watermark gate hardened to fail closed (GATE-01..04 mechanism), python_version made honest (GATE-05, ticked), v1.30 milestone branch forked in firestarter_app, backlog 999.26/999.27 filed. No watermark set, no mypy errors fixed."
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 7
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 ---
 
@@ -37,7 +37,7 @@ deliberately vacant.
 ## Current Position
 
 Phase: 131 (Gate Hardening & CI Parity) — EXECUTING
-Plan: 1 of 7 — 7 plans in 4 waves, `131-01`…`131-07`, committed `a405dc2f` + `cda12c1a`
+Plan: 2 of 7 — 7 plans in 4 waves, `131-01`…`131-07`, committed `a405dc2f` + `cda12c1a`
 Status: plan-checker returned **VERIFICATION PASSED** (0 blockers; 1 non-blocking warning, folded into
 `131-07` step (f) and committed). Requirements 10/10 (GATE-01…GATE-10, each ticked by exactly one
 owning plan); CONTEXT decisions 18/18. Research was **SKIPPED** per the ROADMAP's `Research flag: SKIP`
@@ -1105,6 +1105,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 128]: 128-10: REL-03 ticked as combined evidence -- CI proves the unconditional-publish half (run 30722537152), local exit-1 fixtures prove the assertion-fails half; the seam is stated explicitly, not implied as CI-proven
 - [Phase 128]: 128-10: plan's own section 4 step 5 CMake-rename break is unusable -- trips the Phase 123 CMake manifest-drift gate at a no-continue-on-error pytest step, failing the whole job before ARM ever builds; substituted an ARM-only compile error in timing.cpp instead
 - [Phase 128]: 128-10: found+fixed a false 'confirmed by observation' claim in beta-build.yml (committed before run A existed); firmware HEAD moved 0de57da -> 7a0a375 as a result, both rehearsal runs dispatched from descendants of 7a0a375
+- [Phase ?]: D-01: check_mypy_watermark.py's argv gets no env-var seam; the classifier is pure and tested against canned output only — the one gate whose entire sin was being bypassable gets no bypass seam
+- [Phase ?]: D-05: MIN_CHECKED_SOURCE_FILES = 120 is a literal constant, not derived from a glob — a derived count is vacuously satisfied by whatever tree exists and cannot catch a truncated run
+- [Phase ?]: D-13/D-14 (131-01): python_version = "3.10" is a zero-behaviour honesty fix; requires-python stays >=3.9; mypy pin bounded <3; py3.9 gap filed as backlog 999.26/999.27 — dropping 3.9 support is a published-metadata breaking change reserved for an operator decision
 
 ## Performance Metrics
 
@@ -1273,13 +1276,14 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 128 P07 | ~20min | 3 tasks | 1 files |
 | Phase 128 P08 | ~25min | 2 tasks | 1 files |
 | Phase 128 P10 | 20min | 1 tasks | 2 files |
+| Phase 131 P01 | 40min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-03T08:18:21.640Z
+**Last session:** 2026-08-03T11:52:10.565Z
 **Stopped at:** Phase 131 context gathered
 **Resume file:** 
-.planning/phases/131-gate-hardening-ci-parity/131-CONTEXT.md
+None
 
 ### Blockers
 
