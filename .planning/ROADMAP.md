@@ -452,7 +452,7 @@ Plans:
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 132-09-PLAN.md — After-half parity run, operator push + dispatch, read the evidence, phase record (RETIRE-06, D-08) — **`autonomous: false`**
+- [x] 132-09-PLAN.md — After-half parity run, operator push + dispatch, read the evidence, phase record (RETIRE-06, D-08) — **`autonomous: false`**
 
 **Research flag**: SKIP — three researchers independently mapped every trace; the only judgement call
 (clean removal vs. a transitional stub) is already argued and decided in favor of clean removal.
@@ -2433,13 +2433,16 @@ no `.hex` re-cut.
   handler (~:570). Worktree isolation is unavailable when the code lives in the `firestarter_app`
   submodule (the executor commit protocol cannot commit into a submodule from an isolated worktree), so
   it cannot run concurrently with any other phase writing that file. See the v1.30 dependency spine.
+
 - **`write --help` changes.** Any `write`-help output pinned by v1.30 Phase 136's channel-gating tests
   must be updated as part of this work — deliberately, not silently re-baselined.
+
 - **Outward-facing correction owed.** v1.30's release notes and gh#12 reply will have stated that
   deliberate protection was *withdrawn with no replacement*. When this ships, that is what changes; the
   release notes for the shipping version must say so, and gh#12 gets the follow-up it was promised.
   Related: `.planning/todos/pending/write-sdp-relock-deferred.md`,
   `.planning/todos/pending/gh12-followup-after-dev-sdp-retirement.md`.
+
 - **Polarity is already decided, do not re-litigate:** verify failure ⇒ **skip the relock and report it
   loudly**, leaving the recoverable state. Per the v1.22 auto-unlock policy **(d)**; recorded at
   `PROJECT.md:823`.

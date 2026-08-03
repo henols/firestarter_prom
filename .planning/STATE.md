@@ -5,16 +5,16 @@ milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 132
 current_phase_name: Retire `dev sdp` & Discharge the mypy Debt
 status: executing
-stopped_at: Completed 132-08-PLAN.md
-last_updated: "2026-08-03T21:31:57.152Z"
+stopped_at: Completed 132-09-PLAN.md
+last_updated: "2026-08-03T22:00:32.000Z"
 last_activity: 2026-08-03
-last_activity_desc: Phase 132 plan 08 complete (RETIRE-04 dereference test test_command_names_dereferences_both_sdp_commands proven by two RED demonstrations; all five stale eprom_operations.py:301/:377 COMMAND_NAMES citations corrected to _setup_operation:329/_operation_context:405 across constants.py and test_revision_constants_parity.py; RETIRE-08's own text corrected from three to the measured five, D-12's impossible same-commit binding honoured as adjacent cross-citing commits; mypy holds at 32) -- 132-09 next, wave 9 of 9
+last_activity_desc: Phase 132 plan 09 complete (RETIRE-06 -- the certifying CI dispatch. Operator pushed gsd/v1.30-sdp-surface-retirement to origin and ran gh workflow run; run 30856059940 (workflow_dispatch @ 42a1971) concluded success, ci job green on every step including the mypy watermark gate. mypy errors: 32 (watermark: 35), coverage 81.72% vs the 70% floor, both read from the log per D-08. Phase 131 D-11's deferred hardened-gate-in-CI proof discharged. 132-RECORD.md written: eight requirements accounted, fourteen decisions honoured, seven corrections, four residuals. All eight RETIRE requirements now Complete -- Phase 132's 9 plans are all complete) -- Phase 133 next
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 16
-  completed_plans: 15
-  percent: 94
+  completed_plans: 16
+  percent: 100
 ---
 
 # Project State
@@ -48,26 +48,33 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 
 ## Current Position
 
-Phase: 132 — Retire `dev sdp` & Discharge the mypy Debt — **EXECUTING**
-Plan: 9 plans (`132-01`…`132-09`), waves 1-9 **strictly sequential** — 132-01, 132-02, 132-03,
-132-04, 132-05, 132-06, 132-07 and 132-08 complete, wave 9 of 9 (132-09) next. 132-08 added
-`test_command_names_dereferences_both_sdp_commands` (RETIRE-04, unconditional -- no `requires_fw`
-skip, proven by two separate RED demonstrations, one per SDP command-name entry removed) and
-corrected all five stale `eprom_operations.py:301`/`:377` `COMMAND_NAMES` dereference citations
-(not the three RETIRE-08's own text claimed) to name `_setup_operation`/`_operation_context` with
-their true `:329`/`:405` anchors, across `constants.py` and `test_revision_constants_parity.py`.
-RETIRE-08's own text is corrected in `REQUIREMENTS.md` with the measured evidence clause; D-12's
-literally-impossible cross-repository "same commit" binding is honoured as adjacent, cross-citing
-commits (`firestarter_app@42a1971` names the meta-repo correction it awaits; meta-repo `88a521e`
-names `42a1971` and `831c95f` by SHA). mypy holds at **32** (checked 122 source files), 3 below the
-watermark of 35 -- a local reading, not a green `ci` job; RETIRE-06 stays owned by plan 132-09's
-certifying dispatch.
-Status: Phase 131 CLOSED and verified (10/10 GATE requirements). Phase 132 is PLANNED and under
-execution; `/gsd-execute-phase 132` is running. Research was SKIPPED per ROADMAP's own
-`Research flag: SKIP`; **Nyquist Dimension 8 was operator-acknowledged as unavailable for 132's
-planning run** (no RESEARCH.md ⇒ no VALIDATION.md) — acknowledged, not disabled, same as 131.
-Compensated by making every acceptance criterion a runnable command or grep-provable source
-assertion; the plan-checker returned zero BLOCKER/WARNING findings against that bar.
+Phase: 132 — Retire `dev sdp` & Discharge the mypy Debt — **ALL 9 PLANS COMPLETE, PENDING CLOSE**
+Plan: 9 plans (`132-01`…`132-09`), waves 1-9 **strictly sequential** — all nine complete. 132-09
+(the certifying CI dispatch, `autonomous: false`) ran task 1 (after-half of the CI-parity recipe +
+full replica run, mypy re-confirmed at 32), paused at task 2's `checkpoint:human-verify
+gate="blocking"` for the two privileged operator actions (D-06), then resumed: the operator pushed
+`gsd/v1.30-sdp-surface-retirement` to origin and dispatched `Host CI`, returning run `30856059940`.
+Task 3 read that run — conclusion `success`, `ci` job green on all 16 steps including the mypy
+watermark gate (fork-base had it `failure` with both later steps `skipped`), `mypy errors: 32
+(watermark: 35)`, coverage 81.72% vs the 70% floor, mypy's raw completion clause investigated as
+structurally absent-by-construction from this step's own log rather than substituted (D-08) — and
+recorded `132-CI-GREEN.md` plus the ledger's third reading (CI's 32 agrees exactly with local).
+Task 4 wrote `132-RECORD.md` (eight requirements accounted, fourteen decisions honoured including
+two non-literal, seven corrections, four residuals) and ticked **RETIRE-06** — **all eight RETIRE
+requirements are now Complete.** Phase 131 D-11's deferred hardened-gate-in-CI proof is discharged.
+Status: Phase 131 CLOSED and verified (10/10 GATE requirements). **Phase 132's plans are all
+executed and its requirements all Complete; the phase itself has not yet been through the
+standard phase-close verification pass** — that is the next action, ahead of starting Phase 133.
+Research was SKIPPED per ROADMAP's own `Research flag: SKIP`; **Nyquist Dimension 8 was
+operator-acknowledged as unavailable for 132's planning run** (no RESEARCH.md ⇒ no VALIDATION.md)
+— acknowledged, not disabled, same as 131. Compensated by making every acceptance criterion a
+runnable command or grep-provable source assertion; the plan-checker returned zero
+BLOCKER/WARNING findings against that bar.
+
+**A state change 132-09 caused that a later reader needs:** the milestone branch
+`gsd/v1.30-sdp-surface-retirement` now exists on `origin` (created by the operator's task 2 push;
+it did not exist before), and the submodule is 28 commits ahead of `origin/beta` — neither merged
+nor tagged; that is a later, operator-gated milestone-close action.
 
 **Waves are sequential by necessity, not caution.** Three files each carry three separate concerns
 (`cli_handlers.py`, `constants.py`, `tests/test_write_skip_sdp_unlock.py`), so same-wave parallelism
@@ -1212,6 +1219,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 132]: 132-07: improved the tripwire test's raw assertion failure (opaque 'assert (0 & 256)') with descriptive messages naming RETIRE-01/RETIRE-07/D-14 before considering the RED demonstration complete, per the task's own legibility bar.
 - [Phase 132]: D-12's cross-repository same-commit binding is impossible; honoured as adjacent, cross-citing commits (firestarter_app@42a1971 / meta-repo@88a521e) with the impossibility stated explicitly.
 - [Phase 132]: 132-08: measured five stale eprom_operations.py:301/:377 COMMAND_NAMES citations (not RETIRE-08's own claimed three) -- one in constants.py, four in test_revision_constants_parity.py, one of the four inside an assertion message string.
+- [Phase 132]: 132-09: no agent ran git push or gh workflow run -- both privileged actions (branch push creating gsd/v1.30-sdp-surface-retirement on origin, and the workflow_dispatch) were performed by the operator per the plan's task 2 checkpoint; run 30856059940 concluded success.
+- [Phase 132]: 132-09: mypy's raw completion clause was absent from the CI log by construction (the hardened checker's success path never re-echoes result.stdout, unlike the replica script's own extra instrumentation) -- investigated via the gate's own guard-order logic rather than substituted with a locally-computed number, distinguished explicitly from Phase 131's F-07 (a genuinely aborted, pre-hardening run).
+- [Phase 132]: 132-09: RETIRE-06 ticked -- all eight RETIRE requirements now Complete. Watermark stays at the unratcheted 35 (D-09); measured true count 32, 3 of headroom named as a later phase's ratchet input, not yet filed as its own backlog item.
 
 ## Performance Metrics
 
@@ -1394,11 +1404,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 132 P06 | 40min | 3 tasks | 3 files |
 | Phase 132 P07 | 45min | 3 tasks | 4 files |
 | Phase 132 P08 | 55min | 3 tasks | 3 files |
+| Phase 132 P09 | ~20min | 4 tasks | 5 files |
 
 ## Session
 
-**Last session:** 2026-08-03T21:31:57.132Z
-**Stopped at:** Completed 132-08-PLAN.md
+**Last session:** 2026-08-03T22:00:32.000Z
+**Stopped at:** Completed 132-09-PLAN.md
 **Resume file:** 
 None
 
