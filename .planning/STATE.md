@@ -4,11 +4,11 @@ milestone: v1.30
 milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 132
 current_phase_name: Retire `dev sdp` & Discharge the mypy Debt
-status: ready
-stopped_at: Phase 132 planned — 9 plans, waves 1-9
-last_updated: "2026-08-03T17:05:00.000Z"
+status: executing
+stopped_at: Phase 132 executing — wave 1 of 9
+last_updated: "2026-08-03T17:16:30.636Z"
 last_activity: 2026-08-03
-last_activity_desc: Phase 132 planned — 9 plans in 9 sequential waves, plan-checker PASSED with zero findings
+last_activity_desc: Phase 132 executing — 9 plans in 9 sequential waves, worktree isolation OFF phase-wide
 progress:
   total_phases: 7
   completed_phases: 1
@@ -29,17 +29,18 @@ See: `.planning/PROJECT.md` (updated 2026-08-03 — v1.30 started)
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
 authoritative dispatch key end to end. v1.23 added a fourth board target *beneath* that contract
 without disturbing it.
-**Current focus:** **v1.30 SDP Surface Retirement & Behavioral Lock Proof** — ACTIVE (activated
+**Current focus:** **Phase 132 — Retire `dev sdp` & Discharge the mypy Debt**, inside
+**v1.30 SDP Surface Retirement & Behavioral Lock Proof** — ACTIVE (activated
 2026-08-03 from the operator-queued slot of 2026-07-31, promoted from Backlog 999.25). Host-only
 (`firestarter_app`); **131 CLOSED**, phases continue at **132**. v1.24–v1.27 remain queued and
 unscoped; v1.29 stays deliberately vacant.
 
 ## Current Position
 
-Phase: 132 — Retire `dev sdp` & Discharge the mypy Debt
-Plan: 9 plans (`132-01`…`132-09`), waves 1-9 **strictly sequential** — 0/9 executed
-Status: Phase 131 CLOSED and verified (10/10 GATE requirements). Phase 132 is PLANNED and ready to
-execute; next step is `/gsd-execute-phase 132`. Research was SKIPPED per ROADMAP's own
+Phase: 132 — Retire `dev sdp` & Discharge the mypy Debt — **EXECUTING**
+Plan: 9 plans (`132-01`…`132-09`), waves 1-9 **strictly sequential** — wave 1 of 9 dispatching
+Status: Phase 131 CLOSED and verified (10/10 GATE requirements). Phase 132 is PLANNED and under
+execution; `/gsd-execute-phase 132` is running. Research was SKIPPED per ROADMAP's own
 `Research flag: SKIP`; **Nyquist Dimension 8 was operator-acknowledged as unavailable for 132's
 planning run** (no RESEARCH.md ⇒ no VALIDATION.md) — acknowledged, not disabled, same as 131.
 Compensated by making every acceptance criterion a runnable command or grep-provable source
