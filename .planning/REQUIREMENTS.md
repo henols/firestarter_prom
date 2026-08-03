@@ -152,8 +152,14 @@ free. Must land before the watermark is re-baselined or the number moves within 
 - [x] **RETIRE-05**: A typed `AppContext` fixture exists in `tests/conftest.py` **before** any new test
       module is authored, so new modules cannot add errors of the 30-error pattern being fixed.
 
-- [ ] **RETIRE-06**: `firestarter_app`'s primary `ci` job is GREEN at the existing watermark of 35,
+- [x] **RETIRE-06**: `firestarter_app`'s primary `ci` job is GREEN at the existing watermark of 35,
       achieved **without** touching the ring-fenced `eprom_operations.py` cluster.
+      Evidence: CI run `30856059940` (`workflow_dispatch` on `gsd/v1.30-sdp-surface-retirement`
+      @ `42a1971`), conclusion `success` — read via `gh run view`, never computed locally
+      (`.planning/phases/132-retire-dev-sdp-discharge-the-mypy-debt/132-CI-GREEN.md`). The `ci`
+      job's mypy gate step reports `mypy errors: 32 (watermark: 35)`, three below the unratcheted
+      watermark; `git diff --stat firestarter/eprom_operations.py` stayed empty throughout. The
+      sibling `ci-py32` job also passed but is outside this claim in both directions.
 
 - [x] **RETIRE-07**: The removal-safety dependency is recorded as a tripwire, not a sentence in a note —
       a comment at the auto-unlock site plus a test named for the dependency, so that revisiting
@@ -404,7 +410,7 @@ Populated during roadmap creation.
 | RETIRE-03 | Phase 132 | Complete |
 | RETIRE-04 | Phase 132 | Complete |
 | RETIRE-05 | Phase 132 | Complete |
-| RETIRE-06 | Phase 132 | Pending |
+| RETIRE-06 | Phase 132 | Complete |
 | RETIRE-07 | Phase 132 | Complete |
 | RETIRE-08 | Phase 132 | Complete |
 | LEG-01 | Phase 134 | Pending |
