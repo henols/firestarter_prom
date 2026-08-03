@@ -311,7 +311,7 @@ dispatch). Each plan names exhaustively, in its body, which GATE IDs it alone ma
 - [x] 131-01-PLAN.md — Fork the milestone branch, file backlog 999.26/999.27, make the mypy watermark gate fail closed, and make `python_version` honest
 - [x] 131-02-PLAN.md — The gate's first paired pytest suite (six legs) plus the D-03 RED-preserving proof
 - [x] 131-03-PLAN.md — The 43/41/84 `sdp_capability` narrowing gate, committed ALLOW snapshot and non-vacuity proof
-- [ ] 131-04-PLAN.md — AST-derived `dev_test` helper-subset gate over `_HANDLER_FUNCTION_NAMES`
+- [x] 131-04-PLAN.md — AST-derived `dev_test` helper-subset gate over `_HANDLER_FUNCTION_NAMES`
 - [ ] 131-05-PLAN.md — `131-HANDOFF.md`, the operator-run `ci.yml` dispatch, and `131-CI-BASELINE.md`
 - [ ] 131-06-PLAN.md — `tools/ci_parity.sh` and one recorded no-board run, plus the D-10 confirmation
 - [ ] 131-07-PLAN.md — `131-RECORD.md`, the ten-tick verification, and the phase-wide prohibition scan

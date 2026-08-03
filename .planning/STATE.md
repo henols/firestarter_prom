@@ -5,15 +5,15 @@ milestone_name: — SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 131
 current_phase_name: Gate Hardening & CI Parity
 status: executing
-stopped_at: Completed 131-03-PLAN.md (GATE-08)
-last_updated: "2026-08-03T12:55:45.105Z"
+stopped_at: Completed 131-04-PLAN.md (GATE-10)
+last_updated: "2026-08-03T13:17:09.884Z"
 last_activity: 2026-08-03
 last_activity_desc: Phase 131 execution started. Phase 133/134 is a deliberate split of the research
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 7
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -37,7 +37,7 @@ deliberately vacant.
 ## Current Position
 
 Phase: 131 (Gate Hardening & CI Parity) — EXECUTING
-Plan: 4 of 7 — 7 plans in 4 waves, `131-01`…`131-07`, committed `a405dc2f` + `cda12c1a`
+Plan: 5 of 7 — 7 plans in 4 waves, `131-01`…`131-07`, committed `a405dc2f` + `cda12c1a`
 Status: plan-checker returned **VERIFICATION PASSED** (0 blockers; 1 non-blocking warning, folded into
 `131-07` step (f) and committed). Requirements 10/10 (GATE-01…GATE-10, each ticked by exactly one
 owning plan); CONTEXT decisions 18/18. Research was **SKIPPED** per the ROADMAP's `Research flag: SKIP`
@@ -1113,6 +1113,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 131]: D-03: RED-preserving proof used the pre-131-01 loose, unanchored regex (not just a guard reorder), because reordering alone cannot produce a RED while the anchored completion-clause guard stays intact -- verified empirically (131-02)
 - [Phase 131]: GATE-08 anti-narrowing gate replaced D-06 leg 1's self-parity-prone literal derivation with a committed 43-entry ALLOW snapshot (correction F-01) compared element-wise, plus a non-vacuity proof (131-03) — chip_database.json carries zero flags fields and tools/infoic*.xml is gitignored and absent, so a literal independent derivation would compare sdp_capability_for_entry to itself
 - [Phase 131]: All GATE-08 DB-only legs placed in test_sdp_db_invariant.py, not test_sdp_table_parity.py (correction F-02) (131-03) — test_sdp_table_parity.py is requires_fw-skipped whole-module under the CI-parity recipe's empty-sibling leg, so a gate placed there would be invisible exactly where it matters most
+- [Phase ?]: GATE-10: correction F-04 measured live -- naive whole-node ast.walk over dev_test's FunctionDef leaks _complete_eprom (its shell_complete= decorator argument) into the derived set; body-only walk of dev_test.body excludes it. RED (7 names) was seen and read before the body-only fix made it GREEN (6 names).
 
 ## Performance Metrics
 
@@ -1284,11 +1285,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 131 P01 | 40min | 3 tasks | 4 files |
 | Phase 131 P02 | 55min | 2 tasks | 3 files |
 | Phase 131 P03 | 30min | 2 tasks | 1 files |
+| Phase 131 P04 | 35min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-03T12:55:45.087Z
-**Stopped at:** Completed 131-03-PLAN.md (GATE-08)
+**Last session:** 2026-08-03T13:17:09.866Z
+**Stopped at:** Completed 131-04-PLAN.md (GATE-10)
 **Resume file:** 
 None
 

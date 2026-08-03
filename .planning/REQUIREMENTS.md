@@ -101,8 +101,13 @@ actually fail.
 - [ ] **GATE-09**: The CI-parity recipe is documented and runnable as an acceptance leg — suite run
       once with the firmware-sibling root pointed at an empty directory and once with the sibling
       present, CI-scoped ruff, and one run with no board attached.
-- [ ] **GATE-10**: `check_devtest_orchestrator.py`'s handler-function list is derived, so a newly added
-      `dev_test` helper cannot go silently unscanned.
+- [x] **GATE-10**: `check_devtest_orchestrator.py`'s handler-function list is derived, so a newly added
+      `dev_test` helper cannot go silently unscanned. Evidence:
+      `firestarter_app/tests/test_check_devtest_orchestrator.py`'s
+      `test_every_helper_referenced_by_dev_test_is_listed` (body-only AST derivation of every
+      `dev_test`-referenced helper, asserted as a subset of `_HANDLER_FUNCTION_NAMES`) and
+      `test_derivation_flags_an_unlisted_helper_non_vacuous` (a synthetic unlisted helper is caught
+      and named, and the decorator-list exclusion is proven positively) (131-04).
 
 ### `dev sdp` Retirement & mypy Discharge (RETIRE)
 
@@ -291,7 +296,7 @@ Populated during roadmap creation.
 | GATE-07 | Phase 131 | Pending |
 | GATE-08 | Phase 131 | Complete |
 | GATE-09 | Phase 131 | Pending |
-| GATE-10 | Phase 131 | Pending |
+| GATE-10 | Phase 131 | Complete |
 | RETIRE-01 | Phase 132 | Pending |
 | RETIRE-02 | Phase 132 | Pending |
 | RETIRE-03 | Phase 132 | Pending |
