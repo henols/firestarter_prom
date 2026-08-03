@@ -345,7 +345,7 @@ dispatch). Each plan names exhaustively, in its body, which GATE IDs it alone ma
 - [x] 131-04-PLAN.md — AST-derived `dev_test` helper-subset gate over `_HANDLER_FUNCTION_NAMES`
 - [x] 131-05-PLAN.md — `131-HANDOFF.md`, the operator-run `ci.yml` dispatch, and `131-CI-BASELINE.md`
 - [x] 131-06-PLAN.md — `tools/ci_parity.sh` and one recorded no-board run, plus the D-10 confirmation
-- [ ] 131-07-PLAN.md — `131-RECORD.md`, the ten-tick verification, and the phase-wide prohibition scan
+- [x] 131-07-PLAN.md — `131-RECORD.md`, the ten-tick verification, and the phase-wide prohibition scan
 
 **Research flag**: SKIP — STACK §1 and PITFALLS P-13 give the fix line by line, both reproduced live.
 **Cross-cutting**: Run the CI-parity recipe as this phase's own acceptance leg (it is the phase that

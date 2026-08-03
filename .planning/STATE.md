@@ -5,16 +5,16 @@ milestone_name: — SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 131
 current_phase_name: Gate Hardening & CI Parity
 status: executing
-stopped_at: Completed 131-05-PLAN.md (GATE-07 baseline recorded, F-07 filed)
-last_updated: "2026-08-03T14:31:54.736Z"
+stopped_at: Completed 131-07-PLAN.md (phase 131 closed -- 131-RECORD.md authored, GATE-07 ticked, all ten GATE requirements verified)
+last_updated: "2026-08-03T14:54:43.100Z"
 last_activity: 2026-08-03
 last_activity_desc: Phase 131 execution started. Phase 133/134 is a deliberate split of the research
 progress:
   total_phases: 7
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 7
-  completed_plans: 6
-  percent: 0
+  completed_plans: 7
+  percent: 14
 ---
 
 # Project State
@@ -1119,6 +1119,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: Amended the plan's own unreachable acceptance criterion (Found N errors in M files (checked K source files)) rather than fabricating a matching line; filed as correction F-07 in the phase's F-NN series
 - [Phase ?]: F-07 added to 131-01-PLAN.md's corrections table so 131-07 and Phase 137's ledger pick it up alongside F-01..F-06
 - [Phase ?]: Measured CI mypy error count (69) agrees exactly with research's 69 -- no divergence to record
+- [Phase 131]: GATE-07 ticked only after independently re-reading 131-CI-BASELINE.md's run id, event, branch, head SHA, and verbatim mypy count line -- not inherited from 131-05's own SUMMARY
+- [Phase 131]: The other nine GATE ticks (GATE-01..06, GATE-08..10) were verified, not re-ticked or reworded -- no gap found
+- [Phase 131]: D-17's correction reuses 131-01's exact bracketed house shape for the REQUIREMENTS.md Out-of-Scope annotation rather than inventing a second style
 
 ## Performance Metrics
 
@@ -1293,11 +1296,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 131 P04 | 35min | 2 tasks | 1 files |
 | Phase 131 P06 | 50min | 2 tasks | 3 files |
 | Phase 131 P05 | 5m | 3 tasks | 3 files |
+| Phase 131 P07 | 65min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-03T14:31:54.710Z
-**Stopped at:** Completed 131-05-PLAN.md (GATE-07 baseline recorded, F-07 filed)
+**Last session:** 2026-08-03T14:54:43.056Z
+**Stopped at:** Completed 131-07-PLAN.md (phase 131 closed -- 131-RECORD.md authored, GATE-07 ticked, all ten GATE requirements verified)
 **Resume file:** 
 None
 
