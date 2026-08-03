@@ -1,14 +1,14 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.30
-milestone_name: — SDP Surface Retirement & Behavioral Lock Proof
-current_phase: 131
-current_phase_name: Gate Hardening & CI Parity
-status: executing
+milestone_name: SDP Surface Retirement & Behavioral Lock Proof
+current_phase: 132
+current_phase_name: Retire `dev sdp` & Discharge the mypy Debt
+status: ready
 stopped_at: Completed 131-07-PLAN.md (phase 131 closed -- 131-RECORD.md authored, GATE-07 ticked, all ten GATE requirements verified)
-last_updated: "2026-08-03T14:54:43.100Z"
+last_updated: "2026-08-03T15:22:20.417Z"
 last_activity: 2026-08-03
-last_activity_desc: Phase 131 execution started. Phase 133/134 is a deliberate split of the research
+last_activity_desc: Phase 131 complete, transitioned to Phase 132
 progress:
   total_phases: 7
   completed_phases: 1
@@ -31,29 +31,49 @@ authoritative dispatch key end to end. v1.23 added a fourth board target *beneat
 without disturbing it.
 **Current focus:** **v1.30 SDP Surface Retirement & Behavioral Lock Proof** — ACTIVE (activated
 2026-08-03 from the operator-queued slot of 2026-07-31, promoted from Backlog 999.25). Host-only
-(`firestarter_app`); phases continue at **131**. v1.24–v1.27 remain queued and unscoped; v1.29 stays
-deliberately vacant.
+(`firestarter_app`); **131 CLOSED**, phases continue at **132**. v1.24–v1.27 remain queued and
+unscoped; v1.29 stays deliberately vacant.
 
 ## Current Position
 
-Phase: 131 (Gate Hardening & CI Parity) — EXECUTING
-Plan: 7 of 7 — 7 plans in 4 waves, `131-01`…`131-07`, committed `a405dc2f` + `cda12c1a`
-Status: plan-checker returned **VERIFICATION PASSED** (0 blockers; 1 non-blocking warning, folded into
-`131-07` step (f) and committed). Requirements 10/10 (GATE-01…GATE-10, each ticked by exactly one
-owning plan); CONTEXT decisions 18/18. Research was **SKIPPED** per the ROADMAP's `Research flag: SKIP`
-— STACK §1 and PITFALLS P-13 give the fix line by line. No `131-RESEARCH.md` and **no
-`131-VALIDATION.md`** exist for this phase; Nyquist Dimension 8 was operator-acknowledged as
-unavailable this run rather than disabled, so the gate is still live for Phase 132 onward.
+Phase: 132 — Retire `dev sdp` & Discharge the mypy Debt
+Plan: Not started — no CONTEXT.md, no plans yet
+Status: Phase 131 CLOSED and verified (10/10 GATE requirements). Phase 132 is unstarted; next step is
+`/gsd-discuss-phase 132`. Nyquist Dimension 8 remains live for Phase 132 onward (it was
+operator-acknowledged as unavailable during 131, not disabled).
 
-**Execution mode:** worktree isolation is **DISABLED for the whole phase** — all 7 plans run
+**⚠ Phase 132 consumes Phase 131's measured number.** The fork-base mypy count is **69** (watermark
+35), read verbatim from CI run `30822281624` (`workflow_dispatch` on `beta` @ `16a313a`, mypy 2.3.0,
+Python 3.11.15) and recorded in `131-CI-BASELINE.md`. It is an **input to Phase 132's watermark, not
+a Phase 131 claim** — Phase 131 set no watermark and fixed none of the 69. `firestarter_app`'s
+primary `ci` job is RED before and after Phase 131, by design.
+
+**⚠ A real CI dispatch needs an operator turn.** `gh workflow run` is denied by Claude Code's
+auto-mode classifier in a non-interactive session — independent of the project allowlist, which
+already permits it. Read-only `gh run view`/`gh run list` work fine, so everything downstream of the
+dispatch is automatable (export `XDG_CACHE_HOME` to a writable path first, or `--log` returns
+silently empty). See `131-RECORD.md` §4a and §6a.
+
+**⚠ Verification independence gap on Phase 131.** `131-VERIFICATION.md` was authored inline by the
+orchestrator after the dispatched `gsd-verifier` died on a provider session limit. All ten
+requirements were mechanically re-measured and three gates were mutation-proven, but one independent
+pass is still owed before Phase 132 relies on the 69-count.
+
+### Phase 131 history (closed 2026-08-03 — retained for Phase 137's ledger)
+
+**Execution mode:** worktree isolation was **DISABLED for the whole phase** — all 7 plans ran
 sequentially on the main checkout. `131-01/02/03/04/06` touch the `firestarter_app` submodule (the
 executor commit protocol cannot commit into a submodule from an isolated worktree); `131-05` and
 `131-07` touch only `.planning/` but hardcode `/workspaces/firestarter_app` and
 `/workspaces/.planning/…` absolute paths inside their own acceptance gates, which would measure the
-main checkout while the agent wrote into the worktree. Same class of defect as Phase 129.
+main checkout while the agent wrote into the worktree. Same class of defect as Phase 129. **Expect
+this for every host-only v1.30 phase.**
 
-**⚠ Six plan-time corrections amend locked decisions** — all measured live, all recorded in-plan
-(`F-01`…`F-06`, aggregated in `131-RECORD.md`). The two that change what gets built: **F-01** —
+**⚠ SEVEN plan-time corrections amend locked decisions** — all measured live, all recorded in-plan
+(`F-01`…`F-07`, aggregated in `131-RECORD.md`). `F-07` was filed during execution: GATE-07's
+acceptance criterion required a verbatim `Found N errors in M files (checked K source files)` line
+that is **structurally absent** from the fork-base CI log; it was amended, not fabricated around.
+Two of the seven change what gets built: **F-01** —
 D-06 leg 1 is not implementable as written, because `chip_database.json` carries **zero** `flags`
 fields and `tools/infoic*.xml` is gitignored (`.gitignore:29`) and absent, so a literal reading
 collapses into self-parity — exactly P-10's hole; replaced by a committed 43-name ALLOW snapshot as
@@ -67,11 +87,13 @@ is `requires_fw`-skipped under CI-parity recipe leg 1, so all DB-only count legs
 Read D-17 before acting on either. `131-07` step (f) now also annotates the matching
 `REQUIREMENTS.md` Out-of-Scope row, which repeated the same disproven claim.
 
-Last activity: 2026-08-03 — Phase 131 execution started. Phase 133/134 is a deliberate split of the research
+Last activity: 2026-08-03 — Phase 131 complete (7/7 plans, 10/10 GATE requirements verified),
+transitioned to Phase 132. Phase 133/134 is a deliberate split of the research
 spine's single combined "leg" phase (18 LEG requirements judged too large for one phase at this
 project's `Comprehensive` granularity).
 **This milestone must NOT be run under `--auto`/`--chain`** — Phase 137 (CLOSE-06) carries a blocking
-operator wording-review gate, and `131-05`'s CI dispatch is itself a blocking human-action gate.
+operator wording-review gate, and `131-05`'s CI dispatch was itself a blocking human-action gate
+(discharged by the operator 2026-08-03; every later phase needing a dispatch owes the same turn).
 
 **Milestone branches.** Meta: `gsd/v1.30-sdp-surface-retirement`, forked off the v1.23 tip
 `d1b9ce9e` — the same shape as v1.23 forking off the v1.22 tip, since `main` lags and stays untouched

@@ -290,7 +290,7 @@ CHAN 7 · CLOSE 6).
 
 ### Phases
 
-- [ ] **Phase 131: Gate Hardening & CI Parity** - Make the mypy watermark gate fail-closed and record one real, current post-fork error count, before any later phase's "green suite" claim can be trusted.
+- [x] **Phase 131: Gate Hardening & CI Parity** - Make the mypy watermark gate fail-closed and record one real, current post-fork error count, before any later phase's "green suite" claim can be trusted. (completed 2026-08-03)
 - [ ] **Phase 132: Retire `dev sdp` & Discharge the mypy Debt** - Delete the unverifiable standalone SDP command, re-home its honesty tests, and get `firestarter_app`'s primary `ci` job GREEN at the existing watermark.
 - [ ] **Phase 133: SDP Leg Mechanism** - Give `dev test`'s step engine a cleanup registry, a wider exception net, and a parity-tested op-registration path — the infrastructure the oracle is built on.
 - [ ] **Phase 134: The Plan-Derived SDP Oracle in `dev test`** - Add the four-step SDP leg whose oracle is read-back equality, not an exit code, so an unexpected write success is reported BAD.
