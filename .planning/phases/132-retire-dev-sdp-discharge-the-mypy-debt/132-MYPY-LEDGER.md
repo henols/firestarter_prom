@@ -166,6 +166,56 @@ The actual defence against new errors sneaking in under that headroom is plan 13
 produces becomes a named input to a later phase's ratchet decision — the same "measure, don't
 set" split Phase 131 used for its own inherited 69.
 
+## 1a. Behavioural-equivalence proof (plan 132-02)
+
+Before any deletion, `firestarter/sdp_honesty.py` was authored (D-01, D-02) carrying the D-10
+honesty caveat and the D-14 unknown-command mapping, and `firestarter/cli_handlers.py`'s
+still-live `dev_sdp` subcommand was rewired to obtain both pieces of wording from the helper
+instead of composing them inline.
+
+**The unmodified `tests/test_dev_sdp_cmd.py` module was then run against the rewired command:
+26 collected, 26 passed, 0 failed, 0 skipped, 0 errors.** No test file was touched in the rewire
+commit (`git diff --stat tests/` was empty at commit time).
+
+**Rewire commit sha:** `821ca89c3c744d1b9e2109ee93a2ba6eac3427ff` (`firestarter_app`, branch
+`gsd/v1.30-sdp-surface-retirement`).
+
+**What this run exercised.** This is the full delivery path, end to end through `CliRunner`: the
+helper's return value → `click.echo` → the user's captured console output. The four surviving
+honesty assertions (`test_summary_line_carries_the_unreadable_state_caveat_on_both_directions`,
+`test_summary_line_carries_no_duration_figure`, `test_no_fabricated_lock_state_boolean_in_the_report`,
+`test_firmware_too_old_is_reported_when_unknown_cmd_comes_back`) all passed against this delivery
+path in this run.
+
+**The honest scope limit, stated plainly (D-05).** After plan 132-04 deletes `dev_sdp`, this
+delivery path becomes unreachable forever — no test in the tree can prove the helper's output
+reaches `click.echo` and a real console again. The four assertions that retarget onto the helper
+in plan 132-03 guard the **wording** the helper returns, not its **delivery** through a CLI
+command, because between this phase and Phase 134 the caveat has no user-reachable carrier at
+all (D-05's stated residual: no honesty caveat is added to the `write` auto-unlock path in this
+phase). This run, taken here, is the only point in the phase's history where both the wording and
+its delivery were provable in the same assertion set.
+
+**Post-registration mypy count.** `firestarter.sdp_honesty` was appended to `pyproject.toml`'s
+Phase-42 production strict-island `[[tool.mypy.overrides]]` module list (now nine modules), with
+that block's header comment updated in the same edit to name the ninth module and cite D-02.
+`bash tools/ci_replica_venv.sh` was then re-run:
+
+```
+INTERPRETER: /home/vscode/.local/bin/python3.11 Python 3.11.15
+MYPY-VERSION: mypy 2.3.0 (compiled: yes)
+NUMPY-PRESENT: no
+Found 69 errors in 17 files (checked 122 source files)
+mypy errors: 69 (watermark: 35)
+```
+
+**Comparison against section 1's pre-change reading: 69 errors, unchanged.** The checked-file
+count rose from 121 to 122 (the one new module), consistent with §3's "adds, never removes"
+conclusion. The new module type-checks cleanly under `disallow_untyped_defs = true` /
+`check_untyped_defs = true` with zero errors of its own — no regression. Leg 4 of
+`ci_replica_venv.sh` still exits 1 (69 > watermark 35), exactly as expected: the watermark is not
+ratcheted in this phase (D-09) and no fix has landed yet.
+
 <!-- 132-06 appends here -->
 
 <!-- 132-09 appends here -->
