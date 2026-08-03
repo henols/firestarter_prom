@@ -245,26 +245,50 @@ requirements encode the corrected form.
 Must ship with the deletion — they are a pair, and deleting the lock before re-homing it strands the
 only legitimate use case the deleted command served.
 
-- [ ] **RELOCK-01**: `firestarter write --sdp-relock` deliberately protects a part after a write,
+> **⏸ THE PAIR WAS SPLIT — 2026-08-03, operator decision.** Phase 135, which was to carry
+> RELOCK-01…RELOCK-06, is **deferred out of v1.30** and filed as ROADMAP Backlog **999.28**. The
+> deletion (RETIRE-\*, Phase 132) still ships in this milestone, so the paragraph above now describes an
+> accepted cost rather than a satisfied constraint: **v1.30 strands exactly the use case that paragraph
+> names.** Recorded, not argued away — ROADMAP §`Phase 135` and §`Phase 999.28` carry the consequences,
+> and Phase 137's CLOSE-05/CLOSE-06 were amended so the release notes and the gh#12 reply describe a
+> **withdrawal with no replacement**, never a migration to a command that does not exist.
+>
+> **RELOCK-01…RELOCK-06 are OUT of v1 scope** (see §Out of Scope). Their text below is left
+> **unmodified** so promotion from 999.28 needs no re-authoring; only the checkbox changed, from `[ ]`
+> to `⏸`, so nothing counts them as in-scope-pending. **RELOCK-07 is RETAINED in v1 scope**, re-homed
+> from Phase 135 to **Phase 137**, with its target text and its line citations corrected below.
+
+- ⏸ **RELOCK-01**: `firestarter write --sdp-relock` deliberately protects a part after a write,
       as the single user-facing way to do so.
 
-- [ ] **RELOCK-02**: An explicit verify pass runs on the `--sdp-relock` path; the default `write` path
+- ⏸ **RELOCK-02**: An explicit verify pass runs on the `--sdp-relock` path; the default `write` path
       stays byte-identical to today. (`write` has no verify pass at all today — this is the added scope
       the decided polarity requires.)
 
-- [ ] **RELOCK-03**: On verify failure the relock is **skipped** and `sdp_lock` is provably not called.
-- [ ] **RELOCK-04**: A skipped relock is reported **loudly** — a mandatory final `WARNING:` line or a
+- ⏸ **RELOCK-03**: On verify failure the relock is **skipped** and `sdp_lock` is provably not called.
+- ⏸ **RELOCK-04**: A skipped relock is reported **loudly** — a mandatory final `WARNING:` line or a
       non-zero exit, asserted by test. Because protection state cannot be read back, an `INFO`-level
       skip leaves the user with **no way to ever discover the part is unprotected**.
 
-- [ ] **RELOCK-05**: `--sdp-relock` on a non-`0x0D` chip **refuses loudly** rather than
+- ⏸ **RELOCK-05**: `--sdp-relock` on a non-`0x0D` chip **refuses loudly** rather than
       warning-and-proceeding, because the lock sequence's magic-address bytes would land as data.
 
-- [ ] **RELOCK-06**: `--sdp-relock` on a capability-REFUSED chip refuses **before any hardware is
+- ⏸ **RELOCK-06**: `--sdp-relock` on a capability-REFUSED chip refuses **before any hardware is
       energized** — this is where the deleted command's capability gate is repurposed, not discarded.
 
-- [ ] **RELOCK-07**: The stale `--sdp-relock` "v1.23+" deferral labels at `STATE.md:538` and
-      `PROJECT.md:823` are corrected to name this milestone.
+- [ ] **RELOCK-07**: The stale `--sdp-relock` "v1.23+" deferral labels are corrected to name
+      **Backlog 999.28** — *not* this milestone, since the flag does not land here. Measured
+      2026-08-03: `.planning/STATE.md:634` and `.planning/PROJECT.md:823`. **⚠ Verify both line numbers
+      before editing; do not trust any citation in the record, including this one.** Four separate
+      places cite this same pair of labels and no two agree: this requirement previously read
+      `STATE.md:538` / `PROJECT.md:823`; `PROJECT.md:134-137` asserts the live lines are
+      `STATE.md:532` / `PROJECT.md:705` while itself calling the design note's `STATE.md:154` /
+      `PROJECT.md:671` stale; and `ROADMAP.md`'s v1.30 milestone-list entry still carries that
+      `154`/`671` pair. Only `PROJECT.md:823` has ever been right. **Fix all four citation sites when
+      you fix the labels** — otherwise this drifts a third time. Re-homed from Phase 135 to Phase 137
+      on 2026-08-03; retained precisely *because* the labels have already gone stale once (they read
+      "v1.23+", written before v1.23 became PY32F071 Integration) and deferring the fix with the
+      feature would strand them again.
 
 ### Dev-Tools Channel Gating (CHAN)
 
@@ -355,6 +379,7 @@ Deferred, tracked, not in this roadmap.
 | Restoring the softened Phase-129 assert | **Operator decision, 2026-08-03 — deliberately not taken here.** `test_present_root_with_missing_target_raises_not_skips` was hardened by Phase 129, then softened to a skip outside any plan during the b15 hand-off, and that commit is v1.30's fork base. Left as-is, the defect-class downgrade becomes permanent by default. Recorded so it is a decision, not a discovery. **[⚠ CORRECTED 2026-08-03, Phase 131 plan 131-07 (131-CONTEXT.md D-17; full reasoning in 131-RECORD.md): this row is wrong on repo, on commit, and on substance. Wrong repo — the test is at `firestarter/tests/test_flash_path_record_sync.py:694`, the **firmware** repo, which this milestone does not touch at all; it is not in `firestarter_app`, and no downstream agent should hunt for it there. Wrong commit — the softening is firmware `1c511e8` ("scope the meta-root premise leg to skip when no meta root exists"), not app `5934a54` as this row's framing implies is v1.30's fork base; `5934a54` touched `tests/test_py32_flash_map_host.py` and `tests/test_scan_paths_resolve.py`, neither of which is that test. Wrong substance — the change is **premise-scoped**, not weakened: the gate's own subject, that a missing scan target raises `MissingScanTargetError` rather than skipping, is still hard-asserted wherever the premise holds; what was scoped is the environment premise (`META_PRESENT`), and the companion `test_absent_meta_claim_can_never_be_false` makes a false absence claim impossible by construction. This row's action is unchanged and remains correct — do not restore, do not touch the firmware repo; this is a record correction only, with no scope consequence. Note that STATE.md's own phrasing ("softened a Phase-129-authored hard assert to a skip — a defect-class change") is the source of this row's mischaracterisation and is itself imprecise; correcting STATE.md is not in Phase 131's scope, and the divergence is recorded rather than reconciled.]** |
 | Filing the py3.9-drop backlog item | **Operator decision, 2026-08-03 — deliberately not filed.** Tracked here as FUT-MYPY-01 only; with no backlog stub it will present again rather than being scheduled. **[⚠ SUPERSEDED 2026-08-03, Phase 131 plan 131-01 (131-CONTEXT.md D-13): D-13, written later the same day in the same discussion session, read this row's own stated cost and elected to pay it. Backlog stubs filed as ROADMAP.md Phase 999.26 (the py3.9 type-checking floor) and Phase 999.27 (the mypy minimum-target treadmill, Python 3.10 EOLs 2026-10-31). FUT-MYPY-01 remains the requirement-side record; 999.26 cross-links it.]** |
 | Raising the mypy watermark to 69 | Would ratify the accreted debt as the new floor. The measured path reaches 33 ≤ 35, so the existing watermark holds. |
+| `write --sdp-relock` itself — RELOCK-01…RELOCK-06 | **⏸ Operator decision, 2026-08-03 — deferred, not cancelled.** Phase 135 was vacated out of this milestone and filed as ROADMAP Backlog **999.28**; the phase number was not reused (136/137 keep theirs). Requirement text is retained verbatim in §`write --sdp-relock` (RELOCK) with `⏸` checkboxes, so promotion needs no re-authoring. **⚠ The cost this row accepts:** §RELOCK's own opening sentence calls the deletion and the re-homing "a pair, and deleting the lock before re-homing it strands the only legitimate use case the deleted command served" — Phase 132 ships the deletion here, so v1.30 does the stranding. Between this release and 999.28's promotion there is **no supported way to deliberately protect an SDP part**, and on `0x0D` the protection bit cannot be read back, so a user cannot observe the resulting state either. Phase 137's CLOSE-05/06 were amended to state that as a **withdrawal with no replacement** rather than a migration to `write --sdp-relock` — announcing a command that does not exist in the shipped release is the same overclaim class as v1.22's C-5. **RELOCK-07 is NOT in this row** — it stayed in v1 scope, re-homed to Phase 137. |
 
 ---
 
@@ -400,13 +425,13 @@ Populated during roadmap creation.
 | LEG-16 | Phase 134 | Pending |
 | LEG-17 | Phase 134 | Pending |
 | LEG-18 | Phase 134 | Pending |
-| RELOCK-01 | Phase 135 | Pending |
-| RELOCK-02 | Phase 135 | Pending |
-| RELOCK-03 | Phase 135 | Pending |
-| RELOCK-04 | Phase 135 | Pending |
-| RELOCK-05 | Phase 135 | Pending |
-| RELOCK-06 | Phase 135 | Pending |
-| RELOCK-07 | Phase 135 | Pending |
+| RELOCK-01 | ~~Phase 135~~ → Backlog 999.28 | ⏸ Deferred (out of v1 scope) |
+| RELOCK-02 | ~~Phase 135~~ → Backlog 999.28 | ⏸ Deferred (out of v1 scope) |
+| RELOCK-03 | ~~Phase 135~~ → Backlog 999.28 | ⏸ Deferred (out of v1 scope) |
+| RELOCK-04 | ~~Phase 135~~ → Backlog 999.28 | ⏸ Deferred (out of v1 scope) |
+| RELOCK-05 | ~~Phase 135~~ → Backlog 999.28 | ⏸ Deferred (out of v1 scope) |
+| RELOCK-06 | ~~Phase 135~~ → Backlog 999.28 | ⏸ Deferred (out of v1 scope) |
+| RELOCK-07 | ~~Phase 135~~ → **Phase 137** | Pending (retained, re-homed 2026-08-03) |
 | CHAN-01 | Phase 136 | Pending |
 | CHAN-02 | Phase 136 | Pending |
 | CHAN-03 | Phase 136 | Pending |
@@ -423,16 +448,23 @@ Populated during roadmap creation.
 
 **Coverage:**
 
-- v1 requirements: 56 total (GATE 10 · RETIRE 8 · LEG 18 · RELOCK 7 · CHAN 7 · CLOSE 6)
-- Mapped to phases: 56
+- v1 requirements **as scoped 2026-08-03**: 56 total (GATE 10 · RETIRE 8 · LEG 18 · RELOCK 7 · CHAN 7 ·
+  CLOSE 6)
+- v1 requirements **in scope now**: **50** (GATE 10 · RETIRE 8 · LEG 18 · **RELOCK 1** · CHAN 7 ·
+  CLOSE 6) — RELOCK-01…06 deferred out with Phase 135 on 2026-08-03 → Backlog 999.28
+- Mapped to phases: 50 of 50 in-scope
 - Unmapped: 0 ✓ full coverage
+- Deferred: 6 (RELOCK-01…06) — mapped to Backlog 999.28, not to any v1.30 phase; retained verbatim in
+  §`write --sdp-relock` (RELOCK) above and recorded in §Out of Scope
 
 **Phase mapping:** GATE-\* → Phase 131 (Gate Hardening & CI Parity) · RETIRE-\* → Phase 132 (Retire
 `dev sdp` & Discharge the mypy Debt) · LEG-09/10/11/15 → Phase 133 (SDP Leg Mechanism) · the remaining
-14 LEG requirements → Phase 134 (The Plan-Derived SDP Oracle in `dev test`) · RELOCK-\* → Phase 135
-(`write --sdp-relock`) · CHAN-\* → Phase 136 (Dev-Tools Channel Gating) · CLOSE-\* → Phase 137 (Close
-— Honesty Ledger, Claim Gate, gh#12 Follow-up). Phase 133/134 is a deliberate split of the research
-spine's single combined "leg" phase (see ROADMAP.md §v1.30 for rationale).
+14 LEG requirements → Phase 134 (The Plan-Derived SDP Oracle in `dev test`) · ~~RELOCK-\* → Phase 135
+(`write --sdp-relock`)~~ **⏸ RELOCK-01…06 → Backlog 999.28 (deferred 2026-08-03, Phase 135 vacated and
+NOT renumbered); RELOCK-07 → Phase 137** · CHAN-\* → Phase 136 (Dev-Tools Channel Gating) · CLOSE-\* →
+Phase 137 (Close — Honesty Ledger, Claim Gate, gh#12 Follow-up). Phase 133/134 is a deliberate split of
+the research spine's single combined "leg" phase (see ROADMAP.md §v1.30 for rationale). **Active phase
+set: 131, 132, 133, 134, 136, 137 — six phases; the 135 slot is deliberately vacant.**
 
 ---
 

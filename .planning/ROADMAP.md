@@ -32,7 +32,7 @@
 - ⬜ **v1.27 Per-Protocol EPROM Programming Algorithms** — Phases TBD (QUEUED at the 2026-07-27 backlog review — not yet scoped/activated; version number provisional, settled at `/gsd-new-milestone` time). Replace the single shared block-level write loop in `firestarter/src/proms/eprom.cpp` (program mismatching bytes → verify chunk → retry ×20 → grow a shared adaptive pulse) with **protocol-owned programming behavior** for `0x07` / `0x08` / `0x0B`, each carrying its own datasheet-correct pulse width, attempt limit, over-program rule and VPP routing — replacing today's generic 500 µs default and flat `NUMBER_OF_RETRIES = 20`. Adds **no** new DB field and **no** second firmware algorithm selector: the protocol ID stays the single dispatch key, so this sits squarely inside the algorithm-first contract. Promoted from Backlog **999.22** (gh#15) — the largest and most consequential item in the GitHub import. **Evidence set it must close over:** **FUT-08** (AM27C020 `0x08` marginal — write#1 60/64, write#2 0/64; a correct per-byte `0x08` handler with real pulse accounting is a plausible fix) plus the second community `0x08` data point on [gh#14](https://github.com/henols/firestarter_prom/issues/14) (TMS27C010A), and **Backlog 999.17** (gh#10, the `0x07` UV-EPROM write regression sitting in a genuine evidence gap — every `0x07` proof this project holds was taken on a 12V Winbond EEPROM, not a 13V UV part). **Architecture choice stays deliberately open** — gh#15's three-separate-state-machines vs the dormant seed's one-shared-loop-plus-`const`-parameter-table; both stay live and neither is retired until `/gsd-discuss-phase`, when AVR flash budget and per-datasheet divergence can be *measured* rather than guessed. Firmware-touching → dual-repo lockstep; golden register traces + dispatch-mirror guard need rework; the v1.13 six-family validation harness must be re-run against the rewritten handlers; Leonardo-only bench validity. **Sequencing vs v1.23:** both rewrite firmware internals but in disjoint files (`eprom.cpp` here, `json_parser.c`/dispatch there) — decide the order at activation, weighing that v1.27 carries open *defect* evidence while v1.23 is a RAM/throughput optimization. Seed (competing design): [`.planning/seeds/27c-algorithm-fidelity-param-table-refactor.md`](seeds/27c-algorithm-fidelity-param-table-refactor.md) · Issue: [gh#15](https://github.com/henols/firestarter_prom/issues/15).
 - ⬜ **v1.28 Binary Command Protocol** — Phases TBD (QUEUED — **no longer the next milestone** as of the 2026-07-27 backlog review, which sequenced the AT28C SDP unblock ahead of it; version numbers for both are settled at `/gsd-new-milestone` time. Not yet scoped/activated). Replace the jsmn-tokenized JSON command layer with a fixed-layout binary command decoder decoded straight into `firestarter_handle_t` (no tokenizer, no string-key compares, no `key_parsers` table). Primary prize: **~512 B RAM reclaimed** (the `static jsmntok_t tokens[64]` array, `firestarter.cpp:56`) — on the Uno that's ~25% of SRAM, potentially ~doubling `DATA_BUFFER_SIZE` (512→~1024) → fewer ack round-trips → faster programming; plus ~1–1.5 KB net flash. Rides the existing COBS transport (v1.10) + ack-chunking (CAP-01) — changes the *command* encoding, not the framing. Breaking wire change (firmware+host lockstep, CLAUDE.md protocol-parity); deletes `lib/jsmn/`, `src/json_parser.c`; native dispatch tests + golden traces reworked. **De-risk first:** spike the `DATA_BUFFER_SIZE` bump to confirm the speed payoff *before* the rewrite. Sequence ahead of v1.24 (also breaking) — the two may bundle into one protocol-layer milestone. **The slot number `v1.28` is bookkeeping — it is the number this Phase-130 renumber freed, nothing more; the *sequence* claim in the sentence above, ahead of v1.24, is the substance and is unchanged by the renumber** — the same number-vs-sequence convention the `v1.30` entry below states for itself. **Consider carrying Backlog 999.3** (backlog review 2026-07-27): the cosmetic blank-check progress-batching bug is a com-mode progress-delivery issue in the same command/ack layer this milestone reworks — cheap to fix here, not worth its own phase. Seed: [`.planning/seeds/binary-command-protocol.md`](seeds/binary-command-protocol.md) · Note: [`.planning/notes/binary-protocol-savings-analysis.md`](notes/binary-protocol-savings-analysis.md). <!-- recordscan:allow py32-buffer-1024: coincidental collocation -- DATA_BUFFER_SIZE/1024 here is the Uno buffer-doubling discussion for this Binary Command Protocol entry, unrelated to the py32 port's own DATA_BUFFER_SIZE=512 (CMakeLists.txt:113; see 130-RESEARCH.md R-2). Not a stale py32 claim; flagged by plan 130-02, addressed by plan 130-04. -->
 - ⚠ **Retired: the v1.28 PY32F071 Port and v1.29 PY32F071 USB Firmware Install slots** — absorbed 2026-08-02 into **v1.23 PY32F071 Integration, Phases 123–130** (see `.planning/milestones/v1.23-ROADMAP.md` and `.planning/MILESTONES.md` §v1.23 for what actually shipped). The two former entries' full historical text is preserved in git history only, not reproduced here. The v1.28 slot's *"Prior art — verified 2026-07-27"* paragraph was **stale**: it asserted the HAL-prep/native-backend work was not in flight, citing a since-superseded closed pull request, and pointed a future scoping pass at the smallest and stalest of five candidate branches — which is why the entry is **removed with its paragraph**, not left behind a marker, per the owning todo's own warning that a scoping pass reads the entry body regardless of any marker present. The two slots were never symmetric: the v1.29 slot already carried a `⚠ SUPERSEDED` marker (added 2026-07-31) while the v1.28 slot carried **no marker at all** until this line — this retirement discharges two entries that were in different states, not a matched pair. **The v1.29 number is now vacant, deliberately** — the next milestone after v1.23 takes the `v1.30` slot below, not `v1.29`. Discharges todo [`correct-v128-py32-roadmap-prior-art`](todos/pending/correct-v128-py32-roadmap-prior-art.md) in full.
-- ⬜ **v1.30 SDP Surface Retirement & Behavioral Lock Proof** — Phases TBD (**⏫ QUEUED as the NEXT milestone after v1.23**, operator decision 2026-07-31; not yet scoped/activated. **Version number provisional and settled at `/gsd-new-milestone` time** — numbered v1.30 rather than v1.29 deliberately: the retirement that frees the v1.29 number has now **landed**, in v1.23's **Phase 130** (see the retirement line above), so the v1.29 number is vacant — but this entry stays **v1.30** and is **not** compacted to v1.29 here; whether to compact at all is this milestone's own activation-time decision, deferred exactly as before, not a consequence of the retirement having landed. The *sequence* claim — next after v1.23 — is the substance; the number is bookkeeping). Replace v1.22's standalone `firestarter dev sdp <chip> enable|disable` with a **self-verifying** SDP lifecycle, in three parts decided together: **(1) delete `dev sdp`** ([cli_handlers.py:2098](../firestarter_app/firestarter/cli_handlers.py#L2098), live in `3.0.0b14`) — its `disable` half duplicates the auto-unlock firmware already performs on **every** protocol-`0x0D` write, and its `enable` half changes a state that provably cannot be read back on this family, so neither direction can ever produce evidence; **(2) move the proof into `dev test`** as a plan-derived leg for the **43 SDP-capable** chips (of 84 `0x0D`) — baseline write+verify, `sdp_lock`, an inhibited write carrying `FLAG_SKIP_SDP_UNLOCK`, then a **read-back equality assertion against the baseline pattern**, then `sdp_unlock` + write + verify so the part is left unlocked and proven writable again; **(3) land `write --sdp-relock`** as the single user-facing way to deliberately protect a part. **Why it is worth a milestone:** on `0x0D` the protection bit is unreadable, so protection is observable *only through its effect* — lock → inhibited-write → read-back is the **sole evidence path that exists** for this feature, and a standalone command can never carry it. `dev test` is the right host because it already writes on every run (Phase 121 D-04), is the community-validation entry point for hardware the maintainer does not own, files its report through `submit_report`, and **survives the 999.15 channel split into stable** — so the evidence comes back to the repo instead of dying in a stranger's terminal. **Host-only: no firmware change, no dual-repo lockstep, no `.hex` re-cut** — Phase 119's `CMD_SDP_LOCK`/`CMD_SDP_UNLOCK` are what the new leg *exercises*. **⚠ The leg is a false-green magnet** — its assertion is that a write *fails*, which every unrelated failure also produces, so the oracle must be read-back equality and an *unexpected success* must report **BAD**, never `SKIPPED`. **⚠ It cannot be flag-gated** — `dev test` takes zero options since Phase 121 D-05, so the leg is derived in `derive_plan` from `sdp_capability()`. Also **re-homes the stale `--sdp-relock` deferral**, labelled "v1.23+" in `STATE.md:154` and `PROJECT.md:671` before v1.23 became PY32F071 Integration. Outward-facing debt: `dev sdp` is named in the gh#12 reply and the b14 app release notes, both published 2026-07-30. Promoted from Backlog **999.25**. Note: [`.planning/notes/sdp-surface-retirement-and-behavioral-proof.md`](notes/sdp-surface-retirement-and-behavioral-proof.md) · Todo: [`.planning/todos/pending/gh12-followup-after-dev-sdp-retirement.md`](todos/pending/gh12-followup-after-dev-sdp-retirement.md) · Issue: [gh#12](https://github.com/henols/firestarter_prom/issues/12) (the thread this rewords).
+- ⬜ **v1.30 SDP Surface Retirement & Behavioral Lock Proof** — Phases TBD (**⏫ QUEUED as the NEXT milestone after v1.23**, operator decision 2026-07-31; not yet scoped/activated. **Version number provisional and settled at `/gsd-new-milestone` time** — numbered v1.30 rather than v1.29 deliberately: the retirement that frees the v1.29 number has now **landed**, in v1.23's **Phase 130** (see the retirement line above), so the v1.29 number is vacant — but this entry stays **v1.30** and is **not** compacted to v1.29 here; whether to compact at all is this milestone's own activation-time decision, deferred exactly as before, not a consequence of the retirement having landed. The *sequence* claim — next after v1.23 — is the substance; the number is bookkeeping). Replace v1.22's standalone `firestarter dev sdp <chip> enable|disable` with a **self-verifying** SDP lifecycle, in three parts decided together: **(1) delete `dev sdp`** ([cli_handlers.py:2098](../firestarter_app/firestarter/cli_handlers.py#L2098), live in `3.0.0b14`) — its `disable` half duplicates the auto-unlock firmware already performs on **every** protocol-`0x0D` write, and its `enable` half changes a state that provably cannot be read back on this family, so neither direction can ever produce evidence; **(2) move the proof into `dev test`** as a plan-derived leg for the **43 SDP-capable** chips (of 84 `0x0D`) — baseline write+verify, `sdp_lock`, an inhibited write carrying `FLAG_SKIP_SDP_UNLOCK`, then a **read-back equality assertion against the baseline pattern**, then `sdp_unlock` + write + verify so the part is left unlocked and proven writable again; **(3) land `write --sdp-relock`** as the single user-facing way to deliberately protect a part. **Why it is worth a milestone:** on `0x0D` the protection bit is unreadable, so protection is observable *only through its effect* — lock → inhibited-write → read-back is the **sole evidence path that exists** for this feature, and a standalone command can never carry it. `dev test` is the right host because it already writes on every run (Phase 121 D-04), is the community-validation entry point for hardware the maintainer does not own, files its report through `submit_report`, and **survives the 999.15 channel split into stable** — so the evidence comes back to the repo instead of dying in a stranger's terminal. **Host-only: no firmware change, no dual-repo lockstep, no `.hex` re-cut** — Phase 119's `CMD_SDP_LOCK`/`CMD_SDP_UNLOCK` are what the new leg *exercises*. **⚠ The leg is a false-green magnet** — its assertion is that a write *fails*, which every unrelated failure also produces, so the oracle must be read-back equality and an *unexpected success* must report **BAD**, never `SKIPPED`. **⚠ It cannot be flag-gated** — `dev test` takes zero options since Phase 121 D-05, so the leg is derived in `derive_plan` from `sdp_capability()`. Also **re-homes the stale `--sdp-relock` deferral**, labelled "v1.23+" in `STATE.md:154` and `PROJECT.md:671` before v1.23 became PY32F071 Integration. Outward-facing debt: `dev sdp` is named in the gh#12 reply and the b14 app release notes, both published 2026-07-30. Promoted from Backlog **999.25**. Note: [`.planning/notes/sdp-surface-retirement-and-behavioral-proof.md`](notes/sdp-surface-retirement-and-behavioral-proof.md) · Todo: [`.planning/todos/pending/gh12-followup-after-dev-sdp-retirement.md`](todos/pending/gh12-followup-after-dev-sdp-retirement.md) · Issue: [gh#12](https://github.com/henols/firestarter_prom/issues/12) (the thread this rewords). **⏸ AMENDED 2026-08-03 — part (3) did NOT ship in v1.30.** `write --sdp-relock` was scoped as **Phase 135**, then deferred out of the milestone by operator decision on 2026-08-03 and filed as Backlog **999.28**; the phase number was not reused. Parts (1) and (2) proceed. **The "three parts decided together" framing above therefore no longer describes what v1.30 delivers** — it delivers the deletion and the behavioral proof, and *withdraws* the deliberate-protection surface without replacing it (`REQUIREMENTS.md` §RELOCK had called the deletion and the re-homing "a pair"). The stale-label re-homing survives as **RELOCK-07**, re-homed to Phase 137 and re-pointed at Backlog 999.28. *(Two pre-existing staleness items in this entry are left as-found, not introduced here: the `⬜ … QUEUED … not yet scoped/activated` status marker was never updated at the 2026-08-03 activation, and the `STATE.md:154` / `PROJECT.md:671` citations for the "v1.23+" labels are a third, separately-drifted pair of line numbers for the same two labels — see RELOCK-07 for the measured ones.)*
 
 <details>
 <summary>✅ <b>v1.10 — Serial Transport Hardening (COBS)</b> — Phases 49–55 (SHIPPED 2026-06-07) · 27/27 plans · 14/14 reqs · beta-only</summary>
@@ -183,8 +183,9 @@ Two narrowings that must survive into every phase's own artifacts, not be smooth
 re-cut** — Phase 119's `CMD_SDP_LOCK`/`CMD_SDP_UNLOCK` are what the new leg *exercises*, not what it
 changes. `firestarter` is not touched at all this milestone.
 
-**Phase numbering:** Continues from v1.23's Phase 130 → v1.30 starts at **Phase 131**. 7 phases
-(131–137).
+**Phase numbering:** Continues from v1.23's Phase 130 → v1.30 starts at **Phase 131**. Scoped as 7
+phases (131–137); **6 active** after Phase 135 was deferred to Backlog 999.28 on 2026-08-03. The 135
+slot stays vacant — 136 and 137 were **not** renumbered.
 
 **Why 7 phases, not the research spine's 6.** Research's recommended spine
 (`.planning/research/SUMMARY.md` §Implications for Roadmap) proposed six phases — 131 gate · 132
@@ -197,6 +198,12 @@ parity — LEG-09/10/11/15) and **Phase 134 = the leg proper** (the four ops, `d
 the pattern generator, the oracle truth table, the report rows — the remaining 14 LEG requirements).
 Every later research-spine phase number shifts by one as a result: relock → **135**, channel gating →
 **136**, close → **137**.
+
+**Then 135 was deferred (2026-08-03), leaving 6.** The relock phase went back to the backlog as **999.28**
+by operator decision, so the executed spine is **131 gate · 132 retire · 133 mechanism · 134 oracle ·
+136 channel · 137 close** — coincidentally the same count as research's original six, but not the same
+six: research bundled 133+134 into one leg phase and included relock, whereas this milestone splits the
+leg and drops relock. The 135 slot is vacant; 136 and 137 keep their numbers.
 
 **Dependency spine and parallelization:**
 
@@ -212,7 +219,13 @@ Every later research-spine phase number shifts by one as a result: relock → **
 - **133 depends on 132; 134 depends on 133 (serial).** The leg proper is built directly on 133's cleanup
   registry, widened exception set, and `_SDP_OPS` dispatch arm.
 
-- **135 depends on 132 only, and is *in principle* parallelisable with 133+134** on disjoint file
+- **⏸ 135 DEFERRED 2026-08-03 → Backlog 999.28.** The analysis in this bullet is retained as the
+  historical record of why serial order was chosen (Phase 134's detail section cites it), and because it
+  is the same one-writer-per-file constraint 999.28 will face when promoted. With 135 out, the serial
+  spine is **133 → 134 → 136 → 137**, and the `cli_handlers.py` two-writer conflict this bullet resolved
+  no longer arises inside v1.30 at all — 136 keys on command registration, not on `write`'s body.
+
+- **135 depended on 132 only, and was *in principle* parallelisable with 133+134** on disjoint file
   regions — 133/134 write `chip_test.py` and `diagnostic_report.py`, plus `cli_handlers.py` only at
   `_ALWAYS_WRITES_NOTICE`/`dev_test`'s body; 135 writes `cli_handlers.py` only in the `write` handler,
   ~1,400 lines away, no overlap; none of the three touch `eprom_operations.py`, `constants.py`,
@@ -238,7 +251,8 @@ Every later research-spine phase number shifts by one as a result: relock → **
      branch. Two workstreams still write one `firestarter_app` checkout.
 
   The existing numeric order **already is** the correct serial order — 135 lands after 134, and 136
-  after both — so no phase renumbering or reordering is required.
+  after both — so no phase renumbering or reordering is required. **(Superseded 2026-08-03 by the 135
+  deferral: the order is now 133 → 134 → 136 → 137, with the 135 slot vacant and still unrenumbered.)**
 
 - **Where the wall-clock is actually recoverable: research, not execution.** The three
   `--research-phase` passes (133, 134, 136) are read-only over the codebase and write only their own
@@ -285,8 +299,10 @@ shape as v1.23 forking off the v1.22 tip; `main` lags and stays untouched, per v
 with this roadmap 2026-08-03). Full design, traps, and accepted costs:
 [`.planning/notes/sdp-surface-retirement-and-behavioral-proof.md`](notes/sdp-surface-retirement-and-behavioral-proof.md).
 Research: `.planning/research/SUMMARY.md` (R-1…R-9, A-1…A-4; HIGH confidence, 4-stream convergent).
-Requirements: `.planning/REQUIREMENTS.md` (56 v1 requirements — GATE 10 · RETIRE 8 · LEG 18 · RELOCK 7 ·
-CHAN 7 · CLOSE 6).
+Requirements: `.planning/REQUIREMENTS.md` — scoped at 56 v1 requirements (GATE 10 · RETIRE 8 · LEG 18 ·
+RELOCK 7 · CHAN 7 · CLOSE 6); **50 in v1 scope** after the Phase 135 deferral moved RELOCK-01…06 out
+(GATE 10 · RETIRE 8 · LEG 18 · RELOCK 1 · CHAN 7 · CLOSE 6). RELOCK-07 alone is retained, re-homed to
+Phase 137.
 
 ### Phases
 
@@ -294,7 +310,7 @@ CHAN 7 · CLOSE 6).
 - [ ] **Phase 132: Retire `dev sdp` & Discharge the mypy Debt** - Delete the unverifiable standalone SDP command, re-home its honesty tests, and get `firestarter_app`'s primary `ci` job GREEN at the existing watermark.
 - [ ] **Phase 133: SDP Leg Mechanism** - Give `dev test`'s step engine a cleanup registry, a wider exception net, and a parity-tested op-registration path — the infrastructure the oracle is built on.
 - [ ] **Phase 134: The Plan-Derived SDP Oracle in `dev test`** - Add the four-step SDP leg whose oracle is read-back equality, not an exit code, so an unexpected write success is reported BAD.
-- [ ] **Phase 135: `write --sdp-relock`** - Give operators one verify-gated, loud-on-skip way to deliberately relock a part after a write.
+- ⏸ **Phase 135: `write --sdp-relock`** - **DEFERRED 2026-08-03 (operator decision) → Backlog 999.28.** Checkbox deliberately removed so `phase.complete` after Phase 134 advances to Phase 136, not into a deferred phase with no directory. Number NOT reused — Phases 136/137 keep their numbers. RELOCK-01…06 leave v1 scope; RELOCK-07 (stale-label re-homing) is retained and re-homed to Phase 137.
 - [ ] **Phase 136: Dev-Tools Channel Gating** - Make the stable channel's `dev` group expose only `read`/`test`, by not registering anything else.
 - [ ] **Phase 137: Close — Honesty Ledger, Claim Gate, gh#12 Follow-up** - Arm this milestone's own claim gate over its own artifacts, ledger every claim against its non-claim, and answer gh#12 honestly under operator review.
 
@@ -492,10 +508,12 @@ belong to Phase 134.
 inhibited a write — never a leg that reports success just because a write returned without error — and
 a run that ends early still leaves a visible, honest trace of whether the part was left locked.
 **Depends on**: Phase 133 (the cleanup registry, widened exception handling, and `_SDP_OPS` dispatch arm
-the four ops are built on). **Runs SERIALLY before Phase 135** — the executor model does enforce
+the four ops are built on). **Was to run SERIALLY before Phase 135** — the executor model does enforce
 one-writer-per-file, and both phases write `cli_handlers.py`; worktree isolation, which would have
 allowed otherwise, is unavailable inside the `firestarter_app` submodule. See the milestone-level
-dependency spine above for the full resolution.
+dependency spine above for the full resolution. **Moot as of 2026-08-03: Phase 135 is deferred to Backlog
+999.28, so this phase's only downstream is Phase 136.** The one-writer-per-file constraint itself still
+holds and still governs any concurrent plan inside this phase.
 **Requirements**: LEG-01, LEG-02, LEG-03, LEG-04, LEG-05, LEG-06, LEG-07, LEG-08, LEG-12, LEG-13, LEG-14, LEG-16, LEG-17, LEG-18
 **Success Criteria** (what must be TRUE):
 
@@ -535,42 +553,44 @@ the write-succeeded ⇒ BAD+exit-1 test, the both-directions oracle test, the fo
 fixtures, the per-exit-code-laundering-route tests, and the "erase"-forbidding grep. At dispatch, name
 exactly which of the 14 requirements above each plan may mark Complete.
 
-### Phase 135: `write --sdp-relock`
+### Phase 135: `write --sdp-relock` — ⏸ DEFERRED 2026-08-03 → Backlog 999.28
 
-**Goal**: An operator who wants to hand a part off in a protected state has exactly one supported way to
-do it, it never locks a part whose contents were never verified, and a skipped relock is impossible to
-miss.
-**Depends on**: Phase 132 (inherits its repurposed gate-ordering tests and the relocated D-14/D-10
-material). **Serialised after Phase 134** — same-file (`cli_handlers.py`) writer conflict with 133/134,
-unresolvable without worktree isolation, which the `firestarter_app` submodule forecloses. This is the
-smaller diff, so it is the one that yields; see the dependency spine above.
-**Requirements**: RELOCK-01, RELOCK-02, RELOCK-03, RELOCK-04, RELOCK-05, RELOCK-06, RELOCK-07
-**Success Criteria** (what must be TRUE):
+**Status**: **DEFERRED out of v1.30 by operator decision, 2026-08-03**, while Phase 132 was in flight at
+plan 08 of 09. Never planned, never executed — no `.planning/phases/135-*/` directory was ever created,
+so nothing was deleted and no plan record was orphaned. The full goal, dependency analysis, success
+criteria and requirement set are carried forward verbatim in **Backlog Phase 999.28** (see `## Backlog`
+below); they are deliberately **not** duplicated here, so there is exactly one copy to keep true.
 
-  1. `firestarter write --sdp-relock` runs an explicit verify pass after a successful write and, only if
-     that verify passes, locks the part; the default `write` path (no flag) is byte-identical to today's
-     behavior.
+**Phase number NOT reused.** Phases 136 and 137 keep their numbers; 135 stays vacant for this milestone.
+Renumbering was considered and rejected: `phase.remove` renumbers only `ROADMAP.md`, which would leave
+`REQUIREMENTS.md`'s traceability table, `.planning/todos/pending/gh12-followup-after-dev-sdp-retirement.md`
+(`resolves_phase: 137`), Phase 132's already-executed `132-CONTEXT.md` / `132-03-SUMMARY.md` — which name
+Phases 134/135/136 by number — and the research citations all pointing at the wrong phases. Same
+convention as v1.13's Phase 75, which kept its number when deferred to v1.14 as Backlog 999.4.
 
-  2. If the verify pass fails, the relock is skipped and `sdp_lock` is provably never called; the skip is
-     reported through a mandatory final `WARNING:` line or a non-zero exit — never at `INFO` level only
-     — because protection state can never be read back afterward, leaving no other way to discover the
-     part is unprotected.
+**⚠ This deferral breaks a pairing this milestone's own requirements declared.** `REQUIREMENTS.md`
+§`write --sdp-relock` (RELOCK) opens: *"Must ship with the deletion — they are a pair, and deleting the
+lock before re-homing it strands the only legitimate use case the deleted command served."* Phase 132
+deletes `dev sdp` — including its `enable` half — **in this milestone**; with 135 deferred, v1.30 removes
+the deliberate-protection surface and ships no replacement. That consequence is recorded rather than
+argued away, and it lands in two outward-facing places Phase 137 must now tell the truth about:
 
-  3. `--sdp-relock` on a non-`0x0D` chip refuses loudly *before* doing anything destructive (deliberately
-     unlike the existing warn-and-proceed pattern elsewhere in `write`), because the lock sequence's
-     magic-address bytes would otherwise land as ordinary data.
+  - **CLOSE-05 release notes.** The "Removed" mapping may state `dev sdp disable` → `write` (automatic,
+    real — the firmware auto-unlocks on every `0x0D` write). It may **NOT** state
+    `dev sdp enable` → `write --sdp-relock` as a shipped substitution, which is what Phase 137's success
+    criterion 5 currently says. The honest line is that the deliberate-lock surface is **withdrawn with
+    no replacement in this release**, tracked as Backlog 999.28.
 
-  4. `--sdp-relock` on a capability-REFUSED `0x0D` chip refuses before any hardware is energized, reusing
-     the same capability gate the deleted `dev sdp` command carried.
+  - **CLOSE-06 gh#12 reply.** Same correction; see the amended
+    `.planning/todos/pending/gh12-followup-after-dev-sdp-retirement.md`. gh#12 asked for
+    enable/disable; after v1.30 it gets `disable`-by-default and **no** `enable` at all. Saying so
+    plainly is the whole point of the honesty ledger.
 
-  5. The stale "v1.23+" `--sdp-relock` deferral labels at `STATE.md:538` and `PROJECT.md:823` now name
-     this milestone.
-
-**Plans**: TBD
-**Research flag**: SKIP — the call chain is traced end to end and the refusal matrix is fully specified.
-**Cross-cutting**: Run the CI-parity recipe; this phase's diff is small enough that both the sibling-root
-and no-board legs should be cheap to re-run per plan. At dispatch, name exactly which of RELOCK-01…
-RELOCK-07 each plan may mark Complete.
+**RELOCK requirement disposition**: RELOCK-01…RELOCK-06 leave v1 scope with this phase (see
+`REQUIREMENTS.md` §Out of Scope). **RELOCK-07 is RETAINED in v1.30 and re-homed to Phase 137** — it is a
+two-line documentation fix independent of the feature, and its labels have already gone stale once (they
+read "v1.23+", written before v1.23 became PY32F071 Integration). Deferring it would strand them a second
+time. Its target text changes: the labels must now name **Backlog 999.28**, not this milestone.
 
 ### Phase 136: Dev-Tools Channel Gating
 
@@ -578,10 +598,14 @@ RELOCK-07 each plan may mark Complete.
 beta-only subcommand is not merely undocumented but genuinely uninvokable on stable, and the gate cannot
 be fooled by anything the firmware reports.
 **Depends on**: Phase 132 (one fewer command to classify; the host/firmware contradiction 999.15 would
-otherwise have had to arbitrate is gone). **Sequenced after Phase 134 and Phase 135** so `dev --help`
-is pinned against `dev test`'s and `write`'s final shapes. The former "weakly parallelisable" note —
-that classification keys on command names, not bodies — now survives only as the reason this phase is
-cheap to re-plan if 134/135 shift, not as a licence to run it concurrently.
+otherwise have had to arbitrate is gone). **Sequenced after Phase 134** so `dev --help` is pinned against
+`dev test`'s final shape. (Originally "after Phase 134 and Phase 135", to pin against `write`'s final
+shape too; Phase 135 was deferred to Backlog 999.28 on 2026-08-03, so `write` keeps today's option set
+and there is nothing new to pin against. **Note for whoever promotes 999.28:** adding `--sdp-relock`
+changes `write --help`, so any `write`-help pin authored in this phase must be updated then — not
+silently re-baselined.) The former "weakly parallelisable" note — that classification keys on command
+names, not bodies — now survives only as the reason this phase is cheap to re-plan if 134 shifts, not as
+a licence to run it concurrently.
 **Requirements**: CHAN-01, CHAN-02, CHAN-03, CHAN-04, CHAN-05, CHAN-06, CHAN-07
 **Success Criteria** (what must be TRUE):
 
@@ -617,11 +641,14 @@ At dispatch, name exactly which of CHAN-01…CHAN-07 each plan may mark Complete
 gate that scans for overclaiming is actually armed against this milestone's own files (not vacuously
 passing against a prior milestone's), and the public thread this milestone answers gets a
 wording-reviewed, honest reply rather than a confident overclaim.
-**Depends on**: Phases 131–136 (last and serial — it authors and hosts the claim gate over this
-milestone's own final artifacts, and the gh#12 reply must describe a fact, not a plan). **This phase
-must NOT be run under `--auto`/`--chain`** — CLOSE-06 carries a blocking operator wording-review gate,
-and `--auto` auto-approves human-verify gates.
-**Requirements**: CLOSE-01, CLOSE-02, CLOSE-03, CLOSE-04, CLOSE-05, CLOSE-06
+**Depends on**: Phases 131–136 **excluding the deferred 135** (last and serial — it authors and hosts the
+claim gate over this milestone's own final artifacts, and the gh#12 reply must describe a fact, not a
+plan). **This phase must NOT be run under `--auto`/`--chain`** — CLOSE-06 carries a blocking operator
+wording-review gate, and `--auto` auto-approves human-verify gates.
+**Requirements**: CLOSE-01, CLOSE-02, CLOSE-03, CLOSE-04, CLOSE-05, CLOSE-06, **RELOCK-07** (re-homed
+here 2026-08-03 when Phase 135 was deferred — the stale `--sdp-relock` "v1.23+" deferral labels must now
+name **Backlog 999.28**, not this milestone; see the amended RELOCK-07 text in `REQUIREMENTS.md` for the
+corrected line-number citations)
 **Success Criteria** (what must be TRUE):
 
   1. A v1.30-specific claim gate, authored and hosted inside this phase's own directory, runs green with
@@ -642,9 +669,23 @@ and `--auto` auto-approves human-verify gates.
      ceiling stated at the top of this milestone.
 
   5. Release notes carry a "Removed" section mapping `dev sdp disable` → `write` (automatic) and
-     `dev sdp enable` → `write --sdp-relock`, and the gh#12 follow-up reply — reviewed and approved by
-     the operator before posting, as an explicit non-`<automated>` step — states the substitution
-     honestly, without letting "now provable" read as "now proven."
+     `dev sdp enable` → **nothing in this release** — withdrawn, tracked as Backlog 999.28 — and the
+     gh#12 follow-up reply, reviewed and approved by the operator before posting as an explicit
+     non-`<automated>` step, states that withdrawal plainly, without letting "now provable" read as "now
+     proven."
+
+     **AMENDED 2026-08-03 (Phase 135 deferral).** This criterion previously read
+     `dev sdp enable` → `write --sdp-relock`. That mapping is now false: Phase 132 deletes `dev sdp
+     enable` in this milestone and Phase 135, which was to land `write --sdp-relock`, is deferred to
+     Backlog 999.28. Writing the original mapping would name a command that does not exist in the release
+     being announced — the precise overclaim class this phase's honesty ledger exists to catch, and the
+     same class as v1.22's C-5 correction. `REQUIREMENTS.md` §RELOCK opened by calling the deletion and
+     the re-homing "a pair"; the pair is now split, and the release notes must say so rather than paper
+     over it.
+
+  6. The honesty ledger's non-claim set explicitly includes the split pair: v1.30 removed a
+     deliberate-protection surface and shipped no replacement. This is a **withdrawal**, not a migration,
+     and must not be worded as one.
 
 **Plans**: TBD
 **Research flag**: SKIP — the prior milestone's claim-gate pitfall (P-11) specifies this gate's design
@@ -2293,7 +2334,7 @@ Plans:
 
 **Why it can be worked immediately after v1.23, with no waiting:** host-only (`firestarter_app`), so no dual-repo lockstep, no firmware branch, no `.hex` re-cut, and **no bench hardware needed to build it** — the AT28C part this milestone reasons about has never been in operator inventory, and the whole design is arranged so that the *causal* proof is supplied later by a community `dev test` report rather than gating the close. It does **not** collide with any queued firmware milestone (v1.24 bus-config, v1.26 voltage cal, v1.27 per-protocol algorithms, v1.28 binary command protocol all rewrite firmware internals; this touches `cli_handlers.py`, `chip_test.py`, `diagnostic_report.py`). One sequencing interaction worth stating: **999.15** (gh#8 dev-tools channel gating) also edits the `dev` group surface — whichever lands first shrinks the other's diff, and this milestone deletes a subcommand 999.15 would otherwise have to classify.
 
-**✅ PROMOTED (roadmap creation 2026-08-03) — activated as `v1.30 SDP Surface Retirement & Behavioral Lock Proof`, Phases 131–137** (see the `## v1.30 — SDP Surface Retirement & Behavioral Lock Proof (PLANNING)` section above for goals, requirements, and success criteria). Phase mapping: **GATE-\* → Phase 131** (gate hardening & CI parity) · **RETIRE-\* → Phase 132** (retire `dev sdp` + mypy discharge) · **LEG-09/10/11/15 → Phase 133** (SDP leg mechanism) · the remaining 14 LEG requirements **→ Phase 134** (the plan-derived SDP oracle — split from a single combined leg phase per research's own recommendation, since 18 requirements in one phase was judged too large for this project's `Comprehensive` granularity setting) · **RELOCK-\* → Phase 135** (`write --sdp-relock`) · **CHAN-\* → Phase 136** (dev-tools channel gating) · **CLOSE-\* → Phase 137** (close: honesty ledger, claim gate, gh#12 follow-up). 56/56 v1 requirements mapped, zero orphans.
+**✅ PROMOTED (roadmap creation 2026-08-03) — activated as `v1.30 SDP Surface Retirement & Behavioral Lock Proof`, Phases 131–137** (see the `## v1.30 — SDP Surface Retirement & Behavioral Lock Proof (PLANNING)` section above for goals, requirements, and success criteria). Phase mapping: **GATE-\* → Phase 131** (gate hardening & CI parity) · **RETIRE-\* → Phase 132** (retire `dev sdp` + mypy discharge) · **LEG-09/10/11/15 → Phase 133** (SDP leg mechanism) · the remaining 14 LEG requirements **→ Phase 134** (the plan-derived SDP oracle — split from a single combined leg phase per research's own recommendation, since 18 requirements in one phase was judged too large for this project's `Comprehensive` granularity setting) · **RELOCK-\* → Phase 135** (`write --sdp-relock`) · **CHAN-\* → Phase 136** (dev-tools channel gating) · **CLOSE-\* → Phase 137** (close: honesty ledger, claim gate, gh#12 follow-up). 56/56 v1 requirements mapped, zero orphans. **⏸ AMENDED 2026-08-03: Phase 135 was deferred back out to Backlog 999.28 by operator decision — RELOCK-01…06 left v1 scope; RELOCK-07 was retained and re-homed to Phase 137. The promoted milestone is therefore 6 active phases (131–134, 136, 137) and 50 v1 requirements; the 135 slot is vacant and was deliberately not renumbered.**
 
 Plans:
 
@@ -2330,6 +2371,82 @@ touching the watermark.
 **Requirements:** none (process/maintenance item)
 **Plans:** 0 plans
 **Origin:** Filed by Phase 131 (Gate Hardening & CI Parity) plan 131-01, decision D-13, 2026-08-03.
+
+### Phase 999.28: `write --sdp-relock` — verify-gated deliberate protection (BACKLOG — deferred out of v1.30 as Phase 135, 2026-08-03)
+
+**Goal:** An operator who wants to hand a part off in a protected state has exactly one supported way to
+do it, it never locks a part whose contents were never verified, and a skipped relock is impossible to
+miss.
+
+**Success Criteria** (carried forward verbatim from v1.30 Phase 135, less its criterion 5 — the
+stale-label re-homing, which was retained in v1.30 as RELOCK-07 and re-homed to Phase 137):
+
+  1. `firestarter write --sdp-relock` runs an explicit verify pass after a successful write and, only if
+     that verify passes, locks the part; the default `write` path (no flag) is byte-identical to today's
+     behavior.
+
+  2. If the verify pass fails, the relock is skipped and `sdp_lock` is provably never called; the skip is
+     reported through a mandatory final `WARNING:` line or a non-zero exit — never at `INFO` level only
+     — because protection state can never be read back afterward, leaving no other way to discover the
+     part is unprotected.
+
+  3. `--sdp-relock` on a non-`0x0D` chip refuses loudly *before* doing anything destructive (deliberately
+     unlike the existing warn-and-proceed pattern elsewhere in `write`), because the lock sequence's
+     magic-address bytes would otherwise land as ordinary data.
+
+  4. `--sdp-relock` on a capability-REFUSED `0x0D` chip refuses before any hardware is energized, reusing
+     the same capability gate the deleted `dev sdp` command carried.
+
+**Requirements:** RELOCK-01, RELOCK-02, RELOCK-03, RELOCK-04, RELOCK-05, RELOCK-06. Their text stays
+**in place and unmodified** in `REQUIREMENTS.md` §`write --sdp-relock` (RELOCK) — only the checkbox
+changed, `[ ]` → `⏸`, so nothing counts them as in-scope-pending — and `REQUIREMENTS.md` §Out of Scope
+carries the row recording the decision and its accepted cost. Nothing needs re-authoring at promotion.
+**RELOCK-07 is NOT here** — it stayed in v1.30, re-homed to Phase 137.
+**Plans:** 0 plans
+**Research flag:** SKIP — the call chain was traced end to end and the refusal matrix fully specified
+before the deferral; that analysis stands.
+
+**Origin:** Scoped as **v1.30 Phase 135**, then deferred out of the milestone by operator decision on
+2026-08-03 while Phase 132 was in flight at plan 08 of 09. Never planned, never executed, no phase
+directory ever created. The v1.30 phase number is **not** reused — see the `### Phase 135` entry under
+`## v1.30` above for the deferral record and the renumbering rationale.
+
+**⚠ What this deferral leaves broken — read before promoting.** `REQUIREMENTS.md` §RELOCK opens: *"Must
+ship with the deletion — they are a pair, and deleting the lock before re-homing it strands the only
+legitimate use case the deleted command served."* v1.30's Phase 132 ships the deletion of
+`firestarter dev sdp <chip> enable|disable`; this half is what did not ship with it. Between v1.30 and
+this item's promotion there is therefore **no supported way to deliberately protect an SDP part** —
+`write` auto-unlocks on every `0x0D` write and never re-locks, and the `enable` surface is gone. On
+`0x0D` the protection bit cannot be read back, so a user cannot even observe the resulting state.
+
+**Prerequisites already satisfied** (nothing to redo at promotion time): firmware `CMD_SDP_LOCK` /
+`CMD_SDP_UNLOCK` exist from v1.22 Phase 119; the capability gate to reuse is `sdp_capability()`; the D-10
+honesty wording and D-14 unknown-command mapping live in the shared production helper Phase 132 authored
+for exactly this caller (`132-CONTEXT.md` D-01 records it as a **forward contract** for Phases 134 and
+135), and `tests/test_sdp_honesty.py` is its stable module name — `132-03-SUMMARY.md:153` states no
+further rename is owed. Host-only: `firestarter_app` alone, no firmware change, no dual-repo lockstep,
+no `.hex` re-cut.
+
+**Constraints at promotion:**
+
+- **One-writer-per-file still applies.** This work writes `firestarter/cli_handlers.py` in the `write`
+  handler (~:570). Worktree isolation is unavailable when the code lives in the `firestarter_app`
+  submodule (the executor commit protocol cannot commit into a submodule from an isolated worktree), so
+  it cannot run concurrently with any other phase writing that file. See the v1.30 dependency spine.
+- **`write --help` changes.** Any `write`-help output pinned by v1.30 Phase 136's channel-gating tests
+  must be updated as part of this work — deliberately, not silently re-baselined.
+- **Outward-facing correction owed.** v1.30's release notes and gh#12 reply will have stated that
+  deliberate protection was *withdrawn with no replacement*. When this ships, that is what changes; the
+  release notes for the shipping version must say so, and gh#12 gets the follow-up it was promised.
+  Related: `.planning/todos/pending/write-sdp-relock-deferred.md`,
+  `.planning/todos/pending/gh12-followup-after-dev-sdp-retirement.md`.
+- **Polarity is already decided, do not re-litigate:** verify failure ⇒ **skip the relock and report it
+  loudly**, leaving the recoverable state. Per the v1.22 auto-unlock policy **(d)**; recorded at
+  `PROJECT.md:823`.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
 
 ---
 

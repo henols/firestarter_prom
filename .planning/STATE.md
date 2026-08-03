@@ -10,7 +10,7 @@ last_updated: "2026-08-03T21:31:57.152Z"
 last_activity: 2026-08-03
 last_activity_desc: Phase 132 plan 08 complete (RETIRE-04 dereference test test_command_names_dereferences_both_sdp_commands proven by two RED demonstrations; all five stale eprom_operations.py:301/:377 COMMAND_NAMES citations corrected to _setup_operation:329/_operation_context:405 across constants.py and test_revision_constants_parity.py; RETIRE-08's own text corrected from three to the measured five, D-12's impossible same-commit binding honoured as adjacent cross-citing commits; mypy holds at 32) -- 132-09 next, wave 9 of 9
 progress:
-  total_phases: 7
+  total_phases: 6
   completed_phases: 1
   total_plans: 16
   completed_plans: 15
@@ -34,6 +34,17 @@ without disturbing it.
 2026-08-03 from the operator-queued slot of 2026-07-31, promoted from Backlog 999.25). Host-only
 (`firestarter_app`); **131 CLOSED**, phases continue at **132**. v1.24–v1.27 remain queued and
 unscoped; v1.29 stays deliberately vacant.
+
+**⏸ Phase 135 (`write --sdp-relock`) DEFERRED 2026-08-03** by operator decision → ROADMAP Backlog
+**999.28**. Never planned, never executed, no phase directory created. **The 135 number is NOT reused** —
+the active phase set is **131, 132, 133, 134, 136, 137** (six phases) and the 135 slot stays vacant, so
+after Phase 134 the next phase is **136**. RELOCK-01…06 left v1 scope (56 → **50** requirements);
+RELOCK-07 was retained and re-homed to **Phase 137**. **⚠ This split a pair v1.30's own requirements
+declared:** Phase 132 still deletes `dev sdp` including its `enable` half, so v1.30 **withdraws** the
+deliberate-protection surface and ships no replacement. Phase 137's CLOSE-05/06 were amended
+accordingly — the release notes and gh#12 reply must describe a withdrawal, **never** a migration to
+`write --sdp-relock`. Todos: `.planning/todos/pending/write-sdp-relock-deferred.md` and the amended
+`gh12-followup-after-dev-sdp-retirement.md`.
 
 ## Current Position
 

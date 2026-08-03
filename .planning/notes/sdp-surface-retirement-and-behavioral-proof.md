@@ -7,6 +7,26 @@
 `/gsd-new-milestone`. Scope this milestone from this note.
 **Touches:** `firestarter_app` only (host). **No firmware change** — see §7.
 
+> **⏸ AMENDED 2026-08-03 — part 3 of the "three parts, decided together" below did NOT ship.**
+> This note was scoped into **v1.30**, Phases 131–137, on 2026-08-03. Part 3, `write --sdp-relock`
+> (Phase 135), was then **deferred out of the milestone** by operator decision the same day and filed as
+> ROADMAP Backlog **999.28**; the phase number was not reused, so v1.30's active set is 131–134 + 136–137.
+> Parts 1 and 2 proceed as written here.
+>
+> **The consequence this note's own §1.3 predicts is therefore real:** part 3 is described below as *"the
+> only legitimate user need the deleted command was serving (an AT28C programmed to sit in a live
+> machine)"* — and part 1 ships without it. v1.30 **withdraws** that capability and replaces it with
+> nothing until 999.28 is promoted. Read this note for the design, which stands unchanged; read
+> ROADMAP §`Phase 135`, §`Phase 999.28`, `REQUIREMENTS.md` §Out of Scope, and
+> `.planning/todos/pending/write-sdp-relock-deferred.md` for what actually shipped and what is owed
+> outwardly because of it. Do **not** scope part 3 from this note as if it were in v1.30.
+>
+> *(Also stale above, left as-found: the `Status:` line still reads "queued … pending
+> `/gsd-new-milestone`"; the milestone was activated 2026-08-03. And this note's `STATE.md:154` /
+> `PROJECT.md:671` citations for the "v1.23+" labels are stale — measured 2026-08-03 the live lines are
+> `STATE.md:634` / `PROJECT.md:823`. See RELOCK-07, which owns that fix and lists all four divergent
+> citation sites.)*
+
 ---
 
 ## 1. The decision (operator, 2026-07-31)

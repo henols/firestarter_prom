@@ -21,13 +21,31 @@ The removal is decided in
 [`.planning/notes/sdp-surface-retirement-and-behavioral-proof.md`](../../notes/sdp-surface-retirement-and-behavioral-proof.md)
 and scoped as Backlog Phase 999.25.
 
+## ⚠ AMENDED 2026-08-03 — `write --sdp-relock` did NOT ship; point 1 below was rewritten
+
+The reply's original point 1 named `write --sdp-relock` as the deliberate-lock replacement. **That is
+now false.** v1.30 **Phase 135**, which was to land it, was deferred out of the milestone by operator
+decision on 2026-08-03 and filed as ROADMAP Backlog **999.28**. Phase 132 still deletes `dev sdp` —
+**both halves** — in v1.30. So the milestone removes the deliberate-protection surface and ships **no
+replacement**.
+
+Posting the original wording would tell a stranger to run a command that does not exist in the release
+being announced. That is the same overclaim class as v1.22's C-5 correction, in the very thread this
+reply exists to be honest with. See `.planning/todos/pending/write-sdp-relock-deferred.md`.
+
 ## What the reply must say
 
-1. **The command is gone, and what replaced it** — unlock is already `write`'s default behaviour
-   (auto-unlock, declinable via `--skip-sdp-unlock`), and the deliberate lock is now
-   `write --sdp-relock`.
-2. **Name the rewording honestly.** gh#12 asked for "enable/disable" and gets neither by that name.
-   Say so plainly rather than presenting the substitution as if it were the original ask.
+1. **The command is gone. `disable`'s behaviour survives; `enable`'s does not.** Unlock is already
+   `write`'s default behaviour (auto-unlock on every protocol-`0x0D` write, declinable via
+   `--skip-sdp-unlock`) — so `dev sdp disable` is genuinely redundant, not merely dropped. The
+   deliberate **lock** is **withdrawn with no replacement in this release**, tracked as Backlog 999.28.
+   Do **not** name `write --sdp-relock` as available. If it helps the reporter, it is fine to say the
+   design is settled and the work is queued — but as *queued*, never as shipped, and without promising a
+   version.
+2. **Name the rewording honestly.** gh#12 asked for "enable/disable". After v1.30 it gets `disable`'s
+   effect automatically and **no `enable` at all**. Say both halves plainly — including that a user who
+   wants a part left protected currently has no supported way to do it, and cannot read the protection
+   bit back to check. Do not present this as if it were the original ask satisfied.
 3. **State the gain, without overclaiming it.** The lock is now *testable* — `dev test` on an
    SDP-capable part locks it, attempts a write without unlocking, and checks the chip is unchanged.
    That is the first oracle this feature has ever had. It remains **untested on real AT28C
@@ -45,3 +63,6 @@ and scoped as Backlog Phase 999.25.
   still exists.
 - The b14 release notes are historical and already published — correct the *next* release notes,
   do not rewrite the shipped ones.
+- **Do not name `write --sdp-relock` as an available command** (see the amendment above). The "Removed"
+  mapping in the next release notes must read `dev sdp disable` → `write` (automatic) and
+  `dev sdp enable` → *withdrawn, no replacement, tracked as Backlog 999.28*.
