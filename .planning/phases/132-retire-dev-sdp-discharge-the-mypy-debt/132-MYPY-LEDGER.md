@@ -345,4 +345,45 @@ any CI run has been dispatched. The `ci` job's actual state is unknown until pla
 reads it — and per this plan's own `<objective>`, **nothing** in this plan may be marked Complete on
 the strength of this local reading alone.
 
-<!-- 132-09 appends here -->
+## 9. The certifying CI reading
+
+Read from CI run `30856059940` (`workflow_dispatch` on `gsd/v1.30-sdp-surface-retirement` @
+`42a1971`, `ci` job, step `mypy type check (watermark gate)`), via `gh run view 30856059940
+--repo henols/firestarter_app --log --job 91827219671` — see `132-CI-GREEN.md` §4-5 for the full
+reading and the completion-clause investigation.
+
+**CI reported:**
+
+```
+checked 122 source files
+mypy errors: 32 (watermark: 35)
+```
+
+**This plan's own task 1 local replica re-measurement reported (`132-CI-PARITY.md` §2, same
+commit `42a1971`):**
+
+```
+Found 32 errors in 12 files (checked 122 source files)
+checked 122 source files
+mypy errors: 32 (watermark: 35)
+```
+
+**CI and local agree exactly: 32 errors, checked 122 source files, watermark 35.** No
+reconciliation is needed and none is performed — this is the third independent reading of the same
+number (section 1's pre-change 69, section 6's post-fix local 32, and this section's CI 32), and
+unlike section 2's fork-base cross-check, there is no divergence to record here. Per D-08/D-12's
+rule, had CI and local disagreed, CI's number would be the one RETIRE-06 is certified against and
+both would stand recorded without reconciliation — that branch is not invoked because no
+disagreement exists.
+
+**Note on this project's own precedent for exactly this class of number.** `131-CI-BASELINE.md` §8
+recorded an instance where a fork-base CI reading and a locally/research-measured reading needed
+independent confirmation before being treated as equal — the caution that motivated D-09's
+"certify at the existing watermark, don't set it to a local reading first" choice
+(`132-CONTEXT.md` D-09). That caution is not invoked as a live divergence here; it is cited only
+because this section is the one place in the ledger where a live CI/local disagreement *could* have
+appeared, and did not.
+
+**This is the number RETIRE-06 and ROADMAP criterion 4 are certified against: 32, three below the
+unratcheted watermark of 35.** The watermark itself is untouched by this reading, per D-09 — see
+`132-RECORD.md` for the residual headroom arithmetic.
