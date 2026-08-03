@@ -120,3 +120,17 @@ None - no external service configuration required.
 ---
 *Phase: 132-retire-dev-sdp-discharge-the-mypy-debt*
 *Completed: 2026-08-03*
+
+## Self-Check: PASSED
+
+All four created files verified present on disk:
+- `firestarter_app/tools/ci_replica_venv.sh` — FOUND
+- `.planning/phases/132-retire-dev-sdp-discharge-the-mypy-debt/132-CI-PARITY.md` — FOUND
+- `.planning/phases/132-retire-dev-sdp-discharge-the-mypy-debt/132-MYPY-LEDGER.md` — FOUND
+- `.planning/phases/132-retire-dev-sdp-discharge-the-mypy-debt/132-01-SUMMARY.md` — FOUND
+
+All four commits verified present in their owning repo's history:
+- `c571f9b` (meta-repo) — FOUND
+- `35a58f0` (`firestarter_app` submodule) — FOUND
+- `af15348` (meta-repo) — FOUND
+- `f47e731` (meta-repo, this summary) — FOUND
