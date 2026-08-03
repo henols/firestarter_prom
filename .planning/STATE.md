@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.30
 milestone_name: SDP Surface Retirement & Behavioral Lock Proof
-current_phase: 132
-current_phase_name: Retire `dev sdp` & Discharge the mypy Debt
-status: executing
+current_phase: 133
+current_phase_name: SDP Leg Mechanism
+status: verifying
 stopped_at: Completed 132-09-PLAN.md
-last_updated: "2026-08-03T22:00:32.000Z"
+last_updated: "2026-08-03T22:16:43.375Z"
 last_activity: 2026-08-03
-last_activity_desc: Phase 132 plan 09 complete (RETIRE-06 -- the certifying CI dispatch. Operator pushed gsd/v1.30-sdp-surface-retirement to origin and ran gh workflow run; run 30856059940 (workflow_dispatch @ 42a1971) concluded success, ci job green on every step including the mypy watermark gate. mypy errors: 32 (watermark: 35), coverage 81.72% vs the 70% floor, both read from the log per D-08. Phase 131 D-11's deferred hardened-gate-in-CI proof discharged. 132-RECORD.md written: eight requirements accounted, fourteen decisions honoured, seven corrections, four residuals. All eight RETIRE requirements now Complete -- Phase 132's 9 plans are all complete) -- Phase 133 next
+last_activity_desc: Phase 132 complete, transitioned to Phase 133
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 16
   completed_plans: 16
-  percent: 100
+  percent: 33
 ---
 
 # Project State
@@ -48,9 +48,19 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 
 ## Current Position
 
-Phase: 132 — Retire `dev sdp` & Discharge the mypy Debt — **ALL 9 PLANS COMPLETE, PENDING CLOSE**
-Plan: 9 plans (`132-01`…`132-09`), waves 1-9 **strictly sequential** — all nine complete. 132-09
-(the certifying CI dispatch, `autonomous: false`) ran task 1 (after-half of the CI-parity recipe +
+Phase: 133 — SDP Leg Mechanism
+Plan: Not started
+
+### Phase 132 close (2026-08-03) — COMPLETE and VERIFIED
+
+Phase 132 — Retire `dev sdp` & Discharge the mypy Debt — closed with all 9 plans executed
+(waves 1-9, strictly sequential) and **8/8 RETIRE requirements Complete**. `132-VERIFICATION.md`
+returned **passed, 5/5 roadmap success criteria**, every one independently re-measured rather than
+read from a SUMMARY. Worktree isolation was **DISABLED phase-wide** (plans 01-08 touch the
+`firestarter_app` submodule; 132-09 hardcodes `/workspaces/…` absolute paths in its own acceptance
+gates) — the same disposition as Phases 129 and 131, at zero cost since every wave held one plan.
+
+132-09 (the certifying CI dispatch, `autonomous: false`) ran task 1 (after-half of the CI-parity recipe +
 full replica run, mypy re-confirmed at 32), paused at task 2's `checkpoint:human-verify
 gate="blocking"` for the two privileged operator actions (D-06), then resumed: the operator pushed
 `gsd/v1.30-sdp-surface-retirement` to origin and dispatched `Host CI`, returning run `30856059940`.
@@ -62,9 +72,9 @@ recorded `132-CI-GREEN.md` plus the ledger's third reading (CI's 32 agrees exact
 Task 4 wrote `132-RECORD.md` (eight requirements accounted, fourteen decisions honoured including
 two non-literal, seven corrections, four residuals) and ticked **RETIRE-06** — **all eight RETIRE
 requirements are now Complete.** Phase 131 D-11's deferred hardened-gate-in-CI proof is discharged.
-Status: Phase 131 CLOSED and verified (10/10 GATE requirements). **Phase 132's plans are all
-executed and its requirements all Complete; the phase itself has not yet been through the
-standard phase-close verification pass** — that is the next action, ahead of starting Phase 133.
+Status: Phase 131 CLOSED and verified (10/10 GATE requirements). **Phase 132 CLOSED and verified
+(9/9 plans, 8/8 RETIRE requirements, 5/5 success criteria)** — the phase-close verification pass ran
+and passed. Next action is Phase 133.
 Research was SKIPPED per ROADMAP's own `Research flag: SKIP`; **Nyquist Dimension 8 was
 operator-acknowledged as unavailable for 132's planning run** (no RESEARCH.md ⇒ no VALIDATION.md)
 — acknowledged, not disabled, same as 131. Compensated by making every acceptance criterion a
@@ -144,8 +154,8 @@ is `requires_fw`-skipped under CI-parity recipe leg 1, so all DB-only count legs
 Read D-17 before acting on either. `131-07` step (f) now also annotates the matching
 `REQUIREMENTS.md` Out-of-Scope row, which repeated the same disproven claim.
 
-Last activity: 2026-08-03 — Phase 131 complete (7/7 plans, 10/10 GATE requirements verified),
-transitioned to Phase 132. Phase 133/134 is a deliberate split of the research
+Last activity: 2026-08-03 — Phase 132 complete and verified (9/9 plans, 8/8 RETIRE requirements,
+5/5 success criteria), transitioned to Phase 133. Phase 133/134 is a deliberate split of the research
 spine's single combined "leg" phase (18 LEG requirements judged too large for one phase at this
 project's `Comprehensive` granularity).
 **This milestone must NOT be run under `--auto`/`--chain`** — Phase 137 (CLOSE-06) carries a blocking
