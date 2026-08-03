@@ -89,8 +89,13 @@ actually fail.
       `test_clean_run_returns_zero_without_raising`) proving the classifier does not raise
       unconditionally. Registered in `tools/check_no_exists_proxy.py`'s `_DEFAULT_TARGETS` in the
       same commit (F-06).
-- [ ] **GATE-07**: One real `gh workflow run ci.yml` dispatch is recorded on the fork base, producing
+- [x] **GATE-07**: One real `gh workflow run ci.yml` dispatch is recorded on the fork base, producing
       the current post-fork error count the watermark is later set from.
+      Evidence: operator-dispatched CI run `30822281624` (`workflow_dispatch` on `beta` @
+      `16a313a040389aa7c88a98b85f79a7d667ca2f6f`), recorded verbatim in
+      `.planning/phases/131-gate-hardening-ci-parity/131-CI-BASELINE.md` (131-05) —
+      `mypy errors: 69 (watermark: 35)`; re-read independently and ticked by 131-07. This count is
+      an input to Phase 132's watermark, not a Phase 131 claim.
 - [x] **GATE-08**: A `sdp_capability` 43 ALLOW / 41 REFUSE / 84 total count gate exists, **derived from
       the database rather than literal**, so narrowing a chip to REFUSE in order to green a failing
       field cannot pass silently. Evidence: `firestarter_app/tests/test_sdp_db_invariant.py`'s
@@ -278,7 +283,7 @@ Deferred, tracked, not in this roadmap.
 | A transitional `dev sdp` stub or deprecation shim | Clean removal, argued and decided. One day of pre-release exposure at decision time, no stable release ever carried it; CLOSE-05's "Removed" mapping and the gh#12 reply carry the migration instead. |
 | A nonce or timestamp for the inhibited-write pattern | Non-reproducible community reports, and it breaks the `dedup_fingerprint` hash. LEG-03's deterministic complement gives full-byte sensitivity without either cost. |
 | New runtime dependencies | The 6-package runtime closure stays untouched — this ships to PyPI. |
-| Restoring the softened Phase-129 assert | **Operator decision, 2026-08-03 — deliberately not taken here.** `test_present_root_with_missing_target_raises_not_skips` was hardened by Phase 129, then softened to a skip outside any plan during the b15 hand-off, and that commit is v1.30's fork base. Left as-is, the defect-class downgrade becomes permanent by default. Recorded so it is a decision, not a discovery. |
+| Restoring the softened Phase-129 assert | **Operator decision, 2026-08-03 — deliberately not taken here.** `test_present_root_with_missing_target_raises_not_skips` was hardened by Phase 129, then softened to a skip outside any plan during the b15 hand-off, and that commit is v1.30's fork base. Left as-is, the defect-class downgrade becomes permanent by default. Recorded so it is a decision, not a discovery. **[⚠ CORRECTED 2026-08-03, Phase 131 plan 131-07 (131-CONTEXT.md D-17; full reasoning in 131-RECORD.md): this row is wrong on repo, on commit, and on substance. Wrong repo — the test is at `firestarter/tests/test_flash_path_record_sync.py:694`, the **firmware** repo, which this milestone does not touch at all; it is not in `firestarter_app`, and no downstream agent should hunt for it there. Wrong commit — the softening is firmware `1c511e8` ("scope the meta-root premise leg to skip when no meta root exists"), not app `5934a54` as this row's framing implies is v1.30's fork base; `5934a54` touched `tests/test_py32_flash_map_host.py` and `tests/test_scan_paths_resolve.py`, neither of which is that test. Wrong substance — the change is **premise-scoped**, not weakened: the gate's own subject, that a missing scan target raises `MissingScanTargetError` rather than skipping, is still hard-asserted wherever the premise holds; what was scoped is the environment premise (`META_PRESENT`), and the companion `test_absent_meta_claim_can_never_be_false` makes a false absence claim impossible by construction. This row's action is unchanged and remains correct — do not restore, do not touch the firmware repo; this is a record correction only, with no scope consequence. Note that STATE.md's own phrasing ("softened a Phase-129-authored hard assert to a skip — a defect-class change") is the source of this row's mischaracterisation and is itself imprecise; correcting STATE.md is not in Phase 131's scope, and the divergence is recorded rather than reconciled.]** |
 | Filing the py3.9-drop backlog item | **Operator decision, 2026-08-03 — deliberately not filed.** Tracked here as FUT-MYPY-01 only; with no backlog stub it will present again rather than being scheduled. **[⚠ SUPERSEDED 2026-08-03, Phase 131 plan 131-01 (131-CONTEXT.md D-13): D-13, written later the same day in the same discussion session, read this row's own stated cost and elected to pay it. Backlog stubs filed as ROADMAP.md Phase 999.26 (the py3.9 type-checking floor) and Phase 999.27 (the mypy minimum-target treadmill, Python 3.10 EOLs 2026-10-31). FUT-MYPY-01 remains the requirement-side record; 999.26 cross-links it.]** |
 | Raising the mypy watermark to 69 | Would ratify the accreted debt as the new floor. The measured path reaches 33 ≤ 35, so the existing watermark holds. |
 
@@ -296,7 +301,7 @@ Populated during roadmap creation.
 | GATE-04 | Phase 131 | Complete |
 | GATE-05 | Phase 131 | Complete |
 | GATE-06 | Phase 131 | Complete |
-| GATE-07 | Phase 131 | Pending |
+| GATE-07 | Phase 131 | Complete |
 | GATE-08 | Phase 131 | Complete |
 | GATE-09 | Phase 131 | Complete |
 | GATE-10 | Phase 131 | Complete |
