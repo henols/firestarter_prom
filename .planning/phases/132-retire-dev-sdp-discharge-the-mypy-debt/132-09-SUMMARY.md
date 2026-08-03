@@ -209,4 +209,19 @@ returning run id `30856059940`. No further user setup is required.
 ---
 *Phase: 132-retire-dev-sdp-discharge-the-mypy-debt*
 *Completed: 2026-08-03*
+
+## Self-Check: PASSED
+
+Created/modified files verified present on disk:
+- `.planning/phases/132-retire-dev-sdp-discharge-the-mypy-debt/132-CI-GREEN.md` — FOUND
+- `.planning/phases/132-retire-dev-sdp-discharge-the-mypy-debt/132-RECORD.md` — FOUND
+- `.planning/phases/132-retire-dev-sdp-discharge-the-mypy-debt/132-09-SUMMARY.md` — FOUND
+- `.planning/phases/132-retire-dev-sdp-discharge-the-mypy-debt/132-CI-PARITY.md` — FOUND
+- `.planning/phases/132-retire-dev-sdp-discharge-the-mypy-debt/132-MYPY-LEDGER.md` — FOUND
+
+Commits verified present in `git log --oneline --all`:
+- `be91e14` (task 1, meta-repo) — FOUND
+- `f6dd6a7` (task 3, meta-repo) — FOUND
+- `5cb1fa6` (task 4, meta-repo) — FOUND
+- `ccf096d` (this summary, meta-repo) — FOUND
 </content>
