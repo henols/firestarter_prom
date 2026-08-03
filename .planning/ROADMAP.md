@@ -432,7 +432,7 @@ Plans:
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 132-08-PLAN.md — The command-name dereference test, all five stale reference corrections, RETIRE-08's own text (RETIRE-04/08, D-11/D-12)
+- [x] 132-08-PLAN.md — The command-name dereference test, all five stale reference corrections, RETIRE-08's own text (RETIRE-04/08, D-11/D-12)
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
