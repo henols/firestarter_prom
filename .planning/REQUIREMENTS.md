@@ -133,7 +133,7 @@ Smallest diff, largest unblocking effect: removes a row from 999.15's classifica
 the host/firmware contradiction rather than arbitrating it, and drops the honest mypy count 69 → 63 for
 free. Must land before the watermark is re-baselined or the number moves within the same milestone.
 
-- [ ] **RETIRE-01**: `firestarter dev sdp` no longer exists — the command and its four gates are gone.
+- [x] **RETIRE-01**: `firestarter dev sdp` no longer exists — the command and its four gates are gone.
 - [x] **RETIRE-02**: `tools/check_no_exists_proxy.py`'s fail-closed target list is updated in the **same
       commit** as the test-file move, so that gate never goes RED.
 
@@ -353,7 +353,7 @@ Populated during roadmap creation.
 | GATE-08 | Phase 131 | Complete |
 | GATE-09 | Phase 131 | Complete |
 | GATE-10 | Phase 131 | Complete |
-| RETIRE-01 | Phase 132 | Pending |
+| RETIRE-01 | Phase 132 | Complete |
 | RETIRE-02 | Phase 132 | Complete |
 | RETIRE-03 | Phase 132 | Complete |
 | RETIRE-04 | Phase 132 | Pending |

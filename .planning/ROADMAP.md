@@ -416,7 +416,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 132-04-PLAN.md — Delete the subcommand and its four gates, one orphaned import, node-scoped snapshot update (RETIRE-01, D-13)
+- [x] 132-04-PLAN.md — Delete the subcommand and its four gates, one orphaned import, node-scoped snapshot update (RETIRE-01, D-13)
 
 **Wave 5** *(blocked on Wave 4 completion)*
 

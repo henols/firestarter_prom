@@ -5,16 +5,16 @@ milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 132
 current_phase_name: Retire `dev sdp` & Discharge the mypy Debt
 status: executing
-stopped_at: Phase 132 executing -- plan 132-03 complete, wave 3 of 9 done
-last_updated: "2026-08-03T18:52:59.016Z"
+stopped_at: Phase 132 executing -- plan 132-04 complete, wave 4 of 9 done
+last_updated: "2026-08-03T19:17:12.708Z"
 last_activity: 2026-08-03
-last_activity_desc: Phase 132 plan 03 complete (test_dev_sdp_cmd.py moved + retargeted onto sdp_honesty.py, RETIRE-02/RETIRE-03 complete) -- 132-04 next, wave 4 of 9
+last_activity_desc: Phase 132 plan 04 complete (dev sdp subcommand deleted, four gates gone, roster is eight, help snapshot updated, RETIRE-01 complete) -- 132-05 next, wave 5 of 9
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 16
-  completed_plans: 10
-  percent: 63
+  completed_plans: 11
+  percent: 69
 ---
 
 # Project State
@@ -38,8 +38,8 @@ unscoped; v1.29 stays deliberately vacant.
 ## Current Position
 
 Phase: 132 — Retire `dev sdp` & Discharge the mypy Debt — **EXECUTING**
-Plan: 9 plans (`132-01`…`132-09`), waves 1-9 **strictly sequential** — 132-01, 132-02 and 132-03
-complete, wave 4 of 9 (132-04) next
+Plan: 9 plans (`132-01`…`132-09`), waves 1-9 **strictly sequential** — 132-01, 132-02, 132-03 and
+132-04 complete, wave 5 of 9 (132-05) next
 Status: Phase 131 CLOSED and verified (10/10 GATE requirements). Phase 132 is PLANNED and under
 execution; `/gsd-execute-phase 132` is running. Research was SKIPPED per ROADMAP's own
 `Research flag: SKIP`; **Nyquist Dimension 8 was operator-acknowledged as unavailable for 132's
@@ -1177,6 +1177,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 132]: Reworded one word in dev_sdp's docstring (dropped 'resulting') to remove a pre-existing accidental duplicate of the caveat's exact substring, unrelated to plan 132-02's own edits, so the plan's no-duplication acceptance criterion could be satisfied without touching prose the plan's action text didn't authorize. — Meaning unchanged, prose-only; no behavior or test impact.
 - [Phase 132]: 132-03: rewrote all ten CLI-driving tests in task 2's commit (not task 3's) because the CliRunner==0 acceptance criterion required it; task 3 correctly reduced to pruning make_app_context/_off_tty/_on_tty/chip constants.
 - [Phase 132]: 132-03: purity test's module-path constant moved from module scope into a local variable so it would not double-count against the 'exactly 1 surviving module constant' acceptance criterion.
+- [Phase 132]: 132-04: re-measured the dev_sdp deletion boundary live (decorator :2196, EOF :2304) rather than trusting the plan's pre-rewire :2321 anchor -- plan 132-02's rewire had already shifted the tail.
+- [Phase 132]: 132-04: only the orphaned firestarter.sdp_honesty import was removed from cli_handlers.py -- Confirm, FirmwareOutdatedError, EpromOperationError, sdp_capability, resolve_chip, ChipNotFoundError were individually grep-counted inside vs outside the span and left untouched (all have live uses outside).
+- [Phase 132]: 132-04: Task 3's code sweep found 5 in-tree '.py' hits for the phrase 'dev sdp', not the plan's acceptance-criterion-expected 0 -- all 5 are legitimate historical-provenance prose in sdp_honesty.py/test_sdp_honesty.py docstrings (out of this plan's files_modified scope); recorded as a plan-measurement discrepancy, not edited.
 
 ## Performance Metrics
 
@@ -1354,11 +1357,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 131 P07 | 65min | 2 tasks | 2 files |
 | Phase 132 P01 | 35min | 3 tasks | 3 files |
 | Phase 132 P02 | 40min | 3 tasks | 4 files |
+| Phase 132 P04 | 25min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-03T18:52:58.970Z
-**Stopped at:** Phase 132 executing -- plan 132-02 complete, wave 2 of 9 done
+**Last session:** 2026-08-03T19:17:12.674Z
+**Stopped at:** Phase 132 executing -- plan 132-04 complete, wave 4 of 9 done
 **Resume file:** 
 None
 
