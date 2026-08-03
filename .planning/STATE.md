@@ -4,11 +4,11 @@ milestone: v1.30
 milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 131
 current_phase_name: Gate Hardening & CI Parity
-status: Ready to execute — Phase 131 planned (7 plans, 4 waves)
-stopped_at: Phase 131 planned
-last_updated: "2026-08-03T11:13:59.227Z"
+status: executing
+stopped_at: Phase 131 executing
+last_updated: "2026-08-03T11:32:46.235Z"
 last_activity: 2026-08-03
-last_activity_desc: "Phase 131 planned — 7 plans in 4 waves; plan-checker VERIFICATION PASSED (0 blockers, 1 non-blocking warning, folded in); requirements 10/10 and decisions 18/18 covered"
+last_activity_desc: "Phase 131 execution started — 7 plans in 4 waves; worktree isolation DISABLED phase-wide (5/7 plans touch the firestarter_app submodule; the other 2 hardcode /workspaces absolute paths in their gates)"
 progress:
   total_phases: 7
   completed_phases: 0
@@ -36,15 +36,21 @@ deliberately vacant.
 
 ## Current Position
 
-Phase: 131 (Gate Hardening & CI Parity) — PLANNED, ready to execute
-Plan: 7 plans in 4 waves — `131-01`…`131-07`, committed `a405dc2f` + `cda12c1a`
+Phase: 131 (Gate Hardening & CI Parity) — EXECUTING
+Plan: 1 of 7 — 7 plans in 4 waves, `131-01`…`131-07`, committed `a405dc2f` + `cda12c1a`
 Status: plan-checker returned **VERIFICATION PASSED** (0 blockers; 1 non-blocking warning, folded into
 `131-07` step (f) and committed). Requirements 10/10 (GATE-01…GATE-10, each ticked by exactly one
 owning plan); CONTEXT decisions 18/18. Research was **SKIPPED** per the ROADMAP's `Research flag: SKIP`
 — STACK §1 and PITFALLS P-13 give the fix line by line. No `131-RESEARCH.md` and **no
 `131-VALIDATION.md`** exist for this phase; Nyquist Dimension 8 was operator-acknowledged as
 unavailable this run rather than disabled, so the gate is still live for Phase 132 onward.
-Ready for `/gsd-execute-phase 131`.
+
+**Execution mode:** worktree isolation is **DISABLED for the whole phase** — all 7 plans run
+sequentially on the main checkout. `131-01/02/03/04/06` touch the `firestarter_app` submodule (the
+executor commit protocol cannot commit into a submodule from an isolated worktree); `131-05` and
+`131-07` touch only `.planning/` but hardcode `/workspaces/firestarter_app` and
+`/workspaces/.planning/…` absolute paths inside their own acceptance gates, which would measure the
+main checkout while the agent wrote into the worktree. Same class of defect as Phase 129.
 
 **⚠ Six plan-time corrections amend locked decisions** — all measured live, all recorded in-plan
 (`F-01`…`F-06`, aggregated in `131-RECORD.md`). The two that change what gets built: **F-01** —
@@ -61,7 +67,7 @@ is `requires_fw`-skipped under CI-parity recipe leg 1, so all DB-only count legs
 Read D-17 before acting on either. `131-07` step (f) now also annotates the matching
 `REQUIREMENTS.md` Out-of-Scope row, which repeated the same disproven claim.
 
-Last activity: 2026-08-03 — Phase 131 planned. Phase 133/134 is a deliberate split of the research
+Last activity: 2026-08-03 — Phase 131 execution started. Phase 133/134 is a deliberate split of the research
 spine's single combined "leg" phase (18 LEG requirements judged too large for one phase at this
 project's `Comprehensive` granularity).
 **This milestone must NOT be run under `--auto`/`--chain`** — Phase 137 (CLOSE-06) carries a blocking
