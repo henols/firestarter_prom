@@ -35,6 +35,124 @@
 
 **v1.21 shipped:** 2026-07-27 (Community Chip-Validation Command — 8 phases (108–115, incl. micro-phase 114.1), 34 plans, 70 tasks; 28/28 v1 requirements. Shipped `firestarter dev test <chip>` — a per-chip technology-aware capability sweep of independent non-fatal steps + address-derived health-write pattern + byte-mismatch fingerprint (108), destructiveness gate / small-region UV write + orchestrator-only SAFE-02 (109), dual-output diagnostic report + provenance + read-only DB-diff (110), measured VPP/VPE sampler (111, hardware-gated), `dev test` CLI wiring (112), tiered `--submit` GitHub flow + PII sanitizer (113), disposition/no-auto-graduate lock + `[dev test]` issue parser + community-validation taxonomy (114) + absent-chip hard-fail (114.1), and the VALIDATION+DOCS close (115, hardware-gated): drove the `3.0.0b11` beta publish on BOTH channels (PyPI `--pre` + GitHub prerelease w/ per-board `.hex`), bench-validated fresh-machine install→flash→smoke on Uno + Leonardo (HARD) + uno328pb (best-effort), authored the community onboarding doc, and bumped the meta gitlinks off PINNED-b10 → b11 (fw `0fd7992` / app `86e4563`). Closeout `override_closeout` (14 pre-existing cross-milestone open items acknowledged-deferred; none originate in v1.21). Remaining operator-gated close step: `v1.21` tag + sub-repo `--no-ff` beta merges + pushes. See `.planning/MILESTONES.md` §v1.21.)
 
+## Current Milestone: v1.30 SDP Surface Retirement & Behavioral Lock Proof
+
+**Started:** 2026-08-03 · **Phases continue at 131** (v1.23 ran 123–130; no micro-phases inserted) ·
+**Host-only** (`firestarter_app`), no firmware change, no dual-repo lockstep, no `.hex` re-cut.
+
+**Goal:** Replace v1.22's unverifiable standalone `firestarter dev sdp <chip> enable|disable` with a
+**self-verifying** SDP lifecycle whose oracle is read-back equality rather than an exit code — and,
+while the same host files are open, clear the two surface debts that milestone left behind (a RED
+primary `ci` job and an unsplit `dev` command group).
+
+**Target features:**
+
+- **Delete `dev sdp`** — `cli_handlers.py:2098-2230` and its four gates, plus
+  `tests/test_dev_sdp_cmd.py` (gate-ordering cases repurposed onto the new leg where they still
+  apply). Its `disable` half duplicates the auto-unlock firmware already performs on **every**
+  protocol-`0x0D` write; its `enable` half changes a state that provably cannot be read back on this
+  family, so neither direction can ever produce evidence.
+- **A plan-derived SDP leg inside `dev test`** — four steps in order: baseline write pattern A +
+  verify (so a locked-from-the-factory part cannot read as "lock works"), `sdp_lock` (CMD 10,
+  emission only), write pattern B carrying `FLAG_SKIP_SDP_UNLOCK` then **read back and assert
+  equality against pattern A** (the oracle), then `sdp_unlock` (CMD 9) + write + verify so the part
+  is left unlocked and proven writable again. Derived in `derive_plan` from
+  `sdp_capability()` — 43 ALLOW / 41 REFUSE of the 84 `0x0D` chips, REFUSED chips getting an
+  `NA`/`SKIPPED` step that carries the reason.
+- **`write --sdp-relock`** — the single user-facing way to deliberately protect a part, re-homing the
+  flag deferred to the now-wrong label "v1.23+". **Polarity decided (operator, 2026-08-03): on verify
+  failure the relock is SKIPPED and the skip is reported loudly**, leaving the part in the state the
+  user can recover from — consistent with auto-unlock policy (d). Relocking a part whose write did
+  not verify would protect a bad image behind a lock that cannot be read back and can only be
+  cleared by another write.
+- **mypy gate-hardening — get `firestarter_app`'s primary `ci` job GREEN.** v1.23 Phase 127 found
+  `tools/check_mypy_watermark.py` **fail-open** (it shells to a bare `mypy` from `PATH`; under
+  Python 3.12 the configured `python_version = "3.9"` is rejected and a numpy stub aborts the run,
+  so it reported green without type-checking anything), hiding **69 inherited errors** against a
+  watermark of 35. v1.23 deliberately left both OPEN for "a dedicated gate-hardening phase" and
+  measured its own net contribution at zero (69 → 72 → 69). This is that phase's home.
+- **999.15 / gh#8 dev-tools channel gating** — the channel is the gate; stable keeps `dev read` +
+  `dev test`. Sequencing interaction stated in the design note: whichever of the two lands first
+  shrinks the other's diff, and v1.30 **deletes** a subcommand 999.15 would otherwise have to
+  classify.
+- **The gh#12 outward follow-up** — `dev sdp` is named in the gh#12 reply and the b14 app release
+  notes, both published 2026-07-30, one day before the retirement decision. A reply is owed stating
+  the substitution honestly: gh#12 asked for "enable/disable" and gets neither *by that name* (unlock
+  absorbed into `write`'s default behaviour, lock into `write --sdp-relock`), and without letting
+  "now provable" drift into "now proven". Behind operator wording review.
+
+**Key context:**
+
+**Why this is worth a milestone rather than a patch.** On `0x0D` the protection bit is not readable,
+so protection is observable **only through its effect**. That makes lock → inhibited-write →
+read-back the *sole evidence path in existence* for this feature, and a standalone command can never
+carry it. `dev test` is the right host for three independent reasons: it already writes on every run
+(Phase 121 D-04), it is the community-validation entry point for hardware the maintainer does not
+own and files its report through `submit_report`, and it **survives the 999.15 channel split into
+stable** — so the evidence comes back to the repo instead of dying in a stranger's terminal.
+
+**⚠ Evidence ceiling, fixed before any planning.** No AT28C part has ever been in operator inventory
+and `0x0D` stays `UNVERIFIED`. What this milestone can prove: the *emission* (correct sequence,
+correct pinout remap, `/WE` asserted) via the Phase 116 trace harness, and the *plan derivation* plus
+the read-back comparison logic in the native envs. What it **cannot** prove: the causal claim *"the
+lock inhibited the write"* — reachable only on real silicon, i.e. only from a community `dev test`
+report, which by design **does not gate the close**. This split must be stated explicitly or the
+milestone closes claiming a proof it does not hold: the same overclaim class as v1.22's C-5
+correction.
+
+**⚠ Three traps the leg must dodge** (from the design note §5):
+
+1. **It is a false-green magnet.** The load-bearing assertion is that a write *fails*, and every
+   unrelated failure — transport error, brownout, absent chip, blank-check abort — produces the same
+   non-zero result. Same class as the SAFE-04 absent-chip trap, whose real assertion turned out to be
+   `read_hardware_revision_value.assert_not_called()` rather than an exit code. **The oracle must be
+   read-back equality against pattern A**; "the write reported failure" is not evidence. A *partial*
+   change is gh#11's exact symptom and must read **BAD**, never OK.
+2. **Keep the sensitivity pointing the right way.** If the lock never reaches silicon (the v1.22
+   defect class), the inhibited write *succeeds* — and the leg must then report **BAD**. An
+   unexpected success is the failure signal, never an inapplicable step; it must never be allowed to
+   downgrade to `SKIPPED`/`NA`.
+3. **The run must end unlocked, and the report must say so.** An abort between steps 2 and 4 (Ctrl-C,
+   cable yank, brownout) ships a locked chip back to a community member. Recovery is a plain
+   `firestarter write` (auto-unlock is default-on) and the report line must state it in those words.
+   `0x0D` has **no erase operation at all**, so the wording is "rewrite", never "erase".
+
+**⚠ The leg cannot be flag-gated.** `dev test` takes **zero options** since Phase 121 D-05
+(`dev_test(app, chip)`, `cli_handlers.py:1961`) — the four v1.21 flags were removed, not disabled. Do
+not reintroduce an option for it.
+
+**Removal is safe *because* auto-unlock is default-on.** A chip left locked by any means is recovered
+by a plain `firestarter write`; there is no orphaned-chip path and so no capability is lost. Record
+the dependency — if that default is ever revisited, this decision must be revisited with it.
+
+**Kept, load-bearing for both survivors:** `eprom_operations.py:1736 sdp_unlock` / `:1784 sdp_lock`;
+`constants.py:72-73` `COMMAND_SDP_UNLOCK`/`COMMAND_SDP_LOCK` **and their `COMMAND_NAMES` entries**
+(dereferenced at `eprom_operations.py:301` and `:377` — a missing entry is a `KeyError` at operation
+setup, not a cosmetic gap); and `sdp_capability.py` in full, now serving `write`'s D-04 auto-set, the
+new leg, and `--sdp-relock`.
+
+**Stale labels this milestone fixes:** the `--sdp-relock` deferral reads "v1.23+" at
+`.planning/STATE.md:532` and `.planning/PROJECT.md:705`, written before v1.23 became PY32F071
+Integration — so the flag currently has no home. (The design note's own `STATE.md:154` /
+`PROJECT.md:671` line references are themselves stale; the live lines are 532 / 705.)
+
+**Version and branch model.** Takes **v1.30**, not compacted to v1.29 — the retirement that freed the
+v1.29 number landed in v1.23 Phase 130, and the number is deliberately left **vacant**. Meta forks
+off the v1.23 tip (`gsd/v1.30-sdp-surface-retirement` off `d1b9ce9e`), the same shape as v1.23 forking
+off the v1.22 tip; `main` lags and stays untouched, consistent with v1.19–v1.23.
+`firestarter_app` forks off `beta` (`16a313a`). **`firestarter` is not touched at all.**
+
+**Cost accepted knowingly:** a breaking removal from a published pre-release surface. `3.0.0b14` went
+to PyPI `--pre` on 2026-07-30 and `3.0.0b15` carries the command too; the blast radius is days of
+pre-release installs and **no stable release ever carried it**. Cheap now, strictly more expensive
+every week it waits.
+
+**Standing carry-forward, deliberately noted here.** The 14 pre-existing cross-milestone `audit-open`
+items have now been acknowledged-and-deferred at six consecutive closes. STATE.md's own note is that
+they "should be **scheduled** rather than acknowledged a seventh time." Folding the mypy
+gate-hardening into this milestone discharges the largest and most actionable of that set; the
+remainder are not in v1.30's scope and will present again at close.
+
 ## v1.23 Archive: PY32F071 Integration — Shipped 2026-08-03
 
 **Status (2026-08-03): all 8 phases (123–130) COMPLETE — CLOSE-01…CLOSE-04 validated in Phase 130, verification passed 4/4; 47/47 v1 requirements.** `3.0.0b15` is published on both channels (PyPI `firestarter==3.0.0b15`; the firmware GitHub prerelease carrying **four** board `.hex` assets, including the first-ever publication of `firestarter_py32f071.hex`). Closed `override_closeout`: Phase 126 verified `passed-with-findings` (one informational finding) and the same 14 pre-existing cross-milestone `audit-open` items were acknowledged-and-deferred for the sixth consecutive close — **none originate in v1.23**. **No stable release** — PyPI `info.version` stays `2.0.7`. Meta tagged `v1.23` on `gsd/v1.23-py32f071-integration`; firmware + app tagged `v1.23` on `beta`; gitlinks bumped to the published b15 commits; `main` not merged, per v1.19–v1.22. Full entry: `.planning/MILESTONES.md` §v1.23. Roadmap/requirements archived at `.planning/milestones/v1.23-{ROADMAP,REQUIREMENTS}.md`.
@@ -809,6 +927,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
+
+*Last updated: 2026-08-03 — v1.30 (SDP Surface Retirement & Behavioral Lock Proof) STARTED via `/gsd-new-milestone`. Promoted from Backlog **999.25**, operator-queued 2026-07-31 as NEXT after v1.23; scoped from `.planning/notes/sdp-surface-retirement-and-behavioral-proof.md`. Replace v1.22's unverifiable standalone `dev sdp <chip> enable|disable` with a **self-verifying** SDP lifecycle: delete the command, move the proof into a plan-derived four-step `dev test` leg whose oracle is **read-back equality** against a baseline pattern (never an exit code), and land `write --sdp-relock` as the single deliberate-protection surface. Two scope additions taken at activation (operator, 2026-08-03): the **mypy gate-hardening** v1.23 Phase 127 left OPEN — fail-open `tools/check_mypy_watermark.py` + 69 hidden inherited errors keeping `firestarter_app`'s primary `ci` job RED — and **999.15 / gh#8 dev-tools channel gating**, whose diff this milestone shrinks by deleting a subcommand it would otherwise classify; plus the owed gh#12 outward follow-up. `--sdp-relock` polarity decided: **verify failure ⇒ skip the relock and report it loudly** (leave the recoverable state), per auto-unlock policy (d). **Host-only** — `firestarter_app` alone, no firmware change, no dual-repo lockstep, no `.hex` re-cut; Phase 119's `CMD_SDP_LOCK`/`CMD_SDP_UNLOCK` are what the leg exercises. Numbered **v1.30**, not compacted to the vacant v1.29. Phase numbering continues at **Phase 131**. Meta branch `gsd/v1.30-sdp-surface-retirement` off the v1.23 tip `d1b9ce9e`; app off `beta` @ `16a313a`. **Evidence ceiling fixed up front:** no AT28C part in inventory and `0x0D` stays `UNVERIFIED`, so emission + plan-derivation + read-back-comparison logic are provable here while the causal claim "the lock inhibited the write" is reachable only from a community `dev test` report and does **not** gate the close. Prior footer (v1.23 close) retained below.*
 
 *Last updated: 2026-08-03 — v1.23 (PY32F071 Integration) **MILESTONE COMPLETE + archived.** 8 phases (123–130), 88 plans, 226 tasks, 47/47 v1 requirements (BASE 8 · MERGE 8 · VPP 3 · CFG 7 · HOST 8 · REL 4 · PCB 5 · CLOSE 4), 0 unmapped; close phase 130 verified 4/4. A **fourth board target** now exists beneath the algorithm-first dispatch contract without disturbing it — and the whole milestone is **software-only by physical necessity**, because no PY32F071 PCB exists and nothing in it has ever run on this silicon. Shipped: the portability + py32 firmware stack landed **atomically** (the inherited "HAL prep leads" sequencing was measured a trap — that half alone takes `pio test -e native` from 141 cases / 17 suites passing to 0 passing / 17 ERRORED), the C-1 CMake rename repaired on a tree that merged with *zero textual conflicts* yet failed at CMake configure time, `push: branches: [beta]` added so ARM is built on `beta` at all, and the pin-map guard that was `#define`d `1` two lines above its own `#if !… → #error` made able to fire; the hand-authored VPP **seam only** at 0 B flash / 0 B RAM on all three AVR targets, with AVR-class manual control recorded **permanent**; dual-slot CRC32 flash-persistent config for a part with no EEPROM, behind a per-platform seam whose AVR EEPROM backend is a proven pure move, with Sector 15 reserved and PR #48's non-persisting `config.cpp` deleted; the pure-Python DFU 1.1/DfuSe host installer with `DFU_UPLOAD` readback and a 120 KiB envelope matching the reserved map (suite 1158 → 1293, 0 skipped); the release-asset fold proven on **two real CI dispatches** — one publishing `firestarter_py32f071.hex`, one planting an ARM break and still publishing all three AVR assets, which also empirically validated `outcome` ≠ `conclusion` for a contained step; the flash-path and PCB record written before any schematic, in two lockstep layers held body-for-body by a 41-leg cross-repo gate, top-billing **F-10** (a contiguous 8-bit bus is *physically impossible* on 2 of 7 candidate packages — a part-selection constraint, unrecoverable after layout); and a six-tier honesty ledger that pairs every permitted claim with its explicit non-claim. **Three gates were found lying, in three different ways, and all three are recorded rather than smoothed:** the cross-repo `_FW_ABSENT` proxy failed **OPEN** (renaming one file flipped 5 legs PASS→SKIP at exit 0 with a false "checkout absent" reason); `check_mypy_watermark.py` had been **fail-open** since it shells a bare `mypy` that py3.12 rejects, hiding **69** inherited errors against a watermark of 35; and one leg of the Phase 129 gate was authored **unreachable** (it required `MEMORY` and `{` on one line; the linker script has them on 8 and 9) — *a gate that has never been seen to pass is not yet known to be reachable.* Also recorded: **a phase's own validation procedure can be wrong in a way that would produce false evidence** (Phase 128's prescribed run-B break would have failed before the ARM build and published nothing, proving the opposite of REL-03). Closeout **`override_closeout`**: Phase 126 verified `passed-with-findings` (informational — Criterion 3's literal "empty `git diff`" wording unmet because the phase's own `#if` guard forced one compiler-argv line into the test, no assertion changed) plus the same **14** pre-existing cross-milestone `audit-open` items acknowledged-and-deferred for the **sixth** consecutive close; **none originate in v1.23** (see STATE.md → Deferred Items). Both channels public at the observed cut tag **`3.0.0b15`** — read verbatim from `gh release list`, never predicted — the firmware prerelease carrying **four** `.hex` assets including the **first-ever publication** of `firestarter_py32f071.hex`, and PyPI carrying `firestarter==3.0.0b15` from a clean venv; **no stable release**, `info.version` stays `2.0.7`. Meta tagged `v1.23` on `gsd/v1.23-py32f071-integration`; firmware + app tagged `v1.23` on `beta`; gitlinks bumped to the published b15 commits; **`main` not merged** in any of the three repos, per v1.19–v1.22. Deliberately left OPEN, not fixed here: the 69 mypy errors + the fail-open watermark tool (app `ci` job RED until a gate-hardening phase), FUT-ORACLE's absent ARM bus-trace oracle, D-17's USB-identity ship-gate tension, and `check_ledger.py`'s 2 pre-existing `LEDGER-01` REDs. Next: `/gsd-new-milestone` (v1.30 SDP Surface Retirement & Behavioral Lock Proof is the operator-queued next slot). Prior footer (v1.22 Phase 121 close) retained below.*
 
