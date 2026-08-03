@@ -48,22 +48,47 @@ Count-independent by design — hardens the *mechanism* and deliberately sets no
 land before the deletion's −6. Every later phase's "green suite" is unverified until the mypy gate can
 actually fail.
 
-- [ ] **GATE-01**: The mypy watermark gate fails CLOSED — a mypy run that aborts, truncates, or exits
+- [x] **GATE-01**: The mypy watermark gate fails CLOSED — a mypy run that aborts, truncates, or exits
       with an unexpected returncode produces a non-zero gate exit, never a green.
-- [ ] **GATE-02**: The gate consults `result.returncode` **before** the error-count regex, and requires
+      Evidence: mechanism `firestarter_app/tools/check_mypy_watermark.py` `9465c4c` (131-01);
+      fail-provable proof `f76cf94` (131-02) —
+      `tests/test_check_mypy_watermark.py::test_truncated_run_exits_2` and
+      `::test_end_to_end_terminal_shape_is_legible`; the D-03 RED-preserving revert (131-02 Task 2,
+      uncommitted, net diff empty) observed `test_truncated_run_exits_2` fail with
+      `Failed: DID NOT RAISE SystemExit` before the guard order was restored byte-identically.
+- [x] **GATE-02**: The gate consults `result.returncode` **before** the error-count regex, and requires
       mypy's `(checked N source files)` completion clause to be present.
-- [ ] **GATE-03**: The gate enforces a minimum-checked-files floor (`MIN_CHECKED_SOURCE_FILES = 120`),
+      Evidence: mechanism `9465c4c` (131-01); proof `f76cf94` (131-02) —
+      `tests/test_check_mypy_watermark.py::test_truncated_run_exits_2` (no `checked` clause ⇒ exit 2)
+      and `::test_config_rejection_exits_2` (well-formed clause at returncode 1, still exit 2 on a
+      config diagnostic — proves the ordering is independent of the clause).
+- [x] **GATE-03**: The gate enforces a minimum-checked-files floor (`MIN_CHECKED_SOURCE_FILES = 120`),
       so a run that silently checks a subset fails instead of reporting a low count.
-- [ ] **GATE-04**: The gate invokes mypy as `sys.executable -m mypy`, not a bare `mypy` resolved from
+      Evidence: mechanism `9465c4c` (131-01); proof `f76cf94` (131-02) —
+      `tests/test_check_mypy_watermark.py::test_below_coverage_floor_exits_2` (4 checked < 120 ⇒
+      exit 2, message names both 4 and 120).
+- [x] **GATE-04**: The gate invokes mypy as `sys.executable -m mypy`, not a bare `mypy` resolved from
       `PATH`.
+      Evidence: mechanism `9465c4c` (131-01); proof `f76cf94` (131-02) —
+      `tests/test_check_mypy_watermark.py::test_mypy_argv_is_sys_executable_dash_m`, a whole-list
+      equality assertion against `[sys.executable, "-m", "mypy", "firestarter/", "tests/"]` via
+      `subprocess.run` monkeypatched inside the checker's own module namespace.
 - [x] **GATE-05**: `python_version` states mypy's true effective target (`3.10`), with a comment
       recording that the previous `"3.9"` value was silently discarded and never took effect.
       Evidence: `firestarter_app/pyproject.toml:139-155` (`[tool.mypy] python_version = "3.10"`,
       commit `9465c4c` on `gsd/v1.30-sdp-surface-retirement`) — `python3 -c "import tomllib,
       pathlib; print(tomllib.loads(pathlib.Path('pyproject.toml').read_text())['tool']['mypy']
       ['python_version'])"` prints `3.10`.
-- [ ] **GATE-06**: The gate has a paired pytest suite — its first ever — covering truncated-run ⇒
+- [x] **GATE-06**: The gate has a paired pytest suite — its first ever — covering truncated-run ⇒
       exit 2, config-rejection ⇒ exit 2, over-watermark ⇒ exit 1, and below-coverage-floor ⇒ exit 2.
+      Evidence: `firestarter_app/tests/test_check_mypy_watermark.py`, commit `f76cf94` (131-02) —
+      8 tests: `test_truncated_run_exits_2`, `test_config_rejection_exits_2`,
+      `test_over_watermark_exits_1`, `test_below_coverage_floor_exits_2`,
+      `test_mypy_argv_is_sys_executable_dash_m`, `test_end_to_end_terminal_shape_is_legible`, plus
+      two controls (`test_complete_error_run_returns_count_without_raising`,
+      `test_clean_run_returns_zero_without_raising`) proving the classifier does not raise
+      unconditionally. Registered in `tools/check_no_exists_proxy.py`'s `_DEFAULT_TARGETS` in the
+      same commit (F-06).
 - [ ] **GATE-07**: One real `gh workflow run ci.yml` dispatch is recorded on the fork base, producing
       the current post-fork error count the watermark is later set from.
 - [ ] **GATE-08**: A `sdp_capability` 43 ALLOW / 41 REFUSE / 84 total count gate exists, **derived from
@@ -253,12 +278,12 @@ Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GATE-01 | Phase 131 | Pending |
-| GATE-02 | Phase 131 | Pending |
-| GATE-03 | Phase 131 | Pending |
-| GATE-04 | Phase 131 | Pending |
+| GATE-01 | Phase 131 | Complete |
+| GATE-02 | Phase 131 | Complete |
+| GATE-03 | Phase 131 | Complete |
+| GATE-04 | Phase 131 | Complete |
 | GATE-05 | Phase 131 | Complete |
-| GATE-06 | Phase 131 | Pending |
+| GATE-06 | Phase 131 | Complete |
 | GATE-07 | Phase 131 | Pending |
 | GATE-08 | Phase 131 | Pending |
 | GATE-09 | Phase 131 | Pending |
