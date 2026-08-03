@@ -2189,6 +2189,38 @@ Plans:
 
 - [x] Promoted to the v1.30 milestone — see Phase Details above. (no longer a backlog stub)
 
+### Phase 999.26: Restore type-level enforcement of the advertised Python 3.9 floor (BACKLOG — filed 2026-08-03 by Phase 131 D-13)
+
+**Goal:** After Phase 131 sets `[tool.mypy] python_version = "3.10"` in `firestarter_app/pyproject.toml`,
+nothing type-checks against the `>=3.9` floor the package still advertises in `requires-python` and in
+the `Programming Language :: Python :: 3.9` classifier. `[tool.ruff] target-version = "py39"` carries
+the syntax/idiom half of that floor but cannot catch a py3.10-or-later **stdlib API** used on 3.9. The
+gap is **not new** — it has existed since 2026-05-27, because `python_version = "3.9"` was silently
+discarded by mypy 2.0+ and never once took effect, in CI or locally. Two candidate closures: a py3.9 CI
+matrix leg, or dropping 3.9 support outright — the latter is a published-metadata breaking change on a
+live PyPI package and is therefore an operator decision, not an implementer's.
+**Requirements:** FUT-MYPY-01 (`.planning/REQUIREMENTS.md`) is this backlog item's requirement-side twin.
+**Plans:** 0 plans
+**Origin:** Filed by Phase 131 (Gate Hardening & CI Parity) plan 131-01, decision D-13, 2026-08-03 —
+superseding REQUIREMENTS.md's Out-of-Scope row "Filing the py3.9-drop backlog item", which had
+deliberately left this unfiled.
+
+### Phase 999.27: mypy minimum-target treadmill — Python 3.10 EOLs 2026-10-31 (BACKLOG — filed 2026-08-03 by Phase 131 D-13)
+
+**Goal:** mypy 2.0 dropped Python 3.9 as a *target* and clamps `[tool.mypy] python_version` to its
+minimum supported target (3.10 today) rather than to the running interpreter — the exact mechanism
+behind backlog 999.26. Python **3.10 EOLs 2026-10-31**, roughly three months after this item was filed.
+A future mypy release that raises its minimum supported target to 3.11 or later will re-fire this
+identical failure: a `python_version` value silently rejected and discarded. Phase 131's GATE-01
+returncode-before-regex reordering is what makes that re-fire arrive as a **red gate**, not a silent
+green — that reordering is this phase's durable value. When it fires: raise `python_version` in
+`pyproject.toml`, re-verify both of `tools/check_mypy_watermark.py`'s summary-line regexes
+(`_FOUND_RE`, `_CLEAN_RE`) against the new mypy output format, and re-measure the error count before
+touching the watermark.
+**Requirements:** none (process/maintenance item)
+**Plans:** 0 plans
+**Origin:** Filed by Phase 131 (Gate Hardening & CI Parity) plan 131-01, decision D-13, 2026-08-03.
+
 ---
 
 ### v1.14 — Feasible-Gap Implementation (✅ PROMOTED 2026-06-18 → active milestone, Phases 77–80)

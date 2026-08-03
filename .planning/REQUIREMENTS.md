@@ -218,6 +218,7 @@ Deferred, tracked, not in this roadmap.
   matrix leg or dropping 3.9 (EOL 2025-10-31). After GATE-05 nothing type-checks against the floor the
   package still advertises in `requires-python` and a classifier; ruff's `target-version = "py39"`
   carries the syntax/idiom half but cannot catch a py3.10+ *stdlib API* used on 3.9.
+  Backlog twin: `.planning/ROADMAP.md` Phase 999.26.
 - **FUT-MYPY-02**: The `eprom_operations.py` D-07 ring-fence resolved deliberately — 10 `[union-attr]`
   errors, one root cause (an `Optional` connection attribute never narrowed), one fix. Tied to the
   still-open read-bug RCA.
@@ -237,7 +238,7 @@ Deferred, tracked, not in this roadmap.
 | A nonce or timestamp for the inhibited-write pattern | Non-reproducible community reports, and it breaks the `dedup_fingerprint` hash. LEG-03's deterministic complement gives full-byte sensitivity without either cost. |
 | New runtime dependencies | The 6-package runtime closure stays untouched — this ships to PyPI. |
 | Restoring the softened Phase-129 assert | **Operator decision, 2026-08-03 — deliberately not taken here.** `test_present_root_with_missing_target_raises_not_skips` was hardened by Phase 129, then softened to a skip outside any plan during the b15 hand-off, and that commit is v1.30's fork base. Left as-is, the defect-class downgrade becomes permanent by default. Recorded so it is a decision, not a discovery. |
-| Filing the py3.9-drop backlog item | **Operator decision, 2026-08-03 — deliberately not filed.** Tracked here as FUT-MYPY-01 only; with no backlog stub it will present again rather than being scheduled. |
+| Filing the py3.9-drop backlog item | **Operator decision, 2026-08-03 — deliberately not filed.** Tracked here as FUT-MYPY-01 only; with no backlog stub it will present again rather than being scheduled. **[⚠ SUPERSEDED 2026-08-03, Phase 131 plan 131-01 (131-CONTEXT.md D-13): D-13, written later the same day in the same discussion session, read this row's own stated cost and elected to pay it. Backlog stubs filed as ROADMAP.md Phase 999.26 (the py3.9 type-checking floor) and Phase 999.27 (the mypy minimum-target treadmill, Python 3.10 EOLs 2026-10-31). FUT-MYPY-01 remains the requirement-side record; 999.26 cross-links it.]** |
 | Raising the mypy watermark to 69 | Would ratify the accreted debt as the new floor. The measured path reaches 33 ≤ 35, so the existing watermark holds. |
 
 ---
