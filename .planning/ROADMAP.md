@@ -412,7 +412,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 132-03-PLAN.md — Same-commit file move + gate target list, retarget the four honesty assertions, counted prune (RETIRE-02/03, D-03/D-04)
+- [x] 132-03-PLAN.md — Same-commit file move + gate target list, retarget the four honesty assertions, counted prune (RETIRE-02/03, D-03/D-04)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 

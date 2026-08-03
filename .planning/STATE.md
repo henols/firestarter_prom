@@ -5,16 +5,16 @@ milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 132
 current_phase_name: Retire `dev sdp` & Discharge the mypy Debt
 status: executing
-stopped_at: Phase 132 executing -- plan 132-02 complete, wave 2 of 9 done
-last_updated: "2026-08-03T18:23:11.095Z"
+stopped_at: Phase 132 executing -- plan 132-03 complete, wave 3 of 9 done
+last_updated: "2026-08-03T18:52:59.016Z"
 last_activity: 2026-08-03
-last_activity_desc: Phase 132 plan 02 complete (sdp_honesty carrier + one-time equivalence proof) -- 132-03 next, wave 3 of 9
+last_activity_desc: Phase 132 plan 03 complete (test_dev_sdp_cmd.py moved + retargeted onto sdp_honesty.py, RETIRE-02/RETIRE-03 complete) -- 132-04 next, wave 4 of 9
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 16
-  completed_plans: 9
-  percent: 14
+  completed_plans: 10
+  percent: 63
 ---
 
 # Project State
@@ -38,8 +38,8 @@ unscoped; v1.29 stays deliberately vacant.
 ## Current Position
 
 Phase: 132 — Retire `dev sdp` & Discharge the mypy Debt — **EXECUTING**
-Plan: 9 plans (`132-01`…`132-09`), waves 1-9 **strictly sequential** — 132-01 and 132-02 complete,
-wave 3 of 9 (132-03) next
+Plan: 9 plans (`132-01`…`132-09`), waves 1-9 **strictly sequential** — 132-01, 132-02 and 132-03
+complete, wave 4 of 9 (132-04) next
 Status: Phase 131 CLOSED and verified (10/10 GATE requirements). Phase 132 is PLANNED and under
 execution; `/gsd-execute-phase 132` is running. Research was SKIPPED per ROADMAP's own
 `Research flag: SKIP`; **Nyquist Dimension 8 was operator-acknowledged as unavailable for 132's
@@ -1175,6 +1175,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 132-01]: git-status-clean checks interpreted as delta-vs-pre-existing-dirt, not literal absolute emptiness; leg 4 (mypy watermark gate) runs mypy exactly once, reusing check_mypy_watermark.py's pure functions rather than re-invoking mypy for the raw summary line
 - [Phase 132]: Removed the now-unused firestarter.messages.MSG_ERR_UNKNOWN_CMD import in plan 132-02's Task 2 commit (not deferred to plan 132-04), because ruff F401 flagged it as soon as the D-14 arm moved into sdp_honesty.py -- the plan itself pre-authorized this contingency. — Plan 132-04's own acceptance criteria should account for this import already being gone.
 - [Phase 132]: Reworded one word in dev_sdp's docstring (dropped 'resulting') to remove a pre-existing accidental duplicate of the caveat's exact substring, unrelated to plan 132-02's own edits, so the plan's no-duplication acceptance criterion could be satisfied without touching prose the plan's action text didn't authorize. — Meaning unchanged, prose-only; no behavior or test impact.
+- [Phase 132]: 132-03: rewrote all ten CLI-driving tests in task 2's commit (not task 3's) because the CliRunner==0 acceptance criterion required it; task 3 correctly reduced to pruning make_app_context/_off_tty/_on_tty/chip constants.
+- [Phase 132]: 132-03: purity test's module-path constant moved from module scope into a local variable so it would not double-count against the 'exactly 1 surviving module constant' acceptance criterion.
 
 ## Performance Metrics
 
@@ -1355,7 +1357,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-03T18:23:11.065Z
+**Last session:** 2026-08-03T18:52:58.970Z
 **Stopped at:** Phase 132 executing -- plan 132-02 complete, wave 2 of 9 done
 **Resume file:** 
 None
