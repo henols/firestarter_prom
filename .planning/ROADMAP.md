@@ -396,7 +396,22 @@ it can be trusted). Must complete before Phase 133/134 author any new test modul
      this decision to be revisited with it; and the three stale in-tree `301`/`377` `COMMAND_NAMES`
      comment references are corrected to `329`/`405`.
 
-**Plans**: TBD
+**Plans**: 9 plans, strictly sequential (waves 1–9). The serialism is not laziness: P-13's ordering is
+non-negotiable, and three files are each touched by three different concerns
+(`cli_handlers.py`, `constants.py`, `tests/test_write_skip_sdp_unlock.py`), so same-wave parallelism would
+collide on file ownership.
+
+Plans:
+- [ ] 132-01-PLAN.md — Pre-change CI-parity baseline + the committed numpy-free CI-replica venv script (D-06/D-07)
+- [ ] 132-02-PLAN.md — `firestarter/sdp_honesty.py` + rewire the live subcommand through it (the one-time equivalence proof) + strict-island registration (D-01/D-02)
+- [ ] 132-03-PLAN.md — Same-commit file move + gate target list, retarget the four honesty assertions, counted prune (RETIRE-02/03, D-03/D-04)
+- [ ] 132-04-PLAN.md — Delete the subcommand and its four gates, one orphaned import, node-scoped snapshot update (RETIRE-01, D-13)
+- [ ] 132-05-PLAN.md — Typed `AppContext` factory + fixture in `conftest.py`, migrate the four surviving copies (RETIRE-05, D-10)
+- [ ] 132-06-PLAN.md — The six missing collection annotations, then measure the post-fix count (D-09)
+- [ ] 132-07-PLAN.md — The three-site auto-unlock tripwire + the test named for the dependency (RETIRE-07, D-14)
+- [ ] 132-08-PLAN.md — The command-name dereference test, all five stale reference corrections, RETIRE-08's own text (RETIRE-04/08, D-11/D-12)
+- [ ] 132-09-PLAN.md — After-half parity run, operator push + dispatch, read the evidence, phase record (RETIRE-06, D-08) — **`autonomous: false`**
+
 **Research flag**: SKIP — three researchers independently mapped every trace; the only judgement call
 (clean removal vs. a transitional stub) is already argued and decided in favor of clean removal.
 **Cross-cutting**: Run the CI-parity recipe before and after the deletion+discharge to prove the
