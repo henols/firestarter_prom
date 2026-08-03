@@ -5,15 +5,15 @@ milestone_name: — SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 131
 current_phase_name: Gate Hardening & CI Parity
 status: executing
-stopped_at: Completed 131-04-PLAN.md (GATE-10)
-last_updated: "2026-08-03T13:45:30.661Z"
+stopped_at: Completed 131-05-PLAN.md (GATE-07 baseline recorded, F-07 filed)
+last_updated: "2026-08-03T14:31:54.736Z"
 last_activity: 2026-08-03
 last_activity_desc: Phase 131 execution started. Phase 133/134 is a deliberate split of the research
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 7
-  completed_plans: 5
+  completed_plans: 6
   percent: 0
 ---
 
@@ -37,7 +37,7 @@ deliberately vacant.
 ## Current Position
 
 Phase: 131 (Gate Hardening & CI Parity) — EXECUTING
-Plan: 6 of 7 — 7 plans in 4 waves, `131-01`…`131-07`, committed `a405dc2f` + `cda12c1a`
+Plan: 7 of 7 — 7 plans in 4 waves, `131-01`…`131-07`, committed `a405dc2f` + `cda12c1a`
 Status: plan-checker returned **VERIFICATION PASSED** (0 blockers; 1 non-blocking warning, folded into
 `131-07` step (f) and committed). Requirements 10/10 (GATE-01…GATE-10, each ticked by exactly one
 owning plan); CONTEXT decisions 18/18. Research was **SKIPPED** per the ROADMAP's `Research flag: SKIP`
@@ -1116,6 +1116,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: GATE-10: correction F-04 measured live -- naive whole-node ast.walk over dev_test's FunctionDef leaks _complete_eprom (its shell_complete= decorator argument) into the derived set; body-only walk of dev_test.body excludes it. RED (7 names) was seen and read before the body-only fix made it GREEN (6 names).
 - [Phase ?]: GATE-09: firestarter_app/tools/ci_parity.sh authored as a four-leg, no-set-e, location-anchored recipe (D-07/D-08); board-attached stamped as evidence metadata from a plain /dev glob, never a fifth leg (D-09); check_no_exists_proxy.py run once as a recorded confirmation, deliberately never a recipe leg (D-10)
 - [Phase ?]: 131-CI-PARITY.md records one no-board run: legs 1-3 exit 0, leg 4 exits 2 in this devcontainer (ambient numpy PEP-695 stub truncates mypy); this is the hardened gate working, expected to exit 1 in CI instead; firestarter_app's primary ci job stays RED until Phase 132
+- [Phase ?]: Amended the plan's own unreachable acceptance criterion (Found N errors in M files (checked K source files)) rather than fabricating a matching line; filed as correction F-07 in the phase's F-NN series
+- [Phase ?]: F-07 added to 131-01-PLAN.md's corrections table so 131-07 and Phase 137's ledger pick it up alongside F-01..F-06
+- [Phase ?]: Measured CI mypy error count (69) agrees exactly with research's 69 -- no divergence to record
 
 ## Performance Metrics
 
@@ -1289,11 +1292,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 131 P03 | 30min | 2 tasks | 1 files |
 | Phase 131 P04 | 35min | 2 tasks | 1 files |
 | Phase 131 P06 | 50min | 2 tasks | 3 files |
+| Phase 131 P05 | 5m | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-03T13:45:30.636Z
-**Stopped at:** Completed 131-04-PLAN.md (GATE-10)
+**Last session:** 2026-08-03T14:31:54.710Z
+**Stopped at:** Completed 131-05-PLAN.md (GATE-07 baseline recorded, F-07 filed)
 **Resume file:** 
 None
 

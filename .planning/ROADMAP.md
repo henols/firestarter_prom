@@ -212,17 +212,48 @@ Every later research-spine phase number shifts by one as a result: relock → **
 - **133 depends on 132; 134 depends on 133 (serial).** The leg proper is built directly on 133's cleanup
   registry, widened exception set, and `_SDP_OPS` dispatch arm.
 
-- **135 depends on 132 only, and is genuinely parallelisable with 133+134** on disjoint file regions —
-  133/134 write `chip_test.py` and `diagnostic_report.py`, plus `cli_handlers.py` only at
+- **135 depends on 132 only, and is *in principle* parallelisable with 133+134** on disjoint file
+  regions — 133/134 write `chip_test.py` and `diagnostic_report.py`, plus `cli_handlers.py` only at
   `_ALWAYS_WRITES_NOTICE`/`dev_test`'s body; 135 writes `cli_handlers.py` only in the `write` handler,
   ~1,400 lines away, no overlap; none of the three touch `eprom_operations.py`, `constants.py`,
-  `sdp_capability.py`, or `channel.py`. **If the executor model enforces one-writer-per-file per wave,
-  serialise 135 after 134 instead** — it is the smaller diff and reordering costs little.
+  `sdp_capability.py`, or `channel.py`.
+
+  **RESOLVED 2026-08-03 — execution is SERIAL: 133 → 134 → 135 → 136.** This resolves the conditional
+  this bullet previously left open ("if the executor model enforces one-writer-per-file per wave,
+  serialise 135 after 134 instead"). It does, and two further constraints make the point moot:
+
+  1. **Same file, one index.** The regions are disjoint but the *file* is not:
+     `firestarter/cli_handlers.py` is 2321 lines, with `write` at :570 and
+     `_ALWAYS_WRITES_NOTICE`/`dev_test` at :2045/:2059 (measured). Two executors writing it
+     concurrently share one git index, and `gsd-tools commit` stages **all** — each commit would
+     sweep the other's half-finished edits.
+
+  2. **Worktree isolation is unavailable for this whole milestone.** All code work lands in the
+     `firestarter_app` **submodule**, and the executor commit protocol cannot commit into a submodule
+     from an isolated worktree — exactly why Phase 131 disabled worktrees for all 7 of its plans. No
+     worktree ⇒ no second checkout ⇒ no safe concurrent writer.
+
+  3. **Workstreams (`--ws`) do not substitute.** They isolate `.planning/` state
+     (STATE/ROADMAP/REQUIREMENTS/phases per workstream); they do not fork the working tree or the
+     branch. Two workstreams still write one `firestarter_app` checkout.
+
+  The existing numeric order **already is** the correct serial order — 135 lands after 134, and 136
+  after both — so no phase renumbering or reordering is required.
+
+- **Where the wall-clock is actually recoverable: research, not execution.** The three
+  `--research-phase` passes (133, 134, 136) are read-only over the codebase and write only their own
+  `.planning/phases/<n>/<n>-RESEARCH.md` — genuinely disjoint, safely concurrent, and runnable during
+  Phase 131's operator-dispatch block, which is otherwise dead time. 133 and 134 share one open
+  question (the `_dispatch_sdp` shape), so a single pass can answer both. **Planning is *not* in this
+  set:** 132 establishes the typed `AppContext` fixture that 133–136's new test modules must use, so
+  plans authored before 132 lands would be written against a guessed fixture shape. Research early,
+  plan after 132.
 
 - **136 depends on 132** (one fewer command to classify, the host/firmware contradiction it would
-  otherwise have to arbitrate is gone) **and is best sequenced after 134 and 135** so `dev --help` gets
-  pinned against `dev test`'s and `write`'s *final* shapes — weakly parallelisable otherwise, since
-  channel classification keys on command *names*, not bodies.
+  otherwise have to arbitrate is gone) **and is sequenced after 134 and 135** so `dev --help` gets
+  pinned against `dev test`'s and `write`'s *final* shapes. The "weakly parallelisable otherwise"
+  note (classification keys on command *names*, not bodies) is superseded by the serial resolution
+  above; it survives only as the reason 136 is cheap to re-plan if 134/135 shift.
 
 - **137 last and serial.** It authors and hosts the milestone's own claim gate over its own four closing
   artifacts, and the gh#12 follow-up describes a substitution that must already be true, not a plan.
@@ -312,7 +343,7 @@ dispatch). Each plan names exhaustively, in its body, which GATE IDs it alone ma
 - [x] 131-02-PLAN.md — The gate's first paired pytest suite (six legs) plus the D-03 RED-preserving proof
 - [x] 131-03-PLAN.md — The 43/41/84 `sdp_capability` narrowing gate, committed ALLOW snapshot and non-vacuity proof
 - [x] 131-04-PLAN.md — AST-derived `dev_test` helper-subset gate over `_HANDLER_FUNCTION_NAMES`
-- [ ] 131-05-PLAN.md — `131-HANDOFF.md`, the operator-run `ci.yml` dispatch, and `131-CI-BASELINE.md`
+- [x] 131-05-PLAN.md — `131-HANDOFF.md`, the operator-run `ci.yml` dispatch, and `131-CI-BASELINE.md`
 - [x] 131-06-PLAN.md — `tools/ci_parity.sh` and one recorded no-board run, plus the D-10 confirmation
 - [ ] 131-07-PLAN.md — `131-RECORD.md`, the ten-tick verification, and the phase-wide prohibition scan
 
@@ -420,9 +451,10 @@ belong to Phase 134.
 inhibited a write — never a leg that reports success just because a write returned without error — and
 a run that ends early still leaves a visible, honest trace of whether the part was left locked.
 **Depends on**: Phase 133 (the cleanup registry, widened exception handling, and `_SDP_OPS` dispatch arm
-the four ops are built on). Can run in parallel with Phase 135 on disjoint file regions (see the
-milestone-level dependency spine above); serialize after 135 only if the executor model requires
-one-writer-per-file.
+the four ops are built on). **Runs SERIALLY before Phase 135** — the executor model does enforce
+one-writer-per-file, and both phases write `cli_handlers.py`; worktree isolation, which would have
+allowed otherwise, is unavailable inside the `firestarter_app` submodule. See the milestone-level
+dependency spine above for the full resolution.
 **Requirements**: LEG-01, LEG-02, LEG-03, LEG-04, LEG-05, LEG-06, LEG-07, LEG-08, LEG-12, LEG-13, LEG-14, LEG-16, LEG-17, LEG-18
 **Success Criteria** (what must be TRUE):
 
@@ -468,8 +500,9 @@ exactly which of the 14 requirements above each plan may mark Complete.
 do it, it never locks a part whose contents were never verified, and a skipped relock is impossible to
 miss.
 **Depends on**: Phase 132 (inherits its repurposed gate-ordering tests and the relocated D-14/D-10
-material). Parallelisable with Phase 133/134 on disjoint file regions; serialize after Phase 134 if the
-executor model requires one-writer-per-file (this is the smaller diff, and reordering costs little).
+material). **Serialised after Phase 134** — same-file (`cli_handlers.py`) writer conflict with 133/134,
+unresolvable without worktree isolation, which the `firestarter_app` submodule forecloses. This is the
+smaller diff, so it is the one that yields; see the dependency spine above.
 **Requirements**: RELOCK-01, RELOCK-02, RELOCK-03, RELOCK-04, RELOCK-05, RELOCK-06, RELOCK-07
 **Success Criteria** (what must be TRUE):
 
@@ -504,9 +537,10 @@ RELOCK-07 each plan may mark Complete.
 beta-only subcommand is not merely undocumented but genuinely uninvokable on stable, and the gate cannot
 be fooled by anything the firmware reports.
 **Depends on**: Phase 132 (one fewer command to classify; the host/firmware contradiction 999.15 would
-otherwise have had to arbitrate is gone). Best sequenced after Phase 134 and Phase 135 so `dev --help`
-is pinned against `dev test`'s and `write`'s final shapes; weakly parallelisable otherwise since
-classification keys on command names, not bodies.
+otherwise have had to arbitrate is gone). **Sequenced after Phase 134 and Phase 135** so `dev --help`
+is pinned against `dev test`'s and `write`'s final shapes. The former "weakly parallelisable" note —
+that classification keys on command names, not bodies — now survives only as the reason this phase is
+cheap to re-plan if 134/135 shift, not as a licence to run it concurrently.
 **Requirements**: CHAN-01, CHAN-02, CHAN-03, CHAN-04, CHAN-05, CHAN-06, CHAN-07
 **Success Criteria** (what must be TRUE):
 
