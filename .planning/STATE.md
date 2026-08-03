@@ -4,11 +4,11 @@ milestone: v1.23
 milestone_name: — PY32F071 Integration
 current_phase: 130
 current_phase_name: Close — Honesty Ledger, Claim Gate, Release Decision
-status: complete
-stopped_at: Phase 130 complete — v1.23 published at 3.0.0b15; ready for /gsd-complete-milestone
-last_updated: "2026-08-02T22:26:09.869Z"
-last_activity: 2026-08-02
-last_activity_desc: Phase 130 complete — v1.23 published at 3.0.0b15 on both channels
+status: milestone_complete
+stopped_at: v1.23 archived and tagged in all three repos; awaiting /gsd-new-milestone
+last_updated: "2026-08-03T06:07:40.071Z"
+last_activity: 2026-08-03
+last_activity_desc: v1.23 milestone completed, archived and tagged (override_closeout)
 progress:
   total_phases: 8
   completed_phases: 8
@@ -20,28 +20,68 @@ progress:
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-08-02
+**Updated:** 2026-08-03
+
+## Project Reference
+
+See: `.planning/PROJECT.md` (updated 2026-08-03 after the v1.23 milestone close)
+
+**Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
+authoritative dispatch key end to end. v1.23 added a fourth board target *beneath* that contract
+without disturbing it.
+**Current focus:** Planning the next milestone. `v1.30 SDP Surface Retirement & Behavioral Lock
+Proof` is the operator-queued next slot (2026-07-31); v1.24–v1.27 remain queued and unscoped.
 
 ## Current Position
 
-Phase: 130 (Close — Honesty Ledger, Claim Gate, Release Decision) — COMPLETE
-Plans: 16 (130-01…130-16) in 9 waves — **16/16 complete**
-Status: **CLOSED.** The operator performed `130-HANDOFF.md` §2 steps 1–7 (the D-02 blocking wording
-review, the `--no-ff` merges and pushes in both sub-repos, the manual `publish.yml` dispatch, and
-posting both release bodies); plan 130-15 independently re-verified both channels public at the
-observed cut tag `3.0.0b15` (`130-CHANNELS.md`); plan 130-16 re-executed every gate in this session
-(`130-NONREGRESSION.md`), asserted and bumped the meta gitlinks against the milestone-branch tips
-(`firestarter` `5a89ee7 → 05c20bf`; `firestarter_app` unchanged), and ticked CLOSE-01…CLOSE-04.
-Both record gates are **green**: `check_permitted_claims.py` exit 0 scanning all four contracted
-artifacts, and `check_record_corrections.py` exit 0 across all five planning files, 0 unlabeled of
-60 needle records.
-**Outward-facing work is done.** Both channels are public at `3.0.0b15`: the firmware GitHub
-prerelease carries four `.hex` assets including `firestarter_py32f071.hex` (first-ever publication
-of that asset); PyPI carries `firestarter==3.0.0b15`; no stable release exists (`info.version`
-still `2.0.7`). The `v1.23` annotated tag and any merge toward `main` stay with
-`/gsd-complete-milestone`, per D-04.
-Next: `/gsd-complete-milestone` for the v1.23 tag, the merge toward `main`, and milestone archival.
-Last activity: 2026-08-02 — Phase 130 wave 9 (130-16) executed; phase closed, verifier PASSED 4/4
+Phase: **v1.23 MILESTONE COMPLETE + ARCHIVED** (Phase 130 was the close phase)
+Plan: —
+Status: Awaiting `/gsd-new-milestone`
+Last activity: 2026-08-03 — v1.23 archived, `override_closeout`; `v1.23` tagged in all three repos
+
+**What the close did.** Roadmap and requirements archived to
+`.planning/milestones/v1.23-{ROADMAP,REQUIREMENTS}.md`; `.planning/REQUIREMENTS.md` removed via
+`git rm` (fresh one comes with the next milestone); the v1.23 detail section removed from
+`ROADMAP.md` (the ✅ Milestones-list entry and the Backlog sections are preserved); `MILESTONES.md`
+§v1.23 written; `PROJECT.md` evolved (v1.23 archive section, 12 new Key Decisions rows, Context
+gained the fourth board target, Constraints gained the py32 buffer/no-EEPROM/manual-VPP/no-ARM-oracle
+facts); `RETROSPECTIVE.md` appended. Meta tagged `v1.23` on `gsd/v1.23-py32f071-integration`;
+firmware and app tagged `v1.23` on `beta`; meta gitlinks bumped to the published `3.0.0b15`
+commits. **`main` was not merged in any of the three repos**, consistent with v1.19–v1.22.
+
+## Deferred Items
+
+Items acknowledged and deferred at the v1.23 milestone close on **2026-08-03**. Closeout type:
+`override_closeout`. **Known verification overrides: 15.** None of the 14 `audit-open` items
+originate in v1.23 (Phases 123–130) — they are the identical carry-forward set re-confirmed at the
+v1.18, v1.19, v1.20, v1.21 and v1.22 closes, making this the **sixth** consecutive acknowledgement.
+
+| Category | Item | Status |
+|----------|------|--------|
+| verification | Phase 126 — `126-VERIFICATION.md` | passed-with-findings (informational F-126-01; 5/5 criteria substantively achieved, 7/7 requirements) |
+| debug | firmware-vpp-misread | diagnosed |
+| debug | fm1608-fresh-chip-baseline | parked-2026-05-18 |
+| uat_gap | Phase 08 — `08-HUMAN-UAT.md` | partial (0 pending scenarios) |
+| uat_gap | Phase 85 — `85-HUMAN-UAT.md` | partial (2 pending scenarios) |
+| verification | Phase 08 — `08-VERIFICATION.md` | human_needed |
+| verification | Phase 09 — `09-VERIFICATION.md` | human_needed |
+| verification | Phase 71 — `71-VERIFICATION.md` | gaps_found |
+| verification | Phase 84 — `84-VERIFICATION.md` | human_needed |
+| verification | Phase 85 — `85-VERIFICATION.md` | human_needed |
+| todos | 13 pending (`2026-06-24-skip-vpp-error-and-warning-checks-when-vpp-unused-on-reads`, `avrdude-mcu-detection-fallback`, `cobs-decoder-framelevel-deadline-wr01`, `decode-infoic-flags-bits-14-15-protect-metadata`, `delete-jp5-dead-renderer`, + 8 more) | pending |
+
+**⚠ The recurring 14 are now a standing carry-forward, not an incident.** Flagged as "worth one
+deliberate resolution pass" at the v1.22 close; that recommendation stands and has aged one more
+milestone. They should be **scheduled** rather than acknowledged a seventh time.
+
+**⚠ Deliberately left OPEN by v1.23, and not part of the 15 above** — these are named debt with a
+stated owner, not unacknowledged gaps: the **69 inherited mypy errors** plus the fail-open
+`tools/check_mypy_watermark.py` that hid them (so `firestarter_app`'s primary `ci` job is RED until
+a dedicated gate-hardening phase; v1.23's own net contribution measured **zero**, 69 → 72 → 69);
+**FUT-ORACLE**, the absent ARM bus-trace oracle (the ARM target could diverge from the AVR golden
+register sequences with nothing able to notice); **D-17**, the USB-identity ship-gate tension,
+carried as an owned tension rather than a resolution; and `check_ledger.py`'s **2 pre-existing
+`LEDGER-01` REDs** from v1.19 Phase 104's rename.
 
 ### Phase 130 planning outcome (2026-08-02)
 
@@ -617,13 +657,49 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Operator Next Steps
 
-- **v1.23 PY32F071 Integration is ACTIVE** (started 2026-07-30, branch `gsd/v1.23-py32f071-integration`). Next: define requirements, then `/gsd-plan-phase 123`.
-- **The release-asset blocker is half-resolved, and the remaining half is designed.** `feature/py32f071-release-assets` @ `ad47c3b` already fixes the *name* (`firestarter_py32f071.hex` — correct prefix and separator), but the image is still an Actions **artifact**. Publishing it as a release asset means folding the ARM build into `beta-build.yml` *after* the version bump: 3 steps plus one `files:` glob, spelled out in `platform/py32f071/README.md` §"Release integration".
-- **⚠ Two ROADMAP corrections owed as part of this milestone:** the stale v1.28 prior-art paragraph (pending todo `correct-v128-py32-roadmap-prior-art`, all five corrections — it warns that `/gsd-new-milestone` reads that entry to seed scope), and the slot renumber (retire v1.28/v1.29 into v1.23; `Binary Command Protocol` v1.23 → v1.28; leave v1.24–v1.27 alone).
-- **⚠ GSD footgun hit on 2026-07-30 — watch for it.** `gsd-tools query commit` silently switched the checkout off `gsd/v1.22-…` onto the divergent `gsd/v1.21-community-chip-validation-command` and committed there, because `init.new-milestone` reported `current_milestone: "v1.21"` while STATE.md frontmatter said `v1.22`, and `branching_strategy: milestone` acted on the stale value. Side effect: HEAD's gitlinks reverted to the **b11** commits, silently undoing the v1.22 b14 bump. Recovered (housekeeping re-landed as `8be00ee` on the right branch, v1.21 branch reset, gitlinks re-verified at `5c9160a`/`e7d3ee8`). **Check `git rev-parse --abbrev-ref HEAD` after every `gsd-tools query commit`.**
-- **Carry into the next merge toward `main`:** reintroduce `firestarter_app`'s `81fa53c` (see the v1.22 Deferred Items table) or `ci.yml`'s standalone-checkout failure resurfaces.
-- **Worth one deliberate pass:** the same 14 `audit-open` items have now been acknowledged at five consecutive closes. Also `check_ledger.py`'s 2 pre-existing `LEDGER-01` REDs — a small, self-contained backlog seed.
-- **Watch for:** a community re-test on [gh#11](https://github.com/henols/firestarter_prom/issues/11) / [gh#12](https://github.com/henols/firestarter_prom/issues/12) — both left OPEN. Real AT28C silicon is the only thing that can move `0x0D` off `UNVERIFIED`.
+- **v1.23 is CLOSED, archived and tagged.** Next: `/clear` then `/gsd-new-milestone`. The
+  operator-queued next slot is **v1.30 SDP Surface Retirement & Behavioral Lock Proof** (decision
+  2026-07-31); v1.24 Bus-Config Mask-Model, v1.25 Jumper-Display/2516, v1.26 White-Box Voltage
+  Calibration and v1.27 Per-Protocol EPROM Algorithms remain queued and unscoped.
+- **⚠ GSD footgun, hit AGAIN at this close — and it is the same unanchored-regex class as 2026-07-30.**
+  `gsd-tools query milestone.complete` corrupted STATE.md's frontmatter: it wrote
+  `milestone_name: — PY32F071 Integration\` section below.` (prose scraped out of `ROADMAP.md`),
+  reset `current_phase` from `130` to `23`, appended a **duplicate** `current_phase_name` key after
+  the `progress` block, and replaced the whole *Current Position* and *Operator Next Steps* bodies
+  with one-liners. All repaired by hand during the close. The same regex class previously created the
+  stray branch `gsd/v1.23-py32f071-integration-section-below` and, at the v1.22 close, silently
+  switched the checkout to a divergent branch and reverted the gitlinks. **Always `git diff` STATE.md
+  after any `gsd-tools` state write, and `git rev-parse --abbrev-ref HEAD` after any
+  `gsd-tools query commit`.**
+- **⚠ Carry into the next merge toward `main`** (still owed, unchanged since v1.22): reintroduce
+  `firestarter_app`'s `81fa53c`, or `ci.yml`'s standalone-checkout failure resurfaces. Note that
+  **`main` has still never been merged** in any of the three repos, so this remains latent.
+- **⚠ Before any push to a sub-repo `beta`, point the sibling checkout root at an empty directory
+  first.** This devcontainer *has* the sibling layout standalone CI lacks, which is exactly why three
+  CI-only sibling-checkout test defects fired simultaneously on the real b15 push and were invisible
+  locally. Two out-of-plan fixes (`firestarter` `1c511e8`, `firestarter_app` `5934a54`) landed on
+  `beta` during the hand-off, and one of them **softened a Phase-129-authored hard assert**
+  (`test_present_root_with_missing_target_raises_not_skips`) to a skip — a defect-class change worth
+  revisiting, not a routine fix.
+- **Schedule, don't re-acknowledge:** the same 14 `audit-open` items have now been acknowledged at
+  **six** consecutive closes (see *Deferred Items* above). Also still RED and self-contained:
+  `check_ledger.py`'s 2 `LEDGER-01` violations from v1.19 Phase 104's rename.
+- **A gate-hardening phase is the clearest single piece of debt.** `check_mypy_watermark.py` is
+  fail-open and hid 69 errors; `firestarter_app`'s primary `ci` job is RED because of them. The
+  fail-OPEN `_FW_ABSENT` idiom was fixed for the host suite in Phase 123 but **six modules shared it**
+  — worth confirming none survive.
+- **Watch the community inbox — it is NOT clear, and the v1.23 close explicitly says so.**
+  [gh#20](https://github.com/henols/firestarter_prom/issues/20) (AT28C256 `dev test` FAIL, reported
+  2026-07-30) and [gh#18](https://github.com/henols/firestarter_prom/issues/18) (FM1608 `dev test`
+  PASS) both arrived *after* the 2026-07-27 backlog import that stopped at gh#17 and were out of
+  scope for v1.23. [gh#11](https://github.com/henols/firestarter_prom/issues/11) /
+  [gh#12](https://github.com/henols/firestarter_prom/issues/12) also stay OPEN — real AT28C silicon
+  is still the only thing that can move `0x0D` off `UNVERIFIED`.
+- **Optional housekeeping, deliberately not done as a close side effect:** the two v1.23 worktrees
+  (`firestarter_py32_ci/` @ `ad47c3b`, `firestarter_app_py32/` @ `4ee64a1`) are spent — both source
+  branches' content is merged and published — and can be removed with `git worktree remove`. The
+  stray branch `gsd/v1.23-py32f071-integration-section-below` is a tooling artifact and can be
+  deleted.
 
 ## Decisions
 
