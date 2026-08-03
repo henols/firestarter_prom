@@ -147,4 +147,13 @@ None — no external service configuration required. The one privileged action (
 ---
 *Phase: 131-gate-hardening-ci-parity*
 *Completed: 2026-08-03*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/131-gate-hardening-ci-parity/131-CI-BASELINE.md`
+- FOUND: `.planning/phases/131-gate-hardening-ci-parity/131-05-SUMMARY.md`
+- FOUND: `.planning/phases/131-gate-hardening-ci-parity/131-HANDOFF.md`
+- FOUND commit `c89cb800` (Task 1)
+- FOUND commit `b26d370f` (Task 3)
+- FOUND commit `cf6d904` (SUMMARY)
 </content>
