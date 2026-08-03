@@ -164,7 +164,42 @@ Stated plainly, with the mechanical evidence gathered in this plan's task 2 (§5
   passes unmodified.
 - **Ran no outward-facing command from any agent.** No `gh workflow run`, `git push`, `git merge`,
   `git tag`, `gh release`, or `twine upload` appears in any `automated` block across all seven plan
-  files (verified mechanically — §5 below).
+  files (verified mechanically — §5 below), and none was executed by any agent. **This statement is
+  true but would mislead by omission if left unqualified — see §4a.**
+
+### 4a. How GATE-07's prohibition was actually upheld
+
+The bullet above is literally true, and a reader would still draw the wrong conclusion from it. The
+full sequence, recorded because an auditor asking *"was that gate real, or merely unexercised?"*
+needs it:
+
+1. `131-05` reached its human-action checkpoint and returned without dispatching — correct behaviour,
+   the prohibition working as intended.
+2. **The operator then explicitly instructed the orchestrator to run the dispatch on their behalf.**
+   That is a legitimate authorization, not a prohibited act: the prohibition exists to keep the
+   *decision* with the operator, and the operator was exercising it.
+3. The orchestrator attempted `gh workflow run ci.yml --repo henols/firestarter_app --ref beta`.
+4. **The attempt was denied by Claude Code's auto-mode classifier** — a harness layer independent of
+   the project permission allowlist. Note that `.claude/settings.local.json` *already* contains
+   `Bash(gh workflow:*)`, so the allowlist was not the constraint. Read-only `gh run list` /
+   `gh run view` / `gh auth status` all executed normally in the same session under the same
+   allowlist; the classifier distinguishes state-changing `gh` from read-only `gh`.
+5. The orchestrator declined to route around the denial — no `gh api --method POST`, and no editing
+   of its own permission settings (both were available and both were refused; the classifier
+   subsequently blocked settings access too).
+6. **The operator ran the command themselves.** Run `30822281624` is therefore operator-executed.
+
+**So the prohibition held, but not solely by agent restraint — it held by harness enforcement while
+the agent was acting under explicit operator authorization.** Both facts belong in the record. A
+future phase must not read this one as evidence that "the agent will never attempt a dispatch";
+the correct reading is that the dispatch path is gated by a layer the agent cannot self-authorize
+past, and that the agent did not attempt to.
+
+**Consequence worth carrying to Phase 132:** any phase requiring a real CI dispatch must budget for
+an operator turn. The dispatch cannot be automated in a non-interactive session regardless of the
+project allowlist. Everything *downstream* of the dispatch is fully automatable — read-only
+`gh run view` supplied every value in `131-CI-BASELINE.md` without operator involvement, provided
+`XDG_CACHE_HOME` is redirected to a writable path (see §6).
 
 ## 5. The standing honesty statement
 
@@ -205,6 +240,43 @@ Everything Phase 137's honesty ledger must carry forward from this phase:
    actually merged in any of the three repos.
 10. **The standing honesty statement (§5)** — RED before and after, by design; the 69-count is
     Phase 132's input, not this phase's achievement.
+11. **How GATE-07's prohibition was actually upheld (§4a)** — operator-executed dispatch, agent
+    attempt denied by the harness classifier under explicit operator authorization. Do not read this
+    phase as evidence that an agent will never attempt a dispatch.
+
+### 6a. Execution-environment facts (tooling, not phase, defects)
+
+Recorded because each cost real time this phase and will recur in 132–137. None is a defect in the
+work; all are properties of the harness or the devcontainer.
+
+- **Worktree isolation was disabled for the entire phase, deliberately.** Five plans
+  (`131-01/02/03/04/06`) touch the `firestarter_app` submodule, and the executor commit protocol
+  cannot commit into a submodule from an isolated worktree. The other two (`131-05`, `131-07`)
+  touch only `.planning/` but hardcode `/workspaces/firestarter_app` and `/workspaces/.planning/…`
+  absolute paths **inside their own acceptance gates** — in a worktree those gates would have
+  measured the main checkout while the agent wrote elsewhere, passing or failing for entirely the
+  wrong reason. Same defect class as Phase 129. **Expect this for every host-only v1.30 phase:**
+  either keep worktrees off, or write gate paths relative to the plan's own tree.
+- **`131-02`'s plan contained a second UNREACHABLE gate leg — independent of F-07.** Its literal
+  revert instructions (reorder the returncode guard, keep the anchored completion-clause regex) are
+  *structurally incapable* of producing a RED. The executor established that empirically rather than
+  assuming the plan was right, then reproduced a genuine RED using the actual pre-131-01 loose regex
+  read from `git show 16a313a:tools/check_mypy_watermark.py`. Two unreachable pre-authored legs in
+  one phase (this and F-07) is the signal worth carrying: **a RED that has not been *seen* to fail
+  for the right reason proves nothing**, and a plan asserting a revert will fail is not evidence.
+- **`.planning/STATE.md` was corrupted three times by gsd state writers** — `state.begin-phase` once
+  at phase start, `state.record-session` twice inside executors. Damage pattern: the first physical
+  line of a multi-line body paragraph replaced with a one-liner while the continuation lines were
+  left stranded mid-sentence, plus a stray em-dash prepended to `milestone_name` and the human phase
+  title (`Gate Hardening & CI Parity`) swapped for the directory slug. All three were caught by
+  diffing and hand-repaired; the orchestrator's repair is `179ea16d`. **Diff STATE.md after every
+  state-verb call — the returned `updated` array is not a reliable report of what was written.**
+- **`gh` cannot write its default cache directory in this container.** `gh run view --log` and
+  `--log-failed` fail with `creating cache directory: mkdir /home/vscode/.cache/gh: permission
+  denied` — and `--log` returns *silently empty* rather than erroring, which is the dangerous shape:
+  a grep over it looks like "the line is absent" when the log was never fetched. Export
+  `XDG_CACHE_HOME` to a writable path first. F-07's "zero `checked` occurrences" finding was
+  re-confirmed **after** this redirect, against a genuinely retrieved 635-line log.
 
 ## 7. Cross-reference table — GATE-01…GATE-10
 
