@@ -248,12 +248,74 @@ Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| _(all)_ | TBD | Pending |
+| GATE-01 | Phase 131 | Pending |
+| GATE-02 | Phase 131 | Pending |
+| GATE-03 | Phase 131 | Pending |
+| GATE-04 | Phase 131 | Pending |
+| GATE-05 | Phase 131 | Pending |
+| GATE-06 | Phase 131 | Pending |
+| GATE-07 | Phase 131 | Pending |
+| GATE-08 | Phase 131 | Pending |
+| GATE-09 | Phase 131 | Pending |
+| GATE-10 | Phase 131 | Pending |
+| RETIRE-01 | Phase 132 | Pending |
+| RETIRE-02 | Phase 132 | Pending |
+| RETIRE-03 | Phase 132 | Pending |
+| RETIRE-04 | Phase 132 | Pending |
+| RETIRE-05 | Phase 132 | Pending |
+| RETIRE-06 | Phase 132 | Pending |
+| RETIRE-07 | Phase 132 | Pending |
+| RETIRE-08 | Phase 132 | Pending |
+| LEG-01 | Phase 134 | Pending |
+| LEG-02 | Phase 134 | Pending |
+| LEG-03 | Phase 134 | Pending |
+| LEG-04 | Phase 134 | Pending |
+| LEG-05 | Phase 134 | Pending |
+| LEG-06 | Phase 134 | Pending |
+| LEG-07 | Phase 134 | Pending |
+| LEG-08 | Phase 134 | Pending |
+| LEG-09 | Phase 133 | Pending |
+| LEG-10 | Phase 133 | Pending |
+| LEG-11 | Phase 133 | Pending |
+| LEG-12 | Phase 134 | Pending |
+| LEG-13 | Phase 134 | Pending |
+| LEG-14 | Phase 134 | Pending |
+| LEG-15 | Phase 133 | Pending |
+| LEG-16 | Phase 134 | Pending |
+| LEG-17 | Phase 134 | Pending |
+| LEG-18 | Phase 134 | Pending |
+| RELOCK-01 | Phase 135 | Pending |
+| RELOCK-02 | Phase 135 | Pending |
+| RELOCK-03 | Phase 135 | Pending |
+| RELOCK-04 | Phase 135 | Pending |
+| RELOCK-05 | Phase 135 | Pending |
+| RELOCK-06 | Phase 135 | Pending |
+| RELOCK-07 | Phase 135 | Pending |
+| CHAN-01 | Phase 136 | Pending |
+| CHAN-02 | Phase 136 | Pending |
+| CHAN-03 | Phase 136 | Pending |
+| CHAN-04 | Phase 136 | Pending |
+| CHAN-05 | Phase 136 | Pending |
+| CHAN-06 | Phase 136 | Pending |
+| CHAN-07 | Phase 136 | Pending |
+| CLOSE-01 | Phase 137 | Pending |
+| CLOSE-02 | Phase 137 | Pending |
+| CLOSE-03 | Phase 137 | Pending |
+| CLOSE-04 | Phase 137 | Pending |
+| CLOSE-05 | Phase 137 | Pending |
+| CLOSE-06 | Phase 137 | Pending |
 
 **Coverage:**
 - v1 requirements: 56 total (GATE 10 · RETIRE 8 · LEG 18 · RELOCK 7 · CHAN 7 · CLOSE 6)
-- Mapped to phases: 0
-- Unmapped: 56 ⚠ (roadmap pending)
+- Mapped to phases: 56
+- Unmapped: 0 ✓ full coverage
+
+**Phase mapping:** GATE-\* → Phase 131 (Gate Hardening & CI Parity) · RETIRE-\* → Phase 132 (Retire
+`dev sdp` & Discharge the mypy Debt) · LEG-09/10/11/15 → Phase 133 (SDP Leg Mechanism) · the remaining
+14 LEG requirements → Phase 134 (The Plan-Derived SDP Oracle in `dev test`) · RELOCK-\* → Phase 135
+(`write --sdp-relock`) · CHAN-\* → Phase 136 (Dev-Tools Channel Gating) · CLOSE-\* → Phase 137 (Close
+— Honesty Ledger, Claim Gate, gh#12 Follow-up). Phase 133/134 is a deliberate split of the research
+spine's single combined "leg" phase (see ROADMAP.md §v1.30 for rationale).
 
 ---
 

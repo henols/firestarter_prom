@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v1.30
 milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 status: planning
-last_updated: "2026-08-03T06:58:13.922Z"
+last_updated: "2026-08-03T07:30:00.000Z"
 last_activity: 2026-08-03
-last_activity_desc: v1.30 milestone started — defining requirements
+last_activity_desc: ROADMAP.md created — 7 phases (131-137), 56/56 requirements mapped
 progress:
-  total_phases: 0
+  total_phases: 7
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -33,10 +33,15 @@ deliberately vacant.
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-08-03 — Milestone v1.30 started
+Phase: 131 (Gate Hardening & CI Parity) — not yet started
+Plan: — (ROADMAP.md written; no PLAN.md authored yet)
+Status: Roadmap created — 7 phases (131-137), 56/56 requirements mapped, 0 orphans. Ready for
+`/gsd-plan-phase 131`.
+Last activity: 2026-08-03 — ROADMAP.md + REQUIREMENTS.md traceability written for v1.30 (Phases
+131-137). Phase 133/134 is a deliberate split of the research spine's single combined "leg" phase
+(18 LEG requirements judged too large for one phase at this project's `Comprehensive` granularity).
+**This milestone must NOT be run under `--auto`/`--chain`** — Phase 137 (CLOSE-06) carries a blocking
+operator wording-review gate.
 
 **Milestone branches.** Meta: `gsd/v1.30-sdp-surface-retirement`, forked off the v1.23 tip
 `d1b9ce9e` — the same shape as v1.23 forking off the v1.22 tip, since `main` lags and stays untouched

@@ -148,6 +148,375 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 
 </details>
 
+## v1.30 — SDP Surface Retirement & Behavioral Lock Proof (PLANNING)
+
+**Milestone goal:** Replace v1.22's unverifiable standalone `firestarter dev sdp <chip> enable|disable`
+with a **self-verifying** SDP lifecycle whose oracle is read-back equality rather than an exit code —
+and, while the same host files are open, clear the two surface debts that milestone left behind (a RED
+primary `ci` job and an unsplit `dev` command group). Host-only (`firestarter_app`); `firestarter` is
+not touched at all.
+
+**⚠ Evidence Ceiling — reproduced from REQUIREMENTS.md, must not be smoothed over in any phase's
+artifacts.** No AT28C part has ever been in operator inventory and protocol `0x0D` stays `UNVERIFIED`.
+
+> **Provable this milestone:** the *plan derivation* (43 ALLOW chips get four steps, 41 REFUSE get four
+> NA steps carrying reasons — measurable today with zero hardware); the *read-back comparison logic*
+> and every degenerate-input arm of it, in native envs; the SDP command *emission* only to the extent
+> the host can observe it.
+>
+> **NOT provable this milestone:** the causal claim *"the lock inhibited the write."* That is reachable
+> only on real silicon — i.e. only from a community `dev test` report, which **by design does not gate
+> this milestone's close.**
+
+Two narrowings that must survive into every phase's own artifacts, not be smoothed over:
+
+1. **The Phase 116 ground-truth trace harness is UNREACHABLE from the host.** It is a PlatformIO
+   `[env:native]` Unity binary in the *firmware* repo, and the host repo has no bus stub at all. So
+   "emission proof" here means what `tests/conftest.py`'s `build_frame`/`_FakeSerial`/`make_comm` can
+   assert over a scripted wire — **not** a bus trace.
+2. **A locked die is unrepresentable in either repo's stubs.** Both model the bus, never the die's
+   protection state. No fixture can simulate real inhibition; fixtures can only pin the host's
+   *response* to a scripted read-back.
+
+**Scope:** Host-only (`firestarter_app/` alone). **No firmware change, no dual-repo lockstep, no `.hex`
+re-cut** — Phase 119's `CMD_SDP_LOCK`/`CMD_SDP_UNLOCK` are what the new leg *exercises*, not what it
+changes. `firestarter` is not touched at all this milestone.
+
+**Phase numbering:** Continues from v1.23's Phase 130 → v1.30 starts at **Phase 131**. 7 phases
+(131–137).
+
+**Why 7 phases, not the research spine's 6.** Research's recommended spine
+(`.planning/research/SUMMARY.md` §Implications for Roadmap) proposed six phases — 131 gate · 132
+retire · 133 leg · 134 relock · 135 channel · 136 close — but explicitly flagged the leg phase (133) as
+"likely worth splitting": 18 LEG requirements in one phase span both a foundational dispatch/cleanup
+*mechanism* and the oracle's own four ops/truth-table/report-rows, and the project's granularity is
+configured `Comprehensive`. This roadmap takes the split research recommended: **Phase 133 = mechanism**
+(cleanup registry, widened exception handling, the destructive-op-set exemption, op-registration
+parity — LEG-09/10/11/15) and **Phase 134 = the leg proper** (the four ops, `derive_plan` derivation,
+the pattern generator, the oracle truth table, the report rows — the remaining 14 LEG requirements).
+Every later research-spine phase number shifts by one as a result: relock → **135**, channel gating →
+**136**, close → **137**.
+
+**Dependency spine and parallelization:**
+
+- **131 first, and count-independent.** It hardens the watermark-gate *mechanism* without setting a
+  watermark, so it need not wait on 132's deletion. Every later phase's "green suite" claim is
+  unverified until this lands.
+- **132 depends on 131** (a trustworthy gate before any error count it reports can be trusted) and
+  **must land before 133 or 134's test modules are authored** — 132 establishes the typed `AppContext`
+  fixture and re-baselines the watermark; new test modules written before that land would add errors of
+  the exact 30-error mock-typing pattern 132 exists to fix.
+- **133 depends on 132; 134 depends on 133 (serial).** The leg proper is built directly on 133's cleanup
+  registry, widened exception set, and `_SDP_OPS` dispatch arm.
+- **135 depends on 132 only, and is genuinely parallelisable with 133+134** on disjoint file regions —
+  133/134 write `chip_test.py` and `diagnostic_report.py`, plus `cli_handlers.py` only at
+  `_ALWAYS_WRITES_NOTICE`/`dev_test`'s body; 135 writes `cli_handlers.py` only in the `write` handler,
+  ~1,400 lines away, no overlap; none of the three touch `eprom_operations.py`, `constants.py`,
+  `sdp_capability.py`, or `channel.py`. **If the executor model enforces one-writer-per-file per wave,
+  serialise 135 after 134 instead** — it is the smaller diff and reordering costs little.
+- **136 depends on 132** (one fewer command to classify, the host/firmware contradiction it would
+  otherwise have to arbitrate is gone) **and is best sequenced after 134 and 135** so `dev --help` gets
+  pinned against `dev test`'s and `write`'s *final* shapes — weakly parallelisable otherwise, since
+  channel classification keys on command *names*, not bodies.
+- **137 last and serial.** It authors and hosts the milestone's own claim gate over its own four closing
+  artifacts, and the gh#12 follow-up describes a substitution that must already be true, not a plan.
+  **CLOSE-06 carries a blocking operator wording-review gate — this milestone must NOT be run under
+  `--auto`/`--chain`, which auto-approves human-verify gates.**
+
+**Cross-cutting, every phase:**
+
+- Run the CI-parity recipe as an acceptance leg: the suite once with the firmware-sibling root pointed
+  at an empty directory and once with the sibling present; CI-scoped ruff; one run with no board
+  attached.
+- **Name the exact requirement IDs each plan may mark Complete, at dispatch.** Executors prematurely
+  marked multi-plan requirements Complete 4× in a prior milestone (Phase 116) — do not repeat it.
+
+**Research flags carried per phase** (from `.planning/research/SUMMARY.md`): 131 **SKIP** · 132 **SKIP**
+· 133 **NEEDS `--research-phase`** (the mechanism-side open questions from the original combined phase:
+the `_dispatch_sdp` shape — one function or four — and the exact `run_plan` `finally` structure) · 134
+**NEEDS `--research-phase`** (the leg-proper half of the same open questions, since the four ops and
+their dispatch depend on the answer) · 135 **SKIP** · 136 **NEEDS `--research-phase`** (invocation-time
+`_DevGroup` vs import-time deletion is a live design choice, and the `dev reg` bench-tooling override
+must be designed up front) · 137 **SKIP**.
+
+**Branch model:** Meta forks `gsd/v1.30-sdp-surface-retirement` off the v1.23 tip `d1b9ce9e` — the same
+shape as v1.23 forking off the v1.22 tip; `main` lags and stays untouched, per v1.19–v1.23.
+`firestarter_app` forks off `beta` @ `16a313a`. `firestarter` is not touched at all.
+
+**Key context:** Promoted from Backlog **999.25** (queued 2026-07-31 by operator decision; activated
+with this roadmap 2026-08-03). Full design, traps, and accepted costs:
+[`.planning/notes/sdp-surface-retirement-and-behavioral-proof.md`](notes/sdp-surface-retirement-and-behavioral-proof.md).
+Research: `.planning/research/SUMMARY.md` (R-1…R-9, A-1…A-4; HIGH confidence, 4-stream convergent).
+Requirements: `.planning/REQUIREMENTS.md` (56 v1 requirements — GATE 10 · RETIRE 8 · LEG 18 · RELOCK 7 ·
+CHAN 7 · CLOSE 6).
+
+### Phases
+
+- [ ] **Phase 131: Gate Hardening & CI Parity** - Make the mypy watermark gate fail-closed and record one real, current post-fork error count, before any later phase's "green suite" claim can be trusted.
+- [ ] **Phase 132: Retire `dev sdp` & Discharge the mypy Debt** - Delete the unverifiable standalone SDP command, re-home its honesty tests, and get `firestarter_app`'s primary `ci` job GREEN at the existing watermark.
+- [ ] **Phase 133: SDP Leg Mechanism** - Give `dev test`'s step engine a cleanup registry, a wider exception net, and a parity-tested op-registration path — the infrastructure the oracle is built on.
+- [ ] **Phase 134: The Plan-Derived SDP Oracle in `dev test`** - Add the four-step SDP leg whose oracle is read-back equality, not an exit code, so an unexpected write success is reported BAD.
+- [ ] **Phase 135: `write --sdp-relock`** - Give operators one verify-gated, loud-on-skip way to deliberately relock a part after a write.
+- [ ] **Phase 136: Dev-Tools Channel Gating** - Make the stable channel's `dev` group expose only `read`/`test`, by not registering anything else.
+- [ ] **Phase 137: Close — Honesty Ledger, Claim Gate, gh#12 Follow-up** - Arm this milestone's own claim gate over its own artifacts, ledger every claim against its non-claim, and answer gh#12 honestly under operator review.
+
+## Phase Details
+
+### Phase 131: Gate Hardening & CI Parity
+
+**Goal**: The mypy watermark gate is a real, fail-closed gate — a mypy run that aborts, truncates, or
+under-checks the tree always produces a red gate, never a false green — and the project has one
+recorded, current, real CI dispatch to measure the actual post-fork error count from before any later
+phase's number depends on it.
+**Depends on**: Nothing (first phase; deliberately count-independent — hardens the mechanism and sets
+no watermark, so it does not have to wait on Phase 132's deletion).
+**Requirements**: GATE-01, GATE-02, GATE-03, GATE-04, GATE-05, GATE-06, GATE-07, GATE-08, GATE-09, GATE-10
+**Success Criteria** (what must be TRUE):
+
+  1. Running the watermark gate against a mypy invocation that aborts, truncates, or exits with an
+     unexpected returncode always produces a non-zero gate exit — proven by the gate's own first-ever
+     paired pytest suite: truncated-run ⇒ exit 2, config-rejection ⇒ exit 2, over-watermark ⇒ exit 1,
+     below-coverage-floor ⇒ exit 2.
+  2. A mypy run that silently checked fewer than 120 source files fails the gate even when its reported
+     error count is under the watermark.
+  3. The gate invokes mypy as `sys.executable -m mypy` (never a bare `mypy` resolved from `PATH`), and
+     `python_version` states mypy's true effective target (`3.10`) with a comment recording that the
+     previous `"3.9"` value was silently discarded and never took effect.
+  4. A derived `sdp_capability` count gate exists asserting the database's ALLOW/REFUSE/total split
+     (43/41/84) matches what `sdp_capability()` itself computes, so narrowing a chip to REFUSE to dodge
+     a failing field cannot pass silently.
+  5. A real `gh workflow run ci.yml` dispatch has been made on the fork base and its resulting error
+     count is recorded as the number Phase 132's mypy discharge must reconcile against; the CI-parity
+     recipe (suite run once with the firmware-sibling root pointed at an empty directory and once with
+     the sibling present, CI-scoped ruff, one run with no board attached) is documented and runnable as
+     a standalone acceptance leg every later phase reuses.
+
+**Plans**: TBD
+**Research flag**: SKIP — STACK §1 and PITFALLS P-13 give the fix line by line, both reproduced live.
+**Cross-cutting**: Run the CI-parity recipe as this phase's own acceptance leg (it is the phase that
+authors it). At dispatch, name exactly which of GATE-01…GATE-10 each plan may mark Complete.
+
+### Phase 132: Retire `dev sdp` & Discharge the mypy Debt
+
+**Goal**: `dev sdp` no longer exists as an invokable command, its removal breaks nothing that
+dereferences its surviving pieces, and `firestarter_app`'s primary `ci` job is GREEN at the existing
+watermark — without touching the ring-fenced `eprom_operations.py` cluster.
+**Depends on**: Phase 131 (a gate that can actually fail before any watermark number measured against
+it can be trusted). Must complete before Phase 133/134 author any new test module — this phase's typed
+`AppContext` fixture and re-baselined watermark are what keeps those modules from reddening the gate.
+**Requirements**: RETIRE-01, RETIRE-02, RETIRE-03, RETIRE-04, RETIRE-05, RETIRE-06, RETIRE-07, RETIRE-08
+**Success Criteria** (what must be TRUE):
+
+  1. `firestarter dev sdp` is gone — no such subcommand exists, and the four gates that only it exercised
+     are gone with it.
+  2. `tools/check_no_exists_proxy.py`'s fail-closed target list was updated in the **same commit** that
+     moved `tests/test_dev_sdp_cmd.py`, so that gate is never red for even one commit, and a grep proves
+     all four of the file's honesty assertions (the unlock-direction caveat, the no-fabricated-duration
+     test, the three no-fabricated-lock-state assertions, and the old-firmware unknown-command mapping
+     test) still exist somewhere under `tests/` after the move.
+  3. `COMMAND_SDP_LOCK`/`COMMAND_SDP_UNLOCK` and their `COMMAND_NAMES` entries still exist and are
+     exercised by a test that dereferences both, so a future edit dropping an entry fails a test rather
+     than surfacing as a `KeyError` at operation setup.
+  4. `firestarter_app`'s primary `ci` job (ruff, the now-fail-closed mypy watermark gate, the full pytest
+     suite) passes end to end at the existing watermark of 35 — achieved without editing
+     `eprom_operations.py`'s ring-fenced `[union-attr]` cluster.
+  5. A tripwire — a comment at the host auto-unlock site plus a test named for the dependency — records
+     that this removal is safe *because* auto-unlock is default-on, so revisiting that default forces
+     this decision to be revisited with it; and the three stale in-tree `301`/`377` `COMMAND_NAMES`
+     comment references are corrected to `329`/`405`.
+
+**Plans**: TBD
+**Research flag**: SKIP — three researchers independently mapped every trace; the only judgement call
+(clean removal vs. a transitional stub) is already argued and decided in favor of clean removal.
+**Cross-cutting**: Run the CI-parity recipe before and after the deletion+discharge to prove the
+sibling-root and no-board legs both still pass. At dispatch, name exactly which of RETIRE-01…RETIRE-08
+each plan may mark Complete.
+
+### Phase 133: SDP Leg Mechanism
+
+**Goal**: `dev test`'s step-execution engine can never strand a locked chip or lose a report to a
+transport error, and adding a new op to its vocabulary is machine-verified to touch every registry it
+must — all of it provably inert for the ops that already ship today.
+**Depends on**: Phase 132 (the typed `AppContext` fixture and the settled, re-baselined watermark this
+phase's new test module must not redden).
+**Requirements**: LEG-09, LEG-10, LEG-11, LEG-15
+**Success Criteria** (what must be TRUE):
+
+  1. A mid-leg step that raises still leaves `run_plan`'s cleanup registry to drain in a `finally` block
+     — proven by a test that raises partway through a run and asserts the cleanup step still executed
+     (including on `KeyboardInterrupt`/`SystemExit`, which a `finally` reaches and `atexit` would not).
+  2. A `SerialError` or `HardwareOperationError` raised mid-step (e.g. a half-seated cable) degrades that
+     one step to a recorded BAD result instead of propagating out of `run_plan` and killing the whole
+     report — proven by a planted-fault test for each exception class, and proven that a bare
+     `except Exception`/`BaseException` was **not** used (the deliberate `AssertionError` elsewhere in
+     the module must still propagate loudly, and Ctrl-C must stay Ctrl-C).
+  3. `sdp_unlock` is absent from `_DESTRUCTIVE_OPS`, proven by two tests: gate-closed-from-the-start ⇒
+     `sdp_lock` is SKIPPED and `sdp_unlock` is never attempted (nothing was locked); lock-ran-then-the-
+     gate-closes ⇒ `sdp_unlock` is STILL attempted.
+  4. Every existing, already-shipped `dev test` op is provably byte-identical in behavior after this
+     phase lands — an op with `group=None` takes the exact pre-existing dispatch path, at zero added
+     branching cost, proven by a no-op regression test.
+  5. An op-registration parity test exists that fails if a new op string is added to the vocabulary but
+     left out of any one of the registries a new op must join (the `_SDP_OPS` dispatch allow-list,
+     destructive-set membership, multi-run exclusion, and the others enumerated in the module's own
+     comment) — converting eight previously fail-open registries into one fail-closed gate.
+
+**Plans**: TBD
+**Research flag**: NEEDS `--research-phase` — the `_dispatch_sdp` shape (one function or four; a style
+call with no correctness content, but it must be reflected in the deliberate-break test) and the exact
+`run_plan` `finally` shape are open; everything else in this phase is specified to the line.
+**Cross-cutting**: Run the CI-parity recipe with the no-board leg emphasized (this phase's exception
+handling is exactly what a half-seated cable exercises). At dispatch, name exactly which of LEG-09,
+LEG-10, LEG-11, LEG-15 each plan may mark Complete — **not** any of the other 14 LEG requirements, which
+belong to Phase 134.
+
+### Phase 134: The Plan-Derived SDP Oracle in `dev test`
+
+**Goal**: For every SDP-capable chip, `dev test` runs a leg that actually proves whether the lock
+inhibited a write — never a leg that reports success just because a write returned without error — and
+a run that ends early still leaves a visible, honest trace of whether the part was left locked.
+**Depends on**: Phase 133 (the cleanup registry, widened exception handling, and `_SDP_OPS` dispatch arm
+the four ops are built on). Can run in parallel with Phase 135 on disjoint file regions (see the
+milestone-level dependency spine above); serialize after 135 only if the executor model requires
+one-writer-per-file.
+**Requirements**: LEG-01, LEG-02, LEG-03, LEG-04, LEG-05, LEG-06, LEG-07, LEG-08, LEG-12, LEG-13, LEG-14, LEG-16, LEG-17, LEG-18
+**Success Criteria** (what must be TRUE):
+
+  1. Running `dev test` against any of the 43 SDP-capable ALLOW chips derives, with **no new
+     command-line option**, a four-step leg (baseline transition write, lock, inhibited write +
+     read-back, unlock) from `sdp_capability()`; running it against any of the 41 REFUSE chips instead
+     produces four NA/SKIPPED steps each carrying the refusal reason.
+  2. A write that unexpectedly succeeds after the lock is applied is reported **BAD** with exit code 1 —
+     never SKIPPED, NA, or OK; a read-back that only partially changed is also reported BAD (gh#11's
+     exact symptom); and a degenerate read-back (empty, short, all-`0x00`, or all-`0xFF`) never reads as
+     equality.
+  3. Before any lock is applied, the leg proves the write path is genuinely live by writing one pattern,
+     verifying it, writing its bitwise complement, and verifying that too — so a chip whose write path
+     is dead, but which already carries the expected bytes from an earlier run, cannot pass the leg on
+     that basis alone (proven by a committed fixture whose write is a no-op and whose baseline step
+     therefore reports BAD).
+  4. Every run against an ALLOW chip renders a `HELD`/`NOT-HELD`/`NOT-RUN(reason)` field in both the
+     human report and the JSON artifact, and an NA/SKIPPED oracle step visibly drops the report's
+     headline N-of-M applicable-step count rather than leaving it looking perfect; each of the six
+     known exit-code-laundering routes is covered by a test asserting both that `sdp_lock` was never
+     called and that a visible `NOT-RUN` reason is rendered.
+  5. The report's recovery guidance for a chip left locked says **"rewrite,"** never "erase" (enforced
+     by a committed grep — protocol `0x0D` has no erase operation at all), and gh#20 (the AT28C256
+     `dev test` FAIL open since 2026-07-30) has been triaged against the new baseline-transition gate,
+     with the finding recorded.
+
+**Plans**: TBD
+**Research flag**: NEEDS `--research-phase` — inherits Phase 133's open question (the `_dispatch_sdp`
+shape) since the four ops' dispatch depends on the answer; everything else — the truth table, the
+region, the pattern construction — is fully specified.
+**Cross-cutting**: This phase's own acceptance criteria must be **listed explicitly, not incidental**:
+the write-succeeded ⇒ BAD+exit-1 test, the both-directions oracle test, the four degenerate-read-back
+fixtures, the per-exit-code-laundering-route tests, and the "erase"-forbidding grep. At dispatch, name
+exactly which of the 14 requirements above each plan may mark Complete.
+
+### Phase 135: `write --sdp-relock`
+
+**Goal**: An operator who wants to hand a part off in a protected state has exactly one supported way to
+do it, it never locks a part whose contents were never verified, and a skipped relock is impossible to
+miss.
+**Depends on**: Phase 132 (inherits its repurposed gate-ordering tests and the relocated D-14/D-10
+material). Parallelisable with Phase 133/134 on disjoint file regions; serialize after Phase 134 if the
+executor model requires one-writer-per-file (this is the smaller diff, and reordering costs little).
+**Requirements**: RELOCK-01, RELOCK-02, RELOCK-03, RELOCK-04, RELOCK-05, RELOCK-06, RELOCK-07
+**Success Criteria** (what must be TRUE):
+
+  1. `firestarter write --sdp-relock` runs an explicit verify pass after a successful write and, only if
+     that verify passes, locks the part; the default `write` path (no flag) is byte-identical to today's
+     behavior.
+  2. If the verify pass fails, the relock is skipped and `sdp_lock` is provably never called; the skip is
+     reported through a mandatory final `WARNING:` line or a non-zero exit — never at `INFO` level only
+     — because protection state can never be read back afterward, leaving no other way to discover the
+     part is unprotected.
+  3. `--sdp-relock` on a non-`0x0D` chip refuses loudly *before* doing anything destructive (deliberately
+     unlike the existing warn-and-proceed pattern elsewhere in `write`), because the lock sequence's
+     magic-address bytes would otherwise land as ordinary data.
+  4. `--sdp-relock` on a capability-REFUSED `0x0D` chip refuses before any hardware is energized, reusing
+     the same capability gate the deleted `dev sdp` command carried.
+  5. The stale "v1.23+" `--sdp-relock` deferral labels at `STATE.md:538` and `PROJECT.md:823` now name
+     this milestone.
+
+**Plans**: TBD
+**Research flag**: SKIP — the call chain is traced end to end and the refusal matrix is fully specified.
+**Cross-cutting**: Run the CI-parity recipe; this phase's diff is small enough that both the sibling-root
+and no-board legs should be cheap to re-run per plan. At dispatch, name exactly which of RELOCK-01…
+RELOCK-07 each plan may mark Complete.
+
+### Phase 136: Dev-Tools Channel Gating
+
+**Goal**: A stable-channel install exposes only the two `dev` subcommands meant for end users, a
+beta-only subcommand is not merely undocumented but genuinely uninvokable on stable, and the gate cannot
+be fooled by anything the firmware reports.
+**Depends on**: Phase 132 (one fewer command to classify; the host/firmware contradiction 999.15 would
+otherwise have had to arbitrate is gone). Best sequenced after Phase 134 and Phase 135 so `dev --help`
+is pinned against `dev test`'s and `write`'s final shapes; weakly parallelisable otherwise since
+classification keys on command names, not bodies.
+**Requirements**: CHAN-01, CHAN-02, CHAN-03, CHAN-04, CHAN-05, CHAN-06, CHAN-07
+**Success Criteria** (what must be TRUE):
+
+  1. On a stable install, `firestarter dev --help` lists only `read` and `test`; invoking any other `dev`
+     subcommand by name on a stable install refuses informatively with a non-zero exit rather than
+     running — because the gate works by **not registering** the command, not by `hidden=True`.
+  2. On a beta/dev install, all `dev` subcommands remain listed and invokable exactly as today, proven by
+     pinning `dev --help` output on **both** channels via a subprocess test (never an in-process check,
+     since `is_prerelease_build()` is vacuously True in any local run).
+  3. The `dev` group's docstring no longer warns off the very users `dev read`/`dev test` are being kept
+     in stable for.
+  4. `dev reg`'s existing role as the held-erase-rail DMM proxy for bench tooling still works from a
+     source checkout, via an override designed for that purpose up front rather than discovered as a
+     regression.
+  5. The channel gate's implementation reads no firmware source at all to decide what is available — the
+     same class of host gate that failed OPEN four times in a prior milestone when built the other way.
+
+**Plans**: TBD
+**Research flag**: NEEDS `--research-phase` — one open design choice (invocation-time `_DevGroup`
+subclass vs. import-time deletion + a subprocess harness; both satisfy the requirement) plus the `dev
+reg` bench-tooling override, which must be designed up front, not discovered after it breaks.
+**Cross-cutting**: Run the CI-parity recipe with both the "no board attached" and the subprocess-based
+both-channel legs — this phase's whole surface is channel behavior, which an in-process test cannot see.
+At dispatch, name exactly which of CHAN-01…CHAN-07 each plan may mark Complete.
+
+### Phase 137: Close — Honesty Ledger, Claim Gate, gh#12 Follow-up
+
+**Goal**: The milestone's closing artifacts state exactly what was proven and exactly what wasn't, a
+gate that scans for overclaiming is actually armed against this milestone's own files (not vacuously
+passing against a prior milestone's), and the public thread this milestone answers gets a
+wording-reviewed, honest reply rather than a confident overclaim.
+**Depends on**: Phases 131–136 (last and serial — it authors and hosts the claim gate over this
+milestone's own final artifacts, and the gh#12 reply must describe a fact, not a plan). **This phase
+must NOT be run under `--auto`/`--chain`** — CLOSE-06 carries a blocking operator wording-review gate,
+and `--auto` auto-approves human-verify gates.
+**Requirements**: CLOSE-01, CLOSE-02, CLOSE-03, CLOSE-04, CLOSE-05, CLOSE-06
+**Success Criteria** (what must be TRUE):
+
+  1. A v1.30-specific claim gate, authored and hosted inside this phase's own directory, runs green with
+     a `PASS:` line naming this milestone's own four closing artifacts, and its own suite's output is
+     recorded — not copied verbatim from either of the two prior milestones' checkers (each of which is
+     unsafe to copy as-is).
+  2. Two dedicated tests prove the claim gate's default targets resolve to files inside this phase's own
+     directory, so a future naive copy of the checker fails loudly instead of silently scanning nothing
+     at exit 0.
+  3. A host-side claim scan added under `firestarter_app/tools/` covers `diagnostic_report.py`'s string
+     literals — the `dev test` report text that reaches strangers on every run — closing the one surface
+     no existing gate scans, and it lives where CI actually runs.
+  4. An honesty ledger pairs every claim this milestone is permitted to make with its explicit non-claim,
+     including the auto-unlock coupled-decision tripwire (Phase 132) and both narrowings of the evidence
+     ceiling stated at the top of this milestone.
+  5. Release notes carry a "Removed" section mapping `dev sdp disable` → `write` (automatic) and
+     `dev sdp enable` → `write --sdp-relock`, and the gh#12 follow-up reply — reviewed and approved by
+     the operator before posting, as an explicit non-`<automated>` step — states the substitution
+     honestly, without letting "now provable" read as "now proven."
+
+**Plans**: TBD
+**Research flag**: SKIP — the prior milestone's claim-gate pitfall (P-11) specifies this gate's design
+completely, including its two new target-resolution test legs.
+**Cross-cutting**: Run the CI-parity recipe one final time over the whole milestone diff before closing.
+At dispatch, name exactly which of CLOSE-01…CLOSE-06 each plan may mark Complete.
+
 ## v1.21 — Community Chip-Validation Command (PLANNING)
 
 **Milestone goal:** Ship a `firestarter dev test <chip>` command that lets a community member run a full, technology-aware capability sweep on a chip the maintainer doesn't own, then file an actionable diagnostic report back — turning chip coverage from "what's on Henrik's bench" into "what's on everyone's bench." `dev test` is a pure orchestrator over existing `EpromOperator`/`chip_resolver` service methods (sibling of the shipped `dev validate-family`): zero new firmware dispatch entries, zero new VPP-set call sites, zero new third-party dependencies.
@@ -1760,7 +2129,7 @@ Plans:
 
 - [ ] TBD (promote with /gsd-review-backlog when ready)
 
-### Phase 999.25: Retire `dev sdp`; prove the SDP lock behaviorally in `dev test`; land `write --sdp-relock` (⏫ QUEUED 2026-07-31 → v1.30, NEXT after v1.23)
+### Phase 999.25: Retire `dev sdp`; prove the SDP lock behaviorally in `dev test`; land `write --sdp-relock` (✅ PROMOTED 2026-08-03 → v1.30, Phases 131–137)
 
 > **Full design, traps, insertion points and accepted costs: [`.planning/notes/sdp-surface-retirement-and-behavioral-proof.md`](notes/sdp-surface-retirement-and-behavioral-proof.md).** Scope from that note.
 
@@ -1789,9 +2158,11 @@ Plans:
 
 **Why it can be worked immediately after v1.23, with no waiting:** host-only (`firestarter_app`), so no dual-repo lockstep, no firmware branch, no `.hex` re-cut, and **no bench hardware needed to build it** — the AT28C part this milestone reasons about has never been in operator inventory, and the whole design is arranged so that the *causal* proof is supplied later by a community `dev test` report rather than gating the close. It does **not** collide with any queued firmware milestone (v1.24 bus-config, v1.26 voltage cal, v1.27 per-protocol algorithms, v1.28 binary command protocol all rewrite firmware internals; this touches `cli_handlers.py`, `chip_test.py`, `diagnostic_report.py`). One sequencing interaction worth stating: **999.15** (gh#8 dev-tools channel gating) also edits the `dev` group surface — whichever lands first shrinks the other's diff, and this milestone deletes a subcommand 999.15 would otherwise have to classify.
 
+**✅ PROMOTED (roadmap creation 2026-08-03) — activated as `v1.30 SDP Surface Retirement & Behavioral Lock Proof`, Phases 131–137** (see the `## v1.30 — SDP Surface Retirement & Behavioral Lock Proof (PLANNING)` section above for goals, requirements, and success criteria). Phase mapping: **GATE-\* → Phase 131** (gate hardening & CI parity) · **RETIRE-\* → Phase 132** (retire `dev sdp` + mypy discharge) · **LEG-09/10/11/15 → Phase 133** (SDP leg mechanism) · the remaining 14 LEG requirements **→ Phase 134** (the plan-derived SDP oracle — split from a single combined leg phase per research's own recommendation, since 18 requirements in one phase was judged too large for this project's `Comprehensive` granularity setting) · **RELOCK-\* → Phase 135** (`write --sdp-relock`) · **CHAN-\* → Phase 136** (dev-tools channel gating) · **CLOSE-\* → Phase 137** (close: honesty ledger, claim gate, gh#12 follow-up). 56/56 v1 requirements mapped, zero orphans.
+
 Plans:
 
-- [ ] TBD (promote with /gsd-review-backlog when ready)
+- [x] Promoted to the v1.30 milestone — see Phase Details above. (no longer a backlog stub)
 
 ---
 
