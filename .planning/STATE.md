@@ -5,10 +5,10 @@ milestone_name: — PY32F071 Integration
 current_phase: 130
 current_phase_name: Close — Honesty Ledger, Claim Gate, Release Decision
 status: milestone_complete
-stopped_at: v1.23 archived and tagged in all three repos; awaiting /gsd-new-milestone
+stopped_at: v1.23 closed, tagged and summarised; awaiting /gsd-new-milestone
 last_updated: "2026-08-03T06:07:40.071Z"
 last_activity: 2026-08-03
-last_activity_desc: v1.23 milestone completed, archived and tagged (override_closeout)
+last_activity_desc: v1.23 onboarding summary generated (milestone closed, archived, tagged)
 progress:
   total_phases: 8
   completed_phases: 8
@@ -37,7 +37,9 @@ Proof` is the operator-queued next slot (2026-07-31); v1.24–v1.27 remain queue
 Phase: **v1.23 MILESTONE COMPLETE + ARCHIVED** (Phase 130 was the close phase)
 Plan: —
 Status: Awaiting `/gsd-new-milestone`
-Last activity: 2026-08-03 — v1.23 archived, `override_closeout`; `v1.23` tagged in all three repos
+Last activity: 2026-08-03 — v1.23 onboarding summary generated at
+`.planning/reports/MILESTONE_SUMMARY-v1.23.md` (after: v1.23 archived, `override_closeout`,
+`v1.23` tagged in all three repos)
 
 **What the close did.** Roadmap and requirements archived to
 `.planning/milestones/v1.23-{ROADMAP,REQUIREMENTS}.md`; `.planning/REQUIREMENTS.md` removed via
