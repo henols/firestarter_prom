@@ -146,11 +146,27 @@ _REPO_ROOT = _find_repo_root()
 # authoritative and the count in that sentence is an off-by-one;
 # `research/SUMMARY.md` itself is a research input, not a record this gate
 # maintains, and is deliberately not a sixth target.
+#
+# LOCATOR REPOINT at the v1.23 milestone close (2026-08-03), same class as
+# Plan 130-01's `_DEFAULT_TARGETS` repoint of the sibling claim gate (recorded
+# as mechanism correction #3 in `130-LEDGER.md`): `/gsd-complete-milestone`
+# archives `.planning/REQUIREMENTS.md` to
+# `.planning/milestones/v1.23-REQUIREMENTS.md` and then removes the original
+# via `git rm`, so the live path no longer exists. This gate fails CLOSED on a
+# missing target -- correctly -- so leaving the stale path here would have made
+# it permanently RED for a reason that is bookkeeping, not a record defect.
+# The subject did not disappear, it MOVED: the pointer follows it to the
+# archived copy (same content plus an archive header). This is a locator-only
+# change -- the twelve-needle table, every exemption mechanism and the
+# fail-closed missing-target behaviour are all untouched, verified by the
+# gate still failing on a planted violation in the repointed file.
 _DEFAULT_TARGETS = [
     os.path.join(_REPO_ROOT, ".planning", "PROJECT.md"),
     os.path.join(_REPO_ROOT, ".planning", "STATE.md"),
     os.path.join(_REPO_ROOT, ".planning", "ROADMAP.md"),
-    os.path.join(_REPO_ROOT, ".planning", "REQUIREMENTS.md"),
+    os.path.join(
+        _REPO_ROOT, ".planning", "milestones", "v1.23-REQUIREMENTS.md"
+    ),
     os.path.join(_REPO_ROOT, ".planning", "notes", "py32f071-port-branch-state.md"),
 ]
 
