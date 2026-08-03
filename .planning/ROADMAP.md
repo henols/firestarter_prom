@@ -428,7 +428,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 132-07-PLAN.md — The three-site auto-unlock tripwire + the test named for the dependency (RETIRE-07, D-14)
+- [x] 132-07-PLAN.md — The three-site auto-unlock tripwire + the test named for the dependency (RETIRE-07, D-14)
 
 **Wave 8** *(blocked on Wave 7 completion)*
 

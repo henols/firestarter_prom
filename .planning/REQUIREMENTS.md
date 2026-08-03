@@ -149,7 +149,7 @@ free. Must land before the watermark is re-baselined or the number moves within 
 - [ ] **RETIRE-06**: `firestarter_app`'s primary `ci` job is GREEN at the existing watermark of 35,
       achieved **without** touching the ring-fenced `eprom_operations.py` cluster.
 
-- [ ] **RETIRE-07**: The removal-safety dependency is recorded as a tripwire, not a sentence in a note —
+- [x] **RETIRE-07**: The removal-safety dependency is recorded as a tripwire, not a sentence in a note —
       a comment at the auto-unlock site plus a test named for the dependency, so that revisiting
       auto-unlock's default forces this decision to be revisited with it.
 
@@ -359,7 +359,7 @@ Populated during roadmap creation.
 | RETIRE-04 | Phase 132 | Pending |
 | RETIRE-05 | Phase 132 | Complete |
 | RETIRE-06 | Phase 132 | Pending |
-| RETIRE-07 | Phase 132 | Pending |
+| RETIRE-07 | Phase 132 | Complete |
 | RETIRE-08 | Phase 132 | Pending |
 | LEG-01 | Phase 134 | Pending |
 | LEG-02 | Phase 134 | Pending |
