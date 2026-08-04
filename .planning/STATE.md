@@ -4,11 +4,11 @@ milestone: v1.30
 milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 133
 current_phase_name: SDP Leg Mechanism
-status: verifying
-stopped_at: Completed 132-09-PLAN.md
-last_updated: "2026-08-03T22:16:43.375Z"
-last_activity: 2026-08-03
-last_activity_desc: Phase 132 complete, transitioned to Phase 133
+status: ready
+stopped_at: Phase 132 UAT complete — Phase 133 not yet planned
+last_updated: "2026-08-04T00:20:00.000Z"
+last_activity: 2026-08-04
+last_activity_desc: "Phase 132 UAT complete — 132-UAT.md, 35/35 passed, 0 issues. 34 of 35 deliverables auto-covered from the nine SUMMARYs' structured coverage: blocks; the one human checkpoint (132-09/D2, the irreducibly-operator branch push + gh workflow run behind certifying run 30856059940) confirmed by the operator. Auto-covered entries were re-measured, not re-read: mypy 32 / watermark 35 / checked 122 via check_mypy_watermark.py's own run_mypy (a hand-rolled `mypy firestarter` argv reads a truncated 19/29 — do not use it), coverage 81.72% vs the 70% floor, 1297 tests + 30 snapshots green, dev roster exactly eight, `dev sdp` refused with Click's no-such-command, ci_replica_venv.sh all five legs exit 0 with numpy absent, and run 30856059940 conclusion success at headSha 42a1971 matching submodule HEAD. 132-VERIFICATION.md (status passed, 5/5) landed mid-session in commit 3c139cdf, which also transitioned ROADMAP + STATE to Phase 133 — Phase 132 fully closed"
 progress:
   total_phases: 6
   completed_phases: 2
