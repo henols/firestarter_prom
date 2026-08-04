@@ -2161,6 +2161,34 @@ Plans:
 
 - [ ] TBD (promote with /gsd-review-backlog when ready)
 
+### Phase 999.29: AT28C256 write-path failure (gh#20) — blank-check/write/verify all BAD on Rev 2.3 (BACKLOG — filed 2026-08-04 by v1.30 Phase 134 LEG-18)
+
+**Goal:** [Captured for future planning] Diagnose the real, still-open AT28C256 write-path defect
+behind [gh#20](https://github.com/henols/firestarter_prom/issues/20): `dev test` on host `3.0.0b14`,
+`Rev 2.3`, reports `blank-check`/`write`/`verify` all `BAD` (write/verify fingerprint
+`indeterminate`), at `vpp 11800 mV` / `vpe 13700 mV` with no droop. Candidate causes, not
+distinguished by the report alone: a genuinely SDP-locked die with no reachable unlock, a marginal
+VPP rail, an uncaught contact fault, or a board-revision-specific protocol mismatch. Needs either
+the reporter's continued engagement or a bench sample the maintainer does not currently have.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Owner:** henols (named so this does not become another unowned acknowledgement; reassignable).
+
+**Origin:** v1.30 Phase 134's LEG-18 triaged this issue against the new SDP baseline-transition gate
+(`134-GH20-TRIAGE.md`) — under that gate, `write-baseline-b` would itself go BAD on this exact
+bench, closing the gate before any lock is emitted, so the milestone's own mechanism is confirmed
+safe against this hazard. **That triage does not diagnose the chip** — the underlying write-path
+defect is a separate, still-open finding this phase only triaged, filed here with a named owner per
+D-16. See `.planning/todos/pending/at28c256-write-path-failure-gh20.md` for the full symptom record
+and `134-GH20-TRIAGE.md` for the triage against the gate.
+
+**The public reply to gh#20 is Phase 137's** (CLOSE-06), behind its blocking operator wording-review
+gate, alongside the gh#12 reply — this backlog item is about the underlying defect, not the reply.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
 ---
 
 ## Backlog — imported from GitHub (`henols/firestarter_prom`, 2026-07-27)
