@@ -5,16 +5,16 @@ milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 134
 current_phase_name: The Plan-Derived SDP Oracle in `dev test`
 status: executing
-stopped_at: Phase 134 — 134-01 complete, wave 2 (134-02) NOT dispatched pending operator confirmation
-last_updated: "2026-08-04T15:13:56.119Z"
+stopped_at: Phase 134 — 134-02 complete (LEG-05/07/08/16 ticked; engine half of LEG-06 proven, exit-code half deferred to 134-05), wave 3 (134-03) next
+last_updated: "2026-08-04T15:51:37.969Z"
 last_activity: 2026-08-04
-last_activity_desc: "Phase 134 EXECUTING — 1 of 11 plans complete (134-01, LEG-03 ticked; suite 1338→1343, coverage 81.88%, mypy unchanged at 33/35). Wave 2 deliberately NOT dispatched: a concurrent `/gsd-plan-phase 134` session was still running when execution began, and the operator reported it complained about work starting under it. Post-hoc inspection found NO damage — no merge or rebase in progress in either repo, both histories linear, the planner's two late commits touched disjoint files (639cba4a → ROADMAP.md only, +26 lines of wave-dependency annotation; b0e489fa → STATE.md only). RESTORED HERE, because two successive `state.begin-phase`/executor writes deleted this field and re-introduced a stray em-dash into `milestone_name`: **the plan-checker verdict for 134 DOES exist and was read.** `gsd-plan-checker` returned `## VERIFICATION PASSED` — 11/11 plans, ZERO blockers, ZERO warnings — having explicitly cleared one-writer-per-file across all 9 waves, disjoint tick ownership, the Evidence Ceiling honesty check, all 7 non-vacuity obligations, and the `test_op_registration_parity.py` collection-time trap. Both blocking gates passed: requirement coverage 14/14, decision coverage 18/18. The `no such artifact` caveat in `134-VALIDATION.md`'s approval note was true when written (the verdict had not yet been committed) but is now FALSE and has been corrected in that file — it applied only to 133. Decisions are **20, D-01…D-20**, not 19: **D-20 is an operator decision taken 2026-08-04 during planning**, putting `sdp-unlock` into the new baseline-gate set so it renders SKIPPED when that gate closed, and **superseding D-08's clause '`sdp-unlock` is never attempted because nothing was locked'** — research measured that wrong, because `OP_SDP_UNLOCK` is deliberately absent from `_DESTRUCTIVE_OPS` per LEG-09, so as D-08 was literally written the unlock would have RUN and reported OK at a part that was never locked. **134-04 is the plan that must honor D-20.** The four measured corrections still stand (the unobservable 0x86 ack; the SIX-step leg the ROADMAP miscounts as four; the inverted marginal-beats-BAD exit precedence, which 134-05 fixes; and 133 D-15's inverted file budget). Full record in `134-CONTEXT.md`. Requirement tick ownership: LEG-01…08, 12, 13, 14, 16, 17, 18 across 8 of 11 plans; 134-04, 134-06 and 134-08 tick nothing. PRIOR: Phase 133 CLOSED and verified 7/7 plans, 4/4 requirements, 5/5 criteria."
+last_activity_desc: "Phase 134 EXECUTING — 2 of 11 plans complete. 134-02 built `_dispatch_sdp_leg` (the read-back-equality oracle, no-default truth table) + `_dispatch_step` arm 6, discharged 134-01's 4 `_dispatch_step` TEMPORARY parity exemption rows in the same commit, and proved LEG-05 (D-03's full 2x2 polarity pin, bool held constant), LEG-07 (partial read-back, gh#11), LEG-08 (4 degenerate fixtures), LEG-16 (committed dead-write-path fixture, D-07) plus LEG-06's engine half only (`(True, B) => BAD`; exit-code half needs D-14's precedence fix, explicitly deferred to 134-05 — not ticked here). Both non-vacuity obligations observed RED then restored byte-identically; obligation #2 produced 3 RED not VALIDATION.md's stated 2 (measured discrepancy, recorded in 134-02-SUMMARY.md — the required `lock_leaked` test duplicates one arm of the swap-sensitive pair). Suite 1343→1361 passed, coverage 81.85%, mypy unchanged at 33/35 (headroom 2, no new source modules). PRIOR: 134-01 complete (LEG-03 ticked). Full record in `134-CONTEXT.md`; plan-by-plan requirement ownership there. Next: 134-03 teaches `derive_plan` to emit the SDP leg's six steps (D-06), discharging the 4 remaining `derive_plan` TEMPORARY exemption rows."
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 34
-  completed_plans: 24
-  percent: 44
+  completed_plans: 25
+  percent: 74
 ---
 
 # Project State
@@ -49,7 +49,7 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 ## Current Position
 
 Phase: 134 (The Plan-Derived SDP Oracle in dev test) — EXECUTING
-Plan: 2 of 11
+Plan: 3 of 11
 
 Artifacts on disk: `133-CONTEXT.md` (D-01…D-16), `133-DISCUSSION-LOG.md`, `133-RESEARCH.md`,
 `133-PATTERNS.md`, `133-VALIDATION.md`, `133-01-PLAN.md` … `133-07-PLAN.md`,
@@ -1241,6 +1241,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 132]: 132-09: mypy's raw completion clause was absent from the CI log by construction (the hardened checker's success path never re-echoes result.stdout, unlike the replica script's own extra instrumentation) -- investigated via the gate's own guard-order logic rather than substituted with a locally-computed number, distinguished explicitly from Phase 131's F-07 (a genuinely aborted, pre-hardening run).
 - [Phase 132]: 132-09: RETIRE-06 ticked -- all eight RETIRE requirements now Complete. Watermark stays at the unratcheted 35 (D-09); measured true count 32, 3 of headroom named as a later phase's ratchet input, not yet filed as its own backlog item.
 - [Phase 134]: 134-01: FLAG_SKIP_SDP_UNLOCK import deferred to 134-02 (ruff F401 flags it unused at 134-01, unlike D-19's assumption) — Plan text said ruff's F rules do not flag unused module-level constants; measured wrong for an unused NAME import -- moved the import to the plan that uses it, narrowed the docstring in prose only
+- [Phase 134]: 134-02: Non-vacuity obligation #2 produced 3 RED (not VALIDATION.md's stated 2) -- the required lock_leaked test independently duplicates one arm of the oracle_readback pair; recorded as a measured discrepancy
 
 ## Performance Metrics
 
@@ -1425,11 +1426,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 132 P08 | 55min | 3 tasks | 3 files |
 | Phase 132 P09 | ~20min | 4 tasks | 5 files |
 | Phase 134 P01 | 28m | 3 tasks | 4 files |
+| Phase 134 P02 | 36min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-04T15:13:56.099Z
-**Stopped at:** Completed 134-01-PLAN.md
+**Last session:** 2026-08-04T15:51:37.951Z
+**Stopped at:** Completed 134-02-PLAN.md
 **Resume file:** 
 None
 

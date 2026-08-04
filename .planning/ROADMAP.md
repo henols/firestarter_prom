@@ -594,7 +594,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 134-02-PLAN.md — `_dispatch_sdp_leg`: the no-default read-back truth table, dispatch arm 6, and the oracle proofs [LEG-05, LEG-07, LEG-08, LEG-16]
+- [x] 134-02-PLAN.md — `_dispatch_sdp_leg`: the no-default read-back truth table, dispatch arm 6, and the oracle proofs [LEG-05, LEG-07, LEG-08, LEG-16]
 
 **Wave 3** *(blocked on Wave 2 completion)*
 

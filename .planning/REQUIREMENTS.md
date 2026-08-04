@@ -209,16 +209,42 @@ requirements encode the corrected form.
       pattern A, verify — before any lock is applied, so a chip carrying the pattern from an earlier run
       cannot yield a passing leg on a dead write path.
 
-- [ ] **LEG-05**: The oracle is **read-back equality** against the baseline pattern. A write that merely
+- [x] **LEG-05**: The oracle is **read-back equality** against the baseline pattern. A write that merely
       reported failure is never accepted as evidence.
+      Evidence: `firestarter_app` commit `7284c7d` (134-02 Task 1, `_dispatch_sdp_leg`'s no-default
+      truth table) + commit `4ac946a` (134-02 Task 2) —
+      `tests/test_chip_test_sdp_leg.py::test_oracle_readback_true_a_produces_ok`,
+      `::test_oracle_readback_true_b_produces_bad` (D-03's polarity pin: `write_eprom`'s bool held
+      CONSTANT at `True` across both, only the read-back varies — a bool-driven implementation cannot
+      produce two different verdicts here), `::test_oracle_readback_false_a_produces_marginal`,
+      `::test_oracle_readback_false_b_produces_marginal` (the precondition gate, both directions).
+      Non-vacuity obligation #2 observed: swapping the `OP_WRITE_INHIBITED` OK/BAD arms produced 3 RED
+      (not VALIDATION.md's stated 2 — a measured discrepancy recorded in `134-02-SUMMARY.md`: the
+      required `lock_leaked` test independently duplicates one arm of the pair), then restored
+      byte-identically.
 
 - [ ] **LEG-06**: A write that unexpectedly **succeeds** after the lock reports **BAD** and exits 1 —
       never SKIPPED, NA, or OK. This is the leg's whole value and the v1.22 defect class it detects.
+      Partial (engine half only): `firestarter_app` commit `4ac946a` (134-02 Task 2) —
+      `tests/test_chip_test_sdp_leg.py::test_lock_leaked_write_ok_true_b_readback_is_bad` proves
+      `(True, B) => BAD` at the engine level. The **exit-code** half (a run containing this result
+      exits 1) is unreachable until D-14's precedence fix lands — **closed by plan `134-05`**, not
+      ticked here.
 
-- [ ] **LEG-07**: A **partial** read-back change reports BAD — this is gh#11's exact symptom.
-- [ ] **LEG-08**: A degenerate read-back — empty, short, all-`0x00`, or all-`0xFF` — reports BAD or
+- [x] **LEG-07**: A **partial** read-back change reports BAD — this is gh#11's exact symptom.
+      Evidence: `firestarter_app` commit `4ac946a` (134-02 Task 2) —
+      `tests/test_chip_test_sdp_leg.py::test_partial_readback_reports_bad` (a 16-byte splice from the
+      live pattern-A/B generators, never a literal).
+
+- [x] **LEG-08**: A degenerate read-back — empty, short, all-`0x00`, or all-`0xFF` — reports BAD or
       marginal, never equality. (The mandated `_diff_offsets` primitive reads an empty read-back as
       perfect equality; the leg must not inherit that.)
+      Evidence: `firestarter_app` commit `2699579` (134-02 Task 3) —
+      `tests/test_chip_test_sdp_leg.py::test_degenerate_readback_empty_is_bad`,
+      `::test_degenerate_readback_short_is_bad` (both BAD via the length gate, checked before any
+      `classify_fingerprint` call — P-02's measured trap), `::test_degenerate_readback_all_zero_is_marginal`,
+      `::test_degenerate_readback_all_ff_is_marginal_blank_contact` (both marginal, D-04's content-degeneracy
+      split; `address-line` deliberately not asserted — unreachable at this leg's exact 256-byte region).
 
 - [x] **LEG-09**: `sdp_unlock` is **exempt** from the destructive-op set, so a destructive gate closing
       after the lock can never skip the unlock and ship a locked part.
@@ -271,9 +297,17 @@ requirements encode the corrected form.
       Correction: the "eight" count above is measured-wrong — the real breakdown is 6 policed
       registries + 6 declared non-registries; see `133-RECORD.md` §3 Criterion 5.
 
-- [ ] **LEG-16**: A committed fixture whose chip starts holding the baseline pattern and whose write is
+- [x] **LEG-16**: A committed fixture whose chip starts holding the baseline pattern and whose write is
       a **no-op** makes the baseline step report BAD. Without it the dead-write-path defect is
       unobservable in a suite whose mocks always start blank.
+      Evidence: `firestarter_app` commit `2699579` (134-02 Task 3) —
+      `tests/test_chip_test_sdp_leg.py::_dead_write_path_operator` (the committed fixture: `write_eprom`
+      claims success, `read_eprom` always yields pattern A regardless of what was written) +
+      `::test_dead_write_path_baseline_b_is_bad` (D-07: the B direction is the leg's entire
+      discriminating power — the shipped write/verify pair, A-only, could never detect this). Non-vacuity
+      obligation #3 observed: making the fixture's write real (read-back returns the last write's actual
+      source) made the baseline step go OK and the fixture's own test fail, then restored
+      byte-identically.
 
 - [ ] **LEG-17**: Each of the six exit-code laundering routes has a test asserting both that
       `sdp_lock` was **not** called and that a visible `NOT-RUN` reason is rendered.
@@ -453,10 +487,10 @@ Populated during roadmap creation.
 | LEG-02 | Phase 134 | Pending |
 | LEG-03 | Phase 134 | Complete |
 | LEG-04 | Phase 134 | Pending |
-| LEG-05 | Phase 134 | Pending |
-| LEG-06 | Phase 134 | Pending |
-| LEG-07 | Phase 134 | Pending |
-| LEG-08 | Phase 134 | Pending |
+| LEG-05 | Phase 134 | Complete |
+| LEG-06 | Phase 134 | Pending (engine half done, 134-02; exit-code half is 134-05's) |
+| LEG-07 | Phase 134 | Complete |
+| LEG-08 | Phase 134 | Complete |
 | LEG-09 | Phase 133 | Complete |
 | LEG-10 | Phase 133 | Complete |
 | LEG-11 | Phase 133 | Complete |
@@ -464,7 +498,7 @@ Populated during roadmap creation.
 | LEG-13 | Phase 134 | Pending |
 | LEG-14 | Phase 134 | Pending |
 | LEG-15 | Phase 133 | Complete |
-| LEG-16 | Phase 134 | Pending |
+| LEG-16 | Phase 134 | Complete |
 | LEG-17 | Phase 134 | Pending |
 | LEG-18 | Phase 134 | Pending |
 | RELOCK-01 | ~~Phase 135~~ → Backlog 999.28 | ⏸ Deferred (out of v1 scope) |
