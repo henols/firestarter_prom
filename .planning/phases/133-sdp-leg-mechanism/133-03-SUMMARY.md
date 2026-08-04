@@ -268,3 +268,13 @@ None -- no external service configuration required.
 ---
 *Phase: 133-sdp-leg-mechanism*
 *Completed: 2026-08-04*
+
+## Self-Check: PASSED
+
+- FOUND: `firestarter_app/firestarter/chip_test.py`
+- FOUND: `firestarter_app/tests/test_chip_test_sdp_leg.py`
+- FOUND: `.planning/phases/133-sdp-leg-mechanism/133-03-SUMMARY.md`
+- FOUND commit: `ded8e3e` (submodule `firestarter_app`)
+- FOUND commit: `9b92b1a` (submodule `firestarter_app`)
+- FOUND commit: `1761a82` (submodule `firestarter_app`)
+- FOUND commit: `eaa79b4` (meta repo)
