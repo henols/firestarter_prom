@@ -188,11 +188,37 @@ free. Must land before the watermark is re-baselined or the number moves within 
 The milestone's reason to exist. Research invalidated the design note's step table as written; these
 requirements encode the corrected form.
 
-- [ ] **LEG-01**: For each of the 43 SDP-capable `0x0D` chips, `dev test` derives a four-step SDP leg
+- [x] **LEG-01**: For each of the 43 SDP-capable `0x0D` chips, `dev test` derives a four-step SDP leg
       from `sdp_capability()` — with **no new command-line option** (`dev test` keeps zero options).
+      **Complete** (Phase 134 plan 134-03): `firestarter_app` commit `fcb3b28` (`derive_plan`'s SDP-leg
+      emission block, `_SDP_LEG_STEP_ORDER`, calling `sdp_capability(name, db)` as the derivation source)
+      + `f2f280c` — `tests/test_chip_test_sdp_leg.py::test_derive_plan_allow_population_emits_six_supported_ops`
+      (all 43 measured ALLOW chips), `::test_derive_plan_allow_dev_test_exposes_zero_cli_options`
+      (structural zero-`click.Option` check on the real `dev_test` command, not exit-code-only), and
+      `::test_derive_plan_allow_flips_supported_when_sdp_capability_patched` (patches `sdp_capability` to
+      return REFUSE for a really-ALLOW chip and observes the derived steps flip — proves derivation, not
+      coincidence). ⚠ **D-06 CORRECTION, ticked with BOTH readings recorded, not silently satisfied**:
+      this requirement's own text says a **four**-step leg; the leg actually derived and shipped is
+      **SIX** steps, in order — `write-baseline-b` · `write-baseline-a` · `sdp-lock` · `write-inhibited`
+      · `sdp-unlock` · `write-restored`. The inherited "four" predates LEG-04's two-transition-direction
+      mandate and omits `write-restored` — the only step producing evidence the part was left writable
+      again, on a family whose protection state cannot be read back. Both readings are recorded in
+      `firestarter_app/firestarter/chip_test.py`'s `_SDP_LEG_STEP_ORDER` comment and in
+      `134-03-SUMMARY.md`; six is what ships.
 
-- [ ] **LEG-02**: For each of the 41 capability-REFUSED chips, the leg's steps report NA/SKIPPED
+- [x] **LEG-02**: For each of the 41 capability-REFUSED chips, the leg's steps report NA/SKIPPED
       carrying the refusal reason, never a silent omission.
+      **Complete** (Phase 134 plan 134-03): `firestarter_app` commit `fcb3b28` + `f2f280c` —
+      `tests/test_chip_test_sdp_leg.py::test_derive_plan_refuse_population_emits_six_na_steps_with_reason`
+      (all 41 measured REFUSE chips; each step's `reason` asserted EQUAL to
+      `sdp_capability(name, db)[1]` — identity against the live function, never a substring match) and
+      `::test_derive_plan_refuse_run_plan_reports_na_with_no_operator_call` (`run_plan` turns each
+      unsupported step into `VERDICT_NA` with zero operator calls — the existing NA path, zero new
+      machinery). At `write_scope="none"` (unreachable from a real `dev test` run since Phase 121's
+      reversal) a REFUSE chip's SDP leg emits NOTHING at all — a plan-time refinement of D-18 recorded in
+      `134-03-SUMMARY.md`, proven by commit `294cb97`'s
+      `::test_refuse_write_scope_none_is_byte_identical_to_pre_phase134` and kept from breaking LEG-10's
+      named `test_empty_registry_noop`.
 
 - [x] **LEG-03**: The inhibited-write payload comes from its own named generator and is the bitwise
       complement of the baseline pattern — differing from it in **every** byte, and equal to neither
@@ -205,9 +231,17 @@ requirements encode the corrected form.
       `_FF_RATIO_THRESHOLD` — all against the live generators for the real `(0, 256)` region, never a
       byte literal. Non-vacuity obligation #1 observed RED once, then restored byte-identically.
 
-- [ ] **LEG-04**: The baseline step proves a write **transition** — write pattern B, verify, write
+- [x] **LEG-04**: The baseline step proves a write **transition** — write pattern B, verify, write
       pattern A, verify — before any lock is applied, so a chip carrying the pattern from an earlier run
       cannot yield a passing leg on a dead write path.
+      **Complete** (Phase 134 plans 134-02 + 134-03): the transition *semantics* landed in 134-02
+      (`_dispatch_sdp_leg`'s read-back-equality oracle; `test_dead_write_path_baseline_b_is_bad` proves
+      the B direction is the leg's entire discriminating power, D-07); the *ordering* proof — that
+      `write-baseline-b` and `write-baseline-a` both run, in that order, strictly BEFORE `sdp-lock` is
+      ever attempted, on every ALLOW chip's derived plan — is 134-03's, commit `fcb3b28` (the emission)
+      + `f2f280c` — `tests/test_chip_test_sdp_leg.py::test_derive_plan_baseline_transition_ordering`
+      (both baseline directions present; `write-inhibited` strictly between lock/unlock; `write-restored`
+      the LAST step in the plan).
 
 - [x] **LEG-05**: The oracle is **read-back equality** against the baseline pattern. A write that merely
       reported failure is never accepted as evidence.
@@ -483,10 +517,10 @@ Populated during roadmap creation.
 | RETIRE-06 | Phase 132 | Complete |
 | RETIRE-07 | Phase 132 | Complete |
 | RETIRE-08 | Phase 132 | Complete |
-| LEG-01 | Phase 134 | Pending |
-| LEG-02 | Phase 134 | Pending |
+| LEG-01 | Phase 134 | Complete |
+| LEG-02 | Phase 134 | Complete |
 | LEG-03 | Phase 134 | Complete |
-| LEG-04 | Phase 134 | Pending |
+| LEG-04 | Phase 134 | Complete |
 | LEG-05 | Phase 134 | Complete |
 | LEG-06 | Phase 134 | Pending (engine half done, 134-02; exit-code half is 134-05's) |
 | LEG-07 | Phase 134 | Complete |

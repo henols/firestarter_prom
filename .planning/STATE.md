@@ -5,16 +5,16 @@ milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 134
 current_phase_name: The Plan-Derived SDP Oracle in `dev test`
 status: executing
-stopped_at: Phase 134 — 134-02 complete (LEG-05/07/08/16 ticked; engine half of LEG-06 proven, exit-code half deferred to 134-05), wave 3 (134-03) next
-last_updated: "2026-08-04T15:51:37.969Z"
+stopped_at: Phase 134 — 134-03 complete (LEG-01/02/04 ticked; derive_plan emits the six-step SDP leg), wave 4 (134-04) next
+last_updated: "2026-08-04T16:39:58.203Z"
 last_activity: 2026-08-04
-last_activity_desc: "Phase 134 EXECUTING — 2 of 11 plans complete. 134-02 built `_dispatch_sdp_leg` (the read-back-equality oracle, no-default truth table) + `_dispatch_step` arm 6, discharged 134-01's 4 `_dispatch_step` TEMPORARY parity exemption rows in the same commit, and proved LEG-05 (D-03's full 2x2 polarity pin, bool held constant), LEG-07 (partial read-back, gh#11), LEG-08 (4 degenerate fixtures), LEG-16 (committed dead-write-path fixture, D-07) plus LEG-06's engine half only (`(True, B) => BAD`; exit-code half needs D-14's precedence fix, explicitly deferred to 134-05 — not ticked here). Both non-vacuity obligations observed RED then restored byte-identically; obligation #2 produced 3 RED not VALIDATION.md's stated 2 (measured discrepancy, recorded in 134-02-SUMMARY.md — the required `lock_leaked` test duplicates one arm of the swap-sensitive pair). Suite 1343→1361 passed, coverage 81.85%, mypy unchanged at 33/35 (headroom 2, no new source modules). PRIOR: 134-01 complete (LEG-03 ticked). Full record in `134-CONTEXT.md`; plan-by-plan requirement ownership there. Next: 134-03 teaches `derive_plan` to emit the SDP leg's six steps (D-06), discharging the 4 remaining `derive_plan` TEMPORARY exemption rows."
+last_activity_desc: "Phase 134 EXECUTING — 3 of 11 plans complete. 134-03 taught `derive_plan` to emit the D-06 six-step SDP leg from `sdp_capability()`: all 43 measured ALLOW chips derive six real supported steps; all 41 measured REFUSE chips derive six NA steps carrying `sdp_capability()`'s own refusal reason verbatim (LEG-02's zero-new-machinery NA path). `write_scope=\"none\"`: ALLOW chips get six locked_destructive entries (D-18); REFUSE chips get nothing at all (a plan-time D-18 refinement taken on four measurements, since this branch is unreachable from a real `dev test` run since Phase 121's reversal). Discharged the last 6 `derive_plan` parity exemption rows in the same commit. Proved LEG-01 (43-chip population + structural zero-CLI-option check + sdp_capability-patch derivation proof), LEG-02 (41-chip population + zero-operator-call proof), LEG-04 (ordering proof: both baselines before sdp-lock, inhibited between lock/unlock, restored last) — ticked all three, with LEG-01/LEG-02's D-06 correction (six steps, not the requirement text's four) recorded in the evidence clause. Repaired 3 shipped tests the emission necessarily changed (a get_eprom call-count assertion, M8720's now-six-longer op list, and both AT28C256 0x0D sweeps via a new stateful SDP-lock-aware operator double) plus documented one measured, out-of-scope finding (build_db_diff's ladder_state no longer reaches community-reported for a genuinely-passing ALLOW chip, flagged for Phase 137/backlog). Suite 1361→1370 passed, coverage 81.94%, mypy unchanged at 33/35 (headroom 2). PRIOR: 134-01 (LEG-03), 134-02 (LEG-05/07/08/16, LEG-06 engine half). Full record in `134-CONTEXT.md`; plan-by-plan requirement ownership there. Next: 134-04 builds the baseline gate (`_baseline_closes_sdp_gate`, D-08/D-20); LEG-06's exit-code half is 134-05's."
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 34
-  completed_plans: 25
-  percent: 74
+  completed_plans: 26
+  percent: 76
 ---
 
 # Project State
@@ -49,7 +49,7 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 ## Current Position
 
 Phase: 134 (The Plan-Derived SDP Oracle in dev test) — EXECUTING
-Plan: 3 of 11
+Plan: 4 of 11
 
 Artifacts on disk: `133-CONTEXT.md` (D-01…D-16), `133-DISCUSSION-LOG.md`, `133-RESEARCH.md`,
 `133-PATTERNS.md`, `133-VALIDATION.md`, `133-01-PLAN.md` … `133-07-PLAN.md`,
@@ -1242,6 +1242,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 132]: 132-09: RETIRE-06 ticked -- all eight RETIRE requirements now Complete. Watermark stays at the unratcheted 35 (D-09); measured true count 32, 3 of headroom named as a later phase's ratchet input, not yet filed as its own backlog item.
 - [Phase 134]: 134-01: FLAG_SKIP_SDP_UNLOCK import deferred to 134-02 (ruff F401 flags it unused at 134-01, unlike D-19's assumption) — Plan text said ruff's F rules do not flag unused module-level constants; measured wrong for an unused NAME import -- moved the import to the plan that uses it, narrowed the docstring in prose only
 - [Phase 134]: 134-02: Non-vacuity obligation #2 produced 3 RED (not VALIDATION.md's stated 2) -- the required lock_leaked test independently duplicates one arm of the oracle_readback pair; recorded as a measured discrepancy
+- [Phase ?]: derive_plan calls sdp_capability(name, db) literally (not sdp_capability_for_entry) so Task 2's monkeypatch-derivation proof works; costs a second db.get_eprom call per invocation, a shipped test repaired to expect 2 calls not 1
+- [Phase ?]: REFUSE-chip write_scope=none emits nothing at all (neither a Step nor a locked_destructive entry) -- a plan-time D-18 refinement taken on four measurements, since this branch is unreachable from a real dev test run since Phase 121's reversal
 
 ## Performance Metrics
 
@@ -1427,11 +1429,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 132 P09 | ~20min | 4 tasks | 5 files |
 | Phase 134 P01 | 28m | 3 tasks | 4 files |
 | Phase 134 P02 | 36min | 3 tasks | 3 files |
+| Phase 134 P03 | 46min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-04T15:51:37.951Z
-**Stopped at:** Completed 134-02-PLAN.md
+**Last session:** 2026-08-04T16:39:58.184Z
+**Stopped at:** Completed 134-03-PLAN.md
 **Resume file:** 
 None
 

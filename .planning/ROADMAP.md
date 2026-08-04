@@ -598,7 +598,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 134-03-PLAN.md — `derive_plan` emits the six-step leg (ALLOW) / six NA steps (REFUSE), parity rows discharged, the 0x0D sweep repaired [LEG-01, LEG-02, LEG-04]
+- [x] 134-03-PLAN.md — `derive_plan` emits the six-step leg (ALLOW) / six NA steps (REFUSE), parity rows discharged, the 0x0D sweep repaired [LEG-01, LEG-02, LEG-04]
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
