@@ -584,10 +584,27 @@ holds and still governs any concurrent plan inside this phase.
      `dev test` FAIL open since 2026-07-30) has been triaged against the new baseline-transition gate,
      with the finding recorded.
 
-**Plans**: TBD
+**Plans**: 11 plans (waves 1→9; `chip_test.py` is a strictly serial spine carrying 8 of the 14
+requirements, and worktree isolation is unavailable inside the `firestarter_app` submodule)
+
+Plans:
+- [ ] 134-01-PLAN.md — op vocabulary, `_SDP_LEG_OPS`, the D-19 pattern-B generator, the coupled op-parity gate update, and the pre-edit CI-parity record [LEG-03]
+- [ ] 134-02-PLAN.md — `_dispatch_sdp_leg`: the no-default read-back truth table, dispatch arm 6, and the oracle proofs [LEG-05, LEG-07, LEG-08, LEG-16]
+- [ ] 134-03-PLAN.md — `derive_plan` emits the six-step leg (ALLOW) / six NA steps (REFUSE), parity rows discharged, the 0x0D sweep repaired [LEG-01, LEG-02, LEG-04]
+- [ ] 134-04-PLAN.md — `_baseline_closes_sdp_gate` + D-20's unlock gating, cleanup de-registration, and the `sdp_hold_state` derivation [ticks nothing]
+- [ ] 134-05-PLAN.md — D-14's explicit exit precedence and the end-to-end leaked-lock exit-1 proof [LEG-06]
+- [ ] 134-06-PLAN.md — the `HELD`/`NOT-HELD`/`NOT-RUN` string field, `to_dict` key, console row, `SCHEMA_VERSION` 1.3 [ticks nothing]
+- [ ] 134-07-PLAN.md — hold-state assignment at the seam and D-15's ALLOW-only exit floor beneath D-14 [LEG-12]
+- [ ] 134-08-PLAN.md — the rewritten always-writes notice with a derived pass count, and D-12's two recovery forms [ticks nothing]
+- [ ] 134-09-PLAN.md — `tests/test_sdp_recovery_wording.py`: the scoped, fail-closed recovery-wording gate [LEG-14]
+- [ ] 134-10-PLAN.md — the six laundering routes R1–R6 and the N-of-M pinning test [LEG-13, LEG-17]
+- [ ] 134-11-PLAN.md — the gh#20 triage finding, an owned backlog item, the CI-parity after-record, and `134-RECORD.md` [LEG-18]
+
 **Research flag**: NEEDS `--research-phase` — inherits Phase 133's open question (the `_dispatch_sdp`
 shape) since the four ops' dispatch depends on the answer; everything else — the truth table, the
-region, the pattern construction — is fully specified.
+region, the pattern construction — is fully specified. **Discharged 2026-08-04**: `134-RESEARCH.md`
+resolved it — the frozen `_dispatch_sdp` signature is not reopened; the four write-shaped ops get their
+own `_dispatch_sdp_leg` cloning the same guard → branch → terminal-raise idiom.
 **Cross-cutting**: This phase's own acceptance criteria must be **listed explicitly, not incidental**:
 the write-succeeded ⇒ BAD+exit-1 test, the both-directions oracle test, the four degenerate-read-back
 fixtures, the per-exit-code-laundering-route tests, and the "erase"-forbidding grep. At dispatch, name
