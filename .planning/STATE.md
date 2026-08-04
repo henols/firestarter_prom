@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.30
 milestone_name: SDP Surface Retirement & Behavioral Lock Proof
-current_phase: 133
-current_phase_name: SDP Leg Mechanism
-status: executing
-stopped_at: Phase 133 executing — 7 plans, wave 1 of 7
-last_updated: "2026-08-04T07:15:00.000Z"
+current_phase: 134
+current_phase_name: The Plan-Derived SDP Oracle in `dev test`
+status: ready
+stopped_at: Phase 133 CLOSED and verified — Phase 134 not yet discussed
+last_updated: "2026-08-04T11:30:39.473Z"
 last_activity: 2026-08-04
-last_activity_desc: "Phase 133 PLANNED — 7 plans in 7 strictly-sequential waves (133-01…133-07, commit 9d7adf38), plus 133-RESEARCH.md (1443 lines), 133-PATTERNS.md and 133-VALIDATION.md (nyquist_compliant: true). Gates: requirements 4/4 (LEG-09/10/11/15, no Phase-134 id claimed anywhere), decision-coverage 14/14 trackable, frontmatter 7/7, plan-structure 7/7 (17 tasks), plan-checker VERIFICATION PASSED with 0 blockers. Research/pattern-mapping produced FOUR findings the discuss-phase record did not carry, each now a task-level constraint: (1) chip_test.py's `_sample` ALREADY holds `except Exception:` and its `# noqa: BLE001` is INERT (ruff select is E,F,I,UP — `except:` is caught by E722, `except Exception:`/`BaseException:` by nothing), so D-09's new deny-rule fires RED on clean pre-existing source — 133-05 must land the exemption and the deny-rule in ONE commit; (2) the cleanup drain must NOT append into `results` — `return results` in `try` + `append` in `finally` IS caller-visible and `results` feeds SEVEN consumers at cli_handlers.py:2164-2219 (count_applicable would render \"8 of 7 ran\"), latent in 133 and detonating in 134, so it is an AST acceptance criterion in 133-04, not a comment; (3) tests/test_chip_test.py:793-801's `_OPERATOR_METHODS` is a Mock(spec=[...]) allow-list WITHOUT sdp_lock/sdp_unlock, so the new arm would AttributeError against the existing double; (4) `_run_step`'s except EpromOperationError body is the ONLY one populating `error_code`, so D-08's two new clauses must omit that field. Three operator decisions taken at plan time and added to CONTEXT.md as D-14 (the `_sample` broad-except is exempted via a committed (file, function) → reason table with an empty-reason guard AND a stale-row guard — chosen over a declared-count watermark, which binds to no location), D-15 (behavioral tests live in a NEW tests/test_chip_test_sdp_leg.py, which with test_op_registration_parity.py spends BOTH slots of the 122-vs-MIN_CHECKED_SOURCE_FILES-120 margin exactly), D-16 (a failed unlock is proven by test-observability ONLY in 133 — chip_test.py has no logger, add_note is 3.11+ against a 3.9 floor, and results is off-limits — with the residual that it is not user-visible until Phase 134's HELD/NOT-RUN field written into the record, not footnoted). Two measured corrections to inherited numbers: ROADMAP criterion 5's \"eight fail-open registries\" is WRONG (three of P-23's ten rows have no op vocabulary at all — parse_devtest_issue.py, and generalized by research, dedup_fingerprint and the renderer are fully generic), and ci_parity.sh has NO discrete no-board leg, so the ROADMAP's cross-cutting instruction is discharged as an ambient no-board condition on legs 1/2, asserted and recorded, never as a leg name. Planner derived one thing neither CONTEXT.md nor RESEARCH.md states — OP_SDP_LOCK ∈ _DESTRUCTIVE_OPS, because D-11's \"gate-closed-from-the-start ⇒ sdp_lock is SKIPPED\" is only reachable if a lock can be gated — recorded as a derivation-with-evidence in 133-03 and carried into 133-07 §2, consistent with OP_SDP_UNLOCK staying OUT. Wave order inverts the research's suggestion on a measured constraint (LEG-10's drain tests need a real sdp_lock step to register a cleanup, so the dispatch arm must exist first, else the drain needs a production seam no caller uses — this module's recorded \"documented dead\" failure mode). 13 mutation proofs across the phase: every new gate leg must be SEEN to fail under a named working-tree mutation with the observed message recorded. Only 133-07 may tick requirements, and its verify asserts exactly 4 ticked and exactly 14 still-open LEG rows, so the Phase-134 fence is machine-checked. Worktrees OFF phase-wide (same disposition as 129/131/132). Both pre-edit baselines (exception_precedence_matrix, shipped_ops_sequence_unchanged) are captured by 133-01 BEFORE any chip_test.py edit — they are criterion 4's only real evidence and are worthless if written after. mypy headroom is 3 (32 vs watermark 35) and A1 (a new plain test module contributes 0) is explicitly UNMEASURED/LOW — 133-01 and 133-07 both require a real count via tools/ci_replica_venv.sh; the watermark is NOT moved. Next: /gsd-execute-phase 133. PRIOR CONTEXT (Phase 133 discuss, commit 89878e36): Two gray areas discussed (the `_dispatch_sdp` shape; the `run_plan` finally + what `_run_step` catches), yielding D-01…D-11 tracked plus D-12/D-13 under Claude's Discretion; the decision-coverage gate parses 11 tracked ids. Three measured corrections recorded for the researcher/planner: research/SUMMARY.md's phase numbers are off by one against the current ROADMAP (its §Phase 133 is the ORACLE = ROADMAP 134, so cite research by P-number only), tools/parse_devtest_issue.py has NO op vocabulary so P-23's ten registries are nine policeable plus one phantom, and P-20/P-23's line anchors have drifted (run_plan :757-802 → :709-794, _MULTI_RUN_OPS :657 → :654, _dispatch_step :903-948 → :901-952). Honest consequence carried forward: D-05 drops Step.group, which makes ROADMAP criterion 4's `group=None` clause vacuous — the phase record must say the intent was met by another mechanism, not restate the criterion. Budget measured for the new test module: mypy 32 against watermark 35 = 3 slots; checked 122 against MIN_CHECKED_SOURCE_FILES 120 = 2 slots. Phase 133 is Planned-pending — no plans exist yet; next is /gsd-plan-phase 133 --research."
+last_activity_desc: "Phase 133 SDP Leg Mechanism CLOSED and VERIFIED (5/5 success criteria, 7/7 plans, gsd-verifier ran its own live mutation rather than trusting SUMMARY narration). Suite 1301 → 1338 (+37 tests) across the seven sequential waves; 30 snapshots unchanged; ruff clean; check_devtest_orchestrator exit 0; test_skip_census 5 passed (no new skips). mypy 33 errors / 124 checked against watermark 35 and MIN_CHECKED_SOURCE_FILES 120 — NEITHER threshold moved all phase. REQUIREMENTS.md: exactly LEG-09/LEG-10/LEG-11/LEG-15 ticked, exactly 14 LEG rows still open, tick diff confined to those four checkbox lines — the Phase-134 fence is machine-checked. What shipped: run_plan wraps its step loop in a bare try/finally draining a generic cleanup registry that provably never references the name `results` (AST-enforced — the trap was that `return results` in try + append in finally is caller-visible and results feeds SEVEN consumers in cli_handlers.py, which would render \"8 of 7 ran\"); _run_step has four except clauses in D-08 order (ProgrammerNotFoundError/FirmwareOutdatedError re-raised FIRST, SerialError/HardwareOperationError degrade one step with error_code omitted, EpromOperationError unchanged as the only clause populating error_code, ChipNotImplementedError/ChipNotFoundError last); OP_SDP_LOCK/OP_SDP_UNLOCK + _SDP_OPS with _dispatch_sdp as arm 5 LAST in _dispatch_step above the terminal fail-closed return; _DESTRUCTIVE_OPS = {WRITE, WRITE_PARTIAL, ERASE, SDP_LOCK} with SDP_UNLOCK deliberately OUT (planner derivation, since D-11's gate-closed ⇒ sdp_lock SKIPPED is only reachable if a lock can be gated); a fourth broad-except deny bucket in tools/check_devtest_orchestrator.py with D-14's guarded exemption table; and tests/test_op_registration_parity.py as the LEG-15 fail-closed gate. FILE BUDGET NOW EXHAUSTED: exactly two new source files added (tests/test_chip_test_sdp_leg.py, tests/test_op_registration_parity.py) — both of D-15's slots are SPENT, so Phase 134 has ZERO headroom against MIN_CHECKED_SOURCE_FILES 120 and must not add a source file without re-measuring. SIX honest costs carried into the record, not footnoted: (1) plan 133-05 SHIPPED A TYPE ERROR NO GATE COULD SEE — check_devtest_orchestrator.py:442 (commit feb90f6, confirmed by git blame), invisible because nothing mypy follows ever imported that module (its own test drives it through subprocess); 133-06's import exposed it, moving mypy 32→33 and cutting headroom from 3 to 2. This is a GATE BLIND SPOT for subprocess-only-tested tools, not an inert pre-existing condition — any tool tested only via subprocess is currently untyped in practice. (2) 133-03's plan-specified arm-order sentinel was VACUOUS: mocking _dispatch_sdp and asserting not-called stayed green even with the arm moved to the front, because shipped op strings are never in _SDP_OPS at any position; rewritten to monkeypatch _SDP_OPS so it is genuinely position-sensitive. (3) 133-04's plan-specified `lambda: _run_step(...)` registration shape is a real mypy arg-type mismatch against Callable[[], None]; replaced with a nested def _unlock_cleanup() -> None. (4) D-14 specified a (file, function) exemption key but it landed as (basename, function) — equivalent today because the three scanned files have distinct basenames in one directory, a latent over-broadening if a same-basename file ever enters the scan set. (5) ROADMAP criterion 4's `group=None` clause is VACUOUS (D-05 dropped Step.group; verifier confirmed no group field exists anywhere) with intent met by the three-constant precedence triple instead — its literal words are never restated as tested. (6) criterion 5's inherited \"eight previously fail-open registries\" is MEASURED-WRONG, replaced by 6 policed registries (_DESTRUCTIVE_OPS, _MULTI_RUN_OPS, _SDP_OPS, _dispatch_step, derive_plan, _dispatch_multi_run) + 6 declared non-registries (_RAN_VERDICTS/count_applicable, dedup_fingerprint, the DiagnosticReport renderer, tools/parse_devtest_issue.py, _ALWAYS_WRITES_NOTICE, _HANDLER_FUNCTION_NAMES). D-16 residual stands: a FAILED unlock is provable by test-observability ONLY — chip_test.py has no logger, add_note is 3.11+ against a 3.9 floor, results is off-limits — so it is NOT user-visible until Phase 134 adds the HELD/NOT-RUN field. EVIDENCE CEILING: this phase proves the MECHANISM cannot strand a chip or lose a report and that the op registries fail closed; it proves NOTHING about SDP behaviour on silicon — no hardware ran, and the verifier scanned all artifacts for silicon overclaims and found none. TOOLING LANDMINES HIT TWICE THIS PHASE, both repaired by hand: `state.begin-phase` AND `phase.complete` each corrupted STATE.md frontmatter — prepending a stray em-dash to milestone_name, slug-ifying or flattening current_phase_name and last_activity_desc, and (begin-phase only) severing three body sentences mid-flow into orphaned fragments. ALWAYS snapshot STATE.md and diff before trusting either verb. `phase.complete` ALSO clobbered archived v1.3 Phase 11's `**Plans:** 13/13` line to `7/7` — because v1.30 phase sections have NO `**Plans:**` line for its regex to find, so it wandered into the archived section; restored by line-targeted edit. Bench note for any future run: pyproject sets addopts = \"-ra -q\", so passing -q AGAIN suppresses pytest's pass/fail count line entirely and a green run looks contentless — use -o addopts=\"\" when a count matters. Worktrees OFF phase-wide (same disposition as 129/131/132; plan criteria use absolute /workspaces/firestarter_app paths that do not exist inside a worktree). Next: /gsd-discuss-phase 134 — the plan-derived SDP oracle, which consumes 133's dispatch arm and cleanup drain."
 progress:
   total_phases: 7
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 23
-  completed_plans: 16
-  percent: 29
+  completed_plans: 23
+  percent: 43
 ---
 
 # Project State
@@ -29,10 +29,10 @@ See: `.planning/PROJECT.md` (updated 2026-08-03 — v1.30 started)
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
 authoritative dispatch key end to end. v1.23 added a fourth board target *beneath* that contract
 without disturbing it.
-**Current focus:** **Phase 133 — SDP Leg Mechanism** (EXECUTING, 7 plans, 7 sequential waves), inside
+**Current focus:** **Phase 134 — The Plan-Derived SDP Oracle in `dev test`** (not yet discussed), inside
 **v1.30 SDP Surface Retirement & Behavioral Lock Proof** — ACTIVE (activated
 2026-08-03 from the operator-queued slot of 2026-07-31, promoted from Backlog 999.25). Host-only
-(`firestarter_app`); **131 CLOSED**, phases continue at **132**. v1.24–v1.27 remain queued and
+(`firestarter_app`); **131, 132 and 133 CLOSED**, phases continue at **134**. v1.24–v1.27 remain queued and
 unscoped; v1.29 stays deliberately vacant.
 
 **⏸ Phase 135 (`write --sdp-relock`) DEFERRED 2026-08-03** by operator decision → ROADMAP Backlog
@@ -48,11 +48,13 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 
 ## Current Position
 
-Phase: 133 — SDP Leg Mechanism — **EXECUTING**
-Plan: 6 of 7 executed (133-01 … 133-07) — 7 strictly-sequential waves, wave 7 in flight
+Phase: 134 — The Plan-Derived SDP Oracle in `dev test`
+Plan: Not started
 
 Artifacts on disk: `133-CONTEXT.md` (D-01…D-16), `133-DISCUSSION-LOG.md`, `133-RESEARCH.md`,
-`133-PATTERNS.md`, `133-VALIDATION.md`, `133-01-PLAN.md` … `133-07-PLAN.md`.
+`133-PATTERNS.md`, `133-VALIDATION.md`, `133-01-PLAN.md` … `133-07-PLAN.md`,
+`133-01-SUMMARY.md` … `133-07-SUMMARY.md`, `133-BASELINE.md`, `133-CI-PARITY.md`,
+`133-RECORD.md`, `133-VERIFICATION.md`, `deferred-items.md`.
 All code lands **inside the `firestarter_app` submodule** on `gsd/v1.30-sdp-surface-retirement`
 (the meta branch name deliberately differs). Firmware untouched — host-only.
 
@@ -79,7 +81,8 @@ two non-literal, seven corrections, four residuals) and ticked **RETIRE-06** —
 requirements are now Complete.** Phase 131 D-11's deferred hardened-gate-in-CI proof is discharged.
 Status: Phase 131 CLOSED and verified (10/10 GATE requirements). **Phase 132 CLOSED and verified
 (9/9 plans, 8/8 RETIRE requirements, 5/5 success criteria)** — the phase-close verification pass ran
-and passed. Next action is Phase 133.
+and passed. **Phase 133 is now also CLOSED and verified (7/7 plans, 4/4 LEG requirements, 5/5 success
+criteria).** Next action is Phase 134.
 Research was SKIPPED per ROADMAP's own `Research flag: SKIP`; **Nyquist Dimension 8 was
 operator-acknowledged as unavailable for 132's planning run** (no RESEARCH.md ⇒ no VALIDATION.md)
 — acknowledged, not disabled, same as 131. Compensated by making every acceptance criterion a
@@ -159,8 +162,8 @@ is `requires_fw`-skipped under CI-parity recipe leg 1, so all DB-only count legs
 Read D-17 before acting on either. `131-07` step (f) now also annotates the matching
 `REQUIREMENTS.md` Out-of-Scope row, which repeated the same disproven claim.
 
-Last activity: 2026-08-03 — Phase 132 complete and verified (9/9 plans, 8/8 RETIRE requirements,
-5/5 success criteria), transitioned to Phase 133. Phase 133/134 is a deliberate split of the research
+Last activity: 2026-08-04 — Phase 133 CLOSED and verified (7/7 plans, 4/4 requirements
+LEG-09/10/11/15, 5/5 success criteria), transitioned to Phase 134. Phase 133/134 is a deliberate split of the research
 spine's single combined "leg" phase (18 LEG requirements judged too large for one phase at this
 project's `Comprehensive` granularity).
 **This milestone must NOT be run under `--auto`/`--chain`** — Phase 137 (CLOSE-06) carries a blocking

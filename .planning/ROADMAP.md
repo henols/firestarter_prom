@@ -308,7 +308,7 @@ Phase 137.
 
 - [x] **Phase 131: Gate Hardening & CI Parity** - Make the mypy watermark gate fail-closed and record one real, current post-fork error count, before any later phase's "green suite" claim can be trusted. (completed 2026-08-03)
 - [x] **Phase 132: Retire `dev sdp` & Discharge the mypy Debt** - Delete the unverifiable standalone SDP command, re-home its honesty tests, and get `firestarter_app`'s primary `ci` job GREEN at the existing watermark. (completed 2026-08-03)
-- [ ] **Phase 133: SDP Leg Mechanism** - Give `dev test`'s step engine a cleanup registry, a wider exception net, and a parity-tested op-registration path — the infrastructure the oracle is built on.
+- [x] **Phase 133: SDP Leg Mechanism** - Give `dev test`'s step engine a cleanup registry, a wider exception net, and a parity-tested op-registration path — the infrastructure the oracle is built on. (completed 2026-08-04)
 - [ ] **Phase 134: The Plan-Derived SDP Oracle in `dev test`** - Add the four-step SDP leg whose oracle is read-back equality, not an exit code, so an unexpected write success is reported BAD.
 - ⏸ **Phase 135: `write --sdp-relock`** - **DEFERRED 2026-08-03 (operator decision) → Backlog 999.28.** Checkbox deliberately removed so `phase.complete` after Phase 134 advances to Phase 136, not into a deferred phase with no directory. Number NOT reused — Phases 136/137 keep their numbers. RELOCK-01…06 leave v1 scope; RELOCK-07 (stale-label re-homing) is retained and re-homed to Phase 137.
 - [ ] **Phase 136: Dev-Tools Channel Gating** - Make the stable channel's `dev` group expose only `read`/`test`, by not registering anything else.
