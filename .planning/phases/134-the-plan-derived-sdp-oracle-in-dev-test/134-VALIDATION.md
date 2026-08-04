@@ -1,10 +1,11 @@
 ---
 phase: 134
 slug: the-plan-derived-sdp-oracle-in-dev-test
-status: draft
-nyquist_compliant: false
+status: approved
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-08-04
+approved: 2026-08-04
 ---
 
 # Phase 134 — Validation Strategy
@@ -117,13 +118,35 @@ gates twice (v1.23 P129/P130). Each must be **observed RED once**, then restored
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 10 s (per commit)
-- [ ] Every non-vacuity obligation above observed RED, then restored byte-identically
-- [ ] mypy headroom recorded at every wave merge (start: 33/35, **2 slots**)
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies — **measured 2026-08-04: 11/11 plans,
+      every task. `134-05/06/07/09` carry 2 tasks / 2 `<automated>`; the other seven carry 3 / 3.
+      Zero tasks without one.**
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify — **trivially satisfied:
+      there are zero gaps, so the longest run without automated verify is 0.**
+- [x] Wave 0 covers all MISSING references — **satisfied by a DIFFERENT mechanism than the checklist
+      assumes, recorded rather than silently ticked. There is no wave 0: the 11 plans occupy waves
+      1→9. Every `❌ W0` row in the coverage table above is created by the plan that owns its
+      requirement, in the same wave, as the paired `test(...)` commit — the same feat+test pairing
+      Phase 133 used. The obligation is met; the wave number in the column header is not.**
+- [x] No watch-mode flags — **grepped all 11 plans for `--watch` / `ptw` / `pytest-watch` /
+      `--looponfail`: zero hits. Every verify is a one-shot `pytest … -o addopts="" -q`.**
+- [x] Feedback latency < 10 s (per commit) — **per the Test Infrastructure table above: quick run
+      ~10 s. Plans verify against targeted modules with `-k`, not the ~143 s full suite.**
+- [ ] Every non-vacuity obligation above observed RED, then restored byte-identically — **execution-time
+      obligation; cannot be discharged before the code exists. 13 such proofs in Phase 133 for
+      comparison.**
+- [ ] mypy headroom recorded at every wave merge (start: 33/35, **2 slots**) — **execution-time
+      obligation, one record per wave merge.**
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-08-04 by Claude, driving the phase under the operator's standing
+instruction to run 134/136/137 without handing off mid-flight.
+
+**What this approval does NOT assert.** No `gsd-plan-checker` verdict was read. No plan-checker
+artifact exists for Phase 134 — and none existed for Phase 133 either; that verdict is only ever
+reported in-session and hand-copied into `STATE.md`, which for 134 still reads `status: ready` /
+"Phase 134 context gathered" from the discuss session. So the checker's result is unavailable from
+disk, and this sign-off does not stand in for it. What was verified directly instead: requirement
+coverage is 14/14 with no requirement claimed twice (LEG-01…08, 12, 13, 14, 16, 17, 18 across 8 of
+the 11 plans; `134-04`, `134-06` and `134-08` tick nothing), the ROADMAP tags allowed requirement IDs
+per plan, and the automated-verify facts measured above.

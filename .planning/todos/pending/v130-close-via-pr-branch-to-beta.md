@@ -13,15 +13,39 @@ Given by the operator **2026-08-04**, while Phase 133 was mid-execution in a sep
 **The sequence:**
 
 1. Phases 133 → 134 → 136 → 137 all complete. (135 stays vacant — deferred to Backlog 999.28.)
-   **The operator drives all of these** — 133 was already executing in its own session when this
-   instruction was given, and the operator confirmed 2026-08-04 that 134, 136 and 137 are theirs too.
 2. `/gsd-complete-milestone`
 3. `/gsd-pr-branch` **targeting `beta`**
 
-**Ownership split:** steps 2 and 3 are the assistant's; step 1 is entirely the operator's. Do not
-start a phase, plan a phase, or advance the roadmap unprompted — wait for the operator to say Phase
-137 has closed. Verify that independently before closing (Phase 137's plans all ticked, CLOSE-01…06
-and RELOCK-07 all `[x]` in `REQUIREMENTS.md`) rather than taking the signal on faith.
+**Ownership split (revised 2026-08-04 — the operator reversed the earlier "I drive the phases"):**
+
+- **Phase 133** — operator's, already executing in its own session when this note was written.
+- **Phases 134, 136, 137** — the assistant drives: discuss → research → plan → execute. 134 and 136
+  both carry `Research flag: NEEDS --research-phase`.
+- **Steps 2 and 3** — the assistant's.
+
+**Operator instruction 2026-08-04: BATCH every hand-off to the very end.** Do not pause mid-phase to
+collect an operator action. Run 134 → 136 → 137 straight through, park anything that needs the
+operator, and present the whole batch once at the end.
+
+**Measured, not assumed — what the batch actually contains:**
+
+- **CLOSE-06's gh#12 reply.** Blocking operator wording review before posting. **Draft it and park
+  it; never post it unattended.** Phase 137 must NOT run under `--auto`/`--chain`, which
+  auto-approves exactly this gate.
+- **The push + PR to `beta`.** Outward-facing; stage it, then wait.
+- *Maybe* Phase 136 criterion 4 (`dev reg` as held-erase-rail DMM proxy) — operator-only ONLY if it
+  needs a real meter reading rather than a code-level assertion.
+- *Optional* a final real CI green on the milestone branch before the PR — operator's call.
+
+**A real `gh workflow run` dispatch is NOT needed for phases 134/136/137.** Checked 2026-08-04
+against `REQUIREMENTS.md`: GATE-07 and RETIRE-06 were the only requirements ever mandating one, and
+both are ticked with run IDs (`30822281624`, `30856059940`). The remaining LEG/CHAN/CLOSE
+requirements mandate none. Their cross-cutting instruction asks for the **CI-parity recipe**
+(`tools/ci_parity.sh`), which runs locally and needs no operator. Do not re-introduce a per-phase
+dispatch stop out of habit from 131 and 132.
+
+**When dispatching executors, name exactly which requirement IDs each plan may mark Complete** —
+executors have prematurely ticked multi-plan requirements four times in one phase before.
 
 ## What is NEW here — this is a change to the close procedure
 
