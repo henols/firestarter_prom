@@ -5,16 +5,16 @@ milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 134
 current_phase_name: The Plan-Derived SDP Oracle in `dev test`
 status: executing
-stopped_at: Completed 134-07-PLAN.md
-last_updated: "2026-08-04T18:36:44.840Z"
+stopped_at: Completed 134-08-PLAN.md
+last_updated: "2026-08-04T19:14:00.112Z"
 last_activity: 2026-08-04
-last_activity_desc: "Phase 134 EXECUTING — 7 of 11 plans complete. 134-07 assigned report.sdp_hold_state = sdp_hold_state(plan, results) at the derive-in-engine / assign-in-handler seam (cli_handlers.py, immediately after report.banner = count_applicable(plan, results)), closing LEG-12 in both surfaces (console row + JSON key, both assigned real values now). Added _dev_test_exit_code(results, *, sdp_oracle_not_run) composing D-15's ALLOW-only exit floor as a precedence CANDIDATE fed into _EXIT_CODE_PRECEDENCE, never max(code, 2) -- a run that is both BAD and NOT-RUN still exits 1, proven by an end-to-end pin. Built make_held_lock_operator (genuinely-held-lock double, opposite of make_leaked_lock_operator) and make_clean_notrun_operator (write_eprom raises ChipNotFoundError -- MEASURED live that this, unlike ChipNotImplementedError which is an EpromOperationError subclass caught earlier, reaches _run_step's belt-and-suspenders except clause and SKIPs every write_eprom step with zero BAD/marginal anywhere, isolating the floor's own contribution). 8 new tests: TestHoldStateLeg12 (HELD/NOT-HELD/NOT-RUN(reason), both surfaces, banner ratio drop, sdp_lock not called) + TestExitFloorD15 (clean-floor-to-2, BAD+NOTRUN=1, marginal+NOTRUN=2, REFUSE-chip=0, plus a unit pin proving the IDENTICAL results list exits differently depending solely on sdp_oracle_not_run -- D-15's stated non-purity cost, made mechanical). Two Rule fixes: the new helper's own docstring first spelled out the literal forbidden max(code, 2) substring and tripped its own acceptance grep (reworded); _dev_test_exit_code needed registering with the P-07 handler census (same class of gap 134-05 hit). git diff confirms chip_test.py/diagnostic_report.py untouched -- count_applicable not edited, per D-15's own measurement that the ratio already drops. Ticked ONLY LEG-12; LEG-13 explicitly left open for 134-10's count_applicable pinning test. 133 D-07's Ctrl-C report residual recorded as still open (134-08's to mitigate via the rewritten notice, not closed here). PRIOR: 134-01 (LEG-03), 134-02 (LEG-05/07/08/16, LEG-06 engine half), 134-03 (LEG-01/02/04), 134-04 (baseline gate, no ticks), 134-05 (LEG-06), 134-06 (LEG-12 carriage half, no ticks). Suite 1401->1409 passed, coverage 82.07%, mypy unchanged at 33/35 (headroom 2). Full record in `134-CONTEXT.md`; plan-by-plan requirement ownership there. Next: 134-08 (the Ctrl-C up-front notice rewrite)."
+last_activity_desc: "Phase 134 EXECUTING — 8 of 11 plans complete. 134-08 rewrote _ALWAYS_WRITES_NOTICE with a single-sourced, derived write-pass count (_ALWAYS_WRITES_PASS_COUNT = 6, was 'written twice'; a live derive_plan-driven test proves the number rather than restating it), named the SDP lock in prose, stated the completed-run outcome, and gave the aborted-run recovery in the word 'rewrite' -- D-04's printed-FIRST/unconditional ordering pin stays byte-identically green. Added chip_test.sdp_left_writable(results) -> bool (True iff write-restored is present with verdict OK) and cli_handlers._SDP_RECOVERY_LOUD/_SDP_RECOVERY_NEUTRAL/SDP_RECOVERY_CONSTANT_NAMES -- D-12's two named recovery forms, selected by the new _sdp_recovery_line(*, hold_state, left_writable) helper and echoed via click.echo on every completed run, right before the exit computation. LOUD prints only when the lock was genuinely emitted (HELD/NOT-HELD) and write-restored was NOT confirmed OK; NEUTRAL prints on the happy path and every NOT-RUN case. Both constants call sdp_honesty.unreadable_state_caveat() rather than restating it, and neither contains a hyphenated op literal or the word 'erase'. 8 new tests: TestAlwaysWritesNoticeDerivedCountD09 (derived pass-count pin + two content pins), TestSdpRecoveryFormsD12 (happy-path=NEUTRAL, lock-emitted-but-restore-not-confirmed=LOUD via new make_restore_failed_operator, gated-run-never-locked=NEUTRAL, constant-names resolution), TestCtrlCResidualNotClosedD12 (records 133 D-07's residual truthfully -- MEASURED that Click's standalone-mode main() converts KeyboardInterrupt to exit 1 before CliRunner.invoke() ever raises, so the test asserts no report + no recovery constant in output, not a propagating exception). Three Rule fixes: a D-04 comment tripped its own click.echo(_ALWAYS_WRITES_NOTICE) count-1 grep (reworded); the nested click.echo(_sdp_recovery_line(...)) call exceeded ruff-format's 88-column budget so the single-line grep acceptance criterion could not pass (split into three statements); _sdp_recovery_line needed registering with the P-07 handler census (same class of gap 134-05/134-07 each hit). Ticked ZERO requirements -- LEG-14's recovery wording lands here but is discharged by plan 134-09's scoped gate; LEG-12 stays closed from 134-07, not re-ticked. PRIOR: 134-01 (LEG-03), 134-02 (LEG-05/07/08/16, LEG-06 engine half), 134-03 (LEG-01/02/04), 134-04 (baseline gate, no ticks), 134-05 (LEG-06), 134-06 (LEG-12 carriage half, no ticks), 134-07 (LEG-12, D-15 exit floor). Suite 1409->1417 passed, coverage 82.12%, mypy unchanged at 33/35 (headroom 2), ci_replica_venv.sh run twice (before and after commits) both green. Full record in `134-CONTEXT.md`; plan-by-plan requirement ownership there. Next: 134-09 (LEG-14's scoped gate + planted-violation non-vacuity leg)."
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 34
-  completed_plans: 30
-  percent: 88
+  completed_plans: 31
+  percent: 91
 ---
 
 # Project State
@@ -49,7 +49,7 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 ## Current Position
 
 Phase: 134 (The Plan-Derived SDP Oracle in dev test) — EXECUTING
-Plan: 8 of 11
+Plan: 9 of 11
 
 Artifacts on disk: `133-CONTEXT.md` (D-01…D-16), `133-DISCUSSION-LOG.md`, `133-RESEARCH.md`,
 `133-PATTERNS.md`, `133-VALIDATION.md`, `133-01-PLAN.md` … `133-07-PLAN.md`,
@@ -1254,6 +1254,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 134]: 134-07: D-15's exit floor composes as a precedence candidate (never max(code, 2)), keeping BAD's rank intact when a run is both BAD and NOT-RUN
 - [Phase 134]: 134-07: report.sdp_hold_state assigned at the seam from chip_test.sdp_hold_state(plan, results) — closes LEG-12 in both surfaces; LEG-13 explicitly left open for 134-10's count_applicable pinning test
 - [Phase 134]: 134-07: MEASURED — ChipNotFoundError (not ChipNotImplementedError, an EpromOperationError subclass caught earlier) is the one operator exception that puts the SDP oracle into NOT-RUN with zero BAD/marginal anywhere, isolating D-15's floor from D-14's precedence
+- [Phase 134]: Recovery echo placed right before the exit computation (after submit_report), the last line dev_test prints before deciding its exit code (D-12).
+- [Phase 134]: click.echo(_sdp_recovery_line(...)) split across three statements so the call fits on one physical line under ruff-format's 88-column budget, satisfying the plan's single-line grep acceptance criterion.
+- [Phase 134]: make_restore_failed_operator persists every write_eprom call except the globally-last one (write-restored), isolating 'lock emitted but restore not confirmed' from the shipped 'lock leaked' fixture.
 
 ## Performance Metrics
 
@@ -1444,11 +1447,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 134 P05 | 33min | 2 tasks | 4 files |
 | Phase 134 P06 | 20min | 2 tasks | 3 files |
 | Phase 134 P07 | 29min | 2 tasks | 4 files |
+| Phase 134 P08 | 38min | 3 tasks | 5 files |
 
 ## Session
 
-**Last session:** 2026-08-04T18:36:44.820Z
-**Stopped at:** Completed 134-07-PLAN.md
+**Last session:** 2026-08-04T19:14:00.080Z
+**Stopped at:** Completed 134-08-PLAN.md
 **Resume file:** 
 None
 

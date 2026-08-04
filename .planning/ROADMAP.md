@@ -615,7 +615,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 134-08-PLAN.md — the rewritten always-writes notice with a derived pass count, and D-12's two recovery forms [ticks nothing]
+- [x] 134-08-PLAN.md — the rewritten always-writes notice with a derived pass count, and D-12's two recovery forms [ticks nothing]
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
