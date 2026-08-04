@@ -49,7 +49,7 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 ## Current Position
 
 Phase: 133 — SDP Leg Mechanism — **EXECUTING**
-Plan: 2 of 7 executed (133-01 … 133-07) — 7 strictly-sequential waves, wave 3 in flight
+Plan: 3 of 7 executed (133-01 … 133-07) — 7 strictly-sequential waves, wave 4 in flight
 
 Artifacts on disk: `133-CONTEXT.md` (D-01…D-16), `133-DISCUSSION-LOG.md`, `133-RESEARCH.md`,
 `133-PATTERNS.md`, `133-VALIDATION.md`, `133-01-PLAN.md` … `133-07-PLAN.md`.

@@ -508,7 +508,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 133-03-PLAN.md — D-01…D-05/D-11: `OP_SDP_LOCK`/`OP_SDP_UNLOCK`, `_SDP_OPS`, `_dispatch_sdp` (guard → branch → terminal `AssertionError`), arm 5 last in `_dispatch_step`, the `_DESTRUCTIVE_OPS` asymmetry, and D-13b's seven-op sentinel.
+- [x] 133-03-PLAN.md — D-01…D-05/D-11: `OP_SDP_LOCK`/`OP_SDP_UNLOCK`, `_SDP_OPS`, `_dispatch_sdp` (guard → branch → terminal `AssertionError`), arm 5 last in `_dispatch_step`, the `_DESTRUCTIVE_OPS` asymmetry, and D-13b's seven-op sentinel.
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
