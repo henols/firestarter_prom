@@ -504,7 +504,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 133-02-PLAN.md — D-08: widen `_run_step`'s exception handling (`SerialError` + `HardwareOperationError` degrade one step; `ProgrammerNotFoundError` + `FirmwareOutdatedError` re-raised FIRST), advance the matrix by exactly three named rows, fix the over-claiming docstring.
+- [x] 133-02-PLAN.md — D-08: widen `_run_step`'s exception handling (`SerialError` + `HardwareOperationError` degrade one step; `ProgrammerNotFoundError` + `FirmwareOutdatedError` re-raised FIRST), advance the matrix by exactly three named rows, fix the over-claiming docstring.
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
