@@ -5,16 +5,16 @@ milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 133
 current_phase_name: SDP Leg Mechanism
 status: ready
-stopped_at: Phase 132 UAT complete — Phase 133 not yet planned
-last_updated: "2026-08-04T00:20:00.000Z"
+stopped_at: Phase 133 context gathered
+last_updated: "2026-08-04T05:48:13.057Z"
 last_activity: 2026-08-04
-last_activity_desc: "Phase 132 UAT complete — 132-UAT.md, 35/35 passed, 0 issues. 34 of 35 deliverables auto-covered from the nine SUMMARYs' structured coverage: blocks; the one human checkpoint (132-09/D2, the irreducibly-operator branch push + gh workflow run behind certifying run 30856059940) confirmed by the operator. Auto-covered entries were re-measured, not re-read: mypy 32 / watermark 35 / checked 122 via check_mypy_watermark.py's own run_mypy (a hand-rolled `mypy firestarter` argv reads a truncated 19/29 — do not use it), coverage 81.72% vs the 70% floor, 1297 tests + 30 snapshots green, dev roster exactly eight, `dev sdp` refused with Click's no-such-command, ci_replica_venv.sh all five legs exit 0 with numpy absent, and run 30856059940 conclusion success at headSha 42a1971 matching submodule HEAD. 132-VERIFICATION.md (status passed, 5/5) landed mid-session in commit 3c139cdf, which also transitioned ROADMAP + STATE to Phase 133 — Phase 132 fully closed"
+last_activity_desc: "Phase 133 context gathered — 133-CONTEXT.md + 133-DISCUSSION-LOG.md in commit 89878e36. Two gray areas discussed (the `_dispatch_sdp` shape; the `run_plan` finally + what `_run_step` catches), yielding D-01…D-11 tracked plus D-12/D-13 under Claude's Discretion; the decision-coverage gate parses 11 tracked ids. Three measured corrections recorded for the researcher/planner: research/SUMMARY.md's phase numbers are off by one against the current ROADMAP (its §Phase 133 is the ORACLE = ROADMAP 134, so cite research by P-number only), tools/parse_devtest_issue.py has NO op vocabulary so P-23's ten registries are nine policeable plus one phantom, and P-20/P-23's line anchors have drifted (run_plan :757-802 → :709-794, _MULTI_RUN_OPS :657 → :654, _dispatch_step :903-948 → :901-952). Honest consequence carried forward: D-05 drops Step.group, which makes ROADMAP criterion 4's `group=None` clause vacuous — the phase record must say the intent was met by another mechanism, not restate the criterion. Budget measured for the new test module: mypy 32 against watermark 35 = 3 slots; checked 122 against MIN_CHECKED_SOURCE_FILES 120 = 2 slots. Phase 133 is Planned-pending — no plans exist yet; next is /gsd-plan-phase 133 --research."
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 2
   total_plans: 16
   completed_plans: 16
-  percent: 33
+  percent: 29
 ---
 
 # Project State
@@ -1418,10 +1418,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-03T22:00:32.000Z
-**Stopped at:** Completed 132-09-PLAN.md
+**Last session:** 2026-08-04T05:48:13.003Z
+**Stopped at:** Phase 133 context gathered
 **Resume file:** 
-None
+.planning/phases/133-sdp-leg-mechanism/133-CONTEXT.md
 
 ### Blockers
 
