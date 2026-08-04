@@ -1367,10 +1367,15 @@ same authority as locked decisions.
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+*All five were settled after this research session — three by operator decision at plan time
+(CONTEXT.md D-14/D-15/D-16), two by the plans themselves. Each carries its resolution inline.*
 
 1. **Where do the LEG-09/10/11 + D-13 behavioral tests live — a new module or appended to
    `test_chip_test.py`?**
+   **✔ RESOLVED — CONTEXT.md D-15 (operator, 2026-08-04):** a new `tests/test_chip_test_sdp_leg.py`, the
+   recommendation below, with the two-slot `MIN_CHECKED_SOURCE_FILES` cost accepted and stated.
    - What we know: CONTEXT.md's `<code_context>` says "this phase's **new test module**" (singular) and
      names `conftest.py`'s `app_context` as its base. `test_chip_test.py` is 1958 lines with 20
      `run_plan` call sites and the `_REAL_DB` idiom the new tests want.
@@ -1381,6 +1386,9 @@ same authority as locked decisions.
      slots, A4) and let the planner overrule on that basis. Either choice satisfies every criterion.
 
 2. **Which exemption mechanism for `chip_test.py:1035`?** (Pitfall 1)
+   **✔ RESOLVED — CONTEXT.md D-14 (operator, 2026-08-04):** option (a), the exemption table with mandatory
+   reason strings + a stale-row assertion. Implemented in plan `133-05`, which additionally requires the
+   exemption and the deny-rule to land in the **same commit** so the gate is never committed RED.
    - What we know: four options measured, with tradeoffs; option (c) (narrow `_sample`'s catch) is
      ruled out by criterion 4 because `_make_sampler` is live in production and the "swallow all"
      contract is documented.
@@ -1391,6 +1399,8 @@ same authority as locked decisions.
 
 3. **Should the parity test police `_dispatch_multi_run`'s inner run-loop branches (`:1112-1132`) as a
    sixth registry?** (§Registry Census)
+   **✔ RESOLVED — plan `133-06`:** yes, included as a policed registry with `OP_SDP_*` carrying D-03's
+   exclusion reason, per the recommendation below.
    - What we know: it is a genuine op-keyed site with a terminal `AssertionError`; P-23 does not list
      it; SDP ops are structurally excluded from it by D-03.
    - What's unclear: whether including it inflates the declared-count constant past what LEG-15's
@@ -1399,6 +1409,10 @@ same authority as locked decisions.
      the kind of real registry P-23 missed, and the exemption reason already exists.
 
 4. **How is the failed-unlock attempt recorded, given no logger and no `add_note`?** (Pitfall 2)
+   **✔ RESOLVED — CONTEXT.md D-16 (operator, 2026-08-04):** test-observability suffices in 133; no logger
+   is added. Plan `133-04` reconciles D-10's "recorded" against D-16 in its action text, and `133-07`
+   records it as a **non-literal honouring** of D-10 plus the residual that a failed unlock is not
+   user-visible until Phase 134's `HELD`/`NOT-RUN` field.
    - What we know: it must not go into `results`; `chip_test.py` has no logging surface; `add_note` is
      3.11+ and the floor is 3.9.
    - What's unclear: whether "recorded" in D-07 requires any production-visible artifact in Phase 133,
@@ -1410,6 +1424,8 @@ same authority as locked decisions.
      rather than papered over with a logger added for appearance.
 
 5. **Does the `runs < 2` early return at `:763` need to be inside the `try`?**
+   **✔ RESOLVED — plan `133-04`:** **outside** the `try`, decided explicitly rather than incidentally; the
+   guard's position and behavior stay byte-identical (criterion 4).
    - What we know: it returns before `results` or the registry exist, so there is nothing to drain.
    - What's unclear: nothing substantive — but it is exactly the kind of "where does the `try` open"
      detail the ROADMAP flagged as open, so it should be decided **explicitly** in the plan rather than

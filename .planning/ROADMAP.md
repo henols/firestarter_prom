@@ -498,12 +498,32 @@ and/or `tests/test_chip_test_sdp_leg.py`, and the two gate plans must measure ag
 engine source, so same-wave parallelism would either collide on file ownership or read a half-written file)
 
 Plans:
+**Wave 1**
+
 - [ ] 133-01-PLAN.md — Capture the two pre-edit baselines (nine-row exception-precedence matrix + frozen derived-op-sequence literal) and the before-half of the CI-parity recipe with a real mypy count. Zero production edits.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 133-02-PLAN.md — D-08: widen `_run_step`'s exception handling (`SerialError` + `HardwareOperationError` degrade one step; `ProgrammerNotFoundError` + `FirmwareOutdatedError` re-raised FIRST), advance the matrix by exactly three named rows, fix the over-claiming docstring.
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 133-03-PLAN.md — D-01…D-05/D-11: `OP_SDP_LOCK`/`OP_SDP_UNLOCK`, `_SDP_OPS`, `_dispatch_sdp` (guard → branch → terminal `AssertionError`), arm 5 last in `_dispatch_step`, the `_DESTRUCTIVE_OPS` asymmetry, and D-13b's seven-op sentinel.
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 133-04-PLAN.md — D-06/D-07/D-10: the generic cleanup registry drained in one `try/finally` with per-callable narrow handling; the drain provably never touches `results`; LEG-10's five proofs and criterion 3's two cases.
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 133-05-PLAN.md — D-09/D-14: the `visit_ExceptHandler` broad-handler deny-bucket in `tools/check_devtest_orchestrator.py` plus the guarded `(file, function)` exemption for the pre-existing sampler swallow, landing in one commit so the gate is never RED.
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 133-06-PLAN.md — LEG-15/D-12: `tests/test_op_registration_parity.py` — membership-or-reasoned-exemption for every `(op, registry)` pair, the three D-12 guards, the inversion guard on declared non-registries, and a non-vacuity leg.
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 133-07-PLAN.md — The after-half of the CI-parity recipe with a real mypy count, `133-RECORD.md` (five criteria discharged, D-01…D-16 coverage, criterion 4's `group=None` vacuity, criterion 5's measured-wrong count, the Evidence Ceiling), and the ONLY permitted requirement ticks.
 
 **Research flag**: DONE — `133-RESEARCH.md` (1443 lines) + `133-PATTERNS.md` + `133-VALIDATION.md`

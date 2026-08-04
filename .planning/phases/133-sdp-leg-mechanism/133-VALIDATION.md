@@ -1,10 +1,11 @@
 ---
 phase: 133
 slug: sdp-leg-mechanism
-status: draft
-nyquist_compliant: false
+status: approved
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-08-04
+approved: 2026-08-04
 ---
 
 # Phase 133 — Validation Strategy
@@ -118,12 +119,12 @@ Two further residuals belong in the phase record, not in a footnote:
 
 ## Validation Sign-Off
 
-- [ ] All tasks have an `<automated>` verify or a Wave 0 dependency
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all ❌ references, and both pre-edit baselines were captured **before** `chip_test.py` was touched
-- [ ] No watch-mode flags
-- [ ] No new syrupy snapshot added (Phase 132 D-13)
-- [ ] Real mypy count obtained via `ci_replica_venv.sh`, not assumed (A1 is LOW confidence)
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have an `<automated>` verify or a Wave 0 dependency — verified across `133-01` … `133-07` (17 tasks); every task carries `<verify><automated>`
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify — every task has one
+- [x] Wave 0 covers all ❌ references — `133-01` (wave 1) captures both pre-edit baselines with **zero** production edits, asserted by a git-diff acceptance criterion; `wave_0_complete` flips to `true` when `133-01` lands
+- [x] No watch-mode flags
+- [x] No new syrupy snapshot added (Phase 132 D-13) — D-13a uses an in-test literal (`_SHIPPED_OPS_SEQUENCE`)
+- [x] Real mypy count obtained via `ci_replica_venv.sh`, not assumed (A1 is LOW confidence) — required by `133-01` and re-asserted by `133-07`
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-08-04 — plan-checker returned VERIFICATION PASSED (0 blockers) across all 7 plans.
