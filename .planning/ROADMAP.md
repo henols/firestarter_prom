@@ -500,7 +500,7 @@ engine source, so same-wave parallelism would either collide on file ownership o
 Plans:
 **Wave 1**
 
-- [ ] 133-01-PLAN.md — Capture the two pre-edit baselines (nine-row exception-precedence matrix + frozen derived-op-sequence literal) and the before-half of the CI-parity recipe with a real mypy count. Zero production edits.
+- [x] 133-01-PLAN.md — Capture the two pre-edit baselines (nine-row exception-precedence matrix + frozen derived-op-sequence literal) and the before-half of the CI-parity recipe with a real mypy count. Zero production edits.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
