@@ -5,16 +5,16 @@ milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 134
 current_phase_name: The Plan-Derived SDP Oracle in `dev test`
 status: executing
-stopped_at: Phase 134 — 134-03 complete (LEG-01/02/04 ticked; derive_plan emits the six-step SDP leg), wave 4 (134-04) next
-last_updated: "2026-08-04T16:39:58.203Z"
+stopped_at: Completed 134-04-PLAN.md
+last_updated: "2026-08-04T17:19:19.785Z"
 last_activity: 2026-08-04
-last_activity_desc: "Phase 134 EXECUTING — 3 of 11 plans complete. 134-03 taught `derive_plan` to emit the D-06 six-step SDP leg from `sdp_capability()`: all 43 measured ALLOW chips derive six real supported steps; all 41 measured REFUSE chips derive six NA steps carrying `sdp_capability()`'s own refusal reason verbatim (LEG-02's zero-new-machinery NA path). `write_scope=\"none\"`: ALLOW chips get six locked_destructive entries (D-18); REFUSE chips get nothing at all (a plan-time D-18 refinement taken on four measurements, since this branch is unreachable from a real `dev test` run since Phase 121's reversal). Discharged the last 6 `derive_plan` parity exemption rows in the same commit. Proved LEG-01 (43-chip population + structural zero-CLI-option check + sdp_capability-patch derivation proof), LEG-02 (41-chip population + zero-operator-call proof), LEG-04 (ordering proof: both baselines before sdp-lock, inhibited between lock/unlock, restored last) — ticked all three, with LEG-01/LEG-02's D-06 correction (six steps, not the requirement text's four) recorded in the evidence clause. Repaired 3 shipped tests the emission necessarily changed (a get_eprom call-count assertion, M8720's now-six-longer op list, and both AT28C256 0x0D sweeps via a new stateful SDP-lock-aware operator double) plus documented one measured, out-of-scope finding (build_db_diff's ladder_state no longer reaches community-reported for a genuinely-passing ALLOW chip, flagged for Phase 137/backlog). Suite 1361→1370 passed, coverage 81.94%, mypy unchanged at 33/35 (headroom 2). PRIOR: 134-01 (LEG-03), 134-02 (LEG-05/07/08/16, LEG-06 engine half). Full record in `134-CONTEXT.md`; plan-by-plan requirement ownership there. Next: 134-04 builds the baseline gate (`_baseline_closes_sdp_gate`, D-08/D-20); LEG-06's exit-code half is 134-05's."
+last_activity_desc: "Phase 134 EXECUTING — 4 of 11 plans complete. 134-04 wired the run-time baseline gate (`_baseline_closes_sdp_gate`, D-08/D-20) that refuses to emit an SDP lock at a chip whose write path did not transition in both directions -- closes on ANY non-OK baseline verdict (BAD/marginal/SKIPPED/NA), wider than the chip-ID gate's (BAD, SKIPPED) tuple. `OP_SDP_UNLOCK` joins the gated set (D-20, superseding D-08's measured-wrong clause) without weakening LEG-09 (pinned by a NEW test, zero Phase-133 proofs touched). Fixed the cleanup registry's now-live double-unlock risk: a successful explicit unlock de-registers its lock's handle by value. Added `sdp_hold_state`/`sdp_oracle_applicable` -- the pure HELD/NOT-HELD/NOT-RUN(reason) derivation, engine-side only (DiagnosticReport stays at zero op vocabulary). Observed the gate genuinely absent once (non-vacuity #6: a lock WAS emitted at gh#20's dead-write-path shape once removed from the gated set) then restored byte-identically. MEASURED DISCREPANCY recorded: gh#20-shape n_ran is actually 6, not the 5 stated in 134-CONTEXT.md D-20 (write-baseline-a is never itself gated). Ticked ZERO requirements (LEG-06/12/17 all deferred to 134-05/06/07/10 per dispatch scope). Suite 1370→1391 passed, coverage 82.09%, mypy unchanged at 33/35 (headroom 2). PRIOR: 134-01 (LEG-03), 134-02 (LEG-05/07/08/16, LEG-06 engine half), 134-03 (LEG-01/02/04). Full record in `134-CONTEXT.md`; plan-by-plan requirement ownership there. Next: 134-05 fixes the exit-precedence bug (D-14) and closes LEG-06."
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 34
-  completed_plans: 26
-  percent: 76
+  completed_plans: 27
+  percent: 79
 ---
 
 # Project State
@@ -49,7 +49,7 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 ## Current Position
 
 Phase: 134 (The Plan-Derived SDP Oracle in dev test) — EXECUTING
-Plan: 4 of 11
+Plan: 5 of 11
 
 Artifacts on disk: `133-CONTEXT.md` (D-01…D-16), `133-DISCUSSION-LOG.md`, `133-RESEARCH.md`,
 `133-PATTERNS.md`, `133-VALIDATION.md`, `133-01-PLAN.md` … `133-07-PLAN.md`,
@@ -1244,6 +1244,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 134]: 134-02: Non-vacuity obligation #2 produced 3 RED (not VALIDATION.md's stated 2) -- the required lock_leaked test independently duplicates one arm of the oracle_readback pair; recorded as a measured discrepancy
 - [Phase ?]: derive_plan calls sdp_capability(name, db) literally (not sdp_capability_for_entry) so Task 2's monkeypatch-derivation proof works; costs a second db.get_eprom call per invocation, a shipped test repaired to expect 2 calls not 1
 - [Phase ?]: REFUSE-chip write_scope=none emits nothing at all (neither a Step nor a locked_destructive entry) -- a plan-time D-18 refinement taken on four measurements, since this branch is unreachable from a real dev test run since Phase 121's reversal
+- [Phase 134]: D-08/D-20 baseline gate wired: closes on any non-OK baseline verdict, OP_SDP_UNLOCK joins the gated set without weakening LEG-09 — gh#20's dead-write-path hazard; superseded D-08's measured-wrong unlock-never-attempted clause
+- [Phase 134]: Cleanup de-registration: a successful explicit unlock removes its lock's registered handle by value, never by clearing the whole registry — prevents a completed leg from emitting two unlock calls (RESEARCH §4.2)
+- [Phase 134]: MEASURED DISCREPANCY: gh#20-shape n_ran is 6, not the 5 stated in 134-CONTEXT.md D-20 -- write-baseline-a is never itself gated — documented rather than silently reconciled, same convention as 134-02's finding
 
 ## Performance Metrics
 
@@ -1430,11 +1433,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 134 P01 | 28m | 3 tasks | 4 files |
 | Phase 134 P02 | 36min | 3 tasks | 3 files |
 | Phase 134 P03 | 46min | 3 tasks | 4 files |
+| Phase 134 P04 | 38min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-04T16:39:58.184Z
-**Stopped at:** Completed 134-03-PLAN.md
+**Last session:** 2026-08-04T17:19:19.766Z
+**Stopped at:** Completed 134-04-PLAN.md
 **Resume file:** 
 None
 

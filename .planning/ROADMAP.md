@@ -602,7 +602,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 134-04-PLAN.md — `_baseline_closes_sdp_gate` + D-20's unlock gating, cleanup de-registration, and the `sdp_hold_state` derivation [ticks nothing]
+- [x] 134-04-PLAN.md — `_baseline_closes_sdp_gate` + D-20's unlock gating, cleanup de-registration, and the `sdp_hold_state` derivation [ticks nothing]
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
