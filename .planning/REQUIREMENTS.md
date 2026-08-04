@@ -210,7 +210,11 @@ requirements encode the corrected form.
       carrying the refusal reason, never a silent omission.
       **Complete** (Phase 134 plan 134-03): `firestarter_app` commit `fcb3b28` + `f2f280c` —
       `tests/test_chip_test_sdp_leg.py::test_derive_plan_refuse_population_emits_six_na_steps_with_reason`
-      (all 41 measured REFUSE chips; each step's `reason` asserted EQUAL to
+      (**703 chips — every non-ALLOW entry in the database, a SUPERSET of the 41 protocol-`0x0D`
+      REFUSE chips this row names.** Corrected 2026-08-04 by the phase verifier, which independently
+      recomputed the test's actual population; the citation said 41. The behavior is proven more
+      broadly than claimed, not less — but the number was wrong, and this phase polices exactly this
+      class of discrepancy elsewhere. Each step's `reason` asserted EQUAL to
       `sdp_capability(name, db)[1]` — identity against the live function, never a substring match) and
       `::test_derive_plan_refuse_run_plan_reports_na_with_no_operator_call` (`run_plan` turns each
       unsupported step into `VERDICT_NA` with zero operator calls — the existing NA path, zero new
