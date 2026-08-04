@@ -230,6 +230,15 @@ None - no external service configuration required.
 - Waves 1-4 artifacts (frozen precedence matrix, `_dispatch_sdp` arm-5 position, the `results`-name-prohibited drain) were not touched; confirmed no edits to `firestarter/chip_test.py` or `tests/test_chip_test_sdp_leg.py`.
 - Ready for Plan 06 (LEG-15 op-registration parity) and Plan 07 (requirement ticking + phase close).
 
+## Self-Check: PASSED
+
+- FOUND: `firestarter_app/tools/check_devtest_orchestrator.py`
+- FOUND: `firestarter_app/tests/test_check_devtest_orchestrator.py`
+- FOUND: `.planning/phases/133-sdp-leg-mechanism/133-05-SUMMARY.md`
+- FOUND commit `feb90f6` (submodule): feat(133-05) broad-except deny bucket + exemption table
+- FOUND commit `1d18691` (submodule): test(133-05) non-vacuity proofs
+- FOUND commit `dd8b299` (meta repo): docs(133-05) this summary
+
 ---
 *Phase: 133-sdp-leg-mechanism*
 *Completed: 2026-08-04*
