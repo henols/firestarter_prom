@@ -5,16 +5,16 @@ milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 134
 current_phase_name: The Plan-Derived SDP Oracle in `dev test`
 status: executing
-stopped_at: Completed 134-04-PLAN.md
-last_updated: "2026-08-04T17:19:19.785Z"
+stopped_at: Completed 134-05-PLAN.md
+last_updated: "2026-08-04T17:43:49.420Z"
 last_activity: 2026-08-04
-last_activity_desc: "Phase 134 EXECUTING — 4 of 11 plans complete. 134-04 wired the run-time baseline gate (`_baseline_closes_sdp_gate`, D-08/D-20) that refuses to emit an SDP lock at a chip whose write path did not transition in both directions -- closes on ANY non-OK baseline verdict (BAD/marginal/SKIPPED/NA), wider than the chip-ID gate's (BAD, SKIPPED) tuple. `OP_SDP_UNLOCK` joins the gated set (D-20, superseding D-08's measured-wrong clause) without weakening LEG-09 (pinned by a NEW test, zero Phase-133 proofs touched). Fixed the cleanup registry's now-live double-unlock risk: a successful explicit unlock de-registers its lock's handle by value. Added `sdp_hold_state`/`sdp_oracle_applicable` -- the pure HELD/NOT-HELD/NOT-RUN(reason) derivation, engine-side only (DiagnosticReport stays at zero op vocabulary). Observed the gate genuinely absent once (non-vacuity #6: a lock WAS emitted at gh#20's dead-write-path shape once removed from the gated set) then restored byte-identically. MEASURED DISCREPANCY recorded: gh#20-shape n_ran is actually 6, not the 5 stated in 134-CONTEXT.md D-20 (write-baseline-a is never itself gated). Ticked ZERO requirements (LEG-06/12/17 all deferred to 134-05/06/07/10 per dispatch scope). Suite 1370→1391 passed, coverage 82.09%, mypy unchanged at 33/35 (headroom 2). PRIOR: 134-01 (LEG-03), 134-02 (LEG-05/07/08/16, LEG-06 engine half), 134-03 (LEG-01/02/04). Full record in `134-CONTEXT.md`; plan-by-plan requirement ownership there. Next: 134-05 fixes the exit-precedence bug (D-14) and closes LEG-06."
+last_activity_desc: "Phase 134 EXECUTING — 5 of 11 plans complete. 134-05 fixed dev test's exit-code precedence (D-14): _overall_exit_code replaces a naive max() so BAD (exit 1) outranks marginal (exit 2), restoring what the source comment and dev_test's own docstring already claimed (correction 3). LEG-06 fully discharged end to end: make_leaked_lock_operator (a state-tracking, read-back-capable ALLOW-chip operator) drives the real CLI on AT28C256, proving a write that unexpectedly succeeds after the SDP lock reports BAD on write-inhibited and exits 1 -- never SKIPPED/NA/OK -- with sdp_unlock still called. The mixed BAD+marginal pin (test_mixed_bad_and_marginal_exits_1_not_2) exits 1 through the real CLI/run_plan wiring, not a direct helper call; non-vacuity obligation #5 observed RED (assert 2 == 1) then restored byte-identically. Live D-14 audit re-confirmed zero exit_code==2 sites mix BAD+marginal. Ticked LEG-06 (only requirement this plan may mark). One Rule-3 deviation: _overall_exit_code registered with the P-07 fail-open handler census (tools/check_devtest_orchestrator.py), caught by the full ci_replica run, not the plan's own narrower verify. PRIOR: 134-01 (LEG-03), 134-02 (LEG-05/07/08/16, LEG-06 engine half), 134-03 (LEG-01/02/04), 134-04 (baseline gate, no ticks). Suite 1391→1394 passed, coverage 82.09%, mypy unchanged at 33/35 (headroom 2). Full record in `134-CONTEXT.md`; plan-by-plan requirement ownership there. Next: 134-06 (DiagnosticReport HELD/NOT-HELD/NOT-RUN field + SCHEMA_VERSION bump, LEG-12's derivation half)."
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 34
-  completed_plans: 27
-  percent: 79
+  completed_plans: 28
+  percent: 82
 ---
 
 # Project State
@@ -49,7 +49,7 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 ## Current Position
 
 Phase: 134 (The Plan-Derived SDP Oracle in dev test) — EXECUTING
-Plan: 5 of 11
+Plan: 6 of 11
 
 Artifacts on disk: `133-CONTEXT.md` (D-01…D-16), `133-DISCUSSION-LOG.md`, `133-RESEARCH.md`,
 `133-PATTERNS.md`, `133-VALIDATION.md`, `133-01-PLAN.md` … `133-07-PLAN.md`,
@@ -1247,6 +1247,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 134]: D-08/D-20 baseline gate wired: closes on any non-OK baseline verdict, OP_SDP_UNLOCK joins the gated set without weakening LEG-09 — gh#20's dead-write-path hazard; superseded D-08's measured-wrong unlock-never-attempted clause
 - [Phase 134]: Cleanup de-registration: a successful explicit unlock removes its lock's registered handle by value, never by clearing the whole registry — prevents a completed leg from emitting two unlock calls (RESEARCH §4.2)
 - [Phase 134]: MEASURED DISCREPANCY: gh#20-shape n_ran is 6, not the 5 stated in 134-CONTEXT.md D-20 -- write-baseline-a is never itself gated — documented rather than silently reconciled, same convention as 134-02's finding
+- [Phase 134]: 134-05: State-tracking operator (make_leaked_lock_operator) persists+reads back real bytes so the leaked-lock scenario emerges structurally, over a static-payload double
+- [Phase 134]: 134-05: D-14 fix is _overall_exit_code with explicit precedence (1,2,0), not a numeric max -- BAD outranks marginal, restoring the source comment's and dev_test's docstring's own prior claims
 
 ## Performance Metrics
 
@@ -1434,11 +1436,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 134 P02 | 36min | 3 tasks | 3 files |
 | Phase 134 P03 | 46min | 3 tasks | 4 files |
 | Phase 134 P04 | 38min | 3 tasks | 3 files |
+| Phase 134 P05 | 33min | 2 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-04T17:19:19.766Z
-**Stopped at:** Completed 134-04-PLAN.md
+**Last session:** 2026-08-04T17:43:28.783Z
+**Stopped at:** Completed 134-05-PLAN.md
 **Resume file:** 
 None
 

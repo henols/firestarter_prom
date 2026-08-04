@@ -606,7 +606,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 134-05-PLAN.md — D-14's explicit exit precedence and the end-to-end leaked-lock exit-1 proof [LEG-06]
+- [x] 134-05-PLAN.md — D-14's explicit exit precedence and the end-to-end leaked-lock exit-1 proof [LEG-06]
 - [ ] 134-06-PLAN.md — the `HELD`/`NOT-HELD`/`NOT-RUN` string field, `to_dict` key, console row, `SCHEMA_VERSION` 1.3 [ticks nothing]
 
 **Wave 6** *(blocked on Wave 5 completion)*

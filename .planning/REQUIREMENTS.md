@@ -257,13 +257,21 @@ requirements encode the corrected form.
       required `lock_leaked` test independently duplicates one arm of the pair), then restored
       byte-identically.
 
-- [ ] **LEG-06**: A write that unexpectedly **succeeds** after the lock reports **BAD** and exits 1 —
+- [x] **LEG-06**: A write that unexpectedly **succeeds** after the lock reports **BAD** and exits 1 —
       never SKIPPED, NA, or OK. This is the leg's whole value and the v1.22 defect class it detects.
-      Partial (engine half only): `firestarter_app` commit `4ac946a` (134-02 Task 2) —
-      `tests/test_chip_test_sdp_leg.py::test_lock_leaked_write_ok_true_b_readback_is_bad` proves
-      `(True, B) => BAD` at the engine level. The **exit-code** half (a run containing this result
-      exits 1) is unreachable until D-14's precedence fix lands — **closed by plan `134-05`**, not
-      ticked here.
+      **Complete (both halves), Phase 134 plan 134-05.** Engine half: `firestarter_app` commit
+      `4ac946a` (134-02 Task 2) — `tests/test_chip_test_sdp_leg.py::
+      test_lock_leaked_write_ok_true_b_readback_is_bad` proves `(True, B) => BAD` at the engine level.
+      Exit-code half: `firestarter_app` commits `d9b14ef`/`6596f4f` (D-14's `_overall_exit_code`
+      explicit-precedence fix, replacing a `max` that let `marginal`'s exit code (2) numerically
+      outrank BAD's (1)) and `c56fc32` — `tests/test_dev_test_cmd.py::TestExitPrecedenceLeg06::
+      test_leaked_lock_exits_1` drives the real CLI end to end on the ALLOW chip AT28C256, asserting
+      BOTH `exit_code == 1` AND the `write-inhibited` step's JSON-artifact verdict is `BAD` (the
+      exit-code assertion alone would not discharge this — a laundering implementation could satisfy
+      it via an unrelated BAD step). `test_mixed_bad_and_marginal_exits_1_not_2` pins the run
+      containing BOTH a BAD step and a `marginal` step at exit 1, driven end to end (not via a direct
+      call to `_overall_exit_code`), with non-vacuity obligation #5 observed RED (`assert 2 == 1`
+      after reverting to the naive `max`) and restored byte-identically.
 
 - [x] **LEG-07**: A **partial** read-back change reports BAD — this is gh#11's exact symptom.
       Evidence: `firestarter_app` commit `4ac946a` (134-02 Task 2) —
@@ -522,7 +530,7 @@ Populated during roadmap creation.
 | LEG-03 | Phase 134 | Complete |
 | LEG-04 | Phase 134 | Complete |
 | LEG-05 | Phase 134 | Complete |
-| LEG-06 | Phase 134 | Pending (engine half done, 134-02; exit-code half is 134-05's) |
+| LEG-06 | Phase 134 | Complete |
 | LEG-07 | Phase 134 | Complete |
 | LEG-08 | Phase 134 | Complete |
 | LEG-09 | Phase 133 | Complete |
