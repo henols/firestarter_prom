@@ -334,7 +334,7 @@ requirements encode the corrected form.
 - [ ] **LEG-13**: The applicable-step count includes the SDP oracle for ALLOW chips regardless of
       outcome, so an NA/SKIPPED oracle **drops** the headline N-of-M ratio instead of leaving it perfect.
 
-- [ ] **LEG-14**: The report states recovery in the word **"rewrite"** and never "erase" (`0x0D` has no
+- [x] **LEG-14**: The report states recovery in the word **"rewrite"** and never "erase" (`0x0D` has no
       erase operation at all), enforced by a committed grep over the SDP report strings.
 
 - [x] **LEG-15**: An op-registration parity test proves every new op is registered in all required
@@ -547,7 +547,7 @@ Populated during roadmap creation.
 | LEG-11 | Phase 133 | Complete |
 | LEG-12 | Phase 134 | Complete |
 | LEG-13 | Phase 134 | Pending |
-| LEG-14 | Phase 134 | Pending |
+| LEG-14 | Phase 134 | Complete |
 | LEG-15 | Phase 133 | Complete |
 | LEG-16 | Phase 134 | Complete |
 | LEG-17 | Phase 134 | Pending |
