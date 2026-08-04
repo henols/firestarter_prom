@@ -162,6 +162,27 @@ Each was measured live this session against the milestone branch, not inherited 
   fails closed (exit 1 from the baseline BAD, or ≥2 via the NOT-RUN floor), so it is not a laundering
   route — but it must be tested in the same family and named as the seventh in the record.
 
+  ⚠ **D-08's clause *"`sdp-unlock` is never attempted because nothing was locked"* is MEASURED-WRONG and
+  is superseded by D-20.** `OP_SDP_UNLOCK` is deliberately absent from `_DESTRUCTIVE_OPS` (LEG-09,
+  `chip_test.py:663`), so as D-08 is literally written the unlock step would RUN. Record both readings.
+
+- **D-20:** **`sdp-unlock` joins the baseline-gate set and renders SKIPPED when that gate closed.**
+  Operator decision 2026-08-04, resolving research §4.1's OQ-1. Its reason names *"no lock was emitted —
+  baseline gate closed"*, never `_DESTRUCTIVE_GATE_REASON`'s chip-ID wording. Without this, a
+  dead-write-path run (gh#20's exact shape) ends on `sdp-unlock OK` — an emission claim on a step whose
+  premise did not hold, the P-06 shape, and the report's last word would be a success claim about a part
+  that was never locked, on a family whose protection state cannot be read back. **This does NOT violate
+  LEG-09:** LEG-09 is scoped to the ***destructive*** gate (`_DESTRUCTIVE_OPS` membership +
+  `test_unlock_exempt_from_destructive`), a structurally different mechanism from the new baseline gate;
+  state that distinction in the record and pin it with a test asserting a *destructive*-gate closure
+  still never skips the unlock, so Phase 133's LEG-09 proof stays byte-identically green. Measured
+  consequence for gh#20's shape: `write-baseline-b` BAD → gate closes → five SKIPPED ⇒ N=5, M=10 ⇒ the
+  banner reads **"5 of 10 ran"** instead of today's misleading "4 of 4". Rejected: following D-08
+  literally and letting the unlock run (no amendment to a locked decision and LEG-09's proof untouched by
+  construction, but it ships the false OK described above); and running the unlock while forcing a
+  non-OK verdict (keeps the emission as defence-in-depth if the gate itself is ever wrong, but creates a
+  second place where a verdict stops following from the step's own outcome — D-15 is already one).
+
 - **D-09:** **`_ALWAYS_WRITES_NOTICE` stays one static notice printed first; its number is pinned by a
   DERIVED test.** Measured constraint: the notice is printed first, unconditionally, before the SAFE-04
   absent-chip hard-fail and before `write_scope` resolution or `derive_plan` (D-04's deliberate ordering,
