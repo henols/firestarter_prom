@@ -1,19 +1,20 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.30
-milestone_name: — SDP Surface Retirement & Behavioral Lock Proof
+milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 134
-current_phase_name: The Plan-Derived SDP Oracle in dev test
+current_phase_name: The Plan-Derived SDP Oracle in `dev test`
 status: executing
-stopped_at: Completed 134-01-PLAN.md
+stopped_at: Phase 134 — 134-01 complete, wave 2 (134-02) NOT dispatched pending operator confirmation
 last_updated: "2026-08-04T15:13:56.119Z"
 last_activity: 2026-08-04
+last_activity_desc: "Phase 134 EXECUTING — 1 of 11 plans complete (134-01, LEG-03 ticked; suite 1338→1343, coverage 81.88%, mypy unchanged at 33/35). Wave 2 deliberately NOT dispatched: a concurrent `/gsd-plan-phase 134` session was still running when execution began, and the operator reported it complained about work starting under it. Post-hoc inspection found NO damage — no merge or rebase in progress in either repo, both histories linear, the planner's two late commits touched disjoint files (639cba4a → ROADMAP.md only, +26 lines of wave-dependency annotation; b0e489fa → STATE.md only). RESTORED HERE, because two successive `state.begin-phase`/executor writes deleted this field and re-introduced a stray em-dash into `milestone_name`: **the plan-checker verdict for 134 DOES exist and was read.** `gsd-plan-checker` returned `## VERIFICATION PASSED` — 11/11 plans, ZERO blockers, ZERO warnings — having explicitly cleared one-writer-per-file across all 9 waves, disjoint tick ownership, the Evidence Ceiling honesty check, all 7 non-vacuity obligations, and the `test_op_registration_parity.py` collection-time trap. Both blocking gates passed: requirement coverage 14/14, decision coverage 18/18. The `no such artifact` caveat in `134-VALIDATION.md`'s approval note was true when written (the verdict had not yet been committed) but is now FALSE and has been corrected in that file — it applied only to 133. Decisions are **20, D-01…D-20**, not 19: **D-20 is an operator decision taken 2026-08-04 during planning**, putting `sdp-unlock` into the new baseline-gate set so it renders SKIPPED when that gate closed, and **superseding D-08's clause '`sdp-unlock` is never attempted because nothing was locked'** — research measured that wrong, because `OP_SDP_UNLOCK` is deliberately absent from `_DESTRUCTIVE_OPS` per LEG-09, so as D-08 was literally written the unlock would have RUN and reported OK at a part that was never locked. **134-04 is the plan that must honor D-20.** The four measured corrections still stand (the unobservable 0x86 ack; the SIX-step leg the ROADMAP miscounts as four; the inverted marginal-beats-BAD exit precedence, which 134-05 fixes; and 133 D-15's inverted file budget). Full record in `134-CONTEXT.md`. Requirement tick ownership: LEG-01…08, 12, 13, 14, 16, 17, 18 across 8 of 11 plans; 134-04, 134-06 and 134-08 tick nothing. PRIOR: Phase 133 CLOSED and verified 7/7 plans, 4/4 requirements, 5/5 criteria."
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 34
-  completed_plans: 23
-  percent: 43
+  completed_plans: 24
+  percent: 44
 ---
 
 # Project State

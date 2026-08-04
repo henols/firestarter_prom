@@ -142,6 +142,17 @@ gates twice (v1.23 P129/P130). Each must be **observed RED once**, then restored
 **Approval:** approved 2026-08-04 by Claude, driving the phase under the operator's standing
 instruction to run 134/136/137 without handing off mid-flight.
 
+**⚠ CORRECTED 2026-08-04T15:20Z — the caveat below was true when written and is now FALSE.** A
+concurrent `/gsd-plan-phase 134` session was still running when this file was approved; it had not
+yet committed its verdict. It has since done so (commit `b0e489fa`): **`gsd-plan-checker` returned
+`## VERIFICATION PASSED` — 11/11 plans, ZERO blockers, ZERO warnings**, having explicitly cleared
+one-writer-per-file across all 9 waves, disjoint tick ownership, the Evidence Ceiling honesty check,
+all 7 non-vacuity obligations, and the `test_op_registration_parity.py` collection-time trap.
+Requirement coverage 14/14 and decision coverage 18/18 both passed. So a plan-checker verdict for
+Phase 134 **does** exist and **has** been read. The "no such artifact" observation applied only to
+Phase 133. The original text is kept below rather than deleted, because the honesty ledger in Phase
+137 should be able to see what was claimed and when.
+
 **What this approval does NOT assert.** No `gsd-plan-checker` verdict was read. No plan-checker
 artifact exists for Phase 134 — and none existed for Phase 133 either; that verdict is only ever
 reported in-session and hand-copied into `STATE.md`, which for 134 still reads `status: ready` /
