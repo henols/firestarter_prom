@@ -304,3 +304,11 @@ None -- no external service configuration required.
 ---
 *Phase: 133-sdp-leg-mechanism*
 *Completed: 2026-08-04*
+
+## Self-Check: PASSED
+
+- FOUND: `firestarter_app/tests/test_op_registration_parity.py`
+- FOUND: `.planning/phases/133-sdp-leg-mechanism/133-06-SUMMARY.md`
+- FOUND: `.planning/phases/133-sdp-leg-mechanism/deferred-items.md`
+- FOUND commit: `57e8eb5` (submodule `firestarter_app`)
+- FOUND commit: `8c70793` (meta repo)
