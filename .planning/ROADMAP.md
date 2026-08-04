@@ -620,7 +620,7 @@ Plans:
 **Wave 8** *(blocked on Wave 7 completion)*
 
 - [x] 134-09-PLAN.md — `tests/test_sdp_recovery_wording.py`: the scoped, fail-closed recovery-wording gate [LEG-14]
-- [ ] 134-10-PLAN.md — the six laundering routes R1–R6 and the N-of-M pinning test [LEG-13, LEG-17]
+- [x] 134-10-PLAN.md — the six laundering routes R1–R6 and the N-of-M pinning test [LEG-13, LEG-17]
 
 **Wave 9** *(blocked on Wave 8 completion)*
 

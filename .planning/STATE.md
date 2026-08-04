@@ -5,16 +5,16 @@ milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 134
 current_phase_name: "The Plan-Derived SDP Oracle in `dev test`"
 status: executing
-stopped_at: Completed 134-09-PLAN.md
-last_updated: "2026-08-04T19:33:44.750Z"
+stopped_at: Completed 134-10-PLAN.md
+last_updated: "2026-08-04T20:26:51.533Z"
 last_activity: 2026-08-04
-last_activity_desc: "Phase 134 EXECUTING -- 9 of 11 plans complete. 134-09 authored LEG-14's committed gate: tests/test_sdp_recovery_wording.py (new file, 8 tests). _scan_recovery_constants(named_values) scans EXACTLY cli_handlers.SDP_RECOVERY_CONSTANT_NAMES (_SDP_RECOVERY_LOUD/_SDP_RECOVERY_NEUTRAL) for three rules -- 'rewrite' present, the bulk-clear word absent, no hyphenated _SDP_LEG_OPS/_SDP_OPS literal. _ALWAYS_WRITES_NOTICE is checked SEPARATELY for rule 1 only, never rules 2/3, because D-13's own measured trap applies to it directly: it legitimately contains the bulk-clear word in its shipped write/verify/erase step enumeration, so running the full three-rule scan against it would re-plant the exact trap this module exists to avoid (the identical shape to Phase 133's D-14 _sample problem). Positive control runs first (must-be-first enforced by file order); two fail-closed legs (zero-symbol scan raises, missing constant name raises via bare getattr); two target-resolution legs (SDP_RECOVERY_CONSTANT_NAMES non-empty + every name resolves to a non-empty str, and a minimum-count floor of 2 catches a silent shrink); two planted-violation non-vacuity legs using the in-memory-copy idiom (test_op_registration_parity.py's precedent -- no source file to plant into, the scan target is imported module constants), each with a fixture-setup assertion proving the mutation applied before the try/except AssertionError: pass / else: raise shape. Non-vacuity obligation #4 (134-VALIDATION.md row 4) was separately DISCHARGED against the REAL constant: _SDP_RECOVERY_LOUD in cli_handlers.py was temporarily edited to contain the bulk-clear word, the gate was run and observed RED naming exactly '_SDP_RECOVERY_LOUD', then cli_handlers.py was restored and git diff confirmed empty before the commit (verbatim RED output recorded in 134-09-SUMMARY.md). Ticked LEG-14 -- the only requirement this plan may tick, and the last of the two-part split (134-08 wrote the recovery wording and named the constants; this plan builds and proves the gate). PRIOR: 134-01 (LEG-03), 134-02 (LEG-05/07/08/16, LEG-06 engine half), 134-03 (LEG-01/02/04), 134-04 (baseline gate, no ticks), 134-05 (LEG-06), 134-06 (LEG-12 carriage half, no ticks), 134-07 (LEG-12, D-15 exit floor), 134-08 (recovery wording + constants, no ticks). Full suite 1417->1425 passed (+8 new tests), coverage unchanged at 82.12% (no production code changed), mypy unchanged at 33/35 (headroom 2, checked 125 source files -- up from 124, a floor not a ceiling per D-15), ci_replica_venv.sh 5/5 green. Full record in 134-CONTEXT.md; plan-by-plan requirement ownership there. Next: 134-10 (LEG-13/LEG-17, tests/test_dev_test_cmd.py + tests/test_chip_test.py + tests/fixtures/)."
+last_activity_desc: "Phase 134 EXECUTING -- 10 of 11 plans complete. 134-10 closed LEG-13 and LEG-17: six laundering-route tests (R1-R6), each asserting operator.sdp_lock.assert_not_called() AND a rendered NOT-RUN reason -- R1/R2 driven through a new synthetic nonzero-chip-id EpromDatabase subclass (tests/fixtures/synthetic_nonzero_chip_id.py, D-17), in-source labelled unreachable in production today (every shipped SDP-ALLOW chip has chip-id==0, re-measured live); R3 patches chip_test.resolve_chip against a genuinely-ALLOW chip (distinct from R4's sdp_capability-refusal route); R4 compares a REFUSE chip's NA reason by identity against sdp_capability(name, db)[1]; R5/R6 are library-level (write_scope=\"none\" locks all six ops, every SDP-ALLOW chip derives non-empty Plan.steps). LEG-13's pinning test measured m_applicable=10, n_ran=6 for a gated ALLOW chip (AT28C256) -- a MEASURED DISCREPANCY against 134-CONTEXT.md's stated n_ran=5, carried forward from 134-04-SUMMARY.md/134-07-SUMMARY.md's own identical finding against this same computation (write-baseline-a is never itself gated and reports OK against a dead-write-path double). No counting logic changed in count_applicable; the REFUSE N==M reading recorded explicitly out of LEG-13's scope; the rendered banner text asserted directly. PRIOR: 134-01 (LEG-03), 134-02 (LEG-05/07/08/16, LEG-06 engine half), 134-03 (LEG-01/02/04), 134-04 (baseline gate, no ticks), 134-05 (LEG-06), 134-06 (LEG-12 carriage half, no ticks), 134-07 (LEG-12, D-15 exit floor), 134-08 (recovery wording + constants, no ticks), 134-09 (LEG-14). Full suite 1425->1437 passed (+12 new tests), coverage unchanged at 82.12% (no production code changed), mypy unchanged at 33/35 (headroom 2, checked 126 source files -- up from 125, a floor not a ceiling per D-15), ci_replica_venv.sh 5/5 green. Full record in 134-CONTEXT.md; plan-by-plan requirement ownership there. Next: 134-11 (LEG-18, gh#20's triage finding -- the phase's last plan)."
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 34
-  completed_plans: 32
-  percent: 94
+  completed_plans: 33
+  percent: 97
 ---
 
 # Project State
@@ -49,7 +49,7 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 ## Current Position
 
 Phase: 134 (The Plan-Derived SDP Oracle in dev test) — EXECUTING
-Plan: 10 of 11
+Plan: 11 of 11
 
 Artifacts on disk: `133-CONTEXT.md` (D-01…D-16), `133-DISCUSSION-LOG.md`, `133-RESEARCH.md`,
 `133-PATTERNS.md`, `133-VALIDATION.md`, `133-01-PLAN.md` … `133-07-PLAN.md`,
@@ -1258,6 +1258,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 134]: click.echo(_sdp_recovery_line(...)) split across three statements so the call fits on one physical line under ruff-format's 88-column budget, satisfying the plan's single-line grep acceptance criterion.
 - [Phase 134]: make_restore_failed_operator persists every write_eprom call except the globally-last one (write-restored), isolating 'lock emitted but restore not confirmed' from the shipped 'lock leaked' fixture.
 - [Phase 134]: 134-09: _ALWAYS_WRITES_NOTICE is scanned separately from SDP_RECOVERY_CONSTANT_NAMES for rule 1 (rewrite) only, never rules 2/3 (bulk-clear word / hyphenated op), because it legitimately contains the bulk-clear word in its own shipped write/verify/erase step enumeration -- D-13's own measured trap applied directly to the gate's own scope. — Running the full three-rule scan against _ALWAYS_WRITES_NOTICE would re-plant the exact Phase-133 D-14 _sample-shaped trap this module exists to avoid.
+- [Phase 134]: LEG-13 pinning asserts measured n_ran=6 (not the design record's stated 5) -- MEASURED DISCREPANCY carried forward from 134-04/134-07's own identical finding
+- [Phase 134]: R1/R2 driven through a synthetic nonzero-chip-id EpromDatabase subclass (D-17), labelled unreachable in production today; R3 patches resolve_chip directly against a genuinely-ALLOW chip rather than reusing REFUSE-chip AT28C16
 
 ## Performance Metrics
 
@@ -1450,11 +1452,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 134 P07 | 29min | 2 tasks | 4 files |
 | Phase 134 P08 | 38min | 3 tasks | 5 files |
 | Phase 134 P09 | 40min | 2 tasks | 1 files |
+| Phase 134 P10 | 50min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-04T19:33:44.730Z
-**Stopped at:** Completed 134-09-PLAN.md
+**Last session:** 2026-08-04T20:26:51.500Z
+**Stopped at:** Completed 134-10-PLAN.md
 **Resume file:** 
 
 ### Blockers

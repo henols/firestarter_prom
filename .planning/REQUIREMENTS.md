@@ -331,8 +331,22 @@ requirements encode the corrected form.
       `NOT-RUN` reason proven in both, `operator.sdp_lock.assert_not_called()`, and the banner's dropped
       `n_ran < m_applicable` ratio, all driven end to end through the real CLI).
 
-- [ ] **LEG-13**: The applicable-step count includes the SDP oracle for ALLOW chips regardless of
+- [x] **LEG-13**: The applicable-step count includes the SDP oracle for ALLOW chips regardless of
       outcome, so an NA/SKIPPED oracle **drops** the headline N-of-M ratio instead of leaving it perfect.
+      A **pinning test only** (D-15's own measurement: `count_applicable` already counts the six SDP
+      steps in M and already excludes a SKIPPED result from N for ALLOW chips — no counting logic was
+      edited). Evidence: `firestarter_app` commit `2b7a702` (134-10 Task 3) —
+      `tests/test_chip_test.py::test_count_applicable_sdp_gated_allow_chip_ratio_drops` (AT28C256,
+      `write_scope="full"`, gated by a dead-write-path baseline: `m_applicable == 10`, `n_ran == 6` —
+      the ratio drops from today's misleading "4 of 4"; a MEASURED DISCREPANCY against
+      `134-CONTEXT.md`'s stated `n_ran=5` is recorded in the test's own docstring, carried forward from
+      the identical finding in `134-04-SUMMARY.md`/`134-07-SUMMARY.md`), plus
+      `::test_count_applicable_sdp_does_not_change_shipped_non_sdp_counting` (the two shipped
+      `count_applicable` pins re-asserted unedited),
+      `::test_count_applicable_refuse_chip_n_equals_m_is_out_of_leg13_scope` (the REFUSE `N == M`
+      reading recorded as explicitly out of scope), and
+      `::test_count_applicable_sdp_banner_row_renders_the_dropped_ratio` (the rendered banner text,
+      `diagnostic_report.py`'s own row, no code edit).
 
 - [x] **LEG-14**: The report states recovery in the word **"rewrite"** and never "erase" (`0x0D` has no
       erase operation at all), enforced by a committed grep over the SDP report strings.
@@ -360,8 +374,22 @@ requirements encode the corrected form.
       source) made the baseline step go OK and the fixture's own test fail, then restored
       byte-identically.
 
-- [ ] **LEG-17**: Each of the six exit-code laundering routes has a test asserting both that
+- [x] **LEG-17**: Each of the six exit-code laundering routes has a test asserting both that
       `sdp_lock` was **not** called and that a visible `NOT-RUN` reason is rendered.
+      Evidence: `firestarter_app` commits `2f75cb9` (134-10 Task 1) and `2072105` (134-10 Task 2) —
+      R1/R2 (`tests/test_dev_test_cmd.py::TestLaunderingRoutesR1R2SyntheticChipId`) driven through a
+      synthetic nonzero-`chip-id` `EpromDatabase` (`tests/fixtures/synthetic_nonzero_chip_id.py`,
+      D-17) so the full id-step → gate → refusal causal chain is genuinely exercised, labelled
+      unreachable in production today (every shipped SDP-ALLOW chip has `chip-id == 0`, re-measured
+      live by `test_all_sdp_allow_chips_have_zero_chip_id_measured_live`) and never described as "the
+      leg is gated by chip ID" (`grep -ci 'gated by chip[- ]id' tests/ firestarter/ -r` returns 0); R3
+      (`TestLaunderingRoutesR3R4::test_r3_…`, a `resolve_chip` refusal mapping the SDP-leg steps to
+      SKIPPED); R4 (`::test_r4_…`, a REFUSE chip's NA reason compared by identity against
+      `sdp_capability(name, db)[1]`); R5/R6 (`tests/test_chip_test.py::test_r5_laundering_…`/
+      `test_r6_laundering_…`, library-level: `write_scope="none"` locks all six ops with no `sdp_lock`
+      call, and every SDP-ALLOW chip derives a non-empty `Plan.steps`). A seventh route (D-08's
+      baseline gate) is named in the same test family and is not counted among these six — see
+      `134-04-SUMMARY.md`.
 
 - [ ] **LEG-18**: gh#20 (AT28C256 `dev test` FAIL, open since 2026-07-30) is triaged against the
       baseline gate, with the finding recorded — it is the live instance of the "lock a part whose
@@ -546,11 +574,11 @@ Populated during roadmap creation.
 | LEG-10 | Phase 133 | Complete |
 | LEG-11 | Phase 133 | Complete |
 | LEG-12 | Phase 134 | Complete |
-| LEG-13 | Phase 134 | Pending |
+| LEG-13 | Phase 134 | Complete |
 | LEG-14 | Phase 134 | Complete |
 | LEG-15 | Phase 133 | Complete |
 | LEG-16 | Phase 134 | Complete |
-| LEG-17 | Phase 134 | Pending |
+| LEG-17 | Phase 134 | Complete |
 | LEG-18 | Phase 134 | Pending |
 | RELOCK-01 | ~~Phase 135~~ → Backlog 999.28 | ⏸ Deferred (out of v1 scope) |
 | RELOCK-02 | ~~Phase 135~~ → Backlog 999.28 | ⏸ Deferred (out of v1 scope) |
