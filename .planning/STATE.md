@@ -1,14 +1,13 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.30
-milestone_name: SDP Surface Retirement & Behavioral Lock Proof
+milestone_name: — SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 134
-current_phase_name: The Plan-Derived SDP Oracle in `dev test`
+current_phase_name: The Plan-Derived SDP Oracle in dev test
 status: executing
-stopped_at: Phase 134 executing — 11 plans, waves 1-9
-last_updated: "2026-08-04T14:35:00.000Z"
+stopped_at: Completed 134-01-PLAN.md
+last_updated: "2026-08-04T15:13:56.119Z"
 last_activity: 2026-08-04
-last_activity_desc: "Phase 134 EXECUTING — 11 plans across waves 1→9, dispatched by Claude under the operator's standing instruction to drive 134/136/137 and batch every hand-off to the end. All 11 plans are `autonomous: true` and the phase has NO checkpoints, so nothing in 134 stops for the operator. Worktree isolation is OFF for every plan (all 11 touch the `firestarter_app` submodule), so dispatch is strictly one executor at a time on the main working tree — same disposition as 129/131/132/133. `134-VALIDATION.md` was approved before dispatch with measured evidence (every task in all 11 plans carries an `<automated>` verify — 2/2 or 3/3; zero watch-mode flags; wave-0 coverage satisfied by in-wave test authoring, recorded rather than silently ticked) and explicitly records what it does NOT assert. **CORRECTED 2026-08-04T14:35Z — that approval's central caveat is now false.** A concurrent `/gsd-plan-phase 134` session (the one that produced these 11 plans, commits 34212f86→a3aaae7b) ran the full pipeline: `gsd-phase-researcher` → `134-RESEARCH.md`, `gsd-pattern-mapper` → `134-PATTERNS.md`, `gsd-planner` → the 11 plans, then **`gsd-plan-checker` returned `## VERIFICATION PASSED` — 11/11 plans, ZERO blockers, ZERO warnings**, having explicitly cleared one-writer-per-file across all 9 waves, disjoint tick ownership, the Evidence Ceiling honesty check, all 7 non-vacuity obligations, and the `test_op_registration_parity.py` collection-time trap. Both blocking gates then passed: requirement coverage **14/14** and decision coverage **18/18**. So a plan-checker verdict for 134 DOES exist and was read; the ‘no such artifact’ caveat applied only to 133. Requirement coverage checked 14/14 with no requirement claimed by two plans: LEG-01…08, 12, 13, 14, 16, 17, 18 across 8 of 11 plans; 134-04, 134-06 and 134-08 tick nothing. Full discuss-session record (**20 decisions D-01…D-20** — corrected from 19: **D-20 is an operator decision taken 2026-08-04 during planning**, putting `sdp-unlock` into the new baseline-gate set so it renders SKIPPED when that gate closed, and **superseding D-08's clause ‘`sdp-unlock` is never attempted because nothing was locked’**, which research measured wrong because `OP_SDP_UNLOCK` is deliberately absent from `_DESTRUCTIVE_OPS` per LEG-09 — as D-08 was literally written the unlock would have RUN and reported OK at a part that was never locked. Plus the four measured corrections — the unobservable 0x86 ack, the SIX-step leg the ROADMAP miscounts as four, the inverted marginal-beats-BAD exit precedence, and 133 D-15's inverted file budget) lives in `134-CONTEXT.md`; it was deleted from this field by `state.begin-phase` and is recovered from commit 7284e6c5 if needed. PRIOR: Phase 133 CLOSED and verified 7/7 plans, 4/4 requirements, 5/5 criteria."
 progress:
   total_phases: 7
   completed_phases: 3
@@ -49,7 +48,7 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 ## Current Position
 
 Phase: 134 (The Plan-Derived SDP Oracle in dev test) — EXECUTING
-Plan: 1 of 11
+Plan: 2 of 11
 
 Artifacts on disk: `133-CONTEXT.md` (D-01…D-16), `133-DISCUSSION-LOG.md`, `133-RESEARCH.md`,
 `133-PATTERNS.md`, `133-VALIDATION.md`, `133-01-PLAN.md` … `133-07-PLAN.md`,
@@ -1240,6 +1239,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 132]: 132-09: no agent ran git push or gh workflow run -- both privileged actions (branch push creating gsd/v1.30-sdp-surface-retirement on origin, and the workflow_dispatch) were performed by the operator per the plan's task 2 checkpoint; run 30856059940 concluded success.
 - [Phase 132]: 132-09: mypy's raw completion clause was absent from the CI log by construction (the hardened checker's success path never re-echoes result.stdout, unlike the replica script's own extra instrumentation) -- investigated via the gate's own guard-order logic rather than substituted with a locally-computed number, distinguished explicitly from Phase 131's F-07 (a genuinely aborted, pre-hardening run).
 - [Phase 132]: 132-09: RETIRE-06 ticked -- all eight RETIRE requirements now Complete. Watermark stays at the unratcheted 35 (D-09); measured true count 32, 3 of headroom named as a later phase's ratchet input, not yet filed as its own backlog item.
+- [Phase 134]: 134-01: FLAG_SKIP_SDP_UNLOCK import deferred to 134-02 (ruff F401 flags it unused at 134-01, unlike D-19's assumption) — Plan text said ruff's F rules do not flag unused module-level constants; measured wrong for an unused NAME import -- moved the import to the plan that uses it, narrowed the docstring in prose only
 
 ## Performance Metrics
 
@@ -1423,13 +1423,14 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 132 P07 | 45min | 3 tasks | 4 files |
 | Phase 132 P08 | 55min | 3 tasks | 3 files |
 | Phase 132 P09 | ~20min | 4 tasks | 5 files |
+| Phase 134 P01 | 28m | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-04T13:06:01.999Z
-**Stopped at:** Phase 134 context gathered
+**Last session:** 2026-08-04T15:13:56.099Z
+**Stopped at:** Completed 134-01-PLAN.md
 **Resume file:** 
-.planning/phases/134-the-plan-derived-sdp-oracle-in-dev-test/134-CONTEXT.md
+None
 
 ### Blockers
 

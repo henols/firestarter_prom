@@ -194,9 +194,16 @@ requirements encode the corrected form.
 - [ ] **LEG-02**: For each of the 41 capability-REFUSED chips, the leg's steps report NA/SKIPPED
       carrying the refusal reason, never a silent omission.
 
-- [ ] **LEG-03**: The inhibited-write payload comes from its own named generator and is the bitwise
+- [x] **LEG-03**: The inhibited-write payload comes from its own named generator and is the bitwise
       complement of the baseline pattern — differing from it in **every** byte, and equal to neither
       all-`0x00` nor all-`0xFF`, so a blank read and a stuck-bus read stay distinguishable.
+      **Complete** (Phase 134 plan 134-01): `generate_inhibited_pattern(start, length)` calls
+      `generate_pattern` exactly once and bitwise-complements it; five tests
+      (`tests/test_chip_test_sdp_leg.py::TestInhibitedPattern`, `pytest -k "pattern_b"`) prove
+      equal-length, every-byte divergence, the anti-tautology check (B != a fresh `generate_pattern()`
+      call), neither pattern degenerate, and D-05's non-laundering leg against the live
+      `_FF_RATIO_THRESHOLD` — all against the live generators for the real `(0, 256)` region, never a
+      byte literal. Non-vacuity obligation #1 observed RED once, then restored byte-identically.
 
 - [ ] **LEG-04**: The baseline step proves a write **transition** — write pattern B, verify, write
       pattern A, verify — before any lock is applied, so a chip carrying the pattern from an earlier run
@@ -444,7 +451,7 @@ Populated during roadmap creation.
 | RETIRE-08 | Phase 132 | Complete |
 | LEG-01 | Phase 134 | Pending |
 | LEG-02 | Phase 134 | Pending |
-| LEG-03 | Phase 134 | Pending |
+| LEG-03 | Phase 134 | Complete |
 | LEG-04 | Phase 134 | Pending |
 | LEG-05 | Phase 134 | Pending |
 | LEG-06 | Phase 134 | Pending |

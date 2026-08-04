@@ -590,7 +590,7 @@ requirements, and worktree isolation is unavailable inside the `firestarter_app`
 Plans:
 **Wave 1**
 
-- [ ] 134-01-PLAN.md — op vocabulary, `_SDP_LEG_OPS`, the D-19 pattern-B generator, the coupled op-parity gate update, and the pre-edit CI-parity record [LEG-03]
+- [x] 134-01-PLAN.md — op vocabulary, `_SDP_LEG_OPS`, the D-19 pattern-B generator, the coupled op-parity gate update, and the pre-edit CI-parity record [LEG-03]
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
