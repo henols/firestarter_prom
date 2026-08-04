@@ -520,7 +520,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 133-06-PLAN.md — LEG-15/D-12: `tests/test_op_registration_parity.py` — membership-or-reasoned-exemption for every `(op, registry)` pair, the three D-12 guards, the inversion guard on declared non-registries, and a non-vacuity leg.
+- [x] 133-06-PLAN.md — LEG-15/D-12: `tests/test_op_registration_parity.py` — membership-or-reasoned-exemption for every `(op, registry)` pair, the three D-12 guards, the inversion guard on declared non-registries, and a non-vacuity leg.
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
