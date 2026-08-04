@@ -588,16 +588,42 @@ holds and still governs any concurrent plan inside this phase.
 requirements, and worktree isolation is unavailable inside the `firestarter_app` submodule)
 
 Plans:
+**Wave 1**
+
 - [ ] 134-01-PLAN.md — op vocabulary, `_SDP_LEG_OPS`, the D-19 pattern-B generator, the coupled op-parity gate update, and the pre-edit CI-parity record [LEG-03]
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 134-02-PLAN.md — `_dispatch_sdp_leg`: the no-default read-back truth table, dispatch arm 6, and the oracle proofs [LEG-05, LEG-07, LEG-08, LEG-16]
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 134-03-PLAN.md — `derive_plan` emits the six-step leg (ALLOW) / six NA steps (REFUSE), parity rows discharged, the 0x0D sweep repaired [LEG-01, LEG-02, LEG-04]
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 134-04-PLAN.md — `_baseline_closes_sdp_gate` + D-20's unlock gating, cleanup de-registration, and the `sdp_hold_state` derivation [ticks nothing]
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 134-05-PLAN.md — D-14's explicit exit precedence and the end-to-end leaked-lock exit-1 proof [LEG-06]
 - [ ] 134-06-PLAN.md — the `HELD`/`NOT-HELD`/`NOT-RUN` string field, `to_dict` key, console row, `SCHEMA_VERSION` 1.3 [ticks nothing]
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 134-07-PLAN.md — hold-state assignment at the seam and D-15's ALLOW-only exit floor beneath D-14 [LEG-12]
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 134-08-PLAN.md — the rewritten always-writes notice with a derived pass count, and D-12's two recovery forms [ticks nothing]
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 134-09-PLAN.md — `tests/test_sdp_recovery_wording.py`: the scoped, fail-closed recovery-wording gate [LEG-14]
 - [ ] 134-10-PLAN.md — the six laundering routes R1–R6 and the N-of-M pinning test [LEG-13, LEG-17]
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
 - [ ] 134-11-PLAN.md — the gh#20 triage finding, an owned backlog item, the CI-parity after-record, and `134-RECORD.md` [LEG-18]
 
 **Research flag**: NEEDS `--research-phase` — inherits Phase 133's open question (the `_dispatch_sdp`
