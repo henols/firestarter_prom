@@ -512,7 +512,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 133-04-PLAN.md — D-06/D-07/D-10: the generic cleanup registry drained in one `try/finally` with per-callable narrow handling; the drain provably never touches `results`; LEG-10's five proofs and criterion 3's two cases.
+- [x] 133-04-PLAN.md — D-06/D-07/D-10: the generic cleanup registry drained in one `try/finally` with per-callable narrow handling; the drain provably never touches `results`; LEG-10's five proofs and criterion 3's two cases.
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
