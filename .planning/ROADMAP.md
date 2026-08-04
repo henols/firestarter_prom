@@ -493,14 +493,34 @@ phase's new test module must not redden).
      destructive-set membership, multi-run exclusion, and the others enumerated in the module's own
      comment) — converting eight previously fail-open registries into one fail-closed gate.
 
-**Plans**: TBD
-**Research flag**: NEEDS `--research-phase` — the `_dispatch_sdp` shape (one function or four; a style
-call with no correctness content, but it must be reflected in the deliberate-break test) and the exact
-`run_plan` `finally` shape are open; everything else in this phase is specified to the line.
+**Plans**: 7 plans, waves 1-7 (strictly sequential — four plans write `firestarter_app/firestarter/chip_test.py`
+and/or `tests/test_chip_test_sdp_leg.py`, and the two gate plans must measure against the phase's FINAL
+engine source, so same-wave parallelism would either collide on file ownership or read a half-written file)
+
+Plans:
+- [ ] 133-01-PLAN.md — Capture the two pre-edit baselines (nine-row exception-precedence matrix + frozen derived-op-sequence literal) and the before-half of the CI-parity recipe with a real mypy count. Zero production edits.
+- [ ] 133-02-PLAN.md — D-08: widen `_run_step`'s exception handling (`SerialError` + `HardwareOperationError` degrade one step; `ProgrammerNotFoundError` + `FirmwareOutdatedError` re-raised FIRST), advance the matrix by exactly three named rows, fix the over-claiming docstring.
+- [ ] 133-03-PLAN.md — D-01…D-05/D-11: `OP_SDP_LOCK`/`OP_SDP_UNLOCK`, `_SDP_OPS`, `_dispatch_sdp` (guard → branch → terminal `AssertionError`), arm 5 last in `_dispatch_step`, the `_DESTRUCTIVE_OPS` asymmetry, and D-13b's seven-op sentinel.
+- [ ] 133-04-PLAN.md — D-06/D-07/D-10: the generic cleanup registry drained in one `try/finally` with per-callable narrow handling; the drain provably never touches `results`; LEG-10's five proofs and criterion 3's two cases.
+- [ ] 133-05-PLAN.md — D-09/D-14: the `visit_ExceptHandler` broad-handler deny-bucket in `tools/check_devtest_orchestrator.py` plus the guarded `(file, function)` exemption for the pre-existing sampler swallow, landing in one commit so the gate is never RED.
+- [ ] 133-06-PLAN.md — LEG-15/D-12: `tests/test_op_registration_parity.py` — membership-or-reasoned-exemption for every `(op, registry)` pair, the three D-12 guards, the inversion guard on declared non-registries, and a non-vacuity leg.
+- [ ] 133-07-PLAN.md — The after-half of the CI-parity recipe with a real mypy count, `133-RECORD.md` (five criteria discharged, D-01…D-16 coverage, criterion 4's `group=None` vacuity, criterion 5's measured-wrong count, the Evidence Ceiling), and the ONLY permitted requirement ticks.
+
+**Research flag**: DONE — `133-RESEARCH.md` (1443 lines) + `133-PATTERNS.md` + `133-VALIDATION.md`
+delivered 2026-08-04. Both open questions are settled: the `_dispatch_sdp` shape is one guarded function
+cloning `_dispatch_multi_run` (D-01), and the `run_plan` `finally` is a bare `try/finally` with **no
+`except` clause of any width** — research measured that P-20 prevention #2's "wide enough to catch
+`BaseException`" is unnecessary and self-defeating, since an `except BaseException:` would violate
+criterion 2 and trip this phase's own new deny-rule.
 **Cross-cutting**: Run the CI-parity recipe with the no-board leg emphasized (this phase's exception
-handling is exactly what a half-seated cable exercises). At dispatch, name exactly which of LEG-09,
-LEG-10, LEG-11, LEG-15 each plan may mark Complete — **not** any of the other 14 LEG requirements, which
-belong to Phase 134.
+handling is exactly what a half-seated cable exercises). ⚠ **Measured 2026-08-04: `ci_parity.sh` has no
+discrete no-board leg** — the board dimension is an ambient condition of legs 1/2, so this instruction is
+discharged as "legs 1/2 run with no board attached, and that condition asserted and recorded" (plans
+133-01 and 133-07). At dispatch, name exactly which of LEG-09, LEG-10, LEG-11, LEG-15 each plan may mark
+Complete — **not** any of the other 14 LEG requirements, which belong to Phase 134. **Resolved at plan
+time: only 133-07 may tick any box**, and it ticks all four at once against named green tests; plans
+133-01…06 each carry a fence stating they may tick nothing. That centralisation is the mitigation for
+this project's recorded 4x-in-one-phase premature-Complete failure mode.
 
 ### Phase 134: The Plan-Derived SDP Oracle in `dev test`
 
