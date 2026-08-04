@@ -391,9 +391,16 @@ requirements encode the corrected form.
       baseline gate) is named in the same test family and is not counted among these six — see
       `134-04-SUMMARY.md`.
 
-- [ ] **LEG-18**: gh#20 (AT28C256 `dev test` FAIL, open since 2026-07-30) is triaged against the
+- [x] **LEG-18**: gh#20 (AT28C256 `dev test` FAIL, open since 2026-07-30) is triaged against the
       baseline gate, with the finding recorded — it is the live instance of the "lock a part whose
       baseline write never worked" hazard.
+      Evidence: `134-GH20-TRIAGE.md` (the finding: host `3.0.0b14`/`Rev 2.3`, `dedup_fingerprint`
+      `00e121446ceb`, no lock ever emitted under the baseline gate, banner drops from "4 of 4" to
+      "6 of 10" — a measured correction of `134-CONTEXT.md`'s stated "5 of 10", see `134-RECORD.md`
+      §4) and `.planning/todos/pending/at28c256-write-path-failure-gh20.md` (the underlying defect,
+      filed with `Owner: henols`, separate and still open). The finding is **recorded**, not posted —
+      the public reply to gh#20 is Phase 137's (CLOSE-06), behind its blocking operator wording
+      review.
 
 ### `write --sdp-relock` (RELOCK)
 
@@ -579,7 +586,7 @@ Populated during roadmap creation.
 | LEG-15 | Phase 133 | Complete |
 | LEG-16 | Phase 134 | Complete |
 | LEG-17 | Phase 134 | Complete |
-| LEG-18 | Phase 134 | Pending |
+| LEG-18 | Phase 134 | Complete |
 | RELOCK-01 | ~~Phase 135~~ → Backlog 999.28 | ⏸ Deferred (out of v1 scope) |
 | RELOCK-02 | ~~Phase 135~~ → Backlog 999.28 | ⏸ Deferred (out of v1 scope) |
 | RELOCK-03 | ~~Phase 135~~ → Backlog 999.28 | ⏸ Deferred (out of v1 scope) |
