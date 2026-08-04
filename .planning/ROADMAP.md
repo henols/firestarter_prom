@@ -624,7 +624,7 @@ Plans:
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 134-11-PLAN.md — the gh#20 triage finding, an owned backlog item, the CI-parity after-record, and `134-RECORD.md` [LEG-18]
+- [x] 134-11-PLAN.md — the gh#20 triage finding, an owned backlog item, the CI-parity after-record, and `134-RECORD.md` [LEG-18]
 
 **Research flag**: NEEDS `--research-phase` — inherits Phase 133's open question (the `_dispatch_sdp`
 shape) since the four ops' dispatch depends on the answer; everything else — the truth table, the

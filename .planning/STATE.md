@@ -5,16 +5,16 @@ milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 134
 current_phase_name: "The Plan-Derived SDP Oracle in `dev test`"
 status: executing
-stopped_at: Completed 134-10-PLAN.md
-last_updated: "2026-08-04T20:26:51.533Z"
+stopped_at: Completed 134-11-PLAN.md -- Phase 134 CLOSED (14/14 LEG requirements, 18/18 total with Phase 133)
+last_updated: "2026-08-04T21:06:55.569Z"
 last_activity: 2026-08-04
-last_activity_desc: "Phase 134 EXECUTING -- 10 of 11 plans complete. 134-10 closed LEG-13 and LEG-17: six laundering-route tests (R1-R6), each asserting operator.sdp_lock.assert_not_called() AND a rendered NOT-RUN reason -- R1/R2 driven through a new synthetic nonzero-chip-id EpromDatabase subclass (tests/fixtures/synthetic_nonzero_chip_id.py, D-17), in-source labelled unreachable in production today (every shipped SDP-ALLOW chip has chip-id==0, re-measured live); R3 patches chip_test.resolve_chip against a genuinely-ALLOW chip (distinct from R4's sdp_capability-refusal route); R4 compares a REFUSE chip's NA reason by identity against sdp_capability(name, db)[1]; R5/R6 are library-level (write_scope=\"none\" locks all six ops, every SDP-ALLOW chip derives non-empty Plan.steps). LEG-13's pinning test measured m_applicable=10, n_ran=6 for a gated ALLOW chip (AT28C256) -- a MEASURED DISCREPANCY against 134-CONTEXT.md's stated n_ran=5, carried forward from 134-04-SUMMARY.md/134-07-SUMMARY.md's own identical finding against this same computation (write-baseline-a is never itself gated and reports OK against a dead-write-path double). No counting logic changed in count_applicable; the REFUSE N==M reading recorded explicitly out of LEG-13's scope; the rendered banner text asserted directly. PRIOR: 134-01 (LEG-03), 134-02 (LEG-05/07/08/16, LEG-06 engine half), 134-03 (LEG-01/02/04), 134-04 (baseline gate, no ticks), 134-05 (LEG-06), 134-06 (LEG-12 carriage half, no ticks), 134-07 (LEG-12, D-15 exit floor), 134-08 (recovery wording + constants, no ticks), 134-09 (LEG-14). Full suite 1425->1437 passed (+12 new tests), coverage unchanged at 82.12% (no production code changed), mypy unchanged at 33/35 (headroom 2, checked 126 source files -- up from 125, a floor not a ceiling per D-15), ci_replica_venv.sh 5/5 green. Full record in 134-CONTEXT.md; plan-by-plan requirement ownership there. Next: 134-11 (LEG-18, gh#20's triage finding -- the phase's last plan)."
+last_activity_desc: "Phase 134 CLOSED -- 11 of 11 plans complete, 14/14 LEG requirements Complete (18/18 total with Phase 133). 134-11 (the phase's last plan) closed LEG-18: gh#20 triaged against the new baseline-transition gate -- on that bench write-baseline-b would itself report BAD, the gate would close, and no lock is ever emitted; banner drops from '4 of 4' to '6 of 10' (a measured correction of 134-CONTEXT.md's D-20-stated '5 of 10', carried forward from 134-04/134-07/134-10's own identical n_ran=6-not-5 finding). The underlying AT28C256 write-path defect (blank-check/write/verify all BAD, Rev 2.3, vpp 11800mV/vpe 13700mV) is filed as Backlog 999.29 with Owner: henols, separate from the triage -- the public reply is Phase 137's (CLOSE-06). 134-CI-PARITY.md's after-half: mypy UNCHANGED at 33/35 across the entire phase (headroom 2 never spent) despite 29 new production symbols measured live; checked 124->126 source files (a floor, not a ceiling, per D-15's correction); full suite 1338->1437 passed (+99), coverage 81.84%->82.12%. 134-RECORD.md is the phase's closing record: all 14 requirements accounted with named evidence, LEG-09/10/11/15 (Phase 133) re-verified byte-identically green by a live re-run, all twenty decisions D-01..D-20 honoured (D-08's sdp-unlock clause stated measured-wrong and superseded by D-20 without weakening LEG-09; D-18's REFUSE-chip write_scope=none refinement; research P-03 prevention 4 named overturned), the five ROADMAP success criteria discharged at the Evidence Ceiling with both readings for the four-vs-six step count and the exit-code-1-unreachable-until-D-14 caveat, seven corrections with both readings (including a live measurement that only 2 of D-12's predicted 5 Phase-134 exemption rows were dischargeable, and that _DECLARED_REGISTRY_COUNT does not exist -- the real names are _POLICED_REGISTRY_COUNT/_DECLARED_NON_REGISTRY_COUNT), all seven non-vacuity obligations with planted-break/RED/restore evidence, six residuals (mypy watermark ratchet still unowned; the build_db_diff/ladder_state finding from 134-03/134-06 still open and unowned; gh#20's underlying defect now owned), and the Evidence Ceiling restated verbatim from 133-RECORD.md. Next: Phase 136 (dev-tools channel gating, CHAN-*) -- the 135 slot stays vacant (write --sdp-relock deferred to Backlog 999.28)."
 progress:
   total_phases: 7
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 34
-  completed_plans: 33
-  percent: 97
+  completed_plans: 34
+  percent: 100
 ---
 
 # Project State
@@ -1260,6 +1260,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 134]: 134-09: _ALWAYS_WRITES_NOTICE is scanned separately from SDP_RECOVERY_CONSTANT_NAMES for rule 1 (rewrite) only, never rules 2/3 (bulk-clear word / hyphenated op), because it legitimately contains the bulk-clear word in its own shipped write/verify/erase step enumeration -- D-13's own measured trap applied directly to the gate's own scope. — Running the full three-rule scan against _ALWAYS_WRITES_NOTICE would re-plant the exact Phase-133 D-14 _sample-shaped trap this module exists to avoid.
 - [Phase 134]: LEG-13 pinning asserts measured n_ran=6 (not the design record's stated 5) -- MEASURED DISCREPANCY carried forward from 134-04/134-07's own identical finding
 - [Phase 134]: R1/R2 driven through a synthetic nonzero-chip-id EpromDatabase subclass (D-17), labelled unreachable in production today; R3 patches resolve_chip directly against a genuinely-ALLOW chip rather than reusing REFUSE-chip AT28C16
+- [Phase 134]: gh#20 triaged against the new baseline gate: no lock is ever emitted on that bench; banner drops 4 of 4 -> 6 of 10 (measured correction of D-20's stated 5); underlying AT28C256 write-path defect filed as Backlog 999.29 with Owner: henols; public reply is Phase 137's (CLOSE-06)
+- [Phase 134]: Phase 134 CLOSED: 14/14 LEG requirements Complete (18/18 total with Phase 133); mypy count never moved across the whole phase (33/35 unchanged despite 29 new production symbols); 134-RECORD.md carries every correction with both readings and the Evidence Ceiling restated verbatim
 
 ## Performance Metrics
 
@@ -1453,11 +1455,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 134 P08 | 38min | 3 tasks | 5 files |
 | Phase 134 P09 | 40min | 2 tasks | 1 files |
 | Phase 134 P10 | 50min | 3 tasks | 3 files |
+| Phase 134 P11 | 29min | 3 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-08-04T20:26:51.500Z
-**Stopped at:** Completed 134-10-PLAN.md
+**Last session:** 2026-08-04T21:06:55.514Z
+**Stopped at:** Completed 134-11-PLAN.md -- Phase 134 CLOSED (14/14 LEG requirements, 18/18 total with Phase 133)
 **Resume file:** 
 
 ### Blockers
