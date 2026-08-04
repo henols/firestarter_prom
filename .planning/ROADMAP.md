@@ -524,7 +524,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 133-07-PLAN.md — The after-half of the CI-parity recipe with a real mypy count, `133-RECORD.md` (five criteria discharged, D-01…D-16 coverage, criterion 4's `group=None` vacuity, criterion 5's measured-wrong count, the Evidence Ceiling), and the ONLY permitted requirement ticks.
+- [x] 133-07-PLAN.md — The after-half of the CI-parity recipe with a real mypy count, `133-RECORD.md` (five criteria discharged, D-01…D-16 coverage, criterion 4's `group=None` vacuity, criterion 5's measured-wrong count, the Evidence Ceiling), and the ONLY permitted requirement ticks.
 
 **Research flag**: DONE — `133-RESEARCH.md` (1443 lines) + `133-PATTERNS.md` + `133-VALIDATION.md`
 delivered 2026-08-04. Both open questions are settled: the `_dispatch_sdp` shape is one guarded function
