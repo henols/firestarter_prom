@@ -213,14 +213,35 @@ requirements encode the corrected form.
       marginal, never equality. (The mandated `_diff_offsets` primitive reads an empty read-back as
       perfect equality; the leg must not inherit that.)
 
-- [ ] **LEG-09**: `sdp_unlock` is **exempt** from the destructive-op set, so a destructive gate closing
+- [x] **LEG-09**: `sdp_unlock` is **exempt** from the destructive-op set, so a destructive gate closing
       after the lock can never skip the unlock and ship a locked part.
+      Evidence: `firestarter_app` commit `ded8e3e` (133-03, `_DESTRUCTIVE_OPS` asymmetry) +
+      commits `35d4571`/`23f895c`/`5c8fb09` (133-04, cleanup registry + criterion-3 proofs) —
+      `tests/test_chip_test_sdp_leg.py::test_unlock_exempt_from_destructive`,
+      `::test_gate_closed_from_start`, `::test_lock_ran_then_gate_closes` (mutation-proved: adding
+      `OP_SDP_UNLOCK` to `_DESTRUCTIVE_OPS` was observed to fail the last test, then reverted).
+      Qualifier (D-11): in Phase 133 this absence is forward-protection for Phase 134, since 133
+      derives no plan-level SDP step for it to gate — see `133-RECORD.md` §3 Criterion 3.
 
-- [ ] **LEG-10**: `run_plan` drains a cleanup registry in a `finally`, so the unlock is attempted even
+- [x] **LEG-10**: `run_plan` drains a cleanup registry in a `finally`, so the unlock is attempted even
       when a mid-leg step raises.
+      Evidence: `firestarter_app` commit `35d4571` (133-04, the registry + bare `try/finally` +
+      per-callable drain) —
+      `tests/test_chip_test_sdp_leg.py::test_finally_drains_on_exception`,
+      `::test_keyboard_interrupt_drains_and_propagates`, `::test_system_exit_drains_and_propagates`,
+      `::test_empty_registry_noop`, `::test_drain_continues_after_failure`,
+      `::test_drain_does_not_mutate_results` (AST-level, over the installed source).
+      Qualifier (D-07): on the propagating path, the unlock is attempted but the report is honestly
+      forfeited — see `133-RECORD.md` §3 Criterion 1.
 
-- [ ] **LEG-11**: `_run_step` catches `SerialError` and `HardwareOperationError`, so a mid-leg transport
+- [x] **LEG-11**: `_run_step` catches `SerialError` and `HardwareOperationError`, so a mid-leg transport
       timeout degrades that step rather than killing the whole report.
+      Evidence: `firestarter_app` commit `9d7c0cc` (133-02, the four-clause `except` chain) —
+      `tests/test_chip_test_sdp_leg.py::test_serial_timeout_degrades_one_step`,
+      `::test_hardware_error_degrades_one_step`, `::test_run_fatal_escapes`,
+      `::test_assertion_error_propagates`; plus the independent build-time proof, commit `feb90f6`
+      (133-05) — `tests/test_check_devtest_orchestrator.py::test_checker_exits_nonzero_on_planted_broad_except`
+      (and its three parametrised variants).
 
 - [ ] **LEG-12**: Every run on an ALLOW chip renders a `HELD` / `NOT-HELD` / `NOT-RUN(reason)` field in
       **both** the human report and the JSON artifact, so a non-running oracle is visible to a
@@ -232,8 +253,16 @@ requirements encode the corrected form.
 - [ ] **LEG-14**: The report states recovery in the word **"rewrite"** and never "erase" (`0x0D` has no
       erase operation at all), enforced by a committed grep over the SDP report strings.
 
-- [ ] **LEG-15**: An op-registration parity test proves every new op is registered in all required
+- [x] **LEG-15**: An op-registration parity test proves every new op is registered in all required
       registries — converting eight fail-open registries into one fail-closed gate.
+      Evidence: `firestarter_app` commit `57e8eb5` (133-06, `tests/test_op_registration_parity.py`) —
+      `test_every_op_is_registered_or_exempt` (the main leg), `test_declared_registry_count_matches`,
+      `test_exemption_empty_reason_fails`, `test_stale_row_fails` (the four D-12 guards),
+      `test_non_registry_still_has_no_ops` (the inversion guard), and
+      `test_altered_registry_copy_fails_parity_non_vacuous` (mutation-proved: a real
+      `_DESTRUCTIVE_OPS` narrowing was observed to fail the gate, then reverted).
+      Correction: the "eight" count above is measured-wrong — the real breakdown is 6 policed
+      registries + 6 declared non-registries; see `133-RECORD.md` §3 Criterion 5.
 
 - [ ] **LEG-16**: A committed fixture whose chip starts holding the baseline pattern and whose write is
       a **no-op** makes the baseline step report BAD. Without it the dead-write-path defect is
@@ -421,13 +450,13 @@ Populated during roadmap creation.
 | LEG-06 | Phase 134 | Pending |
 | LEG-07 | Phase 134 | Pending |
 | LEG-08 | Phase 134 | Pending |
-| LEG-09 | Phase 133 | Pending |
-| LEG-10 | Phase 133 | Pending |
-| LEG-11 | Phase 133 | Pending |
+| LEG-09 | Phase 133 | Complete |
+| LEG-10 | Phase 133 | Complete |
+| LEG-11 | Phase 133 | Complete |
 | LEG-12 | Phase 134 | Pending |
 | LEG-13 | Phase 134 | Pending |
 | LEG-14 | Phase 134 | Pending |
-| LEG-15 | Phase 133 | Pending |
+| LEG-15 | Phase 133 | Complete |
 | LEG-16 | Phase 134 | Pending |
 | LEG-17 | Phase 134 | Pending |
 | LEG-18 | Phase 134 | Pending |
