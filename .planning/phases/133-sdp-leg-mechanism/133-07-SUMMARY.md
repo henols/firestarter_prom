@@ -210,3 +210,12 @@ None -- no external service configuration required.
 ---
 *Phase: 133-sdp-leg-mechanism*
 *Completed: 2026-08-04*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/133-sdp-leg-mechanism/133-CI-PARITY.md`
+- FOUND: `.planning/phases/133-sdp-leg-mechanism/133-RECORD.md`
+- FOUND: `.planning/phases/133-sdp-leg-mechanism/133-07-SUMMARY.md`
+- FOUND commit: `52dbd98` (meta repo)
+- FOUND commit: `bd58946` (meta repo)
+- FOUND commit: `24003a8` (meta repo)
