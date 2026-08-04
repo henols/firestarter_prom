@@ -611,7 +611,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 134-07-PLAN.md — hold-state assignment at the seam and D-15's ALLOW-only exit floor beneath D-14 [LEG-12]
+- [x] 134-07-PLAN.md — hold-state assignment at the seam and D-15's ALLOW-only exit floor beneath D-14 [LEG-12]
 
 **Wave 7** *(blocked on Wave 6 completion)*
 

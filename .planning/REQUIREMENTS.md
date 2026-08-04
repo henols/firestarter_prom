@@ -318,9 +318,18 @@ requirements encode the corrected form.
       (133-05) — `tests/test_check_devtest_orchestrator.py::test_checker_exits_nonzero_on_planted_broad_except`
       (and its three parametrised variants).
 
-- [ ] **LEG-12**: Every run on an ALLOW chip renders a `HELD` / `NOT-HELD` / `NOT-RUN(reason)` field in
+- [x] **LEG-12**: Every run on an ALLOW chip renders a `HELD` / `NOT-HELD` / `NOT-RUN(reason)` field in
       **both** the human report and the JSON artifact, so a non-running oracle is visible to a
       community reporter even at exit 0.
+      Evidence: `firestarter_app` commits `c461cc0`/`8f3c712` (134-06, the carriage half —
+      `DiagnosticReport.sdp_hold_state` field, `to_dict()` key, `render()` row, `SCHEMA_VERSION` 1.3)
+      and `defb0f5`/`a20bcf9`/`361aafe` (134-07, the assigned-value half —
+      `report.sdp_hold_state = sdp_hold_state(plan, results)` at the derive-in-engine/assign-in-handler
+      seam) — `tests/test_dev_test_cmd.py::TestHoldStateLeg12::test_hold_state_held_reaches_both_surfaces`,
+      `::test_hold_state_not_held_reaches_both_surfaces`,
+      `::test_hold_state_not_run_reason_reaches_both_surfaces` (all three values, both surfaces, the
+      `NOT-RUN` reason proven in both, `operator.sdp_lock.assert_not_called()`, and the banner's dropped
+      `n_ran < m_applicable` ratio, all driven end to end through the real CLI).
 
 - [ ] **LEG-13**: The applicable-step count includes the SDP oracle for ALLOW chips regardless of
       outcome, so an NA/SKIPPED oracle **drops** the headline N-of-M ratio instead of leaving it perfect.
@@ -536,7 +545,7 @@ Populated during roadmap creation.
 | LEG-09 | Phase 133 | Complete |
 | LEG-10 | Phase 133 | Complete |
 | LEG-11 | Phase 133 | Complete |
-| LEG-12 | Phase 134 | Pending |
+| LEG-12 | Phase 134 | Complete |
 | LEG-13 | Phase 134 | Pending |
 | LEG-14 | Phase 134 | Pending |
 | LEG-15 | Phase 133 | Complete |

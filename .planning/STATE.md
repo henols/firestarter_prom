@@ -5,16 +5,16 @@ milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 134
 current_phase_name: The Plan-Derived SDP Oracle in `dev test`
 status: executing
-stopped_at: Completed 134-06-PLAN.md
-last_updated: "2026-08-04T18:04:54.618Z"
+stopped_at: Completed 134-07-PLAN.md
+last_updated: "2026-08-04T18:36:44.840Z"
 last_activity: 2026-08-04
-last_activity_desc: "Phase 134 EXECUTING — 6 of 11 plans complete. 134-06 gave DiagnosticReport a plain-string sdp_hold_state field (LEG-12's carriage half): an eleventh to_dict() key (measured discrepancy -- the dict already had ten keys before this plan, not the stated nine), its own render() console row beside the banner row (D-07: reason never reaches the console), and SCHEMA_VERSION bumped 1.2->1.3, single-sourced, with tools/parse_devtest_issue.py's presence-only acceptance verified unbroken. A committed recursive no-boolean gate (P-06 prevention 3) proves no bool sits under any lock/protect-named key anywhere in to_dict(); dedup_fingerprint's body stays byte-unchanged with D-11's re-key cost recorded beside it (not inside it) and proven by a committed SDP-verdict-sensitivity test. Two Rule-1 auto-fixes: a shipped test hardcoding the stale schema_version literal \"1.2\" repaired to import SCHEMA_VERSION; an early draft of the D-11 comment spelled out the six SDP op strings literally and was reworded before commit, since this module is a declared non-registry re-measured every run for zero op vocabulary. Confirmed 134-03's out-of-scope build_db_diff/ladder_state finding remains recorded and deferred (untouched by this plan). Ticked NOTHING (LEG-12 stays open for 134-07 to close by assigning sdp_hold_state's real value from cli_handlers.py). PRIOR: 134-01 (LEG-03), 134-02 (LEG-05/07/08/16, LEG-06 engine half), 134-03 (LEG-01/02/04), 134-04 (baseline gate, no ticks), 134-05 (LEG-06). Suite 1394->1401 passed, coverage 82.10%, mypy unchanged at 33/35 (headroom 2). Full record in `134-CONTEXT.md`; plan-by-plan requirement ownership there. Next: 134-07 (assigns sdp_hold_state's real value in cli_handlers.py, closes LEG-12)."
+last_activity_desc: "Phase 134 EXECUTING — 7 of 11 plans complete. 134-07 assigned report.sdp_hold_state = sdp_hold_state(plan, results) at the derive-in-engine / assign-in-handler seam (cli_handlers.py, immediately after report.banner = count_applicable(plan, results)), closing LEG-12 in both surfaces (console row + JSON key, both assigned real values now). Added _dev_test_exit_code(results, *, sdp_oracle_not_run) composing D-15's ALLOW-only exit floor as a precedence CANDIDATE fed into _EXIT_CODE_PRECEDENCE, never max(code, 2) -- a run that is both BAD and NOT-RUN still exits 1, proven by an end-to-end pin. Built make_held_lock_operator (genuinely-held-lock double, opposite of make_leaked_lock_operator) and make_clean_notrun_operator (write_eprom raises ChipNotFoundError -- MEASURED live that this, unlike ChipNotImplementedError which is an EpromOperationError subclass caught earlier, reaches _run_step's belt-and-suspenders except clause and SKIPs every write_eprom step with zero BAD/marginal anywhere, isolating the floor's own contribution). 8 new tests: TestHoldStateLeg12 (HELD/NOT-HELD/NOT-RUN(reason), both surfaces, banner ratio drop, sdp_lock not called) + TestExitFloorD15 (clean-floor-to-2, BAD+NOTRUN=1, marginal+NOTRUN=2, REFUSE-chip=0, plus a unit pin proving the IDENTICAL results list exits differently depending solely on sdp_oracle_not_run -- D-15's stated non-purity cost, made mechanical). Two Rule fixes: the new helper's own docstring first spelled out the literal forbidden max(code, 2) substring and tripped its own acceptance grep (reworded); _dev_test_exit_code needed registering with the P-07 handler census (same class of gap 134-05 hit). git diff confirms chip_test.py/diagnostic_report.py untouched -- count_applicable not edited, per D-15's own measurement that the ratio already drops. Ticked ONLY LEG-12; LEG-13 explicitly left open for 134-10's count_applicable pinning test. 133 D-07's Ctrl-C report residual recorded as still open (134-08's to mitigate via the rewritten notice, not closed here). PRIOR: 134-01 (LEG-03), 134-02 (LEG-05/07/08/16, LEG-06 engine half), 134-03 (LEG-01/02/04), 134-04 (baseline gate, no ticks), 134-05 (LEG-06), 134-06 (LEG-12 carriage half, no ticks). Suite 1401->1409 passed, coverage 82.07%, mypy unchanged at 33/35 (headroom 2). Full record in `134-CONTEXT.md`; plan-by-plan requirement ownership there. Next: 134-08 (the Ctrl-C up-front notice rewrite)."
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 34
-  completed_plans: 29
-  percent: 85
+  completed_plans: 30
+  percent: 88
 ---
 
 # Project State
@@ -49,7 +49,7 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 ## Current Position
 
 Phase: 134 (The Plan-Derived SDP Oracle in dev test) — EXECUTING
-Plan: 7 of 11
+Plan: 8 of 11
 
 Artifacts on disk: `133-CONTEXT.md` (D-01…D-16), `133-DISCUSSION-LOG.md`, `133-RESEARCH.md`,
 `133-PATTERNS.md`, `133-VALIDATION.md`, `133-01-PLAN.md` … `133-07-PLAN.md`,
@@ -1251,6 +1251,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 134]: 134-05: D-14 fix is _overall_exit_code with explicit precedence (1,2,0), not a numeric max -- BAD outranks marginal, restoring the source comment's and dev_test's docstring's own prior claims
 - [Phase 134]: 134-06: DiagnosticReport.sdp_hold_state carries LEG-12's field/key/render row; SCHEMA_VERSION bumped 1.2->1.3 (11th key, not the plan's stated 10th -- measured discrepancy). VALUE assignment deferred to 134-07.
 - [Phase 134]: 134-06: D-11 dedup_fingerprint re-key cost recorded as a comment beside the function (body byte-unchanged), never spelling out the six SDP op strings literally (would trip the non-registry op-vocabulary gate).
+- [Phase 134]: 134-07: D-15's exit floor composes as a precedence candidate (never max(code, 2)), keeping BAD's rank intact when a run is both BAD and NOT-RUN
+- [Phase 134]: 134-07: report.sdp_hold_state assigned at the seam from chip_test.sdp_hold_state(plan, results) — closes LEG-12 in both surfaces; LEG-13 explicitly left open for 134-10's count_applicable pinning test
+- [Phase 134]: 134-07: MEASURED — ChipNotFoundError (not ChipNotImplementedError, an EpromOperationError subclass caught earlier) is the one operator exception that puts the SDP oracle into NOT-RUN with zero BAD/marginal anywhere, isolating D-15's floor from D-14's precedence
 
 ## Performance Metrics
 
@@ -1440,11 +1443,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 134 P04 | 38min | 3 tasks | 3 files |
 | Phase 134 P05 | 33min | 2 tasks | 4 files |
 | Phase 134 P06 | 20min | 2 tasks | 3 files |
+| Phase 134 P07 | 29min | 2 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-04T18:04:16.507Z
-**Stopped at:** Completed 134-06-PLAN.md
+**Last session:** 2026-08-04T18:36:44.820Z
+**Stopped at:** Completed 134-07-PLAN.md
 **Resume file:** 
 None
 
