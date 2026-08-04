@@ -516,7 +516,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 133-05-PLAN.md — D-09/D-14: the `visit_ExceptHandler` broad-handler deny-bucket in `tools/check_devtest_orchestrator.py` plus the guarded `(file, function)` exemption for the pre-existing sampler swallow, landing in one commit so the gate is never RED.
+- [x] 133-05-PLAN.md — D-09/D-14: the `visit_ExceptHandler` broad-handler deny-bucket in `tools/check_devtest_orchestrator.py` plus the guarded `(file, function)` exemption for the pre-existing sampler swallow, landing in one commit so the gate is never RED.
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
