@@ -5,15 +5,15 @@ milestone_name: "SDP Surface Retirement & Behavioral Lock Proof"
 current_phase: 137
 current_phase_name: "Close — Honesty Ledger, Claim Gate, gh#12 Follow-up"
 status: executing
-stopped_at: "Completed 137-01-PLAN.md -- Wave 1 of 6 (sequential, worktree isolation OFF phase-wide). Authored the v1.30 claim gate (check_permitted_claims.py), hosted inside Phase 137's own directory so _DEFAULT_TARGETS resolves only via _HERE -- never a sibling-dir string constant, the exact v1.23 P-11 defect this plan exists to not repeat. 14 forbidden-phrase patterns (8 forked verbatim from Phase 122, 6 new v1.30-specific) plus a relational self-verifying rule. Committed 5 fixtures (2 clean, 3 planted-violation) and test_check_permitted_claims_v130.py (11/11 subprocess legs green), including the two mandatory P-11 target-resolution/basename legs -- both proven non-vacuous via two independent seen-to-fail-then-byte-identically-restored mutations. Currently UNARMED + exit 0 (correct; none of the four real closing artifacts exist yet -- they land in Plans 137-03/04/05). Ticks CLOSE-02 only."
-last_updated: "2026-08-05T17:42:04.999Z"
+stopped_at: "Completed 137-02-PLAN.md -- Wave 2 of 6 (sequential, worktree isolation OFF phase-wide). Authored a host-side AST claim scanner (firestarter_app/tools/check_diagnostic_report_claims.py) over diagnostic_report.py's string literals, sharing the 14-label FORBIDDEN_PATTERNS vocabulary verbatim with plan 137-01's meta-repo gate. Paired with 4 subprocess-level anti-hollow legs (tests/test_check_diagnostic_report_claims.py): clean-pass, planted-violation, missing-target, unparsable-target. Deliberately did NOT extend the scan to cli_handlers.py's SDP_RECOVERY_CONSTANT_NAMES (already gated by Phase 134 plan 134-09's own narrower LEG-14 pytest). [Rule 3] Added tests/fixtures/ to mypy's exclude (pyproject.toml) -- the required planted_unparsable.py fixture's genuine SyntaxError otherwise aborts mypy's whole directory walk. Full suite 1508 passed (1504 baseline + 4 new); mypy 33/35 unchanged, headroom flat at 2. Ticks CLOSE-03 only."
+last_updated: "2026-08-05T18:05:00.000Z"
 last_activity: 2026-08-05
-last_activity_desc: "Phase 137 plan 137-01 complete (1 of 6 plans, Wave 1). Forked the v1.30 claim gate's vocabulary from Phase 122's check_permitted_claims.py (8 forbidden AT28C/silicon patterns, verbatim) and its mechanics from Phase 123's copy (D-16 proximity window, D-15 all-or-nothing arming, hoisted never-vacuous guard), per PITFALLS.md P-11's exact prescription -- hosted inside Phase 137's own directory this time, with _DEFAULT_TARGETS built exclusively from _HERE (never a sibling-directory string constant), so a future naive copy cannot repeat the v1.23 defect of silently resolving elsewhere and passing vacuously. Added 6 v1.30-specific forbidden patterns (lock-inhibited-the-write, lock-held-unqualified, proven-behaviour, behaviourally-verified, now-proven, dev-test-proves-unqualified) plus a relational self-verifying rule (violation only when neither 'emission' nor the caveat is in the same 3-line window). Committed 5 fixtures and an 11-leg subprocess-only pytest suite (test_check_permitted_claims_v130.py), including the two mandatory P-11 legs (test_default_targets_resolve_inside_this_phase_directory, test_default_target_basenames_are_this_milestones). Both P-11 legs independently proven non-vacuous: renaming the 137-LEDGER.md default-target entry to 130-LEDGER.md flipped only the basename leg RED (dirname leg stayed green); joining one entry through os.pardir to escape _HERE flipped only the dir-resolution leg RED (basename leg stayed green). Both observed-RED messages recorded verbatim in 137-01-SUMMARY.md, both reverted byte-identically (diff empty), 11/11 re-confirmed green after each. Scanner run with no args prints UNARMED: naming all four 137-prefixed basenames, exit 0 -- correct and expected, since Plans 137-03 (137-LEDGER.md), 137-04 (137-RELEASE-NOTES-app.md) and 137-05 (137-GH12-COMMENT.md) author the four real artifacts later in this phase; only 137-06 may arm the gate for real and tick CLOSE-01. No sub-repo touched (confirmed: firestarter/ clean, firestarter_app/ shows only pre-existing dirt). Ticked CLOSE-02 only -- project-wide requirement state now 50 ticked / 6 open (CLOSE-01, CLOSE-03, CLOSE-04, CLOSE-05, CLOSE-06, RELOCK-07 remain, all later Phase 137 plans' own scope). Commits: meta a61a7814, fcd10742, 997b16b9, 855fbb66. [Hand-correction] progress.percent was found stale at 100 (inconsistent with the established completed_phases/total_phases convention confirmed at Phase 133 discuss: 4/7 = 57%, not 100) -- corrected here rather than left, per this plan's own STATE.md-corruption-watch instruction; progress.total_plans/completed_plans bumped to reflect Phase 137's 6 newly-authored plan files (df459487) and this plan's own completion. Tested `roadmap.update-plan-progress 137` (safe, added only blank-line formatting -- kept) and `state.update-progress` (UNSAFE this run -- corrupted milestone_name with an em-dash prepend, dropped current_phase_name's quoting, DELETED last_activity_desc entirely, and miscomputed total_phases 7->8 / completed_phases 4->6; reverted via snapshot diff and hand-edited instead, per this plan's own explicit instruction to diff against a pre-edit snapshot and hand-restore)."
+last_activity_desc: "Phase 137 plan 137-02 complete (2 of 6 plans, Wave 2). Authored firestarter_app/tools/check_diagnostic_report_claims.py: an AST-based scanner walking every ast.Constant string literal in diagnostic_report.py against the identical 14-label FORBIDDEN_PATTERNS vocabulary as plan 137-01's meta-repo check_permitted_claims.py (byte-for-byte label parity confirmed by an AST-derived diff, not a manual read). No proximity window and no self-verifying rule -- neither needed per the plan's own spec, since every literal in this file is already report context by construction. Fail-closed on a missing scan target and on an unparsable one. Env-override seam FIRESTARTER_DIAGREPORT_SRC lets the paired pytest re-target it. Committed two fixtures (planted_diagnostic_report_claim.py trips dev-test-proves-unqualified + lock-held-unqualified; planted_unparsable.py is a genuine Python SyntaxError) and tests/test_check_diagnostic_report_claims.py (4 subprocess-only legs, 4/4 green). Deliberate scope boundary recorded in the checker's own docstring: this scanner does NOT extend to firestarter/cli_handlers.py's SDP_RECOVERY_CONSTANT_NAMES (_SDP_RECOVERY_LOUD/_SDP_RECOVERY_NEUTRAL) even though Phase 134 plan 134-08's own source comment names Phase 137's CLOSE-03 as an available extension point for that tuple -- both REQUIREMENTS.md's own CLOSE-03 wording and this plan's PLAN.md scope the scan to diagnostic_report.py only, and the SDP recovery constants already have their own committed, narrower-scoped gate (tests/test_sdp_recovery_wording.py, LEG-14, plan 134-09) that its own D-13 record names CLOSE-03 as an extension point for, not a duplication mandate. [Rule 3 deviation] tests/fixtures/planted_unparsable.py's deliberate SyntaxError, required by the plan's own Task 2 spec, made mypy's `mypy firestarter/ tests/` directory walk abort (exit 2, 'errors prevented further checking') -- this would have broken CI's mypy watermark gate for the whole project. Fixed by adding `exclude = [\"^tests/fixtures/\"]` to [tool.mypy] in pyproject.toml, mirroring ruff's own pre-existing extend-exclude for the identical directory and reason. Measured that none of the 6 pre-existing tests/fixtures/*.py files ever contributed an error to the 33-error baseline, so this only changes the checked-file count (129, still above the 120 floor), never the error count. Full suite: 1508 passed (1504 baseline + 4 new tests), 0 failed. mypy: 33/35, headroom flat at 2. Ticked CLOSE-03 only -- project-wide requirement state now 51 ticked / 5 open (CLOSE-01, CLOSE-04, CLOSE-05, CLOSE-06, RELOCK-07 remain, all later Phase 137 plans' own scope). Commits: submodule (firestarter_app) 89f2fb2, cc036e8; meta (this plan's own metadata commit) to follow. [STATE.md hand-edited, not tool-written]: `state.advance-plan` was tried and found UNSAFE this run -- it corrupted milestone_name with an em-dash prepend (dropped the quoted string entirely), DELETED last_activity_desc entirely, and miscomputed progress.total_phases 7->8 / completed_phases 4->6 (Phase 137 has not closed; neither should have changed). Reverted via snapshot diff and hand-edited instead, continuing the pattern 137-01 already established for state.update-progress's identical failure mode."
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 48
-  completed_plans: 43
+  completed_plans: 44
   percent: 57
 ---
 
@@ -49,10 +49,46 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 
 ## Current Position
 
-Phase: 137 (Close — Honesty Ledger, Claim Gate, gh#12 Follow-up) — 1/6 plans complete
-Plan: 1 of 6 — 137-01 (Wave 1, CLOSE-02) COMPLETE. Next: 137-02 (Wave 2, host-side
-`diagnostic_report.py` claim scan, CLOSE-03). **This phase must NOT be run under `--auto`/`--chain`**
+Phase: 137 (Close — Honesty Ledger, Claim Gate, gh#12 Follow-up) — 2/6 plans complete
+Plan: 2 of 6 — 137-02 (Wave 2, host-side `diagnostic_report.py` claim scan, CLOSE-03) COMPLETE. Next:
+137-03 (Wave 3, honesty ledger, CLOSE-04). **This phase must NOT be run under `--auto`/`--chain`**
 — Plan 137-05 carries a `checkpoint:human-action` gate (CLOSE-06).
+
+### Phase 137 plan 02 (2026-08-05) — COMPLETE
+
+`137-02-SUMMARY.md`: authored `firestarter_app/tools/check_diagnostic_report_claims.py` — an
+AST-based scanner walking every `ast.Constant` string literal in `diagnostic_report.py` against the
+identical 14-label `FORBIDDEN_PATTERNS` vocabulary as plan 137-01's meta-repo
+`check_permitted_claims.py` (byte-for-byte label parity confirmed by an AST-derived diff of both
+files). No proximity window and no self-verifying rule — neither needed per the plan's own spec,
+since every literal in this file is already report context by construction. Fail-closed on a
+missing scan target (`FAIL: scan target not found on disk`) and on an unparsable one (`FAIL: could
+not parse ... as Python`). Env-override seam `FIRESTARTER_DIAGREPORT_SRC` lets the paired pytest
+re-target it without touching the real source. Committed two fixtures —
+`tests/fixtures/planted_diagnostic_report_claim.py` (trips `dev-test-proves-unqualified` +
+`lock-held-unqualified`) and `tests/fixtures/planted_unparsable.py` (a genuine Python `SyntaxError`)
+— and `tests/test_check_diagnostic_report_claims.py` (4 subprocess-only legs, 4/4 green:
+clean-pass, planted-violation, missing-target, unparsable-target). **Deliberate scope boundary,
+recorded in the checker's own docstring:** this scanner does NOT extend to
+`firestarter/cli_handlers.py`'s `SDP_RECOVERY_CONSTANT_NAMES` (`_SDP_RECOVERY_LOUD`/
+`_SDP_RECOVERY_NEUTRAL`) even though Phase 134 plan 134-08's own source comment names Phase 137's
+CLOSE-03 as an available extension point for that tuple — both `REQUIREMENTS.md`'s own CLOSE-03
+wording and this plan's `PLAN.md` scope the scan to `diagnostic_report.py` only, and that surface
+already has its own committed, narrower-scoped gate (`tests/test_sdp_recovery_wording.py`, LEG-14,
+plan 134-09) whose own D-13 record names CLOSE-03 as an extension point, not a duplication mandate.
+**[Rule 3 deviation]** the required `tests/fixtures/planted_unparsable.py` fixture's genuine
+`SyntaxError` made mypy's `mypy firestarter/ tests/` directory walk abort (exit 2, "errors
+prevented further checking"), which would have broken CI's mypy watermark gate for the whole
+project. Fixed by adding `exclude = ["^tests/fixtures/"]` to `[tool.mypy]` in `pyproject.toml`,
+mirroring ruff's own pre-existing `extend-exclude` for the identical directory and reason. Measured
+none of the 6 pre-existing `tests/fixtures/*.py` files ever contributed an error to the 33-error
+baseline, so this only drops the checked-file count (129, still above the 120 floor), never the
+error count. Full suite: **1508 passed** (1504 baseline + 4 new tests), 0 failed. mypy: **33/35**,
+headroom flat at **2**. **One requirement ticked: CLOSE-03** — the only one this plan may
+discharge. Project-wide requirement state: **51 ticked / 5 open** (`CLOSE-01`, `CLOSE-04`,
+`CLOSE-05`, `CLOSE-06`, `RELOCK-07` remain — all later Phase 137 plans' own scope). No sub-repo
+committed at the meta level (all code changes land in the `firestarter_app` submodule). Commits:
+submodule (`firestarter_app`) `89f2fb2`, `cc036e8`.
 
 ### Phase 137 plan 01 (2026-08-05) — COMPLETE
 

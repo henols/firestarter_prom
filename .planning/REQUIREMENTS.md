@@ -586,9 +586,22 @@ only legitimate use case the deleted command served.
       escape `_HERE` (flips only the dir-resolution leg) — each cross-checked to leave the other leg
       green, then restored byte-identically (diff empty), 11/11 re-confirmed.
 
-- [ ] **CLOSE-03**: A host-side claim scan in `firestarter_app/tools/` covers `diagnostic_report.py`'s
+- [x] **CLOSE-03**: A host-side claim scan in `firestarter_app/tools/` covers `diagnostic_report.py`'s
       string literals — the `dev test` report text that reaches strangers on every run, which **no gate
       scans today** — and it lives where CI actually runs.
+      Evidence: `firestarter_app/tools/check_diagnostic_report_claims.py` (submodule commit `89f2fb2`)
+      — AST-derived scan of every `ast.Constant` string literal in `diagnostic_report.py` against the
+      same 14-label `FORBIDDEN_PATTERNS` vocabulary as plan 137-01's meta-repo gate (byte-identical
+      label set, confirmed by AST-derived diff), fail-closed on a missing or unparsable target, no
+      proximity window (every literal is already report context by construction). Paired with
+      `tests/test_check_diagnostic_report_claims.py` (submodule commit `cc036e8`) — 4/4 subprocess-level
+      legs green: clean-pass on the real source, a committed planted-violation fixture
+      (`tests/fixtures/planted_diagnostic_report_claim.py`) flipping the gate to a non-zero exit naming
+      `dev-test-proves-unqualified`, and two fail-closed legs (missing target, unparsable target via
+      `tests/fixtures/planted_unparsable.py`, a genuine Python `SyntaxError`). Wired into the existing
+      `pytest tests/` CI step — no new YAML. Full suite: **1508 passed** (1504 baseline + 4 new), mypy
+      **33/35** unchanged (headroom flat at 2; `tests/fixtures/` added to mypy's `exclude` in the same
+      commit, a Rule-3 fix the planted-unparsable fixture required — see 137-02-SUMMARY.md).
 
 - [ ] **CLOSE-04**: An honesty ledger pairs every permitted claim with its explicit non-claim, including
       the auto-unlock coupled-decision row and the evidence ceiling's two narrowings.
@@ -712,7 +725,7 @@ Populated during roadmap creation.
 | PROV-06 | Phase 136.1 | Complete |
 | CLOSE-01 | Phase 137 | Pending |
 | CLOSE-02 | Phase 137 | Complete |
-| CLOSE-03 | Phase 137 | Pending |
+| CLOSE-03 | Phase 137 | Complete |
 | CLOSE-04 | Phase 137 | Pending |
 | CLOSE-05 | Phase 137 | Pending |
 | CLOSE-06 | Phase 137 | Pending |
