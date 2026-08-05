@@ -572,9 +572,19 @@ only legitimate use case the deleted command served.
 - [ ] **CLOSE-01**: A v1.30 claim gate is **authored and hosted by this phase**, armed and green, with a
       `PASS:` line naming this milestone's own four artifacts, and its own suite output recorded.
 
-- [ ] **CLOSE-02**: The claim gate carries two target-resolution legs proving its default targets
+- [x] **CLOSE-02**: The claim gate carries two target-resolution legs proving its default targets
       resolve inside its own phase directory, so a naive future copy fails loudly instead of scanning
       nothing at exit 0.
+      Evidence: `.planning/phases/137-close-honesty-ledger-claim-gate-gh12-followup/check_permitted_claims.py`
+      (meta commit `a61a7814`) — `_DEFAULT_TARGETS` built from `_HERE` alone (this module's own
+      directory), never a sibling-dir string constant — plus
+      `test_check_permitted_claims_v130.py` (commit `997b16b9`), 11/11 legs green, including the two
+      mandatory P-11 legs: `test_default_targets_resolve_inside_this_phase_directory` and
+      `test_default_target_basenames_are_this_milestones`. Both independently observed RED under two
+      distinct planted mutations — renaming the `137-LEDGER.md` default-target entry to
+      `130-LEDGER.md` (flips only the basename leg), and joining one entry through `os.pardir` to
+      escape `_HERE` (flips only the dir-resolution leg) — each cross-checked to leave the other leg
+      green, then restored byte-identically (diff empty), 11/11 re-confirmed.
 
 - [ ] **CLOSE-03**: A host-side claim scan in `firestarter_app/tools/` covers `diagnostic_report.py`'s
       string literals — the `dev test` report text that reaches strangers on every run, which **no gate
@@ -701,7 +711,7 @@ Populated during roadmap creation.
 | PROV-05 | Phase 136.1 | Complete |
 | PROV-06 | Phase 136.1 | Complete |
 | CLOSE-01 | Phase 137 | Pending |
-| CLOSE-02 | Phase 137 | Pending |
+| CLOSE-02 | Phase 137 | Complete |
 | CLOSE-03 | Phase 137 | Pending |
 | CLOSE-04 | Phase 137 | Pending |
 | CLOSE-05 | Phase 137 | Pending |
