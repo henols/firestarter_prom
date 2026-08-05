@@ -644,6 +644,23 @@ only legitimate use case the deleted command served.
 - [ ] **CLOSE-06**: The gh#12 follow-up reply is posted **behind a blocking operator wording review**,
       stating the substitution honestly — gh#12 asked for "enable/disable" and gets neither by that
       name — and without letting "now provable" drift into "now proven".
+      **Deliberately left OPEN, 2026-08-05, Phase 137 plan 137-05 — operator-directed, not a gap.**
+      The review half is fully discharged: the operator reviewed `137-GH12-COMMENT.md` in real time at
+      a `checkpoint:human-action` gate (immune to `--auto`/`--chain` auto-approval) and approved it,
+      with one named correction already applied and committed (`3596604d`, weaving "No AT28C silicon
+      was tested during this milestone" into the "where I need help" paragraph). The text is frozen —
+      blob `3a628c56de4d45dfe2be0c645fced0e25d5ebceb`, 2646 bytes — and passes
+      `check_permitted_claims.py` alone. **This requirement's own text says the reply "is posted," and
+      it is not** — the operator explicitly held posting (v1.30-OPERATOR-BATCH.md A-1/A-3), because a
+      fresh, independent mechanical check (137-05 Task 3, re-run from Task 1's) confirms the removal
+      has not shipped: RETIRE-01's deletion commit `259a0f0` is not yet an ancestor of `origin/beta`,
+      and PyPI's highest published prerelease is still `3.0.0b15`. Posting now would itself be the
+      overclaim class this milestone exists to prevent. **The single action that closes this
+      requirement:** after the beta push (operator batch A-2) makes the removal live, run
+      `gh issue comment 12 --repo henols/firestarter_prom --body-file
+      .planning/phases/137-close-honesty-ledger-claim-gate-gh12-followup/137-GH12-COMMENT.md`. v1.30
+      closes at 55/56 with this one requirement openly outstanding — the project's sixth consecutive
+      `override_closeout`-style honest partial close.
 
 ---
 
@@ -760,7 +777,7 @@ Populated during roadmap creation.
 | CLOSE-03 | Phase 137 | Complete |
 | CLOSE-04 | Phase 137 | Complete |
 | CLOSE-05 | Phase 137 | Complete |
-| CLOSE-06 | Phase 137 | Pending |
+| CLOSE-06 | Phase 137 | Pending — held open, operator-directed (2026-08-05, see requirement note) |
 
 **Coverage:**
 
