@@ -623,8 +623,23 @@ only legitimate use case the deleted command served.
       (`FIRESTARTER_CLAIMSCAN_TARGETS_V130=137-LEDGER.md python3 check_permitted_claims.py`,
       `PASS:` naming `137-LEDGER.md`).
 
-- [ ] **CLOSE-05**: Release notes carry a "Removed" section mapping `dev sdp disable` → `write`
-      (automatic) and `dev sdp enable` → `write --sdp-relock`.
+- [x] **CLOSE-05**: Release notes carry a "Removed" section mapping `dev sdp disable` → `write`
+      (automatic) and `dev sdp enable` → **withdrawn, no replacement in this release, tracked as
+      Backlog 999.28** — never a mapping to a command that does not exist in the release being
+      announced. **⚠ Corrected 2026-08-05, Phase 137 plan 137-04:** this criterion's own text
+      previously named `write --sdp-relock` as the mapping target for `dev sdp enable`. That was
+      superseded by the 2026-08-03 operator decision deferring Phase 135 out of this milestone (see
+      §`write --sdp-relock` (RELOCK) above and
+      `.planning/todos/pending/gh12-followup-after-dev-sdp-retirement.md`'s 2026-08-03 amendment) —
+      this requirement's own wording had not yet been updated to match until this plan corrected it.
+      Announcing a command that does not exist in the shipped release is the same overclaim class as
+      v1.22's C-5 correction, the exact class this milestone's honesty discipline exists to catch.
+      Evidence: `.planning/phases/137-close-honesty-ledger-claim-gate-gh12-followup/137-RELEASE-NOTES-app.md`
+      (plan 137-04) — states the withdrawal plainly, never names `write --sdp-relock` as available
+      (`grep -c 'write --sdp-relock' 137-RELEASE-NOTES-app.md` = 0), names Backlog 999.28 and
+      "withdrawn" at least once each, and passes `check_permitted_claims.py` alone
+      (`FIRESTARTER_CLAIMSCAN_TARGETS_V130=137-RELEASE-NOTES-app.md python3
+      check_permitted_claims.py` → `PASS: scanned 137-RELEASE-NOTES-app.md`).
 
 - [ ] **CLOSE-06**: The gh#12 follow-up reply is posted **behind a blocking operator wording review**,
       stating the substitution honestly — gh#12 asked for "enable/disable" and gets neither by that
@@ -744,7 +759,7 @@ Populated during roadmap creation.
 | CLOSE-02 | Phase 137 | Complete |
 | CLOSE-03 | Phase 137 | Complete |
 | CLOSE-04 | Phase 137 | Complete |
-| CLOSE-05 | Phase 137 | Pending |
+| CLOSE-05 | Phase 137 | Complete |
 | CLOSE-06 | Phase 137 | Pending |
 
 **Coverage:**
