@@ -723,7 +723,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 136-02-PLAN.md — `_DevGroup` subclass + `_DEV_TOOLS_ENABLED` wiring, conditional registration of
+- [x] 136-02-PLAN.md — `_DevGroup` subclass + `_DEV_TOOLS_ENABLED` wiring, conditional registration of
   the six beta-only `dev` subcommands, the CHAN-06 tripwire comment, and the CHAN-05 docstring rewrite
   [CHAN-05]
 

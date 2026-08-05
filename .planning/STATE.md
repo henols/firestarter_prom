@@ -5,16 +5,16 @@ milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 136
 current_phase_name: "Dev-Tools Channel Gating"
 status: executing
-stopped_at: Completed 136-01-PLAN.md -- pre-edit CI-parity baseline, Click get_command hook spike, channel.py fail-closed dev-tools vocabulary (0/7 CHAN requirements ticked by design; contributes to CHAN-06/07, closed by 136-03)
-last_updated: "2026-08-05T11:13:38.000Z"
+stopped_at: Completed 136-02-PLAN.md -- _DevGroup + _DEV_TOOLS_ENABLED wiring, six commands conditionally registered, CHAN-06 tripwire, CHAN-05 docstring rewrite (1/7 CHAN requirements ticked: CHAN-05 only; CHAN-01/02/03/06/07 contributed to, closed by 136-03)
+last_updated: "2026-08-05T11:40:56.872Z"
 last_activity: 2026-08-05
-last_activity_desc: "Phase 136 plan 136-01 complete (1 of 4 plans). Task 1 recorded 136-CI-PARITY.md's pre-edit baseline -- fresh mypy 33/35 (headroom 2, unchanged from Phase 134's close), checked 126 source files, 1437 tests passed, 82.12% coverage; 136-RESEARCH.md Sec.7 stated there was no number to inherit, so this measurement is the phase's own starting budget. Task 2 authored tests/test_click_group_gate_hook.py, a standalone Click-mechanism spike (no import of firestarter.cli_handlers) proving get_command -- not resolve_command -- intercepts a gated-but-unregistered command name before Click's own generic error fires, while a genuine typo still gets Click's unmodified error; also confirmed click.MultiCommand is a removal-pending alias on both Click 8.3.3 (ambient) and 8.4.2 (.venv/ci-replica) installed in this environment. Task 3 (TDD) added four symbols to firestarter/channel.py -- BETA_ONLY_DEV_COMMANDS, dev_tools_enabled_by_env(), is_dev_tools_enabled(), dev_command_gate_message() -- proven fail-closed via a planted bool(os.environ.get(...)) mutation observed RED (14/27 tests failed, including the named '0'/'false'/garbage cases) then restored byte-identically; also corrected channel.py's module docstring, which previously claimed 'nothing here reads the environment' and would have been false the moment this plan landed. Zero requirements marked Complete (CHAN-06/CHAN-07 contributed to only; closed by plan 136-03 per the plan's own ticking-scope). Next: Phase 136 plan 136-02 (_DevGroup conditional registration + docstring rewrite, CHAN-01/02/03/05)."
+last_activity_desc: "Phase 136 plan 136-02 complete (2 of 4 plans). Task 1 added _DEV_TOOLS_ENABLED (frozen at import time from channel.is_dev_tools_enabled(), mirroring _PY32_ENABLED) and _DevGroup(click.Group) -- its get_command override raises channel.dev_command_gate_message() for a name in BETA_ONLY_DEV_COMMANDS that resolves to nothing real, the exact shape 136-01's Click-hook spike proved; cls=_DevGroup wired onto @cli.group(name=\"dev\"). Task 2 wrapped all six gated @dev.command blocks (reg, addr, consistency-check, write-cycle, fault-inject, validate-family) in module-scope `if _DEV_TOOLS_ENABLED:` guards -- genuinely un-registered when the gate is closed, not hidden=True -- and added a CHAN-06 tripwire comment at dev reg naming FIRESTARTER_DEV_TOOLS and the held-erase-rail DMM proxy dependency. Task 3 rewrote the dev() docstring so it states read/test are the two stable-supported commands rather than warning them off. mypy held at 33/35 (checked 128, unchanged); RESEARCH Sec.5 blast-radius suite (244 tests) and test_py32_channel_gating.py (14 tests) green throughout. One requirement ticked: CHAN-05. Plan-time gap discovered: the docstring change also breaks tests/test_characterization.py::test_help (not just test_help_dev as 136-VALIDATION.md named) -- both snapshots deferred to plan 136-04, documented in 136-02-SUMMARY.md. Next: Phase 136 plan 136-03 (subprocess dual-channel proof; closes CHAN-01/02/03/04/06/07)."
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 38
-  completed_plans: 35
-  percent: 92
+  completed_plans: 36
+  percent: 95
 ---
 
 # Project State
@@ -49,7 +49,26 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 ## Current Position
 
 Phase: 136 (Dev-Tools Channel Gating) — EXECUTING
-Plan: 1 of 4
+Plan: 2 of 4
+
+### Phase 136 plan 02 (2026-08-05) — COMPLETE
+
+`136-02-SUMMARY.md`: wired both D-01 mechanisms into `firestarter/cli_handlers.py` --
+`_DEV_TOOLS_ENABLED: bool = is_dev_tools_enabled()` (frozen at import time, mirroring
+`_PY32_ENABLED`) and `_DevGroup(click.Group)` (its `get_command` override raises
+`channel.dev_command_gate_message()` for a gated-but-unregistered name; the exact shape
+136-01's spike proved) wired onto `@cli.group(name="dev", cls=_DevGroup)`. All six gated
+`@dev.command` blocks (`reg`, `addr`, `consistency-check`, `write-cycle`, `fault-inject`,
+`validate-family`) now sit behind module-scope `if _DEV_TOOLS_ENABLED:` guards; `read`/`test`
+stay unconditional. A CHAN-06 tripwire comment at `dev reg` names `FIRESTARTER_DEV_TOOLS` and
+the held-erase-rail DMM proxy dependency. The `dev()` docstring no longer warns `read`/`test`'s
+own stable audience away from them (CHAN-05). mypy held at 33/35 (checked 128, unchanged from
+136-01); RESEARCH §5 blast-radius suite (244 tests) and `test_py32_channel_gating.py` (14
+tests) green throughout. **One requirement ticked: CHAN-05.** CHAN-01/02/03/06/07 contributed
+to, closed by plan 136-03. **Plan-time gap found and documented, not fixed:** the docstring
+change also breaks `tests/test_characterization.py::test_help` (not just `test_help_dev` as
+136-VALIDATION.md named) — both deferred to plan 136-04. Commits (submodule only, this plan
+touches no meta-repo production file): `6e2fb39`, `88ec58e`, `c8f8a53`.
 
 ### Phase 136 plan 01 (2026-08-05) — COMPLETE
 
@@ -1275,6 +1294,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 134]: gh#20 triaged against the new baseline gate: no lock is ever emitted on that bench; banner drops 4 of 4 -> 6 of 10 (measured correction of D-20's stated 5); underlying AT28C256 write-path defect filed as Backlog 999.29 with Owner: henols; public reply is Phase 137's (CLOSE-06)
 - [Phase 134]: Phase 134 CLOSED: 14/14 LEG requirements Complete (18/18 total with Phase 133); mypy count never moved across the whole phase (33/35 unchanged despite 29 new production symbols); 134-RECORD.md carries every correction with both readings and the Evidence Ceiling restated verbatim
 - [Phase 136]: D-02/D-03 implemented as locked: reuse is_prerelease_build(), never a second detector; FIRESTARTER_DEV_TOOLS fails closed on every value except the exact literal "1"
+- [Phase 136]: Both D-01 mechanisms wired into cli_handlers.py: _DevGroup (informative refusal) + six if _DEV_TOOLS_ENABLED: guards (genuine non-registration), CHAN-06 tripwire at dev reg, CHAN-05 docstring rewrite — hidden=True alone fails CHAN-02 (still invokable); bare non-registration alone fails CHAN-03 (generic Click error indistinguishable from a typo); both together satisfy both requirements per 136-CONTEXT.md D-01
 
 ## Performance Metrics
 
@@ -1470,12 +1490,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 134 P10 | 50min | 3 tasks | 3 files |
 | Phase 134 P11 | 29min | 3 tasks | 6 files |
 | Phase 136 P01 | 22min | 3 tasks | 4 files |
+| Phase 136 P02 | 23min | 3 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-05T11:12:30.387Z
-**Stopped at:** Completed 136-01-PLAN.md -- pre-edit CI-parity baseline, Click get_command hook spike, channel.py fail-closed dev-tools vocabulary
-**Resume file:** 
+**Last session:** 2026-08-05T11:40:56.839Z
+**Stopped at:** Completed 136-02-PLAN.md -- _DevGroup + _DEV_TOOLS_ENABLED wiring, six commands conditionally registered, CHAN-06 tripwire, CHAN-05 docstring rewrite
+**Resume file:** None
 
 ### Blockers
 

@@ -469,7 +469,7 @@ only legitimate use case the deleted command served.
       non-zero exit.
 
 - [ ] **CHAN-04**: `dev --help` output is pinned on **both** channels via subprocess.
-- [ ] **CHAN-05**: The `dev` group docstring no longer warns off the stable users `dev read` and
+- [x] **CHAN-05**: The `dev` group docstring no longer warns off the stable users `dev read` and
       `dev test` are being kept for.
 
 - [ ] **CHAN-06**: `dev reg`'s bench-tooling role — the held-erase-rail DMM proxy — survives via a
@@ -645,7 +645,7 @@ Populated during roadmap creation.
 | CHAN-02 | Phase 136 | Pending |
 | CHAN-03 | Phase 136 | Pending |
 | CHAN-04 | Phase 136 | Pending |
-| CHAN-05 | Phase 136 | Pending |
+| CHAN-05 | Phase 136 | Complete |
 | CHAN-06 | Phase 136 | Pending |
 | CHAN-07 | Phase 136 | Pending |
 | PROV-01 | Phase 136.1 | Pending |
