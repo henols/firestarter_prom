@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.30
 milestone_name: SDP Surface Retirement & Behavioral Lock Proof
-current_phase: 134
-current_phase_name: "The Plan-Derived SDP Oracle in `dev test`"
+current_phase: 136
+current_phase_name: "Dev-Tools Channel Gating"
 status: executing
-stopped_at: Completed 134-11-PLAN.md -- Phase 134 CLOSED (14/14 LEG requirements, 18/18 total with Phase 133)
-last_updated: "2026-08-04T21:06:55.569Z"
-last_activity: 2026-08-04
-last_activity_desc: "Phase 134 CLOSED -- 11 of 11 plans complete, 14/14 LEG requirements Complete (18/18 total with Phase 133). 134-11 (the phase's last plan) closed LEG-18: gh#20 triaged against the new baseline-transition gate -- on that bench write-baseline-b would itself report BAD, the gate would close, and no lock is ever emitted; banner drops from '4 of 4' to '6 of 10' (a measured correction of 134-CONTEXT.md's D-20-stated '5 of 10', carried forward from 134-04/134-07/134-10's own identical n_ran=6-not-5 finding). The underlying AT28C256 write-path defect (blank-check/write/verify all BAD, Rev 2.3, vpp 11800mV/vpe 13700mV) is filed as Backlog 999.29 with Owner: henols, separate from the triage -- the public reply is Phase 137's (CLOSE-06). 134-CI-PARITY.md's after-half: mypy UNCHANGED at 33/35 across the entire phase (headroom 2 never spent) despite 29 new production symbols measured live; checked 124->126 source files (a floor, not a ceiling, per D-15's correction); full suite 1338->1437 passed (+99), coverage 81.84%->82.12%. 134-RECORD.md is the phase's closing record: all 14 requirements accounted with named evidence, LEG-09/10/11/15 (Phase 133) re-verified byte-identically green by a live re-run, all twenty decisions D-01..D-20 honoured (D-08's sdp-unlock clause stated measured-wrong and superseded by D-20 without weakening LEG-09; D-18's REFUSE-chip write_scope=none refinement; research P-03 prevention 4 named overturned), the five ROADMAP success criteria discharged at the Evidence Ceiling with both readings for the four-vs-six step count and the exit-code-1-unreachable-until-D-14 caveat, seven corrections with both readings (including a live measurement that only 2 of D-12's predicted 5 Phase-134 exemption rows were dischargeable, and that _DECLARED_REGISTRY_COUNT does not exist -- the real names are _POLICED_REGISTRY_COUNT/_DECLARED_NON_REGISTRY_COUNT), all seven non-vacuity obligations with planted-break/RED/restore evidence, six residuals (mypy watermark ratchet still unowned; the build_db_diff/ladder_state finding from 134-03/134-06 still open and unowned; gh#20's underlying defect now owned), and the Evidence Ceiling restated verbatim from 133-RECORD.md. Next: Phase 136 (dev-tools channel gating, CHAN-*) -- the 135 slot stays vacant (write --sdp-relock deferred to Backlog 999.28)."
+stopped_at: Completed 136-01-PLAN.md -- pre-edit CI-parity baseline, Click get_command hook spike, channel.py fail-closed dev-tools vocabulary (0/7 CHAN requirements ticked by design; contributes to CHAN-06/07, closed by 136-03)
+last_updated: "2026-08-05T11:13:38.000Z"
+last_activity: 2026-08-05
+last_activity_desc: "Phase 136 plan 136-01 complete (1 of 4 plans). Task 1 recorded 136-CI-PARITY.md's pre-edit baseline -- fresh mypy 33/35 (headroom 2, unchanged from Phase 134's close), checked 126 source files, 1437 tests passed, 82.12% coverage; 136-RESEARCH.md Sec.7 stated there was no number to inherit, so this measurement is the phase's own starting budget. Task 2 authored tests/test_click_group_gate_hook.py, a standalone Click-mechanism spike (no import of firestarter.cli_handlers) proving get_command -- not resolve_command -- intercepts a gated-but-unregistered command name before Click's own generic error fires, while a genuine typo still gets Click's unmodified error; also confirmed click.MultiCommand is a removal-pending alias on both Click 8.3.3 (ambient) and 8.4.2 (.venv/ci-replica) installed in this environment. Task 3 (TDD) added four symbols to firestarter/channel.py -- BETA_ONLY_DEV_COMMANDS, dev_tools_enabled_by_env(), is_dev_tools_enabled(), dev_command_gate_message() -- proven fail-closed via a planted bool(os.environ.get(...)) mutation observed RED (14/27 tests failed, including the named '0'/'false'/garbage cases) then restored byte-identically; also corrected channel.py's module docstring, which previously claimed 'nothing here reads the environment' and would have been false the moment this plan landed. Zero requirements marked Complete (CHAN-06/CHAN-07 contributed to only; closed by plan 136-03 per the plan's own ticking-scope). Next: Phase 136 plan 136-02 (_DevGroup conditional registration + docstring rewrite, CHAN-01/02/03/05)."
 progress:
   total_phases: 7
   completed_phases: 4
-  total_plans: 34
-  completed_plans: 34
-  percent: 100
+  total_plans: 38
+  completed_plans: 35
+  percent: 92
 ---
 
 # Project State
@@ -48,13 +48,24 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 
 ## Current Position
 
-Phase: 134 (The Plan-Derived SDP Oracle in dev test) — EXECUTING
-Plan: 11 of 11
+Phase: 136 (Dev-Tools Channel Gating) — EXECUTING
+Plan: 1 of 4
 
-Artifacts on disk: `133-CONTEXT.md` (D-01…D-16), `133-DISCUSSION-LOG.md`, `133-RESEARCH.md`,
-`133-PATTERNS.md`, `133-VALIDATION.md`, `133-01-PLAN.md` … `133-07-PLAN.md`,
-`133-01-SUMMARY.md` … `133-07-SUMMARY.md`, `133-BASELINE.md`, `133-CI-PARITY.md`,
-`133-RECORD.md`, `133-VERIFICATION.md`, `deferred-items.md`.
+### Phase 136 plan 01 (2026-08-05) — COMPLETE
+
+`136-01-SUMMARY.md`: pre-edit `136-CI-PARITY.md` baseline (mypy 33/35, checked 126, 1437 passed,
+82.12% coverage — no number to inherit per 136-RESEARCH.md §7), `tests/test_click_group_gate_hook.py`
+(Click `get_command`, not `resolve_command`, pinned as the gate hook, 7 tests), and four new
+`firestarter/channel.py` symbols (`BETA_ONLY_DEV_COMMANDS`, `dev_tools_enabled_by_env`,
+`is_dev_tools_enabled`, `dev_command_gate_message`) proven fail-closed via TDD with a planted-mutation
+non-vacuity check, `tests/test_dev_tools_channel_gate.py` (27 tests). **Zero requirements ticked** —
+this plan's own scope statement is "MAY tick: none"; CHAN-06/CHAN-07 are contributed to, closed by
+plan 136-03. Commits: meta `73c8c85`; submodule `09803f6`, `21c6d10`, `893490a`.
+
+Artifacts on disk (Phase 133, retained for reference): `133-CONTEXT.md` (D-01…D-16),
+`133-DISCUSSION-LOG.md`, `133-RESEARCH.md`, `133-PATTERNS.md`, `133-VALIDATION.md`,
+`133-01-PLAN.md` … `133-07-PLAN.md`, `133-01-SUMMARY.md` … `133-07-SUMMARY.md`, `133-BASELINE.md`,
+`133-CI-PARITY.md`, `133-RECORD.md`, `133-VERIFICATION.md`, `deferred-items.md`.
 All code lands **inside the `firestarter_app` submodule** on `gsd/v1.30-sdp-surface-retirement`
 (the meta branch name deliberately differs). Firmware untouched — host-only.
 
@@ -162,7 +173,7 @@ is `requires_fw`-skipped under CI-parity recipe leg 1, so all DB-only count legs
 Read D-17 before acting on either. `131-07` step (f) now also annotates the matching
 `REQUIREMENTS.md` Out-of-Scope row, which repeated the same disproven claim.
 
-Last activity: 2026-08-04
+Last activity: 2026-08-05
 LEG-09/10/11/15, 5/5 success criteria), transitioned to Phase 134. Phase 133/134 is a deliberate split of the research
 spine's single combined "leg" phase (18 LEG requirements judged too large for one phase at this
 project's `Comprehensive` granularity).
@@ -1263,6 +1274,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 134]: R1/R2 driven through a synthetic nonzero-chip-id EpromDatabase subclass (D-17), labelled unreachable in production today; R3 patches resolve_chip directly against a genuinely-ALLOW chip rather than reusing REFUSE-chip AT28C16
 - [Phase 134]: gh#20 triaged against the new baseline gate: no lock is ever emitted on that bench; banner drops 4 of 4 -> 6 of 10 (measured correction of D-20's stated 5); underlying AT28C256 write-path defect filed as Backlog 999.29 with Owner: henols; public reply is Phase 137's (CLOSE-06)
 - [Phase 134]: Phase 134 CLOSED: 14/14 LEG requirements Complete (18/18 total with Phase 133); mypy count never moved across the whole phase (33/35 unchanged despite 29 new production symbols); 134-RECORD.md carries every correction with both readings and the Evidence Ceiling restated verbatim
+- [Phase 136]: D-02/D-03 implemented as locked: reuse is_prerelease_build(), never a second detector; FIRESTARTER_DEV_TOOLS fails closed on every value except the exact literal "1"
 
 ## Performance Metrics
 
@@ -1457,11 +1469,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 134 P09 | 40min | 2 tasks | 1 files |
 | Phase 134 P10 | 50min | 3 tasks | 3 files |
 | Phase 134 P11 | 29min | 3 tasks | 6 files |
+| Phase 136 P01 | 22min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-04T21:06:55.514Z
-**Stopped at:** Completed 134-11-PLAN.md -- Phase 134 CLOSED (14/14 LEG requirements, 18/18 total with Phase 133)
+**Last session:** 2026-08-05T11:12:30.387Z
+**Stopped at:** Completed 136-01-PLAN.md -- pre-edit CI-parity baseline, Click get_command hook spike, channel.py fail-closed dev-tools vocabulary
 **Resume file:** 
 
 ### Blockers

@@ -717,7 +717,7 @@ only run once the production wiring it tests exists)
 Plans:
 **Wave 1**
 
-- [ ] 136-01-PLAN.md — pre-edit CI-parity/mypy baseline, the empirical Click-hook spike (`get_command`
+- [x] 136-01-PLAN.md — pre-edit CI-parity/mypy baseline, the empirical Click-hook spike (`get_command`
   vs `resolve_command`), and `channel.py`'s bench-override vocabulary with a fail-closed proof
   [contributes to CHAN-06, CHAN-07 — ticks nothing]
 
