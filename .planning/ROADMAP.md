@@ -896,7 +896,7 @@ corrected line-number citations)
 - [x] 137-03-PLAN.md -- Wave 3: author the honesty ledger, carrying forward this milestone's own measured-wrong corrections (CLOSE-04) (completed 2026-08-05)
 - [x] 137-04-PLAN.md -- Wave 4: fix the RELOCK-07 stale label (all four citation sites) + release notes "Removed" section + the decision doc (C-1 disposition) (CLOSE-05, RELOCK-07)
 - [x] 137-05-PLAN.md -- Wave 5: gh#12 reply -- blocking operator wording review (`checkpoint:human-action`), freeze, and conditional posting gated on both operator authorization and a live shipped-check (CLOSE-06; `autonomous: false`)
-- [ ] 137-06-PLAN.md -- Wave 6: arm the claim gate for real against all four artifacts, final whole-milestone CI-parity recipe, operator-batch finalization, phase closing record (CLOSE-01)
+- [x] 137-06-PLAN.md -- Wave 6: arm the claim gate for real against all four artifacts, final whole-milestone CI-parity recipe, operator-batch finalization, phase closing record (CLOSE-01)
 
 **Research flag**: SKIP — the prior milestone's claim-gate pitfall (P-11) specifies this gate's design
 completely, including its two new target-resolution test legs.
