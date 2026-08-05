@@ -26,7 +26,8 @@ lock silently fails to hold, that leg is built to surface it rather than let the
 
 **This is where I need help, and it's the honest reason `dev test` exists**
 
-I don't have most of these parts. I can't buy one of everything, and a lot of what the database
+I don't have most of these parts. No AT28C silicon was tested during this milestone — I can't buy
+one of everything, and a lot of what the database
 claims about a chip has never been checked against the actual silicon — including the AT28C family in
 this thread. That's not a gap I can close on my own bench.
 
