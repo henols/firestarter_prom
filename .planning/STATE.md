@@ -5,16 +5,16 @@ milestone_name: "SDP Surface Retirement & Behavioral Lock Proof"
 current_phase: 136.1
 current_phase_name: "SDP Partition Provenance"
 status: executing
-stopped_at: "Completed 136.1-01-PLAN.md -- tools/build_db.py decodes infoic.xml flags bit 14/15 + raw page_size into chip_database.json's programming block, regenerated via a real live fetch, blast-radius proven additive-only (746 compared, 744 gained the 3 new keys, 0 violations), 84/43/41 SDP partition unchanged. Phase 136.1's 1st of 4 plans. One deviation auto-fixed: GATE-02's diff_db.py needed a new root-cause rule for the 3 new fields. PROV-01 ticked (only requirement this plan may mark complete)."
-last_updated: "2026-08-05T14:14:37.512Z"
+stopped_at: "Completed 136.1-02-PLAN.md -- tests/test_sdp_db_invariant.py's GATE-08 gained a second, independent, genuinely infoic.xml-derived comparison (production SDP_CAPABLE_TOKENS transcription vs. chip_database.json's own protect_on_after field, Plan 136.1-01), added alongside (never instead of) the existing hand-curated snapshot check; the re-pointed gate was SEEN to fail live on the real committed file under a planted single-chip re-bucketing (ATMEL/AT28C256's protect_on_after flipped true->false), message recorded verbatim then byte-identically restored; and firestarter_app/tools/derive_sdp_partition.py -- a committed, fetch-based, reproducible-from-a-clean-checkout independent re-derivation script -- was authored and run once, reproducing 43/41/84 with zero disagreement. Phase 136.1's 2nd of 4 plans. Zero deviations. PROV-02, PROV-03, PROV-04 ticked (the only three requirements this plan may mark complete)."
+last_updated: "2026-08-05T14:39:41.230Z"
 last_activity: 2026-08-05
-last_activity_desc: "Phase 136.1 plan 136.1-01 complete (1 of 4 plans). Task 1 recorded the pre-edit CI-parity + CI-replica baseline (mypy 33/35, checked 130, 1494 passed, coverage 82.14% -- matches Phase 136's own close-of-phase numbers exactly, re-measured fresh). Task 2 decoded infoic.xml flags bit 14 (MP_OFF_PROTECT_BEFORE)/bit 15 (MP_PROTECT_AFTER) + raw page_size into tools/build_db.py, cited to minipro database.c#L39-L50 @ a8efaedc, regenerated chip_database.json via a real live HTTPS fetch of the pinned commit (744 upstream + 2 supplement = 746 chips), and proved the diff additive-only via a new committed 136.1-check-blast-radius.py script (746 compared, 744 gained the 3 new keys, 0 violations, run both pre- and post-commit). tests/test_sdp_db_invariant.py stayed green throughout -- the 84/43/41 SDP partition is unchanged. Task 3 recorded the post-PROV-01 CI-parity state: mypy/checked-files/full-suite-count/coverage all IDENTICAL to Before, 0 delta, as reasoned from tools/'s CI-scope exclusion. One deviation auto-fixed (Rule 1): this task's own regeneration broke GATE-02's tools/diff_db.py per-chip diff gate (744 unexplained diffs); fixed by adding a PROV01_PROTECT_METADATA root-cause rule following the file's own established pattern. PROV-01 ticked -- the only requirement this plan may mark complete. Next: Plan 136.1-02 (GATE-08 re-pointing, PROV-02/03/04) and 136.1-03 (PROV-05/06), both wave 2, then 136.1-04 phase close."
+last_activity_desc: "Phase 136.1 plan 136.1-02 complete (2 of 4 plans). Task 1 re-pointed GATE-08: added _partition_from_protect_on_after_field (reads chip_database.json's protect_on_after field directly, no .get() default) and _assert_two_partitions_match (a generalized comparator for two MEASURED sources), plus test_sdp_partition_matches_infoic_derived_field_element_wise (both sides independently measure 43/41/84) and its non-vacuity proof test_partition_flags_a_moved_chip_via_db_field_non_vacuous; the existing hand-curated _COMMITTED_SDP_ALLOW_ENTRIES snapshot and its comparator are kept byte-identical (diff shows additions only) -- both proofs stay. One sentence added to sdp_capability.py's SDP_CAPABLE_TOKENS comment; the frozenset itself and tools/check_sdp_capability_invariants.py stayed untouched (re-confirmed PASS). Task 2 planted a REAL single-chip re-bucketing directly on the committed chip_database.json (ATMEL/AT28C256's protect_on_after true->false), observed the new gate FAIL naming that exact chip verbatim, reverted byte-identically (git diff --stat empty), and re-confirmed 9/9 green -- recorded in 136.1-02-SEEN-TO-FAIL.md. Task 3 authored tools/derive_sdp_partition.py (pinned to minipro a8efaedc236c1d9718bd28299dfbb99536b010ff, fetches live by default or reads INFOIC_XML_PATH if set, preserves Phase 120's exact token rule verbatim), ran it once against the cached pinned-commit XML: 43 ALLOW / 41 REFUSE / 84 total, zero disagreement against both sdp_capability_for_entry and the committed protect_on_after field. tools/ci_replica_venv.sh re-measured this wave: mypy 33/35 (headroom flat at 2), full suite 1496 passed (+2 from the new tests), coverage 82.14% unchanged. Zero deviations. PROV-02, PROV-03, PROV-04 ticked -- the only three requirements this plan may mark complete. Next: Plan 136.1-03 (PROV-05/06, independent, wave 2, no file overlap), then 136.1-04 phase close."
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 42
-  completed_plans: 39
-  percent: 93
+  completed_plans: 40
+  percent: 95
 ---
 
 # Project State
@@ -48,8 +48,43 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 
 ## Current Position
 
-Phase: 136.1 (SDP Partition Provenance) — 1/4 plans complete
-Plan: 1 of 4 (next: 136.1-02 and 136.1-03, both wave 2)
+Phase: 136.1 (SDP Partition Provenance) — 2/4 plans complete
+Plan: 3 of 4 (next: 136.1-03, wave 2, independent of this plan)
+
+### Phase 136.1 plan 02 (2026-08-05) — COMPLETE
+
+`136.1-02-SUMMARY.md`: `tests/test_sdp_db_invariant.py`'s GATE-08 gained a second, independent,
+genuinely infoic.xml-derived comparison -- `_partition_from_protect_on_after_field(db)` reads
+`chip_database.json`'s own `protect_on_after` field directly (Plan 136.1-01, no `.get()` default --
+a missing key must raise) and `_assert_two_partitions_match` compares it against the production
+`SDP_CAPABLE_TOKENS`-based transcription
+(`test_sdp_partition_matches_infoic_derived_field_element_wise`), both sides independently measuring
+43 ALLOW / 41 REFUSE / 84 total, plus a non-vacuity proof
+(`test_partition_flags_a_moved_chip_via_db_field_non_vacuous`). The existing hand-curated
+`_COMMITTED_SDP_ALLOW_ENTRIES` snapshot and its comparator are kept byte-identical (diff is additions
+only) -- **both proofs stay, neither replaces the other**, closing the gap that constant's own comment
+has named since Phase 131. One sentence added to `sdp_capability.py`'s `SDP_CAPABLE_TOKENS` comment;
+the frozenset's literal contents/binding shape and `tools/check_sdp_capability_invariants.py` stayed
+untouched (re-confirmed `PASS`) -- PROV-02's static-transcription-plus-equality-gate branch was taken,
+not the runtime-derive branch, because that AST gate mechanically forbids any other shape.
+**PROV-03's seen-to-fail demonstration ran on the REAL committed file**: `ATMEL/AT28C256,...`'s
+`protect_on_after` was flipped `true`->`false` directly in `chip_database.json`, the new gate FAILED
+naming that exact chip verbatim (recorded in full in `136.1-02-SEEN-TO-FAIL.md`), then the file was
+reverted (`git checkout --`, confirmed byte-identical via empty `git diff --stat`) and the suite
+re-ran green (9/9) before any further commit. `firestarter_app/tools/derive_sdp_partition.py`
+(PROV-04): a standalone, fetch-based, never-imported-by-production-or-tests script, pinned to minipro
+`a8efaedc236c1d9718bd28299dfbb99536b010ff` (duplicating `build_db.py`'s `MINIPRO_XML_URL` verbatim),
+reads `INFOIC_XML_PATH` if set or fetches live otherwise, preserves Phase 120's exact token rule
+verbatim (exact `part_number` token, strip only `@PACKAGE`, keep parentheticals). Run once against
+the cached, previously-verified pinned-commit XML copy: **43 ALLOW / 41 REFUSE / 84 total, zero
+disagreement** against both `sdp_capability_for_entry` and the committed `protect_on_after` field,
+exit 0; the script's own source carries no reference to the cached path (`grep -c scratchpad` returns
+0). `tools/ci_replica_venv.sh` re-measured this wave: mypy **33/35** (headroom flat at 2, unchanged
+from Plan 136.1-01's post-PROV-01 baseline), full suite **1496 passed** (+2 from the two new tests),
+30 snapshots passed, coverage **82.14%** unchanged. **Zero deviations** -- plan executed exactly as
+written. **Three requirements ticked: PROV-02, PROV-03, PROV-04** (the only three this plan may
+discharge). Commits: meta `c897b187`, `3d322102`, `a334a0c3`, `ee83cfe7`; submodule
+(`firestarter_app`) `73739d5`, `dc5bfbe`.
 
 ### Phase 136.1 plan 01 (2026-08-05) — COMPLETE
 
@@ -1384,6 +1419,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 136.1]: Regenerated chip_database.json via a REAL live HTTPS fetch of the pinned minipro commit rather than the cached scratchpad XML -- the committed recipe must not depend on a path that will not exist for a future maintainer
 - [Phase 136.1]: Fixed the GATE-02 diff_db.py regression this task's own regeneration caused, in the same task, via a new PROV01_PROTECT_METADATA root-cause rule following the file's own established per-phase pattern, rather than re-pinning the baseline or suppressing the gate
 - [Phase 136.1]: infoic_page_size_raw is deliberately keyed differently from the existing curated programming.page_size -- same English word, two different provenance sources, documented at both call sites so a future reader cannot conflate them
+- [Phase 136.1 P02]: Took PROV-02's static-transcription-plus-equality-gate branch, not the runtime-derive branch -- SDP_CAPABLE_TOKENS stays an untouched frozenset literal because tools/check_sdp_capability_invariants.py's Class 2(b) AST gate mechanically forbids any other binding shape, and reading chip_database.json at runtime would reopen the permit-by-default hole that gate exists to close
+- [Phase 136.1 P02]: Kept both GATE-08 comparisons (hand-curated snapshot + new DB-field derivation) rather than replacing the snapshot -- two independent proofs are strictly stronger than one, and the snapshot costs nothing to keep
+- [Phase 136.1 P02]: PROV-03's seen-to-fail demonstration was run on the REAL committed chip_database.json (ATMEL/AT28C256's protect_on_after flipped true->false), not only a synthetic fixture, then reverted byte-identically -- matches the requirement's explicit "seen to fail... with the observed message recorded" wording
+- [Phase 136.1 P02]: tools/derive_sdp_partition.py duplicates _select_0x0d_chips locally rather than importing from tests/ -- the script must stay fully standalone, never coupled to the test suite's internals
 
 ## Performance Metrics
 
@@ -1583,11 +1622,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 136 P03 | 35min | 3 tasks | 2 files |
 | Phase 136 P04 | ~25min | 2 tasks | 2 files |
 | Phase 136.1 P01 | 36min | 3 tasks | 6 files |
+| Phase 136.1 P02 | 22min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-05T14:14:37.470Z
-**Stopped at:** Completed 136.1-01-PLAN.md
+**Last session:** 2026-08-05T14:39:41.230Z
+**Stopped at:** Completed 136.1-02-PLAN.md
 **Resume file:** None
 
 ### Blockers
