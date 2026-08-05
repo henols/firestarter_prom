@@ -444,7 +444,7 @@ only legitimate use case the deleted command served.
 - ⏸ **RELOCK-06**: `--sdp-relock` on a capability-REFUSED chip refuses **before any hardware is
       energized** — this is where the deleted command's capability gate is repurposed, not discarded.
 
-- [ ] **RELOCK-07**: The stale `--sdp-relock` "v1.23+" deferral labels are corrected to name
+- [x] **RELOCK-07**: The stale `--sdp-relock` "v1.23+" deferral labels are corrected to name
       **Backlog 999.28** — *not* this milestone, since the flag does not land here. Measured
       2026-08-03: `.planning/STATE.md:634` and `.planning/PROJECT.md:823`. **⚠ Verify both line numbers
       before editing; do not trust any citation in the record, including this one.** Four separate
@@ -457,6 +457,14 @@ only legitimate use case the deleted command served.
       on 2026-08-03; retained precisely *because* the labels have already gone stale once (they read
       "v1.23+", written before v1.23 became PY32F071 Integration) and deferring the fix with the
       feature would strand them again.
+
+      **Terminal correction, measured fresh 2026-08-05, Phase 137 plan 137-04:** the `634`/`823` pair
+      asserted above had *already* gone stale again by this plan's own execution — a **fifth** drift,
+      confirming the pattern one more time. The live lines are `.planning/STATE.md:972` and
+      `.planning/PROJECT.md:844`; both rows there now read **Backlog 999.28**, and all four citation
+      sites named above (this requirement, `PROJECT.md`'s own paragraph, the design note §8,
+      `ROADMAP.md`'s v1.30 milestone-list entry) have been updated to state these terminal values.
+      RELOCK-07 is ticked Complete.
 
 ### Dev-Tools Channel Gating (CHAN)
 
@@ -718,7 +726,7 @@ Populated during roadmap creation.
 | RELOCK-04 | ~~Phase 135~~ → Backlog 999.28 | ⏸ Deferred (out of v1 scope) |
 | RELOCK-05 | ~~Phase 135~~ → Backlog 999.28 | ⏸ Deferred (out of v1 scope) |
 | RELOCK-06 | ~~Phase 135~~ → Backlog 999.28 | ⏸ Deferred (out of v1 scope) |
-| RELOCK-07 | ~~Phase 135~~ → **Phase 137** | Pending (retained, re-homed 2026-08-03) |
+| RELOCK-07 | ~~Phase 135~~ → **Phase 137** | Complete |
 | CHAN-01 | Phase 136 | Complete |
 | CHAN-02 | Phase 136 | Complete |
 | CHAN-03 | Phase 136 | Complete |

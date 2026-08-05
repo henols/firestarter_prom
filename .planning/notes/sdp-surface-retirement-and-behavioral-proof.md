@@ -159,6 +159,11 @@ activated as **PY32F071 Integration**, so that label now points at the wrong mil
 has no home. Phase 999.25 becomes its home; the two rows above should be corrected when the stub is
 scoped, not silently left to be discovered.
 
+**Corrected 2026-08-05, Phase 137 plan 137-04 (RELOCK-07, now Complete) — the terminal fix:** the
+live lines, fresh-measured at this plan's execution, are `.planning/STATE.md:972` and
+`.planning/PROJECT.md:844`, both now reading **Backlog 999.28** in place of "v1.23+". See
+`REQUIREMENTS.md`'s RELOCK-07 for the full citation-drift history across all sites.
+
 Design carried over from the v1.22 research and **not** re-decided here: the relock is opt-in only,
 and the v1.22 research assumed it is **gated on verify success** (relocking a part whose write did
 not verify would protect a bad image). That assumption is unconfirmed — see `research/questions.md`.

@@ -142,10 +142,12 @@ new leg, and `--sdp-relock`. (The `--sdp-relock` consumer is deferred to Backlog
 leg are each sufficient reason to keep it. The `COMMAND_NAMES` dereference sites were re-measured by plan
 132-08 to `_setup_operation:329` / `_operation_context:405`; the `:301`/`:377` anchors above are stale.)
 
-**Stale labels this milestone fixes:** the `--sdp-relock` deferral reads "v1.23+" at
-`.planning/STATE.md:532` and `.planning/PROJECT.md:705`, written before v1.23 became PY32F071
-Integration — so the flag currently has no home. (The design note's own `STATE.md:154` /
-`PROJECT.md:671` line references are themselves stale; the live lines are 532 / 705.)
+**Stale labels this milestone fixes:** the `--sdp-relock` deferral used to read
+"v1.23+" at `.planning/STATE.md:532` and `.planning/PROJECT.md:705`, written before v1.23 became
+PY32F071 Integration — so the flag had no home. (The design note's own `STATE.md:154` /
+`PROJECT.md:671` line references are themselves stale; the live lines were 532 / 705 at the time
+this paragraph was written — see the terminal correction appended below the blockquote that
+follows.)
 
 > **⏸ AMENDED 2026-08-03 — the labels are still fixed, but they now point somewhere else, and this
 > paragraph's own line numbers are a fourth stale pair.** Phase 135 was deferred → ROADMAP Backlog
@@ -156,6 +158,12 @@ Integration — so the flag currently has no home. (The design note's own `STATE
 > paragraph's `532`/`705`, the design note's `154`/`671`, and ROADMAP's v1.30 milestone-list entry, which
 > still carries `154`/`671`). Only the `PROJECT.md:823` half has ever been right. **Re-measure before
 > editing, and fix all four citation sites at once** — see RELOCK-07 in `REQUIREMENTS.md`.
+
+> **⏸ AMENDED 2026-08-05, Phase 137 plan 137-04 — the terminal fix.** The `634`/`823` pair asserted
+> just above was itself already stale by this plan's execution: fresh-measured 2026-08-05, the live
+> lines are `.planning/STATE.md:972` and `.planning/PROJECT.md:844`. Both rows now read
+> **Backlog 999.28** in place of the "v1.23+" label, and `REQUIREMENTS.md`'s RELOCK-07 is ticked
+> Complete — this closes the citation-drift chain recorded above.
 
 **Version and branch model.** Takes **v1.30**, not compacted to v1.29 — the retirement that freed the
 v1.29 number landed in v1.23 Phase 130, and the number is deliberately left **vacant**. Meta forks
@@ -841,7 +849,7 @@ on a physical RURP shield is deferred to a v1.1 hardware-test pass.
 | 2026-07-27 | v1.22 opens with a **FIX, not a feature** — kickoff research falsified the promoting note's premise twice; the shipped `0x0D` SDP-disable sequence bypasses `mem_util_remap_address_bus`, so ≥1 command write is emitted with `/WE` HIGH on all 84 `0x0D` chips, and its `(0x5555, 0x20)` success check is *inverted* (the datasheets say the command data "is not written") | ✓ Good — reframing was load-bearing; a feature-first milestone would have advertised success for a sequence that never reached silicon |
 | 2026-07-27 | v1.22 **harness before any firmware behaviour change** (116 → 117): build the ordered strobe/data recorder and prove the SDP trace suite RED before touching production code — abandoned commit `0052c42` swapped the SDP tables and still reported "22 tests PASS (zero-diff)" | ✓ Good — the elision-faithful recorder is what makes every later byte-exact claim non-hollow |
 | 2026-07-27 | v1.22 **firmware before host, unambiguously** (118/119 → 120): new firmware understanding `cmd 9/10` + `flags 0x100/0x200` is backward-compatible with an old host that emits neither, but a *new host* setting `0x100` against `3.0.0b11` firmware is silently ignored — the user asks to skip the unlock and it runs anyway | ✓ Good — HOST-06 then hardened the residual case by *requiring* firmware's `0x86` ack, so an unheard opt-out fails loudly instead of silently |
-| 2026-07-27 | v1.22 auto-unlock policy **(d)**: default-on, **reported**, with a `--skip-sdp-unlock` opt-out; `--sdp-relock` deferred to v1.23+; "leave the chip as you found it" rejected as **physically unimplementable** (SDP state is unreadable, so restoring it is a guess wearing a promise) | ✓ Good — answers gh#12's own 2024 design question without manufacturing the gh#12 bug for the next user |
+| 2026-07-27 | v1.22 auto-unlock policy **(d)**: default-on, **reported**, with a `--skip-sdp-unlock` opt-out; `--sdp-relock` deferred to Backlog 999.28; "leave the chip as you found it" rejected as **physically unimplementable** (SDP state is unreadable, so restoring it is a guess wearing a promise) | ✓ Good — answers gh#12's own 2024 design question without manufacturing the gh#12 bug for the next user |
 | 2026-07-29 | v1.22 **the SDP allow-set is DERIVED, not curated** (operator directive: "there shall be no guessing, the ground truth is the infoic.xml") — supersedes D-01/D-02's hand-curated 37/47 and the interim 74/10; partition read from minipro `infoic.xml` `flags` **bit 15** (`0x8000` `MP_PROTECT_AFTER`), the section `build_db.py` already treats as authoritative → **ALLOW 43 / REFUSE 41 = 84**, all matched, zero unmatched, zero MIXED | ✓ Good — replaced a judgement call with a reproducible read of the same source the DB is built from |
 | 2026-07-28 | v1.22 **LOCK-04 shipped mechanism-corrected**: a generic op-layer NULL-`main` refusal in `operation_utils.cpp` instead of the roadmap's prescribed `0x0D`-local `default:` → `MSG_ERR_NOT_SUPPORTED` arm — `configure_memory` pre-sets the generic mains before the handler runs, so that arm would have refused `read`/`verify` on **all 84** `0x0D` chips | ✓ Good — intent satisfied, prescribed mechanism correctly overruled; recorded as mechanism-corrected in REQUIREMENTS.md rather than silently reinterpreted |
 | 2026-07-30 | v1.22 **anti-hollow gates are the default, not an extra**: every new CI checker ships paired with a pytest proving it *fails* on committed planted-violation fixtures — `check_sdp_capability_invariants.py` (9 legs, the repo's first `.py` fixtures), `check_permitted_claims.py` (7 legs), SAFE-03's scan extended to `submit.py` | ✓ Good — this is the discipline that closed v1.12's hollow-GATE-03 debt, now applied by default |
