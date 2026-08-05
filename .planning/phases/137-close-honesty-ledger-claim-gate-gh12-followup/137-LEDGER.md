@@ -215,9 +215,13 @@ A close that lists only wins reads as overclaiming even when every individual cl
   but **withdraws** the deliberate-protection surface and ships **no replacement**. This is a
   withdrawal, never a migration to a command (`write --sdp-relock`) that does not exist in this
   release.
-- **The mypy watermark ratchet** — remains unowned. Headroom re-measured live this plan: **33/35**,
-  unmoved across Phases 132 through 137 (checked-file count moved 124→126→130→132→129 across the
-  milestone per correction 7 above, but the *error* count and the *watermark* have not moved).
+- **The mypy watermark ratchet** — remains unowned. Headroom re-measured live this plan: **33/35**.
+  **Corrected here rather than left implicit**: the error count was **32** (3 of headroom) at Phase
+  132's own close (`132-RECORD.md` residual 2), then moved to **33** (2 of headroom) during Phase 133
+  (`133-RECORD.md` residual 4) and has stayed **33/35** unmoved from Phase 133 through this plan's own
+  live re-measurement — not "unmoved since Phase 132" as an earlier draft of this bullet read (checked-
+  file count moved 124→126→130→132→129 across the milestone per correction 7 above, but the *error*
+  count and the *watermark* have not moved since Phase 133).
 - **The Ctrl-C forfeited report** (Phase 133 D-07, carried through Phase 134) — after an interrupt
   mid-leg, the chip's unlock is attempted but the production caller's `results = run_plan(...)`
   assignment never completes, so there is no `dev test` report at all on that path. Mitigated by an
