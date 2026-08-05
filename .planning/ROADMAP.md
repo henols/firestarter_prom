@@ -812,7 +812,7 @@ files and both depend only on `136.1-01`, but worktree isolation is unavailable 
 Plans:
 **Wave 1**
 
-- [ ] 136.1-01-PLAN.md — decode infoic.xml flags bits 14/15 (+ raw upstream page_size) into
+- [x] 136.1-01-PLAN.md — decode infoic.xml flags bits 14/15 (+ raw upstream page_size) into
   chip_database.json via build_db.py, regenerate from a live pinned fetch, and mechanically prove the
   diff is additive-only [PROV-01]
 
@@ -821,6 +821,7 @@ Plans:
 - [ ] 136.1-02-PLAN.md — re-point GATE-08 at the infoic-derived DB field (added alongside, not instead
   of, the existing hand-curated snapshot check), a live seen-to-fail demonstration on the real committed
   file, and the committed fetch-based independent re-derivation script [PROV-02, PROV-03, PROV-04]
+
 - [ ] 136.1-03-PLAN.md — verify/durably gate doc/lockable-proms.md §17's AT28C16/64/plain-AT28C64
   correction and refute the b15-≈-page-write-family-marker equivalence in-tree, measured [PROV-05,
   PROV-06]

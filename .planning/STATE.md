@@ -1,20 +1,20 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.30
-milestone_name: SDP Surface Retirement & Behavioral Lock Proof
-current_phase: 136
-current_phase_name: "Dev-Tools Channel Gating"
+milestone_name: "SDP Surface Retirement & Behavioral Lock Proof"
+current_phase: 136.1
+current_phase_name: "SDP Partition Provenance"
 status: executing
-stopped_at: "Completed 136-04-PLAN.md -- deliberate, named re-baseline of both test_help and test_help_dev snapshots (CHAN-05 docstring rewrite), 136-CI-PARITY.md's After section recorded (mypy flat 33/35), full suite 1494 passed / 0 failed. Phase 136's 4th and final plan; all seven CHAN requirements were already Complete before this plan ran (this plan ticks none)."
-last_updated: "2026-08-05T12:39:09.072Z"
+stopped_at: "Completed 136.1-01-PLAN.md -- tools/build_db.py decodes infoic.xml flags bit 14/15 + raw page_size into chip_database.json's programming block, regenerated via a real live fetch, blast-radius proven additive-only (746 compared, 744 gained the 3 new keys, 0 violations), 84/43/41 SDP partition unchanged. Phase 136.1's 1st of 4 plans. One deviation auto-fixed: GATE-02's diff_db.py needed a new root-cause rule for the 3 new fields. PROV-01 ticked (only requirement this plan may mark complete)."
+last_updated: "2026-08-05T14:14:37.512Z"
 last_activity: 2026-08-05
-last_activity_desc: "Phase 136 plan 136-04 complete (4 of 4 plans -- last plan of the phase). Task 1 re-baselined BOTH test_help and test_help_dev in tests/__snapshots__/test_characterization.ambr (a measured correction of 136-VALIDATION.md's wave-4 row, which named only test_help_dev -- 136-02-SUMMARY.md's own Known Test Regressions table had already flagged the second): observed RED on both against the stale snapshot first, then a single -k-scoped --snapshot-update, then confirmed the diff is scoped to exactly the docstring header lines -- the 8-subcommand Commands: enumeration inside dev --help is byte-identical before and after. Task 2 appended 136-CI-PARITY.md's After section: mypy errors 33 (watermark 35, checked 130) via tools/ci_replica_venv.sh -- byte-identical to Before, headroom delta 0, flat across the whole phase; full suite via ci-replica python 1494 passed / 0 failed (both deferred regressions gone, no third failure); RESEARCH Section 5's blast-radius file set (244 passed) and tests/test_py32_channel_gating.py (14 passed) re-confirmed unchanged and green; firestarter (firmware submodule) status --porcelain confirmed empty across the whole phase. Zero requirements ticked by this plan -- all seven CHAN-0X rows were already Complete before 136-04 ran. Next: Phase 136.1 (SDP Partition Provenance, PROV-01..06) and Phase 137 (RELOCK-07 + CLOSE-0X close) -- neither yet planned."
+last_activity_desc: "Phase 136.1 plan 136.1-01 complete (1 of 4 plans). Task 1 recorded the pre-edit CI-parity + CI-replica baseline (mypy 33/35, checked 130, 1494 passed, coverage 82.14% -- matches Phase 136's own close-of-phase numbers exactly, re-measured fresh). Task 2 decoded infoic.xml flags bit 14 (MP_OFF_PROTECT_BEFORE)/bit 15 (MP_PROTECT_AFTER) + raw page_size into tools/build_db.py, cited to minipro database.c#L39-L50 @ a8efaedc, regenerated chip_database.json via a real live HTTPS fetch of the pinned commit (744 upstream + 2 supplement = 746 chips), and proved the diff additive-only via a new committed 136.1-check-blast-radius.py script (746 compared, 744 gained the 3 new keys, 0 violations, run both pre- and post-commit). tests/test_sdp_db_invariant.py stayed green throughout -- the 84/43/41 SDP partition is unchanged. Task 3 recorded the post-PROV-01 CI-parity state: mypy/checked-files/full-suite-count/coverage all IDENTICAL to Before, 0 delta, as reasoned from tools/'s CI-scope exclusion. One deviation auto-fixed (Rule 1): this task's own regeneration broke GATE-02's tools/diff_db.py per-chip diff gate (744 unexplained diffs); fixed by adding a PROV01_PROTECT_METADATA root-cause rule following the file's own established pattern. PROV-01 ticked -- the only requirement this plan may mark complete. Next: Plan 136.1-02 (GATE-08 re-pointing, PROV-02/03/04) and 136.1-03 (PROV-05/06), both wave 2, then 136.1-04 phase close."
 progress:
   total_phases: 7
   completed_phases: 4
-  total_plans: 38
-  completed_plans: 38
-  percent: 100
+  total_plans: 42
+  completed_plans: 39
+  percent: 93
 ---
 
 # Project State
@@ -48,8 +48,36 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 
 ## Current Position
 
-Phase: 136 (Dev-Tools Channel Gating) — 4/4 plans complete, ready for verification
-Plan: 4 of 4 (final plan of the phase)
+Phase: 136.1 (SDP Partition Provenance) — 1/4 plans complete
+Plan: 1 of 4 (next: 136.1-02 and 136.1-03, both wave 2)
+
+### Phase 136.1 plan 01 (2026-08-05) — COMPLETE
+
+`136.1-01-SUMMARY.md`: `tools/build_db.py` now decodes infoic.xml flags bit 14
+(`0x4000`, `MP_OFF_PROTECT_BEFORE`) and bit 15 (`0x8000`, `MP_PROTECT_AFTER`) plus the
+raw upstream `page_size`, into three new, universally-emitted `chip_database.json`
+`programming.*` fields (`protect_off_before`, `protect_on_after`,
+`infoic_page_size_raw`), cited to minipro `src/database.c#L39-L50 @
+a8efaedc236c1d9718bd28299dfbb99536b010ff` and cross-referenced to
+`doc/infoic-field-dictionary.md`'s CONFIRMED bit 14/15 row. Regenerated via a REAL live
+HTTPS fetch of the pinned minipro commit (744 upstream + 2 non-upstream
+`extra_chips.json` supplement chips = 746 total) -- never the cached scratchpad XML.
+The regeneration's diff is mechanically proven additive-only by a new committed,
+re-runnable script (`136.1-check-blast-radius.py`): 746 entries compared, 744 gained
+the three new keys, 0 violations, run twice (pre-commit against `HEAD`, post-commit
+against the default `HEAD~1`) with identical results. `tests/test_sdp_db_invariant.py`
+(unmodified) stayed green throughout -- the **84/43/41 SDP ALLOW/REFUSE partition is
+byte-for-byte unchanged**; this plan changes provenance metadata only. `136.1-CI-PARITY.md`
+records a real Before/After-PROV-01 pair: mypy 33/35, checked 130 source files, full
+suite 1494 passed, coverage 82.14% -- **all identical, 0 delta**, reasoned from `tools/`'s
+exclusion from CI's mypy/ruff scan and confirmed by real runs. **One deviation
+auto-fixed (Rule 1):** the regeneration broke the pre-existing GATE-02 `tools/diff_db.py`
+per-chip diff gate (744 "unexplained diffs" -- it had no rule for the 3 new fields);
+fixed by adding a `PROV01_PROTECT_METADATA` root-cause rule following the file's own
+established per-phase pattern (same shape as `PGSZ_PAGE_SIZE`/`RC1_DIP32_27C020`); full
+suite back to 1494 passed, 0 delta. **One requirement ticked: PROV-01** (the only one
+this plan may discharge). Commits: meta `595a017`, `3624205`, `8ab9198`, `3b8015b`,
+`85d220a`; submodule (`firestarter_app`) `f294821`, `8fccb47`.
 
 ### Phase 136 plan 04 (2026-08-05) — COMPLETE
 
@@ -1353,6 +1381,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 136]: 136-03 evidences (not implements) CHAN-01/02/03/04/06/07 via a subprocess dual-channel harness adapted from test_py32_channel_gating.py; Tasks 1-2 committed as single test(...) commits rather than RED/GREEN since both are proof-only against already-shipped 136-01/136-02 mechanisms
 - [Phase 136]: Task 3's two non-vacuity mutations (cls=_DevGroup removed; _DEV_TOOLS_ENABLED hardcoded True) made no permanent source change -- both observed RED then restored byte-identically, recorded only in 136-03-SUMMARY.md, per the plan's own action text
 - [Phase 136]: 136-04 (phase's final plan) re-baselined BOTH test_help and test_help_dev, not just the one named in 136-VALIDATION.md's wave-4 row -- 136-02-SUMMARY.md's own Known Test Regressions table had already measured the second; single -k-scoped --snapshot-update, diff-confirmed scoped to the docstring header lines only, the 8-subcommand Commands: block byte-identical before/after
+- [Phase 136.1]: Regenerated chip_database.json via a REAL live HTTPS fetch of the pinned minipro commit rather than the cached scratchpad XML -- the committed recipe must not depend on a path that will not exist for a future maintainer
+- [Phase 136.1]: Fixed the GATE-02 diff_db.py regression this task's own regeneration caused, in the same task, via a new PROV01_PROTECT_METADATA root-cause rule following the file's own established per-phase pattern, rather than re-pinning the baseline or suppressing the gate
+- [Phase 136.1]: infoic_page_size_raw is deliberately keyed differently from the existing curated programming.page_size -- same English word, two different provenance sources, documented at both call sites so a future reader cannot conflate them
 
 ## Performance Metrics
 
@@ -1551,11 +1582,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 136 P02 | 23min | 3 tasks | 1 files |
 | Phase 136 P03 | 35min | 3 tasks | 2 files |
 | Phase 136 P04 | ~25min | 2 tasks | 2 files |
+| Phase 136.1 P01 | 36min | 3 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-08-05T12:39:00.576Z
-**Stopped at:** Completed 136-04-PLAN.md -- Phase 136's final plan (snapshot re-baseline + CI-parity close)
+**Last session:** 2026-08-05T14:14:37.470Z
+**Stopped at:** Completed 136.1-01-PLAN.md
 **Resume file:** None
 
 ### Blockers
