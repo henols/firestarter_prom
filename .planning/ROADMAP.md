@@ -729,7 +729,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 136-03-PLAN.md — the subprocess dual-channel proof harness, the comprehensive no-firmware-read
+- [x] 136-03-PLAN.md — the subprocess dual-channel proof harness, the comprehensive no-firmware-read
   assertion, and two non-vacuity mutations proving the gate is load-bearing
   [CHAN-01, CHAN-02, CHAN-03, CHAN-04, CHAN-06, CHAN-07]
 

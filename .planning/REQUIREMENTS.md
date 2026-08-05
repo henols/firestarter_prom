@@ -460,22 +460,22 @@ only legitimate use case the deleted command served.
 
 999.15 / gh#8. The channel is the gate.
 
-- [ ] **CHAN-01**: On a stable install, the `dev` group exposes only `dev read` and `dev test`.
-- [ ] **CHAN-02**: Beta-only `dev` subcommands are gated by **not registering them** — a gated command
+- [x] **CHAN-01**: On a stable install, the `dev` group exposes only `dev read` and `dev test`.
+- [x] **CHAN-02**: Beta-only `dev` subcommands are gated by **not registering them** — a gated command
       is not invokable, not merely undocumented. (`hidden=` is a `--help` cosmetic, documented as such
       in this codebase's own source; gating by it is security-by-help-text.)
 
-- [ ] **CHAN-03**: Invoking a gated `dev` subcommand on a stable install refuses informatively with a
+- [x] **CHAN-03**: Invoking a gated `dev` subcommand on a stable install refuses informatively with a
       non-zero exit.
 
-- [ ] **CHAN-04**: `dev --help` output is pinned on **both** channels via subprocess.
+- [x] **CHAN-04**: `dev --help` output is pinned on **both** channels via subprocess.
 - [x] **CHAN-05**: The `dev` group docstring no longer warns off the stable users `dev read` and
       `dev test` are being kept for.
 
-- [ ] **CHAN-06**: `dev reg`'s bench-tooling role — the held-erase-rail DMM proxy — survives via a
+- [x] **CHAN-06**: `dev reg`'s bench-tooling role — the held-erase-rail DMM proxy — survives via a
       source-checkout override designed up front, not discovered after it breaks.
 
-- [ ] **CHAN-07**: The gate reads **no firmware source**. Four host gates were built that way in Phase
+- [x] **CHAN-07**: The gate reads **no firmware source**. Four host gates were built that way in Phase
       117 and they failed OPEN.
 
 ### SDP Partition Provenance — Derive, Don't Transcribe (PROV)
@@ -641,13 +641,13 @@ Populated during roadmap creation.
 | RELOCK-05 | ~~Phase 135~~ → Backlog 999.28 | ⏸ Deferred (out of v1 scope) |
 | RELOCK-06 | ~~Phase 135~~ → Backlog 999.28 | ⏸ Deferred (out of v1 scope) |
 | RELOCK-07 | ~~Phase 135~~ → **Phase 137** | Pending (retained, re-homed 2026-08-03) |
-| CHAN-01 | Phase 136 | Pending |
-| CHAN-02 | Phase 136 | Pending |
-| CHAN-03 | Phase 136 | Pending |
-| CHAN-04 | Phase 136 | Pending |
+| CHAN-01 | Phase 136 | Complete |
+| CHAN-02 | Phase 136 | Complete |
+| CHAN-03 | Phase 136 | Complete |
+| CHAN-04 | Phase 136 | Complete |
 | CHAN-05 | Phase 136 | Complete |
-| CHAN-06 | Phase 136 | Pending |
-| CHAN-07 | Phase 136 | Pending |
+| CHAN-06 | Phase 136 | Complete |
+| CHAN-07 | Phase 136 | Complete |
 | PROV-01 | Phase 136.1 | Pending |
 | PROV-02 | Phase 136.1 | Pending |
 | PROV-03 | Phase 136.1 | Pending |
