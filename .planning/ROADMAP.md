@@ -805,7 +805,30 @@ and that is this phase's entire scope.
      "b15 ≈ page-write family marker" equivalence is refuted — b15 disagrees with `page_size > 1` on
      **12 of 84**.
 
-**Plans**: TBD
+**Plans**: 4 plans (waves 1→3; wave 2 holds two independent plans — `136.1-02` and `136.1-03` share no
+files and both depend only on `136.1-01`, but worktree isolation is unavailable inside the
+`firestarter_app` submodule, so they still serialise at execution time)
+
+Plans:
+**Wave 1**
+
+- [ ] 136.1-01-PLAN.md — decode infoic.xml flags bits 14/15 (+ raw upstream page_size) into
+  chip_database.json via build_db.py, regenerate from a live pinned fetch, and mechanically prove the
+  diff is additive-only [PROV-01]
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 136.1-02-PLAN.md — re-point GATE-08 at the infoic-derived DB field (added alongside, not instead
+  of, the existing hand-curated snapshot check), a live seen-to-fail demonstration on the real committed
+  file, and the committed fetch-based independent re-derivation script [PROV-02, PROV-03, PROV-04]
+- [ ] 136.1-03-PLAN.md — verify/durably gate doc/lockable-proms.md §17's AT28C16/64/plain-AT28C64
+  correction and refute the b15-≈-page-write-family-marker equivalence in-tree, measured [PROV-05,
+  PROV-06]
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 136.1-04-PLAN.md — phase-close CI-parity/mypy record and a final, independent re-assertion that the
+  43/41/84 split is byte-for-byte unchanged from before this phase began [ticks nothing new]
 **Research flag**: SKIP — the derivation is already written, measured, and re-proven byte-identical
 against a live fetch; `.planning/notes/infoic-xml-protection-flags-research.md` plus the b15 memory
 carry every gotcha. The open work is committing and gating it, not discovering it.
