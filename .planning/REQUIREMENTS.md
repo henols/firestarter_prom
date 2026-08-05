@@ -478,6 +478,49 @@ only legitimate use case the deleted command served.
 - [ ] **CHAN-07**: The gate reads **no firmware source**. Four host gates were built that way in Phase
       117 and they failed OPEN.
 
+### SDP Partition Provenance — Derive, Don't Transcribe (PROV)
+
+> Added 2026-08-05 by operator decision, mid-milestone, as Phase 136.1. **Scope note, binding on
+> every requirement below: this changes provenance, never verdicts.** The split stays 43 ALLOW / 41
+> REFUSE / 84 — proven before scoping, by re-running Phase 120's derivation against a live fetch of
+> the pinned minipro revision and getting a partition byte-identical to the committed
+> `120-sdp-partition.json`. No requirement here may be discharged by moving a chip between buckets.
+
+- [ ] **PROV-01**: `tools/build_db.py` decodes `infoic.xml` flags bit 14 (`0x4000`,
+      `MP_OFF_PROTECT_BEFORE`) and bit 15 (`0x8000`, `MP_PROTECT_AFTER`) and emits both into
+      `chip_database.json` as explicit fields, with a comment citing minipro `database.c` @ `a8efaed`.
+      Baseline measured 2026-08-05: the file today has **zero** such fields (`grep -c` returns 0 for
+      `flags`, `protect_off_before` and `protect_on_after`).
+
+- [ ] **PROV-02**: The ALLOW/REFUSE partition is derived from the committed b15 field rather than the
+      65-token `SDP_CAPABLE_TOKENS` transcription — or the transcription survives only alongside a
+      gate proving it EQUAL to the derived answer. Phase 120's finding still binds: **no structural
+      rule works and none ever will** (`DIP28_28C64` splits 15/20; `2817` differs in pinout from
+      `2804`/`2816`). A committed per-chip field is not a structural rule; family/pinout/name-shape
+      regeneration is, and stays forbidden.
+
+- [ ] **PROV-03**: A fail-closed gate proves the committed partition equals the `infoic.xml`-derived
+      partition at 43/41/84, and is **seen to fail** under a planted single-chip re-bucketing, with
+      the observed message recorded. Phase 131's GATE-08 is re-pointed at the derived source so the
+      count gate and the partition cannot drift apart.
+
+- [ ] **PROV-04**: The derivation is reproducible from a clean checkout — script committed into
+      `firestarter_app` rather than stranded in the archived v1.22 `120-*` phase directory, pinned to
+      minipro revision `a8efaedc236c1d9718bd28299dfbb99536b010ff`, and documented as needing a fetch
+      because `tools/infoic*.xml` is gitignored and absent. Phase 120's exact matching rules are
+      preserved: key on the exact `part_number` token, strip the package suffix (`@SOIC28`), and **do
+      not strip parentheticals** — stripping `(Non-Standard)` collapses `AT28C64B(Non-Standard)` onto
+      the separate `AT28C64B` entry and fabricates a MIXED verdict.
+
+- [ ] **PROV-05**: `doc/lockable-proms.md` §17's claim that "Atmel AT28C16 / 64 / 256" are SDP-capable
+      is corrected — `AT28C16`, `AT28C16E,F` and plain `AT28C64` all measure b15=0 / `page_size=1` /
+      byte-write. This error has now been reproduced twice from part-number familiarity, most recently
+      in this milestone's own conversation, which is why it is a requirement and not a footnote.
+
+- [ ] **PROV-06**: The "b15 ≈ page-write family marker" equivalence is refuted in-tree with its
+      measurement: b15 disagrees with `page_size > 1` on **12 of 84** entries. A reader must not be
+      able to substitute `page_size` for b15 and believe they have the same axis.
+
 ### Close — Honesty Ledger, Claim Gate, Outward Follow-up (CLOSE)
 
 - [ ] **CLOSE-01**: A v1.30 claim gate is **authored and hosted by this phase**, armed and green, with a
@@ -605,6 +648,12 @@ Populated during roadmap creation.
 | CHAN-05 | Phase 136 | Pending |
 | CHAN-06 | Phase 136 | Pending |
 | CHAN-07 | Phase 136 | Pending |
+| PROV-01 | Phase 136.1 | Pending |
+| PROV-02 | Phase 136.1 | Pending |
+| PROV-03 | Phase 136.1 | Pending |
+| PROV-04 | Phase 136.1 | Pending |
+| PROV-05 | Phase 136.1 | Pending |
+| PROV-06 | Phase 136.1 | Pending |
 | CLOSE-01 | Phase 137 | Pending |
 | CLOSE-02 | Phase 137 | Pending |
 | CLOSE-03 | Phase 137 | Pending |

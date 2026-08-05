@@ -718,6 +718,74 @@ reg` bench-tooling override, which must be designed up front, not discovered aft
 both-channel legs — this phase's whole surface is channel behavior, which an in-process test cannot see.
 At dispatch, name exactly which of CHAN-01…CHAN-07 each plan may mark Complete.
 
+### Phase 136.1: SDP Partition Provenance — Derive, Don't Transcribe
+
+*(Inserted 2026-08-05 by operator decision, mid-milestone. Numbered `136.1` on the Phase-114.1
+precedent: the 135 slot stays deliberately vacant and is never reused, and this must run BEFORE the
+137 close.)*
+
+**Goal**: Every chip's SDP ALLOW/REFUSE verdict is traceable, in-repo, to what `infoic.xml` actually
+says — reproducible by anyone with a checkout, and gated so the committed partition can never
+silently diverge from its upstream source.
+
+**Depends on**: Phase 134 (the leg that consumes the partition ships first, so this phase changes
+provenance against a working oracle rather than in the abstract). Independent of Phase 136.
+
+**⚠ What this phase does NOT do — state it in every artifact.** It does **not** change any chip's
+verdict. The split stays **43 ALLOW / 41 REFUSE / 84**. Proven before the phase was scoped: a live
+fetch of the pinned minipro revision re-run through Phase 120's `120-derive-sdp-allowset.py` produced
+a partition **byte-identical** to the committed `120-sdp-partition.json`
+(`json.dumps(sort_keys=True)` equal). No chip becomes newly testable, and no chip loses support. The
+operator's request was "no ICs refused"; the honest answer, recorded here, is that `infoic.xml` says
+41 of the 84 protocol-`0x0D` parts have **no SDP command decoder**, and on those the SDP sequence is
+not inert — its bytes are stored as data at the bus-truncated magic addresses. Forcing them to ALLOW
+would corrupt parts and report locks that never existed. What was actually missing is *provenance*,
+and that is this phase's entire scope.
+
+**Requirements**: PROV-01, PROV-02, PROV-03, PROV-04, PROV-05, PROV-06
+
+**Success Criteria** (what must be TRUE):
+
+  1. `tools/build_db.py` decodes `infoic.xml` flags bit 14 (`0x4000`, `MP_OFF_PROTECT_BEFORE`) and
+     bit 15 (`0x8000`, `MP_PROTECT_AFTER`) and emits both into `chip_database.json` as explicit
+     fields, with a source comment citing minipro `database.c` @ `a8efaed`. Today the file carries
+     **zero** `flags`-derived protection fields — measured, `grep -c` returns 0.
+
+  2. The ALLOW/REFUSE partition is derived from the committed b15 field, not from the 65-token
+     `SDP_CAPABLE_TOKENS` transcription — **or** the transcription is retained and a gate proves it
+     EQUAL to the derived answer. Either way the token list stops being the only source of truth.
+     Note Phase 120's standing finding, which still binds: **no structural rule works and none ever
+     will** (`DIP28_28C64` splits 15 ALLOW / 20 REFUSE; `2817` sits on a different pinout from
+     `2804`/`2816`). Deriving from a committed per-chip field is not a structural rule; regenerating
+     by pinout, family or part-number shape is, and remains forbidden.
+
+  3. A fail-closed gate proves the committed partition equals the `infoic.xml`-derived partition at
+     43/41/84, and is SEEN to fail under a planted single-chip re-bucketing. Phase 131's GATE-08
+     count gate is re-pointed at the derived source so the two cannot drift apart.
+
+  4. The derivation is reproducible from a clean checkout: the script is committed into
+     `firestarter_app` (not stranded in the archived v1.22 `120-*` phase directory), pinned to
+     minipro revision `a8efaedc236c1d9718bd28299dfbb99536b010ff`, and documented — including that
+     `tools/infoic*.xml` is gitignored and external, so the recipe must fetch it rather than assume
+     it. The exact token-matching rules Phase 120 measured are preserved: key on the **exact**
+     `part_number` token, strip the package suffix (`@SOIC28`), and **do NOT strip parentheticals** —
+     stripping `(Non-Standard)` collapses `AT28C64B(Non-Standard)` onto the separate `AT28C64B` entry
+     and fabricates a MIXED verdict.
+
+  5. Two recorded errors are corrected in-tree so the next reader does not repeat them:
+     `doc/lockable-proms.md` §17 lists "Atmel AT28C16 / 64 / 256" as SDP-capable, but `AT28C16`,
+     `AT28C16E,F` and plain `AT28C64` all measure b15=0 / `page_size=1` / byte-write; and the
+     "b15 ≈ page-write family marker" equivalence is refuted — b15 disagrees with `page_size > 1` on
+     **12 of 84**.
+
+**Plans**: TBD
+**Research flag**: SKIP — the derivation is already written, measured, and re-proven byte-identical
+against a live fetch; `.planning/notes/infoic-xml-protection-flags-research.md` plus the b15 memory
+carry every gotcha. The open work is committing and gating it, not discovering it.
+**Cross-cutting**: Run the CI-parity recipe before and after — this phase regenerates
+`chip_database.json`, which every other gate reads. At dispatch, name exactly which of PROV-01…PROV-06
+each plan may mark Complete.
+
 ### Phase 137: Close — Honesty Ledger, Claim Gate, gh#12 Follow-up
 
 **Goal**: The milestone's closing artifacts state exactly what was proven and exactly what wasn't, a
