@@ -245,3 +245,12 @@ pending.)
 ---
 *Phase: 137-close-honesty-ledger-claim-gate-gh12-followup*
 *Completed: 2026-08-05*
+
+## Self-Check: PASSED
+
+- FOUND: `137-05-SUMMARY.md`
+- FOUND: `137-GH12-COMMENT.md`
+- FOUND commit: `2f51572d` (Task 1)
+- FOUND commit: `3596604d` (operator-approved A-4 correction)
+- FOUND commit: `e886e03` (Task 3 freeze + operator batch/REQUIREMENTS.md update)
+- FOUND commit: `b0a2fdd4` (this SUMMARY)
