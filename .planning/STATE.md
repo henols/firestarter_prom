@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.30
 milestone_name: "SDP Surface Retirement & Behavioral Lock Proof"
-current_phase: 136.1
-current_phase_name: "SDP Partition Provenance"
+current_phase: 137
+current_phase_name: "Close — Honesty Ledger, Claim Gate, gh#12 Follow-up"
 status: executing
-stopped_at: "Completed 136.1-04-PLAN.md -- the phase's final (4th of 4) plan. Independently re-confirmed the 43 ALLOW / 41 REFUSE / 84-total SDP partition unchanged via a byte-for-byte diff against the ORIGINAL 120-sdp-partition.json, a fresh from-scratch tools/derive_sdp_partition.py re-run, and tests/test_sdp_db_invariant.py's 9/9 green (both partition-comparison legs agreeing). Appended 136.1-CI-PARITY.md's ## After (phase close) section with a measured whole-phase mypy/lint/test-count/coverage delta table (mypy headroom flat at 2, checked-files +2, full suite +10, coverage 0.00pp, partition delta 0). Authored 136.1-RECORD.md (Rule 2 deviation) carrying forward all five findings from Plans 136.1-01/02/03. Phase 136.1 is now plan-complete (4/4) with all six PROV requirements Complete. Ticks nothing new -- by design, the only requirement-ticking this plan owns is none."
-last_updated: "2026-08-05T16:55:10.997Z"
+stopped_at: "Completed 137-01-PLAN.md -- Wave 1 of 6 (sequential, worktree isolation OFF phase-wide). Authored the v1.30 claim gate (check_permitted_claims.py), hosted inside Phase 137's own directory so _DEFAULT_TARGETS resolves only via _HERE -- never a sibling-dir string constant, the exact v1.23 P-11 defect this plan exists to not repeat. 14 forbidden-phrase patterns (8 forked verbatim from Phase 122, 6 new v1.30-specific) plus a relational self-verifying rule. Committed 5 fixtures (2 clean, 3 planted-violation) and test_check_permitted_claims_v130.py (11/11 subprocess legs green), including the two mandatory P-11 target-resolution/basename legs -- both proven non-vacuous via two independent seen-to-fail-then-byte-identically-restored mutations. Currently UNARMED + exit 0 (correct; none of the four real closing artifacts exist yet -- they land in Plans 137-03/04/05). Ticks CLOSE-02 only."
+last_updated: "2026-08-05T17:42:04.999Z"
 last_activity: 2026-08-05
-last_activity_desc: "Phase 136.1 plan 136.1-04 complete (4 of 4 plans, phase close). Ran tools/ci_parity.sh and tools/ci_replica_venv.sh fresh from firestarter_app (parallel background runs, each independently verified complete): ci_parity.sh identical shape to ## Before / ## After PROV-01 (legs 1-3 exit 0, leg 4 exit 2 -- the documented devcontainer-numpy shape, not a regression); ci_replica_venv.sh CI-REPLICA: PASS, mypy errors 33 (watermark 35), checked 132 source files (up from 130 -- Plan 136.1-03's two new test files, inside mypy's CI-scanned tests/ path), full suite 1504 passed, coverage 82.14%. Re-ran tests/test_sdp_db_invariant.py explicitly: 9/9 green, both partition-comparison legs (the Phase-131 hand-curated snapshot and Plan 136.1-02's infoic-derived-field check) independently agreeing at 43 ALLOW / 41 REFUSE / 84 total. Independently re-derived the ALLOW set from chip_database.json via sdp_capability_for_entry and diffed it byte-for-byte against the ORIGINAL 120-sdp-partition.json (pre-Phase-136.1, pre-v1.30): zero entries differ, either direction. Re-ran tools/derive_sdp_partition.py against the cached pinned-commit XML: PASS, 43/41/84, zero disagreement against both sdp_capability_for_entry and the committed protect_on_after field. Confirmed firestarter/ (firmware submodule) untouched and no new pip/npm/cargo package installed anywhere across the whole phase. [Rule 2 deviation] Authored 136.1-RECORD.md: the phase close-out record carrying forward all five findings (PROV-05's stale requirement premise verified-not-re-authored per Phase 121 c3c9424; PROV-02's static-transcription-over-runtime-derive decision per the AST gate; PROV-06's 12-of-84 corroborated across independently different methodologies; the GATE-02 diff_db.py blast-radius fix; the 'committed NOTHING' process failure from a git-status-only check), the six PROV-0X requirements' final state, and the whole-phase CI-parity/cost ledger for Phase 137's honesty ledger to cite directly. Ticks nothing new -- all six PROV-0X requirements were already Complete before this plan ran (verified by grep at plan start). Phase 136.1 is now plan-complete (4/4); mirrors Phase 136's own precedent -- progress.completed_phases stays unchanged since no explicit phase-verification/close activity ran this session (that is a separate, later step, not owned by this plan's scope). Project-wide requirement state unchanged at 49 ticked / 7 open (CLOSE-01..06, RELOCK-07 -- all Phase 137's own scope). Commits: meta fd783947, 94877d6d, 31832378, 1cb5f5df."
+last_activity_desc: "Phase 137 plan 137-01 complete (1 of 6 plans, Wave 1). Forked the v1.30 claim gate's vocabulary from Phase 122's check_permitted_claims.py (8 forbidden AT28C/silicon patterns, verbatim) and its mechanics from Phase 123's copy (D-16 proximity window, D-15 all-or-nothing arming, hoisted never-vacuous guard), per PITFALLS.md P-11's exact prescription -- hosted inside Phase 137's own directory this time, with _DEFAULT_TARGETS built exclusively from _HERE (never a sibling-directory string constant), so a future naive copy cannot repeat the v1.23 defect of silently resolving elsewhere and passing vacuously. Added 6 v1.30-specific forbidden patterns (lock-inhibited-the-write, lock-held-unqualified, proven-behaviour, behaviourally-verified, now-proven, dev-test-proves-unqualified) plus a relational self-verifying rule (violation only when neither 'emission' nor the caveat is in the same 3-line window). Committed 5 fixtures and an 11-leg subprocess-only pytest suite (test_check_permitted_claims_v130.py), including the two mandatory P-11 legs (test_default_targets_resolve_inside_this_phase_directory, test_default_target_basenames_are_this_milestones). Both P-11 legs independently proven non-vacuous: renaming the 137-LEDGER.md default-target entry to 130-LEDGER.md flipped only the basename leg RED (dirname leg stayed green); joining one entry through os.pardir to escape _HERE flipped only the dir-resolution leg RED (basename leg stayed green). Both observed-RED messages recorded verbatim in 137-01-SUMMARY.md, both reverted byte-identically (diff empty), 11/11 re-confirmed green after each. Scanner run with no args prints UNARMED: naming all four 137-prefixed basenames, exit 0 -- correct and expected, since Plans 137-03 (137-LEDGER.md), 137-04 (137-RELEASE-NOTES-app.md) and 137-05 (137-GH12-COMMENT.md) author the four real artifacts later in this phase; only 137-06 may arm the gate for real and tick CLOSE-01. No sub-repo touched (confirmed: firestarter/ clean, firestarter_app/ shows only pre-existing dirt). Ticked CLOSE-02 only -- project-wide requirement state now 50 ticked / 6 open (CLOSE-01, CLOSE-03, CLOSE-04, CLOSE-05, CLOSE-06, RELOCK-07 remain, all later Phase 137 plans' own scope). Commits: meta a61a7814, fcd10742, 997b16b9, 855fbb66. [Hand-correction] progress.percent was found stale at 100 (inconsistent with the established completed_phases/total_phases convention confirmed at Phase 133 discuss: 4/7 = 57%, not 100) -- corrected here rather than left, per this plan's own STATE.md-corruption-watch instruction; progress.total_plans/completed_plans bumped to reflect Phase 137's 6 newly-authored plan files (df459487) and this plan's own completion. Tested `roadmap.update-plan-progress 137` (safe, added only blank-line formatting -- kept) and `state.update-progress` (UNSAFE this run -- corrupted milestone_name with an em-dash prepend, dropped current_phase_name's quoting, DELETED last_activity_desc entirely, and miscomputed total_phases 7->8 / completed_phases 4->6; reverted via snapshot diff and hand-edited instead, per this plan's own explicit instruction to diff against a pre-edit snapshot and hand-restore)."
 progress:
   total_phases: 7
   completed_phases: 4
-  total_plans: 42
-  completed_plans: 42
-  percent: 100
+  total_plans: 48
+  completed_plans: 43
+  percent: 57
 ---
 
 # Project State
@@ -29,10 +29,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-03 — v1.30 started)
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
 authoritative dispatch key end to end. v1.23 added a fourth board target *beneath* that contract
 without disturbing it.
-**Current focus:** Phase 134 — The Plan-Derived SDP Oracle in dev test
+**Current focus:** Phase 137 — Close: Honesty Ledger, Claim Gate, gh#12 Follow-up (Plan 137-01 of 6 complete)
 **v1.30 SDP Surface Retirement & Behavioral Lock Proof** — ACTIVE (activated
 2026-08-03 from the operator-queued slot of 2026-07-31, promoted from Backlog 999.25). Host-only
-(`firestarter_app`); **131, 132 and 133 CLOSED**, phases continue at **134**. v1.24–v1.27 remain queued and
+(`firestarter_app`); **131, 132, 133 and 134 CLOSED**; 136 and 136.1 plan-complete (no formal close
+record authored); phases continue at **137** (executing, 1/6 plans). v1.24–v1.27 remain queued and
 unscoped; v1.29 stays deliberately vacant.
 
 **⏸ Phase 135 (`write --sdp-relock`) DEFERRED 2026-08-03** by operator decision → ROADMAP Backlog
@@ -48,9 +49,41 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 
 ## Current Position
 
-Phase: 136.1 (SDP Partition Provenance) — 4/4 plans complete (phase plan-complete)
-Plan: 4 of 4 — 136.1-04 (phase close) COMPLETE. Next: Phase 137 (Close — Honesty Ledger, Claim Gate,
-gh#12 Follow-up), not yet planned (no phase directory exists).
+Phase: 137 (Close — Honesty Ledger, Claim Gate, gh#12 Follow-up) — 1/6 plans complete
+Plan: 1 of 6 — 137-01 (Wave 1, CLOSE-02) COMPLETE. Next: 137-02 (Wave 2, host-side
+`diagnostic_report.py` claim scan, CLOSE-03). **This phase must NOT be run under `--auto`/`--chain`**
+— Plan 137-05 carries a `checkpoint:human-action` gate (CLOSE-06).
+
+### Phase 137 plan 01 (2026-08-05) — COMPLETE
+
+`137-01-SUMMARY.md`: authored and hosted, inside Phase 137's own directory, the v1.30 claim gate
+(`check_permitted_claims.py`) — vocabulary forked verbatim from Phase 122's copy (8 forbidden
+AT28C/silicon patterns), mechanics forked from Phase 123's copy (D-16 proximity window, D-15
+all-or-nothing arming, hoisted never-vacuous guard), per PITFALLS.md P-11's exact prescription.
+`_DEFAULT_TARGETS` resolves exclusively via `_HERE` (this module's own directory, computed fresh
+from `__file__`) — no sibling-directory string constant anywhere in the file, avoiding by
+construction the exact defect that made v1.23's copy resolve to a stale sibling phase dir and pass
+vacuously. Added 6 v1.30-specific forbidden patterns (`lock-inhibited-the-write`,
+`lock-held-unqualified`, `proven-behaviour`, `behaviourally-verified`, `now-proven`,
+`dev-test-proves-unqualified` — 14 total) plus a relational `self-verifying` rule (violation only
+when neither "emission" nor the required caveat appears in the same 3-line proximity window).
+Suffixed env seam `FIRESTARTER_CLAIMSCAN_TARGETS_V130` and renamed test module
+`test_check_permitted_claims_v130.py` defuse a 3-way collision with the two prior unsuffixed
+copies still on disk. Committed 5 fixtures (2 clean, 3 planted-violation, each failing for one
+attributable reason) and an 11-leg subprocess-only pytest suite, 11/11 green, including the two
+**mandatory P-11 legs** (`test_default_targets_resolve_inside_this_phase_directory`,
+`test_default_target_basenames_are_this_milestones`) — both independently proven non-vacuous via
+two distinct deliberate-break controls, each observed RED verbatim then restored byte-identically
+(confirmed empty diff), with each mutation flipping only its own leg and leaving the other green.
+Scanner run with no arguments currently prints `UNARMED:` naming all four `137-`-prefixed
+basenames and exits 0 — correct and expected, since none of the four real closing artifacts
+(`137-LEDGER.md`, `137-DECISION.md`, `137-RELEASE-NOTES-app.md`, `137-GH12-COMMENT.md`) exist yet;
+they are authored by Plans 137-03/04/05, and only Plan 137-06 may arm the gate for real and tick
+CLOSE-01. No sub-repo touched (verified: `firestarter/` clean, `firestarter_app/` shows only
+pre-existing dirt). **One requirement ticked: CLOSE-02** — the only one this plan may discharge.
+Project-wide requirement state: **50 ticked / 6 open** (`CLOSE-01`, `CLOSE-03`, `CLOSE-04`,
+`CLOSE-05`, `CLOSE-06`, `RELOCK-07` remain — all later Phase 137 plans' own scope). Commits: meta
+`a61a7814`, `fcd10742`, `997b16b9`, `855fbb66`.
 
 ### Phase 136.1 plan 04 (2026-08-05) — COMPLETE
 
@@ -1488,6 +1521,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 136.1 P02]: tools/derive_sdp_partition.py duplicates _select_0x0d_chips locally rather than importing from tests/ -- the script must stay fully standalone, never coupled to the test suite's internals
 - [Phase 136.1 Plan 04]: Authored 136.1-RECORD.md (Rule 2 deviation, not in the plan's own files_modified list) -- the dispatching orchestrator's own success criteria explicitly required a close-out record carrying forward all five findings from Plans 136.1-01/02/03, distinct from the pure CI-parity number table
 - [Phase 136.1 Plan 04]: Independently re-derived the SDP ALLOW set from chip_database.json via sdp_capability_for_entry and diffed it byte-for-byte against the ORIGINAL, pre-milestone 120-sdp-partition.json (never any in-phase snapshot) -- zero entries differ, the phase's most independent 43/41/84 re-confirmation
+- [Phase 137 Plan 01]: Forked Phase 122's 8 forbidden patterns verbatim (vocabulary donor) and Phase 123's proximity-window/all-or-nothing-arming mechanics (mechanics donor), per PITFALLS.md P-11's exact prescription, rather than re-deriving either from scratch -- both donors are individually correct for their own milestone, only unsafe to copy wholesale.
+- [Phase 137 Plan 01]: Ran BOTH mandatory P-11 legs' deliberate-break controls (the plan's own Task 3 acceptance criteria named only one) to satisfy the orchestrator's explicit "both target-resolution legs present and non-vacuous" success criterion -- each mutation independently confirmed to flip only its own leg red and leave the other green, proving the two legs test genuinely different properties.
+- [Phase 137 Plan 01]: `state.update-progress` (gsd-sdk) is UNSAFE in this repo -- one call corrupted `milestone_name` (em-dash prepend), dropped `current_phase_name`'s quoting, DELETED `last_activity_desc` entirely, and miscomputed `total_phases`/`completed_phases` (7/4 -> 8/6, both wrong). Reverted via pre-call snapshot diff and hand-edited STATE.md's frontmatter and body directly instead, per this plan's own explicit corruption-watch instruction. `roadmap.update-plan-progress 137` was separately confirmed SAFE (added only blank-line formatting around the Phase 137 plan list) and its output was kept.
+- [Phase 137 Plan 01]: Corrected `progress.percent` from a stale 100 to 57 (4/7, `completed_phases`/`total_phases`) -- the established convention confirmed at the Phase 133 discuss session; 100 was pre-existing drift, not introduced by this plan, discovered while hand-verifying the frontmatter this plan's own instructions required.
 
 ## Performance Metrics
 
@@ -1689,11 +1726,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 136.1 P01 | 36min | 3 tasks | 6 files |
 | Phase 136.1 P02 | 22min | 3 tasks | 4 files |
 | Phase 136.1 P04 | 21min | 1 tasks | 3 files |
+| Phase 137 P01 | 20min | 3 tasks | 8 files |
 
 ## Session
 
-**Last session:** 2026-08-05T16:55:10.975Z
-**Stopped at:** Completed 136.1-04-PLAN.md (phase 136.1 close; phase now plan-complete 4/4)
+**Last session:** 2026-08-05T17:42:04.999Z
+**Stopped at:** Completed 137-01-PLAN.md (Wave 1 of 6; CLOSE-02 ticked; next is 137-02)
 **Resume file:** None
 
 ### Blockers
