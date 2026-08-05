@@ -1,20 +1,20 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.30
-milestone_name: "SDP Surface Retirement & Behavioral Lock Proof"
-current_phase: 137
-current_phase_name: "Close — Honesty Ledger, Claim Gate, gh#12 Follow-up"
-status: complete
-stopped_at: "Completed 137-06-PLAN.md -- Wave 6 of 6, the LAST plan of Phase 137 and of v1.30's last active phase. Task 1 replaced the stale UNARMED-expecting test with test_armed_and_green_against_the_four_real_artifacts and re-ran check_permitted_claims.py with no arguments for the first genuinely-armed run of this gate in the milestone: PASS: scanned 137-LEDGER.md, 137-DECISION.md, 137-RELEASE-NOTES-app.md, 137-GH12-COMMENT.md, exit 0, 11/11 tests passing -- CLOSE-01 discharged. Task 2 re-ran the CI-parity recipe one final time over the whole milestone diff: ci_parity.sh legs 1-3 exit 0 / leg 4 exit 2 (documented devcontainer shape, unchanged); ci_replica_venv.sh CI-REPLICA: PASS, mypy 33/35 (watermark NOT moved), checked 129 (down from 132, reconciled to plan 137-02's tests/fixtures/ mypy exclude), full suite 1508 passed, coverage 82.14%; SDP partition re-derived three ways, unchanged at 43/41/84; firmware submodule confirmed untouched, zero new package installs. Task 3 ticked CLOSE-01 in REQUIREMENTS.md (citing the live PASS: line), finalized v1.30-OPERATOR-BATCH.md with a PHASE 137 COMPLETE section naming the two remaining operator actions (A-2 push+PR, A-1's gh issue comment follow-up), and authored 137-RECORD.md (six sections: requirement accounting, the ROADMAP's six success criteria discharged, corrections carried forward, residuals, Evidence Ceiling restated, hand-off). CLOSE-06 deliberately NOT ticked -- stays [ ] open by explicit, repeated operator/orchestrator instruction, overriding this plan's own stale PLAN.md acceptance criterion (which had literally expected 56/56 ticked, 0 open -- documented as a plan-text staleness deviation in 137-RECORD.md section 1 and the plan's own SUMMARY). Project-wide requirement state, freshly measured: 55 ticked / 1 open (CLOSE-06). v1.30 is now ready for /gsd-complete-milestone once the operator completes the two named actions."
-last_updated: "2026-08-05T20:45:00.000Z"
+milestone_name: — SDP Surface Retirement & Behavioral Lock Proof
+current_phase: 30
+status: Awaiting next milestone
+stopped_at: Completed 137-04-PLAN.md (Wave 4 of 6; CLOSE-05 + RELOCK-07 ticked; next is 137-05)
+last_updated: "2026-08-05T20:48:06.029Z"
 last_activity: 2026-08-05
-last_activity_desc: "Phase 137 plan 137-06 complete (6 of 6 plans, Wave 6) -- Phase 137 CLOSED, and this is v1.30's last active phase. Task 1: replaced test_unarmed_when_zero_of_four_default_targets_exist with test_armed_and_green_against_the_four_real_artifacts; ran check_permitted_claims.py with no arguments (the real defaults) for the first genuinely-armed run of this gate in the milestone -- PASS: scanned all four real closing artifacts, exit 0, 11/11 paired-suite tests passing. This is CLOSE-01's literal discharge. Task 2: re-ran the CI-parity recipe one final time over the whole milestone diff per ROADMAP's cross-cutting instruction -- ci_parity.sh unchanged in shape from every prior phase (legs 1-3 exit 0, leg 4 exit 2, documented ambient-numpy devcontainer artifact); ci_replica_venv.sh CI-REPLICA: PASS, mypy 33/35 with the watermark explicitly NOT moved, checked 129 source files (down from the Phase 136.1 baseline of 132, reconciled to plan 137-02's own tests/fixtures/ mypy-exclude fix, still 9 above the 120 floor), full suite 1508 passed (matching the Phase 136.1 baseline of 1504 plus plan 137-02's own 4 new tests), coverage 82.14% unmoved; the 43/41/84 SDP partition independently re-derived three ways this plan alone, unchanged across the whole milestone; firmware submodule confirmed untouched, zero new package installs confirmed across the whole phase's commit range. 137-CI-PARITY.md records both a Before (Phase 136.1 close) and After (this plan) section plus a whole-milestone summary table (Phases 131 through 137). Task 3: ticked CLOSE-01 in REQUIREMENTS.md citing the live PASS: line as evidence; finalized v1.30-OPERATOR-BATCH.md with a new PHASE 137 COMPLETE section presenting the two remaining operator actions (A-2: push branch + open beta PR; A-1: the named gh issue comment follow-up, to run only after A-2 confirms the removal is live) as one list per the file's own standing header instruction; authored 137-RECORD.md with all six mandated sections (requirement accounting for all seven of this phase's own requirements; the ROADMAP's six success criteria quoted and discharged with named evidence; corrections carried forward -- the six 137-LEDGER.md-mandated corrections plus this phase's own two, the RELOCK-07 fifth citation drift and the CLOSE-06 posting-precondition timing decision; residuals including the still-unowned mypy watermark ratchet and gh#20's still-open defect; the Evidence Ceiling restated verbatim from 134-RECORD.md section 7; hand-off naming the fresh project-wide count and the two remaining operator actions). CLOSE-06 was deliberately NOT ticked by this plan -- it stays [ ] open by explicit, repeated operator/orchestrator instruction (137-05's own prior decision, reaffirmed in this plan's own dispatch context), which directly overrides this plan's own PLAN.md text (Task 3's acceptance criteria and step-6 narration had literally expected a 56/56-ticked, zero-open final state -- a genuine plan-authoring staleness, documented in full with both readings in 137-RECORD.md section 1 and this plan's own SUMMARY, not silently reconciled by ticking CLOSE-06 to force the stale script green). Project-wide requirement state, freshly measured: 55 ticked / 1 open (CLOSE-06, held open by design, with its own annotated row and the exact single closing command already recorded in both REQUIREMENTS.md and v1.30-OPERATOR-BATCH.md). No sub-repo commit this plan (pure meta-repo documentation; firestarter_app's tracked gitlink cc036e8 confirmed unchanged before and after). Commits: meta 0efd4072 (Task 1), 01fbb57a (Task 2), 22ac6237 (Task 3), 6b1fdd2c (SUMMARY). v1.30 is now ready for /gsd-complete-milestone once the operator completes the two named remaining actions."
+last_activity_desc: Milestone v1.30 completed and archived
 progress:
-  total_phases: 7
-  completed_phases: 5
+  total_phases: 8
+  completed_phases: 7
   total_plans: 48
   completed_plans: 48
-  percent: 100
+  percent: 88
+current_phase_name: "Close — Honesty Ledger, Claim Gate, gh#12 Follow-up"
 ---
 
 # Project State
@@ -51,12 +51,10 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 
 ## Current Position
 
-Phase: 137 (Close — Honesty Ledger, Claim Gate, gh#12 Follow-up) — 6/6 plans complete, **PHASE CLOSED**
-Plan: 6 of 6 — 137-06 (Wave 6, phase close: claim gate armed and green against all four real closing
-artifacts, final whole-milestone CI-parity recipe, operator batch finalized, `137-RECORD.md` authored)
-COMPLETE. **This was the last plan of v1.30's last active phase.** Next: the operator's two remaining
-actions (`.planning/v1.30-OPERATOR-BATCH.md`'s "PHASE 137 COMPLETE" section: A-2 push+PR, then A-1's
-named `gh issue comment` follow-up), then `/gsd-complete-milestone`.
+Phase: Milestone v1.30 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-08-05 — Milestone v1.30 completed and archived
 
 ### Phase 137 plan 06 (2026-08-05) — COMPLETE — PHASE 137 CLOSED
 
@@ -594,7 +592,38 @@ Plus the owed gh#12 outward follow-up, behind operator wording review.
 
 ## Deferred Items
 
-Items acknowledged and deferred at the v1.23 milestone close on **2026-08-03**. Closeout type:
+Items acknowledged and deferred at the **v1.30** milestone close on **2026-08-05**. Closeout type:
+`override_closeout`. **Known verification overrides: 14.** **None of the 14 `audit-open` items
+originate in v1.30** (Phases 131–137) — every v1.30 phase completed with a RECORD, and the milestone's
+own verification passed. This is the identical carry-forward set re-confirmed at the v1.18, v1.19,
+v1.20, v1.21, v1.22 and v1.23 closes, making this the **seventh** consecutive acknowledgement.
+
+**Plus one v1.30-native open requirement, deliberately held open — not an oversight:**
+
+| Category | Item | Status |
+|----------|------|--------|
+| requirement | **CLOSE-06** — gh#12 follow-up reply | **OPEN by operator decision.** The requirement reads "the reply *is posted*", and it is not. Wording was approved and the text frozen at `137-GH12-COMMENT.md`; posting is blocked because the removal has not shipped (verified 2026-08-05: deletion commit `259a0f0` is not an ancestor of `origin/beta`; PyPI's highest prerelease is still `3.0.0b15`). Ticking it would have been a false claim in the milestone whose claim gate exists to catch exactly that. v1.30 closes at **55/56**. Discharged by one command after the beta ships — see `.planning/v1.30-OPERATOR-BATCH.md` A-1. |
+
+**Carry-forward set (14), re-confirmed 2026-08-05:**
+
+| Category | Item | Status |
+|----------|------|--------|
+| debug | firmware-vpp-misread | diagnosed |
+| debug | fm1608-fresh-chip-baseline | parked-2026-05-18 |
+| uat | Phase 08 — `08-HUMAN-UAT.md` | partial (0 pending scenarios) |
+| uat | Phase 85 — `85-HUMAN-UAT.md` | partial (2 pending scenarios) |
+| verification | Phase 08 — `08-VERIFICATION.md` | human_needed |
+| verification | Phase 09 — `09-VERIFICATION.md` | human_needed |
+| verification | Phase 71 — `71-VERIFICATION.md` | gaps_found |
+| verification | Phase 84 — `84-VERIFICATION.md` | human_needed |
+| verification | Phase 85 — `85-VERIFICATION.md` | human_needed |
+| todos | 5 pending (incl. 2 filed *by* v1.30: `at28c256-write-path-failure-gh20.md`, `build-db-diff-ladder-state-community-reported-regression.md`, both `Owner: henols`) | pending |
+
+---
+
+## Deferred Items — acknowledged at v1.23 milestone close (2026-08-03)
+
+Closeout type:
 `override_closeout`. **Known verification overrides: 15.** None of the 14 `audit-open` items
 originate in v1.23 (Phases 123–130) — they are the identical carry-forward set re-confirmed at the
 v1.18, v1.19, v1.20, v1.21 and v1.22 closes, making this the **sixth** consecutive acknowledgement.
@@ -1201,56 +1230,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Operator Next Steps
 
-- **v1.23 is CLOSED, archived and tagged.** Next: `/clear` then `/gsd-new-milestone`. The
-  operator-queued next slot is **v1.30 SDP Surface Retirement & Behavioral Lock Proof** (decision
-  2026-07-31); v1.24 Bus-Config Mask-Model, v1.25 Jumper-Display/2516, v1.26 White-Box Voltage
-  Calibration and v1.27 Per-Protocol EPROM Algorithms remain queued and unscoped.
-
-- **⚠ GSD footgun, hit AGAIN at this close — and it is the same unanchored-regex class as 2026-07-30.**
-  `gsd-tools query milestone.complete` corrupted STATE.md's frontmatter: it wrote
-  `milestone_name: — PY32F071 Integration\` section below.` (prose scraped out of `ROADMAP.md`),
-  reset `current_phase` from `130` to `23`, appended a **duplicate** `current_phase_name` key after
-  the `progress` block, and replaced the whole *Current Position* and *Operator Next Steps* bodies
-  with one-liners. All repaired by hand during the close. The same regex class previously created the
-  stray branch `gsd/v1.23-py32f071-integration-section-below` and, at the v1.22 close, silently
-  switched the checkout to a divergent branch and reverted the gitlinks. **Always `git diff` STATE.md
-  after any `gsd-tools` state write, and `git rev-parse --abbrev-ref HEAD` after any
-  `gsd-tools query commit`.**
-
-- **⚠ Carry into the next merge toward `main`** (still owed, unchanged since v1.22): reintroduce
-  `firestarter_app`'s `81fa53c`, or `ci.yml`'s standalone-checkout failure resurfaces. Note that
-  **`main` has still never been merged** in any of the three repos, so this remains latent.
-
-- **⚠ Before any push to a sub-repo `beta`, point the sibling checkout root at an empty directory
-  first.** This devcontainer *has* the sibling layout standalone CI lacks, which is exactly why three
-  CI-only sibling-checkout test defects fired simultaneously on the real b15 push and were invisible
-  locally. Two out-of-plan fixes (`firestarter` `1c511e8`, `firestarter_app` `5934a54`) landed on
-  `beta` during the hand-off, and one of them **softened a Phase-129-authored hard assert**
-  (`test_present_root_with_missing_target_raises_not_skips`) to a skip — a defect-class change worth
-  revisiting, not a routine fix.
-
-- **Schedule, don't re-acknowledge:** the same 14 `audit-open` items have now been acknowledged at
-  **six** consecutive closes (see *Deferred Items* above). Also still RED and self-contained:
-  `check_ledger.py`'s 2 `LEDGER-01` violations from v1.19 Phase 104's rename.
-
-- **A gate-hardening phase is the clearest single piece of debt.** `check_mypy_watermark.py` is
-  fail-open and hid 69 errors; `firestarter_app`'s primary `ci` job is RED because of them. The
-  fail-OPEN `_FW_ABSENT` idiom was fixed for the host suite in Phase 123 but **six modules shared it**
-  — worth confirming none survive.
-
-- **Watch the community inbox — it is NOT clear, and the v1.23 close explicitly says so.**
-  [gh#20](https://github.com/henols/firestarter_prom/issues/20) (AT28C256 `dev test` FAIL, reported
-  2026-07-30) and [gh#18](https://github.com/henols/firestarter_prom/issues/18) (FM1608 `dev test`
-  PASS) both arrived *after* the 2026-07-27 backlog import that stopped at gh#17 and were out of
-  scope for v1.23. [gh#11](https://github.com/henols/firestarter_prom/issues/11) /
-  [gh#12](https://github.com/henols/firestarter_prom/issues/12) also stay OPEN — real AT28C silicon
-  is still the only thing that can move `0x0D` off `UNVERIFIED`.
-
-- **Optional housekeeping, deliberately not done as a close side effect:** the two v1.23 worktrees
-  (`firestarter_py32_ci/` @ `ad47c3b`, `firestarter_app_py32/` @ `4ee64a1`) are spent — both source
-  branches' content is merged and published — and can be removed with `git worktree remove`. The
-  stray branch `gsd/v1.23-py32f071-integration-section-below` is a tooling artifact and can be
-  deleted.
+- Start the next milestone with /gsd-new-milestone
 
 ## Decisions
 
