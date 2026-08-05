@@ -494,25 +494,46 @@ only legitimate use case the deleted command served.
       Baseline measured 2026-08-05: the file today has **zero** such fields (`grep -c` returns 0 for
       `flags`, `protect_off_before` and `protect_on_after`).
 
-- [ ] **PROV-02**: The ALLOW/REFUSE partition is derived from the committed b15 field rather than the
+- [x] **PROV-02**: The ALLOW/REFUSE partition is derived from the committed b15 field rather than the
       65-token `SDP_CAPABLE_TOKENS` transcription — or the transcription survives only alongside a
       gate proving it EQUAL to the derived answer. Phase 120's finding still binds: **no structural
       rule works and none ever will** (`DIP28_28C64` splits 15/20; `2817` differs in pinout from
       `2804`/`2816`). A committed per-chip field is not a structural rule; family/pinout/name-shape
       regeneration is, and stays forbidden.
+      Evidence: the transcription branch was taken, not the runtime-derive branch — `SDP_CAPABLE_TOKENS`
+      stays a static `frozenset` literal, unchanged, gated by
+      `tools/check_sdp_capability_invariants.py` (untouched, re-confirmed `PASS`, `firestarter_app`
+      commit `73739d5`, 136.1-02). It survives only alongside `test_sdp_db_invariant.py::
+      test_sdp_partition_matches_infoic_derived_field_element_wise` (same commit), which proves it
+      EQUAL, element-wise, to `chip_database.json`'s own `protect_on_after` field.
 
-- [ ] **PROV-03**: A fail-closed gate proves the committed partition equals the `infoic.xml`-derived
+- [x] **PROV-03**: A fail-closed gate proves the committed partition equals the `infoic.xml`-derived
       partition at 43/41/84, and is **seen to fail** under a planted single-chip re-bucketing, with
       the observed message recorded. Phase 131's GATE-08 is re-pointed at the derived source so the
       count gate and the partition cannot drift apart.
+      Evidence: `firestarter_app` commit `73739d5` (136.1-02 Task 1) — GATE-08 leg 1
+      (`test_sdp_partition_matches_infoic_derived_field_element_wise`), both sides independently
+      measuring 43/41/84, plus its synthetic non-vacuity proof
+      (`test_partition_flags_a_moved_chip_via_db_field_non_vacuous`). Seen-to-fail: a real, planted
+      single-chip re-bucketing on the committed `chip_database.json` (`ATMEL/AT28C256,...`'s
+      `protect_on_after` flipped `true`→`false`) produced the exact chip-naming FAIL recorded verbatim
+      in `.planning/phases/136.1-sdp-partition-provenance/136.1-02-SEEN-TO-FAIL.md` (meta commit
+      `c897b18`), then the file was restored byte-identically (`git diff --stat` empty) and the suite
+      re-confirmed green (9/9).
 
-- [ ] **PROV-04**: The derivation is reproducible from a clean checkout — script committed into
+- [x] **PROV-04**: The derivation is reproducible from a clean checkout — script committed into
       `firestarter_app` rather than stranded in the archived v1.22 `120-*` phase directory, pinned to
       minipro revision `a8efaedc236c1d9718bd28299dfbb99536b010ff`, and documented as needing a fetch
       because `tools/infoic*.xml` is gitignored and absent. Phase 120's exact matching rules are
       preserved: key on the exact `part_number` token, strip the package suffix (`@SOIC28`), and **do
       not strip parentheticals** — stripping `(Non-Standard)` collapses `AT28C64B(Non-Standard)` onto
       the separate `AT28C64B` entry and fabricates a MIXED verdict.
+      Evidence: `firestarter_app/tools/derive_sdp_partition.py`, commit `dc5bfbe` (136.1-02 Task 3) —
+      fetches `MINIPRO_XML_URL` live by default or reads `INFOIC_XML_PATH` if set (`grep -c scratchpad`
+      returns 0 in the script's own source); preserves Phase 120's token rule verbatim, cited to
+      `120-derive-sdp-allowset.py`. Run once against the cached, verified pinned-commit XML: **43
+      ALLOW / 41 REFUSE / 84 total, zero disagreement** against both
+      `sdp_capability_for_entry` and `chip_database.json`'s own `protect_on_after` field, exit 0.
 
 - [ ] **PROV-05**: `doc/lockable-proms.md` §17's claim that "Atmel AT28C16 / 64 / 256" are SDP-capable
       is corrected — `AT28C16`, `AT28C16E,F` and plain `AT28C64` all measure b15=0 / `page_size=1` /
@@ -651,9 +672,9 @@ Populated during roadmap creation.
 | CHAN-06 | Phase 136 | Complete |
 | CHAN-07 | Phase 136 | Complete |
 | PROV-01 | Phase 136.1 | Complete |
-| PROV-02 | Phase 136.1 | Pending |
-| PROV-03 | Phase 136.1 | Pending |
-| PROV-04 | Phase 136.1 | Pending |
+| PROV-02 | Phase 136.1 | Complete |
+| PROV-03 | Phase 136.1 | Complete |
+| PROV-04 | Phase 136.1 | Complete |
 | PROV-05 | Phase 136.1 | Pending |
 | PROV-06 | Phase 136.1 | Pending |
 | CLOSE-01 | Phase 137 | Pending |

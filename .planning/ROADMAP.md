@@ -818,7 +818,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 136.1-02-PLAN.md — re-point GATE-08 at the infoic-derived DB field (added alongside, not instead
+- [x] 136.1-02-PLAN.md — re-point GATE-08 at the infoic-derived DB field (added alongside, not instead
   of, the existing hand-curated snapshot check), a live seen-to-fail demonstration on the real committed
   file, and the committed fetch-based independent re-derivation script [PROV-02, PROV-03, PROV-04]
 
