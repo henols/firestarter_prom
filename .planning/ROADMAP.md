@@ -822,7 +822,7 @@ Plans:
   of, the existing hand-curated snapshot check), a live seen-to-fail demonstration on the real committed
   file, and the committed fetch-based independent re-derivation script [PROV-02, PROV-03, PROV-04]
 
-- [ ] 136.1-03-PLAN.md — verify/durably gate doc/lockable-proms.md §17's AT28C16/64/plain-AT28C64
+- [x] 136.1-03-PLAN.md — verify/durably gate doc/lockable-proms.md §17's AT28C16/64/plain-AT28C64
   correction and refute the b15-≈-page-write-family-marker equivalence in-tree, measured [PROV-05,
   PROV-06]
 

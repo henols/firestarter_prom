@@ -535,14 +535,37 @@ only legitimate use case the deleted command served.
       ALLOW / 41 REFUSE / 84 total, zero disagreement** against both
       `sdp_capability_for_entry` and `chip_database.json`'s own `protect_on_after` field, exit 0.
 
-- [ ] **PROV-05**: `doc/lockable-proms.md` §17's claim that "Atmel AT28C16 / 64 / 256" are SDP-capable
+- [x] **PROV-05**: `doc/lockable-proms.md` §17's claim that "Atmel AT28C16 / 64 / 256" are SDP-capable
       is corrected — `AT28C16`, `AT28C16E,F` and plain `AT28C64` all measure b15=0 / `page_size=1` /
       byte-write. This error has now been reproduced twice from part-number familiarity, most recently
       in this milestone's own conversation, which is why it is a requirement and not a footnote.
+      **Stale premise, recorded honestly:** measured 2026-08-05 at plan `136.1-03` dispatch, the wrong
+      claim was already ABSENT — `doc/lockable-proms.md:295-296` already states the corrected fact,
+      landed by **Phase 121 plan `121-13`, commit `c3c9424`**, well before v1.30 was scoped. This
+      requirement's error was the maintainer's own memory, reproduced from part-number familiarity, not
+      a live defect in the file. Plan `136.1-03` did not re-author the fix (there was nothing to fix);
+      it verified the correction is present, confirmed no other stale copy exists anywhere in
+      `firestarter_app` (whole-tree grep, zero hits), and durably gates it going forward.
+      Evidence: `firestarter_app` commit `c9f98b8` (136.1-03 Task 1) —
+      `tests/test_lockable_proms_doc_claims.py` (4 tests): asserts the `:295` AT28C64B/AT28C256
+      SDP-capable row, the `:296` AT28C16/plain-AT28C64 not-SDP-capable row and its explicit contrast
+      clause, a narrow negative regex for the historical wrong shorthand (`AT28C16 / 64 / 256`) absent
+      from the doc, and the same regex absent from every other `*.md`/`*.py`/`*.txt` file in the tree.
 
-- [ ] **PROV-06**: The "b15 ≈ page-write family marker" equivalence is refuted in-tree with its
+- [x] **PROV-06**: The "b15 ≈ page-write family marker" equivalence is refuted in-tree with its
       measurement: b15 disagrees with `page_size > 1` on **12 of 84** entries. A reader must not be
       able to substitute `page_size` for b15 and believe they have the same axis.
+      Evidence: `firestarter_app` commit `31b5d74` (136.1-03 Task 2) —
+      `tests/test_b15_page_size_corroboration.py` (4 tests): reads `chip_database.json`'s own
+      `protect_on_after`/`infoic_page_size_raw` fields (Plan 136.1-01, no `.get()` default) for all 84
+      `algorithm==13` entries; a non-vacuity check against 5 hand-counted synthetic pairs (2
+      disagreements) passes before the real-data assertion; measured fresh against the real DB:
+      **12 of 84 disagree**, every one named by key in the module docstring and cross-checked by set
+      (not just count). This confirms Phase 120's original figure via an independently different
+      methodology (this test's per-row single-value comparison vs. Phase 120's cross-token-set
+      matching) — the two happen to agree here; that is stated as a corroboration, not assumed.
+      `git diff --stat -- firestarter/sdp_capability.py` empty throughout — Plan 136.1-02's file left
+      untouched.
 
 ### Close — Honesty Ledger, Claim Gate, Outward Follow-up (CLOSE)
 
@@ -675,8 +698,8 @@ Populated during roadmap creation.
 | PROV-02 | Phase 136.1 | Complete |
 | PROV-03 | Phase 136.1 | Complete |
 | PROV-04 | Phase 136.1 | Complete |
-| PROV-05 | Phase 136.1 | Pending |
-| PROV-06 | Phase 136.1 | Pending |
+| PROV-05 | Phase 136.1 | Complete |
+| PROV-06 | Phase 136.1 | Complete |
 | CLOSE-01 | Phase 137 | Pending |
 | CLOSE-02 | Phase 137 | Pending |
 | CLOSE-03 | Phase 137 | Pending |
