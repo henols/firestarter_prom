@@ -828,7 +828,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 136.1-04-PLAN.md — phase-close CI-parity/mypy record and a final, independent re-assertion that the
+- [x] 136.1-04-PLAN.md — phase-close CI-parity/mypy record and a final, independent re-assertion that the
   43/41/84 split is byte-for-byte unchanged from before this phase began [ticks nothing new]
 **Research flag**: SKIP — the derivation is already written, measured, and re-proven byte-identical
 against a live fetch; `.planning/notes/infoic-xml-protection-flags-research.md` plus the b15 memory

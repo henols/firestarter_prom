@@ -5,16 +5,16 @@ milestone_name: "SDP Surface Retirement & Behavioral Lock Proof"
 current_phase: 136.1
 current_phase_name: "SDP Partition Provenance"
 status: executing
-stopped_at: "Completed 136.1-03-PLAN.md -- doc/lockable-proms.md section 17's AT28C16/64/plain-AT28C64 correction (PROV-05) was verified ALREADY PRESENT (landed by Phase 121 plan 121-13, commit c3c9424, well before v1.30 was scoped -- the requirement's premise was stale, not the file) and durably gated by a new test module; the b15-vs-page_size equivalence (PROV-06) was refuted with a fresh, measured, non-vacuous count (12 of 84 disagree, every chip named, confirming Phase 120's figure via an independently different methodology). Phase 136.1's 3rd of 4 plans. Zero deviations -- both branches fired as expected (already-correct-verified for PROV-05, measured-matches-12 for PROV-06). PROV-05, PROV-06 ticked (the only two requirements this plan may mark complete)."
-last_updated: "2026-08-05T16:25:20.000Z"
+stopped_at: "Completed 136.1-04-PLAN.md -- the phase's final (4th of 4) plan. Independently re-confirmed the 43 ALLOW / 41 REFUSE / 84-total SDP partition unchanged via a byte-for-byte diff against the ORIGINAL 120-sdp-partition.json, a fresh from-scratch tools/derive_sdp_partition.py re-run, and tests/test_sdp_db_invariant.py's 9/9 green (both partition-comparison legs agreeing). Appended 136.1-CI-PARITY.md's ## After (phase close) section with a measured whole-phase mypy/lint/test-count/coverage delta table (mypy headroom flat at 2, checked-files +2, full suite +10, coverage 0.00pp, partition delta 0). Authored 136.1-RECORD.md (Rule 2 deviation) carrying forward all five findings from Plans 136.1-01/02/03. Phase 136.1 is now plan-complete (4/4) with all six PROV requirements Complete. Ticks nothing new -- by design, the only requirement-ticking this plan owns is none."
+last_updated: "2026-08-05T16:55:10.997Z"
 last_activity: 2026-08-05
-last_activity_desc: "Phase 136.1 plan 136.1-03 complete (3 of 4 plans). Task 1 verified doc/lockable-proms.md section 17 (:295-296) ALREADY states the corrected AT28C16/64/plain-AT28C64 fact -- landed by Phase 121 plan 121-13, commit c3c9424, well before this phase (136.1) existed; PROV-05's own premise (a maintainer memory note) was stale, not the file. Authored tests/test_lockable_proms_doc_claims.py (4 tests): asserts both corrected table rows verbatim-in-substance, a narrow negative regex for the historical wrong shorthand 'AT28C16 / 64 / 256' absent from the doc, and the same regex absent whole-tree (scanned every *.md/*.py/*.txt file, zero hits outside the corrected row itself). Task 2 authored tests/test_b15_page_size_corroboration.py (4 tests): reads chip_database.json's protect_on_after/infoic_page_size_raw fields (Plan 136.1-01, no .get() default) for all 84 algorithm==13 entries; a non-vacuity check against 5 hand-counted synthetic pairs (2 disagreements) passes before the real-data assertion; measured fresh against the real DB: 12 of 84 disagree, every chip named by key and cross-checked by set -- confirming Phase 120's original figure via an independently DIFFERENT methodology (this test's per-row single-value comparison vs. Phase 120's cross-token-set matching), stated as a corroboration, not assumed. Never touched firestarter/sdp_capability.py (Plan 136.1-02's file this wave) -- git diff --stat empty throughout, confirmed by a structural test. Full suite re-confirmed 1504 passed (+8 from the two new test modules, exactly). Zero deviations -- plan executed exactly as written; both non-vacuity/verification branches fired the expected way. PROV-05, PROV-06 ticked -- the only two requirements this plan may mark complete. Next: Plan 136.1-04 (phase close: final CI-parity record + independent 43/41/84 re-assertion)."
+last_activity_desc: "Phase 136.1 plan 136.1-04 complete (4 of 4 plans, phase close). Ran tools/ci_parity.sh and tools/ci_replica_venv.sh fresh from firestarter_app (parallel background runs, each independently verified complete): ci_parity.sh identical shape to ## Before / ## After PROV-01 (legs 1-3 exit 0, leg 4 exit 2 -- the documented devcontainer-numpy shape, not a regression); ci_replica_venv.sh CI-REPLICA: PASS, mypy errors 33 (watermark 35), checked 132 source files (up from 130 -- Plan 136.1-03's two new test files, inside mypy's CI-scanned tests/ path), full suite 1504 passed, coverage 82.14%. Re-ran tests/test_sdp_db_invariant.py explicitly: 9/9 green, both partition-comparison legs (the Phase-131 hand-curated snapshot and Plan 136.1-02's infoic-derived-field check) independently agreeing at 43 ALLOW / 41 REFUSE / 84 total. Independently re-derived the ALLOW set from chip_database.json via sdp_capability_for_entry and diffed it byte-for-byte against the ORIGINAL 120-sdp-partition.json (pre-Phase-136.1, pre-v1.30): zero entries differ, either direction. Re-ran tools/derive_sdp_partition.py against the cached pinned-commit XML: PASS, 43/41/84, zero disagreement against both sdp_capability_for_entry and the committed protect_on_after field. Confirmed firestarter/ (firmware submodule) untouched and no new pip/npm/cargo package installed anywhere across the whole phase. [Rule 2 deviation] Authored 136.1-RECORD.md: the phase close-out record carrying forward all five findings (PROV-05's stale requirement premise verified-not-re-authored per Phase 121 c3c9424; PROV-02's static-transcription-over-runtime-derive decision per the AST gate; PROV-06's 12-of-84 corroborated across independently different methodologies; the GATE-02 diff_db.py blast-radius fix; the 'committed NOTHING' process failure from a git-status-only check), the six PROV-0X requirements' final state, and the whole-phase CI-parity/cost ledger for Phase 137's honesty ledger to cite directly. Ticks nothing new -- all six PROV-0X requirements were already Complete before this plan ran (verified by grep at plan start). Phase 136.1 is now plan-complete (4/4); mirrors Phase 136's own precedent -- progress.completed_phases stays unchanged since no explicit phase-verification/close activity ran this session (that is a separate, later step, not owned by this plan's scope). Project-wide requirement state unchanged at 49 ticked / 7 open (CLOSE-01..06, RELOCK-07 -- all Phase 137's own scope). Commits: meta fd783947, 94877d6d, 31832378, 1cb5f5df."
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 42
-  completed_plans: 41
-  percent: 98
+  completed_plans: 42
+  percent: 100
 ---
 
 # Project State
@@ -48,8 +48,44 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 
 ## Current Position
 
-Phase: 136.1 (SDP Partition Provenance) — 3/4 plans complete
-Plan: 4 of 4 (next: 136.1-04, wave 3, phase close)
+Phase: 136.1 (SDP Partition Provenance) — 4/4 plans complete (phase plan-complete)
+Plan: 4 of 4 — 136.1-04 (phase close) COMPLETE. Next: Phase 137 (Close — Honesty Ledger, Claim Gate,
+gh#12 Follow-up), not yet planned (no phase directory exists).
+
+### Phase 136.1 plan 04 (2026-08-05) — COMPLETE
+
+`136.1-04-SUMMARY.md`: the phase's final, close-out plan. Ticked nothing new -- all six `PROV-0X`
+requirements were already Complete before this plan ran. Re-ran `tools/ci_parity.sh` (identical shape
+to `## Before`/`## After PROV-01`: legs 1-3 exit 0, leg 4 exit 2, the documented devcontainer-numpy
+shape) and `tools/ci_replica_venv.sh` (`CI-REPLICA: PASS`, mypy **33/35** unchanged, headroom flat at
+**2**, checked **132** source files -- up from 130, Plan `136.1-03`'s two new test files -- full suite
+**1504 passed**, coverage **82.14%**). Re-ran `tests/test_sdp_db_invariant.py` explicitly: **9/9
+green**, both partition-comparison legs (Phase 131's hand-curated snapshot and Plan `136.1-02`'s
+infoic-derived-field check) agreeing at **43 ALLOW / 41 REFUSE / 84 total**. Independently re-derived
+the ALLOW set from `chip_database.json` via `sdp_capability_for_entry` and diffed it byte-for-byte
+against the **ORIGINAL** `120-sdp-partition.json` (pre-Phase-136.1, pre-v1.30): **zero entries differ,
+either direction**. Re-ran `tools/derive_sdp_partition.py` against the cached pinned-commit XML: **PASS,
+43/41/84, zero disagreement** against both `sdp_capability_for_entry` and the committed
+`protect_on_after` field -- the phase's closing, independent, from-scratch confirmation (a ninth
+independent 43/41/84 measurement counting this plan's own three, on top of six already made across the
+phase). Confirmed `firestarter/` (firmware submodule) untouched and no new pip/npm/cargo package
+installed anywhere across the whole phase. Appended `136.1-CI-PARITY.md`'s `## After (phase close)`
+section with the whole-phase summary table: mypy headroom delta **0**, checked-files delta **+2**,
+full-suite delta **+10**, coverage delta **0.00pp**, partition delta **0** -- all measured, none
+estimated. **[Rule 2 deviation]** Authored `136.1-RECORD.md`: not in this plan's own `files_modified`
+list, but required by the dispatching orchestrator's own success criteria -- carries forward all five
+findings (PROV-05's stale requirement premise, verified not re-authored, per Phase 121 `c3c9424`;
+PROV-02's static-transcription-over-runtime-derive decision, per the AST gate `SDP_CAPABLE_TOKENS`
+class-shape lock; PROV-06's 12-of-84 corroborated across independently different methodologies; the
+GATE-02 `diff_db.py` blast-radius fix; and the "committed NOTHING" process failure, where an
+orchestrator's `git status`-only check missed two real submodule commits), a `PROV-0X` requirement
+traceability table (all six Complete), and the whole-phase CI-parity/cost ledger, for Phase 137's
+honesty ledger to cite directly. **Phase 136.1 is now plan-complete (4/4).** Mirrors Phase 136's own
+precedent: `progress.completed_phases` stays unchanged (no explicit phase-verification/close activity
+ran this session -- that is a separate, later step). Project-wide requirement state confirmed unchanged
+at **49 ticked / 7 open** (`CLOSE-01`..`06`, `RELOCK-07` -- all Phase 137's own scope). This plan makes
+no submodule commit at all (pure meta-repo verification capstone, per its own `<repo_topology>`).
+Commits: meta `fd783947`, `94877d6d`, `31832378`, `1cb5f5df`.
 
 ### Phase 136.1 plan 03 (2026-08-05) — COMPLETE
 
@@ -1450,6 +1486,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 136.1 P02]: Kept both GATE-08 comparisons (hand-curated snapshot + new DB-field derivation) rather than replacing the snapshot -- two independent proofs are strictly stronger than one, and the snapshot costs nothing to keep
 - [Phase 136.1 P02]: PROV-03's seen-to-fail demonstration was run on the REAL committed chip_database.json (ATMEL/AT28C256's protect_on_after flipped true->false), not only a synthetic fixture, then reverted byte-identically -- matches the requirement's explicit "seen to fail... with the observed message recorded" wording
 - [Phase 136.1 P02]: tools/derive_sdp_partition.py duplicates _select_0x0d_chips locally rather than importing from tests/ -- the script must stay fully standalone, never coupled to the test suite's internals
+- [Phase 136.1 Plan 04]: Authored 136.1-RECORD.md (Rule 2 deviation, not in the plan's own files_modified list) -- the dispatching orchestrator's own success criteria explicitly required a close-out record carrying forward all five findings from Plans 136.1-01/02/03, distinct from the pure CI-parity number table
+- [Phase 136.1 Plan 04]: Independently re-derived the SDP ALLOW set from chip_database.json via sdp_capability_for_entry and diffed it byte-for-byte against the ORIGINAL, pre-milestone 120-sdp-partition.json (never any in-phase snapshot) -- zero entries differ, the phase's most independent 43/41/84 re-confirmation
 
 ## Performance Metrics
 
@@ -1650,11 +1688,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 136 P04 | ~25min | 2 tasks | 2 files |
 | Phase 136.1 P01 | 36min | 3 tasks | 6 files |
 | Phase 136.1 P02 | 22min | 3 tasks | 4 files |
+| Phase 136.1 P04 | 21min | 1 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-05T14:39:41.230Z
-**Stopped at:** Completed 136.1-02-PLAN.md
+**Last session:** 2026-08-05T16:55:10.975Z
+**Stopped at:** Completed 136.1-04-PLAN.md (phase 136.1 close; phase now plan-complete 4/4)
 **Resume file:** None
 
 ### Blockers
