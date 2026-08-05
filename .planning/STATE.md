@@ -5,16 +5,16 @@ milestone_name: "SDP Surface Retirement & Behavioral Lock Proof"
 current_phase: 136.1
 current_phase_name: "SDP Partition Provenance"
 status: executing
-stopped_at: "Completed 136.1-02-PLAN.md -- tests/test_sdp_db_invariant.py's GATE-08 gained a second, independent, genuinely infoic.xml-derived comparison (production SDP_CAPABLE_TOKENS transcription vs. chip_database.json's own protect_on_after field, Plan 136.1-01), added alongside (never instead of) the existing hand-curated snapshot check; the re-pointed gate was SEEN to fail live on the real committed file under a planted single-chip re-bucketing (ATMEL/AT28C256's protect_on_after flipped true->false), message recorded verbatim then byte-identically restored; and firestarter_app/tools/derive_sdp_partition.py -- a committed, fetch-based, reproducible-from-a-clean-checkout independent re-derivation script -- was authored and run once, reproducing 43/41/84 with zero disagreement. Phase 136.1's 2nd of 4 plans. Zero deviations. PROV-02, PROV-03, PROV-04 ticked (the only three requirements this plan may mark complete)."
-last_updated: "2026-08-05T14:39:41.230Z"
+stopped_at: "Completed 136.1-03-PLAN.md -- doc/lockable-proms.md section 17's AT28C16/64/plain-AT28C64 correction (PROV-05) was verified ALREADY PRESENT (landed by Phase 121 plan 121-13, commit c3c9424, well before v1.30 was scoped -- the requirement's premise was stale, not the file) and durably gated by a new test module; the b15-vs-page_size equivalence (PROV-06) was refuted with a fresh, measured, non-vacuous count (12 of 84 disagree, every chip named, confirming Phase 120's figure via an independently different methodology). Phase 136.1's 3rd of 4 plans. Zero deviations -- both branches fired as expected (already-correct-verified for PROV-05, measured-matches-12 for PROV-06). PROV-05, PROV-06 ticked (the only two requirements this plan may mark complete)."
+last_updated: "2026-08-05T16:25:20.000Z"
 last_activity: 2026-08-05
-last_activity_desc: "Phase 136.1 plan 136.1-02 complete (2 of 4 plans). Task 1 re-pointed GATE-08: added _partition_from_protect_on_after_field (reads chip_database.json's protect_on_after field directly, no .get() default) and _assert_two_partitions_match (a generalized comparator for two MEASURED sources), plus test_sdp_partition_matches_infoic_derived_field_element_wise (both sides independently measure 43/41/84) and its non-vacuity proof test_partition_flags_a_moved_chip_via_db_field_non_vacuous; the existing hand-curated _COMMITTED_SDP_ALLOW_ENTRIES snapshot and its comparator are kept byte-identical (diff shows additions only) -- both proofs stay. One sentence added to sdp_capability.py's SDP_CAPABLE_TOKENS comment; the frozenset itself and tools/check_sdp_capability_invariants.py stayed untouched (re-confirmed PASS). Task 2 planted a REAL single-chip re-bucketing directly on the committed chip_database.json (ATMEL/AT28C256's protect_on_after true->false), observed the new gate FAIL naming that exact chip verbatim, reverted byte-identically (git diff --stat empty), and re-confirmed 9/9 green -- recorded in 136.1-02-SEEN-TO-FAIL.md. Task 3 authored tools/derive_sdp_partition.py (pinned to minipro a8efaedc236c1d9718bd28299dfbb99536b010ff, fetches live by default or reads INFOIC_XML_PATH if set, preserves Phase 120's exact token rule verbatim), ran it once against the cached pinned-commit XML: 43 ALLOW / 41 REFUSE / 84 total, zero disagreement against both sdp_capability_for_entry and the committed protect_on_after field. tools/ci_replica_venv.sh re-measured this wave: mypy 33/35 (headroom flat at 2), full suite 1496 passed (+2 from the new tests), coverage 82.14% unchanged. Zero deviations. PROV-02, PROV-03, PROV-04 ticked -- the only three requirements this plan may mark complete. Next: Plan 136.1-03 (PROV-05/06, independent, wave 2, no file overlap), then 136.1-04 phase close."
+last_activity_desc: "Phase 136.1 plan 136.1-03 complete (3 of 4 plans). Task 1 verified doc/lockable-proms.md section 17 (:295-296) ALREADY states the corrected AT28C16/64/plain-AT28C64 fact -- landed by Phase 121 plan 121-13, commit c3c9424, well before this phase (136.1) existed; PROV-05's own premise (a maintainer memory note) was stale, not the file. Authored tests/test_lockable_proms_doc_claims.py (4 tests): asserts both corrected table rows verbatim-in-substance, a narrow negative regex for the historical wrong shorthand 'AT28C16 / 64 / 256' absent from the doc, and the same regex absent whole-tree (scanned every *.md/*.py/*.txt file, zero hits outside the corrected row itself). Task 2 authored tests/test_b15_page_size_corroboration.py (4 tests): reads chip_database.json's protect_on_after/infoic_page_size_raw fields (Plan 136.1-01, no .get() default) for all 84 algorithm==13 entries; a non-vacuity check against 5 hand-counted synthetic pairs (2 disagreements) passes before the real-data assertion; measured fresh against the real DB: 12 of 84 disagree, every chip named by key and cross-checked by set -- confirming Phase 120's original figure via an independently DIFFERENT methodology (this test's per-row single-value comparison vs. Phase 120's cross-token-set matching), stated as a corroboration, not assumed. Never touched firestarter/sdp_capability.py (Plan 136.1-02's file this wave) -- git diff --stat empty throughout, confirmed by a structural test. Full suite re-confirmed 1504 passed (+8 from the two new test modules, exactly). Zero deviations -- plan executed exactly as written; both non-vacuity/verification branches fired the expected way. PROV-05, PROV-06 ticked -- the only two requirements this plan may mark complete. Next: Plan 136.1-04 (phase close: final CI-parity record + independent 43/41/84 re-assertion)."
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 42
-  completed_plans: 40
-  percent: 95
+  completed_plans: 41
+  percent: 98
 ---
 
 # Project State
@@ -48,8 +48,35 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 
 ## Current Position
 
-Phase: 136.1 (SDP Partition Provenance) — 2/4 plans complete
-Plan: 3 of 4 (next: 136.1-03, wave 2, independent of this plan)
+Phase: 136.1 (SDP Partition Provenance) — 3/4 plans complete
+Plan: 4 of 4 (next: 136.1-04, wave 3, phase close)
+
+### Phase 136.1 plan 03 (2026-08-05) — COMPLETE
+
+`136.1-03-SUMMARY.md`: `doc/lockable-proms.md` section 17's AT28C16/AT28C64B/AT28C256 correction
+(PROV-05) was **verified ALREADY PRESENT**, not re-authored -- landed by **Phase 121 plan `121-13`,
+commit `c3c9424`**, well before v1.30 was scoped; `PROV-05`'s own text (a maintainer memory note) was
+the stale artifact, not the file. `tests/test_lockable_proms_doc_claims.py` (4 tests, submodule commit
+`c9f98b8`) durably gates the correction going forward: both corrected table rows asserted, a narrow
+negative regex for the historical wrong shorthand (`AT28C16 / 64 / 256`) confirmed absent both in the
+doc and whole-tree (zero hits elsewhere in `firestarter_app`). `PROV-06`'s "b15 ≈ page-write family
+marker" equivalence was refuted with a **fresh, measured, non-vacuous** count --
+`tests/test_b15_page_size_corroboration.py` (4 tests, submodule commit `31b5d74`) reads
+`chip_database.json`'s `protect_on_after`/`infoic_page_size_raw` fields (Plan 136.1-01, no `.get()`
+default) for all 84 `algorithm==13` entries; a non-vacuity check on 5 hand-counted synthetic pairs (2
+disagreements) passes before the real-data assertion; measured: **12 of 84 disagree**, every one named
+by key, confirming Phase 120's original figure via an **independently different methodology** (per-row
+single-value comparison vs. Phase 120's cross-token-set matching) -- a corroboration, never assumed.
+`firestarter/sdp_capability.py` (Plan 136.1-02's file this wave) stayed untouched throughout (diff-stat
+empty, structural test confirms). **Procedural note, recorded honestly:** both task commits were
+already present and correct in the `firestarter_app` submodule at this session's start (made by a prior
+session that died before any meta-repo bookkeeping ran); this session verified both against every plan
+acceptance criterion, re-ran the full suite fresh (**1504 passed**, +8 exactly), re-measured
+`tools/ci_replica_venv.sh` fresh (**mypy 33/35**, headroom flat at 2, checked 132 source files -- up
+from 130, the two new test files), and completed the plan-level bookkeeping. Zero code-level
+deviations. **PROV-05, PROV-06 ticked** -- the only two requirements this plan may mark complete.
+Commits: meta `7991748`, `a36206a`, `82342474`, `f25eeed`; submodule (`firestarter_app`) `c9f98b8`,
+`31b5d74` (both pre-existing at session start, independently re-verified).
 
 ### Phase 136.1 plan 02 (2026-08-05) — COMPLETE
 
