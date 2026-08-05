@@ -766,6 +766,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - `large-read-data-jitter-uno328pb.md` (HIGH, v1.8-seed) — v1.9 RCA target.
 - `photograph-modified-rev-0.md` (medium) — carry forward.
 - `fold-response-code-into-log-macro.md` (medium) — captured during v1.22; blocked on Phase 117 (shares `eeprom_28c.cpp`).
+- `2026-08-05-dev-test-issue-triage-diagnosis-skill.md` (tooling) — skill to triage community `dev test` issues: analyse the report, diagnose against the datasheet/DB/ledger, comment, close passes into a tested-good IC list. Captured during v1.30; needs discuss-phase (datasheet corpus is 3 PDFs; outward-facing comment/close needs a structural gate).
 
 ### Quick Tasks Completed
 
