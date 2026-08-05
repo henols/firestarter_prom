@@ -893,7 +893,7 @@ corrected line-number citations)
 
 - [x] 137-01-PLAN.md -- Wave 1: author + host the v1.30 claim gate (vocabulary + arming mechanics + the two mandatory P-11 target-resolution/basename legs) (CLOSE-02) (completed 2026-08-05)
 - [x] 137-02-PLAN.md -- Wave 2: host-side `diagnostic_report.py` claim scan in `firestarter_app/tools/` (CLOSE-03) (completed 2026-08-05)
-- [ ] 137-03-PLAN.md -- Wave 3: author the honesty ledger, carrying forward this milestone's own measured-wrong corrections (CLOSE-04)
+- [x] 137-03-PLAN.md -- Wave 3: author the honesty ledger, carrying forward this milestone's own measured-wrong corrections (CLOSE-04) (completed 2026-08-05)
 - [ ] 137-04-PLAN.md -- Wave 4: fix the RELOCK-07 stale label (all four citation sites) + release notes "Removed" section + the decision doc (C-1 disposition) (CLOSE-05, RELOCK-07)
 - [ ] 137-05-PLAN.md -- Wave 5: gh#12 reply -- blocking operator wording review (`checkpoint:human-action`), freeze, and conditional posting gated on both operator authorization and a live shipped-check (CLOSE-06; `autonomous: false`)
 - [ ] 137-06-PLAN.md -- Wave 6: arm the claim gate for real against all four artifacts, final whole-milestone CI-parity recipe, operator-batch finalization, phase closing record (CLOSE-01)
