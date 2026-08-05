@@ -192,6 +192,7 @@ requirements encode the corrected form.
       from `sdp_capability()` — with **no new command-line option** (`dev test` keeps zero options).
       **Complete** (Phase 134 plan 134-03): `firestarter_app` commit `fcb3b28` (`derive_plan`'s SDP-leg
       emission block, `_SDP_LEG_STEP_ORDER`, calling `sdp_capability(name, db)` as the derivation source)
+
       + `f2f280c` — `tests/test_chip_test_sdp_leg.py::test_derive_plan_allow_population_emits_six_supported_ops`
       (all 43 measured ALLOW chips), `::test_derive_plan_allow_dev_test_exposes_zero_cli_options`
       (structural zero-`click.Option` check on the real `dev_test` command, not exit-code-only), and
@@ -243,6 +244,7 @@ requirements encode the corrected form.
       the B direction is the leg's entire discriminating power, D-07); the *ordering* proof — that
       `write-baseline-b` and `write-baseline-a` both run, in that order, strictly BEFORE `sdp-lock` is
       ever attempted, on every ALLOW chip's derived plan — is 134-03's, commit `fcb3b28` (the emission)
+
       + `f2f280c` — `tests/test_chip_test_sdp_leg.py::test_derive_plan_baseline_transition_ordering`
       (both baseline directions present; `write-inhibited` strictly between lock/unlock; `write-restored`
       the LAST step in the plan).
@@ -486,7 +488,7 @@ only legitimate use case the deleted command served.
 > the pinned minipro revision and getting a partition byte-identical to the committed
 > `120-sdp-partition.json`. No requirement here may be discharged by moving a chip between buckets.
 
-- [ ] **PROV-01**: `tools/build_db.py` decodes `infoic.xml` flags bit 14 (`0x4000`,
+- [x] **PROV-01**: `tools/build_db.py` decodes `infoic.xml` flags bit 14 (`0x4000`,
       `MP_OFF_PROTECT_BEFORE`) and bit 15 (`0x8000`, `MP_PROTECT_AFTER`) and emits both into
       `chip_database.json` as explicit fields, with a comment citing minipro `database.c` @ `a8efaed`.
       Baseline measured 2026-08-05: the file today has **zero** such fields (`grep -c` returns 0 for
@@ -648,7 +650,7 @@ Populated during roadmap creation.
 | CHAN-05 | Phase 136 | Complete |
 | CHAN-06 | Phase 136 | Complete |
 | CHAN-07 | Phase 136 | Complete |
-| PROV-01 | Phase 136.1 | Pending |
+| PROV-01 | Phase 136.1 | Complete |
 | PROV-02 | Phase 136.1 | Pending |
 | PROV-03 | Phase 136.1 | Pending |
 | PROV-04 | Phase 136.1 | Pending |
@@ -665,8 +667,10 @@ Populated during roadmap creation.
 
 - v1 requirements **as scoped 2026-08-03**: 56 total (GATE 10 · RETIRE 8 · LEG 18 · RELOCK 7 · CHAN 7 ·
   CLOSE 6)
+
 - v1 requirements **in scope now**: **50** (GATE 10 · RETIRE 8 · LEG 18 · **RELOCK 1** · CHAN 7 ·
   CLOSE 6) — RELOCK-01…06 deferred out with Phase 135 on 2026-08-03 → Backlog 999.28
+
 - Mapped to phases: 50 of 50 in-scope
 - Unmapped: 0 ✓ full coverage
 - Deferred: 6 (RELOCK-01…06) — mapped to Backlog 999.28, not to any v1.30 phase; retained verbatim in
