@@ -5,16 +5,16 @@ milestone_name: SDP Surface Retirement & Behavioral Lock Proof
 current_phase: 136
 current_phase_name: "Dev-Tools Channel Gating"
 status: executing
-stopped_at: "Completed 136-03-PLAN.md -- subprocess dual-channel proof for CHAN-01/02/03/04/06, comprehensive CHAN-07 no-firmware-read source scan, two non-vacuity mutations observed RED and restored byte-identically (7/7 CHAN requirements now ticked)"
-last_updated: "2026-08-05T12:07:04.236Z"
+stopped_at: "Completed 136-04-PLAN.md -- deliberate, named re-baseline of both test_help and test_help_dev snapshots (CHAN-05 docstring rewrite), 136-CI-PARITY.md's After section recorded (mypy flat 33/35), full suite 1494 passed / 0 failed. Phase 136's 4th and final plan; all seven CHAN requirements were already Complete before this plan ran (this plan ticks none)."
+last_updated: "2026-08-05T12:39:09.072Z"
 last_activity: 2026-08-05
-last_activity_desc: "Phase 136 plan 136-03 complete (3 of 4 plans). Task 1 authored tests/test_dev_group_channel_gating.py, a subprocess dual-channel harness adapted from test_py32_channel_gating.py's _CHILD_PROGRAM/_run_cli shape: simulated-stable proves dev --help lists only read/test, dev.commands.keys() is exactly {read, test}, a gated name refuses with channel.dev_command_gate_message's text, a genuine typo gets Click's generic message; simulated-prerelease is the positive control (all eight); FIRESTARTER_DEV_TOOLS=1 re-registers all six on simulated-stable and genuinely lets dev reg run. Task 2 authored tests/test_dev_gate_reads_no_firmware_source.py: inspect.getsource scoped to the gate's five new callables plus a whole-module check on channel.py, asserting no open( call and no firmware-path token; non-vacuity discharged by planting open(\"/dev/null\") in is_dev_tools_enabled, observing the scan name it as the offender, then restoring byte-identically. Task 3 planted and observed RED two more non-vacuity mutations against cli_handlers.py (cls=_DevGroup removed; _DEV_TOOLS_ENABLED hardcoded True), each breaking a named assertion, then restored both byte-identically -- no permanent source change, verbatim RED recorded in 136-03-SUMMARY.md only. mypy held at 33/35 (checked 130, up from 128 -- the two new test files); full suite 1492 passed / 2 failed (exactly the two pre-existing test_help/test_help_dev snapshot regressions deferred to 136-04, confirmed by name). All six requirements this plan owns ticked: CHAN-01, CHAN-02, CHAN-03, CHAN-04, CHAN-06, CHAN-07 -- all seven CHAN requirements now Complete. Next: Phase 136 plan 136-04 (snapshot re-baseline + CI-parity close)."
+last_activity_desc: "Phase 136 plan 136-04 complete (4 of 4 plans -- last plan of the phase). Task 1 re-baselined BOTH test_help and test_help_dev in tests/__snapshots__/test_characterization.ambr (a measured correction of 136-VALIDATION.md's wave-4 row, which named only test_help_dev -- 136-02-SUMMARY.md's own Known Test Regressions table had already flagged the second): observed RED on both against the stale snapshot first, then a single -k-scoped --snapshot-update, then confirmed the diff is scoped to exactly the docstring header lines -- the 8-subcommand Commands: enumeration inside dev --help is byte-identical before and after. Task 2 appended 136-CI-PARITY.md's After section: mypy errors 33 (watermark 35, checked 130) via tools/ci_replica_venv.sh -- byte-identical to Before, headroom delta 0, flat across the whole phase; full suite via ci-replica python 1494 passed / 0 failed (both deferred regressions gone, no third failure); RESEARCH Section 5's blast-radius file set (244 passed) and tests/test_py32_channel_gating.py (14 passed) re-confirmed unchanged and green; firestarter (firmware submodule) status --porcelain confirmed empty across the whole phase. Zero requirements ticked by this plan -- all seven CHAN-0X rows were already Complete before 136-04 ran. Next: Phase 136.1 (SDP Partition Provenance, PROV-01..06) and Phase 137 (RELOCK-07 + CLOSE-0X close) -- neither yet planned."
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 38
-  completed_plans: 37
-  percent: 97
+  completed_plans: 38
+  percent: 100
 ---
 
 # Project State
@@ -48,8 +48,38 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 
 ## Current Position
 
-Phase: 136 (Dev-Tools Channel Gating) — EXECUTING
-Plan: 4 of 4
+Phase: 136 (Dev-Tools Channel Gating) — 4/4 plans complete, ready for verification
+Plan: 4 of 4 (final plan of the phase)
+
+### Phase 136 plan 04 (2026-08-05) — COMPLETE
+
+`136-04-SUMMARY.md`: closed out the phase's two deferred loose ends. Task 1 re-baselined **both**
+`test_help` and `test_help_dev` in `tests/__snapshots__/test_characterization.ambr` -- a measured
+correction of `136-VALIDATION.md`'s wave-4 row, which named only `test_help_dev`; `136-02-SUMMARY.md`'s
+own "Known Test Regressions" table had already flagged the second (Click renders a group's
+top-level `short_help` from the same first docstring line CHAN-05 rewrote). Observed RED on both
+against the stale snapshot first (`2 failed, 12 passed, 21 deselected`), then a single `-k`-scoped
+`--snapshot-update`, then confirmed via `git diff --unified=0` that the change is scoped to exactly
+the docstring header lines -- `test_help_dev`'s own `Commands:` block (all 8 `dev` subcommands, same
+order, same one-line summaries) is byte-identical before and after. Task 2 appended
+`136-CI-PARITY.md`'s `## After` section: `tools/ci_replica_venv.sh` measured **mypy errors: 33
+(watermark: 35), checked 130 source files** -- byte-identical to the phase's own `## Before`
+baseline, headroom delta **0**, flat across the entire phase. Full suite via the ci-replica python:
+**1494 passed, 0 failed**, 30 snapshots passed -- both previously-deferred regressions gone, no
+third failure surfaced. RESEARCH §5's blast-radius file set (244 passed) and
+`tests/test_py32_channel_gating.py` (14 passed) independently re-confirmed unchanged and green.
+`git -C firestarter_app status --porcelain -- firestarter` confirmed empty across the whole phase.
+**Zero requirements ticked by this plan** -- all seven CHAN-0X rows were already `[x]` Complete in
+`REQUIREMENTS.md` before this plan ran (confirmed by grep at the start of execution); `CHAN-05` sits
+in this plan's frontmatter only as the downstream justification for Task 1, not as a re-tick.
+Commits: `b1d8f73` (submodule, `firestarter_app`), `0e99fa4` (meta repo, `136-CI-PARITY.md`).
+
+**Phase 136 is now plan-complete (4/4) with all seven CHAN requirements Complete.** No formal
+phase-close record (`136-RECORD.md`) was authored by this plan -- this plan's own scope was the
+snapshot re-baseline and the CI-parity close record only, per its own `<output>` spec naming just
+`136-04-SUMMARY.md`. `ROADMAP.md`'s Phase 136 checkbox and per-plan checkboxes are updated by this
+plan's state-update step; `progress.completed_phases` is left at 4 (unchanged) since no explicit
+phase-close activity ran.
 
 ### Phase 136 plan 03 (2026-08-05) — COMPLETE
 
@@ -1322,6 +1352,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 136]: Both D-01 mechanisms wired into cli_handlers.py: _DevGroup (informative refusal) + six if _DEV_TOOLS_ENABLED: guards (genuine non-registration), CHAN-06 tripwire at dev reg, CHAN-05 docstring rewrite — hidden=True alone fails CHAN-02 (still invokable); bare non-registration alone fails CHAN-03 (generic Click error indistinguishable from a typo); both together satisfy both requirements per 136-CONTEXT.md D-01
 - [Phase 136]: 136-03 evidences (not implements) CHAN-01/02/03/04/06/07 via a subprocess dual-channel harness adapted from test_py32_channel_gating.py; Tasks 1-2 committed as single test(...) commits rather than RED/GREEN since both are proof-only against already-shipped 136-01/136-02 mechanisms
 - [Phase 136]: Task 3's two non-vacuity mutations (cls=_DevGroup removed; _DEV_TOOLS_ENABLED hardcoded True) made no permanent source change -- both observed RED then restored byte-identically, recorded only in 136-03-SUMMARY.md, per the plan's own action text
+- [Phase 136]: 136-04 (phase's final plan) re-baselined BOTH test_help and test_help_dev, not just the one named in 136-VALIDATION.md's wave-4 row -- 136-02-SUMMARY.md's own Known Test Regressions table had already measured the second; single -k-scoped --snapshot-update, diff-confirmed scoped to the docstring header lines only, the 8-subcommand Commands: block byte-identical before/after
 
 ## Performance Metrics
 
@@ -1519,11 +1550,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 136 P01 | 22min | 3 tasks | 4 files |
 | Phase 136 P02 | 23min | 3 tasks | 1 files |
 | Phase 136 P03 | 35min | 3 tasks | 2 files |
+| Phase 136 P04 | ~25min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-05T12:07:04.208Z
-**Stopped at:** Completed 136-02-PLAN.md -- _DevGroup + _DEV_TOOLS_ENABLED wiring, six commands conditionally registered, CHAN-06 tripwire, CHAN-05 docstring rewrite
+**Last session:** 2026-08-05T12:39:00.576Z
+**Stopped at:** Completed 136-04-PLAN.md -- Phase 136's final plan (snapshot re-baseline + CI-parity close)
 **Resume file:** None
 
 ### Blockers

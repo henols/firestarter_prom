@@ -735,7 +735,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 136-04-PLAN.md — deliberate, named `test_help_dev` snapshot re-baseline and the phase's post-edit
+- [x] 136-04-PLAN.md — deliberate, named `test_help_dev` snapshot re-baseline and the phase's post-edit
   CI-parity/mypy record [ticks nothing new; downstream of CHAN-05]
 
 **Research flag**: NEEDS `--research-phase` — one open design choice (invocation-time `_DevGroup`
