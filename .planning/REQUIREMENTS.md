@@ -603,8 +603,17 @@ only legitimate use case the deleted command served.
       **33/35** unchanged (headroom flat at 2; `tests/fixtures/` added to mypy's `exclude` in the same
       commit, a Rule-3 fix the planted-unparsable fixture required — see 137-02-SUMMARY.md).
 
-- [ ] **CLOSE-04**: An honesty ledger pairs every permitted claim with its explicit non-claim, including
+- [x] **CLOSE-04**: An honesty ledger pairs every permitted claim with its explicit non-claim, including
       the auto-unlock coupled-decision row and the evidence ceiling's two narrowings.
+      Evidence: `.planning/phases/137-close-honesty-ledger-claim-gate-gh12-followup/137-LEDGER.md`
+      (meta commit `3fedc9b8`, plan 137-03) — 11 claim classes (exceeding the plan's minimum 10),
+      both Evidence Ceiling narrowings quoted verbatim, the P-21 auto-unlock tripwire cited by its
+      exact test name, 7 mechanism corrections condensed with citations, 3 process failures recorded
+      plainly (not only code defects), and operator-batch items C-1/C-3 both restated. Every figure
+      re-measured live against `firestarter_app` HEAD `cc036e8` rather than copied from a citation.
+      Scans clean, alone, against plan 137-01's claim gate
+      (`FIRESTARTER_CLAIMSCAN_TARGETS_V130=137-LEDGER.md python3 check_permitted_claims.py`,
+      `PASS:` naming `137-LEDGER.md`).
 
 - [ ] **CLOSE-05**: Release notes carry a "Removed" section mapping `dev sdp disable` → `write`
       (automatic) and `dev sdp enable` → `write --sdp-relock`.
@@ -726,7 +735,7 @@ Populated during roadmap creation.
 | CLOSE-01 | Phase 137 | Pending |
 | CLOSE-02 | Phase 137 | Complete |
 | CLOSE-03 | Phase 137 | Complete |
-| CLOSE-04 | Phase 137 | Pending |
+| CLOSE-04 | Phase 137 | Complete |
 | CLOSE-05 | Phase 137 | Pending |
 | CLOSE-06 | Phase 137 | Pending |
 
