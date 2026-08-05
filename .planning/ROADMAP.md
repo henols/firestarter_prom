@@ -710,7 +710,34 @@ a licence to run it concurrently.
   5. The channel gate's implementation reads no firmware source at all to decide what is available — the
      same class of host gate that failed OPEN four times in a prior milestone when built the other way.
 
-**Plans**: TBD
+**Plans**: 4 plans (waves 1→4; `cli_handlers.py` is a strictly serial spine — worktree isolation is
+unavailable inside the `firestarter_app` submodule, and the CONTEXT-mandated D-04 subprocess proof can
+only run once the production wiring it tests exists)
+
+Plans:
+**Wave 1**
+
+- [ ] 136-01-PLAN.md — pre-edit CI-parity/mypy baseline, the empirical Click-hook spike (`get_command`
+  vs `resolve_command`), and `channel.py`'s bench-override vocabulary with a fail-closed proof
+  [contributes to CHAN-06, CHAN-07 — ticks nothing]
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 136-02-PLAN.md — `_DevGroup` subclass + `_DEV_TOOLS_ENABLED` wiring, conditional registration of
+  the six beta-only `dev` subcommands, the CHAN-06 tripwire comment, and the CHAN-05 docstring rewrite
+  [CHAN-05]
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 136-03-PLAN.md — the subprocess dual-channel proof harness, the comprehensive no-firmware-read
+  assertion, and two non-vacuity mutations proving the gate is load-bearing
+  [CHAN-01, CHAN-02, CHAN-03, CHAN-04, CHAN-06, CHAN-07]
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 136-04-PLAN.md — deliberate, named `test_help_dev` snapshot re-baseline and the phase's post-edit
+  CI-parity/mypy record [ticks nothing new; downstream of CHAN-05]
+
 **Research flag**: NEEDS `--research-phase` — one open design choice (invocation-time `_DevGroup`
 subclass vs. import-time deletion + a subprocess harness; both satisfy the requirement) plus the `dev
 reg` bench-tooling override, which must be designed up front, not discovered after it breaks.
