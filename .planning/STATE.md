@@ -5,15 +5,15 @@ milestone_name: "SDP Surface Retirement & Behavioral Lock Proof"
 current_phase: 137
 current_phase_name: "Close — Honesty Ledger, Claim Gate, gh#12 Follow-up"
 status: executing
-stopped_at: "Completed 137-04-PLAN.md -- Wave 4 of 6 (sequential, worktree isolation OFF phase-wide). Fresh-measured RELOCK-07's stale --sdp-relock 'v1.23+' label at both live occurrences (STATE.md, PROJECT.md) -- found a FIFTH drift from the requirement's own previously-cited 634/823 pair, the live lines being STATE.md:972 / PROJECT.md:844 -- and corrected all four citation sites (REQUIREMENTS.md's own RELOCK-07 text, PROJECT.md's paragraph, the design note Sec 8, ROADMAP.md's v1.30 entry) to the terminal values, each via an appended dated correction. Authored 137-RELEASE-NOTES-app.md (CLOSE-05) -- version-agnostic next-release notes whose Removed section states dev sdp enable -> withdrawn/Backlog 999.28 (never write --sdp-relock, grep-confirmed absent), dev sdp disable -> write (automatic, genuinely redundant); passes check_permitted_claims.py scanned alone after one in-flight fix (self-verifying -> a testable leg for the lock). Authored 137-DECISION.md -- RELOCK-07 confirmation, operator-batch C-1 dispositioned defer-with-owner (filed build-db-diff-ladder-state-community-reported-regression.md, Owner: henols; batch row updated), and the beta-only pre-flight recommendation; passes the claim gate scanned alone. Corrected CLOSE-05's own requirement text in place (Rule 1 fix -- it still named write --sdp-relock as the mapping target, contradicting every other document's already-amended state). Ticks CLOSE-05 and RELOCK-07 -- project-wide requirement state now 54 ticked / 2 open (CLOSE-01, CLOSE-06 remain)."
-last_updated: "2026-08-05T19:25:00.000Z"
+stopped_at: "Completed 137-05-PLAN.md -- Wave 5 of 6 (sequential, worktree isolation OFF phase-wide). Task 1 (freeze candidate + first live check) had already run and committed 2f51572d before this session, finding the claim gate FAILing on the reply's missing silicon caveat. Task 2's checkpoint:human-action was answered by the operator in real time: wording APPROVED with one correction (weave 'No AT28C silicon was tested during this milestone' into the 'where I need help' paragraph, committed 3596604d, resolving A-4 -- gate now PASSes and is ARMED+green across all four closing artifacts); posting HELD, not authorized; CLOSE-06 ticking OVERRIDDEN to option (b) -- stays [ ] open. Task 3 re-ran the shipped-check fresh (not reused from Task 1): RETIRE-01's deletion commit 259a0f0 still not an ancestor of origin/beta, PyPI's highest prerelease still 3.0.0b15 (info.version itself reads 2.0.7, the latest *stable* release -- a different field, noted as a genuine finding) -- combined verdict NOT YET SHIPPED, so the freeze-only branch was taken; gh issue comment was never called (comment count confirmed unchanged at 9, both before and after). v1.30-OPERATOR-BATCH.md's A-1/A-3/A-4 rows updated to RESOLVED with the exact follow-up command; A-2 left open. REQUIREMENTS.md's CLOSE-06 row annotated in place (not ticked) with cause and the single closing action. Zero requirements ticked by this plan (CLOSE-06 deliberately held open) -- project-wide requirement state stays 54 ticked / 2 open (CLOSE-01, CLOSE-06 remain; CLOSE-01 is 137-06's own scope, now unblocked since the gate is armed+green)."
+last_updated: "2026-08-05T20:20:00.000Z"
 last_activity: 2026-08-05
-last_activity_desc: "Phase 137 plan 137-04 complete (4 of 6 plans, Wave 4). Fresh-measured RELOCK-07's stale --sdp-relock \"v1.23+\" label: grep -n 'v1.23+' .planning/STATE.md .planning/PROJECT.md found the two live table rows at STATE.md:972 and PROJECT.md:844 -- a FIFTH drift from the 634/823 pair RELOCK-07's own text had cited (measured 2026-08-03). Both rows corrected to Backlog 999.28 in place of the version label; all four citation sites named by the requirement's own text (REQUIREMENTS.md's RELOCK-07 itself, PROJECT.md's 'Stale labels this milestone fixes' paragraph -- reflowed one line to avoid a same-line grep false-positive, plus an appended terminal AMENDED block below its existing 2026-08-03 blockquote --, the design note Sec 8, and ROADMAP.md's v1.30 milestone-list entry) now state these terminal values, each via an appended dated correction rather than an in-place rewrite of history. Authored 137-RELEASE-NOTES-app.md (CLOSE-05): version-agnostic next-release notes (no cut tag exists yet); Removed section states dev sdp disable -> write (automatic, genuinely redundant, not merely dropped) and dev sdp enable -> withdrawn, no replacement, tracked as Backlog 999.28 -- write --sdp-relock never named (grep -c returns 0); also documents the new six-step dev test SDP leg (43 ALLOW / 41 REFUSE of 84 0x0D chips) and the CHAN-01..07 stable-channel dev narrowing (Phase 136, confirmed shipped via 136-VALIDATION.md before being described as shipping in this release). One in-flight claim-gate fix: the draft title used 'self-verifying', flagged by the checker's relational rule near an SDP context token with no nearby emission/caveat qualifier -- reworded to 'a testable leg for the lock'. Passes check_permitted_claims.py scanned alone: PASS: scanned 137-RELEASE-NOTES-app.md. Authored 137-DECISION.md: (1) RELOCK-07 confirmation citing the fresh-measured terminal lines; (2) operator-batch C-1 (build_db_diff's ladder_state regression, 134-RECORD.md Sec 6 residual 4) dispositioned defer-with-owner -- filed build-db-diff-ladder-state-community-reported-regression.md with Owner: henols, v1.30-OPERATOR-BATCH.md's C-1 row updated from 'needs a disposition before close' to name the disposition and the filed todo's path; the underlying classify_fingerprint code is NOT touched, staying outside every Phase 137 plan's declared file scope; (3) the phase's own beta-only pre-flight recommendation, cross-referencing operator-batch A-1/A-2, pushing/merging/publishing nothing itself. Passes check_permitted_claims.py scanned alone. One further deviation: REQUIREMENTS.md's own CLOSE-05 criterion text still read dev sdp enable -> write --sdp-relock, contradicting the 2026-08-03 operator decision every other document already reflected -- corrected in place (Rule 1) to name the actual withdrawal + Backlog 999.28, with an Evidence citation to 137-RELEASE-NOTES-app.md. Ticks CLOSE-05 and RELOCK-07 -- project-wide requirement state now 54 ticked / 2 open (CLOSE-01, CLOSE-06 remain, both later Phase 137 plans' own scope). No sub-repo touched this plan (meta-repo documentation only; firestarter_app's tracked gitlink cc036e8 confirmed unchanged before and after). Commits: meta 4f1ffb70 (RELOCK-07 fix), bf8c380b (release notes), f83871d2 (decision doc + C-1 disposition + CLOSE-05 tick), 6de6ad33 (SUMMARY)."
+last_activity_desc: "Phase 137 plan 137-05 complete (5 of 6 plans, Wave 5). Task 1 (already committed 2f51572d in an earlier session) froze 137-GH12-COMMENT.md verbatim from the draft and ran the first live shipped-check, finding the claim gate FAILing (missing required silicon caveat). Task 2's checkpoint:human-action gate was answered by the operator in real time, verbatim: wording APPROVED (one correction made under approval -- weaving the required silicon caveat into the 'where I need help' paragraph as the stated reason help is needed, not a disclaimer -- committed 3596604d, simultaneously resolving A-4; the claim gate now PASSes on the file alone and is ARMED+green across all four closing artifacts for the first time this phase); posting HELD, not authorized; and CLOSE-06's tick decision OVERRIDDEN to option (b) -- the more literal reading of 'is posted', so CLOSE-06 stays [ ] open rather than ticked-on-freeze. Task 3 re-ran the shipped-check independently (not reused from Task 1, per the plan's own requirement): git -C firestarter_app merge-base --is-ancestor 259a0f0 origin/beta still exits 1; PyPI's highest published prerelease is still 3.0.0b15 -- though the plan's literal one-liner (info.version) reads 2.0.7, the latest *stable* release, a different field from 'highest prerelease' entirely, a genuine finding recorded rather than glossed over. Combined verdict NOT YET SHIPPED, matching the operator's own 'hold' instruction with no disagreement to arbitrate -- the freeze-only branch was taken, gh issue comment was never invoked, and gh issue view confirmed the comment count unchanged at 9 both before and after. Updated v1.30-OPERATOR-BATCH.md: A-1 -> RESOLVED (wording approved, frozen at blob 3a628c56de4d45dfe2be0c645fced0e25d5ebceb / 2646 bytes, exact follow-up command recorded); A-3 -> RESOLVED (operator chose option (b)); A-4 -> RESOLVED (operator chose option (ii), gate unblocked for 137-06's CLOSE-01); A-2 left open; RUN STATUS section updated to reflect 5/6 plans done. [Rule 2 deviation] Annotated REQUIREMENTS.md's CLOSE-06 row in place (outside this plan's declared files_modified list, but required by the orchestrator's own success criteria) explaining why it is open and the exact single follow-up command that closes it, plus the matching Traceability table row. Zero requirements ticked this plan (CLOSE-06 deliberately held open per operator decision) -- project-wide requirement state remains 54 ticked / 2 open (CLOSE-01, CLOSE-06). No sub-repo commit (meta-repo documentation only; firestarter_app's tracked gitlink read-only inspected for the shipped-check, confirmed unchanged). Commits: meta 2f51572d (Task 1, prior session), 3596604d (operator-approved A-4 correction), e886e03 (Task 3 freeze + operator-batch/REQUIREMENTS.md update), b0a2fdd4 + ab81dc6c (SUMMARY + self-check)."
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 48
-  completed_plans: 46
+  completed_plans: 47
   percent: 57
 ---
 
@@ -29,11 +29,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-03 — v1.30 started)
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
 authoritative dispatch key end to end. v1.23 added a fourth board target *beneath* that contract
 without disturbing it.
-**Current focus:** Phase 137 — Close: Honesty Ledger, Claim Gate, gh#12 Follow-up (Plan 137-01 of 6 complete)
+**Current focus:** Phase 137 — Close: Honesty Ledger, Claim Gate, gh#12 Follow-up (Plan 137-05 of 6 complete)
 **v1.30 SDP Surface Retirement & Behavioral Lock Proof** — ACTIVE (activated
 2026-08-03 from the operator-queued slot of 2026-07-31, promoted from Backlog 999.25). Host-only
 (`firestarter_app`); **131, 132, 133 and 134 CLOSED**; 136 and 136.1 plan-complete (no formal close
-record authored); phases continue at **137** (executing, 1/6 plans). v1.24–v1.27 remain queued and
+record authored); phases continue at **137** (executing, 5/6 plans). v1.24–v1.27 remain queued and
 unscoped; v1.29 stays deliberately vacant.
 
 **⏸ Phase 135 (`write --sdp-relock`) DEFERRED 2026-08-03** by operator decision → ROADMAP Backlog
@@ -49,12 +49,45 @@ accordingly — the release notes and gh#12 reply must describe a withdrawal, **
 
 ## Current Position
 
-Phase: 137 (Close — Honesty Ledger, Claim Gate, gh#12 Follow-up) — 4/6 plans complete
-Plan: 4 of 6 — 137-04 (Wave 4, RELOCK-07 stale-label fixes + CLOSE-05 release notes + C-1 disposition
-in `137-DECISION.md`) COMPLETE. Next: 137-05 (Wave 5, gh#12 reply — blocking operator wording review,
-`checkpoint:human-action`, freeze, conditional posting; CLOSE-06; `autonomous: false`). **This phase
-must NOT be run under `--auto`/`--chain`** — Plan 137-05 carries a `checkpoint:human-action` gate
-(CLOSE-06).
+Phase: 137 (Close — Honesty Ledger, Claim Gate, gh#12 Follow-up) — 5/6 plans complete
+Plan: 5 of 6 — 137-05 (Wave 5, gh#12 reply — blocking operator wording review answered in real time,
+freeze on hold-open; CLOSE-06 deliberately left `[ ]` open) COMPLETE. Next: 137-06 (phase close: arm
+the claim gate for real, tick CLOSE-01, author the phase RECORD). **This phase must NOT be run under
+`--auto`/`--chain`** — Plan 137-05's `checkpoint:human-action` gate (CLOSE-06) has now been answered by
+the operator; the constraint applied for this plan and no longer gates 137-06.
+
+### Phase 137 plan 05 (2026-08-05) — COMPLETE
+
+`137-05-SUMMARY.md`: Task 1 (already committed `2f51572d` before this session) froze
+`137-GH12-COMMENT.md` verbatim from the draft and ran the first live shipped-check, finding the claim
+gate FAILing (missing required silicon caveat). Task 2's `checkpoint:human-action` gate was answered by
+the operator in real time, verbatim: **wording APPROVED** — one correction made under that approval,
+weaving "No AT28C silicon was tested during this milestone" into the "where I need help" paragraph so it
+reads as the *reason* help is needed rather than a disclaimer (committed `3596604d`, simultaneously
+resolving A-4 — the gate now `PASS`es on the file alone and is ARMED and green across all four closing
+artifacts for the first time this phase); **posting HELD, not authorized**; and **CLOSE-06's tick
+decision OVERRIDDEN to option (b)** — the more literal reading of "is posted" — so CLOSE-06 stays `[ ]`
+open rather than ticked-on-freeze. Task 3 re-ran the shipped-check independently (not reused from Task
+1, per the plan's own requirement): `git -C firestarter_app merge-base --is-ancestor 259a0f0 origin/beta`
+still exits 1; PyPI's highest published prerelease is still `3.0.0b15` — though the plan's literal
+one-liner (`info.version`) reads `2.0.7`, the latest **stable** release, a different field from "highest
+prerelease" entirely, a genuine finding recorded rather than glossed over. Combined verdict **NOT YET
+SHIPPED**, matching the operator's own "hold" instruction with no disagreement to arbitrate — the
+freeze-only branch was taken, `gh issue comment` was never invoked, and `gh issue view` confirmed the
+comment count unchanged at **9** both before and after. Updated `v1.30-OPERATOR-BATCH.md`: A-1 →
+RESOLVED (wording approved, frozen at blob `3a628c56de4d45dfe2be0c645fced0e25d5ebceb` / 2646 bytes,
+exact follow-up command recorded); A-3 → RESOLVED (operator chose option (b)); A-4 → RESOLVED (operator
+chose option (ii), gate unblocked for 137-06's CLOSE-01); A-2 left open; RUN STATUS section updated to
+reflect 5/6 plans done. **[Rule 2 deviation]** Annotated `REQUIREMENTS.md`'s CLOSE-06 row in place
+(outside this plan's declared `files_modified` list, but required by the orchestrator's own success
+criteria) explaining why it is open and the exact single follow-up command that closes it, plus the
+matching Traceability table row. **Zero requirements ticked this plan** (CLOSE-06 deliberately held
+open per operator decision) — project-wide requirement state remains **54 ticked / 2 open** (`CLOSE-01`
+— 137-06's own scope, now unblocked; `CLOSE-06` — deliberately held open). No sub-repo commit
+(meta-repo documentation only; `firestarter_app`'s tracked gitlink read-only inspected for the
+shipped-check, confirmed unchanged). Commits: meta `2f51572d` (Task 1, prior session), `3596604d`
+(operator-approved A-4 correction), `e886e03` (Task 3 freeze + operator-batch/REQUIREMENTS.md update),
+`b0a2fdd4` + `ab81dc6c` (SUMMARY + self-check).
 
 ### Phase 137 plan 04 (2026-08-05) — COMPLETE
 
