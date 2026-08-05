@@ -36,10 +36,16 @@ Coverage:
   7. PASS-line names both scanned files at once (anti-skip).
   8. Positional argv overrides the env seam (documented precedence, pinned
      against a future silent inversion).
-  9. UNARMED when zero of the four real default targets exist -- the
-     CURRENT real behavior at this point in the phase; stays green until
-     Phase 137's last plan makes all four exist. A regression here means
-     the arming branch broke, not that four artifacts appeared.
+  9. ARMED and GREEN against the four real default targets -- invoked with
+     no argv and no env override (the real defaults), all four of Phase
+     137's own closing artifacts now exist on disk (137-LEDGER.md,
+     137-DECISION.md, 137-RELEASE-NOTES-app.md, 137-GH12-COMMENT.md,
+     authored by plans 137-03/04/05), and the scanner exits 0 with a
+     PASS: line naming all four basenames. This is the literal, first-ever
+     real-defaults run of this gate in this milestone -- the mechanical
+     discharge of CLOSE-01. Supersedes the prior UNARMED-expecting leg this
+     test replaces (its own docstring anticipated exactly this edit: "stays
+     green until 137-06 makes all four exist").
   10. (MANDATORY P-11 leg 1) The scanner's own `_DEFAULT_TARGETS` resolve
       strictly INSIDE this phase's own directory -- the assertion that makes
       a future naive copy into another phase directory fail loudly instead
@@ -263,26 +269,30 @@ def test_positional_argv_overrides_the_env_seam():
 
 
 # ---------------------------------------------------------------------------
-# Test 9: UNARMED when zero of the four real default targets exist
+# Test 9: ARMED and GREEN against the four real default targets
 # ---------------------------------------------------------------------------
 
 
-def test_unarmed_when_zero_of_four_default_targets_exist():
+def test_armed_and_green_against_the_four_real_artifacts():
     """Invoked with no argv and no env var set (the real defaults), the
-    scanner MUST print UNARMED: and exit 0, naming all four 137-prefixed
-    basenames. This is the CURRENT real behavior at this point in the
-    phase -- Phase 137's four closing artifacts do not exist yet -- and
-    stays green until the phase's last plan makes all four exist. A
-    regression here means the arming branch broke, not that four artifacts
-    appeared."""
+    scanner MUST exit 0 with a PASS: line naming all four real 137-prefixed
+    closing artifacts. All four now exist on disk (137-LEDGER.md from
+    137-03, 137-DECISION.md and 137-RELEASE-NOTES-app.md from 137-04,
+    137-GH12-COMMENT.md from 137-05), so the all-or-nothing arming branch's
+    UNARMED: case no longer applies -- this is the literal, first-ever
+    real-defaults run of this gate in this milestone, the mechanical
+    discharge of CLOSE-01. A regression here means either the arming
+    mechanism broke, or one of the four real artifacts now fails the
+    forbidden-phrase/caveat scan -- in neither case should this test be
+    weakened to pass; the flagged artifact must be fixed instead."""
     result = _run_scanner(targets=None, argv=None)
     assert result.returncode == 0, (
-        f"scanner exited {result.returncode} when zero of the four default "
-        f"targets exist -- expected UNARMED + exit 0.\n"
+        f"scanner exited {result.returncode} against the four real default "
+        f"targets -- expected PASS + exit 0.\n"
         f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
     )
-    assert "UNARMED:" in result.stdout, (
-        f"Expected 'UNARMED:' in output but got:\n{result.stdout}"
+    assert "PASS:" in result.stdout, (
+        f"Expected 'PASS:' in output but got:\n{result.stdout}"
     )
     for name in (
         "137-LEDGER.md",
@@ -291,7 +301,7 @@ def test_unarmed_when_zero_of_four_default_targets_exist():
         "137-GH12-COMMENT.md",
     ):
         assert name in result.stdout, (
-            f"Expected {name!r} named in the UNARMED: message but got:\n{result.stdout}"
+            f"Expected {name!r} named in the PASS: message but got:\n{result.stdout}"
         )
 
 
