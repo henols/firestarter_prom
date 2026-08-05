@@ -186,10 +186,11 @@ ledger's claim classes cite them directly:**
 
 ## Corrections Made In Place (per Task 2's reconciliation mandate)
 
-One correction was made during this plan's own drafting-then-scanning cycle, not a disagreement
-between a cited figure and a fresh measurement (every cited figure agreed with its live
-re-measurement on the first pass — see Re-Measurements above), but a **claim-gate compliance**
-correction:
+Two corrections were made during this plan's own drafting/scanning/review cycle. Every cited figure
+agreed with its live re-measurement on the first pass (see Re-Measurements above) — neither
+correction below stems from a citation disagreeing with a fresh number; the first is a claim-gate
+compliance fix, the second a self-caught timeline error found on final review, before this plan
+reported itself done.
 
 - **The closing three-way split's third bullet** originally repeated the Evidence Ceiling's own
   forbidden-phrase shape ("the causal claim 'the lock inhibited the write'") a second time, in a
@@ -201,7 +202,14 @@ correction:
   the earlier verbatim quote by reference instead of restating it a second time — the factual content
   (the causal claim is not provable this milestone) is unchanged and remains quoted in full, once,
   earlier in the document; only the redundant second restatement, sitting next to a triggering
-  context token, was removed. Re-scanned clean immediately after.
+  context token, was removed. Re-scanned clean immediately after (commit `228dc4b1`).
+- **The negative-space mypy-headroom bullet** originally claimed headroom was "unmoved across Phases
+  132 through 137." Re-checked against the very phase records this ledger cites elsewhere:
+  `132-RECORD.md` residual 2 states **32/35** (3 of headroom) at Phase 132's own close;
+  `133-RECORD.md` residual 4 states the count moved to **33/35** (2 of headroom) **during Phase 133**.
+  So headroom has been unmoved **since Phase 133**, not since Phase 132 — a self-caught inconsistency
+  against this ledger's own cited sources, corrected in place before reporting this plan complete
+  (commit `228dc4b1`).
 
 ## Task Commits
 
@@ -211,6 +219,8 @@ separate commit ticking the requirement:
 
 1. **Tasks 1+2: Author + re-measure + validate `137-LEDGER.md`** - `3fedc9b8` (docs)
 2. **Tick CLOSE-04 in `REQUIREMENTS.md`** - `4a0d2a17` (docs)
+3. **SUMMARY + STATE.md/ROADMAP.md updates** - `b23dec27`, `3bddb191` (docs)
+4. **Self-caught mypy-headroom timeline fix in the ledger (final review)** - `228dc4b1` (fix)
 
 **Plan metadata:** (this commit, following SUMMARY write)
 
