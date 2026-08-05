@@ -577,8 +577,17 @@ only legitimate use case the deleted command served.
 
 ### Close — Honesty Ledger, Claim Gate, Outward Follow-up (CLOSE)
 
-- [ ] **CLOSE-01**: A v1.30 claim gate is **authored and hosted by this phase**, armed and green, with a
+- [x] **CLOSE-01**: A v1.30 claim gate is **authored and hosted by this phase**, armed and green, with a
       `PASS:` line naming this milestone's own four artifacts, and its own suite output recorded.
+      **Complete (Phase 137, plan 137-06):** re-run live with no arguments (its real default targets)
+      after all four artifacts existed: `PASS: scanned 137-LEDGER.md, 137-DECISION.md,
+      137-RELEASE-NOTES-app.md, 137-GH12-COMMENT.md; 4 file(s) carry the required silicon caveat`, exit
+      0 — the literal, first-ever real-defaults run of this gate in this milestone. The paired suite's
+      `test_unarmed_when_zero_of_four_default_targets_exist` was replaced with
+      `test_armed_and_green_against_the_four_real_artifacts` (11/11 still passing) to reflect the armed
+      reality rather than leave a now-false assertion in the tree. Evidence:
+      `.planning/phases/137-close-honesty-ledger-claim-gate-gh12-followup/check_permitted_claims.py` +
+      `test_check_permitted_claims_v130.py`, meta commit (this plan's Task 1).
 
 - [x] **CLOSE-02**: The claim gate carries two target-resolution legs proving its default targets
       resolve inside its own phase directory, so a naive future copy fails loudly instead of scanning
@@ -772,7 +781,7 @@ Populated during roadmap creation.
 | PROV-04 | Phase 136.1 | Complete |
 | PROV-05 | Phase 136.1 | Complete |
 | PROV-06 | Phase 136.1 | Complete |
-| CLOSE-01 | Phase 137 | Pending |
+| CLOSE-01 | Phase 137 | Complete |
 | CLOSE-02 | Phase 137 | Complete |
 | CLOSE-03 | Phase 137 | Complete |
 | CLOSE-04 | Phase 137 | Complete |
