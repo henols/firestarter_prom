@@ -37,9 +37,10 @@ no commit was made in `firestarter_app` by this task.
 | Imported package file | `/workspaces/firestarter_app/firestarter/__init__.py` | `.venv/ci-replica/bin/python -c "import firestarter; print(firestarter.__file__); print(firestarter.__version__)"` |
 | Imported package version | `3.0.0b20` | same command as above |
 
-The devcontainer's ambient Python (`3.12.13`) is not used for any figure in this document — the string
-`3.12` appears in this file only in this sentence and the table row above, both explaining why it was
-**not** substituted for the CI-parity interpreter. Every measurement below runs `.venv/ci-replica/bin/python`
+The devcontainer's ambient Python (`3.12.13`) is not used for any figure in this document — every
+appearance of the string `3.12` in this file (here, the table row above, and §8's restatement of the
+interpreter constraint) is inside a sentence explaining why it was **not** substituted for the
+CI-parity interpreter, never a figure produced by running it. Every measurement below runs `.venv/ci-replica/bin/python`
 explicitly, from inside `/workspaces/firestarter_app` (never a sibling directory — the package is
 installed editable, and two tests resolve a path ending in the literal directory name
 `firestarter_app`; see §4).
@@ -101,6 +102,112 @@ branch, as later Wave 3 plans (Phase 143) expect it.
 
 ---
 
-*(Task 1 raw pass. Task 2 adds the verbatim output block, the divergence check against
-`138-RESEARCH.md`, the three constraints restated as measured facts, "what this number is — and is
-not," and "not established by this measurement.")*
+## 6. Verbatim output — full-suite run
+
+First line is the literal command; everything after is the unedited tail of the same run captured in
+§3, copied byte-for-byte (progress dots collapsed to the final `[100%]` line; nothing reflowed,
+nothing summarised):
+
+```
+$ .venv/ci-replica/bin/python -m pytest tests/ -o addopts="" -q
+...........................                                              [100%]
+=============================== warnings summary ===============================
+tests/test_click_group_gate_hook.py::test_multicommand_is_deprecated_alias_not_in_dir_but_still_reachable[MultiCommand]
+  /workspaces/firestarter_app/tests/test_click_group_gate_hook.py:161: DeprecationWarning: 'MultiCommand' is deprecated and will be removed in Click 9.0. Use 'Group' instead.
+    assert getattr(click, attr_name) is not None
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+--------------------------- snapshot report summary ----------------------------
+30 snapshots passed.
+1539 passed, 1 warning in 180.89s (0:03:00)
+```
+
+## 7. Divergence check against `138-RESEARCH.md`
+
+**This run's figure** (§3 above): commit `4d18b645ab18a2d2465f0f623062e9249eb24132`, branch
+`gsd/v1.31-27c-programming-algorithm-fidelity`, measured **in place** in
+`/workspaces/firestarter_app` via `.venv/ci-replica/bin/python -m pytest tests/ -o addopts="" -q` —
+**1539 collected, 1539 passed, 0 skipped, 0 failed, 180.89s**.
+
+**`138-RESEARCH.md`'s figure for the identical commit** (§"Host suite (`firestarter_app`)", row
+"live beta `4d18b64`"): the **same commit** `4d18b64`, the **same interpreter**
+(`.venv/ci-replica` py 3.11.15) — **1539 collected, 1493 passed, 46 skipped, 0 failed, 179s**.
+
+**These are not two different trees — they are the identical commit, and the collected totals agree
+exactly (1539 = 1539). The passed/skipped split disagrees sharply (1539/0 here vs 1493/46 in
+research), and that disagreement is stated here with both values, unreconciled, per the plan's own
+instruction not to adjust either number to make them meet.**
+
+**Context on the divergence, offered as an observation and explicitly not a reconciliation:**
+`138-RESEARCH.md`'s own text for that row states plainly that its full-suite pass/skip breakdown for
+`4d18b64` was "measured in a directory named `app_beta_live`" — not `/workspaces/firestarter_app` —
+and that research's own two directory-name-dependent tests **FAIL** in that location. This run, by
+contrast, was measured in place, in the real `/workspaces/firestarter_app` checkout, with the real
+sibling firmware repo reachable at `/workspaces/firestarter` one level up. `firestarter_app/tests/fw_presence.py`
+gates **72** cross-repo-test references (`grep -rn "requires_fw" tests/*.py | grep -v fw_presence.py | wc -l`,
+run this session) on `requires_fw = pytest.mark.skipif(not FW_REPO_PRESENT, reason=...)`, where
+`FW_REPO_PRESENT` is decided by whether `<checkout>/../firestarter/.git` exists
+relative to the checkout doing the measuring. A checkout named `app_beta_live` sitting somewhere other
+than as a direct sibling of the real `/workspaces/firestarter` would fail that marker check and skip
+every `requires_fw`-gated test — a batch consistent in shape with the missing 46. **This plan did not
+independently re-verify that mechanism inside `app_beta_live` itself** (that directory's checkout is
+not this plan's to re-inspect), so it is recorded here as a plausible, unconfirmed explanation for
+*why* the two figures diverge, not as a correction to either one. Both numbers stand, attributed to
+their own command and location, exactly as measured.
+
+## 8. The three constraints, restated as measured facts
+
+- **Interpreter.** This entire measurement ran under `.venv/ci-replica/bin/python`, verified to print
+  `Python 3.11.15` (§2). The devcontainer's ambient interpreter, `python3`, is `Python 3.12.13` and
+  **masks** `firestarter_app`'s py3.9/3.11 CI matrix — it was recorded once, in §2, purely for
+  contrast, and was not used to produce any figure in this document.
+- **The count line.** `firestarter_app/pyproject.toml`'s `[tool.pytest.ini_options]` sets
+  `addopts = "-ra -q"`. Every pytest invocation in this document passes `-o addopts=""` on the command
+  line specifically to prevent the configured `-q` from combining with a second `-q` into `-qq`, which
+  would suppress the `N passed, ... in Ts` count line that is the entire measurement (Pitfall 9). The
+  count line survived intact in every run recorded here (§3, §4, §6).
+- **The directory name.** Two tests —
+  `tests/test_gen_validation_header.py::test_validate_spec_called_before_emission` and
+  `tests/test_sdp_bus_config_drift.py::test_bad_pinout_fails_closed_and_writes_nothing` — resolve a
+  path ending in the literal directory name `firestarter_app` and fail in any checkout named
+  otherwise (confirmed in `138-RESEARCH.md`, and independently corroborated by §7's divergence, where
+  a differently-named checkout also produced a different skip count). Both were observed **passing**
+  in this document's own measurement, run in place, by node id (§4).
+
+## 9. What this number is — and is not
+
+**This number is** the pre-change input Phase 144's TEST-03 compares against, for the host suite
+half of PREP-03, measured against the named commit `4d18b645ab18a2d2465f0f623062e9249eb24132` on
+branch `gsd/v1.31-27c-programming-algorithm-fidelity`, under the CI-parity interpreter, in place, in
+`/workspaces/firestarter_app`.
+
+**It is not:**
+- **Not a claim that CI is green.** No CI workflow was dispatched by this plan, and no run id is
+  recorded anywhere in this document. The operator-gated CI evidence for `firestarter_app` **is plan
+  07's scope**, not this one's.
+- **Not a claim about coverage.** `pytest-cov`/snapshot plugin output was captured only incidentally
+  (the `.coverage` file already existed untracked before this task ran, per §5); no coverage
+  percentage is asserted or claimed here.
+- **Not a measurement of any tree other than the one named.** Every figure in this document is
+  attributed to commit `4d18b645ab18a2d2465f0f623062e9249eb24132`; no figure describes the live
+  `beta` tip, the `fix/dev-test-blank-check-after-erase` branch, or any other ref.
+
+## 10. Not established by this measurement
+
+- **Nothing about the firmware.** No golden trace, no flash/RAM figure, and no native-suite count is
+  established here — that is Plans 03/05/06's scope within this same phase.
+- **Nothing about the host's behaviour on Python 3.9**, the lowest version `firestarter_app`'s CI
+  matrix supports. `.venv/ci-replica` is `3.11.15`; no 3.9 interpreter was invoked by this plan.
+- **Nothing about the app's packaging or publish path.** No `pip install .` (non-editable), no
+  `python -m build`, and no PyPI query was run by this plan.
+- **No CI run.** Confirming §9: no `gh workflow run` (blocked by the auto-mode classifier in any case)
+  and no `gh run view` were executed by this plan — plan 07 owns that evidence.
+- **No re-derivation of `138-RESEARCH.md`'s exact 46-skipped test list.** §7's proposed mechanism
+  (sibling-repo marker + a differently-named checkout) is offered as context, not proof — this plan did
+  not re-open or re-measure inside the `app_beta_live` directory research used.
+
+---
+
+*Phase: 138-preconditions-baseline — Plan 04*
+*Recorded: 2026-08-08, measured live in `/workspaces/firestarter_app` under `.venv/ci-replica`
+(Python 3.11.15), commit `4d18b645ab18a2d2465f0f623062e9249eb24132`.*
