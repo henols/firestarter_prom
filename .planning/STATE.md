@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.31
 milestone_name: "27C Programming-Algorithm Fidelity (gh#15)"
 status: planning
-last_updated: "2026-08-08T17:09:41.645Z"
+last_updated: "2026-08-08T18:45:00.000Z"
 last_activity: 2026-08-08
 progress:
-  total_phases: 0
+  total_phases: 9
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -87,10 +87,37 @@ forks off the v1.30 tip.
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: Not started (roadmap created; ready for `/gsd-plan-phase 138`)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-08-08 — Milestone v1.31 started
+Status: Roadmap created — 9 phases (138–146), 45/45 requirements mapped
+Last activity: 2026-08-08 — ROADMAP.md created for v1.31 (Phases 138–146)
+
+## Roadmap Summary (v1.31)
+
+**Created:** 2026-08-08 — derived from `.planning/seeds/27c-algorithm-fidelity-param-table-refactor.md` + gh#15 (no `research/SUMMARY.md` for this milestone; project-level research deliberately skipped, operator decision 2026-08-08 — the seed + gh#15 + a `/gsd-explore` pass already constitute the research).
+
+**Phases:** 9 (138–146). **Granularity:** Comprehensive (config). **Coverage:** 45/45 v1 requirements mapped, 0 unmapped — exact 1:1 category→phase mapping (PREP→138, ISSUE→139, TABLE→140, LOOP→141, VPP→142, HOST→143, TEST→144, BENCH→145, CLOSE→146).
+
+| Phase | Goal | Requirements |
+|-------|------|--------------|
+| 138 Preconditions & Baseline | Verified branch bases (operator PR-merge gate) + a pre-change golden-trace/flash-RAM/suite-count baseline + the live pulse-width distribution, all before any `eprom.cpp` edit | PREP-01…04 |
+| 139 gh#15 Correction (outward) | Draft, freeze, operator-approve, and (only on explicit authorization) post the C1/C2/C3 + 6.25V-ceiling correction before any implementation lands | ISSUE-01…03 |
+| 140 Parameter Table | `const` `protocol_id`-keyed shape table (no pulse column), datasheet-cited, no second dispatch key | TABLE-01…05 |
+| 141 Per-Byte Program Loop | Fixed-width pulse→verify per byte, overprogram/energy-cap rules, hard-fail-on-max-pulses, VPE held per block | LOOP-01…08 |
+| 142 High-Voltage Routing | Table-driven VPP/VPE path selection, one shared mask set, disable-on-every-exit, over-voltage refusal re-verified | VPP-01…04 |
+| 143 Host Timeout, Progress & Pulse Override | Long blocks survive the host timeout with visible progress; `--pulse-us` bounded and pre-validated | HOST-01…05 |
+| 144 Tests & Build Verification | Native/host/cross-repo proof of the new algorithm; deliberate frozen-vs-new golden-trace diff; flash/RAM delta vs. Phase 138 baseline | TEST-01…08 |
+| 145 Bench Validation | `0x07` required bench proof; `0x08`/`0x0B` opportunistic or honestly skipped; zero `support_status` change | BENCH-01…03 |
+| 146 Close | Fail-provable claim gate; honesty ledger; docs; gh#15 reconciled item by item; stranger-actionable release notes | CLOSE-01…05 |
+
+**Load-bearing ordering (not preference):** 138→139 (PREP-04's distribution is ISSUE-01's cited evidence) · 139 before 140/141/142/143 (D-03: the correction is public before any implementation lands) · 140→141 (the loop is table-driven) · 141→142 (VPP hardening re-verifies the loop's own hard-fail/disable behavior) · 138→143 (independent of 140-142, different repo — genuinely parallel) · {140,141,142,143}→144 (cross-repo constants parity needs all four) · 144→145 (bench needs a built, passing image) · 145→146 (close reports on bench evidence) · 139→146 (close reconciles gh#15 against the posted correction).
+
+**Genuinely parallel: {140, 141, 142} (firestarter) ∥ {143} (firestarter_app)** — disjoint repos, converge at 144.
+
+**Deviation from a research spine:** none exists to deviate from — this milestone deliberately skipped project-level research (operator decision, 2026-08-08); the seed + gh#15 + the `/gsd-explore` correction pass are the research record this roadmap is derived from instead.
+
+**Full detail:** `.planning/ROADMAP.md` §"v1.31 — 27C Programming-Algorithm Fidelity (gh#15) (PLANNING)".
+
 
 ### Phase 137 plan 06 (2026-08-05) — COMPLETE — PHASE 137 CLOSED
 

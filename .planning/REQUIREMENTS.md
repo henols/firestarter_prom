@@ -195,17 +195,59 @@ Deferred. Tracked but not in this roadmap.
 
 ## Traceability
 
-Populated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| _(pending roadmap)_ | | |
+| PREP-01 | Phase 138 | Pending |
+| PREP-02 | Phase 138 | Pending |
+| PREP-03 | Phase 138 | Pending |
+| PREP-04 | Phase 138 | Pending |
+| ISSUE-01 | Phase 139 | Pending |
+| ISSUE-02 | Phase 139 | Pending |
+| ISSUE-03 | Phase 139 | Pending |
+| TABLE-01 | Phase 140 | Pending |
+| TABLE-02 | Phase 140 | Pending |
+| TABLE-03 | Phase 140 | Pending |
+| TABLE-04 | Phase 140 | Pending |
+| TABLE-05 | Phase 140 | Pending |
+| LOOP-01 | Phase 141 | Pending |
+| LOOP-02 | Phase 141 | Pending |
+| LOOP-03 | Phase 141 | Pending |
+| LOOP-04 | Phase 141 | Pending |
+| LOOP-05 | Phase 141 | Pending |
+| LOOP-06 | Phase 141 | Pending |
+| LOOP-07 | Phase 141 | Pending |
+| LOOP-08 | Phase 141 | Pending |
+| VPP-01 | Phase 142 | Pending |
+| VPP-02 | Phase 142 | Pending |
+| VPP-03 | Phase 142 | Pending |
+| VPP-04 | Phase 142 | Pending |
+| HOST-01 | Phase 143 | Pending |
+| HOST-02 | Phase 143 | Pending |
+| HOST-03 | Phase 143 | Pending |
+| HOST-04 | Phase 143 | Pending |
+| HOST-05 | Phase 143 | Pending |
+| TEST-01 | Phase 144 | Pending |
+| TEST-02 | Phase 144 | Pending |
+| TEST-03 | Phase 144 | Pending |
+| TEST-04 | Phase 144 | Pending |
+| TEST-05 | Phase 144 | Pending |
+| TEST-06 | Phase 144 | Pending |
+| TEST-07 | Phase 144 | Pending |
+| TEST-08 | Phase 144 | Pending |
+| BENCH-01 | Phase 145 | Pending |
+| BENCH-02 | Phase 145 | Pending |
+| BENCH-03 | Phase 145 | Pending |
+| CLOSE-01 | Phase 146 | Pending |
+| CLOSE-02 | Phase 146 | Pending |
+| CLOSE-03 | Phase 146 | Pending |
+| CLOSE-04 | Phase 146 | Pending |
+| CLOSE-05 | Phase 146 | Pending |
 
 **Coverage:**
 - v1 requirements: 45 total
-- Mapped to phases: 0
-- Unmapped: 45 ⚠️
+- Mapped to phases: 45
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-08-08*
-*Last updated: 2026-08-08 after initial definition*
+*Last updated: 2026-08-08 after roadmap creation (Phases 138-146, 45/45 mapped)*
