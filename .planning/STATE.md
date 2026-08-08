@@ -1,19 +1,19 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.31
-milestone_name: "27C Programming-Algorithm Fidelity (gh#15)"
+milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 138
-current_phase_name: "Preconditions & Baseline"
-status: Phase 138 PLANNED — 7 plans / 5 waves; ready for /gsd-execute-phase 138
-stopped_at: Phase 138 planned
-last_updated: "2026-08-08T21:03:52.518Z"
+current_phase_name: preconditions-baseline
+status: executing
+stopped_at: Completed 138-01-PLAN.md
+last_updated: "2026-08-08T21:44:06.821Z"
 last_activity: 2026-08-08
-last_activity_desc: Phase 138 planned — 7 plans / 5 waves; plan-checker VERIFICATION PASSED (0 blockers, 0 warnings after one revision); PREP-01..04 4/4 covered, CONTEXT decisions 11/11 covered
+last_activity_desc: Phase 138 execution started
 progress:
-  total_phases: 9
+  total_phases: 8
   completed_phases: 0
   total_plans: 7
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 ---
 
@@ -29,7 +29,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-08 — v1.31 started)
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
 authoritative dispatch key end to end. v1.31 makes that key drive *programming behaviour*, not just
 handler selection — while keeping the pulse width itself a database datum, not a protocol constant.
-**Current focus:** Milestone v1.31 activated — defining requirements, no phase started.
+**Current focus:** Phase 138 — preconditions-baseline
 
 **v1.31 27C Programming-Algorithm Fidelity (gh#15)** — ACTIVE (activated 2026-08-08, retiring Backlog
 **999.22** which was queued as the `v1.27` slot). **Firmware-touching, dual-repo lockstep.** Phase
@@ -111,10 +111,10 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 ## Current Position
 
-Phase: 138 — Preconditions & Baseline (PLANNED — ready for `/gsd-execute-phase 138`)
-Plan: 7 plans / 5 waves — none executed
-Status: Phase 138 planned — research, pattern map and Nyquist validation strategy committed; plan-checker VERIFICATION PASSED (0 blockers, 0 warnings after one revision)
-Last activity: 2026-08-08 — Phase 138 planned (7 plans / 5 waves); research falsified 4 CONTEXT.md branch/ancestry facts; operator decisions OD-1/OD-2/OD-3 recorded
+Phase: 138 (preconditions-baseline) — EXECUTING
+Plan: 2 of 7
+Status: Ready to execute
+Last activity: 2026-08-08 — Phase 138 execution started
 
 ## Roadmap Summary (v1.31)
 
@@ -1755,6 +1755,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 137 Plan 04]: A requirement's own stated criterion text can independently go stale even after every OTHER document in the tree (`PROJECT.md`, `STATE.md`, `ROADMAP.md`, the amended gh#12-followup todo) has already been corrected -- `REQUIREMENTS.md`'s own CLOSE-05 checkbox text still read `dev sdp enable` -> `write --sdp-relock` (the exact overclaim this milestone exists to catch) until this plan fixed it in place. Check the requirement's OWN wording before ticking it Complete, not just its cross-references.
 - [Phase 137 Plan 04]: `check_permitted_claims.py`'s "self-verifying" relational rule fires on a bare mention near ANY SDP/AT28C/0x0D context token unless "emission" or the required caveat sits within one line either side -- a release-notes title alone (no nearby qualifier) is enough to trip it. Reworded rather than added a qualifier, since the qualifier would have read awkwardly in a title.
 - [Phase 137 Plan 04]: A literal-substring acceptance check (`grep -c 'write --sdp-relock'` == 0) can be satisfied while still being fully transparent about a deferred replacement -- described the queued design without ever writing the flag name preceded by "write ", so the mechanical check and the honest narrative do not conflict.
+- [Phase 138]: PREP-01 discharged as F-138-01 content-equivalence finding (four re-measured oracles), not a merge — PR #44 was already squash-merged 2026-08-05 (568e58b); ancestry exits 1 by construction (squash false negative); comm -23 over both branches' file listings is empty; D-08 is therefore a no-op, no PR opened, requirement wording corrected from ancestry to content-equivalence per OD-1
+- [Phase 138]: gsd/v1.31-27c-programming-algorithm-fidelity created/verified in all three repos on named, twice-verified bases — meta off d0f0c6a0 (confirmed the fork point, not the shorter-named 00af5771 v1.30 branch); firmware created+checked-out at the decided base 3085084 per OD-2 (not the live drifted tip 6fab4ea — F-138-02 carries that forward, owners Phase 144/TEST-08); app ref created (not checked out) at the live re-fetched beta tip 4d18b64; submodule gitlinks deliberately not advanced per OD-3 (F-138-03, owner henols)
 
 ## Performance Metrics
 
@@ -1958,12 +1960,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 136.1 P04 | 21min | 1 tasks | 3 files |
 | Phase 137 P01 | 20min | 3 tasks | 8 files |
 | Phase 137 P04 | 45min | 3 tasks | 9 files |
+| Phase 138 P01 | 17min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-08T18:23:16.509Z
-**Stopped at:** Phase 138 context gathered
-**Resume file:** .planning/phases/138-preconditions-baseline/138-CONTEXT.md
+**Last session:** 2026-08-08T21:44:06.787Z
+**Stopped at:** Completed 138-01-PLAN.md
+**Resume file:** None
 
 ### Blockers
 

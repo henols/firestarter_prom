@@ -218,7 +218,7 @@ Requirement ticking is named exhaustively per plan so no plan ticks a multi-plan
 `138-01` → PREP-01, PREP-02 · `138-02` → none (PREP-04 delivered) · `138-03`/`138-04`/`138-05`/`138-06`
 → none (PREP-03 delivered across all four) · `138-07` → PREP-03, PREP-04.
 
-- [ ] 138-01-PLAN.md — Four-oracle PREP-01 content-equivalence adjudication and the three verified v1.31 branch bases
+- [x] 138-01-PLAN.md — Four-oracle PREP-01 content-equivalence adjudication and the three verified v1.31 branch bases
 - [ ] 138-02-PLAN.md — The reproducible, self-checking pulse-distribution script and its verbatim committed output
 - [ ] 138-03-PLAN.md — The opt-in timing recorder, the fourth native env, and three deterministic pre-change protocol captures
 - [ ] 138-04-PLAN.md — The host suite baseline measured at CI parity on the v1.31 app tree
@@ -392,7 +392,6 @@ Requirement ticking is named exhaustively per plan so no plan ticks a multi-plan
 | CLOSE-05 | Phase 146 | Pending |
 
 **Mapped: 45/45 requirements ✓** — no orphans, no duplicates.
-
 
 ## v1.30 — SDP Surface Retirement & Behavioral Lock Proof (SHIPPED 2026-08-05 — 55/56, CLOSE-06 open by design)
 
