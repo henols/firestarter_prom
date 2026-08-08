@@ -1141,7 +1141,12 @@ git hash-object      test/native/avr/_shared/sdp_expected.h    # same SHA, no co
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> All five were settled before planning completed. Each carries an inline
+> **RESOLVED** marker naming its resolver: an operator decision taken during the planning run
+> (OD-1/OD-2/OD-3, recorded in the plan-phase dispatch context) or the plan and task that settles it.
+> The questions' substance below is left exactly as researched; only the resolution markers are added.
 
 1. **Where does the trace fixture's `bus_config` come from?**
    - *Known:* `memory_set_data` → `mem_util_remap_address_bus(handle, address, WRITE_FLAG)`.
@@ -1151,6 +1156,17 @@ git hash-object      test/native/avr/_shared/sdp_expected.h    # same SHA, no co
      "generated files are never hand-edited") or to document a minimal in-fixture bus_config.
    - *Recommendation:* probe a zeroed `bus_config` first (A3). If degenerate, prefer **extending the
      generator** — it is the only route that keeps the trace's addresses traceable to `pinouts.json`.
+   - **RESOLVED — plan `138-03` Task 3.** A3's probe was settled from source rather than by execution:
+     `mem_util_remap_address_bus` opens with `config.address_mask & address` (`src/proms/memory.cpp:286`),
+     so a zeroed `bus_config` collapses every address to 0 — **degenerate, not identity**. The generator
+     is **not** extended (it lives in `firestarter_app/tools/`, not the firmware repo, and its
+     `validate_rows` rejects a pinout carrying `static-high-pins`, which `DIP24_2716` does — that is an
+     app-repo change regenerating a header two frozen SDP suites consume, outside this phase's fence).
+     Instead the plan derives each row through the generator's own `derive_row` — the host's live
+     `EpromDatabase.get_eprom()` plus `convert_to_programmer()` path — for AM27C512 / AM27C020 / AM2716,
+     translating the residual fields exactly as `src/json_parser.c:214-249` does, with the derivation
+     command recorded beside each literal. The generator gap is carried as finding **F-138-07** with an
+     owner.
 
 2. **Which firmware base does PREP-02 name — `3085084` (decided) or `6fab4ea` (live)?**
    - *Known:* the roadmap and CONTEXT lock `3085084`; the live tip is 2 ahead; the size gate is GREEN
@@ -1159,6 +1175,12 @@ git hash-object      test/native/avr/_shared/sdp_expected.h    # same SHA, no co
    - *Recommendation:* **operator decision, surfaced explicitly in the plan.** Forking at `3085084`
      keeps the gate green and the baseline citable but deliberately omits a landed protocol change
      that Phase 143/144 will meet anyway. Do not silently pick one.
+   - **RESOLVED — OD-2** (operator, during the planning run). Firmware forks at the **decided base
+     `3085084`**: a base whose own size gate arrives RED would make every downstream TEST-08 delta measure
+     against a broken reference, and D-07 forbids fixing it. The drift to the live tip, the uniform flash
+     delta and the MERGE-05 band headroom are carried forward as finding **F-138-02** with explicit
+     owners (Phase 144 / TEST-08 and Phase 143/144), recorded in `138-BRANCH-BASES.md` section 5 by plan
+     `138-01` Task 2.
 
 3. **Should PREP-02 advance the meta repo's submodule gitlinks?**
    - *Known:* the index points at `firestarter`→`0933bd7`, `firestarter_app`→`cc036e8`, both stale
@@ -1168,16 +1190,31 @@ git hash-object      test/native/avr/_shared/sdp_expected.h    # same SHA, no co
      meta repo should record those tips.
    - *Recommendation:* record the base commits in the **narrative artifact**; leave the gitlinks
      alone unless the operator asks — a gitlink bump is a meta commit with no stated requirement.
+   - **RESOLVED — OD-3** (operator, during the planning run). The gitlinks are **not** advanced. The three
+     verified base commits are named in the narrative artifact only, and the resulting `M firestarter` /
+     `M firestarter_app` status lines are recorded as expected rather than as dirt, under finding
+     **F-138-03** in `138-BRANCH-BASES.md` section 6 (plan `138-01` Task 2).
 
 4. **How is PREP-01 discharged given the requirement's premise is false?**
    - *Recommendation:* a named finding (`F-138-01`) with the four-oracle evidence, an explicit
      "requirement wording superseded by measurement" note, and the corrected criterion
      (**content-equivalence**, not ancestry). This mirrors `131-CI-BASELINE.md` §5's F-07 handling and
      §8's "the measured number wins" rule.
+   - **RESOLVED — OD-1** (operator, during the planning run), implemented by plan `138-01` Tasks 1 and 3.
+     PREP-01 is discharged as **F-138-01**, a content-equivalence adjudication with all four oracles
+     re-run live at execution; the requirement's wording is corrected in place from ancestry to content
+     equivalence; **D-08 is a no-op** — no PR is opened and no operator merge is requested, because the
+     pre-release D-08 predicted already happened.
 
 5. **Is the `check_size_baseline.py` unknown-env `KeyError` in scope to record?**
    - *Recommendation:* yes — as a **second** D-07-class finding with an owner, not a fix. It becomes
      load-bearing the moment a fourth native env exists.
+   - **RESOLVED — plan `138-06` Task 3.** Recorded as finding **F-138-05** with owner `henols`, covering
+     both the uncaught `KeyError` exiting 1 where the script's own taxonomy promises 2 **and** the
+     hardcoded `NATIVE_ENVS` that makes the phase's new fourth env invisible to both live gates. The
+     gate-blindness is stated as accepted-and-recorded with its compensating control (the env's counts
+     live in `size_baseline_v131.json` and in `envs_agree_note`, and the env is never passed to either
+     checker). Neither checker is modified — D-07.
 
 ---
 

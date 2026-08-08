@@ -51,6 +51,21 @@ FAIL if the checkout directory is named anything else
   counts **and** the new fixture's identity module green
 - **Max feedback latency:** 60 seconds for per-task sampling (single gate or single pytest module)
 
+**Documented exception — firmware cold-build tasks.** Six tasks verify a property that *is* the cold
+build, so a faster substitute would not prove the thing being measured. These are bounded by the
+**540000 ms** build timeout the Cold Measurement Protocol requires, not by the 60-second default:
+
+| Plan | Tasks | Why the cold build is the measurement |
+|------|-------|----------------------------------------|
+| `138-03` | T1, T2, T3 | `rm -rf .pio/build/ENV` then a single `pio test -e ENV` — the flag-off proof (141 cases / 17 suites on both pinned envs) and the trace env's first runs must not read a warm cache |
+| `138-05` | T1, T3 | The frozen-array assertion and the whole-firmware green-state re-establishment across all four native envs |
+| `138-06` | T1 | `pio run -t clean -e ENV` then a single `pio run -e ENV` for the three AVR targets, plus cold native runs — the warning watermark is contaminated by a warm cache (a worked correction is on file) |
+
+The 60-second default remains in force for every other task in the phase, including every python gate,
+every single pytest module, and every git or `gh` read. A default two-minute shell timeout truncates a
+cold toolchain build mid-compile while still leaving a parseable partial log, which is why the exception
+raises the bound rather than lowering the expectation.
+
 ---
 
 ## Per-Task Verification Map
