@@ -82,6 +82,27 @@ State plainly what remains unverified rather than implying a fix is confirmed.
 """
 
 
+def detect_gsd(root: str) -> tuple[bool, str]:
+    """(gsd_debugger_available, directory for the record).
+
+    GSD is optional. The `gsd-debugger` subagent resolves from `.claude/agents/`
+    in the project or `~/.claude/agents/`; if neither has it, spawning that
+    subagent type fails, so the skill must fall back to a plain investigation.
+    The directory choice is independent: `.planning/debug/` is the right home
+    whenever `.planning/` exists, GSD agent or not.
+    """
+    candidates = [
+        os.path.join(root, ".claude", "agents", "gsd-debugger.md"),
+        os.path.expanduser("~/.claude/agents/gsd-debugger.md"),
+    ]
+    available = any(os.path.exists(c) for c in candidates)
+    if os.path.isdir(os.path.join(root, ".planning")):
+        directory = os.path.join(root, ".planning", "debug")
+    else:
+        directory = os.path.join(root, "devtest-investigations")
+    return available, directory
+
+
 def gh(args: list[str]) -> str:
     try:
         r = subprocess.run(["gh", *args], capture_output=True, text=True,
@@ -160,6 +181,9 @@ def main() -> int:
                     help="do not write the session file")
     ap.add_argument("--force", action="store_true",
                     help="overwrite an existing session file")
+    ap.add_argument("--mode", choices=["auto", "gsd", "standalone"], default="auto",
+                    help="auto (default) uses GSD only when a gsd-debugger agent "
+                         "is installed; standalone never depends on GSD")
     args = ap.parse_args()
 
     # ---- gather -----------------------------------------------------------
@@ -265,26 +289,39 @@ issue: {issue_ref}
 
 """
 
-    path = os.path.join(args.root, ".planning", "debug", f"{slug}.md")
+    gsd_available, directory = detect_gsd(args.root)
+    mode = args.mode
+    if mode == "auto":
+        mode = "gsd" if gsd_available else "standalone"
+    elif mode == "gsd" and not gsd_available:
+        print("warning: --mode gsd forced, but no gsd-debugger agent found in "
+              f"{args.root}/.claude/agents/ or ~/.claude/agents/. Spawning that "
+              "subagent type will fail.", file=sys.stderr)
+
+    path = os.path.join(directory, f"{slug}.md")
     if not args.print_prompt_only:
         if os.path.exists(path) and not args.force:
             sys.exit(f"error: {path} already exists — pass --force to overwrite, "
                      f"or resume it instead")
-        os.makedirs(os.path.dirname(path), exist_ok=True)
+        os.makedirs(directory, exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:
             f.write(session)
-        print(f"[debug] Session: {path}")
-        print("[debug] Status: investigating")
-        print(f"[debug] Carried over {len(eliminated)} eliminated hypothes"
+        label = "Session" if mode == "gsd" else "Investigation record"
+        print(f"[{mode}] {label}: {path}")
+        print(f"[{mode}] Status: investigating")
+        print(f"[{mode}] Carried over {len(eliminated)} eliminated hypothes"
               f"{'is' if len(eliminated) == 1 else 'es'} from triage")
+        if mode == "standalone":
+            print("[standalone] GSD not detected — emitting a plain investigation "
+                  "prompt with no gsd-debugger dependency.")
 
-    # ---- spawn prompt -----------------------------------------------------
-    prompt = f"""<objective>
+    # ---- prompt -----------------------------------------------------------
+    shared_head = f"""<objective>
 Investigate issue: {slug}
 
 **Summary:** community `dev test` reports {', '.join(bad)} = {verdict} for {chip}
-on protocol {auto.get('protocol')}. Datasheet cross-check is already done and
-recorded in the session file's Eliminated section — do not repeat it.
+on protocol {auto.get('protocol')}. The datasheet cross-check is already done and
+recorded under Eliminated in the record file — do not repeat it.
 </objective>
 
 <symptoms>
@@ -294,7 +331,10 @@ errors: {errors}
 reproduction: firestarter dev test {chip}
 timeline: host {auto.get('host_version')}, report {report.get('generated')}
 </symptoms>
+"""
 
+    if mode == "gsd":
+        prompt = shared_head + f"""
 <mode>
 symptoms_prefilled: true
 goal: find_and_fix
@@ -304,7 +344,7 @@ goal: find_and_fix
 RESUME an existing session. Do NOT run `create_debug_file`, and do NOT overwrite
 this file — it is already seeded and creating a new one discards the work below.
 
-path:   .planning/debug/{slug}.md
+path:   {path}
 status: investigating
 
 Enter at the `resume_from_file` step: read the full file, then continue
@@ -315,11 +355,46 @@ datasheet by the triage step. Re-checking one is wasted work.
 </debug_file>
 
 {GUARDRAILS}"""
+        banner = [
+            'Spawn gsd-debugger DIRECTLY with this prompt (subagent_type="gsd-debugger").',
+            "Do NOT spawn gsd-debug-session-manager — nested spawning is broken in",
+            "this devcontainer and orphans a second debugger onto the same hardware.",
+        ]
+    else:
+        prompt = shared_head + f"""
+<record_file>
+Read, then keep updated as you work: {path}
+
+It is already populated. Treat the sections as:
+  Symptoms   — IMMUTABLE, do not rewrite
+  Context    — the chip, protocol, voltages and issue reference
+  Eliminated — APPEND-only. Every hypothesis listed was disproved against the
+               chip's datasheet during triage. Re-checking one is wasted work.
+  Evidence   — APPEND a dated entry for each thing you check and what you found
+
+Before each action, overwrite Current Focus with your live hypothesis, the test,
+what a result would mean, and the concrete next action. That block is what lets
+this be picked up after a context reset.
+</record_file>
+
+<method>
+Work one hypothesis at a time. State it, name the single test that would disprove
+it, run that test, then either move it to Eliminated with the evidence, or narrow.
+Do not change code until a hypothesis survives its disproving test.
+</method>
+
+{GUARDRAILS}"""
+        banner = [
+            ("GSD is not installed — this is a standalone investigation prompt."
+             if not gsd_available else
+             "Standalone mode (forced) — this prompt has no GSD dependency."),
+            "Hand it to a general-purpose agent, or work it yourself against the",
+            "record file. Commit any fix atomically on its own branch.",
+        ]
 
     print("\n" + "=" * 72)
-    print("Spawn gsd-debugger DIRECTLY with this prompt (subagent_type=\"gsd-debugger\").")
-    print("Do NOT spawn gsd-debug-session-manager — nested spawning is broken in")
-    print("this devcontainer and orphans a second debugger onto the same hardware.")
+    for line in banner:
+        print(line)
     print("=" * 72 + "\n")
     print(prompt)
     return 0

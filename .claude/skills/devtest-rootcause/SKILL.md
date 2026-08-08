@@ -218,6 +218,40 @@ at `resume_from_file`. Do not drop that block.
 When the debugger returns, continue at §4 — a debug session does not exempt a database
 change from the regen-and-diff proof.
 
+### If GSD is not installed
+
+**GSD is optional.** A contributor who clones this repo without it must still be able
+to use the skill, so the seeder detects and degrades:
+
+```bash
+python3 $S/seed_debug_session.py 32 --mode standalone   # force it either way
+```
+
+```
+[standalone] Investigation record: gsdless/devtest-investigations/at28c256-sdp.md
+[standalone] Carried over 5 eliminated hypotheses from triage
+[standalone] GSD not detected — emitting a plain investigation prompt with no gsd-debugger dependency.
+```
+
+| Signal | Effect |
+|---|---|
+| `gsd-debugger.md` in `<root>/.claude/agents/` or `~/.claude/agents/` | Decides the **prompt**: GSD spawn prompt vs standalone |
+| `<root>/.planning/` exists | Decides the **directory**: `.planning/debug/` vs `devtest-investigations/` |
+
+The two signals are independent — `.planning/` is a sensible home for the record even
+where the agent is missing. `--mode gsd` on a machine without the agent warns rather
+than failing silently, because spawning that subagent type will fail.
+
+The standalone prompt drops every GSD-specific step name and instead states the method
+— one hypothesis at a time, name the test that would disprove it, no code changes until
+a hypothesis survives — and keeps the same record-file discipline (Symptoms immutable,
+Eliminated append-only, Current Focus overwritten before each action). **It carries the
+identical fix-surface guardrails**, which is the part that must never be lost: those
+protect the generated database regardless of who does the investigating.
+
+Hand it to a general-purpose agent or work it yourself, and commit any fix atomically
+on its own branch — the GSD routing in Hard rules below applies only where GSD exists.
+
 ## 4. Regenerate and prove the change
 
 Never edit the JSON. After changing the generator:
@@ -277,10 +311,12 @@ is not a validation. Only `devtest-triage` closes issues, and only on a PASS rep
   12V reaching a 5V part's WE/address pin — a hardware-damage guard, not a lint.
 - Do not "fix" `PROTO_PHANTOM_0x35` / `0x39` spelling in `proto_constants.h`; those
   substrings are deliberate.
-- File-changing work in this project goes through GSD so it lands with atomic commits
-  and state tracking. An unexplained failure goes to a seeded debug session (§3); an
-  already-diagnosed one-line fix can go to `/gsd-quick`. Route there rather than
-  committing around the gate.
+- **Where GSD is installed**, file-changing work goes through it so it lands with atomic
+  commits and state tracking: an unexplained failure to a seeded debug session (§3), an
+  already-diagnosed one-line fix to `/gsd-quick`. Route there rather than committing
+  around the gate. Where it is not installed, that rule cannot apply — use the
+  standalone prompt and commit atomically on a branch. GSD is a convenience here; the
+  fix-surface rules are not, and hold either way.
 - Spawn `gsd-debugger` **directly**, one level. Never `gsd-debug-session-manager`, and
   never two debuggers at once — they race the serial port and confound the readings.
 - Any prompt handed to a debugger must carry the fix-surface rules. It has Write access

@@ -177,8 +177,10 @@ gh issue close 27 --repo henols/firestarter_prom \
   --comment "Validated: all applicable steps OK. Logged in .planning/VALIDATED-EPROMS.md."
 ```
 
-Then append one row to `/workspaces/.planning/VALIDATED-EPROMS.md`, creating it with
-this header if absent:
+Then append one row to the ledger, creating it with this header if absent. The ledger
+lives at `/workspaces/.planning/VALIDATED-EPROMS.md` when `.planning/` exists; on a
+clone without GSD it goes to `VALIDATED-EPROMS.md` at the repo root — the ledger is
+this skill's own artifact and has no GSD dependency beyond that directory choice.
 
 ```markdown
 # Validated EPROMs
