@@ -196,6 +196,21 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
   3. A committed baseline artifact, captured before any `eprom.cpp` edit, holds the frozen pre-change golden register traces plus per-target (`uno`/`uno328pb`/`leonardo`) flash and RAM usage plus full native and host suite pass counts.
   4. A committed artifact states the live per-protocol `pulse_delay` distribution re-derived from the shipped `chip_database.json` for `0x07`/`0x08`/`0x0B`, measured this milestone rather than restated from the seed.
 
+**CORRECTION to criterion 1 (2026-08-08, planning — operator decision OD-1).** Criterion 1's premise is
+**falsified by measurement**: `firestarter_app` PR **#44** was already opened *and* merged on
+2026-08-05 as a **squash** (`568e58b`). `--is-ancestor` exits 1 **because of the squash**, not because
+content is missing — zero files on the v1.30 branch are absent from `beta`, and a re-merge is
+guaranteed to conflict. There is no "staged PR" left for an operator to merge, and the app pre-release
+this predicted already happened (`beta` is at `3.0.0b20`). **Criterion 1 is therefore read as
+content-equivalence, not ancestry**, and is discharged by named finding `F-138-01` carrying four
+independent oracles (GitHub PR state; empty `comm -23` of both `git ls-tree` lists; restricted
+`git diff --stat` fully attributable to PRs #45/#46/#48/#49 plus the version bump; `git cherry` 85 `+`).
+Do **not** force the literal exit-0 by re-merging. Related decisions: **OD-2** — firmware still forks at
+`3085084` (size gate GREEN there, RED at the live tip `6fab4ea`, +34 B ×3), with the drift and the
+MERGE-05 headroom recorded as a forward finding and **not fixed** (D-07); meta's base is **`d0f0c6a0`**.
+**OD-3** — the meta repo's submodule gitlinks are not advanced. Evidence:
+`.planning/phases/138-preconditions-baseline/138-RESEARCH.md` §"Branch & Ancestry Ground Truth".
+
 **Plans**: 7 plans in 5 waves — wave 1 `138-01`, `138-02` · wave 2 `138-03`, `138-04` · wave 3
 `138-05` · wave 4 `138-06` · wave 5 `138-07`. Only `138-07` is non-autonomous (the operator-gated
 branch push plus the app `ci.yml` dispatch; firmware CI has no `workflow_dispatch` and is push-produced).

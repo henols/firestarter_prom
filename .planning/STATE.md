@@ -4,15 +4,15 @@ milestone: v1.31
 milestone_name: "27C Programming-Algorithm Fidelity (gh#15)"
 current_phase: 138
 current_phase_name: "Preconditions & Baseline"
-status: planning
-stopped_at: Phase 138 context gathered
-last_updated: "2026-08-08T18:50:00.000Z"
+status: Phase 138 PLANNED — 7 plans / 5 waves; ready for /gsd-execute-phase 138
+stopped_at: Phase 138 planned
+last_updated: "2026-08-08T21:03:52.518Z"
 last_activity: 2026-08-08
-last_activity_desc: Phase 138 context gathered; ready for `/gsd-plan-phase 138`
+last_activity_desc: Phase 138 planned — 7 plans / 5 waves; plan-checker VERIFICATION PASSED (0 blockers, 0 warnings after one revision); PREP-01..04 4/4 covered, CONTEXT decisions 11/11 covered
 progress:
   total_phases: 9
   completed_phases: 0
-  total_plans: 0
+  total_plans: 7
   completed_plans: 0
   percent: 0
 ---
@@ -91,12 +91,30 @@ though v1.30 is recorded as shipped. Operator decision 2026-08-08: **land it to 
 fork v1.31's app branch off the updated `beta`. Firmware forks off `beta` @ `3085084` (clean). Meta
 forks off the v1.30 tip.
 
+**CORRECTION (2026-08-08, Phase 138 planning — measured, not recalled).** The precondition above is
+**falsified**: `firestarter_app` PR **#44** was opened *and* **MERGED** on 2026-08-05T21:13:01Z as a
+**squash** (merge commit `568e58b`, single parent `16a313a`). `git merge-base --is-ancestor` exits 1
+**because of the squash**, not because content is missing — `comm -23` of both `git ls-tree -r
+--name-only` lists is **empty** (zero files on the v1.30 branch absent from `beta`), and
+`git diff --stat` is 12 files fully attributable to beta's later PRs #45/#46/#48/#49 plus the version
+bump. A re-merge is *guaranteed* to conflict (`tests/test_chip_test_sdp_leg.py` added in both with
+different blobs). **Operator decisions this session:** (**OD-1**) PREP-01 is discharged as a named
+content-equivalence finding `F-138-01`, **not** a merge — no PR is opened and no operator merge is
+required; the pre-release this predicted **already happened** (`beta` is at `3.0.0b20`).
+(**OD-2**) firmware still forks at `3085084` — `check_size_baseline.py` is **GREEN** there and **RED**
+at the live tip `6fab4ea` (+34 B flash ×3 targets) — with the drift and the MERGE-05 headroom (+56/+62
+against a 64 B band) recorded as a forward finding with owners, **not fixed** (D-07). The app forks at
+the live post-merge `beta` tip; meta's base is **`d0f0c6a0`** (the *longer-named* v1.30 branch).
+(**OD-3**) the meta repo's stale submodule gitlinks are **not** advanced — the three base commits are
+named in the narrative baseline artifact instead. Full four-oracle evidence:
+`.planning/phases/138-preconditions-baseline/138-RESEARCH.md` §"Branch & Ancestry Ground Truth".
+
 ## Current Position
 
-Phase: Not started (roadmap created; ready for `/gsd-plan-phase 138`)
-Plan: —
-Status: Roadmap created — 9 phases (138–146), 45/45 requirements mapped
-Last activity: 2026-08-08 — ROADMAP.md created for v1.31 (Phases 138–146)
+Phase: 138 — Preconditions & Baseline (PLANNED — ready for `/gsd-execute-phase 138`)
+Plan: 7 plans / 5 waves — none executed
+Status: Phase 138 planned — research, pattern map and Nyquist validation strategy committed; plan-checker VERIFICATION PASSED (0 blockers, 0 warnings after one revision)
+Last activity: 2026-08-08 — Phase 138 planned (7 plans / 5 waves); research falsified 4 CONTEXT.md branch/ancestry facts; operator decisions OD-1/OD-2/OD-3 recorded
 
 ## Roadmap Summary (v1.31)
 
