@@ -206,6 +206,15 @@ decoration: `gsd-debugger` has Write access and no knowledge that
 and the change will vanish at the next regen. If you write the prompt yourself, carry
 them, plus the hardware note that `dev test` always writes and needs operator consent.
 
+**The prompt must also force the resume path.** `gsd-debugger`'s own entry flow reads
+*"If active sessions exist AND $ARGUMENTS: start new session → `create_debug_file`"*,
+and that step writes a fresh file with `status: gathering` and an **empty Symptoms**.
+Since the spawn prompt supplies arguments, a debugger that takes that branch discards
+the seeded file — losing the whole Eliminated section, and then skipping symptom
+gathering because `symptoms_prefilled: true`. Strictly worse than not seeding. The
+generated prompt therefore names the path and status explicitly and tells it to enter
+at `resume_from_file`. Do not drop that block.
+
 When the debugger returns, continue at §4 — a debug session does not exempt a database
 change from the regen-and-diff proof.
 

@@ -301,8 +301,17 @@ goal: find_and_fix
 </mode>
 
 <debug_file>
-Read and update: .planning/debug/{slug}.md
-It is ALREADY SEEDED with symptoms, context and eliminated hypotheses.
+RESUME an existing session. Do NOT run `create_debug_file`, and do NOT overwrite
+this file — it is already seeded and creating a new one discards the work below.
+
+path:   .planning/debug/{slug}.md
+status: investigating
+
+Enter at the `resume_from_file` step: read the full file, then continue
+`investigation_loop` from Current Focus. Symptoms and Context are already
+populated (Symptoms is IMMUTABLE). Eliminated is already populated and is
+APPEND-only — every hypothesis listed there was disproved against the chip's
+datasheet by the triage step. Re-checking one is wasted work.
 </debug_file>
 
 {GUARDRAILS}"""
