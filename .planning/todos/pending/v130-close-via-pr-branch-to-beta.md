@@ -4,7 +4,17 @@ date: 2026-08-04
 priority: high
 blocked_by: Phase 137 must close first. Operator confirmed 2026-08-04 that the close fires AFTER Phase 137, not after Phase 133.
 resolves_phase: 137 (close) — this is the procedure the close itself must follow
+carried_to_phase: 138
 ---
+
+> **⚠ CARRIED FORWARD 2026-08-08 → v1.31 Phase 138 (PREP-01).** Step 3 never ran. Measured on
+> 2026-08-08: `firestarter_app`'s `gsd/v1.30-sdp-surface-retirement` is **not** an ancestor of
+> `origin/beta`, and `gh pr list` shows no open v1.30 PR — the PR body was staged
+> (`.planning/v1.30-PR-BODY.md`, commit `d0f0c6a0`) but the PR was never opened, even though v1.30 is
+> recorded as shipped in `MILESTONES.md`. v1.31 touches the host, so this blocks its app branch fork.
+> Operator decision 2026-08-08: **land v1.30 to `beta` first**, then fork v1.31's app branch off the
+> updated `beta`. PREP-01 verifies it with `git merge-base --is-ancestor` rather than trusting the
+> milestone record. This todo stays open until that check exits 0.
 
 # Standing operator instruction for the v1.30 close
 
