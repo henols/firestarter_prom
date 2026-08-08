@@ -2,9 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.31
 milestone_name: "27C Programming-Algorithm Fidelity (gh#15)"
+current_phase: 138
+current_phase_name: "Preconditions & Baseline"
 status: planning
-last_updated: "2026-08-08T18:45:00.000Z"
+stopped_at: Phase 138 context gathered
+last_updated: "2026-08-08T18:50:00.000Z"
 last_activity: 2026-08-08
+last_activity_desc: Phase 138 context gathered; ready for `/gsd-plan-phase 138`
 progress:
   total_phases: 9
   completed_phases: 0
@@ -41,11 +45,13 @@ numbers and one inverted premise in the issue:
 - **C1** — gh#15's `0x0B` `pulse: 50000 us` is the fingerprint of **BUG-2**, the ×100
   `interpret_timing()` multiplier over 252 chips that Phase 57 already removed. True value **500 µs**.
   Adjudicated at `firestarter_app/doc/infoic-field-dictionary.md:210-217`.
+
 - **C2** — pulse width is **DATA, not a per-protocol constant**. Measured live against the shipped DB
   2026-08-08: `0x07` n=170 (100 µs ×113, 200×27, 1000×22, 500×4, 50×4); `0x08` n=127 (100 µs ×104,
   50×11, 10×7, 200×2, 1000×2, 20×1); `0x0B` n=32 (500 µs ×21, 1000×6, 200×5) — all three gh#15
   constants disagree with the modal value. minipro ships `protocol_id` and `pulse_delay` as two
   orthogonal wire fields (`t48.c:250-267`) and exposes `-o pulse=N` per run (uint16, 65535 µs ceiling).
+
 - **C3** — the safe 32-bit delay helper is still needed, but for the **75 ms overprogram pulse**, not
   for any pulse.
 
@@ -117,7 +123,6 @@ Last activity: 2026-08-08 — ROADMAP.md created for v1.31 (Phases 138–146)
 **Deviation from a research spine:** none exists to deviate from — this milestone deliberately skipped project-level research (operator decision, 2026-08-08); the seed + gh#15 + the `/gsd-explore` correction pass are the research record this roadmap is derived from instead.
 
 **Full detail:** `.planning/ROADMAP.md` §"v1.31 — 27C Programming-Algorithm Fidelity (gh#15) (PLANNING)".
-
 
 ### Phase 137 plan 06 (2026-08-05) — COMPLETE — PHASE 137 CLOSED
 
@@ -1938,9 +1943,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-05T19:25:00.000Z
-**Stopped at:** Completed 137-04-PLAN.md (Wave 4 of 6; CLOSE-05 + RELOCK-07 ticked; next is 137-05)
-**Resume file:** None
+**Last session:** 2026-08-08T18:23:16.509Z
+**Stopped at:** Phase 138 context gathered
+**Resume file:** .planning/phases/138-preconditions-baseline/138-CONTEXT.md
 
 ### Blockers
 
