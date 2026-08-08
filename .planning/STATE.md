@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 138
 current_phase_name: preconditions-baseline
 status: executing
-stopped_at: Completed 138-01-PLAN.md
-last_updated: "2026-08-08T21:44:06.821Z"
+stopped_at: Completed 138-02-PLAN.md
+last_updated: "2026-08-08T22:17:29.803Z"
 last_activity: 2026-08-08
 last_activity_desc: Phase 138 execution started
 progress:
   total_phases: 8
   completed_phases: 0
   total_plans: 7
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 138 (preconditions-baseline) — EXECUTING
-Plan: 2 of 7
+Plan: 3 of 7
 Status: Ready to execute
 Last activity: 2026-08-08 — Phase 138 execution started
 
@@ -1757,6 +1757,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 137 Plan 04]: A literal-substring acceptance check (`grep -c 'write --sdp-relock'` == 0) can be satisfied while still being fully transparent about a deferred replacement -- described the queued design without ever writing the flag name preceded by "write ", so the mechanical check and the honest narrative do not conflict.
 - [Phase 138]: PREP-01 discharged as F-138-01 content-equivalence finding (four re-measured oracles), not a merge — PR #44 was already squash-merged 2026-08-05 (568e58b); ancestry exits 1 by construction (squash false negative); comm -23 over both branches' file listings is empty; D-08 is therefore a no-op, no PR opened, requirement wording corrected from ancestry to content-equivalence per OD-1
 - [Phase 138]: gsd/v1.31-27c-programming-algorithm-fidelity created/verified in all three repos on named, twice-verified bases — meta off d0f0c6a0 (confirmed the fork point, not the shorter-named 00af5771 v1.30 branch); firmware created+checked-out at the decided base 3085084 per OD-2 (not the live drifted tip 6fab4ea — F-138-02 carries that forward, owners Phase 144/TEST-08); app ref created (not checked out) at the live re-fetched beta tip 4d18b64; submodule gitlinks deliberately not advanced per OD-3 (F-138-03, owner henols)
+- [Phase 138-02]: Buckets from the RAW pulse_duration string, never the parsed int (D-11) -- the parsed 0 is a four-way collision
+- [Phase 138-02]: Assertion 3 (C2 testability) fires only when n>0 and distinct_count<=1, so a protocol with zero chips in a planted fixture is not spuriously flagged
+- [Phase 138-02]: PREP-04 left unticked in REQUIREMENTS.md by design (may_tick_requirements: []) -- this plan produces its deliverables only, Plan 138-07 ticks it
 
 ## Performance Metrics
 
@@ -1961,11 +1964,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 137 P01 | 20min | 3 tasks | 8 files |
 | Phase 137 P04 | 45min | 3 tasks | 9 files |
 | Phase 138 P01 | 17min | 3 tasks | 2 files |
+| Phase 138 P02 | 26min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-08T21:44:06.787Z
-**Stopped at:** Completed 138-01-PLAN.md
+**Last session:** 2026-08-08T22:17:29.777Z
+**Stopped at:** Completed 138-02-PLAN.md
 **Resume file:** None
 
 ### Blockers

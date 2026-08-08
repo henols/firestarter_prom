@@ -219,7 +219,7 @@ Requirement ticking is named exhaustively per plan so no plan ticks a multi-plan
 → none (PREP-03 delivered across all four) · `138-07` → PREP-03, PREP-04.
 
 - [x] 138-01-PLAN.md — Four-oracle PREP-01 content-equivalence adjudication and the three verified v1.31 branch bases
-- [ ] 138-02-PLAN.md — The reproducible, self-checking pulse-distribution script and its verbatim committed output
+- [x] 138-02-PLAN.md — The reproducible, self-checking pulse-distribution script and its verbatim committed output
 - [ ] 138-03-PLAN.md — The opt-in timing recorder, the fourth native env, and three deterministic pre-change protocol captures
 - [ ] 138-04-PLAN.md — The host suite baseline measured at CI parity on the v1.31 app tree
 - [ ] 138-05-PLAN.md — Freeze the trace fixture, its inventory and a parallel identity gate, each seen to fail
