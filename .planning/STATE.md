@@ -1,20 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.30
-milestone_name: — SDP Surface Retirement & Behavioral Lock Proof
-current_phase: 30
-status: Awaiting next milestone
-stopped_at: Completed 137-04-PLAN.md (Wave 4 of 6; CLOSE-05 + RELOCK-07 ticked; next is 137-05)
-last_updated: "2026-08-05T20:48:06.029Z"
-last_activity: 2026-08-05
-last_activity_desc: Milestone v1.30 completed and archived
+milestone: v1.31
+milestone_name: "27C Programming-Algorithm Fidelity (gh#15)"
+status: planning
+last_updated: "2026-08-08T17:09:41.645Z"
+last_activity: 2026-08-08
 progress:
-  total_phases: 8
-  completed_phases: 7
-  total_plans: 48
-  completed_plans: 48
-  percent: 88
-current_phase_name: "Close — Honesty Ledger, Claim Gate, gh#12 Follow-up"
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -24,37 +20,77 @@ current_phase_name: "Close — Honesty Ledger, Claim Gate, gh#12 Follow-up"
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-08-03 — v1.30 started)
+See: `.planning/PROJECT.md` (updated 2026-08-08 — v1.31 started)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
-authoritative dispatch key end to end. v1.23 added a fourth board target *beneath* that contract
-without disturbing it.
-**Current focus:** Phase 137 — Close: Honesty Ledger, Claim Gate, gh#12 Follow-up (6 of 6 plans
-complete, phase CLOSED) — v1.30 ready for `/gsd-complete-milestone` (55/56 requirements, CLOSE-06 held
-open by design)
-**v1.30 SDP Surface Retirement & Behavioral Lock Proof** — ACTIVE, all seven active phases complete
-(activated 2026-08-03 from the operator-queued slot of 2026-07-31, promoted from Backlog 999.25).
-Host-only (`firestarter_app`); **131, 132, 133, 134 and 137 CLOSED** (formal RECORD.md authored for
-each); 136 and 136.1 plan-complete (no formal close record authored). v1.24–v1.27 remain queued and
-unscoped; v1.29 stays deliberately vacant.
+authoritative dispatch key end to end. v1.31 makes that key drive *programming behaviour*, not just
+handler selection — while keeping the pulse width itself a database datum, not a protocol constant.
+**Current focus:** Milestone v1.31 activated — defining requirements, no phase started.
 
-**⏸ Phase 135 (`write --sdp-relock`) DEFERRED 2026-08-03** by operator decision → ROADMAP Backlog
-**999.28**. Never planned, never executed, no phase directory created. **The 135 number is NOT reused** —
-the active phase set is **131, 132, 133, 134, 136, 137** (six phases) and the 135 slot stays vacant, so
-after Phase 134 the next phase is **136**. RELOCK-01…06 left v1 scope (56 → **50** requirements);
-RELOCK-07 was retained and re-homed to **Phase 137**. **⚠ This split a pair v1.30's own requirements
-declared:** Phase 132 still deletes `dev sdp` including its `enable` half, so v1.30 **withdraws** the
-deliberate-protection surface and ships no replacement. Phase 137's CLOSE-05/06 were amended
-accordingly — the release notes and gh#12 reply must describe a withdrawal, **never** a migration to
-`write --sdp-relock`. Todos: `.planning/todos/pending/write-sdp-relock-deferred.md` and the amended
-`gh12-followup-after-dev-sdp-retirement.md`.
+**v1.31 27C Programming-Algorithm Fidelity (gh#15)** — ACTIVE (activated 2026-08-08, retiring Backlog
+**999.22** which was queued as the `v1.27` slot). **Firmware-touching, dual-repo lockstep.** Phase
+numbering continues at **Phase 138** (v1.30 ran 131–134, 136, 136.1, 137; the 135 slot stays vacant).
+v1.24 (Bus-Config Mask-Model), v1.25 (Jumper-Display / 2516) and v1.26 (White-Box Voltage Calibration)
+are left byte-unchanged so by-number cross-references keep resolving; v1.28 (Binary Command Protocol)
+and v1.29 (vacant) unchanged.
+
+**Scoped from gh#15 as CORRECTED, not as written.** The `/gsd-explore` pass of 2026-08-08
+(`.planning/seeds/27c-algorithm-fidelity-param-table-refactor.md`, commit `c60543c5`) found two wrong
+numbers and one inverted premise in the issue:
+
+- **C1** — gh#15's `0x0B` `pulse: 50000 us` is the fingerprint of **BUG-2**, the ×100
+  `interpret_timing()` multiplier over 252 chips that Phase 57 already removed. True value **500 µs**.
+  Adjudicated at `firestarter_app/doc/infoic-field-dictionary.md:210-217`.
+- **C2** — pulse width is **DATA, not a per-protocol constant**. Measured live against the shipped DB
+  2026-08-08: `0x07` n=170 (100 µs ×113, 200×27, 1000×22, 500×4, 50×4); `0x08` n=127 (100 µs ×104,
+  50×11, 10×7, 200×2, 1000×2, 20×1); `0x0B` n=32 (500 µs ×21, 1000×6, 200×5) — all three gh#15
+  constants disagree with the modal value. minipro ships `protocol_id` and `pulse_delay` as two
+  orthogonal wire fields (`t48.c:250-267`) and exposes `-o pulse=N` per run (uint16, 65535 µs ceiling).
+- **C3** — the safe 32-bit delay helper is still needed, but for the **75 ms overprogram pulse**, not
+  for any pulse.
+
+**D-01 (structural):** protocol owns *shape* — `max_pulses`, `overprogram_factor`,
+`overprogram_cap_us`, `verify_mode`, `vpp_path` — and the database owns the *pulse*. One shared
+per-byte pulse→verify loop driven by a `const` table, **not** gh#15's three state machines with
+hardcoded timing constants. `handle->pulse_delay` stays on the write path; protocol constants survive
+only as `pulse_delay == 0` fallbacks (`eprom.cpp:70-77`).
+
+**D-02:** the `0x0B` one-shot-vs-looped question is **not answerable from source** — minipro never runs
+the algorithm, it packs `pulse_delay` into a `BEGIN_TRANS` message for closed TL866/T48/T56/T76
+firmware. Ships as looped pulse→verify with a **50 ms accumulated-energy cap per byte**
+(`100 × 500 µs` = the classic 2716 total programming time), satisfying both readings. No overpulse.
+
+**D-03:** gh#15's corrections are posted **early, before implementation phases run**, on the v1.30
+CLOSE-06 pattern (drafted → frozen → operator-approved → posted only on explicit authorization).
+
+**Enabler:** VPE survives a read — `mem_util_calculate_top_address_register` preserves the HV mask
+across every `set_address` including the read path (`memory.cpp:163-166`) — so the `delay(10)` VPE
+settle (`eprom.cpp:114`) stays amortized once per block instead of 512 × 10 ms = 5.1 s. Caveat: for
+`pins < 32` the mask also preserves `CTRL_VPP_VPE_DROP_ENABLE`, which on DIP32 *is* A16.
+
+**⚠ Evidence ceiling, fixed before any code moves:** the ~6.25 V program-VCC all four vendor
+algorithms assume is **unreachable on this shield** (no VCC-raise path). This buys timing /
+pulse-count / verify fidelity and **not** silicon-margin fidelity. gh#15 omits this entirely, so its
+acceptance criteria must be amended; a committed claim gate forbids the unqualified
+"datasheet-conformant" overclaim. Bench coverage is **asymmetric by inventory** (operator,
+2026-08-08): `0x07` **required** (W27C512 / TMS27C512); `0x08` (AM27C020 — known marginal from v1.18
+Phase 99, write#1 60/64 then write#2 0/64) and `0x0B` (M2716 / M2732, 25 V NMOS, Phase 79 VPE path)
+are **opportunistic — skipped-with-reason if the parts do not materialize, never rubber-stamped**.
+This change is **not behavior-preserving**: golden traces encoding today's pulse cadence will
+legitimately shift, and re-baselining is expected work, not a regression.
+
+**⚠ BLOCKING PRECONDITION.** `firestarter_app`'s `gsd/v1.30-sdp-surface-retirement` is **NOT merged
+into `origin/beta`** — v1.30's PR was staged (`.planning/v1.30-PR-BODY.md`) but never opened, even
+though v1.30 is recorded as shipped. Operator decision 2026-08-08: **land it to `beta` first**, then
+fork v1.31's app branch off the updated `beta`. Firmware forks off `beta` @ `3085084` (clean). Meta
+forks off the v1.30 tip.
 
 ## Current Position
 
-Phase: Milestone v1.30 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-08-05 — Milestone v1.30 completed and archived
+Status: Defining requirements
+Last activity: 2026-08-08 — Milestone v1.31 started
 
 ### Phase 137 plan 06 (2026-08-05) — COMPLETE — PHASE 137 CLOSED
 

@@ -35,7 +35,136 @@
 
 **v1.21 shipped:** 2026-07-27 (Community Chip-Validation Command — 8 phases (108–115, incl. micro-phase 114.1), 34 plans, 70 tasks; 28/28 v1 requirements. Shipped `firestarter dev test <chip>` — a per-chip technology-aware capability sweep of independent non-fatal steps + address-derived health-write pattern + byte-mismatch fingerprint (108), destructiveness gate / small-region UV write + orchestrator-only SAFE-02 (109), dual-output diagnostic report + provenance + read-only DB-diff (110), measured VPP/VPE sampler (111, hardware-gated), `dev test` CLI wiring (112), tiered `--submit` GitHub flow + PII sanitizer (113), disposition/no-auto-graduate lock + `[dev test]` issue parser + community-validation taxonomy (114) + absent-chip hard-fail (114.1), and the VALIDATION+DOCS close (115, hardware-gated): drove the `3.0.0b11` beta publish on BOTH channels (PyPI `--pre` + GitHub prerelease w/ per-board `.hex`), bench-validated fresh-machine install→flash→smoke on Uno + Leonardo (HARD) + uno328pb (best-effort), authored the community onboarding doc, and bumped the meta gitlinks off PINNED-b10 → b11 (fw `0fd7992` / app `86e4563`). Closeout `override_closeout` (14 pre-existing cross-milestone open items acknowledged-deferred; none originate in v1.21). Remaining operator-gated close step: `v1.21` tag + sub-repo `--no-ff` beta merges + pushes. See `.planning/MILESTONES.md` §v1.21.)
 
-## Current Milestone: v1.30 SDP Surface Retirement & Behavioral Lock Proof
+**v1.30 shipped:** 2026-08-05 (SDP Surface Retirement & Behavioral Lock Proof — 7 phases (131–134, 136, 136.1, 137), 48 plans, 125 tasks; **55/56 requirements, CLOSE-06 held open by design**; host-only, no firmware change. Retired v1.22's unverifiable standalone `dev sdp <chip> enable|disable` and moved the proof into a six-step `dev test` leg whose oracle is read-back equality against a baseline pattern, never an exit code; hardened `check_mypy_watermark.py` from fail-open to fail-closed and certified `firestarter_app`'s primary `ci` job GREEN for the first time in two months (run `30856059940`, mypy 32 against an unratcheted watermark of 35); landed gh#8's stable-channel `dev` narrowing. **Phase 135 (`write --sdp-relock`) deferred out to Backlog 999.28** by operator decision, number not reused — so v1.30 ships the deletion and the behavioral proof and **withdraws** the deliberate-protection surface with **no replacement** (RELOCK-01…06 left v1 scope, 56 → 50 reqs; RELOCK-07 re-homed to Phase 137). Evidence ceiling honoured throughout: **no AT28C part in inventory, no hardware ran** — emission, plan-derivation and read-back-comparison logic are proven; the causal claim "the lock inhibited the write" is not, and did not gate the close. Seventh consecutive `override_closeout`. **⚠ `firestarter_app`'s `gsd/v1.30-sdp-surface-retirement` was never merged to `origin/beta`** — the PR was staged but not opened; v1.31 Phase 138 lands it. See `.planning/MILESTONES.md` §v1.30.)
+
+## Current Milestone: v1.31 27C Programming-Algorithm Fidelity (gh#15)
+
+**Started:** 2026-08-08 · **Phases continue at 138** (v1.30 ran 131–134, 136, 136.1, 137; the 135 slot
+stays vacant and is not reused) · **Firmware-touching, dual-repo lockstep** (`firestarter` +
+`firestarter_app`).
+
+**Goal:** Replace the block-level mismatch-mask write loop shared by all three 27C protocols with a
+per-byte pulse→verify loop driven by a per-protocol parameter table, so `0x07` / `0x08` / `0x0B`
+program the way their datasheets specify — with the pulse width supplied by the database, not by
+hardcoded constants.
+
+### Scoped from gh#15 *as corrected*, not as written
+
+[gh#15](https://github.com/henols/firestarter_prom/issues/15) specifies this work and its architecture
+is sound, but a `/gsd-explore` pass on 2026-08-08 (recorded in
+`.planning/seeds/27c-algorithm-fidelity-param-table-refactor.md`, commit `c60543c5`) found **two wrong
+numbers and one inverted premise** in it. This milestone implements the corrected design and posts the
+corrections publicly before implementation lands.
+
+| | gh#15 states | Correction (evidence) |
+|---|---|---|
+| **C1** | `0x0B` pulse = `50000 us` | **500 µs.** `50000 = 500 × 100` is the fingerprint of **BUG-2**, a ×100 multiplier `interpret_timing()` applied to `0x07`/`0x0B`, affecting 252 chips, removed in Phase 57. The shipped DB reads `500 us` for AM2716. Adjudicated at `firestarter_app/doc/infoic-field-dictionary.md:210-217`. Cross-checked: `AT28C64B` → 10000 µs = 10 ms (its datasheet byte-write); `DS1225` NVRAM → 1 µs. A ×100 would make the 28C64 1 s/byte. |
+| **C2** | Hardcode `1000 / 100 / 50000 µs` into three handlers | **Pulse width is DATA, not a per-protocol constant.** Measured live against the shipped DB on 2026-08-08: `0x07` n=170 (**100 µs ×113**, 200×27, 1000×22, 500×4, 50×4); `0x08` n=127 (**100 µs ×104**, 50×11, 10×7, 200×2, 1000×2, 20×1); `0x0B` n=32 (**500 µs ×21**, 1000×6, 200×5). All three gh#15 constants disagree with the modal value. minipro ships `protocol_id` and `pulse_delay` as **two orthogonal wire fields** (`t48.c:250-267`, identical in `tl866a.c`, `tl866iiplus.c`, `t56.c`, `t76.c`) and exposes `-o pulse=N` per run — a uint16, so 65535 µs is the hard ceiling. |
+| **C3** | Need a 32-bit-safe delay because of the 50 ms pulse | Helper is still needed, **for the overprogram pulse** — `3 × 25 × 1000 µs = 75 ms` exceeds `delayMicroseconds()`'s 16383 µs ceiling. With C1 applied, no *pulse* comes near it. |
+
+**Structural consequence (D-01):** protocol owns *shape*; the database owns the *pulse*. That is a
+parameter table, not three state machines — the opposite of gh#15's "each protocol must own its
+timing constants". `handle->pulse_delay` stays on the write path; protocol constants survive only as
+fallbacks for `pulse_delay == 0` (`eprom.cpp:70-77`).
+
+**Target features:**
+
+- **A `const` parameter table keyed by `protocol_id`** carrying **shape columns only** —
+  `max_pulses`, `overprogram_factor` (0 | 3×), `overprogram_cap_us`, `verify_mode`, `vpp_path`
+  (drop-resistor vs direct). **No pulse column.**
+- **A per-byte pulse→verify loop** replacing `program_mismatched_bytes()`,
+  `verify_and_update_mask()`, the flat `NUMBER_OF_RETRIES = 20` cap (`eprom.cpp:20`) and the adaptive
+  growth `pulse_delay = org + org*retries/20` (`eprom.cpp:177`) — which escalates pulse width where
+  the datasheets hold width fixed and *count* pulses. Pulse count and overprogram duration belong to
+  the individual byte, which the block mismatch-mask cannot express; this is gh#15's central and
+  correct insight.
+- **Overprogram pulse** — `3 × N × pulse` capped at 75 ms where `overprogram_factor > 0`. Correct for
+  older Intel "Intelligent" 27C parts; **not** for Quick-Pulse / Flashrite / PRESTO, so it is gated
+  per row and never applied blanket.
+- **`0x0B` energy-budget cap (D-02)** — the one-shot-vs-looped question is *not answerable from
+  source*: minipro never runs the algorithm, it packs `pulse_delay` into a `BEGIN_TRANS` message and
+  hands it to closed TL866/T48/T56/T76 firmware. Resolution shipped: loop pulse→verify but **cap
+  accumulated program time per byte at 50 ms**, since `100 × 500 µs = 50 ms` is exactly the classic
+  2716 total programming time. Early-verifying bytes exit fast; stubborn bytes still receive the
+  datasheet's full energy budget. No overpulse on this row.
+- **Safe 32-bit delay helper** — split ms/µs portions; never a bare `delayMicroseconds(75000)`.
+- **VPE held across the block (the enabler).** Per-byte verify looks unaffordable because
+  `eprom_write_execute` pays a `delay(10)` VPE settle (`eprom.cpp:114`) — per byte that is
+  512 × 10 ms = **5.1 s of pure settling per block**. It does not have to be:
+  `rurp_chip_enable`/`rurp_chip_output` are dedicated pins (`rurp_shield.h:114-134`) and
+  `mem_util_calculate_top_address_register` preserves the HV mask across **every** `set_address`,
+  read path included (`memory.cpp:163-166`). VPE survives a read, so the settle stays amortized once
+  per block — matching the datasheets, which verify with VPP still applied (CE high, OE low).
+  **Caveat:** for `pins < 32` the mask also preserves `CTRL_VPP_VPE_DROP_ENABLE`; on DIP32 that bit
+  *is* A16, so the drop path cannot be held across arbitrary addresses there (DIP32 uses
+  `CTRL_VPP_P1_ENABLE` instead).
+- **VPP routing protocol-correct and disabled on every exit** — including verify failure. `0x07`/`0x08`
+  regulator + VPE-to-VPP drop; `0x0B` direct legacy path; shared masks used by `eprom_check_vpp()` and
+  all write/error paths alike.
+- **Host: long-block handling.** Worst-case blocks exceed `DEFAULT_RESPONSE_TIMEOUT = 10`
+  (`firestarter_app/firestarter/serial_comm.py:66`) — reachable only on failing silicon, but it
+  converts "chip is marginal" into "serial timeout", destroying the diagnostic. Precedent for the
+  fix: the blank-check progress/chunk pattern at `memory.cpp:307-312`.
+- **gh#15 corrected outwardly, early (D-03).** C1/C2/C3 plus the 6.25 V amendment posted as a comment
+  *before* implementation phases run, on the v1.30 CLOSE-06 pattern: drafted, frozen, operator-approved,
+  posted only on explicit authorization. Stops anyone implementing `50000 us`.
+- **Claim gate + honesty ledger.** A committed `check_permitted_claims.py` forbidding unqualified
+  "datasheet-conformant" / "datasheet-correct" / "algorithm-accurate" across all closing artifacts,
+  plus a ledger pairing every permitted claim with its explicit non-claim — the v1.22 / v1.23 / v1.30
+  pattern.
+
+**Expected throughput (512-byte Uno block), from the research:**
+
+| algorithm | pulse | max pulses | overpulse | typical | worst case |
+|---|---|---|---|---|---|
+| `0x07` | `handle->pulse_delay` | 25 | `3 × N × pulse`, cap 75 ms | ~0.25 s @100 µs; ~2.05 s @1000 µs | ~51 s |
+| `0x08` | `handle->pulse_delay` | 25 | `3 × N × pulse` | ~0.2 s | ~13 s |
+| `0x0B` | `handle->pulse_delay` | 50 ms energy cap | none | ~0.8 s | ~25.6 s |
+
+**Faster than today in the typical case** — the current code can make 20 full block passes.
+
+**Evidence ceiling — fixed up front, before any code moves:**
+
+- **The 6.25 V program-VCC is unreachable on this shield.** All four vendor algorithms assume ~6.25 V
+  program-VCC for threshold margin; the RURP has no VCC-raise path. Firmware fidelity buys
+  *timing / pulse-count / verify* correctness but **not** silicon-margin fidelity. This is
+  hardware-bound, best-effort, the same shape as prior hardware-bound graduations — and **gh#15 omits
+  it entirely**, so its acceptance criteria imply a fidelity unreachable on this hardware. The gate
+  exists to stop that overclaim escaping.
+- **Bench coverage is asymmetric by inventory (operator, 2026-08-08).** `0x07` is **bench-required**
+  (W27C512 / TMS27C512, both 100 µs). `0x08` (AM27C020) and `0x0B` (M2716 / M2732, 25 V NMOS, needs
+  the Phase 79 VPE path) are **opportunistic** — validated if the parts materialize, otherwise
+  **skipped-with-reason**, never rubber-stamped. AM27C020 is known marginal from v1.18 Phase 99
+  (write#1 60/64, write#2 0/64, suspected VPP droop), which makes it a stress case rather than a
+  pass/fail oracle.
+- **Not behavior-preserving.** This changes *how* bytes get programmed. Golden traces and
+  bench-verified write results that encode the current pulse cadence will legitimately shift;
+  re-baselining is expected work, not a regression. Native tests alone cannot close this — per-family
+  on-bench re-verification (Leonardo) is required for what silicon is available.
+
+**Version, slot and branch model.** Takes **v1.31**, the next number after the shipped v1.30. Backlog
+**999.22** (queued as `v1.27`) is **retired into this milestone**; `v1.24` (Bus-Config Mask-Model),
+`v1.25` (Jumper-Display / 2516) and `v1.26` (White-Box Voltage Calibration) are left **byte-unchanged**
+so every by-number cross-reference in the seeds, notes and todos keeps resolving — the v1.23 Phase 130
+precedent. **Blocking precondition (operator, 2026-08-08):** `firestarter_app`'s
+`gsd/v1.30-sdp-surface-retirement` must be merged to `origin/beta` *before* v1.31's app branch forks,
+so the host line stops diverging and v1.30's shipped record becomes true. Firmware forks off `beta`
+(clean at `3085084`). Meta forks off the v1.30 tip.
+
+**Explicitly out of scope:**
+
+- **Any new database algorithm field or second firmware algorithm selector** — gh#15 is explicit and
+  correct here: `protocol_id` stays the single source of truth. The parameter table is keyed by it,
+  not a substitute for it.
+- **A VCC-raise path** — hardware, not firmware; recorded as accepted debt, not attempted.
+- **True PRESTO margin verification** — documented as not-yet-implemented if the RURP cannot expose
+  the required verify mode.
+- **Erase, blank-check, chip-ID, bus remapping and VPP validation behavior** — unchanged except where
+  a change is required for safe shared cleanup.
+
+## v1.30 Archive: SDP Surface Retirement & Behavioral Lock Proof — Shipped 2026-08-05
+
+**Status (2026-08-05): 7 phases (131–134, 136, 136.1, 137), 48 plans, 55/56 requirements — CLOSE-06 held open by design** (the gh#12 reply is frozen and approved but deliberately unposted; the exact closing command is recorded in `REQUIREMENTS.md` and `v1.30-OPERATOR-BATCH.md`). Phase 135 (`write --sdp-relock`) was deferred out to Backlog **999.28** and its number is not reused. **⚠ Open at the time v1.31 was scoped:** `firestarter_app`'s `gsd/v1.30-sdp-surface-retirement` is **not merged into `origin/beta`** — the PR was staged (`.planning/v1.30-PR-BODY.md`) but never opened. v1.31 Phase 138 lands it before any host work forks. Full entry: `.planning/MILESTONES.md` §v1.30.
 
 **Started:** 2026-08-03 · **Phases continue at 131** (v1.23 ran 123–130; no micro-phases inserted) ·
 **Host-only** (`firestarter_app`), no firmware change, no dual-repo lockstep, no `.hex` re-cut.
@@ -956,6 +1085,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
+
+*Last updated: 2026-08-08 — **v1.31 (27C Programming-Algorithm Fidelity) STARTED via `/gsd-new-milestone`.** Scoped from [gh#15](https://github.com/henols/firestarter_prom/issues/15) **as corrected**, not as written: a `/gsd-explore` pass on 2026-08-08 (`.planning/seeds/27c-algorithm-fidelity-param-table-refactor.md`, commit `c60543c5`) found two wrong numbers and one inverted premise in the issue, and this milestone posts those corrections publicly *before* implementation lands. **C1** — gh#15's `0x0B` `pulse: 50000 us` is the fingerprint of BUG-2, a ×100 `interpret_timing()` multiplier over 252 chips that Phase 57 already removed; the true value is **500 µs**. **C2** — pulse width is **DATA, not a per-protocol constant**: measured live against the shipped DB, `0x07` is 100 µs ×113 of 170 (not gh#15's 1000), `0x08` is 100 µs ×104 of 127, `0x0B` is 500 µs ×21 of 32; minipro ships `protocol_id` and `pulse_delay` as two orthogonal wire fields and exposes `-o pulse=N` per run. **C3** — the safe 32-bit delay helper is still needed, but for the 75 ms **overprogram** pulse, not for any pulse. **This adjudicates the structural fork in the parameter table's favour (D-01):** protocol owns *shape* (`max_pulses`, `overprogram_factor`, `overprogram_cap_us`, `verify_mode`, `vpp_path`), the database owns the *pulse* — one shared per-byte pulse→verify loop, **not** gh#15's three state machines with hardcoded constants. Replaces `program_mismatched_bytes()` / `verify_and_update_mask()` / the flat `NUMBER_OF_RETRIES = 20` / the adaptive `pulse_delay = org + org*retries/20` growth that escalates width where the datasheets hold width fixed and *count* pulses. **D-02:** the `0x0B` one-shot-vs-looped question is not answerable from source (minipro never runs the algorithm — it packs `pulse_delay` into `BEGIN_TRANS` and hands it to closed TL866/T48/T56/T76 firmware), so it ships as a looped pulse→verify with a **50 ms accumulated-energy cap per byte** (`100 × 500 µs`, the classic 2716 total programming time), satisfying both readings. **Enabler:** VPE survives a read (`mem_util_calculate_top_address_register` preserves the HV mask across every `set_address`, `memory.cpp:163-166`), so the `delay(10)` settle stays amortized once per block instead of 512× — with the DIP32 `CTRL_VPP_VPE_DROP_ENABLE`/A16 caveat. **Evidence ceiling fixed up front:** the ~6.25 V program-VCC all four vendor algorithms assume is **unreachable on this shield** (no VCC-raise path), so this buys timing/pulse-count/verify fidelity and **not** silicon-margin fidelity — gh#15 omits this entirely and its acceptance criteria must be amended; a committed claim gate forbids the unqualified "datasheet-conformant" overclaim. Bench coverage is asymmetric by inventory (operator, 2026-08-08): `0x07` **required** (W27C512 / TMS27C512), `0x08` (AM27C020, known marginal from v1.18 Phase 99) and `0x0B` (M2716 / M2732, 25 V NMOS) **opportunistic, skipped-with-reason if absent**. Not behavior-preserving — golden traces encoding today's cadence will legitimately shift; re-baselining is expected work. **Firmware-touching, dual-repo lockstep.** Numbered **v1.31**; Backlog **999.22** (queued as v1.27) retired into it; v1.24–v1.26 left byte-unchanged. Phase numbering continues at **Phase 138**. **Blocking precondition:** `firestarter_app`'s `gsd/v1.30-sdp-surface-retirement` is NOT merged to `origin/beta` (the v1.30 PR was staged but never opened) and must land before the app branch forks; firmware forks off `beta` @ `3085084`. Prior footer (v1.30 Phase 133) retained below.*
 
 *Last updated: 2026-08-04 — **Phase 133 (SDP Leg Mechanism) CLOSED and verified** (7/7 plans, 5/5 success criteria; LEG-09/10/11/15 Complete, 14 LEG requirements still open for Phase 134). `dev test`'s engine now drains a cleanup registry in a `finally` that provably never touches `results`, degrades `SerialError`/`HardwareOperationError` to a recorded BAD step instead of losing the whole report, dispatches `_SDP_OPS` from a fail-closed arm, and machine-verifies op-registration parity. Suite 1301 → 1338; mypy 33/124 against an unmoved watermark 35. **Evidence ceiling honoured: the mechanism is proven, SDP behaviour on silicon is NOT — no hardware ran.** D-15's two-new-source-file budget is now fully SPENT, so Phase 134 has zero headroom against `MIN_CHECKED_SOURCE_FILES` 120. Phases **131, 132, 133 CLOSED**; next is **Phase 134**. — v1.30 (SDP Surface Retirement & Behavioral Lock Proof) STARTED via `/gsd-new-milestone`. Promoted from Backlog **999.25**, operator-queued 2026-07-31 as NEXT after v1.23; scoped from `.planning/notes/sdp-surface-retirement-and-behavioral-proof.md`. Replace v1.22's unverifiable standalone `dev sdp <chip> enable|disable` with a **self-verifying** SDP lifecycle: delete the command, move the proof into a plan-derived four-step `dev test` leg whose oracle is **read-back equality** against a baseline pattern (never an exit code), and land `write --sdp-relock` as the single deliberate-protection surface. **⏸ AMENDED 2026-08-03: the third part did NOT survive scoping — `write --sdp-relock` (Phase 135) was deferred out to Backlog 999.28 by operator decision, phase number not reused, active set 131–134 + 136–137. v1.30 therefore ships the deletion and the behavioral proof and WITHDRAWS the deliberate-protection surface with no replacement; RELOCK-01…06 left v1 scope (56 → 50 requirements), RELOCK-07 was retained and re-homed to Phase 137 with its targets re-pointed at 999.28.** Two scope additions taken at activation (operator, 2026-08-03): the **mypy gate-hardening** v1.23 Phase 127 left OPEN — fail-open `tools/check_mypy_watermark.py` + 69 hidden inherited errors keeping `firestarter_app`'s primary `ci` job RED — and **999.15 / gh#8 dev-tools channel gating**, whose diff this milestone shrinks by deleting a subcommand it would otherwise classify; plus the owed gh#12 outward follow-up. `--sdp-relock` polarity decided: **verify failure ⇒ skip the relock and report it loudly** (leave the recoverable state), per auto-unlock policy (d). **Host-only** — `firestarter_app` alone, no firmware change, no dual-repo lockstep, no `.hex` re-cut; Phase 119's `CMD_SDP_LOCK`/`CMD_SDP_UNLOCK` are what the leg exercises. Numbered **v1.30**, not compacted to the vacant v1.29. Phase numbering continues at **Phase 131**. Meta branch `gsd/v1.30-sdp-surface-retirement` off the v1.23 tip `d1b9ce9e`; app off `beta` @ `16a313a`. **Evidence ceiling fixed up front:** no AT28C part in inventory and `0x0D` stays `UNVERIFIED`, so emission + plan-derivation + read-back-comparison logic are provable here while the causal claim "the lock inhibited the write" is reachable only from a community `dev test` report and does **not** gate the close. Prior footer (v1.23 close) retained below.*
 

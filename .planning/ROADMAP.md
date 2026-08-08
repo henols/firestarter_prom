@@ -2494,7 +2494,21 @@ Plans:
 
 - [ ] TBD (promote with /gsd-review-backlog when ready)
 
-### Phase 999.22: Per-protocol EPROM programming algorithms in firmware (0x07 / 0x08 / 0x0B) (⏫ QUEUED 2026-07-27 → v1.27 — gh#15)
+### Phase 999.22: Per-protocol EPROM programming algorithms in firmware (0x07 / 0x08 / 0x0B) (✅ PROMOTED 2026-08-08 → v1.31 27C Programming-Algorithm Fidelity, Phases 138+ — gh#15)
+
+> **⚠ The captured goal below is gh#15 verbatim and carries three errors.** It was written at the
+> 2026-07-27 backlog import by transcribing the issue, before any investigation. A `/gsd-explore`
+> pass on 2026-08-08 (`.planning/seeds/27c-algorithm-fidelity-param-table-refactor.md`, commit
+> `c60543c5`) falsified three of its claims. **Do not seed scope from the paragraph below** — use the
+> v1.31 milestone entry instead. Corrections: **(C1)** `0x0B` is **500 µs**, not `50000 us` — the
+> latter is the fingerprint of BUG-2, a ×100 `interpret_timing()` multiplier over 252 chips removed in
+> Phase 57. **(C2)** the per-handler pulse constants `1000 / 100 / 50000 µs` are **inverted** — pulse
+> width is a database datum (`0x07` is 100 µs ×113 of 170; `0x08` 100 µs ×104 of 127; `0x0B` 500 µs
+> ×21 of 32), so the design is a per-protocol *shape* table over one shared loop, not three state
+> machines owning timing constants. **(C3)** the safe 32-bit delay is needed for the 75 ms
+> **overprogram** pulse, not for any pulse. gh#15 additionally omits the **~6.25 V program-VCC** every
+> vendor algorithm assumes, which is unreachable on this shield — so its acceptance criteria imply a
+> fidelity this hardware cannot reach and are amended by v1.31.
 
 **Goal:** [Captured from GitHub] Replace the single shared block-level write loop in `firestarter/src/proms/eprom.cpp` — program mismatching bytes → verify chunk → retry ×20 → grow a shared pulse — with three protocol-owned state machines dispatched from `configure_eprom()`: `0x07 → eprom_regular_write_execute()` (per-byte fixed 1 ms pulse + verify, ≤25 pulses, then an overprogram pulse of 3× the byte's accumulated program time capped at 75 ms, then final verify), `0x08 → eprom_quick_write_execute()` (fixed 100 µs pulses, verify per pulse, protocol-appropriate finishing pulse; PRESTO margin verification documented as not-yet-implemented), `0x0B → eprom_legacy_write_execute()` (single fixed 50 ms pulse, 1 attempt, no overpulse — replacing today's generic 500 µs default). Shared helpers for *electrical* operations only (`eprom_enable_vpp`, `eprom_program_pulse`, `eprom_verify_byte`, …), with a safe 32-bit delay (never a bare `delayMicroseconds(50000)`), protocol-correct VPP routing preserved (`0x07`/`0x08` regulator + VPE-to-VPP drop; `0x0B` direct legacy path) and **every** exit path — including verify failure — disabling all high-voltage routes. Removes `program_mismatched_bytes()`, `verify_and_update_mask()`, the `NUMBER_OF_RETRIES` block loop, and adaptive `handle->pulse_delay` growth. Explicitly adds **no** new DB algorithm field and **no** second firmware algorithm selector — the protocol ID stays the single source of truth. Native tests must cover dispatch, per-pulse verify, overpulse derivation, failure limits, `0xFF`/already-matching skips, VPP cleanup on every path; all four targets build.
 **Requirements:** TBD

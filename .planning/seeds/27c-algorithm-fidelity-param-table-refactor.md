@@ -3,9 +3,16 @@ title: 27C programming-algorithm fidelity via a per-protocol parameter table
 trigger_condition: a firmware-correctness/reliability milestone is prioritized, OR a 27C part programs unreliably and RCA points at pulse behavior, OR gh#15 is scheduled
 planted_date: 2026-07-02
 updated: 2026-08-08
-status: dormant
+status: promoted
+promoted_to: v1.31 27C Programming-Algorithm Fidelity (gh#15), activated 2026-08-08
 issue: https://github.com/henols/firestarter_prom/issues/15
 ---
+
+> **PROMOTED 2026-08-08 → milestone v1.31.** This seed is the scoping source for the milestone,
+> retiring ROADMAP Backlog **999.22** (which was queued as the `v1.27` slot). Its corrections C1/C2/C3
+> and the `0x0B` energy-budget resolution were adopted as milestone decisions D-01/D-02; the open
+> question below is settled as *design*, not left for the bench. Kept here unmodified as the record of
+> what was known at activation.
 
 # 27C programming-algorithm fidelity via a per-protocol parameter table
 
