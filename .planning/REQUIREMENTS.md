@@ -43,12 +43,39 @@ expected work, not a regression.
 
 ### Preconditions & Baseline
 
-- [ ] **PREP-01**: `firestarter_app`'s `gsd/v1.30-sdp-surface-retirement` is merged into `origin/beta`
+- [x] **PREP-01**: `firestarter_app`'s `gsd/v1.30-sdp-surface-retirement` is merged into `origin/beta`
       and the merge is verified (`git merge-base --is-ancestor` exits 0) before any v1.31 host work
       forks — v1.30 is recorded as shipped but its PR was staged and never opened.
-- [ ] **PREP-02**: Milestone branches exist in all three repos off their decided bases — firmware off
+      **CORRECTION (2026-08-08, Phase 138 Plan 01 — measured live, not restated).** The original
+      premise, "its PR was staged and never opened," is **false as measured**: PR **#44** was opened
+      and **squash**-merged (`568e58b`, single parent `16a313a`) on 2026-08-05T21:13:01Z. The literal
+      success criterion above — `git merge-base --is-ancestor` exits 0 — is **unreachable without a
+      redundant re-merge that provably conflicts**, because a squash merge is a structural ancestry
+      false negative, not evidence of non-merger. Per **OD-1**, the criterion is corrected from
+      **ancestry** to **content equivalence**: four independent oracles — the **GitHub PR record**
+      (state MERGED), the **ancestry check** (exit 1, explained by the squash mechanism, not treated
+      as proof of absence), an **empty `comm -23`** over both branches' `git ls-tree` file listings
+      (zero files on the v1.30 branch missing from `beta`), and an **attributable `git diff --stat`**
+      (every difference traced to `beta`'s later PRs) — show v1.30's app content is present on `beta`
+      in full. See `138-BRANCH-BASES.md` §2 / **F-138-01** for the full adjudication. **D-08 ("agent
+      opens PR, operator merges") is therefore a no-op: no PR was opened by this plan and no operator
+      merge was requested**, because the merge D-08 anticipated had already happened five days
+      earlier — its own "known and accepted consequence" (a new app pre-release) already occurred too
+      (`beta` is at `3.0.0b20`).
+- [x] **PREP-02**: Milestone branches exist in all three repos off their decided bases — firmware off
       `beta` @ `3085084`, app off the updated `beta`, meta off the v1.30 tip — each verified by naming
       the base commit, not assumed.
+      **Evidence (2026-08-08, Phase 138 Plan 01).** `gsd/v1.31-27c-programming-algorithm-fidelity`
+      exists, identically named per **D-09**, in all three repos, each base verified two independent
+      ways — see `138-BRANCH-BASES.md` §4 for the full table: **meta** off
+      `d0f0c6a056efaa3537909d8ff90492f3792403f1` (the behavioral-lock-proof v1.30 tip — verified
+      **not** `00af577193cdb75d9f0a0743a37a349a39fc97dd`, the shorter-named v1.30 branch); **firmware**
+      off the **decided** base `30850845f9c0994706f28d2a74fccc3adbb4b387`, per **OD-2**, deliberately
+      not the live beta tip `6fab4eafdcd0981d24fddc3ff177abc5c74e313c` — that drift and its size-gate
+      consequence carry forward as **F-138-02** (owners: Phase 144/TEST-08, Phase 143/144, henols),
+      recorded not fixed per D-07; **app** off the **live, re-verified** beta tip
+      `4d18b645ab18a2d2465f0f623062e9249eb24132`. Per **OD-3**, the meta repo's submodule gitlinks
+      were deliberately **not** advanced — **F-138-03** (owner henols) — see `138-BRANCH-BASES.md` §6.
 - [ ] **PREP-03**: A pre-change baseline is committed **before** any `eprom.cpp` edit: the existing
       golden register traces frozen as a historical artifact, per-target flash/RAM usage, and full
       native + host suite counts.
@@ -197,8 +224,8 @@ Deferred. Tracked but not in this roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PREP-01 | Phase 138 | Pending |
-| PREP-02 | Phase 138 | Pending |
+| PREP-01 | Phase 138 | Complete |
+| PREP-02 | Phase 138 | Complete |
 | PREP-03 | Phase 138 | Pending |
 | PREP-04 | Phase 138 | Pending |
 | ISSUE-01 | Phase 139 | Pending |

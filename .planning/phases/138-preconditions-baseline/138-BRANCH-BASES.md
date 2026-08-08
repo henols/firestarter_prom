@@ -217,3 +217,42 @@ point at older commits than each submodule's current worktree HEAD, exactly as `
 narrative artifact, not to carry them as index gitlinks. **Finding owner: henols** (the decision
 of whether/when to advance these gitlinks belongs to a later, explicit git-hygiene action, not to
 this measurement phase).
+
+---
+
+## Section 7: Hand-off
+
+**What later plans consume from this one:**
+
+1. **The firmware `gsd/v1.31-27c-programming-algorithm-fidelity` branch, already checked out** at
+   `/workspaces/firestarter`, base `30850845f9c0994706f28d2a74fccc3adbb4b387` — Wave 2's firmware
+   plans (140, 141, 142) land their commits directly on this checked-out branch; no further branch
+   setup is needed there.
+2. **The app `gsd/v1.31-27c-programming-algorithm-fidelity` ref**, created but **not** checked out, at
+   `/workspaces/firestarter_app`, base `4d18b645ab18a2d2465f0f623062e9249eb24132` — Plan 04 (this
+   phase's host-baseline plan) is the one that checks it out.
+3. **The three verified base SHAs** (Section 4) — the `.planning/`-level `138-BASELINE.md` this
+   phase's later plans produce cites these same three commits as "what was measured before" rather
+   than re-deriving them.
+4. **PREP-01's corrected criterion** (content equivalence, not ancestry) — any later plan that would
+   otherwise re-check `git merge-base --is-ancestor` against the v1.30 branch should cite `F-138-01`
+   instead of re-running a check whose false-negative mechanism is now on record.
+5. **F-138-02 and F-138-03** — Phase 143/144 (flash-delta reconciliation, MERGE-05 headroom) and any
+   future git-hygiene action (gitlink advancement) inherit these as named, owned, unfixed findings.
+
+**What this plan did *not* establish — stated plainly, not implied:**
+
+1. **No push.** `git ls-remote --heads origin 'gsd/v1.31*'` is empty in both submodules; nothing this
+   plan did is visible outside these three local checkouts.
+2. **No CI run.** No workflow was dispatched, and no CI status for any of the three new branches
+   exists yet — that is a later, operator- or plan-triggered action, not part of this adjudication.
+3. **No gitlink bump.** The meta index's `firestarter`/`firestarter_app` gitlinks are untouched
+   (Section 6) — PREP-02 is satisfied by naming the base commits in this artifact, not by advancing
+   the superproject's recorded submodule state.
+4. **No re-build of the live firmware tip.** F-138-02's flash/RAM figures at `6fab4ea` are quoted from
+   `138-RESEARCH.md`'s prior cold measurement, not reproduced by this plan — this plan re-verified the
+   SHA-level drift facts (the commit list, the file list) live, but did not re-run PlatformIO.
+5. **No `eprom.cpp` (or any write-path file) edit.** This plan is pure git/GitHub measurement; it
+   touched no firmware or host source file.
+6. **No merge, no PR, no submodule commit.** Confirmed throughout Sections 1–6: zero commits were
+   made inside either submodule, and no `gh pr create`/`gh pr merge`/`git merge` command was ever run.
