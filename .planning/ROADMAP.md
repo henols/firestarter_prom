@@ -196,7 +196,20 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
   3. A committed baseline artifact, captured before any `eprom.cpp` edit, holds the frozen pre-change golden register traces plus per-target (`uno`/`uno328pb`/`leonardo`) flash and RAM usage plus full native and host suite pass counts.
   4. A committed artifact states the live per-protocol `pulse_delay` distribution re-derived from the shipped `chip_database.json` for `0x07`/`0x08`/`0x0B`, measured this milestone rather than restated from the seed.
 
-**Plans**: TBD
+**Plans**: 7 plans in 5 waves — wave 1 `138-01`, `138-02` · wave 2 `138-03`, `138-04` · wave 3
+`138-05` · wave 4 `138-06` · wave 5 `138-07`. Only `138-07` is non-autonomous (the operator-gated
+branch push plus the app `ci.yml` dispatch; firmware CI has no `workflow_dispatch` and is push-produced).
+Requirement ticking is named exhaustively per plan so no plan ticks a multi-plan requirement early:
+`138-01` → PREP-01, PREP-02 · `138-02` → none (PREP-04 delivered) · `138-03`/`138-04`/`138-05`/`138-06`
+→ none (PREP-03 delivered across all four) · `138-07` → PREP-03, PREP-04.
+
+- [ ] 138-01-PLAN.md — Four-oracle PREP-01 content-equivalence adjudication and the three verified v1.31 branch bases
+- [ ] 138-02-PLAN.md — The reproducible, self-checking pulse-distribution script and its verbatim committed output
+- [ ] 138-03-PLAN.md — The opt-in timing recorder, the fourth native env, and three deterministic pre-change protocol captures
+- [ ] 138-04-PLAN.md — The host suite baseline measured at CI parity on the v1.31 app tree
+- [ ] 138-05-PLAN.md — Freeze the trace fixture, its inventory and a parallel identity gate, each seen to fail
+- [ ] 138-06-PLAN.md — Cold AVR/native/warning measurement, `size_baseline_v131.json`, and the two D-07-class findings
+- [ ] 138-07-PLAN.md — `138-BASELINE.md`, the operator-gated CI evidence, and the PREP-03/PREP-04 close
 
 ### Phase 139: gh#15 Correction (outward)
 
