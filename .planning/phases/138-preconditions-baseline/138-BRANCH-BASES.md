@@ -132,3 +132,88 @@ This drift and its size-gate consequence are carried forward as **F-138-02** in 
 `git -C /workspaces/firestarter_app log --oneline -1` and
 `git -C /workspaces/firestarter log --oneline -1` were checked and show no commit produced by this
 task's measurement work.
+
+---
+
+## Section 4: The three verified bases
+
+Per **D-09**, all three repos carry the **identical branch slug**
+`gsd/v1.31-27c-programming-algorithm-fidelity`. Per **OD-2**, each base was re-verified rather than
+assumed — none was copied from `138-RESEARCH.md` or from `138-CONTEXT.md`'s now-superseded "verified
+during this discussion" bullets.
+
+| Repo | Branch | Base commit (full SHA) | How verified |
+|------|--------|--------------------------|----------------|
+| meta (`/workspaces`) | `gsd/v1.31-27c-programming-algorithm-fidelity` | `d0f0c6a056efaa3537909d8ff90492f3792403f1` | `git rev-parse gsd/v1.30-sdp-surface-retirement` → `00af577193cdb75d9f0a0743a37a349a39fc97dd`; `git rev-parse gsd/v1.30-sdp-surface-retirement-behavioral-lock-proof` → `d0f0c6a056efaa3537909d8ff90492f3792403f1`; `git merge-base --is-ancestor d0f0c6a0… gsd/v1.31-…` exits **0**; `git merge-base d0f0c6a0… gsd/v1.31-…` returns **exactly** `d0f0c6a0…` (the fork point, not merely an ancestor) |
+| `firestarter` (`/workspaces/firestarter`) | `gsd/v1.31-27c-programming-algorithm-fidelity` | `30850845f9c0994706f28d2a74fccc3adbb4b387` | `git cat-file -e 3085084` resolves; `git merge-base --is-ancestor 3085084 6fab4ea` (live tip) exits **0**; branch created with `git checkout -b … 3085084` (worktree had zero tracked modifications, confirmed by `git status --porcelain \| grep -v '^??'` returning empty before the switch); `git rev-parse gsd/v1.31-…` → `30850845…`; `git symbolic-ref --short HEAD` → `gsd/v1.31-27c-programming-algorithm-fidelity` |
+| `firestarter_app` (`/workspaces/firestarter_app`) | `gsd/v1.31-27c-programming-algorithm-fidelity` | `4d18b645ab18a2d2465f0f623062e9249eb24132` | live tip re-read via `gh api …/git/refs/heads/beta` immediately before branch creation (`4d18b64…`, identical to Section 3's Task-1 measurement); `git cat-file -e 4d18b64…` re-asserted and succeeded (Task 1's fetch is what made this a local object); `git branch gsd/v1.31-… 4d18b64…` created the ref only; `git rev-parse gsd/v1.31-…` → `4d18b645…`; `git symbolic-ref --short HEAD` still reads `fix/dev-test-blank-check-after-erase` — **not checked out**, per plan (plan 04 does that) |
+
+**Why the firmware row keeps the decided base (`3085084`) rather than the live tip (`6fab4ea`).**
+Phase 138 exists to define "before." A fork base whose own size gate arrives RED would make every
+downstream TEST-08 flash/RAM delta measure against an already-broken reference — the delta would be
+unattributable between "the pre-existing drift" and "v1.31's own change." D-07 forbids fixing that
+drift inside this measurement phase. Keeping `3085084` (measured GREEN at
+`check_size_baseline.py`, per `138-RESEARCH.md` and re-confirmed by Section 3's unchanged 2-commit
+drift enumeration) preserves a clean reference; the drift itself is carried forward, not discarded,
+as **F-138-02** below.
+
+---
+
+## Section 5: F-138-02 — firmware `beta` drift carried forward
+
+**Live tip:** `6fab4eafdcd0981d24fddc3ff177abc5c74e313c` (`6fab4ea`), 2 commits ahead of the decided
+fork base `3085084` (Section 3's live enumeration, re-run this session and unchanged from
+`138-RESEARCH.md`'s figure — no further firmware-side remote drift since research):
+
+| Commit | Message | Files |
+|--------|---------|-------|
+| `b1737b2` | `feat(protocol): carry HW revision + FW identity in the MSG_OK_READY ack (#49)` | `src/firestarter.cpp` +37/−1 |
+| `6fab4ea` | `Apply automatic changes` | `include/version.h` +1/−1 |
+
+**Flash delta and MERGE-05 headroom — recorded as research-measured, not re-built this plan.** This
+plan re-verifies the SHA-level facts above live (the commit list and file list came from this
+session's own `gh api repos/henols/firestarter/compare/3085084...6fab4ea` call), but it does **not**
+rebuild the live tip's AVR targets — doing so would require a cold PlatformIO toolchain build this
+measurement-adjudication task is not scoped to repeat. The following flash/RAM figures are quoted
+verbatim from `138-RESEARCH.md` §"Gate outcomes (D-07's question, answered)", with their own
+provenance stated there: measured 2026-08-08 (same day, hours before this plan ran), in a **cold,
+freshly-extracted tree pulled from `gh api …/tarball/6fab4ea`** — cold by construction, per the
+project's own warm-vs-cold measurement discipline.
+
+- **Uniform `flash_used` delta: +34 B on all three AVR targets** (`uno`, `uno328pb`, `leonardo`),
+  RAM unchanged, attributable to `b1737b2`'s `MSG_OK_READY` ack payload growth.
+- **`check_size_baseline.py` default policy: GREEN (exit 0) at `3085084`, RED (exit 1) at `6fab4ea`.**
+- **`--policy merge05` band (BASE-01 comparison): `uno` +56/64 B, `uno328pb` +62/64 B,
+  `leonardo` −22/0 B** — uno-class headroom is down to **8 B** (`uno`) and **2 B** (`uno328pb`)
+  before the next drift fails this band on arrival.
+
+**Owners, recorded not fixed (D-07):**
+
+| Item | Owner |
+|------|-------|
+| Flash-delta reconciliation (whether v1.31's own change should absorb, offset, or separately account for this +34 B) | **Phase 144 / TEST-08** |
+| MERGE-05 band headroom (2–8 B remaining before the uno-class band fails) | **Phase 143 / 144** |
+| Escalation if headroom is exhausted before Phase 144 closes | **henols** |
+
+---
+
+## Section 6: F-138-03 — submodule gitlinks deliberately not advanced
+
+Per **OD-3**, the meta index's submodule gitlinks are **not** advanced by this plan. Read live via
+`git ls-files -s firestarter firestarter_app` in `/workspaces`:
+
+| Submodule | Gitlink SHA (meta index) | Worktree SHA (this session, after Task 2) |
+|-----------|----------------------------|-----------------------------------------------|
+| `firestarter` | `0933bd7d602efb30e4a666e8231ecf724e90ab09` | `30850845f9c0994706f28d2a74fccc3adbb4b387` (now on the new `gsd/v1.31-…` branch, same commit) |
+| `firestarter_app` | `cc036e8dc3cd77bbdfc7ec5190d79cdb172153c7` | `7fe8dea9143a6ac4da3d656d3e4d5d538e14a175` (unchanged — still `fix/dev-test-blank-check-after-erase`, not checked out onto v1.31) |
+
+Both gitlink SHAs are **identical before and after this plan's git operations** — nothing in Task 1
+or Task 2 ran `git add firestarter` / `git add firestarter_app` in the meta repo, and no submodule
+commit was made in either submodule. The resulting `M firestarter` / `M firestarter_app` lines that
+`git status` shows in the meta repo are **expected divergence, not dirt to clean up**: the gitlinks
+point at older commits than each submodule's current worktree HEAD, exactly as `138-RESEARCH.md`'s
+"Working-tree state" section already documented before this plan ran. Per `/workspaces/CLAUDE.md`:
+"Neither sub-repo is committed here" — the meta repo's job is to name the three base commits in this
+narrative artifact, not to carry them as index gitlinks. **Finding owner: henols** (the decision
+of whether/when to advance these gitlinks belongs to a later, explicit git-hygiene action, not to
+this measurement phase).
