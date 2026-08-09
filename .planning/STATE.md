@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 139
 current_phase_name: gh-15-correction-outward
 status: executing
-stopped_at: Completed 139-02-PLAN.md
-last_updated: "2026-08-09T12:31:51.049Z"
+stopped_at: Completed 139-03-PLAN.md
+last_updated: "2026-08-09T13:00:31.489Z"
 last_activity: 2026-08-09
 last_activity_desc: Phase 139 execution started
 progress:
   total_phases: 8
   completed_phases: 1
   total_plans: 12
-  completed_plans: 9
+  completed_plans: 10
   percent: 13
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 139 (gh-15-correction-outward) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Status: Ready to execute
 Last activity: 2026-08-09 — Phase 139 execution started
 
@@ -1810,6 +1810,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 139]: 139-02: no proximity/context window and no arming branch in the new Phase-139 claim gate -- RESEARCH F-04 proved both are what made the v1.30 donor checker vacuous on this milestone's 0x07/0x08/0x0B vocabulary.
 - [Phase 139]: 139-02: no pytest module or committed fixtures for the claim gate -- Phase 138's scratchpad-only, never-committed fixture strategy chosen over Phase 137's committed-fixtures/paired-test-module precedent (that shape belongs to Phase 146's CLOSE-01, a Deferred Idea here).
 - [Phase 139]: 139-02: the required caveat IS the requirement -- the gate's REQUIRED_CAVEAT_PATTERNS entries are the ~6.25 V program-VCC ceiling ISSUE-02 requires stated plainly, making the mechanical check and the requirement the same check.
+- [Phase 139]: 139-03: named the eprom.cpp/memory.cpp pulse_delay double-duty observation in prose only, with no line-number citation to the erase function, rather than citing a range engineered to dodge the forbidden eprom.cpp#L283 substring check
+- [Phase 139]: 139-03: removed a drafted bare, unpinned gitlab.com/DavidGriffith/minipro mention -- a link with no commit SHA would have failed the permalink-pinning verify leg; the required literal substring is already supplied by the pinned t48.c/main.c blob links
+- [Phase 139]: 139-03: comment section order follows gh#15's own reading order (numbers first, then the architecture criterion they justify amending) rather than 137-GH12-COMMENT.md's exact shape, per CONTEXT's explicit discretion grant
+- [Phase 139]: 139-03: the nine-row acceptance-criteria amendment table's reasons are scoped tightly to the plan's own named dispositions rather than embellished, keeping it a faithful rendering of D-03's item-for-item mapping
 
 ## Performance Metrics
 
@@ -2022,11 +2026,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 138 P07 | 35min | 3 tasks | 3 files |
 | Phase 139 P01 | 12min | 2 tasks | 2 files |
 | Phase 139 P02 | ~14min | 2 tasks | 1 files |
+| Phase 139 P03 | 23min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-09T12:31:51.015Z
-**Stopped at:** Completed 139-02-PLAN.md
+**Last session:** 2026-08-09T13:00:31.453Z
+**Stopped at:** Completed 139-03-PLAN.md
 **Resume file:** None
 
 ### Blockers
