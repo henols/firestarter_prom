@@ -2,6 +2,8 @@
 created: 2026-08-05T08:38:31Z
 title: "Skill: triage `dev test` issues — diagnose against the datasheet, comment, close passes into a tested-good IC list"
 area: tooling
+status: complete
+completed: 2026-08-09
 files:
   - firestarter_app/tools/parse_devtest_issue.py
   - firestarter_app/firestarter/diagnostic_report.py
@@ -112,3 +114,20 @@ Open question for discuss-phase: does the tested-good list live in the meta repo
 (`.planning/`, maintainer-facing planning artifact) or in `firestarter_app`
 (shippable, user-visible "known-good chips" data)? That choice decides whether it can be
 committed by the skill at all, given the app is a submodule.
+
+---
+
+## COMPLETE — 2026-08-09
+
+Shipped as **two** skills rather than one, splitting triage from root-cause:
+
+- `.claude/skills/devtest-triage/` — SKILL.md + scripts. Triages community `dev test`
+  issues in `henols/firestarter_prom` against the chip's datasheet: closes PASS issues and
+  logs the chip, or posts a datasheet-grounded findings comment on FAIL/marginal ones.
+- `.claude/skills/devtest-rootcause/` — SKILL.md + scripts. Takes a triaged failure into
+  the code: a decode bug in the database generator, or a genuine host/firmware defect.
+  Knows `chip_database.json` is generated and must never be hand-edited.
+
+Both are registered and discoverable. The "nothing accumulates" complaint is addressed by
+the tested-good chip log (`.planning/VALIDATED-EPROMS.md`) plus per-issue datasheet
+findings comments.

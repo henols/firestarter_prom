@@ -1,9 +1,9 @@
 ---
 slug: fm1608-fresh-chip-baseline
-status: parked-2026-05-18
+status: resolved
 trigger: "Lets check whats going on with the FM1608, I have a new IC"
 created: 2026-05-13T12:45:49Z
-updated: 2026-05-18T08:00:00Z
+updated: 2026-08-09
 reopened: 2026-05-13T15:45:00Z
 reopened_reason: "Prior Resolution recommended Leonardo as the fix path for FM1608, which violates the project constraint that Uno and Leonardo are both first-class operator choices. Root-cause diagnosis (PORTD/CE coupling) stands; remediation must restore Uno support."
 parked_reason: "Bug localized to this specific Uno board's hardware on 2026-05-18 via chip-swap + shield-swap cross-tests. Every Uno-firmware fix attempted has failed. Next step requires bench access to a different Uno board or a scope on /CE — operator chose to park and work on something else."
@@ -405,3 +405,20 @@ The most likely remaining cause is **hardware damage on this specific Uno board*
 - `firestarter/include/rurp_register_utils.h` — pre-clear + post-clear for MSB strobe **kept** (these are real improvements regardless of byte-0 status; fixed the 32-of-33 boundary corruptions)
 - `firestarter/include/version.h` — reverted to `2.0.11-dev`
 - `firestarter/platformio.ini` — operator's `DATA_BUFFER_SIZE=512` Leonardo A/B-test override left in place (operator-managed)
+
+---
+
+## Session Closure — 2026-08-09
+
+**Closed as a debugging activity, defect still open.** This session had been parked since
+2026-05-18 waiting for an FM1608 sample. Held open as a debug session it blocked every
+milestone close indefinitely while producing nothing new; the hypothesis and the falsified
+alternatives are already fully recorded above.
+
+The defect is now tracked as a hardware-gated item, carrying H1, the three falsified
+alternatives, and the strobe-count instrumentation plan:
+
+  `.planning/todos/pending/fm1608-byte0-write-never-lands-register-cache-elision.md`
+
+Reopen this session only if new evidence arrives that changes the hypothesis. Routine
+"chip arrived, go test it" work should proceed from the todo.

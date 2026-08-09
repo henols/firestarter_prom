@@ -2,6 +2,8 @@
 title: v1.30 close — run /gsd-complete-milestone then /gsd-pr-branch targeting beta (NOT a direct beta merge)
 date: 2026-08-04
 priority: high
+status: complete
+completed: 2026-08-09
 blocked_by: Phase 137 must close first. Operator confirmed 2026-08-04 that the close fires AFTER Phase 137, not after Phase 133.
 resolves_phase: 137 (close) — this is the procedure the close itself must follow
 carried_to_phase: 138
@@ -83,3 +85,24 @@ target lists during the close, not after.
 The operator explicitly rejected closing early at Phase 133 or Phase 134. v1.30 ships all 50
 requirements across phases 131, 132, 133, 134, 136, 137 — including Phase 134's oracle, which is
 the milestone's user-visible deliverable.
+
+---
+
+## COMPLETE — 2026-08-09
+
+v1.30 **is** on `beta`. Verified today in `firestarter_app`:
+
+```
+$ git log --oneline -1 568e58b
+568e58b v1.30 — SDP Surface Retirement & Behavioral Lock Proof (#44)
+
+$ git merge-base --is-ancestor 568e58b origin/beta   # exit 0 -> YES
+```
+
+**The closure criterion written into this todo is unreachable as phrased.** It said "stays
+open until `git merge-base --is-ancestor gsd/v1.30-sdp-surface-retirement origin/beta`
+exits 0". PR #44 was **squash**-merged, so the branch tip is not an ancestor of `beta` and
+that check exits 1 **forever** — a false negative, not evidence of unlanded work. The
+correct check is against the squash commit `568e58b`, which passes.
+
+Do **not** re-merge the v1.30 branch on the strength of the branch-tip check failing.

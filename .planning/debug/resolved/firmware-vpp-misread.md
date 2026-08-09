@@ -1,8 +1,8 @@
 ---
-status: diagnosed
+status: resolved
 trigger: "Phase 54 UAT Test 2: firmware reports 'VPP is low: 1.8V < 12.0V' while bench multimeter measures 12.2V on uno328pb / Rev 2.0 shield. Program path stalls. Operator: 'This is a fw bug, it measures 12.2v'"
 created: 2026-06-04T16:40:00Z
-updated: 2026-06-04T16:40:00Z
+updated: 2026-08-09
 ---
 
 ## Current Focus
@@ -84,3 +84,28 @@ root_cause: |
 fix: ""  # diagnose-only; see Suggested Fix Direction in return
 verification: ""  # requires bench: firestarter config readback of R1, or recalibrate
 files_changed: []
+
+---
+
+## Session Closure — 2026-08-09
+
+**Closed as a debugging activity.** The investigation is complete: the root cause was
+identified, every competing hypothesis eliminated, and the arithmetic shown to reproduce
+the `1.8V` symptom exactly. Nothing further is learned by keeping the session open.
+
+**The board-level symptom** (stale `r1` on the uno328pb bench unit) was cleared by
+recalibrating that board.
+
+**The latent firmware defect is NOT fixed** and was re-confirmed present on 2026-08-09:
+`CONFIG_VERSION` is still `"VER06"` (`include/rurp_shield.h:46`), `VALUE_R1` is still
+`270000` (`:49`), and `rurp_validate_config` (`src/rurp_config_utils.cpp:35-43`) still
+gates the default re-apply on a version-string mismatch. Any board calibrated under
+`VER06` keeps a stale `r1` forever.
+
+That defect is now tracked, with the fix options and the calibration-loss trade-off spelled
+out, at:
+
+  `.planning/todos/pending/config-version-not-bumped-strands-stale-eeprom-calibration.md`
+
+It carries `needs_decision: true` — bumping `CONFIG_VERSION` would wipe every board's real
+calibration, so the repair is an operator choice, not a mechanical fix.
