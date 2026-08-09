@@ -260,7 +260,19 @@ Requirement ticking is named exhaustively per plan so no plan ticks a multi-plan
   3. Every value in every row cites a named primary datasheet or carries an explicit "no datasheet basis — reasoned from X" note — no unattributed number ships.
   4. `chip_database.json` gains no new field and firmware gains no second algorithm selector — `protocol_id` remains the sole dispatch key, verified by a committed gate rather than by inspection.
 
-**Plans**: TBD
+**Plans**: 7 plans in 4 waves. **DUAL-REPO** — `commits_land_in:` names `firestarter/` (9 artifacts), `firestarter_app/` (2 artifacts) and `.planning/` (2 records); a plan that only *reads* a submodule still names it. Wave 2 runs three plans concurrently inside `firestarter/`, so each stages only its own `files_modified` — never `git add -A` and never a commit helper that stages everything.
+
+Three new gates are authored here, and **each must be seen RED on a planted violation before its GREEN is believed** (D-15): 3 planted runs for the branch-inventory gate, 4 for the database field-inventory gate, 5 for the citation-coverage gate — 12 in total, each transcript captured verbatim in its plan's SUMMARY. `pio test -e native_params_v131` and `pio test -e native_trace_v131` run in **no CI leg of either repository** (F-140-11): they are local run-by-name obligations recorded in the phase record (D-11), never implied CI coverage.
+
+Requirement ticking is named exhaustively per plan so no plan ticks a multi-plan requirement early: `140-01` → none · `140-02` → none · `140-03` → none · `140-04` → none · `140-05` → none · `140-06` → none · `140-07` → **TABLE-01, TABLE-02, TABLE-03, TABLE-04, TABLE-05** (all five, and only these five; `TEST-01` remains Phase 144's even though `native_params_v131` case 9 proves part of its content).
+
+- [ ] 140-01-PLAN.md — Wave 1: the six-column PROGMEM parameter table (`include/eprom_params.h` + `src/proms/eprom_params.cpp`, no `<Arduino.h>`, NULL-returning linear scan), plus `140-PREDICTIONS.md` committed before any delta is measured
+- [ ] 140-03-PLAN.md — Wave 1: the TABLE-05 database half — `chip_database.json`'s field inventory frozen with per-key occurrence counts plus an `ast` scan of the generator, seen RED on 4 planted violations (`firestarter_app/`)
+- [ ] 140-02-PLAN.md — Wave 2: the TABLE-05 firmware half — a two-tier pinned inventory of every handle-field branch predicate in the EPROM path, with the reasoned routing allowlist, seen RED on 3 planted violations
+- [ ] 140-04-PLAN.md — Wave 2: `[env:native_params_v131]`, the fifth native env, and the 9-case suite that **exercises** the `pulse_delay == 0` fallback with three negative controls — the only possible oracle for TABLE-03
+- [ ] 140-05-PLAN.md — Wave 2: the TABLE-04 citation sidecar (18 cells, D-09 two-part citations) and its coverage/well-formedness/value-drift gate, seen RED on 5 planted violations
+- [ ] 140-06-PLAN.md — Wave 3: correct `doc/PROTOCOLS.md` §§1.3-1.5 and `CLAUDE.md`'s Algorithm Handlers rows where they contradict the shipped citations, and record the D-11 native-env exception
+- [ ] 140-07-PLAN.md — Wave 4: cold AVR + native capture, both baseline gates, the prediction-vs-measurement reconciliation, `140-PARAM-TABLE-RECORD.md` naming both divergences, and the five requirement flips
 
 ### Phase 141: Per-Byte Program Loop
 
