@@ -272,3 +272,10 @@ read-only `gh issue view`) and no `git push` of any kind.
 ---
 *Phase: 139-gh-15-correction-outward*
 *Completed: 2026-08-09*
+
+## Self-Check: PASSED
+
+- FOUND: `139-GH15-COMMENT.md`
+- FOUND: `139-03-SUMMARY.md`
+- FOUND commit: `291efa15` (Task 1: draft 139-GH15-COMMENT.md)
+- FOUND commit: `a128480d` (this SUMMARY)
