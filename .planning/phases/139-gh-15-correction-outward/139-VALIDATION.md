@@ -99,7 +99,7 @@ No test-framework install is needed.
 ## Validation Sign-Off
 
 - [x] All tasks have `<automated>` verify or an explicit human-only justification above
-- [x] Sampling continuity: no 3 consecutive tasks without automated verify (only 139-05 Task 1 is human-only; it is immediately followed by 139-05 Task 2's six automated legs)
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify (only 139-05 Task 1 is human-only; it is immediately followed by 139-05 Task 2's eight automated legs)
 - [x] Wave 0 covers all MISSING references — each is owned by a named plan: `139-GH15-ORIGINAL-CRITERIA.md` + `139-CITATIONS.md` → 139-01 · `139-check-claims.py` → 139-02 · `139-GH15-COMMENT.md` → 139-03 · `139-GH15-BODY-AMENDMENT.md` → 139-04 · `.planning/v1.31-OPERATOR-BATCH.md` → 139-05 (hold branch only)
 - [x] No watch-mode flags
 - [x] Claim gate seen to FAIL on a planted violation before its pass is believed — twice: 139-02 Task 2 Run 1 (four labels) and again in 139-04 Task 2 Step 1, immediately before the default-mode green that licenses the freeze

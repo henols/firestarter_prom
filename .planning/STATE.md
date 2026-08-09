@@ -4,9 +4,9 @@ milestone: v1.31
 milestone_name: 27C Programming-Algorithm Fidelity
 current_phase: 139
 current_phase_name: gh15-correction-outward
-status: planning
-stopped_at: Phase 139 context gathered
-last_updated: "2026-08-09T09:30:15.981Z"
+status: executing
+stopped_at: Phase 139 planned — 5 plans in 4 waves, ready to execute
+last_updated: "2026-08-09T11:27:07.304Z"
 last_activity: 2026-08-09
 last_activity_desc: Phase 138 complete, transitioned to Phase 139
 progress:
@@ -112,9 +112,37 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 139 — gh#15 Correction (outward)
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-08-09 — Phase 138 complete, transitioned to Phase 139
+Plan: Not started — 5 plans in 4 waves
+Status: Ready to execute
+Last activity: 2026-08-09 — Phase 139 planned (5 plans, checker PASSED on iteration 2)
+
+**Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
+`checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes
+auto-approve `human-verify` gates but never `human-action`; `autonomous: false` alone is not
+self-protecting (CONTEXT D-09).
+
+**Decision-coverage gate: OVERRIDDEN at plan time (operator decision, 2026-08-09).**
+`check.decision-coverage-plan` returned `passed: false, reason: "could-not-parse"` — a parser
+limitation, not a coverage gap. Six of `139-CONTEXT.md`'s eleven decision bullets defeat
+`bin/lib/decisions.cjs`'s three bullet regexes in three distinct ways: `D-01`, `D-04`, `D-06`, `D-07`
+wrap the bold label across two lines; `D-08` carries nested `*italics*` inside the bold run
+(`bulletEmDashRe`/`bulletTitledColonRe` both reject any `*`); `D-09` carries extra colons inside it
+(`` `checkpoint:human-action` `` — `bulletTitledColonRe`'s `[^:*]*` rejects). `139-CONTEXT.md` was
+deliberately **not** reformatted: `139-01-PLAN.md` prohibits editing it and asserts
+`git status --porcelain` on it is empty.
+
+Coverage substance was verified manually instead — the union of decision ids cited across the five
+plans is D-01 … D-11 complete:
+
+| Plan | Decision ids cited |
+|------|--------------------|
+| 139-01 | D-01, D-03, D-06, D-07, D-08, D-10 |
+| 139-02 | D-01, D-05, D-08, D-10 |
+| 139-03 | D-01, D-02, D-03, D-04, D-05, D-06, D-07, D-08, D-10, D-11 |
+| 139-04 | D-01, D-03, D-08, D-10 |
+| 139-05 | D-01, D-08, D-09, D-10 |
+
+verify-phase should re-surface this override rather than treat the gate as passed.
 
 ## Roadmap Summary (v1.31)
 
