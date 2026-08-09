@@ -138,8 +138,9 @@ expected work, not a regression.
       **Evidence (2026-08-09, Phase 139 Plan 05).** The operator answered Task 1's blocking
       `checkpoint:human-action` gate verbatim: wording `"approved, post now"`; posting timing
       `"approved, post now"` (unambiguous post-now, not hold); the optional body amendment (asked
-      because posting was authorized) `"Comment only (Recommended)"` — body NOT amended, `updatedAt`
-      unchanged from `2026-07-12T09:15:27Z`. All four fail-closed preconditions were re-measured
+      because posting was authorized) `"Comment only (Recommended)"` — body NOT amended (proven by
+      GraphQL `lastEditedAt: null` / `editor: null` and by the live body's nine `^- \[ \]` boxes
+      diffing clean against `139-GH15-ORIGINAL-CRITERIA.md`). All four fail-closed preconditions were re-measured
       immediately before acting and held: (1) verdict said "post now" verbatim; (2)
       `firestarter/src/proms/eprom.cpp` and `firestarter/src/proms/memory.cpp` each yielded exactly
       one unique blob SHA across `HEAD`/`origin/beta`/`3085084` (eprom.cpp) and `HEAD`/`origin/beta`
@@ -157,7 +158,11 @@ expected work, not a regression.
       `--milestone`, `--project`, `--web`, `--editor`, `--edit-last`/`--delete-last`, inline `--body`,
       heredoc/shell-piped body, `gh issue close`, or `gh auth token` were used in any of the four `gh`
       calls made (see `139-CITATIONS.md` §6). Body amendment: not authorized by the operator's third
-      answer, and not applied — `updatedAt` remains `2026-07-12T09:15:27Z`.
+      answer, and not applied. Note `updatedAt` DID move (`2026-07-12T09:15:27Z` →
+      `2026-08-09T19:32:04Z`) because GitHub bumps it on comment creation — it is not a body-edit
+      oracle, and an earlier revision of this evidence paragraph wrongly cited it as one. The
+      discriminating oracles are `lastEditedAt: null` and nine-box content equality, both of which
+      hold. Full corrected record: `139-CITATIONS.md` §6.5 and §6.6.
 
 ### Parameter Table
 
