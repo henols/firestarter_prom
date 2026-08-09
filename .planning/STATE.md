@@ -1,20 +1,20 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.31
-milestone_name: 27C Programming-Algorithm Fidelity
+milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 139
-current_phase_name: gh15-correction-outward
+current_phase_name: gh-15-correction-outward
 status: executing
-stopped_at: Phase 139 planned — 5 plans in 4 waves, ready to execute
-last_updated: "2026-08-09T11:27:07.304Z"
+stopped_at: Completed 139-01-PLAN.md
+last_updated: "2026-08-09T12:09:48.258Z"
 last_activity: 2026-08-09
-last_activity_desc: Phase 138 complete, transitioned to Phase 139
+last_activity_desc: Phase 139 execution started
 progress:
-  total_phases: 9
+  total_phases: 8
   completed_phases: 1
-  total_plans: 7
-  completed_plans: 7
-  percent: 11
+  total_plans: 12
+  completed_plans: 8
+  percent: 13
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-08 — v1.31 started)
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
 authoritative dispatch key end to end. v1.31 makes that key drive *programming behaviour*, not just
 handler selection — while keeping the pulse width itself a database datum, not a protocol constant.
-**Current focus:** Phase 138 — preconditions-baseline
+**Current focus:** Phase 139 — gh-15-correction-outward
 
 **v1.31 27C Programming-Algorithm Fidelity (gh#15)** — ACTIVE (activated 2026-08-08, retiring Backlog
 **999.22** which was queued as the `v1.27` slot). **Firmware-touching, dual-repo lockstep.** Phase
@@ -111,10 +111,10 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 ## Current Position
 
-Phase: 139 — gh#15 Correction (outward)
-Plan: Not started — 5 plans in 4 waves
+Phase: 139 (gh-15-correction-outward) — EXECUTING
+Plan: 2 of 5
 Status: Ready to execute
-Last activity: 2026-08-09 — Phase 139 planned (5 plans, checker PASSED on iteration 2)
+Last activity: 2026-08-09 — Phase 139 execution started
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
 `checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes
@@ -1803,6 +1803,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 138]: Recorded two empirical CI-trigger-table corrections (F-138-10 firmware fires two workflows, F-138-11 app push fires zero for a zero-diff branch) as new findings in 138-BASELINE.md rather than editing 138-RESEARCH.md in place
 - [Phase 138]: Preserved the 138-04 host-suite divergence (1539/0 vs 1493/46) unreconciled in 138-BASELINE.md section 8, per the plan's explicit instruction not to smooth it over
 - [Phase 138]: Set nyquist_compliant:true and wave_0_complete:true in 138-VALIDATION.md because every one of the ten per-task verification map rows measured green with no red row
+- [Phase 139]: gh#15 carries NINE acceptance-criteria boxes, not the seven both 139-CONTEXT.md and ROADMAP.md state -- confirmed by mechanical capture and grep -c, matching 139-RESEARCH.md F-01 exactly; recorded, not reconciled by editing either document.
+- [Phase 139]: memory.cpp:249-258 (memory_set_data()) is cited as the PROGRAM pulse; eprom.cpp:274-283 (eprom_internal_erase()) is kept but explicitly relabelled the ERASE pulse, correcting 139-CONTEXT.md D-06's unqualified 'the pulse' attribution to eprom.cpp:283.
+- [Phase 139]: 138-BASELINE.md dropped from the citation set (404s at the pushed tip; not in D-06's binding list) -- this plan and this phase need no git push.
+- [Phase 139]: .planning/PROJECT.md withheld from public citation -- its C1/C2/C3 table is at line 71 locally vs line 61 at the pushed tip; a permalink from local numbers would 200 and point at the wrong ten lines.
 
 ## Performance Metrics
 
@@ -2013,12 +2017,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 138 P05 | 45min | 3 tasks | 5 files |
 | Phase 138 P06 | 22min | 3 tasks | 2 files |
 | Phase 138 P07 | 35min | 3 tasks | 3 files |
+| Phase 139 P01 | 12min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-09T09:30:15.946Z
-**Stopped at:** Phase 139 context gathered
-**Resume file:** .planning/phases/139-gh-15-correction-outward/139-CONTEXT.md
+**Last session:** 2026-08-09T12:09:48.236Z
+**Stopped at:** Completed 139-01-PLAN.md
+**Resume file:** None
 
 ### Blockers
 
