@@ -225,5 +225,7 @@ both tasks); the phase's one `checkpoint:human-action` gate belongs to plan 139-
 
 - FOUND: `139-GH15-ORIGINAL-CRITERIA.md`
 - FOUND: `139-CITATIONS.md`
+- FOUND: `139-01-SUMMARY.md`
 - FOUND commit: `52ef0ef2` (Task 1)
 - FOUND commit: `3b23f327` (Task 2)
+- FOUND commit: `9bc24a6b` (this SUMMARY)
