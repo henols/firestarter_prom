@@ -43,6 +43,16 @@
 stays vacant and is not reused) · **Firmware-touching, dual-repo lockstep** (`firestarter` +
 `firestarter_app`).
 
+**Current state (2026-08-09):** Phase 138 (Preconditions & Baseline) complete and verified 4/4 —
+PREP-01…PREP-04 all discharged. All three repos sit on the branch
+`gsd/v1.31-27c-programming-algorithm-fidelity` off verified bases (firmware `3085084`, app `4d18b64`,
+meta `d0f0c6a0`), pushed, with CI green on each pushed SHA. The pre-change baseline is frozen and citable
+in `.planning/phases/138-preconditions-baseline/138-BASELINE.md`: golden merged strobe+timing traces for
+`0x07`/`0x08`/`0x0B`, cold per-target flash/RAM, all four native suite counts, the host suite count, and
+the live pulse-width distribution — captured **before** any `eprom.cpp` edit, which `git diff` confirms
+has not been touched. Eleven findings (F-138-01…F-138-11) are recorded with owners and explicit
+not-fixed-here dispositions. Next: Phase 139 — gh#15 Correction (outward).
+
 **Goal:** Replace the block-level mismatch-mask write loop shared by all three 27C protocols with a
 per-byte pulse→verify loop driven by a per-protocol parameter table, so `0x07` / `0x08` / `0x0B`
 program the way their datasheets specify — with the pulse width supplied by the database, not by
