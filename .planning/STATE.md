@@ -1,20 +1,20 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.31
-milestone_name: — 27C Programming-Algorithm Fidelity
-current_phase: 138
-current_phase_name: preconditions-baseline
-status: verifying
+milestone_name: 27C Programming-Algorithm Fidelity
+current_phase: 139
+current_phase_name: gh15-correction-outward
+status: planning
 stopped_at: Completed 138-07-PLAN.md
-last_updated: "2026-08-09T07:59:45.915Z"
-last_activity: 2026-08-08
-last_activity_desc: Phase 138 execution started
+last_updated: "2026-08-09T08:16:04.346Z"
+last_activity: 2026-08-09
+last_activity_desc: Phase 138 complete, transitioned to Phase 139
 progress:
-  total_phases: 8
+  total_phases: 9
   completed_phases: 1
   total_plans: 7
   completed_plans: 7
-  percent: 13
+  percent: 11
 ---
 
 # Project State
@@ -111,10 +111,10 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 ## Current Position
 
-Phase: 138 (preconditions-baseline) — EXECUTING
-Plan: 7 of 7
+Phase: 139 — gh#15 Correction (outward)
+Plan: Not started
 Status: Phase complete — ready for verification
-Last activity: 2026-08-08 — Phase 138 execution started
+Last activity: 2026-08-09 — Phase 138 complete, transitioned to Phase 139
 
 ## Roadmap Summary (v1.31)
 
