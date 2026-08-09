@@ -173,7 +173,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 ### Phases
 
 - [x] **Phase 138: Preconditions & Baseline** — verified branch bases in all 3 repos (PREP-01/02, operator PR-merge gate), a pre-change golden-trace/flash-RAM/suite-count baseline captured before any `eprom.cpp` edit (PREP-03), and the live per-protocol pulse-width distribution re-derived as evidence (PREP-04). (PREP-01, PREP-02, PREP-03, PREP-04) (completed 2026-08-09)
-- [ ] **Phase 139: gh#15 Correction (outward)** — draft, freeze, get operator wording approval on, and (only on explicit authorization) post the C1/C2/C3 + 6.25 V-ceiling correction to gh#15, before any implementation phase lands code. (ISSUE-01, ISSUE-02, ISSUE-03)
+- [x] **Phase 139: gh#15 Correction (outward)** — draft, freeze, get operator wording approval on, and (only on explicit authorization) post the C1/C2/C3 + 6.25 V-ceiling correction to gh#15, before any implementation phase lands code. (ISSUE-01, ISSUE-02, ISSUE-03) (completed 2026-08-09)
 - [ ] **Phase 140: Parameter Table** — a `const` `protocol_id`-keyed table carrying shape columns only (`max_pulses`, `overprogram_factor`, `overprogram_cap_us`, `verify_mode`, `vpp_path`), datasheet-cited or explicitly reasoned per value, with `protocol_id` remaining the sole dispatch key. (TABLE-01, TABLE-02, TABLE-03, TABLE-04, TABLE-05)
 - [ ] **Phase 141: Per-Byte Program Loop** — replace the block mismatch-mask loop with fixed-width pulse→verify per byte, overprogram/energy-cap rules from the table, hard-fail-on-max-pulses with address+count reporting, skip logic, the safe delay helper, and VPE held per block. (LOOP-01, LOOP-02, LOOP-03, LOOP-04, LOOP-05, LOOP-06, LOOP-07, LOOP-08)
 - [ ] **Phase 142: High-Voltage Routing** — protocol-correct VPP/VPE path selection from the table, one shared routing-mask set, disable-every-route on every write-path exit, and the existing over-voltage refusal re-verified intact. (VPP-01, VPP-02, VPP-03, VPP-04)
@@ -246,7 +246,7 @@ Requirement ticking is named exhaustively per plan so no plan ticks a multi-plan
 - [x] 139-02-PLAN.md — Wave 1: author `139-check-claims.py`, the Phase-139-scoped forbidden-claim gate, and see it fail on a planted violation before any pass is believed
 - [x] 139-03-PLAN.md — Wave 2: draft `139-GH15-COMMENT.md` (C1/C2/C3, the 6.25 V ceiling, the nine-box amendment, one ask) and prove it gate-clean
 - [x] 139-04-PLAN.md — Wave 3: draft `139-GH15-BODY-AMENDMENT.md`, cross-check it against the comment, and freeze both artifacts with blob SHA + byte length + committing commit
-- [ ] 139-05-PLAN.md — Wave 4: blocking `checkpoint:human-action` operator gate (wording / posting / optional body edit — three separate answers) then the conditional post-or-hold, each branch fully recorded
+- [x] 139-05-PLAN.md — Wave 4: blocking `checkpoint:human-action` operator gate (wording / posting / optional body edit — three separate answers) then the conditional post-or-hold, each branch fully recorded
 
 ### Phase 140: Parameter Table
 
