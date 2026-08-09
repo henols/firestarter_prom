@@ -45,17 +45,17 @@ Every number in this section is **proposed**. None of it is datasheet-cited yet 
 
 Half-correcting a public spec is worse than not correcting it, because it looks complete. Here is every original box, and what happens to it:
 
-| # | Original box | Disposition | Why |
-|---|---|---|---|
-| 1 | `0x07`, `0x08`, and `0x0B` use separate write handlers. | **Replaced** | Protocol owns *shape*; the database owns the *pulse*. One shared per-byte loop, driven by a `const` table keyed by `protocol_id`, replaces three handlers that would otherwise duplicate most of their own body — on a device with a hard AVR flash budget. |
-| 2 | No new database algorithm flags are introduced. | **Kept** | Unchanged. |
-| 3 | `EPROM_STD` uses per-byte fixed 1 ms pulse/verify cycles and a final overprogram pulse. | **Corrected** | The per-byte loop and the final overprogram pulse are this issue's central, correct insight, and both are kept. The `1 ms` is wrong: `0x07`'s most common value is `100 us`, and it spans `50` to `1000 us` across the shipped database. |
-| 4 | `EPROM_QUICK` uses its own fixed short-pulse handler. | **Corrected** | "Its own handler" falls with row 1. "Fixed" falls with the pulse-width evidence above: `0x08` spans `10` to `1000 us` across 6 distinct values, and 23 of 127 chips are not `100 us`. |
-| 5 | `EPROM_LEGACY` uses a long fixed programming pulse rather than the current adaptive loop. | **Corrected** | Dropping the adaptive loop is kept. "Long" is wrong — that is the `50000 us` ×100 bug above; the true value is `500 us`. |
-| 6 | The current block mismatch/adaptive pulse-growth algorithm is removed from EPROM writing. | **Kept** | This issue's core diagnosis, and I still agree with it. Pulse count and overprogram duration belong to the individual byte, which a block-level mismatch mask cannot express. |
-| 7 | VPP routing remains protocol-correct and is disabled on all exits. | **Kept** | Unchanged. |
-| 8 | Native tests cover dispatch, pulse behavior, verification, failure, and cleanup. | **Kept** | Kept, with "dispatch" now meaning table-row selection instead of handler selection. |
-| 9 | All firmware targets build successfully. | **Kept** | Unchanged. |
+| Original box | Disposition | Why |
+|---|---|---|
+| `0x07`, `0x08`, and `0x0B` use separate write handlers. | **Replaced** | Protocol owns *shape*; the database owns the *pulse*. One shared per-byte loop, driven by a `const` table keyed by `protocol_id`, replaces three handlers that would otherwise duplicate most of their own body — on a device with a hard AVR flash budget. |
+| No new database algorithm flags are introduced. | **Kept** | Unchanged. |
+| `EPROM_STD` uses per-byte fixed 1 ms pulse/verify cycles and a final overprogram pulse. | **Corrected** | The per-byte loop and the final overprogram pulse are this issue's central, correct insight, and both are kept. The `1 ms` is wrong: `0x07`'s most common value is `100 us`, and it spans `50` to `1000 us` across the shipped database. |
+| `EPROM_QUICK` uses its own fixed short-pulse handler. | **Corrected** | "Its own handler" falls with the row above. "Fixed" falls with the pulse-width evidence above: `0x08` spans `10` to `1000 us` across 6 distinct values, and 23 of 127 chips are not `100 us`. |
+| `EPROM_LEGACY` uses a long fixed programming pulse rather than the current adaptive loop. | **Corrected** | Dropping the adaptive loop is kept. "Long" is wrong — that is the `50000 us` ×100 bug above; the true value is `500 us`. |
+| The current block mismatch/adaptive pulse-growth algorithm is removed from EPROM writing. | **Kept** | This issue's core diagnosis, and I still agree with it. Pulse count and overprogram duration belong to the individual byte, which a block-level mismatch mask cannot express. |
+| VPP routing remains protocol-correct and is disabled on all exits. | **Kept** | Unchanged. |
+| Native tests cover dispatch, pulse behavior, verification, failure, and cleanup. | **Kept** | Kept, with "dispatch" now meaning table-row selection instead of handler selection. |
+| All firmware targets build successfully. | **Kept** | Unchanged. |
 
 Two more sentences in the body, outside the checkbox list, need the same correction and would otherwise mislead a reader who never gets past the top of the issue:
 
