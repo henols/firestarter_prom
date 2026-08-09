@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 139
 current_phase_name: gh-15-correction-outward
 status: executing
-stopped_at: Completed 139-01-PLAN.md
-last_updated: "2026-08-09T12:09:48.258Z"
+stopped_at: Completed 139-02-PLAN.md
+last_updated: "2026-08-09T12:31:51.049Z"
 last_activity: 2026-08-09
 last_activity_desc: Phase 139 execution started
 progress:
   total_phases: 8
   completed_phases: 1
   total_plans: 12
-  completed_plans: 8
+  completed_plans: 9
   percent: 13
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 139 (gh-15-correction-outward) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-08-09 — Phase 139 execution started
 
@@ -1807,6 +1807,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 139]: memory.cpp:249-258 (memory_set_data()) is cited as the PROGRAM pulse; eprom.cpp:274-283 (eprom_internal_erase()) is kept but explicitly relabelled the ERASE pulse, correcting 139-CONTEXT.md D-06's unqualified 'the pulse' attribution to eprom.cpp:283.
 - [Phase 139]: 138-BASELINE.md dropped from the citation set (404s at the pushed tip; not in D-06's binding list) -- this plan and this phase need no git push.
 - [Phase 139]: .planning/PROJECT.md withheld from public citation -- its C1/C2/C3 table is at line 71 locally vs line 61 at the pushed tip; a permalink from local numbers would 200 and point at the wrong ten lines.
+- [Phase 139]: 139-02: no proximity/context window and no arming branch in the new Phase-139 claim gate -- RESEARCH F-04 proved both are what made the v1.30 donor checker vacuous on this milestone's 0x07/0x08/0x0B vocabulary.
+- [Phase 139]: 139-02: no pytest module or committed fixtures for the claim gate -- Phase 138's scratchpad-only, never-committed fixture strategy chosen over Phase 137's committed-fixtures/paired-test-module precedent (that shape belongs to Phase 146's CLOSE-01, a Deferred Idea here).
+- [Phase 139]: 139-02: the required caveat IS the requirement -- the gate's REQUIRED_CAVEAT_PATTERNS entries are the ~6.25 V program-VCC ceiling ISSUE-02 requires stated plainly, making the mechanical check and the requirement the same check.
 
 ## Performance Metrics
 
@@ -2018,11 +2021,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 138 P06 | 22min | 3 tasks | 2 files |
 | Phase 138 P07 | 35min | 3 tasks | 3 files |
 | Phase 139 P01 | 12min | 2 tasks | 2 files |
+| Phase 139 P02 | ~14min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-09T12:09:48.236Z
-**Stopped at:** Completed 139-01-PLAN.md
+**Last session:** 2026-08-09T12:31:51.015Z
+**Stopped at:** Completed 139-02-PLAN.md
 **Resume file:** None
 
 ### Blockers
