@@ -276,3 +276,205 @@ register uses the three-ref blob-equality form exclusively.
 *Pinned SHAs this register cites against — meta `b6aa1dcb23ef9931105752ed6dd6badccf6719de` ·
 firmware (`origin/beta`) `6fab4eafdcd0981d24fddc3ff177abc5c74e313c` · host (`origin/beta`)
 `4d18b645ab18a2d2465f0f623062e9249eb24132` · minipro (GitLab) `cae74c0607077d6260b24995f5e4c0d0b66a6a2e`.*
+
+---
+
+## 4. Claim gate — planted-first, then the real run over both artifacts
+
+**Measured:** 2026-08-09, this session (plan 139-04), live and read-only except for one scratchpad-only
+planted-violation fixture, deleted immediately after its run and never committed. Per this register's
+own standing convention (§0's preamble), nothing below is copied from `139-02-SUMMARY.md`'s own
+non-vacuity record — every run below was re-executed fresh in this plan, against this plan's own two
+named artifacts, not reused from a different plan's different file set.
+
+**The red preceded the green, in that literal order.** No pass of `139-check-claims.py` is relied on
+anywhere in this plan, or in `139-04-SUMMARY.md`, until the planted-violation run below was observed
+FAIL, in this same task, immediately before the default-mode run that licenses the freeze in §5.
+
+### Run 1 — planted-violation re-run, MUST FAIL — observed FAIL
+
+Exact planted line appended to a scratchpad copy of `139-GH15-COMMENT.md` (never committed, deleted
+immediately after the run):
+
+```
+This firmware is datasheet-conformant and algorithm-accurate.
+```
+
+Literal command as run:
+
+```
+$ cd /workspaces/.planning/phases/139-gh-15-correction-outward
+$ T=$(mktemp -d); cp 139-GH15-COMMENT.md "$T/planted.md"
+$ printf '\nThis firmware is datasheet-conformant and algorithm-accurate.\n' >> "$T/planted.md"
+$ out=$(python3 139-check-claims.py "$T/planted.md"); rc=$?; printf '%s\n' "$out"; rm -rf "$T"
+```
+
+Literal stdout:
+
+```
+FAIL: 2 forbidden phrase match(es):
+  <scratchpad>/planted.md:69: forbidden phrase match [datasheet-conformant]: 'datasheet-conformant'
+  <scratchpad>/planted.md:69: forbidden phrase match [algorithm-accurate]: 'algorithm-accurate'
+```
+
+**Exit code: 1.** Both planted labels (`datasheet-conformant`, `algorithm-accurate`) named verbatim.
+Re-run a second time after Task 2's mid-task fix to `139-GH15-COMMENT.md` (see below) with an identical
+result — the fix changed only the disposition table's column count, not this run's outcome.
+
+### Run 2 — default-mode run over both named artifacts, MUST PASS — observed PASS
+
+Literal command as run (no arguments — `_DEFAULT_TARGETS` resolves to both outward artifacts):
+
+```
+$ cd /workspaces/.planning/phases/139-gh-15-correction-outward && python3 139-check-claims.py
+```
+
+Literal stdout:
+
+```
+PASS: scanned 139-GH15-COMMENT.md, 139-GH15-BODY-AMENDMENT.md; 2 file(s) carry both required caveats (this PASS is the mechanizable half of the ISSUE-02 / D-05 discipline only -- see the module docstring's explicit non-claim)
+```
+
+**Exit code: 0.** The `PASS:` line names both `139-GH15-COMMENT.md` and `139-GH15-BODY-AMENDMENT.md`.
+
+**The gate's own blob is unmodified**, confirmed both by an empty `git status --porcelain` and by exact
+blob-SHA equality against plan 139-02's own commit:
+
+```
+$ git status --porcelain -- 139-check-claims.py
+(empty)
+$ git rev-parse HEAD:.planning/phases/139-gh-15-correction-outward/139-check-claims.py
+c7ccf421bc30904983cb8b64acbc25c6bfde565c
+$ git rev-parse 49881518:.planning/phases/139-gh-15-correction-outward/139-check-claims.py
+c7ccf421bc30904983cb8b64acbc25c6bfde565c
+```
+
+Identical blob SHA at `HEAD` and at plan 139-02's own commit `49881518` — this green was not bought by
+weakening the gate.
+
+### Mid-task correction, recorded here rather than smoothed over
+
+The box-anchored disposition cross-check (below) first failed: `139-GH15-COMMENT.md`'s disposition
+table, as authored by plan 139-03, carried a fourth leading `#` row-number column never specified by
+`139-03-PLAN.md`'s own instruction ("Column 1 quotes each original box... Column 2 is the disposition...
+Column 3 is the reason") — a three-column mandate. That extra column shifted the disposition one field to
+the right, so the cross-check's column-3 extraction read the *box text* instead of the disposition in
+every one of the comment's nine rows. No disposition, reason, or box quote was ever wrong; this was a
+table-shape defect in the comment, not a content disagreement between the two artifacts. Corrected by
+dropping the `#` column from `139-GH15-COMMENT.md` (commit `19b492d9`, `fix(139-04)`), per this plan's
+own scope guard, which names exactly this case ("only if the plan's cross-check requires a named
+correction"). All five of plan 139-03's own literal verify blocks were re-run against the corrected file
+immediately after and all five still pass unchanged — the fix is structural only, not substantive. Runs 1
+and 2 above are recorded against the file's final, post-fix, frozen state.
+
+### Box-anchored disposition cross-check — MUST exit 0, observed `DISPOSITIONS-AGREE-OK`
+
+Literal command as run:
+
+```
+$ cd /workspaces/.planning/phases/139-gh-15-correction-outward
+$ d() { grep -F -- "$2" "$1" | grep -E '^[[:space:]]*\|' | head -1 | awk -F'|' '{c=tolower($3); if (match(c,/kept|corrected|replaced/)) print substr(c,RSTART,RLENGTH); else print "NONE"}'; }
+$ N=0; BAD=0
+$ while IFS= read -r b; do
+    t=${b%.}
+    a=$(d 139-GH15-COMMENT.md "$t")
+    m=$(d 139-GH15-BODY-AMENDMENT.md "$t")
+    N=$((N+1))
+    [ -z "$a" ] || [ -z "$m" ] || [ "$a" = NONE ] || [ "$a" != "$m" ] && { echo "ROW $N MISMATCH comment='$a' amendment='$m' :: $t"; BAD=1; }
+  done < <(sed -n 's/^- \[ \] //p' 139-GH15-ORIGINAL-CRITERIA.md)
+$ [ "$N" = "9" ] && [ "$BAD" = "0" ] && echo DISPOSITIONS-AGREE-OK
+```
+
+Literal per-row output, post-fix (all nine matched, zero mismatches):
+
+```
+ROW 1 :: comment='replaced' amendment='replaced'
+ROW 2 :: comment='kept' amendment='kept'
+ROW 3 :: comment='corrected' amendment='corrected'
+ROW 4 :: comment='corrected' amendment='corrected'
+ROW 5 :: comment='corrected' amendment='corrected'
+ROW 6 :: comment='kept' amendment='kept'
+ROW 7 :: comment='kept' amendment='kept'
+ROW 8 :: comment='kept' amendment='kept'
+ROW 9 :: comment='kept' amendment='kept'
+DISPOSITIONS-AGREE-OK
+```
+
+**Exit code: 0.** `N=9`, `BAD=0` — nine rows matched in each file, zero mismatches, zero missing rows,
+zero rows with no disposition token.
+
+### Supplementary assertions (Step 3's action text, each individually re-derived)
+
+- **Every number named in Task 1's action appears in both files:** `500`, `50000`, `203`, `329`, `61.7`,
+  `75 ms`, `16383`, `9464`, `50 ms`, `8de307f`, `12286df`, `6.25`, `silicon-margin`, `max_pulses`,
+  `overprogram_factor`, `overprogram_cap_us`, `verify_mode`, `vpp_path` — a per-file grep loop over both
+  artifacts returned zero `MISSING` lines for either file.
+- **The nine original boxes appear verbatim in both files:** the same `sed`/`grep` loop plan 139-03 used
+  against `139-GH15-ORIGINAL-CRITERIA.md` returned `ALL-9-PRESENT-OK` against both
+  `139-GH15-COMMENT.md` and `139-GH15-BODY-AMENDMENT.md` independently.
+- **Neither file carries the false modal-disagreement sentence:**
+  `grep -qiE 'all three.*disagree.*modal'` against both files returned no match — printed
+  `NO-FALSE-MODAL-SENTENCE-OK`.
+
+## 5. Freeze — blob SHA, byte length, committing commit, per artifact
+
+**D-08's precondition.** The operator gate in plan 139-05 must review text that is provably identical to
+what would be posted. Three values per artifact, not two — this register's own §2d pre-flight shape,
+extended with the third column `122-DELIVERY.md`'s own precedent already used (`137-05-PLAN.md`'s freeze
+paragraph recorded all three; this table just tabulates them).
+
+| File | Frozen blob SHA | Byte length | Committing commit | `git status --porcelain` |
+|---|---|---|---|---|
+| `139-GH15-COMMENT.md` | `d77a639c62751c197e465ec637f24f330dab35ef` | 12193 | `19b492d9e4e4d73a8b862ae56416eaabce2ead1e` | empty |
+| `139-GH15-BODY-AMENDMENT.md` | `8ff1a961f28c53f5c743b3c228e60f88ea3ded40` | 12870 | `2956e29b1c2629b84ab31ef63fc102fe3bf01ac5` | empty |
+
+Both rows measured live, this session, after the mid-task correction above landed — `139-GH15-COMMENT.md`'s
+blob SHA and byte length in this table are **not** the values plan 139-03 originally recorded
+(`635c8ccac8711055db2a317be8f3987559d01f85`, 12229 bytes); they are superseded by this plan's own
+correction commit `19b492d9`, per this plan's explicit scope-guard authorization to change that file and
+record the new blob when the cross-check requires it. `139-GH15-BODY-AMENDMENT.md`'s values are as
+authored in this plan's own Task 1 (commit `2956e29b`) and are unchanged since.
+
+**The normalization any post-hoc byte-diff will apply, named in advance.** GitHub appends exactly one
+trailing newline that a committed file does not already end with — measured across four outward calls in
+the v1.22-era delivery record (`122-DELIVERY.md` §3, reproduced in `139-PATTERNS.md` §2c) — and no other
+divergence occurred on any of those four calls. The two normalizations a correct post-hoc comparison must
+apply, stated once, in advance: **(1)** CRLF stripped (a no-op in practice — neither frozen file contains
+a CRLF byte), and **(2)** both sides collapsed to exactly one trailing newline before comparing, using the
+`diff <(sed -e '$a\' A) <(sed -e '$a\' B)` idiom, where `A` is the frozen file and `B` is the retrieved
+body/comment text. **A byte-length difference of exactly 1, in the direction of the retrieved copy being
+one byte longer, is the expected result of a correct post — not a mismatch** — so that nobody reads a
+correct post as a failure at the worst possible moment (immediately after posting to a public issue).
+
+**137-05's stricter wording is deliberately rejected.** `137-05-PLAN.md`'s own byte-diff instruction
+("fetch the comment back... and diff it byte-for-byte against the frozen file — must be identical") names
+no normalization at all. It was **written but never executed** — the hold branch was taken in that plan
+(`137-05-SUMMARY.md`) — and had it run against a correct post, it would have failed on the one-byte
+trailing-newline difference GitHub always adds, misreporting a correct post as corrupted. This register
+uses the normalized, `122-DELIVERY.md`-derived form exclusively; 139-05 must not revert to the unnormalized
+wording.
+
+**Standing preconditions, re-asserted at the close of this plan.**
+
+```
+$ gh issue view 15 --repo henols/firestarter_prom --json state,comments,labels -q '{state:.state,n:(.comments|length),labels:.labels}'
+{"labels":[],"n":0,"state":"OPEN"}
+```
+
+gh#15 is still `OPEN`, still zero comments, still no labels — unchanged from plan 139-01's §0 measurement
+and from every plan's re-assertion since.
+
+```
+$ for r in HEAD origin/beta 3085084; do git -C /workspaces/firestarter rev-parse $r:src/proms/eprom.cpp; done | sort -u | wc -l
+1
+```
+
+`firestarter/src/proms/eprom.cpp` is still exactly one unique blob SHA across `HEAD`, `origin/beta` and
+`3085084` — no implementation has moved underneath either frozen artifact.
+
+---
+
+*Phase: 139-gh-15-correction-outward*
+*Plan: 139-04 (sections 4-5; sections 0-3 remain plan 139-01's, byte-unchanged)*
+*Freeze commits this plan added — comment fix: `19b492d9e4e4d73a8b862ae56416eaabce2ead1e`; body
+amendment: `2956e29b1c2629b84ab31ef63fc102fe3bf01ac5`.*
