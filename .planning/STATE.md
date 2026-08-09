@@ -5,10 +5,10 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 140
 current_phase_name: Parameter Table
 status: executing
-stopped_at: Completed 139-04-PLAN.md
-last_updated: "2026-08-09T19:58:28.290Z"
+stopped_at: Phase 140 context gathered
+last_updated: "2026-08-09T21:44:06.129Z"
 last_activity: 2026-08-09
-last_activity_desc: Phase 139 complete, transitioned to Phase 140
+last_activity_desc: Phase 140 context gathered
 progress:
   total_phases: 8
   completed_phases: 2
@@ -113,8 +113,8 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 Phase: 140 — Parameter Table
 Plan: Not started
-Status: Executing Phase 139
-Last activity: 2026-08-09 — Phase 139 complete, transitioned to Phase 140
+Status: Phase 140 context gathered — ready for planning
+Last activity: 2026-08-09 — Phase 140 context gathered (140-CONTEXT.md, D-01…D-15)
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
 `checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes
@@ -2035,9 +2035,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-09T13:26:34.974Z
-**Stopped at:** Completed 139-04-PLAN.md
-**Resume file:** 
+**Last session:** 2026-08-09T21:44:06.093Z
+**Stopped at:** Phase 140 context gathered
+**Resume file:** .planning/phases/140-parameter-table/140-CONTEXT.md
 
 ### Blockers
 
