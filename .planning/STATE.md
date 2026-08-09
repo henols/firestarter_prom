@@ -4,17 +4,17 @@ milestone: v1.31
 milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 138
 current_phase_name: preconditions-baseline
-status: executing
-stopped_at: Completed 138-06-PLAN.md
-last_updated: "2026-08-09T00:46:23.476Z"
+status: verifying
+stopped_at: Completed 138-07-PLAN.md
+last_updated: "2026-08-09T07:59:45.915Z"
 last_activity: 2026-08-08
 last_activity_desc: Phase 138 execution started
 progress:
   total_phases: 8
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 7
-  completed_plans: 6
-  percent: 0
+  completed_plans: 7
+  percent: 13
 ---
 
 # Project State
@@ -113,7 +113,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 Phase: 138 (preconditions-baseline) — EXECUTING
 Plan: 7 of 7
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-08-08 — Phase 138 execution started
 
 ## Roadmap Summary (v1.31)
@@ -1771,6 +1771,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 138]: Combined Task 1 (measurement tables) and Task 3 (Findings) into ONE meta commit for 138-06-FIRMWARE-MEASUREMENT.md, per the plan's explicit 'two repos, two commits' repo-topology directive
 - [Phase 138]: F-138-04 quotes 138-RESEARCH.md's live-beta-tip figure (RED, +34B/target) as research-measured rather than re-building it -- D-07 forbids acting on the discrepancy and a second cold rebuild would not change the already-decided fork base
 - [Phase 138]: F-138-05 recorded: check_size_baseline.py's uncaught KeyError on an unknown native env exits 1 where its own taxonomy promises 2, and NATIVE_ENVS being hardcoded makes native_trace_v131 invisible to both live gates -- accepted and recorded, owner henols, neither checker modified
+- [Phase 138]: Re-verified all three CI runs independently via fresh gh run view/gh run list/git ls-remote calls rather than accepting the orchestrator's gate-clearance evidence on trust -- all figures matched exactly
+- [Phase 138]: Recorded two empirical CI-trigger-table corrections (F-138-10 firmware fires two workflows, F-138-11 app push fires zero for a zero-diff branch) as new findings in 138-BASELINE.md rather than editing 138-RESEARCH.md in place
+- [Phase 138]: Preserved the 138-04 host-suite divergence (1539/0 vs 1493/46) unreconciled in 138-BASELINE.md section 8, per the plan's explicit instruction not to smooth it over
+- [Phase 138]: Set nyquist_compliant:true and wave_0_complete:true in 138-VALIDATION.md because every one of the ten per-task verification map rows measured green with no red row
 
 ## Performance Metrics
 
@@ -1980,11 +1984,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 138 P04 | 16min | 2 tasks | 1 files |
 | Phase 138 P05 | 45min | 3 tasks | 5 files |
 | Phase 138 P06 | 22min | 3 tasks | 2 files |
+| Phase 138 P07 | 35min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-09T00:46:23.441Z
-**Stopped at:** Completed 138-06-PLAN.md
+**Last session:** 2026-08-09T07:59:45.884Z
+**Stopped at:** Completed 138-07-PLAN.md
 **Resume file:** None
 
 ### Blockers
