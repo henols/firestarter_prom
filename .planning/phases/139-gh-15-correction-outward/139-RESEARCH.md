@@ -1379,7 +1379,10 @@ Everything else in this document was measured live and is tagged `[VERIFIED]` at
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+All four were answered during phase planning, 2026-08-09. Each resolution below names the plan that
+carries it; none required re-opening a locked decision.
 
 1. **Should `138-BASELINE.md` be cited at all — and therefore should the meta branch be pushed?**
    - Known: it 404s at the pushed tip; it is absent from D-06's binding citation list; a meta push
@@ -1388,6 +1391,10 @@ Everything else in this document was measured live and is tagged `[VERIFIED]` at
    - **Recommendation:** drop the citation; the phase then has exactly one outward act. If the planner
      disagrees, add the push as a *separate* explicit line in the same `checkpoint:human-action`, never
      as an executor step.
+   - **RESOLVED — recommendation taken.** `138-BASELINE.md` is dropped from the citation set, and the
+     meta branch is **not** pushed. Owned by **139-01 Task 2 §1**, which records the drop with its reason
+     in `139-CITATIONS.md` alongside the parallel decision not to cite `PROJECT.md`. All five plans carry
+     an explicit `MUST NOT run git push` prohibition, so the phase's only outward act is the post itself.
 
 2. **Does the comment name `write --pulse-us`?**
    - Known: it is milestone locked decision D-04 (ROADMAP §v1.31 line 19) and it is genuinely
@@ -1396,11 +1403,21 @@ Everything else in this document was measured live and is tagged `[VERIFIED]` at
    - **Recommendation:** one clause, marked **proposed** like every other numeric/shape claim. It
      strengthens D-11's community ask (a reader with a logic analyzer can override the pulse and
      report back). Planner's call; either choice is defensible.
+   - **RESOLVED — recommendation taken.** Yes, one clause, marked proposed. Owned by **139-03 Task 1**,
+     final paragraph of the action ("One clause may mention that a per-run pulse override (`--pulse-us`)
+     is proposed, so a reader with a logic analyzer can override the database value and report back;
+     mark it proposed like every other shape claim").
 
 3. **Does the corrected criteria list render as a checklist or a table?** Explicit Claude's Discretion.
    Note one mechanical consideration: `- [ ]` inside the body's `<details>` block plus a new `- [ ]`
    list makes `grep -c '^- \[ \]'` ambiguous as an assertion — a table for the *new* list keeps the
    nine-original-boxes count cleanly assertable.
+   - **RESOLVED — table, in both artifacts, for exactly that mechanical reason.** Owned by **139-03
+     Task 1** ("Render it as a markdown table with one row per box, so the count of original checkbox
+     lines stays cleanly assertable elsewhere") and **139-04 Task 1 step 5** ("A table rather than a
+     checklist is deliberate: it keeps the count of `- [ ]` lines in this file equal to the nine
+     originals preserved below"). The mandated column order is original box · disposition · reason in
+     both files; 139-04 Task 2's box-anchored cross-check reads the second column and depends on it.
 
 4. **Is `handle->pulse_delay` serving as both the program pulse (`memory.cpp:257`) and the erase pulse
    (`eprom.cpp:283`) worth stating publicly?**
@@ -1409,6 +1426,11 @@ Everything else in this document was measured live and is tagged `[VERIFIED]` at
    - Unclear: whether it belongs in a correction comment or in Phase 141's work.
    - **Recommendation:** one sentence at most, framed as an observation, not a defect claim — it is
      out of ISSUE-01/02's scope and D-04 confines the comment to the corrected design's shape.
+   - **RESOLVED — recommendation taken.** Owned by **139-03 Task 1**, C3 paragraph ("At most one
+     sentence, framed as an observation rather than a defect claim, may note that `handle->pulse_delay`
+     currently does double duty as both the program pulse and the erase pulse"). The two anchors are
+     kept distinct throughout the phase: `memory.cpp:249-258` / `memory_set_data()` is the program
+     pulse, `eprom.cpp:274-283` / `eprom_internal_erase()` is the erase pulse.
 
 ---
 
