@@ -1,9 +1,9 @@
 ---
 phase: 139
 slug: gh-15-correction-outward
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: mapped-to-plans
+nyquist_compliant: true
+wave_0_complete: false   # artifacts are authored by plans 139-01..139-04; every MISSING reference below is owned by a named plan
 created: 2026-08-09
 ---
 
@@ -47,22 +47,22 @@ requirement rather than task until plans exist. Every row must land in some plan
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| TBD | TBD | 1 | ISSUE-01 | — | Comment states C1 and cites `infoic-field-dictionary.md:210-217` + commits `8de307f`/`12286df` | content | `grep -qF '500' 139-GH15-COMMENT.md && grep -qF '8de307f' … && grep -qF '12286df' …` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 1 | ISSUE-01 | T-139-permalink | Every C1/C2/C3 citation resolves at its pinned SHA **with the claimed content** | integration | `verify_anchor` loop — 7 anchors + 2 commits, exit 0 | ❌ W0 (script) | ⬜ pending |
-| TBD | TBD | 1 | ISSUE-01 | — | Comment states C2 with the three histogram lines | content | `for p in 'n = 170' 'n = 127' 'n = 32'; do grep -qF "$p" 139-GH15-COMMENT.md; done` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 1 | ISSUE-01 | — | C3 stated as the **overprogram** pulse; cites the **program**-pulse line (`memory.cpp`), not the erase pulse | content | `grep -qF 'memory.cpp' … && grep -qF '75' … && grep -qF '16383' …` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 1 | ISSUE-01 | T-139-falseclaim | C2 does **not** carry the false "all three disagree with the modal value" (RESEARCH F-03) | negative content | `! grep -qiE 'all three.*disagree.*modal' 139-GH15-COMMENT.md` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 1 | ISSUE-02 | — | 6.25 V ceiling present as its own paragraph | content + manual | `grep -qF '6.25' 139-GH15-COMMENT.md` + paragraph read | ❌ W0 | ⬜ pending |
-| TBD | TBD | 1 | ISSUE-02 | — | Amendment maps **all nine** boxes, each marked kept/corrected/replaced; the original nine survive verbatim | structural | `test $(grep -cE '\b(kept\|corrected\|replaced)\b' …) -ge 9` + verbatim-original diff | ❌ W0 | ⬜ pending |
-| TBD | TBD | 1 | ISSUE-02 | T-139-overclaim | No forbidden overclaim | claim gate | `python3 139-check-claims.py …` — **preceded by a planted-failure run** | ❌ W0 (script) | ⬜ pending |
-| TBD | TBD | 2 | ISSUE-03 | T-137-16 | Nothing posted before the gate | state | `gh issue view 15 --repo henols/firestarter_prom --json comments -q '.comments\|length'` == 0 | ✅ | ⬜ pending |
-| TBD | TBD | 2 | ISSUE-03 | — | Draft frozen before the gate | git | blob SHA + `wc -c` recorded; `git status --porcelain -- <file>` empty | ✅ | ⬜ pending |
-| TBD | TBD | 2 | ISSUE-03 | T-137-16 | Operator approved **wording** | **human** | verbatim verdict recorded in SUMMARY | 🧑 human-only | ⬜ pending |
-| TBD | TBD | 2 | ISSUE-03 | T-137-16 | Posting **explicitly authorized** (separate yes) | **human** | verbatim "post now" / "approved, hold" | 🧑 human-only | ⬜ pending |
-| TBD | TBD | 3 | ISSUE-03 | — | Posted == reviewed | integration | `diff <(sed -e '$a\' frozen) <(sed -e '$a\' fetched)` → empty | ✅ recipe proven at 122-12 | ⬜ pending |
-| TBD | TBD | 3 | ISSUE-03 | — | Exactly one comment added, issue still OPEN, no label added | state | `gh issue view 15 --json state,labels,comments` → `{"labels":[],"n":1,"state":"OPEN"}` | ✅ | ⬜ pending |
-| TBD | TBD | 3 | ISSUE-03 | T-137-18 | Hold branch leaves a named, parked one-command follow-up | record | `.planning/v1.31-OPERATOR-BATCH.md` §A-1 exists with the exact command | ❌ W0 (hold branch only) | ⬜ pending |
-| TBD | TBD | 3 | ISSUE-03 | — | Correction precedes implementation (D-10) | git | 3-ref blob equality on `eprom.cpp` (+ `memory.cpp`) → 1 unique SHA | ✅ passes today | ⬜ pending |
+| 139-03 T1 | 139-03 | 2 | ISSUE-01 | — | Comment states C1 and cites `infoic-field-dictionary.md:210-217` + commits `8de307f`/`12286df` | content | `grep -qF '500' 139-GH15-COMMENT.md && grep -qF '8de307f' … && grep -qF '12286df' …` | ❌ W0 | ⬜ pending |
+| 139-01 T2 | 139-01 | 1 | ISSUE-01 | T-139-permalink | Every C1/C2/C3 citation resolves at its pinned SHA **with the claimed content** | integration | `verify_anchor` loop — 7 anchors + 2 commits, exit 0 | ❌ W0 (script) | ⬜ pending |
+| 139-03 T1 | 139-03 | 2 | ISSUE-01 | — | Comment states C2 with the three histogram lines | content | `for p in 'n = 170' 'n = 127' 'n = 32'; do grep -qF "$p" 139-GH15-COMMENT.md; done` | ❌ W0 | ⬜ pending |
+| 139-03 T1 | 139-03 | 2 | ISSUE-01 | — | C3 stated as the **overprogram** pulse; cites the **program**-pulse line (`memory.cpp`), not the erase pulse | content | `grep -qF 'memory.cpp' … && grep -qF '75' … && grep -qF '16383' …` | ❌ W0 | ⬜ pending |
+| 139-03 T1 | 139-03 | 2 | ISSUE-01 | T-139-falseclaim | C2 does **not** carry the false "all three disagree with the modal value" (RESEARCH F-03) | negative content | `! grep -qiE 'all three.*disagree.*modal' 139-GH15-COMMENT.md` | ❌ W0 | ⬜ pending |
+| 139-03 T1 + 139-05 T1 | 139-03 / 139-05 | 2 / 4 | ISSUE-02 | — | 6.25 V ceiling present as its own paragraph | content + manual | `grep -qF '6.25' 139-GH15-COMMENT.md` + paragraph read | ❌ W0 | ⬜ pending |
+| 139-03 T1 + 139-04 T1 | 139-03 / 139-04 | 2 / 3 | ISSUE-02 | — | Amendment maps **all nine** boxes, each marked kept/corrected/replaced; the original nine survive verbatim | structural | `test $(grep -cE '\b(kept\|corrected\|replaced)\b' …) -ge 9` + verbatim-original diff | ❌ W0 | ⬜ pending |
+| 139-02 T2 + 139-04 T2 | 139-02 / 139-04 | 1 / 3 | ISSUE-02 | T-139-overclaim | No forbidden overclaim | claim gate | `python3 139-check-claims.py …` — **preceded by a planted-failure run** | ❌ W0 (script) | ⬜ pending |
+| 139-01 T1 + 139-05 T1 | 139-01 / 139-05 | 1 / 4 | ISSUE-03 | T-137-16 | Nothing posted before the gate | state | `gh issue view 15 --repo henols/firestarter_prom --json comments -q '.comments\|length'` == 0 | ✅ | ⬜ pending |
+| 139-04 T2 | 139-04 | 3 | ISSUE-03 | — | Draft frozen before the gate | git | blob SHA + `wc -c` recorded; `git status --porcelain -- <file>` empty | ✅ | ⬜ pending |
+| 139-05 T1 | 139-05 | 4 | ISSUE-03 | T-137-16 | Operator approved **wording** | **human** | verbatim verdict recorded in SUMMARY | 🧑 human-only | ⬜ pending |
+| 139-05 T1 | 139-05 | 4 | ISSUE-03 | T-137-16 | Posting **explicitly authorized** (separate yes) | **human** | verbatim "post now" / "approved, hold" | 🧑 human-only | ⬜ pending |
+| 139-05 T2 | 139-05 | 4 | ISSUE-03 | — | Posted == reviewed | integration | `diff <(sed -e '$a\' frozen) <(sed -e '$a\' fetched)` → empty | ✅ recipe proven at 122-12 | ⬜ pending |
+| 139-05 T2 | 139-05 | 4 | ISSUE-03 | — | Exactly one comment added, issue still OPEN, no label added | state | `gh issue view 15 --json state,labels,comments` → `{"labels":[],"n":1,"state":"OPEN"}` | ✅ | ⬜ pending |
+| 139-05 T2 | 139-05 | 4 | ISSUE-03 | T-137-18 | Hold branch leaves a named, parked one-command follow-up | record | `.planning/v1.31-OPERATOR-BATCH.md` §A-1 exists with the exact command | ❌ W0 (hold branch only) | ⬜ pending |
+| 139-01 T2 + 139-05 T2 | 139-01 / 139-05 | 1 / 4 | ISSUE-03 | — | Correction precedes implementation (D-10) | git | 3-ref blob equality on `eprom.cpp` (+ `memory.cpp`) → 1 unique SHA | ✅ passes today | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -95,12 +95,12 @@ No test-framework install is needed.
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or an explicit human-only justification above
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Claim gate seen to FAIL on a planted violation before its pass is believed (house style — Phase 138 Run 1)
-- [ ] Feedback latency < 30s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or an explicit human-only justification above
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify (only 139-05 Task 1 is human-only; it is immediately followed by 139-05 Task 2's six automated legs)
+- [x] Wave 0 covers all MISSING references — each is owned by a named plan: `139-GH15-ORIGINAL-CRITERIA.md` + `139-CITATIONS.md` → 139-01 · `139-check-claims.py` → 139-02 · `139-GH15-COMMENT.md` → 139-03 · `139-GH15-BODY-AMENDMENT.md` → 139-04 · `.planning/v1.31-OPERATOR-BATCH.md` → 139-05 (hold branch only)
+- [x] No watch-mode flags
+- [x] Claim gate seen to FAIL on a planted violation before its pass is believed — twice: 139-02 Task 2 Run 1 (four labels) and again in 139-04 Task 2 Step 1, immediately before the default-mode green that licenses the freeze
+- [x] Feedback latency < 30s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** mapped to plans 139-01 through 139-05 by the phase planner, 2026-08-09. Every row above lands in a named plan's `<verify>` block; the two human-only rows are typed `checkpoint:human-action` in 139-05 Task 1.

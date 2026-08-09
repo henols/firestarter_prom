@@ -238,7 +238,15 @@ Requirement ticking is named exhaustively per plan so no plan ticks a multi-plan
   3. The draft is frozen and operator-approved for wording before it is posted, and it is posted to gh#15 only on explicit operator authorization.
   4. The comment's posting precedes the start of any TABLE/LOOP/VPP/HOST implementation work — the correction is public before the new loop lands.
 
-**Plans**: TBD
+**Plans**: 5 plans in 4 waves. Meta-repo only (`commits_land_in: .`) — `firestarter/` and `firestarter_app/` are read-only citation sources and no submodule commit is expected or permitted. **This phase must NOT be run under `--auto`/`--chain`**: plan `139-05` carries a `checkpoint:human-action` posting gate, and the `autonomous: false` flag alone is not self-protecting.
+
+Requirement ticking is named exhaustively per plan so no plan ticks a multi-plan requirement early: `139-01` → none · `139-02` → none · `139-03` → none · `139-04` → none · `139-05` → **ISSUE-01, ISSUE-02** on the operator's wording approval, plus **ISSUE-03 only on a verified post** (on the approve-but-hold branch ISSUE-03 stays `[ ]`, annotated in place, with its exact one-command follow-up parked in `.planning/v1.31-OPERATOR-BATCH.md`).
+
+- [ ] 139-01-PLAN.md — Wave 1: capture gh#15's **nine** acceptance boxes verbatim and resolve every citation by content at a pinned SHA (`139-GH15-ORIGINAL-CRITERIA.md`, `139-CITATIONS.md`)
+- [ ] 139-02-PLAN.md — Wave 1: author `139-check-claims.py`, the Phase-139-scoped forbidden-claim gate, and see it fail on a planted violation before any pass is believed
+- [ ] 139-03-PLAN.md — Wave 2: draft `139-GH15-COMMENT.md` (C1/C2/C3, the 6.25 V ceiling, the nine-box amendment, one ask) and prove it gate-clean
+- [ ] 139-04-PLAN.md — Wave 3: draft `139-GH15-BODY-AMENDMENT.md`, cross-check it against the comment, and freeze both artifacts with blob SHA + byte length + committing commit
+- [ ] 139-05-PLAN.md — Wave 4: blocking `checkpoint:human-action` operator gate (wording / posting / optional body edit — three separate answers) then the conditional post-or-hold, each branch fully recorded
 
 ### Phase 140: Parameter Table
 
