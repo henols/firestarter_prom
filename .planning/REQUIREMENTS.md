@@ -76,12 +76,35 @@ expected work, not a regression.
       recorded not fixed per D-07; **app** off the **live, re-verified** beta tip
       `4d18b645ab18a2d2465f0f623062e9249eb24132`. Per **OD-3**, the meta repo's submodule gitlinks
       were deliberately **not** advanced — **F-138-03** (owner henols) — see `138-BRANCH-BASES.md` §6.
-- [ ] **PREP-03**: A pre-change baseline is committed **before** any `eprom.cpp` edit: the existing
+- [x] **PREP-03**: A pre-change baseline is committed **before** any `eprom.cpp` edit: the existing
       golden register traces frozen as a historical artifact, per-target flash/RAM usage, and full
       native + host suite counts.
-- [ ] **PREP-04**: The live per-protocol `pulse_duration` distribution is re-derived from the shipped
+      **Evidence (2026-08-09, Phase 138 Plan 07).** Discharged by `138-BASELINE.md` §§4-5, citing
+      `138-03-TRACE-CAPTURE.md`/`138-05-SUMMARY.md` (the freeze record), `138-04-HOST-BASELINE.md`,
+      and `138-06-FIRMWARE-MEASUREMENT.md`: the frozen golden trace
+      (`firestarter/test/native/avr/_shared/eprom_v131_expected.h`, blob SHA
+      `ca3e09f164e6e1c541ecb63d15bbebf5bce41d70`, three arrays at 198/221/201 entries), per-target
+      flash/RAM (`uno` 23954 B / 1573 B, `uno328pb` 24004 B / 1579 B, `leonardo` 26016 B / 2014 B),
+      all four native env counts (`native` 141/17, `native_nodevtools` 141/17,
+      `native_pinmap_provisional` 10/1, `native_trace_v131` 5/1, all PASSED), and the host suite
+      count (1539 passed / 0 skipped, `.venv/ci-replica` Python 3.11.15). Measured on the
+      instrumented tree `67d60615ed4449e55352746d7cc7b2c1af999368`, four instrumentation-only
+      commits ahead of the verified fork base `30850845f9c0994706f28d2a74fccc3adbb4b387` —
+      deliberate, not an oversight: AVR builds exclude `test/`, so a green size gate measured on the
+      instrumented tree is positive evidence the instrumentation is AVR-invisible, and the two
+      pinned native envs re-reading 141 cases across 17 suites with the new recorder guard undefined
+      is the flag-off proof.
+- [x] **PREP-04**: The live per-protocol `pulse_duration` distribution is re-derived from the shipped
       `chip_database.json` and committed as C2's evidence — measured in this milestone, not restated
       from the seed.
+      **Evidence (2026-08-09, Phase 138 Plan 07).** Discharged by `138-02-PULSE-DISTRIBUTION.md` and
+      the committed script `.planning/phases/138-preconditions-baseline/138-pulse-distribution.py`:
+      `0x07` n=170 (modal 100 µs, 66.5%), `0x08` n=127 (modal 100 µs, 81.9%), `0x0B` n=32 (modal
+      500 µs, 65.6%), whole-database partition 329 + 417 = 746 with zero crossover in either
+      direction. The parser was **imported** (`firestarter.database._parse_pulse_duration`), never
+      reimplemented, and the script was observed **failing**, for an attributable reason (assertion
+      3, C2 testability), against a deliberately planted single-protocol synthetic database (Run 1)
+      before its passing Runs 2/3 against the real shipped database were ever trusted.
 
 ### gh#15 Correction (outward)
 
@@ -226,8 +249,8 @@ Deferred. Tracked but not in this roadmap.
 |-------------|-------|--------|
 | PREP-01 | Phase 138 | Complete |
 | PREP-02 | Phase 138 | Complete |
-| PREP-03 | Phase 138 | Pending |
-| PREP-04 | Phase 138 | Pending |
+| PREP-03 | Phase 138 | Complete |
+| PREP-04 | Phase 138 | Complete |
 | ISSUE-01 | Phase 139 | Pending |
 | ISSUE-02 | Phase 139 | Pending |
 | ISSUE-03 | Phase 139 | Pending |

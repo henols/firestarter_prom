@@ -394,7 +394,34 @@ findings register whole.
 
 ---
 
-*Phase: 138-preconditions-baseline — Plan 07, Task 2*
+## 10. Hand-off
+
+What each downstream phase consumes from this document, by exact artifact:
+
+| Downstream | Consumes |
+|---|---|
+| **Phase 139 / ISSUE-01** | §6's pulse-distribution table and, through it, `.planning/phases/138-preconditions-baseline/138-02-PULSE-DISTRIBUTION.md`'s verbatim script output — quoted directly into the public gh#15 comment as C2's evidence. |
+| **Phase 143 / 144** | §7's **F-138-02** — the MERGE-05 uno-class headroom warning (8 B `uno` / 2 B `uno328pb` remaining at the live `beta` tip before the band fails). |
+| **Phase 144 / TEST-06** | §4's frozen fixture path (`firestarter/test/native/avr/_shared/eprom_v131_expected.h`), its committed blob SHA (`ca3e09f164e6e1c541ecb63d15bbebf5bce41d70`), and its two-mechanism identity gate (`firestarter/tests/test_golden_trace_identity_eprom_v131.py` + `firestarter/tests/golden/eprom_v131_trace_inventory.json`) — the diff target for the new (post-v1.31) trace. |
+| **Phase 144 / TEST-08** | `firestarter/scripts/baseline/size_baseline_v131.json`, read through `check_size_baseline.py`'s/`check_build_warnings.py`'s existing `--baseline` seam (never the default `FIRESTARTER_SIZE_BASELINE` seam, which stays pointed at the live, unmodified `size_baseline.json`) — §5's AVR/native/warning figures are that file's contents. |
+| **Phase 146** | §7's whole findings register (F-138-01 through F-138-11), each already carrying an owner and a recorded-not-fixed disposition, for the honesty ledger to inherit without re-deriving. |
+
+**The three branch names and bases, restated:** all three repos carry the identical slug
+`gsd/v1.31-27c-programming-algorithm-fidelity` (D-09) — meta off `d0f0c6a056efaa3537909d8ff90492f3792403f1`,
+firmware off `30850845f9c0994706f28d2a74fccc3adbb4b387` (the decided, undrifted fork base — §3), app off
+`4d18b645ab18a2d2465f0f623062e9249eb24132` (the live post-merge `beta` tip at the time PREP-02 was
+adjudicated). All three are now also pushed to `origin` (§1) at their respective current tips: meta
+`b6aa1dcb23ef9931105752ed6dd6badccf6719de`, firmware `fb7949c0bdd575177262a76af506cec3b73ea28b`
+(carrying `size_baseline_v131.json` on top of the `67d6061` measured tree), app
+`4d18b645ab18a2d2465f0f623062e9249eb24132` (unchanged — no new app commit this phase).
+
+**The app worktree is left checked out on its v1.31 branch** (`gsd/v1.31-27c-programming-algorithm-fidelity`,
+at `4d18b645ab18a2d2465f0f623062e9249eb24132`), exactly as `138-04-HOST-BASELINE.md` §5 left it and as
+later Wave 3 plans (Phase 143) expect it — no further branch setup is needed there.
+
+---
+
+*Phase: 138-preconditions-baseline — Plan 07, Task 2 (§§1-9) / Task 3 (§10)*
 *Recorded: 2026-08-09, from three independently re-verified `gh run view` calls and two
 `gh run list`/`git ls-remote` re-checks (this plan), and from the five per-plan artifacts
 `138-BRANCH-BASES.md`, `138-02-PULSE-DISTRIBUTION.md`, `138-03-TRACE-CAPTURE.md`,
