@@ -245,7 +245,7 @@ Requirement ticking is named exhaustively per plan so no plan ticks a multi-plan
 - [x] 139-01-PLAN.md — Wave 1: capture gh#15's **nine** acceptance boxes verbatim and resolve every citation by content at a pinned SHA (`139-GH15-ORIGINAL-CRITERIA.md`, `139-CITATIONS.md`)
 - [x] 139-02-PLAN.md — Wave 1: author `139-check-claims.py`, the Phase-139-scoped forbidden-claim gate, and see it fail on a planted violation before any pass is believed
 - [x] 139-03-PLAN.md — Wave 2: draft `139-GH15-COMMENT.md` (C1/C2/C3, the 6.25 V ceiling, the nine-box amendment, one ask) and prove it gate-clean
-- [ ] 139-04-PLAN.md — Wave 3: draft `139-GH15-BODY-AMENDMENT.md`, cross-check it against the comment, and freeze both artifacts with blob SHA + byte length + committing commit
+- [x] 139-04-PLAN.md — Wave 3: draft `139-GH15-BODY-AMENDMENT.md`, cross-check it against the comment, and freeze both artifacts with blob SHA + byte length + committing commit
 - [ ] 139-05-PLAN.md — Wave 4: blocking `checkpoint:human-action` operator gate (wording / posting / optional body edit — three separate answers) then the conditional post-or-hold, each branch fully recorded
 
 ### Phase 140: Parameter Table

@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 139
 current_phase_name: gh-15-correction-outward
 status: executing
-stopped_at: Completed 139-03-PLAN.md
-last_updated: "2026-08-09T13:00:31.489Z"
+stopped_at: Completed 139-04-PLAN.md
+last_updated: "2026-08-09T13:26:35.011Z"
 last_activity: 2026-08-09
 last_activity_desc: Phase 139 execution started
 progress:
   total_phases: 8
   completed_phases: 1
   total_plans: 12
-  completed_plans: 10
+  completed_plans: 11
   percent: 13
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 139 (gh-15-correction-outward) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 Last activity: 2026-08-09 — Phase 139 execution started
 
@@ -1814,6 +1814,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 139]: 139-03: removed a drafted bare, unpinned gitlab.com/DavidGriffith/minipro mention -- a link with no commit SHA would have failed the permalink-pinning verify leg; the required literal substring is already supplied by the pinned t48.c/main.c blob links
 - [Phase 139]: 139-03: comment section order follows gh#15's own reading order (numbers first, then the architecture criterion they justify amending) rather than 137-GH12-COMMENT.md's exact shape, per CONTEXT's explicit discretion grant
 - [Phase 139]: 139-03: the nine-row acceptance-criteria amendment table's reasons are scoped tightly to the plan's own named dispositions rather than embellished, keeping it a faithful rendering of D-03's item-for-item mapping
+- [Phase 139]: [Phase 139 Plan 04]: Fixed 139-GH15-COMMENT.md's disposition table (dropped a stray '#' row-number column not specified by 139-03-PLAN.md's 3-column mandate) rather than reshaping the amendment's already-compliant table; re-ran all five of plan 139-03's own verify blocks unchanged after the fix
+- [Phase 139]: [Phase 139 Plan 04]: Built 139-GH15-BODY-AMENDMENT.md programmatically from the live-fetched gh#15 body (assert-exactly-once string replacement) rather than hand-transcription, guaranteeing every unedited section is byte-identical to the live issue
+- [Phase 139]: [Phase 139 Plan 04]: Placed the C3 safe-delay-helper grounding note (75ms/16383us/9464us) as a dated NOTE appended under gh#15's own Shared implementation helpers paragraph rather than a new top-level section
+- [Phase 139]: [Phase 139 Plan 04]: Amendment carries zero raw github.com/gitlab.com hyperlinks (file:line refs as plain inline code only), trivially satisfying the pinned-permalink requirement and avoiding any accidental /blob/beta/ match
 
 ## Performance Metrics
 
@@ -2027,12 +2031,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 139 P01 | 12min | 2 tasks | 2 files |
 | Phase 139 P02 | ~14min | 2 tasks | 1 files |
 | Phase 139 P03 | 23min | 2 tasks | 1 files |
+| Phase 139 P04 | 19min | 2 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-09T13:00:31.453Z
-**Stopped at:** Completed 139-03-PLAN.md
-**Resume file:** None
+**Last session:** 2026-08-09T13:26:34.974Z
+**Stopped at:** Completed 139-04-PLAN.md
+**Resume file:** 
 
 ### Blockers
 
