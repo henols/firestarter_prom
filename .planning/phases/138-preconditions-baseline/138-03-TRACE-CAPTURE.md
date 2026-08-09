@@ -175,3 +175,89 @@ to disable it. **Owner: Phase 142 / VPP-03.** Recorded, not fixed — Phase 138'
 *Recorded: 2026-08-08, from live measurements taken this session (`pio test -e native_trace_v131` +
 the built binary `.pio/build/native_trace_v131/firestarter_native` run directly) and a live re-run of
 `gen_sdp_bus_config.py`'s `derive_row` against `firestarter_app`'s shipped database.*
+
+## 8. Freeze record (Plan 05)
+
+Plan 05 pasted the three dump files this record cites into `eprom_v131_expected.h` as literal
+arrays, switched the three protocol cases to full ordered positional equality
+(`v131_assert_stream_equals`), and pinned the fixture with a committed inventory JSON
+(`tests/golden/eprom_v131_trace_inventory.json`) plus a parallel six-assertion python identity gate
+(`tests/test_golden_trace_identity_eprom_v131.py`) — the exact `sdp_expected.h` triple (D-04) applied to
+this fixture. All landed in **one** firmware commit, `67d6061` (firestarter,
+`gsd/v1.31-27c-programming-algorithm-fidelity`), which also carries Task 1's `test_trace_eprom_v131.cpp`
+assertion-switch — the commit was built via an amend of Task 1's initial commit specifically so the
+fixture header, the inventory JSON, and the consuming `.cpp` all land together, satisfying D-04's
+two-independent-mechanisms contract in a single, atomic firmware change.
+
+- **Fixture's committed blob SHA:** `ca3e09f164e6e1c541ecb63d15bbebf5bce41d70`
+  (`git rev-parse HEAD:test/native/avr/_shared/eprom_v131_expected.h`, equals `git hash-object` on the
+  working file, equals the inventory's own `meta.blob_sha`).
+- **Inventory's `recorded_at_head`:** `3dad6450e277692eb4374de1512d69eaa17709de` — the real commit that
+  existed at the moment the blob SHA was derived (Task 1's un-amended commit); recorded as a point-in-time
+  reference exactly as the pre-existing SDP inventory's own `recorded_at_head` does (that field points to
+  an unrelated, non-self-referential ancestor commit too — verified live this plan, `17c7614d…` is a
+  Phase 124 Plan 02 commit, not the one that added `sdp_expected.h`). Not asserted by any test; purely
+  descriptive, matching the analog's own established convention.
+
+### Three break classes — each observed RED on exactly one leg, then restored
+
+A gate that has only ever passed is untrusted, and a pre-authored gate leg can be unreachable. **Leg 1
+below is a live example of exactly that trap, caught in the act, not merely a theoretical risk this
+record cites secondhand:** a plain working-tree edit to the fixture header left
+`test_blob_sha_matches_the_recorded_inventory` silently GREEN, because that assertion reads
+`git rev-parse HEAD:<path>` — the **committed** blob — never the live file. The leg only became
+reachable after the perturbation was itself committed (temporarily) so `HEAD:<path>` actually changed.
+This is the reachability check the plan's own known-traps note anticipates; it was not skipped.
+
+| Leg | Break planted | Mechanism needed to reach it | RED leg (message, abbreviated) | Legs that stayed GREEN |
+|---|---|---|---|---|
+| 1 — blob SHA | Appended one comment line to `eprom_v131_expected.h` | **A real commit** (working-tree-only edit is invisible to this leg — see above) | `test_blob_sha_matches_the_recorded_inventory`: "blob SHA changed -- recorded=ca3e09f… observed=15097b6…" | names, entry-counts, non-vacuous, consumer-inclusion, git-required (5/6) |
+| 2 — inventory | Changed `EPROM_V131_TRACE_PROTO_08`'s `entries` 221 → 999 in the inventory JSON | Working-tree edit alone (this leg reads the file directly, not via git) | `test_array_entry_counts_match_the_recorded_inventory`: "first divergence at index 1 -- recorded={'name': 'EPROM_V131_TRACE_PROTO_08', 'entries': 999}, live={'name': 'EPROM_V131_TRACE_PROTO_08', 'entries': 221}" | blob-sha, names, non-vacuous, consumer-inclusion, git-required (5/6) |
+| 3 — consumer inclusion | Renamed the include spelling in `test_trace_eprom_v131.cpp` (`eprom_v131_expected.h` → `eprom_v131_EXPECTED_RENAMED.h`) | Working-tree edit alone | `test_consuming_suites_still_include_the_fixture`: "…no longer includes _shared/eprom_v131_expected.h…" | blob-sha, names, entry-counts, non-vacuous, git-required (5/6) |
+
+No break reddened more than one leg — the five mechanisms are independent, not merely five assertions
+riding on one shared check.
+
+**Restoration, scoped per the plan's own anti-pattern warning** (never "empty git diff" / "byte-identical
+file" — a criterion a later `#if` guard would break): after each restore, (a) the fixture's blob SHA
+(`git hash-object`) equalled its pre-break value `ca3e09f164e6e1c541ecb63d15bbebf5bce41d70`, (b) the gate
+reported 6 passed, and (c) `pytest --collect-only` on the module still named the same six test functions,
+same count, both before and after. Leg 1's temporary probe commit was undone with `git reset --soft
+HEAD~1` (moving `HEAD` back without touching the index) followed by `git checkout HEAD --
+<path>` (restoring the working tree AND index from the now-correct `HEAD`, not from the still-stale
+index — `git checkout -- <path>` alone would have restored from the index, which still held the
+perturbed content; this was caught and corrected live). Legs 2 and 3 were undone with a plain
+`git checkout HEAD -- <path>`. `git -C /workspaces/firestarter status --porcelain` was empty after every
+restore.
+
+### Full firmware green state, re-measured after the freeze
+
+| Measurement | Command | Result |
+|---|---|---|
+| `native` | `pio test -e native` | **141 test cases: 141 succeeded**, 17/17 suites PASSED |
+| `native_nodevtools` | `pio test -e native_nodevtools` | **141 test cases: 141 succeeded**, 17/17 suites PASSED |
+| `native_pinmap_provisional` | `pio test -e native_pinmap_provisional` | **10 test cases: 10 succeeded**, 1/1 suite PASSED |
+| `native_trace_v131` (cold) | `rm -rf .pio/build/native_trace_v131 && pio test -e native_trace_v131` | **5 test cases: 5 succeeded**, 1/1 suite PASSED (2 smoke + 3 protocol cases, each now asserting full positional equality) |
+| firmware python gate suite, **in place** | `python3 -m pytest tests/ -q` (inside `/workspaces/firestarter`, meta repo present at `/workspaces`) | **227 passed, 0 failed, 0 skipped** — 221 pre-existing (§"Measured Baseline", this record) + 6 new from this plan's own `test_golden_trace_identity_eprom_v131.py` |
+
+The `native`/`native_nodevtools`/`native_pinmap_provisional` figures are byte-identical to this record's
+own §"Measured Baseline" table — the freeze changed nothing outside `test/native/avr/_shared/
+eprom_v131_expected.h`, `test/native/avr/test_trace_eprom_v131/test_trace_eprom_v131.cpp`,
+`tests/golden/eprom_v131_trace_inventory.json`, and `tests/test_golden_trace_identity_eprom_v131.py` — no
+pinned native env's suite count moved. **The measurement location is part of the figure, restated from
+§3 of this record:** the firmware python gate suite's git-history and meta-presence checks resolve
+correctly only when run inside a real checkout with the meta repo present as a sibling — the same 7 gates
+this record already named would fail in a detached tree. "In place" is therefore the only honest
+location for the 227 figure, exactly as it was the only honest location for the 221 figure this record
+measured under Plan 03.
+
+`git -C /workspaces/firestarter status --porcelain src/` was empty throughout Plan 05's Task 3 work —
+no write-path source was read as anything but read-only evidence, matching this record's §7 statement for
+Plan 03.
+
+---
+
+*Phase: 138-preconditions-baseline — Plan 05, Task 3*
+*Recorded: 2026-08-09, from live measurements taken this session: three deliberate break-and-restore
+cycles against the live `test_golden_trace_identity_eprom_v131.py` gate, and a full re-run of every
+pinned native environment plus the firmware `tests/` suite, in place, inside `/workspaces/firestarter`.*
