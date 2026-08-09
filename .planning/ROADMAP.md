@@ -223,7 +223,7 @@ Requirement ticking is named exhaustively per plan so no plan ticks a multi-plan
 - [x] 138-03-PLAN.md — The opt-in timing recorder, the fourth native env, and three deterministic pre-change protocol captures
 - [x] 138-04-PLAN.md — The host suite baseline measured at CI parity on the v1.31 app tree
 - [x] 138-05-PLAN.md — Freeze the trace fixture, its inventory and a parallel identity gate, each seen to fail
-- [ ] 138-06-PLAN.md — Cold AVR/native/warning measurement, `size_baseline_v131.json`, and the two D-07-class findings
+- [x] 138-06-PLAN.md — Cold AVR/native/warning measurement, `size_baseline_v131.json`, and the two D-07-class findings
 - [ ] 138-07-PLAN.md — `138-BASELINE.md`, the operator-gated CI evidence, and the PREP-03/PREP-04 close
 
 ### Phase 139: gh#15 Correction (outward)

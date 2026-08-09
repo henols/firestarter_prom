@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 138
 current_phase_name: preconditions-baseline
 status: executing
-stopped_at: Completed 138-05-PLAN.md
-last_updated: "2026-08-09T00:19:19.440Z"
+stopped_at: Completed 138-06-PLAN.md
+last_updated: "2026-08-09T00:46:23.476Z"
 last_activity: 2026-08-08
 last_activity_desc: Phase 138 execution started
 progress:
   total_phases: 8
   completed_phases: 0
   total_plans: 7
-  completed_plans: 5
+  completed_plans: 6
   percent: 0
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 138 (preconditions-baseline) — EXECUTING
-Plan: 6 of 7
+Plan: 7 of 7
 Status: Ready to execute
 Last activity: 2026-08-08 — Phase 138 execution started
 
@@ -1768,6 +1768,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 138-05]: Landed Task 1+2 firmware files in ONE amended commit (67d6061), per the plan's own explicit repo_topology + Task 2 acceptance criterion — Task 2 explicitly requires the fixture header, inventory JSON, and consuming .cpp in the same commit (git show --stat HEAD lists all three); amended a just-created, unpushed local commit rather than creating a fresh one
 - [Phase 138-05]: Used a throwaway Python grammar-parser (scratchpad only) to mechanically re-derive the 620-entry array groupings from the raw dumps instead of hand-transcribing — 100% grammar consumption of all three dumps against eprom.cpp/memory.cpp's real structure is itself the correctness proof; a programmatic diff confirmed zero values altered
 - [Phase 138-05]: Leg 1's blob-SHA break required an actual git commit to be observable -- a working-tree-only edit was silently invisible to that assertion — test_blob_sha_matches_the_recorded_inventory reads git rev-parse HEAD:PATH (the committed blob), never the live file -- caught live as the plan's own known-traps note anticipated, corrected by committing the probe temporarily then restoring via reset --soft + checkout HEAD
+- [Phase 138]: Combined Task 1 (measurement tables) and Task 3 (Findings) into ONE meta commit for 138-06-FIRMWARE-MEASUREMENT.md, per the plan's explicit 'two repos, two commits' repo-topology directive
+- [Phase 138]: F-138-04 quotes 138-RESEARCH.md's live-beta-tip figure (RED, +34B/target) as research-measured rather than re-building it -- D-07 forbids acting on the discrepancy and a second cold rebuild would not change the already-decided fork base
+- [Phase 138]: F-138-05 recorded: check_size_baseline.py's uncaught KeyError on an unknown native env exits 1 where its own taxonomy promises 2, and NATIVE_ENVS being hardcoded makes native_trace_v131 invisible to both live gates -- accepted and recorded, owner henols, neither checker modified
 
 ## Performance Metrics
 
@@ -1976,11 +1979,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 138 P03 | 50min | 3 tasks | 6 files |
 | Phase 138 P04 | 16min | 2 tasks | 1 files |
 | Phase 138 P05 | 45min | 3 tasks | 5 files |
+| Phase 138 P06 | 22min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-09T00:19:19.408Z
-**Stopped at:** Completed 138-05-PLAN.md
+**Last session:** 2026-08-09T00:46:23.441Z
+**Stopped at:** Completed 138-06-PLAN.md
 **Resume file:** None
 
 ### Blockers
