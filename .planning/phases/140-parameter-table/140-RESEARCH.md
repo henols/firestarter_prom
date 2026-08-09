@@ -815,8 +815,13 @@ const eprom_params_t* eprom_params_for(uint32_t protocol) {
     return NULL;   /* D-05: fail closed, zero hardware side effects */
 }
 ```
-*(Row values above are the research-recommended set; `0x07`'s `overprogram_factor` is the locked
-value carrying Open Question 1, and `0x0B`'s `max_pulses` is the F-140-06 floor.)*
+*(Row values above are the research-recommended set; `0x0B`'s `max_pulses` is the F-140-06 floor.)*
+
+> **SUPERSEDED — `0x07` ships `overprogram_factor = 0`, not the `3` in the block above (nor the
+> "0 or 3" in the header comment).** Open Question 1 was resolved on 2026-08-09 by operator decision
+> during `/gsd-plan-phase 140`; the binding values are `140-01-PLAN.md`'s `<locked_values>` table,
+> which that plan instructs the executor to use *instead of* copying this example's row block. Do
+> not copy the `/* 0x07 PROTO_EPROM_28PIN */` line verbatim.
 
 ### The TABLE-03 fallback test — exercised, not asserted, with a negative control
 
@@ -1008,43 +1013,66 @@ F-140-04: `handle->pulse_delay` comes from the wire on every command and the tab
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **`0x07`'s `overprogram_factor` — 3 or 0?**
-   - *What we know:* CONTEXT delegates only `0x08` to research; `PROJECT.md`'s throughput table and
+All four questions below were answered before planning locked; none is still open. Each carries its
+resolution, the basis for it, and a pointer to where the decision is recorded.
+
+1. **`0x07`'s `overprogram_factor` — 3 or 0?** → **RESOLVED: `0`.** Operator-delegated and decided
+   2026-08-09 during `/gsd-plan-phase 140`.
+   - *What we knew:* CONTEXT delegates only `0x08` to research; `PROJECT.md`'s throughput table and
      D-08's phrase "both overprogramming rows" imply `0x07 = 3`. But **all three `0x07` datasheets
      read this session (Winbond W27C512, ST M27C512, Microchip 27C512A) explicitly apply no
      overprogram**, and 113 of the row's 170 chips belong to that generation. The 22 Intel-family
      1 ms parts are the only ones the 3× rule was written for (F-140-05).
-   - *What's unclear:* whether the operator wants the row's dominant sub-population to receive an
+   - *What was unclear at research time:* whether the operator wants the row's dominant sub-population to receive an
      unspecified `3 × N × 100 µs` (≤ 7.5 ms) extra pulse in order to be correct for the 22 Intel
      parts, or wants factor 0 with the Intel parts under-served — the exact asymmetry D-06 reasons
      about for `0x08`, arriving on `0x07` instead.
-   - *Recommendation:* **surface to the operator before planning locks the value.** If the answer is
-     "keep 3", ship it with the F-140-05 scope clause verbatim in the citation. If it is "apply
-     D-06's tie-break rule to this row too", ship 0 and record the throughput-table divergence. Either
-     way, D-08's `overprogram_cap_us = 75000` stays — it is the figure published on gh#15.
+   - *Resolution (2026-08-09, operator decision during `/gsd-plan-phase 140`):* **ship `0`.** Three
+     bases: (a) behaviour-preserving — no protocol overprograms today, and
+     `src/proms/eprom.cpp:161-178` is retry escalation of `pulse_delay`, not an Intel 3N margin
+     pulse, so `3` would be an unvalidated behaviour change to all 170 chips in the row; (b) all
+     three `0x07` datasheets read (Winbond W27C512, ST M27C512, Microchip 27C512A) specify no
+     overprogram — 113 of 170 chips; (c) it applies D-06's precedent that a primary datasheet beats
+     `PROJECT.md`'s derived throughput table. The 22 Intel-family parts become a **recorded, scoped
+     divergence** plus a Phase 146 follow-up (F-140-05) — never a silent omission. D-08's
+     `overprogram_cap_us = 75000` is unaffected; it is the figure published on gh#15.
+   - *Recorded in:* `140-01-PLAN.md` `<locked_values>`; `140-05-PLAN.md`'s
+     `0x07 overprogram_factor` citation cell; `140-06-PLAN.md` §1.3 rewrite; `140-07-PLAN.md`
+     record §3; `140-VALIDATION.md` § Locked Decisions Carried Into Planning.
 
-2. **Does `overprogram_cap_us` remain in the table if no row has `overprogram_factor > 0`?**
-   - *What we know:* TABLE-01 names the column, so it must exist. With factor 0 on `0x08` (settled)
+2. **Does `overprogram_cap_us` remain in the table if no row has `overprogram_factor > 0`?** →
+   **RESOLVED: yes — keep it.** Settled by D-01/D-08; predates this research pass.
+   - *What we knew:* TABLE-01 names the column, so it must exist. With factor 0 on `0x08` (settled)
      and possibly on `0x07` (Q1), the cell may be inert on every row.
-   - *Recommendation:* keep the column (TABLE-01 is explicit) and cite it as reasoned + explicitly
-     inert where the factor is 0. An inert-but-named cell is honest; a missing column is a
-     requirement violation.
+   - *Resolution:* keep the column. With factor `0` on all three rows the cell is inert
+     everywhere, and is cited as reasoned + **explicitly inert** rather than dropped. An
+     inert-but-named cell is honest; a missing column is a requirement violation.
+   - *Recorded in:* `140-01-PLAN.md` `<locked_values>` (`75000` uniformly on all three rows).
 
-3. **Should the phase commit the datasheet PDFs it cites?**
-   - *What we know:* F-140-08 — no cited corpus resolves on this branch; `W27C512.pdf` (bench-required)
+3. **Should the phase commit the datasheet PDFs it cites?** → **RESOLVED: no.**
+   - *What we knew:* F-140-08 — no cited corpus resolves on this branch; `W27C512.pdf` (bench-required)
      is untracked. Committing the 0x07/0x08/0x0B set is roughly 1.3 MB.
-   - *Recommendation:* do **not** commit; make citations self-describing (vendor, part, document
-     number, revision, date, section/figure), and record the recovery command (§Code Examples) in the
-     sidecar's header so a future reader can obtain them. Committing binaries is a repo-weight
+   - *Resolution:* do **not** commit. Citations are self-describing instead (vendor, part,
+     document number, revision/date, section or figure), and the recovery command
+     (§ Code Examples, "Recovering the archived datasheet corpus") is reproduced in the sidecar's
+     header so a future reader can obtain them. Committing ~1.3 MB of binaries is a repo-weight
      decision that is not this phase's to make.
+   - *Recorded in:* `140-VALIDATION.md`; enforced by `140-05-PLAN.md`'s assertion that no
+     `datasheets/…` repo path appears in the sidecar (F-140-08: no cited corpus resolves on this
+     branch).
 
-4. **Which repo's `tests/` should hold the citation-coverage gate?**
-   - *What we know:* D-14 does not say. The sidecar and the C table are both in `firestarter/`, and
+4. **Which repo's `tests/` should hold the citation-coverage gate?** → **RESOLVED: the firmware
+   repo (`firestarter/tests/`).**
+   - *What we knew:* D-14 does not say. The sidecar and the C table are both in `firestarter/`, and
      `pytest tests/ -v` runs in firmware CI (F-140-11 shows the *native* envs are the gap, not the
      Python ones).
-   - *Recommendation:* firmware repo — co-located with what it checks, no cross-repo seam, CI-run.
+   - *Resolution:* the firmware repo — co-located with what it checks (the sidecar and the C table
+     both live in `firestarter/`), no cross-repo seam, and `pytest tests/` runs in firmware CI.
+   - *Recorded in / implemented by:* `140-05-PLAN.md` —
+     `firestarter/tests/test_eprom_params_citations.py` plus
+     `firestarter/tests/golden/eprom_params_citations.json`.
 
 ---
 
