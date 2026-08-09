@@ -478,3 +478,150 @@ $ for r in HEAD origin/beta 3085084; do git -C /workspaces/firestarter rev-parse
 *Plan: 139-04 (sections 4-5; sections 0-3 remain plan 139-01's, byte-unchanged)*
 *Freeze commits this plan added — comment fix: `19b492d9e4e4d73a8b862ae56416eaabce2ead1e`; body
 amendment: `2956e29b1c2629b84ab31ef63fc102fe3bf01ac5`.*
+
+---
+
+## 6. Delivery
+
+**Measured:** 2026-08-09, this session (plan 139-05), live. This section is append-only; sections 0
+through 5 above are unchanged from plans 139-01 and 139-04.
+
+### 6.0 Operator verdict, verbatim
+
+Task 1's `checkpoint:human-action` gate was answered by the real human operator, in real time, in the
+orchestrator session, immediately before this plan resumed. This section restates it (unabridged
+verbatim reproduction lives in `139-05-SUMMARY.md`) only to the extent needed to justify the branch
+taken:
+
+1. **Wording:** `approved, post now` — no corrections named; the frozen text stands exactly as
+   authored by plan 139-03 and corrected once by plan 139-04 (commit `19b492d9`).
+2. **Posting authorization and timing:** `approved, post now` — an unambiguous post-now, not a hold.
+3. **The optional body amendment (asked because #2 was "post now"):** a two-option selection,
+   `Comment only (Recommended)` — the body was **not** amended.
+
+### 6.1 Branch taken and why
+
+**POST BRANCH.** The operator's verdict said "post now" verbatim (§6.0, item 2), and all four
+fail-closed preconditions (§6.2) held. Per the plan's own fail-closed design, posting requires both
+signals; both were present, so the post branch — not the hold branch — is the one this task executed.
+Step 2B (the body amendment) was skipped: it requires a separate explicit yes, and the operator's third
+answer was the two-option prompt's default, "Comment only".
+
+### 6.2 Fail-closed preconditions, re-measured in this task (not carried forward)
+
+| # | Precondition | Command (as run) | Result |
+|---|---|---|---|
+| 1 | Verdict says "post now" verbatim | (operator's real-time answer, §6.0 item 2) | `approved, post now` — HOLDS |
+| 2a | `eprom.cpp` one unique blob SHA across `HEAD`, `origin/beta`, `3085084` | `for r in HEAD origin/beta 3085084; do git -C /workspaces/firestarter rev-parse $r:src/proms/eprom.cpp; done \| sort -u \| wc -l` | `1` (all three = `8dfa4cced460416fc1b0f73cf3f0e6f77965f962`) — HOLDS |
+| 2b | `memory.cpp` one unique blob SHA across `HEAD`, `origin/beta` | `for r in HEAD origin/beta; do git -C /workspaces/firestarter rev-parse $r:src/proms/memory.cpp; done \| sort -u \| wc -l` | `1` (both = `478fa1d35fed2abbefb27d4d2c54dcec02086687`) — HOLDS |
+| 3a | Both frozen artifacts clean | `git status --porcelain -- .planning/phases/139-gh-15-correction-outward/139-GH15-COMMENT.md .planning/phases/139-gh-15-correction-outward/139-GH15-BODY-AMENDMENT.md` | empty — HOLDS |
+| 3b | Blob SHAs match §5's freeze values | `git rev-parse HEAD:<path>` for each | COMMENT `d77a639c62751c197e465ec637f24f330dab35ef` (matches); AMENDMENT `8ff1a961f28c53f5c743b3c228e60f88ea3ded40` (matches) — HOLDS |
+| 4 | gh#15 comment count still `0` | `gh issue view 15 --repo henols/firestarter_prom --json comments -q '.comments \| length'` | `0` — HOLDS |
+
+All four held. No correction was named in Task 1 (§6.0 item 1), so Step 0 of Task 2 re-asserted the
+existing freeze triples from §5 rather than appending new rows: `139-GH15-COMMENT.md` blob
+`d77a639c62751c197e465ec637f24f330dab35ef` (12193 bytes, commit `19b492d9e4e4d73a8b862ae56416eaabce2ead1e`);
+`139-GH15-BODY-AMENDMENT.md` blob `8ff1a961f28c53f5c743b3c228e60f88ea3ded40` (12870 bytes, commit
+`2956e29b1c2629b84ab31ef63fc102fe3bf01ac5`). Neither file was edited — not a byte.
+
+### 6.3 The outward act — who performed it, and the literal argv
+
+Per this project's custody convention (`138-BASELINE.md` §1, quoted at `139-PATTERNS.md` §5c): every
+outward act is named by who performed it. In this plan, **the agent** ran the post, under the
+operator's explicit real-time authorization from Task 1's gate (`approved, post now`) and per the
+permission layer's own behaviour: the call was attempted exactly as written and was **not** refused —
+no permission-grant negotiation, settings edit, or alternate transport was needed or used. Every
+verification call below is read-only and was run by **the agent**.
+
+Literal argv, in order, exactly as executed (nothing paraphrased):
+
+1. `gh issue view 15 --repo henols/firestarter_prom --json comments -q '.comments | length'` — precondition 4 re-measure, immediately before the post. Result: `0`.
+2. `gh issue comment 15 --repo henols/firestarter_prom --body-file .planning/phases/139-gh-15-correction-outward/139-GH15-COMMENT.md` — **THE POST.** Result (stdout): `https://github.com/henols/firestarter_prom/issues/15#issuecomment-5233463320`.
+3. `gh issue view 15 --repo henols/firestarter_prom --json comments -q '.comments[-1].body'` (piped through `tr -d '\r'`, written to `$(mktemp -d)`) — fetch-back, run twice (once for the byte-diff, once for the raw-bytes/hex investigation below); both runs returned identical content.
+4. `gh issue view 15 --repo henols/firestarter_prom --json state,comments,labels -q '{state:.state,n:(.comments|length),labels:.labels}'` — exact-increment assertion. Result: `{"labels":[],"n":1,"state":"OPEN"}`.
+
+No `gh issue edit` call was made (Step 2B skipped, §6.5). No `git push` was run at any point. No file
+under `firestarter/` or `firestarter_app/` was written.
+
+### 6.4 Byte-diff result — the fetch-back proof
+
+`139-GH15-COMMENT.md` (frozen, 12193 bytes) vs. the fetched comment body (12194 bytes):
+
+```
+$ diff <(sed -e '$a\' .planning/phases/139-gh-15-correction-outward/139-GH15-COMMENT.md) <(sed -e '$a\' <fetched>)
+67a68
+>
+```
+
+**Honest reading of this result, named rather than smoothed over.** The `sed -e '$a\'` idiom, applied
+mechanically to *this specific pair*, does not itself cancel the difference: the frozen file already
+ends in exactly one `\n` (confirmed: `tail -c 1` = `\n`; `sed -e '$a\'` applied to it alone reproduces
+it byte-for-byte, 12193 → 12193), so the idiom is a no-op on the frozen side here. The residual,
+post-normalization diff is therefore identical to the raw, unnormalized diff — both show exactly one
+line, `67a68 > ` (one added, empty line at end-of-file), and the byte-length gap is exactly `1`, in the
+direction of the retrieved copy being longer.
+
+This is not a different failure mode — it is **byte-for-byte the signature `139-CITATIONS.md` §5 and
+`139-PATTERNS.md` §2c/§7b named in advance**: "GitHub appends exactly one trailing newline that a
+committed file does not already end with... the byte length differs by exactly 1... and the line-level
+diff shows exactly one added blank line at end-of-file and nothing else. No other divergence occurred."
+That is exactly what was measured here: one added blank line, zero other differences, length delta of
+exactly 1, in the documented direction. Per the standing convention recorded before this post ever
+happened, **this is the expected result of a correct post, not a mismatch** — the posted text is proven
+equal to the reviewed text. (`122-DELIVERY.md` §3's own four executed calls carry the identical
+signature; this is the fifth observation of it in this project's history, not a new phenomenon.)
+
+### 6.5 Body amendment — not applied, by deliberate choice
+
+Step 2B was **not run**. The operator's third answer was `Comment only (Recommended)`, the two-option
+prompt's default meaning "the issue body is not touched." No `gh issue edit` call was made.
+`updatedAt` remains `2026-07-12T09:15:27Z` — unchanged from §0's original measurement and from every
+plan's re-assertion since, now re-confirmed after the comment post:
+
+```
+$ gh issue view 15 --repo henols/firestarter_prom --json updatedAt -q .updatedAt
+2026-07-12T09:15:27Z
+```
+
+This is the default outcome of a deliberate, recorded choice — not an omission.
+
+### 6.6 Before/after state assertion
+
+| Field | Before this task | After this task |
+|---|---|---|
+| comment count | `0` | `1` |
+| state | `OPEN` | `OPEN` |
+| labels | `[]` | `[]` |
+| body / `updatedAt` | `2026-07-12T09:15:27Z` | `2026-07-12T09:15:27Z` (unchanged — body not edited) |
+
+Comment count incremented by exactly one; nothing else changed.
+
+### 6.7 Negative-flag audit
+
+| Forbidden flag | Present in any call this plan made? | Literal argv (copy-pasted) |
+|---|---|---|
+| `--label` / `--add-label` / `-l` | **No** | (none of the four calls in §6.3 carries it) |
+| `--assignee` | **No** | (absent from all four calls) |
+| `--milestone` | **No** | (absent from all four calls) |
+| `--project` | **No** | (absent from all four calls) |
+| `--web` | **No** | (absent from all four calls) |
+| `--editor` | **No** | (absent from all four calls) |
+| `--edit-last` / `--delete-last` | **No** | (absent from all four calls) |
+| inline `--body` (string or heredoc) | **No** | call 2 used `--body-file .planning/phases/139-gh-15-correction-outward/139-GH15-COMMENT.md` exclusively |
+| heredoc / shell-piped body construction | **No** | same as above — a literal committed file path only |
+| `gh issue close` | **No** | never invoked, this plan or any prior one in this phase |
+| `gh auth token` | **No** | never invoked, this plan or any prior one in this phase |
+| `gh issue edit` (Step 2B) | **No — Step 2B skipped**, §6.5 | not called |
+
+### 6.8 Requirement discharge pointer
+
+ISSUE-01, ISSUE-02 and ISSUE-03 are ticked in `.planning/REQUIREMENTS.md` on this evidence; see that
+file's "gh#15 Correction (outward)" section for the per-requirement Evidence lines and the
+Traceability table update. No other requirement was touched by this plan.
+
+---
+
+*Phase: 139-gh-15-correction-outward*
+*Plan: 139-05 (section 6 only; sections 0-5 above remain plans 139-01/139-04's, byte-unchanged)*
+*Delivery: posted comment, `https://github.com/henols/firestarter_prom/issues/15#issuecomment-5233463320`;
+body amendment not applied; ISSUE-01/ISSUE-02/ISSUE-03 all discharged.*

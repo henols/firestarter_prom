@@ -108,14 +108,56 @@ expected work, not a regression.
 
 ### gh#15 Correction (outward)
 
-- [ ] **ISSUE-01**: A gh#15 comment states C1 (`0x0B` is 500 µs; `50000 us` is the ×100 BUG-2
+- [x] **ISSUE-01**: A gh#15 comment states C1 (`0x0B` is 500 µs; `50000 us` is the ×100 BUG-2
       fingerprint Phase 57 removed), C2 (pulse width is a database datum, with the PREP-04
       distribution) and C3 (the safe delay helper is for the 75 ms overprogram pulse), each citing its
       evidence by `file:line` or commit.
-- [ ] **ISSUE-02**: The same comment states the ~6.25 V program-VCC ceiling plainly and proposes the
+      **Evidence (2026-08-09, Phase 139 Plan 05).** Discharged by the operator's real-time wording
+      approval (`"approved, post now"`, Task 1's `checkpoint:human-action` gate) of
+      `.planning/phases/139-gh-15-correction-outward/139-GH15-COMMENT.md`, frozen at blob
+      `d77a639c62751c197e465ec637f24f330dab35ef` (12193 bytes, committing commit `19b492d9`). That
+      frozen text carries C1 (the 500 µs correction and the ×100 BUG-2 fingerprint cited to
+      `firestarter_app/doc/infoic-field-dictionary.md:210-217` plus commits `8de307f`/`12286df`), C2
+      (the per-protocol histogram lines and the honest 203-of-329 wrong-width count, cited to
+      `138-02-PULSE-DISTRIBUTION.md:237-249` and `138-pulse-distribution.py`), and C3 (the safe delay
+      helper anchored at the program pulse, `firestarter/src/proms/memory.cpp:249-258`, not the erase
+      pulse) — every claim citation-resolved per `139-CITATIONS.md` §§1-2. The frozen text was then
+      posted byte-verified (see ISSUE-03 below), so this is now public, not merely drafted.
+- [x] **ISSUE-02**: The same comment states the ~6.25 V program-VCC ceiling plainly and proposes the
       specific amendment to gh#15's acceptance criteria that it requires.
-- [ ] **ISSUE-03**: The comment is frozen, operator-approved for wording, and posted **only** on
+      **Evidence (2026-08-09, Phase 139 Plan 05).** Discharged by the same operator wording approval
+      of the same frozen file: the comment's own dedicated paragraph states the ~6.25 V program-VCC
+      ceiling (unreachable on this shield, timing/pulse-count/verify fidelity bought, not
+      silicon-margin fidelity) and carries the nine-row acceptance-criteria amendment mapped
+      item-for-item onto gh#15's original nine boxes (`139-GH15-ORIGINAL-CRITERIA.md`), each marked
+      kept/corrected/replaced with its reason, cross-checked disposition-for-disposition against
+      `139-GH15-BODY-AMENDMENT.md` (`139-CITATIONS.md` §4, `DISPOSITIONS-AGREE-OK`, 9/9 rows, 0
+      mismatches). Both non-checkbox body directives are also named and corrected in the frozen text.
+- [x] **ISSUE-03**: The comment is frozen, operator-approved for wording, and posted **only** on
       explicit operator authorization — and posted before any implementation phase lands the new loop.
+      **Evidence (2026-08-09, Phase 139 Plan 05).** The operator answered Task 1's blocking
+      `checkpoint:human-action` gate verbatim: wording `"approved, post now"`; posting timing
+      `"approved, post now"` (unambiguous post-now, not hold); the optional body amendment (asked
+      because posting was authorized) `"Comment only (Recommended)"` — body NOT amended, `updatedAt`
+      unchanged from `2026-07-12T09:15:27Z`. All four fail-closed preconditions were re-measured
+      immediately before acting and held: (1) verdict said "post now" verbatim; (2)
+      `firestarter/src/proms/eprom.cpp` and `firestarter/src/proms/memory.cpp` each yielded exactly
+      one unique blob SHA across `HEAD`/`origin/beta`/`3085084` (eprom.cpp) and `HEAD`/`origin/beta`
+      (memory.cpp) — no implementation had moved; (3) both frozen artifacts' `git status --porcelain`
+      were empty and their blob SHAs matched the recorded freeze values exactly; (4) gh#15's comment
+      count still read `0`. Posted via `gh issue comment 15 --repo henols/firestarter_prom --body-file
+      .planning/phases/139-gh-15-correction-outward/139-GH15-COMMENT.md` — comment URL
+      `https://github.com/henols/firestarter_prom/issues/15#issuecomment-5233463320`. Fetch-back
+      byte-diff: the only divergence between the frozen file (12193 bytes) and the retrieved comment
+      body (12194 bytes) is exactly one appended blank line at end-of-file — the documented,
+      previously-executed (`122-DELIVERY.md` §3) signature of GitHub's own trailing-newline behavior,
+      not a content mismatch; zero other bytes differ. State assertion:
+      `{state: OPEN, n: 1, labels: []}` — comment count incremented by exactly one, issue still open
+      and unlabelled. Negative-flag audit: none of `--label`/`--add-label`/`-l`, `--assignee`,
+      `--milestone`, `--project`, `--web`, `--editor`, `--edit-last`/`--delete-last`, inline `--body`,
+      heredoc/shell-piped body, `gh issue close`, or `gh auth token` were used in any of the four `gh`
+      calls made (see `139-CITATIONS.md` §6). Body amendment: not authorized by the operator's third
+      answer, and not applied — `updatedAt` remains `2026-07-12T09:15:27Z`.
 
 ### Parameter Table
 
@@ -251,9 +293,9 @@ Deferred. Tracked but not in this roadmap.
 | PREP-02 | Phase 138 | Complete |
 | PREP-03 | Phase 138 | Complete |
 | PREP-04 | Phase 138 | Complete |
-| ISSUE-01 | Phase 139 | Pending |
-| ISSUE-02 | Phase 139 | Pending |
-| ISSUE-03 | Phase 139 | Pending |
+| ISSUE-01 | Phase 139 | Complete |
+| ISSUE-02 | Phase 139 | Complete |
+| ISSUE-03 | Phase 139 | Complete |
 | TABLE-01 | Phase 140 | Pending |
 | TABLE-02 | Phase 140 | Pending |
 | TABLE-03 | Phase 140 | Pending |
