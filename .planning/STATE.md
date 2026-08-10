@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 141
 current_phase_name: Per-Byte Program Loop
 status: executing
-stopped_at: Completed 141-03-PLAN.md
-last_updated: "2026-08-10T15:47:17.325Z"
+stopped_at: Completed 141-04-PLAN.md
+last_updated: "2026-08-10T16:42:25.983Z"
 last_activity: 2026-08-10
-last_activity_desc: Plan 141-03 complete (sixth native env native_loop_v131 + test_loop_eprom_v131 suite -- 16-bit-keyed read-back model, logged-id capture, fixed drive-helper contract for 141-07/141-08), plan 141-04 next
+last_activity_desc: Plan 141-04 complete (eprom_write_execute rewritten as the per-byte pulse-to-verify loop -- LOOP-01/04/05/06/08 implementation; configure_eprom's D-03/D-05 pre-flight refusals; eprom_overprogram_us + eprom_internal_report_budget_failure; erase pulse routed through mem_util_delay_us. Both expected REDs confirmed exactly as predicted: D-13 inventory (3 named test failures, D-11) and native_trace_v131 (stream-length mismatch, D-10). Flash delta measured well above 141-PREDICTIONS.md's point estimate (+422/+422/+336 B vs +30/+30/+18 B predicted, explained in the SUMMARY); RAM delta exactly 0 as predicted), plan 141-05 next
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 28
-  completed_plans: 22
+  completed_plans: 23
   percent: 38
 ---
 
@@ -112,9 +112,9 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 141 (Per-Byte Program Loop) — EXECUTING
-Plan: 4 of 9
+Plan: 5 of 9
 Status: Ready to execute
-Last activity: 2026-08-10 — Plan 141-03 complete (sixth native env native_loop_v131 + test_loop_eprom_v131 suite -- 16-bit-keyed read-back model, logged-id capture, fixed drive-helper contract for 141-07/141-08), plan 141-04 next
+Last activity: 2026-08-10 — Plan 141-04 complete (eprom_write_execute rewritten as the per-byte pulse-to-verify loop -- LOOP-01/04/05/06/08 implementation; configure_eprom's D-03/D-05 pre-flight refusals; eprom_overprogram_us + eprom_internal_report_budget_failure; erase pulse routed through mem_util_delay_us. Both expected REDs confirmed exactly as predicted: D-13 inventory (3 named test failures, D-11) and native_trace_v131 (stream-length mismatch, D-10). Flash delta measured well above 141-PREDICTIONS.md's point estimate (+422/+422/+336 B vs +30/+30/+18 B predicted, explained in the SUMMARY); RAM delta exactly 0 as predicted), plan 141-05 next
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
 `checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes
@@ -1841,6 +1841,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 141]: 141-03: Declared the shared strobe/timing accessor prototypes directly in test_loop_eprom_v131.cpp rather than authoring a new shared header, since plans 141-07/141-08 extend this same file
 - [Phase 141]: 141-03: 16-bit-latched-address-keyed read-back model (uint16_t converge_after/read_count) replaces the trace suite's 4-entry base-0 '& 0x03' index, so an uncapped per-byte pulse count and an A16-crossing block are both representable -- host_stubs.cpp, new suite native_loop_v131 only
 - [Phase 141]: 141-03: make_loop_handle/drive_loop_write/LOOP_BUS_CONFIG_0x07/_0x08/_0x0B authored now and marked [[maybe_unused]] (no in-tree unused-but-authored-ahead precedent found) so plans 141-07/141-08, which extend this same test file, inherit a fixed contract instead of re-deriving one
+- [Phase 141]: Followed PLAN.md's literal ordering in eprom_write_execute (VPE-assert block, then D-09 pins>=32 branch, then eprom_params_for row lookup+hoist) over 141-RESEARCH.md's earlier suggested pseudocode order, since PLAN.md is the checker-reviewed authoritative document for this plan
 
 ## Performance Metrics
 
@@ -2065,11 +2066,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 141 P01 | 21min | 3 tasks | 6 files |
 | Phase 141 P02 | 20min | 2 tasks | 2 files |
 | Phase 141 P03 | 30min | 3 tasks | 4 files |
+| Phase 141 P04 | 40min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-10T15:47:17.286Z
-**Stopped at:** Completed 141-03-PLAN.md
+**Last session:** 2026-08-10T16:42:25.957Z
+**Stopped at:** Completed 141-04-PLAN.md
 **Resume file:** None
 
 ### Blockers

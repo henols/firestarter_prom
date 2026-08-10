@@ -235,3 +235,14 @@ None - no external service configuration required.
 ---
 *Phase: 141-per-byte-program-loop*
 *Completed: 2026-08-10*
+
+## Self-Check: PASSED
+
+- FOUND: `firestarter/include/eprom.h`
+- FOUND: `firestarter/src/proms/eprom.cpp`
+- FOUND: `.planning/phases/141-per-byte-program-loop/141-04-SUMMARY.md`
+- FOUND: commit `aeac4e7` (Task 1)
+- FOUND: commit `ef0e075` (Task 2)
+- FOUND: commit `3504e50` (Task 3)
+- FOUND: commit `0eefac98` (meta repo, this SUMMARY)
+- Re-verified `grep -c delayMicroseconds src/proms/eprom.cpp` = 0 and `grep -c "row->" src/proms/eprom.cpp` = 7, matching this document's claims.

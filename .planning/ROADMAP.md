@@ -307,7 +307,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 141-04-PLAN.md — The per-byte pulse→verify loop: `configure_eprom`'s table read + D-03 pre-flight refusal, the pure `eprom_overprogram_us` (D-08), the single budget-failure reporter, the LOOP-02 removals, the `handle->pins >= 32` DIP32 branch (D-09), the consumed `verify_mode`, and the erase-pulse reroute [firestarter]
+- [x] 141-04-PLAN.md — The per-byte pulse→verify loop: `configure_eprom`'s table read + D-03 pre-flight refusal, the pure `eprom_overprogram_us` (D-08), the single budget-failure reporter, the LOOP-02 removals, the `handle->pins >= 32` DIP32 branch (D-09), the consumed `verify_mode`, and the erase-pulse reroute [firestarter]
 
 **Wave 3** *(blocked on Wave 2; three plans, disjoint files)*
 
