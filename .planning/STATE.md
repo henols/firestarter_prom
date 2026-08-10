@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 140
 current_phase_name: Parameter Table
 status: executing
-stopped_at: Completed 140-04-PLAN.md
-last_updated: "2026-08-10T01:58:11.657Z"
+stopped_at: Completed 140-05-PLAN.md
+last_updated: "2026-08-10T02:25:20.121Z"
 last_activity: 2026-08-10
 last_activity_desc: Completed 140-04-PLAN.md (native parameter-table test suite, TABLE-03/TABLE-01)
 progress:
   total_phases: 8
   completed_phases: 2
   total_plans: 19
-  completed_plans: 16
+  completed_plans: 17
   percent: 25
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 140 (Parameter Table) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
 Last activity: 2026-08-10 — Completed 140-04-PLAN.md (native parameter-table test suite, TABLE-03/TABLE-01)
 
@@ -1827,6 +1827,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 140 Plan 04]: native_params_v131 is a fifth PlatformIO env structurally copied from native_trace_v131 (D-11) -- test_filter names only its own suite, excluded from default_envs and from both baseline scripts by name, and runs in no CI leg of either repository (F-140-11)
 - [Phase 140 Plan 04]: host_stubs.cpp banner reworded to avoid the literal HOST_STUBS_ substring and the src/proms glob pattern from the copied test_not_implemented precedent, keeping the negative-grep verification meaningful and avoiding the -Wcomment trap 140-01 already found once
 - [Phase 140 Plan 04]: test suite mocks delay/delayMicroseconds with AlwaysReturn (test_cmd_admission idiom) rather than test_trace_eprom_v131 AlwaysDo recorder lambda, since configure_memory/configure_eprom never call either function on this code path
+- [Phase 140]: TABLE-04 sidecar ships 18 cells; multi-source cells keep one D-09 representative part as primary attribution, folding corroborating vendors into notes rather than fabricating a spanning quote — Keeps every quote field honestly sourced to a real datasheet while still recording the corroboration research found
 
 ## Performance Metrics
 
@@ -2045,11 +2046,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 140 P03 | 25min | 3 tasks | 2 files |
 | Phase 140 P02 | 30min | 3 tasks | 2 files |
 | Phase 140 P04 | 20min | 3 tasks | 3 files |
+| Phase 140 P05 | 32min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-10T01:58:11.616Z
-**Stopped at:** Completed 140-04-PLAN.md
+**Last session:** 2026-08-10T02:25:20.088Z
+**Stopped at:** Completed 140-05-PLAN.md
 **Resume file:** None
 
 ### Blockers
