@@ -4,16 +4,16 @@ milestone: v1.31
 milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 140
 current_phase_name: Parameter Table
-status: Ready to execute
-stopped_at: Phase 140 planned — 7 plans in 4 waves
-last_updated: "2026-08-10T00:00:00.000Z"
+status: executing
+stopped_at: Completed 140-01-PLAN.md
+last_updated: "2026-08-10T00:29:47.419Z"
 last_activity: 2026-08-10
-last_activity_desc: Phase 140 planned — 7 plans in 4 waves, plan-checker passed
+last_activity_desc: Phase 140 execution started
 progress:
   total_phases: 8
   completed_phases: 2
-  total_plans: 12
-  completed_plans: 12
+  total_plans: 19
+  completed_plans: 13
   percent: 25
 ---
 
@@ -29,7 +29,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-08 — v1.31 started)
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
 authoritative dispatch key end to end. v1.31 makes that key drive *programming behaviour*, not just
 handler selection — while keeping the pulse width itself a database datum, not a protocol constant.
-**Current focus:** Phase 140 — parameter-table (planned, ready to execute)
+**Current focus:** Phase 140 — Parameter Table
 
 **v1.31 27C Programming-Algorithm Fidelity (gh#15)** — ACTIVE (activated 2026-08-08, retiring Backlog
 **999.22** which was queued as the `v1.27` slot). **Firmware-touching, dual-repo lockstep.** Phase
@@ -111,10 +111,10 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 ## Current Position
 
-Phase: 140 — Parameter Table
-Plan: Not started
-Status: Phase 140 context gathered — ready for planning
-Last activity: 2026-08-09 — Phase 140 context gathered (140-CONTEXT.md, D-01…D-15)
+Phase: 140 (Parameter Table) — EXECUTING
+Plan: 2 of 7
+Status: Ready to execute
+Last activity: 2026-08-10 — Phase 140 execution started
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
 `checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes
@@ -1818,6 +1818,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 139]: [Phase 139 Plan 04]: Built 139-GH15-BODY-AMENDMENT.md programmatically from the live-fetched gh#15 body (assert-exactly-once string replacement) rather than hand-transcription, guaranteeing every unedited section is byte-identical to the live issue
 - [Phase 139]: [Phase 139 Plan 04]: Placed the C3 safe-delay-helper grounding note (75ms/16383us/9464us) as a dated NOTE appended under gh#15's own Shared implementation helpers paragraph rather than a new top-level section
 - [Phase 139]: [Phase 139 Plan 04]: Amendment carries zero raw github.com/gitlab.com hyperlinks (file:line refs as plain inline code only), trivially satisfying the pinned-permalink requirement and avoiding any accidental /blob/beta/ match
+- [Phase 140]: 140-01: 0x07 overprogram_factor=0 shipped verbatim (locked, operator-decided); eprom_params.cpp registered in PY32F071 CMake FIRESTARTER_COMMON_SOURCES (next to eprom.cpp), not PY32_EXCLUDED — 0x07=0 is the plan's locked value, not RESEARCH.md's superseded 3; the CMake registration was a Rule 3 blocking-issue fix -- the new file has no AVR-specific dependency and every existing src/proms/*.cpp is already a common source
 
 ## Performance Metrics
 
@@ -2032,12 +2033,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 139 P02 | ~14min | 2 tasks | 1 files |
 | Phase 139 P03 | 23min | 2 tasks | 1 files |
 | Phase 139 P04 | 19min | 2 tasks | 3 files |
+| Phase 140 P01 | 22min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-09T21:44:06.093Z
-**Stopped at:** Phase 140 context gathered
-**Resume file:** .planning/phases/140-parameter-table/140-CONTEXT.md
+**Last session:** 2026-08-10T00:29:31.270Z
+**Stopped at:** Completed 140-01-PLAN.md
+**Resume file:** None
 
 ### Blockers
 

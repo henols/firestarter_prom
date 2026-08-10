@@ -255,3 +255,16 @@ None - no external service configuration required.
 ---
 *Phase: 140-parameter-table*
 *Completed: 2026-08-10*
+
+## Self-Check: PASSED
+
+Files verified present on disk:
+- FOUND: `firestarter/include/eprom_params.h`
+- FOUND: `firestarter/src/proms/eprom_params.cpp`
+- FOUND: `.planning/phases/140-parameter-table/140-PREDICTIONS.md`
+- FOUND: `.planning/phases/140-parameter-table/140-01-SUMMARY.md`
+- FOUND: `eprom_params.cpp` registered in `firestarter/platform/py32f071/CMakeLists.txt`
+
+Commits verified present in git history:
+- FOUND (firestarter): `9914c8f`, `79b2d8e`, `3207632`
+- FOUND (meta): `a2705cfb`, `46a01ce0`, `3467af4a`
