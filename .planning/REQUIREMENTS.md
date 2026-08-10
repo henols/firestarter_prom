@@ -180,23 +180,23 @@ expected work, not a regression.
 
 ### Per-Byte Program Loop
 
-- [ ] **LOOP-01**: Programming a byte applies **fixed-width** pulses and verifies after each one,
+- [x] **LOOP-01**: Programming a byte applies **fixed-width** pulses and verifies after each one,
       counting the pulses that byte required — the width does not grow between attempts.
-- [ ] **LOOP-02**: `program_mismatched_bytes()`, `verify_and_update_mask()`, the flat
+- [x] **LOOP-02**: `program_mismatched_bytes()`, `verify_and_update_mask()`, the flat
       `NUMBER_OF_RETRIES` block loop and the adaptive `pulse_delay = org + org*retries/20` growth are
       removed from the EPROM write path.
-- [ ] **LOOP-03**: Where `overprogram_factor > 0`, a byte that verifies at N pulses then receives an
+- [x] **LOOP-03**: Where `overprogram_factor > 0`, a byte that verifies at N pulses then receives an
       overprogram pulse of `3 × N × pulse`, capped at `overprogram_cap_us`.
-- [ ] **LOOP-04**: `0x0B` loops pulse→verify with **accumulated program time per byte capped at
+- [x] **LOOP-04**: `0x0B` loops pulse→verify with **accumulated program time per byte capped at
       50 ms** and applies no overprogram pulse.
-- [ ] **LOOP-05**: A byte that does not verify within `max_pulses` **hard-fails the block** — the write
+- [x] **LOOP-05**: A byte that does not verify within `max_pulses` **hard-fails the block** — the write
       aborts, every high-voltage route is disabled, and the failing address plus its pulse count are
       reported.
-- [ ] **LOOP-06**: Already-matching bytes and `0xFF` bytes are skipped without emitting a program
+- [x] **LOOP-06**: Already-matching bytes and `0xFF` bytes are skipped without emitting a program
       pulse.
-- [ ] **LOOP-07**: Long delays use a safe 32-bit helper splitting millisecond and microsecond
+- [x] **LOOP-07**: Long delays use a safe 32-bit helper splitting millisecond and microsecond
       portions; no call path can reach `delayMicroseconds()` with a value above its 16383 µs ceiling.
-- [ ] **LOOP-08**: VPE is asserted and settled **once per block**, not per byte, and survives the
+- [x] **LOOP-08**: VPE is asserted and settled **once per block**, not per byte, and survives the
       per-byte verify read — with the DIP32 `CTRL_VPP_VPE_DROP_ENABLE`/A16 exception handled
       explicitly rather than inherited by accident.
 
@@ -306,14 +306,14 @@ Deferred. Tracked but not in this roadmap.
 | TABLE-03 | Phase 140 | Complete |
 | TABLE-04 | Phase 140 | Complete |
 | TABLE-05 | Phase 140 | Complete |
-| LOOP-01 | Phase 141 | Pending |
-| LOOP-02 | Phase 141 | Pending |
-| LOOP-03 | Phase 141 | Pending |
-| LOOP-04 | Phase 141 | Pending |
-| LOOP-05 | Phase 141 | Pending |
-| LOOP-06 | Phase 141 | Pending |
-| LOOP-07 | Phase 141 | Pending |
-| LOOP-08 | Phase 141 | Pending |
+| LOOP-01 | Phase 141 | Complete |
+| LOOP-02 | Phase 141 | Complete |
+| LOOP-03 | Phase 141 | Complete |
+| LOOP-04 | Phase 141 | Complete |
+| LOOP-05 | Phase 141 | Complete |
+| LOOP-06 | Phase 141 | Complete |
+| LOOP-07 | Phase 141 | Complete |
+| LOOP-08 | Phase 141 | Complete |
 | VPP-01 | Phase 142 | Pending |
 | VPP-02 | Phase 142 | Pending |
 | VPP-03 | Phase 142 | Pending |
