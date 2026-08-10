@@ -118,6 +118,53 @@ match or a named discrepancy, never a surprise.
 
 ## Observed (Plan 01, cold)
 
-_Appended after the predictions commit above lands and the cold native captures for `native`
-and `native_nodevtools` complete. Not present in the version of this file that the
-predictions commit carries._
+**Predictions commit:** `a2705cfb02d848ab1d927da0b784f959300cc4ab` (meta repo, branch
+`gsd/v1.31-27c-programming-algorithm-fidelity`), committed `2026-08-10T00:13:30Z` — this
+carried P1-P5 above with no Observed section. Every cold-measurement command below ran
+**after** this commit landed:
+
+- `native`: `rm -rf .pio/build/native` then `pio test -e native`, started
+  `2026-08-10T00:13:53Z` (23 s after the predictions commit), finished `2026-08-10T00:15:47Z`,
+  exit 0. Log: `/tmp/140-01-native.log`.
+- `native_nodevtools`: `rm -rf .pio/build/native_nodevtools` then `pio test -e
+  native_nodevtools`, started `2026-08-10T00:15:54Z`, finished `2026-08-10T00:17:49Z`, exit 0.
+  Log: `/tmp/140-01-nodev.log`.
+
+Both commands ran once each, uninterrupted, cold (`.pio/build/<env>` removed immediately
+before each single invocation) — the discipline P3/P4's basis depends on.
+
+### Results vs. predictions
+
+| Prediction | Predicted | Observed | Match |
+|---|---|---|---|
+| P1 (AVR flash delta, `uno`) | ≈ 0 B | **0 B** (23954 B, unchanged from `size_baseline_v131.json`; confirmed directly in this plan's Task 2 `pio run -e uno`) | Yes — exact, not merely approximate |
+| P2 (AVR RAM delta, `uno`) | = 0 B | **0 B** (1573 B, unchanged) | Yes |
+| P3 (`native` warnings) | exactly 1166 | **1166** (macro_redefinition=1166, total=1166) | Yes |
+| P3 (`native_nodevtools` warnings) | exactly 1166 | **1166** (macro_redefinition=1166, total=1166) | Yes |
+| P4 (`native` cases/suites) | 141 / 17 | **141 test cases: 141 succeeded**, 17 suite rows in the summary table | Yes |
+| P4 (`native_nodevtools` cases/suites) | 141 / 17 | **141 test cases: 141 succeeded**, 17 suite rows in the summary table | Yes |
+| P4 (`native_trace_v131`) | 5 / 1, GREEN | **5 test cases: 5 succeeded**, 1 suite, PASSED (confirmed in this plan's Task 2) | Yes |
+
+`check_build_warnings.py` gate run, verbatim:
+
+```
+$ python3 scripts/check_build_warnings.py \
+    --log native=/tmp/140-01-native.log --log native_nodevtools=/tmp/140-01-nodev.log
+
+PASS: native: total warnings=1166 (== watermark 1166), native_nodevtools: total warnings=1166 (== watermark 1166)
+exit=0
+```
+
+**No contradiction was found.** Every prediction P1-P4 matches its observation exactly (not
+merely within a tolerance band); per the plan's own instruction, a contradiction would have
+been recorded verbatim here and execution would have stopped rather than adjusting the
+prediction — that branch was not taken because no divergence occurred.
+
+P5 is not yet observable: `native_params_v131` does not exist until plan 140-04 creates it.
+This document is not amended when that happens — plan 140-04's own SUMMARY is where P5 gets
+its observation, if any is warranted, since predictions are recorded once and stand.
+
+`native_params_v131` and `check_size_baseline.py --policy merge05` were **not** invoked in
+this task, per the plan's explicit instruction to run only `check_build_warnings.py` on the
+two pinned native envs here; the AVR flash/RAM figures cited under P1/P2 above are the ones
+already produced and verified in this plan's Task 2, not re-measured here.
