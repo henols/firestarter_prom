@@ -287,7 +287,41 @@ Requirement ticking is named exhaustively per plan so no plan ticks a multi-plan
   4. Already-matching bytes and `0xFF` bytes never receive a program pulse; any delay exceeding 16383 µs (reachable only via the overprogram pulse) passes through a 32-bit-safe millisecond/microsecond-splitting helper, never a bare over-ceiling `delayMicroseconds()` call.
   5. VPE is asserted and settled once per block, not per byte, and stays asserted across each byte's verify read, with the DIP32 `CTRL_VPP_VPE_DROP_ENABLE`/A16 collision handled by an explicit code path rather than inherited by accident.
 
-**Plans**: TBD
+**Plans**: 9 plans in 5 waves. **TRI-REPO** — every plan's `commits_land_in:` names each repo it touches (`meta`, `firestarter`, `firestarter_app`); a plan that only *reads* or *builds* a submodule still names it, because a worktree leaves submodules empty and a `files_modified`-only detector under-detects. Same-wave plans share zero `files_modified` entries.
+
+All `eprom.cpp` edits are deliberately confined to **one** plan (`141-04`): that file's blob SHA is pinned by `tests/golden/protocol_branch_inventory.json`, so every commit moving it breaks three of the D-13 gate's seven tests until the golden is re-derived — one plan means the gate goes RED once, for one reason. **Two expected REDs, both deliberate:** `tests/test_protocol_branch_inventory.py` from `141-04` until `141-05` re-derives it (D-11), and `pio test -e native_trace_v131` on stream equality for the whole phase, **not** re-frozen here (D-10 — Phase 144 / TEST-06 owns the freeze and the diff).
+
+Every new gate leg is seen RED on a planted violation before its GREEN is believed (D-15): 2 planted runs in `141-05`, 9 in `141-06`, 2 in `141-08` — 13 in total, each transcript captured verbatim in its plan's SUMMARY. `pio test -e native_loop_v131` (the **sixth** native env, D-10) runs in **no CI leg of either repository**: a local run-by-name obligation recorded in the phase record, never implied CI coverage.
+
+**Two dispositions decided in planning rather than deferred:** `verify_mode` is **consumed** as one final full-block verify pass on the two `VERIFY_PER_PULSE_PLUS_FINAL` rows (it is a shipped column no D-NN covers, and `CLAUDE.md` already documents the behaviour), and `overprogram_cap_us == 0` yields **0 µs** — no overprogram pulse — because `eprom_params.h` defines the column as the clamp in `min(3 × factor × pulse, cap)`.
+
+Requirement ticking is centralised so no plan ticks a multi-plan requirement early: `141-01` … `141-08` → **none**; `141-09` → **LOOP-01 … LOOP-08** (all eight, in one sixteen-line hand edit, after every piece of evidence exists).
+
+Plans:
+
+**Wave 1** *(three plans, disjoint files)*
+
+- [ ] 141-01-PLAN.md — Three new ERROR-band message IDs authored in meta's canonical catalog (`MSG_ERR_PULSE_TOO_WIDE` 0xAE, `MSG_ERR_MAX_PULSES` 0xBD, `MSG_ERR_ENERGY_CAP` 0xBE per D-03/D-04), synced + regenerated into both sub-repos, plus `141-PREDICTIONS.md` committed before any `eprom.cpp` byte moves [meta, firestarter, firestarter_app]
+- [ ] 141-02-PLAN.md — LOOP-07's 32-bit-safe delay helper (`mem_util_delay_us` / `mem_util_split_delay`, ceiling 16383) beside the other `mem_util_*` per D-06, the program pulse rerouted, and the disproven bit-collision comment in `mem_util_calculate_top_address_register` corrected [firestarter]
+- [ ] 141-03-PLAN.md — `[env:native_loop_v131]` (the sixth native env, D-10) plus the suite harness: three recorder layers, a **16-bit-latched-address** read-back model (so a block crossing `0x00FFFF` is representable), logged-id capture, and six loop-independent non-vacuity cases [firestarter]
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 141-04-PLAN.md — The per-byte pulse→verify loop: `configure_eprom`'s table read + D-03 pre-flight refusal, the pure `eprom_overprogram_us` (D-08), the single budget-failure reporter, the LOOP-02 removals, the `handle->pins >= 32` DIP32 branch (D-09), the consumed `verify_mode`, and the erase-pulse reroute [firestarter]
+
+**Wave 3** *(blocked on Wave 2; three plans, disjoint files)*
+
+- [ ] 141-05-PLAN.md — The D-13 inventory golden re-derived by its own scanner (never hand-edited, D-11), the pinned `protocol_lines` literal at `test_protocol_branch_inventory.py:446` updated with the count held at three, and `CLAUDE.md`'s three Algorithm Handlers rows reconciled [firestarter]
+- [ ] 141-06-PLAN.md — `tests/test_write_path_source_contract_v131.py`: LOOP-02's four absence legs and LOOP-07's positive-count legs, concatenation-built needles, comment-stripped targets, fail-closed non-vacuity guards, nine planted-RED runs [firestarter]
+- [ ] 141-07-PLAN.md — Native proof for LOOP-01 (fixed width, one verify per pulse, exact per-byte counts), LOOP-06 (`0xFF` gets **zero** reads; already-matching gets one) and LOOP-04 (exactly 100/50/250 pulses at 500/1000/200 µs) [firestarter]
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 141-08-PLAN.md — Native proof for LOOP-03 (pure-function boundaries incl. `3 × 25 × 65535`), LOOP-05 (abort + non-vacuous route disable scoped to the loop's own strobes + named report), LOOP-07's global ceiling under a real drive, and LOOP-08 across an A16 crossing at base `0x00FFFE` on a 32-pin part [firestarter]
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 141-09-PLAN.md — `141-NEW-TRACE.md` (the post-change trace, giving Phase 144 both sides), the cold flash/RAM measurement against `141-PREDICTIONS.md` with the merge05 verdict, `141-LOOP-RECORD.md`'s non-claims and hand-offs to Phases 142/143/144/146, and all eight LOOP requirement flips [meta, firestarter (build/read only)]
 
 ### Phase 142: High-Voltage Routing
 
