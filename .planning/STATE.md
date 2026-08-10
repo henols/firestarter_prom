@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 141
 current_phase_name: Per-Byte Program Loop
 status: executing
-stopped_at: Completed 141-05-PLAN.md
-last_updated: "2026-08-10T20:40:23.225Z"
+stopped_at: Completed 141-06-PLAN.md
+last_updated: "2026-08-10T21:14:47.434Z"
 last_activity: 2026-08-10
 last_activity_desc: "Plan 141-04 complete (eprom_write_execute rewritten as the per-byte pulse-to-verify loop -- LOOP-01/04/05/06/08 implementation; configure_eprom's D-03/D-05 pre-flight refusals; eprom_overprogram_us + eprom_internal_report_budget_failure; erase pulse routed through mem_util_delay_us. Both expected REDs confirmed exactly as predicted: D-13 inventory (3 named test failures, D-11) and native_trace_v131 (stream-length mismatch, D-10). Flash delta measured well above 141-PREDICTIONS.md's point estimate (+422/+422/+336 B vs +30/+30/+18 B predicted, explained in the SUMMARY); RAM delta exactly 0 as predicted), plan 141-05 next"
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 28
-  completed_plans: 24
+  completed_plans: 25
   percent: 38
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 141 (Per-Byte Program Loop) — EXECUTING
-Plan: 6 of 9
+Plan: 7 of 9
 Status: Ready to execute
 Last activity: 2026-08-10 — Plan 141-04 complete (eprom_write_execute rewritten as the per-byte pulse-to-verify loop -- LOOP-01/04/05/06/08 implementation; configure_eprom's D-03/D-05 pre-flight refusals; eprom_overprogram_us + eprom_internal_report_budget_failure; erase pulse routed through mem_util_delay_us. Both expected REDs confirmed exactly as predicted: D-13 inventory (3 named test failures, D-11) and native_trace_v131 (stream-length mismatch, D-10). Flash delta measured well above 141-PREDICTIONS.md's point estimate (+422/+422/+336 B vs +30/+30/+18 B predicted, explained in the SUMMARY); RAM delta exactly 0 as predicted), plan 141-05 next
 
@@ -1846,6 +1846,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 141]: 141-05: meta.allowlist_rationale/decision/requirement/why_two_checks/how_to_update left untouched in the golden -- out of the plan's named 4-category update scope (reason/class, blob_shas, counts+recorded_at_head+recorded_by, frozen_for)
 - [Phase 141]: 141-05: meta.recorded_at_head set to the pre-existing HEAD (3504e50, the 141-04 Task 3 commit) at derivation time, not to this plan's own resulting commit hash -- matches the prior golden's own convention and avoids the self-referential-hash problem
 - [Phase 141]: 141-05: corrected an arithmetic slip in the plan's own D-0B worked example after brute-force verification -- true worst-case accumulated-at-failure under D-03 is 2*49999=99998 us, not the plan's stated 2*50000-1=99999 us; CLAUDE.md's 0x0B row names and corrects this rather than silently propagating it
+- [Phase ?]: [Phase 141 Plan 06]: Renamed two mandated test-function names (test_program_mismatched_bytes_is_absent, test_verify_and_update_mask_is_absent) to descriptive non-colliding names -- the plan's own exact-name requirement and its whole-file verbatim-absence ban on the same substrings were mutually unsatisfiable; needle logic and Coverage order/count unchanged
 
 ## Performance Metrics
 
@@ -2072,11 +2073,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 141 P03 | 30min | 3 tasks | 4 files |
 | Phase 141 P04 | 40min | 3 tasks | 2 files |
 | Phase 141 P05 | 39min | 3 tasks | 3 files |
+| Phase 141 P06 | 30min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-10T20:40:23.201Z
-**Stopped at:** Completed 141-05-PLAN.md
+**Last session:** 2026-08-10T21:14:47.411Z
+**Stopped at:** Completed 141-06-PLAN.md
 **Resume file:** None
 
 ### Blockers
