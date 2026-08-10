@@ -166,15 +166,15 @@ expected work, not a regression.
 
 ### Parameter Table
 
-- [ ] **TABLE-01**: A `const` table keyed by `protocol_id` carries rows for `0x07`, `0x08` and `0x0B`
+- [x] **TABLE-01**: A `const` table keyed by `protocol_id` carries rows for `0x07`, `0x08` and `0x0B`
       with `max_pulses`, `overprogram_factor`, `overprogram_cap_us`, `verify_mode` and `vpp_path`.
-- [ ] **TABLE-02**: The table has **no pulse-width column** — program pulse width is read from
+- [x] **TABLE-02**: The table has **no pulse-width column** — program pulse width is read from
       `handle->pulse_delay` on every write path.
-- [ ] **TABLE-03**: A protocol's constant pulse is consulted **only** when `handle->pulse_delay == 0`,
+- [x] **TABLE-03**: A protocol's constant pulse is consulted **only** when `handle->pulse_delay == 0`,
       and that fallback is exercised by a test rather than asserted.
-- [ ] **TABLE-04**: Every value in every row is cited to a named primary datasheet, or carries an
+- [x] **TABLE-04**: Every value in every row is cited to a named primary datasheet, or carries an
       explicit "no datasheet basis — reasoned from X" note. No unattributed number ships.
-- [ ] **TABLE-05**: No new `chip_database.json` field and no second firmware algorithm selector is
+- [x] **TABLE-05**: No new `chip_database.json` field and no second firmware algorithm selector is
       introduced — `protocol_id` remains the sole dispatch key, verified by a gate rather than by
       inspection.
 
@@ -301,11 +301,11 @@ Deferred. Tracked but not in this roadmap.
 | ISSUE-01 | Phase 139 | Complete |
 | ISSUE-02 | Phase 139 | Complete |
 | ISSUE-03 | Phase 139 | Complete |
-| TABLE-01 | Phase 140 | Pending |
-| TABLE-02 | Phase 140 | Pending |
-| TABLE-03 | Phase 140 | Pending |
-| TABLE-04 | Phase 140 | Pending |
-| TABLE-05 | Phase 140 | Pending |
+| TABLE-01 | Phase 140 | Complete |
+| TABLE-02 | Phase 140 | Complete |
+| TABLE-03 | Phase 140 | Complete |
+| TABLE-04 | Phase 140 | Complete |
+| TABLE-05 | Phase 140 | Complete |
 | LOOP-01 | Phase 141 | Pending |
 | LOOP-02 | Phase 141 | Pending |
 | LOOP-03 | Phase 141 | Pending |
