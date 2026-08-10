@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 140
 current_phase_name: Parameter Table
 status: executing
-stopped_at: Completed 140-01-PLAN.md
-last_updated: "2026-08-10T00:29:47.419Z"
+stopped_at: Completed 140-03-PLAN.md
+last_updated: "2026-08-10T01:00:39.280Z"
 last_activity: 2026-08-10
 last_activity_desc: Phase 140 execution started
 progress:
   total_phases: 8
   completed_phases: 2
   total_plans: 19
-  completed_plans: 13
+  completed_plans: 14
   percent: 25
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 140 (Parameter Table) — EXECUTING
-Plan: 2 of 7
+Plan: 3 of 7
 Status: Ready to execute
 Last activity: 2026-08-10 — Phase 140 execution started
 
@@ -1819,6 +1819,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 139]: [Phase 139 Plan 04]: Placed the C3 safe-delay-helper grounding note (75ms/16383us/9464us) as a dated NOTE appended under gh#15's own Shared implementation helpers paragraph rather than a new top-level section
 - [Phase 139]: [Phase 139 Plan 04]: Amendment carries zero raw github.com/gitlab.com hyperlinks (file:line refs as plain inline code only), trivially satisfying the pinned-permalink requirement and avoiding any accidental /blob/beta/ match
 - [Phase 140]: 140-01: 0x07 overprogram_factor=0 shipped verbatim (locked, operator-decided); eprom_params.cpp registered in PY32F071 CMake FIRESTARTER_COMMON_SOURCES (next to eprom.cpp), not PY32_EXCLUDED — 0x07=0 is the plan's locked value, not RESEARCH.md's superseded 3; the CMake registration was a Rule 3 blocking-issue fix -- the new file has no AVR-specific dependency and every existing src/proms/*.cpp is already a common source
+- [Phase 140-03]: Extended the TABLE-05 DB-half generator-scan gate (test 6) to union an ast walk of tools/build_db.py's chip_entry construction with a key scan of tools/extra_chips.json — an ast walk scoped to chip_entry alone finds only 21 of the golden's required 26 names -- 5 sparse top-level keys (datasheet/provenance/source/verification_note/verification_status) enter via the VAR-05/D-10 extra_chips.json merge, a structurally separate code path (Rule 2 deviation)
+- [Phase 140-03]: tools/extra_chips.json's resolved path is permanently real-tree-only, never environment-overridable (only FIRESTARTER_CHIP_DB_JSON and FIRESTARTER_BUILD_DB_SOURCE are the plan's two documented seams) — prevents a planted FIRESTARTER_BUILD_DB_SOURCE redirect (Run D) from starving the file and producing an unreachable-leg FileNotFoundError instead of the intended RED
+- [Phase 140-03]: check_mypy_watermark.py cannot complete in this devcontainer (exit 2 on an ambient numpy PEP-695 stub) -- confirmed pre-existing and unrelated to this plan's two files, logged to deferred-items.md rather than fixed — reproduced identically with both new files removed; already documented as a devcontainer-only condition since 2026-08-03 in tests/test_check_mypy_watermark.py
 
 ## Performance Metrics
 
@@ -2034,11 +2037,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 139 P03 | 23min | 2 tasks | 1 files |
 | Phase 139 P04 | 19min | 2 tasks | 3 files |
 | Phase 140 P01 | 22min | 3 tasks | 4 files |
+| Phase 140 P03 | 25min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-10T00:29:31.270Z
-**Stopped at:** Completed 140-01-PLAN.md
+**Last session:** 2026-08-10T01:00:39.248Z
+**Stopped at:** Completed 140-03-PLAN.md
 **Resume file:** None
 
 ### Blockers
