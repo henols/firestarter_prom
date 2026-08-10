@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.31
 milestone_name: — 27C Programming-Algorithm Fidelity
-current_phase: 141
-current_phase_name: Per-Byte Program Loop
+current_phase: 142
+current_phase_name: High-Voltage Routing
 status: verifying
 stopped_at: Completed 141-09-PLAN.md
-last_updated: "2026-08-10T23:22:58.891Z"
+last_updated: "2026-08-10T23:53:01.812Z"
 last_activity: 2026-08-10
-last_activity_desc: "Plan 141-09 complete -- Phase 141 CLOSED. Captured the post-change v131 trace (141-NEW-TRACE.md), cold-remeasured flash/RAM against 141-PREDICTIONS.md and recorded the MERGE-05 verdict verbatim (RED on all three AVR targets, +492/+498/+328 B vs a 64/64/0 B band; operator decision made before this plan's dispatch: accept the RED, do not remediate), wrote 141-LOOP-RECORD.md's non-claims and hand-offs (D-13 tier-2 growth correcting D-11's framing, LOOP-03's arithmetic-only proof, the traced hard-fails-the-block chain, the 0xBF one-free-ERROR-slot finding, the 99998us energy-cap correction, the native envs' no-CI-leg obligation), and flipped all eight LOOP-01..08 requirements in a 16-line hand edit. Phase 141 evidence base green except the one expected native_trace_v131 RED (D-10, by design). Phase 142 (High-Voltage Routing) next."
+last_activity_desc: Phase 141 complete, transitioned to Phase 142
 progress:
   total_phases: 8
   completed_phases: 4
@@ -111,10 +111,10 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 ## Current Position
 
-Phase: 141 (Per-Byte Program Loop) — CLOSED, ready for verification
-Plan: 9 of 9 (all complete)
-Status: Phase complete — ready for verification
-Last activity: 2026-08-10 — Plan 141-09 complete: phase close. 141-NEW-TRACE.md (post-change v131 trace) and 141-LOOP-RECORD.md (measured-vs-predicted, MERGE-05 RED recorded verbatim per operator decision, D-13/LOOP-03/hard-fails-the-block/message-ID/energy-cap findings, hand-offs to Phases 142-146) both committed; all eight LOOP-01..08 requirements flipped to Complete in a 16-line hand edit. Next: Phase 142 (High-Voltage Routing).
+Phase: 142 — High-Voltage Routing
+Plan: Not started
+Status: Phase 141 verified (5/5 success criteria, 8/8 LOOP requirements) — ready to discuss/plan Phase 142
+Last activity: 2026-08-10 — Phase 141 complete, transitioned to Phase 142
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
 `checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes
