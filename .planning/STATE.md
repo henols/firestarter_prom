@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 141
 current_phase_name: Per-Byte Program Loop
 status: executing
-stopped_at: Completed 141-01-PLAN.md
-last_updated: "2026-08-10T14:48:46.877Z"
+stopped_at: Completed 141-02-PLAN.md
+last_updated: "2026-08-10T15:11:46.728Z"
 last_activity: 2026-08-10
-last_activity_desc: Plan 141-01 complete (message catalog IDs + tri-repo sync + pre-measurement predictions), plan 141-02 next
+last_activity_desc: Plan 141-02 complete (32-bit-safe split-delay helper wired into the program pulse, preserve-mask comment corrected), plan 141-03 next
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 28
-  completed_plans: 20
+  completed_plans: 21
   percent: 38
 ---
 
@@ -112,9 +112,9 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 141 (Per-Byte Program Loop) — EXECUTING
-Plan: 2 of 9
-Status: Executing Phase 141
-Last activity: 2026-08-10 — Plan 141-01 complete (message catalog IDs + tri-repo sync + pre-measurement predictions), plan 141-02 next
+Plan: 3 of 9
+Status: Ready to execute
+Last activity: 2026-08-10 — Plan 141-02 complete (32-bit-safe split-delay helper wired into the program pulse, preserve-mask comment corrected), plan 141-03 next
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
 `checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes
@@ -1836,6 +1836,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 141]: 141-01 D-04: distinct 0xBD/0xBE IDs for max_pulses vs energy-cap exhaustion (not one ID + reason byte) so the host can disambiguate without a second decode layer
 - [Phase 141]: 141-01: MSG_INFO_RETRIES (0x51) and DBG_PULSE_DELAY_MISMATCH (0x15) left assigned but unreferenced once plan 141-04 lands; wording question handed to Phase 146 / CLOSE-03
 - [Phase 141]: 141-01: committed tri-repo catalog sync before running firmware pytest leg (deviation from the plan's literal verify-chain order) to avoid tripping test_flash_path_record_sync.py's unscoped whole-repo-porcelain-clean precondition
+- [Phase 141 Plan 02]: mem_util_split_delay/mem_util_delay_us added beside mem_util_calculate_* in memory.cpp (C linkage, uint32_t/uint16_t-only signatures) and memory_set_data's pulse rerouted through mem_util_delay_us -- LOOP-07 site 1 of 2 (D-06); erase-pulse site 2 stays plan 141-04's
+- [Phase 141 Plan 02]: Corrected the pins<32 preserve-mask comment's disproven 'share the same CONTROL bit' claim to state the verified, revision-independent mechanism (the preserve mask itself) and hand the DIP32 route choice to Phase 142 -- LOOP-08 groundwork (D-09); comment-only, 0 flash-byte cost confirmed
 
 ## Performance Metrics
 
@@ -2058,11 +2060,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 140 P06 | 13min | 3 tasks | 2 files |
 | Phase 140 P07 | 32min | 3 tasks | 3 files |
 | Phase 141 P01 | 21min | 3 tasks | 6 files |
+| Phase 141 P02 | 20min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-10T14:48:46.842Z
-**Stopped at:** Completed 141-01-PLAN.md
+**Last session:** 2026-08-10T15:11:20.670Z
+**Stopped at:** Completed 141-02-PLAN.md
 **Resume file:** None
 
 ### Blockers
