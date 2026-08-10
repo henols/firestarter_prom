@@ -253,3 +253,18 @@ None — no external service configuration required.
 ---
 *Phase: 141-per-byte-program-loop*
 *Completed: 2026-08-10*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/141-per-byte-program-loop/141-NEW-TRACE.md`
+- FOUND: `.planning/phases/141-per-byte-program-loop/141-LOOP-RECORD.md`
+- FOUND: `.planning/phases/141-per-byte-program-loop/141-09-SUMMARY.md`
+- FOUND: `.planning/REQUIREMENTS.md` (modified, LOOP-01..08 flipped)
+- FOUND: commit `cdc81c22` (Task 1, meta repo)
+- FOUND: commit `be45605a` (Task 2, meta repo)
+- FOUND: commit `cc71d38b` (Task 3, meta repo)
+- FOUND: commit `b5c82fff` (this SUMMARY, meta repo)
+- Re-verified `git -C /workspaces/firestarter status --porcelain` is empty and
+  `git -C /workspaces/firestarter rev-parse --abbrev-ref HEAD` is
+  `gsd/v1.31-27c-programming-algorithm-fidelity` — no file under `firestarter/` was modified by this
+  plan, matching this document's claims.
