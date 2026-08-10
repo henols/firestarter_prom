@@ -4,17 +4,17 @@ milestone: v1.31
 milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 140
 current_phase_name: Parameter Table
-status: executing
-stopped_at: Completed 140-06-PLAN.md
-last_updated: "2026-08-10T02:43:01.407Z"
+status: verifying
+stopped_at: Completed 140-07-PLAN.md (Phase 140 CLOSED)
+last_updated: "2026-08-10T03:18:17.498Z"
 last_activity: 2026-08-10
 last_activity_desc: Completed 140-06-PLAN.md (corrected doc/PROTOCOLS.md and CLAUDE.md 27C write-algorithm claims against the shipped citations, TABLE-04/TABLE-01)
 progress:
   total_phases: 8
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 19
-  completed_plans: 18
-  percent: 25
+  completed_plans: 19
+  percent: 38
 ---
 
 # Project State
@@ -113,7 +113,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 Phase: 140 (Parameter Table) — EXECUTING
 Plan: 7 of 7
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-08-10 — Completed 140-06-PLAN.md (corrected doc/PROTOCOLS.md and CLAUDE.md 27C write-algorithm claims against the shipped citations, TABLE-04/TABLE-01)
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
@@ -1831,6 +1831,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 140-06]: Preserved every §1.4/§1.5 write-algorithm sentence not named for removal (32-pin address-line note, INV-03 cross-link, VPP-pin-varies-by-revision, A13-hardwired) -- correction pass, not a docs refactor
 - [Phase 140-06]: CLAUDE.md 0x0B VPP cell corrected from 12-18V direct to 12-25V direct (ceiling only -- DB carries vpp up to 25V, TI TMS 2516 specifies +25V; floor of 12V was already correct)
 - [Phase 140-06]: Kept exactly one eprom_params_citations.json pointer per corrected section rather than one per sentence -- satisfies the >=4-total/>=1-per-section criterion without diluting prose
+- [Phase 140]: Phase 140 P07: used Edit-tool surgical replacement instead of requirements.mark-complete/roadmap.update-plan-progress for the TABLE-01..05 flips -- both SDK verbs write through platformWriteSync's _normalizeMd pass, which reformats blank-line spacing across the ENTIRE target markdown file on every write, violating this task's explicit enumerated diff scope
+- [Phase 140]: Phase 140 P07: cold post-prediction measurement of all 3 AVR + 4 native envs matched every reconcilable prediction (P1-P4) exactly; P5 (native_params_v131 invisibility to both live gates) recorded as not independently re-triggered per critical hazard #2, not silently marked a match
 
 ## Performance Metrics
 
@@ -2051,11 +2053,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 140 P04 | 20min | 3 tasks | 3 files |
 | Phase 140 P05 | 32min | 3 tasks | 2 files |
 | Phase 140 P06 | 13min | 3 tasks | 2 files |
+| Phase 140 P07 | 32min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-10T02:43:01.371Z
-**Stopped at:** Completed 140-06-PLAN.md
+**Last session:** 2026-08-10T03:18:17.463Z
+**Stopped at:** Completed 140-07-PLAN.md (Phase 140 CLOSED)
 **Resume file:** None
 
 ### Blockers
