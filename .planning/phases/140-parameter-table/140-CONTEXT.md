@@ -62,8 +62,7 @@ VPP/VPE mask rewrite and disable-on-every-exit (Phase 142), `--pulse-us` and hos
   to cite "no datasheet basis" for a column that does nothing); encoding verify VCC (ships a
   knowingly-inert field).
 
-- **D-03: The `pulse_delay == 0` fallback constants STAY in `configure_eprom`'s switch
-  (`eprom.cpp:71-76`) — no pulse number enters the table.** Literal compliance with TABLE-02 ("the
+- **D-03: The `pulse_delay == 0` fallback constants STAY in `configure_eprom`'s switch (`eprom.cpp:71-76`) — no pulse number enters the table.** Literal compliance with TABLE-02 ("the
   table has no pulse-width column") and with milestone D-01 ("the database owns the pulse"). A
   column named `fallback_pulse_us` *is* a pulse-width column on any plain reading, and gh#15's
   correction — posted publicly in Phase 139 — just told the world the table has no pulse column.
@@ -79,8 +78,7 @@ VPP/VPE mask rewrite and disable-on-every-exit (Phase 142), `--pulse-us` and hos
   (`uno328pb`)** against the 64 B MERGE-05 band at the fork base — and materially less at the live
   `beta` tip (F-138-02: 8 B / 2 B). Budget accordingly.
 
-- **D-05: A lookup that finds no row returns NULL and the caller fails closed, with zero hardware
-  side effects.** Matches the firmware's standing fail-closed invariant (`memory.cpp` steps 6a/6b/7,
+- **D-05: A lookup that finds no row returns NULL and the caller fails closed, with zero hardware side effects.** Matches the firmware's standing fail-closed invariant (`memory.cpp` steps 6a/6b/7,
   Phase 64 / v1.20). `configure_eprom` is only reachable with `0x07`/`0x08`/`0x0B` today, but the
   guard survives a future dispatch edit the compiler cannot catch.
   *Rejected:* falling back to the `0x07` row (mirrors today's `default: 1000` but would silently
@@ -166,8 +164,7 @@ VPP/VPE mask rewrite and disable-on-every-exit (Phase 142), `--pulse-us` and hos
   of reporting a surprise. Do **not** force a reference with `__attribute__((used))` — that burns
   scarce Uno-class headroom on code nothing calls.
 
-- **D-11: The TABLE-03 fallback test runs in a FIFTH dedicated native env, on the
-  `native_trace_v131` precedent.** Both pinned envs (`native`, `native_nodevtools`) are asserted at
+- **D-11: The TABLE-03 fallback test runs in a FIFTH dedicated native env, on the `native_trace_v131` precedent.** Both pinned envs (`native`, `native_nodevtools`) are asserted at
   **exactly 141 cases / 17 suites** by the live `scripts/baseline/size_baseline.json`, and
   `check_size_baseline.py`'s default mode is strict byte-identity — adding one case to any of those
   17 suites turns that gate RED. The new env names **only** its own suite in `test_filter`, is never
@@ -209,8 +206,7 @@ VPP/VPE mask rewrite and disable-on-every-exit (Phase 142), `--pulse-us` and hos
   pinning `memory.cpp`'s dispatch chain (upstream of this phase — it would pass unchanged even if
   Phase 140 added a second selector inside `eprom.cpp`).
 
-- **D-14: TABLE-04's citations live in a MACHINE-READABLE SIDECAR, gate-enforced; the C table carries
-  short comments pointing at it.** One entry per `(row, column)` cell — family, representative part,
+- **D-14: TABLE-04's citations live in a MACHINE-READABLE SIDECAR, gate-enforced; the C table carries short comments pointing at it.** One entry per `(row, column)` cell — family, representative part,
   datasheet revision, the D-09 scope clause, or the `"no datasheet basis — reasoned from X"` form. A
   gate asserts the entry set **exactly** covers the table's cells: every value cited, and no citation
   for a value that does not exist. That turns "no unattributed number ships" into an exit code rather
@@ -219,8 +215,7 @@ VPP/VPE mask rewrite and disable-on-every-exit (Phase 142), `--pulse-us` and hos
   what TABLE-05's own wording rejects); a prose markdown doc only (nothing detects a value changing
   without its citation following, which is the drift the whole column set exists to prevent).
 
-- **D-15 (house rule, restated because it binds here): every gate this phase authors must be SEEN TO
-  FAIL on a planted violation before any pass is believed.** Phase 138's Run 1 planted-failure
+- **D-15 (house rule, restated because it binds here): every gate this phase authors must be SEEN TO FAIL on a planted violation before any pass is believed.** Phase 138's Run 1 planted-failure
   discipline is this milestone's standing style. Three specific traps this project has already hit,
   all of which apply to the gates in D-12/D-13/D-14:
   1. `check_permitted_claims.py`'s `_HERE` resolved to the **checker's own** phase directory —

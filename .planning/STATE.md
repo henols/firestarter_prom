@@ -4,11 +4,11 @@ milestone: v1.31
 milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 140
 current_phase_name: Parameter Table
-status: executing
-stopped_at: Phase 140 context gathered
-last_updated: "2026-08-09T21:44:06.129Z"
-last_activity: 2026-08-09
-last_activity_desc: Phase 140 context gathered
+status: Ready to execute
+stopped_at: Phase 140 planned — 7 plans in 4 waves
+last_updated: "2026-08-10T00:00:00.000Z"
+last_activity: 2026-08-10
+last_activity_desc: Phase 140 planned — 7 plans in 4 waves, plan-checker passed
 progress:
   total_phases: 8
   completed_phases: 2
@@ -29,7 +29,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-08 — v1.31 started)
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
 authoritative dispatch key end to end. v1.31 makes that key drive *programming behaviour*, not just
 handler selection — while keeping the pulse width itself a database datum, not a protocol constant.
-**Current focus:** Phase 139 — gh-15-correction-outward
+**Current focus:** Phase 140 — parameter-table (planned, ready to execute)
 
 **v1.31 27C Programming-Algorithm Fidelity (gh#15)** — ACTIVE (activated 2026-08-08, retiring Backlog
 **999.22** which was queued as the `v1.27` slot). **Firmware-touching, dual-repo lockstep.** Phase
