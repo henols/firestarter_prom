@@ -311,7 +311,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2; three plans, disjoint files)*
 
-- [ ] 141-05-PLAN.md — The D-13 inventory golden re-derived by its own scanner (never hand-edited, D-11), the pinned `protocol_lines` literal at `test_protocol_branch_inventory.py:446` updated with the count held at three, and `CLAUDE.md`'s three Algorithm Handlers rows reconciled [firestarter]
+- [x] 141-05-PLAN.md — The D-13 inventory golden re-derived by its own scanner (never hand-edited, D-11), the pinned `protocol_lines` literal at `test_protocol_branch_inventory.py:446` updated with the count held at three, and `CLAUDE.md`'s three Algorithm Handlers rows reconciled [firestarter]
 - [ ] 141-06-PLAN.md — `tests/test_write_path_source_contract_v131.py`: LOOP-02's four absence legs and LOOP-07's positive-count legs, concatenation-built needles, comment-stripped targets, fail-closed non-vacuity guards, nine planted-RED runs [firestarter]
 - [ ] 141-07-PLAN.md — Native proof for LOOP-01 (fixed width, one verify per pulse, exact per-byte counts), LOOP-06 (`0xFF` gets **zero** reads; already-matching gets one) and LOOP-04 (exactly 100/50/250 pulses at 500/1000/200 µs) [firestarter]
 
