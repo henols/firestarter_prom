@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 140
 current_phase_name: Parameter Table
 status: executing
-stopped_at: Completed 140-03-PLAN.md
-last_updated: "2026-08-10T01:00:39.280Z"
+stopped_at: Completed 140-02-PLAN.md
+last_updated: "2026-08-10T01:34:54.579Z"
 last_activity: 2026-08-10
 last_activity_desc: Phase 140 execution started
 progress:
   total_phases: 8
   completed_phases: 2
   total_plans: 19
-  completed_plans: 14
+  completed_plans: 15
   percent: 25
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 140 (Parameter Table) — EXECUTING
-Plan: 3 of 7
+Plan: 4 of 7
 Status: Ready to execute
 Last activity: 2026-08-10 — Phase 140 execution started
 
@@ -1822,6 +1822,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 140-03]: Extended the TABLE-05 DB-half generator-scan gate (test 6) to union an ast walk of tools/build_db.py's chip_entry construction with a key scan of tools/extra_chips.json — an ast walk scoped to chip_entry alone finds only 21 of the golden's required 26 names -- 5 sparse top-level keys (datasheet/provenance/source/verification_note/verification_status) enter via the VAR-05/D-10 extra_chips.json merge, a structurally separate code path (Rule 2 deviation)
 - [Phase 140-03]: tools/extra_chips.json's resolved path is permanently real-tree-only, never environment-overridable (only FIRESTARTER_CHIP_DB_JSON and FIRESTARTER_BUILD_DB_SOURCE are the plan's two documented seams) — prevents a planted FIRESTARTER_BUILD_DB_SOURCE redirect (Run D) from starving the file and producing an unreachable-leg FileNotFoundError instead of the intended RED
 - [Phase 140-03]: check_mypy_watermark.py cannot complete in this devcontainer (exit 2 on an ambient numpy PEP-695 stub) -- confirmed pre-existing and unrelated to this plan's two files, logged to deferred-items.md rather than fixed — reproduced identically with both new files removed; already documented as a devcontainer-only condition since 2026-08-03 in tests/test_check_mypy_watermark.py
+- [Phase 140-02]: Two-tier branch-predicate inventory (D-13): tier-1 protocol-keyed sites (exactly 3, lines 71/145/218) vs tier-2 allowlisted-with-reason sites (21), rather than forbidding a class of branch — Forbidding any branch keyed on a non-protocol handle field would be RED on arrival against ~20 pre-existing sites in eprom.cpp and could never be seen to pass (D-15 trap 2); pinning the full inventory instead makes a NEW site or a changed site fail, while today's state is GREEN and non-vacuous
+- [Phase 140-02]: eprom_params.cpp's params-table scan must comment-strip before counting 'switch' tokens — The file's own docstring uses the word switch twice in prose explaining it contains none; a raw scan would report 2 and fail the gate on arrival for the wrong reason -- measured 2 (raw) vs 0 (comment-stripped) before writing the assertion
 
 ## Performance Metrics
 
@@ -2038,11 +2040,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 139 P04 | 19min | 2 tasks | 3 files |
 | Phase 140 P01 | 22min | 3 tasks | 4 files |
 | Phase 140 P03 | 25min | 3 tasks | 2 files |
+| Phase 140 P02 | 30min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-10T01:00:39.248Z
-**Stopped at:** Completed 140-03-PLAN.md
+**Last session:** 2026-08-10T01:34:54.554Z
+**Stopped at:** Completed 140-02-PLAN.md
 **Resume file:** None
 
 ### Blockers

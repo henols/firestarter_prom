@@ -268,7 +268,7 @@ Requirement ticking is named exhaustively per plan so no plan ticks a multi-plan
 
 - [x] 140-01-PLAN.md — Wave 1: the six-column PROGMEM parameter table (`include/eprom_params.h` + `src/proms/eprom_params.cpp`, no `<Arduino.h>`, NULL-returning linear scan), plus `140-PREDICTIONS.md` committed before any delta is measured
 - [x] 140-03-PLAN.md — Wave 1: the TABLE-05 database half — `chip_database.json`'s field inventory frozen with per-key occurrence counts plus an `ast` scan of the generator, seen RED on 4 planted violations (`firestarter_app/`)
-- [ ] 140-02-PLAN.md — Wave 2: the TABLE-05 firmware half — a two-tier pinned inventory of every handle-field branch predicate in the EPROM path, with the reasoned routing allowlist, seen RED on 3 planted violations
+- [x] 140-02-PLAN.md — Wave 2: the TABLE-05 firmware half — a two-tier pinned inventory of every handle-field branch predicate in the EPROM path, with the reasoned routing allowlist, seen RED on 3 planted violations
 - [ ] 140-04-PLAN.md — Wave 2: `[env:native_params_v131]`, the fifth native env, and the 9-case suite that **exercises** the `pulse_delay == 0` fallback with three negative controls — the only possible oracle for TABLE-03
 - [ ] 140-05-PLAN.md — Wave 2: the TABLE-04 citation sidecar (18 cells, D-09 two-part citations) and its coverage/well-formedness/value-drift gate, seen RED on 5 planted violations
 - [ ] 140-06-PLAN.md — Wave 3: correct `doc/PROTOCOLS.md` §§1.3-1.5 and `CLAUDE.md`'s Algorithm Handlers rows where they contradict the shipped citations, and record the D-11 native-env exception
