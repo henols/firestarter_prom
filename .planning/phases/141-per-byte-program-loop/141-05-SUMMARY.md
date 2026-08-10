@@ -169,3 +169,15 @@ None - no external service configuration required.
 ---
 *Phase: 141-per-byte-program-loop*
 *Completed: 2026-08-10*
+
+## Self-Check: PASSED
+
+- FOUND: `firestarter/tests/golden/protocol_branch_inventory.json`
+- FOUND: `firestarter/tests/test_protocol_branch_inventory.py`
+- FOUND: `firestarter/CLAUDE.md`
+- FOUND: `.planning/phases/141-per-byte-program-loop/141-05-SUMMARY.md`
+- FOUND: commit `876ce35` (Task 1, firestarter submodule)
+- FOUND: commit `86128af` (Task 2, firestarter submodule)
+- FOUND: commit `a0c4e08` (Task 3, firestarter submodule)
+- FOUND: commit `01ab99f9` (meta repo, this SUMMARY)
+- Re-verified `python3 -m pytest tests/ -q -o addopts=""` = 244 passed, and `git status --short` in the firestarter submodule is clean, matching this document's claims.
