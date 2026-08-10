@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.31
 milestone_name: — 27C Programming-Algorithm Fidelity
-current_phase: 140
-current_phase_name: Parameter Table
+current_phase: 141
+current_phase_name: Per-Byte Program Loop
 status: verifying
 stopped_at: Completed 140-07-PLAN.md (Phase 140 CLOSED)
-last_updated: "2026-08-10T03:18:17.498Z"
+last_updated: "2026-08-10T03:39:31.039Z"
 last_activity: 2026-08-10
-last_activity_desc: Completed 140-06-PLAN.md (corrected doc/PROTOCOLS.md and CLAUDE.md 27C write-algorithm claims against the shipped citations, TABLE-04/TABLE-01)
+last_activity_desc: Phase 140 complete, transitioned to Phase 141
 progress:
   total_phases: 8
   completed_phases: 3
@@ -111,10 +111,10 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 ## Current Position
 
-Phase: 140 (Parameter Table) — EXECUTING
-Plan: 7 of 7
+Phase: 141 — Per-Byte Program Loop
+Plan: Not started
 Status: Phase complete — ready for verification
-Last activity: 2026-08-10 — Completed 140-06-PLAN.md (corrected doc/PROTOCOLS.md and CLAUDE.md 27C write-algorithm claims against the shipped citations, TABLE-04/TABLE-01)
+Last activity: 2026-08-10 — Phase 140 complete, transitioned to Phase 141
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
 `checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes
