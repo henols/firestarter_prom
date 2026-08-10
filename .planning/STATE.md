@@ -5,10 +5,10 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 141
 current_phase_name: Per-Byte Program Loop
 status: verifying
-stopped_at: Completed 140-07-PLAN.md (Phase 140 CLOSED)
-last_updated: "2026-08-10T03:39:31.039Z"
+stopped_at: Phase 141 context gathered
+last_updated: "2026-08-10T09:14:27.312Z"
 last_activity: 2026-08-10
-last_activity_desc: Phase 140 complete, transitioned to Phase 141
+last_activity_desc: Phase 141 context gathered, ready for planning
 progress:
   total_phases: 8
   completed_phases: 3
@@ -29,7 +29,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-08 — v1.31 started)
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
 authoritative dispatch key end to end. v1.31 makes that key drive *programming behaviour*, not just
 handler selection — while keeping the pulse width itself a database datum, not a protocol constant.
-**Current focus:** Phase 140 — Parameter Table
+**Current focus:** Phase 141 — Per-Byte Program Loop
 
 **v1.31 27C Programming-Algorithm Fidelity (gh#15)** — ACTIVE (activated 2026-08-08, retiring Backlog
 **999.22** which was queued as the `v1.27` slot). **Firmware-touching, dual-repo lockstep.** Phase
@@ -2057,9 +2057,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-10T03:18:17.463Z
-**Stopped at:** Completed 140-07-PLAN.md (Phase 140 CLOSED)
-**Resume file:** None
+**Last session:** 2026-08-10T09:14:27.286Z
+**Stopped at:** Phase 141 context gathered
+**Resume file:** .planning/phases/141-per-byte-program-loop/141-CONTEXT.md
 
 ### Blockers
 
