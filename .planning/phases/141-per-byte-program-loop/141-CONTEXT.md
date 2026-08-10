@@ -42,8 +42,8 @@ A plan that only *reads* a submodule still names it — a worktree leaves submod
 
 ### `0x0B` energy-cap arithmetic (the discussed area)
 
-- **D-01: When the next full-width pulse would cross the 50 ms cap, the loop EMITS that pulse, then
-  stops.** Overshoot is bounded by exactly one pulse width. Chosen over stop-before-overshoot
+- **D-01:** When the next full-width pulse would cross the 50 ms cap, the loop EMITS that pulse, then
+  stops. Overshoot is bounded by exactly one pulse width. Chosen over stop-before-overshoot
   (which leaves the tail of the budget unused) and over truncating the final pulse (which would emit
   a pulse of a different width than every other pulse and muddy LOOP-01's fixed-width guarantee and
   the golden trace).
@@ -63,8 +63,8 @@ A plan that only *reads* a submodule still names it — a worktree leaves submod
   pulse + 3 µs overhead (makes the expected pulse count depend on a constant buried in `memory.cpp`,
   for ~0.6% of the budget at 500 µs).
 
-- **D-03: A pulse wider than the row's energy cap is REFUSED pre-flight, before any high voltage is
-  enabled.** In `configure_eprom`, when `energy_cap_us > 0 && pulse_delay > energy_cap_us`, fail
+- **D-03:** A pulse wider than the row's energy cap is REFUSED pre-flight, before any high voltage is
+  enabled. In `configure_eprom`, when `energy_cap_us > 0 && pulse_delay > energy_cap_us`, fail
   closed with a named error. Without this, D-01's rule would apply a single up-to-65 ms VPE pulse to
   real silicon and then report a *verify* failure — a misconfiguration wearing a silicon-failure
   costume. This is also the firmware-side backstop for Phase 143's `--pulse-us` bounds, independent
@@ -73,8 +73,8 @@ A plan that only *reads* a submodule still names it — a worktree leaves submod
   a misleading diagnostic); silently clamping the pulse to the cap (a silent substitution — the
   emitted width would no longer match what the user asked for or what the trace claims).
 
-- **D-04: The two budget limits get DISTINCT message IDs — `max_pulses` exhaustion and energy-cap
-  exhaustion are separately named on the wire.** (Phase 140 D-07 requires the error to report which
+- **D-04:** The two budget limits get DISTINCT message IDs — `max_pulses` exhaustion and energy-cap
+  exhaustion are separately named on the wire. (Phase 140 D-07 requires the error to report which
   limit tripped; this decides how.) Authored in **meta's `tools/catalog/messages.toml`**, synced with
   `tools/catalog/sync_to_subrepos.sh` and regenerated in **both** sub-repos so the generated files
   match. Phase 141 stops there — Phase 143's HOST-03 owns turning an ID into a user-facing program
@@ -97,15 +97,15 @@ The operator answered **"[No preference]"** to the four structural gray areas an
 These are **decided here, not deferred** — research and planning must treat them as settled and not
 re-open them with the operator.
 
-- **D-05: The loop reuses `handle->firestarter_set_data` / `handle->firestarter_get_data` as its
-  pulse and verify primitives — no EPROM-local duplicate write path is written.** A duplicate would
+- **D-05:** The loop reuses `handle->firestarter_set_data` / `handle->firestarter_get_data` as its
+  pulse and verify primitives — no EPROM-local duplicate write path is written. A duplicate would
   bypass `mem_util_remap_address_bus` (the per-chip bus config), which is a correctness hazard, and
   would cost more flash than LOOP-02's removals free. Reusing them also keeps Phase 144 / TEST-06's
   trace diff attributable to *cadence* changes rather than to a new primitive emitting different
   register writes.
 
-- **D-06: LOOP-07's safe delay helper is applied at BOTH `delayMicroseconds(handle->pulse_delay)`
-  sites, and it lives beside `mem_util_*` (`memory_utils.h` / `memory.cpp`), not in `eprom.cpp`.**
+- **D-06:** LOOP-07's safe delay helper is applied at BOTH `delayMicroseconds(handle->pulse_delay)`
+  sites, and it lives beside `mem_util_*` (`memory_utils.h` / `memory.cpp`), not in `eprom.cpp`.
   LOOP-07's claim is global ("no call path can reach `delayMicroseconds()` above 16383 µs"), and the
   full site inventory is exactly two: `memory.cpp:257` (`memory_set_data` — the pulse, reached by
   every protocol) and `eprom.cpp:283` (the erase pulse). Every other `delayMicroseconds()` call in
@@ -115,9 +115,9 @@ re-open them with the operator.
   **Structure it as a pure split + the delay calls** so the ms/µs split is unit-testable — native
   stubs record no time, so a test can only assert the arithmetic, never the elapsed duration.
 
-- **D-07: The overprogram pulse is expressed by save/restore of `handle->pulse_delay` around a single
+- **D-07:** The overprogram pulse is expressed by save/restore of `handle->pulse_delay` around a single
   `firestarter_set_data` call — the existing `org_delay` idiom (`eprom.cpp:161,172`), not a new width
-  parameter.** Adding a width argument to the primitive would change every call site's signature
+  parameter. Adding a width argument to the primitive would change every call site's signature
   across every protocol handler — a large diff to serve a path that is unreachable with shipped data
   (see D-08).
 
@@ -133,8 +133,8 @@ re-open them with the operator.
   *Rejected:* a test-only injection seam (`#ifdef`/weak symbol) into the production table — a
   production seam that exists only for tests; shipping it untested (TEST-01 asks for proof).
 
-- **D-09: LOOP-08's DIP32 clause is discharged by an explicit guarded path plus a test — the ROUTE
-  choice stays Phase 142's.** `mem_util_calculate_top_address_register` (`memory.cpp:159-173`) adds
+- **D-09:** LOOP-08's DIP32 clause is discharged by an explicit guarded path plus a test — the ROUTE
+  choice stays Phase 142's. `mem_util_calculate_top_address_register` (`memory.cpp:159-173`) adds
   `CTRL_VPP_VPE_DROP_ENABLE` to the preserved mask **only when `pins < 32`**; on a 32-pin part that
   bit *is* A16 and is driven by the address, so the drop path cannot be held across a block. `0x08`
   is `PROTO_EPROM_32PIN` *and* ships `vpp_path = VPP_PATH_DROP_RESISTOR`, so this is the row where
@@ -163,8 +163,8 @@ re-open them with the operator.
   phase's suite is its *own* verification. Same split as 140-04 vs TEST-01 — record it so Phase 144
   does not double-author.
 
-- **D-11: The D-13 protocol-branch-inventory gate WILL go RED, and must be re-derived by its own
-  scanner — never hand-edited.** `firestarter/tests/test_protocol_branch_inventory.py` +
+- **D-11:** The D-13 protocol-branch-inventory gate WILL go RED, and must be re-derived by its own
+  scanner — never hand-edited. `firestarter/tests/test_protocol_branch_inventory.py` +
   `tests/golden/protocol_branch_inventory.json` pin 3 tier-1 (protocol-keyed) and 21 tier-2
   (handle-field-keyed) predicate sites in `eprom.cpp` (F-140-10 corrected the count from the 3 the
   research pass predicted). Rewriting the write path moves the tier-2 inventory. **Record the
@@ -172,8 +172,8 @@ re-open them with the operator.
   The loop must add **no new tier-1 site**: it reads the table, and D-03's pre-flight refusal is
   keyed on `energy_cap_us`, not on `protocol`.
 
-- **D-12: Phase 141 adds NO chunking and NO progress emission — but must not structurally preclude
-  them.** HOST-01/02 are Phase 143's. Keep the loop shaped so it can later adopt
+- **D-12:** Phase 141 adds NO chunking and NO progress emission — but must not structurally preclude
+  them. HOST-01/02 are Phase 143's. Keep the loop shaped so it can later adopt
   `mem_util_blank_check`'s operation-in-progress + `progress_data` pattern (`memory.cpp:307-341`)
   without another rewrite.
   **Finding to hand forward:** the roadmap calls Phase 143 "independent of 140–142 (different repo)",
