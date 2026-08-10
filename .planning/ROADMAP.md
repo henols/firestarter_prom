@@ -301,7 +301,7 @@ Plans:
 
 **Wave 1** *(three plans, disjoint files)*
 
-- [ ] 141-01-PLAN.md — Three new ERROR-band message IDs authored in meta's canonical catalog (`MSG_ERR_PULSE_TOO_WIDE` 0xAE, `MSG_ERR_MAX_PULSES` 0xBD, `MSG_ERR_ENERGY_CAP` 0xBE per D-03/D-04), synced + regenerated into both sub-repos, plus `141-PREDICTIONS.md` committed before any `eprom.cpp` byte moves [meta, firestarter, firestarter_app]
+- [x] 141-01-PLAN.md — Three new ERROR-band message IDs authored in meta's canonical catalog (`MSG_ERR_PULSE_TOO_WIDE` 0xAE, `MSG_ERR_MAX_PULSES` 0xBD, `MSG_ERR_ENERGY_CAP` 0xBE per D-03/D-04), synced + regenerated into both sub-repos, plus `141-PREDICTIONS.md` committed before any `eprom.cpp` byte moves [meta, firestarter, firestarter_app]
 - [ ] 141-02-PLAN.md — LOOP-07's 32-bit-safe delay helper (`mem_util_delay_us` / `mem_util_split_delay`, ceiling 16383) beside the other `mem_util_*` per D-06, the program pulse rerouted, and the disproven bit-collision comment in `mem_util_calculate_top_address_register` corrected [firestarter]
 - [ ] 141-03-PLAN.md — `[env:native_loop_v131]` (the sixth native env, D-10) plus the suite harness: three recorder layers, a **16-bit-latched-address** read-back model (so a block crossing `0x00FFFF` is representable), logged-id capture, and six loop-independent non-vacuity cases [firestarter]
 

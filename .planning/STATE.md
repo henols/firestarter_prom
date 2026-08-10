@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 141
 current_phase_name: Per-Byte Program Loop
 status: executing
-stopped_at: Phase 141 planned
-last_updated: "2026-08-10T12:43:48.576Z"
+stopped_at: Completed 141-01-PLAN.md
+last_updated: "2026-08-10T14:48:46.877Z"
 last_activity: 2026-08-10
-last_activity_desc: Phase 141 planned — 9 plans in 5 waves, ready to execute
+last_activity_desc: Plan 141-01 complete (message catalog IDs + tri-repo sync + pre-measurement predictions), plan 141-02 next
 progress:
   total_phases: 8
   completed_phases: 3
-  total_plans: 19
-  completed_plans: 19
+  total_plans: 28
+  completed_plans: 20
   percent: 38
 ---
 
@@ -111,10 +111,10 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 ## Current Position
 
-Phase: 141 — Per-Byte Program Loop
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-08-10 — Phase 140 complete, transitioned to Phase 141
+Phase: 141 (Per-Byte Program Loop) — EXECUTING
+Plan: 2 of 9
+Status: Executing Phase 141
+Last activity: 2026-08-10 — Plan 141-01 complete (message catalog IDs + tri-repo sync + pre-measurement predictions), plan 141-02 next
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
 `checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes
@@ -1833,6 +1833,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 140-06]: Kept exactly one eprom_params_citations.json pointer per corrected section rather than one per sentence -- satisfies the >=4-total/>=1-per-section criterion without diluting prose
 - [Phase 140]: Phase 140 P07: used Edit-tool surgical replacement instead of requirements.mark-complete/roadmap.update-plan-progress for the TABLE-01..05 flips -- both SDK verbs write through platformWriteSync's _normalizeMd pass, which reformats blank-line spacing across the ENTIRE target markdown file on every write, violating this task's explicit enumerated diff scope
 - [Phase 140]: Phase 140 P07: cold post-prediction measurement of all 3 AVR + 4 native envs matched every reconcilable prediction (P1-P4) exactly; P5 (native_params_v131 invisibility to both live gates) recorded as not independently re-triggered per critical hazard #2, not silently marked a match
+- [Phase 141]: 141-01 D-04: distinct 0xBD/0xBE IDs for max_pulses vs energy-cap exhaustion (not one ID + reason byte) so the host can disambiguate without a second decode layer
+- [Phase 141]: 141-01: MSG_INFO_RETRIES (0x51) and DBG_PULSE_DELAY_MISMATCH (0x15) left assigned but unreferenced once plan 141-04 lands; wording question handed to Phase 146 / CLOSE-03
+- [Phase 141]: 141-01: committed tri-repo catalog sync before running firmware pytest leg (deviation from the plan's literal verify-chain order) to avoid tripping test_flash_path_record_sync.py's unscoped whole-repo-porcelain-clean precondition
 
 ## Performance Metrics
 
@@ -2054,12 +2057,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 140 P05 | 32min | 3 tasks | 2 files |
 | Phase 140 P06 | 13min | 3 tasks | 2 files |
 | Phase 140 P07 | 32min | 3 tasks | 3 files |
+| Phase 141 P01 | 21min | 3 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-08-10T09:14:27.286Z
-**Stopped at:** Phase 141 context gathered
-**Resume file:** .planning/phases/141-per-byte-program-loop/141-CONTEXT.md
+**Last session:** 2026-08-10T14:48:46.842Z
+**Stopped at:** Completed 141-01-PLAN.md
+**Resume file:** None
 
 ### Blockers
 

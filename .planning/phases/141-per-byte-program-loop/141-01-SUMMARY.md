@@ -136,3 +136,7 @@ None - no external service configuration required.
 ---
 *Phase: 141-per-byte-program-loop*
 *Completed: 2026-08-10*
+
+## Self-Check: PASSED
+
+All 7 claimed files found on disk (`141-PREDICTIONS.md`, `141-01-SUMMARY.md`, `tools/catalog/messages.toml` in all three repos, `firestarter/include/messages.h`, `firestarter_app/firestarter/messages.py`). All 5 claimed commit hashes found in their respective repos' history (`ca544b42`, `4c5d9172`, `743dc3f4` in meta; `cfe079b` in firestarter; `924f943` in firestarter_app).
