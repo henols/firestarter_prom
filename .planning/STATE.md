@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 140
 current_phase_name: Parameter Table
 status: executing
-stopped_at: Completed 140-02-PLAN.md
-last_updated: "2026-08-10T01:34:54.579Z"
+stopped_at: Completed 140-04-PLAN.md
+last_updated: "2026-08-10T01:58:11.657Z"
 last_activity: 2026-08-10
-last_activity_desc: Phase 140 execution started
+last_activity_desc: Completed 140-04-PLAN.md (native parameter-table test suite, TABLE-03/TABLE-01)
 progress:
   total_phases: 8
   completed_phases: 2
   total_plans: 19
-  completed_plans: 15
+  completed_plans: 16
   percent: 25
 ---
 
@@ -112,9 +112,9 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 140 (Parameter Table) — EXECUTING
-Plan: 4 of 7
+Plan: 5 of 7
 Status: Ready to execute
-Last activity: 2026-08-10 — Phase 140 execution started
+Last activity: 2026-08-10 — Completed 140-04-PLAN.md (native parameter-table test suite, TABLE-03/TABLE-01)
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
 `checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes
@@ -1824,6 +1824,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 140-03]: check_mypy_watermark.py cannot complete in this devcontainer (exit 2 on an ambient numpy PEP-695 stub) -- confirmed pre-existing and unrelated to this plan's two files, logged to deferred-items.md rather than fixed — reproduced identically with both new files removed; already documented as a devcontainer-only condition since 2026-08-03 in tests/test_check_mypy_watermark.py
 - [Phase 140-02]: Two-tier branch-predicate inventory (D-13): tier-1 protocol-keyed sites (exactly 3, lines 71/145/218) vs tier-2 allowlisted-with-reason sites (21), rather than forbidding a class of branch — Forbidding any branch keyed on a non-protocol handle field would be RED on arrival against ~20 pre-existing sites in eprom.cpp and could never be seen to pass (D-15 trap 2); pinning the full inventory instead makes a NEW site or a changed site fail, while today's state is GREEN and non-vacuous
 - [Phase 140-02]: eprom_params.cpp's params-table scan must comment-strip before counting 'switch' tokens — The file's own docstring uses the word switch twice in prose explaining it contains none; a raw scan would report 2 and fail the gate on arrival for the wrong reason -- measured 2 (raw) vs 0 (comment-stripped) before writing the assertion
+- [Phase 140 Plan 04]: native_params_v131 is a fifth PlatformIO env structurally copied from native_trace_v131 (D-11) -- test_filter names only its own suite, excluded from default_envs and from both baseline scripts by name, and runs in no CI leg of either repository (F-140-11)
+- [Phase 140 Plan 04]: host_stubs.cpp banner reworded to avoid the literal HOST_STUBS_ substring and the src/proms glob pattern from the copied test_not_implemented precedent, keeping the negative-grep verification meaningful and avoiding the -Wcomment trap 140-01 already found once
+- [Phase 140 Plan 04]: test suite mocks delay/delayMicroseconds with AlwaysReturn (test_cmd_admission idiom) rather than test_trace_eprom_v131 AlwaysDo recorder lambda, since configure_memory/configure_eprom never call either function on this code path
 
 ## Performance Metrics
 
@@ -2041,11 +2044,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 140 P01 | 22min | 3 tasks | 4 files |
 | Phase 140 P03 | 25min | 3 tasks | 2 files |
 | Phase 140 P02 | 30min | 3 tasks | 2 files |
+| Phase 140 P04 | 20min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-10T01:34:54.554Z
-**Stopped at:** Completed 140-02-PLAN.md
+**Last session:** 2026-08-10T01:58:11.616Z
+**Stopped at:** Completed 140-04-PLAN.md
 **Resume file:** None
 
 ### Blockers
