@@ -317,7 +317,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3)*
 
-- [ ] 141-08-PLAN.md — Native proof for LOOP-03 (pure-function boundaries incl. `3 × 25 × 65535`), LOOP-05 (abort + non-vacuous route disable scoped to the loop's own strobes + named report), LOOP-07's global ceiling under a real drive, and LOOP-08 across an A16 crossing at base `0x00FFFE` on a 32-pin part [firestarter]
+- [x] 141-08-PLAN.md — Native proof for LOOP-03 (pure-function boundaries incl. `3 × 25 × 65535`), LOOP-05 (abort + non-vacuous route disable scoped to the loop's own strobes + named report), LOOP-07's global ceiling under a real drive, and LOOP-08 across an A16 crossing at base `0x00FFFE` on a 32-pin part [firestarter]
 
 **Wave 5** *(blocked on Wave 4)*
 

@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 141
 current_phase_name: Per-Byte Program Loop
 status: executing
-stopped_at: Completed 141-07-PLAN.md
-last_updated: "2026-08-10T22:02:46.820Z"
+stopped_at: Completed 141-08-PLAN.md
+last_updated: "2026-08-10T22:44:44.194Z"
 last_activity: 2026-08-10
 last_activity_desc: "Plan 141-04 complete (eprom_write_execute rewritten as the per-byte pulse-to-verify loop -- LOOP-01/04/05/06/08 implementation; configure_eprom's D-03/D-05 pre-flight refusals; eprom_overprogram_us + eprom_internal_report_budget_failure; erase pulse routed through mem_util_delay_us. Both expected REDs confirmed exactly as predicted: D-13 inventory (3 named test failures, D-11) and native_trace_v131 (stream-length mismatch, D-10). Flash delta measured well above 141-PREDICTIONS.md's point estimate (+422/+422/+336 B vs +30/+30/+18 B predicted, explained in the SUMMARY); RAM delta exactly 0 as predicted), plan 141-05 next"
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 28
-  completed_plans: 26
+  completed_plans: 27
   percent: 38
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 141 (Per-Byte Program Loop) — EXECUTING
-Plan: 8 of 9
+Plan: 9 of 9
 Status: Ready to execute
 Last activity: 2026-08-10 — Plan 141-04 complete (eprom_write_execute rewritten as the per-byte pulse-to-verify loop -- LOOP-01/04/05/06/08 implementation; configure_eprom's D-03/D-05 pre-flight refusals; eprom_overprogram_us + eprom_internal_report_budget_failure; erase pulse routed through mem_util_delay_us. Both expected REDs confirmed exactly as predicted: D-13 inventory (3 named test failures, D-11) and native_trace_v131 (stream-length mismatch, D-10). Flash delta measured well above 141-PREDICTIONS.md's point estimate (+422/+422/+336 B vs +30/+30/+18 B predicted, explained in the SUMMARY); RAM delta exactly 0 as predicted), plan 141-05 next
 
@@ -1849,6 +1849,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: [Phase 141 Plan 06]: Renamed two mandated test-function names (test_program_mismatched_bytes_is_absent, test_verify_and_update_mask_is_absent) to descriptive non-colliding names -- the plan's own exact-name requirement and its whole-file verbatim-absence ban on the same substrings were mutually unsatisfiable; needle logic and Coverage order/count unchanged
 - [Phase 141]: 141-07: LOOP-06 skip-rule cases drive protocol 0x0B (not 0x07) because 0x07's unconditional final verify pass would contradict the plan's own literal read-count acceptance numbers — 0x07 ships VERIFY_PER_PULSE_PLUS_FINAL; only 0x0B's VERIFY_PER_PULSE leaves the per-byte loop's skip behaviour directly observable without +1 contamination from the final pass
 - [Phase 141]: 141-07: STROBE_KIND_DATA raw counts are unsound pulse-count oracles -- register-shift writes (LSB/MSB/CONTROL latches) share the identical strobe kind/pin shape as a genuine chip-data pulse — rurp_internal_write_to_register shifts every non-elided register write through the same rurp_write_data_buffer() call memory_set_data uses for a pulse; the fix is filtering by strobe VALUE (the byte programmed), not by raw count -- a 0-pulse baseline delta also failed for 0x08 since its rw_line makes that noise scale with pulse count
+- [Phase 141]: LOOP-08 DIP32 cases override hardware-revision to REVISION_2_2 to avoid the REV0/1 physical-bit collision between CTRL_ADDRESS_LINE_16 and CTRL_VPP_VPE_DROP_ENABLE — 141-08
+- [Phase 141]: LOOP-08's route-presence-not-vacuous negative control drives mem_util_blank_check by setting handle.cmd before configure_memory, since setting firestarter_operation_main directly is silently overwritten — 141-08
 
 ## Performance Metrics
 
@@ -2077,11 +2079,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 141 P05 | 39min | 3 tasks | 3 files |
 | Phase 141 P06 | 30min | 2 tasks | 1 files |
 | Phase 141 P07 | 100min | 3 tasks | 1 files |
+| Phase 141 P08 | 130min | 3 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-10T22:02:46.786Z
-**Stopped at:** Completed 141-07-PLAN.md
+**Last session:** 2026-08-10T22:44:44.145Z
+**Stopped at:** Completed 141-08-PLAN.md
 **Resume file:** None
 
 ### Blockers
