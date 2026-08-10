@@ -4,17 +4,17 @@ milestone: v1.31
 milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 141
 current_phase_name: Per-Byte Program Loop
-status: executing
-stopped_at: Completed 141-08-PLAN.md
-last_updated: "2026-08-10T22:44:44.194Z"
+status: verifying
+stopped_at: Completed 141-09-PLAN.md
+last_updated: "2026-08-10T23:22:58.891Z"
 last_activity: 2026-08-10
-last_activity_desc: "Plan 141-04 complete (eprom_write_execute rewritten as the per-byte pulse-to-verify loop -- LOOP-01/04/05/06/08 implementation; configure_eprom's D-03/D-05 pre-flight refusals; eprom_overprogram_us + eprom_internal_report_budget_failure; erase pulse routed through mem_util_delay_us. Both expected REDs confirmed exactly as predicted: D-13 inventory (3 named test failures, D-11) and native_trace_v131 (stream-length mismatch, D-10). Flash delta measured well above 141-PREDICTIONS.md's point estimate (+422/+422/+336 B vs +30/+30/+18 B predicted, explained in the SUMMARY); RAM delta exactly 0 as predicted), plan 141-05 next"
+last_activity_desc: "Plan 141-09 complete -- Phase 141 CLOSED. Captured the post-change v131 trace (141-NEW-TRACE.md), cold-remeasured flash/RAM against 141-PREDICTIONS.md and recorded the MERGE-05 verdict verbatim (RED on all three AVR targets, +492/+498/+328 B vs a 64/64/0 B band; operator decision made before this plan's dispatch: accept the RED, do not remediate), wrote 141-LOOP-RECORD.md's non-claims and hand-offs (D-13 tier-2 growth correcting D-11's framing, LOOP-03's arithmetic-only proof, the traced hard-fails-the-block chain, the 0xBF one-free-ERROR-slot finding, the 99998us energy-cap correction, the native envs' no-CI-leg obligation), and flipped all eight LOOP-01..08 requirements in a 16-line hand edit. Phase 141 evidence base green except the one expected native_trace_v131 RED (D-10, by design). Phase 142 (High-Voltage Routing) next."
 progress:
   total_phases: 8
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 28
-  completed_plans: 27
-  percent: 38
+  completed_plans: 28
+  percent: 50
 ---
 
 # Project State
@@ -111,10 +111,10 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 ## Current Position
 
-Phase: 141 (Per-Byte Program Loop) — EXECUTING
-Plan: 9 of 9
-Status: Ready to execute
-Last activity: 2026-08-10 — Plan 141-04 complete (eprom_write_execute rewritten as the per-byte pulse-to-verify loop -- LOOP-01/04/05/06/08 implementation; configure_eprom's D-03/D-05 pre-flight refusals; eprom_overprogram_us + eprom_internal_report_budget_failure; erase pulse routed through mem_util_delay_us. Both expected REDs confirmed exactly as predicted: D-13 inventory (3 named test failures, D-11) and native_trace_v131 (stream-length mismatch, D-10). Flash delta measured well above 141-PREDICTIONS.md's point estimate (+422/+422/+336 B vs +30/+30/+18 B predicted, explained in the SUMMARY); RAM delta exactly 0 as predicted), plan 141-05 next
+Phase: 141 (Per-Byte Program Loop) — CLOSED, ready for verification
+Plan: 9 of 9 (all complete)
+Status: Phase complete — ready for verification
+Last activity: 2026-08-10 — Plan 141-09 complete: phase close. 141-NEW-TRACE.md (post-change v131 trace) and 141-LOOP-RECORD.md (measured-vs-predicted, MERGE-05 RED recorded verbatim per operator decision, D-13/LOOP-03/hard-fails-the-block/message-ID/energy-cap findings, hand-offs to Phases 142-146) both committed; all eight LOOP-01..08 requirements flipped to Complete in a 16-line hand edit. Next: Phase 142 (High-Voltage Routing).
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
 `checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes
@@ -1851,6 +1851,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 141]: 141-07: STROBE_KIND_DATA raw counts are unsound pulse-count oracles -- register-shift writes (LSB/MSB/CONTROL latches) share the identical strobe kind/pin shape as a genuine chip-data pulse — rurp_internal_write_to_register shifts every non-elided register write through the same rurp_write_data_buffer() call memory_set_data uses for a pulse; the fix is filtering by strobe VALUE (the byte programmed), not by raw count -- a 0-pulse baseline delta also failed for 0x08 since its rw_line makes that noise scale with pulse count
 - [Phase 141]: LOOP-08 DIP32 cases override hardware-revision to REVISION_2_2 to avoid the REV0/1 physical-bit collision between CTRL_ADDRESS_LINE_16 and CTRL_VPP_VPE_DROP_ENABLE — 141-08
 - [Phase 141]: LOOP-08's route-presence-not-vacuous negative control drives mem_util_blank_check by setting handle.cmd before configure_memory, since setting firestarter_operation_main directly is silently overwritten — 141-08
+- [Phase 141]: MERGE-05 flash-band policy is RED and stays RED (operator decision, recorded before plan dispatch); no reduction ladder attempted
+- [Phase 141]: D-11's 'record the shrinkage' framing corrected: D-13 tier-2 grew 21->24, tier-1 held at exactly 3 (the actual invariant)
+- [Phase 141]: 141-09's own must_have wording corrected against measured reality: native_trace_v131's determinism leg is structurally unreachable, not 'still passing'
 
 ## Performance Metrics
 
@@ -2080,11 +2083,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 141 P06 | 30min | 2 tasks | 1 files |
 | Phase 141 P07 | 100min | 3 tasks | 1 files |
 | Phase 141 P08 | 130min | 3 tasks | 1 files |
+| Phase 141 P09 | 2h | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-10T22:44:44.145Z
-**Stopped at:** Completed 141-08-PLAN.md
+**Last session:** 2026-08-10T23:22:02.404Z
+**Stopped at:** Completed 141-09-PLAN.md
 **Resume file:** None
 
 ### Blockers

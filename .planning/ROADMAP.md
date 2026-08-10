@@ -175,7 +175,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 - [x] **Phase 138: Preconditions & Baseline** — verified branch bases in all 3 repos (PREP-01/02, operator PR-merge gate), a pre-change golden-trace/flash-RAM/suite-count baseline captured before any `eprom.cpp` edit (PREP-03), and the live per-protocol pulse-width distribution re-derived as evidence (PREP-04). (PREP-01, PREP-02, PREP-03, PREP-04) (completed 2026-08-09)
 - [x] **Phase 139: gh#15 Correction (outward)** — draft, freeze, get operator wording approval on, and (only on explicit authorization) post the C1/C2/C3 + 6.25 V-ceiling correction to gh#15, before any implementation phase lands code. (ISSUE-01, ISSUE-02, ISSUE-03) (completed 2026-08-09)
 - [x] **Phase 140: Parameter Table** — a `const` `protocol_id`-keyed table carrying shape columns only (`max_pulses`, `overprogram_factor`, `overprogram_cap_us`, `verify_mode`, `vpp_path`), datasheet-cited or explicitly reasoned per value, with `protocol_id` remaining the sole dispatch key. (TABLE-01, TABLE-02, TABLE-03, TABLE-04, TABLE-05) (completed 2026-08-10)
-- [ ] **Phase 141: Per-Byte Program Loop** — replace the block mismatch-mask loop with fixed-width pulse→verify per byte, overprogram/energy-cap rules from the table, hard-fail-on-max-pulses with address+count reporting, skip logic, the safe delay helper, and VPE held per block. (LOOP-01, LOOP-02, LOOP-03, LOOP-04, LOOP-05, LOOP-06, LOOP-07, LOOP-08)
+- [x] **Phase 141: Per-Byte Program Loop** — replace the block mismatch-mask loop with fixed-width pulse→verify per byte, overprogram/energy-cap rules from the table, hard-fail-on-max-pulses with address+count reporting, skip logic, the safe delay helper, and VPE held per block. (LOOP-01, LOOP-02, LOOP-03, LOOP-04, LOOP-05, LOOP-06, LOOP-07, LOOP-08) (completed 2026-08-10)
 - [ ] **Phase 142: High-Voltage Routing** — protocol-correct VPP/VPE path selection from the table, one shared routing-mask set, disable-every-route on every write-path exit, and the existing over-voltage refusal re-verified intact. (VPP-01, VPP-02, VPP-03, VPP-04)
 - [ ] **Phase 143: Host Timeout, Progress & Pulse Override** — long blocks survive the host's response timeout with visible progress, max-pulse failures surface as named program failures rather than transport errors, and `--pulse-us` ships bounded and pre-validated. (HOST-01, HOST-02, HOST-03, HOST-04, HOST-05)
 - [ ] **Phase 144: Tests & Build Verification** — native tests for table resolution/fixed-pulse/overprogram/max-pulse-abort/skip-and-fallback, the deliberate frozen-vs-new golden-trace diff, green builds across all firmware targets plus the host suite and CI-scoped lint/type gates with cross-repo constants parity, and flash/RAM delta measured against the PREP-03 baseline. (TEST-01, TEST-02, TEST-03, TEST-04, TEST-05, TEST-06, TEST-07, TEST-08)
@@ -321,7 +321,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4)*
 
-- [ ] 141-09-PLAN.md — `141-NEW-TRACE.md` (the post-change trace, giving Phase 144 both sides), the cold flash/RAM measurement against `141-PREDICTIONS.md` with the merge05 verdict, `141-LOOP-RECORD.md`'s non-claims and hand-offs to Phases 142/143/144/146, and all eight LOOP requirement flips [meta, firestarter (build/read only)]
+- [x] 141-09-PLAN.md — `141-NEW-TRACE.md` (the post-change trace, giving Phase 144 both sides), the cold flash/RAM measurement against `141-PREDICTIONS.md` with the merge05 verdict, `141-LOOP-RECORD.md`'s non-claims and hand-offs to Phases 142/143/144/146, and all eight LOOP requirement flips [meta, firestarter (build/read only)]
 
 ### Phase 142: High-Voltage Routing
 
@@ -411,14 +411,14 @@ Plans:
 | TABLE-03 | Phase 140 | Complete |
 | TABLE-04 | Phase 140 | Complete |
 | TABLE-05 | Phase 140 | Complete |
-| LOOP-01 | Phase 141 | Pending |
-| LOOP-02 | Phase 141 | Pending |
-| LOOP-03 | Phase 141 | Pending |
-| LOOP-04 | Phase 141 | Pending |
-| LOOP-05 | Phase 141 | Pending |
-| LOOP-06 | Phase 141 | Pending |
-| LOOP-07 | Phase 141 | Pending |
-| LOOP-08 | Phase 141 | Pending |
+| LOOP-01 | Phase 141 | Complete |
+| LOOP-02 | Phase 141 | Complete |
+| LOOP-03 | Phase 141 | Complete |
+| LOOP-04 | Phase 141 | Complete |
+| LOOP-05 | Phase 141 | Complete |
+| LOOP-06 | Phase 141 | Complete |
+| LOOP-07 | Phase 141 | Complete |
+| LOOP-08 | Phase 141 | Complete |
 | VPP-01 | Phase 142 | Pending |
 | VPP-02 | Phase 142 | Pending |
 | VPP-03 | Phase 142 | Pending |
