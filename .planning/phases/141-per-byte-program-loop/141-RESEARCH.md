@@ -2003,9 +2003,14 @@ resolvable inside the phase by a plan decision or an early verification step, no
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-### 1. `verify_mode` has no decision (the only genuine gap)
+**All four items below are RESOLVED inside this phase's plan set — none escalates to the operator.**
+Each item carries a `RESOLVED:` bullet naming the plan that discharges it. No recommendation's
+substance changed; the markers were added during plan revision so the resolution is machine-legible
+rather than implied by a `**Recommendation:**` bullet.
+
+### 1. `verify_mode` has no decision (RESOLVED — the only genuine gap)
 - **What we know:** `0x07`/`0x08` ship `VERIFY_PER_PULSE_PLUS_FINAL`, `0x0B` ships `VERIFY_PER_PULSE`
   (`eprom_params.cpp:50-52`), and `firestarter/CLAUDE.md`'s Algorithm Handlers rows already describe the
   resulting behaviour ("+ 1 final full-array pass" vs "no final full-array pass"). The pre-change block
@@ -2018,8 +2023,13 @@ resolvable inside the phase by a plan decision or an early verification step, no
   consumer, and is funded by `verify_and_update_mask`'s removal. Whatever is chosen, **record it in the
   phase record and reconcile `CLAUDE.md`'s three rows in the same change**. Do not escalate to the
   operator — this is inside "the loop's exact function decomposition" that D-12's last bullet delegates.
+- **RESOLVED:** carried into plan **141-04**, which consumes the column — one final full-block
+  read-and-compare pass on the two `VERIFY_PER_PULSE_PLUS_FINAL` rows and none on `0x0B`. Proven by
+  plan **141-07**'s `test_loop04_0x0B_runs_no_final_full_block_verify_pass`, with `CLAUDE.md`'s three
+  Algorithm Handlers rows reconciled in plan **141-05** and the disposition recorded in plan
+  **141-09**'s phase record.
 
-### 2. Which byte's pulse count is reported when a block has many failures
+### 2. Which byte's pulse count is reported when a block has many failures (RESOLVED)
 - **What we know:** LOOP-05 says "the failing address plus its pulse count are reported" (singular), and
   the loop aborts on the first byte that exhausts its budget, so there is only ever one.
 - **What's unclear:** nothing behaviourally — but the old `MSG_ERR_WRITE_FAILED` payload carried a
@@ -2028,8 +2038,12 @@ resolvable inside the phase by a plan decision or an early verification step, no
 - **Recommendation:** report exactly `(address, pulse_count)` and let the block-level count die with the
   block-level loop. Name in the phase record that `MSG_ERR_WRITE_FAILED 0xB1`'s three-param shape is now
   emitted by nothing on the 27C path, so Phase 143 knows not to expect it.
+- **RESOLVED:** carried into plan **141-04**'s single `eprom_internal_report_budget_failure`, which
+  emits exactly `(address, pulse_count)` for both budget limits; plan **141-09** task 3 records
+  `MSG_ERR_WRITE_FAILED 0xB1`'s three-param shape as emitted by nothing on the 27C path, for
+  **Phase 143 / HOST-03**.
 
-### 3. Whether `native_trace_v131`'s determinism leg also fails
+### 3. Whether `native_trace_v131`'s determinism leg also fails (RESOLVED)
 - **What we know:** `assert_v131_protocol_case` drives the block **twice** and asserts positional
   identity between the two runs (`test_trace_eprom_v131.cpp:311-321`). The read-back model's
   `read_count` is reset by `trace_readback_reset()` inside `drive_v131_write`, so the second run should
@@ -2040,8 +2054,12 @@ resolvable inside the phase by a plan decision or an early verification step, no
   If determinism also fails, that is worth investigating rather than accepting as part of D-10's RED —
   a non-reproducible new cadence would poison Phase 144's diff. Check it explicitly when the RED is
   captured.
+- **RESOLVED:** carried into plan **141-04**'s expected-RED statement (assumption A7) and discharged by
+  plan **141-09** task 1, whose acceptance criteria require recording that the determinism assertion
+  still **passes** and that the sole failure is `v131_assert_stream_equals` with its first divergent
+  index named — plus an explicit STOP-and-report if determinism fails too.
 
-### 4. Whether `MSG_INFO_RETRIES` / `DBG_PULSE_DELAY_MISMATCH` should be retired
+### 4. Whether `MSG_INFO_RETRIES` / `DBG_PULSE_DELAY_MISMATCH` should be retired (RESOLVED)
 - **What we know:** both become caller-less; no orphan gate exists; a wording-only catalog change
   produces a zero-byte firmware diff.
 - **What's unclear:** whether the operator wants the debug id's now-false wording ("retrying with
@@ -2049,6 +2067,10 @@ resolvable inside the phase by a plan decision or an early verification step, no
 - **Recommendation:** leave both IDs assigned, state their unreferenced status in the phase record, and
   hand the wording question to Phase 146 / CLOSE-03 with the other doc reconciliations. Deleting an id
   risks later reuse confusion for zero behavioural gain.
+- **RESOLVED:** carried into plan **141-01** task 1, which states "do NOT touch `MSG_INFO_RETRIES 0x51`
+  or the debug entry `DBG_PULSE_DELAY_MISMATCH 0x15`" and leaves both IDs assigned and unedited, and
+  into plan **141-09** task 3, which records their unreferenced status and hands the wording question
+  to **Phase 146 / CLOSE-03**.
 
 ---
 
