@@ -43,15 +43,32 @@
 stays vacant and is not reused) · **Firmware-touching, dual-repo lockstep** (`firestarter` +
 `firestarter_app`).
 
-**Current state (2026-08-09):** Phase 138 (Preconditions & Baseline) complete and verified 4/4 —
-PREP-01…PREP-04 all discharged. All three repos sit on the branch
-`gsd/v1.31-27c-programming-algorithm-fidelity` off verified bases (firmware `3085084`, app `4d18b64`,
-meta `d0f0c6a0`), pushed, with CI green on each pushed SHA. The pre-change baseline is frozen and citable
-in `.planning/phases/138-preconditions-baseline/138-BASELINE.md`: golden merged strobe+timing traces for
-`0x07`/`0x08`/`0x0B`, cold per-target flash/RAM, all four native suite counts, the host suite count, and
-the live pulse-width distribution — captured **before** any `eprom.cpp` edit, which `git diff` confirms
-has not been touched. Eleven findings (F-138-01…F-138-11) are recorded with owners and explicit
-not-fixed-here dispositions. Next: Phase 139 — gh#15 Correction (outward).
+**Current state (2026-08-10):** Phases 138–141 complete and verified. **Phase 141 (Per-Byte Program
+Loop) CLOSED — 9 plans in 5 waves, verified 5/5 success criteria, LOOP-01…LOOP-08 all Complete.** The
+milestone's central change has landed: `eprom_write_execute` is now a per-byte fixed-width pulse→verify
+loop, and `program_mismatched_bytes()`, `verify_and_update_mask()`, `NUMBER_OF_RETRIES` and the adaptive
+`pulse_delay = org + org*retries/20` growth are **gone from the write path** (grep-verified absent across
+`src/` and `include/`). `delayMicroseconds` no longer appears in `eprom.cpp` at all — both former
+over-ceiling sites route through the new 32-bit-safe `mem_util_delay_us`. Evidence: `native_loop_v131`
+(the sixth native env) 39/39, firmware pytest 256, both pinned native envs 141/17, host suite 1547, all
+three AVR targets building.
+
+**Two disclosed limits, recorded rather than smoothed** (see `141-LOOP-RECORD.md`): (1) the **MERGE-05
+flash-band policy is RED** on all three AVR targets — uno +492 B, uno328pb +498 B, leonardo +328 B against
+a 64/64/0 B band — accepted by explicit operator decision as finding **F-141-01**, not remediated. RAM is
+exactly unchanged. Roughly +204 B of the overrun is Phase 140's parameter table finally linking now that
+`eprom_params_for` has its first `src/` caller; the 64 B band was set in Phase 123/124, before that table
+existed. Leonardo now sits at **92.1%** flash (2272 B headroom) — a real constraint on Phase 142.
+(2) two goal criteria are proven **narrower than they read**: the overprogram pulse is proven only on the
+pure `eprom_overprogram_us` function because `overprogram_factor` is 0 on every shipped row, and LOOP-06's
+read-skip holds only on `0x0B`, since `0x07`/`0x08` ship `VERIFY_PER_PULSE_PLUS_FINAL` whose final pass
+re-reads every byte unconditionally. The *pulse* skip LOOP-06 actually requires is universal.
+
+`pio test -e native_trace_v131` is deliberately RED on 3 of 6 cases (frozen pre-change trace vs the new
+cadence, D-10); `141-NEW-TRACE.md` captures the post-change side so Phase 144 / TEST-06 owns the re-freeze
+and the diff. `native_loop_v131`, `native_params_v131` and `native_trace_v131` run in **no CI leg of
+either repo** — local run-by-name obligations, never implied coverage. Next: Phase 142 — High-Voltage
+Routing.
 
 **Goal:** Replace the block-level mismatch-mask write loop shared by all three 27C protocols with a
 per-byte pulse→verify loop driven by a per-protocol parameter table, so `0x07` / `0x08` / `0x0B`
@@ -1095,6 +1112,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
+
+*Last updated: 2026-08-10 — **Phase 141 (Per-Byte Program Loop) CLOSED and verified** (9 plans in 5 waves, 5/5 success criteria, LOOP-01…LOOP-08 Complete). The milestone's central change has landed: a per-byte fixed-width pulse→verify loop replaces the block-level mismatch-mask retry loop end to end, with `program_mismatched_bytes()`, `verify_and_update_mask()`, `NUMBER_OF_RETRIES` and the adaptive width-growth formula grep-verified absent from `src/`/`include/`, and every over-ceiling delay routed through the new 32-bit-safe `mem_util_delay_us`. Firmware pytest 244 → 256; `native_loop_v131` (sixth native env) 6 → 39 cases; both pinned native envs unmoved at 141/17; host suite 1547. Thirteen planted-RED proofs across plans 141-05/06/07/08 — every new gate leg was seen RED on its own assertion before its GREEN was believed. **Three disclosures the phase chose to record rather than smooth:** (1) **MERGE-05 is RED** on all three AVR targets (uno +492 B, uno328pb +498 B, leonardo +328 B vs a 64/64/0 B band), accepted by explicit operator decision as **F-141-01** — ~+204 B of it is Phase 140's parameter table finally linking now that `eprom_params_for` has a live `src/` caller, and the 64 B band predates that table; RAM is exactly unchanged, and leonardo now sits at 92.1% flash with 2272 B headroom, a real constraint on Phase 142. The pre-registered prediction (`141-PREDICTIONS.md`, committed before any `eprom.cpp` edit) said +30/+30/+18 B and was missed ~14× — the under-budgeted ingredient was the *first-live-reference* cost of the Phase 140 table (~+204 B measured vs ~70-80 B budgeted). Registering the prediction is what caught it. (2) Two goal criteria are **proven narrower than they read**: the overprogram pulse is proven only on the pure `eprom_overprogram_us` function, because `overprogram_factor` is 0 on every shipped row; and LOOP-06's *read*-skip holds only on `0x0B`, since `0x07`/`0x08` ship `VERIFY_PER_PULSE_PLUS_FINAL` whose final pass re-reads every byte unconditionally — the *pulse* skip LOOP-06 actually requires is universal. (3) `native_trace_v131` is deliberately RED on 3 of 6 cases (D-10) and its determinism assertion is **structurally unreachable** behind the failing length check, so it is recorded as a non-claim rather than as a passing leg; Phase 144 / TEST-06 owns the re-freeze, with `141-NEW-TRACE.md` supplying the post-change side. `native_loop_v131`/`native_params_v131`/`native_trace_v131` run in **no CI leg of either repo** — local run-by-name obligations. Also handed off: an unscoped-porcelain defect in `test_flash_path_record_sync.py` that every plan in the phase had to work around, and a corrected energy-cap worst case (2 × 49999 = **99998 µs**, not 99999) now living in firmware `CLAUDE.md`. Phases **138, 139, 140, 141 CLOSED**; next is **Phase 142 (High-Voltage Routing)**. Prior footer (v1.31 start) retained below.*
 
 *Last updated: 2026-08-08 — **v1.31 (27C Programming-Algorithm Fidelity) STARTED via `/gsd-new-milestone`.** Scoped from [gh#15](https://github.com/henols/firestarter_prom/issues/15) **as corrected**, not as written: a `/gsd-explore` pass on 2026-08-08 (`.planning/seeds/27c-algorithm-fidelity-param-table-refactor.md`, commit `c60543c5`) found two wrong numbers and one inverted premise in the issue, and this milestone posts those corrections publicly *before* implementation lands. **C1** — gh#15's `0x0B` `pulse: 50000 us` is the fingerprint of BUG-2, a ×100 `interpret_timing()` multiplier over 252 chips that Phase 57 already removed; the true value is **500 µs**. **C2** — pulse width is **DATA, not a per-protocol constant**: measured live against the shipped DB, `0x07` is 100 µs ×113 of 170 (not gh#15's 1000), `0x08` is 100 µs ×104 of 127, `0x0B` is 500 µs ×21 of 32; minipro ships `protocol_id` and `pulse_delay` as two orthogonal wire fields and exposes `-o pulse=N` per run. **C3** — the safe 32-bit delay helper is still needed, but for the 75 ms **overprogram** pulse, not for any pulse. **This adjudicates the structural fork in the parameter table's favour (D-01):** protocol owns *shape* (`max_pulses`, `overprogram_factor`, `overprogram_cap_us`, `verify_mode`, `vpp_path`), the database owns the *pulse* — one shared per-byte pulse→verify loop, **not** gh#15's three state machines with hardcoded constants. Replaces `program_mismatched_bytes()` / `verify_and_update_mask()` / the flat `NUMBER_OF_RETRIES = 20` / the adaptive `pulse_delay = org + org*retries/20` growth that escalates width where the datasheets hold width fixed and *count* pulses. **D-02:** the `0x0B` one-shot-vs-looped question is not answerable from source (minipro never runs the algorithm — it packs `pulse_delay` into `BEGIN_TRANS` and hands it to closed TL866/T48/T56/T76 firmware), so it ships as a looped pulse→verify with a **50 ms accumulated-energy cap per byte** (`100 × 500 µs`, the classic 2716 total programming time), satisfying both readings. **Enabler:** VPE survives a read (`mem_util_calculate_top_address_register` preserves the HV mask across every `set_address`, `memory.cpp:163-166`), so the `delay(10)` settle stays amortized once per block instead of 512× — with the DIP32 `CTRL_VPP_VPE_DROP_ENABLE`/A16 caveat. **Evidence ceiling fixed up front:** the ~6.25 V program-VCC all four vendor algorithms assume is **unreachable on this shield** (no VCC-raise path), so this buys timing/pulse-count/verify fidelity and **not** silicon-margin fidelity — gh#15 omits this entirely and its acceptance criteria must be amended; a committed claim gate forbids the unqualified "datasheet-conformant" overclaim. Bench coverage is asymmetric by inventory (operator, 2026-08-08): `0x07` **required** (W27C512 / TMS27C512), `0x08` (AM27C020, known marginal from v1.18 Phase 99) and `0x0B` (M2716 / M2732, 25 V NMOS) **opportunistic, skipped-with-reason if absent**. Not behavior-preserving — golden traces encoding today's cadence will legitimately shift; re-baselining is expected work. **Firmware-touching, dual-repo lockstep.** Numbered **v1.31**; Backlog **999.22** (queued as v1.27) retired into it; v1.24–v1.26 left byte-unchanged. Phase numbering continues at **Phase 138**. **Blocking precondition:** `firestarter_app`'s `gsd/v1.30-sdp-surface-retirement` is NOT merged to `origin/beta` (the v1.30 PR was staged but never opened) and must land before the app branch forks; firmware forks off `beta` @ `3085084`. Prior footer (v1.30 Phase 133) retained below.*
 
