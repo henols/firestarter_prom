@@ -730,24 +730,37 @@ P2 before P3 matters: P2's preserve-mask change makes the drop bit *survivable* 
 
 ---
 
-## Open Questions for the Planner
+## Open Questions for the Planner (RESOLVED)
+
+> **All seven are resolved.** Four were decided during planning and three were settled by the
+> operator as amendments in `142-CONTEXT.md`. Each resolution is annotated inline below and is
+> restated in the owning plan's objective and in `ROADMAP.md`'s Phase 142 block. Nothing in this
+> section is still open; the question text is retained so the reasoning that produced each answer
+> stays legible.
 
 1. **`test_loop08_dip32_drop_bit_is_cleared_deliberately_before_the_first_pulse` — rewrite or delete?**
    `test_loop_eprom_v131.cpp:1573-1632`. Its central assertions (`:1610-1615`, `:1626-1631`) are **inverted** by D-01/D-04 on Rev 2-class. Rewriting it into its own inverse is the honest move (it becomes VPP-01's positive proof), but the plan must say which it is doing. Not decidable from source — it is an authoring choice.
+   **RESOLVED — REWRITE in place, renamed** `test_vpp01_dip32_drop_bit_survives_the_block_on_rev2_class`, owned by plan **142-04** (parts I-K of its single task). Its `v0` drop-bit-SET assertion survives as the non-vacuity partner; `test_loop08_the_28_pin_row_keeps_its_drop_bit` stays its paired control.
 
 2. **Does the phase change `test_loop05_a_successful_block_does_not_disable_the_route`, or does the wrapper stay conditional?** See C-1. Recommendation: keep the test, make the wrapper conditional. If the operator wants a literal unconditional disable, the ~64 s cost D-09 rejected returns and the decision must be re-opened with them. **This is the single most consequential open item.**
+   **RESOLVED — the wrapper is CONDITIONAL on `handle->response_code == RESPONSE_CODE_ERROR`**, operator-confirmed as the **D-10 amendment** (`142-CONTEXT.md`, correction C-1). The literal word "unconditionally" in D-10's original text is given up; `test_loop05_a_successful_block_does_not_disable_the_route`'s assertion stays green and unchanged. Implemented by plan **142-04**, exercised by plan **142-05**.
 
 3. **What exactly gates the new drop-bit preserve — revision alone, or revision AND something protocol-supplied?**
    `mem_util_calculate_top_address_register` sees only `handle` and `address`. Revision alone (`REVISION_2_x` ⇒ preserve `DROP` for all `pins`) is the minimal reading of D-01/D-02, but it changes behaviour for **every** 32-pin protocol on Rev 2-class, not just `0x08` (L-3). A narrower gate needs a protocol- or route-derived signal, and the only zero-RAM way to get one into that function is `handle->protocol` — which would create a **fourth tier-1 protocol-keyed site** and violate TABLE-05. The alternatives are a new 1-byte `handle` field set once per block, or accepting the wider blast radius with an explicit no-leak proof. **Not resolvable from source; needs a planner decision, and it is the choice most likely to need operator sign-off.**
+   **RESOLVED — REVISION ALONE**, with the wider blast radius accepted and paid for by an explicit 32-pin **non-EPROM** byte-identity proof (L-3's cheapest no-leak oracle). Operator-confirmed as the **D-02 amendment**; no new `handle` field, no protocol key, so no fourth tier-1 site and no TABLE-05 violation. Owned by plan **142-02**.
 
 4. **Where does the resolver live, and is it exposed to the native suite?**
    `eprom.cpp` (file-static) is cheapest, but then the resolver can only be tested through its effects on the strobe stream. Exposing it via `eprom.h` (the `eprom_overprogram_us` precedent at `eprom.h:34`) buys a direct unit oracle for `(protocol, pins, flags, revision) → mask` at a few bytes of flash. Recommendation: **expose it** — the truth table is the clearest possible VPP-01 evidence and it makes the Rev 0/1/UNKNOWN arms testable without a full drive.
+   **RESOLVED — EXPOSE via `include/eprom.h`**, following the `eprom_overprogram_us` precedent (`eprom.h:18-35`) and adding no new include edge (`rurp_register_t` is already reachable through `firestarter.h`). Declared and defined by plan **142-04**; its `(protocol, ctrl_flags)` truth table, including the fail-closed NULL-row arm no drive can reach, is plan **142-05**'s first oracle.
 
 5. **JP4's electrical function.** C-7. Not resolvable from the two documents in this repo, and it does not block implementation. Needs an operator answer before the phase record can assert anything about JP4; the safe path is to cite the operator's own framing (a physical jumper controls pin-1 VPP on DIP32) without naming a designator or asserting a net.
+   **RESOLVED — do NOT name the designator and do NOT assert a net.** Operator-confirmed as the **D-01 amendment**: the phase cites only that a physical jumper controls pin-1 VPP on DIP32, and the documentation contradiction is **logged as a finding** (C-7, documentation owner, logged not resolved) in plan **142-07**'s findings register rather than resolved here.
 
 6. **`eprom_internal_ensure_regulator_enabled` — fold, delete, or leave?** L-10. Folding it into the resolver is the tidiest and is arguably what VPP-03 asks for; leaving it is the smallest diff. Either is defensible; silence is not.
+   **RESOLVED — DELETE it.** Zero callers, no header declaration, and it duplicates the `:189-198` regulator guard the resolver now owns; `--gc-sections` already collects it, so deletion reclaims 0 B and there is no flash argument for keeping it. Its tier-2 site `:450` disappearing is the deliberate inventory movement `meta.frozen_for` demands. Owned by plan **142-04**; its absence is additionally pinned by plan **142-06**'s source contract.
 
 7. **Should the `command_done()` test be a source-contract pytest or is a behavioural oracle wanted?** §Validation Architecture VPP-02. A source contract is cheap and honest but proves only that the source says the right thing. A behavioural oracle needs `firestarter.cpp` in a native `build_src_filter`, which collides with `main()` and would need a seventh env — forbidden by D-14. Recommendation: source contract, labelled as such.
+   **RESOLVED — SOURCE CONTRACT, labelled as such.** A behavioural oracle would need `firestarter.cpp` in a native `build_src_filter`, which collides with `main()` and would need a seventh env (forbidden by D-14). Owned by plan **142-06** in the new module `tests/test_hv_routing_source_contract_v142.py`, which asserts `command_done()`'s three zeroing writes inside its own brace-matched body and both dispatch call arms individually.
 
 ---
 
