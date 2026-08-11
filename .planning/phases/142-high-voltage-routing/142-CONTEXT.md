@@ -57,6 +57,18 @@ names it — a worktree leaves submodules empty and `files_modified` under-detec
   disproved the bit-collision theory the old comment gave as justification.
   **Consequence the planner must carry:** this changes what voltage reaches `0x08` silicon. It is
   therefore a real behaviour change, not a refactor, and D-03 governs what may be claimed about it.
+  **AMENDED 2026-08-11 during planning, operator-confirmed — how the record may refer to JP4.**
+  Research (`142-RESEARCH.md` §C-7) found JP4 documented two contradictory ways inside this project:
+  `firestarter/doc/SHIELD-REVISIONS.md:65` calls `JMP_VPP_P1_BYPASS` / JP4 the VPP-bypass jumper, while
+  `.planning/v1.7-SHIELD-REVS.md:37` and `:41-44` place JP4 in the hardware-revision detect divider
+  (`JP4 (P1_VPP_JMP) → R41 → A3 → GND`). The alias appears in **no** firmware source file — it is
+  documentation-only. The operator chose: **cite the physical-jumper framing above without naming a
+  designator or asserting a net.** The phase record must not assert "JP4 routes VPP to socket pin 1" as
+  a verified electrical fact. D-01/D-02 need only two facts, both verified: the drop bit is a VPP
+  *level* selector (Phase 141 H1), and JP4 is `not-present` on Rev 0 and Rev 1
+  (`doc/SHIELD-REVISIONS.md:87`) — which independently reinforces D-02's Rev-2-only gate, since on
+  Rev 0/1 there is no jumper to close *in addition to* the bit alias. The documentation contradiction is
+  logged as a finding for a later owner, not resolved here.
 
 - **D-02:** **The removal is gated on Rev 2-class hardware at runtime, not made unconditional.** On
   Rev 0 / Rev 1, `rurp_map_ctrl_reg_for_hardware_revision()`
@@ -77,6 +89,18 @@ names it — a worktree leaves submodules empty and `files_modified` under-detec
   read per call. `rurp_map_ctrl_reg_for_hardware_revision()` already calls it on **every** control
   register write, so the gate adds no new class of cost even inside
   `mem_util_calculate_top_address_register`, which runs twice per byte.
+  **AMENDED 2026-08-11 during planning, operator-confirmed — what the gate keys on.** Research
+  (`142-RESEARCH.md` §Open Question 3, §L-3) established that `mem_util_calculate_top_address_register`
+  sees only `handle` and `address`, so the preserve arm can key on revision alone, on a new `handle`
+  field, or on `handle->protocol` (ruled out — it would create a fourth tier-1 protocol-keyed site and
+  violate TABLE-05). The operator chose **revision alone**: `REVISION_2_x` ⇒ preserve the drop bit for
+  all `pins >= 32`. Zero new plumbing, zero RAM. Its nominal reach widens to every 32-pin protocol on
+  Rev 2-class (`0x0E`, `0x29`, `0x10`, 32-pin flash), but none of them ever *sets* the drop bit, so
+  there is nothing for the new arm to preserve. That "nothing" is **paid for with a proof, not an
+  argument**: a native case driving a 32-pin **non-EPROM** protocol (`0x10`) at
+  `hardware_revision = REVISION_2_2`, asserting the recorded control-value sequence is byte-identical
+  before and after the change. A new 1-byte `handle` field was offered and **rejected** (RAM cost plus
+  a plumbing seam, for a blast radius the proof already closes).
 
 - **D-03:** **Ship the route change; claim nothing about silicon.** The phase record states that the
   `0x08` route change is proven in the **emitted control-register stream only**, never on a part. No
@@ -156,9 +180,21 @@ names it — a worktree leaves submodules empty and `files_modified` under-detec
   programs at the wrong voltage.
 
 - **D-10:** **Single-exit wrapper, not a disable call before every `return`.** Rename the current body
-  to a `static` inner function; the public `eprom_write_execute` calls it and then unconditionally
-  disables. A future edit adding a `return` inside the inner body **cannot** escape the guarantee —
-  the invariant is structural rather than gate-enforced, and it is roughly flash-neutral.
+  to a `static` inner function; the public `eprom_write_execute` calls it and then disables
+  **conditionally on `handle->response_code == RESPONSE_CODE_ERROR`**. A future edit adding a `return`
+  inside the inner body **cannot** escape the guarantee — the invariant is structural rather than
+  gate-enforced, and it is roughly flash-neutral.
+  **AMENDED 2026-08-11 during planning, operator-confirmed.** This decision originally said the
+  wrapper "unconditionally disables", which contradicts D-09's "the per-block success exit
+  deliberately leaves the rail up". Research (`142-RESEARCH.md` §C-1) found the tiebreaker is a test
+  that exists and passes today: `test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp:1307`
+  (`test_loop05_a_successful_block_does_not_disable_the_route`) asserts a **successful** block leaves
+  `CTRL_VPP_REGULATOR_ENABLE` **set**, and its own comment (`:1290-1292`) says generalising
+  disable-on-every-exit *"is Phase 142 / VPP-02's job"* — it was authored anticipating this phase and
+  encodes D-09's success-exit exemption as an assertion. The operator chose the conditional wrapper:
+  it keeps that assertion GREEN, does not re-pay `delay(500)` per block (~64 s on a 64 K Uno write),
+  and still delivers the structural property D-10 wanted. Only the literal word "unconditionally" is
+  given up. A literal unconditional disable was offered and **rejected**.
   *Rejected — explicit call at each `return`:* greppable, but a new return can still forget it, which
   makes a source gate the only thing holding the invariant.
   *Rejected — both (wrapper plus a source-contract pytest gate):* the wrapper already makes the
