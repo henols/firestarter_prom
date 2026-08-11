@@ -289,13 +289,35 @@ names it — a worktree leaves submodules empty and `files_modified` under-detec
 
 ### Claude's Discretion
 
-- **D-07** — where the shared mask set lives (default: `rurp_pinout.h` composites).
-- **D-12** — the exact function boundary for the disable guarantee (default: `eprom_write_init` +
+This is an **index** of the discretionary items, not a second definition site — D-07 and D-12 are
+defined in full above. Their IDs are deliberately unbolded here: a `- **D-NN**` bullet without a `:` or
+` — ` inside the bold makes the decision-coverage gate fail closed with `reason: could-not-parse`, and
+D-12's label wrapped across lines, which the same gate cannot read. All four items were resolved during
+planning; resolutions recorded inline.
+
+- D-07 — where the shared mask set lives (default: `rurp_pinout.h` composites).
+  **RESOLVED:** two `EPROM_HV_*` composites in `rurp_pinout.h` after `:97`, per research's include-graph
+  and per-variant analysis. The **preserve** mask cannot be a `#define` in any variant (the drop↔A16
+  alias), so only the all-off composite is a macro. Note the header has **zero** bitwise-OR composite
+  precedent — this establishes a form rather than following one. Owned by plan `142-01`.
+- D-12 — the exact function boundary for the disable guarantee (default: `eprom_write_init` +
   `eprom_write_execute`, drawn from a research-produced map of every control-register assertion in
   `eprom.cpp`).
+  **RESOLVED:** the default holds, on the strength of the map research actually produced —
+  `eprom_write_execute` (mandatory: all four leaking exits are there, including the untouched
+  verify-failure exit) plus `eprom_write_init` (defensive, already exit-safe today). **Not** widened to
+  `erase_execute` / `get_chip_id`: both already clear everything they assert, so `PROJECT.md`'s
+  out-of-scope line forbids it. Owned by plan `142-04`.
 - Naming and signature of the resolver in D-05, and whether the all-off composite is a `#define` or a
   small inline.
+  **RESOLVED:** the resolver is **exposed** via `eprom.h` rather than kept file-static, which buys a
+  direct `(protocol, ctrl_flags)` truth-table oracle and reaches the fail-closed NULL-row arm no drive
+  can reach (research Open Question 4). The all-off composite is a `#define`.
 - Plan decomposition, wave structure, and which plan owns the D-13 golden re-derivation.
+  **RESOLVED:** 7 plans in 6 waves. `142-04` owns **all** `eprom.cpp` edits *and* the D-18 golden
+  re-derivation, in **one task and one commit**, so the blob-SHA-pinned gate goes RED once for one
+  reason; `142-02` (`memory.cpp`) lands before it, since the reverse order would briefly leave `0x08`
+  with no drop route at all.
 
 </decisions>
 
