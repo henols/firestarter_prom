@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 142
 current_phase_name: High-Voltage Routing
 status: executing
-stopped_at: Phase 142 planned — 7 plans in 6 waves, ready to execute
-last_updated: "2026-08-11T18:42:00.000Z"
+stopped_at: Completed 142-01-PLAN.md
+last_updated: "2026-08-11T21:48:24.199Z"
 last_activity: 2026-08-11
-last_activity_desc: Phase 142 planned — 7 plans in 6 waves, ready for execute-phase
+last_activity_desc: Phase 142 execution started
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 35
-  completed_plans: 28
+  completed_plans: 29
   percent: 50
 ---
 
@@ -111,10 +111,10 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 ## Current Position
 
-Phase: 142 — High-Voltage Routing
-Plan: Not started
-Status: Phase 141 verified (5/5 success criteria, 8/8 LOOP requirements) — ready to discuss/plan Phase 142
-Last activity: 2026-08-10 — Phase 141 complete, transitioned to Phase 142
+Phase: 142 (High-Voltage Routing) — EXECUTING
+Plan: 2 of 7
+Status: Ready to execute
+Last activity: 2026-08-11 — Phase 142 execution started
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
 `checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes
@@ -1854,6 +1854,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 141]: MERGE-05 flash-band policy is RED and stays RED (operator decision, recorded before plan dispatch); no reduction ladder attempted
 - [Phase 141]: D-11's 'record the shrinkage' framing corrected: D-13 tier-2 grew 21->24, tier-1 held at exactly 3 (the actual invariant)
 - [Phase 141]: 141-09's own must_have wording corrected against measured reality: native_trace_v131's determinism leg is structurally unreachable, not 'still passing'
+- [Phase 142]: D-07 resolved: EPROM_HV_ROUTE_MASK/EPROM_HV_ALL_OFF_MASK composites live in rurp_pinout.h beside their CTRL_* bits
+- [Phase 142]: D-14 resolved: test_vpp_eprom_v131 reuses the existing native_loop_v131 env (test_filter + -I) instead of a seventh env
+- [Phase 142]: make_vpp_handle requires vpp_setpoint_mv (avoids D-13's named vacuity trap); CTRL_VPP_P1_ENABLE excluded from EPROM_HV_ALL_OFF_MASK per correction C-4
 
 ## Performance Metrics
 
@@ -2084,12 +2087,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 141 P07 | 100min | 3 tasks | 1 files |
 | Phase 141 P08 | 130min | 3 tasks | 1 files |
 | Phase 141 P09 | 2h | 3 tasks | 3 files |
+| Phase 142 P01 | 32min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-11T16:19:16.303Z
-**Stopped at:** Phase 142 context gathered
-**Resume file:** .planning/phases/142-high-voltage-routing/142-CONTEXT.md
+**Last session:** 2026-08-11T21:48:24.176Z
+**Stopped at:** Completed 142-01-PLAN.md
+**Resume file:** None
 
 ### Blockers
 

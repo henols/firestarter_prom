@@ -351,7 +351,7 @@ Plans:
 
 **Wave 1**
 
-- [ ] 142-01-PLAN.md — The two `EPROM_HV_*` composite masks in `rurp_pinout.h` (D-07 — a form this header has **no** precedent for), the `test_vpp_eprom_v131` suite wired into the existing `[env:native_loop_v131]` by both required lines (D-14), and the suite harness: four recorder layers including the injectable VPP reading, a VPP-setpoint-carrying handle factory (closing D-13's vacuity trap), and a read-back model **extended with a mismatch window** so a final-pass verify failure is expressible at all [firestarter]
+- [x] 142-01-PLAN.md — The two `EPROM_HV_*` composite masks in `rurp_pinout.h` (D-07 — a form this header has **no** precedent for), the `test_vpp_eprom_v131` suite wired into the existing `[env:native_loop_v131]` by both required lines (D-14), and the suite harness: four recorder layers including the injectable VPP reading, a VPP-setpoint-carrying handle factory (closing D-13's vacuity trap), and a read-back model **extended with a mismatch window** so a final-pass verify failure is expressible at all [firestarter]
 
 **Wave 2** *(blocked on Wave 1)*
 
