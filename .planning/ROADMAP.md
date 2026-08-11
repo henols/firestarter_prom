@@ -335,7 +335,44 @@ Plans:
   3. `eprom_check_vpp()` and every write/error path reference one shared set of routing masks rather than each maintaining its own copy.
   4. The firmware's over-voltage refusal still blocks an out-of-range request after the rewrite, re-verified against the existing gate rather than assumed intact.
 
-**Plans**: TBD
+**Plans**: 7 plans in 6 waves. **SINGLE-REPO — `firestarter/` only** (plus the meta repo for the record and the requirement flips); every plan's `commits_land_in:` names each repo it touches, because a worktree leaves submodules empty and a `files_modified`-only detector under-detects. Same-wave plans share zero `files_modified` entries.
+
+All `eprom.cpp` edits are confined to **one** plan (`142-04`), and its **re-derived D-18 golden plus the pinned tier-1 locator land in the same commit** — that file's blob SHA is pinned by `tests/golden/protocol_branch_inventory.json`, whose working-tree leg goes RED on the first keystroke and whose blob-SHA leg goes RED only after commit, so one plan and one commit means the gate goes RED once, for one reason. `memory.cpp` (`142-02`) lands **before** `eprom.cpp` (`142-04`): the reverse order would briefly leave `0x08` with no drop route at all.
+
+**Two expected REDs, both deliberate:** `pio test -e native_trace_v131` on stream equality for the whole phase, **not** re-frozen (D-17 — Phase 144 / TEST-06 owns the freeze and the diff, and this phase records the new failure values so both sides exist); and `check_size_baseline.py --policy merge05`, recorded and **not** fixed (D-16 — Phase 144 / TEST-08 owns baseline reconciliation, and `size_baseline.json` is read-only all phase).
+
+Every new gate leg is seen RED on a named planted violation before its GREEN is believed (D-15), with each transcript verbatim in its plan's SUMMARY. Three whole leg families are **green on arrival** and would otherwise prove nothing: VPP-04's refusal properties (C-3 — `eprom_check_vpp:393` already clears on every path but the pre-assert Rev-0 return), the widened drop-bit disable leg, and the `command_done()` source contract. **`native_loop_v131` runs in no CI leg of either repository** — a local run-by-name obligation, never implied CI coverage (D-14); the new `test_vpp_eprom_v131` suite joins that existing env by two lines rather than a seventh env.
+
+**Four open questions decided visibly rather than silently:** the inverted `test_loop08_dip32_drop_bit_is_cleared_deliberately_before_the_first_pulse` is **rewritten** in place, renamed, as VPP-01's positive proof (`142-04`); the route resolver is **exposed** via `eprom.h` so its `(protocol, ctrl_flags)` truth table and its unreachable-by-drive fail-closed arm are directly testable (`142-04`, `142-05`); the zero-caller `eprom_internal_ensure_regulator_enabled` is **deleted** (`142-04`); and `command_done()`'s guarantee is a **source-contract** pytest leg, labelled as such because `firestarter.cpp` is outside every native `build_src_filter` and a behavioural oracle would need a seventh env (`142-06`). **No new message id is claimed — `0xBF` stays free for Phase 143** (D-08).
+
+Requirement ticking is centralised so no plan ticks a multi-plan requirement early: `142-01` … `142-06` → **none**; `142-07` → **VPP-01 … VPP-04** (all four, in one hand edit across both coverage tables, after every piece of evidence exists).
+
+Plans:
+
+**Wave 1**
+
+- [ ] 142-01-PLAN.md — The two `EPROM_HV_*` composite masks in `rurp_pinout.h` (D-07 — a form this header has **no** precedent for), the `test_vpp_eprom_v131` suite wired into the existing `[env:native_loop_v131]` by both required lines (D-14), and the suite harness: four recorder layers including the injectable VPP reading, a VPP-setpoint-carrying handle factory (closing D-13's vacuity trap), and a read-back model **extended with a mismatch window** so a final-pass verify failure is expressible at all [firestarter]
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 142-02-PLAN.md — `mem_util_calculate_top_address_register`'s drop-bit preserve gated on Rev 2-class **revision alone** (D-01, D-02 as amended), authored RED-before-GREEN, with a nine-row `(pins, revision)` truth table, a "preserve, never introduce" leg, and a 32-pin **non-EPROM** byte-identity proof that pays for the gate's widened nominal reach [firestarter]
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 142-03-PLAN.md — The over-voltage refusal gate VPP-04 presumed already existed, authored **before** the rewrite so it is a genuine regression oracle (D-13, D-15's three properties plus an in-range control), and the pre-rewrite `CMD_ERASE` / `CMD_CHECK_CHIP_ID` control-value baselines that make VPP-03's mask widening a **measured** no-op (research assumption A3) [firestarter]
+
+**Wave 4** *(blocked on Waves 2 and 3)*
+
+- [ ] 142-04-PLAN.md — **The only plan touching `eprom.cpp`, in one commit:** the exposed `vpp_path`-driven resolver replacing both duplicated predicates (D-05, D-06), the `pins >= 32` clear deleted (D-04), conditional single-exit wrappers on `eprom_write_execute` and `eprom_write_init` (D-10 as amended per C-1, D-12), four hand-rolled disables converted to the composite, the dead regulator helper deleted, the inverted LOOP-08 case rewritten as VPP-01's positive proof — **plus the re-derived D-18 golden and its re-pinned tier-1 locator in the same commit** [firestarter]
+
+**Wave 5** *(blocked on Wave 4; two plans, disjoint files)*
+
+- [ ] 142-05-PLAN.md — The resolver's full truth table including the fail-closed arm no drive can reach, route-strobe proofs for the direct path / the `--vpe-as-vpp` override / the Rev 1 negative, the measure-versus-apply equality proof that is VPP-03's honest headline, and the write-path error-exit route-clear proofs including the final-pass verify exit that disabled **nothing** before this phase [firestarter]
+- [ ] 142-06-PLAN.md — A new source-contract gate module: `command_done()`'s three zeroing writes pinned inside its own body with both dispatch arms asserted individually (D-09's owed test), VPP-03's one-resolver / one-composite / no-hand-rolled-survivor structure, and three self-protection legs, every absence needle concatenation-built and every leg seen RED on a scratch fixture behind an import-time env seam [firestarter]
+
+**Wave 6** *(blocked on Waves 4 and 5)*
+
+- [ ] 142-07-PLAN.md — `firestarter/CLAUDE.md`'s three algorithm-handler rows reconciled as a **docs-only** commit (the measured house pattern, not CONTEXT's same-change reading), cold flash/RAM on all three AVR targets with the MERGE-05 and warning-watermark verdicts verbatim, `142-VPP-RECORD.md` with the **qualified** SC1, every non-claim, the D-15 inventory, the findings register and the hand-offs, and all four `VPP-*` requirements flipped in both coverage tables by one hand edit [meta, firestarter]
 
 ### Phase 143: Host Timeout, Progress & Pulse Override
 
