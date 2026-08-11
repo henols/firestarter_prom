@@ -363,7 +363,7 @@ Plans:
 
 **Wave 4** *(blocked on Waves 2 and 3)*
 
-- [ ] 142-04-PLAN.md — **The only plan touching `eprom.cpp` — one task, one commit, five files:** the exposed `vpp_path`-driven resolver replacing both duplicated predicates (D-05, D-06), the `pins >= 32` clear deleted (D-04), conditional single-exit wrappers on `eprom_write_execute` and `eprom_write_init` (D-10 as amended per C-1, D-12), four hand-rolled disables converted to the composite, the dead regulator helper deleted, the inverted LOOP-08 case rewritten as VPP-01's positive proof — **plus the re-derived D-18 golden and its re-pinned tier-1 locator in the same commit** [firestarter]
+- [x] 142-04-PLAN.md — **The only plan touching `eprom.cpp` — one task, one commit, five files:** the exposed `vpp_path`-driven resolver replacing both duplicated predicates (D-05, D-06), the `pins >= 32` clear deleted (D-04), conditional single-exit wrappers on `eprom_write_execute` and `eprom_write_init` (D-10 as amended per C-1, D-12), four hand-rolled disables converted to the composite, the dead regulator helper deleted, the inverted LOOP-08 case rewritten as VPP-01's positive proof — **plus the re-derived D-18 golden and its re-pinned tier-1 locator in the same commit** [firestarter]
 
 **Wave 5** *(blocked on Wave 4; two plans, disjoint files)*
 

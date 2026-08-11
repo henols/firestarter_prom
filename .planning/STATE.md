@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 142
 current_phase_name: High-Voltage Routing
 status: executing
-stopped_at: Completed 142-03-PLAN.md
-last_updated: "2026-08-11T22:55:18.178Z"
+stopped_at: Completed 142-04-PLAN.md
+last_updated: "2026-08-11T23:35:53.216Z"
 last_activity: 2026-08-11
 last_activity_desc: Phase 142 execution started
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 35
-  completed_plans: 31
+  completed_plans: 32
   percent: 50
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 142 (High-Voltage Routing) — EXECUTING
-Plan: 4 of 7
+Plan: 5 of 7
 Status: Ready to execute
 Last activity: 2026-08-11 — Phase 142 execution started
 
@@ -1861,6 +1861,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 142]: 142-02's preserve-mask change is proven a no-op on the current 0x08 write path (eprom.cpp:217-219 still clears the bit pre-pulse); native_trace_v131's expected-RED values are byte-identical to the Phase 141 tip, confirming L-3's plan ordering is safe before 142-04 removes that clear — 142-02 task 2, L-3 ordering safety
 - [Phase 142]: 142-03: single commit for all three tasks, landed after task 3's five planted-violation-then-revert cycles leave eprom.cpp byte-identical
 - [Phase 142]: 142-03: D-13 premise correction discharged -- VPP-04's presumed existing refusal-by-id gate was confirmed absent by grep and authored fresh in this plan
+- [Phase 142]: D-05/Q4: eprom_hv_route_mask exposed via include/eprom.h (matches eprom_overprogram_us precedent) -- resolves the HV route from eprom_params' vpp_path column at both call sites -- 142-04
+- [Phase 142]: D-10 amended (correction C-1): the write-path wrapper's disable is conditional on response_code==RESPONSE_CODE_ERROR, not unconditional -- forced by test_loop05_a_successful_block_does_not_disable_the_route -- 142-04
+- [Phase 142]: D-12 boundary held: no disable wrapper added to eprom_erase_execute/eprom_check_chip_id_execute/eprom_get_chip_id -- each already clears everything it asserts, so PROJECT.md:189-190 forbids treating a wrapper there as required cleanup -- 142-04
+- [Phase 142]: Q6 resolved: deleted eprom_internal_ensure_regulator_enabled (zero callers, 0 B reclaimed) rather than keeping it as a dead duplicate of the resolver's guard -- 142-04
+- [Phase 142]: D-18 golden re-derived live (never hand-typed): 26 sites, tier-1 3->1, landed in the same commit (01836fc) as the eprom.cpp source change so the gate goes RED once for one reason -- 142-04
 
 ## Performance Metrics
 
@@ -2094,11 +2099,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 142 P01 | 32min | 3 tasks | 4 files |
 | Phase 142 P02 | 28min | 2 tasks | 2 files |
 | Phase 142 P03 | 27min | 3 tasks | 1 files |
+| Phase 142 P04 | 31min | 1 tasks | 5 files |
 
 ## Session
 
-**Last session:** 2026-08-11T22:55:18.148Z
-**Stopped at:** Completed 142-03-PLAN.md
+**Last session:** 2026-08-11T23:35:31.317Z
+**Stopped at:** Completed 142-04-PLAN.md
 **Resume file:** None
 
 ### Blockers
