@@ -4,15 +4,15 @@ milestone: v1.31
 milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 142
 current_phase_name: High-Voltage Routing
-status: planning
-stopped_at: Phase 142 context gathered
-last_updated: "2026-08-11T16:19:16.329Z"
+status: executing
+stopped_at: Phase 142 planned — 7 plans in 6 waves, ready to execute
+last_updated: "2026-08-11T18:42:00.000Z"
 last_activity: 2026-08-11
-last_activity_desc: Phase 142 context gathered, ready for plan-phase
+last_activity_desc: Phase 142 planned — 7 plans in 6 waves, ready for execute-phase
 progress:
   total_phases: 8
   completed_phases: 4
-  total_plans: 28
+  total_plans: 35
   completed_plans: 28
   percent: 50
 ---
@@ -29,7 +29,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-08 — v1.31 started)
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
 authoritative dispatch key end to end. v1.31 makes that key drive *programming behaviour*, not just
 handler selection — while keeping the pulse width itself a database datum, not a protocol constant.
-**Current focus:** Phase 141 — Per-Byte Program Loop
+**Current focus:** Phase 142 — High-Voltage Routing
 
 **v1.31 27C Programming-Algorithm Fidelity (gh#15)** — ACTIVE (activated 2026-08-08, retiring Backlog
 **999.22** which was queued as the `v1.27` slot). **Firmware-touching, dual-repo lockstep.** Phase
