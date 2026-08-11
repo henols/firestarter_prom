@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 142
 current_phase_name: High-Voltage Routing
 status: executing
-stopped_at: Completed 142-02-PLAN.md
-last_updated: "2026-08-11T22:24:24.620Z"
+stopped_at: Completed 142-03-PLAN.md
+last_updated: "2026-08-11T22:55:18.178Z"
 last_activity: 2026-08-11
 last_activity_desc: Phase 142 execution started
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 35
-  completed_plans: 30
+  completed_plans: 31
   percent: 50
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 142 (High-Voltage Routing) — EXECUTING
-Plan: 3 of 7
+Plan: 4 of 7
 Status: Ready to execute
 Last activity: 2026-08-11 — Phase 142 execution started
 
@@ -1859,6 +1859,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 142]: make_vpp_handle requires vpp_setpoint_mv (avoids D-13's named vacuity trap); CTRL_VPP_P1_ENABLE excluded from EPROM_HV_ALL_OFF_MASK per correction C-4
 - [Phase 142]: D-01/D-02 implemented: mem_util_calculate_top_address_register preserves CTRL_VPP_VPE_DROP_ENABLE for pins>=32 gated on hardware revision alone (explicit four-case Rev-2-class switch inside #ifdef HARDWARE_REVISION), never on handle->protocol or a new handle field — 142-02 task 2
 - [Phase 142]: 142-02's preserve-mask change is proven a no-op on the current 0x08 write path (eprom.cpp:217-219 still clears the bit pre-pulse); native_trace_v131's expected-RED values are byte-identical to the Phase 141 tip, confirming L-3's plan ordering is safe before 142-04 removes that clear — 142-02 task 2, L-3 ordering safety
+- [Phase 142]: 142-03: single commit for all three tasks, landed after task 3's five planted-violation-then-revert cycles leave eprom.cpp byte-identical
+- [Phase 142]: 142-03: D-13 premise correction discharged -- VPP-04's presumed existing refusal-by-id gate was confirmed absent by grep and authored fresh in this plan
 
 ## Performance Metrics
 
@@ -2091,11 +2093,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 141 P09 | 2h | 3 tasks | 3 files |
 | Phase 142 P01 | 32min | 3 tasks | 4 files |
 | Phase 142 P02 | 28min | 2 tasks | 2 files |
+| Phase 142 P03 | 27min | 3 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-11T22:24:24.584Z
-**Stopped at:** Completed 142-02-PLAN.md
+**Last session:** 2026-08-11T22:55:18.148Z
+**Stopped at:** Completed 142-03-PLAN.md
 **Resume file:** None
 
 ### Blockers

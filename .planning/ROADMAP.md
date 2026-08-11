@@ -359,7 +359,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 142-03-PLAN.md — The over-voltage refusal gate VPP-04 presumed already existed, authored **before** the rewrite so it is a genuine regression oracle (D-13, D-15's three properties plus an in-range control), and the pre-rewrite `CMD_ERASE` / `CMD_CHECK_CHIP_ID` control-value baselines that make VPP-03's mask widening a **measured** no-op (research assumption A3) [firestarter]
+- [x] 142-03-PLAN.md — The over-voltage refusal gate VPP-04 presumed already existed, authored **before** the rewrite so it is a genuine regression oracle (D-13, D-15's three properties plus an in-range control), and the pre-rewrite `CMD_ERASE` / `CMD_CHECK_CHIP_ID` control-value baselines that make VPP-03's mask widening a **measured** no-op (research assumption A3) [firestarter]
 
 **Wave 4** *(blocked on Waves 2 and 3)*
 
