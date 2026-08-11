@@ -355,7 +355,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 142-02-PLAN.md — `mem_util_calculate_top_address_register`'s drop-bit preserve gated on Rev 2-class **revision alone** (D-01, D-02 as amended), authored RED-before-GREEN, with a nine-row `(pins, revision)` truth table, a "preserve, never introduce" leg, and a 32-pin **non-EPROM** byte-identity proof that pays for the gate's widened nominal reach [firestarter]
+- [x] 142-02-PLAN.md — `mem_util_calculate_top_address_register`'s drop-bit preserve gated on Rev 2-class **revision alone** (D-01, D-02 as amended), authored RED-before-GREEN, with a nine-row `(pins, revision)` truth table, a "preserve, never introduce" leg, and a 32-pin **non-EPROM** byte-identity proof that pays for the gate's widened nominal reach [firestarter]
 
 **Wave 3** *(blocked on Wave 2)*
 

@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 142
 current_phase_name: High-Voltage Routing
 status: executing
-stopped_at: Completed 142-01-PLAN.md
-last_updated: "2026-08-11T21:48:24.199Z"
+stopped_at: Completed 142-02-PLAN.md
+last_updated: "2026-08-11T22:24:24.620Z"
 last_activity: 2026-08-11
 last_activity_desc: Phase 142 execution started
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 35
-  completed_plans: 29
+  completed_plans: 30
   percent: 50
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 142 (High-Voltage Routing) — EXECUTING
-Plan: 2 of 7
+Plan: 3 of 7
 Status: Ready to execute
 Last activity: 2026-08-11 — Phase 142 execution started
 
@@ -1857,6 +1857,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 142]: D-07 resolved: EPROM_HV_ROUTE_MASK/EPROM_HV_ALL_OFF_MASK composites live in rurp_pinout.h beside their CTRL_* bits
 - [Phase 142]: D-14 resolved: test_vpp_eprom_v131 reuses the existing native_loop_v131 env (test_filter + -I) instead of a seventh env
 - [Phase 142]: make_vpp_handle requires vpp_setpoint_mv (avoids D-13's named vacuity trap); CTRL_VPP_P1_ENABLE excluded from EPROM_HV_ALL_OFF_MASK per correction C-4
+- [Phase 142]: D-01/D-02 implemented: mem_util_calculate_top_address_register preserves CTRL_VPP_VPE_DROP_ENABLE for pins>=32 gated on hardware revision alone (explicit four-case Rev-2-class switch inside #ifdef HARDWARE_REVISION), never on handle->protocol or a new handle field — 142-02 task 2
+- [Phase 142]: 142-02's preserve-mask change is proven a no-op on the current 0x08 write path (eprom.cpp:217-219 still clears the bit pre-pulse); native_trace_v131's expected-RED values are byte-identical to the Phase 141 tip, confirming L-3's plan ordering is safe before 142-04 removes that clear — 142-02 task 2, L-3 ordering safety
 
 ## Performance Metrics
 
@@ -2088,11 +2090,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 141 P08 | 130min | 3 tasks | 1 files |
 | Phase 141 P09 | 2h | 3 tasks | 3 files |
 | Phase 142 P01 | 32min | 3 tasks | 4 files |
+| Phase 142 P02 | 28min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-11T21:48:24.176Z
-**Stopped at:** Completed 142-01-PLAN.md
+**Last session:** 2026-08-11T22:24:24.584Z
+**Stopped at:** Completed 142-02-PLAN.md
 **Resume file:** None
 
 ### Blockers
