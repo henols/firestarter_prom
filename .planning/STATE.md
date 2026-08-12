@@ -4,11 +4,11 @@ milestone: v1.31
 milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 143
 current_phase_name: Host Timeout, Progress & Pulse Override
-status: verifying
-stopped_at: Completed 142-07-PLAN.md
-last_updated: "2026-08-12T02:22:08.355Z"
+status: planning
+stopped_at: Phase 143 context gathered
+last_updated: "2026-08-12T16:35:27.444Z"
 last_activity: 2026-08-12
-last_activity_desc: Phase 142 complete, transitioned to Phase 143
+last_activity_desc: Phase 143 context gathered — dual-repo, ready for planning
 progress:
   total_phases: 8
   completed_phases: 5
@@ -2114,9 +2114,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-12T01:49:03.641Z
-**Stopped at:** Completed 142-07-PLAN.md
-**Resume file:** None
+**Last session:** 2026-08-12T16:35:27.405Z
+**Stopped at:** Phase 143 context gathered
+**Resume file:** .planning/phases/143-host-timeout-progress-pulse-override/143-CONTEXT.md
 
 ### Blockers
 
