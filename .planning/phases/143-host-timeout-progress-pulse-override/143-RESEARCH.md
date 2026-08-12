@@ -1545,7 +1545,10 @@ probably an operator note).
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+All five were settled during planning. Each carries an inline **RESOLVED** marker naming where it was
+actually settled — none is left for an executor to decide.
 
 1. **Is `configure_eprom`'s `pulse_delay == 0` fallback applied before `MSG_OK_READY` is packed?**
    - What we know: `init_programmer_framed` runs `parse_json` at `:130` and emits the ack at `:157`;
@@ -1556,6 +1559,15 @@ probably an operator note).
    - Recommendation: the firmware plan's first task must read the order and either pack the ack after
      the fallback or apply the same fallback inside `eprom_block_budget_s`. Add a native or
      source-contract assertion either way — this is A6 and it is a spurious-timeout path.
+   - **RESOLVED: YES — the fallback has already run.** Traced line-by-line in `143-PATTERNS.md` (the
+     "Ordering fact — RESEARCH Open Question 1 / A6 is RESOLVED YES" note, and the A6 row of the
+     corrections table): `parse_json` (`src/firestarter.cpp:52`) calls `configure_memory` at `:92`;
+     `init_programmer_framed` (`:115`) calls `parse_json` at `:130` and emits the ack at `:157`, so
+     `configure_eprom`'s fallback (`src/proms/eprom.cpp:68-75`) precedes the pack. No spurious-timeout
+     path. Residual, also recorded there: non-memory commands skip `configure_memory`, where
+     `eprom_params_for()` returns NULL → budget 0 → host clamp → `None` → D-10's fallback. Plan
+     **143-03 task 1** re-reads the ordering rather than trusting this note, and its acceptance criteria
+     require the RESOLVED-YES chain and its residual to be restated in the SUMMARY.
 
 2. **Should CAP-02's port be a `git cherry-pick` of `13eb350` or a re-implementation?**
    - What we know: `13eb350` is the unsquashed commit and touches only `src/firestarter.cpp`
@@ -1566,6 +1578,14 @@ probably an operator note).
      the commit message. This is cleaner than a cherry-pick followed by an amend, and it lets the
      `_ready[]` size and the pack sequence be written once. Ask the operator to confirm — this is a
      provenance question, and this milestone cares about provenance.
+   - **RESOLVED: re-implementation, with `13eb350` cited — and the operator confirms it, not the
+     planner.** Plan **143-03** ships the recommendation: CAP-02 is *ported, not invented*, re-implemented
+     inside the CAP-03 pack block in one commit that cites `13eb350`, explicitly **not** a cherry-pick
+     followed by an amend, and it reads `git show 13eb350 -- src/firestarter.cpp` first rather than
+     reconstructing the code from prose. The provenance half — the part only the operator can answer — is
+     carried to plan **143-10**'s blocking `checkpoint:human-verify` (Part C), which puts the
+     re-implementation-vs-cherry-pick choice in front of the operator by name and cites this open question
+     as the reason it is being asked.
 
 3. **Does the plan want an `#ifdef SERIAL_ON_IO` *positive* arm — an INFO-band heartbeat on Uno?**
    - What we know: INFO frames are also `rurp_log_id` calls and are therefore deferred too, so an
@@ -1576,6 +1596,14 @@ probably an operator note).
      spinner, which D-02 already rejected.
    - Recommendation: no positive arm. Record it as an explicit non-claim and, if desired, defer a
      host-side tick to a future milestone.
+   - **RESOLVED: no positive arm, exactly as recommended.** Plan **143-05** wraps both the emission *and
+     its state variable* in `#ifndef SERIAL_ON_IO` and records the three rejected alternatives with their
+     reasons (a runtime `com_mode` accessor, raising `DEFERRED_LOG_MAX`, and reserving headroom by emitting
+     at most `DEFERRED_LOG_MAX - 2` frames). The non-claim is not left to prose goodwill: D-06 gains a
+     second dimension — *intra-block write progress is emitted on the EPROM path only, and delivered on
+     `leonardo` only* — which plan **143-05**'s SUMMARY and plan **143-10**'s record gate both require,
+     and plan **143-08** proves the guard with a source-contract gate because the native oracle is
+     structurally blind to it. No host-side Uno tick is added here.
 
 4. **Does Phase 144's `dual-repo constants parity` leg (TEST-07) need to know about CAP-03?**
    - What we know: D-07 deliberately adds nothing to `constants.py`, so the `CMD_*`/`FLAG_*` parity
@@ -1585,6 +1613,12 @@ probably an operator note).
    - Recommendation: hand this to Phase 144 as a named finding — a byte-layout parity assertion (the
      host decodes a fixture built to the firmware's documented layout) is worth one test and is
      exactly what BF-1 would have caught.
+   - **RESOLVED: handed to Phase 144 / TEST-07 as a named finding, as recommended.** Plan **143-10**'s
+     record gate asserts the string `test-07` appears in `143-HOST-RECORD.md` ("the wire-layout parity
+     hand-off must be recorded"), so the hand-off is a machine-checked closure condition of this phase
+     rather than a hope. `constants.py` is deliberately untouched (D-07), so the existing `CMD_*`/`FLAG_*`
+     parity surface is unchanged and TEST-07's *new* obligation is exactly the byte-layout assertion
+     described here.
 
 5. **Should the `--pulse-us` bound be documented as minipro parity in `--help`?**
    - What we know: D-15 requires the record to state the provenance (`1..65535` is minipro parity,
@@ -1592,6 +1626,12 @@ probably an operator note).
    - Recommendation: put one clause in the `--help` text (as Example 6 does) so the bound is not
      mistaken for a hardware limit by a user who never reads the docs. The full reconciliation stays
      Phase 146's.
+   - **RESOLVED: yes, one `--help` clause, exactly as recommended.** Plan **143-07** task 2 requires the
+     `help` text to name the microsecond unit, the `1-65535` range and the minipro-parity provenance, with
+     an acceptance criterion asserting all three; threat **T-143-BOUNDCLAIM** makes describing the bound as
+     a hardware or wire limit a recorded, mitigated repudiation risk. H3's unclamped `extract_long` and the
+     full reconciliation stay Phase 146 / CLOSE-03 + CLOSE-04, and plan **143-10**'s record gate asserts
+     `minipro` appears in the record "as parity, not a type limit".
 
 ---
 
