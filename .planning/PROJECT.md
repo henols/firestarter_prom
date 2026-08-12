@@ -43,7 +43,7 @@
 stays vacant and is not reused) · **Firmware-touching, dual-repo lockstep** (`firestarter` +
 `firestarter_app`).
 
-**Current state (2026-08-10):** Phases 138–141 complete and verified. **Phase 141 (Per-Byte Program
+**Current state (2026-08-12):** Phases 138–142 complete and verified. **Phase 141 (Per-Byte Program
 Loop) CLOSED — 9 plans in 5 waves, verified 5/5 success criteria, LOOP-01…LOOP-08 all Complete.** The
 milestone's central change has landed: `eprom_write_execute` is now a per-byte fixed-width pulse→verify
 loop, and `program_mismatched_bytes()`, `verify_and_update_mask()`, `NUMBER_OF_RETRIES` and the adaptive
@@ -67,8 +67,31 @@ re-reads every byte unconditionally. The *pulse* skip LOOP-06 actually requires 
 `pio test -e native_trace_v131` is deliberately RED on 3 of 6 cases (frozen pre-change trace vs the new
 cadence, D-10); `141-NEW-TRACE.md` captures the post-change side so Phase 144 / TEST-06 owns the re-freeze
 and the diff. `native_loop_v131`, `native_params_v131` and `native_trace_v131` run in **no CI leg of
-either repo** — local run-by-name obligations, never implied coverage. Next: Phase 142 — High-Voltage
-Routing.
+either repo** — local run-by-name obligations, never implied coverage.
+
+**Phase 142 (High-Voltage Routing) CLOSED — 7 plans in 6 waves, verified 17/17 must-haves, VPP-01…VPP-04
+all Complete.** Route selection for all three 27C protocols now resolves in exactly one function,
+`eprom_hv_route_mask()`, driven by the parameter table's `vpp_path` column and exposed via `eprom.h` so
+both `eprom_check_vpp` and the write path call it — tier-1 protocol-keyed sites in `eprom.cpp` fell
+**3 → 1** (only the pulse-fallback switch survives, which D-01 forbids touching). `--vpe-as-vpp` still
+overrides on top. Two conditional single-exit wrappers make "disable every high-voltage route" structural
+on every error exit rather than a thing each `return` must remember; the final-pass `MSG_ERR_VERIFY` exit
+disabled **nothing** before this phase, confirmed by diffing against the Phase 141 tip. A successful block
+still deliberately stays energised so the once-per-block settle is not re-paid. `mem_util_calculate_top_address_register`
+now preserves the VPE-to-VPP drop bit for 32-pin parts on Rev 2-class hardware alone; the `pins >= 32`
+clear and the dead regulator helper are deleted. Evidence: `native_loop_v131` 71/71, firmware pytest 272,
+both pinned native envs 141/141, all three AVR targets building. **No new message id — `0xBF` stays free
+for Phase 143.**
+
+**Three limits recorded rather than smoothed** (see `142-VPP-RECORD.md`): (1) **MERGE-05 stays RED** and
+remains finding F-141-01 — not remediated. Phase 142 spent 142 B of leonardo flash, leaving **92.6%
+(2130 B headroom)**; uno 24568 B, uno328pb 24618 B. (2) Two goal criteria are proven **narrower than they
+read**: drop-bit *survival* across a block is Rev-2-class-only (Rev 0/1 share a physical register bit),
+and "success" for the disable guarantee is satisfied at the operation level via `command_done()`, not per
+block. (3) `command_done()`'s zeroing guarantee is asserted as a **source contract**, not a behavioural
+one, because `firestarter.cpp` sits outside every native `build_src_filter` — a behavioural oracle would
+need a seventh env. `native_trace_v131` remains deliberately RED (D-17) and moved only on the `0x08` row.
+Next: Phase 143 — Host Timeout, Progress & Pulse Override.
 
 **Goal:** Replace the block-level mismatch-mask write loop shared by all three 27C protocols with a
 per-byte pulse→verify loop driven by a per-protocol parameter table, so `0x07` / `0x08` / `0x0B`
