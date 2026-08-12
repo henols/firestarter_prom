@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.31
 milestone_name: — 27C Programming-Algorithm Fidelity
-current_phase: 142
-current_phase_name: High-Voltage Routing
+current_phase: 143
+current_phase_name: Host Timeout, Progress & Pulse Override
 status: verifying
 stopped_at: Completed 142-07-PLAN.md
-last_updated: "2026-08-12T01:49:03.663Z"
+last_updated: "2026-08-12T02:22:08.355Z"
 last_activity: 2026-08-12
-last_activity_desc: Completed 142-07-PLAN.md (CLAUDE.md reconciliation, cold flash/RAM measurement, 142-VPP-RECORD.md, VPP-01..04 flipped Complete)
+last_activity_desc: Phase 142 complete, transitioned to Phase 143
 progress:
   total_phases: 8
   completed_phases: 5
@@ -111,10 +111,10 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 ## Current Position
 
-Phase: 142 (High-Voltage Routing) — EXECUTING
-Plan: 7 of 7
+Phase: 143 — Host Timeout, Progress & Pulse Override
+Plan: Not started
 Status: Phase complete — ready for verification
-Last activity: 2026-08-12 — Completed 142-07-PLAN.md (CLAUDE.md reconciliation, cold flash/RAM measurement, 142-VPP-RECORD.md, VPP-01..04 flipped Complete)
+Last activity: 2026-08-12 — Phase 142 complete, transitioned to Phase 143
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
 `checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes
