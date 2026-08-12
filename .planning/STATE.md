@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 142
 current_phase_name: High-Voltage Routing
 status: executing
-stopped_at: Completed 142-05-PLAN.md
-last_updated: "2026-08-12T00:22:28.599Z"
-last_activity: 2026-08-11
-last_activity_desc: Phase 142 execution started
+stopped_at: Completed 142-06-PLAN.md
+last_updated: "2026-08-12T00:57:36.932Z"
+last_activity: 2026-08-12
+last_activity_desc: Completed 142-06-PLAN.md (command_done source contract + VPP-03 structural gate)
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 35
-  completed_plans: 33
+  completed_plans: 34
   percent: 50
 ---
 
@@ -112,9 +112,9 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 142 (High-Voltage Routing) — EXECUTING
-Plan: 6 of 7
+Plan: 7 of 7
 Status: Ready to execute
-Last activity: 2026-08-11 — Phase 142 execution started
+Last activity: 2026-08-12 — Completed 142-06-PLAN.md (command_done source contract + VPP-03 structural gate)
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
 `checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes
@@ -1870,6 +1870,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 142]: 142-05: Case E1 (write_init's error exit) deliberately reuses plan 142-03's VPP-04(b) drive, restated under VPP-02's disable-guarantee requirement (D-12) as defensive cover (C-3), not a fix.
 - [Phase 142]: 142-05: Task 2's non-vacuity guard for the measure/apply equality proof is asserted on leg A alone (unaffected by the planted violation), so the plant's failure lands exactly on the equality assertion.
 - [Phase 142]: 142-05: Added a local vpp_k0b(addr)=addr+0x2000 adapter for VPP_BUS_CONFIG_0x0B's nonzero static_high_mask -- the first 0x0B write this suite drives.
+- [Phase 142]: [Phase 142 Plan 06]: command_done() source-contract gate + VPP-03 structural gate authored (test_hv_routing_source_contract_v142.py, 16 legs, 2 env seams); include/-wide composite-count leg left UNPLANTED by decision (a third glob seam would contradict the module's fixed two-seam contract, and the plan forbids planting via a transient edit to include/rurp_pinout.h given its zero-headroom warning watermark) -- the other 9 planted fixtures already exceed the plan's 'at least nine' floor.
 
 ## Performance Metrics
 
@@ -2105,11 +2106,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 142 P03 | 27min | 3 tasks | 1 files |
 | Phase 142 P04 | 31min | 1 tasks | 5 files |
 | Phase 142 P05 | ~42min | 3 tasks | 1 files |
+| Phase 142 P06 | 31min | 3 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-12T00:22:28.557Z
-**Stopped at:** Completed 142-05-PLAN.md
+**Last session:** 2026-08-12T00:56:27.750Z
+**Stopped at:** Completed 142-06-PLAN.md
 **Resume file:** None
 
 ### Blockers
