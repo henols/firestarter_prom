@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 143
 current_phase_name: Host Timeout, Progress & Pulse Override
 status: executing
-stopped_at: Completed 143-01-PLAN.md
-last_updated: "2026-08-12T23:23:36.365Z"
+stopped_at: Completed 143-02-PLAN.md
+last_updated: "2026-08-12T23:50:33.478Z"
 last_activity: 2026-08-12
 last_activity_desc: Phase 143 execution started
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 45
-  completed_plans: 36
+  completed_plans: 37
   percent: 63
 ---
 
@@ -112,8 +112,8 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 143 (Host Timeout, Progress & Pulse Override) — EXECUTING
-Plan: 2 of 10
-Status: Executing Phase 143 (Plan 143-01 complete)
+Plan: 3 of 10
+Status: Ready to execute
 Last activity: 2026-08-12 — Phase 143 execution started
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
@@ -1877,6 +1877,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 143 Plan 01]: eprom_worst_pulses/eprom_per_byte_budget_us take column values explicitly (not a protocol id) so the overprogram term stays reachable by a native case even though every shipped row carries overprogram_factor 0
 - [Phase 143 Plan 01]: eprom_block_budget_s CALLS eprom_params_for + eprom_overprogram_us rather than restating either -- the budget cannot drift from the shipped loop's runtime behaviour
 - [Phase 143 Plan 01]: Registered src/proms/eprom_budget.cpp in platform/py32f071/CMakeLists.txt's FIRESTARTER_COMMON_SOURCES (Rule 3 auto-fix) -- pure Arduino-free arithmetic with a real ARM analogue, exactly like eprom.cpp/eprom_params.cpp; required to reach the plan's own 272-passed pytest target
+- [Phase 143]: 143-02: WRITE_BUDGET_MAX_S=14400 carried through verbatim from RESEARCH's own derivation (ceil(25*65535*4096/1e6)*2+2=13424, rounded to 14400) -- not re-derived independently
+- [Phase 143]: 143-02 D-25 finding: Plant A (ver_end -> literal 4) produced BOTH cap03 identity-length cases RED, not the plan's predicted case-1-GREEN/case-2-RED asymmetry, because both mandated fixtures share the 3.0.0: prefix -- recorded honestly, fixture data not altered to force the predicted shape
+- [Phase 143]: 143-02 does NOT fix BF-1: v1.31 firmware still emits a bare 2-byte MSG_OK_READY and is refused by _probe_port (test_absent_identity_refuses) until plan 143-03 ports CAP-02's firmware emit
 
 ## Performance Metrics
 
@@ -2115,11 +2118,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 142 P06 | 31min | 3 tasks | 1 files |
 | Phase 142 P07 | 47min | 3 tasks | 4 files |
 | Phase 143 P01 | 36min | 2 tasks | 4 files |
+| Phase 143 P02 | 23min | 2 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-12T23:23:36.323Z
-**Stopped at:** Completed 143-01-PLAN.md
+**Last session:** 2026-08-12T23:50:33.422Z
+**Stopped at:** Completed 143-02-PLAN.md
 **Resume file:** None
 
 ### Blockers
