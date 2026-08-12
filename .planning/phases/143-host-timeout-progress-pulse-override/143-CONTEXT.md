@@ -606,5 +606,3 @@ Seven todos matched by keyword; none folded. The top four scored 0.9 on bare-wor
 
 *Phase: 143-Host-Timeout-Progress-Pulse-Override*
 *Context gathered: 2026-08-12*
-</content>
-</invoke>

@@ -184,4 +184,3 @@ Full list with reasons in CONTEXT.md `<deferred>`. Raised or surfaced during thi
 - Correcting the roadmap's "Phase 143 is independent of 140–142" prose — Phase 146 / CLOSE-04.
 - Seven keyword-matched todos reviewed, **none folded** — the four scoring 0.9 matched on bare-word
   overlap only and belong to other protocol families or subsystems.
-</content>
