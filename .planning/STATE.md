@@ -4,15 +4,15 @@ milestone: v1.31
 milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 143
 current_phase_name: Host Timeout, Progress & Pulse Override
-status: planning
-stopped_at: Phase 143 context gathered
-last_updated: "2026-08-12T16:35:27.444Z"
+status: executing
+stopped_at: Phase 143 planned — 10 plans in 5 waves, ready to execute
+last_updated: "2026-08-12T21:11:28.291Z"
 last_activity: 2026-08-12
-last_activity_desc: Phase 143 context gathered — dual-repo, ready for planning
+last_activity_desc: Phase 143 planned — 10 plans in 5 waves, ready for execute-phase
 progress:
   total_phases: 8
   completed_phases: 5
-  total_plans: 35
+  total_plans: 45
   completed_plans: 35
   percent: 63
 ---
@@ -112,9 +112,9 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 143 — Host Timeout, Progress & Pulse Override
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-08-12 — Phase 142 complete, transitioned to Phase 143
+Plan: 10 plans in 5 waves — none started
+Status: Ready to execute
+Last activity: 2026-08-12 — Phase 143 planned (10 plans, 5 waves); plan-checker passed on revision 1
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
 `checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes
