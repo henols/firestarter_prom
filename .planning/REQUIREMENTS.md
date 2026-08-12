@@ -202,13 +202,13 @@ expected work, not a regression.
 
 ### High-Voltage Routing
 
-- [ ] **VPP-01**: `0x07` and `0x08` use the regulator + VPE-to-VPP dropping path and `0x0B` the direct
+- [x] **VPP-01**: `0x07` and `0x08` use the regulator + VPE-to-VPP dropping path and `0x0B` the direct
       legacy path, selected by the table's `vpp_path` column.
-- [ ] **VPP-02**: **Every** exit from the write path — success, verify failure, max-pulse failure,
+- [x] **VPP-02**: **Every** exit from the write path — success, verify failure, max-pulse failure,
       error return — disables every active high-voltage route.
-- [ ] **VPP-03**: `eprom_check_vpp()` and all write and error paths share one set of routing masks
+- [x] **VPP-03**: `eprom_check_vpp()` and all write and error paths share one set of routing masks
       rather than duplicating them.
-- [ ] **VPP-04**: The firmware over-voltage refusal is unchanged and still blocks, re-verified against
+- [x] **VPP-04**: The firmware over-voltage refusal is unchanged and still blocks, re-verified against
       the existing gate rather than assumed intact.
 
 ### Host
@@ -314,10 +314,10 @@ Deferred. Tracked but not in this roadmap.
 | LOOP-06 | Phase 141 | Complete |
 | LOOP-07 | Phase 141 | Complete |
 | LOOP-08 | Phase 141 | Complete |
-| VPP-01 | Phase 142 | Pending |
-| VPP-02 | Phase 142 | Pending |
-| VPP-03 | Phase 142 | Pending |
-| VPP-04 | Phase 142 | Pending |
+| VPP-01 | Phase 142 | Complete |
+| VPP-02 | Phase 142 | Complete |
+| VPP-03 | Phase 142 | Complete |
+| VPP-04 | Phase 142 | Complete |
 | HOST-01 | Phase 143 | Pending |
 | HOST-02 | Phase 143 | Pending |
 | HOST-03 | Phase 143 | Pending |

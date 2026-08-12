@@ -456,10 +456,10 @@ Plans:
 | LOOP-06 | Phase 141 | Complete |
 | LOOP-07 | Phase 141 | Complete |
 | LOOP-08 | Phase 141 | Complete |
-| VPP-01 | Phase 142 | Pending |
-| VPP-02 | Phase 142 | Pending |
-| VPP-03 | Phase 142 | Pending |
-| VPP-04 | Phase 142 | Pending |
+| VPP-01 | Phase 142 | Complete |
+| VPP-02 | Phase 142 | Complete |
+| VPP-03 | Phase 142 | Complete |
+| VPP-04 | Phase 142 | Complete |
 | HOST-01 | Phase 143 | Pending |
 | HOST-02 | Phase 143 | Pending |
 | HOST-03 | Phase 143 | Pending |
