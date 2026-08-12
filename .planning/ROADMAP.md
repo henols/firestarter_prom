@@ -405,7 +405,7 @@ Plans:
 
 **Wave 1** *(two plans, one per sub-repo, no file overlap)*
 
-- [ ] 143-01-PLAN.md — The corrected **BF-3** budget arithmetic as a **new, unpinned** `src/proms/eprom_budget.{h,cpp}` TU (D-07, D-09, D-11-as-corrected): `ceil(energy_cap/pulse)` pulse count, `energy_cap_us == 0` as UNCAPPED, the shipped `eprom_overprogram_us` **called** not restated, overflow-safe seconds conversion and the ×2+2 padding rule stated in prose — plus six native cases including the `0x0B` @ 49999 µs → 99 998 µs headline, each seen RED under a named production-code plant [firestarter]
+- [x] 143-01-PLAN.md — The corrected **BF-3** budget arithmetic as a **new, unpinned** `src/proms/eprom_budget.{h,cpp}` TU (D-07, D-09, D-11-as-corrected): `ceil(energy_cap/pulse)` pulse count, `energy_cap_us == 0` as UNCAPPED, the shipped `eprom_overprogram_us` **called** not restated, overflow-safe seconds conversion and the ×2+2 padding rule stated in prose — plus six native cases including the `0x0B` @ 49999 µs → 99 998 µs headline, each seen RED under a named production-code plant [firestarter]
 - [ ] 143-02-PLAN.md — CAP-03's **host half** (D-08, D-13): a third length-discriminated `MSG_OK_READY` field read at the **computed `ver_end`**, a derived `[1, 14400]` plausibility clamp, the attribute declared at **class** level and mirrored into `make_comm`, and five decode cases proving the offset against **two identity lengths** — the byte-layout parity assertion that would have caught BF-1 [firestarter_app]
 
 **Wave 2** *(blocked on Wave 1)*

@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 143
 current_phase_name: Host Timeout, Progress & Pulse Override
 status: executing
-stopped_at: Phase 143 planned — 10 plans in 5 waves, ready to execute
-last_updated: "2026-08-12T21:11:28.291Z"
+stopped_at: Completed 143-01-PLAN.md
+last_updated: "2026-08-12T23:23:36.365Z"
 last_activity: 2026-08-12
-last_activity_desc: Phase 143 planned — 10 plans in 5 waves, ready for execute-phase
+last_activity_desc: Phase 143 execution started
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 45
-  completed_plans: 35
+  completed_plans: 36
   percent: 63
 ---
 
@@ -29,7 +29,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-08 — v1.31 started)
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
 authoritative dispatch key end to end. v1.31 makes that key drive *programming behaviour*, not just
 handler selection — while keeping the pulse width itself a database datum, not a protocol constant.
-**Current focus:** Phase 142 — High-Voltage Routing
+**Current focus:** Phase 143 — Host Timeout, Progress & Pulse Override
 
 **v1.31 27C Programming-Algorithm Fidelity (gh#15)** — ACTIVE (activated 2026-08-08, retiring Backlog
 **999.22** which was queued as the `v1.27` slot). **Firmware-touching, dual-repo lockstep.** Phase
@@ -111,10 +111,10 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 ## Current Position
 
-Phase: 143 — Host Timeout, Progress & Pulse Override
-Plan: 10 plans in 5 waves — none started
-Status: Ready to execute
-Last activity: 2026-08-12 — Phase 143 planned (10 plans, 5 waves); plan-checker passed on revision 1
+Phase: 143 (Host Timeout, Progress & Pulse Override) — EXECUTING
+Plan: 2 of 10
+Status: Executing Phase 143 (Plan 143-01 complete)
+Last activity: 2026-08-12 — Phase 143 execution started
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
 `checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes
@@ -1874,6 +1874,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 142]: 142-07: firestarter/CLAUDE.md's 0x08 pre-existing-defect paragraph retired and replaced; all three Algorithm Handlers rows now name the shared eprom_hv_route_mask() resolver, --vpe-as-vpp, the conditional wrapper and command_done() -- landed as a docs-only commit (142-PATTERNS.md SJ-1 house pattern, not a same-commit bundling)
 - [Phase 142]: 142-07: MERGE-05 recorded with BOTH baseline anchors shown verbatim (bare default = unmoved v1.24 relic, +614/+614/+526; explicit BASE-01 matching 141-LOOP-RECORD.md's own anchor, +636/+642/+470) rather than picking one -- F-142-09, owner Phase 144/TEST-08. Neither baseline JSON edited.
 - [Phase 142]: 142-07: all four VPP-01..04 requirements flipped Complete by hand edit (not the requirements/roadmap SDK verbs) in both REQUIREMENTS.md and ROADMAP.md coverage tables, snapshot-diff-verified at exactly 8 and 4 changed lines -- Phase 142 fully discharged, no requirement open
+- [Phase 143 Plan 01]: eprom_worst_pulses/eprom_per_byte_budget_us take column values explicitly (not a protocol id) so the overprogram term stays reachable by a native case even though every shipped row carries overprogram_factor 0
+- [Phase 143 Plan 01]: eprom_block_budget_s CALLS eprom_params_for + eprom_overprogram_us rather than restating either -- the budget cannot drift from the shipped loop's runtime behaviour
+- [Phase 143 Plan 01]: Registered src/proms/eprom_budget.cpp in platform/py32f071/CMakeLists.txt's FIRESTARTER_COMMON_SOURCES (Rule 3 auto-fix) -- pure Arduino-free arithmetic with a real ARM analogue, exactly like eprom.cpp/eprom_params.cpp; required to reach the plan's own 272-passed pytest target
 
 ## Performance Metrics
 
@@ -2111,12 +2114,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 142 P05 | ~42min | 3 tasks | 1 files |
 | Phase 142 P06 | 31min | 3 tasks | 1 files |
 | Phase 142 P07 | 47min | 3 tasks | 4 files |
+| Phase 143 P01 | 36min | 2 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-12T16:35:27.405Z
-**Stopped at:** Phase 143 context gathered
-**Resume file:** .planning/phases/143-host-timeout-progress-pulse-override/143-CONTEXT.md
+**Last session:** 2026-08-12T23:23:36.323Z
+**Stopped at:** Completed 143-01-PLAN.md
+**Resume file:** None
 
 ### Blockers
 
