@@ -367,7 +367,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4; two plans, disjoint files)*
 
-- [ ] 142-05-PLAN.md — The resolver's full truth table including the fail-closed arm no drive can reach, route-strobe proofs for the direct path / the `--vpe-as-vpp` override / the Rev 1 negative, the measure-versus-apply equality proof that is VPP-03's honest headline, and the write-path error-exit route-clear proofs including the final-pass verify exit that disabled **nothing** before this phase [firestarter]
+- [x] 142-05-PLAN.md — The resolver's full truth table including the fail-closed arm no drive can reach, route-strobe proofs for the direct path / the `--vpe-as-vpp` override / the Rev 1 negative, the measure-versus-apply equality proof that is VPP-03's honest headline, and the write-path error-exit route-clear proofs including the final-pass verify exit that disabled **nothing** before this phase [firestarter]
 - [ ] 142-06-PLAN.md — A new source-contract gate module: `command_done()`'s three zeroing writes pinned inside its own body with both dispatch arms asserted individually (D-09's owed test), VPP-03's one-resolver / one-composite / no-hand-rolled-survivor structure, and three self-protection legs, every absence needle concatenation-built and every leg seen RED on a scratch fixture behind an import-time env seam [firestarter]
 
 **Wave 6** *(blocked on Waves 4 and 5)*
