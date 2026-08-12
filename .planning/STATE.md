@@ -4,17 +4,17 @@ milestone: v1.31
 milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 142
 current_phase_name: High-Voltage Routing
-status: executing
-stopped_at: Completed 142-06-PLAN.md
-last_updated: "2026-08-12T00:57:36.932Z"
+status: verifying
+stopped_at: Completed 142-07-PLAN.md
+last_updated: "2026-08-12T01:49:03.663Z"
 last_activity: 2026-08-12
-last_activity_desc: Completed 142-06-PLAN.md (command_done source contract + VPP-03 structural gate)
+last_activity_desc: Completed 142-07-PLAN.md (CLAUDE.md reconciliation, cold flash/RAM measurement, 142-VPP-RECORD.md, VPP-01..04 flipped Complete)
 progress:
   total_phases: 8
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 35
-  completed_plans: 34
-  percent: 50
+  completed_plans: 35
+  percent: 63
 ---
 
 # Project State
@@ -113,8 +113,8 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 Phase: 142 (High-Voltage Routing) — EXECUTING
 Plan: 7 of 7
-Status: Ready to execute
-Last activity: 2026-08-12 — Completed 142-06-PLAN.md (command_done source contract + VPP-03 structural gate)
+Status: Phase complete — ready for verification
+Last activity: 2026-08-12 — Completed 142-07-PLAN.md (CLAUDE.md reconciliation, cold flash/RAM measurement, 142-VPP-RECORD.md, VPP-01..04 flipped Complete)
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
 `checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes
@@ -1871,6 +1871,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 142]: 142-05: Task 2's non-vacuity guard for the measure/apply equality proof is asserted on leg A alone (unaffected by the planted violation), so the plant's failure lands exactly on the equality assertion.
 - [Phase 142]: 142-05: Added a local vpp_k0b(addr)=addr+0x2000 adapter for VPP_BUS_CONFIG_0x0B's nonzero static_high_mask -- the first 0x0B write this suite drives.
 - [Phase 142]: [Phase 142 Plan 06]: command_done() source-contract gate + VPP-03 structural gate authored (test_hv_routing_source_contract_v142.py, 16 legs, 2 env seams); include/-wide composite-count leg left UNPLANTED by decision (a third glob seam would contradict the module's fixed two-seam contract, and the plan forbids planting via a transient edit to include/rurp_pinout.h given its zero-headroom warning watermark) -- the other 9 planted fixtures already exceed the plan's 'at least nine' floor.
+- [Phase 142]: 142-07: firestarter/CLAUDE.md's 0x08 pre-existing-defect paragraph retired and replaced; all three Algorithm Handlers rows now name the shared eprom_hv_route_mask() resolver, --vpe-as-vpp, the conditional wrapper and command_done() -- landed as a docs-only commit (142-PATTERNS.md SJ-1 house pattern, not a same-commit bundling)
+- [Phase 142]: 142-07: MERGE-05 recorded with BOTH baseline anchors shown verbatim (bare default = unmoved v1.24 relic, +614/+614/+526; explicit BASE-01 matching 141-LOOP-RECORD.md's own anchor, +636/+642/+470) rather than picking one -- F-142-09, owner Phase 144/TEST-08. Neither baseline JSON edited.
+- [Phase 142]: 142-07: all four VPP-01..04 requirements flipped Complete by hand edit (not the requirements/roadmap SDK verbs) in both REQUIREMENTS.md and ROADMAP.md coverage tables, snapshot-diff-verified at exactly 8 and 4 changed lines -- Phase 142 fully discharged, no requirement open
 
 ## Performance Metrics
 
@@ -2107,11 +2110,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 142 P04 | 31min | 1 tasks | 5 files |
 | Phase 142 P05 | ~42min | 3 tasks | 1 files |
 | Phase 142 P06 | 31min | 3 tasks | 1 files |
+| Phase 142 P07 | 47min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-12T00:56:27.750Z
-**Stopped at:** Completed 142-06-PLAN.md
+**Last session:** 2026-08-12T01:49:03.641Z
+**Stopped at:** Completed 142-07-PLAN.md
 **Resume file:** None
 
 ### Blockers

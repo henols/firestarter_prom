@@ -372,7 +372,7 @@ Plans:
 
 **Wave 6** *(blocked on Waves 4 and 5)*
 
-- [ ] 142-07-PLAN.md — `firestarter/CLAUDE.md`'s three algorithm-handler rows reconciled as a **docs-only** commit (the measured house pattern, not CONTEXT's same-change reading), cold flash/RAM on all three AVR targets with the MERGE-05 and warning-watermark verdicts verbatim, `142-VPP-RECORD.md` with the **qualified** SC1, every non-claim, the D-15 inventory, the findings register and the hand-offs, and all four `VPP-*` requirements flipped in both coverage tables by one hand edit [meta, firestarter]
+- [x] 142-07-PLAN.md — `firestarter/CLAUDE.md`'s three algorithm-handler rows reconciled as a **docs-only** commit (the measured house pattern, not CONTEXT's same-change reading), cold flash/RAM on all three AVR targets with the MERGE-05 and warning-watermark verdicts verbatim, `142-VPP-RECORD.md` with the **qualified** SC1, every non-claim, the D-15 inventory, the findings register and the hand-offs, and all four `VPP-*` requirements flipped in both coverage tables by one hand edit [meta, firestarter]
 
 ### Phase 143: Host Timeout, Progress & Pulse Override
 
