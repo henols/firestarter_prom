@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 143
 current_phase_name: Host Timeout, Progress & Pulse Override
 status: executing
-stopped_at: Completed 143-02-PLAN.md
-last_updated: "2026-08-12T23:50:33.478Z"
+stopped_at: Completed 143-03-PLAN.md
+last_updated: "2026-08-13T00:44:11.606Z"
 last_activity: 2026-08-12
 last_activity_desc: Phase 143 execution started
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 45
-  completed_plans: 37
+  completed_plans: 38
   percent: 63
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 143 (Host Timeout, Progress & Pulse Override) — EXECUTING
-Plan: 3 of 10
+Plan: 4 of 10
 Status: Ready to execute
 Last activity: 2026-08-12 — Phase 143 execution started
 
@@ -1880,6 +1880,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 143]: 143-02: WRITE_BUDGET_MAX_S=14400 carried through verbatim from RESEARCH's own derivation (ceil(25*65535*4096/1e6)*2+2=13424, rounded to 14400) -- not re-derived independently
 - [Phase 143]: 143-02 D-25 finding: Plant A (ver_end -> literal 4) produced BOTH cap03 identity-length cases RED, not the plan's predicted case-1-GREEN/case-2-RED asymmetry, because both mandated fixtures share the 3.0.0: prefix -- recorded honestly, fixture data not altered to force the predicted shape
 - [Phase 143]: 143-02 does NOT fix BF-1: v1.31 firmware still emits a bare 2-byte MSG_OK_READY and is refused by _probe_port (test_absent_identity_refuses) until plan 143-03 ports CAP-02's firmware emit
+- [Phase 143-03]: CAP-02 ported verbatim from upstream 13eb350 inside the SAME pack block as CAP-03 (BF-1 closed), rather than as a separate emit — keeps the _ready[] buffer and pack sequence written once; cited in the commit message per RESEARCH Open Question 2
+- [Phase 143-03]: test_scan_targets_are_non_vacuous reads the seam-aware _SCAN_DISPATCH (not a second seam-independent recompute) for its non-empty-body half — the only way an empty-scratch-file plant can meaningfully turn this leg RED, per the plan's own D-25 instruction; documented as a deliberate departure from the strict source-contract analog
+- [Phase 143-03]: Re-pinned test_config_schema_pinned.py's C-14 census line numbers (40/103/109 -> 41/104/110) after task 1's #include insertion shifted them — Rule 1 auto-fix caught by this plan's own required whole-suite pytest run; the census is a hand-pinned tuple with no re-derivation script
 
 ## Performance Metrics
 
@@ -2119,11 +2122,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 142 P07 | 47min | 3 tasks | 4 files |
 | Phase 143 P01 | 36min | 2 tasks | 4 files |
 | Phase 143 P02 | 23min | 2 tasks | 3 files |
+| Phase 143 P03 | 48min | 2 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-12T23:50:33.422Z
-**Stopped at:** Completed 143-02-PLAN.md
+**Last session:** 2026-08-13T00:44:11.550Z
+**Stopped at:** Completed 143-03-PLAN.md
 **Resume file:** None
 
 ### Blockers
