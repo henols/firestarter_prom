@@ -440,7 +440,47 @@ Plans:
   3. `uno`, `uno328pb`, `leonardo`, and `native` all build and their test suites pass; the host suite passes; CI-scoped ruff/mypy are clean; the firmware/host constants pairs (`CMD_*`/`FLAG_*` and related) match across both repos.
   4. Per-target flash and RAM usage is measured against the Phase 138 baseline and the delta recorded, with the Leonardo ceiling checked explicitly rather than discovered after the fact.
 
-**Plans**: TBD
+**Plans**: 7 plans
+
+Every plan declares `commits_land_in:` (D-19) because this phase is dual-repo. Firmware plans are
+**serialised rather than parallel** even where their `files_modified` sets are disjoint:
+`test_flash_path_record_sync.py` asserts the WHOLE firmware repo's `git status --porcelain`, so a second
+plan's uncommitted file turns the first plan's suite run RED (D-20 / F-09). The host half is separable in
+*content* but not in *scheduling* — `test_py32_flash_map_host.py` asserts the SIBLING firmware repo's
+porcelain, so the host sweep waits for every firmware commit. **No file under `firestarter/src/` is touched
+(D-04)**, so both `protocol_branch_inventory.json` pins stay green throughout — a first for this milestone.
+
+Requirement ticking is centralised: `144-01` … `144-06` tick **none**; `144-07` ticks **TEST-01 … TEST-08**
+(all eight, in one hand edit across both coverage tables, behind a blocking operator gate, after every piece
+of evidence exists). Every new gate leg is seen RED on a named planted violation and GREEN for the right
+reason (D-18) — ten plants in total, both transcripts verbatim in the owning plan's SUMMARY.
+
+Plans:
+
+**Wave 1** *(two plans, one per sub-repo, no file overlap)*
+
+- [ ] 144-01-PLAN.md — D-01's machine-checked **requirement→case mapping gate** as a pytest module under `firestarter/tests/` (never `scripts/`, where `FLOOR=6`/`FIXTURE_FLOOR=15` sit at zero headroom): a frozen `TEST-0N → case names` literal covering all 29 verified cases across the three mapped v131 suites, C-04's phantom "two fallback cases" corrected to the six real params cases, the trace suite excluded because its 6th `RUN_TEST` is `#ifdef`-guarded (C-05), hardcoded floors 88/47/32/9, the two-half non-vacuity leg, and two child-process plants — a renamed case and an emptied scan root [firestarter]
+- [ ] 144-02-PLAN.md — D-17's **cross-repo CAP-03 byte-layout parity gate** in `firestarter_app/tests/`, behind `requires_fw`/`fw_path`: the comparison neither repo performs, asserting index identity for bytes 0–3, big-endian on both u16 fields, the emitted length including both budget bytes, and the budget read at the **computed `ver_end`** never a literal — with two committed `planted_cap03_*.cpp` fixtures (a literal `_ready[13]`, and an emitted length missing its `+ 2`), plus `src/firestarter.cpp` registered in `scan_paths.py` [firestarter_app]
+
+**Wave 2** *(blocked on Wave 1 — same firmware working tree)*
+
+- [ ] 144-03-PLAN.md — **The milestone's first standing RED retired**, in ONE commit (F-05, because the identity gate reads `HEAD:` not the worktree): D-05's pure `git mv` preserving blob `ca3e09f1…`, D-06's fresh capture at this phase's tip validated against three stale-paste discriminators and totalling **91 / 115 / 59** (never `141-NEW-TRACE.md`'s stale 119), and D-08's inventory re-pointed with `git hash-object` predicted before staging and `recorded_at_head` naming the commit's parent — after which `native_trace_v131` runs 5 cases, 0 failed [firestarter]
+
+**Wave 3** *(blocked on Wave 2 — needs both fixtures)*
+
+- [ ] 144-04-PLAN.md — D-07's **exhaustiveness gate**: a structural six-segment state machine keyed on the `OUTPUT_ENABLE` toggle (comment-keyed segmentation is impossible — the new capture emits only `/* N */`), partitioning all **885** entries (620 pre-change + 265 new) by **set equality over index ranges plus disjointness**, never a count sum; every present segment carrying a named attribution from Phases 140–143; the `7 + 12 = 19` known-answer self-test; and two plants — an unclassifiable entry, and one entry deleted plus one duplicated so the length is unchanged [firestarter]
+
+**Wave 4** *(blocked on Wave 3 — must observe the final tree)*
+
+- [ ] 144-05-PLAN.md — D-02's **ONE cold consolidated run** (three AVR targets, five native envs, long explicit timeouts, `pio run -t clean` first) recording **+870 / +870 / +890 B** flash with RAM unmoved and leonardo at **93.8% / 1766 B**; then D-10/D-11/D-12/D-13's re-anchor of all three baselines with `size_baseline_v131.json` gaining the two env records it never held (C-01) — plus **OD-01's collateral in the same commit**: three re-captured and four re-derived `.log` fixtures (24889 / 26907 / 24824+RAM 1574 / 27418) keeping `delta=+65` and `delta=+1` alive, and two figure literals. **The milestone's second standing RED retired, disclosed as an anchor move** [firestarter]
+
+**Wave 5** *(blocked on every firmware commit — the host suite asserts the sibling repo's porcelain)*
+
+- [ ] 144-06-PLAN.md — TEST-07's host half: D-16's **bidirectional** constants parity (present path verbatim; absent path a **child process** with `FIRESTARTER_FW_ROOT` at a `.git`-free empty dir, evidenced by the **skip count** and the 6-passed/8-skipped known answer, never by exit 0 alone), plus D-21's measurement and F-12's four CI-scoped commands on `.venv/ci-replica/bin/python` 3.11.15 with `-o addopts=""` — cited at `ci.yml` **:81 / :84 / :87 / :90** (C-02) [meta, reads both sub-repos]
+
+**Wave 6** *(blocked on Waves 4–5)*
+
+- [ ] 144-07-PLAN.md — `144-TEST-RECORD.md` with every verdict verbatim, the per-segment attribution table, the ten-plant D-18 inventory, and four disclosures stated rather than implied: **D-14's** constrained sentence (MERGE-05 green because the **anchor moved**, not because growth stayed inside v1.24's band), **D-03's** non-claim (arithmetic proven; in-loop wiring on a live row not, because no shipped row sets `overprogram_factor`), **D-08's** un-gated prechange file, and **D-15's** absence (the three `*_v131` envs run in **no CI leg** of either repository) — then all eight `TEST-*` requirements flipped in both coverage tables behind a blocking operator gate, with a snapshot-and-diff proving nothing else moved [meta]
 
 ### Phase 145: Bench Validation
 
