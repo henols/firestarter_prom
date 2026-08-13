@@ -421,7 +421,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3; two plans, one per sub-repo)*
 
-- [ ] 143-08-PLAN.md — The **BF-2** source-contract gate: the emit **and** its state variable pinned inside `#ifndef SERIAL_ON_IO` by preprocessor-depth tracking inside a brace-matched `eprom_internal_write_execute_body`, the payload's one-contract argument, the named interval, and `-D SERIAL_ON_IO`'s env scope pinned in **both** directions — with three self-protection legs and every leg seen RED on a scratch copy behind an env seam, including the empty-body plant that makes the rest non-vacuous [firestarter]
+- [x] 143-08-PLAN.md — The **BF-2** source-contract gate: the emit **and** its state variable pinned inside `#ifndef SERIAL_ON_IO` by preprocessor-depth tracking inside a brace-matched `eprom_internal_write_execute_body`, the payload's one-contract argument, the named interval, and `-D SERIAL_ON_IO`'s env scope pinned in **both** directions — with three self-protection legs and every leg seen RED on a scratch copy behind an env seam, including the empty-body plant that makes the rest non-vacuous [firestarter]
 - [ ] 143-09-PLAN.md — HOST-03 as **render-and-prove plus a hint**, not a re-plumb (D-19): `0xBD`/`0xBE` surfacing as `EpromOperationError` naming the address and `0xAE` carrying the `--pulse-us` remediation clause that makes D-16's disposition actionable, a hint stating the **abort's** semantics with **no** retry or resumption (D-21, enforced by concatenation-built forbidden substrings), and a source-contract leg proving no host path keys on the dead `0xB1` (D-20) [firestarter_app]
 
 **Wave 5** *(blocked on Waves 2–4)*
