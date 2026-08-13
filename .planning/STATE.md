@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 143
 current_phase_name: Host Timeout, Progress & Pulse Override
 status: executing
-stopped_at: Completed 143-04-PLAN.md
-last_updated: "2026-08-13T01:28:59.379Z"
+stopped_at: Completed 143-05-PLAN.md
+last_updated: "2026-08-13T02:16:53.249Z"
 last_activity: 2026-08-12
 last_activity_desc: Phase 143 execution started
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 45
-  completed_plans: 39
+  completed_plans: 40
   percent: 63
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 143 (Host Timeout, Progress & Pulse Override) — EXECUTING
-Plan: 5 of 10
+Plan: 6 of 10
 Status: Ready to execute
 Last activity: 2026-08-12 — Phase 143 execution started
 
@@ -1885,6 +1885,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 143-03]: Re-pinned test_config_schema_pinned.py's C-14 census line numbers (40/103/109 -> 41/104/110) after task 1's #include insertion shifted them — Rule 1 auto-fix caught by this plan's own required whole-suite pytest run; the census is a hand-pinned tuple with no re-derivation script
 - [Phase 143]: _write_block_timeout uses a symmetric [1, WRITE_BUDGET_MAX_S] range check, not lower-bound-only — Task 1's Test 3 requires both 0 and 999999 to fall back to 120.0; a lower-bound-only guard would let 999999 pass through unclamped
 - [Phase 143]: Test 6 (fake-clock oracle) legitimately passes before and after Task 2 by design — it proves a pre-existing serial_comm mechanism (arbitrary caller-supplied timeout survives a long gap), not new behaviour this plan adds
+- [Phase 143]: eprom.cpp progress emission guarded #ifndef SERIAL_ON_IO (compile-time), not a runtime accessor -- BF-2's deferred-log-buffer trap makes every runtime alternative RAM-costly or still zero-delivery on Uno
+- [Phase 143]: Advancing-clock millis() mock step lowered to 200ms/call (not 500ms) and cadence test block extended to 16 bytes (8 real + 8 trailing 0xFF filler) to avoid perturbing a pre-existing LOOP-06 case while still proving the cadence repeats
 
 ## Performance Metrics
 
@@ -2126,11 +2128,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 143 P02 | 23min | 2 tasks | 3 files |
 | Phase 143 P03 | 48min | 2 tasks | 3 files |
 | Phase 143 P04 | 40min | 3 tasks | 3 files |
+| Phase 143 P05 | 44min | 2 tasks | 5 files |
 
 ## Session
 
-**Last session:** 2026-08-13T01:28:59.323Z
-**Stopped at:** Completed 143-04-PLAN.md
+**Last session:** 2026-08-13T02:16:53.197Z
+**Stopped at:** Completed 143-05-PLAN.md
 **Resume file:** None
 
 ### Blockers
