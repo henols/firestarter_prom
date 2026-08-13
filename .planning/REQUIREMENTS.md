@@ -213,14 +213,14 @@ expected work, not a regression.
 
 ### Host
 
-- [ ] **HOST-01**: A write whose block exceeds the previous 10 s `DEFAULT_RESPONSE_TIMEOUT` completes
+- [x] **HOST-01**: A write whose block exceeds the previous 10 s `DEFAULT_RESPONSE_TIMEOUT` completes
       without a serial timeout.
-- [ ] **HOST-02**: The user sees progress during a long write rather than a silent stall.
-- [ ] **HOST-03**: A byte that fails at `max_pulses` surfaces as a **program failure naming the
+- [x] **HOST-02**: The user sees progress during a long write rather than a silent stall.
+- [x] **HOST-03**: A byte that fails at `max_pulses` surfaces as a **program failure naming the
       address**, not as a transport error — the diagnostic survives the failure.
-- [ ] **HOST-04**: `firestarter write --pulse-us N` overrides the database pulse for that run, using
+- [x] **HOST-04**: `firestarter write --pulse-us N` overrides the database pulse for that run, using
       the existing wire field — no new command or wire field is added.
-- [ ] **HOST-05**: `--pulse-us` outside `1..65535` is refused with an actionable message **before any
+- [x] **HOST-05**: `--pulse-us` outside `1..65535` is refused with an actionable message **before any
       serial byte is sent**.
 
 ### Tests & Build
@@ -318,11 +318,11 @@ Deferred. Tracked but not in this roadmap.
 | VPP-02 | Phase 142 | Complete |
 | VPP-03 | Phase 142 | Complete |
 | VPP-04 | Phase 142 | Complete |
-| HOST-01 | Phase 143 | Pending |
-| HOST-02 | Phase 143 | Pending |
-| HOST-03 | Phase 143 | Pending |
-| HOST-04 | Phase 143 | Pending |
-| HOST-05 | Phase 143 | Pending |
+| HOST-01 | Phase 143 | Complete |
+| HOST-02 | Phase 143 | Complete |
+| HOST-03 | Phase 143 | Complete |
+| HOST-04 | Phase 143 | Complete |
+| HOST-05 | Phase 143 | Complete |
 | TEST-01 | Phase 144 | Pending |
 | TEST-02 | Phase 144 | Pending |
 | TEST-03 | Phase 144 | Pending |
