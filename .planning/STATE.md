@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.31
 milestone_name: — 27C Programming-Algorithm Fidelity
-current_phase: 143
-current_phase_name: Host Timeout, Progress & Pulse Override
+current_phase: 144
+current_phase_name: Tests & Build Verification
 status: verifying
 stopped_at: Completed 143-10-PLAN.md
-last_updated: "2026-08-13T09:22:45.352Z"
+last_updated: "2026-08-13T09:43:35.597Z"
 last_activity: 2026-08-13
-last_activity_desc: Phase 143 execution complete (10/10 plans) — operator approved the phase's claims; ready for phase verification/close
+last_activity_desc: Phase 143 complete, transitioned to Phase 144
 progress:
   total_phases: 8
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 45
   completed_plans: 45
-  percent: 63
+  percent: 75
 ---
 
 # Project State
@@ -111,10 +111,10 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 ## Current Position
 
-Phase: 143 (Host Timeout, Progress & Pulse Override) — EXECUTING
-Plan: 10 of 10
+Phase: 144 — Tests & Build Verification
+Plan: Not started
 Status: Phase complete — ready for verification
-Last activity: 2026-08-13 — Phase 143 execution complete (10/10 plans); operator approved 143-10's checkpoint
+Last activity: 2026-08-13 — Phase 143 complete, transitioned to Phase 144
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
 `checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes
