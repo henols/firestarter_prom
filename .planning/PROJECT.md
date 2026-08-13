@@ -43,7 +43,7 @@
 stays vacant and is not reused) · **Firmware-touching, dual-repo lockstep** (`firestarter` +
 `firestarter_app`).
 
-**Current state (2026-08-12):** Phases 138–142 complete and verified. **Phase 141 (Per-Byte Program
+**Current state (2026-08-13):** Phases 138–143 complete and verified. **Phase 141 (Per-Byte Program
 Loop) CLOSED — 9 plans in 5 waves, verified 5/5 success criteria, LOOP-01…LOOP-08 all Complete.** The
 milestone's central change has landed: `eprom_write_execute` is now a per-byte fixed-width pulse→verify
 loop, and `program_mismatched_bytes()`, `verify_and_update_mask()`, `NUMBER_OF_RETRIES` and the adaptive
@@ -91,7 +91,45 @@ and "success" for the disable guarantee is satisfied at the operation level via 
 block. (3) `command_done()`'s zeroing guarantee is asserted as a **source contract**, not a behavioural
 one, because `firestarter.cpp` sits outside every native `build_src_filter` — a behavioural oracle would
 need a seventh env. `native_trace_v131` remains deliberately RED (D-17) and moved only on the `0x08` row.
-Next: Phase 143 — Host Timeout, Progress & Pulse Override.
+
+**Phase 143 (Host Timeout, Progress & Pulse Override) CLOSED — 10 plans in 5 waves, verified 5/5 success
+criteria, HOST-01…HOST-05 all Complete.** Dual-repo, and the first phase this milestone whose host half
+carries real weight. **BF-1 closed:** the v1.31 firmware branch forked one commit before firmware PR #49,
+so it had no CAP-02 identity tail and the v1.31 app **refused every connection to a v1.31 build** —
+CAP-02 is now ported and CAP-03 appended in one pack block emitting
+`[buffer u16][hw_rev u8][ver_len u8][ver bytes][budget u16]`, budget at the computed `4 + _vlen`.
+The firmware advertises a per-block worst-case write time computed from Phase 140's parameter table plus
+the live pulse width; the host decodes it at the computed `ver_end` under a derived `[1, 14400]` clamp and
+uses it **verbatim** as the write-path response timeout, falling back to a derived 120 s when none is
+advertised — threaded as a default-`None` kwarg so `verify_eprom` stays byte-identical on the old 10 s
+default. `MSG_DATA_PROGRESS` is emitted time-gated at 1000 ms from inside the per-byte loop and rendered
+host-side without acking, positioned at `absolute − start_addr`, never rebuilding the bar, latched so it
+cannot rewind. `0xBD`/`0xBE`/`0xAE` now surface as `EpromOperationError` naming the address, with a hint
+stating the abort's disposition and offering no retry. `firestarter write --pulse-us N`
+(`click.IntRange(1, 65535)`, `default=None`, `write`-only) rides the existing `pulse-delay` wire field and
+always prints a provenance line. The budget arithmetic lives in a new, unpinned `src/proms/eprom_budget.{h,cpp}`
+TU so it gets a real native unit-test oracle. Evidence: firmware pytest **292**, host suite **1578**
+(82.92% coverage), `native_loop_v131` 79/79, both pinned native envs 141/141, all three AVR targets
+building. **No new message id — `0xBF` is still free.**
+
+**Four limits recorded rather than smoothed** (see `143-HOST-RECORD.md`): (1) the honest headline is
+*a long write now reports what it is doing, and a failed byte now reports as a failed byte* — **not**
+faster, **not** more reliable, and **no bench evidence** (Phase 145 owns that). (2) Progress delivery is
+**`leonardo`-only**: the emit and its `millis()` state variable are both inside `#ifndef SERIAL_ON_IO`
+because on `uno`/`uno328pb` the 4-slot deferred-log buffer would overflow and silently drop the following
+`MSG_ERR_MAX_PULSES`, converting a program failure into a transport timeout — HOST-03's exact anti-goal, on
+a path that works today (**BF-2**, so D-02 shipped scoped down, pinned by a source-contract gate since
+`uno_rurp_shield.cpp` is compiled in no native env). Uno-class flash came out byte-identical, proving the
+guard really excludes the code. (3) **D-11's formula was replaced, not implemented** — it under-estimated
+**2×** at `--pulse-us 49999` on `0x0B` (true bound 99 998 µs, not 50 000), which would have spuriously
+timed out a *working* write (**BF-3**). (4) **MERGE-05 stays RED** and remains F-141-01 — not remediated;
+`check_size_baseline.py` is operator-accepted RED for the enumerated reasons only (F-141-01, the OD-2
+CAP-02 `+34 B` drift, and this phase's growth against a deliberately un-updated baseline), with leonardo
+fitting at **26906/28672 B (93.8%, 1766 B headroom)**. `native_trace_v131` remains RED by design (D-24)
+with **zero** frames added. Recorded and operator-approved at 143-10's blocking gate: the CAP-02 port is a
+**re-implementation citing `13eb350`**, not a cherry-pick. D-01's ROADMAP-prose correction (this phase is
+*not* independent of 140–142) is deferred to Phase 146 / CLOSE-04 by design.
+Next: Phase 144 — Tests & Build Verification.
 
 **Goal:** Replace the block-level mismatch-mask write loop shared by all three 27C protocols with a
 per-byte pulse→verify loop driven by a per-protocol parameter table, so `0x07` / `0x08` / `0x0B`
@@ -1135,6 +1173,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
+
+*Last updated: 2026-08-13 — **Phase 143 (Host Timeout, Progress & Pulse Override) CLOSED and verified** (10 plans in 5 waves, 5/5 success criteria, HOST-01…HOST-05 Complete). Dual-repo. **BF-1 closed:** the v1.31 firmware branch had forked one commit before firmware PR #49, so it carried no CAP-02 identity tail and the v1.31 app **refused every connection to a v1.31 build** — CAP-02 is now ported and CAP-03 appended in one pack block (`[buffer u16][hw_rev u8][ver_len u8][ver bytes][budget u16]`, budget at the computed `4 + _vlen`). The firmware advertises a per-block worst-case write time from the Phase 140 table plus the live pulse width; the host reads it at the computed `ver_end` under a derived `[1, 14400]` clamp and uses it verbatim as the write-path response timeout (derived 120 s fallback; threaded as a default-`None` kwarg so `verify_eprom` stays byte-identical on the old 10 s default). Intra-block `MSG_DATA_PROGRESS` at 1000 ms cadence renders without acking, positioned at `absolute − start_addr`, never rebuilding, latched against rewind. `0xBD`/`0xBE`/`0xAE` surface as `EpromOperationError` naming the address, with a hint stating the abort's disposition and no retry. `write --pulse-us N` (`IntRange(1, 65535)`, `default=None`, `write`-only) rides the existing `pulse-delay` field and always prints provenance. Firmware pytest 282 → **292** (two new source-contract gates); host suite 1547 → **1578** at 82.92% coverage; `native_loop_v131` 79/79; both pinned native envs 141/141. **Four disclosures recorded rather than smoothed:** (1) the headline is *a long write now reports what it is doing, and a failed byte now reports as a failed byte* — **not** faster, **not** more reliable, **no bench evidence** (Phase 145 owns that). (2) Progress is **`leonardo`-only** — emit and `millis()` state both inside `#ifndef SERIAL_ON_IO`, because on `uno`/`uno328pb` the 4-slot deferred-log buffer would overflow and silently drop the following `MSG_ERR_MAX_PULSES`, converting a program failure into a transport timeout, i.e. HOST-03's exact anti-goal on a path that works today (**BF-2**; D-02 shipped scoped down, pinned by a source contract since `uno_rurp_shield.cpp` is compiled in no native env). Uno-class flash came out byte-identical, proving the guard excludes the code. (3) **D-11's formula was replaced, not implemented** — it under-estimated **2×** at `--pulse-us 49999` on `0x0B` (true bound 99 998 µs, not 50 000) and would have spuriously timed out a *working* write (**BF-3**); the corrected arithmetic lives in a new, unpinned `src/proms/eprom_budget.{h,cpp}` TU so it has a real native oracle. (4) **MERGE-05 stays RED** as F-141-01, not remediated; `check_size_baseline.py` is operator-accepted RED for the enumerated reasons only (F-141-01, the OD-2 CAP-02 `+34 B` drift, this phase's growth against a deliberately un-updated baseline), leonardo fitting at **26906/28672 B (93.8%, 1766 B headroom)**; `native_trace_v131` RED by design (D-24) with **zero** frames added. Approved at 143-10's blocking operator gate with the CAP-02 port disclosed as a **re-implementation citing `13eb350`**, not a cherry-pick. **No new message id — `0xBF` still free.** D-01's ROADMAP-prose correction (this phase is *not* independent of 140–142) is deferred to Phase 146 / CLOSE-04 by design. Phases **138–143 CLOSED**; next is **Phase 144 (Tests & Build Verification)**. Prior footer (Phase 141 close) retained below — Phase 142's close did not add one.*
 
 *Last updated: 2026-08-10 — **Phase 141 (Per-Byte Program Loop) CLOSED and verified** (9 plans in 5 waves, 5/5 success criteria, LOOP-01…LOOP-08 Complete). The milestone's central change has landed: a per-byte fixed-width pulse→verify loop replaces the block-level mismatch-mask retry loop end to end, with `program_mismatched_bytes()`, `verify_and_update_mask()`, `NUMBER_OF_RETRIES` and the adaptive width-growth formula grep-verified absent from `src/`/`include/`, and every over-ceiling delay routed through the new 32-bit-safe `mem_util_delay_us`. Firmware pytest 244 → 256; `native_loop_v131` (sixth native env) 6 → 39 cases; both pinned native envs unmoved at 141/17; host suite 1547. Thirteen planted-RED proofs across plans 141-05/06/07/08 — every new gate leg was seen RED on its own assertion before its GREEN was believed. **Three disclosures the phase chose to record rather than smooth:** (1) **MERGE-05 is RED** on all three AVR targets (uno +492 B, uno328pb +498 B, leonardo +328 B vs a 64/64/0 B band), accepted by explicit operator decision as **F-141-01** — ~+204 B of it is Phase 140's parameter table finally linking now that `eprom_params_for` has a live `src/` caller, and the 64 B band predates that table; RAM is exactly unchanged, and leonardo now sits at 92.1% flash with 2272 B headroom, a real constraint on Phase 142. The pre-registered prediction (`141-PREDICTIONS.md`, committed before any `eprom.cpp` edit) said +30/+30/+18 B and was missed ~14× — the under-budgeted ingredient was the *first-live-reference* cost of the Phase 140 table (~+204 B measured vs ~70-80 B budgeted). Registering the prediction is what caught it. (2) Two goal criteria are **proven narrower than they read**: the overprogram pulse is proven only on the pure `eprom_overprogram_us` function, because `overprogram_factor` is 0 on every shipped row; and LOOP-06's *read*-skip holds only on `0x0B`, since `0x07`/`0x08` ship `VERIFY_PER_PULSE_PLUS_FINAL` whose final pass re-reads every byte unconditionally — the *pulse* skip LOOP-06 actually requires is universal. (3) `native_trace_v131` is deliberately RED on 3 of 6 cases (D-10) and its determinism assertion is **structurally unreachable** behind the failing length check, so it is recorded as a non-claim rather than as a passing leg; Phase 144 / TEST-06 owns the re-freeze, with `141-NEW-TRACE.md` supplying the post-change side. `native_loop_v131`/`native_params_v131`/`native_trace_v131` run in **no CI leg of either repo** — local run-by-name obligations. Also handed off: an unscoped-porcelain defect in `test_flash_path_record_sync.py` that every plan in the phase had to work around, and a corrected energy-cap worst case (2 × 49999 = **99998 µs**, not 99999) now living in firmware `CLAUDE.md`. Phases **138, 139, 140, 141 CLOSED**; next is **Phase 142 (High-Voltage Routing)**. Prior footer (v1.31 start) retained below.*
 
