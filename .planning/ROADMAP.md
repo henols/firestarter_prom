@@ -426,7 +426,7 @@ Plans:
 
 **Wave 5** *(blocked on Waves 2–4)*
 
-- [ ] 143-10-PLAN.md — `firestarter/CLAUDE.md` reconciled as a **docs-only** commit carrying D-06's **two-dimension** non-claim plus CAP-03's ack layout and the `--pulse-us` interaction, cold flash/RAM/warnings on all three AVR targets with every gate verdict verbatim and each `check_size_baseline.py` RED reason attributed, `143-HOST-RECORD.md` with the honest headline ("a long write now reports what it is doing, and a failed byte now reports as a failed byte" — **not** faster, **not** more reliable), all three BF reconciliations, the padding rule in prose, every non-claim, the D-25 inventory, the findings register and the hand-offs — and all five `HOST-*` requirements flipped in both coverage tables by one hand edit, behind a blocking operator checkpoint [meta, firestarter]
+- [x] 143-10-PLAN.md — `firestarter/CLAUDE.md` reconciled as a **docs-only** commit carrying D-06's **two-dimension** non-claim plus CAP-03's ack layout and the `--pulse-us` interaction, cold flash/RAM/warnings on all three AVR targets with every gate verdict verbatim and each `check_size_baseline.py` RED reason attributed, `143-HOST-RECORD.md` with the honest headline ("a long write now reports what it is doing, and a failed byte now reports as a failed byte" — **not** faster, **not** more reliable), all three BF reconciliations, the padding rule in prose, every non-claim, the D-25 inventory, the findings register and the hand-offs — and all five `HOST-*` requirements flipped in both coverage tables by one hand edit, behind a blocking operator checkpoint [meta, firestarter]
 
 ### Phase 144: Tests & Build Verification
 

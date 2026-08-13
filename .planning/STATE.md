@@ -4,16 +4,16 @@ milestone: v1.31
 milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 143
 current_phase_name: Host Timeout, Progress & Pulse Override
-status: executing
-stopped_at: Completed 143-09-PLAN.md
-last_updated: "2026-08-13T04:46:08.305Z"
-last_activity: 2026-08-12
-last_activity_desc: Phase 143 execution started
+status: verifying
+stopped_at: Completed 143-10-PLAN.md
+last_updated: "2026-08-13T09:22:45.352Z"
+last_activity: 2026-08-13
+last_activity_desc: Phase 143 execution complete (10/10 plans) — operator approved the phase's claims; ready for phase verification/close
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 45
-  completed_plans: 44
+  completed_plans: 45
   percent: 63
 ---
 
@@ -113,8 +113,8 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 Phase: 143 (Host Timeout, Progress & Pulse Override) — EXECUTING
 Plan: 10 of 10
-Status: Ready to execute
-Last activity: 2026-08-12 — Phase 143 execution started
+Status: Phase complete — ready for verification
+Last activity: 2026-08-13 — Phase 143 execution complete (10/10 plans); operator approved 143-10's checkpoint
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
 `checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes
@@ -1898,6 +1898,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 143]: Plan 143-09: _BUDGET_FAILURE_IDS is a raw-int tuple with a naming comment (not imported names), preserving the module's existing avoid-import-cycle discipline for firestarter.messages lookups
 - [Phase 143]: Plan 143-09: the 0xB1 (MSG_ERR_WRITE_FAILED) exclusion is named by its bare identifier only inside a #-comment, never inside _budget_failure_hint_message's docstring -- a docstring is a STRING token, not a COMMENT token, so the comment-stripped D-20 source-contract test would not have removed it
 - [Phase 143]: Plan 143-09: Test 1 asserts type(exc) is EpromOperationError, not isinstance(), because ProtocolNotImplementedError is a subclass of EpromOperationError and isinstance() alone would not catch a wrongly-forked 0xBB path
+- [Phase 143 Plan 10]: Operator approved the phase's claims (response: "approved") after being shown the non-claims, both BF-2/BF-3 deviations from locked CONTEXT decisions, the check_size_baseline.py and native_trace_v131 accepted REDs, and CAP-02's provenance as a re-implementation (not a cherry-pick) citing 13eb350 -- a cherry-pick redo was offered explicitly and not chosen
+- [Phase 143 Plan 10]: HOST-01 through HOST-05 flipped to Complete in both REQUIREMENTS.md tables in one hand edit (10 lines changed, confirmed by git show --stat) -- the sole flip point after all nine evidence-producing plans landed, per this project's standing countermeasure against marking a multi-plan requirement Complete early
+- [Phase 143 Plan 10]: A continuation agent independently re-measured the plan's entire final verification block (native envs, cold AVR flash/RAM/warnings, both check_size_baseline.py invocation forms, both repos' test suites) rather than trusting the prior agent's or orchestrator's numbers -- zero drift found against 143-HOST-RECORD.md
 
 ## Performance Metrics
 
@@ -2144,12 +2147,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 143 P07 | 30min | 2 tasks | 3 files |
 | Phase 143 P08 | 37min | 2 tasks | 1 files |
 | Phase 143 P09 | ~30min | 2 tasks | 2 files |
+| Phase 143 P10 | ~65min (2 sessions) | 3 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-08-13T04:46:08.265Z
-**Stopped at:** Completed 143-09-PLAN.md
-**Resume file:** 143-10-PLAN.md
+**Last session:** 2026-08-13T09:22:45.315Z
+**Stopped at:** Completed 143-10-PLAN.md
+**Resume file:** None — Phase 143 execution complete (10/10 plans); next step is phase verification/close, not a specific plan file
 
 ### Blockers
 
