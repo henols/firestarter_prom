@@ -4,15 +4,15 @@ milestone: v1.31
 milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 144
 current_phase_name: Tests & Build Verification
-status: verifying
-stopped_at: Phase 144 context gathered
-last_updated: "2026-08-13T15:27:04.560Z"
+status: executing
+stopped_at: Phase 144 planned — 7 plans, 6 waves
+last_updated: "2026-08-13T22:14:43.300Z"
 last_activity: 2026-08-13
-last_activity_desc: Phase 143 complete, transitioned to Phase 144
+last_activity_desc: Phase 144 planned — 7 plans in 6 waves, dual-repo
 progress:
   total_phases: 8
   completed_phases: 6
-  total_plans: 45
+  total_plans: 52
   completed_plans: 45
   percent: 75
 ---
@@ -112,9 +112,15 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 144 — Tests & Build Verification
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-08-13 — Phase 143 complete, transitioned to Phase 144
+Plan: 0/7 complete
+Status: Ready to execute
+Last activity: 2026-08-13 — Phase 144 planned (7 plans, 6 waves, dual-repo)
+
+**Do not run Phase 144 under `--auto`/`--chain`.** Plan `144-07` Task 2 is a blocking
+`checkpoint:human-verify` gate on the eight TEST-* requirement flips and D-14's constrained
+re-anchor disclosure. Auto-modes **auto-approve** `human-verify` gates, so `autonomous: false`
+on that plan is not self-protecting. Run Phase 144 interactively, and confirm Task 2 produced a
+genuine operator response before Task 3 flips the requirements.
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
 `checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes

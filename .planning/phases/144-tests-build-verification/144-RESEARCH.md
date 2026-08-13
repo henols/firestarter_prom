@@ -1308,9 +1308,18 @@ FIRESTARTER_FW_ROOT="$EMPTY" .venv/ci-replica/bin/python -m pytest \
 | A4 | The two `*_v131` envs missing from `size_baseline_v131.json` should be added with both `native_envs` and `warnings.native` records. | C-01 | This is the file's own convention (followed for `native_trace_v131` and `native_pinmap_provisional`) but D-13 does not say so explicitly. Adding `warnings.native` records requires measuring two envs' cold warning counts, which no record holds — a real cost the planner should price or explicitly decline. |
 | A5 | `PLATFORMIO_BUILD_FLAGS="-D EPROM_V131_TRACE_DUMP"` still triggers a rebuild on the current PlatformIO version. | F-06 | Cited from `141-NEW-TRACE.md` §1 where it demonstrably worked; not re-executed this session. Mitigated by recommending an explicit `rm -rf .pio/build/native_trace_v131` regardless, which makes the question moot. |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> All four were closed during planning. Each recommendation below was adopted verbatim; the closing
+> plan/task is named inline. Retained in full because the *reasoning* is what a v1.32 reader needs, not
+> just the verdict.
 
 1. **Does D-13's refresh add `warnings.native` records for the two missing envs, or only `native_envs`?**
+   - **RESOLVED — recommendation adopted. Closed by 144-05 Task 1** (and by orchestrator decision OD-02).
+     Both `native_envs` records are added from the D-02 cold run; `warnings.native` counts are obtained by
+     `grep`-ing the cold build log with the *same two regexes* `check_build_warnings.py` uses, never by
+     invoking that checker with a `*_v131` env name (D-22 / C-03). If a count is unobtainable, the plan
+     requires the gap be named explicitly in the phase record — a silent omission is not acceptable.
    - What we know: the file records both blocks for all four envs it currently names; `native_loop_v131`
      and `native_params_v131` appear in neither (C-01).
    - What's unclear: D-13 says "refreshed from the same consolidated run" — a `pio test` run yields case
@@ -1321,6 +1330,8 @@ FIRESTARTER_FW_ROOT="$EMPTY" .venv/ci-replica/bin/python -m pytest \
      field.
 
 2. **Should D-17's gate add `src/firestarter.cpp` to `firestarter_app/tests/scan_paths.py`?**
+   - **RESOLVED — recommendation adopted (add it). Closed by 144-02**, which lists
+     `firestarter_app/tests/scan_paths.py` in `files_modified` for exactly this one dict entry.
    - What we know: `test_scan_paths_resolve.py` asserts every listed entry resolves (`_FLOOR = 6`) but
      imposes **no completeness requirement** on new consumers (F-10).
    - What's unclear: whether the operator wants the inventory to stay a complete census (its docstring's
@@ -1331,6 +1342,8 @@ FIRESTARTER_FW_ROOT="$EMPTY" .venv/ci-replica/bin/python -m pytest \
      `MissingScanTargetError` surfacing from an unexpected module.
 
 3. **Is `test_dump_v131_traces` in or out of D-01's mapping-gate scope?**
+   - **RESOLVED — recommendation adopted (scope to the three TEST-mapped suites). Closed by 144-01**,
+     which excludes `test_trace_eprom_v131` with the reason stated in the module docstring.
    - What we know: it is the 6th `RUN_TEST` in `test_trace_eprom_v131`, guarded by
      `#ifdef EPROM_V131_TRACE_DUMP` which no env defines (C-05).
    - What's unclear: whether the gate scopes to the three TEST-mapped suites or to all four v131 suites.
@@ -1339,6 +1352,8 @@ FIRESTARTER_FW_ROOT="$EMPTY" .venv/ci-replica/bin/python -m pytest \
      proves TEST-06, not TEST-01…05, and its case set is build-flag dependent.
 
 4. **Does `size_baseline_v131.json:meta.frozen_for`'s instruction ("TEST-08 must pass `--baseline …_v131.json` explicitly") create a third measurement leg?**
+   - **RESOLVED — recommendation adopted (a re-derivation instruction, not a gate leg). Closed by 144-05**,
+     which records the reading in the phase record so a v1.32 reader is not left guessing.
    - What we know: D-09 names `size_baseline.json` as *the comparison anchor*; the v131 file's own note
      says TEST-08 must name it explicitly rather than relying on the default seam.
    - What's unclear: whether that means an *additional* `check_size_baseline.py` invocation against the
