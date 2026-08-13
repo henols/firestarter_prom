@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 143
 current_phase_name: Host Timeout, Progress & Pulse Override
 status: executing
-stopped_at: Completed 143-08-PLAN.md
-last_updated: "2026-08-13T04:11:16.689Z"
+stopped_at: Completed 143-09-PLAN.md
+last_updated: "2026-08-13T04:46:08.305Z"
 last_activity: 2026-08-12
 last_activity_desc: Phase 143 execution started
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 45
-  completed_plans: 43
+  completed_plans: 44
   percent: 63
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 143 (Host Timeout, Progress & Pulse Override) — EXECUTING
-Plan: 9 of 10
+Plan: 10 of 10
 Status: Ready to execute
 Last activity: 2026-08-12 — Phase 143 execution started
 
@@ -1895,6 +1895,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 143 Plan 08]: SERIAL_ON_IO's bare macro name excluded from the gate's self-check needles (unavoidable module subject, appears throughout its own prose/regexes); only its -D-prefixed compiler-invocation spelling is registered as the concatenation-built forbidden needle instead
 - [Phase 143 Plan 08]: Coverage 6's forbidden-needle check (handle->data_size) is scoped to the emit's own matched block, not the whole function body -- that field legitimately appears twice elsewhere in eprom_internal_write_execute_body as unrelated loop bounds, so an unscoped check would false-positive against the real source
 - [Phase 143 Plan 08]: Coverage 7 parses platformio.ini by splitting on every section header, not a per-env seam, so a flag hypothetically added only to the shared [env] defaults block is correctly not attributed to any single named env, matching exactly what D-25's two plant directions test
+- [Phase 143]: Plan 143-09: _BUDGET_FAILURE_IDS is a raw-int tuple with a naming comment (not imported names), preserving the module's existing avoid-import-cycle discipline for firestarter.messages lookups
+- [Phase 143]: Plan 143-09: the 0xB1 (MSG_ERR_WRITE_FAILED) exclusion is named by its bare identifier only inside a #-comment, never inside _budget_failure_hint_message's docstring -- a docstring is a STRING token, not a COMMENT token, so the comment-stripped D-20 source-contract test would not have removed it
+- [Phase 143]: Plan 143-09: Test 1 asserts type(exc) is EpromOperationError, not isinstance(), because ProtocolNotImplementedError is a subclass of EpromOperationError and isinstance() alone would not catch a wrongly-forked 0xBB path
 
 ## Performance Metrics
 
@@ -2140,12 +2143,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 143 P06 | 35min | 2 tasks | 2 files |
 | Phase 143 P07 | 30min | 2 tasks | 3 files |
 | Phase 143 P08 | 37min | 2 tasks | 1 files |
+| Phase 143 P09 | ~30min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-13T04:10:28.273Z
-**Stopped at:** Completed 143-08-PLAN.md
-**Resume file:** None
+**Last session:** 2026-08-13T04:46:08.265Z
+**Stopped at:** Completed 143-09-PLAN.md
+**Resume file:** 143-10-PLAN.md
 
 ### Blockers
 
