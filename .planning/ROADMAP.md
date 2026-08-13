@@ -411,7 +411,7 @@ Plans:
 **Wave 2** *(blocked on Wave 1)*
 
 - [x] 143-03-PLAN.md — **BF-1 closed:** CAP-02 **ported** into the v1.31 branch and CAP-03 appended in **one** pack block emitting `[buffer u16][hw_rev u8][ver_len u8][ver bytes][budget u16]` with the budget at the computed `4 + _vlen`, plus a new stdlib-only source-contract gate pinning the layout, the byte count and the use of the shipped budget function, every leg seen RED on a scratch-file plant [firestarter]
-- [ ] 143-04-PLAN.md — The write-path response timeout threaded as a **default-`None` kwarg** so `verify_eprom` stays byte-identical (D-12), the budget read **inside** the `_operation_context` `with` block and used **verbatim** (D-09), the derived **120 s** fallback with its corrected residual non-claim (D-10), `write_eprom`'s `pulse_us` transport riding a shallow DB-dict copy (D-14), and ten tests using **call-argument** oracles rather than elapsed timeouts [firestarter_app]
+- [x] 143-04-PLAN.md — The write-path response timeout threaded as a **default-`None` kwarg** so `verify_eprom` stays byte-identical (D-12), the budget read **inside** the `_operation_context` `with` block and used **verbatim** (D-09), the derived **120 s** fallback with its corrected residual non-claim (D-10), `write_eprom`'s `pulse_us` transport riding a shallow DB-dict copy (D-14), and ten tests using **call-argument** oracles rather than elapsed timeouts [firestarter_app]
 
 **Wave 3** *(blocked on Wave 2; three plans, disjoint files)*
 

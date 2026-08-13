@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 143
 current_phase_name: Host Timeout, Progress & Pulse Override
 status: executing
-stopped_at: Completed 143-03-PLAN.md
-last_updated: "2026-08-13T00:44:11.606Z"
+stopped_at: Completed 143-04-PLAN.md
+last_updated: "2026-08-13T01:28:59.379Z"
 last_activity: 2026-08-12
 last_activity_desc: Phase 143 execution started
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 45
-  completed_plans: 38
+  completed_plans: 39
   percent: 63
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 143 (Host Timeout, Progress & Pulse Override) — EXECUTING
-Plan: 4 of 10
+Plan: 5 of 10
 Status: Ready to execute
 Last activity: 2026-08-12 — Phase 143 execution started
 
@@ -1883,6 +1883,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 143-03]: CAP-02 ported verbatim from upstream 13eb350 inside the SAME pack block as CAP-03 (BF-1 closed), rather than as a separate emit — keeps the _ready[] buffer and pack sequence written once; cited in the commit message per RESEARCH Open Question 2
 - [Phase 143-03]: test_scan_targets_are_non_vacuous reads the seam-aware _SCAN_DISPATCH (not a second seam-independent recompute) for its non-empty-body half — the only way an empty-scratch-file plant can meaningfully turn this leg RED, per the plan's own D-25 instruction; documented as a deliberate departure from the strict source-contract analog
 - [Phase 143-03]: Re-pinned test_config_schema_pinned.py's C-14 census line numbers (40/103/109 -> 41/104/110) after task 1's #include insertion shifted them — Rule 1 auto-fix caught by this plan's own required whole-suite pytest run; the census is a hand-pinned tuple with no re-derivation script
+- [Phase 143]: _write_block_timeout uses a symmetric [1, WRITE_BUDGET_MAX_S] range check, not lower-bound-only — Task 1's Test 3 requires both 0 and 999999 to fall back to 120.0; a lower-bound-only guard would let 999999 pass through unclamped
+- [Phase 143]: Test 6 (fake-clock oracle) legitimately passes before and after Task 2 by design — it proves a pre-existing serial_comm mechanism (arbitrary caller-supplied timeout survives a long gap), not new behaviour this plan adds
 
 ## Performance Metrics
 
@@ -2123,11 +2125,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 143 P01 | 36min | 2 tasks | 4 files |
 | Phase 143 P02 | 23min | 2 tasks | 3 files |
 | Phase 143 P03 | 48min | 2 tasks | 3 files |
+| Phase 143 P04 | 40min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-13T00:44:11.550Z
-**Stopped at:** Completed 143-03-PLAN.md
+**Last session:** 2026-08-13T01:28:59.323Z
+**Stopped at:** Completed 143-04-PLAN.md
 **Resume file:** None
 
 ### Blockers
