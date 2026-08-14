@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 144
 current_phase_name: Tests & Build Verification
 status: executing
-stopped_at: Completed 144-03-PLAN.md
-last_updated: "2026-08-14T07:34:13.406Z"
+stopped_at: Completed 144-04-PLAN.md
+last_updated: "2026-08-14T08:12:10.674Z"
 last_activity: 2026-08-14
 last_activity_desc: Phase 144 execution started
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 52
-  completed_plans: 48
+  completed_plans: 49
   percent: 75
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 144 (Tests & Build Verification) — EXECUTING
-Plan: 4 of 7
+Plan: 5 of 7
 Status: Ready to execute
 Last activity: 2026-08-14 — Phase 144 execution started
 
@@ -1915,6 +1915,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 144]: 144-02: requirements-completed left empty by design -- this plan is FORBIDDEN from ticking TEST-07 (plan 144-07 owns all eight requirement flips); REQUIREMENTS.md and ROADMAP.md coverage tables were not edited
 - [Phase 144]: 144-02: Accidentally ran 'git stash push -u' in firestarter_app while investigating the mypy regression (a prohibited command) -- caught immediately, verified this is the single main checkout (not a linked worktree, so the cross-worktree contamination the prohibition guards against could not occur), verified the stash held exactly my own uncommitted change, and restored via 'git stash pop' without touching the 6 unrelated pre-existing stash entries. Disclosed in the plan SUMMARY rather than omitted.
 - [Phase 144]: D-05/D-06/D-08 (144-03): pre-change golden trace preserved by pure rename (blob ca3e09f1... still resolves); fresh post-v1.31 trace captured empirically and validated against 3 stale-paste discriminators (91/115/59, never the stale 91/119/59); rename+capture+inventory landed in ONE commit so the identity gate never sees a transient git-exit-code RED — native_trace_v131 retired from the milestone's first standing RED to 5/5; TEST-06 evidenced but not ticked (144-07 owns the flip)
+- [Phase 144]: 144-04: exhaustiveness gate raises only on out-of-vocabulary (kind,pin); a group-shape mismatch is left uncovered rather than raised, so the union/disjointness assertion is a genuine (non-tautological) check
+- [Phase 144]: 144-04: route_assert segment covers both HV-route assert AND release CONTROL_REGISTER groups (only the final untouched group after the last data/CE strobe is teardown), per D-07's own naming
+- [Phase 144]: 144-04: requirements-completed left empty -- plan is forbidden from ticking TEST-06; plan 144-07 owns the consolidated eight-requirement flip
 
 ## Performance Metrics
 
@@ -2165,11 +2168,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 144 P01 | ~45min | 2 tasks | 1 files |
 | Phase 144 P02 | 28min | 2 tasks | 4 files |
 | Phase 144 P03 | 24min | 2 tasks | 3 files |
+| Phase 144 P04 | 34min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-14T07:34:13.370Z
-**Stopped at:** Completed 144-03-PLAN.md
+**Last session:** 2026-08-14T08:12:10.614Z
+**Stopped at:** Completed 144-04-PLAN.md
 **Resume file:** None
 
 ### Blockers

@@ -468,7 +468,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 — needs both fixtures)*
 
-- [ ] 144-04-PLAN.md — D-07's **exhaustiveness gate**: a structural six-segment state machine keyed on the `OUTPUT_ENABLE` toggle (comment-keyed segmentation is impossible — the new capture emits only `/* N */`), partitioning all **885** entries (620 pre-change + 265 new) by **set equality over index ranges plus disjointness**, never a count sum; every present segment carrying a named attribution from Phases 140–143; the `7 + 12 = 19` known-answer self-test; and two plants — an unclassifiable entry, and one entry deleted plus one duplicated so the length is unchanged [firestarter]
+- [x] 144-04-PLAN.md — D-07's **exhaustiveness gate**: a structural six-segment state machine keyed on the `OUTPUT_ENABLE` toggle (comment-keyed segmentation is impossible — the new capture emits only `/* N */`), partitioning all **885** entries (620 pre-change + 265 new) by **set equality over index ranges plus disjointness**, never a count sum; every present segment carrying a named attribution from Phases 140–143; the `7 + 12 = 19` known-answer self-test; and two plants — an unclassifiable entry, and one entry deleted plus one duplicated so the length is unchanged [firestarter]
 
 **Wave 4** *(blocked on Wave 3 — must observe the final tree)*
 
