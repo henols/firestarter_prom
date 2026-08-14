@@ -136,3 +136,14 @@ None - no external service configuration required.
 ---
 *Phase: 144-tests-build-verification*
 *Completed: 2026-08-14*
+
+## Self-Check: PASSED
+
+- `144-TEST-RECORD.md` — FOUND on disk (568 lines).
+- `144-07-SUMMARY.md` — FOUND on disk (this file).
+- Commit `4e3f4dab` (Task 1, prior executor) — FOUND in `git log --oneline --all`.
+- Commit `11ef9042` (Task 3, coverage flip) — FOUND in `git log --oneline --all`.
+- Commit `97ab87b8` (final metadata commit) — FOUND in `git log --oneline --all`.
+- `grep -cE "^- \[x\] \*\*TEST-0[1-8]\*\*" .planning/REQUIREMENTS.md` → 8.
+- `grep -cE "\| TEST-0[1-8] \| Phase 144 \| Complete \|" .planning/ROADMAP.md` → 8.
+- `144-07-PLAN.md` checkbox in ROADMAP.md confirmed `[x]`.
