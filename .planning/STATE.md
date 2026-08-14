@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.31
 milestone_name: — 27C Programming-Algorithm Fidelity
-current_phase: 144
-current_phase_name: Tests & Build Verification
-status: verifying
-stopped_at: Completed 144-07-PLAN.md — Phase 144 complete, all 8 TEST requirements flipped
-last_updated: "2026-08-14T10:45:58.317Z"
+current_phase: 145
+current_phase_name: Bench Validation
+status: ready_to_plan
+stopped_at: Phase 144 complete and verified (8/8) — Phase 145 not started
+last_updated: "2026-08-14T11:07:56.998Z"
 last_activity: 2026-08-14
-last_activity_desc: Phase 144 executed — 7/7 plans, TEST-01..08 flipped, two standing REDs retired
+last_activity_desc: Phase 144 complete, transitioned to Phase 145
 progress:
   total_phases: 8
   completed_phases: 7
@@ -111,16 +111,16 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 ## Current Position
 
-Phase: 144 (Tests & Build Verification) — EXECUTING
-Plan: 7 of 7
-Status: Phase complete — ready for verification
-Last activity: 2026-08-14 — Phase 144 executed (7/7 plans); awaiting verification
+Phase: 145 — Bench Validation
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-08-14 — Phase 144 complete, transitioned to Phase 145
 
-**Do not run Phase 144 under `--auto`/`--chain`.** Plan `144-07` Task 2 is a blocking
-`checkpoint:human-verify` gate on the eight TEST-* requirement flips and D-14's constrained
-re-anchor disclosure. Auto-modes **auto-approve** `human-verify` gates, so `autonomous: false`
-on that plan is not self-protecting. Run Phase 144 interactively, and confirm Task 2 produced a
-genuine operator response before Task 3 flips the requirements.
+**Phase 145 is a bench phase — hardware in the loop.** Chip handling, photos and multimeter
+readings are operator-only, and the operator adjusts the voltage pot himself. Do not run it
+under `--auto`/`--chain`: auto-modes **auto-approve** `human-verify` gates, so `autonomous:
+false` is not self-protecting. Phase 144 (complete) carried the same restriction for its
+requirement-flip gate.
 
 **Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
 `checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes
