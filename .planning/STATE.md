@@ -8,7 +8,7 @@ status: verifying
 stopped_at: Completed 144-07-PLAN.md — Phase 144 complete, all 8 TEST requirements flipped
 last_updated: "2026-08-14T10:45:58.317Z"
 last_activity: 2026-08-14
-last_activity_desc: Phase 144 execution started
+last_activity_desc: Phase 144 executed — 7/7 plans, TEST-01..08 flipped, two standing REDs retired
 progress:
   total_phases: 8
   completed_phases: 7
@@ -114,7 +114,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 Phase: 144 (Tests & Build Verification) — EXECUTING
 Plan: 7 of 7
 Status: Phase complete — ready for verification
-Last activity: 2026-08-14 — Phase 144 execution started
+Last activity: 2026-08-14 — Phase 144 executed (7/7 plans); awaiting verification
 
 **Do not run Phase 144 under `--auto`/`--chain`.** Plan `144-07` Task 2 is a blocking
 `checkpoint:human-verify` gate on the eight TEST-* requirement flips and D-14's constrained
