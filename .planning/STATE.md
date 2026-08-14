@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 144
 current_phase_name: Tests & Build Verification
 status: executing
-stopped_at: Completed 144-01-PLAN.md
-last_updated: "2026-08-14T06:30:14.879Z"
+stopped_at: Completed 144-02-PLAN.md
+last_updated: "2026-08-14T07:05:11.235Z"
 last_activity: 2026-08-14
 last_activity_desc: Phase 144 execution started
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 52
-  completed_plans: 46
+  completed_plans: 47
   percent: 75
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 144 (Tests & Build Verification) — EXECUTING
-Plan: 2 of 7
+Plan: 3 of 7
 Status: Ready to execute
 Last activity: 2026-08-14 — Phase 144 execution started
 
@@ -1909,6 +1909,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 143 Plan 10]: A continuation agent independently re-measured the plan's entire final verification block (native envs, cold AVR flash/RAM/warnings, both check_size_baseline.py invocation forms, both repos' test suites) rather than trusting the prior agent's or orchestrator's numbers -- zero drift found against 143-HOST-RECORD.md
 - [Phase 144]: 144-01: frozen _REQUIREMENT_CASES corrects C-04's phantom TEST-05 fallback pair to the real six-case, two-family shape — CONTEXT.md's own prose named no existing case pair; the map is machine-checked against the suites rather than trusted from prose
 - [Phase 144]: 144-01: requirements-completed left empty by design — This plan evidences TEST-01...TEST-05 but does not tick them — plan 144-07 owns the consolidated eight-requirement flip; REQUIREMENTS.md and ROADMAP.md were not edited
+- [Phase 144]: 144-02: Discovered serial_comm.py defines a SECOND _decode_id_frame (FaultInjectingSerialCommunicator's dev-only corrupt-and-delegate override) not named in the plan's read_first list -- the host-side extractor takes the FIRST definition only rather than asserting exactly-one
+- [Phase 144]: 144-02: V12 ceremony in both D-18 planted legs gated on FW_REPO_PRESENT as a runtime conditional (not a pytest skip) so the legs stay undecorated per D-18/D-16 while still running the real hash-object/porcelain proof whenever firmware is present
+- [Phase 144]: 144-02: Fixed a self-introduced mypy watermark regression (dict[str, object] -> dict[str, Any] on the two extractor return types) before committing -- object made every downstream index/iterate a mypy error, 33 -> 59 against the watermark of 35; verified back to the pre-existing 33-error baseline
+- [Phase 144]: 144-02: requirements-completed left empty by design -- this plan is FORBIDDEN from ticking TEST-07 (plan 144-07 owns all eight requirement flips); REQUIREMENTS.md and ROADMAP.md coverage tables were not edited
+- [Phase 144]: 144-02: Accidentally ran 'git stash push -u' in firestarter_app while investigating the mypy regression (a prohibited command) -- caught immediately, verified this is the single main checkout (not a linked worktree, so the cross-worktree contamination the prohibition guards against could not occur), verified the stash held exactly my own uncommitted change, and restored via 'git stash pop' without touching the 6 unrelated pre-existing stash entries. Disclosed in the plan SUMMARY rather than omitted.
 
 ## Performance Metrics
 
@@ -2157,11 +2162,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 143 P09 | ~30min | 2 tasks | 2 files |
 | Phase 143 P10 | ~65min (2 sessions) | 3 tasks | 6 files |
 | Phase 144 P01 | ~45min | 2 tasks | 1 files |
+| Phase 144 P02 | 28min | 2 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-14T06:30:14.824Z
-**Stopped at:** Completed 144-01-PLAN.md
+**Last session:** 2026-08-14T07:05:11.194Z
+**Stopped at:** Completed 144-02-PLAN.md
 **Resume file:** None
 
 ### Blockers
