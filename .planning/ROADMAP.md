@@ -464,7 +464,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 — same firmware working tree)*
 
-- [ ] 144-03-PLAN.md — **The milestone's first standing RED retired**, in ONE commit (F-05, because the identity gate reads `HEAD:` not the worktree): D-05's pure `git mv` preserving blob `ca3e09f1…`, D-06's fresh capture at this phase's tip validated against three stale-paste discriminators and totalling **91 / 115 / 59** (never `141-NEW-TRACE.md`'s stale 119), and D-08's inventory re-pointed with `git hash-object` predicted before staging and `recorded_at_head` naming the commit's parent — after which `native_trace_v131` runs 5 cases, 0 failed [firestarter]
+- [x] 144-03-PLAN.md — **The milestone's first standing RED retired**, in ONE commit (F-05, because the identity gate reads `HEAD:` not the worktree): D-05's pure `git mv` preserving blob `ca3e09f1…`, D-06's fresh capture at this phase's tip validated against three stale-paste discriminators and totalling **91 / 115 / 59** (never `141-NEW-TRACE.md`'s stale 119), and D-08's inventory re-pointed with `git hash-object` predicted before staging and `recorded_at_head` naming the commit's parent — after which `native_trace_v131` runs 5 cases, 0 failed [firestarter]
 
 **Wave 3** *(blocked on Wave 2 — needs both fixtures)*
 
