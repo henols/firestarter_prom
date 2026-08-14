@@ -472,7 +472,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 — must observe the final tree)*
 
-- [ ] 144-05-PLAN.md — D-02's **ONE cold consolidated run** (three AVR targets, five native envs, long explicit timeouts, `pio run -t clean` first) recording **+870 / +870 / +890 B** flash with RAM unmoved and leonardo at **93.8% / 1766 B**; then D-10/D-11/D-12/D-13's re-anchor of all three baselines with `size_baseline_v131.json` gaining the two env records it never held (C-01) — plus **OD-01's collateral in the same commit**: three re-captured and four re-derived `.log` fixtures (24889 / 26907 / 24824+RAM 1574 / 27418) keeping `delta=+65` and `delta=+1` alive, and two figure literals. **The milestone's second standing RED retired, disclosed as an anchor move** [firestarter]
+- [x] 144-05-PLAN.md — D-02's **ONE cold consolidated run** (three AVR targets, five native envs, long explicit timeouts, `pio run -t clean` first) recording **+870 / +870 / +890 B** flash with RAM unmoved and leonardo at **93.8% / 1766 B**; then D-10/D-11/D-12/D-13's re-anchor of all three baselines with `size_baseline_v131.json` gaining the two env records it never held (C-01) — plus **OD-01's collateral in the same commit**: three re-captured and four re-derived `.log` fixtures (24889 / 26907 / 24824+RAM 1574 / 27418) keeping `delta=+65` and `delta=+1` alive, and two figure literals. **The milestone's second standing RED retired, disclosed as an anchor move** [firestarter]
 
 **Wave 5** *(blocked on every firmware commit — the host suite asserts the sibling repo's porcelain)*
 

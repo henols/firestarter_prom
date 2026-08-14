@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 144
 current_phase_name: Tests & Build Verification
 status: executing
-stopped_at: Completed 144-04-PLAN.md
-last_updated: "2026-08-14T08:12:10.674Z"
+stopped_at: Completed 144-05-PLAN.md
+last_updated: "2026-08-14T08:50:43.001Z"
 last_activity: 2026-08-14
 last_activity_desc: Phase 144 execution started
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 52
-  completed_plans: 49
+  completed_plans: 50
   percent: 75
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 144 (Tests & Build Verification) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
 Last activity: 2026-08-14 — Phase 144 execution started
 
@@ -1918,6 +1918,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 144]: 144-04: exhaustiveness gate raises only on out-of-vocabulary (kind,pin); a group-shape mismatch is left uncovered rather than raised, so the union/disjointness assertion is a genuine (non-tautological) check
 - [Phase 144]: 144-04: route_assert segment covers both HV-route assert AND release CONTROL_REGISTER groups (only the final untouched group after the last data/CE strobe is teardown), per D-07's own naming
 - [Phase 144]: 144-04: requirements-completed left empty -- plan is forbidden from ticking TEST-06; plan 144-07 owns the consolidated eight-requirement flip
+- [Phase 144]: 144-05: requirements-completed left empty, matching 144-01/144-04's precedent -- this plan is explicitly FORBIDDEN from ticking TEST-01..05/07/08; plan 144-07 owns the consolidated eight-requirement flip. This plan supplies the evidence those flips will cite.
+- [Phase 144]: 144-05: the pre-rewrite --policy merge05 verdict is quoted verbatim against what size_baseline_base01.json actually held pre-rewrite (v1.24 figures, deltas +892/+898/+834) rather than the plan text's own +870/+890 mention (which describes the delta against the PREP-03 anchor, a different comparison already reported earlier in the same task). Measured, verbatim output is authoritative over a paraphrase; both are RED as required.
+- [Phase 144]: 144-05: size_baseline_base01.json's original Phase-123 meta (generated/phase/generated_by/tree_shas/note) was left untouched as the historical record of BASE-01's genesis; a new re_anchor_note field states plainly that avr_targets was overwritten in place and why, rather than editing history to look consistent with data it no longer describes.
+- [Phase 144]: 144-05: size_baseline_v131.json's own warnings.native.note (previously "all four native watermarks") was corrected to "all six" when native_params_v131/native_loop_v131 were added, so the file's internal self-description stays accurate rather than silently going stale.
 
 ## Performance Metrics
 
@@ -2169,11 +2173,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 144 P02 | 28min | 2 tasks | 4 files |
 | Phase 144 P03 | 24min | 2 tasks | 3 files |
 | Phase 144 P04 | 34min | 2 tasks | 1 files |
+| Phase 144 P05 | 30min | 3 tasks | 11 files |
 
 ## Session
 
-**Last session:** 2026-08-14T08:12:10.614Z
-**Stopped at:** Completed 144-04-PLAN.md
+**Last session:** 2026-08-14T08:50:42.958Z
+**Stopped at:** Completed 144-05-PLAN.md
 **Resume file:** None
 
 ### Blockers
