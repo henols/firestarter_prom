@@ -348,6 +348,14 @@ None - no external service configuration required.
   untouched; the D-04 "no src/ edit this phase" invariant holds after this plan.
 - No blockers for the next plan in this phase's wave structure.
 
+## Self-Check: PASSED
+
+- `firestarter/tests/test_requirement_case_mapping_v131.py` -- FOUND on disk.
+- `.planning/phases/144-tests-build-verification/144-01-SUMMARY.md` -- FOUND on disk.
+- Commit `16e5bdc` (Task 1, firestarter submodule) -- FOUND in `git log --oneline --all`.
+- Commit `7b2ba16` (Task 2, firestarter submodule) -- FOUND in `git log --oneline --all`.
+- Commit `e0d6498c` (this SUMMARY, superproject) -- FOUND in `git log --oneline --all`.
+
 ---
 *Phase: 144-tests-build-verification*
 *Completed: 2026-08-14*

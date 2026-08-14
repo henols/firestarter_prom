@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 144
 current_phase_name: Tests & Build Verification
 status: executing
-stopped_at: Phase 144 planned — 7 plans, 6 waves
-last_updated: "2026-08-13T22:14:43.300Z"
-last_activity: 2026-08-13
-last_activity_desc: Phase 144 planned — 7 plans in 6 waves, dual-repo
+stopped_at: Completed 144-01-PLAN.md
+last_updated: "2026-08-14T06:30:14.879Z"
+last_activity: 2026-08-14
+last_activity_desc: Phase 144 execution started
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 52
-  completed_plans: 45
+  completed_plans: 46
   percent: 75
 ---
 
@@ -29,7 +29,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-08 — v1.31 started)
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
 authoritative dispatch key end to end. v1.31 makes that key drive *programming behaviour*, not just
 handler selection — while keeping the pulse width itself a database datum, not a protocol constant.
-**Current focus:** Phase 143 — Host Timeout, Progress & Pulse Override
+**Current focus:** Phase 144 — Tests & Build Verification
 
 **v1.31 27C Programming-Algorithm Fidelity (gh#15)** — ACTIVE (activated 2026-08-08, retiring Backlog
 **999.22** which was queued as the `v1.27` slot). **Firmware-touching, dual-repo lockstep.** Phase
@@ -111,10 +111,10 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 ## Current Position
 
-Phase: 144 — Tests & Build Verification
-Plan: 0/7 complete
+Phase: 144 (Tests & Build Verification) — EXECUTING
+Plan: 2 of 7
 Status: Ready to execute
-Last activity: 2026-08-13 — Phase 144 planned (7 plans, 6 waves, dual-repo)
+Last activity: 2026-08-14 — Phase 144 execution started
 
 **Do not run Phase 144 under `--auto`/`--chain`.** Plan `144-07` Task 2 is a blocking
 `checkpoint:human-verify` gate on the eight TEST-* requirement flips and D-14's constrained
@@ -1907,6 +1907,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 143 Plan 10]: Operator approved the phase's claims (response: "approved") after being shown the non-claims, both BF-2/BF-3 deviations from locked CONTEXT decisions, the check_size_baseline.py and native_trace_v131 accepted REDs, and CAP-02's provenance as a re-implementation (not a cherry-pick) citing 13eb350 -- a cherry-pick redo was offered explicitly and not chosen
 - [Phase 143 Plan 10]: HOST-01 through HOST-05 flipped to Complete in both REQUIREMENTS.md tables in one hand edit (10 lines changed, confirmed by git show --stat) -- the sole flip point after all nine evidence-producing plans landed, per this project's standing countermeasure against marking a multi-plan requirement Complete early
 - [Phase 143 Plan 10]: A continuation agent independently re-measured the plan's entire final verification block (native envs, cold AVR flash/RAM/warnings, both check_size_baseline.py invocation forms, both repos' test suites) rather than trusting the prior agent's or orchestrator's numbers -- zero drift found against 143-HOST-RECORD.md
+- [Phase 144]: 144-01: frozen _REQUIREMENT_CASES corrects C-04's phantom TEST-05 fallback pair to the real six-case, two-family shape — CONTEXT.md's own prose named no existing case pair; the map is machine-checked against the suites rather than trusted from prose
+- [Phase 144]: 144-01: requirements-completed left empty by design — This plan evidences TEST-01...TEST-05 but does not tick them — plan 144-07 owns the consolidated eight-requirement flip; REQUIREMENTS.md and ROADMAP.md were not edited
 
 ## Performance Metrics
 
@@ -2154,12 +2156,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 143 P08 | 37min | 2 tasks | 1 files |
 | Phase 143 P09 | ~30min | 2 tasks | 2 files |
 | Phase 143 P10 | ~65min (2 sessions) | 3 tasks | 6 files |
+| Phase 144 P01 | ~45min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-13T15:27:04.521Z
-**Stopped at:** Phase 144 context gathered
-**Resume file:** .planning/phases/144-tests-build-verification/144-CONTEXT.md
+**Last session:** 2026-08-14T06:30:14.824Z
+**Stopped at:** Completed 144-01-PLAN.md
+**Resume file:** None
 
 ### Blockers
 
