@@ -476,7 +476,7 @@ Plans:
 
 **Wave 5** *(blocked on every firmware commit — the host suite asserts the sibling repo's porcelain)*
 
-- [ ] 144-06-PLAN.md — TEST-07's host half: D-16's **bidirectional** constants parity (present path verbatim; absent path a **child process** with `FIRESTARTER_FW_ROOT` at a `.git`-free empty dir, evidenced by the **skip count** and the 6-passed/8-skipped known answer, never by exit 0 alone), plus D-21's measurement and F-12's four CI-scoped commands on `.venv/ci-replica/bin/python` 3.11.15 with `-o addopts=""` — cited at `ci.yml` **:81 / :84 / :87 / :90** (C-02) [meta, reads both sub-repos]
+- [x] 144-06-PLAN.md — TEST-07's host half: D-16's **bidirectional** constants parity (present path verbatim; absent path a **child process** with `FIRESTARTER_FW_ROOT` at a `.git`-free empty dir, evidenced by the **skip count** and the 6-passed/8-skipped known answer, never by exit 0 alone), plus D-21's measurement and F-12's four CI-scoped commands on `.venv/ci-replica/bin/python` 3.11.15 with `-o addopts=""` — cited at `ci.yml` **:81 / :84 / :87 / :90** (C-02) [meta, reads both sub-repos]
 
 **Wave 6** *(blocked on Waves 4–5)*
 

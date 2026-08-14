@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 144
 current_phase_name: Tests & Build Verification
 status: executing
-stopped_at: Completed 144-05-PLAN.md
-last_updated: "2026-08-14T08:50:43.001Z"
+stopped_at: Completed 144-06-PLAN.md
+last_updated: "2026-08-14T09:25:40.545Z"
 last_activity: 2026-08-14
 last_activity_desc: Phase 144 execution started
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 52
-  completed_plans: 50
+  completed_plans: 51
   percent: 75
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 144 (Tests & Build Verification) — EXECUTING
-Plan: 6 of 7
+Plan: 7 of 7
 Status: Ready to execute
 Last activity: 2026-08-14 — Phase 144 execution started
 
@@ -1922,6 +1922,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 144]: 144-05: the pre-rewrite --policy merge05 verdict is quoted verbatim against what size_baseline_base01.json actually held pre-rewrite (v1.24 figures, deltas +892/+898/+834) rather than the plan text's own +870/+890 mention (which describes the delta against the PREP-03 anchor, a different comparison already reported earlier in the same task). Measured, verbatim output is authoritative over a paraphrase; both are RED as required.
 - [Phase 144]: 144-05: size_baseline_base01.json's original Phase-123 meta (generated/phase/generated_by/tree_shas/note) was left untouched as the historical record of BASE-01's genesis; a new re_anchor_note field states plainly that avr_targets was overwritten in place and why, rather than editing history to look consistent with data it no longer describes.
 - [Phase 144]: 144-05: size_baseline_v131.json's own warnings.native.note (previously "all four native watermarks") was corrected to "all six" when native_params_v131/native_loop_v131 were added, so the file's internal self-description stays accurate rather than silently going stale.
+- [Phase 144]: 144-06: RESEARCH F-11's claim that all 6 non-requires_fw legs in test_revision_constants_parity.py are fixture-driven planted-violation legs is refined -- only 4 of 6 read a fixture or a deliberately-missing tmp_path (value_drift/host_missing/fw_missing/fail-closed); the other 2 (test_revision_byte_values_match_firmware_enum:151, test_command_names_dereferences_both_sdp_commands:801) never touch the firmware repo at runtime and were never requires_fw candidates in the first place
+- [Phase 144]: 144-06: present-path full-suite run produced ZERO skips (not merely a nonempty skip list with reasons) -- the correct present-path shape, since every requires_fw leg that could skip instead ran and passed; 1590 passed / 0 skipped
+- [Phase 144]: 144-06: coverage held unchanged at 82.92% against Phase 143's identical figure -- attributed to 144-02's new test_cap03_ack_layout_parity.py module adding zero product-code lines to the instrumented firestarter/ package, not investigated further as an anomaly
+- [Phase 144]: 144-06: requirements-completed left empty -- this plan's requirement_scope forbids ticking TEST-07; plan 144-07 owns the consolidated eight-requirement flip; REQUIREMENTS.md and ROADMAP.md coverage tables were not edited
+- [Phase 144]: 144-06: while probing gsd-tools state subcommand argument requirements ahead of this plan's own end-of-plan update, advance-plan and record-session executed for real on a bare no-args call (unlike record-metric/add-decision which errored cleanly) -- prematurely advanced Plan to 7 of 7 before this plan's SUMMARY existed; caught via git diff and reverted via git checkout before anything was staged, zero lasting effect
 
 ## Performance Metrics
 
@@ -2174,11 +2179,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 144 P03 | 24min | 2 tasks | 3 files |
 | Phase 144 P04 | 34min | 2 tasks | 1 files |
 | Phase 144 P05 | 30min | 3 tasks | 11 files |
+| Phase 144 P06 | 26min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-14T08:50:42.958Z
-**Stopped at:** Completed 144-05-PLAN.md
+**Last session:** 2026-08-14T09:25:40.501Z
+**Stopped at:** Completed 144-06-PLAN.md
 **Resume file:** None
 
 ### Blockers
