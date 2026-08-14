@@ -480,7 +480,7 @@ Plans:
 
 **Wave 6** *(blocked on Waves 4–5)*
 
-- [ ] 144-07-PLAN.md — `144-TEST-RECORD.md` with every verdict verbatim, the per-segment attribution table, the ten-plant D-18 inventory, and four disclosures stated rather than implied: **D-14's** constrained sentence (MERGE-05 green because the **anchor moved**, not because growth stayed inside v1.24's band), **D-03's** non-claim (arithmetic proven; in-loop wiring on a live row not, because no shipped row sets `overprogram_factor`), **D-08's** un-gated prechange file, and **D-15's** absence (the three `*_v131` envs run in **no CI leg** of either repository) — then all eight `TEST-*` requirements flipped in both coverage tables behind a blocking operator gate, with a snapshot-and-diff proving nothing else moved [meta]
+- [x] 144-07-PLAN.md — `144-TEST-RECORD.md` with every verdict verbatim, the per-segment attribution table, the ten-plant D-18 inventory, and four disclosures stated rather than implied: **D-14's** constrained sentence (MERGE-05 green because the **anchor moved**, not because growth stayed inside v1.24's band), **D-03's** non-claim (arithmetic proven; in-loop wiring on a live row not, because no shipped row sets `overprogram_factor`), **D-08's** un-gated prechange file, and **D-15's** absence (the three `*_v131` envs run in **no CI leg** of either repository) — then all eight `TEST-*` requirements flipped in both coverage tables behind a blocking operator gate, with a snapshot-and-diff proving nothing else moved [meta]
 
 ### Phase 145: Bench Validation
 
@@ -544,14 +544,14 @@ Plans:
 | HOST-03 | Phase 143 | Pending |
 | HOST-04 | Phase 143 | Pending |
 | HOST-05 | Phase 143 | Pending |
-| TEST-01 | Phase 144 | Pending |
-| TEST-02 | Phase 144 | Pending |
-| TEST-03 | Phase 144 | Pending |
-| TEST-04 | Phase 144 | Pending |
-| TEST-05 | Phase 144 | Pending |
-| TEST-06 | Phase 144 | Pending |
-| TEST-07 | Phase 144 | Pending |
-| TEST-08 | Phase 144 | Pending |
+| TEST-01 | Phase 144 | Complete |
+| TEST-02 | Phase 144 | Complete |
+| TEST-03 | Phase 144 | Complete |
+| TEST-04 | Phase 144 | Complete |
+| TEST-05 | Phase 144 | Complete |
+| TEST-06 | Phase 144 | Complete |
+| TEST-07 | Phase 144 | Complete |
+| TEST-08 | Phase 144 | Complete |
 | BENCH-01 | Phase 145 | Pending |
 | BENCH-02 | Phase 145 | Pending |
 | BENCH-03 | Phase 145 | Pending |

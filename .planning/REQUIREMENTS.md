@@ -225,21 +225,21 @@ expected work, not a regression.
 
 ### Tests & Build
 
-- [ ] **TEST-01**: Native tests prove `0x07`, `0x08` and `0x0B` each resolve to their own table row.
-- [ ] **TEST-02**: Native tests prove fixed-width pulse/verify per byte and that the width does not
+- [x] **TEST-01**: Native tests prove `0x07`, `0x08` and `0x0B` each resolve to their own table row.
+- [x] **TEST-02**: Native tests prove fixed-width pulse/verify per byte and that the width does not
       escalate between attempts.
-- [ ] **TEST-03**: Native tests prove the overprogram duration derives from the successful byte's
+- [x] **TEST-03**: Native tests prove the overprogram duration derives from the successful byte's
       pulse count and honours `overprogram_cap_us`.
-- [ ] **TEST-04**: Native tests prove max-pulse failure aborts the block, reports the address, and
+- [x] **TEST-04**: Native tests prove max-pulse failure aborts the block, reports the address, and
       disables every high-voltage route.
-- [ ] **TEST-05**: Native tests prove the `0xFF`/already-matching skips and the
+- [x] **TEST-05**: Native tests prove the `0xFF`/already-matching skips and the
       `pulse_delay == 0` fallback.
-- [ ] **TEST-06**: The pre-change golden traces are frozen, new traces are authored for the new
+- [x] **TEST-06**: The pre-change golden traces are frozen, new traces are authored for the new
       cadence, and the diff between them is reviewed with **every changed strobe attributable to a
       named decision** — no blanket snapshot update.
-- [ ] **TEST-07**: `uno`, `uno328pb`, `leonardo` and `native` all build and pass; the host suite and
+- [x] **TEST-07**: `uno`, `uno328pb`, `leonardo` and `native` all build and pass; the host suite and
       CI-scoped ruff/mypy are clean; dual-repo constants parity holds.
-- [ ] **TEST-08**: Per-target flash and RAM delta is measured against the PREP-03 baseline and
+- [x] **TEST-08**: Per-target flash and RAM delta is measured against the PREP-03 baseline and
       recorded — the Leonardo ceiling is watched, not discovered at the end.
 
 ### Bench Validation
