@@ -152,8 +152,93 @@ have: a mismatch's *value*, not just its offset, decodes to a source address (th
 that root-caused Phase 97's pin-31 defect).
 
 ### BENCH-03 `support_status` invariance
-NOT YET RUN — filled by `145-02` Task 1 (chip-database diff, generator-inputs diff, write-locus
-lock, histogram recount).
+
+Re-measured at the tip, all four legs run this session from `/workspaces/firestarter_app`. Nothing
+was regenerated and `tools/build_db.py` was not invoked — the requirement is that nothing changed,
+and regenerating would be the change. This is a re-measurement, not a first discovery: D-15 already
+established the diff was empty at discussion time; this record re-confirms it at execution time.
+
+**Leg 1 — D-15's mandated whole-milestone diff, base confirmed rather than assumed.**
+```
+$ git merge-base HEAD origin/beta
+4d18b645ab18a2d2465f0f623062e9249eb24132
+```
+The confirmed merge-base matches D-15's recorded base exactly — measured, not assumed.
+```
+$ git diff 4d18b645..HEAD -- firestarter/data/chip_database.json | wc -c
+0
+
+$ git diff --stat 4d18b645..HEAD -- firestarter/data/chip_database.json
+(no output — zero rows)
+```
+Zero bytes of diff and zero stat rows across the **whole** v1.31 range from the app's branch base to
+HEAD — not merely across this phase's own commits (per D-15's explicit instruction).
+
+**Leg 2 — the generator inputs are also unchanged.**
+```
+$ git diff --stat 4d18b645..HEAD -- tools/build_db.py tools/extra_chips.json tools/infoic.xml | wc -c
+0
+```
+This matters because `chip_database.json` is **generated**: an unchanged database sitting on top of
+drifted generator inputs would be a latent change waiting for the next regeneration. This leg closes
+that gap — the inputs are exactly as unchanged as the output they produce.
+
+**Leg 3 — the mechanism lock.**
+```
+$ python3 tools/check_no_community_support_status_write.py; echo "exit=$?"
+PASS: scanned ../firestarter/diagnostic_report.py, parse_devtest_issue.py; 0 support_status writes (sole write locus stays tools/build_db.py)
+exit=0
+```
+This is an AST gate that denies any `support_status` **assignment target**
+(`ast.Assign`/`ast.AnnAssign`/`ast.AugAssign`, attribute form or dict-subscript form) in its two scan
+targets, `firestarter/diagnostic_report.py` and `tools/parse_devtest_issue.py`, and fails closed if
+either scan target is missing from disk. The sole sanctioned write locus is `tools/build_db.py`.
+D-15's proof **composes with** this lock rather than duplicating it: the lock already runs
+automatically under `pytest tests/` via `tests/test_check_no_community_support_status_write.py` on
+every suite invocation; this leg is a direct, standalone re-run of that same gate at the tip.
+
+**Leg 4 — the value histogram, a positive statement rather than an absence.**
+```
+$ sha256sum firestarter/data/chip_database.json
+3befbaad7bbb88307abd94db0447ad78e847c40f3c96be7751f5b87a1e913479  firestarter/data/chip_database.json
+
+$ python3 -c "import json,collections; d=json.load(open('firestarter/data/chip_database.json')); c=collections.Counter(ic.get('support_status') for ics in d.values() for ic in ics); print('total', sum(c.values())); [print(k, v) for k,v in c.most_common()]"
+total 746
+supported 736
+adapter-required 9
+protocol-not-implemented 1
+```
+All four figures and the digest match the value expected from discussion time exactly.
+
+**Caveat — three benign textual mentions in the range, each verified by grepping the actual diff
+rather than restated from RESEARCH.** `git diff 4d18b645..HEAD` contains exactly three lines
+mentioning the string `support_status`, none a value change:
+```
+$ git diff 4d18b645..HEAD -- tests/golden/chip_database_field_inventory.json | grep -n support_status
+31:+      "support_status": 746,
+82:+    "support_status",
+
+$ git diff 4d18b645..HEAD -- tests/test_write_response_budget.py | grep -n support_status
+12:+EPROM_STD, ``support_status: supported``). Already the shared "non-0x0D"
+```
+Two are in `tests/golden/chip_database_field_inventory.json` — a per-key **occurrence count** of
+`746` (matching Leg 4's total chip count, not a support-status value) and the key's appearance in a
+key list — and one is in `tests/test_write_response_budget.py`, a docstring quoting
+`` support_status: supported ``. A full unscoped `git diff 4d18b645..HEAD | grep -c support_status`
+returns exactly `3`, confirming no fourth mention exists anywhere in the range.
+
+**Scope statement — single-repo by construction.**
+```
+$ cd /workspaces/firestarter && grep -rc "support_status" src/ include/ scripts/ 2>/dev/null | grep -v ":0$"
+(no output — zero hits)
+```
+Run read-only from `/workspaces/firestarter`. The firmware repo carries no `support_status`
+anywhere across `src/`, `include/` or `scripts/`, so BENCH-03 is single-repo by construction: only
+`firestarter_app` can possibly move this value, and Leg 1 already proves it did not.
+
+**BENCH-03 verdict: validated** — four independent legs (the whole-range diff, the generator-inputs
+diff, the mechanism-lock re-run, and the value histogram), all re-measured at the tip this session,
+none discovered for the first time here.
 
 ### BENCH-02 `0x08` (AM27C020) disposition
 NOT YET RUN — filled by `145-02` Task 2 (skipped-with-reason record citing Phase 99's 60/64 → 0/64
