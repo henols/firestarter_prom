@@ -281,10 +281,48 @@ measurement was taken this phase; the numbers above are Phase 99's, cited, not r
 **BENCH-02 `0x08` verdict: skipped-with-reason** — missing part: AM27C020.
 
 ### BENCH-02 `0x0B` (M2716/M2732) disposition
-NOT YET RUN — filled by `145-02` Task 3 (skipped-with-reason record citing Phase 79's 22.4 V DMM /
-23.9 V firmware VPE reading and the parked graduation, with the same "NOT inferred" sentence).
 
-**Gate 0 verdict:** NOT YET RUN
+**Missing parts, stated as the reason for the skip:** M2716 and M2732, protocol `0x0B`. Neither
+part is on the bench this session (operator, this phase) — that is the entire and sufficient
+reason this protocol is skipped rather than validated. No measurement is taken here and no
+hardware is touched; every number below is cited from Phase 79, not re-derived.
+
+**Last known bench state, with its numbers and its source — Phase 79, rail-corrected
+2026-06-23, Leonardo + RURP Rev 2.0, firmware `3.0.0b8`, chip OUT, pot at maximum, R1/R2 at
+`270000`/`44000`** (`.planning/phases/79-25v-nmos-ceiling-raise/79-01-SUMMARY.md`,
+`.planning/phases/79-25v-nmos-ceiling-raise/79-02-SUMMARY.md`):
+
+- **VPE = 22.4 V by operator DMM** (treated as authoritative) **against 23.9 V reported by
+  `firestarter vpe`** — both at max pot, roughly 90 % of the rated 25 V.
+- **VPP on the same run:** roughly 15 to 19 V by operator DMM against **18.7 V** reported by the
+  firmware on the dropped path.
+- The strict **≥ 25 V bar was NOT CLEARED** at this reading, and was then **retired by operator
+  override** (79-CONTEXT D-07). After the override, the four NMOS chips (INTEL M2716/M2716M,
+  INTEL 2732/2732A/M2732/M2732A, SGS-THOMSON ETC2716/M2716, ST ETC2716/M2716) graduate to
+  `supported` **best-effort**: the firmware warns under-voltage (22.4 V against a 23.75 V
+  threshold, 95 % of the rated 25 V) and proceeds; over-voltage stays blocked as the damage
+  boundary.
+- **Caveat:** the firmware ADC measures the regulator **rail** at 23.9 V, not the
+  socket-delivered **pin voltage** at 22.4 V — the two figures are measuring different things,
+  and neither supersedes the other.
+- **Definitive proof** — a real write plus an independent read-back SHA — is Phase 79's plan
+  `79-03`, **deferred until a physical chip is on hand**. The graduation is **parked** exactly
+  there.
+
+**D-02's denial.** This disposition is **NOT inferred from the `0x07` result**. No `0x0B`
+measurement was taken this phase; the numbers above are Phase 79's, cited, not re-derived.
+
+**BENCH-02 `0x0B` verdict: skipped-with-reason** — missing parts: M2716, M2732.
+
+**Gate 0 verdict:** Cleared, zero hardware touched. Four items complete: the instrument inventory
+and tripwire baseline (`145-01` Task 3 — the frame-extraction self-test passed both outcomes, the
+firmware suite ran 312 passed, and the host sibling-porcelain subset ran 38 passed); the four
+address-attributable write images plus their digest manifest (`145-01` Task 2 —
+`img1.bin`/`img2.bin`/`img3.bin`/`img_4k_pulse.bin` and `SHA256SUMS.txt`); **BENCH-03** validated on
+four independent legs (this plan's Task 1); and both **BENCH-02** dispositions — `0x08` and `0x0B` —
+recorded `skipped-with-reason` with their explicit not-inferred sentences (this plan's Tasks 2 and
+3). Because Gate 0 completed with zero hardware touched, a D-13 halt at any later gate still leaves
+BENCH-02 and BENCH-03 complete — neither requirement needed the bench to finish.
 
 ---
 
