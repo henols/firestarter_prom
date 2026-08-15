@@ -4,15 +4,15 @@ milestone: v1.31
 milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 145
 current_phase_name: Bench Validation
-status: ready_to_plan
-stopped_at: Phase 145 context gathered
-last_updated: "2026-08-15T07:43:10.397Z"
+status: executing
+stopped_at: Phase 145 planned — 9 plans, 9 waves
+last_updated: "2026-08-15T13:23:39.450Z"
 last_activity: 2026-08-15
-last_activity_desc: Phase 145 context gathered — bench scope locked (W27C512 / Leonardo / Rev 2.0)
+last_activity_desc: Phase 145 planned — 9 plans in 9 waves, bench (operator-gated, no --auto)
 progress:
   total_phases: 8
   completed_phases: 7
-  total_plans: 52
+  total_plans: 61
   completed_plans: 52
   percent: 88
 ---
@@ -112,9 +112,9 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 145 — Bench Validation
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-08-14 — Phase 144 complete, transitioned to Phase 145
+Plan: 9 plans in 9 waves (145-01 … 145-09), not started
+Status: Ready to execute
+Last activity: 2026-08-15 — Phase 145 planned — 9 plans in 9 waves, bench (operator-gated, no --auto)
 
 **Phase 145 is a bench phase — hardware in the loop.** Chip handling, photos and multimeter
 readings are operator-only, and the operator adjusts the voltage pot himself. Do not run it
