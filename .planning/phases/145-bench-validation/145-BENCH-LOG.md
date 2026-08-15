@@ -71,8 +71,51 @@ NOT YET RUN — filled by `145-01` Task 3 (the `extract_frames.py` self-test out
 pre-bench firmware/host tripwire pass counts).
 
 ### Write images
-NOT YET RUN — filled by `145-01` Task 2 (the four image digests, pairwise distinctness, the
-erase-oracle transition figures, and the address-decode worked example).
+
+Four images, generated in the meta repo only:
+
+| File | Size | Mask | SHA-256 |
+|---|---|---|---|
+| `images/img1.bin` | 65536 B | `0x00` | `f72489604bfe917db7ee505e4d674576b2905a418e8dc55372b78dcab3e34e3a` |
+| `images/img2.bin` | 65536 B | `0xFF` | `b566c7a0319cc37051ec9c92bc1faef81f75e3740c7c6c8864778a549624fd96` |
+| `images/img3.bin` | 65536 B | `0x5A` | `74c359c8d8668fdc5778270d61cc3fbef55a1027999f20c5798a54bf0f6aea01` |
+| `images/img_4k_pulse.bin` | 4096 B | `0x3C` | `6db951cca6af4c56524f3ad01bbcd5658c44ea6b73eb0dca9469b9e787ca448a` |
+
+(Digests recomputed from disk with `sha256sum`, not copied from the generator's own printed
+output; the full manifest is `SHA256SUMS.txt` — see the SHA manifest section below.)
+
+**Generator:** `.planning/phases/145-bench-validation/images/gen_addr_image.py` — meta-repo bench
+tooling authored under this phase directory, explicitly NOT inside `firestarter/` or
+`firestarter_app/` (D-16). It implements the word-stamped address recipe: the byte at offset `N`
+is the low byte of `N` when `N` is even, the high byte of `N` when `N` is odd, XORed with a
+per-image mask, so each aligned 2-byte word literally stamps its own 16-bit address.
+
+**Pairwise distinctness (measured):** all three 64 KiB pairs — img1/img2, img1/img3, img2/img3 —
+differ in **65536 of 65536 bytes**. D-05's "different image each cycle" requirement is maximally
+satisfied; rewriting the same bytes over an unerased chip could never pass any of these cycles
+trivially.
+
+**Erase-oracle figures (measured):** bytes needing at least one `0 → 1` bit transition are
+**65408 of 65536 (99.8 %)** going from cycle 1 (img1) to cycle 2 (img2), and **59392 of 65536
+(90.6 %)** going from cycle 2 (img2) to cycle 3 (img3). A clean cycle-2 (or cycle-3) PASS is
+therefore **positive proof the erase actually fired**: a silently no-op erase would leave those
+bytes unprogrammable (a program pass cannot clear a bit already at `0`) and the write would fail
+with `MSG_ERR_MAX_PULSES` rather than report success.
+
+**`0xFF` byte counts (measured):** img1 = 128, img2 = 384, img3 = 128. Firmware
+(`eprom.cpp:407`, `if (expected == 0xFF) continue;`) skips a byte whose expected value is `0xFF`
+without issuing a pulse — this record does not claim all 65536 bytes were individually pulsed.
+Those bytes remain covered by `VERIFY_PER_PULSE_PLUS_FINAL`'s final full-block read pass, so there
+is no verification coverage hole, only a pulse-count honesty note.
+
+**Address-attributability, worked example (simulated A8-stuck-low, img1/mask `0x00`):** simulating
+address line A8 (bit 8 of the 16-bit address) stuck low over the full 65536-byte space produces
+16384 mismatches; the first is at offset `0x0101`, observed byte `0x00`. Un-masking (mask `0x00`
+for img1) leaves `0x00`; the offset is odd, so the stamp is the *high* address byte, meaning the
+byte read back belongs to an address whose high byte is `0x00` — i.e. address `0x0001` — naming
+**A8** as the aliased line. This is the property `gen_test_image.py`'s pseudo-random bytes do not
+have: a mismatch's *value*, not just its offset, decodes to a source address (the same distinction
+that root-caused Phase 97's pin-31 defect).
 
 ### BENCH-03 `support_status` invariance
 NOT YET RUN — filled by `145-02` Task 1 (chip-database diff, generator-inputs diff, write-locus
