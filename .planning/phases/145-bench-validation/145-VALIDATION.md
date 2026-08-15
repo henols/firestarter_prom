@@ -1,8 +1,8 @@
 ---
 phase: 145
 slug: bench-validation
-status: draft
-nyquist_compliant: false
+status: approved
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-08-15
 ---
@@ -47,8 +47,13 @@ its artifacts.
 
 ## Per-Task Verification Map
 
-Rows are gate-level; the planner binds each to a concrete task ID. `Test Type` `hardware` and
-`human-verify` rows are **not** automatable — they carry `autonomous: false` (D-19, D-20).
+Rows are gate-level. `Test Type` `hardware` and `human-verify` rows are **not** automatable — they
+carry `autonomous: false` (D-19, D-20).
+
+> **The `Task ID` / `Plan` columns below are a pre-planning guess and are SUPERSEDED.** The
+> authoritative row→task bindings live in `145-BENCH-LOG.md`'s own "Verification map bindings"
+> table, authored by `145-01` Task 1 (17 distinct `145-0N Task M` bindings). Read that table, not
+> this column. Deliberately not duplicated here — two copies would drift.
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
@@ -117,6 +122,9 @@ the **meta** repo, never in either sub-repo (D-16).*
 - [ ] No watch-mode flags
 - [ ] Feedback latency < 20s
 - [ ] Firmware porcelain empty before every pytest invocation (RQ-9 tripwire)
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-08-15 — `gsd-plan-checker` Dimension 8 PASS (8a–8d individually
+verified) across two verification passes over the 9-plan set. `wave_0_complete` stays `false`:
+Wave 0's artifacts (images, `SHA256SUMS.txt`, the `145-BENCH-LOG.md` skeleton, the run/log/readback
+directories) are produced by `145-01` and `145-02` at execution time, not at plan time.
