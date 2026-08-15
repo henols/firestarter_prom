@@ -5,16 +5,16 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 145
 current_phase_name: Bench Validation
 status: executing
-stopped_at: "Completed 145-01-PLAN.md (Gate 0 off-bench: bench-log skeleton, 4 write images, extract_frames.py, tripwire baseline)"
-last_updated: "2026-08-15T16:21:46.218Z"
+stopped_at: "Completed 145-02-PLAN.md (Gate 0 hardware-free requirements: BENCH-03 re-measured validated on four legs, both BENCH-02 dispositions recorded skipped-with-reason, Gate 0 closed)"
+last_updated: "2026-08-15T16:36:45.873Z"
 last_activity: 2026-08-15
 last_activity_desc: Phase 145 execution started
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 61
-  completed_plans: 53
-  percent: 87
+  completed_plans: 54
+  percent: 88
 ---
 
 # Project State
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 145 (bench-validation) — EXECUTING
-Plan: 2 of 9
+Plan: 3 of 9
 Status: Ready to execute
 Last activity: 2026-08-15 — Phase 145 execution started
 
@@ -1933,6 +1933,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 145]: 145-01: Gate 1 identity table's Dispatch mode row filled immediately (not stubbed NOT YET RUN) since D-20 requires the no-auto/no-chain fact stated now, not deferred to a bench session
 - [Phase 145]: 145-01: --force used? kept to exactly one occurrence in 145-BENCH-LOG.md (Gate 1 identity row); all other --force mentions phrased differently to satisfy the exactly-1 acceptance criterion
 - [Phase 145]: 145-01: BENCH-01 requirements-completed left empty and REQUIREMENTS.md untouched — multi-plan requirement flipped to Complete only by 145-09 behind its blocking operator gate; this plan discharges Gate 0 off-bench prep only
+- [Phase 145]: requirements-completed left empty; REQUIREMENTS.md untouched for BENCH-02/BENCH-03 — Multi-plan requirements flipped to Complete only by 145-09 behind its blocking operator gate, per dispatch instructions and 145-01's precedent for BENCH-01
+- [Phase 145]: Ran full firmware suite + host sibling-porcelain subset as an end-of-wave regression tripwire — Matches 145-01's baseline (312 passed / 38 passed); zero source touched by this plan so no drift expected; not written into 145-BENCH-LOG.md since that tripwire subsection is 145-01's territory
 
 ## Performance Metrics
 
@@ -2188,12 +2190,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 144 P06 | 26min | 2 tasks | 1 files |
 | Phase 144 P07 | 57min | 3 tasks | 3 files |
 | Phase 145 P01 | 18min | 3 tasks | 11 files |
+| Phase 145 P02 | 9min | 3 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-15T16:21:46.172Z
-**Stopped at:** Completed 145-01-PLAN.md (Gate 0 off-bench: bench-log skeleton, 4 write images, extract_frames.py, tripwire baseline)
-**Resume file:** .planning/phases/145-bench-validation/145-02-PLAN.md
+**Last session:** 2026-08-15T16:36:45.833Z
+**Stopped at:** Completed 145-02-PLAN.md (Gate 0 hardware-free requirements: BENCH-03 re-measured validated on four legs, both BENCH-02 dispositions recorded skipped-with-reason, Gate 0 closed)
+**Resume file:** .planning/phases/145-bench-validation/145-03-PLAN.md
 
 ### Blockers
 

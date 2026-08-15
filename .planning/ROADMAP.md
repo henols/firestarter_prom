@@ -519,7 +519,7 @@ Plans:
 
 **Wave 2 — Gate 0b** *(zero hardware; both hardware-free requirements closed up front)*
 
-- [ ] 145-02-PLAN.md — **BENCH-03** re-measured at the tip on four independent legs (whole-milestone `chip_database.json` diff from `4d18b645` empty, generator-inputs diff empty, the AST write-locus checker exit 0, and the 736/9/1 histogram over 746 chips), with the three benign textual `support_status` mentions in the range named so a reader grepping it is not alarmed; plus **BENCH-02**'s two full disposition records — `0x08` carrying Phase 99's 60/64 then 0/64 and FUT-08 and judged a **fail** under D-14 rather than a qualified pass, `0x0B` carrying Phase 79's 22.4 V DMM against 23.9 V firmware at max pot with its graduation parked at `79-03` — each closing with the explicit *not inferred from the `0x07` result* sentence [meta, reads both sub-repos]
+- [x] 145-02-PLAN.md — **BENCH-03** re-measured at the tip on four independent legs (whole-milestone `chip_database.json` diff from `4d18b645` empty, generator-inputs diff empty, the AST write-locus checker exit 0, and the 736/9/1 histogram over 746 chips), with the three benign textual `support_status` mentions in the range named so a reader grepping it is not alarmed; plus **BENCH-02**'s two full disposition records — `0x08` carrying Phase 99's 60/64 then 0/64 and FUT-08 and judged a **fail** under D-14 rather than a qualified pass, `0x0B` carrying Phase 79's 22.4 V DMM against 23.9 V firmware at max pot with its graduation parked at `79-03` — each closing with the explicit *not inferred from the `0x07` result* sentence [meta, reads both sub-repos]
 
 **Wave 3 — Gate 1a** *(operator attaches the bench)*
 
