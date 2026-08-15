@@ -494,7 +494,60 @@ Plans:
   3. `0x0B` (M2716/M2732) is either bench-validated with per-run evidence or recorded skipped-with-reason naming the missing part — never inferred from the `0x07` result.
   4. No chip's `support_status` changes as a result of this milestone's bench runs.
 
-**Plans**: TBD
+**Plans**: 9 plans
+
+This phase is **serialised end to end** — every plan writes into the same record, `145-BENCH-LOG.md`, and the
+bench is one part on one board with one operator, so there is no parallelism to exploit and the wave numbers
+are the gate ladder. Every plan carries `autonomous: false` **and** the record itself states that the
+dispatching command was issued without `--auto`/`--chain`: auto-modes auto-approve `human-verify` gates, so
+frontmatter alone is not self-protecting (D-20). **No file under `firestarter/` or `firestarter_app/` is
+created, edited or deleted by any plan** (D-16) — the sole write into the firmware checkout is PlatformIO's
+gitignored `.pio/`, and bench tooling (the image generator, the frame extractor) is authored in the **meta**
+repo under the phase directory, because one untracked file in `/workspaces/firestarter` turns **9 tests RED**
+(RQ-9).
+
+Requirement ticking is centralised: `145-01` … `145-08` tick **none**; `145-09` ticks **BENCH-01 … BENCH-03**
+in one hand edit across both coverage tables, behind a blocking operator gate, with a snapshot-and-diff — the
+ids are reused by archived v1.2/v1.3 rows, so a global substitution would corrupt history. **Gate 0 completes
+before any silicon is touched** so a D-13 halt still lands BENCH-02 and BENCH-03 complete.
+
+Plans:
+
+**Wave 1 — Gate 0a** *(zero hardware)*
+
+- [ ] 145-01-PLAN.md — The record skeleton in the `99-03-BENCH-LOG.md` gate shape with every gate stubbed `NOT YET RUN`, D-14's two-state taxonomy fixed **before** any run, D-20's dispatch line, and every `145-VALIDATION.md` row bound to a concrete plan-and-task id; D-05's three word-stamped 64 KiB images plus the 4 KiB pulse image, whose values decode back to a source address (`gen_test_image.py` cannot — a mismatched *value* carries no address information), asserted against three independently computed digests; and the D-10 frame extractor **seen to pass on both a positive and a negative fixture** before it is trusted [meta]
+
+**Wave 2 — Gate 0b** *(zero hardware; both hardware-free requirements closed up front)*
+
+- [ ] 145-02-PLAN.md — **BENCH-03** re-measured at the tip on four independent legs (whole-milestone `chip_database.json` diff from `4d18b645` empty, generator-inputs diff empty, the AST write-locus checker exit 0, and the 736/9/1 histogram over 746 chips), with the three benign textual `support_status` mentions in the range named so a reader grepping it is not alarmed; plus **BENCH-02**'s two full disposition records — `0x08` carrying Phase 99's 60/64 then 0/64 and FUT-08 and judged a **fail** under D-14 rather than a qualified pass, `0x0B` carrying Phase 79's 22.4 V DMM against 23.9 V firmware at max pot with its graduation parked at `79-03` — each closing with the explicit *not inferred from the `0x07` result* sentence [meta, reads both sub-repos]
+
+**Wave 3 — Gate 1a** *(operator attaches the bench)*
+
+- [ ] 145-03-PLAN.md — The operator attaches the Leonardo, seats the **Winbond** W27C512 and reads **Rev 2.0** off the silkscreen (the EEPROM `hw_revision` byte cannot distinguish 2.0 from 2.2 from the modified Rev 0); then D-18's reflash by `pio run -t upload -e leonardo` — **never `fw --install`**, which resolves a GitHub release asset the v1.31 branch does not have — with the image identified by **commit plus the verified avrdude byte count**, because `3.0.0b17` is byte-identical to the fork point `3085084` and reads *older* than beta's `3.0.0b18`; 144 H7 discharged for free at 26906 B against a 0 B leonardo band, quoting `merge05_clause` verbatim (green because the **anchor moved**); and the seated part confirmed `0xda08`, not the ST `0x203d` [meta, reads both sub-repos]
+
+**Wave 4 — Gate 1b** *(first destructive act, separately authorized)*
+
+- [ ] 145-04-PLAN.md — The chip's full 65536-byte prior content read and hashed **before** anything erases it (Phase 99's `prewrite.bin` pattern); **exactly one** VPP reading, then the operator adjusts the pot himself and **one** confirming read — never a live monitor loop — against the measured band 11400–12500 mV, with `--force used? No` recorded as a load-bearing line and D-17's standing use-force-and-ignore-vpp permission **withdrawn**; then D-03 settled on silicon by `firestarter erase W27C512 -b` (whose `-b` **adds** a blank check — the inverse polarity to `write -b`, which is forbidden), with the dated supersession chain explaining the historical `ERROR: Not supported` [meta]
+
+**Wave 5 — Gate 2a** *(the three-cycle spend, separately authorized)*
+
+- [ ] 145-05-PLAN.md — Cycle 1: a full 65536-byte write of `img1.bin` with **three verdicts recorded on their own lines and never merged** — the write's, the verify's, and the host-side SHA compare against a fresh read-back — plus the stated boundary that `verify` is a *second firmware-side pass* using the same handler, so the read-to-file plus `sha256sum` is the only independent oracle; per-cycle read stability via `dev consistency-check --runs 3` into an explicit non-`consistency-check-*` output dir (the default is double-gitignored); then D-10 **Claim A** given a *measured* verdict rather than a predicted one — RQ-4's arithmetic predicts **zero** intra-block frames at the DB's 100 µs pulse, and a null result is recorded honestly, not retried away — and D-11 claimed as free evidence with its non-claim that nothing logs the advertised budget [meta]
+
+**Wave 6 — Gate 2b** *(same chip, same record)*
+
+- [ ] 145-06-PLAN.md — Cycles 2 and 3 on `img2.bin` and `img3.bin`, each byte-exact on all three verdicts with its own stability check, and consecutive read-backs asserted to **differ** so a no-op erase cannot masquerade as a pass; the D-03 erase-fired corroboration stated from the image sequence itself (65408/65536 = 99.8 % of cycle-1→2 bytes need a `0→1` transition, 59392 = 90.6 % for 2→3); then Gate 2 closed against D-09's **3/3 on both oracles** rule with the re-seat ledger stated either way — the single allowance is a *documented* re-run, never a quiet retry — and the no-`--force` claim made as a **source assertion over a counted set of command-line headings** [meta]
+
+**Wave 7 — Gate 3** *(required conditional on Gate 2 passing)*
+
+- [ ] 145-07-PLAN.md — The `--pulse-us 4688` run D-10's literal claim actually needs: at the DB pulse the firmware's 1000 ms emission interval with a per-block `last_emit_ms` reset is never crossed by a ~0.4–0.7 s block, so **Claim B** is only reachable here. One ~21 s run discharges three inherited items — Claim B, D-12's `--pulse-us`-on-silicon, and D-12's **above-4687 µs** budget-mechanism proof (advertised ≈244 s *exceeds* the old 120 s fallback, which a run merely fitting inside the fallback could not distinguish) — with the default-visible provenance line recorded verbatim; plus an optional companion run at the DB pulse making D-12's **A1** genuinely derivable, or A1 recorded **explicitly not discharged with no v1.31 owner** [meta]
+
+**Wave 8 — Close the record**
+
+- [ ] 145-08-PLAN.md — D-10's **eyes-on half** captured verbatim while the run is fresh, with any contradiction against the machine count stated rather than reconciled; then the phase VERDICT answering all four ROADMAP criteria in D-14's vocabulary, a `Not measured` section giving each un-taken reading its blocker, and every undischarged item carried forward with the literal phrase **no v1.31 owner** (Phase 146 is docs-and-claims only and cannot run a bench); the mandatory boundaries stated rather than implied — no comparative claim (D-08), no datasheet conformance (the 6.25 V ceiling), and scope named as one part, one controller, one shield revision; then both suites re-run green with firmware porcelain empty, BENCH-03 re-confirmed at the tip, and every artifact inventoried, hashed and proven not gitignored [meta, reads both sub-repos]
+
+**Wave 9 — Requirement flip**
+
+- [ ] 145-09-PLAN.md — **BENCH-01 … BENCH-03** flipped in both coverage tables behind a blocking operator gate, by hand edit with a snapshot-and-diff proving nothing else moved: exactly six changed lines in `REQUIREMENTS.md`, and every changed `ROADMAP.md` line naming `Phase 145` or a `145-0N` plan id — with the archived v1.2/v1.3 `BENCH-01/02/03` rows (Phase 12 / Phase 13) asserted byte-identical, because they are different requirements that happen to share ids [meta]
 
 ### Phase 146 (close): Honesty Ledger, Claim Gate & gh#15 Reconciliation
 
