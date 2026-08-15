@@ -1275,7 +1275,11 @@ manifest is touched.
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+All five questions below were resolved during planning; each carries an inline
+`**RESOLVED:**` marker naming the plan and task that adopted its recommendation. The question text itself is
+unchanged from the research session.
 
 1. **Does the v1.31 per-byte loop change the 64 KiB write duration materially?**
    - Known: 22.84 s recorded on this chip/board under the pre-v1.31 block loop; an in-tree comment
@@ -1285,21 +1289,30 @@ manifest is touched.
    - Recommendation: the plan records the wall-clock elapsed from cycle 1 as a **first-class
      measurement** (it is free — `Write to W27C512 successful (NN.NNs).`), and the frame extraction
      reports the true per-block frame count rather than asserting a predicted one.
+   - **RESOLVED:** adopted. `145-05` Task 2 records cycle 1's elapsed seconds as a first-class measurement and
+     `145-06` Tasks 1 and 2 do the same for cycles 2 and 3, with all three figures placed side by side and no
+     comparative claim against earlier firmware (D-08).
 
 2. **How many `0xE0` frames actually arrive at the DB pulse — 0 or 1 per block?**
    - Recommendation: do not pre-commit either number in the plan. State Claim A as the DB-pulse
      claim, let the extraction script report the count, and put Claim B in Gate 3.
+   - **RESOLVED:** adopted. `145-05` Task 3 gives Claim A a measured verdict rather than a predicted one, with
+     both `HOLDS` and `DOES NOT HOLD` pre-authorised as recorded outcomes; Claim B sits in Gate 3 (`145-07`).
 
 3. **Should the pre-write chip content be preserved?**
    - Recommendation: one `firestarter read W27C512 prewrite.bin` before the first erase, hashed into
      `SHA256SUMS.txt` — Phase 99 did exactly this (`prewrite.bin`, `90cd45f5…7297`) and it later
      served as defer-branch evidence. Cheap insurance.
+   - **RESOLVED:** adopted. `145-04` Task 1 captures `readbacks/prewrite.bin` and appends its digest to
+     `SHA256SUMS.txt` before Task 2's erase authorization is even presented.
 
 4. **Does the plan want the `run_NN.bin` binaries committed?**
    - Known: precedent exists (208 tracked `.bin` under `.planning/`, incl. 23 W27C512 Leonardo
      `run_NN.bin`); ~9 × 64 KiB ≈ 600 KB total.
    - Recommendation: commit them (they are the evidence D-07 rests on) under a non-ignored directory
      name, and keep the digests in `SHA256SUMS.txt` so a reader need not open a binary.
+   - **RESOLVED:** adopted. `145-05`'s `files_modified` carries `runs/cycle1/run_0{1,2,3}.bin` and `145-06`'s
+     carries `runs/cycle2/` and `runs/cycle3/`, with the digests in `SHA256SUMS.txt`.
 
 5. **`--auto`/`--chain` vs `mode: YOLO` in `.planning/config.json`.**
    - Known: D-20 forbids auto-modes; `config.json` sets `"mode": "YOLO"` and
@@ -1307,6 +1320,9 @@ manifest is touched.
    - Recommendation: the planner sets `autonomous: false` on every plan **and** the dispatching
      command must be issued without `--auto`/`--chain` — the frontmatter alone is not self-protecting
      (D-20's own wording).
+   - **RESOLVED:** adopted. All nine plans carry `autonomous: false`, and the dispatch mode is additionally
+     recorded as a `Dispatch mode` row stubbed by `145-01` and filled from the operator's own words at
+     `145-03` Task 1.
 
 ---
 
