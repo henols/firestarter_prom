@@ -67,8 +67,42 @@ board is even connected, so a D-13 halt on the first genuine `0x07` failure stil
 requirements discharged.
 
 ### Instrument inventory and tripwire baseline
-NOT YET RUN — filled by `145-01` Task 3 (the `extract_frames.py` self-test outcomes and the
-pre-bench firmware/host tripwire pass counts).
+
+This phase adds **no automated test**. D-16 forbids source changes and BENCH-01/BENCH-02 are
+irreducibly hardware- and operator-gated, so the two suites below are run as **regression
+tripwires** — evidence that nothing this phase touches has broken either repo's existing test
+suite — never as requirement evidence. Requirement evidence is this record and its artifacts.
+
+**Frame-extraction instrument:** `.planning/phases/145-bench-validation/tools/extract_frames.py`
+— meta-repo bench tooling authored under this phase directory, explicitly NOT inside
+`firestarter/` or `firestarter_app/` (D-16). It parses a raw tqdm stderr capture
+(`logs/write_cycleN.stderr.raw`), keeps only the last bar segment (the write bar, discarding
+INIT-phase blank-check frames per Pitfall 6), and reports per-block frame positions.
+
+**Self-test — both outcomes observed (command: `python3 tools/extract_frames.py --selftest`,
+exit 0):**
+
+| Leg | Fixture | `segments` | `selected_segment` | `positions` | `intra_block_frames` | `blocks_with_multiple_updates` | `block_updates` | Verdict |
+|---|---|---|---|---|---|---|---|---|
+| POSITIVE | 2-segment, write bar has one intra-block frame at 1280 | 2 | 2 | `[0, 1024, 1280, 2048]` (4096 confirmed absent) | 1 | 1 | `{1: 2}` (`block 1 has 2 updates`) | `SELFTEST: POSITIVE PASS` |
+| NEGATIVE | 2-segment, write bar has only boundary frames | 2 | 2 | `[0, 1024, 2048, 3072]` | 0 | 0 | `{}` | `SELFTEST: NEGATIVE PASS` |
+
+All expected-versus-observed fields matched on both legs (no diff lines emitted); the script
+exited 0. `grep -c "PASS"` on the self-test output is 2.
+
+**Pre-bench tripwire baseline:**
+
+| Check | Command | Result | RESEARCH baseline | Match |
+|---|---|---|---|---|
+| Firmware porcelain (precondition, RQ-9) | `git -C /workspaces/firestarter status --porcelain` | empty (0 lines), both immediately before and immediately after the suite run below | empty | yes |
+| Firmware suite | `cd /workspaces/firestarter && python3 -m pytest tests/ -q -o addopts=` | **312 passed** in 19.61s, 0 failed | 312 passed | yes |
+| Host sibling-porcelain subset | `cd /workspaces/firestarter_app && python3 -m pytest tests/test_py32_flash_map_host.py tests/test_cap03_ack_layout_parity.py tests/test_py32_asset_name_host.py -q -o addopts=` | **38 passed**, 0 failed | 38 passed | yes |
+
+Both commands were issued with `-o addopts=` cleared (the repos' own `addopts` is `-ra -q`, and
+doubling `-q` suppresses the summary count line — Pitfall 10); the count line was visible in both
+captured outputs. `firestarter_app`'s own working tree carries 8 pre-existing untracked entries
+(no porcelain assertion exists on that repo directly; the subset above asserts the *sibling*
+firestarter checkout's porcelain instead), unrelated to this phase and unchanged by it.
 
 ### Write images
 
