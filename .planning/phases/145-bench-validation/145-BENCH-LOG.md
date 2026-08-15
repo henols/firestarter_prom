@@ -241,8 +241,44 @@ diff, the mechanism-lock re-run, and the value histogram), all re-measured at th
 none discovered for the first time here.
 
 ### BENCH-02 `0x08` (AM27C020) disposition
-NOT YET RUN — filled by `145-02` Task 2 (skipped-with-reason record citing Phase 99's 60/64 → 0/64
-and FUT-08, with the explicit "NOT inferred from the `0x07` result" sentence).
+
+**Missing part, stated as the reason for the skip:** AM27C020, protocol `0x08`. No AM27C020 is on
+the bench this session (operator, this phase) — that is the entire and sufficient reason this
+protocol is skipped rather than validated. No measurement is taken here and no hardware is touched;
+every number below is cited from Phase 99, not re-derived.
+
+**Last known bench state, with its numbers and its source — Phase 99, 2026-07-01, Leonardo + RURP
+Rev 2.0, firmware commit `35706c2`**
+(`.planning/phases/99-bench-ledger-graduation-gate-evidence-ledger-update/99-03-BENCH-LOG.md`):
+
+- **Write #1** — `firestarter write AM27C020 writeA.bin -a 0x1da00 -b` → RC **1**,
+  `Failed to write memory, 0x01da00, retries: 20, bad bytes: 4`. Read-back of the region
+  `0x1da00..+64`: **60 of 64 bytes byte-exact**. The failing bytes were the **first four**, at
+  `0x1da00` through `0x1da03`, which stayed `0xFF` (unprogrammed).
+- **Read stability between the two writes** — `dev consistency-check AM27C020 --runs 3` →
+  **PASS at N=3, one distinct SHA** (`4b192bba…a418`) — the partial-program state was real and
+  stable, not a read glitch.
+- **Write #2** (confirmatory, different region) — `firestarter write AM27C020 writeA.bin -a
+  0x16600 -b` → RC **1**, `Failed to write memory, 0x016600, retries: 20, bad bytes: 64`. Read-back
+  of the region `0x16600..+64`: **0 of 64** — the entire region stayed `0xFF` (total program
+  failure).
+- **Idle VPP**, both before write #1 and after write #2: **12.9 to 13.0 V**, Internal VCC 5.5 V —
+  inside the 12.75 V ± 0.25 V band.
+- **NOT MEASURED** — program-window VPP at socket pin 1. Blocked because the held-rail DMM proxy is
+  defeated by DTR-reset-on-close (the Phase-97 tooling gap, standing across this project). Program-
+  window droop under load is the leading hypothesis for the marginal/unreliable programming shape
+  above, and it was never instrumented.
+- **Carry-forward id: `FUT-08`.**
+
+**D-14's judgement, stated plainly.** Under this phase's two-state taxonomy the Phase-99 shape —
+60 of 64 byte-exact, then 0 of 64 — is a **fail**, not a qualified pass. The taxonomy was fixed
+before any run in this phase precisely so that a partial result of exactly this shape cannot be
+argued into the friendlier bucket after the fact.
+
+**D-02's denial.** This disposition is **NOT inferred from the `0x07` result**. No `0x08`
+measurement was taken this phase; the numbers above are Phase 99's, cited, not re-derived.
+
+**BENCH-02 `0x08` verdict: skipped-with-reason** — missing part: AM27C020.
 
 ### BENCH-02 `0x0B` (M2716/M2732) disposition
 NOT YET RUN — filled by `145-02` Task 3 (skipped-with-reason record citing Phase 79's 22.4 V DMM /
