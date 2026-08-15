@@ -5,16 +5,16 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 145
 current_phase_name: Bench Validation
 status: executing
-stopped_at: Phase 145 planned — 9 plans, 9 waves
-last_updated: "2026-08-15T13:23:39.450Z"
+stopped_at: "Completed 145-01-PLAN.md (Gate 0 off-bench: bench-log skeleton, 4 write images, extract_frames.py, tripwire baseline)"
+last_updated: "2026-08-15T16:21:46.218Z"
 last_activity: 2026-08-15
-last_activity_desc: Phase 145 planned — 9 plans in 9 waves, bench (operator-gated, no --auto)
+last_activity_desc: Phase 145 execution started
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 61
-  completed_plans: 52
-  percent: 88
+  completed_plans: 53
+  percent: 87
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-08 — v1.31 started)
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
 authoritative dispatch key end to end. v1.31 makes that key drive *programming behaviour*, not just
 handler selection — while keeping the pulse width itself a database datum, not a protocol constant.
-**Current focus:** Phase 144 — Tests & Build Verification
+**Current focus:** Phase 145 — bench-validation
 
 **v1.31 27C Programming-Algorithm Fidelity (gh#15)** — ACTIVE (activated 2026-08-08, retiring Backlog
 **999.22** which was queued as the `v1.27` slot). **Firmware-touching, dual-repo lockstep.** Phase
@@ -111,10 +111,10 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 ## Current Position
 
-Phase: 145 — Bench Validation
-Plan: 9 plans in 9 waves (145-01 … 145-09), not started
+Phase: 145 (bench-validation) — EXECUTING
+Plan: 2 of 9
 Status: Ready to execute
-Last activity: 2026-08-15 — Phase 145 planned — 9 plans in 9 waves, bench (operator-gated, no --auto)
+Last activity: 2026-08-15 — Phase 145 execution started
 
 **Phase 145 is a bench phase — hardware in the loop.** Chip handling, photos and multimeter
 readings are operator-only, and the operator adjusts the voltage pot himself. Do not run it
@@ -1930,6 +1930,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 144]: 144-07: Task 2's blocking operator checkpoint answered 'approved' with no requested changes to 144-TEST-RECORD.md; TEST-01..TEST-08 flipped in both coverage documents by hand-edit with a verified 16-line (REQUIREMENTS.md) and 18-line (ROADMAP.md) snapshot diff
 - [Phase 144]: 144-07: REQUIREMENTS.md's own separate Traceability Matrix table (TEST-01..08 rows, still reading Pending) was deliberately left untouched -- the plan's action text and its 16-changed-line acceptance criterion scope the REQUIREMENTS.md edit to the eight checklist checkboxes only; flagged for Phase 146 in case that table needs reconciling
 - [Phase 144]: 144-07: state_updates step's 'roadmap.update-plan-progress' was deliberately NOT run for phase 144 -- it would check the phase-144 header checkbox (line 181) and rewrite the 'Plans: 7 plans' text and any progress-table row, none of which the plan's action text or its machine-checked diff-scope (TEST-0[1-8]|144-0[1-7] only) authorizes; the 144-07 plan-list checkbox was already ticked by hand in Task 3
+- [Phase 145]: 145-01: Gate 1 identity table's Dispatch mode row filled immediately (not stubbed NOT YET RUN) since D-20 requires the no-auto/no-chain fact stated now, not deferred to a bench session
+- [Phase 145]: 145-01: --force used? kept to exactly one occurrence in 145-BENCH-LOG.md (Gate 1 identity row); all other --force mentions phrased differently to satisfy the exactly-1 acceptance criterion
+- [Phase 145]: 145-01: BENCH-01 requirements-completed left empty and REQUIREMENTS.md untouched — multi-plan requirement flipped to Complete only by 145-09 behind its blocking operator gate; this plan discharges Gate 0 off-bench prep only
 
 ## Performance Metrics
 
@@ -2184,12 +2187,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 144 P05 | 30min | 3 tasks | 11 files |
 | Phase 144 P06 | 26min | 2 tasks | 1 files |
 | Phase 144 P07 | 57min | 3 tasks | 3 files |
+| Phase 145 P01 | 18min | 3 tasks | 11 files |
 
 ## Session
 
-**Last session:** 2026-08-15T07:43:10.345Z
-**Stopped at:** Phase 145 context gathered
-**Resume file:** .planning/phases/145-bench-validation/145-CONTEXT.md
+**Last session:** 2026-08-15T16:21:46.172Z
+**Stopped at:** Completed 145-01-PLAN.md (Gate 0 off-bench: bench-log skeleton, 4 write images, extract_frames.py, tripwire baseline)
+**Resume file:** .planning/phases/145-bench-validation/145-02-PLAN.md
 
 ### Blockers
 

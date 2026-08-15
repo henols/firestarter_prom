@@ -515,7 +515,7 @@ Plans:
 
 **Wave 1 — Gate 0a** *(zero hardware)*
 
-- [ ] 145-01-PLAN.md — The record skeleton in the `99-03-BENCH-LOG.md` gate shape with every gate stubbed `NOT YET RUN`, D-14's two-state taxonomy fixed **before** any run, D-20's dispatch line, and every `145-VALIDATION.md` row bound to a concrete plan-and-task id; D-05's three word-stamped 64 KiB images plus the 4 KiB pulse image, whose values decode back to a source address (`gen_test_image.py` cannot — a mismatched *value* carries no address information), asserted against three independently computed digests; and the D-10 frame extractor **seen to pass on both a positive and a negative fixture** before it is trusted [meta]
+- [x] 145-01-PLAN.md — The record skeleton in the `99-03-BENCH-LOG.md` gate shape with every gate stubbed `NOT YET RUN`, D-14's two-state taxonomy fixed **before** any run, D-20's dispatch line, and every `145-VALIDATION.md` row bound to a concrete plan-and-task id; D-05's three word-stamped 64 KiB images plus the 4 KiB pulse image, whose values decode back to a source address (`gen_test_image.py` cannot — a mismatched *value* carries no address information), asserted against three independently computed digests; and the D-10 frame extractor **seen to pass on both a positive and a negative fixture** before it is trusted [meta]
 
 **Wave 2 — Gate 0b** *(zero hardware; both hardware-free requirements closed up front)*
 

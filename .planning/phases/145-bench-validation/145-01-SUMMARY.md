@@ -177,6 +177,13 @@ None - no external service configuration required.
   present (silkscreen read, chip seating, VPP pot) and must continue to run without
   `--auto`/`--chain` per D-20 and the standing STATE.md restriction for Phase 145.
 
+## Self-Check: PASSED
+
+All 12 files claimed above were confirmed present on disk (`145-BENCH-LOG.md`, `gen_addr_image.py`,
+`img1.bin`, `img2.bin`, `img3.bin`, `img_4k_pulse.bin`, `SHA256SUMS.txt`, `extract_frames.py`, the
+three `.gitkeep` scaffolds, and this summary). All 4 commit hashes (`29ef8cba`, `7ada7373`,
+`caa43f55`, `43df1f3c`) were confirmed present in `git log --oneline --all`.
+
 ---
 *Phase: 145-bench-validation*
 *Completed: 2026-08-15*
