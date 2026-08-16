@@ -343,9 +343,9 @@ BENCH-02 and BENCH-03 complete — neither requirement needed the bench to finis
 | Firmware working tree clean | Empty (0 lines), asserted both immediately before `pio run -e leonardo --target size` and immediately after the upload | `git -C /workspaces/firestarter status --porcelain` |
 | Flash bytes measured | **26906 bytes program (82.1 % Full against the 32768 B part)**, **2014 bytes data (78.7 % Full)** — equal to `size_baseline.json`'s leonardo record (`flash_used 26906`, `ram_used 2014`). Delta vs baseline: **0 B** against the 0 B leonardo must-not-grow band. Reason: a phase that compiles nothing new cannot move flash (D-16). Against `flash_total` 28672 B (bootloader excluded), the baseline's own figure gives **93.8 %** and **1766 B** of headroom — this is the figure PlatformIO's own `pio run` output (not `--target size`) reported directly: `Flash: [========= ]  93.8% (used 26906 bytes from 28672 bytes)`. Both the 82.1 % (against the 32768 B part) and the 93.8 % (against `flash_total` 28672 B, bootloader excluded) figures are correct; this record names the 93.8 % / 1766 B figure as the one it is quoting for the H7 headroom hand-off. | `pio run -e leonardo --target size` (log: `/tmp/gsd-145/size_leonardo.log`) and `pio run -t upload -e leonardo`'s own pre-upload size banner |
 | avrdude verified byte count | **26906** — matches expectation exactly. avrdude tool version actually invoked this session: **`tool-avrdude @ 1.60300.200527 (6.3.0)`** (the PlatformIO package line printed at the top of the upload log) — **not** 8.1; RQ-5's assumption A3 about 8.x wording did not apply this session, but the log was still captured whole and read rather than grepped with a hard-coded pattern, per the plan's prohibition. Verbatim lines read from `/tmp/gsd-145/upload_leonardo.log`: `avrdude: 26906 bytes of flash written` and `avrdude: 26906 bytes of flash verified`. | `/tmp/gsd-145/upload_leonardo.log` (not committed; byte count quoted here per plan) |
-| VPP target | NOT YET RUN | plan (D-17) |
-| VPP confirmation read | NOT YET RUN | `timeout -s INT N firestarter vpp` (single sample) |
-| `--force used?` | NOT YET RUN | source assertion |
+| VPP target | **11.9 to 12.4 V** (firmware band 11400 to 12500 mV; hard-abort above 12500 mV, under-voltage warning below 11400 mV) | plan (D-17) |
+| VPP confirmation read | **12.0 V (12000 mV)**, single sample, `firestarter -p /dev/ttyACM0 vpp -t 5`, stable across all ten frames of the 5 s window; **no pot adjustment was made** — the operator did not report an adjustment, so this Task 1 reading stands as the confirmation read (see "VPP" subsection below) | `firestarter -p /dev/ttyACM0 vpp -t 5` (single sample) |
+| `--force used?` | **No** | source assertion |
 | Dispatch mode | **Attested by the orchestrator, not restated by the operator.** The run was invoked as `/gsd-execute-phase 145 --wave 3`; neither `--auto` nor `--chain` was present in the arguments; the orchestrator's `check auto-mode --pick active` query returned `false` before dispatch; and Task 1's `checkpoint:human-action` gate was in fact presented and waited on — the operator's answer arrived only after the gate was posted, which is the behavioural proof no auto-approval occurred. The operator did not separately restate this; the attestation is the orchestrator's (D-20). | orchestrator attestation, see header block |
 
 **D-18 version-string caveat** (next to the Firmware version string row): a correctly reflashed
@@ -470,6 +470,31 @@ necessary on this reading, but per D-20 the operator's explicit authorization fo
 (Task 2) is still required regardless — this reading alone does not authorize the destructive act.
 
 Exactly one `vpp` invocation was run in this task; no loop, no second call, no monitor left running.
+
+**Task 2 resolution — no adjustment was needed.** The operator was presented with the 12.0 V
+reading above, told no adjustment appeared necessary, and asked to either confirm it as-is or
+report that the pot had been adjusted. The operator did **not** report any adjustment. Per the
+plan's own branch (Task 2's "On resume" instruction), a further `vpp` reading is taken only if the
+operator reports an adjustment; since none was reported, no second `vpp` invocation was run in this
+continuation. **This Task 1 reading is therefore the confirmation read** — stated explicitly here
+rather than left implicit, per the plan's requirement that "if it was not adjusted, the record says
+so explicitly." `logs/vpp_confirm.log` is unchanged from Task 1 and contains exactly one `vpp`
+invocation for this whole gate.
+
+**Operator authorization (Gate 1, the erase pre-flight):** "you are authorized" (2026-08-16),
+recorded verbatim. The operator was shown the VPP reading and classification above and was told the
+next command would be `firestarter erase W27C512 -b`, which bulk-erases the whole 64 KiB part and
+then blank-checks it, before answering.
+
+**Expendability — recorded truthfully, not overstated.** `145-03`'s carry-forward asked for an
+explicit confirmation that the part is expendable; the operator's answer above, "you are
+authorized", does not use the word "expendable" and no standalone expendability confirmation was
+given. This authorization is read as informed consent for **the erase specifically**: the operator
+was shown exactly what `erase W27C512 -b` does before answering, the part's full prior content is
+already captured and hashed (see "Pre-write chip preservation" below), and a bulk erase is a
+designed EEPROM operation rather than a wear event. This record does **not** claim the operator
+confirmed the part is expendable. The standalone expendability confirmation is carried forward to
+`145-05`'s Gate 2 authorization, where the three write cycles actually spend wear on the part.
 
 ### Pre-write chip preservation
 
