@@ -523,7 +523,7 @@ Plans:
 
 **Wave 3 — Gate 1a** *(operator attaches the bench)*
 
-- [ ] 145-03-PLAN.md — The operator attaches the Leonardo, seats the **Winbond** W27C512 and reads **Rev 2.0** off the silkscreen (the EEPROM `hw_revision` byte cannot distinguish 2.0 from 2.2 from the modified Rev 0); then D-18's reflash by `pio run -t upload -e leonardo` — **never `fw --install`**, which resolves a GitHub release asset the v1.31 branch does not have — with the image identified by **commit plus the verified avrdude byte count**, because `3.0.0b17` is byte-identical to the fork point `3085084` and reads *older* than beta's `3.0.0b18`; 144 H7 discharged for free at 26906 B against a 0 B leonardo band, quoting `merge05_clause` verbatim (green because the **anchor moved**); and the seated part confirmed `0xda08`, not the ST `0x203d` [meta, reads both sub-repos]
+- [x] 145-03-PLAN.md — The operator attaches the Leonardo, seats the **Winbond** W27C512 and reads **Rev 2.0** off the silkscreen (the EEPROM `hw_revision` byte cannot distinguish 2.0 from 2.2 from the modified Rev 0); then D-18's reflash by `pio run -t upload -e leonardo` — **never `fw --install`**, which resolves a GitHub release asset the v1.31 branch does not have — with the image identified by **commit plus the verified avrdude byte count**, because `3.0.0b17` is byte-identical to the fork point `3085084` and reads *older* than beta's `3.0.0b18`; 144 H7 discharged for free at 26906 B against a 0 B leonardo band, quoting `merge05_clause` verbatim (green because the **anchor moved**); and the seated part confirmed `0xda08`, not the ST `0x203d` [meta, reads both sub-repos]
 
 **Wave 4 — Gate 1b** *(first destructive act, separately authorized)*
 

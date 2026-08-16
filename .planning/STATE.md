@@ -5,15 +5,15 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 145
 current_phase_name: Bench Validation
 status: executing
-stopped_at: "Completed 145-02-PLAN.md (Gate 0 hardware-free requirements: BENCH-03 re-measured validated on four legs, both BENCH-02 dispositions recorded skipped-with-reason, Gate 0 closed)"
-last_updated: "2026-08-15T16:36:45.873Z"
+stopped_at: "Completed 145-03-PLAN.md (Gate 1 identity half cleared: reflashed to commit a594173d, 26906/2014 B matching baseline, seated part confirmed 0xda08; VPP and D-03 pre-flight left for 145-04)"
+last_updated: "2026-08-16T18:52:30.679Z"
 last_activity: 2026-08-15
 last_activity_desc: Phase 145 execution started
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 61
-  completed_plans: 54
+  completed_plans: 55
   percent: 88
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 145 (bench-validation) — EXECUTING
-Plan: 3 of 9
+Plan: 4 of 9
 Status: Ready to execute
 Last activity: 2026-08-15 — Phase 145 execution started
 
@@ -1935,6 +1935,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 145]: 145-01: BENCH-01 requirements-completed left empty and REQUIREMENTS.md untouched — multi-plan requirement flipped to Complete only by 145-09 behind its blocking operator gate; this plan discharges Gate 0 off-bench prep only
 - [Phase 145]: requirements-completed left empty; REQUIREMENTS.md untouched for BENCH-02/BENCH-03 — Multi-plan requirements flipped to Complete only by 145-09 behind its blocking operator gate, per dispatch instructions and 145-01's precedent for BENCH-01
 - [Phase 145]: Ran full firmware suite + host sibling-porcelain subset as an end-of-wave regression tripwire — Matches 145-01's baseline (312 passed / 38 passed); zero source touched by this plan so no drift expected; not written into 145-BENCH-LOG.md since that tripwire subsection is 145-01's territory
+- [Phase 145-03]: Recorded Task 1 Part-expendable row as answered-by-implication only (operator never used the word 'expendable'), carrying an explicit confirmation requirement forward to 145-04's D-03 pre-flight — D-20 requires the record to be truthful about which attestations came from whom; smoothing this into a clean confirmation would be exactly the false-green this phase's gates exist to prevent
+- [Phase 145-03]: Quoted size_baseline.json's merge05_clause verbatim and stated the anchor-move disclosure explicitly rather than reporting the 0 B flash delta as unqualified MERGE-05 compliance — Phase 144 re-anchored BASE-01 to the v1.31 tip; a zero delta here proves the anchor moved, not that growth stayed inside v1.24's original band
 
 ## Performance Metrics
 
@@ -2191,12 +2193,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 144 P07 | 57min | 3 tasks | 3 files |
 | Phase 145 P01 | 18min | 3 tasks | 11 files |
 | Phase 145 P02 | 9min | 3 tasks | 1 files |
+| Phase 145 P03 | 4min | 3 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-15T16:36:45.833Z
-**Stopped at:** Completed 145-02-PLAN.md (Gate 0 hardware-free requirements: BENCH-03 re-measured validated on four legs, both BENCH-02 dispositions recorded skipped-with-reason, Gate 0 closed)
-**Resume file:** .planning/phases/145-bench-validation/145-03-PLAN.md
+**Last session:** 2026-08-16T18:52:30.642Z
+**Stopped at:** Completed 145-03-PLAN.md (Gate 1 identity half cleared: reflashed to commit a594173d, 26906/2014 B matching baseline, seated part confirmed 0xda08; VPP and D-03 pre-flight left for 145-04)
+**Resume file:** .planning/phases/145-bench-validation/145-04-PLAN.md
 
 ### Blockers
 
