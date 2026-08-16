@@ -333,9 +333,9 @@ BENCH-02 and BENCH-03 complete — neither requirement needed the bench to finis
 | Controller identity | NOT YET RUN | `firestarter fw` |
 | Port | NOT YET RUN | `firestarter fw` |
 | Hardware revision (reported) | NOT YET RUN | `firestarter hw` |
-| Shield silkscreen (operator eyes-on) | NOT YET RUN | operator |
-| Seated chip (operator confirmed) | NOT YET RUN | operator |
-| Part expendable (operator confirmed) | NOT YET RUN | operator |
+| Shield silkscreen (operator eyes-on) | **Rev 2.0** — operator's verbatim answer: "Leonardo,  Rev 2.0, w27c512 seated" | operator |
+| Seated chip (operator confirmed) | **W27C512** (operator wrote lowercase `w27c512`) — operator's verbatim answer: "Leonardo,  Rev 2.0, w27c512 seated" | operator |
+| Part expendable (operator confirmed) | **NOT separately confirmed.** The operator's exact words were "Leonardo,  Rev 2.0, w27c512 seated" — the word "expendable" does not appear and expendability was not separately stated. This is recorded as answered-by-implication only: the prompt they responded to stated the part's contents will be bulk-erased, and the operator seated the part and replied "continue". **Carry-forward: explicit expendability confirmation is REQUIRED before 145-04's D-03 erase pre-flight** (the first destructive act; this Gate 1 identity check spends nothing). | operator (implied only — see note) |
 | R1 readback | NOT YET RUN | `firestarter config` |
 | R2 readback | NOT YET RUN | `firestarter config` |
 | Firmware version string | NOT YET RUN | `firestarter fw` |
@@ -346,7 +346,7 @@ BENCH-02 and BENCH-03 complete — neither requirement needed the bench to finis
 | VPP target | NOT YET RUN | plan (D-17) |
 | VPP confirmation read | NOT YET RUN | `timeout -s INT N firestarter vpp` (single sample) |
 | `--force used?` | NOT YET RUN | source assertion |
-| Dispatch mode | No `--auto`, no `--chain` (see header block; D-20) | this record |
+| Dispatch mode | **Attested by the orchestrator, not restated by the operator.** The run was invoked as `/gsd-execute-phase 145 --wave 3`; neither `--auto` nor `--chain` was present in the arguments; the orchestrator's `check auto-mode --pick active` query returned `false` before dispatch; and Task 1's `checkpoint:human-action` gate was in fact presented and waited on — the operator's answer arrived only after the gate was posted, which is the behavioural proof no auto-approval occurred. The operator did not separately restate this; the attestation is the orchestrator's (D-20). | orchestrator attestation, see header block |
 
 **D-18 version-string caveat** (next to the Firmware version string row): a correctly reflashed
 v1.31 image is expected to report `3.0.0b17`, which is byte-identical to the v1.31 branch's own
