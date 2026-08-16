@@ -7,8 +7,8 @@ current_phase_name: Bench Validation
 status: executing
 stopped_at: "Completed 145-03-PLAN.md (Gate 1 identity half cleared: reflashed to commit a594173d, 26906/2014 B matching baseline, seated part confirmed 0xda08; VPP and D-03 pre-flight left for 145-04)"
 last_updated: "2026-08-16T18:52:30.679Z"
-last_activity: 2026-08-15
-last_activity_desc: Phase 145 execution started
+last_activity: 2026-08-16
+last_activity_desc: Wave 3 executed — 145-03 cleared Gate 1 identity half
 progress:
   total_phases: 8
   completed_phases: 7
@@ -113,8 +113,8 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 Phase: 145 (bench-validation) — EXECUTING
 Plan: 4 of 9
-Status: Ready to execute
-Last activity: 2026-08-15 — Phase 145 execution started
+Status: Ready to execute 145-04 (Gate 1b — VPP confirm + D-03 erase pre-flight, the first destructive act)
+Last activity: 2026-08-16 — Wave 3 executed: 145-03 cleared Gate 1's identity half on the bench
 
 **Phase 145 is a bench phase — hardware in the loop.** Chip handling, photos and multimeter
 readings are operator-only, and the operator adjusts the voltage pot himself. Do not run it
