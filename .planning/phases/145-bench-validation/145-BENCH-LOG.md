@@ -330,19 +330,19 @@ BENCH-02 and BENCH-03 complete — neither requirement needed the bench to finis
 
 | Field | Value | Source |
 |---|---|---|
-| Controller identity | NOT YET RUN | `firestarter fw` |
-| Port | NOT YET RUN | `firestarter fw` |
-| Hardware revision (reported) | NOT YET RUN | `firestarter hw` |
+| Controller identity | `leonardo` | `firestarter -p /dev/ttyACM0 fw` |
+| Port | `/dev/ttyACM0` (CLI-reported; same port before and after the upload's 1200-baud touch reset re-enumeration) | `firestarter -p /dev/ttyACM0 fw` |
+| Hardware revision (reported) | `Rev 2.0-class, Override HW: Rev 2.0-class` — **NOT authoritative for distinguishing Rev 2.0 from Rev 2.2 from the modified Rev 0**; the EEPROM `hw_revision` byte cannot make that distinction. The operator's silkscreen reading (row below) is the authority. | `firestarter -p /dev/ttyACM0 hw` |
 | Shield silkscreen (operator eyes-on) | **Rev 2.0** — operator's verbatim answer: "Leonardo,  Rev 2.0, w27c512 seated" | operator |
 | Seated chip (operator confirmed) | **W27C512** (operator wrote lowercase `w27c512`) — operator's verbatim answer: "Leonardo,  Rev 2.0, w27c512 seated" | operator |
 | Part expendable (operator confirmed) | **NOT separately confirmed.** The operator's exact words were "Leonardo,  Rev 2.0, w27c512 seated" — the word "expendable" does not appear and expendability was not separately stated. This is recorded as answered-by-implication only: the prompt they responded to stated the part's contents will be bulk-erased, and the operator seated the part and replied "continue". **Carry-forward: explicit expendability confirmation is REQUIRED before 145-04's D-03 erase pre-flight** (the first destructive act; this Gate 1 identity check spends nothing). | operator (implied only — see note) |
-| R1 readback | NOT YET RUN | `firestarter config` |
-| R2 readback | NOT YET RUN | `firestarter config` |
-| Firmware version string | NOT YET RUN | `firestarter fw` |
-| Firmware commit under test | NOT YET RUN | `git -C /workspaces/firestarter rev-parse HEAD` |
-| Firmware working tree clean | NOT YET RUN | `git -C /workspaces/firestarter status --porcelain` |
-| Flash bytes measured | NOT YET RUN | `pio run -e leonardo --target size` |
-| avrdude verified byte count | NOT YET RUN | upload log |
+| R1 readback | `270000` | `firestarter -p /dev/ttyACM0 config` |
+| R2 readback | `44000` | `firestarter -p /dev/ttyACM0 config` |
+| Firmware version string | `3.0.0b17` — see the D-18 caveat immediately below; the version string identifies nothing on its own | `firestarter -p /dev/ttyACM0 fw` |
+| Firmware commit under test | `a594173d2bbbabe74e6a470b4751528435246326`, branch `gsd/v1.31-27c-programming-algorithm-fidelity` | `git -C /workspaces/firestarter rev-parse HEAD` / `--abbrev-ref HEAD` |
+| Firmware working tree clean | Empty (0 lines), asserted both immediately before `pio run -e leonardo --target size` and immediately after the upload | `git -C /workspaces/firestarter status --porcelain` |
+| Flash bytes measured | **26906 bytes program (82.1 % Full against the 32768 B part)**, **2014 bytes data (78.7 % Full)** — equal to `size_baseline.json`'s leonardo record (`flash_used 26906`, `ram_used 2014`). Delta vs baseline: **0 B** against the 0 B leonardo must-not-grow band. Reason: a phase that compiles nothing new cannot move flash (D-16). Against `flash_total` 28672 B (bootloader excluded), the baseline's own figure gives **93.8 %** and **1766 B** of headroom — this is the figure PlatformIO's own `pio run` output (not `--target size`) reported directly: `Flash: [========= ]  93.8% (used 26906 bytes from 28672 bytes)`. Both the 82.1 % (against the 32768 B part) and the 93.8 % (against `flash_total` 28672 B, bootloader excluded) figures are correct; this record names the 93.8 % / 1766 B figure as the one it is quoting for the H7 headroom hand-off. | `pio run -e leonardo --target size` (log: `/tmp/gsd-145/size_leonardo.log`) and `pio run -t upload -e leonardo`'s own pre-upload size banner |
+| avrdude verified byte count | **26906** — matches expectation exactly. avrdude tool version actually invoked this session: **`tool-avrdude @ 1.60300.200527 (6.3.0)`** (the PlatformIO package line printed at the top of the upload log) — **not** 8.1; RQ-5's assumption A3 about 8.x wording did not apply this session, but the log was still captured whole and read rather than grepped with a hard-coded pattern, per the plan's prohibition. Verbatim lines read from `/tmp/gsd-145/upload_leonardo.log`: `avrdude: 26906 bytes of flash written` and `avrdude: 26906 bytes of flash verified`. | `/tmp/gsd-145/upload_leonardo.log` (not committed; byte count quoted here per plan) |
 | VPP target | NOT YET RUN | plan (D-17) |
 | VPP confirmation read | NOT YET RUN | `timeout -s INT N firestarter vpp` (single sample) |
 | `--force used?` | NOT YET RUN | source assertion |
@@ -356,8 +356,33 @@ only discriminators; this row's `NOT YET RUN` becomes a fact only once actually 
 flashed board, never inferred from the version string.
 
 ### Reflash proof
-NOT YET RUN — `pio run -t upload -e leonardo` from a clean, named commit; expect avrdude to report
-26906 bytes written and verified (144 H7's zero-growth band, 1766 B headroom, 0 B band).
+
+`pio run -t upload -e leonardo` from `/workspaces/firestarter` at commit `a594173d` (clean tree,
+verified before and after). `firestarter fw --install` was **not used anywhere in this session** —
+it resolves a GitHub release asset and the v1.31 branch has none, so it would have flashed `beta`.
+Only one `/dev/ttyACM*` device was present before the upload (`/dev/ttyACM0`), so no
+`--upload-port` override was needed; the same port was re-detected by PlatformIO's own
+"Auto-detected: /dev/ttyACM0" line after the 1200-baud touch reset and re-enumeration, and
+confirmed independently afterward by `ls /dev/ttyACM*` and by the subsequent `firestarter fw`
+invocation both reporting `/dev/ttyACM0`.
+
+avrdude wrote and verified **26906 bytes**, matching the pre-upload size measurement exactly
+(144 H7's zero-growth band, 1766 B headroom, 0 B band, both discharged for free — see the Flash
+bytes measured row above).
+
+**MERGE-05 clause, quoted verbatim from `firestarter/scripts/baseline/size_baseline.json`
+`meta.deltas_vs_base01.leonardo.merge05_clause`** (NOT paraphrased as compliance):
+
+> "Delta vs BASE-01 is now exactly zero -- Phase 144 / D-11 re-anchored BASE-01 to this file's own
+> v1.31-tip figure (26906 B). A zero delta here means the anchor moved to the v1.31 tip, NOT that
+> flash growth stayed inside v1.24's original 0 B must-not-grow band (D-14) -- see meta.supersedes
+> for the full disclosure."
+
+**Anchor disclosure, stated plainly:** the 0 B delta measured this session is real and matches the
+baseline exactly, but per the clause above it is green *because the baseline's own anchor point
+was moved to the v1.31 tip by Phase 144*, not because flash growth across the whole v1.24→v1.31
+range stayed inside the original v1.24 0 B band. This record states that distinction rather than
+reporting the 0 B delta as unqualified MERGE-05 compliance.
 
 ### VPP
 NOT YET RUN — the operator states the target, waits, and takes **one** confirming
