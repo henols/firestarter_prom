@@ -622,7 +622,12 @@ authorization discharges both halves of what this gate needed:
 
 ### Cycle 1
 
-#### Attempt 1 (discarded — genuine write failure, awaiting operator decision on D-09 re-seat)
+**Cycle 1 verdict: FAILED.** One attempt was made and it failed on the very first byte of the
+very first block. Per D-14's two-state taxonomy this is a fail, not a partial and not an
+inconclusive. Cycles 2 and 3 were never attempted — the pass rule is 3/3 byte-exact on both
+oracles, and a fail on cycle 1 forecloses that regardless of what a later cycle might have shown.
+
+#### Attempt 1 (GENUINE FAILURE — not discarded; D-09's re-seat allowance was never consumed)
 
 Port re-verified fresh for this task (D-19): `firestarter -p /dev/ttyACM0 fw` →
 `Current firmware version: 3.0.0b17, for controller: leonardo on port /dev/ttyACM0` — identical
@@ -648,49 +653,78 @@ ERROR  :EpromOperator:1986: Write to W27C512 failed.
 The failure occurred on the very first byte of block 1 (offset `0x000000`), on the first pulse
 attempt of the entire cycle — before any block completed.
 
-**Post-failure diagnostics taken (both Claude-drivable per D-19, no physical inspection or DMM
-reading involved):**
-- `firestarter -p /dev/ttyACM0 vpp -t 5` → **12.0V, Internal VCC 5.5V**, stable across all ten
-  frames of the 5s window — unchanged from Gate 1's confirming read, still in-band
-  (11400–12500 mV). Idle VPP reads normally; this does not rule out program-window droop under
-  load, which is not observable with the tooling on hand (the held-rail DMM proxy is defeated by
-  DTR-reset-on-close, the standing Phase-97 tooling gap).
+**What still worked, bounding the failure to the program step specifically:**
+- Port identity: `firestarter -p /dev/ttyACM0 fw` → `controller: leonardo on port /dev/ttyACM0`,
+  identical to `145-04`'s recorded value; the right board was addressed.
 - `firestarter -p /dev/ttyACM0 id W27C512` → exit 0, `Chip ID check passed for W27C512` — the
   seated part still identifies correctly as the Winbond W27C512 (`0xda08`); this rules out a
   chip-id mismatch as the cause.
+- The INIT-phase blank-check streamed cleanly through the **entire** 65536-byte space before the
+  failure (`DATA: 2048/65536` through `DATA: 65536/65536`, then `INIT: (init done)`) — the whole
+  part read as blank going in, consistent with `145-04`'s `erase W27C512 -b` having passed its own
+  post-erase blank check. The chip was blank and readable; only the program step failed.
+- `firestarter -p /dev/ttyACM0 vpp -t 5` (post-failure) → **12.0V, Internal VCC 5.5V**, stable
+  across all ten frames of the 5s window — unchanged from Gate 1's confirming read, still in-band
+  (11400–12500 mV).
 
-**D-09 adjudication, NOT decided unilaterally.** This failure is not silently retried. Per D-19,
-re-seating the chip is operator-only, and per D-09 the one allowed re-seat requires a failure
-*attributable to a named physical cause* — only the operator can inspect the physical socket
-contact and attribute (or rule out) a physical cause; idle VPP and chip-id are both clean, so the
-named-cause determination rests on the operator's physical inspection, not on anything Claude can
-measure from here. This attempt is recorded as a **discarded failure** pending the operator's
-decision: either (a) a named physical cause is identified, the part is re-seated, and this
-attempt's one allowed D-09 re-run proceeds, or (b) no physical cause is identified, in which case
-this is a genuine failure that halts the phase under D-13 and hands to a debug session.
+**What failed:** bit-programming under load, on the very first byte, on the very first pulse
+attempt of the entire cycle — `MAIN` phase, not `INIT`.
 
-#### Attempt 2, if authorized
-Re-titled with the exact command line once run.
+**The idle VPP reading does NOT rule out program-window droop.** 12.0V/5.5V is an *idle* sample,
+taken with no pulse in flight. The program-window voltage at the socket, under load, was **not
+measured** — the held-rail DMM proxy that would take that reading is defeated by
+DTR-reset-on-close (the standing Phase-97 tooling gap), so an idle-in-band reading and a
+droop-under-load failure are not in tension with each other; the tooling on hand cannot
+distinguish the two.
+
+**D-09 adjudication — the allowance was NOT consumed.** The operator physically inspected the
+bench and reported that **no physical cause is apparent** — the setup looks correct — and selected
+the D-13 halt path over consuming D-09's re-seat allowance. Per D-09 the allowance requires
+attribution to a *named physical cause*; none was found, so **this attempt stands as a genuine
+failure, not a discardable one, and D-09's single re-seat allowance was never spent — it remains
+available, unconsumed, if this phase is ever resumed after a debug session.** No re-seat occurred.
+No Attempt 2 was run.
+
+**Operator's decision, recorded honestly as a selection, not a quote.** The operator answered by
+selecting a presented option, not by typing prose. This record does not manufacture a verbatim
+quote for that selection: the operator inspected the bench and reported no physical cause
+apparent; they selected the D-13 halt path over consuming D-09's re-seat allowance. (Contrast:
+Gate 2's own authorization above was typed verbatim by the operator and stays quoted as-is —
+that is a different answer, recorded by a different method, and this record does not blur the
+two together.)
+
+**A HYPOTHESIS FOR DEBUG ONLY, not a claimed cause.** The `vpp -t 5` reading also reports
+`Internal VCC: 5.5V`. This project's v1.31 milestone carries a known **6.25V program-VCC evidence
+ceiling** (unreachable on this shield) as standing context. Naming the two figures side by side is
+useful for whoever picks up the debug session, but this record makes **no claim either way**: no
+measurement here distinguishes a program-VCC-related explanation from a marginal/worn part or from
+an unmeasured VPP droop under load, and this is explicitly **not** a datasheet-conformance claim in
+either direction. This sentence exists to hand the observation to debug, not to adjudicate it.
 
 ### Cycle 2
-NOT YET RUN — re-titled with the exact command line (`firestarter -v write W27C512 img2.bin`)
-once run.
+**NOT ATTEMPTED — Gate 2 halted on cycle 1's failure.** Per D-14 cycle 1's fail forecloses the
+3/3 pass rule regardless of what cycle 2 might have shown; running it would not change the
+verdict. Not run.
 
 ### Cycle 3
-NOT YET RUN — re-titled with the exact command line (`firestarter -v write W27C512 img3.bin`)
-once run.
+**NOT ATTEMPTED — Gate 2 halted on cycle 1's failure.** Same reason as Cycle 2. Not run.
 
 ### Progress-frame evidence (D-10 Claim A)
-NOT YET RUN — frame extraction over the three cycles' raw stderr captures, counting only frames
-after the last bar restart (Pitfall 6): at least one frame at a position that is not a multiple of
-1024.
+**NOT MEASURED.** Frame extraction requires a completed (or at least far-progressed) write's raw
+stderr capture; cycle 1 failed on the first byte of the first block, so there is no meaningful
+progress-bar segment to extract frames from. No v1.31 owner (see "Carry-forward hand-offs" below).
 
 ### D-09 re-seat ledger
 At most one re-seat is allowed across the whole Gate 2 spend, and it must be attributable to a
-named physical cause (re-seat, chip-id mismatch, VPP out of band). If it happens, both the
-discarded failure and its one re-run are recorded here — never a quiet retry. NOT YET RUN.
+named physical cause (re-seat, chip-id mismatch, VPP out of band). **The allowance was OFFERED
+but NOT SPENT.** The operator physically inspected the bench after cycle 1's Attempt 1 failure and
+reported no physical cause apparent; they selected the D-13 halt path instead of a re-seat. No
+re-seat occurred. No Attempt 2 was run. **The allowance remains unconsumed** and is available if
+this phase is resumed after a debug session determines and fixes (or rules out) a cause.
 
-**Gate 2 verdict:** NOT YET RUN
+**Gate 2 verdict: FAIL.** Cycle 1's single attempt failed on the first byte of the first block
+(`Byte at 0x000000 failed to program within 25 pulses`, exit 1). Cycles 2 and 3 were never
+attempted. Per D-14 there is no partial and no inconclusive state — this is a fail.
 
 ---
 
@@ -699,24 +733,27 @@ discarded failure and its one re-run are recorded here — never a quiet retry. 
 Gate 3 is **required conditional on Gate 2 passing**. If Gate 2 fails, Gate 3 is recorded here as
 **not-reached**, with the reason, rather than silently omitted.
 
-**Operator authorization:** NOT YET RUN — verbatim quote recorded here before this run.
+**Gate 3: NOT REACHED.** Gate 2 did not validate — cycle 1 failed and cycles 2/3 were never
+attempted (D-14: fail, not partial). Per this gate's own opening sentence, a Gate-2 fail records
+Gate 3 as not-reached with the reason, rather than silently omitting it. Nothing below this line
+was run.
+
+**Operator authorization:** NOT REACHED — Gate 2 did not clear, so this authorization was never
+sought.
 
 ### Run
-NOT YET RUN — `firestarter write W27C512 img_4k_pulse.bin --pulse-us 4688`, expected to cross the
-4687 µs residual-gap threshold and print the mandatory pulse-override provenance line.
+**NOT REACHED** — `firestarter write W27C512 img_4k_pulse.bin --pulse-us 4688` was never run.
 
 ### Claim B
-NOT YET RUN — ≥2 distinct positions inside the same `n // 1024` bucket (D-10 as literally worded).
+**NOT REACHED** — no `--pulse-us` run occurred, so no Claim B measurement is possible.
 
 ### A1 per-pulse overhead
-NOT YET RUN — `(t2 - t1)/N` vs `P2 - P1` across two pulses over the same byte count; error bars
-recorded honestly rather than rounded away.
+**NOT REACHED** — requires two pulse-width runs on silicon; neither was attempted.
 
 ### Operator eyes-on
-NOT YET RUN — operator statement, recorded verbatim, on whether the bar moved smoothly rather than
-arriving in an end-burst.
+**NOT REACHED** — no run occurred for the operator to watch.
 
-**Gate 3 verdict:** NOT YET RUN
+**Gate 3 verdict: NOT REACHED — Gate 2 failed to clear.**
 
 ---
 
@@ -729,19 +766,44 @@ everything at once.
 
 ## Not measured
 
-(Empty at this point. Populated only if a reading turns out to be genuinely tooling-blocked, each
-entry naming the reading and its blocking reason — see Phase 99's Program-window VPP-under-load
-row for the house precedent.)
+| Reading | Blocking reason |
+|---|---|
+| Program-window VPP (and program-window internal VCC) at the socket, under load, during cycle 1's failed write | The held-rail DMM proxy that would take this reading is defeated by DTR-reset-on-close (the standing Phase-97 tooling gap). Only an *idle* `vpp -t 5` sample (12.0V / Internal VCC 5.5V) was available, before and after the failed write; whether the program-window figure droops under load was never instrumented, exactly as `0x08`'s FUT-08 was never instrumented for the same reason. |
 
 ## Carry-forward hand-offs with no v1.31 owner
 
-(Empty at this point.) Phase 146 is docs-and-claims only and cannot run a bench. Anything this
-phase does not discharge — most plausibly D-12's `--pulse-us`-on-silicon item or the A1 overhead
-measurement, if Gate 2 does not clear cleanly enough to reach Gate 3 — has no v1.31 owner and is
-recorded here rather than silently dropped.
+Phase 146 is docs-and-claims only and cannot run a bench. This phase halted at Gate 2's first
+cycle failure; everything below did not run and has **no v1.31 owner**:
+
+- **BENCH-01 itself — no v1.31 owner.** The full 64 KiB write→read→verify on W27C512, three cycles
+  deep, did not clear cycle 1. The requirement is undischarged pending a debug session's root
+  cause and, if fixed, a resumed bench run.
+- **D-10 Claim A (machine-counted intra-block frames) — no v1.31 owner.** No progress-frame
+  extraction was possible; cycle 1 failed before any meaningful bar segment existed.
+- **D-10 Claim B (`--pulse-us` bucket collision) — no v1.31 owner.** Gate 3 was not reached.
+- **D-10 operator eyes-on (smooth bar vs end-burst) — no v1.31 owner.** No run occurred for the
+  operator to watch.
+- **D-11's CAP-03 advertised-budget free evidence — no v1.31 owner.** The write did not complete;
+  there is no completed-run evidence to claim.
+- **D-12's `--pulse-us`-on-silicon item — no v1.31 owner.** Stretch item, never attempted; Gate 3
+  was not reached.
+- **D-12's A1 per-pulse-overhead measurement — no v1.31 owner.** Same reason; never attempted.
+- **The program-window VPP-under-load measurement** (see "Not measured" above) — carried forward
+  as the leading diagnostic a debug session would want, alongside the `Internal VCC: 5.5V`
+  hypothesis-for-debug-only note recorded in Cycle 1's Attempt 1 subsection.
 
 ---
 
-## VERDICT: NOT YET RUN
+## VERDICT: HALTED
 
-**Session end:** NOT YET RUN
+**Reason:** Gate 2 failed on cycle 1's first write attempt — `Byte at 0x000000 failed to program
+within 25 pulses`, exit 1, on the very first byte of the very first block, before any block
+completed. The operator physically inspected the bench and found no physical cause apparent,
+so D-09's one allowed re-seat was not spendable and was not spent (it remains unconsumed for a
+resumed run). Per D-13 this phase does not absorb a fix and does not retry; it hands off to a
+debug session. Cycles 2 and 3 of Gate 2, and all of Gate 3, were never attempted (D-14: this is a
+fail, not a partial). BENCH-02 and BENCH-03 (Gate 0) remain independently validated/skipped-with-
+reason — they required no bench and are unaffected by this halt.
+
+**Session end:** 2026-08-16, halted at 145-05 Task 2 (cycle 1, Attempt 1) — see the "Carry-forward
+hand-offs with no v1.31 owner" section above for everything this phase did not discharge.

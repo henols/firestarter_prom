@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.31
 milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 145
-current_phase_name: Bench Validation
-status: executing
-stopped_at: "Completed 145-04-PLAN.md (Gate 1 CLOSED: VPP 12.0V in band on a single sample with no pot adjustment and --force used? No; prewrite.bin 65536 B captured and hashed before the erase; D-03 settled on silicon by erase W27C512 -b exit 0 with blank check passing; part is blank and ready for cycle 1. Gate 2 three-cycle spend NOT authorized — that is 145-05)"
-last_updated: "2026-08-16T19:25:00.000Z"
+current_phase_name: bench-validation
+status: halted
+stopped_at: "HALTED in 145-05-PLAN.md Task 2 (Gate 2, cycle 1, Attempt 1): firestarter write W27C512 img1.bin exited 1 -- 'Byte at 0x000000 failed to program within 25 pulses' on the first byte of the first block. Operator physically inspected the bench and found no physical cause apparent, selecting the D-13 halt path over D-09's one allowed re-seat (allowance NOT consumed, remains available on resume). Gate 2 verdict: FAIL; Gate 3: NOT REACHED. No 145-05-SUMMARY.md was written -- the plan did not complete. See .planning/phases/145-bench-validation/145-BENCH-LOG.md VERDICT: HALTED for full detail."
+last_updated: "2026-08-16T19:32:00.000Z"
 last_activity: 2026-08-16
-last_activity_desc: Wave 4 executed — 145-04 closed Gate 1 (VPP in band, D-03 erase settled on silicon)
+last_activity_desc: "Phase 145 HALTED at plan 145-05 Task 2 -- cycle 1 write failure on W27C512, no physical cause found, hands off to a debug session"
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 61
-  completed_plans: 55
+  completed_plans: 56
   percent: 88
 ---
 
@@ -111,10 +111,17 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 ## Current Position
 
-Phase: 145 (bench-validation) — EXECUTING
-Plan: 5 of 9
-Status: Ready to execute 145-05 (Gate 2 — cycle 1 of the three authorized write cycles; needs its own operator spend authorization, plus the expendability confirmation carried forward from 145-03 and 145-04)
-Last activity: 2026-08-16 — Wave 4 executed: 145-04 closed Gate 1 on the bench; chip left blank
+Phase: 145 (bench-validation) — HALTED
+Plan: 5 of 9 (145-01..145-04 complete; 145-05 HALTED mid-Task-2; 145-06..145-09 not started)
+Status: HALTED — Gate 2 (145-05) failed on cycle 1's first write attempt; hands off to a debug
+session per D-13. Do not resume by re-running 145-05 directly; a debug session should determine
+(and fix or rule out) a cause first. D-09's one allowed re-seat was offered but never consumed —
+it remains available for the resumed run once a cause is addressed.
+Last activity: 2026-08-16 — Phase 145 HALTED at 145-05 Task 2 (cycle 1 write failure on W27C512,
+"Byte at 0x000000 failed to program within 25 pulses"; no physical cause found on operator
+inspection). Full detail: `.planning/phases/145-bench-validation/145-BENCH-LOG.md` (VERDICT:
+HALTED section) and `.planning/phases/145-bench-validation/145-05-PLAN.md`. No
+`145-05-SUMMARY.md` exists — the plan did not complete, which is the correct halted state.
 
 **Phase 145 is a bench phase — hardware in the loop.** Chip handling, photos and multimeter
 readings are operator-only, and the operator adjusts the voltage pot himself. Do not run it
