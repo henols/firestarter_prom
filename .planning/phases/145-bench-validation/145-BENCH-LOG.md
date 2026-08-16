@@ -605,8 +605,20 @@ writes to the part beyond the erase itself.
 
 ## Gate 2 — Three 64 KiB cycles (authorized spend)
 
-**Operator authorization:** NOT YET RUN — verbatim quote recorded here before the first cycle 1
-byte is spent.
+**Operator authorization:** "you can erase or do anything its a test ic for you" (2026-08-16),
+recorded verbatim exactly as given — spelling and phrasing preserved, not cleaned up, not
+corrected, not paraphrased.
+
+**Carry-forward adjudication (145-04's standalone expendability confirmation).** This
+authorization discharges both halves of what this gate needed:
+1. The three-cycle 64 KiB spend itself is authorized ("you can erase or do anything").
+2. The 145-04 carry-forward — a standalone confirmation that the part is expendable, distinct
+   from consent for the erase alone — is discharged here by the phrase "its a test ic for you":
+   the operator states the seated part is a test IC held for this purpose, which is unambiguous
+   informed consent that it may be consumed or damaged by this spend. This record states the
+   reason the adjudication holds (the "test ic" phrasing naming the part's purpose) rather than
+   asserting the discharge without support, so a later reader can audit the adjudication rather
+   than trust it on faith.
 
 ### Cycle 1
 NOT YET RUN — this subsection is re-titled with the exact command line
