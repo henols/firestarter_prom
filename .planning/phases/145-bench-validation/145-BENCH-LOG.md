@@ -621,8 +621,56 @@ authorization discharges both halves of what this gate needed:
    than trust it on faith.
 
 ### Cycle 1
-NOT YET RUN — this subsection is re-titled with the exact command line
-(`firestarter -v write W27C512 img1.bin`) once run, per the command-line-as-heading convention.
+
+#### Attempt 1 (discarded — genuine write failure, awaiting operator decision on D-09 re-seat)
+
+Port re-verified fresh for this task (D-19): `firestarter -p /dev/ttyACM0 fw` →
+`Current firmware version: 3.0.0b17, for controller: leonardo on port /dev/ttyACM0` — identical
+to `145-04`'s recorded value; no re-enumeration occurred.
+
+`firestarter -v -p /dev/ttyACM0 write W27C512 .planning/phases/145-bench-validation/images/img1.bin`
+(stdout preserved at `logs/write_cycle1_attempt1.stdout.log`, stderr at
+`logs/write_cycle1_attempt1.stderr.raw` — copied off the canonical `write_cycle1.stdout.log` /
+`write_cycle1.stderr.raw` names before any re-run, so a re-run does not overwrite this evidence)
+— **exit 1**, elapsed 9.4s (`time`). Verbatim failure line:
+
+```
+ERROR  :RURP         : 342: ERROR: Byte at 0x000000 failed to program within 25 pulses
+ERROR  :EpromOperator: 622: Programmer error during WRITE: Byte at 0x000000 failed to program
+within 25 pulses -- the write aborted at this address: bytes before this block were already
+programmed, this block is only partially programmed, and no later block was attempted. The
+firmware stops accepting blocks for this write and its address counter does not advance, so
+re-running the write repeats the whole file from the start. A byte that will not converge like
+this usually means insufficient program voltage or a worn or failing cell, not a timing problem.
+ERROR  :EpromOperator:1986: Write to W27C512 failed.
+```
+
+The failure occurred on the very first byte of block 1 (offset `0x000000`), on the first pulse
+attempt of the entire cycle — before any block completed.
+
+**Post-failure diagnostics taken (both Claude-drivable per D-19, no physical inspection or DMM
+reading involved):**
+- `firestarter -p /dev/ttyACM0 vpp -t 5` → **12.0V, Internal VCC 5.5V**, stable across all ten
+  frames of the 5s window — unchanged from Gate 1's confirming read, still in-band
+  (11400–12500 mV). Idle VPP reads normally; this does not rule out program-window droop under
+  load, which is not observable with the tooling on hand (the held-rail DMM proxy is defeated by
+  DTR-reset-on-close, the standing Phase-97 tooling gap).
+- `firestarter -p /dev/ttyACM0 id W27C512` → exit 0, `Chip ID check passed for W27C512` — the
+  seated part still identifies correctly as the Winbond W27C512 (`0xda08`); this rules out a
+  chip-id mismatch as the cause.
+
+**D-09 adjudication, NOT decided unilaterally.** This failure is not silently retried. Per D-19,
+re-seating the chip is operator-only, and per D-09 the one allowed re-seat requires a failure
+*attributable to a named physical cause* — only the operator can inspect the physical socket
+contact and attribute (or rule out) a physical cause; idle VPP and chip-id are both clean, so the
+named-cause determination rests on the operator's physical inspection, not on anything Claude can
+measure from here. This attempt is recorded as a **discarded failure** pending the operator's
+decision: either (a) a named physical cause is identified, the part is re-seated, and this
+attempt's one allowed D-09 re-run proceeds, or (b) no physical cause is identified, in which case
+this is a genuine failure that halts the phase under D-13 and hands to a debug session.
+
+#### Attempt 2, if authorized
+Re-titled with the exact command line once run.
 
 ### Cycle 2
 NOT YET RUN — re-titled with the exact command line (`firestarter -v write W27C512 img2.bin`)
