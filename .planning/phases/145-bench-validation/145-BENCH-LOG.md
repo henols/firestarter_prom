@@ -384,6 +384,63 @@ was moved to the v1.31 tip by Phase 144*, not because flash growth across the wh
 range stayed inside the original v1.24 0 B band. This record states that distinction rather than
 reporting the 0 B delta as unqualified MERGE-05 compliance.
 
+### Chip-id confirmation (145-03 Task 3)
+
+**`firestarter info W27C512`** — zero-hardware corroboration, recorded verbatim:
+```
+Name:               W27C512,W27E512
+Manufacturer:       WINBOND
+Type:               EEPROM
+Can be erased:      yes (electrically erasable)
+VCC:                5.0v
+VPP:                12.0v
+Chip ID:            0xda08
+Pulse delay:        100µS
+```
+Full output in `/tmp/gsd-145/info_w27c512.log`.
+
+**`firestarter -p /dev/ttyACM0 id W27C512`** — run against the seated part. Exit status captured
+directly from the command (redirected to a file, `$?` read immediately, never through a pipe to
+`tail`), per the plan's explicit anti-false-green instruction:
+```
+$ firestarter -p /dev/ttyACM0 id W27C512 > /tmp/gsd-145/id_w27c512.log 2>&1
+$ echo "exit=$?"
+exit=0
+```
+Verbatim log contents (`/tmp/gsd-145/id_w27c512.log`):
+```
+Connecting...Connecting... OK
+Checking chip ID for W27C512
+Chip ID check passed for W27C512: (main done) (0.28s)
+```
+A `-v` (verbose) re-run against the same seated part additionally shows, at the DEBUG level, the
+expected chip-id value the host sent for the firmware to check against: `'chip-id': 55816` in the
+EPROM data dict (`EpromOperator: 498`). **55816 decimal = 0xda08** — the Winbond W27C512's chip-id,
+matching `firestarter info W27C512`'s printed `Chip ID: 0xda08` exactly. The command passed
+(`Chip ID check passed`, exit 0) with no mismatch reported, confirming the seated part **is** the
+Winbond W27C512 at chip-id `0xda08`, not the ST M27C512 (`0x203d`) or the TI TMS27C512 (`0x9785`).
+
+**The two wrong-part ids, named for the record:** `0x203d` — ST M27C512, 13 V, non-erasable — and
+`0x9785` — TI TMS27C512, also 13 V and non-erasable. D-01 explicitly forbids spending the TMS27C512.
+Either id being reported instead of `0xda08` would mean the wrong part is seated. That is **not** a
+D-09 re-seat allowance; it is a phase-halting mismatch, and no `--force` may be used to proceed past
+it. No mismatch occurred this session — the reported/confirmed id is `0xda08` throughout.
+
+**Fail-safe subsection.** A plain `write` aborts on a chip-id mismatch with no `--force` available
+to bypass it. This is the exact mechanism that caught the v1.18 Phase-97 wrong-part mix-up before
+any silicon was spent: seating the wrong "512" part triggers this same id-check path and halts the
+run rather than damaging the part or producing a false-green result. `--force` is banned for this
+entire phase (D-17) — it is not used anywhere in the commands recorded in this session, and none of
+the commands actually run in this plan pass `--force`. (`firestarter fw`'s own printed hint, "Use
+--force to reinstall", is `fw --install`'s reinstall-even-if-current force — a different flag from
+the operation `--force` D-17 bans — and it was never invoked either way.)
+
+**Port identity, re-verified this task (D-19).** A fresh `firestarter -p /dev/ttyACM0 fw`
+invocation, run independently in this task rather than carrying Task 2's reading forward, reports
+`controller: leonardo on port /dev/ttyACM0` — identical to Task 2's recorded values. No
+re-enumeration occurred between Task 2 and Task 3; both values are unchanged and are recorded here
+as a fresh, independent confirmation rather than an assumption.
+
 ### VPP
 NOT YET RUN — the operator states the target, waits, and takes **one** confirming
 `timeout -s INT N firestarter vpp` read; never a live monitor loop (D-17, operator preference).
@@ -396,7 +453,22 @@ NOT YET RUN — determine, on this bench, whether plain `write` erases the seate
 Gate 2 cycle is spent. If it does not, the fallback is a pure 1→0 program proof; `-b`/`--skip-erase`
 is never used as a workaround (D-03).
 
-**Gate 1 verdict:** NOT YET RUN
+**Gate 1 identity-half verdict (145-03, Tasks 1–3):** Five conditions cleared this plan —
+(1) right board, by the operator's own silkscreen reading, `Rev 2.0`; (2) right part, by chip-id
+`0xda08`, confirmed via `firestarter id W27C512` (exit 0) and corroborated by `firestarter info
+W27C512`; (3) right build, by firmware commit `a594173d` plus the avrdude-verified byte count
+`26906`, never by the `3.0.0b17` version string alone; (4) clean tree, `git status --porcelain`
+empty both before and after the build and upload; (5) zero flash growth, `26906`/`2014` matching
+`size_baseline.json` exactly, with the MERGE-05 anchor-move disclosure stated rather than an
+unqualified compliance claim. **VPP and the D-03 erase-capability pre-flight are explicitly
+`NOT YET RUN` and belong to `145-04`** — this plan does not close them and does not write a full
+`Gate 1 verdict:` line; that line is `145-04 Task 3`'s to write once VPP and the pre-flight are
+done. Also outstanding for `145-04`: the explicit, separately-stated expendability confirmation
+carried forward from Task 1 (see the Part-expendable identity row above) — required before the
+D-03 pre-flight, the phase's first destructive act.
+
+**Gate 1 verdict:** NOT YET RUN — VPP and the D-03 pre-flight remain outstanding; see the
+identity-half verdict immediately above for what this plan (145-03) did clear.
 
 ---
 
