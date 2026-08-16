@@ -509,26 +509,97 @@ erase, which also removes assumption A6's risk that the part's prior content mat
 captured and hashed regardless.
 
 ### D-03 erase-capability pre-flight
-NOT YET RUN — determine, on this bench, whether plain `write` erases the seated W27C512 before any
-Gate 2 cycle is spent. If it does not, the fallback is a pure 1→0 program proof; `-b`/`--skip-erase`
-is never used as a workaround (D-03).
 
-**Gate 1 identity-half verdict (145-03, Tasks 1–3):** Five conditions cleared this plan —
+Port re-verified fresh for this task (D-19), not carried forward from Task 1: `firestarter -p
+/dev/ttyACM0 fw` → `Current firmware version: 3.0.0b17, for controller: leonardo on port
+/dev/ttyACM0` — identical to Task 1's and 145-03's recorded values; no re-enumeration occurred.
+
+#### `firestarter -p /dev/ttyACM0 erase W27C512 -b`
+
+Run only after the operator's Task-2 authorization above. `-b` here is `--blank-check`, which
+**adds** a post-erase blank check (the inverse polarity to `write -b`, which removes the pre-write
+blank check and is forbidden this phase — Pitfall 7 / D-03). Exit status captured directly from the
+command via `PIPESTATUS[0]`, not through `tail`'s exit code:
+
+```
+$ firestarter -p /dev/ttyACM0 erase W27C512 -b | tee logs/erase_preflight.log
+Connecting... OK
+Erasing EPROM W27C512
+  0%|          | 0x0000/0x10000 bytes  ...  100%|██████████| 0x10000/0x10000 bytes
+Erase for W27C512 successful (5.05s). (main done)
+$ echo "PIPE_EXIT=${PIPESTATUS[0]}"
+PIPE_EXIT=0
+```
+
+**Exit 0.** `grep -ci "not supported" logs/erase_preflight.log` returns 0 — the historical
+`ERROR: Not supported` op-layer gate (`eprom_operations.py:33-40`) did not fire. Exit 0 with the
+`-b` blank check attached proves two things at once, per RQ-1: (a) the op-layer `FLAG_CAN_ERASE`
+gate let the command through, and (b) the erase physically worked — a non-blank result after erase
+would have failed the attached blank check rather than reported `successful`. Full transcript in
+`logs/erase_preflight.log`.
+
+**Second confirmation — `firestarter -p /dev/ttyACM0 blank W27C512`.** Exit status read from the
+command itself: redirected to a file, `$?` read immediately, then the file tailed — never through a
+pipe to `tail`, which would report `tail`'s own exit status instead of the command's:
+
+```
+$ firestarter -p /dev/ttyACM0 blank W27C512 > /tmp/gsd-145/blank_w27c512.log 2>&1
+$ echo "exit=$?"
+exit=0
+$ tail -1 /tmp/gsd-145/blank_w27c512.log
+Blank check for W27C512 successful (4.85s). (main done)
+```
+
+**D-03's contingency branch was NOT taken.** The erase succeeded cleanly on the first pre-flight
+attempt; the pure 1→0 program-proof fallback (verify a region reads all-`0xFF`, write a distinctive
+pattern, read back byte-exact) was never needed and was not run.
+
+**Dated supersession chain, resolving the record's apparent conflict chronologically:**
+- **2026-05-21** — Phase 24 bench: `firestarter erase W27C512` → `ERROR: Not supported`. At the
+  time, `build_db.py` decoded W27C512 as a UV-EPROM, so `FLAG_CAN_ERASE` was never set.
+- **v1.11 `cca7d62`** — fixes the infoic decode so `electrical.type = EEPROM` for W27C512. The todo
+  closed with *"NOT yet bench-verified: whether `firestarter erase W27C512` succeeds end-to-end is
+  firmware-gated … needs an operator bench test"* — this is D-03's "operator-bench-pending" caveat.
+- **v1.14 Phase 77** — first hardware graduation: the full write→auto-erase→program→verify cycle
+  bench-proven on a real non-blank W27C512 on the Leonardo.
+- **v1.16 Phase 91** — RCA established that `write -b` (skip-erase) was the earlier test-method
+  error, not a firmware defect; W27C512 graduated to PASS with erase confirmed on the bench.
+- **v1.16 Phase 92** — `-b` decoupled from skip-erase into its present, inverse-polarity form on
+  `write`; bench-confirmed on the seated W27C512.
+
+This session's `erase W27C512 -b` result is a fresh, independent re-confirmation on this exact
+board and this exact v1.31 build, settling D-03 on silicon rather than by inference from those prior
+sessions.
+
+**Measured wire facts** (host-side, `EpromDatabase().convert_to_programmer()` against the shipped
+v1.31 DB, corroborated by RESEARCH §RQ-1): W27C512 sends `flags` **`0x02`** with **`FLAG_CAN_ERASE`
+set**, `vpp_mv` **12000**, `pulse-delay` **100**, `chip-id` **`0xDA08`**, `memory-size` **65536**.
+
+**The `-b` polarity, stated once more for this record's own closure:** `erase -b`/`--blank-check`
+**adds** a post-erase blank check; `write -b`/`--no-blank-check` **removes** the pre-write blank
+check — opposite polarities on the same short flag, both preserved verbatim from the argparse era.
+Neither `write -b` nor `--skip-erase` was used anywhere in this plan or in this phase.
+
+**Gate 1 identity-half verdict (145-03, Tasks 1–3):** Five conditions cleared that plan —
 (1) right board, by the operator's own silkscreen reading, `Rev 2.0`; (2) right part, by chip-id
 `0xda08`, confirmed via `firestarter id W27C512` (exit 0) and corroborated by `firestarter info
 W27C512`; (3) right build, by firmware commit `a594173d` plus the avrdude-verified byte count
 `26906`, never by the `3.0.0b17` version string alone; (4) clean tree, `git status --porcelain`
 empty both before and after the build and upload; (5) zero flash growth, `26906`/`2014` matching
 `size_baseline.json` exactly, with the MERGE-05 anchor-move disclosure stated rather than an
-unqualified compliance claim. **VPP and the D-03 erase-capability pre-flight are explicitly
-`NOT YET RUN` and belong to `145-04`** — this plan does not close them and does not write a full
-`Gate 1 verdict:` line; that line is `145-04 Task 3`'s to write once VPP and the pre-flight are
-done. Also outstanding for `145-04`: the explicit, separately-stated expendability confirmation
-carried forward from Task 1 (see the Part-expendable identity row above) — required before the
-D-03 pre-flight, the phase's first destructive act.
+unqualified compliance claim.
 
-**Gate 1 verdict:** NOT YET RUN — VPP and the D-03 pre-flight remain outstanding; see the
-identity-half verdict immediately above for what this plan (145-03) did clear.
+**Gate 1 verdict: cleared.** All seven conditions are now discharged: (1) right board by operator
+silkscreen (`Rev 2.0`); (2) right part by chip-id `0xda08`; (3) right build by commit `a594173d`
+plus the avrdude-verified byte count `26906` against a clean tree; (4) zero flash growth against the
+Leonardo baseline (`26906`/`2014`, MERGE-05 anchor-move disclosed); (5) VPP in band by a single
+confirming read (12.0 V / 12000 mV, no adjustment needed, `--force used? No`); (6) the D-03
+erase-capability question settled on silicon — `erase W27C512 -b` exited 0 with its post-erase
+blank check passing, corroborated by a standalone `blank W27C512` also exiting 0, and the
+historical `ERROR: Not supported` contradiction is explained by the dated supersession chain above;
+(7) the chip is left blank and ready for Gate 2's cycle 1. **Gate 2's three-cycle spend is a
+separate authorization, given in `145-05`, and has not been given here** — nothing in this plan
+writes to the part beyond the erase itself.
 
 ---
 
