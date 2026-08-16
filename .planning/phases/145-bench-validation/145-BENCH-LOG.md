@@ -442,11 +442,46 @@ re-enumeration occurred between Task 2 and Task 3; both values are unchanged and
 as a fresh, independent confirmation rather than an assumption.
 
 ### VPP
-NOT YET RUN — the operator states the target, waits, and takes **one** confirming
-`timeout -s INT N firestarter vpp` read; never a live monitor loop (D-17, operator preference).
+
+Port re-verified fresh for this task (D-19): `firestarter -p /dev/ttyACM0 fw` → `controller:
+leonardo on port /dev/ttyACM0` (`/tmp/gsd-145/fw_task1.log`), identical to `145-03`'s recorded
+value — no re-enumeration occurred since.
+
+**`firestarter -p /dev/ttyACM0 vpp -t 5`** (single invocation, piped through `tr '\r' '\n'`
+per RQ-7's sampling form; the frames are written with carriage returns to stdout, so without the
+translation the capture reads as one line). Full transcript in `logs/vpp_confirm.log`:
+
+```
+Reading VPP voltage...
+Reading will stop after 5 seconds.
+Connecting...
+Connecting... OK
+VPP: 12.0V, Internal VCC: 5.5V   (x10 identical frames over the 5 s window)
+VPP reading timed out after 5s.
+```
+
+**Reading: 12.0 V (12000 mV), stable across all ten frames of the 5-second sample.**
+Classification against the firmware's `eprom_check_vpp` band for W27C512 (`vpp_mv 12000`): the
+hard-abort ceiling is above **12500 mV**, the under-voltage warning floor is below **11400 mV**, so
+in-band is **11400 through 12500 mV** — 12000 mV is comfortably in-band. Against the concrete pot
+target of **11.9 to 12.4 V**, 12.0 V is inside that target window as well, near its low edge. The
+reading is neither blank nor `0x303`, so no contact fault is indicated. No pot adjustment appears
+necessary on this reading, but per D-20 the operator's explicit authorization for the erase
+(Task 2) is still required regardless — this reading alone does not authorize the destructive act.
+
+Exactly one `vpp` invocation was run in this task; no loop, no second call, no monitor left running.
 
 ### Pre-write chip preservation
-NOT YET RUN — `firestarter read W27C512 prewrite.bin`, digest recorded into `SHA256SUMS.txt`.
+
+**`firestarter -p /dev/ttyACM0 read W27C512 .planning/phases/145-bench-validation/readbacks/prewrite.bin`**
+— exit `0` (console tee'd to `logs/prewrite_read.log`; verbatim completion line: `Read complete
+(7.40s). Data saved to .planning/phases/145-bench-validation/readbacks/prewrite.bin`).
+`readbacks/prewrite.bin` is exactly **65536 bytes** (`stat -c "%n %s"` confirmed). Its SHA-256
+digest is recorded in `SHA256SUMS.txt` (row `readbacks/prewrite.bin`) — no hash inline here;
+`sha256sum -c SHA256SUMS.txt` from the phase directory exits 0 over all five rows, including this
+one. This is Phase 99's `prewrite.bin` pattern exactly: cheap insurance taken before the first
+erase, which also removes assumption A6's risk that the part's prior content mattered — it is now
+captured and hashed regardless.
 
 ### D-03 erase-capability pre-flight
 NOT YET RUN — determine, on this bench, whether plain `write` erases the seated W27C512 before any
