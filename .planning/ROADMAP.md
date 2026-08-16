@@ -527,7 +527,7 @@ Plans:
 
 **Wave 4 — Gate 1b** *(first destructive act, separately authorized)*
 
-- [ ] 145-04-PLAN.md — The chip's full 65536-byte prior content read and hashed **before** anything erases it (Phase 99's `prewrite.bin` pattern); **exactly one** VPP reading, then the operator adjusts the pot himself and **one** confirming read — never a live monitor loop — against the measured band 11400–12500 mV, with `--force used? No` recorded as a load-bearing line and D-17's standing use-force-and-ignore-vpp permission **withdrawn**; then D-03 settled on silicon by `firestarter erase W27C512 -b` (whose `-b` **adds** a blank check — the inverse polarity to `write -b`, which is forbidden), with the dated supersession chain explaining the historical `ERROR: Not supported` [meta]
+- [x] 145-04-PLAN.md — The chip's full 65536-byte prior content read and hashed **before** anything erases it (Phase 99's `prewrite.bin` pattern); **exactly one** VPP reading, then the operator adjusts the pot himself and **one** confirming read — never a live monitor loop — against the measured band 11400–12500 mV, with `--force used? No` recorded as a load-bearing line and D-17's standing use-force-and-ignore-vpp permission **withdrawn**; then D-03 settled on silicon by `firestarter erase W27C512 -b` (whose `-b` **adds** a blank check — the inverse polarity to `write -b`, which is forbidden), with the dated supersession chain explaining the historical `ERROR: Not supported` [meta]
 
 **Wave 5 — Gate 2a** *(the three-cycle spend, separately authorized)*
 

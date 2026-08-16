@@ -5,10 +5,10 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 145
 current_phase_name: Bench Validation
 status: executing
-stopped_at: "Completed 145-03-PLAN.md (Gate 1 identity half cleared: reflashed to commit a594173d, 26906/2014 B matching baseline, seated part confirmed 0xda08; VPP and D-03 pre-flight left for 145-04)"
-last_updated: "2026-08-16T18:52:30.679Z"
+stopped_at: "Completed 145-04-PLAN.md (Gate 1 CLOSED: VPP 12.0V in band on a single sample with no pot adjustment and --force used? No; prewrite.bin 65536 B captured and hashed before the erase; D-03 settled on silicon by erase W27C512 -b exit 0 with blank check passing; part is blank and ready for cycle 1. Gate 2 three-cycle spend NOT authorized — that is 145-05)"
+last_updated: "2026-08-16T19:25:00.000Z"
 last_activity: 2026-08-16
-last_activity_desc: Wave 3 executed — 145-03 cleared Gate 1 identity half
+last_activity_desc: Wave 4 executed — 145-04 closed Gate 1 (VPP in band, D-03 erase settled on silicon)
 progress:
   total_phases: 8
   completed_phases: 7
@@ -112,9 +112,9 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 145 (bench-validation) — EXECUTING
-Plan: 4 of 9
-Status: Ready to execute 145-04 (Gate 1b — VPP confirm + D-03 erase pre-flight, the first destructive act)
-Last activity: 2026-08-16 — Wave 3 executed: 145-03 cleared Gate 1's identity half on the bench
+Plan: 5 of 9
+Status: Ready to execute 145-05 (Gate 2 — cycle 1 of the three authorized write cycles; needs its own operator spend authorization, plus the expendability confirmation carried forward from 145-03 and 145-04)
+Last activity: 2026-08-16 — Wave 4 executed: 145-04 closed Gate 1 on the bench; chip left blank
 
 **Phase 145 is a bench phase — hardware in the loop.** Chip handling, photos and multimeter
 readings are operator-only, and the operator adjusts the voltage pot himself. Do not run it
