@@ -97,19 +97,30 @@ false green landed. That is the behaviour the replan must preserve while removin
 | `146-check-close03-docs.py` | **RED** | 7 unsatisfied topics across 4/4 targets; `program-vcc-ceiling` absent from all four. |
 | `check_record_corrections.py` (Phase 130) | **PASS, rc=0** | **See the correction below — this is not what plans 01–04 reported.** |
 
-**Correction that changes `146-05`'s scope.** The Phase 130 record-gate RED at `.planning/STATE.md:11` is
-**already closed.** Measured directly: rc=1 at `d2c212f1` and still rc=1 at `083e4e5f` (end of `146-03`), but
-**rc=0 at HEAD**, with the `unlabeled` key absent from the exempt tally entirely. It went green during
-`146-04`'s commits, when `last_activity_desc` was rewritten and the offending sentence left the file. The
-needle is `(?=.*arm-none-eabi-gcc)(?=.*absent)` at `check_record_corrections.py:261-263`.
+**CORRECTED 2026-08-17 — this section was wrong when first written.** The Phase 130 record-gate RED at
+`.planning/STATE.md:11` is **already closed**, but *not* by `146-04` as originally stated here. It was closed by
+**`91a06604`**, a commit made by an interrupted `146-05` executor, whose own message records the flip
+(`rc=1 -> rc=0`, `unlabeled 1 -> 0`).
 
-`146-04`'s SUMMARY reports the gate still RED with that hit present after its own write; that report is
-inaccurate — an under-claim, not an over-claim. So:
+Settled by testing the needle `(?=.*arm-none-eabi-gcc)(?=.*absent)` — `check_record_corrections.py:261-263` — against
+each historical `STATE.md` blob: it sits on **line 11** at `d2c212f1`, at `083e4e5f`, and at every `146-04` commit
+through its last (`0accb44e`), and is **gone from line 11 at `91a06604`**. A second, exempt match at line 1140
+persists throughout, which is why the file scans rc=0 with it still present.
 
-- Do **not** plan `146-05` to *close* this RED. It is closed.
-- Plan `146-05` to **verify and record the flip with its causation**, and to note `146-04`'s misreport.
-- Keep the substantive point: the sentence asserted the ARM toolchain was absent, and `146-03` measured that
-  **false**. The record must say so.
+Consequences of the error, all corrected in the replanned `146-05`:
+- `146-04-SUMMARY.md`'s report that the gate was still RED after its own write is **ACCURATE**. The first version of
+  this brief called it an inaccurate under-claim; that accusation was unfounded and must not be recorded anywhere.
+- `146-05` is **partially executed**, not unstarted. Two commits landed before the interrupt and are reachable from
+  HEAD: `91a06604` (the record-gate correction, `STATE.md`) and `8df5e564` (the two ROADMAP correction blocks at
+  `:169` and `:396` plus the 143 D-01 charter discharge at `:394`). `grep -c 'CORRECTION (Phase 146'` is already **2**
+  in `ROADMAP.md` and **0** in both `PROJECT.md` and `REQUIREMENTS.md`.
+- **There is no `146-05-SUMMARY.md`.** Commits without a SUMMARY is the safe-resume anomaly condition; the replanned
+  `146-05` resolves it by *verifying* the landed half and re-landing none of it.
+- The committed text already cites register rows **C-1**, **C-2** and **C-9** in `146-CORRECTIONS.md`, and that file
+  **does not exist yet**. Those citations dangle until `146-05` Task 3 writes it; the register must carry those ids.
+
+The substantive point stands: the sentence asserted the ARM toolchain was absent, and `146-03` measured that
+**false**. The record must say so.
 
 **Other measured facts:**
 - ARM: **GREEN arm observed** — `py32f071` compiled, 44/44 ninja edges, one `firestarter_py32f071.hex` at
