@@ -178,6 +178,9 @@ Every figure matches exactly; no discrepancy to record. `tools/build_db.py` was 
 | 3 | `grep -ciE "\binconclusive\b\|\bpartial pass\b"` must be **0** | **Cannot fail for the right reason.** Returns 4, all *denials* of the state (D-14's own taxonomy). Driving it to 0 would mean **deleting the phase's taxonomy statement to satisfy a locator.** | `grep -ciE '\*\*[^*]{0,24}\b(inconclusive\|partial pass)\b[^*]{0,24}\*\*'` → **0** whole-file; injecting an emphasised literal → **1** |
 | 3b | (first fix attempt for #3) | **Self-matching grep** — it matched its own negative-control literal quoted in the substitution list, returning 1 | Negative control **described** rather than written in matching form, so the check covers the whole file with nothing excluded |
 | 4 | (byte-vs-character) first form of check #1 used `.` to span the heading's em dash | **False RED** — `—` is 3 UTF-8 bytes and this `awk` matches bytes, so the range never opened and it returned 0 against a correct record | Pattern truncated before the em dash |
+| 5 | `git diff … -- ROADMAP.md \| grep -c '^[+-][^+-]'` in my own final sweep | **False ZERO** — the diff's `-`/`+` marker collides with the markdown list bullet, so a changed `- [ ] …` line renders as `-- [ ] …` and `[^+-]` rejects it. It reported **0 changed lines** over a file that had genuinely changed. | `git diff --numstat` → **`1 1 .planning/ROADMAP.md`**, plus reading the committed line back with `git show HEAD:…` |
+
+**The brief predicted a sixth process hazard; #5 above is it, and it was mine.** It was caught only because the result (zero ROADMAP changes) contradicted an edit I knew I had made — which is the general lesson: **a check that agrees with what you want is the one to re-derive.**
 
 **No evidence was reshaped to satisfy any locator.** Consequence recorded: documenting substitution #3 raised the plain-word `inconclusive` count from 4 to **11**, which is the honest cost of recording the fix.
 
