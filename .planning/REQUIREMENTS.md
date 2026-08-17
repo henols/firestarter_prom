@@ -244,12 +244,12 @@ expected work, not a regression.
 
 ### Bench Validation
 
-- [ ] **BENCH-01**: `0x07` is bench-validated on W27C512 or TMS27C512 via a full write→read→verify on
+- [x] **BENCH-01**: `0x07` is bench-validated on W27C512 or TMS27C512 via a full write→read→verify on
       Leonardo, recorded with per-run evidence.
-- [ ] **BENCH-02**: `0x08` (AM27C020) and `0x0B` (M2716/M2732) are validated **if the parts are
+- [x] **BENCH-02**: `0x08` (AM27C020) and `0x0B` (M2716/M2732) are validated **if the parts are
       available**; otherwise each is recorded **skipped-with-reason naming the missing part** — never
       rubber-stamped, never inferred from the `0x07` result.
-- [ ] **BENCH-03**: No chip's `support_status` changes in this milestone (D-07).
+- [x] **BENCH-03**: No chip's `support_status` changes in this milestone (D-07).
 
 ### Close
 
@@ -331,9 +331,9 @@ Deferred. Tracked but not in this roadmap.
 | TEST-06 | Phase 144 | Complete |
 | TEST-07 | Phase 144 | Complete |
 | TEST-08 | Phase 144 | Complete |
-| BENCH-01 | Phase 145 | Pending |
-| BENCH-02 | Phase 145 | Pending |
-| BENCH-03 | Phase 145 | Pending |
+| BENCH-01 | Phase 145 | Complete |
+| BENCH-02 | Phase 145 | Complete |
+| BENCH-03 | Phase 145 | Complete |
 | CLOSE-01 | Phase 146 | Pending |
 | CLOSE-02 | Phase 146 | Pending |
 | CLOSE-03 | Phase 146 | Pending |
