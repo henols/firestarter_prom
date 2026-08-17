@@ -180,7 +180,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 - [x] **Phase 143: Host Timeout, Progress & Pulse Override** — long blocks survive the host's response timeout with visible progress, max-pulse failures surface as named program failures rather than transport errors, and `--pulse-us` ships bounded and pre-validated. (HOST-01, HOST-02, HOST-03, HOST-04, HOST-05) (completed 2026-08-13)
 - [x] **Phase 144: Tests & Build Verification** — native tests for table resolution/fixed-pulse/overprogram/max-pulse-abort/skip-and-fallback, the deliberate frozen-vs-new golden-trace diff, green builds across all firmware targets plus the host suite and CI-scoped lint/type gates with cross-repo constants parity, and flash/RAM delta measured against the PREP-03 baseline. (TEST-01, TEST-02, TEST-03, TEST-04, TEST-05, TEST-06, TEST-07, TEST-08) (completed 2026-08-14)
 - [x] **Phase 145: Bench Validation** — full write→read→verify proof on `0x07` (required), `0x08`/`0x0B` opportunistic-or-honestly-skipped, zero `support_status` changes. (BENCH-01, BENCH-02, BENCH-03) (completed 2026-08-17)
-- [ ] **Phase 146 (close): Honesty Ledger, Claim Gate & gh#15 Reconciliation** — a fail-provable claim gate, an honesty ledger led by the 6.25 V ceiling, updated firmware/host docs, gh#15's acceptance criteria reconciled item by item, and stranger-actionable release notes. (CLOSE-01, CLOSE-02, CLOSE-03, CLOSE-04, CLOSE-05)
+- [ ] **Phase 146: Close — Honesty Ledger, Claim Gate & gh#15 Reconciliation** — a fail-provable claim gate, an honesty ledger led by the 6.25 V ceiling, updated firmware/host docs, gh#15's acceptance criteria reconciled item by item, and stranger-actionable release notes. (CLOSE-01, CLOSE-02, CLOSE-03, CLOSE-04, CLOSE-05)
 
 ## Phase Details
 
@@ -570,7 +570,7 @@ Plans:
 
 - [x] 145-09-PLAN.md — **BENCH-01 … BENCH-03** flipped in both coverage tables behind a blocking operator gate, by hand edit with a snapshot-and-diff proving nothing else moved: exactly six changed lines in `REQUIREMENTS.md`, and every changed `ROADMAP.md` line naming `Phase 145` or a `145-0N` plan id — with the archived v1.2/v1.3 `BENCH-01/02/03` rows (Phase 12 / Phase 13) asserted byte-identical, because they are different requirements that happen to share ids [meta]
 
-### Phase 146 (close): Honesty Ledger, Claim Gate & gh#15 Reconciliation
+### Phase 146: Close — Honesty Ledger, Claim Gate & gh#15 Reconciliation
 
 **Goal**: The milestone's closing record makes exactly the claims its evidence supports — no more — and gh#15 is answered item by item.
 **Depends on**: Phase 145 (the bench evidence this close reports on); Phase 139 (the posted correction this close reconciles gh#15 against).
@@ -583,7 +583,38 @@ Plans:
   4. gh#15's acceptance criteria are reconciled item by item, each marked met, met-as-corrected (naming the correction), or not-reachable-on-this-hardware (naming the reason).
   5. Release notes describe the programming-behavior change and the `--pulse-us` addition in terms a stranger can act on.
 
-**Plans**: TBD
+**Plans**: 13 plans in 7 waves
+
+**Wave 1 — the gates and the ARM observation, before any artifact is called final**
+
+- [ ] 146-01-PLAN.md — the phase-start structural before-state (three-repo upstream-ahead counts as D-01's only oracle, three-repo porcelain, the five read-only gh#15 oracles, the Phase 130 record-gate baseline, nine anchor blob SHAs) as `146-CITATIONS.md` §§0-2; then `146-check-claims.py` as a 146-scoped sibling of the Phase 139 gate — five `_HERE`-built targets, the twelve patterns verbatim with no window and no exclusion mechanism, D-11's per-file caveat map failing closed on an unknown basename, a fresh env seam, no unarmed exit-0 path, and the fail-closed and never-vacuous branches each seen to fire by name (CLOSE-01, D-11, D-14) [meta]
+- [ ] 146-02-PLAN.md — `146-check-close03-docs.py`: D-13's second, differently-shaped checker over four documentation targets, hosted in the phase directory so nothing is conditional on firmware presence, with a repo-root walk, a shape-asserting self-check, a per-file required-topic map whose union is all five CLOSE-03 topics, and no caveat rule at all; then `146-DOC-CHECK-RECORD.md` recording it RED per file per topic before any edit, plus the four runnable-today locator REDs and the two out-of-target-set findings as decisions (CLOSE-03, D-13) [meta, reads both sub-repos]
+- [ ] 146-03-PLAN.md — operator decision **OD-A**: install the ARM toolchain and compile the `py32f071` target against this milestone's code, recording the outcome under exactly one of three named arms — green with the mandatory delta-not-CI-parity caveat, red recorded and **not fixed** with a backlog stub, or not-observable — alongside the measured fact that neither repository's CI has run any v1.31 code; every build artifact removed and the firmware repository asserted byte-unchanged (CLOSE-04, D-06) [meta, reads firestarter]
+
+**Wave 2 — fixtures, the correction queue, and the firmware documentation**
+
+- [ ] 146-04-PLAN.md — five probed fixtures (both clean controls carrying the two caveats, three single-reason plants) and the fifteen-leg subprocess-driven suite `test_check_claims_v131.py`, with the pre-authored armed-against-the-real-files leg observed RED for the **named** missing artifacts rather than for a collection error (CLOSE-01, D-12 first half) [meta]
+- [ ] 146-05-PLAN.md — the eight corrections: seven D-04 inherited from four phases that each routed them here in writing, plus **OD-B**'s comparative-claim sentence, landed as seven labelled `⚠ CORRECTION` blocks **appended after** their subjects across `ROADMAP.md`, `PROJECT.md` and `REQUIREMENTS.md` with the record gate re-run after every insertion, plus `146-CORRECTIONS.md` recording the three inherited items that do **not** hold as stated, the block-versus-history rule by `file:line`, and the two host-README adjacency findings (CLOSE-04, D-04, D-05, D-14) [meta]
+- [ ] 146-06-PLAN.md — firmware documentation: `doc/PROTOCOLS.md` §§1.3-1.5 rewritten to describe the loop that ships with the pulse override and the 6.25 V debt; `CLAUDE.md`'s stale native-env numerals corrected behind an eighth labelled block, the ceiling added and the unqualified claim word cleared with every technical identifier intact; a user-facing 27C paragraph in `README.md`; then one commit inside the sub-repo and the firmware suite run only after it (CLOSE-03, D-06) [firestarter]
+
+**Wave 3 — the host half, the codegen wording, and the ledger**
+
+- [ ] 146-07-PLAN.md — the host README's complete shipped write surface with both adjacency defects corrected, the database-supplied pulse and the ceiling; the debug-message wording corrected in the **canonical** catalog only and propagated by the sync script, with the measured diff shape asserted per repository (zero-line generated header, exactly one changed generated host line) rather than from the script's self-comparing output; then the documentation checker GREEN with its failure capability re-shown in the same session (CLOSE-03, D-06, D-13) [meta + firestarter + firestarter_app]
+- [ ] 146-08-PLAN.md — `146-LEDGER.md`: live-measured identity header with an oracle line, the ceiling quoted verbatim and the admitted +96 B exemption quoted verbatim from the staged wording with both under-read facts, the asymmetric coverage as one validation plus two dispositions plus one deliberate non-spend, seven evidence tiers, a four-column claim table with **no** empty non-claim cell, all twelve carry-forwards with Owner text verbatim and the count disagreement settled by stating all three readings, process failures as first-class, and what no test can close (CLOSE-02, D-03, D-14) [meta]
+
+**Wave 4 — the two outward-facing texts**
+
+- [ ] 146-09-PLAN.md — `146-GH15-RECONCILIATION.md`: the nine **original** boxes reproduced verbatim, each graded with exactly one of CLOSE-04's three literal dispositions with every Phase 139 correction named inline; the VPP-disable box and the all-targets-build box each carrying their narrowings rather than a bare *met*; the public datasheet-justification correction; and one five-fact bench-boundary paragraph that paraphrases rather than quotes the conformance boundary (CLOSE-04, D-08, D-09, OD-A) [meta]
+- [ ] 146-10-PLAN.md — both version-agnostic release bodies, the firmware one stating its bench, controller-class and ARM boundaries **inside** the headline section, the host one refusing to let a partial progress bar read as a partial write; every claim mapped item by item onto a ledger row; three locators per body each with a recorded negative control; and the gate's first successful all-five default run (CLOSE-05, D-01, D-02) [meta]
+
+**Wave 5 — arm the gate**
+
+- [ ] 146-11-PLAN.md — D-12's second proof: a plant-and-revert against the **real** committed ledger through the no-argument no-environment defaults path, the gate naming the file, the line and the label, then byte identity by blob SHA and byte count; the armed leg's third observation; then every standing gate green in one pass with both sub-repo suites at baseline after committing, and a CLOSE-01 audit table stating that neither proof covers both claims (CLOSE-01, D-12 second half) [meta]
+
+**Waves 6-7 — the blocking human gates and the requirement flip**
+
+- [ ] 146-12-PLAN.md — the resolved auto-mode value recorded first and the plan halted if it is not false; then the **blocking operator wording review** of both release bodies and the reconciliation; then freeze with blob SHAs and `wc -c` byte counts and all six posting preconditions re-measured **inside** this plan; then a **separate blocking authorization gate** and exactly one body-file comment on gh#15, byte-verified against the named one-added-blank-line signature, with the one-to-two state transition, the `lastEditedAt` null read through GraphQL, and the negative-flag audit (CLOSE-04, CLOSE-05, D-07, D-10) [meta] — `autonomous: false`
+- [ ] 146-13-PLAN.md — the **only** plan permitted to tick CLOSE-01…CLOSE-05: a five-row discharge table and all five gates re-run green behind a blocking operator gate, then seventeen hand-edited lines across both coverage documents with archived documents asserted hash-identical, then the phase-end structural assertions — three-repo upstream-ahead arithmetic and unchanged upstream SHAs as D-01's only oracle, the submodule pointer table with the re-pin done or explicitly handed onward, the consolidated negative-argv audit, and a hand-verified state-file update (CLOSE-01…CLOSE-05, D-01) [meta] — `autonomous: false`
 
 ### v1.31 Coverage
 
