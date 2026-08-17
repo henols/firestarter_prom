@@ -589,13 +589,13 @@ Plans:
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PREP-01 | Phase 138 | Pending |
-| PREP-02 | Phase 138 | Pending |
-| PREP-03 | Phase 138 | Pending |
-| PREP-04 | Phase 138 | Pending |
-| ISSUE-01 | Phase 139 | Pending |
-| ISSUE-02 | Phase 139 | Pending |
-| ISSUE-03 | Phase 139 | Pending |
+| PREP-01 | Phase 138 | Complete |
+| PREP-02 | Phase 138 | Complete |
+| PREP-03 | Phase 138 | Complete |
+| PREP-04 | Phase 138 | Complete |
+| ISSUE-01 | Phase 139 | Complete |
+| ISSUE-02 | Phase 139 | Complete |
+| ISSUE-03 | Phase 139 | Complete |
 | TABLE-01 | Phase 140 | Complete |
 | TABLE-02 | Phase 140 | Complete |
 | TABLE-03 | Phase 140 | Complete |
@@ -613,11 +613,11 @@ Plans:
 | VPP-02 | Phase 142 | Complete |
 | VPP-03 | Phase 142 | Complete |
 | VPP-04 | Phase 142 | Complete |
-| HOST-01 | Phase 143 | Pending |
-| HOST-02 | Phase 143 | Pending |
-| HOST-03 | Phase 143 | Pending |
-| HOST-04 | Phase 143 | Pending |
-| HOST-05 | Phase 143 | Pending |
+| HOST-01 | Phase 143 | Complete |
+| HOST-02 | Phase 143 | Complete |
+| HOST-03 | Phase 143 | Complete |
+| HOST-04 | Phase 143 | Complete |
+| HOST-05 | Phase 143 | Complete |
 | TEST-01 | Phase 144 | Complete |
 | TEST-02 | Phase 144 | Complete |
 | TEST-03 | Phase 144 | Complete |
