@@ -2754,3 +2754,215 @@ they executed themselves. Driver: Claude Code (GSD executor), D-19 split through
 record's standing assertion that **every operator gate in this phase was real and none was
 self-approved.**
 
+
+---
+
+# POST-BENCH TRIPWIRE, BENCH-03 RE-CONFIRMATION AND ARTIFACT INVENTORY — `145-08` Task 3
+
+Run after every bench artifact had landed on disk, so a green suite here means something a Gate 0
+green could not: that **no artifact this phase produced leaked into a place that breaks a test**.
+
+## RQ-9 tripwire — firmware porcelain, then both suites
+
+**Precondition, asserted BEFORE either pytest invocation:**
+
+```
+$ git -C /workspaces/firestarter status --porcelain | wc -l
+0
+```
+
+**Empty.** This matters more than it looks: **a single untracked file anywhere in the firmware
+checkout turns 9 tests RED** — five in `firestarter` and four in `firestarter_app` — because those
+tests assert whole-repo porcelain. A non-empty result here would mean a bench artifact leaked into
+the wrong repo, and would have to be moved before anything else happened. Re-checked after both
+suites: still **0**.
+
+Both suites were run with `-o addopts=` cleared. The repos' own `addopts` is `-ra -q`, and doubling
+`-q` suppresses the summary count line — so without the override the count would not be visible at
+all, and "green" would be an assertion rather than a reading.
+
+| Suite | Command | Result | Gate 0 baseline | Match |
+|---|---|---|---|---|
+| Firmware, full | `cd /workspaces/firestarter && python3 -m pytest tests/ -q -o addopts=` | **314 passed**, 0 failed, 19.62 s | 312 passed | **no — +2, see below** |
+| Host, full | `cd /workspaces/firestarter_app && python3 -m pytest tests/ -q -o addopts=` | **1590 passed**, 0 failed, 1 warning, 30 snapshots passed, 244.75 s | not baselined at Gate 0 | n/a — first full-suite figure |
+| Host, sibling-porcelain subset | `cd /workspaces/firestarter_app && python3 -m pytest tests/test_py32_flash_map_host.py tests/test_cap03_ack_layout_parity.py tests/test_py32_asset_name_host.py -q -o addopts=` | **38 passed**, 0 failed, 0.37 s | 38 passed | yes |
+
+### The firmware suite's +2 — a divergence, recorded with its cause rather than explained away
+
+**314 is not 312, and that is stated as a mismatch before it is attributed.** It is **not a
+regression** — zero tests failed in either suite — but the plan's baseline is 312 and the honest
+first sentence is that the number moved.
+
+**Cause, established rather than assumed.** Gate 0's 312 was measured against firmware `a594173d`.
+Every measurement from 2026-08-17 onward runs against **`ebe9cb3`**, because a **debug session —
+which is not a plan, so D-16 is intact on its own terms** — landed two commits in between:
+
+```
+$ git -C /workspaces/firestarter log --oneline a594173d..HEAD
+ebe9cb3 fix(eprom): raise the VPP settles to 1000us/100us on bench evidence
+eb563d2 fix(eprom): assert the program-voltage route around every program pulse
+```
+
+Those commits changed **13 files under `tests/`** (`+574 / -76` lines), including new
+`merge05_base01_anchor_*.log` fixtures and reworked `test_check_size_baseline.py`,
+`test_trace_segment_exhaustiveness_v131.py` and `test_write_path_source_contract_v131.py`. **The +2
+is tests the debug session added.** It is the same firmware supersession already recorded as
+boundary 7 of the phase verdict, surfacing in a second place — which is the point of recording the
+supersession once and plainly.
+
+**No plan in this phase created, edited or deleted any of those test files.**
+
+## BENCH-03 re-confirmed at the tip — end of phase, not only at Gate 0
+
+Criterion 4's wording is *as a result of this milestone's bench runs*, so it is answered **after**
+the bench, not only before it. All four legs re-run from `/workspaces/firestarter_app` at the tip.
+**`tools/build_db.py` was NOT invoked** — the requirement is that nothing changed, and regenerating
+would itself be the change.
+
+| Leg | Command | Result at the tip (2026-08-17, post-bench) | Gate 0 figure | Identical? |
+|---|---|---|---|---|
+| base | `git merge-base HEAD origin/beta` | `4d18b645ab18a2d2465f0f623062e9249eb24132` | same | **yes** |
+| 1 | `git diff 4d18b645..HEAD -- firestarter/data/chip_database.json \| wc -c` | **0** | 0 | **yes** |
+| 2 | `git diff --stat 4d18b645..HEAD -- tools/build_db.py tools/extra_chips.json tools/infoic.xml \| wc -c` | **0** | 0 | **yes** |
+| 3 | `python3 tools/check_no_community_support_status_write.py` | `PASS: scanned ../firestarter/diagnostic_report.py, parse_devtest_issue.py; 0 support_status writes (sole write locus stays tools/build_db.py)`, **exit 0** | same, exit 0 | **yes** |
+| 4a | `sha256sum firestarter/data/chip_database.json` | `3befbaad7bbb88307abd94db0447ad78e847c40f3c96be7751f5b87a1e913479` | same digest | **yes** |
+| 4b | value histogram | **total 746 / supported 736 / adapter-required 9 / protocol-not-implemented 1** | 736 / 9 / 1 / 746 | **yes** |
+| caveat | `git diff 4d18b645..HEAD \| grep -c support_status` | **3** (the same three benign textual mentions, no value change) | 3 | **yes** |
+
+**Every figure matches Gate 0 exactly, digest for digest, with no discrepancy to record.** Fifteen
+program cycles and two Gate 3 writes later, **no chip's `support_status` moved.** BENCH-03's verdict
+of `validated` therefore holds at the end of the phase as well as at its start.
+
+## Artifact inventory
+
+Grouped totals first, then every file. **Every digest lives in `SHA256SUMS.txt`** — no hash is
+written inline in this narrative, so a reader never has to open a binary to check one.
+
+| Group | Files | Bytes | What it is |
+|---|---|---|---|
+| `images/` | 5 | 203976 | Three 64 KiB write images, the 4 KiB pulse image, and their generator |
+| `tools/` | 1 | 9489 | The D-10 frame extractor |
+| `readbacks/` | 4 | 262144 | The pre-write capture plus the three per-cycle oracle-2 read-backs |
+| `runs/` | 9 | 589824 | Nine D-07 read-stability read-backs, three per cycle, in three separate directories |
+| `logs/` | 31 | 230125 | Every command capture, raw tqdm stream and extractor output, including the preserved session-1 failure and the operator paste |
+| `SHA256SUMS.txt` | 1 | 4552 | The digest manifest |
+| **TOTAL** | **51** | **1300110** (1269.6 KiB) | |
+
+Plus 3 `.gitkeep` placeholders and 21 markdown planning/record files, for **75 tracked files** in
+the phase directory.
+
+| Path | Size (B) | Purpose | Digest in manifest |
+|---|---|---|---|
+| `SHA256SUMS.txt` | 4552 | The digest manifest itself (cannot hash itself) | n/a - it *is* the manifest |
+| `images/gen_addr_image.py` | 3272 | D-05 image generator (address-attributable pattern) | yes |
+| `images/img1.bin` | 65536 | Cycle 1 write image, 64 KiB | yes |
+| `images/img2.bin` | 65536 | Cycle 2 write image, 64 KiB, distinct from img1 | yes |
+| `images/img3.bin` | 65536 | Cycle 3 write image, 64 KiB, distinct from img1/img2 | yes |
+| `images/img_4k_pulse.bin` | 4096 | Gate 3 pulse image, 4 KiB, zero 0xFF bytes so every byte is pulsed | yes |
+| `logs/consistency_cycle1.log` | 11057 | Cycle 1 dev consistency-check, N=3 | yes |
+| `logs/consistency_cycle2.log` | 11098 | Cycle 2 dev consistency-check, N=3 | yes |
+| `logs/consistency_cycle3.log` | 11098 | Cycle 3 dev consistency-check, N=3 | yes |
+| `logs/erase_preflight.log` | 1814 | D-03 erase-capability pre-flight on silicon | yes |
+| `logs/eyeson_rerun_pulse4688.operator_paste.log` | 11555 | D-10 eyes-on: operator's verbatim words + pasted transcript (OBSERVATIONAL ONLY) | yes |
+| `logs/frames_cycle1.txt` | 1541 | Cycle 1 extractor output (Claim A) | yes |
+| `logs/frames_cycle2.txt` | 1547 | Cycle 2 extractor output (Claim A) | yes |
+| `logs/frames_cycle3.txt` | 1560 | Cycle 3 extractor output (Claim A) | yes |
+| `logs/frames_pulse4688.txt` | 693 | Gate 3 extractor output (Claim B): intra_block_frames=24 | yes |
+| `logs/frames_pulse_db.txt` | 280 | Gate 3 companion extractor output: intra_block_frames=4 | yes |
+| `logs/prewrite_read.log` | 3566 | Pre-write preservation read console | yes |
+| `logs/pulse4688.stderr.raw` | 10210 | Gate 3 required run raw stream - THE recorded Claim B measurement | yes |
+| `logs/pulse4688.stdout.log` | 5644 | Gate 3 required run console (provenance line) | yes |
+| `logs/pulse_db.stderr.raw` | 7470 | Gate 3 companion raw stream (the control) | yes |
+| `logs/pulse_db.stdout.log` | 4610 | Gate 3 companion database-pulse run console | yes |
+| `logs/read_cycle1.log` | 3568 | Cycle 1 read-to-file for oracle 2 | yes |
+| `logs/read_cycle2.log` | 3568 | Cycle 2 read-to-file for oracle 2 | yes |
+| `logs/read_cycle3.log` | 3609 | Cycle 3 read-to-file for oracle 2 | yes |
+| `logs/verify_cycle1.log` | 1807 | Cycle 1 firmware verify (oracle 1b) | yes |
+| `logs/verify_cycle2.log` | 1807 | Cycle 2 firmware verify (oracle 1b) | yes |
+| `logs/verify_cycle3.log` | 1807 | Cycle 3 firmware verify (oracle 1b) | yes |
+| `logs/vpp_confirm.log` | 478 | Gate 1 VPP, single invocation, idle sample | yes |
+| `logs/vpp_cycle1_diag.log` | 478 | Session 1 post-failure idle VPP diagnostic | yes |
+| `logs/write_cycle1.stderr.raw` | 26359 | Cycle 1 raw tqdm stream (frame source) | yes |
+| `logs/write_cycle1.stdout.log` | 13565 | Cycle 1 write console | yes |
+| `logs/write_cycle1_attempt1.stderr.raw` | 5315 | Session 1 GENUINE FAILURE raw stream - preserved, never overwritten | yes |
+| `logs/write_cycle1_attempt1.stdout.log` | 4165 | Session 1 GENUINE FAILURE console - preserved, never overwritten | yes |
+| `logs/write_cycle2.stderr.raw` | 26367 | Cycle 2 raw tqdm stream (frame source) | yes |
+| `logs/write_cycle2.stdout.log` | 13565 | Cycle 2 write console | yes |
+| `logs/write_cycle3.stderr.raw` | 26359 | Cycle 3 raw tqdm stream (frame source) | yes |
+| `logs/write_cycle3.stdout.log` | 13565 | Cycle 3 write console | yes |
+| `readbacks/prewrite.bin` | 65536 | The part's full prior content, captured and hashed before the first erase | yes |
+| `readbacks/readback1.bin` | 65536 | Cycle 1 oracle-2 read-back | yes |
+| `readbacks/readback2.bin` | 65536 | Cycle 2 oracle-2 read-back | yes |
+| `readbacks/readback3.bin` | 65536 | Cycle 3 oracle-2 read-back | yes |
+| `runs/cycle1/run_01.bin` | 65536 | D-07 read-stability run 1 of 3, cycle 1 | yes |
+| `runs/cycle1/run_02.bin` | 65536 | D-07 read-stability run 2 of 3, cycle 1 | yes |
+| `runs/cycle1/run_03.bin` | 65536 | D-07 read-stability run 3 of 3, cycle 1 | yes |
+| `runs/cycle2/run_01.bin` | 65536 | D-07 read-stability run 1 of 3, cycle 2 | yes |
+| `runs/cycle2/run_02.bin` | 65536 | D-07 read-stability run 2 of 3, cycle 2 | yes |
+| `runs/cycle2/run_03.bin` | 65536 | D-07 read-stability run 3 of 3, cycle 2 | yes |
+| `runs/cycle3/run_01.bin` | 65536 | D-07 read-stability run 1 of 3, cycle 3 | yes |
+| `runs/cycle3/run_02.bin` | 65536 | D-07 read-stability run 2 of 3, cycle 3 | yes |
+| `runs/cycle3/run_03.bin` | 65536 | D-07 read-stability run 3 of 3, cycle 3 | yes |
+| `tools/extract_frames.py` | 9489 | D-10 frame extractor; self-tested on a positive and a negative fixture | yes |
+
+### Inventory checks, with their results
+
+| Check | Command | Result |
+|---|---|---|
+| Manifest completeness | `sha256sum -c SHA256SUMS.txt` (from the phase directory) | **exit 0**, **50 OK**, **0 FAILED** |
+| Nothing gitignored | `find .planning/phases/145-bench-validation -type f -print0 \| xargs -0 git check-ignore \| wc -l` | **0** — no produced artifact is ignored |
+| Nothing untracked | `comm -13 <(git ls-files $P \| sort) <(find $P -type f \| sort)` | **empty** — every file on disk is tracked by git |
+| Tracking reconciliation | `git ls-files .planning/phases/145-bench-validation \| wc -l` vs `find … -type f \| wc -l` | **75 = 75** |
+| Forbidden directory names | `find … -type d \( -name 'consistency-check-*' -o -name 'firestarter-runs' -o -name 'write-cycle-*' \)` | **0** — no evidence directory matches a double-gitignored pattern |
+| The plan's own filter | `find … -type f \( -name "*.bin" -o -name "*.raw" -o -name "*.log" -o -name "*.txt" -o -name "*.py" \) \| wc -l` | **51** |
+
+**The gitignore hazard this routes around, named so the zero is meaningful.** The meta `.gitignore`
+carries three rules — `firestarter-runs/`, `consistency-check-*/` and `write-cycle-*/` — that exist
+for `firestarter`'s dev-diagnostic output. **`dev consistency-check`'s default output directory is
+`consistency-check-<timestamp>/`, which those rules double-gitignore**, so a stability run left at
+its default would have produced nine read-backs that silently never entered the repo. Every cycle
+therefore wrote to an explicit `runs/cycleN/` path instead, and the check above proves the routing
+worked rather than assuming it.
+
+**Digests appended by this plan, stated so the manifest's history is auditable.** The manifest held
+**14** rows when this plan started (the four images, the four read-backs, and Gate 3's six log
+artifacts). **36 rows were appended** — the nine `run_NN.bin` files, the two tool scripts, and the
+remaining 25 log artifacts including the new operator paste log — bringing it to **50**. **The 14
+pre-existing rows were verified `OK` before the append and are byte-identical after it** (`head -14`
+diffs clean against the pre-append copy), so nothing previously recorded was rewritten, and in
+particular **no cycle 1–3 artifact and neither `write_cycle1_attempt1.*` file was overwritten,
+re-hashed or replaced.**
+
+## D-16 closing assertion
+
+**Across the whole of Phase 145, no *plan* created, edited, renamed or deleted any file under
+`firestarter/` or `firestarter_app/`.** The only write into the firmware checkout was PlatformIO's
+**gitignored `.pio/`** build output from the mandated reflash.
+
+Backed by both repos' porcelain rather than asserted:
+
+- **`git -C /workspaces/firestarter status --porcelain` → 0 lines**, at commit **`ebe9cb3`**, checked
+  before both suite runs and again after them. `.pio/` does not appear because it is gitignored,
+  which is precisely the D-16-compatible outcome.
+- **`git -C /workspaces/firestarter_app status --porcelain` → 7 lines**, all **pre-existing and
+  untracked**, none created by this phase: `.planning/config.json`, `SECURITY.md`,
+  `datasheets/M27C1001.pdf`, `datasheets/M27C512.pdf`, `datasheets/W27C512.pdf`,
+  `datasheets/W27E257.pdf`, `write_test_port.sh`. **No porcelain assertion exists on that repo
+  directly** — the nine RQ-9 tests assert the *sibling* `firestarter` checkout's porcelain, which is
+  the one proven empty above. Gate 0 recorded 8 such entries against today's 7; the difference is
+  pre-existing churn in the operator's own working tree, not this phase's doing, and no plan here
+  added, removed or modified any of them.
+
+**The honest qualification, repeated at the close rather than buried at boundary 7:** D-16 holds on
+its own terms, but **the firmware did not stay unchanged across this phase**. A **debug session,
+which is not a plan**, changed eleven files under `firestarter/` in commits `eb563d2` and `ebe9cb3`
+(+96 B), Gate 1's firmware-identity rows were superseded in `145-05`, and the +2 firmware test delta
+above is the same event surfacing again. Every bench measurement from 2026-08-17 onward belongs to
+`ebe9cb3`, not to the image Gate 1 recorded.
+
+## Bench tooling location — the other half of D-16
+
+Both instruments this phase authored live in the **meta** repo under the phase directory, never
+inside a sub-repo: `images/gen_addr_image.py` and `tools/extract_frames.py`. That placement is not
+tidiness — it is the mechanism that keeps the firmware porcelain empty and the nine RQ-9 tests
+green.
