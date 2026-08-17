@@ -186,6 +186,11 @@ None - no external service configuration required.
 - CLOSE-03 itself remains unticked, as required — only plan 146-13 may tick any `CLOSE-*` requirement.
 - No blockers for downstream plans identified.
 
+## Self-Check: PASSED
+
+All claimed created/modified files exist on disk and all cited commit hashes (across meta, `firestarter`
+and `firestarter_app`) resolve in `git log --oneline --all`. No missing items.
+
 ---
 *Phase: 146-close-honesty-ledger-claim-gate-gh-15-reconciliation*
 *Completed: 2026-08-17*
