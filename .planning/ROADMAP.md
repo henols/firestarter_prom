@@ -613,7 +613,7 @@ Plans:
 
 **Wave 5 — arm the gate**
 
-- [ ] 146-11-PLAN.md — D-12's second proof: a plant-and-revert against the **real** committed ledger through the no-argument no-environment defaults path, the gate naming the file, the line and the label, then byte identity by blob SHA and byte count; the armed leg's third observation; then every standing gate green in one pass with both sub-repo suites at baseline after committing, and a CLOSE-01 audit table stating that neither proof covers both claims (CLOSE-01, D-12 second half) [meta]
+- [x] 146-11-PLAN.md — D-12's second proof: a plant-and-revert against the **real** committed ledger through the no-argument no-environment defaults path, the gate naming the file, the line and the label, then byte identity by blob SHA and byte count; the armed leg's third observation; then every standing gate green in one pass with both sub-repo suites at baseline after committing, and a CLOSE-01 audit table stating that neither proof covers both claims (CLOSE-01, D-12 second half) [meta]
 
 **Waves 6-7 — the blocking human gates and the requirement flip**
 
