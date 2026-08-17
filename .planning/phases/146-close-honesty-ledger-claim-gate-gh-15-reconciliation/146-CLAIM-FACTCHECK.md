@@ -122,3 +122,44 @@ elsewhere are real passes.
 - **Anything about the firmware image on the attached board.** A version string identifies neither the
   image nor its commit.
 - **The two protocols validated in the golden trace only.** Their status is unchanged by this document.
+
+## Addendum — both blockers listed as live in `STATE.md` are already discharged
+
+`STATE.md`'s `### Blockers` section carries two entries. Neither is a real blocker any more, and both
+were checked here because a phase closing on record honesty should not close while its own state file
+asserts two problems that do not exist.
+
+### `146-PRE` — "ROADMAP v1.31 Coverage is stale for 12 rows" — **DISCHARGED**
+
+The entry says `PREP-01`…`PREP-04`, `ISSUE-01`…`ISSUE-03` and `HOST-01`…`HOST-05` read `Pending` in
+`ROADMAP.md` while `REQUIREMENTS.md` reads `Complete`, and that **Phase 146 owns the reconciliation**.
+
+Measured now: **all twelve read `Complete` in BOTH documents.** No divergence remains.
+
+Traced by walking each historical `ROADMAP.md` blob: the flip happened at
+**`6822ee2d` — `docs(146-PRE): sync ROADMAP v1.31 Coverage …`**, whose immediate predecessor
+`03331b6c` (`docs(145-09)`) still read `Pending`. That commit precedes `39802fb7`, the Phase 146
+plan-creation commit — so the work was done **before this phase was planned**, which is exactly why
+`grep` finds no `146-*-PLAN.md` mentioning `PREP-`, `ISSUE-`, `HOST-` or the string `146-PRE`. Nothing
+fell through: the blocker was worked and then never cleared from the list.
+
+### `127-01` — "`test_help_fw` fails post-merge (stale `--board` help snapshot missing py32f071)" — **DISCHARGED**
+
+Measured now: `pytest tests/test_characterization.py::test_help_fw` → **1 passed, 2 snapshots passed**.
+The stated cause is gone too — `tests/__snapshots__/test_characterization.ambr` contains `py32f071`
+three times, so the snapshot is no longer missing the board.
+
+One caveat on how this was observed. The full host suite initially reported **28 errors** in
+`test_characterization.py`, all `fixture 'snapshot' not found`, because `syrupy` was absent from this
+devcontainer. The orchestrator installed the documented test extras (`pip install -e '.[test]'` inside
+`firestarter_app`; the repo gitignores `firestarter.egg-info/`, so the working tree stayed at its
+7 lines of pre-existing untracked dirt), after which the module runs 35/35 and the full suite runs
+**1590 passed, 0 failed**. So `127-01` was masked by a missing dependency, not by a real failure — but
+the passing result above is a genuine pass, not an absence of collection.
+
+### Why this is recorded rather than edited
+
+`.planning/STATE.md` is `146-13`'s to write, and that plan hand-edits it under a snapshot-and-diff with
+asserted line shape. Editing the Blockers list from outside that plan would race its measurement for no
+benefit. Both discharges are evidenced above by commit and by command, so `146-13` — or the operator —
+can clear them with the citation in hand.
