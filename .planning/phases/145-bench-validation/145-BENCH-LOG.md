@@ -787,6 +787,13 @@ sought.
 
 **Gate 3 verdict: NOT REACHED — Gate 2 failed to clear.**
 
+> ⚠ **This whole Gate 3 section is session 1's and is SUPERSEDED.** Session 2 resumed the phase on a
+> corrected firmware build, Gate 2 closed **VALIDATED**, and Gate 3 was therefore reached and run by
+> `145-07`. Every "NOT REACHED" above — the authorization, the run, Claim B, A1 — was true only of
+> session 1 and is no longer the phase's state. The `Gate 3 verdict:` line immediately above is
+> session 1's and is **not** the phase's final Gate 3 verdict; that line is closed in `145-08`
+> together with D-10's eyes-on half. See "## Gate 3 (resumed) — `--pulse-us 4688`".
+
 ---
 
 ## SHA manifest
@@ -810,6 +817,17 @@ everything at once.
 > (byte-exact on all three oracles). BENCH-01 as a whole is still undischarged — Gate 2 needs 3/3
 > and `145-06` owns cycles 2 and 3. The remaining items are genuinely still open. See
 > "## Resumed session (2026-08-17)".
+>
+> ⚠ **FURTHER SUPERSEDED BY `145-07` (Gate 3 ran).** Three more of the items below are now
+> discharged and no longer lack an owner: **D-10 Claim B** (measured, **HOLDS** — 4/4 blocks, 24
+> firmware-backed intra-block positions), **D-12's `--pulse-us`-on-silicon item** (exercised on a
+> real part above the 4687 µs threshold), and **D-12's A1 per-pulse-overhead measurement** (derived,
+> ~1.44 ms per byte, with its error sources and an explicit upper-bound caveat). Gate 2 has since
+> closed **VALIDATED**, so **BENCH-01's own bullet below is superseded too** — see
+> "## Gate 2 verdict: **VALIDATED**". Still genuinely open: **D-10's operator eyes-on half**
+> (`145-08`'s), the **program-window VPP-under-load measurement**, and the newly-named **per-pulse
+> overhead inside a multi-pulse retry loop**, which has **no v1.31 owner**. See
+> "## Gate 3 (resumed) — `--pulse-us 4688`".
 
 Phase 146 is docs-and-claims only and cannot run a bench. This phase halted at Gate 2's first
 cycle failure; everything below did not run and has **no v1.31 owner**:
@@ -1775,6 +1793,416 @@ and it has not been run.
 - **Claim B is not claimed**, in any of the three cycles, despite `blocks_with_multiple_updates=2`
   appearing in all three. It is `145-07`'s on the Gate 3 run.
 - **No requirement checkbox was flipped by this plan.** `BENCH-01` is multi-plan; ticking is
+  centralised in `145-09` behind its own blocking operator gate.
+
+
+---
+
+## Gate 3 (resumed) — `--pulse-us 4688` (D-10 Claim B, D-12)
+
+Written by `145-07`. This section supersedes the session-1 "Gate 3 — `--pulse-us 4688`" section
+above, every line of which read NOT REACHED because session 1's Gate 2 failed.
+
+### Precondition, checked before the gate was presented
+
+Per D-13 Gate 3 is **required conditional on Gate 2 passing**. The `Gate 2 verdict:` line was read
+first: it reads **VALIDATED** (the resumed session's closure, `145-06` Task 3). Gate 3 was therefore
+reached and the authorization was sought. `logs/pulse4688.stderr.raw` did not exist at the moment the
+gate was presented, so no Gate-3 write had been run ahead of the answer.
+
+### Operator authorization — a SELECTION, not a quote
+
+**Operator authorization (Gate 3, the required 4688 µs run): AUTHORIZED (2026-08-17).** Recorded
+honestly as **a selection, not a verbatim quote**: the operator authorized by choosing a presented
+option labelled *"Authorize the 4688 µs run"*, not by typing prose. **No verbatim sentence is
+manufactured for it.** The option stated its own cost and the operator saw it before answering:
+4096 bytes / 4 blocks, ~21 s, one further erase-and-program cycle, and ~47× the database pulse
+energy per cell.
+
+This record now holds **three distinguishable authorization shapes**, and they must not be blurred:
+
+| Gate | Shape | Recorded as |
+|---|---|---|
+| Gate 2 (three 64 KiB cycles) | operator **typed prose** | quoted verbatim: "you can erase or do anything its a test ic for you" (2026-08-16) |
+| Session 1's D-13 halt decision | operator **selected a presented option** | selection, with an explicit note that no prose was typed |
+| Gate 3's 4688 µs run (here) | operator **selected a presented option** | selection, with this same explicit note |
+
+**Companion database-pulse run: NOT an operator authorization — an orchestrator decision.** The
+operator was asked separately and returned **no preference**: they neither authorized nor declined
+it. The decision to run it was taken by the orchestrator under that explicit no-preference answer,
+and it is recorded in those terms. **The operator did not ask for this run and it must not be
+described as operator-authorized.** The orchestrator's stated reasoning, for the record: the
+companion run is ~2 s at the **database** 100 µs pulse — ordinary program stress this part has
+already survived 15+ times in this phase, not the 47× run — and D-12's **A1** would otherwise be
+permanently orphaned, because Phase 146 is docs-and-claims only and cannot run a bench. Discharging
+A1 costs one low-stress cycle now and becomes impossible later.
+
+The operator was asked to watch the terminal during the 4688 µs run. **The eyes-on description is
+`145-08`'s to collect, not this plan's**, and none is recorded here.
+
+### Port identity, re-verified fresh for this gate (D-19)
+
+Probed immediately before each of the two runs, not carried forward:
+
+```
+Current firmware version: 3.0.0b17, for controller: leonardo on port /dev/ttyACM0
+```
+
+**`3.0.0b17` is not an identity check and is not used as one.** The version string did not move
+across the debug session's 96-byte change, so the build under test is identified by **commit
+`ebe9cb3` with empty `git status --porcelain`** — the reflash proof recorded earlier in this session
+— and never by the advertised version.
+
+### Run 1 — the required 4688 µs write
+
+#### `firestarter -v -p /dev/ttyACM0 write W27C512 .planning/phases/145-bench-validation/images/img_4k_pulse.bin --pulse-us 4688`
+
+**Exit status 0.** Success line, verbatim: `Write to W27C512 successful (30.94s).` Operation setup
+completed in 2.75 s; advertised buffer size 1024 (leonardo).
+
+**The `--pulse-us` provenance line, default-visible, verbatim from `logs/pulse4688.stdout.log`:**
+
+```
+W27C512: --pulse-us 4688 overrides the database program pulse for this run (100 us -> 4688 us). This run's timing is NOT the database's.
+```
+
+**That boundary restated in this record's own prose, because it is the point of the line:** nothing
+measured in this run is a statement about the database's timing. The database's `pulse-delay` for
+W27C512 is 100 µs; this run ran at 4688 µs, 46.88× wider. Every elapsed figure, frame count and
+cadence below belongs to the override, not to the shipped configuration. The wire command confirms
+it independently — `'pulse-delay': 4688` in the JSON sent to the programmer.
+
+`grep -ciE "bad bytes|MAX_PULSES|PULSE_TOO_WIDE"` over the stdout log returns **0**.
+
+**Extractor summary values** (`logs/frames_pulse4688.txt`, all six):
+
+```
+segments=2
+selected_segment=2
+frames=70
+intra_block_frames=24
+blocks_with_multiple_updates=4
+step_histogram=40:1,164:22,204:2
+```
+
+Per-block update counts: **block 0 has 7, block 1 has 7, block 2 has 6, block 3 has 6.**
+
+### D-10 Claim B — **HOLDS**
+
+Claim B in its literal form: **two or more distinct bar positions inside the same `n // 1024`
+bucket.** Measured verdict: **HOLDS**, on all four blocks.
+
+`blocks_with_multiple_updates=4` — every block in the run. The 24 intra-block positions are:
+
+| Block | Intra-block positions | Count |
+|---|---|---|
+| 0 | 164, 328, 492, 656, 820, 984 | 6 |
+| 1 | 1188, 1352, 1516, 1680, 1844, 2008 | 6 |
+| 2 | 2212, 2376, 2540, 2704, 2868, 3032 | 6 |
+| 3 | 3236, 3400, 3564, 3728, 3892, 4056 | 6 |
+
+**These are genuine firmware emissions, not bar-latch artifacts — established, not assumed.** This
+is the discriminator `145-05` and `145-06` correctly demanded before banking Claim B, and it is the
+reason their `blocks_with_multiple_updates=2` was rightly declined:
+
+1. **An independent second oracle agrees exactly.** The `-v` debug log decodes each received
+   `MSG_DATA_PROGRESS` frame as its own `DATA: n/65536` line, entirely separately from the tqdm bar
+   the extractor parses. Restricting to the MAIN phase, the firmware emitted **24** frames, at
+   **byte-for-byte the same 24 positions**. The two sets are **identical**: zero tqdm positions
+   unbacked by a firmware frame, zero firmware frames without a tqdm position.
+2. **Blocks 2 and 3 contain no boundary row at all.** Their 6 updates each are *entirely* firmware
+   frames. The bar-latch objection — that an "update" may be a host bar draw at an exact 1024
+   boundary — cannot apply to them even in principle. Claim B holds on those two blocks with the
+   boundary rows discarded entirely.
+3. **The step signature is a uniform cadence, not a transition.** `164:22` — twenty-two steps of
+   exactly 164 bytes. Contrast the artifact signature in `frames_cycle1.txt`:
+   `336:1,688:2,1023:11,1024:40,1025:11`, where the intra-block motion is 1023/1025 steps straddling
+   block boundaries plus two anomalies in blocks 0 and 1 only.
+
+**Contrast with the database-pulse cycles, attributed to the mechanism rather than to luck.**
+`frames_cycle1.txt` records `intra_block_frames=64` and `blocks_with_multiple_updates=2` over 64
+blocks — one frame per block, with the only "multiple" counts in blocks 0 and 1 where a boundary row
+is counted alongside the single firmware frame. The difference is the firmware's
+`EPROM_PROGRESS_EMIT_INTERVAL_MS` of 1000 ms with `last_emit_ms` re-initialised at the top of every
+block: at ~6.10 ms per byte a 1024-byte block runs ~6.2 s and crosses that interval six times; at
+~1.54 ms per byte it runs ~1.6 s and crosses it once. Same firmware, same board, same image, same
+bar — only the pulse differs.
+
+**The companion run makes this a controlled comparison rather than an argument.** Run 2 below is the
+*same 4096-byte image over the same four blocks on the same board*, differing only in pulse width.
+It reproduces the artifact signature exactly — `intra_block_frames=4`,
+`blocks_with_multiple_updates=2`, `step_histogram=335:1,688:1,689:1,1024:2`, with all 4 intra-block
+positions firmware-backed and the "multiple" counts confined to blocks 0 and 1 where a boundary row
+is present. So the artifact and the real signal were produced side by side, and they are visibly
+different objects.
+
+**What Claim B does NOT establish.** It is a claim about *frame emission and bar position*, not
+about what a human eye perceived. Whether the terminal looked like smooth motion or an end-burst is
+D-10's eyes-on half and remains **`145-08`'s**, uncollected here. It is also `leonardo`-only and
+EPROM-path-only, structurally: the emission is compiled out on `SERIAL_ON_IO` targets.
+
+### D-12 item 1 — `--pulse-us` exercised on silicon
+
+The flag was used on a real part, on a real board, in a real program cycle: it parsed, the
+default-visible provenance line fired, and **the override demonstrably took effect** rather than
+being accepted and ignored.
+
+The elapsed figure is the evidence. The same 4096 bytes took **30.94 s** at the override against
+**11.87 s** at the database pulse (run 2). Pure pulse time alone accounts for the gap: 4096 × 4688 µs
+= **19.20 s** versus 4096 × 100 µs = **0.41 s**, a difference of 18.79 s against the 19.07 s actually
+observed. A run that had silently fallen back to the database's 100 µs could not have taken 30.94 s.
+The frame cadence corroborates it independently: 164 bytes per ~1000 ms emission implies ~6.10 ms per
+byte, which is only reachable with a ~4.7 ms pulse.
+
+### D-12 item 2 — the above-4687 µs budget-mechanism proof
+
+**Threshold arithmetic:** the old host fallback was 120 s per block. The `0x07` row ships
+`max_pulses = 25` and the leonardo block is 1024 bytes, so the pulse-only worst case reaches 120 s at
+`120 s / (25 × 1024)` = **4687.5 µs**. **4688 µs is the first integer pulse width above that
+threshold**, which is precisely why it was chosen.
+
+Evaluated through the firmware's own `eprom_block_budget_s()` arithmetic
+(`padded_s = ceil(raw_pulse_only_us / 1e6) × 2 + 2`):
+
+| Pulse | Raw pulse-only worst case | Advertised CAP-03 budget | vs the old 120 s fallback |
+|---|---|---|---|
+| 100 µs (database) | 3 s | **8 s** | far inside it — cannot discriminate |
+| 4687 µs | 120 s | 242 s | raw exactly *at* the fallback |
+| **4688 µs (this run)** | **121 s** | **244 s** | **raw exceeds it; advertised exceeds it 2×** |
+
+**Why this is the sharpest CAP-03 evidence available on this bench.** At the database pulse the
+advertised budget is 8 s — a completed write there is fully explained by the old 120 s fallback and
+distinguishes nothing. At 4688 µs the advertised budget is 244 s and even the *unpadded* pulse-only
+figure is 121 s, both above 120 s. This run completed, so **the advertised-budget mechanism is what
+carried it**; the fallback could not have. That is a claim the three Gate 2 cycles were structurally
+incapable of making.
+
+**The non-claim, stated alongside it.** **Nothing logs the advertised budget.** The host decodes
+CAP-03's `uint16_t` from the `MSG_OK_READY` blob silently and prints no figure at any verbosity. **No
+attempt was made to observe the number, and none is quoted as measured.** The 244 s and 121 s above
+are computed from the firmware's published formula and the `0x07` row's shipped constants — they are
+*arithmetic*, not readings. The measured evidence is exactly one fact: **a run whose advertised
+budget exceeds the old fallback completed without a host timeout.**
+
+### Chip state after Gate 3
+
+**This run bulk-erased the whole chip.** A short write is still preceded by a full-array erase on a
+`FLAG_CAN_ERASE` part, so **the part no longer holds `img3.bin`** — it now holds run 2's 4096 bytes
+over an otherwise erased array. **Cycle 3's evidence was captured, SHA-compared and committed before
+this gate ran** (`readbacks/`, `SHA256SUMS.txt`), so nothing was lost; the chip's state changed and
+that is recorded rather than left to be discovered.
+
+**No degradation was observed during Gate 3.** Both runs completed byte-exact on the firmware's own
+`VERIFY_PER_PULSE_PLUS_FINAL` oracle with zero `MSG_ERR_MAX_PULSES` and zero `MSG_ERR_VERIFY`. Had
+the part degraded here it would have been recorded as a **Gate 3 finding**: Gate 2's VALIDATED
+verdict is closed and is not retroactively touched, qualified or reopened by anything in this
+section, and D-09's still-UNCONSUMED re-seat ledger was not reopened to fund any retry. No retry was
+needed and none was performed.
+
+### Run 2 — the companion database-pulse write (orchestrator decision)
+
+#### `firestarter -v -p /dev/ttyACM0 write W27C512 .planning/phases/145-bench-validation/images/img_4k_pulse.bin`
+
+No `--pulse-us` flag, so the database's 100 µs pulse applied. **Exit status 0.** Success line,
+verbatim: `Write to W27C512 successful (11.87s).` Setup 2.85 s.
+
+**`grep -c -- "--pulse-us"` over `logs/pulse_db.stdout.log` returns 0.** The *absence* of the
+provenance line is itself the evidence that this run used the database pulse — the line is
+unconditional whenever the flag is supplied. The wire command corroborates it: `'pulse-delay': 100`.
+`grep -ciE "bad bytes|MAX_PULSES|PULSE_TOO_WIDE"` returns **0**.
+
+**Extractor summary values** (`logs/frames_pulse_db.txt`, all six):
+
+```
+segments=2
+selected_segment=2
+frames=30
+intra_block_frames=4
+blocks_with_multiple_updates=2
+step_histogram=335:1,688:1,689:1,1024:2
+```
+
+Per-block update counts: **block 0 has 2, block 1 has 2** (blocks 2 and 3 have 1 each). Intra-block
+positions: 689, 1712, 2736, 3760 — one per block, all four firmware-backed. This is the
+database-pulse frame profile over the same four blocks, and it is the control that makes Claim B's
+verdict above a comparison rather than an assertion.
+
+### D-12 item 3 — A1 per-pulse overhead: **DERIVED, with its error sources**
+
+**Method.** Model the reported elapsed as `E = F + N_pulsed × (A1 + P)`, where `F` is fixed setup
+cost, `N_pulsed` the number of bytes actually pulsed and `P` the pulse width. Two runs at the **same**
+pulse but different byte counts cancel `F`. `img_4k_pulse.bin` contains **zero `0xFF` bytes**, so all
+4096 of its bytes are pulsed; the 64 KiB images do contain `0xFF` bytes, which the firmware skips
+without a pulse (`if (expected == 0xFF) continue;`, before any pulse), and those counts are
+subtracted: img1 65408, img2 65152, img3 65408 pulsed bytes.
+
+Derived against all three cycles, so the spread is visible rather than a single point estimate:
+
+| Pair | Arithmetic | µs/pulsed byte | minus 100 µs pulse → A1 |
+|---|---|---|---|
+| cycle 1 − run 2 | (106.06 − 11.87) s / (65408 − 4096) B | 1536.24 | **1436.24 µs** |
+| cycle 2 − run 2 | (105.69 − 11.87) s / (65152 − 4096) B | 1536.62 | **1436.62 µs** |
+| cycle 3 − run 2 | (106.06 − 11.87) s / (65408 − 4096) B | 1536.24 | **1436.24 µs** |
+
+**Spread: 1436.24 – 1436.62 µs, a range of 0.38 µs.** The tightness reflects only that the three
+cycles' elapsed figures agree to ~0.4 %; it is *not* an accuracy claim, for the reasons below.
+
+**Two independent cross-checks from the frame cadence**, which do not use the wall-clock subtraction
+at all. The firmware emits when 1000 ms have elapsed since the block's own `last_emit_ms` reset, so
+the first frame's byte offset within a block measures the per-byte loop time directly, excluding
+INIT, erase and setup entirely:
+
+- 4688 µs run: first frame at byte **164** → 6097.6 µs/byte → A1 ≈ **1409.6 µs**
+- database run: first frame at byte **689** → 1451.4 µs/byte → A1 ≈ **1351.4 µs**
+
+Three methods across a 47× pulse range land at **≈1.35–1.44 ms**. The overhead being essentially
+unchanged when the pulse widens 47× is itself the strongest support for the additive model: the
+overhead is fixed per-byte work, not something proportional to pulse width.
+
+**Model validation across the two 4096-byte runs**, as required: the elapsed difference per pulsed
+byte should approximate the pulse difference of 4588 µs. Observed
+(30.94 − 11.87) s / 4096 B = **4655.76 µs**, against **4588 µs** expected — a deviation of
+**+67.76 µs/byte, +1.48 %**. Recorded as observed, not explained away. In absolute terms it is
+**0.278 s** of fixed-cost mismatch across the two runs, and the reported setup line alone already
+differs by 0.10 s between them (2.75 s vs 2.85 s); the remainder is unattributed.
+
+**Error sources — the figure is not presented without them.**
+
+1. **The fixed cost does not amortise identically.** The reported elapsed includes operation setup,
+   the full-array erase, the INIT blank check and serial transport. The blank check and erase scan
+   all 65536 bytes in *both* the 4 KiB and the 64 KiB runs, so `F` is similar but demonstrably not
+   identical — the model-validation residual above puts the mismatch at ~0.28 s.
+2. **The `0xFF` skip.** The firmware skips a byte whose expected value is `0xFF` without issuing a
+   pulse, so pulsed-byte counts are lower than byte counts. Subtracted above; but the skip also costs
+   a loop iteration that the model attributes to nothing.
+3. **Per-block costs scale with block count, not byte count.** The once-per-block VPE settle and the
+   `0x07` row's final full-block verify pass ran **64 times** in a cycle and **4 times** in the
+   4 KiB runs. Dividing by a byte-count difference silently smears that per-block cost into a
+   per-byte figure. This is the largest un-modelled term.
+4. **It is wall-clock, host-side, and not an instrumented per-pulse measurement.** Every input is a
+   number the host printed after the fact; nothing timed a pulse.
+5. **It is a per-BYTE overhead at one pulse per byte, which is an UPPER BOUND on A1 as Phase 143
+   defines it, not the same quantity.** Phase 143's A1 is the *per-pulse* overhead inside the
+   retry loop. In `eprom.cpp`'s per-byte loop the inner `for (;;)` repeats only
+   `eprom_internal_program_pulse` plus one verify read, while the outer per-byte work additionally
+   pays a pre-pulse check read (`if (get_data(addr) == expected) continue;`), the address change and
+   its shift-register writes. On a freshly erased part almost every byte converges in one pulse, so
+   the measured figure lumps per-byte and per-pulse costs together and **cannot be decomposed from
+   these two runs.**
+
+**Comparison against Phase 143's `[ASSUMED]` ~20 to 60 µs per pulse — INDICATIVE, not conclusive.**
+The derived per-byte overhead of ~1.44 ms sits roughly **24× to 72× above** that assumed range. Read
+carefully: this does **not** refute the assumption, because of error source 5 — the assumed figure is
+a per-pulse cost inside a multi-pulse loop, and the measured figure is a per-byte cost that includes
+work a repeat pulse never re-pays. It does mean the assumed range is **not corroborated** by anything
+measured here, and that the only bound this bench can put on A1 is a loose upper one.
+
+**What remains explicitly NOT DISCHARGED, with `no v1.31 owner`.** The **per-pulse overhead inside a
+multi-pulse retry loop** — the regime Phase 143's own worked example uses (`0x0B` at `--pulse-us 200`,
+250 pulses × 1024 bytes) — was **not measured**, because no byte in either run required more than one
+pulse and `0x07` was the only protocol on the bench. Phase 146 is docs-and-claims only and cannot run
+a bench, so this carries forward with **no v1.31 owner**. It must not be silently dropped, and the
+padding rule's ×2 multiplier argument should not be re-litigated on the strength of the upper bound
+above.
+
+### D-17 — the no-`--force` assertion extended over Gate 3's own runs
+
+`145-06` Task 3 scoped its assertion to Gates 0, 1 and 2 and explicitly handed Gate 3's runs to
+`145-07`. Extended here over a counted denominator: **Gate 3 issued 4 silicon-touching invocations** —
+two `fw` port probes and the two writes — and **all 4 are recorded verbatim in this section**, the two
+writes as their own `####` headings. **Zero contain `--force`. Zero contain `-b`, `--no-blank-check`
+or `--skip-erase`. Zero use the `-a` or `-s` shortening.** Both writes put `-v` and `-p` before the
+subcommand.
+
+Corroborated at the **wire** level, which is stronger than a command-line grep: the flags byte sent to
+the firmware in both writes was `Flags set: CanErase (0x02)` — `FLAG_FORCE (0x01)`,
+`FLAG_SKIP_ERASE (0x04)` and `FLAG_SKIP_BLANK_CHECK (0x08)` are all clear.
+
+**A false-positive trap named so a later counting grep is not misled:** the `fw` probe's own output
+contains the string `Use --force to reinstall.` — that is the CLI's advice text, not a flag anyone
+passed. It appears in neither write log (`grep -c -- "force"` returns **0** over both).
+
+### T-145-45 — a threat-register divergence, recorded as a finding
+
+`145-07-PLAN.md`'s threat register asserts as mitigation for physical damage that *"the firmware
+independently refuses over-cap pulses with `MSG_ERR_PULSE_TOO_WIDE` before enabling high voltage;
+4688 is well inside both."* **That firmware mitigation does not exist on this part, and the plan's
+two-bound claim is wrong.**
+
+`src/proms/eprom.cpp` guards the refusal with
+`if (energy_cap_us > 0 && handle->pulse_delay > energy_cap_us)`, and `src/proms/eprom_params.cpp`'s
+`0x07` row ships `{ 75000UL, 0UL, 25, 0, VERIFY_PER_PULSE_PLUS_FINAL, VPP_PATH_DROP_RESISTOR }` —
+`energy_cap_us` is **0**, meaning UNCAPPED. The comment directly above the guard says so of both
+`0x07` and `0x08`, and the firmware's own `CLAUDE.md` states the pre-flight
+`MSG_ERR_PULSE_TOO_WIDE` refusal is "structurally unreachable" on this row. **Only one bound actually
+applied to this run:** the host's `click.IntRange(1, 65535)` at Click parse time. 4688 is inside it.
+
+**Consequence, stated rather than glossed:** with `max_pulses = 25` and no energy cap, the worst case
+this gate could have delivered was **25 × 4688 µs ≈ 117 ms** of program energy into a single cell,
+~47× the database pulse, with no firmware backstop. It was authorized on that basis and the part
+came through it clean. The divergence is recorded here as a finding rather than applied silently;
+whether the register entry is corrected is Phase 146's to judge, not this plan's.
+
+### Acceptance assertions remade, with the substitutions visible
+
+Following `145-06`'s precedent: where an acceptance check could not fail for the right reason, **the
+check was fixed and the substitution recorded — the evidence was never reshaped to satisfy a broken
+locator.**
+
+1. **Task 1's authorization check was broken and reported a false green.** The plan specifies
+   `grep -A3 "Gate 3" 145-BENCH-LOG.md | grep -i "authoriz" | grep -qv "NOT YET RUN"`. Run *before*
+   any authorization existed, it printed **"Gate 3 authorization recorded"** — it matched session 1's
+   line `**Operator authorization:** NOT REACHED — Gate 2 did not clear…`, which contains "authoriz"
+   and does not contain the string "NOT YET RUN". It **cannot distinguish an authorized gate from an
+   unauthorized one**. Substituted with a check anchored to this resumed-session heading, requiring
+   both the authorization disposition and a separate companion-run disposition:
+
+   ```
+   awk '/^## Gate 3 \(resumed\)/,0' 145-BENCH-LOG.md \
+     | grep -c -E '^\*\*(Operator authorization \(Gate 3.*AUTHORIZED|Companion database-pulse run: NOT an operator authorization)'
+   ```
+
+   — must return **2**. Returns 2; returns 0 against an empty section, so it fails for the right
+   reason. **The `^\*\*` line anchor is load-bearing and was added after the first form over-matched.**
+   Without it the expression returned **3**, because it matched *its own definition* quoted here in
+   this list — precisely the self-inflicted false green `145-06` hit when a command heading at column
+   0 was counted by the grep that was supposed to count evidence. The anchor excludes this indented
+   quotation while still matching the two real column-0 disposition lines.
+2. **Task 1's Gate-2 precondition check is non-discriminating.** `grep -A3 "Gate 2 verdict" | grep -qi
+   "validated"` matches session 1's superseded `FAIL` block as well as the real verdict, and would
+   pass on a record whose only "validated" was a stale mention. The precondition was therefore
+   confirmed by **reading the closing `## Gate 2 verdict: **VALIDATED**` heading directly**, not by
+   the grep.
+3. **The plan's verification expects `Gate 3 verdict:` to still read `NOT YET RUN`.** It does not and
+   never did in this record — session 1 already rewrote that line to `NOT REACHED — Gate 2 failed to
+   clear`. The intent of the check is honoured: **this plan wrote no new `Gate 3 verdict:` line.**
+   Closing Gate 3's verdict remains `145-08`'s, together with D-10's eyes-on half. Asserted with
+   `grep -c -E '^\*\*Gate 3 verdict:'` — must return **1**, session 1's line and no other. Returns 1;
+   appending a second verdict line makes it return 2, so it fails for the right reason. A bare
+   `grep -c "Gate 3 verdict:"` returns **4** here and is unusable: three of those four are *prose
+   references* to the line, including this sentence.
+4. **RQ-4's frames-per-block table is superseded and was not used as an expectation.** It predicted
+   **zero** intra-block frames at the database pulse; `145-05`/`145-06` measured **64**. Its ~5
+   frames-per-block estimate for this run was close — the measurement is **6** — but the table is
+   recorded as stale rather than cited as a passing prediction.
+
+### What Gate 3 does NOT establish — stated at the point of record
+
+- **Nothing about the database's timing.** Run 1's every figure belongs to a 46.88× override; the
+  provenance line exists to say exactly that.
+- **No eyes-on claim.** D-10's operator-perception half is uncollected here and is `145-08`'s.
+- **No observed CAP-03 number.** Nothing logs the advertised budget; 244 s and 121 s are arithmetic.
+- **A1's multi-pulse regime is unmeasured**, and the derived figure is an upper bound on a different
+  quantity than Phase 143's assumption — see error source 5 above.
+- **No read-back oracle was run over the Gate 3 writes.** Both are attested by the firmware's own
+  `VERIFY_PER_PULSE_PLUS_FINAL` pass only — there is **no independent host-side SHA compare** for
+  them, unlike Gate 2's three cycles. This gate measured *timing and progress emission*, not
+  data fidelity, and no BENCH-01 evidence rests on it.
+- **The build under test still carries MERGE-05's open +96 B leonardo band breach**, carried and not
+  adjudicated by this plan. Nothing here re-anchored a baseline or widened a band.
+- **`leonardo` only, `0x07` only.** The emission is compiled out on `SERIAL_ON_IO` targets and
+  nothing here speaks to `0x08` or `0x0B`.
+- **No requirement checkbox was flipped by this plan.** `BENCH-01` remains unticked; ticking is
   centralised in `145-09` behind its own blocking operator gate.
 
 
