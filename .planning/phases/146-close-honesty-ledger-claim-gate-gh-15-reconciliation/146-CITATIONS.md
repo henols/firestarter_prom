@@ -824,15 +824,16 @@ hide the count line — the count line is the evidence, per this plan's own read
 
 ### 4.8 No-push checkpoint, mid-phase — three-repo ahead counts
 
-| Repository | Command | §0 baseline | This run | ≥ baseline? |
+| Repository | Command | §0 baseline | This run (measured after Task 1's commit, before this one) | ≥ baseline? |
 |---|---|---|---|---|
-| meta | `git -C /workspaces rev-list --count @{u}..HEAD` | 233 | (recorded live in `146-11-SUMMARY.md`, re-measured at commit time) | yes |
-| `firestarter` | `git -C firestarter rev-list --count @{u}..HEAD` | 61 | (recorded live in `146-11-SUMMARY.md`) | yes |
-| `firestarter_app` | `git -C firestarter_app rev-list --count @{u}..HEAD` | 16 | (recorded live in `146-11-SUMMARY.md`) | yes |
+| meta | `git -C /workspaces rev-list --count @{u}..HEAD` | 233 | **279** | yes |
+| `firestarter` | `git -C firestarter rev-list --count @{u}..HEAD` | 61 | **63** | yes |
+| `firestarter_app` | `git -C firestarter_app rev-list --count @{u}..HEAD` | 16 | **18** | yes |
 
-No count dropped. Nothing was pushed, merged, tagged or released by this plan. Exact figures at the
-moment of measurement are in `146-11-SUMMARY.md`, since the meta count itself moves with each commit this
-plan makes and a value frozen here would go stale the instant the next commit lands.
+No count dropped. Nothing was pushed, merged, tagged or released by this plan. The meta count moves with
+each commit this plan makes (this section's own commit will move it to 280); the value above is the one
+measured live at the moment the checkpoint was taken, not predicted, and `146-11-SUMMARY.md` records the
+same figures.
 
 ### 4.9 CLOSE-01 audit — the two claims, proof by proof
 
