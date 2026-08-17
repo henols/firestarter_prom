@@ -381,3 +381,213 @@ expressly as *"quotable verbatim"* for CLOSE-02); whichever plan quotes it shoul
 
 **One anchor named in `146-01-PLAN.md` is deliberately not a row here.** The plan lists nine records; all
 nine are present above. No tenth anchor was added, and none was dropped.
+
+---
+
+## 3. The fixture suite — every leg seen to fire, and the one leg seen RED for its named reason
+
+**Owner:** plan `146-04`. **Measured:** 2026-08-17T15:46:21Z, at meta commit `28340b37` (the fixture
+commit), `Python 3.12.13`, `pytest 9.1.1`, from `/workspaces`.
+
+**Attribution divergence, recorded rather than smoothed over.** This register's own header (`:9-11`) says
+§3 is owed by plan `146-02`. It is not: `146-02-PLAN.md` owns the ARM build record and `146-04-PLAN.md`
+owns this suite and instructs that §3 be appended by it. Per this register's stated discipline the earlier
+text is **left alone** and the divergence is stated here. Section ownership from §4 onward is unaffected.
+
+**Section 3 discharges D-12's *first* proof only.** Fixtures prove the pattern table, the per-file caveat
+rules and the resolution branches. They cannot prove the gate is wired to the files that ship — by
+construction a fixture is not a closing artifact. §4 is where plan `146-11`'s plant-and-revert against a
+real, tracked closing artifact lands, and CLOSE-01 is not discharged by this section alone.
+
+**Forbidden phrases are cited here by label id or by `file:line`, never reproduced.** Two citation forms
+were measured safe against the gate's own table before being used below, because writing a record about a
+phrase-scanner is exactly how a record plants the phrase it is documenting:
+
+| Citation form used below | `scan_text` verdict | Why it is safe |
+|---|---|---|
+| `confirmed-working` (hyphenated label id) | **0 hits** | pattern 7 is `confirmed\s+working`; `\s` does not match a hyphen |
+| `` `\bproven\b` `` (pattern 10 written as its own regex) | **0 hits** | the leading `\b` is preceded by the word character `b`, so no boundary exists at `p` |
+| `planted_proven_unqualified.md` (the fixture's filename) | **0 hits** | `_` is a word character, so pattern 10's leading boundary fails |
+| pattern 10's label id spelled out with its hyphen — the string the gate prints inside its bucket line, quotable only as `test_check_claims_v131.py:242` | **1 hit** | a hyphen IS a non-word character, so the trailing boundary holds — **deliberately not written anywhere in this register** |
+
+**The row above was measured, not predicted, and it cost one revision.** §3 was first written with that
+label id spelled out in this very table, as a warning; re-scanning the register found the warning had
+planted the phrase it warned about — one hit, on the table row itself. The row was rewritten to cite the
+suite line instead. That is the recorded failure mode reproducing itself inside the document describing it,
+and the only reason it was caught is that the scan was re-run after the prose was written rather than
+reasoned about.
+
+This register measured **0** forbidden-phrase hits before §3 was appended and **0** after that revision;
+§3.7 records the re-measurement. The suite file itself retains exactly **two** hits, both at
+`test_check_claims_v131.py:242` and `:253`, and both are the load-bearing assertion literal the gate prints
+in its own bucket line. Every hit that had been this plan's own prose was rewritten away.
+
+### 3.1 The five fixture probes — run BEFORE any assertion was written
+
+Command as run, from the phase directory, importing the gate by file path and calling its own `scan_text`
+under the FULL caveat set (a fixture basename is absent from `_CAVEAT_RULES`, so `_required_caveats_for()`
+fails closed and holds every fixture to both caveats — probed and confirmed per row):
+
+```
+python3 -c "import importlib.util, os
+s=importlib.util.spec_from_file_location('g','146-check-claims.py'); m=importlib.util.module_from_spec(s); s.loader.exec_module(m)
+full=m._ALL_CAVEAT_LABELS
+for name in sorted(os.listdir('fixtures')):
+    t=open(os.path.join('fixtures',name),encoding='utf-8').read()
+    print(name, m.scan_text(t,name,full), sorted(m._required_caveats_for(name)))"
+```
+
+`full caveat labels: ['ceiling-narrowing', 'ceiling-voltage']`
+
+| Fixture | `forbidden_hits` returned, verbatim | `missing_caveats` returned | Rule resolved to |
+|---|---|---|---|
+| `clean_control.md` | `[]` | `[]` | `['ceiling-narrowing', 'ceiling-voltage']` |
+| `clean_control_second.md` | `[]` | `[]` | `['ceiling-narrowing', 'ceiling-voltage']` |
+| `planted_forbidden_claim.md` | `[('confirmed-working', <matched text>, 14)]` | `[]` | `['ceiling-narrowing', 'ceiling-voltage']` |
+| `planted_missing_caveat.md` | `[]` | `['ceiling-narrowing']` | `['ceiling-narrowing', 'ceiling-voltage']` |
+| `planted_proven_unqualified.md` | `[(<pattern 10>, <matched text>, 12)]` | `[]` | `['ceiling-narrowing', 'ceiling-voltage']` |
+
+The third column of the two plant rows is `[]` deliberately: each plant carries **both** caveats, so each
+fails for exactly **one** reason and a leg asserting on it cannot be satisfied by the wrong failure. The
+matched-text field is elided in the two plant rows for the reason given above; the label and the line
+number are the citation, and the text itself is at `fixtures/planted_forbidden_claim.md:14` and
+`fixtures/planted_proven_unqualified.md:12`.
+
+**Nothing was assumed.** Both plants returned exactly one label each, and the second plant's single hit
+confirms the elision discipline works mechanically: its own line-2 comment writes pattern 10 in regex form
+and did **not** self-trip, which is why the total is 1 and not 2.
+
+Fixture blobs at commit `28340b37`, `git hash-object` / `wc -c` / `wc -l`:
+
+| Fixture | Blob SHA | Bytes | Lines |
+|---|---|---|---|
+| `clean_control.md` | `f849500065ff183782d3588c13281aab6baa2bf2` | 878 | 11 |
+| `clean_control_second.md` | `1c96e8445f77eea0cba2f2e60ec00ca17d1ac2e8` | 1032 | 13 |
+| `planted_forbidden_claim.md` | `5776a108ffae81fc47779f80412689a2515ab047` | 923 | 14 |
+| `planted_missing_caveat.md` | `8c2d19ab52d0d9d712397e35f1baae63b2749678` | 850 | 11 |
+| `planted_proven_unqualified.md` | `f719e7b3cb2c74ea481d0fe90363cf8f7667db16` | 860 | 12 |
+
+### 3.2 Full suite run — 14 passed, 1 failed
+
+```
+python3 -m pytest .planning/phases/146-…/test_check_claims_v131.py -o addopts="" -q
+```
+`rc=1` (captured immediately after the command, never after a pipe)
+
+```
+1 failed, 14 passed in 0.52s
+FAILED …/test_check_claims_v131.py::test_armed_against_the_five_real_closing_artifacts
+```
+
+Leg count asserted independently: `grep -c '^def test_' …/test_check_claims_v131.py` → **15**.
+Seam references: `grep -c 'FIRESTARTER_CLAIMSCAN_TARGETS_146'` → **6** (set, pop, and four prose
+mentions). Donor seam names `TARGETS_V130` / `TARGETS_V131`: `grep -c` → **0**, so this suite cannot aim
+at Phase 139's live gate in this same milestone.
+
+### 3.3 The control that makes the single failure attributable
+
+```
+python3 -m pytest …/test_check_claims_v131.py -o addopts="" -q \
+  --deselect …/test_check_claims_v131.py::test_armed_against_the_five_real_closing_artifacts
+```
+`rc=0`
+
+```
+..............                                                           [100%]
+14 passed, 1 deselected in 0.56s
+```
+
+**Fourteen of fifteen legs pass on their own merits.** Without this run, the full suite's `rc=1` would be
+consistent with any number of broken legs; with it, the one red is pinned to the one leg that is supposed
+to be red today. The deselection exists **only** in this transcript — the suite file carries no `xfail`,
+no `skip` and no deselection of its own, because a leg marked expected-to-fail in the file is a leg nobody
+will ever look at again.
+
+### 3.4 Leg 9 observed RED — for its NAMED reason, verbatim
+
+```
+python3 -m pytest …/test_check_claims_v131.py::test_armed_against_the_five_real_closing_artifacts \
+  -o addopts="" -q
+```
+`rc=1`
+
+Failure output, verbatim (the assertion message and the gate's own captured stdout):
+
+```
+E       AssertionError: gate exited 1 against the five real default targets -- expected PASS + exit 0. If
+        the output below reports the five closing artifacts as 'not found on disk', this is the EXPECTED
+        pre-146-11 red and the arming contract is intact; any other message is a defect in this suite.
+E         stdout:
+E         FAIL: scan target(s) not found on disk -- the gate cannot vacuously pass with a target silently
+        skipped: ['/workspaces/.planning/phases/146-close-honesty-ledger-claim-gate-gh-15-reconciliation/146-LEDGER.md',
+        '…/146-CORRECTIONS.md', '…/146-GH15-RECONCILIATION.md', '…/146-RELEASE-NOTES-fw.md',
+        '…/146-RELEASE-NOTES-app.md']
+E
+E         stderr:
+E
+E       assert 1 == 0
+…/test_check_claims_v131.py:406: AssertionError
+```
+
+**This is the right red, and the check is not rhetorical.** The failure is the gate's own fail-closed
+missing-target branch, naming **all five** closing artifacts by absolute path. It is specifically **not**
+a collection error, **not** an import error of a filename that is no valid Python identifier, **not** a
+missing fixture, **not** a wrong basename and **not** a seam-name typo — each of which would have produced
+a different first line and would have been a defect in plan `146-04` rather than the expected state. The
+distinction was verified by reading the failure text, not inferred from the exit status.
+
+**Leg 9's GREEN is plan `146-11`'s to record, and its second RED comes free.** `146-11` authors the five
+closing artifacts, at which point this same leg goes green with no edit to the suite; and `146-11`'s
+plant-and-revert against one of those real artifacts drives this same gate red a second time, on a real
+file rather than a fixture. That is the pair D-12 asks for: a leg that has been seen red for a verified
+reason and green for a verified reason is evidence, and a leg seen only one way is not. Nothing in this
+section may be read as leg 9 having passed.
+
+### 3.5 The four validation-map selectors each collect a non-empty set
+
+`146-VALIDATION.md:62-65` grades CLOSE-01 through four `-k` expressions. A selector that collects **zero**
+tests exits 0 and would make its validation row a silent pass, so each was run with `--collect-only` and
+the collected names read, not merely counted.
+
+| `-k` expression | Collected | Test names collected |
+|---|---|---|
+| `planted` | **3** | `test_planted_overclaim_flips_the_gate_to_failure`, `test_planted_missing_caveat_flips_the_gate_to_failure`, `test_planted_bare_claim_word_flips_the_gate_to_failure` |
+| `caveat` | **5** | `test_planted_missing_caveat_flips_the_gate_to_failure`, `test_every_default_targets_basename_has_a_caveat_rule_entry`, `test_unrecognised_basename_resolves_to_the_full_caveat_set`, `test_caveat_exempt_basename_passes_without_either_caveat`, `test_caveat_exempt_basename_still_fails_on_a_forbidden_phrase` |
+| `closed or vacuous or precedence` | **3** | `test_fail_closed_on_a_nonexistent_scan_target`, `test_never_vacuous_on_an_explicitly_empty_target_list`, `test_positional_argv_precedence_beats_the_env_seam` |
+| `default_targets` | **3** | `test_default_targets_resolve_inside_this_phase_directory`, `test_default_targets_basenames_carry_this_phases_prefix`, `test_every_default_targets_basename_has_a_caveat_rule_entry` |
+
+None of the four selectors reaches leg 9, so all four are green today and stay green through `146-11`.
+`test_armed_against_the_five_real_closing_artifacts` deliberately contains none of the four selector
+substrings — note "clos**ing**", not "clos**ed**" — so `146-VALIDATION.md:66`'s integration row, which
+invokes the gate directly with no argv and no env, remains the only row that grades the armed run.
+
+### 3.6 The fixtures are unreachable from the gate, and the gate was not edited
+
+| Assertion | Command as run | Result |
+|---|---|---|
+| No fixture basename appears in a default-mode run | `python3 146-check-claims.py` then `grep -q "$f"` per fixture | **0 of 5** appear — the default target list is an explicit five-element list of `146-`-prefixed artifacts, reachable by no wildcard |
+| No fixture is gitignored | `git check-ignore -v fixtures/*.md` | no match for any of the five; all five are tracked at `28340b37` |
+| Every fixture is self-labelled | `head -1 "$f" \| grep -q 'test fixture'` per fixture | 5 of 5; each line 1 also states "never add to `_DEFAULT_TARGETS`", and each planted file carries a second comment naming its label and its single failure reason |
+| The gate is byte-unchanged by this plan | `git diff --numstat -- 146-check-claims.py` | **no output** — no leg was made to pass by editing the gate, and D-14's pattern table is untouched |
+
+### 3.7 This register's own scan, re-measured after §3 was appended
+
+Per the recorded failure mode that a record about a phrase-scanner plants the phrases it documents, the
+register was re-scanned with the gate's own `scan_text` immediately after this section was written, not
+assumed inert:
+
+| File | Hits before §3 | Hits at first draft of §3 | Hits after the §3.0 revision |
+|---|---|---|---|
+| `146-CITATIONS.md` | 0 | **1** (`:411`, the §3.0 warning row itself) | **0** |
+| `test_check_claims_v131.py` | 4 (two of them this plan's own prose) | 2 | **2** (both the label literal the gate prints, at `:242` and `:253`) |
+
+Neither file is a gate target, so neither count is a pass or a failure of anything. They are recorded
+because a phase whose own records trip its own table has, in this project's history, produced exactly that
+outcome six times in one phase — and because the two remaining hits in the suite are load-bearing and must
+not be "fixed" by a later reader.
+
+**The middle column is the point of this subsection.** The first draft of §3.0 planted one hit while
+documenting how not to plant hits, and the two prose hits removed from the suite were removed only because
+the same scan was re-run after the docstring was edited. Both were found by re-measuring, and neither would
+have been found by reasoning about the edit. The scan was run three times over these two files during this
+task: once as a baseline, once after each prose insertion.
