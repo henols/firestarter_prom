@@ -4,16 +4,16 @@ milestone: v1.31
 milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 145
 current_phase_name: bench-validation
-status: halted
-stopped_at: "HALTED in 145-05-PLAN.md Task 2 (Gate 2, cycle 1, Attempt 1): firestarter write W27C512 img1.bin exited 1 -- 'Byte at 0x000000 failed to program within 25 pulses' on the first byte of the first block. Operator physically inspected the bench and found no physical cause apparent, selecting the D-13 halt path over D-09's one allowed re-seat (allowance NOT consumed, remains available on resume). Gate 2 verdict: FAIL; Gate 3: NOT REACHED. No 145-05-SUMMARY.md was written -- the plan did not complete. See .planning/phases/145-bench-validation/145-BENCH-LOG.md VERDICT: HALTED for full detail."
-last_updated: "2026-08-16T19:32:00.000Z"
-last_activity: 2026-08-16
-last_activity_desc: "Phase 145 HALTED at plan 145-05 Task 2 -- cycle 1 write failure on W27C512, no physical cause found, hands off to a debug session"
+status: executing
+stopped_at: ""
+last_updated: "2026-08-17T00:00:00.000Z"
+last_activity: 2026-08-17
+last_activity_desc: "Phase 145 plan 145-05 COMPLETE on the resumed run. Board reflashed at firestarter ebe9cb3 (27002 B program / 2014 B data, avrdude-verified 27002; clean tree before and after), and Gate 1's four stale firmware-identity rows superseded visibly rather than rewritten. Gate 2 CYCLE 1 PASSED byte-exact on all three oracles: write exit 0 'Write to W27C512 successful (106.06s)' with 0 bad bytes; verify exit 0 (a SECOND firmware-side pass, not independent); independent host-side SHA compare 65536/65536 byte-exact; dev consistency-check PASS at N=3 with 1 distinct SHA. D-10 Claim A MEASURED and HOLDS -- 64 intra-block frames, one per block at a ~688-byte offset -- falsifying RQ-4's zero-frame prediction because the shipped settle increase pushed block time to 1.657 s past the 1000 ms cadence; RQ-4's frames-per-block table is now stale (100 us DB pulse = 1 frame/block, not 0). D-11 claimed as free evidence with its non-claim stated (nothing logs the advertised budget; the run does not discriminate 8 s from the 120 s fallback), discharging 143 H4's long-write half. Gate 2 is NOT closed -- cycles 2 and 3 are 145-06's. D-09's re-seat allowance adjudicated UNCONSUMED. The MERGE-05 +96 B leonardo band breach is recorded as carried, deliberately NOT adjudicated by this plan."
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 61
-  completed_plans: 56
+  completed_plans: 57
   percent: 88
 ---
 
@@ -111,17 +111,39 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 ## Current Position
 
-Phase: 145 (bench-validation) — HALTED
-Plan: 5 of 9 (145-01..145-04 complete; 145-05 HALTED mid-Task-2; 145-06..145-09 not started)
-Status: HALTED — Gate 2 (145-05) failed on cycle 1's first write attempt; hands off to a debug
-session per D-13. Do not resume by re-running 145-05 directly; a debug session should determine
-(and fix or rule out) a cause first. D-09's one allowed re-seat was offered but never consumed —
-it remains available for the resumed run once a cause is addressed.
-Last activity: 2026-08-16 — Phase 145 HALTED at 145-05 Task 2 (cycle 1 write failure on W27C512,
-"Byte at 0x000000 failed to program within 25 pulses"; no physical cause found on operator
-inspection). Full detail: `.planning/phases/145-bench-validation/145-BENCH-LOG.md` (VERDICT:
-HALTED section) and `.planning/phases/145-bench-validation/145-05-PLAN.md`. No
-`145-05-SUMMARY.md` exists — the plan did not complete, which is the correct halted state.
+Phase: 145 (bench-validation) — EXECUTING (halt lifted 2026-08-17)
+Plan: 6 of 9 (145-01..145-05 complete; 145-06..145-09 not started)
+Status: EXECUTING — the 2026-08-16 HALT is LIFTED. Debug session
+`w27c512-program-fail-byte0` root-caused the cycle-1 failure to a **firmware** defect (v1.31
+Phase 141 deleted the only `CTRL_VPE_ENABLE` assert in the EPROM write path) and fixed it in
+`firestarter` `eb563d2` + `ebe9cb3`. 145-05 re-ran Gate 2 cycle 1 on the reflashed build and it
+PASSED byte-exact on all three oracles. **Gate 2 is NOT closed** — its rule is 3/3 and cycles 2
+and 3 belong to 145-06, with the Gate 2 verdict itself recorded by 145-06 Task 3.
+Last activity: 2026-08-17 — 145-05 complete. See
+`.planning/phases/145-bench-validation/145-05-SUMMARY.md` and the
+"## Resumed session (2026-08-17)" section of
+`.planning/phases/145-bench-validation/145-BENCH-LOG.md`.
+
+**Three standing facts for whoever picks up 145-06:**
+1. **The firmware under test is `ebe9cb3`, not `a594173d`.** 27002 B program / 2014 B data,
+   avrdude-verified 27002, 1670 B free. The version string is `3.0.0b17` on **both** builds, so it
+   identifies nothing (D-18). Gate 1's four identity rows are superseded, visibly, in the bench log.
+   No further reflash is needed for 145-06 **unless the tree changes again** — check
+   `git -C /workspaces/firestarter rev-parse HEAD` against `ebe9cb3` before trusting that.
+2. **MERGE-05 is breached on this build and NOT adjudicated.** +96 B against a 0 B leonardo band;
+   BASE-01 deliberately not re-anchored; recorded live by
+   `test_policy_merge05_fires_on_the_current_tree`. Every bench measurement from 2026-08-17 onward
+   was produced by a build carrying that open breach. It is a milestone requirements judgement for
+   the operator — do not re-anchor, widen a band, or "fix" the gate from a bench plan.
+3. **D-09's single re-seat allowance is UNCONSUMED.** The 2026-08-16 failure had a firmware cause
+   and no chip was ever touched, so the allowance was never spent. Session 1's failure is **not**
+   discarded — it stands in the record as a genuine failure of a genuinely defective build.
+
+**Also note:** RQ-4's frames-per-block table is stale for the shipped firmware. At the database's
+100 µs pulse the measured figure is **1 frame per block**, not 0, because the shipped settle
+increase pushed block time to 1.657 s past the 1000 ms emit cadence. D-10 Claim A HOLDS. Claim B
+remains 145-07's — 145-05 declined to bank it despite two blocks literally satisfying its wording
+(those pairs are bar-latch-transition artifacts, not two firmware emissions in one block).
 
 **Phase 145 is a bench phase — hardware in the loop.** Chip handling, photos and multimeter
 readings are operator-only, and the operator adjusts the voltage pot himself. Do not run it
@@ -1944,6 +1966,15 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 145]: Ran full firmware suite + host sibling-porcelain subset as an end-of-wave regression tripwire — Matches 145-01's baseline (312 passed / 38 passed); zero source touched by this plan so no drift expected; not written into 145-BENCH-LOG.md since that tripwire subsection is 145-01's territory
 - [Phase 145-03]: Recorded Task 1 Part-expendable row as answered-by-implication only (operator never used the word 'expendable'), carrying an explicit confirmation requirement forward to 145-04's D-03 pre-flight — D-20 requires the record to be truthful about which attestations came from whom; smoothing this into a clean confirmation would be exactly the false-green this phase's gates exist to prevent
 - [Phase 145-03]: Quoted size_baseline.json's merge05_clause verbatim and stated the anchor-move disclosure explicitly rather than reporting the 0 B flash delta as unqualified MERGE-05 compliance — Phase 144 re-anchored BASE-01 to the v1.31 tip; a zero delta here proves the anchor moved, not that growth stayed inside v1.24's original band
+- [Phase 145-05]: Superseded Gate 1's four stale firmware-identity rows by visible pointer instead of editing them, and preserved session 1's failure record and HALTED verdict verbatim — Rewriting a halted phase's history to look clean is exactly the laundering this milestone's gates exist to prevent; the originals stay legible and every superseded row names where the newer fact lives
+- [Phase 145-05]: Corrected Gate 1's "0 B flash delta / a phase that compiles nothing new cannot move flash" line rather than carrying it — The build under test is +96 B and the reason clause is simply false of it; a debug session compiled the change even though no plan did
+- [Phase 145-05]: Recorded the MERGE-05 +96 B leonardo band breach as carried-but-NOT-adjudicated, re-anchoring nothing — Whether a defect fix is admitted through a must-not-grow band is a milestone requirements judgement for the operator; a bench plan silently re-anchoring BASE-01 would hide a breach behind the same mechanism Phase 144 already used once
+- [Phase 145-05]: Adjudicated D-09's re-seat allowance explicitly as UNCONSUMED instead of assuming it — The prior failure had a firmware cause and no chip was touched, so the resumed run is cycle 1 on a different build, not "Attempt 2" under D-09's ledger; stating the adjudication makes it auditable rather than inferred
+- [Phase 145-05]: Recorded D-10 Claim A as HOLDS with 64 measured intra-block frames and published the reason RQ-4's zero-frame prediction failed — The mechanism RQ-4 named (1000 ms cadence, per-block last_emit_ms reset) is exactly what produced the frames; the shipped settle increase pushed block time to 1.657 s past the cadence, so the prediction was falsified by a firmware change made outside the phase, not by an error in its reasoning. RQ-4's frames-per-block table is now stale.
+- [Phase 145-05]: Declined to bank Claim B despite blocks_with_multiple_updates=2 literally satisfying its wording — Both pairs are bar-latch-transition artifacts (a host-side draw plus the firmware frame), not two firmware emissions inside one block; Claim B exists to show the latter and stays 145-07's to measure on the Gate 3 --pulse-us run
+- [Phase 145-05]: Stated D-11's free evidence with an explicit sharpness qualifier — 1.657 s/block fits inside both the 8 s advertised budget and the 120 s legacy fallback, so the run proves the path does not break a long write but does NOT prove the advertised budget is what carried it; the discriminating case is Gate 3's 244 s budget
+- [Phase 145-05]: Left REQUIREMENTS.md untouched and BENCH-01 unticked despite 145-05's frontmatter naming it — Phase 145 centralises all requirement ticking in 145-09 behind a blocking operator gate (ROADMAP: "145-01 … 145-08 tick none"); BENCH-01 is a multi-plan requirement and Gate 2 needs 3/3 cycles, so one passing cycle cannot complete it
+- [Phase 145-05]: Appended only readback1.bin to SHA256SUMS.txt, not a duplicate img1.bin row — The image row already existed from 145-01 and is unchanged, which is itself evidence the source image is bit-for-bit the one published before any hardware was touched; a duplicate row would make the manifest ambiguous for no gain
 
 ## Performance Metrics
 
@@ -2201,12 +2232,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 145 P01 | 18min | 3 tasks | 11 files |
 | Phase 145 P02 | 9min | 3 tasks | 1 files |
 | Phase 145 P03 | 4min | 3 tasks | 1 files |
+| Phase 145 P05 | 35min | 3 tasks | 12 files |
 
 ## Session
 
-**Last session:** 2026-08-16T18:52:30.642Z
-**Stopped at:** Completed 145-03-PLAN.md (Gate 1 identity half cleared: reflashed to commit a594173d, 26906/2014 B matching baseline, seated part confirmed 0xda08; VPP and D-03 pre-flight left for 145-04)
-**Resume file:** .planning/phases/145-bench-validation/145-04-PLAN.md
+**Last session:** 2026-08-17T00:00:00.000Z
+**Stopped at:** Completed 145-05-PLAN.md on the resumed run (board reflashed at firestarter ebe9cb3 / 27002 B avrdude-verified; Gate 2 cycle 1 PASSED byte-exact on all three oracles at 106.06 s; read stability PASS N=3 / 1 distinct SHA; D-10 Claim A measured HOLDS with 64 intra-block frames; D-11 claimed as free evidence with its non-claim stated. Gate 2 NOT closed — cycles 2 and 3 are 145-06's)
+**Resume file:** .planning/phases/145-bench-validation/145-06-PLAN.md
 
 ### Blockers
 

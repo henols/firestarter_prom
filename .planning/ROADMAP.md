@@ -511,6 +511,27 @@ in one hand edit across both coverage tables, behind a blocking operator gate, w
 ids are reused by archived v1.2/v1.3 rows, so a global substitution would corrupt history. **Gate 0 completes
 before any silicon is touched** so a D-13 halt still lands BENCH-02 and BENCH-03 complete.
 
+**Execution note (2026-08-17) — three facts this phase description predates.**
+(1) **The phase HALTED at `145-05` on 2026-08-16 and resumed on 2026-08-17.** Gate 2 cycle 1 failed
+with `Byte at 0x000000 failed to program within 25 pulses`; debug session
+`w27c512-program-fail-byte0` root-caused it to a **firmware** defect (v1.31 Phase 141 deleted the
+only `CTRL_VPE_ENABLE` assert in the EPROM write path) and fixed it in `firestarter` `eb563d2` +
+`ebe9cb3`. Cycle 1 then passed byte-exact on all three oracles.
+(2) **D-16 holds on its own terms but the firmware did NOT stay unchanged across the phase.** No
+*plan* created, edited or deleted a file under either sub-repo — that invariant is intact — but a
+*debug session*, which is not a plan, changed eleven files under `firestarter/`. Every bench
+measurement from 2026-08-17 onward was produced by commit **`ebe9cb3`** (27002 B), **not** the
+`a594173d` (26906 B) image Gate 1 recorded, and that build carries an **open, deliberately
+un-laundered MERGE-05 breach** (+96 B against a 0 B leonardo band, BASE-01 not re-anchored) which
+is a milestone requirements judgement for the operator, not a bench plan's to settle.
+(3) **`145-07`'s premise below is stale.** It says a ~0.4–0.7 s block never crosses the firmware's
+1000 ms emission interval at the database pulse, so Claim B is only reachable at `--pulse-us 4688`.
+The shipped settle increase raised measured block time to **1.657 s**, so **one frame per block now
+fires at the database pulse** and D-10 **Claim A HOLDS** (measured in `145-05`: 64 intra-block
+frames). Claim B is still `145-07`'s — `145-05` declined to bank it despite two blocks literally
+satisfying its wording, because those pairs are bar-latch-transition artifacts rather than two
+firmware emissions inside one block.
+
 Plans:
 
 **Wave 1 — Gate 0a** *(zero hardware)*
@@ -531,7 +552,7 @@ Plans:
 
 **Wave 5 — Gate 2a** *(the three-cycle spend, separately authorized)*
 
-- [ ] 145-05-PLAN.md — Cycle 1: a full 65536-byte write of `img1.bin` with **three verdicts recorded on their own lines and never merged** — the write's, the verify's, and the host-side SHA compare against a fresh read-back — plus the stated boundary that `verify` is a *second firmware-side pass* using the same handler, so the read-to-file plus `sha256sum` is the only independent oracle; per-cycle read stability via `dev consistency-check --runs 3` into an explicit non-`consistency-check-*` output dir (the default is double-gitignored); then D-10 **Claim A** given a *measured* verdict rather than a predicted one — RQ-4's arithmetic predicts **zero** intra-block frames at the DB's 100 µs pulse, and a null result is recorded honestly, not retried away — and D-11 claimed as free evidence with its non-claim that nothing logs the advertised budget [meta]
+- [x] 145-05-PLAN.md — Cycle 1: a full 65536-byte write of `img1.bin` with **three verdicts recorded on their own lines and never merged** — the write's, the verify's, and the host-side SHA compare against a fresh read-back — plus the stated boundary that `verify` is a *second firmware-side pass* using the same handler, so the read-to-file plus `sha256sum` is the only independent oracle; per-cycle read stability via `dev consistency-check --runs 3` into an explicit non-`consistency-check-*` output dir (the default is double-gitignored); then D-10 **Claim A** given a *measured* verdict rather than a predicted one — RQ-4's arithmetic predicts **zero** intra-block frames at the DB's 100 µs pulse, and a null result is recorded honestly, not retried away — and D-11 claimed as free evidence with its non-claim that nothing logs the advertised budget [meta]
 
 **Wave 6 — Gate 2b** *(same chip, same record)*
 
