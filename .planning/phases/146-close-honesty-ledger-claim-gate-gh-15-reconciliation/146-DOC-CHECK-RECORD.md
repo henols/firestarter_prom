@@ -376,3 +376,87 @@ this plan writes the checker and records its RED; the edits are `146-06` and `14
   green run recorded in this file may be reported as having discharged it.
 - **CLOSE-03 itself is not ticked by this plan.** Only plan `146-13` may tick `CLOSE-01` through
   `CLOSE-05`.
+
+---
+
+## 7. GREEN (post `146-06`) — the four firmware-doc locator flips and the claim-word clear
+
+**Measured:** 2026-08-17, live, from `/workspaces`, immediately after this plan's sub-repo commit
+`f82479b` (previous `firestarter` tip: `fa6c9c7`). Every command below is the identical command
+text §2 and §2.3 used for the RED half.
+
+### 7.1 The four locators, before and after
+
+| # | Command, as run | RED (§2) | GREEN (now) | Required | Match? |
+|---|---|---|---|---|---|
+| L1 | `grep -c 'Phase 141 replaces it' firestarter/doc/PROTOCOLS.md` | `1` | **`0`** | `0` | yes |
+| L2 | `grep -c 'eprom.cpp:159-179' firestarter/doc/PROTOCOLS.md` | `1` | **`0`** | `0` | yes |
+| L3 | `grep -c '71 cases' firestarter/CLAUDE.md` | `1` | **`0`** | `0` | yes |
+| L4 | `grep -c '79 cases' firestarter/CLAUDE.md` | `0` | **`1`** | `≥ 1` | yes |
+
+All four printed integers were captured directly (never through `grep`'s exit status, per §2's own
+warning — L1-L3's `rc=1` here is expected, since each now prints `0`).
+
+### 7.2 The claim-word occurrence count, before and after
+
+| Form | Command, as run | RED (§2.3) | GREEN (now) |
+|---|---|---|---|
+| occurrence count | `grep -oiE '\bpro[v]en\b' firestarter/CLAUDE.md \| wc -l` | **4** | **0** |
+
+All seven cited technical identifiers (`MSG_ERR_MAX_PULSES`, `MSG_ERR_ENERGY_CAP`,
+`MSG_ERR_PULSE_TOO_WIDE`, `MSG_DATA_PROGRESS`, `eprom_hv_route_mask`, `command_done`,
+`EPROM_PROGRESS_EMIT_INTERVAL_MS`) were checked present after the reword — all seven survive.
+
+### 7.3 The checker, run per-file through the seam (the §3.3-style positive control)
+
+```
+FIRESTARTER_DOCSCAN_TARGETS_146="/workspaces/firestarter/doc/PROTOCOLS.md" python3 146-check-close03-docs.py   # rc=0
+FIRESTARTER_DOCSCAN_TARGETS_146="/workspaces/firestarter/CLAUDE.md"        python3 146-check-close03-docs.py   # rc=0
+FIRESTARTER_DOCSCAN_TARGETS_146="/workspaces/firestarter/README.md"       python3 146-check-close03-docs.py   # rc=0
+```
+
+Each of the three prints a `PASS:` line naming that one file, zero forbidden-phrase matches, every
+required CLOSE-03 topic for that file present. This is the GREEN §6 promised for these three files.
+
+### 7.4 The whole checker, no argv, no seam — still RED, and RED for exactly the bucket owed elsewhere
+
+```
+python3 146-check-close03-docs.py   # rc=1
+```
+
+```
+FAIL: 2 unsatisfied required CLOSE-03 topic(s):
+  /workspaces/firestarter_app/README.md: missing required topic [program-vcc-ceiling]: expected text describing 'the ~6.25 V program-VCC accepted debt'
+  /workspaces/firestarter_app/README.md: missing required topic [pulse-override-flag]: expected text describing "the host's per-run program-pulse override flag"
+FAIL: scanned firestarter/doc/PROTOCOLS.md, firestarter/CLAUDE.md, firestarter/README.md, firestarter_app/README.md (4 file(s)); see the buckets above
+```
+
+Down from **7 unsatisfied topics + 4 forbidden-phrase matches** at RED to exactly **2 unsatisfied
+topics, 0 forbidden matches** now — both remaining topics are `firestarter_app/README.md`'s, owed
+by plan **`146-07`**, which appends **§8** and is the only plan that may report `rc=0` with a
+`PASS:` line naming all four files. **This plan does not chase that green** — reaching it here would
+mean editing `firestarter_app/README.md`, which is out of `146-06`'s file set (`146-DOC-CHECK-RECORD.md`
+§1.1 already scoped it there) and would take from `146-07` the RED→GREEN flip it is meant to show.
+
+### 7.5 The firmware suite, run once, after the commit
+
+```
+cd /workspaces/firestarter && python3 -m pytest tests -o addopts="" -q
+```
+
+`314 passed in 15.34s`, exit `0`. No `146-CITATIONS.md` §0 baseline exists for this suite, so this
+count is recorded as the phase's firmware-suite baseline for plan `146-07` to compare against,
+not compared against a prior figure. `firestarter`'s inner porcelain was `0` before the run and `0`
+after (the run created no untracked artifacts).
+
+### 7.6 Sub-repo state at the close of this plan
+
+| Item | Before this plan | After this plan |
+|---|---|---|
+| `firestarter` submodule tip | `fa6c9c7` | `f82479b` |
+| `firestarter` inner porcelain | `0` | `0` |
+| `firestarter` upstream-ahead (`git rev-list --count @{u}..HEAD`) | `61` | `62` |
+| `firestarter_app` inner porcelain | `7` | `7` (untouched, per prohibition) |
+
+The ahead-count rose by exactly one (this plan's single sub-repo commit) and never fell — no push
+occurred (D-01).
