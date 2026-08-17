@@ -1293,8 +1293,153 @@ read-backs asserted to differ in all 65536 bytes. **Cycle 2 of 3. Gate 2 is not 
 
 ### Cycle 3 (resumed) — `145-06` Task 2
 
-**NOT YET RUN at the time of cycle 2's commit** — Task 2 of `145-06` owns it. Not a skip and not a
-fail.
+**Port identity, re-verified fresh for this task (D-19), not carried forward from cycle 2.**
+
+```
+$ ls /dev/ttyACM*                                      # exactly one device
+/dev/ttyACM0
+$ firestarter -p /dev/ttyACM0 fw                       # exit 0
+Current firmware version: 3.0.0b17, for controller: leonardo on port /dev/ttyACM0
+```
+Same caveat as cycle 2: this identifies the controller and the port, never the image. The firmware
+tree was re-asserted at `ebe9cb353f134d6c56a8295490142de1a43fdf8f` with **empty**
+`git status --porcelain` immediately before this task; no reflash occurred in this plan.
+
+**Seated part re-confirmed:**
+```
+$ firestarter -p /dev/ttyACM0 id W27C512                # exit 0
+Chip ID check passed for W27C512: (main done) (0.28s)
+```
+
+---
+
+#### `firestarter -v -p /dev/ttyACM0 write W27C512 .planning/phases/145-bench-validation/images/img3.bin`
+
+Run from `/workspaces`, stdout to `logs/write_cycle3.stdout.log`, stderr to
+`logs/write_cycle3.stderr.raw`. **No `-b`, no `--no-blank-check`, no `--skip-erase`, no `--force`,
+no `-a` and no `-s`** — the full 65536 bytes, 64 blocks of 1024 B (D-04). `-v` and `-p` are group
+options and precede the subcommand. Canonical cycle-3 log paths asserted absent before the run.
+
+**Exit 0.** Wall clock 110 s (`date` delta around the invocation).
+
+##### The three oracle verdicts — recorded separately, never merged
+
+**Oracle 1a — the write's own verdict (firmware-side, first pass).** Verbatim from
+`logs/write_cycle3.stdout.log`:
+```
+INFO   :EpromOperator:1982: Write to W27C512 successful (106.06s).
+```
+`grep -ciE "bad bytes|MAX_PULSES" logs/write_cycle3.stdout.log` → **0**.
+
+**Oracle 1b — the verify's own verdict (firmware-side, SECOND pass).** Verbatim from
+`logs/verify_cycle3.log`, exit **0**:
+```
+Verify for W27C512 successful (5.69s).
+```
+Again: `verify` shares `write`'s `_main_phase_send_data` handler and the compare happens **on the
+firmware**, so this is a second firmware-side pass and **not** an independent oracle (D-06).
+
+**Oracle 2 — the independent host-side SHA compare.** `firestarter -p /dev/ttyACM0 read W27C512
+.planning/phases/145-bench-validation/readbacks/readback3.bin` → exit **0**, `Read complete (7.40s)`
+(`logs/read_cycle3.log`). `readbacks/readback3.bin` is exactly **65536 bytes**.
+
+```
+$ cmp images/img3.bin readbacks/readback3.bin        # exit 0, no output
+$ sha256sum images/img3.bin readbacks/readback3.bin
+74c359c8d8668fdc5778270d61cc3fbef55a1027999f20c5798a54bf0f6aea01  images/img3.bin
+74c359c8d8668fdc5778270d61cc3fbef55a1027999f20c5798a54bf0f6aea01  readbacks/readback3.bin
+```
+**Digests identical — 65536 of 65536 bytes byte-exact.** `readbacks/readback3.bin`'s digest is
+appended to `SHA256SUMS.txt`; `img3.bin`'s row already existed from `145-01` and is unchanged.
+`sha256sum -c SHA256SUMS.txt` exits **0** over all eight rows.
+
+##### The consecutive-read-back difference — asserted, not assumed
+
+```
+$ cmp -s readbacks/readback2.bin readbacks/readback3.bin ; echo $?
+1
+$ cmp -l readbacks/readback2.bin readbacks/readback3.bin | wc -l
+65536
+```
+Both files `stat`-confirmed present at 65536 bytes before the compare, so exit **1** is *differ* and
+not a missing-file error. **All 65536 bytes changed** between cycle 2 and cycle 3.
+
+##### Read stability for this cycle (D-07) — measured for cycle 3 in its own right
+
+```
+$ firestarter -p /dev/ttyACM0 dev consistency-check W27C512 --runs 3 \
+      --output-dir .planning/phases/145-bench-validation/runs/cycle3
+```
+**Exit 0** — on the three-way scale (0 = PASS, 1 = FAIL on divergent SHAs, 2 = hardware or serial
+error), so the runs agreed. Verdict block verbatim from `logs/consistency_cycle3.log`:
+```
+Consistency check: PASS
+Chip: W27C512  Board: unknown-board  Port: /dev/ttyACM0
+Runs: N=3
+Distinct SHAs: 1
+Output dir: .planning/phases/145-bench-validation/runs/cycle3/
+```
+`run_01.bin` through `run_03.bin` each exactly **65536 bytes**; `runs/cycle3` is **not gitignored**.
+This is cycle 3's own measurement in its own directory — **not inferred from cycle 1 or cycle 2**
+(D-07). All three runs reported `74c359c8…`, the same digest as `img3.bin`.
+
+##### Frame summary for this cycle (D-10 Claim A)
+
+Extractor self-test re-run immediately before the measurement: `SELFTEST: POSITIVE PASS`,
+`SELFTEST: NEGATIVE PASS`. The six summary values, verbatim from `logs/frames_cycle3.txt`:
+```
+segments=2
+selected_segment=2
+frames=267
+intra_block_frames=64
+blocks_with_multiple_updates=2
+step_histogram=336:1,688:1,689:1,896:1,1023:11,1024:38,1025:11,1151:1
+```
+**Claim A HOLDS for this cycle as measured** — 64 intra-block positions, corroborated by 96 `DATA:`
+lines in the `-v` stdout. No predicted count was asserted; `145-05`'s standing correction to RQ-4's
+frames-per-block table still applies. `blocks_with_multiple_updates=2` is again **not** banked as
+Claim B (bar-latch-transition artifacts); Claim B remains `145-07`'s on the Gate 3 run.
+
+##### Cycle-2-to-3 transition density
+
+Going from `img2.bin` to `img3.bin`, **59392 of 65536 bytes — 90.6 %** — require at least one
+`0`-to-`1` bit transition, re-derived on the actual image bytes this session by a per-byte
+`(~img2 & img3)` population count rather than quoted from research. So cycle 3 also required a real
+erase rather than a no-op rewrite. Lower than cycle 1-to-2's 99.8 %, and stated as such rather than
+rounded together with it.
+
+##### `--force used?` **No**
+
+No `--force`, no `write -b`, no `--no-blank-check`, no `--skip-erase`, no `-a`/`--address` and no
+`-s`/`--size` in this cycle.
+
+##### Cycle 3 verdict: **PASS — byte-exact on all three oracles**
+
+Write exit 0 with 0 bad bytes at 106.06 s, verify exit 0, independent host-side SHA compare
+byte-exact over all 65536 bytes, read stability PASS at N=3 with 1 distinct SHA, consecutive
+read-backs asserted to differ in all 65536 bytes.
+
+---
+
+### v1.31 write timing — the three measured figures, with no comparative claim
+
+| Cycle | Image | Measured write elapsed |
+|---|---|---|
+| 1 | `img1.bin` | **106.06 s** |
+| 2 | `img2.bin` | **105.69 s** |
+| 3 | `img3.bin` | **106.06 s** |
+
+Three full 64 KiB W27C512 writes on Leonardo at firmware `ebe9cb3`, spread **0.37 s** — this phase's
+first v1.31 timing data for this operation, and the tightest thing here is the *consistency*, which
+is worth more than any single figure.
+
+**No comparative claim is made against any earlier firmware (D-08).** D-08 rejected a pre-v1.31
+control run, and this milestone claims **fidelity, not improvement**. The 22.84 s pre-v1.31 figure
+that appears in cycle 1's record is a *recorded historical number, not a control measurement*: it was
+not taken on this part, in this session, under these conditions. **These figures are therefore not
+evidence that v1.31 programs better or worse than what preceded it**, and 58.9 s of the difference is
+already accounted for as the `EPROM_VPP_SETUP_US` 100 → 1000 µs settle increase shipped by a debug
+session outside this phase. No datasheet-conformance claim is made in either direction.
 
 ---
 
