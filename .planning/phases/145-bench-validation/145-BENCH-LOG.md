@@ -804,6 +804,13 @@ everything at once.
 
 ## Carry-forward hand-offs with no v1.31 owner
 
+> ⚠ **PARTIALLY SUPERSEDED BY SESSION 2.** Three of the items below have since been discharged and
+> no longer lack an owner: **D-10 Claim A** (measured, HOLDS — 64 intra-block frames),
+> **D-11's CAP-03 free evidence** (claimed, with its non-claim stated), and **BENCH-01's cycle 1**
+> (byte-exact on all three oracles). BENCH-01 as a whole is still undischarged — Gate 2 needs 3/3
+> and `145-06` owns cycles 2 and 3. The remaining items are genuinely still open. See
+> "## Resumed session (2026-08-17)".
+
 Phase 146 is docs-and-claims only and cannot run a bench. This phase halted at Gate 2's first
 cycle failure; everything below did not run and has **no v1.31 owner**:
 
@@ -993,4 +1000,297 @@ anything its a test ic for you", plus the session's explicit *"part is expendabl
 attempts on it are authorized"* constraint block) — but they were **not** part of Gate 2's
 three-cycle budget and are named here so the record does not imply this part has seen only three
 program cycles. Cycle counting for Gate 2's pass rule starts fresh below.
+
+## Gate 2 (resumed) — Cycle 1
+
+**Port identity, re-verified fresh for this task (D-19), not carried forward from `145-04` and not
+carried forward from session 1.** Two independent invocations, one before the reflash and one after:
+
+```
+$ firestarter -p /dev/ttyACM0 fw                       # exit 0, BEFORE the reflash
+Current firmware version: 3.0.0b17, for controller: leonardo on port /dev/ttyACM0
+
+$ firestarter -p /dev/ttyACM0 fw                       # exit 0, AFTER the reflash
+Current firmware version: 3.0.0b17, for controller: leonardo on port /dev/ttyACM0
+```
+
+`ls /dev/ttyACM*` reported exactly one device, `/dev/ttyACM0`, before and after; no re-enumeration
+shuffled the numbering. **Note what these two readings prove and what they do not:** they prove the
+right *controller* on the right *port*, and they prove **nothing** about which image is on it — the
+version string is byte-identical across a 96-byte firmware change (D-18). The image is identified by
+commit `ebe9cb3` plus the avrdude-verified **27002** bytes, recorded under "Firmware-image
+supersession" above.
+
+**Seated part re-confirmed after the reflash:**
+```
+$ firestarter -p /dev/ttyACM0 id W27C512                # exit 0
+Chip ID check passed for W27C512: (main done) (0.28s)
+```
+
+---
+
+#### `firestarter -v -p /dev/ttyACM0 write W27C512 .planning/phases/145-bench-validation/images/img1.bin`
+
+Run from `/workspaces`, stdout redirected to `logs/write_cycle1.stdout.log` and stderr to
+`logs/write_cycle1.stderr.raw`. **No `-b`, no `--no-blank-check`, no `--skip-erase`, no `--force`,
+no `-a` and no `-s`** — the full 65536 bytes, 64 blocks of 1024 B (D-04). `-v` and `-p` are group
+options and precede the subcommand. The canonical stderr path was asserted **absent** immediately
+before the run, so session 1's preserved failure evidence
+(`logs/write_cycle1_attempt1.stdout.log` / `.stderr.raw`) could not be overwritten; it was not.
+
+**Exit 0.** Wall clock 110 s (`date` delta around the invocation).
+
+##### The three oracle verdicts — recorded separately, never merged
+
+**Oracle 1a — the write's own verdict (firmware-side, first pass).** Verbatim from
+`logs/write_cycle1.stdout.log`:
+```
+INFO   :EpromOperator:1982: Write to W27C512 successful (106.06s).
+```
+`grep -ci "bad bytes" logs/write_cycle1.stdout.log` → **0**.
+
+**The 106.06 s figure is a first-class measurement, not a timing footnote.** No v1.31 figure for a
+64 KiB W27C512 write existed before this run; the only prior recorded figure is a **22.84 s**
+pre-v1.31 run. The gap is **not** a v1.31 regression in the loop: **58.9 s of it is the
+`EPROM_VPP_SETUP_US` 100 → 1000 µs settle increase** shipped by the debug session
+(65408 pulsed bytes × 900 µs = 58.9 s), and the debug session independently cross-checked that the
+added time is settle rather than extra pulses (it matches the arithmetic almost exactly, which it
+could not if bytes were needing more pulses). Recorded as measured with its cause named, not
+explained away.
+
+**Oracle 1b — the verify's own verdict (firmware-side, SECOND pass).** Verbatim from
+`logs/verify_cycle1.log`, exit **0**:
+```
+Verify for W27C512 successful (5.68s).
+```
+
+**D-06's independence boundary, stated rather than implied.** `verify` uses the **same
+`_main_phase_send_data` handler as `write`** and the **firmware** performs the compare, so oracle 1b
+is a **second firmware-side pass, not an independent oracle**. The genuinely independent oracle is
+oracle 2 below: `read` to a file (firmware `CMD_READ` merely streams bytes; no comparison happens on
+the board) followed by a **host-side** `sha256sum` compare against the source image.
+
+**Oracle 2 — the independent host-side SHA compare.** `firestarter -p /dev/ttyACM0 read W27C512
+.planning/phases/145-bench-validation/readbacks/readback1.bin` → exit **0**, `Read complete (7.40s)`
+(`logs/read_cycle1.log`). `readbacks/readback1.bin` is exactly **65536 bytes**.
+
+```
+$ cmp images/img1.bin readbacks/readback1.bin        # exit 0, no output
+$ sha256sum images/img1.bin readbacks/readback1.bin
+f72489604bfe917db7ee505e4d674576b2905a418e8dc55372b78dcab3e34e3a  images/img1.bin
+f72489604bfe917db7ee505e4d674576b2905a418e8dc55372b78dcab3e34e3a  readbacks/readback1.bin
+```
+**Digests identical — 65536 of 65536 bytes byte-exact.** `readbacks/readback1.bin`'s digest is
+appended to `SHA256SUMS.txt`; `img1.bin`'s row was already in the manifest from `145-01` and is
+**unchanged**, which is itself a small extra fact — the source image on disk is bit-for-bit the one
+whose digest was published before any hardware was touched. `sha256sum -c SHA256SUMS.txt` from the
+phase directory exits **0** over all six rows. No duplicate `img1.bin` row was appended; the
+manifest stays one-row-per-artifact.
+
+**The three verdicts agree. They are recorded on three separate lines anyway**, because D-06's point
+is that a *disagreement* must be visible, and a format that only works when everything agrees would
+not have shown one.
+
+##### Read stability for this cycle (D-07)
+
+```
+$ firestarter -p /dev/ttyACM0 dev consistency-check W27C512 --runs 3 \
+      --output-dir .planning/phases/145-bench-validation/runs/cycle1
+```
+**Exit 0.** The exit code here is a three-way value, not a boolean — **0 = PASS, 1 = FAIL on
+divergent SHAs, 2 = hardware or serial error** — so `0` specifically means the runs agreed, not
+merely that the command ran. Verdict block verbatim from `logs/consistency_cycle1.log`:
+```
+Consistency check: PASS
+Chip: W27C512  Board: unknown-board  Port: /dev/ttyACM0
+Runs: N=3
+Distinct SHAs: 1
+Output dir: .planning/phases/145-bench-validation/runs/cycle1/
+```
+`run_01.bin`, `run_02.bin` and `run_03.bin` all exist at exactly **65536 bytes** each.
+`git check-ignore` on `runs/cycle1` reports **not ignored** — the evidence is committable, and the
+default `firestarter-runs/consistency-check-*/` path (matched by two meta `.gitignore` rules) was
+deliberately not used.
+
+**A free extra fact worth naming:** all three runs reported SHA-256
+`f72489604bfe917db7ee505e4d674576b2905a418e8dc55372b78dcab3e34e3a` — the **same digest as the source
+image**. `dev consistency-check` only asserts the runs agree *with each other*; that they also agree
+with `img1.bin` makes this three further independent confirmations of oracle 2, on top of the one
+oracle 2 required. Read stability and program correctness are different failure modes (D-07) and
+this cycle passes both.
+
+##### `--force used?` **No**
+
+No `--force` was passed to any command in this cycle. Neither was `write -b`, `--no-blank-check`,
+`--skip-erase`, `-a`/`--address` nor `-s`/`--size`. Every command line above appears verbatim as its
+own heading or fenced block so the flags are auditable without trusting this sentence (D-17).
+
+##### Cycle 1 verdict (resumed session): **PASS — byte-exact on all three oracles**
+
+Write exit 0 with 0 bad bytes, verify exit 0, independent host-side SHA compare byte-exact over all
+65536 bytes, read stability PASS at N=3 with 1 distinct SHA.
+
+**This does NOT close Gate 2.** Gate 2's rule is **3/3** byte-exact cycles on both oracles; cycles 2
+and 3 are `145-06`'s, and Gate 2's overall verdict is `145-06` Task 3's to record. One cycle is one
+cycle.
+
+### Cycle 2 (resumed)
+**NOT RUN IN THIS PLAN** — `145-06` Task 1 owns it. Not a skip and not a fail; simply not this
+plan's scope.
+
+### Cycle 3 (resumed)
+**NOT RUN IN THIS PLAN** — `145-06` Task 2 owns it.
+
+---
+
+## Progress-frame evidence (D-10 Claim A) — resumed session, MEASURED
+
+Instrument: `.planning/phases/145-bench-validation/tools/extract_frames.py`, meta-repo bench tooling
+under this phase directory and explicitly not inside either sub-repo (D-16). Its self-test was
+re-run in **this** session, immediately before the measurement below, and both legs were observed:
+`SELFTEST: POSITIVE PASS`, `SELFTEST: NEGATIVE PASS`, exit 0. That matters more here than it did in
+Gate 0, because this session's result is a **positive** one — an instrument that can only fail to
+find things is no use when it does find them.
+
+```
+$ python3 .planning/phases/145-bench-validation/tools/extract_frames.py \
+      .planning/phases/145-bench-validation/logs/write_cycle1.stderr.raw \
+      | tee .planning/phases/145-bench-validation/logs/frames_cycle1.txt
+```
+
+**The six summary values, verbatim from `logs/frames_cycle1.txt`:**
+```
+segments=2
+selected_segment=2
+frames=267
+intra_block_frames=64
+blocks_with_multiple_updates=2
+step_histogram=336:1,688:2,1023:11,1024:40,1025:11
+```
+
+**D-10 Claim A, in its literal form:** *at least one bar frame reported a position that is not a
+multiple of 1024.*
+
+### Claim A verdict: **HOLDS**
+
+`intra_block_frames=64`. Only a firmware `MSG_DATA_PROGRESS` (`0xE0`) frame can produce a
+non-multiple-of-1024 position, because every host chunk hand-off lands exactly on a 1024 boundary
+for a 65536-byte file on a 1024-byte-buffer board.
+
+**The offending positions, named.** 64 of the 66 distinct positions are intra-block, one per block,
+at a constant ≈688-byte offset into each block:
+```
+688, 1712, 2736, 3760, 4785, 5809, 6832, 7857, 8880, 9904, 10928, 11952, 12976, 14001,
+15025, 16049, 17072, 18096, 19120, 20145, 21169, 22193, 23216, 24240, 25264, 26288, 27313,
+28337, 29360, 30385, 31408, 32432, 33456, 34480, 35505, 36529, 37553, 38576, 39600, 40624,
+41648, 42673, 43697, 44720, 45745, 46769, 47792, 48816, 49840, 50865, 51889, 52913, 53936,
+54960, 55984, 57008, 58032, 59056, 60080, 61104, 62129, 63152, 64176, 65200
+```
+The only two boundary positions in the write bar are `0` (tqdm's initial draw) and `1024`.
+
+**Corroborated independently of the extractor, from the `-v` stdout log.** The capture contains
+**96** `DATA: n/65536` lines: the first **32** step by 2048 (`2048 … 65536`) — that is the INIT-phase
+blank check, `BLANK_CHECK_CHUNK_SIZE = 2048` — and the remaining **64** are the MAIN-phase write,
+beginning `688, 1712, 2736, 3760, 4785, 5809, …`. Two different artifacts of the same run, produced
+by two different mechanisms (a tqdm stderr bar and a verbose stdout debug line), agree on the same
+64 positions. The extractor's segment selection is confirmed correct rather than merely trusted:
+`segments=2`, `selected_segment=2` discarded exactly the 32 INIT frames, so no 2048-step blank-check
+frame was miscounted as intra-block write motion (Pitfall 6, T-145-28).
+
+### RQ-4 predicted ZERO. It measured 64. Why the prediction was falsified — honestly
+
+RQ-4's arithmetic predicted **no intra-block frame at all** at the database's 100 µs pulse:
+emission is time-keyed at `EPROM_PROGRESS_EMIT_INTERVAL_MS` = **1000 ms**, `last_emit_ms` is a
+function-local **re-initialised at the top of every block**, and a 1024-byte block was estimated at
+**400–700 ms** — comfortably under the cadence, so the timer could never expire inside a block.
+
+**That reasoning was correct, and it was correct about a firmware that no longer exists.** The
+debug session's fix raised `EPROM_VPP_SETUP_US` from 100 µs to 1000 µs, adding ~900 µs per pulsed
+byte. Measured block time is now **106.06 s / 64 = 1.657 s**, which **crosses the 1000 ms cadence**.
+`floor(1657 / 1000) = 1` — exactly one emission per block, which is exactly what was measured: 64
+frames across 64 blocks. The predicted offset within a block, `1024 × 1000/1657 ≈ 618` bytes, lands
+close to the observed ≈688 (the residual is that a block's wall time is not purely the pulse loop —
+the final full-block verify pass runs after it, so the pulse loop's own bytes-per-ms is slightly
+higher than the block average).
+
+So the null result the plan pre-authorised did not occur, and this is **not** a case of the
+measurement being massaged toward the interesting answer: **the prediction was falsified by a
+firmware change made outside this phase, for an unrelated reason, and the mechanism RQ-4 named is
+exactly the mechanism that produced the frames.** The 1000 ms cadence and the per-block
+`last_emit_ms` reset are not overturned — they are what makes it *one* frame per block rather than
+several. Had the settle not been raised, RQ-4's zero would have stood.
+
+**Standing correction for anything downstream:** RQ-4's frames-per-block table (`100 µs (DB) → 0
+frames`) is **stale for the shipped firmware**. At the database pulse on `ebe9cb3` the true figure is
+**1 frame per block**.
+
+### About `blocks_with_multiple_updates=2` — stated precisely, NOT claimed as Claim B
+
+Two blocks carry more than one distinct position: block 0 (`0`, `688`) and block 1 (`1024`, `1712`).
+**These are latch-transition artifacts, not two firmware emissions inside one block.** In each pair
+the lower position is a host-side draw (tqdm's initial render at `0`; the chunk hand-off boundary at
+`1024`) and the upper is the firmware frame. Once `firmware_drives_bar` latched, the chunk hand-off
+`progress.update()` stopped, which is why no boundary position appears after `1024` at all.
+
+Claim B is worded as *"≥ 2 distinct positions inside the same `n // 1024` bucket"*, and read with
+maximum literalism this measurement satisfies it for two blocks. **This record does not claim Claim
+B on that basis.** Claim B exists to demonstrate *multiple firmware emissions within a single
+block*, and mixed-provenance pairs at the moment the bar changes hands are not that. Claim B and its
+verification-map row 24 remain **`145-07` Task 2's to measure** on the Gate 3 `--pulse-us 4688` run,
+where ~5 firmware emissions per block are expected on all four blocks. Recording the literal
+satisfaction here and declining to bank it is the honest form.
+
+### The constraint that makes any of this reachable
+
+The `MSG_DATA_PROGRESS` emission is guarded by `#ifndef SERIAL_ON_IO` (`eprom.cpp:398,403`) — it is
+**`leonardo`-only** (plus `native`) and is **compiled out on `SERIAL_ON_IO` targets**, i.e. `uno` and
+`uno328pb`. This measurement exists because this phase runs on a Leonardo; on an Uno-class board it
+would be **structurally unavailable**, not merely absent. Nothing here generalises to Uno-class
+hardware.
+
+No source file was edited to make a frame appear (D-16); `git -C /workspaces/firestarter status
+--porcelain` is empty. No cycle was retried, and nothing was re-run to obtain a more agreeable
+number — the extractor was run **once**, over the capture of the **first and only** write in this
+session.
+
+---
+
+## D-11 — CAP-03 advertised-budget survival, claimed as free evidence
+
+**The claim:** a 64 KiB write either completes or the host times out. **It completed** — exit 0,
+`Write to W27C512 successful (106.06s).` — so the CAP-03 advertised-budget path held on real
+hardware. This costs no extra bench time; it is the same run recorded above, read for a second
+purpose.
+
+| Figure | Value |
+|---|---|
+| Measured elapsed (host's own success line) | **106.06 s** for 65536 bytes / 64 blocks |
+| Measured per-block time | **1.657 s** |
+| CAP-03 advertised budget, W27C512 @ 100 µs, 1024-byte block | **8 s** (per block) |
+| Legacy fallback the advertised budget replaces | **120 s** |
+| Margin actually used | ~21 % of the 8 s advertised budget |
+
+**The non-claim, stated plainly: nothing logs the advertised budget.** The host decodes it silently
+from the `MSG_OK_READY` capability blob; no line in `logs/write_cycle1.stdout.log` prints `8`,
+prints a budget, or names CAP-03 at all — the `-v` capture was read for one and there is none.
+**The evidence is the completion itself, and no attempt was made to observe the number in the logs**
+(Pitfall 9 explicitly warns against chasing it there). This record therefore claims *the budget path
+held*, and does **not** claim *the budget was observed to be 8 s* — the 8 s is computed, cited from
+RQ-4's table, not measured.
+
+**An honest qualifier on how sharp this evidence is.** 1.657 s per block sits inside **both** the 8 s
+advertised budget and the 120 s legacy fallback, so this run does not discriminate between them: it
+would have completed even if the advertised budget had never been implemented. It is real evidence
+that the path does not *break* a long write, and it is **not** evidence that the advertised budget is
+what carried it. The sharp discriminating case is a run whose budget exceeds 120 s, which is exactly
+what Gate 3's `--pulse-us 4688` (244 s advertised) is for — `145-07`'s, not this plan's. The settle
+increase did make this figure meaningfully longer than the ~40 s the pre-settle fix produced, which
+narrows the margin without crossing anything.
+
+**143 H4's long-write half: DISCHARGED by this run**, with the qualifier above attached. Phase 146
+no longer carries it as unproven. H4's `--pulse-us`-above-4687 µs half remains open and is Gate 3's.
+
+**Verification-map rows discharged by this section and the one above:** row 22 (D-11 long-write free
+evidence) and row 23 (D-10 Claim A). Rows 24–27 remain Gate 3's and `145-08`'s.
+
 
