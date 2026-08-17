@@ -8,6 +8,15 @@
 > denying that it exists. This taxonomy (D-14) is fixed here, before any run, precisely so that a
 > partial result cannot later be argued into the friendlier bucket.
 
+> **READ THIS FIRST — THIS RECORD HAS TWO SESSIONS.** Session 1 (2026-08-16) ran Gates 0 and 1,
+> then HALTED at Gate 2 cycle 1. Session 2 (2026-08-17) resumed after a debug session found and
+> fixed a **firmware defect**, and therefore runs against a **DIFFERENT firmware image**. Session
+> 1's text below is left exactly as written — including its `VERDICT: HALTED` — because rewriting
+> it would launder the phase's history. Everything session 2 supersedes is marked with an explicit
+> pointer to **"## Resumed session (2026-08-17)"** at the bottom of this file, which is where the
+> superseding facts live. Session 1's Gate 1 firmware-identity rows in particular **no longer
+> describe the image any session-2 result was produced by.**
+
 **Session start:** NOT YET RUN
 **Operator:** Henrik (henrik@predictly.se)
 **Driver:** Claude Code (GSD executor; operator authorizes every spend; drives the serial/CLI side
@@ -328,6 +337,15 @@ BENCH-02 and BENCH-03 complete — neither requirement needed the bench to finis
 
 ## Gate 1 — Identity, image under test, VPP, D-03 pre-flight
 
+> ⚠ **PARTIALLY SUPERSEDED BY SESSION 2.** Four rows in the table below — *Firmware commit under
+> test*, *Flash bytes measured*, *avrdude verified byte count*, and the flash-headroom figure
+> quoted inside the *Flash bytes measured* row — describe firmware commit `a594173d`, which is
+> **not** the image any session-2 (2026-08-17) result was produced by. The superseding values are
+> in **"Firmware-image supersession"** under "## Resumed session (2026-08-17)" at the bottom of
+> this file. The rows are deliberately left legible rather than edited into silence. Every other
+> Gate 1 row (board, part, shield revision, R1/R2, VPP, D-03 erase) is unaffected and still holds:
+> nothing physical changed between the two sessions.
+
 | Field | Value | Source |
 |---|---|---|
 | Controller identity | `leonardo` | `firestarter -p /dev/ttyACM0 fw` |
@@ -622,7 +640,14 @@ authorization discharges both halves of what this gate needed:
 
 ### Cycle 1
 
-**Cycle 1 verdict: FAILED.** One attempt was made and it failed on the very first byte of the
+> ⚠ **SESSION 1's cycle 1. SUPERSEDED BY SESSION 2 — see "## Resumed session (2026-08-17)".**
+> The failure recorded below was subsequently root-caused to a **firmware defect** (debug session
+> `w27c512-program-fail-byte0`), not to the part, the shield or the bench. It is left here verbatim
+> because it is real evidence and because the defect it exposed is the most valuable thing this
+> phase produced. Session 2 re-ran cycle 1 on a **different, fixed firmware build**; that run is
+> recorded separately below and does **not** overwrite this one.
+
+**Cycle 1 verdict (session 1): FAILED.** One attempt was made and it failed on the very first byte of the
 very first block. Per D-14's two-state taxonomy this is a fail, not a partial and not an
 inconclusive. Cycles 2 and 3 were never attempted — the pass rule is 3/3 byte-exact on both
 oracles, and a fail on cycle 1 forecloses that regardless of what a later cycle might have shown.
@@ -710,7 +735,10 @@ verdict. Not run.
 **NOT ATTEMPTED — Gate 2 halted on cycle 1's failure.** Same reason as Cycle 2. Not run.
 
 ### Progress-frame evidence (D-10 Claim A)
-**NOT MEASURED.** Frame extraction requires a completed (or at least far-progressed) write's raw
+
+> ⚠ **SUPERSEDED BY SESSION 2** — measured in "## Resumed session (2026-08-17)".
+
+**NOT MEASURED (session 1).** Frame extraction requires a completed (or at least far-progressed) write's raw
 stderr capture; cycle 1 failed on the first byte of the first block, so there is no meaningful
 progress-bar segment to extract frames from. No v1.31 owner (see "Carry-forward hand-offs" below).
 
@@ -722,9 +750,13 @@ reported no physical cause apparent; they selected the D-13 halt path instead of
 re-seat occurred. No Attempt 2 was run. **The allowance remains unconsumed** and is available if
 this phase is resumed after a debug session determines and fixes (or rules out) a cause.
 
-**Gate 2 verdict: FAIL.** Cycle 1's single attempt failed on the first byte of the first block
-(`Byte at 0x000000 failed to program within 25 pulses`, exit 1). Cycles 2 and 3 were never
-attempted. Per D-14 there is no partial and no inconclusive state — this is a fail.
+**Gate 2 verdict (session 1): FAIL.** Cycle 1's single attempt failed on the first byte of the
+first block (`Byte at 0x000000 failed to program within 25 pulses`, exit 1). Cycles 2 and 3 were
+never attempted. Per D-14 there is no partial and no inconclusive state — this is a fail.
+
+> ⚠ **This verdict is session 1's and is not the phase's final Gate 2 verdict.** Session 2 resumed
+> Gate 2 on a corrected firmware build. Gate 2's overall verdict is closed by `145-06` Task 3 after
+> cycles 2 and 3, not here and not by session 1's fail. See "## Resumed session (2026-08-17)".
 
 ---
 
@@ -794,7 +826,13 @@ cycle failure; everything below did not run and has **no v1.31 owner**:
 
 ---
 
-## VERDICT: HALTED
+## VERDICT: HALTED (session 1, 2026-08-16 — SUPERSEDED, see the resumed session below)
+
+> ⚠ **This halt was lifted on 2026-08-17.** The debug session it handed off to
+> (`.planning/debug/w27c512-program-fail-byte0.md`) found the cause in **firmware**, fixed it, and
+> resolved. The phase resumed. This verdict block is preserved verbatim as the record of what
+> session 1 concluded with the evidence session 1 had; it is **not** the phase's current state.
+> Read "## Resumed session (2026-08-17)" below for what is true now.
 
 **Reason:** Gate 2 failed on cycle 1's first write attempt — `Byte at 0x000000 failed to program
 within 25 pulses`, exit 1, on the very first byte of the very first block, before any block
@@ -807,3 +845,152 @@ reason — they required no bench and are unaffected by this halt.
 
 **Session end:** 2026-08-16, halted at 145-05 Task 2 (cycle 1, Attempt 1) — see the "Carry-forward
 hand-offs with no v1.31 owner" section above for everything this phase did not discharge.
+
+---
+
+# Resumed session (2026-08-17)
+
+**Session start:** 2026-08-17
+**Operator:** Henrik (henrik@predictly.se)
+**Driver:** Claude Code (GSD executor), same D-19 split as session 1 — Claude drives serial/CLI,
+the operator owns the physical side.
+**Resumed at:** `145-05` Task 2, Gate 2 cycle 1. Tasks before it were already discharged in
+session 1 and were not re-run.
+**Dispatch mode:** resumed by explicit operator instruction with no `--auto` and no `--chain`;
+`autonomous: false` on `145-05` still holds and no operator gate was self-approved in this session
+(D-20). No `AskUserQuestion` capability was available to this executor, so any gate reached would
+have been handed back rather than answered — none other than the already-discharged Gate 2 spend
+authorization was reached.
+
+## Why the phase resumed
+
+Session 1's Gate 2 cycle 1 failure was handed to `/gsd-debug` per D-13. Debug session
+`.planning/debug/w27c512-program-fail-byte0.md` (status: **resolved**) root-caused it to a
+**firmware defect**, not to the part, the shield, the pot or the seating:
+
+> v1.31 Phase 141 rewrote `eprom_write_execute` into a per-byte pulse-to-verify loop and deleted
+> `program_mismatched_bytes()`, which was the **only** place the EPROM write path ever asserted
+> `CTRL_VPE_ENABLE`. From Phase 141 until the fix, every program pulse on protocols `0x07`, `0x08`
+> and `0x0B` was emitted with the 12 V rail generated and dropped but **never routed onto the
+> socket's VPP node**. No cell could change, so byte `0x000000` — which needs a pulse, since
+> `img1.bin` byte 0 is `0x00` and escapes the `expected == 0xFF` skip — exhausted `max_pulses` 25.
+
+Fixed in `firestarter` commits `eb563d2` (restore the per-pulse program-voltage assert) and
+`ebe9cb3` (raise `EPROM_VPP_SETUP_US`/`EPROM_VPP_HOLD_US` to 1000 µs/100 µs on bench evidence).
+
+This vindicates session 1's own refusal to consume D-09's re-seat allowance: the operator inspected
+the bench, found no physical cause, and there was none to find.
+
+## Firmware-image supersession — Gate 1's identity record is STALE for this session
+
+Gate 1 (`145-03`) deliberately identified the image under test by **commit plus avrdude-verified
+byte count, never by version string** (D-18). That discipline is exactly what makes this
+supersession statable: the version string is unchanged and would have hidden the swap entirely.
+
+`145-04-SUMMARY.md` wrote that "firmware remains at commit `a594173d` — no further reflash should be
+needed for `145-05` **unless the tree changes**." **The tree changed.** So the board was reflashed
+before any session-2 silicon was spent, and these four Gate 1 rows are superseded:
+
+| Gate 1 row | Session 1 value (still true of `a594173d`) | **Session 2 value — the image every result below was produced by** |
+|---|---|---|
+| Firmware commit under test | `a594173d2bbbabe74e6a470b4751528435246326` | **`ebe9cb353f134d6c56a8295490142de1a43fdf8f`**, branch `gsd/v1.31-27c-programming-algorithm-fidelity` |
+| Flash bytes measured | 26906 program / 2014 data | **27002 program (82.4 % Full against the 32768 B part) / 2014 data (78.7 % Full)** |
+| Flash headroom | 93.8 %, **1766 B** free | **94.2 %, 1670 B free** against `flash_total` 28672 B (bootloader excluded) |
+| avrdude verified byte count | 26906 | **27002** |
+| Firmware version string | `3.0.0b17` | **`3.0.0b17` — UNCHANGED, and therefore useless as a discriminator.** This is D-18's caveat proving itself: the fix moved 96 bytes of flash and did not move the version string by one character. |
+
+**Corrected flash-delta line — session 1's "0 B delta" is FALSE for this build and is NOT carried
+forward.** Gate 1 recorded: *"Delta vs baseline: 0 B against the 0 B leonardo must-not-grow band.
+Reason: a phase that compiles nothing new cannot move flash (D-16)."* For the session-2 image the
+delta is **+96 B** (26906 → 27002) against the 0 B leonardo must-not-grow band, and **the reason
+clause no longer applies** — code *was* compiled that this phase did not compile, by a debug
+session, so "a phase that compiles nothing new cannot move flash" is true of the phase and
+irrelevant to the image.
+
+### Reflash proof (session 2)
+
+Commands run from `/workspaces/firestarter` at `ebe9cb3`, with
+`git -C /workspaces/firestarter status --porcelain` asserted **empty (0 lines) both immediately
+before and immediately after** the build and the upload:
+
+```
+$ pio run -e leonardo --target size          # exit 0
+Program:   27002 bytes (82.4% Full)
+Data:       2014 bytes (78.7% Full)
+
+$ pio run -t upload -e leonardo              # exit 0
+```
+
+`firestarter fw --install` was **not used anywhere in this session either** — it resolves a GitHub
+release asset and the v1.31 branch has none, so it would have flashed `beta`. The upload log was
+captured whole and read in full rather than grepped with a hard-coded pattern; verbatim lines from
+`/tmp/gsd-145/upload_leonardo_145_05.log`:
+
+```
+RAM:   [========  ]  78.7% (used 2014 bytes from 2560 bytes)
+Flash: [========= ]  94.2% (used 27002 bytes from 28672 bytes)
+Auto-detected: /dev/ttyACM0
+avrdude: 27002 bytes of flash written
+avrdude: 27002 bytes of flash verified
+```
+
+avrdude tool version actually invoked: `tool-avrdude @ 1.60300.200527 (6.3.0)` — same as session 1.
+Only one `/dev/ttyACM*` device was present before and after; no `--upload-port` override was needed.
+
+## D-16 — stated plainly rather than left to read as untouched
+
+D-16 says *"No file under `firestarter/` or `firestarter_app/` is created, edited or deleted by any
+plan."* **That invariant is intact on its own terms: no plan in this phase edited a source file,
+and this plan did not either.** But the record must not let D-16 read as though the firmware were
+untouched across the whole phase. It was not. A **debug session** — which is not a plan — changed
+eleven files under `firestarter/`, and the phase's second session therefore measures a *different
+built image* than its first. That is the honest shape of it: D-16 not violated, firmware not
+unchanged.
+
+## MERGE-05 — this build carries a known, un-adjudicated band breach
+
+The session-2 image is **+96 B of flash** against MERGE-05's **0 B leonardo** must-not-grow band
+(the uno-class band is 64 B, also exceeded). The debug session **deliberately did not launder it**:
+BASE-01 was **not** re-anchored, because Phase 144 / D-11 moved that anchor once already and moving
+it again from a debug session would hide a breach behind the same mechanism twice. The breach is
+recorded as a live assertion, `test_policy_merge05_fires_on_the_current_tree`, so it cannot rot.
+
+**This is not this plan's to adjudicate, and this plan did not adjudicate it.** Nothing here
+re-anchors a baseline, widens a band or edits a gate. The operator has seen the breach and chose to
+resume with it open. It is stated here for one reason only: **every measurement recorded in this
+resumed session was produced by a build carrying an open MERGE-05 band breach**, and a later reader
+must not discover that from somewhere else. Whether a defect fix is admitted through the band is a
+milestone requirements judgement.
+
+## D-09 re-seat ledger — adjudicated, still UNCONSUMED
+
+Stated explicitly rather than assumed:
+
+- Session 1's cycle-1 failure was a defect in the **firmware build**, now proven by root cause and
+  by the fix flipping a 100 %-reproducible failure into a byte-exact write on the same board, the
+  same shield and the **same seated part**. It had no physical cause, which is precisely why the
+  operator could not name one.
+- **No re-seat occurred.** No chip was touched between session 1 and session 2. D-09's allowance is
+  therefore **untouched and still available** — it was never spent, and nothing in this session
+  spends it.
+- The run below is **Gate 2 cycle 1 on a different firmware build**, not "Attempt 2" under D-09's
+  ledger. D-09 governs discarding a failure attributable to a *named physical cause* and re-running
+  the same configuration; that is not what happened. Session 1's failure is **not discarded** — it
+  stands in the record above as a genuine failure of a genuinely defective build.
+
+## Operator authorization — already given, not re-sought
+
+Gate 2's three-cycle spend authorization stands as recorded above: **"you can erase or do anything
+its a test ic for you"** (2026-08-16), verbatim. It was given for this exact spend and is not
+re-sought here. It also already discharged `145-04`'s standalone-expendability carry-forward, for
+the reason recorded under Gate 2's heading.
+
+**Additional wear disclosure, for honesty about what the part has actually absorbed.** The debug
+session ran **13 further full 64 KiB erase-and-program cycles** on this same part while
+root-causing and validating the fix (12 byte-exact, 1 failure at the pre-shipping settle values).
+Those cycles were run under the operator's live debug-session authorization ("you can erase or do
+anything its a test ic for you", plus the session's explicit *"part is expendable; erases and write
+attempts on it are authorized"* constraint block) — but they were **not** part of Gate 2's
+three-cycle budget and are named here so the record does not imply this part has seen only three
+program cycles. Cycle counting for Gate 2's pass rule starts fresh below.
+
