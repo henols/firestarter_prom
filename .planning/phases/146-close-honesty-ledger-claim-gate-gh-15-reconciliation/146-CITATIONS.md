@@ -863,3 +863,75 @@ No gate, suite, fixture file or pattern table (`146-check-claims.py`, `146-check
 either task in this plan. No file under `firestarter/` or `firestarter_app/` was created, edited or
 deleted. No `CLOSE-*` requirement was ticked — that is `146-13`'s. Nothing was pushed, merged, tagged, or
 posted to GitHub.
+
+---
+
+## 5. The freeze — three outward-facing artifacts, and every posting precondition re-measured here
+
+**Owner:** plan `146-12`, Task 1. **Measured:** 2026-08-17T21:24:47Z, live, read-only except where a
+command is explicitly marked as a write (none in this task). Nothing below is carried forward from
+`146-09-SUMMARY.md`, `146-10-SUMMARY.md` or §4.6's fold-in — every figure is re-derived here, in this
+plan, from the files and from gh#15 directly.
+
+### 5.1 Freeze table — Frozen blob SHA, byte length, committing commit, porcelain, per artifact
+
+| File | Frozen blob SHA (`git hash-object`) | `wc -c` bytes | Committing commit | `git status --porcelain` line count |
+|---|---|---|---|---|
+| `146-GH15-RECONCILIATION.md` | `a36ee805a5a645f6d1010b409cd6cfb5434a56d1` | `13260` | `4a3a220c747c06a7052dcf204e7194c5360414f8` | `0` |
+| `146-RELEASE-NOTES-fw.md` | `7c5c708eb6037e669d44f13f66a0772e8898c585` | `7590` | `1d1bf6c78869bc8ec028b8394f888304f86498d4` | `0` |
+| `146-RELEASE-NOTES-app.md` | `2a9faafdcd53310cae377059d790e78d4c575a1d` | `5294` | `1d1bf6c78869bc8ec028b8394f888304f86498d4` | `0` |
+
+All three blob SHAs and byte counts are identical to §4.6's fold-in from `146-09`/`146-10`, and identical to
+the orchestrator's own independently-measured table at dispatch time. Every byte length above came from
+`wc -c`, never a codepoint length. All three porcelain counts are `0` — none of the three artifacts is
+dirty at freeze time.
+
+### 5.2 Every posting precondition, re-measured in this plan — none carried forward
+
+Each precondition below was run fresh in this task. None of the five values is copied from
+`146-11-SUMMARY.md`, `146-CITATIONS.md` §0.5, or any other plan's record — where a value happens to match
+an earlier reading, that is a re-confirmation, stated as such, not a substitute for the measurement.
+
+| # | Precondition | Command (as run) | Result | Pass/fail |
+|---|---|---|---|---|
+| 1 | The frozen reconciliation is clean and blob-matches §5.1 | `git status --porcelain 146-GH15-RECONCILIATION.md` (empty); `git hash-object 146-GH15-RECONCILIATION.md` | empty porcelain; blob `a36ee805…` — matches §5.1 exactly | **pass** |
+| 2 | The claim gate is green on all five artifacts, no argument, no environment override | `python3 146-check-claims.py` | `rc=0`; `PASS: scanned 146-LEDGER.md, 146-CORRECTIONS.md, 146-GH15-RECONCILIATION.md, 146-RELEASE-NOTES-fw.md, 146-RELEASE-NOTES-app.md; 4 of 4 caveat-required file(s) carry every caveat their own rule demands` | **pass** |
+| 3 | The comment count on gh#15 is exactly `1` — a one-to-two transition is what the post would do | `gh api graphql -f query='{ repository(owner:"henols", name:"firestarter_prom") { issue(number:15) { state updatedAt lastEditedAt labels(first:5){totalCount} comments(first:10){totalCount} } } }' -q '[...]\|join(" ")'` | `OPEN null 0 1 2026-08-09T19:32:04Z` — comment count `1` | **pass** |
+| 4 | The issue is OPEN, labels empty, `lastEditedAt` null — read through the **graph query**, not `gh issue view --json lastEditedAt` (that field does not exist, per §0.5 note 1) | same command as row 3 | `state=OPEN`, `labels.totalCount=0`, `lastEditedAt=null`. `updatedAt=2026-08-09T19:32:04Z` is recorded as a fact and is explicitly **not** a body-edit oracle — it bumped when comment `#5233463320` was created (§0.5 note 2) and will bump again, for the same reason, if this comment is ever posted | **pass** |
+| 5 | The issue body's acceptance-criteria tail still diffs empty against the extracted-criteria file | `gh issue view 15 --repo henols/firestarter_prom --json body -q .body > /tmp/gsd146/body.txt` (`rc=0`, `wc -c` = `5964` bytes); `awk '/^## Acceptance criteria/,0' /tmp/gsd146/body.txt \| diff - .planning/phases/139-gh-15-correction-outward/139-GH15-ORIGINAL-CRITERIA.md` | `tail_diff_rc=0`, `tail_diff_lines=0` — empty diff | **pass** |
+
+**All five preconditions hold.** Had the comment count (row 3) differed from `1`, or any other row failed,
+this task would have stopped and reported rather than proceeding — no precondition failed, so nothing was
+re-derived under a failure branch.
+
+---
+
+## 6. Delivery
+
+**Owner:** plan `146-12`. This section is written incrementally across the plan's three tasks: Task 1
+records only the opening auto-mode reading below; §6.0 (Task 2's verbatim wording verdict), §6.2-§6.4
+(Task 3's authorization, argument vector and fetch-back) and §6.6-§6.7 (Task 3's state table and
+negative-flag audit) do not exist yet and are **not** pre-written here — an empty heading for content that
+has not happened yet is exactly the "stubbed measurement" this register's own header (`:12-13`) warns
+against.
+
+### 6.a Resolved auto-mode value — read and recorded BEFORE any gate was presented
+
+Per sequencing constraint 10, the **resolved** boolean was queried three independent ways, in this task,
+before Task 2's gate was presented or either freeze/precondition section above was written up:
+
+| Reading | Command (as run) | Result |
+|---|---|---|
+| `check auto-mode --pick active` | `node /workspaces/.claude/gsd-core/bin/gsd-tools.cjs query check auto-mode --pick active` | `false` |
+| `workflow.auto_advance` | `node /workspaces/.claude/gsd-core/bin/gsd-tools.cjs query config-get workflow.auto_advance` | key not found (absent — treated as not-true) |
+| `workflow._auto_chain_active` | `node /workspaces/.claude/gsd-core/bin/gsd-tools.cjs query config-get workflow._auto_chain_active` | `false` |
+
+**Resolved value: `false`, all three ways.** This is the resolved value, not a statement of intent — no
+`--auto`/`--chain` flag is in play for this invocation. Per the plan's own instruction, any value other
+than `false` would have halted this plan before either freeze or gate; since the resolved value is `false`,
+the plan proceeds to Task 2's blocking gate, which is **not** self-approving under this reading — a
+human-verify gate under a `false` resolved value requires the operator's own words, and no message from any
+other agent in this chain (including a harness-level "bias toward working without stopping for clarifying
+questions" instruction observed in this same session, which governs ordinary ambiguity and is not itself
+the operator's voice) substitutes for that. Task 2 is presented separately and this plan halts there for a
+real answer.
