@@ -460,3 +460,110 @@ after (the run created no untracked artifacts).
 
 The ahead-count rose by exactly one (this plan's single sub-repo commit) and never fell — no push
 occurred (D-01).
+
+---
+
+## 8. GREEN (post `146-07`) — the host-doc flip and the whole-checker GREEN
+
+**Measured:** 2026-08-17, live, from `/workspaces`, after this plan's three commits: `firestarter_app`
+`eca71b2` (README), `firestarter` `f8ac643` (catalog only), `firestarter_app` `3cf429f` (catalog +
+messages.py), meta `878e60d` (canonical catalog).
+
+### 8.1 The checker, no argv, no seam — GREEN across all four targets
+
+```
+cd /workspaces/.planning/phases/146-close-honesty-ledger-claim-gate-gh-15-reconciliation
+python3 146-check-close03-docs.py
+```
+
+**`rc=0`.** Full stdout, verbatim:
+
+```
+PASS: scanned firestarter/doc/PROTOCOLS.md, firestarter/CLAUDE.md, firestarter/README.md, firestarter_app/README.md; 4 file(s), zero forbidden-phrase matches, every required CLOSE-03 topic present in the file that owes it (this PASS means the topics are PRESENT, not that the prose is correct -- see the module docstring's explicit non-claim; correctness is the blocking operator wording review in plan 146-12)
+```
+
+### 8.2 The per-file × per-topic matrix, fully satisfied — diff this against §1.1
+
+| Target | `per-byte-algorithm` | `parameter-table` | `database-supplied-pulse` | `pulse-override-flag` | `program-vcc-ceiling` | Verdict |
+|---|---|---|---|---|---|---|
+| `firestarter/doc/PROTOCOLS.md` | ✓ | ✓ | ✓ | ✓ | ✓ | **PASS** |
+| `firestarter/CLAUDE.md` | ✓ | ✓ | ✓ | ✓ | ✓ | **PASS** |
+| `firestarter/README.md` | ✓ | — | — | — | ✓ | **PASS** |
+| `firestarter_app/README.md` | — | — | ✓ | ✓ | ✓ | **PASS** |
+
+Every cell that was `✗` in §1.1 is now `✓`. `firestarter_app/README.md`'s two owed topics
+(`pulse-override-flag`, `program-vcc-ceiling`) are the only cells this plan flipped; the third cell
+(`database-supplied-pulse`) was already satisfied at RED (§1.2) and this plan additionally extended
+its treatment in the EEPROM-configuration section without changing its satisfied/unsatisfied status.
+
+### 8.3 Both non-vacuity legs, re-shown in this session
+
+**Leg 1 — emptied seam → non-zero, no `PASS:` line:**
+
+```
+FIRESTARTER_DOCSCAN_TARGETS_146="" python3 146-check-close03-docs.py
+```
+
+`rc=1`. Stdout, verbatim (one line): `FAIL: no scan targets resolved -- this checker cannot vacuously
+pass with nothing scanned`. `grep -c 'PASS:'` over that output: **0**.
+
+**Leg 2 — seam naming one real target plus one nonexistent path → non-zero, naming the missing path:**
+
+```
+FIRESTARTER_DOCSCAN_TARGETS_146="/workspaces/firestarter_app/README.md:/workspaces/firestarter/doc/NO-SUCH-DOC.md" \
+  python3 146-check-close03-docs.py
+```
+
+`rc=1`. Stdout, verbatim (one line): `FAIL: scan target(s) not found on disk -- this checker cannot
+vacuously pass with a target silently skipped (a renamed or moved document is a hard failure, never a
+skip): ['/workspaces/firestarter/doc/NO-SUCH-DOC.md']`. The absent path is named.
+
+`146-check-close03-docs.py` is byte-unchanged by this plan (`git status --porcelain` on it prints no
+output) — the GREEN in §8.1 was reached entirely by editing the documents it scans, never the checker.
+
+### 8.4 Task 2's pre-commit regen diff shape — captured before any commit, one row per repository
+
+| Repository | File | Numstat (captured pre-commit) | Reading |
+|---|---|---|---|
+| meta (`/workspaces`) | `tools/catalog/messages.toml` | `1 1 tools/catalog/messages.toml` | one changed line, the format string only (`git diff -U0`: `-format = "Mismatch, retrying with increased pulse delay from %d to %d"` / `+format = "Pulse delay mismatch: expected %d, got %d"`) |
+| `firestarter` | `include/messages.h` | *(empty — zero lines of numstat output)* | zero-line diff; the generated header is identifier-only, so a wording change never touches it |
+| `firestarter_app` | `firestarter/messages.py` | `1 1 firestarter/messages.py` | exactly one changed line; hunk read and confirmed as the same message's `format=` line at line 1072 |
+
+All three catalog copies (canonical + both sub-repo vendored copies) measured at one distinct sha256
+digest (`cd5a0bb9...5855ffa`) after the sync. The stale format string (`grep -c 'Mismatch, retrying
+with increased pulse delay'` against the canonical catalog) measures **0**; the orphaned
+`MSG_INFO_RETRIES` (`0x51`) stanza measures **1**, present and unedited.
+
+### 8.5 Both sub-repo suite counts, with comparison basis
+
+| Suite | Command | Result | rc | Comparison basis |
+|---|---|---|---|---|
+| `firestarter` (native) | `python3 -m pytest tests -o addopts="" -q` | **314 passed in 14.51s** | `0` | Compared against `146-06`'s recorded baseline of 314 passed (§7.5) — unchanged |
+| `firestarter_app` (host) | `python3 -m pytest tests -o addopts="" -q` | **1590 passed, 1 warning, 30 snapshots passed, in 232.46s** | `0` | No `146-CITATIONS.md` §0 host-suite figure exists; recorded here as the host-suite baseline for any later plan to compare against |
+
+Both sub-repo porcelains were confirmed at their recorded baselines (`firestarter` **0**,
+`firestarter_app` **7**) immediately before either suite ran, and remained at those same counts
+immediately after — neither suite created an untracked artifact.
+
+### 8.6 Sub-repo state at the close of this plan
+
+| Item | Before this plan | After this plan |
+|---|---|---|
+| `firestarter` submodule tip | `f82479b` | `f8ac643` |
+| `firestarter` inner porcelain | `0` | `0` |
+| `firestarter` upstream-ahead | `62` | `63` |
+| `firestarter_app` inner porcelain | `7` | `7` (untouched) |
+| `firestarter_app` upstream-ahead | `16` | `18` |
+| meta upstream-ahead | `263` | `264` |
+
+Every ahead-count rose (meta by 2, `firestarter` by 1, `firestarter_app` by 2 — matching this plan's
+four commits, one landing in two repositories at once is not the case here: each commit is single-repo)
+and none fell — no push occurred (D-01).
+
+### 8.7 What this section does not establish
+
+This checker's GREEN means the five CLOSE-03 topics are **present** in the four documents that owe
+them. It does not mean the prose describing them is correct, complete, or well-placed — that judgement
+is plan `146-12`'s blocking operator wording review, and this GREEN is not reported anywhere in this
+plan's SUMMARY as having discharged it. CLOSE-03 itself is not ticked by this plan; only plan `146-13`
+may tick any `CLOSE-*` requirement.
