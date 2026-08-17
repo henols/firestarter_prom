@@ -560,7 +560,7 @@ Plans:
 
 **Wave 7 — Gate 3** *(required conditional on Gate 2 passing)*
 
-- [ ] 145-07-PLAN.md — The `--pulse-us 4688` run D-10's literal claim actually needs: at the DB pulse the firmware's 1000 ms emission interval with a per-block `last_emit_ms` reset is never crossed by a ~0.4–0.7 s block, so **Claim B** is only reachable here. One ~21 s run discharges three inherited items — Claim B, D-12's `--pulse-us`-on-silicon, and D-12's **above-4687 µs** budget-mechanism proof (advertised ≈244 s *exceeds* the old 120 s fallback, which a run merely fitting inside the fallback could not distinguish) — with the default-visible provenance line recorded verbatim; plus an optional companion run at the DB pulse making D-12's **A1** genuinely derivable, or A1 recorded **explicitly not discharged with no v1.31 owner** [meta]
+- [x] 145-07-PLAN.md — The `--pulse-us 4688` run D-10's literal claim actually needs: at the DB pulse the firmware's 1000 ms emission interval with a per-block `last_emit_ms` reset is never crossed by a ~0.4–0.7 s block, so **Claim B** is only reachable here. One ~21 s run discharges three inherited items — Claim B, D-12's `--pulse-us`-on-silicon, and D-12's **above-4687 µs** budget-mechanism proof (advertised ≈244 s *exceeds* the old 120 s fallback, which a run merely fitting inside the fallback could not distinguish) — with the default-visible provenance line recorded verbatim; plus an optional companion run at the DB pulse making D-12's **A1** genuinely derivable, or A1 recorded **explicitly not discharged with no v1.31 owner** [meta]
 
 **Wave 8 — Close the record**
 

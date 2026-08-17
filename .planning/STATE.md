@@ -6,14 +6,14 @@ current_phase: 145
 current_phase_name: bench-validation
 status: executing
 stopped_at: "Completed 145-06-PLAN.md (Gate 2 CLOSED: VALIDATED 3/3)"
-last_updated: "2026-08-17T05:33:30.869Z"
+last_updated: "2026-08-17T05:57:20.382Z"
 last_activity: 2026-08-17
-last_activity_desc: "Phase 145 plan 145-06 COMPLETE. GATE 2 IS CLOSED: VALIDATED. Cycles 2 (img2.bin) and 3 (img3.bin) both passed byte-exact on all three oracles -- write exit 0 at 105.69 s and 106.06 s with 0 bad bytes; verify exit 0 both times (a SECOND firmware-side pass, never described as independent); independent host-side SHA compare 65536/65536 byte-exact both times (b566c7a0, 74c359c8). Read stability measured PER CYCLE (D-07): three PASS verdicts at N=3 with 1 distinct SHA, each in its own runs/cycleN directory, none inferred. D-09 verdict is 3/3 byte-exact on BOTH oracles across nine clean oracle cells => validated in D-14's vocabulary. The re-seat ledger closes UNCONSUMED -- no re-seat was ever required or performed, and each of the three cycles was written exactly once. D-03's erase-fired corroboration was RE-DERIVED on the actual image bytes rather than quoted: 65408/65536 (99.8%) of cycle-1->2 and 59392/65536 (90.6%) of cycle-2->3 bytes need a 0->1 transition, and consecutive read-backs were ASSERTED to differ in all 65536 bytes both times. The no-force source assertion covers a counted denominator of 17 invocations (4 command-line headings + 13 fenced lines), zero carrying --force/--skip-erase/--no-blank-check and no write carrying -b/-a/-s; it is scoped to Gates 0-2 only. Three v1.31 timing figures recorded (106.06 / 105.69 / 106.06 s, spread 0.37 s) with NO comparative claim against earlier firmware (D-08). NOT proven: the intermittent single-byte margin failure is mitigated, not explained (15 clean cycles is not a root cause); program-window VPP under load still unmeasured; Claim B still not banked; Gate 3 not run and separately authorized. MERGE-05's +96 B leonardo band breach is still CARRIED and NOT adjudicated -- Gate 2 passed on a build with an open breach. BENCH-01 remains unticked; 145-09 owns it."
+last_activity_desc: "Phase 145 plan 145-07 COMPLETE. GATE 3 RAN and discharged three inherited items. D-10 CLAIM B HOLDS: the --pulse-us 4688 run (4096 B, 4 blocks, exit 0, 30.94 s) produced blocks_with_multiple_updates=4 and intra_block_frames=24, and the 24 tqdm positions match BYTE-FOR-BYTE the 24 MSG_DATA_PROGRESS frames decoded in the -v log -- a second independent oracle, so this is NOT the bar-latch artifact all three Gate 2 cycles were correctly declined on. Blocks 2 and 3 carry ZERO boundary rows (6 firmware frames each), so the artifact objection cannot apply even in principle. A companion database-pulse run (exit 0, 11.87 s, no provenance line) is the CONTROL: same image, same 4 blocks, only the pulse differs, and it reproduces the artifact signature exactly (intra_block_frames=4, multiples only in blocks 0/1). D-12 --pulse-us-on-silicon DISCHARGED: provenance line recorded verbatim, override proven effective by 19.07 s observed vs 18.79 s predicted pure-pulse difference. D-12 BUDGET MECHANISM DISCHARGED: 120 s/(25x1024)=4687.5 us so 4688 is the first integer above; advertised CAP-03 is 244 s and even the unpadded raw is 121 s, BOTH above the old 120 s fallback -- the run completed, so the advertised budget carried it. NON-CLAIM: nothing logs the budget; 244/121 are arithmetic, never observed. D-12 A1 DERIVED at ~1.44 ms/byte (1436.24-1436.62 us across all three cycles), corroborated by two frame-cadence cross-checks (1409.6 and 1351.4 us) across a 47x pulse range; model validation +1.48 %. FIVE error sources named -- critically it is a per-BYTE figure and an UPPER BOUND on Phase 143's per-PULSE A1, so the ASSUMED 20-60 us range is NOT corroborated but also NOT refuted. STILL OPEN with NO v1.31 OWNER: per-pulse overhead inside a MULTI-PULSE retry loop (no byte needed >1 pulse; 0x07 only). AUTHORIZATION recorded in three distinguishable shapes: Gate 2 typed-verbatim, Gate 3 a SELECTION (no quote manufactured), and the companion run an ORCHESTRATOR decision under an explicit operator NO-PREFERENCE answer -- never operator-authorized. FINDING: T-145-45's threat-register mitigation DOES NOT EXIST -- the 0x07 row ships energy_cap_us=0 so MSG_ERR_PULSE_TOO_WIDE is structurally unreachable; only the host click.IntRange bounded a ~117 ms worst-case single-cell energy. FOUR acceptance assertions remade after false greens (the plan's authorization grep reported success with NO authorization given; the first substitution self-matched its own quoted definition until line-anchored) -- evidence never reshaped. NOT PROVEN: no eyes-on (145-08's), no Gate 3 verdict line written (145-08's), no independent host-side SHA over the Gate 3 writes so NO BENCH-01 evidence rests on this gate, no observed CAP-03 number. Chip bulk-erased: the part no longer holds img3.bin, cycle 3's evidence committed beforehand. Gate 2's VALIDATED verdict untouched; D-09's ledger still UNCONSUMED. MERGE-05's +96 B breach still CARRIED and NOT adjudicated. BENCH-01 remains unticked; 145-09 owns it."
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 61
-  completed_plans: 58
+  completed_plans: 59
   percent: 88
 ---
 
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 145 (bench-validation) — EXECUTING (halt lifted 2026-08-17)
-Plan: 7 of 9 (145-01..145-06 complete — GATE 2 CLOSED: VALIDATED; 145-07..145-09 not started)
+Plan: 8 of 9 (145-01..145-07 complete — GATE 2 CLOSED: VALIDATED; GATE 3 RAN, Claim B HOLDS, verdict line still 145-08's; 145-08..145-09 not started)
 Status: EXECUTING — the 2026-08-16 HALT is LIFTED. Debug session
 `w27c512-program-fail-byte0` root-caused the cycle-1 failure to a **firmware** defect (v1.31
 Phase 141 deleted the only `CTRL_VPE_ENABLE` assert in the EPROM write path) and fixed it in
@@ -1984,6 +1984,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 145-06]: Refused to satisfy the plan's own broken '^### ' no-force acceptance grep by changing heading depths — every command-line heading in the bench log is at '####' depth by a Gate-1 convention, so the plan's regex returns 0 against a fully compliant record and cannot distinguish compliance from an empty file; the assertion was remade with '^#{2,6} ' and the substitution recorded visibly
 - [Phase 145-06]: Weakened D-17's "every command line is its own heading" formulation to what the record supports — only 4 of 17 invocations are headings and 13 are fenced-block lines, so the claim made is that all 17 are recorded verbatim and all 17 were checked
 - [Phase 145-06]: Scoped the no-force assertion to Gates 0-2 explicitly — Gate 3 has not run, so no Gate-3 command line exists to assert over and 145-07 must extend it rather than inherit it
+- [Phase 145]: 145-07 Gate 3: D-10 Claim B HOLDS on 4/4 blocks -- 24 tqdm intra-block positions matched byte-for-byte by 24 decoded MSG_DATA_PROGRESS frames; blocks 2 and 3 carry zero boundary rows so the bar-latch objection cannot apply
+- [Phase 145]: 145-07: the companion database-pulse run was an ORCHESTRATOR decision under an explicit operator no-preference answer -- never operator-authorized; Gate 3's own authorization is a SELECTION, not a manufactured quote
+- [Phase 145]: 145-07: T-145-45 divergence -- the 0x07 row ships energy_cap_us=0 so MSG_ERR_PULSE_TOO_WIDE is structurally unreachable; only the host click.IntRange(1,65535) bounded the 4688 us run
+- [Phase 145]: 145-07: D-12 A1 derived at ~1.44 ms/byte (spread 1436.24-1436.62 us) -- an UPPER BOUND on Phase 143's per-pulse A1, not the same quantity; the multi-pulse retry-loop regime stays undischarged with no v1.31 owner
 
 ## Performance Metrics
 
@@ -2243,10 +2247,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 145 P03 | 4min | 3 tasks | 1 files |
 | Phase 145 P05 | 35min | 3 tasks | 12 files |
 | Phase 145 P06 | ~30 min | 3 tasks | 22 files |
+| Phase 145 P07 | 35m | 3 tasks | 8 files |
 
 ## Session
 
-**Last session:** 2026-08-17T05:33:08.235Z
+**Last session:** 2026-08-17T05:56:21.896Z
 **Stopped at:** Completed 145-06-PLAN.md (Gate 2 CLOSED: VALIDATED 3/3)
 **Resume file:** .planning/phases/145-bench-validation/145-07-PLAN.md
 
