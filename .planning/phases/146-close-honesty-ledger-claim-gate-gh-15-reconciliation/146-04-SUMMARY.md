@@ -286,7 +286,7 @@ Neither the gate nor any fixture was changed to make a leg pass. No pattern-tabl
   cannot detect an implied overclaim, a misleading omission, a wrong tone, or a true statement placed where
   it misleads — that is plan 146-12's blocking operator wording review.
 - **No push, merge, tag, release or workflow dispatch** was performed (D-01). Meta upstream-ahead moved
-  243 → 246; both sub-repos untouched (`firestarter` porcelain **0**, `firestarter_app` porcelain **7**, the
+  243 → 247 (four commits: two task commits, the summary, the state record); both sub-repos untouched (`firestarter` porcelain **0**, `firestarter_app` porcelain **7**, the
   pre-existing dirt, both unchanged from the wave-1 baseline).
 
 ## Known Stubs
