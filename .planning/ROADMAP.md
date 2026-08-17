@@ -609,7 +609,7 @@ Plans:
 **Wave 4 — the two outward-facing texts**
 
 - [x] 146-09-PLAN.md — `146-GH15-RECONCILIATION.md`: the nine **original** boxes reproduced verbatim, each graded with exactly one of CLOSE-04's three literal dispositions with every Phase 139 correction named inline; the VPP-disable box and the all-targets-build box each carrying their narrowings rather than a bare *met*; the public datasheet-justification correction; and one five-fact bench-boundary paragraph that paraphrases rather than quotes the conformance boundary (CLOSE-04, D-08, D-09, OD-A) [meta]
-- [ ] 146-10-PLAN.md — both version-agnostic release bodies, the firmware one stating its bench, controller-class and ARM boundaries **inside** the headline section, the host one refusing to let a partial progress bar read as a partial write; every claim mapped item by item onto a ledger row; three locators per body each with a recorded negative control; and each body gated green **individually** in positional-argument mode — the gate's first successful all-five default run is `146-11`'s, because `146-09` runs in this same wave (CLOSE-05, D-01, D-02) [meta]
+- [x] 146-10-PLAN.md — both version-agnostic release bodies, the firmware one stating its bench, controller-class and ARM boundaries **inside** the headline section, the host one refusing to let a partial progress bar read as a partial write; every claim mapped item by item onto a ledger row; three locators per body each with a recorded negative control; and each body gated green **individually** in positional-argument mode — the gate's first successful all-five default run is `146-11`'s, because `146-09` runs in this same wave (CLOSE-05, D-01, D-02) [meta]
 
 **Wave 5 — arm the gate**
 
