@@ -123,6 +123,58 @@ elsewhere are real passes.
   image nor its commit.
 - **The two protocols validated in the golden trace only.** Their status is unchanged by this document.
 
+## Addendum — the comment's evidence chain does not resolve until the milestone is pushed
+
+**This is a sequencing finding about `146-12`'s Gate 2, not a wording defect.** The prose is sound; its
+*citations* are not yet reachable by the audience it is written for.
+
+`146-GH15-RECONCILIATION.md` earns its claims by pointing at files and lines rather than asserting —
+that is its whole rhetorical strategy, and the closing line sends a reader to `146-LEDGER.md` and
+`146-CORRECTIONS.md` for "full evidence". gh#15 lives in `henols/firestarter_prom`, which **is** this
+meta repository, and `.planning/` **is** tracked there. But this branch is **286 commits unpushed**, so
+measured against the pushed remote branch:
+
+| cited artifact | on pushed remote? |
+|---|---|
+| `.planning/REQUIREMENTS.md` | yes |
+| `.planning/STATE.md` | yes |
+| `139-GH15-COMMENT.md` | **no** |
+| `139-GH15-ORIGINAL-CRITERIA.md` | **no** |
+| `140-PARAM-TABLE-RECORD.md` | **no** |
+| `142-VPP-RECORD.md` | **no** |
+| `144-TEST-RECORD.md` | **no** |
+| `145-BENCH-LOG.md` | **no** |
+| `146-ARM-BUILD-RECORD.md` | **no** |
+| `146-CORRECTIONS.md` | **no** |
+| `146-LEDGER.md` | **no** |
+
+**9 of 11 missing** — and the nine include every citation a sceptical reader would actually follow: the
+byte-identity source for the nine boxes, the datasheet source behind the public correction, box 7's VPP
+evidence, box 8's coverage narrowing, box 9's ARM record, the bench log the boundary paragraph cites by
+line range, and the two files named as the full evidence tier. `firestarter/include/eprom_params.h` —
+box 1's central citation for the shipped parameter table — is likewise **not** on the firmware remote
+(`src/proms/eprom.cpp`, `doc/PROTOCOLS.md` and `CLAUDE.md` are).
+
+Posting before the push therefore publishes a document whose verification path is roughly ten dead
+links. Nothing in the text warns a reader of that, and the text cannot fix it — only ordering can.
+
+**D-01 deliberately keeps every push out of this phase**, so the resolution is not to relax D-01 here.
+It is to order Gate 2 after the milestone push, which is `/gsd-complete-milestone`'s work. Recorded
+rather than acted on: the ordering is the operator's call, and `146-12`'s authorization gate is the
+right place to make it.
+
+Two smaller notes from the same read, neither blocking:
+
+- **Boxes 1, 3, 4 and 5 carry `met-as-corrected` where the shipped design inverts the box's premise** —
+  box 1 asked for three separate write handlers and one shared loop shipped. The document states this
+  plainly and CLOSE-04 offers no fourth disposition, so the label is the best available; but this is
+  where a sceptical reader will push hardest, and the intro's existing paragraph about the third
+  disposition could absorb one clause naming it.
+- **Box 2's "`protocol_id` remains the single dispatch key end to end"** is true as a concept but loose
+  about spelling: the shipped database field is `algorithm`, while `protocol_id` is the firmware-side
+  name. Both are live in the tree. Not an error, just imprecise in a document aimed at readers who will
+  open the database.
+
 ## Addendum — both blockers listed as live in `STATE.md` are already discharged
 
 `STATE.md`'s `### Blockers` section carries two entries. Neither is a real blocker any more, and both
