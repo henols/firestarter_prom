@@ -591,3 +591,274 @@ documenting how not to plant hits, and the two prose hits removed from the suite
 the same scan was re-run after the docstring was edited. Both were found by re-measuring, and neither would
 have been found by reasoning about the edit. The scan was run three times over these two files during this
 task: once as a baseline, once after each prose insertion.
+
+---
+
+## 4. The armed default run, the plant-and-revert transcript, and the CLOSE-01 audit
+
+**Owner:** plan `146-11`. **Measured:** 2026-08-17, this session, live, against
+`.planning/phases/146-close-honesty-ledger-claim-gate-gh-15-reconciliation/146-LEDGER.md` — a real,
+tracked, committed closing artifact, never a fixture, a scratch copy or a seam-routed path. Section 3
+discharges D-12's fixture-suite proof; this section discharges its second proof, the real-file plant,
+and closes CLOSE-01's remaining leg (leg 9's GREEN).
+
+**This section's own prose was re-scanned after every edit**, per the five-for-five precedent recorded in
+§3.7 and repeated by four earlier plans in this phase. The planted phrase is cited below **only** by its
+label id `confirmed-working` (the hyphenated form §3.0 already measured safe — pattern 7 is
+`confirmed\s+working` and `\s` does not match a hyphen) or by `146-LEDGER.md:455`; it is never reproduced
+with a literal space between the two words, because that is the exact string the gate's own pattern
+matches and this register is not a gate target but is held to the same citation discipline as one that is.
+
+### 4.1 Step 0 — the armed default run, before any plant (first time this run could ever pass)
+
+This is the first point in the phase where the no-argument, no-environment-override run of
+`146-check-claims.py` can exit 0 at all: plans 146-09 and 146-10 landed the last three of the five
+closing artifacts only in this same wave. Literal command, from the phase directory:
+
+```
+$ python3 146-check-claims.py
+```
+
+Literal stdout, `rc_before=0`, captured with `rc=$?` immediately after the command (never after a pipe):
+
+```
+PASS: scanned 146-LEDGER.md, 146-CORRECTIONS.md, 146-GH15-RECONCILIATION.md, 146-RELEASE-NOTES-fw.md, 146-RELEASE-NOTES-app.md; 4 of 4 caveat-required file(s) carry every caveat their own rule demands; 1 file(s) carry no caveat requirement under D-11 (this PASS is compliance with the forbidden-phrase table and the per-file caveat rules only -- see the module docstring's explicit non-claim, and note that CLOSE-01 also requires the fixture suite and the real-file plant transcript)
+```
+
+All five real basenames are named on the one `PASS:` line. This is leg 9's own assertion, run here as a
+plain shell invocation rather than through pytest, and it agrees with leg 9's independent GREEN recorded
+in §4.3 below.
+
+### 4.2 Step 1 — identity before the plant
+
+`146-LEDGER.md` was confirmed **committed and clean** before any plant: `git status --porcelain --
+146-LEDGER.md` returned empty output (exit 0, zero lines) immediately before the plant, which is the
+precondition this plan's own read-first step requires — a plant against an uncommitted file cannot be
+reverted with a checkout.
+
+| Field | Command | Value |
+|---|---|---|
+| `git status --porcelain` (pre-plant) | as above | empty (clean) |
+| blob SHA before (`blob_before`) | `git hash-object 146-LEDGER.md` | `048d9a32e1919def009b8042e10fad33ece67048` |
+| byte count before (`bytes_before`) | `wc -c < 146-LEDGER.md` | `42686` |
+
+A full pre-plant copy was additionally taken (`cp 146-LEDGER.md /tmp/.../146-LEDGER.md.pre-plant`) as a
+second, independent identity witness, used only to diff against the post-revert file (§4.4) — the revert
+mechanism itself is `git checkout --`, not this copy.
+
+### 4.3 Step 2 — the plant, run through the defaults path, and leg 9's three observations
+
+**The plant.** A single line was appended to the real `146-LEDGER.md`, built from the label 146-04 already
+probed (`confirmed-working`, cited by `146-04-SUMMARY.md:125` and `146-check-claims.py:160`, never
+reproduced here as a bare phrase) folded into an otherwise ledger-toned sentence about the per-byte program
+loop, prefixed by an inline HTML comment marking it obviously a plant:
+
+```
+<!-- PLANTED VIOLATION (146-11 plant-and-revert transcript, reverted immediately) -->
+The per-byte program loop was [confirmed-working-label] across the whole family.
+```
+
+(`[confirmed-working-label]` above stands for the two-word phrase the label id names — see
+`146-check-claims.py:160` for the pattern and `146-04-SUMMARY.md:125` for the probe; the literal phrase
+appears only inside the gate's own FAIL output quoted below, where it is the load-bearing matched text.)
+
+**The planted run — no argument, no environment override:**
+
+```
+$ python3 146-check-claims.py
+```
+
+Literal stdout, `rc_planted=1`, captured immediately after the command:
+
+```
+FAIL: 1 forbidden phrase match(es):
+  /workspaces/.planning/phases/146-close-honesty-ledger-claim-gate-gh-15-reconciliation/146-LEDGER.md:455: forbidden phrase match [confirmed-working]: '[the two-word phrase the confirmed-working label names]'
+```
+
+All three required facts are present in one line: the ledger's basename (`146-LEDGER.md`), the planted
+line's number (`455`), and the specific label (`confirmed-working`). No caveat bucket appears — a
+single-reason failure, matching the shape 146-04 measured for this same label against its fixture. The run
+used no positional argument and no `FIRESTARTER_CLAIMSCAN_TARGETS_146` override, so it exercised the
+default target list — the only path that proves the list is wired to a file that ships.
+
+**Leg 9, run by name, with the plant still in place — before the revert:**
+
+```
+$ python3 -m pytest test_check_claims_v131.py -o addopts="" -q -k test_armed_against_the_five_real_closing_artifacts
+```
+
+Result: **1 failed** (`leg9_planted_rc=1`). The assertion failure text quotes the same FAIL output above —
+a forbidden-phrase match, not the pre-146-11 "not found on disk" message — confirming this is RED under
+perturbation of a real artifact's content, not a regression of the arming mechanism itself.
+
+**Leg 9's three observations, in one place, naming the plan that recorded each:**
+
+| # | State | Plan | Reason recorded |
+|---|---|---|---|
+| 1 | RED, before the artifacts existed | `146-04` | fail-closed missing-target branch, naming all five closing artifacts as absent from disk (`146-04-SUMMARY.md:189-192`) |
+| 2 | GREEN, once all five artifacts existed | `146-11` (this plan, §4.5 below) | exit 0, `1 passed` — leg 9 run alone, plant absent |
+| 3 | RED again, under perturbation | `146-11` (this plan, above) | forbidden-phrase match on the real ledger's planted line, not a missing-target reason — the arming mechanism itself is intact; the ledger's content was the fault |
+
+Sequence matters and was honoured: leg 9 was run here, with the plant in place, **before** the revert in
+§4.4.
+
+### 4.4 Step 4 — revert, identity-checked, then re-run both the gate and the full suite
+
+Revert command: `git checkout -- 146-LEDGER.md`.
+
+| Field | Command | Before | After revert | Equal? |
+|---|---|---|---|---|
+| blob SHA | `git hash-object 146-LEDGER.md` | `048d9a32e1919def009b8042e10fad33ece67048` | `048d9a32e1919def009b8042e10fad33ece67048` | **yes** |
+| byte count | `wc -c < 146-LEDGER.md` | `42686` | `42686` | **yes** |
+| `git status --porcelain` | as-is | empty | empty | **yes** |
+| `diff` against the independent pre-plant copy | `diff 146-LEDGER.md.pre-plant 146-LEDGER.md` | — | **no output** | **yes** |
+
+No hand-edit was needed — `git checkout --` restored the exact pre-plant bytes on the first attempt, so
+there is no stop-and-report to make here.
+
+**The gate, a third time, through the defaults path — must equal step 0's pass line:**
+
+```
+$ python3 146-check-claims.py
+```
+
+`rc_after=0`. Stdout is **byte-identical** to §4.1's pass line (`diff` between the two captured transcripts
+produced no output).
+
+**The full fixture suite, after the revert:**
+
+```
+$ python3 -m pytest test_check_claims_v131.py -o addopts="" -q
+```
+
+Result: **15 passed** (`fixture_suite_rc=0`, wall time 0.77s). Leg 9 is among the 15, independently
+re-confirmed alone immediately before the full run: `1 passed` (`leg9_green_rc=0`). This is observation
+#2 in the §4.3 table above.
+
+### 4.5 Transcript summary table
+
+| Field | Value |
+|---|---|
+| `rc_before` | `0` |
+| `rc_planted` | `1` |
+| `rc_after` | `0` |
+| blob SHA before | `048d9a32e1919def009b8042e10fad33ece67048` |
+| blob SHA after | `048d9a32e1919def009b8042e10fad33ece67048` |
+| byte count before | `42686` |
+| byte count after | `42686` |
+| planted label observed | `confirmed-working` |
+| line number the gate reported | `455` |
+| ledger porcelain after revert | `0` lines (clean) |
+| ledger `diff --numstat` after revert | `0` lines (empty) |
+
+No file under `firestarter/` or `firestarter_app/` was touched by this task. `146-LEDGER.md` appears in
+**no** diff of the commit that follows this section — it is restored, not staged.
+
+### 4.6 The three-row freeze table, folded in from 146-09's and 146-10's SUMMARYs
+
+Plans 146-09 and 146-10 deliberately recorded their freeze values in their own SUMMARYs rather than here,
+to avoid racing each other in the same wave (`146-09-SUMMARY.md:92-94,193-194`; `146-10-SUMMARY.md:178-183`).
+This plan folds them into the register in one place, re-measured fresh rather than copied:
+
+| Artifact | Blob SHA (`git hash-object`) | Byte count (`wc -c`) | Recorded by |
+|---|---|---|---|
+| `146-GH15-RECONCILIATION.md` | `a36ee805a5a645f6d1010b409cd6cfb5434a56d1` | `13260` | `146-09-SUMMARY.md:193-194` |
+| `146-RELEASE-NOTES-fw.md` | `7c5c708eb6037e669d44f13f66a0772e8898c585` | `7590` | `146-10-SUMMARY.md:182` |
+| `146-RELEASE-NOTES-app.md` | `2a9faafdcd53310cae377059d790e78d4c575a1d` | `5294` | `146-10-SUMMARY.md:183` |
+
+All three were re-measured live in this task and agree exactly with the values each donor plan recorded —
+no divergence.
+
+### 4.7 All-gates-green, one recorded pass (Task 2)
+
+**Precondition — all three repositories committed clean before either sub-repo suite ran.**
+
+| Repository | Command | Result |
+|---|---|---|
+| `firestarter` (firmware) porcelain | `git -C /workspaces/firestarter status --porcelain \| wc -l` | `0` |
+| `firestarter_app` (host) porcelain | `git -C /workspaces/firestarter_app status --porcelain \| wc -l` | `7` (recorded baseline — untracked `firestarter.egg-info/` etc., unchanged) |
+| meta (`/workspaces`) | `git status --porcelain` | only the phase's own pre-existing dirt (`.gitignore`, `firestarter`, `firestarter_app` submodule pointers, `.claude/`, `.planning/VALIDATED-EPROMS.md`, `package.json`, `package-lock.json`) — nothing of this phase's work uncommitted at the point the suites ran |
+
+**The five gates, each with its own captured exit status:**
+
+| # | Gate | Command | Exit status | Evidence |
+|---|---|---|---|---|
+| 1 | Claim gate, defaults path | `python3 146-check-claims.py` | `claim_gate_rc=0` | pass line naming all five artifacts (§4.1/§4.4) |
+| 2 | Fixture suite | `python3 -m pytest test_check_claims_v131.py -o addopts="" -q` | `fixture_suite_rc=0` | `15 passed` |
+| 3 | Documentation checker, defaults path | `python3 146-check-close03-docs.py` | `doc_checker_rc=0` | pass line naming four documentation targets (below) |
+| 4 | Record gate | `python3 130-close-honesty-ledger-claim-gate-release-decision/check_record_corrections.py` | `record_gate_rc=0` | exempt-hit tally compared bucket by bucket against 146-05's recorded current value (below) |
+| 5a | Firmware suite | `(cd firestarter && python3 -m pytest tests -o addopts="" -q)` | `fw_suite_rc=0` | `314 passed` |
+| 5b | Host suite | `(cd firestarter_app && python3 -m pytest tests -o addopts="" -q)` | `app_suite_rc=0` | `1590 passed, 1 warning, 30 snapshots` |
+
+Doc checker literal stdout:
+
+```
+PASS: scanned 146-CITATIONS.md, 146-LEDGER.md, 146-CORRECTIONS.md, 146-GH15-RECONCILIATION.md
+```
+
+(four documentation targets named — see the full transcript captured at `/tmp/gsd146/g2.txt` this session).
+
+**Record gate exempt tally, bucket by bucket, against 146-05's recorded current value:**
+
+| Bucket | 146-05's recorded current value | This run |
+|---|---|---|
+| `block` | 23 | 23 |
+| `line-label` | 4 | 4 |
+| `inline-history` | 6 | 6 |
+| `inline-allow` | 10 | 10 |
+| `superseded` | 12 | 12 |
+
+No bucket moved. Runtime: this gate takes over two minutes at this HEAD (`.planning/STATE.md` line 11's
+length), run under a 300-second allowance per this plan's own operational warning; status captured
+immediately after the command, never after a pipe or a shorter timeout that could return 124.
+
+**Sub-repo suite counts against their recorded baselines:**
+
+| Suite | Baseline | This run | At/above baseline? |
+|---|---|---|---|
+| Firmware (`firestarter/tests`) | 314 passed | 314 passed | yes |
+| Host (`firestarter_app/tests`) | 1590 passed, 0 failed, 30 snapshots | 1590 passed, 1 warning, 0 failed, 30 snapshots | yes |
+
+The host invocation used `-o addopts=""` so the repository's own `-ra -q` `addopts` did not double up and
+hide the count line — the count line is the evidence, per this plan's own read-first warning.
+
+### 4.8 No-push checkpoint, mid-phase — three-repo ahead counts
+
+| Repository | Command | §0 baseline | This run | ≥ baseline? |
+|---|---|---|---|---|
+| meta | `git -C /workspaces rev-list --count @{u}..HEAD` | 233 | (recorded live in `146-11-SUMMARY.md`, re-measured at commit time) | yes |
+| `firestarter` | `git -C firestarter rev-list --count @{u}..HEAD` | 61 | (recorded live in `146-11-SUMMARY.md`) | yes |
+| `firestarter_app` | `git -C firestarter_app rev-list --count @{u}..HEAD` | 16 | (recorded live in `146-11-SUMMARY.md`) | yes |
+
+No count dropped. Nothing was pushed, merged, tagged or released by this plan. Exact figures at the
+moment of measurement are in `146-11-SUMMARY.md`, since the meta count itself moves with each commit this
+plan makes and a value frozen here would go stale the instant the next commit lands.
+
+### 4.9 CLOSE-01 audit — the two claims, proof by proof
+
+CLOSE-01 (`.planning/REQUIREMENTS.md:256-258`) makes two claims that look like one. This table maps each
+to the proof that discharges it and to the proof that does **not**:
+
+| Claim | Fixture suite (§3) | Plant-and-revert transcript (§4.1-§4.5) |
+|---|---|---|
+| **Armed against the real files** — the default target list is wired to the five files that ship | Does **not** discharge this. Every fixture leg (1-8, 10-15) scans a fixture or a scratch path, never the real `_DEFAULT_TARGETS` list. Leg 9 is the one leg that does exercise the defaults path, and it is GREEN as of §4.3/§4.4/§4.6 — but leg 9 is *part of* the fixture suite, so this cell reads: **discharged by leg 9 specifically, not by the suite generally.** | **Discharges this.** §4.1 and §4.4 are direct, no-argument, no-environment-override invocations of `146-check-claims.py` against the real five artifacts, run outside pytest entirely — the most literal possible exercise of the default target list against files that ship. |
+| **Seen to fail on a planted violation** — the pattern table and per-file caveat rules actually trip on a real violation | Fixture legs 2, 3, 4, 14 and 15 discharge this against **fixtures** — files built to be violations, never closing artifacts. Adequate proof that the *pattern table* works; silent on whether the *default list* is wired to anything real. | **Discharges this**, and does so against a **real, tracked, committed closing artifact** (§4.3) rather than a fixture — the plant lands in `146-LEDGER.md` itself, through the defaults path, and reverts to byte identity (§4.4). |
+
+**Neither proof covers both claims**, and that asymmetry is the entire reason D-12 requires both. The
+fixture suite proves the pattern table is correct against inputs built to trip it, but every one of its
+non-leg-9 legs is silent on whether `_DEFAULT_TARGETS` still points at the five files that actually ship —
+a checker with perfect fixtures and a stale default list would pass every fixture leg and protect nothing.
+The plant-and-revert transcript proves the opposite half: that the live default list, run with no argument
+and no environment override, both recognises the five real artifacts (§4.1) and trips on a real violation
+planted into one of them (§4.3) — but it is a single planted phrase in a single file, and says nothing
+about the eleven other forbidden patterns or the caveat-rule machinery the fixture suite exhaustively
+covers. A reader who saw only one of these two sections would reasonably conclude the other claim was
+untested. Both are recorded, separately, for exactly that reason.
+
+### 4.10 What was not touched
+
+No gate, suite, fixture file or pattern table (`146-check-claims.py`, `146-check-close03-docs.py`,
+`check_record_corrections.py`, `test_check_claims_v131.py`, any file under `fixtures/`) was edited by
+either task in this plan. No file under `firestarter/` or `firestarter_app/` was created, edited or
+deleted. No `CLOSE-*` requirement was ticked — that is `146-13`'s. Nothing was pushed, merged, tagged, or
+posted to GitHub.
