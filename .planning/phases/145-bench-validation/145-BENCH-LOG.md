@@ -1656,11 +1656,17 @@ lines inside fenced blocks.
 The four command-line headings, verbatim (all at `####` depth):
 
 ```
-#### `firestarter -p /dev/ttyACM0 erase W27C512 -b`                                          (line 535, D-03 erase pre-flight)
-#### `firestarter -v -p /dev/ttyACM0 write W27C512 .../images/img1.bin`                      (line 1032, cycle 1)
-#### `firestarter -v -p /dev/ttyACM0 write W27C512 .../images/img2.bin`                      (line 1164, cycle 2)
-#### `firestarter -v -p /dev/ttyACM0 write W27C512 .../images/img3.bin`                      (line 1316, cycle 3)
+  [h1] line  535 — firestarter -p /dev/ttyACM0 erase W27C512 -b               (D-03 erase pre-flight)
+  [h2] line 1032 — firestarter -v -p /dev/ttyACM0 write W27C512 .../img1.bin  (cycle 1)
+  [h3] line 1164 — firestarter -v -p /dev/ttyACM0 write W27C512 .../img2.bin  (cycle 2)
+  [h4] line 1316 — firestarter -v -p /dev/ttyACM0 write W27C512 .../img3.bin  (cycle 3)
 ```
+
+Each is a `####`-depth heading at the line given. They are transcribed here **indented and without
+their leading hashes on purpose**: quoting them at column 0 with their `####` intact would make the
+counting grep below match its own evidence block and report 8 where the truth is 4. That is not a
+cosmetic detail — it is the difference between an assertion that measures the record and one that
+measures itself.
 
 **The checks, and their results:**
 
