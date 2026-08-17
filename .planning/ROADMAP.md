@@ -556,7 +556,7 @@ Plans:
 
 **Wave 6 — Gate 2b** *(same chip, same record)*
 
-- [ ] 145-06-PLAN.md — Cycles 2 and 3 on `img2.bin` and `img3.bin`, each byte-exact on all three verdicts with its own stability check, and consecutive read-backs asserted to **differ** so a no-op erase cannot masquerade as a pass; the D-03 erase-fired corroboration stated from the image sequence itself (65408/65536 = 99.8 % of cycle-1→2 bytes need a `0→1` transition, 59392 = 90.6 % for 2→3); then Gate 2 closed against D-09's **3/3 on both oracles** rule with the re-seat ledger stated either way — the single allowance is a *documented* re-run, never a quiet retry — and the no-`--force` claim made as a **source assertion over a counted set of command-line headings** [meta]
+- [x] 145-06-PLAN.md — Cycles 2 and 3 on `img2.bin` and `img3.bin`, each byte-exact on all three verdicts with its own stability check, and consecutive read-backs asserted to **differ** so a no-op erase cannot masquerade as a pass; the D-03 erase-fired corroboration stated from the image sequence itself (65408/65536 = 99.8 % of cycle-1→2 bytes need a `0→1` transition, 59392 = 90.6 % for 2→3); then Gate 2 closed against D-09's **3/3 on both oracles** rule with the re-seat ledger stated either way — the single allowance is a *documented* re-run, never a quiet retry — and the no-`--force` claim made as a **source assertion over a counted set of command-line headings** [meta]
 
 **Wave 7 — Gate 3** *(required conditional on Gate 2 passing)*
 
