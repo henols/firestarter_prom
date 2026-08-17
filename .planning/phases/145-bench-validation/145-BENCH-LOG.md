@@ -2205,4 +2205,283 @@ locator.**
 - **No requirement checkbox was flipped by this plan.** `BENCH-01` remains unticked; ticking is
   centralised in `145-09` behind its own blocking operator gate.
 
+---
+
+# GATE 3 CLOSURE — `145-08` Task 1
+
+## Operator eyes-on (D-10) — collected, 2026-08-17
+
+**Status: COLLECTED.** This closes the second half of D-10 and verification-map row 27's *collection*
+obligation. It does **not** close row 27's specific wording — see the disposition split below, which
+is stated rather than glossed.
+
+### Why a second run exists, and why it is OBSERVATIONAL ONLY
+
+`145-07`'s Gate 3 run executed inside a **background agent**, so the operator had **no live terminal
+to watch**. The eyes-on half was therefore uncollectable from that run. The operator was offered two
+paths — record the eyes-on half as NOT COLLECTED, or re-run the write in the foreground — and
+**selected the re-run**. They ran it **themselves, in their own terminal**; the orchestrator did not
+issue it, because tool-issued command output is not reliably rendered live in the operator's UI and
+a tool-run would have spent a program cycle on an observation they still could not make.
+
+**This re-run is OBSERVATIONAL ONLY and supersedes nothing.** Gate 3's recorded machine measurement
+remains `145-07`'s run — capture `logs/pulse4688.stderr.raw`, extracted counts
+`logs/frames_pulse4688.txt`. **Nothing was re-measured, re-extracted or re-verdicted from the
+re-run**, and no number in Gate 3's verdict was taken from it. Said plainly so it can never be
+argued that the eyes-on half was fitted to a fresh count: **the machine half was frozen in `145-07`
+before the operator watched anything.**
+
+Cost: one further erase-and-program cycle on the seated W27C512, reprogramming the same 4096-byte
+image the part already held. Authorized by the operator's own selection and executed by their own
+hand. The full artifact — provenance, verbatim words, complete pasted transcript, and four clearly
+labelled orchestrator-derived readings — is
+`logs/eyeson_rerun_pulse4688.operator_paste.log`, committed with this plan and hashed in
+`SHA256SUMS.txt`.
+
+Command, exactly as the operator ran it from `/workspaces`:
+
+```
+firestarter -v -p /dev/ttyACM0 write W27C512 .planning/phases/145-bench-validation/images/img_4k_pulse.bin --pulse-us 4688
+```
+
+### The operator's statement, verbatim
+
+Their **complete** free-text description of what they saw, quoted exactly as typed — not cleaned up,
+not corrected, not paraphrased, not extended:
+
+> It looked ok
+
+**That is the entirety of their prose. Four words.** They then pasted the terminal transcript, which
+is reproduced in full in the log file above.
+
+**What the operator did NOT say, named so nothing is attributed to them that they did not observe.**
+They did **not** give a per-block movement count. They did **not** characterise the motion as smooth,
+stepped, even or bursty. They did **not** comment on the bar's percentage. Any reading beyond those
+four words in this section is **orchestrator-derived from the pasted text** and is labelled as such
+on the line where it appears.
+
+**This record now holds four distinguishable operator-input shapes and they must not be blurred:**
+
+| Occasion | Shape | Recorded as |
+|---|---|---|
+| Gate 2 (three 64 KiB cycles) | operator **typed prose** | quoted verbatim: "you can erase or do anything its a test ic for you" |
+| Session 1's D-13 halt decision | operator **selected a presented option** | selection, with an explicit note that no prose was typed |
+| Gate 3's 4688 µs run authorization | operator **selected a presented option** | selection, same explicit note |
+| **D-10's eyes-on half (here)** | operator **typed prose, four words**, plus a pasted transcript | quoted verbatim, with the transcript kept separate and every reading from it labelled derived |
+
+### The D-10 disposition split — stated, not merged
+
+D-10's eyes-on half and verification-map row 27 ask two different things, and only one of them was
+answered. Merging them would be the overclaim this phase exists not to commit.
+
+| Item | Outcome (D-14) | Basis |
+|---|---|---|
+| **The eyes-on half is collected** — the operator watched the run and described it in their own words | **validated** | "It looked ok", typed by the operator after watching a foreground run they executed themselves |
+| **Row 27's specific claim — "operator confirms a smoothly moving bar, not an end-burst"** | **skipped-with-reason** | The operator's four words contain **neither** discriminator. They did not use the word smooth and did not use the word burst. Deriving either from the pasted transcript would be the orchestrator answering an operator-only question. Carried forward with **no v1.31 owner**. |
+| **A visible-update count and their spacing** | **skipped-with-reason** | Asked for; not given. Same reason. Carried forward with **no v1.31 owner**. |
+
+The honest summary: **the operator reported no problem, and reported nothing more specific than
+that.** "No problem reported" and "a smoothly moving bar confirmed, not an end-burst" are different
+statements, and this record keeps them apart.
+
+## NEW FINDING — the MAIN write progress bar never reaches 100 %
+
+**Derived from the operator's pasted transcript, then independently re-verified by the orchestrator
+against every raw capture in `logs/`.** Not an operator observation; the operator did not comment on
+the bar percentage.
+
+**Method, so a reader can repeat it:** `tr '\r' '\n' < logs/<run>.stderr.raw | grep -E "bytes" | tail -1`
+— tqdm redraws on carriage return, so the last bar line after CR expansion is the bar's final state.
+
+| Run | Capture | Final MAIN bar | Bytes | % |
+|---|---|---|---|---|
+| Gate 3 required run (145-07, **the recorded measurement**) | `logs/pulse4688.stderr.raw` | `0x0fd8/0x1000` | 4056/4096 | **99.02** |
+| Gate 3 eyes-on re-run (observational) | operator paste log | `0x0fd8/0x1000` | 4056/4096 | **99.02** |
+| Gate 3 companion database-pulse run | `logs/pulse_db.stderr.raw` | `0x0eb0/0x1000` | 3760/4096 | **91.80** |
+| Gate 2 cycle 1 | `logs/write_cycle1.stderr.raw` | `0xfeb0/0x10000` | 65200/65536 | **99.49** |
+| Gate 2 cycle 2 | `logs/write_cycle2.stderr.raw` | `0xfeb3/0x10000` | 65203/65536 | **99.50** |
+| Gate 2 cycle 3 | `logs/write_cycle3.stderr.raw` | `0xfeb0/0x10000` | 65200/65536 | **99.49** |
+
+**A divergence from the figures this plan was briefed with, recorded rather than applied silently:**
+the brief listed **five** writes and put the finding at "stalls around 99 %". Re-verification found
+a **sixth** — the Gate 3 companion database-pulse run — and it lands at **91.80 %**, not 99 %. The
+finding is therefore *not* "the bar stops near 99 %"; it is sharper than that, and the sixth data
+point is what proves the mechanism rather than merely restating it.
+
+**Mechanism, established rather than asserted.** The bar's final value equals the **last firmware
+progress-frame position**, exactly, in all six runs — no final frame is emitted at completion, so the
+bar simply stops where the last frame left it:
+
+| Run | Last frame position (`frames_*.txt`, from the extractor) | Final bar value | Identical? |
+|---|---|---|---|
+| `pulse4688` | 4056 | `0x0fd8` = 4056 | yes |
+| `pulse_db` | 3760 | `0x0eb0` = 3760 | yes |
+| `write_cycle1` | 65200 | `0xfeb0` = 65200 | yes |
+| `write_cycle2` | 65203 | `0xfeb3` = 65203 | yes |
+| `write_cycle3` | 65200 | `0xfeb0` = 65200 | yes |
+
+That is why the companion run stops at 91.80 %: at the database pulse it emits **one** frame per
+block, so the last frame lands 336 bytes from the end; at 4688 µs it emits **six** per block, so the
+last frame lands 40 bytes from the end. **Fewer frames, lower final percentage** — which is a
+prediction the mechanism makes and the data confirms, and it is the reason the sixth data point
+matters more than the five that agree.
+
+**Specific to the MAIN write bar, not to progress rendering generally.** The INIT blank-check bar
+**does** reach `100%|██████████| 0x10000/0x10000 bytes` in every one of these captures, checked
+individually. So this is not a tqdm configuration problem and not a terminal problem.
+
+**Scope, stated honestly: cosmetic / UX only.** Every one of these six writes verified **byte-exact**
+— Gate 2's three on all three oracles including the independent host-side SHA compare, Gate 3's on
+the firmware's own `VERIFY_PER_PULSE_PLUS_FINAL` pass. **No correctness claim anywhere in this record
+is affected by it**, and it is not evidence of a program-path defect.
+
+**Out of scope to fix here.** D-16 forbids any plan in this phase creating, editing or deleting a
+file under `firestarter/` or `firestarter_app/`, and the fix — emitting a final frame at completion,
+or clamping the bar on the success path — lives in one or the other. Recorded as a finding and
+carried forward with **no v1.31 owner**: Phase 146 is docs-and-claims only and cannot ship a code
+change any more than it can run a bench.
+
+## The D-10 contradiction — stated, NOT reconciled
+
+**Operator impression:** "It looked ok".
+**Artifact:** the bar terminated at **99.02 %** on the run they watched, and short of 100 % on all
+five other writes this phase.
+
+**These are not reconciled here, and neither side is suppressed.** D-10's whole architecture is that
+a machine count and a human impression are different statements; D-06's principle — a disagreement
+must be *visible* rather than averaged away — applies to this pair exactly as it applies to the two
+data oracles.
+
+A fair reading, offered as a reading and not as a resolution: **a progress bar stopping one frame
+short of full is not something a casual observer would flag.** That is an argument *for* requiring
+both halves, not an argument against the operator. Had only the eyes-on half been taken, the record
+would say the write looked fine and the 99 % finding would not exist. Had only the machine half been
+taken, there would be no witness that the terminal was usable at all. **Both halves earned their
+place, and this contradiction is the proof of it.**
+
+## A third, independent oracle for Claim A/B — corroboration only
+
+**Derived from the operator's pasted transcript.** Not an operator observation.
+
+The paste shows exactly **6 `DATA:` lines between each pair of `OK: Request data` boundaries, across
+4 blocks = 24 frames**, at a uniform **164-byte** step:
+
+```
+164, 328, 492, 656, 820, 984 | 1188, 1352, 1516, 1680, 1844, 2008
+2212, 2376, 2540, 2704, 2868, 3032 | 3236, 3400, 3564, 3728, 3892, 4056
+```
+
+That equals `145-07`'s `intra_block_frames=24` **exactly**, byte-for-byte, from a **separate
+invocation on a separate occasion**. These are `DATA:` protocol-decode lines, not tqdm redraws, so
+this is a **third oracle** independent of both the frame extractor and `145-07`'s own `-v` decode.
+
+**It corroborates; it does not change Gate 3's recorded verdict.** Claim B's verdict below rests on
+`145-07`'s run and on nothing from the re-run. This paragraph is a reader's confidence note, not
+evidence in the verdict's chain.
+
+## Gate 3 verdict
+
+**Gate 3 verdict (resumed session — FINAL): VALIDATED, with two named skipped-with-reason items.**
+
+Named element by element, in D-14's vocabulary, with no softer word used anywhere:
+
+1. **Run completion and elapsed — `validated`.** The required `--pulse-us 4688` write of
+   `img_4k_pulse.bin` (4096 B, 4 blocks) completed at **exit 0**, success line verbatim
+   `Write to W27C512 successful (30.94s).`, with the default-visible provenance line recorded and
+   `grep -ciE "bad bytes|MAX_PULSES|PULSE_TOO_WIDE"` returning 0 over its stdout.
+2. **D-10 Claim B as measured — `validated`. HOLDS on 4/4 blocks.** `blocks_with_multiple_updates=4`,
+   24 intra-block positions, every one firmware-backed by the independent `-v` `MSG_DATA_PROGRESS`
+   decode, uniform `164:22` step signature, and blocks 2 and 3 carrying no boundary row at all so the
+   bar-latch objection cannot apply to them even in principle.
+3. **D-12 mechanism item 1 — `--pulse-us` exercised on silicon — `validated`.** The override
+   demonstrably took effect rather than being accepted and ignored: 30.94 s against 11.87 s for the
+   same 4096 bytes at the database pulse, a 19.07 s gap against the 18.79 s that pure pulse-time
+   arithmetic predicts.
+4. **D-12 mechanism item 2 — the above-4687 µs budget-mechanism proof — `validated`.** 4688 µs is
+   the first integer pulse width whose pulse-only worst case (121 s) exceeds the old 120 s host
+   fallback; the run completed without a host timeout, so the advertised CAP-03 budget is what
+   carried it. **With its non-claim intact: nothing logs the advertised budget, and the 244 s and
+   121 s figures are arithmetic from the firmware's published formula, never readings.**
+5. **D-12 item 3 — A1 per-pulse overhead — `validated` as a DERIVED upper bound; the multi-pulse
+   regime is `skipped-with-reason`.** ~1436 µs per pulsed byte across three independent pairings
+   (spread 0.38 µs), cross-checked twice from frame cadence across a 47× pulse range (~1.35–1.44 ms),
+   with five error sources stated. **It is a per-BYTE upper bound on Phase 143's per-PULSE quantity,
+   not the same quantity.** The multi-pulse retry-loop regime was not measured — no byte in either
+   run needed more than one pulse — and carries forward with **no v1.31 owner**.
+6. **D-10's eyes-on half — `validated` as collected; row 27's specific discriminator is
+   `skipped-with-reason`.** The operator watched a foreground run and said, verbatim, "It looked ok".
+   They did not confirm smooth motion, did not deny an end-burst, gave no update count and gave no
+   spacing. The collection is discharged; the discrimination is not, and carries forward with
+   **no v1.31 owner**. The contradiction against the 99.02 % final bar is stated above and is not
+   reconciled.
+
+**What this verdict does not touch.** Gate 2's **VALIDATED** closure is not reopened, qualified or
+retroactively altered by anything here. D-09's re-seat allowance remains **UNCONSUMED** — it was
+never spent, at any point in either session, and no re-seat was ever performed. No requirement
+checkbox was flipped by this plan.
+
+## Acceptance assertions remade in `145-08` Task 1, with the substitutions visible
+
+Following `145-06`'s and `145-07`'s precedent: **where a check could not fail for the right reason,
+the check was fixed and the substitution recorded — the evidence was never reshaped to satisfy a
+broken locator.** Each replacement below was given a negative control.
+
+1. **The eyes-on check is non-discriminating.** The plan specifies
+   `grep -A5 -i "eyes-on" 145-BENCH-LOG.md | grep -qv "NOT YET RUN"`. `grep -qv` succeeds if **any**
+   line in its input fails to match, and this record contained eight prose mentions of "eyes-on"
+   before this section existed — so the expression **printed its success message against a record
+   with no eyes-on statement in it at all**, and would do so against an empty stub. Substituted with
+   a check anchored to the collected statement itself:
+
+   ```
+   awk '/^## Operator eyes-on \(D-10\)/,0' 145-BENCH-LOG.md | grep -c -E '^> It looked ok$'
+   ```
+
+   — must return **1**. Negative control: run against a copy with that blockquote line deleted, it
+   returns **0**, so it fails for the right reason. **A first form of this check used `.` to span
+   the heading's em dash and silently returned 0 against a correctly-filled record**: `—` is three
+   UTF-8 bytes and this `awk` matches bytes, so the range never opened. Recorded because a
+   byte-vs-character mismatch is a false RED that a later reader would otherwise waste time on, and
+   because it is the same class of defect as the false GREENs above — a locator that does not
+   measure what it claims to.
+2. **The Gate-3-verdict check is non-discriminating in the same way.** `grep -A4 "Gate 3 verdict" |
+   grep -qv "NOT YET RUN"` passed before this plan wrote anything, matching session 1's
+   `NOT REACHED` line. Substituted with a line-anchored count that distinguishes the two verdicts:
+   `grep -c -E '^\*\*Gate 3 verdict \(resumed session . FINAL\):'` must return **1**, and
+   `grep -c -E '^\*\*Gate 3 verdict'` must return **2** — session 1's `NOT REACHED` line plus this
+   one, and no third. **`145-07` asserted that second expression must return 1; `145-08` legitimately
+   makes it 2**, and that change is recorded here rather than left for a reader to trip over.
+3. **The `inconclusive` check cannot fail for the right reason, and satisfying it literally would
+   require deleting D-14 itself.** The plan requires
+   `grep -ciE "\binconclusive\b|\bpartial pass\b"` to return **0**. It returns **4**, and all four
+   are *denials of the state*, not outcome labels: this record's opening taxonomy paragraph, cycle
+   1's "not a partial and not an inconclusive", Gate 2 session 1's "there is no partial and no
+   inconclusive state — this is a fail", and Gate 2's closure noting D-14 "admits only `validated`,
+   `skipped-with-reason` or `fail` — no `partial` and no `inconclusive`". **Driving that count to 0
+   would mean deleting the phase's own taxonomy statement to satisfy a locator — reshaping the
+   evidence, which is forbidden.** Substituted with a check that counts the string only in
+   **outcome-label position**, which in this record is always emphasised:
+
+   ```
+   grep -ciE '\*\*[^*]{0,24}\b(inconclusive|partial pass)\b[^*]{0,24}\*\*' 145-BENCH-LOG.md
+   ```
+
+   — must return **0** over the **whole file**, with no section excluded. Returns 0. Negative
+   control: inserting an emphasised `inconclusive` literal anywhere in a copy makes it return **1**,
+   so it fails for the right reason.
+
+   **This check self-matched on its first form and the fix is recorded rather than hidden** —
+   precisely the hazard `145-06` and `145-07` each hit once. The first attempt returned **1**, and
+   the single hit was **its own negative-control literal, written in emphasised form in this very
+   list item**: a grep meant to measure the record measured itself instead. The first fix truncated
+   the file before this section, which worked but weakened the check to a partial scan. **The fix
+   kept is better:** the negative control is now *described* rather than *written in the matching
+   form*, so the expression covers the entire file with nothing excluded and still returns 0. Note
+   the deliberate consequence — the plain-word count `grep -ciE "\binconclusive\b|\bpartial pass\b"`
+   rose from 4 to **11**, because documenting this substitution necessarily mentions the word seven
+   more times. **That rise is the honest cost of recording the fix**, and it is exactly why the
+   plain-word count is the wrong instrument and the emphasis-anchored count is the right one.
+
+   The intent of the plan's criterion — *no outcome anywhere is labelled inconclusive or partial* —
+   is honoured exactly; only the locator changed.
 
