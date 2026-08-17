@@ -2485,3 +2485,272 @@ broken locator.** Each replacement below was given a negative control.
    The intent of the plan's criterion — *no outcome anywhere is labelled inconclusive or partial* —
    is honoured exactly; only the locator changed.
 
+---
+
+# PHASE CLOSE — `145-08` Task 2
+
+> The two sections named `## Not measured` and `## Carry-forward hand-offs with no v1.31 owner`
+> earlier in this file are **session 1's** and describe a phase that halted at Gate 2 cycle 1. They
+> are left exactly as written, per this record's no-laundering convention. **The two sections below
+> supersede them and are the phase's closing statement.**
+
+## Not measured (phase close) — every un-taken reading, each with its blocker
+
+One line per reading, each with the specific thing that blocked it. A reading that **was** taken is
+not listed here; it lives in its gate's section. This list is not padded with items that were never
+in scope.
+
+| # | Reading not taken | Blocking reason |
+|---|---|---|
+| 1 | **Program-window VPP at the socket, under load, during any write** | The held-rail DMM proxy that would take it is defeated by **DTR-reset-on-close** — the standing Phase-97 tooling gap, unfixed across this project. **Every VPP figure in this record is an *idle* firmware-ADC sample** (`firestarter vpp`), taken with no program cycle running. |
+| 2 | **Program-window internal VCC under load** | Same instrument, same blocker. The only figures are the idle `Internal VCC: 5.5V` frames from the same `vpp -t 5` samples. |
+| 3 | **Any operator DMM reading, of any rail, in this phase** | **None was required by any gate in this phase and none was taken.** Gate 1's VPP was settled by a firmware ADC read at 12.0 V, in band, needing no pot adjustment — so the operator-only DMM path was never entered. Listed so a reader does not assume a DMM corroborated any figure here: none did. |
+| 4 | **The advertised CAP-03 budget value itself** | **Nothing logs it.** The host decodes CAP-03's `uint16_t` from the `MSG_OK_READY` blob silently and prints no figure at any verbosity. No attempt was made to observe the number. The 244 s and 121 s figures in Gate 3 are **arithmetic** from the firmware's published `eprom_block_budget_s()` formula and the `0x07` row's shipped constants — never readings. |
+| 5 | **A1's per-PULSE overhead inside a multi-pulse retry loop** | **No byte in either Gate 3 run required more than one pulse** — the part was freshly erased and converged first try — and `0x07` was the only protocol on the bench. The derived ~1436 µs is a per-**BYTE** figure and an **upper bound** on Phase 143's per-**PULSE** quantity, not the same quantity. |
+| 6 | **Whether the terminal bar moved smoothly or arrived as an end-burst** (verification-map row 27's literal wording) | **Operator-only, and the operator did not say.** Their complete answer was the four words "It looked ok", which contain neither discriminator. Deriving it from the pasted transcript would be the orchestrator answering an operator-only question, which D-10 exists to prevent. |
+| 7 | **A count of visible bar updates and their spacing** | Same: asked for, not given. |
+| 8 | **A true-UV `0x07` data point (TMS27C512)** | **Deliberately not spent (D-01).** The TMS27C512 is one-shot with no eraser on hand; the algorithm under test is identical to the W27C512's, so an irreversible part was judged not worth the data point. This is a decision, not an obstruction — but it is still a reading this phase did not take. |
+| 9 | **`0x08` (AM27C020) on hardware — any measurement at all** | **No AM27C020 is on the bench.** Every `0x08` figure in this record is cited from Phase 99, not re-derived here. |
+| 10 | **`0x0B` (M2716/M2732) on hardware — any measurement at all** | **Neither part is on the bench.** Every `0x0B` figure is cited from Phase 79, not re-derived here. |
+| 11 | **Program-VCC at 6.25 V** | **Structurally unreachable on this shield.** This is the milestone's standing evidence ceiling and its accepted debt; no bench configuration available here can reach it. |
+| 12 | **The root cause of session 1's intermittent single-byte margin failure** | **Mitigated, not explained.** The debug session's 1000 µs/100 µs settle values stopped it recurring, and ~17 clean cycles have run since. **Clean cycles are not a root cause.** Discriminating an under-settled route from a marginal cell from program-window VPP droop needs reading 1 above (blocked) or a second W27C512 sample (not on the bench). |
+| 13 | **An independent host-side SHA compare over either Gate 3 write** | **Not run.** Both Gate 3 writes are attested by the firmware's own `VERIFY_PER_PULSE_PLUS_FINAL` pass only. That gate measured *timing and progress emission*, not data fidelity, and **no BENCH-01 evidence rests on it** — BENCH-01's data fidelity comes entirely from Gate 2's three cycles, which do carry the independent oracle. |
+| 14 | **Intra-block progress emission on any Uno-class / `SERIAL_ON_IO` target** | **Structurally unavailable, not merely untested** — the emission is compiled out on those targets. There is nothing to measure there, and nothing in this record speaks for them. |
+| 15 | **Any pre-v1.31 control run** | **Deliberately not taken (D-08).** A control would cost a reflash cycle plus chip wear and would invite a comparative claim the 6.25 V evidence ceiling does not support. Named here so the absence is a recorded decision rather than an oversight. |
+| 16 | **The MERGE-05 +96 B leonardo band breach — adjudicated** | **Deliberately not adjudicated here.** It is a milestone *requirements* judgement for the operator, not a bench plan's to settle, and **BASE-01 was not re-anchored a second time**. Gate 2 and Gate 3 both ran on a build carrying this **open** breach — stated plainly rather than left for a reader to discover elsewhere. |
+
+## Carry-forward hand-offs with no v1.31 owner (phase close)
+
+**Why every item here has no owner:** **Phase 146 is docs-and-claims only and cannot run a bench**,
+and it cannot ship a code change either. It is the last phase of v1.31. An item recorded here is
+therefore **unrecoverable within this milestone**, not merely deferred to a later phase of it —
+which is exactly why D-12 forbids dropping any of them silently.
+
+| # | Undischarged item | Owner | Why it is undischarged, and what would discharge it |
+|---|---|---|---|
+| 1 | **A1's per-pulse overhead inside a multi-pulse retry loop** — the regime Phase 143's own worked example uses (`0x0B` at `--pulse-us 200`, 250 pulses × 1024 bytes) | **no v1.31 owner** | No byte in either Gate 3 run needed more than one pulse. Would need a part that genuinely retries, or `0x0B` on the bench. **The padding rule's ×2 multiplier argument must not be re-litigated on the strength of this phase's upper bound.** |
+| 2 | **Verification-map row 27's literal claim** — "operator confirms a smoothly moving bar, not an end-burst" | **no v1.31 owner** | The operator's four words contain neither discriminator, and no one but the operator can supply it. Would need another foreground run with the specific question answered in those terms. |
+| 3 | **The MAIN write progress bar never reaching 100 %** (new finding, `145-08`) | **no v1.31 owner** | The fix — emit a final frame at completion, or clamp the bar on the success path — lives under `firestarter/` or `firestarter_app/`, and **D-16 forbids any plan in this phase touching either**. Phase 146 cannot ship code. **Cosmetic/UX only: all six affected writes verified byte-exact.** |
+| 4 | **Program-window VPP (and internal VCC) under load** | **no v1.31 owner** | The Phase-97 DTR-reset-on-close tooling gap. Would need a hold-rail instrument that survives port close, or an external DMM on a held rail. Also carries `0x08`'s **FUT-08** droop hypothesis, still un-instrumented. |
+| 5 | **The root cause of the intermittent single-byte margin failure** | **no v1.31 owner** | Mitigated by the shipped settle increase; **~17 clean cycles is not a root cause.** Would need item 4's instrument or a second W27C512 sample. |
+| 6 | **`0x08` (AM27C020) bench validation** | **no v1.31 owner** | No part on the bench. Carries **FUT-08**. Its last known state is a **fail** under D-14 (Phase 99: write #1 60/64, then write #2 0/64 at stable idle VPP). |
+| 7 | **`0x0B` (M2716/M2732) bench validation** | **Phase 79 plan `79-03`** — a real successor exists, parked, not a v1.31 owner | Neither part on the bench. The graduation is **parked at `79-03`** pending a physical chip; the four NMOS chips sit at `supported` **best-effort** under operator override 79-CONTEXT D-07. Named as a real successor rather than as none, because `79-03` genuinely exists and is genuinely the place this lands — but it is **not in v1.31** and nothing in this milestone will run it. |
+| 8 | **A true-UV `0x07` data point (TMS27C512)** | **no v1.31 owner** | Reachable only by consuming an irreversible part with no eraser on hand (D-01). Would need a UV eraser or a spare UV part. |
+| 9 | **The 6.25 V program-VCC evidence ceiling** | **the milestone's accepted debt — explicitly NOT this phase's to discharge** | Structurally unreachable on this shield. It is recorded as the milestone's standing debt; **Phase 146's honesty ledger is where it is *stated*, not where it is *discharged*.** |
+| 10 | **MERGE-05's +96 B leonardo band breach — adjudication** | **the operator, as a milestone requirements judgement** | Carried, deliberately not adjudicated by any bench plan; **BASE-01 was not re-anchored twice.** A real owner exists (the operator) but no v1.31 *phase* will settle it on this evidence. |
+| 11 | **T-145-45 — a threat-register entry asserting a firmware mitigation that does not exist** | **no v1.31 owner for the fix; Phase 146 may judge the wording** | `145-07-PLAN.md`'s register claims the firmware "independently refuses over-cap pulses with `MSG_ERR_PULSE_TOO_WIDE`". `src/proms/eprom.cpp` guards that refusal with `energy_cap_us > 0`, and the `0x07` row ships `energy_cap_us = 0` — **UNCAPPED**. Only the host's `click.IntRange(1, 65535)` bounded the 4688 µs run. **Recorded as a threat-register defect**, not applied silently. |
+| 12 | **RQ-4's frames-per-block table** | superseded, **no v1.31 owner** for a rewrite | It predicted **zero** intra-block frames at the database pulse; **64** were measured. Recorded as stale rather than cited as a passing prediction; nothing was retro-fitted to it. |
+
+**Inherited hand-offs from Phase 144, answered explicitly:**
+
+- **144 H6** — all bench evidence underlying BENCH-01…03: real bar motion, a real long write
+  surviving on physical hardware, per-run evidence, chip-availability dispositions, with a mandatory
+  re-flash first. **DISCHARGED** by this phase: the reflash is recorded by commit and verified byte
+  count, bar motion is measured on both Claim A and Claim B, the long write completed, per-run
+  evidence is in `runs/` and `readbacks/`, and both dispositions are full records.
+- **144 H7** — the 1766 B Leonardo headroom, armed at a 0 B growth band. **NOT discharged as
+  clean.** `145-03` discharged it for free at 26906 B against the 0 B band — but that reading was
+  **superseded mid-phase**: the debug session's `ebe9cb3` is 27002 B, **+96 B**, which is the open
+  MERGE-05 breach in row 10 above. The honest status is that H7 was answered green and then went
+  red underneath the answer, and this record says so rather than citing the green reading.
+
+**D-09's re-seat allowance: UNCONSUMED.** Stated once more at the close because it is easy to lose:
+**it was never spent, in either session, and no re-seat was ever performed at any point in this
+phase.** Session 1 offered it and declined it for want of a named physical cause — a refusal the
+debug session's firmware root-cause later vindicated.
+
+---
+
+# VERDICT: Phase 145 — Bench Validation
+
+## The four ROADMAP success criteria, answered one at a time
+
+### Criterion 1 — quoted verbatim
+
+> `0x07` completes a full write→read→verify on W27C512 or TMS27C512 on Leonardo, with per-run
+> evidence recorded.
+
+**Outcome: `validated`.**
+
+Three full **65536-byte** cycles on the Winbond **W27C512** (`0xda08`) on **Leonardo**, three
+**distinct** images so no cycle could pass by rewriting bytes already present:
+
+| Cycle | Image | Write (firmware oracle 1a) | Verify (firmware oracle 1b) | Independent host-side SHA compare (oracle 2) | Read stability (D-07) |
+|---|---|---|---|---|---|
+| 1 | `img1.bin` | exit 0, `Write to W27C512 successful (106.06s).`, 0 bad bytes | exit 0, `Verify for W27C512 successful (5.68s).` | exit 0, `f72489604bfe…` == `f72489604bfe…`, **65536/65536** | **PASS**, N=3, **1** distinct SHA |
+| 2 | `img2.bin` | exit 0, `Write to W27C512 successful (105.69s).`, 0 bad bytes | exit 0, `Verify for W27C512 successful (5.69s).` | exit 0, `b566c7a0319c…` == `b566c7a0319c…`, **65536/65536** | **PASS**, N=3, **1** distinct SHA |
+| 3 | `img3.bin` | exit 0, `Write to W27C512 successful (106.06s).`, 0 bad bytes | exit 0, `Verify for W27C512 successful (5.69s).` | exit 0, `74c359c8d866…` == `74c359c8d866…`, **65536/65536** | **PASS**, N=3, **1** distinct SHA |
+
+**Nine clean cells, both oracles, all three cycles** — D-09's pass rule is 3/3 byte-exact on both
+oracles and that is what was measured, with the single re-seat allowance **UNCONSUMED**.
+
+**Both oracles, kept separate on purpose (D-06).** `verify` is a *second firmware-side pass* sharing
+`write`'s `_main_phase_send_data` handler, so the independence in that table lives entirely in the
+oracle-2 column — a read-to-file plus `sha256sum` against the source image, computed on the host.
+
+**The erase demonstrably fired**, so no silent no-op can masquerade as a pass: **65408/65536 (99.8 %)**
+of cycle-1→2 bytes and **59392/65536 (90.6 %)** of cycle-2→3 bytes require at least one `0`→`1`
+transition, which only a real erase can deliver, and consecutive read-backs were asserted to differ
+in **all 65536** bytes both times.
+
+**Per-run evidence, by path:** `runs/cycle1/`, `runs/cycle2/`, `runs/cycle3/` (nine 65536-byte
+read-backs, three per cycle); `readbacks/readback1.bin`…`readback3.bin` plus `readbacks/prewrite.bin`;
+`logs/write_cycle{1,2,3}.{stdout.log,stderr.raw}`, `logs/verify_cycle{1,2,3}.log`,
+`logs/read_cycle{1,2,3}.log`, `logs/consistency_cycle{1,2,3}.log`; and every digest in
+`SHA256SUMS.txt`. **No `--force`, `--skip-erase` or `--no-blank-check`** in any of the recorded
+silicon-touching invocations (D-17), corroborated at the wire level by `Flags set: CanErase (0x02)`.
+
+**Session 1's genuine failure is not laundered out of this verdict.** Cycle 1 attempt 1 failed on the
+first byte of the first block (`Byte at 0x000000 failed to program within 25 pulses`, exit 1) and is
+recorded as a **fail** with its cause — a v1.31 firmware defect found by a debug session, not a bench
+fault. It stands in this record and it is **not** one of Gate 2's three counted cycles.
+
+### Criterion 2 — quoted verbatim
+
+> `0x08` (AM27C020) is either bench-validated with per-run evidence or recorded skipped-with-reason
+> naming the missing part — never inferred from the `0x07` result.
+
+**Outcome: `skipped-with-reason`. Missing part named: AM27C020.**
+
+No AM27C020 is on the bench this session (operator). The disposition record cites Phase 99's numbers
+rather than re-deriving them: write #1 → **60 of 64** byte-exact with the first four bytes at
+`0x1da00`…`0x1da03` staying `0xFF`; write #2 at a different region → **0 of 64**; read stability
+between them **PASS at N=3, one distinct SHA**, proving the partial-program state was real and not a
+read glitch; idle VPP 12.9–13.0 V in band throughout. Under D-14 that shape is a **fail**, not a
+qualified pass — the taxonomy was fixed before any run precisely so it could not be argued into the
+friendlier bucket afterwards. Carried as **FUT-08** with an un-instrumented program-window droop
+hypothesis.
+
+**This disposition is NOT inferred from the `0x07` result.** No `0x08` measurement was taken in this
+phase, and nothing in Gate 2's or Gate 3's success is evidence about `0x08`. The two protocols share
+a firmware write path but not a part, a VPP path or a bench result, and this record makes no
+transfer between them.
+
+### Criterion 3 — quoted verbatim
+
+> `0x0B` (M2716/M2732) is either bench-validated with per-run evidence or recorded skipped-with-reason
+> naming the missing part — never inferred from the `0x07` result.
+
+**Outcome: `skipped-with-reason`. Missing parts named: M2716 and M2732.**
+
+Neither part is on the bench this session (operator). The disposition record cites Phase 79: **VPE
+22.4 V by operator DMM** against **23.9 V reported by `firestarter vpe`**, both at max pot, roughly
+90 % of the rated 25 V; VPP on the same run roughly 15–19 V by DMM against 18.7 V by firmware on the
+dropped path; the strict **≥ 25 V bar was NOT CLEARED** and was then retired by operator override
+(79-CONTEXT D-07), after which the four NMOS chips sit at `supported` **best-effort**. The caveat is
+carried: the firmware ADC measures the regulator **rail**, the DMM measures the **socket-delivered
+pin** — different quantities, neither superseding the other. **Definitive proof — a real write plus
+an independent read-back SHA — is parked at Phase 79 plan `79-03`**, pending a physical chip.
+
+**This disposition is NOT inferred from the `0x07` result.** No `0x0B` measurement was taken in this
+phase.
+
+### Criterion 4 — quoted verbatim
+
+> No chip's `support_status` changes as a result of this milestone's bench runs.
+
+**Outcome: `validated`**, on four independent legs at Gate 0 **and re-confirmed at the tip after
+every bench run had landed** — so the criterion's own words, *as a result of this milestone's bench
+runs*, are answered at the end and not only before the bench was touched. The end-of-phase
+re-confirmation and its figure-for-figure comparison against Gate 0 are recorded in the
+`145-08` Task 3 section below.
+
+The four legs: the whole-milestone `chip_database.json` diff from `4d18b645` to HEAD is **zero
+bytes**; the generator-inputs diff (`tools/build_db.py`, `tools/extra_chips.json`, `tools/infoic.xml`)
+is **zero bytes**, closing the latent-change gap that an unchanged generated file over drifted inputs
+would leave; the AST write-locus checker exits **0**, holding `tools/build_db.py` as the sole
+sanctioned write locus; and the value histogram is **736 supported / 9 adapter-required /
+1 protocol-not-implemented / 746 total**. `tools/build_db.py` was **not** run — the requirement is
+that nothing changed, and regenerating would itself be the change.
+
+## Positive findings
+
+1. **The v1.31 per-byte program loop programs a W27C512 byte-exactly, repeatably, on real silicon** —
+   three 64 KiB cycles, three distinct images, nine clean oracle cells, three independent read
+   stability passes.
+2. **Write timing is tightly consistent:** 106.06 s / 105.69 s / 106.06 s, a spread of **0.37 s**
+   across three full 64 KiB cycles. The consistency is worth more here than any single figure.
+3. **D-10 Claim A HOLDS, measured:** 64 intra-block progress frames at the database pulse.
+4. **D-10 Claim B HOLDS, measured, on 4/4 blocks:** 24 intra-block positions at `--pulse-us 4688`,
+   every one firmware-backed by an independent `MSG_DATA_PROGRESS` decode, with a uniform `164:22`
+   step signature — and a **third** oracle (`DATA:` decode lines from a separate invocation)
+   reproducing `intra_block_frames=24` exactly.
+5. **The bar-latch artifact and the real signal were produced side by side** and are visibly
+   different objects — the companion database-pulse run is a control, not an argument.
+6. **`--pulse-us` demonstrably takes effect on silicon:** 30.94 s against 11.87 s for the same 4096
+   bytes, a 19.07 s gap against 18.79 s predicted by pulse arithmetic alone.
+7. **The CAP-03 advertised-budget mechanism carried a run the old 120 s fallback could not have:**
+   at 4688 µs even the unpadded pulse-only worst case is 121 s. This is a claim Gate 2's three cycles
+   were structurally incapable of making.
+8. **A1 is derived** at ~1436 µs per pulsed byte, three pairings, spread 0.38 µs, cross-checked twice
+   from frame cadence across a 47× pulse range — **as an upper bound on a different quantity**.
+9. **The record's own failure discipline held.** Session 1's failure was recorded as a fail, handed to
+   a debug session rather than absorbed, and the re-seat allowance was refused for want of a named
+   cause — a refusal the firmware root-cause vindicated. **Five broken acceptance locators were found
+   and replaced across `145-06`, `145-07` and `145-08`, each with the substitution recorded and a
+   negative control; no evidence was reshaped to satisfy any of them.**
+10. **A new finding was surfaced by the eyes-on half that the machine half had not caught** — the
+    MAIN write bar never reaching 100 % — which is the clearest possible justification for D-10's
+    two-way discharge.
+
+## Boundaries — stated, not implied
+
+Each of these is a limit on what this record supports. None is optional and none is a formality.
+
+1. **No comparative claim.** **This record does not claim that v1.31 programs better, faster or more
+   reliably than what preceded it.** D-08 rejected a pre-v1.31 control run, this milestone claims
+   **fidelity, not improvement**, and **no control run was made or intended**. The **22.84 s**
+   pre-v1.31 figure that appears in cycle 1's record is a *recorded historical number, not a
+   control measurement* — not taken on this part, in this session, under these conditions — and
+   **58.9 s** of the difference against it is already accounted for by the `EPROM_VPP_SETUP_US`
+   100 → 1000 µs settle increase shipped by a debug session outside this phase.
+2. **No datasheet-conformance claim, in either direction.** The **6.25 V** program-VCC evidence
+   ceiling is unreachable on this shield, and that debt belongs to **the milestone**, not to this
+   phase. Nothing here says the algorithm is datasheet-correct and nothing here says it is not.
+3. **The evidence scope is exactly one part, one controller, one shield revision:** the Winbond
+   **W27C512**, chip-id **`0xda08`**; controller **`leonardo`**; shield **Rev 2.0**, read off the
+   silkscreen by the operator because the EEPROM `hw_revision` byte cannot distinguish 2.0 from 2.2
+   from the modified Rev 0. **Nothing here extrapolates to another protocol, another part, another
+   board revision or another controller.**
+4. **Nothing here speaks for Uno-class boards.** The intra-block progress emission is **`leonardo`-only
+   and compiled out on `SERIAL_ON_IO` targets** — structurally absent, not merely untested. Both
+   D-10 claims are silent about those boards by construction.
+5. **`0x08` and `0x0B` remain unvalidated on hardware.** Both are `skipped-with-reason` and both are
+   fixed in the golden trace only, never on a part. **Their dispositions must never be inferred from
+   the `0x07` result.**
+6. **Gate 2 and Gate 3 both ran on a build carrying an open, un-adjudicated MERGE-05 breach** —
+   `ebe9cb3` is **+96 B** against a 0 B leonardo must-not-grow band, and **BASE-01 was not
+   re-anchored a second time** to make it green.
+7. **The firmware changed mid-phase and D-16 still holds on its own terms.** No *plan* in this phase
+   created, edited, renamed or deleted a file under either sub-repo. But a **debug session — which is
+   not a plan** — changed eleven files under `firestarter/` (`eb563d2` + `ebe9cb3`, +96 B). **Every
+   bench measurement from 2026-08-17 onward was produced by `ebe9cb3` (27002 B), not the `a594173d`
+   (26906 B) image Gate 1 recorded**, and Gate 1's firmware-identity rows were superseded in
+   `145-05`. Said plainly rather than left as a technicality.
+8. **The intermittent single-byte margin failure is mitigated, not explained.** ~17 clean cycles is
+   not a root cause.
+9. **No requirement checkbox was flipped by this plan or by any plan `145-01`…`145-08`.**
+   `BENCH-01`, `BENCH-02` and `BENCH-03` all remain `[ ]`/Pending; ticking is centralised in `145-09`
+   behind its own blocking operator gate.
+
+## Phase verdict
+
+**Phase 145 — Bench Validation: `validated`**, on all four ROADMAP success criteria —
+criterion 1 `validated`, criterion 2 `skipped-with-reason` (AM27C020 named), criterion 3
+`skipped-with-reason` (M2716 and M2732 named), criterion 4 `validated` at Gate 0 and re-confirmed at
+the tip. Criteria 2 and 3 are *satisfied by* a skipped-with-reason record: their own wording admits
+it, and the naming and the not-inferred sentence are what they demand. **Twelve items carry forward
+with no v1.31 owner**, listed above; **sixteen readings were not taken**, each with its blocker
+named; and **every boundary in the section above limits what this verdict supports.**
+
+**Session end:** 2026-08-17, phase closed at `145-08`. Witness: the operator, **Henrik
+(henrik@predictly.se)** — who seated the part, read the shield revision off the silkscreen,
+authorized every destructive spend, and supplied D-10's eyes-on half in their own words from a run
+they executed themselves. Driver: Claude Code (GSD executor), D-19 split throughout.
+
+**Dispatch mode, re-asserted at close:** this phase was dispatched with **no `--auto` flag and no
+`--chain` flag**, and `check auto-mode` resolved `false`. Per D-20 auto-modes **auto-approve**
+`human-verify` gates and `autonomous: false` is not self-protecting on its own, so this line is the
+record's standing assertion that **every operator gate in this phase was real and none was
+self-approved.**
+
