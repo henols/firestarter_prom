@@ -2805,6 +2805,64 @@ Plans:
 
 - [ ] TBD (promote with /gsd-review-backlog when ready)
 
+### Phase 999.30: Write progress bar never reaches 100% — final frame never emitted (BACKLOG — filed 2026-08-17 by v1.31 Phase 145 Gate 2/Gate 3)
+
+**Goal:** [Captured for future planning] Make the `write` progress bar finish at 100%. Observed on **every** write captured in v1.31 Phase 145: the MAIN-phase bar stops at the position of the **last firmware `MSG_DATA_PROGRESS` frame** and never advances to the total, even though the write succeeds and verifies byte-exact. Measured, all six runs on Leonardo / Rev 2.0 / W27C512, fw `ebe9cb3`:
+
+| Run | Final bar | % |
+|---|---|---|
+| Gate 2 cycle 1 (64 KiB) | `0xfeb0/0x10000` (65200/65536) | 99.49 |
+| Gate 2 cycle 2 (64 KiB) | `0xfeb3/0x10000` | 99.50 |
+| Gate 2 cycle 3 (64 KiB) | `0xfeb0/0x10000` | 99.49 |
+| Gate 3 `--pulse-us 4688` (4 KiB) | `0x0fd8/0x1000` (4056/4096) | 99.02 |
+| Gate 3 eyes-on re-run (4 KiB) | `0x0fd8/0x1000` | 99.02 |
+| Gate 3 DB-pulse companion (4 KiB) | `0x0eb0/0x1000` (3760/4096) | 91.80 |
+
+**The mechanism is proven, not guessed:** the final bar position equals the last firmware frame position **exactly** in all six runs, so fewer frames ⇒ a lower final percentage. That is why the low-frame DB-pulse companion lands at 91.8 % while the many-frame 4688 µs run reaches 99.0 % — the same defect, scaled by frame count. The time-keyed 1000 ms emission interval means the final partial interval before completion never emits, and nothing emits a terminal frame at `MAIN: (main done)`. **The INIT blank-check bar DOES reach 100 %** (`0x10000/0x10000`) in the same transcripts, so this is specific to the MAIN write bar, not to progress rendering generally.
+
+Fix direction: emit a final `MSG_DATA_PROGRESS` at write completion (or have the host snap the bar to total on `MAIN: (main done)`). Host-side snapping is the cheaper half and needs no firmware flash; the firmware half is +bytes on a target already at 94.2 % flash. **Cosmetic only** — all six writes verified byte-exact on both oracles, so no correctness claim is affected.
+
+**⚠ NOT a duplicate of 999.3.** 999.3 is about *when* frames arrive on **blank-check/read** — they batch and burst to 100 % at the end (com-mode gating in `_single_step_operation_callback`), and that bar *does* complete. This item is about a **missing terminal frame on write**, where the bar never completes at all. Related surface, different defect; 999.3's com-mode root cause does not explain this one. Whoever fixes either should read both.
+**Requirements:** TBD
+**Plans:** 0 plans
+
+**Origin:** v1.31 Phase 145. Surfaced from the operator's own pasted terminal transcript during D-10's eyes-on re-run (2026-08-17), then verified by the orchestrator across all five prior captures; plan 145-08 found the sixth (the DB-pulse companion) and it is the run that proves the mechanism. Full record in [`145-BENCH-LOG.md`](phases/145-bench-validation/145-BENCH-LOG.md) and the transcript at [`logs/eyeson_rerun_pulse4688.operator_paste.log`](phases/145-bench-validation/logs/eyeson_rerun_pulse4688.operator_paste.log). Carried out of v1.31 with the literal phrase `no v1.31 owner` — Phase 146 is docs-and-claims only and D-16 forbade any Phase 145 plan from editing a sub-repo. Severity: minor (cosmetic).
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.31: No firmware-side upper bound on `--pulse-us` for `0x07`/`0x08` (BACKLOG — filed 2026-08-17 by v1.31 Phase 145 Gate 3)
+
+**Goal:** [Captured for future planning] Decide whether the 27C 28-pin and 32-pin rows need a firmware-enforced pulse-width ceiling, and add one if so. Today **only the host bounds `--pulse-us`**, via `click.IntRange(1, 65535)`. The firmware's own refusal, `MSG_ERR_PULSE_TOO_WIDE` (`0xAE`), is guarded by `energy_cap_us > 0` in `eprom.cpp`:
+
+```c
+uint32_t energy_cap_us = pgm_read_dword(&row->energy_cap_us);
+if (energy_cap_us > 0 && handle->pulse_delay > energy_cap_us) { /* refuse */ }
+```
+
+and `eprom_params.cpp` ships `energy_cap_us = 0` (documented in `eprom_params.h:53` as "0 = uncapped") on both EPROM rows that matter here:
+
+| Protocol | `energy_cap_us` | `max_pulses` | Refusal reachable? |
+|---|---|---|---|
+| `0x07` PROTO_EPROM_28PIN | **0 (uncapped)** | 25 | **No** |
+| `0x08` PROTO_EPROM_32PIN | **0 (uncapped)** | 25 | **No** |
+| `0x0B` PROTO_EPROM_24PIN | 50000 | 255 | Yes |
+
+So `0x0B` is protected and `0x07`/`0x08` are not. The guard is *correct as written* — an unguarded compare would refuse every pulse on a row whose sentinel is 0 — so this is a **table-data / policy gap, not a code bug**. Consequence: a host at the top of its own range (`--pulse-us 65535`) × `max_pulses` 25 puts ~1.6 s of accumulated program energy into a single cell with **no firmware backstop**. v1.31 Phase 145 deliberately ran 4688 µs (~117 ms worst case per byte, ~47× the database pulse) on this path and it was accepted without complaint, as expected.
+
+Decide between: (a) give `0x07`/`0x08` a real `energy_cap_us`, which makes both `MSG_ERR_PULSE_TOO_WIDE` and `MSG_ERR_ENERGY_CAP` reachable and changes documented behaviour for those rows; (b) add a separate absolute pulse ceiling independent of the energy sentinel; or (c) accept the gap explicitly and stop implying a firmware mitigation exists. **Note (c) is a real option** — the wide-pulse path is dev/diagnostic surface, and Phase 145 wanted it permissive on purpose.
+
+**Also fix the documentation defect this exposed:** Phase 145's threat register entry **T-145-45 asserts a mitigation that does not exist** — it states the firmware "independently refuses over-cap pulses with `MSG_ERR_PULSE_TOO_WIDE` before enabling high voltage." It cannot, on either row. The firmware's own `CLAUDE.md` is already correct (it calls the refusal "structurally unreachable" on `0x07`), so the drift is in the phase's threat model, not the code docs. Anyone reading T-145-45 would wrongly believe an over-wide pulse gets caught.
+**Requirements:** TBD
+**Plans:** 0 plans
+
+**Origin:** v1.31 Phase 145 plan 145-07's Gate 3 pre-flight caught the divergence between T-145-45 and `eprom.cpp` before spending chip wear, and recorded it rather than applying the plan's assumption; independently re-verified against `eprom.cpp`, `eprom_params.cpp` and `eprom_params.h` at fw `ebe9cb3`. Recorded in [`145-BENCH-LOG.md`](phases/145-bench-validation/145-BENCH-LOG.md) Gate 3. Carried out of v1.31 with `no v1.31 owner` — D-16 forbade any Phase 145 plan from editing a sub-repo, and Phase 146 is docs-and-claims only. Severity: minor-to-moderate (a permissive dev path with no hardware backstop, plus a threat register that overstates protection). Related: Backlog **999.22** (per-protocol EPROM programming algorithms), which owns the parameter table this would change.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
 ---
 
 ## Backlog — imported from GitHub (`henols/firestarter_prom`, 2026-07-27)
