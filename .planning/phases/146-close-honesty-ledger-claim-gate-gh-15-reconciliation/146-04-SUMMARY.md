@@ -39,10 +39,10 @@ decisions:
   - "Legs 14/15 build their input by FILTERING the already-probed plant fixture instead of writing a fresh forbidden literal into the suite source"
   - "The register's own header (:9-11) misattributes §3 to plan 146-02; per the register's stated discipline the earlier text was left alone and the divergence recorded inside §3"
 metrics:
-  duration: "~35 min"
+  duration: "~40 min"
   completed: 2026-08-17
   tasks: 2
-  commits: 3
+  commits: "6 -- 28340b37 (fixtures), 302cb63d (suite + citations 3), 27b74179 (summary), 09969f85 (state + roadmap), 69a8b866 (ahead-count correction), and this metrics correction; the first draft of this field said 3, counting only the task commits and the summary"
   legs_authored: 15
   legs_green: 14
   legs_red_by_design: 1
