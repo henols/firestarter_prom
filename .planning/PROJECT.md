@@ -128,7 +128,10 @@ CAP-02 `+34 B` drift, and this phase's growth against a deliberately un-updated 
 fitting at **26906/28672 B (93.8%, 1766 B headroom)**. `native_trace_v131` remains RED by design (D-24)
 with **zero** frames added. Recorded and operator-approved at 143-10's blocking gate: the CAP-02 port is a
 **re-implementation citing `13eb350`**, not a cherry-pick. D-01's ROADMAP-prose correction (this phase is
-*not* independent of 140–142) is deferred to Phase 146 / CLOSE-04 by design.
+*not* independent of 140–142) is DISCHARGED AT Phase 146, plan 146-05 — see
+`phases/146-close-honesty-ledger-claim-gate-gh-15-reconciliation/146-CORRECTIONS.md` rows C-1/C-2. This
+sentence itself carries no false statement (research measured zero PROJECT.md hits for the independence
+clause); it is a true routing note now updated from forward-looking to discharged.
 **Phase 144 (Tests & Build Verification) CLOSED — 7 plans in 6 waves, verified 8/8, TEST-01…TEST-08 all
 Complete.** Both of the milestone's standing REDs are retired: `native_trace_v131` runs 5/5 after the
 golden trace was re-frozen at this phase's tip (91/115/59), and `check_size_baseline.py` reads green —
@@ -159,6 +162,23 @@ parameter table, not three state machines — the opposite of gh#15's "each prot
 timing constants". `handle->pulse_delay` stays on the write path; protocol constants survive only as
 fallbacks for `pulse_delay == 0` (`eprom.cpp:70-77`).
 
+**⚠ CORRECTION (Phase 146 / CLOSE-04, origin C3 / 141 H3) — the C3 row above ("With C1 applied, no
+*pulse* comes near it") is narrower than shipped source supports; it is true of `chip_database.json`
+data and false of the wire.** The `pulse-delay` wire field is parsed by the unclamped `extract_long`
+macro chain (`firestarter/src/json_parser.c:279-282`, invoked at `:304-306`) into `handle->pulse_delay`,
+declared `uint32_t` (`firestarter/include/firestarter.h:197`) — no clamp exists at parse time, so a
+value above 65535 is reachable on the wire independently of the host's own `1..65535` Click bound. Two
+narrowings measured this phase, neither in the inherited text: (1) an over-ceiling value is **delivered**,
+not silently truncated — Phase 141's 32-bit-safe split-delay helper (`mem_util_split_delay` /
+`mem_util_delay_us`, `firestarter/src/proms/memory.cpp:238-251`, ceiling `MEM_UTIL_DELAY_US_MAX 16383UL`
+at `:34`) now carries the program pulse (`memory.cpp:337`), so the 16-bit truncation hazard C3 describes
+is mitigated, not that the value is bounded. (2) the only firmware-side refusal is `0x0B`'s pre-flight
+`MSG_ERR_PULSE_TOO_WIDE` (`firestarter/src/proms/eprom.cpp:90-110`), gated on `energy_cap_us > 0`; that
+value ships `0` on `0x07`/`0x08` (`eprom_params.cpp:50-52`), so the unbounded path is live on those two
+rows only. **This is recorded, not clamped (D-06 of this milestone) — Backlog 999.31 owns the adjacent
+decision of whether to add a bound.** Register row **C-3** in
+`phases/146-close-honesty-ledger-claim-gate-gh-15-reconciliation/146-CORRECTIONS.md`.
+
 **Target features:**
 
 - **A `const` parameter table keyed by `protocol_id`** carrying **shape columns only** —
@@ -179,6 +199,20 @@ fallbacks for `pulse_delay == 0` (`eprom.cpp:70-77`).
   accumulated program time per byte at 50 ms**, since `100 × 500 µs = 50 ms` is exactly the classic
   2716 total programming time. Early-verifying bytes exit fast; stubborn bytes still receive the
   datasheet's full energy budget. No overpulse on this row.
+
+  **⚠ CORRECTION (Phase 146 / CLOSE-04, origin F-140-07) — the "classic 2716 total programming time"
+  justification above is factually wrong; the cap value it justifies is not.** The TI TMS 2516
+  datasheet states its own total programming time for all bits as **100 seconds**
+  (`140-PARAM-TABLE-RECORD.md:259` cites the figure); 50 ms is that same datasheet's *per-location*
+  pulse width (`t_w(PR)` TYP 45/**50**/55 ms), not a total. The **value** `energy_cap_us = 50000UL`
+  keeps its genuine primary-datasheet basis; only the published **reason** is corrected here. Four
+  sites carried this text: the posted gh#15 comment (public, owed by plan `146-12`), this bullet,
+  `.planning/REQUIREMENTS.md`'s D-02 rationale cell (owed below in the same commit), and two dated
+  sites recorded rather than edited — `.planning/PROJECT.md:1187`'s v1.31-start footer and
+  `.planning/STATE.md:67` (history; block-versus-history rule). **`firestarter/doc/PROTOCOLS.md`
+  §1.5 already carries this same correction in place, landed by the Phase 140 record (140-06) —
+  this phase records that discharge rather than repeating the edit.** Register row **C-6** in
+  `phases/146-close-honesty-ledger-claim-gate-gh-15-reconciliation/146-CORRECTIONS.md`.
 - **Safe 32-bit delay helper** — split ms/µs portions; never a bare `delayMicroseconds(75000)`.
 - **VPE held across the block (the enabler).** Per-byte verify looks unaffordable because
   `eprom_write_execute` pays a `delay(10)` VPE settle (`eprom.cpp:114`) — per byte that is
@@ -213,7 +247,34 @@ fallbacks for `pulse_delay == 0` (`eprom.cpp:70-77`).
 | `0x08` | `handle->pulse_delay` | 25 | `3 × N × pulse` | ~0.2 s | ~13 s |
 | `0x0B` | `handle->pulse_delay` | 50 ms energy cap | none | ~0.8 s | ~25.6 s |
 
+**⚠ CORRECTION (Phase 146 / CLOSE-04, origin F-140-05) — the table above's `overpulse` column is false
+for BOTH the `0x07` and `0x08` rows, not the one CONTEXT names; a third cell conflates two columns.**
+The shipped table (`firestarter/src/proms/eprom_params.cpp:49-53`, columns per
+`include/eprom_params.h:51-58`) sets `overprogram_factor = 0` on **both** `0x07` and `0x08`
+(`max_pulses` 25 each) — not `3 × N × pulse` as both rows above state. This is not an inference: the
+shipped source names the contradiction in its own comment (`eprom_params.cpp:41-43`), *"0x08
+overprogram_factor = 0 resolves D-06 from primary datasheets, agreeing with PROJECT.md's prose and
+CONTRADICTING PROJECT.md's own throughput table — the contradiction is named here, not smoothed."*
+Their `worst case` figures (`~51 s`, `~13 s`) were computed **with** the overpulse and so err
+conservatively, not falsely low. The conditional prose above this table
+("Overprogram pulse — `3 × N × pulse` capped at 75 ms **where `overprogram_factor > 0`**") is correct
+and needs no correction. **Third defect:** the `0x0B` row's `max pulses` cell reads "50 ms energy cap",
+conflating that column with `energy_cap_us`; the shipped `max_pulses` value on that row is **255**
+(`eprom_params.cpp:52`). Register row **C-5** in
+`phases/146-close-honesty-ledger-claim-gate-gh-15-reconciliation/146-CORRECTIONS.md`.
+
 **Faster than today in the typical case** — the current code can make 20 full block passes.
+
+**⚠ CORRECTION (Phase 146 / CLOSE-04, origin OD-B, surfaced not decided by 146-RESEARCH.md §"(5)") —
+the sentence above is a comparative claim this milestone's own bench boundary forbids.** No control
+run of the pre-change block-mismatch-mask loop exists in this milestone's evidence, so "faster ... than
+today" cannot be measured here — `145-BENCH-LOG.md`'s "Boundaries" §1 (`:2701-2707`) is explicit that no
+before/after comparison was run. The historical write figure that could read as a baseline is recorded
+at `145-BENCH-LOG.md:2702`, a *"recorded historical number, not a control measurement"*, deliberately
+not restated by numeral here. This sentence is scoping-era intent prose written before any code moved;
+it stands corrected here because the next milestone's scoping pass reads it as PROJECT.md's live
+record. Register row **C-8** in
+`phases/146-close-honesty-ledger-claim-gate-gh-15-reconciliation/146-CORRECTIONS.md`.
 
 **Evidence ceiling — fixed up front, before any code moves:**
 

@@ -25,6 +25,19 @@ commit `c60543c5`), retiring ROADMAP Backlog **999.22** (queued as the `v1.27` s
 | **D-07** | **No `support_status` change in this milestone.** | Same posture as v1.22/v1.23. A timing fix alone does not graduate a chip; graduation is a separate evidence-gated decision. Keeps the claim gate's job simple. |
 | **D-08** | **Bench coverage is asymmetric by inventory.** `0x07` required; `0x08`/`0x0B` opportunistic, skipped-with-reason. | Operator inventory, 2026-08-08. Never rubber-stamped. |
 
+**⚠ CORRECTION (Phase 146 / CLOSE-04, origin F-140-07) — D-02's rationale cell above states a false
+justification for a correct value.** *"`100 × 500 µs = 50 ms` is exactly the classic 2716 total
+programming time"* is factually wrong: the TI TMS 2516 datasheet states its own total programming time
+for all bits as **100 seconds** (`140-PARAM-TABLE-RECORD.md:259`); 50 ms is that same datasheet's
+*per-location* pulse width (`t_w(PR)` TYP), not a total. The decision itself — `energy_cap_us = 50000UL`
+— keeps its genuine primary-datasheet basis; only the published reason is corrected. This cell is one
+of the false text's four sites; the others (the posted gh#15 comment, `.planning/PROJECT.md`'s
+target-features bullet, and two dated/history sites recorded rather than edited) are enumerated in
+`phases/146-close-honesty-ledger-claim-gate-gh-15-reconciliation/146-CORRECTIONS.md` row **C-6**, which
+also records that `firestarter/doc/PROTOCOLS.md` §1.5 already carries this same correction in place
+(Phase 140 record, landed by plan 140-06 — not redone here). This block does not edit the D-02 cell
+above, any requirement text, any checkbox or any traceability row.
+
 ## Evidence ceiling — fixed before any code moves
 
 The ~**6.25 V program-VCC** all four vendor algorithms assume for threshold margin is **unreachable on
