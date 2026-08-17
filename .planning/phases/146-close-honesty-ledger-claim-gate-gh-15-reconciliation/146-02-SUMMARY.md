@@ -240,3 +240,69 @@ None — no external service configuration required. Nothing in this plan is out
 ---
 *Phase: 146-close-honesty-ledger-claim-gate-gh-15-reconciliation*
 *Completed: 2026-08-17*
+
+## Self-Check: PASSED
+
+All three claimed artifacts exist on disk and all three claimed commits resolve in `git log`:
+
+| Claim | Command | Result |
+|---|---|---|
+| `146-check-close03-docs.py` | `[ -f … ]` | FOUND |
+| `146-DOC-CHECK-RECORD.md` | `[ -f … ]` | FOUND |
+| `146-02-SUMMARY.md` | `[ -f … ]` | FOUND |
+| `57830381` (Task 1) | `git log --oneline --all \| grep -q` | FOUND |
+| `76d037fa` (Task 2) | `git log --oneline --all \| grep -q` | FOUND |
+| `1eb4ad32` (summary) | `git log --oneline --all \| grep -q` | FOUND |
+
+## Shared-File Protocol — snapshot + diff results
+
+`.planning/STATE.md`, `.planning/ROADMAP.md` and `.planning/REQUIREMENTS.md` were each copied to
+`/tmp/gsd146/snap/` **before** any programmatic write, and diffed after. Two verbs were exercised; one
+had to be reverted.
+
+### `state.advance-plan` — DAMAGED the file, reverted, edits made by hand (tooling occurrence #9)
+
+Return value: `{"advanced": false, "reason": "last_plan", "current_plan": 146, "total_plans": 13,
+"status": "ready_for_verification"}`. It read the **phase** number `146` as the current *plan* number,
+concluded this was the last of 13, and acted on that conclusion **with 11 plans still to run**. The
+diff against the snapshot showed four defects beyond the intended counter advance:
+
+| # | What it wrote | Why it is wrong |
+|---|---|---|
+| 1 | `status: executing` → `status: verifying` | 11 of 13 plans are unrun; the phase is not ready for verification |
+| 2 | body `Status: Executing Phase 146.` → `Status: Phase complete — ready for verification` | same, and it is now a false statement in a live record |
+| 3 | `stopped_at` lost its YAML quoting | silent format change to a shared file |
+| 4 | `last_activity_desc` **clobbered** to a 2-line fragment (`**146-01` COMPLETE** … §§0-2`) | destroyed the entire preserved planning + execution record, including the eight prior tooling occurrences and the gate-hazard notes — the exact recorded failure mode, whose ninth instance this is |
+
+**Action taken:** restored from the pre-call snapshot and verified **byte-identical**
+(`diff` clean, 2320 lines), then made every state edit by hand. Only the verb's progress arithmetic was
+correct and it is kept: `completed_plans` 61 → **63**, `percent` 89 → **85** (63 of 74).
+
+**Final hand-edited diff, audited hunk by hunk — 6 hunks, 9 insertions / 8 deletions, all intended:**
+`:8-9` `stopped_at` + `last_updated`; `:11` `last_activity_desc` **prepended to**, never replaced;
+`:16-17` the two progress counters; `:115` `Plan: 146-01 of 13` → `146-02 of 13`; `:2310` one new
+Performance Metrics row; `:2314-2315` the Session block. `status: executing` is preserved. Nothing
+else moved.
+
+**One deliberate non-repair.** The clobber would have incidentally deleted the text that keeps the
+Phase 130 record gate RED at `STATE.md:11`, turning that gate green by destroying a record rather than
+by correcting one. Restoring the snapshot restored the RED, which is correct: `146-05` owns that hit.
+Re-measured after all hand edits — `python3 .planning/phases/130-*/check_record_corrections.py` →
+**`rc=1`**, `FAIL: 1 arm-toolchain-absent: /workspaces/.planning/STATE.md:11` — **exactly** the
+one pre-existing hit `146-01` bisected to `d2c212f1`, with **zero** new hits added by this plan.
+
+### `roadmap.update-plan-progress 146` — behaved; one line changed, and it was mine
+
+Return value: `{"updated": true, "phase": "146", "plan_count": 13, "summary_count": 2,
+"status": "In Progress", "complete": false}`. The diff against the snapshot is **one line**: `:591`,
+this plan's own checkbox, `- [ ] 146-02-PLAN.md` → `- [x]`. Line count unchanged at 3487. No
+whole-file reformatting occurred on this call, and the recorded defect where the verb clobbers an
+unrelated phase's `**Plans:**` line **did not manifest** — worth recording as a non-occurrence, since
+the hazard is real and snapshotting is what would have caught it.
+
+### `.planning/REQUIREMENTS.md` — never written
+
+`requirements mark-complete` was **not run**. `diff` against the snapshot is empty. `CLOSE-01`
+through `CLOSE-05` still read `Pending` in ROADMAP's coverage table (`:663-667`), unmoved. Plan
+`146-13` is the only plan permitted to tick them, and this plan's `requirements-completed` is `[]`
+on purpose.
