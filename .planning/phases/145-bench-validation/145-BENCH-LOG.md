@@ -1595,4 +1595,180 @@ no longer carries it as unproven. H4's `--pulse-us`-above-4687 µs half remains 
 **Verification-map rows discharged by this section and the one above:** row 22 (D-11 long-write free
 evidence) and row 23 (D-10 Claim A). Rows 24–27 remain Gate 3's and `145-08`'s.
 
+---
+
+# GATE 2 CLOSURE — `145-06` Task 3
+
+## The per-cycle oracle table (D-06) — nine cells, never merged
+
+| Cycle | Image | **Oracle 1a** — write's own verdict (firmware-side, 1st pass) | **Oracle 1b** — verify's own verdict (firmware-side, 2nd pass) | **Oracle 2** — independent host-side SHA compare |
+|---|---|---|---|---|
+| **1** | `img1.bin` | exit **0** — `Write to W27C512 successful (106.06s).`, 0 bad bytes | exit **0** — `Verify for W27C512 successful (5.68s).` | exit **0** — `f72489604bfe…` == `f72489604bfe…`, **65536/65536** |
+| **2** | `img2.bin` | exit **0** — `Write to W27C512 successful (105.69s).`, 0 bad bytes | exit **0** — `Verify for W27C512 successful (5.69s).` | exit **0** — `b566c7a0319c…` == `b566c7a0319c…`, **65536/65536** |
+| **3** | `img3.bin` | exit **0** — `Write to W27C512 successful (106.06s).`, 0 bad bytes | exit **0** — `Verify for W27C512 successful (5.69s).` | exit **0** — `74c359c8d866…` == `74c359c8d866…`, **65536/65536** |
+
+All **nine** cells are clean. The columns stay separate because D-06's point is that a *disagreement*
+must be visible; **oracle 1b is not independent** — `verify` shares `write`'s `_main_phase_send_data`
+handler and the firmware performs the compare — so the independence in this table lives entirely in
+the oracle-2 column.
+
+## The D-09 verdict
+
+**The pass rule: 3/3 byte-exact on BOTH oracles, with exactly one clean re-seat allowed across the
+whole of Gate 2.**
+
+**Result: 3/3 on both oracles.** Three cycles, three distinct images, each byte-exact on the
+firmware-side pair and on the independent host-side compare. In D-14's vocabulary Gate 2 is
+**`validated`**. D-14 admits only `validated`, `skipped-with-reason` or `fail` — no `partial` and no
+`inconclusive` — and nothing here needed softening, which is the only circumstance in which that
+taxonomy costs nothing to honour.
+
+## The D-09 re-seat ledger — stated explicitly, either way
+
+**The allowance was NOT used. It remains UNCONSUMED at Gate 2's close.**
+
+Said in as many words: **no re-seat was required at any point in Gate 2, no re-seat occurred, and
+D-09's single allowance was never spent.** The chip was seated once and not touched again.
+
+The ledger's full history, so the "unconsumed" claim is auditable rather than asserted:
+
+| Event | Re-seat? | Allowance state |
+|---|---|---|
+| Session 1, cycle 1 attempt 1 — `Byte at 0x000000 failed to program within 25 pulses`, exit 1 | **No** | The allowance was **offered and declined**. D-09 requires attribution to a *named physical cause*; the operator inspected the bench and reported none apparent, and selected the D-13 halt path. Debug session `w27c512-program-fail-byte0` later proved the cause was a **firmware defect** (Phase 141 deleted the only `CTRL_VPE_ENABLE` assert in the EPROM write path), vindicating the refusal. **Unconsumed.** |
+| Session 2, cycle 1 (`145-05`) | **No** | Ran clean first time on the fixed build. **Unconsumed.** |
+| Session 2, cycle 2 (`145-06` Task 1) | **No** | Ran clean first time. **Unconsumed.** |
+| Session 2, cycle 3 (`145-06` Task 2) | **No** | Ran clean first time. **Unconsumed.** |
+
+**Each of the three counted cycles was written exactly once.** There was no retry, silent or
+documented, and no source file was edited to make any result appear. Session 1's failure is **not
+discarded** — it stands in this record as a genuine failure with a genuine cause, and it is *not*
+one of Gate 2's three cycles.
+
+## The no-`--force` source assertion (D-17) — over a counted denominator
+
+This is a claim about the artifact, so it is stated with the count it covers rather than as an
+unbounded "all".
+
+**Denominator: 17 recorded silicon-touching `firestarter` invocations across Gates 0, 1 and 2** —
+**4** appearing as their own command-line subsection heading, and **13** appearing as `$ firestarter …`
+lines inside fenced blocks.
+
+The four command-line headings, verbatim (all at `####` depth):
+
+```
+#### `firestarter -p /dev/ttyACM0 erase W27C512 -b`                                          (line 535, D-03 erase pre-flight)
+#### `firestarter -v -p /dev/ttyACM0 write W27C512 .../images/img1.bin`                      (line 1032, cycle 1)
+#### `firestarter -v -p /dev/ttyACM0 write W27C512 .../images/img2.bin`                      (line 1164, cycle 2)
+#### `firestarter -v -p /dev/ttyACM0 write W27C512 .../images/img3.bin`                      (line 1316, cycle 3)
+```
+
+**The checks, and their results:**
+
+```
+$ grep -E "^#{2,6} .*firestarter " 145-BENCH-LOG.md | wc -l                                  → 4
+$ grep -E "^#{2,6} .*firestarter " 145-BENCH-LOG.md | grep -cE -- "--force|--skip-erase|--no-blank-check"  → 0
+$ grep -E "^#{2,6} .*firestarter .*write " 145-BENCH-LOG.md | grep -cE -- " -b| -a | -s "     → 0
+$ grep -cE "^\$ firestarter " 145-BENCH-LOG.md                                                → 13
+$ grep -E "^\$ firestarter " 145-BENCH-LOG.md | grep -cE -- "--force|--skip-erase|--no-blank-check"        → 0
+```
+
+**None of the 17 contains `--force`, `--skip-erase` or `--no-blank-check`; no `write` carries `-b`,
+`-a` or `-s`.** Every `--force` string anywhere in this record was checked individually and every one
+is a *negation or a declaration* (`--force used? No`, "no `--force` was passed", the verification-map
+rows), never an executed command line.
+
+**Two `-b` uses exist and both are legitimate, named here so the zero-count is not read as sleight of
+hand:** `erase W27C512 -b` and `blank W27C512`. On `erase`, `-b` is the *blank-check-after* flag —
+the opposite polarity to `write -b`, which sets `FLAG_SKIP_ERASE`. **No `write` in this phase carried
+`-b`.** That distinction is load-bearing: `write -b` skips the erase, not merely the blank check, and
+still reports "successful" over a corrupted part — the exact false-green this milestone exists not to
+commit.
+
+**What the ban protects — the two mechanisms, named:**
+
+1. **`eprom_check_vpp` (`firestarter/src/proms/eprom.cpp:525-586`) hard-aborts when the measured rail
+   exceeds `handle->vpp_mv + 500` — 12500 mV for this part** — returning `MSG_ERR_VPP_HIGH` and
+   ending the run. **`--force` converts that abort into a `MSG_WARN_VPP_HIGH` warning and proceeds**,
+   which on this specific board matters more than usual: the W27C512's `VPP is high: 13.1V > 12.0V`
+   guard has historically been force-bypassed here, and the operator's standing "use force and ignore
+   vpp" permission was **withdrawn for this phase** by D-17.
+2. **The chip-id check likewise aborts without `--force`.** That abort is what caught the v1.18
+   Phase-97 wrong-part mix-up; bypassing it risks driving one part's algorithm and VPP into another's
+   silicon.
+
+**Scope limit, stated rather than glossed:** this assertion covers **Gates 0, 1 and 2 only**. **Gate 3
+has not been run**, so no Gate-3 command line exists to assert over. `145-07` must extend this
+assertion over its own runs; it is not covered here.
+
+**A divergence from this plan's own acceptance grep, recorded rather than silently satisfied.**
+`145-06` Task 3 specifies `grep -cE "^### .*firestarter .* (write|verify|read|erase|id|dev
+consistency-check) "`. That expression returns **0** against this record, and would have done so
+however the work went: every command-line heading in this log is at `####` depth, not `###`, a
+convention set in Gate 1 long before this plan was written. The plan's regex is **broken as a
+gate — it cannot distinguish a compliant record from an empty one**. It was not "made to pass"; the
+heading depths were left as they are and the assertion is made with the corrected `^#{2,6} `
+expression above, with the original stated here so the substitution is visible.
+
+**A second limit worth being straight about:** not every silicon-touching invocation in this phase is
+a *heading* — 13 of the 17 are fenced-block lines, and cycle 1–3's `verify` and `read` commands are
+quoted inline in prose as well. The claim honoured here is that **every one of them is recorded
+verbatim somewhere in this log and all 17 were checked**, which is weaker than "every one is its own
+heading" but is what the record actually supports.
+
+## D-07 summary — three measurements, none inferred
+
+Read stability was measured **per cycle, three times, each in its own output directory**, and **not
+inferred from any single measurement**:
+
+| Cycle | Output dir | Verdict | Runs | Distinct SHAs | Digest |
+|---|---|---|---|---|---|
+| 1 | `runs/cycle1/` | **PASS** (exit 0) | N=3 | **1** | `f72489604bfe…` = `img1.bin` |
+| 2 | `runs/cycle2/` | **PASS** (exit 0) | N=3 | **1** | `b566c7a0319c…` = `img2.bin` |
+| 3 | `runs/cycle3/` | **PASS** (exit 0) | N=3 | **1** | `74c359c8d866…` = `img3.bin` |
+
+Nine read-back files, all 65536 bytes, all committed. In every cycle the three runs agreed **with the
+source image** as well as with each other — `dev consistency-check` only asserts the latter, so the
+former is a free extra confirmation of oracle 2 each time.
+
+**Why the per-cycle separation matters and is not ceremony:** program repeatability and read
+repeatability are **different failure modes**, and this project has a worked example — `0x08`
+(AM27C020) is precisely a part that **reads stably and programs unreliably** (Phase 99: write#1
+60/64, write#2 0/64, at stable idle VPP). A single end-of-gate stability check would have passed on
+that part too. Three separate measurements can catch a part that degrades across cycles; one cannot.
+
+## Gate 2 verdict: **VALIDATED**
+
+**Gate 2 verdict:** Three full 64 KiB cycles were written on three distinct images (`img1.bin`,
+`img2.bin`, `img3.bin`), all **3/3 byte-exact on both oracles** — the firmware-side write/verify pair
+and the independent host-side SHA compare, nine clean cells in total; per-cycle read stability
+**PASS at N=3 with 1 distinct SHA** in all three cycles; **no `--force`** in any of the 17 recorded
+invocations; **D-09's single re-seat allowance UNCONSUMED**, no re-seat performed and each cycle
+written exactly once; and **the erase demonstrably fired**, corroborated by the transition densities
+(**65408/65536, 99.8 %** of cycle-1→2 bytes and **59392/65536, 90.6 %** of cycle-2→3 bytes require at
+least one `0`→`1` transition, which no silent no-op erase can deliver) together with consecutive
+read-backs asserted to differ in **all 65536 bytes** both times. **Gate 3 (`--pulse-us 4688`) is next
+and is separately authorized** — it is `145-07`'s, it is not covered by Gate 2's spend authorization,
+and it has not been run.
+
+### What this verdict does NOT cover — stated at the point of closure
+
+- **The build under test carries a known, un-adjudicated band breach.** `ebe9cb3` is **+96 B** against
+  the 0 B leonardo must-not-grow band (MERGE-05). Nothing in this plan re-anchored a baseline, widened
+  a band or touched `test_policy_merge05_fires_on_the_current_tree`. **Gate 2's result was obtained on
+  a build with an open breach**, and a reader must not discover that elsewhere.
+- **The intermittent single-byte margin failure is mitigated, not explained.** The debug session's
+  1000/100 µs settle values stopped it recurring; Gate 2's three cycles make 15 consecutive clean
+  cycles on this part. **Fifteen clean cycles is not a root cause.** Nobody knows whether the original
+  cause was an under-settled route, a marginal cell, or program-window VPP droop.
+- **Program-window VPP under load was never measured** — the standing Phase-97 DTR-reset tooling gap.
+  Every VPP figure in this record is an *idle* sample.
+- **No comparative claim against any earlier firmware** (D-08), and **no datasheet-conformance claim**
+  in either direction.
+- **Nothing about `0x08` or `0x0B`**, which remain skipped-with-reason, and **nothing about Uno-class
+  boards** — the progress emission is compiled out on `SERIAL_ON_IO` targets.
+- **Claim B is not claimed**, in any of the three cycles, despite `blocks_with_multiple_updates=2`
+  appearing in all three. It is `145-07`'s on the Gate 3 run.
+- **No requirement checkbox was flipped by this plan.** `BENCH-01` is multi-plan; ticking is
+  centralised in `145-09` behind its own blocking operator gate.
+
 
