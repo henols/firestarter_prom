@@ -1134,12 +1134,169 @@ Write exit 0 with 0 bad bytes, verify exit 0, independent host-side SHA compare 
 and 3 are `145-06`'s, and Gate 2's overall verdict is `145-06` Task 3's to record. One cycle is one
 cycle.
 
-### Cycle 2 (resumed)
-**NOT RUN IN THIS PLAN** — `145-06` Task 1 owns it. Not a skip and not a fail; simply not this
-plan's scope.
+### Cycle 2 (resumed) — `145-06` Task 1
 
-### Cycle 3 (resumed)
-**NOT RUN IN THIS PLAN** — `145-06` Task 2 owns it.
+**Port identity, re-verified fresh for this task (D-19), not carried forward from `145-05`.**
+
+```
+$ ls /dev/ttyACM*                                      # exactly one device
+/dev/ttyACM0
+$ firestarter -p /dev/ttyACM0 fw                       # exit 0
+Current firmware version: 3.0.0b17, for controller: leonardo on port /dev/ttyACM0
+```
+
+**What this proves and what it does not.** It proves the right *controller* on the right *port*. It
+proves **nothing** about which image is on the board — `3.0.0b17` did not move across a 96-byte
+firmware change (D-18), so the version string is useless as a discriminator. The image under test is
+identified by commit and byte count only: `/workspaces/firestarter` was asserted still at
+`ebe9cb353f134d6c56a8295490142de1a43fdf8f` with **empty** `git status --porcelain` before this task
+began, so the avrdude-verified **27002**-byte image flashed in `145-05` is unchanged and **no
+reflash was performed or needed in this plan**.
+
+**Seated part re-confirmed:**
+```
+$ firestarter -p /dev/ttyACM0 id W27C512                # exit 0
+Chip ID check passed for W27C512: (main done) (0.28s)
+```
+
+---
+
+#### `firestarter -v -p /dev/ttyACM0 write W27C512 .planning/phases/145-bench-validation/images/img2.bin`
+
+Run from `/workspaces`, stdout redirected to `logs/write_cycle2.stdout.log` and stderr to
+`logs/write_cycle2.stderr.raw`. **No `-b`, no `--no-blank-check`, no `--skip-erase`, no `--force`,
+no `-a` and no `-s`** — the full 65536 bytes, 64 blocks of 1024 B (D-04). `-v` and `-p` are group
+options and precede the subcommand. The canonical cycle-2 stderr and stdout paths were asserted
+**absent** immediately before the run.
+
+**Exit 0.** Wall clock 109 s (`date` delta around the invocation).
+
+##### The three oracle verdicts — recorded separately, never merged
+
+**Oracle 1a — the write's own verdict (firmware-side, first pass).** Verbatim from
+`logs/write_cycle2.stdout.log`:
+```
+INFO   :EpromOperator:1982: Write to W27C512 successful (105.69s).
+```
+`grep -ciE "bad bytes|MAX_PULSES" logs/write_cycle2.stdout.log` → **0**.
+
+**Oracle 1b — the verify's own verdict (firmware-side, SECOND pass).** Verbatim from
+`logs/verify_cycle2.log`, exit **0**:
+```
+Verify for W27C512 successful (5.69s).
+```
+
+**D-06's independence boundary, restated rather than assumed carried.** `verify` uses the **same
+`_main_phase_send_data` handler as `write`** and the **firmware** performs the compare, so oracle 1b
+is a **second firmware-side pass, not an independent oracle**. The genuinely independent oracle is
+oracle 2.
+
+**Oracle 2 — the independent host-side SHA compare.** `firestarter -p /dev/ttyACM0 read W27C512
+.planning/phases/145-bench-validation/readbacks/readback2.bin` → exit **0**, `Read complete (7.40s)`
+(`logs/read_cycle2.log`). `readbacks/readback2.bin` is exactly **65536 bytes**.
+
+```
+$ cmp images/img2.bin readbacks/readback2.bin        # exit 0, no output
+$ sha256sum images/img2.bin readbacks/readback2.bin
+b566c7a0319cc37051ec9c92bc1faef81f75e3740c7c6c8864778a549624fd96  images/img2.bin
+b566c7a0319cc37051ec9c92bc1faef81f75e3740c7c6c8864778a549624fd96  readbacks/readback2.bin
+```
+**Digests identical — 65536 of 65536 bytes byte-exact.** `readbacks/readback2.bin`'s digest is
+appended to `SHA256SUMS.txt`; `img2.bin`'s row was already in the manifest from `145-01` and is
+**unchanged**, so no duplicate row was appended (same handling as cycle 1). `sha256sum -c
+SHA256SUMS.txt` from the phase directory exits **0** over all seven rows.
+
+**The three verdicts agree. They are recorded on three separate lines anyway** (D-06).
+
+##### The consecutive-read-back difference — asserted, not assumed
+
+```
+$ cmp -s readbacks/readback1.bin readbacks/readback2.bin ; echo $?
+1
+$ cmp -l readbacks/readback1.bin readbacks/readback2.bin | wc -l
+65536
+```
+`cmp` exit **1** means *differ* (2 would mean error, and both files were `stat`-confirmed present at
+65536 bytes before the compare, so a missing-file 2 cannot be misread as a pass here — an earlier
+invocation of this compare in the wrong working directory produced exactly that false green and was
+discarded and re-run). **All 65536 bytes changed.** The chip's contents genuinely changed between
+cycle 1 and cycle 2, so a real erase-and-reprogram occurred rather than a no-op rewrite.
+
+##### Read stability for this cycle (D-07) — measured for cycle 2 in its own right
+
+```
+$ firestarter -p /dev/ttyACM0 dev consistency-check W27C512 --runs 3 \
+      --output-dir .planning/phases/145-bench-validation/runs/cycle2
+```
+**Exit 0.** The exit code is a three-way value — **0 = PASS, 1 = FAIL on divergent SHAs, 2 = hardware
+or serial error** — so `0` specifically means the runs agreed. Verdict block verbatim from
+`logs/consistency_cycle2.log`:
+```
+Consistency check: PASS
+Chip: W27C512  Board: unknown-board  Port: /dev/ttyACM0
+Runs: N=3
+Distinct SHAs: 1
+Output dir: .planning/phases/145-bench-validation/runs/cycle2/
+```
+`run_01.bin`, `run_02.bin` and `run_03.bin` all exist at exactly **65536 bytes** each.
+`git check-ignore` on `runs/cycle2` reports **not ignored**. This is cycle 2's own measurement in its
+own output directory — **nothing was inferred from cycle 1** (D-07). All three runs reported
+`b566c7a0…`, the **same digest as `img2.bin`**, which is three further confirmations of oracle 2.
+
+##### Frame summary for this cycle (D-10 Claim A)
+
+Extractor self-test re-run immediately before the measurement: `SELFTEST: POSITIVE PASS`,
+`SELFTEST: NEGATIVE PASS`, exit 0. The six summary values, verbatim from `logs/frames_cycle2.txt`:
+```
+segments=2
+selected_segment=2
+frames=267
+intra_block_frames=64
+blocks_with_multiple_updates=2
+step_histogram=204:1,692:1,820:1,1023:18,1024:27,1025:17
+```
+**Claim A HOLDS for this cycle too, as measured, not as predicted** — 64 intra-block positions, one
+per block. Corroborated independently of the extractor by 96 `DATA:` lines in the `-v` stdout capture
+(32 INIT blank-check frames stepping by 2048, then 64 MAIN-phase write frames). This is the
+**measured truth for cycle 2**; no predicted count was asserted. **`145-05`'s standing correction
+applies: RQ-4's frames-per-block table row `100 µs (DB) → 0 frames` is stale for the shipped
+firmware** — the settle increase pushed block time past the 1000 ms emission cadence.
+`blocks_with_multiple_updates=2` is again **not** banked as Claim B, for `145-05`'s stated reason
+(bar-latch-transition artifacts, not two firmware emissions in one block). Claim B remains `145-07`'s.
+
+##### D-03 erase-fired corroboration — derived, not a second independent measurement
+
+Going from `img1.bin` to `img2.bin`, **65408 of 65536 bytes — 99.8 %** — require at least one
+`0`-to-`1` bit transition, which on this part only a real erase can deliver. **Re-derived on the
+actual image bytes this session** rather than quoted from research: a per-byte `(~img1 & img2)`
+population count over the two files on disk returns exactly 65408. A silently no-op erase would
+leave those bytes unable to reach their target values and the write would have failed with
+`MSG_ERR_MAX_PULSES`; it exited 0 with 0 bad bytes and the independent read-back is byte-exact.
+Cycle 2's clean pass therefore **could not have been produced without a real erase**.
+
+**Stated plainly: this is a derived corroboration of the D-03 pre-flight, not a second independent
+measurement.** It reasons from the image sequence and the observed pass; it does not observe the
+erase itself.
+
+##### `--force used?` **No**
+
+No `--force` was passed to any command in this cycle. Neither was `write -b`, `--no-blank-check`,
+`--skip-erase`, `-a`/`--address` nor `-s`/`--size`.
+
+##### Cycle 2 verdict: **PASS — byte-exact on all three oracles**
+
+Write exit 0 with 0 bad bytes at 105.69 s, verify exit 0, independent host-side SHA compare
+byte-exact over all 65536 bytes, read stability PASS at N=3 with 1 distinct SHA, consecutive
+read-backs asserted to differ in all 65536 bytes. **Cycle 2 of 3. Gate 2 is not closed here.**
+
+---
+
+### Cycle 3 (resumed) — `145-06` Task 2
+
+**NOT YET RUN at the time of cycle 2's commit** — Task 2 of `145-06` owns it. Not a skip and not a
+fail.
+
+---
 
 ---
 
