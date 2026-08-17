@@ -2966,3 +2966,19 @@ Both instruments this phase authored live in the **meta** repo under the phase d
 inside a sub-repo: `images/gen_addr_image.py` and `tools/extract_frames.py`. That placement is not
 tidiness — it is the mechanism that keeps the firmware porcelain empty and the nine RQ-9 tests
 green.
+
+## Two counting notes, so a later reader does not think the numbers drifted
+
+1. **The 75-file figure is as of this section's commit.** `145-08-SUMMARY.md` lands immediately
+   after it, taking the phase directory to **76 tracked files** and 22 markdown files. **The
+   evidence-artifact figures — 51 files, 1300110 bytes, 50 manifest rows — are unaffected**, because
+   a summary is a record, not an artifact. `145-09` will add one more plan summary on the same basis.
+2. **`ROADMAP.md` changes by exactly one line at this plan's close, and that is a recorded conflict
+   rather than a slip.** This plan's own acceptance criterion asks for a **zero-line** `ROADMAP.md`
+   diff, and that criterion was satisfied at each of the three task commits. The workflow's mandated
+   state-update step then ticks this plan's **plan-progress** checkbox — `- [ ] 145-08-PLAN.md` →
+   `- [x]` — which is **not a requirement checkbox** and is therefore outside this plan's
+   prohibition. The distinction is load-bearing and is asserted, not assumed:
+   **`REQUIREMENTS.md` is byte-identical to its pre-plan snapshot** (`cmp` clean), and
+   **`BENCH-01`, `BENCH-02` and `BENCH-03` all remain `[ ]` and `Pending` in both coverage tables.**
+   Requirement ticking stays centralised in `145-09` behind its own blocking operator gate.

@@ -5,16 +5,16 @@ milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 145
 current_phase_name: bench-validation
 status: executing
-stopped_at: "Completed 145-06-PLAN.md (Gate 2 CLOSED: VALIDATED 3/3)"
-last_updated: "2026-08-17T05:57:20.382Z"
+stopped_at: "Completed 145-08-PLAN.md (PHASE 145 CLOSED: verdict validated on all four criteria)"
+last_updated: "2026-08-17T06:59:00.463Z"
 last_activity: 2026-08-17
-last_activity_desc: "Phase 145 plan 145-07 COMPLETE. GATE 3 RAN and discharged three inherited items. D-10 CLAIM B HOLDS: the --pulse-us 4688 run (4096 B, 4 blocks, exit 0, 30.94 s) produced blocks_with_multiple_updates=4 and intra_block_frames=24, and the 24 tqdm positions match BYTE-FOR-BYTE the 24 MSG_DATA_PROGRESS frames decoded in the -v log -- a second independent oracle, so this is NOT the bar-latch artifact all three Gate 2 cycles were correctly declined on. Blocks 2 and 3 carry ZERO boundary rows (6 firmware frames each), so the artifact objection cannot apply even in principle. A companion database-pulse run (exit 0, 11.87 s, no provenance line) is the CONTROL: same image, same 4 blocks, only the pulse differs, and it reproduces the artifact signature exactly (intra_block_frames=4, multiples only in blocks 0/1). D-12 --pulse-us-on-silicon DISCHARGED: provenance line recorded verbatim, override proven effective by 19.07 s observed vs 18.79 s predicted pure-pulse difference. D-12 BUDGET MECHANISM DISCHARGED: 120 s/(25x1024)=4687.5 us so 4688 is the first integer above; advertised CAP-03 is 244 s and even the unpadded raw is 121 s, BOTH above the old 120 s fallback -- the run completed, so the advertised budget carried it. NON-CLAIM: nothing logs the budget; 244/121 are arithmetic, never observed. D-12 A1 DERIVED at ~1.44 ms/byte (1436.24-1436.62 us across all three cycles), corroborated by two frame-cadence cross-checks (1409.6 and 1351.4 us) across a 47x pulse range; model validation +1.48 %. FIVE error sources named -- critically it is a per-BYTE figure and an UPPER BOUND on Phase 143's per-PULSE A1, so the ASSUMED 20-60 us range is NOT corroborated but also NOT refuted. STILL OPEN with NO v1.31 OWNER: per-pulse overhead inside a MULTI-PULSE retry loop (no byte needed >1 pulse; 0x07 only). AUTHORIZATION recorded in three distinguishable shapes: Gate 2 typed-verbatim, Gate 3 a SELECTION (no quote manufactured), and the companion run an ORCHESTRATOR decision under an explicit operator NO-PREFERENCE answer -- never operator-authorized. FINDING: T-145-45's threat-register mitigation DOES NOT EXIST -- the 0x07 row ships energy_cap_us=0 so MSG_ERR_PULSE_TOO_WIDE is structurally unreachable; only the host click.IntRange bounded a ~117 ms worst-case single-cell energy. FOUR acceptance assertions remade after false greens (the plan's authorization grep reported success with NO authorization given; the first substitution self-matched its own quoted definition until line-anchored) -- evidence never reshaped. NOT PROVEN: no eyes-on (145-08's), no Gate 3 verdict line written (145-08's), no independent host-side SHA over the Gate 3 writes so NO BENCH-01 evidence rests on this gate, no observed CAP-03 number. Chip bulk-erased: the part no longer holds img3.bin, cycle 3's evidence committed beforehand. Gate 2's VALIDATED verdict untouched; D-09's ledger still UNCONSUMED. MERGE-05's +96 B breach still CARRIED and NOT adjudicated. BENCH-01 remains unticked; 145-09 owns it."
+last_activity_desc: "Phase 145 plan 145-08 COMPLETE -- PHASE 145 CLOSED. D-10's EYES-ON HALF COLLECTED: the operator's COMPLETE verbatim description is four words -- \"It looked ok\" -- typed after a foreground re-run they executed THEMSELVES (145-07's Gate 3 ran in a background agent so they had no live terminal). That re-run is OBSERVATIONAL ONLY: Gate 3's recorded measurement remains 145-07's (logs/pulse4688.stderr.raw, frames_pulse4688.txt); nothing was re-measured, so the eyes-on half cannot have been fitted to a fresh count. D-10 DISPOSITION SPLIT, stated not merged: the COLLECTION is validated, but verification-map row 27's literal claim (a smoothly moving bar, not an end-burst) is skipped-with-reason -- the operator used NEITHER discriminator, gave NO update count and NO spacing. NEW FINDING: the MAIN write progress bar NEVER REACHES 100%. Verified across SIX writes; the final bar equals the LAST FIRMWARE FRAME POSITION exactly in all six (pulse4688 4056=0x0fd8 99.02%, eyes-on re-run same, pulse_db 3760=0x0eb0 91.80%, cycles 1/2/3 65200/65203/65200 ~99.5%). The briefed table listed FIVE at ~99%; a SIXTH (pulse_db, 91.80%) was found on re-verification and is what PROVES the mechanism -- fewer frames means a lower final percentage. The INIT bar DOES reach 100%, so it is MAIN-bar-specific. COSMETIC/UX ONLY -- all six writes verified byte-exact. Out of scope under D-16; carried with NO v1.31 OWNER. D-10 CONTRADICTION STATED NOT RECONCILED. THIRD INDEPENDENT ORACLE: the paste shows 6 DATA: decode lines per block x 4 blocks = 24 frames at a uniform 164-byte step, matching 145-07's intra_block_frames=24 exactly from a SEPARATE invocation -- corroboration only. GATE 3 VERDICT (FINAL): VALIDATED with two named skipped-with-reason items. PHASE VERDICT: validated on all four ROADMAP criteria -- (1) 0x07 full write/read/verify VALIDATED (3 cycles, 3 distinct images, 9 clean oracle cells, 3 read-stability passes, erase demonstrably fired); (2) 0x08 SKIPPED-WITH-REASON naming AM27C020; (3) 0x0B SKIPPED-WITH-REASON naming M2716/M2732; (4) BENCH-03 VALIDATED and RE-CONFIRMED AT THE TIP post-bench, every leg/digest/histogram identical to Gate 0. 16 NOT-MEASURED readings each with its blocker; 12 CARRY-FORWARDS, 10 with NO v1.31 OWNER (79-03 and the operator named where a real successor exists). SUITES: firmware 314 passed/0 failed vs a Gate 0 baseline of 312 -- the +2 recorded as a DIVERGENCE with its cause (the debug session's eb563d2+ebe9cb3 added 13 test files), NOT explained away; host 1590 passed/0 failed; sibling subset 38 = baseline; fw porcelain 0 before AND after. SHA256SUMS.txt completed 14 -> 50 rows (the 14 prior rows verified OK before the append and byte-identical after; no cycle 1-3 or attempt1 artifact touched); sha256sum -c exit 0, 50 OK/0 FAILED; check-ignore 0; 75 files all tracked; 51-row inventory, 1300110 B. BOUNDARIES: no comparative claim (D-08; 22.84 s is NOT a control), no datasheet conformance (6.25 V ceiling), scope is ONE part (W27C512 0xda08), ONE controller (leonardo), ONE shield revision (Rev 2.0); nothing speaks for Uno-class (emission compiled out on SERIAL_ON_IO). Gate 2 AND Gate 3 both ran on a build carrying MERGE-05's OPEN +96 B breach, NOT adjudicated. D-16 holds on its own terms but the firmware DID change mid-phase via a debug session (not a plan). D-09's re-seat allowance UNCONSUMED. The single-byte margin failure is MITIGATED NOT EXPLAINED. T-145-45 recorded as a threat-register defect: the 0x07 row ships energy_cap_us=0 so the claimed MSG_ERR_PULSE_TOO_WIDE mitigation DOES NOT EXIST. THREE acceptance locators remade with negative controls; evidence never reshaped. REQUIREMENTS.md byte-identical; BENCH-01..03 all still unticked -- 145-09 owns the flip. NEXT: 145-09, the requirement flip, behind its own blocking operator gate."
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 61
-  completed_plans: 59
-  percent: 88
+  completed_plans: 60
+  percent: 98
 ---
 
 # Project State
@@ -112,7 +112,7 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 ## Current Position
 
 Phase: 145 (bench-validation) — EXECUTING (halt lifted 2026-08-17)
-Plan: 8 of 9 (145-01..145-07 complete — GATE 2 CLOSED: VALIDATED; GATE 3 RAN, Claim B HOLDS, verdict line still 145-08's; 145-08..145-09 not started)
+Plan: 9 of 9 (145-01..145-08 complete — PHASE 145 CLOSED, verdict validated on all four ROADMAP criteria; 145-09 not started — it owns the BENCH-01..03 requirement flip behind a blocking operator gate)
 Status: EXECUTING — the 2026-08-16 HALT is LIFTED. Debug session
 `w27c512-program-fail-byte0` root-caused the cycle-1 failure to a **firmware** defect (v1.31
 Phase 141 deleted the only `CTRL_VPE_ENABLE` assert in the EPROM write path) and fixed it in
@@ -1988,6 +1988,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 145]: 145-07: the companion database-pulse run was an ORCHESTRATOR decision under an explicit operator no-preference answer -- never operator-authorized; Gate 3's own authorization is a SELECTION, not a manufactured quote
 - [Phase 145]: 145-07: T-145-45 divergence -- the 0x07 row ships energy_cap_us=0 so MSG_ERR_PULSE_TOO_WIDE is structurally unreachable; only the host click.IntRange(1,65535) bounded the 4688 us run
 - [Phase 145]: 145-07: D-12 A1 derived at ~1.44 ms/byte (spread 1436.24-1436.62 us) -- an UPPER BOUND on Phase 143's per-pulse A1, not the same quantity; the multi-pulse retry-loop regime stays undischarged with no v1.31 owner
+- [Phase 145-08]: Recorded D-10's eyes-on half as COLLECTED but split its disposition — verification-map row 27's literal claim (a smoothly moving bar, not an end-burst) is skipped-with-reason, because the operator's complete four-word answer contains neither discriminator and deriving one from the pasted transcript would be the orchestrator answering an operator-only question
+- [Phase 145-08]: Declared the eyes-on re-run OBSERVATIONAL ONLY and left Gate 3's recorded measurement as 145-07's — nothing was re-measured or re-extracted, so the eyes-on half can never be accused of having been fitted to a fresh frame count
+- [Phase 145-08]: Recorded the MAIN write bar never reaching 100% as a new finding rather than fixing it — the final bar equals the last firmware frame position in all six writes and no final frame is emitted at completion; it is cosmetic/UX only (all six verified byte-exact) and D-16 forbids the sub-repo edit, so it carries forward with no v1.31 owner
+- [Phase 145-08]: Remade three acceptance locators with negative controls instead of reshaping evidence — two were false GREENs that passed before any content existed, one could not fail for the right reason without deleting D-14's own taxonomy statement, and a first substitution self-matched its own quoted literal until the negative control was described rather than written in matching form
+- [Phase 145-08]: Hand-edited ROADMAP's single 145-08 checkbox instead of calling roadmap.update-plan-progress — the roadmap verbs reformat the whole file and phase.complete is known to clobber unrelated phases' Plans lines; REQUIREMENTS.md stays byte-identical and BENCH-01..03 stay Pending for 145-09
 
 ## Performance Metrics
 
@@ -2248,12 +2253,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 145 P05 | 35min | 3 tasks | 12 files |
 | Phase 145 P06 | ~30 min | 3 tasks | 22 files |
 | Phase 145 P07 | 35m | 3 tasks | 8 files |
+| Phase 145 P08 | 54min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-17T05:56:21.896Z
-**Stopped at:** Completed 145-06-PLAN.md (Gate 2 CLOSED: VALIDATED 3/3)
-**Resume file:** .planning/phases/145-bench-validation/145-07-PLAN.md
+**Last session:** 2026-08-17T06:57:49.189Z
+**Stopped at:** Completed 145-08-PLAN.md (PHASE 145 CLOSED: verdict validated on all four criteria)
+**Resume file:** .planning/phases/145-bench-validation/145-09-PLAN.md
 
 ### Blockers
 

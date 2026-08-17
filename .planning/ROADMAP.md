@@ -564,7 +564,7 @@ Plans:
 
 **Wave 8 — Close the record**
 
-- [ ] 145-08-PLAN.md — D-10's **eyes-on half** captured verbatim while the run is fresh, with any contradiction against the machine count stated rather than reconciled; then the phase VERDICT answering all four ROADMAP criteria in D-14's vocabulary, a `Not measured` section giving each un-taken reading its blocker, and every undischarged item carried forward with the literal phrase **no v1.31 owner** (Phase 146 is docs-and-claims only and cannot run a bench); the mandatory boundaries stated rather than implied — no comparative claim (D-08), no datasheet conformance (the 6.25 V ceiling), and scope named as one part, one controller, one shield revision; then both suites re-run green with firmware porcelain empty, BENCH-03 re-confirmed at the tip, and every artifact inventoried, hashed and proven not gitignored [meta, reads both sub-repos]
+- [x] 145-08-PLAN.md — D-10's **eyes-on half** captured verbatim while the run is fresh, with any contradiction against the machine count stated rather than reconciled; then the phase VERDICT answering all four ROADMAP criteria in D-14's vocabulary, a `Not measured` section giving each un-taken reading its blocker, and every undischarged item carried forward with the literal phrase **no v1.31 owner** (Phase 146 is docs-and-claims only and cannot run a bench); the mandatory boundaries stated rather than implied — no comparative claim (D-08), no datasheet conformance (the 6.25 V ceiling), and scope named as one part, one controller, one shield revision; then both suites re-run green with firmware porcelain empty, BENCH-03 re-confirmed at the tip, and every artifact inventoried, hashed and proven not gitignored [meta, reads both sub-repos]
 
 **Wave 9 — Requirement flip**
 
