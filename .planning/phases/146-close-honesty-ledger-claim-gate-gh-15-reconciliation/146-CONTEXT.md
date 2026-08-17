@@ -440,7 +440,19 @@ closed with `reason: could-not-parse`.
   and untracked `.claude/`, `.planning/VALIDATED-EPROMS.md`, `package.json`, `package-lock.json`;
   `firestarter_app` has untracked `.planning/config.json`, `SECURITY.md`, four `datasheets/*.pdf` and
   `write_test_port.sh`.
-- **`.planning/ROADMAP.md` is uncommitted** at discussion time — snapshot before any edit.
+- **`.planning/ROADMAP.md` is uncommitted** at discussion time — snapshot before any edit. The
+  change is small and pre-existing (not this discussion's): a **2-line** heading rename,
+  `### Phase 146 (close): Honesty Ledger…` → `### Phase 146: Close — Honesty Ledger…`, plus the
+  matching phase-list line. Committed by whoever owns it, or folded into the first 146 plan — but a
+  porcelain assertion written against a clean tree will read it as its own damage.
+- **⚠ `STATE.md`'s `last_activity_desc` hands Phase 146 a job that is ALREADY DONE. Do not re-do it.**
+  It says *"CARRIED FORWARD TO PHASE 146: ROADMAP's v1.31 Coverage table is STALE for 12 rows —
+  PREP-01..04, ISSUE-01..03, HOST-01..05 read Pending … Phase 146 OWNS it."* That drift was discharged
+  by commit **`6822ee2d`** (`docs(146-PRE): sync ROADMAP v1.31 Coverage with REQUIREMENTS.md -- 12
+  stale rows`), which landed **after** the 145-09 state write. Verified at discussion time: all twelve
+  rows read `Complete` in `ROADMAP.md` (`:592-598`, `:616-620`) and match `REQUIREMENTS.md`. The only
+  `Pending` rows left in either table are `CLOSE-01…CLOSE-05`, which are this phase's to flip. **Verify
+  before flipping anything, and treat the STATE.md sentence as stale rather than as an instruction.**
 - **No `CHANGELOG.md` exists in either sub-repo.** Release notes are GitHub release bodies, drafted as
   `.planning` artifacts; there is no in-repo changelog to update.
 - **`.planning/config.json`'s `planning.sub_repos` lists FOUR repos** — `firestarter`,
