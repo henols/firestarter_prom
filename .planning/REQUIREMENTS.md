@@ -44,13 +44,24 @@ fix stack. Host-only; needs no AT28C part.
 - [ ] **PROV-02**: That capture happens without violating the SAFE-02 orchestrator-only contract —
       it does not open an extraneous connection outside the orchestrator, and `EpromOperator.comm`
       remains a transient per-operation connection.
-- [ ] **PROV-03**: The recorded firmware string preserves the **prerelease suffix**. `_probe_port`'s
-      `[\d.x]+` pattern truncates `3.0.0b19` to `3.0.0`, which would make the field present but
-      useless for exactly the b11-vs-b12 discrimination this requirement exists to enable.
+- [ ] **PROV-03**: The recorded firmware string preserves the **prerelease suffix**, so a board
+      running `3.0.0b19` is distinguishable in the report from one running `3.0.0b11` — exactly the
+      discrimination this requirement exists to enable. *(Corrected 2026-08-18, Phase 147 D-05/D-06:
+      this requirement was originally written asserting that `_probe_port`'s `[\d.x]+` pattern
+      truncates the identity to `3.0.0`. That premise is **false**. The regex at `serial_comm.py:866`
+      builds a separate local that feeds only `_validate_firmware_version`; `comm.firmware_identity`
+      (`serial_comm.py:412`) holds the raw, untruncated `"<version>:<board>"` decoded from the CAP-02
+      ack tail. Suffix preservation therefore comes **for free** from recording that field. The
+      version-capture path is GATE-1.8d ring-fenced and MUST NOT be edited to satisfy this
+      requirement.)*
 - [ ] **PROV-04**: The report schema version is bumped, and reports written by earlier versions
       (carrying `fw_board_identity: null`) still parse without error.
 - [ ] **PROV-05**: A null or unobtainable firmware identity renders as an **explicit unknown** in
-      both report outputs and in the issue parser — never as a blank that reads like a captured value.
+      the human-readable report surfaces and in the issue parser — never as a blank, and never as the
+      bare rendering of `None` that reads like a captured value. *(Tightened 2026-08-18, Phase 147
+      D-10: the fenced report JSON deliberately keeps typed `null` so machine consumers can test
+      `is None` and so PROV-04's backward-compatibility story stays one case. "Both report outputs"
+      as originally worded read as requiring a string sentinel in the JSON; it does not.)*
 - [ ] **PROV-06**: The `[dev test]` issue parser surfaces the firmware identity, so a triager can
       attribute a report without asking the reporter.
 
