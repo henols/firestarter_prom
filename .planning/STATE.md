@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: AT28C Write-Path Root Cause & Report Provenance
 current_phase: 147
-status: planning
-stopped_at: Phase 147 context gathered
-last_updated: "2026-08-18T12:00:17.241Z"
+status: planned
+stopped_at: Phase 147 planned - ready to execute
+last_updated: "2026-08-18T13:05:00.000Z"
 last_activity: 2026-08-18
-last_activity_desc: "**Phase 147 context gathered** by /gsd-discuss-phase (147-CONTEXT.md + 147-DISCUSSION-LOG.md committed at 058ccf69). 17 decisions across four discussed areas. Three findings from the code scout reshape the phase: (1) PROV-03's stated blocker is FALSE -- _probe_port's [\\d.x]+ feeds only _validate_firmware_version, while comm.firmware_identity (serial_comm.py:412) already holds the untruncated \"3.0.0b18:leonardo\" from the CAP-02 ack tail, so the ring-fenced version-capture path is NOT touched and PROV-03 + ROADMAP criterion #2 get hand-corrected before planning; (2) no extra serial connection is needed -- read_hardware_revision_value()'s single SAFE-02-clean connection already carries the identity, so it is widened + renamed to read_programmer_identity() returning a ProgrammerIdentity NamedTuple; (3) PROV-06 has TWO parser surfaces, the app's tools/parse_devtest_issue.py and the devtest-triage skill's own scripts/devtest_issues.py -- both get the field. Also established zero blast radius: dedup_fingerprint excludes fw_board_identity and is_submittable does not gate on it, so populating it breaks neither dedup continuity nor the N-agreeing ladder. Next: /gsd-plan-phase 147."
+last_activity_desc: "**Phase 147 planned** by /gsd-plan-phase -- 6 plans in 4 waves, dual-repo (147-PLAN files committed at 4823d769/2e327bea/dbb90b0f, requirements-array fix at 4b0f82a9). Research + pattern map + Nyquist VALIDATION.md all landed first (74f124c6, 02f258b4, 6883dbc8). THREE pre-planning corrections were applied because their premises were measured FALSE: (1) D-06 -- PROV-03 and ROADMAP criterion #2 both asserted _probe_port's [\\d.x]+ truncation makes prerelease-suffix preservation impossible; it does not -- that regex builds a SEPARATE LOCAL fed only to _validate_firmware_version, while comm.firmware_identity (serial_comm.py:412) already holds the raw untruncated '<version>:<board>'. Suffix preservation is FREE; the GATE-1.8d ring-fenced path must NOT be edited. Corrected at 82f11fd4 with PROV-05/criterion #4 tightened per D-10 (fenced JSON keeps typed null; the marker belongs in the human surfaces). (2) Plan frontmatter requirements: arrays contradicted the ROADMAP flip table and would have flipped PROV-01/02/04/05/06 complete early -- execute-plan.md's update_requirements reads that array VERBATIM into requirements.mark-complete. v1.31 Phase 138 carries the same divergence, so this is a recurring convention error, not a slip; the annotation prose that invited it was rewritten too. (3) RESEARCH corrected two of its own coordinates during planning: tools/parse_devtest_issue.py has a function-local firestarter import at :151 (so a zero-import criterion would be unreachable), and fw_board_identity is emitted in _auto_capture_dict() not to_dict() (so a to_dict line-range grep fails OPEN). D-11 also resolved to THREE marker literals plus a parity test, not one constant -- single-sourcing is architecturally impossible across a stdlib-only tool and a skill that may not import the app. Plan-checker PASSED on iteration 2. Coverage gates: requirements 6/6, decisions 17/17 -- the decision gate first failed CLOSED on three wrapped bold labels (D-04/D-06/D-14), then reported D-02 uncovered because it reads only must_haves/truths/objective and <objective>/<task>/<action>, NOT <acceptance_criteria> where D-02's only citation sat. Both fixed. NEXT: /gsd-execute-phase 147 -- but 147-06 carries the only human-verify checkpoint (the devtest-triage skill render has no harness; criterion #5 is a judgement call) and MUST NOT run under --auto/--chain, which auto-approve such gates. Wave 1 (147-01) is a blocking precondition: firestarter_app is still on gsd/v1.31-27c-programming-algorithm-fidelity and must move to a v1.32 branch off origin/beta (app 3.0.0b21), and the .gitignore un-ignore of .claude/skills/ is itself uncommitted so the skill file cannot be committed until it lands."
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 0
+  total_plans: 6
   completed_plans: 0
   percent: 0
 current_phase_name: Report Provenance — every `dev test` report names its firmware
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-18 — v1.32 started)
 authoritative dispatch key end to end. v1.32 turns that key on the project's own diagnostics: a
 community `dev test` report must be attributable to the firmware that produced it before any
 protocol-`0x0D` write-path claim can be made about it.
-**Current focus:** Phase 147 — Report Provenance — every `dev test` report names its firmware (roadmap created 2026-08-18; 6 phases, 147–152)
+**Current focus:** Phase 147 — Report Provenance — every `dev test` report names its firmware (PLANNED 2026-08-18; 6 plans in 4 waves, ready to execute)
 
 **v1.32 AT28C Write-Path Root Cause & Report Provenance** — ACTIVE (activated 2026-08-18, folding Backlog
 **999.28**; Backlog **999.29** is partially addressed and explicitly NOT retired — v1.32 removes the

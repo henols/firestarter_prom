@@ -55,8 +55,8 @@ be phrased as closing gh#21/#32/#11/#12.
   type-checking clean. `hardware.py` is scanned by **no** AST gate, so the rename breaks nothing
   structural; update the one call site plus the test mocks and docstrings that name it.
 
-- **D-04: The two values fail independently — return the identity even when the revision read
-  fails.** The identity comes from the connect ack; the revision from the command ack. A board built
+- **D-04: The two values fail independently — return the identity even if the revision read fails.**
+  The identity comes from the connect ack; the revision from the command ack. A board built
   without `HARDWARE_REVISION` answers `MSG_ERR_UNKNOWN_CMD` to `CMD_HW_VERSION`, and today's
   `if is_ok:` else-branch returns `None`. It must still return
   `ProgrammerIdentity(hw_revision=None, fw_board_identity="3.0.0b19:uno")` — those non-standard
@@ -79,8 +79,8 @@ be phrased as closing gh#21/#32/#11/#12.
   suffix" — that observation was written against the retired `re.search(r"FW:\s*([\d.x]+)", fw_msg)`
   text-line probe, which CAP-02 replaced.
 
-- **D-06: Hand-correct `REQUIREMENTS.md` PROV-03 and `ROADMAP.md` Phase 147 criterion #2 BEFORE
-  planning.** A criterion whose premise is false is how a verifier produces a false RED — or worse,
+- **D-06: Hand-correct `REQUIREMENTS.md` PROV-03 and `ROADMAP.md` criterion #2 BEFORE planning.**
+  A criterion whose premise is false is how a verifier produces a false RED — or worse,
   how an executor "fixes" a ring-fenced file to satisfy it. Restate both to the measured finding.
   Precedent: this milestone's own HEAD commit (`ae82391c`) corrects a charter claim.
   **Mechanic:** use **hand edits**. The GSD requirements/roadmap verbs reformat the whole file
@@ -145,8 +145,8 @@ be phrased as closing gh#21/#32/#11/#12.
 
 ### Triage attribution (PROV-06)
 
-- **D-14: Labelled line in the normal case; marker plus an explicit not-attributable clause when
-  unknown.** PROV-06's purpose is not just showing a value — a triager needs to know whether any
+- **D-14: Labelled line in the normal case; marker plus a not-attributable clause when unknown.**
+  PROV-06's purpose is not just showing a value — a triager needs to know whether any
   firmware claim can rest on this report. Mirror the existing "maintainer decision input — NEVER an
   auto-promotion trigger" labelling style in `render_diff`. **Rejected:** a machine-readable
   `attributable` boolean — a derived field nothing consumes, i.e. the same dead-data shape as
