@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 147
-current_phase_name: in progress — 1/6 plans complete
-status: Executing -- 147-01 complete (1/6 in this phase); 147-02..05 next
-stopped_at: Completed 147-01-PLAN.md
-last_updated: "2026-08-18T13:46:34.281Z"
+current_phase_name: in progress — 2/6 plans complete
+status: Executing -- 147-02 complete (2/6 in this phase); 147-03..05 next
+stopped_at: Completed 147-02-PLAN.md
+last_updated: "2026-08-18T14:12:54.938Z"
 last_activity: 2026-08-18
-last_activity_desc: completed 147-01-PLAN.md (sub-repo branch move + devtest-triage skill tracking baseline)
+last_activity_desc: completed 147-02-PLAN.md (widened/renamed HardwareManager.read_programmer_identity, wired AutoCapture.fw_board_identity end to end, PROV-03 satisfied)
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 6
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -76,10 +76,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 147 — Report Provenance — every `dev test` report names its firmware (in progress — 1/6 plans complete)
-Plan: 2 of 6
-Status: 147-01 complete — firestarter_app moved to `gsd/v1.32-at28c-write-path-root-cause-report-provenance` off `origin/beta` (3.0.0b21), 1590-passed baseline recorded, devtest-triage skill tracked in the meta repo. 147-02..05 next.
-Last activity: 2026-08-18 — completed 147-01-PLAN.md (sub-repo branch move + devtest-triage skill tracking baseline)
+Phase: 147 — Report Provenance — every `dev test` report names its firmware (in progress — 2/6 plans complete)
+Plan: 3 of 6
+Status: 147-02 complete — `HardwareManager.read_hardware_revision_value` renamed/widened to `read_programmer_identity`, returning a `ProgrammerIdentity` NamedTuple; `cli_handlers.py`'s `dev_test` handler now feeds `AutoCapture.fw_board_identity` from a real captured value instead of a hardcoded `None` (PROV-01/PROV-03). Full suite 1595 passed (baseline 1590 + 5 new tests). 147-03..05 next.
+Last activity: 2026-08-18 — completed 147-02-PLAN.md (widen/rename hardware identity read + AutoCapture wiring)
 
 ## Roadmap Summary (v1.32)
 
@@ -1984,6 +1984,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 146-03]: A contradiction inside this plan's own acceptance criteria was RECORDED rather than worked around — the criteria demand a NON-ZERO firmware porcelain immediately after the build as a negative control, which is structurally unreachable under the same task's out-of-tree mandate. Porcelain measured 0 after configure and after build because nothing was written inside `firestarter/`; substituted out-of-tree oracles (43 object files, 166308537 B of build tree, four images with recorded digests, the two named `.obj` files) are recorded instead, and no artifact was manufactured inside the repository to satisfy the criterion's letter
 - [Phase 146-03]: The stale build-tooling sentence preserved inside `last_activity_desc` — the Phase 130 record gate's own R-15 target at `.planning/STATE.md:11` — is now DISPROVEN by this plan's observation but deliberately left verbatim: `146-05` owns its repair, and an exemption placed inside that field is destroyed by the next state write. The gate's output is byte-identical before and after this plan (rc=1, one unlabelled hit); its `PASS`-line exempt tally is printed only on the success path, so the tally was captured via `--explain` instead and is unchanged: `{'block': 23, 'line-label': 4, 'inline-history': 6, 'inline-allow': 10, 'unlabeled': 1, 'superseded': 12}`
 - [Phase ?]: Verify sub-repo branch base by content diff, not merge-base ancestry — RESEARCH F-15: ancestry is merge-shape-dependent; content diff is the only oracle immune to either shape
+- [Phase ?]: 147-02: harvest fw_board_identity off the hardware-revision read's own connection (D-01) rather than opening a second one; ProgrammerIdentity NamedTuple returns both fields with independent per-field failure (D-04)
+- [Phase ?]: 147-02: _scrub_identity keeps printable ASCII 0x20-0x7E, replaces the rest with '?', caps at 64 chars, collapses to None only when nothing printable survives (D-07)
 
 ## Performance Metrics
 
@@ -2255,11 +2257,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 146 P10 | ~30min | 2 tasks | 3 files |
 | Phase 146 P11 | ~35min | 2 tasks | 2 files |
 | Phase 147 P01 | 15min | 2 tasks | 3 files |
+| Phase 147 P02 | 35min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-18T13:46:34.233Z
-**Stopped at:** Completed 147-01-PLAN.md
+**Last session:** 2026-08-18T14:12:54.889Z
+**Stopped at:** Completed 147-02-PLAN.md
 **Resume file:** None
 
 ### Blockers

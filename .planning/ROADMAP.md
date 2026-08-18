@@ -232,7 +232,7 @@ owned by `147-05`/`147-06`) · `147-04` → PROV-01, PROV-02 · `147-05` → PRO
 PROV-05, PROV-06.
 
 - [x] 147-01-PLAN.md — Preconditions: the v1.32 app branch off `origin/beta` with a recorded green baseline, and the meta `.gitignore` un-ignore plus the tracked devtest-triage skill baseline
-- [ ] 147-02-PLAN.md — The capture seam: `ProgrammerIdentity` + `read_programmer_identity` in `hardware.py`, the one-line handler unpack with zero new callables, the full 8-site rename, and the prerelease-suffix discrimination oracle
+- [x] 147-02-PLAN.md — The capture seam: `ProgrammerIdentity` + `read_programmer_identity` in `hardware.py`, the one-line handler unpack with zero new callables, the full 8-site rename, and the prerelease-suffix discrimination oracle
 - [ ] 147-03-PLAN.md — Report model: `SCHEMA_VERSION` 1.4 with a value-population rationale, the `NOT_REPORTED` marker and `_identity_cell` for both identity rows, and the render oracle proving the JSON stays typed `null`
 - [ ] 147-04-PLAN.md — Unknown-path oracles: the first-ever unit coverage of the value-returning hardware read (one-connection proof, both independent failure paths, the scrub) plus the handler-level absent-identity leg
 - [ ] 147-05-PLAN.md — App triage parser: the labelled identity line and not-attributable clause in `render_diff`, its first-ever tests, a null-identity frozen fixture, and the marker value-parity assert
