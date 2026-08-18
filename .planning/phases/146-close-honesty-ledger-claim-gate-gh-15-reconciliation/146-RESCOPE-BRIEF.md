@@ -1,5 +1,15 @@
 # 146 Replan Brief — plans 05…13
 
+> **Filename provenance (added 2026-08-18 by `/gsd-complete-milestone`).** This file was authored as
+> `146-REPLAN-BRIEF.md` and renamed to `146-RESCOPE-BRIEF.md` at milestone close. Reason: GSD's plan
+> scanner (`bin/lib/plan-scan.cjs`, `isRootPlanFile`) falls back to a loose `/PLAN/i` match on any
+> `*.md` in a phase directory, so the substring "REPLAN" made this brief count as a **14th plan** in
+> Phase 146 — which has 13. That phantom plan drove `implementation_complete: false`, and with it a
+> `phase_complete: false` for a phase that is closed, plus `completed_phases: 8` / `percent: 89` in
+> `STATE.md`. No file in this project referenced this brief by name, so the rename changes no
+> citation. The scanner behaviour is a real upstream defect and is filed as a todo, not fixed here.
+> Content below is byte-unchanged from the original.
+
 **Created:** 2026-08-17 · **Author:** `/gsd-execute-phase 146` orchestrator · **Trigger:** operator decision
 
 Execution of Phase 146 halted at **4 of 13** plans. Plans `146-01`…`146-04` are complete, committed, and

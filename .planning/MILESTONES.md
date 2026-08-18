@@ -1,5 +1,136 @@
 # Milestones
 
+## v1.31 27C Programming-Algorithm Fidelity (Shipped: 2026-08-18)
+
+**Phases completed:** 9 phases (138–146), 74 plans, 164 tasks
+**Timeline:** 2026-08-05 → 2026-08-18 (13 days)
+**Requirements:** 45/45 v1 requirements Complete
+**Closeout type:** `override_closeout` — 9 acknowledged carry-forward items, **none originating in v1.31** (see STATE.md § Deferred Items). All nine phases verified.
+**Code:** firmware 68 commits, 58 files, +15745/−265 · host app 18 commits, 19 files, +4456/−41 · meta 332 commits
+**Issue:** [gh#15](https://github.com/henols/firestarter_prom/issues/15) — implemented **as corrected**, not as filed.
+
+**Delivered:** The three 27C EPROM protocols (`0x07`/`0x08`/`0x0B`) now program with one shared
+per-byte pulse-to-verify loop driven by a `const` PROGMEM table keyed on `protocol_id`, with the
+pulse width read from the chip database per byte rather than baked in as a protocol constant. A byte
+that exhausts its per-protocol backstop fails by reporting its own address and pulse count instead of
+failing the block opaquely. Bench-proved byte-exact on one part, one controller, one shield revision.
+
+**Key accomplishments (curated):**
+
+1. **gh#15 implemented as corrected, and the corrections published before any code landed.** Three of
+   the issue's numbers were wrong and one premise inverted: `0x0B`'s pulse is 500 µs not `50000 us`
+   (the ×100 fingerprint Phase 57 already removed); pulse width is a *database datum*, not a
+   per-protocol constant (re-derived live from `chip_database.json` — 170/127/32 chips); and the
+   safe 32-bit delay helper is needed for the overprogram pulse, not any bare pulse. Posted as
+   comment `#5233463320` on operator approval, byte-verified against the reviewed text.
+2. **One shared loop plus a parameter table, not gh#15's three state machines** (D-01). Protocol owns
+   *shape* (`max_pulses`, `overprogram_factor`, `overprogram_cap_us`, `verify_mode`, `vpp_path`); the
+   database owns the *pulse*. No new database field and no second firmware algorithm selector —
+   `protocol_id` stays the single dispatch key, enforced by TABLE-05.
+3. **Bench-validated on real silicon:** three full 65536-byte write→read→verify cycles on a Winbond
+   W27C512 (`0xda08`) on Leonardo / shield Rev 2.0, three *distinct* images, nine clean oracle cells,
+   read stability N=3 at one SHA each, write timing consistent to 0.37 s across all three. `0x08` and
+   `0x0B` recorded **skipped-with-reason** with the missing parts named — never inferred from `0x07`.
+4. **A firmware defect this milestone introduced was found and fixed on the bench, not papered over.**
+   Phase 141 had deleted the only `CTRL_VPE_ENABLE` assert; the first bench cycle failed on byte 0
+   (`failed to program within 25 pulses`). Root-caused by a debug session, fixed, then 3/3 byte-exact.
+   The failure stands in the record with its cause and is *not* one of the three counted cycles.
+5. **`write --pulse-us N` ships**, bounded 1..65535 and pre-validated before a serial byte is sent,
+   riding the existing wire field with no new protocol surface — plus a host-side long-write timeout
+   fix and intra-block write progress, honestly scoped to the `leonardo` class only (on
+   `SERIAL_ON_IO` boards the emission is compiled out *structurally*, because a buffered progress
+   frame there could displace a later error frame and turn a program failure into a transport timeout).
+6. **An honesty ledger led by the evidence ceiling.** The ~6.25 V program-VCC rail is unreachable on
+   every shield revision this project owns, so this milestone claims **fidelity, not improvement** and
+   makes no datasheet-conformance claim in either direction. A fail-provable claim gate (proven RED on
+   planted violations before its GREEN was trusted) polices the closing documents, gh#15's nine
+   original acceptance boxes are graded item by item, and all twelve carry-forwards are named with the
+   literal phrase `no v1.31 owner` rather than dropped.
+
+**Known gaps carried, not hidden:** the ~6.25 V ceiling (accepted debt); MERGE-05's +96 B leonardo
+band breach, open and un-adjudicated, with the operator as its named owner; `0x08` (AM27C020) and
+`0x0B` (M2716/M2732) unvalidated on hardware for want of parts; program-window VPP/VCC under load,
+blocked by the standing Phase-97 DTR-reset-on-close tooling gap. Backlog **999.30** (progress bar
+never reaches 100%, cosmetic) and **999.31** (no firmware `--pulse-us` ceiling for `0x07`/`0x08`)
+were filed by this milestone's own bench work.
+
+<details>
+<summary><strong>All 74 plan one-liners</strong> (raw, as extracted from each SUMMARY.md — includes a
+few deviation-log lines that the extractor picked up in place of a one-liner)</summary>
+
+- Self-checking Python script re-derives the live 0x07/0x08/0x0B pulse-width distribution from chip_database.json via the production parser (170/127/32 chips, matching the seed's C2 table exactly), observed to fail on a planted input before its three verbatim runs were committed as C2's evidence for gh#15.
+- firestarter_app switched to the v1.31 base (4d18b64) and measured under py3.11.15 CI parity at 1539 passed / 0 skipped — a genuine, unreconciled divergence from 138-RESEARCH.md's 1493 passed / 46 skipped figure for that identical commit, recorded with both values and a named-but-unconfirmed mechanism.
+- Three empirically-captured 27C write-loop traces (198/221/201 merged entries) frozen as literal arrays with provenance banners, pinned by a parallel two-mechanism identity gate that was proven to fail on three independent break classes before being trusted.
+- Cold flash/RAM for three AVR targets and case/suite/warning counts for four native envs, frozen into an immutable `size_baseline_v131.json` beside BASE-01 and verified green through the existing `check_size_baseline.py`/`check_build_warnings.py` `--baseline` seam; two D-07-class gate findings (base-dependent verdict, unknown-env KeyError) recorded with owners and left unfixed.
+- Ten-section `138-BASELINE.md` narrative assembling the whole v1.31 pre-change baseline (branch bases, frozen golden trace, per-target flash/RAM, four native env counts, host suite count, pulse distribution) with operator-gated CI evidence re-verified read-only across two repos and three runs, an 11-entry findings register, and PREP-03/PREP-04 ticked with citations.
+- Captured gh#15's nine acceptance-criteria boxes verbatim and built a 15-row, content-verified citation register at three pinned commit SHAs — correcting a mis-cited erase-pulse anchor and confirming the program-pulse file untouched by three-ref blob equality.
+- Authored `139-check-claims.py` -- a Phase-139-scoped forbidden-claim/required-caveat scanner carrying v1.31 vocabulary and the ~6.25 V program-VCC ceiling as its required caveat, with no proximity window and no arming branch -- and proved it can fail (a planted four-label RED) before its first pass was trusted, then proved both of its fail-closed paths RED as well.
+- Drafted `139-GH15-COMMENT.md` -- the byte-for-byte gh#15 correction comment carrying C1/C2/C3, the ~6.25V ceiling as its own paragraph, and a nine-row acceptance-criteria amendment quoting every original box verbatim -- and it passed the phase's own claim gate clean on the first attempt.
+- Authored `139-GH15-BODY-AMENDMENT.md` -- the frozen, default-skipped, ready-to-apply gh#15 body replacement -- built programmatically from the live-fetched issue body; fixed a table-shape defect the mechanical cross-check surfaced in plan 139-03's comment; then froze both outward artifacts with blob SHA, byte length, and committing commit each.
+- Operator approved the frozen gh#15 correction verbatim ("approved, post now") and it is now public: comment #5233463320, byte-verified against the reviewed text, gh#15 still OPEN and unlabelled at exactly one comment; the optional body amendment was declined (default) and the body remains unedited.
+- PROGMEM `eprom_params_t` table (0x07/0x08/0x0B, six columns, no pulse-width) with a fail-closed linear-scan accessor, plus pre-measurement predictions committed before any cold flash/warning capture -- both landed with zero AVR flash/RAM delta and zero added native warnings.
+- 24-site two-tier branch-predicate inventory pinning `eprom.cpp`'s exactly-3 protocol-keyed algorithm sites, enforced by a 7-test independent bracket-matched re-parser gate, proven RED on 3 planted violations before its GREEN was believed.
+- A committed pytest gate in `firestarter_app/tests/` that freezes `chip_database.json`'s field inventory by per-key occurrence count (not names) and scans `tools/build_db.py`'s generator AST unioned with a `tools/extra_chips.json` key scan -- seen RED on four independently planted violations before being believed GREEN.
+- Fifth PlatformIO native env (`native_params_v131`) plus a 9-case Unity suite that exercises `configure_eprom`'s `pulse_delay == 0` fallback and `eprom_params_for()`'s row resolution by running code — the only possible oracle for TABLE-03, since 0 of 329 shipped 27C chips ever hit that branch on the bench.
+- Machine-readable D-14 citation sidecar for all 18 `eprom_params_t` cells (one datasheet or reasoned-basis attribution each), gate-enforced by a 10-test pytest module that proved itself on five distinct planted violations before its GREEN was trusted.
+- Removed the false "1 ms pulse × N + 3× overpulse" / "Same Intelligent Programming algorithm" claims and their nonexistent-section citations from `doc/PROTOCOLS.md` §§1.3/1.4/1.5 and the stale "1ms pulse, DQ7 verify" / "12–18V direct" claims from `CLAUDE.md`'s Algorithm Handlers table, replacing all of it with the datasheet-grounded facts 140-05's citation sidecar already ships, plus the D-11 native-env exception CLAUDE.md's own reuse-pattern section was missing.
+- Cold post-prediction measurement of all 3 AVR + 4 native envs plus both repos' full suites reconciled every one of 140-PREDICTIONS.md's testable claims exactly (0-byte AVR flash/RAM delta, 1166 native warnings, 141/17 pinned suites, 5/1 and 9/1 on the two non-CI envs); the Phase 140 close record names both divergences (the 0x07 Intel-family split candidate and the 0x08 PROJECT.md self-contradiction) without smoothing either, and TABLE-01 through TABLE-05 are now marked Complete exactly once.
+- Three new ERROR-band message IDs (0xAE/0xBD/0xBE) authored in the canonical meta catalog and regenerated into both sub-repos, plus a falsifiable flash/RAM/D-13-inventory prediction for plan 141-04's loop rewrite -- committed before any `eprom.cpp` byte moves.
+- 1. [Rule 3 - Blocking] Task 2's own verify script tripped on its comment's use of the literal function name it slices on
+- New `[env:native_loop_v131]` plus `test_loop_eprom_v131/` (host_stubs.cpp + test_loop_eprom_v131.cpp): a 16-bit-latched-address read-back model, a strong logged-id capture, and a fixed drive-helper contract for plans 141-04/141-07/141-08 -- six loop-independent harness cases green, both pinned native envs still exactly 141/17, zero AVR flash delta.
+- Replaced `eprom_write_execute`'s block-level mismatch-mask retry loop with a per-byte fixed-width pulse-to-verify loop driven by Phase 140's `eprom_params_for()` table, added D-03's pre-flight refusal to `configure_eprom`, and rerouted the erase pulse through `mem_util_delay_us`.
+- Re-derived the protocol-branch-inventory golden from its own scanner (24->27 sites, tier-1 held at exactly 3), re-pinned the test module's hard-coded tier-1 line literal with a two-directional D-15 armed-gate proof, and reconciled CLAUDE.md's Algorithm Handlers rows with the shipped per-byte loop -- including a corrected arithmetic claim.
+- New firestarter/tests/test_write_path_source_contract_v131.py: 12 pytest legs mechanically proving LOOP-02's four named constructs removed and LOOP-07's global delayMicroseconds() ceiling claim, with nine planted-RED transcripts confirming each leg fails for its own reason.
+- 14 new native Unity cases (20 total in `native_loop_v131`) proving the per-byte loop's fixed-width cadence, its two skip rules, and the 0x0B energy cap at all three shipped widths -- driven against the real `eprom_write_execute`, with a documented finding that register-shift writes share `STROBE_KIND_DATA`'s exact shape with a genuine chip-data pulse and must be filtered by value, not counted raw.
+- 19 new native Unity cases (39 total in `native_loop_v131`) completing the phase's behavioural proof: the overprogram arithmetic as a pure function, the hard-fail exit with a non-vacuous, correctly-scoped route disable, the delay ceiling under a real over-ceiling drive plus the pre-flight refusal, and the DIP32 A16-crossing seam -- with both load-bearing safety assertions seen RED on a planted violation before being restored.
+- Captured the post-change v131 trace as a committed artifact, measured flash/RAM cold against the pre-committed prediction and recorded MERGE-05's RED verdict verbatim (operator decision: accepted, not remediated), wrote the phase's non-claims and hand-offs into 141-LOOP-RECORD.md, and flipped all eight LOOP-01..08 requirements in one 16-line hand edit.
+- `mem_util_calculate_top_address_register` now preserves `CTRL_VPP_VPE_DROP_ENABLE` for 32-pin EPROM parts on Rev 2-class hardware (an explicit four-case switch inside `#ifdef HARDWARE_REVISION`), proven by a RED-before-GREEN nine-row truth table and two planted-violation transcripts, with the `0x08` write path empirically unmoved at this commit.
+- Authors the VPP-04 over-voltage refusal gate (by message id, route-clear with paired non-vacuity, FLAG_FORCE downgrade, in-range control) as a regression oracle against the CURRENT, unrewritten `eprom_check_vpp`, and pins the pre-rewrite `CMD_ERASE`/`CMD_CHECK_CHIP_ID` control-value streams as measured literals for VPP-03 -- five named planted violations, each independently seen RED for its own reason and byte-exact restored.
+- One exposed resolver (`eprom_hv_route_mask`) now drives EPROM HV route selection from the `eprom_params` table's `vpp_path` column at both call sites, two conditional single-exit wrappers close the write path's pre-existing `MSG_ERR_VERIFY` disable leak, the Rev-2-class drop bit now survives a 32-pin block observably, and the D-18 protocol-branch-inventory golden was re-derived and landed in the same single commit as the source change (26 sites, tier-1 3->1) -- all five files, one commit, verified by direct binary invocation past a known `pio test` CLI wrapper artifact and two child-process planted-violation transcripts.
+- 15 new native cases proving what Phase 142 actually changed (the resolver truth table incl. its fail-closed NULL-row arm, three route-strobe proofs incl. the Rev 1 negative, and the eprom_check_vpp/write-path route equality on the 0x08 row) and what it did not (every write-path error exit still disables), with three named planted violations -- one reproducing the exact pre-142-04 measure/apply divergence, two proving the write-path wrapper is both load-bearing and correctly conditional -- all landed in one commit, src/ and include/ byte-identical throughout.
+- New firestarter/tests/test_hv_routing_source_contract_v142.py (16 legs, two import-time env seams): D-09's owed command_done() source contract pinning all three zeroing registers and both dispatch call arms individually inside a brace-matched body, plus VPP-03's structural half (one resolver, one definition of each composite across include/, zero surviving hand-rolled equivalents) -- nine planted-RED transcripts, each failing on its own named assertion, all reverted with zero production-file diff.
+- Reconciled firestarter/CLAUDE.md's three Algorithm Handlers rows with the shipped route resolution as a docs-only commit, measured cold flash/RAM on all three AVR targets (leonardo at 2130 B headroom), recorded both MERGE-05 baseline-anchor verdicts and native_trace_v131's expected RED verbatim without fixing either, wrote the 521-line 142-VPP-RECORD.md phase-close record, and hand-flipped VPP-01 through VPP-04 to Complete in both coverage tables with a snapshot-verified 8-line/4-line diff.
+- New `eprom_budget.h`/`eprom_budget.cpp` implement the corrected per-block worst-case write-time budget (ceil pulse count, UNCAPPED zero-cap guard, overprogram term delegated to the shipped function, divide-before-multiply seconds conversion, x2+2 padding), proven by six native Unity cases each seen RED under a named production-code plant.
+- `SerialCommunicator._decode_id_frame` now decodes a third length-discriminated `MSG_OK_READY` field — the firmware's advertised per-block write-time budget in seconds — at the computed `ver_end` offset with a derived `[1, 14400]` plausibility clamp, proven by five byte-layout cases each seen RED under a named production-code plant.
+- The operation-setup ack now packs CAP-01, a PORTED CAP-02 identity tail and CAP-03's per-block write-time budget into one `LOG_OK_ID_BYTES(MSG_OK_READY, ...)` emit -- closing BF-1 (a v1.31 firmware build could not previously connect to the v1.31 app at all) -- and the layout is pinned by a new 10-leg, stdlib-only source-contract gate, every leg proven RED on a scratch-file plant and GREEN against the real source.
+- `write_eprom`'s MAIN-phase wait now uses the firmware-advertised per-block budget verbatim (falling back to a derived 120 s when absent or implausible), every other operation still waits exactly 10 s, and `write_eprom` accepts a `pulse_us` override that rides the existing `pulse-delay` wire key -- all proven by a call-argument oracle that never waits out a real timeout.
+- A time-gated `MSG_DATA_PROGRESS` (0xE0) emission now fires from inside `eprom.cpp`'s per-byte write loop on leonardo and native, compiled out entirely on uno/uno328pb (BF-2's deferred-log-buffer hazard), landed in one commit with a parse-re-derived `protocol_branch_inventory.json` golden, plus two native cases proving the cadence both fires and doesn't vacuously.
+- A mid-block `MSG_DATA_PROGRESS` frame on the write path is now rendered instead of raised on, is never acked, positions the bar as `absolute - start_addr` without ever re-entering `set_progress`'s rebuild arm, and a latch stops the chunk-handoff `update()` once the firmware starts driving the bar -- while a board that never delivers a mid-block frame keeps today's handoff-based bar unchanged.
+- `firestarter write --pulse-us N` (`click.IntRange(1, 65535)`, `default=None`) overrides the database program pulse through the existing `pulse-delay` wire field, refuses out-of-range/non-integer values at Click parse time with exit 2 and no port ever opened, always prints a default-visible provenance line naming both values, and is exposed on `write` alone -- with a bare `write` (no flag) still working, per the plan's one measured trap.
+- A new 10-leg, stdlib-only source-contract gate pins plan 143-05's intra-block `MSG_DATA_PROGRESS` emission (and its `millis()` state variable) as compiled OUT on `uno`/`uno328pb` and compiled in on `leonardo`/native, with every leg proven RED on a planted violation and GREEN against the real source -- no behavioural oracle exists for this `#ifdef`-scoped guard, so this module is explicitly labelled a source contract, never behavioural evidence.
+- A 0xBD/0xBE per-byte program-budget failure now raises `EpromOperationError` naming the failing address plus a hint stating the write aborted and the firmware will not accept another block for it (no continuation implied), and a 0xAE pre-flight `--pulse-us` refusal raises with a hint naming the flag and the exact refused width -- both composed on the existing `_boot_block_hint_message` seam, with zero new exception types or message ids.
+- `checkpoint:human-verify`, `gate="blocking"`, `autonomous: false`. Presented in full per the plan's `<what-built>` / `<how-to-verify>` blocks, exactly as authored (reproduced below verbatim in substance, per T-143-AUTOAPPROVE's mitigation and this plan's own instruction that the presentation must be written into the SUMMARY in full).
+- Machine-checked TEST-01...TEST-05 -> RUN_TEST case map in `firestarter/tests/test_requirement_case_mapping_v131.py`, proven under D-18 with two planted violations (renamed case, emptied scan root), correcting C-04's phantom "two fallback cases" to the real six-case TEST-05 shape.
+- Cross-repo pytest gate proving the firmware's MSG_OK_READY pack order against the host's computed-`ver_end` decode, plus two committed planted-violation fixtures proving it fails for the right reasons (BF-1's defect class).
+- Froze Phase 138's pre-change golden trace as a byte-identical historical artifact by pure rename, captured a fresh empirical post-v1.31 trace (91/115/59 entries, not 141-NEW-TRACE.md's stale 91/119/59), and re-armed the six-assertion identity gate in ONE commit -- `native_trace_v131` goes from 3-failed/2-succeeded to 5/5.
+- A six-segment state machine partitions all 885 v1.31 trace entries (620 pre-change + 265 new) by set equality and disjointness, proving TEST-06's attribution is complete -- not merely counted -- with both D-18 plants seen RED for genuinely distinct reasons.
+- One cold consolidated run measured the FINAL v1.31 tree (+870/+870/+890 B flash, RAM unmoved), then re-anchored all three size baselines to that tip and re-derived the seven fixtures the re-anchor moved the ground under — retiring MERGE-05's standing RED as an explicit anchor move, not a band victory.
+- Constants parity measured in both directions on the CI-parity interpreter (14 passed present / 6 passed + 8 skipped absent, both verbatim), all four `ci.yml`-scoped commands green, and the host suite holding at 1590 passed / 82.92% coverage -- exactly Phase 143's 1578/82.92% plus 144-02's 12 new tests, coverage unmoved.
+- 144-TEST-RECORD.md authored and operator-approved; TEST-01 through TEST-08 flipped to Complete in both REQUIREMENTS.md and ROADMAP.md via hand-edit with a verified snapshot-and-diff.
+- Address-attributable write images, a self-proven tqdm frame extractor, and the Phase-99-shaped bench record skeleton — all built and digest-verified before any hardware is touched.
+- BENCH-03 re-measured validated on four independent legs at the tip; both BENCH-02 disposition records written citing Phase 99's and Phase 79's exact numbers — Gate 0 closed with zero hardware touched.
+- Reflashed the Leonardo from a clean v1.31 tree (commit `a594173d`, 26906/2014 bytes matching baseline exactly) and confirmed the seated Winbond W27C512 by chip-id `0xda08`, clearing Gate 1's identity half while leaving VPP and the D-03 erase pre-flight explicitly outstanding for 145-04.
+- Confirmed VPP in band at 12.0 V with no pot adjustment needed, recorded the operator's verbatim "you are authorized" as informed consent for the erase specifically (not an expendability claim), then settled D-03 on silicon — `erase W27C512 -b` and a standalone `blank W27C512` both exited 0 — closing Gate 1 with the part blank and ready for cycle 1.
+- No reflash was performed or needed in this plan.
+- The required 4688 µs run: AUTHORIZED (2026-08-17), by SELECTION — no verbatim quote exists.
+- "It looked ok". **Artifact:** the bar terminated at **99.02 %** on that run and short of 100 % on all five other writes this phase. Neither side is suppressed and they are not massaged into agreement. A bar stopping one frame short is not something a casual observer would flag — which is the argument **for** requiring both halves, not against the operator.
+- The flip was authorized by the operator.
+- `146-CITATIONS.md` §§0-2
+- A phase-local, fail-closed five-topic documentation checker over the four CLOSE-03 doc targets, seen to fail for a named reason before any doc is edited: `program-vcc-ceiling` is absent from all four, 7 topics unsatisfied in total, and four content locators recorded RED with their commands.
+- The ARM `py32f071` target compiles against v1.31 code — arm **GREEN**, exactly one
+- Full suite
+- Landed the five still-owed D-04/D-05 correction blocks (four in PROJECT.md, one in REQUIREMENTS.md) and wrote `146-CORRECTIONS.md`, a ten-row register that also names three places the inherited correction framing itself was wrong.
+- Task 1 — `doc/PROTOCOLS.md` §§1.3-1.5.
+- Completed CLOSE-03's host half in firestarter_app/README.md (full write-option surface, two adjacency corrections, DB-pulse and 6.25 V ceiling text), corrected DBG_PULSE_DELAY_MISMATCH's stale wording through the catalog with a pre-commit-verified regen shape, and flipped 146-check-close03-docs.py from RED to GREEN across all four sub-repo targets.
+- Wrote `146-LEDGER.md`, the milestone's honesty ledger — a nine-row four-column claim table pairing every permitted v1.31 claim with its explicit non-claim, leading with the 6.25 V program-VCC ceiling and the MERGE-05 +96 B adjudication quoted verbatim, and closing with all twelve Phase 145 carry-forwards, a three-way count disagreement stated rather than reconciled, and four first-class process failures.
+- Task 1 — firmware body.
+- Planted the probed `confirmed-working` label into the real, committed `146-LEDGER.md` through the claim gate's own default target list, observed leg 9 flip RED under that perturbation, reverted to byte-identical content, then brought all five standing gates green in one recorded pass with both sub-repo suites at/above baseline.
+- Both blocking operator gates were answered — wording APPROVED (delegated), posting DEFERRED to after the milestone push — and zero comments were posted to gh#15, which is within this plan's own stated "at most one" output range.
+- CLOSE-01 through CLOSE-05 ticked Complete in both `.planning/REQUIREMENTS.md` and `.planning/ROADMAP.md`, behind the operator's scoped "take it through the gate" authorization, against five freshly re-run green gates and an independently re-derived CLOSE-04/CLOSE-05 settlement — nothing pushed, merged, tagged, or posted to gh#15.
+
+</details>
+---
+
 ## v1.30 SDP Surface Retirement & Behavioral Lock Proof (Shipped: 2026-08-05)
 
 **Phases completed:** 7 phases, 48 plans, 125 tasks

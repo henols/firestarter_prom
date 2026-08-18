@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.31
 milestone_name: — 27C Programming-Algorithm Fidelity
 current_phase: 146
-current_phase_name: close-honesty-ledger-claim-gate-gh-15-reconciliation
-status: "Phase 146 CLOSED (13/13 plans complete) -- CLOSE-01..05 ticked Complete in both .planning/REQUIREMENTS.md and .planning/ROADMAP.md by 146-13, behind a blocking operator gate answered in scope; all five gates green; milestone v1.31 has no phase work remaining -- ready for /gsd-complete-milestone"
-stopped_at: "146-13 COMPLETE (phase close): CLOSE-01, CLOSE-02, CLOSE-03, CLOSE-04, CLOSE-05 ticked Complete in both coverage documents by hand (32 changed lines total, snapshot-and-diff audited, unattributable=0; archived CLOSE-0N rows in v1.22/v1.23/v1.30 REQUIREMENTS confirmed untouched by an unchanged aggregate SHA-256 digest). Resolved auto-mode read false three ways before the gate; operator's scoped authorization ('take it through the gate') recorded verbatim as the answer to Task 1's checkpoint. CLOSE-04/CLOSE-05 independently re-derived as content-dischargeable straight from REQUIREMENTS.md's own verbatim text (146-CITATIONS.md SS7.d) -- neither requirement's wording requires the gh#15 post or a cut release. All five gates re-run green: claim gate rc=0, D-13 doc checker rc=0, Phase 130 record gate rc=0 (exempt tally block=23/line-label=4/inline-history=6/inline-allow=10/superseded=12, unchanged), fixture suite 15 passed, firestarter 314 passed, firestarter_app 1590 passed/30 snapshots. Three-repo no-push arithmetic: meta ahead 292 (>=233), firestarter 63 (>=61), firestarter_app 18 (>=16), all three upstream SHAs unchanged -- nothing pushed, merged or tagged. Submodule gitlinks left un-re-pinned by design, matching 146-LEDGER.md's own recorded hand-off decision to /gsd-complete-milestone (tracked firestarter 0933bd7d / live f8ac6439; tracked firestarter_app cc036e8d / live 3cf429f5). gh#15 unchanged throughout (OPEN, 0 labels, 0 assignees, no milestone, lastEditedAt null, 1 comment) -- the reconciliation comment remains owed to /gsd-complete-milestone as its first post-push act (9 of 11 cited planning artifacts unreachable until the push). Two pre-existing STATE.md Blockers entries (146-PRE, 127-01) independently re-verified discharged with fresh citations and removed from the Blockers list. Every edit here BY HAND under a snapshot-and-diff audit; no state.advance-plan, state.begin-phase, state.planned-phase or bulk requirements/roadmap verb called. Phase 146 is CLOSED. NEXT: /gsd-complete-milestone -- owns the merge, the cut, the version tag, the submodule re-pin, and the deferred gh#15 comment as its first post-push act."
-last_updated: "2026-08-18T06:15:00.000Z"
+status: Awaiting next milestone
+stopped_at: "v1.31 CLOSED by /gsd-complete-milestone 2026-08-18. Phase 146 ended at 146-13 (13/13 plans, CLOSE-01..05 ticked); milestone archived to .planning/milestones/v1.31-{ROADMAP,REQUIREMENTS}.md. NOTE: this field was overwritten with a stale 146-11 line by gsd-tools milestone.complete and hand-restored, together with current_phase (written as 31, a parse artifact of 'v1.31') and the progress block (written 8/9 phases at 89%, a phantom-plan artifact); see 145/146 verification records."
+last_updated: "2026-08-18T06:47:17.105Z"
 last_activity: 2026-08-18
-last_activity_desc: "**146-13 COMPLETE (phase close)** -- CLOSE-01..05 ticked Complete in both .planning/REQUIREMENTS.md and .planning/ROADMAP.md by hand under a snapshot-and-diff audit (32 changed lines, unattributable=0; archived CLOSE-0N rows in earlier milestones' REQUIREMENTS documents confirmed untouched). All five gates re-run green one final time (claim gate, D-13 doc checker, Phase 130 record gate with an unchanged exempt tally, the fixture suite, and both sub-repo suites at/above baseline). CLOSE-04 and CLOSE-05 were independently re-derived as content-dischargeable directly from REQUIREMENTS.md's own verbatim text, settling the open question 146-12-SUMMARY.md left: neither requirement's wording requires the gh#15 post or a cut release, and the deferred gh#15 comment is recorded as an owed carry-forward to /gsd-complete-milestone, not a blocker on this tick. Three-repo no-push arithmetic closed at or above every phase-start baseline with all three upstream SHAs unchanged -- nothing pushed, merged, tagged, dispatched or published anywhere in this phase. The stale submodule gitlinks are left un-re-pinned by design, agreeing with 146-LEDGER.md's own already-recorded hand-off decision to /gsd-complete-milestone. Two pre-existing STATE.md Blockers (146-PRE, 127-01) were independently re-verified discharged with fresh citations this session and removed from the Blockers list rather than left asserting problems no longer measured to exist. Full detail: 146-13-SUMMARY.md and 146-CITATIONS.md section 7. This field was reset to a self-contained summary at this phase-close boundary rather than chaining forward the full prior 54KB history the phase's earlier plans accumulated here -- that history remains fully recoverable from git history and from 146-CITATIONS.md, and carrying it forward indefinitely was itself flagged as a Phase 130 record-gate runtime cost (this line's prior length was the single largest contributor to that gate's ~130s runtime). Phase 146 is CLOSED; milestone v1.31 has no phase work remaining. NEXT: /gsd-complete-milestone."
+last_activity_desc: Milestone v1.31 completed and archived
 progress:
   total_phases: 9
   completed_phases: 9
   total_plans: 74
   completed_plans: 74
   percent: 100
+current_phase_name: close-honesty-ledger-claim-gate-gh-15-reconciliation
 ---
 
 # Project State
@@ -111,146 +111,10 @@ named in the narrative baseline artifact instead. Full four-oracle evidence:
 
 ## Current Position
 
-Phase: 146 (close-honesty-ledger-claim-gate-gh-15-reconciliation) — COMPLETE (13/13 plans)
-Plan: 146-13 of 13 complete (all 7 waves done — 146-01..146-13; CLOSE-01 through CLOSE-05 ticked Complete in both `.planning/REQUIREMENTS.md` and `.planning/ROADMAP.md`, behind a blocking operator gate the operator answered in scope ("take it through the gate"))
-Status: Phase 146 is CLOSED. All five closing requirements are ticked against green gates (`146-CITATIONS.md` §7). Milestone v1.31 has no phase work remaining; `/gsd-complete-milestone` owns everything outward-facing that follows — the merge, the cut, the version tag, and the one `gh issue comment` this phase deliberately deferred to after the push (measured reason: 9 of 11 cited planning artifacts are unreachable on the pushed remote until then).
-
-**`146-13` close, 2026-08-18.** CLOSE-01..05 ticked by hand (32 changed lines across the two coverage
-documents, snapshot-and-diff audited, `unattributable=0`; archived `CLOSE-0N` rows in the v1.22/v1.23/
-v1.30 milestone REQUIREMENTS documents confirmed untouched by an unchanged aggregate SHA-256 digest).
-CLOSE-04/CLOSE-05 were independently re-derived as content-dischargeable straight from
-`.planning/REQUIREMENTS.md`'s own verbatim text — neither requirement's wording requires the gh#15
-post or a cut release, only that the criteria be *reconciled* and the release notes *describe* — see
-`146-CITATIONS.md` §7.d, which also names the still-owed `gh issue comment` as a carry-forward to
-`/gsd-complete-milestone`, not a blocker on this tick. All five gates re-run green one final time:
-claim gate, D-13 doc checker, Phase 130 record gate (exempt tally unchanged bucket-for-bucket), the
-fixture suite (15 passed), and both sub-repo suites at/above baseline (`firestarter` 314 passed,
-`firestarter_app` 1590 passed / 30 snapshots). Three-repo no-push arithmetic closed at meta 292
-(≥233), `firestarter` 63 (≥61), `firestarter_app` 18 (≥16), all three upstream SHAs unchanged from
-phase start — nothing pushed, merged or tagged. The tracked submodule gitlinks (`firestarter`
-`0933bd7d`, `firestarter_app` `cc036e8d`) are left un-re-pinned against their live tips
-(`firestarter` `f8ac6439`, `firestarter_app` `3cf429f5`) **by design, matching `146-LEDGER.md`'s own
-already-recorded decision** to hand that re-pin to `/gsd-complete-milestone` rather than assert an
-equality this milestone never held. gh#15 unchanged throughout (`OPEN`, 0 labels, 0 assignees, no
-milestone, `lastEditedAt` null, 1 comment) — confirming nothing was posted. The two pre-existing
-`### Blockers` entries below (`146-PRE`, `127-01`) were independently re-verified discharged with
-citations and removed from that list by this plan; see `146-CITATIONS.md` §7 and
-`146-CLAIM-FACTCHECK.md` for the evidence trail. Full detail: `146-13-SUMMARY.md`,
-`146-CITATIONS.md` §7.
-
-**Prior-phase carry-over, restored — the three sentences below were left as dangling fragments by
-the `/gsd-execute-phase` execution-start state write and are repaired here by plan `146-01`, which
-recorded the damage in `146-CITATIONS.md` §0.3 before repairing it.** Phase 145 is COMPLETE (9 of 9
-plans; the halt of 2026-08-16 was lifted 2026-08-17). **BENCH-01, BENCH-02 and BENCH-03 are ticked**
-in both `.planning/REQUIREMENTS.md` and `.planning/ROADMAP.md`, flipped by `145-09` behind a blocking
-operator gate that was **not** auto-approved (`_auto_chain_active` false, `auto_advance` absent).
-Phase 145's verdict was `validated` on all four ROADMAP success criteria: criterion 1
-`validated` (three 64 KiB cycles on W27C512 `0xda08`, byte-exact on both oracles), criteria 2 and 3
-`skipped-with-reason` naming **AM27C020** and **M2716/M2732** with **no `0x08` or `0x0B`
-measurement taken in this phase**, criterion 4 `validated` at Gate 0 and re-confirmed at the tip.
-**The three ticks are bounded by the VERDICT section's boundaries** — one part, one `leonardo`,
-one shield revision (Rev 2.0); no comparative claim; no datasheet-conformance claim; the
-intermittent single-byte margin failure **mitigated, not explained**; and both Gate 2 and Gate 3
-run on a build carrying **MERGE-05's open, un-adjudicated +96 B leonardo breach**. Full records in
-`.planning/phases/145-bench-validation/145-09-SUMMARY.md` and the
-"# REQUIREMENT FLIP — `145-09`" section of
-`.planning/phases/145-bench-validation/145-BENCH-LOG.md`.
-
-Last activity: 2026-08-18 — **Phase 146 CLOSED (13/13 plans)**; CLOSE-01..05 ticked Complete in both coverage documents; verification passed 5/5. The gh#15 reconciliation comment and the submodule re-pin are carried forward to /gsd-complete-milestone.
-record the phase's structural no-push baseline: upstream-ahead **233 / 61 / 16** (meta / `firestarter`
-/ `firestarter_app`) as the **only** oracle for D-01, which has no mechanical enforcement because
-`git push`, `gh workflow` and `gh release` are all allowlisted; three-repo porcelain enumerated by
-path (`firestarter` clean at 0 lines); the stale gitlink delta recorded as a **fact, never a
-criterion** (both lag the live tips by the whole milestone, and always have); thirteen
-read-only gh#15 oracles with **zero divergence** (OPEN, `lastEditedAt` null, 1 comment
-`#5233463320`, 5964 bytes, 9 unticked boxes, empty criteria diff, labels `[]`); and nine anchor blob
-SHAs, eight byte-identical to `HEAD`. `146-check-claims.py` is committed as the D-11 gate: five
-`_HERE`-built targets, the twelve donor patterns unchanged with no window and no exclusion mechanism
-(D-14), the per-file `_CAVEAT_RULES` map with `146-CORRECTIONS.md` exempt and any unknown basename
-getting the FULL set, a fresh `FIRESTARTER_CLAIMSCAN_TARGETS_146` seam, and **no** exit-0-on-nothing-
-scanned path. Seen to exit 1 for four named reasons before any target existed, and its `PASS` branch,
-its D-11 exempt path and its fail-closed-on-rename policy each separately observed against temporary
-probe files. **TWO FINDINGS FOR LATER PLANS.** (1) The Phase 130 record gate is **RED at phase
-start** — `rc=1`, one unlabelled `arm-toolchain-absent` hit at `.planning/STATE.md:11` — bisected
-through the gate's own env seam to commit **`d2c212f1`** (`docs(146): record planning completion`),
-which wrote a build-tooling-availability sentence into `last_activity_desc` that collides with the
-gate's own two-token needle (`check_record_corrections.py:261-263`). The offending text is cited by
-location — `.planning/STATE.md:11` — and deliberately **not** reproduced here, per D-14: quoting it
-would plant a second copy of the same hit, which is exactly what the first draft of this entry did
-and what `146-01` caught by re-running the gate after its own edit. The
-plan's recorded baseline (exit 0, tally `{'block': 23, 'line-label': 4, 'inline-history': 6,
-'inline-allow': 10, 'superseded': 12}`) is correct for `6560f9a8`, one commit earlier. **NOT
-repaired: `146-05` owns it** — an exemption placed inside `last_activity_desc` is destroyed by the
-next state write. (2) The `lines=N` line-shift hazard the plan warns about does **not** apply to
-`146-05`'s sites: `ROADMAP.md`, `PROJECT.md` and `STATE.md` carry **zero** active
-`recordscan:supersedes` markers; all twelve superseded line references live in
-`.planning/notes/py32f071-port-branch-state.md:172-178`. Append-after-the-subject is still required,
-by `_BLOCK_CLOSER_RE`, not by any marker. NEXT: wave 1 continues with `146-02` and `146-03`.
-
-**One item Phase 146 must pick up (it has a v1.31 owner, unlike the twelve carry-forwards):**
-`ROADMAP.md`'s **v1.31 Coverage table is stale for 12 rows** — `PREP-01`…`PREP-04`,
-`ISSUE-01`…`ISSUE-03` and `HOST-01`…`HOST-05` read `Pending` there while `REQUIREMENTS.md`
-correctly reads `Complete`. Pre-existing drift from phases 138/139/143, present in the pre-edit
-snapshot, left untouched by `145-09` under its "flip nothing but BENCH-01…03" prohibition.
-**Phase 146 reads that table at close and must reconcile it first.**
-
-**Three standing facts for whoever picks up 145-06:**
-
-1. **The firmware under test is `ebe9cb3`, not `a594173d`.** 27002 B program / 2014 B data,
-   avrdude-verified 27002, 1670 B free. The version string is `3.0.0b17` on **both** builds, so it
-   identifies nothing (D-18). Gate 1's four identity rows are superseded, visibly, in the bench log.
-   No further reflash is needed for 145-06 **unless the tree changes again** — check
-   `git -C /workspaces/firestarter rev-parse HEAD` against `ebe9cb3` before trusting that.
-
-2. **MERGE-05 is breached on this build and NOT adjudicated.** +96 B against a 0 B leonardo band;
-   BASE-01 deliberately not re-anchored; recorded live by
-   `test_policy_merge05_fires_on_the_current_tree`. Every bench measurement from 2026-08-17 onward
-   was produced by a build carrying that open breach. It is a milestone requirements judgement for
-   the operator — do not re-anchor, widen a band, or "fix" the gate from a bench plan.
-
-3. **D-09's single re-seat allowance is UNCONSUMED.** The 2026-08-16 failure had a firmware cause
-   and no chip was ever touched, so the allowance was never spent. Session 1's failure is **not**
-   discarded — it stands in the record as a genuine failure of a genuinely defective build.
-
-**Also note:** RQ-4's frames-per-block table is stale for the shipped firmware. At the database's
-100 µs pulse the measured figure is **1 frame per block**, not 0, because the shipped settle
-increase pushed block time to 1.657 s past the 1000 ms emit cadence. D-10 Claim A HOLDS. Claim B
-remains 145-07's — 145-05 declined to bank it despite two blocks literally satisfying its wording
-(those pairs are bar-latch-transition artifacts, not two firmware emissions in one block).
-
-**Phase 145 is a bench phase — hardware in the loop.** Chip handling, photos and multimeter
-readings are operator-only, and the operator adjusts the voltage pot himself. Do not run it
-under `--auto`/`--chain`: auto-modes **auto-approve** `human-verify` gates, so `autonomous:
-false` is not self-protecting. Phase 144 (complete) carried the same restriction for its
-requirement-flip gate.
-
-**Do not run Phase 139 under `--auto`/`--chain`.** Plan `139-05` Task 1 is a blocking
-`checkpoint:human-action` gate on an irreversible public act (posting to gh#15). Auto-modes
-auto-approve `human-verify` gates but never `human-action`; `autonomous: false` alone is not
-self-protecting (CONTEXT D-09).
-
-**Decision-coverage gate: OVERRIDDEN at plan time (operator decision, 2026-08-09).**
-`check.decision-coverage-plan` returned `passed: false, reason: "could-not-parse"` — a parser
-limitation, not a coverage gap. Six of `139-CONTEXT.md`'s eleven decision bullets defeat
-`bin/lib/decisions.cjs`'s three bullet regexes in three distinct ways: `D-01`, `D-04`, `D-06`, `D-07`
-wrap the bold label across two lines; `D-08` carries nested `*italics*` inside the bold run
-(`bulletEmDashRe`/`bulletTitledColonRe` both reject any `*`); `D-09` carries extra colons inside it
-(`` `checkpoint:human-action` `` — `bulletTitledColonRe`'s `[^:*]*` rejects). `139-CONTEXT.md` was
-deliberately **not** reformatted: `139-01-PLAN.md` prohibits editing it and asserts
-`git status --porcelain` on it is empty.
-
-Coverage substance was verified manually instead — the union of decision ids cited across the five
-plans is D-01 … D-11 complete:
-
-| Plan | Decision ids cited |
-|------|--------------------|
-| 139-01 | D-01, D-03, D-06, D-07, D-08, D-10 |
-| 139-02 | D-01, D-05, D-08, D-10 |
-| 139-03 | D-01, D-02, D-03, D-04, D-05, D-06, D-07, D-08, D-10, D-11 |
-| 139-04 | D-01, D-03, D-08, D-10 |
-| 139-05 | D-01, D-08, D-09, D-10 |
-
-verify-phase should re-surface this override rather than treat the gate as passed.
+Phase: Milestone v1.31 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-08-18 — Milestone v1.31 completed and archived
 
 ## Roadmap Summary (v1.31)
 
@@ -811,6 +675,56 @@ not hold (the v1.22 C-5 overclaim class).
 gate-hardening v1.23 left OPEN (fail-open `tools/check_mypy_watermark.py` + 69 hidden inherited
 errors → `firestarter_app`'s primary `ci` job is RED), and 999.15 / gh#8 dev-tools channel gating.
 Plus the owed gh#12 outward follow-up, behind operator wording review.
+
+## Deferred Items — acknowledged at v1.31 milestone close (2026-08-18)
+
+Closeout type: `override_closeout`. **Known verification overrides: 9** (the `audit-open` count at
+close). **None of the 9 originate in v1.31.** All nine v1.31 phases (138–146) read
+`phase_complete: true` / `verification_status: passed`, and all 45/45 v1 requirements are ticked
+Complete in both coverage documents — so the override is carry-forward debt only, not a gap in this
+milestone's own work. This is the **eighth** consecutive acknowledgement of substantially this set.
+
+Every item below was swept on **2026-08-09** and recorded in
+[`.planning/v1.31-CARRYOVER-DISPOSITION.md`](v1.31-CARRYOVER-DISPOSITION.md) — evidence-based, with
+software items resolved where evidence supported it and hardware/operator-judgment items **annotated
+and scoped, never rubber-stamped**. That sweep is why this set is 9 rather than the 14 acknowledged
+at v1.30: Phases 71 and 85 were genuinely closed on evidence, and two debug sessions were retired
+into precise trackers.
+
+**Carry-forward set (9), re-confirmed 2026-08-18:**
+
+| Category | Item | Status |
+|----------|------|--------|
+| uat | Phase 08 — `08-HUMAN-UAT.md` | partial (0 pending scenarios); blocker resolved 2026-08-09 — the 0xA4 regression it was parked on is fixed. Residual: the **Uno** leg, never run on Uno-class hardware. |
+| verification | Phase 08 — `08-VERIFICATION.md` | human_needed, **scope reduced** — Leonardo leg superseded by Phase 91's W27C512 PASS; Uno leg genuinely open, settle on policy (standing posture is Leonardo-only validity). |
+| verification | Phase 09 — `09-VERIFICATION.md` | human_needed, **scope reduced** — same carry-over; item 1 expects `OK: FW: 3.0.0-dev:<board>`, a version string that no longer ships, so it needs restating before it is runnable at all. |
+| verification | Phase 84 — `84-VERIFICATION.md` | human_needed, **sign-off supported** — 3/3 on automated checks; both items ask the operator to accept a deferral as correct, and the follow-through record supports that (FIX-01/FUT-06 worked → FUT-08; CR-01 root-caused to a permanently locked boot block). GRAD-03 / 2516 read instability remains genuinely unresolved. |
+| todos | 19 pending (`audit-open` reports 5 + 14 remainder) | pending. Includes two filed *by* v1.31 Phase 145 and promoted to backlog: **999.30** (write progress bar never reaches 100% — cosmetic, all six affected writes verified byte-exact) and **999.31** (no firmware-side `--pulse-us` ceiling for `0x07`/`0x08`, which subsumes the T-145-45 threat-register defect). Also `at28c256-write-path-failure-gh20.md` (gh#20, a real still-open defect this project only triaged). |
+
+**Two v1.31-native items carried with the literal phrase `no v1.31 owner`** — recorded here because
+they are *unrecoverable within the milestone*, not merely deferred inside it. Phase 146 was
+docs-and-claims only: it could neither run a bench nor ship code, and it was the last phase.
+
+| Item | Owner | Note |
+|------|-------|------|
+| **The ~6.25 V program-VCC evidence ceiling** | the milestone's **accepted debt** | Structurally unreachable on every shield revision this project owns. Phase 146's honesty ledger is where it is *stated*, not where it is *discharged*. It bounds what any implementation of gh#15 can buy: timing, pulse-count and verify fidelity — **not** silicon-margin fidelity. |
+| **MERGE-05's +96 B leonardo band breach** | **the operator**, as a milestone requirements judgement | `ebe9cb3` is +96 B against a 0 B must-not-grow band; BASE-01 was **not** re-anchored a second time to make it green. Gate 2 and Gate 3 of Phase 145 both ran on a build carrying this **open** breach. 144 H7 was answered green at 26906 B and then went red underneath the answer. |
+
+**Ten further Phase 145 carry-forwards** (twelve total, incl. the two above) are enumerated with
+owners and discharge conditions in `145-BENCH-LOG.md` §"Carry-forward hand-offs with no v1.31
+owner", and **sixteen un-taken readings** with their blockers in §"Not measured". The largest is
+program-window VPP/VCC **under load** — blocked by the standing Phase-97 DTR-reset-on-close tooling
+gap, which is why every VPP figure in this milestone is an **idle** firmware-ADC sample.
+
+**One tooling defect found during this close, filed not fixed:** GSD's plan scanner
+(`bin/lib/plan-scan.cjs`, `isRootPlanFile`) falls back to a loose `/PLAN/i` match, so
+`146-REPLAN-BRIEF.md` counted as a phantom 14th plan in a 13-plan phase — driving
+`phase_complete: false` for a closed phase and `completed_phases: 8` / `percent: 89` into this file.
+Worked around by renaming the brief to `146-RESCOPE-BRIEF.md` (provenance note added in-file; no
+citation referenced it). The v1.30 close shows the same signature (`current_phase: 30`, 7/8, 88%),
+so this has been mis-reporting silently for at least two milestones.
+
+---
 
 ## Deferred Items
 
