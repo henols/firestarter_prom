@@ -63,14 +63,14 @@ fix stack. Host-only; needs no AT28C part.
 - [x] **PROV-04**: The report schema version is bumped, and reports written by earlier versions
       (carrying `fw_board_identity: null`) still parse without error.
 
-- [ ] **PROV-05**: A null or unobtainable firmware identity renders as an **explicit unknown** in
+- [x] **PROV-05**: A null or unobtainable firmware identity renders as an **explicit unknown** in
       the human-readable report surfaces and in the issue parser — never as a blank, and never as the
       bare rendering of `None` that reads like a captured value. *(Tightened 2026-08-18, Phase 147
       D-10: the fenced report JSON deliberately keeps typed `null` so machine consumers can test
       `is None` and so PROV-04's backward-compatibility story stays one case. "Both report outputs"
       as originally worded read as requiring a string sentinel in the JSON; it does not.)*
 
-- [ ] **PROV-06**: The `[dev test]` issue parser surfaces the firmware identity, so a triager can
+- [x] **PROV-06**: The `[dev test]` issue parser surfaces the firmware identity, so a triager can
       attribute a report without asking the reporter.
 
 ### Database Decode & Numeric Values (DATA)
@@ -233,8 +233,8 @@ relies on `autonomous: false` alone is not self-protecting.
 | PROV-02 | Phase 147 | Complete |
 | PROV-03 | Phase 147 | Complete |
 | PROV-04 | Phase 147 | Complete |
-| PROV-05 | Phase 147 | Pending |
-| PROV-06 | Phase 147 | Pending |
+| PROV-05 | Phase 147 | Complete |
+| PROV-06 | Phase 147 | Complete |
 | DATA-01 | Phase 148 | Pending |
 | DATA-02 | Phase 148 | Pending |
 | DATA-03 | Phase 148 | Pending |

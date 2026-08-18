@@ -318,12 +318,12 @@ PROV-05, PROV-06.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PROV-01 | Phase 147 | Pending |
-| PROV-02 | Phase 147 | Pending |
-| PROV-03 | Phase 147 | Pending |
-| PROV-04 | Phase 147 | Pending |
-| PROV-05 | Phase 147 | Pending |
-| PROV-06 | Phase 147 | Pending |
+| PROV-01 | Phase 147 | Complete |
+| PROV-02 | Phase 147 | Complete |
+| PROV-03 | Phase 147 | Complete |
+| PROV-04 | Phase 147 | Complete |
+| PROV-05 | Phase 147 | Complete |
+| PROV-06 | Phase 147 | Complete |
 | DATA-01 | Phase 148 | Pending |
 | DATA-02 | Phase 148 | Pending |
 | DATA-03 | Phase 148 | Pending |
