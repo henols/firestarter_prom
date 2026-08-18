@@ -4,11 +4,11 @@ milestone: v1.32
 milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 148
 current_phase_name: Numeric Database Values & the AT28C VCC Decode
-status: completed
-stopped_at: Completed 147-06-PLAN.md (Phase 147 closed)
-last_updated: "2026-08-18T20:54:51.182Z"
+status: planning
+stopped_at: Phase 148 context gathered
+last_updated: "2026-08-18T22:02:31.292Z"
 last_activity: 2026-08-18
-last_activity_desc: Phase 147 complete, transitioned to Phase 148
+last_activity_desc: "**Phase 148 context gathered** by /gsd-discuss-phase (148-CONTEXT.md + 148-DISCUSSION-LOG.md committed at 5581335c). 17 decisions across four discussed areas, plus a measurement that reshapes the phase: `electrical.vcc: \"4V\"` is a FAITHFUL decode, not a defect -- VCC_VOLTAGES index 0x02 is minipro's tl866ii_vcc_voltages[] low-margin VERIFY rail, so DATA-01's premise (a decode defect) and its target (4.5 V) are both wrong and are hand-corrected before planning per D-04 (Phase 147 D-06 precedent). Target is 5000 mV (= vdd, itself infoic-decoded, so nothing is invented); the rule is nibble-keyed and semantic -- `vcc_mv == 4000 -> vcc_mv = vdd_mv` -- moving EXACTLY 56 chips, all to 5000 mV. The rejected type-keyed (85), algorithm-keyed (84) and relation-keyed (225) conditions would each have set sixteen 5 V Microchip EEPROMs to 3.3 V, because vcc != vdd on 358 of 746 chips. diff_db.py gets a NORMALIZING comparator so the numeric migration diffs to ZERO and only the 56 movers surface; the baseline is NOT re-pinned. audit_coverage_matrix.py's parse_pulse_us is deleted too (a second coercion site DATA-03 does not name) -- and that tool's _REPO_ROOT resolves to /workspaces, so its DEFAULT_OUTPUT and DEFAULT_LEDGER are TRACKED META-REPO files it mutates: always pass scratch paths. Render output stays byte-identical (\"5.0v\") so the characterization snapshot diff is itself the proof. Deferred: the vcc=5500 group (29 chips, same error inverted). NEXT: /gsd-plan-phase 148."
 progress:
   total_phases: 6
   completed_phases: 1
@@ -2268,9 +2268,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-18T15:52:09.027Z
-**Stopped at:** Completed 147-05-PLAN.md
-**Resume file:** None
+**Last session:** 2026-08-18T22:02:31.259Z
+**Stopped at:** Phase 148 context gathered
+**Resume file:** .planning/phases/148-numeric-database-values-the-at28c-vcc-decode/148-CONTEXT.md
 
 ### Blockers
 
