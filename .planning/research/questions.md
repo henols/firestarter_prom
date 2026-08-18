@@ -157,3 +157,64 @@ and seed `seeds/jumper-settings-per-pin-map.md`.
    chips (DIP28_27512 → CTRL_VPP_VPE_DROP path). Establish the correct
    statement and fix the doc (lockstep with the meta-repo shield docs if §
    overlap).
+
+## Dev-tools gating via release channel (999.15 / gh#8) — added 2026-07-28
+
+Source: `/gsd-explore` session 2026-07-28. See `notes/dev-tools-gating-channel-split.md`
+for the full design and the 999.15 stub rewrite in `ROADMAP.md`.
+
+1. **What is the source-checkout override, and does it fail safe?** The design gates the
+   host `dev` group off the package's own `__version__` (`firestarter_app/firestarter/__init__.py:1`;
+   pre-release forms carry `bN`/`rcN`, stable is bare `X.Y.Z`). But the operator works from an
+   **editable install** in the devcontainer, so the moment that string is a bare `X.Y.Z` —
+   between betas, or at a stable cut — the bench silently loses `dev reg`, which is load-bearing
+   project tooling (`dev reg 0 0 0x86 -f` is the held-erase-rail DMM proxy). Decide the override
+   mechanism *before* implementation: an explicit env var (`FIRESTARTER_DEV_TOOLS=1`), detection
+   of an editable/VCS install, or a separate `[dev]` pip extra. Whichever is chosen must fail
+   **closed** for a wheel installed from PyPI and **open** for a source checkout — and must not
+   be settable from a config file (same SAFE-01 reasoning that made `--destructive` CLI-only).
+2. **Does a rejected dev command ID actually desync the COBS/CRC stream?** gh#8 asks for this
+   proof, and the channel split makes it **load-bearing** rather than incidental: because the app
+   and firmware channels install independently (`pip install --pre` vs `firestarter fw --pre`),
+   **beta-app + stable-firmware becomes a likely pairing**, and in it the app offers `reg`/`addr`
+   that the firmware will reject. Empirical: build a `DEV_TOOLS`-off firmware, send `cmd: 7` and
+   `cmd: 8`, and confirm the next legitimate command still round-trips — i.e. the rejection path
+   consumes its frame and does not leave the decoder mid-frame. Relevant precedent: the v1.12
+   fail-closed `0xBB` path + host `ProtocolNotImplementedError` (`project_v112_milestone_closed`)
+   may already be the correct rejection shape to reuse rather than inventing a second one.
+3. **Is welding "beta channel" → "dev tools enabled" acceptable, or is a third tier needed?**
+   The design makes every future beta a dev-tools build, so community beta testers — the exact
+   audience v1.21 built `dev test` for and documented in `beta-testing-install.md` — receive the
+   full hazardous surface (`reg`, `addr`, `write-cycle`, `fault-inject`) whether they want it or
+   not. The gate then protects stable users and no one else. Options to weigh: accept it (opting
+   into `--pre` is a deliberate act); or split "pre-release" from "dev-tools-enabled" into two
+   axes, which reintroduces the second-artifact cost the channel split was chosen to avoid; or
+   keep the beta CLI surface narrow and put only the *firmware* dev tools behind `--pre`. Needs
+   an operator decision at scoping, not an implementer's guess.
+
+## SDP surface retirement + behavioral proof (999.25) — added 2026-07-31
+
+> Design: [`.planning/notes/sdp-surface-retirement-and-behavioral-proof.md`](../notes/sdp-surface-retirement-and-behavioral-proof.md).
+> Stub: Phase 999.25 in `ROADMAP.md`.
+
+1. **Can the inhibited-write leg be proven at all without AT28C silicon on the bench?** The leg's
+   whole value is an inverted assertion — after `sdp_lock`, a write carrying `FLAG_SKIP_SDP_UNLOCK`
+   must leave the chip **unchanged**. Nothing in operator inventory can exercise that end to end
+   (`0x0D` is `UNVERIFIED`; no AT28C part — `project_phase83_shipped`). Decide before scoping what
+   evidence the phase can actually produce: the Phase 116 trace harness can prove the *emission*
+   (correct sequence, correct pinout remap, `/WE` asserted) and the native envs can prove the
+   *plan derivation* and the read-back comparison logic, but the causal claim "the lock inhibited
+   the write" is reachable **only** on real silicon, i.e. only from a community `dev test` report.
+   State that split explicitly, or the phase will close claiming a proof it does not hold — the
+   same overclaim class as v1.22's C-5 correction. Related: does the trace harness need a new
+   fixture for a *locked* part, and is that even representable in a host-side stub, given the stub
+   models the bus and not the die's protection state?
+2. **Does `--sdp-relock` gate on verify success?** The v1.22 research recorded the relock as
+   "opt-in only, gated on verify success" (`v1.22-research/SUMMARY.md:157`), and the reasoning is
+   sound — relocking a part whose write did not verify protects a bad image behind a lock that
+   cannot be read back and can only be cleared by another write. But the gate was never
+   implemented or re-decided, and the deferral label ("v1.23+") now points at the wrong milestone.
+   Confirm the polarity at scoping: does `--sdp-relock` silently skip the relock on verify
+   failure (and say so loudly), refuse the whole operation up front, or relock regardless? The
+   first is the only one consistent with "the attractor should be the state the user can recover
+   from" (the rationale behind auto-unlock policy (d), `PROJECT.md:671`).

@@ -4,6 +4,40 @@ verified: 2026-05-18T00:00:00Z
 status: human_needed
 score: 3/4 must-haves verified
 overrides_applied: 0
+carry_over_assessment:
+  assessed: 2026-08-09
+  by: v1.31 pre-close carry-over sweep
+  status_unchanged: human_needed
+  reason_still_open: "Residual is hardware-only and Uno-side. NOT rubber-stamped."
+  scope_reduced: true
+  protocol_assertion: SATISFIED
+  protocol_assertion_evidence: |
+    08-HUMAN-UAT.md Test 1, bench session 2026-06-16 (Leonardo /dev/ttyACM0, W27C512
+    seated, fw b8): "PHASE-08 DELIVERABLE VERIFIED WORKING: all acks render via ID-frame
+    decoding with NO literal INIT:/MAIN:/END: text prefixes; bootstrap
+    OK: FW: 3.0.0b8:leonardo shown. The SC#2 *protocol* assertion is satisfied."
+  original_blocker: MSG_ERR_EMPTY_INPUT (0xA4) during the write MAIN phase
+  original_blocker_status: RESOLVED (outside Phase 08, as the 2026-06-16 disposition intended)
+  original_blocker_fix: |
+    Host-side: INIT/END phases must not ack DATA frames. Present in the v1.31 tree at
+    firestarter_app/firestarter/eprom_operations.py:488 (`ack_data=False`), with the
+    documented contract at :497-501 and the regression guard
+    tests/test_eprom_operations.py:135 test_init_phase_data_frames_not_acked.
+  leonardo_leg: SUPERSEDED by later chip-seated evidence
+  leonardo_leg_evidence: |
+    Phase 91 (v1.16) graduated W27C512 to PASS with a full erase-enabled write+verify
+    on Leonardo (chip-ID 0xDA08, erase SHA e16b2a5b) after proving the earlier failure
+    was a `write -b` skip-erase test-method error, not a code fault. Phase 73 bench-
+    validated the 6 families on Leonardo. v1.21 validated 3 boards.
+  residual_open:
+    - "SC#2/SC#3 on an **Uno** (not Leonardo) — never performed on any board of that class"
+    - "SC#3 explicit `diff baseline.bin readback.bin` byte-identity check, on either board"
+  recommended_disposition: |
+    Close the Leonardo leg on the Phase 91 evidence and decide the Uno leg on policy:
+    the project's standing bench posture is Leonardo-only validity (uno328pb is recorded
+    bench-unstable, and Uno-class boards drive the shield bus during upload). If Uno-class
+    bench validation is out of posture, this should be closed as such rather than left
+    open indefinitely. OPERATOR DECISION — not taken here.
 human_verification:
   - test: "Flash Phase 8 firmware (firestarter HEAD 275522a) to Uno, then run: FIRESTARTER_DEV_ALLOW_PRE_V12=1 firestarter write -e W27C512 -i <known.bin>. Confirm write completes with INIT/MAIN/END acks rendered without literal text prefixes and bootstrap OK: FW: ... line is still present."
     expected: "CLI output shows INIT/MAIN/END phase transitions through catalog-rendered format strings (e.g. 'INIT: (init done)'), no raw 'INIT:'/'MAIN:'/'END:' text prefixes, and 'OK: FW: ...' bootstrap line present at start."

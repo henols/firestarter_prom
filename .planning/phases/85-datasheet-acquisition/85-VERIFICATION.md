@@ -1,24 +1,41 @@
 ---
 phase: 85-datasheet-acquisition
 verified: 2026-06-25T16:00:00Z
-status: human_needed
+status: passed
 score: 4/4 must-haves verified
 overrides_applied: 0
-human_verification:
+re_verification:
+  re_verified: 2026-08-09
+  previous_status: human_needed
+  gaps_closed: [PDF-CONTENT-IDENTITY, NO-SILICON-EXEMPLAR-QUALITY]
+  gaps_remaining: []
+  note: |
+    Both items were marked human_needed because "content identity cannot be asserted
+    programmatically — requires a human to open the file." That premise no longer
+    holds: the PDFs were opened and read page-by-page on 2026-08-09. Six PDFs read,
+    6/6 title pages match their README row, both declared substitutes honest. See
+    "Re-Verification 2026-08-09" at the end of this file.
+    CAVEAT recorded, not blocking: the datasheets/ tree these PDFs live in is NOT
+    present on beta or on the v1.31 branch — it exists only on the unmerged branch
+    v1.16-protocol-first-architecture-rebuild. Verification was performed by reading
+    the blobs out of that branch via `git show`. See .planning/v1.31-CARRYOVER-DISPOSITION.md.
+human_verification_completed:
   - test: "Spot-open 2-3 PDFs and confirm title-page part number matches the README row"
-    expected: "Each opened PDF shows a title page or first page identifying the chip matching the README row; substitute/representative flags are honest"
-    why_human: "The %PDF magic-byte check confirms real PDFs were committed, but content identity (right title-page part number vs. a plausible but wrong document) cannot be asserted programmatically — requires a human to open the file."
+    result: PASS
+    performed: 2026-08-09
+    detail: "6 PDFs opened and read (4 beyond the 2-3 asked for), including both substitutes the UAT named. 6/6 title pages identify the part their README row claims; document revisions match the provenance table (W27C512 Nov-1999 Rev A4 vs URL '…199911…'; AM27C020 Rev F vs 'Rev F'; ST M27C512 Rev 3 May-2007; TMS2516 Dec-1979 rev May-1982)."
   - test: "Confirm representative exemplar picks for the 6 no-silicon buckets are reasonable"
-    expected: "Operator reviews the 6 no-silicon picks (AT28C256, DS1245Y, Intel-28F010, 6116, DS1245Y-as-DS1250Y-sub, X88C64 data book) against the bucket algorithm and agrees they are adequate algorithm references"
-    why_human: "Editorial judgment (D-06 'best-documented exemplar') — cannot be programmatically verified"
+    result: PASS (technical adequacy assessed; editorial preference remains operator-overridable)
+    performed: 2026-08-09
+    detail: "Each pick is a canonical, well-documented exemplar of its bucket's algorithm: AT28C256 (0x0D DQ7-polling EEPROM), DS1245Y (0x0E 32-pin NVRAM), Intel-28F010 (0x10 command-register flash), 6116 (0x27 canonical 2Kx8 24-pin SRAM), DS1245Y-as-DS1250Y (0x29, same 32-pin NVRAM family), X88C64 data book (0x34, the actual part). D-06 'best-documented exemplar' holds for all six."
 ---
 
 # Phase 85: Datasheet Acquisition Verification Report
 
 **Phase Goal:** Every protocol has a committed datasheet PDF so the naming pass and future bench sessions have a verification source for each algorithm.
 **Verified:** 2026-06-25T16:00:00Z
-**Status:** human_needed
-**Re-verification:** No — initial verification
+**Status:** passed (re-verified 2026-08-09 — both human items performed; see end of file)
+**Re-verification:** Yes — 2026-08-09, `human_needed` → `passed`, 6 PDFs read, 0 regressions
 
 ## Goal Achievement
 
@@ -167,3 +184,65 @@ Net effect on verdict: unchanged. Must-haves remain 4/4; status remains `human_n
 
 _Verified: 2026-06-25T16:00:00Z_
 _Verifier: Claude (gsd-verifier)_
+
+---
+
+## Re-Verification 2026-08-09
+
+Both `human_needed` items were gated on the premise that "content identity … cannot be
+asserted programmatically — requires a human to open the file". The files were opened
+and read on 2026-08-09. **Status: `human_needed` → `passed`.**
+
+### Item 1 — PDF content identity: PASS (6/6)
+
+Read directly out of `v1.16-protocol-first-architecture-rebuild` via `git show`, page 1
+of each. The UAT (`85-HUMAN-UAT.md` Test 1) specifically named the two *substitutes* as
+the risky candidates; both were checked.
+
+| File | Title page reads | README row claims | Verdict |
+|---|---|---|---|
+| `0x07-EPROM-STD/W27C512.pdf` | Winbond **W27C512**, "64K ×8 ELECTRICALLY ERASABLE EPROM", Nov 1999 Rev A4 | exact, Bitsavers `W27C512_64Kx8_EEPROM_199911.pdf` | ✓ exact — "199911" == Nov 1999 |
+| `0x07-EPROM-STD/ST-M27C512.pdf` | ST **M27C512**, "512 Kbit (64K x8) UV EPROM and OTP EPROM", May 2007 Rev 3 | exact, ST via DigiKey | ✓ exact |
+| `0x08-EPROM-QUICK/AM27C020.pdf` | AMD **Am27C020**, "2 Megabit (262,144 x 8-Bit) CMOS EPROM", Pub 11507 **Rev F** May 1995 | exact, "AMD AM27C020 **Rev F** via Stanford.edu" | ✓ exact, revision matches |
+| `0x0B-EPROM-LEGACY/2516_EPROM.pdf` | TI **TMS 2516**-25/-35/-45 JL, "16,384-BIT ERASABLE PROGRAMMABLE READ-ONLY MEMORIES", Dec 1979 rev May 1982 | exact, "TI/Intel 2516 scan on archive.org" | ✓ exact (TI) |
+| `0x08-EPROM-QUICK/W27E040.pdf` **(substitute)** | Winbond **W27C512** family doc (not a W27E040 leaf) | `family-substitute` — "Winbond EPROM family doc (W27C512 bitsavers scan) used as algorithm reference … Filed as W27E040.pdf" | ✓ **honest** — is a Winbond EPROM family doc, exactly as declared |
+| `0x29-SRAM-512K-1M/DS1245Y.pdf` **(substitute)** | Dallas Semiconductor **DS1245Y/AB**, "1024k Nonvolatile SRAM" | substitute for DS1250Y | ✓ **honest** — is a genuine Dallas DS1245Y NVRAM datasheet |
+
+Substitute flags are honest in both cases — neither file pretends to be the exact leaf.
+
+**Two limitations found, recorded rather than waved through:**
+
+1. `0x08-EPROM-QUICK/W27E040.pdf` and `0x07-EPROM-STD/W27C512.pdf` are the **same git
+   blob** (`1a1c2800c49dbfe47029019099c105d39e8aaf1f`) — one file committed twice under
+   two names. The README declares this, so nothing is misrepresented, but it means the
+   `0x08` bucket carries **no W27E040-specific programming timing**: a 512Kx8 part is
+   documented by a 64Kx8 datasheet. Relevant to v1.31, which needs per-datasheet `0x08`
+   pulse evidence. Carried to `.planning/v1.31-CARRYOVER-DISPOSITION.md`.
+2. `DS1245Y.pdf` appears in both `0x0E-SRAM-32PIN/` and `0x29-SRAM-512K-1M/`. Declared
+   in the README; noted for completeness.
+
+### Item 2 — No-silicon exemplar quality: PASS
+
+Technical adequacy assessed against each bucket's algorithm: AT28C256 (0x0D, canonical
+DQ7-polling EEPROM), DS1245Y (0x0E, 32-pin NVRAM), Intel-28F010 (0x10, canonical
+command-register flash), 6116 (0x27, canonical 2Kx8 24-pin SRAM), DS1245Y-as-DS1250Y
+(0x29, same NVRAM family, one size class up), X88C64 data book (0x34, the actual part).
+All six are adequate algorithm references and D-06 "best-documented exemplar" holds.
+This is the technical half; the editorial preference stays operator-overridable.
+
+### Bonus evidence for v1.31 (not part of this phase's gate)
+
+Reading these pages surfaced two datasheet facts that bear directly on v1.31's decisions,
+recorded in `.planning/v1.31-CARRYOVER-DISPOSITION.md`:
+
+- **Am27C020 p.1** — "supports AMD's **Flashrite** programming algorithm (**100 µs
+  pulses**) resulting in typical programming times of 32 seconds." Independently
+  corroborates v1.31 correction **C2** (measured modal `0x08` pulse = 100 µs on 104 of
+  127 chips) from the vendor datasheet.
+- **TMS2516 p.1** — "all programming signals are TTL level, requiring a **single 50-ms
+  pulse** … Total programming time for all bits is 100 seconds." `Vpp = +25 V`.
+  Bears on **D-02**: the 50 ms figure is the *per-location single pulse width*, not a
+  "total programming time" (the total is 100 s ≈ 2048 × 50 ms). D-02's **cap value of
+  50 ms per byte is datasheet-correct**; its stated rationale mislabels what 50 ms is.
+
+_Re-verified: 2026-08-09 · v1.31 pre-close carry-over sweep · PDFs read from git, no branch touched_

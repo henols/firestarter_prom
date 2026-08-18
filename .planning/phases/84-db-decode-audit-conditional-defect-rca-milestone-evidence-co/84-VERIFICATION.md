@@ -4,6 +4,41 @@ verified: 2026-06-25T10:17:22Z
 status: human_needed
 score: 3/3
 overrides_applied: 0
+carry_over_assessment:
+  assessed: 2026-08-09
+  by: v1.31 pre-close carry-over sweep
+  status_unchanged: human_needed
+  reason_still_open: "Both items are operator judgment calls (accepting a disposition). An agent cannot grant an operator sign-off."
+  note: |
+    Neither item alleges a missing artifact — the report itself says the automated checks
+    all pass (3/3) and these are "judgment calls about intentional deferrals". What the
+    sweep CAN add is the follow-through record: both deferrals were subsequently picked
+    up and worked, which is the strongest possible support for accepting them as correct
+    dispositions rather than abandoned gaps.
+  item_2_FIX01_followthrough: STRONGLY SUPPORTED — deferral was worked, not dropped
+  item_2_evidence: |
+    AM27C020 / FUT-06: root-caused and fixed in v1.18. RC-1 = DIP32 pin 31 modeled as
+    address line A18 rather than held /PGM; a scoped `DIP32_27C020` + `rw-pin:[31]` ->
+    `CTRL_READ_WRITE` (0x40) fix shipped dual-repo lockstep. Bench-proved EFFECTIVE
+    (write#1 60/64 byte-exact, refuting the 0-bits signature) but MARGINAL (write#2
+    0/64) -> honest DEFER, carried as FUT-08 with FUT-06 retired-by-replacement.
+    W29C040 / CR-01: root-caused to a PERMANENTLY locked 16K boot block on the sample —
+    full write->verify is physically impossible on that part; needs a different sample.
+    Both "named-tracked deferrals" therefore behaved exactly as the D-43
+    closed-by-disposition pattern promised.
+  item_1_2516_followthrough: STILL OPEN — 2516 read instability not resolved
+  item_1_evidence: |
+    The 2516 0x0B read oracle remained unstable at v1.15 (N=3, 3 distinct SHAs, 1.9%
+    byte jitter) and no later milestone has stabilised it. The D-22 best-effort deferral
+    therefore still stands on its original reasoning.
+    RELEVANT TO v1.31: the 2516 is the canonical 0x0B part, and v1.31 Phase 145 is 0x0B
+    bench validation. An unstable 2516 read oracle is a live risk to that phase's ability
+    to prove anything about 0x0B. Flagged in .planning/v1.31-CARRYOVER-DISPOSITION.md.
+  recommended_disposition: |
+    Item 2 is ready for a one-line operator sign-off on the v1.18 follow-through record.
+    Item 1 should be re-pointed at v1.31 Phase 145 rather than sat against Phase 84,
+    since that is where 0x0B read stability now actually matters.
+    OPERATOR DECISION — not taken here.
 human_verification:
   - test: "Confirm 2516 read instability is understood as intentional best-effort deferral (D-22), not a gap"
     expected: "GRAD-03 / FUT-03 remain OPEN; operator accepts that 2516 write proof was not achieved because the read oracle is still unstable after the VPP-skip fix; deferral FUT-03 is the correct disposition"

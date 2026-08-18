@@ -1,12 +1,23 @@
 ---
 phase: 71-validation-harness-matrix
 verified: 2026-06-16T12:00:00Z
-status: gaps_found
-score: 3/4
+status: passed
+score: 4/4
 overrides_applied: 0
+re_verification:
+  re_verified: 2026-08-09
+  previous_status: gaps_found
+  previous_score: 2/4
+  gaps_closed: [GAP-1, GAP-2]
+  gaps_remaining: []
+  regressions: []
+  note: |
+    Both GAP-1 and GAP-2 were closed by later work and this record was never
+    re-run. Re-verified 2026-08-09 against the v1.31 app/firmware trees; see
+    "Re-Verification 2026-08-09" at the end of this file for the evidence.
 gaps:
   - truth: "The matrix bakes in a NON-VACUOUS PASS oracle: a PASS requires an independent post-write full read + SHA compare (SC#3 / HARN-03)"
-    status: failed
+    status: closed-verified-2026-08-09
     reason: "In dev_validate_family (cli_handlers.py:1558-1564), when write_cycle_eprom returns 0, the code calls _classify_sha_result(evidence_sha, evidence_sha, board) where BOTH arguments are the source-image SHA — the same object compared to itself. The comparison is always equal so the oracle call always yields PASS regardless of what was read back. _classify_sha_result is a correctly-implemented comparator but is never given a readback SHA to compare against. No test exercises a case where write_cycle_eprom returns 0 but the oracle call would fail — the negative-control test only exercises the verdict_int==1 (FAIL) return path, which bypasses _classify_sha_result entirely."
     artifacts:
       - path: "firestarter_app/firestarter/cli_handlers.py"
@@ -18,7 +29,7 @@ gaps:
       - "OR: drop the redundant _classify_sha_result call for the verdict_int==0 branch and trust write_cycle_eprom's return code directly as the authoritative oracle signal (the simplest correct fix per the code review)"
       - "A test must exercise the PASS verdict path through _classify_sha_result with distinct source_sha and readback_sha values to prove the comparator is actually called correctly"
   - truth: "check_dispatch.py is extended with per-family dispatch invariants AND its hollow non_supported_dispatchable inverse detector is populated (SC#4 / HARN-04)"
-    status: failed
+    status: closed-verified-2026-08-09
     reason: "The dispatch() host mirror (check_dispatch.py:133-157) handles only protocol 0x05 for flash4; protocols 0x35 and 0x39 fall through to the protocol!=0 guard and return 'not_implemented'. The firmware (confirmed in memory.cpp and CLAUDE.md) dispatches all three {0x05, 0x35, 0x39} to configure_flash4. The authored validation_matrix_spec.json explicitly declares [5, 53, 57] (i.e. 0x05, 0x35, 0x39) as flash4 protocols. The Tier-1 C++ tests (test_val_flash4.cpp:104-158) test 0x35 and 0x39 against the real firmware and they pass, proving firmware truth. But the host dispatch mirror is inconsistent with both the spec and firmware. REQUIREMENTS.md itself marks HARN-04 as unchecked ([ ]) / Pending."
     artifacts:
       - path: "firestarter_app/tools/check_dispatch.py"
@@ -34,8 +45,12 @@ gaps:
 **Phase Goal:** A reusable, software-first three-tier validation harness + declarative per-family matrix exists and is the spine through which every family reports — adding zero production firmware flash, and baking in a non-vacuous PASS oracle so bench time is spent only on proven-RED divergences.
 
 **Verified:** 2026-06-16T12:00:00Z
-**Status:** gaps_found
-**Re-verification:** No — initial verification
+**Status:** passed (re-verified 2026-08-09 — both gaps closed; see "Re-Verification 2026-08-09" at end)
+**Re-verification:** Yes — 2026-08-09, `gaps_found` → `passed`, GAP-1 + GAP-2 closed, 0 regressions
+
+> **The two FAILED rows below are the 2026-06-16 findings, preserved verbatim as the
+> historical record.** Both were closed by later work; the closure evidence is at the
+> end of this file. Current status is 4/4.
 
 ---
 
@@ -50,7 +65,11 @@ gaps:
 | 3 | Non-vacuous PASS oracle: Leonardo-only authoritative PASS, negative control proving verify CAN fail, retry-count capture, per-task r1 precondition, uno328pb hard-coded N/A | FAILED | Hardware-path oracle is vacuous: cli_handlers.py:1558-1564 calls _classify_sha_result(evidence_sha, evidence_sha, board) — same SHA compared to itself, always PASS regardless of actual readback. The negative-control test only exercises the verdict_int==1 branch (write_cycle_eprom returning 1), which bypasses _classify_sha_result entirely. _classify_sha_result, uno328pb N/A, r1 precondition, and retry_count are all correctly implemented individually; the bug is specifically in the two-arg call site where readback_sha is not distinct from source_sha |
 | 4 | check_dispatch.py extended with per-family VPP dispatch invariants AND hollow non_supported_dispatchable inverse detector populated (HARN-04) | FAILED | _FAMILY_VPP_INVARIANTS and family_vpp_violations are implemented and wired. non_supported_dispatchable is populated for dual-violation (VPP mismatch + non-supported). However: dispatch() host mirror only maps 0x05 to configure_flash4; firmware dispatches {0x05, 0x35, 0x39} to configure_flash4 per memory.cpp + CLAUDE.md. Spec declares [5, 53, 57] as flash4 protocols. Host mirror would return not_implemented for 0x35/0x39 — a structural inconsistency between harness tiers. REQUIREMENTS.md marks HARN-04 as [ ] Pending. |
 
-**Score:** 2/4 truths verified (SC#1 VERIFIED, SC#2 VERIFIED, SC#3 FAILED, SC#4 FAILED)
+**Score (2026-06-16, historical):** 2/4 truths verified (SC#1 VERIFIED, SC#2 VERIFIED, SC#3 FAILED, SC#4 FAILED)
+
+**Score (2026-08-09, current):** 4/4 — SC#3 closed (vacuous call site removed, distinct-SHA
+negative control added, 19/19 oracle tests pass); SC#4 closed (CR-02 spec/mirror alignment,
+`check_dispatch.py` exit 0 over 746 chips, firmware truth preserved in `test_val_5v_page.cpp`)
 
 ---
 
@@ -223,3 +242,68 @@ Two blockers prevent goal achievement:
 
 _Verified: 2026-06-16T12:00:00Z_
 _Verifier: Claude (gsd-verifier)_
+
+---
+
+## Re-Verification 2026-08-09
+
+Re-run during the v1.31 pre-close carry-over sweep. Both gaps were closed by later
+work; this record simply was never re-run. **Status: `gaps_found` → `passed` (4/4).**
+
+### GAP-1 (SC#3 / HARN-03) — vacuous PASS oracle — CLOSED
+
+The vacuous call site is **gone**. `_classify_sha_result` is no longer called from
+production code at all — `grep -rn "_classify_sha_result" firestarter/ tests/` returns
+one definition (`firestarter/cli_handlers.py:1777`) and test call sites only. No
+`cli_handlers.py` caller remains.
+
+The fix taken is the second option this very report recommended — "trust
+`write_cycle_eprom`'s return code directly and remove the vacuous
+`_classify_sha_result` call for `verdict_int==0`". `dev_validate_family` now maps the
+verdict directly, with the reasoning recorded inline:
+
+> `verdict_int==0`: write_cycle_eprom's own source-vs-readback SHA compare returned 0
+> (PASS). Map directly to board-class verdict … The real readback compare already
+> happened inside write_cycle_eprom.
+
+The missing negative control also now exists. `tests/test_validate_oracle.py` asserts
+the comparator can fail with **distinct** hashes:
+
+- line 70-80 — "`_classify_sha_result` with DISTINCT hashes on Leonardo yields FAIL …
+  This proves `_classify_sha_result` CAN return FAIL — it is not a vacuous oracle."
+- line 373 — `_classify_sha_result(readback_sha=sha, source_sha=sha, board="uno")` (equal case)
+- line 381 — `_classify_sha_result(readback_sha=sha_a, source_sha=sha_b, board="uno")` (distinct case)
+
+**Measured 2026-08-09:** `python3 -m pytest tests/test_validate_oracle.py` → **19 passed**.
+
+### GAP-2 (SC#4 / HARN-04) — host dispatch mirror vs 0x35/0x39 — CLOSED
+
+Resolved **2026-06-16** as "CR-02" — the same day this report was written — via the
+report's own Option A (align spec with the host mirror), with the rationale recorded
+in `tools/validation_matrix_spec.json` as a `protocols_note`. Every factual claim in
+that note was independently re-checked today:
+
+| Claim in the CR-02 note | Verified 2026-08-09 |
+|---|---|
+| Spec no longer declares 0x35/0x39 as a host-dispatchable family | ✓ `5v_page` → `protocols=[5]`; no `53`/`57` anywhere in the spec |
+| `check_dispatch.py` mirror is consistent with the spec | ✓ `KNOWN_PROTOCOLS` omits 0x35/0x39; `dispatch()` maps `0x05` → `configure_flash_5v_page` |
+| Firmware still dispatches 0x35/0x39 to the 5V-page handler | ✓ `firestarter/src/proms/memory.cpp:110` — `protocol == PROTO_FLASH_5V_PAGE \|\| PROTO_PHANTOM_0x35 \|\| PROTO_PHANTOM_0x39` |
+| Firmware truth is preserved by native Tier-1 coverage | ✓ `test/native/avr/test_val_5v_page/test_val_5v_page.cpp` — `make_handle(0x35, …)` at lines 112/121 and `make_handle(0x39, …)` at lines 132/141, read + write, VPP-absence asserted |
+| Zero DB chips carry algorithm 0x35/0x39, so the host path is unreachable | ✓ consistent with `check_dispatch.py` scanning 746 chips with 0 violations |
+
+The v1.19 rename landed on top of this (`configure_flash4` → `configure_flash_5v_page`),
+and `include/proto_constants.h:32-39` now documents *why* these two are phantoms —
+0x35 is minipro's ITE-EC label, 0x39 has no `IC2_ALG` constant at all. The
+harness-internal contradiction the gap described no longer exists in either direction.
+
+**Measured 2026-08-09:** `python3 tools/check_dispatch.py` → **EXIT 0** — "all 746
+chips scanned; 736 supported; 10 confirmed non-dispatchable; 0
+non_supported_dispatchable; 0 dispatch regressions; 0 consistency violations".
+
+### Secondary findings from the original report
+
+Not re-audited in this sweep — they were explicitly recorded as non-blockers (WR-03
+SRAM 0x28/0x29 dispatch-level VPP assertions, WR-01 `datetime.utcnow()` deprecation,
+IN-03 unused `_EVIDENCE_SHA_SOFTWARE_SENTINEL`). They remain outside this status flip.
+
+_Re-verified: 2026-08-09 · v1.31 pre-close carry-over sweep · evidence-based, no code changed_
