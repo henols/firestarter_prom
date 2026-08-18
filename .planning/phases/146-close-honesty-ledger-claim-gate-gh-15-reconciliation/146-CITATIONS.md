@@ -1215,4 +1215,101 @@ record work only) is recorded as the answer to Task 1's `<resume-signal>`. All f
 re-derived (§7.d) rather than merely inherited. Task 2 (the flip) and Task 3 (the phase-end structural
 assertions) proceed on that basis.
 
+### 7.f The flip — Task 2, executed and audited
+
+Snapshots taken to `/tmp/gsd146/snap/{REQUIREMENTS,ROADMAP,STATE}.md` before any edit. Hand-edited (no
+bulk requirements/roadmap/state verb called): five checkboxes and five traceability rows in
+`.planning/REQUIREMENTS.md`; five coverage rows and one phase-checklist line in `.planning/ROADMAP.md`.
+
+| Check | Result |
+|---|---|
+| `ticked` (§Close checkboxes, `[x]`) | `5` |
+| `traceability` (REQUIREMENTS.md rows, Complete) | `5` |
+| `coverage` (ROADMAP.md rows, Complete) | `5` |
+| `still_pending` (either file) | `0` |
+| `phase_checkbox` (Phase 146 line, checked + `(completed 2026-08-18)`) | `1` |
+| `changed_lines` (`diff` against snapshots, both files, `^[<>]` lines) | **`32`** — matches this plan's own prediction exactly |
+| `unattributable` (changed lines mentioning neither a `CLOSE-0N` id nor "Phase 146") | `0` |
+| plan-count line (`**Plans**: 13 plans in 7 waves`) | already correct — `13` stated, `13` `146-*-PLAN.md` files on disk; **no edit made** |
+| archived aggregate digest, `.planning/milestones/*REQUIREMENTS.md` (22 files) | `1e87db0cf2c3142e77262d566548b84a9d9ad8152e3322a52aec0e1ee1b20f12` before and after — `git diff --stat -- .planning/milestones/` is empty throughout, so before/after are the same reading by construction, not two independent measurements that happened to agree |
+| Record gate, re-run after the flip | `rc=0`, tally `{'block': 23, 'line-label': 4, 'inline-history': 6, 'inline-allow': 10, 'superseded': 12}` — no bucket moved |
+
+Commit: `db7bb3e4` — `docs(146-13): tick CLOSE-01, CLOSE-02, CLOSE-03, CLOSE-04, CLOSE-05 -- Complete in
+both coverage documents`.
+
+### 7.g Phase-end structural assertions — Task 3
+
+**The no-push arithmetic, all three repositories, re-measured after this plan's own commits:**
+
+| Repository | `rev-list --count @{u}..HEAD` | §0 baseline | ≥ baseline? | Upstream SHA | Unchanged from §0? |
+|---|---|---|---|---|---|
+| meta | **292** | 233 | yes | `b6aa1dcb23ef9931105752ed6dd6badccf6719de` | yes |
+| `firestarter` | **63** | 61 | yes | `fb7949c0bdd575177262a76af506cec3b73ea28b` | yes |
+| `firestarter_app` | **18** | 16 | yes | `4d18b645ab18a2d2465f0f623062e9249eb24132` | yes |
+
+No count dropped anywhere in the sequence §0 (233/61/16) → §4.8 (279/63/18) → §6.1 (287/63/18) → here
+(292/63/18). All three upstream SHAs are byte-identical to their §0.1 values. Both readings — the
+ahead-count and the upstream SHA — agree; nothing was pushed.
+
+**The submodule pointer table — recorded as a delta, re-pin explicitly handed onward.**
+
+| Repo | Tracked gitlink (`git ls-tree HEAD`) | Live HEAD (`git -C <repo> rev-parse HEAD`, this session) | Gitlink lag |
+|---|---|---|---|
+| `firestarter` | `0933bd7d602efb30e4a666e8231ecf724e90ab09` | `f8ac6439728fdb44665db38bc7e6d26b15fcda06` | 72 commits |
+| `firestarter_app` | `cc036e8dc3cd77bbdfc7ec5190d79cdb172153c7` | `3cf429f52ad5f693076d309fc016e25f257d85cb` | 29 commits |
+
+**Decision: hand off the re-pin to `/gsd-complete-milestone`, do not stage it here.** Both gitlinks
+have been stale by the whole milestone (§0.4). This plan's own read of `146-LEDGER.md`'s
+process-failures section (item 4, frozen, not edited by this plan) finds it has **already made and
+recorded this exact call**: *"Re-pinning is handed to `/gsd-complete-milestone`, not done here — no
+criterion in this ledger, or anywhere else in this phase, asserts that the pointers match, because
+they do not and have not at any point this milestone."* Staging a re-pin here would put this register
+in direct disagreement with a frozen, wording-approved closing artifact this plan is forbidden to
+edit. The two SHA pairs above agree exactly with the ledger's own table (`146-LEDGER.md`'s process-
+failures item 4); no criterion anywhere asserts they already match, per this plan's own prohibition.
+
+**The consolidated negative-argv audit — at least thirteen forbidden operations, each with its
+evidence:**
+
+| # | Forbidden operation | Evidence it did not occur |
+|---|---|---|
+| 1 | `git push` (meta) | Ahead-count 292 ≥ 233; upstream SHA unchanged (table above) |
+| 2 | `git push` (`firestarter`) | Ahead-count 63 ≥ 61; upstream SHA unchanged |
+| 3 | `git push` (`firestarter_app`) | Ahead-count 18 ≥ 16; upstream SHA unchanged |
+| 4 | `git merge` (any repo, into this branch or from it) | `git log --merges d2c212f1..HEAD --oneline` → 0 merge commits in the meta repo this phase; branch/HEAD unchanged in shape (linear history) |
+| 5 | Tag creation | `git tag \| wc -l` → `18`, unchanged from every prior reading this phase; `git tag --points-at HEAD` → empty |
+| 6 | `gh workflow run` (workflow dispatch) | No such command issued by any plan this session (self-attested from this plan's own command transcript, §7.c-§7.g); `.claude/settings.local.json` byte-unchanged (row 13) — no allowlist entry needed adding for one, and none was added |
+| 7 | `gh release create` | Not invoked; `git tag` unchanged (row 5) rules out the tag half of any release |
+| 8 | Package-index publish (`twine upload` / `publish.yml` dispatch) | Not invoked by this plan; no push occurred (rows 1-3) to trigger any CI-side publish path |
+| 9 | gh#15 issue close | `state=OPEN` (re-queried this session, gh#15 table below) |
+| 10 | gh#15 issue reopen | N/A — never closed (row 9) |
+| 11 | gh#15 issue body edit | `lastEditedAt=null` (unchanged since §0.5) |
+| 12 | gh#15 label add | `labels.totalCount=0` (unchanged since §0.5) |
+| 13 | gh#15 assignee add | `assignees.totalCount=0` (re-queried this session) |
+| 14 | gh#15 milestone set | `milestone=null` (re-queried this session) |
+| 15 | gh#15 comment post | `comments.totalCount=1` (unchanged since §0.5/§5.2/§6.1) |
+
+gh#15, re-queried this session (GraphQL, read-only): `state=OPEN`, `updatedAt=2026-08-09T19:32:04Z`,
+`lastEditedAt=null`, `labels.totalCount=0`, `assignees.totalCount=0`, `milestone=null`,
+`comments.totalCount=1`. Identical to every prior reading this phase. **`allowlist_dirty=0`** —
+`git status --porcelain -- .claude/settings.local.json` is empty; no permission-allowlist entry was
+added anywhere in this phase, by this plan or any prior one.
+
+**The porcelain delta, stated against §0.3's enumerated baseline, not against emptiness:**
+
+| Repository | §0.3 baseline (lines) | This reading (lines) | Delta |
+|---|---|---|---|
+| meta | 8 (` M .gitignore`, ` M .planning/STATE.md`, ` M firestarter`, ` M firestarter_app`, `?? .claude/`, `?? .planning/VALIDATED-EPROMS.md`, `?? package-lock.json`, `?? package.json`) | 7 (` M .gitignore`, ` M firestarter`, ` M firestarter_app`, `?? .claude/`, `?? .planning/VALIDATED-EPROMS.md`, `?? package-lock.json`, `?? package.json`) | **` M .planning/STATE.md` disappeared** — it was §0.3's own noted "expected dirt for every plan in this phase after the first" (the orchestrator's execution-start write), and by this reading a later plan's commit had already absorbed it; nothing new appeared |
+| `firestarter` | 0 | 0 | none |
+| `firestarter_app` | 7 (the same seven untracked paths enumerated in §0.3) | 7 (identical set, re-verified by path) | none |
+
+This reading is taken **before** this task's own STATE.md commit lands; `.planning/STATE.md` is
+expected to reappear as modified in the meta porcelain immediately after, which is this task's own
+work, not drift.
+
+**What was not touched, this task.** No file under `firestarter/` or `firestarter_app/` was created,
+edited or deleted (D-06). No gate, fixture, pattern table or frozen closing artifact was edited. No
+requirement id outside `CLOSE-01`..`CLOSE-05` was touched. `.claude/settings.local.json` is byte-
+unchanged. Nothing was pushed, merged, tagged, dispatched, published, or posted to GitHub.
+
 ---
