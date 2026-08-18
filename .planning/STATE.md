@@ -4,9 +4,10 @@ milestone: v1.32
 milestone_name: AT28C Write-Path Root Cause & Report Provenance
 current_phase: 147
 status: planning
-last_updated: "2026-08-18T11:08:35.000Z"
+stopped_at: Phase 147 context gathered
+last_updated: "2026-08-18T12:00:17.241Z"
 last_activity: 2026-08-18
-last_activity_desc: "**v1.32 started** by /gsd-new-milestone, scoped from a root-cause pass over gh#21 (AT28C256 / protocol 0x0D write-path FAIL) rather than from the issue text. Branch gsd/v1.32-at28c-write-path-root-cause forked off origin/beta (acae9161), which carries v1.31's merged close (PR #35); all three v1.31 PRs merged 2026-08-18 and the beta cut fired -- app 3.0.0b21, firmware 3.0.0b19. Six workstreams confirmed by the operator: report provenance (F-01, the spine), 0x0D data defects (F-02/F-03), the firmware page-size seam (F-04), closing the AT28C book (999.28 relock + the owed gh#12 reply), plus two consumed seeds -- lock-status and numeric DB values. Research SKIPPED by decision: the unknowns are in our own code, not the domain, and a completed datasheet triage plus 82KB of existing research already cover it. EVIDENCE CEILING re-confirmed at kickoff: still no AT28C part in operator inventory, so 0x0D stays UNVERIFIED and gh#21/#32/#11/#12 all stay OPEN. REQUIREMENTS.md defined (33 v1 reqs across PROV/DATA/PGSZ/RELOCK/LOCK/OUT) and the ROADMAP created: 6 phases, 147-152, 33/33 requirements mapped with zero orphans -- 147 PROV (the spine: cli_handlers.py:2503 fw_board_identity=None), 148 DATA (vcc 4.5V decode fix + mV/us numeric migration, DATA-01/02 together by construction), 149 PGSZ (the ONLY firmware-touching phase, dual-repo lockstep), 150 RELOCK (write --sdp-relock, and DATA-06 mapped here so protect_on_after is reconciled exactly once), 151 LOCK (lock-status), 152 OUT (outward-facing, operator-gated, must NOT run under --auto/--chain). RELOCK-07 deliberately absent (shipped v1.30 Phase 137); the ID gap is intentional. NO bench-validation phase exists and no success criterion anywhere requires AT28C silicon -- the Evidence Ceiling is encoded in the criteria, not appended at the close. NEXT: /gsd-plan-phase 147."
+last_activity_desc: "**Phase 147 context gathered** by /gsd-discuss-phase (147-CONTEXT.md + 147-DISCUSSION-LOG.md committed at 058ccf69). 17 decisions across four discussed areas. Three findings from the code scout reshape the phase: (1) PROV-03's stated blocker is FALSE -- _probe_port's [\\d.x]+ feeds only _validate_firmware_version, while comm.firmware_identity (serial_comm.py:412) already holds the untruncated \"3.0.0b18:leonardo\" from the CAP-02 ack tail, so the ring-fenced version-capture path is NOT touched and PROV-03 + ROADMAP criterion #2 get hand-corrected before planning; (2) no extra serial connection is needed -- read_hardware_revision_value()'s single SAFE-02-clean connection already carries the identity, so it is widened + renamed to read_programmer_identity() returning a ProgrammerIdentity NamedTuple; (3) PROV-06 has TWO parser surfaces, the app's tools/parse_devtest_issue.py and the devtest-triage skill's own scripts/devtest_issues.py -- both get the field. Also established zero blast radius: dedup_fingerprint excludes fw_board_identity and is_submittable does not gate on it, so populating it breaks neither dedup continuity nor the N-agreeing ladder. Next: /gsd-plan-phase 147."
 progress:
   total_phases: 6
   completed_phases: 0
@@ -2255,9 +2256,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-17T21:20:00.000Z
-**Stopped at:** Completed 146-11-PLAN.md — plant-and-revert transcript against the real 146-LEDGER.md (byte-identical after revert), leg 9 GREEN for the first time, all five standing gates green in one pass (both sub-repo suites at/above baseline), CLOSE-01 audit table appended to 146-CITATIONS.md §4
-**Resume file:** .planning/phases/146-close-honesty-ledger-claim-gate-gh-15-reconciliation/146-CONTEXT.md
+**Last session:** 2026-08-18T12:00:17.192Z
+**Stopped at:** Phase 147 context gathered
+**Resume file:** .planning/phases/147-report-provenance-every-dev-test-report-names-its-firmware/147-CONTEXT.md
 
 ### Blockers
 
