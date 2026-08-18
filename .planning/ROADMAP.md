@@ -220,10 +220,16 @@ necessity** (the devtest-triage `show` render, which has no harness and whose ap
 PROV-06's skill surface and criterion #5; `autonomous: false` alone is not self-protecting.
 **Cross-phase constraint:** Phase 150 also writes `firestarter_app/firestarter/cli_handlers.py`, so
 Phase 147 and Phase 150 must never share a parallel wave.
-Requirement ticking is named exhaustively per plan so no plan ticks a multi-plan requirement early
-(each plan's frontmatter `requirements:` lists what it *addresses*; only the flips below are permitted):
-`147-01` → none · `147-02` → PROV-03 · `147-03` → none (PROV-04/PROV-05 partial) · `147-04` → PROV-01,
-PROV-02 · `147-05` → PROV-04 · `147-06` → PROV-05, PROV-06.
+Requirement ticking is named exhaustively per plan so no plan ticks a multi-plan requirement early.
+A plan's frontmatter `requirements:` is **not** a soft "addresses" label — it **is** the flip
+mechanism: `execute-plan.md`'s `update_requirements` step feeds that array verbatim to
+`gsd-tools query requirements.mark-complete`, which ticks each listed ID's checkbox in
+REQUIREMENTS.md the moment the plan finishes. So each array carries **only** the permitted flips
+below — a plan that *advances* a requirement without completing it records that in its `<objective>`
+and tasks, never in frontmatter:
+`147-01` → none · `147-02` → PROV-03 · `147-03` → none (advances PROV-04/PROV-05; the flips are
+owned by `147-05`/`147-06`) · `147-04` → PROV-01, PROV-02 · `147-05` → PROV-04 · `147-06` →
+PROV-05, PROV-06.
 
 - [ ] 147-01-PLAN.md — Preconditions: the v1.32 app branch off `origin/beta` with a recorded green baseline, and the meta `.gitignore` un-ignore plus the tracked devtest-triage skill baseline
 - [ ] 147-02-PLAN.md — The capture seam: `ProgrammerIdentity` + `read_programmer_identity` in `hardware.py`, the one-line handler unpack with zero new callables, the full 8-site rename, and the prerelease-suffix discrimination oracle
