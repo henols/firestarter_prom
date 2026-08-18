@@ -713,7 +713,7 @@ phases (131–137); **6 active** after Phase 135 was deferred to Backlog 999.28 
 slot stays vacant — 136 and 137 were **not** renumbered.
 
 **Why 7 phases, not the research spine's 6.** Research's recommended spine
-(`.planning/research/SUMMARY.md` §Implications for Roadmap) proposed six phases — 131 gate · 132
+(`.planning/milestones/v1.30-research/SUMMARY.md` §Implications for Roadmap) proposed six phases — 131 gate · 132
 retire · 133 leg · 134 relock · 135 channel · 136 close — but explicitly flagged the leg phase (133) as
 "likely worth splitting": 18 LEG requirements in one phase span both a foundational dispatch/cleanup
 *mechanism* and the oracle's own four ops/truth-table/report-rows, and the project's granularity is
@@ -808,7 +808,7 @@ leg and drops relock. The 135 slot is vacant; 136 and 137 keep their numbers.
 - **Name the exact requirement IDs each plan may mark Complete, at dispatch.** Executors prematurely
   marked multi-plan requirements Complete 4× in a prior milestone (Phase 116) — do not repeat it.
 
-**Research flags carried per phase** (from `.planning/research/SUMMARY.md`): 131 **SKIP** · 132 **SKIP**
+**Research flags carried per phase** (from `.planning/milestones/v1.30-research/SUMMARY.md`): 131 **SKIP** · 132 **SKIP**
 · 133 **NEEDS `--research-phase`** (the mechanism-side open questions from the original combined phase:
 the `_dispatch_sdp` shape — one function or four — and the exact `run_plan` `finally` structure) · 134
 **NEEDS `--research-phase`** (the leg-proper half of the same open questions, since the four ops and
@@ -823,7 +823,7 @@ shape as v1.23 forking off the v1.22 tip; `main` lags and stays untouched, per v
 **Key context:** Promoted from Backlog **999.25** (queued 2026-07-31 by operator decision; activated
 with this roadmap 2026-08-03). Full design, traps, and accepted costs:
 [`.planning/notes/sdp-surface-retirement-and-behavioral-proof.md`](notes/sdp-surface-retirement-and-behavioral-proof.md).
-Research: `.planning/research/SUMMARY.md` (R-1…R-9, A-1…A-4; HIGH confidence, 4-stream convergent).
+Research: `.planning/milestones/v1.30-research/SUMMARY.md` (R-1…R-9, A-1…A-4; HIGH confidence, 4-stream convergent).
 Requirements: `.planning/REQUIREMENTS.md` — scoped at 56 v1 requirements (GATE 10 · RETIRE 8 · LEG 18 ·
 RELOCK 7 · CHAN 7 · CLOSE 6); **50 in v1 scope** after the Phase 135 deferral moved RELOCK-01…06 out
 (GATE 10 · RETIRE 8 · LEG 18 · RELOCK 1 · CHAN 7 · CLOSE 6). RELOCK-07 alone is retained, re-homed to
