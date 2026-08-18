@@ -2994,7 +2994,9 @@ Plans:
 
 - [ ] TBD (promote with /gsd-review-backlog when ready)
 
-### Phase 999.29: AT28C256 write-path failure (gh#20) — blank-check/write/verify all BAD on Rev 2.3 (BACKLOG — filed 2026-08-04 by v1.30 Phase 134 LEG-18)
+### Phase 999.29: AT28C256 write-path failure (gh#20) — blank-check/write/verify all BAD on Rev 2.3 (BACKLOG — ⚠ PARTIALLY ADDRESSED by v1.32, NOT retired — filed 2026-08-04 by v1.30 Phase 134 LEG-18)
+
+**⚠ v1.32 status, stated precisely (2026-08-18).** v1.32 removes the *blocker* to diagnosing this and answers it publicly — Phase 147 makes every `dev test` report name the firmware that produced it (`fw_board_identity` was unconditionally `null`, so no report could be attributed to a firmware version), and Phase 152 OUT-02 comments gh#21/#32 with what changed and a request for a fresh, now-attributable run. It does **not** diagnose the defect. There is still no AT28C part in operator inventory, so `0x0D` stays `UNVERIFIED` and gh#21/#32/#11 stay OPEN. **This item remains BACKLOG and is not retired by v1.32.**
 
 **Goal:** [Captured for future planning] Diagnose the real, still-open AT28C256 write-path defect
 behind [gh#20](https://github.com/henols/firestarter_prom/issues/20): `dev test` on host `3.0.0b14`,
@@ -3388,7 +3390,7 @@ touching the watermark.
 **Plans:** 0 plans
 **Origin:** Filed by Phase 131 (Gate Hardening & CI Parity) plan 131-01, decision D-13, 2026-08-03.
 
-### Phase 999.28: `write --sdp-relock` — verify-gated deliberate protection (BACKLOG — deferred out of v1.30 as Phase 135, 2026-08-03)
+### Phase 999.28: `write --sdp-relock` — verify-gated deliberate protection (✅ PROMOTED 2026-08-18 → v1.32 Phase 150 — deferred out of v1.30 as Phase 135, 2026-08-03)
 
 **Goal:** An operator who wants to hand a part off in a protected state has exactly one supported way to
 do it, it never locks a part whose contents were never verified, and a skipped relock is impossible to

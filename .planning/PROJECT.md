@@ -119,8 +119,10 @@ milestone's kickoff). This caps what v1.32 may claim, in the same shape as v1.22
   is flag-identical to W29EE011 (SDP-only, unreadable). The hand-curated table is not a violation of
   the proof rule; it is what the proof rule leaves when upstream genuinely lacks the field.
 
-**Retires Backlog 999.29** (AT28C256 write-path failure) and **folds Backlog 999.28**
-(`write --sdp-relock`). Consumes the `lock-status-command-hand-curated-protection-table` and
+**Folds Backlog 999.28** (`write --sdp-relock`, promoted to Phase 150). **Backlog 999.29**
+(the AT28C256 write-path failure itself) is **partially addressed and NOT retired**: v1.32 removes
+the blocker to diagnosing it and answers it publicly, but under the Evidence Ceiling it does not
+diagnose it. That item stays open with the operator as its named owner. Consumes the `lock-status-command-hand-curated-protection-table` and
 `db-numeric-values-simplification` seeds.
 
 ## v1.31 Archive: 27C Programming-Algorithm Fidelity (gh#15) — Shipped 2026-08-18

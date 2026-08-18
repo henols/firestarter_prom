@@ -31,8 +31,9 @@ community `dev test` report must be attributable to the firmware that produced i
 protocol-`0x0D` write-path claim can be made about it.
 **Current focus:** Phase 147 — Report Provenance — every `dev test` report names its firmware (roadmap created 2026-08-18; 6 phases, 147–152)
 
-**v1.32 AT28C Write-Path Root Cause & Report Provenance** — ACTIVE (activated 2026-08-18, retiring
-Backlog **999.29** and folding Backlog **999.28**). **Mostly host-side; one firmware-touching
+**v1.32 AT28C Write-Path Root Cause & Report Provenance** — ACTIVE (activated 2026-08-18, folding Backlog
+**999.28**; Backlog **999.29** is partially addressed and explicitly NOT retired — v1.32 removes the
+blocker to diagnosing the AT28C256 write-path failure and answers it publicly, but does not diagnose it). **Mostly host-side; one firmware-touching
 workstream** (the page-size seam) requiring dual-repo lockstep. Phase numbering continues at
 **Phase 147** (v1.31 ran 138–146). The v1.24–v1.29 slots are left byte-unchanged so by-number
 cross-references keep resolving.
