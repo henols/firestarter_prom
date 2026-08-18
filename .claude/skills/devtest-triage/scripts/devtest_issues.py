@@ -36,6 +36,35 @@ DEFAULT_DB = os.environ.get(
 # Cap before parsing — a hostile body must not be able to exhaust memory.
 MAX_BODY = 1_000_000
 
+# Literal #3 of three (D-11/D-16, v1.32 Phase 147 plan 147-06). Identical in
+# VALUE to `firestarter/diagnostic_report.py`'s `NOT_REPORTED` (147-03) and
+# `firestarter_app/tools/parse_devtest_issue.py`'s `NOT_REPORTED` (147-05),
+# but defined separately here rather than imported: skills own their
+# scripts (module docstring above, `:4-6`) and this file lives in a
+# DIFFERENT repo entirely (the meta repo, not firestarter_app), so importing
+# either module would break the moment that repo moves or is not checked
+# out. The app suite's value-parity test
+# (`tests/test_parse_devtest_issue.py::test_unknown_marker_string_matches_the_report_model`)
+# covers only the other two literals — it cannot reach into
+# `/workspaces/.claude/` without coupling the app CI to a meta-repo path
+# (that would fail OPEN in standalone CI, RESEARCH P-6). This literal's
+# parity with the other two is instead proven by the 147-06 plan's
+# checkpoint (Task 3), which greps this constant into the render output and
+# a human confirms it there. Not automated — no substitute is invented.
+NOT_REPORTED = "not reported"
+
+# D-14/D-17: one action-oriented clause, true under EITHER reading of an
+# absent identity (an old report whose host build never captured it, or a
+# post-bump report where capture failed) — no schema-version ordering logic
+# is added here or anywhere else. Same value as the other two modules'
+# clause. Checked by this script's own no-forbidden-vocabulary grep leg in
+# 147-06's acceptance criteria; the checkpoint's step 7 re-checks it by a
+# human read of the same boundary.
+NOT_ATTRIBUTABLE = (
+    "NOT attributable to a firmware version -- ask the reporter for a "
+    "fresh dev test run on a current host build"
+)
+
 # submit.py:build_title — "[dev test] <chip> — <VERDICT> (<fingerprint>)".
 # Accepts an em dash or a plain hyphen so a hand-edited title still parses.
 TITLE_RE = re.compile(
@@ -329,8 +358,37 @@ def cmd_show(args: argparse.Namespace) -> int:
           f"{t['chip']}  —  {t['verdict'].upper()}")
     print(f"  schema      {report.get('schema_version')}   "
           f"generated {report.get('generated')}")
-    print(f"  host        {auto.get('host_version')}   "
-          f"hw {auto.get('hw_revision')}")
+
+    # Explicit two-clause `is None or == ""` conditions, never an
+    # `or`-coalescing expression — an `or` also fires on `""`, which hides
+    # the empty-string transport fault D-07/P-8 want visible. Mirrors the
+    # `cid_e is not None` idiom already used below for the chip-id pair.
+    host_version = auto.get("host_version")
+    host_version_cell = (
+        NOT_REPORTED if host_version is None or host_version == ""
+        else host_version
+    )
+    hw_revision = auto.get("hw_revision")
+    hw_revision_cell = (
+        NOT_REPORTED if hw_revision is None or hw_revision == ""
+        else hw_revision
+    )
+    print(f"  host        {host_version_cell}   hw {hw_revision_cell}")
+
+    # Firmware identity row (PROV-06/D-14/D-15/D-16), placed directly after
+    # the host/hw row so provenance reads as one block. `hw_revision` above
+    # stays out of this marker's scope (D-15) — it is a coarse silkscreen
+    # bucket that cannot discriminate the operator's Rev 2.2 / Rev 2.0 /
+    # modified Rev 0 boards, so it is fixed for its own bare-null defect
+    # (D-12) but never treated as attribution evidence.
+    fw_board_identity = auto.get("fw_board_identity")
+    identity_absent = fw_board_identity is None or fw_board_identity == ""
+    firmware_cell = (
+        f"{NOT_REPORTED} -- {NOT_ATTRIBUTABLE}" if identity_absent
+        else fw_board_identity
+    )
+    print(f"  firmware    {firmware_cell}")
+
     print(f"  protocol    {auto.get('protocol')}   chip {auto.get('chip')}")
     cid_e, cid_a = auto.get("chip_id_expected"), auto.get("chip_id_actual")
     if cid_e is not None or cid_a is not None:

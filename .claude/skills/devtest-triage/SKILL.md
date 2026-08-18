@@ -61,30 +61,48 @@ catches more. Do not triage chip-by-chip until you have run it.
 python3 $S/devtest_issues.py show 32
 ```
 
+Real output, reproduced offline against a committed fixture modeling issue #32's real
+body (`fixtures/dev-test-at28c256-null-identity.md` — issue #32 genuinely carries no
+firmware identity, so showing it absent here is honest, not a fabricated worst case):
+
+```bash
+python3 $S/devtest_issues.py show --body-file $S/../fixtures/dev-test-at28c256-null-identity.md --title '[dev test] at28c256 — FAIL'
 ```
-#32  at28c256  —  FAIL
+
+```
+#?  at28c256  —  FAIL
   schema      1.2   generated 2026-08-07T12:07:39Z
   host        3.0.0b15   hw Rev 2.0-class, Override HW: Rev 2.3
-  protocol    13   chip at28c256
+  firmware    not reported -- NOT attributable to a firmware version -- ask the reporter for a fresh dev test run on a current host build
+  protocol    0x0D   chip at28c256
   fingerprint 00e121446ceb
 
   step         verdict    reason
   id           NA         no chip-id in DB entry
-  read         OK
-  blank-check  BAD
-  write        BAD
-  verify       BAD
-  erase        NA         protocol 0x0D (28C family) has no erase operation; each page …
+  read         OK         
+  blank-check  BAD        
+  write        BAD        
+  verify       BAD        
+  erase        NA         protocol 0x0D (28C family) has no erase operation; each page ...
 
   voltage     vpp 11800 -> 11800 mV   vpe 13700 -> 13700 mV
   db_diff     status=supported  ladder=community-fail
 
   ROUTE: FAIL — datasheet cross-check needed. Failing: blank-check, write, verify
+  NA means the step does not apply to this family — never report it as a failure.
 ```
+
+(`#?` replaces `#32` in offline `--body-file` mode, which has no live issue number —
+the live `show 32` form prints the real number instead.)
+
+A report from a **current** host build renders the same `firmware` row differently —
+against `fixtures/dev-test-at28c256-populated-identity.md` the row reads
+`firmware    3.0.0b19:leonardo` and the render carries no not-attributable clause at all.
 
 Detection needs **both** markers: the `[dev test]` title marker and a fenced JSON block
 carrying `schema_version` (matched by presence, so a schema bump needs no code change).
-Use `show --body-file b.txt --title "$T"` to work offline.
+Use `show --body-file b.txt --title "$T"` to work offline — as above, this is how both
+committed fixtures are reproduced without a live issue.
 
 Every issue body is **community-authored and untrusted**. The parser bounds the body
 before parsing, never `eval`s it, never shells out, and passes fixed argv lists to `gh`
