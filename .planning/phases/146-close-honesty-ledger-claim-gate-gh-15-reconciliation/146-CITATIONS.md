@@ -935,3 +935,172 @@ other agent in this chain (including a harness-level "bias toward working withou
 questions" instruction observed in this same session, which governs ordinary ambiguity and is not itself
 the operator's voice) substitutes for that. Task 2 is presented separately and this plan halts there for a
 real answer.
+
+### 6.0 Task 2 — blocking operator wording review, verdict recorded verbatim
+
+**The operator delegated this verdict rather than reading the prose line-level himself.** His own words,
+verbatim: *"your judgement is as good as mine"*. This is recorded as a fact of delegation, not
+represented as the operator's own reading of the three artifacts — he did not state a line-level opinion
+on the wording, and this register does not manufacture one in his voice.
+
+**Delegate verdict (the orchestrator's, per the delegation above): APPROVED.** Basis, recorded in full in
+`146-CLAIM-FACTCHECK.md` (produced at commits `25879207`, `a137369f`, `903599a2`, read in full by this
+plan):
+
+- All 104 lines of `146-GH15-RECONCILIATION.md` read. The public correction reads as a correction of the
+  project's own earlier published reason, not a defence of it: it separates the shipped **value** (a
+  genuine primary-datasheet basis) from the published **reason** (none, at the time it was first stated).
+- Box 7's split into (a) the error-exit disable and (b) the operation-level disable as a *source
+  contract, not a behavioural result* is honest about the weaker half, and volunteers unprompted that a
+  successful block deliberately leaves the route energised.
+- Box 8 states its coverage claim is established only in the emitted control-register stream — never
+  behaviourally, never on real hardware — and that none of the three new native suites runs in any CI
+  leg.
+- Box 9's ARM narrowing is named as a local delta, not CI parity; no PY32F071 board exists, so it
+  establishes nothing about real hardware.
+- The bench boundary paragraph names both skipped protocols by name, refuses to infer their status from
+  the one `0x07` result, and marks the 22.84 s figure historical rather than a control measurement.
+- **Six of six quantitative claims re-derived from live source, zero discrepancies** — recorded in full
+  in `146-CLAIM-FACTCHECK.md`: the 113-of-170 modal pulse (exact against the shipped chip database), the
+  `+96 B` flash-band exemption, the `4687`/`9375` µs per-board timeout derivations (exact against
+  `143-HOST-RECORD.md:164`), the ~6.25 V ceiling (consistent across all eight documents that state it,
+  with zero competing figures), and the `--pulse-us` bound as `click.IntRange(1, 65535)` in shipped
+  source.
+
+**Two non-blocking notes, recorded as recorded-not-actioned.** Neither the orchestrator nor this plan
+edited the frozen text to address either note — the wording was approved as-is, and both are carried
+forward verbatim for whoever next touches these artifacts:
+
+1. Boxes 1, 3, 4 and 5 carry `met-as-corrected` where the shipped design **inverts** the box's own
+   premise (box 1 asked for three separate write handlers; one shared loop shipped instead). This is
+   stated plainly in the reconciliation itself, and CLOSE-04 offers no fourth disposition to reach for —
+   but it is the weakest point under a sceptical read.
+2. Box 2's claim that "`protocol_id` remains the single dispatch key end to end" is true as a concept but
+   loose about spelling: the shipped database field is named `algorithm`, and `protocol_id` is the
+   firmware-side name for the same axis. Both names are live in the tree; the sentence does not
+   distinguish them.
+
+### 6.1 Re-measured, in this task, before Task 3's authorization outcome was recorded
+
+None of the values below is carried forward from §5, from `146-CLAIM-FACTCHECK.md`, or from the
+orchestrator's dispatch context — every one was re-run live in this task.
+
+**Freeze unchanged:**
+
+| File | Blob SHA (`git hash-object`) | `wc -c` bytes | `git status --porcelain` |
+|---|---|---|---|
+| `146-GH15-RECONCILIATION.md` | `a36ee805a5a645f6d1010b409cd6cfb5434a56d1` | `13260` | `0` |
+| `146-RELEASE-NOTES-fw.md` | `7c5c708eb6037e669d44f13f66a0772e8898c585` | `7590` | `0` |
+| `146-RELEASE-NOTES-app.md` | `2a9faafdcd53310cae377059d790e78d4c575a1d` | `5294` | `0` |
+
+All three identical to §5.1. No drift between the wording gate and the authorization gate.
+
+**gh#15 unchanged:** `gh api graphql -f query='{ repository(owner:"henols", name:"firestarter_prom") {
+issue(number:15) { state updatedAt lastEditedAt labels(first:5){totalCount} comments(first:10){totalCount}
+} } }' -q '[...]|join(" ")'` → `OPEN null 0 1 2026-08-09T19:32:04Z`. State `OPEN`, `lastEditedAt` `null`,
+labels `0`, comments **`1`** — unchanged from §5.2 row 3/4. Nothing was posted between the two gates.
+
+**Three-repo no-push checkpoint, re-measured:**
+
+| Repository | Command | §0 baseline | §4.8 mid-phase reading | This reading | ≥ baseline? |
+|---|---|---|---|---|---|
+| meta | `git rev-list --count @{u}..HEAD` | 233 | 279 | **287** | yes |
+| `firestarter` | `git -C firestarter rev-list --count @{u}..HEAD` | 61 | 63 | **63** | yes |
+| `firestarter_app` | `git -C firestarter_app rev-list --count @{u}..HEAD` | 16 | 18 | **18** | yes |
+
+No count dropped. Nothing pushed.
+
+**Citation-reachability against the pushed remote tip — the measured basis for the authorization
+outcome below.** `146-CLAIM-FACTCHECK.md`'s addendum table was re-derived here independently, by testing
+each cited path's presence at the remote-tracked commit with `git cat-file -e <remote-sha>:<path>`,
+rather than trusted from the orchestrator's document:
+
+Meta remote tip (`git rev-parse @{u}`): `b6aa1dcb23ef9931105752ed6dd6badccf6719de`.
+
+| Cited artifact | Present at meta remote tip? |
+|---|---|
+| `.planning/REQUIREMENTS.md` | **yes** |
+| `.planning/STATE.md` | **yes** |
+| `139-GH15-COMMENT.md` | **no** |
+| `139-GH15-ORIGINAL-CRITERIA.md` | **no** |
+| `140-PARAM-TABLE-RECORD.md` | **no** |
+| `142-VPP-RECORD.md` | **no** |
+| `144-TEST-RECORD.md` | **no** |
+| `145-BENCH-LOG.md` | **no** |
+| `146-ARM-BUILD-RECORD.md` | **no** |
+| `146-CORRECTIONS.md` | **no** |
+| `146-LEDGER.md` | **no** |
+
+**9 of 11 absent — this plan's own measurement agrees exactly with `146-CLAIM-FACTCHECK.md`'s addendum,
+with no divergence.** Firmware remote tip (`git -C firestarter rev-parse @{u}`):
+`fb7949c0bdd575177262a76af506cec3b73ea28b`. `firestarter/include/eprom_params.h` — box 1's central
+citation — tested the same way: **absent** from the firmware remote tip, while `src/proms/eprom.cpp`,
+`doc/PROTOCOLS.md` and `CLAUDE.md` are all **present**. This also agrees exactly with the addendum.
+
+**The three gates, re-run fresh in this task:**
+
+| Gate | Command | Exit status |
+|---|---|---|
+| Claim gate, defaults path | `python3 146-check-claims.py` | `rc=0` — `PASS: scanned 146-LEDGER.md, 146-CORRECTIONS.md, 146-GH15-RECONCILIATION.md, 146-RELEASE-NOTES-fw.md, 146-RELEASE-NOTES-app.md; 4 of 4 caveat-required file(s) carry every caveat their own rule demands` |
+| D-13 documentation checker, defaults path | `python3 146-check-close03-docs.py` | `rc=0` — `PASS: scanned firestarter/doc/PROTOCOLS.md, firestarter/CLAUDE.md, firestarter/README.md, firestarter_app/README.md; 4 file(s), zero forbidden-phrase matches, every required CLOSE-03 topic present` |
+| Phase 130 record gate, default targets, ≥300s allowance | `python3 .planning/phases/130-close-honesty-ledger-claim-gate-release-decision/check_record_corrections.py` | `rc=0` — `PASS: scanned .planning/PROJECT.md, .planning/STATE.md, .planning/ROADMAP.md, .planning/milestones/v1.23-REQUIREMENTS.md, .planning/notes/py32f071-port-branch-state.md; exempt hits by verdict: {'block': 23, 'line-label': 4, 'inline-history': 6, 'inline-allow': 10, 'superseded': 12}` |
+
+**The record gate is now GREEN, where §0.6 recorded it RED at phase start.** §0.6 attributed the RED to
+an unlabelled `arm-toolchain-absent` collocation at `.planning/STATE.md:11` and handed the discharge to
+plan `146-05`. This reading confirms the hand-off was completed: the same command, against the same file
+path, now passes with the identical exempt-hit tally `146-11` recorded in §4.7 — no bucket moved. This is
+a re-confirmation of `146-11`'s own reading, not a new correction.
+
+### 6.2 Task 3 — blocking posting authorization, outcome recorded verbatim
+
+**AUTHORIZATION: hold**
+
+The operator's answer, in full and verbatim, was **not** the plan's literal `"post approved"` /
+`"hold"` pair — he answered **DEFER**, with a measured reason rather than a wording objection. Both are
+recorded here because the wording matters as much as the outcome:
+
+> DEFER. Do not post. The post moves to the first act after the milestone push.
+>
+> Reason — a measured sequencing finding, not a wording defect, recorded at `903599a2`:
+> `146-GH15-RECONCILIATION.md` earns its claims by citing `file:line` rather than asserting, and its
+> closing line sends readers to `146-LEDGER.md` and `146-CORRECTIONS.md` for full evidence. gh#15 lives
+> in `henols/firestarter_prom`, which is this meta repository, and `.planning/` is tracked there — but
+> this branch is 286 commits unpushed. Measured against the pushed remote branch, 9 of 11 cited planning
+> artifacts are absent... Posting now would publish a document whose verification path is roughly ten
+> dead links. The text cannot fix that; only ordering can. D-01 deliberately excludes every push from
+> this phase, so the resolution is NOT to relax D-01 — it is to order the post after
+> `/gsd-complete-milestone` pushes.
+
+**DEFER is recorded, for the purposes of this plan's mechanical legs, under the `AUTHORIZATION: hold`
+marker** — the plan's own vocabulary offers exactly two literal markers (`post approved` / `hold`), and
+"do not post now" resolves to `hold` under that vocabulary. Recording it as a plain `hold` without this
+paragraph would erase the distinction between "the operator rejected the post" and "the operator ordered
+it to a later, named point" — the latter is what actually happened, and both are true at once: the answer
+is a hold **for this plan's boundary**, and the post itself remains outstanding, owed to
+`/gsd-complete-milestone`'s aftermath, not abandoned.
+
+**Zero comments were posted.** No write call of any kind was made in this task — no `gh issue comment`,
+no `gh api` in write mode, no body-file construction, nothing. The re-measured gh#15 state in §6.1 above
+(`OPEN null 0 1`) is unchanged from §5.2's reading before this task ran, which is the mechanical evidence
+that nothing was posted between the two gates.
+
+**Zero comments is within this plan's stated output range.** The plan's own `<objective>` states the
+output as *"at most one posted comment"* — zero is inside that range, not a shortfall against it. This
+plan's Task 3 acceptance criteria that presuppose a post occurred (the `delta=1`/`diff_content_lines`
+byte-comparison leg, the `1 → 2` comment-count transition in a would-be §6.6, the literal argument-vector
+record in a would-be §6.3) are **unreachable by operator decision** under the held branch — the plan's
+own acceptance criteria say as much explicitly: *"On the held branch that leg prints the held message and
+asserts nothing about a post, which is correct behaviour rather than a skipped check."*
+
+**§§6.3, 6.4, 6.6 and 6.7 do not exist and are not written here.** Per this register's own header
+discipline (`:12-13`), a section documenting a post-time argument vector, a byte-comparison fetch-back, or
+a one-to-two comment-count transition would be a stub describing an event that did not happen — worse than
+a stub, a fabrication, since these events specifically did not occur. Nothing in this section may be read
+as a post having been made, attempted, or partially made.
+
+**What remains owed, and to whom.** One `gh issue comment` invocation against gh#15 in
+`henols/firestarter_prom`, body-file only, using the frozen `146-GH15-RECONCILIATION.md` (blob
+`a36ee805a5a645f6d1010b409cd6cfb5434a56d1`, re-confirmed unchanged in §6.1 above) — owed to the first act
+after `/gsd-complete-milestone` pushes this branch. Until that push, 9 of 11 of the reconciliation's own
+cited evidentiary paths are unreachable to a reader of the posted comment, which is the measured reason
+this task did not make that call today.
