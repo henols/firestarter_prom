@@ -6,15 +6,15 @@ current_phase: 146
 current_phase_name: close-honesty-ledger-claim-gate-gh-15-reconciliation
 status: "Phase 146 CLOSED (13/13 plans complete) -- CLOSE-01..05 ticked Complete in both .planning/REQUIREMENTS.md and .planning/ROADMAP.md by 146-13, behind a blocking operator gate answered in scope; all five gates green; milestone v1.31 has no phase work remaining -- ready for /gsd-complete-milestone"
 stopped_at: "146-13 COMPLETE (phase close): CLOSE-01, CLOSE-02, CLOSE-03, CLOSE-04, CLOSE-05 ticked Complete in both coverage documents by hand (32 changed lines total, snapshot-and-diff audited, unattributable=0; archived CLOSE-0N rows in v1.22/v1.23/v1.30 REQUIREMENTS confirmed untouched by an unchanged aggregate SHA-256 digest). Resolved auto-mode read false three ways before the gate; operator's scoped authorization ('take it through the gate') recorded verbatim as the answer to Task 1's checkpoint. CLOSE-04/CLOSE-05 independently re-derived as content-dischargeable straight from REQUIREMENTS.md's own verbatim text (146-CITATIONS.md SS7.d) -- neither requirement's wording requires the gh#15 post or a cut release. All five gates re-run green: claim gate rc=0, D-13 doc checker rc=0, Phase 130 record gate rc=0 (exempt tally block=23/line-label=4/inline-history=6/inline-allow=10/superseded=12, unchanged), fixture suite 15 passed, firestarter 314 passed, firestarter_app 1590 passed/30 snapshots. Three-repo no-push arithmetic: meta ahead 292 (>=233), firestarter 63 (>=61), firestarter_app 18 (>=16), all three upstream SHAs unchanged -- nothing pushed, merged or tagged. Submodule gitlinks left un-re-pinned by design, matching 146-LEDGER.md's own recorded hand-off decision to /gsd-complete-milestone (tracked firestarter 0933bd7d / live f8ac6439; tracked firestarter_app cc036e8d / live 3cf429f5). gh#15 unchanged throughout (OPEN, 0 labels, 0 assignees, no milestone, lastEditedAt null, 1 comment) -- the reconciliation comment remains owed to /gsd-complete-milestone as its first post-push act (9 of 11 cited planning artifacts unreachable until the push). Two pre-existing STATE.md Blockers entries (146-PRE, 127-01) independently re-verified discharged with fresh citations and removed from the Blockers list. Every edit here BY HAND under a snapshot-and-diff audit; no state.advance-plan, state.begin-phase, state.planned-phase or bulk requirements/roadmap verb called. Phase 146 is CLOSED. NEXT: /gsd-complete-milestone -- owns the merge, the cut, the version tag, the submodule re-pin, and the deferred gh#15 comment as its first post-push act."
-last_updated: "2026-08-18T06:00:00.000Z"
+last_updated: "2026-08-18T06:15:00.000Z"
 last_activity: 2026-08-18
 last_activity_desc: "**146-13 COMPLETE (phase close)** -- CLOSE-01..05 ticked Complete in both .planning/REQUIREMENTS.md and .planning/ROADMAP.md by hand under a snapshot-and-diff audit (32 changed lines, unattributable=0; archived CLOSE-0N rows in earlier milestones' REQUIREMENTS documents confirmed untouched). All five gates re-run green one final time (claim gate, D-13 doc checker, Phase 130 record gate with an unchanged exempt tally, the fixture suite, and both sub-repo suites at/above baseline). CLOSE-04 and CLOSE-05 were independently re-derived as content-dischargeable directly from REQUIREMENTS.md's own verbatim text, settling the open question 146-12-SUMMARY.md left: neither requirement's wording requires the gh#15 post or a cut release, and the deferred gh#15 comment is recorded as an owed carry-forward to /gsd-complete-milestone, not a blocker on this tick. Three-repo no-push arithmetic closed at or above every phase-start baseline with all three upstream SHAs unchanged -- nothing pushed, merged, tagged, dispatched or published anywhere in this phase. The stale submodule gitlinks are left un-re-pinned by design, agreeing with 146-LEDGER.md's own already-recorded hand-off decision to /gsd-complete-milestone. Two pre-existing STATE.md Blockers (146-PRE, 127-01) were independently re-verified discharged with fresh citations this session and removed from the Blockers list rather than left asserting problems no longer measured to exist. Full detail: 146-13-SUMMARY.md and 146-CITATIONS.md section 7. This field was reset to a self-contained summary at this phase-close boundary rather than chaining forward the full prior 54KB history the phase's earlier plans accumulated here -- that history remains fully recoverable from git history and from 146-CITATIONS.md, and carrying it forward indefinitely was itself flagged as a Phase 130 record-gate runtime cost (this line's prior length was the single largest contributor to that gate's ~130s runtime). Phase 146 is CLOSED; milestone v1.31 has no phase work remaining. NEXT: /gsd-complete-milestone."
 progress:
   total_phases: 9
   completed_phases: 9
   total_plans: 74
-  completed_plans: 73
-  percent: 99
+  completed_plans: 74
+  percent: 100
 ---
 
 # Project State
@@ -156,7 +156,7 @@ run on a build carrying **MERGE-05's open, un-adjudicated +96 B leonardo breach*
 "# REQUIREMENT FLIP — `145-09`" section of
 `.planning/phases/145-bench-validation/145-BENCH-LOG.md`.
 
-Last activity: 2026-08-17 — **`146-01` COMPLETE** (`8bf2acae`, `44f4cdb8`). `146-CITATIONS.md` §§0-2
+Last activity: 2026-08-18 — **Phase 146 CLOSED (13/13 plans)**; CLOSE-01..05 ticked Complete in both coverage documents; verification passed 5/5. The gh#15 reconciliation comment and the submodule re-pin are carried forward to /gsd-complete-milestone.
 record the phase's structural no-push baseline: upstream-ahead **233 / 61 / 16** (meta / `firestarter`
 / `firestarter_app`) as the **only** oracle for D-01, which has no mechanical enforcement because
 `git push`, `gh workflow` and `gh release` are all allowlisted; three-repo porcelain enumerated by
@@ -2364,6 +2364,7 @@ None currently open. Both entries formerly listed here were independently re-ver
   `Pending` — that commit precedes `39802fb7` (the Phase 146 plan-creation commit), so the fix landed
   **before** this phase was planned, which is why no `146-*-PLAN.md` mentions it. See
   `146-CLAIM-FACTCHECK.md` and `146-CITATIONS.md` §7.
+
 - ~~127-01~~ (`test_help_fw` fails, stale `--board` help snapshot missing py32f071) —
   **DISCHARGED.** Re-run this session: `pytest tests/test_characterization.py::test_help_fw` →
   `1 passed, 2 snapshots passed`; `tests/__snapshots__/test_characterization.ambr` contains
