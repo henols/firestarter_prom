@@ -60,7 +60,7 @@ fix stack. Host-only; needs no AT28C part.
       version-capture path is GATE-1.8d ring-fenced and MUST NOT be edited to satisfy this
       requirement.)*
 
-- [ ] **PROV-04**: The report schema version is bumped, and reports written by earlier versions
+- [x] **PROV-04**: The report schema version is bumped, and reports written by earlier versions
       (carrying `fw_board_identity: null`) still parse without error.
 
 - [ ] **PROV-05**: A null or unobtainable firmware identity renders as an **explicit unknown** in
@@ -232,7 +232,7 @@ relies on `autonomous: false` alone is not self-protecting.
 | PROV-01 | Phase 147 | Complete |
 | PROV-02 | Phase 147 | Complete |
 | PROV-03 | Phase 147 | Complete |
-| PROV-04 | Phase 147 | Pending |
+| PROV-04 | Phase 147 | Complete |
 | PROV-05 | Phase 147 | Pending |
 | PROV-06 | Phase 147 | Pending |
 | DATA-01 | Phase 148 | Pending |
