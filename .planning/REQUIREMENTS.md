@@ -266,16 +266,16 @@ expected work, not a regression.
 
 ### Close
 
-- [ ] **CLOSE-01**: A committed claim gate forbids unqualified "datasheet-conformant" /
+- [x] **CLOSE-01**: A committed claim gate forbids unqualified "datasheet-conformant" /
       "datasheet-correct" / "algorithm-accurate" across all closing artifacts, is **armed against the
       real files**, and has been **seen to fail** on a planted violation.
-- [ ] **CLOSE-02**: An honesty ledger pairs every permitted claim with its explicit non-claim, leading
+- [x] **CLOSE-02**: An honesty ledger pairs every permitted claim with its explicit non-claim, leading
       with the 6.25 V ceiling and the asymmetric bench coverage.
-- [ ] **CLOSE-03**: Firmware and host documentation describe the new per-byte algorithm, the parameter
+- [x] **CLOSE-03**: Firmware and host documentation describe the new per-byte algorithm, the parameter
       table, the database-supplied pulse, `--pulse-us`, and the 6.25 V accepted debt.
-- [ ] **CLOSE-04**: gh#15's acceptance criteria are reconciled **item by item** — each marked met,
+- [x] **CLOSE-04**: gh#15's acceptance criteria are reconciled **item by item** — each marked met,
       met-as-corrected (naming the correction), or not-reachable-on-this-hardware (naming the reason).
-- [ ] **CLOSE-05**: Release notes describe the programming-behaviour change and the `--pulse-us`
+- [x] **CLOSE-05**: Release notes describe the programming-behaviour change and the `--pulse-us`
       addition in terms a stranger can act on.
 
 ---
@@ -347,11 +347,11 @@ Deferred. Tracked but not in this roadmap.
 | BENCH-01 | Phase 145 | Complete |
 | BENCH-02 | Phase 145 | Complete |
 | BENCH-03 | Phase 145 | Complete |
-| CLOSE-01 | Phase 146 | Pending |
-| CLOSE-02 | Phase 146 | Pending |
-| CLOSE-03 | Phase 146 | Pending |
-| CLOSE-04 | Phase 146 | Pending |
-| CLOSE-05 | Phase 146 | Pending |
+| CLOSE-01 | Phase 146 | Complete |
+| CLOSE-02 | Phase 146 | Complete |
+| CLOSE-03 | Phase 146 | Complete |
+| CLOSE-04 | Phase 146 | Complete |
+| CLOSE-05 | Phase 146 | Complete |
 
 **Coverage:**
 - v1 requirements: 45 total

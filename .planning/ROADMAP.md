@@ -182,7 +182,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 - [x] **Phase 143: Host Timeout, Progress & Pulse Override** — long blocks survive the host's response timeout with visible progress, max-pulse failures surface as named program failures rather than transport errors, and `--pulse-us` ships bounded and pre-validated. (HOST-01, HOST-02, HOST-03, HOST-04, HOST-05) (completed 2026-08-13)
 - [x] **Phase 144: Tests & Build Verification** — native tests for table resolution/fixed-pulse/overprogram/max-pulse-abort/skip-and-fallback, the deliberate frozen-vs-new golden-trace diff, green builds across all firmware targets plus the host suite and CI-scoped lint/type gates with cross-repo constants parity, and flash/RAM delta measured against the PREP-03 baseline. (TEST-01, TEST-02, TEST-03, TEST-04, TEST-05, TEST-06, TEST-07, TEST-08) (completed 2026-08-14)
 - [x] **Phase 145: Bench Validation** — full write→read→verify proof on `0x07` (required), `0x08`/`0x0B` opportunistic-or-honestly-skipped, zero `support_status` changes. (BENCH-01, BENCH-02, BENCH-03) (completed 2026-08-17)
-- [ ] **Phase 146: Close — Honesty Ledger, Claim Gate & gh#15 Reconciliation** — a fail-provable claim gate, an honesty ledger led by the 6.25 V ceiling, updated firmware/host docs, gh#15's acceptance criteria reconciled item by item, and stranger-actionable release notes. (CLOSE-01, CLOSE-02, CLOSE-03, CLOSE-04, CLOSE-05)
+- [x] **Phase 146: Close — Honesty Ledger, Claim Gate & gh#15 Reconciliation** — a fail-provable claim gate, an honesty ledger led by the 6.25 V ceiling, updated firmware/host docs, gh#15's acceptance criteria reconciled item by item, and stranger-actionable release notes. (CLOSE-01, CLOSE-02, CLOSE-03, CLOSE-04, CLOSE-05) (completed 2026-08-18)
 
 ## Phase Details
 
@@ -664,11 +664,11 @@ Plans:
 | BENCH-01 | Phase 145 | Complete |
 | BENCH-02 | Phase 145 | Complete |
 | BENCH-03 | Phase 145 | Complete |
-| CLOSE-01 | Phase 146 | Pending |
-| CLOSE-02 | Phase 146 | Pending |
-| CLOSE-03 | Phase 146 | Pending |
-| CLOSE-04 | Phase 146 | Pending |
-| CLOSE-05 | Phase 146 | Pending |
+| CLOSE-01 | Phase 146 | Complete |
+| CLOSE-02 | Phase 146 | Complete |
+| CLOSE-03 | Phase 146 | Complete |
+| CLOSE-04 | Phase 146 | Complete |
+| CLOSE-05 | Phase 146 | Complete |
 
 **Mapped: 45/45 requirements ✓** — no orphans, no duplicates.
 
