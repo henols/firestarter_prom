@@ -1,6 +1,6 @@
 # Firmware prerelease — 27C EPROM per-byte pulse-to-verify loop
 
-**Version:** `[FILLED IN AT CUT TIME FROM THE OBSERVED RELEASE LISTING — a placeholder, never computed here]`
+**Version:** `3.0.0b19` — read from `gh release list --repo henols/firestarter` at 2026-08-18T10:00:08Z, never predicted. Cut by `beta-build.yml` from merge commit `bc3ca547` (PR #52). Assets published: `firestarter_leonardo.hex` (75961 B), `firestarter_uno.hex` (70120 B), `firestarter_uno328pb.hex` (70246 B), `firestarter_py32f071.hex` (79047 B). The host app's matching release is **`3.0.0b21`** — the two repositories version independently, so the numbers do not agree and are not expected to.
 
 This is a prerelease build of the firmware for the RURP shield. It carries the three AVR board
 builds as attached assets — `firestarter_leonardo.hex`, `firestarter_uno.hex`,

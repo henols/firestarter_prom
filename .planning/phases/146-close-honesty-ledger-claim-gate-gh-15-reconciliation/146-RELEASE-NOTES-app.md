@@ -1,6 +1,6 @@
 # Host app prerelease — 27C pulse override + long-write timeout fix
 
-**Version:** `[FILLED IN AT CUT TIME FROM THE OBSERVED RELEASE LISTING — a placeholder, never computed here]`
+**Version:** `3.0.0b21` — read from `gh release list --repo henols/firestarter_app` at 2026-08-18T09:58:57Z, never predicted. Cut by `beta-release.yml` from merge commit `91c2add0` (PR #51). PyPI upload verified **independently of GitHub**, because this project has had GitHub carrying betas through `b17` while PyPI stopped at `b15`: `firestarter-3.0.0b21-py3-none-any.whl` and `firestarter-3.0.0b21.tar.gz` are both present on PyPI. Stable is **unchanged** — PyPI `info.version` is still `2.0.7`. The matching firmware release is **`3.0.0b19`**; the two repositories version independently, so the numbers do not agree and are not expected to.
 
 `pip install --pre --upgrade firestarter`
 
