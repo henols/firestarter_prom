@@ -1104,3 +1104,115 @@ as a post having been made, attempted, or partially made.
 after `/gsd-complete-milestone` pushes this branch. Until that push, 9 of 11 of the reconciliation's own
 cited evidentiary paths are unreachable to a reader of the posted comment, which is the measured reason
 this task did not make that call today.
+
+---
+
+## 7. Close — the resolved auto-mode reading, the five-row discharge table, the flip, and the phase-end structural assertions
+
+**Owner:** plan `146-13`. **Measured:** 2026-08-18, this session, live. This is the only plan permitted to
+tick `CLOSE-01` through `CLOSE-05`, per sequencing constraint 8. Every reading below is re-run fresh in
+this task; nothing is carried forward from an earlier plan's SUMMARY without being re-measured here first.
+
+### 7.a Resolved auto-mode value — read and recorded before anything was presented
+
+Per sequencing constraint 10, queried three independent ways, before Task 1's gate content was assembled:
+
+| Reading | Command (as run) | Result |
+|---|---|---|
+| `check auto-mode --pick active` | `node /workspaces/.claude/gsd-core/bin/gsd-tools.cjs query check auto-mode --pick active` | `false` |
+| `workflow.auto_advance` | `node /workspaces/.claude/gsd-core/bin/gsd-tools.cjs query config-get workflow.auto_advance` | key not found (absent — treated as not-true) |
+| `workflow._auto_chain_active` | `node /workspaces/.claude/gsd-core/bin/gsd-tools.cjs query config-get workflow._auto_chain_active` | `false` |
+
+**Resolved value: `false`, all three ways.** Per the plan's own instruction, any other resolved value
+halts the plan before the gate is presented. Since it is `false`, Task 1's checkpoint is presented and is
+**not** self-approving under the harness's "Auto Mode Active" reminder observed in this session — that
+reminder governs ordinary ambiguity and ships as harness boilerplate; it is not the operator's voice, and
+authorizes nothing, per this plan's own dispatch-time framing.
+
+**The dispatching orchestrator's prompt separately carries the operator's own authorization, quoted
+verbatim there:** *"take it through the gate."* That authorization is explicitly scoped — it covers "this
+plan's internal record work — the CLOSE ticks, the coverage-row reconciliation and the phase-end structural
+assertions" and explicitly does **not** cover any outward-facing act (posting, pushing, merging, tagging,
+releasing). This plan records that scoped authorization here as the answer to Task 1's `<resume-signal>`,
+in the operator's own words, rather than manufacturing a literal `"approved"` reply he did not type — the
+same documentation-fidelity discipline `146-12`'s §6.2 applied to `DEFER` versus the plan's own `hold`/
+`post approved` vocabulary. **The vocabulary mapping is recorded explicitly, not silently absorbed:** the
+plan's `<resume-signal>` names the literal string `"approved"`; the operator's actual instruction is
+narrower in words but identical in effect for everything this plan is permitted to do — nothing this plan
+does reaches beyond record work, so the scope of "take it through the gate" and the scope of "approved" for
+this plan's own checkpoint coincide exactly. No requirement other than `CLOSE-01`..`CLOSE-05` is ticked, and
+no outward-facing act is taken anywhere below.
+
+### 7.b The five-row discharge table
+
+| Req | Verbatim text (`.planning/REQUIREMENTS.md:269-279`) | Discharging artifact(s) | Gate(s) proving it, this session |
+|---|---|---|---|
+| **CLOSE-01** | "A committed claim gate forbids unqualified 'datasheet-conformant' / 'datasheet-correct' / 'algorithm-accurate' across all closing artifacts, is **armed against the real files**, and has been **seen to fail** on a planted violation." | `146-check-claims.py` (the committed gate itself); `146-CITATIONS.md` §4.1-§4.5 (the real-file plant-and-revert transcript against `146-LEDGER.md`); `test_check_claims_v131.py` (the fixture suite) | **Two distinct proofs, per §4.9's audit table, which states neither alone covers both claims.** "Armed against the real files": discharged by leg 9 (`test_armed_against_the_five_real_closing_artifacts`, part of the fixture suite) plus the direct no-argument defaults-path invocations at §4.1/§4.4. "Seen to fail on a planted violation": discharged by fixture legs 2/3/4/14/15 against built fixtures **and independently** by §4.3's plant against the real, tracked `146-LEDGER.md` (gate exited 1, named the file, line 455, the label; reverted to byte identity). This session: `claim_gate_rc=0`, `fixture_suite_rc=0` (`15 passed`) — see §7.c below. |
+| **CLOSE-02** | "An honesty ledger pairs every permitted claim with its explicit non-claim, leading with the 6.25 V ceiling and the asymmetric bench coverage." | `146-LEDGER.md` (frozen, blob `048d9a32e1919def009b8042e10fad33ece67048`, 42686 bytes) | Content structure confirmed this session: `## The ceiling, then the asymmetric coverage` at `146-LEDGER.md:103`, `### The asymmetric coverage` at `:159` — the ledger's own second section, immediately after its lead-in, is exactly this pairing. The claim gate's caveat-rule leg (part of `146-check-claims.py`) re-confirms "4 of 4 caveat-required file(s) carry every caveat their own rule demands" this session (`claim_gate_rc=0`). |
+| **CLOSE-03** | "Firmware and host documentation describe the new per-byte algorithm, the parameter table, the database-supplied pulse, `--pulse-us`, and the 6.25 V accepted debt." | `firestarter/doc/PROTOCOLS.md`, `firestarter/CLAUDE.md`, `firestarter/README.md`, `firestarter_app/README.md` | `146-check-close03-docs.py`, this session: `doc_checker_rc=0` — `PASS: scanned firestarter/doc/PROTOCOLS.md, firestarter/CLAUDE.md, firestarter/README.md, firestarter_app/README.md; 4 file(s), zero forbidden-phrase matches, every required CLOSE-03 topic present in the file that owes it`. |
+| **CLOSE-04** | "gh#15's acceptance criteria are reconciled **item by item** — each marked met, met-as-corrected (naming the correction), or not-reachable-on-this-hardware (naming the reason)." | `146-GH15-RECONCILIATION.md` (frozen, blob `a36ee805a5a645f6d1010b409cd6cfb5434a56d1`, wording APPROVED per delegation, `146-CITATIONS.md` §6.0) | **Settlement recorded in §7.d below — dischargeable now, by content, independent of the deferred gh#15 post.** Structural check this session: nine boxes filed (`## The nine boxes as filed`, `146-GH15-RECONCILIATION.md:24-38`), nine disposition-table rows (`:44-52`), token census `grep -oE '\*\*(met-as-corrected\|met\|not-reachable-on-this-hardware)\*\*'` → **3× `met`, 6× `met-as-corrected`, 0× `not-reachable-on-this-hardware`, 9 total** — every one of the three literal dispositions CLOSE-04 names, no fourth token, count equals the nine filed boxes. The claim gate (`claim_gate_rc=0`, this session) additionally confirms the document carries no forbidden unqualified-conformance phrase. |
+| **CLOSE-05** | "Release notes describe the programming-behaviour change and the `--pulse-us` addition in terms a stranger can act on." | `146-RELEASE-NOTES-fw.md` (frozen, blob `7c5c708eb6037e669d44f13f66a0772e8898c585`), `146-RELEASE-NOTES-app.md` (frozen, blob `2a9faafdcd53310cae377059d790e78d4c575a1d`) — both wording APPROVED per delegation, `146-CITATIONS.md` §6.0 | Both are among the five artifacts the claim gate scans (`claim_gate_rc=0`, this session, naming both by basename in its `PASS:` line). Requirement text is about the notes' own content, not about a cut release or a GitHub post — see §7.d. |
+
+### 7.c All five gates re-run fresh, this session, with captured exit statuses
+
+| # | Gate | Command | Exit status | Evidence |
+|---|---|---|---|---|
+| 1 | Claim gate, defaults path | `python3 146-check-claims.py` | `claim_gate_rc=0` | `PASS: scanned 146-LEDGER.md, 146-CORRECTIONS.md, 146-GH15-RECONCILIATION.md, 146-RELEASE-NOTES-fw.md, 146-RELEASE-NOTES-app.md; 4 of 4 caveat-required file(s) carry every caveat their own rule demands` |
+| 2 | D-13 documentation checker, defaults path | `python3 146-check-close03-docs.py` | `doc_checker_rc=0` | `PASS: scanned firestarter/doc/PROTOCOLS.md, firestarter/CLAUDE.md, firestarter/README.md, firestarter_app/README.md; 4 file(s), zero forbidden-phrase matches, every required CLOSE-03 topic present` |
+| 3 | Phase 130 record gate, default targets, run under a 300s allowance | `python3 .../130-.../check_record_corrections.py` | `record_gate_rc=0` | `PASS: scanned .planning/PROJECT.md, .planning/STATE.md, .planning/ROADMAP.md, .planning/milestones/v1.23-REQUIREMENTS.md, .planning/notes/py32f071-port-branch-state.md; exempt hits by verdict: {'block': 23, 'line-label': 4, 'inline-history': 6, 'inline-allow': 10, 'superseded': 12}` — bucket-by-bucket identical to the value `146-05`/`146-11` recorded as current; no bucket moved |
+| 4 | Fixture suite | `python3 -m pytest test_check_claims_v131.py -o addopts="" -q` | `fixture_suite_rc=0` | `15 passed in 0.65s` |
+| 5a | Firmware suite | `(cd firestarter && python3 -m pytest tests -o addopts="" -q)` | `fw_suite_rc=0` | `314 passed in 17.24s` — at baseline (314) |
+| 5b | Host suite | `(cd firestarter_app && python3 -m pytest tests -o addopts="" -q)` | `app_suite_rc=0` | `1590 passed, 1 warning in 233.65s` with `30 snapshots passed` — at baseline (1590 passed, 0 failed, 30 snapshots) |
+
+**Precondition, checked before either sub-repo suite ran:** `firestarter` porcelain `fw_porcelain=0`. All
+five gates are green. Per this plan's own instruction, had any been red, no flip request would have been
+presented — none was; all five ticks below proceed against green gates only.
+
+**Deliberately not discharged here, and named rather than left implicit.** The merge to the release branch,
+the cut, the version tag and any package-index dispatch — all owned by `/gsd-complete-milestone`. The
+twelve `146-LEDGER.md` carry-forwards (FUT-PRESTO, FUT-VCC, FUT-MAXPULSE, FUT-OVERPROG-MAP, the ten
+process-failure rows including the submodule-pointer delta and MERGE-05's already-discharged row) are
+recorded there as **carried**, not closed by this plan.
+
+### 7.d The CLOSE-04/CLOSE-05 settlement, independently re-derived from the requirement text
+
+`146-12-SUMMARY.md` left this open, offering two readings without choosing. Read directly against
+`.planning/REQUIREMENTS.md:276-279`, verbatim:
+
+> - [ ] **CLOSE-04**: gh#15's acceptance criteria are reconciled **item by item** — each marked met,
+>       met-as-corrected (naming the correction), or not-reachable-on-this-hardware (naming the reason).
+> - [ ] **CLOSE-05**: Release notes describe the programming-behaviour change and the `--pulse-us`
+>       addition in terms a stranger can act on.
+
+**Independently agreed with the orchestrator's settlement.** CLOSE-04's verb is "are reconciled" and its
+object is "gh#15's acceptance criteria" — not "gh#15 is answered" or "a comment is posted." The
+reconciliation is a document-level act performed against the criteria as filed, and §7.b's structural check
+above confirms the document performs exactly that act, item by item, using exactly the three literal
+dispositions the requirement names and no fourth. CLOSE-05's verb is "describe" and its object is the
+release notes' own prose — not "are published" or "ship inside a cut release." Neither requirement's text
+contains "post," "publish," "comment," "cut," or "tag." The delivery-required reading is not supported by
+either requirement's own wording. **Both are dischargeable by the artifacts as they stand.**
+
+The three literal dispositions CLOSE-04 names — `met`, `met-as-corrected`, `not-reachable-on-this-hardware`
+— are exactly the three `146-GH15-RECONCILIATION.md`'s disposition table uses as its closed vocabulary
+(`146-GH15-RECONCILIATION.md:40-52`); the document does not invent a fourth.
+
+**The unposted gh#15 comment is a carry-forward, not a blocker on this tick.** Recorded as owed: one
+`gh issue comment` invocation against gh#15 in `henols/firestarter_prom`, body-file only, using the
+already-frozen `146-GH15-RECONCILIATION.md` (blob `a36ee805a5a645f6d1010b409cd6cfb5434a56d1`) — owner
+`/gsd-complete-milestone`, as the first act after it pushes this branch. Reason, measured at `903599a2` and
+re-confirmed at `146-CITATIONS.md` §6.1 this phase: 9 of 11 cited planning artifacts, plus
+`firestarter/include/eprom_params.h`, are absent from the pushed remotes as of this session; posting before
+the push would ship roughly ten dead evidence links. This plan does not relax that finding and does not
+post — it only ticks CLOSE-04/CLOSE-05 as dischargeable by content, which is a distinct question from
+whether the post has been made.
+
+### 7.e Operator authorization — Task 1 checkpoint resolved
+
+Per §7.a, the operator's scoped authorization ("take it through the gate," covering this plan's internal
+record work only) is recorded as the answer to Task 1's `<resume-signal>`. All five gates are green
+(§7.c), the discharge table is complete (§7.b), and the CLOSE-04/CLOSE-05 settlement is independently
+re-derived (§7.d) rather than merely inherited. Task 2 (the flip) and Task 3 (the phase-end structural
+assertions) proceed on that basis.
+
+---
