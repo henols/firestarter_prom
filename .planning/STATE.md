@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 147
-current_phase_name: in progress — 5/6 plans complete
-status: Executing -- 147-05 complete (5/6 in this phase); 147-06 next
-stopped_at: Completed 147-05-PLAN.md
-last_updated: "2026-08-18T15:52:09.062Z"
+current_phase_name: in progress — 6/6 plans complete, pending phase verification
+status: Executing -- 147-06 complete (6/6 in this phase); phase verification next
+stopped_at: Completed 147-06-PLAN.md
+last_updated: "2026-08-18T20:45:31.000Z"
 last_activity: 2026-08-18
-last_activity_desc: completed 147-05-PLAN.md (render_diff labelled host_version/fw_board_identity rows + not-attributable clause; first-ever render_diff tests; PROV-04 complete)
+last_activity_desc: completed 147-06-PLAN.md (devtest-triage skill show render names the firmware identity + explicit not-attributable clause; bare-null hw revision fixed; SKILL.md transcript byte-identical to live output; 3-way NOT_REPORTED parity confirmed; blocking human-verify Part A + Part B both approved by operator, NOT auto-approved; PROV-05 + PROV-06 complete)
 progress:
   total_phases: 6
   completed_phases: 0
