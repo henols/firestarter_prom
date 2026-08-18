@@ -3,7 +3,7 @@ title: Land `write --sdp-relock` — deferred out of v1.30 as Phase 135, tracked
 date: 2026-08-03
 priority: medium
 blocked_by: nothing technical — deferred by operator decision, not by a dependency. Every prerequisite already shipped (see "Nothing to redo" below). Promote via /gsd-review-backlog when a milestone slot is wanted.
-resolves_phase: none (Backlog 999.28 — v1.30 Phase 135 was vacated, number not reused)
+resolves_phase: 150  # Backlog 999.28 PROMOTED 2026-08-18 into v1.32 Phase 150; RELOCK-01…06 + RELOCK-08 carried forward verbatim
 ---
 
 # `write --sdp-relock` was deferred out of v1.30 — and the deletion shipped without it

@@ -3,7 +3,7 @@ title: Reply on gh#12 (and correct the b14 app release notes) after `dev sdp` is
 date: 2026-07-31
 priority: medium
 blocked_by: the removal shipping — provisional milestone v1.30 (queued NEXT after v1.23, from Backlog 999.25). Do not post before the removal is real.
-resolves_phase: 137
+resolves_phase: 152  # v1.30 CLOSE-06 was held open by design; re-homed to v1.32 Phase 152 (OUT-01), where `write --sdp-relock` actually exists to be named
 ---
 
 # gh#12 follow-up owed once `dev sdp` is retired
