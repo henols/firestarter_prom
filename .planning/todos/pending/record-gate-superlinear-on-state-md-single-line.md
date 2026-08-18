@@ -61,3 +61,30 @@ survive into the next phase unless it is written down somewhere the next planner
 
 Phase 146 is a documentation-and-closure phase whose D-06 forbids behaviour changes, and the gate
 is a live target of its own record checks. Deliberately left as a finding rather than absorbed.
+
+---
+
+## UPDATE 2026-08-18 — largely resolved by Phase 146 plan 146-13
+
+Candidate fix 1 above ("stop growing one line") was effectively applied by `146-13` when it
+restructured `last_activity_desc` and moved the per-plan `PRIOR (...)` history into the body.
+
+Measured before and after, same gate, same tally:
+
+| STATE.md line 11 | gate runtime |
+|---|---|
+| 51,725 chars | **130 s** |
+| 2,079 chars | **23 s** |
+
+Tally unchanged at `{'block': 23, 'line-label': 4, 'inline-history': 6, 'inline-allow': 10,
+'superseded': 12}` across both, confirming this was always cost and never correctness.
+
+**What remains worth doing**, so this does not simply regrow:
+
+1. The field is still a single line and still append-only, so the same drift will recur over the next
+   milestone unless the convention changes. Consider capping it, or making the body section the
+   canonical home and the frontmatter field a one-line pointer.
+2. Candidate fix 3 is still undone and is cheap: document the allowance in
+   `check_record_corrections.py`'s module docstring. At 2,079 chars a 60 s timeout is now ample, which
+   is exactly when the next caller will hardcode a short one and get bitten after the field regrows.
+3. Candidate fix 2 (profiling the dominating pattern) remains untouched and is now lower priority.
