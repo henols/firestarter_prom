@@ -1,20 +1,20 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.32
-milestone_name: AT28C Write-Path Root Cause & Report Provenance
+milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 147
-status: planned
-stopped_at: Phase 147 planned - ready to execute
-last_updated: "2026-08-18T13:05:00.000Z"
+current_phase_name: in progress — 1/6 plans complete
+status: Executing -- 147-01 complete (1/6 in this phase); 147-02..05 next
+stopped_at: Completed 147-01-PLAN.md
+last_updated: "2026-08-18T13:46:34.281Z"
 last_activity: 2026-08-18
-last_activity_desc: "**Phase 147 planned** by /gsd-plan-phase -- 6 plans in 4 waves, dual-repo (147-PLAN files committed at 4823d769/2e327bea/dbb90b0f, requirements-array fix at 4b0f82a9). Research + pattern map + Nyquist VALIDATION.md all landed first (74f124c6, 02f258b4, 6883dbc8). THREE pre-planning corrections were applied because their premises were measured FALSE: (1) D-06 -- PROV-03 and ROADMAP criterion #2 both asserted _probe_port's [\\d.x]+ truncation makes prerelease-suffix preservation impossible; it does not -- that regex builds a SEPARATE LOCAL fed only to _validate_firmware_version, while comm.firmware_identity (serial_comm.py:412) already holds the raw untruncated '<version>:<board>'. Suffix preservation is FREE; the GATE-1.8d ring-fenced path must NOT be edited. Corrected at 82f11fd4 with PROV-05/criterion #4 tightened per D-10 (fenced JSON keeps typed null; the marker belongs in the human surfaces). (2) Plan frontmatter requirements: arrays contradicted the ROADMAP flip table and would have flipped PROV-01/02/04/05/06 complete early -- execute-plan.md's update_requirements reads that array VERBATIM into requirements.mark-complete. v1.31 Phase 138 carries the same divergence, so this is a recurring convention error, not a slip; the annotation prose that invited it was rewritten too. (3) RESEARCH corrected two of its own coordinates during planning: tools/parse_devtest_issue.py has a function-local firestarter import at :151 (so a zero-import criterion would be unreachable), and fw_board_identity is emitted in _auto_capture_dict() not to_dict() (so a to_dict line-range grep fails OPEN). D-11 also resolved to THREE marker literals plus a parity test, not one constant -- single-sourcing is architecturally impossible across a stdlib-only tool and a skill that may not import the app. Plan-checker PASSED on iteration 2. Coverage gates: requirements 6/6, decisions 17/17 -- the decision gate first failed CLOSED on three wrapped bold labels (D-04/D-06/D-14), then reported D-02 uncovered because it reads only must_haves/truths/objective and <objective>/<task>/<action>, NOT <acceptance_criteria> where D-02's only citation sat. Both fixed. NEXT: /gsd-execute-phase 147 -- but 147-06 carries the only human-verify checkpoint (the devtest-triage skill render has no harness; criterion #5 is a judgement call) and MUST NOT run under --auto/--chain, which auto-approve such gates. Wave 1 (147-01) is a blocking precondition: firestarter_app is still on gsd/v1.31-27c-programming-algorithm-fidelity and must move to a v1.32 branch off origin/beta (app 3.0.0b21), and the .gitignore un-ignore of .claude/skills/ is itself uncommitted so the skill file cannot be committed until it lands."
+last_activity_desc: completed 147-01-PLAN.md (sub-repo branch move + devtest-triage skill tracking baseline)
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 6
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
-current_phase_name: Report Provenance — every `dev test` report names its firmware
 ---
 
 # Project State
@@ -76,10 +76,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 147 — Report Provenance — every `dev test` report names its firmware (not started)
-Plan: —
-Status: Roadmap created — awaiting `/gsd-plan-phase 147`
-Last activity: 2026-08-18 — v1.32 roadmap created (6 phases, 147–152; 33/33 requirements mapped)
+Phase: 147 — Report Provenance — every `dev test` report names its firmware (in progress — 1/6 plans complete)
+Plan: 2 of 6
+Status: 147-01 complete — firestarter_app moved to `gsd/v1.32-at28c-write-path-root-cause-report-provenance` off `origin/beta` (3.0.0b21), 1590-passed baseline recorded, devtest-triage skill tracked in the meta repo. 147-02..05 next.
+Last activity: 2026-08-18 — completed 147-01-PLAN.md (sub-repo branch move + devtest-triage skill tracking baseline)
 
 ## Roadmap Summary (v1.32)
 
@@ -1983,6 +1983,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 146-03]: NO backlog stub was filed. `### Phase 999.32` belonged to the RED arm alone and the RED arm did not fire; a stub with no defect behind it would be an entry that cannot be closed. `grep -c '999.32'` over `ROADMAP.md` prints 0 and no existing backlog entry was renumbered or reworded
 - [Phase 146-03]: A contradiction inside this plan's own acceptance criteria was RECORDED rather than worked around — the criteria demand a NON-ZERO firmware porcelain immediately after the build as a negative control, which is structurally unreachable under the same task's out-of-tree mandate. Porcelain measured 0 after configure and after build because nothing was written inside `firestarter/`; substituted out-of-tree oracles (43 object files, 166308537 B of build tree, four images with recorded digests, the two named `.obj` files) are recorded instead, and no artifact was manufactured inside the repository to satisfy the criterion's letter
 - [Phase 146-03]: The stale build-tooling sentence preserved inside `last_activity_desc` — the Phase 130 record gate's own R-15 target at `.planning/STATE.md:11` — is now DISPROVEN by this plan's observation but deliberately left verbatim: `146-05` owns its repair, and an exemption placed inside that field is destroyed by the next state write. The gate's output is byte-identical before and after this plan (rc=1, one unlabelled hit); its `PASS`-line exempt tally is printed only on the success path, so the tally was captured via `--explain` instead and is unchanged: `{'block': 23, 'line-label': 4, 'inline-history': 6, 'inline-allow': 10, 'unlabeled': 1, 'superseded': 12}`
+- [Phase ?]: Verify sub-repo branch base by content diff, not merge-base ancestry — RESEARCH F-15: ancestry is merge-shape-dependent; content diff is the only oracle immune to either shape
 
 ## Performance Metrics
 
@@ -2253,12 +2254,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 146 P09 | ~50min | 2 tasks | 2 files |
 | Phase 146 P10 | ~30min | 2 tasks | 3 files |
 | Phase 146 P11 | ~35min | 2 tasks | 2 files |
+| Phase 147 P01 | 15min | 2 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-18T12:00:17.192Z
-**Stopped at:** Phase 147 context gathered
-**Resume file:** .planning/phases/147-report-provenance-every-dev-test-report-names-its-firmware/147-CONTEXT.md
+**Last session:** 2026-08-18T13:46:34.233Z
+**Stopped at:** Completed 147-01-PLAN.md
+**Resume file:** None
 
 ### Blockers
 
