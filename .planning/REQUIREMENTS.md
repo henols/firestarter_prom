@@ -42,10 +42,10 @@ report ever filed carries a null firmware identity** — gh#21 and gh#32 report 
 an unknown firmware and cannot be distinguished from a board lacking the entire Phase-117–120 `0x0D`
 fix stack. Host-only; needs no AT28C part.
 
-- [ ] **PROV-01**: A `dev test` report records the firmware version and board identity of the
+- [x] **PROV-01**: A `dev test` report records the firmware version and board identity of the
       programmer that produced it, in place of today's unconditional `null`.
 
-- [ ] **PROV-02**: That capture happens without violating the SAFE-02 orchestrator-only contract —
+- [x] **PROV-02**: That capture happens without violating the SAFE-02 orchestrator-only contract —
       it does not open an extraneous connection outside the orchestrator, and `EpromOperator.comm`
       remains a transient per-operation connection.
 
@@ -229,8 +229,8 @@ relies on `autonomous: false` alone is not self-protecting.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PROV-01 | Phase 147 | Pending |
-| PROV-02 | Phase 147 | Pending |
+| PROV-01 | Phase 147 | Complete |
+| PROV-02 | Phase 147 | Complete |
 | PROV-03 | Phase 147 | Complete |
 | PROV-04 | Phase 147 | Pending |
 | PROV-05 | Phase 147 | Pending |

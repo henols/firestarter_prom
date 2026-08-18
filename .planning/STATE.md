@@ -5,15 +5,15 @@ milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 147
 current_phase_name: in progress — 3/6 plans complete
 status: Executing -- 147-03 complete (3/6 in this phase); 147-04..06 next
-stopped_at: Completed 147-03-PLAN.md
-last_updated: "2026-08-18T14:49:59.667Z"
+stopped_at: Completed 147-04-PLAN.md
+last_updated: "2026-08-18T15:22:56.261Z"
 last_activity: 2026-08-18
-last_activity_desc: completed 147-03-PLAN.md (SCHEMA_VERSION bumped to 1.4, NOT_REPORTED/_identity_cell render marker for fw_board_identity + hw_revision, JSON stays typed null)
+last_activity_desc: completed 147-03-PLAN.md (SCHEMA_VERSION 1.4 + explicit unknown identity marker in the rich table)
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 6
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -77,7 +77,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 147 — Report Provenance — every `dev test` report names its firmware (in progress — 3/6 plans complete)
-Plan: 4 of 6
+Plan: 5 of 6
 Status: 147-03 complete — `SCHEMA_VERSION` bumped `1.3` -> `1.4` with a value-population rationale note (D-09); `NOT_REPORTED` constant + `_identity_cell()` render-boundary helper added, both `fw_board_identity` and `hw_revision` rows in `render()` now show an explicit unknown marker instead of a bare `None` (D-10/D-11/D-12), while `to_dict()`/the fenced JSON keep typed `null`. Full suite 1599 passed (baseline 1595 + 4 new tests). 147-04..06 next.
 Last activity: 2026-08-18 — completed 147-03-PLAN.md (SCHEMA_VERSION 1.4 + explicit unknown identity marker in the rich table)
 
@@ -1987,6 +1987,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: 147-02: harvest fw_board_identity off the hardware-revision read's own connection (D-01) rather than opening a second one; ProgrammerIdentity NamedTuple returns both fields with independent per-field failure (D-04)
 - [Phase ?]: 147-02: _scrub_identity keeps printable ASCII 0x20-0x7E, replaces the rest with '?', caps at 64 chars, collapses to None only when nothing printable survives (D-07)
 - [Phase ?]: D-09/D-10/D-11/D-12/D-13(a) applied: SCHEMA_VERSION bumped to 1.4 with a value-population rationale; fenced JSON keeps typed null; a new NOT_REPORTED constant marks an absent identity only in the rich table, never in to_dict() — 147-CONTEXT.md locked decisions; PROV-04/PROV-05 advanced, not completed -- issue-parser surfaces owned by 147-05/147-06
+- [Phase 147-04]: D-04's leg-2 transport-error test is parametrized over ProgrammerNotFoundError and SerialTimeoutError rather than two separate functions, since both exceptions land in the same except clause — Both are SerialError subclasses per RESEARCH F-17, so one parametrized test proves both without duplicating the assertion shape
+- [Phase 147-04]: Task 3's negative assertion filters result.output to only identity-row lines before regexing for a bare None — The same rendered table's chip_id (expected/actual) row legitimately renders None / None for the M8720 fixture chip; a whole-output substring scan would false-positive on that unrelated, deliberately-untouched row
 
 ## Performance Metrics
 
@@ -2260,11 +2262,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 147 P01 | 15min | 2 tasks | 3 files |
 | Phase 147 P02 | 35min | 3 tasks | 3 files |
 | Phase 147 P03 | 30min | 3 tasks | 2 files |
+| Phase 147 P04 | 50min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-18T14:49:00.503Z
-**Stopped at:** Completed 147-02-PLAN.md
+**Last session:** 2026-08-18T15:22:35.421Z
+**Stopped at:** Completed 147-04-PLAN.md
 **Resume file:** None
 
 ### Blockers
