@@ -180,7 +180,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 
 ### Phases
 
-- [ ] **Phase 147: Report Provenance — every `dev test` report names its firmware** — replace the hardcoded `fw_board_identity=None` with a real, prerelease-preserving firmware/board identity captured inside the orchestrator contract, an explicit-unknown rendering, a bumped-but-backward-compatible report schema, and the identity surfaced in the `[dev test]` issue parser. (PROV-01, PROV-02, PROV-03, PROV-04, PROV-05, PROV-06)
+- [x] **Phase 147: Report Provenance — every `dev test` report names its firmware** — replace the hardcoded `fw_board_identity=None` with a real, prerelease-preserving firmware/board identity captured inside the orchestrator contract, an explicit-unknown rendering, a bumped-but-backward-compatible report schema, and the identity surfaced in the `[dev test]` issue parser. (PROV-01, PROV-02, PROV-03, PROV-04, PROV-05, PROV-06) (completed 2026-08-18)
 - [ ] **Phase 148: Numeric Database Values & the AT28C VCC Decode** — fix `electrical.vcc` in `build_db.py`'s decode function to the datasheet's 4.5 V, migrate voltages to millivolt integers and timing to microsecond integers, delete `database.py`'s string-coercion layer, and prove the blast radius with `diff_db.py` while GATE-03 stays green and untouched. (DATA-01, DATA-02, DATA-03, DATA-04, DATA-05)
 - [ ] **Phase 149: Firmware Page-Size Seam (dual-repo lockstep)** — deliver the per-chip page size from `chip_database.json` over the existing JSON command path to the `0x0D` handler with a conservative 64-byte fallback, constants held in lockstep across both repos, flash/RAM measured against a pre-change baseline on all three AVR targets, and the change stated software-proven and unvalidated on silicon. (PGSZ-01, PGSZ-02, PGSZ-03, PGSZ-04, PGSZ-05)
 - [ ] **Phase 150: Deliberate Protection — `write --sdp-relock`** — restore the only supported way to protect an SDP part: verify-then-relock with skip-and-report-loudly on verify failure, loud refusal on non-`0x0D` and capability-REFUSED chips before any hardware is energized, `write --help` pins updated deliberately, and `protect_on_after` given its consumer. (RELOCK-01, RELOCK-02, RELOCK-03, RELOCK-04, RELOCK-05, RELOCK-06, RELOCK-08, DATA-06)
@@ -2874,7 +2874,7 @@ Plans:
   2. The same file (or a companion file) lists every intra-algorithm DB inconsistency — chips that share `pin_count` + `algorithm` but differ in `pulse_duration`, `chip_id_check`, or `pinout` — with each inconsistency labeled as a defect candidate for v1.4 or a sub-repo PR (no auto-fixes applied in v1.3).
   3. Operator can use the matrix to confirm that the six BENCH chips (BENCH-01..06) span the pinout classes and pulse-duration profiles actually represented in the DB, so bench results generalize to the rest of the 339 rows.
 
-**Plans:** 13/13 plans complete
+**Plans:** 6/6 plans complete
 
 - [x] 11-01-PLAN.md — Wave 0 failing-test scaffold for tests/test_audit_coverage_matrix.py (10 tests) ✅ 2026-05-19
 - [x] 11-02-PLAN.md — Wave 1 tool skeleton + CLI + §1 Summary + §2 DB Count Reconciliation ✅ 2026-05-19

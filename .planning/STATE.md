@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: — AT28C Write-Path Root Cause & Report Provenance
-current_phase: 147
-current_phase_name: in progress — 6/6 plans complete, pending phase verification
-status: Executing -- 147-06 complete (6/6 in this phase); phase verification next
-stopped_at: Completed 147-06-PLAN.md
-last_updated: "2026-08-18T20:45:31.000Z"
+current_phase: 148
+current_phase_name: Numeric Database Values & the AT28C VCC Decode
+status: completed
+stopped_at: Completed 147-06-PLAN.md (Phase 147 closed)
+last_updated: "2026-08-18T20:54:51.182Z"
 last_activity: 2026-08-18
-last_activity_desc: completed 147-06-PLAN.md (devtest-triage skill show render names the firmware identity + explicit not-attributable clause; bare-null hw revision fixed; SKILL.md transcript byte-identical to live output; 3-way NOT_REPORTED parity confirmed; blocking human-verify Part A + Part B both approved by operator, NOT auto-approved; PROV-05 + PROV-06 complete)
+last_activity_desc: Phase 147 complete, transitioned to Phase 148
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 6
-  completed_plans: 5
-  percent: 0
+  completed_plans: 6
+  percent: 17
 ---
 
 # Project State
@@ -76,10 +76,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 147 — Report Provenance — every `dev test` report names its firmware (in progress — 5/6 plans complete)
-Plan: 6 of 6
+Phase: 148 — Numeric Database Values & the AT28C VCC Decode
+Plan: Not started
 Status: 147-05 complete — `tools/parse_devtest_issue.py` gets `NOT_REPORTED`/`_NOT_ATTRIBUTABLE` local literals (D-11); `render_diff` now labels `host_version`/`fw_board_identity`, folding the not-attributable clause into the identity row when absent (D-14/D-17), with no `hw_revision` row (D-15). First-ever `render_diff` tests (0 -> 7): populated/absent cases, the deliberate `hw_revision` omission, a non-regression pin on `n_agreeing`, a null-identity frozen fixture proving PROV-04's real-world case, and a value-parity assert pinning the two app-side `NOT_REPORTED` literals equal. PROV-04 complete. Full suite 1616 passed (baseline 1609 + 7 new tests). 147-06 next (non-autonomous — the devtest-triage skill script, its own third marker literal, and the two blocking human oracles).
-Last activity: 2026-08-18 — completed 147-05-PLAN.md (render_diff labelled identity provenance + first-ever render_diff tests; PROV-04 complete)
+Last activity: 2026-08-18 — Phase 147 complete, transitioned to Phase 148
 
 ## Roadmap Summary (v1.32)
 
