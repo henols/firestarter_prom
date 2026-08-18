@@ -90,6 +90,17 @@ AT28C part, and unblocks attribution for every future community report, not just
 Workstreams 2 and 6 touch the same field (`electrical.vcc`) and must land together — numericalising
 `vcc` to `vcc_mv` turns the `"4V"` → 4.5 V correction into a value change rather than a string edit.
 
+**Workstream 1 delivered — Phase 147 complete 2026-08-18** (6 plans, 4 waves; PROV-01…PROV-06 all
+ticked, verification `passed`). `cli_handlers.py`'s hardcoded `fw_board_identity=None` is replaced by a
+real prerelease-preserving identity captured inside the orchestrator contract (SAFE-02 intact — `comm`
+stays a transient per-operation connection); the report schema is at 1.4 and still parses older
+`null`-carrying reports; and an absent identity now renders as an explicit `not reported` marker plus a
+not-attributable clause naming the next action, across all three surfaces — the report model, the app's
+`[dev test]` parser, and the `devtest-triage` skill's `show` render. Per D-01 the dependency spine is
+now in place: a future `dev test` run is self-identifying, so any write-path work can be attributed to
+a firmware version. **This changes nothing about the write path itself** — `0x0D` remains `UNVERIFIED`
+and gh#21/#32/#11/#12 remain OPEN, exactly as the evidence ceiling requires.
+
 ### Evidence ceiling — binding, not decorative
 
 **There is still no AT28C part in operator inventory** (recorded 2026-08-04, re-confirmed at this
