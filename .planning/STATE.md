@@ -1,20 +1,19 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.31
-milestone_name: — 27C Programming-Algorithm Fidelity
-current_phase: 146
-status: "v1.31 SHIPPED and archived 2026-08-18 by /gsd-complete-milestone. 9 phases (138-146), 74 plans, 164 tasks, 45/45 v1 requirements, all nine phases verified. Closed via PRs to beta in all three repos (NOT direct merges), per operator decision: firestarter#52, firestarter_app#51, firestarter_prom#35. Meta tagged v1.31 and pushed; gh#15 reconciliation POSTED (comment #5324876941, byte-verified). ALL THREE PRs MERGED 2026-08-18 with MERGE COMMITS, deliberately not squashes -- fw#52 -> bc3ca547, app#51 -> 91c2add0, meta#35 -> 2003b707 -- so f8ac6439, the commit every Phase 145 bench measurement was taken on, is a VERIFIED ANCESTOR of beta (`merge-base --is-ancestor` exits 0) and the SHA citations in 145-BENCH-LOG.md and 146-LEDGER.md stay resolvable from beta. v1.30's PR #44 was squashed and its branch is NOT an ancestor of beta, which is the false negative this avoided. BETA CUT DONE, both channels verified independently: firmware 3.0.0b19 (read from `gh release list` at 10:00:08Z, cut from 7f6afc65, four .hex assets incl. firestarter_py32f071.hex) and host app 3.0.0b21 (09:58:57Z, cut from 7aae46cb, wheel + sdist confirmed present ON PYPI, not merely on GitHub -- this project has had GitHub at b17 while PyPI sat at b15). Version numbers differ because the repos version independently. STABLE UNTOUCHED: PyPI info.version still 2.0.7, main not merged in any repo. Gitlinks on beta re-pinned to the published release commits (7f6afc65 / 7aae46cb) per the v1.21/v1.23 precedent; the v1.31 TAG deliberately retains the pre-merge pin f8ac6439 as the archive point and bench anchor. firestarter#52's conflict was RESOLVED before the merge: origin/beta merged in, src/firestarter.cpp taken from this branch (our CAP-01+CAP-02+CAP-03 side is a strict superset of beta PR #49's CAP-01+CAP-02 on all three hunks). Firmware logic is byte-identical to the bench-validated f8ac6439 -- the merge's only content change is beta's CI bump include/version.h 3.0.0b17->3.0.0b18, and all three targets rebuild unchanged (24920/24970/27002 B), so MERGE-05's +96 B does not move. PR #49's two CAP-02 facts were restored in a separate comments-only commit. 146-RELEASE-NOTES-{fw,app}.md placeholders are now FILLED with the observed tags. ONE ITEM STILL NEEDS THE OPERATOR: meta PR #34 (opened 2026-08-09) still targets MAIN from this same branch, against the beta convention -- it is the last open v1.31 artifact. NEXT: /gsd-new-milestone (and `git mv .planning/research/` before its researchers run -- milestone close does not archive it)."
-stopped_at: "v1.31 CLOSED by /gsd-complete-milestone 2026-08-18. Phase 146 ended at 146-13 (13/13 plans, CLOSE-01..05 ticked); milestone archived to .planning/milestones/v1.31-{ROADMAP,REQUIREMENTS}.md. NOTE: this field was overwritten with a stale 146-11 line by gsd-tools milestone.complete and hand-restored, together with current_phase (written as 31, a parse artifact of 'v1.31') and the progress block (written 8/9 phases at 89%, a phantom-plan artifact); see 145/146 verification records."
-last_updated: "2026-08-18T10:05:00.000Z"
+milestone: v1.32
+milestone_name: AT28C Write-Path Root Cause & Report Provenance
+current_phase: 147
+status: planning
+last_updated: "2026-08-18T10:47:14.330Z"
 last_activity: 2026-08-18
-last_activity_desc: "**v1.31 SHIPPED and archived** by /gsd-complete-milestone. Archived ROADMAP + REQUIREMENTS to .planning/milestones/v1.31-*; REQUIREMENTS.md removed via git rm; MILESTONES/PROJECT/ROADMAP/RETROSPECTIVE/STATE all updated by hand where the tooling could not be trusted. Pushed all three milestone branches and the v1.31 tag; opened three PRs to beta (firestarter#52, firestarter_app#51, firestarter_prom#35); posted the owed gh#15 reconciliation as the first post-push act (comment #5324876941, body byte-identical to frozen blob a36ee805 plus GitHub's appended newline; issue unchanged otherwise at OPEN/0 labels/0 assignees/no milestone, comment count 1->2). Closeout type override_closeout: 9 acknowledged carry-forwards, NONE originating in v1.31, recorded in the Deferred Items section above. THREE REPAIRS this close made rather than accepted: authored the missing 145-VERIFICATION.md from the existing bench record (it cites that record and states it cannot be re-run without hardware); renamed 146-REPLAN-BRIEF.md to 146-RESCOPE-BRIEF.md because plan-scan.cjs's loose /PLAN/i fallback counted it as a phantom 14th plan in a 13-plan phase (filed as a todo, not fixed -- vendored upstream tooling); and hand-repaired this file after milestone.complete wrote current_phase=31 (a parse artifact of 'v1.31'), a stale 146-11 stopped_at, and progress 8/9 at 89% -- the v1.30 close carries the identical signature unrepaired. Also committed VALIDATED-EPROMS.md, untracked despite being cited by v1.31's own 146-CITATIONS.md. Gates green after every edit: claim gate rc=0, D-13 doc checker rc=0, Phase 130 record gate rc=0 with its exempt tally unchanged; both sub-repo suites at exact baseline (firestarter 314, firestarter_app 1590 + 30 snapshots). CI on the pushed branches: firmware build GREEN (the first CI run against any v1.31 firmware code), app ci + ci-py32 GREEN; meta catalog-sync-check RED on a ~2-month-old orphaned gitlink (.planning/v1.7/upstream-rurp has no .gitmodules entry, present on beta too) -- pre-existing, not from this close. OWED TO THE OPERATOR: resolve firestarter#52's src/firestarter.cpp conflict against beta PR #49 (it moves the firmware tip past the bench-validated commit, so it is a judgement call, not bookkeeping), and decide what happens to meta PR #34, which still targets main from this branch. NEXT: /gsd-new-milestone."
+last_activity_desc: "**v1.32 started** by /gsd-new-milestone, scoped from a root-cause pass over gh#21 (AT28C256 / protocol 0x0D write-path FAIL) rather than from the issue text. Branch gsd/v1.32-at28c-write-path-root-cause forked off origin/beta (acae9161), which carries v1.31's merged close (PR #35); all three v1.31 PRs merged 2026-08-18 and the beta cut fired -- app 3.0.0b21, firmware 3.0.0b19. Six workstreams confirmed by the operator: report provenance (F-01, the spine), 0x0D data defects (F-02/F-03), the firmware page-size seam (F-04), closing the AT28C book (999.28 relock + the owed gh#12 reply), plus two consumed seeds -- lock-status and numeric DB values. Research SKIPPED by decision: the unknowns are in our own code, not the domain, and a completed datasheet triage plus 82KB of existing research already cover it. EVIDENCE CEILING re-confirmed at kickoff: still no AT28C part in operator inventory, so 0x0D stays UNVERIFIED and gh#21/#32/#11/#12 all stay OPEN. NEXT: define REQUIREMENTS.md, then spawn the roadmapper starting at Phase 147."
 progress:
-  total_phases: 9
-  completed_phases: 9
-  total_plans: 74
-  completed_plans: 74
-  percent: 100
-current_phase_name: close-honesty-ledger-claim-gate-gh-15-reconciliation
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
+current_phase_name: (roadmap pending)
 ---
 
 # Project State
@@ -24,97 +23,61 @@ current_phase_name: close-honesty-ledger-claim-gate-gh-15-reconciliation
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-08-08 — v1.31 started)
+See: `.planning/PROJECT.md` (updated 2026-08-18 — v1.32 started)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
-authoritative dispatch key end to end. v1.31 makes that key drive *programming behaviour*, not just
-handler selection — while keeping the pulse width itself a database datum, not a protocol constant.
-**Current focus:** Phase 146 — close-honesty-ledger-claim-gate-gh-15-reconciliation
+authoritative dispatch key end to end. v1.32 turns that key on the project's own diagnostics: a
+community `dev test` report must be attributable to the firmware that produced it before any
+protocol-`0x0D` write-path claim can be made about it.
+**Current focus:** Phase 147 — (roadmap pending)
 
-**v1.31 27C Programming-Algorithm Fidelity (gh#15)** — ACTIVE (activated 2026-08-08, retiring Backlog
-**999.22** which was queued as the `v1.27` slot). **Firmware-touching, dual-repo lockstep.** Phase
-numbering continues at **Phase 138** (v1.30 ran 131–134, 136, 136.1, 137; the 135 slot stays vacant).
-v1.24 (Bus-Config Mask-Model), v1.25 (Jumper-Display / 2516) and v1.26 (White-Box Voltage Calibration)
-are left byte-unchanged so by-number cross-references keep resolving; v1.28 (Binary Command Protocol)
-and v1.29 (vacant) unchanged.
+**v1.32 AT28C Write-Path Root Cause & Report Provenance** — ACTIVE (activated 2026-08-18, retiring
+Backlog **999.29** and folding Backlog **999.28**). **Mostly host-side; one firmware-touching
+workstream** (the page-size seam) requiring dual-repo lockstep. Phase numbering continues at
+**Phase 147** (v1.31 ran 138–146). The v1.24–v1.29 slots are left byte-unchanged so by-number
+cross-references keep resolving.
 
-**Scoped from gh#15 as CORRECTED, not as written.** The `/gsd-explore` pass of 2026-08-08
-(`.planning/seeds/27c-algorithm-fidelity-param-table-refactor.md`, commit `c60543c5`) found two wrong
-numbers and one inverted premise in the issue:
+**Base:** meta forked off `origin/beta` at `acae9161`, which carries v1.31's merged close (PR #35).
+Sub-repos fork off their `beta` tips, which now carry v1.31 (fw PR #52, app PR #51, both merged
+2026-08-18) and the beta cut those merges fired — app **3.0.0b21**, firmware **3.0.0b19**.
 
-- **C1** — gh#15's `0x0B` `pulse: 50000 us` is the fingerprint of **BUG-2**, the ×100
-  `interpret_timing()` multiplier over 252 chips that Phase 57 already removed. True value **500 µs**.
-  Adjudicated at `firestarter_app/doc/infoic-field-dictionary.md:210-217`.
+**Scoped from a root-cause pass over [gh#21](https://github.com/henols/firestarter_prom/issues/21),
+not from the issue text.** `devtest-triage` had already cleared the AT28C256 data against Atmel
+DS20006386B — all 28 pins of `DIP28_28C256` agree, `infoic_page_size_raw: 64` is the datasheet page
+register, `chip_id_check: false` is correct — and handed the question on as host/firmware. The
+root-cause pass then found why that question is currently unanswerable:
 
-- **C2** — pulse width is **DATA, not a per-protocol constant**. Measured live against the shipped DB
-  2026-08-08: `0x07` n=170 (100 µs ×113, 200×27, 1000×22, 500×4, 50×4); `0x08` n=127 (100 µs ×104,
-  50×11, 10×7, 200×2, 1000×2, 20×1); `0x0B` n=32 (500 µs ×21, 1000×6, 200×5) — all three gh#15
-  constants disagree with the modal value. minipro ships `protocol_id` and `pulse_delay` as two
-  orthogonal wire fields (`t48.c:250-267`) and exposes `-o pulse=N` per run (uint16, 65535 µs ceiling).
+- **F-01 (the spine)** — `cli_handlers.py:2503` hardcodes `fw_board_identity=None`, because
+  `EpromOperator.comm` is a transient per-operation connection torn down after every operator call
+  (SAFE-02 orchestrator-only contract). So **every `dev test` report ever filed carries
+  `fw_board_identity: null`**. gh#21/#32 report host `3.0.0b15` against an unknown firmware and
+  cannot be distinguished from a board lacking the entire Phase-117–120 `0x0D` fix stack (FIX-01
+  `/WE`-inhibit routing, FIX-03 A16–A18 staleness, FIX-06 the completion-vs-data-landed conflation
+  that is gh#11's actual shape). Host-only, no AT28C part required.
 
-- **C3** — the safe 32-bit delay helper is still needed, but for the **75 ms overprogram pulse**, not
-  for any pulse.
+- **F-02** — `electrical.vcc: "4V"` is a genuine `build_db.py` decode defect against the datasheet's
+  4.5–5.5 V. Inert on the wire (no VCC field is sent, the firmware has no VCC control register), so
+  it cannot explain `write BAD` — but it is wrong data the generator emits.
 
-**D-01 (structural):** protocol owns *shape* — `max_pulses`, `overprogram_factor`,
-`overprogram_cap_us`, `verify_mode`, `vpp_path` — and the database owns the *pulse*. One shared
-per-byte pulse→verify loop driven by a `const` table, **not** gh#15's three state machines with
-hardcoded timing constants. `handle->pulse_delay` stays on the write path; protocol constants survive
-only as `pulse_delay == 0` fallbacks (`eprom.cpp:70-77`).
+- **F-03** — `protect_on_after: true` is dead data: v1.30 deleted the lock surface and `write` never
+  re-locks (Backlog 999.28). The database states an intent the system silently ignores.
 
-**D-02:** the `0x0B` one-shot-vs-looped question is **not answerable from source** — minipro never runs
-the algorithm, it packs `pulse_delay` into a `BEGIN_TRANS` message for closed TL866/T48/T56/T76
-firmware. Ships as looped pulse→verify with a **50 ms accumulated-energy cap per byte**
-(`100 × 500 µs` = the classic 2716 total programming time), satisfying both readings. No overpulse.
+- **F-04** — firmware hardcodes `PAGE_SIZE 64` while `infoic_page_size_raw` already ships in the DB.
+  The handler's own comment records the per-chip delivery path as DEFERRED and "not yet inserted
+  into ROADMAP.md". 64 is a deliberate conservative floor; AT28C010 needs 128.
 
-**D-03:** gh#15's corrections are posted **early, before implementation phases run**, on the v1.30
-CLOSE-06 pattern (drafted → frozen → operator-approved → posted only on explicit authorization).
-
-**Enabler:** VPE survives a read — `mem_util_calculate_top_address_register` preserves the HV mask
-across every `set_address` including the read path (`memory.cpp:163-166`) — so the `delay(10)` VPE
-settle (`eprom.cpp:114`) stays amortized once per block instead of 512 × 10 ms = 5.1 s. Caveat: for
-`pins < 32` the mask also preserves `CTRL_VPP_VPE_DROP_ENABLE`, which on DIP32 *is* A16.
-
-**⚠ Evidence ceiling, fixed before any code moves:** the ~6.25 V program-VCC all four vendor
-algorithms assume is **unreachable on this shield** (no VCC-raise path). This buys timing /
-pulse-count / verify fidelity and **not** silicon-margin fidelity. gh#15 omits this entirely, so its
-acceptance criteria must be amended; a committed claim gate forbids the unqualified
-"datasheet-conformant" overclaim. Bench coverage is **asymmetric by inventory** (operator,
-2026-08-08): `0x07` **required** (W27C512 / TMS27C512); `0x08` (AM27C020 — known marginal from v1.18
-Phase 99, write#1 60/64 then write#2 0/64) and `0x0B` (M2716 / M2732, 25 V NMOS, Phase 79 VPE path)
-are **opportunistic — skipped-with-reason if the parts do not materialize, never rubber-stamped**.
-This change is **not behavior-preserving**: golden traces encoding today's pulse cadence will
-legitimately shift, and re-baselining is expected work, not a regression.
-
-**⚠ BLOCKING PRECONDITION.** `firestarter_app`'s `gsd/v1.30-sdp-surface-retirement` is **NOT merged
-into `origin/beta`** — v1.30's PR was staged (`.planning/v1.30-PR-BODY.md`) but never opened, even
-though v1.30 is recorded as shipped. Operator decision 2026-08-08: **land it to `beta` first**, then
-fork v1.31's app branch off the updated `beta`. Firmware forks off `beta` @ `3085084` (clean). Meta
-forks off the v1.30 tip.
-
-**CORRECTION (2026-08-08, Phase 138 planning — measured, not recalled).** The precondition above is
-**falsified**: `firestarter_app` PR **#44** was opened *and* **MERGED** on 2026-08-05T21:13:01Z as a
-**squash** (merge commit `568e58b`, single parent `16a313a`). `git merge-base --is-ancestor` exits 1
-**because of the squash**, not because content is missing — `comm -23` of both `git ls-tree -r
---name-only` lists is **empty** (zero files on the v1.30 branch absent from `beta`), and
-`git diff --stat` is 12 files fully attributable to beta's later PRs #45/#46/#48/#49 plus the version
-bump. A re-merge is *guaranteed* to conflict (`tests/test_chip_test_sdp_leg.py` added in both with
-different blobs). **Operator decisions this session:** (**OD-1**) PREP-01 is discharged as a named
-content-equivalence finding `F-138-01`, **not** a merge — no PR is opened and no operator merge is
-required; the pre-release this predicted **already happened** (`beta` is at `3.0.0b20`).
-(**OD-2**) firmware still forks at `3085084` — `check_size_baseline.py` is **GREEN** there and **RED**
-at the live tip `6fab4ea` (+34 B flash ×3 targets) — with the drift and the MERGE-05 headroom (+56/+62
-against a 64 B band) recorded as a forward finding with owners, **not fixed** (D-07). The app forks at
-the live post-merge `beta` tip; meta's base is **`d0f0c6a0`** (the *longer-named* v1.30 branch).
-(**OD-3**) the meta repo's stale submodule gitlinks are **not** advanced — the three base commits are
-named in the narrative baseline artifact instead. Full four-oracle evidence:
-`.planning/phases/138-preconditions-baseline/138-RESEARCH.md` §"Branch & Ancestry Ground Truth".
+**EVIDENCE CEILING (binding).** There is still **no AT28C part in operator inventory** — recorded
+2026-08-04, re-confirmed at kickoff. `0x0D` stays **`UNVERIFIED`**; gh#21, gh#32, gh#11 and gh#12
+stay **OPEN**; no phase may claim silicon proof, and the firmware page-size change ships
+software-proven and says so. The honest outward outcome is a corrected code path plus a request to
+the reporter for a fresh run — now answerable, because F-01's fix makes that run self-identifying.
 
 ## Current Position
 
-Phase: Milestone v1.31 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-08-18 — Milestone v1.31 completed and archived
+Status: Defining requirements
+Last activity: 2026-08-18 — Milestone v1.32 started
 
 ## Roadmap Summary (v1.31)
 

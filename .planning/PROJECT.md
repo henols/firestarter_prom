@@ -39,6 +39,90 @@
 
 **v1.31 shipped:** 2026-08-18 (27C Programming-Algorithm Fidelity — 9 phases (138–146), 74 plans, 164 tasks; **45/45 v1 requirements**; firmware-touching, dual-repo lockstep. Implements [gh#15](https://github.com/henols/firestarter_prom/issues/15) **as corrected, not as filed** — two wrong numbers and one inverted premise, all three corrected *publicly and before implementation* (comment `#5233463320`): `0x0B`'s pulse is **500 µs**, not `50000 us`; pulse width is a **database datum**, not a per-protocol constant (re-derived live through the production parser — 170/127/32 chips); and the safe 32-bit delay helper is for the overprogram pulse, not any bare pulse. Delivered: **one shared per-byte pulse-to-verify loop** driven by a `const` PROGMEM `eprom_params_t` table keyed on `protocol_id` (**D-01** — protocol owns *shape*, the database owns the *pulse*), **not** gh#15's three state machines; fixed-width pulses that never grow between attempts; hard-fail at `max_pulses` reporting the failing **address and pulse count**; one shared `eprom_hv_route_mask()` with every **error** exit disabling every HV route through a single-exit wrapper; `write --pulse-us N` bounded 1..65535 and pre-validated before a serial byte, riding the existing wire field with **no new DB field and no second algorithm selector**; plus a host long-write timeout fix and intra-block progress, scoped to the `leonardo` class only — on `SERIAL_ON_IO` boards the emission is compiled out **structurally**, because a buffered progress frame there could displace a later `MSG_ERR_MAX_PULSES` and convert a program failure into a transport timeout. **Bench-validated on real silicon:** three full 65536-byte write→read→verify cycles on a Winbond **W27C512** (`0xda08`), **Leonardo**, shield **Rev 2.0** — three distinct images, nine clean oracle cells, read stability N=3 at one SHA each, write timing consistent to **0.37 s**. A firmware defect this milestone itself introduced (Phase 141 deleted the only `CTRL_VPE_ENABLE` assert) failed the **first** bench cycle on byte 0; it was root-caused by a debug session, fixed, and **stands in the record with its cause** rather than being counted out. **Evidence Ceiling stands: the ~6.25 V program-VCC rail all four vendor algorithms assume is unreachable on every shield revision this project owns** — so this milestone claims **fidelity, not improvement**, with no comparative claim, no control run, and no datasheet-conformance claim in either direction. `0x08` (AM27C020) and `0x0B` (M2716/M2732) are **skipped-with-reason** with the missing parts named, never inferred from `0x07`. Twelve items carry forward with the literal phrase `no v1.31 owner`; **MERGE-05's +96 B leonardo band breach is open and un-adjudicated** with the operator as its named owner. Eighth consecutive `override_closeout` (9 carry-forward items, none originating in v1.31). Closed via **PRs to `beta` in all three repos, not direct merges**, per operator decision — meta tagged `v1.31`, gitlinks re-pinned; **no beta cut yet**, and stable stays operator-gated. See `.planning/MILESTONES.md` §v1.31.)
 
+## Current Milestone: v1.32 — AT28C Write-Path Root Cause & Report Provenance — ACTIVE
+
+**Started:** 2026-08-18 · **Phases continue at 147** (v1.31 ran 138–146) · **Mostly host-side; one
+firmware-touching workstream** (the page-size seam) requiring dual-repo lockstep.
+
+**Goal:** Root-cause the AT28C256 / protocol-`0x0D` write-path failure behind
+[gh#21](https://github.com/henols/firestarter_prom/issues/21) — and *first* remove the
+instrumentation defect that makes root-causing it, or any other community report, impossible.
+
+**Base:** forked off `origin/beta` in the meta repo (`acae9161`), which carries v1.31's merged close
+(PR #35). Sub-repo branches fork off their `beta` tips, which now carry v1.31 (fw PR #52, app PR #51,
+both merged 2026-08-18) and the beta cut those merges fired — app **3.0.0b21**, firmware **3.0.0b19**.
+
+### The finding that opens this milestone
+
+`devtest-triage` cross-checked AT28C256 against Atmel/Microchip DS20006386B and cleared the data
+outright: all 28 pins of `DIP28_28C256` agree with the datasheet, `infoic_page_size_raw: 64` is
+exactly the datasheet's page register, `chip_id_check: false` is correct (the part has no factory
+signature), and the database already asks for SDP disable-before / enable-after. It handed the
+question to root-cause as a host/firmware problem, not a database one.
+
+Root-cause then found the reason that question cannot currently be answered:
+
+**`cli_handlers.py:2503` hardcodes `fw_board_identity=None`.** The comment is honest about why —
+`EpromOperator.comm` is a transient per-operation connection torn down after every operator call, so
+there is no live comm to read `programmer_info` off of without opening an extraneous connection and
+violating the orchestrator-only contract (SAFE-02). The consequence is that **every `dev test` report
+ever filed carries `fw_board_identity: null`**. gh#21 and gh#32 both report host `3.0.0b15` and an
+unknown firmware. They therefore cannot be distinguished from a board running pre-Phase-117 firmware
+that lacks the entire `0x0D` fix stack — FIX-01 (the remap-aware emitter that closed the `/WE`-inhibit
+defect across 66 of 84 `0x0D` chips), FIX-03 (A16–A18 upper-address staleness), FIX-06 (the
+completion-vs-data-landed conflation that *is* gh#11's shape). Attribution is impossible, and no
+amount of bench work fixes that.
+
+This is why report provenance leads the milestone rather than trailing it: it is host-only, needs no
+AT28C part, and unblocks attribution for every future community report, not just this one.
+
+### Target workstreams
+
+| # | Workstream | Surface | Bench |
+|---|---|---|---|
+| 1 | **Report provenance** — `dev test` reports must name the firmware they ran on | host | no |
+| 2 | **`0x0D` data defects** — `vcc: "4V"` decode bug (datasheet is 4.5–5.5 V); `protect_on_after: true` is dead data since v1.30 deleted the lock surface | `build_db.py` | no |
+| 3 | **Firmware page-size seam** — deliver `infoic_page_size_raw` through wire → `json_parser` → handler, replacing the hardcoded `PAGE_SIZE 64` | firmware + host | partial |
+| 4 | **Close the AT28C book** — land `write --sdp-relock` (Backlog 999.28) and post the owed gh#12 reply (v1.30's CLOSE-06, open by design) | host + outward | no |
+| 5 | **`lock-status` command** (seed) — hand-curated family-level protection table + `firestarter lock-status <chip>` | host | no |
+| 6 | **Numeric DB values** (seed) — voltages/timing as mV / µs integers, deleting `database.py`'s coercion layer | host | no |
+
+Workstreams 2 and 6 touch the same field (`electrical.vcc`) and must land together — numericalising
+`vcc` to `vcc_mv` turns the `"4V"` → 4.5 V correction into a value change rather than a string edit.
+
+### Evidence ceiling — binding, not decorative
+
+**There is still no AT28C part in operator inventory** (recorded 2026-08-04, re-confirmed at this
+milestone's kickoff). This caps what v1.32 may claim, in the same shape as v1.22 and v1.30:
+
+- `0x0D` stays **`UNVERIFIED`** in `PROTOCOL-LEDGER`. No phase may graduate it.
+- gh#21, gh#32, gh#11 and gh#12 stay **OPEN**. A code fix is not a validation; only a fresh passing
+  `dev test` on real silicon closes them, and only `devtest-triage` closes them.
+- The honest outward-facing outcome is a corrected code path plus a request to the reporter for a
+  fresh run — now answerable, because workstream 1 makes that run self-identifying.
+- The firmware page-size change (workstream 3) cannot be validated without a part. It ships
+  software-proven and says so.
+
+### Decisions taken at kickoff
+
+- **D-01 — provenance leads.** Workstream 1 is the dependency spine. Fixing it after the write path
+  would leave the write-path fix unattributable to any firmware version, including our own.
+- **D-02 — the proof rule holds for the `vcc` fix.** `chip_database.json` is generated. The 4.5 V
+  correction lands in the decode function in `build_db.py` and is proven by `diff_db.py`; a one-chip
+  fix that moves hundreds of chips means the decode change was too broad. No per-chip guess table,
+  no `_PAGE_SIZE_BY_PART` sibling.
+- **D-03 — `protect_on_after` is reconciled, not deleted.** The bit is a faithful decode of
+  `infoic.xml` flags bit 15 and stays. What changes is that the system stops silently ignoring it —
+  workstream 4 gives it a consumer.
+- **D-04 — `lock-status` is hand-curated by proven necessity.** The 2026-07-10 research established
+  that `infoic.xml` cannot supply protection readability: W29C020C (readable permanent boot block)
+  is flag-identical to W29EE011 (SDP-only, unreadable). The hand-curated table is not a violation of
+  the proof rule; it is what the proof rule leaves when upstream genuinely lacks the field.
+
+**Retires Backlog 999.29** (AT28C256 write-path failure) and **folds Backlog 999.28**
+(`write --sdp-relock`). Consumes the `lock-status-command-hand-curated-protection-table` and
+`db-numeric-values-simplification` seeds.
+
 ## v1.31 Archive: 27C Programming-Algorithm Fidelity (gh#15) — Shipped 2026-08-18
 
 **Started:** 2026-08-08 · **Phases continue at 138** (v1.30 ran 131–134, 136, 136.1, 137; the 135 slot
