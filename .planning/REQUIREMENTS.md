@@ -187,22 +187,65 @@ relies on `autonomous: false` alone is not self-protecting.
 
 ## Traceability
 
-Populated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PROV-01…06 | TBD | Pending |
-| DATA-01…06 | TBD | Pending |
-| PGSZ-01…05 | TBD | Pending |
-| RELOCK-01…06, 08 | TBD | Pending |
-| LOCK-01…04 | TBD | Pending |
-| OUT-01…05 | TBD | Pending |
+| PROV-01 | Phase 147 | Pending |
+| PROV-02 | Phase 147 | Pending |
+| PROV-03 | Phase 147 | Pending |
+| PROV-04 | Phase 147 | Pending |
+| PROV-05 | Phase 147 | Pending |
+| PROV-06 | Phase 147 | Pending |
+| DATA-01 | Phase 148 | Pending |
+| DATA-02 | Phase 148 | Pending |
+| DATA-03 | Phase 148 | Pending |
+| DATA-04 | Phase 148 | Pending |
+| DATA-05 | Phase 148 | Pending |
+| DATA-06 | Phase 150 | Pending |
+| PGSZ-01 | Phase 149 | Pending |
+| PGSZ-02 | Phase 149 | Pending |
+| PGSZ-03 | Phase 149 | Pending |
+| PGSZ-04 | Phase 149 | Pending |
+| PGSZ-05 | Phase 149 | Pending |
+| RELOCK-01 | Phase 150 | Pending |
+| RELOCK-02 | Phase 150 | Pending |
+| RELOCK-03 | Phase 150 | Pending |
+| RELOCK-04 | Phase 150 | Pending |
+| RELOCK-05 | Phase 150 | Pending |
+| RELOCK-06 | Phase 150 | Pending |
+| RELOCK-08 | Phase 150 | Pending |
+| LOCK-01 | Phase 151 | Pending |
+| LOCK-02 | Phase 151 | Pending |
+| LOCK-03 | Phase 151 | Pending |
+| LOCK-04 | Phase 151 | Pending |
+| OUT-01 | Phase 152 | Pending |
+| OUT-02 | Phase 152 | Pending |
+| OUT-03 | Phase 152 | Pending |
+| OUT-04 | Phase 152 | Pending |
+| OUT-05 | Phase 152 | Pending |
 
 **Coverage:**
 - v1 requirements: 33 total
-- Mapped to phases: 0
-- Unmapped: 33 ⚠️
+- Mapped to phases: 33 ✓
+- Unmapped: 0
+
+**Phase map** (numbering continues at 147; v1.31 ran 138–146):
+
+| Phase | Name | Requirements |
+|-------|------|--------------|
+| 147 | Report Provenance — every `dev test` report names its firmware | PROV-01…06 |
+| 148 | Numeric Database Values & the AT28C VCC Decode | DATA-01…05 |
+| 149 | Firmware Page-Size Seam (dual-repo lockstep) | PGSZ-01…05 |
+| 150 | Deliberate Protection — `write --sdp-relock` | RELOCK-01…06, RELOCK-08, DATA-06 |
+| 151 | Protection Readability — `lock-status` | LOCK-01…04 |
+| 152 | Outward-Facing Close (operator-gated) | OUT-01…05 |
+
+**RELOCK-07 is deliberately absent** — it shipped in v1.30 Phase 137. The ID gap between RELOCK-06
+and RELOCK-08 is intentional and must not be filled by an invented requirement.
+
+**DATA-06 is mapped to Phase 150, not Phase 148** — `protect_on_after` stops being dead data where
+its consumer is created (D-03), so the choice between "give it a consumer" and "document it as
+advisory" is made once rather than twice.
 
 ---
 *Requirements defined: 2026-08-18*
-*Last updated: 2026-08-18 after milestone v1.32 kickoff*
+*Last updated: 2026-08-18 — traceability populated at roadmap creation (Phases 147–152, 33/33 mapped)*

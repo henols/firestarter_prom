@@ -4,16 +4,16 @@ milestone: v1.32
 milestone_name: AT28C Write-Path Root Cause & Report Provenance
 current_phase: 147
 status: planning
-last_updated: "2026-08-18T10:47:14.330Z"
+last_updated: "2026-08-18T11:08:35.000Z"
 last_activity: 2026-08-18
-last_activity_desc: "**v1.32 started** by /gsd-new-milestone, scoped from a root-cause pass over gh#21 (AT28C256 / protocol 0x0D write-path FAIL) rather than from the issue text. Branch gsd/v1.32-at28c-write-path-root-cause forked off origin/beta (acae9161), which carries v1.31's merged close (PR #35); all three v1.31 PRs merged 2026-08-18 and the beta cut fired -- app 3.0.0b21, firmware 3.0.0b19. Six workstreams confirmed by the operator: report provenance (F-01, the spine), 0x0D data defects (F-02/F-03), the firmware page-size seam (F-04), closing the AT28C book (999.28 relock + the owed gh#12 reply), plus two consumed seeds -- lock-status and numeric DB values. Research SKIPPED by decision: the unknowns are in our own code, not the domain, and a completed datasheet triage plus 82KB of existing research already cover it. EVIDENCE CEILING re-confirmed at kickoff: still no AT28C part in operator inventory, so 0x0D stays UNVERIFIED and gh#21/#32/#11/#12 all stay OPEN. NEXT: define REQUIREMENTS.md, then spawn the roadmapper starting at Phase 147."
+last_activity_desc: "**v1.32 started** by /gsd-new-milestone, scoped from a root-cause pass over gh#21 (AT28C256 / protocol 0x0D write-path FAIL) rather than from the issue text. Branch gsd/v1.32-at28c-write-path-root-cause forked off origin/beta (acae9161), which carries v1.31's merged close (PR #35); all three v1.31 PRs merged 2026-08-18 and the beta cut fired -- app 3.0.0b21, firmware 3.0.0b19. Six workstreams confirmed by the operator: report provenance (F-01, the spine), 0x0D data defects (F-02/F-03), the firmware page-size seam (F-04), closing the AT28C book (999.28 relock + the owed gh#12 reply), plus two consumed seeds -- lock-status and numeric DB values. Research SKIPPED by decision: the unknowns are in our own code, not the domain, and a completed datasheet triage plus 82KB of existing research already cover it. EVIDENCE CEILING re-confirmed at kickoff: still no AT28C part in operator inventory, so 0x0D stays UNVERIFIED and gh#21/#32/#11/#12 all stay OPEN. REQUIREMENTS.md defined (33 v1 reqs across PROV/DATA/PGSZ/RELOCK/LOCK/OUT) and the ROADMAP created: 6 phases, 147-152, 33/33 requirements mapped with zero orphans -- 147 PROV (the spine: cli_handlers.py:2503 fw_board_identity=None), 148 DATA (vcc 4.5V decode fix + mV/us numeric migration, DATA-01/02 together by construction), 149 PGSZ (the ONLY firmware-touching phase, dual-repo lockstep), 150 RELOCK (write --sdp-relock, and DATA-06 mapped here so protect_on_after is reconciled exactly once), 151 LOCK (lock-status), 152 OUT (outward-facing, operator-gated, must NOT run under --auto/--chain). RELOCK-07 deliberately absent (shipped v1.30 Phase 137); the ID gap is intentional. NO bench-validation phase exists and no success criterion anywhere requires AT28C silicon -- the Evidence Ceiling is encoded in the criteria, not appended at the close. NEXT: /gsd-plan-phase 147."
 progress:
-  total_phases: 0
+  total_phases: 6
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
   percent: 0
-current_phase_name: (roadmap pending)
+current_phase_name: Report Provenance — every `dev test` report names its firmware
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-18 — v1.32 started)
 authoritative dispatch key end to end. v1.32 turns that key on the project's own diagnostics: a
 community `dev test` report must be attributable to the firmware that produced it before any
 protocol-`0x0D` write-path claim can be made about it.
-**Current focus:** Phase 147 — (roadmap pending)
+**Current focus:** Phase 147 — Report Provenance — every `dev test` report names its firmware (roadmap created 2026-08-18; 6 phases, 147–152)
 
 **v1.32 AT28C Write-Path Root Cause & Report Provenance** — ACTIVE (activated 2026-08-18, retiring
 Backlog **999.29** and folding Backlog **999.28**). **Mostly host-side; one firmware-touching
@@ -74,10 +74,39 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 147 — Report Provenance — every `dev test` report names its firmware (not started)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-08-18 — Milestone v1.32 started
+Status: Roadmap created — awaiting `/gsd-plan-phase 147`
+Last activity: 2026-08-18 — v1.32 roadmap created (6 phases, 147–152; 33/33 requirements mapped)
+
+## Roadmap Summary (v1.32)
+
+**Created:** 2026-08-18 — derived from `.planning/REQUIREMENTS.md` (v1.32) + the kickoff root-cause pass over gh#21. No `research/SUMMARY.md` for this milestone: project-level research was deliberately skipped (operator decision, 2026-08-18) — the unknowns are in this project's own code, and a completed `devtest-triage` datasheet pass plus the existing research corpus already cover the domain.
+
+**Phases:** 6 (147–152). **Granularity:** Comprehensive (config). **Coverage:** 33/33 v1 requirements mapped, 0 unmapped. Category→phase is 1:1 with **one deliberate exception**: DATA-06 is mapped to Phase 150, not 148.
+
+| Phase | Goal | Requirements |
+|-------|------|--------------|
+| 147 Report Provenance | A `dev test` report names the firmware and board that produced it, prerelease suffix intact, inside the SAFE-02 orchestrator-only contract | PROV-01…06 |
+| 148 Numeric DB Values & AT28C VCC Decode | `vcc` decodes to the datasheet's 4.5 V in `build_db.py`; voltages→mV ints, timing→µs ints; `database.py`'s coercion layer deleted; GATE-03 green and untouched | DATA-01…05 |
+| 149 Firmware Page-Size Seam | Per-chip page size travels DB→wire→`0x0D` handler with a 64-byte fallback; constants in lockstep; flash+RAM measured on all three AVR targets — **the only firmware-touching phase** | PGSZ-01…05 |
+| 150 Deliberate Protection — `write --sdp-relock` | Verify-then-relock, skip-and-report-loudly on verify failure, loud refusal on non-`0x0D` and capability-REFUSED chips before energizing; `protect_on_after` gets its consumer | RELOCK-01…06, RELOCK-08, DATA-06 |
+| 151 Protection Readability — `lock-status` | Hand-curated family table (D-04) reporting state where readable and refusing with a reason where it is not — `0x0D`/SDP among them | LOCK-01…04 |
+| 152 Outward-Facing Close | gh#12 reply (v1.30's CLOSE-06), gh#21/#32 comment with a fresh-run ask, gh#11 answered in FIX-06 terms, corrected release notes, claim gate seen to fail on a plant | OUT-01…05 |
+
+**Load-bearing ordering (not preference):** PROV (147) leads — it is the dependency spine (D-01); until `fw_board_identity` is real, no write-path finding is attributable to any firmware version, our own included · 148 before 149 (the numeric schema settles before the wire gains a per-chip field; both write the host DB-consumption layer) · RELOCK (150) before LOCK (151), both before OUT (152) — OUT-01 must describe what actually shipped, or it repeats the exact overclaim v1.30 had to amend its own reply to avoid · DATA-06 sits in 150 so `protect_on_after` is reconciled once, at the point its consumer is created (D-03).
+
+**One-writer-per-file:** Phases 147 and 150 both write `firestarter_app/firestarter/cli_handlers.py` (PROV around line 2503, RELOCK in the `write` handler). They are sequential and **must never share a parallel wave**.
+
+**No genuinely parallel phase pair this milestone** — 147→148→149→150→151→152 is a single chain. Parallelism, where it exists, is at the plan level inside a phase.
+
+**Evidence Ceiling is encoded in the criteria, not appended at the close:** there is **no AT28C part in operator inventory**, so **there is no bench-validation phase** and **no success criterion anywhere requires real AT28C silicon**, asserts the `0x0D` write path is proven, graduates `0x0D` out of `UNVERIFIED`, changes any `support_status`, or is phrased as closing gh#21 / #32 / #11 / #12. Phase 149 states its change **software-proven and unvalidated on silicon**, in those words.
+
+**Operator gate:** Phase 152 is outward-facing and **must NOT be run under `--auto`/`--chain`** — those auto-approve human-verify checkpoints, so `autonomous: false` alone does not protect it.
+
+**RELOCK-07 is deliberately absent** (shipped in v1.30 Phase 137). The ID gap between RELOCK-06 and RELOCK-08 is intentional and must not be filled by an invented requirement.
+
+**Full detail:** `.planning/ROADMAP.md` §"v1.32 — AT28C Write-Path Root Cause & Report Provenance (PLANNING)".
 
 ## Roadmap Summary (v1.31)
 
