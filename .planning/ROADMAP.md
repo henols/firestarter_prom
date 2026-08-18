@@ -202,7 +202,35 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
   4. When the identity is null or unobtainable, the human-readable report surfaces **and** the `[dev test]` issue parser show an explicit unknown marker — never a blank, and never the bare rendering of `None` that reads like a captured value. *(Tightened 2026-08-18 per Phase 147 D-10: the fenced report JSON deliberately keeps typed `null`, so "both report outputs" must not be read as requiring a string sentinel in the JSON.)*
   5. A triager reading a parsed `[dev test]` issue can attribute the report to a firmware version without asking the reporter.
 
-**Plans**: TBD
+**Plans**: 6 plans in 4 waves — wave 1 `147-01` · wave 2 `147-02`, `147-03` · wave 3 `147-04`,
+`147-05` · wave 4 `147-06`. **DUAL-REPO** — every plan's `commits_land_in:` names each repo it touches:
+`147-02`…`147-05` commit inside `firestarter_app/` (plus one meta gitlink bump each), while `147-01`
+and `147-06` commit in the **meta** repo (`.gitignore`, the devtest-triage skill script, `SKILL.md`,
+two fixture bodies). A plan that only *reads* a submodule still names it, because a worktree leaves
+submodules empty and a `files_modified`-only detector under-detects. Same-wave plans share zero
+`files_modified` entries. **No plan modifies a `firestarter/` firmware path** — Phase 149 owns the only
+firmware-touching workstream. `147-01` is a hard blocking precondition: it moves `firestarter_app` off
+`gsd/v1.31-27c-programming-algorithm-fidelity` onto a v1.32 branch forked from `origin/beta` (app
+**3.0.0b21**, verified by content — one version line — not by `merge-base --is-ancestor`), and lands the
+meta `.gitignore` un-ignore without which the skill script cannot be committed at all.
+Only `147-06` is non-autonomous: it carries the two oracles VALIDATION.md classifies as manual **by
+necessity** (the devtest-triage `show` render, which has no harness and whose app-repo test would fail
+**OPEN** in standalone CI; and criterion #5's attribution judgement). **`147-06` must NOT be run under
+`--auto`/`--chain`** — those auto-approve human-verify gates, and this gate is the *only* proof for
+PROV-06's skill surface and criterion #5; `autonomous: false` alone is not self-protecting.
+**Cross-phase constraint:** Phase 150 also writes `firestarter_app/firestarter/cli_handlers.py`, so
+Phase 147 and Phase 150 must never share a parallel wave.
+Requirement ticking is named exhaustively per plan so no plan ticks a multi-plan requirement early
+(each plan's frontmatter `requirements:` lists what it *addresses*; only the flips below are permitted):
+`147-01` → none · `147-02` → PROV-03 · `147-03` → none (PROV-04/PROV-05 partial) · `147-04` → PROV-01,
+PROV-02 · `147-05` → PROV-04 · `147-06` → PROV-05, PROV-06.
+
+- [ ] 147-01-PLAN.md — Preconditions: the v1.32 app branch off `origin/beta` with a recorded green baseline, and the meta `.gitignore` un-ignore plus the tracked devtest-triage skill baseline
+- [ ] 147-02-PLAN.md — The capture seam: `ProgrammerIdentity` + `read_programmer_identity` in `hardware.py`, the one-line handler unpack with zero new callables, the full 8-site rename, and the prerelease-suffix discrimination oracle
+- [ ] 147-03-PLAN.md — Report model: `SCHEMA_VERSION` 1.4 with a value-population rationale, the `NOT_REPORTED` marker and `_identity_cell` for both identity rows, and the render oracle proving the JSON stays typed `null`
+- [ ] 147-04-PLAN.md — Unknown-path oracles: the first-ever unit coverage of the value-returning hardware read (one-connection proof, both independent failure paths, the scrub) plus the handler-level absent-identity leg
+- [ ] 147-05-PLAN.md — App triage parser: the labelled identity line and not-attributable clause in `render_diff`, its first-ever tests, a null-identity frozen fixture, and the marker value-parity assert
+- [ ] 147-06-PLAN.md — devtest-triage skill: the firmware line and bare-null fix in the `show` render, a regenerated `SKILL.md` transcript, two committed fixture bodies, and the two blocking human oracles
 
 ### Phase 148: Numeric Database Values & the AT28C VCC Decode
 
