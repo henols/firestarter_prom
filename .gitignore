@@ -13,7 +13,12 @@ __pycache__/
 .planning/v1.7/**
 !.planning/v1.7/**/
 !.planning/v1.7/**/*.md
+# Local working clone of the upstream RURP repo. BOTH forms are required: the
+# trailing-slash pattern matches the directory, the bare path matches the
+# GITLINK git records for a nested repo -- and it was the missing bare form
+# that let this path get committed as an orphaned submodule in c502fc39.
 .planning/v1.7/upstream-rurp/
+.planning/v1.7/upstream-rurp
 
 # firestarter dev-diagnostic run output (write-cycle / consistency-check).
 # New runs land under firestarter-runs/; the bare-prefixed patterns cover
