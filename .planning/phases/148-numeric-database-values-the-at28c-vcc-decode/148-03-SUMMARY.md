@@ -142,3 +142,13 @@ None — no external service configuration required.
 Plan 04 (per its stated scope) restores `database.py::_map_data`, which should close `test_wire_dict_equivalence.py`, `test_characterization.py`, and `test_pulse_us_override.py` (16 of the 19). Plan 05 restores `tools/audit_coverage_matrix.py` (10 of the 19 — some overlap expected once both plans land, exact count TBD by Plan 05). `test_chip_database_field_inventory.py`'s golden was not named in this plan's or Plan 04/05's stated scope in the material available to this executor; flagging it here so the next plan's author can confirm which plan owns updating that frozen inventory.
 
 No blockers for Plan 04.
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/148-numeric-database-values-the-at28c-vcc-decode/148-03-SUMMARY.md`
+- FOUND: `firestarter_app/tests/test_build_db_interpret_timing.py`
+- FOUND commit `702136c` (firestarter_app, Task 1)
+- FOUND commit `e0d0f4f` (firestarter_app, Task 2 RED)
+- FOUND commit `6442982` (firestarter_app, Task 2 GREEN)
+- FOUND commit `af8ecaa` (firestarter_app, Task 3)
+- FOUND commit `c295e3e7` (meta repo, plan metadata)
