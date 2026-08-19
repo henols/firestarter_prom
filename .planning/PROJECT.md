@@ -106,6 +106,30 @@ now in place: a future `dev test` run is self-identifying, so any write-path wor
 a firmware version. **This changes nothing about the write path itself** — `0x0D` remains `UNVERIFIED`
 and gh#21/#32/#11/#12 remain OPEN, exactly as the evidence ceiling requires.
 
+**Workstreams 2 and 6 delivered — Phase 148 complete 2026-08-19** (8 plans, 8 sequential waves;
+DATA-01…DATA-05 all ticked, verification `passed` 5/5). They landed together as D-02 required. The
+generated database now states each electrical and timing value **once, as an integer in one unit**:
+`vcc_mv` / `vdd_mv` / `vpp_mv` in millivolts and `pulse_duration_us` in microseconds, across **both**
+emission paths (`build_db.py`'s decode loop *and* the authored `tools/extra_chips.json` supplement).
+`interpret_timing()` now raises on a decode fault instead of shipping a silent wrong `0`. Both live
+string parsers are **deleted, not bypassed** — `database.py`'s `.replace("V","")` → `float()` and
+`_parse_pulse_duration`, and `audit_coverage_matrix.py`'s `parse_pulse_us` (zero hits repo-wide) —
+with one shared `format_mv` helper owning all three display sites.
+
+The AT28C correction landed exactly as D-02's proof rule demands. `firestarter info AT28C256` now
+reports **5.0v**, via a post-construction margin-rail substitution keyed on the **decoded value
+alone** (`vcc_mv == 4000` → that chip's own `vdd_mv`) — no part number, no type, no algorithm, and
+the decode table itself byte-unchanged. Measured blast radius: **exactly 56 chips**, every one
+4000 → 5000 mV, zero decreases, published per-chip through a new `RULE_VCC_MARGIN_RAIL` bucket in
+`diff_db.py`. GATE-03 reports zero violations with `check_dispatch.py` byte-unchanged. A 746-chip
+host→wire capture taken *before* any edit proves the migration never changed what reaches the
+firmware. A 28-chip (16+12) high-margin 5500 mV group is deliberately deferred, filed with its exact
+part list.
+
+**This too changes nothing about the write path.** `0x0D` remains `UNVERIFIED`; the AT28C data was
+already cleared by `devtest-triage`, and this phase corrected how that data is *represented and
+reported*, not how the part is programmed. gh#21/#32/#11/#12 stay OPEN.
+
 ### Evidence ceiling — binding, not decorative
 
 **There is still no AT28C part in operator inventory** (recorded 2026-08-04, re-confirmed at this
