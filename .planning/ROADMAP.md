@@ -254,13 +254,36 @@ PROV-05, PROV-06.
 **Plans**: 8 plans in 8 waves (sequential — this phase is a chain of proof; each wave's artifact is the next wave's baseline)
 
 Plans:
+**Wave 1**
+
 - [ ] 148-01-PLAN.md — pre-change 746-chip wire-dict baseline capture + byte-identity test (D-14/D-06); must run before any edit
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 148-02-PLAN.md — `diff_db.py` normalizing comparator + field-name renames, green on both schemas (D-11)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 148-03-PLAN.md — generator numeric emission (mV/µs), fatal `interpret_timing`, `extra_chips.json` migration, regen (D-05/D-07/D-08)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 148-04-PLAN.md — delete `database.py`'s coercion layer, add the `format_mv` render helper, move the three display sites (D-10/D-15/D-16)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 148-05-PLAN.md — delete `audit_coverage_matrix.py`'s `parse_pulse_us`, regenerate the coverage-matrix golden (D-09)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 148-06-PLAN.md — the VCC margin-rail rule + `RULE_VCC_MARGIN_RAIL` + captured RED→GREEN + AT28C256 snapshot (D-01/D-02/D-03)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 148-07-PLAN.md — re-derive the field-inventory golden + six seen-to-fail transcripts A–F (D-13)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 148-08-PLAN.md — source-scan/AST gates, `148-DB-DIFF.md` completion, deferred-group todo, changelog, phase gate (D-12/D-17)
 
 ### Phase 149: Firmware Page-Size Seam (dual-repo lockstep)

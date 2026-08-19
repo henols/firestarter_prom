@@ -132,8 +132,8 @@ D-06 — so nothing here can explain or fix `write BAD`.
   in datasheets and `infoic.xml`; JSON has no hex literal). `type` / `support_status` / `pinout` /
   `part_number` stay categorical strings. Clean break — **no tolerant reader**.
 
-- **D-08: The `pulse_duration_us: 0` sentinel keeps the seed's value, and the conflation is closed
-  at its source.** Today `interpret_timing` (`build_db.py:412-432`) defaults `val = 0` with a
+- **D-08: The `pulse_duration_us: 0` sentinel keeps the seed's value — the conflation is closed at its source.**
+  Today `interpret_timing` (`build_db.py:412-432`) defaults `val = 0` with a
   stderr `WARN` when `pulse_delay` is unparseable, so after the collapse a `0` could mean either
   "algorithm-controlled" (417 chips) or "decode fault on a 0x07/0x08/0x0B chip". Make that
   `except (TypeError, ValueError)` branch **fatal** — the build fails rather than emitting a wrong
@@ -145,8 +145,8 @@ D-06 — so nothing here can explain or fix `write BAD`.
   (a 329/746 sparse key — the exact hard case the field-inventory golden's own
   `why_counts_not_names` rationale warns about).
 
-- **D-09: `audit_coverage_matrix.py`'s `parse_pulse_us` is deleted too — DATA-03's discipline is
-  about the defect class, not one filename.** It is a second live string parser
+- **D-09: `audit_coverage_matrix.py`'s `parse_pulse_us` is deleted too.**
+  DATA-03's discipline is about the defect class, not one filename. It is a second live string parser
   (`tools/audit_coverage_matrix.py:105-109`) that **raises** on any non-`" us"` value, called at
   ~8 sites, exercised by an imported test suite against the live database. Leaving it — or
   widening it to accept ints — is precisely the "bypassed, not gone" shape DATA-03 forbids, and a
@@ -154,8 +154,8 @@ D-06 — so nothing here can explain or fix `write BAD`.
   `chip["programming"]["pulse_duration_us"]` directly; the `_parseable_pulse_rows` filter at
   `:1718-1727` becomes `!= 0`.
 
-- **D-10: Stale `~/.firestarter/database.json` overrides break silently — but they break, they do
-  not mis-resolve.** No detection layer, no migration message, no warning: ship exactly the seed's
+- **D-10: Stale `~/.firestarter/database.json` overrides break, they do not mis-resolve.**
+  They break silently. No detection layer, no migration message, no warning: ship exactly the seed's
   clean break. **However**, read the new keys with direct indexing
   (`chip["electrical"]["vcc_mv"]`), **not** `.get(key, 0)` — otherwise a stale override missing
   `pulse_duration_us` resolves to `0`, which now means "algorithm-controlled", and a 0x07 chip is
@@ -196,8 +196,9 @@ D-06 — so nothing here can explain or fix `write BAD`.
   the **explicit non-claim** that the `vcc=5500` group was deliberately left untouched. One
   document, reviewable whole, where a future investigator looks — not split across plan SUMMARYs.
 
-- **D-13: `tests/golden/chip_database_field_inventory.json` is re-derived independently, with a
-  seen-to-fail transcript.** Its own `how_to_update` forbids hand-editing a count: re-derive every
+- **D-13: `chip_database_field_inventory.json` is re-derived with a seen-to-fail transcript.**
+  The golden is `tests/golden/chip_database_field_inventory.json`, and it is re-derived
+  independently. Its own `how_to_update` forbids hand-editing a count: re-derive every
   number by a fresh two-level traversal of the regenerated database and a fresh AST walk of
   `build_db.py`'s `chip_entry` construction (unioned with `tools/extra_chips.json`), update
   `meta.recorded_at_head`, and name in the commit message which key changed on which level and
