@@ -328,7 +328,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 149-07-PLAN.md — `size_baseline.json` updated from the cold transcripts with `firmware_tree_sha` corrected, both size gates green, and four deferred todos filed (D-04, D-14)
+- [x] 149-07-PLAN.md — `size_baseline.json` updated from the cold transcripts with `firmware_tree_sha` corrected, both size gates green, and four deferred todos filed (D-04, D-14)
 
 **Wave 8** *(blocked on Wave 7 completion)*
 

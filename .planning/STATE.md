@@ -5,15 +5,15 @@ milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 149
 current_phase_name: dual-repo lockstep
 status: executing
-stopped_at: Phase 149 Plan 06 complete -- MERGE-05 exemptions funded (flash 210 B, RAM 2 B), operator approved
-last_updated: "2026-08-19T22:26:54.771Z"
+stopped_at: Phase 149 Plan 07 complete -- size_baseline.json is the live default baseline again (D-14), firmware_tree_sha corrected (X-3), both size gates green, four deferred todos filed
+last_updated: "2026-08-19T22:42:14.000Z"
 last_activity: 2026-08-19
-last_activity_desc: "Phase 149 Plan 05 complete (cross-repo JSON-key parity gate, two planted RED fixtures, skip-leg transcript, inventory entry, constants.py:145 note now enforced)"
+last_activity_desc: "Phase 149 Plan 07 complete (size_baseline.json re-anchored to plan 06's cold post-change figures, firmware_tree_sha corrected from the stale Phase-144 tree, both pinned native envs bumped 141->151, four deferred todos filed with measured provenance, folded json_init todo removed)"
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 22
-  completed_plans: 20
+  completed_plans: 21
   percent: 33
 ---
 
@@ -77,9 +77,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 149 — Firmware Page-Size Seam (dual-repo lockstep) — EXECUTING
-Plan: 6 of 8
+Plan: 7 of 8
 Status: Ready to execute
-Last activity: 2026-08-19 — Phase 149 Plan 05 complete (cross-repo JSON-key parity gate, two planted RED fixtures, skip-leg transcript, inventory entry, constants.py:145 note now enforced)
+Last activity: 2026-08-19 — Phase 149 Plan 07 complete (size_baseline.json re-anchored to plan 06's cold post-change figures, firmware_tree_sha corrected from the stale Phase-144 tree, both pinned native envs bumped 141->151, four deferred todos filed, folded json_init todo removed)
 
 ## Roadmap Summary (v1.32)
 
