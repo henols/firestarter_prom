@@ -276,7 +276,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 148-06-PLAN.md — the VCC margin-rail rule + `RULE_VCC_MARGIN_RAIL` + captured RED→GREEN + AT28C256 snapshot (D-01/D-02/D-03)
+- [x] 148-06-PLAN.md — the VCC margin-rail rule + `RULE_VCC_MARGIN_RAIL` + captured RED→GREEN + AT28C256 snapshot (D-01/D-02/D-03)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 

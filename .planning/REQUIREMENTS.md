@@ -81,7 +81,7 @@ sent and the firmware has no VCC control register), so it cannot explain `write 
 data the generator emits. The seed touches the same field, so both land together — numericalising
 `vcc` turns the correction into a value change rather than a string edit.
 
-- [ ] **DATA-01**: `electrical.vcc` for the AT28C family stops reporting `4V` and instead reports the
+- [x] **DATA-01**: `electrical.vcc` for the AT28C family stops reporting `4V` and instead reports the
       5 V supply the parts actually run at, fixed in `build_db.py`'s decode function — never in the
       generated JSON. *(Corrected 2026-08-19, Phase 148 D-01/D-02/D-04: this requirement was
       originally written asserting that `vcc: "4V"` is a genuine decode defect whose target is the
@@ -109,7 +109,7 @@ data the generator emits. The seed touches the same field, so both land together
       lookup table keyed on part number, and no sibling to the pre-existing `_PAGE_SIZE_BY_PART`
       exception.
 
-- [ ] **DATA-05**: `diff_db.py` is the review artifact for every decode change, and the blast radius
+- [x] **DATA-05**: `diff_db.py` is the review artifact for every decode change, and the blast radius
       is justified: a one-chip fix that moves hundreds of chips means the condition was too broad.
       `check_dispatch.py` (GATE-03) stays green and is never weakened to make a change pass.
 
@@ -249,11 +249,11 @@ relies on `autonomous: false` alone is not self-protecting.
 | PROV-04 | Phase 147 | Complete |
 | PROV-05 | Phase 147 | Complete |
 | PROV-06 | Phase 147 | Complete |
-| DATA-01 | Phase 148 | Pending |
+| DATA-01 | Phase 148 | Complete |
 | DATA-02 | Phase 148 | Pending |
 | DATA-03 | Phase 148 | Pending |
 | DATA-04 | Phase 148 | Pending |
-| DATA-05 | Phase 148 | Pending |
+| DATA-05 | Phase 148 | Complete |
 | DATA-06 | Phase 150 | Pending |
 | PGSZ-01 | Phase 149 | Pending |
 | PGSZ-02 | Phase 149 | Pending |
