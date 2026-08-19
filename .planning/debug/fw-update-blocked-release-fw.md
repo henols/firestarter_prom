@@ -406,3 +406,81 @@ CAP-02 waiver recorded earlier in this file never reached it.
   the HEAD baseline of **17 errors in 5 files** — established by running mypy in a throwaway
   worktree of HEAD rather than assumed, since firmware.py's pre-existing `board_to_use` Optional
   errors shift line numbers when anything is inserted above them.
+
+### Follow-up: `da6572b` fixed only one of the two port writers (`94d327d`)
+
+Defect C had **two** persisted writers, not one. `da6572b` fixed the successful-probe site in
+`serial_comm.py` and missed `firmware.py`, which ran `set_value("port", port_to_flash)` after a
+successful flash with `persist` defaulting to True — promoting the transient key straight back out
+of transient status. The leak therefore stayed fully live on the **install** path, the one an
+operator actually reaches with an explicit `--port`. Caught by re-testing after the final
+`--board uno --install` proof: `~/.firestarter/config.json` had reacquired
+`"port": "/dev/ttyACM1"`.
+
+Why the first verification missed it: the live check that "passed" exercised `hw`, which never
+reaches the flash writer. A narrower check was read as covering the whole rule. **Lesson for this
+file: verify a persistence rule on the path that writes, not on the cheapest path to hand.**
+
+`94d327d` moves the policy off `SerialCommunicator` (it is about config persistence, not serial
+transport) and onto **`ConfigManager.remember_port()`** — now the single writer of the saved `port`
+key, called by both the probe and the flash path. A source-level tripwire asserts `config.py` is the
+only production module writing the key directly; `cli_handlers.py` is exempt because its
+`set_value("port", …, persist=False)` IS the `--port` override. Two call sites silently drifting
+apart is exactly what caused this, so it is pinned rather than trusted.
+
+Final gates: suite **1675 passed / 0 failed**, ruff + format clean, mypy unchanged at the 17-error
+HEAD baseline.
+
+### Final bench state (2026-08-19, end of session)
+
+| Port | Controller | Firmware | Note |
+|---|---|---|---|
+| `/dev/ttyACM0` | leonardo | `3.0.0b19` | upgraded from b17 via `fw --install` |
+| `/dev/ttyACM1` | uno | `3.0.0b19` | round-tripped b11 → b19 → 2.0.6 → b19 |
+| `/dev/ttyUSB0` | uno328pb | `3.0.0b11` | **left deliberately** — the only pre-CAP-02 specimen left, and the only board that can still reproduce the original failure. Do not upgrade casually. |
+
+`~/.firestarter/config.json` holds only `avrdude-path`; no `port` key, which is itself the standing
+witness that Defect C is closed.
+
+## Gap closure — what was and was NOT bench-verified (asked directly, 2026-08-19)
+
+Three gaps were named honestly before closing them, rather than claiming blanket bench coverage.
+
+**Gap 2 — the blind-install path on a second/third flash method. CLOSED for `avr109`.** The path had
+only ever been proven on the Uno (`arduino`). Leonardo: 2.0.6 flashed on → unreachable → refused
+without `--board` → `fw --board leonardo --install` warned and flashed b19. That specifically drives
+`Avrdude._trigger_reset`'s 1200-baud USB-CDC touch, which runs **only** for `atmega32u4` and had
+never executed from the blind branch. `urclock` is proven only **to the download boundary**: the
+328PB board was put on pre-COBS `3.0.0b4` and correctly entered the blind branch
+(`current: None`), but GitHub rate-limited the release lookup mid-test so `latest` resolved to None.
+That board was restored to its b11 witness state with a CDN download + direct avrdude rather than
+left unreachable. `urclock` flashing itself is proven by the earlier b11 → b19 run.
+
+**This test disproved the wording of the fix's own error message** (`a7e554d`). `3.0.0b4` answers
+`Bad JSON` exactly as `2.0.6` does, so blaming "2.x firmware" would misdirect an operator on a
+3.0.0 build. Measured boundary: `2.0.6` Bad JSON, `3.0.0b4` Bad JSON, `3.0.0b11` acks **without**
+the CAP-02 identity tail. The two defects are therefore distinct populations, not one "old firmware"
+bucket — **pre-b8 needs the blind install, b8..b18 needs the CAP-02 waiver** — the split being the
+COBS pivot at firmware b8.
+
+**Gap 3 — nothing had run under CI conditions. CLOSED.** CI is Python **3.11 only** (an earlier note
+in this session said py39/3.11 — wrong; `ci.yml` pins 3.11). The devcontainer carries only 3.12, so
+a real 3.11 was provisioned with `uv` (needs `UV_CACHE_DIR` pointed somewhere writable). Every CI
+step run in order: catalog validity (76 messages / 12 vectors), both codegen drift gates **ZERO
+DIFF**, `ruff check`, `ruff format --check`, **`tools/check_mypy_watermark.py`** — the actual gate —
+**33 errors vs watermark 35, 143 files, exit 0**, `pytest --cov-fail-under=70` → **1675 passed,
+83.69%**, the console-script smoke test, and the isolated `ci-py32` leg (pyusb 1.3.1 genuinely
+imports, 6/6). Note the mypy scope trap: raw `mypy firestarter/` reports *17 errors in 5 files over
+29 files* and is a DIFFERENT measurement from the gate's 143-file run; neither number contradicts
+the other, and the gate passes with headroom.
+
+**Gap 1 — the portless/DFU exemption in Defect B is UNVERIFIABLE and stays open.** `--install` skips
+the `--board` requirement when `flash_method(board)` is portless, so a py32f071 is exempt. No
+PY32F071 silicon exists (no PCB, never run on hardware), so that branch is unit-test-only by
+necessity and is the least-proven line in this work. It is guarded by
+`test_py32_dfu.py::TestPortlessInstall::test_dfu_board_installs_without_a_serial_port`, whose RED on
+the first cut of the fix is what surfaced the need for the exemption at all.
+
+Also reasoned rather than demonstrated: the claim that Defect A would silently flash the **wrong**
+image where two boards share an MCU. This bench has three distinct MCUs (328P / 328PB / 32u4), so
+avrdude's part-signature check refused every mismatch. The unprotected case was never observed.
