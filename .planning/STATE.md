@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: — AT28C Write-Path Root Cause & Report Provenance
-current_phase: 148
-current_phase_name: Numeric Database Values & the AT28C VCC Decode — EXECUTING
-status: verifying
-stopped_at: Completed 148-08-PLAN.md -- phase 148 fully complete, 8/8 plans, all 5 DATA-01..05 requirements Complete, ready for verification
-last_updated: "2026-08-19T12:57:58.859Z"
+current_phase: 149
+current_phase_name: Firmware Page-Size Seam (dual-repo lockstep)
+status: planning
+stopped_at: Phase 148 complete and VERIFIED 5/5 (148-VERIFICATION.md, status passed); ready to plan Phase 149
+last_updated: "2026-08-19T13:15:48.432Z"
 last_activity: 2026-08-19
-last_activity_desc: Phase 148 execution started
+last_activity_desc: "**Phase 148 COMPLETE and VERIFIED 5/5** (8 plans / 8 sequential waves). The generated database now states each electrical and timing value ONCE as an integer in one unit, and the AT28C family's VCC reports the 5 V supply the parts run at. Key correction carried through execution: minipro's `vcc` is the TL866's verify-MARGIN rail, not the part's supply -- the decode was always FAITHFUL, the defect was SEMANTIC. The fix is a post-construction margin-rail substitution `_VCC_MARGIN_RAIL_MV = VCC_VOLTAGES[0x02]` keyed on the DECODED VALUE ALONE (no part number, no type, no algorithm); measured independently: EXACTLY 56 chips move 4000 -> 5000 mV, zero decreases, each onto its own `vdd_mv`, 12 of them AT28C-family records. Schema migrated to mV/us integers across BOTH emission paths (`build_db.py` decode loop AND `tools/extra_chips.json`); `interpret_timing()` now RAISES instead of shipping a silent wrong 0. Both live string parsers DELETED, not bypassed: `database.py`'s `.replace(\"V\",\"\")`->float + `_parse_pulse_duration` (0 hits), and `audit_coverage_matrix.py`'s `parse_pulse_us` (0 hits repo-wide); one shared `format_mv` helper owns all three display sites. Proof chain: a 746-chip host->wire golden captured BEFORE any edit proves the migration never changed what reaches the firmware; the field-inventory freeze was re-derived by independent traversal + AST walk and PROVEN able to fail on six planted legs A-F (Leg E planted in the real `extra_chips.json`); the new permanence gates were each seen RED before trusted GREEN -- orchestrator independently re-proved the AST gate by planting `_NEW_GUESS_BY_PART` into the real `build_db.py`. GATE-02 `diff_db.py` made schema-agnostic FIRST (Wave 2) so it never went RED for the wrong reason; final buckets 744 total / 56 `RULE_VCC_MARGIN_RAIL` / 686 metadata / 2 page-size / 0 new / 0 missing. GATE-03 `check_dispatch.py` BYTE-UNCHANGED, 0 violations. Suite 1616 -> 1641 passed / 0 failed (a declared 19-test transient RED was opened at Wave 3 and fully retired by its named owner waves). NOTABLE NEGATIVE RESULT (recorded in 148-DB-DIFF.md): the plan predicted `diff_db` would go RED with 56 UNEXPLAINED; it did NOT -- it exited 0 with the 56 movers SILENTLY MISATTRIBUTED to the pre-existing `BUG3_VCC_VDD` rule, a stronger case for the new bucket than planned. DEFERRED: a 28-chip (16+12) high-margin 5500 mV rail group filed at `.planning/todos/pending/vcc-5500-high-margin-verify-rail-group.md` -- NOT 29, per RESEARCH F-6. NEXT: Phase 149 -- Firmware Page-Size Seam (dual-repo lockstep, PGSZ-01..05); it is the first v1.32 phase to touch the FIRMWARE submodule, which is still on the v1.31 branch and must be forked to v1.32 first."
 progress:
   total_phases: 6
   completed_phases: 2
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-18 — v1.32 started)
 authoritative dispatch key end to end. v1.32 turns that key on the project's own diagnostics: a
 community `dev test` report must be attributable to the firmware that produced it before any
 protocol-`0x0D` write-path claim can be made about it.
-**Current focus:** Phase 148 — Numeric Database Values & the AT28C VCC Decode (EXECUTING)
+**Current focus:** Phase 149 — Firmware Page-Size Seam (dual-repo lockstep) — not started
 
 **v1.32 AT28C Write-Path Root Cause & Report Provenance** — ACTIVE (activated 2026-08-18, folding Backlog
 **999.28**; Backlog **999.29** is partially addressed and explicitly NOT retired — v1.32 removes the
@@ -76,10 +76,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 148 — Numeric Database Values & the AT28C VCC Decode — EXECUTING
-Plan: 8 of 8
+Phase: 149 — Firmware Page-Size Seam (dual-repo lockstep)
+Plan: Not started
 Status: Phase complete — ready for verification
-Last activity: 2026-08-19 — Phase 148 execution started
+Last activity: 2026-08-19 — Phase 148 complete, transitioned to Phase 149
 
 ## Roadmap Summary (v1.32)
 
