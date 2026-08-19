@@ -81,8 +81,22 @@ sent and the firmware has no VCC control register), so it cannot explain `write 
 data the generator emits. The seed touches the same field, so both land together — numericalising
 `vcc` turns the correction into a value change rather than a string edit.
 
-- [ ] **DATA-01**: `electrical.vcc` for the AT28C family decodes to the datasheet's 4.5 V minimum
-      rather than `4V`, fixed in `build_db.py`'s decode function — never in the generated JSON.
+- [ ] **DATA-01**: `electrical.vcc` for the AT28C family stops reporting `4V` and instead reports the
+      5 V supply the parts actually run at, fixed in `build_db.py`'s decode function — never in the
+      generated JSON. *(Corrected 2026-08-19, Phase 148 D-01/D-02/D-04: this requirement was
+      originally written asserting that `vcc: "4V"` is a genuine decode defect whose target is the
+      datasheet's 4.5 V minimum. **Both halves of that premise are false.** `VCC_VOLTAGES`
+      (`build_db.py:193`) faithfully decodes `infoic.xml`'s VCC nibble `2` to `4V`, and the table is
+      `[VERIFIED: minipro database.c#L130-L135 @ a8efaedc — tl866ii_vcc_voltages[]]`; index `0x02` was
+      added deliberately by the BUG-1 fix. The defect is **semantic, not arithmetic** — minipro's
+      `vcc` is the TL866's low-margin verify rail, which firestarter surfaces as the chip's operating
+      supply, the same category error the shipped SRAM normalization (`build_db.py:807-821`) already
+      corrects for static-memory parts. The correction is therefore a **margin-rail substitution** to
+      the already-decoded `vdd` (5000 mV), not a decode-table repair. 4500 mV is **not** the target:
+      `infoic.xml` does not carry it for these parts (their nibble is `2`, not `3`), it is a datasheet
+      *minimum* where every other VCC row reports the *applied* supply, and 5 V is what the RURP
+      shield delivers. The rule keys on the decoded value alone (`vcc_mv == 4000` → `vdd_mv`) — no
+      part number, no type, no algorithm — and moves exactly 56 chips, every one to 5000 mV.)*
 
 - [ ] **DATA-02**: Voltages are stored as millivolt integers and timing as microsecond integers,
       ending the half-done state where every chip carries both `vpp: "12V"` and `vpp_mv: 12000` while
