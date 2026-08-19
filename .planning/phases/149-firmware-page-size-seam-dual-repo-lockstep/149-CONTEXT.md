@@ -43,8 +43,7 @@ explains nothing about gh#21.
 
 ### Delivery scope — which chips get a delivered page size (PGSZ-01)
 
-- **D-01: Provenance-keyed — deliver only where the upstream `<ic>` record's own
-  `protocol_id` is `0x0D`.** 18 rows qualify; **15 are movers**, every one growing 64 → 128.
+- **D-01: Provenance-keyed — deliver only where the upstream `<ic>` record's own `protocol_id` is `0x0D`.** 18 rows qualify; **15 are movers**, every one growing 64 → 128.
 
   This was measured during discussion, not assumed, and it overturns the phase's own framing.
   `chip_database.json`'s 84 `algorithm: 13` rows are **not** 84 upstream-`0x0D` records:
@@ -122,8 +121,7 @@ explains nothing about gh#21.
 
 ### Firmware trust boundary (PGSZ-02)
 
-- **D-05: `page_size` resets to 0 in `json_parse`, exactly as `chip_id` does; the fallback to 64
-  is applied in the handler.** `firestarter_handle_t handle` is a single file-scope global
+- **D-05: `page_size` resets to 0 in `json_parse`, exactly as `chip_id` does; the fallback to 64 is applied in the handler.** `firestarter_handle_t handle` is a single file-scope global
   (`firestarter.cpp:33`) with **no per-command `memset`** — `json_parse` resets precisely the
   *optional* keys because the mandatory ones are always overwritten. `page-size` is optional
   (emit-when-present), so without the reset, writing AT28C010 (128) and then a floor chip in the
@@ -132,8 +130,7 @@ explains nothing about gh#21.
   handler keeps `json_parse` algorithm-agnostic and keeps the floor a named firmware constant.
   *Decided by in-repo precedent, not asked.*
 
-- **D-06: Flush on a `page_mask = page_size - 1` bitwise AND against the ABSOLUTE address, never a
-  runtime `%`.** Preserves today's `(address + 1) % PAGE_SIZE` semantics exactly — flushes align
+- **D-06: Flush on a `page_mask = page_size - 1` bitwise AND against the ABSOLUTE address, never a runtime `%`.** Preserves today's `(address + 1) % PAGE_SIZE` semantics exactly — flushes align
   to true chip page boundaries even when `handle->address` is unaligned (a `--address` write), which
   a per-block counter would break — and avoids pulling `__udivmodsi4` into a build with zero flash
   headroom. Both delivered values are powers of two. Resolve and store the validated mask once at
@@ -188,14 +185,12 @@ explains nothing about gh#21.
   unfalsifiable); funding from in-phase savings (see D-16 — with `--gc-sections` the saving may be
   literally zero, so it cannot be committed to in advance); shipping a RED size gate.
 
-- **D-13: The comparison point is a fresh COLD capture at the forked v1.32 tip, before the first
-  edit.** `rm -rf .pio/build/<env>` then one `pio run -e <env>` per env. `size_baseline.json`'s
+- **D-13: The comparison point is a fresh COLD capture at the forked v1.32 tip, before the first edit.** `rm -rf .pio/build/<env>` then one `pio run -e <env>` per env. `size_baseline.json`'s
   figures were measured at firmware tree `3d8ec49` (Phase 145 debug session); the v1.32 branch
   forks off `beta` (`7f6afc6`), which carries merge commits since. Any difference is recorded as
   **inherited from the v1.31 merge**, never attributed to this phase — in either direction.
 
-- **D-14: `scripts/baseline/size_baseline.json` is updated at phase end, with a superseding meta
-  note**, following the file's own established Phase 144 / Phase 145 pattern, so it stays the live
+- **D-14: `scripts/baseline/size_baseline.json` is updated at phase end, with a superseding meta note**, following the file's own established Phase 144 / Phase 145 pattern, so it stays the live
   default baseline the next phase measures against.
 
 - **D-15: New test cases go into the EXISTING native suites — no new suite.** Extend
