@@ -176,6 +176,8 @@ Each task committed atomically, split across the two repos per `commits_land_in`
 - `firestarter_app/tests/fixtures/planted_json_parser_undispatched_key.c` — RED fixture, missing
   dispatch row
 - `firestarter_app/tests/scan_paths.py` — new inventory entry, two stale counts corrected
+- `firestarter_app/firestarter/constants.py` — corrected the now-false page-size "Firmware sync"
+  note (post-completion fix, see Deviations #3)
 - `.planning/phases/149-firmware-page-size-seam-dual-repo-lockstep/149-PARITY-TRANSCRIPTS.md` — new;
   both planted-RED transcripts, the empty-`FW_ROOT` skip-leg transcript, the `ci_parity.sh` summary
 - `.planning/phases/149-firmware-page-size-seam-dual-repo-lockstep/149-PAGE-SIZE.md` — the
@@ -232,13 +234,38 @@ Each task committed atomically, split across the two repos per `commits_land_in`
   pass, including the name-collision guard for the new entry.
 - **Committed in:** `693b466` (Task 3 commit)
 
+**3. [Rule 1 - Bug] Truth #7 was initially missed: `constants.py:145`'s "Firmware sync" note was
+never corrected**
+- **Found during:** Post-completion coordinator review, after this plan's first pass was reported
+  done.
+- **Issue:** This plan built the enforcing test (`test_json_key_parity.py`) but never touched
+  `firestarter_app/firestarter/constants.py` itself. Its page-size sync note (lines 151-154 at the
+  time) still read "this key does not yet exist in firestarter/src/json_parser.c ... Phase 149 plan
+  04 adds it" — a claim that was true when plan 03 wrote it but became false the moment plan 04
+  landed the key (`firestarter` commit `58c6a3c`). A reader of `constants.py` after plan 04 was told
+  the firmware side was still missing when it was present — exactly the class of false in-code sync
+  note must_have truth #7 exists to eliminate. The gate's own passing tests did not catch this
+  because the gate asserts the wire-key VALUE matches, not the prose of a comment two lines above it.
+- **Fix:** Rewrote the note to state the current truth — the key exists in
+  `firestarter/src/json_parser.c` (landed by plan 04, commit `58c6a3c`), and
+  `tests/test_json_key_parity.py` is the enforcing gate. Also independently re-verified the adjacent
+  `JSON_KEY_READ_SETTLING_DELAY`/`JSON_KEY_READ_STROBE_US` "Firmware sync" note (line ~139): both
+  `key_read_settling` and `key_read_strobe` are confirmed present and dispatched in the live
+  firmware source, so that note was already true and needed no change.
+- **Files modified:** `firestarter_app/firestarter/constants.py`
+- **Verification:** Re-ran `python3 -m pytest tests/test_json_key_parity.py -o addopts="" -q -rs`
+  (10 passed) and `ruff check` / `ruff format --check` on the changed file (both clean) after the
+  correction.
+- **Committed in:** `0744348` (`firestarter_app`, separate commit — this plan's task commits had
+  already landed by the time the gap was found)
+
 ---
 
-**Total deviations:** 2 auto-fixed (1 Rule 1 self-introduced fixture defect caught by its own
+**Total deviations:** 3 auto-fixed (1 Rule 1 self-introduced fixture defect caught by its own
 gate before commit, 1 Rule 3 plan-verification-script field-name correction with no source-code
-impact).
-**Impact on plan:** No scope creep. Neither fix touches a test assertion's intent, a `PGSZ-0N`
-requirement checkbox, or any file outside this plan's own `<files>` list.
+impact, 1 Rule 1 post-completion fix closing a must_have truth this plan's first pass missed).
+**Impact on plan:** No scope creep. None of the three fixes touches a test assertion's intent, a
+`PGSZ-0N` requirement checkbox, or any file outside this plan's own scope.
 
 ## Issues Encountered
 
@@ -269,8 +296,12 @@ requirement checkbox or traceability row was touched — plan 08 alone flips the
 - FOUND commit: `efea9aa` (firestarter_app)
 - FOUND commit: `075905a` (firestarter_app)
 - FOUND commit: `693b466` (firestarter_app)
+- FOUND commit: `0744348` (firestarter_app — post-completion truth-#7 correction)
 - FOUND commit: `2a0567a1` (meta)
 - FOUND commit: `f76d648e` (meta)
+- CONFIRMED: `constants.py:151-154`'s page-size "Firmware sync" note now states the key exists in
+  `firestarter/src/json_parser.c` (plan 04, commit `58c6a3c`) rather than the stale "does not yet
+  exist" claim — must_have truth #7 satisfied
 - CONFIRMED: `python3 -m pytest tests/test_json_key_parity.py -o addopts="" -q -rs` — 10 passed, 0 skipped
 - CONFIRMED: empty-`FIRESTARTER_FW_ROOT` subprocess run — 8 skipped (requires_fw, absent-firmware
   reason), 2 passed (planted legs), exit 0
