@@ -5,15 +5,15 @@ milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 149
 current_phase_name: Firmware Page-Size Seam (dual-repo lockstep)
 status: executing
-stopped_at: Phase 149 planned — 8 plans in 8 waves, ready to execute
-last_updated: "2026-08-19T18:08:59.021Z"
+stopped_at: Phase 149 Plan 01 complete — firmware forked onto v1.32 branch, cold baseline captured
+last_updated: "2026-08-19T18:15:05.000Z"
 last_activity: 2026-08-19
-last_activity_desc: Phase 149 execution started
+last_activity_desc: Phase 149 Plan 01 complete (1/8 plans)
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 22
-  completed_plans: 14
+  completed_plans: 15
   percent: 33
 ---
 
@@ -2009,6 +2009,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: 148-07: Leg E (new to this milestone) plants inside the real tools/extra_chips.json (no env seam by design), run last before the clean-tree Leg F, restored byte-exact
 - [Phase ?]: 148-08: AST gate for DATA-04 scopes to tree.body only (top-level statements), never ast.walk, so it does not fire on the pre-existing local _AT28C_DIP24_NAMES (Phase 76); a genuinely new module-level part-keyed dict always shows up at tree.body and is caught.
 - [Phase ?]: 148-08: deferred vcc==5500 group corrected to 28 chips (16+12), not 29 -- CONTEXT.md's deferred prose disagreed with its own D-03 table (12); RESEARCH F-6 confirmed D-03 was right. Filed as vcc-5500-high-margin-verify-rail-group.md, not fixed -- algorithm 0x07's non-uniform vdd (5500 and 6500) makes the substitution target unproven.
+- [Phase 149 Plan 01]: Forked firestarter's v1.32 branch off origin/beta (7f6afc65be2022575989772cc0a5945611741831), not off the stale v1.31 tip (6992271), verified by five content checks with zero `git merge-base --is-ancestor` invocations (D-13/P-1 -- squashed v1.31 PRs make ancestry checks false-negative). Cold pre-edit baseline for uno/uno328pb/leonardo matched size_baseline.json exactly on all six figures (zero inherited delta) and matched BASE-01 within the already-adjudicated +96 B Phase 145 exemption; leonardo's MERGE-05 headroom recorded as 0 bytes, uno-class as 64 bytes.
 
 ## Performance Metrics
 
@@ -2292,12 +2293,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 148 P06 | 50min | 3 tasks | 7 files |
 | Phase 148 P07 | 40min | 2 tasks | 2 files |
 | Phase 148 P08 | 45min | 3 tasks | 4 files |
+| Phase 149 P01 | ~20min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-19T14:49:02.546Z
-**Stopped at:** Phase 149 context gathered
-**Resume file:** .planning/phases/149-firmware-page-size-seam-dual-repo-lockstep/149-CONTEXT.md
+**Last session:** 2026-08-19T18:15:05Z
+**Stopped at:** Phase 149 Plan 01 complete — firmware forked onto v1.32 branch, cold baseline captured, 149-PAGE-SIZE.md skeleton created
+**Resume file:** .planning/phases/149-firmware-page-size-seam-dual-repo-lockstep/149-02-PLAN.md
 
 ### Blockers
 

@@ -304,7 +304,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 149-01-PLAN.md — Fork the v1.32 firmware branch off `origin/beta` (verified by content), cold pre-edit baseline for all three AVR targets, and the `149-PAGE-SIZE.md` skeleton (D-13, D-16)
+- [x] 149-01-PLAN.md — Fork the v1.32 firmware branch off `origin/beta` (verified by content), cold pre-edit baseline for all three AVR targets, and the `149-PAGE-SIZE.md` skeleton (D-13, D-16)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
