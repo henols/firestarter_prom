@@ -1271,7 +1271,127 @@ by the separate, disjoint `_PAGE_SIZE_BY_PART` curated table (both of whose entr
 
 ## Firmware seam evidence (plan 04)
 
-*(filled by plan 04)*
+### Wire-key pre-check
+
+Before writing the parser, the firmware source was grepped for any prior page-size handling
+(`git -C firestarter grep -n "page.size\|page_size\|PAGE_SIZE" src/json_parser.c include/firestarter.h`).
+Result: **no `page-size` wire key, no `page_size` handle field, and no parser dispatch entry existed
+anywhere in the firmware before this plan.** The only pre-existing artifact was the hardcoded 64-byte
+floor constant in `eeprom_28c.cpp`. This corroborates the project note that the v1.16
+`primitives.{h,cpp}` recompose — which would have carried a wire page-size key — was never merged.
+Full transcript: `149-FW-TRANSCRIPTS.md` §"Wire-key pre-check".
+
+### Six edit points
+
+1. **`firestarter_handle_t` gains `uint16_t page_size`** (`include/firestarter.h`), beside `chip_id`
+   — the same in-struct width precedent as `vpp_mv`.
+2. **`src/json_parser.c` gains the wire key** — a PROGMEM string `key_page_size` bound to the hyphen
+   form `"page-size"` (the internal database key uses an underscore; a PROGMEM string against the
+   underscore form would silently never match), a `key_parsers[]` row dispatching it, and a forward
+   declaration alongside its siblings.
+3. **`get_page_size`** uses the one-line `extract_int` form (`get_chip_id`'s model), not the Phase 44
+   clamp form — validation stays in the 0x0D handler, keeping `json_parse` algorithm-agnostic.
+4. **The per-command reset** — `handle->page_size = 0;` in `json_parse`'s reset block, beside
+   `chip_id`. `firestarter_handle_t handle;` is a single file-scope global with no per-command
+   `memset`, so without this reset a 128 parsed for one chip would persist into the next command.
+5. **`eeprom28c_page_mask(uint16_t)`** (`src/proms/eeprom_28c.cpp`) resolves the validated mask —
+   power of two in `[1, AT28C_PAGE_SIZE_MAX]`, else `AT28C_PAGE_SIZE_FALLBACK`, with the zero check
+   ordered before the subtraction.
+6. **The flush test** in `eeprom28c_write_execute` changes from `(address + 1) % PAGE_SIZE` to
+   `(address + 1) & page_mask`, with `page_mask` hoisted once above the per-byte loop.
+
+Also deleted: the dead `json_init()` (definition and declaration) — its token count was `sizeof()` on
+a pointer parameter, zero call sites in `src/`. Zero flash saving counted toward any budget
+(`--gc-sections` is on; the jsmn functions are also called from `firestarter.cpp`).
+
+### The flush-count oracle — RED then GREEN
+
+The oracle counts every entry to the mocked `firestarter_get_data` in `test_val_eeprom28c.cpp`
+(`s_get_data_calls`) — the only seam every flush-path read in production goes through; the bus
+recorder captures register writes only, never reads, and caps at 256 entries. For a clean write,
+`calls == 2 * flushes + data_size` (the double read per flush in `eeprom28c_wait_for_page_write`'s
+clean poll, plus one read per buffer byte in `eeprom28c_verify_page_readback`). At `data_size = 128`:
+page 64 gives 2 flushes → **132**; page 128 gives 1 flush → **130**.
+
+Five cases were added with the mask still using the modulo form, and the delivered-128 case was
+**seen to fail**: `Expected 130 Was 132`. The unconditional 64-byte modulo produced 132 regardless of
+`handle->page_size` — proving the modulo form never consulted it. Every other case (absent/64/96/2048)
+already expected 132, which the pre-mask code also produced, so criterion 1 rests specifically on the
+128 case, the only one whose expected value differs from what the unchanged code already gave.
+
+After the mask landed, all five cases pass: **130** for delivered 128, **132** for absent / explicit
+64 / non-power-of-two (96) / out-of-range (2048). Full RED and GREEN transcripts, including the exact
+commands and literal output: `149-FW-TRANSCRIPTS.md` §"RED" and §"GREEN".
+
+### The resolve site — mechanism-corrected, intent-satisfied
+
+D-06's literal text says the mask is resolved "at write-INIT". It is instead resolved once, as a
+hoisted local, at the top of `eeprom28c_write_execute` — above the per-byte loop, never per byte.
+Recorded here as **mechanism-corrected / intent-satisfied**, never as failed, in the same voice as
+`configure_eeprom28c`'s existing LOCK-04 precedent comment. Three measured reasons:
+
+1. `--policy merge05` requires `ram_used` **exactly unchanged**; a second stored field (on the handle,
+   or a file-scope static) would cost RAM the exemption does not authorise.
+2. `eeprom28c_write_init` has an early `return` on a chip-ID mismatch, so a mask resolved after it
+   would be only conditionally initialised.
+3. Every existing native case in `test_val_eeprom28c.cpp` calls `configure_memory(&h)` then
+   `h.firestarter_operation_main(&h)` and never `firestarter_operation_init` — a mask resolved in
+   `write_init` would leave every `test_fix06_*` case at mask 0 (flushing every byte), silently
+   changing `test_fix06_page_boundary_window_readback`'s two-window geometry.
+   `write_execute`'s top is reached by every existing case and every new one.
+
+D-06's substance — resolved once, never per byte, no runtime modulo by a variable divisor in the hot
+path — is preserved exactly.
+
+### The corrected floor comment
+
+The header comment on `eeprom_28c.cpp`'s floor constant (renamed `AT28C_PAGE_SIZE_FALLBACK`, D-10)
+now reads, in substance: the AT28MC010 (64) vs AT28C010 (128) same-density argument is preserved
+verbatim (D-01 re-verified it, both chips are in the delivered set); the floor's safety for the 66
+rows this phase leaves on it is **unproven**, not disproven, because their `page_size` comes from
+records filed upstream under other algorithms and their real page cannot be asserted either; and the
+per-chip delivery path (`infoic.xml -> build_db.py -> chip_database.json -> wire -> json_parser.c ->
+the mask resolver`) is now landed, **software-proven and unvalidated on silicon** — closing the old
+comment's "delivered by a separate, DEFERRED phase ... not yet inserted into ROADMAP.md" sentence.
+
+### Validation bound (`AT28C_PAGE_SIZE_MAX`, 512)
+
+The validation ceiling is the board-invariant literal **512**, not the per-board data-buffer
+constant (512 on `uno`/`uno328pb`/`native`, 1024 on `leonardo`). Using the per-board constant would
+make the validation contract board-dependent — one rule that is really two — and a native test could
+never observe the `leonardo` bound at all, so coverage would be partial by construction. 512 makes the
+contract identical on all four build environments, makes the native test's coverage of it total, and
+is still at or above the largest page any of the 746 database rows carries (256).
+
+### D-08 — `flash_5v_page.cpp` is a deliberate non-change
+
+`flash_5v_page.cpp` is byte-unchanged by this plan
+(`git -C firestarter diff --quiet src/proms/flash_5v_page.cpp` passes). Its `mem_size`-derived band
+table stays exactly as-is, FIX-04 frozen, so `W29C020`/`W29C040` keep riding the heuristic **even
+though the host already sends them `page-size`**. Recorded explicitly so a reader does not assume the
+new wire key governs both handlers — those two rows look wired but are not.
+
+### `NUMBER_JSNM_TOKENS` headroom, unchanged
+
+`include/json_parser.h`'s `NUMBER_JSNM_TOKENS` stays **64** — untouched by this plan. The worst-case
+wire dictionary in the committed golden costs 42 jsmn tokens with the new `page-size` key included
+(measured in plan 03); headroom stays 22 tokens.
+
+### A pre-existing latent instance, not fixed here
+
+The two Phase 44 read-timing knobs (`read_settling_us`, `read_strobe_us`) are absent from
+`json_parse`'s reset block and carry the identical stale-value defect one field over from the one this
+plan closes for `page_size`. Not fixed here — fixing it would perturb
+`test_read_timing_fields_default_zero_when_absent` — and filed as a pending todo by plan 07.
+
+### The proof's honest ceiling
+
+The entire flush-count proof above is a host-compiler call count at `data_size = 128`, produced by
+`[env:native]` — a build with `DATA_BUFFER_SIZE = 512`, ArduinoFake stubs, and no clock (`delay()` is
+unstubbed in the native trace stubs). It is **software-proven and unvalidated on silicon**: it proves
+nothing about an AVR build's own runtime, nothing about timing, and nothing about whether any physical
+AT28C die accepts a 128-byte page load. No AT28C part was involved anywhere in this plan, `0x0D` stays
+`UNVERIFIED`, and no `support_status` entry changed.
 
 ## Cross-repo parity evidence (plan 05)
 
