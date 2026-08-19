@@ -5,15 +5,15 @@ milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 149
 current_phase_name: Firmware Page-Size Seam (dual-repo lockstep)
 status: executing
-stopped_at: Phase 149 Plan 02 complete — D-19 claim gate armed against 149-PAGE-SIZE.md, operator approved the X-2 proven-unqualified narrowing
-last_updated: "2026-08-19T19:05:00.000Z"
+stopped_at: Phase 149 Plan 03 complete — provenance-keyed page_size emit arm landed, D-07 invariant suite + D-17 wire delta fixture committed
+last_updated: "2026-08-19T20:05:26.804Z"
 last_activity: 2026-08-19
-last_activity_desc: Phase 149 Plan 02 complete (2/8 plans)
+last_activity_desc: Phase 149 Plan 03 complete (provenance-keyed page_size emit arm, D-07 invariant suite, D-17 wire delta fixture)
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 22
-  completed_plans: 16
+  completed_plans: 17
   percent: 33
 ---
 
@@ -77,9 +77,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 149 — Firmware Page-Size Seam (dual-repo lockstep) — EXECUTING
-Plan: 2 of 8
+Plan: 3 of 8
 Status: Executing Phase 149
-Last activity: 2026-08-19 — Phase 149 Plan 02 complete (D-19 claim gate armed, operator-approved narrowing)
+Last activity: 2026-08-19 — Phase 149 Plan 03 complete (provenance-keyed page_size emit arm, D-07 invariant suite, D-17 wire delta fixture)
 
 ## Roadmap Summary (v1.32)
 
@@ -2010,6 +2010,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: 148-08: AST gate for DATA-04 scopes to tree.body only (top-level statements), never ast.walk, so it does not fire on the pre-existing local _AT28C_DIP24_NAMES (Phase 76); a genuinely new module-level part-keyed dict always shows up at tree.body and is caught.
 - [Phase ?]: 148-08: deferred vcc==5500 group corrected to 28 chips (16+12), not 29 -- CONTEXT.md's deferred prose disagreed with its own D-03 table (12); RESEARCH F-6 confirmed D-03 was right. Filed as vcc-5500-high-margin-verify-rail-group.md, not fixed -- algorithm 0x07's non-uniform vdd (5500 and 6500) makes the substitution target unproven.
 - [Phase 149 Plan 01]: Forked firestarter's v1.32 branch off origin/beta (7f6afc65be2022575989772cc0a5945611741831), not off the stale v1.31 tip (6992271), verified by five content checks with zero `git merge-base --is-ancestor` invocations (D-13/P-1 -- squashed v1.31 PRs make ancestry checks false-negative). Cold pre-edit baseline for uno/uno328pb/leonardo matched size_baseline.json exactly on all six figures (zero inherited delta) and matched BASE-01 within the already-adjudicated +96 B Phase 145 exemption; leonardo's MERGE-05 headroom recorded as 0 bytes, uno-class as 64 bytes.
+- [Phase 149]: PGSZ-01 emit arm keys on the chip's own upstream protocol_id (captured before classify() reassigns proto_id), not the post-classification algorithm — 18 of 84 algorithm-13 rows are upstream-native 0x0D
+- [Phase 149]: D-17: Phase 148's wire golden preserved byte-unchanged; the 18-row page-size delta is a committed, programmatically-generated fixture with anti-laundering + non-vacuity + exact-count assertions, never a re-baseline
 
 ## Performance Metrics
 
@@ -2294,12 +2296,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 148 P07 | 40min | 2 tasks | 2 files |
 | Phase 148 P08 | 45min | 3 tasks | 4 files |
 | Phase 149 P01 | ~20min | 3 tasks | 4 files |
+| Phase 149 P03 | 50min | 3 tasks | 10 files |
 
 ## Session
 
-**Last session:** 2026-08-19T18:15:05Z
-**Stopped at:** Phase 149 Plan 01 complete — firmware forked onto v1.32 branch, cold baseline captured, 149-PAGE-SIZE.md skeleton created
-**Resume file:** .planning/phases/149-firmware-page-size-seam-dual-repo-lockstep/149-02-PLAN.md
+**Last session:** 2026-08-19T20:05:26.775Z
+**Stopped at:** Phase 149 Plan 03 complete — provenance-keyed page_size emit arm landed, D-07 invariant suite + D-17 wire delta fixture committed
+**Resume file:** None
 
 ### Blockers
 

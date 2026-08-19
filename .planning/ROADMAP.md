@@ -312,7 +312,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 149-03-PLAN.md — DB side: the provenance-keyed emit arm, the exhaustive host invariant, the committed 18-entry wire-delta fixture, and the three stale host comments (D-01, D-02, D-03, D-07, D-17)
+- [x] 149-03-PLAN.md — DB side: the provenance-keyed emit arm, the exhaustive host invariant, the committed 18-entry wire-delta fixture, and the three stale host comments (D-01, D-02, D-03, D-07, D-17)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
