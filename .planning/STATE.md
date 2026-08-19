@@ -5,15 +5,15 @@ milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 149
 current_phase_name: Firmware Page-Size Seam (dual-repo lockstep)
 status: executing
-stopped_at: Phase 149 Plan 03 complete — provenance-keyed page_size emit arm landed, D-07 invariant suite + D-17 wire delta fixture committed
-last_updated: "2026-08-19T20:05:26.804Z"
+stopped_at: Phase 149 Plan 04 complete — firmware page-size seam landed (parser key, handle field, per-command reset, validated bitwise mask, flush-count oracle seen to fail then pass at 130 vs 132)
+last_updated: "2026-08-19T20:33:50.962Z"
 last_activity: 2026-08-19
-last_activity_desc: Phase 149 Plan 03 complete (provenance-keyed page_size emit arm, D-07 invariant suite, D-17 wire delta fixture)
+last_activity_desc: Phase 149 Plan 04 complete (page-size wire key, handle field, D-05 reset, validated bitwise mask, flush-count oracle 130 vs 132)
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 22
-  completed_plans: 17
+  completed_plans: 18
   percent: 33
 ---
 
@@ -77,9 +77,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 149 — Firmware Page-Size Seam (dual-repo lockstep) — EXECUTING
-Plan: 3 of 8
-Status: Executing Phase 149
-Last activity: 2026-08-19 — Phase 149 Plan 03 complete (provenance-keyed page_size emit arm, D-07 invariant suite, D-17 wire delta fixture)
+Plan: 4 of 8
+Status: Ready to execute
+Last activity: 2026-08-19 — Phase 149 Plan 04 complete (page-size wire key, handle field, D-05 reset, validated bitwise mask, flush-count oracle 130 vs 132)
 
 ## Roadmap Summary (v1.32)
 
@@ -2012,6 +2012,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 149 Plan 01]: Forked firestarter's v1.32 branch off origin/beta (7f6afc65be2022575989772cc0a5945611741831), not off the stale v1.31 tip (6992271), verified by five content checks with zero `git merge-base --is-ancestor` invocations (D-13/P-1 -- squashed v1.31 PRs make ancestry checks false-negative). Cold pre-edit baseline for uno/uno328pb/leonardo matched size_baseline.json exactly on all six figures (zero inherited delta) and matched BASE-01 within the already-adjudicated +96 B Phase 145 exemption; leonardo's MERGE-05 headroom recorded as 0 bytes, uno-class as 64 bytes.
 - [Phase 149]: PGSZ-01 emit arm keys on the chip's own upstream protocol_id (captured before classify() reassigns proto_id), not the post-classification algorithm — 18 of 84 algorithm-13 rows are upstream-native 0x0D
 - [Phase 149]: D-17: Phase 148's wire golden preserved byte-unchanged; the 18-row page-size delta is a committed, programmatically-generated fixture with anti-laundering + non-vacuity + exact-count assertions, never a re-baseline
+- [Phase 149]: Resolved the page-size flush mask once above eeprom28c_write_execute's per-byte loop rather than at write-INIT (D-06's literal site), recorded as mechanism-corrected/intent-satisfied (149-04)
+- [Phase 149]: Flush-count oracle proves a delivered 128-byte page halves the flush count (130 vs 132 get_data calls), seen to fail before the mask and pass after (149-04)
 
 ## Performance Metrics
 
@@ -2297,11 +2299,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 148 P08 | 45min | 3 tasks | 4 files |
 | Phase 149 P01 | ~20min | 3 tasks | 4 files |
 | Phase 149 P03 | 50min | 3 tasks | 10 files |
+| Phase 149 P04 | 65min | 3 tasks | 8 files |
 
 ## Session
 
-**Last session:** 2026-08-19T20:05:26.775Z
-**Stopped at:** Phase 149 Plan 03 complete — provenance-keyed page_size emit arm landed, D-07 invariant suite + D-17 wire delta fixture committed
+**Last session:** 2026-08-19T20:33:50.939Z
+**Stopped at:** Phase 149 Plan 04 complete — firmware page-size seam landed (parser key, handle field, per-command reset, validated bitwise mask, flush-count oracle seen to fail then pass at 130 vs 132)
 **Resume file:** None
 
 ### Blockers

@@ -316,7 +316,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 149-04-PLAN.md — Firmware seam: the wire key, the handle field and its per-command reset, the validated page mask at the flush boundary, the corrected floor comment, and ten new native cases including the flush-count oracle (D-04, D-05, D-06, D-07, D-08, D-09, D-10, D-11, D-15)
+- [x] 149-04-PLAN.md — Firmware seam: the wire key, the handle field and its per-command reset, the validated page mask at the flush boundary, the corrected floor comment, and ten new native cases including the flush-count oracle (D-04, D-05, D-06, D-07, D-08, D-09, D-10, D-11, D-15)
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
