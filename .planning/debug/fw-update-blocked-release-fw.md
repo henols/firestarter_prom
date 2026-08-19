@@ -120,7 +120,7 @@ must precede the subcommand. Not the bug; do not chase it.
 hypothesis: (both confirmed and fixed — see Resolution)
 test: (complete)
 expecting: (complete)
-next_action: none — RESOLVED. The last blocked step (a real Uno-class flash) was authorized by the operator on 2026-08-19 and completed end-to-end on `/dev/ttyACM1`: 3.0.0b11 → 3.0.0b19 via avrdude 7.1 in 8.39s. Nothing outstanding. Commits are unpushed and submodule pointers are deliberately not bumped, so a future phase owns the lockstep decision.
+next_action: this session's defect is RESOLVED and hardware-verified end to end (ttyACM1 3.0.0b11 → 3.0.0b19 via avrdude 7.1, 8.39s; full path matrix below). BUT two NEW defects surfaced while exercising the matrix and are NOT fixed — see "SUPERSEDING FINDINGS": (A) `--port` restricts nothing, so the app can flash board A with board B's asset, and (B) genuine 2.x stable firmware still dies at the JSON layer, upstream of the waiver, which means the operator's original "release firmware installed" report may still be open. Both need their own session or issue. Commits are unpushed and submodule pointers deliberately not bumped.
 
 ## Evidence
 
@@ -272,3 +272,64 @@ files_changed:
     `install`.
   - firestarter_app/tests/test_fw_update_path_gate.py: new, 19 regression tests.
   - commit: firestarter_app `ebbc299`
+
+## Full update-path matrix (2026-08-19, operator granted standing flash authorization)
+
+Every firmware-update path exercised against live hardware. All three flash methods work.
+
+| Path | Board | Result |
+|---|---|---|
+| `fw --install` | uno / ttyACM1 | b11 → b19 OK — `-p atmega328p -c arduino -b 115200`, 8.39s |
+| `fw --install` | leonardo / ttyACM0 | b17 → b19 OK — `-p atmega32u4 -c avr109 -b 57600`, 5.51s |
+| `fw --install` | uno328pb / ttyUSB0 | b11 → b19 OK — `-p atmega328pb -c urclock -b 115200`, 6.66s |
+| `fw --firmware-version 2.0.6 --force` | uno | b19 → 2.0.6 OK (pinned downgrade across a major) |
+| `fw --firmware-version 3.0.0b11 --force` | uno328pb | b19 → b11 OK (pinned downgrade, round trip closed) |
+| `fw` bare | all | reads + offers correctly; waiver fires on every pre-CAP-02 3.x board |
+| `fw --stable` / `fw --pre` | uno | channel pinned, auto-route message correctly suppressed |
+| `fw --list`, `--list --json`, `--stable --list --json` | — | OK |
+| `hw` (negative control) | uno | refuses on pre-CAP-02, succeeds on b19 — gate intact |
+
+Silicon identified directly, since the handshake reports only what the firmware claims:
+ttyACM1 = `0x1e950f` (m328p), ttyUSB0 = `0x1e9516` (m328pb, urclock bootloader — its `uno328pb`
+firmware is correctly matched, not a mismatch).
+
+**Final bench state:** ttyACM1 `3.0.0b19`, ttyACM0 `3.0.0b19`, ttyUSB0 **left on `3.0.0b11`
+deliberately** as the only remaining pre-CAP-02 specimen able to reproduce the original failure.
+
+## SUPERSEDING FINDINGS — two UNFIXED defects, both worse than the one fixed above
+
+The matrix surfaced two defects outside this session's scope. Neither is fixed. Both need their own
+work, and the second one probably *is* the operator's original report.
+
+**Defect A — `--port` is advisory for the read but authoritative for the write.** `serial_comm.py`
+enumerates every candidate port with the `--port` one merely first, then silently falls through when
+it does not answer. `firmware.py` then computes `port_to_use = port_override or connected_port` (the
+override wins) against `board_to_use = current_board or board_override` (the *detected* board wins).
+So the app composes board identity from port B with a flash target of port A. Demonstrated: with
+2.0.6 on ttyACM1 (mute) and a uno328pb on ttyUSB0, `fw --port /dev/ttyACM1 --install` downloaded
+`firestarter_uno328pb.hex` and ran `avrdude -p atmega328pb -c urclock -P /dev/ttyACM1`. **Only
+avrdude's part-signature check prevented a wrong-firmware flash**; two boards sharing an MCU and
+programmer would not be protected. Bare `fw --port /dev/ttyACM1` likewise reported *ttyUSB0's*
+version with no warning. `--board` cannot rescue it — the detected board beats the override.
+Fix direction: a named `--port` must **restrict** the scan, not order it, and finding no programmer
+there must be an error; an explicit `--board` should win or conflict-error.
+
+**Defect B — genuine 2.x stable firmware is still unupdatable, and the waiver does not help it.**
+With real stable `2.0.6` flashed on, the probe returns `I: Buf val: 0x7b` / `ERROR: Bad JSON`.
+`0x7b` is `{`: the 2.x firmware sees the first byte of the JSON command and rejects the frame,
+because command framing changed after it shipped (COBS pivot, protocol rebuild). That failure is at
+the **protocol layer, upstream** of the ack-identity gate this session's waiver opened — so every
+2.x board, i.e. every board on a *stable* release, remains unreachable, and Defect A makes the app
+silently answer with a different board's version instead of erroring.
+
+**Scope correction against this session's own reasoning:** the trigger said "release firmware
+installed". Seeing both Unos on `b11` (a pre-release), this session concluded the premise was
+imprecise. That inference was wrong — the premise pointed at Defect B. The fix recorded above is
+real and verified, but it addresses pre-CAP-02 **3.x** firmware only. Anyone reading this record
+should treat the original complaint as **possibly still open** until Defect B is fixed.
+
+Fix direction for B: `--install`/`--force` never need the running firmware's version — avrdude
+talks to the **bootloader**, not the firmware. The update path should proceed with
+`current_version = None` under an explicit `--board` and flash blind. `firmware.py` already
+tolerates `current_version = None` under `--install`; it is Defect A that defeats it, by finding a
+*different* board instead of finding nothing.
