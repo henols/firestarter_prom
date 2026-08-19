@@ -5,15 +5,15 @@ milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 148
 current_phase_name: Numeric Database Values & the AT28C VCC Decode — EXECUTING
 status: executing
-stopped_at: Completed 148-01-PLAN.md
-last_updated: "2026-08-19T10:19:16.454Z"
+stopped_at: Completed 148-03-PLAN.md
+last_updated: "2026-08-19T10:35:47.562Z"
 last_activity: 2026-08-19
 last_activity_desc: Phase 148 execution started
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 14
-  completed_plans: 8
+  completed_plans: 9
   percent: 17
 ---
 
@@ -77,7 +77,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 148 — Numeric Database Values & the AT28C VCC Decode — EXECUTING
-Plan: 3 of 8
+Plan: 4 of 8
 Status: Ready to execute
 Last activity: 2026-08-19 — Phase 148 execution started
 
@@ -1996,6 +1996,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: 148-02: _canonicalize_db returns a normalized deep copy (never mutates input); main() rebinding is the only normalization point — Keeps _load_db's exit-code contract untouched and avoids hidden aliasing between loaded JSON and normalized version
 - [Phase ?]: 148-02: electrical.vpp is dropped entirely during canonicalization (not renamed) since vpp_mv already carries the value
 - [Phase ?]: 148-02: RULE_VCC_MARGIN_RAIL deliberately NOT added -- belongs to 148-06 once the 56-chip mover rule exists
+- [Phase ?]: 148-03: interpret_timing raises ValueError (not sys.exit) -- leaf decode function, not a top-level gate/orchestration function
+- [Phase ?]: 148-03: extra_chips.json field renames are a deliberate hand edit to an authored supplement, explicitly NOT a chip_database.json-is-generated violation
+- [Phase ?]: 148-03: VPP_VOLTAGES deleted outright; its citation preamble moved to sit above the surviving VPP_MV table so the citation is never orphaned
+- [Phase ?]: 148-03: Task 2 tdd gate executed as a genuine RED/GREEN split (patch captured, reverted, RED confirmed, reapplied, GREEN confirmed) despite the plan's single combined action block
 
 ## Performance Metrics
 
@@ -2273,11 +2277,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 147 P05 | ~27min | 3 tasks | 2 files |
 | Phase 148 P01 | ~12min | 3 tasks | 3 files |
 | Phase 148 P02 | 15min | 2 tasks | 2 files |
+| Phase 148 P03 | 35min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-19T10:18:37.032Z
-**Stopped at:** Completed 148-01-PLAN.md
+**Last session:** 2026-08-19T10:35:47.538Z
+**Stopped at:** Completed 148-03-PLAN.md
 **Resume file:** None
 
 ### Blockers

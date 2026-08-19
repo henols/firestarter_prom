@@ -264,7 +264,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 148-03-PLAN.md — generator numeric emission (mV/µs), fatal `interpret_timing`, `extra_chips.json` migration, regen (D-05/D-07/D-08)
+- [x] 148-03-PLAN.md — generator numeric emission (mV/µs), fatal `interpret_timing`, `extra_chips.json` migration, regen (D-05/D-07/D-08)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
