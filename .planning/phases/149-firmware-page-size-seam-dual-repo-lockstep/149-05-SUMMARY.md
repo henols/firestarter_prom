@@ -285,3 +285,9 @@ requirement checkbox or traceability row was touched — plan 08 alone flips the
 ---
 *Phase: 149-firmware-page-size-seam-dual-repo-lockstep*
 *Completed: 2026-08-19*
+
+## Self-Check: PASSED
+
+All files and commits listed in the Self-Check section above were independently re-verified on
+disk/in git history after this SUMMARY was written: all 5 files FOUND, all 5 commit hashes FOUND
+in their respective repos' history.
