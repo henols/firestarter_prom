@@ -320,7 +320,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 149-05-PLAN.md — PGSZ-03 cross-repo parity: the two-way key scan with a named exemption tuple, two planted RED fixtures, the inventory entry, and the empty-`FW_ROOT` skip transcript (D-18)
+- [x] 149-05-PLAN.md — PGSZ-03 cross-repo parity: the two-way key scan with a named exemption tuple, two planted RED fixtures, the inventory entry, and the empty-`FW_ROOT` skip transcript (D-18)
 
 **Wave 6** *(blocked on Wave 5 completion)*
 

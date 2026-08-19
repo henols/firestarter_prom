@@ -5,15 +5,15 @@ milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 149
 current_phase_name: Firmware Page-Size Seam (dual-repo lockstep)
 status: executing
-stopped_at: Phase 149 Plan 04 complete — firmware page-size seam landed (parser key, handle field, per-command reset, validated bitwise mask, flush-count oracle seen to fail then pass at 130 vs 132)
-last_updated: "2026-08-19T20:33:50.962Z"
+stopped_at: "Phase 149 Plan 05 complete — cross-repo JSON-key parity gate landed (10-leg gate, two planted RED fixtures observed then committed, skip-leg transcript, inventory entry, constants.py:145 note now enforced)"
+last_updated: "2026-08-19T21:13:10.834Z"
 last_activity: 2026-08-19
-last_activity_desc: Phase 149 Plan 04 complete (page-size wire key, handle field, D-05 reset, validated bitwise mask, flush-count oracle 130 vs 132)
+last_activity_desc: Phase 149 Plan 05 complete (cross-repo JSON-key parity gate, two planted RED fixtures, skip-leg transcript, inventory entry, constants.py:145 note now enforced)
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 22
-  completed_plans: 18
+  completed_plans: 19
   percent: 33
 ---
 
@@ -77,9 +77,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 149 — Firmware Page-Size Seam (dual-repo lockstep) — EXECUTING
-Plan: 4 of 8
+Plan: 5 of 8
 Status: Ready to execute
-Last activity: 2026-08-19 — Phase 149 Plan 04 complete (page-size wire key, handle field, D-05 reset, validated bitwise mask, flush-count oracle 130 vs 132)
+Last activity: 2026-08-19 — Phase 149 Plan 05 complete (cross-repo JSON-key parity gate, two planted RED fixtures, skip-leg transcript, inventory entry, constants.py:145 note now enforced)
 
 ## Roadmap Summary (v1.32)
 
@@ -2014,6 +2014,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 149]: D-17: Phase 148's wire golden preserved byte-unchanged; the 18-row page-size delta is a committed, programmatically-generated fixture with anti-laundering + non-vacuity + exact-count assertions, never a re-baseline
 - [Phase 149]: Resolved the page-size flush mask once above eeprom28c_write_execute's per-byte loop rather than at write-INIT (D-06's literal site), recorded as mechanism-corrected/intent-satisfied (149-04)
 - [Phase 149]: Flush-count oracle proves a delivered 128-byte page halves the flush count (130 vs 132 get_data calls), seen to fail before the mask and pass after (149-04)
+- [Phase ?]: Decorated all 8 live legs in test_json_key_parity.py with @requires_fw (including the fails-closed-on-rename and self-protection legs), a deliberate departure from the closest analog module, per this plan's explicit acceptance criteria.
 
 ## Performance Metrics
 
@@ -2300,11 +2301,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 149 P01 | ~20min | 3 tasks | 4 files |
 | Phase 149 P03 | 50min | 3 tasks | 10 files |
 | Phase 149 P04 | 65min | 3 tasks | 8 files |
+| Phase 149 P05 | 70min | 3 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-08-19T20:33:50.939Z
-**Stopped at:** Phase 149 Plan 04 complete — firmware page-size seam landed (parser key, handle field, per-command reset, validated bitwise mask, flush-count oracle seen to fail then pass at 130 vs 132)
+**Last session:** 2026-08-19T21:13:10.807Z
+**Stopped at:** Phase 149 Plan 05 complete — cross-repo JSON-key parity gate landed (10-leg gate, two planted RED fixtures observed then committed, skip-leg transcript, inventory entry, constants.py:145 note now enforced)
 **Resume file:** None
 
 ### Blockers
