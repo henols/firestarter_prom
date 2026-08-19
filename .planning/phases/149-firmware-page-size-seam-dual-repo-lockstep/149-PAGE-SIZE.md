@@ -1395,7 +1395,92 @@ AT28C die accepts a 128-byte page load. No AT28C part was involved anywhere in t
 
 ## Cross-repo parity evidence (plan 05)
 
-*(filled by plan 05)*
+### The two-way parity result
+
+`tests/test_json_key_parity.py` asserts, over `firestarter/src/json_parser.c`'s PROGMEM key-string
+block and `key_parsers[]` dispatch table:
+
+- **Declared and dispatched, not merely present.** `JSON_KEY_PAGE_SIZE` (`"page-size"`) is asserted
+  string-equal to the firmware's `key_page_size` PROGMEM string, AND that identifier is asserted to
+  appear inside the `key_parsers[]` initializer body — the specific hole a naive presence check
+  misses is a string that exists but is never wired into dispatch.
+- **Python → firmware, total.** All 3 `JSON_KEY_*` constants on `firestarter.constants` (discovered
+  by introspection, not a hardcoded name list) are asserted present as firmware PROGMEM key strings.
+- **Firmware → Python, with a named, completeness-checked exemption tuple.** `3 Python constants + 8
+  named firmware exemptions = 11 extracted keys.` The 8 exemptions (`memory-size`, `address`,
+  `flags`, `chip-id`, `pin-count`, `pulse-delay`, `vpp_mv`, `algorithm`) are asserted to be
+  individually present in the firmware source (no stale entries) and, together with the 3 mapped
+  constants, to cover the full 11-key extracted set exactly — no third, unclassified bucket.
+- **Fails closed, not open, on a rename.** `fw_path("src", "json_parser.c")` is resolved at module
+  scope; a present-but-renamed target raises `MissingScanTargetError` rather than skipping. A
+  dedicated leg asserts exactly this by patching the module's path constant to a nonexistent file
+  under a present repo.
+
+### The two planted-RED messages
+
+`planted_json_parser_key_string_drift.c` (page-size PROGMEM string spelled `page_size`, the wire's
+hyphen replaced by the internal database key's underscore):
+
+```
+RAISED: no PROGMEM key string equal to JSON_KEY_PAGE_SIZE ('page-size') was found in
+.../planted_json_parser_key_string_drift.c -- extracted key strings: [... 'page_size' ...]
+```
+
+`planted_json_parser_undispatched_key.c` (page-size PROGMEM string spelled correctly, `key_parsers[]`
+row omitted):
+
+```
+RAISED: the page-size key string 'page-size' is declared as 'key_page_size' but that identifier does
+not appear inside the key_parsers[] dispatch body -- a PROGMEM string that is declared but never
+dispatched exists on the wire and never matches anything a host sends.
+```
+
+Both messages were observed directly (outside any pytest wrapper) and are mutually distinguishable —
+each plant's leg asserts the OTHER plant's phrase is absent from its own message. Both plants inject
+via `monkeypatch.setattr` on the module-scope path constant only; the real
+`firestarter/src/json_parser.c` blob hash and the sibling repo's porcelain state were confirmed
+unchanged before and after both runs. Full transcripts: `149-PARITY-TRANSCRIPTS.md`.
+
+### The skip-leg transcript — this is the state app CI runs in
+
+`tests/fw_presence.py` binds `FW_ROOT` at import, so the skip condition can only be proved in a
+subprocess with `FIRESTARTER_FW_ROOT` pointed at a directory with no `.git` marker. That run: the 8
+`@requires_fw` legs report **SKIPPED** with the absent-firmware reason text (not ERROR, not FAILED);
+`test_planted_key_string_drift_is_detected` and `test_planted_undispatched_key_is_detected` are not
+in the skipped set — they run and pass, because they read committed fixtures, never the sibling
+checkout; the run's exit code is 0. **`firestarter_app`'s own standalone CI has no sibling firmware
+checkout**, so this is precisely the state the module's live legs are in on every push, and the two
+planted legs are the only part of this gate app CI ever exercises. Full transcript, including the
+whole-`tests/`-suite run (1639 passed, 58 skipped, exit 0): `149-PARITY-TRANSCRIPTS.md` §"The
+empty-FW_ROOT skip leg (D-18)".
+
+### The inventory entry and the two stale counts
+
+`tests/scan_paths.py`'s `CROSS_REPO_TEST_PATHS` gained `ScanPathEntry("src/json_parser.c",
+("test_json_key_parity.py",))` — `src/json_parser.c` was cross-repo-scanned by this phase's plan 04
+and this plan without ever being named in the committed inventory `scan_paths.py` exists to make
+exhaustive. Two stale prose counts in that module's own docstring, both reading **6** where the
+tuple had held **7** entries since Phase 147 added `src/firestarter.cpp`, are corrected to **8** in
+this diff, with the surrounding sentences reworded to stay true. `tests/test_scan_paths_resolve.py`'s
+`is_relative_to` name-collision guard passes for the new entry, and its exact-count assertion on the
+11-file tool-resolver population (Population B) is untouched.
+
+### `constants.py:145`'s "Firmware sync" note
+
+That note has read "Firmware sync: `json_parser.c` (`key_page_size`)" since plan 03 corrected its
+wording — a claim this project's own kickoff record measured as **false** at the time (no such key
+existed in the firmware before plan 04). It is now a true claim, and — as of this plan —
+**enforced**: `test_json_key_parity.py` fails the suite if the firmware string, the Python constant,
+or the dispatch-table wiring between them ever drifts.
+
+### The honest ceiling
+
+This gate proves the two repositories agree on a **key string** and that the string is wired into
+the firmware's dispatch table — **layout agreement**, nothing more. It does not prove the C getter
+(`get_page_size`) stores that value into the right struct field, does not prove the 0x0D handler
+reads that field correctly, and proves nothing about hardware. Like every other artifact this phase
+produces, it is **software-proven and unvalidated on silicon**: no AT28C part was involved anywhere
+in this plan, `0x0D` stays `UNVERIFIED`, and no `support_status` entry changed.
 
 ## Post-change cold measurement and MERGE-05 funding (plan 06)
 
