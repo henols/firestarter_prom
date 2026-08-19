@@ -256,7 +256,7 @@ PROV-05, PROV-06.
 Plans:
 **Wave 1**
 
-- [ ] 148-01-PLAN.md — pre-change 746-chip wire-dict baseline capture + byte-identity test (D-14/D-06); must run before any edit
+- [x] 148-01-PLAN.md — pre-change 746-chip wire-dict baseline capture + byte-identity test (D-14/D-06); must run before any edit
 
 **Wave 2** *(blocked on Wave 1 completion)*
 

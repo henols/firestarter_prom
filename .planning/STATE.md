@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 148
-current_phase_name: Numeric Database Values & the AT28C VCC Decode
-status: planning
-stopped_at: Phase 148 planned — ready to execute
-last_updated: "2026-08-19T08:40:00.000Z"
+current_phase_name: Numeric Database Values & the AT28C VCC Decode — EXECUTING
+status: executing
+stopped_at: Completed 148-01-PLAN.md
+last_updated: "2026-08-19T10:00:27.007Z"
 last_activity: 2026-08-19
-last_activity_desc: "**Phase 148 planned** by /gsd-plan-phase — 8 plans in 8 waves (sequential; each wave's artifact is the next wave's baseline), verified by gsd-plan-checker on revision pass 2. Requirements coverage 5/5, decision coverage 17/17. Research (148-RESEARCH.md), validation strategy (148-VALIDATION.md) and a pattern map (148-PATTERNS.md) precede the plans. BEFORE planning, D-04's hand-correction was applied and then extended: the false premise that `vcc: \"4V\"` is a decode defect targeting the datasheet's 4.5 V was retired from DATA-01, ROADMAP criterion 1 + Goal + the v1.32 DATA spine line, PROJECT.md's workstream note and kickoff D-02, and STATE.md's phase table. The decode is FAITHFUL; the defect is semantic (minipro's `vcc` is the TL866 verify-margin rail), so the fix is a margin-rail substitution to the decoded `vdd` = 5000 mV, keyed on the decoded value alone, moving EXACTLY 56 chips. Research then measured six contradictions with CONTEXT.md, three of which would each have produced an unachievable criterion and a false RED, all folded back into CONTEXT.md: F-1 `tools/extra_chips.json` is a SECOND emission path (2 chips, merged post-decode byte-faithful) that must be migrated by hand or direct indexing raises KeyError; F-2 `diff_db.py` already reports 744 changed chips (its baseline predates Phase 136.1), so D-11's \"diff to ZERO\" is unattainable — the criterion is now bucket-count invariance plus one NEW 56-chip `RULE_VCC_MARGIN_RAIL` bucket; F-3 NO AT28C VCC line exists in any snapshot (the only info-view snapshot runs W27C512, a non-mover), so the `.ambr` must be byte-UNCHANGED and ROADMAP criterion 1 had ZERO test coverage — a new `test_info_at28c256` snapshot is now a Wave 0 gap. The plan-checker found 3 unreachable `grep -c` count assertions; the planner's sweep audited 38 and corrected 15, including a FAIL-OPEN verify in 148-01 that exited 0 on a failing leg. NEXT: /gsd-execute-phase 148."
+last_activity_desc: Phase 148 execution started
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 14
-  completed_plans: 6
+  completed_plans: 7
   percent: 17
 ---
 
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-18 — v1.32 started)
 authoritative dispatch key end to end. v1.32 turns that key on the project's own diagnostics: a
 community `dev test` report must be attributable to the firmware that produced it before any
 protocol-`0x0D` write-path claim can be made about it.
-**Current focus:** Phase 147 — Report Provenance — every `dev test` report names its firmware (PLANNED 2026-08-18; 6 plans in 4 waves, ready to execute)
+**Current focus:** Phase 148 — Numeric Database Values & the AT28C VCC Decode (EXECUTING)
 
 **v1.32 AT28C Write-Path Root Cause & Report Provenance** — ACTIVE (activated 2026-08-18, folding Backlog
 **999.28**; Backlog **999.29** is partially addressed and explicitly NOT retired — v1.32 removes the
@@ -76,10 +76,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 148 — Numeric Database Values & the AT28C VCC Decode
-Plan: Not started
-Status: 147-05 complete — `tools/parse_devtest_issue.py` gets `NOT_REPORTED`/`_NOT_ATTRIBUTABLE` local literals (D-11); `render_diff` now labels `host_version`/`fw_board_identity`, folding the not-attributable clause into the identity row when absent (D-14/D-17), with no `hw_revision` row (D-15). First-ever `render_diff` tests (0 -> 7): populated/absent cases, the deliberate `hw_revision` omission, a non-regression pin on `n_agreeing`, a null-identity frozen fixture proving PROV-04's real-world case, and a value-parity assert pinning the two app-side `NOT_REPORTED` literals equal. PROV-04 complete. Full suite 1616 passed (baseline 1609 + 7 new tests). 147-06 next (non-autonomous — the devtest-triage skill script, its own third marker literal, and the two blocking human oracles).
-Last activity: 2026-08-18 — Phase 147 complete, transitioned to Phase 148
+Phase: 148 — Numeric Database Values & the AT28C VCC Decode — EXECUTING
+Plan: 2 of 8
+Status: Ready to execute
+Last activity: 2026-08-19 — Phase 148 execution started
 
 ## Roadmap Summary (v1.32)
 
@@ -1990,6 +1990,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 147-04]: D-04's leg-2 transport-error test is parametrized over ProgrammerNotFoundError and SerialTimeoutError rather than two separate functions, since both exceptions land in the same except clause — Both are SerialError subclasses per RESEARCH F-17, so one parametrized test proves both without duplicating the assertion shape
 - [Phase 147-04]: Task 3's negative assertion filters result.output to only identity-row lines before regexing for a bare None — The same rendered table's chip_id (expected/actual) row legitimately renders None / None for the M8720 fixture chip; a whole-output substring scan would false-positive on that unrelated, deliberately-untouched row
 - [Phase ?]: 147-05: D-11/D-14/D-15/D-16/D-17 applied -- NOT_REPORTED/_NOT_ATTRIBUTABLE duplicated as local literals in tools/parse_devtest_issue.py (stdlib-only contract forbids importing diagnostic_report.py); render_diff labels host_version/fw_board_identity, folding the not-attributable clause into the identity row when absent; no hw_revision row, no schema-version ordering logic. First-ever render_diff tests (0 -> 7); a second frozen fixture proves PROV-04's null-identity real-world case; a value-parity assert pins the two app-side NOT_REPORTED literals equal (the third, skill-script literal is 147-06's checkpoint, not this test's).
+- [Phase ?]: Record key is f"{mfg}|{pn}|{i}", never pn alone -- part numbers are not unique across ~9% of the DB
+- [Phase ?]: No pytest.skip path in test_wire_dict_equivalence.py -- the golden lives inside tests/golden/, so a missing golden is always a loud failure, never a standalone-CI skip
+- [Phase ?]: diff_db.py's correct pre-change baseline is 744 changed chips, not zero -- the pre-136.1 baseline is NOT re-pinned by this phase (D-11)
 
 ## Performance Metrics
 
@@ -2265,12 +2268,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 147 P03 | 30min | 3 tasks | 2 files |
 | Phase 147 P04 | 50min | 3 tasks | 2 files |
 | Phase 147 P05 | ~27min | 3 tasks | 2 files |
+| Phase 148 P01 | ~12min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-18T22:02:31.259Z
-**Stopped at:** Phase 148 context gathered
-**Resume file:** .planning/phases/148-numeric-database-values-the-at28c-vcc-decode/148-CONTEXT.md
+**Last session:** 2026-08-19T10:00:26.983Z
+**Stopped at:** Completed 148-01-PLAN.md
+**Resume file:** None
 
 ### Blockers
 
