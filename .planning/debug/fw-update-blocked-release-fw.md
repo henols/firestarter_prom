@@ -484,3 +484,31 @@ the first cut of the fix is what surfaced the need for the exemption at all.
 Also reasoned rather than demonstrated: the claim that Defect A would silently flash the **wrong**
 image where two boards share an MCU. This bench has three distinct MCUs (328P / 328PB / 32u4), so
 avrdude's part-signature check refused every mismatch. The unprotected case was never observed.
+
+### That "reasoned, not demonstrated" hazard was a LIVE HALF of Defect A (`c495e98`)
+
+Asked to fix the flagged items, the hazard turned out not to be hypothetical. **`da6572b` closed only
+the typed-port path.** `port_override` is read back out of config, so a port merely *remembered*
+there does not restrict the probe — and `port_to_use = port_override or connected_port` still
+preferred it. With a saved `port` in config and the board since moved, `fw --install` identified
+board **Y** and then aimed **Y's** release asset at port **X**: the original Defect-A composition,
+fully alive through the config path, in code already reported as fixed.
+
+Fix is a one-line inversion, `port_to_use = connected_port or port_override`, which makes the
+composition **unrepresentable** rather than improbable: whenever there is an identity, it and the
+flash target are the same port by construction; when there is none there is nothing to mismatch, so
+the named port is used and the blind path is unchanged. Pinned by
+`test_identity_and_target_always_come_from_the_same_port`, verified RED against the old ordering with
+exactly the wrong port (`ttyACM1` where `ttyUSB0` was required). Suite 1676 passed / 0 failed.
+
+This also **retires the avrdude-is-the-only-guard worry** rather than documenting it: that guard held
+only while two boards had different MCUs, and two Unos are both `atmega328p -c arduino`. The app can
+no longer produce the mismatch, so the hardware signature check is no longer load-bearing.
+
+**Lesson, and it is the sharpest one in this file:** each of the three times a "fixed" claim was
+re-examined here, a second call site or a second code path was still carrying the defect —
+`serial_comm` vs `firmware` for the config leak (C), the typed-port vs config-port path for
+targeting (A). A defect that arises from *two places agreeing* is not fixed by repairing one of them.
+Enumerate every writer/reader of the shared state before declaring it closed, and prefer a single
+chokepoint (`ConfigManager.remember_port`, `connected_port or port_override`) over a rule that must
+hold in several places at once.
