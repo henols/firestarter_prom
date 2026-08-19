@@ -254,10 +254,13 @@ verification: |
   - `/dev/ttyUSB0` (CH340, detected `uno328pb`) was deliberately left on 3.0.0b11 as a preserved
     pre-CAP-02 specimen — it is the only remaining board that can reproduce the original failure,
     and it keeps a regression witness on the bench. It still offers `3.0.0b19` correctly.
-  - Note for whoever runs this next: the flash is refused by the Claude Code auto-mode classifier
-    even with `"Bash(python -m firestarter.main:*)"` allowlisted; the classifier sits above the
-    permission rules. It cleared only when the command was issued bare (no `cd ... &&` prefix, no
-    pipe, no redirect) from an already-current working directory.
+  - Note for whoever runs this next: auto mode refuses this flash on its merits (it downloads a
+    binary and has avrdude overwrite MCU flash). `"Bash(python -m firestarter.main:*)"` in
+    `.claude/settings.local.json` does clear it, but it is a **prefix** rule — the call must be
+    issued **bare**. `cd X && timeout 400 python -m firestarter.main ... | tail` does not start
+    with the rule's prefix, so it never matches and falls through to the classifier, which denies
+    it. Set the working directory in a separate call first. Command shape, not the classifier
+    overriding permission rules.
 
 files_changed:
   - firestarter_app/firestarter/serial_comm.py: `_probe_port` + `find_and_connect` gain
