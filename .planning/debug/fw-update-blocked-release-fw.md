@@ -450,11 +450,19 @@ Three gaps were named honestly before closing them, rather than claiming blanket
 only ever been proven on the Uno (`arduino`). Leonardo: 2.0.6 flashed on → unreachable → refused
 without `--board` → `fw --board leonardo --install` warned and flashed b19. That specifically drives
 `Avrdude._trigger_reset`'s 1200-baud USB-CDC touch, which runs **only** for `atmega32u4` and had
-never executed from the blind branch. `urclock` is proven only **to the download boundary**: the
-328PB board was put on pre-COBS `3.0.0b4` and correctly entered the blind branch
-(`current: None`), but GitHub rate-limited the release lookup mid-test so `latest` resolved to None.
-That board was restored to its b11 witness state with a CDN download + direct avrdude rather than
-left unreachable. `urclock` flashing itself is proven by the earlier b11 → b19 run.
+never executed from the blind branch. **`urclock` CLOSED too, on a later attempt** — the first run
+reached only the download boundary because GitHub rate-limited the release lookup (`latest: None`),
+and that board was restored via CDN + direct avrdude rather than left unreachable. Re-run after the
+limit reset: `3.0.0b4` flashed on → `Bad JSON` → `fw --board uno328pb --install` warned, resolved
+`3.0.0b19`, and ran `avrdude -p atmega328pb -c urclock -b 115200 -P /dev/ttyUSB0` to completion →
+board reads b19. **All three flash methods are therefore proven under the blind branch**:
+`arduino` (uno), `avr109` (leonardo, incl. the 1200-baud touch), `urclock` (uno328pb).
+
+That run also validated the corrected wording from `a7e554d` in situ — the emitted message named
+"every 2.x release, and 3.0.0 pre-releases before b8", and `b4` is exactly such a pre-release.
+The board was then returned to `3.0.0b11` and the CAP-02 waiver re-confirmed firing on it
+(`ack carries no firmware identity … proceeding because this is the firmware-update read path`), so
+the witness is intact and demonstrably still reproduces the *other* defect.
 
 **This test disproved the wording of the fix's own error message** (`a7e554d`). `3.0.0b4` answers
 `Bad JSON` exactly as `2.0.6` does, so blaming "2.x firmware" would misdirect an operator on a
