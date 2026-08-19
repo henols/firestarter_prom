@@ -302,15 +302,37 @@ Plans:
 **Plans**: 8 plans across 8 sequential waves
 
 Plans:
-- [ ] 149-01-PLAN.md — Fork the v1.32 firmware branch off `origin/beta` (verified by content), cold pre-edit baseline for all three AVR targets, and the `149-PAGE-SIZE.md` skeleton (D-13, D-16)
-- [ ] 149-02-PLAN.md — The D-19 phase-local claim gate, with the `\bproven\b` collision resolved by a negative lookbehind and a negative control proving a bare "proven" still fails (D-19)
-- [ ] 149-03-PLAN.md — DB side: the provenance-keyed emit arm, the exhaustive host invariant, the committed 18-entry wire-delta fixture, and the three stale host comments (D-01, D-02, D-03, D-07, D-17)
-- [ ] 149-04-PLAN.md — Firmware seam: the wire key, the handle field and its per-command reset, the validated page mask at the flush boundary, the corrected floor comment, and ten new native cases including the flush-count oracle (D-04, D-05, D-06, D-07, D-08, D-09, D-10, D-11, D-15)
-- [ ] 149-05-PLAN.md — PGSZ-03 cross-repo parity: the two-way key scan with a named exemption tuple, two planted RED fixtures, the inventory entry, and the empty-`FW_ROOT` skip transcript (D-18)
-- [ ] 149-06-PLAN.md — Post-change cold measurement and the new named, SHA-attributed MERGE-05 exemption, with five repaired test legs and three re-planted fixtures (D-12, D-13)
-- [ ] 149-07-PLAN.md — `size_baseline.json` updated from the cold transcripts with `firmware_tree_sha` corrected, both size gates green, and four deferred todos filed (D-04, D-14)
-- [ ] 149-08-PLAN.md — `149-PAGE-SIZE.md` completed, one README changelog line, the claim gate extended to every 149 artifact and re-proved, and PGSZ-01…05 flipped (D-16, D-19, D-20)
+**Wave 1**
 
+- [ ] 149-01-PLAN.md — Fork the v1.32 firmware branch off `origin/beta` (verified by content), cold pre-edit baseline for all three AVR targets, and the `149-PAGE-SIZE.md` skeleton (D-13, D-16)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 149-02-PLAN.md — The D-19 phase-local claim gate, with the `\bproven\b` collision resolved by a negative lookbehind and a negative control proving a bare "proven" still fails (D-19)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 149-03-PLAN.md — DB side: the provenance-keyed emit arm, the exhaustive host invariant, the committed 18-entry wire-delta fixture, and the three stale host comments (D-01, D-02, D-03, D-07, D-17)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 149-04-PLAN.md — Firmware seam: the wire key, the handle field and its per-command reset, the validated page mask at the flush boundary, the corrected floor comment, and ten new native cases including the flush-count oracle (D-04, D-05, D-06, D-07, D-08, D-09, D-10, D-11, D-15)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 149-05-PLAN.md — PGSZ-03 cross-repo parity: the two-way key scan with a named exemption tuple, two planted RED fixtures, the inventory entry, and the empty-`FW_ROOT` skip transcript (D-18)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 149-06-PLAN.md — Post-change cold measurement and the new named, SHA-attributed MERGE-05 exemption, with five repaired test legs and three re-planted fixtures (D-12, D-13)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
+- [ ] 149-07-PLAN.md — `size_baseline.json` updated from the cold transcripts with `firmware_tree_sha` corrected, both size gates green, and four deferred todos filed (D-04, D-14)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
+- [ ] 149-08-PLAN.md — `149-PAGE-SIZE.md` completed, one README changelog line, the claim gate extended to every 149 artifact and re-proved, and PGSZ-01…05 flipped (D-16, D-19, D-20)
 
 ### Phase 150: Deliberate Protection — `write --sdp-relock`
 
