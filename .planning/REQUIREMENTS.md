@@ -102,10 +102,10 @@ data the generator emits. The seed touches the same field, so both land together
       ending the half-done state where every chip carries both `vpp: "12V"` and `vpp_mv: 12000` while
       `vcc`/`vdd` exist only as unit-suffixed strings.
 
-- [ ] **DATA-03**: `database.py`'s string-coercion layer (`_map_data`'s `.replace("V","")` → `float()`
+- [x] **DATA-03**: `database.py`'s string-coercion layer (`_map_data`'s `.replace("V","")` → `float()`
       and `_parse_pulse_duration`) is deleted, not merely bypassed.
 
-- [ ] **DATA-04**: No generator field is emitted that cannot be proven from `infoic.xml`. No per-chip
+- [x] **DATA-04**: No generator field is emitted that cannot be proven from `infoic.xml`. No per-chip
       lookup table keyed on part number, and no sibling to the pre-existing `_PAGE_SIZE_BY_PART`
       exception.
 
@@ -251,8 +251,8 @@ relies on `autonomous: false` alone is not self-protecting.
 | PROV-06 | Phase 147 | Complete |
 | DATA-01 | Phase 148 | Complete |
 | DATA-02 | Phase 148 | Complete |
-| DATA-03 | Phase 148 | Pending |
-| DATA-04 | Phase 148 | Pending |
+| DATA-03 | Phase 148 | Complete |
+| DATA-04 | Phase 148 | Complete |
 | DATA-05 | Phase 148 | Complete |
 | DATA-06 | Phase 150 | Pending |
 | PGSZ-01 | Phase 149 | Pending |

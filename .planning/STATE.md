@@ -4,17 +4,17 @@ milestone: v1.32
 milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 148
 current_phase_name: Numeric Database Values & the AT28C VCC Decode — EXECUTING
-status: executing
-stopped_at: Completed 148-07-PLAN.md
-last_updated: "2026-08-19T12:23:32.853Z"
+status: verifying
+stopped_at: Completed 148-08-PLAN.md -- phase 148 fully complete, 8/8 plans, all 5 DATA-01..05 requirements Complete, ready for verification
+last_updated: "2026-08-19T12:57:58.859Z"
 last_activity: 2026-08-19
 last_activity_desc: Phase 148 execution started
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 14
-  completed_plans: 13
-  percent: 17
+  completed_plans: 14
+  percent: 33
 ---
 
 # Project State
@@ -78,7 +78,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 Phase: 148 — Numeric Database Values & the AT28C VCC Decode — EXECUTING
 Plan: 8 of 8
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-08-19 — Phase 148 execution started
 
 ## Roadmap Summary (v1.32)
@@ -2007,6 +2007,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 148]: Task 1's predicted RED (diff_db.py exit 1, 56 UNEXPLAINED) did not occur; measured RED was exit 0 with the 56 movers misattributed to the pre-existing BUG3_VCC_VDD rule — BUG3_VCC_VDD's condition does not check pinout/type/vpp diffs, so it silently matched the movers before RULE_VCC_MARGIN_RAIL existed; documented as a stronger proof of D-11's need in 148-DB-DIFF.md
 - [Phase ?]: 148-07: Golden re-derivation via the test module's own _walk/_generator_chip_entry_keys/_extra_chips_entry_keys helpers against the live tree, never a second reimplementation
 - [Phase ?]: 148-07: Leg E (new to this milestone) plants inside the real tools/extra_chips.json (no env seam by design), run last before the clean-tree Leg F, restored byte-exact
+- [Phase ?]: 148-08: AST gate for DATA-04 scopes to tree.body only (top-level statements), never ast.walk, so it does not fire on the pre-existing local _AT28C_DIP24_NAMES (Phase 76); a genuinely new module-level part-keyed dict always shows up at tree.body and is caught.
+- [Phase ?]: 148-08: deferred vcc==5500 group corrected to 28 chips (16+12), not 29 -- CONTEXT.md's deferred prose disagreed with its own D-03 table (12); RESEARCH F-6 confirmed D-03 was right. Filed as vcc-5500-high-margin-verify-rail-group.md, not fixed -- algorithm 0x07's non-uniform vdd (5500 and 6500) makes the substitution target unproven.
 
 ## Performance Metrics
 
@@ -2289,11 +2291,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 148 P05 | 2100 | 3 tasks | 2 files |
 | Phase 148 P06 | 50min | 3 tasks | 7 files |
 | Phase 148 P07 | 40min | 2 tasks | 2 files |
+| Phase 148 P08 | 45min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-19T12:23:32.828Z
-**Stopped at:** Completed 148-07-PLAN.md
+**Last session:** 2026-08-19T12:57:58.834Z
+**Stopped at:** Completed 148-08-PLAN.md -- phase 148 fully complete, 8/8 plans, all 5 DATA-01..05 requirements Complete, ready for verification
 **Resume file:** None
 
 ### Blockers

@@ -284,7 +284,7 @@ Plans:
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 148-08-PLAN.md — source-scan/AST gates, `148-DB-DIFF.md` completion, deferred-group todo, changelog, phase gate (D-12/D-17)
+- [x] 148-08-PLAN.md — source-scan/AST gates, `148-DB-DIFF.md` completion, deferred-group todo, changelog, phase gate (D-12/D-17)
 
 ### Phase 149: Firmware Page-Size Seam (dual-repo lockstep)
 
@@ -357,11 +357,11 @@ Plans:
 | PROV-04 | Phase 147 | Complete |
 | PROV-05 | Phase 147 | Complete |
 | PROV-06 | Phase 147 | Complete |
-| DATA-01 | Phase 148 | Pending |
-| DATA-02 | Phase 148 | Pending |
-| DATA-03 | Phase 148 | Pending |
-| DATA-04 | Phase 148 | Pending |
-| DATA-05 | Phase 148 | Pending |
+| DATA-01 | Phase 148 | Complete |
+| DATA-02 | Phase 148 | Complete |
+| DATA-03 | Phase 148 | Complete |
+| DATA-04 | Phase 148 | Complete |
+| DATA-05 | Phase 148 | Complete |
 | DATA-06 | Phase 150 | Pending |
 | PGSZ-01 | Phase 149 | Pending |
 | PGSZ-02 | Phase 149 | Pending |
