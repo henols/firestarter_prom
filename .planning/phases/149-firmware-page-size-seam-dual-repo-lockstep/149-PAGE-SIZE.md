@@ -3,7 +3,8 @@
 This is the phase's single reviewable-whole artifact for the firmware page-size seam. It carries
 the fork point this phase measures every figure against, the cold pre-edit AVR baseline, the D-01
 upstream-provenance table and its citation chain, the three measured non-claims the Evidence
-Ceiling requires, and placeholder sections for the evidence later plans in this phase append.
+Ceiling requires, the DB-side and firmware-side evidence each plan in this phase appended, and the
+closing baseline-update and what-ships record.
 Everything this document records about the page-size change is **software-proven and unvalidated on silicon**.
 
 ## The fork point
