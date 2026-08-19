@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 149
-current_phase_name: Firmware Page-Size Seam (dual-repo lockstep)
+current_phase_name: dual-repo lockstep
 status: executing
-stopped_at: "Phase 149 Plan 05 complete — cross-repo JSON-key parity gate landed (10-leg gate, two planted RED fixtures observed then committed, skip-leg transcript, inventory entry, constants.py:145 note now enforced)"
-last_updated: "2026-08-19T21:13:10.834Z"
+stopped_at: Phase 149 Plan 06 complete -- MERGE-05 exemptions funded (flash 210 B, RAM 2 B), operator approved
+last_updated: "2026-08-19T22:26:54.771Z"
 last_activity: 2026-08-19
-last_activity_desc: Phase 149 Plan 05 complete (cross-repo JSON-key parity gate, two planted RED fixtures, skip-leg transcript, inventory entry, constants.py:145 note now enforced)
+last_activity_desc: "Phase 149 Plan 05 complete (cross-repo JSON-key parity gate, two planted RED fixtures, skip-leg transcript, inventory entry, constants.py:145 note now enforced)"
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 22
-  completed_plans: 19
+  completed_plans: 20
   percent: 33
 ---
 
@@ -77,7 +77,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 149 — Firmware Page-Size Seam (dual-repo lockstep) — EXECUTING
-Plan: 5 of 8
+Plan: 6 of 8
 Status: Ready to execute
 Last activity: 2026-08-19 — Phase 149 Plan 05 complete (cross-repo JSON-key parity gate, two planted RED fixtures, skip-leg transcript, inventory entry, constants.py:145 note now enforced)
 
@@ -2015,6 +2015,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 149]: Resolved the page-size flush mask once above eeprom28c_write_execute's per-byte loop rather than at write-INIT (D-06's literal site), recorded as mechanism-corrected/intent-satisfied (149-04)
 - [Phase 149]: Flush-count oracle proves a delivered 128-byte page halves the flush count (130 vs 132 get_data calls), seen to fail before the mask and pass after (149-04)
 - [Phase ?]: Decorated all 8 live legs in test_json_key_parity.py with @requires_fw (including the fails-closed-on-rename and self-protection legs), a deliberate departure from the closest analog module, per this plan's explicit acceptance criteria.
+- [Phase 149]: Funded the page-size seam's measured +210 B flash / +2 B RAM cost with two new, separately-named, SHA-attributed MERGE-05 exemptions rather than folding into the existing defect-fix exemption, re-anchoring BASE-01, or widening any band
+- [Phase 149]: Leonardo's remaining MERGE-05 flash headroom after this exemption is exactly 0 bytes -- the exemption funds precisely what was measured with zero spare margin; operator approved as measured
 
 ## Performance Metrics
 
@@ -2302,11 +2304,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 149 P03 | 50min | 3 tasks | 10 files |
 | Phase 149 P04 | 65min | 3 tasks | 8 files |
 | Phase 149 P05 | 70min | 3 tasks | 6 files |
+| Phase 149 P06 | 35min | 3 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-08-19T21:13:10.807Z
-**Stopped at:** Phase 149 Plan 05 complete — cross-repo JSON-key parity gate landed (10-leg gate, two planted RED fixtures observed then committed, skip-leg transcript, inventory entry, constants.py:145 note now enforced)
+**Last session:** 2026-08-19T22:26:54.746Z
+**Stopped at:** Phase 149 Plan 06 complete -- MERGE-05 exemptions funded (flash 210 B, RAM 2 B), operator approved
 **Resume file:** None
 
 ### Blockers

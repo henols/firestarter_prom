@@ -324,7 +324,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 149-06-PLAN.md — Post-change cold measurement and the new named, SHA-attributed MERGE-05 exemption, with five repaired test legs and three re-planted fixtures (D-12, D-13)
+- [x] 149-06-PLAN.md — Post-change cold measurement and the new named, SHA-attributed MERGE-05 exemption, with five repaired test legs and three re-planted fixtures (D-12, D-13)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
