@@ -161,8 +161,259 @@ phase actually holds to, and the one measured above, is the stronger one: the `.
 value) gets a **new**, dedicated test in Plan 06 — it does not exist yet and was never claimed to
 exist in this section.
 
+## Plan 06 — the VCC margin-rail substitution (D-01/D-02/D-03)
+
+Measured this session from `/workspaces/firestarter_app`, on the
+`gsd/v1.32-at28c-write-path-root-cause-report-provenance` branch, immediately after
+`build_db.py`'s `_VCC_MARGIN_RAIL_MV` constant and post-construction margin-rail substitution
+landed (before `diff_db.py`'s `RULE_VCC_MARGIN_RAIL` classification rule existed).
+
+### RED — `python3 tools/diff_db.py ; echo EXIT=$?` (before the diff_db.py rule)
+
+**Correction to the plan's predicted mechanism.** `148-06-PLAN.md`'s Task 1 predicted `EXIT=1`
+with the 56 movers landing in `UNEXPLAINED`, on the theory that no rule claims the
+`("electrical","vcc_mv")` path for them. That theory did not hold: the pre-existing `BUG3_VCC_VDD`
+rule's condition (`voltage_diff and not timing_diff and not algo_diff`) does not check
+`pinout_diff`/`type_diff`/`vpp_diff`, so it matches ANY chip whose only voltage field changed —
+including these 56 movers — and **misattributes them to the Phase 57/58 vcc/vdd label-swap
+rationale**, which is not what happened here (D-01: the vcc/vdd labels are correct; only the
+margin-rail value is substituted). The measured RED is therefore `EXIT=0`, not `EXIT=1` — arguably
+a **stronger** proof of D-11's need than the predicted RED: before the new rule, the movers are
+silently swallowed by the WRONG existing rule rather than surfaced as unexplained.
+
+```
+--- CHANGED chips (744 total) ---
+
+[BUG3_VCC_VDD] (56 chips)
+  BUG-3 vcc/vdd label swap only — inverted field labels corrected.
+    bits 11-8 = vcc (VCC supply voltage), bits 15-12 = vdd (VDD programming voltage).
+    Previously the decode had these reversed.
+    [VERIFIED: minipro database.c#L921-L923 @ a8efaedc —
+     https://gitlab.com/DavidGriffith/minipro/-/blob/a8efaedc/src/database.c#L921]
+  Affected part_numbers (56):
+    AM28C64A,AM28C64AE,AM28C64B,AM28C64BE
+    AT28BV256,AT28LV256
+    AT28BV64,AT28LV64
+    AT28BV64B,AT28LV64B
+    AT28C010,AT28C010E
+    AT28C04,AT28HC04
+    AT28C040,AT28C040E
+    AT28C04E,AT28C04F
+    AT28C16,AT28HC16,AT28HC16L
+    AT28C16E,AT28C16F
+    AT28C17
+    AT28C17E,AT28C17F
+    AT28C256,AT28C256E,AT28C256F,AT28HC256,AT28HC256E,AT28HC256F,AT28HC256L
+    AT28C64,AT28C64B(Non-Standard),AT28HC64,AT28HC64L
+    AT28C64B,AT28HC64B,AT28HC64BF
+    AT28C64E,AT28C64F
+    AT28LV010
+    AT28MC010
+    AT28MC020
+    AT28MC040
+    AT28PC64,AT28PC64E
+    CAT28C010
+    CAT28C020
+    CAT28C040
+    CAT28C16A,CAT28C16AI
+    CAT28C17A
+    CAT28C256,CAT28C257
+    CAT28C512
+    CAT28C64A,CAT28C65
+    CAT28C64B
+    CAT28LV256
+    CAT28LV64,CAT28LV65
+    FM28V020
+    HN58C256AP
+    28C010,28C010T,28C011,28C011T
+    UPD28C04
+    UPD28C256
+    UPD28C64
+    KM28C64
+    KM28C64A,KM28C65A
+    M28010
+    M28010
+    M28256
+    WE128K8
+    WE256K8
+    WE512K8
+    WME128K8
+    X2804A,X2804AI
+    X2816A
+    X2816B,X2816C
+    X28256,X28C256
+    X2864AP
+    X28C010
+    X28C64(NonStandard),X28HC64(NonStandard)
+    X28C64,X28HC64
+    X88C64P,X88C64S
+
+[PGSZ_PAGE_SIZE] (2 chips)
+  ... (unchanged from Before)
+
+[PROV01_PROTECT_METADATA] (686 chips)
+  ... (the 56 movers dropped OUT of this bucket relative to the pre-migration 742,
+       because they now ALSO have a voltage delta -- but they land in the WRONG
+       bucket, BUG3_VCC_VDD, not their own)
+
+--- COMPOUND changes (58) — algo+other deltas ---
+  (the 56 movers appear here too, each: [BUG3_VCC_VDD] + secondary:
+   programming.infoic_page_size_raw, programming.protect_off_before,
+   programming.protect_on_after)
+
+--- NEW chips (0) ---
+--- MISSING chips (0) ---
+
+PASS: all 744 changed chips explained (0 new chips confirmed; 0 chips removed from baseline)
+EXIT=0
+```
+
+**Structural regen proof (Task 1's own acceptance criteria, still valid):** the regenerated
+`chip_database.json` has 746 chips total, **0** chips at `vcc_mv == 4000`, and no chip's `vcc_mv`
+lower than its pre-rule value — confirmed independently of `diff_db.py`'s classification bucket
+naming.
+
+### GREEN — `python3 tools/diff_db.py ; echo EXIT=$?` (after `RULE_VCC_MARGIN_RAIL` landed)
+
+`RULE_VCC_MARGIN_RAIL` inserted into `_RATIONALES`, `_RULE_FIELD_PATHS`, and a value-scoped
+`_classify_diff` branch placed **before** `BUG3_VCC_VDD` (baseline `vcc_mv == 4000` AND current
+`vcc_mv == current vdd_mv` AND current `vcc_mv != 4000`, with the usual
+algo/timing/pinout/type exclusivity terms).
+
+```
+--- CHANGED chips (744 total) ---
+
+[RULE_VCC_MARGIN_RAIL] (56 chips)
+  Phase 148 DATA-01 (D-01/D-02/D-03) — VCC margin-rail substitution.
+    infoic.xml's VCC nibble 2 (VCC_VOLTAGES[0x02] = 4000 mV) is decoded FAITHFULLY —
+    this is not a decode repair. The defect is semantic: minipro's vcc is the TL866's
+    low-margin VCC *verify* rail, and firestarter surfaced it as the chip's operating
+    supply. The substitution targets the already-decoded vdd_mv (itself an
+    infoic.xml-decoded value, so nothing is invented) whenever vcc_mv lands on this
+    rail: build_db.py::_VCC_MARGIN_RAIL_MV, applied post-construction.
+    No other delta: exactly 56 chips move, every one 4000 -> 5000 mV, and no chip's
+    vcc_mv is ever lowered by this rule (Test 3's no-decrease guard,
+    tests/test_vcc_margin_rail.py).
+    [VERIFIED: minipro database.c#L130-L135 @ a8efaedc —
+     https://gitlab.com/DavidGriffith/minipro/-/blob/a8efaedc/src/database.c#L130]
+    [CITED: .planning/phases/148-numeric-database-values-the-at28c-vcc-decode/148-DB-DIFF.md]
+  Affected part_numbers (56):
+    AM28C64A,AM28C64AE,AM28C64B,AM28C64BE
+    AT28BV256,AT28LV256
+    AT28BV64,AT28LV64
+    AT28BV64B,AT28LV64B
+    AT28C010,AT28C010E
+    AT28C04,AT28HC04
+    AT28C040,AT28C040E
+    AT28C04E,AT28C04F
+    AT28C16,AT28HC16,AT28HC16L
+    AT28C16E,AT28C16F
+    AT28C17
+    AT28C17E,AT28C17F
+    AT28C256,AT28C256E,AT28C256F,AT28HC256,AT28HC256E,AT28HC256F,AT28HC256L
+    AT28C64,AT28C64B(Non-Standard),AT28HC64,AT28HC64L
+    AT28C64B,AT28HC64B,AT28HC64BF
+    AT28C64E,AT28C64F
+    AT28LV010
+    AT28MC010
+    AT28MC020
+    AT28MC040
+    AT28PC64,AT28PC64E
+    CAT28C010
+    CAT28C020
+    CAT28C040
+    CAT28C16A,CAT28C16AI
+    CAT28C17A
+    CAT28C256,CAT28C257
+    CAT28C512
+    CAT28C64A,CAT28C65
+    CAT28C64B
+    CAT28LV256
+    CAT28LV64,CAT28LV65
+    FM28V020
+    HN58C256AP
+    28C010,28C010T,28C011,28C011T
+    UPD28C04
+    UPD28C256
+    UPD28C64
+    KM28C64
+    KM28C64A,KM28C65A
+    M28010
+    M28010
+    M28256
+    WE128K8
+    WE256K8
+    WE512K8
+    WME128K8
+    X2804A,X2804AI
+    X2816A
+    X2816B,X2816C
+    X28256,X28C256
+    X2864AP
+    X28C010
+    X28C64(NonStandard),X28HC64(NonStandard)
+    X28C64,X28HC64
+    X88C64P,X88C64S
+
+[PGSZ_PAGE_SIZE] (2 chips)
+  (unchanged)
+
+[PROV01_PROTECT_METADATA] (686 chips)
+  (unchanged bucket rationale; count dropped from the pre-migration 742 by exactly
+   the 56 chips that now correctly classify as RULE_VCC_MARGIN_RAIL instead)
+
+--- COMPOUND changes (58) — algo+other deltas ---
+  28C010,... [RULE_VCC_MARGIN_RAIL] + secondary: programming.infoic_page_size_raw,
+    programming.protect_off_before, programming.protect_on_after
+  (55 more RULE_VCC_MARGIN_RAIL compound entries, same secondary set;
+   2 PGSZ_PAGE_SIZE compound entries, unchanged from Before)
+
+--- NEW chips (0) ---
+--- MISSING chips (0) ---
+
+PASS: all 744 changed chips explained (0 new chips confirmed; 0 chips removed from baseline)
+EXIT=0
+```
+
+**Measured distribution (exactly as predicted by 148-CONTEXT.md D-11's corrected mechanism):**
+changed-chip total **744** (unchanged), `RULE_VCC_MARGIN_RAIL` **56** (new bucket),
+`PROV01_PROTECT_METADATA` **686** (dropped from 742 by exactly the 56 movers),
+`PGSZ_PAGE_SIZE` **2** (unchanged), `NEW` **0**, `MISSING` **0**. Every pre-existing bucket count
+is unchanged except `PROV01_PROTECT_METADATA`'s drop, which is exactly accounted for by the new
+bucket. `tools/baseline/chip_database.baseline.json` is **NOT re-pinned** (confirmed
+`git diff --quiet` clean). `tools/check_dispatch.py` (GATE-03) is byte-unchanged and exits 0 with
+0 violations.
+
+### The 56-chip mover list (D-12) — by manufacturer
+
+Measured across 12 manufacturers: ATMEL 20, CATALYST(CSI) 11, XICOR 9, WED 4, NEC 3, SAMSUNG 2,
+ST 2, AMD 1, CYPRESS 1, HITACHI 1, MAXWELL 1, SGS-THOMSON 1 — matching 148-CONTEXT.md D-03's
+measured blast radius exactly. See the full part-number list in the RED/GREEN transcripts above
+(identical set in both; only the classifying bucket differs).
+
+### Justification (D-03, restated with its citation)
+
+`_VCC_MARGIN_RAIL_MV = VCC_VOLTAGES[0x02]` (`build_db.py`), keyed on the **decoded value alone** —
+`chip_entry["electrical"]["vcc_mv"] == _VCC_MARGIN_RAIL_MV` → substitute `vdd_mv`. No part number,
+no `type`, no `algorithm`. `[VERIFIED: minipro database.c#L130-L135 @ a8efaedc —
+tl866ii_vcc_voltages[]]`. Rejected alternatives, measured: type-keyed → 85 movers (16 set to
+3.3V); algorithm-keyed (`0x0D`) → 84 movers (16 set to 3.3V); relation-keyed
+(`vcc < vdd <= 5500`) → 225 movers (sweeps in UV-EPROMs whose `vdd` is the 6.5V program rail).
+
+### Explicit non-claim: the `vcc=5500` EEPROM-class group (29 chips) is untouched
+
+Sixteen Microchip parts (`28C256`, `28C16A`, `28C64A`, `2817`, `2804`, `28LV64A`, …) carry
+`vcc_mv: 5500` against `vdd_mv: 3300`; thirteen EXEL / SGS-THOMSON / ST parts (`XL2816A`,
+`XLE28C64A`, `M28C64`, …) carry `vcc_mv: 5500` against `vdd_mv: 5000`. This is the SAME category
+error inverted — a high-margin verify rail surfaced as the operating supply — and it means
+`firestarter info` still reports 5.5V for parts that run at 5V. **This phase makes no claim about
+that group and does not touch it**: the correct target is unproven without establishing from
+`infoic.xml` what the two nibbles encode per family (148-CONTEXT.md `<deferred>`). Filed as a
+pending todo, not fixed here.
+
 ## Evidence Ceiling
 
 This phase corrects data the generator emits (`tools/build_db.py`'s VCC decode) and makes **no
 claim** about AT28C silicon behaviour. `0x0D` stays `UNVERIFIED`, no `support_status` changes as a
-result of this phase, and gh#21 / #32 / #11 / #12 stay OPEN.
+result of this phase, and gh#21 / #32 / #11 / #12 stay OPEN. `vcc` is inert on the wire (D-06,
+Plan 01's 9-key capture) — nothing in this correction can explain or fix `write BAD`.
