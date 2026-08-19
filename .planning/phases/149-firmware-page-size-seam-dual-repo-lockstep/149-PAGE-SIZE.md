@@ -1594,6 +1594,105 @@ these measurements, `0x0D` stays `UNVERIFIED`, and no `support_status` entry cha
 other artifact this phase produces, the change these two exemptions fund is
 **software-proven and unvalidated on silicon**.
 
-## Baseline update and closing record (plans 07-08)
+## Baseline update and closing record (plan 07)
 
-*(filled by plans 07-08)*
+`scripts/baseline/size_baseline.json` — this project's live default baseline (D-14) — is
+re-anchored to plan 06's cold post-change figures: uno 25130/1575, uno328pb 25180/1581, leonardo
+27212/2016 (flash used / RAM used), transcribed byte-for-byte from the committed cold logs, never
+re-measured warm. Both pinned native envs (`native`, `native_nodevtools`) move from 141 to 151
+cases/succeeded; `suites` stays 17 and `envs_agree` stays true.
+
+**The stale `firmware_tree_sha` is corrected (X-3).** `size_baseline.json`'s
+`meta.firmware_tree_sha` had recorded `3d8ec49…`, the root tree of Phase 144 commit `6cc4795` — a
+tree that predates Phase 145's +96 B fix the same file's own figures already included, so the
+field and the figures beside it were mutually inconsistent as a reproducibility anchor. It is
+replaced with `c6349d22bb15a0e2a3f1e95af946bfe28a8582ad`, the root tree of firmware commit
+`581cff6` — the tree the cold logs in this phase were actually measured against.
+
+**Both size gates are green simultaneously against the re-anchored baseline**: the default
+byte-identity mode, and `--policy merge05` against the untouched `size_baseline_base01.json`
+(BASE-01 stays byte-unchanged at uno 24824, uno328pb 24874, leonardo 26906 — not re-anchored a
+third time).
+
+**Orchestrator-directed severance, stated plainly — this plan does not narrate plan 07 as having
+passed exactly as written.** Re-anchoring the live default baseline necessarily invalidated four
+pre-existing `tests/test_check_size_baseline.py` legs that assert default-mode output against the
+frozen pre-149 `captured_build_*.log` / `captured_test_native*.log` fixtures. Plan 07's own first
+attempt — leaving those four legs failing and recording the gap as an accepted limitation — was
+overridden by the orchestrator: a phase whose entire theme is honest measurement cannot close with
+a failing firmware suite. The resolution actually landed is **severance**, the same mechanism the
+Phase 145 debug session already used once in this exact file: a new `captured_build_v132_*.log`
+fixture family (transcribed from the same committed cold post-change logs, never re-derived warm)
+plus a matching planted-regression fixture, three legs re-pointed at that new family, and the two
+native summary fixtures updated in place. `check_size_baseline.py`, `size_baseline_base01.json`,
+`src/`, `include/`, the pre-149 `captured_build_*.log` trio and `merge05_base01_anchor_*.log` all
+stay byte-unchanged. `python3 -m pytest tests/ -o addopts="" -q` now reports **315 passed, 0
+failed** — every test in the suite passing, not merely a documented, accepted gap. The full
+account of this override lives in `149-07-SUMMARY.md`'s own "Deviations from Plan" section.
+
+Four pending todos were filed with measured provenance, none of them describing the underlying
+question as answered by this phase: the 66-row floor's unproven safety
+(`promoted-0x0d-rows-keep-the-64-byte-floor.md`), the two FRAM parts riding the `0x0D` handler by
+pinout promotion (`fram-parts-ride-the-0x0d-handler-by-pinout-promotion.md`), the deferred runtime
+INFO log naming the effective page size (`runtime-info-log-naming-the-effective-page-size.md`),
+and the Phase-44 read-timing knobs' own missing `json_parse` reset
+(`phase-44-read-timing-knobs-missing-json-parse-reset.md`). The folded, dead-code
+`remove-dead-json-init-sizeof-pointer-bug.md` todo was removed as a tracked deletion after
+confirming `json_init()` is genuinely gone from `src/`.
+
+## What ships, and what does not
+
+**What ships:** 15 AT28C010-class parts (the movers named above) now write using their datasheet
+128-byte page instead of the 64-byte floor. 3 more (`AT28MC010`, `WE128K8`, `WE256K8`) are
+corroborated at 64 and are demonstrably unchanged in behaviour. The 66 rows arriving at `0x0D` by
+promotion, and `AT28C256` specifically, are untouched — byte-identical on the wire, still on the
+64-byte floor. The firmware falls back to its own named floor constant whenever the field is
+absent, non-power-of-two, or out of range, in every one of those cases.
+
+**What does not ship:** no silicon evidence of any kind; `0x0D` stays `UNVERIFIED`; no
+`support_status` value is altered for any chip; gh#21, gh#32, gh#11 and gh#12 all stay open; and no
+bench validation of this change exists or is planned — `REQUIREMENTS.md` §Out of Scope excludes it
+by name. Every figure and every test result in this document is a compiler-time or host-side
+measurement. Taken as a whole, the page-size seam this phase delivers is
+**software-proven and unvalidated on silicon**.
+
+## The changelog line, mirrored
+
+The `firestarter_app/README.md` subsection added by this plan, quoted verbatim so it can be
+reviewed here alongside the artifact it describes:
+
+> ### AT28C010-class parts now write with a 128-byte page (software-proven, unvalidated on silicon)
+>
+> The database now delivers a per-chip page size over the existing JSON command path for the 18
+> chips whose upstream record is natively protocol `0x0D`; 15 of them move from the firmware's
+> 64-byte floor to their datasheet 128-byte page, and 3 are corroborated at 64 and therefore
+> unchanged. Firmware that receives no page-size field keeps using the conservative 64-byte floor,
+> so an older host against this firmware still issues legal write cycles.
+>
+> **This does alter write behaviour for those 15 parts** — unlike the VCC correction above, which
+> did not — and it is stated as **software-proven and unvalidated on silicon**. No physical AT28C
+> part was tested. **AT28C256 is unaffected**: its upstream record is not natively `0x0D` and its
+> page size was already 64, so nothing about its behaviour changes and nothing here explains the
+> failure reported against it. Protocol `0x0D` remains `UNVERIFIED` and no chip's support status
+> changed.
+>
+> Writes to those 15 parts issue half as many page-write cycles, so they may complete faster;
+> nothing else about the command surface changes.
+
+## The deferred work, and where it is filed
+
+Four pending todos, filed by plan 07, carry this phase's own deferred findings forward with their
+measured provenance rather than closing the questions here:
+
+- `.planning/todos/pending/promoted-0x0d-rows-keep-the-64-byte-floor.md` — the 66 rows arriving at
+  `0x0D` by promotion keep the 64-byte floor; their real page size is unproven, not disproven, and
+  neither datasheet curation nor a new corroboration axis exists yet to settle it.
+- `.planning/todos/pending/fram-parts-ride-the-0x0d-handler-by-pinout-promotion.md` — `FM28V020`
+  and `MB85R256H`, both FRAM, ride the `0x0D` handler by pinout promotion; a classification
+  question, not a page-size one.
+- `.planning/todos/pending/runtime-info-log-naming-the-effective-page-size.md` — a runtime INFO log
+  naming the effective page size, so a future community `dev test` report can show the granularity
+  its firmware used; declined here on flash cost (D-09).
+- `.planning/todos/pending/phase-44-read-timing-knobs-missing-json-parse-reset.md` — the two Phase
+  44 read-timing knobs carry the identical stale-value defect this phase closed for `page_size`,
+  one field over; not fixed here because it would perturb an existing, passing test.
