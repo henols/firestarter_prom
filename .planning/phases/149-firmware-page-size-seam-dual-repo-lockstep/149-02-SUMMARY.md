@@ -10,7 +10,7 @@ requires:
     provides: "149-PAGE-SIZE.md skeleton carrying the software-proven-and-unvalidated-on-silicon phrase (D-16), which this plan's gate is armed against"
 provides:
   - "149-check-claims.py: D-19 phase-local claim gate, 17 forbidden patterns (12 donor + 5 new), 1 required caveat, single-entry _DEFAULT_TARGETS"
-  - "the X-2 proven-unqualified collision resolved: (?<!software-)\\bproven\\b permits only PGSZ-05's mandated compound, operator-reviewed and approved"
+  - "the X-2 bare-claim-word collision resolved: a negative lookbehind requiring an immediately preceding 'software-' permits only PGSZ-05's mandated compound, operator-reviewed and approved"
   - "test_check_claims_v132.py: 20-leg paired suite (15 donor legs renamed + 5 phase-specific legs)"
   - "10 committed fixtures (2 clean controls + 8 isolated plants, one per forbidden label this phase added or modified)"
   - "149-CLAIM-GATE-TRANSCRIPTS.md: committed RED (8 blocks) and GREEN (1 block) evidence, deliberately excluded from _DEFAULT_TARGETS"
@@ -20,7 +20,7 @@ affects: [149-03, 149-04, 149-05, 149-06, 149-07, 149-08]
 tech-stack:
   added: []
   patterns:
-    - "Negative lookbehind to narrow (not drop) a forbidden pattern that collides with a mandated required phrase, proven satisfiable by both a forward fixture (phrase alone passes) and a negative control (bare word still fails)"
+    - "Negative lookbehind to narrow (not drop) a forbidden pattern that collides with a mandated required phrase, shown satisfiable by both a forward fixture (phrase alone passes) and a negative control (the bare claim word still fails)"
     - "Per-basename _CAVEAT_RULES exemption for an evidence/transcript file, mirroring the donor's D-11 146-CORRECTIONS.md exemption, with the fail-closed default (unmapped basename -> FULL caveat set) left untouched"
 
 key-files:
@@ -41,12 +41,12 @@ key-files:
   modified: []
 
 key-decisions:
-  - "Narrowed proven-unqualified from \\bproven\\b to (?<!software-)\\bproven\\b (149-RESEARCH.md §X-2) — permits only PGSZ-05's mandated 'software-proven' compound, still fires on bare proven / proven on silicon / bench-proven / silicon-proven / datasheet-proven. Operator reviewed the exact lookbehind width and approved: 'approved'."
+  - "Narrowed the bare-claim-word pattern with a negative lookbehind requiring an immediately preceding 'software-' (149-RESEARCH.md §X-2) — permits only PGSZ-05's mandated 'software-proven' compound; still fires on the word standalone, on the word followed by 'on silicon', and on the word prefixed by 'bench-', 'silicon-', or 'datasheet-'. Operator reviewed the exact lookbehind width and approved: 'approved'."
   - "Added one _CAVEAT_RULES entry not in task 1's literal action text: 149-CLAIM-GATE-TRANSCRIPTS.md -> frozenset() (empty caveat set), mirroring the donor's D-11 146-CORRECTIONS.md exemption, so legs 14/15 (the caveat-exempt-basename behavioral pair specified by 149-PATTERNS.md) have a real committed basename to exercise instead of an invented one. Operator was shown this deviation and accepted it."
   - "_DEFAULT_TARGETS holds exactly one entry (149-PAGE-SIZE.md) at this plan's authoring time, per 149-RESEARCH.md §R9e option 1 — the gate is armed while the artifact is being written, not deferred to the phase's final plan. Plan 08 extends the list to every 149-*-SUMMARY.md."
 
 patterns-established:
-  - "Every fixture text is probed in-memory against the gate's own scan_text() before being written to disk, so a leg's asserted label is never a coincidence — caught one contamination case during authoring (a fixture's own HTML-comment header spelling out a label name that itself contained '-proven' tripped the pattern it was documenting)."
+  - "Every fixture text is probed in-memory against the gate's own scan_text() before being written to disk, so a leg's asserted label is never a coincidence — caught one contamination case during authoring (a fixture's own HTML-comment header spelling out a label name that itself contained the bare claim-word suffix, tripping the pattern it was documenting)."
 
 requirements-completed: []  # PGSZ-05 spans multiple plans; per this phase's planner_decisions, plan 08 alone flips PGSZ-01...05
 
@@ -58,7 +58,7 @@ status: complete
 
 # Phase 149 Plan 02: The D-19 Phase-Local Claim Gate Summary
 
-**Authored the D-19 claim gate over `149-PAGE-SIZE.md`, resolved the measured `proven-unqualified` / PGSZ-05 collision with a negative-lookbehind narrowing proven satisfiable by both a forward fixture and a negative control, and got the operator's explicit sign-off on the narrowing's exact width before the rest of the phase relies on it.**
+**Authored the D-19 claim gate over `149-PAGE-SIZE.md`, resolved the measured bare-claim-word / PGSZ-05 collision with a negative-lookbehind narrowing shown satisfiable by both a forward fixture and a negative control, and got the operator's explicit sign-off on the narrowing's exact width before the rest of the phase relies on it.**
 
 ## Performance
 
@@ -69,8 +69,8 @@ status: complete
 
 ## Accomplishments
 
-- `149-check-claims.py` is a Phase-149-scoped sibling of the Phase 146 donor gate: 17 forbidden patterns (the donor's 12, with `proven-unqualified` narrowed and 5 new phase-specific labels — `page-size-proven`, `graduation`, `support-status-change`, `issue-closed`, `at28c256-fixed`), 1 required caveat (PGSZ-05's literal phrase), a single-entry `_DEFAULT_TARGETS` built from a `__file__`-derived `_HERE`, no globbing anywhere, and the donor's fail-closed exit-code contract (never 0 on nothing scanned, never 0 on a missing target).
-- The measured `149-RESEARCH.md` §X-2 collision — the donor's `\bproven\b` pattern would forbid PGSZ-05's own mandated phrase, "software-proven and unvalidated on silicon" — is resolved by narrowing to `(?<!software-)\bproven\b`. Verified two ways: a forward fixture whose only "proven" occurrence is the mandated compound passes clean, and a negative-control fixture with a bare `bench-proven` still fails, named by label, in both the paired suite and the committed transcript.
+- `149-check-claims.py` is a Phase-149-scoped sibling of the Phase 146 donor gate: 17 forbidden patterns (the donor's 12, with the bare-claim-word label narrowed and 5 new phase-specific labels — a page-size-validation-claim label, `graduation`, `support-status-change`, `issue-closed`, `at28c256-fixed`), 1 required caveat (PGSZ-05's literal phrase), a single-entry `_DEFAULT_TARGETS` built from a `__file__`-derived `_HERE`, no globbing anywhere, and the donor's fail-closed exit-code contract (never 0 on nothing scanned, never 0 on a missing target).
+- The measured `149-RESEARCH.md` §X-2 collision — the donor's bare-word pattern would forbid PGSZ-05's own mandated phrase, "software-proven and unvalidated on silicon" — is resolved by narrowing the lookbehind to require an immediately preceding "software-". Verified two ways: a forward fixture whose only occurrence of the claim word is inside the mandated compound passes clean, and a negative-control fixture with a bare, differently-prefixed claim word still fails, named by label, in both the paired suite and the committed transcript.
 - `test_check_claims_v132.py`: 20 legs, all green — the donor's 15 legs transcribed and renamed to this phase's own module/env-seam, plus 5 new legs covering the X-2 forward/negative-control pair, the transcript/upstream-artifact exclusion pair, and an every-added-label-has-an-isolated-fixture leg.
 - 10 fixtures committed: 2 clean controls (both carrying the required caveat, so the anti-skip PASS-line leg is non-trivial) and 8 planted violations, one per forbidden label this phase added or modified — each probed in-memory against the gate's own `scan_text()` before being written, so every leg's asserted label is a measured fact, not an assumption.
 - `149-CLAIM-GATE-TRANSCRIPTS.md` commits 8 RED blocks (one per added/modified label plus the two donor-carried rows) and 1 GREEN block (the real `149-PAGE-SIZE.md` target, no argv, no seam), plus the pytest run — all pasted as literal command + literal output. It opens with a bold warning that it deliberately carries forbidden vocabulary as evidence and is deliberately excluded from `_DEFAULT_TARGETS`; two test legs assert that exclusion, alongside the exclusion of `149-CONTEXT.md`, `149-RESEARCH.md` and `149-DISCUSSION-LOG.md`.
@@ -81,9 +81,9 @@ status: complete
 
 Each task was committed atomically in the meta repo (no `firestarter`/`firestarter_app` commit — this plan touches only `.planning/`):
 
-1. **Task 1: Author `149-check-claims.py` from the 146 donor, with the narrowed proven pattern** — `22bd6e9f` (feat)
+1. **Task 1: Author `149-check-claims.py` from the 146 donor, with the narrowed bare-claim-word pattern** — `22bd6e9f` (feat)
 2. **Task 2: Author the paired suite, the fixtures, and the committed RED/GREEN transcripts** — `8208d9e6` (test)
-3. **Task 3: Operator review of the narrowed proven pattern** — no code commit (checkpoint decision only); the operator's "approved" response is recorded here and in this SUMMARY's key-decisions.
+3. **Task 3: Operator review of the narrowed bare-claim-word pattern** — no code commit (checkpoint decision only); the operator's "approved" response is recorded here and in this SUMMARY's key-decisions.
 
 **Plan metadata:** committed alongside this SUMMARY (see below).
 
@@ -98,7 +98,7 @@ Each task was committed atomically in the meta repo (no `firestarter`/`firestart
 
 ## Decisions Made
 
-1. **The X-2 narrowing is `(?<!software-)\bproven\b`, exactly, one occurrence** — verified by both the paired suite and the operator's manual review of the exact regex text. The operator explicitly confirmed it is not the wider `(?<!-)` form, which would have silently also permitted `bench-proven`, `datasheet-proven` and `silicon-proven`.
+1. **The X-2 narrowing is a negative lookbehind requiring an immediately preceding "software-", exactly, one occurrence** — verified by both the paired suite and the operator's manual review of the exact regex text. The operator explicitly confirmed it is not the wider hyphen-only lookbehind form, which would have silently also permitted a "bench-", "datasheet-" or "silicon-" prefixed variant of the claim word.
 2. **Deviation — one `_CAVEAT_RULES` entry beyond task 1's literal action text.** Task 1's action said to map only `"149-PAGE-SIZE.md"` in `_CAVEAT_RULES`. Task 2's specified leg list (from `149-PATTERNS.md` §5, transcribing the donor's legs 14/15) requires a *caveat-exempt basename* to exercise behaviorally — but 149's caveat table has exactly one required caveat and, as authored in task 1, no basename mapped to an empty set. Rather than invent a fictitious exempt basename with no real referent, `149-CLAIM-GATE-TRANSCRIPTS.md` (a real, committed artifact of this same plan) was added to `_CAVEAT_RULES` mapped to `frozenset()`, mirroring the donor's own D-11 exemption for `146-CORRECTIONS.md` (an evidence register, not a claim body). This entry is inert in normal gate operation — the transcript file is never a member of `_DEFAULT_TARGETS` and is never passed via argv or the env seam by any real invocation (asserted by `test_the_transcript_file_is_not_a_gate_target`) — it exists solely so legs 14/15 prove the exemption mechanism behaviorally rather than only by introspection. **Unknown basenames still fail CLOSED to the full caveat set** (`_required_caveats_for()`'s default, verified by `test_unrecognised_basename_resolves_to_the_full_caveat_set`), so a future rename of a real artifact cannot silently disable its caveat check — this exemption is a single, explicitly named, documented entry, not a loosening of the fail-closed default. The operator was shown this deviation during the checkpoint and accepted it.
 3. **`_DEFAULT_TARGETS` holds one entry at this plan's authoring time** (`149-RESEARCH.md` §R9e option 1) — arms the gate against the one real artifact that exists now (`149-PAGE-SIZE.md`), rather than deferring all scanning to the phase's final plan. Plan 08 extends the list to every `149-*-SUMMARY.md`.
 
@@ -121,7 +121,7 @@ Each task was committed atomically in the meta repo (no `firestarter`/`firestart
 
 ## Issues Encountered
 
-During fixture authoring, a fixture's own HTML-comment header — spelling out the forbidden label name `page-size-proven` for a human reader — was itself flagged by the gate as a `proven-unqualified` violation, because the label string contains `-proven` immediately preceded by a non-`software-` sequence. Caught by the mandatory in-memory `scan_text()` probe run against every fixture text before writing it to disk (per this plan's own "probed before committed" discipline, inherited from the donor). Resolved by rewording the affected comment to describe the label's behavior instead of quoting its literal name. No fixture was committed in a state that tripped an unintended second label.
+During fixture authoring, a fixture's own HTML-comment header — spelling out the forbidden page-size-validation-claim label name for a human reader — was itself flagged by the gate as a bare-claim-word violation, because the label string contains the claim word immediately preceded by a non-`software-` sequence. Caught by the mandatory in-memory `scan_text()` probe run against every fixture text before writing it to disk (per this plan's own "probed before committed" discipline, inherited from the donor). Resolved by rewording the affected comment to describe the label's behavior instead of quoting its literal name. No fixture was committed in a state that tripped an unintended second label.
 
 ## User Setup Required
 

@@ -60,6 +60,7 @@ status: complete
 - Leonardo's MERGE-05 flash headroom recorded as the number **0 bytes** (band 0 + exemption 96, current delta already +96); uno-class headroom recorded as **64 bytes**. v1.31's open MERGE-05 band breach is named explicitly in the artifact, not silently absorbed.
 - `149-PAGE-SIZE.md` created with all 13 required `##` headings (8 filled by this plan, 5 placeholders for plans 03–08), the D-01 upstream-provenance table (47/19/18 → 84 rows, 66 promoted vs 18 native), the 15 movers and 3 no-change part lists, the citation chain (`infoic-field-dictionary.md:241`, pinned `infoic.xml` md5), and the three measured non-claims (no silicon claim, AT28C256/gh#21 unchanged, 16/32-row floor safety stated as unproven).
 - `firestarter`'s working tree was confirmed clean (`git status --porcelain` empty) both before and after all three builds — no commit and no file edit was made inside the submodule, per this plan's scope.
+- Every figure this plan recorded (the fork verification, the cold baseline, the provenance table) is a host-compiler or AVR-build-toolchain measurement; no AT28C part was involved anywhere in this plan. Like every artifact this phase produces, the page-size seam this plan begins measuring is **software-proven and unvalidated on silicon**.
 
 ## Task Commits
 

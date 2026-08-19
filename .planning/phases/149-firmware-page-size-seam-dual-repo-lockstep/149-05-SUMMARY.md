@@ -155,6 +155,7 @@ status: complete
   pytest, sibling-present pytest, ruff) all exit 0; leg 4 (mypy watermark) exits 2, the devcontainer's
   documented pre-existing local condition (ambient numpy PEP-695 stub on Python 3.12), unrelated to
   and unaffected by this plan's changes.
+- The parity gate proves **layout agreement** between the two repositories' key strings and dispatch tables — nothing about hardware. No AT28C part was involved anywhere in this plan, `0x0D` stays `UNVERIFIED`, and no `support_status` entry changed. Like every other artifact this phase produces, this cross-repo parity evidence is **software-proven and unvalidated on silicon**.
 
 ## Task Commits
 

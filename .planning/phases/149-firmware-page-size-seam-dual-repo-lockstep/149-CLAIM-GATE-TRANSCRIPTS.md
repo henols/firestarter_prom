@@ -151,3 +151,78 @@ negative-lookbehind narrowing that PGSZ-05's own required phrase forced.
 of this specific forbidden-phrase table and carries the one required caveat. That is plan 08's
 human wording review, which this transcript does not discharge and must not be cited as
 discharging.
+
+---
+
+## Extended target list (plan 08)
+
+`_DEFAULT_TARGETS` is extended here from the single `149-PAGE-SIZE.md` entry armed at plan 02 to
+eight enumerated entries: this artifact plus all seven `149-01-SUMMARY.md`..`149-07-SUMMARY.md`.
+Four of those seven SUMMARYs (`149-01`, `149-03`, `149-05`, `149-07`) did not yet carry the
+required `software-proven-unvalidated` caveat and were amended by this plan to add it, in each
+case as an honest closing statement consistent with that plan's own content, never as new claims.
+Three of the seven (`149-02`, `149-03`, `149-04`) also required rewording to avoid tripping the
+narrowed bare-claim-word pattern in their own prose (each discusses the gate's own vocabulary or a
+byte-identity assertion in a way that incidentally used a forbidden spelling) — no factual claim in
+any of the three was changed, only the wording around it. All four commands below were run from
+this phase directory with `python3` (3.12.13).
+
+### RED — the real extended list plus one planted overclaim, never a one-file subset
+
+```
+$ FIRESTARTER_CLAIMSCAN_TARGETS_149=149-PAGE-SIZE.md:149-01-SUMMARY.md:149-02-SUMMARY.md:149-03-SUMMARY.md:149-04-SUMMARY.md:149-05-SUMMARY.md:149-06-SUMMARY.md:149-07-SUMMARY.md:fixtures/planted_extended_overclaim_08.md python3 149-check-claims.py ; echo EXIT=$?
+FAIL: 1 forbidden phrase match(es):
+  fixtures/planted_extended_overclaim_08.md:11: forbidden phrase match [confirmed-working]: 'confirmed working'
+EXIT=1
+```
+
+The plant carries the required caveat and exactly one violation, so the failure above is
+attributable to that one sentence and to nothing else about the eight real artifacts scanned
+alongside it — none of the seven SUMMARYs nor `149-PAGE-SIZE.md` themselves failed this run.
+
+### GREEN — the real eight-entry defaults, no argv, no seam
+
+```
+$ python3 149-check-claims.py ; echo EXIT=$?
+PASS: scanned 149-PAGE-SIZE.md, 149-01-SUMMARY.md, 149-02-SUMMARY.md, 149-03-SUMMARY.md, 149-04-SUMMARY.md, 149-05-SUMMARY.md, 149-06-SUMMARY.md, 149-07-SUMMARY.md; 8 of 8 caveat-required file(s) carry every caveat their own rule demands; 0 file(s) carry no caveat requirement (this PASS is compliance with the forbidden-phrase table and the per-file caveat rule only -- see the module docstring's explicit non-claim, and note that a green run alone does not discharge plan 08's human wording review)
+EXIT=0
+```
+
+This is non-trivial: every one of the seven SUMMARYs now carries the required
+`software-proven and unvalidated on silicon` phrase, so a vacuous or accidental PASS (a file
+skipped, or a caveat rule silently unmapped) is ruled out by the same run that proves compliance.
+
+### ARGV — the eight defaults plus the outward-facing README, via positional argv
+
+```
+$ python3 149-check-claims.py 149-PAGE-SIZE.md 149-01-SUMMARY.md 149-02-SUMMARY.md 149-03-SUMMARY.md 149-04-SUMMARY.md 149-05-SUMMARY.md 149-06-SUMMARY.md 149-07-SUMMARY.md /workspaces/firestarter_app/README.md ; echo EXIT=$?
+PASS: scanned 149-PAGE-SIZE.md, 149-01-SUMMARY.md, 149-02-SUMMARY.md, 149-03-SUMMARY.md, 149-04-SUMMARY.md, 149-05-SUMMARY.md, 149-06-SUMMARY.md, 149-07-SUMMARY.md, ../../../firestarter_app/README.md; 9 of 9 caveat-required file(s) carry every caveat their own rule demands; 0 file(s) carry no caveat requirement (this PASS is compliance with the forbidden-phrase table and the per-file caveat rule only -- see the module docstring's explicit non-claim, and note that a green run alone does not discharge plan 08's human wording review)
+EXIT=0
+```
+
+`firestarter_app/README.md` lives outside `_HERE`, so it is scanned via positional argv rather than
+`_DEFAULT_TARGETS` — adding it to the defaults would trip `_assert_default_targets_are_local()` by
+design, and that self-check must not be relaxed. This is the mechanism that scans the one
+outward-facing text this phase produces.
+
+### Paired suite
+
+```
+$ python3 -m pytest test_check_claims_v132.py -q -o addopts=""
+....................                                                     [100%]
+20 passed in 0.58s
+```
+
+All 20 legs pass against the extended, eight-entry `_DEFAULT_TARGETS`, including the introspection
+legs asserting locality, prefix and caveat-rule completeness over the full list.
+
+### What this section proves, and what it still does not
+
+**Does prove:** the extended, enumerated eight-target list still rejects a planted overclaim when
+scanned alongside the real artifacts (never a one-file subset); the real eight-entry default list
+passes non-vacuously, with every SUMMARY carrying the required caveat; the outward-facing README
+line is reachable and clean via the argv mechanism designed for content outside `_HERE`.
+
+**Does not prove:** anything about the prose's honesty beyond this forbidden-phrase table and the
+one required caveat — the same explicit non-claim as the plan 02 section above. That is task 3's
+blocking human wording review, which this section does not discharge.

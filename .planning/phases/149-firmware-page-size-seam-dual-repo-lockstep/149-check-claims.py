@@ -23,10 +23,11 @@ forbidden patterns plus the module skeleton itself, transcribed unchanged.
 **Mandatory renames distinguish this sibling from its donor**, exactly as the
 donor itself required of Phase 139's gate before it:
 
-1. `_DEFAULT_TARGETS` is this phase's own review artifact, `149-PAGE-SIZE.md`
-   -- one entry today. Plan 08 extends the list, once every `149-*-SUMMARY.md`
-   exists, to every SUMMARY plus this same artifact. Never a wildcard
-   expansion and never a recursive directory traversal: a wildcard `149-`-prefixed default
+1. `_DEFAULT_TARGETS` is this phase's own review artifact, `149-PAGE-SIZE.md`,
+   plus all seven `149-01-SUMMARY.md`..`149-07-SUMMARY.md` (extended by
+   plan 08 once every one of them existed) -- eight entries, enumerated one
+   by one, never a wildcard expansion and never a recursive directory
+   traversal: a wildcard `149-`-prefixed default
    set would sweep in `149-CONTEXT.md`, `149-RESEARCH.md` and
    `149-DISCUSSION-LOG.md` (each carrying the forbidden vocabulary as
    discussion prose), the fixtures directory (whose planted files exist
@@ -124,22 +125,31 @@ import sys
 # Source: `146-check-claims.py:108`, copied verbatim.
 _HERE = os.path.dirname(os.path.abspath(__file__))
 
-# Single-entry default target list at plan 02's authoring time (D-19's
-# ordering recommendation, `149-RESEARCH.md` §R9e option 1): the gate is
-# armed against this phase's own review artifact while every other 149
-# artifact is still being written. Never a wildcard expansion, never a
-# recursive directory traversal: a wildcard `149-`-prefixed default set would sweep in
-# `149-CONTEXT.md`, `149-RESEARCH.md` and `149-DISCUSSION-LOG.md` (each
-# carrying the forbidden vocabulary as discussion prose), the fixtures
-# directory (whose planted files exist precisely to be violations), and
-# `149-CLAIM-GATE-TRANSCRIPTS.md` (whose RED blocks quote forbidden text as
-# evidence by design). All five stay permanently out of this list. Plan 08
-# extends this list to every `149-*-SUMMARY.md` once they exist -- a target
-# that does not yet exist cannot be named here, because this gate's
-# fail-closed missing-target branch (below) has no exit-0-on-nothing-scanned
-# escape hatch to protect it.
+# Extended at plan 08 to every artifact this phase produces (D-19's closing
+# extension): this phase's own review artifact plus all seven prior plans'
+# SUMMARYs. `149-08-SUMMARY.md` is deliberately NOT included -- it does not
+# exist while this task runs, and this gate's fail-closed missing-target
+# branch (below) has no exit-0-on-nothing-scanned escape hatch to protect a
+# target named before it exists. It is scanned instead via the argv form,
+# after it is written (see `149-CLAIM-GATE-TRANSCRIPTS.md` §"Extended target
+# list (plan 08)" and this plan's own SUMMARY).
+#
+# Never a wildcard expansion, never a recursive directory traversal: a
+# wildcard `149-`-prefixed default set would sweep in `149-CONTEXT.md`,
+# `149-RESEARCH.md` and `149-DISCUSSION-LOG.md` (each carrying the forbidden
+# vocabulary as discussion prose), the fixtures directory (whose planted
+# files exist precisely to be violations), and `149-CLAIM-GATE-TRANSCRIPTS.md`
+# (whose RED blocks quote forbidden text as evidence by design). All of those
+# stay permanently out of this list, by design, not by oversight.
 _DEFAULT_TARGETS = [
     os.path.join(_HERE, "149-PAGE-SIZE.md"),
+    os.path.join(_HERE, "149-01-SUMMARY.md"),
+    os.path.join(_HERE, "149-02-SUMMARY.md"),
+    os.path.join(_HERE, "149-03-SUMMARY.md"),
+    os.path.join(_HERE, "149-04-SUMMARY.md"),
+    os.path.join(_HERE, "149-05-SUMMARY.md"),
+    os.path.join(_HERE, "149-06-SUMMARY.md"),
+    os.path.join(_HERE, "149-07-SUMMARY.md"),
 ]
 
 # Env-override seam, SUFFIXED `_149`: the donor's `_146` name is a distinct
@@ -280,6 +290,13 @@ _ALL_CAVEAT_LABELS = frozenset(
 # introspected, exactly as D-11 required of its own donor.
 _CAVEAT_RULES = {
     "149-PAGE-SIZE.md": frozenset({"software-proven-unvalidated"}),
+    "149-01-SUMMARY.md": frozenset({"software-proven-unvalidated"}),
+    "149-02-SUMMARY.md": frozenset({"software-proven-unvalidated"}),
+    "149-03-SUMMARY.md": frozenset({"software-proven-unvalidated"}),
+    "149-04-SUMMARY.md": frozenset({"software-proven-unvalidated"}),
+    "149-05-SUMMARY.md": frozenset({"software-proven-unvalidated"}),
+    "149-06-SUMMARY.md": frozenset({"software-proven-unvalidated"}),
+    "149-07-SUMMARY.md": frozenset({"software-proven-unvalidated"}),
     "149-CLAIM-GATE-TRANSCRIPTS.md": frozenset(),
 }
 

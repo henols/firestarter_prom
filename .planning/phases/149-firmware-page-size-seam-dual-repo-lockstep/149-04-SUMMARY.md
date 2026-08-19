@@ -95,7 +95,7 @@ coverage:
         status: pass
     human_judgment: false
   - id: D3
-    description: "The seam is software-proven and unvalidated on silicon -- no AT28C part was involved, no support_status changed, 0x0D stays UNVERIFIED"
+    description: "The seam is software-proven and unvalidated on silicon -- no AT28C part was involved, no support_status value changed, 0x0D stays UNVERIFIED"
     verification: []
     human_judgment: true
     rationale: "Evidence Ceiling (binding, v1.32): silicon validation is explicitly out of scope for this phase and cannot be verified by any automated check available here -- recorded as a standing constraint, not a deliverable to sign off on."

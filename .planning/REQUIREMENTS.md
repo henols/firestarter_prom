@@ -125,21 +125,21 @@ ROADMAP.md". The floor is deliberate and safe (a smaller flush granularity issue
 cycles into one physical page and can never overrun), but AT28C010 needs 128. **The only
 firmware-touching workstream — dual-repo lockstep.**
 
-- [ ] **PGSZ-01**: The per-chip page size travels from `chip_database.json` over the wire to the
+- [x] **PGSZ-01**: The per-chip page size travels from `chip_database.json` over the wire to the
       firmware handler, through the existing JSON command path.
 
-- [ ] **PGSZ-02**: The `0x0D` handler uses the delivered page size, falling back to the conservative
+- [x] **PGSZ-02**: The `0x0D` handler uses the delivered page size, falling back to the conservative
       64-byte floor when the field is absent — so an older host against newer firmware still writes
       correctly rather than overrunning a page.
 
-- [ ] **PGSZ-03**: Constants and flag bits stay in lockstep between `firestarter/include/firestarter.h`
+- [x] **PGSZ-03**: Constants and flag bits stay in lockstep between `firestarter/include/firestarter.h`
       and `firestarter_app/firestarter/constants.py`, changed together in one milestone branch.
 
-- [ ] **PGSZ-04**: The flash and RAM delta is measured against a pre-change baseline for all three AVR
+- [x] **PGSZ-04**: The flash and RAM delta is measured against a pre-change baseline for all three AVR
       targets. The `leonardo` warning watermark has near-zero headroom and v1.31 closed with MERGE-05's
       band breach open — this phase must not silently consume what is left.
 
-- [ ] **PGSZ-05**: The change is stated as **software-proven and unvalidated on silicon**, in those
+- [x] **PGSZ-05**: The change is stated as **software-proven and unvalidated on silicon**, in those
       terms. No page-size claim is made about any physical AT28C part.
 
 ### Deliberate Protection — `write --sdp-relock` (RELOCK)
@@ -255,11 +255,11 @@ relies on `autonomous: false` alone is not self-protecting.
 | DATA-04 | Phase 148 | Complete |
 | DATA-05 | Phase 148 | Complete |
 | DATA-06 | Phase 150 | Pending |
-| PGSZ-01 | Phase 149 | Pending |
-| PGSZ-02 | Phase 149 | Pending |
-| PGSZ-03 | Phase 149 | Pending |
-| PGSZ-04 | Phase 149 | Pending |
-| PGSZ-05 | Phase 149 | Pending |
+| PGSZ-01 | Phase 149 | Complete |
+| PGSZ-02 | Phase 149 | Complete |
+| PGSZ-03 | Phase 149 | Complete |
+| PGSZ-04 | Phase 149 | Complete |
+| PGSZ-05 | Phase 149 | Complete |
 | RELOCK-01 | Phase 150 | Pending |
 | RELOCK-02 | Phase 150 | Pending |
 | RELOCK-03 | Phase 150 | Pending |

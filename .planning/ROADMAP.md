@@ -396,11 +396,11 @@ Plans:
 | DATA-04 | Phase 148 | Complete |
 | DATA-05 | Phase 148 | Complete |
 | DATA-06 | Phase 150 | Pending |
-| PGSZ-01 | Phase 149 | Pending |
-| PGSZ-02 | Phase 149 | Pending |
-| PGSZ-03 | Phase 149 | Pending |
-| PGSZ-04 | Phase 149 | Pending |
-| PGSZ-05 | Phase 149 | Pending |
+| PGSZ-01 | Phase 149 | Complete |
+| PGSZ-02 | Phase 149 | Complete |
+| PGSZ-03 | Phase 149 | Complete |
+| PGSZ-04 | Phase 149 | Complete |
+| PGSZ-05 | Phase 149 | Complete |
 | RELOCK-01 | Phase 150 | Pending |
 | RELOCK-02 | Phase 150 | Pending |
 | RELOCK-03 | Phase 150 | Pending |
