@@ -308,7 +308,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 149-02-PLAN.md — The D-19 phase-local claim gate, with the `\bproven\b` collision resolved by a negative lookbehind and a negative control proving a bare "proven" still fails (D-19)
+- [x] 149-02-PLAN.md — The D-19 phase-local claim gate, with the `\bproven\b` collision resolved by a negative lookbehind and a negative control proving a bare "proven" still fails (D-19)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
