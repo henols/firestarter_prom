@@ -266,8 +266,21 @@ _ALL_CAVEAT_LABELS = frozenset(
 # the SUMMARY basenames when it extends `_DEFAULT_TARGETS`; the fail-closed
 # default in `_required_caveats_for()` below means an omitted entry demands
 # the caveat anyway, so silence can never produce a silent exemption.
+#
+# `149-CLAIM-GATE-TRANSCRIPTS.md` maps to the empty set, mirroring the
+# donor's own D-11 exemption for `146-CORRECTIONS.md`: it is a committed
+# evidence register of RED/GREEN gate runs, each block a literal command plus
+# its literal output, not a claim about the change itself -- and it must not
+# be held to a caveat rule written for a document that makes claims. This
+# entry is inert in normal operation (the transcript file is never a member
+# of `_DEFAULT_TARGETS` and is never passed via argv or the env seam by any
+# real invocation of this gate -- see the module docstring and
+# `test_the_transcript_file_is_not_a_gate_target`); it exists so the
+# exemption mechanism itself stays behaviourally proven rather than only
+# introspected, exactly as D-11 required of its own donor.
 _CAVEAT_RULES = {
     "149-PAGE-SIZE.md": frozenset({"software-proven-unvalidated"}),
+    "149-CLAIM-GATE-TRANSCRIPTS.md": frozenset(),
 }
 
 
