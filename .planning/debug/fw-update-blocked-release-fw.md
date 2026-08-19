@@ -517,6 +517,35 @@ no longer produce the mismatch, so the hardware signature check is no longer loa
 re-examined here, a second call site or a second code path was still carrying the defect —
 `serial_comm` vs `firmware` for the config leak (C), the typed-port vs config-port path for
 targeting (A). A defect that arises from *two places agreeing* is not fixed by repairing one of them.
+
+## SHIPPED — PR #52 merged to beta, published `3.0.0b22` (2026-08-19)
+
+[henols/firestarter_app#52](https://github.com/henols/firestarter_app/pull/52), merge commit
+`eaca13e`. Raised from a branch cherry-picked onto `beta` — deliberately **not** from the v1.32
+milestone branch, which carried 32 further commits of unfinished work including a breaking
+chip-database schema migration. All five patches applied with no conflicts, and the whole gate set was
+re-run on beta's base before pushing (1625 passed / 0 failed, coverage 83.27%, codegen zero-diff,
+watermark 33 vs 35 over 139 files), plus a live re-verification of the restriction and the CAP-02
+waiver *from that branch*, since beta's `serial_comm` differs from the milestone branch's.
+
+Real CI confirmed it: `ci` pass ×2 (push + pull_request triggers), `ci-py32` pass ×2, Snyk pass.
+
+**The merge published a version.** `beta-release.yml` cuts a pre-release on *every* push to beta —
+its own `on:` comment says so explicitly, and the old `paths-ignore` list was deleted precisely
+because a merge that published nothing made "beta silently stop tracking its own branch" (PR #46). So
+`3.0.0b22` shipped ~3 minutes after the merge (Host CI 2m30s, release 2m44s, both success). This is
+**designed** behaviour and needed no cleanup — distinct from the milestone-close double-cut recorded
+in [[reference_beta_merge_push_autofires_ci_new_beta]].
+
+**Close-time trap for v1.32.** The milestone branch still holds the same five patches under
+DIFFERENT SHAs. `git cherry origin/beta <milestone-branch>` marks all five `-` (already upstream), so
+a close-time merge will not double-apply them — but `git merge-base --is-ancestor ebbc299
+origin/beta` reports **NOT an ancestor**, a false negative of the same shape as v1.30's squashed
+close. **Verify with `git cherry`, never by SHA ancestry.** Do not rebase the milestone branch to
+tidy this: concurrent sessions commit to it (Phase 149-03 landed there two minutes after the merge).
+
+Still open, permanently until silicon exists: the portless/DFU exemption (Gap 1 above), stated in the
+merged PR body so it is on the public record rather than only here.
 Enumerate every writer/reader of the shared state before declaring it closed, and prefer a single
 chokepoint (`ConfigManager.remember_port`, `connected_port or port_override`) over a rule that must
 hold in several places at once.
