@@ -165,3 +165,119 @@ $ pio test -e native_nodevtools
 
 Both pinned native envs agree at 151/151 cases, 17 suites, unmoved from plan 04's landing
 (baseline 141 + 10 new native cases added by plan 04).
+
+## Plan 07 — size_baseline.json becomes the live default baseline again (D-14, X-3)
+
+Every figure below is **transcribed** from the cold logs already committed above
+(`149-postchange-cold-{uno,uno328pb,leonardo}.log`) and from this file's own Task-2 native run
+(151/151, 17 suites, both pinned envs agreeing). No `pio run`, no `pio test` and no
+`check_build_warnings.py --rebuild` ran in this plan.
+
+**AVR figures transcribed into `avr_targets`** (free figures recomputed, totals unchanged):
+
+| env | flash_used | flash_total | flash_free | ram_used | ram_total | ram_free |
+|---|---|---|---|---|---|---|
+| uno | 25130 | 32256 | 7126 | 1575 | 2048 | 473 |
+| uno328pb | 25180 | 32384 | 7204 | 1581 | 2048 | 467 |
+| leonardo | 27212 | 28672 | 1460 | 2016 | 2560 | 544 |
+
+**`native_envs`:** `native` and `native_nodevtools` both bumped `cases`/`succeeded` 141 -> 151
+(the number plan 06 recorded), `suites` unchanged at 17 on both, `envs_agree` stays true,
+`envs_agree_note`'s quoted figures updated to match. `native_pinmap_provisional` byte-unchanged.
+
+**X-3 correction — `meta.firmware_tree_sha`.** The stale value
+`3d8ec4913913f5db4e636d88d5180172f83776f9` (the root tree of commit `6cc4795`, a **Phase 144**
+commit that predates the +96 B this file's own figures already recorded) is replaced with the
+root tree of the firmware commit the plan 06 cold measurement was actually taken at:
+
+```
+$ git -C /workspaces/firestarter rev-parse HEAD
+581cff68657a740c1fee0ec54a282734b0533e01
+$ git -C /workspaces/firestarter rev-parse HEAD^{tree}
+c6349d22bb15a0e2a3f1e95af946bfe28a8582ad
+$ git cat-file -t c6349d22bb15a0e2a3f1e95af946bfe28a8582ad
+tree
+```
+
+`meta.host_app_tree_sha` refreshed the same way from `firestarter_app` (commit `0744348`, tree
+`623e71bd10e793afaaeb2fe8855c083566d777cc`). `meta.generated_by` gained a superseding sentence
+naming `6cc4795` and the correction, scoped to exactly the three `avr_targets` figures and the
+two pinned `native_envs` case counts, per D-14. `platformio_core`/`platform_atmelavr`/
+`toolchain_atmelavr`/`avr_gcc`/`framework_arduino_avr`/`framework_arduino_avr_minicore` were
+re-confirmed unchanged from the live installation (6.1.19 / 5.2.0 / 1.70300.191015 / 7.3.0 /
+5.3.0 / 3.1.2).
+
+**`meta.deltas_vs_base01`.** All three `flash_used_delta` moved 96 -> 306 and `ram_used_delta`
+moved 0 -> 2 (the first RAM movement this file has ever recorded). Each `merge05_clause` now
+names both admitted exemptions — the pre-existing `MERGE05_DEFECT_FIX_EXEMPTION_BYTES = 96`
+(Phase 145) and the new `MERGE05_PAGE_SIZE_SEAM_EXEMPTION_BYTES = 210` /
+`MERGE05_PAGE_SIZE_SEAM_RAM_EXEMPTION_BYTES = 2` (Phase 149) — with the "ADJUDICATED AND
+ADMITTED, not laundered" framing preserved, and states that BASE-01 was **not** re-anchored a
+third time. `meta.roadmap_cross_check` re-derived for the new deltas.
+
+No watermark was lowered; the whole `warnings` block, `check_size_baseline.py`,
+`scripts/baseline/size_baseline_base01.json`, `src/`, `include/` and `tests/` are byte-unchanged
+by this plan (`git diff --quiet` on each exits 0).
+
+## GREEN — default-mode byte identity against the updated baseline (D-14)
+
+```
+$ python3 scripts/check_size_baseline.py --baseline scripts/baseline/size_baseline.json \
+  --avr-log uno=/workspaces/.planning/phases/149-firmware-page-size-seam-dual-repo-lockstep/149-postchange-cold-uno.log \
+  --avr-log uno328pb=/workspaces/.planning/phases/149-firmware-page-size-seam-dual-repo-lockstep/149-postchange-cold-uno328pb.log \
+  --avr-log leonardo=/workspaces/.planning/phases/149-firmware-page-size-seam-dual-repo-lockstep/149-postchange-cold-leonardo.log ; echo EXIT=$?
+PASS: uno(flash=25130/32256,ram=1575/2048), uno328pb(flash=25180/32384,ram=1581/2048), leonardo(flash=27212/28672,ram=2016/2560)
+EXIT=0
+```
+
+## GREEN — MERGE-05 re-confirmed after the baseline update
+
+```
+$ python3 scripts/check_size_baseline.py --policy merge05 \
+  --baseline scripts/baseline/size_baseline_base01.json \
+  --avr-log uno=/workspaces/.planning/phases/149-firmware-page-size-seam-dual-repo-lockstep/149-postchange-cold-uno.log \
+  --avr-log uno328pb=/workspaces/.planning/phases/149-firmware-page-size-seam-dual-repo-lockstep/149-postchange-cold-uno328pb.log \
+  --avr-log leonardo=/workspaces/.planning/phases/149-firmware-page-size-seam-dual-repo-lockstep/149-postchange-cold-leonardo.log ; echo EXIT=$?
+PASS: leonardo(flash=27212/28672[+306<=306=band0+exempt96+seam210],ram=2016/2560[+2<=2=seam2]), uno(flash=25130/32256[+306<=370=band64+exempt96+seam210],ram=1575/2048[+2<=2=seam2]), uno328pb(flash=25180/32384[+306<=370=band64+exempt96+seam210],ram=1581/2048[+2<=2=seam2])
+EXIT=0
+```
+
+Both gates green simultaneously: the default gate proves the new figures are recorded exactly,
+the band gate proves the growth is admitted rather than absorbed.
+
+## Known, accepted fallout — four `tests/test_check_size_baseline.py` legs now stale (not fixed here)
+
+`tests/` is byte-unchanged by this plan (a hard constraint of this plan's own `<verification>`
+block: `git diff --quiet src include tests`), and Task 1 explicitly forbids touching
+`check_size_baseline.py`, `size_baseline_base01.json`, any fixture, or firmware source. Updating
+the live default baseline's `avr_targets`/`native_envs` figures (required by D-14) therefore puts
+four pre-existing default-mode legs out of sync with `tests/fixtures/captured_build_*.log` and
+`captured_test_native*.log`, which are frozen at the **pre-Phase-149** figures on purpose —
+`test_policy_merge05_admits_the_documented_defect_fix` (authored at 149-06) explicitly relies on
+that freeze for its Arm 1 ("the tree as captured before Phase 149... PASSES" against BASE-01), so
+re-capturing those fixtures to the new figures would fix the four legs below but break that
+already-passing, deliberately-designed test instead — a worse trade, and one this plan's own
+constraint forbids either way:
+
+```
+$ python3 -m pytest tests/test_check_size_baseline.py -q
+FAILED tests/test_check_size_baseline.py::test_clean_avr_all_three_envs_pass
+FAILED tests/test_check_size_baseline.py::test_clean_native_both_envs_pass
+FAILED tests/test_check_size_baseline.py::test_planted_flash_regression_flips_checker_to_failure
+FAILED tests/test_check_size_baseline.py::test_default_mode_is_unchanged_by_the_new_flag
+4 failed, 10 passed
+```
+
+All four fail for the same single reason: they invoke the checker in **default mode** (no
+`--baseline` flag), which now reads the just-updated `scripts/baseline/size_baseline.json`
+(25130/25180/27212 flash, 1575/1581/2016 RAM, 151 native cases), against `captured_build_*.log`
+/ `captured_test_native*.log` fixtures still reading the pre-149 figures (24920/24970/27002
+flash, 1573/1579/2014 RAM, 141 native cases). This is a real, direct, and fully understood
+consequence of this plan's own required change — not a mystery, not silently swept — and is
+recorded here rather than fixed, per this plan's explicit fixture/tests-directory constraints.
+Re-capturing these fixtures (and updating the corresponding literals in
+`test_check_size_baseline.py`) is left for whichever future plan next touches this file's
+`avr_targets`/`native_envs`, at which point all of `captured_build_*.log`,
+`captured_test_native*.log`, `planted_size_baseline_flash_regression.log` and the moved
+literals in `test_check_size_baseline.py` should be re-derived together, in one commit, matching
+the precedent of `test(144-05): re-anchor all three size baselines to the v1.31 tip`.
