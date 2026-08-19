@@ -1484,7 +1484,115 @@ in this plan, `0x0D` stays `UNVERIFIED`, and no `support_status` entry changed.
 
 ## Post-change cold measurement and MERGE-05 funding (plan 06)
 
-*(filled by plan 06)*
+### The cold three-env table
+
+Procedure identical to plan 01's pre-edit capture (`rm -rf .pio/build/<env>` then one
+uninterrupted `pio run -e <env>`), captured after the page-size seam (plan 04) and the
+cross-repo parity gate (plan 05) both landed. All three ended `[SUCCESS]` with **zero**
+`warning:` lines and unchanged `flash_total`/`ram_total`.
+
+| env | pre-edit cold flash (plan 01) | post-change cold flash | Δ vs pre-edit | BASE-01 flash | Δ vs BASE-01 | pre-edit cold RAM | post-change cold RAM | Δ vs pre-edit | BASE-01 RAM | Δ vs BASE-01 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| uno | 24920 | 25130 | +210 | 24824 | +306 | 1573 | 1575 | +2 | 1573 | +2 |
+| uno328pb | 24970 | 25180 | +210 | 24874 | +306 | 1579 | 1581 | +2 | 1579 | +2 |
+| leonardo | 27002 | 27212 | +210 | 26906 | +306 | 2014 | 2016 | +2 | 2014 | +2 |
+
+**Seam flash cost `N = 210` B** (the BASE-01 delta of +306 B minus the already-admitted 96 B
+Phase 145 defect-fix exemption), uniform on all three AVR targets. **Seam RAM cost `M = 2` B**,
+also uniform, matching the predicted cost of the single `uint16_t page_size` field added to the
+one file-scope `firestarter_handle_t` global (AVR aligns scalars to 1 byte, so there is no
+padding to absorb it). Full transcripts, including the cold warning run: `149-SIZE-TRANSCRIPTS.md`.
+
+### v1.31's MERGE-05 band breach, named
+
+**Leonardo's MERGE-05 flash band is 0 B, and it was already fully breached before this phase
+started.** v1.31 Phase 145's `eprom_internal_program_pulse()` fix added +96 B to all three AVR
+targets against BASE-01, consuming the entire `MERGE05_DEFECT_FIX_EXEMPTION_BYTES` exemption
+with nothing left over. So leonardo's remaining MERGE-05 flash headroom **before this phase**
+was **exactly 0 bytes** — the band admits nothing, and the pre-existing exemption admits
+nothing further. This phase's own +210 B could not be absorbed by anything already on the
+books; it had to be funded by a wholly new allowance or the gate would stay red permanently.
+
+### Funding: two new, separately-named, SHA-attributed exemptions (D-12)
+
+`firestarter/scripts/check_size_baseline.py` gained:
+
+- **`MERGE05_PAGE_SIZE_SEAM_EXEMPTION_BYTES = 210`** (flash), attributed to this phase's own
+  firmware commits `58c6a3c` ("add page-size wire key, handle field and per-command reset") and
+  `28bf089` ("validated bitwise page mask at the 0x0D flush boundary").
+- **`MERGE05_PAGE_SIZE_SEAM_RAM_EXEMPTION_BYTES = 2`** (RAM), attributed to the single
+  `uint16_t page_size` field commit `58c6a3c` added to the global `handle`.
+
+`MERGE05_UNO_CLASS_FLASH_BAND` stays exactly **64**, `MERGE05_DEFECT_FIX_EXEMPTION_BYTES` stays
+exactly **96**, and `scripts/baseline/size_baseline_base01.json` is **byte-unchanged** — verified
+by `git diff --quiet` in the plan's own gate, not merely stated. `_merge05_flash_allowance`
+returns a 5-tuple `(band, defect_exemption, seam_exemption, allowance, band_label)`, never a
+summed 4-tuple, so both consumers (the FAIL arm and `main()`'s PASS-line builder) print the full
+three-term decomposition — e.g. `band 0 B + defect-fix exemption 96 B + page-size-seam exemption
+210 B` — rather than a single widened number. A companion `_merge05_ram_allowance(env)` resolves
+the new RAM tolerance as the sole reader of the RAM constant.
+
+**Three alternatives were considered and rejected, for both exemptions, exactly as they were for
+the Phase 145 exemption they sit beside:**
+1. **NOT a re-anchor of BASE-01.** Its own `re_anchor_note` already records the lesson this would
+   repeat: a green `--policy merge05` run after a re-anchor means the anchor moved, not that
+   flash growth stayed inside the original band. BASE-01's `avr_targets` stay byte-unchanged: uno
+   24824, uno328pb 24874, leonardo 26906.
+2. **NOT a widening of `MERGE05_UNO_CLASS_FLASH_BAND` or the leonardo 0 B band.** Either would
+   silently admit unrelated future growth and destroy the tripwire.
+3. **NOT a shrink of the seam (or of the RAM field).** The wire key, the handle field, the
+   per-command reset and the validated mask are all load-bearing for PGSZ-01/PGSZ-02; trimming
+   them to fit a band that predates the seam's own existence is the wrong incentive. A narrower
+   `uint8_t` log2-exponent field was considered for the RAM cost and rejected on the same
+   reasoning: the RAM clause's tolerance was zero either way, so a narrower field only changes
+   this exemption's size, not whether it is needed.
+
+### New allowances and leonardo's remaining headroom, as a number
+
+| env | band | defect-fix exemption | page-size-seam exemption | **effective flash allowance** | RAM tolerance |
+|---|---|---|---|---|---|
+| leonardo | 0 | 96 | 210 | **306 B** | 2 B |
+| uno / uno328pb | 64 | 96 | 210 | **370 B** | 2 B |
+
+The post-change cold flash delta against BASE-01 is **exactly +306 B on leonardo** — precisely
+equal to its new allowance. **Leonardo's remaining MERGE-05 flash headroom after this exemption
+is exactly 0 bytes** — same shape as the Phase 145 admission it sits beside: the exemption funds
+exactly what was measured, with zero spare margin, so the very next byte of unaccounted flash
+growth on leonardo will fail the gate. Leonardo's raw **physical** free flash (unrelated to the
+MERGE-05 band, a separate number) is `28672 - 27212 = 1460` bytes.
+
+### RED, GREEN and the re-armed tripwire
+
+- **RED** (before either exemption existed): `--policy merge05` against BASE-01 on the real cold
+  logs exited **1**, naming `allowance of 96 B` on leonardo and a `ram_used` delta on every env.
+- **GREEN** (after both exemptions landed): the same command against the same cold logs exits
+  **0**, with every env's PASS line showing the full three-term flash decomposition and the RAM
+  decomposition (e.g. `leonardo(flash=27212/28672[+306<=306=band0+exempt96+seam210],ram=2016/2560[+2<=2=seam2])`).
+- **Re-armed tripwire:** all three planted fixtures
+  (`planted_size_baseline_policy_{leonardo_growth,uno_over_band,ram_moved}.log`) were re-derived
+  to exactly one byte past the **new** allowances (leonardo flash 27213, uno flash 25195, uno RAM
+  1576) and each was run directly against the gate — all three **observed** to exit 1, not merely
+  asserted to. `python3 -m pytest tests/test_check_size_baseline.py -q` passes 14/14 with every
+  affected leg (5 repaired plus 1 new `test_base01_is_not_re_anchored_by_the_new_exemption` leg)
+  present and green.
+
+Full literal transcripts for every command above: `149-SIZE-TRANSCRIPTS.md`.
+
+### Warnings, measured cold, nothing lowered
+
+`check_build_warnings.py --rebuild`, run after removing all three native build directories by
+hand (`_rebuild_native` does not clean), reports AVR macro-redefinition counts of **0/0/0** (the
+`== 0` rule) and both pinned native watermarks (`native`, `native_nodevtools`) holding at exactly
+**1166**, measured **cold** — no watermark is lowered by this plan.
+
+### The honest ceiling
+
+Every figure in this section is a measurement of the compiled binary's size and the build's
+warning count — the only evidence in this phase that is about actual target code. It says
+nothing about runtime behaviour on a real board: no AT28C part was involved in taking any of
+these measurements, `0x0D` stays `UNVERIFIED`, and no `support_status` entry changed. Like every
+other artifact this phase produces, the change these two exemptions fund is
+**software-proven and unvalidated on silicon**.
 
 ## Baseline update and closing record (plans 07-08)
 

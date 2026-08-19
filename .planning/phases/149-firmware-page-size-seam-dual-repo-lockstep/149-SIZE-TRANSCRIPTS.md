@@ -72,4 +72,96 @@ leonardo line names `allowance of 96 B`, the pre-existing figure) and a RAM exem
 env's `ram_used` line fires, `M=2` moved on all three targets) are required before this gate
 can pass. Recorded before any constant was authored.
 
-<!-- gsd:write-continue -->
+## The named exemptions (Task 2)
+
+`MERGE05_PAGE_SIZE_SEAM_EXEMPTION_BYTES = 210` (flash) and
+`MERGE05_PAGE_SIZE_SEAM_RAM_EXEMPTION_BYTES = 2` (RAM) added to
+`firestarter/scripts/check_size_baseline.py`, funding exactly `N=210` and `M=2` as measured
+above. `MERGE05_UNO_CLASS_FLASH_BAND` stays 64, `MERGE05_DEFECT_FIX_EXEMPTION_BYTES` stays 96,
+and `scripts/baseline/size_baseline_base01.json` is byte-unchanged. `_merge05_flash_allowance`
+is now a 5-tuple `(band, defect_exemption, seam_exemption, allowance, band_label)`; a new
+`_merge05_ram_allowance(env)` resolves the RAM tolerance. New effective allowances:
+leonardo `0 + 96 + 210 = 306` B, uno-class `64 + 96 + 210 = 370` B; RAM tolerance `2` B on all
+three targets.
+
+## GREEN — MERGE-05 with the page-size-seam exemption
+
+```
+$ python3 scripts/check_size_baseline.py --policy merge05 \
+  --baseline scripts/baseline/size_baseline_base01.json \
+  --avr-log uno=/workspaces/.planning/phases/149-firmware-page-size-seam-dual-repo-lockstep/149-postchange-cold-uno.log \
+  --avr-log uno328pb=/workspaces/.planning/phases/149-firmware-page-size-seam-dual-repo-lockstep/149-postchange-cold-uno328pb.log \
+  --avr-log leonardo=/workspaces/.planning/phases/149-firmware-page-size-seam-dual-repo-lockstep/149-postchange-cold-leonardo.log ; echo EXIT=$?
+PASS: uno(flash=25130/32256[+306<=370=band64+exempt96+seam210],ram=1575/2048[+2<=2=seam2]), uno328pb(flash=25180/32384[+306<=370=band64+exempt96+seam210],ram=1581/2048[+2<=2=seam2]), leonardo(flash=27212/28672[+306<=306=band0+exempt96+seam210],ram=2016/2560[+2<=2=seam2])
+EXIT=0
+```
+
+Every env's PASS text names the full three-term flash decomposition (`band` + `exempt` +
+`seam`) and the RAM decomposition (`seam2`), on the real cold post-change logs. Leonardo's
+delta (`+306`) exactly equals its allowance (`306`) — its MERGE-05 headroom after this
+exemption is exactly **0 bytes**, same shape as the Phase 145 admission it sits alongside: the
+exemption funds exactly what was measured, with no spare margin.
+
+## The tripwire is still ARMED
+
+Full suite, with the three fixtures re-planted at exactly one byte past the new allowances:
+
+```
+$ python3 -m pytest tests/test_check_size_baseline.py -q
+..............
+14 passed in 0.70s
+```
+
+Direct gate runs against each re-planted fixture, showing the tripwire fires one byte past the
+new allowance in all three dimensions (leonardo flash, uno-class flash, RAM):
+
+```
+$ python3 scripts/check_size_baseline.py --policy merge05 --baseline scripts/baseline/size_baseline_base01.json \
+  --avr-log leonardo=tests/fixtures/planted_size_baseline_policy_leonardo_growth.log ; echo EXIT=$?
+FAIL:
+  leonardo: flash_used baseline=26906 observed=27213 delta=+307 exceeds MERGE-05 leonardo allowance of 306 B (band 0 B + defect-fix exemption 96 B + page-size-seam exemption 210 B)
+EXIT=1
+
+$ python3 scripts/check_size_baseline.py --policy merge05 --baseline scripts/baseline/size_baseline_base01.json \
+  --avr-log uno=tests/fixtures/planted_size_baseline_policy_uno_over_band.log ; echo EXIT=$?
+FAIL:
+  uno: flash_used baseline=24824 observed=25195 delta=+371 exceeds MERGE-05 uno-class allowance of 370 B (band 64 B + defect-fix exemption 96 B + page-size-seam exemption 210 B)
+EXIT=1
+
+$ python3 scripts/check_size_baseline.py --policy merge05 --baseline scripts/baseline/size_baseline_base01.json \
+  --avr-log uno=tests/fixtures/planted_size_baseline_policy_ram_moved.log ; echo EXIT=$?
+FAIL:
+  uno: ram_used baseline=1573 observed=1576 delta=+3 exceeds MERGE-05 ram allowance of 2 B (page-size-seam exemption 2 B) (MERGE-05 requires ram_used within the admitted allowance)
+EXIT=1
+```
+
+Each fixture was re-derived from `allowance + 1` using the new allowances above (leonardo
+`306+1=307` → flash `26906+307=27213`; uno-class `370+1=371` → flash `24824+371=25195`; RAM
+`2+1=3` → RAM `1573+3=1576`) and observed to fail, not merely asserted to fail — the tripwire
+is a machine-checked negative control at the new floor, not a claim.
+
+## Firmware repo pytest and native suites (Task 2, run after committing)
+
+```
+$ python3 -m pytest tests/ -o addopts="" -q
+........................................................................ [ 22%]
+........................................................................ [ 45%]
+........................................................................ [ 68%]
+........................................................................ [ 91%]
+...........................                                              [100%]
+315 passed in 9.75s
+```
+
+314 (Phase 149 pre-existing count, per plan 04's SUMMARY) + 1 new leg
+(`test_base01_is_not_re_anchored_by_the_new_exemption`) = 315. This plan added zero new native
+cases.
+
+```
+$ pio test -e native
+================ 151 test cases: 151 succeeded in 00:00:20.434 ================
+$ pio test -e native_nodevtools
+================ 151 test cases: 151 succeeded in 00:00:22.194 ================
+```
+
+Both pinned native envs agree at 151/151 cases, 17 suites, unmoved from plan 04's landing
+(baseline 141 + 10 new native cases added by plan 04).
