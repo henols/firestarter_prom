@@ -6,14 +6,14 @@ current_phase: 148
 current_phase_name: Numeric Database Values & the AT28C VCC Decode — EXECUTING
 status: executing
 stopped_at: Completed 148-01-PLAN.md
-last_updated: "2026-08-19T10:00:27.007Z"
+last_updated: "2026-08-19T10:19:16.454Z"
 last_activity: 2026-08-19
 last_activity_desc: Phase 148 execution started
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 14
-  completed_plans: 7
+  completed_plans: 8
   percent: 17
 ---
 
@@ -77,7 +77,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 148 — Numeric Database Values & the AT28C VCC Decode — EXECUTING
-Plan: 2 of 8
+Plan: 3 of 8
 Status: Ready to execute
 Last activity: 2026-08-19 — Phase 148 execution started
 
@@ -1993,6 +1993,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: Record key is f"{mfg}|{pn}|{i}", never pn alone -- part numbers are not unique across ~9% of the DB
 - [Phase ?]: No pytest.skip path in test_wire_dict_equivalence.py -- the golden lives inside tests/golden/, so a missing golden is always a loud failure, never a standalone-CI skip
 - [Phase ?]: diff_db.py's correct pre-change baseline is 744 changed chips, not zero -- the pre-136.1 baseline is NOT re-pinned by this phase (D-11)
+- [Phase ?]: 148-02: _canonicalize_db returns a normalized deep copy (never mutates input); main() rebinding is the only normalization point — Keeps _load_db's exit-code contract untouched and avoids hidden aliasing between loaded JSON and normalized version
+- [Phase ?]: 148-02: electrical.vpp is dropped entirely during canonicalization (not renamed) since vpp_mv already carries the value
+- [Phase ?]: 148-02: RULE_VCC_MARGIN_RAIL deliberately NOT added -- belongs to 148-06 once the 56-chip mover rule exists
 
 ## Performance Metrics
 
@@ -2269,10 +2272,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 147 P04 | 50min | 3 tasks | 2 files |
 | Phase 147 P05 | ~27min | 3 tasks | 2 files |
 | Phase 148 P01 | ~12min | 3 tasks | 3 files |
+| Phase 148 P02 | 15min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-19T10:00:26.983Z
+**Last session:** 2026-08-19T10:18:37.032Z
 **Stopped at:** Completed 148-01-PLAN.md
 **Resume file:** None
 

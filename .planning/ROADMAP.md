@@ -260,7 +260,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 148-02-PLAN.md — `diff_db.py` normalizing comparator + field-name renames, green on both schemas (D-11)
+- [x] 148-02-PLAN.md — `diff_db.py` normalizing comparator + field-name renames, green on both schemas (D-11)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
