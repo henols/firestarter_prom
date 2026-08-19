@@ -4,15 +4,15 @@ milestone: v1.32
 milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 149
 current_phase_name: Firmware Page-Size Seam (dual-repo lockstep)
-status: planned
+status: executing
 stopped_at: Phase 149 planned — 8 plans in 8 waves, ready to execute
-last_updated: "2026-08-19T17:54:03.523Z"
+last_updated: "2026-08-19T18:08:59.021Z"
 last_activity: 2026-08-19
-last_activity_desc: "**Phase 149 PLANNED** (8 plans, 8 waves, 23 tasks; `149-01..08-PLAN.md`, plan commits `c5d8b771` -> `14b4b8ed` -> `596eb2af`). Research (`149-RESEARCH.md`, 2490 lines, `aa16d082`), pattern map (`149-PATTERNS.md`, 14 files -> analogs, `04be481a`) and validation strategy (`149-VALIDATION.md`, `a65f6ce0`) all written. Plan-checker trajectory 8 -> 2 -> 0 issues; VERIFICATION PASSED with 0 blockers / 0 warnings. Requirements coverage 5/5; decision coverage 20/20 (`skipped: false`). RESEARCH MEASURED FIVE CONTRADICTIONS against CONTEXT.md, all now binding on execution: (X-1) the 18 rows do NOT sit in `PROV01_PROTECT_METADATA` -- they sit in `RULE_VCC_MARGIN_RAIL` (Phase 148's bucket, priority 4) and STAY there, so `diff_db.py` is NOT a bucket-move oracle here; the reachable criterion is census invariance `686/56/2` + 744 changed + 0 unexplained + exit 0, with `PGSZ_PAGE_SIZE` staying 2 (never 20) and `programming.page_size` joining 18 compound-secondary lists. (X-2) PGSZ-05's own mandated phrase \"software-proven and unvalidated on silicon\" is MATCHED by the `\bproven\b` pattern every prior claim gate carries (`\b` fires after a hyphen; documented at `146-check-claims.py:63-65`), so a verbatim copy of D-19's gate would be UNSATISFIABLE by the artifact it protects -- resolved as `(?<!software-)\bproven\b` with a negative control proving it still fires on a bare \"proven\", and T-149-07 guarding against widening to `(?<!-)`. (X-3) `size_baseline.json`'s `meta.firmware_tree_sha` `3d8ec49` is a Phase 144 tree and PREDATES the +96 B it records -- never reason about the fork-point delta from it; plan 07 corrects it. (X-4) the `PAGE_SIZE` rename touches 8 SOURCE occurrences in 3 files (not 4 in 3 test files), plus a 9th tracked occurrence in `test/native/avr/test_eeprom28c_sdp/RED-BASELINE.md:403` that is a FROZEN transcript and must NOT be edited -- the rename grep is source-scoped and carries a two-part guard. (X-5) `flash4_page_size()` does not exist (renamed away in v1.19 P104) yet 3 host comments cite it. BUDGET IS AT EXACTLY ZERO: leonardo MERGE-05 headroom 0 B (band 0 + the 96 B defect-fix exemption already fully consumed by Phase 145), uno-class 64 B; funded by a NEW separately-named SHA-attributed exemption whose value CANNOT be authored until plan 04 is built and cold-measured -- which is why the size-gate work is strictly downstream. Planner also measured that `--policy merge05` requires `ram_used` EXACTLY unchanged while this phase adds `uint16_t page_size` to the global handle, so a SECOND named RAM exemption, a 5th broken test leg and a 3rd re-planted fixture are authored conditionally into plan 06. EXECUTION PRECONDITIONS: the firmware submodule is STILL on `gsd/v1.31-27c-programming-algorithm-fidelity` (`6992271`) and plan 01 must fork it off `origin/beta` (`7f6afc6`) VERIFIED BY CONTENT (the v1.31 PRs were squashed, so `merge-base --is-ancestor` returns false negatives) and take D-13's COLD baseline at that fork point BEFORE the first edit. All 8 plans carry `USE_WORKTREES_FOR_PLAN=false` -- a GSD worktree leaves both submodules EMPTY and every plan touches one in some direction. Plans 01-07 are PROHIBITED from flipping any `PGSZ-0N` checkbox or traceability row; plan 08 alone flips all 15 (5 checkboxes + 5 REQUIREMENTS rows + 5 ROADMAP rows) after the whole-phase gate is green. Do NOT use `--auto`/`--chain`: plans 02, 06 and 08 carry human-verify-shaped gates that auto mode would auto-approve. NEXT: `/gsd-execute-phase 149`."
+last_activity_desc: Phase 149 execution started
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 14
+  total_plans: 22
   completed_plans: 14
   percent: 33
 ---
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-18 — v1.32 started)
 authoritative dispatch key end to end. v1.32 turns that key on the project's own diagnostics: a
 community `dev test` report must be attributable to the firmware that produced it before any
 protocol-`0x0D` write-path claim can be made about it.
-**Current focus:** Phase 149 — Firmware Page-Size Seam (dual-repo lockstep) — not started
+**Current focus:** Phase 149 — Firmware Page-Size Seam (dual-repo lockstep) — executing
 
 **v1.32 AT28C Write-Path Root Cause & Report Provenance** — ACTIVE (activated 2026-08-18, folding Backlog
 **999.28**; Backlog **999.29** is partially addressed and explicitly NOT retired — v1.32 removes the
@@ -76,10 +76,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 149 — Firmware Page-Size Seam (dual-repo lockstep)
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-08-19 — Phase 149 planned (8 plans, 8 waves, 23 tasks); plan-checker PASSED 0 blockers / 0 warnings
+Phase: 149 — Firmware Page-Size Seam (dual-repo lockstep) — EXECUTING
+Plan: 1 of 8
+Status: Executing Phase 149
+Last activity: 2026-08-19 — Phase 149 execution started
 
 ## Roadmap Summary (v1.32)
 
