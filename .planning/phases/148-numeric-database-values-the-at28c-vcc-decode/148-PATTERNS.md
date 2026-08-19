@@ -974,7 +974,8 @@ def _members_with_parseable_pulse(members):
 
 The eighth read is a **render**, not a parse (`:537`, inside `_enum_row`) — it survives an int but
 changes the rendered cell from `100 us` to `100`, which is what forces the
-`tests/golden/v1.3-COVERAGE-MATRIX.md` regeneration (303 ` us` cells).
+`tests/golden/v1.3-COVERAGE-MATRIX.md` regeneration (**297** ` us` value cells; the 6
+`pulse_bucket` label lines are unchanged).
 
 ---
 

@@ -1,8 +1,8 @@
 ---
 phase: 148
 slug: numeric-database-values-the-at28c-vcc-decode
-status: draft
-nyquist_compliant: false
+status: approved
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-08-19
 ---
@@ -41,7 +41,11 @@ created: 2026-08-19
   `python3 tools/build_db.py && python3 tools/diff_db.py && python3 tools/check_dispatch.py && python3 -m ruff check firestarter/ tests/`
 - **Before `/gsd-verify-work`:** full suite green + all four gates + `git diff --quiet` on
   `tools/check_dispatch.py` and `tests/__snapshots__/`
-- **Max feedback latency:** 5 s per task; 280 s per phase gate
+- **Max feedback latency (measured 2026-08-19, not estimated):** < 0.3 s for every unit/gate
+  suite this phase touches (`test_diff_db_gate` 0.24 s, `test_chip_database_field_inventory` 0.18 s,
+  `test_ic_layout` 0.13 s, `test_eprom_info` 0.09 s, `test_extra_chips_supplement` 0.17 s);
+  **16.7 s** for the two tasks that run `tests/test_characterization.py` (35 subprocess CLI
+  snapshots — Plan 04 Task 2 and Plan 06 Task 3); ~280 s per full-suite phase gate.
 
 ---
 
@@ -98,7 +102,8 @@ phase, before any edit**, or the equivalence claim has no baseline to compare ag
       fixture file affected.
 - [ ] Re-derive `tests/golden/chip_database_field_inventory.json` **and** capture the RED/GREEN
       transcripts (see below). — DATA-02
-- [ ] Regenerate `tests/golden/v1.3-COVERAGE-MATRIX.md` (303 ` us` cells change) — **always with
+- [ ] Regenerate `tests/golden/v1.3-COVERAGE-MATRIX.md` (**297** ` us` value cells change; the 6
+      `pulse_bucket` label lines do **not**) — **always with
       explicit scratch `--output` / `--ledger`.** — DATA-03
 
 *No framework install needed — pytest, syrupy and ruff are all present and green.*
@@ -162,13 +167,31 @@ claims to be.
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or a Wave 0 dependency
-- [ ] Sampling continuity: no 3 consecutive tasks without an automated verify
-- [ ] Wave 0 covers all ❌ MISSING references above
-- [ ] The wire-dict capture is task 1, before any edit
-- [ ] Both RED/GREEN transcript sets (D-13 golden, D-11 diff rule) captured and committed
-- [ ] No watch-mode flags; every pytest command carries `-o addopts=""`
-- [ ] Feedback latency < 5 s per task
-- [ ] `nyquist_compliant: true` set in frontmatter
+Ticked against the **planned** artifact set (8 plans / 22 tasks) on 2026-08-19. Boxes that
+execution has to earn are deliberately left open — `wave_0_complete` stays `false` until Wave 0
+actually runs.
 
-**Approval:** pending
+- [x] All tasks have `<automated>` verify or a Wave 0 dependency — measured **22/22** tasks carry
+      exactly one `<automated>` block (01: 3, 02: 2, 03: 3, 04: 3, 05: 3, 06: 3, 07: 2, 08: 3)
+- [x] Sampling continuity: no 3 consecutive tasks without an automated verify — vacuously held,
+      since no task lacks one
+- [x] Wave 0 covers all ❌ MISSING references above — all **ten** ❌ W0 rows are assigned to a task
+- [x] The wire-dict capture is task 1, before any edit — Plan 01 (`wave: 1`, `depends_on: []`)
+      Task 1 *"Capture the 746-chip pre-change wire-dict golden"*, whose own verify asserts
+      `git status --porcelain tools firestarter` is clean, i.e. that it edited nothing
+- [x] Both RED/GREEN transcript sets are assigned to explicit tasks — D-13 golden legs A–F in
+      Plan 07 Task 2; D-11 diff rule RED in Plan 06 Task 1 and GREEN in Plan 06 Task 2.
+      *Capturing and committing them is earned at execution, not here.*
+- [x] No watch-mode flags; every pytest command carries `-o addopts=""` — verified by scanning all
+      8 plan files: zero `--watch` / `--looponfail`, zero bare `pytest` invocations
+- [x] Feedback latency within the measured budget above — < 0.3 s for every unit/gate suite;
+      the two `test_characterization.py` tasks are the outlier at 16.7 s, which is measured and
+      accepted (35 subprocess CLI snapshots), not assumed to be under 5 s
+- [x] `nyquist_compliant: true` set in frontmatter
+
+**Approval:** approved 2026-08-19 (planning)
+
+> Scope of this approval: the plan set's *verification design*. It does not assert that any gate is
+> green — no Phase 148 code has been written. Every count assertion in every `<automated>` block was
+> re-run against the live tree at `/workspaces/firestarter_app` on 2026-08-19 to confirm the
+> asserted number is reachable given what that task's own action changes.

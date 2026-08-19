@@ -560,8 +560,10 @@ filter is `if isinstance(pd,str) and pd.endswith(" us")` at `:1728` wrapping a
 ```
 inside `_enum_row` (`:522-542`). `_md_escape` is `str(s).replace("|", r"\|")` (`:516-519`), so it
 survives an int — but the rendered cell changes from `100 us` to `100`. **This is what forces the
-`tests/golden/v1.3-COVERAGE-MATRIX.md` regeneration**: the golden contains **303** ` us`
-occurrences. The golden's header says *"DO NOT EDIT BY HAND. Re-run the tool."*
+`tests/golden/v1.3-COVERAGE-MATRIX.md` regeneration**: the golden contains **303** lines carrying
+` us` — but only **297** are value cells. The other 6 (`:54 :55 :1227 :1228 :1235 :1236`) are
+`pulse_bucket` **labels** (`< 100 us`, `100-999 us`), which take ints today and are unchanged by
+this phase. Re-measured by the planner 2026-08-19. The golden's header says *"DO NOT EDIT BY HAND. Re-run the tool."*
 
 ### D. `firestarter_app/tools/diff_db.py` (815 lines) — D-11
 
@@ -1114,7 +1116,8 @@ re-baselining of a pinned one, so v1.30 Phase 136's rule is not engaged.
 - [ ] An AST assertion that `_PAGE_SIZE_BY_PART` still has 2 entries and no new part-number-keyed dict exists in `build_db.py` — DATA-04
 - [ ] Update `tests/test_diff_db_gate.py:86-91,118-123` to the numeric schema (the only fixture file affected)
 - [ ] Re-derive `tests/golden/chip_database_field_inventory.json` + capture the 4-or-5 RED / 1 GREEN transcripts — DATA-02
-- [ ] Regenerate `tests/golden/v1.3-COVERAGE-MATRIX.md` (303 ` us` cells change) — DATA-03
+- [ ] Regenerate `tests/golden/v1.3-COVERAGE-MATRIX.md` (**297** ` us` value cells change; the 6
+      `pulse_bucket` label lines do **not**) — DATA-03
 
 *No framework install needed — pytest, syrupy and ruff are all present and green.*
 
@@ -1204,7 +1207,10 @@ beside the SRAM block at `:820-821`.
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+All three were settled during planning on 2026-08-19. Each is recorded here so this document can be
+read standalone; the binding statement lives in the cited plan.
 
 1. **Does the D-16 helper keep the `'N/A'` tolerance?**
    Known: today's `f"{eprom_data.get('vcc','N/A')}v"` yields `N/Av` for a malformed entry, and the
@@ -1213,17 +1219,41 @@ beside the SRAM block at `:820-821`.
    Recommendation: keep the existing display tolerance (it guards user overrides, not the generated
    DB) and apply D-10's strictness only in `_map_data`. Flag for the planner to settle.
 
+   > **RESOLVED — Plan 04, `P-03`.** The recommendation was **not** taken. `format_mv` is
+   > **strict**: no `'N/A'` fallback inside the helper. D-10's strictness lives in `_map_data`
+   > (direct indexing, so an absent key raises rather than resolving to a valid-looking `0`), which
+   > means every value reaching a render site is already an int. A tolerant fallback inside the
+   > helper would recreate in the display layer exactly the tolerant-reader shape D-07 forbids. The
+   > *existing* `try/except` int-coercion at `ic_layout.py:592-595` and `eprom_info.py:391-394`
+   > stays — it guards the `vpp_mv > 0` **gate**, a separate concern — and its already-coerced
+   > `_vpp_mv` local is what is passed to `format_mv`.
+
 2. **One plan or two?** (explicitly Claude's Discretion.) The simulation shows the comparator makes
    either ordering work. Two plans give a free intermediate capture for D-06's "zero wire change"
    assertion and a cleaner `148-DB-DIFF.md`; one plan avoids an intermediate state where
    `diff_db.py` exits 1. Recommendation: **two**, with the migration first — the intermediate RED
    is a *deliberate, captured* transcript, not an accident.
 
+   > **RESOLVED — Plan 06, `P-05`.** **Two**, as recommended. The schema migration landed in
+   > Plan 03; the D-03 margin-rail rule lands in Plan 06. This makes the D-11 RED transcript a
+   > deliberate captured artifact rather than an accident, and it lets Plan 03's own proof be the
+   > strongest available statement — *every pre-existing bucket count unchanged*.
+
 3. **Does the meta-repo `v1.3-defect-coverage-ids.json` get updated?** It is already drifted (78 vs
    68). CONTEXT.md says a legitimate defect-signature change is "a separate, deliberate,
    cross-repo decision — never a side effect". Since D-09 changes only the *rendering* of the pulse
    column and not the bucketing (`pulse_bucket` takes ints today), signatures should be stable —
    but this should be measured after the change, not assumed.
+
+   > **RESOLVED — Plan 05, Task 3, and deliberately resolved *by measurement*, not by assumption.**
+   > The answer is **NO**, the meta ledger is not written by this phase. Task 3 generates a ledger
+   > into a scratch path on both sides of the change and compares the `DEFECT-COV-NN` ID sets,
+   > recording the result in the plan SUMMARY. If the sets differ, the ledger is still **not**
+   > updated — the delta is recorded and flagged as a separate cross-repo decision. This is what
+   > retires Assumption **A1** below; the assumption is discharged by that comparison rather than
+   > carried into execution. Note also that the meta ledger is already drifted today (78 committed
+   > entries vs 68 from a fresh generate, consistent with the standing 121-01 note), so Phase 148
+   > must not be judged against it.
 
 ---
 
