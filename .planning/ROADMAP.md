@@ -272,7 +272,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 148-05-PLAN.md — delete `audit_coverage_matrix.py`'s `parse_pulse_us`, regenerate the coverage-matrix golden (D-09)
+- [x] 148-05-PLAN.md — delete `audit_coverage_matrix.py`'s `parse_pulse_us`, regenerate the coverage-matrix golden (D-09)
 
 **Wave 6** *(blocked on Wave 5 completion)*
 

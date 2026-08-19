@@ -5,15 +5,15 @@ milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 148
 current_phase_name: Numeric Database Values & the AT28C VCC Decode — EXECUTING
 status: executing
-stopped_at: Completed 148-04-PLAN.md
-last_updated: "2026-08-19T10:58:50.420Z"
+stopped_at: Completed 148-05-PLAN.md
+last_updated: "2026-08-19T11:25:35.753Z"
 last_activity: 2026-08-19
 last_activity_desc: Phase 148 execution started
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 14
-  completed_plans: 10
+  completed_plans: 11
   percent: 17
 ---
 
@@ -77,7 +77,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 148 — Numeric Database Values & the AT28C VCC Decode — EXECUTING
-Plan: 5 of 8
+Plan: 6 of 8
 Status: Ready to execute
 Last activity: 2026-08-19 — Phase 148 execution started
 
@@ -2003,6 +2003,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: D-16: format_mv(mv:int)->str is the single render helper in database.py; display sites never hand-format volts again
 - [Phase ?]: D-10: _map_data direct-indexes vcc_mv/vpp_mv/pulse_duration_us; a missing key raises KeyError instead of silently defaulting pulse-delay to 0
 - [Phase ?]: Rule 1 fix: test_sdp_capability.py's synthetic 0x0D local-override fixture given electrical.vcc_mv/vpp_mv + programming.pulse_duration_us -- broken by Task 1's strict indexing, production code unchanged
+- [Phase ?]: 148-05: audit_coverage_matrix.py's parse_pulse_us deleted; DEFECT-COV-NN ledger proven byte-identical (68/68) between pre-Phase-148 baseline and post-migration state, so the meta coverage ledger needs no update
 
 ## Performance Metrics
 
@@ -2282,12 +2283,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 148 P02 | 15min | 2 tasks | 2 files |
 | Phase 148 P03 | 35min | 3 tasks | 4 files |
 | Phase 148 P04 | 25min | 3 tasks | 5 files |
+| Phase 148 P05 | 2100 | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-19T10:58:50.395Z
-**Stopped at:** Completed 148-04-PLAN.md
-**Resume file:** 148-05-PLAN.md
+**Last session:** 2026-08-19T11:25:35.728Z
+**Stopped at:** Completed 148-05-PLAN.md
+**Resume file:** None
 
 ### Blockers
 
