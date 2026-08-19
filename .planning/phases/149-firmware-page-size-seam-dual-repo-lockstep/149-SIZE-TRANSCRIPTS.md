@@ -245,6 +245,61 @@ EXIT=0
 Both gates green simultaneously: the default gate proves the new figures are recorded exactly,
 the band gate proves the growth is admitted rather than absorbed.
 
+## RESOLVED (orchestrator-directed override, supersedes the "known, accepted fallout" note below)
+
+The orchestrator overrode this plan's `git diff --quiet ... tests` verification criterion:
+updating the live default baseline (D-14) necessarily invalidates any fixture that asserts
+default-mode output against it, so a byte-identity criterion on `tests/` was the wrong shape for
+a plan whose entire job is to re-anchor that baseline. "Stale legs, documented and left red" was
+not an acceptable close for a phase whose theme is honest measurement.
+
+**Resolution: SEVERANCE**, following the exact precedent already established in this same file by
+the Phase 145 debug session, which severed `test_policy_merge05_permits_the_measured_landing_deltas`
+off `captured_build_*.log` onto its own frozen `merge05_base01_anchor_*.log` trio for the same
+reason (a leg needing frozen inputs while the live tree keeps moving). Firmware commit `6e3f90a`:
+
+- **New fixture family**, `tests/fixtures/captured_build_v132_{uno,uno328pb,leonardo}.log`,
+  transcribed byte-for-byte from the same committed cold post-change logs D-14 used (uno
+  25130/1575, uno328pb 25180/1581, leonardo 27212/2016) — never re-derived warm — plus
+  `planted_size_baseline_flash_regression_v132.log` (leonardo +512 B -> 27212/27724, the same
+  offset every prior version of this plant has used since Phase 123).
+- **Three legs severed onto the new family**: `test_clean_avr_all_three_envs_pass`,
+  `test_default_mode_is_unchanged_by_the_new_flag`, and
+  `test_planted_flash_regression_flips_checker_to_failure` — each docstring now records why it
+  moved and what still depends on the old family, in the same voice as the existing Phase 145
+  severance note.
+- **`captured_build_{uno,uno328pb,leonardo}.log` and `merge05_base01_anchor_*.log` stay
+  byte-unchanged** — `test_baseline_seam_precedence_flips_clean_log_to_fail` and
+  `test_policy_merge05_admits_the_documented_defect_fix`'s Arm 1 both still need the pre-149 trio
+  frozen at its original figures.
+- **`captured_test_native{,_nodevtools}_summary.log` updated IN PLACE**, 141 -> 151
+  cases/succeeded (suites unchanged at 17) — no severance needed, since
+  `test_clean_native_both_envs_pass` is the only leg in the module reading either native summary
+  fixture at test time, and nothing depends on 141 staying frozen.
+- **`scripts/check_size_baseline.py`, `size_baseline_base01.json`, every band/exemption constant
+  and every watermark are byte-unchanged.** No `PGSZ-0N` checkbox or traceability row touched.
+
+```
+$ python3 -m pytest tests/ -o addopts="" -q
+315 passed in 9.70s
+```
+
+Both size gates re-confirmed green after the severance commit:
+
+```
+$ python3 scripts/check_size_baseline.py --baseline scripts/baseline/size_baseline.json --avr-log uno=... --avr-log uno328pb=... --avr-log leonardo=... ; echo EXIT=$?
+PASS: uno(flash=25130/32256,ram=1575/2048), uno328pb(flash=25180/32384,ram=1581/2048), leonardo(flash=27212/28672,ram=2016/2560)
+EXIT=0
+$ python3 scripts/check_size_baseline.py --policy merge05 --baseline scripts/baseline/size_baseline_base01.json --avr-log uno=... --avr-log uno328pb=... --avr-log leonardo=... ; echo EXIT=$?
+PASS: uno(flash=25130/32256[+306<=370=band64+exempt96+seam210],ram=1575/2048[+2<=2=seam2]), uno328pb(flash=25180/32384[+306<=370=band64+exempt96+seam210],ram=1581/2048[+2<=2=seam2]), leonardo(flash=27212/28672[+306<=306=band0+exempt96+seam210],ram=2016/2560[+2<=2=seam2])
+EXIT=0
+```
+
+The section below is preserved verbatim as the historical record of the investigation that led
+to this resolution (the reasoning about why a blanket re-capture would break
+`test_policy_merge05_admits_the_documented_defect_fix`'s Arm 1 was correct; the conclusion to
+leave the suite red was overridden by the orchestrator in favor of severance).
+
 ## Known, accepted fallout — four `tests/test_check_size_baseline.py` legs now stale (not fixed here)
 
 `tests/` is byte-unchanged by this plan (a hard constraint of this plan's own `<verification>`

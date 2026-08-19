@@ -27,15 +27,19 @@ key-files:
   modified:
     - firestarter/scripts/baseline/size_baseline.json
     - .planning/phases/149-firmware-page-size-seam-dual-repo-lockstep/149-SIZE-TRANSCRIPTS.md
+    - firestarter/tests/test_check_size_baseline.py
+    - firestarter/tests/fixtures/captured_test_native_summary.log
+    - firestarter/tests/fixtures/captured_test_native_nodevtools_summary.log
 
 key-decisions:
   - "D-14 applied: size_baseline.json's avr_targets/native_envs are the live default baseline again, transcribed byte-for-byte from plan 06's committed cold logs -- no pio run in this plan."
   - "X-3 applied: meta.firmware_tree_sha corrected from the stale Phase-144 tree (3d8ec49..., root of commit 6cc4795, which predates the file's own +96 B figures) to the tree the cold logs were actually measured against (c6349d2..., root of firmware commit 581cff6)."
   - "Kept check_size_baseline.py, size_baseline_base01.json, src/, include/ and tests/ byte-unchanged, per the plan's explicit Task 1 constraint and its own <verification> block's `git diff --quiet ... tests` requirement."
-  - "Accepted, and did not fix, four tests/test_check_size_baseline.py legs that go stale against the new default baseline -- fixing them would require re-capturing tests/fixtures/captured_build_*.log, which would break test_policy_merge05_admits_the_documented_defect_fix's Arm 1 (authored at 149-06, deliberately relies on that freeze) and would violate this plan's own tests/-must-stay-untouched constraint."
+  - "Orchestrator-directed override (supersedes the original conclusion below): the plan's own `git diff --quiet ... tests` criterion was overridden because re-anchoring the live default baseline necessarily invalidates fixtures asserting default-mode output against it. Resolved by SEVERING four tests/test_check_size_baseline.py legs onto a new captured_build_v132_*.log fixture family (the same pattern the Phase 145 debug session already used for merge05_base01_anchor_*.log), leaving captured_build_*.log and merge05_base01_anchor_*.log byte-unchanged for the legs that still need them frozen. python3 -m pytest tests/ -o addopts=\"\" -q now reports 315 passed, 0 failed."
+  - "Original (superseded) conclusion, preserved for the record: fixing the four stale legs by re-capturing tests/fixtures/captured_build_*.log in place would have broken test_policy_merge05_admits_the_documented_defect_fix's Arm 1 (authored at 149-06, deliberately relies on that freeze) and would have violated this plan's own tests/-must-stay-untouched constraint -- true as a constraint analysis, but the conclusion to leave the suite red was overridden by the orchestrator in favor of severance."
 
 patterns-established:
-  - "Baseline re-anchor discipline: when size_baseline.json's avr_targets/native_envs move, tests/fixtures/captured_build_*.log and captured_test_native*.log fixtures need re-deriving together in the SAME commit that also updates tests/test_check_size_baseline.py's literals -- deferred here, following the precedent of test(144-05)."
+  - "Baseline re-anchor discipline via SEVERANCE: when size_baseline.json's avr_targets/native_envs move, legs that must track the LIVE baseline get a new fixture family (captured_build_v132_*.log here), while legs that must stay frozen (e.g. an adjudication Arm testing 'the pre-change tree') keep the old family untouched -- the same precedent as merge05_base01_anchor_*.log, applied a second time in this file."
 
 requirements-completed: []
 
@@ -80,7 +84,7 @@ coverage:
         status: pass
     human_judgment: false
 
-duration: 55min
+duration: 70min
 completed: 2026-08-19
 status: complete
 ---
@@ -95,7 +99,7 @@ status: complete
 - **Started:** 2026-08-19T21:47:00Z
 - **Completed:** 2026-08-19T22:42:14Z
 - **Tasks:** 2
-- **Files modified:** 6 (1 in `firestarter`, 5 in meta: 1 transcript + 4 new todos + 1 removed todo)
+- **Files modified:** 14 (8 in `firestarter`: `size_baseline.json` + 7 test-suite files from the orchestrator-directed severance; 6 in meta: 1 transcript + 4 new todos + 1 removed todo)
 
 ## Accomplishments
 
@@ -105,13 +109,15 @@ status: complete
 - Both size gates exit 0 simultaneously: default byte-identity mode and `--policy merge05` against `size_baseline_base01.json`.
 - Four new pending todos filed with measured content (part lists, four-way provenance tables, file:line citations): the 66 promoted `0x0D` rows and the 64-byte floor's unproven safety for 11 of them; the two FRAM parts (`FM28V020`, `MB85R256H`) riding the handler by pinout promotion as a classification question; the deferred runtime INFO log naming the effective page size; and the Phase 44 read-timing knobs' own missing `json_parse` reset.
 - The folded `remove-dead-json-init-sizeof-pointer-bug.md` todo removed as a tracked deletion, after confirming `json_init()` and its declaration are genuinely gone from the tree (plan 04's work).
+- **Orchestrator-directed correction:** the plan's own `git diff --quiet ... tests` criterion was overridden — re-anchoring the live default baseline necessarily invalidates any fixture asserting default-mode output against it, so a byte-identity criterion on `tests/` was the wrong shape for this plan. Resolved by SEVERANCE (the same pattern already used in this file by the Phase 145 debug session): a new `captured_build_v132_*.log` fixture family plus a matching planted-regression fixture, three tests re-pointed at it, and the two native summary fixtures updated in place. `python3 -m pytest tests/ -o addopts="" -q` now reports **315 passed, 0 failed** — the firmware suite is fully green, not merely "honestly red."
 
 ## Task Commits
 
 1. **Task 1: Update size_baseline.json from the cold transcripts and run both size gates green** — `9e1473c` (feat, `firestarter` repo)
 2. **Task 1 (meta half) + Task 2: record transcripts, file four todos, remove the folded one** — `a4004885` (docs, meta repo — combined into one commit; see Deviations)
+3. **Orchestrator-directed correction: sever four legs onto a post-149 fixture family, fix the RED firmware suite** — `6e3f90a` (test, `firestarter` repo)
 
-**Plan metadata:** pending final commit (this SUMMARY.md, STATE.md, ROADMAP.md).
+**Plan metadata:** `2c558642` (docs, meta — STATE.md/ROADMAP.md/SUMMARY.md), `6bcd6b56` (docs, meta — self-check), plus this correction's own meta commit (see below).
 
 ## Files Created/Modified
 
@@ -122,6 +128,13 @@ status: complete
 - `.planning/todos/pending/runtime-info-log-naming-the-effective-page-size.md` — D-09 follow-up
 - `.planning/todos/pending/phase-44-read-timing-knobs-missing-json-parse-reset.md` — research Open Question 5
 - `.planning/todos/pending/remove-dead-json-init-sizeof-pointer-bug.md` — removed (folded, landed in plan 04)
+- `firestarter/tests/fixtures/captured_build_v132_uno.log` — new, post-149 AVR fixture (25130/1575)
+- `firestarter/tests/fixtures/captured_build_v132_uno328pb.log` — new, post-149 AVR fixture (25180/1581)
+- `firestarter/tests/fixtures/captured_build_v132_leonardo.log` — new, post-149 AVR fixture (27212/2016)
+- `firestarter/tests/fixtures/planted_size_baseline_flash_regression_v132.log` — new, severed planted regression (27212 -> 27724)
+- `firestarter/tests/fixtures/captured_test_native_summary.log` — updated in place, 141 -> 151 cases
+- `firestarter/tests/fixtures/captured_test_native_nodevtools_summary.log` — updated in place, 141 -> 151 cases
+- `firestarter/tests/test_check_size_baseline.py` — four tests severed/updated onto the new fixture family, with docstrings recording why
 
 ## Decisions Made
 
@@ -142,18 +155,20 @@ status: complete
 - **Verification:** `git show --stat a4004885` confirms exactly six files changed, matching Task 1's meta deliverable plus Task 2's five todo mutations; `git diff --stat HEAD~1 HEAD -- firestarter firestarter_app` is empty, confirming the gitlinks were never staged.
 - **Committed in:** `a4004885`
 
-**2. [Rule 1 - Bug, scope investigated then reverted] Investigated re-capturing `tests/fixtures/captured_build_*.log` to match the new default baseline, then reverted**
+**2. [Orchestrator-directed override of the plan's own verification block] Severed four legs onto a new post-149 fixture family instead of leaving the firmware suite red**
 - **Found during:** Task 1 (running `python3 -m pytest tests/ -q` after the baseline update, per the plan's own `<verification>` block)
-- **Issue:** Updating `size_baseline.json`'s live default `avr_targets`/`native_envs` (required by D-14) put four pre-existing default-mode tests in `tests/test_check_size_baseline.py` out of sync with `tests/fixtures/captured_build_*.log` / `captured_test_native*.log`, which are frozen at the pre-Phase-149 figures. I initially re-captured those fixtures and updated the corresponding test literals to bring them back in sync.
-- **Fix:** Reverted the fixture/test-module edits (`git checkout -- tests/`) after discovering `test_policy_merge05_admits_the_documented_defect_fix` (authored at 149-06) explicitly and deliberately relies on `captured_build_*.log` staying frozen at "the tree as captured before Phase 149" for its Arm 1 — re-capturing would have fixed the four stale legs but broken that already-passing, deliberately-designed test instead. The plan's own Task 1 action also explicitly prohibits editing "any fixture ... in this task," and the plan's `<verification>` block requires `git diff --quiet ... tests` to hold. Confirmed `tests/` is byte-identical to `HEAD` before proceeding.
-- **Files modified:** none (reverted to `HEAD` state)
-- **Verification:** `git diff --quiet tests` passes; full suite re-run shows the same 4 stale legs (down from 9, once the 5 dirty-tree-collateral failures resolved after committing `size_baseline.json`) — recorded honestly in `149-SIZE-TRANSCRIPTS.md`'s "Known, accepted fallout" section rather than silently fixed or silently ignored.
-- **Committed in:** not committed (working-tree-only investigation, reverted before any commit)
+- **Issue:** Updating `size_baseline.json`'s live default `avr_targets`/`native_envs` (required by D-14) put four pre-existing default-mode tests in `tests/test_check_size_baseline.py` out of sync with `tests/fixtures/captured_build_*.log` / `captured_test_native*.log`, which are frozen at the pre-Phase-149 figures.
+- **First attempt (investigated, then reverted):** re-captured `captured_build_*.log` in place to the new figures. Reverted after discovering `test_policy_merge05_admits_the_documented_defect_fix` (authored at 149-06) explicitly and deliberately relies on `captured_build_*.log` staying frozen at "the tree as captured before Phase 149" for its Arm 1 — a blanket re-capture would have fixed the four stale legs but broken that already-passing, deliberately-designed test instead. At this point I concluded the plan's own Task 1 prohibition ("do not edit ... any fixture ... in this task") and its `<verification>` block's `git diff --quiet ... tests` requirement left no path to a fully green suite within the plan as written, and documented the four failures as a "known, accepted gap" in both `149-SIZE-TRANSCRIPTS.md` and this SUMMARY.
+- **Orchestrator override:** the orchestrator reviewed that conclusion, confirmed the constraint-analysis was correct but rejected the conclusion — "a phase whose entire theme is honest measurement cannot close with a red firmware suite" — and explicitly authorized overriding the plan's `git diff --quiet ... tests` criterion, directing the same resolution already used once in this exact file: **severance**. The Phase 145 debug session had severed `test_policy_merge05_permits_the_measured_landing_deltas` off `captured_build_*.log` onto its own frozen `merge05_base01_anchor_*.log` trio for the identical reason (a leg needing frozen inputs while the live tree keeps moving); this plan repeats that pattern rather than fighting over which state the shared fixture family should hold.
+- **Fix:** Added `tests/fixtures/captured_build_v132_{uno,uno328pb,leonardo}.log` (transcribed byte-for-byte from the same committed cold post-change logs D-14 used — never re-derived warm) and `planted_size_baseline_flash_regression_v132.log` (leonardo +512 B, 27212 -> 27724, the same offset every prior version of this plant has used since Phase 123). Severed `test_clean_avr_all_three_envs_pass`, `test_default_mode_is_unchanged_by_the_new_flag` and `test_planted_flash_regression_flips_checker_to_failure` onto the new family, each with a docstring recording why it moved and what still depends on the old family (same voice as the existing Phase 145 severance note). Updated `captured_test_native{,_nodevtools}_summary.log` **in place** (141 -> 151; no severance needed — `test_clean_native_both_envs_pass` is the only leg reading either fixture) and its assertions/docstring. Left `captured_build_{uno,uno328pb,leonardo}.log`, `merge05_base01_anchor_*.log`, `check_size_baseline.py`, `size_baseline_base01.json`, every band/exemption constant and every watermark byte-unchanged.
+- **Files modified:** `tests/test_check_size_baseline.py`, `tests/fixtures/captured_build_v132_{uno,uno328pb,leonardo}.log` (new), `tests/fixtures/planted_size_baseline_flash_regression_v132.log` (new), `tests/fixtures/captured_test_native{,_nodevtools}_summary.log`
+- **Verification:** `python3 -m pytest tests/ -o addopts="" -q` → **315 passed, 0 failed**. Both size gates re-confirmed green (default byte-identity and `--policy merge05`). `git diff --quiet` confirmed clean on `check_size_baseline.py`, `size_baseline_base01.json`, `src/`, `include/`, the pre-149 `captured_build_*.log` trio, and `merge05_base01_anchor_*.log`.
+- **Committed in:** `6e3f90a` (`firestarter` repo)
 
 ---
 
-**Total deviations:** 2 (1 commit-granularity, 1 investigated-and-reverted scope decision)
-**Impact on plan:** No scope creep landed in any commit. The one investigated fix was reverted specifically because it would have violated this plan's own constraints and broken an already-passing test; the resulting known gap is fully documented rather than hidden.
+**Total deviations:** 2 (1 commit-granularity, 1 orchestrator-directed override that replaced an "investigated and reverted" dead end with a working severance)
+**Impact on plan:** No scope creep beyond what the orchestrator explicitly authorized. The plan's own `git diff --quiet ... tests` criterion is **explicitly not satisfied as originally written** — this is a deliberate, orchestrator-approved override, stated plainly here rather than described as the plan having passed as written. The firmware test suite is fully green (315/315) and both size gates are green; nothing was left "honestly red."
 
 ## Known Stubs
 
@@ -165,9 +180,9 @@ None — no new network endpoints, auth paths, file access patterns, or schema c
 
 ## Issues Encountered
 
-**Four `tests/test_check_size_baseline.py` legs are now stale against the live default baseline** (`test_clean_avr_all_three_envs_pass`, `test_clean_native_both_envs_pass`, `test_planted_flash_regression_flips_checker_to_failure`, `test_default_mode_is_unchanged_by_the_new_flag`) — all four invoke the checker in default mode (no `--baseline`), which now reads the just-updated `size_baseline.json`, against `tests/fixtures/captured_build_*.log` / `captured_test_native*.log` fixtures still reading the pre-Phase-149 figures. This is a real, understood, and fully documented consequence of D-14's required change (see `149-SIZE-TRANSCRIPTS.md`'s "Known, accepted fallout" section for the full reasoning and the exact failing-test transcript), not fixed in this plan because doing so would require touching `tests/` (explicitly prohibited by Task 1 and by this plan's own `<verification>` block) and would break `test_policy_merge05_admits_the_documented_defect_fix`'s Arm 1, which deliberately depends on the freeze. Left for whichever future plan next touches `avr_targets`/`native_envs`, following the precedent of `test(144-05): re-anchor all three size baselines to the v1.31 tip`.
+**RESOLVED.** Four `tests/test_check_size_baseline.py` legs (`test_clean_avr_all_three_envs_pass`, `test_clean_native_both_envs_pass`, `test_planted_flash_regression_flips_checker_to_failure`, `test_default_mode_is_unchanged_by_the_new_flag`) went stale against the live default baseline after D-14's required re-anchor, because they invoke the checker in default mode against `tests/fixtures/captured_build_*.log` / `captured_test_native*.log` fixtures that were frozen at the pre-Phase-149 figures. My first instinct was to record this as a "known, accepted gap" (a blanket fixture re-capture would have broken `test_policy_merge05_admits_the_documented_defect_fix`'s Arm 1, and the plan's own text prohibits editing fixtures in Task 1). **The orchestrator overrode that conclusion** and directed the correct resolution already precedented in this same file: severance onto a new post-149 fixture family (`captured_build_v132_*.log`), leaving the pre-149 family untouched for the legs that still need it frozen. See the "Deviations from Plan" section above for the full account, and `149-SIZE-TRANSCRIPTS.md`'s "RESOLVED (orchestrator-directed override...)" section for the gate transcripts.
 
-All other tests pass: `python3 -m pytest tests/ -o addopts="" -q` reports **311 passed, 4 failed** (down from the pre-existing 315-passed baseline at the end of plan 06, exactly the 4 legs named above).
+`python3 -m pytest tests/ -o addopts="" -q` now reports **315 passed, 0 failed** — fully green, matching the pre-existing baseline at the end of plan 06. Both size gates (default byte-identity, `--policy merge05`) remain green.
 
 ## User Setup Required
 
@@ -177,7 +192,7 @@ None - no external service configuration required.
 
 - `size_baseline.json` is fully re-anchored and both size gates are green; plan 08 (the whole-phase gate, `149-PAGE-SIZE.md` completion, README changelog line, claim-gate extension, and all five `PGSZ-0N` checkbox flips) can proceed.
 - The four new pending todos and the folded-todo removal are committed and available for future triage.
-- The four stale `tests/test_check_size_baseline.py` legs are an open, documented item for whichever future plan next re-anchors `avr_targets`/`native_envs` — not a blocker for plan 08, since plan 08's own `<verification>` block runs `pio test` for real (not these frozen fixtures) and its `python3 -m pytest tests/ -q` line carries no explicit "must exit 0" annotation in the plan text, matching this plan's own treatment.
+- The firmware repo's full test suite is green (315/315, 0 failed) — no open gap for plan 08 to inherit. The severance pattern (`captured_build_v132_*.log`) is available as the template for whichever future plan next re-anchors `avr_targets`/`native_envs`.
 
 ---
 *Phase: 149-firmware-page-size-seam-dual-repo-lockstep*
@@ -187,5 +202,7 @@ None - no external service configuration required.
 
 - All four new todo files found on disk; folded todo confirmed removed.
 - `firestarter/scripts/baseline/size_baseline.json` commit `9e1473c` found in the `firestarter` repo's history.
+- `firestarter` severance commit `6e3f90a` found in the `firestarter` repo's history.
 - `.planning/` commits `a4004885` and `2c558642` found in the meta repo's history.
 - `149-07-SUMMARY.md` found on disk.
+- `python3 -m pytest tests/ -o addopts="" -q` re-confirmed 315 passed, 0 failed at self-check time.
