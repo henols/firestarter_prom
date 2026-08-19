@@ -182,3 +182,10 @@ None - no external service configuration required.
 ---
 *Phase: 149-firmware-page-size-seam-dual-repo-lockstep*
 *Completed: 2026-08-19*
+
+## Self-Check: PASSED
+
+- All four new todo files found on disk; folded todo confirmed removed.
+- `firestarter/scripts/baseline/size_baseline.json` commit `9e1473c` found in the `firestarter` repo's history.
+- `.planning/` commits `a4004885` and `2c558642` found in the meta repo's history.
+- `149-07-SUMMARY.md` found on disk.
