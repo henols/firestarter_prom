@@ -98,7 +98,7 @@ data the generator emits. The seed touches the same field, so both land together
       shield delivers. The rule keys on the decoded value alone (`vcc_mv == 4000` → `vdd_mv`) — no
       part number, no type, no algorithm — and moves exactly 56 chips, every one to 5000 mV.)*
 
-- [ ] **DATA-02**: Voltages are stored as millivolt integers and timing as microsecond integers,
+- [x] **DATA-02**: Voltages are stored as millivolt integers and timing as microsecond integers,
       ending the half-done state where every chip carries both `vpp: "12V"` and `vpp_mv: 12000` while
       `vcc`/`vdd` exist only as unit-suffixed strings.
 
@@ -250,7 +250,7 @@ relies on `autonomous: false` alone is not self-protecting.
 | PROV-05 | Phase 147 | Complete |
 | PROV-06 | Phase 147 | Complete |
 | DATA-01 | Phase 148 | Complete |
-| DATA-02 | Phase 148 | Pending |
+| DATA-02 | Phase 148 | Complete |
 | DATA-03 | Phase 148 | Pending |
 | DATA-04 | Phase 148 | Pending |
 | DATA-05 | Phase 148 | Complete |

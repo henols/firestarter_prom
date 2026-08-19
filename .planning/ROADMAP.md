@@ -280,7 +280,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 148-07-PLAN.md — re-derive the field-inventory golden + six seen-to-fail transcripts A–F (D-13)
+- [x] 148-07-PLAN.md — re-derive the field-inventory golden + six seen-to-fail transcripts A–F (D-13)
 
 **Wave 8** *(blocked on Wave 7 completion)*
 

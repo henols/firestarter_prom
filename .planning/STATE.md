@@ -5,15 +5,15 @@ milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 148
 current_phase_name: Numeric Database Values & the AT28C VCC Decode — EXECUTING
 status: executing
-stopped_at: Completed 148-06-PLAN.md
-last_updated: "2026-08-19T11:52:33.831Z"
+stopped_at: Completed 148-07-PLAN.md
+last_updated: "2026-08-19T12:23:32.853Z"
 last_activity: 2026-08-19
 last_activity_desc: Phase 148 execution started
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 14
-  completed_plans: 12
+  completed_plans: 13
   percent: 17
 ---
 
@@ -77,7 +77,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 148 — Numeric Database Values & the AT28C VCC Decode — EXECUTING
-Plan: 7 of 8
+Plan: 8 of 8
 Status: Ready to execute
 Last activity: 2026-08-19 — Phase 148 execution started
 
@@ -2005,6 +2005,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: Rule 1 fix: test_sdp_capability.py's synthetic 0x0D local-override fixture given electrical.vcc_mv/vpp_mv + programming.pulse_duration_us -- broken by Task 1's strict indexing, production code unchanged
 - [Phase ?]: 148-05: audit_coverage_matrix.py's parse_pulse_us deleted; DEFECT-COV-NN ledger proven byte-identical (68/68) between pre-Phase-148 baseline and post-migration state, so the meta coverage ledger needs no update
 - [Phase 148]: Task 1's predicted RED (diff_db.py exit 1, 56 UNEXPLAINED) did not occur; measured RED was exit 0 with the 56 movers misattributed to the pre-existing BUG3_VCC_VDD rule — BUG3_VCC_VDD's condition does not check pinout/type/vpp diffs, so it silently matched the movers before RULE_VCC_MARGIN_RAIL existed; documented as a stronger proof of D-11's need in 148-DB-DIFF.md
+- [Phase ?]: 148-07: Golden re-derivation via the test module's own _walk/_generator_chip_entry_keys/_extra_chips_entry_keys helpers against the live tree, never a second reimplementation
+- [Phase ?]: 148-07: Leg E (new to this milestone) plants inside the real tools/extra_chips.json (no env seam by design), run last before the clean-tree Leg F, restored byte-exact
 
 ## Performance Metrics
 
@@ -2286,11 +2288,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 148 P04 | 25min | 3 tasks | 5 files |
 | Phase 148 P05 | 2100 | 3 tasks | 2 files |
 | Phase 148 P06 | 50min | 3 tasks | 7 files |
+| Phase 148 P07 | 40min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-19T11:52:33.806Z
-**Stopped at:** Completed 148-06-PLAN.md
+**Last session:** 2026-08-19T12:23:32.828Z
+**Stopped at:** Completed 148-07-PLAN.md
 **Resume file:** None
 
 ### Blockers
