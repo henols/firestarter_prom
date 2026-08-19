@@ -120,7 +120,7 @@ must precede the subcommand. Not the bug; do not chase it.
 hypothesis: (both confirmed and fixed — see Resolution)
 test: (complete)
 expecting: (complete)
-next_action: this session's defect is RESOLVED and hardware-verified end to end (ttyACM1 3.0.0b11 → 3.0.0b19 via avrdude 7.1, 8.39s; full path matrix below). BUT two NEW defects surfaced while exercising the matrix and are NOT fixed — see "SUPERSEDING FINDINGS": (A) `--port` restricts nothing, so the app can flash board A with board B's asset, and (B) genuine 2.x stable firmware still dies at the JSON layer, upstream of the waiver, which means the operator's original "release firmware installed" report may still be open. Both need their own session or issue. Commits are unpushed and submodule pointers deliberately not bumped.
+next_action: none — ALL FOUR defects fixed and hardware-verified. (1) the CAP-02 ack-identity deadlock and the stable-channel auto-route (this session's original scope, commit `ebbc299`); then, found while exercising the full update-path matrix and fixed on operator request: (A) `--port` restricted nothing, so the app could flash board A with board B's asset, (B) genuine 2.x stable firmware was unupdatable because the update path demanded a readable version it can never get, and (C) a one-shot `--port` leaked into the persisted config. The operator's original "release firmware installed" report is now genuinely closed: reproduced with real stable 2.0.6 firmware and upgraded to 3.0.0b19 via `fw --board uno --install`. Commits are unpushed and submodule pointers deliberately not bumped, so a later phase owns the lockstep decision.
 
 ## Evidence
 
@@ -333,3 +333,76 @@ talks to the **bootloader**, not the firmware. The update path should proceed wi
 `current_version = None` under an explicit `--board` and flash blind. `firmware.py` already
 tolerates `current_version = None` under `--install`; it is Defect A that defeats it, by finding a
 *different* board instead of finding nothing.
+
+## SUPERSEDING FINDINGS — FIXED (2026-08-19, operator asked for both)
+
+All three defects fixed in `firestarter_app`. Defect C below was found while verifying A and B, and
+is the reason the first attempt at C did not hold.
+
+**A — a named port now RESTRICTS the probe instead of merely ordering it.**
+`_list_potential_ports` gained `restrict_to_preferred`; `find_and_connect` gained
+`restrict_to_port` (default None = infer). The rule is deliberately two-sided, because "always
+restrict" would have traded one defect for another: a port **typed this invocation** is a command
+and is obeyed exactly, while a port merely **remembered from a previous successful run** stays a
+hint that yields to discovery — otherwise replugging a board would strand every later invocation on
+a port that no longer exists. The discriminator is the config's transient mark (see C): `cli()`
+records a typed `--port` with `persist=False`, and every command reads the port back out of the
+in-memory config, so that mark is the only surviving evidence of which one it was. The inference
+tests `is True` rather than truthiness, so a `MagicMock` config double falls to the permissive
+branch instead of silently acquiring a restriction. A restricted miss now names the port and points
+at the `--board` escape hatch instead of dead-ending.
+
+Call-site audit: only `firmware.py` passes `preferred_port` at all; `hardware.py` and
+`eprom_operations.py` let `find_and_connect` resolve it from config. So the transient mark governs
+every command uniformly with no per-command plumbing.
+
+**B — an install no longer requires the running firmware to be readable.** avrdude drives the
+BOOTLOADER, not the firmware, so firmware too old to speak the protocol can still be replaced. What
+is unsafe is guessing WHICH image to write: with no identity, `board_to_use` collapses to the
+`--board` default, so an unnamed board would resolve the `uno` asset for whatever is attached.
+`--install`/`--force` on an unidentified programmer therefore now REFUSE unless the board is named,
+and warn when they proceed. Portless (DFU) boards are exempt — a py32f071 exposes no serial port, so
+"unidentified" is its normal state and the only way `board_to_use` can name it is for the caller to
+have named it. That exemption is why `test_py32_dfu.py::test_dfu_board_installs_without_a_serial_port`
+went RED on the first cut of this fix; the guard was wrong there, not the test.
+
+**C — `set_value(..., persist=False)` is now honoured across later persisted writes.** `_save_config`
+dumped the whole in-memory dict, so `firmware.py` caching `avrdude-path` after a successful flash
+wrote the one-shot `--port` to disk. Observed live: `~/.firestarter/config.json` acquired
+`"port": "/dev/ttyUSB0"` from a `--port` documented as applying to one invocation. `_transient_keys`
+now excludes such keys from the dump, an explicit persisted write promotes a key out of transient
+status, and `remove_key` clears the mark. A second writer was also involved and is the reason the
+first fix did not hold: `serial_comm.py` persists the working port after every successful probe
+("Save successful port"). That convenience is intentional and is kept — but extracted into
+`_remember_working_port`, which never promotes a port the operator typed for this invocation.
+
+### Live verification (all on the bench, after the fixes)
+
+| Check | Result |
+|---|---|
+| `--port <mute 2.0.6 board> fw` | errors naming ttyACM1, no longer answers with ttyUSB0's version |
+| `--port <bogus> hw` with 3 boards attached | errors on the named port; never silently uses another |
+| `--port … fw --install` (no `--board`) | refused: "cannot be chosen automatically" |
+| `--port … fw --board uno --install` | **2.0.6 → 3.0.0b19** — the upgrade that was impossible |
+| bare `fw` (no `--port`) | discovers ttyUSB0, remembers it in config |
+| bare `fw` with a STALE remembered port | falls through to discovery and self-heals config |
+| `--port … fw` then inspect config | no `port` key written — the leak is closed |
+| `hw` on an upgraded board | succeeds; still refuses on pre-CAP-02 — gate intact |
+
+Note the `--board uno --install` row: that is the operator's original report, reproduced with
+genuine stable firmware and now actually fixed. Defect B is what made it a true dead end; the
+CAP-02 waiver recorded earlier in this file never reached it.
+
+### Commits and gates for the three superseding fixes
+
+- `firestarter_app` **`da6572b`** — `config.py` (`_transient_keys`, `is_transient`), `serial_comm.py`
+  (`_list_potential_ports(restrict_to_preferred=…)`, `find_and_connect(restrict_to_port=…)`,
+  `_remember_working_port`), `firmware.py` (blind-install guard + portless exemption), and
+  `tests/test_fw_port_targeting_and_blind_install.py` (14 new tests, 5 proven RED pre-fix).
+- Seven existing tests stubbed `_list_potential_ports` with one-parameter lambdas. The helper's
+  signature genuinely changed, so the stubs were updated rather than the production call contorted
+  to suit the doubles.
+- Suite **1674 passed / 0 failed** (was 1660). `ruff check` + `ruff format` clean. mypy unchanged at
+  the HEAD baseline of **17 errors in 5 files** — established by running mypy in a throwaway
+  worktree of HEAD rather than assumed, since firmware.py's pre-existing `board_to_use` Optional
+  errors shift line numbers when anything is inserted above them.
