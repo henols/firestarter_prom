@@ -15,6 +15,13 @@ reporting `4V`.
 `database.py`'s string-coercion layer **and** `audit_coverage_matrix.py`'s `parse_pulse_us`, a
 single mV→string render helper for the three display call sites, a normalizing comparator in
 `diff_db.py`, and re-derivation of the two goldens the migration moves. DATA-01…DATA-05.
+**Also in scope, added 2026-08-19 per `148-RESEARCH.md` F-1:** `tools/extra_chips.json` is a
+**second emission path** — `build_db.py:830-857` merges its two records (TI `2516`, `2532`)
+post-decode and byte-faithful, so they carry the old string schema verbatim. Unmigrated, 2 of 746
+chips ship the old schema and D-10's direct indexing raises `KeyError` on both. It is also part of
+the field-inventory golden's key union (`meta.generator_scan_scope`). Migrating it is a hand edit
+to an **authored supplement** — state it explicitly in the plan; it is emphatically not a hand edit
+to generated JSON.
 **Host-only — `firestarter_app/` only.** The firmware never reads the JSON.
 
 **Out of scope:** any firmware change (Phase 149 owns the only firmware-touching workstream);
@@ -159,7 +166,7 @@ D-06 — so nothing here can explain or fix `write BAD`.
 
 ### Proving the blast radius (DATA-05)
 
-- **D-11: `diff_db.py` gets a normalizing comparator — the migration must diff to ZERO.**
+- **D-11: `diff_db.py` gets a normalizing comparator — the migration must move no chip between buckets.**
   `diff_db.py` classifies by literal field names (`:445-458`) against a pinned baseline and exits
   1 on any unexplained diff, so a key rename would make all 746 chips diff and none classify.
   Canonicalize both sides to mV / µs before comparing, so `"5V" == 5000` and `"100 us" == 100`.
@@ -173,6 +180,16 @@ D-06 — so nothing here can explain or fix `write BAD`.
   **Rejected:** two sequential passes with a `RULE_SCHEMA_NUMERIC` label and a re-pinned baseline
   (produces a 746-row "explained" artifact no reviewer can actually check, and re-pinning is what
   the field-inventory golden itself calls the silenceable move).
+
+  *(Mechanism corrected 2026-08-19 by `148-RESEARCH.md` **F-2** — measured, not argued. The decision
+  stands; its stated yardstick does not. `diff_db.py` **already reports 744 changed chips today**
+  (`PGSZ_PAGE_SIZE` 2 + `PROV01_PROTECT_METADATA` 742, exit 0) because
+  `tools/baseline/chip_database.baseline.json` predates Phase 136.1. "Produces **zero** diff rows"
+  is therefore **unachievable** and would be a false RED. The achievable and equally strong form,
+  measured in RESEARCH.md §"Validation Architecture": the changed-chip total and every existing
+  bucket count are **unchanged**, no chip moves between buckets, and the 56 movers appear as their
+  own **new** bucket. RESEARCH.md also measured that a `_RATIONALES` entry alone is **not**
+  sufficient for that bucket — it needs a scoped `_classify_diff` branch (its Option B).)*
 
 - **D-12: `148-DB-DIFF.md` in the phase directory is the review artifact.** It carries the
   `diff_db.py` run output, the 56-chip mover list, the D-03 justification with its citation, and
@@ -212,6 +229,15 @@ D-06 — so nothing here can explain or fix `write BAD`.
   **Rejected:** datasheet style (`"5V"` / `"12.5V"`) — nicer, but it re-baselines every voltage
   line in the snapshot and makes the one line that matters indistinguishable from the ones that
   do not. Not filed as a follow-up todo either; it was considered and declined, not deferred.
+
+  *(Mechanism corrected 2026-08-19 by `148-RESEARCH.md` **F-3**. The byte-identical render contract
+  above **stands and is load-bearing**. What does not: "the snapshot diff then changes on exactly
+  the AT28C-family lines". **No AT28C VCC line exists in any snapshot.** The only info-view snapshot
+  is `test_info_known_chip`, which runs `firestarter info W27C512` — `vcc: "5V"`, **not a mover** —
+  and the `test_list` snapshot renders only a VPP column. The correct criterion is **stronger**: the
+  `.ambr` must be **byte-unchanged** by this phase. Two consequences: (a) do not plan a snapshot
+  re-baseline; (b) **criterion 1 has zero existing test coverage** — a new test asserting
+  `firestarter info AT28C256` renders `VCC: 5.0v` is a Wave 0 gap, not an optional extra.)*
 
 - **D-16: One shared helper, in `database.py`.** It sits beside the code that owns the millivolt
   convention, in the same file the coercion layer is being deleted from — so `database.py` goes

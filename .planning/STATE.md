@@ -90,7 +90,7 @@ Last activity: 2026-08-18 — Phase 147 complete, transitioned to Phase 148
 | Phase | Goal | Requirements |
 |-------|------|--------------|
 | 147 Report Provenance | A `dev test` report names the firmware and board that produced it, prerelease suffix intact, inside the SAFE-02 orchestrator-only contract | PROV-01…06 |
-| 148 Numeric DB Values & AT28C VCC Decode | `vcc` decodes to the datasheet's 4.5 V in `build_db.py`; voltages→mV ints, timing→µs ints; `database.py`'s coercion layer deleted; GATE-03 green and untouched | DATA-01…05 |
+| 148 Numeric DB Values & AT28C VCC Decode | `vcc` reports the 5 V supply (margin-rail substitution to the decoded `vdd`) rather than the `4V` verify rail, in `build_db.py`; voltages→mV ints, timing→µs ints; `database.py`'s coercion layer deleted; GATE-03 green and untouched | DATA-01…05 |
 | 149 Firmware Page-Size Seam | Per-chip page size travels DB→wire→`0x0D` handler with a 64-byte fallback; constants in lockstep; flash+RAM measured on all three AVR targets — **the only firmware-touching phase** | PGSZ-01…05 |
 | 150 Deliberate Protection — `write --sdp-relock` | Verify-then-relock, skip-and-report-loudly on verify failure, loud refusal on non-`0x0D` and capability-REFUSED chips before energizing; `protect_on_after` gets its consumer | RELOCK-01…06, RELOCK-08, DATA-06 |
 | 151 Protection Readability — `lock-status` | Hand-curated family table (D-04) reporting state where readable and refusing with a reason where it is not — `0x0D`/SDP among them | LOCK-01…04 |

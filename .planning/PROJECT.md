@@ -88,7 +88,12 @@ AT28C part, and unblocks attribution for every future community report, not just
 | 6 | **Numeric DB values** (seed) — voltages/timing as mV / µs integers, deleting `database.py`'s coercion layer | host | no |
 
 Workstreams 2 and 6 touch the same field (`electrical.vcc`) and must land together — numericalising
-`vcc` to `vcc_mv` turns the `"4V"` → 4.5 V correction into a value change rather than a string edit.
+`vcc` to `vcc_mv` turns the `"4V"` → 5 V correction into a value change rather than a string edit.
+*(Corrected 2026-08-19 per Phase 148 D-01/D-02/D-04: this read "→ 4.5 V". `4V` is a **faithful**
+decode of `infoic.xml`'s VCC nibble `2`; the defect is semantic — it is the TL866's verify-margin
+rail surfaced as the operating supply — so the correction is a margin-rail substitution to the
+already-decoded `vdd` (5000 mV), and 4500 mV is a value `infoic.xml` does not carry for these
+parts.)*
 
 **Workstream 1 delivered — Phase 147 complete 2026-08-18** (6 plans, 4 waves; PROV-01…PROV-06 all
 ticked, verification `passed`). `cli_handlers.py`'s hardcoded `fw_board_identity=None` is replaced by a
@@ -118,10 +123,14 @@ milestone's kickoff). This caps what v1.32 may claim, in the same shape as v1.22
 
 - **D-01 — provenance leads.** Workstream 1 is the dependency spine. Fixing it after the write path
   would leave the write-path fix unattributable to any firmware version, including our own.
-- **D-02 — the proof rule holds for the `vcc` fix.** `chip_database.json` is generated. The 4.5 V
+- **D-02 — the proof rule holds for the `vcc` fix.** `chip_database.json` is generated. The VCC
   correction lands in the decode function in `build_db.py` and is proven by `diff_db.py`; a one-chip
   fix that moves hundreds of chips means the decode change was too broad. No per-chip guess table,
-  no `_PAGE_SIZE_BY_PART` sibling.
+  no `_PAGE_SIZE_BY_PART` sibling. *(The kickoff text read "The 4.5 V correction"; corrected
+  2026-08-19 per Phase 148 D-01/D-02/D-04 — the target is 5000 mV, the already-decoded `vdd`, not
+  4500 mV. **This decision's own proof rule is unchanged and is what surfaced the error**: 4500 mV
+  cannot be traced to an `infoic.xml` attribute, and the measured blast radius of the adopted rule
+  is exactly 56 chips.)*
 - **D-03 — `protect_on_after` is reconciled, not deleted.** The bit is a faithful decode of
   `infoic.xml` flags bit 15 and stays. What changes is that the system stops silently ignoring it —
   workstream 4 gives it a consumer.
