@@ -154,6 +154,8 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 
 **Milestone goal:** Root-cause the AT28C256 / protocol-`0x0D` write-path failure behind [gh#21](https://github.com/henols/firestarter_prom/issues/21) — and *first* remove the instrumentation defect that makes root-causing it, or any other community report, impossible. Retires Backlog **999.29**, folds Backlog **999.28** (`write --sdp-relock`, deferred out of v1.30 as the vacated Phase 135), and consumes the `lock-status-command-hand-curated-protection-table` + `db-numeric-values-simplification` seeds. Full decision record: `PROJECT.md` §"Current Milestone: v1.32".
 
+**⏸ AMENDED 2026-08-20 — the 999.28 fold did NOT survive scoping, for the second time.** `write --sdp-relock` was scoped as **Phase 150**, then deferred out of this milestone by operator decision on 2026-08-20 during `/gsd-discuss-phase 150`, before any research, plan or CONTEXT.md existed. It returns to Backlog **999.28**; the phase number is **not** reused. **So v1.32 no longer folds 999.28** — the sentence above records what was scoped, and this note records what ships. RELOCK-01…06 and RELOCK-08 leave v1 scope (33 → 25 requirements); **DATA-06 is retained and re-homed to Phase 151**, resolving on its documented-advisory branch, which the deferral makes the only reachable one. Consequence, stated rather than argued away: **v1.32 repeats v1.30's split** — for a second release there is no supported way to deliberately protect an SDP part, and Phase 152's OUT-01/OUT-04 must describe that withdrawal, never a migration. See `### Phase 150` below.
+
 **Scoped from a root-cause pass, not from the issue text.** `devtest-triage` had already cleared the AT28C256 *data* against Atmel/Microchip DS20006386B — all 28 pins of `DIP28_28C256` agree, `infoic_page_size_raw: 64` is the datasheet page register, `chip_id_check: false` is correct — and handed the question on as host/firmware. The root-cause pass then found why that question is currently unanswerable: **`cli_handlers.py:2503` hardcodes `fw_board_identity=None`**, so **every `dev test` report ever filed carries a null firmware identity**. gh#21 and gh#32 report host `3.0.0b15` against an unknown firmware and cannot be distinguished from a board lacking the entire Phase-117–120 `0x0D` fix stack (FIX-01 `/WE`-inhibit routing, FIX-03 A16–A18 staleness, FIX-06 the completion-vs-data-landed conflation that is gh#11's actual shape).
 
 **⚠ Evidence Ceiling — binding on every phase, not decoration at the close.** **There is still no AT28C part in operator inventory** (recorded 2026-08-04, re-confirmed by the operator at this milestone's kickoff). Therefore: `0x0D` stays **`UNVERIFIED`** in `PROTOCOL-LEDGER` and no phase may graduate it; **no `support_status` changes**; gh#21, gh#32, gh#11 and gh#12 all stay **OPEN** (a code fix is not a validation — only `devtest-triage` closes a `dev test` issue, and only on a PASS report from real silicon); **no success criterion in this roadmap requires real AT28C silicon**, and **there is deliberately no bench-validation phase** — adding one would create a hardware-gated criterion nothing can satisfy (REQUIREMENTS.md §Out of Scope). The firmware page-size change ships **software-proven and unvalidated on silicon**, in those words. This is the ceiling v1.22 and v1.30 both held; it holds here.
@@ -169,12 +171,12 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 - **PROV (147) leads. It is the dependency spine (D-01).** Until `fw_board_identity` is real, no write-path finding can be attributed to any firmware version — including our own. Fixing provenance after the write path would leave the write-path fix unattributable.
 - **DATA (148) lands `vcc` and the numeric migration together.** DATA-01 and DATA-02 touch the same field; numericalising `vcc` to millivolts turns the `"4V"` → 5 V correction into a value change rather than a string edit, so splitting them means doing the same field twice. *(Corrected 2026-08-19 per Phase 148 D-01/D-02/D-04 — this read "→ 4.5 V datasheet correction"; see the Phase 148 criterion-1 note for why both halves of that premise are false.)*
 - **DATA (148) precedes PGSZ (149).** The database's numeric schema settles before the wire gains a new per-chip field; both phases write the host DB-consumption layer, so they are never in the same wave.
-- **RELOCK (150) before LOCK (151), and both before OUT (152).** OUT-01 (the gh#12 reply owed since v1.30's CLOSE-06) must describe what actually shipped. Written earlier it would repeat the exact overclaim v1.30 had to amend its own reply to avoid — naming a command absent from the release being announced.
-- **DATA-06 is mapped to Phase 150, not Phase 148.** `protect_on_after` stops being dead data either by RELOCK giving it a consumer or by being documented as advisory. Mapping it where the consumer is created makes that one decision structurally impossible to take twice.
-- **One-writer-per-file:** RELOCK (150) writes `firestarter_app/firestarter/cli_handlers.py` in the `write` handler; PROV (147) writes the same file around line 2503. They are sequential phases and **must never be scheduled in the same parallel wave**.
+- **~~RELOCK (150) before LOCK (151), and both before OUT (152).~~ LOCK (151) before OUT (152).** *(Amended 2026-08-20 — RELOCK deferred.)* OUT-01 (the gh#12 reply owed since v1.30's CLOSE-06) must describe what actually shipped. Written earlier it would repeat the exact overclaim v1.30 had to amend its own reply to avoid — naming a command absent from the release being announced. **That risk is now live rather than hypothetical:** OUT-01 and OUT-04 were authored naming `write --sdp-relock` as shipped, and it will not be.
+- **~~DATA-06 is mapped to Phase 150, not Phase 148.~~ DATA-06 is mapped to Phase 151.** *(Amended 2026-08-20 — RELOCK deferred.)* The original rule was that `protect_on_after` stops being dead data either by RELOCK giving it a consumer or by being documented as advisory, and that mapping it where the consumer is created makes that one decision structurally impossible to take twice. With RELOCK deferred the consumer branch is unreachable, so **the fork is closed by the deferral, not by a fresh choice**: the advisory branch is taken, and it lands in Phase 151 because that phase already owns the protection-metadata documentation surface. The "decided once" property is preserved — 151 is now the only phase that may write about this field.
+- **One-writer-per-file — the RELOCK/PROV contention is discharged; LOCK inherits the file.** *(Amended 2026-08-20.)* The original constraint paired RELOCK (150) in the `write` handler against PROV (147) around line 2503; PROV completed 2026-08-18 and RELOCK is deferred, so that pair is moot. **LOCK (151) still writes `firestarter_app/firestarter/cli_handlers.py`** — `firestarter lock-status <chip>` is a new top-level command registration — and is now the milestone's only remaining writer of that file. Sequential, so no wave conflict exists; recorded so a later reader does not conclude the file is unclaimed.
 - **OUT (152) is last and outward-facing.** Every OUT requirement is operator-reviewed before posting. It is gated **separately from automated approval**: `--auto`/`--chain` auto-approves human-verify checkpoints, so `autonomous: false` alone does **not** protect it.
 
-**Locked decisions (do not re-litigate during planning):** **D-01** provenance leads. **D-02** the proof rule holds for the `vcc` fix — the correction lands in `build_db.py`'s decode function and is proven by `diff_db.py`; a one-chip fix that moves hundreds of chips means the condition was too broad; no per-chip guess table, no `_PAGE_SIZE_BY_PART` sibling. **D-03** `protect_on_after` is reconciled, not deleted — it is a faithful decode of `infoic.xml` flags bit 15 and stays; what changes is that the system stops silently ignoring it. **D-04** `lock-status` is hand-curated by proven necessity — the 2026-07-10 research established that `infoic.xml` cannot supply protection readability (W29C020C, readable permanent boot block, is flag-identical to W29EE011, SDP-only and unreadable), so the hand-curated table is not a violation of the proof rule but what the proof rule leaves when upstream genuinely lacks the field. **Polarity already decided (v1.22 auto-unlock policy (d), `PROJECT.md:823`):** verify failure ⇒ skip the relock and report it loudly, leaving the recoverable state.
+**Locked decisions (do not re-litigate during planning):** **D-01** provenance leads. **D-02** the proof rule holds for the `vcc` fix — the correction lands in `build_db.py`'s decode function and is proven by `diff_db.py`; a one-chip fix that moves hundreds of chips means the condition was too broad; no per-chip guess table, no `_PAGE_SIZE_BY_PART` sibling. **D-03** `protect_on_after` is reconciled, not deleted — it is a faithful decode of `infoic.xml` flags bit 15 and stays; what changes is that the system stops silently ignoring it. *(Amended 2026-08-20 with the Phase 150 deferral: "stops ignoring it" is now discharged by **documentation** in Phase 151, not by a runtime consumer. D-03's substance — the field stays, and the system stops being silent about it — is unchanged; only the discharge mechanism narrowed.)* **D-04** `lock-status` is hand-curated by proven necessity — the 2026-07-10 research established that `infoic.xml` cannot supply protection readability (W29C020C, readable permanent boot block, is flag-identical to W29EE011, SDP-only and unreadable), so the hand-curated table is not a violation of the proof rule but what the proof rule leaves when upstream genuinely lacks the field. **Polarity already decided (v1.22 auto-unlock policy (d), `PROJECT.md:823`):** verify failure ⇒ skip the relock and report it loudly, leaving the recoverable state.
 
 **Must-not-do (binding on every phase in this milestone):** no phase writes a success criterion requiring an AT28C part, asserting the `0x0D` write path is proven, graduating `0x0D` out of `UNVERIFIED`, or changing any `support_status`; no phase phrases a criterion as closing gh#21, #32, #11 or #12; no phase weakens `check_dispatch.py` (GATE-03) to make a decode change pass — it stops 12 V reaching a 5 V part's WE/address pin and is a hardware-damage guard, not a lint; no phase re-baselines a v1.30 Phase 136 `write --help` snapshot silently; no phase extends `_PAGE_SIZE_BY_PART` or adds a per-chip guess table under a new name.
 
@@ -183,8 +185,8 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 - [x] **Phase 147: Report Provenance — every `dev test` report names its firmware** — replace the hardcoded `fw_board_identity=None` with a real, prerelease-preserving firmware/board identity captured inside the orchestrator contract, an explicit-unknown rendering, a bumped-but-backward-compatible report schema, and the identity surfaced in the `[dev test]` issue parser. (PROV-01, PROV-02, PROV-03, PROV-04, PROV-05, PROV-06) (completed 2026-08-18)
 - [x] **Phase 148: Numeric Database Values & the AT28C VCC Decode** — correct `electrical.vcc` in `build_db.py`'s decode function so the AT28C family reports the 5 V supply it runs at rather than the `4V` verify-margin rail (a margin-rail substitution to the decoded `vdd` — see the phase detail and its correction note), migrate voltages to millivolt integers and timing to microsecond integers, delete `database.py`'s string-coercion layer, and prove the blast radius with `diff_db.py` while GATE-03 stays green and untouched. (DATA-01, DATA-02, DATA-03, DATA-04, DATA-05) (completed 2026-08-19)
 - [x] **Phase 149: Firmware Page-Size Seam (dual-repo lockstep)** — deliver the per-chip page size from `chip_database.json` over the existing JSON command path to the `0x0D` handler with a conservative 64-byte fallback, constants held in lockstep across both repos, flash/RAM measured against a pre-change baseline on all three AVR targets, and the change stated software-proven and unvalidated on silicon. (PGSZ-01, PGSZ-02, PGSZ-03, PGSZ-04, PGSZ-05)
-- [ ] **Phase 150: Deliberate Protection — `write --sdp-relock`** — restore the only supported way to protect an SDP part: verify-then-relock with skip-and-report-loudly on verify failure, loud refusal on non-`0x0D` and capability-REFUSED chips before any hardware is energized, `write --help` pins updated deliberately, and `protect_on_after` given its consumer. (RELOCK-01, RELOCK-02, RELOCK-03, RELOCK-04, RELOCK-05, RELOCK-06, RELOCK-08, DATA-06)
-- [ ] **Phase 151: Protection Readability — `lock-status`** — a hand-curated family-level protection table with per-family citations, `firestarter lock-status <chip>` reporting state where the family documents it readable, graceful reasoned refusal where it is not (`0x0D`/SDP among them), and output that cannot be read as a guarantee it does not make. (LOCK-01, LOCK-02, LOCK-03, LOCK-04)
+- ⏸ **Phase 150: Deliberate Protection — `write --sdp-relock`** — **DEFERRED 2026-08-20 (operator decision) → Backlog 999.28.** Checkbox deliberately removed so `phase.complete` after Phase 149 advances to Phase 151, not into a deferred phase with no directory. Number NOT reused — Phases 151/152 keep their numbers. RELOCK-01…06 and RELOCK-08 leave v1 scope; **DATA-06 is retained and re-homed to Phase 151** on its advisory branch. See `### Phase 150` for the full record and the outward-facing obligation it creates for Phase 152.
+- [ ] **Phase 151: Protection Readability — `lock-status`** — a hand-curated family-level protection table with per-family citations, `firestarter lock-status <chip>` reporting state where the family documents it readable, graceful reasoned refusal where it is not (`0x0D`/SDP among them), and output that cannot be read as a guarantee it does not make; plus `protect_on_after` documented as an advisory upstream hint with no runtime effect. (LOCK-01, LOCK-02, LOCK-03, LOCK-04, DATA-06)
 - [ ] **Phase 152: Outward-Facing Close (operator-gated)** — post the owed gh#12 reply stating both halves plainly, comment gh#21 (#32 folded) with what changed / what is unproven / a request for a fresh now-attributable run, answer gh#11 in FIX-06 terms, correct the release notes, and pair every `0x0D` claim with its explicit non-claim behind a fail-provable claim gate. (OUT-01, OUT-02, OUT-03, OUT-04, OUT-05)
 
 ## Phase Details
@@ -219,7 +221,9 @@ necessity** (the devtest-triage `show` render, which has no harness and whose ap
 `--auto`/`--chain`** — those auto-approve human-verify gates, and this gate is the *only* proof for
 PROV-06's skill surface and criterion #5; `autonomous: false` alone is not self-protecting.
 **Cross-phase constraint:** Phase 150 also writes `firestarter_app/firestarter/cli_handlers.py`, so
-Phase 147 and Phase 150 must never share a parallel wave.
+Phase 147 and Phase 150 must never share a parallel wave. *(Moot as of 2026-08-20: Phase 150 is deferred
+to Backlog 999.28 and Phase 147 completed 2026-08-18. Left as-found — this is a closed phase's record —
+and annotated rather than rewritten. Phase 151 now inherits the file as its sole remaining writer.)*
 Requirement ticking is named exhaustively per plan so no plan ticks a multi-plan requirement early.
 A plan's frontmatter `requirements:` is **not** a soft "addresses" label — it **is** the flip
 mechanism: `execute-plan.md`'s `update_requirements` step feeds that array verbatim to
@@ -334,47 +338,56 @@ Plans:
 
 - [x] 149-08-PLAN.md — `149-PAGE-SIZE.md` completed, one README changelog line, the claim gate extended to every 149 artifact and re-proved, and PGSZ-01…05 flipped (D-16, D-19, D-20)
 
-### Phase 150: Deliberate Protection — `write --sdp-relock`
+### Phase 150: Deliberate Protection — `write --sdp-relock` — ⏸ DEFERRED 2026-08-20 → Backlog 999.28
 
-**Goal**: There is once again a supported way to deliberately protect an SDP part — and the database's `protect_on_after` bit stops being an intent the system silently ignores.
-**Depends on**: Phase 149 (the write path and its wire are settled first) and Phase 147 — both write `firestarter_app/firestarter/cli_handlers.py` (PROV around line 2503, RELOCK in the `write` handler), so they must never share a parallel wave.
-**Requirements**: RELOCK-01, RELOCK-02, RELOCK-03, RELOCK-04, RELOCK-05, RELOCK-06, RELOCK-08, DATA-06
-**Success Criteria** (what must be TRUE):
+**Status**: **DEFERRED out of v1.32 by operator decision, 2026-08-20**, during `/gsd-discuss-phase 150` and before the gray-area selection was answered. Never researched, never planned, never executed — **no `.planning/phases/150-*/` directory was ever created**, no CONTEXT.md was written and nothing was committed, so nothing was deleted and no plan record was orphaned. Operator's words: *"I don't want the relock implementation right now. I will implement it later if it is requested later."* The full goal, dependency analysis, success criteria and requirement set are carried forward in **Backlog Phase 999.28**; they are deliberately **not** duplicated here, so there is exactly one copy to keep true.
 
-  1. `firestarter write <chip> <file> --sdp-relock` writes, explicitly verifies, and then protects the part — the single user-facing way to do so since v1.30 deleted `dev sdp enable` — while the default `write` path stays byte-identical to today, gaining no verify pass.
-  2. On verify failure the part is left unprotected and recoverable: `sdp_lock` is provably not called, and the skip is **loud** — a mandatory final `WARNING:` line or a non-zero exit, asserted by test — because protection state cannot be read back and an `INFO`-level skip would leave the user no way to ever discover the part is unprotected.
-  3. `--sdp-relock` on a non-`0x0D` chip refuses loudly instead of warning-and-proceeding, so the lock sequence's magic-address bytes can never land as data; on a capability-REFUSED chip it refuses **before any hardware is energized**, reusing the deleted command's capability gate rather than discarding it.
-  4. `protect_on_after` has a named consumer on this path — or, if the alternative is taken, is documented as an advisory upstream hint with no runtime effect — decided and recorded **once**, so the database no longer states an intent the system ignores.
-  5. Every v1.30 Phase 136 test that pins `write --help` is updated deliberately with its diff shown and reviewed, never re-baselined by regenerating a snapshot.
+**This is the second deferral of the same work.** It was scoped as v1.30 **Phase 135**, deferred 2026-08-03 to Backlog 999.28, promoted 2026-08-18 into v1.32 as **Phase 150**, and deferred again here. Both vacated numbers (135, 150) stay unreused.
 
-**Plans**: TBD
+**Phase number NOT reused.** Phases 151 and 152 keep their numbers; 150 stays vacant for this milestone. Renumbering was considered and rejected for the same reason v1.30 rejected it for 135: `phase.remove` renumbers only `ROADMAP.md`, leaving `REQUIREMENTS.md`'s traceability table, `.planning/todos/pending/write-sdp-relock-deferred.md` (`resolves_phase: 150`), the already-executed `147-*`/`148-*`/`149-*` artifacts that name Phase 150 by number, and every cross-reference in `PROJECT.md` pointing at the wrong phase. Same convention as v1.13's Phase 75 and v1.30's Phase 135.
+
+**⚠ This deferral repeats the split v1.30 already recorded as a cost — for a second release.** `REQUIREMENTS.md` §RELOCK carries forward v1.30's own framing: the deletion of `dev sdp enable` and the re-homing of the lock were *"a pair"*, and v1.30 shipped only the deletion. v1.32 was the milestone that was to close that gap and does not. So **since 2026-08-05 there has been, and after v1.32 there remains, no supported way to deliberately protect an SDP part** — and on `0x0D` the protection bit cannot be read back, so a user cannot observe the state either. Recorded, not argued away.
+
+**Outward-facing obligation this creates for Phase 152 — the load-bearing consequence.** OUT-01 and OUT-04 were **authored on the assumption that RELOCK ships**, and their success criteria name `write --sdp-relock` as shipped. Both are amended below. Announcing a command absent from the release being announced is the same overclaim class as v1.22's C-5 correction and is exactly what v1.30 Phase 137 had to amend CLOSE-05/CLOSE-06 to avoid. **Getting this wrong is the milestone failing its own stated purpose in its most public artifact — twice over, because the honest version of this reply now has to admit a second withdrawal.**
+
+**Requirement disposition**: RELOCK-01…RELOCK-06 and RELOCK-08 leave v1 scope with this phase (see `REQUIREMENTS.md` §Out of Scope), taking v1.32 from 33 to **25** v1 requirements. **RELOCK-07 is not affected** — it shipped in v1.30 Phase 137 and was never in v1.32 scope; the ID gap between RELOCK-06 and RELOCK-08 remains intentional and must not be filled by an invented requirement. **DATA-06 is RETAINED and re-homed to Phase 151**: it is a documentation obligation independent of the feature, its consumer branch is now unreachable, and deferring it would leave `protect_on_after` dead data for a second release — the precise thing it exists to stop. Its resolution is therefore fixed to the advisory branch, which is a consequence of this deferral rather than a fresh choice.
+
+**Measured findings from the abandoned discussion, preserved so they are not re-derived.** The `/gsd-discuss-phase 150` scouting pass established these against the tree at app `9cc57c7`; they are recorded in Backlog 999.28 and are the reason a re-promotion needs no fresh archaeology:
+
+  - `protect_on_after: true` on **70** of 746 rows — **43** of the 84 `algorithm: 13`, and **27 of 27** `algorithm: 5` (the AT29C/W29C/SST29EE page-write flash family). On algorithm 5 it is therefore a **constant**, so the field's only discriminating information anywhere is the `0x0D` ALLOW/REFUSE split — which `sdp_capability`'s `SDP_CAPABLE_TOKENS` already transcribes and `tests/test_sdp_db_invariant.py::test_sdp_partition_matches_infoic_derived_field_element_wise` already proves **element-wise equal**. This is the measurement that makes the advisory branch defensible rather than a shrug.
+  - Its upstream semantics are `MP_PROTECT_AFTER` = *"can re-protect after write"* (gates minipro `-P`) — a **capability**, not a policy.
+  - `tools/check_sdp_capability_invariants.py` Class 2(b) forbids `SDP_CAPABLE_TOKENS` from being bound as anything but a literal `frozenset` of string literals, so "make the DB field the runtime source of truth" trips an existing gate and is not available without weakening it.
+  - RELOCK-08's attribution is **imprecise**: `write --help` is pinned by two syrupy snapshots carrying the *full* help text — `tests/test_characterization.py::test_help_write` and `::test_no_blank_check_polarity`, both in `tests/__snapshots__/test_characterization.ambr` — not by Phase 136's channel-gating tests. `write` is not channel-gated at all; the Phase 136 link is that its research named the `write --sdp-relock`/`write --help` collision. The requirement's *intent* (deliberate, never `--snapshot-update`) is unaffected.
+  - The non-verbose log formatter is `"%(message)s"` (`cli_handlers.py:110`), so `logger.warning` emits **no level prefix**. RELOCK-04's "mandatory final `WARNING:` line" therefore requires a literal `WARNING:` in the message string, as `eprom_info.py:269` already does.
+  - Every prerequisite remains in the tree and unbroken: firmware `CMD_SDP_LOCK`/`CMD_SDP_UNLOCK` (v1.22 Phase 119), `eprom_operations.py` `sdp_lock`/`sdp_unlock`, `sdp_capability.py`, and `sdp_honesty.py` — whose module docstring still names `write --sdp-relock` as its intended caller. The deleted `dev sdp` handler with its four ordered gates is recoverable verbatim at app commit `259a0f0`.
 
 ### Phase 151: Protection Readability — `lock-status`
 
-**Goal**: A user can ask what a chip's protection state is and get either the real answer or an explicit refusal that says why — never a guess.
-**Depends on**: Phase 150 (relock creates the state this command is asked about; OUT-01 must then describe both halves as shipped).
-**Requirements**: LOCK-01, LOCK-02, LOCK-03, LOCK-04
+**Goal**: A user can ask what a chip's protection state is and get either the real answer or an explicit refusal that says why — never a guess. And `protect_on_after` stops being an intent the system silently ignores.
+**Depends on**: ~~Phase 150~~ — **nothing, as of the 2026-08-20 Phase 150 deferral.** The original dependency was that relock creates the state this command is asked about; LOCK-03 refuses on every `0x0D`/SDP family regardless of whether that state can be created, so this phase always stood alone. It is now the milestone's only remaining writer of `firestarter_app/firestarter/cli_handlers.py`.
+**Requirements**: LOCK-01, LOCK-02, LOCK-03, LOCK-04, **DATA-06** *(re-homed from Phase 150, 2026-08-20)*
 **Success Criteria** (what must be TRUE):
 
   1. A committed, hand-curated family-level table records protection **mechanism, readability and permanence** per family, each row cited to `firestarter_app/doc/lockable-proms.md` and its datasheet source (D-04: hand-curated by proven necessity, not in violation of the proof rule).
   2. `firestarter lock-status <chip>` reports the protection state of a chip whose family is documented as readable.
   3. On a family where protection state is **not** readable — every `0x0D`/SDP part among them — the command refuses gracefully, names the reason, and emits no fabricated or guessed value.
   4. The output distinguishes "unprotected" from "readability not supported on this family", and no wording in it can be read as a lock-state guarantee where none exists.
+  5. **(DATA-06, added 2026-08-20 with the Phase 150 deferral.)** `protect_on_after` is documented **once**, in a committed artifact, as an advisory upstream hint with **no runtime effect** — so the database no longer states an intent the system silently ignores. The advisory branch is not a shrug and the documentation must say why in measured terms: the field is `MP_PROTECT_AFTER` (*"can* re-protect after write", gating minipro `-P`) — a capability, not a policy; it is `true` on 70 of 746 rows, and on `algorithm: 5` it is `true` on **27 of 27**, i.e. a constant; so its only discriminating information anywhere is the `0x0D` ALLOW/REFUSE split, which `sdp_capability` already transcribes and `tests/test_sdp_db_invariant.py::test_sdp_partition_matches_infoic_derived_field_element_wise` already proves element-wise equal. The doc must also state plainly that **no runtime consumer exists in this release because `write --sdp-relock` is deferred** (Backlog 999.28), and must not imply the field is honoured. No behaviour change, no new gate, no `sdp_capability.py` edit — `check_sdp_capability_invariants.py` Class 2(b) forbids binding `SDP_CAPABLE_TOKENS` to anything but a literal frozenset, and that gate is not weakened.
 
 **Plans**: TBD
 
 ### Phase 152: Outward-Facing Close (operator-gated)
 
 **Goal**: The public record says what actually shipped and what remains unproven — the owed gh#12 reply, gh#21/#32 and gh#11 answered, release notes corrected — with every `0x0D` claim paired with its explicit non-claim.
-**Depends on**: Phases 147, 149, 150 and 151 — OUT-01 and OUT-04 name `write --sdp-relock` and `lock-status`, which must exist in the announced version; OUT-02's request for a fresh run is only worth making because Phase 147 makes that run self-identifying.
+**Depends on**: Phases 147, 149 and 151 — OUT-04 names `lock-status`, which must exist in the announced version; OUT-02's request for a fresh run is only worth making because Phase 147 makes that run self-identifying. *(Phase 150 removed from this list 2026-08-20 — deferred to Backlog 999.28. Criteria 1 and 4 are amended below in consequence; do not restore the pre-amendment wording.)*
 **Requirements**: OUT-01, OUT-02, OUT-03, OUT-04, OUT-05
 **Success Criteria** (what must be TRUE):
 
-  1. The owed gh#12 reply (v1.30's CLOSE-06, held open by design) is posted after operator wording approval and states both halves plainly — `disable`'s behaviour survives as `write`'s automatic auto-unlock, `enable` returns as `write --sdp-relock` — without describing the v1.30 gap as if the original ask had been satisfied all along.
+  1. **AMENDED 2026-08-20 (Phase 150 deferral).** The owed gh#12 reply (v1.30's CLOSE-06, held open by design) is posted after operator wording approval and states plainly that **the ask is half-answered, for a second release**: `disable`'s behaviour survives as `write`'s automatic, default-on auto-unlock (real — the firmware unlocks on every `0x0D` write, declinable via `--skip-sdp-unlock`), and `enable` **returns as nothing in this release** — withdrawn since v1.30, still tracked as Backlog **999.28**. It must **NOT** name `write --sdp-relock` as shipped, and must not describe the v1.30 gap as if the original ask had been satisfied all along. *(This criterion previously read "`enable` returns as `write --sdp-relock`". That was written when Phase 150 was in scope; it is now the exact overclaim v1.30 Phase 137 had to amend CLOSE-05/CLOSE-06 to avoid, and it is retained here only as the negative case the gate in criterion 5 must catch.)*
   2. gh#21, with #32 folded in, carries a comment naming what changed in code, what remains unproven, and a request for a fresh `dev test` run stated as answerable *because* the report now identifies its firmware; gh#21, #32, #11 and #12 are all still **OPEN** at the close.
   3. gh#11's 2024 report is answered in terms of the FIX-06 completion-vs-data-landed conflation, which is its actual shape, rather than left silently superseded.
-  4. The release notes announce `write --sdp-relock` and `lock-status` as shipped in the version that actually contains them, and correct the forward-looking wording v1.30 left behind.
-  5. A fail-provable claim gate — **seen to fail on a planted violation** before any pass is believed — rejects any outward text claiming AT28C silicon validation, page-size validation on silicon, a `0x0D` graduation, or a `support_status` change; and every permitted `0x0D` claim in every outward artifact is paired with its explicit non-claim, per the honesty-ledger discipline v1.22, v1.23 and v1.31 all closed under.
+  4. **AMENDED 2026-08-20 (Phase 150 deferral).** The release notes announce **`lock-status`** as shipped in the version that actually contains it, correct the forward-looking wording v1.30 left behind, and state the `write --sdp-relock` withdrawal explicitly — naming Backlog 999.28 — rather than announcing it or leaving it unmentioned. *(Previously "announce `write --sdp-relock` and `lock-status` as shipped".)*
+  5. A fail-provable claim gate — **seen to fail on a planted violation** before any pass is believed — rejects any outward text claiming AT28C silicon validation, page-size validation on silicon, a `0x0D` graduation, a `support_status` change, **or `write --sdp-relock` as a shipped or available command** *(fifth claim class added 2026-08-20 with the Phase 150 deferral — the criterion-1 wording this roadmap itself carried until that date is the planted violation to test against, so the gate must be seen to reject it)*; and every permitted `0x0D` claim in every outward artifact is paired with its explicit non-claim, per the honesty-ledger discipline v1.22, v1.23 and v1.31 all closed under.
 
 **Plans**: TBD
 
@@ -395,19 +408,19 @@ Plans:
 | DATA-03 | Phase 148 | Complete |
 | DATA-04 | Phase 148 | Complete |
 | DATA-05 | Phase 148 | Complete |
-| DATA-06 | Phase 150 | Pending |
+| DATA-06 | Phase 151 | Pending |
 | PGSZ-01 | Phase 149 | Complete |
 | PGSZ-02 | Phase 149 | Complete |
 | PGSZ-03 | Phase 149 | Complete |
 | PGSZ-04 | Phase 149 | Complete |
 | PGSZ-05 | Phase 149 | Complete |
-| RELOCK-01 | Phase 150 | Pending |
-| RELOCK-02 | Phase 150 | Pending |
-| RELOCK-03 | Phase 150 | Pending |
-| RELOCK-04 | Phase 150 | Pending |
-| RELOCK-05 | Phase 150 | Pending |
-| RELOCK-06 | Phase 150 | Pending |
-| RELOCK-08 | Phase 150 | Pending |
+| RELOCK-01 | ~~Phase 150~~ → Backlog 999.28 | ⏸ Deferred 2026-08-20 |
+| RELOCK-02 | ~~Phase 150~~ → Backlog 999.28 | ⏸ Deferred 2026-08-20 |
+| RELOCK-03 | ~~Phase 150~~ → Backlog 999.28 | ⏸ Deferred 2026-08-20 |
+| RELOCK-04 | ~~Phase 150~~ → Backlog 999.28 | ⏸ Deferred 2026-08-20 |
+| RELOCK-05 | ~~Phase 150~~ → Backlog 999.28 | ⏸ Deferred 2026-08-20 |
+| RELOCK-06 | ~~Phase 150~~ → Backlog 999.28 | ⏸ Deferred 2026-08-20 |
+| RELOCK-08 | ~~Phase 150~~ → Backlog 999.28 | ⏸ Deferred 2026-08-20 |
 | LOCK-01 | Phase 151 | Pending |
 | LOCK-02 | Phase 151 | Pending |
 | LOCK-03 | Phase 151 | Pending |
@@ -418,7 +431,7 @@ Plans:
 | OUT-04 | Phase 152 | Pending |
 | OUT-05 | Phase 152 | Pending |
 
-**Mapped: 33/33 requirements ✓** — no orphans, no duplicates. **RELOCK-07 is deliberately absent**: it already shipped in v1.30 Phase 137 and is not repeated here, so the ID gap between RELOCK-06 and RELOCK-08 is intentional and must not be filled by an invented requirement.
+**Mapped: 33/33 requirements ✓ — of which 25 in v1 scope after the 2026-08-20 Phase 150 deferral** (7 RELOCK requirements moved to Backlog 999.28; DATA-06 retained and re-homed to Phase 151). No orphans, no duplicates. **RELOCK-07 is deliberately absent**: it already shipped in v1.30 Phase 137 and is not repeated here, so the ID gap between RELOCK-06 and RELOCK-08 is intentional and must not be filled by an invented requirement.
 
 ## v1.31 — 27C Programming-Algorithm Fidelity (gh#15) (SHIPPED 2026-08-18)
 
@@ -3490,7 +3503,20 @@ touching the watermark.
 **Plans:** 0 plans
 **Origin:** Filed by Phase 131 (Gate Hardening & CI Parity) plan 131-01, decision D-13, 2026-08-03.
 
-### Phase 999.28: `write --sdp-relock` — verify-gated deliberate protection (✅ PROMOTED 2026-08-18 → v1.32 Phase 150 — deferred out of v1.30 as Phase 135, 2026-08-03)
+### Phase 999.28: `write --sdp-relock` — verify-gated deliberate protection (BACKLOG — deferred twice: out of v1.30 as Phase 135 on 2026-08-03, and out of v1.32 as Phase 150 on 2026-08-20)
+
+**⏸ RETURNED TO BACKLOG 2026-08-20.** Promoted 2026-08-18 into v1.32 as **Phase 150**, then deferred out
+again by operator decision on 2026-08-20 during `/gsd-discuss-phase 150`, before any research, plan or
+CONTEXT.md existed — no `.planning/phases/150-*/` directory was ever created. Operator's words: *"I don't
+want the relock implementation right now. I will implement it later if it is requested later."* **Both
+vacated phase numbers (v1.30's 135 and v1.32's 150) stay unreused.** RELOCK-01…06 and RELOCK-08 return
+here; **DATA-06 did NOT come with them** — it was retained in v1.32 and re-homed to Phase 151 on its
+documented-advisory branch, so a future promotion of this item must **not** re-claim DATA-06 or re-open
+that fork. See the `### Phase 150` entry under `## v1.32` for the full deferral record, and read the
+**Measured findings** subsection there before re-promoting: the field distribution, the
+`check_sdp_capability_invariants.py` Class 2(b) constraint, the true `write --help` pin locations, and the
+`logger.warning` no-prefix trap were all measured on 2026-08-20 against app `9cc57c7` and do not need
+re-deriving.
 
 **Goal:** An operator who wants to hand a part off in a protected state has exactly one supported way to
 do it, it never locks a part whose contents were never verified, and a skipped relock is impossible to
@@ -3515,11 +3541,14 @@ stale-label re-homing, which was retained in v1.30 as RELOCK-07 and re-homed to 
   4. `--sdp-relock` on a capability-REFUSED `0x0D` chip refuses before any hardware is energized, reusing
      the same capability gate the deleted `dev sdp` command carried.
 
-**Requirements:** RELOCK-01, RELOCK-02, RELOCK-03, RELOCK-04, RELOCK-05, RELOCK-06. Their text stays
-**in place and unmodified** in `REQUIREMENTS.md` §`write --sdp-relock` (RELOCK) — only the checkbox
-changed, `[ ]` → `⏸`, so nothing counts them as in-scope-pending — and `REQUIREMENTS.md` §Out of Scope
-carries the row recording the decision and its accepted cost. Nothing needs re-authoring at promotion.
-**RELOCK-07 is NOT here** — it stayed in v1.30, re-homed to Phase 137.
+**Requirements:** RELOCK-01, RELOCK-02, RELOCK-03, RELOCK-04, RELOCK-05, RELOCK-06, **RELOCK-08**
+*(added 2026-08-20: `write --help` pins updated deliberately — it travelled into v1.32 with the feature
+and returns with it)*. Their text stays **in place and unmodified** in `REQUIREMENTS.md`
+§`write --sdp-relock` (RELOCK) — only the checkbox changed, `[ ]` → `⏸`, so nothing counts them as
+in-scope-pending — and `REQUIREMENTS.md` §Out of Scope carries the row recording the decision and its
+accepted cost. Nothing needs re-authoring at promotion.
+**RELOCK-07 is NOT here** — it stayed in v1.30, re-homed to Phase 137 and shipped there.
+**DATA-06 is NOT here** — retained in v1.32, re-homed to Phase 151 (advisory branch).
 **Plans:** 0 plans
 **Research flag:** SKIP — the call chain was traced end to end and the refusal matrix fully specified
 before the deferral; that analysis stands.
@@ -3527,7 +3556,11 @@ before the deferral; that analysis stands.
 **Origin:** Scoped as **v1.30 Phase 135**, then deferred out of the milestone by operator decision on
 2026-08-03 while Phase 132 was in flight at plan 08 of 09. Never planned, never executed, no phase
 directory ever created. The v1.30 phase number is **not** reused — see the `### Phase 135` entry under
-`## v1.30` above for the deferral record and the renumbering rationale.
+`## v1.30` above for the deferral record and the renumbering rationale. **Second cycle:** promoted
+2026-08-18 into v1.32 as **Phase 150** (RELOCK-08 added, DATA-06 mapped alongside), deferred out again
+2026-08-20 at the discuss step. RELOCK-08 returned with the feature; DATA-06 did not. Same
+never-planned, never-executed, no-directory outcome; the 150 slot is also vacant and deliberately not
+renumbered.
 
 **⚠ What this deferral leaves broken — read before promoting.** `REQUIREMENTS.md` §RELOCK opens: *"Must
 ship with the deletion — they are a pair, and deleting the lock before re-homing it strands the only
@@ -3536,6 +3569,12 @@ legitimate use case the deleted command served."* v1.30's Phase 132 ships the de
 this item's promotion there is therefore **no supported way to deliberately protect an SDP part** —
 `write` auto-unlocks on every `0x0D` write and never re-locks, and the `enable` surface is gone. On
 `0x0D` the protection bit cannot be read back, so a user cannot even observe the resulting state.
+**This now spans two releases, not one.** v1.32 was the milestone scoped to close the gap and does not,
+so the withdrawal is stated outward a second time: v1.32's Phase 152 OUT-01/OUT-04 were amended on
+2026-08-20 to describe a **withdrawal, never a migration**, and its OUT-05 claim gate gained a fifth
+claim class rejecting any outward text that names `write --sdp-relock` as shipped or available. A future
+promotion must reverse that gate class in the same change that lands the feature — otherwise the gate
+will reject the release notes announcing it.
 
 **Prerequisites already satisfied** (nothing to redo at promotion time): firmware `CMD_SDP_LOCK` /
 `CMD_SDP_UNLOCK` exist from v1.22 Phase 119; the capability gate to reuse is `sdp_capability()`; the D-10

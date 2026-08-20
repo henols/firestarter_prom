@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: — AT28C Write-Path Root Cause & Report Provenance
-current_phase: 150
-current_phase_name: Deliberate Protection — `write --sdp-relock`
+current_phase: 151
+current_phase_name: Protection Readability — `lock-status`
 status: executing
-stopped_at: Phase 149 COMPLETE and VERIFIED (8/8 plans, 5/5 requirements) -- page-size seam landed across both repos, verification passed; Phase 150 (write --sdp-relock) not started
-last_updated: "2026-08-20T05:41:35.047Z"
+stopped_at: Phase 150 (write --sdp-relock) DEFERRED to Backlog 999.28 by operator decision at the discuss step -- nothing created (no phase dir, no CONTEXT.md, no commits); RELOCK-01..06 + RELOCK-08 left v1 scope, DATA-06 re-homed to Phase 151, Phase 152 OUT-01/OUT-04 amended to state a withdrawal; Phase 151 not started
+last_updated: "2026-08-20T06:45:00.000Z"
 last_activity: 2026-08-20
-last_activity_desc: Phase 149 complete, transitioned to Phase 150
+last_activity_desc: Phase 150 deferred to Backlog 999.28 (operator decision); records amended, transitioned to Phase 151
 progress:
-  total_phases: 6
+  total_phases: 5
   completed_phases: 3
   total_plans: 22
   completed_plans: 22
-  percent: 50
+  percent: 60
 ---
 
 # Project State
@@ -30,10 +30,13 @@ See: `.planning/PROJECT.md` (updated 2026-08-18 — v1.32 started)
 authoritative dispatch key end to end. v1.32 turns that key on the project's own diagnostics: a
 community `dev test` report must be attributable to the firmware that produced it before any
 protocol-`0x0D` write-path claim can be made about it.
-**Current focus:** Phase 149 — Firmware Page-Size Seam (dual-repo lockstep) — executing
+**Current focus:** Phase 151 — Protection Readability — `lock-status` (+ DATA-06, re-homed) — not started
 
-**v1.32 AT28C Write-Path Root Cause & Report Provenance** — ACTIVE (activated 2026-08-18, folding Backlog
-**999.28**; Backlog **999.29** is partially addressed and explicitly NOT retired — v1.32 removes the
+**v1.32 AT28C Write-Path Root Cause & Report Provenance** — ACTIVE (activated 2026-08-18, ~~folding Backlog
+**999.28**~~ — **the 999.28 fold was reversed 2026-08-20**: Phase 150 (`write --sdp-relock`) was deferred
+back to that backlog item by operator decision at the discuss step, for the second time (v1.30 deferred it
+as Phase 135). See PROJECT.md §"⏸ Phase 150 … DEFERRED" for the record and the outward-facing obligation it
+creates for Phase 152; Backlog **999.29** is partially addressed and explicitly NOT retired — v1.32 removes the
 blocker to diagnosing the AT28C256 write-path failure and answers it publicly, but does not diagnose it). **Mostly host-side; one firmware-touching
 workstream** (the page-size seam) requiring dual-repo lockstep. Phase numbering continues at
 **Phase 147** (v1.31 ran 138–146). The v1.24–v1.29 slots are left byte-unchanged so by-number
@@ -63,6 +66,12 @@ root-cause pass then found why that question is currently unanswerable:
 
 - **F-03** — `protect_on_after: true` is dead data: v1.30 deleted the lock surface and `write` never
   re-locks (Backlog 999.28). The database states an intent the system silently ignores.
+  *(Resolution narrowed 2026-08-20 with the Phase 150 deferral: it stays dead **data** at runtime for a
+  second release — no consumer ships — and DATA-06 discharges in Phase 151 by **documenting** it as an
+  advisory upstream hint, so the system stops being silent about it even though it still does not act on
+  it. The field's only discriminating information anywhere is the `0x0D` ALLOW/REFUSE split, which
+  `sdp_capability` already transcribes and a test already proves element-wise equal; on `algorithm: 5`
+  it is `true` on 27 of 27, i.e. a constant.)*
 
 - **F-04** — firmware hardcodes `PAGE_SIZE 64` while `infoic_page_size_raw` already ships in the DB.
   The handler's own comment records the per-chip delivery path as DEFERRED and "not yet inserted
@@ -76,31 +85,31 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 150 — Deliberate Protection — `write --sdp-relock`
+Phase: 151 — Protection Readability — `lock-status`
 Plan: Not started
-Status: Ready to execute
-Last activity: 2026-08-20 — Phase 149 complete, transitioned to Phase 150
+Status: Ready to discuss
+Last activity: 2026-08-20 — **Phase 150 (`write --sdp-relock`) DEFERRED to Backlog 999.28** by operator decision during `/gsd-discuss-phase 150`, before any research, plan or CONTEXT.md existed. Nothing was created: no `.planning/phases/150-*/` directory, no CONTEXT.md, no commits in either sub-repo. Second deferral of the same work (v1.30 deferred it as Phase 135); both vacated numbers stay unreused. RELOCK-01…06 + RELOCK-08 left v1 scope (33 → 25 requirements); **DATA-06 retained and re-homed to Phase 151** on its documented-advisory branch; Phase 151's dependency on 150 discharged; **Phase 152's OUT-01/OUT-04 amended** to describe a withdrawal rather than a migration, and OUT-05's claim gate gained a fifth class rejecting `write --sdp-relock`-as-shipped. Records amended: ROADMAP.md, REQUIREMENTS.md, PROJECT.md, the 999.28 backlog stub and the deferral todo.
 
 ## Roadmap Summary (v1.32)
 
 **Created:** 2026-08-18 — derived from `.planning/REQUIREMENTS.md` (v1.32) + the kickoff root-cause pass over gh#21. No `research/SUMMARY.md` for this milestone: project-level research was deliberately skipped (operator decision, 2026-08-18) — the unknowns are in this project's own code, and a completed `devtest-triage` datasheet pass plus the existing research corpus already cover the domain.
 
-**Phases:** 6 (147–152). **Granularity:** Comprehensive (config). **Coverage:** 33/33 v1 requirements mapped, 0 unmapped. Category→phase is 1:1 with **one deliberate exception**: DATA-06 is mapped to Phase 150, not 148.
+**Phases:** 6 as authored (147–152); **5 active** after Phase 150 was deferred to Backlog 999.28 on 2026-08-20. The 150 slot is vacant and deliberately not renumbered. **Granularity:** Comprehensive (config). **Coverage:** 33/33 v1 requirements mapped, 0 unmapped — **25 in v1 scope** after the deferral moved RELOCK-01…06 + RELOCK-08 out. Category→phase is 1:1 with **one deliberate exception**: DATA-06, which was mapped to Phase 150 rather than 148 and is now re-homed to Phase 151.
 
 | Phase | Goal | Requirements |
 |-------|------|--------------|
 | 147 Report Provenance | A `dev test` report names the firmware and board that produced it, prerelease suffix intact, inside the SAFE-02 orchestrator-only contract | PROV-01…06 |
 | 148 Numeric DB Values & AT28C VCC Decode | `vcc` reports the 5 V supply (margin-rail substitution to the decoded `vdd`) rather than the `4V` verify rail, in `build_db.py`; voltages→mV ints, timing→µs ints; `database.py`'s coercion layer deleted; GATE-03 green and untouched | DATA-01…05 |
 | 149 Firmware Page-Size Seam | Per-chip page size travels DB→wire→`0x0D` handler with a 64-byte fallback; constants in lockstep; flash+RAM measured on all three AVR targets — **the only firmware-touching phase** | PGSZ-01…05 |
-| 150 Deliberate Protection — `write --sdp-relock` | Verify-then-relock, skip-and-report-loudly on verify failure, loud refusal on non-`0x0D` and capability-REFUSED chips before energizing; `protect_on_after` gets its consumer | RELOCK-01…06, RELOCK-08, DATA-06 |
-| 151 Protection Readability — `lock-status` | Hand-curated family table (D-04) reporting state where readable and refusing with a reason where it is not — `0x0D`/SDP among them | LOCK-01…04 |
+| ⏸ ~~150~~ Deliberate Protection — `write --sdp-relock` | **DEFERRED 2026-08-20 → Backlog 999.28** (operator decision, at the discuss step; nothing created). Number NOT reused | ~~RELOCK-01…06, RELOCK-08~~ out of scope; DATA-06 → Phase 151 |
+| 151 Protection Readability — `lock-status` | Hand-curated family table (D-04) reporting state where readable and refusing with a reason where it is not — `0x0D`/SDP among them; plus `protect_on_after` documented as an advisory upstream hint with no runtime effect | LOCK-01…04, **DATA-06** |
 | 152 Outward-Facing Close | gh#12 reply (v1.30's CLOSE-06), gh#21/#32 comment with a fresh-run ask, gh#11 answered in FIX-06 terms, corrected release notes, claim gate seen to fail on a plant | OUT-01…05 |
 
-**Load-bearing ordering (not preference):** PROV (147) leads — it is the dependency spine (D-01); until `fw_board_identity` is real, no write-path finding is attributable to any firmware version, our own included · 148 before 149 (the numeric schema settles before the wire gains a per-chip field; both write the host DB-consumption layer) · RELOCK (150) before LOCK (151), both before OUT (152) — OUT-01 must describe what actually shipped, or it repeats the exact overclaim v1.30 had to amend its own reply to avoid · DATA-06 sits in 150 so `protect_on_after` is reconciled once, at the point its consumer is created (D-03).
+**Load-bearing ordering (not preference):** PROV (147) leads — it is the dependency spine (D-01); until `fw_board_identity` is real, no write-path finding is attributable to any firmware version, our own included · 148 before 149 (the numeric schema settles before the wire gains a per-chip field; both write the host DB-consumption layer) · ~~RELOCK (150) before LOCK (151), both before OUT (152)~~ → **LOCK (151) before OUT (152)** *(amended 2026-08-20 — RELOCK deferred)*: OUT-01 must describe what actually shipped, or it repeats the exact overclaim v1.30 had to amend its own reply to avoid — **and that risk is now live**, because OUT-01/OUT-04 were authored naming `write --sdp-relock` as shipped and it will not be, which is why both were amended · ~~DATA-06 sits in 150~~ → **DATA-06 sits in 151** *(amended 2026-08-20)*: with the consumer branch unreachable the fork is closed on the advisory branch **by the deferral, not by a fresh choice**, so `protect_on_after` is still reconciled exactly once (D-03).
 
-**One-writer-per-file:** Phases 147 and 150 both write `firestarter_app/firestarter/cli_handlers.py` (PROV around line 2503, RELOCK in the `write` handler). They are sequential and **must never share a parallel wave**.
+**One-writer-per-file:** ~~Phases 147 and 150 both write `firestarter_app/firestarter/cli_handlers.py`~~ — **discharged 2026-08-20** (147 completed 2026-08-18, 150 deferred). **Phase 151 now inherits that file as the milestone's sole remaining writer** (`firestarter lock-status <chip>` is a new top-level command registration). Sequential, so no wave conflict; recorded so a later reader does not conclude the file is unclaimed.
 
-**No genuinely parallel phase pair this milestone** — 147→148→149→150→151→152 is a single chain. Parallelism, where it exists, is at the plan level inside a phase.
+**No genuinely parallel phase pair this milestone** — 147→148→149→~~150~~→151→152 is a single chain (150 deferred 2026-08-20). Parallelism, where it exists, is at the plan level inside a phase.
 
 **Evidence Ceiling is encoded in the criteria, not appended at the close:** there is **no AT28C part in operator inventory**, so **there is no bench-validation phase** and **no success criterion anywhere requires real AT28C silicon**, asserts the `0x0D` write path is proven, graduates `0x0D` out of `UNVERIFIED`, changes any `support_status`, or is phrased as closing gh#21 / #32 / #11 / #12. Phase 149 states its change **software-proven and unvalidated on silicon**, in those words.
 
@@ -2308,9 +2317,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-19T22:26:54.746Z
-**Stopped at:** Phase 149 Plan 06 complete -- MERGE-05 exemptions funded (flash 210 B, RAM 2 B), operator approved
-**Resume file:** None
+**Last session:** 2026-08-20T06:45:00.000Z
+**Stopped at:** **Phase 150 (`write --sdp-relock`) DEFERRED to Backlog 999.28** — operator decision during `/gsd-discuss-phase 150`, taken at the gray-area selection before any research, plan or CONTEXT.md existed. **Nothing was created for Phase 150:** no `.planning/phases/150-*/` directory, no CONTEXT.md, no commits in either sub-repo. Records amended in one commit: `ROADMAP.md` (phase entry → `⏸`, full deferral record with the six measured findings preserved, Phase 151/152 dependency + criteria amendments, coverage table, 999.28 stub un-promoted), `REQUIREMENTS.md` (RELOCK-01…06 + RELOCK-08 → `⏸`, DATA-06 re-homed to Phase 151 with the fork closed on the advisory branch, §Out of Scope row, traceability), `PROJECT.md` (workstream 4, D-03, and a new §"⏸ Phase 150 … DEFERRED" record), plus the two affected todos. **Next:** Phase 151 — `/gsd-discuss-phase 151`.
+**Resume file:** None — no Phase 150 artifacts exist to resume from. Phase 151 starts clean.
 
 ### Blockers
 

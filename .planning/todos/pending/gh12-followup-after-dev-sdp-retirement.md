@@ -3,7 +3,7 @@ title: Reply on gh#12 (and correct the b14 app release notes) after `dev sdp` is
 date: 2026-07-31
 priority: medium
 blocked_by: the removal shipping — provisional milestone v1.30 (queued NEXT after v1.23, from Backlog 999.25). Do not post before the removal is real.
-resolves_phase: 152  # v1.30 CLOSE-06 was held open by design; re-homed to v1.32 Phase 152 (OUT-01), where `write --sdp-relock` actually exists to be named
+resolves_phase: 152  # v1.30 CLOSE-06 was held open by design; re-homed to v1.32 Phase 152 (OUT-01). NOTE 2026-08-20: this comment previously read "where `write --sdp-relock` actually exists to be named" -- that premise is now FALSE. Phase 150 was deferred back to Backlog 999.28 on 2026-08-20, so the command does not exist in v1.32 either and the 2026-08-03 amendment below (do NOT name it as available) is STILL the operative instruction, for a second release. OUT-01/OUT-04 were amended to match, and OUT-05's claim gate now rejects any text naming it as shipped.
 ---
 
 # gh#12 follow-up owed once `dev sdp` is retired
@@ -20,6 +20,15 @@ resolves_phase: 152  # v1.30 CLOSE-06 was held open by design; re-homed to v1.32
 The removal is decided in
 [`.planning/notes/sdp-surface-retirement-and-behavioral-proof.md`](../../notes/sdp-surface-retirement-and-behavioral-proof.md)
 and scoped as Backlog Phase 999.25.
+
+## ⚠ STILL AMENDED — and now for a second release (2026-08-20)
+
+`write --sdp-relock` was promoted into v1.32 as Phase 150 on 2026-08-18, which would have made the
+original point 1 true again — and was then **deferred back out on 2026-08-20** (operator decision, at
+the discuss step, nothing created). **So the 2026-08-03 amendment below stands unchanged and is the
+operative instruction.** Do not restore the original wording. The reply now has to admit the withdrawal
+has spanned two releases: v1.30 removed the surface, and v1.32 — the milestone scoped to restore it —
+did not. v1.32's OUT-05 claim gate exists partly to catch a reply that gets this wrong.
 
 ## ⚠ AMENDED 2026-08-03 — `write --sdp-relock` did NOT ship; point 1 below was rewritten
 
