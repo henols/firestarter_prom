@@ -213,3 +213,25 @@ None — no external service configuration required.
 ## Next Phase Readiness
 
 Phase 149 (Firmware Page-Size Seam, dual-repo lockstep) is complete: all eight plans landed, the claim gate covers every artifact this phase produced (nine enumerated targets, never a glob), the outward-facing README line is in place and operator-approved, and PGSZ-01 through PGSZ-05 are flipped to Complete in both traceability tables. Phase 150 (`write --sdp-relock`) depends on this phase's write path being settled, which it now is. The four todos plan 07 filed remain open in `.planning/todos/pending/` for future triage. Formal phase closure and verification (STATE.md's `completed_phases`/`percent` counters, any `phase.complete` bookkeeping) is owned by the coordinator's own process, not this plan.
+
+## Self-Check: PASSED
+
+- FOUND: `firestarter_app/README.md`
+- FOUND: `.planning/phases/149-firmware-page-size-seam-dual-repo-lockstep/149-PAGE-SIZE.md`
+- FOUND: `.planning/phases/149-firmware-page-size-seam-dual-repo-lockstep/149-check-claims.py`
+- FOUND: `.planning/phases/149-firmware-page-size-seam-dual-repo-lockstep/149-CLAIM-GATE-TRANSCRIPTS.md`
+- FOUND: `.planning/phases/149-firmware-page-size-seam-dual-repo-lockstep/149-08-SUMMARY.md`
+- FOUND: `.planning/phases/149-firmware-page-size-seam-dual-repo-lockstep/fixtures/planted_extended_overclaim_08.md`
+- FOUND: `.planning/REQUIREMENTS.md`, `.planning/ROADMAP.md`
+- FOUND commit: `9cc57c7` (`firestarter_app` repo, Task 1 README subsection)
+- FOUND commit: `423270bd` (meta, Task 1 artifact sections)
+- FOUND commit: `c98b2c73` (meta, Rule 1 opening-statement fix)
+- FOUND commit: `97da8f3d` (meta, Task 2 gate extension + PGSZ flips)
+- FOUND commit: `add64a98` (meta, 149-08-SUMMARY.md added as the gate's 9th target)
+- FOUND commit: `d64197b0` (meta, final 9-target GREEN/ARGV transcripts)
+- CONFIRMED: `python3 149-check-claims.py` exits 0 over the real 9-entry default target list
+- CONFIRMED: `python3 -m pytest test_check_claims_v132.py -q -o addopts=""` — 20 passed
+- CONFIRMED: `firestarter_app/CHANGELOG.md` does not exist
+- CONFIRMED: `.planning/REQUIREMENTS.md` carries `- [x] **PGSZ-01**` through `- [x] **PGSZ-05**` and zero `Pending` traceability rows for PGSZ
+- CONFIRMED: `.planning/ROADMAP.md` carries zero `Pending` PGSZ traceability rows; the `Phase 149` checkbox is flipped by this plan at the coordinator's explicit direction
+- CONFIRMED: meta `M firestarter` / `M firestarter_app` gitlinks not staged by any commit in this plan
