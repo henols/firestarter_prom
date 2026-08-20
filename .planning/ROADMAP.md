@@ -425,7 +425,7 @@ in `requirements:`:
 
 - [x] 151-01-PLAN.md — OD-1: amend the five top-level-command sites and the two workstream-count sentences, and land `151-DESIGN.md` (wire shape, exit-code map, corrected class census, the C-17 tiebreak mechanism)
 - [x] 151-02-PLAN.md — LOCK-01's curated table: `protection_readability.py`'s lettered provenance, the 273-token three-state curation, the C-17 ambiguity record, and the citation-resolution test
-- [ ] 151-03-PLAN.md — OD-3: `CMD_LOCK_STATUS 16`, the ninth `is_memory_cmd` arm, the widened parse gate, all four mirror sites, and the host `COMMAND_LOCK_STATUS` pair
+- [x] 151-03-PLAN.md — OD-3: `CMD_LOCK_STATUS 16`, the ninth `is_memory_cmd` arm, the widened parse gate, all four mirror sites, and the host `COMMAND_LOCK_STATUS` pair
 - [ ] 151-04-PLAN.md — OD-4: source both read sequences from datasheets into `151-SEQUENCES.md`, with the operator decision on dropping the two missing PDFs (non-autonomous)
 - [ ] 151-05-PLAN.md — `MSG_DATA_PROTECTION_STATUS` in the DATA band, synced and regenerated across all five tracked catalog files, with a committed catalog-presence test
 - [ ] 151-06-PLAN.md — `protection_gate_for_entry`: the pure classifier, fail-closed on both axes, with the `W29C022` named leg and the C-6 alias-set leg
