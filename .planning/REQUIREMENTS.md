@@ -113,7 +113,7 @@ data the generator emits. The seed touches the same field, so both land together
       is justified: a one-chip fix that moves hundreds of chips means the condition was too broad.
       `check_dispatch.py` (GATE-03) stays green and is never weakened to make a change pass.
 
-- [ ] **DATA-06**: `protect_on_after` stops being dead data. It is either given a consumer by RELOCK
+- [x] **DATA-06**: `protect_on_after` stops being dead data. It is either given a consumer by RELOCK
       or documented explicitly as an advisory upstream hint with no runtime effect — the database no
       longer states an intent the system silently ignores.
       **⏸ RE-HOMED 2026-08-20 → Phase 151, and the fork is CLOSED on the advisory branch.** The
@@ -132,6 +132,12 @@ data the generator emits. The seed touches the same field, so both land together
       release *because* `write --sdp-relock` is deferred. No behaviour change and no
       `sdp_capability.py` edit — `check_sdp_capability_invariants.py` Class 2(b) forbids binding
       `SDP_CAPABLE_TOKENS` to anything but a literal frozenset, and that gate is not weakened.
+      **✅ COMPLETE 2026-08-20 — Phase 151 Plan 07.** The advisory-branch statement landed in
+      `firestarter_app/doc/infoic-field-dictionary.md`'s new `protect_off_before` / `protect_on_after`
+      section (with one-line pointers from `package-details.md` and `protocol-flags.md`), proven
+      against the committed `chip_database.json` by `tests/test_protect_flags_doc_measurements.py`
+      (a Python test, since a markdown-only commit fires no host CI). No behaviour change; the folded
+      todo `decode-infoic-flags-bits-14-15-protect-metadata.md` moved to `completed/`.
 
 ### Firmware Page-Size Seam (PGSZ)
 
@@ -298,7 +304,7 @@ relies on `autonomous: false` alone is not self-protecting.
 | DATA-03 | Phase 148 | Complete |
 | DATA-04 | Phase 148 | Complete |
 | DATA-05 | Phase 148 | Complete |
-| DATA-06 | Phase 151 | Pending |
+| DATA-06 | Phase 151 | Complete |
 | PGSZ-01 | Phase 149 | Complete |
 | PGSZ-02 | Phase 149 | Complete |
 | PGSZ-03 | Phase 149 | Complete |
