@@ -232,20 +232,32 @@ LOCK requirement: LOCK-03 refuses on every `0x0D`/SDP family regardless. This se
 - [x] **LOCK-01**: A hand-curated, family-level protection table records mechanism, readability and
       permanence, sourced from `firestarter_app/doc/lockable-proms.md` with per-family citations.
 
-- [ ] **LOCK-02**: `dev lock-status <chip>` reports the protection state of a chip on families
+- [x] **LOCK-02**: `dev lock-status <chip>` reports the protection state of a chip on families
       where it is documented as readable. *(Amended 2026-08-20 — the surface was settled as
       beta-only `dev lock-status` at `/gsd-discuss-phase 151` per CONTEXT D-01;
       `151-DISCUSSION-LOG.md:20` records the selection and `:22` records that the host-only
       recommendation was overruled deliberately. Registered only on a pre-release install via
       the `_DevGroup` / `channel.BETA_ONLY_DEV_COMMANDS` gate, so a stable install never sees
-      it.)*
+      it.)* Landed Plan 151-13: the command reads `protected`/`unprotected` for
+      documented-readable families via `EpromOperator.read_protection_status` +
+      `classify_protection_response`, proven end to end by
+      `tests/test_lock_status_cli.py`'s matrix and the firmware-native
+      `test_pinmap_provisional_refuses_cmd_lock_status` leg.
 
-- [ ] **LOCK-03**: On families where protection state is **not** readable — `0x0D`/SDP among them — the
+- [x] **LOCK-03**: On families where protection state is **not** readable — `0x0D`/SDP among them — the
       command refuses gracefully and says why, rather than guessing or returning a fabricated value.
+      Landed Plan 151-13: `protection_gate_for_entry`'s four refusal tokens
+      (`not_readable`/`not_implemented`/`undocumented_alias`/`no_mechanism`) all route through the CLI
+      without opening a serial port, each naming its reason (including the `0x0D` family and the
+      `W29C020,W29C020C,W29C022` / `W29C040,W29C042` curation-surface refusals).
 
-- [ ] **LOCK-04**: The command never over-promises: it distinguishes "unprotected" from "readability
+- [x] **LOCK-04**: The command never over-promises: it distinguishes "unprotected" from "readability
       not supported on this family", and its output cannot be read as a lock-state guarantee where
-      none exists.
+      none exists. Landed Plan 151-13: D-09's eight class tokens are structurally disjoint
+      (`protected`/`unprotected` vs. the six refusal/failure/probe tokens), `--force`'s
+      `unadjudicated_probe` is proven never to collapse into a state claim for any fed decode byte
+      (151-13's Leg 5), and `test_lock_status_class_partition.py` (151-12) proves the two
+      silicon-only tokens are structurally unreachable from the pure predicate module.
 
 ### Outward-Facing Close (OUT)
 
@@ -318,9 +330,9 @@ relies on `autonomous: false` alone is not self-protecting.
 | RELOCK-06 | ~~Phase 150~~ → Backlog 999.28 | ⏸ Deferred 2026-08-20 |
 | RELOCK-08 | ~~Phase 150~~ → Backlog 999.28 | ⏸ Deferred 2026-08-20 |
 | LOCK-01 | Phase 151 | Complete |
-| LOCK-02 | Phase 151 | Pending |
-| LOCK-03 | Phase 151 | Pending |
-| LOCK-04 | Phase 151 | Pending |
+| LOCK-02 | Phase 151 | Complete |
+| LOCK-03 | Phase 151 | Complete |
+| LOCK-04 | Phase 151 | Complete |
 | OUT-01 | Phase 152 | Pending |
 | OUT-02 | Phase 152 | Pending |
 | OUT-03 | Phase 152 | Pending |

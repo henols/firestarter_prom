@@ -435,7 +435,7 @@ in `requirements:`:
 - [x] 151-10-PLAN.md — the cold triple-target re-measure, `151-SIZE-TRANSCRIPTS.md`, the third flash exemption (no second RAM exemption needed — RAM growth measured 0 B), and the eight legs severed onto a new `*_v151*` family
 - [x] 151-11-PLAN.md — `lock_status.py`: the response-consuming classifier, the literal four-code exit map, the strictly-additive `sdp_honesty` sibling, the operator transport method, and the frame-level wire test
 - [x] 151-12-PLAN.md — D-12: the database-wide class-partition invariant, seen red on the `0x34` row then green, with the planted-fixture unreachability leg and the synthetic-novel-algorithm control
-- [ ] 151-13-PLAN.md — `dev lock-status` registered beta-only with `--force`, the class-token ⊗ exit-code matrix, the three gating tests, and the one-row `dev --help` snapshot
+- [x] 151-13-PLAN.md — `dev lock-status` registered beta-only with `--force`, the class-token ⊗ exit-code matrix, the three gating tests, and the one-row `dev --help` snapshot
 - [ ] 151-14-PLAN.md — the bench session: leg A's `0xDA45` positive control, legs B and C as capped probes recorded either way, and `151-BENCH.md`'s non-claims list (non-autonomous; never under `--auto`)
 
 ### Phase 152: Outward-Facing Close (operator-gated)
@@ -484,9 +484,9 @@ in `requirements:`:
 | RELOCK-06 | ~~Phase 150~~ → Backlog 999.28 | ⏸ Deferred 2026-08-20 |
 | RELOCK-08 | ~~Phase 150~~ → Backlog 999.28 | ⏸ Deferred 2026-08-20 |
 | LOCK-01 | Phase 151 | Complete |
-| LOCK-02 | Phase 151 | Pending |
-| LOCK-03 | Phase 151 | Pending |
-| LOCK-04 | Phase 151 | Pending |
+| LOCK-02 | Phase 151 | Complete |
+| LOCK-03 | Phase 151 | Complete |
+| LOCK-04 | Phase 151 | Complete |
 | OUT-01 | Phase 152 | Pending |
 | OUT-02 | Phase 152 | Pending |
 | OUT-03 | Phase 152 | Pending |
