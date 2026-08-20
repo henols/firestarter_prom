@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 149
-current_phase_name: dual-repo lockstep
+current_phase_name: Firmware Page-Size Seam (dual-repo lockstep)
 status: executing
 stopped_at: Phase 149 Plan 08 complete -- 149-PAGE-SIZE.md finished, README changelog line landed, claim gate extended to 9 enumerated targets and re-proved RED/GREEN, PGSZ-01..05 flipped to Complete, operator wording review approved. Phase 149 (Firmware Page-Size Seam, dual-repo lockstep) is complete.
 last_updated: "2026-08-20T05:15:43.000Z"
