@@ -226,8 +226,13 @@ LOCK requirement: LOCK-03 refuses on every `0x0D`/SDP family regardless. This se
 - [ ] **LOCK-01**: A hand-curated, family-level protection table records mechanism, readability and
       permanence, sourced from `firestarter_app/doc/lockable-proms.md` with per-family citations.
 
-- [ ] **LOCK-02**: `firestarter lock-status <chip>` reports the protection state of a chip on families
-      where it is documented as readable.
+- [ ] **LOCK-02**: `dev lock-status <chip>` reports the protection state of a chip on families
+      where it is documented as readable. *(Amended 2026-08-20 — the surface was settled as
+      beta-only `dev lock-status` at `/gsd-discuss-phase 151` per CONTEXT D-01;
+      `151-DISCUSSION-LOG.md:20` records the selection and `:22` records that the host-only
+      recommendation was overruled deliberately. Registered only on a pre-release install via
+      the `_DevGroup` / `channel.BETA_ONLY_DEV_COMMANDS` gate, so a stable install never sees
+      it.)*
 
 - [ ] **LOCK-03**: On families where protection state is **not** readable — `0x0D`/SDP among them — the
       command refuses gracefully and says why, rather than guessing or returning a fabricated value.
