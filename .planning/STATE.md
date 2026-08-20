@@ -5,15 +5,15 @@ milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 149
 current_phase_name: dual-repo lockstep
 status: executing
-stopped_at: Phase 149 Plan 07 complete -- size_baseline.json is the live default baseline again (D-14), firmware_tree_sha corrected (X-3), both size gates green, four deferred todos filed
-last_updated: "2026-08-19T22:42:14.000Z"
-last_activity: 2026-08-19
-last_activity_desc: "Phase 149 Plan 07 complete (size_baseline.json re-anchored to plan 06's cold post-change figures, firmware_tree_sha corrected from the stale Phase-144 tree, both pinned native envs bumped 141->151, four deferred todos filed with measured provenance, folded json_init todo removed)"
+stopped_at: Phase 149 Plan 08 complete -- 149-PAGE-SIZE.md finished, README changelog line landed, claim gate extended to 9 enumerated targets and re-proved RED/GREEN, PGSZ-01..05 flipped to Complete, operator wording review approved. Phase 149 (Firmware Page-Size Seam, dual-repo lockstep) is complete.
+last_updated: "2026-08-20T05:15:43.000Z"
+last_activity: 2026-08-20
+last_activity_desc: "Phase 149 Plan 08 complete -- the phase's final plan: 149-PAGE-SIZE.md completed with its three closing sections, one firestarter_app/README.md changelog subsection announcing the 15-part page-size behaviour change (operator-approved), the phase claim gate extended from 1 to 9 enumerated targets and re-proved RED/GREEN/ARGV twice, and PGSZ-01 through PGSZ-05 flipped to Complete in both traceability tables. Phase 149 (Firmware Page-Size Seam, dual-repo lockstep) is now complete; Phase 150 (write --sdp-relock) is next."
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 22
-  completed_plans: 21
+  completed_plans: 22
   percent: 33
 ---
 
