@@ -46,13 +46,57 @@ places the discussion did not reach:
    `:2412` and `chip_test.py:1480`. Only `emission_summary()` and
    `map_unknown_cmd_to_outdated()` are still callerless.
 
+**Two operator inputs, answered 2026-08-20, and both change conclusions:**
+
+5. **`infoic.xml` does NOT carry the sequences — a clean, evidenced negative.**
+   Checked first, on operator direction, against the same pinned revision the
+   project cites (`a8efaedc…/infoic.xml`, loaded via
+   `tools/derive_sdp_partition.py`'s own `_load_infoic_xml()` mechanism). The
+   complete per-chip datum is **20 attributes, zero child elements, zero text
+   content**. No attribute name matches `cmd|seq|unlock|protect|addr|command`. The
+   AMD/JEDEC magic bytes `aa55`/`5555`/`2aaa` appear in **no attribute value** of
+   any of the 11510 `<ic>` entries. `config` — the only blob-shaped field, and the
+   single real candidate — is the literal string **`"NULL"` on all 101
+   `protocol_id="0x05"` and all 897 `protocol_id="0x06"` entries**. The one unused
+   field that varies on `0x06` (`chip_info` = `0x0000`/`0x00e3`/`0x00e4`) is a
+   vendor cluster, not an address, and is **constant `0x0000`** across the whole
+   `0x05` population. **`infoic.xml` is a chip-*parameter* database, not an
+   algorithm database:** `protocol_id` *selects* an algorithm whose bytes live in
+   the programmer's firmware. It does supply one useful datum — `chip_id`
+   (`W29C020* → 0x0000da45`) — which is a **positive control for the mode entry**
+   and says nothing about the status read. *(This is a different question from the
+   settled negative about readability-from-flags, which stays closed.)*
+   **Consequence:** both sequences are datasheet-only, so they can carry a citation
+   comment and a pinned byte table but **can never have an element-wise proof** —
+   a change detector, not a correctness proof.
+
+6. **The operator has a `W29C020`, and C-10's "empty by construction" verdict is
+   WITHDRAWN.** But `lockable-proms.md` is **genuinely ambiguous** about the bare
+   part: the `:21` row key is `**W29C020 / W29C020C**` and covers both, while
+   **all four** narrowing restatements (`:30`, `:335`, `:350`, and `:25`'s
+   cross-reference) name `W29C020C` only — bare `W29C020` appears **exactly once**
+   in 399 lines. The entry still refuses by default regardless, because the third
+   alias `W29C022` is undocumented and D-06's unanimity is fail-closed, so the read
+   is **`--force`-only even on the operator's own part**. The payoff chain is
+   therefore real but narrow, and it **decomposes**: the *mode-entry* half is
+   verifiable on silicon **today with zero new code** (`firestarter id W29C020`
+   must return `0xDA45`), while the status *address* and *decode* have no
+   independent oracle short of a destructive write→verify — which is the *indirect*
+   method `lockable-proms.md:3` excludes from "readable" by definition.
+
 **Primary recommendation:** plan the firmware half around the ordinal-gate fork
 first (it decides the wire shape, the byte cost, and therefore which MERGE-05
 exemption is being asked for), and plan the host half around a token-keyed table
 whose class for `0x10` / `0x07` / `0x08` / `0x0B` / `0x0E` / `0x27` / `0x28` /
 `0x29` / `0x34` is derived from `protocol-id` rather than curated per token —
 that reduces the hand-curation from 953 tokens to 273 and makes D-12's partition
-exhaustive by construction.
+exhaustive by construction. Then, before any sequence byte is written: source the
+`0x05` and `0x06` sequences from datasheets (`infoic.xml` is closed — finding 5),
+budget them as **pinned tables with full citations rather than provable
+sequences**, and surface C-17 (bare `W29C020` vs `W29C020C`) to the operator,
+because it decides whether the operator's own part is inside the
+documented-readable set and D-06 has no state that expresses "documented, but the
+document's own summary declines to repeat the verdict for this alias".
 
 ---
 
@@ -954,6 +998,330 @@ has internal linkage, so **each translation unit that includes `flash_utils.h`
 gets its own copy**; `--gc-sections` discards unused ones. Adding a new table to
 that header therefore costs bytes in every TU that actually references it, not
 once globally.
+
+---
+
+## Does `infoic.xml` Supply the Sequences? — a clean, evidenced NEGATIVE
+
+**Scope, stated first so no later reader conflates two different questions.**
+
+- **CLOSED, and not reopened here:** whether `infoic.xml` can supply protection
+  **readability**. `.planning/notes/infoic-xml-protection-flags-research.md`
+  settled that negatively (flags bits 14/15 cannot derive readability;
+  `W29C020C` is flag-identical to `W29EE011`; the AMD readable group carries zero
+  protection bits). **That remains closed.**
+- **OPEN, and answered below:** whether `infoic.xml` carries **command sequences,
+  mode-entry bytes, or mode-relative status addresses** — the `SA + 0x02` offset
+  C-9 could not source, and the Product-ID boot-block status address C-10 found
+  nowhere in the repo. **This is a different question about a different kind of
+  datum**, and the operator's hypothesis was that infoic carries it.
+
+### Method — reproducible and pinned
+
+`infoic.xml` is gitignored (`firestarter_app/.gitignore:29` →
+`tools/infoic*.xml`) and absent from a clean checkout, exactly as
+`tools/derive_sdp_partition.py`'s docstring records (`:7-13`). I used that
+module's own mechanism — `_load_infoic_xml()` (`:74-83`), which reads
+`INFOIC_XML_PATH` if set and otherwise fetches `MINIPRO_XML_URL` (`:60-64`) — at
+the **same pinned upstream revision the rest of the project cites**:
+
+```bash
+curl -sS -o infoic.xml \
+  "https://gitlab.com/DavidGriffith/minipro/-/raw/a8efaedc236c1d9718bd28299dfbb99536b010ff/infoic.xml"
+# 17,861,009 bytes  [CMD ls -la]
+```
+
+Parsed with `xml.etree.ElementTree`, selecting
+`.//database[@type='INFOIC2PLUS']` — the same section `_build_token_index`
+(`:86-108`) selects, and the same one `build_db.py:454` reads. **No file was
+written into either repo.**
+
+Section census `[CMD python3 …]`: `INFOICT76` 11434 `<ic>`, **`INFOIC2PLUS`
+11510 `<ic>`** (168 `<manufacturer>` elements), `INFOIC` 4918 `<ic>`.
+
+One structural detail worth recording because it changes an attribute count:
+of the 11510 `INFOIC2PLUS` `<ic>` elements, **11481 are `<manufacturer>/<ic>` and
+29 are `<custom>/<ic>`** (parent tag `custom`, e.g. `<custom name="ATMEL">`).
+`build_db.py:454-459` traverses `.//database[@type='INFOIC2PLUS']` →
+`.//manufacturer` → `.//ic`, so it reads the 11481 and **never sees the 29**.
+**Zero of the 29 `<custom>` entries carry `protocol_id` `0x05` or `0x06`**, so
+they are irrelevant to this phase.
+
+### The FULL per-chip attribute set — 20 names, and that is all there is
+
+`[CMD python3 … collections.Counter over every attribute of every <ic>]`:
+
+| # | attribute | present on | consumed by `build_db.py`? | could it carry a sequence? |
+|--:|-----------|-----------:|----------------------------|----------------------------|
+| 1 | `name` | 11510 | **yes** — `:460` | no — comma-joined alias string |
+| 2 | `type` | 11510 | **yes** — `:468` | no — small enum |
+| 3 | `protocol_id` | 11510 | **yes** — `:482` | no — the algorithm **selector**, not its parameters |
+| 4 | `variant` | 11510 | **yes** — `:481` | no — high byte discarded, low byte → pinout key |
+| 5 | `read_buffer_size` | 11510 | no | no — byte count |
+| 6 | `write_buffer_size` | 11510 | no | no — byte count |
+| 7 | `code_memory_size` | 11510 | **yes** — `:499` | no — byte count |
+| 8 | `data_memory_size` | 11510 | no | no — byte count |
+| 9 | `data_memory2_size` | 11510 | no | no — byte count |
+| 10 | `page_size` | 11510 | **yes** — `:495`, `:497` | no — byte count |
+| 11 | `chip_id` | 11510 | **yes** — `:779` | **partially relevant** — see below |
+| 12 | `voltages` | 11510 | **yes** — `:498` | no — packed nibbles |
+| 13 | `pulse_delay` | 11510 | **yes** — `:776` | no — µs scalar |
+| 14 | `flags` | 11510 | **yes** — `:483` | no — the settled-negative bitfield |
+| 15 | `chip_info` | 11510 | no | no — see below |
+| 16 | `pin_map` | 11510 | **yes** — `:503` | no — pinout selector |
+| 17 | `package_details` | 11510 | **yes** — `:464` | no — packed package bits |
+| 18 | `config` | 11510 | no | **the one candidate — and it is `NULL`**; see below |
+| 19 | `pages_per_block` | 11506 | no | no — count |
+| 20 | `blank_value` | **25** | no | no — a single erased byte |
+
+**`<ic>` elements have ZERO child elements and ZERO text content** — measured
+across all 11510 (`children: 0`, `text-bearing: 0`). So there is no nested
+`<sequence>`, `<command>`, `<algorithm>` or table anywhere under a chip. **The 20
+attributes above are the complete per-chip datum.**
+
+`blank_value` is present on exactly **25** `<ic>`s, **all** under `<custom>` and
+**all** with `protocol_id="0x80000001"` — a synthetic serial-EEPROM protocol,
+nothing to do with `0x05`/`0x06`.
+
+**Attribute-name search for a sequence carrier** — `[CMD python3 … regex over the
+attribute-name set for `cmd|seq|unlock|protect|addr|command`]` → **`(none)`**.
+There is no `cmd*` field, no unlock table, no per-chip algorithm-parameter field.
+
+**Value search for the AMD/JEDEC magic bytes** — `[CMD python3 … regex
+`(?i)(aa.?55|55.?aa|5555|2aaa)` over EVERY attribute value of ALL 11510 `<ic>`]` →
+**2 hits, both accidental, both in `name`**:
+`MICRON/MT28GU512AAA1EGC(RB119)@BGA64` and
+`MICRON/MT28GU512AAA2EGC(RB120)@BGA64,…`. **No `AA`/`55`/`90` triple, no `0x5555`,
+no `0x2AAA` appears as data anywhere in the file.**
+
+### The two candidate "unused field carrying sequence data" leads — both dead
+
+**`config` — the only field whose type could plausibly be a blob.** Measured
+distribution over all 11510 `[CMD python3 …]`: `'NULL'` × **10910**, 121 distinct
+values total, and every non-`NULL` value is a named MCU fuse-configuration profile
+— `at89_2` (30), `avr_13` (27), `pic_13` (20), `pic_10` (17), `pic_24` (15),
+`at90_3` (10) … . Decisively:
+
+> **`config` is `"NULL"` on all 101 `protocol_id="0x05"` entries and on all 897
+> `protocol_id="0x06"` entries.** `[CMD python3 …]`
+
+**`chip_info` — the only unused field that actually varies on `0x06`.** Value sets
+for all eight present-but-unused fields, measured per protocol `[CMD python3 …]`:
+
+| field | on `0x05` (101 ics) | on `0x06` (897 ics) |
+|-------|---------------------|---------------------|
+| `read_buffer_size` | **constant** `0x1000` | **constant** `0x1000` |
+| `write_buffer_size` | 4 values: `0x80`×61, `0x100`×26, `0x200`×8, `0x40`×6 (tracks page size) | **constant** `0x100` |
+| `data_memory_size` | **constant** `0x00` | **constant** `0x00` |
+| `data_memory2_size` | **constant** `0x00` | **constant** `0x00` |
+| `pages_per_block` | **constant** `0x0000` | **constant** `0x0000` |
+| `chip_info` | **constant** `0x0000` | `0x0000`×573, **`0x00e3`×169**, **`0x00e4`×155` |
+| `config` | **constant** `NULL` | **constant** `NULL` |
+| `blank_value` | absent on all | absent on all |
+
+The `0x00e3` / `0x00e4` split is a **vendor/algorithm-family discriminator, not an
+address** `[CMD python3 …]`: `0x00e3` clusters MOSEL VITELIC (48), SYNCMOS (48),
+SGS-THOMSON (23), ST (23), HYNIX (12), HYUNDAI (12); `0x00e4` clusters
+MACRONIX(MXIC) (73), CFEON (24), AMD (16), EON (16), SPANSION(1) (16), AMIC (8).
+Both values span sizes `0x20000`–`0x80000` and both contain top- and bottom-boot
+variants (`AM29F002B` and `AM29F002BT` are both `0x00e4`), so it does not even
+encode boot-sector orientation. The field dictionary's own entry
+(`doc/infoic-field-dictionary.md:251-263`) already calls it an *"Opaque
+discriminator"* whose only known sentinels are `0x0006` (`MP_VOLTAGES1`) and
+`0x0007` (`MP_VOLTAGES2`); `0x00e3`/`0x00e4` are neither, and remain undecoded.
+**A two-valued opaque discriminator cannot supply an address or a byte sequence.**
+
+### The verbatim XML — W29C020 and an AMD Autoselect part
+
+`W29C020` entry, quoted exactly as it appears at `a8efaedc`:
+
+```xml
+<!-- manufacturer name="WINBOND" -->
+<ic name="W29C020,W29C020C,W29C022"
+    type="1"
+    protocol_id="0x05"
+    variant="0x7500"
+    read_buffer_size="0x1000"
+    write_buffer_size="0x80"
+    code_memory_size="0x40000"
+    data_memory_size="0x00"
+    data_memory2_size="0x00"
+    page_size="0x0080"
+    pages_per_block="0x0000"
+    chip_id="0x0000da45"
+    voltages="0x0000"
+    pulse_delay="0x2710"
+    flags="0x0040c078"
+    chip_info="0x0000"
+    pin_map="0x0000190b"
+    package_details="0x20000000"
+    config="NULL"/>
+```
+
+For contrast, the two sibling Winbond `0x05` entries, same section:
+
+```xml
+<ic name="W29C040,W29C042" type="1" protocol_id="0x05" variant="0x7500"
+    read_buffer_size="0x1000" write_buffer_size="0x100" code_memory_size="0x80000"
+    page_size="0x0100" chip_id="0x0000da46" voltages="0x000a" pulse_delay="0x2710"
+    flags="0x0040c078" chip_info="0x0000" pin_map="0x00001a0d"
+    package_details="0x20000000" config="NULL"/>
+
+<ic name="W29EE011" type="1" protocol_id="0x05" variant="0x7500"
+    read_buffer_size="0x1000" write_buffer_size="0x80" code_memory_size="0x20000"
+    page_size="0x0080" chip_id="0x0000dac1" voltages="0x0000" pulse_delay="0x4e20"
+    flags="0x0040c078" chip_info="0x0000" pin_map="0x00001809"
+    package_details="0x20000000" config="NULL"/>
+```
+
+*(Note `flags="0x0040c078"` on `W29C020` **and** on `W29EE011` — the settled
+negative, visible here as a by-product. Not reopened.)*
+
+Representative AMD Autoselect (`0x06`) entries, quoted exactly:
+
+```xml
+<!-- manufacturer name="AMD" -->
+<ic name="AM29F040@DIP32,AM29F040B@DIP32"
+    type="1"
+    protocol_id="0x06"
+    variant="0x7000"
+    read_buffer_size="0x1000"
+    write_buffer_size="0x100"
+    code_memory_size="0x80000"
+    data_memory_size="0x00"
+    data_memory2_size="0x00"
+    page_size="0x0000"
+    pages_per_block="0x0000"
+    chip_id="0x000001a4"
+    voltages="0x0000"
+    pulse_delay="0x0004"
+    flags="0x00000078"
+    chip_info="0x0000"
+    pin_map="0x00005c0d"
+    package_details="0x20000000"
+    config="NULL"/>
+
+<!-- manufacturer name="SST" -->
+<ic name="SST39SF040" type="1" protocol_id="0x06" variant="0x7001"
+    read_buffer_size="0x1000" write_buffer_size="0x100" code_memory_size="0x80000"
+    page_size="0x0000" pages_per_block="0x0000" chip_id="0x0000bfb7"
+    voltages="0x0000" pulse_delay="0x000a" flags="0x00000078" chip_info="0x0000"
+    pin_map="0x00005c0d" package_details="0x20000000" config="NULL"/>
+
+<!-- manufacturer name="WINBOND" -->
+<ic name="W49F020" type="1" protocol_id="0x06" variant="0x7100"
+    read_buffer_size="0x1000" write_buffer_size="0x100" code_memory_size="0x40000"
+    page_size="0x0000" pages_per_block="0x0000" chip_id="0x0000da8c"
+    voltages="0x0000" pulse_delay="0x0032" flags="0x00000078" chip_info="0x0000"
+    pin_map="0x00005b0b" package_details="0x20000000" config="NULL"/>
+```
+
+### The answers, stated plainly
+
+| question | answer | evidence |
+|----------|--------|----------|
+| Does any field supply the **Product-ID-mode boot-block status address**? | **NO** | no address-typed attribute exists; the 20-name set contains no `addr`-like field; `config="NULL"` on all 101 `0x05` entries |
+| Does any field supply the **`FF`/`FE` lockout decode**? | **NO** | no per-chip decode/mask field beyond `flags` (settled negative) and `chip_info` (opaque 2-value discriminator, constant `0x0000` on all `0x05`) |
+| Does any field supply the **AMD Autoselect `SA + 0x02` verify offset**? | **NO** | same; `chip_info` on `0x06` varies but is a vendor cluster, not an offset; `page_size` is `0x0000` on the whole `0x06` population |
+| Are there **command / unlock-sequence bytes of any kind** (`AA`/`55`/`90`, `cmd*` fields, algorithm parameters, write/unlock tables)? | **NO** | zero attribute names matching `cmd\|seq\|unlock\|protect\|addr\|command`; zero `aa55`/`5555`/`2aaa` occurrences in any attribute value across all 11510 `<ic>`; zero child elements; zero text content |
+| Is there an **unused field carrying sequence data**? | **NO** | all 8 unused fields enumerated with their full value sets; 7 of 8 are constant on `0x05` and 7 of 8 on `0x06`; the only varying one (`chip_info`) is a 2-value opaque cluster |
+
+**`infoic.xml` is a chip-*parameter* database, not an algorithm database.**
+`protocol_id` **selects** an algorithm implemented in the programmer's own
+firmware; the sequence bytes live in that implementation, never in the XML. The
+folded todo already recorded the same shape for the protect operation itself —
+*"The actual protect op in minipro is an opaque TL866 opcode (0x18/0x19) — no
+mechanism/region info exists to decode"* — and this measurement generalises it to
+**every** sequence: minipro sends an opcode plus the 20 parameters above, and the
+TL866II+ firmware holds the command sequences.
+
+**The one genuinely useful thing infoic does supply**, and it is not a sequence:
+`chip_id`. `W29C020/W29C020C/W29C022 → 0x0000da45`, `W29C040/W29C042 → 0x0000da46`,
+`W29C010/… → 0x0000dac1`, `AM29F040 → 0x000001a4`, `SST39SF040 → 0x0000bfb7`,
+`W49F020 → 0x0000da8c`. These are **exactly the values read back in the same
+Autoselect / Product-ID mode** whose status address is missing — so infoic supplies
+a **positive control for the mode entry** (sub-claim (i) in the W29C020 bench
+analysis above) while supplying nothing about the status read itself. That is a
+real, if narrow, contribution and it is already consumed (`build_db.py:779` →
+`chip_id_value` → `chip-id` on the wire).
+
+### Then the datasheet — what is obtainable, and one live name trap
+
+`firestarter_app/datasheets/` holds **7 PDFs**, of which **3 are git-tracked**
+`[CMD git ls-files datasheets/ ; git status --porcelain datasheets/]`:
+
+| file | tracked? | size | covers | DB algorithm of those parts | use for this phase |
+|------|----------|-----:|--------|-----------------------------|--------------------|
+| `AT28C256.pdf` | **tracked** | 749 812 | AT28C256 | **`0x0D`** (13) | none — `0x0D` is `not_readable` by LOCK-03 |
+| `SST39SF0x0A.pdf` | **tracked** | 2 947 801 | SST39SF010A/020A/040 | **`0x06`** (6) | **see the trap below** |
+| `W27C020.pdf` | **tracked** | 1 906 405 | Winbond **W27**C020 | **`0x08`** (8) — `WINBOND \| W27C02,W27C020,W27E02,W27E020,W27L02` | **none — wrong family** |
+| `M27C1001.pdf` | untracked | 220 569 | ST M27C1001 | `0x07`/`0x08` class | none |
+| `M27C512.pdf` | untracked | 286 356 | ST M27C512 | UV-EPROM class | none |
+| `W27C512.pdf` | untracked | 165 171 | Winbond W27C512 | UV/EEPROM class | none |
+| `W27E257.pdf` | untracked | 232 448 | Winbond W27E257 | UV/EEPROM class | none |
+
+**⚠ Two traps here, both measured:**
+
+1. **`W27C020.pdf` is NOT a `W29C020` datasheet.** `W27C020` resolves in the DB to
+   `WINBOND | W27C02,W27C020,W27E02,W27E020,W27L02`, **algorithm `0x08`** — a
+   27-series UV/electrically-erasable EPROM, a different family with a different
+   command set. This is the same one-character trap the project already documented
+   for ST `M27C512` vs Winbond `W27C512`. **Nothing in `datasheets/` covers the
+   `W29C0xx` family.**
+2. **`SST39SF0x0A.pdf` is a tracked `0x06` datasheet, but it cannot source the
+   Autoselect sector-protect verify** — because `lockable-proms.md:222` records
+   `SST39SF010A / SF020A / SF040` as **"No explicit lock bit"**, protection
+   mechanism *"SDP command sequence and hardware write inhibit"*, and `:229` says
+   the datasheet *"describes hardware and software data protection, but not
+   conventional individually lockable sectors with a sector-status query."* So the
+   one in-tree `0x06` datasheet documents a family the curated table would mark
+   `documented-not-readable`.
+
+**I could not read any of these PDFs.** `[CMD which pdftotext pdfinfo mutool;
+python3 -c "import pypdf"; python3 -c "import fitz"]` → **none available**. A
+stdlib `zlib`-decompress + text-operator extraction produced glyph-encoded output
+(subset fonts with custom encodings): a grep of the extracted text for
+`autoselect|sector protect|product id|software data protection|boot block|29C020`
+returned **zero hits** in both `SST39SF0x0A.pdf` and `W27C020.pdf`. **So no
+datasheet claim in this document is sourced from a PDF**, and the extraction
+limitation is recorded rather than worked around.
+
+**What is obtainable, and at what granularity.** For the AMD Autoselect verify the
+canonical citation is the AMD/Infineon `Am29F040B` datasheet's *Autoselect Mode*
+table and its *Sector Protection Verify* row — `lockable-proms.md`'s reference `[1]`
+already points at the Infineon `AM29F002B/AM29F002NB` PDF, and reference `[4]`
+(Macronix `MX29F200C`, v2.1) at a *sector protect verify* description. For the
+Winbond Product-ID boot-block status the canonical citation is the `W29C020C`
+datasheet's *Product Identification / Boot Block Lockout* section — the project's
+existing message wording already cites **"W29C040 datasheet §6.6"** for the
+sibling part (`messages.toml` → `MSG_ERR_FL4_BOOT_BLOCK_LOCKED`), and
+`PROTOCOLS.md:97,100,103` cites `datasheets/0x05-FLASH-AMD-STD/W29C020.pdf p.9
+§Write Operation` and `W29C040.pdf p.11 §Page Write` / `p.12 §Chip Erase` — i.e.
+**the project's own citation convention for this family is `vendor datasheet,
+page, §section`**, and `PROTOCOLS.md` already references a `W29C020.pdf` under a
+`datasheets/0x05-FLASH-AMD-STD/` path **that does not exist in the working tree**
+`[CMD ls firestarter_app/datasheets]`. Achievable granularity is therefore
+**vendor + document number + revision + page + section**, matching the existing
+convention. **Per the brief, no PDF was fetched and none is proposed for the
+repo.**
+
+### What a sequence can be pinned against, per source
+
+This is the difference that matters for the Validation Architecture, and it is
+categorical:
+
+| sequence source | strongest available test | why |
+|-----------------|--------------------------|-----|
+| **infoic.xml-derived** | an **element-wise proof** against a freshly-loaded `infoic.xml`, in the exact style of `tests/test_sdp_db_invariant.py::test_sdp_partition_matches_infoic_derived_field_element_wise` (`:584-621`) — two independently-computed partitions asserted equal chip-by-chip, plus a synthetic-mutation non-vacuous control | the upstream datum is machine-readable and re-derivable, so drift is detectable |
+| **datasheet-derived** | a **citation comment plus a pinned byte table** — nothing stronger exists | there is no machine-readable upstream to diff against; the test can only assert the committed bytes are the bytes it was told, i.e. it detects *edits*, never *errors* |
+
+**Because the answer above is a clean negative, the `0x05` and `0x06` sequences
+are necessarily datasheet-derived, and therefore only the weaker pinning is
+available to them.** No element-wise proof is possible for either sequence — and
+the plan must not write an acceptance criterion implying otherwise. The honest
+form is: *the sequence bytes are pinned as a literal table with a
+vendor/document/revision/page/section citation comment, and a test asserts the
+table is unchanged* — which is a **change detector, not a correctness proof**.
 
 ---
 
@@ -2022,7 +2390,7 @@ own reference list]`
 | **W29C040 / W29C040P**          |          Variant-dependent | Boot blocks or SDP              |                               Variant-dependent | Must check the exact suffix and revision                                                     |
 ```
 
-plus the standalone sentence at `:25`:
+plus the standalone sentence at **`:30`**:
 
 > For the **W29C020C**, the bottom and top boot-block states are explicitly readable. This device is unusual because the boot-block lockout is effectively irreversible through ordinary commands.
 
@@ -2031,13 +2399,158 @@ mechanism "Bottom and top 8 KB boot blocks", method "Read boot-block status in
 **Product ID mode**". W29C040/W29C040P is `Variant-dependent` on **both** the
 readability and permanence axes, with the note "Must check the exact suffix and
 revision". The doc mentions `W29C020C` at `:21`, `:25`, `:30`, `:335`, `:350`
-`[CMD grep]` — and `:30` is §1's W49F002 row ("Replacement family for W29C020C,
-but not command-identical").
+`[CMD grep -n "W29C02\|W49F002\|W29C010\|W29EE01" doc/lockable-proms.md]` — where
+`:25` is §1's W49F002 row ("Replacement family for W29C020C, but not
+command-identical") and `:30` is the standalone sentence quoted above.
+*(Corrected 2026-08-20: an earlier revision of this document attributed the
+standalone sentence to `:25` and the W49F002 row to `:30`. The two were
+transposed; the line numbers above are re-measured.)*
 
 Also note **`8 KB` boot blocks** in the W29C020C row, versus the host's
 `_BOOT_BLOCK_SIZE = 0x4000` (**16 KiB**) used for the W29C040 hint. Different
 parts, different geometry — not a contradiction, but a trap if a single constant
 is reused.
+
+### ⚠ Bare `W29C020` vs `W29C020C` — the document is genuinely ambiguous
+
+**New inventory information (operator, 2026-08-20): the operator has a
+`W29C020`.** That makes the question of whether `lockable-proms.md`'s readable
+verdict covers the **bare** part, or only the **C** suffix, load-bearing rather
+than academic. Every line in the document that bears on it, measured
+`[CMD grep -n "W29C02\|W49F002\|W29C010\|W29EE01" doc/lockable-proms.md]` — there
+are exactly seven:
+
+| line | text (verbatim, trimmed) | names bare `W29C020`? |
+|-----:|--------------------------|----------------------|
+| **:21** | `\| **W29C020 / W29C020C** \| **Yes—special** \| Bottom and top 8 KB boot blocks \| **Yes** \| Read boot-block status in Product ID mode \|` | **YES — the row key** |
+| :20 | `\| **W29C010 / W29C010M** \| Usually no for SDP \| Whole device SDP \| No \| Software Data Protection is a command-sequence requirement, not normally a readable lock bit \|` | no (sibling row, shown for the `X / Y` idiom) |
+| :23 | `\| **W29EE011 / W29EE012** \| Usually no for SDP \| Whole device \| No \| EEPROM-like page-write devices \|` | no |
+| :25 | `\| **W49F002 / W49F002U** \| **Yes—sector/special** \| Boot sectors \| Usually reversible … \| Replacement family for **W29C020C**, but not command-identical \|` | **no — C only** |
+| **:30** | *"For the **W29C020C**, the bottom and top boot-block states are explicitly readable. This device is unusual because the boot-block lockout is effectively irreversible through ordinary commands."* | **no — C only** |
+| **:335** | §Practical summary → *Families where readable lock status is normally expected*: `* Winbond **W29C020C** boot-block lock detection` | **no — C only** |
+| **:350** | §Practical summary → *Families with potentially irreversible protection*: `* **W29C020C** boot-block lockout` | **no — C only** |
+
+**So bare `W29C020` appears exactly ONCE in the entire 399-line document — in the
+`:21` row key — and is absent from all four narrowing restatements.**
+
+**The two readings, and what each rests on:**
+
+- **Reading (a) — the verdict attaches to the ROW, i.e. to both parts.** §Key
+  (`:5-14`) defines the markings as properties applied *per row*, and the row key
+  is `**W29C020 / W29C020C**` with a single set of column values. §1 demonstrably
+  uses the `X / Y` form for sibling suffixes that **share** a verdict — `:20`
+  (`W29C010 / W29C010M` → "Usually no for SDP"), `:22` (`W29C040 / W29C040P` →
+  variant-dependent), `:23` (`W29EE011 / W29EE012` → "Usually no for SDP"). On
+  that internal convention, `:21` says both parts are `Yes—special`.
+- **Reading (b) — the verdict attaches to the C suffix only.** Every *restatement*
+  of the claim outside the table — the emphasis sentence at `:30`, and **both**
+  §Practical-summary bullets at `:335` and `:350` — names `W29C020C` and only
+  `W29C020C`. §Practical summary is the document's own distilled partition, and
+  bare `W29C020` is in neither of its relevant lists. Its readable list also names
+  other parts by bare designator ("Winbond **W49F** sector-protection families"),
+  so the C suffix there is a deliberate narrowing, not a shorthand.
+
+**Verdict: the document is genuinely ambiguous, and the ambiguity is asymmetric.**
+The table covers bare `W29C020`; every narrowing restatement drops it. Nothing in
+the document resolves the two readings, and no in-tree evidence does either.
+**This is a finding, not a gap to paper over** — and it is exactly the edge DATA-04
+polices: choosing reading (a) attributes to `lockable-proms.md` a verdict that
+three of its own restatements decline to repeat, and choosing reading (b)
+attributes an exclusion the table does not state.
+
+**It also does not fit D-06's three states cleanly.** Bare `W29C020` is **not
+`undocumented`** — it is in the document, at `:21`. It is "documented, with a
+verdict the document's own summary declines to repeat for it". D-06's
+`documented-readable` / `documented-not-readable` / `undocumented` triple has no
+slot for that, and the curated table must pick one. **The planner must surface
+this rather than have a curator resolve it silently — that resolution is the
+adjudication D-06's rejected alternative explicitly forbids.**
+
+### The measured fact that makes the distinction unobservable anyway
+
+From the pinned `infoic.xml` (see §"Does `infoic.xml` Supply the Sequences? — a
+clean, evidenced NEGATIVE" above, at `:1004`): **`W29C020`, `W29C020C` and
+`W29C022` are ONE upstream `<ic>` entry with
+ONE `chip_id`, `0x0000da45`**, one `pin_map`, one `page_size`, one `flags`. The
+generated DB carries them as one row with `chip_id_value: "0x0000da45"` and
+`chip_id_check: true` `[CMD python3 over chip_database.json]`.
+
+**Consequence, and it is decisive for what any bench leg can mean:** the
+programmer **cannot distinguish** a `W29C020` from a `W29C020C` from a `W29C022`.
+They present the same Product-ID response. So a per-alias readability distinction
+is unobservable on the wire, and a chip the operator believes is a `W29C020` is,
+to the firmware, indistinguishable from the `W29C020C` the document does call
+readable — and from the `W29C022` the document never mentions.
+
+### What a `W29C020` bench leg can legitimately earn
+
+Re-derived from the locked decisions, not assumed to flip.
+
+**Three facts that hold regardless of the reading:**
+
+1. **The DB entry still refuses by default.** The alias string is
+   `W29C020,W29C020C,W29C022` and `W29C022` appears **nowhere** in
+   `lockable-proms.md` (0 occurrences, measured). D-06's fail-closed unanimity —
+   one DB entry, one answer, never token-by-token — therefore resolves this entry
+   to `undocumented_alias` **even under reading (a)**. The operator's own part is
+   `--force`-only under D-07, exactly like the W29C040.
+2. **`--force` output is labelled `unadjudicated_probe` by D-07**, which by its own
+   terms is "never a state claim".
+3. **The Evidence Ceiling is untouched.** Nothing here may claim AT28C or `0x0D`
+   silicon validation; `0x0D` stays `UNVERIFIED`.
+
+**D-03's claim-cap — does it extend?** Its text is scoped: *"the W29C040 run is a
+probe whose result is recorded **either way** … **No artifact may claim the `0x05`
+sequence is silicon-validated on the strength of this leg.**"* Two readings, laid
+out without deciding:
+
+- **Textual/narrow:** "this leg" is the W29C040 leg. A `W29C020` leg is a
+  *different* leg, on a part the table row does list as readable, so the cap does
+  not textually bind it. What becomes claimable is then bounded only by what the
+  leg can actually observe (below).
+- **Purposive:** the cap exists *because* W29C040 is variant-dependent, i.e.
+  outside the documented-readable set. Under reading (b) bare `W29C020` is also
+  outside that set, so the cap's reason extends and the leg stays a probe. Under
+  reading (a) the reason does not extend.
+
+**What the leg can observe — and this is the useful decomposition, because the
+three parts of the sequence are separately verifiable:**
+
+| sub-claim | verifiable on silicon? | oracle |
+|-----------|------------------------|--------|
+| **(i) Product-ID mode entry/exit works on this part** | **YES** | `flash_util_get_chip_id` must return **`0xDA45`**. A correct chip-ID read *is* a positive control on the `AA/55/90` → read → `AA/55/F0` mode transition. |
+| **(ii) The boot-block status ADDRESS is the right one** | **no** | there is no ground truth for "what is at that address"; a plausible-looking byte is a plausibility judgement, not a verification |
+| **(iii) The `FF`/`FE` (or equivalent) DECODE is right** | **no** | requires knowing the part's actual lock state independently |
+| **(iv) The part's boot block is actually locked/unlocked** | **no, not without contradiction** | the only independent oracle is write→verify, which is destructive **and** is precisely the *indirect* method `lockable-proms.md:3` excludes from the definition of "readable" |
+
+**Sub-claim (i) is available TODAY, before a byte of new firmware exists.**
+`firestarter id W29C020` already drives `CMD_CHECK_CHIP_ID` →
+`configure_flash_5v_page`'s `CMD_CHECK_CHIP_ID` arm (`flash_5v_page.cpp:54-57`) →
+`flash_5v_page_check_chip_id_execute` (`:133-135`) → `flash_util_check_chip_id_execute`
+→ `flash_util_get_chip_id` (`flash_utils.cpp:81-86`), which issues
+`FLASH_ENABLE_ID` / reads `0x0000`,`0x0001` / issues `FLASH_DISABLE_ID`. So a
+zero-code bench run on the operator's `W29C020` can establish that the shared mode
+machinery works on this exact part and socket, **and that result is not gated by
+D-06, D-07 or D-03 at all** — it is an existing shipped command exercising existing
+shipped code.
+
+**Claimable under the narrow reading, at most:** *"the `0x05` Product-ID
+boot-block status sequence was exercised on one Winbond `W29C020` sample and
+returned a decodable value consistent with the datasheet's documented encoding."*
+Single-sample, single-part, and the *decode* remains datasheet-asserted.
+
+**NOT claimable under either reading:**
+- that the `0x05` sequence is **validated** — sub-claims (ii)–(iv) have no oracle;
+- anything about **`W29C020C`** — a different part, indistinguishable on the wire,
+  which makes a family-level claim *less* supportable rather than more;
+- anything about **`W29C022`**, which no source document covers;
+- anything about the **`0x06` Autoselect half** — it has **no bench leg at all**,
+  under D-03 or otherwise, and ships software-proven and unrun on silicon;
+- anything about **AT28C or `0x0D`** — the milestone Evidence Ceiling, unchanged.
+
+**Bench mechanics (reported, not planned — per the brief):** chip handling is
+operator-only; driving the port is permitted. So the operator seats the
+`W29C020`; the port run itself needs no operator step.
 
 ### The D-06 worked example, verified — and it is worse than CONTEXT.md says
 
@@ -2454,22 +2967,69 @@ under `tests/` has no such failure mode.
   suites (both already in the 17-entry `test_filter`);
 - every DATA-06 measurement.
 
-**Needs the operator-gated bench probe (D-03) — and it is a PROBE, never
-validation:**
-- whether the `0x05` Product-ID boot-block read returns a plausible locked-boot-block
-  reading on the operator's W29C040.
+**⚠ Provable in software but NOT provable at all — the sequence bytes
+themselves.** Now that `infoic.xml` is closed as a source (see §"Does
+`infoic.xml` Supply the Sequences?"), both the `0x05` and `0x06` sequences are
+**datasheet-derived**, and that caps what any test can do:
 
-**The discipline this imposes on the plan, restated from D-03:** the result is
-recorded **either way**; a plausible reading *corroborates* v1.17 from the read
-side; garbage *vindicates* the table's variant-dependent refusal and keeps the
-sequence gated. **No artifact — plan, summary, release note or doc — may state that
-the `0x05` sequence is silicon-validated on the strength of this leg.** And per
-the milestone Evidence Ceiling, nothing here may claim AT28C or `0x0D` silicon
-validation at all.
+| source | strongest available test | what it detects |
+|--------|--------------------------|-----------------|
+| infoic-derived (**not available here**) | element-wise proof against a freshly-loaded `infoic.xml`, in the style of `test_sdp_partition_matches_infoic_derived_field_element_wise` (`:584-621`) + a synthetic-mutation non-vacuous control | drift **and** error |
+| **datasheet-derived (what this phase has)** | a literal pinned byte table + a `vendor / document / revision / page / §section` citation comment, and a test asserting the table is unchanged | **edits only — never errors** |
 
-**Also bench-only, and NOT funded by D-03:** the `0x06` Autoselect sequence has no
-bench leg. So `lock-status` on a `0x06` part ships **software-proven and unrun on
-silicon**, and must say so in those words.
+So a criterion of the form "the sequence is correct" is **unsatisfiable by any
+test in this phase**. The satisfiable form is "the sequence bytes are pinned as a
+literal table with a full citation, and a test fires on any edit" — a **change
+detector, not a correctness proof** — and the plan must say so in those words.
+
+**Bench legs — TWO parts now, and they are asymmetric.**
+*(Revised 2026-08-20: the operator has a `W29C020`. The earlier single-part
+framing, and this section's earlier claim that the `0x05` payoff chain was empty,
+are superseded.)*
+
+| leg | part | reachable via | status |
+|-----|------|---------------|--------|
+| **A — mode-entry positive control** | `W29C020` | **`firestarter id W29C020`, an existing shipped command** | **available today, zero new code.** `CMD_CHECK_CHIP_ID` → `configure_flash_5v_page`'s `CMD_CHECK_CHIP_ID` arm (`flash_5v_page.cpp:54-57`) → `flash_util_get_chip_id` (`flash_utils.cpp:81-86`) must return **`0xDA45`**. Not gated by D-03, D-06 or D-07. |
+| **B — the `0x05` status read** | `W29C020` | `dev lock-status W29C020 **--force**` (D-07) — `--force` is required **even on the operator's own part**, because `W29C022` is undocumented and D-06's unanimity refuses the entry regardless of how C-17 is resolved | a **PROBE**; see the two claim-cap readings below |
+| **C — the original D-03 leg** | `W29C040` | same `--force` path | a **PROBE**, explicitly capped by D-03 |
+| **D — the `0x06` Autoselect read** | *none* | — | **no bench leg exists, under D-03 or otherwise** |
+
+**What leg B can and cannot establish — the decomposition is the useful part:**
+
+| sub-claim | on silicon? | oracle |
+|-----------|-------------|--------|
+| (i) Product-ID mode entry/exit works on this part | **YES** | chip-ID reads back `0xDA45` — that *is* a positive control on `AA/55/90` → read → `AA/55/F0`. Available via leg A. |
+| (ii) the status **address** is the right one | **no** | no ground truth for what is at that address |
+| (iii) the `FF`/`FE` **decode** is right | **no** | requires knowing the part's true lock state independently |
+| (iv) the part's boot block **is** locked | **no, not without self-contradiction** | the only independent oracle is write→verify, which is destructive **and** is the *indirect* method `lockable-proms.md:3` excludes from the definition of "readable" |
+
+**The discipline this imposes on the plan, restated from D-03 and extended:** every
+probe result is recorded **either way**. On leg C (W29C040) D-03's cap binds
+directly: **no artifact may state that the `0x05` sequence is silicon-validated on
+the strength of that leg.** On leg B (W29C020) the cap's reach is genuinely open —
+textually it is scoped to "this leg" (the W29C040 run) and does not bind a
+different part the `:21` row does list as readable; purposively it exists because
+W29C040 is variant-dependent, a reason that extends to bare `W29C020` only under
+C-17's reading (b). **Both readings are laid out in §"What a `W29C020` bench leg
+can legitimately earn"; this research does not choose between them.**
+
+**What no bench leg earns, under any reading:**
+- sub-claims (ii)–(iv) — so **never** "the `0x05` sequence is validated";
+- anything about **`W29C020C`** or **`W29C022`** — one `<ic>`, one
+  `chip_id 0x0000da45`, indistinguishable on the wire (C-18), which makes a
+  family-level claim from a single part *less* supportable, not more;
+- anything about the **`0x06` Autoselect half** — leg D does not exist, so
+  `lock-status` on a `0x06` part ships **software-proven and unrun on silicon**,
+  and must say so in those words;
+- anything about **AT28C or `0x0D`** — the milestone Evidence Ceiling, unchanged
+  and untouched by any of this;
+- **closure of the v1.17 W29C040 RCA** — that RCA asked for a **second W29C040
+  sample**, and a `W29C020` is a different part. The payoff CONTEXT.md
+  §`<specifics>` funded these bytes for is now **partially** reachable, not
+  delivered.
+
+**Bench mechanics (reported, not planned):** chip handling is operator-only;
+driving the port is permitted.
 
 ### Sampling Rate
 
@@ -2545,6 +3105,20 @@ the leg is seen to pass**, and a pre-authored gate leg can be unreachable:
 7. **Do not write "fixtures byte-unchanged" or "tests byte-unchanged"** as a
    criterion anywhere in this phase. The a7w and 149-07 severances are the in-tree
    record of why; scope to *assertions-unchanged*, or name blob SHAs.
+8. **"The sequence is correct" is unsatisfiable, and so is "the sequence is
+   validated".** *(Added 2026-08-20.)* `infoic.xml` carries no sequence data
+   (finding 5), so both sequences are datasheet-derived and the strongest available
+   test is a pinned byte table plus a citation comment — a **change detector, not a
+   correctness proof**. And no bench leg supplies an oracle for the status address
+   or the decode (only for the *mode entry*, via the chip-ID read). The satisfiable
+   forms are: "the bytes are pinned with a `vendor / document / revision / page /
+   §section` citation and a test fires on any edit", and "the mode entry was
+   confirmed on silicon by a chip-ID read returning `0xDA45`".
+9. **A criterion phrased "the operator's `W29C020` answers `protected` /
+   `unprotected`" is unreachable by design.** *(Added 2026-08-20.)* That entry
+   refuses under D-06 because `W29C022` is undocumented, so the only reachable
+   output on that part is D-07's `unadjudicated_probe`. Any criterion expecting a
+   state class from it contradicts D-06.
 
 ---
 
@@ -2581,6 +3155,7 @@ pio test -e native            # toolchain already resolved
 | A new Python module | markdown-only under `doc/` | Rejected by D-05: two sources of truth with nothing keeping them equal. |
 | A pytest invariant module (D-12) | a phase-local `151-check-claims.py` | Rejected by D-12, on measured evidence — the `check_permitted_claims.py` family failed **open**. |
 | A new `CMD_*` at 16 + a widened parse gate | reusing `CMD_CHECK_CHIP_ID` with a new flag bit | Not evaluated by CONTEXT.md and **not** recommended: flag bits produce **silence** on old firmware (`serial_comm.py`'s D-15 note and `sdp_honesty`'s HOST-06 asymmetry), so D-04's `FirmwareOutdatedError` mapping would be **unreachable** — an unknown *command* errors, an unknown *flag* does not. Recording it so the planner can reject it for the right reason. |
+| A datasheet-cited pinned byte table for each sequence | deriving the sequences from `infoic.xml` | **Ruled out by measurement, not preference** (finding 5 / revised C-9, C-10): the file's complete per-chip datum is 20 parameter attributes with no child elements and no text; the only blob-shaped field, `config`, is `"NULL"` on every `0x05` and `0x06` entry. The operator's hypothesis was checked first, as directed, and the answer is a clean negative. |
 | A single status `u8` in an OK frame | extending `MSG_OK_READY` | `MSG_OK_READY` genuinely extends with zero codegen, but it is the operation-**setup** ack emitted on every command; every command would then pay the bytes and carry a protection claim. |
 
 ---
@@ -2738,6 +3313,7 @@ pio test -e native            # toolchain already resolved
 | A memory-command admission test | a spot check | the exhaustive `[0,255]` truth table in `test_cmd_admission.cpp` | exhaustiveness over the full `uint8_t` domain is what makes the two-env run a set-equality proof |
 | Admitting firmware growth | widening a band, or re-anchoring | a **new named, SHA-attributed exemption** | the two existing exemptions' comment blocks are the template, and the tripwire tests are the proof it stays armed |
 | Message-id allocation | picking a free-looking number | `codegen.py --check`'s 10-rule validator + the band map | **the ERROR band has exactly one free id (`0xBF`)** |
+| Sourcing the `0x05`/`0x06` sequence bytes | inferring them from `infoic.xml`, from `chip_info`, or from the neighbouring `FLASH_*` tables | a datasheet citation (`vendor / document / revision / page / §section`) + a pinned literal byte table | **measured negative:** `infoic.xml` carries 20 parameter attributes and no sequence data at all; `config="NULL"` on all 101 `0x05` and all 897 `0x06` entries; `chip_info` is constant `0x0000` on `0x05`. Inferring from `FLASH_ENABLE_WRITE_PROTECTION` would be worse — it is byte-identical to `FLASH_ENABLE_WRITE` and referenced by no executing code. |
 | A "field has no consumer" proof | prose | a source-scan **test** in the `test_b15_page_size_corroboration.py` shape | D-16 forbids a new *gate*; the in-tree precedent is a test that carries the measurement in its docstring and pins the count as a constant |
 
 **Key insight:** almost nothing in this phase is new machinery. Every mechanism it
@@ -2860,9 +3436,12 @@ answer needs none).
 
 ## Contradictions and Risks (Priority 10)
 
-**Reported, not reconciled.** Each entry names the two sources and what is
-measured. Per the phase constraints I do not propose an alternative design for any
-of them.
+**Reported, not reconciled — 19 entries (C-1 … C-19).** Each names the two sources
+and what is measured. Per the phase constraints I do not propose an alternative
+design for any of them. **C-17, C-18 and C-19 were added 2026-08-20** with the
+operator's `W29C020` and the `infoic.xml` / datasheet sweep; **C-9 and C-10 were
+revised** in the same pass and C-10's "empty by construction" verdict is
+**withdrawn**.
 
 ### C-1 — CLAUDE.md: "this repo tracks only `.planning/` and `.claude/`"
 **Says:** `/workspaces/CLAUDE.md` §"Repository Structure": *"This repo tracks only
@@ -2977,6 +3556,26 @@ datasheet before implementation.
 (`flash_nor_unlock_sector_erase` takes a caller-supplied address; the host's
 `erase --sector-address` supplies it). So a per-sector answer has no data source.
 
+**⚠ REVISED 2026-08-20 — `infoic.xml` checked, on operator direction, and it does
+NOT supply the offset.** C-9 therefore **stands as written and is now closed to
+`infoic.xml` as a source.** Measured against the pinned
+`a8efaedc236c1d9718bd28299dfbb99536b010ff/infoic.xml` (see §"Does `infoic.xml`
+Supply the Sequences? — a clean, evidenced NEGATIVE"): the complete per-chip datum
+is **20 attributes, zero child elements, zero text content**; there is no
+attribute name matching `cmd|seq|unlock|protect|addr|command`; the magic bytes
+`aa55`/`5555`/`2aaa` appear in **no attribute value** of any of the 11510 `<ic>`
+entries (2 accidental hits, both inside MICRON part *names*); `config` — the only
+blob-shaped field — is `"NULL"` on **all 897** `protocol_id="0x06"` entries; and
+`page_size` is `0x0000` across the whole `0x06` population. The only unused field
+that varies on `0x06`, `chip_info` (`0x0000`/`0x00e3`/`0x00e4`), is a
+vendor/algorithm-family cluster, not an address.
+**Consequence:** the offset is **datasheet-only**, which means it can carry a
+citation comment and a pinned byte table but **can never have an element-wise
+proof** against a machine-readable upstream. `infoic.xml` supplies exactly one
+relevant datum — `chip_id` (`AM29F040 → 0x000001a4`, `SST39SF040 → 0x0000bfb7`,
+`W49F020 → 0x0000da8c`), which is a **positive control for the mode entry** and
+says nothing about the status read.
+
 ### C-10 — the `0x05` sequence has no in-repo specification at all
 **Measured:** no Product-ID-mode entry distinct from `FLASH_ENABLE_ID`, no
 boot-block status address, no `FF`/`FE` lockout decode. The host's own hint
@@ -2986,11 +3585,54 @@ outcome (`MSG_WARN_FL4_BOOT_BLOCK_LOCKED 0x85`, `MSG_ERR_FL4_BOOT_BLOCK_LOCKED
 0xBC`) exist in the catalog and are **emitted by nothing**.
 **Risk:** the entire `0x05` half is being funded on a sequence that must be derived
 from a datasheet, on a family whose readable verdict D-03 restricts to W29C020C,
-whose DB entry refuses by default under D-06, and whose only bench access is via
-`--force` on a *different* part (W29C040) as a probe that may not be claimed as
-validation. **The path from "bytes spent" to "claim earned" is, by construction,
-empty for `0x05` in this phase.** Recorded plainly because CONTEXT.md
-§`<specifics>` says those bytes were funded specifically for the v1.17 payoff.
+and whose DB entry refuses by default under D-06.
+
+**⚠ REVISED 2026-08-20 — two operator inputs change this verdict. The
+"empty by construction" conclusion is WITHDRAWN.**
+
+*(a) `infoic.xml` is now closed as a source, confirming the sequence-provenance
+half.* Same measurement as C-9: `config="NULL"` on **all 101** `protocol_id="0x05"`
+entries, no address-typed or sequence-typed attribute exists at all, and
+`chip_info` is **constant `0x0000`** across the entire `0x05` population — so there
+is not even a discriminator to work with. The `0x05` Product-ID boot-block status
+address and its `FF`/`FE` decode are **datasheet-only**, and `datasheets/` contains
+**nothing** for the `W29C0xx` family (the tracked `W27C020.pdf` is algorithm
+`0x08`, a different family — see C-19).
+
+*(b) The operator has a `W29C020`, and that gives the `0x05` half a real, if
+narrow, payoff chain — so "empty by construction" was wrong.* Corrected, with the
+chain named end to end:
+
+- **The reachable path:** `dev lock-status W29C020 --force` → D-07's
+  `unadjudicated_probe` → the `0x05` sequence executes on silicon. `--force` is
+  required **even on the operator's own part**, because the DB entry's third alias
+  `W29C022` is undocumented and D-06's unanimity refuses the entry regardless of
+  how bare `W29C020` is curated. So the chain runs **through `--force`, on the
+  `W29C020`**, and it is not empty.
+- **What it earns, at most:** that the sequence was exercised on one Winbond
+  `W29C020` sample and returned a decodable value. Under D-03's *narrow/textual*
+  reading the W29C040 claim-cap does not bind a different leg on a part the `:21`
+  row does list as readable; under its *purposive* reading it does. Both readings
+  are laid out in §"What a `W29C020` bench leg can legitimately earn" — **this
+  research does not set the claim policy.**
+- **The genuinely new finding:** the sequence decomposes, and its **mode-entry**
+  half is verifiable on silicon **today, with zero new code**. `firestarter id
+  W29C020` already runs `FLASH_ENABLE_ID` → read `0x0000`/`0x0001` →
+  `FLASH_DISABLE_ID` and must return **`0xDA45`**. The *status address* and the
+  *decode* remain unverifiable (no independent oracle short of a destructive
+  write→verify, which is the *indirect* method `lockable-proms.md:3` excludes from
+  "readable" by definition).
+- **What it still does NOT earn:** validation of the `0x05` sequence; any claim
+  about `W29C020C` or `W29C022` (indistinguishable on the wire — one `<ic>`, one
+  `chip_id 0x0000da45`, see C-18); anything about the **`0x06` Autoselect half**,
+  which has **no bench leg at all** and ships software-proven and unrun on silicon;
+  and anything about AT28C or `0x0D`, barred by the milestone Evidence Ceiling.
+
+Recorded this way because CONTEXT.md §`<specifics>` says those bytes were funded
+specifically for the v1.17 payoff: that payoff is now **partially** reachable —
+a corroborating read on a related part — rather than unreachable, and it is
+**still not the closure the v1.17 RCA asked for**, which wanted a second W29C040
+sample.
 
 ### C-11 — the ERROR message band has one free id
 **Measured** `[CMD tomllib over tools/catalog/messages.toml]`: ERROR (0xA0–0xBF)
@@ -3033,6 +3675,77 @@ error to warning (`flash_utils.cpp:96-102`); on the host it is threaded via
 **Note:** D-07's `--force` is a **host-side** bypass of a **table** refusal — a new
 meaning for the same flag name. Whether the wire bit is even sent is undecided.
 
+### C-17 — ⚠ `lockable-proms.md` is internally inconsistent about bare `W29C020`
+*(Added 2026-08-20 after the operator reported having a `W29C020`.)*
+**Says, at `:21`:** the row key is `**W29C020 / W29C020C**` and the single set of
+column values is `Yes—special` / "Bottom and top 8 KB boot blocks" / permanence
+`Yes` / "Read boot-block status in Product ID mode" — i.e. the table's verdict
+covers **both** parts, consistent with §1's own `X / Y` sibling-suffix idiom used
+at `:20`, `:22` and `:23`.
+**Says, at `:30`, `:335` and `:350`:** every restatement of the claim outside the
+table names **`W29C020C` and only `W29C020C`** — the emphasis sentence
+(*"For the **W29C020C**, the bottom and top boot-block states are explicitly
+readable"*) and **both** §Practical-summary bullets (readable-lock-status list;
+potentially-irreversible list).
+**Measured:** bare `W29C020` appears **exactly once** in the whole 399-line
+document — the `:21` row key — and in none of the four narrowing restatements
+`[CMD grep -n "W29C02\|W49F002\|W29C010\|W29EE01" doc/lockable-proms.md]`.
+**Why it matters:** it decides whether the operator's part is inside or outside the
+documented-readable set, and **neither reading is safe**: reading the row as
+authoritative attributes a verdict three restatements decline to repeat, and
+reading the restatements as authoritative attributes an exclusion the table does
+not state. It also has **no slot in D-06's three states** — bare `W29C020` is not
+`undocumented` (it is in the document) yet is not unambiguously
+`documented-readable` either. Resolving it *is* the per-entry adjudication D-06's
+rejected alternative forbids, so it must be surfaced, not curated away.
+
+### C-18 — the three `W29C020*` aliases are indistinguishable to the programmer
+*(Added 2026-08-20.)*
+**Measured** against the pinned `infoic.xml`: `W29C020`, `W29C020C` and `W29C022`
+are **one** `<ic>` entry with **one** `chip_id="0x0000da45"`, one
+`pin_map="0x0000190b"`, one `page_size="0x0080"`, one `flags="0x0040c078"`. The
+generated DB carries them as one row with `chip_id_value: "0x0000da45"` and
+`chip_id_check: true`.
+**Why it matters:** a per-alias readability distinction is **unobservable on the
+wire**. Whatever C-17 is resolved to, the firmware cannot tell which of the three
+parts is in the socket, so a bench result on a `W29C020` cannot be attributed to
+`W29C020C` (the part the document does call readable) and cannot be excluded from
+`W29C022` (the part no source document covers). This *weakens* rather than
+strengthens any family-level claim from a single-part leg, and it is the measured
+reason D-06's one-entry-one-answer rule is right here.
+
+### C-19 — ⚠ two live datasheet traps in `firestarter_app/datasheets/`
+*(Added 2026-08-20.)*
+**Measured** `[CMD ls -la datasheets/ ; git ls-files datasheets/ ; git status --porcelain datasheets/]`:
+the directory holds **7** PDFs, of which **3 are git-tracked** — `AT28C256.pdf`,
+`SST39SF0x0A.pdf`, `W27C020.pdf` — and 4 are untracked (`M27C1001.pdf`,
+`M27C512.pdf`, `W27C512.pdf`, `W27E257.pdf`).
+**Trap 1 — a one-character family collision.** `W27C020.pdf` is a **Winbond
+`W27`C020** datasheet, and `W27C020` resolves in the DB to
+`WINBOND | W27C02,W27C020,W27E02,W27E020,W27L02`, **algorithm `0x08`** — a
+27-series part, **not** the `W29C020` (`algorithm 0x05`) this phase is about.
+Same shape as the project's already-documented ST `M27C512` vs Winbond `W27C512`
+trap. **Nothing in `datasheets/` covers the `W29C0xx` family.**
+**Trap 2 — the one tracked `0x06` datasheet is for a non-readable family.**
+`SST39SF0x0A.pdf` covers SST39SF010A/020A/040, which **are** `algorithm 0x06` rows
+— but `lockable-proms.md:222` marks them **"No explicit lock bit"** (SDP + hardware
+write inhibit) and `:229` states the datasheet *"describes hardware and software
+data protection, but not conventional individually lockable sectors with a
+sector-status query."* So it cannot source the Autoselect sector-protect verify.
+**Also measured:** `firestarter/doc/PROTOCOLS.md:97,100,103` cites
+`datasheets/0x05-FLASH-AMD-STD/W29C020.pdf p.9 §Write Operation` and
+`W29C040.pdf p.11 §Page Write` / `p.12 §Chip Erase` — **a path that does not exist
+in the working tree**. The citations are real and the convention
+(*vendor + document + page + §section*) is the one LOCK-01 should follow, but the
+files are not there.
+**Tooling limitation, recorded rather than worked around:** no `pdftotext`,
+`pdfinfo`, `mutool`, `pypdf` or `pymupdf` is available in this environment; a
+stdlib `zlib` + text-operator extraction yields glyph-encoded output (subset fonts,
+custom encodings) and a grep for
+`autoselect|sector protect|product id|software data protection|boot block|29C020`
+returned **zero hits** on both tracked candidates. **No datasheet claim anywhere in
+this document is sourced from a PDF.**
+
 ---
 
 ## Package Legitimacy Audit
@@ -3069,8 +3782,11 @@ before it is written into a task, and every version pin must be re-verified with
 | `framework-arduino-avr` (+ MiniCore) | AVR builds | ✓ | `5.3.0` / MiniCore `3.1.2` | none |
 | ArduinoFake (native) | native Unity suites | ✓ | resolved by PlatformIO | none |
 | Meta-repo `tools/catalog/codegen.py` | message-catalog regen | ✓ | stdlib-only, needs Python **3.11+** for `tomllib` | 3.12 satisfies it |
-| Bench: operator's **W29C040** part + a programmer port | D-03's probe **only** | operator-gated | — | the probe is optional by design; its absence blocks no software claim |
-| `infoic.xml` | nothing in this phase | ✗ (gitignored, `.gitignore:29`, not committed) | — | **not needed** — nothing reads it at runtime or in CI, and this phase must not |
+| Bench: operator's **W29C040** part + a programmer port | D-03's probe (leg C) | operator-gated | — | the probe is optional by design; its absence blocks no software claim |
+| `infoic.xml` | **the sequence-provenance question only** (checked 2026-08-20 on operator direction) | ✗ in-repo (gitignored, `.gitignore:29`) — **✓ fetched this session** from the pinned `a8efaedc…` revision via `tools/derive_sdp_partition.py`'s own mechanism | 17 861 009 bytes at `a8efaedc236c1d9718bd28299dfbb99536b010ff` | **not needed at build/test time** — nothing reads it at runtime or in CI, and this phase must not introduce a dependency on it. The sweep was one-off and wrote nothing into either repo. |
+| PDF text extraction (`pdftotext` / `pypdf` / `pymupdf` / `mutool`) | reading the tracked candidate datasheets | **✗ none available** | — | **no fallback that works** — stdlib `zlib` extraction yields glyph-encoded output. Recorded as assumption **A8**; the datasheet conclusions rest on measured DB-algorithm and `lockable-proms.md` facts instead. |
+| `firestarter_app/datasheets/` coverage of `W29C0xx` | sourcing the `0x05` sequence | **✗ absent** | — | none in-tree; `W27C020.pdf` is algorithm `0x08`, a different family (C-19). `PROTOCOLS.md:97,100,103` cites a `datasheets/0x05-FLASH-AMD-STD/W29C020.pdf` path that does not exist. |
+| Bench: operator's **W29C020** part | leg A (mode-entry control, zero new code) and leg B (the `0x05` probe) | **✓ operator has one** (reported 2026-08-20) | — | leg A needs no new code at all; leg B is `--force`-only under D-07 |
 
 **Missing dependencies with no fallback:** none.
 
@@ -3277,8 +3993,10 @@ absent), so this section is included.
 
 | # | Claim | Section | Risk if wrong |
 |---|-------|---------|---------------|
-| A1 | The AMD Autoselect sector-protect verify is a read at **`SA + 0x02`** in the same `AA-55-90` mode, returning `0x00` unprotected / `0x01` protected | §"The `0x06` / `0x05` Read Sequences" (from CONTEXT.md D-02) | The `0x06` sequence reads the wrong address and returns garbage that must not be reported. `lockable-proms.md` deliberately defers the exact wiring to the datasheet. **Must be sourced from a datasheet before implementation.** |
-| A2 | The Winbond Product-ID-mode boot-block status read is a distinct entry sequence from `FLASH_ENABLE_ID`, with a specific status address and an `FF`/`FE` lockout encoding | same | The `0x05` sequence cannot be written at all. **Nothing in the repository specifies it**; the only in-tree reference is a host hint describing a read that does not exist. |
+| A1 | The AMD Autoselect sector-protect verify is a read at **`SA + 0x02`** in the same `AA-55-90` mode, returning `0x00` unprotected / `0x01` protected | §"The `0x06` / `0x05` Read Sequences" (from CONTEXT.md D-02) | The `0x06` sequence reads the wrong address and returns garbage that must not be reported. `lockable-proms.md` deliberately defers the exact wiring to the datasheet. **Still `[ASSUMED]` — and now narrowed: `infoic.xml` has been checked and does NOT supply it (finding 5 / revised C-9), so a datasheet is the only remaining source and the offset can never be machine-proven, only cited and pinned.** |
+| A2 | The Winbond Product-ID-mode boot-block status read is a distinct entry sequence from `FLASH_ENABLE_ID`, with a specific status address and an `FF`/`FE` lockout encoding | same | The `0x05` sequence cannot be written at all. **Nothing in the repository specifies it**; the only in-tree reference is a host hint describing a read that does not exist. **Still `[ASSUMED]` — `infoic.xml` checked and negative (`config="NULL"` and `chip_info` constant `0x0000` on all 101 `0x05` entries), and `datasheets/` contains nothing for the `W29C0xx` family (C-19).** |
+| A8 | That the two tracked candidate PDFs (`SST39SF0x0A.pdf`, `W27C020.pdf`) do not contain the missing sequence specifications | §"Then the datasheet…" / C-19 | **I could not read them.** No `pdftotext`/`pdfinfo`/`mutool`/`pypdf`/`pymupdf` in this environment; stdlib `zlib` extraction yields glyph-encoded output and a grep for the relevant terms returned zero hits. The conclusion rests instead on **two measured facts, not on reading the PDFs**: `W27C020` is DB algorithm `0x08` (a different family), and `lockable-proms.md:222,229` records SST39SF as having no readable sector-status query. If someone with a PDF reader finds an Autoselect sector-protect table in `SST39SF0x0A.pdf`, that would contradict `lockable-proms.md`, not this row. |
+| A9 | The two D-03 claim-cap readings (textual/narrow vs purposive) are the only two available | §"What a `W29C020` bench leg can legitimately earn", revised C-10 | If the operator intends a third reading, the claimable set changes. **This research deliberately does not choose between them** — it lays out what each permits so the planner can fund the right acceptance criteria. |
 | A3 | Byte-cost figures for any unwritten firmware (shared vs duplicated helper, status-byte vs per-region frame, the parse-gate change) | §"The `0x06` / `0x05` Read Sequences", §"Firmware Wire-Protocol Design Inputs" | A MERGE-05 exemption sized from an estimate is wrong. **Every figure is labelled `[ESTIMATE]`; only a cold `rm -rf .pio/build/<env>` + one `pio run -e <env>` per env produces a usable number.** No build was run this session. |
 | A4 | Bit 14 gates minipro `-u` and bit 15 gates minipro `-P`; the protect op is an opaque TL866 opcode `0x18`/`0x19` | §"DATA-06's Documentation Home" (from the folded todo) | DATA-06's "capability, not policy" framing loses its grounding. `infoic.xml` is gitignored and uncommitted, so this cannot be re-verified in-repo; the minipro `database.c` permalink @ `a8efaedc` is the citation of record. |
 | A5 | `lockable-proms.md`'s per-family datasheet verdicts (W29C020C readable + permanent; AT29C/AT28C not readable; AMD/Fujitsu/Macronix/ST readable) | §"The Curated Table's Source Document" | LOCK-01's entire readability axis. These are `[CITED: doc/lockable-proms.md]` with 8 web-fetched datasheet PDF references, several carrying `utm_source=chatgpt.com`. **The provenance of those references is worth an operator eye before 126 rows are transcribed on their authority.** |
@@ -3286,8 +4004,9 @@ absent), so this section is included.
 | A7 | "Physical flash headroom is ample" — leonardo `flash_free` 5556 B is genuinely usable | §"Live Firmware Size Figures" | It is usable only because a7w forfeited Caterina's 4096 B and the linker no longer protects it. Growing past the **old** 28672 B ceiling now overwrites the USB bootloader. This is `[FILE size_baseline.json meta]`, i.e. documented, but the *safety* consequence is real and the operator declined a compensating guard. |
 
 **Nothing else in this document is assumed.** Every count, line number, band
-figure, fixture value, test name, gate wiring and file path was read from the tree
-or computed by a quoted command this session.
+figure, fixture value, test name, gate wiring, XML attribute and file path was read
+from the tree, from the pinned upstream `infoic.xml`, or computed by a quoted
+command this session.
 
 ---
 
@@ -3308,10 +4027,15 @@ or computed by a quoted command this session.
    - *Unclear:* widen the ordinal test, or something else.
    - *Recommendation:* make it its own task with its own native test driving `parse_json` for the new ordinal, and decide it **before** the wire shape, because it determines the byte cost and therefore the exemption.
 
-4. **Does the `0x05` half still earn its bytes?** (C-10)
-   - *Known:* no in-repo spec; D-03 restricts the readable verdict to W29C020C; D-06 makes that entry refuse by default because of `W29C022`; the only bench access is `--force` on W29C040 as an unclaimed probe.
-   - *Unclear:* nothing in this phase can convert those bytes into a claim.
-   - *Recommendation:* report, do not redesign — D-02 is locked. But the plan should state the payoff honestly rather than implying the v1.17 RCA closes.
+4. **Does the `0x05` half earn its bytes? — REVISED 2026-08-20, and the answer is now "partially".** (revised C-10)
+   - *Known:* `infoic.xml` is closed as a source (finding 5), so the sequence is datasheet-only and only pinnable, never provable. But the operator has a `W29C020`, so a reachable chain exists: `--force` → `unadjudicated_probe` → the sequence runs on silicon. And the **mode-entry half is verifiable today with zero new code** (`firestarter id W29C020` → `0xDA45`).
+   - *Unclear:* how far D-03's W29C040-scoped claim-cap reaches to a W29C020 leg (two readings, both laid out); and whether the status address/decode can ever be claimed at all (they have no oracle).
+   - *Recommendation:* report, do not redesign — D-02 and D-03 are locked. The plan should state the payoff as **partial corroboration on a related part**, and must not imply the v1.17 RCA closes — that RCA asked for a second **W29C040** sample.
+
+7. **How is C-17 resolved — is bare `W29C020` `documented-readable`?**
+   - *Known:* the `:21` row key covers it; `:30`, `:335`, `:350` and `:25` all narrow to `W29C020C`; bare `W29C020` appears exactly once in 399 lines. C-18 makes the distinction unobservable on the wire anyway (one `<ic>`, one `chip_id 0x0000da45`).
+   - *Unclear:* which reading the curated table transcribes. **Neither is safe**, and D-06's three states have no slot for "documented, but the document's own summary declines to repeat the verdict".
+   - *Recommendation:* operator decision. Resolving it in a curator's head is exactly the per-entry adjudication D-06's rejected alternative forbids, and DATA-04 polices this precise edge. Note the practical stakes are lower than they look: the entry refuses by default under **either** reading, because of `W29C022`.
 
 5. **Does a new message id fit?** (C-11)
    - *Known:* one free ERROR id (`0xBF`); WARN/INFO/DATA have room; `MSG_WARN_FL4_BOOT_BLOCK_LOCKED` / `MSG_ERR_FL4_BOOT_BLOCK_LOCKED` already exist unemitted.
@@ -3352,16 +4076,33 @@ or computed by a quoted command this session.
 - `grep -E "^(RAM|Flash):"` over all live size fixtures
 - `git ls-files`, `git log --oneline`, `md5sum`, `wc -l`, `ls`, `which python3`
 
+### Secondary — the pinned upstream `infoic.xml` (MEDIUM-HIGH; machine-readable, re-derivable)
+- `https://gitlab.com/DavidGriffith/minipro/-/raw/a8efaedc236c1d9718bd28299dfbb99536b010ff/infoic.xml`
+  — 17 861 009 bytes, fetched this session via the mechanism
+  `firestarter_app/tools/derive_sdp_partition.py` `_load_infoic_xml()` (`:74-83`) /
+  `MINIPRO_XML_URL` (`:60-64`) already uses, at the same revision the project
+  cites throughout. Parsed with `xml.etree.ElementTree`, section
+  `.//database[@type='INFOIC2PLUS']` (the section `build_db.py:454` reads).
+  Measurements taken: full `<ic>` attribute census; child/text census; `config`
+  value distribution; per-protocol value sets for all eight unused fields;
+  `chip_info` cluster analysis; a magic-byte regex over every attribute value of
+  all 11510 entries; verbatim dumps of the `W29C020*`, `W29C040*`, `W29EE011`,
+  `AM29F040`, `SST39SF040` and `W49F020` entries. **Nothing was written into either
+  repository.**
+
 ### Tertiary (LOW — not verifiable in this repository)
 - Datasheet-level protection claims in `doc/lockable-proms.md` and its 8 external references (Infineon, Macronix, Microchip PDFs) — `[CITED]`, see A5
 - minipro `database.c` bit semantics @ `a8efaedc` — cited by permalink in the field dictionary and the folded todo; `infoic.xml` itself is gitignored and uncommitted — `[CITED]`, see A4
 - The `SA + 0x02` Autoselect offset and the W29C020C Product-ID status address — `[ASSUMED]`, see A1/A2
 
-**No external search or documentation-fetch provider was used.** Every question this
-phase raised was answerable from the three repositories, so the research-plan seam
-would have returned cache-miss items with no better source than the tree itself.
-Two questions were **not** answerable in-tree and are recorded as `[ASSUMED]` (A1,
-A2) rather than answered from training data dressed as fact.
+**No external search or documentation-fetch provider was used, and no datasheet PDF
+was fetched or added to any repository.** The one external artifact retrieved was
+the pinned upstream `infoic.xml`, on operator direction and through the project's
+own existing reproducible loader. Two questions remain **not** answerable from any
+source available here — the `SA + 0x02` offset and the Product-ID status
+address/decode — and stay recorded as `[ASSUMED]` (A1, A2) rather than answered
+from training data dressed as fact; the inability to read the tracked candidate
+PDFs is recorded as **A8** rather than papered over.
 
 ---
 
@@ -3371,13 +4112,15 @@ A2) rather than answered from training data dressed as fact.
 - **Live firmware size figures & MERGE-05 arithmetic:** HIGH — read from two committed baselines and the checker's literals, with the arithmetic re-derived and cross-checked against every planted fixture's actual `Flash:`/`RAM:` line.
 - **DB counts (all of D-09 and D-14):** HIGH — computed this session; every quoted figure verified; the two discrepancies found (the 405-vs-406 enumeration, the 2 key-less rows) are stated with their causes.
 - **Firmware wire-protocol facts:** HIGH for what exists (enum, gates, dispatch sites, mirror sites, message bands); LOW for byte costs of what does not (labelled `[ESTIMATE]`).
-- **Read sequences:** MEDIUM — the reusable primitives are HIGH (quoted in full); the sequences themselves are `[ASSUMED]` and must come from a datasheet.
+- **Read sequences:** MEDIUM overall. The reusable primitives are HIGH (quoted in full). The **negative** result — that `infoic.xml` carries no sequence data — is **HIGH**: it rests on an exhaustive attribute census, a magic-byte scan over every attribute value of all 11510 entries, and `config="NULL"` on all 998 relevant entries. The sequences themselves remain `[ASSUMED]` (A1, A2) and must come from a datasheet, which caps them at *pinnable*, never *provable*.
 - **Host patterns and gate wiring:** HIGH — every file, line, assertion and invocation path read directly, including the non-obvious finding that the invariant gate runs via pytest and not via a CI step.
 - **`lockable-proms.md` transcription surface:** HIGH on structure and counts (126 rows, the Key/row vocabulary mismatch, the token-coverage matrix); MEDIUM on the datasheet verdicts themselves.
 - **Test/CI environment:** HIGH — workflows, extras, watermarks, select lists and env/suite mappings all measured; the six-suites-outside-CI and markdown-fires-no-CI findings are new.
-- **Contradictions:** HIGH — 16 found, each with both sources named and the measurement that separates them.
+- **Contradictions:** HIGH — **19** found (C-1 … C-19; C-17/C-18/C-19 added 2026-08-20 with the operator's `W29C020` and the infoic/datasheet sweep), each with both sources named and the measurement that separates them.
 
-**Research date:** 2026-08-20
+**Research date:** 2026-08-20 (initial sweep + a same-day follow-up answering two
+operator inputs: the `W29C020` in inventory, and the direction to check
+`infoic.xml` for the sequences before the datasheet)
 **Tree state:** meta `8e90dbf5` · firmware `8286916` (a7w landed) · app `9cc57c7`; all three on `gsd/v1.32-at28c-write-path-root-cause-report-provenance`
 **Valid until:** ~2026-09-03 (14 days) for the host/doc facts. **The firmware size
 figures expire the moment any firmware commit lands** — re-read both baselines
