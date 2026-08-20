@@ -1,5 +1,5 @@
 ---
-title: "one-rom chip-types.json vs pinouts.json — external corroboration result (POSITIVE for the bus-map axis, vacuous for the programming axis)"
+title: "one-rom chip-types.json vs pinouts.json — external corroboration result (8/15 families genuinely corroborated; 3 are CIRCULAR; vacuous for the programming axis)"
 date: 2026-08-20
 context: "/gsd-explore: can the files in piersfinlayson/one-rom rust/config/json be used to confirm the firestarter database?"
 ---
@@ -9,39 +9,66 @@ context: "/gsd-explore: can the files in piersfinlayson/one-rom rust/config/json
 Investigated whether [One ROM](https://github.com/piersfinlayson/one-rom)'s published
 hardware config JSON can serve as a second source for `firestarter_app/firestarter/data/pinouts.json`.
 
-**Verdict: POSITIVE for bus maps — 12 of our 15 pinout families now have independent
-corroboration, with zero defects found. VACUOUS for the programming axis**, which is where
-every recent defect has actually landed. Both halves of that verdict are load-bearing; the
-second half is the reason this is not a general-purpose validation source.
+**Verdict: POSITIVE for bus maps, but weaker than a naive diff suggests — and this is the
+third use of this source, not the first.** Of 15 pinout families: **8 genuinely corroborated**,
+**2 ambiguous**, **3 CIRCULAR** (their pin maps were *authored from* one-rom, so their
+agreement proves nothing), 1 family-superset non-comparison, 1 with no counterpart. Zero new
+defects found. **VACUOUS for the programming axis**, where every recent defect has actually
+landed.
+
+Read the "Prior art" section before treating any of this as new.
+
+## Prior art — this source has already caught two real defects here
+
+**Do not re-discover this.** One ROM was cross-checked against our pin maps on **2026-05-13**
+(meta commit `fd9efaea`, phase 04 hardware validation) and the findings were acted on in
+**2026-05-20** (`a332464`, "correct pinouts for SST39SF040 / 28C256 / 2732 / 6116 families —
+one-rom verified"). That pass found **two genuine defects**:
+
+1. **AT28C256 was routed to `DIP28_2764`** — wrong. Per one-rom's `28C256`, it needs 15
+   address lines with **A14 at pin 1 (not VPP)** and **WE at pin 27 (not PGM)**. Algorithm
+   dispatch was already correct via WARNING-5 → `configure_eeprom28c`; the *pinout* was wrong.
+   Fix: authored `DIP28_28C256`, moved 8 chips onto it.
+2. **SST39SF040 was routed to `DIP32_STD`** (a 27C040 layout) — **pins 1 and 31 swapped**.
+   Per one-rom, SST39SF040 has A18 at pin 1 (not VPP) and WE at pin 31 (not an address line).
+   This **likely explained the 2026-05-12 bench failure** (chip-ID reading `0x0000` +
+   address-bus crosstalk symptoms) that had been attributed to a dead chip. Fix: authored
+   `DIP32_SST39SF040`, moved 47 chips onto it.
+
+That same commit also moved 16 chips `DIP24_2716` → `DIP24_2732` (a 2K layout was being used
+for 4K parts) and 2 chips → `DIP24_6116` + type SRAM. 92 database entries changed in total.
+
+So the track record is the strongest argument this source has: **it has already found a
+bench-visible defect here that we had misattributed to hardware.** What it has *not* done is
+get re-run since — the May pass covered "priority chips", not all 15 families.
+
+## Why it is an independent oracle
+
+1. **Different lineage.** No relationship to `infoic.xml`. Authored from datasheets by a
+   different maintainer for a different product. Contrast the candidates rejected in
+   `research/questions.md` — most open programmer tables are infoic forks, and a fork
+   corroborates nothing.
+2. **Different validation oracle.** One ROM *emulates* a ROM; it never programs one. Its bus
+   maps are proven by the emulator working when seated in a real retro machine — in-circuit
+   read-path evidence, orthogonal to our write-path bench evidence.
+3. **Disjoint blind spot.** No VPP millivolts, no `pulse_duration_us`, no algorithm, no chip
+   ID, no page size — so where it speaks, it speaks only about the axis `pinouts.json` owns.
+
+Active project (345 stars, `updated_at` 2026-08-20), so a maintained source, not a stale snapshot.
+
+**But independence is per-family, not global.** Any family whose pins we *authored from*
+one-rom cannot be corroborated by one-rom. Three families are in that position. Getting this
+wrong is the single easiest way to manufacture false confidence from this source.
 
 ## What's in the directory
 
 26 files, two unrelated kinds:
 
 - **`fire-*.json` / `ice-*.json` (24 files)** — One ROM PCB hardware configs: RP2350/STM32F4
-  GPIO-to-pin-type mappings and jumper-header layouts, so new PCB revisions need no source
-  change. **No relevance to us.** Do not re-read these hoping for chip data.
+  GPIO-to-pin-type mappings and jumper-header layouts. **No relevance to us.** Do not re-read
+  these hoping for chip data.
 - **`chip-types.json` (58601 bytes, 37 entries — 34 real chip types + 3 plugin stubs)** — the
   only file that matters.
-
-## Why it is an independent oracle
-
-This is the whole basis of the result, so it is worth stating precisely. Three separate
-grounds for independence, and they do not collapse into each other:
-
-1. **Different lineage.** No relationship to `infoic.xml`. Authored from datasheets by a
-   different maintainer for a different product. Contrast the candidate sources rejected in
-   `research/questions.md` — most open programmer tables are infoic forks, and a fork
-   corroborates nothing.
-2. **Different validation oracle.** One ROM *emulates* a ROM; it never programs one. Its bus
-   maps are proven by the emulator working when seated in a real retro machine. That is
-   in-circuit read-path evidence, orthogonal to our write-path bench evidence.
-3. **Disjoint blind spot.** It carries no VPP millivolts, no `pulse_duration_us`, no
-   algorithm, no chip ID, no page size — so where it *does* speak, it speaks about the one
-   axis `pinouts.json` owns, and nothing else.
-
-Active project (345 stars, `updated_at` 2026-08-20), so this is a maintained source rather
-than an abandoned snapshot.
 
 ## Schema correspondence
 
@@ -58,10 +85,9 @@ Near-1:1, which is why the diff is mechanical rather than interpretive:
 | `programming.pgm.pin` | (no direct equivalent — see `DIP32_27C020` below) |
 | `power[].pin` where `name == "VCC"` / `"GND"` | `vcc-pin` / `gnd-pin` |
 | `control.*.type` (`fixed_active_low` / `configurable`) | (**not representable** — see below) |
-| `size`, `pins`, `aliases`, `bit_modes` | `electrical.size_bytes`, `.pin_count` (in the generated DB, not here) |
 
 Both sides number pins as physical DIP positions and both order the address list A0-first.
-The `control.*.type` row is the one real schema gap on our side and it is the blocker in
+The `control.*.type` row is the one real schema gap on our side, and it is the blocker in
 [`seeds/mask-rom-24pin-read-support.md`](../seeds/mask-rom-24pin-read-support.md).
 
 ## Result
@@ -70,59 +96,56 @@ Snapshot: blob `56cb04ca91e66aef0fd15236cc357602367c2b05`, `main`, fetched 2026-
 Fields compared: `address-bus-pins`, `data-bus-pins`, `ce-pin`, `oe-pin`, `rw-pin`,
 `vpp-pin`, `vcc-pin`, `gnd-pin`.
 
-### 11 families byte-identical on every compared field
+**12 families are byte-identical on every compared field. What that's worth depends entirely
+on provenance**, so the table carries it:
 
-| firestarter family | one-rom type | chips routed |
-|---|---|---|
-| `DIP24_2716` | `2716` | 15 |
-| `DIP24_2732` | `2732` | 16 |
-| `DIP24_2816` | `28C16` | 19 |
-| `DIP24_6116` | `6116` | 7 |
-| `DIP28_27256` | `27256` | 67 |
-| `DIP28_27512` | `27512` | 45 |
-| `DIP28_28C64` | `28C64` | 35 |
-| `DIP28_28C256` | `28C256` | 30 |
-| `DIP32_28C512_EEPROM` | `28C512` | 18 |
-| `DIP32_SST39SF040` | `SST39SF040` | 255 |
-| `DIP32_STD` | `27C040` | 78 |
+| firestarter family | one-rom type | chips | pins authored | corroborating? |
+|---|---|---|---|---|
+| `DIP24_2716` | `2716` | 15 | `86a31ca` 05-08 | **yes** — predates any one-rom use |
+| `DIP24_2732` | `2732` | 16 | `86a31ca` 05-08 | **yes** — `a332464` changed only *routing* onto it, not its pins |
+| `DIP28_27256` | `27256` | 67 | `86a31ca` 05-08 | **yes** — predates |
+| `DIP28_27512` | `27512` | 45 | `86a31ca` 05-08 | **yes** — predates; also checked-and-unchanged in the May pass |
+| `DIP32_STD` | `27C040` | 78 | `86a31ca` 05-08 | **yes** — predates |
+| `DIP28_JEDEC_SRAM_8K` | `28C64` | 14 | `b0d939f` 05-13, from XML `type=4` | **yes** — independent derivation; checked-unchanged in May |
+| `DIP24_2816` | `28C16` | 19 | `fa0c1a4` 06-09 | **yes** — postdates, no one-rom reference |
+| `DIP28_28C64` | `28C64` | 35 | `ff70920` 05-13 | **ambiguous** — same day as the cross-check, message is silent |
+| `DIP32_28C512_EEPROM` | `28C512` | 18 | `ff70920` 05-13 | **ambiguous** — same as above |
+| `DIP24_6116` | `6116` | 7 | `a332464` 05-13 | **NO — circular.** Created *from* one-rom |
+| `DIP28_28C256` | `28C256` | 30 | `a332464` 05-13 | **NO — circular.** Created *from* one-rom |
+| `DIP32_SST39SF040` | `SST39SF040` | 255 | `a332464` 05-13 | **NO — circular.** Created *from* one-rom |
 
-585 of 746 database rows ride those 11 families. Note `DIP28_28C256` is the family
-**AT28C256** uses — the v1.32 write-path target that Phase 149 left untouched — and it agrees
-exactly, so the AT28C256 bus map is not a candidate explanation for anything in that
-investigation.
+Note `DIP28_JEDEC_SRAM_8K` pairs with one-rom **`28C64`**, not `62256` — 13 address lines,
+CE 20, OE 22, WE 27, and our `nc-pin: [1, 26]` matches their "pin 1 NC". Pairing it against
+`62256` (32 KB, 15 lines) produces a spurious DIFF; the May pass got this right and a fresh
+attempt can easily get it wrong.
 
 ### 1 family corroborated semantically, not literally — and it settles an open question
 
-`DIP32_27C020` (88 chips): ours carries `rw-pin: [31]`, theirs has no `control.write`. **Not a
-divergence.** One ROM records `programming.pgm.pin = 31` for **both** `27C010` and `27C020`,
-independently confirming the premise behind the Phase 98-03 / CR-01 fix (commit `3659121`,
-from an operator schematic study): on ≤256K parts pin 31 is **/PGM, not A18**. Our `rw-pin`
-is the mechanism that drives it — host resolves pin 31 → `pin_conversions[32][31] = 22` →
-`config.rw_line = 22`, which the firmware folds into `CTRL_READ_WRITE` (0x40).
+`DIP32_27C020` (88 chips, authored `38b55d5`/`3659121` 06-30/07-01 from `AM27C020.pdf` plus an
+operator schematic study — **no one-rom involvement, so genuinely corroborating**): ours
+carries `rw-pin: [31]`, theirs has no `control.write`. **Not a divergence.** One ROM records
+`programming.pgm.pin = 31` for **both** `27C010` and `27C020`, independently confirming the
+CR-01 premise: on ≤256K parts pin 31 is **/PGM, not A18**. Our `rw-pin` is the mechanism that
+drives it — host resolves pin 31 → `pin_conversions[32][31] = 22` → `config.rw_line = 22`,
+which the firmware folds into `CTRL_READ_WRITE` (0x40).
 
 **Consequence for an open investigation:** the marginal Phase 99 AM27C020 bench result
 (write#1 60/64 bytes, write#2 0/64 — [[project_v118_phase99_bench_defer]]) **cannot** be
-explained by a wrong pin-31 assignment. VPP droop stands as the hypothesis, now with one
-competing explanation eliminated by an independent source rather than by re-reading our own
-schematic.
+explained by a wrong pin-31 assignment. VPP droop stands as the hypothesis, with one competing
+explanation eliminated by an independent source rather than by re-reading our own schematic.
 
-### 2 non-comparisons, not diffs
+### 1 non-comparison
 
-- **`DIP28_2764`** — ours has 14 address lines (pin 26 = A13), theirs 13. Ours is a deliberate
-  **2764 + 27128 superset family** (58 chips, incl. `AM27128A`, `AM27C128`, `SMJ27C128`). Pin
-  26 is NC on a true 2764 and A13 on a 27128. Correct as authored — the "diff" is an artifact
-  of them modelling one chip where we model a family.
-- **`DIP28_JEDEC_SRAM_8K`** — ours 13 address lines / 8 KB (`DS1225`, `FM1608`, `M48T08`);
-  their `62256` is 32 KB / 15 lines. Different chip. Our own `61256,62256` row routes to
-  `DIP28_28C256` instead, and that pairing agrees exactly. Correct as authored.
-
-Both are cases where a naive automated diff reports RED and the code is right. Any gate built
-on this must encode the reasons, not just the exceptions.
+**`DIP28_2764`** — ours has 14 address lines (pin 26 = A13), theirs 13. Ours is a deliberate
+**2764 + 27128 superset family** (58 chips, incl. `AM27128A`, `AM27C128`, `SMJ27C128`). Pin 26
+is NC on a true 2764 and A13 on a 27128. Correct as authored — the "diff" is an artifact of
+them modelling one chip where we model a family. A naive automated diff reports RED and the
+code is right; any gate must encode the reason, not just the exception.
 
 ### 1 family with no counterpart
 
-`DIP24_2532` (1 chip). One ROM has `2332` (a 4 KB *mask ROM*), not the TI 2532 EPROM. Our
-entry came from `94ea3b5` (86-04) via `tools/extra_chips.json`. Stays single-sourced.
+`DIP24_2532` (1 chip). One ROM has `2332` (a 4 KB *mask ROM*), not the TI 2532 EPROM. Ours
+came from `94ea3b5` (86-04) via `tools/extra_chips.json`. Stays single-sourced.
 
 ## Reproduction
 
@@ -139,7 +162,7 @@ oo = json.load(open('chip-types.json'))['chip_types']
 M = {'DIP24_2716':'2716','DIP24_2732':'2732','DIP28_2764':'2764','DIP28_27256':'27256',
      'DIP28_27512':'27512','DIP28_28C256':'28C256','DIP24_6116':'6116','DIP32_27C020':'27C020',
      'DIP32_SST39SF040':'SST39SF040','DIP28_28C64':'28C64','DIP32_28C512_EEPROM':'28C512',
-     'DIP24_2816':'28C16','DIP32_STD':'27C040','DIP28_JEDEC_SRAM_8K':'62256'}
+     'DIP24_2816':'28C16','DIP32_STD':'27C040','DIP28_JEDEC_SRAM_8K':'28C64'}
 for fsk, ook in M.items():
     p, o = fs[fsk]['pins'], oo[ook]
     g = lambda n: (o.get('control', {}).get(n) or {}).get('pin')
@@ -157,27 +180,31 @@ for fsk, ook in M.items():
 PY
 ```
 
-**Gotcha that will waste your time if you skip it:** map their `control.write` to our
-**`rw-pin`**, not to a `we-pin`. We have no `we-pin` key — a first pass that looks for one
-reports 6 spurious WE mismatches (`DIP28_28C256`, `DIP24_6116`, `DIP28_28C64`,
-`DIP32_28C512_EEPROM`, `DIP24_2816`, `DIP32_SST39SF040`), all of which are actually agreements.
+Expected: 12 AGREE, 2 DIFF — `DIP28_2764` (ADDR, superset) and `DIP32_27C020`
+(`WE fs=31 oo=None`, semantic agreement via `programming.pgm`).
+
+**Two mapping gotchas that will waste your time:**
+
+- Map their `control.write` to our **`rw-pin`**, not to a `we-pin`. We have **no `we-pin` key** —
+  a pass looking for one reports 6 spurious WE mismatches (`DIP28_28C256`, `DIP24_6116`,
+  `DIP28_28C64`, `DIP32_28C512_EEPROM`, `DIP24_2816`, `DIP32_SST39SF040`), all agreements.
+- Pair `DIP28_JEDEC_SRAM_8K` with **`28C64`**, not `62256`. Ours is an 8 KB family; their
+  `62256` is 32 KB. Our own `61256,62256` row routes to `DIP28_28C256` instead.
 
 ## What it cannot do — three hard limits
 
 1. **Nothing on the programming axis.** No `vpp_mv`, `pulse_duration_us`, `algorithm`,
    `chip_id_value`, or page size. Those are precisely where the recent defects lived: the
-   4.5 V premise disproved in Phase 148 (present in 5 files, not 2), the 128/64 B page seam
-   in Phase 149, the deleted `CTRL_VPE_ENABLE` assert behind the Phase 145 W27C512 byte-0
-   failure. One ROM never programs a chip and so has nothing to say about any of it. Treating
-   this source as general database validation would be an overclaim of exactly the class
-   corrected in v1.22's C-5.
+   4.5 V premise disproved in Phase 148 (present in 5 files, not 2), the 128/64 B page seam in
+   Phase 149, the deleted `CTRL_VPE_ENABLE` assert behind the Phase 145 W27C512 byte-0
+   failure. One ROM never programs a chip. Treating this as general database validation would
+   be an overclaim of exactly the class corrected in v1.22's C-5.
 2. **It cannot touch `chip_database.json`.** That file is generated from `infoic.xml` and the
    generator may not invent fields without upstream proof
    ([[feedback_generator_no_fields_without_infoic_proof]],
    [[reference_chip_database_schema_algorithm_pulse_duration]]). The usable seam is
    `pinouts.json`, which `tools/build_db.py:23` reads as an **input** — hand-maintained, and
-   therefore *unprotected* by the generator's decode tests. That asymmetry is the finding
-   that makes a gate worth building.
+   therefore *unprotected* by the generator's decode tests.
 3. **Licensing permits vendoring, but read the right file.** `LICENSE.md` dual-licenses:
    **MIT** for "software and firmware files", CERN-OHL-W-2.0 for "schematic, PCB files, 3d
    models and other hardware files, in particular those in the `hardware/` directory".
@@ -205,8 +232,15 @@ checked exhaustively, not sampled. Split by whether they are reachable:
 
 ## Downstream
 
-- Gate spec (vendor the snapshot + lock the 11, pin the 4 with reasons):
-  [`todos/pending/onerom-pinout-external-corroboration-gate.md`](../todos/pending/onerom-pinout-external-corroboration-gate.md)
+- Gate spec (lock the byte-identical set, pin the exceptions with reasons):
+  [`todos/pending/onerom-pinout-external-corroboration-gate.md`](../todos/pending/onerom-pinout-external-corroboration-gate.md).
+  **The gate's real value is not "confirming" the 8 genuinely-corroborated families — it is
+  that the 3 circular families (`DIP24_6116`, `DIP28_28C256`, `DIP32_SST39SF040`, together
+  292 chips) are the *fixes* the May pass produced, and nothing today would notice if an edit
+  silently un-fixed one.** A regression in `DIP32_SST39SF040` reintroduces a defect that
+  already once looked like dead silicon on the bench.
 - Mask-ROM family seed: [`seeds/mask-rom-24pin-read-support.md`](../seeds/mask-rom-24pin-read-support.md)
-- The gap this exposes on the programming axis: `research/questions.md`,
-  section "Is there an independent second source for the PROGRAMMING axis?" (2026-08-20)
+- The gap on the programming axis: `research/questions.md`, section "Is there an independent
+  second source for the PROGRAMMING axis?" (2026-08-20)
+- Original cross-check: meta `fd9efaea`; corrections `a332464`; full audit data in
+  `.planning/phases/04-hardware-validation-rurp-shield/04-HW-VALIDATION.md`
