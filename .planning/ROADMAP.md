@@ -434,7 +434,7 @@ in `requirements:`:
 - [x] 151-09-PLAN.md — LOCK-01's AST gate: Option A's parameterised two-name Class 2, the generalised Class 1(a), the explicitly-weaker Class 3, and two committed planted fixtures
 - [x] 151-10-PLAN.md — the cold triple-target re-measure, `151-SIZE-TRANSCRIPTS.md`, the third flash exemption (no second RAM exemption needed — RAM growth measured 0 B), and the eight legs severed onto a new `*_v151*` family
 - [x] 151-11-PLAN.md — `lock_status.py`: the response-consuming classifier, the literal four-code exit map, the strictly-additive `sdp_honesty` sibling, the operator transport method, and the frame-level wire test
-- [ ] 151-12-PLAN.md — D-12: the database-wide class-partition invariant, seen red on the `0x34` row then green, with the planted-fixture unreachability leg and the synthetic-novel-algorithm control
+- [x] 151-12-PLAN.md — D-12: the database-wide class-partition invariant, seen red on the `0x34` row then green, with the planted-fixture unreachability leg and the synthetic-novel-algorithm control
 - [ ] 151-13-PLAN.md — `dev lock-status` registered beta-only with `--force`, the class-token ⊗ exit-code matrix, the three gating tests, and the one-row `dev --help` snapshot
 - [ ] 151-14-PLAN.md — the bench session: leg A's `0xDA45` positive control, legs B and C as capped probes recorded either way, and `151-BENCH.md`'s non-claims list (non-autonomous; never under `--auto`)
 
