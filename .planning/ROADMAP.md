@@ -374,7 +374,69 @@ Plans:
   4. The output distinguishes "unprotected" from "readability not supported on this family", and no wording in it can be read as a lock-state guarantee where none exists.
   5. **(DATA-06, added 2026-08-20 with the Phase 150 deferral.)** `protect_on_after` is documented **once**, in a committed artifact, as an advisory upstream hint with **no runtime effect** — so the database no longer states an intent the system silently ignores. The advisory branch is not a shrug and the documentation must say why in measured terms: the field is `MP_PROTECT_AFTER` (*"can* re-protect after write", gating minipro `-P`) — a capability, not a policy; it is `true` on 70 of 746 rows, and on `algorithm: 5` it is `true` on **27 of 27**, i.e. a constant; so its only discriminating information anywhere is the `0x0D` ALLOW/REFUSE split, which `sdp_capability` already transcribes and `tests/test_sdp_db_invariant.py::test_sdp_partition_matches_infoic_derived_field_element_wise` already proves element-wise equal. The doc must also state plainly that **no runtime consumer exists in this release because `write --sdp-relock` is deferred** (Backlog 999.28), and must not imply the field is honoured. No behaviour change, no new gate, no `sdp_capability.py` edit — `check_sdp_capability_invariants.py` Class 2(b) forbids binding `SDP_CAPABLE_TOKENS` to anything but a literal frozenset, and that gate is not weakened.
 
-**Plans**: TBD
+**Plans**: 14 plans in 6 waves — wave 1 `151-01`, `151-02`, `151-03`, `151-04`, `151-05` · wave 2
+`151-06`, `151-07`, `151-08` · wave 3 `151-09`, `151-10`, `151-11` · wave 4 `151-12` · wave 5
+`151-13` · wave 6 `151-14`. **DUAL-REPO** — every plan's `commits_land_in:` names each repo it
+touches, because a worktree leaves submodules empty and a `files_modified`-only detector
+under-detects. `151-02`, `151-06`, `151-07`, `151-09`, `151-11`, `151-12` and `151-13` commit
+inside `firestarter_app/`; `151-08` and `151-10` commit inside `firestarter/`; `151-03` and
+`151-05` commit inside **both** sub-repos; `151-01`, `151-04` and `151-14` are meta-only. Every
+submodule-touching plan also carries a meta gitlink bump. Same-wave plans share zero
+`files_modified` entries (verified); the two files written by two plans —
+`firestarter/src/firestarter.cpp` (`151-03` then `151-08`) and
+`firestarter_app/firestarter/protection_readability.py` (`151-02` then `151-06`) — are in
+consecutive waves by dependency, never parallel.
+
+**This is v1.32's second firmware-touching workstream**, not its first. `151-01` amends the five
+planning sites that still describe the command as a top-level `firestarter` command and the two
+sentences that still call v1.32 a one-firmware-workstream milestone; Phase 152's OUT-01/OUT-04/
+OUT-05 derive from that text, so it is load-bearing downstream rather than cosmetic. The command
+surface is beta-only **`dev lock-status`**, settled at discuss time (CONTEXT D-01).
+
+Two plans are non-autonomous. `151-04` carries an operator decision on datasheet sourcing —
+`infoic.xml` is closed as a source (its `config` attribute is the literal `"NULL"` on all 101
+`0x05` and all 897 `0x06` entries), so both sequences are datasheet-derived and the strongest
+available test over them is a change detector, not a correctness proof. `151-14` is the bench
+session and **must NOT be run under `--auto`/`--chain`** — those auto-approve human-action gates
+and `autonomous: false` alone is not self-protecting. Leg A (`firestarter id W29C020` → `0xDA45`)
+is the only bench sub-claim with an oracle; legs B and C are `--force` probes capped by D-03; leg
+D does not exist, so `lock-status` on a `0x06` part ships **software-proven and unrun on
+silicon**. Nothing in this phase closes the v1.17 W29C040 RCA, which asked for a second W29C040.
+
+**Firmware growth is adjudicated in `151-10`, after the bytes land.** Leonardo's MERGE-05 headroom
+is **0 B on both axes** — BASE-01 flash 26906 + `0 + 96 + 210 = 306` equals the live 27212, and
+BASE-01 RAM + the 2 B tolerance equals the live figure on all three targets — so any new byte
+needs a new named, SHA-attributed exemption per moved axis. `151-10` does a cold
+`rm -rf .pio/build/<env>` + single `pio run -e <env>` per target, records the transcript, funds
+both axes separately (never one folded into the other), leaves `size_baseline_base01.json` frozen,
+and severs the eight reddened tripwire legs onto a **new** `*_v151*` fixture family rather than
+editing the `fullflash` family in place.
+
+Requirement ticking is named exhaustively per plan so no plan ticks a multi-plan requirement
+early. A plan's frontmatter `requirements:` is **not** a soft "addresses" label — it **is** the
+flip mechanism, fed verbatim to `gsd-tools query requirements.mark-complete` the moment the plan
+finishes. So each array carries **only** the permitted flips below; a plan that *advances* a
+requirement without completing it records that in its `<objective>` and an `advances:` key, never
+in `requirements:`:
+`151-01` → none · `151-02` → none · `151-03` → none · `151-04` → none · `151-05` → none ·
+`151-06` → none · `151-07` → **DATA-06** · `151-08` → none · `151-09` → **LOCK-01** ·
+`151-10` → none · `151-11` → none · `151-12` → none · `151-13` → **LOCK-02, LOCK-03, LOCK-04** ·
+`151-14` → none.
+
+- [ ] 151-01-PLAN.md — OD-1: amend the five top-level-command sites and the two workstream-count sentences, and land `151-DESIGN.md` (wire shape, exit-code map, corrected class census, the C-17 tiebreak mechanism)
+- [ ] 151-02-PLAN.md — LOCK-01's curated table: `protection_readability.py`'s lettered provenance, the 273-token three-state curation, the C-17 ambiguity record, and the citation-resolution test
+- [ ] 151-03-PLAN.md — OD-3: `CMD_LOCK_STATUS 16`, the ninth `is_memory_cmd` arm, the widened parse gate, all four mirror sites, and the host `COMMAND_LOCK_STATUS` pair
+- [ ] 151-04-PLAN.md — OD-4: source both read sequences from datasheets into `151-SEQUENCES.md`, with the operator decision on dropping the two missing PDFs (non-autonomous)
+- [ ] 151-05-PLAN.md — `MSG_DATA_PROTECTION_STATUS` in the DATA band, synced and regenerated across all five tracked catalog files, with a committed catalog-presence test
+- [ ] 151-06-PLAN.md — `protection_gate_for_entry`: the pure classifier, fail-closed on both axes, with the `W29C022` named leg and the C-6 alias-set leg
+- [ ] 151-07-PLAN.md — DATA-06: one authoritative section in `infoic-field-dictionary.md` carrying every measurement and the 18/18 + 25/66 promotion split, two authored one-line pointers, a Python proof, and the folded todo resolved
+- [ ] 151-08-PLAN.md — the firmware sequences: `flash_util_read_in_id_mode`, both `*_read_protection_execute` operations and dispatch arms, `eprom_lock_status`, the `loop()` arm, and five new legs each in the two existing family suites
+- [ ] 151-09-PLAN.md — LOCK-01's AST gate: Option A's parameterised two-name Class 2, the generalised Class 1(a), the explicitly-weaker Class 3, and two committed planted fixtures
+- [ ] 151-10-PLAN.md — the cold triple-target re-measure, `151-SIZE-TRANSCRIPTS.md`, the third flash and second RAM exemptions, and the eight legs severed onto a new `*_v151*` family
+- [ ] 151-11-PLAN.md — `lock_status.py`: the response-consuming classifier, the literal four-code exit map, the strictly-additive `sdp_honesty` sibling, the operator transport method, and the frame-level wire test
+- [ ] 151-12-PLAN.md — D-12: the database-wide class-partition invariant, seen red on the `0x34` row then green, with the planted-fixture unreachability leg and the synthetic-novel-algorithm control
+- [ ] 151-13-PLAN.md — `dev lock-status` registered beta-only with `--force`, the class-token ⊗ exit-code matrix, the three gating tests, and the one-row `dev --help` snapshot
+- [ ] 151-14-PLAN.md — the bench session: leg A's `0xDA45` positive control, legs B and C as capped probes recorded either way, and `151-BENCH.md`'s non-claims list (non-autonomous; never under `--auto`)
 
 ### Phase 152: Outward-Facing Close (operator-gated)
 
