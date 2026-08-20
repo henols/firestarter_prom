@@ -5,16 +5,16 @@ milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 151
 current_phase_name: Protection Readability — `lock-status` — EXECUTING
 status: executing
-stopped_at: "Phase 151, plan 151-13 executed (firestarter_app repo: dev lock-status CLI command, channel gate extension, 18-leg CLI matrix test, dev --help snapshot regenerated, LOCK-02/03/04 flipped) -- 13 of 14 plans executed"
-last_updated: "2026-08-20T18:24:30.749Z"
+stopped_at: Completed 151-14-PLAN.md (the bench session -- Phase 151 now fully executed, 14/14 plans; firmware sideloaded and verified taken via the comms-error discriminator, leg A confirmed 0xDA45, leg B recorded both forms with raw byte 0xFE, leg C recorded not-run (no W29C040 on the bench), leg D recorded as not existing) -- phase not yet formally closed
+last_updated: "2026-08-20T19:07:40.167Z"
 last_activity: 2026-08-20
 last_activity_desc: "**Plan 151-12 EXECUTED** (firestarter_app repo, autonomous, 2 task commits — `8db05a5` test (exhaustiveness/determinism/census legs of the D-12 invariant), `c2872c6` test (unreachability/citations/robustness legs)) — landed `tests/test_lock_status_class_partition.py`, an 18-function invariant walking `protection_gate_for_entry` over all 746 committed database rows. Census pinned as literals: `no_mechanism` 405, `not_implemented` 40 (39 at 0x10 + the OD-2 0x34 row, superseding VALIDATION.md's earlier 39), `not_readable` 108 (84 at 0x0D + 24 from curation), `read_permitted`/`undocumented_alias` 81/112 — the 0x05+0x06 curation surface split matches 151-06's measured 81/24/112 exactly, total 746. Leg 1's non-vacuity was observed directly: temporarily removing `52` from `NOT_IMPLEMENTED_PROTOCOL_IDS` reddened the exhaustiveness leg naming `XICOR/X88C64P,X88C64S`, then restoring it went green (never committed). Leg 4 paired an AST scan with plan 151-09's committed planted fixture routed through the subprocess gate seam (observed exit 1, Class 1) and the real module through the same seam (observed exit 0) — 151-09's gate confirmed not weakened. Full host suite 1788 passed (baseline 1770 + 18), coverage 83.32%, mypy at watermark (35). No requirement checkboxes flipped (LOCK-02/03/04 belong to 151-13, per plan). See `151-12-SUMMARY.md` for the full red-then-green and gate-seam transcripts. All 14 plans run SEQUENTIALLY on the main checkout: every plan touches `firestarter/` or `firestarter_app/` in some direction and a GSD worktree leaves both submodules empty, so worktree isolation is unsafe phase-wide (Phase 138 precedent)."
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 36
-  completed_plans: 35
-  percent: 50
+  completed_plans: 36
+  percent: 67
 ---
 
 # Project State
@@ -2043,6 +2043,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: dev lock-status refusal-without-force renders directly from protection_gate_for_entry's own (gate_token, gate_reason), never through classify_protection_response's generic passed-through wording (Rule 1 bug fix, 151-13)
 - [Phase ?]: firmware_outdated path uses raise SystemExit(exit_code_for_class(...)) from exc so D-10's exit-3 assignment survives @map_typed_errors's own FirmwareOutdatedError handler (151-13)
 - [Phase ?]: test_lock_status_cli.py mocks only EpromOperator.read_protection_status (the port-opening seam) rather than a full fake-serial harness -- lighter-weight, meets every plan acceptance criterion (151-13)
+- [Phase ?]: Leg C (W29C040 probe) recorded as not-run rather than run-and-discarded: the operator has no W29C040 sample on the bench, and running dev lock-status W29C040 against the physically-seated W29C020 would have misattributed a different part's reading to W29C040. — Honesty over completeness — the plan's own skip-handling branch takes precedence over the default 'run it' branch when the operator states a part is unavailable.
 
 ## Performance Metrics
 
@@ -2337,11 +2338,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 151 P08 | ~70min | 3 tasks | 11 files |
 | Phase 151 P12 | ~70min | 2 tasks | 1 files |
 | Phase 151 P13 | 35min | 3 tasks | 7 files |
+| Phase 151 P14 | ~40min | 4 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-20T20:45:00.000Z
-**Stopped at:** Completed 151-12-PLAN.md (the D-12 class-partition invariant: `tests/test_lock_status_class_partition.py`, 18 test functions; census 405/40/108/81/112 pinned as literals; leg 1 observed red-then-green on the `0x34` row; leg 4's planted fixture observed failing the subprocess gate seam, real module observed passing) — wave 4 (`151-12`) now fully complete; next plan per dependency order (wave 5: `151-13`)
+**Last session:** 2026-08-20T19:05:02.446Z
+**Stopped at:** Completed 151-14-PLAN.md (the bench session -- Phase 151 now fully executed, 14/14 plans; firmware sideloaded and verified taken via the comms-error discriminator, leg A confirmed 0xDA45, leg B recorded both forms with raw byte 0xFE, leg C recorded not-run (no W29C040 on the bench), leg D recorded as not existing) -- phase not yet formally closed
 **Resume file:** None
 
 **Gitlink gap from Phase 149's close — CLOSED 2026-08-20.** Phase 149 landed its dual-repo work but never bumped meta's submodule gitlinks, so meta HEAD asserted "Phase 149 COMPLETE and VERIFIED — page-size seam landed across both repos" while pointing at `firestarter 7f6afc65` / `firestarter_app b142c0e6` — trees containing none of it. Bumped to `firestarter 6e3f90a3` (6 commits, all `149-*`) and `firestarter_app 9cc57c75` (13 commits: 8 `149-*` plus the 5 `fw` port-targeting fixes, which `git cherry` marks `-` against `origin/beta` — patch-identical to PR #52's merged work under different SHAs, so nothing unreviewed rode along). Both sub-repos verified on `gsd/v1.32-at28c-write-path-root-cause-report-provenance` with clean tracked trees. Restores the per-plan bump convention this milestone set at `chore(147-02)`/`chore(147-05)`; the branches are local-only, as Phase 147's were when it bumped, and become reachable at the close via the PR to `beta`.
