@@ -5,8 +5,8 @@ milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 152
 current_phase_name: Outward-Facing Close (operator-gated)
 status: executing
-stopped_at: "Phase 151 CLOSED 2026-08-20 (verified 10/10, 14/14 plans); next up Phase 152 Outward-Facing Close, which is operator-gated and must NOT run under --auto/--chain"
-last_updated: "2026-08-20T19:32:23.859Z"
+stopped_at: "Phase 152 context gathered — BLOCKED on precondition: Phase 153 must be created (/gsd-phase) and completed BEFORE 152 runs (D-07/D-08)"
+last_updated: "2026-08-20T21:33:12.037Z"
 last_activity: 2026-08-20
 last_activity_desc: "Phase 151 (Protection Readability — `dev lock-status`) CLOSED 2026-08-20, verified 10/10, 14/14 plans. All 5 requirements Complete (LOCK-01..04 + DATA-06). Gates: app 1806 passed (py3.11), firmware tests 315 passed, native 163/163 + 163/163 + 11/11, three AVR builds zero warnings. MERGE-05 green via a third named exemption MERGE05_LOCK_STATUS_READ_EXEMPTION_BYTES = 288, funding +288 B uniform on all three targets; no RAM exemption needed (+2<=2=seam2). Leonardo is now at EXACTLY zero MERGE-05 headroom (+594<=594) and 1172 B below the UNGUARDED 28672 B Caterina cliff — any further AVR flash growth in v1.32 needs its own named exemption. Bench (Leonardo /dev/ttyACM0, shield Rev 2.0 operator-stated, W29C020 seated): leg A returned 0xDA45, establishing sub-claim (i) mode entry/exit only; leg B forced returned raw 0xFE as an unadjudicated_probe, never a state claim; leg C not run (no W29C040 sample), so the v1.17 W29C040 RCA remains OPEN; no leg D exists and the 0x06 path ships software-proven and unrun on silicon."
 progress:
@@ -2342,9 +2342,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-20T19:05:02.446Z
-**Stopped at:** Completed 151-14-PLAN.md (the bench session -- Phase 151 now fully executed, 14/14 plans; firmware sideloaded and verified taken via the comms-error discriminator, leg A confirmed 0xDA45, leg B recorded both forms with raw byte 0xFE, leg C recorded not-run (no W29C040 on the bench), leg D recorded as not existing) -- phase not yet formally closed
-**Resume file:** None
+**Last session:** 2026-08-20T21:33:12.011Z
+**Stopped at:** Phase 152 context gathered — BLOCKED on precondition: Phase 153 must be created (/gsd-phase) and completed BEFORE 152 runs (D-07/D-08)
+**Resume file:** .planning/phases/152-outward-facing-close-operator-gated/152-CONTEXT.md
 
 **Gitlink gap from Phase 149's close — CLOSED 2026-08-20.** Phase 149 landed its dual-repo work but never bumped meta's submodule gitlinks, so meta HEAD asserted "Phase 149 COMPLETE and VERIFIED — page-size seam landed across both repos" while pointing at `firestarter 7f6afc65` / `firestarter_app b142c0e6` — trees containing none of it. Bumped to `firestarter 6e3f90a3` (6 commits, all `149-*`) and `firestarter_app 9cc57c75` (13 commits: 8 `149-*` plus the 5 `fw` port-targeting fixes, which `git cherry` marks `-` against `origin/beta` — patch-identical to PR #52's merged work under different SHAs, so nothing unreviewed rode along). Both sub-repos verified on `gsd/v1.32-at28c-write-path-root-cause-report-provenance` with clean tracked trees. Restores the per-plan bump convention this milestone set at `chore(147-02)`/`chore(147-05)`; the branches are local-only, as Phase 147's were when it bumped, and become reachable at the close via the PR to `beta`.
 
