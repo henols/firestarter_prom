@@ -1,6 +1,6 @@
 ---
 created: 2026-08-20T00:00:00Z
-title: "Lock pinouts.json against an independent external oracle (one-rom chip-types.json) -- 13/14 families already corroborated, nothing guards them"
+title: "Lock pinouts.json against an independent external oracle (one-rom chip-types.json) -- 12 of 15 families already corroborated, nothing guards them"
 area: host
 resolves_phase: unassigned
 files:
@@ -36,50 +36,29 @@ Its independence is the point:
   no algorithm, no chip ID, no page size. It can only speak to the bus map — but the bus map
   is exactly the axis `pinouts.json` owns.
 
-## Evidence already in hand (cross-check run 2026-08-20)
+## Evidence already in hand
+
+Full cross-check result, schema correspondence table, reproduction script and the
+what-it-cannot-do limits live in
+[`notes/onerom-pinout-external-corroboration.md`](../../notes/onerom-pinout-external-corroboration.md).
+**Read that first** — it is the authoritative record; this todo carries only the summary the
+gate needs, and the note must not be duplicated here.
 
 Snapshot cross-checked: blob `56cb04ca91e66aef0fd15236cc357602367c2b05` (58601 bytes),
-`main` @ repo `updated_at` 2026-08-20T14:36:22Z.
+`main`, fetched 2026-08-20. Fields compared: `address-bus-pins`, `data-bus-pins`, `ce-pin`,
+`oe-pin`, `rw-pin`, `vpp-pin`, `vcc-pin`, `gnd-pin`.
 
-Comparison covered `address-bus-pins`, `data-bus-pins`, `ce-pin`, `oe-pin`, `rw-pin`,
-`vpp-pin`, `vcc-pin`, `gnd-pin` (ours) against `address`, `data`, `control.ce`,
-`control.oe`, `control.write`, `programming.vpp`, `power.VCC`, `power.GND` (theirs).
+The four buckets the gate has to encode:
 
-**11 families byte-identical on every compared field:**
-
-| firestarter family | one-rom type | chips routed |
+| bucket | families | gate behaviour |
 |---|---|---|
-| `DIP24_2716` | `2716` | 15 |
-| `DIP24_2732` | `2732` | 16 |
-| `DIP24_2816` | `28C16` | 19 |
-| `DIP24_6116` | `6116` | 7 |
-| `DIP28_27256` | `27256` | 67 |
-| `DIP28_27512` | `27512` | 45 |
-| `DIP28_28C64` | `28C64` | 35 |
-| `DIP28_28C256` | `28C256` | 30 |
-| `DIP32_28C512_EEPROM` | `28C512` | 18 |
-| `DIP32_SST39SF040` | `SST39SF040` | 255 |
-| `DIP32_STD` | `27C040` | 78 |
+| **byte-identical (11)** | `DIP24_2716`, `DIP24_2732`, `DIP24_2816`, `DIP24_6116`, `DIP28_27256`, `DIP28_27512`, `DIP28_28C64`, `DIP28_28C256`, `DIP32_28C512_EEPROM`, `DIP32_SST39SF040`, `DIP32_STD` | assert equality — RED on any drift |
+| **semantic agreement (1)** | `DIP32_27C020` — our `rw-pin: [31]` vs their `programming.pgm.pin: 31` | expected divergence, reason recorded |
+| **non-comparison (2)** | `DIP28_2764` (2764+27128 superset, pin 26 = A13); `DIP28_JEDEC_SRAM_8K` (8 KB, vs their 32 KB `62256`) | expected divergence, reason recorded |
+| **no counterpart (1)** | `DIP24_2532` | out of scope, stays single-sourced |
 
-**1 further family corroborated semantically, not literally — `DIP32_27C020` (88 chips):**
-our `rw-pin: [31]` vs their absent `control.write`. Not a divergence. One ROM records
-`programming.pgm.pin = 31` for **both** `27C010` and `27C020`, independently confirming the
-premise behind the Phase 98-03 / CR-01 fix (operator schematic study, `3659121`): pin 31 is
-/PGM, **not** A18, on ≤256K parts. Direct consequence for an open investigation — the
-marginal Phase 99 bench result (write#1 60/64, write#2 0/64) cannot be explained by a wrong
-pin-31 assignment, which leaves the suspected VPP droop as the standing hypothesis.
-
-**2 families are non-comparisons, not diffs:**
-
-- `DIP28_2764` — ours carries 14 address lines (pin 26 = A13); theirs 13. Ours is a
-  deliberate **2764+27128 superset family** (58 chips, incl. `AM27128A`, `AM27C128`). Pin 26
-  is NC on a true 2764 and A13 on a 27128. Correct as authored.
-- `DIP28_JEDEC_SRAM_8K` — ours 13 address lines (8 KB, `DS1225`/`FM1608`/`M48T08`); their
-  `62256` is 32 KB / 15 lines. Different chip. Our own `61256,62256` row correctly routes to
-  `DIP28_28C256`, and *that* pairing agrees exactly. Correct as authored.
-
-Net: **12 of 15 families now have an independent second source, 2 are explained
-non-comparisons, and 1 (`DIP24_2532`, 1 chip) has no counterpart.** No test guards any of it.
+585 of 746 database rows ride the 11 locked families, `DIP32_SST39SF040` alone carrying 255.
+`DIP28_28C256` — the AT28C256 family Phase 149 left untouched — is in the locked set.
 
 ## What to build
 
@@ -104,22 +83,15 @@ A host-side corroboration test — no firmware, no hardware, no `chip_database.j
 
 ## Licensing
 
-Resolved — **MIT**, safe to vendor with attribution. One ROM's
-[`LICENSE.md`](https://github.com/piersfinlayson/one-rom/blob/main/LICENSE.md) dual-licenses
-the repo: MIT for "software and firmware files", CERN-OHL-W-2.0 for "schematic, PCB files,
-3d models and other hardware files, in particular those in the `hardware/` directory".
-`rust/config/json/chip-types.json` is a software config file consumed by the `onerom-config`
-crate, and sits nowhere near `hardware/` — MIT applies. Include the MIT notice and
-copyright line (`Copyright (c) 2026 Piers Finlayson`) alongside the vendored fixture.
+Resolved — **MIT**, safe to vendor with attribution (`Copyright (c) 2026 Piers Finlayson`).
+Rationale and the two traps that will make a reviewer re-open it (GitHub reports
+`NOASSERTION`; there is no root `LICENSE`, only `LICENSE.md`) are recorded in the note's
+"three hard limits" section. Do not re-litigate from the API field.
 
-Note the GitHub API reports the repo license as `NOASSERTION` / "Other" — that is an
-artifact of the dual-license `LICENSE.md` layout, not an absence of license. Do not let a
-future reviewer re-open this on the strength of the API field.
+## Why a gate on top of the note
 
-## Why this is worth a gate rather than a one-off note
-
-The corroboration is only valuable while it is *enforced*. Running the diff once and writing
-down "11 families agree" produces a fact that decays the moment someone edits a pin list —
+The note records the corroboration; it cannot *enforce* it. "11 families agree" is a fact
+that decays the moment someone edits a pin list —
 and pin-list edits are exactly what this project does (`3659121`, `38b55d5`, `94ea3b5`,
 `fa0c1a4` all touched `pinouts.json`). Related: [[reference_chip_database_schema_algorithm_pulse_duration]]
 records that `chip_database.json` is generated and must never be hand-edited; `pinouts.json`

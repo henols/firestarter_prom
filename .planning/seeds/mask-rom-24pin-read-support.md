@@ -26,8 +26,8 @@ before replacing, and `MCM68764`/`2364` in particular comes up constantly in tha
 [`rust/config/json/chip-types.json`](https://github.com/piersfinlayson/one-rom/blob/main/rust/config/json/chip-types.json)
 carries all of them in a schema that maps almost 1:1 onto our `pinouts.json` — ordered
 `address` A0..An, `data` D0..D7, `control` with pin + polarity, `power` VCC/GND. MIT-licensed
-(see the licensing note in
-[`todos/pending/onerom-pinout-external-corroboration-gate.md`](../todos/pending/onerom-pinout-external-corroboration-gate.md)),
+(see the licensing analysis in
+[`notes/onerom-pinout-external-corroboration.md`](../notes/onerom-pinout-external-corroboration.md)),
 and independently validated by the emulator working in-circuit in real machines — which is
 *read-path* evidence, exactly the axis this seed needs. The same file's 24-pin siblings
 (`2716`, `2732`, `6116`, `28C16`) were cross-checked against our existing families and came
