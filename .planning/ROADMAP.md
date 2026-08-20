@@ -431,7 +431,7 @@ in `requirements:`:
 - [x] 151-06-PLAN.md — `protection_gate_for_entry`: the pure classifier, fail-closed on both axes, with the `W29C022` named leg and the C-6 alias-set leg
 - [x] 151-07-PLAN.md — DATA-06: one authoritative section in `infoic-field-dictionary.md` carrying every measurement and the 18/18 + 25/66 promotion split, two authored one-line pointers, a Python proof, and the folded todo resolved
 - [x] 151-08-PLAN.md — the firmware sequences: `flash_util_read_in_id_mode`, both `*_read_protection_execute` operations and dispatch arms, `eprom_lock_status`, the `loop()` arm, and five new legs each in the two existing family suites
-- [ ] 151-09-PLAN.md — LOCK-01's AST gate: Option A's parameterised two-name Class 2, the generalised Class 1(a), the explicitly-weaker Class 3, and two committed planted fixtures
+- [x] 151-09-PLAN.md — LOCK-01's AST gate: Option A's parameterised two-name Class 2, the generalised Class 1(a), the explicitly-weaker Class 3, and two committed planted fixtures
 - [ ] 151-10-PLAN.md — the cold triple-target re-measure, `151-SIZE-TRANSCRIPTS.md`, the third flash and second RAM exemptions, and the eight legs severed onto a new `*_v151*` family
 - [ ] 151-11-PLAN.md — `lock_status.py`: the response-consuming classifier, the literal four-code exit map, the strictly-additive `sdp_honesty` sibling, the operator transport method, and the frame-level wire test
 - [ ] 151-12-PLAN.md — D-12: the database-wide class-partition invariant, seen red on the `0x34` row then green, with the planted-fixture unreachability leg and the synthetic-novel-algorithm control
@@ -483,7 +483,7 @@ in `requirements:`:
 | RELOCK-05 | ~~Phase 150~~ → Backlog 999.28 | ⏸ Deferred 2026-08-20 |
 | RELOCK-06 | ~~Phase 150~~ → Backlog 999.28 | ⏸ Deferred 2026-08-20 |
 | RELOCK-08 | ~~Phase 150~~ → Backlog 999.28 | ⏸ Deferred 2026-08-20 |
-| LOCK-01 | Phase 151 | Pending |
+| LOCK-01 | Phase 151 | Complete |
 | LOCK-02 | Phase 151 | Pending |
 | LOCK-03 | Phase 151 | Pending |
 | LOCK-04 | Phase 151 | Pending |

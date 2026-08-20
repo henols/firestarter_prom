@@ -229,7 +229,7 @@ reports about is one the user has no supported way to create in this release. Th
 LOCK requirement: LOCK-03 refuses on every `0x0D`/SDP family regardless. This section also gains
 **DATA-06**, re-homed from Phase 150 — see DATA-06 above for its now-fixed advisory resolution.)*
 
-- [ ] **LOCK-01**: A hand-curated, family-level protection table records mechanism, readability and
+- [x] **LOCK-01**: A hand-curated, family-level protection table records mechanism, readability and
       permanence, sourced from `firestarter_app/doc/lockable-proms.md` with per-family citations.
 
 - [ ] **LOCK-02**: `dev lock-status <chip>` reports the protection state of a chip on families
@@ -317,7 +317,7 @@ relies on `autonomous: false` alone is not self-protecting.
 | RELOCK-05 | ~~Phase 150~~ → Backlog 999.28 | ⏸ Deferred 2026-08-20 |
 | RELOCK-06 | ~~Phase 150~~ → Backlog 999.28 | ⏸ Deferred 2026-08-20 |
 | RELOCK-08 | ~~Phase 150~~ → Backlog 999.28 | ⏸ Deferred 2026-08-20 |
-| LOCK-01 | Phase 151 | Pending |
+| LOCK-01 | Phase 151 | Complete |
 | LOCK-02 | Phase 151 | Pending |
 | LOCK-03 | Phase 151 | Pending |
 | LOCK-04 | Phase 151 | Pending |
