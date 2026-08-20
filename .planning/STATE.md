@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: — AT28C Write-Path Root Cause & Report Provenance
-current_phase: 149
-current_phase_name: Firmware Page-Size Seam (dual-repo lockstep)
+current_phase: 150
+current_phase_name: Deliberate Protection — `write --sdp-relock`
 status: executing
-stopped_at: Phase 149 Plan 08 complete -- 149-PAGE-SIZE.md finished, README changelog line landed, claim gate extended to 9 enumerated targets and re-proved RED/GREEN, PGSZ-01..05 flipped to Complete, operator wording review approved. Phase 149 (Firmware Page-Size Seam, dual-repo lockstep) is complete.
-last_updated: "2026-08-20T05:15:43.000Z"
+stopped_at: Phase 149 COMPLETE and VERIFIED (8/8 plans, 5/5 requirements) -- page-size seam landed across both repos, verification passed; Phase 150 (write --sdp-relock) not started
+last_updated: "2026-08-20T05:41:35.047Z"
 last_activity: 2026-08-20
-last_activity_desc: "Phase 149 Plan 08 complete -- the phase's final plan: 149-PAGE-SIZE.md completed with its three closing sections, one firestarter_app/README.md changelog subsection announcing the 15-part page-size behaviour change (operator-approved), the phase claim gate extended from 1 to 9 enumerated targets and re-proved RED/GREEN/ARGV twice, and PGSZ-01 through PGSZ-05 flipped to Complete in both traceability tables. Phase 149 (Firmware Page-Size Seam, dual-repo lockstep) is now complete; Phase 150 (write --sdp-relock) is next."
+last_activity_desc: Phase 149 complete, transitioned to Phase 150
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 22
   completed_plans: 22
-  percent: 33
+  percent: 50
 ---
 
 # Project State
@@ -76,10 +76,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 149 — Firmware Page-Size Seam (dual-repo lockstep) — EXECUTING
-Plan: 7 of 8
+Phase: 150 — Deliberate Protection — `write --sdp-relock`
+Plan: Not started
 Status: Ready to execute
-Last activity: 2026-08-19 — Phase 149 Plan 07 complete (size_baseline.json re-anchored to plan 06's cold post-change figures, firmware_tree_sha corrected from the stale Phase-144 tree, both pinned native envs bumped 141->151, four deferred todos filed, folded json_init todo removed)
+Last activity: 2026-08-20 — Phase 149 complete, transitioned to Phase 150
 
 ## Roadmap Summary (v1.32)
 
