@@ -427,7 +427,7 @@ in `requirements:`:
 - [x] 151-02-PLAN.md — LOCK-01's curated table: `protection_readability.py`'s lettered provenance, the 273-token three-state curation, the C-17 ambiguity record, and the citation-resolution test
 - [x] 151-03-PLAN.md — OD-3: `CMD_LOCK_STATUS 16`, the ninth `is_memory_cmd` arm, the widened parse gate, all four mirror sites, and the host `COMMAND_LOCK_STATUS` pair
 - [ ] 151-04-PLAN.md — OD-4: source both read sequences from datasheets into `151-SEQUENCES.md`, with the operator decision on dropping the two missing PDFs (non-autonomous)
-- [ ] 151-05-PLAN.md — `MSG_DATA_PROTECTION_STATUS` in the DATA band, synced and regenerated across all five tracked catalog files, with a committed catalog-presence test
+- [x] 151-05-PLAN.md — `MSG_DATA_PROTECTION_STATUS` in the DATA band, synced and regenerated across all five tracked catalog files, with a committed catalog-presence test
 - [ ] 151-06-PLAN.md — `protection_gate_for_entry`: the pure classifier, fail-closed on both axes, with the `W29C022` named leg and the C-6 alias-set leg
 - [ ] 151-07-PLAN.md — DATA-06: one authoritative section in `infoic-field-dictionary.md` carrying every measurement and the 18/18 + 25/66 promotion split, two authored one-line pointers, a Python proof, and the folded todo resolved
 - [ ] 151-08-PLAN.md — the firmware sequences: `flash_util_read_in_id_mode`, both `*_read_protection_execute` operations and dispatch arms, `eprom_lock_status`, the `loop()` arm, and five new legs each in the two existing family suites
