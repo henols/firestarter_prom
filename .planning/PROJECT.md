@@ -84,7 +84,7 @@ AT28C part, and unblocks attribution for every future community report, not just
 | 2 | **`0x0D` data defects** — `vcc: "4V"` decode bug (datasheet is 4.5–5.5 V); `protect_on_after: true` is dead data since v1.30 deleted the lock surface | `build_db.py` | no |
 | 3 | **Firmware page-size seam** — deliver `infoic_page_size_raw` through wire → `json_parser` → handler, replacing the hardcoded `PAGE_SIZE 64` | firmware + host | partial |
 | 4 | **Close the AT28C book** — ~~land `write --sdp-relock` (Backlog 999.28)~~ **⏸ the relock half DEFERRED 2026-08-20 → back to Backlog 999.28** (see the deferral record below); what remains is posting the owed gh#12 reply (v1.30's CLOSE-06, open by design), which must now state a **second withdrawal**, not a migration | host + outward | no |
-| 5 | **`lock-status` command** (seed) — hand-curated family-level protection table + `firestarter lock-status <chip>` | host | no |
+| 5 | **`lock-status` command** (seed) — hand-curated family-level protection table + `dev lock-status <chip>` (beta-only; corrected from the seed's top-level `firestarter lock-status` by Phase 151's OD-1) | host + firmware | partial |
 | 6 | **Numeric DB values** (seed) — voltages/timing as mV / µs integers, deleting `database.py`'s coercion layer | host | no |
 
 Workstreams 2 and 6 touch the same field (`electrical.vcc`) and must land together — numericalising
