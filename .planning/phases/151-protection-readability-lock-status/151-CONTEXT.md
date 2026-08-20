@@ -82,7 +82,7 @@ Three deliverables, and nothing else:
 
   `no_mechanism` is a real and separate answer, not a synonym for `unprotected`: **406 of 746 DB rows have no write-protection mechanism at all** (UV-EPROM `0x07`/`0x08`/`0x0B`, SRAM/NVRAM `0x0E`/`0x27`/`0x28`/`0x29`). Measured class sizes at discussion time — re-derive, do not trust: readable families 229 (`0x06` 190 + `0x10` 39), documented-not-readable 111 (`0x0D` 84 + `0x05` 27), no mechanism 406.
 
-- **D-10: Exit 0 *only* for a real silicon read** (`protected` or `unprotected`). A distinct non-zero for "cannot answer" (`not_readable`, `not_implemented`, `undocumented_alias`, `no_mechanism`); a separate non-zero for operational failure (`firmware_outdated`, comms). `$? == 0` therefore means exactly "I hold a real state". The class token still carries the detail, so tests assert **token and code together, never the code alone**.
+- **D-10: Exit 0 only for a real silicon read** (`protected` or `unprotected`). A distinct non-zero for "cannot answer" (`not_readable`, `not_implemented`, `undocumented_alias`, `no_mechanism`); a separate non-zero for operational failure (`firmware_outdated`, comms). `$? == 0` therefore means exactly "I hold a real state". The class token still carries the detail, so tests assert **token and code together, never the code alone**.
 
   **Rejected:** 0 for every honest answer (a script cannot distinguish answered from correctly-declined); per-class codes throughout (makes a correct `protected` read a non-zero failure; this codebase already has exit-code precedence defects where `max()` picked the wrong verdict).
 

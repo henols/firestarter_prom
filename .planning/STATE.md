@@ -5,14 +5,14 @@ milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 151
 current_phase_name: Protection Readability — `lock-status`
 status: executing
-stopped_at: Phase 151 context gathered
-last_updated: "2026-08-20T07:59:02.144Z"
+stopped_at: Phase 151 planned — ready to execute
+last_updated: "2026-08-20T09:58:00.000Z"
 last_activity: 2026-08-20
-last_activity_desc: "**Phase 150 (`write --sdp-relock`) DEFERRED to Backlog 999.28** by operator decision during `/gsd-discuss-phase 150`, before any research, plan or CONTEXT.md existed. Nothing was created: no `.planning/phases/150-*/` directory, no CONTEXT.md, no commits in either sub-repo. Second deferral of the same work (v1.30 deferred it as Phase 135); both vacated numbers stay unreused. RELOCK-01…06 + RELOCK-08 left v1 scope (33 → 25 requirements); **DATA-06 retained and re-homed to Phase 151** on its documented-advisory branch; Phase 151's dependency on 150 discharged; **Phase 152's OUT-01/OUT-04 amended** to describe a withdrawal rather than a migration, and OUT-05's claim gate gained a fifth class rejecting `write --sdp-relock`-as-shipped. Records amended: ROADMAP.md, REQUIREMENTS.md, PROJECT.md, the 999.28 backlog stub and the deferral todo."
+last_activity_desc: "**Phase 151 PLANNED** — 14 plans, 6 waves, 39 tasks, dual-repo (`firestarter` + `firestarter_app`). Research ran twice: the first pass (`762e8ff8`) measured every D-09/D-14 count as correct except D-09's \"406 no-mechanism\" (its seven algorithms sum to **405**; the 406th is `XICOR/X88C64P,X88C64S`, algorithm `0x34`, which landed in NO class before a line of code was written); the second pass (`567169fd`) answered two operator inputs. Four orchestrator decisions were settled and are binding: **OD-1** command surface is beta-only `dev lock-status` (CONTEXT D-01, confirmed by DISCUSSION-LOG:20/22/113 — five planning sites still carry pre-discuss top-level text and `151-01` hand-edits them); **OD-2** the `0x34` row resolves to `not_implemented` (it carries `protect_off_before: true`, so `no_mechanism` would be a fabricated claim), making the census 40 not 39; **OD-3** the firmware parse gate at `firestarter.cpp:77` is widened via `is_memory_cmd()` — enum re-ordering breaks the wire and a non-memory command is structurally impossible; **OD-4** `infoic.xml` is CLOSED as a sequence source (measured: the `config` attribute is the literal `\"NULL\"` on all 101 `0x05` and all 897 `0x06` entries), so both sequences are datasheet-derived and pinned bytes are a change detector, never a correctness proof. Operator supplied one new inventory fact — a **W29C020**, the documented-readable part — which withdrew research's \"0x05 payoff chain is empty by construction\" verdict: bench leg A (`firestarter id W29C020` → `0xDA45`) is available today with zero new code as a positive control on mode entry, while the status address and decode have no oracle short of a destructive write→verify, which `lockable-proms.md:3` excludes from \"readable\". Leonardo has **0 B MERGE-05 growth headroom on BOTH flash and RAM**; four MERGE-05 literals exist where CONTEXT names two. Plan-checker PASSED with 0 blockers and 1 documentation-hygiene warning, since closed. Requirements coverage 5/5, decision coverage 16/16 (the gate first failed closed on D-10's nested italics inside its bold label — a format-only fix)."
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 22
+  total_plans: 36
   completed_plans: 22
   percent: 50
 ---
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-18 — v1.32 started)
 authoritative dispatch key end to end. v1.32 turns that key on the project's own diagnostics: a
 community `dev test` report must be attributable to the firmware that produced it before any
 protocol-`0x0D` write-path claim can be made about it.
-**Current focus:** Phase 151 — Protection Readability — `lock-status` (+ DATA-06, re-homed) — not started
+**Current focus:** Phase 151 — Protection Readability — `dev lock-status` (+ DATA-06, re-homed) — **PLANNED, ready to execute**: 14 plans / 6 waves / 39 tasks, dual-repo. Research `567169fd`, patterns `10c6cf79`, validation `71ca19c1`, plans `9dd950f2`. Plan-checker: PASSED (0 blockers). Requirements coverage 5/5; decision coverage 16/16. Two plans are non-autonomous — `151-04` (datasheet sourcing) and `151-14` (bench session, which must NOT run under `--auto`/`--chain`).
 
 **v1.32 AT28C Write-Path Root Cause & Report Provenance** — ACTIVE (activated 2026-08-18, ~~folding Backlog
 **999.28**~~ — **the 999.28 fold was reversed 2026-08-20**: Phase 150 (`write --sdp-relock`) was deferred

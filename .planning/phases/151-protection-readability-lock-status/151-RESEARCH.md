@@ -4010,40 +4010,54 @@ command this session.
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> **All seven resolved as of 2026-08-20, before planning.** Each item below carries an
+> inline `*RESOLVED:*` line naming the binding decision and the plan that carries it, so
+> this section is self-auditing and no reader has to cross-reference five other files.
+> Four were settled by the orchestrator/operator as **OD-1…OD-4** (recorded in the
+> planner brief and in `151-01-PLAN.md`); the rest were settled by the planner in
+> `151-DESIGN.md`, produced by `151-01`.
 
 1. **`firestarter lock-status` or `dev lock-status`?** (C-2)
    - *Known:* CONTEXT.md D-01 says `dev lock-status`, beta-only. ROADMAP criterion 2, ROADMAP:189, REQUIREMENTS LOCK-02 and STATE.md all say `firestarter lock-status`, and STATE.md explicitly calls it "a new **top-level** command registration".
    - *Unclear:* which wins. They imply different file sets, different snapshots, and a different stable-channel promise.
    - *Recommendation:* the planner must surface this to the operator before writing a task. D-01 is the later and more specific decision, and CONTEXT.md is the phase's own locked record — but four upstream artifacts say otherwise and one of them is a **requirement**. Do not reconcile silently in either direction.
+   - *RESOLVED (**OD-1**):* `dev lock-status`, beta-only. Not actually contested — `151-DISCUSSION-LOG.md:20` shows the beta-only surface was presented as an option and chosen (`✓`), `:22` records the host-only recommendation "overruled deliberately", and `:113` states the surface "was already settled… in area 1". The four upstream artifacts carry **pre-discuss** text. `151-01` hand-edits all five measured stale sites (`ROADMAP.md:176`, `:189`, Success Criterion 2, `REQUIREMENTS.md:229`, `STATE.md`) plus ROADMAP's "one firmware-touching workstream" at `:37`/`:155`.
 
 2. **What class does `algorithm: 0x34` (`XICOR/X88C64P,X88C64S`) resolve to?** (C-5)
    - *Known:* one row; EEPROM; `protect_off_before: true`; `support_status: protocol-not-implemented`; handler `configure_not_implemented()`; unreachable through `resolve_chip`.
    - *Unclear:* `no_mechanism` is false (upstream says it has one); `not_implemented` currently means "`0x10`, documented-readable but deliberately unimplemented".
    - *Recommendation:* decide explicitly and let D-12's exhaustiveness leg be the forcing function. It is red today.
+   - *RESOLVED (**OD-2**):* `not_implemented`. `no_mechanism` would assert something upstream contradicts (`protect_off_before: true`) — a fabricated claim, which is what LOCK-03/LOCK-04 forbid. `not_implemented` is honest and preserves D-09's 8-class freeze with no ninth class. Census consequence: `not_implemented` is **40**, not 39 — pinned as a literal in `151-12` with the supersession stated. `151-DESIGN.md` §4.
 
 3. **How is the parse-gate fork resolved?** (§Priority 2)
    - *Known:* no free slot below `CMD_READ_VPP` (11); a command at 16 gets no `json_parse` and no `configure_memory`.
    - *Unclear:* widen the ordinal test, or something else.
    - *Recommendation:* make it its own task with its own native test driving `parse_json` for the new ordinal, and decide it **before** the wire shape, because it determines the byte cost and therefore the exemption.
+   - *RESOLVED (**OD-3**):* option (a) — widen the `:77` ordinal test to admit the command via `is_memory_cmd()`. (b) re-ordering the enum breaks wire compatibility with every shipped firmware and host constant; (c) is structurally impossible because `firestarter_get_data` is a protocol-handler pointer set by `configure_memory`. Carried by `151-03`, with the `[0,255]` truth-table update in **both** DEV_TOOLS states. Second consequence stated as a deliberate choice: ordinal 16 also falls outside the diagnostic range at `:136-146`, so `dev lock-status` emits **no** `DBG_*` output; admission set grew 8→9, diagnostic range unchanged.
 
 4. **Does the `0x05` half earn its bytes? — REVISED 2026-08-20, and the answer is now "partially".** (revised C-10)
    - *Known:* `infoic.xml` is closed as a source (finding 5), so the sequence is datasheet-only and only pinnable, never provable. But the operator has a `W29C020`, so a reachable chain exists: `--force` → `unadjudicated_probe` → the sequence runs on silicon. And the **mode-entry half is verifiable today with zero new code** (`firestarter id W29C020` → `0xDA45`).
    - *Unclear:* how far D-03's W29C040-scoped claim-cap reaches to a W29C020 leg (two readings, both laid out); and whether the status address/decode can ever be claimed at all (they have no oracle).
    - *Recommendation:* report, do not redesign — D-02 and D-03 are locked. The plan should state the payoff as **partial corroboration on a related part**, and must not imply the v1.17 RCA closes — that RCA asked for a second **W29C040** sample.
+   - *RESOLVED:* reported, not redesigned — D-02/D-03 stay locked and the operator kept the `0x05` half knowing the cost. `151-14` runs the bench session as legs A/B/C with the payoff stated as **partial corroboration on a related part**; no artifact claims the sequence is silicon-validated or that the v1.17 RCA closes. Per **OD-4** the pinned sequence bytes are a **change detector, not a correctness proof**, in those words.
 
 7. **How is C-17 resolved — is bare `W29C020` `documented-readable`?**
    - *Known:* the `:21` row key covers it; `:30`, `:335`, `:350` and `:25` all narrow to `W29C020C`; bare `W29C020` appears exactly once in 399 lines. C-18 makes the distinction unobservable on the wire anyway (one `<ic>`, one `chip_id 0x0000da45`).
    - *Unclear:* which reading the curated table transcribes. **Neither is safe**, and D-06's three states have no slot for "documented, but the document's own summary declines to repeat the verdict".
    - *Recommendation:* operator decision. Resolving it in a curator's head is exactly the per-entry adjudication D-06's rejected alternative forbids, and DATA-04 polices this precise edge. Note the practical stakes are lower than they look: the entry refuses by default under **either** reading, because of `W29C022`.
+   - *RESOLVED:* a **mechanism, not a judgement** — which is what D-06's rejected alternative and DATA-04 require. `151-DESIGN.md` §5 defines a named more-restrictive tiebreak rule plus a reporting-only `AMBIGUOUS_DOC_CITATIONS` record surfaced in the refusal text, so the documentary contradiction is *recorded* rather than adjudicated in a curator's head. D-06's three states are **not** extended. Practical stakes stay low: the entry refuses under either reading because of `W29C022`.
 
 5. **Does a new message id fit?** (C-11)
    - *Known:* one free ERROR id (`0xBF`); WARN/INFO/DATA have room; `MSG_WARN_FL4_BOOT_BLOCK_LOCKED` / `MSG_ERR_FL4_BOOT_BLOCK_LOCKED` already exist unemitted.
    - *Recommendation:* prefer reusing the two existing boot-block ids and the WARN/OK/DATA bands; treat `0xBF` as a last resort.
+   - *RESOLVED:* yes, in the **DATA** band — one new id `MSG_DATA_PROTECTION_STATUS` via the existing `LOG_DATA_ID_BYTES`, carried by `151-05`. `0xBF` is left unspent, with a durable test pinning that. Rejected: extending `MSG_OK_READY` (every ack would then carry a protection claim) and minting a new ERROR id (`0xBF` is the band's only free slot).
 
 6. **Does the D-13 section produce a row in the summary table?**
    - *Known:* the summary's schema is `| Bug ID | Attribute | Correct decode | Current build_db.py behavior | Phase 57 fix |`; DATA-06 is not a bug.
    - *Recommendation:* the planner decides; "documented once" is satisfied either way, but D-13's "feeds that file's summary" phrasing invites a row the schema has no column for.
+   - *RESOLVED:* **no row.** The summary's schema is `| Bug ID | Attribute | Correct decode | Current build_db.py behavior | Phase 57 fix |` and DATA-06 is not a bug — forcing a row would misfile it. `151-07` instead requires one explicit concluding sentence in the new section, which satisfies D-13's "feeds that file's summary" without inventing a column.
 
 ---
 
