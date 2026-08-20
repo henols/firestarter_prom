@@ -218,3 +218,39 @@ for the full design and the 999.15 stub rewrite in `ROADMAP.md`.
    failure (and say so loudly), refuse the whole operation up front, or relock regardless? The
    first is the only one consistent with "the attractor should be the state the user can recover
    from" (the rationale behind auto-unlock policy (d), `PROJECT.md:671`).
+
+## Is there an independent second source for the PROGRAMMING axis? — added 2026-08-20
+
+> Context: the pinout axis just acquired one. See
+> [`.planning/todos/pending/onerom-pinout-external-corroboration-gate.md`](../todos/pending/onerom-pinout-external-corroboration-gate.md).
+
+1. **Does a machine-readable, independently-derived source exist for `vpp_mv`,
+   `pulse_duration_us`, `algorithm` and page size — the way One ROM's `chip-types.json` now
+   does for bus maps?** The One ROM cross-check (2026-08-20) corroborated 12 of our 15
+   `pinouts.json` families against an oracle with no `infoic.xml` lineage, validated by an
+   emulator working in-circuit. But One ROM never programs a chip, so it is silent on every
+   field where our actual defects have landed: the 4.5 V premise disproved in Phase 148 (5
+   files, not 2), the 128/64 B page seam in Phase 149, the deleted `CTRL_VPE_ENABLE` assert
+   behind the Phase 145 W27C512 byte-0 failure, `pulse_duration_us`, and the suspected VPP
+   droop still standing as the Phase 99 AM27C020 explanation. That axis has exactly **one**
+   source — `infoic.xml` — plus bench silicon for the handful of parts in operator inventory.
+   A decode bug there is currently unfalsifiable except by bench or datasheet re-read.
+   Candidates worth assessing: minipro/TL866 device tables, Wellon programmer tables, GQ-4x,
+   EzoFlash, other open programmer firmware. **Hard filter: most of these are infoic forks
+   or share its ancestry — a fork is not an independent oracle and would manufacture false
+   confidence.** Establish lineage before treating any candidate as corroborating, and record
+   the lineage finding even for the ones that fail the filter, so this does not get re-asked.
+2. **If no independent source exists, what is the cheapest substitute?** Options include a
+   datasheet-extraction pass over `firestarter_app/datasheets/` scored against the generated
+   DB (the `devtest-rootcause` skill already reads datasheets for exactly this purpose, one
+   chip at a time — the question is whether it generalises to a sweep), or accepting that the
+   programming axis stays bench-only and instead investing in making community `dev test`
+   reports the corroboration channel. The second is already partly built and would make the
+   answer to (1) matter less — worth deciding which before scoping either.
+3. **Should `pinouts.json` itself be reclassified?** It is hand-maintained and read as an
+   *input* by `tools/build_db.py:23`, so the "generated, never hand-edit" protection around
+   `chip_database.json` does not cover it, and nothing else does either — 255 chips ride
+   `DIP32_SST39SF040` alone. The corroboration test in the linked todo closes most of that
+   gap, but it leaves `DIP24_2532` (no external counterpart) and any newly-added family
+   unguarded. Is a datasheet-citation requirement per family (a `comment` field with a
+   sourced claim, as `DIP32_27C020` already carries) worth making mandatory?
