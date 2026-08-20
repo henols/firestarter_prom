@@ -5,16 +5,16 @@ milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 151
 current_phase_name: Protection Readability — `lock-status`
 status: executing
-stopped_at: Phase 150 (write --sdp-relock) DEFERRED to Backlog 999.28 by operator decision at the discuss step -- nothing created (no phase dir, no CONTEXT.md, no commits); RELOCK-01..06 + RELOCK-08 left v1 scope, DATA-06 re-homed to Phase 151, Phase 152 OUT-01/OUT-04 amended to state a withdrawal; Phase 151 not started
-last_updated: "2026-08-20T06:45:00.000Z"
+stopped_at: Phase 151 context gathered
+last_updated: "2026-08-20T07:59:02.144Z"
 last_activity: 2026-08-20
-last_activity_desc: Phase 150 deferred to Backlog 999.28 (operator decision); records amended, transitioned to Phase 151
+last_activity_desc: "**Phase 150 (`write --sdp-relock`) DEFERRED to Backlog 999.28** by operator decision during `/gsd-discuss-phase 150`, before any research, plan or CONTEXT.md existed. Nothing was created: no `.planning/phases/150-*/` directory, no CONTEXT.md, no commits in either sub-repo. Second deferral of the same work (v1.30 deferred it as Phase 135); both vacated numbers stay unreused. RELOCK-01…06 + RELOCK-08 left v1 scope (33 → 25 requirements); **DATA-06 retained and re-homed to Phase 151** on its documented-advisory branch; Phase 151's dependency on 150 discharged; **Phase 152's OUT-01/OUT-04 amended** to describe a withdrawal rather than a migration, and OUT-05's claim gate gained a fifth class rejecting `write --sdp-relock`-as-shipped. Records amended: ROADMAP.md, REQUIREMENTS.md, PROJECT.md, the 999.28 backlog stub and the deferral todo."
 progress:
-  total_phases: 5
+  total_phases: 6
   completed_phases: 3
   total_plans: 22
   completed_plans: 22
-  percent: 60
+  percent: 50
 ---
 
 # Project State
@@ -2317,9 +2317,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-20T06:45:00.000Z
-**Stopped at:** **Phase 150 (`write --sdp-relock`) DEFERRED to Backlog 999.28** — operator decision during `/gsd-discuss-phase 150`, taken at the gray-area selection before any research, plan or CONTEXT.md existed. **Nothing was created for Phase 150:** no `.planning/phases/150-*/` directory, no CONTEXT.md, no commits in either sub-repo. Records amended in one commit: `ROADMAP.md` (phase entry → `⏸`, full deferral record with the six measured findings preserved, Phase 151/152 dependency + criteria amendments, coverage table, 999.28 stub un-promoted), `REQUIREMENTS.md` (RELOCK-01…06 + RELOCK-08 → `⏸`, DATA-06 re-homed to Phase 151 with the fork closed on the advisory branch, §Out of Scope row, traceability), `PROJECT.md` (workstream 4, D-03, and a new §"⏸ Phase 150 … DEFERRED" record), plus the two affected todos. **Next:** Phase 151 — `/gsd-discuss-phase 151`.
-**Resume file:** None — no Phase 150 artifacts exist to resume from. Phase 151 starts clean.
+**Last session:** 2026-08-20T07:59:02.062Z
+**Stopped at:** Phase 151 context gathered
+**Resume file:** .planning/phases/151-protection-readability-lock-status/151-CONTEXT.md
 
 **Gitlink gap from Phase 149's close — CLOSED 2026-08-20.** Phase 149 landed its dual-repo work but never bumped meta's submodule gitlinks, so meta HEAD asserted "Phase 149 COMPLETE and VERIFIED — page-size seam landed across both repos" while pointing at `firestarter 7f6afc65` / `firestarter_app b142c0e6` — trees containing none of it. Bumped to `firestarter 6e3f90a3` (6 commits, all `149-*`) and `firestarter_app 9cc57c75` (13 commits: 8 `149-*` plus the 5 `fw` port-targeting fixes, which `git cherry` marks `-` against `origin/beta` — patch-identical to PR #52's merged work under different SHAs, so nothing unreviewed rode along). Both sub-repos verified on `gsd/v1.32-at28c-write-path-root-cause-report-provenance` with clean tracked trees. Restores the per-plan bump convention this milestone set at `chore(147-02)`/`chore(147-05)`; the branches are local-only, as Phase 147's were when it bumped, and become reachable at the close via the PR to `beta`.
 
