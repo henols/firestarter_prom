@@ -24,10 +24,12 @@ forbidden patterns plus the module skeleton itself, transcribed unchanged.
 donor itself required of Phase 139's gate before it:
 
 1. `_DEFAULT_TARGETS` is this phase's own review artifact, `149-PAGE-SIZE.md`,
-   plus all seven `149-01-SUMMARY.md`..`149-07-SUMMARY.md` (extended by
-   plan 08 once every one of them existed) -- eight entries, enumerated one
-   by one, never a wildcard expansion and never a recursive directory
-   traversal: a wildcard `149-`-prefixed default
+   plus all eight `149-01-SUMMARY.md`..`149-08-SUMMARY.md` (extended by
+   plan 08 once every one of them existed, `149-08-SUMMARY.md` itself added
+   only once it was written -- see this plan's own SUMMARY for the ordering
+   this required) -- nine entries, enumerated one by one, never a wildcard
+   expansion and never a recursive directory traversal: a wildcard
+   `149-`-prefixed default
    set would sweep in `149-CONTEXT.md`, `149-RESEARCH.md` and
    `149-DISCUSSION-LOG.md` (each carrying the forbidden vocabulary as
    discussion prose), the fixtures directory (whose planted files exist
@@ -150,6 +152,7 @@ _DEFAULT_TARGETS = [
     os.path.join(_HERE, "149-05-SUMMARY.md"),
     os.path.join(_HERE, "149-06-SUMMARY.md"),
     os.path.join(_HERE, "149-07-SUMMARY.md"),
+    os.path.join(_HERE, "149-08-SUMMARY.md"),
 ]
 
 # Env-override seam, SUFFIXED `_149`: the donor's `_146` name is a distinct
@@ -297,6 +300,7 @@ _CAVEAT_RULES = {
     "149-05-SUMMARY.md": frozenset({"software-proven-unvalidated"}),
     "149-06-SUMMARY.md": frozenset({"software-proven-unvalidated"}),
     "149-07-SUMMARY.md": frozenset({"software-proven-unvalidated"}),
+    "149-08-SUMMARY.md": frozenset({"software-proven-unvalidated"}),
     "149-CLAIM-GATE-TRANSCRIPTS.md": frozenset(),
 }
 
