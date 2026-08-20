@@ -138,10 +138,10 @@ status: complete
 1. **Task 1: Complete `149-PAGE-SIZE.md`, add the README changelog subsection** — `9cc57c7` (docs, `firestarter_app` — README), `423270bd` (docs, meta — artifact sections), `c98b2c73` (fix, meta — stale opening-statement correction, Rule 1)
 2. **Task 2: Extend the claim gate to 8 targets, re-prove RED/GREEN/ARGV, flip PGSZ-01..05** — `97da8f3d` (feat, meta)
 3. **Task 3: Operator wording review** — no code commit (checkpoint decision only); "approved" recorded here and below
-4. **Closing: add this SUMMARY as the gate's 9th target (same commit as the SUMMARY itself)** — see Self-Check for the hash
-5. **Closing: re-run and commit the final 9-target/ARGV transcripts** — see Self-Check for the hash
-6. **Closing: self-check appended** — see Self-Check for the hash
-7. **Closing: STATE.md/ROADMAP.md plan-08 and Phase-149 completion** — see Self-Check for the hash
+4. **Closing: add this SUMMARY as the gate's 9th target (same commit as the SUMMARY itself)** — `add64a98` (docs, meta)
+5. **Closing: re-run and commit the final 9-target/ARGV transcripts** — `d64197b0` (docs, meta)
+6. **Closing: self-check appended** — `53290622` (docs, meta)
+7. **Closing: STATE.md/ROADMAP.md plan-08 and Phase-149 completion** — `7ae74579` (docs, meta)
 
 ## Files Created/Modified
 
