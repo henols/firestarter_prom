@@ -226,3 +226,49 @@ line is reachable and clean via the argv mechanism designed for content outside 
 **Does not prove:** anything about the prose's honesty beyond this forbidden-phrase table and the
 one required caveat — the same explicit non-claim as the plan 02 section above. That is task 3's
 blocking human wording review, which this section does not discharge.
+
+---
+
+## Final target list (plan 08 close-out — 149-08-SUMMARY.md added)
+
+`_DEFAULT_TARGETS` gained its 9th and final entry, `149-08-SUMMARY.md`, in the same commit that
+wrote the file (see this plan's own SUMMARY, "Decisions Made" — the ordering hazard T-149-53
+identifies and its resolution). Both commands below were run from this phase directory with
+`python3` (3.12.13), after the operator approved the wording review at this plan's task 3
+checkpoint.
+
+### GREEN — the real nine-entry defaults, no argv, no seam
+
+```
+$ python3 149-check-claims.py ; echo EXIT=$?
+PASS: scanned 149-PAGE-SIZE.md, 149-01-SUMMARY.md, 149-02-SUMMARY.md, 149-03-SUMMARY.md, 149-04-SUMMARY.md, 149-05-SUMMARY.md, 149-06-SUMMARY.md, 149-07-SUMMARY.md, 149-08-SUMMARY.md; 9 of 9 caveat-required file(s) carry every caveat their own rule demands; 0 file(s) carry no caveat requirement (this PASS is compliance with the forbidden-phrase table and the per-file caveat rule only -- see the module docstring's explicit non-claim, and note that a green run alone does not discharge plan 08's human wording review)
+EXIT=0
+```
+
+### ARGV — the nine defaults plus the outward-facing README
+
+```
+$ python3 149-check-claims.py 149-PAGE-SIZE.md 149-01-SUMMARY.md 149-02-SUMMARY.md 149-03-SUMMARY.md 149-04-SUMMARY.md 149-05-SUMMARY.md 149-06-SUMMARY.md 149-07-SUMMARY.md 149-08-SUMMARY.md /workspaces/firestarter_app/README.md ; echo EXIT=$?
+PASS: scanned 149-PAGE-SIZE.md, 149-01-SUMMARY.md, 149-02-SUMMARY.md, 149-03-SUMMARY.md, 149-04-SUMMARY.md, 149-05-SUMMARY.md, 149-06-SUMMARY.md, 149-07-SUMMARY.md, 149-08-SUMMARY.md, ../../../firestarter_app/README.md; 10 of 10 caveat-required file(s) carry every caveat their own rule demands; 0 file(s) carry no caveat requirement (this PASS is compliance with the forbidden-phrase table and the per-file caveat rule only -- see the module docstring's explicit non-claim, and note that a green run alone does not discharge plan 08's human wording review)
+EXIT=0
+```
+
+### Paired suite
+
+```
+$ python3 -m pytest test_check_claims_v132.py -q -o addopts=""
+....................                                                     [100%]
+20 passed in 0.63s
+```
+
+### What this section proves, and what it still does not
+
+**Does prove:** every artifact this phase produced -- `149-PAGE-SIZE.md` and all eight
+`149-NN-SUMMARY.md` files -- is now a live, enumerated gate target and passes cleanly, non-vacuously
+(every SUMMARY carries the required caveat); the outward-facing README line remains reachable and
+clean via the argv mechanism after this plan's own SUMMARY was added.
+
+**Does not prove:** anything about the prose's honesty beyond this forbidden-phrase table and the
+one required caveat -- the same explicit non-claim carried by every section above. The operator's
+wording-review approval at this plan's task 3 checkpoint is what discharges that gap for this
+phase; this section records the gate's own state after that approval, not a substitute for it.
