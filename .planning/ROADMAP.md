@@ -429,7 +429,7 @@ in `requirements:`:
 - [x] 151-04-PLAN.md — OD-4: source both read sequences from datasheets into `151-SEQUENCES.md`, with the operator decision on dropping the two missing PDFs (non-autonomous)
 - [x] 151-05-PLAN.md — `MSG_DATA_PROTECTION_STATUS` in the DATA band, synced and regenerated across all five tracked catalog files, with a committed catalog-presence test
 - [x] 151-06-PLAN.md — `protection_gate_for_entry`: the pure classifier, fail-closed on both axes, with the `W29C022` named leg and the C-6 alias-set leg
-- [ ] 151-07-PLAN.md — DATA-06: one authoritative section in `infoic-field-dictionary.md` carrying every measurement and the 18/18 + 25/66 promotion split, two authored one-line pointers, a Python proof, and the folded todo resolved
+- [x] 151-07-PLAN.md — DATA-06: one authoritative section in `infoic-field-dictionary.md` carrying every measurement and the 18/18 + 25/66 promotion split, two authored one-line pointers, a Python proof, and the folded todo resolved
 - [ ] 151-08-PLAN.md — the firmware sequences: `flash_util_read_in_id_mode`, both `*_read_protection_execute` operations and dispatch arms, `eprom_lock_status`, the `loop()` arm, and five new legs each in the two existing family suites
 - [ ] 151-09-PLAN.md — LOCK-01's AST gate: Option A's parameterised two-name Class 2, the generalised Class 1(a), the explicitly-weaker Class 3, and two committed planted fixtures
 - [ ] 151-10-PLAN.md — the cold triple-target re-measure, `151-SIZE-TRANSCRIPTS.md`, the third flash and second RAM exemptions, and the eight legs severed onto a new `*_v151*` family
@@ -470,7 +470,7 @@ in `requirements:`:
 | DATA-03 | Phase 148 | Complete |
 | DATA-04 | Phase 148 | Complete |
 | DATA-05 | Phase 148 | Complete |
-| DATA-06 | Phase 151 | Pending |
+| DATA-06 | Phase 151 | Complete |
 | PGSZ-01 | Phase 149 | Complete |
 | PGSZ-02 | Phase 149 | Complete |
 | PGSZ-03 | Phase 149 | Complete |
