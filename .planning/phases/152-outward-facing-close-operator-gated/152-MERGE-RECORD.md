@@ -18,7 +18,7 @@ Protocol `0x0D` stays UNVERIFIED in PROTOCOL-LEDGER.
 |---|---|---|---|---|
 | `firestarter` | #53 | https://github.com/henols/firestarter/pull/53 | merge commit (`mergeCommit.oid` present, 2 parents) | MERGED |
 | `firestarter_app` | #53 | https://github.com/henols/firestarter_app/pull/53 | merge commit (`mergeCommit.oid` present, 2 parents) | MERGED |
-| meta (this repo, `firestarter_prom`) | **none created** | — | — | **not opened** |
+| meta (this repo, `firestarter_prom`) | #38 | https://github.com/henols/firestarter_prom/pull/38 | merge commit (`9e154847d6`, 2 parents `acae91615d` + `be2216a048`, read back via `gh api`) | MERGED |
 
 Measured live, this plan, `2026-08-21T17:20:15Z`:
 
@@ -38,12 +38,24 @@ Both merge commits carry exactly 2 parents each, read back via `gh api repos/<ow
 in `152-11-SUMMARY.md` (`a1f474b5...` → parents `7f6afc65be`, `d990a4ce80`; `8f2e8d7d...` → parents
 `f505ae77d2`, `a0bfd5e8b3`) — confirming the merge-commit method independently of intent.
 
-**The meta repository's PR is deliberately NOT created yet.** Confirmed live this plan:
+**The meta repository's PR was deliberately held until Plan 152-20, and was opened and merged there.**
+Measured `2026-08-21T19:07:25Z`:
 
 ```
-$ gh pr list --repo henols/firestarter_prom --state all --limit 10
-(no entry for head branch gsd/v1.32-at28c-write-path-root-cause-report-provenance)
+$ gh pr view 38 --repo henols/firestarter_prom --json state,baseRefName,mergedAt,mergeCommit
+{"baseRefName":"beta","mergedAt":"2026-08-21T19:07:25Z","state":"MERGED",
+ "mergeCommit":{"oid":"9e154847d6fbe4b22f54dade0c95b633e44e0728"}}
+
+$ gh api repos/henols/firestarter_prom/commits/9e154847d6fbe4b22f54dade0c95b633e44e0728 --jq '.parents|length'
+2
+
+$ git fetch origin && git cherry origin/beta HEAD
+(no output)
 ```
+
+**The meta repository has no release workflow, so this merge cut nothing.** Confirmed:
+`gh release list --repo henols/firestarter_prom` returns no releases at all. Unlike the two sub-repo
+merges, which each fired a pre-release by design, this one publishes no artifact.
 
 **Plan 152-20 owns creating it, and here is why it must stay unopened until then:** this phase keeps
 writing planning artifacts inside `.planning/` after this plan's own cut — the record corrections
@@ -201,3 +213,33 @@ for whoever runs `/gsd-complete-milestone` against this record:
 
 *Phase: 152-outward-facing-close-operator-gated*
 *Written: 2026-08-21*
+
+---
+
+## ⚠ TAIL — commits made to the meta repository AFTER PR #38 merged, which are NOT on `beta`
+
+PR #38 merged at `2026-08-21T19:07:25Z`. Everything committed to `/workspaces` after that moment is on
+the milestone branch **only**. As of this record the tail is, by path:
+
+- `.planning/phases/152-outward-facing-close-operator-gated/152-MERGE-RECORD.md` — this file, completed
+  by Plan 152-20 after the merge (it could not record the merge before it happened).
+- `.planning/phases/152-outward-facing-close-operator-gated/152-20-SUMMARY.md` — Plan 152-20's own
+  SUMMARY, which cannot exist until the plan finishes.
+- `.planning/phases/152-outward-facing-close-operator-gated/152-CLAIM-GATE-TRANSCRIPTS.md` — the pasted
+  result of the final positional-argv gate run over `152-20-SUMMARY.md`.
+- `.planning/ROADMAP.md`, `.planning/STATE.md` — whatever phase verification and the close produce.
+- Anything a `/gsd-verify-work` or milestone-close step writes after this point.
+
+**How the close must handle this — read literally:**
+
+1. **Push the tail onto `beta` at the close.** Do NOT open a second pull request for it, and do NOT
+   re-merge either sub-repository to pick it up.
+2. **Do NOT re-merge `firestarter` or `firestarter_app`.** Both are already fully on `beta`
+   (`git cherry origin/beta HEAD` is empty in both). Re-merging would cut a second pair of
+   pre-releases announcing nothing, under version numbers the published release bodies do not name.
+3. **Verify with `git cherry`, never `git merge-base --is-ancestor`.** All three merges in this
+   milestone are two-parent merge commits, so ancestry happens to work — but a squash anywhere in the
+   history makes `--is-ancestor` a false negative, and this project has already been bitten by that
+   once (v1.30's PR #44).
+4. **Do not re-pin the gitlinks here.** The intended future gitlink values are in §5 above; pinning
+   them is the milestone close's job, not this phase's.
