@@ -413,8 +413,32 @@ def test_armed_against_the_real_152_artifacts():
         "one or more of the eight expected outward artifacts is missing from "
         f"_DEFAULT_TARGETS: {expected_basenames - actual_basenames}"
     )
-    assert len(module._DEFAULT_TARGETS) == 8, (
-        "expected exactly eight _DEFAULT_TARGETS entries as of Plan 152-19, "
+    # Plan 152-20 extended the list over every plan SUMMARY through 152-19.
+    expected_summaries = {f"152-{n:02d}-SUMMARY.md" for n in range(1, 20)}
+    actual_summaries = {b for b in actual_basenames if b.endswith("-SUMMARY.md")}
+    assert actual_summaries == expected_summaries, (
+        "the SUMMARY members of _DEFAULT_TARGETS must be exactly 152-01 "
+        "through 152-19.\n"
+        f"missing: {sorted(expected_summaries - actual_summaries)}\n"
+        f"unexpected: {sorted(actual_summaries - expected_summaries)}"
+    )
+
+    # ORDERING TRAP -- do NOT "fix" this by adding a twentieth SUMMARY entry.
+    # `152-20-SUMMARY.md` does not exist while Plan 152-20 runs, so adding it
+    # would trip the gate's fail-closed missing-target branch and drive every
+    # remaining run of this phase non-zero. It is scanned via positional argv
+    # after 152-20's SUMMARY is written; see the transcript's "Final target
+    # list" section for the exact command.
+    assert "152-20-SUMMARY.md" not in actual_basenames, (
+        "152-20-SUMMARY.md must NOT be a _DEFAULT_TARGETS member -- it does "
+        "not exist while Plan 152-20 runs and the fail-closed missing-target "
+        "branch would make the gate non-zero for the rest of the phase. It is "
+        "scanned via positional argv instead."
+    )
+
+    assert len(module._DEFAULT_TARGETS) == 27, (
+        "expected exactly 27 _DEFAULT_TARGETS entries as of Plan 152-20 "
+        "(eight claim-bearing artifacts plus nineteen SUMMARY files), "
         f"got {len(module._DEFAULT_TARGETS)}: {module._DEFAULT_TARGETS}"
     )
 

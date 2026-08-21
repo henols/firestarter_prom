@@ -206,6 +206,31 @@ _DEFAULT_TARGETS = [
     os.path.join(_HERE, "152-RELEASE-NOTES-fw.md"),
     os.path.join(_HERE, "152-MERGE-RECORD.md"),
     os.path.join(_HERE, "152-LEDGER.md"),
+    # Every plan SUMMARY through 152-19. `152-20-SUMMARY.md` is DELIBERATELY
+    # ABSENT: it does not exist while Plan 152-20 runs, and the fail-closed
+    # missing-target branch would drive this gate non-zero for the remainder of
+    # the phase. It is scanned instead via positional argv, after 152-20's own
+    # SUMMARY is written -- see the transcript's "Final target list" section.
+    # Do NOT "fix" this by adding a twentieth entry or by globbing.
+    os.path.join(_HERE, "152-01-SUMMARY.md"),
+    os.path.join(_HERE, "152-02-SUMMARY.md"),
+    os.path.join(_HERE, "152-03-SUMMARY.md"),
+    os.path.join(_HERE, "152-04-SUMMARY.md"),
+    os.path.join(_HERE, "152-05-SUMMARY.md"),
+    os.path.join(_HERE, "152-06-SUMMARY.md"),
+    os.path.join(_HERE, "152-07-SUMMARY.md"),
+    os.path.join(_HERE, "152-08-SUMMARY.md"),
+    os.path.join(_HERE, "152-09-SUMMARY.md"),
+    os.path.join(_HERE, "152-10-SUMMARY.md"),
+    os.path.join(_HERE, "152-11-SUMMARY.md"),
+    os.path.join(_HERE, "152-12-SUMMARY.md"),
+    os.path.join(_HERE, "152-13-SUMMARY.md"),
+    os.path.join(_HERE, "152-14-SUMMARY.md"),
+    os.path.join(_HERE, "152-15-SUMMARY.md"),
+    os.path.join(_HERE, "152-16-SUMMARY.md"),
+    os.path.join(_HERE, "152-17-SUMMARY.md"),
+    os.path.join(_HERE, "152-18-SUMMARY.md"),
+    os.path.join(_HERE, "152-19-SUMMARY.md"),
 ]
 
 # POSTED-MODE BASENAME RULE (recorded here because this is where the

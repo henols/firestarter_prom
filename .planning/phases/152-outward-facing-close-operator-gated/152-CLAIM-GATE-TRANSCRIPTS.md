@@ -369,7 +369,78 @@ immediately above `_DEFAULT_TARGETS`, and the posting plans (152-14 through 152-
 
 ## Final target list (close-out, Plan 152-20 — the last SUMMARY added via argv)
 
-This section is filled in by Plan 152-20, this phase's close-out plan, which scans the phase's
-final `152-20-SUMMARY.md` via positional argv (it cannot be a `_DEFAULT_TARGETS` member while that
-plan is still writing it) and records the last extended-list re-run. Not yet written as of this
-plan.
+Plan 152-20 extended `_DEFAULT_TARGETS` from eight entries to **27** — the eight claim-bearing
+artifacts plus every plan SUMMARY through `152-19`. `152-20-SUMMARY.md` is deliberately **not** a
+member: it does not exist while Plan 152-20 runs, and the gate's fail-closed missing-target branch
+would drive every remaining run of this phase non-zero. The suite's arming leg now pins that shape
+in three parts — the eight named artifacts are members, the SUMMARY members are exactly
+`152-01`…`152-19`, and `152-20-SUMMARY.md` is asserted *absent* with a comment naming the trap so a
+future reader does not "fix" it.
+
+### The extended list (27 entries, every one existing on disk, every dirname this phase directory)
+
+```
+   1. 152-CLAIM-CLASSES.md
+   2. 152-GH12-COMMENT.md
+   3. 152-GH21-COMMENT.md
+   4. 152-GH11-COMMENT.md
+   5. 152-RELEASE-NOTES-app.md
+   6. 152-RELEASE-NOTES-fw.md
+   7. 152-MERGE-RECORD.md
+   8. 152-LEDGER.md
+   9. 152-01-SUMMARY.md
+  10. 152-02-SUMMARY.md
+  11. 152-03-SUMMARY.md
+  12. 152-04-SUMMARY.md
+  13. 152-05-SUMMARY.md
+  14. 152-06-SUMMARY.md
+  15. 152-07-SUMMARY.md
+  16. 152-08-SUMMARY.md
+  17. 152-09-SUMMARY.md
+  18. 152-10-SUMMARY.md
+  19. 152-11-SUMMARY.md
+  20. 152-12-SUMMARY.md
+  21. 152-13-SUMMARY.md
+  22. 152-14-SUMMARY.md
+  23. 152-15-SUMMARY.md
+  24. 152-16-SUMMARY.md
+  25. 152-17-SUMMARY.md
+  26. 152-18-SUMMARY.md
+  27. 152-19-SUMMARY.md
+```
+
+### Defaults GREEN — untruncated
+
+```
+$ python3 152-check-claims.py
+PASS: scanned 152-CLAIM-CLASSES.md, 152-GH12-COMMENT.md, 152-GH21-COMMENT.md, 152-GH11-COMMENT.md, 152-RELEASE-NOTES-app.md, 152-RELEASE-NOTES-fw.md, 152-MERGE-RECORD.md, 152-LEDGER.md, 152-01-SUMMARY.md, 152-02-SUMMARY.md, 152-03-SUMMARY.md, 152-04-SUMMARY.md, 152-05-SUMMARY.md, 152-06-SUMMARY.md, 152-07-SUMMARY.md, 152-08-SUMMARY.md, 152-09-SUMMARY.md, 152-10-SUMMARY.md, 152-11-SUMMARY.md, 152-12-SUMMARY.md, 152-13-SUMMARY.md, 152-14-SUMMARY.md, 152-15-SUMMARY.md, 152-16-SUMMARY.md, 152-17-SUMMARY.md, 152-18-SUMMARY.md, 152-19-SUMMARY.md; 26 of 26 caveat-required file(s) carry every caveat their own rule demands; 1 file(s) carry no caveat requirement (this PASS is compliance with the forbidden-phrase table and the per-file caveat rule only -- see the module docstring's explicit non-claim, and note that a green run alone does not discharge D-03's per-artifact blocking operator wording review)
+GATE rc=0
+```
+
+### Positional-argv run over the nineteen SUMMARY files
+
+This proves the positional path works on exactly the class of file that will carry the final one.
+
+```
+$ python3 152-check-claims.py 152-0*-SUMMARY.md 152-1*-SUMMARY.md
+PASS: scanned 152-01-SUMMARY.md, 152-02-SUMMARY.md, 152-03-SUMMARY.md, 152-04-SUMMARY.md, 152-05-SUMMARY.md, 152-06-SUMMARY.md, 152-07-SUMMARY.md, 152-08-SUMMARY.md, 152-09-SUMMARY.md, 152-10-SUMMARY.md, 152-11-SUMMARY.md, 152-12-SUMMARY.md, 152-13-SUMMARY.md, 152-14-SUMMARY.md, 152-15-SUMMARY.md, 152-16-SUMMARY.md, 152-17-SUMMARY.md, 152-18-SUMMARY.md, 152-19-SUMMARY.md; 19 of 19 caveat-required file(s) carry every caveat their own rule demands; 0 file(s) carry no caveat requirement (this PASS is compliance with the forbidden-phrase table and the per-file caveat rule only -- see the module docstring's explicit non-claim, and note that a green run alone does not discharge D-03's per-artifact blocking operator wording review)
+ARGV rc=0
+```
+
+### Suite
+
+```
+$ python3 -m pytest test_check_claims_152.py -q -o addopts=""
+34 passed in 1.15s
+```
+
+### The final SUMMARY's argv scan
+
+`152-20-SUMMARY.md` is scanned **after** it is written, via positional argv, with exactly:
+
+```
+cd /workspaces/.planning/phases/152-outward-facing-close-operator-gated
+python3 152-check-claims.py 152-20-SUMMARY.md
+```
+
+Its pasted result is appended by Plan 152-20's output step, below.
