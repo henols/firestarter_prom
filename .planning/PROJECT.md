@@ -39,6 +39,197 @@
 
 **v1.31 shipped:** 2026-08-18 (27C Programming-Algorithm Fidelity — 9 phases (138–146), 74 plans, 164 tasks; **45/45 v1 requirements**; firmware-touching, dual-repo lockstep. Implements [gh#15](https://github.com/henols/firestarter_prom/issues/15) **as corrected, not as filed** — two wrong numbers and one inverted premise, all three corrected *publicly and before implementation* (comment `#5233463320`): `0x0B`'s pulse is **500 µs**, not `50000 us`; pulse width is a **database datum**, not a per-protocol constant (re-derived live through the production parser — 170/127/32 chips); and the safe 32-bit delay helper is for the overprogram pulse, not any bare pulse. Delivered: **one shared per-byte pulse-to-verify loop** driven by a `const` PROGMEM `eprom_params_t` table keyed on `protocol_id` (**D-01** — protocol owns *shape*, the database owns the *pulse*), **not** gh#15's three state machines; fixed-width pulses that never grow between attempts; hard-fail at `max_pulses` reporting the failing **address and pulse count**; one shared `eprom_hv_route_mask()` with every **error** exit disabling every HV route through a single-exit wrapper; `write --pulse-us N` bounded 1..65535 and pre-validated before a serial byte, riding the existing wire field with **no new DB field and no second algorithm selector**; plus a host long-write timeout fix and intra-block progress, scoped to the `leonardo` class only — on `SERIAL_ON_IO` boards the emission is compiled out **structurally**, because a buffered progress frame there could displace a later `MSG_ERR_MAX_PULSES` and convert a program failure into a transport timeout. **Bench-validated on real silicon:** three full 65536-byte write→read→verify cycles on a Winbond **W27C512** (`0xda08`), **Leonardo**, shield **Rev 2.0** — three distinct images, nine clean oracle cells, read stability N=3 at one SHA each, write timing consistent to **0.37 s**. A firmware defect this milestone itself introduced (Phase 141 deleted the only `CTRL_VPE_ENABLE` assert) failed the **first** bench cycle on byte 0; it was root-caused by a debug session, fixed, and **stands in the record with its cause** rather than being counted out. **Evidence Ceiling stands: the ~6.25 V program-VCC rail all four vendor algorithms assume is unreachable on every shield revision this project owns** — so this milestone claims **fidelity, not improvement**, with no comparative claim, no control run, and no datasheet-conformance claim in either direction. `0x08` (AM27C020) and `0x0B` (M2716/M2732) are **skipped-with-reason** with the missing parts named, never inferred from `0x07`. Twelve items carry forward with the literal phrase `no v1.31 owner`; **MERGE-05's +96 B leonardo band breach is open and un-adjudicated** with the operator as its named owner. Eighth consecutive `override_closeout` (9 carry-forward items, none originating in v1.31). Closed via **PRs to `beta` in all three repos, not direct merges**, per operator decision — meta tagged `v1.31`, gitlinks re-pinned; **no beta cut yet**, and stable stays operator-gated. See `.planning/MILESTONES.md` §v1.31.)
 
+## Current Milestone: v1.32 — AT28C Write-Path Root Cause & Report Provenance — ACTIVE
+
+**Started:** 2026-08-18 · **Phases continue at 147** (v1.31 ran 138–146) · **Mostly host-side; three
+firmware-touching workstreams** — Phase 149 (the page-size seam), Phase 151 (the protection read) and
+Phase 153 (the write-path erase policy) — each requiring dual-repo lockstep. *(Corrected 2026-08-21 per
+152-CONTEXT.md D-15: this line originally said "one firmware-touching workstream", naming only the
+page-size seam. Phase 151's protection read made it two; Phase 153's write-path erase policy, added
+mid-milestone from Phase 152's discuss session, makes it three. The ROADMAP's v1.32 header already
+carried the corrected count of three — this line is what catches up to it.)*
+
+**Goal:** Root-cause the AT28C256 / protocol-`0x0D` write-path failure behind
+[gh#21](https://github.com/henols/firestarter_prom/issues/21) — and *first* remove the
+instrumentation defect that makes root-causing it, or any other community report, impossible.
+
+**Base:** forked off `origin/beta` in the meta repo (`acae9161`), which carries v1.31's merged close
+(PR #35). Sub-repo branches fork off their `beta` tips, which now carry v1.31 (fw PR #52, app PR #51,
+both merged 2026-08-18) and the beta cut those merges fired — app **3.0.0b21**, firmware **3.0.0b19**.
+
+### The finding that opens this milestone
+
+`devtest-triage` cross-checked AT28C256 against Atmel/Microchip DS20006386B and cleared the data
+outright: all 28 pins of `DIP28_28C256` agree with the datasheet, `infoic_page_size_raw: 64` is
+exactly the datasheet's page register, `chip_id_check: false` is correct (the part has no factory
+signature), and the database already asks for SDP disable-before / enable-after. It handed the
+question to root-cause as a host/firmware problem, not a database one.
+
+Root-cause then found the reason that question cannot currently be answered:
+
+**`cli_handlers.py:2503` hardcodes `fw_board_identity=None`.** The comment is honest about why —
+`EpromOperator.comm` is a transient per-operation connection torn down after every operator call, so
+there is no live comm to read `programmer_info` off of without opening an extraneous connection and
+violating the orchestrator-only contract (SAFE-02). The consequence is that **every `dev test` report
+ever filed carries `fw_board_identity: null`**. gh#21 and gh#32 both report host `3.0.0b15` and an
+unknown firmware. They therefore cannot be distinguished from a board running pre-Phase-117 firmware
+that lacks the entire `0x0D` fix stack — FIX-01 (the remap-aware emitter that closed the `/WE`-inhibit
+defect across 66 of 84 `0x0D` chips), FIX-03 (A16–A18 upper-address staleness), FIX-06 (the
+completion-vs-data-landed conflation that *is* gh#11's shape). Attribution is impossible, and no
+amount of bench work fixes that.
+
+This is why report provenance leads the milestone rather than trailing it: it is host-only, needs no
+AT28C part, and unblocks attribution for every future community report, not just this one.
+
+### Target workstreams
+
+| # | Workstream | Surface | Bench |
+|---|---|---|---|
+| 1 | **Report provenance** — `dev test` reports must name the firmware they ran on | host | no |
+| 2 | **`0x0D` data defects** — `vcc: "4V"` decode bug (datasheet is 4.5–5.5 V); `protect_on_after: true` is dead data since v1.30 deleted the lock surface | `build_db.py` | no |
+| 3 | **Firmware page-size seam** — deliver `infoic_page_size_raw` through wire → `json_parser` → handler, replacing the hardcoded `PAGE_SIZE 64` | firmware + host | partial |
+| 4 | **Close the AT28C book** — ~~land `write --sdp-relock` (Backlog 999.28)~~ **⏸ the relock half DEFERRED 2026-08-20 → back to Backlog 999.28** (see the deferral record below). **The write-path half of that book is now closed by workstream 7 (Phase 153)** — the relock half alone stays deferred, so this row's deferral must not be read as nothing having shipped for the AT28C family. What remains here is posting the owed gh#12 reply (v1.30's CLOSE-06, open by design), which must now state a **second withdrawal**, not a migration | host + outward | no |
+| 5 | **`lock-status` command** (seed) — hand-curated family-level protection table + `dev lock-status <chip>` (beta-only; corrected from the seed's top-level `firestarter lock-status` by Phase 151's OD-1) | host + firmware | partial |
+| 6 | **Numeric DB values** (seed) — voltages/timing as mV / µs integers, deleting `database.py`'s coercion layer | host | no |
+| 7 | **Write-path erase policy** — no pre-write blank check on the two auto-erasing protocols (`0x0D`, `0x05`); a standalone software chip erase on `0x0D` (added mid-milestone from Phase 152's discuss session, D-07) | firmware + host | no |
+
+Workstreams 2 and 6 touch the same field (`electrical.vcc`) and must land together — numericalising
+`vcc` to `vcc_mv` turns the `"4V"` → 5 V correction into a value change rather than a string edit.
+*(Corrected 2026-08-19 per Phase 148 D-01/D-02/D-04: this read "→ 4.5 V". `4V` is a **faithful**
+decode of `infoic.xml`'s VCC nibble `2`; the defect is semantic — it is the TL866's verify-margin
+rail surfaced as the operating supply — so the correction is a margin-rail substitution to the
+already-decoded `vdd` (5000 mV), and 4500 mV is a value `infoic.xml` does not carry for these
+parts.)*
+
+**Workstream 1 delivered — Phase 147 complete 2026-08-18** (6 plans, 4 waves; PROV-01…PROV-06 all
+ticked, verification `passed`). `cli_handlers.py`'s hardcoded `fw_board_identity=None` is replaced by a
+real prerelease-preserving identity captured inside the orchestrator contract (SAFE-02 intact — `comm`
+stays a transient per-operation connection); the report schema is at 1.4 and still parses older
+`null`-carrying reports; and an absent identity now renders as an explicit `not reported` marker plus a
+not-attributable clause naming the next action, across all three surfaces — the report model, the app's
+`[dev test]` parser, and the `devtest-triage` skill's `show` render. Per D-01 the dependency spine is
+now in place: a future `dev test` run is self-identifying, so any write-path work can be attributed to
+a firmware version. **This changes nothing about the write path itself** — `0x0D` remains `UNVERIFIED`
+and gh#21/#32/#11/#12 remain OPEN, exactly as the evidence ceiling requires.
+
+**Workstreams 2 and 6 delivered — Phase 148 complete 2026-08-19** (8 plans, 8 sequential waves;
+DATA-01…DATA-05 all ticked, verification `passed` 5/5). They landed together as D-02 required. The
+generated database now states each electrical and timing value **once, as an integer in one unit**:
+`vcc_mv` / `vdd_mv` / `vpp_mv` in millivolts and `pulse_duration_us` in microseconds, across **both**
+emission paths (`build_db.py`'s decode loop *and* the authored `tools/extra_chips.json` supplement).
+`interpret_timing()` now raises on a decode fault instead of shipping a silent wrong `0`. Both live
+string parsers are **deleted, not bypassed** — `database.py`'s `.replace("V","")` → `float()` and
+`_parse_pulse_duration`, and `audit_coverage_matrix.py`'s `parse_pulse_us` (zero hits repo-wide) —
+with one shared `format_mv` helper owning all three display sites.
+
+The AT28C correction landed exactly as D-02's proof rule demands. `firestarter info AT28C256` now
+reports **5.0v**, via a post-construction margin-rail substitution keyed on the **decoded value
+alone** (`vcc_mv == 4000` → that chip's own `vdd_mv`) — no part number, no type, no algorithm, and
+the decode table itself byte-unchanged. Measured blast radius: **exactly 56 chips**, every one
+4000 → 5000 mV, zero decreases, published per-chip through a new `RULE_VCC_MARGIN_RAIL` bucket in
+`diff_db.py`. GATE-03 reports zero violations with `check_dispatch.py` byte-unchanged. A 746-chip
+host→wire capture taken *before* any edit proves the migration never changed what reaches the
+firmware. A 28-chip (16+12) high-margin 5500 mV group is deliberately deferred, filed with its exact
+part list.
+
+**This too changes nothing about the write path.** `0x0D` remains `UNVERIFIED`; the AT28C data was
+already cleared by `devtest-triage`, and this phase corrected how that data is *represented and
+reported*, not how the part is programmed. gh#21/#32/#11/#12 stay OPEN.
+
+### Evidence ceiling — binding, not decorative
+
+**There is still no AT28C part in operator inventory** (recorded 2026-08-04, re-confirmed at this
+milestone's kickoff). This caps what v1.32 may claim, in the same shape as v1.22 and v1.30:
+
+- `0x0D` stays **`UNVERIFIED`** in `PROTOCOL-LEDGER`. No phase may graduate it.
+- gh#21, gh#32, gh#11 and gh#12 stay **OPEN**. A code fix is not a validation; only a fresh passing
+  `dev test` on real silicon closes them, and only `devtest-triage` closes them.
+- The honest outward-facing outcome is a corrected code path plus a request to the reporter for a
+  fresh run — now answerable, because workstream 1 makes that run self-identifying.
+- The firmware page-size change (workstream 3) cannot be validated without a part. It ships
+  software-proven and says so.
+
+### Decisions taken at kickoff
+
+- **D-01 — provenance leads.** Workstream 1 is the dependency spine. Fixing it after the write path
+  would leave the write-path fix unattributable to any firmware version, including our own.
+- **D-02 — the proof rule holds for the `vcc` fix.** `chip_database.json` is generated. The VCC
+  correction lands in the decode function in `build_db.py` and is proven by `diff_db.py`; a one-chip
+  fix that moves hundreds of chips means the decode change was too broad. No per-chip guess table,
+  no `_PAGE_SIZE_BY_PART` sibling. *(The kickoff text read "The 4.5 V correction"; corrected
+  2026-08-19 per Phase 148 D-01/D-02/D-04 — the target is 5000 mV, the already-decoded `vdd`, not
+  4500 mV. **This decision's own proof rule is unchanged and is what surfaced the error**: 4500 mV
+  cannot be traced to an `infoic.xml` attribute, and the measured blast radius of the adopted rule
+  is exactly 56 chips.)*
+- **D-03 — `protect_on_after` is reconciled, not deleted.** The bit is a faithful decode of
+  `infoic.xml` flags bit 15 and stays. What changes is that the system stops silently ignoring it —
+  workstream 4 gives it a consumer. *(Amended 2026-08-20 with the Phase 150 deferral: workstream 4's
+  consumer branch is gone, so "stops ignoring it" is discharged by **documentation** in Phase 151
+  instead. D-03's substance is unchanged — the field stays, and the system stops being silent about
+  it; only the discharge mechanism narrowed, and the choice was closed by the deferral rather than
+  taken afresh.)*
+- **D-04 — `lock-status` is hand-curated by proven necessity.** The 2026-07-10 research established
+  that `infoic.xml` cannot supply protection readability: W29C020C (readable permanent boot block)
+  is flag-identical to W29EE011 (SDP-only, unreadable). The hand-curated table is not a violation of
+  the proof rule; it is what the proof rule leaves when upstream genuinely lacks the field.
+
+**~~Folds Backlog 999.28~~** (`write --sdp-relock`, promoted to Phase 150) — **⏸ NO LONGER TRUE as of
+2026-08-20; see the deferral record below.** **Backlog 999.29**
+(the AT28C256 write-path failure itself) is **partially addressed and NOT retired**: v1.32 removes
+the blocker to diagnosing it and answers it publicly, but under the Evidence Ceiling it does not
+diagnose it. That item stays open with the operator as its named owner. Consumes the `lock-status-command-hand-curated-protection-table` and
+`db-numeric-values-simplification` seeds.
+
+### ⏸ Phase 150 (`write --sdp-relock`) DEFERRED — 2026-08-20, operator decision
+
+**Deferred at the discuss step**, during `/gsd-discuss-phase 150` and before the gray-area selection was
+answered. **Nothing was created**: no `.planning/phases/150-*/` directory, no CONTEXT.md, no research, no
+plans, no commits in either sub-repo. Operator's words: *"I don't want the relock implementation right
+now. I will implement it later if it is requested later."* It returns to Backlog **999.28**, so **v1.32
+no longer folds that item**.
+
+**This is the second deferral of the same work** — scoped as v1.30 **Phase 135**, deferred 2026-08-03;
+promoted 2026-08-18 as v1.32 **Phase 150**; deferred again 2026-08-20. Both vacated phase numbers (135,
+150) stay unreused so by-number cross-references keep resolving.
+
+**What moved:**
+
+- **RELOCK-01…06 and RELOCK-08 leave v1 scope** → Backlog 999.28. v1.32 goes from 33 to **25** v1
+  requirements. Their text in `REQUIREMENTS.md` §RELOCK is unmodified — only the checkboxes changed
+  `[ ]` → `⏸` — so nothing needs re-authoring at a future promotion. RELOCK-07 is unaffected (it
+  shipped in v1.30 Phase 137).
+- **DATA-06 is RETAINED and re-homed to Phase 151**, resolving on its **documented-advisory** branch.
+  That branch was closed by the deferral, not chosen afresh, so D-03's "decided once" property holds
+  and Phase 151 is now the only phase that may write about `protect_on_after`. Keeping it in scope is
+  deliberate: deferring it too would leave the field dead data for a second release, which is the
+  precise thing it exists to stop.
+- **Phase 151's dependency on Phase 150 is discharged** — LOCK-03 refuses on every `0x0D`/SDP family
+  regardless of whether a lock can be created, so `lock-status` always stood alone. Phase 151 also
+  inherits `firestarter_app/firestarter/cli_handlers.py` as the milestone's sole remaining writer.
+
+**The accepted cost, and the outward-facing obligation it creates.** v1.30 shipped the deletion of
+`dev sdp enable|disable` without its replacement and recorded that as a cost; **v1.32 was the milestone
+scoped to close that gap and does not.** So since 2026-08-05, and continuing past v1.32, there is **no
+supported way to deliberately protect an SDP part** — and on `0x0D` the protection bit cannot be read
+back, so a user cannot observe the state either. Consequently **Phase 152's OUT-01 and OUT-04 were
+amended on 2026-08-20**: both were authored naming `write --sdp-relock` as shipped, and both must now
+describe a **withdrawal, never a migration**, naming Backlog 999.28. OUT-05's fail-provable claim gate
+gained a **fifth claim class** rejecting any outward text that names the command as shipped or
+available — and the pre-amendment criterion-1 wording this project's own roadmap carried until that
+date is the planted violation the gate must be seen to reject. Announcing a command absent from the
+release announcing it is the overclaim class v1.22's C-5 correction and v1.30's CLOSE-05/06 amendment
+both exist to prevent; getting it wrong here would be the milestone failing its own stated purpose in
+its most public artifact, for the second release running.
+
+**Measured findings from the abandoned discussion are preserved in ROADMAP §"Phase 150"** so a
+re-promotion needs no fresh archaeology — the `protect_on_after` distribution (70/746 true; 43 of 84
+`algorithm: 13`; **27 of 27** `algorithm: 5`, i.e. a constant there), its `MP_PROTECT_AFTER`
+capability-not-policy semantics, the machine-proven element-wise equality with `sdp_capability`'s
+transcription, the `check_sdp_capability_invariants.py` Class 2(b) constraint that blocks a runtime
+field read, the true `write --help` pin locations (two syrupy snapshots in `test_characterization.py`,
+**not** Phase 136's channel-gating tests), and the `logger.warning`-emits-no-prefix trap behind
+RELOCK-04's literal `WARNING:` requirement.
+
 ## v1.31 Archive: 27C Programming-Algorithm Fidelity (gh#15) — Shipped 2026-08-18
 
 **Started:** 2026-08-08 · **Phases continue at 138** (v1.30 ran 131–134, 136, 136.1, 137; the 135 slot
@@ -1165,6 +1356,8 @@ on a physical RURP shield is deferred to a v1.1 hardware-test pass.
 | 2026-08-17 | v1.31 **MERGE-05 reads green because its anchor MOVED, not because growth stayed inside the band** — F-141-01's overrun was never remediated, and `ebe9cb3` is **+96 B** against a 0 B leonardo must-not-grow band | ⚠ Revisit — carried **open and un-adjudicated** with the operator as its named owner; BASE-01 was not re-anchored a second time to make it green, and Phase 145's Gate 2 and Gate 3 both ran on a build carrying the breach. 144 H7 was answered green at 26906 B and then went red underneath the answer |
 | 2026-08-18 | v1.31 close `override_closeout`: **9** carry-forward `audit-open` items acknowledged-and-deferred for the **eighth** consecutive close — down from 14 because the 2026-08-09 sweep closed Phases 71 and 85 on evidence and retired two debug sessions into precise trackers. None originate in v1.31, and all nine phases are verified | ⚠ Revisit — the residue is now genuinely hardware-gated (the Uno-class legs of Phases 08/09, Phase 84's operator sign-off) rather than merely unswept. Two closes ago this was flagged as needing one deliberate resolution pass; the sweep was that pass, and what survives it needs bench time, not another acknowledgement |
 | 2026-08-18 | v1.31 close **found and worked around a GSD tooling defect rather than accepting its output**: `plan-scan.cjs`'s loose `/PLAN/i` fallback counted `146-REPLAN-BRIEF.md` as a phantom 14th plan in a 13-plan phase, driving `phase_complete: false` for a closed phase | ✓ Good — the brief was renamed (`146-RESCOPE-BRIEF.md`, provenance note in-file, no citation referenced it) and the scanner behaviour filed, not fixed. The v1.30 close shows the same signature (`current_phase: 30`, 7/8, 88%), so this had been mis-reporting silently for at least two milestones |
+
+**⚠ CORRECTION (Phase 152 / 152-CONTEXT.md D-06 + D-15 — 2026-08-21) — the 2026-07-30 v1.22 row above ("`dev test`'s erase fabrication had to be fixed before the closeout comments") rests on a premise this phase found disproven.** That row records Phase 121 D-12 clearing `FLAG_CAN_ERASE` for the `0x0D` family; `database.py:591`'s own comment (as it read before Phase 153) gave the reason as: advertising the erase capability for these chips is a **false capability statement**. That premise is **disproven**. The capability is real in the silicon — Microchip **DS20006386B**, Table 6-1 Operating Modes (p11), lists Hardware Chip Erase as a first-class operating mode, with the **Optional Chip Erase Mode** paragraph on the same page and the erase waveforms in §6.10 (p15) — and real in `infoic.xml`: the AT28C256 record carries `flags = 0x0000C010`, so the erasable bit `0x10` is **SET**. What was false was only that *firestarter* could perform it, not that the chip could. Phase 153 closed that gap using the **software** AN-0544B six-byte erase path, not the datasheet's 12 V-on-OE hardware path — the hazard guard for that hardware path is `firestarter/scripts/check_erase_no_vpp.py` — and restored `FLAG_CAN_ERASE` for `algorithm 13` at `database.py:638`. The **code comment** half of this correction was discharged by Phase 153 (ERASE-07); this block is the `.planning`-side half only. **Verified already landed by this phase, not re-done:** the "three firmware-touching workstreams" count above (`:45-47`), the workstream table's row 7 for Phase 153 (`:90`), and workstream 4's updated description (`:91`) were all confirmed present before this block was written.
 
 ## Context
 

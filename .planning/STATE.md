@@ -1,20 +1,20 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.31
-milestone_name: — 27C Programming-Algorithm Fidelity
-current_phase: 146
-status: "v1.31 SHIPPED and archived 2026-08-18 by /gsd-complete-milestone. 9 phases (138-146), 74 plans, 164 tasks, 45/45 v1 requirements, all nine phases verified. Closed via PRs to beta in all three repos (NOT direct merges), per operator decision: firestarter#52, firestarter_app#51, firestarter_prom#35. Meta tagged v1.31 and pushed; gh#15 reconciliation POSTED (comment #5324876941, byte-verified). ALL THREE PRs MERGED 2026-08-18 with MERGE COMMITS, deliberately not squashes -- fw#52 -> bc3ca547, app#51 -> 91c2add0, meta#35 -> 2003b707 -- so f8ac6439, the commit every Phase 145 bench measurement was taken on, is a VERIFIED ANCESTOR of beta (`merge-base --is-ancestor` exits 0) and the SHA citations in 145-BENCH-LOG.md and 146-LEDGER.md stay resolvable from beta. v1.30's PR #44 was squashed and its branch is NOT an ancestor of beta, which is the false negative this avoided. BETA CUT DONE, both channels verified independently: firmware 3.0.0b19 (read from `gh release list` at 10:00:08Z, cut from 7f6afc65, four .hex assets incl. firestarter_py32f071.hex) and host app 3.0.0b21 (09:58:57Z, cut from 7aae46cb, wheel + sdist confirmed present ON PYPI, not merely on GitHub -- this project has had GitHub at b17 while PyPI sat at b15). Version numbers differ because the repos version independently. STABLE UNTOUCHED: PyPI info.version still 2.0.7, main not merged in any repo. Gitlinks on beta re-pinned to the published release commits (7f6afc65 / 7aae46cb) per the v1.21/v1.23 precedent; the v1.31 TAG deliberately retains the pre-merge pin f8ac6439 as the archive point and bench anchor. firestarter#52's conflict was RESOLVED before the merge: origin/beta merged in, src/firestarter.cpp taken from this branch (our CAP-01+CAP-02+CAP-03 side is a strict superset of beta PR #49's CAP-01+CAP-02 on all three hunks). Firmware logic is byte-identical to the bench-validated f8ac6439 -- the merge's only content change is beta's CI bump include/version.h 3.0.0b17->3.0.0b18, and all three targets rebuild unchanged (24920/24970/27002 B), so MERGE-05's +96 B does not move. PR #49's two CAP-02 facts were restored in a separate comments-only commit. 146-RELEASE-NOTES-{fw,app}.md placeholders are now FILLED with the observed tags. ONE ITEM STILL NEEDS THE OPERATOR: meta PR #34 (opened 2026-08-09) still targets MAIN from this same branch, against the beta convention -- it is the last open v1.31 artifact. NEXT: /gsd-new-milestone (and `git mv .planning/research/` before its researchers run -- milestone close does not archive it)."
-stopped_at: "v1.31 CLOSED by /gsd-complete-milestone 2026-08-18. Phase 146 ended at 146-13 (13/13 plans, CLOSE-01..05 ticked); milestone archived to .planning/milestones/v1.31-{ROADMAP,REQUIREMENTS}.md. NOTE: this field was overwritten with a stale 146-11 line by gsd-tools milestone.complete and hand-restored, together with current_phase (written as 31, a parse artifact of 'v1.31') and the progress block (written 8/9 phases at 89%, a phantom-plan artifact); see 145/146 verification records."
-last_updated: "2026-08-18T10:05:00.000Z"
-last_activity: 2026-08-18
-last_activity_desc: "**v1.31 SHIPPED and archived** by /gsd-complete-milestone. Archived ROADMAP + REQUIREMENTS to .planning/milestones/v1.31-*; REQUIREMENTS.md removed via git rm; MILESTONES/PROJECT/ROADMAP/RETROSPECTIVE/STATE all updated by hand where the tooling could not be trusted. Pushed all three milestone branches and the v1.31 tag; opened three PRs to beta (firestarter#52, firestarter_app#51, firestarter_prom#35); posted the owed gh#15 reconciliation as the first post-push act (comment #5324876941, body byte-identical to frozen blob a36ee805 plus GitHub's appended newline; issue unchanged otherwise at OPEN/0 labels/0 assignees/no milestone, comment count 1->2). Closeout type override_closeout: 9 acknowledged carry-forwards, NONE originating in v1.31, recorded in the Deferred Items section above. THREE REPAIRS this close made rather than accepted: authored the missing 145-VERIFICATION.md from the existing bench record (it cites that record and states it cannot be re-run without hardware); renamed 146-REPLAN-BRIEF.md to 146-RESCOPE-BRIEF.md because plan-scan.cjs's loose /PLAN/i fallback counted it as a phantom 14th plan in a 13-plan phase (filed as a todo, not fixed -- vendored upstream tooling); and hand-repaired this file after milestone.complete wrote current_phase=31 (a parse artifact of 'v1.31'), a stale 146-11 stopped_at, and progress 8/9 at 89% -- the v1.30 close carries the identical signature unrepaired. Also committed VALIDATED-EPROMS.md, untracked despite being cited by v1.31's own 146-CITATIONS.md. Gates green after every edit: claim gate rc=0, D-13 doc checker rc=0, Phase 130 record gate rc=0 with its exempt tally unchanged; both sub-repo suites at exact baseline (firestarter 314, firestarter_app 1590 + 30 snapshots). CI on the pushed branches: firmware build GREEN (the first CI run against any v1.31 firmware code), app ci + ci-py32 GREEN; meta catalog-sync-check RED on a ~2-month-old orphaned gitlink (.planning/v1.7/upstream-rurp has no .gitmodules entry, present on beta too) -- pre-existing, not from this close. OWED TO THE OPERATOR: resolve firestarter#52's src/firestarter.cpp conflict against beta PR #49 (it moves the firmware tip past the bench-validated commit, so it is a judgement call, not bookkeeping), and decide what happens to meta PR #34, which still targets main from this branch. NEXT: /gsd-new-milestone."
+milestone: v1.32
+milestone_name: — AT28C Write-Path Root Cause & Report Provenance
+current_phase: 152
+current_phase_name: Outward-Facing Close (operator-gated)
+status: executing
+stopped_at: "Phase 152 PLANNED 2026-08-21 — 20 plans across 14 waves, plan-checker PASSED (0 blockers), coverage 5/5 (OUT-01..05) and 15/15 CONTEXT decisions (D-01..D-15). Phase 153 is COMPLETE, so 152's out-of-number-order precondition (D-07/D-08) is DISCHARGED. ⚠ OPERATOR-GATED: 152 must NOT be run under --auto/--chain — seven plans carry autonomous: false and each restates that prohibition; autonomous: false alone is NOT self-protecting. NEXT: /gsd-execute-phase 152 (no --auto, no --chain)."
+last_updated: "2026-08-21T14:08:07.848Z"
+last_activity: 2026-08-21
+last_activity_desc: "Phase 152 (Outward-Facing Close, operator-gated) EXECUTING from 2026-08-21 — 20 plans / 14 waves, all sequential on the main checkout (no worktree isolation: every plan reads a submodule or asserts on absolute /workspaces paths). Seven plans are operator-gated (152-11 the beta merges, 152-14..18 the five public posts, 152-20 close-out); this phase must NOT be run under --auto/--chain."
 progress:
-  total_phases: 9
-  completed_phases: 9
-  total_plans: 74
-  completed_plans: 74
-  percent: 100
-current_phase_name: close-honesty-ledger-claim-gate-gh-15-reconciliation
+  total_phases: 7
+  completed_phases: 5
+  total_plans: 72
+  completed_plans: 52
+  percent: 71
 ---
 
 # Project State
@@ -24,97 +24,103 @@ current_phase_name: close-honesty-ledger-claim-gate-gh-15-reconciliation
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-08-08 — v1.31 started)
+See: `.planning/PROJECT.md` (updated 2026-08-18 — v1.32 started)
 
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
-authoritative dispatch key end to end. v1.31 makes that key drive *programming behaviour*, not just
-handler selection — while keeping the pulse width itself a database datum, not a protocol constant.
-**Current focus:** Phase 146 — close-honesty-ledger-claim-gate-gh-15-reconciliation
+authoritative dispatch key end to end. v1.32 turns that key on the project's own diagnostics: a
+community `dev test` report must be attributable to the firmware that produced it before any
+protocol-`0x0D` write-path claim can be made about it.
+**Current focus:** Phase 152 — Outward-Facing Close (operator-gated) — **EXECUTING** (started 2026-08-21): 20 plans / 14 waves, OUT-01..05. Claim gate built w1-2, armed at the real artifacts w7, first public post w8; both beta merges w5 and the cut-version read w6 precede either release-body post (w11/w12). ⚠ OPERATOR-GATED — must NOT run under --auto/--chain.
 
-**v1.31 27C Programming-Algorithm Fidelity (gh#15)** — ACTIVE (activated 2026-08-08, retiring Backlog
-**999.22** which was queued as the `v1.27` slot). **Firmware-touching, dual-repo lockstep.** Phase
-numbering continues at **Phase 138** (v1.30 ran 131–134, 136, 136.1, 137; the 135 slot stays vacant).
-v1.24 (Bus-Config Mask-Model), v1.25 (Jumper-Display / 2516) and v1.26 (White-Box Voltage Calibration)
-are left byte-unchanged so by-number cross-references keep resolving; v1.28 (Binary Command Protocol)
-and v1.29 (vacant) unchanged.
+**v1.32 AT28C Write-Path Root Cause & Report Provenance** — ACTIVE (activated 2026-08-18, ~~folding Backlog
+**999.28**~~ — **the 999.28 fold was reversed 2026-08-20**: Phase 150 (`write --sdp-relock`) was deferred
+back to that backlog item by operator decision at the discuss step, for the second time (v1.30 deferred it
+as Phase 135). See PROJECT.md §"⏸ Phase 150 … DEFERRED" for the record and the outward-facing obligation it
+creates for Phase 152; Backlog **999.29** is partially addressed and explicitly NOT retired — v1.32 removes the
+blocker to diagnosing the AT28C256 write-path failure and answers it publicly, but does not diagnose it). **Mostly host-side; one firmware-touching
+workstream** (the page-size seam) requiring dual-repo lockstep. Phase numbering continues at
+**Phase 147** (v1.31 ran 138–146). The v1.24–v1.29 slots are left byte-unchanged so by-number
+cross-references keep resolving.
 
-**Scoped from gh#15 as CORRECTED, not as written.** The `/gsd-explore` pass of 2026-08-08
-(`.planning/seeds/27c-algorithm-fidelity-param-table-refactor.md`, commit `c60543c5`) found two wrong
-numbers and one inverted premise in the issue:
+**Base:** meta forked off `origin/beta` at `acae9161`, which carries v1.31's merged close (PR #35).
+Sub-repos fork off their `beta` tips, which now carry v1.31 (fw PR #52, app PR #51, both merged
+2026-08-18) and the beta cut those merges fired — app **3.0.0b21**, firmware **3.0.0b19**.
 
-- **C1** — gh#15's `0x0B` `pulse: 50000 us` is the fingerprint of **BUG-2**, the ×100
-  `interpret_timing()` multiplier over 252 chips that Phase 57 already removed. True value **500 µs**.
-  Adjudicated at `firestarter_app/doc/infoic-field-dictionary.md:210-217`.
+**Scoped from a root-cause pass over [gh#21](https://github.com/henols/firestarter_prom/issues/21),
+not from the issue text.** `devtest-triage` had already cleared the AT28C256 data against Atmel
+DS20006386B — all 28 pins of `DIP28_28C256` agree, `infoic_page_size_raw: 64` is the datasheet page
+register, `chip_id_check: false` is correct — and handed the question on as host/firmware. The
+root-cause pass then found why that question is currently unanswerable:
 
-- **C2** — pulse width is **DATA, not a per-protocol constant**. Measured live against the shipped DB
-  2026-08-08: `0x07` n=170 (100 µs ×113, 200×27, 1000×22, 500×4, 50×4); `0x08` n=127 (100 µs ×104,
-  50×11, 10×7, 200×2, 1000×2, 20×1); `0x0B` n=32 (500 µs ×21, 1000×6, 200×5) — all three gh#15
-  constants disagree with the modal value. minipro ships `protocol_id` and `pulse_delay` as two
-  orthogonal wire fields (`t48.c:250-267`) and exposes `-o pulse=N` per run (uint16, 65535 µs ceiling).
+- **F-01 (the spine)** — `cli_handlers.py:2503` hardcodes `fw_board_identity=None`, because
+  `EpromOperator.comm` is a transient per-operation connection torn down after every operator call
+  (SAFE-02 orchestrator-only contract). So **every `dev test` report ever filed carries
+  `fw_board_identity: null`**. gh#21/#32 report host `3.0.0b15` against an unknown firmware and
+  cannot be distinguished from a board lacking the entire Phase-117–120 `0x0D` fix stack (FIX-01
+  `/WE`-inhibit routing, FIX-03 A16–A18 staleness, FIX-06 the completion-vs-data-landed conflation
+  that is gh#11's actual shape). Host-only, no AT28C part required.
 
-- **C3** — the safe 32-bit delay helper is still needed, but for the **75 ms overprogram pulse**, not
-  for any pulse.
+- **F-02** — `electrical.vcc: "4V"` is a genuine `build_db.py` decode defect against the datasheet's
+  4.5–5.5 V. Inert on the wire (no VCC field is sent, the firmware has no VCC control register), so
+  it cannot explain `write BAD` — but it is wrong data the generator emits.
 
-**D-01 (structural):** protocol owns *shape* — `max_pulses`, `overprogram_factor`,
-`overprogram_cap_us`, `verify_mode`, `vpp_path` — and the database owns the *pulse*. One shared
-per-byte pulse→verify loop driven by a `const` table, **not** gh#15's three state machines with
-hardcoded timing constants. `handle->pulse_delay` stays on the write path; protocol constants survive
-only as `pulse_delay == 0` fallbacks (`eprom.cpp:70-77`).
+- **F-03** — `protect_on_after: true` is dead data: v1.30 deleted the lock surface and `write` never
+  re-locks (Backlog 999.28). The database states an intent the system silently ignores.
+  *(Resolution narrowed 2026-08-20 with the Phase 150 deferral: it stays dead **data** at runtime for a
+  second release — no consumer ships — and DATA-06 discharges in Phase 151 by **documenting** it as an
+  advisory upstream hint, so the system stops being silent about it even though it still does not act on
+  it. The field's only discriminating information anywhere is the `0x0D` ALLOW/REFUSE split, which
+  `sdp_capability` already transcribes and a test already proves element-wise equal; on `algorithm: 5`
+  it is `true` on 27 of 27, i.e. a constant.)*
 
-**D-02:** the `0x0B` one-shot-vs-looped question is **not answerable from source** — minipro never runs
-the algorithm, it packs `pulse_delay` into a `BEGIN_TRANS` message for closed TL866/T48/T56/T76
-firmware. Ships as looped pulse→verify with a **50 ms accumulated-energy cap per byte**
-(`100 × 500 µs` = the classic 2716 total programming time), satisfying both readings. No overpulse.
+- **F-04** — firmware hardcodes `PAGE_SIZE 64` while `infoic_page_size_raw` already ships in the DB.
+  The handler's own comment records the per-chip delivery path as DEFERRED and "not yet inserted
+  into ROADMAP.md". 64 is a deliberate conservative floor; AT28C010 needs 128.
 
-**D-03:** gh#15's corrections are posted **early, before implementation phases run**, on the v1.30
-CLOSE-06 pattern (drafted → frozen → operator-approved → posted only on explicit authorization).
-
-**Enabler:** VPE survives a read — `mem_util_calculate_top_address_register` preserves the HV mask
-across every `set_address` including the read path (`memory.cpp:163-166`) — so the `delay(10)` VPE
-settle (`eprom.cpp:114`) stays amortized once per block instead of 512 × 10 ms = 5.1 s. Caveat: for
-`pins < 32` the mask also preserves `CTRL_VPP_VPE_DROP_ENABLE`, which on DIP32 *is* A16.
-
-**⚠ Evidence ceiling, fixed before any code moves:** the ~6.25 V program-VCC all four vendor
-algorithms assume is **unreachable on this shield** (no VCC-raise path). This buys timing /
-pulse-count / verify fidelity and **not** silicon-margin fidelity. gh#15 omits this entirely, so its
-acceptance criteria must be amended; a committed claim gate forbids the unqualified
-"datasheet-conformant" overclaim. Bench coverage is **asymmetric by inventory** (operator,
-2026-08-08): `0x07` **required** (W27C512 / TMS27C512); `0x08` (AM27C020 — known marginal from v1.18
-Phase 99, write#1 60/64 then write#2 0/64) and `0x0B` (M2716 / M2732, 25 V NMOS, Phase 79 VPE path)
-are **opportunistic — skipped-with-reason if the parts do not materialize, never rubber-stamped**.
-This change is **not behavior-preserving**: golden traces encoding today's pulse cadence will
-legitimately shift, and re-baselining is expected work, not a regression.
-
-**⚠ BLOCKING PRECONDITION.** `firestarter_app`'s `gsd/v1.30-sdp-surface-retirement` is **NOT merged
-into `origin/beta`** — v1.30's PR was staged (`.planning/v1.30-PR-BODY.md`) but never opened, even
-though v1.30 is recorded as shipped. Operator decision 2026-08-08: **land it to `beta` first**, then
-fork v1.31's app branch off the updated `beta`. Firmware forks off `beta` @ `3085084` (clean). Meta
-forks off the v1.30 tip.
-
-**CORRECTION (2026-08-08, Phase 138 planning — measured, not recalled).** The precondition above is
-**falsified**: `firestarter_app` PR **#44** was opened *and* **MERGED** on 2026-08-05T21:13:01Z as a
-**squash** (merge commit `568e58b`, single parent `16a313a`). `git merge-base --is-ancestor` exits 1
-**because of the squash**, not because content is missing — `comm -23` of both `git ls-tree -r
---name-only` lists is **empty** (zero files on the v1.30 branch absent from `beta`), and
-`git diff --stat` is 12 files fully attributable to beta's later PRs #45/#46/#48/#49 plus the version
-bump. A re-merge is *guaranteed* to conflict (`tests/test_chip_test_sdp_leg.py` added in both with
-different blobs). **Operator decisions this session:** (**OD-1**) PREP-01 is discharged as a named
-content-equivalence finding `F-138-01`, **not** a merge — no PR is opened and no operator merge is
-required; the pre-release this predicted **already happened** (`beta` is at `3.0.0b20`).
-(**OD-2**) firmware still forks at `3085084` — `check_size_baseline.py` is **GREEN** there and **RED**
-at the live tip `6fab4ea` (+34 B flash ×3 targets) — with the drift and the MERGE-05 headroom (+56/+62
-against a 64 B band) recorded as a forward finding with owners, **not fixed** (D-07). The app forks at
-the live post-merge `beta` tip; meta's base is **`d0f0c6a0`** (the *longer-named* v1.30 branch).
-(**OD-3**) the meta repo's stale submodule gitlinks are **not** advanced — the three base commits are
-named in the narrative baseline artifact instead. Full four-oracle evidence:
-`.planning/phases/138-preconditions-baseline/138-RESEARCH.md` §"Branch & Ancestry Ground Truth".
+**EVIDENCE CEILING (binding).** There is still **no AT28C part in operator inventory** — recorded
+2026-08-04, re-confirmed at kickoff. `0x0D` stays **`UNVERIFIED`**; gh#21, gh#32, gh#11 and gh#12
+stay **OPEN**; no phase may claim silicon proof, and the firmware page-size change ships
+software-proven and says so. The honest outward outcome is a corrected code path plus a request to
+the reporter for a fresh run — now answerable, because F-01's fix makes that run self-identifying.
 
 ## Current Position
 
-Phase: Milestone v1.31 complete
-Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-08-18 — Milestone v1.31 completed and archived
+Phase: 152 — Outward-Facing Close (operator-gated) — EXECUTING
+Plan: 19 of 20 complete (wave 13 of 14 done) — honesty ledger written, gate armed at all 8 artifacts
+Status: Executing Phase 152 — wave 5 done: both sub-repos merged to `beta` via PR #53 as two-parent MERGE COMMITS (fw a1f474b5, app 8f2e8d7d); two pre-releases cut; `gh pr merge` needed an operator permission grant and was ultimately run by the orchestrator (deviation recorded in 152-11-SUMMARY.md). Next: wave 6 / 152-12 READS the cut versions. ⚠ OPERATOR-GATED — must NOT run under --auto/--chain; waves 8-12 each carry a blocking wording review.
+Next: /gsd-execute-phase 152 (no --auto, no --chain)
+Plans: 20 plans, 14 waves — plan-checker PASSED (0 blockers), coverage 5/5 (OUT-01..05), decisions 15/15 (D-01..D-15)
+Note: Phase 153 ran BEFORE 152 by design (D-08) and is COMPLETE, so 152's precondition is discharged. Seven plans carry autonomous: false (152-11 merge, 152-14..18 the five public posts, 152-20 close-out); autonomous: false alone is NOT self-protecting, which is why the --auto/--chain prohibition is restated in each. Gate armed at the real artifacts in wave 7, first public post in wave 8; both beta merges in wave 5 and the cut-version read in wave 6 precede either release-body post.
+Last activity: 2026-08-21 — Phase 152 execution started
+
+## Roadmap Summary (v1.32)
+
+**Created:** 2026-08-18 — derived from `.planning/REQUIREMENTS.md` (v1.32) + the kickoff root-cause pass over gh#21. No `research/SUMMARY.md` for this milestone: project-level research was deliberately skipped (operator decision, 2026-08-18) — the unknowns are in this project's own code, and a completed `devtest-triage` datasheet pass plus the existing research corpus already cover the domain.
+
+**Phases:** 6 as authored (147–152); **5 active** after Phase 150 was deferred to Backlog 999.28 on 2026-08-20. The 150 slot is vacant and deliberately not renumbered. **Granularity:** Comprehensive (config). **Coverage:** 33/33 v1 requirements mapped, 0 unmapped — **25 in v1 scope** after the deferral moved RELOCK-01…06 + RELOCK-08 out. Category→phase is 1:1 with **one deliberate exception**: DATA-06, which was mapped to Phase 150 rather than 148 and is now re-homed to Phase 151.
+
+| Phase | Goal | Requirements |
+|-------|------|--------------|
+| 147 Report Provenance | A `dev test` report names the firmware and board that produced it, prerelease suffix intact, inside the SAFE-02 orchestrator-only contract | PROV-01…06 |
+| 148 Numeric DB Values & AT28C VCC Decode | `vcc` reports the 5 V supply (margin-rail substitution to the decoded `vdd`) rather than the `4V` verify rail, in `build_db.py`; voltages→mV ints, timing→µs ints; `database.py`'s coercion layer deleted; GATE-03 green and untouched | DATA-01…05 |
+| 149 Firmware Page-Size Seam | Per-chip page size travels DB→wire→`0x0D` handler with a 64-byte fallback; constants in lockstep; flash+RAM measured on all three AVR targets — **the only firmware-touching phase** | PGSZ-01…05 |
+| ⏸ ~~150~~ Deliberate Protection — `write --sdp-relock` | **DEFERRED 2026-08-20 → Backlog 999.28** (operator decision, at the discuss step; nothing created). Number NOT reused | ~~RELOCK-01…06, RELOCK-08~~ out of scope; DATA-06 → Phase 151 |
+| 151 Protection Readability — `lock-status` | Hand-curated family table (D-04) reporting state where readable and refusing with a reason where it is not — `0x0D`/SDP among them; plus `protect_on_after` documented as an advisory upstream hint with no runtime effect | LOCK-01…04, **DATA-06** |
+| 152 Outward-Facing Close | gh#12 reply (v1.30's CLOSE-06), gh#21/#32 comment with a fresh-run ask, gh#11 answered in FIX-06 terms, corrected release notes, claim gate seen to fail on a plant | OUT-01…05 |
+
+**Load-bearing ordering (not preference):** PROV (147) leads — it is the dependency spine (D-01); until `fw_board_identity` is real, no write-path finding is attributable to any firmware version, our own included · 148 before 149 (the numeric schema settles before the wire gains a per-chip field; both write the host DB-consumption layer) · ~~RELOCK (150) before LOCK (151), both before OUT (152)~~ → **LOCK (151) before OUT (152)** *(amended 2026-08-20 — RELOCK deferred)*: OUT-01 must describe what actually shipped, or it repeats the exact overclaim v1.30 had to amend its own reply to avoid — **and that risk is now live**, because OUT-01/OUT-04 were authored naming `write --sdp-relock` as shipped and it will not be, which is why both were amended · ~~DATA-06 sits in 150~~ → **DATA-06 sits in 151** *(amended 2026-08-20)*: with the consumer branch unreachable the fork is closed on the advisory branch **by the deferral, not by a fresh choice**, so `protect_on_after` is still reconciled exactly once (D-03).
+
+**One-writer-per-file:** ~~Phases 147 and 150 both write `firestarter_app/firestarter/cli_handlers.py`~~ — **discharged 2026-08-20** (147 completed 2026-08-18, 150 deferred). **Phase 151 now inherits that file as the milestone's sole remaining writer** (`dev lock-status <chip>` is a new `@dev.command` block inside the existing `if _DEV_TOOLS_ENABLED:` module-level gate, not a top-level command registration — corrected 2026-08-20 per CONTEXT D-01). Sequential, so no wave conflict; recorded so a later reader does not conclude the file is unclaimed.
+
+**No genuinely parallel phase pair this milestone** — 147→148→149→~~150~~→151→152 is a single chain (150 deferred 2026-08-20). Parallelism, where it exists, is at the plan level inside a phase.
+
+**Evidence Ceiling is encoded in the criteria, not appended at the close:** there is **no AT28C part in operator inventory**, so **there is no bench-validation phase** and **no success criterion anywhere requires real AT28C silicon**, asserts the `0x0D` write path is proven, graduates `0x0D` out of `UNVERIFIED`, changes any `support_status`, or is phrased as closing gh#21 / #32 / #11 / #12. Phase 149 states its change **software-proven and unvalidated on silicon**, in those words.
+
+**Operator gate:** Phase 152 is outward-facing and **must NOT be run under `--auto`/`--chain`** — those auto-approve human-verify checkpoints, so `autonomous: false` alone does not protect it.
+
+**RELOCK-07 is deliberately absent** (shipped in v1.30 Phase 137). The ID gap between RELOCK-06 and RELOCK-08 is intentional and must not be filled by an invented requirement.
+
+**Full detail:** `.planning/ROADMAP.md` §"v1.32 — AT28C Write-Path Root Cause & Report Provenance (PLANNING)".
 
 ## Roadmap Summary (v1.31)
 
@@ -1343,6 +1349,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 | 260728-ahy | Fix `dev test --submit`: drop the nonexistent `gsd-inbox` label from the `gh` create argv, retarget `SUBMIT_REPO` → `henols/firestarter_prom`, and stop both tiers reporting phantom success | 2026-07-28 | `688bf10..36a9bb5` (firestarter_app submodule; gitlink NOT bumped) | [260728-ahy-fix-dev-test-submit-gh-tier-drop-nonexis](./quick/260728-ahy-fix-dev-test-submit-gh-tier-drop-nonexis/) |
 | 260729-iyx | Install Bun in devcontainer to enable the Claude Code Discord channel plugin (DM-only) | 2026-07-29 | `c5385a7` | [260729-iyx-install-bun-in-devcontainer-to-enable-di](./quick/260729-iyx-install-bun-in-devcontainer-to-enable-di/) |
 | 260807-kaq | `dev test`: run blank-check AFTER erase for electrically erasable parts, instead of before it | 2026-08-07 | `40af2ce..7fe8dea` (firestarter_app submodule, branch `fix/dev-test-blank-check-after-erase`; gitlink NOT bumped) | [260807-kaq-dev-test-blank-check-must-run-after-eras](./quick/260807-kaq-dev-test-blank-check-must-run-after-eras/) |
+| 260820-a7w | Make both flash-limit guards report the real 32768 B AVR MCU flash size (uno/uno328pb/leonardo), forfeiting linker protection over each target's bootloader region (operator-accepted); move `flash_total` in lockstep in both size baselines while keeping `flash_used`/`ram_used` and all five MERGE-05 literals frozen | 2026-08-20 | `283971d..8286916` (firestarter submodule, branch `gsd/v1.32-at28c-write-path-root-cause-report-provenance`; gitlink NOT bumped) | [260820-a7w-make-the-flash-limit-guards-to-be-the-ac](./quick/260820-a7w-make-the-flash-limit-guards-to-be-the-ac/) |
 
 **Discord channel plugin — container side DONE, Discord side operator-owned (260729-iyx, 2026-07-29).** `discord@claude-plugins-official` v0.0.4 was already installed and `~/.claude/channels/discord/.env` already held a token, but `bun` was missing — the plugin's `.mcp.json` launches `"command": "bun"` as a **bare name** resolved from PATH by the MCP launcher with no shell, so Bun 1.3.14 is installed at `/usr/local/bin/bun` (verified resolvable under `env -i` + stock system PATH) and the same layer is now in `.devcontainer/Dockerfile` for rebuild durability. `~/.claude` **is** a named volume, so the token and `access.json` survive rebuilds; `~/.bun` is not, which is why the prefix is overridden. **Ordering trap:** `/discord:access policy allowlist` must be set only *after* pairing succeeds — setting it first makes pairing impossible, because the default `pairing` policy is what emits the code.
 
@@ -1364,6 +1371,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - v1.20 roadmap created 2026-07-02: 3 phases (105–107), 12/12 requirements mapped. FW → HOST → DOCS+GATE strictly linear sequencing (wire-contract removal ordered so it's never half-broken).
 - Phase 104 added: Rename protocol header and .cpp files to descriptive protocol-type names (replace hard-to-read flash type N naming)
 - Phase 115 added: Beta install & firmware-flash bench validation (community onboarding) — hardware-gated capstone of v1.21
+- Phase 153 added: Write-Path Erase Policy (D-07) — runs BEFORE Phase 152 per D-08; blocks the outward-facing close
 
 ## Operator Next Steps
 
@@ -1989,6 +1997,90 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 146-03]: NO backlog stub was filed. `### Phase 999.32` belonged to the RED arm alone and the RED arm did not fire; a stub with no defect behind it would be an entry that cannot be closed. `grep -c '999.32'` over `ROADMAP.md` prints 0 and no existing backlog entry was renumbered or reworded
 - [Phase 146-03]: A contradiction inside this plan's own acceptance criteria was RECORDED rather than worked around — the criteria demand a NON-ZERO firmware porcelain immediately after the build as a negative control, which is structurally unreachable under the same task's out-of-tree mandate. Porcelain measured 0 after configure and after build because nothing was written inside `firestarter/`; substituted out-of-tree oracles (43 object files, 166308537 B of build tree, four images with recorded digests, the two named `.obj` files) are recorded instead, and no artifact was manufactured inside the repository to satisfy the criterion's letter
 - [Phase 146-03]: The stale build-tooling sentence preserved inside `last_activity_desc` — the Phase 130 record gate's own R-15 target at `.planning/STATE.md:11` — is now DISPROVEN by this plan's observation but deliberately left verbatim: `146-05` owns its repair, and an exemption placed inside that field is destroyed by the next state write. The gate's output is byte-identical before and after this plan (rc=1, one unlabelled hit); its `PASS`-line exempt tally is printed only on the success path, so the tally was captured via `--explain` instead and is unchanged: `{'block': 23, 'line-label': 4, 'inline-history': 6, 'inline-allow': 10, 'unlabeled': 1, 'superseded': 12}`
+- [Phase ?]: Verify sub-repo branch base by content diff, not merge-base ancestry — RESEARCH F-15: ancestry is merge-shape-dependent; content diff is the only oracle immune to either shape
+- [Phase ?]: 147-02: harvest fw_board_identity off the hardware-revision read's own connection (D-01) rather than opening a second one; ProgrammerIdentity NamedTuple returns both fields with independent per-field failure (D-04)
+- [Phase ?]: 147-02: _scrub_identity keeps printable ASCII 0x20-0x7E, replaces the rest with '?', caps at 64 chars, collapses to None only when nothing printable survives (D-07)
+- [Phase ?]: D-09/D-10/D-11/D-12/D-13(a) applied: SCHEMA_VERSION bumped to 1.4 with a value-population rationale; fenced JSON keeps typed null; a new NOT_REPORTED constant marks an absent identity only in the rich table, never in to_dict() — 147-CONTEXT.md locked decisions; PROV-04/PROV-05 advanced, not completed -- issue-parser surfaces owned by 147-05/147-06
+- [Phase 147-04]: D-04's leg-2 transport-error test is parametrized over ProgrammerNotFoundError and SerialTimeoutError rather than two separate functions, since both exceptions land in the same except clause — Both are SerialError subclasses per RESEARCH F-17, so one parametrized test proves both without duplicating the assertion shape
+- [Phase 147-04]: Task 3's negative assertion filters result.output to only identity-row lines before regexing for a bare None — The same rendered table's chip_id (expected/actual) row legitimately renders None / None for the M8720 fixture chip; a whole-output substring scan would false-positive on that unrelated, deliberately-untouched row
+- [Phase ?]: 147-05: D-11/D-14/D-15/D-16/D-17 applied -- NOT_REPORTED/_NOT_ATTRIBUTABLE duplicated as local literals in tools/parse_devtest_issue.py (stdlib-only contract forbids importing diagnostic_report.py); render_diff labels host_version/fw_board_identity, folding the not-attributable clause into the identity row when absent; no hw_revision row, no schema-version ordering logic. First-ever render_diff tests (0 -> 7); a second frozen fixture proves PROV-04's null-identity real-world case; a value-parity assert pins the two app-side NOT_REPORTED literals equal (the third, skill-script literal is 147-06's checkpoint, not this test's).
+- [Phase ?]: Record key is f"{mfg}|{pn}|{i}", never pn alone -- part numbers are not unique across ~9% of the DB
+- [Phase ?]: No pytest.skip path in test_wire_dict_equivalence.py -- the golden lives inside tests/golden/, so a missing golden is always a loud failure, never a standalone-CI skip
+- [Phase ?]: diff_db.py's correct pre-change baseline is 744 changed chips, not zero -- the pre-136.1 baseline is NOT re-pinned by this phase (D-11)
+- [Phase ?]: 148-02: _canonicalize_db returns a normalized deep copy (never mutates input); main() rebinding is the only normalization point — Keeps _load_db's exit-code contract untouched and avoids hidden aliasing between loaded JSON and normalized version
+- [Phase ?]: 148-02: electrical.vpp is dropped entirely during canonicalization (not renamed) since vpp_mv already carries the value
+- [Phase ?]: 148-02: RULE_VCC_MARGIN_RAIL deliberately NOT added -- belongs to 148-06 once the 56-chip mover rule exists
+- [Phase ?]: 148-03: interpret_timing raises ValueError (not sys.exit) -- leaf decode function, not a top-level gate/orchestration function
+- [Phase ?]: 148-03: extra_chips.json field renames are a deliberate hand edit to an authored supplement, explicitly NOT a chip_database.json-is-generated violation
+- [Phase ?]: 148-03: VPP_VOLTAGES deleted outright; its citation preamble moved to sit above the surviving VPP_MV table so the citation is never orphaned
+- [Phase ?]: 148-03: Task 2 tdd gate executed as a genuine RED/GREEN split (patch captured, reverted, RED confirmed, reapplied, GREEN confirmed) despite the plan's single combined action block
+- [Phase ?]: D-16: format_mv(mv:int)->str is the single render helper in database.py; display sites never hand-format volts again
+- [Phase ?]: D-10: _map_data direct-indexes vcc_mv/vpp_mv/pulse_duration_us; a missing key raises KeyError instead of silently defaulting pulse-delay to 0
+- [Phase ?]: Rule 1 fix: test_sdp_capability.py's synthetic 0x0D local-override fixture given electrical.vcc_mv/vpp_mv + programming.pulse_duration_us -- broken by Task 1's strict indexing, production code unchanged
+- [Phase ?]: 148-05: audit_coverage_matrix.py's parse_pulse_us deleted; DEFECT-COV-NN ledger proven byte-identical (68/68) between pre-Phase-148 baseline and post-migration state, so the meta coverage ledger needs no update
+- [Phase 148]: Task 1's predicted RED (diff_db.py exit 1, 56 UNEXPLAINED) did not occur; measured RED was exit 0 with the 56 movers misattributed to the pre-existing BUG3_VCC_VDD rule — BUG3_VCC_VDD's condition does not check pinout/type/vpp diffs, so it silently matched the movers before RULE_VCC_MARGIN_RAIL existed; documented as a stronger proof of D-11's need in 148-DB-DIFF.md
+- [Phase ?]: 148-07: Golden re-derivation via the test module's own _walk/_generator_chip_entry_keys/_extra_chips_entry_keys helpers against the live tree, never a second reimplementation
+- [Phase ?]: 148-07: Leg E (new to this milestone) plants inside the real tools/extra_chips.json (no env seam by design), run last before the clean-tree Leg F, restored byte-exact
+- [Phase ?]: 148-08: AST gate for DATA-04 scopes to tree.body only (top-level statements), never ast.walk, so it does not fire on the pre-existing local _AT28C_DIP24_NAMES (Phase 76); a genuinely new module-level part-keyed dict always shows up at tree.body and is caught.
+- [Phase ?]: 148-08: deferred vcc==5500 group corrected to 28 chips (16+12), not 29 -- CONTEXT.md's deferred prose disagreed with its own D-03 table (12); RESEARCH F-6 confirmed D-03 was right. Filed as vcc-5500-high-margin-verify-rail-group.md, not fixed -- algorithm 0x07's non-uniform vdd (5500 and 6500) makes the substitution target unproven.
+- [Phase 149 Plan 01]: Forked firestarter's v1.32 branch off origin/beta (7f6afc65be2022575989772cc0a5945611741831), not off the stale v1.31 tip (6992271), verified by five content checks with zero `git merge-base --is-ancestor` invocations (D-13/P-1 -- squashed v1.31 PRs make ancestry checks false-negative). Cold pre-edit baseline for uno/uno328pb/leonardo matched size_baseline.json exactly on all six figures (zero inherited delta) and matched BASE-01 within the already-adjudicated +96 B Phase 145 exemption; leonardo's MERGE-05 headroom recorded as 0 bytes, uno-class as 64 bytes.
+- [Phase 149]: PGSZ-01 emit arm keys on the chip's own upstream protocol_id (captured before classify() reassigns proto_id), not the post-classification algorithm — 18 of 84 algorithm-13 rows are upstream-native 0x0D
+- [Phase 149]: D-17: Phase 148's wire golden preserved byte-unchanged; the 18-row page-size delta is a committed, programmatically-generated fixture with anti-laundering + non-vacuity + exact-count assertions, never a re-baseline
+- [Phase 149]: Resolved the page-size flush mask once above eeprom28c_write_execute's per-byte loop rather than at write-INIT (D-06's literal site), recorded as mechanism-corrected/intent-satisfied (149-04)
+- [Phase 149]: Flush-count oracle proves a delivered 128-byte page halves the flush count (130 vs 132 get_data calls), seen to fail before the mask and pass after (149-04)
+- [Phase ?]: Decorated all 8 live legs in test_json_key_parity.py with @requires_fw (including the fails-closed-on-rename and self-protection legs), a deliberate departure from the closest analog module, per this plan's explicit acceptance criteria.
+- [Phase 149]: Funded the page-size seam's measured +210 B flash / +2 B RAM cost with two new, separately-named, SHA-attributed MERGE-05 exemptions rather than folding into the existing defect-fix exemption, re-anchoring BASE-01, or widening any band
+- [Phase 149]: Leonardo's remaining MERGE-05 flash headroom after this exemption is exactly 0 bytes -- the exemption funds precisely what was measured with zero spare margin; operator approved as measured
+- [Phase 151 Plan 02]: Curation rule for `lockable-proms.md`'s elided-shorthand rows: a DB alias token inherits its family row's verdict if it shares the row's numeric stem with only a boot-orientation/revision-letter suffix difference (e.g. `AM29F002BB`/`AM29F002NBT` inherit the `Am29F002/F002B/F002NB` row), but never across a different digit family (`PM39F010` does NOT inherit `PM29F002/F004`'s verdict) or a different voltage class (5V `F` vs `LV`/`BV` always curated separately).
+- [Phase 151 Plan 02]: `AT49F001/F002`'s hedged cell text ("**Yes—special** on many variants") read as documented-readable per the literal bolded §Key term, since the alternative (treating every hedge as disqualifying) had no textual anchor and was not required by any acceptance criterion.
+- [Phase 151 Plan 02]: `AT29LV010/LV020/LV040`'s bare-stem row does NOT extend to the DB's `A`-suffixed siblings (`AT29LV010A`, `AT29LV040A`) — unlike the `AT29C010/010A` and `AT29C040/040A` rows, this row spells no `A` continuation, so the two `A`-suffixed tokens resolve `undocumented` rather than inheriting the row's `documented-not-readable` verdict.
+- [Phase 151 Plan 02]: OD-2's `not_implemented=40` census correction (superseding VALIDATION.md's 39) is out of this plan's scope — `algorithm: 0x34` is not in the 0x05/0x06 curation surface — and is recorded here only so a later plan does not re-derive it.
+- [Phase 151 Plan 05]: Chose id `0xE1` — the lowest free DATA-band value confirmed by a `tomllib` occupancy pass — for `MSG_DATA_PROTECTION_STATUS`, rather than any ERROR-band id; `0xBF` (ERROR band's single free slot, C-11) stays unspent behind a new durable pytest guard.
+- [Phase 151 Plan 05]: The catalog format string ("Lock status probe: raw=0x%02X decode=%u") is worded as an observation, not a state claim — no bare "protected"/"unprotected" assertion — per the plan's action and T-151-21's mitigation.
+- [Phase 151 Plan 05]: Left `MSG_WARN_FL4_BOOT_BLOCK_LOCKED` (0x85) / `MSG_ERR_FL4_BOOT_BLOCK_LOCKED` (0xBC) untouched; Plan 151-08 may give them an emit site without any further catalog change.
+- [Phase 151 Plan 04]: Operator selected `web-sourced-with-citation` at the plan's blocking checkpoint (2026-08-20) over `operator-drops-pdfs` — sourcing question is closed for this plan, not to be re-raised.
+- [Phase 151 Plan 04]: `0x06` Autoselect read address `(SA)+0x02` cited to the AMD Am29F040B Autoselect table CONFIRMS CONTEXT.md's D-02 prose rather than correcting it; decode stated x8-mode-specifically (`00h` unprotected / `01h` protected) rather than repeating `lockable-proms.md`'s "generally" hedge.
+- [Phase 151 Plan 04]: `0x05` boot-block-status address (`0x0002`) and decode (`0xFF`/`0xFE`) sourced by structural analogy to the already-working manufacturer/device word pair and the host's existing "FF/FE lockout bit" wording — flagged explicitly in `151-SEQUENCES.md` as the artifact's lowest-confidence citation, bounded by D-07's `--force`/`unadjudicated_probe` gate rather than resolved by a second checkpoint.
+- [Phase 151 Plan 12]: The exhaustiveness walk collects per-row failures into a list rather than raising on the first offender, so one AssertionError can name every unresolved row at once (leg 1) and the exact same helper can be reused, unmodified, by the synthetic-mutation non-vacuity control (leg 6c) — one code path serves both the real-DB assertion and its own non-vacuity proof.
+- [Phase 151 Plan 12]: Leg 1's non-vacuity was demonstrated by actually observing the red state — temporarily removing `52` from `NOT_IMPLEMENTED_PROTOCOL_IDS`, capturing the failure naming `XICOR/X88C64P,X88C64S`, then restoring the set and observing green — rather than asserting the red-then-green condition was merely possible.
+- [Phase 151 Plan 12]: Leg 6(c)'s synthetic novel-algorithm id (`999`) was independently verified absent from both the committed database's twelve distinct `programming.algorithm` values and every classified protocol-id frozenset before use, satisfying the "genuinely novel" bar rather than an id merely unused within this one module.
+- [Phase ?]: dev lock-status refusal-without-force renders directly from protection_gate_for_entry's own (gate_token, gate_reason), never through classify_protection_response's generic passed-through wording (Rule 1 bug fix, 151-13)
+- [Phase ?]: firmware_outdated path uses raise SystemExit(exit_code_for_class(...)) from exc so D-10's exit-3 assignment survives @map_typed_errors's own FirmwareOutdatedError handler (151-13)
+- [Phase ?]: test_lock_status_cli.py mocks only EpromOperator.read_protection_status (the port-opening seam) rather than a full fake-serial harness -- lighter-weight, meets every plan acceptance criterion (151-13)
+- [Phase ?]: Leg C (W29C040 probe) recorded as not-run rather than run-and-discarded: the operator has no W29C040 sample on the bench, and running dev lock-status W29C040 against the physically-seated W29C020 would have misattributed a different part's reading to W29C040. — Honesty over completeness — the plan's own skip-handling branch takes precedence over the default 'run it' branch when the operator states a part is unavailable.
+- [Phase 153]: D-153-01: erase supply form is six inline set_data calls (0 B RAM); fourth named MERGE-05 exemption reserved for plan 14
+- [Phase 153]: D-153-02: 0x0D chip erase emits an SDP-disable prefix (undetectable-phantom-erase asymmetry argument)
+- [Phase 153]: D-153-03: check_dispatch.py cannot see handler-body register writes; GATE-03's real control is a brace-matched negative source scan
+- [Phase 153]: D-153-04/05: no post-erase blank check on 0x0D; erase stays standalone, out of write_init and write's auto-set path
+- [Phase 153]: 153-02: implemented D-153-05's write-INIT deletion -- no compensating operation state, no erase-on-write block added
+- [Phase 153]: 153-04: Case 25's op-layer drive required a fed-ACK Serial mock + bounded loop (op_execute_simple_operation no longer short-circuits once main is non-NULL)
+- [Phase 153]: 153-04: erase stream cases (31-33) pin head/tail/divergence against in-tree tables; measured full stream length empirically (102 entries, divergence at index 51) before trusting the plan's prediction
+- [Phase 153]: Built check_erase_no_vpp.py as the real GATE-03 control; check_dispatch.py cannot see inside a handler body — D-153-03 mechanism correction: proximity not absence is the risk (flash_5v_page.cpp hardware erase path in same-phase-touched file)
+- [Phase 153]: 153-06: located 0x05 blank-check conditional at flash_5v_page.cpp:88-90, correcting a stale 87-89 pattern-map figure
+- [Phase 153]: 153-06: replacement comment describes the FLAG_CAN_ERASE block generically so its and flash_5v_page_erase_execute's grep-c counts stay pinned at pre-task values
+- [Phase ?]: Algorithm 5 stays excluded from FLAG_CAN_ERASE (hardware-hazard); only algorithm 13 dropped from the tuple — 153-07
+- [Phase ?]: chip_database.json not touched -- flag is derived at conversion time, confirmed byte-unchanged — 153-07
+- [Phase ?]: Phase 121 D-12 comment rewritten as the fourth recorded reversal (119 D-18, 120 D-20, 121 D-12, 153); both false claims corrected in place — 153-07
+- [Phase 153]: D-153-05 restated: Phase 148 golden stays byte-unchanged; wire_dict_expected_deltas_153.json is the committed 84-entry flags-only delta list ERASE-03 produces on top of it, field-disjoint from the 18 Phase 149 deltas.
+- [Phase 153]: Kept the 149 layer's == 18 exact-count assertion as a true equality (not widened to a floor) even after adding the 153 layer alongside it.
+- [Phase ?]: 153-09: Both negative controls (M27C512 UV-EPROM, W29C040 algorithm-5) left byte-unchanged as the anti-bleed scope proof
+- [Phase ?]: 153-09: D-153-05 cited in SDP wire-shape docstring -- carrying the erase bit on an SDP frame does not mean an SDP command erases
+- [Phase ?]: 153-09: New tier-2 eeprom28c legs observed failing against a temporary revert of database.py's exclusion tuple before being trusted as gates (T-153-48 anti-vacuity proof)
+- [Phase 153]: 153-10: erase_eprom is called twice under run_plan's N=2 disagreement policy for OP_ERASE, not once as the plan's own text prescribed -- used assert_called()+call_count==2 and recorded the divergence rather than forcing a false assertion
+- [Phase 153]: 153-10: kept the now-unreachable _PROTOCOL_EEPROM_28C reason arm as a documented, tested defensive fallthrough (user-override non-qualifying electrical-type row) rather than deleting it, per plan disposition
+- [Phase ?]: 153-11: kept the --skip-erase warning arm scoped to itself; the decision not to add a symmetric blank-check-vacuity warning is now grounded in RESEARCH Pitfall 5 / 152-CONTEXT.md D-08 and defended by a new guard leg proven reachable via a temporary echo
+- [Phase ?]: 153-11: regenerated the two full-text write/erase --help syrupy snapshots after extending their docstrings (not called out as a task, but required by the plan's own critical_notes)
+- [Phase 153-12]: ERASE-06 read as 'must not contradict', not 'must derive from' (D-07 decomposition) -- zero ic_layout.py edit owed — 152-CONTEXT.md D-07 names the pre-153 state as a contradiction, not a missing derivation
+- [Phase 153-12]: ERASE-05 discharged as pure non-regression assertion across CLI/host/firmware, no implementation task — the blank chain already worked end to end; this plan proves scope and reachability, not new behavior
+- [Phase 153-13]: ERASE-01/02/03 flipped to Complete — PROTOCOLS.md sec 1.6 no longer states -b is required to write a non-blank AT28C part; both docs carry the software-proven-and-unvalidated honesty statement
+- [Phase 153]: MERGE05_ERASE_STANDALONE_EXEMPTION_BYTES sized at exactly 130 B (leonardo BASE-01 delta 724 minus existing 594), never rounded up (153-14)
+- [Phase 153]: RAM allowance/constant left untouched -- measured RAM delta is 0 B on all three targets, verifying D-153-01's RAM-neutral erase form (153-14)
+- [Phase 153]: 3 legs in tests/test_check_size_baseline.py left failing on purpose for plan 15 to re-plant onto a new *_v153* fixture family (153-14)
+- [Phase 153]: Plan 153-15: Group 2 anchor fixtures set BOTH RAM and Flash used figures to BASE-01's anchor, matching the *_v151* precedent's actual on-disk shape
+- [Phase 153]: Plan 153-15: reconciled 4 legs red at task start not on plan 14's 3-item hand-off (one, native case counts 163->170, a genuinely new coupling); all fixed
+- [Phase 153]: Plan 153-15: Arm 1 and Arm 3 of the admission test are widened not repointed -- fixtures stay fixed, decomposition-string assertions extend to the current five-term allowance
+- [Phase 153]: ERASE-09 closed: phase ships software-proven and unvalidated on silicon; no support_status change, no AT28C part used, gh#21/#32/#11/#12 stay OPEN — 153-RECORD.md carries the verbatim honesty phrase and a what-was-NOT-proven section; both machine gates (support-status write guard, diagnostic-report claim guard) exit 0
+- [Phase 153]: PROJECT.md and ROADMAP.md corrected to three firmware-touching workstreams (149, 151, 153), per 152-CONTEXT.md D-15 — Both records previously said one/two, undercounting Phase 153's mid-milestone addition
 
 ## Performance Metrics
 
@@ -2259,12 +2351,55 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 146 P09 | ~50min | 2 tasks | 2 files |
 | Phase 146 P10 | ~30min | 2 tasks | 3 files |
 | Phase 146 P11 | ~35min | 2 tasks | 2 files |
+| Phase 147 P01 | 15min | 2 tasks | 3 files |
+| Phase 147 P02 | 35min | 3 tasks | 3 files |
+| Phase 147 P03 | 30min | 3 tasks | 2 files |
+| Phase 147 P04 | 50min | 3 tasks | 2 files |
+| Phase 147 P05 | ~27min | 3 tasks | 2 files |
+| Phase 148 P01 | ~12min | 3 tasks | 3 files |
+| Phase 148 P02 | 15min | 2 tasks | 2 files |
+| Phase 148 P03 | 35min | 3 tasks | 4 files |
+| Phase 148 P04 | 25min | 3 tasks | 5 files |
+| Phase 148 P05 | 2100 | 3 tasks | 2 files |
+| Phase 148 P06 | 50min | 3 tasks | 7 files |
+| Phase 148 P07 | 40min | 2 tasks | 2 files |
+| Phase 148 P08 | 45min | 3 tasks | 4 files |
+| Phase 149 P01 | ~20min | 3 tasks | 4 files |
+| Phase 149 P03 | 50min | 3 tasks | 10 files |
+| Phase 149 P04 | 65min | 3 tasks | 8 files |
+| Phase 149 P05 | 70min | 3 tasks | 6 files |
+| Phase 149 P06 | 35min | 3 tasks | 6 files |
+| Phase 151 P02 | ~35min | 3 tasks | 2 files |
+| Phase 151 P05 | ~35min | 3 tasks | 7 files |
+| Phase 151 P07 | ~30min | 3 tasks | 4 files |
+| Phase 151 P08 | ~70min | 3 tasks | 11 files |
+| Phase 151 P12 | ~70min | 2 tasks | 1 files |
+| Phase 151 P13 | 35min | 3 tasks | 7 files |
+| Phase 151 P14 | ~40min | 4 tasks | 1 files |
+| Phase 153 P01 | 35min | 3 tasks | 1 files |
+| Phase 153 P02 | 40min | 2 tasks | 2 files |
+| Phase 153 P03 | 10min | 3 tasks | 1 files |
+| Phase 153 P04 | 19min | 3 tasks | 3 files |
+| Phase 153 P05 | 20min | 2 tasks | 3 files |
+| Phase 153 P06 | 35min | 2 tasks | 2 files |
+| Phase 153 P07 | 40min | 2 tasks | 1 files |
+| Phase 153 P08 | 35min | 2 tasks | 2 files |
+| Phase 153 P09 | 45min | 3 tasks | 3 files |
+| Phase 153 P10 | 35min | 3 tasks | 4 files |
+| Phase 153 P11 | 45min | 2 tasks | 3 files |
+| Phase 153 P12 | 75min | 3 tasks | 3 files |
+| Phase 153 P13 | 25min | 2 tasks | 2 files |
+| Phase 153 P14 | 55min | 3 tasks | 3 files |
+| Phase 153 P15 | 28min | 3 tasks | 16 files |
+| Phase 153 P16 | 45min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-17T21:20:00.000Z
-**Stopped at:** Completed 146-11-PLAN.md — plant-and-revert transcript against the real 146-LEDGER.md (byte-identical after revert), leg 9 GREEN for the first time, all five standing gates green in one pass (both sub-repo suites at/above baseline), CLOSE-01 audit table appended to 146-CITATIONS.md §4
-**Resume file:** .planning/phases/146-close-honesty-ledger-claim-gate-gh-15-reconciliation/146-CONTEXT.md
+**Last session:** 2026-08-21T11:45:41.476Z
+**Stopped at:** Completed 153-16-PLAN.md — Phase 153 (Write-Path Erase Policy) CLOSED, all 9 ERASE requirements Complete
+**Resume file:** None
+
+**Gitlink gap from Phase 149's close — CLOSED 2026-08-20.** Phase 149 landed its dual-repo work but never bumped meta's submodule gitlinks, so meta HEAD asserted "Phase 149 COMPLETE and VERIFIED — page-size seam landed across both repos" while pointing at `firestarter 7f6afc65` / `firestarter_app b142c0e6` — trees containing none of it. Bumped to `firestarter 6e3f90a3` (6 commits, all `149-*`) and `firestarter_app 9cc57c75` (13 commits: 8 `149-*` plus the 5 `fw` port-targeting fixes, which `git cherry` marks `-` against `origin/beta` — patch-identical to PR #52's merged work under different SHAs, so nothing unreviewed rode along). Both sub-repos verified on `gsd/v1.32-at28c-write-path-root-cause-report-provenance` with clean tracked trees. Restores the per-plan bump convention this milestone set at `chore(147-02)`/`chore(147-05)`; the branches are local-only, as Phase 147's were when it bumped, and become reachable at the close via the PR to `beta`.
 
 ### Blockers
 
