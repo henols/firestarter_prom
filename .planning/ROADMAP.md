@@ -480,21 +480,56 @@ in `requirements:`:
 **Plans**: 16 plans, 12 waves, 41 tasks — dual-repo lockstep plus meta-repo records. Wave 1 settles the erase supply form, the SDP-disable prefix and the GATE-03 mechanism correction and captures the cold pre-change baseline; waves 2-6 are firmware, strictly serialised (one build tree, and two mandatory native inversions that must be observed RED first); wave 7 lands the host wire flag; waves 8-9 absorb the eight measured downstream host failures and add the exhaustive scope proofs; waves 10-11 measure the size cost, fund a fourth named MERGE-05 exemption and re-plant the tripwire on a new `*_v153*` fixture family; wave 12 writes the honesty record and corrects the two stale in-repo workstream counts.
 
 Plans:
+**Wave 1**
+
 - [ ] 153-01-PLAN.md — Wave-0 decisions (erase supply form, SDP-disable prefix, GATE-03 mechanism correction) + cold pre-change baseline on all three AVR targets *(meta)*
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 153-02-PLAN.md — ERASE-01: remove the `0x0D` pre-write blank check, proven by an observed-RED single-shot-INIT case *(firestarter)*
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 153-03-PLAN.md — ERASE-04/03fw: `AT28C_TEC_MAX_MS`, `eeprom28c_erase_execute` (software six-byte erase, SDP-disable prefix, 0 B RAM), `case CMD_ERASE:` arm *(firestarter)*
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 153-04-PLAN.md — the two mandatory native inversions + three erase-stream cases + the `CMD_ERASE` no-VPP configure case *(firestarter)*
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 153-05-PLAN.md — GATE-03's real control: `check_erase_no_vpp.py` brace-matched body scan, paired test and committed planted violation *(firestarter)*
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 153-06-PLAN.md — ERASE-02: locate and remove the `0x05` sibling conditional, with a new write-INIT case *(firestarter)*
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 153-07-PLAN.md — ERASE-03 host half + ERASE-07: restore `FLAG_CAN_ERASE` for algorithm 13 and rewrite the Phase 121 D-12 comment *(firestarter_app)*
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 153-08-PLAN.md — the 84-record wire-dict delta layer and the two-layer equivalence gate *(firestarter_app)*
 - [ ] 153-09-PLAN.md — flag and wire-shape inversions, with both anti-bleed negative controls left unedited *(firestarter_app)*
+- [ ] 153-13-PLAN.md — the two prose documents: `PROTOCOLS.md` §1.6 and `protocol-id.md` *(firestarter + firestarter_app)*
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
 - [ ] 153-10-PLAN.md — the `dev test` plan-shape ripple: corrected reason texts, four re-measured legs, defensive-arm reachability *(firestarter_app)*
 - [ ] 153-11-PLAN.md — the `write --skip-erase` warning correction and the no-second-warning guard *(firestarter_app)*
 - [ ] 153-12-PLAN.md — ERASE-03/05/06 positive coverage: exhaustive 84-of-746, `info`-versus-wire agreement, `blank` non-regression *(firestarter_app)*
-- [ ] 153-13-PLAN.md — the two prose documents: `PROTOCOLS.md` §1.6 and `protocol-id.md` *(firestarter + firestarter_app)*
+
+**Wave 10** *(blocked on Wave 9 completion)*
+
 - [ ] 153-14-PLAN.md — ERASE-08: cold triple-target measurement, `MERGE05_ERASE_STANDALONE_EXEMPTION_BYTES`, baseline revision *(firestarter)*
+
+**Wave 11** *(blocked on Wave 10 completion)*
+
 - [ ] 153-15-PLAN.md — the `*_v153*` tripwire fixture family and the repointed size-gate legs, with the severance record *(firestarter)*
+
+**Wave 12** *(blocked on Wave 11 completion)*
+
 - [ ] 153-16-PLAN.md — ERASE-09 phase record + the D-15 `PROJECT.md`/ROADMAP corrections + the full phase gate *(meta)*
 
 **Record corrections this phase forces** (152-CONTEXT.md **D-15**): `PROJECT.md` and this roadmap's v1.32 header both say v1.32 has **two** firmware-touching workstreams. With 153 added it is **three** — Phases 149, 151 and 153. `PROJECT.md`'s workstream table gains a row for 153.
