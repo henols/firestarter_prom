@@ -141,3 +141,39 @@ Every prerequisite is already in the tree:
 - **RELOCK-07 did NOT come here.** The stale-label re-homing stayed in v1.30, re-homed to Phase 137, and
   its targets now name Backlog 999.28. It also carries a warning worth reading: four places in the
   record cite those two labels and no two agree.
+
+---
+
+## ◐ PARTIAL DISCHARGE 2026-08-21 — v1.32 Phase 152, plan 152-14. **THIS TODO STAYS IN PENDING.**
+
+This note records that **one half** of §"What this todo owes, and when" is discharged. The other half is
+**not**, and must not be presented as met.
+
+**Discharged — the gh#12 follow-up half.** The reply owed on gh#12 is posted:
+[issuecomment-5373440001](https://github.com/henols/firestarter_prom/issues/12#issuecomment-5373440001),
+id `IC_kwDOSX4ER88AAAABQEgwAQ`, `2026-08-21T18:00:19Z`. It describes a **withdrawal spanning a second
+release**, not a migration, and it never names `write --sdp-relock` — satisfying both this todo's
+outward-facing obligation and the amended companion todo now at
+`.planning/todos/completed/gh12-followup-after-dev-sdp-retirement.md`.
+
+**NOT discharged — "the shipping version's release notes announce it."** That half is *unmeetable* until
+the feature exists, and the feature does not exist. v1.32's release notes announce the **withdrawal**
+and name Backlog 999.28; they do not announce the feature, because there is nothing to announce. Do not
+read this partial discharge as closing that obligation.
+
+**`resolves_phase` stays `none`.** Unchanged and deliberate, for the reason already recorded in the
+frontmatter: pointing it at a vacated phase number (v1.30's 135 or v1.32's 150) would make this todo
+look resolvable by a phase that never existed. Both slots stay unreused.
+
+**The standing instruction survives, and v1.32 made it sharper.** A future promotion of Backlog 999.28
+must **reverse OUT-05's fifth claim-gate class in the same change that lands the feature**, or the gate
+will reject the very release notes announcing it. As of this phase that gate is no longer hypothetical:
+`152-check-claims.py` is armed at seven real outward artifacts, its `sdp-relock-as-shipped` row is
+proven to reject 11/11 planted overclaims while permitting 7/7 withdrawal phrasings, and its 34-leg
+paired suite pins both directions. The reversal is therefore a real, testable code change with a named
+owner — not a note to remember.
+
+One implementation detail measured during this phase and worth carrying: the negative lookahead requires
+the withdrawal word (`withdrawn|deferred|not shipped|not shipping|unavailable|absent`) to follow the
+command name almost immediately. An intervening word breaks it — "`write --sdp-relock` **command** is
+withdrawn" is rejected as an overclaim. Any reversal must account for that shape.

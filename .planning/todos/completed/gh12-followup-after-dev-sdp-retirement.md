@@ -75,3 +75,61 @@ reply exists to be honest with. See `.planning/todos/pending/write-sdp-relock-de
 - **Do not name `write --sdp-relock` as an available command** (see the amendment above). The "Removed"
   mapping in the next release notes must read `dev sdp disable` → `write` (automatic) and
   `dev sdp enable` → *withdrawn, no replacement, tracked as Backlog 999.28*.
+
+---
+
+## ✅ RESOLVED 2026-08-21 — v1.32 Phase 152, plan 152-14 (OUT-01)
+
+**Posted:** [gh#12 comment](https://github.com/henols/firestarter_prom/issues/12#issuecomment-5373440001)
+— id `IC_kwDOSX4ER88AAAABQEgwAQ`, created `2026-08-21T18:00:19Z`. Comment count 10 → 11 (delta exactly
+one). gh#12 is **still OPEN** and was not closed. Comments 1–10 verified unchanged by id and creation
+date against the pre-post capture; the issue's `updatedAt` bumped to the post timestamp, which is a
+new-comment side effect and not a body-edit oracle.
+
+The posted body is character-for-character the frozen draft
+(`152-GH12-COMMENT.md`, blob `cd4a62c527e3ba5efb5b5f9f4fc9f004da99f041`) except that GitHub appended one
+trailing newline: 4313 bytes stored vs 4314 read back, equal after `rstrip('\n')`. The claim gate, run
+over the read-back body under its real basename, exits 0.
+
+### Which of the four "what the reply must say" points the posted text discharges
+
+1. **DISCHARGED, and more strictly than this todo required.** The posted text says the command is gone,
+   that `disable`'s behaviour survives as `write`'s default-on auto-unlock (declinable via
+   `--skip-sdp-unlock`) and so was genuinely redundant, and that `enable` is withdrawn with no
+   replacement, tracked as Backlog 999.28. The deferred command is **never named anywhere in the body**.
+   This todo permitted saying the design is settled and the work is queued; the posted text does **not**
+   say that either — after a second deferral it says only that the item is tracked and that no version
+   is being promised. That is the stricter reading and it is deliberate.
+2. **DISCHARGED.** Both halves are stated plainly — "You asked for both, and what you get is one of them
+   automatically and none of the other" — together with the consequence that a user wanting a part left
+   protected has no supported way to do it, and the separate limitation that the protection bit cannot
+   be read back, so nothing can show a protected part is protected.
+3. **PARTIALLY DISCHARGED — the constraint fully, the specific gain framing superseded.** This todo was
+   written 2026-07-31 and framed the gain as "the lock is now *testable*: `dev test` on an SDP-capable
+   part locks it, attempts a write without unlocking, and checks the chip is unchanged." That framing
+   pre-dates v1.30's retirement of the `dev sdp` surface and v1.32's addition of `dev lock-status`, and
+   the posted text does **not** make that claim. What it states instead is `lock-status` (refusal as the
+   feature, beta-channel only, requiring matched firmware), the removal of the pre-write blank check,
+   the standalone software erase step, and firmware-identifying `dev test` reports. The load-bearing
+   half of point 3 — do not let "now provable" drift into "now proven" — is discharged: the body carries
+   "No AT28C part was tested at any point in v1.32" and claims no silicon validation anywhere. A future
+   reader should not take this row as evidence that the 2026-07-31 testability framing was published.
+4. **DISCHARGED, and strengthened.** The ask names **both** install halves — `pip install --pre
+   firestarter` *and* `firestarter fw --install` — with the reason stated: the write-path change lives in
+   the firmware and the host's test step sends no override flag, so on older firmware the old failure
+   reproduces exactly. A request naming only the pip install would have been a broken request.
+
+### Constraints
+
+- **"Correct the next release notes, do not rewrite the shipped ones" — DISCHARGED** by this same phase:
+  `152-RELEASE-NOTES-app.md` targets `3.0.0b23`, the version actually cut by this milestone's merge. The
+  historical `3.0.0b14` notes are untouched.
+- **"Do not name `write --sdp-relock` as an available command" — DISCHARGED.** The literal string does
+  not appear in the posted body at all. OUT-05's claim gate is armed against exactly this class and was
+  seen to reject a planted violation before this post was made.
+- **"Operator-reviewed before posting, never auto-approved" — NOT DISCHARGED AS WRITTEN.** See the
+  provenance note in `152-14-SUMMARY.md`: D-03's per-artifact wording review was **delegated to the
+  agent by the operator**, not performed by the operator. `152-check-not-auto.py` returned rc=0
+  immediately before the post and `workflow._auto_chain_active` was verifiably `false`, so no auto or
+  chained run approved this — but the human read this constraint asks for did not happen, and this row
+  must not be read as saying it did.
