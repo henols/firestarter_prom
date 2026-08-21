@@ -497,7 +497,7 @@ Plans:
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 152-15-PLAN.md — OUT-02: POST the gh#21 comment behind its own blocking gate *(wave 9)*
+- [x] 152-15-PLAN.md — OUT-02: POST the gh#21 comment behind its own blocking gate *(wave 9)*
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
