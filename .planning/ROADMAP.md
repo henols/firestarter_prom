@@ -485,7 +485,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 152-12-PLAN.md — OUT-04: read both cut tags, verify PyPI independently, substitute the tags, write `152-MERGE-RECORD.md` *(wave 6)*
+- [x] 152-12-PLAN.md — OUT-04: read both cut tags, verify PyPI independently, substitute the tags, write `152-MERGE-RECORD.md` *(wave 6)*
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
