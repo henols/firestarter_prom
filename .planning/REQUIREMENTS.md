@@ -340,7 +340,11 @@ before Phase 152** (D-08).
 
 - [x] **ERASE-03**: `erase` is available as a standalone step on `0x0D`: a `CMD_ERASE` arm exists in
       `configure_eeprom28c`, and `FLAG_CAN_ERASE` is restored for `algorithm 13` at
-      `firestarter_app/firestarter/database.py:621`.
+      `firestarter_app/firestarter/database.py:638`. **CORRECTED 2026-08-21** (152-RESEARCH.md
+      §A-11(3)) — this citation has drifted three times: this file previously cited line 621
+      (pre-153), Phase 153 itself separately measured and recorded line 620, and the line measured
+      live against the committed tree today is 638 (the file grew as Phase 153 landed). The number
+      above is the live measurement, not inherited from either prior citation.
 
       *(2026-08-21: code confirmed present — `eeprom_28c.cpp:262` dispatches `case CMD_ERASE:` to
       `eeprom28c_erase_execute`; `database.py:638-639` restores `FLAG_CAN_ERASE` for every
@@ -364,7 +368,7 @@ before Phase 152** (D-08).
 
 - [x] **ERASE-07**: The stale Phase 121 D-12 **code comment** at
       `firestarter_app/firestarter/database.py:591` is corrected (`152-CONTEXT.md` **D-15**). This
-      phase owns it because it must touch `database.py:621` for ERASE-03 anyway, which keeps Phase 152
+      phase owns it because it must touch `database.py:638` for ERASE-03 anyway, which keeps Phase 152
       from reaching into a sub-repo for a comment edit.
 
 - [x] **ERASE-08**: Constants stay in lockstep across `firestarter/include/firestarter.h` and
@@ -454,8 +458,15 @@ before Phase 152** (D-08).
 
 **Coverage:**
 
-- v1 requirements: 33 total as authored; **25 in v1 scope** after the 2026-08-20 Phase 150 deferral
-- Mapped to phases: 25 ✓ (Phases 147–149, 151, 152)
+- v1 requirements: 33 total as authored; minus 7 deferred to Backlog 999.28 (2026-08-20) leaves 26 —
+  not the 25 this block previously recorded, a single-unit undercount caused by DATA-06 being
+  subtracted along with its deferred RELOCK family despite being **retained and re-homed** to
+  Phase 151 rather than deferred; plus the 9 ERASE requirements added 2026-08-20 (Phase 153) gives
+  **35 in v1 scope**. **CORRECTED 2026-08-21** (152-RESEARCH.md §A-11(2), Open Question 3) —
+  live-recounted `- [x]`/`- [ ]` checkboxes by family: DATA 6, ERASE 9, LOCK 4, OUT 5, PGSZ 5,
+  PROV 6 = 35, matching this arithmetic; `⏸` deferred RELOCK rows = 7; 35 + 7 = **42 defined**,
+  matching the footer below.
+- Mapped to phases: 35 ✓ (Phases 147, 148, 149, 151, 152, 153)
 - Deferred to Backlog 999.28: 7 (RELOCK-01…06, RELOCK-08)
 - Unmapped: 0
 
@@ -487,4 +498,4 @@ vacated slots now sit in the sequence: 135 and 150, both `write --sdp-relock`.
 
 ---
 *Requirements defined: 2026-08-18*
-*Last updated: 2026-08-20 — **Phase 153 (Write-Path Erase Policy) ADDED** from operator policy at Phase 152's discuss step (D-07). ERASE-01…09 enter v1 scope (25 → 34 in scope, 42 defined). 153 is numbered last but **runs before Phase 152** (D-08), which now depends on it. Prior: **Phase 150 (`write --sdp-relock`) DEFERRED to Backlog 999.28** by operator decision at the discuss step, before any research/plan/CONTEXT existed. RELOCK-01…06 + RELOCK-08 left v1 scope (33 → 25); DATA-06 retained and re-homed to Phase 151 on its advisory branch; Phase 151's dependency on 150 discharged; Phase 152's OUT-01/OUT-04 amended to state a withdrawal rather than a migration, and OUT-05's claim gate gained a fifth class rejecting `write --sdp-relock`-as-shipped. Prior: 2026-08-18 — traceability populated at roadmap creation (Phases 147–152, 33/33 mapped).*
+*Last updated: 2026-08-20 — **Phase 153 (Write-Path Erase Policy) ADDED** from operator policy at Phase 152's discuss step (D-07). ERASE-01…09 enter v1 scope (26 → 35 in scope, 42 defined). 153 is numbered last but **runs before Phase 152** (D-08), which now depends on it. Prior: **Phase 150 (`write --sdp-relock`) DEFERRED to Backlog 999.28** by operator decision at the discuss step, before any research/plan/CONTEXT existed. RELOCK-01…06 + RELOCK-08 left v1 scope (33 → 26); DATA-06 retained and re-homed to Phase 151 on its advisory branch; Phase 151's dependency on 150 discharged; Phase 152's OUT-01/OUT-04 amended to state a withdrawal rather than a migration, and OUT-05's claim gate gained a fifth class rejecting `write --sdp-relock`-as-shipped. Prior: 2026-08-18 — traceability populated at roadmap creation (Phases 147–152, 33/33 mapped).* **CORRECTED 2026-08-21** (152-RESEARCH.md §A-11(2), Open Question 3) — this footer previously stated an in-scope figure of 34 (25, before the ERASE addition) where it now states 35 (26); both prior figures undercounted by one because DATA-06 was subtracted along with its deferred RELOCK family despite being retained, not deferred. Reconciled: 33 total minus 7 deferred equals 26, plus 9 ERASE requirements equals 35 in scope, 42 defined.
