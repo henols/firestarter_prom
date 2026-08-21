@@ -4,11 +4,11 @@ milestone: v1.32
 milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 152
 current_phase_name: Outward-Facing Close (operator-gated)
-status: planned
+status: executing
 stopped_at: "Phase 152 PLANNED 2026-08-21 — 20 plans across 14 waves, plan-checker PASSED (0 blockers), coverage 5/5 (OUT-01..05) and 15/15 CONTEXT decisions (D-01..D-15). Phase 153 is COMPLETE, so 152's out-of-number-order precondition (D-07/D-08) is DISCHARGED. ⚠ OPERATOR-GATED: 152 must NOT be run under --auto/--chain — seven plans carry autonomous: false and each restates that prohibition; autonomous: false alone is NOT self-protecting. NEXT: /gsd-execute-phase 152 (no --auto, no --chain)."
-last_updated: "2026-08-21T13:59:29.834Z"
+last_updated: "2026-08-21T14:08:07.848Z"
 last_activity: 2026-08-21
-last_activity_desc: "Phase 152 (Outward-Facing Close, operator-gated) PLANNED 2026-08-21 — 20 plans / 14 waves, from 152-RESEARCH.md (2153 lines) + 152-PATTERNS.md + 152-VALIDATION.md. plan-checker PASSED with 0 blockers; independently re-verified: no HTML entities, one-writer-per-file holds in all 14 waves, every dependency in a strictly earlier wave, commits_land_in on both submodule plans (152-10/11), must_haves.prohibitions in all 20. Claim gate is built (w1-2) and armed at the real artifacts (w7) strictly BEFORE the first public post (w8); both beta merges (w5) and the cut-version read (w6) precede either release body post (w11/w12). Research moved six CONTEXT.md data: app is 85 ahead / 7 BEHIND origin/beta with 5 commits already upstream under different SHAs (NOT a fast-forward); leonardo 27630 B with 1042 B under the unguarded Caterina cliff; PyPI stable is 2.0.7 with 2.0.8 absent; PyPI upload is now automatic; four .hex assets not three; gh#11 CMD_ERASE was answered with a 2026-08-03 commitment, so OUT-03 discharges a kept-late promise, not a silence."
+last_activity_desc: "Phase 152 (Outward-Facing Close, operator-gated) EXECUTING from 2026-08-21 — 20 plans / 14 waves, all sequential on the main checkout (no worktree isolation: every plan reads a submodule or asserts on absolute /workspaces paths). Seven plans are operator-gated (152-11 the beta merges, 152-14..18 the five public posts, 152-20 close-out); this phase must NOT be run under --auto/--chain."
 progress:
   total_phases: 7
   completed_phases: 5
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-18 — v1.32 started)
 authoritative dispatch key end to end. v1.32 turns that key on the project's own diagnostics: a
 community `dev test` report must be attributable to the firmware that produced it before any
 protocol-`0x0D` write-path claim can be made about it.
-**Current focus:** Phase 153 — Write-Path Erase Policy (ERASE-01..09) — **EXECUTING** (started 2026-08-21): 16 plans / 41 tasks, dual-repo lockstep plus meta-repo records. Research `ceea28f9`, patterns `2cd30d1a`, plans `99319985`. Plan-checker PASSED (0 blockers); requirements coverage 9/9; decision-coverage gate skipped (no 153-CONTEXT.md — decisions live in 152-CONTEXT.md D-07/D-08/D-15). All plans are autonomous, but every one runs WITHOUT worktree isolation (all 16 touch or build inside a submodule).
+**Current focus:** Phase 152 — Outward-Facing Close (operator-gated) — **EXECUTING** (started 2026-08-21): 20 plans / 14 waves, OUT-01..05. Claim gate built w1-2, armed at the real artifacts w7, first public post w8; both beta merges w5 and the cut-version read w6 precede either release-body post (w11/w12). ⚠ OPERATOR-GATED — must NOT run under --auto/--chain.
 
 **v1.32 AT28C Write-Path Root Cause & Report Provenance** — ACTIVE (activated 2026-08-18, ~~folding Backlog
 **999.28**~~ — **the 999.28 fold was reversed 2026-08-20**: Phase 150 (`write --sdp-relock`) was deferred
@@ -85,13 +85,13 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 152 — Outward-Facing Close (operator-gated) — PLANNED
-Plan: 0 of 20 complete
-Status: Ready to execute — ⚠ OPERATOR-GATED, must NOT run under --auto/--chain
+Phase: 152 — Outward-Facing Close (operator-gated) — EXECUTING
+Plan: 1 of 20
+Status: Executing Phase 152 — ⚠ OPERATOR-GATED, must NOT run under --auto/--chain
 Next: /gsd-execute-phase 152 (no --auto, no --chain)
 Plans: 20 plans, 14 waves — plan-checker PASSED (0 blockers), coverage 5/5 (OUT-01..05), decisions 15/15 (D-01..D-15)
 Note: Phase 153 ran BEFORE 152 by design (D-08) and is COMPLETE, so 152's precondition is discharged. Seven plans carry autonomous: false (152-11 merge, 152-14..18 the five public posts, 152-20 close-out); autonomous: false alone is NOT self-protecting, which is why the --auto/--chain prohibition is restated in each. Gate armed at the real artifacts in wave 7, first public post in wave 8; both beta merges in wave 5 and the cut-version read in wave 6 precede either release-body post.
-Last activity: 2026-08-21 — Phase 152 PLANNED, 20 plans / 14 waves, plan-checker PASSED
+Last activity: 2026-08-21 — Phase 152 execution started
 
 ## Roadmap Summary (v1.32)
 
