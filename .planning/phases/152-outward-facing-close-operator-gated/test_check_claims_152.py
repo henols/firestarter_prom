@@ -89,6 +89,7 @@ import pytest
 
 _HERE = Path(__file__).parent
 _SCANNER = _HERE / "152-check-claims.py"
+_NOT_AUTO_GUARD = _HERE / "152-check-not-auto.py"
 
 # The three required-caveat needles, as literal strings rather than imported
 # regexes: legs 14 and 15 must build their input WITHOUT importing the gate,
@@ -1029,4 +1030,64 @@ def test_verified_on_silicon_permits_unverified_but_still_rejects_verified(
     assert "forbidden phrase match [verified-on-silicon]" in rejected_result.stdout, (
         f"Expected the verified-on-silicon label in output but got:\n"
         f"{rejected_result.stdout}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Legs 28-30 (NEW, Plan 152-13): 152-check-not-auto.py -- the fail-closed
+# configuration guard against an auto/chained run reaching a public post.
+# All three legs are selectable by `-k not_auto`.
+# ---------------------------------------------------------------------------
+
+
+def _run_not_auto_guard(config_path=None):
+    """Invoke `152-check-not-auto.py` as a real subprocess, mirroring
+    `_run_scanner`'s subprocess-only discipline above -- a guard whose whole
+    job is a real read of a real (or fixture) file must be proven through a
+    real process invocation, never an in-process import that could diverge
+    from what `python3 152-check-not-auto.py` actually does on the command
+    line."""
+    argv = [sys.executable, str(_NOT_AUTO_GUARD)]
+    if config_path is not None:
+        argv.extend(["--config", str(config_path)])
+    return subprocess.run(argv, cwd=str(_HERE), capture_output=True, text=True)
+
+
+def test_not_auto_guard_fails_closed_on_the_truthy_fixture():
+    """`fixtures/config_auto_active.json` carries `workflow._auto_chain_active:
+    true`. The guard MUST exit non-zero and its output MUST name the
+    configuration key -- an auto/chained run must never read as safe."""
+    result = _run_not_auto_guard(_HERE / "fixtures" / "config_auto_active.json")
+    assert result.returncode != 0, (
+        f"guard exited 0 against the truthy auto-active fixture -- it must "
+        f"fail closed on a set flag.\nstdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+    assert "_auto_chain_active" in result.stdout, (
+        f"Expected the configuration key named in output but got:\n"
+        f"{result.stdout}"
+    )
+
+
+def test_not_auto_guard_exits_zero_on_the_falsy_fixture():
+    """`fixtures/config_auto_inactive.json` carries
+    `workflow._auto_chain_active: false`. The guard MUST exit 0."""
+    result = _run_not_auto_guard(_HERE / "fixtures" / "config_auto_inactive.json")
+    assert result.returncode == 0, (
+        f"guard exited {result.returncode} against the falsy auto-inactive "
+        f"fixture -- expected 0.\nstdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
+    )
+
+
+def test_not_auto_guard_fails_closed_on_a_missing_config_file():
+    """A `--config` path that does not exist on disk MUST make the guard
+    exit non-zero -- an unknown state (here, unreadable) is not a safe
+    state, mirroring the claim gate's own fail-closed-on-missing-target
+    discipline."""
+    result = _run_not_auto_guard("/nonexistent/config-for-152-13-tests.json")
+    assert result.returncode != 0, (
+        f"guard exited 0 against a nonexistent config path -- it must fail "
+        f"closed on an unreadable/missing file.\nstdout:\n{result.stdout}\n"
+        f"stderr:\n{result.stderr}"
     )
