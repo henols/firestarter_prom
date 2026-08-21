@@ -5,14 +5,14 @@ milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 153
 current_phase_name: Write-Path Erase Policy — no pre-write blank check on auto-erasing protocols, standalone erase
 status: executing
-stopped_at: "Phase 153 PLANNED 2026-08-21 — 16 plans, 12 waves, 41 tasks; plan-checker VERIFICATION PASSED (0 blockers), requirements coverage 9/9 (ERASE-01..09). Ready to execute. 153 runs BEFORE 152 per D-08, and the ROADMAP checklist is deliberately ordered 153-then-152 so next-phase resolution agrees. Phase 152 stays BLOCKED until 153 is complete, and must NOT be run under --auto/--chain."
-last_updated: "2026-08-21T06:38:28.672Z"
-last_activity: 2026-08-20
-last_activity_desc: "Phase 151 (Protection Readability — `dev lock-status`) CLOSED 2026-08-20, verified 10/10, 14/14 plans. All 5 requirements Complete (LOCK-01..04 + DATA-06). Gates: app 1806 passed (py3.11), firmware tests 315 passed, native 163/163 + 163/163 + 11/11, three AVR builds zero warnings. MERGE-05 green via a third named exemption MERGE05_LOCK_STATUS_READ_EXEMPTION_BYTES = 288, funding +288 B uniform on all three targets; no RAM exemption needed (+2<=2=seam2). Leonardo is now at EXACTLY zero MERGE-05 headroom (+594<=594) and 1172 B below the UNGUARDED 28672 B Caterina cliff — any further AVR flash growth in v1.32 needs its own named exemption. Bench (Leonardo /dev/ttyACM0, shield Rev 2.0 operator-stated, W29C020 seated): leg A returned 0xDA45, establishing sub-claim (i) mode entry/exit only; leg B forced returned raw 0xFE as an unadjudicated_probe, never a state claim; leg C not run (no W29C040 sample), so the v1.17 W29C040 RCA remains OPEN; no leg D exists and the 0x06 path ships software-proven and unrun on silicon."
+stopped_at: "Phase 153 EXECUTING (started 2026-08-21) — 16 plans / 11 waves as scheduled / 41 tasks, dual-repo. Sequential on the main tree: worktree isolation is OFF for every plan because all 16 touch or build inside the firestarter/firestarter_app submodules, which worktrees leave empty. 153 runs BEFORE 152 (D-08); Phase 152 stays BLOCKED until 153 completes and must NOT be run under --auto/--chain."
+last_updated: "2026-08-21T06:44:11.376Z"
+last_activity: 2026-08-21
+last_activity_desc: "Phase 153 (Write-Path Erase Policy) execution started 2026-08-21 — 16 plans, 41 tasks, dual-repo. Planned same day: research corrected 2 stale line numbers, found the 0x05 sibling conditional DOES exist at flash_5v_page.cpp:87-89, found the AN-0544B 6-byte sequence already in-tree as FLASH_ERASE, and found check_dispatch.py structurally cannot see a handler-body control-register write (so GATE-03's real control is a brace-matched negative body scan, built by plan 05). Operator locked a fourth named v153 MERGE-05 flash exemption from a measured figure plus a new *_v153* tripwire family; leonardo is at 0 B flash AND 0 B RAM headroom and 1172 B below the UNGUARDED 28672 B Caterina cliff. Prior: Phase 151 CLOSED 2026-08-20, verified 10/10, 14/14 plans (see 151 artifacts and git for its full closure record)."
 progress:
   total_phases: 7
   completed_phases: 4
-  total_plans: 36
+  total_plans: 52
   completed_plans: 36
   percent: 57
 ---
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-18 — v1.32 started)
 authoritative dispatch key end to end. v1.32 turns that key on the project's own diagnostics: a
 community `dev test` report must be attributable to the firmware that produced it before any
 protocol-`0x0D` write-path claim can be made about it.
-**Current focus:** Phase 151 — Protection Readability — `dev lock-status` (+ DATA-06, re-homed) — **EXECUTING** (started 2026-08-20): 14 plans / 6 waves / 39 tasks, dual-repo. Research `567169fd`, patterns `10c6cf79`, validation `71ca19c1`, plans `9dd950f2`. Plan-checker: PASSED (0 blockers), then PASSED again on the `dc932011` revision. Requirements coverage 5/5; decision coverage 16/16. Two plans are non-autonomous — `151-04` (datasheet sourcing) and `151-14` (bench session, which must NOT run under `--auto`/`--chain`).
+**Current focus:** Phase 153 — Write-Path Erase Policy (ERASE-01..09) — **EXECUTING** (started 2026-08-21): 16 plans / 41 tasks, dual-repo lockstep plus meta-repo records. Research `ceea28f9`, patterns `2cd30d1a`, plans `99319985`. Plan-checker PASSED (0 blockers); requirements coverage 9/9; decision-coverage gate skipped (no 153-CONTEXT.md — decisions live in 152-CONTEXT.md D-07/D-08/D-15). All plans are autonomous, but every one runs WITHOUT worktree isolation (all 16 touch or build inside a submodule).
 
 **v1.32 AT28C Write-Path Root Cause & Report Provenance** — ACTIVE (activated 2026-08-18, ~~folding Backlog
 **999.28**~~ — **the 999.28 fold was reversed 2026-08-20**: Phase 150 (`write --sdp-relock`) was deferred
@@ -85,12 +85,12 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 153 — Write-Path Erase Policy (no pre-write blank check on auto-erasing protocols, standalone erase)
-Plan: 0/16 complete
-Status: Ready to execute
+Phase: 153 (write-path-erase-policy) — EXECUTING
+Plan: 1 of 16
+Status: Executing Phase 153
 Plans: 16 plans, 12 waves, 41 tasks — plan-checker PASSED (0 blockers), coverage 9/9 (ERASE-01..09)
 Note: 153 runs BEFORE 152 (D-08). Phase 152 stays BLOCKED until 153 is complete, and must NOT be run under --auto/--chain.
-Last activity: 2026-08-20 — Phase 151 (Protection Readability — `dev lock-status`) CLOSED 2026-08-20, verified 10/10, 14/14 plans. All 5 requirements Complete (LOCK-01..04 + DATA-06). Gates: app 1806 passed (py3.11), firmware tests 315 passed, native 163/163 + 163/163 + 11/11, three AVR builds zero warnings. MERGE-05 green via a third named exemption MERGE05_LOCK_STATUS_READ_EXEMPTION_BYTES = 288, funding +288 B uniform on all three targets; no RAM exemption needed (+2<=2=seam2). Leonardo is now at EXACTLY zero MERGE-05 headroom (+594<=594) and 1172 B below the UNGUARDED 28672 B Caterina cliff — any further AVR flash growth in v1.32 needs its own named exemption. Bench (Leonardo /dev/ttyACM0, shield Rev 2.0 operator-stated, W29C020 seated): leg A returned 0xDA45, establishing sub-claim (i) mode entry/exit only; leg B forced returned raw 0xFE as an unadjudicated_probe, never a state claim; leg C not run (no W29C040 sample), so the v1.17 W29C040 RCA remains OPEN; no leg D exists and the 0x06 path ships software-proven and unrun on silicon.
+Last activity: 2026-08-21 — Phase 153 execution started
 
 ## Roadmap Summary (v1.32)
 
