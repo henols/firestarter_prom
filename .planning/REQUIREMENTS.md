@@ -317,11 +317,11 @@ before Phase 152** (D-08).
       (GATE-03) is not weakened, not exempted, and not re-baselined to accommodate this work; the phase
       states in writing which path it implements and why. This is a hardware-damage guard, not a lint.
 
-- [ ] **ERASE-05**: `blank` remains available as its own step. `cli_handlers.py:856` →
+- [x] **ERASE-05**: `blank` remains available as its own step. `cli_handlers.py:856` →
       `CMD_BLANK_CHECK` → `mem_util_blank_check` **already works and nothing is owed there** — this is
       a non-regression assertion, deliberately scoped so no plan mistakes it for new work.
 
-- [ ] **ERASE-06**: `info`'s "can be erased" row (`firestarter_app/firestarter/ic_layout.py:582`)
+- [x] **ERASE-06**: `info`'s "can be erased" row (`firestarter_app/firestarter/ic_layout.py:582`)
       agrees with the wire flag rather than contradicting it.
 
 - [x] **ERASE-07**: The stale Phase 121 D-12 **code comment** at
@@ -400,8 +400,8 @@ before Phase 152** (D-08).
 | ERASE-02 | Phase 153 | In Progress |
 | ERASE-03 | Phase 153 | Pending |
 | ERASE-04 | Phase 153 | Complete |
-| ERASE-05 | Phase 153 | Pending |
-| ERASE-06 | Phase 153 | Pending |
+| ERASE-05 | Phase 153 | Complete |
+| ERASE-06 | Phase 153 | Complete |
 | ERASE-07 | Phase 153 | Complete |
 | ERASE-08 | Phase 153 | Pending |
 | ERASE-09 | Phase 153 | Pending |

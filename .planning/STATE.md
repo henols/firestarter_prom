@@ -6,14 +6,14 @@ current_phase: 153
 current_phase_name: write-path-erase-policy
 status: executing
 stopped_at: Completed 153-11-PLAN.md
-last_updated: "2026-08-21T09:51:49.802Z"
+last_updated: "2026-08-21T10:16:07.036Z"
 last_activity: 2026-08-21
 last_activity_desc: Phase 153 execution started
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 52
-  completed_plans: 47
+  completed_plans: 48
   percent: 57
 ---
 
@@ -86,7 +86,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 153 (write-path-erase-policy) — EXECUTING
-Plan: 12 of 16
+Plan: 13 of 16
 Status: Ready to execute
 Plans: 16 plans, 12 waves, 41 tasks — plan-checker PASSED (0 blockers), coverage 9/9 (ERASE-01..09)
 Note: 153 runs BEFORE 152 (D-08). Phase 152 stays BLOCKED until 153 is complete, and must NOT be run under --auto/--chain.
@@ -2069,6 +2069,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 153]: 153-10: kept the now-unreachable _PROTOCOL_EEPROM_28C reason arm as a documented, tested defensive fallthrough (user-override non-qualifying electrical-type row) rather than deleting it, per plan disposition
 - [Phase ?]: 153-11: kept the --skip-erase warning arm scoped to itself; the decision not to add a symmetric blank-check-vacuity warning is now grounded in RESEARCH Pitfall 5 / 152-CONTEXT.md D-08 and defended by a new guard leg proven reachable via a temporary echo
 - [Phase ?]: 153-11: regenerated the two full-text write/erase --help syrupy snapshots after extending their docstrings (not called out as a task, but required by the plan's own critical_notes)
+- [Phase 153-12]: ERASE-06 read as 'must not contradict', not 'must derive from' (D-07 decomposition) -- zero ic_layout.py edit owed — 152-CONTEXT.md D-07 names the pre-153 state as a contradiction, not a missing derivation
+- [Phase 153-12]: ERASE-05 discharged as pure non-regression assertion across CLI/host/firmware, no implementation task — the blank chain already worked end to end; this plan proves scope and reachability, not new behavior
 
 ## Performance Metrics
 
@@ -2375,10 +2377,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 153 P09 | 45min | 3 tasks | 3 files |
 | Phase 153 P10 | 35min | 3 tasks | 4 files |
 | Phase 153 P11 | 45min | 2 tasks | 3 files |
+| Phase 153 P12 | 75min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-21T09:51:49.777Z
+**Last session:** 2026-08-21T10:16:07.009Z
 **Stopped at:** Completed 153-11-PLAN.md
 **Resume file:** None
 
