@@ -477,7 +477,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 152-10-PLAN.md — OUT-04: pre-flight — re-measure both sub-repos, commit all three, run both suites with the sibling firmware root severed *(wave 4)*
+- [x] 152-10-PLAN.md — OUT-04: pre-flight — re-measure both sub-repos, commit all three, run both suites with the sibling firmware root severed *(wave 4)*
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
