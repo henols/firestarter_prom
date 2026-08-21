@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: — AT28C Write-Path Root Cause & Report Provenance
-current_phase: 153
-current_phase_name: Write-Path Erase Policy — no pre-write blank check on auto-erasing protocols, standalone erase
-status: executing
-stopped_at: Completed 153-16-PLAN.md — Phase 153 (Write-Path Erase Policy) CLOSED, all 9 ERASE requirements Complete
+current_phase: 152
+current_phase_name: Outward-Facing Close (operator-gated) — LAST phase of v1.32
+status: milestone-phases-complete
+stopped_at: Completed 152-20-PLAN.md — Phase 152 (Outward-Facing Close) CLOSED and VERIFIED 5/5. All v1.32 phases are complete (150 deferred to Backlog 999.28) and all 35 requirements are checked. Ready for milestone close.
 last_updated: "2026-08-21T19:16:42.360Z"
 last_activity: 2026-08-21
-last_activity_desc: Phase 152 complete, transitioned to Phase 153
+last_activity_desc: "Phase 152 (Outward-Facing Close) CLOSED 2026-08-21, verified 5/5. Five public artifacts published: gh#12/gh#21/gh#11 comments and both release bodies (app 3.0.0b23, fw 3.0.0b20). All three repos merged to beta (fw PR#53 a1f474b5, app PR#53 8f2e8d7d, meta PR#38 9e154847 — all two-parent merge commits). ⚠ phase.complete auto-advanced current_phase to 153, which is ALREADY CLOSED (153 ran out of number order by design, D-07/D-08) — hand-corrected back to 152, the last phase actually executed. ⚠ phase.complete also clobbered Phase 11 plan count (6/6 -> 20/20); repaired. NEXT: milestone close — the tail after meta PR#38 is NOT on beta; see 152-MERGE-RECORD.md TAIL section, and do NOT re-merge either sub-repo."
 progress:
   total_phases: 7
   completed_phases: 6
