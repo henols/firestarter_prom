@@ -509,7 +509,7 @@ Plans:
 
 **Wave 12** *(blocked on Wave 11 completion)*
 
-- [ ] 152-18-PLAN.md — OUT-04: POST the firmware release body behind its own blocking gate *(wave 12)*
+- [x] 152-18-PLAN.md — OUT-04: POST the firmware release body behind its own blocking gate *(wave 12)*
 
 **Wave 13** *(blocked on Wave 12 completion)*
 
