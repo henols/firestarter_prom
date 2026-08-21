@@ -501,7 +501,7 @@ Plans:
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
-- [ ] 152-16-PLAN.md — OUT-03: POST the gh#11 reply behind its own blocking gate *(wave 10)*
+- [x] 152-16-PLAN.md — OUT-03: POST the gh#11 reply behind its own blocking gate *(wave 10)*
 
 **Wave 11** *(blocked on Wave 10 completion)*
 
