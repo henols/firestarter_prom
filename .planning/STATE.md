@@ -86,8 +86,8 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 152 — Outward-Facing Close (operator-gated) — EXECUTING
-Plan: 10 of 20 complete (wave 4 of 14 done) — next is the OPERATOR-GATED beta merge
-Status: Executing Phase 152 — ⚠ OPERATOR-GATED, must NOT run under --auto/--chain
+Plan: 10 of 20 complete (wave 4 of 14 done) — HALTED in wave 5 on 152-11
+Status: HALTED at wave 5 — `gh pr merge` is refused by the auto-mode classifier, so plan 152-11 cannot merge either PR. Waves 6-14 all depend on the merge. Needs operator action: grant a `gh pr merge` permission rule, or merge both PR #53s in the GitHub UI using the MERGE-COMMIT method. Resume with `/gsd-execute-phase 152 --wave 5`.
 Next: /gsd-execute-phase 152 (no --auto, no --chain)
 Plans: 20 plans, 14 waves — plan-checker PASSED (0 blockers), coverage 5/5 (OUT-01..05), decisions 15/15 (D-01..D-15)
 Note: Phase 153 ran BEFORE 152 by design (D-08) and is COMPLETE, so 152's precondition is discharged. Seven plans carry autonomous: false (152-11 merge, 152-14..18 the five public posts, 152-20 close-out); autonomous: false alone is NOT self-protecting, which is why the --auto/--chain prohibition is restated in each. Gate armed at the real artifacts in wave 7, first public post in wave 8; both beta merges in wave 5 and the cut-version read in wave 6 precede either release-body post.
