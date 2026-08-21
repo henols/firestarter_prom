@@ -294,23 +294,36 @@ un-writable without `-b`. That is the `Not blank, at 0x000000, v: 0x40` failure 
 **Second firmware-touching workstream to be added — dual-repo lockstep.** Phase 153, which **runs
 before Phase 152** (D-08).
 
-- [ ] **ERASE-01**: `write` performs no blank check on `0x0D`. The conditional at
+- [x] **ERASE-01**: `write` performs no blank check on `0x0D`. The conditional at
       `firestarter/src/proms/eeprom_28c.cpp:547` — `if (!is_flag_set(FLAG_SKIP_BLANK_CHECK)) {
       mem_util_blank_check(handle); }` — no longer gates the write path.
 
-      *(2026-08-21: the CODE half landed in `153-02` — the conditional is deleted and
-      `mem_util_blank_check` appears exactly once in `eeprom_28c.cpp`. The flip waits on `153-13`,
-      which corrects `firestarter/doc/PROTOCOLS.md` §1.6 — it still asserts `-b` is *required*.
-      Marking this Complete while that text stands is the OUT-05 failure class this phase exists
-      to avoid, so the box stays open until both owning plans land.)*
+      *(2026-08-21: CODE half landed in `153-02` — conditional deleted, `mem_util_blank_check`
+      appears exactly once in `eeprom_28c.cpp`. DOC half landed in `153-13` —
+      `firestarter/doc/PROTOCOLS.md` §1.6 no longer asserts `-b` is *required*; `grep -c 'is
+      \*\*required\*\* to write a non-blank' doc/PROTOCOLS.md` returns 0. Both halves complete;
+      flipped.)*
 
-- [ ] **ERASE-02**: The same holds for `0x05` (flash4). Its `flash_5v_page.cpp` sibling conditional is
+- [x] **ERASE-02**: The same holds for `0x05` (flash4). Its `flash_5v_page.cpp` sibling conditional is
       **located in code before being changed** — the decomposition recorded it as "to locate", and its
       existence must not be assumed by symmetry with `0x0D`.
 
-- [ ] **ERASE-03**: `erase` is available as a standalone step on `0x0D`: a `CMD_ERASE` arm exists in
+      *(2026-08-21: CODE half landed in `153-06` — the equivalent `flash_5v_page.cpp` conditional
+      was located and deleted. DOC half landed in `153-13` — `doc/PROTOCOLS.md` §1.1's erase-model
+      paragraph now states the write path performs no blank check on `0x05` either, for the same
+      per-page auto-erase reason. Both halves complete; flipped.)*
+
+- [x] **ERASE-03**: `erase` is available as a standalone step on `0x0D`: a `CMD_ERASE` arm exists in
       `configure_eeprom28c`, and `FLAG_CAN_ERASE` is restored for `algorithm 13` at
       `firestarter_app/firestarter/database.py:621`.
+
+      *(2026-08-21: code confirmed present — `eeprom_28c.cpp:262` dispatches `case CMD_ERASE:` to
+      `eeprom28c_erase_execute`; `database.py:638-639` restores `FLAG_CAN_ERASE` for every
+      `electrical-type` EEPROM/Flash-EEPROM algorithm except `5` (`algo not in (5,)`), so
+      algorithm 13 is included. Landed across plans 03/04/07/08/09/10/11/12; `153-13` is the last
+      plan to claim this requirement and confirms both code sites hold, plus corrects the two
+      remaining prose sites (`firestarter/doc/PROTOCOLS.md` §1.6, `firestarter_app/doc/protocol-id.md`
+      `0x0D` row) that still denied the capability. Flipped.)*
 
 - [x] **ERASE-04**: The erase implements the **software 6-byte** sequence, not the datasheet's
       *hardware* path, which puts **12 V on OE (pin 22)** of `DIP28_28C256`. `tools/check_dispatch.py`
@@ -396,9 +409,9 @@ before Phase 152** (D-08).
 | OUT-03 | Phase 152 | Pending |
 | OUT-04 | Phase 152 | Pending |
 | OUT-05 | Phase 152 | Pending |
-| ERASE-01 | Phase 153 | In Progress |
-| ERASE-02 | Phase 153 | In Progress |
-| ERASE-03 | Phase 153 | Pending |
+| ERASE-01 | Phase 153 | Complete |
+| ERASE-02 | Phase 153 | Complete |
+| ERASE-03 | Phase 153 | Complete |
 | ERASE-04 | Phase 153 | Complete |
 | ERASE-05 | Phase 153 | Complete |
 | ERASE-06 | Phase 153 | Complete |
