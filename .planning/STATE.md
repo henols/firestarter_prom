@@ -5,15 +5,15 @@ milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 153
 current_phase_name: write-path-erase-policy
 status: executing
-stopped_at: Completed 153-07-PLAN.md
-last_updated: "2026-08-21T08:40:42.792Z"
+stopped_at: Completed 153-08-PLAN.md
+last_updated: "2026-08-21T08:58:08.926Z"
 last_activity: 2026-08-21
 last_activity_desc: Phase 153 execution started
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 52
-  completed_plans: 43
+  completed_plans: 44
   percent: 57
 ---
 
@@ -86,7 +86,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 153 (write-path-erase-policy) — EXECUTING
-Plan: 8 of 16
+Plan: 9 of 16
 Status: Ready to execute
 Plans: 16 plans, 12 waves, 41 tasks — plan-checker PASSED (0 blockers), coverage 9/9 (ERASE-01..09)
 Note: 153 runs BEFORE 152 (D-08). Phase 152 stays BLOCKED until 153 is complete, and must NOT be run under --auto/--chain.
@@ -2060,6 +2060,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: Algorithm 5 stays excluded from FLAG_CAN_ERASE (hardware-hazard); only algorithm 13 dropped from the tuple — 153-07
 - [Phase ?]: chip_database.json not touched -- flag is derived at conversion time, confirmed byte-unchanged — 153-07
 - [Phase ?]: Phase 121 D-12 comment rewritten as the fourth recorded reversal (119 D-18, 120 D-20, 121 D-12, 153); both false claims corrected in place — 153-07
+- [Phase 153]: D-153-05 restated: Phase 148 golden stays byte-unchanged; wire_dict_expected_deltas_153.json is the committed 84-entry flags-only delta list ERASE-03 produces on top of it, field-disjoint from the 18 Phase 149 deltas.
+- [Phase 153]: Kept the 149 layer's == 18 exact-count assertion as a true equality (not widened to a floor) even after adding the 153 layer alongside it.
 
 ## Performance Metrics
 
@@ -2362,11 +2364,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 153 P05 | 20min | 2 tasks | 3 files |
 | Phase 153 P06 | 35min | 2 tasks | 2 files |
 | Phase 153 P07 | 40min | 2 tasks | 1 files |
+| Phase 153 P08 | 35min | 2 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-21T08:40:42.764Z
-**Stopped at:** Completed 153-07-PLAN.md
+**Last session:** 2026-08-21T08:58:08.882Z
+**Stopped at:** Completed 153-08-PLAN.md
 **Resume file:** None
 
 **Gitlink gap from Phase 149's close — CLOSED 2026-08-20.** Phase 149 landed its dual-repo work but never bumped meta's submodule gitlinks, so meta HEAD asserted "Phase 149 COMPLETE and VERIFIED — page-size seam landed across both repos" while pointing at `firestarter 7f6afc65` / `firestarter_app b142c0e6` — trees containing none of it. Bumped to `firestarter 6e3f90a3` (6 commits, all `149-*`) and `firestarter_app 9cc57c75` (13 commits: 8 `149-*` plus the 5 `fw` port-targeting fixes, which `git cherry` marks `-` against `origin/beta` — patch-identical to PR #52's merged work under different SHAs, so nothing unreviewed rode along). Both sub-repos verified on `gsd/v1.32-at28c-write-path-root-cause-report-provenance` with clean tracked trees. Restores the per-plan bump convention this milestone set at `chore(147-02)`/`chore(147-05)`; the branches are local-only, as Phase 147's were when it bumped, and become reachable at the close via the PR to `beta`.
