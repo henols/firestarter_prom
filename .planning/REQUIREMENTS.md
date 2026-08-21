@@ -294,7 +294,7 @@ un-writable without `-b`. That is the `Not blank, at 0x000000, v: 0x40` failure 
 **Second firmware-touching workstream to be added — dual-repo lockstep.** Phase 153, which **runs
 before Phase 152** (D-08).
 
-- [ ] **ERASE-01**: `write` performs no blank check on `0x0D`. The conditional at
+- [x] **ERASE-01**: `write` performs no blank check on `0x0D`. The conditional at
       `firestarter/src/proms/eeprom_28c.cpp:547` — `if (!is_flag_set(FLAG_SKIP_BLANK_CHECK)) {
       mem_util_blank_check(handle); }` — no longer gates the write path.
 
@@ -390,7 +390,7 @@ before Phase 152** (D-08).
 | OUT-03 | Phase 152 | Pending |
 | OUT-04 | Phase 152 | Pending |
 | OUT-05 | Phase 152 | Pending |
-| ERASE-01 | Phase 153 | Pending |
+| ERASE-01 | Phase 153 | Complete |
 | ERASE-02 | Phase 153 | Pending |
 | ERASE-03 | Phase 153 | Pending |
 | ERASE-04 | Phase 153 | Pending |

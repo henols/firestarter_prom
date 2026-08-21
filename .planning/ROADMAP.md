@@ -486,7 +486,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 153-02-PLAN.md — ERASE-01: remove the `0x0D` pre-write blank check, proven by an observed-RED single-shot-INIT case *(firestarter)*
+- [x] 153-02-PLAN.md — ERASE-01: remove the `0x0D` pre-write blank check, proven by an observed-RED single-shot-INIT case *(firestarter)*
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
