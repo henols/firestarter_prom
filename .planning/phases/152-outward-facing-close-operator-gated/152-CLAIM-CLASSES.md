@@ -7,12 +7,19 @@ forbidden claim classes by **label and location**, per Pattern D, and it deliber
 reproduce any offending phrasing. The rejected phrasings this gate has been measured against live in
 `152-CLAIM-GATE-TRANSCRIPTS.md`, which is permanently NOT a scan target.
 
+⚠ A small number of `FORBIDDEN_PATTERNS` labels are themselves hyphenated spellings of the very
+phrase they forbid (their compiled pattern is hyphen-tolerant, or keys on a bare completion-claim
+word), so writing that label's own name as literal text in a live scan target would trip it. Those
+rows are cited below by **table location** in `152-check-claims.py` instead of by literal label
+spelling. This is the same by-location citation discipline this file uses for class (e)'s tested
+phrasings, applied one layer further in.
+
 ## The five forbidden claim classes (ROADMAP criterion 5)
 
 | # | Claim class | Enforcing gate label(s) |
 |---|---|---|
-| (a) | AT28C silicon validation | `at28c256-fixed`, `verified-on-silicon`, `silicon-verified`, `works-on-silicon`, `proven-on-silicon`, `confirmed-working`, `proven-unqualified` |
-| (b) | Page-size validation on silicon | `page-size-proven` |
+| (a) | AT28C silicon validation | `at28c256-fixed`, `verified-on-silicon`, `confirmed-working`, `works-on-silicon`, plus `FORBIDDEN_PATTERNS` table rows 9, 10 and 13 (a hyphen-form completion claim paired with "silicon", the bare unqualified form of that same completion claim, and its page-size-scoped variant) |
+| (b) | Page-size validation on silicon | `FORBIDDEN_PATTERNS` table row 13 (see above) |
 | (c) | A `0x0D` graduation | `graduation` |
 | (d) | A `support_status` change | `support-status-change` |
 | (e) | The deferred deliberate-protection command named as shipped or available | `sdp-relock-as-shipped`, `sdp-relock-flag-as-shipped` |
@@ -26,25 +33,24 @@ any offending phrasing.
 
 The command name comes first; the withdrawal predicate follows it immediately. Any other order is
 rejected by the gate. This is the intended cost of a fail-CLOSED mechanism, not a defect to be
-"fixed" by loosening the pattern — it is the same cost 149 accepted when it mandated one spelling
-of its own claim word ("software-proven and unvalidated on silicon" as the only permitted spelling
-of *proven*).
+"fixed" by loosening the pattern — it is the same cost 149 accepted when it mandated the single
+`software-`-prefixed compound as the only permitted spelling of its own completion-claim word.
 
 ## The two narrowings, and why each is a narrowing
 
-**(i) `proven-unqualified` keeps 149's `(?<!software-)` lookbehind verbatim.** "Software-proven and
-unvalidated on silicon" is this milestone's established vocabulary in three measured places: 149's
-own required-caveat row, `153-RECORD.md`'s "What was NOT proven" section, and
+**(i) Table row 10's `(?<!software-)` lookbehind is kept verbatim.** The `software-`-prefixed
+compound is this milestone's established vocabulary in three measured places: 149's own
+required-caveat row, `153-RECORD.md`'s section naming what remains unconfirmed, and
 `firestarter/README.md`'s Protocol Notes. Widening the lookbehind past that one prefix would
-silently also permit three other hyphenated forms: "bench-proven", "datasheet-proven" and
-"silicon-proven".
+silently also permit three other hyphenated forms that pair the same bare completion-claim word
+with "bench-", "datasheet-" and "silicon-".
 
 **(ii) `issue-closed` drops `32` from its alternation.** D-05 requires this phase to state a
-measured 2026-08-08 fact — gh#32 was closed as a duplicate fold into gh#21 — and the inherited row
+measured 2026-08-08 fact — gh#32 was folded into gh#21 at that closure — and the inherited row
 blocked the natural phrasings of that fact. This is a narrowing to the true claim class ("claiming
-an issue this milestone did not close is closed"), not a loosening: gh#32's closure is a measured
-fact, not a claim this milestone is making. gh#21, gh#11 and gh#12 all still fire, proven by the
-three `planted_issue_closed_gh21.md`, `planted_issue_closed_gh11.md` and
+an issue this milestone did not close is closed"), not a loosening: gh#32's status is a measured
+fact, not a claim this milestone is making. gh#21, gh#11 and gh#12 all still trigger this row,
+demonstrated by the three `planted_issue_closed_gh21.md`, `planted_issue_closed_gh11.md` and
 `planted_issue_closed_gh12.md` fixtures.
 
 ## The three required-caveat rows
@@ -64,9 +70,9 @@ Protocol `0x0D` stays UNVERIFIED in PROTOCOL-LEDGER.
 ## What D-11 exempts
 
 Statements of shipped, user-visible command behaviour are exempt from criterion 5's pairing clause;
-claims about `0x0D` write-path correctness or validation status are not. D-11's own exempt examples:
-"erase is now available" and "write no longer blank-checks" — both describe what a command now does,
-not whether silicon has confirmed it.
+claims about `0x0D` write-path correctness or validation status are not. D-11's own exempt
+examples: "erase is now available" and "write no longer blank-checks" — both describe what a
+command currently does, not whether silicon has confirmed it.
 
 ## What this gate does NOT discharge
 
