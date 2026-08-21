@@ -506,7 +506,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 153-07-PLAN.md — ERASE-03 host half + ERASE-07: restore `FLAG_CAN_ERASE` for algorithm 13 and rewrite the Phase 121 D-12 comment *(firestarter_app)*
+- [x] 153-07-PLAN.md — ERASE-03 host half + ERASE-07: restore `FLAG_CAN_ERASE` for algorithm 13 and rewrite the Phase 121 D-12 comment *(firestarter_app)*
 
 **Wave 8** *(blocked on Wave 7 completion)*
 

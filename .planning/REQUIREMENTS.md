@@ -324,7 +324,7 @@ before Phase 152** (D-08).
 - [ ] **ERASE-06**: `info`'s "can be erased" row (`firestarter_app/firestarter/ic_layout.py:582`)
       agrees with the wire flag rather than contradicting it.
 
-- [ ] **ERASE-07**: The stale Phase 121 D-12 **code comment** at
+- [x] **ERASE-07**: The stale Phase 121 D-12 **code comment** at
       `firestarter_app/firestarter/database.py:591` is corrected (`152-CONTEXT.md` **D-15**). This
       phase owns it because it must touch `database.py:621` for ERASE-03 anyway, which keeps Phase 152
       from reaching into a sub-repo for a comment edit.
@@ -402,7 +402,7 @@ before Phase 152** (D-08).
 | ERASE-04 | Phase 153 | Complete |
 | ERASE-05 | Phase 153 | Pending |
 | ERASE-06 | Phase 153 | Pending |
-| ERASE-07 | Phase 153 | Pending |
+| ERASE-07 | Phase 153 | Complete |
 | ERASE-08 | Phase 153 | Pending |
 | ERASE-09 | Phase 153 | Pending |
 
