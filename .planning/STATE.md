@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: — AT28C Write-Path Root Cause & Report Provenance
-current_phase: 152
-current_phase_name: Outward-Facing Close (operator-gated)
+current_phase: 153
+current_phase_name: Write-Path Erase Policy — no pre-write blank check on auto-erasing protocols, standalone erase
 status: executing
-stopped_at: "Phase 152 PLANNED 2026-08-21 — 20 plans across 14 waves, plan-checker PASSED (0 blockers), coverage 5/5 (OUT-01..05) and 15/15 CONTEXT decisions (D-01..D-15). Phase 153 is COMPLETE, so 152's out-of-number-order precondition (D-07/D-08) is DISCHARGED. ⚠ OPERATOR-GATED: 152 must NOT be run under --auto/--chain — seven plans carry autonomous: false and each restates that prohibition; autonomous: false alone is NOT self-protecting. NEXT: /gsd-execute-phase 152 (no --auto, no --chain)."
-last_updated: "2026-08-21T14:08:07.848Z"
+stopped_at: Completed 153-16-PLAN.md — Phase 153 (Write-Path Erase Policy) CLOSED, all 9 ERASE requirements Complete
+last_updated: "2026-08-21T19:16:42.360Z"
 last_activity: 2026-08-21
-last_activity_desc: "Phase 152 (Outward-Facing Close, operator-gated) EXECUTING from 2026-08-21 — 20 plans / 14 waves, all sequential on the main checkout (no worktree isolation: every plan reads a submodule or asserts on absolute /workspaces paths). Seven plans are operator-gated (152-11 the beta merges, 152-14..18 the five public posts, 152-20 close-out); this phase must NOT be run under --auto/--chain."
+last_activity_desc: Phase 152 complete, transitioned to Phase 153
 progress:
   total_phases: 7
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 72
-  completed_plans: 52
-  percent: 71
+  completed_plans: 72
+  percent: 86
 ---
 
 # Project State
@@ -85,13 +85,13 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 152 — Outward-Facing Close (operator-gated) — EXECUTING
-Plan: 20 of 20 complete (all 14 waves done) — awaiting phase verification
+Phase: 153 — Write-Path Erase Policy — no pre-write blank check on auto-erasing protocols, standalone erase
+Plan: Not started
 Status: Executing Phase 152 — wave 5 done: both sub-repos merged to `beta` via PR #53 as two-parent MERGE COMMITS (fw a1f474b5, app 8f2e8d7d); two pre-releases cut; `gh pr merge` needed an operator permission grant and was ultimately run by the orchestrator (deviation recorded in 152-11-SUMMARY.md). Next: wave 6 / 152-12 READS the cut versions. ⚠ OPERATOR-GATED — must NOT run under --auto/--chain; waves 8-12 each carry a blocking wording review.
 Next: /gsd-execute-phase 152 (no --auto, no --chain)
 Plans: 20 plans, 14 waves — plan-checker PASSED (0 blockers), coverage 5/5 (OUT-01..05), decisions 15/15 (D-01..D-15)
 Note: Phase 153 ran BEFORE 152 by design (D-08) and is COMPLETE, so 152's precondition is discharged. Seven plans carry autonomous: false (152-11 merge, 152-14..18 the five public posts, 152-20 close-out); autonomous: false alone is NOT self-protecting, which is why the --auto/--chain prohibition is restated in each. Gate armed at the real artifacts in wave 7, first public post in wave 8; both beta merges in wave 5 and the cut-version read in wave 6 precede either release-body post.
-Last activity: 2026-08-21 — Phase 152 execution started
+Last activity: 2026-08-21 — Phase 152 complete, transitioned to Phase 153
 
 ## Roadmap Summary (v1.32)
 
