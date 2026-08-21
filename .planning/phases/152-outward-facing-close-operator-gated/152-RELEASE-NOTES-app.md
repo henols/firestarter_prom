@@ -1,19 +1,18 @@
 # Host app prerelease — AT28C write-path fix, `lock-status`, and report provenance
 
-**Version:** `APP_TAG_TBD` — read from `gh release list --repo henols/firestarter_app`
-[placeholder — filled by Plan 152-12 from a live read after the cut, never predicted]. Cut by
-`beta-release.yml` from the merge commit that lands this milestone's work on `beta` [commit and PR
-number filled by Plan 152-12]. PyPI upload verified **independently of GitHub**, because this
-project has had GitHub carrying betas past PyPI before, and that pattern is live again on the
-*stable* channel right now: GitHub carries a stable release, `2.0.8`, that PyPI's own
-`info.version` does not yet report (still `2.0.7` as measured 2026-08-21) — so
-`firestarter-APP_TAG_TBD-py3-none-any.whl` and the matching `.tar.gz` being present on PyPI is
-checked directly against PyPI's own registry, not inferred from the GitHub release page. Nothing
-in this document should be read as claiming `2.0.8`, or any other GitHub-only release, is
-installable via `pip` — only what PyPI's own `info.version` reports is actually pip-installable.
-The matching firmware release is `FW_TAG_TBD`, cut by `beta-build.yml` (a different workflow file
-from the app's `beta-release.yml`) — the two repositories version independently, so the two numbers
-will not agree and are not expected to.
+**Version:** `3.0.0b23` — read via `gh release list --repo henols/firestarter_app --limit 8` at 2026-08-21T17:15:00Z.
+Cut by `beta-release.yml` from merge commit `8f2e8d7de709bf58c5e20daea34b17c073ee59b9` (PR #53), target commit
+`86f85d77d8102b633da82aef4b5601947f6cc80b`. PyPI upload verified **independently of GitHub**, via a direct read of
+`https://pypi.org/pypi/firestarter/json`, because this project has had GitHub carrying betas past PyPI before, and
+that pattern is live again on the *stable* channel right now: GitHub carries a stable release, `2.0.8`, that PyPI's
+own `info.version` does not yet report (still `2.0.7`, re-measured 2026-08-21T17:15:10Z) — so
+`firestarter-3.0.0b23-py3-none-any.whl` and the matching `.tar.gz` being present on PyPI is checked directly against
+the registry, which shows both uploaded at 2026-08-21T17:07:09Z, 26 s after this release published. Nothing in this
+document should be read as claiming `2.0.8`, or any other GitHub-only release, is installable via `pip` — only what
+PyPI's own `info.version` reports is actually pip-installable. The matching firmware release is `3.0.0b20`, read the
+same way from `henols/firestarter`, cut by `beta-build.yml` (a different workflow file from the app's
+`beta-release.yml`, merge commit `a1f474b5b3acd2f6fb246ec14ad6774dc52ced3f`, PR #53) — the two repositories version
+independently, so the two numbers will not agree and are not expected to.
 
 `pip install --pre --upgrade firestarter`
 
@@ -39,7 +38,7 @@ against.
 
 `lock-status` is **beta-channel only right now**, and it needs **matched firmware**: install the
 pre-release (`pip install --pre --upgrade firestarter`) and run `firestarter fw --install` against
-a board running `FW_TAG_TBD` or later. Against older firmware the host reports the firmware as
+a board running `3.0.0b20` or later. Against older firmware the host reports the firmware as
 out of date rather than recognizing the command at all — it is a new command entirely, not an
 existing one that changed shape. The one exploratory run this milestone made, against a W29C040 on
 the bench, was a **probe**, never a validation — it exercised the command's mechanics on one part

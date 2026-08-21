@@ -1,11 +1,15 @@
 # Firmware prerelease — 28C write-path policy, standalone erase, page-size seam, protection read
 
-**Version:** `FW_TAG_TBD` — read from `gh release list --repo henols/firestarter` [placeholder — filled
-by Plan 152-12 from a live read after the cut, never predicted]. Cut by `beta-build.yml` (a different
-workflow file from the host app's `beta-release.yml`) from the merge commit that lands this
-milestone's work on `beta` [commit and PR number filled by Plan 152-12]. The matching host release is
-`APP_TAG_TBD` — the two repositories version independently, so the two numbers will not agree and are
-not expected to.
+**Version:** `3.0.0b20` — read via `gh release list --repo henols/firestarter --limit 8` at
+2026-08-21T17:15:00Z, the newest pre-release cut this run. Cut by `beta-build.yml` (a different
+workflow file from the host app's `beta-release.yml`) from merge commit
+`a1f474b5b3acd2f6fb246ec14ad6774dc52ced3f` (PR #53), which landed this milestone's work on `beta`;
+the release's own target commit is `88d204a5a023bcad6f708b33150502ba90fdec2b`, the SHA that same
+workflow's version-bump auto-commit produced immediately after the merge. The matching host release is
+`3.0.0b23`, read the same way from `henols/firestarter_app` (PR #53, merge commit
+`8f2e8d7de709bf58c5e20daea34b17c073ee59b9`), and confirmed present on PyPI (`info.version` for the
+*stable* channel there is still `2.0.7`, unrelated to this pre-release) — the two repositories version
+independently, so the two numbers will not agree and are not expected to.
 
 Four images are published, one per board target:
 
