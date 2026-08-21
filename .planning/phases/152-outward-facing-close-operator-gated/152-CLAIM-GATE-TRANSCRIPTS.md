@@ -250,8 +250,120 @@ discharging it.
 
 ## Extended target list (Plan 152-13)
 
-This section is filled in by Plan 152-13, which extends `_DEFAULT_TARGETS` beyond the single
-`152-CLAIM-CLASSES.md` entry armed above. Not yet written as of this plan.
+Plan 152-13 extends `_DEFAULT_TARGETS` from the single `152-CLAIM-CLASSES.md` entry armed above to
+seven entries: the claim-classes contract, the three GitHub comment drafts (gh#12, gh#21, gh#11),
+both release-note bodies (app, firmware), and the merge record. All commands below were re-run from
+this same directory with `python3` (3.12.13), immediately after the extension.
+
+### RED — armed at the real seven-target list, plus the specified plant via the env seam
+
+The env seam is pointed at all seven real `_DEFAULT_TARGETS` entries **plus**
+`fixtures/planted_sdp_relock_as_shipped.md` (the same plant described above, in the section titled
+"one block per forbidden-pattern label this phase added or modified" — the roadmap's pre-amendment
+criterion-1 wording, taken verbatim). This is the proof that the gate rejects the specified planted
+violation *while pointed at the real outward artifacts*, not only at a fixture scanned in isolation.
+
+```
+$ FIRESTARTER_CLAIMSCAN_TARGETS_152="152-CLAIM-CLASSES.md:152-GH12-COMMENT.md:152-GH21-COMMENT.md:152-GH11-COMMENT.md:152-RELEASE-NOTES-app.md:152-RELEASE-NOTES-fw.md:152-MERGE-RECORD.md:fixtures/planted_sdp_relock_as_shipped.md" python3 152-check-claims.py ; echo EXIT=$?
+FAIL: 1 forbidden phrase match(es):
+  fixtures/planted_sdp_relock_as_shipped.md:12: forbidden phrase match [sdp-relock-as-shipped]: 'write --sdp-relock'
+EXIT=1
+```
+
+The six real outward artifacts all scan clean; only the appended plant fails, attributed to its own
+label alone — the six real files are not named in the `FAIL:` output at all, which is the gate's
+per-file scanning contract working exactly as designed even when a plant is mixed into the real list.
+
+### GREEN — defaults only, no argv, no seam
+
+```
+$ python3 152-check-claims.py ; echo EXIT=$?
+PASS: scanned 152-CLAIM-CLASSES.md, 152-GH12-COMMENT.md, 152-GH21-COMMENT.md, 152-GH11-COMMENT.md, 152-RELEASE-NOTES-app.md, 152-RELEASE-NOTES-fw.md, 152-MERGE-RECORD.md; 6 of 6 caveat-required file(s) carry every caveat their own rule demands; 1 file(s) carry no caveat requirement (this PASS is compliance with the forbidden-phrase table and the per-file caveat rule only -- see the module docstring's explicit non-claim, and note that a green run alone does not discharge D-03's per-artifact blocking operator wording review)
+EXIT=0
+```
+
+All seven real artifacts are named in the single `PASS:` line. Six are caveat-required and carry
+every caveat their own rule demands (`152-CLAIM-CLASSES.md`, the three comment drafts, both
+release-note bodies); the seventh, `152-MERGE-RECORD.md`, is the one file counted in "1 file(s)
+carry no caveat requirement" — matching its empty-frozenset exemption in `_CAVEAT_RULES`, mirroring
+the donor's own transcript-file exemption for a captured handoff record that is not itself a claim
+register.
+
+### Paired suite — re-run after the extension
+
+```
+$ python3 -m pytest test_check_claims_152.py -q -o addopts=""
+..................................                                       [100%]
+34 passed in 1.15s
+```
+
+34 legs: the 30 legs recorded above plus one new leg from this same plan (the `verified-on-silicon`
+word-boundary fix's paired both-directions leg) and three new guard legs for `152-check-not-auto.py`
+(selectable by `-k not_auto`).
+
+---
+
+### The `verified-on-silicon` false-positive — found and fixed in this plan
+
+**Reproduced before the fix:**
+
+```
+$ FIRESTARTER_CLAIMSCAN_TARGETS_152=/tmp/probe.md python3 152-check-claims.py ; echo EXIT=$?
+FAIL: 1 forbidden phrase match(es):
+  /tmp/probe.md:1: forbidden phrase match [verified-on-silicon]: 'VERIFIED on silicon'
+FAIL: 3 file(s) missing a required caveat:
+  /tmp/probe.md: missing required caveat [no-at28c-part-tested]: expected a phrase matching 'the "no AT28C part was tested" qualifier'
+  /tmp/probe.md: missing required caveat [software-proven-unvalidated]: expected a phrase matching 'the software-proven / unvalidated-on-silicon qualifier'
+  /tmp/probe.md: missing required caveat [zero-d-stays-unverified]: expected a phrase matching 'the "0x0D stays UNVERIFIED in PROTOCOL-LEDGER" qualifier'
+EXIT=1
+```
+
+`/tmp/probe.md` contained one line: `Protocol \`0x0D\` remains UNVERIFIED on silicon.` — a NON-claim,
+the exact opposite of the forbidden claim the row exists to catch. The donor's row had no leading word
+boundary, so "UNVERIFIED on silicon" matched. **Fixed** with a fixed-width negative lookbehind
+`(?<!un)` immediately ahead of `verified` in the `verified-on-silicon` pattern (Python's `re` requires
+fixed-width lookbehinds; two characters, case-insensitive by the compiled flag, so it also suppresses
+"Un-verified"-style spellings this milestone's own usage does not produce). A paired both-directions
+test leg (`test_verified_on_silicon_permits_unverified_but_still_rejects_verified`) now asserts the
+non-claim is permitted and the real claim is still rejected, in one leg, so the fix cannot silently
+become a hole. Nothing shipped in this phase before the fix ever hit this pattern — the three
+canonical required caveats all phrase the non-claim as "stays UNVERIFIED in PROTOCOL-LEDGER", never
+"...on silicon" — so this was a latent trap for future outward text, not a live break.
+
+---
+
+## The withdrawal-presence check, and why it is not a gate row
+
+Criterion 4 requires each release-note body to name `write --sdp-relock` explicitly, as withdrawn;
+criterion 5 forbids naming it as shipped. This gate's `sdp-relock-as-shipped` / `sdp-relock-
+flag-as-shipped` rows enforce the WORD-ORDER half of that pair — reject unless a withdrawal predicate
+immediately follows the command name. A fourth required-caveat row was considered, to enforce the
+PRESENCE half the same way the three `REQUIRED_CAVEAT_PATTERNS` rows enforce the ledger qualifiers,
+and was **not** taken: `_required_caveats_for()`'s fail-closed default demands the FULL caveat set for
+any basename absent from `_CAVEAT_RULES`, so adding a fourth row would have forced the literal
+`write --sdp-relock` command string into every fixture and every scanned artifact this gate has ever
+been armed against — including the three comment drafts, which never mention SDP relock at all — just
+to keep the fail-closed default from producing a false failure on files that have no reason to carry
+that sentence.
+
+The presence half is instead enforced where it is cheap to enforce without that side effect: a
+positive `grep` assertion on both release-note bodies, run in Plans 152-08, 152-09 and re-verified
+after the tag substitution in Plan 152-12; the same assertion is re-run against the **posted** bodies
+in Plans 152-17 and 152-18. The word-order half stays the gate's job, everywhere, forever. Both halves
+are named here so the split is a recorded decision, not an omission a future reader has to rediscover.
+
+## Posted mode
+
+Posted-mode temp files — the copies a posting plan writes out of a just-posted body, to re-verify it
+byte-for-byte against the frozen draft — are written under the SAME basename as the draft they verify
+(e.g. a posted-mode copy of the gh#12 comment is named `152-GH12-COMMENT.md` in its own temp
+directory). This is because `_required_caveats_for()` is keyed on `os.path.basename(path)` and fails
+closed to the FULL caveat set for any basename it does not recognise: a posted comment body carries no
+release-note caveat requirement (`_CAVEAT_RULES["152-GH12-COMMENT.md"]` is `frozenset({"no-at28c-part-
+tested"})`, not the full set), so a temp file under any other basename would be held to the full set
+and produce a false missing-caveat failure against a document that was never required to carry a
+release-note qualifier in the first place. This rule is recorded as a comment in `152-check-claims.py`
+immediately above `_DEFAULT_TARGETS`, and the posting plans (152-14 through 152-18) are its consumers.
 
 ---
 
