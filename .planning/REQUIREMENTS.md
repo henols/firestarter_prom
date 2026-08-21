@@ -265,7 +265,7 @@ Every item here is **operator-reviewed before posting** and must be gated separa
 approval — `--auto`/`--chain` auto-approves human-verify checkpoints, so an outward-facing gate that
 relies on `autonomous: false` alone is not self-protecting.
 
-- [ ] **OUT-01**: The owed gh#12 reply is posted — v1.30's CLOSE-06, held open by design. It states
+- [x] **OUT-01**: The owed gh#12 reply is posted — v1.30's CLOSE-06, held open by design. It states
       both halves plainly: `disable`'s behaviour survives as `write`'s automatic, default-on
       auto-unlock, declinable via `--skip-sdp-unlock`; and `enable` returns as **nothing in this
       release** — withdrawn since v1.30 and still tracked as Backlog **999.28**, so the ask is
@@ -274,8 +274,9 @@ relies on `autonomous: false` alone is not self-protecting.
       criterion 1 amended 2026-08-20) — pre-amendment text retained here as the **negative case**
       criterion 1's own text and the phrasing OUT-05's fifth class is built to reject:
       *"`enable` returns as `write --sdp-relock`"*.
+      *Evidence (152-14): posted https://github.com/henols/firestarter_prom/issues/12#issuecomment-5373440001 — comment `IC_kwDOSX4ER88AAAABQEgwAQ`, count 10→11, gh#12 still OPEN; published body re-read and identical to the frozen draft.*
 
-- [ ] **OUT-02**: gh#21 (with #32 folded) receives a comment stating what changed in code, what
+- [x] **OUT-02**: gh#21 (with #32 folded) receives a comment stating what changed in code, what
       remains unproven, and a request for a fresh `dev test` run — now attributable because the
       report identifies its firmware (PROV). The request names **both** halves of the install: the
       pre-release host install (`pip install --pre firestarter`) **and** `firestarter fw --install`.
@@ -283,11 +284,13 @@ relies on `autonomous: false` alone is not self-protecting.
       host's `dev test` write step is still flagless, so against older firmware the gh#20 failure
       reproduces exactly as before. **AMENDED 2026-08-21** (152-CONTEXT.md D-05; 152-RESEARCH.md
       §B-8).
+      *Evidence (152-15): posted https://github.com/henols/firestarter_prom/issues/21#issuecomment-5373724210 — comment `IC_kwDOSX4ER88AAAABQEyGMg`, count 2→3, gh#21 still OPEN, gh#32 still CLOSED at its original `2026-08-08T09:31:09Z`; the provenance fix was confirmed present on `origin/beta` (`cli_handlers.py:2661`) before posting.*
 
-- [ ] **OUT-03**: gh#11's 2024 report is answered in light of the FIX-06 conflation finding, which is
+- [x] **OUT-03**: gh#11's 2024 report is answered in light of the FIX-06 conflation finding, which is
       its actual shape, rather than left silently superseded.
+      *Evidence (152-16): posted https://github.com/henols/firestarter_prom/issues/11#issuecomment-5373770561 — comment `IC_kwDOSX4ER88AAAABQE07QQ`, count 18→19, gh#11 still OPEN; the 2026-08-03 commitment it discharges was re-read live before posting.*
 
-- [ ] **OUT-04**: The release notes announce **`lock-status`** as shipped in the version that
+- [x] **OUT-04**: The release notes announce **`lock-status`** as shipped in the version that
       actually contains it, correct the forward-looking wording v1.30 left behind, and state the
       deferred deliberate-protection command's **withdrawal** explicitly — naming Backlog **999.28**
       — rather than announcing it or leaving it unmentioned. **AMENDED 2026-08-21** (152-CONTEXT.md
@@ -295,8 +298,9 @@ relies on `autonomous: false` alone is not self-protecting.
       **negative case**, the second instance of criterion 5's fifth forbidden class living inside
       this project's own records: *"announce `write --sdp-relock` and `lock-status` as shipped in
       the version that actually contains them"*.
+      *Evidence (152-17/152-18): app body published to https://github.com/henols/firestarter_app/releases/tag/3.0.0b23 (0→9707 B, incl. a dated errata correction) and firmware body to https://github.com/henols/firestarter/releases/tag/3.0.0b20 (0→9122 B, 4 assets); both prerelease flags and target commits unchanged, both published texts re-read and gate-green.*
 
-- [ ] **OUT-05**: No outward artifact claims AT28C silicon validation. A **fail-provable** claim
+- [x] **OUT-05**: No outward artifact claims AT28C silicon validation. A **fail-provable** claim
       gate, seen to fail on a planted violation before any pass is believed, rejects (a) AT28C
       silicon validation, (b) page-size validation on silicon, (c) a `0x0D` **graduation**, (d) a
       `support_status` change, and (e) the deferred deliberate-protection command named as a
@@ -307,6 +311,8 @@ relies on `autonomous: false` alone is not self-protecting.
       Backlog 999.28 **must reverse class (e) in the same change that lands the feature**, or the
       gate will reject the very release notes announcing it. **AMENDED 2026-08-21** (152-CONTEXT.md
       D-11).
+      *Evidence (152-01/02/13/19/20): `152-check-claims.py` armed at 27 targets exits 0; `test_check_claims_152.py` 34/34; the gate was SEEN to reject a planted violation both in isolation and while armed at the real artifacts (`fixtures/planted_sdp_relock_as_shipped.md` → rc=1), with every RED pasted in `152-CLAIM-GATE-TRANSCRIPTS.md`.*
+
 
 ### Write-Path Erase Policy (ERASE)
 
@@ -441,11 +447,11 @@ before Phase 152** (D-08).
 | LOCK-02 | Phase 151 | Complete |
 | LOCK-03 | Phase 151 | Complete |
 | LOCK-04 | Phase 151 | Complete |
-| OUT-01 | Phase 152 | Pending |
-| OUT-02 | Phase 152 | Pending |
-| OUT-03 | Phase 152 | Pending |
-| OUT-04 | Phase 152 | Pending |
-| OUT-05 | Phase 152 | Pending |
+| OUT-01 | Phase 152 | Complete |
+| OUT-02 | Phase 152 | Complete |
+| OUT-03 | Phase 152 | Complete |
+| OUT-04 | Phase 152 | Complete |
+| OUT-05 | Phase 152 | Complete |
 | ERASE-01 | Phase 153 | Complete |
 | ERASE-02 | Phase 153 | Complete |
 | ERASE-03 | Phase 153 | Complete |
