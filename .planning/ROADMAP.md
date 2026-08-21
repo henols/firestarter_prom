@@ -498,7 +498,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 153-05-PLAN.md — GATE-03's real control: `check_erase_no_vpp.py` brace-matched body scan, paired test and committed planted violation *(firestarter)*
+- [x] 153-05-PLAN.md — GATE-03's real control: `check_erase_no_vpp.py` brace-matched body scan, paired test and committed planted violation *(firestarter)*
 
 **Wave 6** *(blocked on Wave 5 completion)*
 

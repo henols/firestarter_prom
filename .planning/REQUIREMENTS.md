@@ -312,7 +312,7 @@ before Phase 152** (D-08).
       `configure_eeprom28c`, and `FLAG_CAN_ERASE` is restored for `algorithm 13` at
       `firestarter_app/firestarter/database.py:621`.
 
-- [ ] **ERASE-04**: The erase implements the **software 6-byte** sequence, not the datasheet's
+- [x] **ERASE-04**: The erase implements the **software 6-byte** sequence, not the datasheet's
       *hardware* path, which puts **12 V on OE (pin 22)** of `DIP28_28C256`. `tools/check_dispatch.py`
       (GATE-03) is not weakened, not exempted, and not re-baselined to accommodate this work; the phase
       states in writing which path it implements and why. This is a hardware-damage guard, not a lint.
@@ -399,7 +399,7 @@ before Phase 152** (D-08).
 | ERASE-01 | Phase 153 | In Progress |
 | ERASE-02 | Phase 153 | Pending |
 | ERASE-03 | Phase 153 | Pending |
-| ERASE-04 | Phase 153 | Pending |
+| ERASE-04 | Phase 153 | Complete |
 | ERASE-05 | Phase 153 | Pending |
 | ERASE-06 | Phase 153 | Pending |
 | ERASE-07 | Phase 153 | Pending |

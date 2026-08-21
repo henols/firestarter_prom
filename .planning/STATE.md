@@ -5,15 +5,15 @@ milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 153
 current_phase_name: write-path-erase-policy
 status: executing
-stopped_at: "Phase 153 EXECUTING (started 2026-08-21) — 16 plans / 11 waves as scheduled / 41 tasks, dual-repo. Sequential on the main tree: worktree isolation is OFF for every plan because all 16 touch or build inside the firestarter/firestarter_app submodules, which worktrees leave empty. 153 runs BEFORE 152 (D-08); Phase 152 stays BLOCKED until 153 completes and must NOT be run under --auto/--chain."
-last_updated: "2026-08-21T07:53:29.030Z"
+stopped_at: Completed 153-05-PLAN.md
+last_updated: "2026-08-21T08:09:27.131Z"
 last_activity: 2026-08-21
 last_activity_desc: Phase 153 execution started
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 52
-  completed_plans: 40
+  completed_plans: 41
   percent: 57
 ---
 
@@ -86,7 +86,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 153 (write-path-erase-policy) — EXECUTING
-Plan: 5 of 16
+Plan: 6 of 16
 Status: Ready to execute
 Plans: 16 plans, 12 waves, 41 tasks — plan-checker PASSED (0 blockers), coverage 9/9 (ERASE-01..09)
 Note: 153 runs BEFORE 152 (D-08). Phase 152 stays BLOCKED until 153 is complete, and must NOT be run under --auto/--chain.
@@ -2054,6 +2054,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 153]: 153-02: implemented D-153-05's write-INIT deletion -- no compensating operation state, no erase-on-write block added
 - [Phase 153]: 153-04: Case 25's op-layer drive required a fed-ACK Serial mock + bounded loop (op_execute_simple_operation no longer short-circuits once main is non-NULL)
 - [Phase 153]: 153-04: erase stream cases (31-33) pin head/tail/divergence against in-tree tables; measured full stream length empirically (102 entries, divergence at index 51) before trusting the plan's prediction
+- [Phase 153]: Built check_erase_no_vpp.py as the real GATE-03 control; check_dispatch.py cannot see inside a handler body — D-153-03 mechanism correction: proximity not absence is the risk (flash_5v_page.cpp hardware erase path in same-phase-touched file)
 
 ## Performance Metrics
 
@@ -2353,12 +2354,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 153 P02 | 40min | 2 tasks | 2 files |
 | Phase 153 P03 | 10min | 3 tasks | 1 files |
 | Phase 153 P04 | 19min | 3 tasks | 3 files |
+| Phase 153 P05 | 20min | 2 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-21T07:52:49.457Z
-**Stopped at:** Phase 152 context gathered — BLOCKED on precondition: Phase 153 must be created (/gsd-phase) and completed BEFORE 152 runs (D-07/D-08)
-**Resume file:** .planning/phases/152-outward-facing-close-operator-gated/152-CONTEXT.md
+**Last session:** 2026-08-21T08:09:27.105Z
+**Stopped at:** Completed 153-05-PLAN.md
+**Resume file:** None
 
 **Gitlink gap from Phase 149's close — CLOSED 2026-08-20.** Phase 149 landed its dual-repo work but never bumped meta's submodule gitlinks, so meta HEAD asserted "Phase 149 COMPLETE and VERIFIED — page-size seam landed across both repos" while pointing at `firestarter 7f6afc65` / `firestarter_app b142c0e6` — trees containing none of it. Bumped to `firestarter 6e3f90a3` (6 commits, all `149-*`) and `firestarter_app 9cc57c75` (13 commits: 8 `149-*` plus the 5 `fw` port-targeting fixes, which `git cherry` marks `-` against `origin/beta` — patch-identical to PR #52's merged work under different SHAs, so nothing unreviewed rode along). Both sub-repos verified on `gsd/v1.32-at28c-write-path-root-cause-report-provenance` with clean tracked trees. Restores the per-plan bump convention this milestone set at `chore(147-02)`/`chore(147-05)`; the branches are local-only, as Phase 147's were when it bumped, and become reachable at the close via the PR to `beta`.
 
