@@ -235,3 +235,14 @@ boundary was introduced; this plan only measures and funds an already-shipped fe
 ---
 *Phase: 153-write-path-erase-policy*
 *Completed: 2026-08-21*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/153-write-path-erase-policy/153-14-SUMMARY.md`
+- FOUND: `firestarter/scripts/check_size_baseline.py`
+- FOUND: `firestarter/scripts/baseline/size_baseline.json`
+- FOUND: `.planning/phases/153-write-path-erase-policy/153-DECISIONS.md`
+- FOUND commit `914d216a` (meta, Task 1)
+- FOUND commit `d1652a5` (firestarter, Task 2)
+- FOUND commit `e0d6a1f` (firestarter, Task 3)
+- FOUND commit `e5ad092e` (meta, this SUMMARY)
