@@ -444,3 +444,19 @@ python3 152-check-claims.py 152-20-SUMMARY.md
 ```
 
 Its pasted result is appended by Plan 152-20's output step, below.
+
+### The final SUMMARY's argv scan — RESULT
+
+Run after `152-20-SUMMARY.md` was written, exactly as specified above:
+
+```
+$ python3 152-check-claims.py 152-20-SUMMARY.md
+PASS: scanned 152-20-SUMMARY.md; 1 of 1 caveat-required file(s) carry every caveat their own rule demands; 0 file(s) carry no caveat requirement (this PASS is compliance with the forbidden-phrase table and the per-file caveat rule only -- see the module docstring's explicit non-claim, and note that a green run alone does not discharge D-03's per-artifact blocking operator wording review)
+FINAL-ARGV rc=0
+```
+
+One iteration was needed: the first draft of `152-20-SUMMARY.md` used a reserved claim word bare
+("argv path ... over the nineteen SUMMARY files") and the gate rejected it at line 149. The word was
+requalified — the gate was not. That is the third time in this phase the gate has rejected a record
+file written by the same agent that armed it, which is the only real evidence that it constrains its
+author rather than only its subjects.

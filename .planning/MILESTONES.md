@@ -1,5 +1,200 @@
 # Milestones
 
+## v1.32 AT28C Write-Path Root Cause & Report Provenance (Shipped: 2026-08-21)
+
+**Phases completed:** 6 phases executed (147–149, 151–153; **150 deferred**), 72 plans, 183 tasks
+**Timeline:** 2026-08-18 → 2026-08-21 (4 days)
+**Requirements:** 35/35 in-scope v1 requirements Complete (42 defined — 7 RELOCK deferred to Backlog 999.28)
+**Closeout type:** `override_closeout` — two reasons, both recorded before the close, neither a gap in this milestone's own work: **(a)** Phase 150 (`write --sdp-relock`) was deferred by operator decision on 2026-08-20 and reads `phase_complete: false` / `verification_status: not_required`, so `ALL_PHASES_VERIFIED` is structurally false; **(b)** `audit-open` reported the same **9** pre-existing carry-forward items acknowledged at the v1.31 close. **None of the 4 UAT/verification carry-forwards originate in v1.32.** All six executed phases read `phase_complete: true` / `verification_status: passed`. Known verification overrides: 9 (see STATE.md → *Deferred Items — acknowledged at v1.32 milestone close*). This is the **ninth** consecutive acknowledgement of substantially this set.
+**Code:** firmware 39 commits, 86 files, +7561/−387 · host app 85 commits, 86 files, +37999/−3813 (the bulk is the regenerated 746-chip `chip_database.json`) · meta 288 commits
+**Issues:** [gh#21](https://github.com/henols/firestarter_prom/issues/21) (with [gh#32](https://github.com/henols/firestarter_prom/issues/32) folded in), [gh#11](https://github.com/henols/firestarter_prom/issues/11), [gh#12](https://github.com/henols/firestarter_prom/issues/12) — all three **answered publicly and all three still OPEN**. A code fix is not a validation.
+
+**Delivered:** A `dev test` report now names the firmware it ran against, so a community report can be
+attributed to the code that produced it before any protocol-`0x0D` write-path claim is made about it.
+On top of that spine: the chip database states voltages and timing as integers in one unit each
+(with the AT28C256 VCC margin-rail correction), the firmware receives page size over the wire instead
+of a hardcoded constant, `dev lock-status` reports protection state or refuses with a named class
+token, and the `0x0D`/`0x05` write path no longer runs a pre-write blank check while `0x0D` gains a
+real standalone software chip erase. Every one of those is a software fact. **No AT28C part was on a
+bench at any point** — `0x0D` stays `UNVERIFIED` and the underlying failure is still undiagnosed.
+
+**The milestone-level non-claim, stated once here in this milestone's own canonical wording:**
+**no AT28C part was tested**, at any point, by any phase — protocol `0x0D` stays UNVERIFIED in
+PROTOCOL-LEDGER exactly as it stood at the open, and every write-path change v1.32 shipped is
+**software-proven and unvalidated on silicon**.
+
+**Key accomplishments (curated):**
+
+1. **F-01, the spine: every `dev test` report ever filed carried `fw_board_identity: null`, and now
+   does not.** `cli_handlers.py` hardcoded `None` because `EpromOperator.comm` is a transient
+   per-operation connection torn down after every operator call. `read_hardware_revision_value` was
+   renamed to `read_programmer_identity` and widened to a `ProgrammerIdentity` NamedTuple harvesting
+   the firmware/board identity off the connection the revision read *already* opens — proved to keep
+   PROV-02's one-connection/one-disconnect contract mechanically, with the first-ever unit coverage of
+   that function (13 → 22 tests) and the first-ever tests of `render_diff` (0 → 7). An absent identity
+   renders an explicit `"not reported"` marker while the fenced report JSON keeps typed `null`.
+   **Stated with it, not buried:** every report filed *before* this fix — gh#21's and gh#32's included
+   — remains permanently unattributable.
+2. **The database states numbers as numbers, and one wrong number was corrected.** `chip_database.json`
+   moved to `vcc_mv`/`vdd_mv`/`vpp_mv`/`pulse_duration_us` integers; `database.py`'s string-coercion
+   layer was deleted outright and replaced with one shared `format_mv` render helper, and the second
+   live string parser (`audit_coverage_matrix.py`'s `parse_pulse_us`) with direct integer indexing.
+   `firestarter info AT28C256`'s `VCC:` line went from `4.0v` to `5.0v` via a **value-keyed**
+   substitution that never touches the faithfully-decoded `VCC_VOLTAGES` table — blast radius measured
+   at exactly **56 chips, zero decreases**, in a dedicated `diff_db.py` bucket. The 746-chip host→wire
+   golden was held byte-identical through the whole migration.
+3. **The page-size seam ships with its own no-op consequence stated as loudly as the change.** A
+   provenance-keyed emit rule delivers `programming.page_size` for exactly the **18** upstream-native
+   `0x0D` rows (15 at 128 B, 3 at 64 B) and the firmware consumes it through a validated bitwise page
+   mask, with a cross-repo JSON-key parity gate proving the host key is both declared and dispatched in
+   `json_parser.c`. **For the AT28C256 named in the community threads this changes nothing observable**
+   — its 64-byte page is exactly the pre-existing floor — so the seam is explicitly *not* offered as an
+   explanation of gh#20/#21/#32/#11.
+4. **`dev lock-status` is refusal-first, and structurally incapable of guessing.**
+   `protection_readability.protection_gate_for_entry` is a pure `(entry, display_name) →
+   (class_token, reason)` classifier that **cannot return `protected`/`unprotected`** — only the one
+   function permitted to read a device response may — frozen by an AST invariant gate with committed
+   planted fixtures, and walked over all 746 committed rows by an 18-leg partition invariant. On the
+   28C/SDP family the honest answer is usually the refusal: **665 of 746 rows resolve to a refusal
+   class, 81 are `read_permitted`**. Firmware gained the two read sequences and command-16 admission in
+   dual-repo lockstep.
+5. **Write-path erase policy: three deletions, one new operation, and a fourth recorded reversal.** The
+   pre-write blank check is gone from both auto-erasing protocols — `0x0D` (`eeprom_28c.cpp:547-549`,
+   deleted outright, not re-gated) and `0x05` (`flash_5v_page.cpp:88-90`, **located in code before
+   being touched**, not assumed by symmetry) — each proved by a native case observed failing before the
+   deletion and passing after. `0x0D` gained `eeprom28c_erase_execute`, the Atmel AN 0544B **software
+   six-byte** chip erase (never the datasheet's 12 V-on-OE path), 0 B RAM by construction, its emitted
+   stream pinned against in-tree tables at head, tail and an *exact* divergence index of 51 — never a
+   bare `!= -1`. `FLAG_CAN_ERASE` was restored on all **84** algorithm-13 rows by a one-character-class
+   change, proved exhaustively over all 746 rows twice, and recorded as the **fourth** reversal in the
+   Phase 119 → 120 → 121 → 153 chain in the project's established mechanism-corrected voice. The real
+   VPP hazard control is a new brace-matched negative source scan, `check_erase_no_vpp.py`, proved both
+   reachable *and* discriminating — while `check_dispatch.py` (GATE-03), which an earlier criterion
+   named as this control, stays byte-unchanged and is explicitly **not** cited as the proof it
+   structurally cannot be. That criterion was **corrected, not satisfied**.
+6. **The first milestone in three to actually publish its release notes — behind a gate seen to
+   fail.** Phase 137 and Phase 146 each authored release-note sets that were never posted; v1.32 put
+   publishing *inside* the phase. Five public artifacts shipped: comments on gh#12 (discharging the
+   2026-08-03 commitment 18 days late), gh#21 and gh#11 (answering a 2024 report in FIX-06 conflation
+   terms, citing DS20006386B, crediting both reporters by name), plus both release bodies. All of it
+   policed by `152-check-claims.py`, a fail-provable gate seen RED on planted violations before any
+   GREEN was believed, over 27 targets with a 34-leg paired suite — including the hardest row in it: a
+   variable-width **negative lookahead** that makes `write --sdp-relock` *mandatory* as withdrawn and
+   *forbidden* as shipped, after a verb allow-list was rejected for failing OPEN and a proximity window
+   for this project's own D-14 precedent.
+
+**Known gaps carried, not hidden:**
+
+- **The evidence ceiling, binding and unchanged from open to close: no AT28C part has ever been in
+  operator inventory.** `0x0D` stays `UNVERIFIED` in PROTOCOL-LEDGER, no `support_status` field moved
+  (machine-checked, `chip_database.json` byte-unchanged), and **no bench phase existed** in this
+  milestone by design.
+- **Backlog 999.29** (the AT28C256 write-path failure itself) — **open, partially addressed, explicitly
+  NOT retired.** v1.32 removed the blocker to diagnosing it and answered it publicly; it did not
+  diagnose it. Operator is the named owner.
+- **Backlog 999.28** (`write --sdp-relock`) — **deferred a second time** (v1.30 as Phase 135, v1.32 as
+  Phase 150). So for a second release running there is **no supported way to deliberately protect an
+  SDP part**, and on `0x0D` the protection bit cannot be read back either. Standing instruction: a
+  future promotion **must reverse OUT-05's fifth gate class in the same change that lands the feature**,
+  or the gate rejects the very release notes announcing it.
+- **`leonardo` MERGE-05 flash headroom is 0 B** — `+724 B` measured against BASE-01, exactly equal to
+  the four-term allowance (band 0 + defect-fix 96 + page-size seam 210 + lock-status read 288 + erase
+  standalone 130). **Separately, the Caterina USB-bootloader cliff at 28672 B is UNGUARDED** with
+  1042 B remaining: `board_upload.maximum_size` does not enforce it, so nothing in the build stops a
+  future change from silently overwriting the bootloader region. A split-or-trimmed-build phase was
+  raised and deliberately deferred.
+- **The protection-class count is stated with its own disagreement, not resolved into one number.**
+  Method A (a synthetic counterfactual) gives 664/82, Method B (the live production path) 665/81, and
+  Phase 151's own published 406/111/39 **reproduces under neither**. Only 665/81 plus the two
+  method-invariant counts (`no_mechanism` 405, `not_implemented` 40) are citable.
+- **The 20 ms `t_EC` wait is an Atmel-family maximum applied to a multi-vendor 84-row bucket**, and no
+  native test can prove the wall-clock wait is honoured — the trace stubs never stub `delay()` and
+  record no time, so the proof is structural, never temporal.
+- **A part-name misattribution (W29C020 vs W29C040) is already published** and, under this project's own
+  discipline, cannot be edited in the body that carries it — only corrected in a future artifact.
+- **A green claim-gate run is not a wording review**, and this milestone's own ledger records how far
+  short of D-03's per-artifact blocking operator review the posting checkpoints fell.
+
+<details>
+<summary><strong>All 72 plan one-liners</strong> (raw, as extracted from each SUMMARY.md — includes a
+few deviation-log and status lines that the extractor picked up in place of a one-liner)</summary>
+
+**Key accomplishments:**
+
+- Moved `firestarter_app` onto `gsd/v1.32-…` forked off `origin/beta` (3.0.0b21), recorded a 1590-passed baseline, and tracked the devtest-triage skill files in the meta repo for the first time via a `.gitignore` un-ignore.
+- Renamed `HardwareManager.read_hardware_revision_value` to `read_programmer_identity`, widened it to a `ProgrammerIdentity` NamedTuple carrying both the hardware-revision string and the raw firmware/board identity harvested off the connection the revision read already opens, and wired `cli_handlers.py`'s `dev_test` handler to feed real values into `AutoCapture` instead of a hardcoded `fw_board_identity=None`.
+- Bumped `SCHEMA_VERSION` to `"1.4"` with a documented value-population rationale, and made an absent `fw_board_identity`/`hw_revision` render as an explicit `"not reported"` marker in the `rich` console table — while the fenced report JSON keeps typed `null` throughout.
+- Built the first-ever unit coverage of `read_programmer_identity()` in `tests/test_hardware.py` (13 → 22 tests) proving PROV-02's one-connection/one-disconnect claim mechanically and D-04's two independent failure paths, plus the D-13(b) handler-level leg proving an absent identity renders the explicit marker while the saved JSON stays typed `null`.
+- `render_diff` now labels `host_version`/`fw_board_identity` and folds a not-attributable clause into the identity row when absent, tested for the first time ever (0 -> 7 tests), with a second frozen fixture proving PROV-04's null-identity real-world case and a value-parity assert pinning the app-side and parser-side `NOT_REPORTED` literals equal.
+- All three tasks complete.
+- Committed a 746-chip byte-identical host->wire golden fixture, a 5-test regression gate proving Phase 148 changes nothing on the wire, and the measured pre-change state of all four gates in the D-12 review artifact.
+- Made GATE-02 (`diff_db.py`) schema-agnostic ahead of the numeric-database migration by adding a load-time `_canonicalize_db` normalizer, renaming every field-name-keyed classification read to the canonical `vcc_mv`/`vdd_mv`/`pulse_duration_us` names, and migrating the gate's own test fixtures — while the pinned pre-136.1 baseline and GATE-03 stay byte-unchanged.
+- Migrated build_db.py's emitter and interpret_timing to the millivolt/microsecond numeric schema, made the pulse_delay decode-fault path fatal (D-08), migrated the authored extra_chips.json supplement, and regenerated a 746-chip chip_database.json with diff_db.py's bucket distribution byte-identical to the pre-migration reading.
+- Deleted database.py's string-coercion layer entirely, replaced it with one shared `format_mv` render helper, moved all three display call sites onto it, and proved the 746-chip wire dict and the pinned CLI snapshot both stayed byte-unchanged through the migration.
+- Deleted `tools/audit_coverage_matrix.py`'s `parse_pulse_us` — the second live string parser DATA-03 targeted — moved all eight reads to direct integer indexing, regenerated the tool-produced coverage-matrix golden (297 pulse cells become bare integers), and proved by direct ledger-content comparison that the DEFECT-COV-NN defect signatures are completely unaffected by the schema migration.
+- Corrected `firestarter info AT28C256`'s `VCC:` line from `4.0v` to `5.0v` via a value-keyed post-construction substitution in `build_db.py` (never touching the faithfully-decoded `VCC_VOLTAGES` table), and proved the exact 56-chip blast radius in `diff_db.py` with a dedicated `RULE_VCC_MARGIN_RAIL` bucket — discovering along the way that the plan's own predicted RED mechanism was wrong, and documenting the corrected, stronger measurement.
+- Re-derived `tests/golden/chip_database_field_inventory.json` by independent traversal + AST walk for the numeric mv/us schema (6 electrical keys, `pulse_duration_us`, 25 generator keys), then proved the gate can still fail on six planted legs (five RED, one new to this milestone against `tools/extra_chips.json` itself) before trusting it green — retiring the last transient of Phase 148's schema migration, full suite now 1633 passed / 0 failed.
+- Closed DATA-03 and DATA-04 with assertions rather than assurances (a tree.body-scoped AST gate that catches a new part-keyed dict without firing on the pre-existing local `_AT28C_DIP24_NAMES`, plus two proven-capable-of-failing token scans), completed `148-DB-DIFF.md` into a single reviewable document with the corrected 28-chip (not 29) deferred non-claim, and stated the breaking numeric schema and AT28C VCC correction in README's changelog surface — full suite now 1641 passed, 0 failed, all five DATA-01..05 requirements Complete.
+- Forked `firestarter` onto the v1.32 milestone branch off `origin/beta` (verified by content, not ancestry), captured a cold pre-edit flash/RAM/warning baseline for all three AVR targets, and created the phase's `149-PAGE-SIZE.md` review-artifact skeleton with the D-01 provenance evidence pre-loaded.
+- Authored the D-19 claim gate over `149-PAGE-SIZE.md`, resolved the measured bare-claim-word / PGSZ-05 collision with a negative-lookbehind narrowing shown satisfiable by both a forward fixture and a negative control, and got the operator's explicit sign-off on the narrowing's exact width before the rest of the phase relies on it.
+- Added a provenance-keyed emit rule to `build_db.py` that delivers `programming.page_size` for exactly the 18 upstream-native protocol-`0x0D` rows (15 at 128, 3 at 64), proved it exhaustively with an 11-leg host invariant suite, and preserved Phase 148's wire golden with a committed 18-entry delta list instead of a re-baseline.
+- 1. [Rule 1 - Bug] Task 1's `firestarter.h` field comment leaked a Task-3 identifier before it existed
+- Added a 10-leg pytest module proving `constants.py`'s `JSON_KEY_PAGE_SIZE` is both declared and dispatched in `firestarter/src/json_parser.c`, with all 3 host JSON keys mapping two-way to the firmware's 11 PROGMEM keys via a completeness-checked 8-key exemption tuple, and two planted fixtures observed RED before being committed in their intentionally-violating state.
+- Cold-measured the page-size seam's real flash (+210 B) and RAM (+2 B) cost on all three AVR targets, then funded it with two new named, SHA-attributed MERGE-05 exemptions — leaving leonardo's post-exemption headroom at exactly 0 bytes — after seeing the gate genuinely fail, then pass, then still fail one byte past the new floor.
+- `size_baseline.json` re-anchored to plan 06's cold post-change figures with the stale Phase-144 tree SHA corrected, both size gates green, and four measured deferred todos filed.
+- Completed `149-PAGE-SIZE.md` and its outward-facing README changelog mirror, extended the phase's claim gate from one target to nine (surfacing and fixing four missing caveats and three vocabulary collisions in earlier SUMMARYs along the way), got operator sign-off on the wording, and flipped PGSZ-01 through PGSZ-05 to Complete — the last plan of Phase 149.
+- Corrected five stale `firestarter lock-status` references to the beta-only `dev lock-status` surface, fixed two "one firmware workstream" sentences to say two, and landed 151-DESIGN.md as the phase's single source of truth for wire shape, exit codes, the corrected 40-row `not_implemented` class census, and the C-17 documentation tiebreak rule.
+- Hand-curated all 273 alias tokens across DB algorithms 0x05/0x06 into a fail-closed three-state frozenset table with per-row `lockable-proms.md` citations, plus a 6-leg test proving every citation resolves.
+- Firmware/host command-16 admission: `is_memory_cmd()` grows to nine cases, the parse gate widens to `is_memory_cmd(handle->cmd) || handle->cmd < CMD_READ_VPP`, both native mirror suites and the host constant ladder move in lockstep, leonardo stays 1424 B clear of the unguarded Caterina cliff.
+- Presented the operator with the two sourcing-path
+- Minted one new DATA-band catalog id (`0xE1`, two `u8` params) and propagated it through the codegen path across all five tracked files in three repositories, each generated output re-verified idempotent before commit, while leaving the ERROR band's last free id `0xBF` unspent behind a durable pytest guard.
+- Authored the pure `(entry, display_name) -> (class_token, reason)` classifier in `protection_readability.py`, structurally incapable of returning `protected`/`unprotected`, plus a 23-leg proof suite covering both measured worked examples and all three raise controls.
+- Task 1 — the authoritative section (`firestarter_app/doc/infoic-field-dictionary.md`).
+- Landed both protection-status read sequences end-to-end — a shared AMD/JEDEC ID-mode single-byte read, two family-specific operations emitting a two-byte raw-byte-plus-decode DATA frame, their dispatch arms, and the `loop()` arm — with five new native legs per family proving dispatch, pinned bytes, 5V-only safety, raw-byte fidelity, and mode bracketing.
+- AST invariant gate freezing `protection_readability.py`'s curated table (two parameterised frozensets, a generalised unconditional Class 1(a), and a deliberately-weaker Class 3), paired with a 13-leg subprocess test and two committed planted fixtures.
+- Authored the only function in the codebase permitted to turn a device response into `protected`/`unprotected`, its literal four-code exit map, a strictly-additive `sdp_honesty.py` sibling, `EpromOperator.read_protection_status`, and a six-leg frame-level wire test — all on the existing `conftest.py` harness.
+- Landed `test_lock_status_class_partition.py` — an 18-leg invariant walking `protection_gate_for_entry` over all 746 committed database rows, pinning the corrected 405/40/84/217 census as literals and proving `protected`/`unprotected` structurally unreachable via a real planted-fixture failure through the subprocess gate seam.
+- Registered `dev lock-status <chip> [--force]` as a beta-only Click subcommand wired to the D-09/D-10 classifier and exit map, proved it with an 18-leg class-token x exit-code CLI matrix, extended the channel gate and the `dev --help` snapshot to the seventh gated name, and flipped LOCK-02/03/04 after re-confirming the full host and firmware-native evidence chain.
+- Sideloaded the Phase 151 firmware to the operator's Leonardo, confirmed the flash took via a comms-error discriminator (not the truncated version string), ran the one bench leg with an oracle (leg A, `0xDA45`) and the one probe leg with a seated part (leg B, raw byte `0xFE`), and recorded leg C as not-run because no `W29C040` sample exists on the bench — with an explicit non-claims list closing out every claim this session is prohibited from making.
+- Built OUT-05's fail-provable claim gate as a sibling of 149-check-claims.py, armed against a new contract document, and proved it rejects the deferred command's shipped-framing planted violation while permitting its mandated withdrawal sentence.
+- Completed the fifteen-fixture set, built the thirty-leg paired suite `test_check_claims_152.py`, and committed the plant-and-revert transcript with every RED pasted verbatim -- proving Plan 152-01's gate fails on a planted violation before any pass is believed.
+- Hand-edited dated amendments to ROADMAP criteria 2 (D-05, gh#32 closure) and 5 (D-11, pairing-clause narrowing), corrected the three stale record sites RESEARCH found, and added one labelled correction block to PROJECT.md disproving Phase 121 D-12's erase-capability premise — every edit re-confirmed green against the record-corrections gate.
+- Hand-edited REQUIREMENTS.md's OUT-01/02/04/05 bullets to the post-deferral, post-153 text with four dated AMENDED markers, reconciled the Coverage block's 25/34-vs-35 off-by-one to DATA-06's re-homing, and corrected the `database.py` citation drift to the live-measured line 638 — no checkbox flipped, no `gsd-tools` normalizer run.
+- Adapted the frozen 137 gh#12 donor into a gate-clean second-release withdrawal naming Backlog 999.28, with the D-14 review diff committed alongside it.
+- 1. [Rule 1 - Bug] The mandated caveat sentence was split by an 80-column line wrap
+- Authored `152-GH11-COMMENT.md`, a frozen gh#11 reply that discharges the 2026-08-03 "I will soon get it pushed and I will keep you posted" commitment 18 days late, answers the 2024 report in FIX-06 conflation terms citing Microchip DS20006386B, and passes `152-check-claims.py` (rc=0).
+- `2026-08-21T15:42:06Z`
+- Re-measured both sub-repos' merge pictures with `git cherry` as the sole oracle, found all three repos already tracked-clean, and proved the app suite green under both the devcontainer interpreter and a freshly provisioned CI-parity interpreter with the sibling firmware root severed.
+- Opened both PRs against `beta`, measured the app PR's mergeability before touching anything and found it textually clean by two independent oracles (GitHub's own computation and a local `git merge-tree` dry run), so no hand conflict-resolution was needed. The blocking operator checkpoint was presented; the operator delegated the merge-method choice ("you decide"), the orchestrator chose merge-commit from measured precedent, and — after a harness permission denial on the first attempt and a subsequent operator grant — the orchestrator executed both `gh pr merge` calls directly rather than the plan executor, because the delegation path was blocked. Both PRs are now `MERGED`. Post-merge `git cherry origin/beta HEAD` is literal empty output in both repos, independently re-measured by this executor twice (immediately after the merge, and again after each repo's pre-release workflow's own version-bump auto-commit moved `origin/beta` a second time). Both pre-release workflows completed with `conclusion: success`. No version number appears anywhere in this document.
+- Extended `152-check-claims.py`'s `_DEFAULT_TARGETS` from one entry to seven real outward artifacts, re-proved the gate RED against the specified plant while so armed, closed a live false-positive in an inherited forbidden-pattern row, and shipped `152-check-not-auto.py` as the fail-closed guard the five posting plans run first.
+- Status: complete.
+- Status: complete.
+- Status: complete.
+- Status: complete.
+- Status: complete.
+- Status: complete.
+- Status: complete.
+- Settled the erase supply form, SDP-disable prefix, and GATE-03 mechanism correction in writing before any code was touched, and reproduced a byte-identical cold pre-change size/test baseline on all three AVR targets plus native and host suites.
+- Deleted the three-line `FLAG_SKIP_BLANK_CHECK`-gated `mem_util_blank_check` call from the tail of `eeprom28c_write_init`, proven by a native case that was observed failing before the deletion and passing after.
+- `eeprom28c_erase_execute` gives protocol 0x0D a real, RAM-neutral AT28C software six-byte chip erase, dispatched from a new `case CMD_ERASE:` arm, with the datasheet's 12V hardware erase path deliberately absent.
+- Split and inverted the two firmware-test assertions that claimed `CMD_ERASE` on `0x0D` is refused, then added three stream-equality cases (head/tail/divergence, all pinned against in-tree tables) plus a configure-phase no-VPP case, bringing both native environments to 169/17, fully green and in agreement.
+- `scripts/check_erase_no_vpp.py` -- a brace-matched, comments-included negative source scan of `eeprom28c_erase_execute`'s body, proven both reachable (fails on a committed planted control-register write) and discriminating (flags `eeprom28c_check_chip_id`'s legitimate A9-12V writes) -- while `tools/check_dispatch.py` stays byte-unchanged, invariant-green, and never cited as the VPP proof it structurally cannot be.
+- Located the flash4 (0x05) blank-check conditional in code at `flash_5v_page.cpp:88-90` (correcting a stale pattern-map figure of 87-89), then deleted it, proven by a native case observed failing before the deletion and passing after, with the sibling erase-on-write block and four other-protocol blank checks provably untouched.
+- One-line, one-character-class change (`algo not in (5, 13)` -> `(5,)`) that flips the wire capability flag on all 84 algorithm-13 rows, plus a full rewrite of the Phase 121 D-12 comment block recording this as the fourth reversal in the 119/120/121/153 chain.
+- Committed `wire_dict_expected_deltas_153.json` (84 flags-only, non-vacuous entries generated programmatically) and extended `test_wire_dict_equivalence.py` to compose it with the existing Phase 149 layer over the untouched Phase 148 golden, adding an exhaustive 746-row scope proof and a reachability proof.
+- Inverted the two committed host assertions that pinned FLAG_CAN_ERASE clear (conversion layer + SDP wire-shape layer), and added the positive capability-flag proof the eeprom28c tier-2 wire suite was missing — leaving both anti-bleed negative controls provably untouched.
+- Corrected the two `chip_test.py` reason texts that falsely claimed the 28C family has no erase operation, kept the now-unreachable `_PROTOCOL_EEPROM_28C` arm as a tested defensive fallthrough, and re-measured all four downstream `dev test` legs (sweep, two count/banner legs, SDP-leg baseline gate, blank-check placement) to the live post-restoration plan shape -- taking the host suite from 5 failing to fully green (1811 passed).
+- Corrected the one user-visible string this phase falsifies (`write --skip-erase`'s "no erase operation at all" claim), extended both `write` and `erase` docstrings with the new flag semantics from D-153-04/D-153-05, and added a test that fails loudly if a symmetric-but-rejected blank-check-vacuity warning is ever added.
+- Exhaustive 84-of-746 database scope proof, both-directions info/wire agreement for ERASE-06 with zero source edits, and three-layer ERASE-05 non-regression coverage for `blank` — closing the scope gap the inversions in plans 08-11 left open.
+- Rewrote `PROTOCOLS.md` §1.6's (0x0D) erase-model paragraph to describe the shipped `CMD_ERASE` standalone software chip erase and remove the "`-b` is required" recommendation, added a parallel sentence to §1.1 (0x05), and corrected `protocol-id.md`'s 0x0D row — the two documents that were the last false claim sites for ERASE-01/02/03.
+- Measured this phase's firmware footprint cold on all three AVR targets (+130 B flash, +0 B RAM), funded it with a fourth named, SHA-attributed MERGE-05 exemption (`MERGE05_ERASE_STANDALONE_EXEMPTION_BYTES = 130`), and re-recorded `size_baseline.json` so both gate modes are green.
+- 1. [Rule 1 - Bug] Fixed 4 additional red legs not named in plan 14's hand-off
+- Corrected the two stale "one/two firmware-touching workstream" claims in PROJECT.md and ROADMAP.md to three (149, 151, 153), wrote `153-RECORD.md` as the phase's own honesty record carrying the verbatim "software-proven and unvalidated on silicon" phrase and an equally-weighted what-was-NOT-proven section, ran the full phase gate from a committed tree across both sub-repositories, and flipped ERASE-09 — closing all nine ERASE requirements.
+
+</details>
+
+---
+
 ## v1.31 27C Programming-Algorithm Fidelity (Shipped: 2026-08-18)
 
 **Phases completed:** 9 phases (138–146), 74 plans, 164 tasks
