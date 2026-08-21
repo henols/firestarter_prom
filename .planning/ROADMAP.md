@@ -481,7 +481,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 152-11-PLAN.md — OUT-04: the two sub-repo PRs to `beta`, the conflict adjudication checkpoint, both merges, `git cherry` all-`-` *(wave 5)*
+- [x] 152-11-PLAN.md — OUT-04: the two sub-repo PRs to `beta`, the conflict adjudication checkpoint, both merges, `git cherry` all-`-` *(wave 5)*
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
