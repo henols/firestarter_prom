@@ -505,7 +505,7 @@ Plans:
 
 **Wave 11** *(blocked on Wave 10 completion)*
 
-- [ ] 152-17-PLAN.md — OUT-04: POST the app release body behind its own blocking gate *(wave 11)*
+- [x] 152-17-PLAN.md — OUT-04: POST the app release body behind its own blocking gate *(wave 11)*
 
 **Wave 12** *(blocked on Wave 11 completion)*
 
