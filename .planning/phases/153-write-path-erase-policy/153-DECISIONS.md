@@ -263,3 +263,108 @@ Result: **1806 passed**, 1 warning, in 216.60 s. Coverage: **83.61%** (required 
 `git diff --quiet` in `firestarter/` succeeds: this measurement task changed no source file in
 the firmware repo. `firestarter_app/` was not touched by this task either — the host run is a
 read-only test invocation.
+
+---
+
+## Post-change measured position (cold)
+
+Measured 2026-08-21, plan 14, task 1, on the firmware tree with all of this phase's byte-changing
+commits landed (`0d90e5c` erase-init blank-check delete, `df09704` `AT28C_TEC_MAX_MS` +
+forward decl, `d9a9993` `eeprom28c_erase_execute`, `8b7feac` the `CMD_ERASE` dispatch arm,
+`dcb30fe` the 0x05 write-init blank-check delete; `1810db2`/`bf01e2b` are test-only and
+`21a02c3`/`2a3bc65` are doc-only, contributing 0 B to any target). Same procedure as the
+pre-change measurement above: for each of `uno`, `uno328pb`, `leonardo`, in that order,
+`rm -rf .pio/build/<env>` then exactly one `pio run -e <env>`, output teed to a scratch log
+(`cold_uno.log`, `cold_uno328pb.log`, `cold_leonardo.log`). No file in `firestarter/` was
+modified by this measurement step — verified by `git diff --quiet` below.
+
+**(a) Constants lockstep.** ERASE-08's first clause. Recorded side by side, both files read this
+session:
+
+| Constant | `firestarter/include/firestarter.h` | `firestarter_app/firestarter/constants.py` |
+|---|---|---|
+| erase command id | `#define CMD_ERASE 3` (`:61`) | `COMMAND_ERASE = 3` (`:62`) |
+| blank-check command id | `#define CMD_BLANK_CHECK 4` (`:62`) | `COMMAND_BLANK_CHECK = 4` (`:63`) |
+| erase-capability flag | `#define FLAG_CAN_ERASE 0x02` (`:173`) | `FLAG_CAN_ERASE = 0x02` (`:120`) |
+| erase-skip flag | `#define FLAG_SKIP_ERASE 0x04` (`:174`) | `FLAG_SKIP_ERASE = 0x04` (`:121`) |
+| blank-check-skip flag | `#define FLAG_SKIP_BLANK_CHECK 0x08` (`:175`) | `FLAG_SKIP_BLANK_CHECK = 0x08` (`:122`) |
+
+The host side names the command ladder `COMMAND_*` rather than `CMD_*` (constants.py's own
+comment records this as "the default `CMD_X` -> `COMMAND_X` rule") — the *values* are the
+lockstep property, not the identifier spelling, and every value above matches exactly.
+`python3 -m pytest tests/test_revision_constants_parity.py -o addopts="" -q` (run from
+`firestarter_app/`): **14 passed**. This phase minted no new constant on either side — nothing
+moved. This is a measured fact: both files were read this session and diffed against the values
+recorded in D-153-01's decisions, and no value differs.
+
+**(b) Cold AVR figures.**
+
+| Target | Flash used | Flash total | RAM used | RAM total |
+|---|---|---|---|---|
+| uno | 25548 | 32768 | 1575 | 2048 |
+| uno328pb | 25598 | 32768 | 1581 | 2048 |
+| leonardo | 27630 | 32768 | 2016 | 2560 |
+
+**Delta against the plan-01 pre-change position** (uno 25418, uno328pb 25468, leonardo 27500,
+all flash; RAM 1575/1581/2016 on all three):
+
+| Target | Flash delta vs pre-change | RAM delta vs pre-change |
+|---|---|---|
+| uno | +130 | +0 |
+| uno328pb | +130 | +0 |
+| leonardo | +130 | +0 |
+
+**Delta against BASE-01** (uno 24824, uno328pb 24874, leonardo 26906, all flash; RAM
+1573/1579/2014):
+
+| Target | Flash delta vs BASE-01 | RAM delta vs BASE-01 |
+|---|---|---|
+| uno | +724 | +2 |
+| uno328pb | +724 | +2 |
+| leonardo | +724 | +2 |
+
+The RAM delta against BASE-01 (+2 on all three) is Phase 149's own page-size-seam RAM exemption
+(`MERGE05_PAGE_SIZE_SEAM_RAM_EXEMPTION_BYTES = 2`, already fully consumed), unmoved by this
+plan. **The RAM delta against the immediately-prior pre-change position is exactly 0 B on all
+three targets** — `D-153-01`'s prediction holds and is verified, not asserted. This is not a
+blocker; no stop-and-report is triggered.
+
+**Leonardo exemption arithmetic** (the only figure Task 2 may use): BASE-01 delta minus the
+existing 594 B allowance = `724 - 594 = 130`. Positive, so a fourth exemption is funded, sized at
+exactly **130 B**. This is not rounded up for headroom.
+
+**Caterina headroom**, a separate, distinctly labelled figure, marked **UNGUARDED**:
+`28672 - 27630 (leonardo flash used) = 1042 B`. This is a different number from the MERGE-05
+clause (leonardo's MERGE-05 flash headroom, computed below, is 0 B once the new exemption is
+adopted) and neither may be computed from the other.
+
+**Native case and suite counts**, both environments run cold this session:
+
+| Env | Cases | Suites | All passed |
+|---|---|---|---|
+| `native` | 170 | 17 | yes |
+| `native_nodevtools` | 170 | 17 | yes |
+
+Both environments agree with each other. Delta against the committed `size_baseline.json`
+(163 cases / 17 suites for both envs): **+7 cases, +0 suites**, on both environments — this
+phase's plans 02, 04 and 06 added native cases without adding a new suite file. `envs_agree`
+stays true.
+
+**Build-warnings checker.** `python3 scripts/check_build_warnings.py --log uno=cold_uno.log
+--log uno328pb=cold_uno328pb.log --log leonardo=cold_leonardo.log --log native=native.log --log
+native_nodevtools=native_nodevtools.log` → **PASS, exit 0**: `uno: macro_redefinition=0 (== 0),
+uno328pb: macro_redefinition=0 (== 0), leonardo: macro_redefinition=0 (== 0)`; native observed
+872 (294 below the 1166 watermark, INFO not FAIL); native_nodevtools observed 998 (168 below).
+The watermark still holds at 1166 — no new warning class appeared, and it was not raised.
+
+`check_erase_no_vpp.py` (GATE-03's real control): **PASS, exit 0** —
+`eeprom28c_erase_execute()` (lines 545-560, 16 lines scanned) contains no VPP/VPE
+control-register, chip-enable/disable, or bus-config-bypassing hazard token.
+
+`git diff --quiet` in `firestarter/` succeeds: this measurement task changed no source file in
+the firmware repo. `firestarter_app/` carries no tracked-file diff either (`git diff --stat`
+empty); its untracked files (`SECURITY.md`, `datasheets/*.pdf`, `write_test_port.sh`,
+`.planning/config.json`) predate this task and are not touched by it.
+
+**Neither repository's CI runs this size gate.** This local, cold run is the only evidence it
+was ever exercised for this plan.
