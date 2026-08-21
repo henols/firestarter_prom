@@ -176,3 +176,9 @@ None - no external service configuration required.
 ---
 *Phase: 153-write-path-erase-policy*
 *Completed: 2026-08-21*
+
+## Self-Check: PASSED
+
+All claimed commits (`50ad097`, `9af91fe`, `e2b807d`) verified present via `git log --oneline --all`.
+All claimed files (`firestarter_app/firestarter/cli_handlers.py`, `firestarter_app/tests/test_write_skip_erase_0x0d.py`,
+`firestarter_app/tests/__snapshots__/test_characterization.ambr`) verified present on disk.
