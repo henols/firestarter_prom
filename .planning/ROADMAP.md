@@ -516,7 +516,7 @@ Plans:
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 153-10-PLAN.md — the `dev test` plan-shape ripple: corrected reason texts, four re-measured legs, defensive-arm reachability *(firestarter_app)*
+- [x] 153-10-PLAN.md — the `dev test` plan-shape ripple: corrected reason texts, four re-measured legs, defensive-arm reachability *(firestarter_app)*
 - [ ] 153-11-PLAN.md — the `write --skip-erase` warning correction and the no-second-warning guard *(firestarter_app)*
 - [ ] 153-12-PLAN.md — ERASE-03/05/06 positive coverage: exhaustive 84-of-746, `info`-versus-wire agreement, `blank` non-regression *(firestarter_app)*
 

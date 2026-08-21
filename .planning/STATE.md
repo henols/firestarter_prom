@@ -5,15 +5,15 @@ milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 153
 current_phase_name: write-path-erase-policy
 status: executing
-stopped_at: Completed 153-09-PLAN.md
-last_updated: "2026-08-21T09:09:49.715Z"
+stopped_at: Completed 153-10-PLAN.md
+last_updated: "2026-08-21T09:30:58.796Z"
 last_activity: 2026-08-21
 last_activity_desc: Phase 153 execution started
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 52
-  completed_plans: 45
+  completed_plans: 46
   percent: 57
 ---
 
@@ -86,7 +86,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 153 (write-path-erase-policy) — EXECUTING
-Plan: 10 of 16
+Plan: 11 of 16
 Status: Ready to execute
 Plans: 16 plans, 12 waves, 41 tasks — plan-checker PASSED (0 blockers), coverage 9/9 (ERASE-01..09)
 Note: 153 runs BEFORE 152 (D-08). Phase 152 stays BLOCKED until 153 is complete, and must NOT be run under --auto/--chain.
@@ -2065,6 +2065,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: 153-09: Both negative controls (M27C512 UV-EPROM, W29C040 algorithm-5) left byte-unchanged as the anti-bleed scope proof
 - [Phase ?]: 153-09: D-153-05 cited in SDP wire-shape docstring -- carrying the erase bit on an SDP frame does not mean an SDP command erases
 - [Phase ?]: 153-09: New tier-2 eeprom28c legs observed failing against a temporary revert of database.py's exclusion tuple before being trusted as gates (T-153-48 anti-vacuity proof)
+- [Phase 153]: 153-10: erase_eprom is called twice under run_plan's N=2 disagreement policy for OP_ERASE, not once as the plan's own text prescribed -- used assert_called()+call_count==2 and recorded the divergence rather than forcing a false assertion
+- [Phase 153]: 153-10: kept the now-unreachable _PROTOCOL_EEPROM_28C reason arm as a documented, tested defensive fallthrough (user-override non-qualifying electrical-type row) rather than deleting it, per plan disposition
 
 ## Performance Metrics
 
@@ -2369,11 +2371,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 153 P07 | 40min | 2 tasks | 1 files |
 | Phase 153 P08 | 35min | 2 tasks | 2 files |
 | Phase 153 P09 | 45min | 3 tasks | 3 files |
+| Phase 153 P10 | 35min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-21T09:09:49.671Z
-**Stopped at:** Completed 153-09-PLAN.md
+**Last session:** 2026-08-21T09:30:58.762Z
+**Stopped at:** Completed 153-10-PLAN.md
 **Resume file:** None
 
 **Gitlink gap from Phase 149's close — CLOSED 2026-08-20.** Phase 149 landed its dual-repo work but never bumped meta's submodule gitlinks, so meta HEAD asserted "Phase 149 COMPLETE and VERIFIED — page-size seam landed across both repos" while pointing at `firestarter 7f6afc65` / `firestarter_app b142c0e6` — trees containing none of it. Bumped to `firestarter 6e3f90a3` (6 commits, all `149-*`) and `firestarter_app 9cc57c75` (13 commits: 8 `149-*` plus the 5 `fw` port-targeting fixes, which `git cherry` marks `-` against `origin/beta` — patch-identical to PR #52's merged work under different SHAs, so nothing unreviewed rode along). Both sub-repos verified on `gsd/v1.32-at28c-write-path-root-cause-report-provenance` with clean tracked trees. Restores the per-plan bump convention this milestone set at `chore(147-02)`/`chore(147-05)`; the branches are local-only, as Phase 147's were when it bumped, and become reachable at the close via the PR to `beta`.
