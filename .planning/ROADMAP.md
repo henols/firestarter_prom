@@ -457,26 +457,75 @@ in `requirements:`:
 **Plans**: 20 plans across 14 waves
 
 Plans:
+**Wave 1**
+
 - [ ] 152-01-PLAN.md — OUT-05: `152-CLAIM-CLASSES.md`, `152-check-claims.py` (7 edit sites, 2 added + 1 modified forbidden rows, 3 required-caveat rows), and the 7 new/modified-label fixtures *(wave 1)*
-- [ ] 152-02-PLAN.md — OUT-05: the 8 donor-class fixtures, `test_check_claims_152.py`, and `152-CLAIM-GATE-TRANSCRIPTS.md` with every RED pasted *(wave 2)*
 - [ ] 152-03-PLAN.md — OUT-02/05: hand-edit `ROADMAP.md` (criterion 2 per D-05, criterion 5 per D-11, the three stale sites) and `PROJECT.md` (the Phase 121 D-12 premise correction) *(wave 1)*
 - [ ] 152-04-PLAN.md — OUT-01/04/05: hand-edit `REQUIREMENTS.md` — the four OUT bullet amendments, the Coverage block, and the reconciled in-scope count *(wave 1)*
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 152-02-PLAN.md — OUT-05: the 8 donor-class fixtures, `test_check_claims_152.py`, and `152-CLAIM-GATE-TRANSCRIPTS.md` with every RED pasted *(wave 2)*
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 152-05-PLAN.md — OUT-01: `152-GH12-COMMENT.md`, adapted from the 137 donor with the diff committed (D-14) *(wave 3)*
 - [ ] 152-06-PLAN.md — OUT-02: `152-GH21-COMMENT.md`, built on the reporter's own pasted report body *(wave 3)*
 - [ ] 152-07-PLAN.md — OUT-03: `152-GH11-COMMENT.md`, the conflation answer plus the discharged 2026-08-03 commitment *(wave 3)*
 - [ ] 152-08-PLAN.md — OUT-04: the protection-class re-derivation (`152-CLASS-SIZES.md`) and `152-RELEASE-NOTES-app.md` *(wave 3)*
 - [ ] 152-09-PLAN.md — OUT-04: `152-RELEASE-NOTES-fw.md`, with the measured assets and the two separately-labelled size figures *(wave 3)*
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 152-10-PLAN.md — OUT-04: pre-flight — re-measure both sub-repos, commit all three, run both suites with the sibling firmware root severed *(wave 4)*
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 152-11-PLAN.md — OUT-04: the two sub-repo PRs to `beta`, the conflict adjudication checkpoint, both merges, `git cherry` all-`-` *(wave 5)*
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 152-12-PLAN.md — OUT-04: read both cut tags, verify PyPI independently, substitute the tags, write `152-MERGE-RECORD.md` *(wave 6)*
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 152-13-PLAN.md — OUT-05: arm `_DEFAULT_TARGETS` at the seven real artifacts, add `152-check-not-auto.py`, record the armed RED *(wave 7)*
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 152-14-PLAN.md — OUT-01: POST the gh#12 reply behind its own blocking gate; resolve the folded todo *(wave 8)*
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
 - [ ] 152-15-PLAN.md — OUT-02: POST the gh#21 comment behind its own blocking gate *(wave 9)*
+
+**Wave 10** *(blocked on Wave 9 completion)*
+
 - [ ] 152-16-PLAN.md — OUT-03: POST the gh#11 reply behind its own blocking gate *(wave 10)*
+
+**Wave 11** *(blocked on Wave 10 completion)*
+
 - [ ] 152-17-PLAN.md — OUT-04: POST the app release body behind its own blocking gate *(wave 11)*
+
+**Wave 12** *(blocked on Wave 11 completion)*
+
 - [ ] 152-18-PLAN.md — OUT-04: POST the firmware release body behind its own blocking gate *(wave 12)*
+
+**Wave 13** *(blocked on Wave 12 completion)*
+
 - [ ] 152-19-PLAN.md — OUT-05: `152-LEDGER.md` with live-captured HEADs, and the gate armed at it (D-12) *(wave 13)*
+
+**Wave 14** *(blocked on Wave 13 completion)*
+
 - [ ] 152-20-PLAN.md — OUT-01…05: extend the gate over the SUMMARY files, flip the five checkboxes on named evidence, merge meta to `beta`, complete the handoff *(wave 14)*
+
+**Cross-cutting constraints:**
+
+- `FIRESTARTER_CLAIMSCAN_TARGETS_152=<the draft> python3 152-check-claims.py` exits 0.
+- The posted-mode gate run over the stored body exits 0.
+- The body length moved from its measured starting value to a non-zero value.
+- The withdrawal sentence and all three non-claim sentences are proven present in the PUBLISHED body by positive greps.
+- No previously-published release body was edited.
 
 **⚠ This phase must NOT be run under `--auto`/`--chain`.** Every OUT requirement is operator-reviewed before posting, and `--auto`/`--chain` auto-approves human-verify checkpoints — `autonomous: false` alone is not self-protecting. **Seven of the twenty plans carry `autonomous: false`** — the merge plan (152-11), the five posting plans (152-14…152-18) and the close-out (152-20) — and every one of them restates this prohibition in its own frontmatter. The claim gate is built, seen to fail on the planted violation, and armed against the real artifacts (152-01, 152-02, 152-13) **before** the first post in 152-14.
 

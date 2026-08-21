@@ -142,8 +142,7 @@ dependence — the rule stays load-bearing and must be restated in every posting
   reading *"still OPEN"* as *"not closed by this milestone"* (stands a criterion whose plain reading is
   false — the exact class this phase's gate exists to catch).
 
-- **D-06: The AT28C256 erase contradiction is stated outward, backlogged, and its premise corrected in
-  the record. No code change in 152.**
+- **D-06: The AT28C256 erase contradiction is stated outward, backlogged, and its premise corrected in the record. No code change in 152.**
 
   **Established from primary sources during this discussion. Do not re-derive; do not soften.**
 

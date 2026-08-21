@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: — AT28C Write-Path Root Cause & Report Provenance
-current_phase: 153
-current_phase_name: Write-Path Erase Policy — no pre-write blank check on auto-erasing protocols, standalone erase
-status: complete
-stopped_at: "Phase 153 COMPLETE 2026-08-21 — verified 9/9, VERIFICATION.md status: passed. 16/16 plans, 41 tasks, dual-repo. All 9 ERASE requirements Complete. NEXT IS PHASE 152 (Outward-Facing Close), which is OPERATOR-GATED and must NOT be run under --auto/--chain: it posts to strangers' GitHub issues and cuts a release. current_phase deliberately left at 153 rather than advanced to 152, so no resume can read 152 as ready-to-run. 153-RECORD.md's section on what Phase 152 must not repeat is direct input to 152's claim-gate authoring."
-last_updated: "2026-08-21T12:06:04.659Z"
+current_phase: 152
+current_phase_name: Outward-Facing Close (operator-gated)
+status: planned
+stopped_at: "Phase 152 PLANNED 2026-08-21 — 20 plans across 14 waves, plan-checker PASSED (0 blockers), coverage 5/5 (OUT-01..05) and 15/15 CONTEXT decisions (D-01..D-15). Phase 153 is COMPLETE, so 152's out-of-number-order precondition (D-07/D-08) is DISCHARGED. ⚠ OPERATOR-GATED: 152 must NOT be run under --auto/--chain — seven plans carry autonomous: false and each restates that prohibition; autonomous: false alone is NOT self-protecting. NEXT: /gsd-execute-phase 152 (no --auto, no --chain)."
+last_updated: "2026-08-21T13:59:29.834Z"
 last_activity: 2026-08-21
-last_activity_desc: "Phase 153 (Write-Path Erase Policy) CLOSED 2026-08-21, verified 9/9, 16/16 plans, 41 tasks, dual-repo. ERASE-01..09 all Complete. Gates: host 1825 passed (83.61% cov, 32 snapshots), firmware native 170/170 on both envs (pre-phase 163), check_dispatch.py PASS and byte-unchanged, check_erase_no_vpp.py PASS +7/7 paired, check_no_log_in_sdp_window.py PASS, ruff+format clean, size tripwire 14/14 severed onto a new *_v153* family with *_v151* untouched. Size: +130 B flash, +0 B RAM cold on all three AVR targets, funded by MERGE05_ERASE_STANDALONE_EXEMPTION_BYTES=130; leonardo 27630 B absolute, 1042 B below the UNGUARDED 28672 B Caterina cliff. mypy watermark now 35==35, ZERO headroom, honest only under py3.11. 0x0D gains a standalone software AN-0544B chip erase and write does no blank check on 0x0D/0x05; the 12V-on-OE hardware path is deliberately unimplemented and check_dispatch.py was not weakened. GATE-03's stated mechanism was CORRECTED, not satisfied on its own terms: check_dispatch.py structurally cannot see a handler-body control-register write, so scripts/check_erase_no_vpp.py is the real control. SEVEN claim sites were corrected, not the four L-04 named. Ships software-proven and unvalidated on silicon; 0x0D stays UNVERIFIED, no support_status changed, gh#21/#11/#12 stay OPEN (gh#32 was already closed 2026-08-08)."
+last_activity_desc: "Phase 152 (Outward-Facing Close, operator-gated) PLANNED 2026-08-21 — 20 plans / 14 waves, from 152-RESEARCH.md (2153 lines) + 152-PATTERNS.md + 152-VALIDATION.md. plan-checker PASSED with 0 blockers; independently re-verified: no HTML entities, one-writer-per-file holds in all 14 waves, every dependency in a strictly earlier wave, commits_land_in on both submodule plans (152-10/11), must_haves.prohibitions in all 20. Claim gate is built (w1-2) and armed at the real artifacts (w7) strictly BEFORE the first public post (w8); both beta merges (w5) and the cut-version read (w6) precede either release body post (w11/w12). Research moved six CONTEXT.md data: app is 85 ahead / 7 BEHIND origin/beta with 5 commits already upstream under different SHAs (NOT a fast-forward); leonardo 27630 B with 1042 B under the unguarded Caterina cliff; PyPI stable is 2.0.7 with 2.0.8 absent; PyPI upload is now automatic; four .hex assets not three; gh#11 CMD_ERASE was answered with a 2026-08-03 commitment, so OUT-03 discharges a kept-late promise, not a silence."
 progress:
   total_phases: 7
   completed_phases: 5
-  total_plans: 52
+  total_plans: 72
   completed_plans: 52
   percent: 71
 ---
@@ -85,13 +85,13 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 153 — Write-Path Erase Policy — COMPLETE (verified 9/9)
-Plan: 16 of 16 complete
-Status: Phase complete — VERIFICATION.md status: passed
-Next: Phase 152 (Outward-Facing Close) — ⚠ OPERATOR-GATED, must NOT run under --auto/--chain
-Plans: 16 plans, 12 waves, 41 tasks — plan-checker PASSED (0 blockers), coverage 9/9 (ERASE-01..09)
-Note: 153 ran BEFORE 152 by design (D-08) and is now complete, so 152's dependency is discharged. 152 remains operator-gated on its own terms.
-Last activity: 2026-08-21 — Phase 153 (Write-Path Erase Policy) CLOSED, verified 9/9, 16/16 plans
+Phase: 152 — Outward-Facing Close (operator-gated) — PLANNED
+Plan: 0 of 20 complete
+Status: Ready to execute — ⚠ OPERATOR-GATED, must NOT run under --auto/--chain
+Next: /gsd-execute-phase 152 (no --auto, no --chain)
+Plans: 20 plans, 14 waves — plan-checker PASSED (0 blockers), coverage 5/5 (OUT-01..05), decisions 15/15 (D-01..D-15)
+Note: Phase 153 ran BEFORE 152 by design (D-08) and is COMPLETE, so 152's precondition is discharged. Seven plans carry autonomous: false (152-11 merge, 152-14..18 the five public posts, 152-20 close-out); autonomous: false alone is NOT self-protecting, which is why the --auto/--chain prohibition is restated in each. Gate armed at the real artifacts in wave 7, first public post in wave 8; both beta merges in wave 5 and the cut-version read in wave 6 precede either release-body post.
+Last activity: 2026-08-21 — Phase 152 PLANNED, 20 plans / 14 waves, plan-checker PASSED
 
 ## Roadmap Summary (v1.32)
 
