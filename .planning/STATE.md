@@ -5,15 +5,15 @@ milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 153
 current_phase_name: write-path-erase-policy
 status: executing
-stopped_at: Completed 153-14-PLAN.md
-last_updated: "2026-08-21T10:50:14.897Z"
+stopped_at: Completed 153-15-PLAN.md
+last_updated: "2026-08-21T11:20:28.583Z"
 last_activity: 2026-08-21
 last_activity_desc: Phase 153 execution started
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 52
-  completed_plans: 50
+  completed_plans: 51
   percent: 57
 ---
 
@@ -86,7 +86,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 153 (write-path-erase-policy) — EXECUTING
-Plan: 15 of 16
+Plan: 16 of 16
 Status: Ready to execute
 Plans: 16 plans, 12 waves, 41 tasks — plan-checker PASSED (0 blockers), coverage 9/9 (ERASE-01..09)
 Note: 153 runs BEFORE 152 (D-08). Phase 152 stays BLOCKED until 153 is complete, and must NOT be run under --auto/--chain.
@@ -2075,6 +2075,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 153]: MERGE05_ERASE_STANDALONE_EXEMPTION_BYTES sized at exactly 130 B (leonardo BASE-01 delta 724 minus existing 594), never rounded up (153-14)
 - [Phase 153]: RAM allowance/constant left untouched -- measured RAM delta is 0 B on all three targets, verifying D-153-01's RAM-neutral erase form (153-14)
 - [Phase 153]: 3 legs in tests/test_check_size_baseline.py left failing on purpose for plan 15 to re-plant onto a new *_v153* fixture family (153-14)
+- [Phase 153]: Plan 153-15: Group 2 anchor fixtures set BOTH RAM and Flash used figures to BASE-01's anchor, matching the *_v151* precedent's actual on-disk shape
+- [Phase 153]: Plan 153-15: reconciled 4 legs red at task start not on plan 14's 3-item hand-off (one, native case counts 163->170, a genuinely new coupling); all fixed
+- [Phase 153]: Plan 153-15: Arm 1 and Arm 3 of the admission test are widened not repointed -- fixtures stay fixed, decomposition-string assertions extend to the current five-term allowance
 
 ## Performance Metrics
 
@@ -2384,11 +2387,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 153 P12 | 75min | 3 tasks | 3 files |
 | Phase 153 P13 | 25min | 2 tasks | 2 files |
 | Phase 153 P14 | 55min | 3 tasks | 3 files |
+| Phase 153 P15 | 28min | 3 tasks | 16 files |
 
 ## Session
 
-**Last session:** 2026-08-21T10:50:03.353Z
-**Stopped at:** Completed 153-14-PLAN.md
+**Last session:** 2026-08-21T11:20:28.557Z
+**Stopped at:** Completed 153-15-PLAN.md
 **Resume file:** None
 
 **Gitlink gap from Phase 149's close — CLOSED 2026-08-20.** Phase 149 landed its dual-repo work but never bumped meta's submodule gitlinks, so meta HEAD asserted "Phase 149 COMPLETE and VERIFIED — page-size seam landed across both repos" while pointing at `firestarter 7f6afc65` / `firestarter_app b142c0e6` — trees containing none of it. Bumped to `firestarter 6e3f90a3` (6 commits, all `149-*`) and `firestarter_app 9cc57c75` (13 commits: 8 `149-*` plus the 5 `fw` port-targeting fixes, which `git cherry` marks `-` against `origin/beta` — patch-identical to PR #52's merged work under different SHAs, so nothing unreviewed rode along). Both sub-repos verified on `gsd/v1.32-at28c-write-path-root-cause-report-provenance` with clean tracked trees. Restores the per-plan bump convention this milestone set at `chore(147-02)`/`chore(147-05)`; the branches are local-only, as Phase 147's were when it bumped, and become reachable at the close via the PR to `beta`.

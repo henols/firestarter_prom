@@ -342,7 +342,7 @@ before Phase 152** (D-08).
       phase owns it because it must touch `database.py:621` for ERASE-03 anyway, which keeps Phase 152
       from reaching into a sub-repo for a comment edit.
 
-- [ ] **ERASE-08**: Constants stay in lockstep across `firestarter/include/firestarter.h` and
+- [x] **ERASE-08**: Constants stay in lockstep across `firestarter/include/firestarter.h` and
       `firestarter_app/firestarter/constants.py`, and the flash/RAM delta is measured against a
       pre-change baseline on all three AVR targets. **`leonardo` is at exactly zero MERGE-05 headroom
       after Phase 151 (+594≤594) and 1172 B below the UNGUARDED 28672 B Caterina cliff** — past that
@@ -416,7 +416,7 @@ before Phase 152** (D-08).
 | ERASE-05 | Phase 153 | Complete |
 | ERASE-06 | Phase 153 | Complete |
 | ERASE-07 | Phase 153 | Complete |
-| ERASE-08 | Phase 153 | Pending |
+| ERASE-08 | Phase 153 | Complete |
 | ERASE-09 | Phase 153 | Pending |
 
 **Coverage:**

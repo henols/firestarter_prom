@@ -526,7 +526,7 @@ Plans:
 
 **Wave 11** *(blocked on Wave 10 completion)*
 
-- [ ] 153-15-PLAN.md — the `*_v153*` tripwire fixture family and the repointed size-gate legs, with the severance record *(firestarter)*
+- [x] 153-15-PLAN.md — the `*_v153*` tripwire fixture family and the repointed size-gate legs, with the severance record *(firestarter)*
 
 **Wave 12** *(blocked on Wave 11 completion)*
 
