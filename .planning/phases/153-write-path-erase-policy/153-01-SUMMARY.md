@@ -154,3 +154,12 @@ None - no external service configuration required.
 ---
 *Phase: 153-write-path-erase-policy*
 *Completed: 2026-08-21*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/153-write-path-erase-policy/153-DECISIONS.md`
+- FOUND: `.planning/phases/153-write-path-erase-policy/153-01-SUMMARY.md`
+- FOUND: commit `de2dd336`
+- FOUND: commit `79e1142f`
+- FOUND: commit `c03a4ad4`
+- FOUND: commit `307243d6`
