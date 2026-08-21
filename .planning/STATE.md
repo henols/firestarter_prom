@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 153
-current_phase_name: write-path-erase-policy
-status: verifying
-stopped_at: Completed 153-16-PLAN.md — Phase 153 (Write-Path Erase Policy) CLOSED, all 9 ERASE requirements Complete
-last_updated: "2026-08-21T11:45:41.503Z"
+current_phase_name: Write-Path Erase Policy — no pre-write blank check on auto-erasing protocols, standalone erase
+status: complete
+stopped_at: "Phase 153 COMPLETE 2026-08-21 — verified 9/9, VERIFICATION.md status: passed. 16/16 plans, 41 tasks, dual-repo. All 9 ERASE requirements Complete. NEXT IS PHASE 152 (Outward-Facing Close), which is OPERATOR-GATED and must NOT be run under --auto/--chain: it posts to strangers' GitHub issues and cuts a release. current_phase deliberately left at 153 rather than advanced to 152, so no resume can read 152 as ready-to-run. 153-RECORD.md's section on what Phase 152 must not repeat is direct input to 152's claim-gate authoring."
+last_updated: "2026-08-21T12:06:04.659Z"
 last_activity: 2026-08-21
-last_activity_desc: Phase 153 execution started
+last_activity_desc: "Phase 153 (Write-Path Erase Policy) CLOSED 2026-08-21, verified 9/9, 16/16 plans, 41 tasks, dual-repo. ERASE-01..09 all Complete. Gates: host 1825 passed (83.61% cov, 32 snapshots), firmware native 170/170 on both envs (pre-phase 163), check_dispatch.py PASS and byte-unchanged, check_erase_no_vpp.py PASS +7/7 paired, check_no_log_in_sdp_window.py PASS, ruff+format clean, size tripwire 14/14 severed onto a new *_v153* family with *_v151* untouched. Size: +130 B flash, +0 B RAM cold on all three AVR targets, funded by MERGE05_ERASE_STANDALONE_EXEMPTION_BYTES=130; leonardo 27630 B absolute, 1042 B below the UNGUARDED 28672 B Caterina cliff. mypy watermark now 35==35, ZERO headroom, honest only under py3.11. 0x0D gains a standalone software AN-0544B chip erase and write does no blank check on 0x0D/0x05; the 12V-on-OE hardware path is deliberately unimplemented and check_dispatch.py was not weakened. GATE-03's stated mechanism was CORRECTED, not satisfied on its own terms: check_dispatch.py structurally cannot see a handler-body control-register write, so scripts/check_erase_no_vpp.py is the real control. SEVEN claim sites were corrected, not the four L-04 named. Ships software-proven and unvalidated on silicon; 0x0D stays UNVERIFIED, no support_status changed, gh#21/#11/#12 stay OPEN (gh#32 was already closed 2026-08-08)."
 progress:
   total_phases: 7
   completed_phases: 5
@@ -85,12 +85,13 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 153 (write-path-erase-policy) — EXECUTING
-Plan: 16 of 16
-Status: Phase complete — ready for verification
+Phase: 153 — Write-Path Erase Policy — COMPLETE (verified 9/9)
+Plan: 16 of 16 complete
+Status: Phase complete — VERIFICATION.md status: passed
+Next: Phase 152 (Outward-Facing Close) — ⚠ OPERATOR-GATED, must NOT run under --auto/--chain
 Plans: 16 plans, 12 waves, 41 tasks — plan-checker PASSED (0 blockers), coverage 9/9 (ERASE-01..09)
-Note: 153 runs BEFORE 152 (D-08). Phase 152 stays BLOCKED until 153 is complete, and must NOT be run under --auto/--chain.
-Last activity: 2026-08-21 — Phase 153 execution started
+Note: 153 ran BEFORE 152 by design (D-08) and is now complete, so 152's dependency is discharged. 152 remains operator-gated on its own terms.
+Last activity: 2026-08-21 — Phase 153 (Write-Path Erase Policy) CLOSED, verified 9/9, 16/16 plans
 
 ## Roadmap Summary (v1.32)
 
