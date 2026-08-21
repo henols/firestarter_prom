@@ -27,7 +27,8 @@ key-files:
   modified: []
 
 key-decisions:
-  - "TASK 1 IS COMPLETE. TASK 2 (the blocking operator checkpoint) IS NOW REACHED. This document is an INTERIM record covering Task 1 only — Task 3 (the actual merges) has NOT run. This file will be extended, not rewritten, by the continuation agent after operator approval. status is deliberately NOT 'complete' below."
+  - "TASK 1 IS COMPLETE. TASK 2 (the blocking operator checkpoint) WAS RESOLVED — operator approved both merges via merge-commit method (--merge for both PRs), relayed through the orchestrator. TASK 3 IS BLOCKED, NOT COMPLETE: the harness's own auto-mode classifier denied `gh pr merge` on both repos (a genuine permission-system denial, distinct from and superseding any agent-relayed approval). Read-only `gh pr view` continues to work; only the merge-mutation call is blocked. Per the explicit instruction accompanying that denial, no workaround was attempted (no direct GitHub API call, no alternate merge mechanism) — this is reported as a blocker for the human to resolve, either by granting the classifier permission or by clicking 'Merge pull request' on both PRs directly in the GitHub UI. NEITHER PR IS MERGED. status is deliberately NOT 'complete' below."
+  - "Merge method decision, recorded per the checkpoint resolution (to be READ BACK from `gh pr view` once the merge actually happens, not assumed from this record): merge commit (`--merge`) for BOTH PRs, chosen because every recent v1.31 milestone merge to `beta` in both repos (`firestarter_app` #51 → 91c2add0, #52 → eaca13ef; `firestarter` #52 → bc3ca547) was a two-parent merge commit — v1.30's PR #44 squash was the one-off exception that produced the known `--is-ancestor` false negative. A merge commit makes all HEAD commits ancestors of `beta`, so post-merge `git cherry origin/beta HEAD` is expected to produce no `+` lines (most likely empty output, not `-` lines, per `git cherry`'s definition of only listing commits unique to HEAD)."
   - "No conflict resolution was performed on the app PR. Both GitHub's own mergeable computation (MERGEABLE/CLEAN, confirmed after CI settled) and an independent local `git merge-tree --write-tree origin/beta HEAD` (exit 0, single tree SHA, no CONFLICT markers) agree: the app merge is a real (non-fast-forward) merge but textually clean. The 5 already-upstream-by-patch-id commits (`ebbc299`, `da6572b`, `94d327d`, `a7e554d`, `c495e98`) resolve without any hunk-level divergence — their resulting file content is identical to what the milestone branch already carries, so the three-way merge algorithm finds nothing to reconcile."
   - "A first dry-run merge test (git clone of the LOCAL /workspaces/firestarter_app checkout, then merge against that clone's 'origin/beta') gave a misleading 'Already up to date' result. Root cause, found and recorded rather than silently discarded: the local repo carries a STALE local branch literally named 'beta' (25b7255, measured 33 commits behind the real origin/beta at fetch time) alongside the real remote-tracking ref 'origin/beta' (f505ae7). A plain `git clone` of a local path copies the source's refs/heads/* into the clone's own refs/remotes/origin/*, so the clone's 'origin/beta' resolved to the STALE local branch, not the real one. Corrected by re-running the test as `git merge-tree --write-tree origin/beta HEAD` directly in the real repo, which reads the real remote-tracking ref and touches no working tree at all."
   - "Per must_haves.prohibitions: no `git merge-base --is-ancestor` invocation was used as a merge oracle anywhere in this task (one informational-only `--is-ancestor` check was run purely to diagnose the stale-branch discrepancy above, immediately superseded by `merge-tree`, and is not relied on for any acceptance criterion). No cherry-pick, no drop of the 5 already-upstream commits — nothing was done to them; the merge algorithm resolved them on its own. No force-push. No push to `beta` — only the milestone branch was pushed, to each sub-repo's own `origin`, solely to allow PR creation. No `gh workflow run` was invoked; only read-only `gh pr`/`gh run`/`gh pr checks` calls were used."
@@ -58,18 +59,18 @@ coverage:
     human_judgment: false
 
 # Metrics
-duration: TBD (Task 1 only; final duration recorded after Task 3)
+duration: TBD (Tasks 1-2 only; final duration recorded after Task 3 completes)
 completed: null
-status: awaiting-checkpoint
+status: blocked
 ---
 
-# Phase 152 Plan 11: Beta Merge — Task 1 Complete, Awaiting Blocking Operator Checkpoint
+# Phase 152 Plan 11: Beta Merge — Checkpoint Approved, Merge Blocked by Harness Permission Denial
 
-**Opened both PRs against `beta`; measured the app PR's mergeability before touching anything and found it textually clean (confirmed by two independent oracles), so no hand conflict-resolution was performed; re-ran the app suite green with the sibling root severed. Task 2 (the blocking merge-authorization checkpoint) is now reached — Task 3 (the actual merges) has not run.**
+**Opened both PRs against `beta`; measured the app PR's mergeability before touching anything and found it textually clean (confirmed by two independent oracles), so no hand conflict-resolution was performed; re-ran the app suite green with the sibling root severed. The blocking operator checkpoint was then presented and approved (merge-commit method, both PRs) — but the actual `gh pr merge` call was denied by the harness's own auto-mode classifier, a permission-system-level block distinct from and superseding the relayed approval. Neither PR is merged.**
 
 ## Status
 
-**THIS PLAN IS NOT COMPLETE.** Task 1 is done. Task 2 is a blocking `checkpoint:human-verify` gate that this executor is required to stop at and return control from. Neither PR has been merged. Nothing has been pushed to `beta`. This SUMMARY.md will be extended by a continuation agent after the operator responds to the checkpoint returned alongside this document.
+**THIS PLAN IS NOT COMPLETE.** Tasks 1 and 2 are done (PRs opened and measured; checkpoint presented and approved). Task 3 is **blocked**: the merge-mutation call itself was refused by the tool-permission system, not by any content judgment on this executor's part. Neither PR has been merged. Nothing has been pushed to `beta`. This SUMMARY.md documents the blocker and will be extended by a continuation agent once the merge is unblocked (permission grant or manual UI merge by the operator).
 
 ## Task 1 — PRs created, mergeability measured, no conflict found
 
@@ -181,14 +182,44 @@ $ git -C /workspaces/firestarter_app push origin gsd/v1.32-at28c-write-path-root
 
 Both pushes target each sub-repo's own milestone branch on `origin`, solely so `gh pr create` had a head ref to point at. **Neither push touched `beta`.**
 
+## Task 2 — Checkpoint resolved
+
+The operator was presented the checkpoint (via the orchestrator) and approved both merges, delegating the merge-method decision. **Merge commit (`--merge`) for both PRs** was selected — see the key-decisions entry above for the full rationale (v1.31 precedent, `git cherry` method-sensitivity, rebase-SHA-rewrite risk).
+
+## Task 3 — BLOCKED: `gh pr merge` denied by the harness's auto-mode classifier
+
+Attempted, firmware first, per the plan's ordering:
+
+```
+$ gh pr merge 53 --repo henols/firestarter --merge
+Permission for this action was denied by the Claude Code auto mode classifier. Reason: Blocked by classifier.
+```
+
+This is a genuine tool-permission-system denial — distinct from, and authoritative over, the operator's checkpoint approval relayed above. Per the explicit instruction accompanying the denial ("you should not attempt to work around this denial... STOP and explain to the user what you were trying to do and why you need this permission"), **no workaround was attempted**: no direct GitHub API call (e.g. `curl` with a token), no alternate CLI mechanism, no retry with different flags.
+
+**Confirmed neither PR was mutated:**
+
+```
+$ gh pr view 53 --repo henols/firestarter --json state
+{"state":"OPEN"}
+$ gh pr view 53 --repo henols/firestarter_app --json state
+{"state":"OPEN"}
+```
+
+Read-only `gh pr view` continues to work normally (used throughout Task 1 and to confirm the above) — the classifier specifically blocks the write action `gh pr merge`, not `gh` read calls in general.
+
+**Firmware PR was never attempted a second time and the app PR merge was never attempted at all**, once the firmware attempt was blocked — merging in the planned order (firmware first) and stopping at the first denial, rather than trying the app PR to see if it behaved differently, keeps the failure mode simple to reason about and avoids any appearance of probing for a bypass.
+
+**What is needed to unblock:** either (a) the human operator adds a Bash/gh permission rule allowing `gh pr merge` for these two repos, or (b) the operator merges both PRs directly via the GitHub UI ("Merge pull request" button, using the merge-commit method decided above), after which a continuation of this plan can run the post-merge `git cherry` verification and the rest of Task 3's acceptance criteria without re-attempting the merge itself.
+
 ## Files Created/Modified
 
-- `.planning/phases/152-outward-facing-close-operator-gated/152-11-SUMMARY.md` — this document (interim; Task 1 only)
+- `.planning/phases/152-outward-facing-close-operator-gated/152-11-SUMMARY.md` — this document (Task 1 + Task 2 complete; Task 3 blocked)
 
-## Next: BLOCKING CHECKPOINT (Task 2)
+## Next
 
-See the structured `CHECKPOINT REACHED` block returned alongside this document. Task 3 (merge both PRs, prove `git cherry` all `-` afterward) has not run and will not run until the operator responds.
+Task 3 cannot complete without either a permission grant or a manual UI merge by the operator. This plan is **not** finished — `status` remains non-`complete` below, and no `STATE.md`/`ROADMAP.md` update has been made (per this plan's explicit prohibition and the orchestrator's ownership of those files).
 
 ---
 *Phase: 152-outward-facing-close-operator-gated*
-*Task 1 completed: 2026-08-21 — awaiting operator checkpoint*
+*Task 1 + Task 2 completed: 2026-08-21 — Task 3 blocked on a harness permission denial, awaiting operator action*
