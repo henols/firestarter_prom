@@ -459,9 +459,9 @@ in `requirements:`:
 Plans:
 **Wave 1**
 
-- [ ] 152-01-PLAN.md — OUT-05: `152-CLAIM-CLASSES.md`, `152-check-claims.py` (7 edit sites, 2 added + 1 modified forbidden rows, 3 required-caveat rows), and the 7 new/modified-label fixtures *(wave 1)*
-- [ ] 152-03-PLAN.md — OUT-02/05: hand-edit `ROADMAP.md` (criterion 2 per D-05, criterion 5 per D-11, the three stale sites) and `PROJECT.md` (the Phase 121 D-12 premise correction) *(wave 1)*
-- [ ] 152-04-PLAN.md — OUT-01/04/05: hand-edit `REQUIREMENTS.md` — the four OUT bullet amendments, the Coverage block, and the reconciled in-scope count *(wave 1)*
+- [x] 152-01-PLAN.md — OUT-05: `152-CLAIM-CLASSES.md`, `152-check-claims.py` (7 edit sites, 2 added + 1 modified forbidden rows, 3 required-caveat rows), and the 7 new/modified-label fixtures *(wave 1)*
+- [x] 152-03-PLAN.md — OUT-02/05: hand-edit `ROADMAP.md` (criterion 2 per D-05, criterion 5 per D-11, the three stale sites) and `PROJECT.md` (the Phase 121 D-12 premise correction) *(wave 1)*
+- [x] 152-04-PLAN.md — OUT-01/04/05: hand-edit `REQUIREMENTS.md` — the four OUT bullet amendments, the Coverage block, and the reconciled in-scope count *(wave 1)*
 
 **Wave 2** *(blocked on Wave 1 completion)*
 

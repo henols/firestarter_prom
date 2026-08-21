@@ -86,7 +86,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 152 — Outward-Facing Close (operator-gated) — EXECUTING
-Plan: 1 of 20
+Plan: 3 of 20 complete (wave 1 of 14 done)
 Status: Executing Phase 152 — ⚠ OPERATOR-GATED, must NOT run under --auto/--chain
 Next: /gsd-execute-phase 152 (no --auto, no --chain)
 Plans: 20 plans, 14 waves — plan-checker PASSED (0 blockers), coverage 5/5 (OUT-01..05), decisions 15/15 (D-01..D-15)
