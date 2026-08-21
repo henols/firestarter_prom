@@ -294,9 +294,15 @@ un-writable without `-b`. That is the `Not blank, at 0x000000, v: 0x40` failure 
 **Second firmware-touching workstream to be added — dual-repo lockstep.** Phase 153, which **runs
 before Phase 152** (D-08).
 
-- [x] **ERASE-01**: `write` performs no blank check on `0x0D`. The conditional at
+- [ ] **ERASE-01**: `write` performs no blank check on `0x0D`. The conditional at
       `firestarter/src/proms/eeprom_28c.cpp:547` — `if (!is_flag_set(FLAG_SKIP_BLANK_CHECK)) {
       mem_util_blank_check(handle); }` — no longer gates the write path.
+
+      *(2026-08-21: the CODE half landed in `153-02` — the conditional is deleted and
+      `mem_util_blank_check` appears exactly once in `eeprom_28c.cpp`. The flip waits on `153-13`,
+      which corrects `firestarter/doc/PROTOCOLS.md` §1.6 — it still asserts `-b` is *required*.
+      Marking this Complete while that text stands is the OUT-05 failure class this phase exists
+      to avoid, so the box stays open until both owning plans land.)*
 
 - [ ] **ERASE-02**: The same holds for `0x05` (flash4). Its `flash_5v_page.cpp` sibling conditional is
       **located in code before being changed** — the decomposition recorded it as "to locate", and its
@@ -390,7 +396,7 @@ before Phase 152** (D-08).
 | OUT-03 | Phase 152 | Pending |
 | OUT-04 | Phase 152 | Pending |
 | OUT-05 | Phase 152 | Pending |
-| ERASE-01 | Phase 153 | Complete |
+| ERASE-01 | Phase 153 | In Progress |
 | ERASE-02 | Phase 153 | Pending |
 | ERASE-03 | Phase 153 | Pending |
 | ERASE-04 | Phase 153 | Pending |
