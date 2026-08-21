@@ -511,7 +511,7 @@ Plans:
 **Wave 8** *(blocked on Wave 7 completion)*
 
 - [x] 153-08-PLAN.md — the 84-record wire-dict delta layer and the two-layer equivalence gate *(firestarter_app)*
-- [ ] 153-09-PLAN.md — flag and wire-shape inversions, with both anti-bleed negative controls left unedited *(firestarter_app)*
+- [x] 153-09-PLAN.md — flag and wire-shape inversions, with both anti-bleed negative controls left unedited *(firestarter_app)*
 - [ ] 153-13-PLAN.md — the two prose documents: `PROTOCOLS.md` §1.6 and `protocol-id.md` *(firestarter + firestarter_app)*
 
 **Wave 9** *(blocked on Wave 8 completion)*
