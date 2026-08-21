@@ -265,23 +265,48 @@ Every item here is **operator-reviewed before posting** and must be gated separa
 approval — `--auto`/`--chain` auto-approves human-verify checkpoints, so an outward-facing gate that
 relies on `autonomous: false` alone is not self-protecting.
 
-- [ ] **OUT-01**: The owed gh#12 reply is posted — v1.30's CLOSE-06, held open by design. It must state
-      both halves plainly: `disable`'s behaviour survives as `write`'s automatic auto-unlock, `enable`
-      returns as `write --sdp-relock`, and it must not describe the v1.30 gap as if the original ask
-      had been satisfied all along.
+- [ ] **OUT-01**: The owed gh#12 reply is posted — v1.30's CLOSE-06, held open by design. It states
+      both halves plainly: `disable`'s behaviour survives as `write`'s automatic, default-on
+      auto-unlock, declinable via `--skip-sdp-unlock`; and `enable` returns as **nothing in this
+      release** — withdrawn since v1.30 and still tracked as Backlog **999.28**, so the ask is
+      half-answered **for a second release**. It must not describe the v1.30 gap as if the original
+      ask had been satisfied all along. **AMENDED 2026-08-21** (152-CONTEXT.md D-05; ROADMAP
+      criterion 1 amended 2026-08-20) — pre-amendment text retained here as the **negative case**
+      criterion 1's own text and the phrasing OUT-05's fifth class is built to reject:
+      *"`enable` returns as `write --sdp-relock`"*.
 
-- [ ] **OUT-02**: gh#21 (with #32 folded) receives a comment stating what changed in code, what remains
-      unproven, and a request for a fresh `dev test` run — now attributable because of PROV.
+- [ ] **OUT-02**: gh#21 (with #32 folded) receives a comment stating what changed in code, what
+      remains unproven, and a request for a fresh `dev test` run — now attributable because the
+      report identifies its firmware (PROV). The request names **both** halves of the install: the
+      pre-release host install (`pip install --pre firestarter`) **and** `firestarter fw --install`.
+      Reason stated in the comment: Phase 153's write-path fix is in the **firmware**, and the
+      host's `dev test` write step is still flagless, so against older firmware the gh#20 failure
+      reproduces exactly as before. **AMENDED 2026-08-21** (152-CONTEXT.md D-05; 152-RESEARCH.md
+      §B-8).
 
 - [ ] **OUT-03**: gh#11's 2024 report is answered in light of the FIX-06 conflation finding, which is
       its actual shape, rather than left silently superseded.
 
-- [ ] **OUT-04**: The release notes announce `write --sdp-relock` and `lock-status` as shipped in the
-      version that actually contains them, and correct the forward-looking wording v1.30 left behind.
+- [ ] **OUT-04**: The release notes announce **`lock-status`** as shipped in the version that
+      actually contains it, correct the forward-looking wording v1.30 left behind, and state the
+      deferred deliberate-protection command's **withdrawal** explicitly — naming Backlog **999.28**
+      — rather than announcing it or leaving it unmentioned. **AMENDED 2026-08-21** (152-CONTEXT.md
+      D-05; ROADMAP criterion 4 amended 2026-08-20) — pre-amendment text retained here as the
+      **negative case**, the second instance of criterion 5's fifth forbidden class living inside
+      this project's own records: *"announce `write --sdp-relock` and `lock-status` as shipped in
+      the version that actually contains them"*.
 
-- [ ] **OUT-05**: No outward artifact claims AT28C silicon validation. Every claim about `0x0D`
-      behaviour is paired with its explicit non-claim, per the honesty-ledger discipline v1.22, v1.23
-      and v1.31 all closed under.
+- [ ] **OUT-05**: No outward artifact claims AT28C silicon validation. A **fail-provable** claim
+      gate, seen to fail on a planted violation before any pass is believed, rejects (a) AT28C
+      silicon validation, (b) page-size validation on silicon, (c) a `0x0D` **graduation**, (d) a
+      `support_status` change, and (e) the deferred deliberate-protection command named as a
+      shipped or available command. Every permitted `0x0D` claim is paired with its explicit
+      non-claim, per the honesty-ledger discipline v1.22, v1.23 and v1.31 all closed under —
+      **narrowed per D-11** to claims about `0x0D` write-path correctness or validation status, with
+      statements of shipped, user-visible command behaviour explicitly exempt. A future promotion of
+      Backlog 999.28 **must reverse class (e) in the same change that lands the feature**, or the
+      gate will reject the very release notes announcing it. **AMENDED 2026-08-21** (152-CONTEXT.md
+      D-11).
 
 ### Write-Path Erase Policy (ERASE)
 
