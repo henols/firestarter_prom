@@ -5,15 +5,15 @@ milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 153
 current_phase_name: write-path-erase-policy
 status: executing
-stopped_at: Completed 153-13-PLAN.md
-last_updated: "2026-08-21T10:31:33.456Z"
+stopped_at: Completed 153-14-PLAN.md
+last_updated: "2026-08-21T10:50:14.897Z"
 last_activity: 2026-08-21
 last_activity_desc: Phase 153 execution started
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 52
-  completed_plans: 49
+  completed_plans: 50
   percent: 57
 ---
 
@@ -86,7 +86,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 153 (write-path-erase-policy) — EXECUTING
-Plan: 14 of 16
+Plan: 15 of 16
 Status: Ready to execute
 Plans: 16 plans, 12 waves, 41 tasks — plan-checker PASSED (0 blockers), coverage 9/9 (ERASE-01..09)
 Note: 153 runs BEFORE 152 (D-08). Phase 152 stays BLOCKED until 153 is complete, and must NOT be run under --auto/--chain.
@@ -2072,6 +2072,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 153-12]: ERASE-06 read as 'must not contradict', not 'must derive from' (D-07 decomposition) -- zero ic_layout.py edit owed — 152-CONTEXT.md D-07 names the pre-153 state as a contradiction, not a missing derivation
 - [Phase 153-12]: ERASE-05 discharged as pure non-regression assertion across CLI/host/firmware, no implementation task — the blank chain already worked end to end; this plan proves scope and reachability, not new behavior
 - [Phase 153-13]: ERASE-01/02/03 flipped to Complete — PROTOCOLS.md sec 1.6 no longer states -b is required to write a non-blank AT28C part; both docs carry the software-proven-and-unvalidated honesty statement
+- [Phase 153]: MERGE05_ERASE_STANDALONE_EXEMPTION_BYTES sized at exactly 130 B (leonardo BASE-01 delta 724 minus existing 594), never rounded up (153-14)
+- [Phase 153]: RAM allowance/constant left untouched -- measured RAM delta is 0 B on all three targets, verifying D-153-01's RAM-neutral erase form (153-14)
+- [Phase 153]: 3 legs in tests/test_check_size_baseline.py left failing on purpose for plan 15 to re-plant onto a new *_v153* fixture family (153-14)
 
 ## Performance Metrics
 
@@ -2380,11 +2383,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 153 P11 | 45min | 2 tasks | 3 files |
 | Phase 153 P12 | 75min | 3 tasks | 3 files |
 | Phase 153 P13 | 25min | 2 tasks | 2 files |
+| Phase 153 P14 | 55min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-21T10:31:33.429Z
-**Stopped at:** Completed 153-13-PLAN.md
+**Last session:** 2026-08-21T10:50:03.353Z
+**Stopped at:** Completed 153-14-PLAN.md
 **Resume file:** None
 
 **Gitlink gap from Phase 149's close — CLOSED 2026-08-20.** Phase 149 landed its dual-repo work but never bumped meta's submodule gitlinks, so meta HEAD asserted "Phase 149 COMPLETE and VERIFIED — page-size seam landed across both repos" while pointing at `firestarter 7f6afc65` / `firestarter_app b142c0e6` — trees containing none of it. Bumped to `firestarter 6e3f90a3` (6 commits, all `149-*`) and `firestarter_app 9cc57c75` (13 commits: 8 `149-*` plus the 5 `fw` port-targeting fixes, which `git cherry` marks `-` against `origin/beta` — patch-identical to PR #52's merged work under different SHAs, so nothing unreviewed rode along). Both sub-repos verified on `gsd/v1.32-at28c-write-path-root-cause-report-provenance` with clean tracked trees. Restores the per-plan bump convention this milestone set at `chore(147-02)`/`chore(147-05)`; the branches are local-only, as Phase 147's were when it bumped, and become reachable at the close via the PR to `beta`.

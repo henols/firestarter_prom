@@ -522,7 +522,7 @@ Plans:
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
-- [ ] 153-14-PLAN.md — ERASE-08: cold triple-target measurement, `MERGE05_ERASE_STANDALONE_EXEMPTION_BYTES`, baseline revision *(firestarter)*
+- [x] 153-14-PLAN.md — ERASE-08: cold triple-target measurement, `MERGE05_ERASE_STANDALONE_EXEMPTION_BYTES`, baseline revision *(firestarter)*
 
 **Wave 11** *(blocked on Wave 10 completion)*
 
