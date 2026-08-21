@@ -105,3 +105,106 @@ are pinned against the tree, not against this document's prose.
 
 **ERASE-09 closing statement (f):** the change this section funds is
 **software-proven and unvalidated on silicon**.
+
+---
+
+## D-153-02 — The 0x0D chip erase emits an SDP-disable prefix
+
+**Settled: yes — emit SDP-disable first.** The reasoning is an asymmetry argument, not an appeal
+to the application note's silence:
+
+- Atmel AN 0544B Rev. 0544B-10/98 (*Software Chip Erase*) is **silent** on whether the six-byte
+  chip-erase code is decoded on a software-data-protected part. It states only that protection
+  **remains enabled** *after* the erase, and that no byte loads are allowed *after* the six-byte
+  code.
+- If the code is **not** decoded while protected, the failure mode is an erase that reports OK
+  having erased nothing. On protocol `0x0D` that failure is **undetectable**: Phase 151
+  established that the SDP protection state is unreadable on this family, so no oracle exists
+  that could ever catch a phantom erase. **Silence is not permission when the failure mode is
+  invisible.**
+- The cost of being wrong in the chosen direction is six extra bus writes and one `t_WC` wait on
+  an already-unprotected part: harmless. The cost of being wrong in the other direction is a
+  silent no-op destructive command — the exact phantom-erase class Phase 121 D-12 fought and the
+  class Phase 119 D-06's op-layer guard exists for.
+- Consistency: `eeprom28c_write_init` already SDP-disables before every page load, so an erase
+  that did not would be the only bus-writing operation on this protocol that skips it.
+
+**Mechanism:** reuse `eeprom28c_sdp_unlock_execute(handle)` verbatim as the prefix. It is already
+the SDP-disable emit (`eeprom28c_emit_sdp_sequence_timed` over `EEPROM_SDP_DISABLE`) plus
+`eeprom28c_wait_for_sdp_completion`. It reuses the existing `EEPROM_SDP_DISABLE` `.data` table, so
+it costs **0 B additional RAM**, and it reuses the existing `MSG_INFO_SDP_UNLOCK` /
+`MSG_INFO_SDP_UNLOCK_DONE_US` message ids, so **no new catalog id is minted**.
+
+**Consequence binding on plan 03:** because `eeprom28c_wait_for_sdp_completion` ends in reads
+through `handle->firestarter_get_data`, the data bus is left as an input after the prefix runs.
+`rurp_set_data_output()` **must** be called after the prefix and before the first erase write.
+
+**Resulting observable stream shape, binding on plan 04:** the SDP-disable six-write stream is
+followed by the chip-erase six-write stream, so the **last** command payload written is the
+chip-erase terminal byte (`0x10`) and the **sixth** payload overall is the SDP-disable terminal
+byte (`0x20`). Do **not** assert a wall-clock property anywhere in a native test: native stubs do
+not stub `delay()` and record no time, so no test may claim a timing relationship between the
+prefix and the erase writes.
+
+---
+
+## D-153-03 — GATE-03: the stated mechanism does not hold; the real control is a negative source scan
+
+Stated in writing, without softening, as L-03 requires:
+
+- The roadmap's criterion 3 implies that `tools/check_dispatch.py` is what prevents the hardware
+  12 V-on-OE path from being wired into `0x0D`. **It is not.** That checker is
+  **database-and-dispatch-table** scoped: its GATE-03 guard fires only on a `handler ==
+  "configure_eprom"` paired with a no-VPP-pin pinout (`no_vpp_pin_pinouts`, built from the pinout
+  file). It **structurally cannot** observe a control-register write inside a handler body —
+  `configure_eeprom28c` and `eeprom28c_erase_execute` are C++ source, entirely outside this
+  Python checker's DB/dispatch-table scan.
+- The hardware path already exists in this tree, at `flash_5v_page.cpp` lines 196-231
+  (`flash_5v_page_erase_execute`, which asserts `CTRL_VPE_ENABLE` and the VPP boost regulator) —
+  the very file an executor edits for ERASE-02. So **proximity, not absence, is the risk**.
+- Therefore the **primary** GATE-03 control for this phase is a **brace-matched negative source
+  scan** of `eeprom28c_erase_execute`'s body, asserting zero occurrences of the VPP/VPE
+  control-register tokens (`CTRL_VPE`, `CTRL_VPP_REGULATOR_ENABLE`,
+  `firestarter_set_control_register`), planned as a real gate in plan 05, with a
+  planted-violation leg that is **observed to fail** before the gate is trusted.
+- `check_dispatch.py` is nonetheless **not weakened, not exempted and not re-baselined**, and
+  `git diff --quiet -- tools/check_dispatch.py` must hold at phase end. This is recorded as an
+  **independently required invariant**, not the control that prevents the hardware path.
+- **Honest statement for the record:** the software path is chosen because it is the correct
+  engineering choice, and `check_dispatch.py` could not have stopped the wrong one even if it had
+  been implemented.
+
+---
+
+## D-153-04 — erase -b does not get a post-erase blank check on 0x0D (L-05)
+
+**Disposition: not wired.** Reasons:
+
+- ERASE-05 keeps `blank` as its own independent step; wiring a post-erase blank check into
+  `eeprom28c_erase_execute` or via an `operation_end` arm would duplicate that step implicitly.
+- An `operation_end` arm costs flash against a leonardo target that is already at **0 B MERGE-05
+  headroom** — there is no budget for a feature this phase does not require.
+- Both closest sibling protocols decline it: `flash_5v_page` (`0x05`) has **no** `operation_end`
+  arm at all, and `flash_nor_unlock` carries a **commented-out** one — this project's own written
+  record of deliberately *not* wiring a post-erase blank check.
+
+`erase -b` on `0x0D` is therefore a **documented no-op**, rather than a discovered one.
+
+Per RESEARCH A7: the `0x0D` erase is a device-global **chip erase** by construction (the AN 0544B
+sequence erases the whole part) and it **ignores** `erase --sector-address`, which exists for the
+`0x06` sector-erase protocol and has no meaning on a chip-erase-only device.
+
+---
+
+## D-153-05 — erase stays out of write's auto-set path and out of write_init (L-06)
+
+Two dispositions, both recorded:
+
+- **No `FLAG_CAN_ERASE`-gated erase block is added to `eeprom28c_write_init`.** Restoring
+  `FLAG_CAN_ERASE` must **not** cause `write` to start erasing implicitly. Both sibling handlers
+  (`flash_5v_page_write_init`, `flash_nor_unlock_write_init`) have such a block, and an executor
+  mirroring the sibling pattern will be tempted to add one here — this is explicitly rejected.
+  D-07 asks for erase as a **standalone** step, not as part of `write`.
+- **`erase` gains no `--skip-sdp-unlock` option** and stays out of `write`'s D-04
+  `FLAG_SKIP_SDP_UNLOCK` auto-set path; that flag is scoped to `write` by D-17's reasoning. The
+  auto-set behaviour is not silently extended to cover `erase`.
