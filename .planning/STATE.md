@@ -6,14 +6,14 @@ current_phase: 153
 current_phase_name: write-path-erase-policy
 status: executing
 stopped_at: "Phase 153 EXECUTING (started 2026-08-21) — 16 plans / 11 waves as scheduled / 41 tasks, dual-repo. Sequential on the main tree: worktree isolation is OFF for every plan because all 16 touch or build inside the firestarter/firestarter_app submodules, which worktrees leave empty. 153 runs BEFORE 152 (D-08); Phase 152 stays BLOCKED until 153 completes and must NOT be run under --auto/--chain."
-last_updated: "2026-08-21T07:28:29.683Z"
+last_updated: "2026-08-21T07:53:29.030Z"
 last_activity: 2026-08-21
 last_activity_desc: Phase 153 execution started
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 52
-  completed_plans: 39
+  completed_plans: 40
   percent: 57
 ---
 
@@ -86,7 +86,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 153 (write-path-erase-policy) — EXECUTING
-Plan: 4 of 16
+Plan: 5 of 16
 Status: Ready to execute
 Plans: 16 plans, 12 waves, 41 tasks — plan-checker PASSED (0 blockers), coverage 9/9 (ERASE-01..09)
 Note: 153 runs BEFORE 152 (D-08). Phase 152 stays BLOCKED until 153 is complete, and must NOT be run under --auto/--chain.
@@ -2052,6 +2052,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 153]: D-153-03: check_dispatch.py cannot see handler-body register writes; GATE-03's real control is a brace-matched negative source scan
 - [Phase 153]: D-153-04/05: no post-erase blank check on 0x0D; erase stays standalone, out of write_init and write's auto-set path
 - [Phase 153]: 153-02: implemented D-153-05's write-INIT deletion -- no compensating operation state, no erase-on-write block added
+- [Phase 153]: 153-04: Case 25's op-layer drive required a fed-ACK Serial mock + bounded loop (op_execute_simple_operation no longer short-circuits once main is non-NULL)
+- [Phase 153]: 153-04: erase stream cases (31-33) pin head/tail/divergence against in-tree tables; measured full stream length empirically (102 entries, divergence at index 51) before trusting the plan's prediction
 
 ## Performance Metrics
 
@@ -2350,10 +2352,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 153 P01 | 35min | 3 tasks | 1 files |
 | Phase 153 P02 | 40min | 2 tasks | 2 files |
 | Phase 153 P03 | 10min | 3 tasks | 1 files |
+| Phase 153 P04 | 19min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-21T07:28:29.659Z
+**Last session:** 2026-08-21T07:52:49.457Z
 **Stopped at:** Phase 152 context gathered — BLOCKED on precondition: Phase 153 must be created (/gsd-phase) and completed BEFORE 152 runs (D-07/D-08)
 **Resume file:** .planning/phases/152-outward-facing-close-operator-gated/152-CONTEXT.md
 
