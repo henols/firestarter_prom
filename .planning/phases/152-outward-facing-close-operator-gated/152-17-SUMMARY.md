@@ -113,8 +113,11 @@ to — pre-empting a natural misreading.
 It states that the write-path fix lives in the **firmware**, so installing the app update alone does not
 pick it up, and names both install halves. It uses the robust protection-class framing (665 of 746 rows
 resolve to a refusal class, 81 read-permitted) rather than any per-class count. The one exploratory
-`lock-status` run this milestone made, against a W29C040, is called a **probe, never a validation**, with
-the note that it is not even from the family under discussion. The withdrawn re-lock command is named exactly once in the
+`lock-status` run this milestone made is called a **probe, never a validation**, with the note that it is
+not even from the family under discussion. **Correction, 2026-08-21 (see 152-19-SUMMARY and 152-LEDGER
+§process failures):** as published, that paragraph named the part a `W29C040`; the seated part was a
+`W29C020` and no `W29C040` was ever available. Found during plan 152-19's live evidence capture, escalated,
+and corrected in the published body with a visible errata line on an operator decision. The withdrawn re-lock command is named exactly once in the
 body, in its withdrawal sentence, naming Backlog 999.28 with no version promised.
 
 Its "Not established" list is the longer of the two sections: no AT28C part tested, `0x0D` still

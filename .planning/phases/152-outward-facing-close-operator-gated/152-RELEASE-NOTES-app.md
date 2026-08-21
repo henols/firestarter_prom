@@ -40,10 +40,16 @@ against.
 pre-release (`pip install --pre --upgrade firestarter`) and run `firestarter fw --install` against
 a board running `3.0.0b20` or later. Against older firmware the host reports the firmware as
 out of date rather than recognizing the command at all — it is a new command entirely, not an
-existing one that changed shape. The one exploratory run this milestone made, against a W29C040 on
+existing one that changed shape. The one exploratory run this milestone made, against a W29C020 on
 the bench, was a **probe**, never a validation — it exercised the command's mechanics on one part
 that is not from the family this thread is about, and it should not be read as evidence about any
 other chip.
+
+*Corrected 2026-08-21, after this body was first published: this paragraph originally named that part a
+`W29C040`. No `W29C040` was available on the bench and none was ever seated — the part actually run was a
+`W29C020`. The misattribution came from this milestone's own planning record, not from the bench log, which
+had it right. Nothing else in these notes depended on it, and neither part belongs to the AT28C family this
+release is about.*
 
 ### The write path no longer blank-checks before writing
 

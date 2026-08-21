@@ -323,9 +323,9 @@ milestone's own record — and this phase's own execution — keeps visible:
    specifically on this one question, resolved it: credit both reporters by name (`152-16-SUMMARY.md`,
    cited).
 
-5. **A misattribution of a physical part in a published body was not caught, and is now live and
-   uncorrectable in this artifact.** The published app release body (`3.0.0b23`, re-read live this
-   plan) states that this milestone's one exploratory `lock-status` bench probe was run "against a
+5. **A misattribution of a physical part reached a published body, and was corrected there after
+   publication.** The app release body (`3.0.0b23`) was published stating that this milestone's one
+   exploratory `lock-status` bench probe was run "against a
    W29C040." Re-measured live against the primary bench record, `151-BENCH.md`: the physically-seated
    part for that probe (Leg B) was a **W29C020** — `151-BENCH.md`'s own text records the operator
    stating no W29C040 sample was available, that Leg C (the true W29C040 probe) **did not run**, and
@@ -339,9 +339,22 @@ milestone's own record — and this phase's own execution — keeps visible:
    **This ledger's non-claim that the probe was "not even from the family under discussion" remains
    true regardless of which algorithm-5 part it names** — W29C020 and W29C040 are both outside the
    AT28C / `0x0D` family this milestone is about — so no claim about the write path is affected. The
-   part-name error itself cannot be corrected in this already-published body under this phase's own
-   prohibition against altering a published artifact's stored draft; it is recorded here, plainly,
-   rather than left for a future reader to discover unassisted.
+   **RESOLVED 2026-08-21, after this ledger entry was first written.** The error was escalated to the
+   operator, who ruled that it be corrected with a visible errata line rather than silently or not at
+   all. `3.0.0b23`'s body now reads `W29C020` and carries a dated errata paragraph stating what it
+   originally said, that no `W29C040` was available or ever seated, and that the misattribution came
+   from this milestone's planning record rather than the bench log. Verified on the published body:
+   the phrase "against a W29C040 on the bench" occurs 0 times, "against a W29C020 on the bench" once,
+   and the two surviving `W29C040` mentions are both inside the errata paragraph. Body length 9261 →
+   9707; prerelease flag and target commit unchanged.
+
+   Two things this entry deliberately does **not** claim. First, the correction does not undo the
+   process failure: a false statement about which physical part was on the bench was published, and
+   was caught only during this ledger's own live evidence capture, four artifacts after the draft that
+   introduced it. Second, **the upstream source is still wrong** — `152-CONTEXT.md` continues to cite
+   "the W29C040 run" and "the W29C040 probe result", and the operator chose the errata-only option over
+   also amending it, so any future phase citing that CONTEXT will inherit the same error unless it
+   checks `151-BENCH.md` directly. `151-BENCH.md` is the primary record and it was right throughout.
 
 6. **D-03's per-artifact blocking operator wording review was delegated, not performed, across all five
    outward artifacts.** The operator authorised the full posting sequence, granted the necessary `gh`
