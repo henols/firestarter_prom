@@ -502,7 +502,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 153-06-PLAN.md — ERASE-02: locate and remove the `0x05` sibling conditional, with a new write-INIT case *(firestarter)*
+- [x] 153-06-PLAN.md — ERASE-02: locate and remove the `0x05` sibling conditional, with a new write-INIT case *(firestarter)*
 
 **Wave 7** *(blocked on Wave 6 completion)*
 

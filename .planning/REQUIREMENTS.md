@@ -397,7 +397,7 @@ before Phase 152** (D-08).
 | OUT-04 | Phase 152 | Pending |
 | OUT-05 | Phase 152 | Pending |
 | ERASE-01 | Phase 153 | In Progress |
-| ERASE-02 | Phase 153 | Pending |
+| ERASE-02 | Phase 153 | In Progress |
 | ERASE-03 | Phase 153 | Pending |
 | ERASE-04 | Phase 153 | Complete |
 | ERASE-05 | Phase 153 | Pending |
