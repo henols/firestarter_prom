@@ -490,7 +490,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 153-03-PLAN.md — ERASE-04/03fw: `AT28C_TEC_MAX_MS`, `eeprom28c_erase_execute` (software six-byte erase, SDP-disable prefix, 0 B RAM), `case CMD_ERASE:` arm *(firestarter)*
+- [x] 153-03-PLAN.md — ERASE-04/03fw: `AT28C_TEC_MAX_MS`, `eeprom28c_erase_execute` (software six-byte erase, SDP-disable prefix, 0 B RAM), `case CMD_ERASE:` arm *(firestarter)*
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
