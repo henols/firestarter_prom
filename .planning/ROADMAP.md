@@ -517,7 +517,7 @@ Plans:
 
 **Wave 14** *(blocked on Wave 13 completion)*
 
-- [ ] 152-20-PLAN.md — OUT-01…05: extend the gate over the SUMMARY files, flip the five checkboxes on named evidence, merge meta to `beta`, complete the handoff *(wave 14)*
+- [x] 152-20-PLAN.md — OUT-01…05: extend the gate over the SUMMARY files, flip the five checkboxes on named evidence, merge meta to `beta`, complete the handoff *(wave 14)*
 
 **Cross-cutting constraints:**
 
