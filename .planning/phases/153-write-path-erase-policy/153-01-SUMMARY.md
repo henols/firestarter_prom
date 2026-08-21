@@ -33,7 +33,11 @@ key-decisions:
   - "No post-erase blank check wired on 0x0D (erase -b is a documented no-op); erase --sector-address ignored on this chip-erase-only protocol"
   - "erase stays standalone: no FLAG_CAN_ERASE-gated block added to eeprom28c_write_init, no --skip-sdp-unlock option on erase"
 
-requirements-completed: [ERASE-04, ERASE-08, ERASE-09]
+requirements-completed: []  # This plan owns NO requirement flips (stated verbatim in its own
+  # objective: "Requirement flips owned by this plan: none"). It discharges only the
+  # stated-in-writing halves of ERASE-04/ERASE-08/ERASE-09 and unblocks ERASE-01/02/03 for later
+  # plans to implement in code; marking any of these Complete here would be premature (see
+  # project lesson on executors prematurely marking multi-plan requirements complete).
 
 coverage:
   - id: D1
