@@ -469,11 +469,11 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 152-05-PLAN.md — OUT-01: `152-GH12-COMMENT.md`, adapted from the 137 donor with the diff committed (D-14) *(wave 3)*
-- [ ] 152-06-PLAN.md — OUT-02: `152-GH21-COMMENT.md`, built on the reporter's own pasted report body *(wave 3)*
-- [ ] 152-07-PLAN.md — OUT-03: `152-GH11-COMMENT.md`, the conflation answer plus the discharged 2026-08-03 commitment *(wave 3)*
-- [ ] 152-08-PLAN.md — OUT-04: the protection-class re-derivation (`152-CLASS-SIZES.md`) and `152-RELEASE-NOTES-app.md` *(wave 3)*
-- [ ] 152-09-PLAN.md — OUT-04: `152-RELEASE-NOTES-fw.md`, with the measured assets and the two separately-labelled size figures *(wave 3)*
+- [x] 152-05-PLAN.md — OUT-01: `152-GH12-COMMENT.md`, adapted from the 137 donor with the diff committed (D-14) *(wave 3)*
+- [x] 152-06-PLAN.md — OUT-02: `152-GH21-COMMENT.md`, built on the reporter's own pasted report body *(wave 3)*
+- [x] 152-07-PLAN.md — OUT-03: `152-GH11-COMMENT.md`, the conflation answer plus the discharged 2026-08-03 commitment *(wave 3)*
+- [x] 152-08-PLAN.md — OUT-04: the protection-class re-derivation (`152-CLASS-SIZES.md`) and `152-RELEASE-NOTES-app.md` *(wave 3)*
+- [x] 152-09-PLAN.md — OUT-04: `152-RELEASE-NOTES-fw.md`, with the measured assets and the two separately-labelled size figures *(wave 3)*
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
