@@ -86,7 +86,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 152 — Outward-Facing Close (operator-gated) — EXECUTING
-Plan: 18 of 20 complete (wave 12 of 14 done) — ALL FIVE outward artifacts POSTED
+Plan: 19 of 20 complete (wave 13 of 14 done) — honesty ledger written, gate armed at all 8 artifacts
 Status: Executing Phase 152 — wave 5 done: both sub-repos merged to `beta` via PR #53 as two-parent MERGE COMMITS (fw a1f474b5, app 8f2e8d7d); two pre-releases cut; `gh pr merge` needed an operator permission grant and was ultimately run by the orchestrator (deviation recorded in 152-11-SUMMARY.md). Next: wave 6 / 152-12 READS the cut versions. ⚠ OPERATOR-GATED — must NOT run under --auto/--chain; waves 8-12 each carry a blocking wording review.
 Next: /gsd-execute-phase 152 (no --auto, no --chain)
 Plans: 20 plans, 14 waves — plan-checker PASSED (0 blockers), coverage 5/5 (OUT-01..05), decisions 15/15 (D-01..D-15)

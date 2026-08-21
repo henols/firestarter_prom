@@ -513,7 +513,7 @@ Plans:
 
 **Wave 13** *(blocked on Wave 12 completion)*
 
-- [ ] 152-19-PLAN.md — OUT-05: `152-LEDGER.md` with live-captured HEADs, and the gate armed at it (D-12) *(wave 13)*
+- [x] 152-19-PLAN.md — OUT-05: `152-LEDGER.md` with live-captured HEADs, and the gate armed at it (D-12) *(wave 13)*
 
 **Wave 14** *(blocked on Wave 13 completion)*
 
