@@ -349,10 +349,18 @@ before Phase 152** (D-08).
       the USB bootloader is bricked, and no gate catches it. Any growth here needs its own named
       exemption, and a regression is a blocker rather than a note.
 
-- [ ] **ERASE-09**: The change is stated **software-proven and unvalidated on silicon**, in those
+- [x] **ERASE-09**: The change is stated **software-proven and unvalidated on silicon**, in those
       terms. Removing a blank check is not evidence the `0x0D` write path works; no ERASE requirement
       asserts it does, graduates `0x0D` out of `UNVERIFIED`, changes any `support_status`, or requires
       an AT28C part.
+
+      *(2026-08-21: closed by `153-16` — `153-RECORD.md` carries the verbatim phrase (D-153-01(f),
+      `firestarter/CLAUDE.md`, `doc/PROTOCOLS.md` §1.6, `doc/protocol-id.md`, and the record itself),
+      states plainly what was NOT proven (0x0D stays UNVERIFIED, no support_status moved,
+      gh#21/#32/#11/#12 stay OPEN, no AT28C part was used), and both machine gates
+      (`check_no_community_support_status_write.py`, `check_diagnostic_report_claims.py`) exit 0
+      with `chip_database.json` byte-unchanged. Last claimant of the two (`153-01`, `153-16`).
+      Flipped — all nine ERASE requirements now Complete.)*
 
 ---
 
@@ -417,7 +425,7 @@ before Phase 152** (D-08).
 | ERASE-06 | Phase 153 | Complete |
 | ERASE-07 | Phase 153 | Complete |
 | ERASE-08 | Phase 153 | Complete |
-| ERASE-09 | Phase 153 | Pending |
+| ERASE-09 | Phase 153 | Complete |
 
 **Coverage:**
 

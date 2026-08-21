@@ -189,7 +189,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 - ⏸ **Phase 150: Deliberate Protection — `write --sdp-relock`** — **DEFERRED 2026-08-20 (operator decision) → Backlog 999.28.** Checkbox deliberately removed so `phase.complete` after Phase 149 advances to Phase 151, not into a deferred phase with no directory. Number NOT reused — Phases 151/152 keep their numbers. RELOCK-01…06 and RELOCK-08 leave v1 scope; **DATA-06 is retained and re-homed to Phase 151** on its advisory branch. See `### Phase 150` for the full record and the outward-facing obligation it creates for Phase 152.
 - [x] **Phase 151: Protection Readability — `lock-status`** — a hand-curated family-level protection table with per-family citations, `dev lock-status <chip>` (beta-only per CONTEXT D-01, corrected 2026-08-20 from a top-level command) reporting state where the family documents it readable, graceful reasoned refusal where it is not (`0x0D`/SDP among them), and output that cannot be read as a guarantee it does not make; plus `protect_on_after` documented as an advisory upstream hint with no runtime effect. (LOCK-01, LOCK-02, LOCK-03, LOCK-04, DATA-06) (completed 2026-08-20)
 - > **⚠ CHECKLIST ORDER IS DELIBERATELY NON-NUMERIC HERE.** Phase 153 is listed before Phase 152 because next-phase resolution reads the first unchecked box, not the `**Blocks**` prose. D-08 requires 153 to complete before 152 starts; leaving them in numeric order would make any chain or `phase.complete` advance into the outward-facing close first. **Do not "fix" this back to numeric order.** *(Reordered 2026-08-20.)*
-- [ ] **Phase 153: Write-Path Erase Policy — no pre-write blank check on auto-erasing protocols, standalone erase** — ⚠ **RUNS BEFORE PHASE 152** (added 2026-08-20 from Phase 152's discuss session, D-07/D-08): on `0x0D` and `0x05`, which auto-erase per page during the write, `write` performs no blank check at all, and `erase` becomes a standalone step (`CMD_ERASE` arm + `FLAG_CAN_ERASE` restored); `blank` already works. Implements the **software** 6-byte erase, not the datasheet's 12 V-on-OE path — GATE-03 stays intact. Dual-repo lockstep. (ERASE-01…09)
+- [x] **Phase 153: Write-Path Erase Policy — no pre-write blank check on auto-erasing protocols, standalone erase** — ⚠ **RUNS BEFORE PHASE 152** (added 2026-08-20 from Phase 152's discuss session, D-07/D-08): on `0x0D` and `0x05`, which auto-erase per page during the write, `write` performs no blank check at all, and `erase` becomes a standalone step (`CMD_ERASE` arm + `FLAG_CAN_ERASE` restored); `blank` already works. Implements the **software** 6-byte erase, not the datasheet's 12 V-on-OE path — GATE-03 stays intact. Dual-repo lockstep. (ERASE-01…09)
 - [ ] **Phase 152: Outward-Facing Close (operator-gated)** — post the owed gh#12 reply stating both halves plainly, comment gh#21 (#32 folded) with what changed / what is unproven / a request for a fresh now-attributable run, answer gh#11 in FIX-06 terms, correct the release notes, and pair every `0x0D` claim with its explicit non-claim behind a fail-provable claim gate. (OUT-01, OUT-02, OUT-03, OUT-04, OUT-05)
 
 ## Phase Details
@@ -530,7 +530,7 @@ Plans:
 
 **Wave 12** *(blocked on Wave 11 completion)*
 
-- [ ] 153-16-PLAN.md — ERASE-09 phase record + the D-15 `PROJECT.md`/ROADMAP corrections + the full phase gate *(meta)*
+- [x] 153-16-PLAN.md — ERASE-09 phase record + the D-15 `PROJECT.md`/ROADMAP corrections + the full phase gate *(meta)*
 
 **Record corrections this phase forces** (152-CONTEXT.md **D-15**): `PROJECT.md` and this roadmap's v1.32 header both say v1.32 has **two** firmware-touching workstreams. With 153 added it is **three** — Phases 149, 151 and 153. `PROJECT.md`'s workstream table gains a row for 153.
 
@@ -571,15 +571,15 @@ Plans:
 | OUT-03 | Phase 152 | Pending |
 | OUT-04 | Phase 152 | Pending |
 | OUT-05 | Phase 152 | Pending |
-| ERASE-01 | Phase 153 | Pending |
-| ERASE-02 | Phase 153 | Pending |
-| ERASE-03 | Phase 153 | Pending |
-| ERASE-04 | Phase 153 | Pending |
-| ERASE-05 | Phase 153 | Pending |
-| ERASE-06 | Phase 153 | Pending |
-| ERASE-07 | Phase 153 | Pending |
-| ERASE-08 | Phase 153 | Pending |
-| ERASE-09 | Phase 153 | Pending |
+| ERASE-01 | Phase 153 | Complete |
+| ERASE-02 | Phase 153 | Complete |
+| ERASE-03 | Phase 153 | Complete |
+| ERASE-04 | Phase 153 | Complete |
+| ERASE-05 | Phase 153 | Complete |
+| ERASE-06 | Phase 153 | Complete |
+| ERASE-07 | Phase 153 | Complete |
+| ERASE-08 | Phase 153 | Complete |
+| ERASE-09 | Phase 153 | Complete |
 
 **Mapped: 42/42 requirements ✓ — of which 34 in v1 scope** (7 RELOCK requirements moved to Backlog 999.28 by the 2026-08-20 Phase 150 deferral; DATA-06 retained and re-homed to Phase 151; **ERASE-01…09 added 2026-08-20 with Phase 153**). No orphans, no duplicates. **RELOCK-07 is deliberately absent**: it already shipped in v1.30 Phase 137 and is not repeated here, so the ID gap between RELOCK-06 and RELOCK-08 is intentional and must not be filled by an invented requirement.
 
