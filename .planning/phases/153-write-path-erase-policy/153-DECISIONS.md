@@ -208,3 +208,58 @@ Two dispositions, both recorded:
 - **`erase` gains no `--skip-sdp-unlock` option** and stays out of `write`'s D-04
   `FLAG_SKIP_SDP_UNLOCK` auto-set path; that flag is scoped to `write` by D-17's reasoning. The
   auto-set behaviour is not silently extended to cover `erase`.
+
+---
+
+## Pre-change measured position (2026-08-21, cold)
+
+Reproduced this session. For each of `uno`, `uno328pb`, `leonardo`, in that order, the build
+directory was removed with `rm -rf firestarter/.pio/build/<env>` and exactly one
+`pio run -e <env>` was then run, output teed to a scratch log under the session scratchpad
+(`cold_uno.log`, `cold_uno328pb.log`, `cold_leonardo.log`). No file in `firestarter/` was modified
+by this measurement step.
+
+| Target | Flash used | Flash total | RAM used | RAM total | Byte-identical to `size_baseline.json`? |
+|---|---|---|---|---|---|
+| uno | 25418 | 32768 | 1575 | 2048 | yes |
+| uno328pb | 25468 | 32768 | 1581 | 2048 | yes |
+| leonardo | 27500 | 32768 | 2016 | 2560 | yes |
+
+All three targets reproduced **byte-identical** to the committed `size_baseline.json`'s
+`avr_targets` block. No target failed to reproduce, so there is no plan-14 blocker to flag from
+this table.
+
+**Delta against BASE-01** (`size_baseline_base01.json`: uno 24824, uno328pb 24874, leonardo
+26906, all flash):
+
+| Target | Flash delta vs BASE-01 | MERGE-05 allowance | Headroom |
+|---|---|---|---|
+| uno | +594 | uno-class allowance (`MERGE05_UNO_CLASS_FLASH_BAND` = 64 B plus the same three named exemptions) | not the binding case — leonardo is |
+| uno328pb | +594 | same uno-class allowance as uno | not the binding case — leonardo is |
+| leonardo | **+594** | `0 (leonardo band) + 96 (MERGE05_DEFECT_FIX_EXEMPTION_BYTES) + 210 (MERGE05_PAGE_SIZE_SEAM_EXEMPTION_BYTES) + 288 (MERGE05_LOCK_STATUS_READ_EXEMPTION_BYTES) = 594 B` | **0 B** — `+594 <= 594 = band0 + exempt96 + seam210 + lock288` |
+
+The **Caterina** cliff headroom, stated as a separate figure and labelled **UNGUARDED**:
+`28672 - 27500 (leonardo flash used) = 1172 B`. This is not a MERGE-05 quantity — `board_upload.
+maximum_size` was raised to the real 32768 B on all three AVR envs by quick task `260820-a7w`, so
+the linker's own protection of the Caterina USB bootloader boundary (28672 B) no longer exists;
+nothing but this recorded figure stands between plan 14's delta and a bricked leonardo.
+
+**Native test counts**, both environments run this session:
+
+| Env | Cases | Suites |
+|---|---|---|
+| `native` | 163 | 17 |
+| `native_nodevtools` | 163 | 17 |
+
+Both agree with each other and with `size_baseline.json`'s `native_envs` block (163/17 each).
+
+**Host suite**, run from `firestarter_app/` with `-o addopts=""` (repo `addopts` is `-ra -q`;
+doubling `-q` would suppress the count line):
+`pytest tests/ --cov=firestarter --cov-report=term-missing --cov-fail-under=70 -o addopts=""`
+
+Result: **1806 passed**, 1 warning, in 216.60 s. Coverage: **83.61%** (required 70%, reached).
+32 snapshot-report cases passed within that total.
+
+`git diff --quiet` in `firestarter/` succeeds: this measurement task changed no source file in
+the firmware repo. `firestarter_app/` was not touched by this task either — the host run is a
+read-only test invocation.
