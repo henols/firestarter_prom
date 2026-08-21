@@ -3,24 +3,25 @@ gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 152
-current_phase_name: Outward-Facing Close (operator-gated) — LAST phase of v1.32
-status: milestone-phases-complete
-stopped_at: Completed 152-20-PLAN.md — Phase 152 (Outward-Facing Close) CLOSED and VERIFIED 5/5. All v1.32 phases are complete (150 deferred to Backlog 999.28) and all 35 requirements are checked. Ready for milestone close.
-last_updated: "2026-08-21T19:16:42.360Z"
+current_phase_name: Outward-Facing Close (operator-gated) — LAST phase of v1.32, milestone CLOSED
+status: milestone-complete
+stopped_at: Milestone v1.32 CLOSED and archived 2026-08-21. Closeout type override_closeout (Phase 150 deferred + the 9 pre-existing audit-open carry-forwards). Next step is /gsd-new-milestone.
+last_updated: "2026-08-21T19:29:32.260Z"
 last_activity: 2026-08-21
-last_activity_desc: "Phase 152 (Outward-Facing Close) CLOSED 2026-08-21, verified 5/5. Five public artifacts published: gh#12/gh#21/gh#11 comments and both release bodies (app 3.0.0b23, fw 3.0.0b20). All three repos merged to beta (fw PR#53 a1f474b5, app PR#53 8f2e8d7d, meta PR#38 9e154847 — all two-parent merge commits). ⚠ phase.complete auto-advanced current_phase to 153, which is ALREADY CLOSED (153 ran out of number order by design, D-07/D-08) — hand-corrected back to 152, the last phase actually executed. ⚠ phase.complete also clobbered Phase 11 plan count (6/6 -> 20/20); repaired. NEXT: milestone close — the tail after meta PR#38 is NOT on beta; see 152-MERGE-RECORD.md TAIL section, and do NOT re-merge either sub-repo."
+last_activity_desc: "Milestone v1.32 (AT28C Write-Path Root Cause & Report Provenance) CLOSED and archived 2026-08-21 — 6 phases executed (147-149, 151-153), 72 plans, 35/35 in-scope requirements. Roadmap + requirements archived to .planning/milestones/v1.32-*; REQUIREMENTS.md removed via git rm; tagged v1.32; submodule gitlinks re-pinned to each sub-repo's origin/beta tip (fw 88d204a5, app 86f85d77); the 4-commit meta tail pushed onto beta per 152-MERGE-RECORD.md. Neither sub-repo was re-merged — git cherry origin/beta HEAD was already empty in both."
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 72
   completed_plans: 72
   percent: 86
+  note: "6 of 7 phases EXECUTED; the 7th (Phase 150) was deferred to Backlog 999.28 by operator decision 2026-08-20 and was never planned or executed. 86% is the raw phase-count ratio, not an unfinished-work signal — all 35 in-scope requirements are Complete."
 ---
 
 # Project State
 
 **Project:** Firestarter — Protocol-Aware Programming Architecture
-**Updated:** 2026-08-05
+**Updated:** 2026-08-21
 
 ## Project Reference
 
@@ -30,15 +31,20 @@ See: `.planning/PROJECT.md` (updated 2026-08-18 — v1.32 started)
 authoritative dispatch key end to end. v1.32 turns that key on the project's own diagnostics: a
 community `dev test` report must be attributable to the firmware that produced it before any
 protocol-`0x0D` write-path claim can be made about it.
-**Current focus:** Phase 152 — Outward-Facing Close (operator-gated) — **EXECUTING** (started 2026-08-21): 20 plans / 14 waves, OUT-01..05. Claim gate built w1-2, armed at the real artifacts w7, first public post w8; both beta merges w5 and the cut-version read w6 precede either release-body post (w11/w12). ⚠ OPERATOR-GATED — must NOT run under --auto/--chain.
+**Current focus:** **None — v1.32 is CLOSED (2026-08-21).** Awaiting `/gsd-new-milestone`. The next milestone starts with fresh requirements: `.planning/REQUIREMENTS.md` was removed at this close and the v1.32 copy lives at `.planning/milestones/v1.32-REQUIREMENTS.md`.
 
-**v1.32 AT28C Write-Path Root Cause & Report Provenance** — ACTIVE (activated 2026-08-18, ~~folding Backlog
+**v1.32 AT28C Write-Path Root Cause & Report Provenance** — ✅ **SHIPPED 2026-08-21** (activated 2026-08-18, ~~folding Backlog
 **999.28**~~ — **the 999.28 fold was reversed 2026-08-20**: Phase 150 (`write --sdp-relock`) was deferred
 back to that backlog item by operator decision at the discuss step, for the second time (v1.30 deferred it
 as Phase 135). See PROJECT.md §"⏸ Phase 150 … DEFERRED" for the record and the outward-facing obligation it
 creates for Phase 152; Backlog **999.29** is partially addressed and explicitly NOT retired — v1.32 removes the
-blocker to diagnosing the AT28C256 write-path failure and answers it publicly, but does not diagnose it). **Mostly host-side; one firmware-touching
-workstream** (the page-size seam) requiring dual-repo lockstep. Phase numbering continues at
+blocker to diagnosing the AT28C256 write-path failure and answers it publicly, but does not diagnose it). **Mostly host-side; THREE firmware-touching
+workstreams** — the page-size seam (Phase 149), the protection read (Phase 151) and the write-path
+erase policy (Phase 153) — each requiring dual-repo lockstep. *(Corrected 2026-08-21 at the
+milestone close: this sentence said "one … (the page-size seam)". Phase 151's firmware scope was
+established at its own discuss step and Phase 153 was added mid-milestone from Phase 152's discuss
+session; ROADMAP.md and PROJECT.md were corrected to three by Plan 153-16, and this file was the
+remaining stale copy.)* Phase numbering continues at
 **Phase 147** (v1.31 ran 138–146). The v1.24–v1.29 slots are left byte-unchanged so by-number
 cross-references keep resolving.
 
@@ -78,20 +84,29 @@ root-cause pass then found why that question is currently unanswerable:
   into ROADMAP.md". 64 is a deliberate conservative floor; AT28C010 needs 128.
 
 **EVIDENCE CEILING (binding).** There is still **no AT28C part in operator inventory** — recorded
-2026-08-04, re-confirmed at kickoff. `0x0D` stays **`UNVERIFIED`**; gh#21, gh#32, gh#11 and gh#12
-stay **OPEN**; no phase may claim silicon proof, and the firmware page-size change ships
-software-proven and says so. The honest outward outcome is a corrected code path plus a request to
+2026-08-04, re-confirmed at kickoff **and again at the close**. `0x0D` stays **`UNVERIFIED`**;
+gh#21, gh#11 and gh#12 stay **OPEN**; no phase may claim silicon proof, and the firmware page-size
+change ships software-proven and says so. *(Corrected 2026-08-21: this sentence also listed **gh#32**
+as OPEN. gh#32 was CLOSED 2026-08-08 with `stateReason: COMPLETED`, folded into gh#21 by the
+operator's own comment ten days before v1.32 opened — so the claim was already false when written.
+Same correction as ROADMAP.md criterion 2 per 152-CONTEXT.md D-05.)* The honest outward outcome is a corrected code path plus a request to
 the reporter for a fresh run — now answerable, because F-01's fix makes that run self-identifying.
 
 ## Current Position
 
-Phase: 153 — Write-Path Erase Policy — no pre-write blank check on auto-erasing protocols, standalone erase
-Plan: Not started
-Status: Executing Phase 152 — wave 5 done: both sub-repos merged to `beta` via PR #53 as two-parent MERGE COMMITS (fw a1f474b5, app 8f2e8d7d); two pre-releases cut; `gh pr merge` needed an operator permission grant and was ultimately run by the orchestrator (deviation recorded in 152-11-SUMMARY.md). Next: wave 6 / 152-12 READS the cut versions. ⚠ OPERATOR-GATED — must NOT run under --auto/--chain; waves 8-12 each carry a blocking wording review.
-Next: /gsd-execute-phase 152 (no --auto, no --chain)
-Plans: 20 plans, 14 waves — plan-checker PASSED (0 blockers), coverage 5/5 (OUT-01..05), decisions 15/15 (D-01..D-15)
-Note: Phase 153 ran BEFORE 152 by design (D-08) and is COMPLETE, so 152's precondition is discharged. Seven plans carry autonomous: false (152-11 merge, 152-14..18 the five public posts, 152-20 close-out); autonomous: false alone is NOT self-protecting, which is why the --auto/--chain prohibition is restated in each. Gate armed at the real artifacts in wave 7, first public post in wave 8; both beta merges in wave 5 and the cut-version read in wave 6 precede either release-body post.
-Last activity: 2026-08-21 — Phase 152 complete, transitioned to Phase 153
+Phase: **None — milestone v1.32 CLOSED 2026-08-21.** Last phase executed was 152 (Outward-Facing
+Close); Phase 153 ran before it by design (D-08) and Phase 150 was deferred, never planned.
+Plan: —
+Status: **v1.32 SHIPPED.** Closeout type `override_closeout`. Awaiting `/gsd-new-milestone`.
+Next: `/clear`, then `/gsd-new-milestone`.
+Merge posture at close: `firestarter` and `firestarter_app` were **already fully on `beta`** before
+this close (`git cherry origin/beta HEAD` empty in both) and were **NOT re-merged** — re-merging
+would cut a second pair of pre-releases announcing nothing. The meta repository's 4-commit tail plus
+these close commits were pushed onto `beta` directly, per `152-MERGE-RECORD.md` §TAIL. Submodule
+gitlinks re-pinned to `88d204a5` (fw) / `86f85d77` (app). `git cherry` was the sole ancestry oracle;
+`--is-ancestor` was deliberately not used (v1.30's PR #44 squash already produced one false negative
+in this project).
+Last activity: 2026-08-21 — Milestone v1.32 completed, archived and tagged
 
 ## Roadmap Summary (v1.32)
 
@@ -681,6 +696,112 @@ not hold (the v1.22 C-5 overclaim class).
 gate-hardening v1.23 left OPEN (fail-open `tools/check_mypy_watermark.py` + 69 hidden inherited
 errors → `firestarter_app`'s primary `ci` job is RED), and 999.15 / gh#8 dev-tools channel gating.
 Plus the owed gh#12 outward follow-up, behind operator wording review.
+
+## Deferred Items — acknowledged at v1.32 milestone close (2026-08-21)
+
+Closeout type: `override_closeout`, for **two** reasons, both recorded before this close and neither a
+gap in this milestone's own work.
+
+**The milestone-level non-claim, stated once here in this milestone's own canonical wording:**
+**no AT28C part was tested**, at any point, by any phase — protocol `0x0D` stays UNVERIFIED in
+PROTOCOL-LEDGER exactly as it stood at the open, and every write-path change v1.32 shipped is
+**software-proven and unvalidated on silicon**.
+
+**Reason (a) — Phase 150 is deferred, so `ALL_PHASES_VERIFIED` is structurally false.** Phase 150
+(`write --sdp-relock`) reads `phase_complete: false` / `verification_status: not_required` because it
+was deferred out of this milestone by operator decision on **2026-08-20**, during
+`/gsd-discuss-phase 150` and before any research, plan or CONTEXT.md existed — never researched, never
+planned, never executed, no `.planning/phases/150-*/` directory ever created. Operator's words: *"I
+don't want the relock implementation right now. I will implement it later if it is requested later."*
+`milestone.complete` had to be run with `--force` for exactly and only this reason. **All six phases
+that were actually executed (147, 148, 149, 151, 152, 153) read `phase_complete: true` /
+`verification_status: passed`,** and all **35/35** in-scope v1 requirements are ticked Complete.
+
+**Reason (b) — `audit-open` reported 9 pre-existing carry-forward items.** **None of the 4
+UAT/verification items originate in v1.32.** This is the **ninth** consecutive close to acknowledge
+substantially this set, and it is the *identical* set acknowledged at the v1.31 close (unchanged in
+both count and membership).
+
+**Carry-forward set (9), re-confirmed 2026-08-21:**
+
+| Category | Item | Status |
+|----------|------|--------|
+| uat | Phase 08 — `08-HUMAN-UAT.md` | partial (0 pending scenarios). Unchanged since the v1.31 sweep: the 0xA4 blocker it was parked on is fixed; the residual is the **Uno** leg, never run on Uno-class hardware. |
+| verification | Phase 08 — `08-VERIFICATION.md` | human_needed, **scope reduced** — Leonardo leg superseded by Phase 91's W27C512 PASS; Uno leg genuinely open. Standing posture is Leonardo-only validity. |
+| verification | Phase 09 — `09-VERIFICATION.md` | human_needed, **scope reduced** — item 1 expects `OK: FW: 3.0.0-dev:<board>`, a version string that no longer ships, so it needs restating before it is runnable at all. |
+| verification | Phase 84 — `84-VERIFICATION.md` | human_needed, **sign-off supported** — 3/3 on automated checks; both items ask the operator to accept a deferral as correct and the follow-through record supports that. GRAD-03 / 2516 read instability remains genuinely unresolved. |
+| todos | 24 pending (`audit-open` reports 5 + 19 remainder) | pending. **Seven were filed *by* v1.32's own work** (see below). Also still carried: `at28c256-write-path-failure-gh20.md` — gh#20, the real defect this milestone triaged, instrumented and answered publicly but did **not** diagnose. |
+
+**Seven todos filed by v1.32's own execution, carried forward deliberately:**
+
+| Filed | Todo | Origin |
+|-------|------|--------|
+| 2026-08-19 | `fram-parts-ride-the-0x0d-handler-by-pinout-promotion.md` | Phase 149 |
+| 2026-08-19 | `promoted-0x0d-rows-keep-the-64-byte-floor.md` | Phase 149 |
+| 2026-08-19 | `runtime-info-log-naming-the-effective-page-size.md` | Phase 149 |
+| 2026-08-19 | `phase-44-read-timing-knobs-missing-json-parse-reset.md` | Phase 149 |
+| 2026-08-19 | `vcc-5500-high-margin-verify-rail-group.md` | Phase 148 |
+| 2026-08-20 | `onerom-pinout-external-corroboration-gate.md` | Phase 151 |
+| 2026-08-20 | `explore-seeds-invisible-to-new-milestone-glob-mismatch.md` | Phase 151 (GSD tooling defect) |
+
+**Five v1.32-native items carried with no v1.32 owner** — recorded here because they are
+*unrecoverable within the milestone*, not merely deferred inside it. The full statements live in
+`152-LEDGER.md` §"Negative space — every carry-forward" and §"What no test, gate or review can close",
+and in `153-RECORD.md` §"What was NOT proven"; they are cited here, not re-derived.
+
+| Item | Owner | Note |
+|------|-------|------|
+| **The evidence ceiling — no AT28C part has ever been in operator inventory** | the milestone's **accepted debt** | Binding and unchanged from open to close. `0x0D` stays `UNVERIFIED`, no `support_status` field moved (machine-checked; `chip_database.json` byte-unchanged), and **no bench phase existed in v1.32 by design**. Nothing this milestone shipped is evidence that a physical AT28C part behaves as the code now assumes. |
+| **Backlog 999.29 — the AT28C256 write-path failure itself** | **the operator**, as its named owner | **Open, partially addressed, explicitly NOT retired.** v1.32 removed the blocker to diagnosing it (F-01) and answered it publicly on gh#21/#11/#12; it did not diagnose it, and could not under the ceiling above. |
+| **Backlog 999.28 — `write --sdp-relock`, deferred a second time** | **the operator** | v1.30 deferred it as Phase 135; v1.32 deferred it as Phase 150. Consequence stated rather than argued away: for a **second release running** there is no supported way to deliberately protect an SDP part, and on `0x0D` the protection bit cannot be read back either. ⚠ **Standing instruction:** a future promotion **must reverse OUT-05's fifth gate class in the same change that lands the feature**, or `152-check-claims.py` rejects the very release notes announcing it. |
+| **`leonardo` MERGE-05 flash headroom is 0 B, and the Caterina cliff is UNGUARDED** | **the operator**, as a requirements judgement | `+724 B` measured against BASE-01, exactly equal to the four-term allowance (band 0 + defect-fix 96 + page-size seam 210 + lock-status read 288 + erase standalone 130) — nothing rounded, every term SHA-attributed. **Separately:** the Caterina USB-bootloader boundary at **28672 B** has **1042 B** of remaining headroom and `board_upload.maximum_size` **does not enforce it**, so nothing in the build stops a future change from silently overwriting the bootloader region. A split-or-trimmed-build phase was raised and deliberately deferred; it is on no roadmap. |
+| **The protection-class counting ambiguity** | unresolved **by statement**, not by number | Method A (a synthetic counterfactual no CLI invocation can reach) gives 664/82; Method B (the live production path) gives 665/81; Phase 151's own published 406/111/39 **reproduces under neither**. Only **665 of 746 refusal / 81 `read_permitted`**, plus the method-invariant `no_mechanism` = 405 and `not_implemented` = 40, may be cited anywhere. Stated with its own resolution rule rather than collapsed into one number that erases the disagreement. |
+
+**Two further limitations that no test in this or any future milestone can close without hardware:**
+the 20 ms `t_EC` wait is an **Atmel-family maximum applied to a multi-vendor 84-row bucket** (a part
+with a longer real cycle time would read non-blank after a successful-looking erase, and nothing in
+the native suite could catch it); and **no native test can prove the wall-clock wait is honoured** —
+the trace stubs never stub `delay()` and record no time, so the proof is structural, never temporal.
+
+**One already-published error that cannot be corrected in place:** a part-name misattribution
+(W29C020 vs W29C040) is in a published release body. This project's own discipline forbids editing a
+published body, so it can only be corrected in a future artifact — recorded in `152-LEDGER.md` as a
+process failure, not smoothed over.
+
+**Close self-check — the milestone's own claim gate was run over these closing documents, and the
+residue triaged rather than waved through.** `152-check-claims.py` was pointed at the newly authored
+text of `MILESTONES.md`, `STATE.md`, `PROJECT.md`, `ROADMAP.md` and `RETROSPECTIVE.md` via its
+`FIRESTARTER_CLAIMSCAN_TARGETS_152` seam. Outcome, stated in full:
+
+- **All 14 missing-required-caveat failures were real and were fixed** — each of the five documents now
+  carries this milestone's three canonical non-claim phrases verbatim. That is a genuine improvement the
+  gate bought.
+- **One forbidden-phrase hit was a real defect in this close's own prose and was fixed:** the v1.32
+  entry described Phase 152's claim gate as "a gate proven to fail", an unqualified `proven`. It now
+  reads "seen to fail".
+- **17 hits remain and are recorded, not suppressed.** Ten are the `sdp-relock-as-shipped` row firing on
+  word order, not on meaning: every one of the ten names the command as *deferred*, *not folded* or
+  *withdrawn*, and **zero** name it as shipped or available — the regex mandates one canonical predicate
+  order (`is|stays|remains|was` + `withdrawn|deferred|...`) that internal prose such as "has now been
+  deferred out of two milestones" does not match. Six are the `proven-unqualified` row firing on
+  **verbatim quotations**: five inside the `<details>` block of raw SUMMARY one-liners (editing them
+  would falsify the quotation) and one on a citation of `153-RECORD.md`'s own section heading. One is
+  `works-on-silicon` firing on the v1.22 footer's *quoted description of the claim its own gate
+  forbids* — a non-claim, and pre-existing text this close only re-prefixed.
+- **The gate was never scoped to these files, by design.** Its `_DEFAULT_TARGETS` is the seven outward
+  artifacts plus Phase 152's SUMMARYs, and its own docstring states that discussion prose stays out
+  "by design, not by oversight". Run unscoped over the whole documents rather than the new text, it
+  reports **333** hits — almost all of them in twenty milestones of archived record. That number is the
+  reason the gate is target-listed rather than recursive, and it is not evidence about v1.32.
+
+**Two process facts recorded rather than filed away:** a green claim-gate run **is not** a wording
+review, and this milestone's own ledger states how far short of D-03's per-artifact blocking operator
+review the posting checkpoints fell. And `.planning/research/` was **not** archived at this close —
+its ten documents pre-date v1.32 (June/August dates, v1.11–v1.23 era) and v1.32 deliberately ran no
+project-level research, so there was nothing milestone-scoped to move. The next milestone's
+researchers will read stale general-domain material unless it is refreshed or `git mv`'d first.
+
+---
 
 ## Deferred Items — acknowledged at v1.31 milestone close (2026-08-18)
 
