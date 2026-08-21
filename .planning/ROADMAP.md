@@ -160,7 +160,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 
 **⚠ Evidence Ceiling — binding on every phase, not decoration at the close.** **There is still no AT28C part in operator inventory** (recorded 2026-08-04, re-confirmed by the operator at this milestone's kickoff). Therefore: `0x0D` stays **`UNVERIFIED`** in `PROTOCOL-LEDGER` and no phase may graduate it; **no `support_status` changes**; gh#21, gh#32, gh#11 and gh#12 all stay **OPEN** (a code fix is not a validation — only `devtest-triage` closes a `dev test` issue, and only on a PASS report from real silicon); **no success criterion in this roadmap requires real AT28C silicon**, and **there is deliberately no bench-validation phase** — adding one would create a hardware-gated criterion nothing can satisfy (REQUIREMENTS.md §Out of Scope). The firmware page-size change ships **software-proven and unvalidated on silicon**, in those words. This is the ceiling v1.22 and v1.30 both held; it holds here.
 
-**Mostly host-side; two firmware-touching workstreams.** *(Amended 2026-08-20 per CONTEXT D-01 — this sentence previously counted just Phase 149; Phase 151's protection read adds a second firmware-touching workstream, established at that phase's discuss step.)* Phase 149 (the page-size seam) and Phase 151 (the protection read) are each dual-repo lockstep across `firestarter` (Arduino C++) and `firestarter_app` (Python). Every other phase is host-only or outward-facing. Firmware changes are deliberately **not** mixed into a host phase.
+**Mostly host-side; three firmware-touching workstreams.** *(Amended twice on 2026-08-20 — first per Phase 151 CONTEXT D-01, when this sentence still counted just Phase 149 and Phase 151's protection read made it two; then again when Phase 153 was added from Phase 152's discuss session (D-07), making it three.)* Phase 149 (the page-size seam), Phase 151 (the protection read) and Phase 153 (the write-path erase policy, added 2026-08-20) are each dual-repo lockstep across `firestarter` (Arduino C++) and `firestarter_app` (Python). Every other phase is host-only or outward-facing. Firmware changes are deliberately **not** mixed into a host phase.
 
 **Phase numbering continues at Phase 147** (v1.31 ran 138–146; the vacated **135** slot and the v1.24–v1.29 version slots stay unreused so by-number cross-references keep resolving).
 
@@ -174,6 +174,7 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 - **~~RELOCK (150) before LOCK (151), and both before OUT (152).~~ LOCK (151) before OUT (152).** *(Amended 2026-08-20 — RELOCK deferred.)* OUT-01 (the gh#12 reply owed since v1.30's CLOSE-06) must describe what actually shipped. Written earlier it would repeat the exact overclaim v1.30 had to amend its own reply to avoid — naming a command absent from the release being announced. **That risk is now live rather than hypothetical:** OUT-01 and OUT-04 were authored naming `write --sdp-relock` as shipped, and it will not be.
 - **~~DATA-06 is mapped to Phase 150, not Phase 148.~~ DATA-06 is mapped to Phase 151.** *(Amended 2026-08-20 — RELOCK deferred.)* The original rule was that `protect_on_after` stops being dead data either by RELOCK giving it a consumer or by being documented as advisory, and that mapping it where the consumer is created makes that one decision structurally impossible to take twice. With RELOCK deferred the consumer branch is unreachable, so **the fork is closed by the deferral, not by a fresh choice**: the advisory branch is taken, and it lands in Phase 151 because that phase already owns the protection-metadata documentation surface. The "decided once" property is preserved — 151 is now the only phase that may write about this field.
 - **One-writer-per-file — the RELOCK/PROV contention is discharged; LOCK inherits the file.** *(Amended 2026-08-20.)* The original constraint paired RELOCK (150) in the `write` handler against PROV (147) around line 2503; PROV completed 2026-08-18 and RELOCK is deferred, so that pair is moot. **LOCK (151) still writes `firestarter_app/firestarter/cli_handlers.py`** — `dev lock-status <chip>` is a new `@dev.command` block inside the existing `if _DEV_TOOLS_ENABLED:` module-level gate, not a top-level command registration *(corrected 2026-08-20 per CONTEXT D-01)* — and is now the milestone's only remaining writer of that file. Sequential, so no wave conflict exists; recorded so a later reader does not conclude the file is unclaimed.
+- **ERASE (153) before OUT (152) — despite the numbers.** *(Added 2026-08-20, D-07/D-08.)* 153 is the last phase numerically and the second-to-last to run. The operator's write/erase policy has to be *in* the release before the release describes it; otherwise OUT-02's answer to gh#21 recommends `write -b`, the very workaround 153 removes, and OUT-05's gate is left to catch our own text. 153 depends on 149 and 151 (both complete), so it does not reopen a settled wave.
 - **OUT (152) is last and outward-facing.** Every OUT requirement is operator-reviewed before posting. It is gated **separately from automated approval**: `--auto`/`--chain` auto-approves human-verify checkpoints, so `autonomous: false` alone does **not** protect it.
 
 **Locked decisions (do not re-litigate during planning):** **D-01** provenance leads. **D-02** the proof rule holds for the `vcc` fix — the correction lands in `build_db.py`'s decode function and is proven by `diff_db.py`; a one-chip fix that moves hundreds of chips means the condition was too broad; no per-chip guess table, no `_PAGE_SIZE_BY_PART` sibling. **D-03** `protect_on_after` is reconciled, not deleted — it is a faithful decode of `infoic.xml` flags bit 15 and stays; what changes is that the system stops silently ignoring it. *(Amended 2026-08-20 with the Phase 150 deferral: "stops ignoring it" is now discharged by **documentation** in Phase 151, not by a runtime consumer. D-03's substance — the field stays, and the system stops being silent about it — is unchanged; only the discharge mechanism narrowed.)* **D-04** `lock-status` is hand-curated by proven necessity — the 2026-07-10 research established that `infoic.xml` cannot supply protection readability (W29C020C, readable permanent boot block, is flag-identical to W29EE011, SDP-only and unreadable), so the hand-curated table is not a violation of the proof rule but what the proof rule leaves when upstream genuinely lacks the field. **Polarity already decided (v1.22 auto-unlock policy (d), `PROJECT.md:823`):** verify failure ⇒ skip the relock and report it loudly, leaving the recoverable state.
@@ -187,6 +188,8 @@ Full detail: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.
 - [x] **Phase 149: Firmware Page-Size Seam (dual-repo lockstep)** — deliver the per-chip page size from `chip_database.json` over the existing JSON command path to the `0x0D` handler with a conservative 64-byte fallback, constants held in lockstep across both repos, flash/RAM measured against a pre-change baseline on all three AVR targets, and the change stated software-proven and unvalidated on silicon. (PGSZ-01, PGSZ-02, PGSZ-03, PGSZ-04, PGSZ-05)
 - ⏸ **Phase 150: Deliberate Protection — `write --sdp-relock`** — **DEFERRED 2026-08-20 (operator decision) → Backlog 999.28.** Checkbox deliberately removed so `phase.complete` after Phase 149 advances to Phase 151, not into a deferred phase with no directory. Number NOT reused — Phases 151/152 keep their numbers. RELOCK-01…06 and RELOCK-08 leave v1 scope; **DATA-06 is retained and re-homed to Phase 151** on its advisory branch. See `### Phase 150` for the full record and the outward-facing obligation it creates for Phase 152.
 - [x] **Phase 151: Protection Readability — `lock-status`** — a hand-curated family-level protection table with per-family citations, `dev lock-status <chip>` (beta-only per CONTEXT D-01, corrected 2026-08-20 from a top-level command) reporting state where the family documents it readable, graceful reasoned refusal where it is not (`0x0D`/SDP among them), and output that cannot be read as a guarantee it does not make; plus `protect_on_after` documented as an advisory upstream hint with no runtime effect. (LOCK-01, LOCK-02, LOCK-03, LOCK-04, DATA-06) (completed 2026-08-20)
+- > **⚠ CHECKLIST ORDER IS DELIBERATELY NON-NUMERIC HERE.** Phase 153 is listed before Phase 152 because next-phase resolution reads the first unchecked box, not the `**Blocks**` prose. D-08 requires 153 to complete before 152 starts; leaving them in numeric order would make any chain or `phase.complete` advance into the outward-facing close first. **Do not "fix" this back to numeric order.** *(Reordered 2026-08-20.)*
+- [ ] **Phase 153: Write-Path Erase Policy — no pre-write blank check on auto-erasing protocols, standalone erase** — ⚠ **RUNS BEFORE PHASE 152** (added 2026-08-20 from Phase 152's discuss session, D-07/D-08): on `0x0D` and `0x05`, which auto-erase per page during the write, `write` performs no blank check at all, and `erase` becomes a standalone step (`CMD_ERASE` arm + `FLAG_CAN_ERASE` restored); `blank` already works. Implements the **software** 6-byte erase, not the datasheet's 12 V-on-OE path — GATE-03 stays intact. Dual-repo lockstep. (ERASE-01…09)
 - [ ] **Phase 152: Outward-Facing Close (operator-gated)** — post the owed gh#12 reply stating both halves plainly, comment gh#21 (#32 folded) with what changed / what is unproven / a request for a fresh now-attributable run, answer gh#11 in FIX-06 terms, correct the release notes, and pair every `0x0D` claim with its explicit non-claim behind a fail-provable claim gate. (OUT-01, OUT-02, OUT-03, OUT-04, OUT-05)
 
 ## Phase Details
@@ -441,7 +444,7 @@ in `requirements:`:
 ### Phase 152: Outward-Facing Close (operator-gated)
 
 **Goal**: The public record says what actually shipped and what remains unproven — the owed gh#12 reply, gh#21/#32 and gh#11 answered, release notes corrected — with every `0x0D` claim paired with its explicit non-claim.
-**Depends on**: Phases 147, 149 and 151 — OUT-04 names `lock-status`, which must exist in the announced version; OUT-02's request for a fresh run is only worth making because Phase 147 makes that run self-identifying. *(Phase 150 removed from this list 2026-08-20 — deferred to Backlog 999.28. Criteria 1 and 4 are amended below in consequence; do not restore the pre-amendment wording.)*
+**Depends on**: Phases 147, 149, 151 and **153** — OUT-04 names `lock-status`, which must exist in the announced version; OUT-02's request for a fresh run is only worth making because Phase 147 makes that run self-identifying. *(Phase 150 removed from this list 2026-08-20 — deferred to Backlog 999.28. Criteria 1 and 4 are amended below in consequence; do not restore the pre-amendment wording.)* *(Phase 153 added to this list 2026-08-20 per 152-CONTEXT.md D-08 — a deliberate out-of-number-order dependency: 153 is numbered after 152 but MUST be complete before 152 starts, so the release notes and issue replies describe a shipped write-path policy rather than recommending the `write -b` workaround it supersedes.)*
 **Requirements**: OUT-01, OUT-02, OUT-03, OUT-04, OUT-05
 **Success Criteria** (what must be TRUE):
 
@@ -454,6 +457,47 @@ in `requirements:`:
 **Plans**: TBD
 
 **⚠ This phase must NOT be run under `--auto`/`--chain`.** Every OUT requirement is operator-reviewed before posting, and `--auto`/`--chain` auto-approves human-verify checkpoints — `autonomous: false` alone is not self-protecting.
+
+### Phase 153: Write-Path Erase Policy — no pre-write blank check on auto-erasing protocols, standalone erase
+
+**ADDED 2026-08-20** during `/gsd-discuss-phase 152` (152-CONTEXT.md **D-07**), from operator policy stated in that session. Numbered 153 for sequence continuity but **runs BEFORE Phase 152** — see `**Blocks**` below.
+
+**Goal**: On protocols where a blank part is not required in order to write — `0x0D` (28C family) and `0x05` (flash4), both of which auto-erase per page during the write — `write` performs **no blank check at all**, and `erase` and `blank` are each available as standalone steps. This makes a non-blank AT28C part writable without `-b`, which is the precondition that makes gh#21's requested fresh run worth asking for.
+**Depends on**: Phases 149 and 151 — 149 owns the `0x0D` firmware handler seam this phase reopens (`eeprom_28c.cpp`), and 151 is the milestone's other writer of `firestarter_app/firestarter/cli_handlers.py`; both are complete, so no wave conflict exists.
+**Blocks**: **Phase 152** (152-CONTEXT.md **D-08**). 152's `Depends on` carries 153 as a deliberate out-of-number-order dependency: one merge, one cut, one set of release notes, and every outward claim true at the moment it becomes public. Posting `write -b` as the recommended path into the release notes hours after the operator declared that check should not exist is precisely the failure class OUT-05's claim gate exists to catch.
+**Requirements**: ERASE-01, ERASE-02, ERASE-03, ERASE-04, ERASE-05, ERASE-06, ERASE-07, ERASE-08, ERASE-09 *(authored 2026-08-20)*
+**Success Criteria** (what must be TRUE):
+
+  1. The pre-write blank check is gone on both auto-erasing protocols: the one conditional at `firestarter/src/proms/eeprom_28c.cpp:547` (`if (!is_flag_set(FLAG_SKIP_BLANK_CHECK)) { mem_util_blank_check(handle); }`) and its `flash_5v_page.cpp` sibling — the latter **located in code, not assumed to exist** by symmetry.
+  2. `erase` works as a standalone step on `0x0D`: a `CMD_ERASE` arm exists in `configure_eeprom28c`, and `FLAG_CAN_ERASE` is restored for `algorithm 13` at `firestarter_app/firestarter/database.py:621`.
+  3. **The GATE-03 question is funded explicitly, not routed around.** The datasheet's *hardware* erase path puts **12 V on OE (pin 22)** of `DIP28_28C256` — exactly what `tools/check_dispatch.py` exists to prevent on a 5 V part. The implemented path is the **software 6-byte** sequence, which carries no such hazard; `check_dispatch.py` is **not weakened, not exempted, and not re-baselined**, and the phase states in writing which path it implements and why.
+  4. `blank` remains available as its own step — `cli_handlers.py:856` → `CMD_BLANK_CHECK` → `mem_util_blank_check` **already works and nothing is owed there**; this is a non-regression assertion, not new work.
+  5. `info`'s "can be erased" row (`firestarter_app/firestarter/ic_layout.py:582`) agrees with the wire flag instead of contradicting it.
+  6. The stale Phase 121 D-12 **code comment** at `firestarter_app/firestarter/database.py:591` is corrected (152-CONTEXT.md **D-15**) — this phase owns it because it must touch `database.py:621` anyway, which keeps Phase 152 out of a sub-repo for a comment edit.
+  7. Dual-repo lockstep across `firestarter` and `firestarter_app`, with flash/RAM measured against a pre-change baseline on all three AVR targets. **`leonardo` has ZERO MERGE-05 headroom** after Phases 149 and 151; a size regression there is a blocker, not a note.
+  8. Per the milestone's binding must-not-do: no criterion here asserts the `0x0D` write path is proven, graduates `0x0D` out of `UNVERIFIED`, changes any `support_status`, or requires an AT28C part. This ships **software-proven and unvalidated on silicon**, in those words.
+
+**Plans**: 16 plans, 12 waves, 41 tasks — dual-repo lockstep plus meta-repo records. Wave 1 settles the erase supply form, the SDP-disable prefix and the GATE-03 mechanism correction and captures the cold pre-change baseline; waves 2-6 are firmware, strictly serialised (one build tree, and two mandatory native inversions that must be observed RED first); wave 7 lands the host wire flag; waves 8-9 absorb the eight measured downstream host failures and add the exhaustive scope proofs; waves 10-11 measure the size cost, fund a fourth named MERGE-05 exemption and re-plant the tripwire on a new `*_v153*` fixture family; wave 12 writes the honesty record and corrects the two stale in-repo workstream counts.
+
+Plans:
+- [ ] 153-01-PLAN.md — Wave-0 decisions (erase supply form, SDP-disable prefix, GATE-03 mechanism correction) + cold pre-change baseline on all three AVR targets *(meta)*
+- [ ] 153-02-PLAN.md — ERASE-01: remove the `0x0D` pre-write blank check, proven by an observed-RED single-shot-INIT case *(firestarter)*
+- [ ] 153-03-PLAN.md — ERASE-04/03fw: `AT28C_TEC_MAX_MS`, `eeprom28c_erase_execute` (software six-byte erase, SDP-disable prefix, 0 B RAM), `case CMD_ERASE:` arm *(firestarter)*
+- [ ] 153-04-PLAN.md — the two mandatory native inversions + three erase-stream cases + the `CMD_ERASE` no-VPP configure case *(firestarter)*
+- [ ] 153-05-PLAN.md — GATE-03's real control: `check_erase_no_vpp.py` brace-matched body scan, paired test and committed planted violation *(firestarter)*
+- [ ] 153-06-PLAN.md — ERASE-02: locate and remove the `0x05` sibling conditional, with a new write-INIT case *(firestarter)*
+- [ ] 153-07-PLAN.md — ERASE-03 host half + ERASE-07: restore `FLAG_CAN_ERASE` for algorithm 13 and rewrite the Phase 121 D-12 comment *(firestarter_app)*
+- [ ] 153-08-PLAN.md — the 84-record wire-dict delta layer and the two-layer equivalence gate *(firestarter_app)*
+- [ ] 153-09-PLAN.md — flag and wire-shape inversions, with both anti-bleed negative controls left unedited *(firestarter_app)*
+- [ ] 153-10-PLAN.md — the `dev test` plan-shape ripple: corrected reason texts, four re-measured legs, defensive-arm reachability *(firestarter_app)*
+- [ ] 153-11-PLAN.md — the `write --skip-erase` warning correction and the no-second-warning guard *(firestarter_app)*
+- [ ] 153-12-PLAN.md — ERASE-03/05/06 positive coverage: exhaustive 84-of-746, `info`-versus-wire agreement, `blank` non-regression *(firestarter_app)*
+- [ ] 153-13-PLAN.md — the two prose documents: `PROTOCOLS.md` §1.6 and `protocol-id.md` *(firestarter + firestarter_app)*
+- [ ] 153-14-PLAN.md — ERASE-08: cold triple-target measurement, `MERGE05_ERASE_STANDALONE_EXEMPTION_BYTES`, baseline revision *(firestarter)*
+- [ ] 153-15-PLAN.md — the `*_v153*` tripwire fixture family and the repointed size-gate legs, with the severance record *(firestarter)*
+- [ ] 153-16-PLAN.md — ERASE-09 phase record + the D-15 `PROJECT.md`/ROADMAP corrections + the full phase gate *(meta)*
+
+**Record corrections this phase forces** (152-CONTEXT.md **D-15**): `PROJECT.md` and this roadmap's v1.32 header both say v1.32 has **two** firmware-touching workstreams. With 153 added it is **three** — Phases 149, 151 and 153. `PROJECT.md`'s workstream table gains a row for 153.
 
 ### v1.32 Coverage
 
@@ -492,8 +536,17 @@ in `requirements:`:
 | OUT-03 | Phase 152 | Pending |
 | OUT-04 | Phase 152 | Pending |
 | OUT-05 | Phase 152 | Pending |
+| ERASE-01 | Phase 153 | Pending |
+| ERASE-02 | Phase 153 | Pending |
+| ERASE-03 | Phase 153 | Pending |
+| ERASE-04 | Phase 153 | Pending |
+| ERASE-05 | Phase 153 | Pending |
+| ERASE-06 | Phase 153 | Pending |
+| ERASE-07 | Phase 153 | Pending |
+| ERASE-08 | Phase 153 | Pending |
+| ERASE-09 | Phase 153 | Pending |
 
-**Mapped: 33/33 requirements ✓ — of which 25 in v1 scope after the 2026-08-20 Phase 150 deferral** (7 RELOCK requirements moved to Backlog 999.28; DATA-06 retained and re-homed to Phase 151). No orphans, no duplicates. **RELOCK-07 is deliberately absent**: it already shipped in v1.30 Phase 137 and is not repeated here, so the ID gap between RELOCK-06 and RELOCK-08 is intentional and must not be filled by an invented requirement.
+**Mapped: 42/42 requirements ✓ — of which 34 in v1 scope** (7 RELOCK requirements moved to Backlog 999.28 by the 2026-08-20 Phase 150 deferral; DATA-06 retained and re-homed to Phase 151; **ERASE-01…09 added 2026-08-20 with Phase 153**). No orphans, no duplicates. **RELOCK-07 is deliberately absent**: it already shipped in v1.30 Phase 137 and is not repeated here, so the ID gap between RELOCK-06 and RELOCK-08 is intentional and must not be filled by an invented requirement.
 
 ## v1.31 — 27C Programming-Algorithm Fidelity (gh#15) (SHIPPED 2026-08-18)
 

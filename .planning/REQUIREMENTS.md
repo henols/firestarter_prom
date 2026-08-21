@@ -283,6 +283,58 @@ relies on `autonomous: false` alone is not self-protecting.
       behaviour is paired with its explicit non-claim, per the honesty-ledger discipline v1.22, v1.23
       and v1.31 all closed under.
 
+### Write-Path Erase Policy (ERASE)
+
+**Added 2026-08-20**, from operator policy stated during `/gsd-discuss-phase 152` and recorded as
+`152-CONTEXT.md` **D-07**. On protocols where a blank part is *not* required in order to write —
+`0x0D` (28C family) and `0x05` (flash4), both of which auto-erase per page during the write — the
+pre-write blank check is not a safety net, it is a false precondition that makes a non-blank part
+un-writable without `-b`. That is the `Not blank, at 0x000000, v: 0x40` failure pasted on gh#20, and
+`chip_test.py:1893` calls `write_eprom` with no flags, so `dev test` hits it on any non-blank part.
+**Second firmware-touching workstream to be added — dual-repo lockstep.** Phase 153, which **runs
+before Phase 152** (D-08).
+
+- [ ] **ERASE-01**: `write` performs no blank check on `0x0D`. The conditional at
+      `firestarter/src/proms/eeprom_28c.cpp:547` — `if (!is_flag_set(FLAG_SKIP_BLANK_CHECK)) {
+      mem_util_blank_check(handle); }` — no longer gates the write path.
+
+- [ ] **ERASE-02**: The same holds for `0x05` (flash4). Its `flash_5v_page.cpp` sibling conditional is
+      **located in code before being changed** — the decomposition recorded it as "to locate", and its
+      existence must not be assumed by symmetry with `0x0D`.
+
+- [ ] **ERASE-03**: `erase` is available as a standalone step on `0x0D`: a `CMD_ERASE` arm exists in
+      `configure_eeprom28c`, and `FLAG_CAN_ERASE` is restored for `algorithm 13` at
+      `firestarter_app/firestarter/database.py:621`.
+
+- [ ] **ERASE-04**: The erase implements the **software 6-byte** sequence, not the datasheet's
+      *hardware* path, which puts **12 V on OE (pin 22)** of `DIP28_28C256`. `tools/check_dispatch.py`
+      (GATE-03) is not weakened, not exempted, and not re-baselined to accommodate this work; the phase
+      states in writing which path it implements and why. This is a hardware-damage guard, not a lint.
+
+- [ ] **ERASE-05**: `blank` remains available as its own step. `cli_handlers.py:856` →
+      `CMD_BLANK_CHECK` → `mem_util_blank_check` **already works and nothing is owed there** — this is
+      a non-regression assertion, deliberately scoped so no plan mistakes it for new work.
+
+- [ ] **ERASE-06**: `info`'s "can be erased" row (`firestarter_app/firestarter/ic_layout.py:582`)
+      agrees with the wire flag rather than contradicting it.
+
+- [ ] **ERASE-07**: The stale Phase 121 D-12 **code comment** at
+      `firestarter_app/firestarter/database.py:591` is corrected (`152-CONTEXT.md` **D-15**). This
+      phase owns it because it must touch `database.py:621` for ERASE-03 anyway, which keeps Phase 152
+      from reaching into a sub-repo for a comment edit.
+
+- [ ] **ERASE-08**: Constants stay in lockstep across `firestarter/include/firestarter.h` and
+      `firestarter_app/firestarter/constants.py`, and the flash/RAM delta is measured against a
+      pre-change baseline on all three AVR targets. **`leonardo` is at exactly zero MERGE-05 headroom
+      after Phase 151 (+594≤594) and 1172 B below the UNGUARDED 28672 B Caterina cliff** — past that
+      the USB bootloader is bricked, and no gate catches it. Any growth here needs its own named
+      exemption, and a regression is a blocker rather than a note.
+
+- [ ] **ERASE-09**: The change is stated **software-proven and unvalidated on silicon**, in those
+      terms. Removing a blank check is not evidence the `0x0D` write path works; no ERASE requirement
+      asserts it does, graduates `0x0D` out of `UNVERIFIED`, changes any `support_status`, or requires
+      an AT28C part.
+
 ---
 
 ## Out of Scope
@@ -338,6 +390,15 @@ relies on `autonomous: false` alone is not self-protecting.
 | OUT-03 | Phase 152 | Pending |
 | OUT-04 | Phase 152 | Pending |
 | OUT-05 | Phase 152 | Pending |
+| ERASE-01 | Phase 153 | Pending |
+| ERASE-02 | Phase 153 | Pending |
+| ERASE-03 | Phase 153 | Pending |
+| ERASE-04 | Phase 153 | Pending |
+| ERASE-05 | Phase 153 | Pending |
+| ERASE-06 | Phase 153 | Pending |
+| ERASE-07 | Phase 153 | Pending |
+| ERASE-08 | Phase 153 | Pending |
+| ERASE-09 | Phase 153 | Pending |
 
 **Coverage:**
 
@@ -356,6 +417,7 @@ relies on `autonomous: false` alone is not self-protecting.
 | ⏸ ~~150~~ | Deliberate Protection — `write --sdp-relock` — **DEFERRED 2026-08-20 → Backlog 999.28** | ~~RELOCK-01…06, RELOCK-08~~ (out of scope); DATA-06 re-homed to 151 |
 | 151 | Protection Readability — `lock-status` | LOCK-01…04, **DATA-06** |
 | 152 | Outward-Facing Close (operator-gated) | OUT-01…05 |
+| 153 | Write-Path Erase Policy — **runs BEFORE 152** (D-08) | ERASE-01…09 |
 
 **RELOCK-07 is deliberately absent** — it shipped in v1.30 Phase 137. The ID gap between RELOCK-06
 and RELOCK-08 is intentional and must not be filled by an invented requirement.
@@ -373,4 +435,4 @@ vacated slots now sit in the sequence: 135 and 150, both `write --sdp-relock`.
 
 ---
 *Requirements defined: 2026-08-18*
-*Last updated: 2026-08-20 — **Phase 150 (`write --sdp-relock`) DEFERRED to Backlog 999.28** by operator decision at the discuss step, before any research/plan/CONTEXT existed. RELOCK-01…06 + RELOCK-08 left v1 scope (33 → 25); DATA-06 retained and re-homed to Phase 151 on its advisory branch; Phase 151's dependency on 150 discharged; Phase 152's OUT-01/OUT-04 amended to state a withdrawal rather than a migration, and OUT-05's claim gate gained a fifth class rejecting `write --sdp-relock`-as-shipped. Prior: 2026-08-18 — traceability populated at roadmap creation (Phases 147–152, 33/33 mapped).*
+*Last updated: 2026-08-20 — **Phase 153 (Write-Path Erase Policy) ADDED** from operator policy at Phase 152's discuss step (D-07). ERASE-01…09 enter v1 scope (25 → 34 in scope, 42 defined). 153 is numbered last but **runs before Phase 152** (D-08), which now depends on it. Prior: **Phase 150 (`write --sdp-relock`) DEFERRED to Backlog 999.28** by operator decision at the discuss step, before any research/plan/CONTEXT existed. RELOCK-01…06 + RELOCK-08 left v1 scope (33 → 25); DATA-06 retained and re-homed to Phase 151 on its advisory branch; Phase 151's dependency on 150 discharged; Phase 152's OUT-01/OUT-04 amended to state a withdrawal rather than a migration, and OUT-05's claim gate gained a fifth class rejecting `write --sdp-relock`-as-shipped. Prior: 2026-08-18 — traceability populated at roadmap creation (Phases 147–152, 33/33 mapped).*

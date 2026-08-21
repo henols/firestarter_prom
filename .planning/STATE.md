@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: — AT28C Write-Path Root Cause & Report Provenance
-current_phase: 152
-current_phase_name: Outward-Facing Close (operator-gated)
+current_phase: 153
+current_phase_name: Write-Path Erase Policy — no pre-write blank check on auto-erasing protocols, standalone erase
 status: executing
-stopped_at: "Phase 152 context gathered — BLOCKED on precondition: Phase 153 must be created (/gsd-phase) and completed BEFORE 152 runs (D-07/D-08)"
-last_updated: "2026-08-20T21:33:12.037Z"
+stopped_at: "Phase 153 created and mapped (ERASE-01..09) 2026-08-20; precondition discharged. 153 is next — it runs BEFORE 152 per D-08, and the ROADMAP checklist is deliberately ordered 153-then-152 so next-phase resolution agrees. Phase 152 stays BLOCKED until 153 is complete, and must NOT be run under --auto/--chain."
+last_updated: "2026-08-20T21:46:57.979Z"
 last_activity: 2026-08-20
 last_activity_desc: "Phase 151 (Protection Readability — `dev lock-status`) CLOSED 2026-08-20, verified 10/10, 14/14 plans. All 5 requirements Complete (LOCK-01..04 + DATA-06). Gates: app 1806 passed (py3.11), firmware tests 315 passed, native 163/163 + 163/163 + 11/11, three AVR builds zero warnings. MERGE-05 green via a third named exemption MERGE05_LOCK_STATUS_READ_EXEMPTION_BYTES = 288, funding +288 B uniform on all three targets; no RAM exemption needed (+2<=2=seam2). Leonardo is now at EXACTLY zero MERGE-05 headroom (+594<=594) and 1172 B below the UNGUARDED 28672 B Caterina cliff — any further AVR flash growth in v1.32 needs its own named exemption. Bench (Leonardo /dev/ttyACM0, shield Rev 2.0 operator-stated, W29C020 seated): leg A returned 0xDA45, establishing sub-claim (i) mode entry/exit only; leg B forced returned raw 0xFE as an unadjudicated_probe, never a state claim; leg C not run (no W29C040 sample), so the v1.17 W29C040 RCA remains OPEN; no leg D exists and the 0x06 path ships software-proven and unrun on silicon."
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 4
   total_plans: 36
   completed_plans: 36
-  percent: 67
+  percent: 57
 ---
 
 # Project State
@@ -1368,6 +1368,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - v1.20 roadmap created 2026-07-02: 3 phases (105–107), 12/12 requirements mapped. FW → HOST → DOCS+GATE strictly linear sequencing (wire-contract removal ordered so it's never half-broken).
 - Phase 104 added: Rename protocol header and .cpp files to descriptive protocol-type names (replace hard-to-read flash type N naming)
 - Phase 115 added: Beta install & firmware-flash bench validation (community onboarding) — hardware-gated capstone of v1.21
+- Phase 153 added: Write-Path Erase Policy (D-07) — runs BEFORE Phase 152 per D-08; blocks the outward-facing close
 
 ## Operator Next Steps
 
