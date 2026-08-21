@@ -68,9 +68,10 @@ fw --install` is the second, necessary half of picking it up; the host install a
 **What remains unproven**
 
 No AT28C part was tested at any point in v1.32 — not in writing the erase sequence, not in choosing
-what runs before it, not in any test. @datapaganism, you remain the only person who has ever run any
-part of this against real AT28C silicon — that was true when the 2026-07-30 comment above was
-written, and it is still true after this milestone.
+what runs before it, not in any test. @datapaganism and @AndersBNielsen are the only people who have
+run an AT28C part against this project at all — everything else this project believes about this
+family is derived from datasheets and the chip database, not from silicon. That was true when the
+2026-07-30 comment above was written, and it is still true after this milestone.
 
 `0x0D` stays UNVERIFIED in the project's own protocol ledger; nothing in this milestone moves it out
 of that status. No chip's support classification in the database moved, and the chip database itself
