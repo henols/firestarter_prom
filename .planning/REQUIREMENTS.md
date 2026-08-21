@@ -18,7 +18,7 @@ requirement below is allowed to assert:
 - **`0x0D` stays `UNVERIFIED`** in `PROTOCOL-LEDGER`. No phase may graduate it, and no
   `support_status` may change on that basis.
 
-- **gh#21, gh#32, gh#11 and gh#12 stay OPEN.** A code fix is not a validation. Only a fresh passing
+- **gh#21, gh#11 and gh#12 stay OPEN.** A code fix is not a validation. *(Record correction 2026-08-21, found by the phase-153 verifier: **gh#32 was already CLOSED on 2026-08-08**, two weeks before this phase, as an unrelated duplicate-fold into gh#21. The no-graduation rule is unchanged and still binds gh#21, gh#11 and gh#12; gh#32 simply is not an open issue to hold. Phase 152 must not "reply" to a closed issue on the strength of this line.)* Only a fresh passing
   `dev test` on real silicon closes them, and per the project's own rule only `devtest-triage` closes
   a `dev test` issue, and only on a PASS report.
 
@@ -357,7 +357,7 @@ before Phase 152** (D-08).
       *(2026-08-21: closed by `153-16` — `153-RECORD.md` carries the verbatim phrase (D-153-01(f),
       `firestarter/CLAUDE.md`, `doc/PROTOCOLS.md` §1.6, `doc/protocol-id.md`, and the record itself),
       states plainly what was NOT proven (0x0D stays UNVERIFIED, no support_status moved,
-      gh#21/#32/#11/#12 stay OPEN, no AT28C part was used), and both machine gates
+      gh#21/#11/#12 stay OPEN — gh#32 was already closed 2026-08-08 — no AT28C part was used), and both machine gates
       (`check_no_community_support_status_write.py`, `check_diagnostic_report_claims.py`) exit 0
       with `chip_database.json` byte-unchanged. Last claimant of the two (`153-01`, `153-16`).
       Flipped — all nine ERASE requirements now Complete.)*

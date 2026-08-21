@@ -132,7 +132,7 @@ Stated as plainly as the outcomes above:
   `tools/check_diagnostic_report_claims.py` both exist to machine-check this and both exit 0
   against the tree this phase leaves behind; `chip_database.json` is byte-unchanged
   (`git diff --stat` empty).
-- **gh#21, gh#32, gh#11 and gh#12 stay OPEN.** A code fix is not a validation. Only a fresh
+- **gh#21, gh#11 and gh#12 stay OPEN.** A code fix is not a validation. *(Record correction 2026-08-21, found by the phase-153 verifier: **gh#32 was already CLOSED on 2026-08-08**, two weeks before this phase, as an unrelated duplicate-fold into gh#21. The no-graduation rule is unchanged and still binds gh#21, gh#11 and gh#12; gh#32 simply is not an open issue to hold. Phase 152 must not "reply" to a closed issue on the strength of this line.)* Only a fresh
   passing `dev test` report from real silicon closes a `dev test` issue, and only
   `devtest-triage` closes it.
 - **No AT28C part was required or permitted as a validation dependency at any point** — every
@@ -225,7 +225,7 @@ These claims are now false, and Phase 152's outward-facing text must not state a
 And, restated from "What was NOT proven" above because Phase 152 is the phase most likely to
 reach for it under public pressure to answer gh#21 optimistically: nothing in this phase is
 evidence that the `0x0D` write path works on real silicon, `0x0D` stays `UNVERIFIED`, no
-`support_status` changed, and gh#21/#32/#11/#12 all stay OPEN.
+`support_status` changed, and gh#21/#11/#12 all stay OPEN (gh#32 was already closed 2026-08-08).
 
 ---
 
