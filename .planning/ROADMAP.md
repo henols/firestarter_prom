@@ -489,7 +489,7 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 152-13-PLAN.md — OUT-05: arm `_DEFAULT_TARGETS` at the seven real artifacts, add `152-check-not-auto.py`, record the armed RED *(wave 7)*
+- [x] 152-13-PLAN.md — OUT-05: arm `_DEFAULT_TARGETS` at the seven real artifacts, add `152-check-not-auto.py`, record the armed RED *(wave 7)*
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
