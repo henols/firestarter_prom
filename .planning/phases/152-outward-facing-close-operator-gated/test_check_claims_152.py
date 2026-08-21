@@ -373,7 +373,14 @@ def test_armed_against_the_real_152_artifacts():
     """`_DEFAULT_TARGETS` must be non-empty, every entry must exist on disk,
     every entry's dirname must be `_HERE`, and every basename must start with
     `152-`. Invoked with no argv and no seam (the real defaults), the gate
-    MUST also exit 0 with a `PASS:` line."""
+    MUST also exit 0 with a `PASS:` line.
+
+    Plan 152-13 strengthens this leg with a literal MEMBERSHIP assertion: the
+    self-maintaining checks above would pass just as happily on a shorter
+    list (e.g. if a later edit silently dropped one of the seven real
+    artifacts), so this leg also names the seven expected basenames literally
+    and asserts every one is present. A membership check is what catches a
+    silent omission that the self-maintaining checks cannot."""
     module = _import_scanner_module()
     assert module._DEFAULT_TARGETS, "_DEFAULT_TARGETS must not be empty"
     for entry in module._DEFAULT_TARGETS:
@@ -388,6 +395,26 @@ def test_armed_against_the_real_152_artifacts():
             f"_DEFAULT_TARGETS entry {entry!r} does not carry this phase's "
             "own '152-' prefix"
         )
+
+    expected_basenames = {
+        "152-CLAIM-CLASSES.md",
+        "152-GH12-COMMENT.md",
+        "152-GH21-COMMENT.md",
+        "152-GH11-COMMENT.md",
+        "152-RELEASE-NOTES-app.md",
+        "152-RELEASE-NOTES-fw.md",
+        "152-MERGE-RECORD.md",
+    }
+    actual_basenames = {os.path.basename(e) for e in module._DEFAULT_TARGETS}
+    assert expected_basenames <= actual_basenames, (
+        "one or more of the seven expected outward artifacts is missing from "
+        f"_DEFAULT_TARGETS: {expected_basenames - actual_basenames}"
+    )
+    assert len(module._DEFAULT_TARGETS) == 7, (
+        "expected exactly seven _DEFAULT_TARGETS entries as of Plan 152-13, "
+        f"got {len(module._DEFAULT_TARGETS)}: {module._DEFAULT_TARGETS}"
+    )
+
     result = _run_scanner(targets=None, argv=None)
     assert result.returncode == 0, (
         f"gate exited {result.returncode} against the real default targets -- "
@@ -397,6 +424,11 @@ def test_armed_against_the_real_152_artifacts():
     assert "PASS:" in result.stdout, (
         f"Expected 'PASS:' in output but got:\n{result.stdout}"
     )
+    for basename in expected_basenames:
+        assert basename in result.stdout, (
+            f"expected {basename!r} named in the PASS: line but got:\n"
+            f"{result.stdout}"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -931,4 +963,70 @@ def test_each_required_caveat_row_fails_independently(fixture_name, label):
     assert "forbidden phrase match" not in result.stdout, (
         f"{fixture_name} must fail for exactly the missing caveat, not a "
         f"forbidden phrase:\n{result.stdout}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Leg 27 (NEW, Plan 152-13): the verified-on-silicon row's word-boundary fix
+#
+# The donor's `verified-on-silicon` row had no leading word boundary, so it
+# false-positived on the NON-claim "UNVERIFIED on silicon" -- reproduced
+# empirically in Plan 152-13 and recorded in
+# `152-CLAIM-GATE-TRANSCRIPTS.md`. Nothing shipped today hits this (the
+# three canonical caveats all say "stays UNVERIFIED in PROTOCOL-LEDGER", not
+# "...on silicon"), but any future outward text stating the non-claim in the
+# most natural English would have tripped a forbidden-phrase failure for
+# saying the OPPOSITE of the forbidden claim. Both directions are asserted
+# in one leg so the fix cannot become a hole: permitting the non-claim
+# without still rejecting the real claim would be a silent weakening of the
+# whole row.
+# ---------------------------------------------------------------------------
+
+
+def test_verified_on_silicon_permits_unverified_but_still_rejects_verified(
+    tmp_path,
+):
+    """The non-claim "UNVERIFIED on silicon" MUST be permitted (exit 0), and
+    the actual forbidden claim "verified on silicon" MUST still be rejected
+    (exit non-zero, naming `verified-on-silicon`) -- both against real
+    subprocess invocations of the real gate, never asserted only against the
+    compiled pattern in isolation."""
+    allowed = tmp_path / "unverified-non-claim.md"
+    allowed.write_text(
+        "Protocol `0x0D` remains UNVERIFIED on silicon.\n"
+        "\n"
+        "This ships software-proven and unvalidated on silicon. No AT28C "
+        "part was tested at any point in v1.32. Protocol `0x0D` stays "
+        "UNVERIFIED in PROTOCOL-LEDGER.\n",
+        encoding="utf-8",
+    )
+    allowed_result = _run_scanner(targets=str(allowed))
+    assert allowed_result.returncode == 0, (
+        f"gate exited {allowed_result.returncode} on the UNVERIFIED "
+        f"non-claim -- the word-boundary fix is insufficient or absent.\n"
+        f"stdout:\n{allowed_result.stdout}\nstderr:\n{allowed_result.stderr}"
+    )
+    assert "verified-on-silicon" not in allowed_result.stdout, (
+        "the UNVERIFIED non-claim must not trip verified-on-silicon:\n"
+        f"{allowed_result.stdout}"
+    )
+
+    rejected = tmp_path / "verified-real-claim.md"
+    rejected.write_text(
+        "Protocol `0x0D` was verified on silicon during this milestone.\n"
+        "\n"
+        "This ships software-proven and unvalidated on silicon. No AT28C "
+        "part was tested at any point in v1.32. Protocol `0x0D` stays "
+        "UNVERIFIED in PROTOCOL-LEDGER.\n",
+        encoding="utf-8",
+    )
+    rejected_result = _run_scanner(targets=str(rejected))
+    assert rejected_result.returncode != 0, (
+        f"gate exited 0 on the real 'verified on silicon' claim -- the "
+        f"word-boundary fix went too far and disarmed the row.\n"
+        f"stdout:\n{rejected_result.stdout}\nstderr:\n{rejected_result.stderr}"
+    )
+    assert "forbidden phrase match [verified-on-silicon]" in rejected_result.stdout, (
+        f"Expected the verified-on-silicon label in output but got:\n"
+        f"{rejected_result.stdout}"
     )

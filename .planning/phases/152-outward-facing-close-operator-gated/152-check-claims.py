@@ -164,28 +164,60 @@ import sys
 # Source: `149-check-claims.py:128`, copied verbatim.
 _HERE = os.path.dirname(os.path.abspath(__file__))
 
-# ONE entry at this point in the phase: this phase's own claim contract,
-# `152-CLAIM-CLASSES.md`, authored in the same wave as this gate so the gate
-# is armed against a real, existing artifact rather than being RED-by-
-# construction or vacuously green. Later plans extend this list once their
-# own artifact exists on disk -- see `152-RESEARCH.md` §C-7's ordering trap:
-# this gate's never-vacuous and fail-closed-on-missing branches (below) have
-# NO exit-0-on-nothing-scanned escape hatch, so any `_DEFAULT_TARGETS` entry
-# absent from disk makes this gate return rc=1. The phase's final
-# `152-NN-SUMMARY.md` is scanned via positional argv instead, once written,
-# never added to this list before it exists.
+# SEVEN entries as of Plan 152-13: this phase's own claim contract plus the
+# six outward drafts that now exist on disk -- the three GitHub comment
+# drafts, both release-note bodies, and the merge record. Plan 152-01 armed
+# this gate at the one artifact that existed in wave 1; this plan extends it
+# to every real outward artifact the phase has written so far, per
+# `152-RESEARCH.md` §C-7 and `152-PATTERNS.md` Pattern F.
+#
+# ORDERING RULE (Pattern F, restated here because a future editor WILL need
+# it): an entry is added to this list only once its artifact exists on disk,
+# because the never-vacuous and fail-closed-on-missing branches below have NO
+# exit-0-on-nothing-scanned escape hatch -- any entry absent from disk makes
+# this gate return rc=1 with no recovery branch. `152-LEDGER.md`, named as a
+# candidate target in early research, was never authored as a separate file
+# in this phase's actual execution (its intended content folded into
+# `152-MERGE-RECORD.md`), so it is correctly absent from both this list and
+# `_CAVEAT_RULES` carries no entry for it. The phase's own `152-NN-SUMMARY.md`
+# files are added only in the FINAL plan (152-20), and even then the last one
+# is scanned via positional argv rather than added here, because that plan
+# is still writing it when it runs -- see `152-CLAIM-GATE-TRANSCRIPTS.md`'s
+# "Final target list" section.
 #
 # Never a wildcard expansion, never a recursive directory traversal: a
 # wildcard `152-`-prefixed default set would sweep in `152-CONTEXT.md`,
-# `152-RESEARCH.md`, `152-DISCUSSION-LOG.md`, `152-VALIDATION.md` and
-# `152-PATTERNS.md` (each carrying the forbidden vocabulary as discussion
-# prose), the fixtures directory (whose planted files exist precisely to be
-# violations), `152-CLAIM-GATE-TRANSCRIPTS.md` (whose RED blocks quote
-# forbidden text as evidence by design), and every `152-NN-PLAN.md`. All of
-# those stay permanently out of this list, by design, not by oversight.
+# `152-RESEARCH.md`, `152-DISCUSSION-LOG.md`, `152-VALIDATION.md`,
+# `152-PATTERNS.md` and `152-CLASS-SIZES.md` (each carrying the forbidden
+# vocabulary as discussion prose), the fixtures directory (whose planted
+# files exist precisely to be violations), `152-CLAIM-GATE-TRANSCRIPTS.md`
+# (whose RED blocks quote forbidden text as evidence by design), every
+# `152-NN-PLAN.md`, and every `.diff`. All of those stay permanently out of
+# this list, by design, not by oversight.
 _DEFAULT_TARGETS = [
     os.path.join(_HERE, "152-CLAIM-CLASSES.md"),
+    os.path.join(_HERE, "152-GH12-COMMENT.md"),
+    os.path.join(_HERE, "152-GH21-COMMENT.md"),
+    os.path.join(_HERE, "152-GH11-COMMENT.md"),
+    os.path.join(_HERE, "152-RELEASE-NOTES-app.md"),
+    os.path.join(_HERE, "152-RELEASE-NOTES-fw.md"),
+    os.path.join(_HERE, "152-MERGE-RECORD.md"),
 ]
+
+# POSTED-MODE BASENAME RULE (recorded here because this is where the
+# mechanism lives): `_required_caveats_for()` below is keyed on
+# `os.path.basename(path)` and fails closed to the FULL caveat set for any
+# basename absent from `_CAVEAT_RULES`. A posted GitHub comment body carries
+# no release-note caveat requirement (see `_CAVEAT_RULES["152-GH12-COMMENT.md"]`
+# etc. above, each an empty or narrow subset) -- so when a posting plan writes
+# the just-posted body out to a temp file to re-verify it byte-for-byte, that
+# temp file MUST be written under the SAME basename as the draft it verifies
+# (e.g. a posted-mode copy of the gh#12 comment is named `152-GH12-COMMENT.md`
+# in its own temp directory, not `posted-gh12.md` or similar). Any other
+# basename resolves to the fail-closed full caveat set and would report a
+# false missing-caveat failure against a comment body that was never required
+# to carry a release-note qualifier in the first place. The posting plans
+# (152-14 through 152-18) are the consumers of this rule.
 
 # Env-override seam, SUFFIXED `_152`: the donor's `_149` name is a distinct
 # live checker in a sibling phase directory, and bare/milestone-suffixed
@@ -219,10 +251,28 @@ FORBIDDEN_PATTERNS = [
             re.IGNORECASE,
         ),
     ),
+    # MODIFIED (Plan 152-13): a fixed-width negative lookbehind `(?<!un)` was
+    # added ahead of `verified`. The donor's row, with no leading word
+    # boundary, false-positived on the NON-claim "UNVERIFIED on silicon" --
+    # reproduced empirically in this plan and recorded in
+    # `152-CLAIM-GATE-TRANSCRIPTS.md`. This milestone's three canonical
+    # required caveats all phrase the non-claim as "stays UNVERIFIED in
+    # PROTOCOL-LEDGER" (not "...on silicon"), so no shipped artifact hit this
+    # before now -- but any future outward text stating the non-claim in the
+    # most natural English ("still UNVERIFIED on silicon") would have tripped
+    # a forbidden-phrase failure for saying the OPPOSITE of the forbidden
+    # claim. `(?<!un)` is a 2-character fixed-width lookbehind (Python's `re`
+    # requires fixed width), case-insensitive by the compiled flag, so it
+    # also suppresses "UNVERIFIED" and "Un-verified"'s "verified" half is
+    # still adjacent (no space/hyphen between "un" and "verified" in this
+    # milestone's own usage, confirmed by fixture). Do not widen this
+    # lookbehind past exactly "un" -- the same over-widening risk the
+    # `proven-unqualified` row's docstring warns against applies here.
     (
         "verified-on-silicon",
         re.compile(
-            r"verified\s+(?:on|against)\s+(?:real\s+)?silicon", re.IGNORECASE
+            r"(?<!un)verified\s+(?:on|against)\s+(?:real\s+)?silicon",
+            re.IGNORECASE,
         ),
     ),
     ("silicon-verified", re.compile(r"silicon[-\s]verified", re.IGNORECASE)),
