@@ -465,7 +465,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 152-02-PLAN.md — OUT-05: the 8 donor-class fixtures, `test_check_claims_152.py`, and `152-CLAIM-GATE-TRANSCRIPTS.md` with every RED pasted *(wave 2)*
+- [x] 152-02-PLAN.md — OUT-05: the 8 donor-class fixtures, `test_check_claims_152.py`, and `152-CLAIM-GATE-TRANSCRIPTS.md` with every RED pasted *(wave 2)*
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
