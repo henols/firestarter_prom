@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: — AT28C Write-Path Root Cause & Report Provenance
 current_phase: 153
-current_phase_name: Write-Path Erase Policy — no pre-write blank check on auto-erasing protocols, standalone erase
+current_phase_name: write-path-erase-policy
 status: executing
 stopped_at: "Phase 153 EXECUTING (started 2026-08-21) — 16 plans / 11 waves as scheduled / 41 tasks, dual-repo. Sequential on the main tree: worktree isolation is OFF for every plan because all 16 touch or build inside the firestarter/firestarter_app submodules, which worktrees leave empty. 153 runs BEFORE 152 (D-08); Phase 152 stays BLOCKED until 153 completes and must NOT be run under --auto/--chain."
-last_updated: "2026-08-21T06:44:11.376Z"
+last_updated: "2026-08-21T07:05:21.583Z"
 last_activity: 2026-08-21
-last_activity_desc: "Phase 153 (Write-Path Erase Policy) execution started 2026-08-21 — 16 plans, 41 tasks, dual-repo. Planned same day: research corrected 2 stale line numbers, found the 0x05 sibling conditional DOES exist at flash_5v_page.cpp:87-89, found the AN-0544B 6-byte sequence already in-tree as FLASH_ERASE, and found check_dispatch.py structurally cannot see a handler-body control-register write (so GATE-03's real control is a brace-matched negative body scan, built by plan 05). Operator locked a fourth named v153 MERGE-05 flash exemption from a measured figure plus a new *_v153* tripwire family; leonardo is at 0 B flash AND 0 B RAM headroom and 1172 B below the UNGUARDED 28672 B Caterina cliff. Prior: Phase 151 CLOSED 2026-08-20, verified 10/10, 14/14 plans (see 151 artifacts and git for its full closure record)."
+last_activity_desc: Phase 153 execution started
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 52
-  completed_plans: 36
+  completed_plans: 37
   percent: 57
 ---
 
@@ -86,8 +86,8 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 153 (write-path-erase-policy) — EXECUTING
-Plan: 1 of 16
-Status: Executing Phase 153
+Plan: 2 of 16
+Status: Ready to execute
 Plans: 16 plans, 12 waves, 41 tasks — plan-checker PASSED (0 blockers), coverage 9/9 (ERASE-01..09)
 Note: 153 runs BEFORE 152 (D-08). Phase 152 stays BLOCKED until 153 is complete, and must NOT be run under --auto/--chain.
 Last activity: 2026-08-21 — Phase 153 execution started
@@ -2047,6 +2047,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: firmware_outdated path uses raise SystemExit(exit_code_for_class(...)) from exc so D-10's exit-3 assignment survives @map_typed_errors's own FirmwareOutdatedError handler (151-13)
 - [Phase ?]: test_lock_status_cli.py mocks only EpromOperator.read_protection_status (the port-opening seam) rather than a full fake-serial harness -- lighter-weight, meets every plan acceptance criterion (151-13)
 - [Phase ?]: Leg C (W29C040 probe) recorded as not-run rather than run-and-discarded: the operator has no W29C040 sample on the bench, and running dev lock-status W29C040 against the physically-seated W29C020 would have misattributed a different part's reading to W29C040. — Honesty over completeness — the plan's own skip-handling branch takes precedence over the default 'run it' branch when the operator states a part is unavailable.
+- [Phase 153]: D-153-01: erase supply form is six inline set_data calls (0 B RAM); fourth named MERGE-05 exemption reserved for plan 14
+- [Phase 153]: D-153-02: 0x0D chip erase emits an SDP-disable prefix (undetectable-phantom-erase asymmetry argument)
+- [Phase 153]: D-153-03: check_dispatch.py cannot see handler-body register writes; GATE-03's real control is a brace-matched negative source scan
+- [Phase 153]: D-153-04/05: no post-erase blank check on 0x0D; erase stays standalone, out of write_init and write's auto-set path
 
 ## Performance Metrics
 
@@ -2342,10 +2346,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 151 P12 | ~70min | 2 tasks | 1 files |
 | Phase 151 P13 | 35min | 3 tasks | 7 files |
 | Phase 151 P14 | ~40min | 4 tasks | 1 files |
+| Phase 153 P01 | 35min | 3 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-20T21:33:12.011Z
+**Last session:** 2026-08-21T07:05:21.559Z
 **Stopped at:** Phase 152 context gathered — BLOCKED on precondition: Phase 153 must be created (/gsd-phase) and completed BEFORE 152 runs (D-07/D-08)
 **Resume file:** .planning/phases/152-outward-facing-close-operator-gated/152-CONTEXT.md
 

@@ -482,7 +482,7 @@ in `requirements:`:
 Plans:
 **Wave 1**
 
-- [ ] 153-01-PLAN.md — Wave-0 decisions (erase supply form, SDP-disable prefix, GATE-03 mechanism correction) + cold pre-change baseline on all three AVR targets *(meta)*
+- [x] 153-01-PLAN.md — Wave-0 decisions (erase supply form, SDP-disable prefix, GATE-03 mechanism correction) + cold pre-change baseline on all three AVR targets *(meta)*
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
