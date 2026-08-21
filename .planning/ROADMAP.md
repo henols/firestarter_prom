@@ -493,7 +493,7 @@ Plans:
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 152-14-PLAN.md — OUT-01: POST the gh#12 reply behind its own blocking gate; resolve the folded todo *(wave 8)*
+- [x] 152-14-PLAN.md — OUT-01: POST the gh#12 reply behind its own blocking gate; resolve the folded todo *(wave 8)*
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
