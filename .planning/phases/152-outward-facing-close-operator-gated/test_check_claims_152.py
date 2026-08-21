@@ -378,10 +378,11 @@ def test_armed_against_the_real_152_artifacts():
 
     Plan 152-13 strengthens this leg with a literal MEMBERSHIP assertion: the
     self-maintaining checks above would pass just as happily on a shorter
-    list (e.g. if a later edit silently dropped one of the seven real
-    artifacts), so this leg also names the seven expected basenames literally
-    and asserts every one is present. A membership check is what catches a
-    silent omission that the self-maintaining checks cannot."""
+    list (e.g. if a later edit silently dropped one of the real artifacts),
+    so this leg also names the expected basenames literally and asserts
+    every one is present. A membership check is what catches a silent
+    omission that the self-maintaining checks cannot. Plan 152-19 extends
+    the expected set from seven to eight basenames, adding `152-LEDGER.md`."""
     module = _import_scanner_module()
     assert module._DEFAULT_TARGETS, "_DEFAULT_TARGETS must not be empty"
     for entry in module._DEFAULT_TARGETS:
@@ -405,14 +406,15 @@ def test_armed_against_the_real_152_artifacts():
         "152-RELEASE-NOTES-app.md",
         "152-RELEASE-NOTES-fw.md",
         "152-MERGE-RECORD.md",
+        "152-LEDGER.md",
     }
     actual_basenames = {os.path.basename(e) for e in module._DEFAULT_TARGETS}
     assert expected_basenames <= actual_basenames, (
-        "one or more of the seven expected outward artifacts is missing from "
+        "one or more of the eight expected outward artifacts is missing from "
         f"_DEFAULT_TARGETS: {expected_basenames - actual_basenames}"
     )
-    assert len(module._DEFAULT_TARGETS) == 7, (
-        "expected exactly seven _DEFAULT_TARGETS entries as of Plan 152-13, "
+    assert len(module._DEFAULT_TARGETS) == 8, (
+        "expected exactly eight _DEFAULT_TARGETS entries as of Plan 152-19, "
         f"got {len(module._DEFAULT_TARGETS)}: {module._DEFAULT_TARGETS}"
     )
 

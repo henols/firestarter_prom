@@ -164,26 +164,29 @@ import sys
 # Source: `149-check-claims.py:128`, copied verbatim.
 _HERE = os.path.dirname(os.path.abspath(__file__))
 
-# SEVEN entries as of Plan 152-13: this phase's own claim contract plus the
-# six outward drafts that now exist on disk -- the three GitHub comment
-# drafts, both release-note bodies, and the merge record. Plan 152-01 armed
-# this gate at the one artifact that existed in wave 1; this plan extends it
-# to every real outward artifact the phase has written so far, per
-# `152-RESEARCH.md` §C-7 and `152-PATTERNS.md` Pattern F.
+# EIGHT entries as of Plan 152-19: this phase's own claim contract, the six
+# outward drafts, and now `152-LEDGER.md` itself -- the three GitHub comment
+# drafts, both release-note bodies, the merge record, and the honesty
+# ledger. Plan 152-01 armed this gate at the one artifact that existed in
+# wave 1; Plan 152-13 extended it to the six real outward artifacts the
+# phase had written by wave 7; this plan (152-19) adds the seventh real
+# artifact and eighth entry, `152-LEDGER.md`, per `152-RESEARCH.md` §C-7 and
+# `152-PATTERNS.md` Pattern F, and per D-12's own reasoning: the ledger is
+# where the narrowed pairing discipline now lives, which is exactly why it
+# must itself be gate-scanned.
 #
 # ORDERING RULE (Pattern F, restated here because a future editor WILL need
 # it): an entry is added to this list only once its artifact exists on disk,
 # because the never-vacuous and fail-closed-on-missing branches below have NO
 # exit-0-on-nothing-scanned escape hatch -- any entry absent from disk makes
-# this gate return rc=1 with no recovery branch. `152-LEDGER.md`, named as a
-# candidate target in early research, was never authored as a separate file
-# in this phase's actual execution (its intended content folded into
-# `152-MERGE-RECORD.md`), so it is correctly absent from both this list and
-# `_CAVEAT_RULES` carries no entry for it. The phase's own `152-NN-SUMMARY.md`
-# files are added only in the FINAL plan (152-20), and even then the last one
-# is scanned via positional argv rather than added here, because that plan
-# is still writing it when it runs -- see `152-CLAIM-GATE-TRANSCRIPTS.md`'s
-# "Final target list" section.
+# this gate return rc=1 with no recovery branch. `152-LEDGER.md` now exists
+# on disk (written by this same plan, before this edit) and is added here.
+# `_CAVEAT_RULES` already carries a pre-populated entry for it (Plan 152-01),
+# so this is a one-line addition with no accompanying caveat-map edit. The
+# phase's own `152-NN-SUMMARY.md` files are added only in the FINAL plan
+# (152-20), and even then the last one is scanned via positional argv rather
+# than added here, because that plan is still writing it when it runs -- see
+# `152-CLAIM-GATE-TRANSCRIPTS.md`'s "Final target list" section.
 #
 # Never a wildcard expansion, never a recursive directory traversal: a
 # wildcard `152-`-prefixed default set would sweep in `152-CONTEXT.md`,
@@ -202,6 +205,7 @@ _DEFAULT_TARGETS = [
     os.path.join(_HERE, "152-RELEASE-NOTES-app.md"),
     os.path.join(_HERE, "152-RELEASE-NOTES-fw.md"),
     os.path.join(_HERE, "152-MERGE-RECORD.md"),
+    os.path.join(_HERE, "152-LEDGER.md"),
 ]
 
 # POSTED-MODE BASENAME RULE (recorded here because this is where the
