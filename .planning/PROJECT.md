@@ -41,8 +41,13 @@
 
 ## Current Milestone: v1.32 — AT28C Write-Path Root Cause & Report Provenance — ACTIVE
 
-**Started:** 2026-08-18 · **Phases continue at 147** (v1.31 ran 138–146) · **Mostly host-side; one
-firmware-touching workstream** (the page-size seam) requiring dual-repo lockstep.
+**Started:** 2026-08-18 · **Phases continue at 147** (v1.31 ran 138–146) · **Mostly host-side; three
+firmware-touching workstreams** — Phase 149 (the page-size seam), Phase 151 (the protection read) and
+Phase 153 (the write-path erase policy) — each requiring dual-repo lockstep. *(Corrected 2026-08-21 per
+152-CONTEXT.md D-15: this line originally said "one firmware-touching workstream", naming only the
+page-size seam. Phase 151's protection read made it two; Phase 153's write-path erase policy, added
+mid-milestone from Phase 152's discuss session, makes it three. The ROADMAP's v1.32 header already
+carried the corrected count of three — this line is what catches up to it.)*
 
 **Goal:** Root-cause the AT28C256 / protocol-`0x0D` write-path failure behind
 [gh#21](https://github.com/henols/firestarter_prom/issues/21) — and *first* remove the
@@ -83,9 +88,10 @@ AT28C part, and unblocks attribution for every future community report, not just
 | 1 | **Report provenance** — `dev test` reports must name the firmware they ran on | host | no |
 | 2 | **`0x0D` data defects** — `vcc: "4V"` decode bug (datasheet is 4.5–5.5 V); `protect_on_after: true` is dead data since v1.30 deleted the lock surface | `build_db.py` | no |
 | 3 | **Firmware page-size seam** — deliver `infoic_page_size_raw` through wire → `json_parser` → handler, replacing the hardcoded `PAGE_SIZE 64` | firmware + host | partial |
-| 4 | **Close the AT28C book** — ~~land `write --sdp-relock` (Backlog 999.28)~~ **⏸ the relock half DEFERRED 2026-08-20 → back to Backlog 999.28** (see the deferral record below); what remains is posting the owed gh#12 reply (v1.30's CLOSE-06, open by design), which must now state a **second withdrawal**, not a migration | host + outward | no |
+| 4 | **Close the AT28C book** — ~~land `write --sdp-relock` (Backlog 999.28)~~ **⏸ the relock half DEFERRED 2026-08-20 → back to Backlog 999.28** (see the deferral record below). **The write-path half of that book is now closed by workstream 7 (Phase 153)** — the relock half alone stays deferred, so this row's deferral must not be read as nothing having shipped for the AT28C family. What remains here is posting the owed gh#12 reply (v1.30's CLOSE-06, open by design), which must now state a **second withdrawal**, not a migration | host + outward | no |
 | 5 | **`lock-status` command** (seed) — hand-curated family-level protection table + `dev lock-status <chip>` (beta-only; corrected from the seed's top-level `firestarter lock-status` by Phase 151's OD-1) | host + firmware | partial |
 | 6 | **Numeric DB values** (seed) — voltages/timing as mV / µs integers, deleting `database.py`'s coercion layer | host | no |
+| 7 | **Write-path erase policy** — no pre-write blank check on the two auto-erasing protocols (`0x0D`, `0x05`); a standalone software chip erase on `0x0D` (added mid-milestone from Phase 152's discuss session, D-07) | firmware + host | no |
 
 Workstreams 2 and 6 touch the same field (`electrical.vcc`) and must land together — numericalising
 `vcc` to `vcc_mv` turns the `"4V"` → 5 V correction into a value change rather than a string edit.
