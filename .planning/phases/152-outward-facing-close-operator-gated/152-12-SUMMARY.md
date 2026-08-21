@@ -378,3 +378,13 @@ v1.32. Protocol `0x0D` stays UNVERIFIED in PROTOCOL-LEDGER.
 ---
 *Phase: 152-outward-facing-close-operator-gated*
 *Completed: 2026-08-21*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/152-outward-facing-close-operator-gated/152-RELEASE-NOTES-app.md`
+- FOUND: `.planning/phases/152-outward-facing-close-operator-gated/152-RELEASE-NOTES-fw.md`
+- FOUND: `.planning/phases/152-outward-facing-close-operator-gated/152-MERGE-RECORD.md`
+- FOUND: `.planning/phases/152-outward-facing-close-operator-gated/152-12-SUMMARY.md`
+- FOUND commit: `ceee9b4c`
+- FOUND commit: `309ac312`
+- FOUND commit: `b1f317d1`
