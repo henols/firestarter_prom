@@ -3296,6 +3296,46 @@ Full archive: [`.planning/milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.m
 
 ## Backlog
 
+> ### Backlog review — 2026-08-21 (`/gsd-review-backlog`, second full pass)
+>
+> Ran with **no active milestone**: v1.32 closed and archived 2026-08-21, `STATE.md` `status: milestone-complete`,
+> next step `/gsd-new-milestone`. Promotion was therefore **not** performed — renumbering into phases 154+ today
+> would create phases owned by no milestone. This pass is **review-only + shortlist** by operator decision: it fixes
+> bookkeeping, files the two GitHub issues opened 2026-08-21, and tags a next-milestone shortlist that
+> `/gsd-new-milestone` should read before scoping. **No item was removed.**
+>
+> **Verified against live code at review time** (not re-read from the 2026-07-27 dispositions):
+> - **999.15 is half-shipped** — the host-side channel gate landed in v1.30 Phase 136 (`firestarter/channel.py`
+>   `is_dev_tools_enabled` / `dev_tools_enabled_by_env`, consumed at `cli_handlers.py:1355` as `_DEV_TOOLS_ENABLED`).
+>   The **firmware half is untouched**: `-D DEV_TOOLS` is still in the shared `[env]` block at
+>   [`firestarter/platformio.ini:26`](../firestarter/platformio.ini#L26), so every released `uno`/`uno328pb`/`leonardo`
+>   build still ships dev tools. Remaining scope is firmware-only.
+> - **999.31 still live** — [`eprom_params.cpp:50-52`](../firestarter/src/proms/eprom_params.cpp#L50-L52) still ships
+>   `energy_cap_us = 0` on both `0x07` and `0x08`, `50000` on `0x0B`. Unchanged through v1.31 and v1.32.
+> - **999.26 / 999.27 still live** — `requires-python = ">=3.9"` vs mypy `python_version = "3.10"` in
+>   `firestarter_app/pyproject.toml`. **999.27 is the only backlog item with an external clock: Python 3.10 EOLs 2026-10-31.**
+> - **All 18 backlog stub dirs contain only `.gitkeep`** — no CONTEXT.md/RESEARCH.md anywhere. ROADMAP prose is the
+>   sole carrier of backlog context; treat it accordingly.
+>
+> **Bookkeeping applied this pass:** deleted the five stale stub dirs for already-promoted items (999.18, 999.19,
+> 999.22, 999.23, 999.24 — matching how 999.4–999.7 were handled); repointed 999.29 from the closed gh#20 to the live
+> **gh#21**; corrected 999.3's carrier cross-reference from "v1.23" to **v1.28** (the v1.23 slot was reassigned to
+> PY32F071 Integration, shipped 2026-08-03); recorded 999.15's half-shipped state above and in its own stub.
+>
+> **➡ Next-milestone shortlist (4 clusters, 9 items).** Each tagged item carries a `**➡ NEXT-MILESTONE CANDIDATE**`
+> line. Everything not listed stays parked and is *not* a scoping candidate:
+> 1. **Toolchain deadline** — 999.26 + 999.27. Hard external date 2026-10-31.
+> 2. **Chip write-path** — 999.17 (gh#10) + 999.29 (gh#21) + **999.32** (gh#36). All three have live reporters.
+> 3. **v1.31 carry-outs** — 999.30 + 999.31. Both were filed with the literal phrase `no v1.31 owner`.
+> 4. **Shipping hygiene** — 999.8 (gh#1) + 999.15 (gh#8, firmware half only).
+>
+> **Parked, unchanged:** 999.1 (absorbed by v1.26 — do not promote standalone), 999.2, 999.3, 999.9, 999.11, 999.12,
+> 999.13, 999.20, 999.28, 999.33.
+>
+> **Outside this review's scope but noted:** `.planning/todos/pending/` holds **25 items with 0 done** — a parallel
+> queue `/gsd-review-backlog` does not touch. Two of them bear directly on shortlisted work
+> (`spike-databuffer-size-speed-delta.md` → 999.32; `prove-pio-dev-flag-fails-closed.md` → 999.15).
+
 ### Phase 999.1: Firmware calibration-default propagation (CONFIG_VERSION gate) (BACKLOG → ABSORBED BY v1.26)
 
 **Goal:** [Captured for future planning] Make corrected R1/R2 calibration defaults reach already-calibrated boards. `rurp_validate_config` ([firestarter/src/rurp_config_utils.cpp:32-39](../firestarter/src/rurp_config_utils.cpp#L32-L39)) re-applies defaults only when `config->version != CONFIG_VERSION` ("VER06"); Phase 44 changed `VALUE_R1` 1000→270000 ([firestarter/include/rurp_shield.h:49](../firestarter/include/rurp_shield.h#L49)) without bumping `CONFIG_VERSION`, so VER06-calibrated boards silently keep a stale `r1` → wildly wrong VPP reading (true 12.2V reported as ~1.8V). Fix options: bump `CONFIG_VERSION` on any default change (resets all users' calibration — communicate), OR add a sanity-range guard rejecting implausible `r1`, OR a targeted `r1==1000` migration.
@@ -3329,13 +3369,17 @@ Plans:
 **Plans:** 0 plans
 **Origin:** v1.13 bench follow-up (2026-06-17) during the `write-empty-input-regression` debug session. Severity: minor (cosmetic). Out of scope for the write-path fix.
 
-**Disposition (backlog review 2026-07-27): KEEP — cosmetic, root cause preserved.** Re-verified still live: the comm-mode progress flush in `_single_step_operation_callback` ([firestarter/src/operation_utils.cpp:281](../firestarter/src/operation_utils.cpp#L281), fw `83d186f`) landed **2026-06-02**, i.e. *before* the 2026-06-17 observation — so that per-step flush is already in the binary that batched, and does **not** cure the jump. Not worth its own phase at cosmetic severity, but the ruled-out list (not the Option-C write fix, not Python buffering) and the com-mode-gating root cause are worth keeping for whoever next touches the progress path. **Natural carrier:** the queued **v1.23 Binary Command Protocol** milestone reworks the command/ack layer — cross-link this item when v1.23 is scoped rather than planning it separately.
+**Disposition (backlog review 2026-07-27): KEEP — cosmetic, root cause preserved.** Re-verified still live: the comm-mode progress flush in `_single_step_operation_callback` ([firestarter/src/operation_utils.cpp:281](../firestarter/src/operation_utils.cpp#L281), fw `83d186f`) landed **2026-06-02**, i.e. *before* the 2026-06-17 observation — so that per-step flush is already in the binary that batched, and does **not** cure the jump. Not worth its own phase at cosmetic severity, but the ruled-out list (not the Option-C write fix, not Python buffering) and the com-mode-gating root cause are worth keeping for whoever next touches the progress path. **Natural carrier:** the queued **v1.28 Binary Command Protocol** milestone reworks the command/ack layer — cross-link this item when v1.28 is scoped rather than planning it separately. *(Corrected 2026-08-21: this line originally said "v1.23". The v1.23 slot was reassigned to **PY32F071 Integration**, shipped 2026-08-03; Binary Command Protocol is **v1.28**, still QUEUED.)*
 
 Plans:
 
 - [ ] TBD (promote with /gsd-review-backlog when ready)
 
-### Phase 999.29: AT28C256 write-path failure (gh#20) — blank-check/write/verify all BAD on Rev 2.3 (BACKLOG — ⚠ PARTIALLY ADDRESSED by v1.32, NOT retired — filed 2026-08-04 by v1.30 Phase 134 LEG-18)
+### Phase 999.29: AT28C256 write-path failure (gh#21) — blank-check/write/verify all BAD on Rev 2.3 (BACKLOG — ⚠ PARTIALLY ADDRESSED by v1.32, NOT retired — filed 2026-08-04 by v1.30 Phase 134 LEG-18)
+
+**➡ NEXT-MILESTONE CANDIDATE (backlog review 2026-08-21 — cluster 2, chip write-path).** Scope with 999.17 and 999.32; all three are live-reporter write-path defects.
+
+**⚠ Issue pointer corrected 2026-08-21.** This stub was filed against **gh#20**, which is now **CLOSED** — as is its duplicate **gh#32**. The live tracker for this defect is **[gh#21](https://github.com/henols/firestarter_prom/issues/21)** (`[dev test] at28c256 — FAIL (00e121446ceb)`, OPEN, last touched 2026-08-21 by v1.32 Phase 152's OUT-02 comment). **gh#11** (`Issues with AT28C256 Reading / Writing`) and **gh#12** (`AT28Cxxx Write Protection Enable/Disable missing`) are also still OPEN and touch the same part. Read gh#21 first; gh#20's body is the original symptom record but its thread is closed.
 
 **⚠ v1.32 status, stated precisely (2026-08-18).** v1.32 removes the *blocker* to diagnosing this and answers it publicly — Phase 147 makes every `dev test` report name the firmware that produced it (`fw_board_identity` was unconditionally `null`, so no report could be attributed to a firmware version), and Phase 152 OUT-02 comments gh#21/#32 with what changed and a request for a fresh, now-attributable run. It does **not** diagnose the defect. There is still no AT28C part in operator inventory, so `0x0D` stays `UNVERIFIED` and gh#21/#32/#11 stay OPEN. **This item remains BACKLOG and is not retired by v1.32.**
 
@@ -3367,6 +3411,8 @@ Plans:
 
 ### Phase 999.30: Write progress bar never reaches 100% — final frame never emitted (BACKLOG — filed 2026-08-17 by v1.31 Phase 145 Gate 2/Gate 3)
 
+**➡ NEXT-MILESTONE CANDIDATE (backlog review 2026-08-21 — cluster 3, v1.31 carry-outs).** Scope with 999.31; both were carried out of v1.31 with the literal phrase `no v1.31 owner` and neither found an owner in v1.32. The host-side snap-to-total half needs no firmware flash and no flash budget, which matters because leonardo has been at **zero** headroom since v1.32 Phase 151.
+
 **Goal:** [Captured for future planning] Make the `write` progress bar finish at 100%. Observed on **every** write captured in v1.31 Phase 145: the MAIN-phase bar stops at the position of the **last firmware `MSG_DATA_PROGRESS` frame** and never advances to the total, even though the write succeeds and verifies byte-exact. Measured, all six runs on Leonardo / Rev 2.0 / W27C512, fw `ebe9cb3`:
 
 | Run | Final bar | % |
@@ -3393,6 +3439,8 @@ Plans:
 - [ ] TBD (promote with /gsd-review-backlog when ready)
 
 ### Phase 999.31: No firmware-side upper bound on `--pulse-us` for `0x07`/`0x08` (BACKLOG — filed 2026-08-17 by v1.31 Phase 145 Gate 3)
+
+**➡ NEXT-MILESTONE CANDIDATE (backlog review 2026-08-21 — cluster 3, v1.31 carry-outs).** **Re-verified live at review time:** [`eprom_params.cpp:50-52`](../firestarter/src/proms/eprom_params.cpp#L50-L52) still ships `energy_cap_us = 0` on `0x07` **and** `0x08`, and `50000UL` on `0x0B` — the table is unchanged through v1.31 and v1.32, so both the gap and the T-145-45 documentation defect below are exactly as filed. Whichever option (a)/(b)/(c) is chosen, the T-145-45 correction is owed regardless — it is the half of this item that costs nothing and is currently misleading.
 
 **Goal:** [Captured for future planning] Decide whether the 27C 28-pin and 32-pin rows need a firmware-enforced pulse-width ceiling, and add one if so. Today **only the host bounds `--pulse-us`**, via `click.IntRange(1, 65535)`. The firmware's own refusal, `MSG_ERR_PULSE_TOO_WIDE` (`0xAE`), is guarded by `energy_cap_us > 0` in `eprom.cpp`:
 
@@ -3438,6 +3486,8 @@ Plans:
 > - **999.13 (gh#6, PR-only `main`) changes the GSD close procedure.** Branch protection on `main` in all three repos means `/gsd-complete-milestone`'s direct merge + push at close (used through v1.21) must become a PR flow, or the operator needs a documented admin bypass.
 
 ### Phase 999.8: Verify reports all mismatched address ranges, not just the first (BACKLOG — gh#1)
+
+**➡ NEXT-MILESTONE CANDIDATE (backlog review 2026-08-21 — cluster 4, shipping hygiene).** Host-only, no firmware half, and the issue already enumerates its own acceptance tests. Scope with 999.15.
 
 **Goal:** [Captured from GitHub] Make `verify` scan the whole requested range and report **every** mismatch, grouping consecutive mismatched addresses into inclusive ranges (`0x000120-0x00012F (16 bytes)`), with a range count + total mismatched-byte count, a clearly distinct success result, and bounded output when a large part of the device differs. Optional verbose mode shows byte-level expected/actual. Acceptance requires tests for: no mismatch, one mismatch, consecutive, separated, and mismatch at both first and last address.
 **Requirements:** TBD
@@ -3543,11 +3593,21 @@ Plans:
 - **⚠ Note on gh#3's policy:** it forbade "branch-dependent behavior". A channel-conditioned *build default* is a milder thing than the scattered runtime checks that warned about, but it is the same words — the phase must state the distinction deliberately rather than silently contradict its own source issue.
 - **Open questions for scoping** (appended to [`.planning/research/questions.md`](research/questions.md)): the source-checkout override mechanism (R3); whether the rejected-dev-ID path actually desyncs COBS/CRC (R2 — the v1.12 fail-closed `0xBB` path may already be the right shape to reuse); and whether the beta→dev-tools welding is acceptable or needs a third tier (R1).
 
+**✅ HOST HALF SHIPPED in v1.30 Phase 136 — remaining scope is FIRMWARE-ONLY (backlog review 2026-08-21).** Verified in the working tree at review time, not inferred from the phase record:
+
+- **Shipped:** `firestarter_app/firestarter/channel.py` exists and implements the channel gate exactly as the 2026-07-28 design specified — `is_prerelease_build()` derived from the app's own PEP 440 version, `dev_tools_enabled_by_env()` as a fail-**closed** bench override (only the exact literal `"1"` on `FIRESTARTER_DEV_TOOLS` enables anything), and `is_dev_tools_enabled()` composing the two. `cli_handlers.py:1355` freezes it at import time as `_DEV_TOOLS_ENABLED`, which is the Click-registration-time evaluation the design called for. The module docstring records the `${sysenv.VAR}` fail-open trap as settled prior art. **R3 (editable-install trap) is answered** by the env override; **R4** (assert the registered command set, not exit codes) needs re-checking against the tests that shipped.
+- **NOT shipped — the firmware half is entirely untouched.** `-D DEV_TOOLS` is *still* in the shared `[env]` block at [`firestarter/platformio.ini:26`](../firestarter/platformio.ini#L26) and is *still* inherited by `uno`, `uno328pb`, `leonardo` **and** the native envs. Every released `.hex` — stable channel included — therefore still contains `CMD_DEV_REGISTER`/`CMD_DEV_ADDRESS`. The `#ifdef DEV_TOOLS` guards in `include/dev_tools.h` are in place and correct; nothing ever builds with the macro absent.
+- **Consequence for scoping:** this is no longer a two-repo phase. What remains is (a) removing the flag from the shared block and proving a production build omits `dev_tools.cpp` by `avr-nm` symbol check — todo [`prove-pio-dev-flag-fails-closed.md`](todos/pending/prove-pio-dev-flag-fails-closed.md), still pending; (b) **R2**, now promoted to load-bearing exactly as predicted — with the host gate already live, beta-app + stable-firmware is a *shipping* pairing today, so the COBS/CRC-desync-on-rejected-dev-ID proof is the phase's real risk; (c) the 2×2 capability matrix and CI covering both configurations. The service-layer guard (`DevelopmentToolsDisabledError` on direct `EpromOperator` imports) still needs confirming — the channel gate is CLI-registration-level and does not by itself stop a direct service-layer call.
+
+**➡ NEXT-MILESTONE CANDIDATE (backlog review 2026-08-21 — cluster 4, shipping hygiene).** Small and well-understood now that only the firmware half is left; scope with 999.8.
+
 Plans:
 
 - [ ] TBD (promote with /gsd-review-backlog when ready)
 
 ### Phase 999.17: TMS27C512 cannot be written — post-1.5.6 write regression (BACKLOG — gh#10)
+
+**➡ NEXT-MILESTONE CANDIDATE (backlog review 2026-08-21 — cluster 2, chip write-path).** Scope with 999.29 and 999.32. Note the 2026-07-27 evidence-gap finding below still stands, and **v1.31 has since changed `0x07`'s programming algorithm** (`VERIFY_PER_PULSE_PLUS_FINAL`, per-protocol parameter rows) — so the reporter's bisect window must be re-read against post-v1.31 firmware before any RCA, and a fresh `dev test` run is now attributable to a firmware version (v1.32 Phase 147).
 
 **Goal:** [Captured from GitHub] Root-cause and fix a reported write regression: TMS27C512 wrote correctly on app **1.5.6 / fw 1.4.3**, and sometime after those versions writing stopped changing any bits. Reads work and the chip ID is detected correctly — only the write path is affected.
 **Requirements:** TBD
@@ -3701,6 +3761,8 @@ Plans:
 
 ### Phase 999.26: Restore type-level enforcement of the advertised Python 3.9 floor (BACKLOG — filed 2026-08-03 by Phase 131 D-13)
 
+**➡ NEXT-MILESTONE CANDIDATE (backlog review 2026-08-21 — cluster 1, toolchain deadline).** **Re-verified live:** `firestarter_app/pyproject.toml` still carries `requires-python = ">=3.9"` (:12) and `target-version = "py39"` (:110) against mypy `python_version = "3.10"` (:155) — the D-13 gap is exactly as filed. Scope jointly with **999.27**, whose 2026-10-31 deadline forces the same file open.
+
 **Goal:** After Phase 131 sets `[tool.mypy] python_version = "3.10"` in `firestarter_app/pyproject.toml`,
 nothing type-checks against the `>=3.9` floor the package still advertises in `requires-python` and in
 the `Programming Language :: Python :: 3.9` classifier. `[tool.ruff] target-version = "py39"` carries
@@ -3716,6 +3778,8 @@ superseding REQUIREMENTS.md's Out-of-Scope row "Filing the py3.9-drop backlog it
 deliberately left this unfiled.
 
 ### Phase 999.27: mypy minimum-target treadmill — Python 3.10 EOLs 2026-10-31 (BACKLOG — filed 2026-08-03 by Phase 131 D-13)
+
+**➡ NEXT-MILESTONE CANDIDATE — HIGHEST TIME PRESSURE IN THE BACKLOG (backlog review 2026-08-21 — cluster 1, toolchain deadline).** This is the **only** backlog item with a hard external date: **Python 3.10 EOLs 2026-10-31, ~10 weeks from this review.** Every other item is paced by us; this one is not. Scope jointly with 999.26 — they are the same file and the same decision.
 
 **Goal:** mypy 2.0 dropped Python 3.9 as a *target* and clamps `[tool.mypy] python_version` to its
 minimum supported target (3.10 today) rather than to the running interpreter — the exact mechanism
@@ -3831,6 +3895,40 @@ no `.hex` re-cut.
 - **Polarity is already decided, do not re-litigate:** verify failure ⇒ **skip the relock and report it
   loudly**, leaving the recoverable state. Per the v1.22 auto-unlock policy **(d)**; recorded at
   `PROJECT.md:823`.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.32: W27C512 write is 3.7× slower on v3.x than v2.x — programming-speed regression (BACKLOG — gh#36, filed 2026-08-21 by backlog review)
+
+**➡ NEXT-MILESTONE CANDIDATE (backlog review 2026-08-21 — cluster 2, chip write-path).** Scope with 999.17 and 999.29.
+
+**Goal:** [Captured from GitHub] Find and fix the programming-speed regression between app 2.x and 3.x. Reporter measures a **full W27C512 write at 29.71 s on 2.x and 108.74 s on 3.x — 3.66×** — with both runs reported as successful, so this is a *throughput* regression, not a correctness one. The issue body carries only the two `Write to W27C512 successful (Ns).` lines; board, shield revision, firmware version and host platform are **not** stated and must be asked for before any bisect.
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`henols/firestarter_prom#36`](https://github.com/henols/firestarter_prom/issues/36) — lexx-polarnet-pl, 2026-08-21T14:49Z, no labels. Type: performance defect. Severity: moderate (user-visible, no data loss).
+
+**Triage leads gathered at filing — do NOT bisect blind, there are three cheap discriminators:**
+
+1. **`0x07`'s verify strategy is the first suspect, and it is a v1.31 change.** W27C512 is a protocol-`0x07` part, and [`eprom_params.cpp:50`](../firestarter/src/proms/eprom_params.cpp#L50) gives `0x07` `VERIFY_PER_PULSE_PLUS_FINAL` with `max_pulses = 25`. A per-pulse verify read after every programming pulse is a per-byte serial round-trip that a single-shot write path would not pay. This *cannot* explain the whole 2.x→3.x window on its own — v1.31 shipped 2026-08-18, long after 3.x began — but it is the largest known recent addition to this exact path and it is measurable in one A/B run.
+2. **Buffer/ack round-trip count is the standing hypothesis, and there is already a spike written for it.** [`.planning/todos/pending/spike-databuffer-size-speed-delta.md`](todos/pending/spike-databuffer-size-speed-delta.md) (captured 2026-07-02 from the binary-protocol explore session) exists specifically to measure whether `DATA_BUFFER_SIZE` → fewer ack round-trips → faster, and notes the ratio of per-chunk turnaround to raw 250k-baud transfer time is what decides it. **That spike is the right first move here** — it was written to de-risk **v1.28 Binary Command Protocol**, and this issue is the first field evidence that the speed half of v1.28's premise has a real user behind it. Run the spike, then decide.
+3. **Do not assume the reporter's 2.x is our 2.x.** The app/firmware pairing matters: a 3.x host against old firmware, or vice versa, changes the round-trip profile independently of any host change. `fw_board_identity` is only populated in reports from v1.32 Phase 147 onward, so a plain issue body from 2026-08-21 is **not** self-attributing — ask for `firestarter fw` output alongside a re-run.
+
+**Cross-links:** **v1.28 Binary Command Protocol** (QUEUED) is the natural carrier if the cause turns out to be protocol round-trips rather than a discrete regression; **999.3** and **999.30** are the other two items on the progress/throughput surface, and whoever profiles this path should read all three.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.33: OLED status display via the RURP on-board OLED connector (BACKLOG — gh#37, filed 2026-08-21 by backlog review)
+
+**Goal:** [Captured from GitHub] Drive the RURP shield's on-board OLED connector to show system status and operation metrics directly on the programmer. The issue is two sentences and carries no requirements: no display controller (SSD1306/SH1106), size, bus (I²C/SPI), pin assignment, or shield revisions with the connector populated are stated. **Needs scoping from the hardware side before it can be estimated.**
+**Requirements:** TBD
+**Plans:** 0 plans
+**Origin:** [`henols/firestarter_prom#37`](https://github.com/henols/firestarter_prom/issues/37) — lexx-polarnet-pl, 2026-08-21T15:32Z, no labels. Type: feature request. **PARKED — not shortlisted.**
+
+**Triage note (2026-08-21): the flash-budget constraint is the load-bearing fact here, and it is already binding.** This is firmware-side work on targets with **zero** headroom: v1.32 Phase 149 left leonardo at zero MERGE-05 headroom, Phase 151 confirmed it, and Phase 153 recorded leonardo at **0 B flash *and* 0 B RAM**. Any display library (an SSD1306 driver plus a font table is typically ~1–2 KB of flash before a single string) cannot land on leonardo as things stand. Scoping must therefore answer *which boards* this targets first — and the honest answer may be that it waits for the PY32F071 port (v1.23 shipped the integration; no PCB exists yet), which is the only target in the project with room. Also confirm against [`.planning/v1.7-SHIELD-REVS.md`](v1.7-SHIELD-REVS.md) which shield revisions actually populate the OLED connector before promising anything to the reporter.
 
 Plans:
 
