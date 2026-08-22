@@ -12,6 +12,7 @@ provides:
   - "submit._reason_text — single shared formatter suppressing the Reason cell on any NA-verdict step row"
   - "build_body (filed GitHub issue body) wired to _reason_text"
   - "cli_handlers.py's dev_test .md-artifact writer wired to the same _reason_text via a submit_-prefixed aliased import"
+  - "chip_test.sdp_hold_state() (follow-on) — returns bare HELD / NOT-HELD / NOT-RUN; the NOT-RUN reason suffix is gone, so no dev test surface reports a reason for a non-running SDP oracle"
   - "DiagnosticReport._step_dict() (delta, operator reversal of this plan's own D-2) — an NA-verdict step's exported \"reason\" is now \"\" in every export surface (the saved .json, and the fenced JSON block inside both the saved .md and a filed issue body), not just the render layer"
 affects: [dev-test, submit, sdp-capability-reporting, diagnostic-report]
 
@@ -34,8 +35,9 @@ key-decisions:
   - "Suppression keyed strictly on verdict == VERDICT_NA (imported from chip_test), never on message text or a per-op special case (D-1, operator ruling: 'NA is enough')."
   - "SKIPPED rows are exempt — a SKIPPED reason is frequently the real disclosure (e.g. 'no target resolved') and must keep rendering."
   - "SUPERSEDED by the delta below: the plan originally shipped D-2 as render-layer-only (to_dict()/_step_dict() untouched, JSON retains every reason verbatim). The operator reversed this mid-run; see 'Delta: D-2 Reversal' section."
+  - "FOLLOW-ON (branch quick-devtest-holdstate-bare, operator: 'strip'): chip_test.sdp_hold_state() now returns the BARE SDP_HOLD_NOT_RUN token. Stripped at the SOURCE rather than at to_dict(), because export-layer suppression would leave a value computed, carried on the dataclass and read by nothing (the console already truncated it via _state_cell) — dead weight a later reader restores as a bug. Both prose branches go, including the sdp_honesty.unreadable_state_caveat() fallback."
   - "DELTA (260822-gxx, same day, operator ruling 'Actually if a step is NA no reason shall never be reported in any place'): DiagnosticReport._step_dict() now exports \"\" for any NA-verdict step's reason. This is the ONE additional edit beyond the original plan's four files — diagnostic_report.py. derive_plan and sdp_capability.py remain untouched (the in-memory model still carries the full prose; only the exported/reporting dict is suppressed)."
-  - "DELTA exemption: sdp_hold_state (a top-level field, not a step) is deliberately left carrying its full 'NOT-RUN: <reason>' prose — the operator's ruling was scoped to steps. This is the SOLE remaining place the suppressed reason text can still appear in a saved/filed artifact, and it is surfaced to the operator separately (not resolved by this delta)."
+  - "DELTA exemption — NOW RESOLVED by the follow-on below. It read: sdp_hold_state (a top-level field, not a step) is deliberately left carrying its full 'NOT-RUN: <reason>' prose, the operator's ruling being scoped to steps; it was the SOLE remaining place the suppressed reason text could still appear in a saved/filed artifact, and was surfaced to the operator separately. The operator's reply was one word: 'strip'. See 'Follow-on: sdp_hold_state stripped to bare NOT-RUN'."
 
 patterns-established:
   - "New markdown-cell formatters go in submit.py and are imported (aliased submit_<name>) into cli_handlers.py's dev_test handler body, matching the existing _duration_text / _runs_text convention."
@@ -184,3 +186,43 @@ None - no external service configuration required.
 Original plan: all 4 modified files confirmed present on disk; both task commits (`2ce37ba`, `91f6368`) confirmed present in `firestarter_app`'s git history.
 
 Delta (2026-08-22, executed from `/workspaces/firestarter_app_gxx`): `firestarter/diagnostic_report.py`, `tests/test_dev_test_cmd.py`, `tests/test_submit.py` confirmed present on disk; delta commit `5fe007e` and both prior commits (`2ce37ba`, `91f6368`) confirmed present in git history; `SUMMARY.md` confirmed present on disk.
+
+
+## Follow-on: `sdp_hold_state` stripped to bare `NOT-RUN`
+
+**Branch:** `quick-devtest-holdstate-bare` (forked off `firestarter_app` beta `134c29c`)
+**Commit:** `e04c331` — merged to beta as `39b74ab`
+**Operator instruction:** one word — *"strip"* — in reply to this SUMMARY's flagged exemption.
+
+The delta above left `sdp_hold_state` carrying `NOT-RUN: <reason>`, so a REFUSE chip's
+saved `.json`, the fenced JSON in the saved `.md`, and the filed issue body each still
+carried the prose ONCE. That exemption is now closed.
+
+**Seam chosen: the source (`chip_test.sdp_hold_state()`), not `to_dict()`.** Suppressing at
+the export layer would have left a value that is computed, carried on the dataclass, and read
+by nothing — the console already truncated it via `_state_cell`, and the JSON would have
+dropped it. Dead data of that shape gets "restored" later as a bug, so the function no longer
+produces it. Both prose branches were removed: the step's own `reason`, and the fixed
+`sdp_honesty.unreadable_state_caveat()` fallback.
+
+**Knock-ons handled:**
+- `chip_test.py`'s `from firestarter import sdp_honesty` import became unused (ruff F401) and was removed with its trailing comment. `unreadable_state_caveat()` itself keeps three other callers and is NOT orphaned.
+- `_state_cell()` retained as defensive for legacy/foreign colon-bearing input, but its docstring no longer claims `to_dict()` keeps the full string — that claim became false.
+- `cli_handlers.py` untouched; the D-15 exit floor's `startswith(SDP_HOLD_NOT_RUN)` still fires on the bare token, now pinned by `TestExitFloorD15`'s four CLI-driven tests using exact equality.
+- The `sdp_capability()` identity proof, which the delta had re-homed onto the `sdp_hold_state` assertion, was re-homed AGAIN onto a focused unit test in `tests/test_sdp_capability.py` — where a claim about `sdp_capability`'s output actually belongs.
+- The end-to-end absence guard's `sdp_hold_state` carve-out was removed; it now asserts `REASON_WRONG_PROTOCOL` is absent from the ENTIRE saved `.md` and `.json`.
+
+**Verified end-to-end (orchestrator, independent of the executor):** all four branches return
+`HELD` / `NOT-HELD` / `NOT-RUN` / `NOT-RUN` correctly; a composed REFUSE-chip issue body
+contains neither the full prose, nor `REASON_WRONG_PROTOCOL`, nor the substring `0x0D`;
+`sdp_capability()` still returns the string live.
+
+**Gates, on a Python 3.11 CI-parity venv (not the devcontainer's 3.12):** ruff 0.16.4 lint +
+format clean; mypy watermark **35/35, zero new errors** (it had zero headroom);
+`check_devtest_orchestrator.py` and `check_diagnostic_report_claims.py` both PASS;
+**1964 passed**, 32 snapshots, 84.42% coverage.
+
+**Flagged, not fixed (pre-existing, out of scope):** `sdp_honesty.py`'s module docstring
+claims three production callers of `unreadable_state_caveat()` and names
+`cli_handlers._sdp_recovery_line`, which quick task 260821-spg deleted. That paragraph was
+already stale before this change; this change makes it one caller staler.
