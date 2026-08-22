@@ -39,6 +39,93 @@
 
 **v1.31 shipped:** 2026-08-18 (27C Programming-Algorithm Fidelity — 9 phases (138–146), 74 plans, 164 tasks; **45/45 v1 requirements**; firmware-touching, dual-repo lockstep. Implements [gh#15](https://github.com/henols/firestarter_prom/issues/15) **as corrected, not as filed** — two wrong numbers and one inverted premise, all three corrected *publicly and before implementation* (comment `#5233463320`): `0x0B`'s pulse is **500 µs**, not `50000 us`; pulse width is a **database datum**, not a per-protocol constant (re-derived live through the production parser — 170/127/32 chips); and the safe 32-bit delay helper is for the overprogram pulse, not any bare pulse. Delivered: **one shared per-byte pulse-to-verify loop** driven by a `const` PROGMEM `eprom_params_t` table keyed on `protocol_id` (**D-01** — protocol owns *shape*, the database owns the *pulse*), **not** gh#15's three state machines; fixed-width pulses that never grow between attempts; hard-fail at `max_pulses` reporting the failing **address and pulse count**; one shared `eprom_hv_route_mask()` with every **error** exit disabling every HV route through a single-exit wrapper; `write --pulse-us N` bounded 1..65535 and pre-validated before a serial byte, riding the existing wire field with **no new DB field and no second algorithm selector**; plus a host long-write timeout fix and intra-block progress, scoped to the `leonardo` class only — on `SERIAL_ON_IO` boards the emission is compiled out **structurally**, because a buffered progress frame there could displace a later `MSG_ERR_MAX_PULSES` and convert a program failure into a transport timeout. **Bench-validated on real silicon:** three full 65536-byte write→read→verify cycles on a Winbond **W27C512** (`0xda08`), **Leonardo**, shield **Rev 2.0** — three distinct images, nine clean oracle cells, read stability N=3 at one SHA each, write timing consistent to **0.37 s**. A firmware defect this milestone itself introduced (Phase 141 deleted the only `CTRL_VPE_ENABLE` assert) failed the **first** bench cycle on byte 0; it was root-caused by a debug session, fixed, and **stands in the record with its cause** rather than being counted out. **Evidence Ceiling stands: the ~6.25 V program-VCC rail all four vendor algorithms assume is unreachable on every shield revision this project owns** — so this milestone claims **fidelity, not improvement**, with no comparative claim, no control run, and no datasheet-conformance claim in either direction. `0x08` (AM27C020) and `0x0B` (M2716/M2732) are **skipped-with-reason** with the missing parts named, never inferred from `0x07`. Twelve items carry forward with the literal phrase `no v1.31 owner`; **MERGE-05's +96 B leonardo band breach is open and un-adjudicated** with the operator as its named owner. Eighth consecutive `override_closeout` (9 carry-forward items, none originating in v1.31). Closed via **PRs to `beta` in all three repos, not direct merges**, per operator decision — meta tagged `v1.31`, gitlinks re-pinned; **no beta cut yet**, and stable stays operator-gated. See `.planning/MILESTONES.md` §v1.31.)
 
+## Current Milestone: v1.33 — Source Hygiene & Firmware Size Reduction
+
+**Started:** 2026-08-22 · **Phases continue at 154** (v1.32 ran 147–153; the vacated **150** slot and the
+v1.24–v1.29 version slots stay unreused so every by-number cross-reference keeps resolving) · **Six phases,
+154–159** · **Phase 154 is dual-repo lockstep; Phases 155–158 are firmware-only; Phase 159 touches
+`.planning/` only**
+
+**Goal:** Make the source shorter without changing what it does.
+
+Two halves that share one property: **both make the source shorter and neither changes behaviour.** Retires
+Backlog **999.34**. Files Backlog **999.35** rather than carrying it.
+
+**Target features:**
+
+- **Provenance comment sweep + remap tool** (Phase 154, promoted Backlog **999.34**) — remove the planning
+  provenance ~150 phases stamped into shipped source (**~646 comments across 167 files**; firmware ~345/94,
+  host ~301/73), condensing the minority that carry load-bearing rationale into ordinary comments. **Builds**
+  the citation-remap tool; deliberately does **not** apply it.
+- **Dead-weight removal** (Phase 155) — the heap allocator and the 64-bit runtime, each dragged in by a
+  single call site. **−1364 B flash / −8 B RAM.**
+- **Duplicated-report extraction + boolean-convention repair** (Phase 156) — the VPP-report and
+  chip-ID-report blocks, copy-pasted **4× each**, plus the nine inverted returns that cost zero bytes either
+  way. **−426 B flash.**
+- **Command-decode table + handle type narrowing** (Phase 157) — finish `json_parser.c`'s half-done refactor
+  and narrow two over-wide handle fields, closing a fail-closed hole in the process. **−1148 B flash /
+  −5 B RAM.**
+- **Residual optimizations + cold baseline re-record** (Phase 158) — resolve the two candidates the survey
+  left open and leave the gate story unambiguous for whoever moves sizes next.
+- **Citation remap + close** (Phase 159) — apply the remap **exactly once** over the composite
+  pre-154-to-post-158 diff, and close the staleness window it was built to bound.
+
+**Nothing in the second half is an estimate.** Every figure was measured on real `uno` / `uno328pb` /
+`leonardo` builds during the 2026-08-22 `/gsd-explore` session and validated at **172/172 native across
+seven runs** plus `native_nodevtools`. Total: **−2938 B flash / −13 B RAM on all three AVR targets for a net
+−2 lines of source**, and the firmware becomes **heap-free**. **Leonardo Caterina headroom 502 B → 3440 B
+(6.9×)** — which matters because v1.32 Phase 151 left that target at zero MERGE-05 headroom. The work is
+**already implemented** on firmware branch `size-reduction-survey` (forked off `8695ee5`) and captured as an
+applyable patch, so Phases 155–158 are **review, decomposition and landing** phases, not greenfield
+implementation. Evidence base, read before planning any of them:
+[`.planning/notes/firmware-size-reduction-survey.md`](notes/firmware-size-reduction-survey.md) +
+[`firmware-size-reduction-measured.patch`](notes/firmware-size-reduction-measured.patch).
+
+**Scoping was done by `/gsd-explore` routing on 2026-08-22, not by this activation.** `ROADMAP.md`'s v1.33
+section and `REQUIREMENTS.md` (31 requirements — SWEEP / DEAD / DEDUP / DECODE / LAND / REMAP) were
+hand-authored and are pointed at, **not** regenerated: the GSD roadmap/requirements verbs normalise whole
+files and would reformat six phase entries, five D-labels and 31 requirements. `/gsd-new-milestone` on
+2026-08-22 contributed this section, the `STATE.md` frontmatter switch, and the commits — nothing else.
+
+**Key decisions carried in from scoping** (full statements in `ROADMAP.md` §v1.33):
+
+| Decision | Substance |
+|---|---|
+| **D-01** | Phase 154 sweeps source and **builds** the remap tool; **Phase 159 applies it once**, over the composite diff. Measured: **723** citations sit at or below an edit Phases 155–158 make and would otherwise be remapped twice (`json_parser.c` 198 of 198, `flash_utils.cpp` 97 of 97) — and **41% of that rework traces to four added `#include` lines**. |
+| **D-02** | **No success criterion in this milestone requires a physical board.** Two changes have runtime consequences a bench could measure, but neither needs silicon to be *correct*. |
+| **D-03** | No exemption is authored for a reduction. **MERGE-05 is one-sided** (`check_size_baseline.py:697` is `if flash_delta > allowance`), so a shrink passes with no named exemption — the first size movement in this project's history that doesn't. The pass is recorded **as** one-sided so nobody later reads a green run as "nothing moved". |
+| **D-04** | **The native suite is load-flaky** — 172/172 at ~35 s (×5), 171/172 once at 1:13, 158-cases-with-2-ERRORED once at 1:44; failure correlates with run *duration*, not tree content. No phase may attribute a suite failure to its own change on N=1. The scoping session fell into this trap once itself. |
+| **D-05** | The Phase-154-to-159 citation staleness is **temporary, marked, and close-blocking** (REMAP-04), not promised away. The operator ruling it bends is about *permanently* accepting staleness in closed milestones, and that reading is recorded rather than assumed. Fallback if rejected at discuss: run 155–158 first and the sweep last — a one-line reorder, deliberately left cheap to reach. |
+
+**⚠ The one honest coverage ceiling.** `src/boards/rurp_common.cpp` compiles in **no** native environment
+(`[env:native]`'s `src_filter = +<proms/>`), so the 32-bit voltage reformulation has **no native coverage**
+and Phase 155 must establish it by a committed numerical oracle, naming that boundary. The survey bounds the
+change at **5 mV** worst deviation against the ±5% VPP windows (±600 mV at 12 V) that consume it.
+
+**⚠ Every gate this milestone leans on is a local-run obligation.** `check_size_baseline.py` is invoked by
+**no CI workflow at all** (`grep` over `.github/` returns nothing). Separately, the canonical
+`--policy merge05 --baseline .../size_baseline_base01.json` invocation is **already RED on `beta`** for an
+unrelated pre-existing reason — `native: cases baseline=141 observed=172`, BASE-01 frozen at Phase 124's
+count — and fails on case counts before it ever reports flash. Phase 158 owns both facts.
+
+**Explicitly OUT of scope: replacing JSON with a binary command protocol.** Operator decision, 2026-08-22.
+Measured at **−3728 B flash / −512 B RAM on `leonardo`** — the largest single saving the survey found, and
+deliberately not taken here because it is a breaking cross-repo wire change rather than a refactor. It stays
+queued as **v1.28** and is filed as Backlog **999.35** carrying the measurement. Two consequences that must
+not be lost: it **corrects v1.28's own estimate** (the ~512 B RAM figure is confirmed exactly; the
+"~1–1.5 KB net flash" is wrong by roughly 2.5×), and it **overlaps DECODE-01** — if 999.35 ever lands,
+Phase 157's field table is superseded, so the two figures are **not additive** and 999.35 must be
+re-measured from the post-v1.33 position before anyone quotes a combined saving.
+
+**Branch model:** meta forked off local `beta` @ `59a9ff5d` as `v1.33-source-hygiene-size-reduction`.
+Sub-repos fork off their `beta` tips per phase. **The firmware work already exists** on
+`size-reduction-survey` (off `8695ee5`, i.e. `beta`'s tip plus the bot version bump) with all 11 modified
+files applied but uncommitted — either rename that branch to the `v1.33-*` convention or rebase it onto the
+milestone branch; the patch reproduces it from scratch if that is cleaner.
+
+**First command:** `/gsd-discuss-phase 154` — that phase's requirements are deliberately **UNSET** because
+its triage policy is the substance of the phase. Every other phase can go straight to `/gsd-plan-phase`.
+
 ## v1.32 Archive: AT28C Write-Path Root Cause & Report Provenance — Shipped 2026-08-21
 
 **Started:** 2026-08-18 · **Phases continue at 147** (v1.31 ran 138–146) · **Mostly host-side; three
@@ -1516,6 +1603,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
+
+*Last updated: 2026-08-22 — **v1.33 (Source Hygiene & Firmware Size Reduction) STARTED.** Six phases, 154–159. Two halves that share one property: both make the source shorter and neither changes behaviour. First the promoted Backlog **999.34** provenance-comment sweep (~646 GSD `// Phase NNN (REQ-NN):` comments across 167 files; firmware ~345/94, host ~301/73) — **split** per D-01, so Phase 154 sweeps source and *builds* the citation-remap tool while Phase 159 applies it **once** over the composite diff (measured: **723** citations would otherwise be remapped twice, and 41% of that rework traces to four added `#include` lines). Then four **measured** firmware size reductions totalling **−2938 B flash / −13 B RAM on all three AVR targets for a net −2 lines of source**, validated at 172/172 native across seven runs: `mem_util_blank_check` malloc'd **four bytes** and was the allocator's only caller anywhere, dereferencing the result unchecked on a part with ~470 B free RAM (**the firmware becomes heap-free**); `rurp_read_voltage_mv` was the only user-code caller of the entire 438 B 64-bit runtime; the VPP-report and chip-ID-report blocks were copy-pasted **4× each**, holding 24 of the image's 30 `__udivmodhi4` call sites between them; and `json_parser.c`'s `key_parsers[]` re-matched every wire key a second time inside each `get_*` stub, costing **1012 B** across 11 PROGMEM-function-pointer stubs while five *identical* directly-called siblings cost zero. **Leonardo Caterina headroom 502 B → 3440 B (6.9×)** — which matters because v1.32 Phase 151 left that target at zero MERGE-05 headroom. **MERGE-05 is one-sided** (`check_size_baseline.py:697` is `if flash_delta > allowance`), so this is the first size movement in the project's history needing **no** named exemption (D-03). **Scoping was NOT done by this activation** — `ROADMAP.md` §v1.33 and `REQUIREMENTS.md` (31 requirements: SWEEP / DEAD / DEDUP / DECODE / LAND / REMAP) were hand-authored by `/gsd-explore` routing on 2026-08-22 and are pointed at, not regenerated, because the GSD roadmap/requirements verbs normalise whole files; `phases.clear` was **skipped** (126 phase directories exist). This activation contributed the §"Current Milestone: v1.33" section, the `STATE.md` frontmatter switch, and the commits. Phases 155–158 are **review, decomposition and landing** phases — the work is already implemented on firmware branch `size-reduction-survey` (off `8695ee5`) and captured at `.planning/notes/firmware-size-reduction-measured.patch`. **Explicitly OUT: replacing JSON with a binary command protocol** (operator, 2026-08-22) — measured **−3728 B flash / −512 B RAM** on `leonardo`, the largest single saving the survey found, deliberately not taken because it is a breaking cross-repo wire change; stays queued as **v1.28** and filed as Backlog **999.35**, whose figure **overlaps DECODE-01** and is therefore **not additive**. **No criterion requires a physical board** (D-02); the one honest ceiling is that `src/boards/rurp_common.cpp` compiles in no native environment, so the voltage reformulation has no native coverage and Phase 155 must establish a committed numerical oracle. Meta forked off local `beta` @ `59a9ff5d` as `v1.33-source-hygiene-size-reduction`. **Next:** `/gsd-discuss-phase 154` — that phase's requirements are deliberately UNSET because its triage policy is the substance of the phase. Prior footer (v1.31 close) retained below.*
 
 *Last updated: 2026-08-18 — **v1.31 (27C Programming-Algorithm Fidelity) SHIPPED and archived via `/gsd-complete-milestone`.** 9 phases (138–146), 74 plans, 164 tasks, **45/45 v1 requirements**, all nine phases verified. Roadmap and requirements archived to `.planning/milestones/v1.31-{ROADMAP,REQUIREMENTS}.md`; `REQUIREMENTS.md` removed via `git rm` for the next milestone. **Closed via PRs to `beta` in all three repos, not direct merges**, per operator decision — the same posture v1.30 took. Meta tagged `v1.31`; submodule gitlinks re-pinned off their stale v1.30-era commits to the v1.31 tips; the gh#15 reconciliation posted as the first post-push act. **No beta cut** — `3.0.0bNN` follows the PR merges, and stable remains operator-gated. Eighth consecutive `override_closeout`: **9** carry-forward `audit-open` items acknowledged, **none originating in v1.31**, down from 14 because the 2026-08-09 sweep closed Phases 71 and 85 on evidence and retired two debug sessions into precise trackers; what survives is genuinely hardware-gated (the Uno-class legs of Phases 08/09, Phase 84's operator sign-off), so it needs bench time rather than another acknowledgement. **Three things this close did rather than accept:** (1) authored the missing `145-VERIFICATION.md` from the existing bench record — the phase had shipped its evidence into `145-BENCH-LOG.md` and its 145-08 verdict but never emitted the conventional artifact, so readiness read the phase unverified while its three requirements were already ticked on audited evidence; the report cites that record rather than re-deriving it, and says plainly that it **cannot** be re-run without hardware. (2) Found and worked around a GSD tooling defect instead of trusting its output — `plan-scan.cjs`'s loose `/PLAN/i` fallback counted `146-REPLAN-BRIEF.md` as a phantom **14th** plan in a 13-plan phase, which drove `phase_complete: false` for a closed phase and wrote `completed_phases: 8` / `percent: 89` into `STATE.md`; the brief was renamed to `146-RESCOPE-BRIEF.md` with a provenance note in-file (no citation referenced it) and the scanner behaviour filed, not fixed. (3) Hand-repaired `STATE.md` after `gsd-tools milestone.complete` corrupted it — `current_phase` written as **31** (a parse artifact of "v1.31"), `stopped_at` overwritten with a **stale 146-11** line, and the progress block written 8/9 at 89 %. The v1.30 close shows the identical signature (`current_phase: 30`, 7/8, 88 %), so both defects had been mis-reporting silently for at least two milestones. **The milestone's own boundaries carry forward unchanged:** the ~6.25 V ceiling as accepted debt; **MERGE-05's +96 B leonardo band breach open and un-adjudicated** with the operator as its named owner (its green reading came from the anchor **moving**, not from growth staying inside the band); `0x08` and `0x0B` unvalidated on hardware; program-window VPP/VCC under load still blocked by the Phase-97 DTR-reset-on-close gap. Twelve items carry the literal phrase `no v1.31 owner` and sixteen un-taken readings each name their blocker. Backlog **999.30** and **999.31** were filed by this milestone's own bench work. **Next:** `/gsd-new-milestone`. Prior footer (Phase 144 close) retained below.*
 
