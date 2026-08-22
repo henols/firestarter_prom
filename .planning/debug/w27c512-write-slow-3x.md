@@ -258,7 +258,7 @@ root_cause: |
   The operator's hypothesis (host chunking too small) is REFUTED: measured 64 chunks x 1024 B.
 
 fix: |
-  firestarter @ debug-w27c512-write-slow, commit 071d505 -- pass-batch the 0x07/0x08/0x0B program
+  firestarter @ debug-w27c512-write-slow, commits 071d505 + 5882548 -- pass-batch the 0x07/0x08/0x0B program
   loop: a scan pass (route down, flag every byte short of target) alternating with a pulse pass
   (route asserted once, strobe every flagged byte). After the first pass the scan re-reads only the
   bytes the previous pulse pass strobed, so per-byte read counts are unchanged. Also folds
@@ -277,14 +277,62 @@ files_changed:
   - firestarter/src/proms/eprom.cpp
   - firestarter/include/memory_utils.h
   - firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp
+  - firestarter/include/eprom.h (5882548 -- EPROM_OVERPROGRAM_SUPPORTED)
+  - firestarter/platformio.ini (5882548 -- leonardo -D EPROM_OVERPROGRAM_SUPPORTED=0)
 
-open_adjudications (NOT laundered, operator decision required):
-  - MERGE-05 size gate FAILS. leonardo +772 B, uno +476 B, uno328pb +474 B against the live
-    baseline; RAM +0 on all three. A FIFTH named, SHA-attributed exemption is needed.
-    leonardo's unguarded Caterina headroom falls 1042 B -> 270 B.
-  - native_trace_v131's frozen golden (test/native/avr/_shared/eprom_v131_expected.h) is RED on all
-    three protocol cases: 121->131, 148->149, 92->101 stream entries. The cadence change is real
-    and intended (one VPE assert/settle per pass instead of per byte); regenerating a frozen
-    empirical golden is an adjudication, so it was left RED rather than refreshed silently.
-  - The change is on the shared EPROM write path, so it moves 0x08 and 0x0B too. Bench proof exists
-    for 0x07 only; 0x08/0x0B are covered by native suites alone (no silicon on this rig).
+adjudicated (operator decisions, 2026-08-22):
+
+  - DECISION 1 -- FLASH: RESOLVED at commit 5882548. My checkpoint figures were WRONG by ~2x and
+    are corrected here: the change cost leonardo +772 B, uno +476 B, uno328pb +474 B against the
+    LIVE baseline (scripts/baseline/size_baseline.json), i.e. leonardo overran MERGE-05's 724 B
+    allowance by **48 B only**, and uno/uno328pb both PASSED and needed nothing. My earlier
+    "+1496 / needs 772 B" restated the gate's CUMULATIVE delta against BASE-01 as if it were the
+    change delta. Do not reuse those numbers.
+    Operator ruled: compile out the LOOP-03 overprogram path on the **leonardo target only**, no
+    new exemption constant. Implemented as `EPROM_OVERPROGRAM_SUPPORTED` (default 1,
+    include/eprom.h) with `-D EPROM_OVERPROGRAM_SUPPORTED=0` in platformio.ini's leonardo env; the
+    switch also gates the now-single-caller static `eprom_internal_program_pulse` and the two
+    locals only that site reads, because an unreferenced static/local is a warning and the AVR
+    policy is zero.
+    Post-guard, cold rebuild, against the live baseline:
+      uno       25548 -> 26026  +478  (allowance 788)  PASS
+      uno328pb  25598 -> 26074  +476  (allowance 788)  PASS
+      leonardo  27630 -> 28170  +540  (allowance 724)  PASS, 184 B spare
+    RAM +0 on all three; 0 warnings on all three.
+    **Leonardo Caterina margin: 28672 - 28170 = 502 B** (was 270 B at 071d505; 1042 B pre-session).
+    Honest correction: the guard saved 232 B, not the ~422 B I estimated at 071d505 (that estimate
+    came from an earlier code variant), so leonardo landed at +540 rather than the ~+350 predicted.
+    It still passes with 184 B spare, so no exemption was invented.
+    Per-target behavioural divergence, stated not buried: uno/uno328pb can still emit an
+    overprogram margin pulse, leonardo cannot. Unobservable today because `overprogram_factor` is
+    ABSENT from all 746 chip_database.json rows (the field would sit under `programming`), so
+    eprom_overprogram_us returns 0 on every target. It becomes observable the moment a row gains
+    one -- whoever adds such a row must revisit the define and re-measure the Caterina margin.
+    Residual on the gate itself, unclosed and NOT caused by this change: the canonical
+    `check_size_baseline.py --policy merge05 --baseline scripts/baseline/size_baseline_base01.json`
+    invocation still exits 1, because it measures CUMULATIVE growth against BASE-01 and the live
+    position was already at +724 = exactly leonardo's whole 724 B allowance, i.e. 0 B of room. By
+    the gate's own printed arithmetic it would fail for a +1 B leonardo change too. Closing it
+    needs either a re-record of size_baseline.json (its documented role as the LIVE baseline) or a
+    fifth exemption, and the operator has ruled the exemption out. Left for whoever lands this.
+    Also pre-existing and unrelated: that invocation reports `native: cases baseline=141
+    observed=170` from a stale count inside size_baseline_base01.json.
+
+  - DECISION 2 -- TRACE GOLDEN: **DELIBERATELY LEFT RED, BY OPERATOR INSTRUCTION.** Do NOT
+    regenerate test/native/avr/_shared/eprom_v131_expected.h. `pio test -e native_trace_v131`
+    fails 3 of 6 cases: 0x07 121->131, 0x08 148->149, 0x0B 92->101 stream entries. This is a
+    visible flag that the write cadence changed (one VPE assert/settle per pass instead of per
+    byte) and that the change needs its own review before this branch reaches beta. A later agent
+    MUST NOT "fix" this by re-freezing the golden; anyone shipping this branch has to consciously
+    adjudicate the cadence change. This red is expected and is not an oversight.
+
+  - DECISION 3 -- 0x08 / 0x0B BENCH PROOF: **PENDING, UNCLOSED RESIDUAL. Do not attempt on this
+    rig.** The fix is on the shared `eprom_write_execute` path, so it moves 0x08 and 0x0B as well
+    as the reported 0x07. Bench proof exists for **0x07 only** (W27C512, three clean 64 KiB
+    cycles, byte-exact); 0x08 and 0x0B rest on the native suites alone. Why it cannot be closed
+    here: both erasable proxies the operator owns (W27C512, W27E257) are 0x07. The 0x08 erasable
+    proxies are MX26C / PT28C / LG28C / SST27 010-040, none of which are on this bench. The only
+    0x08 part known on the bench is a UV AM27C020 previously recorded MARGINAL (write#1 60/64,
+    write#2 0/64, suspected VPP droop), so a failure there would be ambiguous between this new
+    loop and a known-bad part -- it would prove nothing either way. Chip choice is with the
+    operator. Nothing was seated or requested.
