@@ -3936,6 +3936,30 @@ Plans:
 
 ---
 
+### Phase 999.34: Sweep GSD provenance comments from firmware and host source (BACKLOG — ⭐ PROMOTE FIRST into the next milestone; filed 2026-08-22 by operator request)
+
+**Goal:** Remove the planning provenance GSD executors have stamped into shipped source across ~150 phases — `// Phase 151 (LOCK-02): ...`, `/* Phase 44 — D-04 sweep params */`, `// Phase 9: deleted the legacy SERIAL_DEBUG infrastructure` — while **condensing** the minority that carry load-bearing rationale into ordinary, valuable comments. Survey (2026-08-22, `beta` tip): **~646 hits across 167 files** — firmware ~345/94, host ~301/73.
+**Requirements:** TBD — needs discuss-phase to settle the triage policy (see the decision already taken, below)
+**Plans:** 0 plans
+**Origin:** Operator request 2026-08-22, captured as [`todos/pending/2026-08-22-sweep-gsd-provenance-comments-from-firmware-and-host-source.md`](todos/pending/2026-08-22-sweep-gsd-provenance-comments-from-firmware-and-host-source.md) — **that todo is the full writeup; read it before planning.** This entry is the roadmap handle only.
+
+**Sizing note (2026-08-22): phase-shaped, not quick-shaped, and it wants to run FIRST.** Four distinct deliverables — the 646-comment triage, the condensing pass, a citation-remap tool with a round-trip oracle, and a comment-sensitivity classification of the ~20 host gates that scan firmware source. Two findings drive the sequencing:
+
+- **Big-bang beats incremental.** The comments are a long tail — **109 of 167 files hold only 1–2 hits**, top 10 files just 35%. The fixed costs (remap tool, gate classification, byte-identical build check) are paid once regardless, so folding the sweep into phases that already touch each file would pay that overhead ~109× for the same result.
+- **Cost grows monotonically, and the window is now.** ~150 phases produced ~646 comments (~4/phase) and every new phase adds `file:LINE` citations to remap. Running it *between* milestones is the only window where the remap is not fighting phase records being written against shifting line numbers. v1.32 closed 2026-08-22 — that window is open.
+
+**Decided 2026-08-22 (operator): repair the `.planning/` `file:LINE` citations, archives included — "the only sensible way."** Not "accept staleness for closed milestones". Measured: **6,939 of 12,753** citations shift (`phases/` 4,918 · `milestones/` 1,309 · `research/` 180 · `graphs/` 108 · `debug/` 99 · `quick/` 55 · `notes/` 54 · `PROJECT.md` 42). The remap must be scripted from the real diff (ranges need BOTH endpoints mapped; a range spanning a deleted block shrinks — not a constant offset) and committed **atomically with the source edit**. Oracle, since no global citation gate exists today: the source text at each cited line before the sweep must equal the text at the remapped line after it. See [`feedback_repair_planning_line_citations_never_accept_staleness`] in operator memory.
+
+**Known hazards** (detail in the todo): ~20 `firestarter_app/tests/` gates read firmware source and **fail open** — a comment-only sweep can flip them RED *or* silently green; editing archived `milestones/` records collides with the known "milestone close breaks its own record gates" behaviour; and the `uno` build must come out **byte-identical**, which is the sweep's strongest oracle (comments cost zero bytes, and there is zero flash headroom at watermark 1166).
+
+**Cheaper alternative, if the full sweep is ever judged not worth it:** a line-preserving variant — strip the label, keep the line (`// Phase 151 (LOCK-02): CMD_LOCK_STATUS ...` → `// CMD_LOCK_STATUS ...`). Zero line shift, so the entire 6,939-citation repair evaporates and it becomes a `/gsd-quick`. Rejected as the primary plan because only **19** hits are trailing comments while **581 are full-line**, so it would leave ~581 comment lines standing, many now redundant with the code beneath them — provenance noise traded for comment noise.
+
+Plans:
+
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+---
+
 ### v1.14 — Feasible-Gap Implementation (✅ PROMOTED 2026-06-18 → active milestone, Phases 77–80)
 
 > **PROMOTED.** The four items below (999.4–999.7) were promoted via `/gsd-new-milestone v1.14`

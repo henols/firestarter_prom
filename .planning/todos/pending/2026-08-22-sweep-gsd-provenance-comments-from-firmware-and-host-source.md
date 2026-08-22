@@ -1,6 +1,6 @@
 ---
 created: 2026-08-22T21:57:53Z
-title: "Sweep GSD provenance comments from firmware and host source — delete the bookkeeping, condense the rationale"
+title: "Sweep GSD provenance comments from firmware and host source — delete the bookkeeping, condense the rationale (tracked as Backlog 999.34, ⭐ promote first into the next milestone)"
 area: general
 files:
   - firestarter/src/**, firestarter/include/**  (~345 hits / 94 files)
@@ -12,6 +12,11 @@ files:
 ---
 
 ## Problem
+
+> **Roadmap handle: Backlog Phase 999.34** (filed 2026-08-22), flagged ⭐ PROMOTE FIRST
+> into the next milestone. Phase dir: `.planning/phases/999.34-sweep-gsd-provenance-comments/`.
+> This todo is the full writeup — the ROADMAP entry deliberately defers to it.
+> Sizing rationale (phase, not quick; big-bang beats incremental) lives in the ROADMAP entry.
 
 GSD executors have been stamping planning provenance into the shipped source for
 ~150 phases. A survey on 2026-08-22 (branch `beta`) counted:
