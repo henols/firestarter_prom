@@ -547,7 +547,7 @@ consequence of D-D for a bench operator: a full-device pass on a large part is n
 device-length transfers at 250000 baud, i.e. minutes rather than seconds.
   </action>
   <verify>
-    <automated>cd /workspaces/firestarter_app && python -m pytest tests/ -o addopts="" -q && ruff check firestarter/ tests/ && ruff format --check firestarter/ tests/ && python -m pytest tests/test_check_devtest_orchestrator.py tests/test_characterization.py tests/test_check_diagnostic_report_claims.py -o addopts="" -q && git -C /workspaces/firestarter_app diff --stat -- firestarter/data/chip_database.json tools/build_db.py | grep -c . | grep -qx 0</automated>
+    <automated>cd /workspaces/firestarter_app && python -m pytest tests/ -o addopts="" -q && ruff check firestarter/ tests/ && ruff format --check firestarter/ tests/ && python -m pytest tests/test_check_devtest_orchestrator.py tests/test_characterization.py tests/test_check_diagnostic_report_claims.py -o addopts="" -q && git -C /workspaces/firestarter_app diff --stat beta -- firestarter/data/chip_database.json tools/build_db.py | grep -c . | grep -qx 0</automated>
   </verify>
   <done>Full suite green; ruff lint and format clean; the three console gates green with their expected sets unedited; the final command confirms neither the generated database nor the generator was modified.</done>
 </task>
