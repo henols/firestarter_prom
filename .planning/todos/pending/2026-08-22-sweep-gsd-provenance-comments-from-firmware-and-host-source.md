@@ -2,6 +2,7 @@
 created: 2026-08-22T21:57:53Z
 title: "Sweep GSD provenance comments from firmware and host source — delete the bookkeeping, condense the rationale (tracked as Backlog 999.34, ⭐ promote first into the next milestone)"
 area: general
+resolves_phase: 154
 files:
   - firestarter/src/**, firestarter/include/**  (~345 hits / 94 files)
   - firestarter_app/firestarter/**, firestarter_app/tests/**  (~301 hits / 73 files)

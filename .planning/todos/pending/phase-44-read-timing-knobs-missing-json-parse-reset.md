@@ -2,7 +2,14 @@
 created: 2026-08-19T00:00:00Z
 title: "Phase 44 read-timing knobs (read_settling_us, read_strobe_us) are missing from json_parse's optional-key reset block"
 area: firmware
-resolves_phase: unassigned
+resolves_phase: 157  # ADJACENCY link, set 2026-08-22 at v1.33 activation: Phase 157 rewrites this exact
+# file (json_parser.c) — replacing key_parsers[] and the eleven get_* stubs with a {key, offset, width,
+# clamp} data table, and deleting get_read_settling / get_read_strobe outright. No v1.33 requirement
+# currently covers the optional-key RESET block this todo is about (DECODE-06 covers the
+# READ_TIMING_MAX_US clamp surviving, which is a different concern). Linked anyway because fixing it
+# during 157 is nearly free whereas fixing it afterwards means touching the file twice — exactly the
+# double-remap cost D-01 exists to avoid, and json_parser.c loses 198 of 198 of its .planning/
+# citations to 157. /gsd-discuss-phase 157 decides whether to adopt it; this link is not a commitment.
 files:
   - firestarter/src/json_parser.c
   - firestarter/test/native/avr/test_read_timing/test_read_timing_params.cpp
