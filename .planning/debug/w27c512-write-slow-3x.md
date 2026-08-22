@@ -1,5 +1,5 @@
 ---
-status: awaiting_human_verify
+status: fixed_awaiting_human_verify
 trigger: "W27C512 write is ~3-4x slower on v3.x than v2.x. gh#36 (29.71s -> 108.74s regression) + gh#42 (dev test PASS, write step 139.2s vs read 10.6s). Operator hypothesis: the HOST is chunking data too small during programming, from a misunderstanding of page writing; page programming belongs in the FIRMWARE, not the app."
 created: 2026-08-22
 updated: 2026-08-22
@@ -336,3 +336,61 @@ adjudicated (operator decisions, 2026-08-22):
     write#2 0/64, suspected VPP droop), so a failure there would be ambiguous between this new
     loop and a known-bad part -- it would prove nothing either way. Chip choice is with the
     operator. Nothing was seated or requested.
+    **OPERATOR RULING (2026-08-22): DEFER 0x08 -- ship on native evidence.** The 0x08/0x0B bench
+    gap is accepted and stays an explicitly stated, unclosed residual rather than a blocker. It
+    must be disclosed in the PR body, not just here. Revisit if an 0x08 erasable part
+    (MX26C / PT28C / LG28C / SST27 010-040) ever reaches the bench. Do NOT close this residual by
+    substituting the marginal AM27C020, and do NOT quietly drop the caveat when landing.
+
+
+## Resolution
+
+root_cause: Firmware, not host. `eprom_internal_program_pulse` (firestarter/src/proms/eprom.cpp:247)
+  asserted the VPE route and paid EPROM_VPP_SETUP_US=1000 + EPROM_VPP_HOLD_US=100
+  (include/eprom.h:166-167) PER BYTE. 65536 x 1100 us = 72.1 s of pure settle against only 6.55 s of
+  actual program pulse. v2.0.6's program_mismatched_bytes() asserted the route once PER PASS with a
+  single delay(10) = 0.64 s per device. A factor-112 amplification of the same settle, introduced by
+  v1.31 Phase 141 LOOP-01 (per-byte granularity) plus the w27c512-program-fail-byte0 fix, which
+  correctly moved the route assert inside the per-byte step to cure a real correctness bug.
+  The operator's stated hypothesis (host chunking too small) was MEASURED and REFUTED: the host
+  sends 64 chunks of a full 1024 B buffer for a 64 KiB write, using comm.firmware_max_chunk
+  verbatim. Page programming is ALREADY firmware-side; nothing needed moving.
+
+fix: firestarter branch `debug-w27c512-write-slow`, two commits off beta 1e1f989:
+  - 071d505 perf(eprom): amortise the VPE settle over a pass, not every byte
+  - 5882548 build(leonardo): compile out the LOOP-03 overprogram site on this target only
+  Host UNCHANGED (firestarter_app still on beta 3d43bf5, zero tracked changes).
+
+verification:
+  - Bench, on the ACTUAL BRANCH TIP 5882548 (leonardo re-flashed; avrdude verified 28170 bytes
+    on-chip, matching the size gate's leonardo figure exactly): fresh random 64 KiB image,
+    write **33.35 s**, independent full read-back **sha256 identical, 0 mismatching bytes**.
+    The image was deliberately DIFFERENT from the resident one -- reusing it would let LOOP-06
+    skip every already-correct byte and fake a fast result.
+  - Four clean byte-exact 64 KiB cycles total: two by the debugger and one orchestrator-verified
+    at 071d505 (33.51 / 33.50 / 33.49 s), plus this one at 5882548 (33.35 s).
+  - Before/after: **105.89 s -> 33.35 s** on this rig (3.2x). gh#36 reported 108.74 s; v2.x 29.71 s.
+  - Size gate `check_size_baseline.py --policy merge05 --rebuild` **PASSES all three, exit 0**:
+    uno 26026 (+478<=788), uno328pb 26074 (+476<=788), leonardo 28170 (+540<=724, 184 B spare).
+    RAM +0 everywhere. Leonardo Caterina margin 502 B against the unguarded 28672 B cliff.
+  - Native suites: native 170/170, native_nodevtools 170/170, native_loop_v131 80/80,
+    native_params_v131 9/9, native_pinmap_provisional 11/11.
+    native_trace_v131 3/6 RED -- deliberate, see Decision 2.
+
+files_changed: firestarter/src/proms/eprom.cpp, firestarter/include/eprom.h,
+  firestarter/include/memory_utils.h, firestarter/platformio.ini
+
+residuals_not_closed:
+  1. 33.35 s vs v2.x's 29.71 s. Explained, not hidden: this loop keeps a per-pulse verify read AND
+     a final full-block verify that v2.x did not do -- roughly 20 s of reads. A read costs ~100 us
+     for a 3 us strobe, so the register-write path is a separate unexplored optimisation (~10 s).
+  2. 0x08 / 0x0B have NO bench proof (Decision 3, operator-deferred). Shared code path, 0x07 only
+     on silicon. Must be disclosed in the PR body.
+  3. native_trace_v131 left RED by instruction (Decision 2). Must be adjudicated before beta.
+  4. The BASE-01 cumulative gate invocation still exits 1 -- pre-existing, 0 B of room before this
+     change, not caused by it. Needs a size_baseline.json re-record or a fifth exemption.
+  5. No DMM on the VPE rail. The rail now stays asserted for a whole pass rather than per byte;
+     a droop would surface as a final-verify failure, and four clean cycles is suggestive, not
+     proof. The 1000/100 us settle constants were left untouched.
+  6. Bench state: leonardo flashed with 5882548; the W27C512 holds tip_img.bin
+     (sha256 d30ef8f1...). gh#36 and gh#42 are still OPEN and unanswered.
