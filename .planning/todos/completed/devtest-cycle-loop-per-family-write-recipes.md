@@ -5,8 +5,46 @@ priority: high
 size: milestone-sized (not a quick task)
 needs_bench: yes
 origin: design discussion with the operator, 2026-08-22, fully aligned
-blocked_by: nothing — v1.32 is CLOSED, so this wants /gsd-new-milestone
+status: DONE — implemented and merged to beta 2026-08-22
+implemented_in: firestarter_app 27021b3..b95f52a, merged as bf1fdc9
 ---
+
+> ## ✅ DONE, 2026-08-22 — implemented in the same session it was scoped
+>
+> The operator said "do the work and merge and push to beta", so this never
+> became a milestone. Four commits on `quick-devtest-runcount-fast`, merged to
+> `firestarter_app`'s `beta` as `bf1fdc9`:
+>
+> | Commit | Decisions |
+> | --- | --- |
+> | `27021b3` | D-1, D-3 — cycle-block executor and aggregation |
+> | `9028721` | D-2, D-6, D-8 — per-family payloads, UV tranches, cycle-aware slot floor |
+> | `2b42dac` | D-4, D-9 — full-device UV write and prompt retired, rig life reported; **D-5 DECLINED** |
+> | `b95f52a` | D-10, D-11 — rig-health reframing in help and docs |
+>
+> **Three deviations from the decisions below, all recorded in the commits
+> rather than smoothed over:**
+>
+> 1. **D-3's cycle order was not adopted.** D-3 specified `erase → blank-check
+>    → write → verify`, which would have reordered `derive_plan`'s emission and
+>    every step-order assertion in the suite. The shipped cycle keeps today's
+>    `write → verify → erase → blank-check` and repeats it, which achieves the
+>    same property from cycle 2 on. Only cycle 1's write can start from an
+>    unknown state.
+> 2. **D-6's premise was wrong, in our favour.** It assumed staging would cost
+>    extra bits and sized tranches at a 128-bit floor to limit the damage. It
+>    costs *nothing*: the final staged image equals `current & desired`, so the
+>    part ends exactly where one unstaged write leaves it. Tranches are sized
+>    by splitting the existing expenditure instead.
+> 3. **D-5 was DECLINED.** Its premise did not survive contact with the code
+>    and the operator asked to be told if it did not. `uv_slot_starts` is
+>    already TOP-DOWN, so the first slot chosen is the highest address and
+>    high-address write coverage existed from run 1 — the problem D-5 solved
+>    was never there. It also could not have round-robined: a run saturates its
+>    whole slot, so every unused slot ties on remaining bits.
+>
+> **Still not done: any hardware.** Nothing here has touched a real chip. The
+> bench obligation below stands, and is now the only outstanding item.
 
 # `dev test` cycle-loop executor + per-family write recipes
 
