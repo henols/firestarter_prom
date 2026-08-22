@@ -1,8 +1,10 @@
 ---
-status: fixed_awaiting_human_verify
+status: resolved
 trigger: "W27C512 write is ~3-4x slower on v3.x than v2.x. gh#36 (29.71s -> 108.74s regression) + gh#42 (dev test PASS, write step 139.2s vs read 10.6s). Operator hypothesis: the HOST is chunking data too small during programming, from a misunderstanding of page writing; page programming belongs in the FIRMWARE, not the app."
 created: 2026-08-22
 updated: 2026-08-22
+resolved: 2026-08-22
+shipped_as: firmware 3.0.0b22 (PR henols/firestarter#55, merged to beta)
 goal: find_and_fix
 sub_repo: firestarter_app (+ firestarter if the seam is on the wire)
 issues: [36, 42]
@@ -474,3 +476,27 @@ residuals_not_closed:
      proof. The 1000/100 us settle constants were left untouched.
   6. Bench state: leonardo flashed with 5882548; the W27C512 holds tip_img.bin
      (sha256 d30ef8f1...). gh#36 and gh#42 are still OPEN and unanswered.
+
+## Post-ship verification (orchestrator, 2026-08-22)
+
+The PUBLISHED release artifact was verified end-to-end, not just the local build:
+`firestarter fw --install --firmware-version 3.0.0b22` onto the leonardo bench board (downloaded
+`firestarter_leonardo.hex` from the 3.0.0b22 release), then a full 64 KiB write of a FRESH random
+image (`sha256 20ae29dd...`) -> **33.35 s**, followed by an independent full read-back that is
+**byte-exact, sha256 identical, 0 mismatching bytes**.
+
+The fresh image matters: LOOP-06 skips already-correct bytes, so re-writing the resident contents
+emits zero pulses and would have faked a fast result. Every timing figure in this record used an
+image the chip did not already hold.
+
+Both community issues answered on 2026-08-22 (comment ids 5382664757 on gh#36, 5382665259 on
+gh#42), each naming 3.0.0b22 and each stating plainly that only 28-pin (0x07) was verified on
+silicon while the fix also moves 32-pin (0x08) and 24-pin (0x0B). Both issues deliberately LEFT
+OPEN: the replies ask the reporters to confirm, so closing them would contradict the ask.
+
+**Deliberately NOT done, with reasoning:** `firestarter/CLAUDE.md:295` still states the pinned
+native envs are "asserted at exactly 141 cases / 17 suites". The real number is 172 (it was already
+stale at 170 before this session). It was left alone because `beta-build.yml` intentionally carries
+NO `paths-ignore`, so a docs-only merge to firmware `beta` would bump the version and publish an
+entire new pre-release for a comment fix. Correct move is to let this ride along with the next real
+firmware change. Same reasoning applies to any other prose-only correction in that repo.
