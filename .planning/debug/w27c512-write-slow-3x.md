@@ -1,0 +1,290 @@
+---
+status: awaiting_human_verify
+trigger: "W27C512 write is ~3-4x slower on v3.x than v2.x. gh#36 (29.71s -> 108.74s regression) + gh#42 (dev test PASS, write step 139.2s vs read 10.6s). Operator hypothesis: the HOST is chunking data too small during programming, from a misunderstanding of page writing; page programming belongs in the FIRMWARE, not the app."
+created: 2026-08-22
+updated: 2026-08-22
+goal: find_and_fix
+sub_repo: firestarter_app (+ firestarter if the seam is on the wire)
+issues: [36, 42]
+bench: /dev/ttyACM0 = leonardo, fw 3.0.0b20, Rev 2.0-class, W27C512 seated
+---
+
+# Debug Session: w27c512-write-slow-3x
+
+## Symptoms
+
+DATA_START
+
+**Operator's verbatim description:**
+
+> the w27c512 is written verry slow https://github.com/henols/firestarter_prom/issues/36 prof
+> https://github.com/henols/firestarter_prom/issues/42
+>
+> I thint the issue is that the app is deciding to send small shunks of data while progamming and
+> that is some missunderstandig about page writing.
+> Several eproms whant page programming and that shall be handeled inside the FW and not by the
+> app. The full buffer shall be sent over and if the eprom is requirning page writing the buffer
+> data shall be sent in chunks while programming.
+
+DATA_END
+
+**Expected behavior:** A full 64 KiB W27C512 write completes in roughly the v2.x time (~30s), and
+the host streams **full buffers** to the firmware. Any page-granular sequencing a chip needs is the
+**firmware's** responsibility, applied to data already resident in its buffer.
+
+**Actual behavior:** The write step takes 108.7s (gh#36, v3.x) to 139.2s (gh#42, this rig's
+configuration) for the same 64 KiB part. v2.x did the same write in 29.71s.
+
+**Error messages:** NONE. Both operations report success. gh#42 is a **PASS** report — every step
+OK. This is a pure performance regression, not a functional failure. That matters for the fix: no
+error path is involved, so the cause is in the normal, happy-path write loop.
+
+**Timeline:** Worked at v2.x speed. Regressed somewhere in the 2.x -> 3.x line. Operator's decision
+this session: pin it by **git archaeology** over the write path, NOT by installing an old host.
+
+**Reproduction:** `firestarter -p /dev/ttyACM0 write W27C512 <64KiB image>` on the attached rig,
+or the `write` step of `firestarter dev test w27c512`.
+
+## Evidence
+
+- timestamp: 2026-08-22 (orchestrator, pre-seed)
+  source: gh#36 body
+  fact: v2.x "Write to W27C512 successful (29.71s)." -> v3.x "Write to W27C512 successful (108.74s)."
+    Same chip, same operation. 3.66x slower. Reporter's own A/B, so host+firmware both moved.
+
+- timestamp: 2026-08-22 (orchestrator, pre-seed)
+  source: gh#42 JSON, schema_version 1.7, generated 2026-08-22T15:15:10Z
+  fact: Per-step durations on host 3.0.0b28 / fw 3.0.0b20:leonardo, chip w27c512, protocol **7**:
+    id 3.47s | read 10.618s | write **139.172s** | verify 19.58s | erase 8.256s | blank-check 8.066s.
+    write_region_start 0, write_region_length 65536 -> the write covered the FULL device.
+    transport_health all "not measured", transport_suspect false.
+    vpp 12000 mV / vpe 13700 mV before and after, unchanged.
+
+- timestamp: 2026-08-22 (orchestrator, pre-seed)
+  source: live probe of this rig
+  fact: `/dev/ttyACM0` reports "Current firmware version: 3.0.0b20, for controller: leonardo".
+    `hw` reports "Rev 2.0-class, Override HW: Rev 2.0-class". Both **byte-identical** to gh#42's
+    `fw_board_identity` and `hw_revision`. This rig is the same configuration as the proof report.
+    No other process holds the port. Editable install resolves to /workspaces/firestarter_app.
+
+- timestamp: 2026-08-22 (orchestrator, pre-seed)
+  source: arithmetic on the numbers above -- ORIENTATION ONLY, each term must be re-derived
+  fact: A budget that shows the overhead is NOT in the silicon:
+    - Pure pulse time: 65536 bytes x 100 us (W27C512 protocol 0x07 nominal) = **6.55s**.
+    - Transport floor: the `read` step moved the same 65536 bytes in **10.6s**, so a full-device
+      payload traverses the wire in ~10s.
+    - 6.55 + 10.6 = ~17s of irreducible work. v2.x's 29.7s is plausibly close to that.
+    - gh#42's 139.2s therefore carries roughly **120s of overhead that is neither pulse nor payload.**
+    - Leonardo's data buffer is 1024 B -> 64 blocks for 64 KiB. 120s / 64 = **~1.9s per block**,
+      which is implausibly large for one round trip -> suspect the real chunk count is much
+      HIGHER than 64, i.e. the transfer granularity is far below the 1024 B buffer.
+    Treat every number here as a hypothesis to confirm, not a finding. In particular the 100 us
+    pulse must be read from the actual database row, not assumed.
+
+- timestamp: 2026-08-22 (debugger, static)
+  checked: host transfer granularity, end to end.
+  found: `_main_phase_send_data` (firestarter_app/firestarter/eprom_operations.py:908) reads
+    `file_handle.read(buffer_size)`; `buffer_size` comes from `_calculate_buffer_size`
+    (:480-493) which returns `comm.firmware_max_chunk` VERBATIM; that is set in
+    `serial_comm.py:395-401` from the MSG_OK_READY u16 param, clamp [1,4096]; the firmware
+    advertises `DATA_BUFFER_SIZE` there (firestarter/src/firestarter.cpp:238-239), and
+    platformio.ini:87 sets `-D DATA_BUFFER_SIZE=1024` for leonardo. So the host chunk is 1024 B
+    and a 64 KiB write is 64 chunks. There is NO page-size or chip-derived value anywhere on the
+    0x07 write path's wire granularity.
+  implication: **The operator's hypothesis (host chunking too small) is REFUTED.** The host already
+    sends full buffers. 120 s / 64 chunks would be 1.9 s per chunk, which is not round-trip
+    latency -- it is time the firmware spends inside the block.
+
+- timestamp: 2026-08-22 (debugger, static)
+  checked: firmware 0x07 write inner loop, current beta (1e1f989).
+  found: `eprom_internal_write_execute_body` (src/proms/eprom.cpp:306-521) loops PER BYTE. For each
+    byte needing a pulse it calls `eprom_internal_program_pulse` (:247-253), which is:
+      set_control_register(CTRL_VPE_ENABLE, 1); delayMicroseconds(EPROM_VPP_SETUP_US);
+      set_data(addr, expected);                 delayMicroseconds(EPROM_VPP_HOLD_US);
+      set_control_register(CTRL_VPE_ENABLE, 0);
+    `EPROM_VPP_SETUP_US`=1000 and `EPROM_VPP_HOLD_US`=100 (include/eprom.h:166-167).
+    `set_data` -> `memory_set_data` (src/proms/memory.cpp:329-337) spends `pulse_delay` = the DB's
+    `pulse_duration_us` = **100 us** for W27C512.
+  implication: cost per programmed byte = 1000 + 100 + 100 = **1200 us**, of which **1100 us is
+    pure route-settle delay, not program energy**. 65536 bytes -> **72.1 s of dead delay** +
+    6.55 s of actual pulse. That is the missing ~120 s, near enough.
+
+- timestamp: 2026-08-22 (debugger, git archaeology across the 2.x->3.x boundary)
+  checked: `git show 2.0.6:src/proms/eprom.cpp` (firmware tag 2.0.6, the v2.x line).
+  found: v2.x used a PASS-BATCHED algorithm. `program_mismatched_bytes()` asserted `VPE_ENABLE`
+    once, paid `delay(10)` ONCE PER PASS, then pulsed every mismatched byte in the block with the
+    rail already up; `verify_and_update_mask()` then read the whole block with the rail down and
+    rebuilt a 128-byte mismatch bitmask; up to NUMBER_OF_RETRIES=20 passes.
+  implication: v2.x per-64-KiB settle cost = 64 blocks x 10 ms = **0.64 s**. v3.x = **72.1 s**.
+    Same 6.55 s of pulse in both. The regression is a factor-112 amplification of the settle,
+    caused by moving the pulse/verify granularity from PER PASS to PER BYTE (v1.31 Phase 141
+    LOOP-01) while leaving the route assert inside the per-byte step (debug session
+    w27c512-program-fail-byte0, which added the per-pulse assert to fix a real correctness bug).
+
+- timestamp: 2026-08-22 (debugger, static)
+  checked: whether this cost was already known.
+  found: include/eprom.h:145-148 states it outright: "The COST, so nobody has to re-measure it:
+    ~110 s per 64 KiB write, up from ~40 s at 100 us." gh#36 measured 108.74 s.
+  implication: the regression is a DOCUMENTED, ACCEPTED cost of a correctness fix -- not an unknown
+    defect. Nobody compared it to the v2.x 29.71 s baseline at the time. The 40 s figure quoted for
+    100/10 us is ALSO above v2.x, which independently confirms the per-byte structure (not just the
+    settle magnitude) carries cost v2.x did not pay.
+
+- timestamp: 2026-08-22 (debugger, BENCH, /dev/ttyACM0, fw 3.0.0b20 as-found)
+  checked: instrumented full 64 KiB write of a deterministic pseudorandom image (238 bytes of 0xFF,
+    so 65298 bytes need a pulse). Harness patched `SerialCommunicator.send_bytes` to timestamp
+    every '#'-framed data chunk.
+  found: **chunk_count = 64. Framed chunk size 1028-1031 B (= 1024 payload + CRC8 + COBS +
+    delimiter).** Inter-chunk wall time: min 1.560 s, p50 **1.568 s**, max 2.063 s, sum 99.27 s.
+    `Write to W27C512 successful (105.89s)`, harness wall total 109.29 s.
+  implication: (1) **The host chunking hypothesis is REFUTED by direct measurement** -- 64 chunks of
+    a full 1024-byte buffer is exactly the negotiated buffer size; nothing is fragmented.
+    (2) 99.3 of the 105.9 s is spent BETWEEN chunk pushes, i.e. inside the firmware's per-block
+    program loop -- 1.568 s per 1024-byte block = **1531 us per byte**. The predicted per-byte
+    delay cost (1000 us setup + 100 us pulse + 100 us hold = 1200 us) accounts for 78 % of it; the
+    remaining ~331 us/byte is the 2-3 register-latched reads plus set_data's own register writes.
+    (3) 105.89 s independently reproduces the 105.9 s "unexplained residual" recorded in
+    `.planning/debug/w27c512-devtest-all-bad.md` and gh#36's 108.74 s.
+
+- timestamp: 2026-08-22 (debugger, static, design point)
+  checked: where page programming actually lives, independently of the bug.
+  found: the host transports a per-chip `page-size` DATUM over the wire
+    (firestarter_app/firestarter/database.py:558-567, constants.py:168) and nothing more; the wire
+    CHUNK size is `_calculate_buffer_size()` = `comm.firmware_max_chunk` = the firmware's own
+    `DATA_BUFFER_SIZE`, with no chip input at all. Page SEQUENCING is entirely firmware-side:
+    `eeprom28c_page_mask(handle->page_size)` at src/proms/eeprom_28c.cpp:715 (algorithm 0x0D) and
+    `flash_5v_page_page_size(handle->mem_size)` at src/proms/flash_5v_page.cpp:27,107-125
+    (algorithm 0x05, which derives its own page size and ignores the wire field).
+  implication: the operator's DESIGN INTENT is already satisfied architecturally -- full buffers on
+    the wire, page sequencing inside the firmware. Nothing needs to move. The only host
+    involvement is passing a database VALUE, not making a chunking decision.
+
+- timestamp: 2026-08-22 (debugger, BENCH, after the fix, fw built from debug-w27c512-write-slow)
+  checked: same rig, same deterministic image, same harness as the before-run.
+  found: `Write to W27C512 successful (33.51s)`; chunk_count 64 (unchanged); inter-chunk p50
+    **0.436 s** (was 1.568 s), min 0.432, max 0.936, sum 27.92 s. A second cycle on a DIFFERENT
+    random image: 33.50 s, p50 0.435 s. Both cycles verified byte-exact by an independent full
+    read-back: 0 mismatching bytes, sha256 equal. `verify` step: 5.69 s.
+  implication: **105.89 s -> 33.51 s, 3.16x.** The falsification threshold set in the reasoning
+    checkpoint (p50 must fall below 0.6 s) is met with margin. v2.x's 29.71 s is now within 13 %,
+    and the remaining gap is explained: this loop still does a per-pulse verify read and a final
+    full-block verify pass that v2.x did not do.
+
+## Eliminated
+
+- hypothesis: "The v1.32 Phase 149 wire `page-size` seam is what's mis-driving W27C512."
+  why_eliminated: That seam reaches only the **0x0D** parallel-EEPROM handler, and only 18 DB rows
+    gained `programming.page_size`. gh#42 records W27C512 as **protocol 7**, not 0x0D. So the
+    shipped page-size code is not on this chip's code path.
+  caveat: This eliminates the Phase-149 seam as the CAUSE. It does NOT eliminate the operator's
+    broader design claim -- that page handling belongs in firmware -- which remains the frame for
+    the fix, and it does NOT rule out some OTHER host-side chunking decision. Confirm what
+    actually governs the host's transfer granularity on the 0x07 write path.
+
+- hypothesis: "This is the same defect as the gh#41 / w27c512-devtest-all-bad session."
+  why_eliminated: That session chases a FAILURE (write/verify/erase reported BAD) and concluded the
+    symptom was not reproducible. gh#42 is a **PASS** with every step OK. Different symptom class.
+  caveat: That session recorded an "unexplained_residual" that is a TIMING number -- it measured a
+    complete write of this pattern at **105.9s** and could not account for a 44s partial. That
+    105.9s measurement CORROBORATES the slowness reported here as normal-for-v3.x, and is a
+    cross-check worth reusing. See `.planning/debug/w27c512-devtest-all-bad.md`.
+
+## Current Focus
+
+hypothesis: **REVISED (static analysis complete).** The operator's host-chunking hypothesis is
+  REFUTED on the static evidence. The overhead is inside the FIRMWARE's per-byte program loop:
+  `eprom_internal_program_pulse` (src/proms/eprom.cpp:247) pays `EPROM_VPP_SETUP_US`=1000 us +
+  `EPROM_VPP_HOLD_US`=100 us of dead `delayMicroseconds` on EVERY BYTE that needs a pulse, because
+  v1.31's LOOP-01 rewrite made the pulse->verify granularity PER BYTE while the route assert/settle
+  stayed inside that per-byte step. v2.x asserted the route ONCE PER PASS (delay(10) amortised over
+  1024 bytes) and verified in a separate pass. 65536 x 1100 us = 72.1 s of pure settle.
+
+test: (1) confirm chunk size/count on the wire = 1024 B x 64 by live instrumentation (refute the
+  host hypothesis with a printed number, not an inference); (2) measure per-chunk wall time to show
+  the time is spent INSIDE the firmware block, not in transport; (3) A/B a firmware build that
+  restores per-pass amortisation.
+
+expecting: 64 chunks of 1024 B; per-chunk wall time ~1.2-1.7 s for a fully-programmed block.
+
+next_action: bench-instrument a full 64 KiB write on /dev/ttyACM0 and print chunk count + per-chunk
+  wall time.
+
+reasoning_checkpoint:
+  hypothesis: "A 64 KiB W27C512 (protocol 0x07) write spends 1100 us of pure route-settle delay per
+    programmed byte because v1.31's per-byte pulse->verify loop calls
+    `eprom_internal_program_pulse` (which asserts CTRL_VPE_ENABLE, waits EPROM_VPP_SETUP_US=1000 us,
+    strobes, waits EPROM_VPP_HOLD_US=100 us, de-asserts) once PER BYTE, where v2.x asserted the
+    route once PER PASS and paid delay(10) amortised over a whole 1024-byte block."
+  confirming_evidence:
+    - "Measured: p50 1.568 s per 1024-byte block on the bench = 1531 us/byte; 1200 us of that is
+       accounted for by named delayMicroseconds calls read off the source."
+    - "Measured: 64 chunks x 1024 B on the wire -- transport is NOT the cost, and the host is
+       already sending full buffers."
+    - "git show 2.0.6:src/proms/eprom.cpp: program_mismatched_bytes() asserts VPE_ENABLE once and
+       pays delay(10) once, then pulses every flagged byte in the block."
+    - "include/eprom.h:145-148 already states the cost as ~110 s/64 KiB, and gh#36 measured
+       108.74 s. The two agree."
+  falsification_test: "If restoring per-pass route amortisation does NOT reduce the measured
+    write time, the settle is not the cost and the hypothesis is wrong. Threshold: p50 inter-chunk
+    time must fall from 1.568 s to under 0.6 s."
+  fix_rationale: "Restore v2.x's pass-batched structure -- assert the route once per pass, pulse
+    every byte still needing a pulse, de-assert, then verify that pass's bytes -- while KEEPING
+    every v1.31 semantic (LOOP-06 skips, per-byte pulse counting, max_pulses, energy cap,
+    per-pulse verify, LOOP-03 overprogram at the byte's own pulse count, the final full-block
+    verify pass). This addresses the root cause (settle paid per byte instead of per pass) rather
+    than the symptom, and it gives BETTER program margin than either settle value ever tried,
+    because every pulse after the first in a pass sees a rail that has been up for milliseconds."
+  blind_spots:
+    - "Holding VPE asserted across ~1000 consecutive pulses is what v2.x did for years, but this
+       session has no instrument on the rail; a VPP droop over a long assert would show up as a
+       final-verify failure, which the bench A/B will detect but cannot attribute."
+    - "128 B of stack for the pending bitmask on leonardo (2016/2560 B static RAM used). v2.x used
+       the same 128 B array on the same board, so the precedent is direct, but stack depth is not
+       measured here."
+    - "The native trace goldens and one loop test encode the interleaved per-byte pulse/verify
+       order; a restructure moves them and they must be re-adjudicated, not silently regenerated."
+
+## Resolution
+
+root_cause: |
+  Firmware, not host. `eprom_internal_program_pulse` (firestarter/src/proms/eprom.cpp:247-253)
+  asserts the program-voltage route, waits `EPROM_VPP_SETUP_US` = 1000 us, strobes, waits
+  `EPROM_VPP_HOLD_US` = 100 us and de-asserts -- and v1.31's LOOP-01 rewrite calls it once PER
+  BYTE. So a 64 KiB write pays 65536 x 1100 us = 72.1 s of route settle that is neither program
+  energy nor payload. v2.0.6's `program_mismatched_bytes()` asserted the route once per PASS and
+  paid its settle once per pass: 64 blocks x 10 ms = 0.64 s. Constants at include/eprom.h:166-167;
+  that header's own comment (lines 145-148) already predicted "~110 s per 64 KiB write" and gh#36
+  measured 108.74 s -- it was simply never compared against the 29.71 s v2.x baseline.
+  The operator's hypothesis (host chunking too small) is REFUTED: measured 64 chunks x 1024 B.
+
+fix: |
+  firestarter @ debug-w27c512-write-slow, commit 071d505 -- pass-batch the 0x07/0x08/0x0B program
+  loop: a scan pass (route down, flag every byte short of target) alternating with a pulse pass
+  (route asserted once, strobe every flagged byte). After the first pass the scan re-reads only the
+  bytes the previous pulse pass strobed, so per-byte read counts are unchanged. Also folds
+  eprom.cpp's inline copy of the final full-block verify into a call to `memory_verify_execute`
+  (declared in include/memory_utils.h), buying back 262 B of AVR flash.
+  NO host change: the host was already correct.
+
+verification: |
+  Bench: 105.89 s -> 33.51 s (3.16x); p50 per-block 1.568 s -> 0.436 s. Two consecutive 64 KiB
+  cycles on two different random images, both byte-exact against an independent read-back
+  (0 mismatches, sha256 equal). Firmware native suites: native 170/170, native_nodevtools 170/170,
+  native_loop_v131 80/80, native_params_v131 9/9, native_pinmap_provisional 11/11. AVR builds:
+  0 warnings on all three targets. Host app suite: 1970 passed.
+
+files_changed:
+  - firestarter/src/proms/eprom.cpp
+  - firestarter/include/memory_utils.h
+  - firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp
+
+open_adjudications (NOT laundered, operator decision required):
+  - MERGE-05 size gate FAILS. leonardo +772 B, uno +476 B, uno328pb +474 B against the live
+    baseline; RAM +0 on all three. A FIFTH named, SHA-attributed exemption is needed.
+    leonardo's unguarded Caterina headroom falls 1042 B -> 270 B.
+  - native_trace_v131's frozen golden (test/native/avr/_shared/eprom_v131_expected.h) is RED on all
+    three protocol cases: 121->131, 148->149, 92->101 stream entries. The cadence change is real
+    and intended (one VPE assert/settle per pass instead of per byte); regenerating a frozen
+    empirical golden is an adjudication, so it was left RED rather than refreshed silently.
+  - The change is on the shared EPROM write path, so it moves 0x08 and 0x0B too. Bench proof exists
+    for 0x07 only; 0x08/0x0B are covered by native suites alone (no silicon on this rig).
