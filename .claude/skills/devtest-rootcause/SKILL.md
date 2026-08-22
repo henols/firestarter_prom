@@ -90,12 +90,21 @@ python3 $S/infoic_lookup.py --check
 
 ```
 ok: MINIPRO_XML_URL matches build_db.py
-ok: VPP_VOLTAGES matches build_db.py (16 entries)
+ok: VPP table matches build_db.py:VPP_MV (16 entries, compared in mV)
 ```
 
 It reads the generator **as text** (`ast.literal_eval`, never importing or running it —
 running it would regenerate the database) and exits 1 naming any key that disagrees.
 With `firestarter_app` absent it prints `SKIP` and exits 0; the lookup still works.
+
+**It fails CLOSED on a rename.** The generator's VPP table was `VPP_VOLTAGES` when this
+skill was written and is `VPP_MV` today, and the original check looked for the old name
+only — so from the rename onward it printed `WARN: ... not found` and exited **0**, and
+the one table most worth verifying was verified by nothing. A constant the check cannot
+find is now a DRIFT, not a warning, and the message names every name it tried
+(`GENERATOR_VPP_NAMES`). The owned table is held in **millivolts** to match the
+generator exactly, so the comparison is a plain dict equality with no string round-trip;
+`format_vpp()` does the `12000 -> "12V"` rendering at the print site.
 
 Never "improve" a table value from memory. An earlier draft of this script guessed
 `0x80` as 18V when it is **13.5V**, which would have "proved" a decode bug in W27E257
@@ -338,3 +347,4 @@ is not a validation. Only `devtest-triage` closes issues, and only on a PASS rep
 | Session manager returns "waiting…" and nothing changed | Known devcontainer failure. Spawn `gsd-debugger` directly instead (§3) |
 | `seed_debug_session.py` refuses a PASS issue | Correct — a PASS goes to `devtest-triage` to be closed and logged |
 | `--check` reports DRIFT | `build_db.py` changed. Update the table in `infoic_lookup.py` to match the generator — the generator is authoritative, not this script |
+| `--check` says "no VPP table found under any known name" | The generator renamed the table again. Find the new name, prepend it to `GENERATOR_VPP_NAMES`, then **re-verify every value** — a rename and a value change can arrive in the same commit |
