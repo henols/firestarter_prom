@@ -269,9 +269,11 @@ fix: |
 verification: |
   Bench: 105.89 s -> 33.51 s (3.16x); p50 per-block 1.568 s -> 0.436 s. Two consecutive 64 KiB
   cycles on two different random images, both byte-exact against an independent read-back
-  (0 mismatches, sha256 equal). Firmware native suites: native 170/170, native_nodevtools 170/170,
-  native_loop_v131 80/80, native_params_v131 9/9, native_pinmap_provisional 11/11. AVR builds:
-  0 warnings on all three targets. Host app suite: 1970 passed.
+  (0 mismatches, sha256 equal). Firmware native suites (at 273eedb): native 172/172,
+  native_nodevtools 172/172, native_trace_v131 5/5, native_loop_v131 80/80,
+  native_params_v131 9/9, native_pinmap_provisional 11/11. AVR builds: 0 warnings on all three
+  targets. Host app suite: 1970 passed.
+  Size gate `check_size_baseline.py --policy merge05 --rebuild`: PASS, exit 0.
 
 files_changed:
   - firestarter/src/proms/eprom.cpp
@@ -318,13 +320,63 @@ adjudicated (operator decisions, 2026-08-22):
     Also pre-existing and unrelated: that invocation reports `native: cases baseline=141
     observed=170` from a stale count inside size_baseline_base01.json.
 
-  - DECISION 2 -- TRACE GOLDEN: **DELIBERATELY LEFT RED, BY OPERATOR INSTRUCTION.** Do NOT
-    regenerate test/native/avr/_shared/eprom_v131_expected.h. `pio test -e native_trace_v131`
-    fails 3 of 6 cases: 0x07 121->131, 0x08 148->149, 0x0B 92->101 stream entries. This is a
-    visible flag that the write cadence changed (one VPE assert/settle per pass instead of per
-    byte) and that the change needs its own review before this branch reaches beta. A later agent
-    MUST NOT "fix" this by re-freezing the golden; anyone shipping this branch has to consciously
-    adjudicate the cadence change. This red is expected and is not an oversight.
+  - DECISION 2 -- TRACE GOLDEN: **REVERSED BY THE OPERATOR ON 2026-08-22. The golden IS now
+    regenerated, and a CI-enforced invariant sits behind it.** Commits 453a188 + 273eedb.
+
+    ORIGINAL RULING, kept visible so the record shows why it changed: "leave
+    test/native/avr/_shared/eprom_v131_expected.h RED as a visible flag that the write cadence
+    changed; a later agent MUST NOT re-freeze it; anyone shipping this branch has to consciously
+    adjudicate the cadence change." That instruction is now SUPERSEDED -- do not follow it.
+
+    WHY IT WAS REVERSED: CI does not run that suite, so the red was invisible to automation and
+    the branch would have merged green with it. `.github/workflows/build.yml:142,155` and
+    `beta-build.yml:122,128` run ONLY `pio test -e native` and `-e native_nodevtools`, plus the
+    AVR/ARM builds and `check_release_assets.py`. They run NONE of native_trace_v131,
+    native_loop_v131, native_params_v131, native_pinmap_provisional, and they do NOT run
+    `check_size_baseline.py` at all. Worse, the frozen arrays encoded the PER-BYTE cadence, which
+    IS the defect -- the fixture was asserting the bug we had just fixed, exactly the failure mode
+    that file's own header already documents for the Phase 145 regression.
+
+    WHAT WAS DONE (453a188): re-captured by the procedure the golden's own header documents
+    (`PLATFORMIO_BUILD_FLAGS="-D EPROM_V131_TRACE_DUMP" pio test -e native_trace_v131
+    --without-testing`, then run the built binary directly). Totals read verbatim from the dump
+    banners, all three with strobe_overflow=0 timing_overflow=0: 0x07 121->131, 0x08 148->149,
+    0x0B 92->101. Totals GREW because a pass-batched loop re-reads the block to decide the next
+    pass where the per-byte loop interleaved its verify read with each pulse. The header now states
+    that the arrays encode ONE route assert and ONE settle PER PASS, and that a future capture
+    dropping back toward the old totals -- or showing CTRL_VPE_ENABLE (0x04) / CTRL_VPP_P1_ENABLE
+    (0x08) rising once per PROGRAMMED BYTE instead of once per PASS -- means the ~3.7x regression
+    has returned and must not be re-frozen without re-measuring a real 64 KiB write.
+    `pio test -e native_trace_v131` is now 5/5. (5, not 6: the 6th RUN_TEST in that file is the
+    dump case behind `#ifdef EPROM_V131_TRACE_DUMP`, not compiled by default. PlatformIO's own
+    count line inflates by one when a case fails -- it reported "6 test cases: 3 failed, 2
+    succeeded" -- which is a pre-existing reporting quirk, not a missing case.)
+
+    THE GUARD THAT REPLACES THE RED (273eedb), and this is the substantive half: two cases added
+    to `test/native/avr/test_val_eprom/test_val_eprom.cpp`, a suite in BOTH pinned envs'
+    test_filter and therefore actually run by CI. They pin that the count of program-voltage route
+    ASSERTS over a block scales with the PASS count, never the programmed-byte count:
+      test_writeperf_route_is_asserted_once_per_pass_not_once_per_byte  -> EXACTLY 1
+      test_writeperf_route_assert_count_tracks_passes_not_pulses        -> EXACTLY 2
+    NON-VACUITY DEMONSTRATED, not asserted: both were run against the pre-fix per-byte loop
+    planted verbatim from `git show 1e1f989:src/proms/eprom.cpp` and OBSERVED RED at
+    **Expected 1 Was 8** and **Expected 2 Was 9** -- the numbers the mechanism predicts (8 bytes ->
+    8 asserts; 9 pulses -> 9 asserts) -- then GREEN at 1 and 2 against the fix. Each case also
+    carries its own floors so it cannot pass vacuously: response_code OK, asserts >= 1, and a
+    recorder-saturation check (the shared 256-entry recorder drops its tail SILENTLY with no
+    overflow flag of its own).
+    Mechanism: HOST_STUBS_RECORD_BUS records `rurp_write_to_register` only, which is exactly
+    enough -- each settle follows a route assert immediately, so counting RISING EDGES of the route
+    bit counts settles one-for-one. Rising edges, not values-with-the-bit-set: mem_util_set_address
+    writes CONTROL_REGISTER once per byte, so bit-carrying values are plentiful in BOTH cadences
+    and would not discriminate.
+    `scripts/baseline/size_baseline.json` native/native_nodevtools counts moved 170 -> 172 in the
+    same commit (suites stay 17 -- the cases joined an existing suite), because
+    check_size_baseline.py records those counts and would otherwise fail on a mismatch. The AVR
+    flash/RAM figures in that file were deliberately NOT touched: no src/ file changed, and the
+    AVR figures are byte-identical to 5882548's.
+    `check_size_baseline.py --policy merge05 --rebuild` now **PASSES, exit 0**:
+      uno 26026 [+478<=788] / uno328pb 26074 [+476<=788] / leonardo 28170 [+540<=724], RAM +0 all.
 
   - DECISION 3 -- 0x08 / 0x0B BENCH PROOF: **PENDING, UNCLOSED RESIDUAL. Do not attempt on this
     rig.** The fix is on the shared `eprom_write_execute` path, so it moves 0x08 and 0x0B as well
@@ -373,12 +425,24 @@ verification:
   - Size gate `check_size_baseline.py --policy merge05 --rebuild` **PASSES all three, exit 0**:
     uno 26026 (+478<=788), uno328pb 26074 (+476<=788), leonardo 28170 (+540<=724, 184 B spare).
     RAM +0 everywhere. Leonardo Caterina margin 502 B against the unguarded 28672 B cliff.
-  - Native suites: native 170/170, native_nodevtools 170/170, native_loop_v131 80/80,
-    native_params_v131 9/9, native_pinmap_provisional 11/11.
-    native_trace_v131 3/6 RED -- deliberate, see Decision 2.
+  - Native suites at 273eedb: native **172/172**, native_nodevtools **172/172**,
+    native_trace_v131 **5/5**, native_loop_v131 80/80, native_params_v131 9/9,
+    native_pinmap_provisional 11/11. Nothing is red anywhere.
+    (The +2 cases in both pinned envs are the CI-enforced cadence invariant; native_trace_v131 went
+    green when its golden was re-frozen. Both are Decision 2's reversal -- see it for the
+    red/green non-vacuity evidence.)
 
 files_changed: firestarter/src/proms/eprom.cpp, firestarter/include/eprom.h,
-  firestarter/include/memory_utils.h, firestarter/platformio.ini
+  firestarter/include/memory_utils.h, firestarter/platformio.ini,
+  firestarter/test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp,
+  firestarter/test/native/avr/_shared/eprom_v131_expected.h (re-frozen, 453a188),
+  firestarter/test/native/avr/test_val_eprom/test_val_eprom.cpp (invariant, 273eedb),
+  firestarter/test/native/avr/test_val_eprom/host_stubs.cpp (read-back model, 273eedb),
+  firestarter/scripts/baseline/size_baseline.json (native counts 170->172, 273eedb)
+
+commits: 071d505 (fix) -> 5882548 (leonardo overprogram guard)
+  -> 453a188 (re-freeze golden) -> 273eedb (CI-enforced cadence invariant + baseline counts)
+  all on firestarter branch debug-w27c512-write-slow. Host untouched throughout.
 
 residuals_not_closed:
   1. 33.35 s vs v2.x's 29.71 s. Explained, not hidden: this loop keeps a per-pulse verify read AND
