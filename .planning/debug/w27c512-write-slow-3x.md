@@ -282,6 +282,22 @@ files_changed:
   - firestarter/include/eprom.h (5882548 -- EPROM_OVERPROGRAM_SUPPORTED)
   - firestarter/platformio.ini (5882548 -- leonardo -D EPROM_OVERPROGRAM_SUPPORTED=0)
 
+CI GATE THIS SESSION INITIALLY MISSED -- READ THIS BEFORE PUSHING FIRMWARE WORK:
+  `.github/workflows/build.yml:161` runs **`pytest tests/ -v`** in the FIRMWARE repo -- 322 (now
+  323) Python gate tests -- as a hard CI step, alongside `pio test -e native`,
+  `-e native_nodevtools`, `pio run` and `check_release_assets.py`. This session verified the pio
+  envs and `check_size_baseline.py` but NEVER ran `pytest tests/`, and pushed; PR #55 went RED with
+  11 failures while both native pio steps passed. A CI-scope grep that matches only `pio test`
+  lines misses it. **Run `python -m pytest tests/ -q` in /workspaces/firestarter before any push.**
+  The 11 failures were all "recorded inventory" gates -- blob SHAs, per-array entry counts, native
+  case counts and literal fixture positions -- pinning exactly the two artifacts this session
+  changed on purpose (`src/proms/eprom.cpp` and the re-frozen trace golden). Re-anchored at
+  firmware commit 6d4d6bc; every number re-derived with each gate's own parser, never hand-edited.
+  Two assertions changed in MEANING rather than anchor and are named in that commit message:
+  `test_protocol_branch_inventory.py`'s non-vacuity floor (24 -> 23, because the fix legitimately
+  removed 3 branch sites) and a NEW leg in `test_progress_emission_is_leonardo_only.py` that pins
+  the first-pass progress-emission gate instead of letting a widened locator tolerate it.
+
 adjudicated (operator decisions, 2026-08-22):
 
   - DECISION 1 -- FLASH: RESOLVED at commit 5882548. My checkpoint figures were WRONG by ~2x and
