@@ -1462,6 +1462,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 - `photograph-modified-rev-0.md` (medium) — carry forward.
 - `fold-response-code-into-log-macro.md` (medium) — captured during v1.22; blocked on Phase 117 (shares `eeprom_28c.cpp`).
 - `2026-08-05-dev-test-issue-triage-diagnosis-skill.md` (tooling) — skill to triage community `dev test` issues: analyse the report, diagnose against the datasheet/DB/ledger, comment, close passes into a tested-good IC list. Captured during v1.30; needs discuss-phase (datasheet corpus is 3 PDFs; outward-facing comment/close needs a structural gate).
+- `2026-08-22-sweep-gsd-provenance-comments-from-firmware-and-host-source.md` (general) — strip ~635 GSD provenance comments across 160 files in both sub-repos, condensing the load-bearing ones (notably `database.py`'s Phase 121/153 REVERSAL RECORD). Captured during v1.32; needs discuss-phase — ~20 host gates scan firmware source and fail open, and `.planning/` `file:LINE` citations all shift.
 
 ### Quick Tasks Completed
 
