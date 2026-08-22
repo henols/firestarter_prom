@@ -4,7 +4,7 @@ title: "Sweep GSD provenance comments from firmware and host source — delete t
 area: general
 files:
   - firestarter/src/**, firestarter/include/**  (~345 hits / 94 files)
-  - firestarter_app/firestarter/**, firestarter_app/tests/**  (~290 hits / 66 files)
+  - firestarter_app/firestarter/**, firestarter_app/tests/**  (~301 hits / 73 files)
   - firestarter/src/proms/eprom_params.cpp:61
   - firestarter/src/boards/uno_rurp_shield.cpp:109
   - firestarter_app/firestarter/database.py:580-630
@@ -19,10 +19,14 @@ GSD executors have been stamping planning provenance into the shipped source for
 | Repo | Hits | Files |
 |---|---|---|
 | `firestarter/` (`*.cpp *.h *.c *.ino` under `src include lib test`) | ~345 | 94 |
-| `firestarter_app/` (`*.py` under `firestarter tests tools`) | ~290 | 66 |
+| `firestarter_app/` (`*.py` under `firestarter tests tools`) | ~301 | 73 |
+| **total** | **~646** | **167** |
 
-Survey regex: comment lines matching
+Survey regex: a comment marker (`//`, `/*`, `*`, `#`) followed by
 `(Task|Phase|Plan|P<NNN>|Req|REQ-|CAP-0|D-<N>|WR-<N>|LOOP-<N>|<NNN>-CONTEXT)`.
+Re-run it before starting — these counts are a `beta`-tip snapshot, and the
+regex is deliberately wide, so triage every hit rather than trusting the class
+split below to be exhaustive.
 
 The comments split into three kinds, and they must NOT be treated alike:
 
@@ -76,15 +80,65 @@ it still fails on a planted violation afterwards. Per
 `reference_firmware_renames_break_host_source_scanning_gates`, these gates
 **fail open** — a green run is not evidence.
 
-**Hazard 2 — `file:LINE` citations in `.planning/` go stale.** Phase records,
-CONTEXT docs and record gates cite source by line number. Deleting ~600 comment
-lines shifts nearly every line number in 160 files. Decide the policy up front:
-either accept the staleness for archived (closed-milestone) records and only
-repair live ones, or run the sweep file-by-file with a citation rewrite. Also
-check whether any record gate pins a `file:LINE` that would then miss —
-`reference_record_gate_slow_on_state_md_long_line` and
-`reference_check_permitted_claims_here_resolves_wrong_phase_dir` are the
-neighbours here.
+**Hazard 2 — `file:LINE` citations in `.planning/` go stale. DECIDED
+2026-08-22 (operator): repair them. Not "accept staleness for archives" — the
+whole set gets rewritten.** Phase records, CONTEXT docs and claim gates cite
+source by line number, and deleting comment lines shifts nearly every line
+number in the 167 touched files.
+
+Measured size of the repair (survey 2026-08-22, branch `beta`):
+
+| Metric | Count |
+|---|---|
+| `file:LINE` citations anywhere in `.planning/` | 12,753 |
+| …that target one of the 167 touched source files | 10,054 |
+| …**at or below** that file's first GSD comment (i.e. actually shift) | **6,939** |
+
+Shifted citations by subtree: `phases/` 4,918 · `milestones/` 1,309 ·
+`research/` 180 · `graphs/` 108 · `debug/` 99 · `quick/` 55 · `notes/` 54 ·
+`PROJECT.md` 42.
+
+Because the operator's call includes the archives, `milestones/`' 1,309
+citations are in scope. That collides with
+`reference_milestone_close_breaks_record_gates` (archived sections orphan
+`lines=N`) — editing archived records can trip record gates that were green
+only because nobody had touched those files since close. Budget for that.
+
+**How the repair must run — one atomic transform, not a second pass.**
+The remap is fully derivable, so it should be scripted, never hand-edited:
+
+1. Do the comment sweep on a scratch copy and diff it to build, per file, an
+   old-line → new-line map (deleted lines map to the surviving line that
+   replaced them; condensed blocks map to their new first line).
+2. Rewrite every `file:LINE` and `file:LINE-LINE` citation in `.planning/`
+   through that map. **Ranges need both endpoints mapped**, and a range that
+   spans a deleted block shrinks — the map must handle that, not just add a
+   constant offset.
+3. Commit source edit + citation rewrite **together**. If they land as separate
+   commits, the intermediate tree carries 6,939 wrong citations, and any claim
+   gate running in between either goes red or — worse — passes while pointing at
+   the wrong lines.
+
+**Oracle (there is no existing gate for this).** Nothing in the repo verifies
+citation accuracy today: the `check-claims.py` / `check_record_corrections.py`
+scripts under `phases/130`, `146`, `149`, `152` are phase-scoped claim gates,
+not a global citation checker. So the repair must bring its own, and the
+round-trip form is exact and needs zero judgment:
+
+> for every citation, the source text at the cited line **before** the sweep
+> must equal the source text at the remapped line **after** it.
+
+Run it over all 6,939. Any mismatch is a map bug. This also catches the
+citations that point *at a comment line being deleted* — those cannot round-trip
+and must be retargeted by hand to the code the comment described (not silently
+dropped). Expect that subset to be the only manual work in the repair, and
+treat its size as an unknown until the diff exists.
+
+Neighbours: `reference_record_gate_slow_on_state_md_long_line` (the record gate
+needs 300s; `rc=124` reads like a RED) and
+`reference_check_permitted_claims_here_resolves_wrong_phase_dir` (`_HERE`
+resolves to the checker's own dir, so a mis-sited checker scans nothing and
+exits 0 — do not let the citation checker fail open the same way).
 
 **Hazard 3 — the firmware size watermark.** Comments cost zero bytes, so the
 `uno` build must come out **byte-identical**. That is the sweep's strongest
