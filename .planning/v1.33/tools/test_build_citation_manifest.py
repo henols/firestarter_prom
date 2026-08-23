@@ -211,3 +211,229 @@ def test_declared_fixture_exclusion_globs_are_present():
 def test_citation_paths_module_has_no_here_derived_root():
     src = open(_CITATION_PATHS_SRC, encoding="utf-8").read()
     assert "_HERE" not in src
+
+
+# ---------------------------------------------------------------------------
+# 14-26: the generator legs
+# ---------------------------------------------------------------------------
+
+# A candidate swept file needs (a) a provenance hit line so survey_provenance.py
+# counts it into the candidate set, and (b) enough body lines for the fixture
+# citations to point at.
+_FW_SRC = "\n".join(
+    ["// Phase 149 Plan 05: provenance stamp making this a candidate swept file."]
+    + [f"// fw body line {n}" for n in range(2, 41)]
+) + "\n"
+
+_APP_SRC = "\n".join(
+    ["# Phase 121: provenance stamp making this a candidate swept file."]
+    + [f"# app body line {n}" for n in range(2, 31)]
+) + "\n"
+
+# One document carrying all four live syntax variants plus a backticked
+# wrapper, an unresolved target and a parent-traversal target.
+_DOC_ALL_VARIANTS = """\
+Exact single: firestarter/src/proms/eeprom_28c.cpp:5 is the point form.
+Suffix range: src/proms/eeprom_28c.cpp:7-9 is the range form.
+List: hardware.py:11,13 is two independent point citations, not a range.
+Anchor point [x](hardware.py#L15) and anchor range [y](hardware.py#L17-L19).
+Backticked wrapper `eeprom_28c.cpp:21` must resolve to the inner colon form.
+Unresolved: database.c:611 is infoic's external decompiled source.
+Traversal: ../firestarter/include/rurp_shield.h:3 escapes the roots.
+"""
+
+_DOC_NO_CITATIONS = """\
+This document deliberately carries no citation of any live variant.
+It names files without line references, which is not a citation.
+"""
+
+
+def _make_tree(tmp_path, doc_text):
+    meta = tmp_path / "meta"
+    planning = meta / ".planning"
+    planning.mkdir(parents=True)
+    (planning / "doc.md").write_text(doc_text, encoding="utf-8")
+
+    fw = tmp_path / "fw"
+    (fw / "src" / "proms").mkdir(parents=True)
+    (fw / "src" / "proms" / "eeprom_28c.cpp").write_text(_FW_SRC, encoding="utf-8")
+
+    app = tmp_path / "app"
+    (app / "firestarter").mkdir(parents=True)
+    (app / "firestarter" / "hardware.py").write_text(_APP_SRC, encoding="utf-8")
+    return meta, fw, app
+
+
+def _run_generator(meta, fw, app, out, *extra):
+    return subprocess.run(
+        [
+            sys.executable,
+            _GENERATOR,
+            str(meta),
+            "--fw-root",
+            str(fw),
+            "--app-root",
+            str(app),
+            "--out",
+            str(out),
+            *extra,
+        ],
+        capture_output=True,
+        text=True,
+    )
+
+
+def _generate(tmp_path, doc_text=_DOC_ALL_VARIANTS):
+    meta, fw, app = _make_tree(tmp_path, doc_text)
+    out = tmp_path / "manifest.jsonl"
+    result = _run_generator(meta, fw, app, out)
+    assert result.returncode == 0, (
+        f"Expected exit 0 but got {result.returncode}.\n"
+        f"stdout: {result.stdout}\nstderr: {result.stderr}"
+    )
+    lines = out.read_text(encoding="utf-8").splitlines()
+    parsed = [json.loads(line) for line in lines]
+    return result, parsed[0], parsed[1:]
+
+
+def _one(records, **match):
+    hits = [r for r in records if all(r[k] == v for k, v in match.items())]
+    assert len(hits) == 1, f"expected exactly 1 record matching {match}, got {hits}"
+    return hits[0]
+
+
+def test_variant_colon_single_is_extracted(tmp_path):
+    _, _, records = _generate(tmp_path)
+    r = _one(records, variant="colon_single", target_line=5)
+    assert r["target_file_cited"] == "firestarter/src/proms/eeprom_28c.cpp"
+    assert r["resolution"] == citation_paths.EXACT
+    assert r["source_text"] == "// fw body line 5"
+    assert r["target_line_end"] is None
+    assert r["source_text_end"] is None
+
+
+def test_variant_colon_range_is_extracted(tmp_path):
+    _, _, records = _generate(tmp_path)
+    r = _one(records, variant="colon_range")
+    assert r["target_file_cited"] == "src/proms/eeprom_28c.cpp"
+    assert r["resolution"] == citation_paths.SUFFIX
+    assert r["target_line"] == 7
+    assert r["target_line_end"] == 9
+
+
+def test_variant_colon_list_yields_two_independent_records(tmp_path):
+    _, _, records = _generate(tmp_path)
+    listed = [r for r in records if r["variant"] == "colon_list"]
+    assert len(listed) == 2, listed
+    assert sorted(r["target_line"] for r in listed) == [11, 13]
+    for r in listed:
+        assert r["target_line_end"] is None, "a list element is a POINT, not a range"
+        assert r["source_text_end"] is None
+        assert r["target_file_resolved"] == "firestarter_app/firestarter/hardware.py"
+
+
+def test_variant_anchor_L_point_and_range_are_extracted(tmp_path):
+    _, _, records = _generate(tmp_path)
+    point = _one(records, variant="anchor_L")
+    assert point["target_line"] == 15
+    assert point["target_line_end"] is None
+    assert point["source_text"] == "# app body line 15"
+    rng = _one(records, variant="anchor_L_range")
+    assert rng["target_line"] == 17
+    assert rng["target_line_end"] == 19
+    assert rng["source_text"] == "# app body line 17"
+    assert rng["source_text_end"] == "# app body line 19"
+
+
+def test_backticked_wrapper_is_not_a_fifth_variant(tmp_path):
+    _, _, records = _generate(tmp_path)
+    r = _one(records, target_line=21)
+    assert r["variant"] == "colon_single"
+    assert r["target_file_cited"] == "eeprom_28c.cpp", "backticks are a WRAPPER"
+    assert r["resolution"] == citation_paths.BASENAME
+
+
+def test_range_record_carries_both_endpoints_and_both_texts(tmp_path):
+    _, _, records = _generate(tmp_path)
+    ranges = [r for r in records if r["variant"] in ("colon_range", "anchor_L_range")]
+    assert ranges
+    for r in ranges:
+        assert r["target_line_end"] is not None
+        assert r["source_text_end"] is not None
+
+
+def test_unresolved_and_rejected_records_are_kept_not_dropped(tmp_path):
+    _, _, records = _generate(tmp_path)
+    unresolved = _one(records, target_file_cited="database.c")
+    assert unresolved["resolution"] == citation_paths.UNRESOLVED
+    assert unresolved["target_file_resolved"] is None
+    assert unresolved["text_status"] == "unresolved_target"
+    rejected = _one(
+        records, target_file_cited="../firestarter/include/rurp_shield.h"
+    )
+    assert rejected["resolution"] == citation_paths.REJECTED
+    assert rejected["resolution_reason"]
+
+
+def test_every_record_is_retarget_false(tmp_path):
+    _, _, records = _generate(tmp_path)
+    assert records
+    assert all(r["retarget"] is False for r in records)
+
+
+def test_regeneration_is_byte_identical(tmp_path):
+    meta, fw, app = _make_tree(tmp_path, _DOC_ALL_VARIANTS)
+    out = tmp_path / "manifest.jsonl"
+    first = _run_generator(meta, fw, app, out)
+    assert first.returncode == 0, first.stderr
+    blob_one = out.read_bytes()
+    second = _run_generator(meta, fw, app, out)
+    assert second.returncode == 0, second.stderr
+    blob_two = out.read_bytes()
+    assert blob_one == blob_two, "regeneration over an unchanged tree must be byte-identical"
+
+
+def test_zero_record_input_exits_two(tmp_path):
+    meta, fw, app = _make_tree(tmp_path, _DOC_NO_CITATIONS)
+    out = tmp_path / "manifest.jsonl"
+    result = _run_generator(meta, fw, app, out)
+    assert result.returncode == 2, (
+        f"Expected exit 2 on a zero-record input but got {result.returncode}.\n"
+        f"stdout: {result.stdout}\nstderr: {result.stderr}"
+    )
+    assert "zero" in (result.stdout + result.stderr).lower()
+
+
+def test_header_record_is_first_and_self_describing(tmp_path):
+    _, header, records = _generate(tmp_path)
+    assert "_schema" in header
+    schema = header["_schema"]
+    for key in (
+        "schema_version",
+        "record_keys",
+        "source_text_convention",
+        "source_text_unreadable_sentinel",
+        "candidate_set",
+        "ordering_resolution",
+        "resolution_rule",
+        "variants",
+        "retarget",
+        "generating_command",
+        "pre_sweep_shas",
+        "counts",
+    ):
+        assert key in schema, f"header record is missing {key!r}"
+    assert schema["counts"]["records"] == len(records)
+    assert list(records[0].keys()) == schema["record_keys"]
+
+
+def test_generator_module_has_no_here_derived_root():
+    src = open(_GENERATOR, encoding="utf-8").read()
+    assert "_HERE" not in src
+
+
+def test_generator_imports_the_shared_resolver():
+    src = open(_GENERATOR, encoding="utf-8").read()
+    assert "import citation_paths" in src
+    # The fixture-exclusion rule must live in ONE place only.
+    assert "fixtures/**" not in src
