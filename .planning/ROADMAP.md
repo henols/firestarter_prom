@@ -265,12 +265,25 @@ Plans:
 **Plans:** 6 plans
 
 Plans:
+**Wave 1**
 
 - [ ] 155-01-PLAN.md — Wave 1 (meta): the AUTHORITATIVE before-figures record — pre-change symbol tables for all three ELFs, disassembly sole-caller attribution, the three flash/RAM pairs, and the corrected RAM/symbol derivations (C-3, C-4, C-5, OQ-2, OQ-4). Captured before the first source edit because Phases 156–158 each destroy these numbers.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 155-02-PLAN.md — Wave 2 (firmware): the link-time symbol-absence gate for DEAD-01/DEAD-03 — `scripts/check_no_heap_or_64bit_symbols.py` asserting all **eleven** 64-bit symbols (OQ-2), fail-closed on five paths, non-vacuity anchored, plus its convention-forced paired pytest, its real pre-change planted listing and the `FLOOR`/`FIXTURE_FLOOR` raises, all in ONE commit.
 - [ ] 155-03-PLAN.md — Wave 2 (meta): DEAD-05 mechanised (OQ-5) — the two-halved phrasing gate (negative paragraph-scoped scan + positive assertion of the mandated wording), its planted violation, and the committed corpus record naming exactly three exclusions with reasons and a justified non-vacuity floor.
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 155-04-PLAN.md — Wave 3 (firmware, TDD): RED the voltage oracle (numerical grid + 4 guard-boundary + 2 sentinel cases + comment-stripped source contract), then GREEN the 32-bit reformulation with `k > 4194303UL` (OQ-1) and a comment correcting all four defects in the preserved reference, including the asymmetric-window statement (OQ-3) and the mandated coverage ceiling.
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 155-05-PLAN.md — Wave 4 (firmware): the heap removal as ONE compiler-forced commit — the file-scope static, the removed handle member, and both native suites' assertions plus four comment sites (the false "same statement" claim corrected in three blocks) — with the rejected alternative recorded at its measured 2 B cost.
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 155-06-PLAN.md — Wave 5 (firmware + meta): landing — after-figures vs the before record (−1366 B / −8 B), the gate proven RED from a post-change throwaway worktree plus a real committed clean control, all eight phase-gate legs, the one-sided policy pass with the baseline untouched, and the phase record carrying five public corrections.
 
 ---

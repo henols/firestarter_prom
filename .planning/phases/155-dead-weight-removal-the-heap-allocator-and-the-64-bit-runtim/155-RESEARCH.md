@@ -1172,26 +1172,26 @@ The last assertion is worth highlighting: `assert "uint64_t" not in fn` is a **c
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED 2026-08-23 by the /gsd-plan-phase orchestrator as OQ-1…OQ-5; OQ-6 added from 155-PATTERNS.md. Each recommendation below was taken as written. The plans implement the locked value, not the question.)
 
-1. **`k` guard: `4194303` or `4000000`?**
+1. **RESOLVED (OQ-1) — take `4194303`, record −1366 B.** — original question: **`k` guard: `4194303` or `4000000`?**
    - Known: `4194303` measures **−1366 B**; `4000000` measures **−1364 B** — same tree, same everything else. `4194303 = 0x3FFFFF`, so the test compiles to a shift; it is also the tighter bound (exact ceiling 4198404). REQUIREMENTS/ROADMAP criterion 4 names `4194303`; the preserved reference uses `4000000`; the "Measured: −1364 B" header matches `4000000`.
    - Unclear: whether the operator regards the `−1364` header or the `4194303` criterion as the binding statement.
    - **Recommendation: take `4194303` and record `−1366 B`.** It satisfies the criterion as literally written, is 2 B cheaper, and is the better-reasoned bound. State the 2 B delta and its cause in the phase record. Do not silently ship `4000000` to make `−1364` come out.
 
-2. **Does DEAD-03's assertion list get corrected to 11 symbols?**
+2. **RESOLVED (OQ-2) — yes, assert all 11 and record both 438 B / 528 B.** — original question: **Does DEAD-03's assertion list get corrected to 11 symbols?**
    - Known: the 8 named symbols total exactly 438 B (the requirement's figure is right); 3 more (`__umulsidi3` 2 B, `__umulsidi3_helper` 84 B, `__ashrdi3` 4 B) total 90 B and also leave; the real blob is 528 B contiguous.
    - Unclear: whether "the image contains no 64-bit runtime helper" is to be read as the 8-item list or as the class.
    - **Recommendation: assert all 11 and record both figures** — "438 B across the 8 named symbols, 528 B across the full contiguous blob". A gate over 8 could pass with 90 B still linked; a gate over 11 cannot. Costs nothing.
 
-3. **Does the phase record correct the "±5 % / ±600 mV" tolerance statement?**
+3. **RESOLVED (OQ-3) — yes, correct it; the asymmetric window makes the bound stronger.** — original question: **Does the phase record correct the "±5 % / ±600 mV" tolerance statement?**
    - Known: the low edge **is** `−5 %` = `−600 mV` at 12 V; the high edge is a **fixed `+500 mV`**, not `+5 %` (`eprom.cpp:713`, `flash_intel.cpp:39`).
    - **Recommendation: yes, correct it.** The 5 mV bound is then 1.0 % of the tighter (500 mV) window, and the directional argument — under-reads only, so no `VPP_HIGH` error can ever be suppressed — is materially stronger than the symmetric claim. Corrected figures are recorded publicly in this project.
 
-4. **Is `handle` = 603 B (uno) or 1115 B (leonardo) the number the phase record should carry for DEAD-02?**
+4. **RESOLVED (OQ-4) — carry both per-target figures, with "shared heap-and-stack headroom".** — original question: **Is `handle` = 603 B (uno) or 1115 B (leonardo) the number the phase record should carry for DEAD-02?**
    - **Recommendation: both, per target, plus the corrected framing** — on `uno`, `handle` 603 B + tokens 512 B = 1115 B of 2048 B, leaving 473 B; on `leonardo`, `handle` 1115 B + tokens 512 B = 1627 B of 2560 B, leaving 544 B. And say "shared heap-and-stack headroom", since `ram_used` excludes the stack. The `~470 B` conclusion survives; its derivation does not.
 
-5. **How is DEAD-05 mechanically checked, given it is a requirement about wording?**
+5. **RESOLVED (OQ-5) — a two-halved phrasing gate: negative scan AND positive assertion.** — original question: **How is DEAD-05 mechanically checked, given it is a requirement about wording?**
    - Known: it demands that "no phase artifact may imply native or bench coverage". That is a property of `.planning/` prose, not of code.
    - **Recommendation:** a small pytest or plan-gate leg that greps this phase's artefacts for the forbidden phrasings (list in the ceiling section) applied to `rurp_read_voltage_mv`, and asserts the correct phrasing is present in VALIDATION.md. **And note explicitly that the preserved reference's own comment says "bench-verified only"** — the single most likely source of a DEAD-05 violation is copying that comment across unedited.
 
