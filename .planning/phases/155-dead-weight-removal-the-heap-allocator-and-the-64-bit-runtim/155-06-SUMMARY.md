@@ -183,3 +183,20 @@ None -- no external service configuration required.
 ---
 *Phase: 155-dead-weight-removal-the-heap-allocator-and-the-64-bit-runtim*
 *Completed: 2026-08-23*
+
+## Self-Check: PASSED (one noted exception)
+
+- FOUND: `.planning/phases/155-dead-weight-removal-the-heap-allocator-and-the-64-bit-runtim/155-06-SUMMARY.md`
+- FOUND: `.planning/v1.33/155-after-figures.md`
+- FOUND: `firestarter/tests/fixtures/clean_no_heap_or_64bit_symbols_postchange_uno/README.md`
+- FOUND: `firestarter/tests/fixtures/clean_no_heap_or_64bit_symbols_postchange_uno/avr-nm-uno.txt`
+- FOUND: `test_real_postchange_listing_exits_zero` in `firestarter/tests/test_check_no_heap_or_64bit_symbols.py`
+- FOUND: commit `adf1a31` in `firestarter` history (`git -C firestarter log --oneline --all | grep adf1a31`)
+- FOUND: commit `9f9c905c` in meta history (`git log --oneline --all | grep 9f9c905c`)
+- FOUND: commit `8a5f36f2` in meta history (`git log --oneline --all | grep 8a5f36f2`)
+- FOUND: commit `fe6a9aca` in meta history (`git log --oneline --all | grep fe6a9aca`)
+- FOUND: `.planning/REQUIREMENTS.md` Traceability rows DEAD-01..DEAD-06 all read `Complete`
+- CONFIRMED: `git -C firestarter status --porcelain` empty; `git -C firestarter rev-parse --verify wip/v1.33-size-reduction-survey-preserved` still resolves to `a6b46f8b12e81c62d9958945eb0bdbb8c16ae699`, unchanged
+- CONFIRMED: `python3 .planning/v1.33/tools/check_dead05_phrasing.py` re-run with this SUMMARY present -- exit 0, 22 files scanned, 75 in-scope paragraphs (floor 6 cleared), all four required-positive targets confirmed. This discharges the "Re-run obligation" bullet above (it was performed; the bullet's future-tense wording is left as originally authored per the orchestrator's instruction not to otherwise edit the record).
+- **Noted exception, not silently rounded up:** `git -C firestarter worktree list` shows two entries, not one -- `firestarter` (main tree) and `firestarter_py32_ci`, a worktree present before this session started (unrelated PY32F071 CI work on `feature/py32f071-release-assets`). This plan's own throwaway worktree (the post-change planted-negative proof) was created, used, and fully removed and pruned this session; `firestarter_py32_ci` was never touched by this plan and is not this plan's to remove. The plan's "single entry after cleanup" acceptance phrasing assumed a clean starting state the repo did not actually have. Every other self-check item above is unqualified.
+- Phase-gate legs (native 172/172x2, host pytest 348, symbol gate 0/0x3, flash/RAM deltas, size-baseline policy, build-warnings) were NOT re-run for this self-check, per the orchestrator's explicit instruction -- their readings are cited from this SUMMARY's own Task Commits/Accomplishments sections and from `155-after-figures.md` section 13, both already committed and unchanged since.
