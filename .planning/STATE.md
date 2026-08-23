@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.33
 milestone_name: — Source Hygiene & Firmware Size Reduction
 current_phase: 156
-current_phase_name: Duplicated-Report Extraction + Boolean-Convention Repair (firmware-only)
+current_phase_name: firmware-only
 status: executing
 stopped_at: "Phase 154 Plan 12 complete -- **PHASE 154 CLOSED.** The landing plan: post-sweep byte-identity recorded for all three AVR targets as a hash pair AND a size pair (six hashes, six size figures, identical to plan 01 character for character); the D-08 retarget subset settled against the real diff at **815** rows with per-row cause, hand-chosen target and reason, nothing dropped and `source_text` byte-unchanged everywhere; the SWEEP-12 staleness marker planted at `.planning/v1.33/CITATIONS-STALE.md`; and the three commits made in D-11 order -- `firestarter` `2ad5b32` and `firestarter_app` `bc9d592`, each anchored `rev-list --count <PRE_SHA>..HEAD == 1`, both landing BEFORE the phase gate, which then ran clean: `native` 172/172, `native_nodevtools` 172/172, firmware gates 323/0 (the 7 reds of plans 07/08 cleared on the commit), the four F3 blob-sha gates 29/29, and the full host suite **1976 passed / 0 failed / 0 skipped** in 234 s. Also settled: the archived-`milestones/` clause discharged as a verified absence with cause and handed to REMAP-01 with its 1,302 figure; the Ruling D overlap column re-checked against the ACTUAL swept set, upgrading `test_checker_convention.py` from `no-overlap` and confirming BOTH `EXPOSURE` rows now live over swept text; the record-gate folklore corrected (STATE.md's longest line is 2,965 chars, not 52k; no `.planning`-level record gate exists; 600 s is the measurement-sized timeout). Six SWEEP boxes ticked (01, 03, 05, 07, 10, 12); **SWEEP-13 deliberately left unticked** because its one-meta-commit clause is measurably not met. Nothing pushed. **Was:** Phase 154 Plan 11 complete — the `firestarter_app/tests` narrow sweep and the orchestrator-assigned D7 repair. `survey_provenance.py --group app-tests`: **139 → 84 hits** across 63 line edits in 25 files, every one of the 84 residuals attributed into five named buckets that sum exactly (8 plan-03 fixtures untouched by mandate, 6 D-02-exempt `CAP-0`, 5 survey false positives left unreworded, 9 named abstentions quoted in full, 56 retained requirement/decision IDs — 8 of them newly exposed at line-start by the sweep itself). The 139 start figure reconciles against D-04's 115, plan 02's 131 and this session's 139 to the hit and to the file. D-03 retention proven mechanically (`D-NN` occurrences under `tests` 1536 → 1536). D-04's named keep-in-full case discharged by a **measured zero** rather than a judgment call, so `tests/scan_paths.py` is untouched and PATTERNS.md's suggested reword deliberately not performed. Zero tombstones and zero label-only deletions, both measured absences. `test_dispatch_mirror.py` left completely unedited on a named abstention (`Phase 100` is the sentence's grammatical subject, not a prefix). Code invariance by two oracles, each proven non-vacuous first: 22/22 `.py` files identical to `APP_PRE_SHA` on AST **and** comment-free-token digests, and 3/3 C fixtures identical under a whitespace-normalised comment-stripped digest — whose first, offset-preserving version reported three false FAILs and is recorded as such. **BLOCKER D7 RESOLVED:** the `"Phase 151"` pin retargeted onto a four-phrase conjunction over the claim, proven strictly stronger than the literal it replaced, with a committed leg-5 checkable negative. Plan 03's five SWEEP-07 legs re-proven 4-RED / 1-GREEN (8 + 4 = 12 passed, exactly plan 03's totals). Full suite run despite the plan's deferral, because D7 is only demonstrably fixed by observing it: clean clone **1976 passed / 0 failed / 0 skipped**, real dirty tree 1965 passed / 11 failed = 1976, arithmetic against plan 09's 1975 baseline closing exactly. 27 per-module gates green, `ruff` clean, `uno` still byte-identical. SWEEP-04 ticked; no commit in either sub-repo (D-11)."
-last_updated: "2026-08-23T13:40:01.076Z"
+last_updated: "2026-08-23T15:10:07.025Z"
 last_activity: 2026-08-23
-last_activity_desc: Phase 155 complete, transitioned to Phase 156
+last_activity_desc: Phase 156 execution started
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 18
-  completed_plans: 18
+  total_plans: 25
+  completed_plans: 19
   percent: 33
 ---
 
@@ -29,10 +29,10 @@ See: `.planning/PROJECT.md` (updated 2026-08-22 — v1.33 started)
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
 authoritative dispatch key end to end. v1.33 does not touch that contract at all: its entire premise is
 byte-level equivalence. **Make the source shorter without changing what it does.**
-**Current focus:** Phase 155 — Dead-Weight Removal — heap allocator and 64-bit runtime
-and planned on 2026-08-23; **executing now** (12 plans, 5 waves). Its `SWEEP-01…NN` placeholder resolved to
-**13** requirements at `/gsd-discuss-phase 154`, and `REQUIREMENTS.md` §1 now carries them. Phases 155–159
-can go straight to `/gsd-plan-phase`.
+**Current focus:** Phase 156 — Duplicated-Report Extraction + Boolean-Convention Repair (firmware-only) — planned 2026-08-23;
+**executing now** (7 plans, waves 1–7, strictly sequential). Requirements DEDUP-01…04. Phase 154's
+`SWEEP-01…NN` placeholder resolved to **13** requirements at `/gsd-discuss-phase 154` and `REQUIREMENTS.md`
+§1 carries them; Phases 157–159 can go straight to `/gsd-plan-phase`.
 
 **v1.33 Source Hygiene & Firmware Size Reduction** — 🔵 **ACTIVE** (activated 2026-08-22). Six phases,
 **154–159**. Phase 154 is dual-repo lockstep; Phases 155–158 are firmware-only; Phase 159 touches
@@ -145,12 +145,12 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 156 — Duplicated-Report Extraction + Boolean-Convention Repair (firmware-only)
-Plan: Not started
-Status: Ready to execute
+Phase: 156 — Duplicated-Report Extraction + Boolean-Convention Repair (firmware-only) — EXECUTING
+Plan: 2 of 7
+Status: Executing (wave 1 of 7)
 Next: **Phase 156 execution** -- `/gsd-execute-phase 156` (7 plans, waves 1-7; planned 2026-08-23, plan-checker PASSED on the first iteration). Waves are strictly sequential because every plan touches `eprom.cpp`, `memory.cpp`, `memory_utils.h` or their committed golden. Target **-426 B flash / RAM unchanged** on all three AVR targets (24660->24234 uno, 24708->24282 uno328pb, 26804->26378 leonardo), measured at `adf1a31`, not quoted. DEDUP-04 is resolved toward **REMOVAL** by operator decision, so the nine `!` wrappers and the six engine returns actually flip -- and that flip is **size-identical, NOT image-identical** (the `.hex` SHA changes on all three targets; research correction C-4). Two measured DEDUP-03 blind spots (VPP under-voltage severity pairing, chip-ID message id) are closed in plan 02 BEFORE the refactor, each seen RED against a planted transposition and GREEN against the real tree. `tests/test_protocol_branch_inventory.py` goes RED on commit and is re-derived 23->22 in plan 03 and 22->21 in plan 04, each inside its own commit. Nothing is pushed. `wip/v1.33-size-reduction-survey-preserved` @ `a6b46f8` remains the ONLY ref carrying 155-158's implemented work -- and it does NOT carry DEDUP-04. **Was:** **Phase 155 execution** -- `/gsd-execute-phase 155` (6 plans, 5 sequential waves; planned 2026-08-23, plan-checker PASSED on the first iteration). Waves are sequential by necessity, not caution: the pre-change symbol tables and sole-caller attribution are irrecoverable once the first source edit lands, and two `pio` invocations must never run concurrently. 155-158 are firmware-only size reduction; 159 is the citation remap. Nothing is pushed: all three repos hold their commits locally, and pushing is the operator's call. `wip/v1.33-size-reduction-survey-preserved` @ `a6b46f8` in `firestarter` is still the ONLY ref carrying Phases 155-158's implemented work -- do not delete or force-update it; Phase 155 treats it as a SEMANTIC reference only (it forks `8695ee5`, so Phase 154's comment rewrites mean it will not cherry-pick), and four of its in-scope hunks carry defects the plans correct rather than copy. **Was:** Phase 155 unplanned; `/gsd-plan-phase 155`.
-**Stopped at:** Phase 155 Plan 05 complete -- the atomic heap-removal commit: firestarter_handle_t::progress_data removed, mem_util_blank_check now uses a file-scope static (blank_check_saved_address), both native AVR test suites updated in the same commit (98e70af), the false 'same statement' claim corrected to 'unconditionally adjacent statements' in three comment blocks, and the rejected-alternative 2 B cost measured (601/601/1113 B handle vs before-figures' 603/603/1115 B). check_no_heap_or_64bit_symbols.py now exits 0 on all three ELFs; flash/RAM 24660/1567, 24708/1573, 26804/2008 matches the plan's target exactly. native 172/172 x2 legs, pytest 347 passed. DEAD-01/02/06 deliberately left Pending -- plan 06 (landing plan) closes them.
-Last activity: 2026-08-23 — Phase 155 complete, transitioned to Phase 156
+**Stopped at:** Phase 156 Plan 01 complete -- before-figures record committed (9770337); tree unchanged at adf1a31; wave 1 of 7 done
+Last activity: 2026-08-23 — Phase 156 execution started
 
 **The manifest is on disk and committed, and it is the point of no return for Phase 159.**
 `.planning/v1.33/sweep-citation-manifest.jsonl` holds **13,692** records over 2,947 planning documents
@@ -2413,6 +2413,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: Rejected retaining a dead progress_data field for 2B RAM -- would make two assertions vacuous (hollow-gate failure mode); closed the unchecked dereference by removing the allocation instead
 - [Phase ?]: Neither test-file replacement comment nor the memory.cpp comment uses the literal string progress_data, satisfying the plan's grep-count-0 acceptance criterion
 - [Phase ?]: Phase 155 CLOSED: measured -1366 B flash / -8 B RAM (corrected from ROADMAP's -1364 B, OQ-1 guard-constant delta); gate proven from both directions (real post-change clean control + throwaway-worktree planted negative); DEAD-05 phrasing gate green over the full real corpus (22 files, 75 in-scope paragraphs); DEAD-01..DEAD-06 all closed.
+- [Phase 156]: 156-01: recorded pytest tests/ baseline as measured in canonical /workspaces/firestarter checkout (348/0/0) rather than quoting research's isolated-worktree figure (313/0/32); explained via tests/meta_presence.py META_PRESENT seam
+- [Phase 156]: 156-01: constprop.42 clone measures 214 B (0xd6) this session, not the 216 B (0xd8) 156-RESEARCH.md's C-5 states; suffix identity .42 (not .44) is the load-bearing correction and is unaffected
+- [Phase 156]: 156-01: measured A1's inferred cause for the 31st __udivmodhi4 site directly (uno built at e26e9ab and 46dd574) -- count is 31 at both, so Phase 155's 32-bit voltage reformulation is measured NOT the cause
 
 ## Performance Metrics
 
@@ -2738,10 +2741,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 155 P04 | 45min | 2 tasks | 2 files |
 | Phase 155 P05 | 40min | 2 tasks | 4 files |
 | Phase 155 P06 | ~2h | - tasks | - files |
+| Phase 156 P01 | 15min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-23T11:17:45.847Z
+**Last session:** 2026-08-23T15:10:06.992Z
 **Stopped at:** Phase 154 Plan 12 complete -- **PHASE 154 CLOSED.** The landing plan: post-sweep byte-identity recorded for all three AVR targets as a hash pair AND a size pair (six hashes, six size figures, identical to plan 01 character for character); the D-08 retarget subset settled against the real diff at **815** rows with per-row cause, hand-chosen target and reason, nothing dropped and `source_text` byte-unchanged everywhere; the SWEEP-12 staleness marker planted at `.planning/v1.33/CITATIONS-STALE.md`; and the three commits made in D-11 order -- `firestarter` `2ad5b32` and `firestarter_app` `bc9d592`, each anchored `rev-list --count <PRE_SHA>..HEAD == 1`, both landing BEFORE the phase gate, which then ran clean: `native` 172/172, `native_nodevtools` 172/172, firmware gates 323/0 (the 7 reds of plans 07/08 cleared on the commit), the four F3 blob-sha gates 29/29, and the full host suite **1976 passed / 0 failed / 0 skipped** in 234 s. Also settled: the archived-`milestones/` clause discharged as a verified absence with cause and handed to REMAP-01 with its 1,302 figure; the Ruling D overlap column re-checked against the ACTUAL swept set, upgrading `test_checker_convention.py` from `no-overlap` and confirming BOTH `EXPOSURE` rows now live over swept text; the record-gate folklore corrected (STATE.md's longest line is 2,965 chars, not 52k; no `.planning`-level record gate exists; 600 s is the measurement-sized timeout). Six SWEEP boxes ticked (01, 03, 05, 07, 10, 12); **SWEEP-13 deliberately left unticked** because its one-meta-commit clause is measurably not met. Nothing pushed. **Was:** Phase 154 Plan 11 complete — the `firestarter_app/tests` narrow sweep and the orchestrator-assigned D7 repair. `survey_provenance.py --group app-tests`: **139 → 84 hits** across 63 line edits in 25 files, every one of the 84 residuals attributed into five named buckets that sum exactly (8 plan-03 fixtures untouched by mandate, 6 D-02-exempt `CAP-0`, 5 survey false positives left unreworded, 9 named abstentions quoted in full, 56 retained requirement/decision IDs — 8 of them newly exposed at line-start by the sweep itself). The 139 start figure reconciles against D-04's 115, plan 02's 131 and this session's 139 to the hit and to the file. D-03 retention proven mechanically (`D-NN` occurrences under `tests` 1536 → 1536). D-04's named keep-in-full case discharged by a **measured zero** rather than a judgment call, so `tests/scan_paths.py` is untouched and PATTERNS.md's suggested reword deliberately not performed. Zero tombstones and zero label-only deletions, both measured absences. `test_dispatch_mirror.py` left completely unedited on a named abstention (`Phase 100` is the sentence's grammatical subject, not a prefix). Code invariance by two oracles, each proven non-vacuous first: 22/22 `.py` files identical to `APP_PRE_SHA` on AST **and** comment-free-token digests, and 3/3 C fixtures identical under a whitespace-normalised comment-stripped digest — whose first, offset-preserving version reported three false FAILs and is recorded as such. **BLOCKER D7 RESOLVED:** the `"Phase 151"` pin retargeted onto a four-phrase conjunction over the claim, proven strictly stronger than the literal it replaced, with a committed leg-5 checkable negative. Plan 03's five SWEEP-07 legs re-proven 4-RED / 1-GREEN (8 + 4 = 12 passed, exactly plan 03's totals). Full suite run despite the plan's deferral, because D7 is only demonstrably fixed by observing it: clean clone **1976 passed / 0 failed / 0 skipped**, real dirty tree 1965 passed / 11 failed = 1976, arithmetic against plan 09's 1975 baseline closing exactly. 27 per-module gates green, `ruff` clean, `uno` still byte-identical. SWEEP-04 ticked; no commit in either sub-repo (D-11).
 **Resume file:** None
 

@@ -318,7 +318,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 156-01-PLAN.md — capture the irrecoverable pre-change figures and the seven ROADMAP corrections (wave 1)
+- [x] 156-01-PLAN.md — capture the irrecoverable pre-change figures and the seven ROADMAP corrections (wave 1)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
