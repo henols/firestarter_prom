@@ -394,7 +394,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 157-05-PLAN.md — the missing `read-strobe-us` cap case, both cap assertions tightened to equality, and OD-5's six store-round-trip cases closing the wrong-`offsetof` ceiling
+- [x] 157-05-PLAN.md — the missing `read-strobe-us` cap case, both cap assertions tightened to equality, and OD-5's six store-round-trip cases closing the wrong-`offsetof` ceiling
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
