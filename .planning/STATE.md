@@ -1,21 +1,20 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.33
-milestone_name: Source Hygiene & Firmware Size Reduction
+milestone_name: — Source Hygiene & Firmware Size Reduction
 current_phase: 154
-current_phase_name: "Provenance Comment Sweep + Remap Tool (dual-repo lockstep) — promoted Backlog 999.34"
+current_phase_name: Provenance Comment Sweep + Remap Tool
 status: planning
 stopped_at: "Milestone v1.33 ACTIVATED 2026-08-22 by /gsd-new-milestone. Scoping was NOT done by this activation -- ROADMAP.md section v1.33 and REQUIREMENTS.md (31 reqs: SWEEP/DEAD/DEDUP/DECODE/LAND/REMAP) were hand-authored on 2026-08-22 by /gsd-explore routing and are pointed at, NOT regenerated (the GSD roadmap/requirements verbs normalise whole files). phases.clear was SKIPPED -- 126 phase directories exist. This activation wrote PROJECT.md section Current Milestone: v1.33, this frontmatter switch, and the commits. Six phases, 154-159. NEXT: /gsd-discuss-phase 154 -- that phase requirements are deliberately UNSET because its triage policy is the substance of the phase; 155-159 can go straight to /gsd-plan-phase. Meta on branch v1.33-source-hygiene-size-reduction (forked off local beta @ 59a9ff5d). Firmware work for phases 155-158 ALREADY EXISTS on firestarter branch size-reduction-survey (off 8695ee5), 11 files modified and UNCOMMITTED, also captured at .planning/notes/firmware-size-reduction-measured.patch."
-last_updated: "2026-08-22T23:15:52.986Z"
+last_updated: "2026-08-23T00:04:51.273Z"
 last_activity: 2026-08-22
-last_activity_desc: "Milestone v1.33 (Source Hygiene & Firmware Size Reduction) ACTIVATED 2026-08-22 -- six phases 154-159, pointing at the hand-authored v1.33 ROADMAP section and REQUIREMENTS.md rather than regenerating them. Research skipped (the requirements are already written from a measured build survey). Target: -2938 B flash / -13 B RAM on all three AVR targets for a net -2 lines of source, plus the ~646-comment provenance sweep promoted from Backlog 999.34."
+last_activity_desc: Milestone v1.33 activated
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
   percent: 0
-  note: "Six phases as authored (154-159). No plans yet -- this project creates phase directories and plans at /gsd-plan-phase time. Phases 155-158 are review/decomposition/landing phases over work already implemented on firmware branch size-reduction-survey, not greenfield implementation."
 ---
 
 # Project State
@@ -84,7 +83,6 @@ additive**.
 Sub-repos fork off their `beta` tips per phase; the firmware already has `size-reduction-survey` to rename
 or rebase.
 
-
 **v1.32 AT28C Write-Path Root Cause & Report Provenance** — ✅ **SHIPPED 2026-08-21** (activated 2026-08-18, ~~folding Backlog
 **999.28**~~ — **the 999.28 fold was reversed 2026-08-20**: Phase 150 (`write --sdp-relock`) was deferred
 back to that backlog item by operator decision at the discuss step, for the second time (v1.30 deferred it
@@ -150,7 +148,7 @@ Phase: 154 — Provenance Comment Sweep + Remap Tool
 Plan: —
 Status: planning
 Next: `/clear`, then `/gsd-discuss-phase 154`
-**Stopped at:** Milestone v1.33 activated 2026-08-22 — awaiting `/gsd-discuss-phase 154`
+**Stopped at:** Phase 154 context gathered
 Last activity: 2026-08-22 — Milestone v1.33 activated
 
 **Detail.** Phase 154 has not been discussed, planned or given a phase directory — this project creates
@@ -195,9 +193,11 @@ resolving. **Coverage:** 31 requirements defined, all mapped — 30 of them full
   caused by four added `#include` lines**. The split also catches what no post-154 remap could: citations
   Phases 155–158 write **into their own records** against lines a later phase in the same milestone
   invalidates.
+
 - **155 → 156 → 157 sequentially**, never in one wave — 156 and 157 touch files 155 touches
   (`eprom.cpp`, `flash_intel.cpp`), and sequencing them is what keeps each phase's measured delta
   **attributable**.
+
 - **158 after 155/156/157** — it re-records the baseline all three move.
 - **159 last** — every source-shifting phase must have landed or the composite diff is incomplete.
 
@@ -2633,9 +2633,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-22T23:19:00.000Z
+**Last session:** 2026-08-23T00:04:51.233Z
 **Stopped at:** Milestone v1.33 (Source Hygiene & Firmware Size Reduction) ACTIVATED — awaiting `/gsd-discuss-phase 154`
-**Resume file:** None
+**Resume file:** .planning/phases/154-provenance-comment-sweep-remap-tool-dual-repo-lockstep-promo/154-CONTEXT.md
 
 **Gitlink gap from Phase 149's close — CLOSED 2026-08-20.** Phase 149 landed its dual-repo work but never bumped meta's submodule gitlinks, so meta HEAD asserted "Phase 149 COMPLETE and VERIFIED — page-size seam landed across both repos" while pointing at `firestarter 7f6afc65` / `firestarter_app b142c0e6` — trees containing none of it. Bumped to `firestarter 6e3f90a3` (6 commits, all `149-*`) and `firestarter_app 9cc57c75` (13 commits: 8 `149-*` plus the 5 `fw` port-targeting fixes, which `git cherry` marks `-` against `origin/beta` — patch-identical to PR #52's merged work under different SHAs, so nothing unreviewed rode along). Both sub-repos verified on `gsd/v1.32-at28c-write-path-root-cause-report-provenance` with clean tracked trees. Restores the per-plan bump convention this milestone set at `chore(147-02)`/`chore(147-05)`; the branches are local-only, as Phase 147's were when it bumped, and become reachable at the close via the PR to `beta`.
 
