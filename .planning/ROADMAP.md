@@ -267,7 +267,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 155-01-PLAN.md — Wave 1 (meta): the AUTHORITATIVE before-figures record — pre-change symbol tables for all three ELFs, disassembly sole-caller attribution, the three flash/RAM pairs, and the corrected RAM/symbol derivations (C-3, C-4, C-5, OQ-2, OQ-4). Captured before the first source edit because Phases 156–158 each destroy these numbers.
+- [x] 155-01-PLAN.md — Wave 1 (meta): the AUTHORITATIVE before-figures record — pre-change symbol tables for all three ELFs, disassembly sole-caller attribution, the three flash/RAM pairs, and the corrected RAM/symbol derivations (C-3, C-4, C-5, OQ-2, OQ-4). Captured before the first source edit because Phases 156–158 each destroy these numbers.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
