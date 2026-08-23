@@ -745,7 +745,7 @@ Every edit was applied by an exact-old-line-match script (bottom-up per file, th
 
 - **The full host suite WAS run**, against the plan's instruction to defer it — see §8 for the reasoning and for the deferral's own justification, which is reproduced and confirmed rather than dismissed.
 - **`154-PATTERNS.md`'s suggested reword of `scan_paths.py` was deliberately NOT performed** — see §3.
-- **No commit in either sub-repo.** D-11 reserves exactly one commit per sub-repo for plan 12. `firestarter_app` now carries **54** modified tracked paths (plan 03's 2 + plan 09's 20 + plan 10's 8 + this plan's 26, less overlap: 2 + 20 + 8 + 26 = 56 with `test_dispatch_mirror.py`/`test_sdp_table_parity.py` counted once each) and its 7 pre-existing untracked files plus plan 03's 4 fixtures. `firestarter` still carries exactly **93** modified paths, unchanged by this plan.
+- **No commit in either sub-repo.** D-11 reserves exactly one commit per sub-repo for plan 12. `firestarter_app` now carries exactly **56** modified tracked paths — plan 03's 2 + plan 09's 20 + plan 10's 8 + this plan's 26, with **no overlap** (this plan edited neither `test_dispatch_mirror.py` nor `test_sdp_table_parity.py`) — plus its 7 pre-existing untracked files and plan 03's 4 fixtures. `firestarter` still carries exactly **93** modified paths, unchanged by this plan.
 
 ---
 
