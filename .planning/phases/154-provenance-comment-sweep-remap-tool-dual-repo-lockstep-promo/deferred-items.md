@@ -148,10 +148,49 @@ the **only** executable line-number pin over swept firmware paths in either repo
 census)` when the dispositions file is next touched, and name the census in Phases 155–158's
 success criteria.
 
-## D7 — BLOCKER: plan 07's `firestarter/src/firestarter.cpp` sweep broke a host gate that pins the literal string `"Phase 151"`
+## D7 — ~~BLOCKER~~ **RESOLVED in plan 11**: plan 07's `firestarter/src/firestarter.cpp` sweep broke a host gate that pins the literal string `"Phase 151"`
 
 **Found during:** Plan 09, Task 2 (first full host-suite run of the phase).
-**Severity:** BLOCKER for plan 12's phase gate. Not repairable inside plan 09's scope.
+**Severity:** was a BLOCKER for plan 12's phase gate. **CLEARED 2026-08-23 by plan 11**, as an
+orchestrator-assigned task beyond that plan's written scope.
+
+**Resolution (plan 11, Task 3) — the pin moved from the LABEL to the CLAIM.** Option 2 (restore
+the label in firmware source) was rejected outright: it would mean shipping a phase label in
+swept firmware source, defeating the phase. Option 1 was taken and strengthened:
+
+- `test_diagnostic_range_unchanged_with_phase_151_comment` →
+  `test_diagnostic_range_unchanged_with_stated_choice_comment`;
+  `_PHASE_151_LOOKBACK_CHARS` → `_STATED_CHOICE_LOOKBACK_CHARS`.
+- `assert "Phase 151" in preceding_text` → `assert not _missing_stated_choice_phrases(...)`
+  over a **four-phrase conjunction**, ALL of which must be present:
+  `CMD_LOCK_STATUS (16)`, `CMD_READ_VPP (11)`, `this is a CHOICE`, `DBG_* diagnostic`.
+  None is provenance, so no future sweep can break it the way this one broke the label pin.
+- **Proven strictly stronger, not merely different.** Against a planted
+  `// Phase 151 touched this block.` replacing the whole comment block, the OLD pin passes
+  **vacuously** and the new conjunction reports all four phrases missing. Against a planted
+  removal of the deliberateness sentence and the `DBG_*` consequence (both ordinals kept), it
+  reports `missing ['this is a CHOICE', 'DBG_* diagnostic']`. Both plants run in a throwaway
+  `git clone --shared` of the swept firmware tree; the real repo was never written to (still
+  exactly 93 modified paths afterwards) and the clone was deleted.
+- A committed checkable negative was added as **leg 5**
+  (`test_non_vacuity_control_reports_absent_stated_choice`), mirroring the module's own leg-4
+  synthetic-string idiom (this module cannot `monkeypatch.setenv` `FIRESTARTER_FW_ROOT` —
+  `fw_presence.py` binds `FW_ROOT` at import time, correction C-15), asserting BOTH directions
+  so the control cannot pass by reporting absence unconditionally.
+
+**Measured outcome:** module 3 passed / 1 failed → **5 passed**. Clean clone carrying both
+repos' swept blobs committed: **1976 passed / 0 failed / 0 skipped** (1975 + leg 5). Real
+D-11-dirty tree: 1965 passed / 11 failed = 1976, all 11 the `_git_porcelain` class. Plan 12's
+phase gate is unblocked, and must still run only AFTER both sub-repo commits land.
+
+**The class remains worth naming for future phases:** this was the third comment-sensitive host
+gate over firmware source, and the only one pinning a *provenance label itself*. Any later phase
+that deletes provenance from firmware source should grep the host test suite for the label
+before deleting it.
+
+---
+
+### Original filing (kept verbatim for the record)
 
 `firestarter_app/tests/test_parse_gate_admission.py::test_diagnostic_range_unchanged_with_phase_151_comment`
 asserts `"Phase 151" in preceding_text` over the raw text of
