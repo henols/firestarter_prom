@@ -1486,7 +1486,11 @@ project-specific claim was measured or read this session.
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> **All five were closed at plan time (2026-08-23) by orchestrator rulings A-H, recorded in
+> `154-{01..12}-PLAN.md`.** Each question keeps its original text so the reasoning stays legible;
+> the `**RESOLVED:**` line under each records what was actually decided and where it landed.
 
 1. **Does SWEEP-07 authorise writing new test code?**
    - What we know: SWEEP-07 requires planted-violation controls; the house pattern
@@ -1497,6 +1501,11 @@ project-specific claim was measured or read this session.
    - Recommendation: the planner should state explicitly that SWEEP-07's controls
      are new files in `firestarter_app/tests/{,fixtures/}` and fold them into the
      app-repo commit (D-11). This is F6, and it is a wording gap, not a conflict.
+   - **RESOLVED — Ruling A (plan 03).** Yes. SWEEP-07 is a settled requirement that mandates the
+     controls, and a control is test infrastructure, not a behaviour change; CONTEXT.md's
+     "comment text only" describes edits to *existing* source. Plan 03 carries the four fixtures
+     and the five new legs, states the scope clarification explicitly so it does not read as
+     creep, and the files fold into the single app-repo commit (D-11) made by plan 12.
 
 2. **Regenerate the four golden sidecars, or exempt the five pinned files?**
    - What we know: 5 files, 30 of 615 hits (~5%). Regeneration is hand work with no
@@ -1507,6 +1516,13 @@ project-specific claim was measured or read this session.
      regenerate only `eprom_params_citations.json`** so the named keep-example is
      still delivered. Cheapest path that keeps SWEEP-01 intact. Operator-visible
      trade — worth surfacing.
+   - **RESOLVED — Ruling B (plans 02 and 07).** Take the recommendation: regenerate only
+     `eprom_params_citations.json`; exempt the other four pinned paths, each named with the
+     sidecar pinning it. The planner then found the recommendation incomplete —
+     `eprom_params.cpp` is pinned by **two** sidecars, since
+     `firestarter/tests/golden/protocol_branch_inventory.json` also carries that path in
+     `meta.blob_shas`. Plan 07 task 2 updates both; updating only the first would have left
+     `test_protocol_branch_inventory.py::test_blob_shas_match_the_recorded_inventory` RED.
 
 3. **Should `test_sdp_table_parity.py` be hardened, or only controlled?**
    - What we know: F2 proves it can be silently disarmed; the offset-preserving
@@ -1517,6 +1533,10 @@ project-specific claim was measured or read this session.
      and file the hardening as a follow-on, unless the planner judges a 2-line
      comment-strip a comment-adjacent change. Do not leave the finding unrecorded
      either way.
+   - **RESOLVED — controlled, not hardened.** SWEEP-07 as written: plant the controls in this
+     phase (plan 03 proves them RED before the sweep, plan 12 re-proves them RED after) and
+     record the hardening as a follow-on. Hardening is a behaviour change to a gate, which the
+     phase excludes; F2 is recorded rather than fixed here.
 
 4. **F4's 22 gates — disposition or explicit deferral?**
    - What we know: 22 firmware-repo gates scan source with no comment stripping;
@@ -1524,12 +1544,20 @@ project-specific claim was measured or read this session.
    - What's unclear: how many are genuinely comment-sensitive (A3).
    - Recommendation: a one-line disposition each inside SWEEP-06, or a reasoned
      out-of-scope ruling. Silence is the one bad option.
+   - **RESOLVED — Ruling D (plans 02 and 12).** SWEEP-06's text is **not** expanded; it stands as
+     the 8 app-repo paths. The 22 firmware-repo gates are dispositioned one line each and
+     recorded as a named exposure in `sweep-gate-dispositions.md`, not controlled — building 22
+     planted controls is its own phase, filed as a follow-on. Silence was avoided.
 
 5. **Does `doc/PROTOCOLS.md` stay out of scope?**
    - What we know: 2 provenance hits, outside the sweep's globs per D-05, read by
      `test_dispatch_mirror.py`.
    - Recommendation: keep it out (D-05), but record the 2 hits so the exclusion is
      visible rather than accidental.
+   - **RESOLVED — stays out, recorded (plan 02).** `doc/PROTOCOLS.md` keeps its 2 hits and is
+     listed as a named exclusion alongside `firestarter/lib` (0 hits) and
+     `firestarter/tests/*.py` (20 hits across 7 files — outside CONTEXT.md's
+     `firestarter/{src,include,test}` globs, a third exclusion the planner found).
 
 ---
 
