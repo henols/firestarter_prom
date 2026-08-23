@@ -56,7 +56,7 @@ Four things are already decided and must survive the discuss step:
 - [x] **DECODE-01**: `key_parsers[]` and the eleven `get_*` stubs it dispatched through are replaced by one data table of `{key, offset, width, clamp}`. The stubs cost **1012 B** — 86–110 B each for one `strtoul` and one store — because a PROGMEM function pointer stopped gcc inlining them; five *identical* siblings called directly with a literal key (`get_r1`, `get_r2`, `get_rev`, `get_rw_pin`, `get_vpp_pin`) cost **zero**, which is the proof that the opacity and not the logic was the cost. Measured: **−976 B**.
 - [x] **DECODE-02**: Every wire key appears **once** in flash. Ten of eleven were stored twice — once for the table, once as a `PSTR` inside the stub that re-matched the key the table had just matched. `get_flags` remains a real function because `json_parse_config` calls it directly at two sites; that is documented as a deliberate exception, not left as an inconsistency.
 - [x] **DECODE-03**: `width` is derived from the member itself (`sizeof(((firestarter_handle_t*)0)->member)`) so it cannot drift from the field it writes, and a **compile-time assertion** prevents a future struct reorder from silently truncating an offset. All eleven fields currently sit at offsets 3–37, below `data_buffer` at 38; a `uint8_t` offset is only safe while that holds.
-- [ ] **DECODE-04**: `handle->protocol` is `uint8_t` and `handle->ctrl_flags` is `uint16_t` (largest values in use `0x39` and `FLAG_SKIP_SDP_UNLOCK` `0x100`), removing a 4-byte compare from 19 protocol comparisons and 45 `is_flag_set` call sites.
+- [x] **DECODE-04**: `handle->protocol` is `uint8_t` and `handle->ctrl_flags` is `uint16_t` (largest values in use `0x39` and `FLAG_SKIP_SDP_UNLOCK` `0x100`), removing a 4-byte compare from 19 protocol comparisons and 45 `is_flag_set` call sites.
 - [ ] **DECODE-05**: **An out-of-range wire `algorithm` fail-closes rather than truncating into a valid protocol, proven by a NEW test.** This is the milestone's safety requirement. `json_parser.c` applies no range check, so a narrowed `protocol` would truncate `0x105` to `0x05` and dispatch into `configure_flash_5v_page` where it previously reached `configure_memory`'s fail-closed tail — and **all 172 existing tests passed against the broken version**, so the suite is blind to it. The fix saturates in `store_field`, covering `pins`, `chip_id`, `vpp_mv` and `page_size` too, which the per-stub form could not.
 - [x] **DECODE-06**: The Phase-44 `READ_TIMING_MAX_US` clamp (T-44-01) on `read-settling-delay` and `read-strobe-us` survives the deletion of `get_read_settling` / `get_read_strobe`, proven by a test rather than by inspection. The clamp moves to the table's `clamp` column and its `#define` must be hoisted above the table.
 - [ ] **DECODE-07**: The rejected alternative is recorded with its measurement: converting `configure_memory`'s protocol if-chain to a `switch` on the narrowed field is **+18 B worse** (`uno` 25696 vs 25678), because the values are sparsely spread over 0x05–0x39 and gcc emits comparisons either way. The if-chain stays.
@@ -114,7 +114,7 @@ Which phase covers which requirement. Authored with the requirements, tabulated 
 | DECODE-01 | Phase 157 | Complete |
 | DECODE-02 | Phase 157 | Complete |
 | DECODE-03 | Phase 157 | Complete |
-| DECODE-04 | Phase 157 | Pending |
+| DECODE-04 | Phase 157 | Complete |
 | DECODE-05 | Phase 157 | Pending |
 | DECODE-06 | Phase 157 | Complete |
 | DECODE-07 | Phase 157 | Pending |

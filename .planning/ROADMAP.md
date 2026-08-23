@@ -386,7 +386,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 157-03-PLAN.md — narrow `protocol` to `uint8_t` and `ctrl_flags` to `uint16_t`, audit all five consumer surfaces (18/20 and 40/59, not 19/45), measure the narrowing half and −5 B RAM, run both OD-6 check scripts
+- [x] 157-03-PLAN.md — narrow `protocol` to `uint8_t` and `ctrl_flags` to `uint16_t`, audit all five consumer surfaces (18/20 and 40/59, not 19/45), measure the narrowing half and −5 B RAM, run both OD-6 check scripts
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
