@@ -398,7 +398,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 157-06-PLAN.md — DECODE-07 record-only: build the `switch` variant once at this position (OD-4), measure all three targets, discard it, and prove the branch-inventory golden green
+- [x] 157-06-PLAN.md — DECODE-07 record-only: build the `switch` variant once at this position (OD-4), measure all three targets, discard it, and prove the branch-inventory golden green
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
