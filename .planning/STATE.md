@@ -146,11 +146,11 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 154 (Provenance Comment Sweep + Remap Tool (dual-repo lockstep)) — EXECUTING
-Plan: 8 of 12
+Plan: 9 of 12
 Status: Ready to execute
-Next: Wave 3 continues — plans 08-10 (the remaining sweeps; Wave 2 complete: 02, 03, 04; 05, 06, 07 complete)
-**Stopped at:** Completed 154-07-PLAN.md (shipped firmware sweep: `firestarter/{src,include}` 96 → 24 hits, the 24 all named — 3 D-02-exempt `CAP-0` + 21 Ruling B exempted; all THREE AVR targets byte-identical to plan 01; comment-stripped text of all 32 modified files identical to `FW_PRE_SHA`, 0 of 32; both `eprom_params.cpp` sidecars re-derived `5dffe841…` → `7817c142…`; `test_config_schema_pinned.py`'s line-number census repaired; SWEEP-02 ticked; still UNCOMMITTED in `firestarter` per D-11)
-Last activity: 2026-08-23 — Phase 154 Plan 04 executed (Wave 2 complete)
+Next: Wave 3 continues — plans 09-10 (the remaining sweeps; Wave 2 complete: 02, 03, 04; 05, 06, 07, 08 complete)
+**Stopped at:** Completed 154-08-PLAN.md (`firestarter/test` narrow sweep: 216 → 70 hits over 58 edited files, every residual attributed — 7 Ruling-B-exempt, 4 in the checked-and-found-unpinned `eprom_v131_expected_prechange.h`, 4 recorded abstentions, 55 retained IDs (D-03), several newly exposed once their `Phase`/`Plan` wrapper was stripped; zero tombstones found, 3 label-only deletions, rest narrative-prefix strips; `D-` count under `test` unchanged 386→386; `pio test -e native` 172/172 before and after; `uno` byte-identical; firmware gates 316/7 same 7-name set as plan 07, zero new; SWEEP-03/SWEEP-04 left Pending — phase-wide, plan 11 finishes them; still UNCOMMITTED in `firestarter` per D-11, 93 modified paths total)
+Last activity: 2026-08-23 — Phase 154 Plan 08 executed (Wave 3 continues)
 
 **The manifest is on disk and committed, and it is the point of no return for Phase 159.**
 `.planning/v1.33/sweep-citation-manifest.jsonl` holds **13,692** records over 2,947 planning documents
