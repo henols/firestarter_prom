@@ -48,7 +48,28 @@ v1.24–v1.29 version slots stay unreused so every by-number cross-reference kee
 
 **Goal:** Make the source shorter without changing what it does.
 
-**Current state (2026-08-23):** **Phase 154 COMPLETE** — 12 plans, 5 waves, verification `passed`.
+**Current state (2026-08-23):** **Phase 155 COMPLETE** — 6 plans, 5 waves, verification `passed` (6/6
+must-haves, independently re-measured rather than trusted from the summaries). The firmware is now
+**heap-free** and carries **no 64-bit runtime helper**: `check_no_heap_or_64bit_symbols.py` went from exit 1
+to exit 0 with `heap=0, 64bit=0` on all three ELFs, and the image shrank **−1366 B flash / −8 B RAM on every
+target** (`uno` 26026→24660, `uno328pb` 26074→24708, `leonardo` 28170→26804). All six DEAD requirements
+closed. **Five figures in this project's own scoping were corrected publicly before shipping, not carried:**
+the total is −1366 B and not −1364 B (the shipped guard is `k > 4194303UL`, the tighter and 2 B cheaper bound
+named by criterion 4, not the `4000000UL` the survey used); the 64-bit blob is **11 symbols / 528 B**, not the
+8 named / 438 B, so a gate over the named 8 could have passed with 90 B still linked; the VPP window is
+**asymmetric** (−5 % low, a fixed +500 mV high), which makes the 5 mV bound a *stronger* claim because the
+reformulation only ever under-reads and so can never suppress a `VPP_HIGH` error; the RAM headroom derivation
+double-counted the 512 B token array (the ~470 B conclusion survives, its arithmetic did not); and the
+"same statement" claim about the surviving witness was false — it is the same unconditional branch, and it was
+wrong in three comment blocks. **The honest ceiling, stated not buried:** `src/boards/rurp_common.cpp`
+compiles in no native environment, so the voltage arithmetic has no native and no bench coverage; it is proven
+by a committed host-side numerical oracle over a stated input grid, bound to the shipped C by a
+source-contract scan. avr-gcc miscompiling the 32-bit multiply/divide is named as an **unmitigated** residual
+risk. `size_baseline.json` is deliberately **not** re-anchored — Phase 158 / LAND-01 owns the cold re-record.
+One inherited drift carried forward to Phase 158: Phase 153 added a checker without bumping `FLOOR`, so the
+tree ships 8 checkers against a floor of 7. Nothing pushed.
+
+**Prior state (Phase 154):** **Phase 154 COMPLETE** — 12 plans, 5 waves, verification `passed`.
 The provenance sweep landed in both sub-repos as exactly one commit each (`firestarter` `2ad5b32`,
 `firestarter_app` `38f0d83`), and the `uno`/`uno328pb`/`leonardo` builds are **byte-identical** to the
 pre-sweep baseline — six hashes and six size figures unchanged, which is the phase's strongest oracle and
@@ -62,7 +83,7 @@ provenance lines (D5) plus 236 app-pkg mid-comment and 335 non-comment-line toke
 design, alongside four blob-sha-pinned paths exempted under Ruling B. This phase is **not** "all provenance
 removed". Three gate-hazard classes found in flight and handed to Phases 155-158: exact-line-number pins,
 `inspect.getsource()` comment pins, and provenance-label pins.
-**Next:** Phase 155 — Dead-Weight Removal.
+**Next:** Phase 156 — Duplicated-Report Extraction + Boolean-Convention Repair (firmware-only).
 
 
 Two halves that share one property: **both make the source shorter and neither changes behaviour.** Retires
@@ -1731,6 +1752,8 @@ in the build stops a future change from silently overwriting the bootloader regi
 below.*
 
 *Previously: 2026-07-30 after the v1.22 milestone (AT28C Software Data Protection Lifecycle) close. Shipped 7 phases (116–122), 69 plans, 176 tasks, 41/41 v1 requirements — firmware-touching, dual-repo lockstep, **software-only validation** at a stated and mechanically-enforced ceiling: `0x0D` stays `UNVERIFIED`, zero `support_status` changes, and a committed regex gate (`check_permitted_claims.py`) forbids the claim "SDP works on real AT28C silicon" across all five closing artifacts. Closeout `override_closeout` (14 pre-existing cross-milestone items acknowledged-deferred; none originate in v1.22). Cut `3.0.0b14` public on both channels; meta + both sub-repos tagged `v1.22` and pushed; gitlinks bumped off PINNED-at-b11. No stable release — operator-gated. **Next milestone: v1.29 PY32F071 USB Firmware Install (host-side)** — implementation already exists and is green on `firestarter_app` branch `feature/py32f071-fw-install` @ `311eacf`, so it is a land-and-verify milestone; the hard blocker is cross-repo release-asset naming (the firmware's PY32 CI publishes an Actions artifact `firestarter-py32f071.hex` where the host resolves a release asset `firestarter_py32f071.bin`/`.hex`). Start with `/gsd-new-milestone`. **⚠ SUPERSEDED (2026-08-02 — Phase 130 close):** the next-milestone claim above is superseded — v1.23 became **PY32F071 Integration** (Phases 123–130), and the two py32 slots this footer names (`v1.28 PY32F071 Port`, `v1.29 PY32F071 USB Firmware Install`) were retired into it by CLOSE-03. The branch head `311eacf` is superseded by **`4ee64a1`** (R-11) — the SHA that actually landed in Phase 127. The cross-repo release-asset-naming blocker this footer describes is **closed**: REL-02 landed `firestarter_py32f071.hex` as a real release asset matched by a two-entry glob, and REL-01 placed the ARM build after the version-bump auto-commit (both cited in `128-NONREGRESSION.md`; this is not a claim that the install works end to end). The next milestone after v1.23 is the **v1.30** entry (`ROADMAP.md`, *SDP Surface Retirement & Behavioral Lock Proof*, operator-queued 2026-07-31) — `/gsd-new-milestone` settles its final number. Prior footer retained below.*
+
+*Last updated: 2026-08-23 — Phase 155 (Dead-Weight Removal — the heap allocator and the 64-bit runtime) complete and verified. The firmware is heap-free and 64-bit-runtime-free: symbol gate exit 1 -> exit 0, **-1366 B flash / -8 B RAM on all three AVR targets**, 172/172 native on both legs, 348 firmware pytest, app suite 1976 (unchanged — the repo is byte-untouched). All six DEAD requirements closed. Five scoping figures corrected publicly before shipping (the -1366-vs--1364 guard choice, 11-vs-8 symbols, the asymmetric VPP window, the RAM double-count, and the false "same statement" claim). Coverage ceiling stated, not implied: `rurp_common.cpp` compiles in no native environment, so that arithmetic has no native and no bench coverage and avr-gcc codegen is a named unmitigated residual. `size_baseline.json` NOT re-anchored (Phase 158 owns it). Carried forward: the Phase-153 `FLOOR` drift (8 checkers, floor 7). Nothing pushed — the beta cut and any promotion stay operator-gated. Prior footer retained below.*
 
 *Last updated: 2026-08-23 — Phase 154 (Provenance Comment Sweep + Remap Tool) complete and verified. Three AVR targets byte-identical; remap tool built, not applied; manifest committed. Nothing pushed — the beta cut and any promotion stay operator-gated. Prior footer retained below.*
 
