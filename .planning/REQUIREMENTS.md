@@ -10,9 +10,21 @@
 
 ## 1. Provenance Comment Sweep (SWEEP) — Phase 154, promoted Backlog 999.34
 
-**Requirements deliberately UNSET.** The triage policy — which of the ~646 comments are deleted outright, which are condensed into ordinary comments, and what "load-bearing rationale" means operationally — is the substance of this phase and is unsettled. It must be fixed at `/gsd-discuss-phase 154`, not guessed here. The full writeup is [`todos/pending/2026-08-22-sweep-gsd-provenance-comments-from-firmware-and-host-source.md`](todos/pending/2026-08-22-sweep-gsd-provenance-comments-from-firmware-and-host-source.md); Backlog 999.34's roadmap entry is the handle only.
+**Requirements SETTLED 2026-08-23 at `/gsd-discuss-phase 154`.** They were deliberately UNSET at activation because the triage policy — which of the ~646 comments are deleted outright, which are condensed into ordinary comments, and what "load-bearing rationale" means operationally — is the substance of this phase and had to be fixed against measurement rather than guessed here. The 13 requirements below are the resolution of the `SWEEP-01…NN` placeholder, transcribed from [`phases/154-provenance-comment-sweep-remap-tool-dual-repo-lockstep-promo/154-CONTEXT.md`](phases/154-provenance-comment-sweep-remap-tool-dual-repo-lockstep-promo/154-CONTEXT.md) §`<requirements>`, where each carries the measurement or precedent that settled it (D-01…D-12). The full writeup is [`todos/pending/2026-08-22-sweep-gsd-provenance-comments-from-firmware-and-host-source.md`](todos/pending/2026-08-22-sweep-gsd-provenance-comments-from-firmware-and-host-source.md); Backlog 999.34's roadmap entry is the handle only. Three of the writeup's figures are corrected by the discuss-step re-survey: the gate count (~20 → **8** paths, D-05), the corpus split (52% is test files, not shipped source, D-04), and `CAP-0` being a survey false positive (D-02).
 
-- [ ] **SWEEP-01…NN**: TBD at `/gsd-discuss-phase 154`.
+- [ ] **SWEEP-01**: The triage runs as D-01's single mechanical procedure — strip the provenance token(s) and enclosing punctuation, then judge what remains (sentence describing code that exists → keep, reflowed; connective punctuation only → delete; sentence describing code that is NOT there → delete) — stated in the plan and applied per hit, with the step-3 guard named: never delete the only statement of a non-obvious invariant, trap, or fail-closed rationale. All five keep-examples the writeup names (`eprom_params.cpp:61`, `uno_rurp_shield.cpp:109`, `database.py:580-630`, `flash_5v_page.cpp:101`, `json_parser.c:92`) are shown to land on "keep, reflowed".
+- [ ] **SWEEP-02**: `CAP-0N` is exempt as live cross-repo wire-protocol vocabulary (shipped host source: `serial_comm.py:67-156`, `hardware.py:39,153`, `firmware.py:180`; 13 host test modules reference it), and the generalised both-repos exemption test is applied to every token not on D-01's list. `firestarter/src/firestarter.cpp:182-200` is untouched, and `test_cap03_ack_layout_parity.py` is green **and** shown still able to fail.
+- [ ] **SWEEP-03**: Requirement/decision IDs are stripped from shipped source and **retained** in test files where the ID is the case's traceability key. The rule is stated so the asymmetry does not read as an inconsistency.
+- [ ] **SWEEP-04**: Test files receive the **narrow** treatment only — tombstone deletion and label-only-comment deletion, no reflowing of substantive test commentary. The 331-of-636 measurement (`firestarter/test/native` 216, `firestarter_app/tests` 115) and the fact that **no oracle covers any of them** are both recorded.
+- [ ] **SWEEP-05**: The `uno` build is byte-identical before and after, stated as a **measured pair of numbers**, not asserted. Any delta is reverted, not explained.
+- [ ] **SWEEP-06**: All 8 paths in `firestarter_app/tests/scan_paths.py::ALL_CROSS_REPO_PATHS` are classified and disposed of per D-05's table. The two generated headers (`sdp_bus_config.h`, `validation_matrix.h`) are fixed at their generators or shown to need no fix; their output is never edited.
+- [ ] **SWEEP-07**: `test_sdp_table_parity.py` and `test_dispatch_mirror.py`'s C++ leg each get a planted-violation control proving they go **RED before** the sweep and **RED again after**. The live `_PAIR_RE` collision at `eeprom_28c.cpp:199-201` and the comment-blind brace slice at `test_sdp_table_parity.py:141-158` are both named as the reason.
+- [ ] **SWEEP-08**: `eeprom_28c.cpp` is swept as its own plan, not batched — 33 hits, both comment-blind gate mechanisms, and the AT28C datasheet citation of record (Atmel doc0270 rev 0270L-PEEPR-2/09 §19 note 2, corroborated by Microchip DS20006432B §6.18 note 2) all land in one file.
+- [ ] **SWEEP-09**: The pre-sweep citation manifest is committed at `.planning/v1.33/sweep-citation-manifest.jsonl`, covering all **10,054** citations that target a swept file (not only the 6,939 predicted to shift), with both endpoints and both source texts for every range citation.
+- [ ] **SWEEP-10**: Citations targeting a comment line the sweep deletes are recorded `retarget: true` with the original cited text preserved and a hand-chosen new target. None is silently dropped, and the subset's **count is reported** — it is a deliverable, not a prediction.
+- [ ] **SWEEP-11**: `remap_citations.py` + `test_remap_citations.py` are committed under `.planning/v1.33/tools/`, proven **idempotent** (run twice = no-op) and proven to **shrink** a range spanning a deleted block rather than translate it by a constant offset, against synthetic diffs. The tool takes the repo root as an **explicit argument** (never derived from `_HERE`), exits non-zero on an empty input set, and is **not applied** in this phase.
+- [ ] **SWEEP-12**: The staleness marker is planted, naming the swept files, stating that `.planning/` citations into them are knowingly stale, and pointing at Phase 159 / REMAP-04 as the close-blocking closer.
+- [ ] **SWEEP-13**: One commit per sub-repo plus one meta commit; both sub-repo commits land **before** the host suite runs (`test_flash_path_record_sync` asserts whole-repo porcelain). Whether editing archived `milestones/` records tripped the known "milestone close breaks its own record gates" behaviour is recorded either way — the collision or its absence, with cause.
 
 **Scope was narrowed on 2026-08-22 (D-01): this phase sweeps source and BUILDS the remap tool; it does NOT apply the remap.** Application moves to Phase 159 / REMAP-01…05, so the remap runs exactly once over a composite diff instead of once per source-shifting phase. Measured justification: **723** citations sit at or below an edit Phases 155–158 make and would otherwise be remapped twice — `json_parser.c` **198 of 198**, `flash_utils.cpp` **97 of 97**, `memory.cpp` 199, `flash_intel.cpp` 147, `eeprom_28c.cpp` 71 — and **41% of that rework traces to four added `#include` lines**.
 
@@ -76,7 +88,19 @@ Which phase covers which requirement. Authored with the requirements, tabulated 
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SWEEP-01…NN | Phase 154 | Pending — IDs settled at `/gsd-discuss-phase 154` |
+| SWEEP-01 | Phase 154 | Pending |
+| SWEEP-02 | Phase 154 | Pending |
+| SWEEP-03 | Phase 154 | Pending |
+| SWEEP-04 | Phase 154 | Pending |
+| SWEEP-05 | Phase 154 | Pending |
+| SWEEP-06 | Phase 154 | Pending |
+| SWEEP-07 | Phase 154 | Pending |
+| SWEEP-08 | Phase 154 | Pending |
+| SWEEP-09 | Phase 154 | Pending |
+| SWEEP-10 | Phase 154 | Pending |
+| SWEEP-11 | Phase 154 | Pending |
+| SWEEP-12 | Phase 154 | Pending |
+| SWEEP-13 | Phase 154 | Pending |
 | DEAD-01 | Phase 155 | Pending |
 | DEAD-02 | Phase 155 | Pending |
 | DEAD-03 | Phase 155 | Pending |
@@ -109,11 +133,11 @@ Which phase covers which requirement. Authored with the requirements, tabulated 
 | REMAP-05 | Phase 159 | Pending |
 
 **Coverage:**
-- v1 requirements: **31** total (30 fully specified + `SWEEP-01…NN`, deliberately unset)
-- Mapped to phases: **31**
+- v1 requirements: **43** total (30 specified at activation + the **13** SWEEP requirements settled 2026-08-23 at `/gsd-discuss-phase 154`)
+- Mapped to phases: **43**
 - Unmapped: **0** ✓
 
-`SWEEP-01…NN` is one placeholder standing for however many requirements `/gsd-discuss-phase 154` produces. It is mapped, but its cardinality is not yet known — so any later count of this milestone's requirements will exceed 31, and that is expected rather than drift.
+The activation count was **31** — 30 fully specified plus one `SWEEP-01…NN` placeholder of unknown cardinality. That placeholder resolved to **13**, so the total moved 31 → 43. This is the expansion activation predicted, not drift.
 
 ---
 
