@@ -48,6 +48,23 @@ v1.24–v1.29 version slots stay unreused so every by-number cross-reference kee
 
 **Goal:** Make the source shorter without changing what it does.
 
+**Current state (2026-08-23):** **Phase 154 COMPLETE** — 12 plans, 5 waves, verification `passed`.
+The provenance sweep landed in both sub-repos as exactly one commit each (`firestarter` `2ad5b32`,
+`firestarter_app` `38f0d83`), and the `uno`/`uno328pb`/`leonardo` builds are **byte-identical** to the
+pre-sweep baseline — six hashes and six size figures unchanged, which is the phase's strongest oracle and
+proves no executable code moved. 12 of 13 SWEEP requirements ticked; **SWEEP-13 deliberately left open**
+because its one-meta-commit clause is measurably unmet (9 commits under `.planning/v1.33`, recorded with
+its cause rather than manufactured). The citation-remap tool is **built and not applied** — Phase 159
+applies it once over the composite diff (D-01). Its input, the 13,692-row pre-sweep citation manifest with
+**815** hand-settled `retarget` rows, is committed and cannot be regenerated after the fact.
+**Measured remainder, stated not implied:** the corpus was always regex-defined, so ~152 mid-comment
+provenance lines (D5) plus 236 app-pkg mid-comment and 335 non-comment-line tokens (D8) remain un-swept by
+design, alongside four blob-sha-pinned paths exempted under Ruling B. This phase is **not** "all provenance
+removed". Three gate-hazard classes found in flight and handed to Phases 155-158: exact-line-number pins,
+`inspect.getsource()` comment pins, and provenance-label pins.
+**Next:** Phase 155 — Dead-Weight Removal.
+
+
 Two halves that share one property: **both make the source shorter and neither changes behaviour.** Retires
 Backlog **999.34**. Files Backlog **999.35** rather than carrying it.
 
@@ -1714,6 +1731,8 @@ in the build stops a future change from silently overwriting the bootloader regi
 below.*
 
 *Previously: 2026-07-30 after the v1.22 milestone (AT28C Software Data Protection Lifecycle) close. Shipped 7 phases (116–122), 69 plans, 176 tasks, 41/41 v1 requirements — firmware-touching, dual-repo lockstep, **software-only validation** at a stated and mechanically-enforced ceiling: `0x0D` stays `UNVERIFIED`, zero `support_status` changes, and a committed regex gate (`check_permitted_claims.py`) forbids the claim "SDP works on real AT28C silicon" across all five closing artifacts. Closeout `override_closeout` (14 pre-existing cross-milestone items acknowledged-deferred; none originate in v1.22). Cut `3.0.0b14` public on both channels; meta + both sub-repos tagged `v1.22` and pushed; gitlinks bumped off PINNED-at-b11. No stable release — operator-gated. **Next milestone: v1.29 PY32F071 USB Firmware Install (host-side)** — implementation already exists and is green on `firestarter_app` branch `feature/py32f071-fw-install` @ `311eacf`, so it is a land-and-verify milestone; the hard blocker is cross-repo release-asset naming (the firmware's PY32 CI publishes an Actions artifact `firestarter-py32f071.hex` where the host resolves a release asset `firestarter_py32f071.bin`/`.hex`). Start with `/gsd-new-milestone`. **⚠ SUPERSEDED (2026-08-02 — Phase 130 close):** the next-milestone claim above is superseded — v1.23 became **PY32F071 Integration** (Phases 123–130), and the two py32 slots this footer names (`v1.28 PY32F071 Port`, `v1.29 PY32F071 USB Firmware Install`) were retired into it by CLOSE-03. The branch head `311eacf` is superseded by **`4ee64a1`** (R-11) — the SHA that actually landed in Phase 127. The cross-repo release-asset-naming blocker this footer describes is **closed**: REL-02 landed `firestarter_py32f071.hex` as a real release asset matched by a two-entry glob, and REL-01 placed the ARM build after the version-bump auto-commit (both cited in `128-NONREGRESSION.md`; this is not a claim that the install works end to end). The next milestone after v1.23 is the **v1.30** entry (`ROADMAP.md`, *SDP Surface Retirement & Behavioral Lock Proof*, operator-queued 2026-07-31) — `/gsd-new-milestone` settles its final number. Prior footer retained below.*
+
+*Last updated: 2026-08-23 — Phase 154 (Provenance Comment Sweep + Remap Tool) complete and verified. Three AVR targets byte-identical; remap tool built, not applied; manifest committed. Nothing pushed — the beta cut and any promotion stay operator-gated. Prior footer retained below.*
 
 *Previously: 2026-06-10 — v1.12 (Firmware Protocol Dispatch Hardening + Skeletons) STARTED. First firmware-touching milestone since v1.10; fail-closed dispatch + not-implemented wire response + skeleton handlers for missing protocols; dual-repo lockstep, unified-beta branch model (all 3 repos off `beta`). Prior footer (v1.11 close) retained below.*
 
