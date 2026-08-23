@@ -271,7 +271,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 155-02-PLAN.md — Wave 2 (firmware): the link-time symbol-absence gate for DEAD-01/DEAD-03 — `scripts/check_no_heap_or_64bit_symbols.py` asserting all **eleven** 64-bit symbols (OQ-2), fail-closed on five paths, non-vacuity anchored, plus its convention-forced paired pytest, its real pre-change planted listing and the `FLOOR`/`FIXTURE_FLOOR` raises, all in ONE commit.
+- [x] 155-02-PLAN.md — Wave 2 (firmware): the link-time symbol-absence gate for DEAD-01/DEAD-03 — `scripts/check_no_heap_or_64bit_symbols.py` asserting all **eleven** 64-bit symbols (OQ-2), fail-closed on five paths, non-vacuity anchored, plus its convention-forced paired pytest, its real pre-change planted listing and the `FLOOR`/`FIXTURE_FLOOR` raises, all in ONE commit.
 - [ ] 155-03-PLAN.md — Wave 2 (meta): DEAD-05 mechanised (OQ-5) — the two-halved phrasing gate (negative paragraph-scoped scan + positive assertion of the mandated wording), its planted violation, and the committed corpus record naming exactly three exclusions with reasons and a justified non-vacuity floor.
 
 **Wave 3** *(blocked on Wave 2 completion)*

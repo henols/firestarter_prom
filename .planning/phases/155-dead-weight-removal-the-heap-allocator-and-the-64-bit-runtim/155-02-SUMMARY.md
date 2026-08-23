@@ -36,7 +36,7 @@ key-decisions:
   - "Manual argv parser (house convention per check_release_assets.py/check_size_baseline.py), not argparse — check_erase_no_vpp.py's argparse precedent noted and deliberately not followed."
   - "avr-nm resolution is lazy: only required when at least one target is NOT covered by --nm-output, so the fully-hermetic pytest path never needs the toolchain present."
 
-requirements-completed: [DEAD-01, DEAD-03]
+requirements-completed: []  # DEAD-01/DEAD-03 NOT marked complete here -- see "Deviations from Plan" #1
 
 coverage:
   - id: D1
@@ -184,9 +184,31 @@ and no second commit was made to `firestarter`.
 
 ## Deviations from Plan
 
-None — plan executed exactly as written by the prior session; this session performed verification
-only and found no discrepancy between the committed artifacts and the plan's `must_haves`,
-`prohibitions`, `key_links`, or acceptance criteria.
+**1. [Rule 4-adjacent — requirements bookkeeping] DEAD-01/DEAD-03 deliberately NOT marked
+complete in REQUIREMENTS.md, despite appearing in this plan's `requirements` frontmatter.**
+- **Found during:** state-update step (`requirements.mark-complete`).
+- **Issue:** REQUIREMENTS.md's own checkbox text for DEAD-01 and DEAD-03 asserts "the image
+  contains no `malloc`/`free`/.../`__brkval` symbol" and "the image contains no 64-bit runtime
+  helper" respectively. This session's own live end-to-end gate run against the unedited tree
+  (see Verification above) shows **54 forbidden-symbol violations across all three targets** —
+  the source removals that would make those symbols vanish are plans 04/05's job, not this
+  plan's. The plan's Multi-Source Coverage Audit itself frames this plan as covering only
+  "REQ DEAD-01 and DEAD-03's link-time halves" (i.e., the gate that will later prove the
+  requirement, not the requirement's discharge).
+- **Fix:** Ran `requirements mark-complete DEAD-01 DEAD-03`, observed it flip both checkboxes to
+  `[x]` and both traceability rows to "Complete", recognised this as premature (a documented
+  house pitfall — "Executors prematurely mark multi-plan reqs Complete"), and reverted
+  `REQUIREMENTS.md` via `git checkout --` before it was committed. Left both requirements
+  `Pending` for plan 05 (source removal) and/or plan 06 (post-change proof) to close honestly.
+- **Files affected:** `.planning/REQUIREMENTS.md` (reverted, no net change).
+- **Verification:** `git diff .planning/REQUIREMENTS.md` empty after the revert.
+
+---
+
+**Total deviations:** 1 (requirements-bookkeeping correction, no code/gate impact).
+**Impact on plan:** None on the shipped artifact — the gate, its tests, its fixture and the
+convention floor raise are exactly as the plan specified. The only correction was to this
+session's own over-eager state-update step.
 
 ## Issues Encountered
 
