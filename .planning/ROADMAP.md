@@ -280,7 +280,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 155-05-PLAN.md — Wave 4 (firmware): the heap removal as ONE compiler-forced commit — the file-scope static, the removed handle member, and both native suites' assertions plus four comment sites (the false "same statement" claim corrected in three blocks) — with the rejected alternative recorded at its measured 2 B cost.
+- [x] 155-05-PLAN.md — Wave 4 (firmware): the heap removal as ONE compiler-forced commit — the file-scope static, the removed handle member, and both native suites' assertions plus four comment sites (the false "same statement" claim corrected in three blocks) — with the rejected alternative recorded at its measured 2 B cost.
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
