@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.33
 milestone_name: — Source Hygiene & Firmware Size Reduction
-current_phase: 155
-current_phase_name: Dead-Weight Removal — heap allocator and 64-bit runtime
-status: verifying
+current_phase: 156
+current_phase_name: Duplicated-Report Extraction + Boolean-Convention Repair
+status: completed
 stopped_at: "Phase 154 Plan 12 complete -- **PHASE 154 CLOSED.** The landing plan: post-sweep byte-identity recorded for all three AVR targets as a hash pair AND a size pair (six hashes, six size figures, identical to plan 01 character for character); the D-08 retarget subset settled against the real diff at **815** rows with per-row cause, hand-chosen target and reason, nothing dropped and `source_text` byte-unchanged everywhere; the SWEEP-12 staleness marker planted at `.planning/v1.33/CITATIONS-STALE.md`; and the three commits made in D-11 order -- `firestarter` `2ad5b32` and `firestarter_app` `bc9d592`, each anchored `rev-list --count <PRE_SHA>..HEAD == 1`, both landing BEFORE the phase gate, which then ran clean: `native` 172/172, `native_nodevtools` 172/172, firmware gates 323/0 (the 7 reds of plans 07/08 cleared on the commit), the four F3 blob-sha gates 29/29, and the full host suite **1976 passed / 0 failed / 0 skipped** in 234 s. Also settled: the archived-`milestones/` clause discharged as a verified absence with cause and handed to REMAP-01 with its 1,302 figure; the Ruling D overlap column re-checked against the ACTUAL swept set, upgrading `test_checker_convention.py` from `no-overlap` and confirming BOTH `EXPOSURE` rows now live over swept text; the record-gate folklore corrected (STATE.md's longest line is 2,965 chars, not 52k; no `.planning`-level record gate exists; 600 s is the measurement-sized timeout). Six SWEEP boxes ticked (01, 03, 05, 07, 10, 12); **SWEEP-13 deliberately left unticked** because its one-meta-commit clause is measurably not met. Nothing pushed. **Was:** Phase 154 Plan 11 complete — the `firestarter_app/tests` narrow sweep and the orchestrator-assigned D7 repair. `survey_provenance.py --group app-tests`: **139 → 84 hits** across 63 line edits in 25 files, every one of the 84 residuals attributed into five named buckets that sum exactly (8 plan-03 fixtures untouched by mandate, 6 D-02-exempt `CAP-0`, 5 survey false positives left unreworded, 9 named abstentions quoted in full, 56 retained requirement/decision IDs — 8 of them newly exposed at line-start by the sweep itself). The 139 start figure reconciles against D-04's 115, plan 02's 131 and this session's 139 to the hit and to the file. D-03 retention proven mechanically (`D-NN` occurrences under `tests` 1536 → 1536). D-04's named keep-in-full case discharged by a **measured zero** rather than a judgment call, so `tests/scan_paths.py` is untouched and PATTERNS.md's suggested reword deliberately not performed. Zero tombstones and zero label-only deletions, both measured absences. `test_dispatch_mirror.py` left completely unedited on a named abstention (`Phase 100` is the sentence's grammatical subject, not a prefix). Code invariance by two oracles, each proven non-vacuous first: 22/22 `.py` files identical to `APP_PRE_SHA` on AST **and** comment-free-token digests, and 3/3 C fixtures identical under a whitespace-normalised comment-stripped digest — whose first, offset-preserving version reported three false FAILs and is recorded as such. **BLOCKER D7 RESOLVED:** the `"Phase 151"` pin retargeted onto a four-phrase conjunction over the claim, proven strictly stronger than the literal it replaced, with a committed leg-5 checkable negative. Plan 03's five SWEEP-07 legs re-proven 4-RED / 1-GREEN (8 + 4 = 12 passed, exactly plan 03's totals). Full suite run despite the plan's deferral, because D7 is only demonstrably fixed by observing it: clean clone **1976 passed / 0 failed / 0 skipped**, real dirty tree 1965 passed / 11 failed = 1976, arithmetic against plan 09's 1975 baseline closing exactly. 27 per-module gates green, `ruff` clean, `uno` still byte-identical. SWEEP-04 ticked; no commit in either sub-repo (D-11)."
-last_updated: "2026-08-23T11:18:09.221Z"
+last_updated: "2026-08-23T11:36:05.397Z"
 last_activity: 2026-08-23
-last_activity_desc: Phase 155 execution started
+last_activity_desc: Phase 155 complete, transitioned to Phase 156
 progress:
   total_phases: 6
   completed_phases: 2
@@ -145,12 +145,12 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 155 (Dead-Weight Removal — heap allocator and 64-bit runtime) — EXECUTING
-Plan: 6 of 6
+Phase: 156 — Duplicated-Report Extraction + Boolean-Convention Repair (firmware-only)
+Plan: Not started
 Status: Phase complete — ready for verification
 Next: **Phase 155 execution** -- `/gsd-execute-phase 155` (6 plans, 5 sequential waves; planned 2026-08-23, plan-checker PASSED on the first iteration). Waves are sequential by necessity, not caution: the pre-change symbol tables and sole-caller attribution are irrecoverable once the first source edit lands, and two `pio` invocations must never run concurrently. 155-158 are firmware-only size reduction; 159 is the citation remap. Nothing is pushed: all three repos hold their commits locally, and pushing is the operator's call. `wip/v1.33-size-reduction-survey-preserved` @ `a6b46f8` in `firestarter` is still the ONLY ref carrying Phases 155-158's implemented work -- do not delete or force-update it; Phase 155 treats it as a SEMANTIC reference only (it forks `8695ee5`, so Phase 154's comment rewrites mean it will not cherry-pick), and four of its in-scope hunks carry defects the plans correct rather than copy. **Was:** Phase 155 unplanned; `/gsd-plan-phase 155`.
 **Stopped at:** Phase 155 Plan 05 complete -- the atomic heap-removal commit: firestarter_handle_t::progress_data removed, mem_util_blank_check now uses a file-scope static (blank_check_saved_address), both native AVR test suites updated in the same commit (98e70af), the false 'same statement' claim corrected to 'unconditionally adjacent statements' in three comment blocks, and the rejected-alternative 2 B cost measured (601/601/1113 B handle vs before-figures' 603/603/1115 B). check_no_heap_or_64bit_symbols.py now exits 0 on all three ELFs; flash/RAM 24660/1567, 24708/1573, 26804/2008 matches the plan's target exactly. native 172/172 x2 legs, pytest 347 passed. DEAD-01/02/06 deliberately left Pending -- plan 06 (landing plan) closes them.
-Last activity: 2026-08-23 — Phase 155 execution started
+Last activity: 2026-08-23 — Phase 155 complete, transitioned to Phase 156
 
 **The manifest is on disk and committed, and it is the point of no return for Phase 159.**
 `.planning/v1.33/sweep-citation-manifest.jsonl` holds **13,692** records over 2,947 planning documents

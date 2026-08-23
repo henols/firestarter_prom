@@ -274,7 +274,7 @@ token array — corrected to 473/467/544 B "shared heap-and-stack headroom"; (5)
 intervening control flow." The −650/−714 per-half split (criteria 1/3) is UNVERIFIED; quote
 the −1366 B total.
 
-**Plans:** 6 plans
+**Plans:** 6/6 plans complete
 
 Plans:
 **Wave 1**
@@ -3306,6 +3306,7 @@ Plans:
 | 145 | v1.31 | 9/9 | ✅ Shipped | 2026-08-17 (bench; `0x08`/`0x0B` skipped-with-reason) |
 | 146 (close) | v1.31 | 13/13 | ✅ Shipped | 2026-08-18 |
 | 154 | v1.33 | 12/12 | Complete    | 2026-08-23 |
+| 155 | v1.33 | 6/6 | Complete    | 2026-08-23 |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
