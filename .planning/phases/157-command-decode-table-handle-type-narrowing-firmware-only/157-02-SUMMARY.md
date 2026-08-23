@@ -206,3 +206,10 @@ None - no external service configuration required.
 ---
 *Phase: 157-command-decode-table-handle-type-narrowing-firmware-only*
 *Completed: 2026-08-23*
+
+## Self-Check: PASSED
+
+- FOUND: `firestarter/src/json_parser.c`
+- FOUND: `.planning/phases/157-command-decode-table-handle-type-narrowing-firmware-only/157-02-SUMMARY.md`
+- FOUND: firmware commit `19df431` (`git -C firestarter log --oneline --all`)
+- FOUND: meta commit `50541fa` (`git log --oneline --all`)
