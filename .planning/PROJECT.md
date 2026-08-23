@@ -48,7 +48,33 @@ v1.24–v1.29 version slots stay unreused so every by-number cross-reference kee
 
 **Goal:** Make the source shorter without changing what it does.
 
-**Current state (2026-08-23):** **Phase 155 COMPLETE** — 6 plans, 5 waves, verification `passed` (6/6
+**Current state (2026-08-23):** **Phase 156 COMPLETE** -- 7 plans, 7 strictly sequential waves,
+verification `passed` (4/4 must-haves, each re-measured against the tree rather than read off the
+summaries). Two report blocks that were copy-pasted four times each are now one helper apiece:
+`mem_util_report_voltage` (190 B, DEDUP-01, **-268 B**) and `mem_util_report_chip_id` (90 B, DEDUP-02,
+**-158 B**), for **-426 B flash on all three AVR targets with RAM unchanged** (`uno` 24660->24234,
+`uno328pb` 24708->24282, `leonardo` 26804->26378) -- confirming the scoped -268/-158 split exactly rather
+than inheriting it. `__udivmodhi4` call sites fall **31 -> 13**. The inverted-return convention is gone:
+all nine `return !op_execute_*` wrappers forward the engine result directly, six engine returns flipped,
+and the ten-line comment that existed only to defend a load-bearing `!` went with them -- measured
+**size-identical and deliberately NOT image-identical** (the three `.hex` SHAs change; recorded as the
+expected divergence, never claimed as image identity). All four DEDUP requirements closed.
+**Corrections made publicly rather than carried:** plan 01 corrected ten stale scoping figures, three
+beyond the seven it expected -- `op_execute_stateful_operation.constprop.42` is 214 B not 216 B, firmware
+`pytest tests/` is 348 in a canonical checkout not the 313/0/32 an isolated worktree reports (the
+`META_PRESENT` seam), and the assumption that Phase 155's `46dd574` added the 31st `__udivmodhi4` site
+measured **FALSE**. **The honest ceilings, stated not buried:** DEDUP-02's Divergence 1 -- the standalone
+`CMD_CHECK_CHIP_ID` path refusing unconditionally regardless of `--force`, preserved by a `warn_only`
+parameter rather than collapsed -- has **no test oracle**; nothing exercises `eprom_check_chip_id_execute`
+on a mismatch, so its evidence is source-level only and is labelled that way at closure. Plan 04's
+per-symbol ledger does not close (-356 B of symbol deltas against -158 B measured), attributed to LTO
+redistribution. The new `test_boolean_convention_source_contract_v133.py` gate was proven non-vacuous
+four ways, including the emptied-scan-target shape that the `MAX_27C020_SIZE` precedent fails open on.
+Carried forward: `check_build_warnings.py`'s watermark now has **168 B of headroom** (998 observed vs
+1166) and the gate itself asks for a re-measure -- Phase 158 / LAND-01 territory, not this phase's.
+Nothing pushed.
+
+**Prior state (Phase 155):** **Phase 155 COMPLETE** — 6 plans, 5 waves, verification `passed` (6/6
 must-haves, independently re-measured rather than trusted from the summaries). The firmware is now
 **heap-free** and carries **no 64-bit runtime helper**: `check_no_heap_or_64bit_symbols.py` went from exit 1
 to exit 0 with `heap=0, 64bit=0` on all three ELFs, and the image shrank **−1366 B flash / −8 B RAM on every
@@ -69,7 +95,7 @@ risk. `size_baseline.json` is deliberately **not** re-anchored — Phase 158 / L
 One inherited drift carried forward to Phase 158: Phase 153 added a checker without bumping `FLOOR`, so the
 tree ships 8 checkers against a floor of 7. Nothing pushed.
 
-**Prior state (Phase 154):** **Phase 154 COMPLETE** — 12 plans, 5 waves, verification `passed`.
+**Earlier state (Phase 154):** **Phase 154 COMPLETE** — 12 plans, 5 waves, verification `passed`.
 The provenance sweep landed in both sub-repos as exactly one commit each (`firestarter` `2ad5b32`,
 `firestarter_app` `38f0d83`), and the `uno`/`uno328pb`/`leonardo` builds are **byte-identical** to the
 pre-sweep baseline — six hashes and six size figures unchanged, which is the phase's strongest oracle and
@@ -83,7 +109,7 @@ provenance lines (D5) plus 236 app-pkg mid-comment and 335 non-comment-line toke
 design, alongside four blob-sha-pinned paths exempted under Ruling B. This phase is **not** "all provenance
 removed". Three gate-hazard classes found in flight and handed to Phases 155-158: exact-line-number pins,
 `inspect.getsource()` comment pins, and provenance-label pins.
-**Next:** Phase 156 — Duplicated-Report Extraction + Boolean-Convention Repair (firmware-only).
+**Next:** Phase 157 — Command-Decode Table + Handle Type Narrowing (firmware-only).
 
 
 Two halves that share one property: **both make the source shorter and neither changes behaviour.** Retires
@@ -1752,6 +1778,8 @@ in the build stops a future change from silently overwriting the bootloader regi
 below.*
 
 *Previously: 2026-07-30 after the v1.22 milestone (AT28C Software Data Protection Lifecycle) close. Shipped 7 phases (116–122), 69 plans, 176 tasks, 41/41 v1 requirements — firmware-touching, dual-repo lockstep, **software-only validation** at a stated and mechanically-enforced ceiling: `0x0D` stays `UNVERIFIED`, zero `support_status` changes, and a committed regex gate (`check_permitted_claims.py`) forbids the claim "SDP works on real AT28C silicon" across all five closing artifacts. Closeout `override_closeout` (14 pre-existing cross-milestone items acknowledged-deferred; none originate in v1.22). Cut `3.0.0b14` public on both channels; meta + both sub-repos tagged `v1.22` and pushed; gitlinks bumped off PINNED-at-b11. No stable release — operator-gated. **Next milestone: v1.29 PY32F071 USB Firmware Install (host-side)** — implementation already exists and is green on `firestarter_app` branch `feature/py32f071-fw-install` @ `311eacf`, so it is a land-and-verify milestone; the hard blocker is cross-repo release-asset naming (the firmware's PY32 CI publishes an Actions artifact `firestarter-py32f071.hex` where the host resolves a release asset `firestarter_py32f071.bin`/`.hex`). Start with `/gsd-new-milestone`. **⚠ SUPERSEDED (2026-08-02 — Phase 130 close):** the next-milestone claim above is superseded — v1.23 became **PY32F071 Integration** (Phases 123–130), and the two py32 slots this footer names (`v1.28 PY32F071 Port`, `v1.29 PY32F071 USB Firmware Install`) were retired into it by CLOSE-03. The branch head `311eacf` is superseded by **`4ee64a1`** (R-11) — the SHA that actually landed in Phase 127. The cross-repo release-asset-naming blocker this footer describes is **closed**: REL-02 landed `firestarter_py32f071.hex` as a real release asset matched by a two-entry glob, and REL-01 placed the ARM build after the version-bump auto-commit (both cited in `128-NONREGRESSION.md`; this is not a claim that the install works end to end). The next milestone after v1.23 is the **v1.30** entry (`ROADMAP.md`, *SDP Surface Retirement & Behavioral Lock Proof*, operator-queued 2026-07-31) — `/gsd-new-milestone` settles its final number. Prior footer retained below.*
+
+*Last updated: 2026-08-23 — Phase 156 (Duplicated-Report Extraction + Boolean-Convention Repair) complete and verified. Two four-times-copy-pasted report blocks collapsed to one helper each and the inverted-return convention removed: **-426 B flash on all three AVR targets, RAM unchanged** (-268 DEDUP-01, -158 DEDUP-02), `__udivmodhi4` 31->13, all nine `return !op_execute_*` wrappers un-negated at measured zero byte cost (size-identical, `.hex` SHAs deliberately not identical). 172/172 native on both legs, 82/82 `native_loop_v131`, 355 firmware pytest (348 + 7 new gate legs), app suite 1976 unchanged. All four DEDUP requirements closed. Ten stale scoping figures corrected publicly before shipping. Coverage ceiling stated, not implied: DEDUP-02's Divergence 1 has no test oracle and is closed on source-level evidence only; plan 04's per-symbol ledger does not close (-356 B vs -158 B measured, LTO redistribution). Carried forward: the build-warning watermark now has 168 B of headroom and wants a re-measure (Phase 158). Nothing pushed — the beta cut and any promotion stay operator-gated. Prior footer retained below.*
 
 *Last updated: 2026-08-23 — Phase 155 (Dead-Weight Removal — the heap allocator and the 64-bit runtime) complete and verified. The firmware is heap-free and 64-bit-runtime-free: symbol gate exit 1 -> exit 0, **-1366 B flash / -8 B RAM on all three AVR targets**, 172/172 native on both legs, 348 firmware pytest, app suite 1976 (unchanged — the repo is byte-untouched). All six DEAD requirements closed. Five scoping figures corrected publicly before shipping (the -1366-vs--1364 guard choice, 11-vs-8 symbols, the asymmetric VPP window, the RAM double-count, and the false "same statement" claim). Coverage ceiling stated, not implied: `rurp_common.cpp` compiles in no native environment, so that arithmetic has no native and no bench coverage and avr-gcc codegen is a named unmitigated residual. `size_baseline.json` NOT re-anchored (Phase 158 owns it). Carried forward: the Phase-153 `FLOOR` drift (8 checkers, floor 7). Nothing pushed — the beta cut and any promotion stay operator-gated. Prior footer retained below.*
 
