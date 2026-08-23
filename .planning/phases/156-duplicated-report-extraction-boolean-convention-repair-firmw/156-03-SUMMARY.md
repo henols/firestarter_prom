@@ -180,3 +180,11 @@ None -- no external service configuration required. This plan edits firmware sou
 ---
 *Phase: 156-duplicated-report-extraction-boolean-convention-repair-firmw*
 *Completed: 2026-08-23*
+
+## Self-Check: PASSED
+
+- `.planning/phases/156-duplicated-report-extraction-boolean-convention-repair-firmw/156-03-SUMMARY.md` exists on disk -- FOUND
+- `firestarter` commit `6bc3ed3` (refactor(156-03): one shared VPP-mismatch report replaces four copy-pasted blocks) exists in `git -C firestarter log --oneline --all` -- FOUND
+- meta repo commit `47708821` (docs(156-03): record SUMMARY for VPP-mismatch report de-duplication) exists in `git log --oneline --all` -- FOUND
+
+No missing items.

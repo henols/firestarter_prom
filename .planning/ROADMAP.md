@@ -326,7 +326,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 156-03-PLAN.md — DEDUP-01: one `mem_util_report_voltage()` replaces four VPP blocks, golden re-derived 23 → 22 in the same commit (wave 3)
+- [x] 156-03-PLAN.md — DEDUP-01: one `mem_util_report_voltage()` replaces four VPP blocks, golden re-derived 23 → 22 in the same commit (wave 3)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
