@@ -173,3 +173,11 @@ None -- no external service configuration required. This plan edits firmware sou
 ---
 *Phase: 156-duplicated-report-extraction-boolean-convention-repair-firmw*
 *Completed: 2026-08-23*
+
+## Self-Check: PASSED
+
+- `.planning/phases/156-duplicated-report-extraction-boolean-convention-repair-firmw/156-05-SUMMARY.md` exists on disk -- FOUND
+- `firestarter` commit `735aff5` (refactor(156-05): the op layer returns true when finished, so nine wrappers stop negating it) exists in `git -C firestarter log --oneline --all` -- FOUND
+- meta repo commit `270a1ecc` (docs(156-05): record SUMMARY for op-layer boolean-convention flip) exists in `git log --oneline --all` -- FOUND
+
+No missing items.
