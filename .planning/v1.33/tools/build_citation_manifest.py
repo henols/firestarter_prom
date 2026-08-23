@@ -138,8 +138,27 @@ TEXT_STATUS_READ_ERROR = "read_error"
 #: comparable to its 13,002 figure.
 SCAN_EXTENSIONS = (".md", ".py", ".json", ".txt", ".sh", ".csv")
 
-#: Directory names never descended into.
-SKIP_DIRS = ("__pycache__", ".git", "node_modules")
+#: Directory names never descended into. Build, virtualenv and cache trees are
+#: excluded because a `.venv` carries 2,395 vendored `.py` files and a `.pio`
+#: carries 606 vendored `.c`/`.h` files, all of which would otherwise pollute
+#: the --stats full-repo diagnostic index and let an unresolved citation be
+#: mis-classified as naming "a real repo file" when it in fact matched a
+#: vendored dependency copy.
+SKIP_DIRS = (
+    "__pycache__",
+    ".git",
+    "node_modules",
+    ".pio",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".tox",
+    ".eggs",
+    "htmlcov",
+)
 
 #: Source extensions a citation can target (research restricted its census to
 #: these, plus `.hpp` which `survey_provenance.py` already scans).
@@ -150,9 +169,11 @@ TARGET_EXTENSIONS = (".cpp", ".hpp", ".ino", ".py", ".c", ".h")
 #: remapper and their unit tests. Their sources and fixtures contain
 #: citation-shaped literals BY CONSTRUCTION, and a Phase 159 remapper that
 #: rewrote its own test fixtures would break the tools that produce the
-#: manifest. Measured cost of the exclusion at generation time: ZERO real
-#: citations (`grep -roE '<path>\.(cpp|hpp|ino|py|c|h)(:[0-9]+|#L[0-9]+)'
-#: .planning/v1.33/tools/` returns nothing).
+#: manifest. Measured at generation time: 12 citation-shaped literals live
+#: under this prefix and ALL 12 are illustrative or unit-test-fixture strings
+#: inside these tools -- none is a real citation into swept source. Without the
+#: exclusion all 12 would become manifest rows, and Phase 159 would then try to
+#: rewrite the very fixtures this generator's tests assert on.
 SELF_EXCLUDE_PREFIXES = (".planning/v1.33/tools/",)
 
 VARIANT_COLON_SINGLE = "colon_single"
@@ -294,6 +315,7 @@ def build_records(
     cache = _TargetTextCache(index)
     resolutions: dict[str, citation_paths.Resolution] = {}
     records: list[dict] = []
+    occurrences: Counter[str] = Counter()
 
     for rel in planning_files:
         try:
@@ -307,7 +329,12 @@ def build_records(
                 if cited not in resolutions:
                     resolutions[cited] = index.resolve(cited)
                 res = resolutions[cited]
-                for variant, start, end in _spans_from_match(match):
+                spans = _spans_from_match(match)
+                # One MATCH is one citation occurrence, even when it expands to
+                # several records: `hardware.py:39,153` is one occurrence and
+                # two records.
+                occurrences[spans[0][0]] += 1
+                for variant, start, end in spans:
                     if res.is_resolved and res.path is not None:
                         s_text, s_status = cache.at(res.path, start)
                         if end is None:
@@ -338,7 +365,7 @@ def build_records(
                             "retarget": False,
                         }
                     )
-    return records
+    return records, occurrences
 
 
 # ---------------------------------------------------------------------------
@@ -370,6 +397,7 @@ def _dump(obj: dict) -> str:
 def build_header(
     *,
     records: list[dict],
+    occurrences: Counter[str],
     candidate_count: int,
     planning_file_count: int,
     excluded_prefixes: tuple[str, ...],
@@ -520,8 +548,11 @@ def build_header(
                     "CONSTRUCTION, and a manifest that cites itself grows on "
                     "every run while a remapper that rewrote its own test "
                     "fixtures would break the tools that produce the "
-                    "manifest. Measured cost at generation time: zero real "
-                    "citations live under the excluded prefixes."
+                    "manifest. Measured at generation time: 12 "
+                    "citation-shaped literals live under the excluded tool "
+                    "prefix and all 12 are illustrative or unit-test-fixture "
+                    "strings inside these tools -- none is a real citation "
+                    "into swept source."
                 ),
             },
             "pre_sweep_shas": {
@@ -538,6 +569,18 @@ def build_header(
             "generating_command": generating_command,
             "counts": {
                 "records": len(records),
+                "citation_occurrences": sum(occurrences.values()),
+                "occurrences_note": (
+                    "A citation OCCURRENCE is one matched citation in a "
+                    "planning document; a RECORD is one (target_file, "
+                    "target_line) pair. They differ for colon_list only, "
+                    "where one occurrence yields one record per element. "
+                    "Research's per-variant census counted occurrences, so "
+                    "by_variant_occurrences is the figure comparable to it."
+                ),
+                "by_variant_occurrences": {
+                    v: occurrences.get(v, 0) for v in VARIANTS
+                },
                 "by_variant": {v: by_variant.get(v, 0) for v in VARIANTS},
                 "by_resolution": {
                     r: by_resolution.get(r, 0) for r in citation_paths.RESOLUTIONS
@@ -632,6 +675,7 @@ def _full_repo_paths(fw_root: Path, app_root: Path) -> list[str]:
 
 def print_stats(
     records: list[dict],
+    occurrences: Counter[str],
     candidates: dict[str, list[tuple[int, str]]],
     fw_root: Path,
     app_root: Path,
@@ -640,8 +684,17 @@ def print_stats(
 
     print("\n--- STATS ---")
     print(f"records: {len(records)}")
+    print(f"citation occurrences (matches): {sum(occurrences.values())}")
 
-    print("\nby variant:")
+    print("\nby variant (OCCURRENCES -- comparable to research's census):")
+    for v in VARIANTS:
+        print(f"  {v:<16} {occurrences.get(v, 0)}")
+    print(
+        f"  {'anchor_L (both)':<16} "
+        f"{occurrences.get(VARIANT_ANCHOR, 0) + occurrences.get(VARIANT_ANCHOR_RANGE, 0)}"
+    )
+
+    print("\nby variant (RECORDS):")
     by_variant = Counter(r["variant"] for r in records)
     for v in VARIANTS:
         print(f"  {v:<16} {by_variant.get(v, 0)}")
@@ -850,7 +903,7 @@ def main(argv: list[str] | None = None) -> None:
         )
         sys.exit(2)
 
-    records = build_records(meta_root, planning_files, index)
+    records, occurrences = build_records(meta_root, planning_files, index)
     if not records:
         print(
             "ERROR: the generator produced ZERO records. A PASS naming zero "
@@ -865,6 +918,7 @@ def main(argv: list[str] | None = None) -> None:
     )
     header = build_header(
         records=records,
+        occurrences=occurrences,
         candidate_count=len(index),
         planning_file_count=len(planning_files),
         excluded_prefixes=excluded_prefixes,
@@ -904,7 +958,7 @@ def main(argv: list[str] | None = None) -> None:
     )
 
     if args.stats:
-        print_stats(reread, candidates, fw_root, app_root)
+        print_stats(reread, occurrences, candidates, fw_root, app_root)
 
     sys.exit(0)
 
