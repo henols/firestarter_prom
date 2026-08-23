@@ -354,3 +354,10 @@ None - no external service configuration required.
 ---
 *Phase: 157-command-decode-table-handle-type-narrowing-firmware-only*
 *Completed: 2026-08-23*
+
+## Self-Check: PASSED
+
+- FOUND: `firestarter/test/native/avr/test_read_timing/test_read_timing_params.cpp`
+- FOUND: `.planning/phases/157-command-decode-table-handle-type-narrowing-firmware-only/157-04-SUMMARY.md`
+- FOUND: firmware commit `8edfd6e` (`git -C firestarter log --oneline --all`)
+- FOUND: meta commit `53c20523` (`git log --oneline --all`)
