@@ -47,3 +47,43 @@ and 3 in `firestarter/tests/` (`test_requirement_case_mapping_v131.py`,
 **Why deferred:** the count does not change any decision. F7's conclusion stands. The
 delta is recorded rather than corrected in either direction, per this phase's
 measure-both-sides rule.
+
+## D3 — The manifest's `source_text` side is the WORKING TREE, not `pre_sweep_shas`
+
+**Found during:** Plan 05, Task 2 (dry-running the finished tool against the real
+13,692-record manifest as a scale check).
+
+`build_citation_manifest.py` reads every `source_text` from the file **on disk**, while the
+header records `pre_sweep_shas` = each sub-repo's `git rev-parse HEAD` at generation time.
+For the 169 clean candidate files those coincide. For the **two** files plan 03 had already
+modified in `firestarter_app`'s working tree — `tests/test_dispatch_mirror.py` and
+`tests/test_sdp_table_parity.py` — they do not: measured, `6bfa645:./tests/test_dispatch_mirror.py`
+is 222 lines and the working tree is 362, so old lines ≥ 23 shift by **+5**.
+
+**Measured consequence:** the 7 manifest records targeting `test_dispatch_mirror.py` are all
+recognised as **fixed points** and the tool is a correct no-op on them, because their recorded
+`source_text` is the post-plan-03 text that already sits at the recorded line. The
+fixed-point-first ordering is what turned a stale anchor into a safe no-op instead of a wrong
+rewrite — the exact property SWEEP-11 asks for.
+
+**What Phase 159 must do about it:** the app-side "old" anchor for the composite map is the
+**plan 12 commit** (which contains plan 03's edits), not `6bfa6453d1bac232eb81ab35fa7f14b50b0b291a`.
+This is precisely why `--pre-sweep-sha` is an argv argument that beats the header. Nothing needs
+fixing in the manifest.
+
+**Why deferred:** correcting it would mean regenerating plan 04's committed manifest, and D-11
+reserves `firestarter_app`'s single commit for plan 12. Recorded, not corrected.
+
+## D4 — 15 manifest records against `.planning/STATE.md` no longer bind
+
+**Found during:** Plan 05, Task 2 (the same real-manifest dry run).
+
+All 15 "binding is ambiguous" residues in the real dry run are in `.planning/STATE.md`, whose
+line numbers have drifted since plan 04 generated the manifest — every plan's `state_updates`
+step rewrites it. The tool **refuses** rather than guessing, which is the intended fail-closed
+behaviour, and it names each one.
+
+**Why deferred:** STATE.md is machine-maintained bookkeeping, not source provenance. The honest
+options are to re-generate the manifest immediately before Phase 159's remap, or to exclude
+`.planning/STATE.md` from the citation corpus. Either is a Phase 159 / SWEEP-12 decision, not a
+plan 05 one.
