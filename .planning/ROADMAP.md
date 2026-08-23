@@ -214,19 +214,36 @@ nothing a build measurement has already settled.
 **Plans**: 12 plans, 5 waves (1 / 3 / 6 / 1 / 1)
 
 Plans:
+**Wave 1**
 
 - [ ] 154-01-PLAN.md — [BLOCKING] preserve the dirty firmware tree on a named ref, fork the milestone branch in both sub-repos, record the pre-sweep byte-identity and suite baselines (D-12, Ruling C/E)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 154-02-PLAN.md — the corpus survey re-runner, the pre-sweep corpus baseline with D-01's procedure stated, and the gate dispositions: 8 app paths + 22 firmware fail-open gates + the blob-SHA exemptions (D-05, Ruling B/D)
 - [ ] 154-03-PLAN.md — the SWEEP-07 planted controls: 4 committed fixtures and 5 new legs, proven RED (and one deliberately GREEN) before the sweep (D-06, Ruling A)
 - [ ] 154-04-PLAN.md — the shared path resolver, the manifest generator, and the pre-sweep citation manifest with its count reconciled against 10,054 (D-07/D-08, Ruling F/G)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 154-05-PLAN.md — `remap_citations.py` + tests: chained-map idempotency, range shrink, explicit repo root, non-zero on empty input, **not applied** (D-09/D-10)
 - [ ] 154-06-PLAN.md — `eeprom_28c.cpp` swept as its own plan: 33 hits, the datasheet citation of record, the safety invariant, and the `_PAIR_RE` collision de-shaped (Ruling H)
 - [ ] 154-07-PLAN.md — the shipped firmware sweep minus the no-touch region and the four exempted pinned files, plus both sidecars re-derived for `eprom_params.cpp` (D-02, Ruling B)
 - [ ] 154-08-PLAN.md — `firestarter/test` narrow sweep, 216 hits, IDs retained (D-04)
 - [ ] 154-09-PLAN.md — the shipped host package sweep, including the `database.py` reversal record condensed with both halves intact (D-02/D-03)
 - [ ] 154-10-PLAN.md — `firestarter_app/tools` sweep, generated outputs proven unchanged
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 154-11-PLAN.md — `firestarter_app/tests` narrow sweep, `scan_paths.py` kept in full, the 5 SWEEP-07 legs re-run (D-04)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 154-12-PLAN.md — landing: post-sweep byte-identity pair, the D-08 retarget subset and its count, the staleness marker, the three commits in D-11 order, and the phase gate after both sub-repo commits (D-11, Ruling E/G)
+
+**Cross-cutting constraints:**
+
+- Requirement and decision IDs are RETAINED throughout, because in a test file the ID is the case's traceability key.
 
 ---
 

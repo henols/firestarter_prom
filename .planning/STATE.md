@@ -4,9 +4,9 @@ milestone: v1.33
 milestone_name: — Source Hygiene & Firmware Size Reduction
 current_phase: 154
 current_phase_name: Provenance Comment Sweep + Remap Tool
-status: planning
+status: executing
 stopped_at: "Milestone v1.33 ACTIVATED 2026-08-22 by /gsd-new-milestone. Scoping was NOT done by this activation -- ROADMAP.md section v1.33 and REQUIREMENTS.md (31 reqs: SWEEP/DEAD/DEDUP/DECODE/LAND/REMAP) were hand-authored on 2026-08-22 by /gsd-explore routing and are pointed at, NOT regenerated (the GSD roadmap/requirements verbs normalise whole files). phases.clear was SKIPPED -- 126 phase directories exist. This activation wrote PROJECT.md section Current Milestone: v1.33, this frontmatter switch, and the commits. Six phases, 154-159. NEXT: /gsd-discuss-phase 154 -- that phase requirements are deliberately UNSET because its triage policy is the substance of the phase; 155-159 can go straight to /gsd-plan-phase. Meta on branch v1.33-source-hygiene-size-reduction (forked off local beta @ 59a9ff5d). Firmware work for phases 155-158 ALREADY EXISTS on firestarter branch size-reduction-survey (off 8695ee5), 11 files modified and UNCOMMITTED, also captured at .planning/notes/firmware-size-reduction-measured.patch."
-last_updated: "2026-08-23T00:04:51.273Z"
+last_updated: "2026-08-23T01:31:33.408Z"
 last_activity: 2026-08-22
 last_activity_desc: Milestone v1.33 activated
 progress:
@@ -146,7 +146,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 Phase: 154 — Provenance Comment Sweep + Remap Tool
 Plan: —
-Status: planning
+Status: Ready to execute
 Next: `/clear`, then `/gsd-discuss-phase 154`
 **Stopped at:** Phase 154 context gathered
 Last activity: 2026-08-22 — Milestone v1.33 activated
