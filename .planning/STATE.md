@@ -146,11 +146,11 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 154 (Provenance Comment Sweep + Remap Tool (dual-repo lockstep)) — EXECUTING
-Plan: 3 of 12
+Plan: 4 of 12
 Status: Ready to execute
-Next: Wave 2 — plans 02, 03, 04 in parallel (Wave 1 complete)
-**Stopped at:** Completed 154-02-PLAN.md (corpus survey tool + baseline + gate dispositions)
-Last activity: 2026-08-23 — Phase 154 Plan 01 executed (Wave 1 complete)
+Next: Wave 2 — plan 04 (02 and 03 complete)
+**Stopped at:** Completed 154-03-PLAN.md (SWEEP-07 planted controls: 4 fixtures + 5 legs, RED-before proven, GREEN fail-open documented)
+Last activity: 2026-08-23 — Phase 154 Plan 03 executed (Wave 2, part 2 of 3)
 
 **Detail.** Phase 154 was discussed and planned on 2026-08-23 (12 plans, 5 waves) and its phase directory
 exists. Its `SWEEP-01…NN` placeholder resolved to **13** requirements, now carried in `REQUIREMENTS.md` §1;
@@ -1626,6 +1626,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Decisions
 
+- [Phase 154 Plan 03]: All 4 fixtures and 5 new legs left UNCOMMITTED in `firestarter_app`'s working tree, per D-11 — only plan 12 makes that sub-repo's single commit. Only this plan's meta-repo docs (SUMMARY/STATE/ROADMAP) are committed here
+- [Phase 154 Plan 03]: My own fixture header docstrings twice risked accidentally winning the same regex race they were documenting (the `EEPROM_SDP_ENABLE[3] = {...}` misanchor example, and a literal `0x10` in the missing-hex fixture's header) — both caught by executing the actual extraction against the fixture before trusting it, both fixed by describing the mechanism in prose without spelling the literal trigger text
+- [Phase 154 Plan 03]: The two SDP fixture-only legs (misanchor, comment-brace) compare against a hardcoded, already-pinned-elsewhere expected triple `(0x5555,0xAA),(0x2AAA,0x55),(0x5555,0xA0)` rather than reading `flash_utils.h`, so they carry NO `@requires_fw` and stay live in an absent-firmware run; the third (anchoring) leg reads the real `eeprom_28c.cpp` to locate the real declaration's span and DOES carry `@requires_fw`, like every other real-source-reading leg in that module — a deliberate, documented departure from the plan text's "none of the three carries requires_fw", scoped to the one leg that cannot avoid reading real source
+- [Phase 154 Plan 03]: The initial dispatch fixtures used a trimmed 4-row protocol table and failed against the REAL `parse_protocols_md()` (missing 0x05/0x0E/0x27/0x28/0x29) — fixed by copying the full, real 13-row `kAllProtocolFamilies` table verbatim into both fixtures, planting only the flash_intel row
+- [Phase 154 Plan 03]: All 5 new legs proven non-vacuous by reverting each plant, observing the expected failure flip, and restoring — recorded, not assumed (misanchor: DID NOT RAISE when reverted; comment-brace: DID NOT RAISE when reverted; missing-hex: DID NOT RAISE when a comment mentioning the token was added)
 - [Phase 154 Plan 01]: D-12 precondition 1 discharged by COMMIT-then-verify-then-switch, never by reset — the 11 dirty `firestarter` files were committed onto `wip/v1.33-size-reduction-survey-preserved` @ `a6b46f8` and proven equal to `beta` + the recorded recovery patch by an empty `diff -r` of two archived trees BEFORE the tree stopped being dirty; the "reset" then reduced to a plain `git checkout beta`, so no destructive git command ran at all
 - [Phase 154 Plan 01]: The preservation oracle is a TREE comparison, not a patch-text comparison — `git diff` output differs in its `index` lines even when content is identical, so comparing patch texts would have produced a false RED; `git archive` + `git apply` + `diff -r` compares the thing that actually matters
 - [Phase 154 Plan 01]: SWEEP-05's "measured pair of numbers" is recorded as BOTH the `sha256(.elf)`/`sha256(.hex)` pair AND the `Flash:`/`RAM:` figures, for all three AVR targets — the hash pair is strictly stronger and proven comment-immune, and recording both satisfies the requirement literally rather than substituting for it
@@ -2652,11 +2657,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 153 P16 | 45min | 3 tasks | 4 files |
 | Phase 154 P01 | 16min | 3 tasks | 2 files |
 | Phase 154 P02 | 25min | 3 tasks | 3 files |
+| Phase 154 P03 | 31min | 3 tasks | 6 files |
 
 ## Session
 
-**Last session:** 2026-08-23T02:18:24.350Z
-**Stopped at:** Phase 154 Plan 01 complete (Wave 1) — firmware dirt preserved and verified on `wip/v1.33-size-reduction-survey-preserved` @ `a6b46f8`, both sub-repos on `gsd/v1.33-source-hygiene-firmware-size-reduction`, pre-sweep baselines in `.planning/v1.33/baseline-pre-sweep.md`; next is Wave 2 (plans 02/03/04)
+**Last session:** 2026-08-23T02:46:44Z
+**Stopped at:** Phase 154 Plan 03 complete (Wave 2, part 2 of 3) — SWEEP-07's RED-before half discharged: 4 committed-but-uncommitted (D-11) fixtures under `firestarter_app/tests/fixtures/`, 3 new legs in `test_sdp_table_parity.py` (8/8 passing) and 2 in `test_dispatch_mirror.py` (4/4 passing), host suite at 1975/0 (baseline 1970 + 5); all 5 legs proven non-vacuous by revert-and-restore; real firmware source shas unchanged and firmware repo porcelain-clean throughout; next is plan 04 (citation manifest)
 **Resume file:** None
 
 **Gitlink gap from Phase 149's close — CLOSED 2026-08-20.** Phase 149 landed its dual-repo work but never bumped meta's submodule gitlinks, so meta HEAD asserted "Phase 149 COMPLETE and VERIFIED — page-size seam landed across both repos" while pointing at `firestarter 7f6afc65` / `firestarter_app b142c0e6` — trees containing none of it. Bumped to `firestarter 6e3f90a3` (6 commits, all `149-*`) and `firestarter_app 9cc57c75` (13 commits: 8 `149-*` plus the 5 `fw` port-targeting fixes, which `git cherry` marks `-` against `origin/beta` — patch-identical to PR #52's merged work under different SHAs, so nothing unreviewed rode along). Both sub-repos verified on `gsd/v1.32-at28c-write-path-root-cause-report-provenance` with clean tracked trees. Restores the per-plan bump convention this milestone set at `chore(147-02)`/`chore(147-05)`; the branches are local-only, as Phase 147's were when it bumped, and become reachable at the close via the PR to `beta`.
