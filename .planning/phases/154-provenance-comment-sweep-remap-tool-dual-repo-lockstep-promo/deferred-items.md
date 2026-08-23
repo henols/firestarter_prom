@@ -87,3 +87,63 @@ behaviour, and it names each one.
 options are to re-generate the manifest immediately before Phase 159's remap, or to exclude
 `.planning/STATE.md` from the citation corpus. Either is a Phase 159 / SWEEP-12 decision, not a
 plan 05 one.
+
+## D5 — 152 mid-comment provenance-token lines have no survey hit to anchor them
+
+**Found during:** Plan 07, Task 1 (building the worklist).
+
+`survey_provenance.py`'s regex requires the token to sit **immediately after** a comment
+opener, so a token deeper inside a comment line is not a hit. Measured over
+`firestarter/{src,include}` with a token-anywhere scan restricted to comment lines:
+
+| When | Mid-comment-only lines (no survey hit) |
+|---|---|
+| before plan 07 | **203** |
+| after plan 07 | **152** |
+
+Plan 07 removed 51 of them as a side-effect of §2's unit-of-edit rule (every D-01 token in a
+block being edited is stripped). Of the surviving 152, **28** are in `src/proms/eprom.cpp` and
+**7** in `include/eprom_params.h` — both Ruling B exempted — leaving **117** in files this plan
+swept to 0 *hits*. Largest remaining: `include/firestarter.h` 18, `include/rurp_config_storage.h`
+12, `include/rurp_pinout.h` 10, `src/proms/memory.cpp` 9, `include/rurp_hw_rev_utils.h` 9
+(a file with **zero** survey hits at all), `include/eprom_budget.h` 8, `include/eprom.h` 8.
+
+**Why deferred:** no survey hit anchors them, so they are outside the worklist authority
+plan 07 was given (`survey_provenance.py --group fw-src --group fw-include` is the plan's
+named worklist). Several sit in long structural file-header blocks whose section headings
+*are* decision IDs (`WHY EXACTLY TWO FUNCTIONS (D-06):`), which is a prose-restructuring job,
+not a token strip. Removing them is a second, uniform mechanical pass — and the host repo
+will have the same population, so it should be decided once for both repos, not per plan.
+
+**Suggested disposition:** a follow-on plan (or a widened `survey_provenance.py` mode:
+`--token-anywhere`) that measures both repos and sweeps them together. The byte-identity
+oracle covers the firmware half of that work exactly as it covered this one.
+
+## D6 — `test_config_schema_pinned.py` pins exact source LINE NUMBERS; Section B classified it "control — safe"
+
+**Found during:** Plan 07, Task 3 (firmware gate suite after the sweep).
+
+`sweep-gate-dispositions.md` §B row 6 dispositioned `test_config_schema_pinned.py` as
+**control**, on the verified basis that "its declared-field extraction targets struct syntax,
+not comment text". That is true of the struct legs — but the module carries a **second**
+mechanism the row does not mention: `_C14_CONSUMER_SITES` is a 9-tuple of
+`(path, exact 1-indexed line number, function name)`, asserted by
+`_consumer_census_violations`. A comment-only edit that changes a file's line count breaks it,
+and this sweep did: `test_the_seven_consumers_call_only_the_public_api` went **RED** with
+5 named violations.
+
+Repaired in plan 07 by re-pinning to the live call sites (`firestarter.cpp` 41→38, 119→115,
+125→121; `hardware_operations.cpp` 107→106, 119→118), with the shift and its cause recorded
+in the tuple's own comment — the file's established idiom, which already carried two earlier
+re-pins for the same class of cause (+1 from an added `#include`, +15 from a widened comment
+block). Module back to 17/17.
+
+**Why recorded here:** the *disposition table* is wrong, not the repair. Any later
+line-shifting phase in this milestone (155–158 all shift lines) will trip the same leg, and
+§B's "control" verdict tells a reader it cannot. A repo-wide grep this session finds this is
+the **only** executable line-number pin over swept firmware paths in either repo
+(`firestarter_app`'s two `file:line` references are docstring prose, not assertions).
+
+**Suggested disposition:** amend §B row 6 to `control (struct legs) + LINE-PINNED (consumer
+census)` when the dispositions file is next touched, and name the census in Phases 155–158's
+success criteria.
