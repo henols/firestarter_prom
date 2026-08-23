@@ -169,6 +169,24 @@ None — no external service configuration required.
 - **Follow-on filed, not built here:** planted-violation controls for the two Section-B `EXPOSURE` gates (`test_vpp_seam_manual_on_every_board.py`, `test_pinmap_guard_fires.py`), and, more broadly, controls for all 22 firmware-repo gates as defense in depth — both explicitly named as separate, later phases in `sweep-gate-dispositions.md` Section B's closing note.
 - No blockers. `.planning/v1.33/baseline-pre-sweep.md` remains uncommitted by design (plan 01/D-11); this plan did not touch it and re-confirmed it is still present on disk.
 
+## Self-Check: PASSED
+
+Created files verified present on disk:
+- `FOUND: .planning/v1.33/tools/survey_provenance.py`
+- `FOUND: .planning/v1.33/sweep-corpus-baseline.md`
+- `FOUND: .planning/v1.33/sweep-gate-dispositions.md`
+- `FOUND: .planning/phases/154-provenance-comment-sweep-remap-tool-dual-repo-lockstep-promo/154-02-SUMMARY.md`
+
+Commits verified present in git (`git log --oneline --all`):
+- `FOUND: 3ee003f6` — feat(154-02): build survey_provenance.py
+- `FOUND: 9c7605ea` — docs(154-02): record sweep-corpus-baseline.md
+- `FOUND: 1680c30a` — docs(154-02): record sweep-gate-dispositions.md
+- `FOUND: 11bc9b38` — docs(154-02): plan-metadata commit (this SUMMARY + STATE + ROADMAP + REQUIREMENTS)
+
+All three tasks' `<automated>` verify blocks re-run at plan end: task 1 (file-table/json/`_HERE`/bad-root chain) exit 0, task 2 (literal-token + row-count checks) all present, task 3 (22-module count + literal-token checks) all present.
+
+`.planning/config.json` shows as modified in `git status` but was already dirty before this plan started (pre-existing, unrelated to this plan's scope) and was not staged or committed by any of this plan's commits. `.planning/v1.33/baseline-pre-sweep.md` remains untracked, exactly as plan 01 left it.
+
 ---
 *Phase: 154-provenance-comment-sweep-remap-tool-dual-repo-lockstep-promo*
 *Completed: 2026-08-23*
