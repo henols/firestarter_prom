@@ -252,7 +252,7 @@ Plans:
 **Goal**: Delete two whole libraries from the image that one call site each was dragging in — with the allocator's removal also closing a latent unchecked-allocation dereference.
 **Depends on**: Phase 154 (source-text ordering only — 154 rewrites comments in the same files; running 155 first would give 154 a second remap target. See D-01.)
 **Requirements**: DEAD-01, DEAD-02, DEAD-03, DEAD-04, DEAD-05, DEAD-06
-**Measured**: **−1364 B flash** (heap −650, 64-bit runtime −714), **−8 B RAM**
+**Measured**: **−1366 B flash**, **−8 B RAM** (corrected from **−1364 B**: the shipped `k > 4194303UL` guard, not `4000000UL`, per OQ-1 -- see [`155-after-figures.md`](v1.33/155-after-figures.md) §3. The −650/−714 per-half split is UNVERIFIED -- §5 -- quote the −1366 B total.)
 **Success Criteria** (what must be TRUE):
 
   1. The image contains **no** `malloc`, `free`, `realloc`, `calloc` or `__brkval` symbol. `mem_util_blank_check` allocated `sizeof(blank_check_progress_data_t)` — a struct holding **one `uint32_t`** — and was the allocator's only caller anywhere; the saved address lives in a file-scope static instead.
@@ -261,6 +261,18 @@ Plans:
   4. The 32-bit voltage reformulation is proven equivalent by a **committed oracle over a stated input grid**, not by a comment: bit-identical at the shipped calibration (`VALUE_R1` 270000 / `VALUE_R2` 44000, giving `k = 7850` exactly), and bounded at **5 mV** worst deviation across R2 39k–47k × bandgap 200–250 × the full ADC range, against the ±5 % VPP validation windows (±600 mV at 12 V) that consume the value. Both uint32 overflow guards (`R1+R2 <= 3900000`, `k <= 4194303`) are exercised.
   5. **The coverage ceiling is stated, not implied**: `src/boards/rurp_common.cpp` compiles in **no** native environment (`[env:native]`'s `src_filter = +<proms/>`), so criterion 4's oracle is the only mechanical check on this arithmetic and no phase artifact may imply native or bench coverage of it.
   6. The two native suites that asserted `h.progress_data == NULL` — `test_eeprom28c_sdp.cpp` (Case 30 / ERASE-01) and `test_val_5v_page.cpp` (ERASE-02) — are updated together with their comments and a third stale comment at `test_val_5v_page.cpp:238`, and the behaviour each tested stays pinned by the surviving `is_operation_in_progress` assertion, which the *same statement* sets. **This is the only phase in 155–158 that touches a test file**; the alternative (keeping a dead `void* progress_data` field for 2 B of RAM) is recorded as considered and rejected, with its cost.
+
+**PHASE CLOSED 2026-08-23.** All six success criteria discharged; five corrections recorded in
+[`155-after-figures.md`](v1.33/155-after-figures.md) against this ROADMAP entry and
+REQUIREMENTS.md: (1) OQ-1, the 2 B delta between the shipped `4194303UL` guard (−1366 B) and
+this entry's `4000000UL`-consistent −1364 B header; (2) OQ-2, both 64-bit totals (438 B named,
+528 B full eleven-symbol blob) — criterion 3 above states only the smaller; (3) OQ-3, criterion
+4's `±5 %` window is corrected to asymmetric (−5 % relative low edge, +500 mV absolute high
+edge); (4) OQ-4, criterion 2's "roughly 470 B ... `handle` (1115 B)" double-counts the 512 B
+token array — corrected to 473/467/544 B "shared heap-and-stack headroom"; (5) C-5, criterion
+6's "same statement" is false, corrected to "unconditionally adjacent statements ... no
+intervening control flow." The −650/−714 per-half split (criteria 1/3) is UNVERIFIED; quote
+the −1366 B total.
 
 **Plans:** 6 plans
 
@@ -284,7 +296,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 155-06-PLAN.md — Wave 5 (firmware + meta): landing — after-figures vs the before record (−1366 B / −8 B), the gate proven RED from a post-change throwaway worktree plus a real committed clean control, all eight phase-gate legs, the one-sided policy pass with the baseline untouched, and the phase record carrying five public corrections.
+- [x] 155-06-PLAN.md — Wave 5 (firmware + meta): landing — after-figures vs the before record (−1366 B / −8 B), the gate proven RED from a post-change throwaway worktree plus a real committed clean control, all eight phase-gate legs, the one-sided policy pass with the baseline untouched, and the phase record carrying five public corrections.
 
 ---
 
