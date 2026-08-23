@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.33
 milestone_name: — Source Hygiene & Firmware Size Reduction
 current_phase: 154
-current_phase_name: Provenance Comment Sweep + Remap Tool
+current_phase_name: Provenance Comment Sweep + Remap Tool (dual-repo lockstep
 status: executing
 stopped_at: "Milestone v1.33 ACTIVATED 2026-08-22 by /gsd-new-milestone. Scoping was NOT done by this activation -- ROADMAP.md section v1.33 and REQUIREMENTS.md (31 reqs: SWEEP/DEAD/DEDUP/DECODE/LAND/REMAP) were hand-authored on 2026-08-22 by /gsd-explore routing and are pointed at, NOT regenerated (the GSD roadmap/requirements verbs normalise whole files). phases.clear was SKIPPED -- 126 phase directories exist. This activation wrote PROJECT.md section Current Milestone: v1.33, this frontmatter switch, and the commits. Six phases, 154-159. NEXT: /gsd-discuss-phase 154 -- that phase requirements are deliberately UNSET because its triage policy is the substance of the phase; 155-159 can go straight to /gsd-plan-phase. Meta on branch v1.33-source-hygiene-size-reduction (forked off local beta @ 59a9ff5d). Firmware work for phases 155-158 ALREADY EXISTS on firestarter branch size-reduction-survey (off 8695ee5), 11 files modified and UNCOMMITTED, also captured at .planning/notes/firmware-size-reduction-measured.patch."
-last_updated: "2026-08-23T01:50:07Z"
+last_updated: "2026-08-23T02:18:24.383Z"
 last_activity: 2026-08-23
-last_activity_desc: Phase 154 Plan 01 complete — dirty firmware tree preserved and verified, both sub-repos branched, pre-sweep baselines recorded
+last_activity_desc: Phase 154 Plan 01 executed (Wave 1 complete)
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 12
-  completed_plans: 1
-  percent: 8
+  completed_plans: 2
+  percent: 0
 ---
 
 # Project State
@@ -146,10 +146,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 154 (Provenance Comment Sweep + Remap Tool (dual-repo lockstep)) — EXECUTING
-Plan: 2 of 12
-Status: Executing Phase 154
+Plan: 3 of 12
+Status: Ready to execute
 Next: Wave 2 — plans 02, 03, 04 in parallel (Wave 1 complete)
-**Stopped at:** Phase 154 Plan 01 complete — dirty firmware tree preserved on a verified ref, both sub-repos branched off beta, pre-sweep baselines recorded
+**Stopped at:** Completed 154-02-PLAN.md (corpus survey tool + baseline + gate dispositions)
 Last activity: 2026-08-23 — Phase 154 Plan 01 executed (Wave 1 complete)
 
 **Detail.** Phase 154 was discussed and planned on 2026-08-23 (12 plans, 5 waves) and its phase directory
@@ -2335,6 +2335,10 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 153]: Plan 153-15: Arm 1 and Arm 3 of the admission test are widened not repointed -- fixtures stay fixed, decomposition-string assertions extend to the current five-term allowance
 - [Phase 153]: ERASE-09 closed: phase ships software-proven and unvalidated on silicon; no support_status change, no AT28C part used, gh#21/#32/#11/#12 stay OPEN — 153-RECORD.md carries the verbatim honesty phrase and a what-was-NOT-proven section; both machine gates (support-status write guard, diagnostic-report claim guard) exit 0
 - [Phase 153]: PROJECT.md and ROADMAP.md corrected to three firmware-touching workstreams (149, 151, 153), per 152-CONTEXT.md D-15 — Both records previously said one/two, undercounting Phase 153's mid-milestone addition
+- [Phase ?]: SWEEP-06 ticked complete; SWEEP-03/SWEEP-04 left unticked because their verbs describe later-plan sweep actions, not this plan's classification/measurement work
+- [Phase ?]: survey_provenance.py's app-tests extension list (.c/.cpp incl. fixtures) fully explains every measurement delta from research (9 GSD-shaped fixture files, 16 hits) -- traced file-by-file, not adopted or hand-waved
+- [Phase ?]: 2 firmware-repo gates (test_check_erase_no_vpp.py, test_check_orphan_provisional.py) reclassified control-not-exposure: their comment-stripping lives in the subprocessed checker script, not the test file a stripper-name grep would find
+- [Phase ?]: 2 firmware-repo gates (test_vpp_seam_manual_on_every_board.py, test_pinmap_guard_fires.py) recorded as genuine EXPOSURE -- same first-match-wins raw-regex #error extraction shape research proved fail-open in test_sdp_table_parity.py; filed as follow-on, not fixed
 
 ## Performance Metrics
 
@@ -2647,12 +2651,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 153 P15 | 28min | 3 tasks | 16 files |
 | Phase 153 P16 | 45min | 3 tasks | 4 files |
 | Phase 154 P01 | 16min | 3 tasks | 2 files |
+| Phase 154 P02 | 25min | 3 tasks | 3 files |
 
 ## Session
 
-**Last session:** 2026-08-23T01:50:07Z
+**Last session:** 2026-08-23T02:18:24.350Z
 **Stopped at:** Phase 154 Plan 01 complete (Wave 1) — firmware dirt preserved and verified on `wip/v1.33-size-reduction-survey-preserved` @ `a6b46f8`, both sub-repos on `gsd/v1.33-source-hygiene-firmware-size-reduction`, pre-sweep baselines in `.planning/v1.33/baseline-pre-sweep.md`; next is Wave 2 (plans 02/03/04)
-**Resume file:** .planning/phases/154-provenance-comment-sweep-remap-tool-dual-repo-lockstep-promo/154-01-SUMMARY.md
+**Resume file:** None
 
 **Gitlink gap from Phase 149's close — CLOSED 2026-08-20.** Phase 149 landed its dual-repo work but never bumped meta's submodule gitlinks, so meta HEAD asserted "Phase 149 COMPLETE and VERIFIED — page-size seam landed across both repos" while pointing at `firestarter 7f6afc65` / `firestarter_app b142c0e6` — trees containing none of it. Bumped to `firestarter 6e3f90a3` (6 commits, all `149-*`) and `firestarter_app 9cc57c75` (13 commits: 8 `149-*` plus the 5 `fw` port-targeting fixes, which `git cherry` marks `-` against `origin/beta` — patch-identical to PR #52's merged work under different SHAs, so nothing unreviewed rode along). Both sub-repos verified on `gsd/v1.32-at28c-write-path-root-cause-report-provenance` with clean tracked trees. Restores the per-plan bump convention this milestone set at `chore(147-02)`/`chore(147-05)`; the branches are local-only, as Phase 147's were when it bumped, and become reachable at the close via the PR to `beta`.
 

@@ -17,7 +17,7 @@
 - [ ] **SWEEP-03**: Requirement/decision IDs are stripped from shipped source and **retained** in test files where the ID is the case's traceability key. The rule is stated so the asymmetry does not read as an inconsistency.
 - [ ] **SWEEP-04**: Test files receive the **narrow** treatment only — tombstone deletion and label-only-comment deletion, no reflowing of substantive test commentary. The 331-of-636 measurement (`firestarter/test/native` 216, `firestarter_app/tests` 115) and the fact that **no oracle covers any of them** are both recorded.
 - [ ] **SWEEP-05**: The `uno` build is byte-identical before and after, stated as a **measured pair of numbers**, not asserted. Any delta is reverted, not explained.
-- [ ] **SWEEP-06**: All 8 paths in `firestarter_app/tests/scan_paths.py::ALL_CROSS_REPO_PATHS` are classified and disposed of per D-05's table. The two generated headers (`sdp_bus_config.h`, `validation_matrix.h`) are fixed at their generators or shown to need no fix; their output is never edited.
+- [x] **SWEEP-06**: All 8 paths in `firestarter_app/tests/scan_paths.py::ALL_CROSS_REPO_PATHS` are classified and disposed of per D-05's table. The two generated headers (`sdp_bus_config.h`, `validation_matrix.h`) are fixed at their generators or shown to need no fix; their output is never edited.
 - [ ] **SWEEP-07**: `test_sdp_table_parity.py` and `test_dispatch_mirror.py`'s C++ leg each get a planted-violation control proving they go **RED before** the sweep and **RED again after**. The live `_PAIR_RE` collision at `eeprom_28c.cpp:199-201` and the comment-blind brace slice at `test_sdp_table_parity.py:141-158` are both named as the reason.
 - [ ] **SWEEP-08**: `eeprom_28c.cpp` is swept as its own plan, not batched — 33 hits, both comment-blind gate mechanisms, and the AT28C datasheet citation of record (Atmel doc0270 rev 0270L-PEEPR-2/09 §19 note 2, corroborated by Microchip DS20006432B §6.18 note 2) all land in one file.
 - [ ] **SWEEP-09**: The pre-sweep citation manifest is committed at `.planning/v1.33/sweep-citation-manifest.jsonl`, covering all **10,054** citations that target a swept file (not only the 6,939 predicted to shift), with both endpoints and both source texts for every range citation.
@@ -93,7 +93,7 @@ Which phase covers which requirement. Authored with the requirements, tabulated 
 | SWEEP-03 | Phase 154 | Pending |
 | SWEEP-04 | Phase 154 | Pending |
 | SWEEP-05 | Phase 154 | Pending |
-| SWEEP-06 | Phase 154 | Pending |
+| SWEEP-06 | Phase 154 | Complete (154-02) |
 | SWEEP-07 | Phase 154 | Pending |
 | SWEEP-08 | Phase 154 | Pending |
 | SWEEP-09 | Phase 154 | Pending |

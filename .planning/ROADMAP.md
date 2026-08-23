@@ -220,7 +220,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 154-02-PLAN.md — the corpus survey re-runner, the pre-sweep corpus baseline with D-01's procedure stated, and the gate dispositions: 8 app paths + 22 firmware fail-open gates + the blob-SHA exemptions (D-05, Ruling B/D)
+- [x] 154-02-PLAN.md — the corpus survey re-runner, the pre-sweep corpus baseline with D-01's procedure stated, and the gate dispositions: 8 app paths + 22 firmware fail-open gates + the blob-SHA exemptions (D-05, Ruling B/D)
 - [ ] 154-03-PLAN.md — the SWEEP-07 planted controls: 4 committed fixtures and 5 new legs, proven RED (and one deliberately GREEN) before the sweep (D-06, Ruling A)
 - [ ] 154-04-PLAN.md — the shared path resolver, the manifest generator, and the pre-sweep citation manifest with its count reconciled against 10,054 (D-07/D-08, Ruling F/G)
 
@@ -3275,7 +3275,7 @@ Plans:
 | 144 | v1.31 | 7/7 | ✅ Shipped | 2026-08-14 |
 | 145 | v1.31 | 9/9 | ✅ Shipped | 2026-08-17 (bench; `0x08`/`0x0B` skipped-with-reason) |
 | 146 (close) | v1.31 | 13/13 | ✅ Shipped | 2026-08-18 |
-| 154 | v1.33 | 1/12 | In Progress |  |
+| 154 | v1.33 | 2/12 | In Progress |  |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
