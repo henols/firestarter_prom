@@ -334,7 +334,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 156-05-PLAN.md — DEDUP-04: the boolean-convention flip, seven comment locations, Case 24 flipped and Case 25 de-vacuumed (wave 5)
+- [x] 156-05-PLAN.md — DEDUP-04: the boolean-convention flip, seven comment locations, Case 24 flipped and Case 25 de-vacuumed (wave 5)
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
