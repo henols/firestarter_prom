@@ -382,7 +382,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 157-02-PLAN.md — the `{key, clamp, offset, width}` field table, `store_field`, twelve `_Static_assert` guards, the `READ_TIMING_MAX_US` hoist and OD-3's `get_flags` → `key_flags`; measure the table half; prove both guards fire
+- [x] 157-02-PLAN.md — the `{key, clamp, offset, width}` field table, `store_field`, twelve `_Static_assert` guards, the `READ_TIMING_MAX_US` hoist and OD-3's `get_flags` → `key_flags`; measure the table half; prove both guards fire
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
