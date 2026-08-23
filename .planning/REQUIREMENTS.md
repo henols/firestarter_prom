@@ -101,12 +101,12 @@ Which phase covers which requirement. Authored with the requirements, tabulated 
 | SWEEP-11 | Phase 154 | Complete |
 | SWEEP-12 | Phase 154 | Complete (154-12) |
 | SWEEP-13 | Phase 154 | Partial (154-12) — one commit per sub-repo PROVEN, ordering PROVEN, milestones/ absence PROVEN; the one-meta-commit clause NOT met (9 path-scoped commits, cause recorded, T-154-53 declined a history rewrite) |
-| DEAD-01 | Phase 155 | Pending |
-| DEAD-02 | Phase 155 | Pending |
-| DEAD-03 | Phase 155 | Pending |
-| DEAD-04 | Phase 155 | Pending |
-| DEAD-05 | Phase 155 | Pending |
-| DEAD-06 | Phase 155 | Pending |
+| DEAD-01 | Phase 155 | Complete (155-06) |
+| DEAD-02 | Phase 155 | Complete (155-06) |
+| DEAD-03 | Phase 155 | Complete (155-06) |
+| DEAD-04 | Phase 155 | Complete (155-06) |
+| DEAD-05 | Phase 155 | Complete (155-06) |
+| DEAD-06 | Phase 155 | Complete (155-05, closed 155-06) |
 | DEDUP-01 | Phase 156 | Pending |
 | DEDUP-02 | Phase 156 | Pending |
 | DEDUP-03 | Phase 156 | Pending |
