@@ -2,7 +2,12 @@
 created: 2026-08-19T00:00:00Z
 title: "Phase 44 read-timing knobs (read_settling_us, read_strobe_us) are missing from json_parse's optional-key reset block"
 area: firmware
-resolves_phase: 157  # ADJACENCY link, set 2026-08-22 at v1.33 activation: Phase 157 rewrites this exact
+adjacent_phase: 157  # RENAMED from resolves_phase 2026-08-23 at the Phase 157 close. The field name
+# was wrong for what it meant and would have auto-closed this todo into .planning/todos/completed/
+# on `phase.complete`, burying a live defect. Phase 157 did NOT adopt it: json_parser.c:286-289 now
+# states in-source that the two read-timing knobs are "deliberately NOT in this reset block" and
+# that their absence "is not an oversight". Keep this as adjacency only.
+# ADJACENCY link, set 2026-08-22 at v1.33 activation: Phase 157 rewrites this exact
 # file (json_parser.c) — replacing key_parsers[] and the eleven get_* stubs with a {key, offset, width,
 # clamp} data table, and deleting get_read_settling / get_read_strobe outright. No v1.33 requirement
 # currently covers the optional-key RESET block this todo is about (DECODE-06 covers the
