@@ -338,7 +338,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 156-06-PLAN.md — a non-vacuous source-contract gate for the nine wrapper call sites, the only mechanical check that TU permits (wave 6)
+- [x] 156-06-PLAN.md — a non-vacuous source-contract gate for the nine wrapper call sites, the only mechanical check that TU permits (wave 6)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
