@@ -322,7 +322,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 156-02-PLAN.md — close both measured DEDUP-03 blind spots BEFORE the refactor, each proven RED against a planted transposition (wave 2)
+- [x] 156-02-PLAN.md — close both measured DEDUP-03 blind spots BEFORE the refactor, each proven RED against a planted transposition (wave 2)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
