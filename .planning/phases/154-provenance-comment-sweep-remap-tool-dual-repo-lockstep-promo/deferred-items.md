@@ -228,3 +228,32 @@ re-pin), so it is out of any comment-sweep plan's scope.
 **Suggested disposition:** fold D5 and D8 into one `--token-anywhere` follow-on that
 decides both repos together; file the `_SDP_LOCKED_REASON` leak as its own todo, since it
 needs a snapshot update rather than a comment edit.
+
+## D9 — Pre-existing `ruff check` findings in `firestarter_app/tools` (unrelated to the sweep)
+
+**Found during:** Plan 10, Task 2 (ruff sanity check after the app-tools sweep).
+
+`ruff check tools/` reports 4 pre-existing errors, none touching a line this plan edited:
+
+- `tools/catalog/codegen_vectors.py:35-36` — unsorted import block (`tomllib` after
+  `pathlib`).
+- `tools/catalog/codegen_vectors.py:189` — `UP031` (`"0x%02X" % b` instead of a format
+  spec).
+- `tools/audit_coverage_matrix.py:37-46` — unsorted import block (the `firestarter.database`
+  import with its `# noqa: F401` trailing comment).
+
+Verified out-of-scope by re-running `ruff check tools/` against a `git stash`-restored
+pre-sweep tree: identical 4 errors, byte-for-byte same messages, before this plan touched
+anything. (Note: `git stash` was used here on the plain `firestarter_app` checkout, which
+is not a Claude Code worktree — `.git` is a real directory, not the worktree-linking file —
+so the shared-`refs/stash`-across-worktrees hazard the destructive-git-prohibition section
+warns about does not apply to this repo layout. State was verified fully intact via
+`git status --short` and a hit-count re-check after the pop. Future executions should still
+prefer the throwaway-branch technique over `git stash` as the safer default.)
+
+**Why deferred:** out of this plan's `<files>` scope (`diff_db.py`, `check_dispatch.py`,
+`build_db.py`, and the six task-2 files) and unrelated to comment provenance. Fixing import
+order or format-spec style is a separate lint-hygiene task.
+
+**Suggested disposition:** a small follow-on `ruff --fix` pass over `firestarter_app/tools`,
+reviewed for the one `--unsafe-fixes`-only hidden fix before applying.
