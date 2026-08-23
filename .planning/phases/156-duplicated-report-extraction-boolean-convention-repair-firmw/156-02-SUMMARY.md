@@ -155,3 +155,12 @@ None — no external service configuration required. This plan adds and strength
 ---
 *Phase: 156-duplicated-report-extraction-boolean-convention-repair-firmw*
 *Completed: 2026-08-23*
+
+## Self-Check: PASSED
+
+- `.planning/phases/156-duplicated-report-extraction-boolean-convention-repair-firmw/156-02-SUMMARY.md` exists on disk — FOUND
+- `firestarter` commit `c764e27` (test(156-02): pin the under-voltage severity pairing that nothing asserted) exists in `git log --oneline --all` — FOUND
+- `firestarter` commit `3d0b73d` (test(156-02): pin the chip-ID mismatch message id in both fork directions) exists in `git log --oneline --all` — FOUND
+- meta repo commit `2a2067fc` (docs(156-02): record SUMMARY for closing both DEDUP-03 blind spots) exists in `git log --oneline --all` — FOUND
+
+No missing items.
