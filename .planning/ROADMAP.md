@@ -276,7 +276,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 155-04-PLAN.md — Wave 3 (firmware, TDD): RED the voltage oracle (numerical grid + 4 guard-boundary + 2 sentinel cases + comment-stripped source contract), then GREEN the 32-bit reformulation with `k > 4194303UL` (OQ-1) and a comment correcting all four defects in the preserved reference, including the asymmetric-window statement (OQ-3) and the mandated coverage ceiling.
+- [x] 155-04-PLAN.md — Wave 3 (firmware, TDD): RED the voltage oracle (numerical grid + 4 guard-boundary + 2 sentinel cases + comment-stripped source contract), then GREEN the 32-bit reformulation with `k > 4194303UL` (OQ-1) and a comment correcting all four defects in the preserved reference, including the asymmetric-window statement (OQ-3) and the mandated coverage ceiling.
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
