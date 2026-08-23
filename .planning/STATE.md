@@ -6,15 +6,15 @@ current_phase: 154
 current_phase_name: Provenance Comment Sweep + Remap Tool
 status: executing
 stopped_at: "Milestone v1.33 ACTIVATED 2026-08-22 by /gsd-new-milestone. Scoping was NOT done by this activation -- ROADMAP.md section v1.33 and REQUIREMENTS.md (31 reqs: SWEEP/DEAD/DEDUP/DECODE/LAND/REMAP) were hand-authored on 2026-08-22 by /gsd-explore routing and are pointed at, NOT regenerated (the GSD roadmap/requirements verbs normalise whole files). phases.clear was SKIPPED -- 126 phase directories exist. This activation wrote PROJECT.md section Current Milestone: v1.33, this frontmatter switch, and the commits. Six phases, 154-159. NEXT: /gsd-discuss-phase 154 -- that phase requirements are deliberately UNSET because its triage policy is the substance of the phase; 155-159 can go straight to /gsd-plan-phase. Meta on branch v1.33-source-hygiene-size-reduction (forked off local beta @ 59a9ff5d). Firmware work for phases 155-158 ALREADY EXISTS on firestarter branch size-reduction-survey (off 8695ee5), 11 files modified and UNCOMMITTED, also captured at .planning/notes/firmware-size-reduction-measured.patch."
-last_updated: "2026-08-23T01:31:33.408Z"
-last_activity: 2026-08-22
-last_activity_desc: Milestone v1.33 activated
+last_updated: "2026-08-23T01:50:07Z"
+last_activity: 2026-08-23
+last_activity_desc: Phase 154 Plan 01 complete — dirty firmware tree preserved and verified, both sub-repos branched, pre-sweep baselines recorded
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 12
+  completed_plans: 1
+  percent: 8
 ---
 
 # Project State
@@ -29,9 +29,10 @@ See: `.planning/PROJECT.md` (updated 2026-08-22 — v1.33 started)
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
 authoritative dispatch key end to end. v1.33 does not touch that contract at all: its entire premise is
 byte-level equivalence. **Make the source shorter without changing what it does.**
-**Current focus:** **Phase 154 — Provenance Comment Sweep + Remap Tool.** Start with
-`/gsd-discuss-phase 154`; that phase's requirements are deliberately **UNSET** because its triage policy is
-the substance of the phase. Phases 155–159 can go straight to `/gsd-plan-phase`.
+**Current focus:** **Phase 154 — Provenance Comment Sweep + Remap Tool (dual-repo lockstep).** Discussed
+and planned on 2026-08-23; **executing now** (12 plans, 5 waves). Its `SWEEP-01…NN` placeholder resolved to
+**13** requirements at `/gsd-discuss-phase 154`, and `REQUIREMENTS.md` §1 now carries them. Phases 155–159
+can go straight to `/gsd-plan-phase`.
 
 **v1.33 Source Hygiene & Firmware Size Reduction** — 🔵 **ACTIVE** (activated 2026-08-22). Six phases,
 **154–159**. Phase 154 is dual-repo lockstep; Phases 155–158 are firmware-only; Phase 159 touches
@@ -144,22 +145,30 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 154 — Provenance Comment Sweep + Remap Tool
-Plan: —
-Status: Ready to execute
-Next: `/clear`, then `/gsd-discuss-phase 154`
-**Stopped at:** Phase 154 context gathered
-Last activity: 2026-08-22 — Milestone v1.33 activated
+Phase: 154 (Provenance Comment Sweep + Remap Tool (dual-repo lockstep)) — EXECUTING
+Plan: 2 of 12
+Status: Executing Phase 154
+Next: Wave 2 — plans 02, 03, 04 in parallel (Wave 1 complete)
+**Stopped at:** Phase 154 Plan 01 complete — dirty firmware tree preserved on a verified ref, both sub-repos branched off beta, pre-sweep baselines recorded
+Last activity: 2026-08-23 — Phase 154 Plan 01 executed (Wave 1 complete)
 
-**Detail.** Phase 154 has not been discussed, planned or given a phase directory — this project creates
-those at `/gsd-plan-phase` time. Phase 154's SWEEP-01…NN are deliberately **UNSET** pending
-`/gsd-discuss-phase 154`, because its triage policy is the substance of the phase; the other 30
-requirements (DEAD / DEDUP / DECODE / LAND / REMAP) are written and need no further scoping.
+**Detail.** Phase 154 was discussed and planned on 2026-08-23 (12 plans, 5 waves) and its phase directory
+exists. Its `SWEEP-01…NN` placeholder resolved to **13** requirements, now carried in `REQUIREMENTS.md` §1;
+the other 30 (DEAD / DEDUP / DECODE / LAND / REMAP) were already written. **Was:** not yet discussed,
+planned or given a directory, with SWEEP-01…NN deliberately UNSET pending `/gsd-discuss-phase 154`.
 
-**Branch posture.** Meta is on `v1.33-source-hygiene-size-reduction`, forked off local `beta` @ `59a9ff5d`
-(which carries 3 unpushed commits). `firestarter` is on `size-reduction-survey` @ `8695ee5` with **11 files
-modified and uncommitted** — the measured −2938 B work, also captured as a patch. `firestarter_app` is
-still on `beta` and needs its own `v1.33-*` branch before Phase 154 touches it.
+**Branch posture — settled 2026-08-23 by Plan 154-01.** All three repos are on
+`gsd/v1.33-source-hygiene-firmware-size-reduction`, each forked off its own `beta`: meta @ `717757f`,
+`firestarter` @ `8695ee5` (`FW_PRE_SHA`), `firestarter_app` @ `6bfa645` (`APP_PRE_SHA`). The firmware
+tree's 11 uncommitted files were **committed, not discarded**, onto
+`wip/v1.33-size-reduction-survey-preserved` @ `a6b46f8`, then proven byte-identical to `beta` +
+`.planning/notes/firmware-size-reduction-measured.patch` by an **empty** recursive tree diff **before** the
+tree stopped being dirty. No `reset --hard`, `clean`, `checkout --` or `stash` ran. **That branch is the
+only ref carrying Phases 155-158's implemented work — do not delete or force-update it during v1.33.**
+All anchors and every pre-sweep number: `.planning/v1.33/baseline-pre-sweep.md`. **Was:** meta on
+`v1.33-source-hygiene-size-reduction` off local `beta` @ `59a9ff5d`; `firestarter` on
+`size-reduction-survey` @ `8695ee5` with 11 files modified and uncommitted; `firestarter_app` still on
+`beta`.
 
 ## Roadmap Summary (v1.33)
 
@@ -1617,6 +1626,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Decisions
 
+- [Phase 154 Plan 01]: D-12 precondition 1 discharged by COMMIT-then-verify-then-switch, never by reset — the 11 dirty `firestarter` files were committed onto `wip/v1.33-size-reduction-survey-preserved` @ `a6b46f8` and proven equal to `beta` + the recorded recovery patch by an empty `diff -r` of two archived trees BEFORE the tree stopped being dirty; the "reset" then reduced to a plain `git checkout beta`, so no destructive git command ran at all
+- [Phase 154 Plan 01]: The preservation oracle is a TREE comparison, not a patch-text comparison — `git diff` output differs in its `index` lines even when content is identical, so comparing patch texts would have produced a false RED; `git archive` + `git apply` + `diff -r` compares the thing that actually matters
+- [Phase 154 Plan 01]: SWEEP-05's "measured pair of numbers" is recorded as BOTH the `sha256(.elf)`/`sha256(.hex)` pair AND the `Flash:`/`RAM:` figures, for all three AVR targets — the hash pair is strictly stronger and proven comment-immune, and recording both satisfies the requirement literally rather than substituting for it
+- [Phase 154 Plan 01]: The `-g`-absence probe must run on a COLD tree — `pio run -v` on an already-built target prints no compile lines, so `grep -c ' -g '` returns a vacuous 0; the project-source compile-line count (25 per env) is recorded as the denominator so the 0 cannot be misread. Research assumption A2 is now discharged for `uno328pb` and `leonardo`, not extrapolated from `uno`
+- [Phase 154 Plan 01]: Research finding F8 is CONFIRMED and research assumption A5 is VERIFIED — the clean tree gives 323 pass / 0 fail (firmware gates) and 1970 pass / 0 fail (host suite) against F8's dirty-tree 317/6 and 1963/7; identical totals on both sides, so all 13 failures were the dirt and none was a real defect
+- [Phase 154 Plan 01]: ROADMAP.md progress was updated by HAND, not by `roadmap.update-plan-progress` — v1.33's ROADMAP and REQUIREMENTS are hand-authored and the GSD verbs run `_normalizeMd` over the whole file; the hand edit measured 3 insertions / 2 deletions with zero reformatting
+- [Phase 154 Plan 01]: `pio` must never be invoked with cwd `/workspaces` — a gitignored, malformed `/workspaces/platformio.ini` (duplicate `[platformio]` section at line 26) kills every invocation including `pio --version`; plans 06-11 must `cd /workspaces/firestarter` before every byte-identity oracle run
 - [v1.21 roadmap]: Requirement-count discrepancy resolved in favor of the actual enumerated REQ-IDs (24) over the stale header text (20) — no requirement was dropped or invented; the original definition simply undercounted its own list.
 - [v1.21 roadmap]: Phase 112 (`dev test` CLI wiring) kept as its own phase rather than merged into Phase 108 or 111, per the research's explicit "MAY be merged if trivial, use judgment" guidance — the CLI surface integrates four prior phases' work and benefits from its own plan/verification cycle; VOLT-01 (Phase 111) stays isolated as the sole hardware-gated phase, unaffected by this choice.
 - [v1.21 roadmap]: Followed the research-recommended 7-phase spine verbatim (no coverage gaps found that would require deviating) — SAFE-02/03 treated as hard Phase-109 success criteria per the instruction's explicit load-bearing-safety guidance; DISP-01 treated as a locked anti-feature asserted by Phase-114 success criteria (no code path writes `support_status` from a report).
@@ -2630,12 +2646,13 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 153 P14 | 55min | 3 tasks | 3 files |
 | Phase 153 P15 | 28min | 3 tasks | 16 files |
 | Phase 153 P16 | 45min | 3 tasks | 4 files |
+| Phase 154 P01 | 16min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-23T00:04:51.233Z
-**Stopped at:** Milestone v1.33 (Source Hygiene & Firmware Size Reduction) ACTIVATED — awaiting `/gsd-discuss-phase 154`
-**Resume file:** .planning/phases/154-provenance-comment-sweep-remap-tool-dual-repo-lockstep-promo/154-CONTEXT.md
+**Last session:** 2026-08-23T01:50:07Z
+**Stopped at:** Phase 154 Plan 01 complete (Wave 1) — firmware dirt preserved and verified on `wip/v1.33-size-reduction-survey-preserved` @ `a6b46f8`, both sub-repos on `gsd/v1.33-source-hygiene-firmware-size-reduction`, pre-sweep baselines in `.planning/v1.33/baseline-pre-sweep.md`; next is Wave 2 (plans 02/03/04)
+**Resume file:** .planning/phases/154-provenance-comment-sweep-remap-tool-dual-repo-lockstep-promo/154-01-SUMMARY.md
 
 **Gitlink gap from Phase 149's close — CLOSED 2026-08-20.** Phase 149 landed its dual-repo work but never bumped meta's submodule gitlinks, so meta HEAD asserted "Phase 149 COMPLETE and VERIFIED — page-size seam landed across both repos" while pointing at `firestarter 7f6afc65` / `firestarter_app b142c0e6` — trees containing none of it. Bumped to `firestarter 6e3f90a3` (6 commits, all `149-*`) and `firestarter_app 9cc57c75` (13 commits: 8 `149-*` plus the 5 `fw` port-targeting fixes, which `git cherry` marks `-` against `origin/beta` — patch-identical to PR #52's merged work under different SHAs, so nothing unreviewed rode along). Both sub-repos verified on `gsd/v1.32-at28c-write-path-root-cause-report-provenance` with clean tracked trees. Restores the per-plan bump convention this milestone set at `chore(147-02)`/`chore(147-05)`; the branches are local-only, as Phase 147's were when it bumped, and become reachable at the close via the PR to `beta`.
 
