@@ -551,19 +551,19 @@ def test_difflib_map_agrees_with_git_diff_u0(tmp_path):
 def test_autojunk_true_would_corrupt_the_map_on_a_real_file():
     import difflib
 
-    candidate = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.dirname(_HERE))),
-        "firestarter",
-        "src",
-        "proms",
-        "eeprom_28c.cpp",
+    # A FROZEN pre-sweep copy of firestarter/src/proms/eeprom_28c.cpp, not the live
+    # file. Reading the live file made this leg self-invalidating: plan 154-06 swept
+    # that exact file later in this same phase, so the provenance-stripping edit below
+    # became a no-op and the leg reported good=873 bad=873 -- proving nothing, and
+    # failing on its own non-vacuity assertion. The frozen copy keeps the control
+    # hermetic. It must stay a REAL file: research established that a purpose-built
+    # 500-line synthetic equivalent does NOT diverge, which is the whole point --
+    # autojunk only bites on real files, so a synthetic fixture would pass either way.
+    candidate = os.path.join(_HERE, "fixtures", "autojunk_real_file_presweep.cpp")
+    assert os.path.isfile(candidate), (
+        "the frozen pre-sweep fixture is missing; it is committed alongside this "
+        "test precisely so this leg cannot depend on live, sweepable source"
     )
-    if not os.path.isfile(candidate):
-        pytest.skip(
-            "the firestarter sub-repo is not populated here; the synthetic "
-            "500-line equivalent does NOT diverge, which is research Pitfall "
-            "2's point exactly -- autojunk only bites on real files"
-        )
     old = _read_lines(candidate)
     assert len(old) > 200
     new = [
