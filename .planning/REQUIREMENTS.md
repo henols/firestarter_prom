@@ -133,6 +133,7 @@ Which phase covers which requirement. Authored with the requirements, tabulated 
 | REMAP-05 | Phase 159 | Pending |
 
 **Coverage:**
+
 - v1 requirements: **43** total (30 specified at activation + the **13** SWEEP requirements settled 2026-08-23 at `/gsd-discuss-phase 154`)
 - Mapped to phases: **43**
 - Unmapped: **0** ✓

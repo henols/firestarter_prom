@@ -3275,7 +3275,7 @@ Plans:
 | 144 | v1.31 | 7/7 | ✅ Shipped | 2026-08-14 |
 | 145 | v1.31 | 9/9 | ✅ Shipped | 2026-08-17 (bench; `0x08`/`0x0B` skipped-with-reason) |
 | 146 (close) | v1.31 | 13/13 | ✅ Shipped | 2026-08-18 |
-| 154 | v1.33 | 12/12 | Complete |  |
+| 154 | v1.33 | 12/12 | Complete    | 2026-08-23 |
 
 ## v1.8 — Host CLI Structural Cleanup (firestarter_app) (SHIPPED 2026-05-29)
 
