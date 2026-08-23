@@ -34,8 +34,7 @@ applying the remap, and every Phase 155–158 size reduction.
 
 ### Triage policy — the substance of the phase
 
-- **D-01: The triage is ONE mechanical decision procedure, not a three-way
-  judgment call.** The writeup's three classes (bookkeeping / tombstone /
+- **D-01: The triage is ONE mechanical decision procedure, not a three-way judgment call.** The writeup's three classes (bookkeeping / tombstone /
   rationale) are *outcomes*, not a procedure. Reading all 130 shipped-firmware
   hits this session shows the dominant operation is not "delete vs keep" at all —
   it is **strip the label, keep whatever sentence follows**. The procedure, applied
@@ -67,8 +66,7 @@ applying the remap, and every Phase 155–158 size reduction.
   (→ mostly keep-and-reflow), **24** are requirement-ID-prefixed, **15** are
   tombstones across both repos (→ delete outright).
 
-- **D-02 (NEW): `CAP-0N` is EXEMPT — it is live cross-repo wire-protocol
-  vocabulary, not planning provenance.** The survey regex's `CAP-0` alternation
+- **D-02 (NEW): `CAP-0N` is EXEMPT — it is live cross-repo wire-protocol vocabulary, not planning provenance.** The survey regex's `CAP-0` alternation
   is a false-positive class. Evidence: `CAP-0N` names a protocol capability
   generation in *shipped host source* —
   `firestarter_app/firestarter/serial_comm.py:67-156`,
@@ -90,16 +88,13 @@ applying the remap, and every Phase 155–158 size reduction.
   `firestarter/src/firestarter.cpp:182-200` is therefore **no-touch**. It is a
   gate fixture that happens to be spelled as a comment.
 
-- **D-03: Requirement/decision IDs ARE provenance in shipped source and are
-  stripped there — but are RETAINED in test files where the ID is the test case's
-  traceability key.** In shipped source an ID resolves only against `.planning/`,
+- **D-03: Requirement/decision IDs ARE provenance in shipped source and are stripped there — but are RETAINED in test files where the ID is the test case's traceability key.** In shipped source an ID resolves only against `.planning/`,
   which is precisely the coupling this phase exists to remove. In a test file the
   ID is the link that REQUIREMENTS.md traceability runs on (`Case 30 / ERASE-01`,
   `D-11 / BASE-02`) and deleting it would silently sever traceability that no
   gate would notice.
 
-- **D-04: Test-file scope is NARROWED, and this is the phase's biggest
-  re-shaping. 331 of 636 hits (52%) are in test files.** Measured this session:
+- **D-04: Test-file scope is NARROWED, and this is the phase's biggest re-shaping. 331 of 636 hits (52%) are in test files.** Measured this session:
   `firestarter/test/native` **216**, `firestarter_app/tests` **115** — against
   `firestarter/src`+`include` **130**, `firestarter_app/firestarter` **132**,
   `firestarter_app/tools` **43**. The writeup frames the corpus as "provenance
@@ -121,8 +116,7 @@ applying the remap, and every Phase 155–158 size reduction.
 
 ### Gate classification (Hazard 1) — resolved to 8 paths, not "~20 files"
 
-- **D-05: `firestarter_app/tests/scan_paths.py::ALL_CROSS_REPO_PATHS` is the
-  authoritative inventory, and it is exactly 8 paths.** The writeup's "~20 files
+- **D-05: the `ALL_CROSS_REPO_PATHS` list in `firestarter_app/tests/scan_paths.py` is the authoritative inventory, and it is exactly 8 paths.** (Referenced elsewhere as `scan_paths.py::ALL_CROSS_REPO_PATHS`; the label avoids the `::` because the decision-coverage gate's bullet parser permits only the one separator colon before the closing `**`.) The writeup's "~20 files
   under `firestarter_app/tests/`" is an over-count: 21 test modules *import*
   `scan_paths`/`fw_presence`, but they resolve those same 8 firmware paths. The
   inventory is committed, explicitly non-derived, and self-asserting
@@ -155,8 +149,7 @@ applying the remap, and every Phase 155–158 size reduction.
   | `test_sdp_table_parity.py` | **no** | **no** | ⚠ **See D-06** |
   | `test_dispatch_mirror.py` | **no** | **no** | ⚠ C++ leg needs a control; markdown leg is out of globs |
 
-- **D-06 (NEW): `test_sdp_table_parity.py` is the one genuinely dangerous gate,
-  and a LIVE collision already exists.** It does no comment stripping and ships no
+- **D-06 (NEW): `test_sdp_table_parity.py` is the one genuinely dangerous gate, and a LIVE collision already exists.** It does no comment stripping and ships no
   planted-violation fixture, so per
   `reference_firmware_renames_break_host_source_scanning_gates` a green run from
   it is not evidence. Two independent comment-blind mechanisms:
@@ -187,8 +180,7 @@ applying the remap, and every Phase 155–158 size reduction.
 
 ### Manifest and the remap tool
 
-- **D-07: The manifest records all 10,054 citations that target a swept file, not
-  only the 6,939 predicted to shift.** The 6,939 figure is derived from a
+- **D-07: The manifest records all 10,054 citations that target a swept file, not only the 6,939 predicted to shift.** The 6,939 figure is derived from a
   *pre-sweep prediction* ("at or below the file's first GSD comment"). Recording
   the full 10,054 lets Phase 159's oracle **prove** the other 3,115 did not move
   rather than assume it — for the cost of ~45% more rows in a generated file.
@@ -199,16 +191,14 @@ applying the remap, and every Phase 155–158 size reduction.
   Range citations record **both** endpoints and both texts (REMAP-03's
   precondition).
 
-- **D-08: A citation pointing AT a comment line the sweep deletes is
-  retargeted in the manifest, never silently dropped.** It becomes a record with
+- **D-08: A citation pointing AT a comment line the sweep deletes is retargeted in the manifest, never silently dropped.** It becomes a record with
   `retarget: true`, the original cited text preserved, and the new target set to
   the first surviving code line the comment described. Phase 159's round-trip
   oracle then **skips these by name** instead of failing open on them. The size
   of this subset is unknown until the diff exists; **its count is a deliverable
   of this phase**, and it is the only manual work in the repair.
 
-- **D-09: The remap tool lives at `.planning/v1.33/tools/remap_citations.py`
-  with a sibling `.planning/v1.33/tools/test_remap_citations.py`.** Precedent:
+- **D-09: The remap tool lives at `.planning/v1.33/tools/remap_citations.py` with a sibling `.planning/v1.33/tools/test_remap_citations.py`.** Precedent:
   `.planning/v1.16/ledger/tools/check_ledger.py` + `test_check_ledger.py` — a
   milestone-scoped tool directory with its own unit test, one of 36 Python
   scripts already committed under `.planning/`. **Not** `firestarter_app/tools/`:
