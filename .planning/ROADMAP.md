@@ -222,7 +222,7 @@ Plans:
 
 - [x] 154-02-PLAN.md — the corpus survey re-runner, the pre-sweep corpus baseline with D-01's procedure stated, and the gate dispositions: 8 app paths + 22 firmware fail-open gates + the blob-SHA exemptions (D-05, Ruling B/D)
 - [x] 154-03-PLAN.md — the SWEEP-07 planted controls: 4 committed fixtures and 5 new legs, proven RED (and one deliberately GREEN) before the sweep (D-06, Ruling A)
-- [ ] 154-04-PLAN.md — the shared path resolver, the manifest generator, and the pre-sweep citation manifest with its count reconciled against 10,054 (D-07/D-08, Ruling F/G)
+- [x] 154-04-PLAN.md — the shared path resolver, the manifest generator, and the pre-sweep citation manifest with its count reconciled against 10,054 (D-07/D-08, Ruling F/G) — **done 2026-08-23: 13,692 rows / 10,445 targeting a candidate swept file (10,169 occurrence-equivalent vs the recorded 10,054, +1.1%, cause measured); 7,249 shifting (7,076 vs 6,939); all four variants live; every range carries both endpoints and both texts; ambiguous 10 and unresolved 2,978 counted, never dropped; all 10,190 readable rows verified byte-exact against source. Ruling B follow-on answered NO with `eprom.cpp` = 831 rows beside it. SWEEP-09 ticked; SWEEP-10 half-discharged (all rows `retarget: false`; plan 12 settles the subset).**
 
 **Wave 3** *(blocked on Wave 2 completion)*
 

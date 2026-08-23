@@ -6,14 +6,14 @@ current_phase: 154
 current_phase_name: Provenance Comment Sweep + Remap Tool (dual-repo lockstep
 status: executing
 stopped_at: "Milestone v1.33 ACTIVATED 2026-08-22 by /gsd-new-milestone. Scoping was NOT done by this activation -- ROADMAP.md section v1.33 and REQUIREMENTS.md (31 reqs: SWEEP/DEAD/DEDUP/DECODE/LAND/REMAP) were hand-authored on 2026-08-22 by /gsd-explore routing and are pointed at, NOT regenerated (the GSD roadmap/requirements verbs normalise whole files). phases.clear was SKIPPED -- 126 phase directories exist. This activation wrote PROJECT.md section Current Milestone: v1.33, this frontmatter switch, and the commits. Six phases, 154-159. NEXT: /gsd-discuss-phase 154 -- that phase requirements are deliberately UNSET because its triage policy is the substance of the phase; 155-159 can go straight to /gsd-plan-phase. Meta on branch v1.33-source-hygiene-size-reduction (forked off local beta @ 59a9ff5d). Firmware work for phases 155-158 ALREADY EXISTS on firestarter branch size-reduction-survey (off 8695ee5), 11 files modified and UNCOMMITTED, also captured at .planning/notes/firmware-size-reduction-measured.patch."
-last_updated: "2026-08-23T02:18:24.383Z"
+last_updated: "2026-08-23T03:20:00.000Z"
 last_activity: 2026-08-23
-last_activity_desc: Phase 154 Plan 01 executed (Wave 1 complete)
+last_activity_desc: Phase 154 Plan 04 executed (Wave 2 complete) — pre-sweep citation manifest committed
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 12
-  completed_plans: 2
+  completed_plans: 4
   percent: 0
 ---
 
@@ -146,11 +146,30 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 154 (Provenance Comment Sweep + Remap Tool (dual-repo lockstep)) — EXECUTING
-Plan: 4 of 12
+Plan: 5 of 12
 Status: Ready to execute
-Next: Wave 2 — plan 04 (02 and 03 complete)
-**Stopped at:** Completed 154-03-PLAN.md (SWEEP-07 planted controls: 4 fixtures + 5 legs, RED-before proven, GREEN fail-open documented)
-Last activity: 2026-08-23 — Phase 154 Plan 03 executed (Wave 2, part 2 of 3)
+Next: Wave 3 — plans 05-10 (Wave 2 complete: 02, 03, 04)
+**Stopped at:** Completed 154-04-PLAN.md (the pre-sweep citation manifest — this phase's one non-reconstructible deliverable — plus the shared resolver and the generator)
+Last activity: 2026-08-23 — Phase 154 Plan 04 executed (Wave 2 complete)
+
+**The manifest is on disk and committed, and it is the point of no return for Phase 159.**
+`.planning/v1.33/sweep-citation-manifest.jsonl` holds **13,692** records over 2,947 planning documents
+against a **171**-file candidate set, generated at the pre-sweep shas `firestarter 8695ee5` /
+`firestarter_app 6bfa645` (both written into its own header record). **10,445** records target a candidate
+swept file (10,169 occurrence-equivalent, vs the pre-registered **10,054**, +1.1%); **7,249** are shifting
+(7,076 vs the recorded **6,939**). It cannot be regenerated after the sweep — the pre-sweep
+`(target_line, source_text)` pairs exist nowhere on disk once the sweep lands. Reconciliation, per-variant
+and per-resolution counts, and the Ruling B answer:
+`.planning/v1.33/sweep-citation-manifest-report.md`.
+
+**Three things a later plan must not re-litigate.** (1) `.planning/v1.33/tools/citation_paths.py` is the
+**single** resolver, imported by both the generator and plan 05's `remap_citations.py`, so the same citation
+cannot resolve two different ways — do not re-implement resolution in the remapper. (2) Every record is
+`retarget: false` and the field exists **to be flipped** in plan 12; changing the schema there instead
+would rewrite a 7 MB committed artifact. (3) The manifest's `source_text` convention is
+"without the line terminator, compare against `splitlines()`", and an unreadable endpoint carries the
+`<UNREADABLE>` sentinel with `text_status` saying why — Phase 159's oracle must skip a non-`read` row **by
+name**, never treat it as a match.
 
 **Detail.** Phase 154 was discussed and planned on 2026-08-23 (12 plans, 5 waves) and its phase directory
 exists. Its `SWEEP-01…NN` placeholder resolved to **13** requirements, now carried in `REQUIREMENTS.md` §1;
@@ -2658,11 +2677,12 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 154 P01 | 16min | 3 tasks | 2 files |
 | Phase 154 P02 | 25min | 3 tasks | 3 files |
 | Phase 154 P03 | 31min | 3 tasks | 6 files |
+| Phase 154 P04 | 38min | 3 tasks | 5 files |
 
 ## Session
 
-**Last session:** 2026-08-23T02:46:44Z
-**Stopped at:** Phase 154 Plan 03 complete (Wave 2, part 2 of 3) — SWEEP-07's RED-before half discharged: 4 committed-but-uncommitted (D-11) fixtures under `firestarter_app/tests/fixtures/`, 3 new legs in `test_sdp_table_parity.py` (8/8 passing) and 2 in `test_dispatch_mirror.py` (4/4 passing), host suite at 1975/0 (baseline 1970 + 5); all 5 legs proven non-vacuous by revert-and-restore; real firmware source shas unchanged and firmware repo porcelain-clean throughout; next is plan 04 (citation manifest)
+**Last session:** 2026-08-23T03:20:00Z
+**Stopped at:** Phase 154 Plan 04 complete (Wave 2 COMPLETE) — the pre-sweep citation manifest is committed at `.planning/v1.33/sweep-citation-manifest.jsonl`: 13,692 records / 2,947 planning documents / 171-file candidate set / pre-sweep shas 8695ee5 + 6bfa645 in its header. 10,445 records target a candidate swept file (10,169 occurrence-equivalent vs the recorded 10,054, +1.1%, cause measured); 7,249 shifting (7,076 vs 6,939); all four variants live (colon_single 6,469 / colon_range 6,137 / anchor_L 408 / colon_list 276 occurrences, all within 3.5% of research); ambiguous 10 and unresolved 2,978 counted and kept as rows, never dropped; all 10,190 readable rows verified byte-exact against source, 0 mismatch; byte-identical regeneration proven on the real tree. `citation_paths.py` is the single shared resolver for plan 05's remapper. SWEEP-09 ticked; SWEEP-10 deliberately left unticked (pre-sweep half only). 26 unit legs pass. Next is Wave 3 — plan 05 (`remap_citations.py`), then the sweeps 06-10
 **Resume file:** None
 
 **Gitlink gap from Phase 149's close — CLOSED 2026-08-20.** Phase 149 landed its dual-repo work but never bumped meta's submodule gitlinks, so meta HEAD asserted "Phase 149 COMPLETE and VERIFIED — page-size seam landed across both repos" while pointing at `firestarter 7f6afc65` / `firestarter_app b142c0e6` — trees containing none of it. Bumped to `firestarter 6e3f90a3` (6 commits, all `149-*`) and `firestarter_app 9cc57c75` (13 commits: 8 `149-*` plus the 5 `fw` port-targeting fixes, which `git cherry` marks `-` against `origin/beta` — patch-identical to PR #52's merged work under different SHAs, so nothing unreviewed rode along). Both sub-repos verified on `gsd/v1.32-at28c-write-path-root-cause-report-provenance` with clean tracked trees. Restores the per-plan bump convention this milestone set at `chore(147-02)`/`chore(147-05)`; the branches are local-only, as Phase 147's were when it bumped, and become reachable at the close via the PR to `beta`.
