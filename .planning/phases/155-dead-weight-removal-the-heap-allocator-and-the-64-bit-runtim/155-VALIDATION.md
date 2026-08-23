@@ -1,10 +1,11 @@
 ---
 phase: 155
 slug: dead-weight-removal-the-heap-allocator-and-the-64-bit-runtime-firmware-only
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-08-23
+signed_off: 2026-08-23
 ---
 
 # Phase 155 — Validation Strategy
@@ -154,16 +155,16 @@ obligations*, not manual tests:
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references (4 items above)
-- [ ] Planted negative recorded RED for the symbol gate
-- [ ] Both `k`-guard boundary cases and both sentinel cases present in the oracle
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 24 s (quick) / 73 s (full)
-- [ ] Native case count still **172 / 17 suites** on both native legs
-- [ ] `size_baseline.json` **not** re-anchored
-- [ ] No forbidden coverage phrasing in any Phase 155 artefact
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references (4 items above) — all four landed: before-figures (155-01), symbol gate (155-02), planted negative (155-02 + 155-06), oracle (155-04)
+- [x] Planted negative recorded RED for the symbol gate — **both directions**: committed pre-change listing (155-02) and a post-change throwaway worktree (155-06). 155-06's first attempt was silently optimised away by the compiler and was corrected to a store/read-back shape that cannot be elided
+- [x] Both `k`-guard boundary cases and both sentinel cases present in the oracle — the nominal grid reaches neither guard (`k` maxes at 8715 vs 4194303), so the four dedicated boundary pairs are what discharge the clause
+- [x] No watch-mode flags
+- [x] Feedback latency < 24 s (quick) / 73 s (full)
+- [x] Native case count still **172 / 17 suites** on both native legs — measured, not assumed
+- [x] `size_baseline.json` **not** re-anchored — byte-unchanged, confirmed by the verifier
+- [x] No forbidden coverage phrasing in any Phase 155 artefact — gate exit 0 over the 22-file corpus, three named exclusions, SUMMARY class NOT exempted
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-08-23 — closed out by the execute-phase orchestrator after `155-VERIFICATION.md` returned `status: passed` (6/6 must-haves, independently re-measured). Per-task IDs in the map above were deliberately left as `TBD` rather than back-filled: the authoritative per-task evidence lives in `155-01-SUMMARY.md`…`155-06-SUMMARY.md` and in `.planning/v1.33/155-after-figures.md`, and inventing IDs here would add a second, driftable record of it.
