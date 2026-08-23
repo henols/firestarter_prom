@@ -378,7 +378,7 @@ four DEDUP requirements discharged in `REQUIREMENTS.md` §3. Full record:
 Plans:
 **Wave 1**
 
-- [ ] 157-01-PLAN.md — capture `.planning/v1.33/157-before-figures.md`: the WARM three-target pairs, the eleven-stub ledger at exactly 1012 B, the two key-string vaddr blocks, both architectures' struct offsets, OD-7's single `sizeof` figure, and corrections C-1…C-19
+- [x] 157-01-PLAN.md — capture `.planning/v1.33/157-before-figures.md`: the WARM three-target pairs, the eleven-stub ledger at exactly 1012 B, the two key-string vaddr blocks, both architectures' struct offsets, OD-7's single `sizeof` figure, and corrections C-1…C-19
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
