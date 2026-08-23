@@ -67,6 +67,13 @@ way Phase 156 settled OD-2):
 `24234→23086` / `24282→23134` / `26378→25230` = **−1148 B** each; RAM `1567→1562` / `1573→1568` /
 `2008→2003` = **−5 B** each.
 
+**⚠ C-19 — those figures predate OD-1's mask policy and must NOT be chased.** The reference
+implementation was measured on a table with **no policy column**. OD-1 adds one (mask-vs-saturate
+per row), which costs bytes. A post-change figure that still reads **exactly** −1148 is therefore
+the *suspicious* outcome, not the target. Record what the tree actually measures; do not tune the
+implementation toward a number taken before the policy existed. The **−890 / −258** split (C-3,
+superseding the ROADMAP's −976 / −172) carries the same caveat.
+
 ---
 
 ## Sampling Rate
@@ -97,7 +104,7 @@ mapping below is fixed by research and is what each task must inherit.*
 | Task ID | Plan | Wave | Requirement | Behaviour to prove | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|--------------------|-----------|-------------------|-------------|--------|
 | TBD | TBD | **0** | all | Before-figures captured and committed **before any edit** — 3 flash/RAM pairs, the eleven-stub ledger summing to **exactly 1012 B**, the five zero-cost siblings absent from the symbol table, `test_read_timing` at 9 cases | measurement | `pio run -e {uno,uno328pb,leonardo}` + `avr-nm --print-size --size-sort --radix=d …elf` | ❌ **W0** | ⬜ pending |
-| TBD | TBD | **0** | DECODE-05 | **RED-first** capture: narrowing applied with saturation/mask deleted → new cases S1/S2/S4 FAIL while the existing 172 still pass | native planted-negative | `pio test -e native` on a probe tree | ✅ RED direction **already proven** (F-4: 172/172 green on the broken tree) | ⬜ pending |
+| TBD | TBD | **0** | DECODE-05 | **RED-first** capture, on **TWO** probes — see C-18 below. Probe A (saturation deleted) reddens **S1/S2** while the existing 172 still pass. Probe B (**saturating** bitmask) is the only thing that reddens **S4**. | native planted-negative | `pio test -e native` on each probe tree | ✅ RED direction **already proven** for probe A (F-4: 172/172 green on the broken tree) | ⬜ pending |
 | TBD | TBD | **0** | DECODE-05 | Case **S1** — `{"cmd":1,"algorithm":261}` → `h.protocol == 0xFF`; 261 does **not** become 5 | unit | `pio test -e native -f "*test_read_timing*"` | ❌ **W0** | ⬜ pending |
 | TBD | TBD | **0** | DECODE-05 | Case **S2** — the **dispatch** fail-closes: `configure_memory` yields `RESPONSE_CODE_ERROR` and not `flash_5v_page`'s main op. **The load-bearing case** — the one that would have caught the defect | unit | same | ❌ **W0** | ⬜ pending |
 | TBD | TBD | **0** | DECODE-05 | Case **S3** — `algorithm: 5` still reaches `configure_flash_5v_page` (non-regression, so S1/S2 can't be satisfied by breaking every algorithm) | unit | same | ❌ **W0** | ⬜ pending |
@@ -143,8 +150,11 @@ the divergence outright, and measure the byte cost if so.
       `157-RESEARCH.md` is its raw material.
 - [ ] **`test/native/avr/test_read_timing/test_read_timing_params.cpp`** — DECODE-05 cases
       **S1, S2, S3, S4, S5**. **S2 is load-bearing**; **S4 encodes F-1 / OD-1**. Author
-      **RED-first** against a saturation-deleted probe tree, capture the RED, then land the fix and
-      capture GREEN. This is the cheapest possible home: already inside both native `test_filter`
+      **RED-first**, capture the RED, then land the fix and capture GREEN — **but against TWO
+      probes, not one (C-18):** probe A (saturation deleted) reddens S1/S2; **S4 passes vacuously
+      there** because a narrowed `ctrl_flags` truncates `flags: 65536` to 0, which is what S4
+      asserts. S4's only non-vacuous negative is probe B, a **saturating**-bitmask tree that yields
+      `0xFFFF`. This is the cheapest possible home: already inside both native `test_filter`
       lists, already includes `json_parser.h` + `jsmn.h`, already has a real `parse_json` helper
       calling `jsmn_parse` with the true token budget, and `configure_memory` is linkable from the
       same env. **A dedicated suite would need both `test_filter` lists AND both `-I` lists updated
@@ -222,9 +232,10 @@ the divergence outright, and measure the byte cost if so.
 - [ ] Wave 0 covers all MISSING references
 - [ ] No watch-mode flags
 - [ ] Feedback latency < 50s (both native envs)
-- [ ] RED-first captured for S1/S2/S4 before the fix lands
+- [ ] RED-first captured for S1/S2 on probe A **and** for S4 on probe B before the fix lands (C-18)
 - [ ] `_Static_assert` seen to fire before it is trusted
 - [ ] All ten coverage ceilings restated verbatim in the phase record
+- [ ] No task chases the pre-policy −1148 / −890 figures (C-19)
 - [ ] `nyquist_compliant: true` set in frontmatter
 
 **Approval:** pending

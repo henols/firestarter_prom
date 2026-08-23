@@ -376,13 +376,32 @@ four DEDUP requirements discharged in `REQUIREMENTS.md` §3. Full record:
 **Plans**: 7 plans (waves 1-7, strictly sequential -- every plan depends on the tree state the previous one commits)
 
 Plans:
+**Wave 1**
 
 - [ ] 157-01-PLAN.md — capture `.planning/v1.33/157-before-figures.md`: the WARM three-target pairs, the eleven-stub ledger at exactly 1012 B, the two key-string vaddr blocks, both architectures' struct offsets, OD-7's single `sizeof` figure, and corrections C-1…C-19
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 157-02-PLAN.md — the `{key, clamp, offset, width}` field table, `store_field`, twelve `_Static_assert` guards, the `READ_TIMING_MAX_US` hoist and OD-3's `get_flags` → `key_flags`; measure the table half; prove both guards fire
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 157-03-PLAN.md — narrow `protocol` to `uint8_t` and `ctrl_flags` to `uint16_t`, audit all five consumer surfaces (18/20 and 40/59, not 19/45), measure the narrowing half and −5 B RAM, run both OD-6 check scripts
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 157-04-PLAN.md — DECODE-05's five safety cases S1–S5 (S2 load-bearing), each seen RED against the correct probe: saturation-deleted for S1/S2/S5, saturating-bitmask for S4 (C-18)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 157-05-PLAN.md — the missing `read-strobe-us` cap case, both cap assertions tightened to equality, and OD-5's six store-round-trip cases closing the wrong-`offsetof` ceiling
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 157-06-PLAN.md — DECODE-07 record-only: build the `switch` variant once at this position (OD-4), measure all three targets, discard it, and prove the branch-inventory golden green
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 157-07-PLAN.md — the landing plan: all eight gate legs on the final tree with cold builds both sides, `157-after-figures.md`, and the ROADMAP/REQUIREMENTS closure
 
 ---

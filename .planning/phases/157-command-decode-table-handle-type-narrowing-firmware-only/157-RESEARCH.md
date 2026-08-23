@@ -1697,7 +1697,33 @@ wrongly-dispatched one is hardware.
 
 ---
 
-## Open Questions
+## Open Questions (ALL RESOLVED at plan time — 2026-08-23)
+
+> **Every OQ below is closed.** OQ-3 and OQ-4 were put to the operator during
+> `/gsd-plan-phase 157` and answered; the remaining five were settled by the orchestrator taking
+> this document's own recommendation, each being a mechanical question with a clear one. The
+> resolutions are the `OD-N` decisions, and every one of them is threaded into the seven plans'
+> frontmatter, actions and prohibitions.
+>
+> | OQ | Resolution | Decision id |
+> |---|---|---|
+> | OQ-1 — `handle` 600 B or 601 B | Re-derive with the real `pio run -v` flags; record ONE number with its method. The −5 B delta is independently confirmed by `ram_used`, so nothing downstream depends on the absolute. | **OD-7** |
+> | OQ-2 — why the `flags` PROGMEM duplicate vanishes | Do not depend on the toolchain outcome. Point `get_flags` at `key_flags` so single-key-storage is a **source property** (~3 lines), then re-measure per target. | **OD-3** |
+> | OQ-3 — saturate, mask, or reject, per field | **Operator answered:** saturate for ordinals, **MASK** for bitmasks, reject for nothing. `ctrl_flags` masks — saturating it to `0xFFFF` would set `FLAG_FORCE` / `FLAG_SKIP_ERASE` / `FLAG_SKIP_BLANK_CHECK`, i.e. fail-OPEN. `reject` declined because it needs a new message id → meta `messages.toml` → codegen → would break firmware-only; the declined option is recorded with that cost. | **OD-1** |
+> | OQ-4 — keep `key_parsers`, or accept a host commit | **Operator answered:** keep the name. Zero `firestarter_app` commits, the cross-repo parity gate stays honest, and the milestone's firmware-only property holds. The record states the identifier is now slightly stale and why it was kept. | **OD-2** |
+> | OQ-5 — re-measure DECODE-07's +18 B, or record as stale | Re-measure at this phase's position; record the original with its provenance **and** the fresh figure. | **OD-4** |
+> | OQ-6 — store-round-trip cases for the six untested fields | Take them. A wrong `offsetof` in one row is the refactor's most plausible silent defect, and the case count already moves. Closes ceiling 9. | **OD-5** |
+> | OQ-7 — `check_build_warnings.py` / native watermark | Run both it and `check_no_heap_or_64bit_symbols.py`. Do not assume. Neither is in CI; the watermark has zero headroom. | **OD-6** |
+>
+> **Three further corrections were found during planning and extend the C-series:** **C-17** —
+> `#define READ_TIMING_MAX_US` is at `src/json_parser.c:360`, not `:352`, and this document's
+> DECODE-01 table lists the first seven `key_*` declarations one line high (`memory-size` is
+> `:51`). **C-18** — the claim that one saturation-deleted probe reddens S1/S2/**S4** is wrong: with
+> `ctrl_flags` narrowed and no saturation, `flags: 65536` truncates to 0 and S4's `== 0` assertion
+> passes **vacuously**; S4's only non-vacuous negative is a *saturating*-bitmask probe. Two probes
+> are required. **C-19** — the −890 / −1148 figures were measured on a table with **no policy
+> column**; OD-1 adds one, so a post-change figure still reading exactly −1148 is the *suspicious*
+> outcome and must not be chased.
 
 1. **OQ-1 — `handle` is 600 B or 601 B?**
    - What we know: my probe measures `sizeof(firestarter_handle_t) == 600` before and `595` after,
