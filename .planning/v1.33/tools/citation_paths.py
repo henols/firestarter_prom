@@ -126,6 +126,19 @@ FIXTURE_EXCLUDE_GLOBS = ("**/fixtures/**", "**/fixture/**")
 #: not happen to sit under a `fixtures/` directory.
 FIXTURE_GUARD_SUBSTRINGS = ("fixtures/", "fixture/", "fake_", "planted_")
 
+#: The `Resolution.reason` emitted by step 3b, the EXPLICITLY-LABELLED
+#: fixture-inclusive fallback. Named as a constant rather than written inline
+#: because `remap_citations.py` (plan 05) needs it to tell a LEGITIMATE
+#: fixture binding -- a citation whose target genuinely IS a planted fixture,
+#: measured at 6 records in the v1.33 manifest -- from a COLLIDING one, where a
+#: real file's bare basename bound to a fixture copy (T-154-13). A string match
+#: written inline in the remapper would fail OPEN the day this reason is
+#: reworded; one constant, two importers, cannot.
+FIXTURE_INCLUSIVE_FALLBACK_REASON = (
+    "unique basename via the fixture-inclusive fallback (no non-fixture "
+    "candidate carries this basename)"
+)
+
 
 class FixtureResolutionError(RuntimeError):
     """The fixture-excluded index yielded a fixture path -- the index is wrong."""
@@ -334,10 +347,7 @@ class CandidateIndex:
         all_hits = self._by_basename.get(base, [])
         if len(all_hits) == 1:
             return Resolution(
-                BASENAME,
-                all_hits[0],
-                "unique basename via the fixture-inclusive fallback (no "
-                "non-fixture candidate carries this basename)",
+                BASENAME, all_hits[0], FIXTURE_INCLUSIVE_FALLBACK_REASON
             )
         if len(all_hits) > 1:
             return Resolution(
