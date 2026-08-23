@@ -209,3 +209,9 @@ None -- no external service configuration required.
 ---
 *Phase: 157-command-decode-table-handle-type-narrowing-firmware-only*
 *Completed: 2026-08-23*
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/157-command-decode-table-handle-type-narrowing-firmware-only/157-06-SUMMARY.md`
+- FOUND: meta commit `e0cc5e90` (`git log --oneline --all`)
+- FOUND: `firestarter` HEAD unchanged at `785e644`, `git -C firestarter status --porcelain` empty
