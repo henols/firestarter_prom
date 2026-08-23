@@ -313,7 +313,7 @@ Plans:
   3. **The WARNING/ERROR fork is proven preserved by a test that can see it.** Every `LOG_{WARN,ERROR}_ID_BYTES` macro is the *same alias* of `LOG_ID_BYTES` (`logging_id.h:105-119`), so severity rides entirely in the message id — which means a golden trace matching on id alone **cannot** detect a swapped `response_code`. A mismatch test is required; a green golden trace is not sufficient evidence for this criterion.
   4. The nine `return !op_execute_*_operation(...)` inversions in `eprom_operations.cpp` are either removed or explicitly declined **with the measurement cited**: flipping the convention was measured at **byte-for-byte zero** on both targets, because all nine wrappers inline into `main` and the switch collapses to a single shared call. So this is a readability decision with no size argument on either side — and today it costs a ten-line comment at `eprom_operations.cpp:57-67` to explain why a `!` is load-bearing.
 
-**Plans**: 7 plans
+**Plans:** 7/7 plans complete
 
 Plans:
 **Wave 1**
@@ -342,7 +342,16 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 156-07-PLAN.md — landing: the eight-leg phase gate, the four probes re-run post-refactor, the after-figures record and the requirement discharges (wave 7)
+- [x] 156-07-PLAN.md — landing: the eight-leg phase gate, the four probes re-run post-refactor, the after-figures record and the requirement discharges (wave 7)
+
+**PHASE CLOSED 2026-08-23.** All eight phase-gate legs run and recorded on the final tree
+(`firestarter` `1151dc4`), including the two no CI workflow invokes (`native_loop_v131`,
+`check_size_baseline.py`); the four DEDUP-03 planted transpositions re-proven against the
+shipped, post-refactor code, with two flipping from BLIND to RED (the under-voltage severity
+pairing, the chip-ID message id); the −426 B total confirmed with both per-requirement halves
+(−268 DEDUP-01, −158 DEDUP-02) exactly matching the split this entry already carried; all
+four DEDUP requirements discharged in `REQUIREMENTS.md` §3. Full record:
+[`156-after-figures.md`](v1.33/156-after-figures.md).
 
 **⚠ Figures in criteria 1, 2 and 4 above are superseded by `.planning/v1.33/156-before-figures.md` and `.planning/v1.33/156-after-figures.md` where they disagree** — the same practice Phase 155 followed for its own five corrections. Seven corrections apply, all measured at `firestarter` `adf1a31`: **C-1** the two `flash_intel.cpp` VPP blocks are lexically inside `flash_intel_check_vpp`, not `flash_intel_write_init` (that is the symbol-table attribution, because the static function is fully inlined); **C-2** `__udivmodhi4` call sites start at **31**, not 30, and fall to 13 (the derived "24 of them" claim is unaffected); **C-3** the **−268 / −158 split is UNVERIFIED** at this phase's position and is measured per-requirement by plans 03 and 04 — only the **−426 B total is measured**; **C-4** the DEDUP-04 flip is **size-identical on all three targets, NOT image-identical** — the `.hex` SHA changes on all three and `avr-objdump` differs on 5450 lines, on a build proven reproducible first, so an oracle asserting image identity would go RED; **C-5** the shared clone is `op_execute_stateful_operation.constprop.42`, not `.44`, and no gate may pin a clone suffix; **C-6** only three of the eleven lines at `eprom_operations.cpp:57-67` are about the `!` — the rest is LOCK-01/LOCK-02 rationale; **C-7** DEAD-06's claim to be the only requirement in Phases 155–158 touching a test file is **false**, since DEDUP-04 touches `test_eeprom28c_sdp.cpp`. Also: the reference branch named in §v1.33 (`size-reduction-survey`) does **not** carry this work — `wip/v1.33-size-reduction-survey-preserved` @ `a6b46f8` does, neither carries DEDUP-04, and the subset applies with `git apply -C1`. And a planner-found eighth item: `src/operation_utils.cpp:57` carries the same `@return` wording as `include/operation_utils.h:72`, making DEDUP-04's comment blast radius **seven** locations, not six. **Criterion 4's "or explicitly declined" branch is resolved and dead:** the operator chose REMOVAL at plan time (OD-2), so the plans invert the 6 engine returns, drop all 9 wrapper `!`, and delete the three dead comment lines — no plan hedges toward the decline. And the honest framing the flip forces, stated here rather than discovered later: the negation moves from **9 call sites to 1** (site 4 delegates to a callback that keeps its own true-on-success convention), so it is a 9→1 reduction, not an elimination.
 
