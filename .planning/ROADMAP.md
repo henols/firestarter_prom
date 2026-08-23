@@ -330,7 +330,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 156-04-PLAN.md — DEDUP-02: one `mem_util_report_chip_id()` replaces four drifted chip-ID blocks, six divergences resolved and stated, golden 22 → 21 (wave 4)
+- [x] 156-04-PLAN.md — DEDUP-02: one `mem_util_report_chip_id()` replaces four drifted chip-ID blocks, six divergences resolved and stated, golden 22 → 21 (wave 4)
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
