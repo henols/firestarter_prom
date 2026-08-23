@@ -390,7 +390,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 157-04-PLAN.md — DECODE-05's five safety cases S1–S5 (S2 load-bearing), each seen RED against the correct probe: saturation-deleted for S1/S2/S5, saturating-bitmask for S4 (C-18)
+- [x] 157-04-PLAN.md — DECODE-05's five safety cases S1–S5 (S2 load-bearing), each seen RED against the correct probe: saturation-deleted for S1/S2/S5, saturating-bitmask for S4 (C-18)
 
 **Wave 5** *(blocked on Wave 4 completion)*
 

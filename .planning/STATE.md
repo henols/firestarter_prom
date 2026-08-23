@@ -6,14 +6,14 @@ current_phase: 157
 current_phase_name: firmware-only
 status: executing
 stopped_at: "Phase 157 Plan 02 complete -- json_parser.c's key_parsers[] rewritten as a compiler-derived {key, clamp, offset, width} field table (`19df431`), plus 157-02-SUMMARY.md committed. Ten dispatch stubs deleted, one shared store_field inlined, twelve _Static_assert guards proven to fire against two planted negatives in a throwaway worktree. Measured -884 B per AVR target (RAM unchanged); reference's -890 B 6 B divergence attributed to OD-1's policy column (C-19). Both native envs 172/172, both local check scripts pass, host wire-key parity gate 24 passed. Next: plan 157-03 (the protocol/ctrl_flags type narrowing)."
-last_updated: "2026-08-23T21:01:06.760Z"
+last_updated: "2026-08-23T21:17:41.960Z"
 last_activity: 2026-08-23
 last_activity_desc: Phase 157 execution started
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 32
-  completed_plans: 28
+  completed_plans: 29
   percent: 50
 ---
 
@@ -146,10 +146,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 157 — Command-Decode Table + Handle Type Narrowing (firmware-only) — EXECUTING
-Plan: 4 of 7
+Plan: 5 of 7
 Status: Ready to execute
 Next: **Phase 157 Plan 03** -- the `protocol`/`ctrl_flags` type narrowing (DECODE-04), against the field table plan 02 landed. **Was:** **Phase 156 execution** -- `/gsd-execute-phase 156` (7 plans, waves 1-7; planned 2026-08-23, plan-checker PASSED on the first iteration). Waves are strictly sequential because every plan touches `eprom.cpp`, `memory.cpp`, `memory_utils.h` or their committed golden. Target **-426 B flash / RAM unchanged** on all three AVR targets (24660->24234 uno, 24708->24282 uno328pb, 26804->26378 leonardo), measured at `adf1a31`, not quoted. DEDUP-04 is resolved toward **REMOVAL** by operator decision, so the nine `!` wrappers and the six engine returns actually flip -- and that flip is **size-identical, NOT image-identical** (the `.hex` SHA changes on all three targets; research correction C-4). Two measured DEDUP-03 blind spots (VPP under-voltage severity pairing, chip-ID message id) are closed in plan 02 BEFORE the refactor, each seen RED against a planted transposition and GREEN against the real tree. `tests/test_protocol_branch_inventory.py` goes RED on commit and is re-derived 23->22 in plan 03 and 22->21 in plan 04, each inside its own commit. Nothing is pushed. `wip/v1.33-size-reduction-survey-preserved` @ `a6b46f8` remains the ONLY ref carrying 155-158's implemented work -- and it does NOT carry DEDUP-04.
-**Stopped at:** Completed 157-03-PLAN.md
+**Stopped at:** Completed 157-04-PLAN.md
 **Plan 157-02 complete (2026-08-23):** `firestarter/src/json_parser.c`'s `key_parsers[]` rewritten
 as a compiler-derived `{key, clamp, offset, width}` `field_desc_t` table (`19df431`), replacing the
 PROGMEM function-pointer column and its ten dispatch stubs (`get_memory_size`, `get_address`,
@@ -2452,6 +2452,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 157]: 157-02: measured -884 B flash delta per AVR target (not reference's -890 B); 6 B divergence attributed to OD-1's policy column, recorded not chased (C-19)
 - [Phase 157-03]: Narrowed protocol to uint8_t and ctrl_flags to uint16_t; measured -260 B flash / -5 B RAM per AVR target, diverging +2 B from the reference's -258 B, attributed to OD-1's mask-vs-saturate policy column (not chased by editing code).
 - [Phase 157-03]: Leonardo Caterina headroom recorded as measured 3438 B, superseding the ROADMAP's stale 3440 B and the RESEARCH-predicted 3442 B.
+- [Phase ?]: S2 (dispatch fail-closes), not S1 (stored byte), is the load-bearing DECODE-05 case -- it pins the dispatch-table-contingent claim (ceiling 6)
+- [Phase ?]: Two distinct planted-negative probes are required for the DECODE-05 safety cases -- C-18 confirmed in practice: S4 passes vacuously against the saturation-deleted probe and needs its own saturating-bitmask probe
+- [Phase ?]: Native case count moved 172 -> 177 on both native and native_nodevtools, handed to Phase 158 / LAND-01 -- neither baseline file was edited
 
 ## Performance Metrics
 
@@ -2787,10 +2790,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 157 P01 | 35min | 2 tasks | 1 files |
 | Phase 157 P02 | 70min | 3 tasks | 1 files |
 | Phase 157 P03 | 55min | 2 tasks | 1 files |
+| Phase 157 P04 | 70min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-23T21:01:06.731Z
+**Last session:** 2026-08-23T21:17:41.927Z
 **Stopped at:** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
 the PROGMEM function-pointer column and its ten dispatch stubs with one shared, inlined
