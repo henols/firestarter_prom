@@ -147,3 +147,84 @@ the **only** executable line-number pin over swept firmware paths in either repo
 **Suggested disposition:** amend §B row 6 to `control (struct legs) + LINE-PINNED (consumer
 census)` when the dispositions file is next touched, and name the census in Phases 155–158's
 success criteria.
+
+## D7 — BLOCKER: plan 07's `firestarter/src/firestarter.cpp` sweep broke a host gate that pins the literal string `"Phase 151"`
+
+**Found during:** Plan 09, Task 2 (first full host-suite run of the phase).
+**Severity:** BLOCKER for plan 12's phase gate. Not repairable inside plan 09's scope.
+
+`firestarter_app/tests/test_parse_gate_admission.py::test_diagnostic_range_unchanged_with_phase_151_comment`
+asserts `"Phase 151" in preceding_text` over the raw text of
+`fw_path("src", "firestarter.cpp")` — a 1200-character lookback window above the
+`handle->cmd > CMD_IDLE && handle->cmd < CMD_READ_VPP` diagnostic-range guard
+(`test_parse_gate_admission.py:104` `_PHASE_151_LOOKBACK_CHARS`, assertion at :175).
+
+Plan 07 stripped that exact label:
+
+```diff
+-    // Phase 151 (LOCK-02, OD-3): CMD_LOCK_STATUS (16) is numerically greater
+-    // than CMD_READ_VPP (11), so it falls outside this range by construction
+-    // -- this is a CHOICE recorded here, not a discovery made on the bench.
++    // CMD_LOCK_STATUS (16) is numerically greater than CMD_READ_VPP (11), so
++    // it falls outside this range by construction -- this is a CHOICE
++    // recorded here, not a discovery made on the bench.
+```
+
+Measured: `git show 8695ee52:src/firestarter.cpp | grep -c 'Phase 151'` = **3**;
+`grep -c 'Phase 151' src/firestarter.cpp` on the swept tree = **0**.
+
+**Why plan 07 did not see it.** Plan 07 ran the *firmware* repo's Python gate suite
+(323 legs) and a nine-module comment-sensitive host subset in a clean clone. This module
+was in neither set. It is a **third** comment-sensitive host gate over firmware source,
+beyond the two `sweep-gate-dispositions.md` already names (`test_cap03_ack_layout_parity.py`'s
+`_WIRE_LAYOUT_COMMENT`, and D6's `test_config_schema_pinned.py` line pins) — and unlike
+those two it pins a **provenance label itself**, which is precisely what this phase deletes.
+It is the `reference_firmware_renames_break_host_source_scanning_gates` class, inverted:
+the gate does not fail open, it fails closed on the sweep's intended outcome.
+
+**Measured impact:** it is the ONE genuine failure in the whole host suite. A clean
+`--shared` clone carrying both repos' swept blobs committed runs
+**1 failed / 1971 passed / 3 skipped** — this leg is the single failure.
+
+**Why not repaired in plan 09.** The two candidate fixes both land outside this plan's
+`<domain>` (`firestarter_app/firestarter` only):
+1. Retarget the pin in `firestarter_app/tests/test_parse_gate_admission.py` — **plan 11's**
+   file, and a judgment call about what should replace `"Phase 151"` (the sentence's real
+   content is "CMD_LOCK_STATUS (16) > CMD_READ_VPP (11), so it falls outside this range by
+   construction -- a CHOICE, not a discovery", which survives the sweep intact and is the
+   obvious substitute anchor).
+2. Restore the label in `firestarter/src/firestarter.cpp` under a D-02-style exemption —
+   **plan 07's** file, and it would mean shipping a phase label in swept firmware source.
+
+**Suggested disposition:** plan 11 re-anchors the assertion onto the surviving sentence
+(e.g. `"this is a CHOICE recorded here"` plus `"CMD_LOCK_STATUS (16)"`), which pins the
+*decision* rather than the *phase number* and is what the leg's own docstring says it is
+for ("DESIGN.md §7's stated choice ... must be recorded there, not left to be
+rediscovered"). Plan 12 must not run its phase gate before this is done.
+
+## D8 — app-pkg mid-comment provenance tokens (236 lines) and non-comment-line tokens (335) left unswept, measured
+
+**Found during:** Plan 09, Task 2.
+
+Same class as D5, measured on the host side. In `firestarter_app/firestarter`:
+
+| Population | Pre-sweep | Post-sweep | Cause |
+|---|---|---|---|
+| `#`-comment lines carrying a D-01 token NOT adjacent to the opener | **313** | **236** | outside the survey regex (it requires adjacency); 77 fell incidentally to the §2 unit-of-edit rule inside blocks that were being edited anyway |
+| Token occurrences on non-`#` lines (docstrings + string literals) | **335** across 22 files | **335**, unchanged | outside the corpus by definition; proven unchanged by the AST-equality oracle (all 20 modified files' `ast.dump` digests identical) |
+
+236 is nearly twice this plan's whole measured corpus (132), and 335 more sit in
+docstrings. Neither has a measurement behind it that would justify sweeping it inside a
+plan scoped to 132 hits, so both are recorded rather than swept — the same call plan 07
+made for the firmware half (D5).
+
+**One concrete instance worth naming separately:** `chip_test.py:440`'s
+`_SDP_LOCKED_REASON = 'write_scope="none": {op} omitted (D-18)'` is a **shipped
+user-facing string literal** carrying a decision ID. It reaches `dev test` reports a
+community tester reads. That is a real product-surface leak of a planning ID, not a
+comment, and fixing it is a behaviour change (a report-text change with a snapshot to
+re-pin), so it is out of any comment-sweep plan's scope.
+
+**Suggested disposition:** fold D5 and D8 into one `--token-anywhere` follow-on that
+decides both repos together; file the `_SDP_LOCKED_REASON` leak as its own todo, since it
+needs a snapshot update rather than a comment edit.
