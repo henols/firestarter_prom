@@ -1,5 +1,143 @@
 # Milestones
 
+## v1.33 Source Hygiene & Firmware Size Reduction (Shipped: 2026-08-24)
+
+**Phases completed:** 6 phases executed (154–159), 45 plans, ≥66 tasks (66 enumerated across the 30 of 45 plan summaries that carry an explicit task list; the remaining 15 use a different summary shape, so the true total is higher and is not claimed here)
+**Timeline:** 2026-08-23 → 2026-08-24 (2 days)
+**Requirements:** 42/43 Complete — SWEEP-13 deliberately left open (see Known Gaps)
+**Closeout type:** `override_closeout` — **not** for any gap in this milestone's own work, which verified 13/13, 6/6, 4/4, 7/7, 8/8 and 17/17 across its six phases. Ten **inherited** open artifacts were acknowledged and deferred at close: Phase 08/09/84 verification (`human_needed`), Phase 08 UAT (`partial`), the `w27c512-devtest-all-bad` debug session (recorded NOT REPRODUCIBLE), and 28 pending todos. Full list in `.planning/STATE.md` §Deferred Items. No milestone audit was run — matching the v1.30/v1.31/v1.32 precedent.
+**Code:** meta 155 commits, 673 files, +100908/−2200 · firmware 22 commits, 120 files, +5309/−1344 (`8695ee5` → `2ccda8d4`) · host app 1 commit, 60 files, +1419/−474 (`6bfa645` → `38f0d83`)
+**Close posture:** **LOCAL ONLY.** Meta tagged `v1.33`. **Nothing pushed, no PR, no merge, no beta cut, no release** — every outward-facing step is operator-gated and was deliberately untaken at close. All three repos remain on `gsd/v1.33-source-hygiene-firmware-size-reduction`.
+
+**Delivered:** Make the source shorter without changing what it does — and prove the "without changing
+what it does" half rather than assert it. Two halves that shared that one property. First, the promoted
+Backlog 999.34 provenance-comment sweep: the GSD `// Phase NNN (REQ-NN):` comments that ~150 phases had
+stamped into shipped source across both sub-repos were swept, and the `.planning/` `file:LINE` citations
+that shift as a result were repaired by a purpose-built remap tool applied **exactly once**, at the end,
+over the composite pre-154 → post-158 diff. Second, four measured firmware size reductions plus a fifth
+found during landing. **Zero product-code behaviour changed anywhere in the milestone** — byte-level
+equivalence was the entire premise, and the algorithm-first dispatch contract was not touched at all.
+
+**The milestone-level non-claim, stated once here in this milestone's own canonical wording:**
+**no bench phase existed and no silicon was tested.** Two changes have runtime consequences a bench
+could have measured — the 32-bit voltage reformulation (Phase 155) and the `flash_5v_page` per-byte
+model (Phase 157) — and neither was measured on hardware. Every claim in this milestone is a
+**build-and-test fact**, not a bench fact.
+
+**Key accomplishments (curated):**
+
+1. **The firmware is now heap-free, and the removal closed a latent unchecked-allocation dereference.**
+   `mem_util_blank_check` malloc'd **4 bytes** — and dragged in the whole **586 B** avr-libc allocator
+   behind it — while dereferencing the returned pointer **unchecked** on a part with ~470 B of free RAM.
+   In the same phase, `rurp_read_voltage_mv` turned out to be the **only** user-code caller of the entire
+   **438 B** 64-bit runtime. Both libraries left the image. `realloc` and `calloc` were checked for
+   explicitly and confirmed absent from all three linked ELFs, rather than assumed gone by silence.
+2. **Two report blocks that were copy-pasted four times each are collapsed** (Phase 156). Between them the
+   VPP-report and chip-ID-report blocks held **24 of the image's 30 `__udivmodhi4` call sites** — the
+   duplication was paying for the 16-bit division helper over and over. The same phase repaired the
+   boolean convention the duplication had been hiding.
+3. **`json_parser.c`'s half-done refactor is finished** (Phase 157). The `key_parsers[]` table re-matched
+   every wire key a *second* time inside each `get_*` stub, costing **1012 B** across 11 PROGMEM
+   function-pointer stubs — while five *identical* directly-called siblings cost zero.
+4. **Phase 158 refuted three of the ROADMAP's own predictions with measurement instead of inheriting
+   them.** `jsmntok_t` narrowed 8 → 6 B on AVR for a measured **−138/−138/−136 B flash and −128 B RAM**
+   cold-to-cold — the ROADMAP had predicted **+30 B flash**, and that prediction is superseded, not
+   quietly dropped. LAND-06's mask rewrite was **DECLINED with its measurement** (+22/+24/+22 B flash, no
+   linkage saving) rather than skipped, and LAND-07's "57 tokens / 7 headroom" figure was refuted by three
+   independently re-derived bounds (50/14, 51/13, 55/9) and closed on the forward-compatibility budget
+   rather than on arithmetic. Thirteen corrections C-1..C-13 and ten decisions OD-1..OD-10 are closed out
+   in `.planning/v1.33/158-after-figures.md`, each carrying the verbatim command that produced it.
+   `size_baseline.json` was re-recorded from **cold** builds with fixtures severed onto a new `*_v158*`
+   family, and BASE-01 was fixed on a third native test-inventory axis (141 → 184) with its growth axis
+   byte-unchanged.
+5. **Leonardo Caterina headroom went 502 B → 3440 B (6.9×)** — which mattered concretely, because v1.32
+   Phase 151 left that target at **zero** MERGE-05 headroom. Worth recording alongside it: **MERGE-05 is
+   one-sided** (`check_size_baseline.py` gates `flash_delta > allowance`), so a shrink needs no named
+   exemption — the first size movement in this project's history that did not.
+6. **The citation remap ran exactly once and is provably a fixed point.** 2,706 citations rewritten across
+   562 documents, out of 14,391 records and 1,291 documents examined; the corpus was then proven a
+   **byte-stable dry-run fixed point**, and the close-blocking marker `.planning/v1.33/CITATIONS-STALE.md`
+   was removed as the phase's final mutation. The 515-record exception ledger closed 339 reviewed / 176
+   retired across 8 causes with **zero** `needs_review`, settled at the phase's single manual checkpoint
+   over four operator rounds. Phase 159's footprint was 585 files, **100% inside `.planning/`** — zero
+   product code touched — with the tools suite 133/133 green.
+
+### Known Gaps
+
+**These are carried, not hidden. None of them is a discovery made at close — each was recorded by the
+phase that found it.**
+
+- **The remap's honesty caveat — ROADMAP criterion 2 is NOT universally satisfied.** 269 of the 515
+  resolved exception records rest on **`diff_provenance_reworded`** — diff provenance, **not** verbatim
+  source-text equality — because Phase 154 deliberately *reworded* the comments those citations point at.
+  Each of the 269 carries an explicit `verbatim_oracle_applied: false` field. No closure text in this
+  milestone claims the verbatim oracle was universally applied, and this entry does not either.
+- **SWEEP-13 is deliberately unticked.** One commit per sub-repo (PROVEN, anchored to the plan-01 shas
+  rather than to the `HEAD~1` tautology), commit ordering before the host suite (PROVEN, 1976 passed),
+  and the archived-`milestones/` question (recorded as a verified absence with cause) all hold. The
+  fourth clause — one meta commit — is **measurably not met at 9**, and rewriting meta history to
+  manufacture a single commit was dispositioned **accept/declined** (T-154-53) because meta history
+  contains GSD's own doc commits. A false tick would be worse than an open box.
+- **149 `citation_absent_from_citing_document` retirements** are the ledger's largest retire class:
+  citations deleted from their *citing* documents by ordinary hand-editing since the sweep. That is a
+  measurement about `.planning/` hygiene, not a remap failure — recorded as such.
+- **One permanent residual on a disk-level dry run.** `.planning/STATE.md` was committed as a
+  citation-only blob while its disk bytes stayed frozen at the dirty preimage
+  (`auth-state-md-dirty` → `preserve_unstaged`), so a disk-level dry run reports exactly one residual
+  document, permanently. Expected, not a regression.
+- **Two deliberately-stale historical figures were excluded from the remap by design.** The two
+  `recordscan:supersedes`-protected lines in `notes/py32f071-port-branch-state.md` (corrections recorded
+  in that same file) were excluded by a new general marker-driven engine rule, keeping Phase 130's
+  archive gate at PASS/superseded:12. Their literal figures are not restated anywhere in the close text,
+  because the Phase-130 needles treat any unexempted occurrence as a FAIL.
+- **Ten inherited open artifacts acknowledged and deferred** — Phases 08/09/84 verification, Phase 08
+  UAT, one debug session, 28 pending todos. See `.planning/STATE.md` §Deferred Items.
+
+### Corrections Applied At Close (2026-08-24)
+
+- **The `firestarter_app` Phase-154 sha in SWEEP-13 was stale.** SWEEP-13 clause (a) recorded
+  `bc9d59293b9a08b16d6d7eb16eaf6c6f53e88e65`; that commit was **amended** on 2026-08-23 at 07:51 UTC to
+  `38f0d839a1984fa71cb16ea98afa4d8a4e6bcfe2`, and `bc9d592` is not an ancestor of app HEAD. **The
+  clause's substance was re-verified and is unaffected:** the count is still exactly 1, the parent is
+  still `6bfa645`, and the amend changed a single line in `tests/test_dispatch_mirror.py` (1 insertion /
+  1 deletion, **net zero lines**) a full day before Phase 159's remap ran — so no citation line number
+  computed against that tree shifted. The same stale sha appears in the Phase-159 plan text as the
+  "post-154 retarget base" and is left as-executed there for historical fidelity, corrected once in
+  `REQUIREMENTS.md` §SWEEP-13.
+- **Eight Phase-159 artifacts were executing uncommitted and are now committed** (`4f3a4fa2`). A second
+  plan-check revision round at 13:32–13:56 on 2026-08-24 — after `c3b0cf0f` (12:32) and before execution
+  began (~14:00) — was never committed, so HEAD carried a *different* plan than the one that ran.
+  Proven by content: 159-01/02/03-SUMMARY.md cite the measured 110-stable and 881-supplemental figures
+  and the `/usr/local/py-utils` interpreter, none of which appear in the committed plans. The plan of
+  record is now the plan that executed.
+- **The `firestarter` gitlink was stale at `2ad5b322`** — the Phase-154 firmware commit, predating
+  Phases 155–158 entirely. Re-pinned to the v1.33 firmware tip `2ccda8d4` in the same commit.
+  `firestarter_app` was already correct at `38f0d83`.
+
+### Firmware Size — Before and After
+
+**Read the labels before reading the deltas.** The pre-milestone figures are **WARM**; the
+post-milestone figures are **COLD**, because Phase 158 deliberately re-recorded the baseline from cold
+builds. They are therefore **not a like-for-like pair**, and the delta column below is arithmetic on two
+differently-labelled measurements, shown for orientation rather than claimed as a single measurement.
+
+| Target | Flash WARM (pre) | Flash COLD (post) | Δ | RAM WARM (pre) | RAM COLD (post) | Δ |
+|---|---|---|---|---|---|---|
+| `uno` | 26026 | 22952 | −3074 | 1575 | 1434 | −141 |
+| `uno328pb` | 26074 | 23000 | −3074 | 1581 | 1440 | −141 |
+| `leonardo` | 28170 | 25098 | −3072 | 2016 | 1875 | −141 |
+
+That reconciles against the two independently-recorded components — the survey's **−2938 B flash /
+−13 B RAM** and Phase 158's separately-measured **−138/−138/−136 B flash / −128 B RAM** — to within
+**2 B on `leonardo`**, and exactly on the two ATmega328 targets. The residual 2 B is stated rather than
+smoothed away.
+
+**Backlog:** retires **999.34** (provenance comment sweep). Files **999.35** (binary command protocol)
+rather than carrying it — 999.35 carries this milestone's own measurement, which **corrects v1.28's
+flash estimate from ~1–1.5 KB to −3.7 KB** and confirms its ~512 B RAM figure exactly.
+
+---
+
 ## v1.32 AT28C Write-Path Root Cause & Report Provenance (Shipped: 2026-08-21)
 
 **Phases completed:** 6 phases executed (147–149, 151–153; **150 deferred**), 72 plans, 183 tasks

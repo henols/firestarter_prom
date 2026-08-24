@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.33
 milestone_name: — Source Hygiene & Firmware Size Reduction
 current_phase: 159
-current_phase_name: Citation Remap + Milestone Close
-status: executing
-stopped_at: Phase 159 complete and verified 17/17 -- the Phase-154 remap applied EXACTLY ONCE over the composite pre-154-to-post-158 diff (receipt 04390458f8ee4776bd75c2656a62a809, APPLIED): 2,706 citations rewritten across 562 documents out of 14,391 records / 1,291 documents examined, corpus proven a byte-stable dry-run fixed point, and the close-blocking marker .planning/v1.33/CITATIONS-STALE.md removed LAST as the phase's final mutation. The 515-record exception ledger closed 339 reviewed / 176 retired across 8 causes with zero needs_review, settled at the phase's single manual checkpoint over four operator rounds. HONESTY CAVEAT: 269 of the resolved records rest on `diff_provenance_reworded` -- diff provenance, NOT verbatim source-text equality -- because Phase 154 deliberately reworded the cited comments; each carries an explicit `verbatim_oracle_applied: false` field, so ROADMAP criterion 2 is NOT universally satisfied and the closure text does not claim it is. The largest retire class is 149 `citation_absent_from_citing_document` -- citations deleted from their citing documents by ordinary hand-editing since the sweep, a measurement about .planning/ hygiene rather than a remap failure. The two `recordscan:supersedes`-protected historical figures on lines 94 and 96 of notes/py32f071-port-branch-state.md (deliberately stale, corrections recorded in that same file) were EXCLUDED from the remap by a new general marker-driven engine rule, keeping Phase 130's archive gate at PASS/superseded:12; their literal figures are not restated here because the Phase-130 needles treat any unexempted occurrence as a FAIL. .planning/STATE.md was committed as a citation-only blob while its disk bytes stayed frozen at the dirty preimage per `auth-state-md-dirty` -> preserve_unstaged, so a disk-level dry run permanently reports exactly one residual document -- expected, not a regression. Phase footprint is 585 files, 100% inside .planning/; zero product code touched; tools suite 133/133 green. v1.33's six phases are all complete but the MILESTONE IS NOT CLOSED -- no push, PR, release, archive, or merge has occurred. Superseded prior entry: Phase 158 complete and verified 8/8 -- jsmntok_t narrowed 8->6 B on AVR for a measured -138/-138/-136 B flash and -128 B RAM cold-to-cold on uno/uno328pb/leonardo (the ROADMAP's +30 B flash prediction superseded, C-2); size_baseline.json re-recorded cold (22952/1434, 23000/1440, 25098/1875, native+native_nodevtools 184/184/17) with fixtures severed onto the *_v158* family; BASE-01 fixed on a third native test-inventory axis 141->184 with its growth axis byte-unchanged; LAND-06's mask rewrite DECLINED with the measurement (+22/+24/+22 B flash, no linkage saving); LAND-07's 57-tokens/7-headroom figure refuted by three re-derived bounds (50/14, 51/13, 55/9) and closed on the forward-compatibility budget, not arithmetic. Thirteen corrections C-1..C-13 and ten decisions OD-1..OD-10 closed in .planning/v1.33/158-after-figures.md. Firmware HEAD 2ccda8d; 360 pytest + 184/184 native + 184/184 native_nodevtools green.
-last_updated: "2026-08-24T20:15:00.000Z"
+current_phase_name: Citation Remap + Milestone Close — LAST phase of v1.33, milestone CLOSED
+status: milestone-complete
+stopped_at: Milestone v1.33 CLOSED and archived 2026-08-24. Closeout type override_closeout (SWEEP-13 deliberately unticked + 10 pre-existing audit-open carry-forwards, none from v1.33). LOCAL CLOSE ONLY — meta tagged v1.33, nothing pushed, no PR, no merge, no beta cut, no release; all three repos remain on gsd/v1.33-source-hygiene-firmware-size-reduction and every outward-facing step stays operator-gated. REQUIREMENTS.md removed via git rm — recreate with /gsd-new-milestone.
+last_updated: "2026-08-24T20:40:00.000Z"
 last_activity: 2026-08-24
-last_activity_desc: Phase 159 complete and verified 17/17
+last_activity_desc: "Milestone v1.33 (Source Hygiene & Firmware Size Reduction) CLOSED and archived 2026-08-24 — 6 phases (154-159), 45 plans, 42/43 requirements Complete; firmware heap-free, Leonardo Caterina headroom 502 B -> 3440 B, 2706 citations remapped across 562 documents in one application; zero product-code behaviour changed."
 progress:
   total_phases: 6
   completed_phases: 6
@@ -29,13 +29,19 @@ See: `.planning/PROJECT.md` (updated 2026-08-22 — v1.33 started)
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
 authoritative dispatch key end to end. v1.33 does not touch that contract at all: its entire premise is
 byte-level equivalence. **Make the source shorter without changing what it does.**
-**Current focus:** Phase 159 — Citation Remap + Milestone Close
-**COMPLETE** (6 plans, waves 1–6, strictly sequential), verified 17/17. Requirements REMAP-01…05 all
-closed. All six v1.33 phases (154–159) are now complete; the milestone itself is NOT closed —
-`/gsd-complete-milestone` is a separate operator-gated workflow and nothing has been pushed, PR'd,
-released, or archived.
+**Current focus:** Planning the next milestone — v1.33 is CLOSED.
 
-**v1.33 Source Hygiene & Firmware Size Reduction** — 🔵 **ACTIVE** (activated 2026-08-22). Six phases,
+**v1.33 CLOSED 2026-08-24** by `/gsd-complete-milestone`. All six phases (154–159) complete and
+verified; 42/43 requirements Complete (SWEEP-13 open by design); closeout type `override_closeout`.
+Archived to [`.planning/milestones/v1.33-ROADMAP.md`](milestones/v1.33-ROADMAP.md) and
+[`.planning/milestones/v1.33-REQUIREMENTS.md`](milestones/v1.33-REQUIREMENTS.md); full entry in
+`.planning/MILESTONES.md` §v1.33. Meta tagged `v1.33`. **⚠ LOCAL CLOSE ONLY — nothing pushed, no PR,
+no merge, no beta cut, no release.** All three repos remain on
+`gsd/v1.33-source-hygiene-firmware-size-reduction`; every outward-facing step stays operator-gated and
+was deliberately untaken. `.planning/REQUIREMENTS.md` was removed via `git rm` so the next milestone
+starts fresh — recreate it with `/gsd-new-milestone`.
+
+**v1.33 Source Hygiene & Firmware Size Reduction** — ✅ **SHIPPED 2026-08-24** (activated 2026-08-22). Six phases,
 **154–159**. Phase 154 is dual-repo lockstep; Phases 155–158 are firmware-only; Phase 159 touches
 `.planning/` only. Retires Backlog **999.34**; files Backlog **999.35** rather than carrying it.
 
@@ -862,6 +868,42 @@ not hold (the v1.22 C-5 overclaim class).
 gate-hardening v1.23 left OPEN (fail-open `tools/check_mypy_watermark.py` + 69 hidden inherited
 errors → `firestarter_app`'s primary `ci` job is RED), and 999.15 / gh#8 dev-tools channel gating.
 Plus the owed gh#12 outward follow-up, behind operator wording review.
+
+## Deferred Items — acknowledged at v1.33 milestone close (2026-08-24)
+
+Closeout type: `override_closeout`. **Not for any gap in this milestone's own work** — all six phases
+(154–159) read `phase_complete: true` / `verification_status: passed`, verified 13/13, 6/6, 4/4, 7/7,
+8/8 and 17/17 respectively, and 42 of 43 requirements are ticked Complete. The override exists for two
+reasons, both recorded before this close.
+
+**The milestone-level non-claim, stated once here in this milestone's own canonical wording:**
+**no bench phase existed and no silicon was tested.** Two changes have runtime consequences a bench
+could have measured — the 32-bit voltage reformulation (Phase 155) and the `flash_5v_page` per-byte
+model (Phase 157) — and neither was measured on hardware. Every v1.33 claim is a build-and-test fact,
+not a bench fact.
+
+**Reason (a) — SWEEP-13 is deliberately unticked, so requirements read 42/43.** Three of its four
+clauses are mechanically proven; the fourth ("one meta commit") is measurably not met at **9**, and
+rewriting meta history to manufacture a single commit was dispositioned accept/declined (T-154-53).
+Recorded honestly rather than ticked falsely. Full statement in `REQUIREMENTS.md` §SWEEP-13.
+
+**Reason (b) — `audit-open` reported 10 pre-existing carry-forward items.** **None of the
+UAT/verification items originate in v1.33.** This is the **tenth** consecutive close to acknowledge
+substantially this set; membership is unchanged from the v1.32 close, with the todo count moved 24 → 28.
+
+**Carry-forward set (10 reported items, re-confirmed 2026-08-24):**
+
+| Category | Item | Status |
+|----------|------|--------|
+| debug | `w27c512-devtest-all-bad` | investigating — recorded **NOT REPRODUCIBLE**; the reported gh#41 failure did not reproduce and the session's own one-line status says so. Last updated 2026-08-22. Carried, not closed, because a non-reproduction is not a diagnosis. |
+| uat | Phase 08 — `08-HUMAN-UAT.md` | partial (0 pending scenarios). Unchanged since the v1.31/v1.32 sweeps — the residual is the **Uno** leg. |
+| verification | Phase 08 — `08-VERIFICATION.md` | human_needed, scope reduced — Leonardo leg superseded by Phase 91's W27C512 PASS; Uno leg genuinely open. |
+| verification | Phase 09 — `09-VERIFICATION.md` | human_needed, scope reduced — item 1 expects a version string that no longer ships. |
+| verification | Phase 84 — `84-VERIFICATION.md` | human_needed, sign-off supported — 3/3 on automated checks; both items ask the operator to accept a deferral as correct. |
+| todos | 28 pending (`audit-open` reports 5 + 22 remainder; the pending directory holds 28 entries) | pending. Carried set includes `at28c256-write-path-failure-gh20`, `write-sdp-relock-deferred` (Backlog 999.28, deferred for the third time), `cobs-decoder-framelevel-deadline-wr01`, `spike-databuffer-size-speed-delta` (the de-risking spike Backlog 999.35 depends on), `record-gate-superlinear-on-state-md-single-line`, and `derive-away-max-27c020-size-hardcode`. |
+
+**Nothing in this set blocks the v1.33 close, and nothing in it was created by v1.33.** Each item is
+carried forward to the next milestone in the same state it was acknowledged here.
 
 ## Deferred Items — acknowledged at v1.32 milestone close (2026-08-21)
 
