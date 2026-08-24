@@ -471,11 +471,16 @@ Plans:
   4. Phase 154's staleness marker is **removed**, and its removal is a close-blocking condition: the milestone cannot be closed while the marker exists. This is what makes D-05's temporary staleness safe structurally rather than by promise.
   5. Citations that Phases 155–158 wrote **into their own records** are covered by the same pass — the case a post-154 remap could not have reached, and the reason the split is worth its complexity.
 
-**Plans**: TBD at `/gsd-plan-phase 159`
+**Plans**: 6 plans, 6 waves (strictly sequential)
 
 Plans:
 
-- [ ] TBD
+- [ ] 159-01-PLAN.md — harden the remapper into a fail-closed multi-anchor transaction with reviewed-retarget oracles and a write-once production receipt
+- [ ] 159-02-PLAN.md — build the 642-row supplemental historical manifest, exhaustive exception ledger, and five-record review packet without mutating the original manifest
+- [ ] 159-03-PLAN.md — manually select renewed semantic targets for exactly the five post-154 retarget destinations that no longer survive
+- [ ] 159-04-PLAN.md — settle those five choices and prove zero-exception apply/no-op/hash/range/archive behavior in a disposable rehearsal
+- [ ] 159-05-PLAN.md — freeze production inputs, apply exactly once, and prove the real corpus is a byte-stable dry-run fixed point
+- [ ] 159-06-PLAN.md — scope-close REMAP/Phase 159, remove the close-blocking marker last, and record readiness for `/gsd-complete-milestone`
 
 ---
 
