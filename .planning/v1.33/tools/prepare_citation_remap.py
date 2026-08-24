@@ -364,6 +364,7 @@ def anchor_record(
     target_line: int,
     target_line_end: int | None,
     blob_cache: BlobTextCache,
+    pre_sweep_sha: dict[str, str] | None = None,
 ) -> tuple[str | None, list[str] | None, str, str | None, str, str | None]:
     """Returns (source_sha, source_sha_candidates, source_text, source_text_end,
     text_status, text_status_end) for a resolved supplemental record.
@@ -380,10 +381,29 @@ def anchor_record(
     equally primary* candidates disagree -- which cannot happen with this
     strict precedence order, so this function never manufactures a false
     ambiguity out of "the file also happens to exist at HEAD."
+
+    Phase 159-04 (B2 -- see 159-03-SUMMARY.md Blockers #2): `pre_sweep_sha`
+    is an OPTIONAL third, LAST-resort candidate tier -- the root's pre-159
+    revision, tried only after both the gitlink and final-head candidates
+    have been exhausted (readable at neither, or absent). This closes a
+    measured defect: all 4 `historical_anchor` records in Phase 159-02/03
+    were offered exactly the gitlink and final-head candidates (both
+    POST-Phase-154 commits) for a citation whose recorded line existed in
+    NEITHER -- the correct anchor was the pre-sweep revision, never offered.
+    Passing `pre_sweep_sha=None` (the default) reproduces the exact prior
+    2-candidate behaviour byte-for-byte.
     """
     root_name, _, subpath = target_file_resolved.partition("/")
     root_dir = root_dirs[root_name]
-    candidates = [s for s in (gitlink_sha, final_sha.get(root_name)) if s]
+    candidates = [
+        s
+        for s in (
+            gitlink_sha,
+            final_sha.get(root_name),
+            (pre_sweep_sha or {}).get(root_name),
+        )
+        if s
+    ]
     candidates = list(dict.fromkeys(candidates))  # de-dup, order-preserving
 
     for sha in candidates:
@@ -477,6 +497,7 @@ def build_late_record(
     final_sha: dict[str, str],
     blob_cache: BlobTextCache,
     resolutions: dict[str, citation_paths.Resolution],
+    pre_sweep_sha: dict[str, str] | None = None,
 ) -> dict:
     if cited not in resolutions:
         resolutions[cited] = index.resolve(cited)
@@ -497,6 +518,7 @@ def build_late_record(
             target_line=start,
             target_line_end=end,
             blob_cache=blob_cache,
+            pre_sweep_sha=pre_sweep_sha,
         )
         source_root = res.path.split("/")[0]
     else:
@@ -546,6 +568,7 @@ def census_added_files(
     root_dirs: dict[str, Path],
     final_sha: dict[str, str],
     linker: GitlinkResolver,
+    pre_sweep_sha: dict[str, str] | None = None,
 ) -> list[dict]:
     blob_cache = BlobTextCache()
     resolutions: dict[str, citation_paths.Resolution] = {}
@@ -584,6 +607,7 @@ def census_added_files(
                     final_sha=final_sha,
                     blob_cache=blob_cache,
                     resolutions=resolutions,
+                    pre_sweep_sha=pre_sweep_sha,
                 )
             )
     return out
@@ -603,6 +627,7 @@ def census_modified_files(
     root_dirs: dict[str, Path],
     final_sha: dict[str, str],
     linker: GitlinkResolver,
+    pre_sweep_sha: dict[str, str] | None = None,
 ) -> list[dict]:
     """Positional reconciliation: the ORIGINAL manifest's own rows for this
     file (at the window-start commit, which is exactly the manifest's
@@ -664,6 +689,7 @@ def census_modified_files(
                     final_sha=final_sha,
                     blob_cache=blob_cache,
                     resolutions=resolutions,
+                    pre_sweep_sha=pre_sweep_sha,
                 )
             )
     return out
@@ -1049,6 +1075,7 @@ def main(argv: list[str] | None = None) -> None:
         root_dirs=root_dirs,
         final_sha=final_sha,
         linker=linker,
+        pre_sweep_sha=pre_sweep_sha,
     )
     modified_records = census_modified_files(
         repo_root=repo_root,
@@ -1060,6 +1087,7 @@ def main(argv: list[str] | None = None) -> None:
         root_dirs=root_dirs,
         final_sha=final_sha,
         linker=linker,
+        pre_sweep_sha=pre_sweep_sha,
     )
     late_records = added_records + modified_records
 

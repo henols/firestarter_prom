@@ -298,6 +298,25 @@ UNREVIEWED_RETARGET = "unreviewed_retarget"
 #: NO_MATCH_IN_DOCUMENT violation, exactly as before: the fail-closed
 #: default is preserved for anything genuinely undocumented.
 PENDING_REVIEW = "pending_review"
+#: Phase 159-04 addition (B3 -- see 159-03-SUMMARY.md Blockers #3): a human
+#: reviewer decided this citation has NO rewrite target at all (the citing
+#: document lost the citation to hand-editing, the manifest never resolved a
+#: target file, the successor moved with a semantic change, etc.). This is a
+#: TERMINAL no-op, distinct from every other outcome: it never enters
+#: `violations`, never enters `open_ids`/`needs_review`, and never blocks
+#: `--apply`. A `retired` ledger row is a settled decision, not a pending one.
+RETIRED = "retired"
+#: Phase 159-04 addition: a `duplicate_citation_shared_endpoint` disposition
+#: (159-03-SUMMARY.md) covers N>=2 manifest records that all recorded the
+#: IDENTICAL (target_file, target_line[, target_line_end]) coordinate for
+#: the SAME single physical citation span -- `_associate()`'s group
+#: cardinality check cannot attribute each member to its OWN span (there is
+#: only one), but the reviewed answer is invariant across every member. Only
+#: ONE representative member is bound to the real span and actually
+#: rewrites/verifies it; every OTHER member of the group is this terminal,
+#: non-blocking no-op -- never a violation, never open, never counted as an
+#: unmatched row.
+DUPLICATE_SHARED_MEMBER = "duplicate_shared_member"
 
 OUTCOMES = (
     REWRITE,
@@ -310,6 +329,8 @@ OUTCOMES = (
     VIOLATION,
     UNREVIEWED_RETARGET,
     PENDING_REVIEW,
+    RETIRED,
+    DUPLICATE_SHARED_MEMBER,
 )
 
 #: The report's `open_ids` / `actionable_counts` categories. "needs_review"
@@ -416,6 +437,89 @@ class LineMap:
         if line is None or line < 1 or line > len(self.new_lines):
             return None
         return self.new_lines[line - 1]
+
+
+class LiveOnlyMap:
+    """`.point`/`.span`/`.text_at` reader for a reviewed-bypass record with NO
+    real diff map (Phase 159-04, B1 -- see 159-03-SUMMARY.md Blockers #1).
+
+    A `retarget: true` row (D-08) or a row whose (target_file_resolved,
+    source_sha) never produced a `LineMap` is normally inert BY NAME --
+    `remap_document` never even attempts a decide()/oracle check for it. Both
+    classes are, before this fix, UNREACHABLE by a reviewed `--exceptions`
+    ledger entry no matter how thoroughly a human reviewed them (21 IDs
+    total: 17 `hand_choice_re_deletion` retarget rows + 4 `historical_anchor`
+    rows whose source_sha never resolved to a map).
+
+    `LiveOnlyMap` makes them reachable WITHOUT inventing a second renderer:
+    `.point()`/`.span()` always report `retarget=True` (there is no
+    positional diff map to consult), which routes `decide()`'s natural
+    outcome into `resolve_with_review()`'s existing, already-tested reviewed
+    branch -- the SAME oracle every other reviewed row uses. `.text_at()`
+    reads the CURRENT live file directly (not a historical diff), because
+    the human's reviewed decision already IS the current-tree location; there
+    is no historical side left to reconcile.
+    """
+
+    def __init__(self, new_lines: list[str]) -> None:
+        self.new_lines = new_lines
+
+    def point(self, line: int, direction: str) -> tuple[int | None, bool]:
+        return None, True
+
+    def span(self, a: int, b: int) -> tuple[int | None, int | None, bool]:
+        return None, None, True
+
+    def text_at(self, line: int | None) -> str | None:
+        if line is None or line < 1 or line > len(self.new_lines):
+            return None
+        return self.new_lines[line - 1]
+
+
+#: Phase 159-04 (hand_choice_retargeted_verbatim class, 159-03-SUMMARY.md):
+#: a reviewed decision MAY collapse a range citation into a single relocated
+#: POINT rather than supplying a second endpoint -- the recorded evidence in
+#: all 16 such decisions independently re-locates exactly ONE surviving
+#: function-signature line for a citation that ORIGINALLY spanned a whole,
+#: now-vanished comment block; there is no honest verbatim answer for a
+#: second endpoint because the comment block itself no longer exists as a
+#: contiguous span. This maps a range variant to its point equivalent for
+#: RENDERING once a reviewed row deliberately omits `chosen_target_line_end`.
+COLLAPSE_VARIANT = {
+    bcm.VARIANT_COLON_RANGE: bcm.VARIANT_COLON_SINGLE,
+    bcm.VARIANT_ANCHOR_RANGE: bcm.VARIANT_ANCHOR,
+}
+
+
+def _is_reviewed_collapse(rec: dict, entry: dict | None) -> bool:
+    """True when a reviewed ledger entry deliberately collapses THIS record's
+    range citation to a point: the record itself is range-shaped
+    (`target_line_end` is not None) but the reviewed row supplies a start
+    with no `chosen_target_line_end`.
+    """
+    if entry is None or entry.get("status") != "reviewed":
+        return False
+    if rec.get("target_line_end") is None:
+        return False
+    if entry.get("chosen_current_start") is None and entry.get("chosen_target_line") is None:
+        return False
+    return entry.get("chosen_target_line_end") is None and entry.get("chosen_current_end") is None
+
+
+def _read_live_lines(repo_root: Path, target_file_resolved: str) -> list[str] | None:
+    """Read a target file's CURRENT live lines for a `LiveOnlyMap` bypass.
+
+    Returns None (never raises) if the file cannot be read -- the caller
+    falls back to the original inert/`UNREADABLE_ROW` behaviour rather than
+    trusting a bypass with no text to verify against.
+    """
+    try:
+        path = (repo_root / target_file_resolved).resolve()
+        if not path.is_file() or path.is_symlink():
+            return None
+        return path.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return None
 
 
 # ---------------------------------------------------------------------------
@@ -793,7 +897,41 @@ def resolve_with_review(
                 f"reviewed target for {record_id} failed its current-target-text "
                 "oracle -- the chosen coordinate no longer reads the chosen text",
             )
-        if (
+        # Phase 159-04 idempotency fix (Rule 1 -- self-caught during Plan
+        # 159-04 second-dry-run rehearsal). Two DISTINCT ways a reviewed
+        # retarget is already a fixed point:
+        #
+        #  (a) `natural.outcome == NOT_AT_RECORDED_LINE`: decide() constructs
+        #      this Outcome as `Outcome(NOT_AT_RECORDED_LINE, cur_start,
+        #      cur_end, ...)` -- `natural.start`/`natural.end` ARE the
+        #      document's CURRENT, already-written coordinates. If those
+        #      already equal the reviewed answer, a prior run already
+        #      applied it; rewriting again would be a no-op write and,
+        #      worse, `counts[REWRITE]` would report nonzero forever on
+        #      every subsequent dry run -- a real REMAP-02/REMAP-05
+        #      idempotency violation. This is the common case for every
+        #      reviewed-retarget record after its first successful apply.
+        #  (b) `natural.outcome == RETARGET`: here `natural.start` is only
+        #      the engine's own diff CLAMP GUESS at the OLD (still-written)
+        #      coordinate -- never the document's actual current text. It
+        #      must NOT be compared to `chosen_start` for fixed-point
+        #      purposes (a clamp guess coinciding with the reviewed answer
+        #      does not mean the document already reads it). The ORIGINAL
+        #      static-field comparison (`record.get("target_line") ==
+        #      chosen_start`) is preserved for exactly this branch: it only
+        #      recognises the narrow "the reviewed answer equals the
+        #      pristine pre-sweep number" case, which is safe regardless of
+        #      what has or hasn't been written yet.
+        if natural.outcome == NOT_AT_RECORDED_LINE:
+            if natural.start == chosen_start and natural.end == chosen_end:
+                return Outcome(
+                    FIXED_POINT,
+                    chosen_start,
+                    chosen_end,
+                    "reviewed target is already a fixed point (document already "
+                    "reads the reviewed coordinate -- 159-04 idempotency fix)",
+                )
+        elif (
             record.get("target_line") == chosen_start
             and record.get("target_line_end") == chosen_end
         ):
@@ -851,6 +989,7 @@ def _associate(
     open_ids: set[str] | None = None,
     exceptions: dict[str, dict] | None = None,
     open_ids_by_category: dict[str, set[str]] | None = None,
+    retired_by_cause: Counter | None = None,
 ) -> tuple[list, dict[tuple[int, int], dict]]:
     """Bind manifest records to the citation spans actually present in a line.
 
@@ -891,6 +1030,135 @@ def _associate(
     for key, recs in record_groups.items():
         spans = span_groups.get(key, [])
         if len(spans) != len(recs):
+            # Phase 159-04: a reviewed row may deliberately COLLAPSE this
+            # record's range citation into a point (see `COLLAPSE_VARIANT`).
+            # Once applied, the document's actual span permanently reads
+            # under the COLLAPSED variant, not the record's own declared
+            # (range) variant -- a second/idempotent run's positional
+            # binding must be retried under that collapsed key BEFORE being
+            # treated as a genuine mismatch, or a correctly-collapsed
+            # citation would report NO_MATCH_IN_DOCUMENT forever.
+            collapsed_variant = COLLAPSE_VARIANT.get(key[1])
+            if collapsed_variant and all(
+                _is_reviewed_collapse(r, (exceptions or {}).get(stable_record_id(r)))
+                for r in recs
+            ):
+                collapsed_key = (key[0], collapsed_variant)
+                collapsed_spans = span_groups.get(collapsed_key, [])
+                if len(collapsed_spans) == len(recs):
+                    for span, rec in zip(collapsed_spans, recs):
+                        assigned[(span[0], span[1])] = rec
+                    continue
+
+            # Phase 159-04 (`duplicate_citation_shared_endpoint`,
+            # 159-03-SUMMARY.md): the manifest may carry N>=2 records for the
+            # IDENTICAL (target_line, target_line_end) coordinate -- most
+            # often because a "late" supplemental census re-discovered a
+            # citation the ORIGINAL manifest already recorded. There is
+            # genuinely only ONE physical span for such a coordinate, so a
+            # raw length mismatch is not itself the mismatch to report.
+            # `colon_list` complicates this: several DISTINCT coordinates can
+            # share one (cited, variant) key (e.g. `path:746,786`), each with
+            # its OWN duplicate sub-group and its OWN single physical span --
+            # partition by coordinate and require EVERY partition to resolve
+            # unambiguously (a real 1:1 pair, or a reviewed N:1 duplicate)
+            # before trusting any of it; any one partition failing that
+            # bails out to the original, fully conservative mismatch
+            # handling below for the WHOLE group.
+            coord_groups: dict[tuple[int | None, int | None], list[dict]] = defaultdict(list)
+            for r in recs:
+                coord_groups[(r.get("target_line"), r.get("target_line_end"))].append(r)
+            span_by_coord: dict[tuple[int | None, int | None], list[tuple[int, int, int, int | None]]] = (
+                defaultdict(list)
+            )
+            for sp in spans:
+                span_by_coord[(sp[2], sp[3])].append(sp)
+
+            plan: list[tuple[tuple[int, int], dict, list[dict]]] = []
+            retired_plan: list[dict] = []
+            partition_ok = True
+            for coord, coord_recs in coord_groups.items():
+                # A RETIRED record consumes NO span at all -- it is a
+                # terminal no-op regardless of how many physical occurrences
+                # exist at its coordinate. Filtered out FIRST so a mixed
+                # retired+duplicate coordinate (measured on the real corpus:
+                # an `orig-*` record retired, its `late-*` sibling reviewed
+                # as duplicate_citation_shared_endpoint) does not force the
+                # non-retired member(s) through the duplicate-count check
+                # against a span budget the retired member never needed.
+                active_recs = [
+                    r for r in coord_recs
+                    if ((exceptions or {}).get(stable_record_id(r)) or {}).get("status") != "retired"
+                ]
+                retired_plan.extend(r for r in coord_recs if r not in active_recs)
+                if not active_recs:
+                    continue
+                cand = span_by_coord.get(coord, [])
+                n_recs, n_spans = len(active_recs), len(cand)
+                coord_recs = active_recs
+                if n_recs == n_spans:
+                    # Balanced within this coordinate (the ordinary case, or
+                    # several genuinely distinct spans sharing one coordinate
+                    # value e.g. after a prior collapse) -- plain positional
+                    # binding, no duplicate-review requirement.
+                    for span, rec in zip(cand, coord_recs):
+                        plan.append(((span[0], span[1]), rec, []))
+                    continue
+                if n_spans == 0 or n_spans > n_recs:
+                    # Nothing to attribute, or MORE spans than records --
+                    # never guessed at; bail to the fully conservative
+                    # mismatch handling for the WHOLE group.
+                    partition_ok = False
+                    break
+                # n_recs > n_spans: more manifest records than physical
+                # occurrences at this coordinate -- only sound when EVERY
+                # record here is an explicitly reviewed
+                # duplicate_citation_shared_endpoint decision (159-04).
+                if not all(
+                    (lambda e: e is not None and e.get("status") == "reviewed" and e.get("disposition") == "duplicate_citation_shared_endpoint")(
+                        (exceptions or {}).get(stable_record_id(r))
+                    )
+                    for r in coord_recs
+                ):
+                    partition_ok = False
+                    break
+                for span, rec in zip(cand, coord_recs[:n_spans]):
+                    plan.append(((span[0], span[1]), rec, []))
+                # Extra records beyond the available spans ride along as
+                # no-op members of the last bound span in this coordinate --
+                # any bound span works, since the reviewed answer is
+                # identical regardless of which physical occurrence a given
+                # record is nominally attributed to.
+                last_key, last_lead, last_extras = plan[-1]
+                plan[-1] = (last_key, last_lead, last_extras + coord_recs[n_spans:])
+
+            if partition_ok and (plan or retired_plan):
+                for rec in retired_plan:
+                    rid = stable_record_id(rec)
+                    entry = (exceptions or {}).get(rid) or {}
+                    counts["examined"] += 1
+                    counts[RETIRED] += 1
+                    if retired_by_cause is not None:
+                        retired_by_cause[entry.get("retire_cause") or "unspecified"] += 1
+                    notes.append(
+                        f"{where} {key[0]} ({rid}) is retired "
+                        f"({entry.get('retire_cause')}) -- no rewrite target; "
+                        "explicit no-op (159-04 B3), consumes no physical span"
+                    )
+                for span_key, lead_rec, extra_recs in plan:
+                    assigned[span_key] = lead_rec
+                    for rec in extra_recs:
+                        rid = stable_record_id(rec)
+                        counts["examined"] += 1
+                        counts[DUPLICATE_SHARED_MEMBER] += 1
+                        notes.append(
+                            f"{where} {key[0]} ({rid}) is a "
+                            "duplicate_citation_shared_endpoint member sharing "
+                            "the same physical span as another reviewed record "
+                            "-- no separate rewrite needed (159-04)"
+                        )
+                continue
+
             notes.append(
                 f"{where} has {len(recs)} manifest record(s) for "
                 f"{key[0]} ({key[1]}) but {len(spans)} matching citation "
@@ -900,6 +1168,14 @@ def _associate(
             for rec in recs:
                 rid = stable_record_id(rec)
                 entry = (exceptions or {}).get(rid)
+                if entry is not None and entry.get("status") == "retired":
+                    # Phase 159-04 (B3): a settled RETIRED decision is a
+                    # terminal no-op, checked BEFORE the pending-review
+                    # branch below -- never open, never blocking.
+                    counts[RETIRED] += 1
+                    if retired_by_cause is not None:
+                        retired_by_cause[entry.get("retire_cause") or "unspecified"] += 1
+                    continue
                 if entry is not None and entry.get("status") != "reviewed":
                     # Phase 159-02: a TRACKED, pending ledger row -- known and
                     # documented, reported softly rather than hard-blocking.
@@ -939,6 +1215,8 @@ def remap_document(
     open_ids: set[str] | None = None,
     range_proofs: list[dict] | None = None,
     open_ids_by_category: dict[str, set[str]] | None = None,
+    repo_root: Path | None = None,
+    retired_by_cause: Counter | None = None,
 ) -> str:
     lines = doc_text.split("\n")
     for lineno, records in sorted(records_by_line.items()):
@@ -947,6 +1225,12 @@ def remap_document(
             for rec in records:
                 rid = stable_record_id(rec)
                 entry = (exceptions or {}).get(rid)
+                if entry is not None and entry.get("status") == "retired":
+                    # Phase 159-04 (B3): terminal no-op, checked first.
+                    counts[RETIRED] += 1
+                    if retired_by_cause is not None:
+                        retired_by_cause[entry.get("retire_cause") or "unspecified"] += 1
+                    continue
                 if entry is not None and entry.get("status") != "reviewed":
                     counts[PENDING_REVIEW] += 1
                     if open_ids is not None:
@@ -982,6 +1266,7 @@ def remap_document(
             open_ids,
             exceptions,
             open_ids_by_category,
+            retired_by_cause,
         )
         if not assigned:
             continue
@@ -1010,6 +1295,50 @@ def remap_document(
             for si, sp, rec in pairs:
                 counts["examined"] += 1
                 target = f"{rec['target_file_cited']}:{sp[1]}"
+                rid = stable_record_id(rec)
+                entry = (exceptions or {}).get(rid)
+
+                # Phase 159-04 (B3, 159-03-SUMMARY.md Blockers #3): a settled
+                # RETIRED decision is a terminal no-op -- checked BEFORE the
+                # `retarget`/text-status/no-line-map short-circuits below,
+                # since a retired row may carry any combination of those
+                # (e.g. a retarget:true row retired instead of re-targeted).
+                # Never a violation, never open, never blocking --apply.
+                if entry is not None and entry.get("status") == "retired":
+                    counts[RETIRED] += 1
+                    cause = entry.get("retire_cause") or "unspecified"
+                    if retired_by_cause is not None:
+                        retired_by_cause[cause] += 1
+                    notes.append(
+                        f"{where} {target} is retired ({cause}) -- reviewed "
+                        "decision: no rewrite target; explicit no-op (159-04 B3)"
+                    )
+                    continue
+
+                # Phase 159-04 (B1, 159-03-SUMMARY.md Blockers #1): a
+                # `retarget: true` row (D-08) or a row whose
+                # (target_file_resolved, source_sha) never produced a
+                # LineMap is normally inert BY NAME below. A reviewed ledger
+                # entry supplying `chosen_current_text` directly is consulted
+                # HERE, before either original short-circuit, via a
+                # `LiveOnlyMap` that routes the SAME tested
+                # `resolve_with_review()` oracle every other reviewed row
+                # uses. This is what makes the 21 formerly-unreachable
+                # approvals (17 retarget rows + 4 historical-anchor rows)
+                # actually take effect.
+                natural_lm = maps.get((rec["target_file_resolved"], rec.get("_effective_source_sha")))
+                if (
+                    natural_lm is None
+                    and entry is not None
+                    and entry.get("status") == "reviewed"
+                    and entry.get("chosen_current_text") is not None
+                    and repo_root is not None
+                ):
+                    live_lines = _read_live_lines(repo_root, rec["target_file_resolved"])
+                    if live_lines is not None:
+                        actionable.append((si, sp, rec, LiveOnlyMap(live_lines)))
+                        continue
+
                 if rec["retarget"]:
                     counts[FLAGGED_RETARGET] += 1
                     notes.append(
@@ -1028,8 +1357,7 @@ def remap_document(
                         "on at least one endpoint, so no oracle; skipped by name"
                     )
                     continue
-                lm = maps.get((rec["target_file_resolved"], rec.get("_effective_source_sha")))
-                if lm is None:
+                if natural_lm is None:
                     counts[UNREADABLE_ROW] += 1
                     notes.append(
                         f"{where} {target} resolves to "
@@ -1037,7 +1365,7 @@ def remap_document(
                         "exists; skipped"
                     )
                     continue
-                actionable.append((si, sp, rec, lm))
+                actionable.append((si, sp, rec, natural_lm))
             if not actionable:
                 continue
 
@@ -1057,6 +1385,7 @@ def remap_document(
 
             rendered = [sp[1] for sp in spans]
             touched = False
+            collapsed_to_point = False
             for si, sp, rec, lm in actionable:
                 start, end = sp[1], sp[2]
                 natural = decide(rec, start, end, lm)
@@ -1093,6 +1422,12 @@ def remap_document(
                 touched = True
                 if end is None:
                     rendered[si] = out.start
+                elif out.end is None:
+                    # Phase 159-04: reviewed collapse -- the range citation
+                    # is being deliberately rewritten to a single point (see
+                    # `COLLAPSE_VARIANT`/`_is_reviewed_collapse`).
+                    collapsed_to_point = True
+                    rendered = [out.start]
                 else:
                     rendered = [out.start, out.end]
                     if range_proofs is not None:
@@ -1110,9 +1445,10 @@ def remap_document(
                             }
                         )
             if touched:
+                render_variant = COLLAPSE_VARIANT.get(variant, variant) if collapsed_to_point else variant
                 replacements[mi] = render_citation(
                     cited,
-                    variant,
+                    render_variant,
                     [int(n) for n in rendered],
                     _anchor_end_keeps_l(mo.group(0)),
                 )
@@ -1896,6 +2232,7 @@ def main(argv: list[str] | None = None) -> None:
     open_ids: set[str] = set()
     range_proofs: list[dict] = []
     open_ids_by_category: dict[str, set[str]] = {cat: set() for cat in REPORT_CATEGORIES}
+    retired_by_cause: Counter = Counter()
 
     for rel in sorted(by_doc):
         doc_path = inside(repo_root, rel, "planning_file")
@@ -1924,6 +2261,8 @@ def main(argv: list[str] | None = None) -> None:
             open_ids=open_ids,
             range_proofs=range_proofs,
             open_ids_by_category=open_ids_by_category,
+            repo_root=repo_root,
+            retired_by_cause=retired_by_cause,
         )
         if updated != original:
             planned[doc_path] = updated
@@ -1938,7 +2277,17 @@ def main(argv: list[str] | None = None) -> None:
     pending_overlay_ids: list[str] = []
     for row in overlays:
         status = row.get("approval_status")
-        is_pending = bool(row.get("dirty_overlap")) or status in ("pending", "needs_review")
+        # Phase 159-04 fix (Rule 1 -- self-caught): a `dirty_overlap: true`
+        # row is a STRUCTURAL fact about the path (it stays true forever),
+        # never itself the pending signal -- `approval_status` is. The
+        # ORIGINAL `bool(row.get("dirty_overlap")) or status in (...)` kept
+        # every dirty-overlap row permanently "needs_review" even after a
+        # human approved it (159-03), which would have made a zero-exception
+        # dry run impossible for this phase's own two overlay rows.
+        if row.get("dirty_overlap"):
+            is_pending = status != "approved"
+        else:
+            is_pending = status in ("pending", "needs_review")
         if not is_pending:
             continue
         auth_id = row.get("authorization_id") or row.get("path")
@@ -2005,6 +2354,12 @@ def main(argv: list[str] | None = None) -> None:
             "corpus_fingerprint": corpus_fingerprint,
             "topology_digest": topology_digest,
             "range_proofs": range_proofs,
+            # Phase 159-04 (B3): surfaces the terminal RETIRED disposition by
+            # cause, so a future reader can distinguish sweep-provenance
+            # retirements from living-document-drift retirements from
+            # manifest-resolution-failure retirements without re-deriving
+            # 159-03-SUMMARY.md.
+            "retired_by_cause": dict(retired_by_cause),
         }
         report["actionable_counts"]["needs_review"] = needs_review_count
         write_json_report(Path(args.report_json), report)
@@ -2073,6 +2428,7 @@ def main(argv: list[str] | None = None) -> None:
         f"retarget, {counts[NOT_AT_RECORDED_LINE]} not at their recorded line, "
         f"{counts[UNREADABLE_ROW]} skipped as unreadable, "
         f"{counts[NO_MATCH_IN_DOCUMENT]} unmatched in their document, "
+        f"{counts[RETIRED]} retired (no rewrite target), "
         f"{needs_review_count} pending human review (needs_review); "
         f"{legitimate_fixture_rows} record(s) legitimately cite a planted "
         "fixture by name; "

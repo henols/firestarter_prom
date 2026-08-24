@@ -448,6 +448,65 @@ def test_anchor_record_falls_back_and_never_drops_candidates_when_unreadable(tmp
     assert s_status == bcm.TEXT_STATUS_READ_ERROR
 
 
+def test_anchor_record_offers_pre_sweep_sha_as_a_third_candidate_tier(tmp_path):
+    """Phase 159-04 (B2 -- see 159-03-SUMMARY.md Blockers #2): a citation
+    line unreadable at BOTH the gitlink and final-head candidates, but
+    readable at the root's pre-sweep revision, must resolve via the new
+    third candidate tier rather than falling back to an unresolved
+    `ambiguous_historical_anchor`. Reproduces the real defect measured on
+    all 4 historical_anchor records: `eprom_params.cpp` was 58 lines at both
+    post-Phase-154 candidates but the recorded line (61) existed only at the
+    pre-sweep revision.
+    """
+    fw = tmp_path / "fw"
+    fw.mkdir()
+    assert _git(fw, "init", "-q").returncode == 0
+    (fw / "widget.cpp").write_text("\n".join(f"pre-sweep line {i}" for i in range(1, 63)) + "\n", encoding="utf-8")
+    assert _git(fw, "add", "-A").returncode == 0
+    assert _git(fw, "commit", "-qm", "pre-sweep state (62 lines)").returncode == 0
+    pre_sweep = _git(fw, "rev-parse", "HEAD").stdout.strip()
+
+    (fw / "widget.cpp").write_text("only 3 lines\nremain\nafter the sweep\n", encoding="utf-8")
+    assert _git(fw, "add", "-A").returncode == 0
+    assert _git(fw, "commit", "-qm", "post-sweep state (3 lines)").returncode == 0
+    post_sweep = _git(fw, "rev-parse", "HEAD").stdout.strip()
+
+    cache = pcr.BlobTextCache()
+
+    # WITHOUT the fix (pre_sweep_sha omitted): both candidates are the same
+    # 3-line post-sweep blob, line 61 is out of range at both -- unresolved,
+    # exactly the measured defect.
+    sha, candidates, s_text, e_text, s_status, e_status = pcr.anchor_record(
+        root_dirs={"firestarter": fw},
+        gitlink_sha=post_sweep,
+        final_sha={"firestarter": post_sweep},
+        target_file_resolved="firestarter/widget.cpp",
+        target_line=61,
+        target_line_end=None,
+        blob_cache=cache,
+    )
+    assert sha is None
+    assert candidates == [post_sweep]
+    assert s_status == bcm.TEXT_STATUS_READ_ERROR
+
+    # WITH the fix: the pre-sweep sha is offered as a third tier and read
+    # successfully.
+    cache2 = pcr.BlobTextCache()
+    sha, candidates, s_text, e_text, s_status, e_status = pcr.anchor_record(
+        root_dirs={"firestarter": fw},
+        gitlink_sha=post_sweep,
+        final_sha={"firestarter": post_sweep},
+        target_file_resolved="firestarter/widget.cpp",
+        target_line=61,
+        target_line_end=None,
+        blob_cache=cache2,
+        pre_sweep_sha={"firestarter": pre_sweep},
+    )
+    assert sha == pre_sweep
+    assert s_text == "pre-sweep line 61"
+    assert s_status == bcm.TEXT_STATUS_READ
+
+
 # ---------------------------------------------------------------------------
 # 5: known_post154_non_survivors -- verbatim survival via LineMap, anti-vacuity
 # ---------------------------------------------------------------------------

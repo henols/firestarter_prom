@@ -1157,6 +1157,232 @@ def test_reviewed_entry_with_stale_chosen_text_still_fails_the_oracle(tmp_path):
     assert harness.doc_text() == doc
 
 
+# ---------------------------------------------------------------------------
+# Phase 159-04 B1 -- a `retarget: true` row is normally inert BY NAME
+# (FLAGGED_RETARGET, D-08) regardless of --exceptions. A reviewed ledger
+# entry must now be consulted for it via the LiveOnlyMap bypass, making the
+# human's approval actually take effect.
+# ---------------------------------------------------------------------------
+def test_reviewed_bypass_applies_to_a_retarget_true_row(tmp_path):
+    old = _read_lines(_CHAINED_OLD)
+    new = _read_lines(_CHAINED_NEW)
+    doc = (
+        "A citation AT a deleted line, hand-chosen retarget: firestarter/src/chained_demo.cpp:5\n"
+        "A plain surviving citation, present only so the manifest is not "
+        "ENTIRELY retarget-flagged (D-09's empty-input-set guard): "
+        "firestarter/src/chained_demo.cpp:15\n"
+    )
+    def _manifest(h):
+        header, _ = h.load_manifest()
+        r = _record(1, "colon_single", _TARGET_REL, 5, None, old)
+        r["retarget"] = True
+        s = _record(2, "colon_single", _TARGET_REL, 15, None, old)
+        h.write_manifest(header, [r, s])
+        return r
+
+    chosen_line = new.index(
+        "// Two SEPARATED blocks are the whole point: one block cannot produce a chain."
+    ) + 1
+
+    def _ledger_row(rid):
+        return json.dumps(
+            {
+                "record_id": rid,
+                "status": "reviewed",
+                "chosen_target_line": chosen_line,
+                "chosen_target_line_end": None,
+                "chosen_current_text": new[chosen_line - 1],
+            }
+        ) + "\n"
+
+    # Without the fix: a retarget:true row is inert BY NAME even with a
+    # reviewed ledger entry present -- FLAGGED_RETARGET, never a REWRITE,
+    # nothing written. Proven first, on an INDEPENDENT harness/tmp_path (so
+    # the survivor record's own natural rewrite in this baseline run cannot
+    # contaminate the real assertion below), so the REWRITE assertion below
+    # is not vacuous against a harness that would have passed anyway.
+    baseline_harness = Harness(tmp_path / "baseline", old_lines=old, new_lines=new, doc_text=doc)
+    baseline_rec = _manifest(baseline_harness)
+    baseline_rid = rc.stable_record_id(baseline_rec)
+    empty_ledger = tmp_path / "no_review.jsonl"
+    empty_ledger.write_text("", encoding="utf-8")
+    baseline = baseline_harness.run("--apply", "--exceptions", str(empty_ledger))
+    assert baseline.returncode == 0, _shown(baseline, 0)
+    assert baseline_harness.cited(1).endswith(":5"), (
+        "an unreviewed retarget row must write nothing",
+        baseline_harness.cited(1),
+    )
+
+    harness = Harness(tmp_path, old_lines=old, new_lines=new, doc_text=doc)
+    rec = _manifest(harness)
+    rid = rc.stable_record_id(rec)
+    assert rid == baseline_rid
+    ledger = tmp_path / "exceptions.jsonl"
+    ledger.write_text(_ledger_row(rid), encoding="utf-8")
+
+    result = harness.apply("--exceptions", str(ledger))
+    assert result.returncode == 0, _shown(result, 0)
+    assert harness.cited(1).endswith(f":{chosen_line}"), harness.cited(1)
+
+
+def test_reviewed_bypass_retarget_row_is_idempotent_on_second_dry_run(tmp_path):
+    """The 159-04 idempotency fix: a reviewed retarget row must NOT report a
+    REWRITE forever on every subsequent dry run once its citation already
+    reads the reviewed answer (REMAP-02/REMAP-05)."""
+    old = _read_lines(_CHAINED_OLD)
+    new = _read_lines(_CHAINED_NEW)
+    doc = (
+        "A citation AT a deleted line, hand-chosen retarget: firestarter/src/chained_demo.cpp:5\n"
+        "A plain surviving citation, present only so the manifest is not "
+        "ENTIRELY retarget-flagged (D-09's empty-input-set guard): "
+        "firestarter/src/chained_demo.cpp:15\n"
+    )
+    harness = Harness(tmp_path, old_lines=old, new_lines=new, doc_text=doc)
+
+    header, _ = harness.load_manifest()
+    rec = _record(1, "colon_single", _TARGET_REL, 5, None, old)
+    rec["retarget"] = True
+    survivor = _record(2, "colon_single", _TARGET_REL, 15, None, old)
+    harness.write_manifest(header, [rec, survivor])
+    rid = rc.stable_record_id(rec)
+
+    chosen_line = new.index(
+        "// Two SEPARATED blocks are the whole point: one block cannot produce a chain."
+    ) + 1
+    ledger = tmp_path / "exceptions.jsonl"
+    ledger.write_text(
+        json.dumps(
+            {
+                "record_id": rid,
+                "status": "reviewed",
+                "chosen_target_line": chosen_line,
+                "chosen_target_line_end": None,
+                "chosen_current_text": new[chosen_line - 1],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    applied = harness.apply("--exceptions", str(ledger))
+    assert applied.returncode == 0, _shown(applied, 0)
+    after_apply = harness.doc_text()
+
+    report_path = tmp_path / "second_dry.json"
+    second = harness.run(
+        "--exceptions", str(ledger), "--quiet-notes", "--report-json", str(report_path)
+    )
+    assert second.returncode == 0, _shown(second, 0)
+    assert harness.doc_text() == after_apply, "a dry run must never write"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report["totals"]["planned_rewrites"] == 0, report["totals"]
+    assert report["totals"]["planned_documents"] == 0, report["totals"]
+    assert report["totals"]["fixed_point"] >= 1, report["totals"]
+
+
+# ---------------------------------------------------------------------------
+# Phase 159-04 B3 -- a terminal RETIRED ledger status is an explicit no-op:
+# never a violation, never open, never blocking --apply.
+# ---------------------------------------------------------------------------
+def test_retired_ledger_entry_is_a_terminal_noop(tmp_path):
+    old = _read_lines(_CHAINED_OLD)
+    new = _read_lines(_CHAINED_NEW)
+    reflow_index = new.index("static uint8_t demo_state;")
+    new = list(new)
+    new[reflow_index] = "static uint8_t demo_state;  // reflowed by the sweep"
+    doc = "A citation at the reflowed line: firestarter/src/chained_demo.cpp:6\n"
+    harness = Harness(tmp_path, old_lines=old, new_lines=new, doc_text=doc)
+
+    header, _ = harness.load_manifest()
+    rec = _record(1, "colon_single", _TARGET_REL, 6, None, old)
+    harness.write_manifest(header, [rec])
+    rid = rc.stable_record_id(rec)
+
+    ledger = tmp_path / "exceptions.jsonl"
+    ledger.write_text(
+        json.dumps(
+            {
+                "record_id": rid,
+                "status": "retired",
+                "retire_cause": "could_not_be_relocated",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report_path = tmp_path / "retired.json"
+    result = harness.run(
+        "--apply", "--exceptions", str(ledger), "--quiet-notes", "--report-json", str(report_path)
+    )
+    assert result.returncode == 0, _shown(result, 0)
+    assert harness.doc_text() == doc, "a retired row must never be rewritten"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report["totals"]["retired"] == 1, report["totals"]
+    assert report["actionable_counts"]["needs_review"] == 0, report["actionable_counts"]
+    assert report["retired_by_cause"] == {"could_not_be_relocated": 1}, report["retired_by_cause"]
+    assert report["open_ids"]["needs_review"] == [], report["open_ids"]
+
+
+def test_reviewed_bypass_collapses_a_range_retarget_to_a_point_and_is_idempotent(tmp_path):
+    """Phase 159-04: `hand_choice_retargeted_verbatim` (16 real decisions)
+    supplies only a START for a record whose manifest citation is a RANGE
+    (`target_line_end` not None) -- a deliberate collapse to a single
+    relocated point, not a missing end. Proves: (1) the FIRST apply rewrites
+    `path:START-END` to `path:START`; (2) a second dry run reports zero
+    rewrites/documents, i.e. it does not regress into a permanent
+    NO_MATCH_IN_DOCUMENT once the citation's own grammar has changed shape.
+    """
+    old = _read_lines(_CHAINED_OLD)
+    new = _read_lines(_CHAINED_NEW)
+    doc = (
+        "A stale range citation over a vanished comment block: firestarter/src/chained_demo.cpp:4-5\n"
+        "A plain surviving citation, present only so the manifest is not "
+        "ENTIRELY retarget-flagged (D-09's empty-input-set guard): "
+        "firestarter/src/chained_demo.cpp:15\n"
+    )
+    harness = Harness(tmp_path, old_lines=old, new_lines=new, doc_text=doc)
+
+    header, _ = harness.load_manifest()
+    rec = _record(1, "colon_range", _TARGET_REL, 4, 5, old)
+    rec["retarget"] = True
+    survivor = _record(2, "colon_single", _TARGET_REL, 15, None, old)
+    harness.write_manifest(header, [rec, survivor])
+    rid = rc.stable_record_id(rec)
+
+    chosen_line = new.index("static uint8_t demo_state;") + 1
+    ledger = tmp_path / "exceptions.jsonl"
+    ledger.write_text(
+        json.dumps(
+            {
+                "record_id": rid,
+                "status": "reviewed",
+                "chosen_target_line": chosen_line,
+                "chosen_target_line_end": None,
+                "chosen_current_text": new[chosen_line - 1],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    applied = harness.apply("--exceptions", str(ledger))
+    assert applied.returncode == 0, _shown(applied, 0)
+    cited_after_apply = harness.cited(1)
+    assert cited_after_apply == f"firestarter/src/chained_demo.cpp:{chosen_line}", cited_after_apply
+
+    report_path = tmp_path / "second_dry.json"
+    second = harness.run(
+        "--exceptions", str(ledger), "--quiet-notes", "--report-json", str(report_path)
+    )
+    assert second.returncode == 0, _shown(second, 0)
+    assert harness.cited(1) == cited_after_apply, "a dry run must never write"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report["totals"]["planned_rewrites"] == 0, report["totals"]
+    assert report["totals"]["planned_documents"] == 0, report["totals"]
+    assert report["open_ids"]["needs_review"] == []
+
+
 def test_unmatched_in_document_is_blocking_once_exceptions_engaged(harness, tmp_path):
     header, records = harness.load_manifest()
     colon_list_recs = [
