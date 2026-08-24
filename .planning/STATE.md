@@ -6,14 +6,14 @@ current_phase: 158
 current_phase_name: residual-optimizations-cold-baseline-re-record-firmware-only
 status: executing
 stopped_at: Phase 157 complete and verified 7/7 -- json_parser.c's key_parsers[] rewritten as a compiler-derived {key, clamp, offset, width} PROGMEM field table with one inlined store_field (19df431), handle protocol narrowed to uint8_t and ctrl_flags to uint16_t (76ff592), five DECODE-05 range-safety cases (8edfd6e), and the read-timing cap equality plus six offsetof round-trip cases (785e644). Measured -1144 B flash / -5 B RAM cold-to-cold on all three AVR targets -- NOT the predicted -1148 B, and NOT the ROADMAP's -976/-172 split; the measured split is -884 B table / -260 B narrowing, the divergence attributed to OD-1's per-row mask-vs-saturate policy column (C-19). Native suite 172 -> 184, 17 suites, on both native and native_nodevtools -- hand this count forward to Phase 158/LAND-01. DECODE-07 measured +18 B at this position on all three targets, a coincidence of magnitude against the survey's stale 25696/25678 absolutes, not a confirmation of them. Before/after figures in .planning/v1.33/157-before-figures.md and 157-after-figures.md, which supersede the ROADMAP and REQUIREMENTS prose on 22 counts (C-1..C-22).
-last_updated: "2026-08-24T10:38:11.040Z"
+last_updated: "2026-08-24T11:05:06.803Z"
 last_activity: 2026-08-24
 last_activity_desc: Phase 158 execution started
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 39
-  completed_plans: 37
+  completed_plans: 38
   percent: 67
 ---
 
@@ -146,7 +146,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 158 (residual-optimizations-cold-baseline-re-record-firmware-only) — EXECUTING
-Plan: 6 of 7
+Plan: 7 of 7
 Status: Ready to execute
 Next: **Phase 158 Plan 06** -- the after-figures record (`.planning/v1.33/158-after-figures.md`),
 closing C-2/C-3/C-13 against the final cold tree left by plan 05 (firmware HEAD `2ccda8d`):
@@ -167,7 +167,7 @@ to state the checker's own pytest suite DOES run in CI via `build.yml:161` on ev
 `beta` (`docs(158-05)` `2ccda8d`), verified by an AST-diff with docstrings stripped showing zero
 assertion/import/constant/def changes. `python3 -m pytest tests/ -q -o addopts=""` green (360
 passed, 0 skipped) after each of the three commits. See `158-05-SUMMARY.md`.
-**Stopped at:** Completed 158-05-PLAN.md
+**Stopped at:** Completed Phase 158 Plan 06 -- 158-after-figures.md written and committed (b0ee57cd): all twelve gate legs re-run on the final tree, both polarity flips recorded, LAND-04/06/07/08 discharged by the record, all thirteen corrections and ten decisions closed out. Plan 07 (ROADMAP/REQUIREMENTS scope-correction) is the only remaining plan of Phase 158.
 **Plan 157-02 complete (2026-08-23):** `firestarter/src/json_parser.c`'s `key_parsers[]` rewritten
 as a compiler-derived `{key, clamp, offset, width}` `field_desc_t` table (`19df431`), replacing the
 PROGMEM function-pointer column and its ten dispatch stubs (`get_memory_size`, `get_address`,
@@ -2490,6 +2490,7 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase ?]: 158-05: BASE-01's native inventory axis re-anchored 141->184 (axis-split argument: growth/board-identity/test-inventory), fixing LAND-03 rather than carrying it
 - [Phase ?]: 158-05: test_checker_convention.py FLOOR/FIXTURE_FLOOR floors raised 7/16 -> 8/31 as a tightening of a loose gate, both counted on the tree; carry-forward closed
 - [Phase ?]: 158-05: corrected two in-tree docstrings (test_check_size_baseline.py, meta_presence.py) that falsely claimed no CI leg runs the checker's own pytest suite -- build.yml:161 does, on every branch except beta
+- [Phase ?]: 158-06: LAND-06's mask-cost figures transcribed from plan 03's SUMMARY (mask exists in no committed tree); the two re-derivable probes (__udivmodsi4 call count, jsmntok_t sizeof) re-run and confirmed identical on the shipped tree
 
 ## Performance Metrics
 
@@ -2834,10 +2835,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 158 P03 | 35min | 2 tasks | 0 files |
 | Phase 158 P04 | 40min | 3 tasks | 8 files |
 | Phase 158 P05 | 35min | 3 tasks | 4 files |
+| Phase 158 P06 | 55min | 2 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-24T10:38:10.982Z
+**Last session:** 2026-08-24T11:05:06.771Z
 **Stopped at:** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
 the PROGMEM function-pointer column and its ten dispatch stubs with one shared, inlined

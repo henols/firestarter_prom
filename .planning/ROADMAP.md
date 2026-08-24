@@ -447,7 +447,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 158-06-PLAN.md — the landing plan: all twelve gate legs on the final tree, both polarity flips with their before shapes, and `158-after-figures.md` with thirteen corrections and ten decisions closed out
+- [x] 158-06-PLAN.md — the landing plan: all twelve gate legs on the final tree, both polarity flips with their before shapes, and `158-after-figures.md` with thirteen corrections and ten decisions closed out
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
