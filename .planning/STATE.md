@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.33
 milestone_name: — Source Hygiene & Firmware Size Reduction
-current_phase: 158
-current_phase_name: residual-optimizations-cold-baseline-re-record-firmware-only
+current_phase: 159
+current_phase_name: Citation Remap + Milestone Close
 status: executing
-stopped_at: Phase 157 complete and verified 7/7 -- json_parser.c's key_parsers[] rewritten as a compiler-derived {key, clamp, offset, width} PROGMEM field table with one inlined store_field (19df431), handle protocol narrowed to uint8_t and ctrl_flags to uint16_t (76ff592), five DECODE-05 range-safety cases (8edfd6e), and the read-timing cap equality plus six offsetof round-trip cases (785e644). Measured -1144 B flash / -5 B RAM cold-to-cold on all three AVR targets -- NOT the predicted -1148 B, and NOT the ROADMAP's -976/-172 split; the measured split is -884 B table / -260 B narrowing, the divergence attributed to OD-1's per-row mask-vs-saturate policy column (C-19). Native suite 172 -> 184, 17 suites, on both native and native_nodevtools -- hand this count forward to Phase 158/LAND-01. DECODE-07 measured +18 B at this position on all three targets, a coincidence of magnitude against the survey's stale 25696/25678 absolutes, not a confirmation of them. Before/after figures in .planning/v1.33/157-before-figures.md and 157-after-figures.md, which supersede the ROADMAP and REQUIREMENTS prose on 22 counts (C-1..C-22).
-last_updated: "2026-08-24T11:05:06.803Z"
+stopped_at: Phase 158 complete and verified 8/8 -- jsmntok_t narrowed 8->6 B on AVR for a measured -138/-138/-136 B flash and -128 B RAM cold-to-cold on uno/uno328pb/leonardo (the ROADMAP's +30 B flash prediction superseded, C-2); size_baseline.json re-recorded cold (22952/1434, 23000/1440, 25098/1875, native+native_nodevtools 184/184/17) with fixtures severed onto the *_v158* family; BASE-01 fixed on a third native test-inventory axis 141->184 with its growth axis byte-unchanged; LAND-06's mask rewrite DECLINED with the measurement (+22/+24/+22 B flash, no linkage saving); LAND-07's 57-tokens/7-headroom figure refuted by three re-derived bounds (50/14, 51/13, 55/9) and closed on the forward-compatibility budget, not arithmetic. Thirteen corrections C-1..C-13 and ten decisions OD-1..OD-10 closed in .planning/v1.33/158-after-figures.md. Firmware HEAD 2ccda8d; 360 pytest + 184/184 native + 184/184 native_nodevtools green.
+last_updated: "2026-08-24T11:22:08.737Z"
 last_activity: 2026-08-24
-last_activity_desc: Phase 158 execution started
+last_activity_desc: Phase 158 complete, transitioned to Phase 159
 progress:
   total_phases: 6
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 39
-  completed_plans: 38
-  percent: 67
+  completed_plans: 39
+  percent: 83
 ---
 
 # Project State
@@ -145,15 +145,10 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 158 (residual-optimizations-cold-baseline-re-record-firmware-only) — EXECUTING
-Plan: 7 of 7
+Phase: 159 — Citation Remap + Milestone Close
+Plan: Not started
 Status: Ready to execute
-Next: **Phase 158 Plan 06** -- the after-figures record (`.planning/v1.33/158-after-figures.md`),
-closing C-2/C-3/C-13 against the final cold tree left by plan 05 (firmware HEAD `2ccda8d`):
-BASE-01's canonical `--policy merge05 --rebuild` now exits 0 (LAND-03 fixed, native inventory
-axis 141->184), both `test_checker_convention.py` floors now read true at 8/31, and both false
-CI-coverage docstrings are corrected. `python3 -m pytest tests/ -q -o addopts=""` green at 360
-passed, 0 skipped.
+Next: **Phase 159 -- Citation Remap + Milestone Close** -- apply the Phase 154 remap tool exactly once over the composite pre-154-to-post-158 diff, then close the milestone. Not yet planned.
 **Plan 158-05 complete (2026-08-24):** BASE-01's native inventory axis re-anchored 141->184 on
 both `native`/`native_nodevtools` (`avr_targets` byte-unchanged; new
 `meta.native_inventory_axis_phase158` note) -- `fix(158-05)` `7894dec` -- flipping the canonical
@@ -167,7 +162,7 @@ to state the checker's own pytest suite DOES run in CI via `build.yml:161` on ev
 `beta` (`docs(158-05)` `2ccda8d`), verified by an AST-diff with docstrings stripped showing zero
 assertion/import/constant/def changes. `python3 -m pytest tests/ -q -o addopts=""` green (360
 passed, 0 skipped) after each of the three commits. See `158-05-SUMMARY.md`.
-**Stopped at:** Completed Phase 158 Plan 06 -- 158-after-figures.md written and committed (b0ee57cd): all twelve gate legs re-run on the final tree, both polarity flips recorded, LAND-04/06/07/08 discharged by the record, all thirteen corrections and ten decisions closed out. Plan 07 (ROADMAP/REQUIREMENTS scope-correction) is the only remaining plan of Phase 158.
+**Stopped at:** Phase 158 complete and verified 8/8 -- jsmntok_t narrowed 8->6 B on AVR for a measured -138/-138/-136 B flash and -128 B RAM cold-to-cold on uno/uno328pb/leonardo (the ROADMAP's +30 B flash prediction superseded, C-2); size_baseline.json re-recorded cold (22952/1434, 23000/1440, 25098/1875, native+native_nodevtools 184/184/17) with fixtures severed onto the *_v158* family; BASE-01 fixed on a third native test-inventory axis 141->184 with its growth axis byte-unchanged; LAND-06's mask rewrite DECLINED with the measurement (+22/+24/+22 B flash, no linkage saving); LAND-07's 57-tokens/7-headroom figure refuted by three re-derived bounds (50/14, 51/13, 55/9) and closed on the forward-compatibility budget, not arithmetic. Thirteen corrections C-1..C-13 and ten decisions OD-1..OD-10 closed in .planning/v1.33/158-after-figures.md. Firmware HEAD 2ccda8d; 360 pytest + 184/184 native + 184/184 native_nodevtools green.
 **Plan 157-02 complete (2026-08-23):** `firestarter/src/json_parser.c`'s `key_parsers[]` rewritten
 as a compiler-derived `{key, clamp, offset, width}` `field_desc_t` table (`19df431`), replacing the
 PROGMEM function-pointer column and its ten dispatch stubs (`get_memory_size`, `get_address`,
@@ -185,7 +180,7 @@ code. Both native envs still 172/172, both local check scripts pass, and `firest
 wire-key parity gate reports 24 passed with zero host files touched. Next: plan 157-03 (the
 `protocol`/`ctrl_flags` type narrowing, DECODE-04).
 
-Last activity: 2026-08-24 — Phase 158 execution started
+Last activity: 2026-08-24 — Phase 158 complete, transitioned to Phase 159
 
 **The manifest is on disk and committed, and it is the point of no return for Phase 159.**
 `.planning/v1.33/sweep-citation-manifest.jsonl` holds **13,692** records over 2,947 planning documents
@@ -2839,8 +2834,45 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-24T11:05:06.771Z
-**Stopped at:** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
+**Last session:** 2026-08-24T11:23:26.546Z
+**Stopped at:** **PHASE 158 COMPLETE and VERIFIED 8/8.** LAND-05 landed: `jsmntok_t` narrowed 8 -> 6 B on AVR with
+`start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
+`uno` / `uno328pb` / `leonardo` -- a flash **reduction**, superseding the ROADMAP's `+30 B flash` prediction (C-2);
+the ARM `py32f071` half was built on BOTH sides, verified twice (executor and verifier), not ceiling-recorded. A
+region-scoped source contract pins the layout (`8e126f2`). LAND-01/02: `scripts/baseline/size_baseline.json`
+re-recorded from cold builds (`uno` 22952/1434, `uno328pb` 23000/1440, `leonardo` 25098/1875, both native envs
+184/184/17) with the size-tripwire fixtures severed onto a new `*_v158*` family, 4 new plus 2 updated in place
+(`e730068`) -- default mode flipped from every-line RED to a full `PASS:`, one-sided because `:697`/`:709` compare
+growth only, so a reduction passes with no exemption authored (C-11). LAND-03 FIXED on a **third** axis: BASE-01's
+native test-inventory count re-anchored 141 -> 184 while its growth axis (`avr_targets`) stayed byte-unchanged
+(`7894dec`), flipping the canonical `--policy merge05 --baseline size_baseline_base01.json --rebuild` invocation
+from exit 1 to exit 0 -- the criterion-1 promise that BASE-01 is not re-anchored is intact, and the verifier
+confirmed the growth axis has zero diff lines. LAND-06 **DECLINED** with the measurement, not left unfinished:
+masking costs `+22 / +24 / +22 B` flash for 0 B RAM, the two `__udivmodsi4` calls do leave the function but
+image-wide only drop 11 -> 9, so there is no linkage saving; `src/proms/flash_5v_page.cpp` is byte-unchanged.
+LAND-07 closed on the **forward-compatibility budget, never arithmetic impossibility** -- the criterion's
+`57 tokens / 7 headroom` is reproducible by none of three re-derived counting rules (observed max 50/14, real pin
+map 51/13, field-wise synthetic 55/9), and `64 -> 56` is arithmetically available but declined on the unknown-key
+budget (C-4, C-5). LAND-04 corrected to its **two** honest clauses -- no `.github/` workflow invokes
+`check_size_baseline.py` as a size gate, AND its own paired pytest DOES run in CI at `build.yml:161` on
+`push: branches: ['**', '!beta']` -- with two in-tree docstrings that asserted the inverse fixed comment-only
+(`2ccda8d`). LAND-08's flakiness corpus extended with this phase's own runs, zero new failures, duration stated as
+a necessary-but-not-sufficient correlate. The named `test_checker_convention.py` carry-forward closed as a
+tightening (`FLOOR` 7 -> 8, `FIXTURE_FLOOR` 16 -> 31), counted on the tree (`5dca69d`). Thirteen corrections
+C-1..C-13 and ten decisions OD-1..OD-10 closed out in `.planning/v1.33/158-after-figures.md` (60 KB, 15 sections,
+twelve gate legs re-run on the final tree with each expected shape stated in advance); `158-before-figures.md`
+holds the cold pre-phase position the deltas are measured against. Plan 07 scope-corrected the superseded ROADMAP
+and REQUIREMENTS prose by scoped `Edit` only (`664801a7`, 28 insertions / 25 deletions, never a regeneration),
+appending `**Correction (C-N)**` clauses rather than silently replacing stale figures -- all eight LAND boxes and
+all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree clean; `firestarter_app` UNTOUCHED at
+`38f0d83` (firmware-only phase). Gates green on the three legs CI runs: `pytest tests/` 360 passed / 0 skipped,
+`pio test -e native` 184/184, `pio test -e native_nodevtools` 184/184. Nothing pushed; neither gitlink re-pinned.
+**Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
+(`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
+byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
+**Resume file:** None
+
+**Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
 the PROGMEM function-pointer column and its ten dispatch stubs with one shared, inlined
 `store_field`. `offset`/`width` are compiler-derived (`offsetof`/`sizeof`), never a literal;
@@ -2854,9 +2886,8 @@ unchanged: `uno` 24234->23350 (-884 B), `uno328pb` 24282->23398 (-884 B), `leona
 (C-19), not chased by editing code. Both native envs still 172/172, both local check scripts
 pass, and `firestarter_app`'s host wire-key parity gate reports 24 passed with zero host files
 touched. Next: plan 157-03 (the `protocol`/`ctrl_flags` type narrowing, DECODE-04).
-**Resume file:** None
 
-**Was (superseded, retained for continuity):** Phase 157 Plan 01 complete -- before-figures
+**Prior (superseded, retained for continuity):** Phase 157 Plan 01 complete -- before-figures
 record committed (`b9faaa6b`), the sole authoritative before-half record superseding the
 ROADMAP/REQUIREMENTS prose figures with nineteen corrections and seven OD decisions.
 
