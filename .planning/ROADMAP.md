@@ -425,13 +425,32 @@ Plans:
 **Plans**: 7 plans, waves 1–7, strictly sequential (each wave's figures are the next wave's input; LAND-05 must land before LAND-01 measures, and LAND-01's re-record must share a commit with LAND-02's fixture severance or `build.yml`'s `pytest tests/ -v` leg is red at that commit)
 
 Plans:
+**Wave 1**
 
 - [ ] 158-01-PLAN.md — the before-figures record: the pre-phase cold position, the default-mode RED shape, the four legs that redden, plus LAND-04's two clauses, LAND-07's three re-derived token bounds and LAND-08's timed flakiness evidence
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 158-02-PLAN.md — LAND-05: narrow `jsmntok_t` 8 → 6 B with `start`/`end` still signed, a region-scoped source-contract gate proven RED first, and the ARM half built once or its ceiling recorded
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 158-03-PLAN.md — LAND-06 declined: measure the mask's cost at this phase's own position in a throwaway worktree, witness the two `__udivmodsi4` sites, enumerate the zero behavioural coverage, and leave `flash_5v_page.cpp` byte-unchanged
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 158-04-PLAN.md — LAND-01 + LAND-02 in ONE commit: the cold re-record of `size_baseline.json`, the `*_v158*` severance (4 new fixtures + 2 in place), the four repointed legs, and the one-sided PASS line
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 158-05-PLAN.md — LAND-03 fixed on the test-inventory axis, the named Phase 158 checker/fixture floor carry-forward closed, and the two false CI-coverage docstrings corrected
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 158-06-PLAN.md — the landing plan: all twelve gate legs on the final tree, both polarity flips with their before shapes, and `158-after-figures.md` with thirteen corrections and ten decisions closed out
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 158-07-PLAN.md — the closure plan: tick LAND-01..08 and their eight traceability rows against `158-after-figures.md`, add the `**Measured**` line and seven ticked plan entries, and scope-correct the three stale figures in place — scoped `Edit` only, never a regeneration
 
 ---

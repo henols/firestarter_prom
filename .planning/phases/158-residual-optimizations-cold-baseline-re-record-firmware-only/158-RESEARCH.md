@@ -1025,28 +1025,37 @@ def jsmn_count(js):
 
 ---
 
-## Open Questions
+## Open Questions (ALL RESOLVED)
 
-1. **Does LAND-06 get taken?**
+**RESOLVED 2026-08-24, before planning.** All five were decided by the orchestrator (Q1 by the
+operator; Q2-Q5 on precedent and cost basis) and carried into the plans as locked decisions
+OD-1, OD-3, OD-4, OD-5 and OD-7. Each question's resolution is stated inline below. No question
+in this section reaches execution unresolved.
+
+1. **RESOLVED — Does LAND-06 get taken?** → **DECLINED by the operator.** No mask rewrite;
+   `src/proms/flash_5v_page.cpp` is not edited and no `test_val_5v_page` cases are added. The
+   criterion is discharged by recording the `+22 / +24 / +22 B` measurement, the two confirmed
+   `call __udivmodsi4` sites and the zero-coverage gap as the stated reason. Native case count
+   does not move for LAND-06's sake. Planned as `158-03`.
    - What we know: `+22 / +24 / +22 B` flash, 0 B RAM, two `__udivmodsi4` calls per byte removed, the in-tree mask idiom already exists on algorithm 13, and the boundary path has **zero** behavioural native coverage.
    - What's unclear: the runtime win — unquantifiable in this milestone by D-02.
    - Recommendation: **decline, and record the measurement plus the coverage gap as the reason** — a shrink-only milestone paying 22–24 B for an unmeasurable benefit on an untested path is the weaker trade. If the operator wants it, take it **with** the two-case boundary test from F-6 and accept the `184 → 186` case-count move.
 
-2. **Fix or carry LAND-03?**
+2. **RESOLVED — Fix or carry LAND-03?** → **FIX.** Four integers, measured to redden zero legs; the axis-split precedent is machine-checked at `tests/test_check_size_baseline.py:1108`. Planned as `158-05`.
    - What we know: fixing is 4 integers and reddens zero legs (measured); the axis-split precedent exists and is machine-checked.
    - What's unclear: whether the operator reads BASE-01's `native_envs` as part of the frozen anchor.
    - Recommendation: **fix**, recording the axis split explicitly. Carry is still viable and LAND-02 is green either way.
 
-3. **Are the two false CI-coverage docstrings corrected here?**
+3. **RESOLVED — Are the two false CI-coverage docstrings corrected here?** → **YES, corrected.** Comment-only edits at `tests/test_check_size_baseline.py:459` and `tests/meta_presence.py:52-56`; no assertion changes. Same claim LAND-04 records. Planned as `158-05`.
    - What we know: both are false; both are about exactly the automation boundary LAND-04 exists to state honestly.
    - What's unclear: whether editing test docstrings is in scope for a landing phase.
    - Recommendation: correct them — a one-hunk comment edit in each, no assertion change, and it is the same claim LAND-04 records.
 
-4. **Is the `test_checker_convention.py` FLOOR carry-forward closed?**
+4. **RESOLVED — Is the `test_checker_convention.py` FLOOR carry-forward closed?** → **CLOSED.** `FLOOR` 7 → 8 and `FIXTURE_FLOOR` 16 → the count shipped at this phase's final commit (re-counted, not transcribed), plus the `:76-78` comment repair. Three artifacts named Phase 158 as its owner. In no LAND requirement by design. Planned as `158-05`.
    - What we know: three artifacts name Phase 158 as its owner; it is in no LAND requirement; the fix is two integers plus a comment.
    - Recommendation: **close it**, or re-carry it with a named reason and a new owner. Do not leave it silent.
 
-5. **Does the ARM build get verified locally?**
+5. **RESOLVED — Does the ARM build get verified locally?** → **ATTEMPT ONCE, RECORD THE CEILING ON FAILURE.** The toolchain is known installable in this devcontainer (it needs two newlib packages CI omits). If the install fails, the ceiling is recorded in `158-after-figures.md` and `py32f071.yml` witnesses it at push time. ARM coverage is never claimed unless it was built. Planned as `158-02`.
    - Recommendation: attempt the toolchain install once; if it fails, record the ceiling in `158-after-figures.md` rather than implying ARM coverage.
 
 ---

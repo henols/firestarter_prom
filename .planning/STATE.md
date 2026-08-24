@@ -4,11 +4,11 @@ milestone: v1.33
 milestone_name: — Source Hygiene & Firmware Size Reduction
 current_phase: 158
 current_phase_name: Residual Optimizations + Cold Baseline Re-Record (firmware-only)
-status: verifying
-stopped_at: "Phase 157 complete and verified 7/7 -- json_parser.c's key_parsers[] rewritten as a compiler-derived {key, clamp, offset, width} PROGMEM field table with one inlined store_field (19df431), handle protocol narrowed to uint8_t and ctrl_flags to uint16_t (76ff592), five DECODE-05 range-safety cases (8edfd6e), and the read-timing cap equality plus six offsetof round-trip cases (785e644). Measured -1144 B flash / -5 B RAM cold-to-cold on all three AVR targets -- NOT the predicted -1148 B, and NOT the ROADMAP's -976/-172 split; the measured split is -884 B table / -260 B narrowing, the divergence attributed to OD-1's per-row mask-vs-saturate policy column (C-19). Native suite 172 -> 184, 17 suites, on both native and native_nodevtools -- hand this count forward to Phase 158/LAND-01. DECODE-07 measured +18 B at this position on all three targets, a coincidence of magnitude against the survey's stale 25696/25678 absolutes, not a confirmation of them. Before/after figures in .planning/v1.33/157-before-figures.md and 157-after-figures.md, which supersede the ROADMAP and REQUIREMENTS prose on 22 counts (C-1..C-22)."
-last_updated: "2026-08-23T22:21:19.104Z"
-last_activity: 2026-08-23
-last_activity_desc: Phase 157 complete, transitioned to Phase 158
+status: executing
+stopped_at: Phase 157 complete and verified 7/7 -- json_parser.c's key_parsers[] rewritten as a compiler-derived {key, clamp, offset, width} PROGMEM field table with one inlined store_field (19df431), handle protocol narrowed to uint8_t and ctrl_flags to uint16_t (76ff592), five DECODE-05 range-safety cases (8edfd6e), and the read-timing cap equality plus six offsetof round-trip cases (785e644). Measured -1144 B flash / -5 B RAM cold-to-cold on all three AVR targets -- NOT the predicted -1148 B, and NOT the ROADMAP's -976/-172 split; the measured split is -884 B table / -260 B narrowing, the divergence attributed to OD-1's per-row mask-vs-saturate policy column (C-19). Native suite 172 -> 184, 17 suites, on both native and native_nodevtools -- hand this count forward to Phase 158/LAND-01. DECODE-07 measured +18 B at this position on all three targets, a coincidence of magnitude against the survey's stale 25696/25678 absolutes, not a confirmation of them. Before/after figures in .planning/v1.33/157-before-figures.md and 157-after-figures.md, which supersede the ROADMAP and REQUIREMENTS prose on 22 counts (C-1..C-22).
+last_updated: "2026-08-24T08:56:24.222Z"
+last_activity: 2026-08-24
+last_activity_desc: Phase 158 planned -- 7 plans, waves 1-7
 progress:
   total_phases: 6
   completed_phases: 4
@@ -147,7 +147,7 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 Phase: 158 — Residual Optimizations + Cold Baseline Re-Record (firmware-only)
 Plan: Not started
-Status: Phase complete — ready for verification
+Status: Ready to execute
 Next: **Phase 157 Plan 03** -- the `protocol`/`ctrl_flags` type narrowing (DECODE-04), against the field table plan 02 landed. **Was:** **Phase 156 execution** -- `/gsd-execute-phase 156` (7 plans, waves 1-7; planned 2026-08-23, plan-checker PASSED on the first iteration). Waves are strictly sequential because every plan touches `eprom.cpp`, `memory.cpp`, `memory_utils.h` or their committed golden. Target **-426 B flash / RAM unchanged** on all three AVR targets (24660->24234 uno, 24708->24282 uno328pb, 26804->26378 leonardo), measured at `adf1a31`, not quoted. DEDUP-04 is resolved toward **REMOVAL** by operator decision, so the nine `!` wrappers and the six engine returns actually flip -- and that flip is **size-identical, NOT image-identical** (the `.hex` SHA changes on all three targets; research correction C-4). Two measured DEDUP-03 blind spots (VPP under-voltage severity pairing, chip-ID message id) are closed in plan 02 BEFORE the refactor, each seen RED against a planted transposition and GREEN against the real tree. `tests/test_protocol_branch_inventory.py` goes RED on commit and is re-derived 23->22 in plan 03 and 22->21 in plan 04, each inside its own commit. Nothing is pushed. `wip/v1.33-size-reduction-survey-preserved` @ `a6b46f8` remains the ONLY ref carrying 155-158's implemented work -- and it does NOT carry DEDUP-04.
 **Stopped at:** Completed 157-07-PLAN.md
 **Plan 157-02 complete (2026-08-23):** `firestarter/src/json_parser.c`'s `key_parsers[]` rewritten
