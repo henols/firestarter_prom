@@ -720,7 +720,23 @@ def test_traversal_in_planning_file_is_refused(harness):
 
 # ---------------------------------------------------------------------------
 # Test 19 -- SWEEP-11 / D-01 / D-10 / T-154-21: the tool was NOT applied here
+#
+# NARROWED in Phase 159 (159-01): the Phase-154 guard treated ANY citation-
+# bearing path touched by ANYTHING as proof of production application, which
+# breaks on ordinary Phase-159 execution noise -- STATE.md bookkeeping and a
+# user's own COBS-decision relocation are not evidence a remap ran (research
+# finding 4). The guard now (a) excludes that KNOWN-BENIGN bookkeeping from
+# the "applied" set instead of treating it as proof, and (b) adds a DIRECT
+# check: no production receipt under `.planning/v1.33/` may record an apply
+# event yet, which is what production application actually looks like.
 # ---------------------------------------------------------------------------
+#: Ordinary orchestrator bookkeeping and a user's own document relocation --
+#: never evidence that this tool's `--apply` ran against real citations.
+_KNOWN_BENIGN_PLANNING_PATHS = frozenset(
+    {".planning/STATE.md", ".planning/v1.9-COBS-DECISION.md"}
+)
+
+
 def test_the_tool_is_not_applied_to_any_real_planning_document():
     meta = os.path.dirname(os.path.dirname(os.path.dirname(_HERE)))
     real_manifest = os.path.join(
@@ -750,9 +766,854 @@ def test_the_tool_is_not_applied_to_any_real_planning_document():
         path
         for path in changed.stdout.split()
         if not path.startswith(".planning/v1.33/")
+        and path not in _KNOWN_BENIGN_PLANNING_PATHS
     }
     applied = sorted(touched & citing)
     assert not applied, (
         "the remap tool must be BUILT in Phase 154 and APPLIED in Phase 159 "
         f"(D-01/D-10), but these citation-bearing documents are modified: {applied}"
     )
+
+    # The DIRECT check: production application looks like a receipt recording
+    # at least one apply event, not like an arbitrary citation-bearing path
+    # being dirty. No such receipt may exist anywhere under .planning/v1.33/
+    # at this point in the phase.
+    v133_dir = os.path.join(meta, ".planning", "v1.33")
+    for dirpath, _dirnames, filenames in os.walk(v133_dir):
+        for fname in filenames:
+            if "receipt" not in fname.lower() or not fname.endswith(".json"):
+                continue
+            fpath = os.path.join(dirpath, fname)
+            try:
+                with open(fpath, encoding="utf-8") as handle:
+                    data = json.load(handle)
+            except (OSError, json.JSONDecodeError):
+                continue
+            events = data.get("production_apply_events")
+            assert not events, (
+                f"{fpath} records {events} production apply event(s), but no "
+                "production apply is authorized until Phase 159 plan 05"
+            )
+
+
+# ===========================================================================
+# PHASE 159 HARDENING LEGS (159-01) -- REMAP-01/02/03/05
+#
+# Everything below exercises ADDITIVE surface only. None of it is applied
+# against any real `.planning/` document (T-154-21/D-01/D-10): every fixture
+# below is a disposable `tmp_path` repo or the committed unit-test fixtures,
+# exactly like every Phase-154 leg above.
+# ===========================================================================
+import hashlib as _hashlib  # noqa: E402 -- appended module, after sys.path setup
+
+
+# ---------------------------------------------------------------------------
+# stable_record_id: deterministic identity
+# ---------------------------------------------------------------------------
+def test_stable_record_id_is_deterministic_and_order_independent():
+    old = _read_lines(_CHAINED_OLD)
+    rec_a = _record(3, "colon_single", _TARGET_REL, 15, None, old)
+    rec_b = dict(rec_a)  # a fresh dict with the same content, different identity
+    assert rc.stable_record_id(rec_a) == rc.stable_record_id(rec_b)
+    assert rc.stable_record_id(rec_a).startswith("orig-")
+
+    rec_c = _record(3, "colon_single", _TARGET_REL, 20, None, old)
+    assert rc.stable_record_id(rec_a) != rc.stable_record_id(rec_c), (
+        "two records at different pre-sweep coordinates must not collide"
+    )
+
+
+def test_stable_record_id_honours_an_explicit_record_id():
+    old = _read_lines(_CHAINED_OLD)
+    rec = _record(3, "colon_single", _TARGET_REL, 15, None, old)
+    rec["record_id"] = "late-0042"
+    assert rc.stable_record_id(rec) == "late-0042"
+
+
+# ---------------------------------------------------------------------------
+# The real REMAP-03 range proof: json_parser.c:128-131 -> 316-318, using the
+# ACTUAL firestarter git blobs at the original and final anchors. This is a
+# read-only `git show` against a real repository the executor's environment
+# already has populated; it performs no write and touches no `.planning/`
+# document.
+# ---------------------------------------------------------------------------
+_REAL_FW_OLD_SHA = "8695ee52c27a4bee4387c5c489afd5f3d7275e8a"
+_REAL_FW_NEW_SHA = "2ccda8d43c8161a34fb5f83b9ab12c37a443bf22"
+_REAL_FW_ROOT = os.path.abspath(
+    os.path.join(_HERE, "..", "..", "..", "firestarter")
+)
+
+
+def _real_firmware_available():
+    return (
+        os.path.isdir(os.path.join(_REAL_FW_ROOT, ".git"))
+        and rc.git_show(rc.Path(_REAL_FW_ROOT), _REAL_FW_OLD_SHA, "src/json_parser.c")
+        is not None
+        and rc.git_show(rc.Path(_REAL_FW_ROOT), _REAL_FW_NEW_SHA, "src/json_parser.c")
+        is not None
+    )
+
+
+@pytest.mark.skipif(
+    not _real_firmware_available(),
+    reason="the real firestarter submodule or its historical blobs are not present here",
+)
+def test_real_json_parser_range_shrinks_128_131_to_316_318():
+    old_text = rc.git_show(rc.Path(_REAL_FW_ROOT), _REAL_FW_OLD_SHA, "src/json_parser.c")
+    new_text = rc.git_show(rc.Path(_REAL_FW_ROOT), _REAL_FW_NEW_SHA, "src/json_parser.c")
+    old_lines = old_text.splitlines()
+    new_lines = new_text.splitlines()
+
+    assert old_lines[127] == "            if (jsoneq_(json, key_token, key) == 0) {"
+    assert old_lines[130] == "                token_idx += 2; // Skip key and simple value"
+
+    lm = rc.LineMap(old_lines, new_lines)
+    new_start, new_end, retarget = lm.span(128, 131)
+    assert (new_start, new_end, retarget) == (316, 318, False), (new_start, new_end, retarget)
+    assert lm.text_at(new_start) == old_lines[127]
+    assert lm.text_at(new_end) == old_lines[130]
+    assert new_lines[315] == "            if (jsoneq_(json, key_token, key) == 0) {"
+    assert new_lines[317] == "                token_idx += 2; // Skip key and simple value"
+
+    old_span, new_span = 131 - 128 + 1, new_end - new_start + 1
+    assert old_span == 4 and new_span == 3, (old_span, new_span)
+
+
+# ---------------------------------------------------------------------------
+# Multi-anchor: a record's own `source_sha` overrides the root-wide default,
+# and the map cache is keyed by (target_file_resolved, source_sha) -- REMAP-01.
+# ---------------------------------------------------------------------------
+def test_wrong_original_app_anchor_is_rejected(harness):
+    """A WRONG historical anchor produces an oracle VIOLATION, not a clean
+    pass -- the general shape research measured for `bc9d592` against
+    original app rows (787 violations), reproduced here on the synthetic
+    fixture. The wrong blob is the POST-sweep content with one unrelated line
+    prepended, so difflib still aligns cleanly but every coordinate is off by
+    one -- old line 15 maps to new line 14, whose text is NOT the recorded
+    `source_text`.
+    """
+    wrong_lines = ["-- unrelated wrong-anchor preamble --"] + list(harness.new_lines)
+    harness.target.write_text("\n".join(wrong_lines) + "\n", encoding="utf-8")
+    assert _git(harness.root, "add", "-A").returncode == 0
+    assert _git(harness.root, "commit", "-qm", "wrong anchor content").returncode == 0
+    wrong_sha = _git(harness.root, "rev-parse", "HEAD").stdout.strip()
+    # Restore the working tree to the real post-sweep state: the commit above
+    # only needed to exist in git history, not to persist on disk.
+    harness.target.write_text("\n".join(harness.new_lines) + "\n", encoding="utf-8")
+
+    header, records = harness.load_manifest()
+    for rec in records:
+        if rec["target_line"] == 15 and rec["variant"] == "colon_single":
+            rec["source_sha"] = wrong_sha
+    harness.write_manifest(header, records)
+
+    result = harness.run("--apply")
+    assert result.returncode == 1, _shown(result, 1)
+    assert "oracle violated" in result.stderr, result.stderr
+
+
+def test_correct_anchor_via_explicit_source_sha_passes(harness):
+    """The CORRECT historical anchor, supplied per-record via `source_sha`
+    instead of the root-wide `--pre-sweep-sha`, passes exactly like the
+    default path."""
+    header, records = harness.load_manifest()
+    for rec in records:
+        rec["source_sha"] = harness.sha
+    harness.write_manifest(header, records)
+    result = harness.run("--apply", "--quiet-notes")
+    assert result.returncode == 0, _shown(result, 0)
+
+
+def test_two_shas_for_the_same_target_produce_independent_maps(tmp_path):
+    """Two SHAs for the SAME `target_file_resolved` must not share one
+    path-keyed map: flipping every record's `source_sha` between a correct
+    and a wrong anchor, on the SAME target file and SAME manifest, flips the
+    outcome -- proof the cache key is `(target_file_resolved, source_sha)`,
+    not path alone.
+    """
+    old = _read_lines(_CHAINED_OLD)
+    new = _read_lines(_CHAINED_NEW)
+    h = Harness(tmp_path, old_lines=old, new_lines=new)
+    correct_sha = h.sha
+
+    wrong_lines = ["-- unrelated wrong-anchor preamble --"] + list(new)
+    h.target.write_text("\n".join(wrong_lines) + "\n", encoding="utf-8")
+    assert _git(h.root, "add", "-A").returncode == 0
+    assert _git(h.root, "commit", "-qm", "wrong anchor").returncode == 0
+    wrong_sha = _git(h.root, "rev-parse", "HEAD").stdout.strip()
+    h.target.write_text("\n".join(new) + "\n", encoding="utf-8")
+
+    header, records = h.load_manifest()
+    for rec in records:
+        rec["source_sha"] = correct_sha
+    h.write_manifest(header, records)
+    ok = h.run("--apply", "--quiet-notes")
+    assert ok.returncode == 0, _shown(ok, 0)
+
+    # Re-seed the citing document (the successful apply above already rewrote
+    # it) for the negative half of this same-target cross-check.
+    shutil.copyfile(_DOC_MIN, h.doc)
+    for rec in records:
+        rec["source_sha"] = wrong_sha
+    h.write_manifest(header, records)
+    bad = h.run("--apply")
+    assert bad.returncode == 1, _shown(bad, 1)
+    assert "oracle violated" in bad.stderr, bad.stderr
+
+
+# ---------------------------------------------------------------------------
+# LocationResolver: planning-location reconciliation -- REMAP-01/02
+# ---------------------------------------------------------------------------
+def _init_repo(root):
+    (root / ".planning").mkdir(parents=True, exist_ok=True)
+    assert _git(root, "init", "-q").returncode == 0
+    return root
+
+
+def test_location_resolver_found_when_the_recorded_path_still_exists(tmp_path):
+    root = _init_repo(tmp_path / "repo")
+    (root / ".planning" / "doc.md").write_text("hello\n", encoding="utf-8")
+    resolver = rc.LocationResolver(root)
+    outcome = resolver.resolve(".planning/doc.md")
+    assert outcome.status == "found"
+    assert outcome.resolved_path == ".planning/doc.md"
+
+
+def test_location_resolver_missing_with_no_overlay_or_rename(tmp_path):
+    root = _init_repo(tmp_path / "repo")
+    resolver = rc.LocationResolver(root)
+    outcome = resolver.resolve(".planning/todos/pending/x.md")
+    assert outcome.status == "missing"
+    assert "no approved overlay or tracked rename" in outcome.reason
+
+
+def test_location_resolver_tracked_rename_via_planning_base_sha(tmp_path):
+    """A citing document renamed by a TRACKED git commit (e.g. the real
+    pending -> completed todo rename research measured) resolves via
+    `--planning-base-sha`, without any overlay authorization needed."""
+    root = _init_repo(tmp_path / "repo")
+    old_path = root / ".planning" / "todos" / "pending" / "task.md"
+    old_path.parent.mkdir(parents=True)
+    old_path.write_text("todo content\n", encoding="utf-8")
+    assert _git(root, "add", "-A").returncode == 0
+    assert _git(root, "commit", "-qm", "add pending todo").returncode == 0
+    base_sha = _git(root, "rev-parse", "HEAD").stdout.strip()
+
+    new_path = root / ".planning" / "todos" / "completed" / "task.md"
+    new_path.parent.mkdir(parents=True)
+    assert _git(root, "mv", str(old_path), str(new_path)).returncode == 0
+    assert _git(root, "commit", "-qm", "mark todo completed").returncode == 0
+
+    resolver = rc.LocationResolver(root, planning_base_sha=base_sha)
+    outcome = resolver.resolve(".planning/todos/pending/task.md")
+    assert outcome.status == "renamed", outcome
+    assert outcome.resolved_path == ".planning/todos/completed/task.md"
+
+
+def test_location_resolver_overlay_approved_by_matching_hash(tmp_path):
+    root = _init_repo(tmp_path / "repo")
+    current = root / ".planning" / "v1.33" / "relocated.md"
+    current.parent.mkdir(parents=True)
+    current.write_text("moved content\n", encoding="utf-8")
+    digest = _hashlib.sha256(current.read_bytes()).hexdigest()
+
+    overlay = [
+        {
+            "path": ".planning/old-name.md",
+            "current_path": ".planning/v1.33/relocated.md",
+            "preapply_sha256": digest,
+            "expected_postapply_sha256": digest,
+        }
+    ]
+    resolver = rc.LocationResolver(root, overlays=overlay)
+    outcome = resolver.resolve(".planning/old-name.md")
+    assert outcome.status == "overlay"
+    assert outcome.resolved_path == ".planning/v1.33/relocated.md"
+
+
+def test_location_resolver_rejects_a_third_overlay_state(tmp_path):
+    """An overlay whose live bytes match NEITHER declared hash is a THIRD
+    state and is REJECTED -- never guessed at."""
+    root = _init_repo(tmp_path / "repo")
+    current = root / ".planning" / "v1.33" / "relocated.md"
+    current.parent.mkdir(parents=True)
+    current.write_text("content that drifted after the overlay was approved\n", encoding="utf-8")
+
+    overlay = [
+        {
+            "path": ".planning/old-name.md",
+            "current_path": ".planning/v1.33/relocated.md",
+            "preapply_sha256": "0" * 64,
+            "expected_postapply_sha256": "1" * 64,
+        }
+    ]
+    resolver = rc.LocationResolver(root, overlays=overlay)
+    outcome = resolver.resolve(".planning/old-name.md")
+    assert outcome.status == "missing"
+    assert "neither approved hash" in outcome.reason
+
+
+# ---------------------------------------------------------------------------
+# Fail-closed hardening engaged by `--exceptions` -- REMAP-02
+#
+# Without `--exceptions`, the original Phase-154 diagnostic behaviour (a
+# dynamic retarget or an unmatched group is a NOTE, exit 0) is UNCHANGED --
+# see `test_replace_is_treated_as_non_surviving` above, which still passes
+# untouched. `--exceptions` engages hardening: the SAME class of outcome
+# becomes a violation unless a reviewed ledger row covers it.
+# ---------------------------------------------------------------------------
+def test_unreviewed_dynamic_retarget_is_blocking_once_exceptions_engaged(tmp_path):
+    old = _read_lines(_CHAINED_OLD)
+    new = _read_lines(_CHAINED_NEW)
+    reflow_index = new.index("static uint8_t demo_state;")
+    new = list(new)
+    new[reflow_index] = "static uint8_t demo_state;  // reflowed by the sweep"
+    doc = "A citation at the reflowed line: firestarter/src/chained_demo.cpp:6\n"
+    harness = Harness(tmp_path, old_lines=old, new_lines=new, doc_text=doc)
+
+    header, _ = harness.load_manifest()
+    rec = _record(1, "colon_single", _TARGET_REL, 6, None, old)
+    harness.write_manifest(header, [rec])
+
+    empty_ledger = tmp_path / "exceptions.jsonl"
+    empty_ledger.write_text("", encoding="utf-8")
+
+    result = harness.run("--apply", "--exceptions", str(empty_ledger))
+    assert result.returncode == 1, _shown(result, 1)
+    assert "blocking under fail-closed hardening" in result.stderr, result.stderr
+    assert harness.doc_text() == doc, "a blocked run must write nothing"
+
+
+def test_reviewed_retarget_is_applied_via_exceptions_ledger(tmp_path):
+    old = _read_lines(_CHAINED_OLD)
+    new = _read_lines(_CHAINED_NEW)
+    reflow_index = new.index("static uint8_t demo_state;")
+    new = list(new)
+    new[reflow_index] = "static uint8_t demo_state;  // reflowed by the sweep"
+    doc = "A citation at the reflowed line: firestarter/src/chained_demo.cpp:6\n"
+    harness = Harness(tmp_path, old_lines=old, new_lines=new, doc_text=doc)
+
+    header, _ = harness.load_manifest()
+    rec = _record(1, "colon_single", _TARGET_REL, 6, None, old)
+    harness.write_manifest(header, [rec])
+
+    rid = rc.stable_record_id(rec)
+    chosen_line = reflow_index + 1
+    ledger = tmp_path / "exceptions.jsonl"
+    ledger.write_text(
+        json.dumps(
+            {
+                "record_id": rid,
+                "status": "reviewed",
+                "chosen_target_line": chosen_line,
+                "chosen_target_line_end": None,
+                "chosen_current_text": new[reflow_index],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    result = harness.run("--apply", "--exceptions", str(ledger))
+    assert result.returncode == 0, _shown(result, 0)
+    assert harness.cited(1).endswith(f":{chosen_line}"), harness.cited(1)
+
+
+def test_reviewed_entry_with_stale_chosen_text_still_fails_the_oracle(tmp_path):
+    """A reviewed row is RE-VERIFIED against its own `chosen_current_text`
+    oracle -- a stale review (the chosen coordinate no longer reads the
+    chosen text) is still a violation, never trusted blindly."""
+    old = _read_lines(_CHAINED_OLD)
+    new = _read_lines(_CHAINED_NEW)
+    reflow_index = new.index("static uint8_t demo_state;")
+    new = list(new)
+    new[reflow_index] = "static uint8_t demo_state;  // reflowed by the sweep"
+    doc = "A citation at the reflowed line: firestarter/src/chained_demo.cpp:6\n"
+    harness = Harness(tmp_path, old_lines=old, new_lines=new, doc_text=doc)
+
+    header, _ = harness.load_manifest()
+    rec = _record(1, "colon_single", _TARGET_REL, 6, None, old)
+    harness.write_manifest(header, [rec])
+
+    rid = rc.stable_record_id(rec)
+    ledger = tmp_path / "exceptions.jsonl"
+    ledger.write_text(
+        json.dumps(
+            {
+                "record_id": rid,
+                "status": "reviewed",
+                "chosen_target_line": reflow_index + 1,
+                "chosen_target_line_end": None,
+                "chosen_current_text": "this text is not actually there",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    result = harness.run("--apply", "--exceptions", str(ledger))
+    assert result.returncode == 1, _shown(result, 1)
+    assert "current-target-text oracle" in result.stderr, result.stderr
+    assert harness.doc_text() == doc
+
+
+def test_unmatched_in_document_is_blocking_once_exceptions_engaged(harness, tmp_path):
+    header, records = harness.load_manifest()
+    colon_list_recs = [
+        r for r in records if r["planning_line"] == 6 and r["variant"] == "colon_list"
+    ]
+    assert len(colon_list_recs) == 2, colon_list_recs
+    extra = dict(colon_list_recs[0])
+    extra["target_line"] = 999  # a third record for a group with only 2 spans
+    records.append(extra)
+    harness.write_manifest(header, records)
+
+    empty_ledger = tmp_path / "exceptions.jsonl"
+    empty_ledger.write_text("", encoding="utf-8")
+
+    result = harness.run("--apply", "--exceptions", str(empty_ledger))
+    assert result.returncode == 1, _shown(result, 1)
+    assert "unmatched rows are blocking" in result.stderr, result.stderr
+
+
+def test_without_exceptions_the_same_scenarios_stay_legacy_exit_0(tmp_path):
+    """Sanity anchor: `--exceptions` absent means the Phase-154 diagnostic
+    behaviour is completely unchanged for the exact scenario that is blocking
+    above."""
+    old = _read_lines(_CHAINED_OLD)
+    new = _read_lines(_CHAINED_NEW)
+    reflow_index = new.index("static uint8_t demo_state;")
+    new = list(new)
+    new[reflow_index] = "static uint8_t demo_state;  // reflowed by the sweep"
+    doc = "A citation at the reflowed line: firestarter/src/chained_demo.cpp:6\n"
+    harness = Harness(tmp_path, old_lines=old, new_lines=new, doc_text=doc)
+    header, _ = harness.load_manifest()
+    rec = _record(1, "colon_single", _TARGET_REL, 6, None, old)
+    harness.write_manifest(header, [rec])
+
+    result = harness.run("--apply")
+    assert result.returncode == 0, _shown(result, 0)
+    assert harness.doc_text() == doc, "a retarget record must never be rewritten"
+
+
+# ---------------------------------------------------------------------------
+# BatchTransaction: receipted apply, injected-failure recovery -- REMAP-01/05
+# ---------------------------------------------------------------------------
+def test_successful_receipted_apply_records_one_production_event(harness, tmp_path):
+    receipt_path = tmp_path / "receipt.json"
+    bundle_dir = tmp_path / "bundle"
+    result = harness.run(
+        "--apply", "--quiet-notes",
+        "--production-receipt", str(receipt_path),
+        "--recovery-bundle", str(bundle_dir),
+    )
+    assert result.returncode == 0, _shown(result, 0)
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    assert receipt["status"] == "APPLIED"
+    assert receipt["production_apply_events"] == 1
+    assert receipt["rollback_status"] is None
+    assert receipt["failure"] is None
+    assert receipt["replaced_documents"] == [".planning/doc_min.md"]
+
+
+def test_pre_existing_receipt_blocks_a_new_apply(harness, tmp_path):
+    receipt_path = tmp_path / "receipt.json"
+    bundle_dir = tmp_path / "bundle"
+    first = harness.run(
+        "--apply", "--quiet-notes",
+        "--production-receipt", str(receipt_path),
+        "--recovery-bundle", str(bundle_dir),
+    )
+    assert first.returncode == 0, _shown(first, 0)
+
+    second = harness.run(
+        "--apply", "--quiet-notes",
+        "--production-receipt", str(receipt_path),
+        "--recovery-bundle", str(bundle_dir),
+    )
+    assert second.returncode == 1, _shown(second, 1)
+    assert "pre-existing receipt blocks a new apply" in second.stderr
+
+
+def test_injected_mid_batch_failure_restores_every_preimage(tmp_path):
+    """An injected write failure AFTER at least one successful replacement
+    restores every already-replaced document from its preimage, marks the
+    receipt FAILED / rollback_status COMPLETE, and writes nothing further --
+    the batch-recovery contract REMAP-01/05 requires."""
+    old = _read_lines(_CHAINED_OLD)
+    new = _read_lines(_CHAINED_NEW)
+    h = Harness(tmp_path, old_lines=old, new_lines=new)
+
+    # A SECOND citing document, so the batch has two documents to replace --
+    # one succeeds before the injected failure fires on the other.
+    second_doc = h.root / ".planning" / "doc_second.md"
+    second_doc.write_text(
+        "Another point citation: firestarter/src/chained_demo.cpp:15\n",
+        encoding="utf-8",
+    )
+    header, records = h.load_manifest()
+    extra = dict(
+        next(r for r in records if r["target_line"] == 15 and r["variant"] == "colon_single")
+    )
+    extra["planning_file"] = ".planning/doc_second.md"
+    extra["planning_line"] = 1
+    records.append(extra)
+    h.write_manifest(header, records)
+
+    before_first = h.doc_text()
+    before_second = second_doc.read_text(encoding="utf-8")
+
+    receipt_path = tmp_path / "receipt.json"
+    bundle_dir = tmp_path / "bundle"
+    result = h.run(
+        "--apply", "--quiet-notes",
+        "--production-receipt", str(receipt_path),
+        "--recovery-bundle", str(bundle_dir),
+        "--inject-write-failure-after", "1",
+    )
+    assert result.returncode == 1, _shown(result, 1)
+    assert h.doc_text() == before_first, "the FIRST replaced document must be rolled back"
+    assert second_doc.read_text(encoding="utf-8") == before_second, "never reached by the batch"
+
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    assert receipt["status"] == "FAILED"
+    assert receipt["rollback_status"] == "COMPLETE"
+    assert receipt["production_apply_events"] == 0
+    assert len(receipt["replaced_documents"]) == 1
+    assert receipt["failure"]["message"].startswith("injected write failure")
+
+
+def test_inject_write_failure_refuses_the_canonical_live_root(tmp_path):
+    dummy_manifest = tmp_path / "manifest.jsonl"
+    shutil.copyfile(_MANIFEST_MIN, dummy_manifest)
+    result = subprocess.run(
+        [
+            sys.executable, _TOOL, "/workspaces",
+            "--manifest", str(dummy_manifest),
+            "--pre-sweep-sha", "0" * 40,
+            "--inject-write-failure-after", "0",
+        ],
+        capture_output=True, text=True, check=False,
+    )
+    assert result.returncode == 2, _shown(result, 2)
+    assert "refuses the canonical live root" in result.stderr
+
+
+def test_recover_receipt_restores_an_interrupted_applying_state_without_resuming(tmp_path):
+    """If the PROCESS itself dies mid-`APPLYING` (so `apply()`'s own
+    except/rollback block never runs), `--recover-receipt` restores from the
+    preimage bundle and marks the receipt RECOVERED -- but it never resumes
+    or replays the apply: the second document's PLANNED text is never
+    written, only its ORIGINAL preimage is guaranteed."""
+    root = tmp_path / "repo"
+    (root / "docs").mkdir(parents=True)
+    doc_a = root / "docs" / "a.md"
+    doc_b = root / "docs" / "b.md"
+    doc_a.write_text("original a\n", encoding="utf-8")
+    doc_b.write_text("original b\n", encoding="utf-8")
+    planned = {doc_a: "updated a\n", doc_b: "updated b\n"}
+
+    receipt_path = tmp_path / "receipt.json"
+    bundle_dir = tmp_path / "bundle"
+    txn = rc.BatchTransaction(root, planned, receipt_path, bundle_dir, "fp-crash")
+    txn.prepare()
+
+    # Simulate the crash: hand-advance to APPLYING and replace ONLY doc_a,
+    # exactly as `apply()` would have done before a kill -9 prevented it from
+    # ever reaching its own except/rollback block.
+    prepared = rc.read_receipt(receipt_path)
+    prepared["status"] = "APPLYING"
+    rc.write_json_report(receipt_path, prepared)
+    rc.atomic_write(doc_a, "updated a\n")
+    assert doc_a.read_text(encoding="utf-8") == "updated a\n"
+
+    receipt = rc.recover_failed_receipt(receipt_path, root, bundle_dir)
+    assert receipt["status"] == "RECOVERED"
+    assert receipt["rollback_status"] == "COMPLETE"
+    assert doc_a.read_text(encoding="utf-8") == "original a\n", (
+        "recovery must restore from the preimage bundle"
+    )
+    assert doc_b.read_text(encoding="utf-8") == "original b\n"
+    assert receipt.get("production_apply_events", 0) == 0, "recovery is not an apply event"
+
+
+def test_recover_receipt_on_an_already_applied_receipt_is_a_no_op(tmp_path):
+    root = tmp_path / "repo"
+    root.mkdir()
+    doc_a = root / "a.md"
+    doc_a.write_text("original\n", encoding="utf-8")
+    planned = {doc_a: "updated\n"}
+    receipt_path = tmp_path / "receipt.json"
+    bundle_dir = tmp_path / "bundle"
+    txn = rc.BatchTransaction(root, planned, receipt_path, bundle_dir, "fp-settled")
+    txn.prepare()
+    receipt = txn.apply()
+    assert receipt["status"] == "APPLIED"
+
+    recovered = rc.recover_failed_receipt(receipt_path, root, bundle_dir)
+    assert recovered["status"] == "APPLIED", "recovery of a settled receipt is a no-op"
+    assert doc_a.read_text(encoding="utf-8") == "updated\n"
+
+
+# ---------------------------------------------------------------------------
+# build_index_stage_plan / --index-plan -- REMAP-01
+# ---------------------------------------------------------------------------
+def test_index_plan_clean_tracked_file_is_citation_only(harness, tmp_path):
+    plan_path = tmp_path / "index-plan.json"
+    result = harness.run("--apply", "--quiet-notes", "--index-plan", str(plan_path))
+    assert result.returncode == 0, _shown(result, 0)
+    plan = json.loads(plan_path.read_text(encoding="utf-8"))
+    rows = [row for row in plan if row["path"] == ".planning/doc_min.md"]
+    assert len(rows) == 1, plan
+    row = rows[0]
+    assert row["index_mode"] == "tracked"
+    assert row["staging_strategy"] == "citation_only_index_object"
+    assert row["citation_only_blob"], row
+    assert row["authorization_id"] is None
+
+    blob_text = subprocess.run(
+        ["git", "-C", str(harness.root), "cat-file", "-p", row["citation_only_blob"]],
+        capture_output=True, text=True, check=False,
+    )
+    assert blob_text.returncode == 0, blob_text.stderr
+    assert blob_text.stdout == harness.doc_text()
+
+
+def test_index_plan_dirty_tracked_file_excludes_the_unrelated_edit(harness, tmp_path):
+    """A tracked, DIRTY file's `citation_only_blob` must contain the citation
+    rewrite but EXCLUDE an unrelated edit already sitting in the working
+    tree -- staging the whole file would silently commit that unrelated
+    edit alongside the remap."""
+    unrelated_marker = "UNRELATED HAND EDIT, NOT PART OF THE REMAP\n"
+    dirty_text = harness.doc_text() + unrelated_marker
+    harness.doc.write_text(dirty_text, encoding="utf-8")
+
+    plan_path = tmp_path / "index-plan.json"
+    result = harness.run("--apply", "--quiet-notes", "--index-plan", str(plan_path))
+    assert result.returncode == 0, _shown(result, 0)
+
+    plan = json.loads(plan_path.read_text(encoding="utf-8"))
+    row = next(row for row in plan if row["path"] == ".planning/doc_min.md")
+    assert row["staging_strategy"] == "citation_only_index_object"
+
+    blob_text = subprocess.run(
+        ["git", "-C", str(harness.root), "cat-file", "-p", row["citation_only_blob"]],
+        capture_output=True, text=True, check=False,
+    )
+    assert blob_text.returncode == 0, blob_text.stderr
+    assert unrelated_marker not in blob_text.stdout, (
+        "the citation-only blob must not absorb the unrelated dirty edit"
+    )
+    # The LIVE on-disk file (after --apply), by contrast, DOES carry the
+    # unrelated edit -- it was never asked to be excluded from the working
+    # tree, only from what gets STAGED.
+    assert unrelated_marker in harness.doc_text()
+    assert harness.cited(3).endswith(":10"), harness.cited(3)
+
+
+def test_index_plan_untracked_file_requires_authorization(tmp_path):
+    old = _read_lines(_CHAINED_OLD)
+    new = _read_lines(_CHAINED_NEW)
+    h = Harness(tmp_path, old_lines=old, new_lines=new)
+    untracked_doc = h.root / ".planning" / "untracked_doc.md"
+    untracked_doc.write_text(
+        "An untracked citation: firestarter/src/chained_demo.cpp:15\n",
+        encoding="utf-8",
+    )
+    header, records = h.load_manifest()
+    extra = dict(
+        next(r for r in records if r["target_line"] == 15 and r["variant"] == "colon_single")
+    )
+    extra["planning_file"] = ".planning/untracked_doc.md"
+    extra["planning_line"] = 1
+    records.append(extra)
+    h.write_manifest(header, records)
+
+    plan_path = tmp_path / "index-plan.json"
+    result = h.run("--quiet-notes", "--index-plan", str(plan_path))
+    assert result.returncode == 0, _shown(result, 0)
+    plan = json.loads(plan_path.read_text(encoding="utf-8"))
+    row = next(row for row in plan if row["path"] == ".planning/untracked_doc.md")
+    assert row["index_mode"] == "untracked"
+    assert row["staging_strategy"] == "requires_authorization"
+    assert row["citation_only_blob"] is None
+    assert row["authorization_id"]
+
+
+# ---------------------------------------------------------------------------
+# --report-json -- structured report -- REMAP-02
+# ---------------------------------------------------------------------------
+def test_report_json_is_non_vacuous_and_lists_open_ids_for_a_dynamic_retarget(tmp_path):
+    old = _read_lines(_CHAINED_OLD)
+    new = _read_lines(_CHAINED_NEW)
+    reflow_index = new.index("static uint8_t demo_state;")
+    new = list(new)
+    new[reflow_index] = "static uint8_t demo_state;  // reflowed by the sweep"
+    doc = "A citation at the reflowed line: firestarter/src/chained_demo.cpp:6\n"
+    harness = Harness(tmp_path, old_lines=old, new_lines=new, doc_text=doc)
+    header, _ = harness.load_manifest()
+    rec = _record(1, "colon_single", _TARGET_REL, 6, None, old)
+    harness.write_manifest(header, [rec])
+
+    report_path = tmp_path / "report.json"
+    result = harness.run("--quiet-notes", "--report-json", str(report_path))
+    assert result.returncode == 0, _shown(result, 0)
+
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report["totals"]["examined"] == 1
+    assert report["totals"]["retarget"] == 1
+    assert report["open_ids"] == [rc.stable_record_id(rec)]
+    assert report["affected_documents"] == []
+    assert report["corpus_fingerprint"]
+    assert report["topology_digest"]
+    assert report["range_proofs"] == []
+
+
+def test_report_json_range_proofs_lists_the_real_shrink(harness, tmp_path):
+    report_path = tmp_path / "report.json"
+    result = harness.run("--apply", "--quiet-notes", "--report-json", str(report_path))
+    assert result.returncode == 0, _shown(result, 0)
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    shrink = [p for p in report["range_proofs"] if p["old_start"] == 3 and p["old_end"] == 18]
+    assert len(shrink) == 1, report["range_proofs"]
+    proof = shrink[0]
+    assert proof["old_span"] == 16
+    assert proof["new_span"] == 11
+    assert proof["new_start"] == 3 and proof["new_end"] == 13
+
+
+# ---------------------------------------------------------------------------
+# source_sha_candidates: non-unique historical anchor, blocking until reviewed
+# ---------------------------------------------------------------------------
+def test_source_sha_candidates_blocks_until_a_reviewed_choice(harness, tmp_path):
+    header, records = harness.load_manifest()
+    picked = next(r for r in records if r["target_line"] == 15 and r["variant"] == "colon_single")
+    picked["source_sha_candidates"] = [harness.sha, "f" * 40]
+    harness.write_manifest(header, [picked])
+
+    blocked = harness.run("--apply")
+    assert blocked.returncode == 1, _shown(blocked, 1)
+    assert "non-unique historical source anchor" in blocked.stderr
+
+    rid = rc.stable_record_id(picked)
+    ledger = tmp_path / "exceptions.jsonl"
+    ledger.write_text(
+        json.dumps({"record_id": rid, "status": "reviewed", "chosen_source_sha": harness.sha}) + "\n",
+        encoding="utf-8",
+    )
+    resolved = harness.run("--apply", "--quiet-notes", "--exceptions", str(ledger))
+    assert resolved.returncode == 0, _shown(resolved, 0)
+    assert harness.cited(3).endswith(":10"), harness.cited(3)
+
+
+def test_source_sha_candidates_rejects_a_choice_outside_the_candidate_set(harness, tmp_path):
+    header, records = harness.load_manifest()
+    picked = next(r for r in records if r["target_line"] == 15 and r["variant"] == "colon_single")
+    picked["source_sha_candidates"] = [harness.sha, "f" * 40]
+    harness.write_manifest(header, [picked])
+
+    rid = rc.stable_record_id(picked)
+    ledger = tmp_path / "exceptions.jsonl"
+    ledger.write_text(
+        json.dumps({"record_id": rid, "status": "reviewed", "chosen_source_sha": "9" * 40}) + "\n",
+        encoding="utf-8",
+    )
+    result = harness.run("--apply", "--exceptions", str(ledger))
+    assert result.returncode == 1, _shown(result, 1)
+    assert "non-unique historical source anchor" in result.stderr
+
+
+# ---------------------------------------------------------------------------
+# Repeatable --manifest: multiple manifests are loaded and merged
+# ---------------------------------------------------------------------------
+def test_repeatable_manifest_merges_records_from_two_files(harness, tmp_path):
+    header, records = harness.load_manifest()
+    point_records = [r for r in records if r["target_line"] == 15 and r["variant"] == "colon_single"]
+    other_records = [r for r in records if r not in point_records]
+
+    manifest_a = tmp_path / "manifest_a.jsonl"
+    manifest_b = tmp_path / "manifest_b.jsonl"
+    with open(manifest_a, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(header) + "\n")
+        for rec in point_records:
+            fh.write(json.dumps(rec) + "\n")
+    with open(manifest_b, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(header) + "\n")
+        for rec in other_records:
+            fh.write(json.dumps(rec) + "\n")
+
+    # `Harness.run()` always injects exactly one `--manifest`, so the two
+    # intended manifests are passed via a direct subprocess invocation
+    # instead.
+    result = subprocess.run(
+        [
+            sys.executable, _TOOL, str(harness.root),
+            "--manifest", str(manifest_a),
+            "--manifest", str(manifest_b),
+            "--pre-sweep-sha", harness.sha,
+            "--apply", "--quiet-notes",
+        ],
+        capture_output=True, text=True, check=False,
+    )
+    assert result.returncode == 0, _shown(result, 0)
+    assert harness.cited(3).endswith(":10"), harness.cited(3)
+
+
+# ---------------------------------------------------------------------------
+# --corpus-overlay flows through main(): a relocated citing document is found
+# ---------------------------------------------------------------------------
+def test_corpus_overlay_resolves_a_relocated_citing_document(tmp_path):
+    old = _read_lines(_CHAINED_OLD)
+    new = _read_lines(_CHAINED_NEW)
+    h = Harness(tmp_path, old_lines=old, new_lines=new)
+
+    relocated_dir = h.root / ".planning" / "v1.33"
+    relocated_dir.mkdir(parents=True)
+    relocated_doc = relocated_dir / "relocated_doc.md"
+    relocated_doc.write_text(
+        "A relocated point citation: firestarter/src/chained_demo.cpp:15\n",
+        encoding="utf-8",
+    )
+    digest = _hashlib.sha256(relocated_doc.read_bytes()).hexdigest()
+
+    header, records = h.load_manifest()
+    extra = dict(
+        next(r for r in records if r["target_line"] == 15 and r["variant"] == "colon_single")
+    )
+    extra["planning_file"] = ".planning/moved_from_here.md"  # never created on disk
+    extra["planning_line"] = 1
+    records.append(extra)
+    h.write_manifest(header, records)
+
+    overlay_path = tmp_path / "overlay.jsonl"
+    overlay_path.write_text(
+        json.dumps(
+            {
+                "path": ".planning/moved_from_here.md",
+                "current_path": ".planning/v1.33/relocated_doc.md",
+                "preapply_sha256": digest,
+                "expected_postapply_sha256": digest,
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    result = h.run("--apply", "--quiet-notes", "--corpus-overlay", str(overlay_path))
+    assert result.returncode == 0, _shown(result, 0)
+    assert relocated_doc.read_text(encoding="utf-8").rstrip("\n").endswith(":10")
+
+
+# ---------------------------------------------------------------------------
+# Sanity anchor: this plan touches NEITHER the real manifest NOR any real
+# citing document (T-154-21/D-01/D-10).
+# ---------------------------------------------------------------------------
+def test_real_manifest_hash_is_unchanged():
+    real_manifest = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(_HERE))),
+        ".planning", "v1.33", "sweep-citation-manifest.jsonl",
+    )
+    if not os.path.isfile(real_manifest):
+        pytest.skip("the real manifest is not present here")
+    digest = _hashlib.sha256(open(real_manifest, "rb").read()).hexdigest()
+    assert digest == "ecdd0fc84be1627f893e30f6369c0b9eedf2a69ce3ec351064828d82e72d992e"
