@@ -74,11 +74,11 @@ Four things are already decided and must survive the discuss step:
 
 ## 6. Citation Remap & Close (REMAP) — Phase 159, milestone close
 
-- [ ] **REMAP-01**: The remap runs **exactly once**, over the composite diff from Phase 154's pre-sweep manifest to the post-Phase-158 tree — not once per phase. Input: the sweep's 6,939 shifting citations plus the **723** that Phases 155–158 shift.
-- [ ] **REMAP-02**: The oracle holds mechanically — the source text recorded in the Phase 154 manifest at each cited line equals the text at the remapped line after the pass. This is the only check on the remap; **no global citation gate exists in this project today**, so nothing else would catch a bad mapping.
-- [ ] **REMAP-03**: Every range citation has **both** endpoints mapped, and a range spanning a deleted block is **shrunk**, not translated by a constant offset. Proven on a real case from this milestone's own diff — Phase 157 deletes ten functions from `json_parser.c`, which guarantees at least one such case exists — not only on Phase 154's synthetic fixtures.
-- [ ] **REMAP-04**: Phase 154's staleness marker is **removed, and its removal is close-blocking** — the milestone cannot close while the marker exists. This is the structural guarantee that makes D-05's temporary staleness safe rather than a promise, and it is the mechanism by which the operator's "never accept stale citations" ruling is honoured despite the split.
-- [ ] **REMAP-05**: The tool is proven **idempotent** on the real corpus, not just on fixtures: a second run is a no-op. Without this, a partially-applied remap cannot be safely resumed.
+- [x] **REMAP-01**: The remap runs **exactly once**, over the composite diff from Phase 154's pre-sweep manifest to the post-Phase-158 tree — not once per phase. Input: the sweep's 6,939 shifting citations plus the **723** that Phases 155–158 shift. **Discharged 2026-08-24 by plan 159-05** against [`159-remap-record.md`](v1.33/159-remap-record.md): exactly **one** production apply event (`04390458f8ee4776bd75c2656a62a809`), receipt `APPLIED`, exit 0 — 14,391 records examined across 1,291 documents and 220 target files, **2,706 citations rewritten across 562 documents**. The applied set differs from the 159-03-approved 343/172 set by 2 `deliberately_superseded_record` exclusions (the operator's blocker) and 203 `citing_document_is_gitignored_generated_artifact` exclusions (2 gitignored build-cache documents discovered during 159-05's own preflight); both shifts are enumerated, not buried, in `159-05-SUMMARY.md`'s "Applied Set vs Approved Set" table. Phase 130's archive gate measured `PASS`/`superseded: 12` both before and after this apply, resolving (not merely explaining) 159-04's provisional "12→11 drift" finding.
+- [x] **REMAP-02**: The oracle holds mechanically — the source text recorded in the Phase 154 manifest at each cited line equals the text at the remapped line after the pass. This is the only check on the remap; **no global citation gate exists in this project today**, so nothing else would catch a bad mapping. **Discharged 2026-08-24 by plans 159-01/159-05** against [`159-remap-record.md`](v1.33/159-remap-record.md): the fail-closed multi-anchor oracle built in 159-01 gated every one of the 14,391 records at apply time — a violation anywhere aborts the whole run before any byte is written. **Stated honestly:** 269 of the resolved records rest on `diff_provenance_reworded` (diff provenance, not verbatim text equality), each carrying an explicit "verbatim oracle did not apply" field recorded at 159-03/159-04; the verbatim oracle held for the remainder, not for all 2,706.
+- [x] **REMAP-03**: Every range citation has **both** endpoints mapped, and a range spanning a deleted block is **shrunk**, not translated by a constant offset. Proven on a real case from this milestone's own diff — Phase 157 deletes ten functions from `json_parser.c`, which guarantees at least one such case exists — not only on Phase 154's synthetic fixtures. **Discharged 2026-08-24 by plan 159-05** against [`159-remap-record.md`](v1.33/159-remap-record.md): `json_parser.c` lines **128-131** (span 4) → **316-318** (span 3), exact endpoints, confirmed on the real diff for all 10 citing records sharing this coordinate.
+- [x] **REMAP-04**: Phase 154's staleness marker is **removed, and its removal is close-blocking** — the milestone cannot close while the marker exists. This is the structural guarantee that makes D-05's temporary staleness safe rather than a promise, and it is the mechanism by which the operator's "never accept stale citations" ruling is honoured despite the split. **Discharged 2026-08-24 by plan 159-06**: `.planning/v1.33/CITATIONS-STALE.md` deleted as this plan's final implementation-file mutation, after every other close gate re-passed with the marker still present.
+- [x] **REMAP-05**: The tool is proven **idempotent** on the real corpus, not just on fixtures: a second run is a no-op. Without this, a partially-applied remap cannot be safely resumed. **Discharged 2026-08-24 by plan 159-05** against [`159-remap-record.md`](v1.33/159-remap-record.md): a genuine corpus-wide second dry run measured **0 rewritten / 0 documents** (real fixed point, captured with `.planning/STATE.md`'s disk bytes temporarily holding its verified postimage). After the post-commit restore of `.planning/STATE.md` to its preserved dirty preimage, a disk-based dry run permanently reports exactly one residual document (`.planning/STATE.md` itself, by the `preserve_unstaged` design) with zero actionable/open counts — a documented, by-design exception, not a regression.
 
 ---
 
@@ -126,11 +126,11 @@ Which phase covers which requirement. Authored with the requirements, tabulated 
 | LAND-06 | Phase 158 | Complete (158-03, closed 158-07) |
 | LAND-07 | Phase 158 | Complete (158-01, closed 158-07) |
 | LAND-08 | Phase 158 | Complete (158-01, closed 158-07) |
-| REMAP-01 | Phase 159 | Pending |
-| REMAP-02 | Phase 159 | Pending |
-| REMAP-03 | Phase 159 | Pending |
-| REMAP-04 | Phase 159 | Pending |
-| REMAP-05 | Phase 159 | Pending |
+| REMAP-01 | Phase 159 | Complete (159-05, closed 159-06) |
+| REMAP-02 | Phase 159 | Complete (159-01/159-05, closed 159-06) |
+| REMAP-03 | Phase 159 | Complete (159-05, closed 159-06) |
+| REMAP-04 | Phase 159 | Complete (159-06) |
+| REMAP-05 | Phase 159 | Complete (159-05, closed 159-06) |
 
 **Coverage:**
 

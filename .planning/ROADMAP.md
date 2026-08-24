@@ -465,38 +465,38 @@ Plans:
 **Requirements**: REMAP-01, REMAP-02, REMAP-03, REMAP-04, REMAP-05
 **Success Criteria** (what must be TRUE):
 
-  1. The remap runs **exactly once**, over the composite pre-154-to-post-158 diff — not once per phase. Measured input: 6,939 shifting citations from the sweep plus the **723** that Phases 155–158 shift, of which `json_parser.c` contributes 198 and `flash_utils.cpp` 97, both being 100% of those files' citations.
-  2. The oracle holds mechanically: the source text recorded in Phase 154's manifest at each cited line equals the text at the remapped line now. This is the only check on the remap — no global citation gate exists in this project today.
-  3. Every range citation has **both** endpoints mapped, and a range spanning a deleted block is **shrunk**, not translated. Proven on a real case from this milestone's own diff, not only on the synthetic fixtures Phase 154 unit-tested.
-  4. Phase 154's staleness marker is **removed**, and its removal is a close-blocking condition: the milestone cannot be closed while the marker exists. This is what makes D-05's temporary staleness safe structurally rather than by promise.
-  5. Citations that Phases 155–158 wrote **into their own records** are covered by the same pass — the case a post-154 remap could not have reached, and the reason the split is worth its complexity.
+  1. The remap runs **exactly once**, over the composite pre-154-to-post-158 diff — not once per phase. Measured input: 6,939 shifting citations from the sweep plus the **723** that Phases 155–158 shift, of which `json_parser.c` contributes 198 and `flash_utils.cpp` 97, both being 100% of those files' citations. **Measured 2026-08-24 (plan 159-05):** exactly one production apply event (`04390458f8ee4776bd75c2656a62a809`), receipt `APPLIED` — 14,391 records examined over 1,291 documents, **2,706 citations rewritten across 562 documents**. Phase 130's archive gate (`check_record_corrections.py`) measured `PASS`/`superseded: 12` both before and after, resolving 159-04's provisional "12→11 drift" finding rather than merely explaining it. The applied set differs from the 159-03-approved 343/172 by a handful of records, enumerated in `159-05-SUMMARY.md`'s "Applied Set vs Approved Set" table.
+  2. The oracle holds mechanically: the source text recorded in Phase 154's manifest at each cited line equals the text at the remapped line now. This is the only check on the remap — no global citation gate exists in this project today. **Measured 2026-08-24 (plans 159-01/159-05):** the fail-closed multi-anchor oracle gated all 14,391 records; a violation anywhere would abort the whole run before any byte is written. Stated honestly: 269 of the resolved records rest on `diff_provenance_reworded` (diff provenance, not verbatim text equality) and each carries an explicit "verbatim oracle did not apply" field — the verbatim oracle held for the remainder, not for all 2,706.
+  3. Every range citation has **both** endpoints mapped, and a range spanning a deleted block is **shrunk**, not translated. Proven on a real case from this milestone's own diff, not only on the synthetic fixtures Phase 154 unit-tested. **Measured 2026-08-24 (plan 159-05):** `json_parser.c` lines **128-131** (span 4) → **316-318** (span 3), exact endpoints, on the real diff across 10 citing records sharing this coordinate — this milestone's own natural case, not a synthetic fixture.
+  4. Phase 154's staleness marker is **removed**, and its removal is a close-blocking condition: the milestone cannot be closed while the marker exists. This is what makes D-05's temporary staleness safe structurally rather than by promise. **Discharged 2026-08-24 (plan 159-06):** `.planning/v1.33/CITATIONS-STALE.md` deleted as this plan's final implementation-file mutation, after every other close gate re-passed with the marker still present.
+  5. Citations that Phases 155–158 wrote **into their own records** are covered by the same pass — the case a post-154 remap could not have reached, and the reason the split is worth its complexity. **Measured 2026-08-24 (plan 159-05):** the 723 Phase-155–158-authored shifting citations were included in the same 14,391-record production apply via the 159-02-built supplemental/late manifest layer (904 records: 855 added, 49 modified_global).
 
 **Plans**: 6 plans, 6 waves (strictly sequential)
 
 Plans:
 **Wave 1**
 
-- [ ] 159-01-PLAN.md — harden the remapper into a fail-closed multi-anchor transaction with reviewed-retarget oracles and a write-once production receipt
+- [x] 159-01-PLAN.md — harden the remapper into a fail-closed multi-anchor transaction with reviewed-retarget oracles and a write-once production receipt
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 159-02-PLAN.md — build the 642-row supplemental historical manifest, exhaustive exception ledger, and complete dynamically measured review packet without mutating the original manifest
+- [x] 159-02-PLAN.md — build the 642-row supplemental historical manifest, exhaustive exception ledger, and complete dynamically measured review packet without mutating the original manifest
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 159-03-PLAN.md — manually settle the five known post-154 non-survivors plus every late non-survivor and ambiguous historical anchor/location found by the census
+- [x] 159-03-PLAN.md — manually settle the five known post-154 non-survivors plus every late non-survivor and ambiguous historical anchor/location found by the census
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 159-04-PLAN.md — settle the complete approved stable-ID set and prove zero-exception apply/no-op/hash/range/archive behavior in a disposable rehearsal
+- [x] 159-04-PLAN.md — settle the complete approved stable-ID set and prove zero-exception apply/no-op/hash/range/archive behavior in a disposable rehearsal
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 159-05-PLAN.md — freeze production inputs, apply exactly once, and prove the real corpus is a byte-stable dry-run fixed point
+- [x] 159-05-PLAN.md — freeze production inputs, apply exactly once, and prove the real corpus is a byte-stable dry-run fixed point
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 159-06-PLAN.md — scope-close REMAP/Phase 159, remove the close-blocking marker last, and record readiness for `/gsd-complete-milestone`
+- [x] 159-06-PLAN.md — scope-close REMAP/Phase 159, remove the close-blocking marker last, and record readiness for `/gsd-complete-milestone`
 
 ---
 

@@ -277,3 +277,63 @@ actionable/open count, would be a genuine regression.
 
 `.planning/v1.33/CITATIONS-STALE.md`: **PRESENT** -- Plan 159-06 close-blocks
 on its removal. This plan makes no milestone-completion claim.
+
+## Scoped closure readiness and final marker transition (Plan 159-06)
+
+This section is append-only: no production fact recorded above is rewritten.
+
+**Readiness commands re-run, all green** (frozen in
+`.planning/v1.33/159-close-readiness.json`, `status: READY_TO_REMOVE_MARKER`):
+
+- `pytest -q test_remap_citations.py test_prepare_citation_remap.py
+  test_rehearse_citation_remap.py` -- 98/98 passing.
+- The production-shaped dry run against the real corpus -- disk-based
+  residual limited to exactly `affected_documents == [".planning/STATE.md"]`,
+  1 rewritten / 1 document, all actionable/open counts zero -- the expected,
+  permanent `preserve_unstaged` shape this record's own prior section
+  predicted for this exact gate, confirmed not a regression.
+- Phase 130's archive gate (`check_record_corrections.py`) -- `PASS`,
+  `superseded: 12`, unchanged.
+- `firestarter` HEAD `2ccda8d43c8161a34fb5f83b9ab12c37a443bf22` and
+  `firestarter_app` HEAD `38f0d839a1984fa71cb16ea98afa4d8a4e6bcfe2` both match
+  the production receipt's recorded source heads; both worktrees clean; the
+  app repo's 7 pre-existing untracked entries still `??`.
+- The real meta git index held zero staged paths immediately before this
+  plan's own staging began.
+
+**Scoped-diff expectations, verified against `git diff --stat`:** exactly
+two hand-authored files touched by this closure --
+`.planning/REQUIREMENTS.md` (five REMAP checkboxes ticked, five discharge
+sentences appended, five traceability rows changed to `Complete`, line count
+unchanged at 158, bullet count unchanged at 43) and `.planning/ROADMAP.md`
+(six Phase-159 plan checkboxes ticked, measured-fact sentences appended to
+the five existing Success Criteria, Goal/Depends on/Requirements lines
+byte-identical, line count unchanged at 4593, `### Phase ` heading count
+unchanged at 100) -- plus this record's own append and the marker's final
+deletion. Both files' post-edit sha256 match the digests frozen in
+`159-close-readiness.json`'s `replacement_payload_sha256`
+(`00bcd91e...9ea4f` / `f570c6d1...a7f2684`) exactly.
+
+**Preserved-dirty hashes, re-verified unchanged from the Plan-05 baseline**
+(all 13 paths in `159-close-readiness.json`'s `preserved_dirty_hashes`,
+`.planning/STATE.md` foremost at `e866ab7a...bba71f`): identical before and
+after this plan's own edits. None of these paths were staged.
+
+**Marker-present precondition:** `.planning/v1.33/CITATIONS-STALE.md`
+(sha256 `405d2477...becc0`) was read last, immediately before deletion, and
+was present for every gate re-run above. Its deletion is this plan's final
+implementation-file mutation; no file edit or generator run follows it.
+
+**SWEEP-13 note:** its one-meta-commit clause remains exactly as
+154-12/159-01..05 left it -- intentionally open, unticked, and not
+rewritten by this closure. This plan adds its own commit under
+`.planning/v1.33` on top of that already-recorded count; the honest
+count is not re-derived or asserted to have changed shape.
+
+**No archive, release, push, PR, merge, or milestone-completion action
+occurred in this plan.** v1.33 is not described as archived, released,
+shipped, or completed anywhere in this closure.
+
+**Next action:** `/gsd-complete-milestone` -- a separate, operator-gated
+workflow. This record and `159-close-readiness.json` are its inputs, not
+its execution.
