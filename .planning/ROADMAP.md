@@ -443,7 +443,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 158-05-PLAN.md — LAND-03 fixed on the test-inventory axis, the named Phase 158 checker/fixture floor carry-forward closed, and the two false CI-coverage docstrings corrected
+- [x] 158-05-PLAN.md — LAND-03 fixed on the test-inventory axis, the named Phase 158 checker/fixture floor carry-forward closed, and the two false CI-coverage docstrings corrected
 
 **Wave 6** *(blocked on Wave 5 completion)*
 

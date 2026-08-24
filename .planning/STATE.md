@@ -6,14 +6,14 @@ current_phase: 158
 current_phase_name: residual-optimizations-cold-baseline-re-record-firmware-only
 status: executing
 stopped_at: Phase 157 complete and verified 7/7 -- json_parser.c's key_parsers[] rewritten as a compiler-derived {key, clamp, offset, width} PROGMEM field table with one inlined store_field (19df431), handle protocol narrowed to uint8_t and ctrl_flags to uint16_t (76ff592), five DECODE-05 range-safety cases (8edfd6e), and the read-timing cap equality plus six offsetof round-trip cases (785e644). Measured -1144 B flash / -5 B RAM cold-to-cold on all three AVR targets -- NOT the predicted -1148 B, and NOT the ROADMAP's -976/-172 split; the measured split is -884 B table / -260 B narrowing, the divergence attributed to OD-1's per-row mask-vs-saturate policy column (C-19). Native suite 172 -> 184, 17 suites, on both native and native_nodevtools -- hand this count forward to Phase 158/LAND-01. DECODE-07 measured +18 B at this position on all three targets, a coincidence of magnitude against the survey's stale 25696/25678 absolutes, not a confirmation of them. Before/after figures in .planning/v1.33/157-before-figures.md and 157-after-figures.md, which supersede the ROADMAP and REQUIREMENTS prose on 22 counts (C-1..C-22).
-last_updated: "2026-08-24T10:25:49.652Z"
+last_updated: "2026-08-24T10:38:11.040Z"
 last_activity: 2026-08-24
 last_activity_desc: Phase 158 execution started
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 39
-  completed_plans: 36
+  completed_plans: 37
   percent: 67
 ---
 
@@ -146,13 +146,28 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 158 (residual-optimizations-cold-baseline-re-record-firmware-only) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
-Next: **Phase 158 Plan 02** -- the `jsmntok_t` narrowing (LAND-05, OD-1), against the COLD
-pre-phase position (uno 23090/1562, uno328pb 23138/1568, leonardo 25234/2003, all zero warnings;
-native/native_nodevtools both 184/184/17) and the LAND-04/07/08 records this plan (158-01) closed
-in `.planning/v1.33/158-before-figures.md`.
-**Stopped at:** Phase 158 Plan 03 complete -- LAND-06 discharged as a recorded decline: mask cost re-measured cold at this phase's own position inside a throwaway detached worktree (+22/+24/+22 B flash, 0 B RAM on uno/uno328pb/leonardo -- agrees with LAND-06 on uno/leonardo, 2 B low on uno328pb, C-3), the two __udivmodsi4 calls inside flash_5v_page_write_execute witnessed present and removed by symbol-range avr-objdump disassembly on all three ELFs (468 B -> 490 B on uno), image-wide call-site count dropped 11 -> 9 (still non-zero, no linkage saving, surviving user eprom_budget.cpp:109). Zero behavioural native coverage of the boundary predicates established by enumerating all 14 test_val_5v_page cases -- two execute the write path (correcting F-6's count of one), neither reaches a boundary. Runtime half recorded as unquantified by construction under D-02. src/proms/flash_5v_page.cpp byte-unchanged, no commit created in firestarter, worktree torn down and pruned. Next: plan 158-04.
+Next: **Phase 158 Plan 06** -- the after-figures record (`.planning/v1.33/158-after-figures.md`),
+closing C-2/C-3/C-13 against the final cold tree left by plan 05 (firmware HEAD `2ccda8d`):
+BASE-01's canonical `--policy merge05 --rebuild` now exits 0 (LAND-03 fixed, native inventory
+axis 141->184), both `test_checker_convention.py` floors now read true at 8/31, and both false
+CI-coverage docstrings are corrected. `python3 -m pytest tests/ -q -o addopts=""` green at 360
+passed, 0 skipped.
+**Plan 158-05 complete (2026-08-24):** BASE-01's native inventory axis re-anchored 141->184 on
+both `native`/`native_nodevtools` (`avr_targets` byte-unchanged; new
+`meta.native_inventory_axis_phase158` note) -- `fix(158-05)` `7894dec` -- flipping the canonical
+`--policy merge05 --baseline size_baseline_base01.json --rebuild` invocation from plan 01's
+recorded exit 1 (two `cases baseline=141 observed=184` lines) to exit 0 with a full `PASS:` line.
+`test_checker_convention.py`'s named carry-forward closed as a tightening, not a repair:
+`FLOOR` 7->8, `FIXTURE_FLOOR` 16->31, both counted on the tree (`test(158-05)` `5dca69d`), with a
+non-vacuity probe (`FIXTURE_FLOOR=32` fails with `assert 31 >= 32`) recorded then reverted. Two
+in-tree docstrings (`test_check_size_baseline.py`, `meta_presence.py`) corrected, comment-only,
+to state the checker's own pytest suite DOES run in CI via `build.yml:161` on every branch except
+`beta` (`docs(158-05)` `2ccda8d`), verified by an AST-diff with docstrings stripped showing zero
+assertion/import/constant/def changes. `python3 -m pytest tests/ -q -o addopts=""` green (360
+passed, 0 skipped) after each of the three commits. See `158-05-SUMMARY.md`.
+**Stopped at:** Completed 158-05-PLAN.md
 **Plan 157-02 complete (2026-08-23):** `firestarter/src/json_parser.c`'s `key_parsers[]` rewritten
 as a compiler-derived `{key, clamp, offset, width}` `field_desc_t` table (`19df431`), replacing the
 PROGMEM function-pointer column and its ten dispatch stubs (`get_memory_size`, `get_address`,
@@ -2472,6 +2487,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 158]: OD-7 executed: ARM toolchain (gcc-arm-none-eabi, cmake, ninja-build) installed cleanly via apt; py32f071 built successfully at both pre- and post-narrowing tree positions -- LAND-05's ARM half verified locally, not merely ceiling-recorded
 - [Phase 158]: OD-2 confirmed (LAND-06 DECLINED): mask cost re-measured cold at this phase's own position (+22/+24/+22 B flash, 0 B RAM), agreeing with LAND-06 on uno/leonardo, 2 B low on uno328pb (C-3); zero behavioural coverage of the boundary predicates enumerated across all 14 test_val_5v_page cases (correcting F-6's case count from one to two)
 - [Phase ?]: OD-8 executed (Phase 158 Plan 04): size_baseline.json re-recorded from cold builds; *_v158* severance is 4 new files plus 2 updated in place (not 13), since no MERGE-05 exemption is authored for a reduction; *_v153* retired in place and kept; BASE-01 and checker source byte-unchanged. Default mode flipped RED->GREEN (LAND-01); canonical --policy merge05 prints three negative deltas verbatim (LAND-02).
+- [Phase ?]: 158-05: BASE-01's native inventory axis re-anchored 141->184 (axis-split argument: growth/board-identity/test-inventory), fixing LAND-03 rather than carrying it
+- [Phase ?]: 158-05: test_checker_convention.py FLOOR/FIXTURE_FLOOR floors raised 7/16 -> 8/31 as a tightening of a loose gate, both counted on the tree; carry-forward closed
+- [Phase ?]: 158-05: corrected two in-tree docstrings (test_check_size_baseline.py, meta_presence.py) that falsely claimed no CI leg runs the checker's own pytest suite -- build.yml:161 does, on every branch except beta
 
 ## Performance Metrics
 
@@ -2815,10 +2833,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 158 P02 | 45min | 3 tasks | 2 files |
 | Phase 158 P03 | 35min | 2 tasks | 0 files |
 | Phase 158 P04 | 40min | 3 tasks | 8 files |
+| Phase 158 P05 | 35min | 3 tasks | 4 files |
 
 ## Session
 
-**Last session:** 2026-08-24T10:24:59.445Z
+**Last session:** 2026-08-24T10:38:10.982Z
 **Stopped at:** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
 the PROGMEM function-pointer column and its ten dispatch stubs with one shared, inlined
