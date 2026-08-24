@@ -114,6 +114,51 @@ phase that found it.**
   Phases 155–158 entirely. Re-pinned to the v1.33 firmware tip `2ccda8d4` in the same commit.
   `firestarter_app` was already correct at `38f0d83`.
 
+### Citation-Shift Audit Of This Close (2026-08-24)
+
+**A milestone close necessarily shifts line numbers in the very records it writes,** and in a milestone
+whose subject was citation hygiene that deserved measuring rather than assuming. It was measured.
+
+The close edited five records (`PROJECT.md` +7 lines, `STATE.md` +42, `ROADMAP.md` +2, `MILESTONES.md`
++138, `RETROSPECTIVE.md` +110). Every `.planning/` → `.planning/` `file:LINE` citation into those five was
+re-resolved against the pre-close blob at `295c5215`; a citation counts as **displaced** when the line at
+its cited number now holds different content than it did before the close.
+
+| Result | Count |
+|---|---|
+| Citations examined (into the five edited records) | 1,035 |
+| Unchanged by the close | 472 |
+| **Displaced** | **563** |
+| — of those, inside **historical** phase/archive artifacts | **546** (90 citing documents) |
+| — of those, inside the **live** records themselves | **17** |
+
+**None of the 563 was repaired, and that is a decision with evidence, not an omission.**
+
+- **The 546 are audit trails, and rewriting them would corrupt the record.** The largest single block is
+  **176 in `159-03-SUMMARY.md`** — this milestone's own exception ledger, whose entries read *"…
+  `.planning/PROJECT.md:1607` no longer contains any citation to `check_size_baseline.py` … chosen
+  endpoint: none (retired)"*. Those line numbers are the **evidence for a retirement decision**, quoted as
+  of review time. Advancing them would make the ledger assert something it never found. The same holds for
+  the 130-\* and 146-\* close-ledger blocks.
+- **The 17 in live records are deliberately-historical too — each is labelled stale by its own
+  surrounding prose.** `STATE.md:154` / `PROJECT.md:671` are introduced with *"the design note's own …
+  line references are themselves stale"*; `STATE.md:532` / `PROJECT.md:705` with *"used to read"*;
+  `STATE.md:634` / `PROJECT.md:823` with *"was ITSELF already stale"*; `ROADMAP.md:363` with *"is
+  wrong"*; and `STATE.md:11` with *"deliberately left"*. They form a **documented drift chain** this
+  project has recorded across four separate corrections — advancing the numbers would delete the drift
+  the chain exists to demonstrate. Two further cases are structurally unrepairable and prove the point:
+  `STATE.md:972`'s pre-close target is an **empty line matching 309 lines** in the new file, and
+  `ROADMAP.md:2414`'s is `**Plans**: 3 plans`, matching six.
+- **Scope check:** this class was **never** in the v1.33 remap's scope. The Phase-154 manifest targets
+  source files — 5,646 records under `firestarter_app/` and 5,381 under `firestarter/` — not `.planning/`
+  documents. So the close did not undo remap work; it moved lines in a class the remap never covered.
+
+**Carried forward as the actionable finding:** `.planning/` → `.planning/` line citations have no
+maintaining mechanism, and every close shifts them. The distinction that must survive is
+**historical-by-intent vs live-pointer** — a future sweep of this class that cannot tell them apart would
+do more damage than the drift. The Phase-130 archive gate was re-run after all close edits and holds at
+**PASS, `superseded: 12`**, unchanged.
+
 ### Firmware Size — Before and After
 
 **Read the labels before reading the deltas.** The pre-milestone figures are **WARM**; the
