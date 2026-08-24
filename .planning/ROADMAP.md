@@ -427,15 +427,15 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 158-01-PLAN.md — the before-figures record: the pre-phase cold position, the default-mode RED shape, the four legs that redden, plus LAND-04's two clauses, LAND-07's three re-derived token bounds and LAND-08's timed flakiness evidence
+- [x] 158-01-PLAN.md — the before-figures record: the pre-phase cold position, the default-mode RED shape, the four legs that redden, plus LAND-04's two clauses, LAND-07's three re-derived token bounds and LAND-08's timed flakiness evidence
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 158-02-PLAN.md — LAND-05: narrow `jsmntok_t` 8 → 6 B with `start`/`end` still signed, a region-scoped source-contract gate proven RED first, and the ARM half built once or its ceiling recorded
+- [x] 158-02-PLAN.md — LAND-05: narrow `jsmntok_t` 8 → 6 B with `start`/`end` still signed, a region-scoped source-contract gate proven RED first, and the ARM half built once or its ceiling recorded
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 158-03-PLAN.md — LAND-06 declined: measure the mask's cost at this phase's own position in a throwaway worktree, witness the two `__udivmodsi4` sites, enumerate the zero behavioural coverage, and leave `flash_5v_page.cpp` byte-unchanged
+- [x] 158-03-PLAN.md — LAND-06 declined: measure the mask's cost at this phase's own position in a throwaway worktree, witness the two `__udivmodsi4` sites, enumerate the zero behavioural coverage, and leave `flash_5v_page.cpp` byte-unchanged
 
 **Wave 4** *(blocked on Wave 3 completion)*
 

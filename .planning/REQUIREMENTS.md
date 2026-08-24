@@ -68,7 +68,7 @@ Four things are already decided and must survive the discuss step:
 - [ ] **LAND-03**: The pre-existing BASE-01 native case-count mismatch — `cases baseline=141 observed=172`, which makes the canonical `--policy merge05 --baseline scripts/baseline/size_baseline_base01.json` invocation exit 1 on `beta` **before it ever reports flash** — is fixed or recorded as knowingly carried, with its cause named (BASE-01 frozen at Phase 124's count). It is **not** caused by this milestone: the size-reduction diff touches zero files under `test/`.
 - [ ] **LAND-04**: It is recorded that **`check_size_baseline.py` runs in no CI workflow at all** (`grep` over `.github/` returns nothing), so every gate this milestone leans on is a local-run obligation. Stated plainly; never implied to be automated.
 - [ ] **LAND-05**: The `jsmntok_t` 8 → 6 B narrowing is re-tested on an idle machine and either landed (**−128 B RAM** for +30 B flash, no protocol change) or rejected **with the failure named**. Its earlier "breaks the suite" reading was **retracted during scoping** as probable load-flakiness, so the result is genuinely **unknown**. `start` and `end` must stay signed — `jsmn.c` uses `-1` sentinels in twelve places.
-- [ ] **LAND-06**: The `flash_5v_page_write_execute` per-byte modulo is replaced with a mask or declined, **with the measurement cited either way**. `flash_5v_page_page_size()` returns 64/128/256 — always a power of two — yet the loop calls `__udivmodsi4` **twice per byte**. Masking costs **+22 B flash** (measured), so this is a size-for-speed trade and the runtime half is unquantified. If taken, it is labelled as affecting the **algorithm-5 flash-page path only** and explicitly **not** connected to the w27c512-write-slow-3x work, which is a different protocol path.
+- [x] **LAND-06**: The `flash_5v_page_write_execute` per-byte modulo is replaced with a mask or declined, **with the measurement cited either way**. `flash_5v_page_page_size()` returns 64/128/256 — always a power of two — yet the loop calls `__udivmodsi4` **twice per byte**. Masking costs **+22 B flash** (measured), so this is a size-for-speed trade and the runtime half is unquantified. If taken, it is labelled as affecting the **algorithm-5 flash-page path only** and explicitly **not** connected to the w27c512-write-slow-3x work, which is a different protocol path.
 - [ ] **LAND-07**: `NUMBER_JSNM_TOKENS` is recorded as **not reducible**, with the arithmetic, so the lead is closed rather than re-investigated. The maximal real command is **57 tokens** (from `pinouts.json`'s largest `address-bus-pins` = 19 and `static-high-pins` = 1, plus every optional wire key) against the current 64 — **7 tokens of headroom**. The 512 B token array can therefore only shrink via LAND-05 or via v1.28 / Backlog 999.35.
 - [ ] **LAND-08**: The native suite's load-flakiness is recorded with its evidence — 172/172 at ~35 s (×5), 171/172 once at 1:13, 158-cases-with-2-ERRORED once at 1:44; failure correlates with run duration, not tree content — so the next reader does not re-derive it from a single confusing failure.
 
@@ -123,7 +123,7 @@ Which phase covers which requirement. Authored with the requirements, tabulated 
 | LAND-03 | Phase 158 | Pending |
 | LAND-04 | Phase 158 | Pending |
 | LAND-05 | Phase 158 | Pending |
-| LAND-06 | Phase 158 | Pending |
+| LAND-06 | Phase 158 | Complete |
 | LAND-07 | Phase 158 | Pending |
 | LAND-08 | Phase 158 | Pending |
 | REMAP-01 | Phase 159 | Pending |
