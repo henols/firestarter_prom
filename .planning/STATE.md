@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.33
 milestone_name: — Source Hygiene & Firmware Size Reduction
 current_phase: 158
-current_phase_name: Residual Optimizations + Cold Baseline Re-Record (firmware-only)
+current_phase_name: residual-optimizations-cold-baseline-re-record-firmware-only
 status: executing
 stopped_at: Phase 157 complete and verified 7/7 -- json_parser.c's key_parsers[] rewritten as a compiler-derived {key, clamp, offset, width} PROGMEM field table with one inlined store_field (19df431), handle protocol narrowed to uint8_t and ctrl_flags to uint16_t (76ff592), five DECODE-05 range-safety cases (8edfd6e), and the read-timing cap equality plus six offsetof round-trip cases (785e644). Measured -1144 B flash / -5 B RAM cold-to-cold on all three AVR targets -- NOT the predicted -1148 B, and NOT the ROADMAP's -976/-172 split; the measured split is -884 B table / -260 B narrowing, the divergence attributed to OD-1's per-row mask-vs-saturate policy column (C-19). Native suite 172 -> 184, 17 suites, on both native and native_nodevtools -- hand this count forward to Phase 158/LAND-01. DECODE-07 measured +18 B at this position on all three targets, a coincidence of magnitude against the survey's stale 25696/25678 absolutes, not a confirmation of them. Before/after figures in .planning/v1.33/157-before-figures.md and 157-after-figures.md, which supersede the ROADMAP and REQUIREMENTS prose on 22 counts (C-1..C-22).
-last_updated: "2026-08-24T08:56:24.222Z"
+last_updated: "2026-08-24T09:41:25.261Z"
 last_activity: 2026-08-24
-last_activity_desc: Phase 158 planned -- 7 plans, waves 1-7
+last_activity_desc: Phase 158 execution started
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 32
-  completed_plans: 32
+  total_plans: 39
+  completed_plans: 33
   percent: 67
 ---
 
@@ -29,7 +29,7 @@ See: `.planning/PROJECT.md` (updated 2026-08-22 — v1.33 started)
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
 authoritative dispatch key end to end. v1.33 does not touch that contract at all: its entire premise is
 byte-level equivalence. **Make the source shorter without changing what it does.**
-**Current focus:** Phase 157 — Command-Decode Table + Handle Type Narrowing (firmware-only) — executing 2026-08-23;
+**Current focus:** Phase 158 — residual-optimizations-cold-baseline-re-record-firmware-only
 **executing now** (7 plans, waves 1–7, strictly sequential). Requirements DEDUP-01…04. Phase 154's
 `SWEEP-01…NN` placeholder resolved to **13** requirements at `/gsd-discuss-phase 154` and `REQUIREMENTS.md`
 §1 carries them; Phases 157–159 can go straight to `/gsd-plan-phase`.
@@ -145,11 +145,14 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 158 — Residual Optimizations + Cold Baseline Re-Record (firmware-only)
-Plan: Not started
-Status: Ready to execute
-Next: **Phase 157 Plan 03** -- the `protocol`/`ctrl_flags` type narrowing (DECODE-04), against the field table plan 02 landed. **Was:** **Phase 156 execution** -- `/gsd-execute-phase 156` (7 plans, waves 1-7; planned 2026-08-23, plan-checker PASSED on the first iteration). Waves are strictly sequential because every plan touches `eprom.cpp`, `memory.cpp`, `memory_utils.h` or their committed golden. Target **-426 B flash / RAM unchanged** on all three AVR targets (24660->24234 uno, 24708->24282 uno328pb, 26804->26378 leonardo), measured at `adf1a31`, not quoted. DEDUP-04 is resolved toward **REMOVAL** by operator decision, so the nine `!` wrappers and the six engine returns actually flip -- and that flip is **size-identical, NOT image-identical** (the `.hex` SHA changes on all three targets; research correction C-4). Two measured DEDUP-03 blind spots (VPP under-voltage severity pairing, chip-ID message id) are closed in plan 02 BEFORE the refactor, each seen RED against a planted transposition and GREEN against the real tree. `tests/test_protocol_branch_inventory.py` goes RED on commit and is re-derived 23->22 in plan 03 and 22->21 in plan 04, each inside its own commit. Nothing is pushed. `wip/v1.33-size-reduction-survey-preserved` @ `a6b46f8` remains the ONLY ref carrying 155-158's implemented work -- and it does NOT carry DEDUP-04.
-**Stopped at:** Completed 157-07-PLAN.md
+Phase: 158 (residual-optimizations-cold-baseline-re-record-firmware-only) — EXECUTING
+Plan: 2 of 7
+Status: Executing Phase 158
+Next: **Phase 158 Plan 02** -- the `jsmntok_t` narrowing (LAND-05, OD-1), against the COLD
+pre-phase position (uno 23090/1562, uno328pb 23138/1568, leonardo 25234/2003, all zero warnings;
+native/native_nodevtools both 184/184/17) and the LAND-04/07/08 records this plan (158-01) closed
+in `.planning/v1.33/158-before-figures.md`.
+**Stopped at:** Phase 158 Plan 01 complete -- cold pre-phase position captured on all three AVR targets (uno 23090/1562, uno328pb 23138/1568, leonardo 25234/2003, zero warnings) and both native envs (184/184/17 x4 timed runs, no flake). LAND-04 discharged both clauses (no .github/ workflow invokes check_size_baseline.py; its own pytest runs in CI at build.yml:161). LAND-07 discharged: three re-derived token bounds 50/14, 51/13, 55/9, refuting the criterion's 57/7 -- script kept at /tmp/gsd-158/land07_tokens.py. LAND-08 discharged with four new same-tree timed native runs plus the D-04 prohibitions. Default mode against size_baseline.json recorded RED, 8 lines verbatim, so plan 04's flip to GREEN is falsifiable. Four reddening legs and four porcelain legs enumerated separately. Record committed at .planning/v1.33/158-before-figures.md (d78f9354). Next: plan 158-02 (jsmntok_t narrowing, LAND-05).
 **Plan 157-02 complete (2026-08-23):** `firestarter/src/json_parser.c`'s `key_parsers[]` rewritten
 as a compiler-derived `{key, clamp, offset, width}` `field_desc_t` table (`19df431`), replacing the
 PROGMEM function-pointer column and its ten dispatch stubs (`get_memory_size`, `get_address`,
@@ -167,7 +170,7 @@ code. Both native envs still 172/172, both local check scripts pass, and `firest
 wire-key parity gate reports 24 passed with zero host files touched. Next: plan 157-03 (the
 `protocol`/`ctrl_flags` type narrowing, DECODE-04).
 
-Last activity: 2026-08-23 — Phase 157 complete, transitioned to Phase 158
+Last activity: 2026-08-24 — Phase 158 execution started
 
 **The manifest is on disk and committed, and it is the point of no return for Phase 159.**
 `.planning/v1.33/sweep-citation-manifest.jsonl` holds **13,692** records over 2,947 planning documents
@@ -2462,6 +2465,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 157]: DECODE-07: second rejection argument recorded -- firestarter/CLAUDE.md pins configure_memory's if-chain dispatch order as a source-of-truth contract, proven byte-unchanged since 1151dc4
 - [Phase 157]: 157-07: cold-rebuilt both sides of the phase's headline size delta (-1144 B / -5 B) in a throwaway worktree rather than trusting WARM figures, proving cold-to-cold rather than assuming equivalence
 - [Phase 157]: 157-07: all seven DECODE requirements Complete against 157-after-figures.md; ROADMAP/REQUIREMENTS closures confined to Phase 157/section 4, verified by heading-count and line-count diffs
+- [Phase 158]: LAND-07's chip-database token bound requires merging ALL of eprom_operations.py's optional runtime keys (address, read-settling-delay, read-strobe-us), not just cmd, to reproduce the research's 50/14 figure — Omitting the three optional runtime keys understated the bound by 6 tokens (44 vs 50); confirmed correct once fixed
+- [Phase 158]: check_build_warnings.py's bare (no-argument) invocation exits 1 via its own never-vacuous guard, not 0 as the plan's own acceptance criterion assumed — Recorded the actual observed behavior for both the bare invocation and the correct --log-qualified invocation rather than forcing the plan's original expectation to appear true
 
 ## Performance Metrics
 
@@ -2801,10 +2806,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 157 P05 | 90min | 3 tasks | 1 files |
 | Phase 157 P06 | 30min | 2 tasks | 0 files |
 | Phase 157 P07 | 100min | 3 tasks | 3 files |
+| Phase 158 P01 | 22min | 3 tasks | 1 files |
 
 ## Session
 
-**Last session:** 2026-08-23T22:06:32.698Z
+**Last session:** 2026-08-24T09:41:13.280Z
 **Stopped at:** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
 the PROGMEM function-pointer column and its ten dispatch stubs with one shared, inlined
