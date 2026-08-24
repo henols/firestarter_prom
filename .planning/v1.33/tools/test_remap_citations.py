@@ -1324,6 +1324,120 @@ def test_retired_ledger_entry_is_a_terminal_noop(tmp_path):
     assert report["open_ids"]["needs_review"] == [], report["open_ids"]
 
 
+# ---------------------------------------------------------------------------
+# Phase 159-05 blocker fix: `recordscan:supersedes`-protected lines (Plan
+# 130-09 mechanism 3) must never be a remap target, general rule -- not a
+# two-record special case. See remap_citations.py's `DELIBERATELY_SUPERSEDED_
+# RECORD` / `parse_supersedes_protected_lines`.
+# ---------------------------------------------------------------------------
+def test_expand_supersedes_line_tokens_handles_single_list_and_range():
+    assert rc._expand_supersedes_line_tokens("5") == {5}
+    assert rc._expand_supersedes_line_tokens("1,3,7") == {1, 3, 7}
+    assert rc._expand_supersedes_line_tokens("10-13") == {10, 11, 12, 13}
+    assert rc._expand_supersedes_line_tokens("1, 3-5, 9") == {1, 3, 4, 5, 9}
+    # Malformed tokens are skipped, not raised.
+    assert rc._expand_supersedes_line_tokens("2,,x,7-3,9") == {2, 9}
+
+
+def test_parse_supersedes_protected_lines_requires_a_stated_reason():
+    text_with_reason = (
+        "para\n"
+        "<!-- recordscan:supersedes needle=foo lines=2 reason: because -->\n"
+    )
+    assert rc.parse_supersedes_protected_lines(text_with_reason) == {2: ["foo"]}
+
+    text_no_reason = "para\n<!-- recordscan:supersedes needle=foo lines=2 -->\n"
+    assert rc.parse_supersedes_protected_lines(text_no_reason) == {}
+
+
+def test_supersedes_protected_line_is_never_a_remap_target(tmp_path):
+    """A `recordscan:supersedes` marker protecting line 3 of the citing
+    document must leave that line's citation byte-unchanged even though the
+    identical citation shape (":15" on the chain) is exactly what every OTHER
+    test in this module proves DOES rewrite (see
+    `test_idempotent_on_chained_map`). Line 4's range citation is an
+    unprotected control in the SAME document and must still rewrite
+    normally -- proving the rule is line-scoped, not document-wide."""
+    doc_min = open(_DOC_MIN, encoding="utf-8").read()
+    marker = (
+        "\n<!-- recordscan:supersedes needle=fake-needle lines=3 reason: "
+        "line 3's citation is a deliberately preserved stale figure for "
+        "this test; its correction is recorded elsewhere in this file -->\n"
+    )
+    h = Harness(tmp_path, doc_text=doc_min + marker)
+
+    assert h.cited(3).endswith(":15")
+    assert h.cited(4).endswith(":3-18")
+
+    report_path = tmp_path / "supersedes.json"
+    result = h.apply("--report-json", str(report_path))
+    assert result.returncode == 0, _shown(result, 0)
+
+    assert h.cited(3).endswith(":15"), (
+        "a recordscan:supersedes-protected line must never be rewritten: "
+        f"got {h.cited(3)!r}"
+    )
+    assert h.cited(4).endswith(":3-13"), (
+        "an UNPROTECTED control citation in the same document must still "
+        f"remap normally: got {h.cited(4)!r}"
+    )
+
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report["retired_by_cause"].get("deliberately_superseded_record") == 1, (
+        report["retired_by_cause"]
+    )
+    assert report["actionable_counts"]["needs_review"] == 0, report["actionable_counts"]
+
+    # Idempotent: a second apply is a byte-for-byte no-op on the protected line.
+    after_run_1 = h.doc_text()
+    assert h.apply().returncode == 0
+    assert h.doc_text() == after_run_1
+    assert h.cited(3).endswith(":15")
+
+
+# ---------------------------------------------------------------------------
+# Phase 159-05 preflight discovery: a `.gitignore`d citing document (found in
+# the real corpus: `.planning/graphs/graph.json` /
+# `.planning/graphs/.last-build-snapshot.json`, both regenerable graphify
+# build caches) must never be a remap target -- general rule, matched by
+# `git check-ignore`, not a two-path special case. See
+# `GITIGNORED_CITING_DOCUMENT` / `_is_gitignored_citing_document`.
+# ---------------------------------------------------------------------------
+def test_gitignored_citing_document_is_never_a_remap_target(harness, tmp_path):
+    """The harness's own default citing document (`.planning/doc_min.md`,
+    8 records) is proven to rewrite normally by every other test in this
+    module (e.g. `test_idempotent_on_chained_map`). Adding a `.gitignore`
+    rule for that exact path must leave EVERY citation on it byte-unchanged,
+    with each record reported RETIRED under the new cause -- never read,
+    never written, no violation, no needs_review."""
+    # Realistic shape of the real corpus's two graph-cache hits: UNTRACKED
+    # and gitignored (git does not report an already-TRACKED path as
+    # ignored, by design -- see `git help check-ignore`), so the harness's
+    # pre-committed doc is un-tracked here first.
+    assert _git(harness.root, "rm", "-q", "--cached", _DOC_REL).returncode == 0
+    assert _git(harness.root, "commit", "-qm", "untrack doc_min.md for this test").returncode == 0
+    with open(os.path.join(str(harness.root), ".gitignore"), "w", encoding="utf-8") as fh:
+        fh.write(_DOC_REL + "\n")
+
+    before = harness.doc_text()
+    assert harness.cited(3).endswith(":15")
+
+    report_path = tmp_path / "gitignored.json"
+    result = harness.apply("--report-json", str(report_path))
+    assert result.returncode == 0, _shown(result, 0)
+    assert harness.doc_text() == before, (
+        "a gitignored citing document must never be rewritten, even though "
+        "the identical citation shape rewrites in every other test"
+    )
+
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report["retired_by_cause"].get(
+        "citing_document_is_gitignored_generated_artifact"
+    ) == 8, report["retired_by_cause"]
+    assert report["actionable_counts"]["needs_review"] == 0, report["actionable_counts"]
+    assert report["affected_documents"] == [], report["affected_documents"]
+
+
 def test_reviewed_bypass_collapses_a_range_retarget_to_a_point_and_is_idempotent(tmp_path):
     """Phase 159-04: `hand_choice_retargeted_verbatim` (16 real decisions)
     supplies only a START for a record whose manifest citation is a RANGE

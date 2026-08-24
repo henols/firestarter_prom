@@ -253,6 +253,7 @@ import difflib
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -504,6 +505,135 @@ def _is_reviewed_collapse(rec: dict, entry: dict | None) -> bool:
     if entry.get("chosen_current_start") is None and entry.get("chosen_target_line") is None:
         return False
     return entry.get("chosen_target_line_end") is None and entry.get("chosen_current_end") is None
+
+
+#: Phase 159-05 blocker fix (operator ruling, see 159-05-PLAN.md context):
+#: a `recordscan:supersedes` marker (Plan 130-09 mechanism 3; see
+#: `.planning/phases/130-close-honesty-ledger-claim-gate-release-decision/
+#: check_record_corrections.py`'s module docstring, "Why a fourth mechanism
+#: exists") declares specific 1-based line numbers IN ITS OWN DOCUMENT as
+#: retroactively covering a deliberately-preserved stale figure, whose
+#: correction is recorded elsewhere in the same document (D-05: the
+#: append-only-SUPERSEDED-section pattern). A citation that happens to sit
+#: on one of those lines is not incidental -- the entire point of the
+#: marker is that the figure on that line is wrong ON PURPOSE. Remapping it
+#: would silently destroy the deliberately-preserved historical record and
+#: write a THIRD value matching neither the preserved figure nor the
+#: correction. This engine must therefore never treat such a line as a
+#: remap target, for ANY citation record, regardless of which needle
+#: prompted the marker.
+#:
+#: Deliberately MORE permissive on syntax than `check_record_corrections
+#: .py`'s own `_SUPERSEDE_MARKER_RE`: that checker's `lines=` value accepts
+#: only integers and comma lists. This tool's `lines=` value additionally
+#: accepts inclusive `N-M` ranges (Plan 159-05's explicit requirement), even
+#: though no live marker uses that form yet -- a future marker author is not
+#: forced to spell out every line individually.
+_SUPERSEDES_MARKER_RE = re.compile(
+    r"<!--\s*recordscan:supersedes\s+needle=([a-zA-Z0-9-]+)\s+"
+    r"lines=([0-9,\s-]+?)\s+(.*?)-->",
+    re.DOTALL,
+)
+
+#: The `retire_cause` this engine records for a citation excluded from remap
+#: solely because its line is `recordscan:supersedes`-protected. Distinct
+#: from every 159-03/159-04 retire cause -- those describe why a decision
+#: could not be made; this describes a line that must never be touched at
+#: all, independent of any ledger review.
+DELIBERATELY_SUPERSEDED_RECORD = "deliberately_superseded_record"
+
+#: Phase 159-05 preflight discovery (not a 159-03 checkpoint decision): the
+#: production `--index-plan` surfaced two `requires_authorization` entries
+#: with NO corresponding `159-corpus-overlay.json` row --
+#: `.planning/graphs/graph.json` and `.planning/graphs/.last-build-snapshot
+#: .json`, both `.gitignore`d (see `.gitignore` lines 49-50: "Knowledge-graph
+#: output ... regenerable from the tree"). These are large (~23 MB each)
+#: machine-generated caches, not authored planning prose; a numeric pattern
+#: inside their JSON bytes incidentally matches the citation regex. Per this
+#: plan's own index-entry rule ("untracked/renamed path without
+#: authorize_include: fail"), reaching --apply with these unauthorized
+#: WOULD be a hard stop. Rather than force a meaningless "authorize this
+#: build cache into the commit" decision (impossible anyway -- `.gitignore`d
+#: content cannot be staged without `-f`, which this project's git-safety
+#: rules forbid) or block the ENTIRE milestone-critical sole production
+#: apply on two regenerable caches, this engine excludes any citing document
+#: that `git check-ignore` reports as ignored from remap entirely: never
+#: read, never rewritten, byte-untouched on disk, same terminal-no-op shape
+#: as RETIRED. This is a general rule (any current or future `.gitignore`d
+#: citing path), not a two-path special case, matching this plan's own
+#: precedent for the `recordscan:supersedes` fix above.
+GITIGNORED_CITING_DOCUMENT = "citing_document_is_gitignored_generated_artifact"
+
+
+def _is_gitignored_citing_document(repo_root: Path, rel: str) -> bool:
+    """True iff `rel` (repo-root-relative planning_file path) is excluded by
+    a `.gitignore` rule anywhere in `repo_root`. Best-effort: a subprocess
+    failure (no git binary, not a repository) is treated as NOT ignored --
+    fail OPEN on this one question only ever WIDENS which documents are
+    processed by the ordinary path; it never widens which documents are
+    silently skipped, so it cannot hide a real citing document from remap."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(repo_root), "check-ignore", "-q", "--", rel],
+            capture_output=True, text=True, check=False,
+        )
+    except OSError:
+        return False
+    return result.returncode == 0
+
+
+def _expand_supersedes_line_tokens(line_csv: str) -> set[int]:
+    """Parse a `recordscan:supersedes` marker's `lines=` value into the set
+    of 1-based line numbers it names: any combination of a single `N`, a
+    comma-separated list of `N`s, and an inclusive `N-M` range. A malformed
+    token (non-numeric, or a reversed range) is silently skipped rather than
+    raising -- mirroring `check_record_corrections.py`'s own fail-quiet
+    posture for this marker (a bad token exempts/protects nothing; it does
+    not crash the tool)."""
+    out: set[int] = set()
+    for tok in line_csv.split(","):
+        tok = tok.strip()
+        if not tok:
+            continue
+        if "-" in tok:
+            lo_s, _, hi_s = tok.partition("-")
+            lo_s, hi_s = lo_s.strip(), hi_s.strip()
+            if lo_s.isdigit() and hi_s.isdigit():
+                lo, hi = int(lo_s), int(hi_s)
+                if lo <= hi:
+                    out.update(range(lo, hi + 1))
+            continue
+        if tok.isdigit():
+            out.add(int(tok))
+    return out
+
+
+def parse_supersedes_protected_lines(doc_text: str) -> dict[int, list[str]]:
+    """Scan `doc_text` for every `recordscan:supersedes` marker and return a
+    `{1-based line number: [needle label, ...]}` map of every line THIS SAME
+    document declares retroactively covered.
+
+    A marker with no reason text (blank once stripped) is ignored, matching
+    mechanism 3's own reason-required rule (`_marker_has_reason` in
+    `check_record_corrections.py`). The needle label is recorded for
+    reporting only -- this tool deliberately does NOT validate it against
+    Phase 130's twelve-label table (that table belongs to Phase 130's
+    checker, not this one): an unrecognised or misspelled label still
+    protects the line. This is intentionally fail-CLOSED on the remap side
+    (never rewrite a protected line) even in a case where Phase 130's own
+    gate would fail OPEN (report the typo'd label's hits as `unlabeled`)
+    for the identical marker -- the two tools have different failure
+    postures because they protect against different mistakes: this one
+    protects a deliberately-wrong figure from being overwritten; that one
+    flags a real, uncorrected staleness from being missed."""
+    protected: dict[int, list[str]] = defaultdict(list)
+    for m in _SUPERSEDES_MARKER_RE.finditer(doc_text):
+        label, line_csv, reason = m.group(1), m.group(2), m.group(3)
+        if not reason.strip():
+            continue
+        for lineno in _expand_supersedes_line_tokens(line_csv):
+            protected[lineno].append(label)
+    return dict(protected)
 
 
 def _read_live_lines(repo_root: Path, target_file_resolved: str) -> list[str] | None:
@@ -1303,8 +1433,30 @@ def remap_document(
     retired_by_cause: Counter | None = None,
 ) -> str:
     lines = doc_text.split("\n")
+    # Phase 159-05 blocker fix: computed ONCE per document, from this same
+    # document's OWN current text -- a `recordscan:supersedes` marker only
+    # ever protects lines in the file it appears in (Plan 130-09 mechanism
+    # 3 is not cross-document). Checked FIRST, before every other
+    # categorization (retired-ledger lookup, EOF, `_associate()`, the
+    # reviewed-ledger bypass): this is an unconditional, document-level
+    # rule that applies to every record on a protected line regardless of
+    # that record's own manifest/ledger status.
+    supersedes_protected = parse_supersedes_protected_lines(doc_text)
     for lineno, records in sorted(records_by_line.items()):
         where = f"{planning_file}:{lineno}"
+        if lineno in supersedes_protected:
+            labels = sorted(set(supersedes_protected[lineno]))
+            for _rec in records:
+                counts[RETIRED] += 1
+                if retired_by_cause is not None:
+                    retired_by_cause[DELIBERATELY_SUPERSEDED_RECORD] += 1
+            notes.append(
+                f"{where} is recordscan:supersedes-protected (needle="
+                f"{','.join(labels)}) -- deliberately-preserved stale "
+                "record per Plan 130-09 D-05; never a remap target "
+                "(159-05 blocker fix); citation left byte-unchanged"
+            )
+            continue
         if lineno < 1 or lineno > len(lines):
             for rec in records:
                 rid = stable_record_id(rec)
@@ -2319,6 +2471,22 @@ def main(argv: list[str] | None = None) -> None:
     retired_by_cause: Counter = Counter()
 
     for rel in sorted(by_doc):
+        # Phase 159-05 blocker fix (see GITIGNORED_CITING_DOCUMENT docstring
+        # above): a gitignored citing document is never read, never written,
+        # and every one of its records is a terminal RETIRED no-op --
+        # checked FIRST, before the file is even opened.
+        if _is_gitignored_citing_document(repo_root, rel):
+            for _lineno, recs in sorted(by_doc[rel].items()):
+                for _rec in recs:
+                    counts[RETIRED] += 1
+                    if retired_by_cause is not None:
+                        retired_by_cause[GITIGNORED_CITING_DOCUMENT] += 1
+            notes.append(
+                f"{rel} is excluded via .gitignore -- a generated/"
+                "regenerable artifact, never a remap target (159-05 "
+                "blocker fix); file left byte-unchanged and unread"
+            )
+            continue
         doc_path = inside(repo_root, rel, "planning_file")
         if doc_path.is_symlink():
             _die(f"refusing to read the citing document through a symlink: {rel}", 1)
