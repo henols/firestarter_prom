@@ -48,7 +48,46 @@ v1.24–v1.29 version slots stay unreused so every by-number cross-reference kee
 
 **Goal:** Make the source shorter without changing what it does.
 
-**Current state (2026-08-23):** **Phase 156 COMPLETE** -- 7 plans, 7 strictly sequential waves,
+**Current state (2026-08-24):** **Phase 158 COMPLETE** -- 7 plans, 7 strictly sequential waves,
+verification `passed` (8/8 must-haves, each re-measured against the tree rather than read off the
+summaries; the verifier independently reproduced the cold `uno` build and BOTH ARM builds byte-for-byte).
+The milestone's last size lever landed and the two candidates the survey left unresolved are both settled.
+`jsmntok_t` narrowed **8 -> 6 B** on AVR with `start`/`end` still signed: **-138 / -138 / -136 B flash and
+-128 B RAM** cold-to-cold on `uno` / `uno328pb` / `leonardo` -- a flash **reduction**, where the scoped
+prediction said *+30 B*. `scripts/baseline/size_baseline.json` is re-recorded from cold builds (`uno`
+22952/1434, `uno328pb` 23000/1440, `leonardo` 25098/1875, both native envs 184/184/17), flipping
+`check_size_baseline.py` default mode from every-line RED to a full `PASS:` -- one-sided by construction,
+since `:697`/`:709` compare growth only, so a reduction passes with no exemption authored. The
+long-standing BASE-01 mismatch is **fixed on a third axis**: its native test-inventory count re-anchored
+141 -> 184 while its growth axis stayed byte-unchanged, so the canonical `--policy merge05` invocation now
+exits 0 without erasing the reduction the baseline exists to catch.
+
+**Two candidates closed by measurement, not by silence.** The `flash_5v_page_write_execute` per-byte
+modulo was **DECLINED**: masking costs `+22 / +24 / +22 B` flash for 0 B RAM, and while the two
+`__udivmodsi4` calls do leave the function, image-wide they only drop 11 -> 9 -- the helper stays linked, so
+there is no linkage saving to buy. `flash_5v_page.cpp` is byte-unchanged. `NUMBER_JSNM_TOKENS` is closed on
+the **forward-compatibility budget, explicitly not on arithmetic impossibility**: the scoped `57 tokens / 7
+headroom` figure is reproducible by none of three re-derived counting rules (observed max 50/14, real pin
+map 51/13, field-wise synthetic 55/9), and `64 -> 56` *is* arithmetically available -- it is declined
+because unknown future wire keys need the slack, and that reason is now on the record instead of a wrong
+number.
+
+**Corrections made publicly rather than carried:** thirteen (C-1..C-13), each appended to the criterion it
+corrects as a `**Correction (C-N)**` clause rather than silently replacing the stale figure -- so a reader
+sees both what was predicted and what was measured. The gate story is now unambiguous for whoever moves
+sizes next: `check_size_baseline.py` is invoked by **no** `.github/` workflow as a size gate, **and** its
+own paired pytest does run in CI at `build.yml:161` on every branch except `beta`. Two in-tree docstrings
+that asserted the inverse were corrected. Both halves are stated together, because either alone misleads.
+
+**Coverage ceiling stated, not implied:** LAND-06's runtime half is unquantified by construction -- the
+decline rests on size and on enumerated *zero* behavioural native coverage for the masked predicates (both
+registered cases that execute the write path drive the same 4-byte handle and reach neither boundary
+branch), not on a runtime measurement that was never taken.
+
+**Phase 157 (Command-Decode Table + Handle Type Narrowing)**, which shipped between Phase 156 and this one,
+is recorded in the footer chain below and in `.planning/v1.33/157-after-figures.md`.
+
+**Prior state (Phase 156):** **Phase 156 COMPLETE** -- 7 plans, 7 strictly sequential waves,
 verification `passed` (4/4 must-haves, each re-measured against the tree rather than read off the
 summaries). Two report blocks that were copy-pasted four times each are now one helper apiece:
 `mem_util_report_voltage` (190 B, DEDUP-01, **-268 B**) and `mem_util_report_chip_id` (90 B, DEDUP-02,
@@ -74,7 +113,7 @@ Carried forward: `check_build_warnings.py`'s watermark now has **168 B of headro
 1166) and the gate itself asks for a re-measure -- Phase 158 / LAND-01 territory, not this phase's.
 Nothing pushed.
 
-**Prior state (Phase 155):** **Phase 155 COMPLETE** — 6 plans, 5 waves, verification `passed` (6/6
+**Earlier state (Phase 155):** **Phase 155 COMPLETE** — 6 plans, 5 waves, verification `passed` (6/6
 must-haves, independently re-measured rather than trusted from the summaries). The firmware is now
 **heap-free** and carries **no 64-bit runtime helper**: `check_no_heap_or_64bit_symbols.py` went from exit 1
 to exit 0 with `heap=0, 64bit=0` on all three ELFs, and the image shrank **−1366 B flash / −8 B RAM on every
@@ -1778,6 +1817,8 @@ in the build stops a future change from silently overwriting the bootloader regi
 below.*
 
 *Previously: 2026-07-30 after the v1.22 milestone (AT28C Software Data Protection Lifecycle) close. Shipped 7 phases (116–122), 69 plans, 176 tasks, 41/41 v1 requirements — firmware-touching, dual-repo lockstep, **software-only validation** at a stated and mechanically-enforced ceiling: `0x0D` stays `UNVERIFIED`, zero `support_status` changes, and a committed regex gate (`check_permitted_claims.py`) forbids the claim "SDP works on real AT28C silicon" across all five closing artifacts. Closeout `override_closeout` (14 pre-existing cross-milestone items acknowledged-deferred; none originate in v1.22). Cut `3.0.0b14` public on both channels; meta + both sub-repos tagged `v1.22` and pushed; gitlinks bumped off PINNED-at-b11. No stable release — operator-gated. **Next milestone: v1.29 PY32F071 USB Firmware Install (host-side)** — implementation already exists and is green on `firestarter_app` branch `feature/py32f071-fw-install` @ `311eacf`, so it is a land-and-verify milestone; the hard blocker is cross-repo release-asset naming (the firmware's PY32 CI publishes an Actions artifact `firestarter-py32f071.hex` where the host resolves a release asset `firestarter_py32f071.bin`/`.hex`). Start with `/gsd-new-milestone`. **⚠ SUPERSEDED (2026-08-02 — Phase 130 close):** the next-milestone claim above is superseded — v1.23 became **PY32F071 Integration** (Phases 123–130), and the two py32 slots this footer names (`v1.28 PY32F071 Port`, `v1.29 PY32F071 USB Firmware Install`) were retired into it by CLOSE-03. The branch head `311eacf` is superseded by **`4ee64a1`** (R-11) — the SHA that actually landed in Phase 127. The cross-repo release-asset-naming blocker this footer describes is **closed**: REL-02 landed `firestarter_py32f071.hex` as a real release asset matched by a two-entry glob, and REL-01 placed the ARM build after the version-bump auto-commit (both cited in `128-NONREGRESSION.md`; this is not a claim that the install works end to end). The next milestone after v1.23 is the **v1.30** entry (`ROADMAP.md`, *SDP Surface Retirement & Behavioral Lock Proof*, operator-queued 2026-07-31) — `/gsd-new-milestone` settles its final number. Prior footer retained below.*
+
+*Last updated: 2026-08-24 — Phase 158 (Residual Optimizations + Cold Baseline Re-Record) complete and verified 8/8. The milestone's last size lever landed: `jsmntok_t` narrowed 8 -> 6 B on AVR for **-138 / -138 / -136 B flash and -128 B RAM** on `uno` / `uno328pb` / `leonardo` -- a flash reduction where the scoped figure predicted +30 B -- with the ARM `py32f071` half built on both sides, verified twice rather than ceiling-recorded. `size_baseline.json` re-recorded cold (22952/1434, 23000/1440, 25098/1875, both native envs 184/184/17) with the size-tripwire fixtures severed onto a new `*_v158*` family; default mode flipped RED -> full `PASS:`, one-sided because the comparators check growth only. BASE-01 fixed on a third, test-inventory axis (141 -> 184) with its growth axis byte-unchanged, so the canonical `--policy merge05` run exits 0 without erasing the reduction. Two candidates closed by measurement: the `flash_5v_page` per-byte modulo **DECLINED** (+22/+24/+22 B for no linkage saving -- `__udivmodsi4` only drops 11 -> 9 image-wide; the file is byte-unchanged), and `NUMBER_JSNM_TOKENS` closed on the forward-compatibility budget, explicitly not on arithmetic impossibility (`64 -> 56` *is* available; the scoped 57/7 figure is reproducible by none of three re-derived rules). The gate story is now stated in both its clauses: no `.github/` workflow invokes `check_size_baseline.py` as a size gate, AND its own pytest runs in CI at `build.yml:161` -- two docstrings asserting the inverse were corrected. Thirteen corrections made publicly as appended clauses, never as silent replacements. 360 firmware pytest / 0 skipped, 184/184 on both native legs; `firestarter_app` byte-untouched. Coverage ceiling stated: LAND-06's runtime half is unquantified by construction and the masked predicates have enumerated zero behavioural coverage. Carried to Phase 159: the citation line-shifts this phase created, the gitlink sha pairs, and the close-blocking `CITATIONS-STALE.md`. Nothing pushed — the beta cut and any promotion stay operator-gated. Prior footer retained below.*
 
 *Last updated: 2026-08-23 — Phase 157 (Command-Decode Table + Handle Type Narrowing) complete and verified 7/7. `key_parsers[]`'s function-pointer column and the ten stubs it dispatched through are one `{key, clamp, offset, width}` PROGMEM table plus one inlined `store_field`, and `handle->protocol` / `handle->ctrl_flags` are narrowed to `uint8_t` / `uint16_t`: **-1144 B flash / -5 B RAM on all three AVR targets, cold-to-cold** (-884 B table half, -260 B narrowing half). All seven DECODE requirements closed. Native 172 -> 184 on both legs, 17 suites; app suite 1976 unchanged (repo byte-untouched). **The measured split is not the predicted one** — the ROADMAP's -976/-172 and the reference's -890/-258 are both superseded, the divergence attributed to OD-1's per-row mask-vs-saturate policy column; 22 stale figures (C-1..C-22) corrected in `.planning/v1.33/157-after-figures.md`, which supersedes the ROADMAP and REQUIREMENTS prose. DECODE-05, the milestone's only safety requirement, closes a real hole: a wire `algorithm: 261` would have truncated to `0x05` and dispatched into the 5 V page-write handler. Coverage ceiling stated, not implied: one of the five safety cases passed **vacuously** against the obvious planted negative and needed a second, differently-shaped probe (C-18) — and Unity aborts on first failure, so a single planted negative cannot localize two cases at once. DECODE-07's `+18 B` matching the survey's stale figure is a coincidence of magnitude on a different switched-expression width, not a confirmation. The `merge05` size-gate pass is recorded **one-sided** (`check_size_baseline.py:697`/`:709` are growth-only, so a shrink passes with no named exemption). Carried forward to Phase 158: the 184 native case count and the frozen 141 baseline. Nothing pushed — the beta cut and any promotion stay operator-gated. Prior footer retained below.*
 
