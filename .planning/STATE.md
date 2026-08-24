@@ -6,14 +6,14 @@ current_phase: 158
 current_phase_name: residual-optimizations-cold-baseline-re-record-firmware-only
 status: executing
 stopped_at: Phase 157 complete and verified 7/7 -- json_parser.c's key_parsers[] rewritten as a compiler-derived {key, clamp, offset, width} PROGMEM field table with one inlined store_field (19df431), handle protocol narrowed to uint8_t and ctrl_flags to uint16_t (76ff592), five DECODE-05 range-safety cases (8edfd6e), and the read-timing cap equality plus six offsetof round-trip cases (785e644). Measured -1144 B flash / -5 B RAM cold-to-cold on all three AVR targets -- NOT the predicted -1148 B, and NOT the ROADMAP's -976/-172 split; the measured split is -884 B table / -260 B narrowing, the divergence attributed to OD-1's per-row mask-vs-saturate policy column (C-19). Native suite 172 -> 184, 17 suites, on both native and native_nodevtools -- hand this count forward to Phase 158/LAND-01. DECODE-07 measured +18 B at this position on all three targets, a coincidence of magnitude against the survey's stale 25696/25678 absolutes, not a confirmation of them. Before/after figures in .planning/v1.33/157-before-figures.md and 157-after-figures.md, which supersede the ROADMAP and REQUIREMENTS prose on 22 counts (C-1..C-22).
-last_updated: "2026-08-24T09:41:25.261Z"
+last_updated: "2026-08-24T09:58:47.427Z"
 last_activity: 2026-08-24
 last_activity_desc: Phase 158 execution started
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 39
-  completed_plans: 33
+  completed_plans: 34
   percent: 67
 ---
 
@@ -146,13 +146,13 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 ## Current Position
 
 Phase: 158 (residual-optimizations-cold-baseline-re-record-firmware-only) — EXECUTING
-Plan: 2 of 7
-Status: Executing Phase 158
+Plan: 3 of 7
+Status: Ready to execute
 Next: **Phase 158 Plan 02** -- the `jsmntok_t` narrowing (LAND-05, OD-1), against the COLD
 pre-phase position (uno 23090/1562, uno328pb 23138/1568, leonardo 25234/2003, all zero warnings;
 native/native_nodevtools both 184/184/17) and the LAND-04/07/08 records this plan (158-01) closed
 in `.planning/v1.33/158-before-figures.md`.
-**Stopped at:** Phase 158 Plan 01 complete -- cold pre-phase position captured on all three AVR targets (uno 23090/1562, uno328pb 23138/1568, leonardo 25234/2003, zero warnings) and both native envs (184/184/17 x4 timed runs, no flake). LAND-04 discharged both clauses (no .github/ workflow invokes check_size_baseline.py; its own pytest runs in CI at build.yml:161). LAND-07 discharged: three re-derived token bounds 50/14, 51/13, 55/9, refuting the criterion's 57/7 -- script kept at /tmp/gsd-158/land07_tokens.py. LAND-08 discharged with four new same-tree timed native runs plus the D-04 prohibitions. Default mode against size_baseline.json recorded RED, 8 lines verbatim, so plan 04's flip to GREEN is falsifiable. Four reddening legs and four porcelain legs enumerated separately. Record committed at .planning/v1.33/158-before-figures.md (d78f9354). Next: plan 158-02 (jsmntok_t narrowing, LAND-05).
+**Stopped at:** Phase 158 Plan 02 complete -- jsmntok_t narrowed 8->6 B on AVR (uint8_t type; uint8_t size; int start; int end;), start/end unchanged and signed, RAM -128 B on all three cold AVR targets (uno/uno328pb/leonardo), flash a measured reduction on all three (-138/-138/-136 B), superseding REQUIREMENTS LAND-05's stale +30 B prediction (C-2). jsmn.c byte-unedited; jsmn.h's dead duplicate implementation left byte-unedited (OD-6). avr-nm sizeof probe: 8 B old / 6 B new, no test asserts sizeof (ceiling 6). New region-scoped source-contract gate tests/test_jsmn_token_layout_source_contract_v158.py (5 legs) proven RED against a deliberately-narrowed live start member (Probe A), GREEN when only the dead duplicate implementation was narrowed (Probe B, proving the region scope), and RED-on-the-right-legs when the import-time environment seam pointed at a nonexistent path in a subprocess (Probe C). Both native envs unchanged 184/184/17 throughout, full pytest tests/ suite 355->360 passed with zero skipped. ARM (py32f071) toolchain installed cleanly via apt (gcc-arm-none-eabi, cmake, ninja-build) and built successfully at both the pre-narrowing (785e644, throwaway detached worktree) and post-narrowing (HEAD) positions -- LAND-05's ARM half verified locally this session, not merely ceiling-recorded. Two firestarter commits (490c435, 8e126f2), no ARM commit (build-and-record task). Next: plan 158-03.
 **Plan 157-02 complete (2026-08-23):** `firestarter/src/json_parser.c`'s `key_parsers[]` rewritten
 as a compiler-derived `{key, clamp, offset, width}` `field_desc_t` table (`19df431`), replacing the
 PROGMEM function-pointer column and its ten dispatch stubs (`get_memory_size`, `get_address`,
@@ -2467,6 +2467,9 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 - [Phase 157]: 157-07: all seven DECODE requirements Complete against 157-after-figures.md; ROADMAP/REQUIREMENTS closures confined to Phase 157/section 4, verified by heading-count and line-count diffs
 - [Phase 158]: LAND-07's chip-database token bound requires merging ALL of eprom_operations.py's optional runtime keys (address, read-settling-delay, read-strobe-us), not just cmd, to reproduce the research's 50/14 figure — Omitting the three optional runtime keys understated the bound by 6 tokens (44 vs 50); confirmed correct once fixed
 - [Phase 158]: check_build_warnings.py's bare (no-argument) invocation exits 1 via its own never-vacuous guard, not 0 as the plan's own acceptance criterion assumed — Recorded the actual observed behavior for both the bare invocation and the correct --log-qualified invocation rather than forcing the plan's original expectation to appear true
+- [Phase ?]: OD-1 executed: jsmntok_t narrowed to uint8_t type; uint8_t size; int start; int end; -- RAM -128 B on all three AVR targets, flash a measured reduction on all three (supersedes REQUIREMENTS LAND-05 stale +30 B prediction)
+- [Phase 158]: OD-6 executed: jsmn.h's dead duplicate implementation left byte-unedited; the new source-contract gate's region slice is the machine-checked reason this is safe (proven by Probe B)
+- [Phase 158]: OD-7 executed: ARM toolchain (gcc-arm-none-eabi, cmake, ninja-build) installed cleanly via apt; py32f071 built successfully at both pre- and post-narrowing tree positions -- LAND-05's ARM half verified locally, not merely ceiling-recorded
 
 ## Performance Metrics
 
@@ -2807,10 +2810,11 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 | Phase 157 P06 | 30min | 2 tasks | 0 files |
 | Phase 157 P07 | 100min | 3 tasks | 3 files |
 | Phase 158 P01 | 22min | 3 tasks | 1 files |
+| Phase 158 P02 | 45min | 3 tasks | 2 files |
 
 ## Session
 
-**Last session:** 2026-08-24T09:41:13.280Z
+**Last session:** 2026-08-24T09:58:47.397Z
 **Stopped at:** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
 the PROGMEM function-pointer column and its ten dispatch stubs with one shared, inlined
