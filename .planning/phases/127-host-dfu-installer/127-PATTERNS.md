@@ -291,7 +291,7 @@ and carry no skip marker.
 
 ### `firestarter/cli_handlers.py` — `_reject_py32_only_option()` (D-08 / HOST-02)
 
-**Analog: the existing refusal, verbatim** (`cli_handlers.py:941-946` @4ee64a1):
+**Analog: the existing refusal, verbatim** (`cli_handlers.py:939-944` @4ee64a1):
 ```python
     if dfu_probe:
         # `hidden` keeps the option out of --help; it does not reject it. On a
@@ -303,7 +303,7 @@ and carry no skip marker.
 → Preserve the **exact** message `f"no such option: {name}"`, the `click.UsageError` type, and
 therefore exit code **2** (measured live: `--dfu-probe` → 2; `--usb-id` → **0**, the bug).
 
-**Option declarations** (`cli_handlers.py:843-855` @4ee64a1) — `hidden` is the *only* current
+**Option declarations** (`cli_handlers.py:841-853` @4ee64a1) — `hidden` is the *only* current
 gate on `--usb-id`:
 ```python
     "--usb-id",
@@ -318,7 +318,7 @@ gate on `--usb-id`:
 
 **Placement constraint:** the helper must be called **unconditionally for each option**, passing
 givenness, and must run **before** `--usb-id` is consumed at `probe_dfu(usb_id=usb_id)`
-(`cli_handlers.py:947`).
+(`cli_handlers.py:945`).
 
 **Second enforcement layer to preserve** — the service choke point (`firmware.py:_install_with_dfu`
 @4ee64a1):

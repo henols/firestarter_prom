@@ -58,7 +58,7 @@ the ~6.25 V ceiling makes the datasheets' margin verify unreachable, and the cit
 
 Framing supplied before the question: MERGE-05 requires AVR RAM delta **exactly 0**, so a `const`
 struct array without `PROGMEM` lands in `.data` and fails the gate on arrival — PROGMEM is forced,
-following `key_parsers[]` at `json_parser.c:73`. Uno-class flash headroom is 42 B / 36 B against the
+following `key_parsers[]` at `json_parser.c:164`. Uno-class flash headroom is 42 B / 36 B against the
 64 B band at the fork base.
 
 | Option | Description | Selected |

@@ -523,7 +523,7 @@ every suite restates the pitfall), and must then supply exactly:
 extern "C" uint16_t rurp_read_voltage_mv()
 ```
 
-no parameters (declared `include/rurp_shield.h:145`).
+no parameters (declared `include/rurp_shield.h:140`).
 
 **Working consumer - `test/native/avr/test_flash_intel_vpp/host_stubs.cpp:27-39`, copy the seam usage:**
 
@@ -752,8 +752,8 @@ This is a genuinely new construct in this header. Two nearest things:
 
 ```c
 rurp_pinout.h:76    #define CTRL_ADDRESS_LINE_16          CTRL_VPP_VPE_DROP_ENABLE
-rurp_pinout.h:116   #define CTRL_ADDRESS_LINE_16_REV1          CTRL_VPP_VPE_DROP_ENABLE_REV1
-rurp_pinout.h:128   #define CTRL_ADDRESS_LINE_18_REV2          CTRL_VPP_P1_ENABLE_REV2
+rurp_pinout.h:115   #define CTRL_ADDRESS_LINE_16_REV1          CTRL_VPP_VPE_DROP_ENABLE_REV1
+rurp_pinout.h:127   #define CTRL_ADDRESS_LINE_18_REV2          CTRL_VPP_P1_ENABLE_REV2
 ```
 
 `:128` is C-4's alias - on Rev 2-class logical A18 and logical P1 are the same physical `0x08`.
@@ -774,7 +774,7 @@ src/proms/eprom.cpp:327   CTRL_VPP_REGULATOR_ENABLE | CTRL_VPP_A9_ENABLE, 0
 src/proms/eprom.cpp:345   CTRL_VPP_REGULATOR_ENABLE | CTRL_VPP_VPE_DROP_ENABLE, 1
 src/proms/eprom.cpp:393   CTRL_VPP_REGULATOR_ENABLE | CTRL_VPP_VPE_DROP_ENABLE, 0
 src/proms/eprom.cpp:409   CTRL_VPP_REGULATOR_ENABLE | CTRL_VPP_A9_ENABLE | CTRL_VPE_ENABLE, 0
-src/proms/flash_5v_page.cpp:148/156/172   CTRL_VPP_REGULATOR_ENABLE | CTRL_VPP_VPE_DROP_ENABLE | CTRL_VPE_ENABLE
+src/proms/flash_5v_page.cpp:147/156/172   CTRL_VPP_REGULATOR_ENABLE | CTRL_VPP_VPE_DROP_ENABLE | CTRL_VPE_ENABLE
 src/proms/eeprom_28c.cpp:251              CTRL_VPP_REGULATOR_ENABLE | CTRL_VPP_A9_ENABLE
 src/hardware_operations.cpp:28            CTRL_VPP_REGULATOR_ENABLE | CTRL_VPP_VPE_DROP_ENABLE
 ```
@@ -868,7 +868,7 @@ static void flash_intel_check_vpp(firestarter_handle_t* handle) {
 
 **Two things this establishes:** (1) every revision read in a `.cpp` is wrapped in
 `#ifdef HARDWARE_REVISION` - mandatory, `rurp_get_hardware_revision()` does not exist otherwise
-(`rurp_shield.h:154-156`, `rurp_hw_rev_utils.h:4`); (2) the `.cpp` form is a plain `if`, not a switch.
+(`rurp_shield.h:149-151`, `rurp_hw_rev_utils.h:4`); (2) the `.cpp` form is a plain `if`, not a switch.
 
 ### F-3. The fail-safe-`default` form - `include/rurp_hw_rev_utils.h:15-41` VERBATIM
 
@@ -939,7 +939,7 @@ Skeleton the executor should pattern-match (structure only, values are the plan'
 #endif
 ```
 
-**Callability:** `rurp_get_hardware_revision()` is declared in `rurp_shield.h:156`, which `memory.cpp`
+**Callability:** `rurp_get_hardware_revision()` is declared in `rurp_shield.h:151`, which `memory.cpp`
 already includes (`memory.cpp:24`), so no new include edge. `REVISION_*` come from `rurp_shield.h:25-31`,
 inside that file's own `#ifdef HARDWARE_REVISION` at `:22` - hence the `#ifdef` wrapper is mandatory.
 
@@ -1513,7 +1513,7 @@ requirement. Five in-source hand-offs must be **consumed and rewritten**, not le
 | `eprom.cpp:213-216` | "Choosing the final DIP32 route ... is Phase 142 / VPP-01 and VPP-03 -- this branch deliberately does not pre-empt that choice" |
 | `eprom.cpp:169-171` | "generalising the disable to every exit in the file is Phase 142 / VPP-02's job" |
 | `eprom.cpp:234` | "`(void)vpp_path;` // hoisted for completeness; Phase 142 / VPP-01 is its consumer" |
-| `memory.cpp:184-187` | "choosing the final DIP32 route and consolidating the mask sets is Phase 142's (VPP-01 / VPP-03) -- this comment does not pre-empt that choice" |
+| `memory.cpp:187-190` | "choosing the final DIP32 route and consolidating the mask sets is Phase 142's (VPP-01 / VPP-03) -- this comment does not pre-empt that choice" |
 | `eprom_params.h:43-45` | "Phase 142 owns the mask sets" |
 | `test_loop_eprom_v131.cpp:1290-1292`, `:1595-1608` | "is Phase 142 / VPP-02's job" / "does not pre-empt that choice" |
 

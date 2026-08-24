@@ -80,7 +80,7 @@ fixture-inclusion cause is the *same* cause behind every other delta in this fil
 figures are retained as-recorded per this task's action text; the independently-measured
 22/613 pair is recorded alongside it, not substituted for it.)
 
-**No-touch region:** `firestarter/src/firestarter.cpp:182-200`. Verified present on this
+**No-touch region:** `firestarter/src/firestarter.cpp:177-195`. Verified present on this
 tree — the tool's per-line scan finds `CAP-0` hits inside that exact span at lines 182, 193
 and 200. `test_cap03_ack_layout_parity.py` pins `_WIRE_LAYOUT_COMMENT` verbatim against the
 **raw, un-stripped** text of this block. It is a gate fixture that happens to be spelled as

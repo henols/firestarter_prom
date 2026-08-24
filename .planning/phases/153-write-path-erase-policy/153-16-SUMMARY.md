@@ -11,7 +11,7 @@ requires:
       decision record this plan's own record summarises"
   - phase: 152-outward-facing-close-operator-gated
     provides: "D-15 — the record-correction instructions this plan discharges (PROJECT.md/ROADMAP
-      firmware-workstream count, deferred to Phase 153 because 153 must touch database.py:620
+      firmware-workstream count, deferred to Phase 153 because 153 must touch database.py:617
       anyway)"
 provides:
   - "PROJECT.md corrected to three firmware-touching workstreams (149, 151, 153), a new

@@ -491,7 +491,7 @@ could break that sentinel; place it after.**
 
 ## 2.4 The report surface — what is and is not visible
 
-**`render()`'s per-step row (`diagnostic_report.py:477-482`), VERBATIM:**
+**`render()`'s per-step row (`diagnostic_report.py:471-476`), VERBATIM:**
 ```python
         for step_row in d["steps"]:
             table.add_row(
@@ -501,7 +501,7 @@ could break that sentinel; place it after.**
             )
 ```
 **`reason` is absent.** D-07's basis, MEASURED. `reason` reaches only `_step_dict` (`:406-415` → the
-JSON) and `cli_handlers.py:2194-2205` (the markdown table).
+JSON) and `cli_handlers.py:2191-2202` (the markdown table).
 
 **`to_dict()`'s nine keys (`:443-454`):** `schema_version`, `generated`, `auto_capture`,
 `transport_health`, `steps`, `banner`, `voltage`, `is_submittable`, `dedup_fingerprint`, `db_diff`.
@@ -524,17 +524,17 @@ mechanism. gh#20's orphaned id is **`00e121446ceb`** (§4.8).
 places — `derive_plan`'s 0x0D NA reason (`chip_test.py:577-580`, *"protocol 0x0D (28C family) has no
 erase operation; each page write auto-erases internally"*), the `erase` op string itself in both the
 markdown table and JSON, and `_ALWAYS_WRITES_NOTICE`'s *"write/verify/erase step"*
-(`cli_handlers.py:2074`). **A whole-report grep is RED on correct text.** D-13's scoped-constant
+(`cli_handlers.py:2071`). **A whole-report grep is RED on correct text.** D-13's scoped-constant
 pytest is the only non-exempting form.
 
 ## 2.5 Exit codes — correction 3 CONFIRMED VERBATIM
 
 ```python
-# cli_handlers.py:1887-1897 — comment and table together
+# cli_handlers.py:1884-1894 — comment and table together
 # Per-verdict -> exit-code mapping (D-01): OK/NA/SKIPPED are exit-clean;
 # `marginal` is an inconclusive result (exit 2); BAD beats marginal via
 # `max` over the whole result set, mirroring dev_validate_family's own
-# `if verdict_int > overall_verdict` pattern (cli_handlers.py:1622-1623).
+# `if verdict_int > overall_verdict` pattern (cli_handlers.py:1620-1621).
 _VERDICT_EXIT_CODES = {
     VERDICT_OK: 0, VERDICT_NA: 0, VERDICT_SKIPPED: 0,
     VERDICT_MARGINAL: 2, VERDICT_BAD: 1,
@@ -811,7 +811,7 @@ FEATURES §1.4 frames it as *"passing `operation_flags=` to the existing `write_
 
 **Minimum change:** extend `chip_test.py:37`'s existing constants import
 (`from firestarter.constants import FLAG_CAN_ERASE  # 0x02 -- do NOT redefine; import`) to also import
-`FLAG_SKIP_SDP_UNLOCK` (`constants.py:137`, `0x100`), and pass it **from the new leg dispatcher, on
+`FLAG_SKIP_SDP_UNLOCK` (`constants.py:136`, `0x100`), and pass it **from the new leg dispatcher, on
 the `write-inhibited` step only**. `_dispatch_multi_run` is untouched.
 
 **Two things a test must pin:** (a) `write_eprom` is called with `FLAG_SKIP_SDP_UNLOCK` set on
@@ -886,7 +886,7 @@ codes [0,0,0,2,0,0] → max = 2 ; MIXED BAD+marginal? False
 **There are zero existing tests asserting exit 2 on a mixed BAD+marginal run.** D-14 lands with no
 test-audit blast radius. Its non-vacuity leg must therefore be a **new** mixed-run test.
 
-**D-15's insertion point (MEASURED, `cli_handlers.py:2216-2219`):** the current expression is
+**D-15's insertion point (MEASURED, `cli_handlers.py:2213-2216`):** the current expression is
 `code = max(_verdict_code(r.verdict) for r in results)`. D-14 replaces the `max` with explicit
 precedence (BAD ≻ marginal ≻ clean); D-15 adds **one** non-verdict term *after* it — if the chip is
 ALLOW and the field reads `NOT-RUN`, floor the result at 2. Composed, in the same expression:

@@ -149,14 +149,14 @@ This reproduces 130-02's own capture of this file's slice exactly (12 unlabeled,
 | :53 | py32-buffer-1024 | `DATA_BUFFER_SIZE = 1024` | 512, deliberately not bumped (v1.10 CAP-01) |
 | :61 | porting-md-dual-slot | "the CRC-validated dual-slot flash scheme `PORTING.md` specifies is still unwritten" | `PORTING.md` exists only on two closed PRs; the dual-slot design landed in-milestone (Phase 126) instead |
 | :94 | hex-extension-hardcoded | "the extension is baked into the pattern too" | Already fixed on the branch (`asset_candidates()`/`_pick_asset()`) |
-| :96 | cli-handlers-821 | `cli_handlers.py:821` | Moved to `cli_handlers.py:932` |
+| :96 | cli-handlers-821 | `cli_handlers.py:819` | Moved to `cli_handlers.py:930` |
 | :107 | host-head-311eacf | `feature/py32f071-fw-install` @ `311eacf`, "queued as milestone v1.29" | Landed at `4ee64a1` as a real merge commit; v1.29 retired into v1.23 |
 
 Row count: **12**, matching the `unlabeled` tally exactly.
 
 ### Divergence check against research's/the plan's per-hit list (both directions)
 
-The plan's own `<objective>` names "**Seven** stale sites": (1) the 27-behind figure in the branch table *and* prose (one conceptual site spanning lines 20-24+29), (2) `DATA_BUFFER_SIZE = 1024`, (3) `PORTING.md` dual-slot spec, (4) `cli_handlers.py:821`, (5) hardcoded `.hex` extension, (6) `311eacf` host branch head, (7) the closeable-scope paragraph.
+The plan's own `<objective>` names "**Seven** stale sites": (1) the 27-behind figure in the branch table *and* prose (one conceptual site spanning lines 20-24+29), (2) `DATA_BUFFER_SIZE = 1024`, (3) `PORTING.md` dual-slot spec, (4) `cli_handlers.py:819`, (5) hardcoded `.hex` extension, (6) `311eacf` host branch head, (7) the closeable-scope paragraph.
 
 - **Site the checker flagged that the plan's own "seven" count does not separately enumerate:** the opening paragraph's `2c2ed10`/"603 additions" citation (line 12, needle `third-stack-2c2ed10`). This IS named individually in `130-RESEARCH.md` R-14 and IS assigned to this plan by 130-02's reconciliation table (`notes/...:12 | third-stack-2c2ed10 | SUPERSEDED-SECTION | 130-09`) — so it was never actually missed by research, only undercounted by the plan's own summary sentence ("seven" vs. the eight distinct conceptual sites the reconciliation table actually assigns here). Addressed anyway (see the appended section's first table row); recorded here so the "seven" figure in `130-09-PLAN.md`'s objective is not mistaken for a complete count.
 - **Site the plan's own truths named that the checker did NOT flag:** the closeable-scope paragraph (lines 131-134, "27 commits behind"). Confirmed by direct inspection: the sentence wraps across two physical markdown lines (`...(27 commits` on line 132, `behind), the host...` on line 133), and the `branches-27-behind` needle's regex requires both tokens on the SAME physical line (per the checker's own documented design choice for long single-line bullets — this file's prose is NOT single-line at this point, which is the gap). This is the same class of miss the project's own memory records elsewhere (wrapped labels breaking a line-scoped gate). Addressed in the appended section anyway, per this plan's own truths bullet, not because the gate requires it — and flagged here as a real, if narrow, checker limitation for whoever next edits this needle.

@@ -328,7 +328,7 @@ if is_ok:
     return communicator
 ```
 
-The ack that arrives here is `MSG_OK_READY` from `init_programmer` in `firestarter.cpp:142`.
+The ack that arrives here is `MSG_OK_READY` from `init_programmer` in `firestarter.cpp:138`.
 After Phase 55, this ack carries 2 bytes of `DATA_BUFFER_SIZE` as a `bytes` param.
 
 **Problem:** `expect_ack()` currently returns `(bool, Optional[str])` — the second element
@@ -653,7 +653,7 @@ Host                                              Firmware
 send_json_command({"cmd": 2, ...})  ──▶  init_programmer()
                                               │
                               ◀── MSG_OK_READY │  (2 bytes: DATA_BUFFER_SIZE u16)
-                                              └─ firestarter.cpp:142
+                                              └─ firestarter.cpp:138
                                                  LOG_OK_ID_U16(MSG_OK_READY,
                                                                DATA_BUFFER_SIZE)
 Host _probe_port (operation command):
@@ -672,7 +672,7 @@ _main_phase_send_data:
 
 ### Key Flow: Two Acks for FW-probe CMD
 
-When the host sends `CMD_FW_VERSION` (state=13), `init_programmer` fires at `firestarter.cpp:142`:
+When the host sends `CMD_FW_VERSION` (state=13), `init_programmer` fires at `firestarter.cpp:138`:
 - Emits `MSG_OK_READY` (now with 2-byte `DATA_BUFFER_SIZE` param)
 
 Then `fw_get_version` fires and emits:

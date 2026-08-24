@@ -63,7 +63,7 @@ defer the live SC2 confirmation to a bench UAT (D-05).
 ### Locked Decisions
 - **D-01 (LOCKED): Sample BOTH rails; split the report's one slot into two.** The write
   step captures VPP **and** VPE every destructive run. Expand the Phase-110 single
-  combined `vpp_vpe_mv: int | None` slot (`diagnostic_report.py:303`) into separate
+  combined `vpp_vpe_mv: int | None` slot (`diagnostic_report.py:297`) into separate
   VPP/VPE fields. Rejected: sampling only the protocol-relevant rail; rejected VPP-only.
   Keep the single-source `to_dict()`/`render()` contract (Phase 110 D-01) intact when
   adding fields.
@@ -351,7 +351,7 @@ and `read_vpp/vpe_voltage` are not edited.**
 existing `to_dict()` so both `render()` and `to_json_block()` pick them up automatically.
 **Example:**
 ```python
-# Source: firestarter_app/firestarter/diagnostic_report.py:283-401 (extend, keep single-source)
+# Source: firestarter_app/firestarter/diagnostic_report.py:277-395 (extend, keep single-source)
 @dataclass
 class DiagnosticReport:
     ...
@@ -382,7 +382,7 @@ def to_dict(self) -> dict[str, Any]:
   render sourced from `d = self.to_dict()` (never a second field list).
 - **The `NOT_MEASURED` substitution must live in `to_dict()`** — that is "the ONE place
   the sentinel string is substituted" per the module's own docstring
-  (`diagnostic_report.py:325-336`, 383-384). Do not fabricate a `0` for an absent reading
+  (`diagnostic_report.py:319-330`, 383-384). Do not fabricate a `0` for an absent reading
   (Phase 108/110 honest-fallback pattern).
 
 ### Anti-Patterns to Avoid
@@ -639,7 +639,7 @@ security_enforcement key absent in `.planning/config.json` → treated as ENABLE
 - `firestarter_app/firestarter/constants.py:66-67` — `COMMAND_READ_VPP=11`, `COMMAND_READ_VPE=12`
 - `firestarter_app/firestarter/diagnostic_report.py:42-43, 283-468` — report model, `NOT_MEASURED`, `vpp_vpe_mv` slot, `to_dict`/`render`
 - `firestarter_app/firestarter/chip_test.py:501-572, 783-872` — `run_plan`, `_dispatch_multi_run`, `_DESTRUCTIVE_OPS`
-- `firestarter_app/firestarter/cli_handlers.py:1476-1595` — `dev_validate_family` compose/mock seam
+- `firestarter_app/firestarter/cli_handlers.py:1474-1593` — `dev_validate_family` compose/mock seam
 - `firestarter_app/firestarter/eprom_operations.py:257-296` — `EpromOperator.__init__` (config-manager-based)
 - `firestarter_app/tests/test_hardware.py:1-120` — voltage-read test harness pattern
 - `firestarter_app/tests/conftest.py:52-124` — `build_frame`, `_FakeSerial`, `fake_serial`, `make_comm`

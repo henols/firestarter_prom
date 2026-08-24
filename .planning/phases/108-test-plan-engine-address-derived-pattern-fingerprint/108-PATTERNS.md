@@ -10,7 +10,7 @@
 
 | New/Modified File | Role | Data Flow | Closest Analog | Match Quality |
 |-------------------|------|-----------|----------------|---------------|
-| `firestarter_app/firestarter/chip_test.py` | service (orchestration engine) | transform + request-response | `dev_validate_family` (cli_handlers.py:1476) + `consistency_check_eprom` (eprom_operations.py:671) | role-match (compose-not-reimpl sibling) |
+| `firestarter_app/firestarter/chip_test.py` | service (orchestration engine) | transform + request-response | `dev_validate_family` (cli_handlers.py:1474) + `consistency_check_eprom` (eprom_operations.py:671) | role-match (compose-not-reimpl sibling) |
 | `firestarter_app/firestarter/exceptions.py` | model (exception hierarchy) | — (data holder) | existing `EpromOperationError` (exceptions.py:37) | exact (same file, additive kwarg) |
 | `firestarter_app/tests/test_chip_test.py` | test | request-response (mock) | `tests/test_validate_family_cmd.py` + `tests/test_consistency_check.py` | exact (two proven seams) |
 
@@ -62,7 +62,7 @@ class EpromOperationError(Exception):
 
 ### `firestarter_app/firestarter/chip_test.py` (NEW — orchestration engine)
 
-**Analogs:** `dev_validate_family` (cli_handlers.py:1476, compose-not-reimpl + resolve_chip execution path) and `consistency_check_eprom` (eprom_operations.py:671, runs-guard + SHA divergence math).
+**Analogs:** `dev_validate_family` (cli_handlers.py:1474, compose-not-reimpl + resolve_chip execution path) and `consistency_check_eprom` (eprom_operations.py:671, runs-guard + SHA divergence math).
 
 **Imports pattern** (copy the in-repo import style from eprom_operations.py:9-24 — stdlib first, then `firestarter.*` absolute imports; project uses `from typing import Optional, Tuple` in eprom_operations but PEP-604 `|` in the strict-mypy files — `chip_test.py` is NOT in the strict-8 set, so either style passes, prefer `|` for new code):
 
@@ -96,7 +96,7 @@ can_erase = bool(prog["flags"] & FLAG_CAN_ERASE)   # 0x02
 `convert_to_programmer` (database.py:582-595) sets `FLAG_CAN_ERASE` only when `electrical-type ∈ {"EEPROM","Flash/EEPROM"}` AND `algorithm != 5`. So for protocol **0x05 (flash4) the flag is deliberately CLEAR** → the derived erase step MUST be `NA` (auto-erase per page; setting the flag would route 12V on a 5V part — hazard, RESEARCH Pitfall 6). Trust the flag; never re-invoke build-time `classify()`.
 
 **Pattern 2 — Execution routes EVERY op through the guard-honoring path (SWEEP-02, RESEARCH Pitfall 2).**
-Source: cli_handlers.py:1568 (`dev_validate_family`) — the compose-not-reimplement precedent:
+Source: cli_handlers.py:1566 (`dev_validate_family`) — the compose-not-reimplement precedent:
 
 ```python
 eprom_data = resolve_chip(rep_chip, db=app.db)      # guard-HONORING; raises ChipNotImplementedError/ChipNotFoundError
@@ -206,7 +206,7 @@ Test-file docstring/taxonomy style: copy the enumerated `D-10 Test 1..N` header 
 ## Shared Patterns
 
 ### Compose-don't-reimplement
-**Source:** `dev_validate_family` cli_handlers.py:1568 + `consistency_check_eprom` eprom_operations.py:696-699 ("Do NOT refactor into a parallel read implementation").
+**Source:** `dev_validate_family` cli_handlers.py:1566 + `consistency_check_eprom` eprom_operations.py:696-699 ("Do NOT refactor into a parallel read implementation").
 **Apply to:** every op step in `chip_test.py`. Zero new firmware dispatch, zero VPP-set, zero wire-dict build (Phase 109 CI-gates this).
 
 ### Guard bypass (derivation) vs guard honor (execution)

@@ -345,7 +345,7 @@ exactly one such clone. Clone renumbering across unrelated changes is documented
 (the survey's own finding 6 records `.constprop.76` → `.61`). **Never pin a clone suffix in a
 gate.** `[VERIFIED: avr-nm, this session]`
 
-### C-6 — the "ten-line comment at `eprom_operations.cpp:57-67`" is mostly NOT about the `!`
+### C-6 — the "ten-line comment at `eprom_operations.cpp:57-63`" is mostly NOT about the `!`
 
 Criterion 4 and OD-2 describe an eleven-line block at `:57-67` as the comment that exists "to
 explain why a `!` is load-bearing". Read live, `:57-67` is the **LOCK-01/LOCK-02** block, and only
@@ -366,8 +366,8 @@ with line numbers, this session]`
 ### C-7 — DEAD-06's "only requirement in Phases 155–158 that touches a test file" is FALSE
 
 DEAD-06 states: "This is the only requirement in Phases 155–158 that touches a test file." Measured:
-the DEDUP-04 flip turns `test_eeprom28c_sdp.cpp:1426` **RED** and turns
-`test_eeprom28c_sdp.cpp:1524-1534` into a **vacuous pass**. Both must be edited. The claim was
+the DEDUP-04 flip turns `test_eeprom28c_sdp.cpp:1487` **RED** and turns
+`test_eeprom28c_sdp.cpp:1582-1590` into a **vacuous pass**. Both must be edited. The claim was
 written when DEDUP-04 was still an open question ("removed, or declined"); OD-2 resolves it toward
 removal and thereby falsifies the claim. Record it; do not quietly touch the test files and leave
 the sentence standing. `[VERIFIED: pio test -e native on the flipped tree, this session]`
@@ -380,10 +380,10 @@ the sentence standing. `[VERIFIED: pio test -e native on the flipped tree, this 
 
 | # | File | Enclosing function | Arm |
 |---|------|--------------------|-----|
-| 1 | `src/proms/eprom.cpp:715` | `eprom_check_vpp` | over-voltage, FLAG_FORCE fork |
-| 2 | `src/proms/eprom.cpp:738` | `eprom_check_vpp` | under-voltage, WARNING only |
-| 3 | `src/proms/flash_intel.cpp:41` | **`flash_intel_check_vpp`** (see C-1) | over-voltage, FLAG_FORCE fork |
-| 4 | `src/proms/flash_intel.cpp:64` | **`flash_intel_check_vpp`** (see C-1) | under-voltage, WARNING only |
+| 1 | `src/proms/eprom.cpp:718` | `eprom_check_vpp` | over-voltage, FLAG_FORCE fork |
+| 2 | `src/proms/eprom.cpp:720` | `eprom_check_vpp` | under-voltage, WARNING only |
+| 3 | `src/proms/flash_intel.cpp:44` | **`flash_intel_check_vpp`** (see C-1) | over-voltage, FLAG_FORCE fork |
+| 4 | `src/proms/flash_intel.cpp:46` | **`flash_intel_check_vpp`** (see C-1) | under-voltage, WARNING only |
 
 All four are byte-identical in their packing arithmetic. Blocks 1 and 3 are byte-identical to each
 other including their fork; 2 and 4 likewise.
@@ -396,7 +396,7 @@ resolved at the C level rather than by inspection.
 Both operands are `uint16_t`, confirmed in source:
 
 - `uint16_t vpp_mv = rurp_read_voltage_mv();` — `eprom.cpp:711`, `flash_intel.cpp:36`
-- `uint16_t vpp_mv;` — `include/firestarter.h:213`
+- `uint16_t vpp_mv;` — `include/firestarter.h:214`
 
 So `(vpp_mv + 50)` is `uint16_t + int`. Integer promotion promotes `uint16_t` to `int` **only if
 `int` can represent every `uint16_t` value**; otherwise to `unsigned int`.
@@ -479,7 +479,7 @@ four sites verbatim, every divergence between them, and one semantic with per-di
 
 ### The four sites
 
-**Site A — `src/proms/flash_utils.cpp:103` `flash_util_check_chip_id_execute`**
+**Site A — `src/proms/flash_utils.cpp:104` `flash_util_check_chip_id_execute`**
 (callers: `flash_5v_page.cpp:159`, `flash_nor_unlock.cpp:145`)
 
 ```c
@@ -494,11 +494,11 @@ if (chip_id != handle->chip_id) {
 }
 ```
 
-**Site B — `src/proms/flash_intel.cpp:187` `flash_intel_check_chip_id`** — identical to A.
+**Site B — `src/proms/flash_intel.cpp:153` `flash_intel_check_chip_id`** — identical to A.
 Additionally this file **has no `#include "memory_utils.h"` problem** (it already includes it at
 `:14`).
 
-**Site C — `src/proms/eeprom_28c.cpp:291` (inside `static eeprom28c_check_chip_id`, defined at `:268`)**
+**Site C — `src/proms/eeprom_28c.cpp:292` (inside `static eeprom28c_check_chip_id`, defined at `:268`)**
 — identical to A **except** it carries redundant `(uint16_t)` casts on all four bytes and wraps the
 body in a superfluous extra `{ … }` brace level:
 
@@ -508,9 +508,9 @@ _b[2] = (uint8_t)(((uint16_t)handle->chip_id >> 8) & 0xFF);
 ```
 
 `chip_id` is already `uint16_t` (`:288`) and `handle->chip_id` is `uint16_t`
-(`firestarter.h:218`), so the casts are no-ops.
+(`firestarter.h:223`), so the casts are no-ops.
 
-**Site D — `src/proms/eprom.cpp:795` `eprom_internal_check_chip_id(handle, uint8_t error_code)`**
+**Site D — `src/proms/eprom.cpp:768` `eprom_internal_check_chip_id(handle, uint8_t error_code)`**
 — identical payload, but the fork is keyed on the **parameter**, not the flag:
 
 ```c
@@ -575,7 +575,7 @@ Probe A's three RED cases (`test/native/avr/test_vpp_eprom_v131/test_vpp_eprom_v
 `:706 test_vpp04_c_flag_force_downgrades_to_warning_and_still_clears_the_route`,
 `:1358 test_vpp02_e1_write_init_error_exit_leaves_no_route_asserted`.
 
-Probe C's two RED cases: `test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:803
+Probe C's two RED cases: `test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:814
 test_case7_mismatching_chip_id_with_force_warns` and
 `test/native/avr/test_sdp_harness/test_sdp_harness.cpp:619
 test_migrated_mismatching_chip_id_errors`.
@@ -646,7 +646,7 @@ verbatim so a plan can re-run them.
 
 **Site 4 is the honest cost of DEDUP-04.** `op_execute_stateful_operation` delegates to a callback
 whose own convention is documented as "true on success/continue, false on error"
-(`eprom_operations.cpp:87`, and `_single_step_operation_callback` likewise). Flipping the engine
+(`eprom_operations.cpp:84`, and `_single_step_operation_callback` likewise). Flipping the engine
 without flipping all three callbacks means site 4 becomes `return !callback(handle);`. **The `!` is
 not eliminated — it moves from 9 call sites to 1**, and the engine ends up with a convention
 opposite to its own callback's. Flipping the callbacks too would cascade into their multiple return
@@ -675,12 +675,12 @@ refusals. Verified against `src/firestarter.cpp:309-354`, where every arm assign
 
 | Location | What it says today | Action |
 |---|---|---|
-| `src/eprom_operations.cpp:65-67` | "`op_execute_simple_operation` returns true when FINISHED, so the `!` inversion here is load-bearing" | **Delete these 3 lines only** — not the whole `:57-67` block (C-6) |
-| `src/operation_utils.cpp:92-94` | "Every `eprom_*` caller inverts that return (`return !op_execute_stateful_operation(...)`), so the command reported 'finished'" | Rewrite — this is the D-06 mega-comment's mechanism narrative |
+| `src/eprom_operations.cpp:65-63` | "`op_execute_simple_operation` returns true when FINISHED, so the `!` inversion here is load-bearing" | **Delete these 3 lines only** — not the whole `:57-67` block (C-6) |
+| `src/operation_utils.cpp:98-100` | "Every `eprom_*` caller inverts that return (`return !op_execute_stateful_operation(...)`), so the command reported 'finished'" | Rewrite — this is the D-06 mega-comment's mechanism narrative |
 | `src/operation_utils.cpp:~171` | "The `return false` semantics are UNCHANGED — every `eprom_*` caller still inverts it" | Rewrite; this sentence becomes false |
 | `include/operation_utils.h:71` | `@return true if the operation is still ongoing …, false when fully completed` (`op_execute_simple_operation`) | Invert |
 | `include/operation_utils.h:85` | `@return true if the operation is still ongoing, false when fully completed` (`op_execute_stateful_operation`) | Invert |
-| `test_eeprom28c_sdp.cpp:1411`, `:1492` | quote the `return !op_execute_…` form as the contract under test | Update both quotes |
+| `test_eeprom28c_sdp.cpp:1469`, `:1492` | quote the `return !op_execute_…` form as the contract under test | Update both quotes |
 
 ### The test blast radius — MEASURED, and one half is a silent false green
 
@@ -688,7 +688,7 @@ Running `pio test -e native` on the flipped tree:
 
 ```
 173 test cases: 1 failed, 171 succeeded
-198:test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1426:
+198:test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1487:
     test_case24_null_main_refusal_emits_not_supported_and_error_response … [FAILED]
 ```
 
@@ -703,7 +703,7 @@ Under the flipped convention the first call returns `false`, the loop exits imme
 assertion passes — for the wrong reason. Proven by inserting a probe:
 
 ```
-test_eeprom28c_sdp.cpp:1532: test_case25_… : Expected 4 Was 1.
+test_eeprom28c_sdp.cpp:1590: test_case25_… : Expected 4 Was 1.
     RESEARCH PROBE: Case 25 must take exactly 4 op_execute_simple_operation calls
 ```
 
@@ -1015,7 +1015,7 @@ same file and are compared, and the golden records *why* each figure moved.
 - **Widening the voltage helper's parameters to `uint32_t`** — erases the win and changes AVR
   overflow behaviour.
 - **Treating a green golden trace as DEDUP-03 evidence.** Probes B and D measured it blind.
-- **Deleting `eprom_operations.cpp:57-67` wholesale** (C-6).
+- **Deleting `eprom_operations.cpp:57-63` wholesale** (C-6).
 - **Blaming a single failing native run on this change** (D-04). Phase 155 ran the suite seven
   times.
 - **Re-anchoring `size_baseline.json`** — Phase 158's job.
@@ -1052,7 +1052,7 @@ This is a refactor phase, so the inventory is mandatory. Each category is answer
 | **Build artifacts / installed packages** | **`.pio/build/{uno,uno328pb,leonardo,native,native_nodevtools,native_loop_v131}` hold stale objects.** PlatformIO recompiles changed TUs correctly (verified across ~10 rebuilds this session, all figures consistent), so no manual clean is required for correctness. `rm -rf .pio/build/<env>` **is** required for the *cold* convention — but that is LAND-01 / Phase 158, not here. Phase 156's figures are WARM by design | none for this phase; note the cold requirement is Phase 158's |
 | **Wire / host lockstep** | **None.** Zero protocol change, zero constant change, zero message-id change (verified). `firestarter_app` needs no edit and its 1976-case suite is not in this phase's blast radius | none |
 | **Committed goldens and source-contract records** | **`tests/golden/protocol_branch_inventory.json` — 2 legs RED, measured.** This is the one "runtime state" this phase genuinely invalidates: a committed record of the source's shape | **Re-derive with the gate's own extractor, in the same commit as the `eprom.cpp` edit**, and state which sites moved and why |
-| **`.planning/` line citations** | ~317 citations shift (`flash_utils.cpp` 97/97 — all of them, from one added `#include` at line 9 · `flash_intel.cpp` 147 · `eeprom_28c.cpp` 71 · `eprom.cpp` 2 of 840), plus part of `memory.cpp`'s 199. Source-internal citations shift too — e.g. `eeprom_28c.cpp:264` already cites `flash_intel.cpp:146-155` for a function that lives at `:187` | **None here.** Expected staleness, close-blocked by REMAP-04 (D-05). Do **not** remap in this phase. Per-file figures `[CITED: ROADMAP.md:181]`, which attributes them to Phases 155–157 collectively |
+| **`.planning/` line citations** | ~317 citations shift (`flash_utils.cpp` 97/97 — all of them, from one added `#include` at line 9 · `flash_intel.cpp` 147 · `eeprom_28c.cpp` 71 · `eprom.cpp` 2 of 840), plus part of `memory.cpp`'s 199. Source-internal citations shift too — e.g. `eeprom_28c.cpp:265` already cites `flash_intel.cpp:112-121` for a function that lives at `:187` | **None here.** Expected staleness, close-blocked by REMAP-04 (D-05). Do **not** remap in this phase. Per-file figures `[CITED: ROADMAP.md:181]`, which attributes them to Phases 155–157 collectively |
 
 ---
 
@@ -1362,9 +1362,9 @@ and the plan-phase orchestrator will lift it into `156-VALIDATION.md`.
       keeps `cases == 172` by strengthening rather than adding. ⚠ Requires an id-capture helper in
       those suites' stubs; verify one exists before committing to this shape (`test_vpp_eprom_v131`'s
       `count_logged_id` lives in its own `host_stubs.cpp` and may not be shared).
-- [ ] **`test_eeprom28c_sdp.cpp:1426`** — Case 24's polarity assertion **must** flip
+- [ ] **`test_eeprom28c_sdp.cpp:1487`** — Case 24's polarity assertion **must** flip
       (`TEST_ASSERT_FALSE` → `TEST_ASSERT_TRUE`) with its message rewritten. Measured RED.
-- [ ] **`test_eeprom28c_sdp.cpp:1524-1534`** — Case 25's drive loop **must** be flipped and a
+- [ ] **`test_eeprom28c_sdp.cpp:1582-1590`** — Case 25's drive loop **must** be flipped and a
       `calls == 4` assertion added. Measured: passes vacuously after the flip.
 - [ ] **`tests/golden/protocol_branch_inventory.json`** — re-derive with the module's own
       extractor: `total_sites` 23 → 21, `protocol_keyed_sites` 1 → 1, `other_sites` 22 → 20; two
@@ -1406,7 +1406,7 @@ no network surface, no authentication and no cryptography.
 | Pattern | STRIDE | Standard mitigation | Status in this phase |
 |---|---|---|---|
 | A refusal downgraded to a warning by a transposed severity, so unsafe high voltage is applied to a part the firmware just measured as out of range | **Tampering / Repudiation** | Assert the (id, `response_code`) pair in both directions, per path, with a planted-negative proof | ⚠ **The core risk.** Over-voltage: covered (non-CI). Under-voltage: **BLIND**. Chip-ID id: **BLIND**. Wave 0 closes both |
-| A silent-success command reporting OK having done nothing (DEVTEST-01's phantom erase) | Repudiation | The D-06 NULL-main refusal at `operation_utils.cpp:164` | ⚠ DEDUP-04 flips **exactly that return**. Case 24 is its only oracle and it goes RED by construction — flip the assertion, never delete the case |
+| A silent-success command reporting OK having done nothing (DEVTEST-01's phantom erase) | Repudiation | The D-06 NULL-main refusal at `operation_utils.cpp:173` | ⚠ DEDUP-04 flips **exactly that return**. Case 24 is its only oracle and it goes RED by construction — flip the assertion, never delete the case |
 | An assertion that passes for the wrong reason after a semantic change | Repudiation | Non-vacuity legs and planted negatives | ⚠ **Measured live**: Case 25 passes taking 1 call instead of 4 |
 | High voltage left asserted on a refusal path | Tampering | `EPROM_HV_ALL_OFF_MASK` unconditional clear; `test_vpp04_b` / `test_vpp02_e1` | ✅ Unchanged by this phase and verified green; probe A confirms `test_vpp02_e1` is live |
 | Buffer overrun in payload packing | Tampering | Fixed-size local arrays, fixed indices | ✅ `uint8_t _b[8]` / `_b[4]`, 8 and 4 literal writes, count passed as a literal. Unchanged |
@@ -1491,7 +1491,7 @@ no network surface, no authentication and no cryptography.
      (a zero-match grep passes against a deleted file). If not taken, state plainly that the nine
      dropped `!` are attested by inspection and the size-identity build alone.
 
-5. **Should the `eeprom_28c.cpp:264` stale in-source citation (`flash_intel.cpp:146-155` → `:187`)
+5. **Should the `eeprom_28c.cpp:265` stale in-source citation (`flash_intel.cpp:112-121` → `:187`)
    be repaired here?**
    - **What we know:** it is already stale, in a file this phase edits, and Phase 159's remap
      targets `.planning/` citations — not source-internal ones. D-05 bounds `.planning/` staleness;

@@ -32,7 +32,7 @@ Four values the report already holds and does not emit.
 
 | field | what is actually known | source |
 |---|---|---|
-| `auto_capture.chip_id_actual` | On a **passing** id check it equals `chip_id_expected`. The firmware's OK reply carries no id back, so `check_eprom_id` returns the host's own echoed `cmd_data["chip-id"]` and `_chip_id_fields` discards it as "never measured". The id **was** verified — that is what OK means. | `diagnostic_report.py:967-981`, `cli_handlers.py:2333-2358` |
+| `auto_capture.chip_id_actual` | On a **passing** id check it equals `chip_id_expected`. The firmware's OK reply carries no id back, so `check_eprom_id` returns the host's own echoed `cmd_data["chip-id"]` and `_chip_id_fields` discards it as "never measured". The id **was** verified — that is what OK means. | `diagnostic_report.py:961-975`, `cli_handlers.py:2330-2355` |
 | `steps[].fingerprint` | Exports **only** `classification` — a four-bucket word. The `Fingerprint` object also carries `total`, `bad`, `bad_pct` and an `evidence` dict. `"indeterminate"` is printed where *3 of 65536 bytes bad, 0.005 %* was in hand. | `chip_test.py:170-177` vs `diagnostic_report.py:_step_dict` |
 | `steps[].divergence` | **Not exported at all.** `StepResult.divergence` is the read-step byte-level divergence metric (D-06), computed every multi-run read and merged across cycles — then dropped at report time. `diagnostic_report.py` mentions the word exactly once, in a comment. This is the metric credited with the AM27C020 write#1/write#2 find. | set in `chip_test.py:1285`, merged at `:1624`, never read by the report |
 | `plan.is_uv` | The UV decision, made **exactly once** by `derive_plan` from `electrical-type`, measured exact at 301/301. Not in the report — so a triage reader cannot tell a UV slot run from a full-device run except through `write_coverage` prose. | `chip_test.py:568`, `is_uv_eprom` |
@@ -44,9 +44,9 @@ summary of numbers the same object is carrying*.
 
 | key | evidence it is dead |
 |---|---|
-| `voltage.vpp_mv` | No assignment anywhere in the app — the only occurrences are the dataclass default, the `NOT_MEASURED` substitution, and a comment at `diagnostic_report.py:942` conceding the console render dropped "the `vpp_mv`/`vpe_mv` standalone slots that no code path assigns". |
+| `voltage.vpp_mv` | No assignment anywhere in the app — the only occurrences are the dataclass default, the `NOT_MEASURED` substitution, and a comment at `diagnostic_report.py:936` conceding the console render dropped "the `vpp_mv`/`vpe_mv` standalone slots that no code path assigns". |
 | `voltage.vpe_mv` | Same. |
-| `banner.locked_steps` | Derived from `Plan.locked_destructive`, which is populated only on a `write_scope="none"` plan. `_resolve_write_scope` (`cli_handlers.py:2456-2459`) returns **only** `"full"` or `"partial"` — `"none"` is unreachable from every CLI path. The `Plan` docstring says so itself and calls removal "an explicitly deferred cleanup, not this phase's work" (Phase 121 D-02). |
+| `banner.locked_steps` | Derived from `Plan.locked_destructive`, which is populated only on a `write_scope="none"` plan. `_resolve_write_scope` (`cli_handlers.py:2453-2456`) returns **only** `"full"` or `"partial"` — `"none"` is unreachable from every CLI path. The `Plan` docstring says so itself and calls removal "an explicitly deferred cleanup, not this phase's work" (Phase 121 D-02). |
 
 Note the shape of the `locked_steps` case: the code already knew it was dead, wrote
 that down, and shipped it anyway. That is rule 1's whole justification.
@@ -90,7 +90,7 @@ Four separate defects, tangled.
    plan derivation, report write and the submit prompt" — which is the operator's
    complaint restated by the code that causes it.
 4. **`steps total` is render-only.** Deliberately not in `to_dict()`
-   (`diagnostic_report.py:1015-1027`), so no consumer can re-derive it and no filed
+   (`diagnostic_report.py:1009-1021`), so no consumer can re-derive it and no filed
    issue carries it.
 
 **Resolution (operator, 2026-08-23): operation cost.** The number exists to say
@@ -109,7 +109,7 @@ is not re-litigated as an oversight.
 
 `dedup_fingerprint` hashes exactly `chip | protocol | op=verdict:classification`
 plus the `repeat_policy_tag` / `coverage_tag` discriminators
-(`diagnostic_report.py:316-355`). **Not one field in Class A, B or D is in that
+(`diagnostic_report.py:310-349`). **Not one field in Class A, B or D is in that
 hash** — `duration_s` was deliberately excluded as volatile, and `chip_id_actual`,
 `vpp_mv`, `vpe_mv` and `locked_steps` were never in it.
 

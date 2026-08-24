@@ -180,7 +180,7 @@ git show origin/beta:firestarter/main.py | grep -c 'lock.status'      # → 0
 | App commits **behind** `origin/beta` | *not stated* | **7** | ⚠ **NEW — the merge is not a fast-forward** |
 | `git cherry` already-upstream (`-`) | *not stated* | **5** | ⚠ NEW |
 | `git cherry` genuinely new (`+`) | *not stated* | **80** | ⚠ NEW |
-| `fw_board_identity=None` at `cli_handlers.py:2517` on beta | present | **present, exact line 2517** | ✅ HOLDS |
+| `fw_board_identity=None` at `cli_handlers.py:2514` on beta | present | **present, exact line 2517** | ✅ HOLDS |
 | `vcc_mv` on beta | absent | **absent (0 occurrences)** | ✅ HOLDS |
 | `lock-status` on beta | absent | **absent (0 occurrences)** | ✅ HOLDS |
 
@@ -440,7 +440,7 @@ Beyond D-05's OUT-01/OUT-04 and D-15's PROJECT.md items, the following are stale
 3. **`ROADMAP.md` and `REQUIREMENTS.md` both cite `database.py:621`** as the `FLAG_CAN_ERASE`
    exclusion-tuple edit site. Phase 153 measured the real site as **`:620`** and recorded it as the
    fourth corrected line number in its chain. Measured today, the exclusion tuple `if algo not in
-   (5,):` sits at **`database.py:638`** (the file grew during 153). Both documents are wrong, and
+   (5,):` sits at **`database.py:629`** (the file grew during 153). Both documents are wrong, and
    they are wrong differently from each other and from the tree.
    `[VERIFIED: sed -n '630,645p' firestarter/database.py, 2026-08-21]`
 
@@ -513,12 +513,12 @@ at `:647-657` reads, verbatim in the tree:
 
 `0x05` (flash4): the sibling conditional was **located in code before being touched**, at
 `flash_5v_page.cpp:88-90` (RESEARCH's original figure; PATTERNS' "correction" to `87-89` was itself
-wrong). Deleted the same way. `flash_5v_page.cpp:91` now carries the same "consequently unread"
+wrong). Deleted the same way. `flash_5v_page.cpp:90` now carries the same "consequently unread"
 comment. `[VERIFIED: grep + sed over firestarter@d990a4c, 2026-08-21]`
 
 ### B-3. `erase` IS a standalone step on `0x0D` — via the **SOFTWARE** path, not the 12 V hardware path
 
-- `case CMD_ERASE:` at `eeprom_28c.cpp:262-263` dispatches to `eeprom28c_erase_execute` (declared
+- `case CMD_ERASE:` at `eeprom_28c.cpp:250-251` dispatches to `eeprom28c_erase_execute` (declared
   `:150`, defined `:545`).
 - The implementation emits the **AN 0544B six-byte software chip-erase sequence**, cited in-tree at
   `:500-502` as *"Atmel Application Note 'Software Chip Erase', Rev. 0544B-10/98 (doc0544.pdf)"*.
@@ -534,7 +534,7 @@ comment. `[VERIFIED: grep + sed over firestarter@d990a4c, 2026-08-21]`
 
 `[VERIFIED: firestarter/src/proms/eeprom_28c.cpp read at HEAD d990a4c, 2026-08-21]`
 
-### B-4. `FLAG_CAN_ERASE` is RESTORED for algorithm 13 — measured at `database.py:638`
+### B-4. `FLAG_CAN_ERASE` is RESTORED for algorithm 13 — measured at `database.py:629`
 
 ```python
 # firestarter_app/firestarter/database.py  (measured 2026-08-21)
@@ -573,7 +573,7 @@ satisfied** — saying "GATE-03 prevented it" would repeat a mechanism claim 153
 
 ### B-6. `ic_layout.py:578-586` was **NOT** edited — ERASE-06 was satisfied from the other side
 
-CONTEXT D-07 lists `ic_layout.py:582` as a surface needing correction. **Measured: `ic_layout.py` has
+CONTEXT D-07 lists `ic_layout.py:579` as a surface needing correction. **Measured: `ic_layout.py` has
 zero commits from Phase 153.** ERASE-06 was read as *"the two axes must not contradict"*, not
 *"`info` must derive from the wire bit"* — and under that reading the block needed **zero edits**: it
 already keys on `electrical.type` alone, and it already **agrees** once ERASE-03 restored the wire
@@ -616,7 +616,7 @@ D-13 already requires for `lock-status` (a new `CMD_*` mapping `MSG_ERR_UNKNOWN_
 
 ### B-9. `blank` remains its own step — non-regression, unchanged
 
-`cli_handlers.py:856` → `CMD_BLANK_CHECK` → `mem_util_blank_check` (firmware `eeprom_28c.cpp:260`).
+`cli_handlers.py:854` → `CMD_BLANK_CHECK` → `mem_util_blank_check` (firmware `eeprom_28c.cpp:248`).
 Already worked before 153; proven still to work across CLI, host-call and firmware-dispatch layers.
 `[CITED: 153-RECORD.md ERASE-05]`
 
@@ -1675,7 +1675,7 @@ surfaces still carry the old claims?* → the two `b14` release bodies (left alo
 
 **What goes wrong:** criterion 2's *"answerable **because** the report now identifies its firmware"* is
 **false in every published version** — `fw_board_identity=None` is still hardcoded at
-`origin/beta:cli_handlers.py:2517` today (§A-1).
+`origin/beta:cli_handlers.py:2514` today (§A-1).
 **Why it happens:** the fix exists on the milestone branch, so it *feels* shipped.
 **How to avoid:** D-04's ordering is load-bearing. Merge, cut, read the tags, *then* post.
 **Warning sign:** a draft naming a version that `gh release list` does not yet show.

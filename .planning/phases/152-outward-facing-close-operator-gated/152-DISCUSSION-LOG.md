@@ -65,7 +65,7 @@ frontmatter.
 
 **User's choice:** 152 owns the beta merges, then posts all three.
 **Notes:** The question was raised because a mid-discussion check found `origin/beta` (the commit that
-cut b22) still carries `fw_board_identity=None` hardcoded at `cli_handlers.py:2517` — the provenance
+cut b22) still carries `fw_board_identity=None` hardcoded at `cli_handlers.py:2514` — the provenance
 fix exists only on the unmerged milestone branch, 67 commits ahead. Claude then named what the phase
 absorbs: PRs to beta not direct merges, two cuts firing by design, `git cherry` not SHA ancestry,
 the empty-sibling-root precondition, `gh workflow run` blocked by the auto-mode classifier, and
@@ -137,8 +137,8 @@ calls `write_eprom` with no flags and the signature defaults `operation_flags: i
 `FLAG_SKIP_BLANK_CHECK` is never set and `dev test` fails at write INIT on any non-blank part — the
 exact `Not blank, at 0x000000, v: 0x40` pasted on gh#20 with b15. Claude reflected the policy back,
 then measured its decomposition and found `blank` as a standalone step **already works**
-(`cli_handlers.py:856` + `eeprom_28c.cpp:226`), so only the write-path conditional at
-`eeprom_28c.cpp:547` and the missing `CMD_ERASE` arm are owed — plus the 12 V-on-OE / GATE-03 hazard.
+(`cli_handlers.py:854` + `eeprom_28c.cpp:218`), so only the write-path conditional at
+`eeprom_28c.cpp:517` and the missing `CMD_ERASE` arm are owed — plus the 12 V-on-OE / GATE-03 hazard.
 
 ### Q5 — Where does the policy land?
 

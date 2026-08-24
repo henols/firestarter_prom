@@ -89,7 +89,7 @@ or the `write` step of `firestarter dev test w27c512`.
     `file_handle.read(buffer_size)`; `buffer_size` comes from `_calculate_buffer_size`
     (:480-493) which returns `comm.firmware_max_chunk` VERBATIM; that is set in
     `serial_comm.py:395-401` from the MSG_OK_READY u16 param, clamp [1,4096]; the firmware
-    advertises `DATA_BUFFER_SIZE` there (firestarter/src/firestarter.cpp:238-239), and
+    advertises `DATA_BUFFER_SIZE` there (firestarter/src/firestarter.cpp:233-234), and
     platformio.ini:87 sets `-D DATA_BUFFER_SIZE=1024` for leonardo. So the host chunk is 1024 B
     and a 64 KiB write is 64 chunks. There is NO page-size or chip-derived value anywhere on the
     0x07 write path's wire granularity.
@@ -105,7 +105,7 @@ or the `write` step of `firestarter dev test w27c512`.
       set_data(addr, expected);                 delayMicroseconds(EPROM_VPP_HOLD_US);
       set_control_register(CTRL_VPE_ENABLE, 0);
     `EPROM_VPP_SETUP_US`=1000 and `EPROM_VPP_HOLD_US`=100 (include/eprom.h:166-167).
-    `set_data` -> `memory_set_data` (src/proms/memory.cpp:329-337) spends `pulse_delay` = the DB's
+    `set_data` -> `memory_set_data` (src/proms/memory.cpp:401-409) spends `pulse_delay` = the DB's
     `pulse_duration_us` = **100 us** for W27C512.
   implication: cost per programmed byte = 1000 + 100 + 100 = **1200 us**, of which **1100 us is
     pure route-settle delay, not program energy**. 65536 bytes -> **72.1 s of dead delay** +
@@ -151,11 +151,11 @@ or the `write` step of `firestarter dev test w27c512`.
 - timestamp: 2026-08-22 (debugger, static, design point)
   checked: where page programming actually lives, independently of the bug.
   found: the host transports a per-chip `page-size` DATUM over the wire
-    (firestarter_app/firestarter/database.py:558-567, constants.py:168) and nothing more; the wire
+    (firestarter_app/firestarter/database.py:558-567, constants.py:167) and nothing more; the wire
     CHUNK size is `_calculate_buffer_size()` = `comm.firmware_max_chunk` = the firmware's own
     `DATA_BUFFER_SIZE`, with no chip input at all. Page SEQUENCING is entirely firmware-side:
-    `eeprom28c_page_mask(handle->page_size)` at src/proms/eeprom_28c.cpp:715 (algorithm 0x0D) and
-    `flash_5v_page_page_size(handle->mem_size)` at src/proms/flash_5v_page.cpp:27,107-125
+    `eeprom28c_page_mask(handle->page_size)` at src/proms/eeprom_28c.cpp:673 (algorithm 0x0D) and
+    `flash_5v_page_page_size(handle->mem_size)` at src/proms/flash_5v_page.cpp:27,106-125
     (algorithm 0x05, which derives its own page size and ignores the wire field).
   implication: the operator's DESIGN INTENT is already satisfied architecturally -- full buffers on
     the wire, page sequencing inside the firmware. Nothing needs to move. The only host

@@ -188,7 +188,7 @@ This is a fix/generalization phase on existing code — **no new packages are in
 ### Supporting (existing wire-field + gate plumbing — the templates to copy)
 | Mechanism | Where | Purpose | When to Use |
 |-----------|-------|---------|-------------|
-| `read-strobe-us` wire field | `constants.py:95` (`JSON_KEY_READ_STROBE_US`) ↔ `json_parser.c:68` (`key_read_strobe`) ↔ `eprom_operations.py:647` (emit-when-nonzero) | **The exact precedent for adding `page-size` over the wire** | PGSZ-03 — copy this pattern verbatim |
+| `read-strobe-us` wire field | `constants.py:95` (`JSON_KEY_READ_STROBE_US`) ↔ `json_parser.c:91` (`key_read_strobe`) ↔ `eprom_operations.py:647` (emit-when-nonzero) | **The exact precedent for adding `page-size` over the wire** | PGSZ-03 — copy this pattern verbatim |
 | Native recording-bus stub | `test/native/avr/test_val_flash4/host_stubs.cpp` + `test_val_flash4.cpp` | Tier-1 register-sequence assertions (no hardware) | FIX/PGSZ native tests |
 | Golden trace `.inc` + `GOLDEN_BLESS` | `test/native/avr/test_val_flash4/golden_flash4_write.inc` + `_shared/golden_trace.h` | Byte-exact register-trace pinning (FIX-02) | Re-bless only if a trace legitimately changes |
 | `tests/test_diff_db_gate.py` | host pytest | Runs `diff_db.py` as a CI gate (PGSZ-03) | DB-change verification |
@@ -292,7 +292,7 @@ if read_settling_us or read_strobe_us:
 # PGSZ analog: emit eprom_data_dict[JSON_KEY_PAGE_SIZE] when the DB provides a per-chip page_size
 ```
 ```c
-// Source: firestarter/src/json_parser.c:67-68 + :80 — add a key_page_size entry + get_page_size parser
+// Source: firestarter/src/json_parser.c:78-91 + :80 — add a key_page_size entry + get_page_size parser
 const char key_read_strobe[]   PROGMEM = "read-strobe-us";   // ← add const char key_page_size[] PROGMEM = "page-size";
 // ...register {key_page_size, get_page_size} in key_parsers[]; get_page_size sets handle->page_size
 ```
@@ -669,7 +669,7 @@ JSON_KEY_READ_SETTLING_DELAY = "read-settling-delay"
 JSON_KEY_READ_STROBE_US = "read-strobe-us"
 ```
 ```c
-// Source: firestarter/src/json_parser.c:67-68,80 — the PROGMEM key + parser-table registration
+// Source: firestarter/src/json_parser.c:78-91,80 — the PROGMEM key + parser-table registration
 const char key_read_strobe[]   PROGMEM = "read-strobe-us";
 // ... {key_read_strobe, get_read_strobe}  in key_parsers[]
 ```

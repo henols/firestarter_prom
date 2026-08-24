@@ -310,7 +310,7 @@ re-narrated in the same numbered-step-with-decision-id form.
 **Sanitize seam to keep upstream of every branch:** `sanitize_dict` / `_SCRUBS` (`:92-143`) —
 the same sanitized body must reach *every* seam including the new comment path.
 
-**Fingerprint source for the dedup query** (`diagnostic_report.py:196-206`, verbatim) — the
+**Fingerprint source for the dedup query** (`diagnostic_report.py:193-203`, verbatim) — the
 12-char short hash D-09 searches on, and the reason D-06 differentiates for free:
 
 ```python
@@ -644,7 +644,7 @@ about `dev test`.
 only.
 
 ### Reversal recorded as a reversal
-**Source:** `database.py:592`'s `D-03 note` (the text being reversed) + 119 D-18 / 120 D-20 as the
+**Source:** `database.py:591`'s `D-03 note` (the text being reversed) + 119 D-18 / 120 D-20 as the
 recording convention. **Apply to:** `database.py`'s rewritten comment, `chip_test.py`'s
 `locked_destructive`/`Plan` docstrings (state dead in-source — C-6 says keep the field and the
 banner), the two inverted host tests (`test_database_conversion.py:97-104`,

@@ -92,7 +92,7 @@ position.
 **C-1, re-verified independently this session:** `flash_intel_check_vpp` (`grep -c` over
 `avr-nm -C`'s full output) is **ABSENT** from the symbol table — `grep` exits 1. Read at
 `src/proms/flash_intel.cpp:26`, it is `static void flash_intel_check_vpp(firestarter_handle_t*)`,
-fully inlined into its caller. `flash_intel_write_init` begins at `src/proms/flash_intel.cpp:106`.
+fully inlined into its caller. `flash_intel_write_init` begins at `src/proms/flash_intel.cpp:72`.
 The two `flash_intel.cpp` VPP blocks are **lexically inside** `flash_intel_check_vpp` (line 26),
 **not** inside `flash_intel_write_init` (line 106) as ROADMAP criterion 1 and DEDUP-01 both say —
 the `flash_intel_write_init` attribution is a *symbol-table billing* fact (the static function's
@@ -371,9 +371,9 @@ These appear in every plan of this phase and in the phase record, in these terms
 | C-3 | (implicit) a `−268 / −158` split for DEDUP-01/DEDUP-02 | UNVERIFIED at this position — only `−426` total is measured (per `156-RESEARCH.md`); plans 03/04 each measure their own half in their own commit | 03, 04, 07 |
 | C-4 | The DEDUP-04 flip is "byte-for-byte zero" | Size-identical on all three targets, `.hex` SHA differs on all three, `avr-objdump` differs on 5450 lines (per `156-RESEARCH.md`; build proven reproducible first) | 05, 07 |
 | C-5 | The shared clone is `op_execute_stateful_operation.constprop.44` | Exactly one clone exists, suffix `.constprop.42` (confirmed this session, §3). Its byte size also measures 214 B / `0xd6` here, not the 216 B / `0xd8` `156-RESEARCH.md`'s own C-5 states — an additional, unclaimed-cause discrepancy found this session (§3) | 05, 06 |
-| C-6 | A "ten-line comment at `eprom_operations.cpp:57-67`" exists solely to explain the `!` | `:57-67` is the LOCK-01/LOCK-02 rationale block; only `:65-67` (the final 2–3 lines) concerns the `!` (re-read this session, §3-adjacent) | 05 |
-| C-7 | DEAD-06: "the only requirement in Phases 155–158 that touches a test file" | False — DEDUP-04 turns `test_eeprom28c_sdp.cpp:1426` RED and `:1524-1534` vacuous; both require edits (per `156-RESEARCH.md`) | 05, 07 |
-| planner-found 8th | DEDUP-04's comment blast radius is six locations | `src/operation_utils.cpp:57` carries the identical `@return true if the operation is still ongoing (e.g., waiting for ACKs), false when fully completed.` doxygen text as `include/operation_utils.h:72` (confirmed this session by `grep -n '@return'` over both files) — the blast radius is **seven** locations | 05 |
+| C-6 | A "ten-line comment at `eprom_operations.cpp:57-63`" exists solely to explain the `!` | `:57-67` is the LOCK-01/LOCK-02 rationale block; only `:65-67` (the final 2–3 lines) concerns the `!` (re-read this session, §3-adjacent) | 05 |
+| C-7 | DEAD-06: "the only requirement in Phases 155–158 that touches a test file" | False — DEDUP-04 turns `test_eeprom28c_sdp.cpp:1487` RED and `:1524-1534` vacuous; both require edits (per `156-RESEARCH.md`) | 05, 07 |
+| planner-found 8th | DEDUP-04's comment blast radius is six locations | `src/operation_utils.cpp:58` carries the identical `@return true if the operation is still ongoing (e.g., waiting for ACKs), false when fully completed.` doxygen text as `include/operation_utils.h:73` (confirmed this session by `grep -n '@return'` over both files) — the blast radius is **seven** locations | 05 |
 | found this session (beyond the seven) | `156-RESEARCH.md`/`156-VALIDATION.md`: pytest baseline is 313 passed / 0 failed / 32 skipped | In the canonical `/workspaces/firestarter` checkout (meta repo sibling present), it is **348 passed / 0 failed / 0 skipped** — explained by `tests/meta_presence.py`'s `META_PRESENT` seam; forcing meta-absence reproduces 316 passed / 32 skipped (348 total either way), a 3-item drift from the quoted 313 not chased further (§5) | 01 (this file); relevant to any later plan quoting this baseline |
 
 ---

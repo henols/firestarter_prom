@@ -172,7 +172,7 @@ Unchanged from Phase 134's close, as expected -- this plan touches zero `LEG-*` 
 ledger's claim classes cite them directly:**
 - `pytest tests/test_dev_test_cmd.py -k "test_leaked_lock_exits_1 or test_mixed_bad_and_marginal_exits_1_not_2" -o addopts="" -q` -> `2 passed, 49 deselected in 2.79s` (claim class 3/4).
 - `pytest tests/test_chip_test.py -k "count_applicable_sdp" -o addopts="" -q` -> `3 passed, 106 deselected in 0.13s`, confirming `m_applicable=10`, `n_ran=6` live (mechanism correction 6).
-- `_EXIT_CODE_PRECEDENCE: tuple[int, ...] = (1, 2, 0)` read directly at `cli_handlers.py:2029` (claim class 4).
+- `_EXIT_CODE_PRECEDENCE: tuple[int, ...] = (1, 2, 0)` read directly at `cli_handlers.py:2026` (claim class 4).
 - `skip_sdp_unlock: bool = False` read directly at `cli_handlers.py:319`, inside `_build_op_flags` (claim class 8 / P-21).
 - `test_dev_sdp_removal_is_safe_only_because_auto_unlock_is_default_on` re-read at
   `tests/test_write_skip_sdp_unlock.py:328-395` (claim class 8 / P-21 exact test name).

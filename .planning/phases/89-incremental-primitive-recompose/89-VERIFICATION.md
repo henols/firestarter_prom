@@ -23,10 +23,10 @@ operator_resolutions:
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|---------|
-| 1 | P7 dedup: FLASH_ENABLE_WRITE_PROTECTION and EEPROM_SDP_DISABLE duplicates removed; eeprom_28c redirected to FLASH_DISABLE_WRITE_PROTECTION | VERIFIED | grep returns 0 for both symbols in src/include; FLASH_DISABLE_WRITE_PROTECTION in eeprom_28c.cpp:106; commit 0052c42 |
+| 1 | P7 dedup: FLASH_ENABLE_WRITE_PROTECTION and EEPROM_SDP_DISABLE duplicates removed; eeprom_28c redirected to FLASH_DISABLE_WRITE_PROTECTION | VERIFIED | grep returns 0 for both symbols in src/include; FLASH_DISABLE_WRITE_PROTECTION in eeprom_28c.cpp:101; commit 0052c42 |
 | 2 | P4 chip_id_report: new primitives module created; shared report tail serves all four call sites; CR-01 behavioral regression fixed (eprom CHECK_CHIP_ID path restored to unconditional ERROR) | VERIFIED | primitives.h declares void chip_id_report(handle, read_id, bool force_warning); primitives.cpp implements it with force_warning param (not FLAG_FORCE); eprom.cpp:317 passes error_code==RESPONSE_CODE_WARNING; commits a10871d + a296195 |
 | 3 | P3 vpp_check_window: shared window body extracted; regulator routing, REV0 guard, and trailing clear stay handler-local; D-06 protocol keying NOT moved into primitive | VERIFIED | vpp_check_window in primitives.cpp:93 contains no REGULATOR references (grep = 0); eprom.cpp:272 still has protocol==0x0B keying; eprom.cpp:280 calls vpp_check_window; flash_intel.cpp:64 calls vpp_check_window; commit a52fd0a |
-| 4 | P5 poll_readback: shared bounded poll kernel used by eeprom28c + flash4; iteration caps and per-site error frame byte orders preserved; eprom verify_and_update_mask untouched | VERIFIED (operator-resolved) | eeprom_28c.cpp:134 and flash_type_4.cpp:123 call poll_readback with correct caps (2000/1024); error frames stay in callers (addr-first vs expected-first confirmed); eprom.cpp poll_readback count=0; verify_and_update_mask count=2 (unchanged). ROADMAP SC#4's third site (eprom_write_execute verify) is a different algorithm — ACCEPTED as a D-02 scope narrowing by operator 2026-06-26 (see operator_resolutions + 89-04-SUMMARY D-02 note). Commit abbbb5c. |
+| 4 | P5 poll_readback: shared bounded poll kernel used by eeprom28c + flash4; iteration caps and per-site error frame byte orders preserved; eprom verify_and_update_mask untouched | VERIFIED (operator-resolved) | eeprom_28c.cpp:128 and flash_type_4.cpp:123 call poll_readback with correct caps (2000/1024); error frames stay in callers (addr-first vs expected-first confirmed); eprom.cpp poll_readback count=0; verify_and_update_mask count=2 (unchanged). ROADMAP SC#4's third site (eprom_write_execute verify) is a different algorithm — ACCEPTED as a D-02 scope narrowing by operator 2026-06-26 (see operator_resolutions + 89-04-SUMMARY D-02 note). Commit abbbb5c. |
 | 5 | All native golden traces stay byte-identical at every extraction step (zero-diff) | VERIFIED | 105/105 tests PASS (pio test -e native confirmed live); test_val_eprom, test_val_flash_intel, test_val_eeprom28c, test_val_flash3, test_val_flash4, test_val_sram all PASSED |
 | 6 | Leonardo flash net-decreasing: final bytes strictly below 25654 B Phase-88 baseline | VERIFIED | pio run -e leonardo: 25136 bytes (87.7%); 25136 < 25654; net delta = -518 B; D-01 PASS. (Note: ledger records 25090 B at abbbb5c; CR-01 fix added +46 B. Both values are net decreases from baseline.) |
 | 7 | check_dispatch.py exits 0 violations, diff_db.py is empty (identity diff) at phase close — SAFE-03 | VERIFIED | check_dispatch.py: 746 chips, 0 dispatch regressions, 0 consistency violations; diff_db.py: 0 changed / 0 new / 0 missing |
@@ -50,13 +50,13 @@ operator_resolutions:
 |------|----|-----|--------|---------|
 | `eeprom_28c.cpp` | `primitives.cpp` | chip_id_report(handle, chip_id, is_flag_set(FLAG_FORCE)) | WIRED | eeprom_28c.cpp:91 |
 | `flash_intel.cpp` | `primitives.cpp` | chip_id_report(handle, chip_id, is_flag_set(FLAG_FORCE)) | WIRED | flash_intel.cpp:176 |
-| `flash_utils.cpp` | `primitives.cpp` | chip_id_report(handle, flash_util_get_chip_id(handle), is_flag_set(FLAG_FORCE)) | WIRED | flash_utils.cpp:112 |
+| `flash_utils.cpp` | `primitives.cpp` | chip_id_report(handle, flash_util_get_chip_id(handle), is_flag_set(FLAG_FORCE)) | WIRED | flash_utils.cpp:107 |
 | `eprom.cpp` | `primitives.cpp` | chip_id_report via eprom_internal_check_chip_id; force_warning = error_code==RESPONSE_CODE_WARNING | WIRED | eprom.cpp:317; CHECK_CHIP_ID path gets false (ERROR); generic-init path gets FLAG_FORCE-derived value |
 | `eprom.cpp` | `primitives.cpp` | vpp_check_window(handle) from eprom_check_vpp | WIRED | eprom.cpp:280; protocol keying + regulator enable before, trailing clear after |
 | `flash_intel.cpp` | `primitives.cpp` | vpp_check_window(handle) from flash_intel_check_vpp | WIRED | flash_intel.cpp:64; no trailing clear (caller holds VPP) |
-| `eeprom_28c.cpp` | `primitives.cpp` | poll_readback(handle, address, expected, 2000, &observed) | WIRED | eeprom_28c.cpp:134 |
+| `eeprom_28c.cpp` | `primitives.cpp` | poll_readback(handle, address, expected, 2000, &observed) | WIRED | eeprom_28c.cpp:128 |
 | `flash_type_4.cpp` | `primitives.cpp` | poll_readback(handle, address, expected, 1024, &observed) | WIRED | flash_type_4.cpp:123 |
-| `eeprom_28c.cpp` | `flash_utils.h` | flash_execute_command(FLASH_DISABLE_WRITE_PROTECTION) | WIRED | eeprom_28c.cpp:106; P7 redirect confirmed |
+| `eeprom_28c.cpp` | `flash_utils.h` | flash_execute_command(FLASH_DISABLE_WRITE_PROTECTION) | WIRED | eeprom_28c.cpp:101; P7 redirect confirmed |
 
 ### Data-Flow Trace (Level 4)
 

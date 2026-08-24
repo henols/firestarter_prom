@@ -33,7 +33,7 @@ Not applicable — no new packages. This phase edits existing Python source in `
 - **D-01 (rejection rule):** "Usable `algorithm`" = **present and non-zero**. Reject only when `algorithm` is absent or `0` — mirrors firmware `protocol == 0 → 0xBB`. Do NOT add a stricter "not in `KNOWN_PROTOCOLS`" gate (a non-zero-but-unknown protocol falls through to firmware fail-closed 0xBB).
 - **D-02 (guard site + surface):** Extend `chip_resolver.resolve_chip` and **reuse `ChipNotImplementedError`**. Guard lands alongside the existing `support_status` refusal (fires BEFORE `convert_to_programmer`). No new exception type. Message must name the chip and state a protocol/`algorithm` is required. `info`/`list`/`search`/`id` display paths bypass `resolve_chip` and stay unaffected.
 - **D-03 (label + signature):** `resolve_type_label`/`get_chip_type_string` derive the label from `electrical.type` first, then protocol-based name; when neither resolves, show **`"Unknown"`**. **Drop the `type_int` (mem_type) parameter** from both signatures and delete the numeric `type_map` (`{1: EPROM, 2: Flash type 2, …}`). No behavior regression for any chip that already resolved via `electrical.type`/protocol.
-- **D-04 (full removal):** Delete the `"type"` key from `_map_data`'s output entirely (the `determined_type` block at `database.py:~418–428, 445` goes away with `_ALGO_MEM_TYPE`). Clean up **every** `.get("type", 0)` consumer: `convert_to_programmer` (`database.py:585`), `ic_layout.py:564`, `eprom_info.py:408`. No vestigial internal field.
+- **D-04 (full removal):** Delete the `"type"` key from `_map_data`'s output entirely (the `determined_type` block at `database.py:~418–428, 445` goes away with `_ALGO_MEM_TYPE`). Clean up **every** `.get("type", 0)` consumer: `convert_to_programmer` (`database.py:585`), `ic_layout.py:561`, `eprom_info.py:408`. No vestigial internal field.
 - **D-05 (wire-val tests — delete-and-invert):** Flip each `tests/test_val_wire_*.py` to positively assert `"type"` is NOT in the emitted command. Absence IS HOST-01's proof.
 - **D-06 (HOST-04 test — SC#4):** Add a test in `tests/test_chip_resolver.py` exercising a deliberately-broken user-override entry (no `algorithm` / `algorithm == 0`) → asserts `ChipNotImplementedError` raised, **no serial byte** emitted.
 
@@ -87,7 +87,7 @@ All line numbers verified against live source at HEAD of `v1.20-protocol-only-di
 | `database.py:445` | `"type": determined_type,` in `_map_data` mapped dict | DELETE key (D-04) | The `"electrical-type"` key at `:456` STAYS (D-04 canonical ground truth) |
 | `database.py:585` | `"type": full_eprom_data.get("type", 0),` in `convert_to_programmer` | DELETE line (D-04, HOST-01) | THE single wire-emit site |
 | `ic_layout.py:203-223` | `get_chip_type_string(self, chip_type_int, protocol_id=None)` + `type_map` | Drop `chip_type_int` param; delete `type_map`; return `"Unknown"` when protocol unresolved (D-03) | Rename note: CONTEXT.md calls the param `type_int`; source names it `chip_type_int` on `get_chip_type_string` and `type_int` on `resolve_type_label` |
-| `ic_layout.py:502-534` | `resolve_type_label(self, electrical_type, type_int=0, protocol_id=None)` | Drop `type_int` param; update docstring; delegate to `get_chip_type_string(protocol_id)` (D-03) | |
+| `ic_layout.py:499-531` | `resolve_type_label(self, electrical_type, type_int=0, protocol_id=None)` | Drop `type_int` param; update docstring; delegate to `get_chip_type_string(protocol_id)` (D-03) | |
 | `ic_layout.py:562-566` | `build_specifications` caller (passes `eprom_data.get("type", 0)`) | Drop the `.get("type",0)` positional arg (D-03/D-04) | |
 | `eprom_info.py:406-410` | `print_eprom_list_table` caller (passes `ic.get("type", 0)`) | Drop the `.get("type",0)` positional arg (D-03/D-04) | list/search Type column |
 | `chip_resolver.py:54-57` | `support_status` guard region | ADD algorithm-presence guard AFTER the `support_status` check, still before `get_eprom`/`convert_to_programmer` (D-01/D-02, HOST-04) | See Pitfall 3 for exact placement |
@@ -97,8 +97,8 @@ All line numbers verified against live source at HEAD of `v1.20-protocol-only-di
 | File:line | Why NOT touched |
 |-----------|-----------------|
 | `eprom_info.py:69` | `"type": "unknown"` is a **string-typed** raw-JSON display field (in `_clean_config`'s `key_map`), distinct from the numeric `mem_type` axis. Verified: it maps to `raw_config.get("type", ...)` display default, never consumes the removed integer. Claude's-discretion confirm → **leave**. |
-| `ic_layout.py:472-485` | `_PROTOCOL_DISPLAY_NAME` — protocol-based labels; the surviving fallback tier. |
-| `ic_layout.py:494-500` | `_ELECTRICAL_TYPE_LABEL` — `electrical.type` ground-truth map; the primary label source. |
+| `ic_layout.py:469-482` | `_PROTOCOL_DISPLAY_NAME` — protocol-based labels; the surviving fallback tier. |
+| `ic_layout.py:491-497` | `_ELECTRICAL_TYPE_LABEL` — `electrical.type` ground-truth map; the primary label source. |
 | `database.py:434-435` | `info_flags` erase-derivation keys on `electrical.type in ("EEPROM","Flash/EEPROM")` — NOT on `mem_type`. Unaffected. |
 | `constants.py` | Verified: no `TYPE_*`/`mem_type`/`0xAE` constant — no dual-repo parity member to remove (Phase 105 already retired the firmware `TYPE_*`/`0xAE`). Do NOT introduce one. |
 

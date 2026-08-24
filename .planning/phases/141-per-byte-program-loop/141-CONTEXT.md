@@ -107,10 +107,10 @@ re-open them with the operator.
 - **D-06:** LOOP-07's safe delay helper is applied at BOTH `delayMicroseconds(handle->pulse_delay)`
   sites, and it lives beside `mem_util_*` (`memory_utils.h` / `memory.cpp`), not in `eprom.cpp`.
   LOOP-07's claim is global ("no call path can reach `delayMicroseconds()` above 16383 µs"), and the
-  full site inventory is exactly two: `memory.cpp:257` (`memory_set_data` — the pulse, reached by
+  full site inventory is exactly two: `memory.cpp:329` (`memory_set_data` — the pulse, reached by
   every protocol) and `eprom.cpp:283` (the erase pulse). Every other `delayMicroseconds()` call in
   the tree takes a compile-time constant (1/3/4/10) or an already-clamped read-timing value
-  (`memory.cpp:221`/`:235`, capped at 1000 µs at parse time). Fixing `memory_set_data` alone would
+  (`memory.cpp:225`/`:235`, capped at 1000 µs at parse time). Fixing `memory_set_data` alone would
   leave the erase pulse unsafe and LOOP-07 false.
   **Structure it as a pure split + the delay calls** so the ms/µs split is unit-testable — native
   stubs record no time, so a test can only assert the arithmetic, never the elapsed duration.
@@ -174,7 +174,7 @@ re-open them with the operator.
 
 - **D-12:** Phase 141 adds NO chunking and NO progress emission — but must not structurally preclude
   them. HOST-01/02 are Phase 143's. Keep the loop shaped so it can later adopt
-  `mem_util_blank_check`'s operation-in-progress + `progress_data` pattern (`memory.cpp:307-341`)
+  `mem_util_blank_check`'s operation-in-progress + `progress_data` pattern (`memory.cpp:379-413`)
   without another rewrite.
   **Finding to hand forward:** the roadmap calls Phase 143 "independent of 140–142 (different repo)",
   yet HOST-02's own named precedent — the blank-check progress/chunk pattern — is a **firmware**
@@ -227,7 +227,7 @@ re-open them with the operator.
   `chip_disable`); `:203-241` `memory_get_data` (**the verify read**: `chip_output` → remap(READ) →
   `set_address` → strobe); `:159-173` `mem_util_calculate_top_address_register` (**D-09's
   `pins < 32` mask**); `:307-341` `mem_util_blank_check` (D-12's progress/chunk precedent).
-- `firestarter/include/rurp_shield.h:113-136` — `rurp_chip_enable/disable/output/input` are
+- `firestarter/include/rurp_shield.h:108-131` — `rurp_chip_enable/disable/output/input` are
   **dedicated pins**, not shift-register control bits. This is the mechanical basis for LOOP-08:
   a verify read does not disturb the control register, so VPE survives it and the settle stays
   amortized once per block.
@@ -276,13 +276,13 @@ re-open them with the operator.
 ## Existing Code Insights
 
 ### Reusable Assets
-- **`memory_set_data()` / `memory_get_data()` (`memory.cpp:249`, `:203`)** — already the pulse and
+- **`memory_set_data()` / `memory_get_data()` (`memory.cpp:321`, `:203`)** — already the pulse and
   the verify read. D-05 reuses them via the `handle->firestarter_*` indirection rather than writing
   EPROM-local duplicates.
 - **The `org_delay` save/restore idiom (`eprom.cpp:161,172`)** — the existing, in-tree way to emit a
   pulse of a width other than `handle->pulse_delay`. D-07 reuses it for the overprogram pulse.
 - **`mem_util_blank_check`'s operation-in-progress + `progress_data` pattern
-  (`memory.cpp:307-341`)** — D-12's shape-compatibility target, and HOST-02's named precedent.
+  (`memory.cpp:379-413`)** — D-12's shape-compatibility target, and HOST-02's named precedent.
 - **`[env:native_params_v131]` (`platformio.ini`)** — a complete worked instance of a native env
   that names only its own suite, stays out of `default_envs`, and is deliberately excluded from both
   live gates, with the reasoning written in as comments. D-10 copies it wholesale, comments included.

@@ -23,7 +23,7 @@ statements; each one's inline evidence remains in CONTEXT.md and is not restated
 here.*
 
 - **D-01: The triage is ONE mechanical decision procedure, not a three-way judgment call.** Per hit: (1) delete the provenance token(s) and their enclosing punctuation — `Phase N`, `Plan N`, `Plan N-NN`, `Task N`, `PNNN`, `<NNN>-CONTEXT.md`, and the requirement/decision IDs (`D-NN`, `LOCK-02`, `PGSZ-01`, `ERASE-04`, `LOOP-03`, `MERGE-04`, `TABLE-01`, `W-04`, `OD-3`, `BF-3`, `Q4`, `T-44-01`, `FIX-05`, `A-7`, `C-8`, `BASE-02`, `HOST-01`, `VPP-01`, `CFG-03`, `RCA-01`); (2) judge what remains — a sentence describing code that exists → **keep it, reflowed** (the majority case); nothing but connective punctuation → delete the whole comment; a sentence describing code that is NOT there (tombstone) → delete the whole comment; (3) **Guard:** step 2 may never delete the only statement of a non-obvious invariant, trap, or fail-closed rationale — if stripping leaves it too terse to stand alone, reword it to stand alone, do not delete it.
-- **D-02: `CAP-0N` is EXEMPT** — it is live cross-repo wire-protocol vocabulary, not planning provenance. Generalised exemption test: a token that appears in **both** repos' shipped source is vocabulary, not provenance, and is exempt. **Consequence — `firestarter/src/firestarter.cpp:182-200` is a no-touch region**, pinned verbatim in raw un-stripped text by `test_cap03_ack_layout_parity.py`.
+- **D-02: `CAP-0N` is EXEMPT** — it is live cross-repo wire-protocol vocabulary, not planning provenance. Generalised exemption test: a token that appears in **both** repos' shipped source is vocabulary, not provenance, and is exempt. **Consequence — `firestarter/src/firestarter.cpp:177-195` is a no-touch region**, pinned verbatim in raw un-stripped text by `test_cap03_ack_layout_parity.py`.
 - **D-03: Requirement/decision IDs ARE provenance in shipped source and are stripped there — but are RETAINED in test files** where the ID is the test case's traceability key.
 - **D-04: Test-file scope is NARROWED.** 331 of 636 hits (52%) are in test files. Test files get the **narrow** treatment: tombstone deletion and label-only-comment deletion only. No reflowing of substantive test commentary. Named keep-in-full case: `firestarter_app/tests/scan_paths.py`'s module docstring.
 - **D-05: `firestarter_app/tests/scan_paths.py::ALL_CROSS_REPO_PATHS` is the authoritative inventory, and it is exactly 8 paths.** Use it; do not re-derive it by grep.
@@ -58,7 +58,7 @@ here.*
 | ID | Description (abbreviated) | Research Support |
 |----|---------------------------|------------------|
 | SWEEP-01 | D-01's single mechanical procedure applied per hit; five keep-examples land on "keep, reflowed" | §`Corpus Measurements` gives the per-group hit split the procedure runs over and the token frequency. **§F3 is a blocker on `eprom_params.cpp`, one of the five named keep-examples** — it is blob-sha-pinned |
-| SWEEP-02 | `CAP-0N` exempt; both-repos exemption test; `firestarter.cpp:182-200` untouched | §`Corpus Measurements` measures the exemption at **exactly 20 hit-lines**; §`No-Touch Region` verifies the region is intact and locates the pinned string at `:192` |
+| SWEEP-02 | `CAP-0N` exempt; both-repos exemption test; `firestarter.cpp:177-195` untouched | §`Corpus Measurements` measures the exemption at **exactly 20 hit-lines**; §`No-Touch Region` verifies the region is intact and locates the pinned string at `:192` |
 | SWEEP-03 | IDs stripped in shipped source, retained in test files | §`Corpus Measurements` token frequency: `D-#` = 185 hit-lines, the second-largest class after `Phase` |
 | SWEEP-04 | Test files get narrow treatment; 331-of-636 and "no oracle covers any of them" recorded | §`Corpus Measurements` reproduces 216 + 115 = **331 exactly**; §`Validation Architecture` states the coverage ceiling explicitly |
 | SWEEP-05 | `uno` build byte-identical, stated as a measured pair of numbers | §`R5 — The Byte-Identity Oracle` — **fully solved and upgraded to a sha256 pair**, proven immune against a 1827-line comment strip |
@@ -860,7 +860,7 @@ generator change is required and their output is never edited. Record the zero.
 
 ### No-Touch Region (D-02 / SWEEP-02) — verified intact
 
-`firestarter/src/firestarter.cpp:182-200` is present on clean `beta` and contains
+`firestarter/src/firestarter.cpp:177-195` is present on clean `beta` and contains
 the CAP-01/CAP-02/CAP-03 wire-layout block. The string
 `test_cap03_ack_layout_parity.py` pins verbatim
 (`_WIRE_LAYOUT_COMMENT = "[buffer_size u16 BE][hw_revision u8][ver_len u8][ver bytes][write_budget_s u16 BE]"`)
@@ -1393,7 +1393,7 @@ From `/workspaces/CLAUDE.md`:
 - **Serial protocol changes must be kept in sync** between
   `firestarter_app/firestarter/serial_comm.py` and `firestarter/src/firestarter.cpp`.
   → reinforces D-02: `CAP-0N` is shared wire vocabulary, and
-  `firestarter.cpp:182-200` is the wire-layout record. No-touch.
+  `firestarter.cpp:177-195` is the wire-layout record. No-touch.
 - **Constants/flag bits are duplicated** between
   `firestarter_app/firestarter/constants.py` and `firestarter/include/firestarter.h`
   — "change both together". → `include/firestarter.h` has 2 hits and is

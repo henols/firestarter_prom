@@ -214,13 +214,13 @@ This one-line change IS the fallback described above, not a surprise — the cor
 | Site | Line read | In Task 1's commit's changed-path list? |
 |---|---|---|
 | `src/firestarter.cpp:40` | `rurp_load_config();` | No |
-| `src/firestarter.cpp:103` | `rurp_configuration_t* config = rurp_get_config();` | No |
-| `src/firestarter.cpp:109` | `rurp_save_config(config);` | No |
+| `src/firestarter.cpp:99` | `rurp_configuration_t* config = rurp_get_config();` | No |
+| `src/firestarter.cpp:105` | `rurp_save_config(config);` | No |
 | `src/boards/rurp_common.cpp:53` | `rurp_configuration_t* rurp_config = rurp_get_config();` | No |
 | `include/rurp_hw_rev_utils.h:95` | `if (revision == REVISION_UNKNOWN && rurp_get_config()->hardware_revision == 0xFF) {` | No |
 | `include/rurp_hw_rev_utils.h:101` | `rurp_configuration_t* rurp_config = rurp_get_config();` | No |
-| `src/hardware_operations.cpp:107` | `rurp_configuration_t* rurp_config = rurp_get_config();` | No |
-| `src/hardware_operations.cpp:119` | `rurp_configuration_t* rurp_config = rurp_get_config();` | No |
+| `src/hardware_operations.cpp:106` | `rurp_configuration_t* rurp_config = rurp_get_config();` | No |
+| `src/hardware_operations.cpp:118` | `rurp_configuration_t* rurp_config = rurp_get_config();` | No |
 | `platform/py32f071/src/py32f071_rurp_shield.cpp:297` | `const rurp_configuration_t *const configuration = rurp_get_config();` | No |
 
 (Nine call sites across seven source locations, matching C-14's "seven consumers" grouping — `firestarter.cpp` and `hardware_operations.cpp` each have two call sites within one file.) None appears in `git show --stat 1d1ab28` or `git show --stat 62b1b73`. This is the structural argument that CFG-04's byte-identical-behaviour claim is achievable: every consumer sits above the seam and calls only the four public functions, none of which changed shape.

@@ -148,7 +148,7 @@ flash4_write_execute()                                               (flash_type
      │            (flash_util_byte_flipping → fu_flash_fast_address)     0x55→0x2AAA, 0xA0→0x5555
      │            ⚠ writes LSB+MSB registers + CTRL_READ_WRITE ONLY — does NOT
      │              set the A16–A18 top-address CONTROL bits  (H2 hinge)
-     ├─ firestarter_set_data(addr, byte)  = memory_set_data            (memory.cpp:274)
+     ├─ firestarter_set_data(addr, byte)  = memory_set_data            (memory.cpp:346)
      │     └─ mem_util_remap_address_bus + mem_util_set_address
      │            ──► writes LSB, MSB, AND top-address CONTROL (A16–A18)  ← full address every byte
      │            ──► delayMicroseconds(3) + CE pulse + delayMicroseconds(pulse_delay)  (H1 hinge: per-byte cost vs T_BLC=200µs)
@@ -264,16 +264,16 @@ firestarter dev write-cycle W29C040 /tmp/w29c040_img.bin --runs 2
 | SDP unlock sequence | `5555H←AA, 2AAA←55, 5555←A0` [CITED: W29C040.pdf §7.2 Command Codes for SDP] | `5555H←AA, 2AAA←55, 5555←A0` [CITED: W29C020.pdf §Command Codes for SDP] | **SAME** | SDP addresses/data are identical → SDP content is NOT the differential. (The firmware `FLASH_ENABLE_WRITE` matches both.) |
 | Page size | **256 B** (A8–A18 = page addr; A0–A7 = byte-in-page) [CITED: W29C040.pdf §6.2] | **128 B** (A7–A17 = page addr; A0–A6 = byte-in-page) [CITED: W29C020.pdf §6.2] | **DIFFERS** | firmware derives 256/128 correctly via `flash4_page_size(mem_size)` (524288→256, 262144→128) [VERIFIED: flash_type_4.cpp:38]. Page *value* is correct for both → page-size-value is NOT the cause. BUT the *number of bytes loaded per page* differs (256 vs 128) → longer page-load window for W29C040 (H1). |
 | Byte-load window T_BLC | **200 µs max** [CITED: W29C040.pdf §6.2 + AC table "Byte Load Cycle Time TBLC – – 200 µS"] | **150 µs** in AC table / 200 µs in §6.2 prose [CITED: W29C020.pdf AC table] | ~SAME spec, but W29C040 loads **2× more bytes per page** within the window | **H1 hinge**: W29C040 must keep the inter-byte gap < 200 µs across **256** consecutive loads; W29C020 across only **128**. Any single inter-byte stall > 200 µs commits the page early → partial/failed page. |
-| Address span / lines | 19 lines, **A0–A18** (512 KB) | 18 lines, **A0–A17** (256 KB) | **DIFFERS — A18 is the one extra line** | **H2 hinge**: A18 is the *only* address line W29C040 uses that W29C020 cannot. On Rev 2.0, A18 = `CTRL_ADDRESS_LINE_18_REV2 == CTRL_VPP_P1_ENABLE_REV2 == 0x08` [VERIFIED: rurp_pinout.h:128]. NOTE: page-0 fault is at `0x0000ff` where **A18=0**, so A18-high corruption alone can't explain page-0 — but A18-line *routing/contention* (it shares the P1 bit) could affect the CONTROL-register state during the page load even when nominally 0. |
+| Address span / lines | 19 lines, **A0–A18** (512 KB) | 18 lines, **A0–A17** (256 KB) | **DIFFERS — A18 is the one extra line** | **H2 hinge**: A18 is the *only* address line W29C040 uses that W29C020 cannot. On Rev 2.0, A18 = `CTRL_ADDRESS_LINE_18_REV2 == CTRL_VPP_P1_ENABLE_REV2 == 0x08` [VERIFIED: rurp_pinout.h:127]. NOTE: page-0 fault is at `0x0000ff` where **A18=0**, so A18-high corruption alone can't explain page-0 — but A18-line *routing/contention* (it shares the P1 bit) could affect the CONTROL-register state during the page load even when nominally 0. |
 | Internal write time | 5 ms typ (10 ms wait recommended) [CITED: W29C040.pdf §6.2] | ~10 ms page cycle [CITED: W29C020.pdf features] | ~SAME | poll cap = 1024 × (10 µs + read) ≈ well over 10 ms → poll window is adequate IF the page actually committed. Exonerates "poll too short" unless the read itself is slow. |
 | VPP requirement | None — 5V single-supply, internal VPP gen [CITED: W29C040.pdf GENERAL DESCRIPTION] | None — 5V single-supply, internal VPP gen [CITED: W29C020.pdf GENERAL DESCRIPTION] | **SAME** | Both 5V; `vpp_mv=12000` in DB is the chip-ID-read WP/VPP datum, NOT a programming VPP. flash4 write path must set NO VPP bits (verified — see Safety). |
 
 ### Firmware branch points where capacity / address width matters
 [All VERIFIED by direct source read]
 - `flash4_page_size(mem_size)` (flash_type_4.cpp:38) — the ONLY capacity branch; returns 256 for ≥262145, 128 for ≤262144, 64 for ≤65536. **W29C040 → 256 (correct), W29C020 → 128 (correct).** This exonerates page-size *derivation* as the differential.
-- `mem_util_calculate_top_address_register` (memory.cpp:184) — packs `(address>>16) & (A16|A17|A18|RW)` into the CONTROL register and OR-preserves VPP/mask bits. **`if (handle->pins < 32)` preserves `CTRL_VPP_VPE_DROP_ENABLE` (==A16 on legacy)** — but BOTH chips are `pin_count==32`, so this branch is NOT taken for either. **The `pins==28` A17-force branch is also not taken.** → top-address packing is identical for both 32-pin chips. Re-examine whether A18 (bit 0x08 on Rev2 = P1) is correctly emitted vs masked.
-- `mem_util_remap_address_bus` (memory.cpp:309) — applies the bus-config line remap + `static_high_mask`. Differs only via each chip's `bus_config` (19 vs 18 address lines). The 19th line (A18) is present in W29C040's config, absent in W29C020's.
-- **SDP unlock path** `fu_flash_fast_address` (flash_utils.cpp:83) — writes ONLY `LEAST_SIGNIFICANT_BYTE` + `MOST_SIGNIFICANT_BYTE` registers; it does **NOT** write the CONTROL/top-address register. So during the SDP 3-byte sequence, A16–A18 hold **whatever the previous CONTROL write left** (the `flash_util_byte_flipping` prologue does `set_control_register(CTRL_READ_WRITE, 0)`, which clears the RW bit but otherwise read-modify-writes the existing CONTROL state). **This is the subtle H2/H3 hinge** — the SDP addresses 0x5555/0x2AAA are all < 0x10000 (A0–A14), so A16–A18 *should* be 0 for them; but if the CONTROL register retains a stale top-address from a prior byte, the SDP unlock could land on the wrong page's 0x5555. For page 0 this is benign, which is *evidence against* SDP-addressing being the page-0 cause — record this as a partial exoneration.
+- `mem_util_calculate_top_address_register` (memory.cpp:187) — packs `(address>>16) & (A16|A17|A18|RW)` into the CONTROL register and OR-preserves VPP/mask bits. **`if (handle->pins < 32)` preserves `CTRL_VPP_VPE_DROP_ENABLE` (==A16 on legacy)** — but BOTH chips are `pin_count==32`, so this branch is NOT taken for either. **The `pins==28` A17-force branch is also not taken.** → top-address packing is identical for both 32-pin chips. Re-examine whether A18 (bit 0x08 on Rev2 = P1) is correctly emitted vs masked.
+- `mem_util_remap_address_bus` (memory.cpp:381) — applies the bus-config line remap + `static_high_mask`. Differs only via each chip's `bus_config` (19 vs 18 address lines). The 19th line (A18) is present in W29C040's config, absent in W29C020's.
+- **SDP unlock path** `fu_flash_fast_address` (flash_utils.cpp:84) — writes ONLY `LEAST_SIGNIFICANT_BYTE` + `MOST_SIGNIFICANT_BYTE` registers; it does **NOT** write the CONTROL/top-address register. So during the SDP 3-byte sequence, A16–A18 hold **whatever the previous CONTROL write left** (the `flash_util_byte_flipping` prologue does `set_control_register(CTRL_READ_WRITE, 0)`, which clears the RW bit but otherwise read-modify-writes the existing CONTROL state). **This is the subtle H2/H3 hinge** — the SDP addresses 0x5555/0x2AAA are all < 0x10000 (A0–A14), so A16–A18 *should* be 0 for them; but if the CONTROL register retains a stale top-address from a prior byte, the SDP unlock could land on the wrong page's 0x5555. For page 0 this is benign, which is *evidence against* SDP-addressing being the page-0 cause — record this as a partial exoneration.
 
 ### The differential, distilled
 After holding protocol/handler/pinout/SDP-content/VPP constant (all SAME), only **three** things differ between the failing W29C040 and the passing W29C020:
@@ -376,7 +376,7 @@ Based on the recorded `observed=0x00` + the 256-vs-128 byte differential + the d
 
 ### Pitfall 5: `delayMicroseconds` accuracy < 3 µs on 16 MHz AVR
 **What goes wrong:** Sub-3-µs delays are inaccurate on the Leonardo, so per-byte timing measured from code constants may not match silicon.
-**Why it happens:** AVR `delayMicroseconds` resolution (noted in memory.cpp:241).
+**Why it happens:** AVR `delayMicroseconds` resolution (noted in memory.cpp:313).
 **How to avoid:** For H1, measure per-byte cadence empirically (scope or `DEBUG_ADDRESS` trace timestamps), not by summing code-constant delays.
 **Warning signs:** computed per-byte time near the 200 µs boundary — measure, don't assume.
 
@@ -424,11 +424,11 @@ bool poll_readback(firestarter_handle_t* handle, uint32_t address, uint8_t expec
     return false;
 }
 ```
-> Contrast flash3's `flash_util_verify_operation` (flash_utils.cpp:51) which DOES DQ7-mask (`(poll & 0x80) == (expected & 0x80)`) and double-reads. flash4's whole-byte poll is a deliberate divergence — note it for H4.
+> Contrast flash3's `flash_util_verify_operation` (flash_utils.cpp:52) which DOES DQ7-mask (`(poll & 0x80) == (expected & 0x80)`) and double-reads. flash4's whole-byte poll is a deliberate divergence — note it for H4.
 
 ### Per-byte address emission (sets full top-address every byte — relevant to H1 cost + H2 stability)
 ```cpp
-// Source: firestarter/src/proms/memory.cpp:200 + :274
+// Source: firestarter/src/proms/memory.cpp:204 + :274
 void memory_set_data(firestarter_handle_t* handle, uint32_t address, uint8_t data) {
     rurp_chip_input();
     address = mem_util_remap_address_bus(handle, address, WRITE_FLAG);

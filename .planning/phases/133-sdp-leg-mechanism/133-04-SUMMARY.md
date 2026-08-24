@@ -260,7 +260,7 @@ Reverted (verified `git diff --stat firestarter/chip_test.py` empty afterward); 
 
 **D-11 qualifier.** In Phase 133 the unlock reaches the chip **only** via the registry drain; it is not a derived plan step, and `OP_SDP_UNLOCK`'s absence from `_DESTRUCTIVE_OPS` is **forward-protection for Phase 134**, where the unlock becomes step 4 of the derived leg. The absence does **not** gate a live 133 path -- there is no plan-derived SDP step in this phase for it to gate.
 
-**D-07 residual.** After a Ctrl-C mid-leg the chip has an unlock **attempted** (the drain still runs it), but the user sees **no `dev test` report at all** -- the production caller does `results = run_plan(...)` (`cli_handlers.py:2164`), so a propagating exception means the assignment never completes and there is nothing to render. The report is honestly forfeited.
+**D-07 residual.** After a Ctrl-C mid-leg the chip has an unlock **attempted** (the drain still runs it), but the user sees **no `dev test` report at all** -- the production caller does `results = run_plan(...)` (`cli_handlers.py:2161`), so a propagating exception means the assignment never completes and there is nothing to render. The report is honestly forfeited.
 
 **D-16 residual.** A **failed** unlock is proven by **test-observability only** in Phase 133 (through the operator double's call assertions) and is **not user-visible** until Phase 134's `HELD`/`NOT-RUN` field (LEG-12). `chip_test.py` was deliberately not given a logger.
 

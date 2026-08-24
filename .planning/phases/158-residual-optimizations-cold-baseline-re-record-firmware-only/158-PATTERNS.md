@@ -14,13 +14,13 @@ All paths below are relative to `/workspaces/firestarter` unless prefixed `.plan
 
 | New/Modified File | Role | Data Flow | Closest Analog | Match Quality |
 |-------------------|------|-----------|----------------|---------------|
-| `lib/jsmn/src/jsmn.h` (mod — LAND-05) | vendored header / type definition | transform (in-RAM token layout) | `include/firestarter.h` narrowing precedent in Phase 157 + `src/json_parser.c:78-86` `field_desc_t` sizeof warning | role-match (no prior edit to this vendored file exists) |
+| `lib/jsmn/src/jsmn.h` (mod — LAND-05) | vendored header / type definition | transform (in-RAM token layout) | `include/firestarter.h` narrowing precedent in Phase 157 + `src/json_parser.c:164-275` `field_desc_t` sizeof warning | role-match (no prior edit to this vendored file exists) |
 | `lib/jsmn/src/jsmn.c` (**read-only constraint, no edit**) | vendored implementation | transform | — (constraint file: the twelve `-1` sentinel field refs at `:15,222,241,256,290,348`) | n/a |
 | `scripts/baseline/size_baseline.json` (mod — LAND-01) | config / recorded measurement | batch (transcribe-from-log) | its own `meta.generated_by` (quick task 260820-a7w generation) — the convention lives inside the file it governs | exact (self-analog) |
-| `scripts/baseline/size_baseline_base01.json` (mod — LAND-03, 4 ints) | config / frozen anchor | batch | the 260820-a7w `flash_total` axis move, machine-checked at `tests/test_check_size_baseline.py:1108` | exact |
+| `scripts/baseline/size_baseline_base01.json` (mod — LAND-03, 4 ints) | config / frozen anchor | batch | the 260820-a7w `flash_total` axis move, machine-checked at `tests/test_check_size_baseline.py:1106` | exact |
 | `tests/fixtures/captured_build_v158_{uno,uno328pb,leonardo}.log` (**new**) | test fixture (captured tool output) | file-I/O | `tests/fixtures/captured_build_v153_{uno,uno328pb,leonardo}.log` | exact |
 | `tests/fixtures/planted_size_baseline_flash_regression_v158.log` (**new**) | test fixture (planted violation) | file-I/O | `tests/fixtures/planted_size_baseline_flash_regression_v153.log` | exact |
-| `tests/fixtures/captured_test_native{,_nodevtools}_summary.log` (mod **in place**) | test fixture (captured tool output) | file-I/O | themselves — in-place is the established convention for this pair (`test_check_size_baseline.py:575-576`) | exact (self-analog) |
+| `tests/fixtures/captured_test_native{,_nodevtools}_summary.log` (mod **in place**) | test fixture (captured tool output) | file-I/O | themselves — in-place is the established convention for this pair (`test_check_size_baseline.py:593-586`) | exact (self-analog) |
 | `tests/test_check_size_baseline.py` (mod — 4 legs + `:459` docstring) | test (subprocess gate suite) | request-response (subprocess) | its own Plan 153-15 severance edits (`:500-640`, `:1362`) | exact (self-analog) |
 | `tests/test_check_build_warnings.py` (verify only — 24-passed leg) | test | request-response | — (asserted green, not edited) | n/a |
 | `tests/meta_presence.py` (mod — `:52-56` docstring) | test helper / skip-gate module | config | its own `:40-53` "binds at import time" prose | exact (self-analog) |
@@ -79,7 +79,7 @@ environment-variable inventory -- this docstring is the only place a reader can 
 comments *and quoted-literal contents* with same-shape whitespace so line numbers survive.
 Load-bearing here: `jsmn.h` carries the **dead duplicate implementation at `:106-475`** whose
 eleven `-1` lines are live text to a naive grep. If the leg must scope to the *live* struct
-only, slice the region above `#ifndef JSMN_HEADER` (`jsmn.h:106`) rather than trusting a
+only, slice the region above `#ifndef JSMN_HEADER` (`jsmn.h:117`) rather than trusting a
 global count.
 
 **Non-vacuity leg** (`:371-397`) — copy exactly, retargeted:
@@ -123,11 +123,11 @@ word-boundary helper (`:223-236`).
 - (recommended) `uint8_t type;` / `uint8_t size;` present, so a revert is also loud
 
 **Anti-pattern from RESEARCH:** do **not** assert `sizeof(jsmntok_t)` in a native test —
-AVR is 6 B, host is 12 B. `src/json_parser.c:78-86` carries the same prohibition verbatim for
+AVR is 6 B, host is 12 B. `src/json_parser.c:164-275` carries the same prohibition verbatim for
 `field_desc_t`. The linker's `RAM: used N` line and `avr-nm` are the witnesses.
 
 **CI framing clause** — the analog's `:112-118` states CI coverage honestly. Its wording is
-**stale in the same way `test_check_size_baseline.py:459` and `meta_presence.py:52-56` are**
+**stale in the same way `test_check_size_baseline.py:459` and `meta_presence.py:56-58` are**
 (`build.yml` is now `push: branches: ['**','!beta']`). The new module must state the *correct*
 framing: `pytest tests/ -v` at `build.yml:161` **does** fire on this milestone branch.
 
@@ -173,7 +173,7 @@ uno            SUCCESS   00:00:02.065
   (README.md:29-36 — git silently stages nothing at exit 0 for some paths).
 
 **Consumers to repoint (both currently name `captured_build_v153_*`):**
-- `test_clean_avr_all_three_envs_pass` — `tests/test_check_size_baseline.py:518` (tuple at `:549-553`)
+- `test_clean_avr_all_three_envs_pass` — `tests/test_check_size_baseline.py:523` (tuple at `:549-553`)
 - `test_default_mode_is_unchanged_by_the_new_flag` — `:1362` (tuple at `:1385-1389`)
 
 Both use the identical loop body — copy it, change only the fixture names:
@@ -205,7 +205,7 @@ own precedent; check the v153 byte diff against its capture before deciding).
 `captured_` file by a single stated edit"* — **state the edit in the plan's SUMMARY.**
 
 **Consumer:** `test_planted_flash_regression_flips_checker_to_failure`,
-`tests/test_check_size_baseline.py:612`. Its assertions name **both** figures (baseline and
+`tests/test_check_size_baseline.py:610`. Its assertions name **both** figures (baseline and
 observed) as literals — both must be updated:
 ```python
     result = _run_checker(
@@ -225,7 +225,7 @@ different from the one it names, is exactly the false-cause pattern this severan
 ```
 ================ 172 test cases: 172 succeeded in 00:00:41.122 ================
 ```
-**Never severed** — the in-place convention is recorded at `test_check_size_baseline.py:575-576`
+**Never severed** — the in-place convention is recorded at `test_check_size_baseline.py:593-586`
 and its docstring explains the licence: *"this is the ONLY leg in this module that consumes
 either native summary fixture, so nothing else depends on 172 staying frozen"*. Both must be
 **genuine captures of a real run at the final tree position, not hand-edited counts** — the
@@ -269,7 +269,7 @@ Discretionary prose repairs licensed by F-1: `meta.consumed_by` names 2 consumer
 ### 6. `scripts/baseline/size_baseline_base01.json` (config, frozen anchor — LAND-03 FIX)
 
 **Analog:** the 260820-a7w `flash_total` move, whose licence is machine-checked at
-`tests/test_check_size_baseline.py:1108` (`test_base01_is_not_re_anchored_by_the_new_exemption`).
+`tests/test_check_size_baseline.py:1106` (`test_base01_is_not_re_anchored_by_the_new_exemption`).
 Its docstring **is** the axis-split doctrine to cite:
 > *"the true invariant this leg proves is narrower and still holds: BASE-01's GROWTH axis
 > (`flash_used`, `ram_used`) is byte-unchanged, while its board-identity axis (`flash_total`) is
@@ -291,7 +291,7 @@ axis (*test-inventory floor*, not a growth anchor), following the `meta.*_260822
 
 ### 7. `lib/jsmn/src/jsmn.h` (vendored header, LAND-05)
 
-**Current live struct** (`jsmn.h:73-81`):
+**Current live struct** (`jsmn.h:74-92`):
 ```c
 typedef struct jsmntok {
   jsmntype_t type;
@@ -313,7 +313,7 @@ typedef struct jsmntok {
 } jsmntok_t;
 ```
 `JSMN_PARENT_LINKS` is defined nowhere in the tree, so `parent` does not exist in the shipped
-struct. The **dead duplicate implementation** begins at `jsmn.h:106` under `#ifndef JSMN_HEADER`
+struct. The **dead duplicate implementation** begins at `jsmn.h:117` under `#ifndef JSMN_HEADER`
 while `#define JSMN_HEADER` sits at `:33` — it compiles in no TU (both confirmed on disk).
 Editing it for consistency is a judgement call; correctness does not require it. **If left
 alone, say so in the record**, because a reader grepping `jsmn.h` for `int size;` will find the
@@ -464,7 +464,7 @@ redden for **any** dirty file (`assert ' M lib/jsmn/src/jsmn.h\n' == ''`). Do no
 four with the four size-baseline legs.
 
 ### S-6 — Run gate-purpose `pytest tests/` from `/workspaces/firestarter`
-**Source:** `tests/meta_presence.py:75-95`; RESEARCH F-12
+**Source:** `tests/meta_presence.py:77-97`; RESEARCH F-12
 A worktree run silently skips 32 cross-repo legs (355 vs 323+32). `FIRESTARTER_META_ROOT` is read
 at **import time** — `monkeypatch.setenv` cannot move it; set it in the child environment.
 
@@ -485,7 +485,7 @@ construction"*.
 
 Nearest thing to a gap: **`lib/jsmn/src/jsmn.h`** has no prior *edit* precedent in this repo
 (one commit, `155b02f`, vendored the whole library). The narrowing idiom is taken from Phase 157's
-handle-type narrowing and the `sizeof`-assertion prohibition from `src/json_parser.c:78-86`, not
+handle-type narrowing and the `sizeof`-assertion prohibition from `src/json_parser.c:164-275`, not
 from a prior `lib/` edit. Planner should treat the vendored-file marking convention (inline
 comment naming the local delta) as **derived from two surviving local modifications**, not from a
 documented rule.

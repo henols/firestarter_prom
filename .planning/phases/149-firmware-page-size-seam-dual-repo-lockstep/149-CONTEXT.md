@@ -163,11 +163,11 @@ explains nothing about gh#21.
 - **D-10: Rename the fallback constant** (e.g. `AT28C_PAGE_SIZE_FALLBACK`) so the identifier stops
   claiming to be *the* page size — that claim is half of what made the old comment misleading.
   4 references: `eeprom_28c.cpp:33`, `:634`, plus `PAGE_SIZE` mentions in 3 native test files
-  (`test_val_eeprom28c.cpp:204,256`, `test_eeprom28c_sdp.cpp:1475,1486,1540`) — comments and one
+  (`test_val_eeprom28c.cpp:204,256`, `test_eeprom28c_sdp.cpp:1532,1543,1603`) — comments and one
   literal, all mechanical.
 
 - **D-11: Pin the new-host / old-firmware direction with a native test.** The unknown-key skip at
-  `json_parser.c:133` (`// Unknown field — skip key + value token`) is what makes the whole
+  `json_parser.c:320` (`// Unknown field — skip key + value token`) is what makes the whole
   emit-when-present design forward-compatible, and it is currently unguarded in a parser that has
   gained keys repeatedly. Same shape as PGSZ-02's own "exercised by a test rather than asserted in
   a comment" language.
@@ -225,7 +225,7 @@ explains nothing about gh#21.
   `firestarter/src/json_parser.c`, via `tests/fw_presence.py`'s `requires_fw`, **and add
   `src/json_parser.c` to `tests/scan_paths.py`'s committed inventory** — it currently lists
   `include/firestarter.h` but not the parser, and an off-inventory cross-repo scan is exactly the
-  defect that module exists to prevent. This also turns `constants.py:145`'s **currently false**
+  defect that module exists to prevent. This also turns `constants.py:144`'s **currently false**
   "Firmware sync: json_parser.c (`key_page_size`)" note into a true, enforced claim — that key does
   not exist in the firmware today. Prove the skip leg by pointing `FIRESTARTER_FW_ROOT` at an empty
   directory (the app's own CI has no sibling checkout, so this gate skips there — state that).
@@ -261,9 +261,9 @@ explains nothing about gh#21.
 ### Folded Todos
 
 - **`remove-dead-json-init-sizeof-pointer-bug`** (`.planning/todos/pending/`) — `json_init()` at
-  `firestarter/src/json_parser.c:50` computes `sizeof(tokens) / sizeof(tokens[0])` on a **pointer**
+  `firestarter/src/json_parser.c:42` computes `sizeof(tokens) / sizeof(tokens[0])` on a **pointer**
   parameter, so `num_tokens` is 0 and `jsmn_parse` could only ever return `JSMN_ERROR_NOMEM`. It is
-  called from nowhere in `src/` (only a comment in `test_read_timing_params.cpp:62` mentions it).
+  called from nowhere in `src/` (only a comment in `test_read_timing_params.cpp:70` mentions it).
   Folded because it is broken by inspection **in the exact file this phase edits** — delete the
   definition and its `json_parser.h:19` declaration. Any flash saving is a bonus, not the
   justification: with `--gc-sections` the linker may already discard it, so **do not** count it
@@ -314,10 +314,10 @@ explains nothing about gh#21.
   corrects; it already cites the AT28MC010 (64) vs AT28C010 (128) same-density pair.
 - `firestarter/src/proms/eeprom_28c.cpp:625-660` — `eeprom28c_write_execute`'s load loop; `:634` is
   the single `% PAGE_SIZE` flush test D-06 replaces with a mask.
-- `firestarter/src/json_parser.c:56-79` — the PROGMEM key strings and `key_parsers[]` table the new
+- `firestarter/src/json_parser.c:67` — the PROGMEM key strings and `key_parsers[]` table the new
   key joins; `:50` is the dead `json_init()` (folded todo); `:85-95` the optional-key resets (D-05's
   precedent); `:133` the unknown-key skip (D-11).
-- `firestarter/include/firestarter.h:188-219` — `firestarter_handle_t`; `:16-17` `DATA_BUFFER_SIZE`.
+- `firestarter/include/firestarter.h:188-224` — `firestarter_handle_t`; `:16-17` `DATA_BUFFER_SIZE`.
 - `firestarter/src/firestarter.cpp:33` — the single global `handle`, never `memset` between commands.
 - `firestarter/src/proms/flash_5v_page.cpp:19-30,81-99` — the FIX-04-frozen band table D-08 leaves
   alone.
@@ -326,7 +326,7 @@ explains nothing about gh#21.
 - `firestarter_app/firestarter/database.py:414-419` — `_map_data` carrying `programming.page_size`.
 - `firestarter_app/firestarter/database.py:536-557` — `convert_to_programmer`, the wire seam; `:550-553`
   already emits `page-size`.
-- `firestarter_app/firestarter/constants.py:145-149` — `JSON_KEY_PAGE_SIZE` and the **currently false**
+- `firestarter_app/firestarter/constants.py:144-148` — `JSON_KEY_PAGE_SIZE` and the **currently false**
   `key_page_size` sync note (D-18).
 - `firestarter_app/tests/test_wire_dict_equivalence.py` + `tests/golden/wire_dict_baseline.json` —
   746 records, 9-key union already including `page-size`, 2 rows carrying it today (D-17).
@@ -360,7 +360,7 @@ explains nothing about gh#21.
   a handle field, and a paired `constants.py` sync note. Follow it line for line.
 - **`chip_id`'s optional-key reset in `json_parse`** — the in-repo precedent D-05 rests on: the
   parser resets exactly the optional keys, because the mandatory ones are always overwritten.
-- **The unknown-key skip at `json_parser.c:133`** — already makes new-host/old-firmware safe today;
+- **The unknown-key skip at `json_parser.c:320`** — already makes new-host/old-firmware safe today;
   D-11 pins it rather than building it.
 - **`fw_presence.py` + `scan_paths.py`** — the fail-closed cross-repo scan infrastructure D-18
   needs already exists; the phase adds one inventory entry, not a mechanism.

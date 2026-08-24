@@ -58,7 +58,7 @@ completed: 2026-06-05
 
 - `firestarter/include/firestarter.h`: FW_VERSION macro changed from `VERSION ":" RURP_BOARD_NAME ":" FS_STRINGIFY(DATA_BUFFER_SIZE) ":" FS_STRINGIFY(DATA_BUFFER_SIZE)` to `VERSION ":" RURP_BOARD_NAME`; the Phase 54 comment block documenting the `<maxchunk>` field replaced with a CAP-01 note (capacity now advertised per-operation on MSG_OK_READY ack)
 - `FS_STRINGIFY`/`FS_STRINGIFY2` helper macros retained (used elsewhere); only the FW_VERSION trailing fields removed
-- 4 emit sites updated: `firestarter.cpp:142`, `hardware_operations.cpp:43`, `dev_tools.cpp:107`, `dev_tools.cpp:153` — all changed from `LOG_OK_ID(MSG_OK_READY)` to `LOG_OK_ID_U16(MSG_OK_READY, (uint16_t)DATA_BUFFER_SIZE)`
+- 4 emit sites updated: `firestarter.cpp:138`, `hardware_operations.cpp:43`, `dev_tools.cpp:107`, `dev_tools.cpp:153` — all changed from `LOG_OK_ID(MSG_OK_READY)` to `LOG_OK_ID_U16(MSG_OK_READY, (uint16_t)DATA_BUFFER_SIZE)`
 - Trailing comments on the two dev_tools.cpp sites preserved verbatim
 - Uno build: SUCCESS; RAM 504 B free (2048 − 1544), above 496 B post-Phase-54 baseline
 - Unity test `test_ok_ready_u16_param_frame` added — calls `rurp_log_id_u16(MSG_OK_READY, 512)`, asserts the exact 11-byte frame sequence (magic, len=4, id=0x01, params 0x02/0x00, CRC8 over body, anchor 0x0A), registered in RUN_TEST block; suite 6/6 PASSED

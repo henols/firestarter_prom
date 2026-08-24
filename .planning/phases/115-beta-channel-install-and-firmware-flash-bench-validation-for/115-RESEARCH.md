@@ -150,7 +150,7 @@ On `henols/firestarter` there must exist a GitHub release with:
 ### Programmatic Step-0 checks (no hardware needed)
 - PyPI channel: `pip index versions firestarter --pre` shows `3.0.0b11` (or `python -m pip download --pre --no-deps firestarter==3.0.0b11`).
 - `.hex` channel, per board, using the app's own resolver (authoritative — same code path `fw -i` uses):
-  `firestarter fw --list --pre -b uno` (and `-b uno328pb`, `-b leonardo`) → each must list the `3.0.0b11` prerelease row with an `asset_url`. `--json` gives a machine-checkable array. [VERIFIED: `list_releases` firmware.py:319-385 + `fw --list` cli_handlers.py:903-924]
+  `firestarter fw --list --pre -b uno` (and `-b uno328pb`, `-b leonardo`) → each must list the `3.0.0b11` prerelease row with an `asset_url`. `--json` gives a machine-checkable array. [VERIFIED: `list_releases` firmware.py:319-385 + `fw --list` cli_handlers.py:901-922]
 - Raw API cross-check: `GET https://api.github.com/repos/henols/firestarter/releases` → confirm the prerelease + 3 assets.
 
 ---
@@ -173,12 +173,12 @@ On `henols/firestarter` there must exist a GitHub release with:
 2. `board_to_use = current_board or board_override` (override default = `"uno"`). [firmware.py:571]
 3. `fetch_release_info(channel, board=board_to_use)` selects the asset.
 
-**Implication for D-05:** a board already running FW that reports `uno328pb` auto-selects `firestarter_uno328pb.hex`. If the third board reports `uno` (the `project_uno328pb_correction` mis-ID case, or a bricked/blank board where `check_current_firmware` returns `None` → falls back to override `uno`), it selects `firestarter_uno.hex`. To force the intended board, pass `-b/--board` (a `click.Choice(["uno","uno328pb","leonardo"])`, cli_handlers.py:818-824): `firestarter fw -i -b uno328pb`. Per D-05, flash `firestarter_uno328pb.hex` (use `-b uno328pb`) unless the board proves to be a plain Uno — then record it explicitly and use `-b uno`.
+**Implication for D-05:** a board already running FW that reports `uno328pb` auto-selects `firestarter_uno328pb.hex`. If the third board reports `uno` (the `project_uno328pb_correction` mis-ID case, or a bricked/blank board where `check_current_firmware` returns `None` → falls back to override `uno`), it selects `firestarter_uno.hex`. To force the intended board, pass `-b/--board` (a `click.Choice(["uno","uno328pb","leonardo"])`, cli_handlers.py:816-822): `firestarter fw -i -b uno328pb`. Per D-05, flash `firestarter_uno328pb.hex` (use `-b uno328pb`) unless the board proves to be a plain Uno — then record it explicitly and use `-b uno`.
 
 ### `fw -i` channel routing end-to-end
-- `fw()` enforces the 3-way `--pre`/`--firmware-version`/`--stable` mutex (UsageError/exit-2 if >1) [cli_handlers.py:884-897].
+- `fw()` enforces the 3-way `--pre`/`--firmware-version`/`--stable` mutex (UsageError/exit-2 if >1) [cli_handlers.py:882-895].
 - `_maybe_auto_route_to_pre_click` → `_maybe_auto_route_to_pre`: when `install` is set AND none of `--pre`/`--firmware-version`/`--stable` given, it checks the **installed app** version; if `Version(firestarter.__version__).is_prerelease` is True it sets `pre=True` [cli_handlers.py:200-239, 767-787]. So a `3.0.0b11`-installed app makes bare `fw -i` route to `pre` (D-23/D-24). A stable-installed app is unaffected.
-- Channel resolution: `firmware_version → "pinned"`, `pre → "pre"`, else `"stable"` [cli_handlers.py:930-936], then `manage_firmware_update(..., channel=channel, board_override=board)` [cli_handlers.py:944-953].
+- Channel resolution: `firmware_version → "pinned"`, `pre → "pre"`, else `"stable"` [cli_handlers.py:928-934], then `manage_firmware_update(..., channel=channel, board_override=board)` [cli_handlers.py:942-951].
 
 ---
 

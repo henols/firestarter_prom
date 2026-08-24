@@ -177,13 +177,13 @@ def generate_image(size_bytes: int, seed: int) -> bytes:
 > Chip sizes (RESEARCH line 227): W29C020=262144, SST39SF040=524288, W27C512=65536, FM1608=8192.
 > Generator output is byte-stable across py3.9/3.11/3.12 (pure stdlib `random.Random`) — the printed SHA must equal the v1.15 baseline image-A/B SHA **before** any chip is touched. `[VERIFIED: gen_test_image.py source]`
 
-**Read-SHA capture pattern** — `firestarter dev consistency-check` (handler `cli_handlers.py:1102-1136`; N reads → SHA divergence → exit 0/1/2):
+**Read-SHA capture pattern** — `firestarter dev consistency-check` (handler `cli_handlers.py:1100-1134`; N reads → SHA divergence → exit 0/1/2):
 ```bash
 firestarter dev consistency-check <CHIP> --runs 3 --output-dir .planning/v1.16/ledger/bench/<chip>-read/
 # verdict: 0=PASS(1 distinct SHA) / 1=FAIL(divergent) / 2=hw-error  (sys.exit(verdict_int), NOT bool-wrap)
 ```
 
-**Write-cycle A→B capture pattern** — `firestarter dev write-cycle` (handler `cli_handlers.py:1163-1189`; erase→write→readback N → SHA == source → exit 0/1/2). Two invocations = the A→B auto-erase proof:
+**Write-cycle A→B capture pattern** — `firestarter dev write-cycle` (handler `cli_handlers.py:1161-1187`; erase→write→readback N → SHA == source → exit 0/1/2). Two invocations = the A→B auto-erase proof:
 ```bash
 firestarter dev write-cycle <CHIP> <img_A.bin> --runs 1 --output-dir .planning/v1.16/ledger/bench/<chip>-wcA/
 firestarter dev write-cycle <CHIP> <img_B.bin> --runs 1 --output-dir .planning/v1.16/ledger/bench/<chip>-wcB/

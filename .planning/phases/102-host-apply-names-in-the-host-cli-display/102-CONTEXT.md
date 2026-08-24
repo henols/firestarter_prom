@@ -103,7 +103,7 @@ those firmware-only.
 ## Existing Code Insights
 
 ### Reusable Assets
-- `resolve_type_label` (ic_layout.py:483) is already the **single shared helper**
+- `resolve_type_label` (ic_layout.py:480) is already the **single shared helper**
   for the info "Type:" line and the list/search Type column (the IN-01 fix). The new
   canonical map plugs into its `get_chip_type_string` fallback path cleanly.
 - `_ELECTRICAL_TYPE_LABEL` — the electrical-type axis. It wins FIRST in

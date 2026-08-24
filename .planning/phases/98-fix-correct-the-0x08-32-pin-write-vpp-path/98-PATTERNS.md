@@ -122,7 +122,7 @@ if "static-high-pins" in pin_map_data and pins in pin_conversions:
 
 ### `memory.cpp` — deliberate PGM-assert seam (firmware, service / request-response)
 
-**Analog:** `memory_set_data` (`firestarter/src/proms/memory.cpp:274-284`) — the CE-only program pulse (RC-1 secondary surface), and `mem_util_remap_address_bus` (`:309-332`) — where `static_high_mask` is ORed in.
+**Analog:** `memory_set_data` (`firestarter/src/proms/memory.cpp:346-356`) — the CE-only program pulse (RC-1 secondary surface), and `mem_util_remap_address_bus` (`:309-332`) — where `static_high_mask` is ORed in.
 
 **Live CE-only pulse** (`:274-284`):
 ```cpp
@@ -178,7 +178,7 @@ void eprom_internal_set_control_register(firestarter_handle_t* handle, rurp_regi
 }
 ```
 
-**Pattern:** the "hold P1 across the full program window" half of D-01 already exists at the per-buffer level; the residual is per-*byte*-CE-pulse coverage (do that in `memory.cpp`, above). Any gate that asserts a control bit here MUST honor the **D-04 alias** (`CTRL_VPP_P1_ENABLE_REV2 == CTRL_ADDRESS_LINE_18_REV2 == 0x08`, `rurp_pinout.h:122,128`) — size-gate so it never reaches a 512K/1M A18 user. Model the gate on the v1.17 T-93-CANERASE protocol-keyed defense-in-depth and the `eprom_write_execute` protocol branch at `eprom.cpp:198-199` (`handle->protocol == 0x0B || is_flag_set(FLAG_VPE_AS_VPP)`).
+**Pattern:** the "hold P1 across the full program window" half of D-01 already exists at the per-buffer level; the residual is per-*byte*-CE-pulse coverage (do that in `memory.cpp`, above). Any gate that asserts a control bit here MUST honor the **D-04 alias** (`CTRL_VPP_P1_ENABLE_REV2 == CTRL_ADDRESS_LINE_18_REV2 == 0x08`, `rurp_pinout.h:121,127`) — size-gate so it never reaches a 512K/1M A18 user. Model the gate on the v1.17 T-93-CANERASE protocol-keyed defense-in-depth and the `eprom_write_execute` protocol branch at `eprom.cpp:198-199` (`handle->protocol == 0x0B || is_flag_set(FLAG_VPE_AS_VPP)`).
 
 ---
 
@@ -259,7 +259,7 @@ void test_wr_02a_...(void) {
 ### Protocol+size-keyed defense-in-depth gate (the D-04 BLOCKING guard)
 **Source model:** v1.17 T-93-CANERASE (firmware protocol gate + host mirror); `eprom_write_execute` protocol branch `eprom.cpp:198-199`; host structural scoping in `build_db.py:resolve_pinout_key`.
 **Apply to:** every PGM/P1-hold surface (`memory.cpp`, `eprom.cpp`) AND the host pinout assignment (`build_db.py`).
-**The alias being guarded** (`firestarter/include/rurp_pinout.h:122,128`):
+**The alias being guarded** (`firestarter/include/rurp_pinout.h:121,127`):
 ```c
 #define CTRL_VPP_P1_ENABLE_REV2            0x08
 #define CTRL_ADDRESS_LINE_18_REV2          CTRL_VPP_P1_ENABLE_REV2   // SAME physical bit

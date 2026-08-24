@@ -154,7 +154,7 @@ extends to `gh issue comment`.
 | Option | Description | Selected |
 |--------|-------------|----------|
 | Scoped NA arm + a separate host-side flag-surface honesty fix | Two changes, no wire byte touched, no pinned test flipped, `database.py` D-03 untouched. | |
-| Fix the root cause — clear `FLAG_CAN_ERASE` for `0x0D` | One fix closes everything downstream; reverses `database.py:592`'s "must stay unchanged" and flips two deliberately-pinned tests. | ✓ |
+| Fix the root cause — clear `FLAG_CAN_ERASE` for `0x0D` | One fix closes everything downstream; reverses `database.py:591`'s "must stay unchanged" and flips two deliberately-pinned tests. | ✓ |
 | Scoped NA arm only — leave the flag surface to GATE-02's docs | Smallest diff; leaves Phase 120's deferred item open. | |
 
 **Notes:** Blast radius was verified live *before* the question was asked and again after:

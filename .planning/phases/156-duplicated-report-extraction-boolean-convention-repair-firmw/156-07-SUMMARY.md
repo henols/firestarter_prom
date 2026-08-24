@@ -76,7 +76,7 @@ coverage:
     requirement: "DEDUP-04"
     verification:
       - kind: unit
-        ref: "pio run all three targets unchanged from plan 04's figures; grep -c 'return !op_execute_' == 0; grep -cE forwarding calls == 9; grep -n 'return !callback' -> one match at operation_utils.cpp:86"
+        ref: "pio run all three targets unchanged from plan 04's figures; grep -c 'return !op_execute_' == 0; grep -cE forwarding calls == 9; grep -n 'return !callback' -> one match at operation_utils.cpp:92"
         status: pass
     human_judgment: false
   - id: D5

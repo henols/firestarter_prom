@@ -44,7 +44,7 @@ was built in Phase 110 (this phase fills — and expands — its voltage slot).
 - **D-01 (LOCKED): Sample BOTH rails; split the report's one slot into two.**
   The write step captures VPP **and** VPE every destructive run. The Phase-110
   report currently has a single combined `vpp_vpe_mv: int | None` slot
-  (`diagnostic_report.py:303`) — this phase expands it to separate VPP/VPE
+  (`diagnostic_report.py:297`) — this phase expands it to separate VPP/VPE
   fields. Rejected: sampling only the protocol-relevant rail (avoids a
   protocol→rail mapping that could go stale; both-rails also rules out a
   "wrong rail energized" fault); rejected VPP-only (misses the 0x0B/NMOS-UV
@@ -164,13 +164,13 @@ was built in Phase 110 (this phase fills — and expands — its voltage slot).
   rather than the formatted message string.
 - `firestarter/constants.py:66-67` — `COMMAND_READ_VPP=11` / `COMMAND_READ_VPE=12`
   (the `state` values the sampler sends; no new command).
-- `firestarter/diagnostic_report.py:303` — `vpp_vpe_mv: int | None` (the slot
+- `firestarter/diagnostic_report.py:297` — `vpp_vpe_mv: int | None` (the slot
   D-01 splits into two) + `NOT_MEASURED` (`:43`); keep the single-source
   render contract.
 - `firestarter/chip_test.py:501` — `run_plan()` + `:709` `_dispatch_multi_run`
   (the write/verify execution site the sampler wires into; `OP_WRITE` `:276`,
   `_DESTRUCTIVE_OPS` `:442`).
-- `firestarter/cli_handlers.py:1476` — `dev_validate_family` +
+- `firestarter/cli_handlers.py:1474` — `dev_validate_family` +
   `EpromDatabase(skip_local_override=True)` + mock-operator seam (unit-test the
   sampler + wiring bench-free, against synthetic 0xE4/0xE5 frames — D-05).
 

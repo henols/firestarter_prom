@@ -25,7 +25,7 @@ Copied verbatim from `121-CONTEXT.md` `<decisions>`. **The planner MUST honor th
 - **D-09: Dedup is a `gh` query on the fingerprint, authored by `@me`.** `gh issue list --repo henols/firestarter_prom --author @me --search <shorthash> --state all`. **No local ledger.** Rejected: a config-dir fingerprint ledger. Rejected: both sources.
 - **D-10: When the query cannot run, ask anyway and say so plainly.** Rejected: defaulting the prompt to "no". Rejected: skipping the ask entirely without `gh`.
 - **D-11: On a duplicate, name the issue and offer to comment this run's evidence.** The negative-argv discipline extends to `gh issue comment`. Rejected: naming the issue and filing nothing. Rejected: offering a new issue anyway.
-- **D-12: `FLAG_CAN_ERASE` is cleared for algorithm `0x0D` in `convert_to_programmer`.** Reverses `database.py:592`'s *"must stay unchanged"* note. Rejected: a scoped `0x0D` arm in `derive_plan` plus a separate flag-surface fix. Rejected: the scoped arm alone.
+- **D-12: `FLAG_CAN_ERASE` is cleared for algorithm `0x0D` in `convert_to_programmer`.** Reverses `database.py:591`'s *"must stay unchanged"* note. Rejected: a scoped `0x0D` arm in `derive_plan` plus a separate flag-surface fix. Rejected: the scoped arm alone.
 - **D-13: `--skip-erase` and `-b` on a `0x0D` chip warn and proceed.** The exact shape of HOST-02's D-18. Rejected: refusing the flag. Rejected: documentation only.
 - **D-14: One AST checker denies two violation classes, with a planted fixture per class.** Class 1 — permit-by-default; Class 2 — a widenable allow-set. The existing AST import-purity leg at `tests/test_sdp_capability.py:640` stays. Rejected: either class alone.
 - **D-15: `tools/catalog/messages.toml`'s `0x5F` caveat is fixed here, with both mirrors regenerated.** Edit **only** `messages.toml`, then regenerate. Rejected: deferring to Phase 122. Rejected: leaving it to Phase 120 D-10's host line alone.
@@ -106,10 +106,10 @@ Each verified live in this session. Per the established pattern (LOCK-04, LOCK-0
 | C-3 | D-05: *"Ripple to own as task work: **82 references across 6 test files**"* | Literal flag-string references **scoped to `dev test`**: `--destructive` 10, `--output-dir` 11, `--submit` 2, `-y` 2 → 25 total, of which 23 are in `tests/test_dev_test_cmd.py` and 2 are the declaration sites in `cli_handlers.py`. The other 46+ belong to **`dev consistency-check` (`:1193`), `dev write-cycle` (`:1284`), `dev fault-inject` (`:1350`), `dev validate-family` (`:1570`), and `dev sdp` (`:2025`)** and must NOT be touched. Test-method granularity: **20 of 23** methods in `test_dev_test_cmd.py`. `[VERIFIED: AST-scoped count script]` | **Shrinks and sharpens.** The separate, larger ripple is the `derive_plan(destructive=…)` **kwarg** — 32 of 80 test functions in `test_chip_test.py` — which is a distinct decision (Open Question 1). |
 | C-4 | D-05: *"`tools/check_devtest_orchestrator.py` … **fails closed when its scoped scan matches zero functions**" → "D-05 will trip it if the allow-list is not updated"* | `_scan_target_functions` filters on **function names**, not options (`:295-303`). Removing four `@click.option` decorators does not rename `dev_test`, so the gate **will not trip**. The real hazard is the inverse and it is **proven**: a `force=True` + raw-wire-dict violation placed in a *new, unlisted* helper yields `PASS … EXIT=0`; the identical violation inside `dev_test` yields `FAIL … EXIT=1`. `[VERIFIED: two fixture runs via FIRESTARTER_DEVTEST_HANDLER]` | **Redirects.** The mandatory task is not "avoid tripping the gate" but "extend `_HANDLER_FUNCTION_NAMES` to every new helper, or the gate silently under-covers this phase's new code." Note `_is_uv_eprom` is **already** in the allow-list (`:131`) and **does not exist** anywhere in the tree — a leftover speculative name from Phase 112. Landing D-02's handler-side helper under that exact name is free coverage. |
 | C-5 | D-06: *"the `chip_test.py` frozensets `_DESTRUCTIVE_OPS` and `_MULTI_RUN_OPS`"* | `_DESTRUCTIVE_OPS` is **live** — the chip-ID destructive gate at `chip_test.py:587`. `_MULTI_RUN_OPS` (`:457`) has **zero references** anywhere in `firestarter/`, `tools/`, or `tests/`. `[VERIFIED: grep]` | **Splits by severity.** `_DESTRUCTIVE_OPS` is **safety-critical** (Pitfall 1b). `_MULTI_RUN_OPS` is documentation-only; updating it is cosmetic, and the phase may reasonably state it dead in-source instead. |
-| C-6 | `<specifics>`: *"`count_applicable`'s N-of-M banner never fires again"* | The banner row is rendered **unconditionally** (`diagnostic_report.py:471`), so it always prints. And it is not uninformative: `n_ran` excludes `NA`/`SKIPPED`, so whenever the chip-ID destructive gate closes or `resolve_chip` refuses a step, `N < M` still holds and the banner still carries signal. `[VERIFIED: read]` | **Corrects.** `locked_steps` becomes permanently `[]`; the banner itself stays meaningful. Do not delete it as dead. |
+| C-6 | `<specifics>`: *"`count_applicable`'s N-of-M banner never fires again"* | The banner row is rendered **unconditionally** (`diagnostic_report.py:465`), so it always prints. And it is not uninformative: `n_ran` excludes `NA`/`SKIPPED`, so whenever the chip-ID destructive gate closes or `resolve_chip` refuses a step, `N < M` still holds and the banner still carries signal. `[VERIFIED: read]` | **Corrects.** `locked_steps` becomes permanently `[]`; the banner itself stays meaningful. Do not delete it as dead. |
 | C-7 | D-15: *"Edit **only** `messages.toml`, then regenerate `firestarter/include/messages.h` and `firestarter_app/firestarter/messages.py`"* | There are **three** byte-identical `messages.toml` copies (meta `/workspaces/tools/catalog/`, `firestarter/tools/catalog/`, `firestarter_app/tools/catalog/`, all md5 `02acddb9…`). `tools/catalog/sync_to_subrepos.sh` is the single command that copies the meta catalog to both sub-repos **and** runs both codegens. `[VERIFIED: md5sum + read]` | **Widens the mechanism, not the intent.** Edit the **meta** copy, then run `bash tools/catalog/sync_to_subrepos.sh`. Editing a sub-repo copy directly breaks the three-way `cmp` invariant. |
 | C-8 | D-13: *"`--skip-erase` **and `-b`** on a `0x0D` chip warn and proceed. One line stating this family has no erase to skip"* | Since Phase 92's decouple, `-b`/`--no-blank-check` skips **only** the blank check and no longer implies skip-erase (`cli_handlers.py:270-276, 538-541`). A "no erase to skip" warning on `-b` would be **factually wrong**, and `-b` is genuinely *useful* on `0x0D` (ROADMAP criterion 4: *"`-b` is required for a non-blank AT28C"* precisely because there is no erase to make it blank). `[VERIFIED: read]` | **Splits.** The **warn** belongs on `--skip-erase` only. `-b`'s `0x0D` treatment is a **GATE-02 documentation** statement, not a runtime warning. |
-| C-9 | `REQUIREMENTS.md:88` cites SAFE-01's lock at `cli_handlers.py:1760-1762` | The `--destructive` option declaration is at `cli_handlers.py:1838-1846`; `dev_test` is `:1880-2018`. `[VERIFIED: read]` | Line-number drift only. Use the anchors in §F-9. |
+| C-9 | `REQUIREMENTS.md:88` cites SAFE-01's lock at `cli_handlers.py:1758-1760` | The `--destructive` option declaration is at `cli_handlers.py:1838-1846`; `dev_test` is `:1880-2018`. `[VERIFIED: read]` | Line-number drift only. Use the anchors in §F-9. |
 
 ---
 
@@ -144,11 +144,11 @@ Host readers of the flag, exhaustively `[VERIFIED: grep across firestarter/ + to
 | `cli_handlers.py:272, 539` | prose comments | none |
 | `messages.py`, `constants.py`, `messages.toml`, `build_db.py`, `diff_db.py` | id/constant/prose | none |
 
-Firmware readers `[VERIFIED: grep across src/ include/ test/]`: `eprom_operations.cpp:36` (`eprom_erase`'s precondition), `flash_5v_page.cpp:67`, `flash_nor_unlock.cpp:80`, `flash_intel.cpp:125`, `eprom.cpp:100`, `firestarter.cpp:88` (DEBUG log). **`src/proms/eeprom_28c.cpp` contains no `FLAG_CAN_ERASE` reference at all** — confirming `database.py:592`'s "firmware-inert on 0x0D" claim is factually true; D-12 reverses the *policy*, not the fact.
+Firmware readers `[VERIFIED: grep across src/ include/ test/]`: `eprom_operations.cpp:36` (`eprom_erase`'s precondition), `flash_5v_page.cpp:67`, `flash_nor_unlock.cpp:79`, `flash_intel.cpp:125`, `eprom.cpp:100`, `firestarter.cpp:88` (DEBUG log). **`src/proms/eeprom_28c.cpp` contains no `FLAG_CAN_ERASE` reference at all** — confirming `database.py:591`'s "firmware-inert on 0x0D" claim is factually true; D-12 reverses the *policy*, not the fact.
 
 **One real behavioural change, benign and worth recording:** today `firestarter erase at28c256` passes `eprom_erase`'s `FLAG_CAN_ERASE` precondition and is then refused by Phase 119's NULL-`main` guard. After D-12 it is refused **earlier**, by `eprom_operations.cpp:36`. Both emit **`MSG_ERR_NOT_SUPPORTED`** `[VERIFIED: read both sites]`, so the observable wire id is unchanged.
 
-Native-test exposure is **nil, confirmed by reading the code rather than trusting the claim**: `test_eeprom28c_sdp.cpp` case 25 constructs its handle with `ctrl_flags 0` (no `FLAG_CAN_ERASE`) and calls `op_execute_simple_operation` **directly**, with an in-source comment stating it *"deliberately bypass[es] `eprom_erase`'s own EARLIER `FLAG_CAN_ERASE` precondition check"*. `[VERIFIED: read test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1379-1418]`
+Native-test exposure is **nil, confirmed by reading the code rather than trusting the claim**: `test_eeprom28c_sdp.cpp` case 25 constructs its handle with `ctrl_flags 0` (no `FLAG_CAN_ERASE`) and calls `op_execute_simple_operation` **directly**, with an in-source comment stating it *"deliberately bypass[es] `eprom_erase`'s own EARLIER `FLAG_CAN_ERASE` precondition check"*. `[VERIFIED: read test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1436-1475]`
 
 **The two host tests that invert** — both confirmed to route through the real `convert_to_programmer`:
 
@@ -178,7 +178,7 @@ Native-test exposure is **nil, confirmed by reading the code rather than trustin
 | `submit.py:190-197` (`build_body`) | renders `step.get('op')` generically | none |
 | `tests/test_chip_test.py:53-58, 533-1523` | imports all six; ~95 usages | rework |
 
-`dedup_fingerprint` (`diagnostic_report.py:177-202`) hashes `f"{op}={verdict}:{cls}"`, so D-06's differentiation-for-free claim holds. `build_db_diff` (`:250-285`) keys **only** on the verdict set, so D-08's zero-code-change claim holds. Both `[VERIFIED: read]`.
+`dedup_fingerprint` (`diagnostic_report.py:174-199`) hashes `f"{op}={verdict}:{cls}"`, so D-06's differentiation-for-free claim holds. `build_db_diff` (`:250-285`) keys **only** on the verdict set, so D-08's zero-code-change claim holds. Both `[VERIFIED: read]`.
 
 ### F-3 — DEVTEST-03: the axis pick, decided with counts
 
@@ -269,7 +269,7 @@ Exit 0 covers **both** "found" and "not found" — so a bare exit-code check sil
 
 **`gh issue create`'s write-gated flags are broader than the existing test asserts** `[VERIFIED: gh issue create --help]`: `-l/--label`, `-a/--assignee`, `-m/--milestone`, `-p/--project` — and `--project` explicitly warns *"Adding an issue to projects requires authorization with the `project` scope."* The existing idiom (`tests/test_submit.py:301-320`) asserts only `"--label" not in argv` and the `gsd-inbox` value. **Extend it to the short forms and the other three flags** — `-l` alone would defeat the current assertion.
 
-`submit_report`'s current step order (`submit.py:365-468`) is: refuse-gate → sanitize+build → off-TTY print-and-return → on-TTY confirm → tier dispatch. D-05/D-09/D-10/D-11 restructure it to: refuse-gate → sanitize+build → **dedup query** → filing ask (always) → duplicate branch (`gh issue comment`) or create branch → tier dispatch. Note `submit_report` is called from `cli_handlers.py:2010-2013` behind `if submit:` — which D-05 removes, making the call unconditional.
+`submit_report`'s current step order (`submit.py:365-468`) is: refuse-gate → sanitize+build → off-TTY print-and-return → on-TTY confirm → tier dispatch. D-05/D-09/D-10/D-11 restructure it to: refuse-gate → sanitize+build → **dedup query** → filing ask (always) → duplicate branch (`gh issue comment`) or create branch → tier dispatch. Note `submit_report` is called from `cli_handlers.py:2007-2010` behind `if submit:` — which D-05 removes, making the call unconditional.
 
 **Trap: GitHub's issue-search index is eventually consistent.** A just-filed issue is not immediately returnable by `--search`. Two tests should exist per the `reference_dev_test_absent_chip_false_green_trap.md` discipline: assert **what was and was not called** (`run_fn.call_args`), never merely the exit status.
 
@@ -349,9 +349,9 @@ Everything below was executed in this session, from `/workspaces/firestarter_app
 | Option | Declaration | Owner |
 |---|---|---|
 | `--destructive` | `cli_handlers.py:1838-1846` | `dev_test` (`def` at `:1880`) |
-| `--output-dir` | `cli_handlers.py:1847-1858` | `dev_test` |
-| `-y/--yes` | `cli_handlers.py:1859-1866` | `dev_test` |
-| `--submit` | `cli_handlers.py:1867-1877` | `dev_test` |
+| `--output-dir` | `cli_handlers.py:1844-1855` | `dev_test` |
+| `-y/--yes` | `cli_handlers.py:1856-1863` | `dev_test` |
+| `--submit` | `cli_handlers.py:1864-1874` | `dev_test` |
 
 **Identically-named options on OTHER commands — DO NOT TOUCH:** `--output-dir` at `:1193` (`dev_consistency_check`), `:1284` (`dev_write_cycle`), `:1350` (`dev_fault_inject`), `:1570` (`dev_validate_family`); `-y/--yes` at `:2025` (`dev_sdp`). This is the source of C-3's over-count. Their test references are equally off-limits: `test_matrix_artifact.py` (8 × `--output-dir`), `test_validate_family_cmd.py` (11), `test_validate_oracle.py` (9), `test_dev_sdp_cmd.py` (11 × `-y`), `test_consistency_check.py` (18 × `output_dir`), `test_eprom_operations.py` (12).
 
@@ -369,7 +369,7 @@ This phase renames no symbol across repos and migrates no data, but the rename/r
 
 | Category | Items Found | Action Required |
 |---|---|---|
-| **Stored data** | `<config dir>/reports/dev-test-<chip>.{json,md}` on every tester's machine, written unconditionally (`cli_handlers.py:1988-2006`). Existing files carry `schema_version "1.1"` and the six-string vocabulary. Not a datastore, but is the input `tools/parse_devtest_issue.py` and `count_agreeing` read. | **Code edit only, no migration.** `parse_devtest_issue.py` accepts `schema_version` by **presence** (`:99`), so a bump breaks nothing. D-06's b11 back-compat must keep old six-string bodies parsing — cover it with a test using a literal b11-shaped body. |
+| **Stored data** | `<config dir>/reports/dev-test-<chip>.{json,md}` on every tester's machine, written unconditionally (`cli_handlers.py:1985-2003`). Existing files carry `schema_version "1.1"` and the six-string vocabulary. Not a datastore, but is the input `tools/parse_devtest_issue.py` and `count_agreeing` read. | **Code edit only, no migration.** `parse_devtest_issue.py` accepts `schema_version` by **presence** (`:99`), so a bump breaks nothing. D-06's b11 back-compat must keep old six-string bodies parsing — cover it with a test using a literal b11-shaped body. |
 | **Live service config** | `henols/firestarter_prom` GitHub issues. **Confirmed live:** issue #18 `[dev test] fm1608 — PASS (a6915f4437ee)`, authored by `henols`. Its embedded JSON carries the old vocabulary. Also: 3.0.0b11 in the wild still misfiles `--submit` into `firestarter_app` (`project_issue_tracking_centralized_firestarter_prom.md`); `SUBMIT_REPO` on **this branch** is already correct (`submit.py:73`). | **None required.** Read-only. Do NOT retro-edit existing issues. Use #18 as a live dedup fixture. |
 | **OS-registered state** | None. `dev test` registers no OS-level task, service, or scheduled job. | **None — verified by grep for `Task Scheduler`/`launchd`/`systemd`/`pm2` across `firestarter/`: zero hits.** |
 | **Secrets / env vars** | `FIRESTARTER_CONFIG_DIR` (report location; unchanged and now load-bearing since `--output-dir` goes away). `FIRESTARTER_DEVTEST_SRC`/`_HANDLER`/`_SUBMIT`, `FIRESTARTER_CMD_ADMISSION_SRC`, `FIRESTARTER_SDP_SRC`, `FIRESTARTER_DB_FILE` — gate fixture seams; GATE-01's new gate adds one more. `GH_TOKEN`/`GH_CONFIG_DIR` are read by `gh`, never by this code. | **None renamed.** Name GATE-01's new seam consistently (`FIRESTARTER_SDP_CAPABILITY_SRC`) and give it the same fail-closed `isfile` guard. |
@@ -503,7 +503,7 @@ Four occurrences in Phase 116. This phase has **nine** requirement ids across ma
 | Problem | Don't Build | Use Instead | Why |
 |---|---|---|---|
 | Small write window for UV parts | a new region chooser | `_write_region_for` + `_UV_WRITE_REGION_LENGTH` (`chip_test.py:626, 640-670`) | DEVTEST-04's "small part" already exists, top-anchored, width-locked to a module constant |
-| TTY detection for D-03 | `sys.stdin.isatty()` inline | `_is_interactive()` (`cli_handlers.py:1802-1809`) | `CliRunner.invoke` replaces `sys.stdin`; only the function-level seam survives monkeypatching |
+| TTY detection for D-03 | `sys.stdin.isatty()` inline | `_is_interactive()` (`cli_handlers.py:1799-1806`) | `CliRunner.invoke` replaces `sys.stdin`; only the function-level seam survives monkeypatching |
 | Warn-and-proceed on a vacuous flag (D-13) | new wording/shape | `cli_handlers.py:586-598` (HOST-02 D-18's `--skip-sdp-unlock` block) | exact precedent, exact tone, already tested |
 | `gh` shell-out (D-09/D-11) | `subprocess` with a shell string | `submit_via_gh`'s list-argv + `run_fn` seam (`submit.py:235-277`) | permission-independent by construction; T-113-01's injection control; already mock-testable |
 | Negative-argv proof | a bespoke assertion | `tests/test_submit.py:301-320` idiom, extended per Pitfall 6 | the project's established shape |
@@ -511,7 +511,7 @@ Four occurrences in Phase 116. This phase has **nine** requirement ids across ma
 | Planted-violation fixture injection | ad-hoc temp files in the test | `FIRESTARTER_*_SRC` env seam + `tests/fixtures/planted_*` | `check_is_memory_cmd_no_ifdef.py`'s pattern; fails closed on a missing path |
 | Report location override | keep `--output-dir` | `get_config_dir()` reading `FIRESTARTER_CONFIG_DIR` at call time (`config.py:22-32`) | fully replaces the flag; D-05's premise verified |
 | Catalog mirror sync (D-15) | copy files by hand | `bash tools/catalog/sync_to_subrepos.sh` | copies to **both** sub-repos, runs **both** codegens, asserts the three-way identity (C-7) |
-| Absent-chip hard fail | a `resolve_chip` refusal check | SAFE-04's `get_eprom`-emptiness gate (`cli_handlers.py:1932-1933`) | keyed off DB emptiness so an in-DB-but-unsupported chip still sweeps |
+| Absent-chip hard fail | a `resolve_chip` refusal check | SAFE-04's `get_eprom`-emptiness gate (`cli_handlers.py:1929-1930`) | keyed off DB emptiness so an in-DB-but-unsupported chip still sweeps |
 | PII scrubbing for the issue body | new regexes | `sanitize_dict` / `_SCRUBS` (`submit.py:92-143`) | every vector has its own test; a missed vector fails OPEN |
 
 **Key insight:** almost everything DEVTEST-04 and DEVTEST-06 "need" already exists and is already tested. The genuinely new code is small: one op string, one fail-closed dispatch arm, one plan-carried decision, one prompt, one `gh` query, one AST gate. The risk is concentrated in what *silently keeps working* when the new pieces are wired wrong.
@@ -920,7 +920,7 @@ No `.claude/skills/` or `.agents/skills/` directory exists in this repo — no p
 |---|---|---|---|
 | `dev test` non-destructive by default; `--destructive` opt-in | **Always writes**; UV parts prompted, others unprompted | **this phase** (D-01/D-03/D-04) | reverses SAFE-01, Phase 109 D-01, Phase 112 Plan 04, and v1.21 SUB-01/02 — **three recorded reversals** |
 | `--submit` explicit + interactive-only, never on a bare run | every run asks | **this phase** (DEVTEST-05) | the third reversal; `REQUIREMENTS.md:114` already records it |
-| `FLAG_CAN_ERASE` set on `0x0D` because it is firmware-inert | cleared for `0x0D` | **this phase** (D-12) | reverses `database.py:592`'s explicit "must stay unchanged" |
+| `FLAG_CAN_ERASE` set on `0x0D` because it is firmware-inert | cleared for `0x0D` | **this phase** (D-12) | reverses `database.py:591`'s explicit "must stay unchanged" |
 | `mem_type`/`type` axis for firmware dispatch | `protocol_id` / `algorithm` only | v1.20 (breaking) | the hard constraint behind D-02's rejected alternative — the programmer dict must not regain a type field |
 | `write -b` implied skip-erase | `-b` skips only the blank check; `--skip-erase` is explicit | Phase 92 | **C-8**: makes D-13's `-b` clause factually wrong; the warn belongs on `--skip-erase` |
 | Curated 37/47 then interim 74/10 SDP partitions | **43 ALLOW / 41 REFUSE** derived from `infoic.xml` `INFOIC2PLUS` `flags` bit 15 @ `a8efaedc` | Phase 120 | GATE-01 guards this set's **shape**, never its correctness |
@@ -933,7 +933,7 @@ No `.claude/skills/` or `.agents/skills/` directory exists in this repo — no p
 - CONTEXT D-06's *"`diagnostic_report.py`'s renderer and `to_dict`"* — op-agnostic (C-1).
 - CONTEXT D-18's *"this phase genuinely changes the matrix"* — it does not (C-2).
 - CONTEXT D-05's *"82 references across 6 test files"* and *"D-05 will trip [the orchestrator gate]"* (C-3, C-4).
-- `REQUIREMENTS.md:88`'s `cli_handlers.py:1760-1762` anchor — now `:1838-1846` (C-9).
+- `REQUIREMENTS.md:88`'s `cli_handlers.py:1758-1760` anchor — now `:1838-1846` (C-9).
 
 ---
 
@@ -993,7 +993,7 @@ No `.claude/skills/` or `.agents/skills/` directory exists in this repo — no p
 - `firestarter_app/tools/check_devtest_orchestrator.py` (full, 432 lines) — D-14's shape precedent; the source of the C-4 correction
 - `firestarter_app/tools/check_is_memory_cmd_no_ifdef.py`, `tools/audit_coverage_matrix.py`, `tools/parse_devtest_issue.py`, `tools/diff_db.py`, `tools/check_dispatch.py`
 - `firestarter_app/tests/` — `test_audit_coverage_matrix.py:576-645`, `test_submit.py:295-325`, `test_database_conversion.py:90-112`, `test_eprom_operations.py:1011-1165`, `test_val_wire_5v_page.py:135-150`
-- `firestarter/src/eprom_operations.cpp:28-48`, `src/proms/eeprom_28c.cpp:189-220`, `test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1355-1418`, `tools/catalog/messages.toml:284-313`, `platformio.ini`, `doc/PROTOCOLS.md`
+- `firestarter/src/eprom_operations.cpp:28-48`, `src/proms/eeprom_28c.cpp:189-220`, `test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1412-1475`, `tools/catalog/messages.toml:284-313`, `platformio.ini`, `doc/PROTOCOLS.md`
 - `/workspaces/tools/catalog/sync_to_subrepos.sh` (full)
 - `firestarter_app/pyproject.toml`, `.github/workflows/ci.yml`, `CLAUDE.md`; `/workspaces/CLAUDE.md`
 - **Commands executed:** `pio test -e native` (141/141) · `pio test -e native_nodevtools` (141/141) · `pytest tests/` on 3.12 and on `uv`-provisioned 3.11 (1F/1051P both) · `pytest --cov-fail-under=70` (82.47 %) · `ruff check`/`ruff format --check` on 0.15.20 **and** 0.16.0 · `check_mypy_watermark.py` · `check_dispatch.py` · `check_devtest_orchestrator.py` (plus two planted-fixture runs proving the C-4 coverage hole) · `check_no_community_support_status_write.py` · `check_no_log_in_sdp_window.py` · `check_is_memory_cmd_no_ifdef.py` · `diff_db.py` · both `codegen.py` drift gates · `md5sum` on all three catalogs · `gh --version`/`auth status`/`issue list` (5 variants incl. unauthenticated) · `gh issue create --help`/`issue comment --help` · a DB enumeration script over all 746 entries · a live `_dispatch_multi_run("write-partial", …)` misdispatch reproduction · a live `_write_region_for` full-vs-programmer-dict comparison · `generate_matrix` + `difflib` against the golden · `git log -S DIP32_27C020`

@@ -42,7 +42,7 @@ This is a tightly-scoped, low-risk display-layer edit inside a single file. All 
 
 **The two divergent vocabularies both live in `firestarter_app/firestarter/ic_layout.py`:** `proto_display` (a dict literal inside `get_chip_type_string`, lines **216–232**) and `protocol_info_data` (a list-of-tuples inside `_get_protocol_info_structured`, lines **261–370**). They diverge by construction — e.g. protocol `0x07` is `"UV-EPROM / MTP-Flash (12V VPP)"` in the first map and `"EPROM/EEPROM"` in the second. D-01 replaces both value sources with one canonical `{protocol_id: display_name}` map.
 
-**Crucially, the two maps have very different *display reach*, and this determines the blast radius.** `proto_display` is only the **fallback** path of `resolve_type_label` (ic_layout.py:483) — it fires only for legacy user-override DB entries that lack `electrical.type`. I verified **every chip in `chip_database.json` (746 chips, all 12 protocols) carries `electrical.type`**, so in normal operation the `proto_display` map's strings **never render** in the `Type:` line, the `list` Type column, or the `search` Type column — those all resolve via `_ELECTRICAL_TYPE_LABEL` (EEPROM/UV-EPROM/Flash/EEPROM/SRAM/FRAM). The **only rendered CLI surface that changes** is the `info` command's `Protocol: {type} (ID: …)` line (eprom_info.py:297), which is fed by `protocol_info_data`'s `type` field. This means exactly **one** string-coupled test breaks: the syrupy snapshot `test_info_known_chip` (W27C512, protocol 0x07, currently renders `Protocol: EPROM/EEPROM (ID: 0x07)`).
+**Crucially, the two maps have very different *display reach*, and this determines the blast radius.** `proto_display` is only the **fallback** path of `resolve_type_label` (ic_layout.py:480) — it fires only for legacy user-override DB entries that lack `electrical.type`. I verified **every chip in `chip_database.json` (746 chips, all 12 protocols) carries `electrical.type`**, so in normal operation the `proto_display` map's strings **never render** in the `Type:` line, the `list` Type column, or the `search` Type column — those all resolve via `_ELECTRICAL_TYPE_LABEL` (EEPROM/UV-EPROM/Flash/EEPROM/SRAM/FRAM). The **only rendered CLI surface that changes** is the `info` command's `Protocol: {type} (ID: …)` line (eprom_info.py:297), which is fed by `protocol_info_data`'s `type` field. This means exactly **one** string-coupled test breaks: the syrupy snapshot `test_info_known_chip` (W27C512, protocol 0x07, currently renders `Protocol: EPROM/EEPROM (ID: 0x07)`).
 
 **Primary recommendation:** Add one module-level canonical `{int: str}` dict in `ic_layout.py` with the 12 ASCII-normalized D-01/D-02 strings; make `proto_display` (fallback path) and `protocol_info_data`'s `type` field both read from it; add `0x34`, drop `0x11`, keep `0x35`/`0x39` excluded (D-04); regenerate the single `test_info_known_chip` snapshot; re-run the three non-regression gates (they are numeric/DB-level and structurally cannot be affected by a display-only change). Validate ruff/mypy/pytest with the py3.9-target ruff config and py3.9 mypy config — the devcontainer only has python3.12, so treat CI sign-off as structurally-green per the established Phase 98 precedent.
 
@@ -95,7 +95,7 @@ Data shape: `dict[int, str]`. Non-match falls through to `type_map` (mem_type in
 
 ### Map B — `protocol_info_data` (the `info` `Protocol:` line source)
 
-Location: **`_get_protocol_info_structured`, lines 261–370** (list literal); the lookup loop is 371–378. CONTEXT said ~261–370 — exact. `[VERIFIED: ic_layout.py:261-378]`
+Location: **`_get_protocol_info_structured`, lines 261–370** (list literal); the lookup loop is 371–378. CONTEXT said ~261–370 — exact. `[VERIFIED: ic_layout.py:261-376]`
 
 Data shape: `list[tuple[int, str, tuple[str,str,str]]]` — `(protocol_id, type_name, (bullet1, bullet2, bullet3))`. Returns `{"id_hex", "type", "description_points"}`.
 
@@ -130,8 +130,8 @@ Same protocol, two different names — verified by reading both maps:
 
 ### The shared helper the canonical map plugs into
 
-- `resolve_type_label(electrical_type, type_int, protocol_id)` — **ic_layout.py:483** `[VERIFIED]`. Logic (lines 512–515): if `electrical_type` is in `_ELECTRICAL_TYPE_LABEL` → return that; **else** fall back to `get_chip_type_string(type_int, protocol_id)` (which consults `proto_display`).
-- `_ELECTRICAL_TYPE_LABEL` — **ic_layout.py:475–481** `[VERIFIED]`. Keys: `EEPROM`, `Flash/EEPROM`, `FRAM`, `SRAM`, `UV-EPROM`. **This wins first.** So `proto_display` (Map A) is reached ONLY by legacy user-override entries lacking `electrical.type`.
+- `resolve_type_label(electrical_type, type_int, protocol_id)` — **ic_layout.py:480** `[VERIFIED]`. Logic (lines 512–515): if `electrical_type` is in `_ELECTRICAL_TYPE_LABEL` → return that; **else** fall back to `get_chip_type_string(type_int, protocol_id)` (which consults `proto_display`).
+- `_ELECTRICAL_TYPE_LABEL` — **ic_layout.py:472–481** `[VERIFIED]`. Keys: `EEPROM`, `Flash/EEPROM`, `FRAM`, `SRAM`, `UV-EPROM`. **This wins first.** So `proto_display` (Map A) is reached ONLY by legacy user-override entries lacking `electrical.type`.
 - **Which path the canonical map must plug into for D-01's single source:** Both. Map A (`get_chip_type_string`/`proto_display`) and Map B (`_get_protocol_info_structured`/`protocol_info_data`) must read the same new canonical dict. `resolve_type_label` needs no signature change — it already routes to `get_chip_type_string`, which is where the D-01 map lands for the fallback path.
 
 ## Canonical Name Set (cross-checked vs PROTOCOLS.md col-2)

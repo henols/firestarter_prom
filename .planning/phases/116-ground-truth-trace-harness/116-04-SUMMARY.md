@@ -104,7 +104,7 @@ status: complete
 
 | Fact | Value |
 |---|---|
-| Resolved line range | `eeprom_28c.cpp:109-111` |
+| Resolved line range | `eeprom_28c.cpp:104-106` |
 | Emit anchor | `flash_execute_command(EEPROM_SDP_DISABLE)` (line 109) |
 | Wait anchor | `eeprom28c_wait_for_write(` (line 111) |
 | Deny-list macro names | Every macro in `firestarter/include/logging_id.h`: `LOG_ID*`, `LOG_INFO_ID*`, `LOG_ERROR_ID*`, `LOG_WARN_ID*`, `LOG_OK_ID*`, `LOG_INIT_ID*`, `LOG_MAIN_ID*`, `LOG_END_ID*`, `LOG_DATA_ID*`, `LOG_DEBUG_ID_SUB*` — matched via the single pattern `\bLOG_[A-Z][A-Z0-9_]*\s*\(`, never a hand-enumerated list |

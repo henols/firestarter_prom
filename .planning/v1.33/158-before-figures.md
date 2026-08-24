@@ -264,7 +264,7 @@ Commands: `grep -n "def test_clean_avr_all_three_envs_pass\|def test_clean_nativ
 `captured_test_native_nodevtools_summary.log` — the established convention for this specific pair
 since Phase 149 Plan 07 and Plan 151-10, because `test_clean_native_both_envs_pass` is the **sole**
 reader of either fixture, so nothing else depends on the old figures staying frozen. The licence
-for this, quoted from the leg's own docstring (`tests/test_check_size_baseline.py:562-585`):
+for this, quoted from the leg's own docstring (`tests/test_check_size_baseline.py:565-586`):
 *"No severance needed here, unlike the AVR captured_build_*.log family: this is the ONLY leg in
 this module that consumes either native summary fixture."*
 
@@ -341,7 +341,7 @@ NULL;` — checked at `:79-82` and `:113-116` and `:189-192`), which the caller 
 `JSMN_ERROR_NOMEM` (`-1`). This rejects the **whole command** — a budget overflow is a silent
 whole-command failure, never a partial parse.
 
-**The unknown-key skip, the forward-compatibility mechanism:** `src/json_parser.c:333-334`
+**The unknown-key skip, the forward-compatibility mechanism:** `src/json_parser.c:510-511`
 (top-level, inside the main command parser) —
 ```
 333:            // Unknown field — skip key + value token (forward-compatible with new Python fields)
@@ -386,7 +386,7 @@ The criterion's 57 tokens / 7 tokens headroom is reproducible by none of these t
 counting rules above.** Even the loosest synthetic composition — exactly the recipe the criterion
 itself implies ("largest address-bus-pins and a static-high entry, plus every optional wire key")
 — yields **55**, not 57. The `state`-alongside-`cmd` explanation for the 2-token gap
-(`src/json_parser.c:308` treats `cmd`/`state` as alternates the host never sends together) is
+(`src/json_parser.c:503` treats `cmd`/`state` as alternates the host never sends together) is
 flagged here as **unverified** — the scoping session that produced `57`/`7` was not located — and
 its failure would not disturb any of the three derived bounds above.
 

@@ -159,7 +159,7 @@ fake_serial.feed(frame); fake_serial.feed(frame); fake_serial.feed(frame)  # N>=
 ## Shared Patterns
 
 ### Honest-fallback (NOT_MEASURED / None, never a false 0)
-**Source:** `diagnostic_report.py:324-336` (`_transport_dict`) + `hardware.py:236-251` (except → False).
+**Source:** `diagnostic_report.py:318-330` (`_transport_dict`) + `hardware.py:236-251` (except → False).
 **Apply to:** the sampler (return `None` on error/timeout/no-parse) AND every new voltage report field (`None → NOT_MEASURED` in `to_dict()`). Phase 108/110 precedent. Sentinel at `diagnostic_report.py:42-43`.
 
 ### Serial handshake (find_and_connect → expect_ack → send_ack → get_response)
@@ -167,7 +167,7 @@ fake_serial.feed(frame); fake_serial.feed(frame); fake_serial.feed(frame)  # N>=
 **Apply to:** `_sample_one_voltage`. Do NOT re-derive the ack sequence (the `:190-191` comment warns of a race). Bounded `for _ in range(n)` loop, not `while True`.
 
 ### Single-source render (to_dict is canonical, render consumes it)
-**Source:** `diagnostic_report.py:379-401` (`to_dict`) + `:403-409` (`render` reads `d = self.to_dict()`).
+**Source:** `diagnostic_report.py:373-395` (`to_dict`) + `:403-409` (`render` reads `d = self.to_dict()`).
 **Apply to:** all new voltage fields — extend `to_dict()` only; add render rows sourced from the dict. Phase 110 D-01.
 
 ### Bench-free synthetic-frame test seam

@@ -417,7 +417,7 @@ at Task 2's checkpoint alongside D-14's re-anchor.
 
 ## 6. Non-Claims
 
-1. **D-03's non-claim.** `overprogram_factor` is `0` on all three shipped rows (`eprom_params.cpp:50-52`),
+1. **D-03's non-claim.** `overprogram_factor` is `0` on all three shipped rows (`eprom_params.cpp:46-48`),
    so the overprogram path is structurally unreachable on live data. The **arithmetic** is proven directly
    by five `test_loop03_*` cases (Section 1, TEST-03); the **in-loop wiring on a live row is NOT proven**,
    because no shipped row sets `overprogram_factor` to anything but zero —
@@ -450,7 +450,7 @@ at Task 2's checkpoint alongside D-14's re-anchor.
    own plan text; the outcome here is the former, stated plainly rather than assumed.
 7. **The CAP-03 gate's own bounds-vs-layout non-claim** (144-02's module docstring, quoted): the gate
    "proves the two sides agree on LAYOUT, not on BOUNDS." The firmware clamps `_vlen` to `<= 32`
-   (`src/firestarter.cpp:192-194`); the host's `_decode_id_frame` applies no upper bound of its own on the
+   (`src/firestarter.cpp:187-189`); the host's `_decode_id_frame` applies no upper bound of its own on the
    version-length byte and relies only on the runtime guard `ver_end <= len(params_bytes)`. That asymmetry
    is safe, not a defect, but a GREEN run of that gate must never be read as "the host independently proves
    the 32-byte ceiling too." It does not, and was not designed to.

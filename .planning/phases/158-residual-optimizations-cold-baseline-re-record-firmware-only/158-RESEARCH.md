@@ -97,7 +97,7 @@ The orchestrator asked for this explicitly. It drives wave decomposition.
 | Capability | Primary Tier | Secondary Tier | Rationale |
 |------------|-------------|----------------|-----------|
 | JSON token storage layout | AVR firmware — `lib/jsmn/src/jsmn.h` | ARM port (`platform/py32f071/CMakeLists.txt:70` compiles `jsmn.c`) | The struct is the RAM object; only the vendored header owns it. It is a **cross-architecture** edit: the ARM build compiles the same file, so the py32 workflow is a live consumer |
-| Page-boundary arithmetic (algorithm 5) | AVR firmware — `src/proms/flash_5v_page.cpp:106-125` | — | Derived from `handle->mem_size` inside the handler; no host or wire involvement. Deliberately **not** the same owner as algorithm 13's mask, which comes from a host-delivered `page_size` and needs validation (`src/proms/eeprom_28c.cpp:643`) |
+| Page-boundary arithmetic (algorithm 5) | AVR firmware — `src/proms/flash_5v_page.cpp:106-125` | — | Derived from `handle->mem_size` inside the handler; no host or wire involvement. Deliberately **not** the same owner as algorithm 13's mask, which comes from a host-delivered `page_size` and needs validation (`src/proms/eeprom_28c.cpp:628`) |
 | Recorded size/RAM truth | Build/tooling tier — `scripts/baseline/size_baseline.json` | — | A committed measurement record, read by three consumers via the `FIRESTARTER_SIZE_BASELINE` seam. Only a linked ELF can witness image size, so no test tier can own this |
 | Gate-behaviour proof | Host test tier — `tests/test_check_size_baseline.py` (CI leg 3) | — | Proves the checker fails on a real violation by running it as a subprocess against committed fixtures. This is the tier that **breaks** when the baseline moves without severance |
 | Token-budget arithmetic (LAND-07) | Record tier — `.planning/v1.33/` | Host DB (`pinouts.json`, `chip_database.json`) as the *input* | The conclusion is a record, not code. The inputs are host data files, read-only |
@@ -124,7 +124,7 @@ The orchestrator asked for this explicitly. It drives wave decomposition.
 |------------|-----------|----------|
 | `rm -rf .pio/build/<env>` + one `pio run -e <env>` | `check_size_baseline.py --rebuild` | **Do not.** `_rebuild_avr` (`scripts/check_size_baseline.py:753`) runs `pio run -t clean -e <env>`, **not** `rm -rf`. LAND-01 mandates the `rm -rf` recipe, so `--rebuild`'s log cannot be the transcription source for the re-record. `--rebuild` is fine for *checking*, never for *recording* |
 | A trace-diff oracle for LAND-05/LAND-06 | the existing register-recording harness in `test_val_5v_page` | Viable for LAND-06 **only**, and only for register writes. Native trace stubs record **no time**, so no trace diff can attest LAND-06's runtime claim; and stubs can miss register-write elision unless `rurp_register_utils.h` is included in `host_stubs` |
-| Editing `jsmn.h`'s live struct only | also editing the dead second implementation copy at `jsmn.h:106-475` | The header carries a full duplicate of the implementation, guarded by `#ifndef JSMN_HEADER` while `#define JSMN_HEADER` sits at `jsmn.h:33` — so it compiles in **no** TU. Its 11 `-1` sentinel lines are dead. Consistency is a judgement call; correctness does not require it |
+| Editing `jsmn.h`'s live struct only | also editing the dead second implementation copy at `jsmn.h:117-486` | The header carries a full duplicate of the implementation, guarded by `#ifndef JSMN_HEADER` while `#define JSMN_HEADER` sits at `jsmn.h:34` — so it compiles in **no** TU. Its 11 `-1` sentinel lines are dead. Consistency is a judgement call; correctness does not require it |
 
 **Installation:** none. `[VERIFIED: no package install is required — this phase adds zero dependencies]`
 
@@ -216,7 +216,7 @@ PASS: uno(flash=23090/32768[-1734<=788=band64+exempt96+seam210+lock288+erase130]
 
 **This PASS line IS the one-sidedness evidence and should be quoted verbatim in the record.** It prints `-1734`, `-1736`, `-1672` against positive allowances of 788/788/724 — a reader can see with their own eyes that the comparison admitted a negative delta without any exemption being authored for it. That is strictly better than restating D-03 in prose.
 
-**No new exemption is authored** (D-03). The five MERGE-05 literals stay exactly as they are: `MERGE05_UNO_CLASS_FLASH_BAND = 64` (`:155`), `MERGE05_DEFECT_FIX_EXEMPTION_BYTES = 96` (`:199`), `MERGE05_PAGE_SIZE_SEAM_EXEMPTION_BYTES = 210` (`:257`), `MERGE05_LOCK_STATUS_READ_EXEMPTION_BYTES = 288` (`:331`), `MERGE05_ERASE_STANDALONE_EXEMPTION_BYTES = 130` (`:421`), plus `MERGE05_PAGE_SIZE_SEAM_RAM_EXEMPTION_BYTES = 2` (`:465`). All six are pinned by `test_base01_is_not_re_anchored_by_the_new_exemption` (`tests/test_check_size_baseline.py:1108`), which reads BASE-01 and the checker's own source and **never a fixture**.
+**No new exemption is authored** (D-03). The five MERGE-05 literals stay exactly as they are: `MERGE05_UNO_CLASS_FLASH_BAND = 64` (`:155`), `MERGE05_DEFECT_FIX_EXEMPTION_BYTES = 96` (`:199`), `MERGE05_PAGE_SIZE_SEAM_EXEMPTION_BYTES = 210` (`:257`), `MERGE05_LOCK_STATUS_READ_EXEMPTION_BYTES = 288` (`:331`), `MERGE05_ERASE_STANDALONE_EXEMPTION_BYTES = 130` (`:421`), plus `MERGE05_PAGE_SIZE_SEAM_RAM_EXEMPTION_BYTES = 2` (`:465`). All six are pinned by `test_base01_is_not_re_anchored_by_the_new_exemption` (`tests/test_check_size_baseline.py:1106`), which reads BASE-01 and the checker's own source and **never a fixture**.
 
 #### The four legs — observed, not predicted
 
@@ -234,7 +234,7 @@ FAILED tests/test_check_size_baseline.py::test_default_mode_is_unchanged_by_the_
 
 | Leg | `file:line` | Why it reddens | Remedy |
 |-----|-------------|----------------|--------|
-| `test_clean_avr_all_three_envs_pass` | `tests/test_check_size_baseline.py:518` | Reads `captured_build_v153_{uno,uno328pb,leonardo}.log` (25548/25598/27630) against the **live** baseline in default = byte-identity mode | 3 new cold captures |
+| `test_clean_avr_all_three_envs_pass` | `tests/test_check_size_baseline.py:523` | Reads `captured_build_v153_{uno,uno328pb,leonardo}.log` (25548/25598/27630) against the **live** baseline in default = byte-identity mode | 3 new cold captures |
 | `test_default_mode_is_unchanged_by_the_new_flag` | `:1362` | Same three fixtures, same reason | reuses the same 3 captures |
 | `test_planted_flash_regression_flips_checker_to_failure` | `:612` | Asserts both the baseline figure (27630) and the observed figure (28142) appear in the FAIL text | 1 new plant at `new_leonardo + 512`, and the leg's asserted figures updated |
 | `test_clean_native_both_envs_pass` | `:562` | Reads `captured_test_native{,_nodevtools}_summary.log` (172) against `native_envs.cases` | **update the two native summary fixtures IN PLACE** — the established convention for that pair (`:575-576`) |
@@ -323,7 +323,7 @@ Same for `check_build_warnings.py` and `check_no_heap_or_64bit_symbols.py`. **Of
 
 **Two in-tree claims that contradict this and are candidates for correction (discretionary, and squarely on LAND-04's own subject):**
 1. `tests/test_check_size_baseline.py:459` — *"Neither repository's CI runs this suite — no CI leg exercises it in either repository."* **False** as of `build.yml:161`.
-2. `tests/meta_presence.py:52-56` — *"This module executes in NO CI leg on this branch: `pytest tests/ -v` runs only in `build.yml` (push/PR to `main`) … neither fires on this firmware milestone branch."* **False** — `build.yml`'s branch filter was widened to `['**', '!beta']`, and the widening is documented in that same workflow's own comment at `:4-14`.
+2. `tests/meta_presence.py:56-58` — *"This module executes in NO CI leg on this branch: `pytest tests/ -v` runs only in `build.yml` (push/PR to `main`) … neither fires on this firmware milestone branch."* **False** — `build.yml`'s branch filter was widened to `['**', '!beta']`, and the widening is documented in that same workflow's own comment at `:4-14`.
 
 Correcting these is not required by LAND-04, but leaving a phase whose headline criterion is *"never implied to be automated"* shipping two in-source claims that get the automation boundary backwards is worth a decision rather than an omission.
 
@@ -335,7 +335,7 @@ Correcting these is not required by LAND-04, but leaving a phase whose headline 
 
 #### Where the type lives
 
-- `lib/jsmn/src/jsmn.h:73-81` — the live definition:
+- `lib/jsmn/src/jsmn.h:74-92` — the live definition:
   ```c
   typedef struct jsmntok {
     jsmntype_t type;
@@ -350,7 +350,7 @@ Correcting these is not required by LAND-04, but leaving a phase whose headline 
   `JSMN_PARENT_LINKS` is **not** defined anywhere in the tree, so `parent` does not exist in the shipped struct. `[VERIFIED]`
 - `include/json_parser.h:17` — `#define NUMBER_JSNM_TOKENS 64`
 - `src/firestarter.cpp:54` — `static jsmntok_t tokens[NUMBER_JSNM_TOKENS];` — the only instance; `512 B` on AVR today
-- `test/native/avr/test_read_timing/test_read_timing_params.cpp:76` — a second, stack-local `jsmntok_t tokens[NUMBER_JSNM_TOKENS]`, the only test that allocates the real budget
+- `test/native/avr/test_read_timing/test_read_timing_params.cpp:84` — a second, stack-local `jsmntok_t tokens[NUMBER_JSNM_TOKENS]`, the only test that allocates the real budget
 - `platform/py32f071/CMakeLists.txt:70` — the ARM port compiles the same `lib/jsmn/src/jsmn.c`
 
 #### The `-1` sentinels — twelve, with a reproducible counting rule
@@ -373,7 +373,7 @@ REQUIREMENTS says *"`jsmn.c` uses `-1` sentinels in twelve places"*. The claim i
 
 The other eleven `-1` occurrences (`:18` `parent`, `:193`, `:230`, `:231`, `:245`, `:251`, `:269`, `:282`, `:316`, `:332`, `:364`) are on `parser->toksuper`, `token->parent` (dead) and the loop index `i` — **none of them is a token-array field**, so none is affected by narrowing the struct. `parser` is a single stack local (`src/firestarter.cpp:53`); narrowing it would save 0 bytes of the array.
 
-The dead implementation copy at `jsmn.h:106-475` carries the same eleven textual sentinel lines. It compiles in no TU (`#define JSMN_HEADER` at `:33` precedes `#ifndef JSMN_HEADER` at `:106`). `[VERIFIED]`
+The dead implementation copy at `jsmn.h:117-486` carries the same eleven textual sentinel lines. It compiles in no TU (`#define JSMN_HEADER` at `:33` precedes `#ifndef JSMN_HEADER` at `:106`). `[VERIFIED]`
 
 #### The 6-byte layout, with `start`/`end` still signed
 
@@ -478,9 +478,9 @@ $ avr-objdump -d --start-address=0x2d68 --stop-address=0x2f3c … | grep call
 
 The tree **already contains** the mask form, on algorithm 13:
 
-- `src/proms/eeprom_28c.cpp:643-651` — `static uint32_t eeprom28c_page_mask(uint16_t requested)`, which validates power-of-two-ness and range before returning `requested - 1`
-- `src/proms/eeprom_28c.cpp:673` — `const uint32_t page_mask = eeprom28c_page_mask(handle->page_size);` resolved **once, above** the per-byte loop
-- `src/proms/eeprom_28c.cpp:752` — `bool page_end = ((address + 1) & page_mask) == 0;`
+- `src/proms/eeprom_28c.cpp:628-636` — `static uint32_t eeprom28c_page_mask(uint16_t requested)`, which validates power-of-two-ness and range before returning `requested - 1`
+- `src/proms/eeprom_28c.cpp:658` — `const uint32_t page_mask = eeprom28c_page_mask(handle->page_size);` resolved **once, above** the per-byte loop
+- `src/proms/eeprom_28c.cpp:737` — `bool page_end = ((address + 1) & page_mask) == 0;`
 
 `[VERIFIED]` **The two cases are not the same problem and the record must not blur them.** Algorithm 13's page size arrives **from the host wire** and could be anything, so it needs a validating resolver. Algorithm 5's page size is derived **internally** from `mem_size` by a three-line function whose every return is a literal power of two, so a bare `page_size - 1` is sufficient and a validating resolver would be dead code. `src/proms/eeprom_28c.cpp:21` already labels `flash_5v_page_page_size()` a *"READ-ONLY ANALOG, byte-frozen, NOT adopted here"* — the non-adoption runs in both directions.
 
@@ -545,7 +545,7 @@ A boundary test is cheap and time-free, so a trace-stub timing gap does not bite
 
 #### The wire keys the firmware accepts
 
-Eleven table rows (`src/json_parser.c:62-76` PROGMEM strings, `:134-166` the `key_parsers[]` table): `memory-size`, `address`, `flags`, `chip-id`, `pin-count`, `pulse-delay`, `vpp_mv`, `algorithm`, `read-settling-delay`, `read-strobe-us`, `page-size`. Plus `cmd` / `state` (alternates, `src/json_parser.c:307`, `:391`) and the `bus-config` object (`:329`, `:397`). Unknown keys are **skipped, two tokens at a time** (`:340`) — deliberate forward compatibility, and load-bearing per Backlog 999.35. `[VERIFIED]`
+Eleven table rows (`src/json_parser.c:73-92` PROGMEM strings, `:134-166` the `key_parsers[]` table): `memory-size`, `address`, `flags`, `chip-id`, `pin-count`, `pulse-delay`, `vpp_mv`, `algorithm`, `read-settling-delay`, `read-strobe-us`, `page-size`. Plus `cmd` / `state` (alternates, `src/json_parser.c:503`, `:391`) and the `bus-config` object (`:329`, `:397`). Unknown keys are **skipped, two tokens at a time** (`:340`) — deliberate forward compatibility, and load-bearing per Backlog 999.35. `[VERIFIED]`
 
 `parse_bus_config` accepts exactly four inner keys: `bus` (array), `static-high` (array), `rw-pin` (`:506`), `vpp-pin` (`:510`). `[VERIFIED]`
 
@@ -597,7 +597,7 @@ root object                                     1
 
 A 13-token headroom does not by itself say "not reducible". `64 → 56` would save `64 B` of RAM today (or `48 B` after LAND-05) and still clear the real maximum by 5. **So the record must not claim arithmetic impossibility; it must claim the headroom is a load-bearing forward-compatibility budget:**
 
-1. `json_parse` **silently skips unknown keys, two tokens at a time** (`src/json_parser.c:340`). That is the mechanism by which the host can add a wire field without a firmware release — the property Backlog 999.35 explicitly names as *"load-bearing forward-compatibility"* that a packed binary frame would destroy. **Today's 13 tokens of headroom is 6 future host-added scalar keys.** Cutting to 56 leaves 2.
+1. `json_parse` **silently skips unknown keys, two tokens at a time** (`src/json_parser.c:517`). That is the mechanism by which the host can add a wire field without a firmware release — the property Backlog 999.35 explicitly names as *"load-bearing forward-compatibility"* that a packed binary frame would destroy. **Today's 13 tokens of headroom is 6 future host-added scalar keys.** Cutting to 56 leaves 2.
 2. Overflow is a **silent whole-command rejection** (`JSMN_ERROR_NOMEM`), not a graceful degradation. A budget sized to the current corpus fails closed on the first chip whose pin map is one entry longer.
 3. **`pinouts.json` is host data and grows.** A future 40-pin map, or a pin map with both 19 address lines and a `static-high` entry, reaches the synthetic 55 immediately.
 4. The array can therefore only shrink meaningfully via **LAND-05** (`8 → 6 B`, a real `−128 B` with no budget change) or via **v1.28 / Backlog 999.35** (delete the tokenizer entirely, `−512 B` RAM), exactly as the criterion states.
@@ -687,7 +687,7 @@ Discovered by measurement, not inspection, and it invalidates a naive comparison
 
 `[VERIFIED: both run this session]`
 
-**Mechanism:** `tests/meta_presence.py:75-95` computes `META_ROOT` as the **parent of the firmware repo root** and probes for a `.git` marker there; `requires_meta` skips when absent. In `/workspaces/firestarter` the parent is the meta repo (`.git` present); in `/tmp/<anything>/firestarter` it is not. `tests/test_flash_path_record_sync.py` is the only consumer, and it carries all 32 legs. There is a seam: `FIRESTARTER_META_ROOT`, read **at import time only** — `monkeypatch.setenv` cannot move it, so it must be set in the child process's environment.
+**Mechanism:** `tests/meta_presence.py:77-97` computes `META_ROOT` as the **parent of the firmware repo root** and probes for a `.git` marker there; `requires_meta` skips when absent. In `/workspaces/firestarter` the parent is the meta repo (`.git` present); in `/tmp/<anything>/firestarter` it is not. `tests/test_flash_path_record_sync.py` is the only consumer, and it carries all 32 legs. There is a seam: `FIRESTARTER_META_ROOT`, read **at import time only** — `monkeypatch.setenv` cannot move it, so it must be set in the child process's environment.
 
 **Consequence for the plan:** every prior phase's worktree measurement (including `157-cold-probe`) skipped these 32 legs, and none of them said so. Any plan that measures `pytest tests/` in a worktree must either set `FIRESTARTER_META_ROOT=/workspaces` or state that 32 cross-repo legs were skipped. **`pytest tests/` for gate purposes should be run from `/workspaces/firestarter` on a committed tree.**
 
@@ -765,7 +765,7 @@ Phases 155, 156 and 157 all corrected ROADMAP/REQUIREMENTS figures **inside thei
 - **Producing LAND-01's re-record from `--rebuild`'s output.** `_rebuild_avr` (`:753`) uses `pio run -t clean`, not `rm -rf .pio/build/<env>`. Different recipe from the one the criterion mandates.
 - **Re-recording the baseline and severing the fixtures in different commits.** The intermediate commit is CI-red (F-4).
 - **Quoting a wall time as evidence.** D-04.
-- **Asserting `sizeof(jsmntok_t)` in a native test without a target guard.** Native is 12 B, AVR is 6 B. `src/json_parser.c:78-86` carries the same warning verbatim for `field_desc_t`: *"NO ASSERTION ON sizeof(field_desc_t) MAY BE AUTHORED WITHOUT A TARGET GUARD"*.
+- **Asserting `sizeof(jsmntok_t)` in a native test without a target guard.** Native is 12 B, AVR is 6 B. `src/json_parser.c:164-275` carries the same warning verbatim for `field_desc_t`: *"NO ASSERTION ON sizeof(field_desc_t) MAY BE AUTHORED WITHOUT A TARGET GUARD"*.
 - **Using a trace diff as LAND-06's oracle for the runtime claim.** Native trace stubs record no time; `delay()` is unstubbed. A trace diff can attest register-write *sequence*, never duration.
 - **Conflating the four size-baseline legs with the four porcelain legs.** Different causes, different remedies (F-2 vs F-5).
 - **Blurring algorithm 5's mask with algorithm 13's mask resolver**, or with the w27c512-write-slow-3x work (F-6).
@@ -779,7 +779,7 @@ Phases 155, 156 and 157 all corrected ROADMAP/REQUIREMENTS figures **inside thei
 | Deciding whether the size delta is admissible | a fresh comparison script or a hand-computed delta table | `scripts/check_size_baseline.py --policy merge05 --baseline scripts/baseline/size_baseline_base01.json` | It already resolves all six band/exemption literals in one place (`_merge05_flash_allowance`, `_merge05_ram_allowance`) and prints the full decomposition. A hand-computed delta cannot produce the quotable PASS line LAND-02 needs |
 | Proving `__udivmodsi4` is gone | reading the C and reasoning about codegen | `avr-nm --print-size` for the symbol range + `avr-objdump -d --start-address --stop-address` | Only the linked image witnesses a call site. gcc inlines `flash_5v_page_page_size` and `wait_for_page_write`, so source-level reasoning about the loop body is unreliable |
 | Proving `sizeof(jsmntok_t)` is 6 | counting bytes by hand or trusting the host compiler | `avr-gcc -mmcu=atmega328p -Os` on a common-symbol probe + `avr-nm -S` | AVR uses 1-byte struct alignment and 16-bit `int`; host reasoning gives 12, not 6 |
-| A page-boundary oracle for LAND-06 | a new recording harness | the existing `bus_recording_*` / `recorded_reg` / `recorded_data` helpers in `test/native/avr/test_val_5v_page/test_val_5v_page.cpp:259-278` | Already there, already proven, already in a CI-run env |
+| A page-boundary oracle for LAND-06 | a new recording harness | the existing `bus_recording_*` / `recorded_reg` / `recorded_data` helpers in `test/native/avr/test_val_5v_page/test_val_5v_page.cpp:258-277` | Already there, already proven, already in a CI-run env |
 | A "warnings did not move" check | grepping build logs by hand | `python3 scripts/check_build_warnings.py --rebuild` | Reads the same `FIRESTARTER_SIZE_BASELINE` seam and applies the recorded `== 0` (AVR) / `<= total_watermark` (native) policy |
 | A release-asset consistency check after the re-record | anything | `scripts/check_release_assets.py` | Already derives its required set from `avr_targets`' **keys**; the re-record cannot affect it, which is worth *verifying* rather than assuming |
 
@@ -796,7 +796,7 @@ This phase re-records a committed measurement file and may change firmware sourc
 | **Stored data** | **None.** No database, datastore or collection name is keyed on any figure this phase moves. Arduino EEPROM holds only `rurp_configuration_t` (R1/R2/rev), which neither LAND-05 nor LAND-06 reads or writes. `[VERIFIED: neither candidate touches `rurp_configuration_t` or `config_storage`]` | none |
 | **Live service config** | **None.** No n8n workflow, Datadog service, Tailscale ACL or Cloudflare tunnel references a firmware size figure. `[VERIFIED: this phase's outputs are a JSON file, log fixtures and `.planning/` records]` | none |
 | **OS-registered state** | **None.** No Task Scheduler task, pm2 process or systemd unit is involved. | none |
-| **Secrets / env vars** | **`FIRESTARTER_SIZE_BASELINE`** — the seam three scripts read (`check_size_baseline.py:145`, `check_build_warnings.py:82`, `check_release_assets.py:34`). Not a secret and not set in any workflow; the default resolves to the committed file. **`FIRESTARTER_META_ROOT`** — read at import time by `tests/meta_presence.py:75`; governs the 32-leg skip (F-12). | none — but a plan that measures in a worktree must set `FIRESTARTER_META_ROOT`, or record the skip |
+| **Secrets / env vars** | **`FIRESTARTER_SIZE_BASELINE`** — the seam three scripts read (`check_size_baseline.py:145`, `check_build_warnings.py:82`, `check_release_assets.py:34`). Not a secret and not set in any workflow; the default resolves to the committed file. **`FIRESTARTER_META_ROOT`** — read at import time by `tests/meta_presence.py:77`; governs the 32-leg skip (F-12). | none — but a plan that measures in a worktree must set `FIRESTARTER_META_ROOT`, or record the skip |
 | **Build artefacts / installed packages** | **`.pio/build/<env>/` in the primary checkout is WARM** (last written 2026-08-23 22:13, containing the post-157 objects). LAND-01's recipe requires `rm -rf .pio/build/<env>` per env, so the stale warm tree is destroyed by the recipe itself. **No `.hex` is published and no package is installed by this phase.** The three ELFs under `.pio/build/` are the only artefacts carrying the pre-change image, and they are rebuilt. `[VERIFIED: ls -la .pio/build/uno]` | the recipe handles it; nothing to migrate |
 | **Committed fixtures that cache the OLD figures** | **This is the one real item.** `tests/fixtures/captured_build_v153_{uno,uno328pb,leonardo}.log` (25548/25598/27630), `planted_size_baseline_flash_regression_v153.log` (28142), `captured_test_native{,_nodevtools}_summary.log` (172 cases) all hold pre-phase figures **and are read by live legs against the LIVE baseline**. This is exactly the "runtime state that still holds the old string" category — in committed-fixture form. | **code edit** (sever onto `*_v158*`) **plus data update in place** (the two native summaries) — both, in the same commit as the re-record |
 
@@ -833,7 +833,7 @@ This phase re-records a committed measurement file and may change firmware sourc
 ### Pitfall 5 — Asserting `sizeof(jsmntok_t)` without a target guard
 **What goes wrong:** a native test asserts 6 and fails, or asserts 12 and proves nothing about AVR.
 **Why:** AVR `int` is 16-bit with 1-byte struct alignment (6 B); host `int` is 32-bit with 4-byte alignment (12 B).
-**How to avoid:** the RAM saving is witnessed by the linker's `RAM: used N` line and by `avr-nm`, not by a native `sizeof`. `src/json_parser.c:78-86` carries this exact warning for a sibling struct.
+**How to avoid:** the RAM saving is witnessed by the linker's `RAM: used N` line and by `avr-nm`, not by a native `sizeof`. `src/json_parser.c:164-275` carries this exact warning for a sibling struct.
 
 ### Pitfall 6 — Using `--rebuild` as the recording source for LAND-01
 **What goes wrong:** the figures are transcribed from a `pio run -t clean` build, not the mandated `rm -rf .pio/build/<env>` build.
@@ -904,7 +904,7 @@ sed -n '16,34p' .github/workflows/build.yml                       # on: push: br
 /* lib/jsmn/src/jsmn.h — add near the top: */
 #include <stdint.h>
 
-/* lib/jsmn/src/jsmn.h:73-81 — replace: */
+/* lib/jsmn/src/jsmn.h:74-92 — replace: */
 typedef struct jsmntok {
   uint8_t type;   /* was jsmntype_t: an enum, 16-bit int on AVR. Values 0,1,2,4,8. */
   uint8_t size;   /* was int. Max real value: an object's pair count (<=13) or an
@@ -984,10 +984,10 @@ def jsmn_count(js):
 | Old approach | Current approach | When changed | Impact on this phase |
 |--------------|------------------|--------------|----------------------|
 | `pio run -t clean -e <env>` as the cold recipe | `rm -rf .pio/build/<env>` then exactly one `pio run -e <env>` | quick task 260820-a7w, 2026-08-20 | LAND-01 mandates the newer form; `--rebuild` still uses the older one (`:753`) |
-| BASE-01 asserted immutable in all respects | **axis split**: growth axis (`flash_used`/`ram_used`) frozen; board-identity axis (`flash_total`) licensed to move with cause | quick task 260820-a7w; machine-checked at `tests/test_check_size_baseline.py:1108-1160` | The doctrinal basis for LAND-03's "fix" branch |
+| BASE-01 asserted immutable in all respects | **axis split**: growth axis (`flash_used`/`ram_used`) frozen; board-identity axis (`flash_total`) licensed to move with cause | quick task 260820-a7w; machine-checked at `tests/test_check_size_baseline.py:1106-1158` | The doctrinal basis for LAND-03's "fix" branch |
 | `build.yml` triggered on `main` only | `on: push: branches: ['**', '!beta']` | documented in `build.yml:4-14` | **`pytest tests/ -v` now runs on this milestone branch.** Two in-tree docstrings still assert the old behaviour (F-4) |
 | Growth admitted by widening a band | growth admitted by a **named, SHA-attributed exemption** stacked on an unchanged band | v1.31 Phase 145 onward; four now stacked | A *reduction* needs no exemption at all (D-03) — the first in the project's history |
-| `%` on a runtime page size | `& (page_size - 1)` with a validating resolver | Phase 149/153, algorithm 13 only (`src/proms/eeprom_28c.cpp:643`) | LAND-06 would extend the *idiom* to algorithm 5, without the resolver (which would be dead code there) |
+| `%` on a runtime page size | `& (page_size - 1)` with a validating resolver | Phase 149/153, algorithm 13 only (`src/proms/eeprom_28c.cpp:628`) | LAND-06 would extend the *idiom* to algorithm 5, without the resolver (which would be dead code there) |
 
 **Superseded figures a reader must not quote:**
 - `size_baseline.json`'s `avr_targets` (25548 / 25598 / 27630) — stale since Phase 155.
@@ -998,7 +998,7 @@ def jsmn_count(js):
 - REQUIREMENTS LAND-07's `57 tokens` / `7 tokens of headroom` — **51 / 13** against the real corpus.
 - `size_baseline.json` `meta.consumed_by`'s "two consumers" — **three**.
 - `size_baseline.json` `envs_agree_note`'s `{cases: 151}` — already flagged stale in the same file.
-- `tests/test_check_size_baseline.py:459` and `tests/meta_presence.py:52-56` on CI coverage — both false.
+- `tests/test_check_size_baseline.py:459` and `tests/meta_presence.py:56-58` on CI coverage — both false.
 - `157-after-figures.md` §2's Caterina headroom `3438 B` — correct at 785e644, moves if LAND-05/06 land (see below).
 
 **Leonardo Caterina headroom against the 28672 B cliff, per outcome** (all measured this session):
@@ -1018,7 +1018,7 @@ def jsmn_count(js):
 |---|-------|---------|---------------|
 | A1 | The ARM (`py32f071`) build compiles cleanly with the narrowed `jsmntok_t`. Reasoned from the host `sizeof` measurement (12 B, no packing issue) and `<stdint.h>` availability in newlib — **not built** (no `arm-none-eabi-gcc` on this machine). | F-5 | The loud ARM gate goes red on the next push. Mitigation: install the toolchain, or record the ceiling |
 | A2 | `size` never exceeds 255 for any real command, so `uint8_t size` cannot truncate. Reasoned from the maxima in F-7 (largest object 13 pairs, largest array 19 elements) — no adversarial-input test was run. | F-5 | A pathological command could truncate `size` and mis-parse. A malformed command already fails; the practical exposure is a future host emitting a >255-element array, which `ADDRESS_LINES_SIZE` already bounds |
-| A3 | `type` never exceeds 255. From `jsmntype_t`'s five enumerators (0,1,2,4,8) at `jsmn.h:50-56`. Structurally certain unless jsmn is upgraded. | F-5 | none in practice |
+| A3 | `type` never exceeds 255. From `jsmntype_t`'s five enumerators (0,1,2,4,8) at `jsmn.h:51-57`. Structurally certain unless jsmn is upgraded. | F-5 | none in practice |
 | A4 | The 2-token gap between my derived 55 and REQUIREMENTS' 57 originates in counting `state` alongside `cmd`. **Unverified** — the scoping session's own derivation was not located. | F-7 | Only the *explanation* is at risk; the derived bounds stand on their own |
 | A5 | No `.planning/` record outside `.planning/v1.33/` needs to change for LAND-02/04/07/08. Based on the Phase 155/156/157 convention, not on an exhaustive scan of `.planning/`. | F-10 | A record lands in the wrong place; cheap to move |
 | A6 | The `*_v153*` fixture family should be **retired in place and kept**, not deleted. Following the stated disposition of the two prior severances. | F-2 | none — the alternative (deletion) is what the precedent explicitly rejects |
@@ -1041,12 +1041,12 @@ in this section reaches execution unresolved.
    - What's unclear: the runtime win — unquantifiable in this milestone by D-02.
    - Recommendation: **decline, and record the measurement plus the coverage gap as the reason** — a shrink-only milestone paying 22–24 B for an unmeasurable benefit on an untested path is the weaker trade. If the operator wants it, take it **with** the two-case boundary test from F-6 and accept the `184 → 186` case-count move.
 
-2. **RESOLVED — Fix or carry LAND-03?** → **FIX.** Four integers, measured to redden zero legs; the axis-split precedent is machine-checked at `tests/test_check_size_baseline.py:1108`. Planned as `158-05`.
+2. **RESOLVED — Fix or carry LAND-03?** → **FIX.** Four integers, measured to redden zero legs; the axis-split precedent is machine-checked at `tests/test_check_size_baseline.py:1106`. Planned as `158-05`.
    - What we know: fixing is 4 integers and reddens zero legs (measured); the axis-split precedent exists and is machine-checked.
    - What's unclear: whether the operator reads BASE-01's `native_envs` as part of the frozen anchor.
    - Recommendation: **fix**, recording the axis split explicitly. Carry is still viable and LAND-02 is green either way.
 
-3. **RESOLVED — Are the two false CI-coverage docstrings corrected here?** → **YES, corrected.** Comment-only edits at `tests/test_check_size_baseline.py:459` and `tests/meta_presence.py:52-56`; no assertion changes. Same claim LAND-04 records. Planned as `158-05`.
+3. **RESOLVED — Are the two false CI-coverage docstrings corrected here?** → **YES, corrected.** Comment-only edits at `tests/test_check_size_baseline.py:459` and `tests/meta_presence.py:56-58`; no assertion changes. Same claim LAND-04 records. Planned as `158-05`.
    - What we know: both are false; both are about exactly the automation boundary LAND-04 exists to state honestly.
    - What's unclear: whether editing test docstrings is in scope for a landing phase.
    - Recommendation: correct them — a one-hunk comment edit in each, no assertion change, and it is the same claim LAND-04 records.
@@ -1116,7 +1116,7 @@ in this section reaches execution unresolved.
 | **LAND-02** | the tripwire is still armed above the (unchanged) allowance | planted negative | the three surviving `planted_size_baseline_policy_*_v153.log` legs (`:1202`, `:1257`, `:1298`) — **measured to stay green**, so they need no re-plant; assert that fact rather than re-planting | ✅ existing |
 | **LAND-03** | the mismatch is resolved or reproduced verbatim | gate | `python3 scripts/check_size_baseline.py --policy merge05 --baseline scripts/baseline/size_baseline_base01.json --rebuild` → exit 0 if fixed; **exactly two** `cases baseline=141 observed=184` lines if carried | ✅ existing — **local only** |
 | **LAND-04** | the grep claim holds | record + command | `grep -rn "check_size_baseline" .github/; echo $?` → `1`; plus `grep -n "pytest tests/" .github/workflows/build.yml` → `:161` for the second clause | ✅ existing |
-| **LAND-05** | narrowing does not change parse behaviour | unit | `pio test -e native -f "*test_read_timing*"` (the only suite allocating the real 64-token budget) then the full `pio test -e native && pio test -e native_nodevtools` → **184/184 both** | ✅ existing (`test_read_timing_params.cpp:76`) — **runs in CI** |
+| **LAND-05** | narrowing does not change parse behaviour | unit | `pio test -e native -f "*test_read_timing*"` (the only suite allocating the real 64-token budget) then the full `pio test -e native && pio test -e native_nodevtools` → **184/184 both** | ✅ existing (`test_read_timing_params.cpp:84`) — **runs in CI** |
 | **LAND-05** | the RAM saving is real | build | `pio run -e uno` `RAM: used 1434` (from 1562) — the linker is the witness | ✅ existing |
 | **LAND-05** | `start`/`end` remain signed | source contract | ❌ **Wave 0 candidate** — a `grep`/AST leg asserting `int start;` and `int end;` are still `int` in `jsmn.h`, so a future "tidy-up" to `uint16_t` cannot silently break the twelve `-1` sentinels | ❌ **Wave 0** |
 | **LAND-06** *(only if taken)* | page-start SDP count and page-end poll count are correct across a real boundary | unit | ❌ `pio test -e native -f "*test_val_5v_page*"` with **new** cases; `mem_size=32768` → `page_size=64`, `data_size=128`, expect exactly 2 page starts and 2 page ends; proven RED against a deliberately wrong mask first | ❌ **Wave 0** |
@@ -1166,7 +1166,7 @@ in this section reaches execution unresolved.
 | A gate that passes vacuously after a refactor | Repudiation | every planted negative observed RED before being trusted | House rule. Applies to both Wave 0 legs |
 | A recorded figure laundered rather than measured | Repudiation | transcribe from a captured log; never compute; keep the log | Pattern 2. Applies to LAND-01 and to the `*_v158*` captures |
 
-**Nothing in this phase touches VPP/VPE control, high-voltage routing, or the erase policy.** `flash_5v_page_write_execute` is a 5 V path and `test_5v_page_write_execute_no_vpp` (`test_val_5v_page.cpp:298`) already pins that it writes no VPP control bit — **that leg must stay green through any LAND-06 edit**, and it is the one existing safety assertion over the function being modified.
+**Nothing in this phase touches VPP/VPE control, high-voltage routing, or the erase policy.** `flash_5v_page_write_execute` is a 5 V path and `test_5v_page_write_execute_no_vpp` (`test_val_5v_page.cpp:297`) already pins that it writes no VPP control bit — **that leg must stay green through any LAND-06 edit**, and it is the one existing safety assertion over the function being modified.
 
 ---
 

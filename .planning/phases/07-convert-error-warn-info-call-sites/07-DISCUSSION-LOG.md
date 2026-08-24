@@ -80,7 +80,7 @@ Operator selected three of four presented areas (multiSelect):
 - **Commit cadence / batching strategy** — operator did not lock; planner picks. Recommended in CONTEXT.md §Claude's Discretion: macro-additions commit first (infrastructure), then per-PROM-module commits for populate-site conversions, then per-file commits for direct-log conversions (~12 commits total).
 - **Multi-param composer macros** for catalog entries with 3+ params — planner picks between purpose-built composers and raw `LOG_ID_BYTES`.
 - **`LOG_ERROR_RESPONSE(MSG, ...)` 1-call packaging** at populate sites — planner may revisit; recommended two-line form for now.
-- **`log_error_format_buf(handle.response_msg, ...)` hybrid at firestarter.cpp:176** — planner converts to direct `LOG_ERROR_ID_U8` (no buffer, no response_code mutation).
+- **`log_error_format_buf(handle.response_msg, ...)` hybrid at firestarter.cpp:171** — planner converts to direct `LOG_ERROR_ID_U8` (no buffer, no response_code mutation).
 - **`host_stubs.cpp` updates** for native test linkage post-conversion — researcher confirms.
 - **Flash-savings target wording** — planner picks "measurable" threshold.
 - **`_check_response` test coverage** — planner picks the gate (native dispatch suite vs Python integration).

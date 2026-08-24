@@ -1466,7 +1466,7 @@ this diff, with the surrounding sentences reworded to stay true. `tests/test_sca
 `is_relative_to` name-collision guard passes for the new entry, and its exact-count assertion on the
 11-file tool-resolver population (Population B) is untouched.
 
-### `constants.py:145`'s "Firmware sync" note
+### `constants.py:144`'s "Firmware sync" note
 
 That note has read "Firmware sync: `json_parser.c` (`key_page_size`)" since plan 03 corrected its
 wording — a claim this project's own kickoff record measured as **false** at the time (no such key

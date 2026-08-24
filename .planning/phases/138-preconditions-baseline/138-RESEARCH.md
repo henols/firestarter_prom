@@ -515,7 +515,7 @@ recorder), asserts only on `CONTROL_REGISTER` VPP bits, and never calls
 
 ### What the trace will actually contain — and why the pulse is invisible today
 
-**The program pulse is not in `eprom.cpp`.** It is at `src/proms/memory.cpp:257`:
+**The program pulse is not in `eprom.cpp`.** It is at `src/proms/memory.cpp:329`:
 
 ```cpp
 void memory_set_data(firestarter_handle_t* handle, uint32_t address, uint8_t data) {
@@ -531,7 +531,7 @@ void memory_set_data(firestarter_handle_t* handle, uint32_t address, uint8_t dat
 ```
 
 CONTEXT.md cites `eprom.cpp:283 delayMicroseconds(handle->pulse_delay)` — that is the **erase** pulse
-inside `eprom_internal_erase`, a different call site. The **program** pulse is `memory.cpp:257`.
+inside `eprom_internal_erase`, a different call site. The **program** pulse is `memory.cpp:329`.
 Both are in scope of the phase fence's "or any file on the EPROM write path": **`memory.cpp` is on
 the write path and must not be edited in Phase 138 either.**
 
@@ -1115,7 +1115,7 @@ git hash-object      test/native/avr/_shared/sdp_expected.h    # same SHA, no co
 | "There is no local `beta` branch in the firmware repo" | A local `beta` **exists** and is at `3085084` | `git branch --list` | A plan that forks "off `origin/beta`" and one that forks "off `beta`" would get different commits once the cache is refreshed |
 | "`delay()` / `delayMicroseconds()` are not stubbed at all" | Not in `host_stubs_common.inc` — but **defined by ArduinoFake** and already mocked in **8** suites' `setUp()` | ArduinoFake `FunctionFake.{h,cpp}`; `grep` of `test/` | The timing layer's seam is fakeit `.AlwaysDo`, not a `.inc` definition |
 | "`HOST_STUBS_REAL_REGISTER_UTILS` composes with `HOST_STUBS_RECORD_BUS`" (the `.inc`'s own comment) | `#ifdef … #elif …` — defining both yields **only** the strobe recorder | `host_stubs_common.inc:81/131/153` | A fixture wanting `(reg,data)` must derive it from strobes |
-| `eprom.cpp:283` is the program pulse | `:283` is the **erase** pulse; the **program** pulse is `memory.cpp:257` | source read | `memory.cpp` is also on the write path and also must not be edited in 138 |
+| `eprom.cpp:283` is the program pulse | `:283` is the **erase** pulse; the **program** pulse is `memory.cpp:329` | source read | `memory.cpp` is also on the write path and also must not be edited in 138 |
 | The size gate "is plausibly already RED … since the live baseline was measured at Phase 124's tree (`2bd7187`)" | `2bd7187` **is** an ancestor of beta (57 commits behind) yet the gate is **GREEN at `3085084`** and **RED only at `6fab4ea`** (+34 B ×3) | ran the gate both ways | D-07 still fires, but the finding's owner and cause are `b1737b2`, not v1.23-era debt |
 | BASE-01 native watermark 360 | Live baseline records **1166 cold / 998 warm**; I reproduced **998** warm | `check_build_warnings.py` | Never cite 360; and never source a watermark from a warm run |
 
@@ -1157,14 +1157,14 @@ git hash-object      test/native/avr/_shared/sdp_expected.h    # same SHA, no co
    - *Recommendation:* probe a zeroed `bus_config` first (A3). If degenerate, prefer **extending the
      generator** — it is the only route that keeps the trace's addresses traceable to `pinouts.json`.
    - **RESOLVED — plan `138-03` Task 3.** A3's probe was settled from source rather than by execution:
-     `mem_util_remap_address_bus` opens with `config.address_mask & address` (`src/proms/memory.cpp:286`),
+     `mem_util_remap_address_bus` opens with `config.address_mask & address` (`src/proms/memory.cpp:358`),
      so a zeroed `bus_config` collapses every address to 0 — **degenerate, not identity**. The generator
      is **not** extended (it lives in `firestarter_app/tools/`, not the firmware repo, and its
      `validate_rows` rejects a pinout carrying `static-high-pins`, which `DIP24_2716` does — that is an
      app-repo change regenerating a header two frozen SDP suites consume, outside this phase's fence).
      Instead the plan derives each row through the generator's own `derive_row` — the host's live
      `EpromDatabase.get_eprom()` plus `convert_to_programmer()` path — for AM27C512 / AM27C020 / AM2716,
-     translating the residual fields exactly as `src/json_parser.c:214-249` does, with the derivation
+     translating the residual fields exactly as `src/json_parser.c:401-436` does, with the derivation
      command recorded beside each literal. The generator gap is carried as finding **F-138-07** with an
      owner.
 

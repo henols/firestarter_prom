@@ -49,7 +49,7 @@ through C-6 before writing plans.
 | ID | Description (from REQUIREMENTS.md) | Research Support |
 |----|-------------|------------------|
 | HOST-01 | `feature/py32f071-fw-install` @ `4ee64a1` merged, with `flash_method()` router and untouched `_install_with_avrdude` recorded as an **accepted deviation**, not a defect | Merge measured clean (§Q1). `flash_method()` at `firmware.py:95`; `_install_with_avrdude` at `:469`. Deviation is real and unchanged. |
-| HOST-02 | `--usb-id` rejected on a stable channel exactly as `--dfu-probe` already is | Gap reproduced live: `--usb-id` **exit 0 (accepted)** vs `--dfu-probe` **exit 2 (rejected)** on simulated stable (§Q3/§HOST-02). Anchors at `cli_handlers.py:953-961` and `:1052-1057`. |
+| HOST-02 | `--usb-id` rejected on a stable channel exactly as `--dfu-probe` already is | Gap reproduced live: `--usb-id` **exit 0 (accepted)** vs `--dfu-probe` **exit 2 (rejected)** on simulated stable (§Q3/§HOST-02). Anchors at `cli_handlers.py:951-959` and `:1052-1057`. |
 | HOST-03 | Flash read back and verified via `DFU_UPLOAD`, failing soft on `bitCanUpload = 0` | `DfuInterface.attributes` at `py32_dfu.py:348`, parsed but unconsumed. **Call-site correction C-5** — `_finish()` is not called from `flash()`. |
 | HOST-04 | A CI leg installs `.[test,py32]` and exercises the real `pyusb` import and API surface | Leg rehearsed end-to-end in an isolated venv: install OK, `usb.core.find(find_all=True)` **enumerates (8 devices)**, real `ctrl_transfer` signature captured (§Q3). |
 | HOST-05 | `PyusbMissingError` covered with `# pragma: no cover` removed; `fw --list` / `--help` proven to work with pyusb absent | Pragma measured at **`:375`** excluding lines **375–376** (correction C-3). Import-blocker proven to work **with pyusb genuinely installed** (§Q4). Message wording correction C-4. |
@@ -720,9 +720,9 @@ router branch at `:685-686`. The D-17 comment belongs at `:95`.
 | `--usb-id` hidden from `--help` | True | hidden ≠ rejected |
 
 Anchors:
-- `--usb-id` option declaration: `cli_handlers.py:953-961` (`hidden=not _PY32_ENABLED` at `:959`) — **no refusal**.
-- `--dfu-probe` option declaration: `cli_handlers.py:962-968`.
-- The **only** refusal: `cli_handlers.py:1052-1057`, nested **inside `if dfu_probe:`**:
+- `--usb-id` option declaration: `cli_handlers.py:951-959` (`hidden=not _PY32_ENABLED` at `:959`) — **no refusal**.
+- `--dfu-probe` option declaration: `cli_handlers.py:960-966`.
+- The **only** refusal: `cli_handlers.py:1050-1055`, nested **inside `if dfu_probe:`**:
   ```python
   if dfu_probe:
       # `hidden` keeps the option out of --help; it does not reject it. …

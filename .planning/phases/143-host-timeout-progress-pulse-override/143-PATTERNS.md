@@ -26,7 +26,7 @@ record artifacts (`143-*-RECORD.md`) are the only meta-repo files and need no co
 | `include/eprom_budget.h` (NEW) | header / pure API decl | transform | `include/eprom_params.h` | exact |
 | `src/proms/eprom_budget.cpp` (NEW) | utility (pure arithmetic over a PROGMEM table) | transform | `src/proms/eprom_params.cpp` | exact |
 | `src/firestarter.cpp` (MOD — CAP-02 port + CAP-03 append) | controller / dispatcher (ack emitter) | request-response | its own `:157` ack site + the CAP-02 emit in commit `13eb350` on `origin/beta` | exact (a port of shipped code) |
-| `src/proms/eprom.cpp` (MOD — time-gated `0xE0` emission, ONE commit per D-23) | service (device-driver loop) | streaming / event-driven | `src/proms/memory.cpp:450-469` (`mem_util_blank_check`'s `0xE0` emitter) | exact |
+| `src/proms/eprom.cpp` (MOD — time-gated `0xE0` emission, ONE commit per D-23) | service (device-driver loop) | streaming / event-driven | `src/proms/memory.cpp:541-560` (`mem_util_blank_check`'s `0xE0` emitter) | exact |
 | `src/eprom_operations.cpp` (MOD — stale comment at `:93`) | comment only | — | n/a | n/a |
 | `test/native/avr/test_loop_eprom_v131/test_loop_eprom_v131.cpp` (MOD) | test (native Unity) | event capture + transform | `test/native/avr/test_cobs_data_frame/test_cobs_data_frame.cpp:141-168` (advancing `millis()`) + this suite's own `host_stubs.cpp:230-281` | exact |
 | `tests/test_progress_emission_is_leonardo_only.py` (NEW) | test (source-contract gate) | file-I/O (source scan) | `tests/test_hv_routing_source_contract_v142.py` | exact |
@@ -158,7 +158,7 @@ uint32_t eprom_overprogram_us(uint8_t pulse_count, uint32_t pulse_us, uint8_t fa
 }
 ```
 
-**Shipped row values the budget computes from** (`src/proms/eprom_params.cpp:49-53`) — read-only this
+**Shipped row values the budget computes from** (`src/proms/eprom_params.cpp:45-49`) — read-only this
 phase. Column order is **largest-first**, `overprogram_cap_us` FIRST:
 
 ```c
@@ -235,7 +235,7 @@ protocol, the budget function returns 0, and the host's `[1, MAX]` clamp then le
 
 ### `firestarter/src/proms/eprom.cpp` (MOD — service, streaming; ONE plan / ONE commit per D-23)
 
-**Analog:** `firestarter/src/proms/memory.cpp:450-469` — the **only** existing `0xE0` emitter.
+**Analog:** `firestarter/src/proms/memory.cpp:541-560` — the **only** existing `0xE0` emitter.
 
 ```c
     handle->address += BLANK_CHECK_CHUNK_SIZE;
@@ -254,7 +254,7 @@ protocol, the budget function returns 0, and the host's `[1, MAX]` clamp then le
 handle->mem_size)`. D-04 keeps **one** meaning for `0xE0`; the host's write branch is what differs.
 
 **Copy the WARNING too, not just the call.** This site already carries BF-2's exact trap in prose
-(`memory.cpp:431-436` states it a second time at the `MSG_ERR_NOT_BLANK` emit). The existing emitter's
+(`memory.cpp:522-527` states it a second time at the `MSG_ERR_NOT_BLANK` emit). The existing emitter's
 mitigation is a *runtime* `handle->cmd` gate; BF-2's mitigation is a *compile-time* `#ifndef
 SERIAL_ON_IO` guard. Both are the same defect class — say so in the new comment and cite both sites.
 
@@ -265,8 +265,8 @@ SERIAL_ON_IO` guard. Both are the same defect class — say so in the new commen
 | `-D SERIAL_ON_IO` appears on exactly two envs (`uno`, `uno328pb`) | `platformio.ini:38`, `:55` |
 | Both mode functions are typed no-ops without it | `include/rurp_shield.h:64` (`#ifdef SERIAL_ON_IO`) |
 | `#define DEFERRED_LOG_MAX 4` / `#define DEFERRED_PARAM_MAX 8` | `src/boards/uno_rurp_shield.cpp:34-35` |
-| Silent-drop arm: `// else: buffer full (should not happen in production...)` | `src/boards/uno_rurp_shield.cpp:132` |
-| `com_mode = false` on programmer mode / `= true` on communication mode | `src/boards/uno_rurp_shield.cpp:100`, `:89` |
+| Silent-drop arm: `// else: buffer full (should not happen in production...)` | `src/boards/uno_rurp_shield.cpp:124` |
+| `com_mode = false` on programmer mode / `= true` on communication mode | `src/boards/uno_rurp_shield.cpp:97`, `:89` |
 
 **Insertion-point pattern** (`src/proms/eprom.cpp:321-333`) — the outer per-byte loop and the two
 LOOP-06 skips. Placing the emit at the top of the loop body makes cadence independent of skips:
@@ -1294,9 +1294,9 @@ Read this before quoting any CONTEXT.md or RESEARCH.md line number into a plan.
 | CONTEXT: the D-04 report-line precedent at `cli_handlers.py:616-628`; RESEARCH: `:667-677` / `:667-690` | The `click.echo` block is `:666-675`. `:616-628` is the docstring paragraph about it (also worth citing, for the D-18 write-only precedent). |
 | CONTEXT: `--read-settling`/`--read-strobe` at `:1470-1484`; RESEARCH: `:1469-1494` | Options at `:1469-1482`; handler `def dev_consistency_check` at `:1485`. **Both live inside `if _DEV_TOOLS_ENABLED:`** — the analog is a dev-gated subcommand, not a production one. |
 | CONTEXT: `write_eprom`'s `self.comm`-is-None warning at `:1620-1631` | `:1612-1634`. |
-| CONTEXT/RESEARCH: `mem_util_blank_check`'s `0xE0` emit at `memory.cpp:467` | Correct — but it is **conditional**: `if (handle->cmd != CMD_BLANK_CHECK)` at `:466`, with the programmer-mode-drop rationale at `:461-465`. Cite the gate, not just the call. |
+| CONTEXT/RESEARCH: `mem_util_blank_check`'s `0xE0` emit at `memory.cpp:558` | Correct — but it is **conditional**: `if (handle->cmd != CMD_BLANK_CHECK)` at `:466`, with the programmer-mode-drop rationale at `:461-465`. Cite the gate, not just the call. |
 | RESEARCH BF-1: firmware emits a 2-byte ack; CAP-02 absent from the v1.31 branch | **Re-verified this session** at `src/firestarter.cpp:157`: `LOG_OK_ID_U16(MSG_OK_READY, (uint16_t)DATA_BUFFER_SIZE);`. BF-1 stands. |
-| — (not stated upstream) | `eprom_params_t`'s field order is **largest-first**: `overprogram_cap_us` is the FIRST column, not `max_pulses` (`include/eprom_params.h:52-59`). The row literals at `eprom_params.cpp:49-53` are positional, so a reader assuming `max_pulses` first misreads all three rows. `sizeof == 12` is `static_assert`-pinned. |
+| — (not stated upstream) | `eprom_params_t`'s field order is **largest-first**: `overprogram_cap_us` is the FIRST column, not `max_pulses` (`include/eprom_params.h:52-59`). The row literals at `eprom_params.cpp:45-49` are positional, so a reader assuming `max_pulses` first misreads all three rows. `sizeof == 12` is `static_assert`-pinned. |
 | — (not stated upstream) | `include/eprom_params.h` gets PROGMEM via `#include "rurp_platform_compat.h"`, not `<avr/pgmspace.h>` directly. `eprom_budget.h` should do the same. |
 
 ---

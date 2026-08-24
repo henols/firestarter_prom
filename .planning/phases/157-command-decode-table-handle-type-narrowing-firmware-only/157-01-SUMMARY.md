@@ -80,7 +80,7 @@ status: complete
 - Proved the pre-existing BASE-01 size-gate red masks nothing: `check_size_baseline.py --policy
   merge05 --rebuild` fails with exactly two lines, both native case counts, no AVR flash/RAM leg.
 - Proved the reference patch does **not** apply cleanly at this position: all four
-  `git apply --check -C{0,1,2,3}` runs fail identically at `src/json_parser.c:65`, and
+  `git apply --check -C{0,1,2,3}` runs fail identically at `src/json_parser.c:76`, and
   `patch --dry-run -F3` fails hunk #3 alone while #4–#7 succeed with offsets — plan 02's
   implementation is confirmed to be a hand-port.
 - Recorded all nineteen corrections (C-1 through C-19) and all seven OD decisions (OD-1 through

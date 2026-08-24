@@ -12,7 +12,7 @@ source: /gsd-explore 2026-08-23 (devtest-report-known-but-unstated-fields.md)
 
 `firestarter_app/firestarter/chip_test.py:567` (`Plan.locked_destructive`),
 `:3905`/`:3931` (`BannerCounts.locked_steps`), and
-`firestarter_app/firestarter/diagnostic_report.py:866-870` (the JSON key).
+`firestarter_app/firestarter/diagnostic_report.py:860-864` (the JSON key).
 
 ## Problem
 
@@ -20,7 +20,7 @@ source: /gsd-explore 2026-08-23 (devtest-report-known-but-unstated-fields.md)
 `destructive=False` call would have omitted. It is populated **only** on a
 `write_scope="none"` plan.
 
-`_resolve_write_scope` (`cli_handlers.py:2456-2459`) returns **only** `"full"`
+`_resolve_write_scope` (`cli_handlers.py:2453-2456`) returns **only** `"full"`
 or `"partial"`:
 
 ```python

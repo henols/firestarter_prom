@@ -226,7 +226,7 @@ Generated `messages.c` swaps this for a single PROGMEM byte array initialized wi
 
 **Analog:** itself, lines 14-28 (`_firestarter_log_ram` / `_firestarter_log_progmem`) + lines 113-120 (weak default `rurp_log` / `rurp_log_P`).
 
-**Lines to read first:** `firestarter/src/boards/rurp_serial_utils.cpp:1-30, 113-120`.
+**Lines to read first:** `firestarter/src/boards/rurp_serial_utils.cpp:1-27, 113-120`.
 
 **Pattern to mirror — sibling-helper layout (the new `_firestarter_emit_frame` sits right next to these two text-log helpers):**
 
@@ -348,7 +348,7 @@ void rurp_log_P(PGM_P type, PGM_P msg) {
 
 ```cpp
 // (No rurp_log override in leonardo_rurp_shield.cpp — uses the weak default
-//  at rurp_serial_utils.cpp:115-119, which is just _firestarter_log_ram.)
+//  at rurp_serial_utils.cpp:113-117, which is just _firestarter_log_ram.)
 ```
 
 So `rurp_log_id` on Leonardo will use the weak default in `rurp_serial_utils.cpp` (just calls `_firestarter_emit_frame` directly — no `com_mode` gate since Leonardo's serial is a separate USB-CDC bridge, no PORTD aliasing risk).
@@ -368,7 +368,7 @@ So `rurp_log_id` on Leonardo will use the weak default in `rurp_serial_utils.cpp
 
 **Analog:** itself, lines 132-133.
 
-**Lines to read first:** `firestarter/include/rurp_shield.h:111-134`.
+**Lines to read first:** `firestarter/include/rurp_shield.h:106-129`.
 
 **Pattern to mirror — add declaration immediately after `rurp_log_P`:**
 
@@ -1045,7 +1045,7 @@ src_filter = +<proms/> +<boards/rurp_serial_utils.cpp> +<messages.c>
 
 **Gotchas:**
 - `src_filter = +<proms/>` is **load-bearing** for the dispatch test — widening it must NOT regress the dispatch test. Verify by running `pio test -e native -f "*test_dispatch*"` after the change.
-- The native env passes `-D HARDWARE_REVISION` (transitively via `${env.build_flags}` at line 16). The `#ifdef HARDWARE_REVISION` blocks in `rurp_shield.h:35-94` are active in native; `rurp_register_t` is a 16-bit field. This is fine for the new test (no register I/O involved), but document it in the test's header comment.
+- The native env passes `-D HARDWARE_REVISION` (transitively via `${env.build_flags}` at line 16). The `#ifdef HARDWARE_REVISION` blocks in `rurp_shield.h:35-89` are active in native; `rurp_register_t` is a 16-bit field. This is fine for the new test (no register I/O involved), but document it in the test's header comment.
 
 ---
 

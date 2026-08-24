@@ -118,7 +118,7 @@ that as the template.
 
 ### WR-02: `_firestarter_emit_frame` accepts arbitrary `param_count` with no overflow guard
 
-**File:** `firestarter/src/boards/rurp_serial_utils.cpp:156-188`
+**File:** `firestarter/src/boards/rurp_serial_utils.cpp:153-185`
 **Issue:** The emitter computes `uint8_t len = (uint8_t)(1 + param_count + 1)`
 without bounds-checking `param_count`. If a caller (current or future,
 via `LOG_ID_BYTES`) passes `param_count >= 254`, the length byte wraps

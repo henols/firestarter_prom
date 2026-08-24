@@ -25,7 +25,7 @@ SHA `ca3e09f1…` resolves; both `protocol_branch_inventory.json` pins (`cedc88d
 `git rev-parse HEAD:<path>` exactly, so D-04's "green throughout" invariant is **not** pre-broken;
 `size_baseline.json` holds 23954 / 24004 / 26016; the three `*_v131` env blocks are at `platformio.ini`
 :293 / :331 / :373 as cited; the warning watermarks are 1166-with-zero-headroom on native and `== 0` on
-all three AVR envs; `overprogram_factor` is `0` on all three shipped rows at `eprom_params.cpp:50-52`;
+all three AVR envs; `overprogram_factor` is `0` on all three shipped rows at `eprom_params.cpp:46-48`;
 `compare_avr_policy_merge05` is at :214, `NATIVE_ENVS` at :100, `MERGE05_UNO_CLASS_FLASH_BAND` at :107.
 Case counts are exactly 47 / 32 / 9 = 88, and the 88-vs-79 apparent conflict reconciles cleanly
 (§Finding F-01). The firmware pytest suite is **292 passed, 0 failed** right now, and D-07's `885`
@@ -56,7 +56,7 @@ new fixture and D-08's inventory rewrite in **one commit** (F-05).
 
 - **D-02:** **Evidence is ONE cold consolidated run, recorded verbatim.** Every v131 env is re-run at this phase's tip — `native_params_v131`, `native_loop_v131` (both its suites), `native_trace_v131` — alongside `native` and `native_nodevtools` at their pinned 141 cases / 17 suites. Citing the owning phases' recorded runs was rejected: no single run has ever exercised all 88 existing cases against the final tree, since Phase 141's cases have never run against 142's and 143's landed code together. A cross-phase interaction is exactly what this run exists to catch.
 
-- **D-03:** **TEST-03 flips on the pure-function proof, with the in-loop wiring recorded as an explicit non-claim.** Reversed mid-discussion once the true cost was measured. `overprogram_factor` is `0` on every shipped row (`eprom_params.cpp:50-52`, asserted by `test_loop04_no_live_row_emits_an_overprogram_pulse`), so the overprogram path is structurally unreachable on live data; `eprom_overprogram_us` is proven directly by five cases from plan 141-08. An end-to-end synthetic-row oracle would need a params-table substitution, which needs either a seventh env or a seam in `src/` — and `eprom.cpp` **and** `eprom_params.cpp` are both blob-pinned by `firestarter/tests/golden/protocol_branch_inventory.json`, with `test_params_table_has_no_second_selector` separately asserting the table is switch-free. The operator chose the honest cheap option over paying that cost during a verification phase. **The non-claim must appear in the phase record:** the arithmetic is proven; the in-loop wiring on a live row is not, because no shipped row sets the factor.
+- **D-03:** **TEST-03 flips on the pure-function proof, with the in-loop wiring recorded as an explicit non-claim.** Reversed mid-discussion once the true cost was measured. `overprogram_factor` is `0` on every shipped row (`eprom_params.cpp:46-48`, asserted by `test_loop04_no_live_row_emits_an_overprogram_pulse`), so the overprogram path is structurally unreachable on live data; `eprom_overprogram_us` is proven directly by five cases from plan 141-08. An end-to-end synthetic-row oracle would need a params-table substitution, which needs either a seventh env or a seam in `src/` — and `eprom.cpp` **and** `eprom_params.cpp` are both blob-pinned by `firestarter/tests/golden/protocol_branch_inventory.json`, with `test_params_table_has_no_second_selector` separately asserting the table is switch-free. The operator chose the honest cheap option over paying that cost during a verification phase. **The non-claim must appear in the phase record:** the arithmetic is proven; the in-loop wiring on a live row is not, because no shipped row sets the factor.
 
 - **D-04:** **No new native env, and no edit to any file under `firestarter/src/`.** D-03's reversal removes the only reason this phase had to touch a pinned source. Consequence, and it is a strong one: `eprom.cpp` and `eprom_params.cpp` keep their recorded blob SHAs (`cedc88dc…` / `5dffe841…`) all phase, so `tests/test_protocol_branch_inventory.py` and the D-13/D-18 golden stay **green throughout** — unlike Phases 141, 142 and 143, none of which could say that. A plan that finds itself needing an `src/` edit must stop and report, not absorb it.
 
@@ -153,7 +153,7 @@ the decision-coverage gate fail closed with `reason: could-not-parse`.
 |----|-------------|------------------|
 | TEST-01 | Native tests prove `0x07`, `0x08` and `0x0B` each resolve to their own table row. | F-02 candidate map: `test_each_protocol_resolves_to_its_own_distinct_row` + `test_unknown_protocol_returns_null` + `test_row_values_match_the_frozen_table` — all three exist and pass |
 | TEST-02 | Native tests prove fixed-width pulse/verify per byte and that the width does not escalate between attempts. | F-02: `test_loop01_pulse_width_never_grows_between_attempts` + 3 sibling `test_loop01_*` cases exist |
-| TEST-03 | Native tests prove the overprogram duration derives from the successful byte's pulse count and honours `overprogram_cap_us`. | F-02: five `test_loop03_*` cases exist (exact count verified); D-03's structural-unreachability premise confirmed at `eprom_params.cpp:50-52` (F-04) |
+| TEST-03 | Native tests prove the overprogram duration derives from the successful byte's pulse count and honours `overprogram_cap_us`. | F-02: five `test_loop03_*` cases exist (exact count verified); D-03's structural-unreachability premise confirmed at `eprom_params.cpp:46-48` (F-04) |
 | TEST-04 | Native tests prove max-pulse failure aborts the block, reports the address, and disables every high-voltage route. | F-02: `test_loop05_a_byte_that_misses_within_max_pulses_aborts_the_block`, `test_loop05_the_loops_own_strobes_disable_the_high_voltage_route`, `test_vpp02_x3/x4/e1` — all exist |
 | TEST-05 | Native tests prove the `0xFF`/already-matching skips and the `pulse_delay == 0` fallback. | F-02: four `test_loop06_*` exist; **C-04** — "the two fallback cases" names no existing pair; there are three `*_zero_pulse_delay_takes_the_*us_fallback` + three `*_nonzero_pulse_delay_is_left_alone` |
 | TEST-06 | Pre-change golden traces frozen, new traces authored, diff reviewed with every changed strobe attributable to a named decision — no blanket snapshot update. | F-05 (one-commit sequencing), F-06 (capture recipe verified), F-07 (segmentation design, 620+265=885 confirmed by independent parse) |
@@ -298,7 +298,7 @@ preprocessor-guarded regions. State which. See F-03 for the full parse-tolerance
 | D-15/D-22: three `*_v131` env blocks at `platformio.ini` :293 / :331 / :373 | `[env:native_trace_v131]`=293, `[env:native_params_v131]`=331, `[env:native_loop_v131]`=373 | ✅ EXACT |
 | D-23: `native`/`native_nodevtools` watermark 1166, zero headroom | `warnings.native.{native,native_nodevtools}.total_watermark` = 1166; `policy.native_rule` = `"<= total_watermark"` | ✅ EXACT |
 | D-23: all three AVR envs `== 0` | `warnings.avr.*` = `{macro_redefinition: 0, total: 0}`; `policy.avr_rule` = `"== 0"` | ✅ EXACT |
-| D-03: `overprogram_factor` is `0` on every shipped row, `eprom_params.cpp:50-52` | Rows at :50/:51/:52; 4th struct field = `0` on all three | ✅ EXACT |
+| D-03: `overprogram_factor` is `0` on every shipped row, `eprom_params.cpp:46-48` | Rows at :50/:51/:52; 4th struct field = `0` on all three | ✅ EXACT |
 | D-03: `test_loop04_no_live_row_emits_an_overprogram_pulse` exists | present in `test_loop_eprom_v131.cpp` | ✅ |
 | D-03/D-04: `test_params_table_has_no_second_selector` exists | `tests/test_protocol_branch_inventory.py:495` | ✅ |
 | D-06: `native_trace_v131` pins `millis()` to `AlwaysReturn(0)` | `test_trace_eprom_v131.cpp:92` — `When(Method(ArduinoFake(), millis)).AlwaysReturn(0)` | ✅ EXACT (see F-06 for a *second* independent reason) |
@@ -478,7 +478,7 @@ functional one.
 
 ### F-04 — D-03's structural-unreachability premise is exactly true, and the struct field is unambiguous
 
-`[VERIFIED: firestarter/src/proms/eprom_params.cpp:49-53]`
+`[VERIFIED: firestarter/src/proms/eprom_params.cpp:45-49]`
 
 ```
 static const eprom_params_t EPROM_PARAMS[] PROGMEM = {
@@ -767,7 +767,7 @@ tips. Whether that matters is a `commits_land_in:` question for D-19, not a gate
 
 ### F-10 — CAP-03 byte layout: both sides read, offsets are index-identical, and the gate's scan targets
 
-**Firmware side — authoritative pack order** `[VERIFIED: firestarter/src/firestarter.cpp:190-209, inside init_programmer_framed]`:
+**Firmware side — authoritative pack order** `[VERIFIED: firestarter/src/firestarter.cpp:185-204, inside init_programmer_framed]`:
 
 | Line | Statement | Byte(s) of `_ready` |
 |---|---|---|

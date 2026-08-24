@@ -149,7 +149,7 @@ timeout return of -5 (new code) fits cleanly into this contract.
 
 ### WR-02: Dead pre-flight check in `op_get_message` `'#'` case
 
-**File:** `firestarter/src/operation_utils.cpp:163-165`
+**File:** `firestarter/src/operation_utils.cpp:171-173`
 
 **Issue:** The check `if (rurp_communication_available() <= 0) return OP_MSG_INCOMPLETE;`
 inside the `case '#':` block (lines 163–165) can never be true. Execution reaches
@@ -180,7 +180,7 @@ case '#': {
 
 ### WR-03: Dead `else if (run_len == 254)` branch in firmware COBS encoder
 
-**File:** `firestarter/src/boards/rurp_serial_utils.cpp:260-265`
+**File:** `firestarter/src/boards/rurp_serial_utils.cpp:257-262`
 
 **Issue:** In `rurp_communication_write`, the post-loop CRC-handling block has three
 cases: `if (crc == 0x00)`, `else if (run_len == 254)`, and `else`. The middle branch

@@ -17,7 +17,7 @@ Pulse sentinel + 2nd coercion site · Human output contract (firestarter info)
 | VCC decode target & condition | Is `"4V"` a defect or a faithful decode of a test rail? Target value, condition shape, requirement hand-correction | ✓ |
 | Blast-radius proof (diff_db + goldens) | diff_db classifies by literal field names against a pinned baseline; a key rename makes all 746 chips diff unexplained | ✓ |
 | Pulse sentinel + 2nd coercion site | `pulse_duration_us: 0` conflates two states; `audit_coverage_matrix.py` has its own string parser DATA-03 does not name | ✓ |
-| Human output contract (firestarter info) | `ic_layout.py:571` renders `"5.0v"` off the coerced float; the characterization snapshot pins it | ✓ |
+| Human output contract (firestarter info) | `ic_layout.py:568` renders `"5.0v"` off the coerced float; the characterization snapshot pins it | ✓ |
 
 **User's choice:** all four.
 
@@ -142,7 +142,7 @@ no edit, satisfying criterion 4's "without any edit to the gate itself".
 | Omit the key entirely for algorithm-controlled chips | Typed absence rather than a magic `0` — but creates a 329/746 sparse key, the hard case the field-inventory golden warns about. | |
 
 **User's choice:** `0` + fatal decode fault.
-**Notes:** Recorded as CONTEXT D-08. Confirmed during discussion that `ic_layout.py:606-610`
+**Notes:** Recorded as CONTEXT D-08. Confirmed during discussion that `ic_layout.py:603-607`
 **already** omits the "Pulse delay:" row on `0`, so no display work is needed for the sentinel.
 
 ### Q2 — What happens to `audit_coverage_matrix.py`'s `parse_pulse_us`?
@@ -205,7 +205,7 @@ change is recorded in `<deferred>` as considered-and-declined, not deferred.
 | A small dedicated formatting module | Cleanest separation, but a new file for one function. | |
 
 **User's choice:** One shared helper in `database.py`.
-**Notes:** Recorded as CONTEXT D-16. Three call sites: `ic_layout.py:571`, `ic_layout.py:597`,
+**Notes:** Recorded as CONTEXT D-16. Three call sites: `ic_layout.py:568`, `ic_layout.py:597`,
 `eprom_info.py:401`.
 
 ### Q3 — Does anything need to say why VCC changed on an AT28C part?

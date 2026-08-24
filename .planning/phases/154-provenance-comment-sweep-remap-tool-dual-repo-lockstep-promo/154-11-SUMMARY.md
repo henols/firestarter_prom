@@ -254,14 +254,14 @@ Plan 08's measured effect, reproduced on the host side: stripping a narrative pr
 
 | File:line | After the strip |
 |---|---|
-| `test_chip_test_sdp_leg.py:408` | `#     D-08 names -- it is a SUBCLASS of EpromOperationError,` |
-| `test_database_conversion.py:228` | `# D-40 label-only CAN_ERASE pinning assertions` |
-| `test_decoder.py:449` | `    # D-03 / WR-01 close: MSG_INFO_HW + MSG_INFO_PHYSICAL_HW` |
-| `test_eprom_operations.py:1214` | `# D-15 / HOST-06: the 0x86 ack requirement inside` |
-| `test_firmware_install.py:125` | `# D-01 landed).` |
-| `test_py32_packaging.py:80` | `# D-15: the install doc's non-vacuity anchor -- the same` |
-| `test_py32_packaging.py:232` | `# D-15, D-13: doc-vs-constant parity gate. The install doc's` |
-| `test_write_skip_erase_0x0d.py:80` | `# D-153-05 / RESEARCH Pitfall 5 guard literal (leg 7 below): a` |
+| `test_chip_test_sdp_leg.py:409` | `#     D-08 names -- it is a SUBCLASS of EpromOperationError,` |
+| `test_database_conversion.py:229` | `# D-40 label-only CAN_ERASE pinning assertions` |
+| `test_decoder.py:450` | `    # D-03 / WR-01 close: MSG_INFO_HW + MSG_INFO_PHYSICAL_HW` |
+| `test_eprom_operations.py:1215` | `# D-15 / HOST-06: the 0x86 ack requirement inside` |
+| `test_firmware_install.py:126` | `# D-01 landed).` |
+| `test_py32_packaging.py:81` | `# D-15: the install doc's non-vacuity anchor -- the same` |
+| `test_py32_packaging.py:233` | `# D-15, D-13: doc-vs-constant parity gate. The install doc's` |
+| `test_write_skip_erase_0x0d.py:81` | `# D-153-05 / RESEARCH Pitfall 5 guard literal (leg 7 below): a` |
 
 ### D-03 retention, measured rather than asserted
 
@@ -305,7 +305,7 @@ git -C firestarter_app diff --quiet -- \
 
 | Operation | Count | Note |
 |---|---|---|
-| **Tombstone deletion** (comment describing absent code) | **0** | A measured absence, same as plan 08's finding for `fw-test`. Two candidates were read and rejected: `test_firmware_install.py:1023` and `:1255` describe tests **deliberately deleted** on the argparse→Click swap — they are deletion *records*, the reason something is absent, not comments describing code that should be there. Prefix stripped, body kept. |
+| **Tombstone deletion** (comment describing absent code) | **0** | A measured absence, same as plan 08's finding for `fw-test`. Two candidates were read and rejected: `test_firmware_install.py:1024` and `:1255` describe tests **deliberately deleted** on the argparse→Click swap — they are deletion *records*, the reason something is absent, not comments describing code that should be there. Prefix stripped, body kept. |
 | **Label-only-comment deletion** | **0** | No comment in this group reduces to connective punctuation after removing its tokens. `test_submit.py`'s seven `# Task N: ...` section headers all carry real content after the label (`sanitize_dict -- one test per leak vector`), so they are prefix strips, not deletions. |
 | **Narrative-prefix stripping (sentence/fragment kept as written)** | **63** | The whole of this plan's edit set |
 | **Abstention (recorded, not forced)** | **9** | Below |
@@ -343,7 +343,7 @@ Removing `Plan 06, Task 3)` leaves `:2159`'s `(` unclosed. `Phase 121` on `:2159
 340| # Plan 07). This is D-06/D-08's proof, not merely its argument: the GRAD-01
 ```
 
-**5. `test_dispatch_mirror.py:58`** — the token is the grammatical **subject**, and the comment is judged **not** a tombstone.
+**5. `test_dispatch_mirror.py:63`** — the token is the grammatical **subject**, and the comment is judged **not** a tombstone.
 
 ```
 58| # Phase 100 restructured the bucket table: the `.cpp` filename moved OUT of
@@ -717,7 +717,7 @@ Hard boundary #2 says a gate may pin comment text via `inspect.getsource()` or a
 | `serial_comm.py:455-581` host no-touch region (plan 09) | Untouched — that is a **package** file, outside this plan's scope entirely. `test_serial_comm.py` (the test module, edited here) is not the pinned source; `test_read_and_parse_lines_ringfence_unchanged` digests `inspect.getsource(SerialCommunicator._read_and_parse_lines)`. Module 44/44. |
 | Exact-line-number pins over `tests/` (the D6 class) | None found in the app repo. D6's `_C14_CONSUMER_SITES` census is firmware-repo-side. All 63 edits preserve line counts exactly (insertions == deletions per file), so a line-shifting pin could not have been tripped regardless. |
 
-Every edit was applied by an exact-old-line-match script (bottom-up per file, the house technique) that **refuses to run** on any mismatch — it caught one wrong indent guess in `test_consistency_check.py:544` and aborted with the actual line before anything was written.
+Every edit was applied by an exact-old-line-match script (bottom-up per file, the house technique) that **refuses to run** on any mismatch — it caught one wrong indent guess in `test_consistency_check.py:545` and aborted with the actual line before anything was written.
 
 ---
 

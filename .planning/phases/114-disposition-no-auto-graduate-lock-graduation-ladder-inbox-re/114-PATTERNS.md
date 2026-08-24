@@ -72,9 +72,9 @@ def _run_checker(env_overrides=None):
 
 **Detection markers** (D-04): `[dev test]` title marker + fenced-JSON `schema_version` (NOT labels). Title marker produced by `submit.py:build_title` (`firestarter/submit.py:141-151`); `SUBMIT_REPO = "henols/firestarter_app"` at `submit.py:53`. Detection sketch already in RESEARCH.md §"Parser detection + JSON extraction sketch" (`_FENCE = re.compile(r"```json\s*\n(.*?)\n```", re.DOTALL)`).
 
-**The JSON shape it consumes:** `DiagnosticReport.to_dict()` (`diagnostic_report.py:386-404`) → `schema_version` (marker), `db_diff` (`current_support_status`/`proposed_disposition`), `dedup_fingerprint`. `to_json_block()` (L476-478) is the exact fence written into the issue.
+**The JSON shape it consumes:** `DiagnosticReport.to_dict()` (`diagnostic_report.py:380-398`) → `schema_version` (marker), `db_diff` (`current_support_status`/`proposed_disposition`), `dedup_fingerprint`. `to_json_block()` (L476-478) is the exact fence written into the issue.
 
-**N-agreeing (D-03):** reuse `dedup_fingerprint(report)` (`diagnostic_report.py:174-199`) — read `to_dict()["dedup_fingerprint"]` from each of several issue bodies, group, count matches. Do NOT hand-roll a new hash; do NOT conflate with Phase-108 per-run N≥2 (Pitfall 5).
+**N-agreeing (D-03):** reuse `dedup_fingerprint(report)` (`diagnostic_report.py:171-196`) — read `to_dict()["dedup_fingerprint"]` from each of several issue bodies, group, count matches. Do NOT hand-roll a new hash; do NOT conflate with Phase-108 per-run N≥2 (Pitfall 5).
 
 **Untrusted-input discipline (V5):** defensive `json.loads` (catch `JSONDecodeError`, return `None`), size-bound, no `eval`/`exec`, no `shell=True` — mirror `submit.py`'s argv-list `subprocess.run([...])` discipline.
 
@@ -109,11 +109,11 @@ def _run_checker(env_overrides=None):
 **Apply to:** DISP-01 checker + its test. Fail-closed on empty scan (checker L397-403); ship a planted-violation fixture and a PASS-line-names-file assertion. Wire ONLY via pytest — NO CI YAML step (Pitfall 2; checkers are never named in `ci.yml`, they run under `pytest tests/ --cov-fail-under=70`).
 
 ### Single-source report model
-**Source:** `firestarter/diagnostic_report.py:386` (`to_dict()`)
+**Source:** `firestarter/diagnostic_report.py:380` (`to_dict()`)
 **Apply to:** any GRAD-01 field addition — add once to `to_dict()`, both renders inherit it.
 
 ### `dedup_fingerprint` as the sole agreement key
-**Source:** `firestarter/diagnostic_report.py:174-199`
+**Source:** `firestarter/diagnostic_report.py:171-196`
 **Apply to:** the parser's N-agreeing count (D-03). Reuse; never re-hash.
 
 ### Read-guard invariant (why D-02 exists)

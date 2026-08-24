@@ -196,7 +196,7 @@ before deleting it.
 asserts `"Phase 151" in preceding_text` over the raw text of
 `fw_path("src", "firestarter.cpp")` — a 1200-character lookback window above the
 `handle->cmd > CMD_IDLE && handle->cmd < CMD_READ_VPP` diagnostic-range guard
-(`test_parse_gate_admission.py:104` `_PHASE_151_LOOKBACK_CHARS`, assertion at :175).
+(`test_parse_gate_admission.py:141` `_PHASE_151_LOOKBACK_CHARS`, assertion at :175).
 
 Plan 07 stripped that exact label:
 

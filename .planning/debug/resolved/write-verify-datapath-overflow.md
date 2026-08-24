@@ -20,7 +20,7 @@ fix: "RESOLVED in firestarter bafbe8a -- Uno rurp_log_id now BUFFERS frames emit
 ## Evidence
 - Verbose verify: firmware emits `OK: Request data`; host sends a 518-byte frame
   (`#` + COBS(512 data + 1 CRC8) + 0x00); firmware returns `Data error: -2`.
-- `-2` = payload-too-large (rurp_serial_utils.cpp:149 PUSH overflow -> _drain_to_delimiter).
+- `-2` = payload-too-large (rurp_serial_utils.cpp:146 PUSH overflow -> _drain_to_delimiter).
 - DATA_BUFFER_SIZE=512 on both boards (firestarter.h default; leonardo platformio.ini line 65
   explicitly -D DATA_BUFFER_SIZE=512). Decoder commits at most DATA_BUFFER_SIZE-1 = 511 bytes.
 - Host BUFFER_SIZE=512 (constants.py); _calculate_buffer_size returns 512.
@@ -43,7 +43,7 @@ fix: "RESOLVED in firestarter bafbe8a -- Uno rurp_log_id now BUFFERS frames emit
   saved port /dev/ttyACM1 in ~/.firestarter/config.json; passes with the port cleared).
 
 ## Resolution (part 2 — verify stall): FIXED (systemic)
-CONFIRMED same com_mode-gate class: memory_verify_execute (memory.cpp:241) emits MSG_ERR_VERIFY on
+CONFIRMED same com_mode-gate class: memory_verify_execute (memory.cpp:313) emits MSG_ERR_VERIFY on
 mismatch while inside the programmer-mode op window (op_execute_function -> _execute_operation) ->
 dropped on the Uno -> host timeout. (The test chip is jittery, so a mismatch is expected.)
 

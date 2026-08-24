@@ -59,7 +59,7 @@ coverage:
     requirement: "DECODE-04"
     verification:
       - kind: other
-        ref: "grep -n 'FIELD_MASK(key_flags' src/json_parser.c => one hit, line 140; store_field's mask_policy branch inspected at src/json_parser.c:251"
+        ref: "grep -n 'FIELD_MASK(key_flags' src/json_parser.c => one hit, line 140; store_field's mask_policy branch inspected at src/json_parser.c:439"
         status: pass
     human_judgment: false
   - id: D4
@@ -149,8 +149,8 @@ grep -rn -- "->protocol" src/ include/ | wc -l
 **18 protocol-keyed dispatch sites** (17 equality comparisons + 1 `switch`) out of **20 total
 `handle->protocol` reads** in `src/`: the 18 dispatch occurrences, plus `eprom_params_for`'s three
 call sites (`eprom.cpp:85,297,341`), `eprom_block_budget_s`'s one call site (`firestarter.cpp:242`),
-the two already-cast log payloads (`not_implemented.cpp:17`, `eprom.cpp:87`), the `json_parser.c:205`
-`_Static_assert` width probe, and three comment-only lines (`eprom.cpp:502`, `json_parser.c:149`,
+the two already-cast log payloads (`not_implemented.cpp:17`, `eprom.cpp:87`), the `json_parser.c:393`
+`_Static_assert` width probe, and three comment-only lines (`eprom.cpp:502`, `json_parser.c:337`,
 `memory.cpp:140`) -- 20 distinct source lines in `src/` in total.
 
 ```

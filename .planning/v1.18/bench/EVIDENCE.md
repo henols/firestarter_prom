@@ -132,7 +132,7 @@ passing `0x07` part:
    `CTRL_VPE_ENABLE → CTRL_VPP_P1_ENABLE` rewrite (`eprom.cpp:319-326`), never
    bench-proven on a `0x08` UV part.
 2. **pin-31-as-address** — DIP `pin 31` modeled as bus line 22 (address-driven),
-   not held program-active (`database.py:141`, `memory.cpp:274`).
+   not held program-active (`database.py:141`, `memory.cpp:346`).
 
 Both verdicts (RC-1 / RC-2) are recorded in
 `evidence/97-RCA-FINDINGS.md` (D-03: each must individually carry a verdict).

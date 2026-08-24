@@ -227,7 +227,7 @@ present 473 B as available *to the allocator specifically*. `NUMBER_JSNM_TOKENS`
 
 ## 8. The pre-change defect (DEAD-02)
 
-`src/proms/memory.cpp:405-422` today:
+`src/proms/memory.cpp:498-509` today:
 
 ```c
 void mem_util_blank_check(firestarter_handle_t* handle) {
@@ -250,7 +250,7 @@ void mem_util_blank_check(firestarter_handle_t* handle) {
     }
 ```
 
-and the struct it allocates, `memory.cpp:393-395`:
+and the struct it allocates, `memory.cpp:489-460`:
 
 ```c
 typedef struct {
@@ -270,7 +270,7 @@ record its closure against this measured pre-state.
 ## 9. The "same statement" correction (was C-5, DEAD-06)
 
 ROADMAP criterion 6 and REQUIREMENTS DEAD-06 both say the surviving `is_operation_in_progress`
-assertion is set by *"the same statement"* as the allocation. `memory.cpp:408` and `:409`:
+assertion is set by *"the same statement"* as the allocation. `memory.cpp:500` and `:409`:
 
 ```c
         set_operation_in_progress(handle);                                    // :408

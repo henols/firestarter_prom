@@ -4,7 +4,7 @@ title: "Phase 44 read-timing knobs (read_settling_us, read_strobe_us) are missin
 area: firmware
 adjacent_phase: 157  # RENAMED from resolves_phase 2026-08-23 at the Phase 157 close. The field name
 # was wrong for what it meant and would have auto-closed this todo into .planning/todos/completed/
-# on `phase.complete`, burying a live defect. Phase 157 did NOT adopt it: json_parser.c:286-289 now
+# on `phase.complete`, burying a live defect. Phase 157 did NOT adopt it: json_parser.c:474-477 now
 # states in-source that the two read-timing knobs are "deliberately NOT in this reset block" and
 # that their absence "is not an oversight". Keep this as adjacency only.
 # ADJACENCY link, set 2026-08-22 at v1.33 activation: Phase 157 rewrites this exact

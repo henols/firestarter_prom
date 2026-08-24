@@ -74,7 +74,7 @@ coverage:
     requirement: "SWEEP-04"
     verification:
       - kind: integration
-        ref: "git diff -U0 -- test | grep -E '^[+-]' | grep -vE '^[+-]{3}' | grep -vcE '^[+-][[:space:]]*(//|\\*|/\\*|$)' -> 4 (the two D-04-exempt trailing-comment-on-code-line pairs at test_loop_eprom_v131.cpp:43,46), both code prefixes (#include lines) proven byte-identical"
+        ref: "git diff -U0 -- test | grep -E '^[+-]' | grep -vE '^[+-]{3}' | grep -vcE '^[+-][[:space:]]*(//|\\*|/\\*|$)' -> 4 (the two D-04-exempt trailing-comment-on-code-line pairs at test_loop_eprom_v131.cpp:44,47), both code prefixes (#include lines) proven byte-identical"
         status: pass
     human_judgment: false
   - id: D4

@@ -85,7 +85,7 @@ applying the remap, and every Phase 155–158 size reduction.
   un-stripped text** of `firestarter/src/firestarter.cpp`
   (`test_firmware_pack_order_comment_matches_the_wire_layout`, line 442). The
   CAP-01/CAP-02/CAP-03 wire-layout comment block at
-  `firestarter/src/firestarter.cpp:182-200` is therefore **no-touch**. It is a
+  `firestarter/src/firestarter.cpp:177-195` is therefore **no-touch**. It is a
   gate fixture that happens to be spelled as a comment.
 
 - **D-03: Requirement/decision IDs ARE provenance in shipped source and are stripped there — but are RETAINED in test files where the ID is the test case's traceability key.** In shipped source an ID resolves only against `.planning/`,
@@ -276,7 +276,7 @@ per-file keep/delete ratio.
   "keep, reflowed".
 - **SWEEP-02**: `CAP-0N` is exempt as cross-repo vocabulary, justified by its
   presence in shipped host source, and the both-repos exemption test is applied
-  to every token not on D-01's list. `firestarter/src/firestarter.cpp:182-200` is
+  to every token not on D-01's list. `firestarter/src/firestarter.cpp:177-195` is
   untouched, and `test_cap03_ack_layout_parity.py` is green **and** shown still
   able to fail.
 - **SWEEP-03**: Requirement/decision IDs are stripped from shipped source and
@@ -430,7 +430,7 @@ per-file keep/delete ratio.
   **DECODE-01 deletes `key_parsers[]`.** Phase 157 has no success criterion
   covering this gate, and the working-tree diff already carries
   `/* Phase-agnostic field table (replaces key_parser_t / key_parsers[]). */` at
-  `json_parser.c:65`. Phase 157's discuss step should pick this up; it is a code
+  `json_parser.c:76`. Phase 157's discuss step should pick this up; it is a code
   change, not a comment change, so it is out of Phase 154's scope. Worth adding
   as a DECODE-08 at `/gsd-discuss-phase 157`.
 - **A global citation gate.** The writeup notes none exists — the `check-claims`
@@ -456,7 +456,7 @@ every todo in the repo mentions phases and planning. Reviewed and **not** folded
 `onerom-pinout-external-corroboration-gate`, and
 `phase-44-read-timing-knobs-missing-json-parse-reset`. All are behaviour or data
 defects; this phase changes no code. The last one is worth naming: the writeup
-cites it as the exact bug class that `json_parser.c:151`'s `D-05: page_size
+cites it as the exact bug class that `json_parser.c:338`'s `D-05: page_size
 resets to 0 exactly like chip_id` comment prevents — which is *why* that comment
 is keep-and-reflow under D-01 step 3, not why the todo belongs here.
 

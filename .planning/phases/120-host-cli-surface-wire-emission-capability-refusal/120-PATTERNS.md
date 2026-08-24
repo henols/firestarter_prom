@@ -154,7 +154,7 @@ def build_flags(
 
 ### `firestarter/cli_handlers.py` → `dev sdp` handler (controller, request-response)
 
-**Analog:** `dev test`, `firestarter/cli_handlers.py:1753-1850`.
+**Analog:** `dev test`, `firestarter/cli_handlers.py:1751-1847`.
 
 **Group registration** (`:962-969`) — the `dev sdp` command hangs off this existing group; do not create a second group:
 ```python

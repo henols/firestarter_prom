@@ -85,7 +85,7 @@ this fixture exists to prove is captured at all — stated in `eprom_v131_expect
 ## 5. The three derived `bus_config` values — provenance
 
 Sourced from the host's own code path, never invented, never hand-derived. Zero-degeneracy confirmed:
-`mem_util_remap_address_bus` (`src/proms/memory.cpp:284-307`) starts with
+`mem_util_remap_address_bus` (`src/proms/memory.cpp:356-379`) starts with
 `reorg_address = config.address_mask & address`, so a zeroed `bus_config` collapses every address to 0 —
 a zero `address_mask` would be degenerate, not an identity remap. None of the three below is zero.
 
@@ -100,7 +100,7 @@ cd /workspaces/firestarter_app && python3 -c "
         print(chip, derive_row(db, chip))"
 ```
 
-Translation from `derive_row`'s dict to `bus_config_t` fields mirrors `src/json_parser.c:214-249`
+Translation from `derive_row`'s dict to `bus_config_t` fields mirrors `src/json_parser.c:401-436`
 (`parse_bus_config`) field-for-field (a `None` `rw_line`/`vpp_pin` becomes the `0xFF` sentinel;
 `static_high` becomes `static_high_mask` by OR-ing `1UL << line`; `address_lines` gets a `0xFF`
 sentinel after the last real entry):

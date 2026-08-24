@@ -69,7 +69,7 @@ every fact matches RESEARCH exactly.**
   2517:        fw_board_identity=None,
   ```
   **The provenance defect is confirmed still live on the published branch** — 2 matches, both
-  confirming `fw_board_identity` is hardcoded `None` at `cli_handlers.py:2517`. This is why the draft
+  confirming `fw_board_identity` is hardcoded `None` at `cli_handlers.py:2514`. This is why the draft
   is authored now but posted only in Plan 152-15, after Plan 152-11's merge.
 
 **Acceptance criteria for Task 1 — all confirmed:**

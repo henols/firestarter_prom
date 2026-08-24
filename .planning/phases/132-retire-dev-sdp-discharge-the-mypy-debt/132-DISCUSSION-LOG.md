@@ -41,7 +41,7 @@ table already records as an operator decision of 2026-08-03 → `FUT-MYPY-02`.
 
 **User's choice:** Shared helper now → **D-01**.
 **Notes:** Framed by a live measurement — all three honesty strings exist in exactly one production
-location (`cli_handlers.py:2218`, `:2267`, `:2316-2318`), inside the deleted span, so the deletion
+location (`cli_handlers.py:2215`, `:2267`, `:2316-2318`), inside the deleted span, so the deletion
 removes the *carrier*, not just its test.
 
 ### Where the helper lives

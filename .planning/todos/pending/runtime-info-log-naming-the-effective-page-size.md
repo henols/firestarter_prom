@@ -42,7 +42,7 @@ ID-only, with a CI drift gate against `firestarter/tools/catalog/messages.toml` 
 change there produces zero diff and is never hand-edited. The correct edit point is a new
 `[[debug.messages]]` entry appended to `firestarter/tools/catalog/messages.toml:1124` (the file's
 current tail, one `[[debug.messages]]` block per message), followed by the codegen run that
-regenerates `messages.h`. The log call site would live in `firestarter/src/proms/eeprom_28c.cpp:47`
+regenerates `messages.h`. The log call site would live in `firestarter/src/proms/eeprom_28c.cpp:43`
 (`AT28C_PAGE_SIZE_FALLBACK`), where the write session already resolves the effective per-chip
 page size.
 

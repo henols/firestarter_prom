@@ -189,7 +189,7 @@ that drives `chip_id != handle->chip_id` once with `FLAG_FORCE` clear (expect
 
 ### IN-01: `FLASH_DISABLE_WRITE_PROTECTION` is now the shared SDP-disable bus sequence for both flash and EEPROM (naming)
 
-**File:** `firestarter/include/flash_utils.h:48-55`, used at `firestarter/src/proms/eeprom_28c.cpp:106`
+**File:** `firestarter/include/flash_utils.h:48-55`, used at `firestarter/src/proms/eeprom_28c.cpp:101`
 
 **Issue:** The P7 dedup correctly deletes the duplicate `EEPROM_SDP_DISABLE` table and
 redirects eeprom28c to `FLASH_DISABLE_WRITE_PROTECTION`. The two tables were byte-identical

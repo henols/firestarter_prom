@@ -22,7 +22,7 @@ pins its one-nibble divergence from the SDP tables (Case 19).
 The GATE-03 question resolves cleanly but **not the way the criterion implies**. The datasheet's
 hardware erase path (12 V on OE / pin 22) is real — AT28C256 DS20006386B Table 6-1 confirms
 `Chip Erase: CE=VIL, OE=VH(12.0 V ±0.5), WE=VIL` — and it is *already implemented in this tree* for
-protocol `0x05` at `flash_5v_page.cpp:196-231`, which asserts `CTRL_VPE_ENABLE` and drives OE to 12 V.
+protocol `0x05` at `flash_5v_page.cpp:195-230`, which asserts `CTRL_VPE_ENABLE` and drives OE to 12 V.
 But `tools/check_dispatch.py` is a **database-and-dispatch-table** gate: its GATE-03 guard fires only on
 `handler == "configure_eprom" and pinout in no_vpp_pin_pinouts`. It cannot see a control-register write
 inside a handler body. So the gate would stay silently green even if this phase implemented the hardware
@@ -42,7 +42,7 @@ used). This is a design decision the plan must make explicitly at Wave 0, before
 
 **Primary recommendation:** three firmware edits (delete two blank-check conditionals; add one
 `case CMD_ERASE:` arm plus a RAM-neutral six-write erase emitter reusing
-`eeprom28c_emit_command_sequence`), one host one-line edit (`database.py:620`, drop `13` from the
+`eeprom28c_emit_command_sequence`), one host one-line edit (`database.py:617`, drop `13` from the
 exclusion tuple), one host comment correction, and four **test inversions that are mandatory, not
 optional** — `test_configure_memory.cpp` Case group 4 and `test_eeprom28c_sdp` Case 25 both assert
 today that `configure_eeprom28c` has no `CMD_ERASE` arm. Plus a cold triple-target re-measure and a
@@ -70,11 +70,11 @@ identity on the native case counts too.
 >
 > | what | where | state |
 > |---|---|---|
-> | pre-write blank check on `0x0D` | `firestarter/src/proms/eeprom_28c.cpp:547` — `if (!is_flag_set(FLAG_SKIP_BLANK_CHECK)) { mem_util_blank_check(handle); }` | **one conditional**, in the handler |
+> | pre-write blank check on `0x0D` | `firestarter/src/proms/eeprom_28c.cpp:517` — `if (!is_flag_set(FLAG_SKIP_BLANK_CHECK)) { mem_util_blank_check(handle); }` | **one conditional**, in the handler |
 > | same, `0x05` | `flash_5v_page.cpp` sibling | to locate |
-> | `blank` as its own step | `cli_handlers.py:856` + `eeprom_28c.cpp:226` wires `CMD_BLANK_CHECK` → `mem_util_blank_check` | **ALREADY WORKS — nothing owed** |
+> | `blank` as its own step | `cli_handlers.py:854` + `eeprom_28c.cpp:218` wires `CMD_BLANK_CHECK` → `mem_util_blank_check` | **ALREADY WORKS — nothing owed** |
 > | `erase` as its own step | no `CMD_ERASE` arm in `configure_eeprom28c`; `FLAG_CAN_ERASE` cleared for `algo 13` | **missing** |
-> | `info`'s "can be erased" row | `ic_layout.py:582` | contradicts the wire flag |
+> | `info`'s "can be erased" row | `ic_layout.py:579` | contradicts the wire flag |
 >
 > **⚠ HAZARD for whoever implements erase:** the datasheet's *hardware* path puts **12 V on OE
 > (pin 22)** on `DIP28_28C256`. That is precisely what GATE-03 / `tools/check_dispatch.py` exists to
@@ -155,12 +155,12 @@ From `.planning/REQUIREMENTS.md` § Out of Scope, and ERASE-09:
 
 | ID | Description | Research Support |
 |----|-------------|------------------|
-| **ERASE-01** | `write` performs no blank check on `0x0D`; conditional at `eeprom_28c.cpp:547` no longer gates the write path | **Line verified at 547-549.** Deleting it is behaviourally identical to today's already-shipped `write -b` path on this protocol — see F-1 and Pitfall 1 (INIT loop analysis). Only `mem_util_blank_check` sets `operation_in_progress` during write-INIT, so removal makes INIT single-shot, which is the existing `-b` behaviour. |
+| **ERASE-01** | `write` performs no blank check on `0x0D`; conditional at `eeprom_28c.cpp:517` no longer gates the write path | **Line verified at 547-549.** Deleting it is behaviourally identical to today's already-shipped `write -b` path on this protocol — see F-1 and Pitfall 1 (INIT loop analysis). Only `mem_util_blank_check` sets `operation_in_progress` during write-INIT, so removal makes INIT single-shot, which is the existing `-b` behaviour. |
 | **ERASE-02** | Same for `0x05`; sibling conditional **located in code** before change | **LOCATED: `flash_5v_page.cpp:88-90`**, byte-identical shape. Evidence of presence, not absence. F-2. |
 | **ERASE-03** | `CMD_ERASE` arm in `configure_eeprom28c`; `FLAG_CAN_ERASE` restored for `algorithm 13` at `database.py:621` | Arm shape derived from four existing sibling arms (F-3). Host edit is **line 620**, not 621 (`if algo not in (5, 13):` → `(5,)`); 621 is the `simple_flags |=` body. All 84 algorithm-13 rows gain the flag; 0 rows are ineligible (F-6). |
 | **ERASE-04** | **software 6-byte** sequence, not the 12 V-on-OE hardware path; `check_dispatch.py` not weakened/exempted/re-baselined; phase states which path and why | Sequence **verified verbatim** against Atmel AN *Software Chip Erase* Rev. 0544B-10/98 (F-4). Already in-tree as `FLASH_ERASE` (`flash_utils.h:33-40`). `check_dispatch.py` analysed in full: it is DB+dispatch-table scoped and **structurally cannot** see a handler-body control-register write (F-5) — so the phase's written statement is the *only* control here. |
-| **ERASE-05** | `blank` remains its own step — non-regression only | `cli_handlers.py:856` (`@cli.command(name="blank")`, def at 866) → `check_eprom_blank` (`eprom_operations.py:2161`) → `CMD_BLANK_CHECK` → `eeprom_28c.cpp:226-228` → `mem_util_blank_check`. Existing pinning tests named in `## Validation Architecture`. F-7. |
-| **ERASE-06** | `info`'s "can be erased" row agrees with the wire flag | **No `ic_layout.py` edit needed.** `ic_layout.py:581-585` keys on `electrical.type` only and already prints `yes (electrically erasable)` for all 84 rows. Measured today: `AT28C256 → flags=0x00` while `info` says yes. ERASE-03 makes them agree. F-8. |
+| **ERASE-05** | `blank` remains its own step — non-regression only | `cli_handlers.py:854` (`@cli.command(name="blank")`, def at 866) → `check_eprom_blank` (`eprom_operations.py:2161`) → `CMD_BLANK_CHECK` → `eeprom_28c.cpp:218-220` → `mem_util_blank_check`. Existing pinning tests named in `## Validation Architecture`. F-7. |
+| **ERASE-06** | `info`'s "can be erased" row agrees with the wire flag | **No `ic_layout.py` edit needed.** `ic_layout.py:578-582` keys on `electrical.type` only and already prints `yes (electrically erasable)` for all 84 rows. Measured today: `AT28C256 → flags=0x00` while `info` says yes. ERASE-03 makes them agree. F-8. |
 | **ERASE-07** | Stale Phase 121 D-12 code comment at `database.py:591` corrected | Comment block spans `database.py:585-616`; the false sentence is at **:589-592** (*"has no erase operation at all, so advertising FLAG_CAN_ERASE for these 84 chips is a false capability statement"*); the REVERSAL RECORD paragraph begins at :596 and its *"the 0x0D firmware path genuinely never reads FLAG_CAN_ERASE"* sentence also becomes false. F-9. |
 | **ERASE-08** | Constants lockstep; flash/RAM measured against a pre-change baseline on all three AVR targets; leonardo at ZERO MERGE-05 headroom | Full measured position in `## Don't Hand-Roll` and `## Common Pitfalls` Pitfall 3. **A new `byte_flip_t` table = +30 B RAM, and the RAM clause has 0 B headroom.** Baseline reproduced this session: leonardo 27500/2016, byte-identical to `size_baseline.json`. F-10, F-11. |
 | **ERASE-09** | Stated **software-proven and unvalidated on silicon**; no graduation, no `support_status` change, no AT28C part required | Every criterion in `## Validation Architecture` is bench-free. Two host gates already forbid `support_status` writes (`tools/check_no_community_support_status_write.py`) and over-claiming diagnostic-report text (`tools/check_diagnostic_report_claims.py`). |
@@ -174,7 +174,7 @@ From `.planning/REQUIREMENTS.md` § Out of Scope, and ERASE-09:
 | Deciding *whether* a blank check runs on a write | Firmware handler (`eeprom_28c.cpp`, `flash_5v_page.cpp`) | — | The conditional lives in the handler's `write_init`. The host has no say beyond the flag bit it emits; the policy is "no blank check on this protocol, ever", which is a protocol property, so it belongs where the protocol is implemented. |
 | Emitting the chip-erase command sequence | Firmware handler (`eeprom_28c.cpp`) | — | Bus-level byte writes at magic addresses through `handle->firestarter_set_data`. No host tier can do this. |
 | Advertising erase capability (`FLAG_CAN_ERASE`) | Host (`database.py::convert_to_programmer`) | Firmware precondition (`eprom_operations.cpp:36`) | The host owns the wire flag; the firmware's `eprom_erase` re-checks it as its refusal precondition. Both must move together or the command is refused one layer earlier. |
-| Refusing an unimplemented (cmd, protocol) cell | Firmware op layer (`operation_utils.cpp:162`, the NULL-main guard) | — | Phase 119 D-06 deliberately centralised this at one site instead of six `default:` arms. Adding a `CMD_ERASE` arm *removes* `0x0D` erase from this guard's coverage; nothing else changes. |
+| Refusing an unimplemented (cmd, protocol) cell | Firmware op layer (`operation_utils.cpp:170`, the NULL-main guard) | — | Phase 119 D-06 deliberately centralised this at one site instead of six `default:` arms. Adding a `CMD_ERASE` arm *removes* `0x0D` erase from this guard's coverage; nothing else changes. |
 | `dev test` plan derivation (which steps exist) | Host (`chip_test.py::derive_plan`) | — | Reads the wire flag. Restoring the flag changes the plan shape on all 84 rows — see Pitfall 4. |
 | `info`'s human-readable capability row | Host (`ic_layout.py::build_specifications`) | — | Derives from `electrical.type`, independent of the wire flag. This independence is exactly why ERASE-06 resolves for free. |
 | Size/RAM budget enforcement | Firmware repo tooling (`scripts/check_size_baseline.py`) | Committed baseline JSON | Manual/phase gate, **not** run by either repo's CI. |
@@ -288,7 +288,7 @@ package dependency, and must not be added to either repo's manifest for that rea
               ├── case CMD_SDP_UNLOCK :229
               ├── case CMD_SDP_LOCK   :232
               └── case CMD_ERASE      ***MISSING***  ◄── ERASE-03 NEW ARM
-                       (today: main stays NULL -> operation_utils.cpp:162
+                       (today: main stays NULL -> operation_utils.cpp:170
                         NULL-main guard -> MSG_ERR_NOT_SUPPORTED)
               ▼
         eeprom28c_write_init() :463
@@ -349,9 +349,9 @@ firestarter_app/                             (Python host)
 
 **What:** ERASE-01/ERASE-02 are pure deletions of a three-line `if` block, not a re-flagging.
 **When to use:** Both auto-erasing protocols.
-**Why this is safe, mechanically:** `mem_util_blank_check` (`memory.cpp:401-421`) is the *only* caller
+**Why this is safe, mechanically:** `mem_util_blank_check` (`memory.cpp:498-512`) is the *only* caller
 of `set_operation_in_progress` on the write-INIT path, and `_execute_operation_house_keeping_func`
-(`operation_utils.cpp:310-340`) re-invokes INIT **only** while `is_operation_in_progress(handle)` is
+(`operation_utils.cpp:318-348`) re-invokes INIT **only** while `is_operation_in_progress(handle)` is
 true. Deleting the call therefore makes INIT single-shot — which is *already* the shipped behaviour
 whenever `FLAG_SKIP_BLANK_CHECK` is set, i.e. every `write -b` run since Phase 92. Nothing new is being
 exercised.
@@ -379,7 +379,7 @@ The `0x05` twin is identical:
 ```
 
 **Do NOT** touch the four other sites — `eprom.cpp:52`, `eprom.cpp:158`, `flash_intel.cpp:128`,
-`flash_nor_unlock.cpp:105`. Those protocols do **not** auto-erase per page, and D-07's policy is
+`flash_nor_unlock.cpp:104`. Those protocols do **not** auto-erase per page, and D-07's policy is
 explicitly scoped to `0x0D` and `0x05`.
 
 ### Pattern 2: The `CMD_ERASE` arm — copy the local shape, not the neighbour's body
@@ -388,7 +388,7 @@ explicitly scoped to `0x0D` and `0x05`.
 **When to use:** Exactly once, in `configure_eeprom28c`'s existing switch.
 
 Four sibling arms exist to model on. Note that `configure_eeprom28c` assigns **no**
-`firestarter_operation_init` or `_end` before its switch, so unlike `flash_nor_unlock.cpp:60-63` the new
+`firestarter_operation_init` or `_end` before its switch, so unlike `flash_nor_unlock.cpp:59-62` the new
 arm has nothing to null:
 
 ```c
@@ -404,10 +404,10 @@ Shape precedent: `flash_5v_page.cpp:48-50` (`case CMD_ERASE: main = ...erase_exe
 
 **What the firmware does today for `CMD_ERASE` on an arm-less protocol** (asked in Q3, answered
 end-to-end): `configure_memory` (`memory.cpp:105`) calls `configure_eeprom28c`, whose switch has no
-matching case, so `firestarter_operation_main` stays `NULL`. `eprom_erase` (`eprom_operations.cpp:34-40`)
+matching case, so `firestarter_operation_main` stays `NULL`. `eprom_erase` (`eprom_operations.cpp:34-38`)
 first tests `FLAG_CAN_ERASE` — currently clear for algorithm 13, so it emits `MSG_ERR_NOT_SUPPORTED` and
 returns *before* the op layer. If the flag were set but the arm absent, Phase 119 D-06's op-layer
-NULL-main guard (`operation_utils.cpp:142-165`) would emit the *same* `MSG_ERR_NOT_SUPPORTED` id and set
+NULL-main guard (`operation_utils.cpp:148-173`) would emit the *same* `MSG_ERR_NOT_SUPPORTED` id and set
 `RESPONSE_CODE_ERROR`. Both refusals are already pinned: `test_eeprom28c_sdp.cpp` Case 24 (guard) and
 Case 25 (this exact cell, end-to-end).
 
@@ -430,7 +430,7 @@ Case 25 (this exact cell, end-to-end).
 // (AT28C256 DS20006386B Table 6-1, p11: CE=VIL, OE=VH=12.0 V +/-0.5, WE=VIL;
 // waveforms sec 6.10 p15). DIP28_28C256 pin 22 is OE, and this handler must
 // never assert a VPP/VPE control bit -- see flash_5v_page_erase_execute
-// (flash_5v_page.cpp:196-231) for what that path looks like and why it does
+// (flash_5v_page.cpp:195-230) for what that path looks like and why it does
 // not belong on a configure_eeprom28c chip.
 static void eeprom28c_erase_execute(firestarter_handle_t* handle) {
     // Same emitter the SDP sequences use (:313) -- it calls
@@ -465,7 +465,7 @@ the transposition the Atmel AN requires, and exactly what the existing SDP path 
   (`CTRL_VPE_ENABLE` + OE→12 V). It is what D-07's hazard note is about. `check_dispatch.py` would not
   catch it (F-5).
 - **Adding a `FLAG_CAN_ERASE` erase-on-write block to `eeprom28c_write_init`.** Both siblings have one
-  (`flash_5v_page.cpp:79-86`, `flash_nor_unlock.cpp:93-103`) and an executor mirroring "the sibling
+  (`flash_5v_page.cpp:78-85`, `flash_nor_unlock.cpp:92-102`) and an executor mirroring "the sibling
   pattern" will be tempted. **D-07 asks for erase as a STANDALONE step, not as part of write.** Adding
   it would make every `write` chip-erase first — a behaviour change nobody asked for, plus a 20 ms
   penalty and an SDP interaction the AN explicitly does not cover.
@@ -486,10 +486,10 @@ the transposition the Atmel AN requires, and exactly what the existing SDP path 
 
 | Problem | Don't Build | Use Instead | Why |
 |---|---|---|---|
-| Emitting a magic-address command sequence with correct bus remapping | A new emit loop, or `flash_util_byte_flipping` / `fu_flash_fast_address` | `eeprom28c_emit_command_sequence` (`eeprom_28c.cpp:313`) | It calls `rurp_set_data_output()` and routes through `handle->firestarter_set_data`, which applies `mem_util_remap_address_bus` and rewrites `CONTROL_REGISTER` on every address change. `fu_flash_fast_address` **bypasses `handle->bus_config` entirely** — that bypass was the `/WE`-inhibit defect FIX-01 fixed for 66 of 84 `0x0D` chips. Using it here would reintroduce it. |
+| Emitting a magic-address command sequence with correct bus remapping | A new emit loop, or `flash_util_byte_flipping` / `fu_flash_fast_address` | `eeprom28c_emit_command_sequence` (`eeprom_28c.cpp:292`) | It calls `rurp_set_data_output()` and routes through `handle->firestarter_set_data`, which applies `mem_util_remap_address_bus` and rewrites `CONTROL_REGISTER` on every address change. `fu_flash_fast_address` **bypasses `handle->bus_config` entirely** — that bypass was the `/WE`-inhibit defect FIX-01 fixed for 66 of 84 `0x0D` chips. Using it here would reintroduce it. |
 | Knowing the 6-byte erase code | Deriving it from the SDP tables by analogy | `flash_utils.h:33-40` `FLASH_ERASE`, corroborated by Atmel AN 0544B | The nibble difference between SDP-disable (`0x20`) and chip-erase (`0x10`) is one nibble in one byte. `test_eeprom28c_sdp` Case 19 exists **specifically** because that is a recognised hazard class in this tree. Read the table; do not retype it. |
 | Waiting for the erase to finish | A DQ7/DQ6 poll | `delay(20)` (tEC max, internally timed) | AN 0544B: "the device will internally time the erase operation so that no external clocks are required… The maximum time required to erase the whole chip is tEC (20 ms)" and "after loading the 6-byte code, **no byte loads are allowed** until the completion of the erase cycle." A poll *is* a byte load's read companion and the AN's Note 2 forbids traffic; `eeprom28c_wait_for_sdp_completion` issues reads and would be wrong here. |
-| Refusing `CMD_ERASE` on protocols that cannot do it | A `default:` arm in `configure_eeprom28c` | The existing op-layer NULL-main guard (`operation_utils.cpp:142-165`) | Phase 119 D-05/D-06 disproved the `default:`-arm mechanism: `configure_memory` pre-sets generic mains for READ/WRITE/VERIFY *before* the protocol chain, so a blanket `default:` would refuse read and verify on all 84 rows. This is written into the code as a comment at `eeprom_28c.cpp:208-220` — read it before touching the switch. |
+| Refusing `CMD_ERASE` on protocols that cannot do it | A `default:` arm in `configure_eeprom28c` | The existing op-layer NULL-main guard (`operation_utils.cpp:148-173`) | Phase 119 D-05/D-06 disproved the `default:`-arm mechanism: `configure_memory` pre-sets generic mains for READ/WRITE/VERIFY *before* the protocol chain, so a blanket `default:` would refuse read and verify on all 84 rows. This is written into the code as a comment at `eeprom_28c.cpp:208-220` — read it before touching the switch. |
 | Measuring the size delta | Reading a number out of a prior phase's prose | `rm -rf .pio/build/<env>` then exactly one `pio run -e <env>`, per target, transcribed | `size_baseline.json:meta.warm_vs_cold_correction` documents a 96-count warm/cold error that persisted through a whole milestone. Warm and cold differ. |
 | Deciding whether a size delta is admissible | Widening a band, shrinking the fix, or re-anchoring | A new named, SHA-attributed `MERGE05_*_EXEMPTION_BYTES` constant | Three phases established this exact mechanism (96 / 210+2 / 288). All three alternatives are explicitly rejected on the record in `check_size_baseline.py`'s own module docstring. |
 
@@ -530,14 +530,14 @@ is re-invoked "for every 2KB chunk of the stateful blank-check", which reads lik
 load-bearing for the loop.
 **How to avoid:** it *is* load-bearing for the loop, and that is exactly why deletion is correct and
 sufficient: with no in-progress flag ever set, `_execute_operation_house_keeping_func`
-(`operation_utils.cpp:329-331`) never returns `RETURN`, INIT completes in one pass, and the
+(`operation_utils.cpp:337-339`) never returns `RETURN`, INIT completes in one pass, and the
 `if (!is_operation_in_progress(handle))` one-time guards in the two sibling `write_init`s become
 trivially true — harmless, because they now run exactly once. This is the shipped `write -b` path.
 **Warning signs:** any new `set_operation_in_progress` call, any new `firestarter_operation_end`
 assignment, or a `MSG_INIT_DONE` frame count that changes in a golden/stream test.
 
 ### Pitfall 2: Reaching for the sibling's erase body
-**What goes wrong:** `flash_5v_page_erase_execute` (`flash_5v_page.cpp:196-231`) is 35 lines, sits in
+**What goes wrong:** `flash_5v_page_erase_execute` (`flash_5v_page.cpp:195-230`) is 35 lines, sits in
 the file the executor is *already editing for ERASE-02*, and is the only in-tree "28C-shaped erase".
 It is the **12 V-on-OE hardware path** — `CTRL_VPP_REGULATOR_ENABLE | CTRL_VPP_VPE_DROP_ENABLE |
 CTRL_VPE_ENABLE` asserted with the comment `//^OE -> 12v`.
@@ -604,7 +604,7 @@ byte-identical" is authored, and is unreachable on arrival.
    `test_case_group4_0x0d_erase_and_chip_id_null_main_devtest01` asserts `CMD_ERASE` on `0x0D` leaves
    `firestarter_operation_main` **NULL** with the message *"configure_eeprom28c has no case CMD_ERASE:
    arm"*.
-2. `firestarter/test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1390-1416` — Case 25 asserts
+2. `firestarter/test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1447-1473` — Case 25 asserts
    the same precondition **and** that `op_execute_simple_operation` yields
    `RESPONSE_CODE_ERROR` + `MSG_ERR_NOT_SUPPORTED`.
 3. `firestarter_app/tests/test_database_conversion.py:98-117` —
@@ -773,8 +773,8 @@ an edit task.**
 | Old Approach | Current Approach | When Changed | Impact |
 |---|---|---|---|
 | `write -b` implied `--skip-erase` | Decoupled; `-b` skips only the blank check | Phase 92 (`cli_handlers.py:361-368`) | **The standing memory note "`write -b` SKIPS ERASE" is STALE.** It was true pre-Phase-92. Today `-b` skips only the blank check; `--skip-erase` is an explicit opt-in with `default=False`. Do not plan around the old behaviour. |
-| Silent OK for unimplemented (cmd, protocol) cells | One generic op-layer NULL-main guard emitting `MSG_ERR_NOT_SUPPORTED` | Phase 119 D-06 / Plan 119-07 (`operation_utils.cpp:142-165`) | A `default:` arm inside `configure_eeprom28c` is a **disproven** mechanism; the comment at `eeprom_28c.cpp:208-220` says why. |
-| `FLAG_CAN_ERASE` set for `0x0D` (inert) | Cleared for algorithms 5 and 13 | Phase 121 D-12 (`database.py:620`) | This phase reverses the `13` half. The `5` half stays — its reason is a live hazard. |
+| Silent OK for unimplemented (cmd, protocol) cells | One generic op-layer NULL-main guard emitting `MSG_ERR_NOT_SUPPORTED` | Phase 119 D-06 / Plan 119-07 (`operation_utils.cpp:148-173`) | A `default:` arm inside `configure_eeprom28c` is a **disproven** mechanism; the comment at `eeprom_28c.cpp:208-220` says why. |
+| `FLAG_CAN_ERASE` set for `0x0D` (inert) | Cleared for algorithms 5 and 13 | Phase 121 D-12 (`database.py:617`) | This phase reverses the `13` half. The `5` half stays — its reason is a live hazard. |
 | Hardcoded `PAGE_SIZE 64` in the `0x0D` handler | Wire-delivered `page-size` with a validated power-of-two mask | Phase 149 (`eeprom_28c.cpp:eeprom28c_page_mask`) | Cost 210 B flash + 2 B RAM, funded as a named exemption. Sets the precedent this phase's size task follows. |
 | `flash_total` = bootloader-reduced (leonardo 28672) | `flash_total` = real 32768 on all three AVR envs | Quick task 260820-a7w, 2026-08-20 | **The linker no longer protects Caterina.** Leonardo's real cliff is 28672 B and is unguarded. `flash_free` 5268 B is misleading — 4096 B of it is Caterina's forfeited region. |
 | Protection state readable claim | `dev lock-status` reads `0x05`/`0x06` protection; `0x0D` SDP state remains **unreadable** | Phase 151 | An erase on `0x0D` still cannot be verified by reading protection state. Do not plan an oracle that depends on it. |
@@ -894,7 +894,7 @@ unreachable. Either order is safe; both must land in the same phase.
 | Req ID | Behavior | Test Type | Automated Command | File Exists? |
 |---|---|---|---|---|
 | ERASE-01 | No `mem_util_blank_check` call remains in `eeprom28c_write_init`; write-INIT is single-shot | source-scan + unit | `grep -c 'mem_util_blank_check' firestarter/src/proms/eeprom_28c.cpp` → expect **1** (the `CMD_BLANK_CHECK` arm at :227 only); plus a native case driving `CMD_WRITE` init with `FLAG_SKIP_BLANK_CHECK` **clear** and asserting zero read strobes at addresses ≥ 0 before the SDP stream | ❌ Wave 2 (new native case in `test_eeprom28c_sdp`) |
-| ERASE-01 | The `0x0D` write stream is otherwise unchanged | golden/stream | `pio test -e native -f native/avr/test_eeprom28c_sdp` — Cases 1-5 (`*_stream_matches_fixed`) must stay green **unmodified** | ✅ `test_eeprom28c_sdp.cpp:1645-1649` |
+| ERASE-01 | The `0x0D` write stream is otherwise unchanged | golden/stream | `pio test -e native -f native/avr/test_eeprom28c_sdp` — Cases 1-5 (`*_stream_matches_fixed`) must stay green **unmodified** | ✅ `test_eeprom28c_sdp.cpp:1708-1712` |
 | ERASE-02 | Sibling located and removed; `0x05` write path otherwise intact | source-scan + unit | `grep -n 'FLAG_SKIP_BLANK_CHECK' firestarter/src/proms/flash_5v_page.cpp` → expect **0 hits**; `pio test -e native -f native/avr/test_val_5v_page` | ✅ suite exists; ❌ new negative case Wave 2 |
 | ERASE-03 (fw) | `CMD_ERASE` on `0x0D` sets a non-NULL main | unit | `pio test -e native -f native/avr/test_dispatch` — Case group 4 **inverted** to `TEST_ASSERT_NOT_NULL` | ✅ exists at `test_configure_memory.cpp:310` (must invert) |
 | ERASE-03 (fw) | End-to-end: `CMD_ERASE` dispatches, emits the six-write stream, returns `RESPONSE_CODE_OK`, emits **no** `MSG_ERR_NOT_SUPPORTED` | unit/stream | `pio test -e native -f native/avr/test_eeprom28c_sdp` — Case 25 **inverted** + a new stream-equality case | ✅ exists at `:1390` (must invert) |
@@ -975,7 +975,7 @@ inapplicable, and saying so explicitly is more useful than forcing a mapping.
 |---|---|---|
 | **12 V asserted on a 5 V part's pin** (the DIP28_28C256 OE/pin-22 hazard D-07 names) | Destruction of the user's chip / shield | **This phase's central control.** Implement the software path only; assert zero `firestarter_set_control_register` calls in the erase body by brace-matched source scan. Note honestly that `check_dispatch.py`'s GATE-03 guard (`handler == "configure_eprom" and pinout in no_vpp_pin_pinouts`) operates at the DB/dispatch layer and **cannot** detect a handler-body register write — the source scan is the only real control, and `_FAMILY_VPP_INVARIANTS["configure_eeprom28c"] = (0, 6000)` is fixture-proven, not DB-checked. |
 | A capability advertised that the firmware cannot perform | Repudiation / false capability | ERASE-03/06 close the current instance in the *honest* direction (make the firmware do more), reversing Phase 121 D-12's make-the-host-claim-less. |
-| A destructive operation reporting success having done nothing (phantom erase) | Spoofing (false green) | The op-layer NULL-main guard (`operation_utils.cpp:162`) exists for exactly this. Adding the `CMD_ERASE` arm removes `0x0D` from its coverage — so the **new** case must prove the arm really emits the stream, not merely that it dispatches. `dev test`'s destructive-step gate (`chip_test.py` `locked_destructive`) still applies. |
+| A destructive operation reporting success having done nothing (phantom erase) | Spoofing (false green) | The op-layer NULL-main guard (`operation_utils.cpp:170`) exists for exactly this. Adding the `CMD_ERASE` arm removes `0x0D` from its coverage — so the **new** case must prove the arm really emits the stream, not merely that it dispatches. `dev test`'s destructive-step gate (`chip_test.py` `locked_destructive`) still applies. |
 | A user's non-blank part silently corrupted by a skipped erase | Tampering | The Phase 92 defect class. Not reintroduced: on `0x0D` the silicon auto-erases per page and the write path read-back-verifies (`eeprom28c_verify_page_readback`); on `0x05` the erase remains gated by `FLAG_CAN_ERASE`, which the host still clears for algorithm 5. |
 | Bricking the leonardo USB bootloader by linking over Caterina | Denial of service (unrecoverable without ISP) | Caterina headroom is **1172 B** and **UNGUARDED** since quick task 260820-a7w raised `flash_total` to 32768. Record it as a distinct figure from MERGE-05's 0 B. |
 | A gate that cannot fail (hollow detector) | Spoofing (false assurance) | This project's own recorded tech debt (v1.12's hollow GATE-03). Every new gate leg in this phase must be **observed** to fail on a planted violation before being trusted — the standing lesson: a pre-authored leg is not known reachable until it is seen to pass. |
@@ -1129,7 +1129,7 @@ inapplicable, and saying so explicitly is more useful than forcing a mapping.
 
 | Area | Level | Reason |
 |---|---|---|
-| Code locations & line numbers | **HIGH** | Every cited line read in-session and re-verified with a targeted `grep -n`. Two roadmap line numbers corrected: the `database.py` edit site is **620**, not 621; `cli_handlers.py:856` is the `@cli.command(name="blank")` decorator, the `def blank` is at 866. |
+| Code locations & line numbers | **HIGH** | Every cited line read in-session and re-verified with a targeted `grep -n`. Two roadmap line numbers corrected: the `database.py` edit site is **620**, not 621; `cli_handlers.py:854` is the `@cli.command(name="blank")` decorator, the `def blank` is at 866. |
 | ERASE-02's sibling existence | **HIGH** | Located at `flash_5v_page.cpp:88-90`, read, byte-identical shape to `0x0D`'s. |
 | The erase byte sequence | **HIGH** | Primary manufacturer application note read directly, corroborated by an in-tree byte-identical table and an existing test that names it. |
 | The GATE-03 analysis | **HIGH** | `check_dispatch.py` read end to end (509 lines); its GATE-03 guard, its VPP-invariant scope and its `_DB_CHECKED_VPP_INVARIANTS` narrowing are quoted from the source, including the comment that says the 5 V-family invariants are fixture-proven only. |

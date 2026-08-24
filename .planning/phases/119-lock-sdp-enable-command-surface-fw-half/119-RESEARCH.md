@@ -221,7 +221,7 @@ firestarter_app/                 # ONLY generated catalog code + gate work
 **Why the `extern` is load-bearing:** in C++ a namespace-scope `const` array has internal linkage unless a prior declaration with external linkage is visible.
 
 ```cpp
-// Source: firestarter/src/proms/eeprom_28c.cpp:108-130 (verified live)
+// Source: firestarter/src/proms/eeprom_28c.cpp:103-124 (verified live)
 extern const byte_flip_t EEPROM_SDP_DISABLE[6];
 const byte_flip_t EEPROM_SDP_DISABLE[6] = {
     {0x5555, 0xAA},
@@ -252,7 +252,7 @@ const byte_flip_t EEPROM_SDP_ENABLE[3] = {
 **Hard constraint, stated in its own source comment:** nothing bus-visible may be added inside its body beyond the `rurp_set_data_output()` call and the `set_data` loop, or the `SDP_FIXED_*` full-stream goldens break. **No `LOG_` call belongs there** — enforced by `check_no_log_in_sdp_window.py`.
 
 ```cpp
-// Source: firestarter/src/proms/eeprom_28c.cpp:222-238 (verified live)
+// Source: firestarter/src/proms/eeprom_28c.cpp:214-230 (verified live)
 static void eeprom28c_emit_command_sequence(firestarter_handle_t* handle,
                                             const byte_flip_t* sequence,
                                             size_t length) {
@@ -266,7 +266,7 @@ static void eeprom28c_emit_command_sequence(firestarter_handle_t* handle,
 ### Pattern 3: the `micros()` bracket + length-parameterised t_BLC budget (D-14's factoring target)
 
 ```cpp
-// Source: firestarter/src/proms/eeprom_28c.cpp:302, 348-375 (verified live)
+// Source: firestarter/src/proms/eeprom_28c.cpp:290, 348-375 (verified live)
 size_t sdp_seq_len = sizeof(EEPROM_SDP_DISABLE) / sizeof(EEPROM_SDP_DISABLE[0]);
 LOG_ID(MSG_INFO_SDP_UNLOCK);                       // bare LOG_ID on an INFO id
 uint32_t sdp_emit_start_us = micros();
@@ -286,7 +286,7 @@ At `sdp_seq_len == 3` the lock's budget is **300 µs**; at F-118-01's measured ~
 ### Pattern 4: the precondition-refusal entry point
 
 ```cpp
-// Source: firestarter/src/eprom_operations.cpp:34-40 (verified live)
+// Source: firestarter/src/eprom_operations.cpp:34-38 (verified live)
 bool eprom_erase(firestarter_handle_t* handle) {
     LOG_DEBUG_ID_SUB(DBG_ERASE_PROM);
     if (!is_flag_set(FLAG_CAN_ERASE)) {
@@ -370,7 +370,7 @@ So the lock's first 3 writes are the unlock's first 3 writes with only the third
 
 ### F-B — The admission guard today, and the accepted set under both configurations (Q1)
 
-`[VERIFIED: firestarter/src/firestarter.cpp:76-95, read live]`
+`[VERIFIED: firestarter/src/firestarter.cpp:73-91, read live]`
 
 ```cpp
     if (handle->cmd < CMD_READ_VPP) {                 // :76  outer, unconditional (11)
@@ -422,7 +422,7 @@ Full command enumeration `[VERIFIED: include/firestarter.h:33-49]`:
 
 ### F-B2 — ⚠ NEW: a third behaviour delta beyond cmd 7/8 — `CMD_IDLE`
 
-`[VERIFIED: firestarter.cpp:76, :226]` `cmd == 0` satisfies `cmd < CMD_READ_VPP` in **both** configurations, so a host frame `{"cmd":0}` today runs `json_parse` **and** `configure_memory`. With no `protocol` field, `handle->protocol == 0` and the chain terminates at `configure_not_implemented`, which logs `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` (0xBB) and sets `response_code = RESPONSE_CODE_ERROR` → `op_execute_function` returns false → `LOG_ERROR_ID(MSG_ERR_SETUP)`. **Two error frames.**
+`[VERIFIED: firestarter.cpp:73, :226]` `cmd == 0` satisfies `cmd < CMD_READ_VPP` in **both** configurations, so a host frame `{"cmd":0}` today runs `json_parse` **and** `configure_memory`. With no `protocol` field, `handle->protocol == 0` and the chain terminates at `configure_not_implemented`, which logs `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` (0xBB) and sets `response_code = RESPONSE_CODE_ERROR` → `op_execute_function` returns false → `LOG_ERROR_ID(MSG_ERR_SETUP)`. **Two error frames.**
 
 After `is_memory_cmd()`, cmd 0 skips `configure_memory` entirely and falls to `loop()`'s `case CMD_IDLE: break;` (`:226`) → `finished == false` → no `command_done()`, no frame at all. The handle's `cmd` is already `CMD_IDLE`, so the next `loop()` iteration re-enters the idle branch and waits — inert, but **silent where it used to error**.
 
@@ -439,7 +439,7 @@ After `is_memory_cmd()`, cmd 0 skips `configure_memory` entirely and falls to `l
 #endif
 ```
 
-Complete reference set `[VERIFIED: grep across all .h/.cpp/.c/.inc]` — five sites: the two definitions, `firestarter.cpp:79` (the guard), and `firestarter.cpp:236,239` (the two loop-switch cases, themselves inside `#ifdef DEV_TOOLS`). **Zero references anywhere in `test/`.**
+Complete reference set `[VERIFIED: grep across all .h/.cpp/.c/.inc]` — five sites: the two definitions, `firestarter.cpp:79` (the guard), and `firestarter.cpp:231,234` (the two loop-switch cases, themselves inside `#ifdef DEV_TOOLS`). **Zero references anywhere in `test/`.**
 
 **Three consequences CONTEXT.md does not record:**
 
@@ -469,7 +469,7 @@ void configure_memory(firestarter_handle_t* handle) {
 ```
 
 ```cpp
-// Source: firestarter/src/proms/eeprom_28c.cpp:132-145 (verified live)
+// Source: firestarter/src/proms/eeprom_28c.cpp:126-139 (verified live)
 void configure_eeprom28c(firestarter_handle_t* handle) {
     handle->pulse_delay = 0;
     switch (handle->cmd) {
@@ -489,7 +489,7 @@ void configure_eeprom28c(firestarter_handle_t* handle) {
 **The corrected admission point:**
 
 ```cpp
-// Source: firestarter/src/operation_utils.cpp:62-84 (verified live)
+// Source: firestarter/src/operation_utils.cpp:62-90 (verified live)
 bool op_execute_stateful_operation(bool (*callback)(firestarter_handle_t*),
                                    firestarter_handle_t* handle) {
     if (handle->firestarter_operation_main) {      // :63  ◄── the guard site
@@ -547,7 +547,7 @@ So the native binaries compile `src/proms/*.cpp`, `src/boards/rurp_serial_utils.
 
 **Consequence 1 — this RESOLVES the "where is `is_memory_cmd()` declared" discretion item.** For D-04's truth-table suite to link in either env, the predicate must be **`static inline` in a header**. `firestarter.h` (which every TU already includes) or `operation_utils.h` (which has the `static inline` precedent) both work; a definition in `firestarter.cpp` or a new `.cpp` TU does **not**, unless `build_src_filter` is widened. Recommend `firestarter.h`, immediately after the `CMD_*` block, so the predicate and the enumeration it mirrors are adjacent and reviewable together.
 
-**Consequence 2 — D-06's guard is not natively testable where it belongs.** `operation_utils.cpp:83` is not compiled natively. Two options:
+**Consequence 2 — D-06's guard is not natively testable where it belongs.** `operation_utils.cpp:89` is not compiled natively. Two options:
 
 | Option | What it gets | What it costs |
 |---|---|---|
@@ -673,9 +673,9 @@ The `configure_memory` → `reset_register_cache` ordering is load-bearing and a
 
 **Registration.** There is no dispatch *table* — the "table" is three function pointers on the handle, assigned by `configure_*`. A command is "registered" by (1) a `#define CMD_X n` in `firestarter.h`, (2) a `case CMD_X:` in `loop()`'s switch calling an `eprom_*`/`hw_*` entry point, (3) an arm in the relevant `configure_*` handler setting at least `firestarter_operation_main`. Leaving `init`/`end` unassigned is the default — `configure_memory` NULLs all three at entry (`memory.cpp:45-47`).
 
-**The existing example to copy: `CMD_ERASE`.** `[VERIFIED]` `eprom_erase` (`eprom_operations.cpp:33-40`) → `op_execute_simple_operation` → `_single_step_operation_callback` (`operation_utils.cpp:270-297`), which calls the main once and marks the operation done. `configure_eprom`/`configure_flash_*` set only a main for `CMD_ERASE` (`configure_eprom` additionally sets an `end` when the blank-check isn't skipped — the new SDP commands need neither). This is the shape, and its host-side driver is the generic `_run_state_machine`, which already works today.
+**The existing example to copy: `CMD_ERASE`.** `[VERIFIED]` `eprom_erase` (`eprom_operations.cpp:33-39`) → `op_execute_simple_operation` → `_single_step_operation_callback` (`operation_utils.cpp:278-305`), which calls the main once and marks the operation done. `configure_eprom`/`configure_flash_*` set only a main for `CMD_ERASE` (`configure_eprom` additionally sets an `end` when the blank-check isn't skipped — the new SDP commands need neither). This is the shape, and its host-side driver is the generic `_run_state_machine`, which already works today.
 
-**⚠ `op_execute_simple_operation` has one command-specific branch.** `_single_step_operation_callback` special-cases `CMD_BLANK_CHECK` to flush progress/error frames in communication mode (`operation_utils.cpp:283-292`). Harmless for cmd 9/10 — the branch simply doesn't fire — but the planner should know the wrapper is not fully generic.
+**⚠ `op_execute_simple_operation` has one command-specific branch.** `_single_step_operation_callback` special-cases `CMD_BLANK_CHECK` to flush progress/error frames in communication mode (`operation_utils.cpp:291-300`). Harmless for cmd 9/10 — the branch simply doesn't fire — but the planner should know the wrapper is not fully generic.
 
 ### F-K — LOCK-05 is already half-discharged in-tree, and criterion 5 conflicts with D-09 (Q4)
 
@@ -799,7 +799,7 @@ wire_format = "id_frame"
 
 - `AT28C_TWC_MAX_MS 10` — D-11's `delay()` argument. `[CITED: Microchip DS20006432B §6.6.2 p.10 / DS20006386B p.10, via research SUMMARY]`.
 - `AT28C_TBLC_MAX_US 100` — D-14's per-byte budget.
-- **Both are `#define`s inside `eeprom_28c.cpp` and are NOT exported via `eeprom_28c.h`.** Case 11 handles this by mirroring the value as a named local with an explicit `eeprom_28c.cpp:58` citation. The lock's budget case must do the same (`3 × 100 = 300 µs`).
+- **Both are `#define`s inside `eeprom_28c.cpp` and are NOT exported via `eeprom_28c.h`.** Case 11 handles this by mirroring the value as a named local with an explicit `eeprom_28c.cpp:54` citation. The lock's budget case must do the same (`3 × 100 = 300 µs`).
 - `eeprom_28c.h` exports **only** `configure_eeprom28c`. The new lock/unlock op functions can stay file-`static` (they're reached through the function pointers), so **no header change is needed** — good for flash and for keeping the host gates' scanned surface stable. The forward declarations go in the existing block at `:101-106`.
 
 ### F-R — Host gates that scan firmware source: the complete checklist (CORRECTION 4 item 4)
@@ -830,7 +830,7 @@ Confirms both that firmware-only additions are safe **and** the exact idiom the 
 
 ### F-T — Standalone lock/unlock wire shape (Q3, LOCK-02's honest claim)
 
-`[VERIFIED: operation_utils.cpp:62-84, 195-260, 304-312; state macros at include/operation_utils.h:24-27 — INIT 1 / MAIN 3 / END 5 / ENDED 6]` Traced by hand through the state machine for a command with `init == NULL`, `end == NULL`, `main` set, via `op_execute_simple_operation`:
+`[VERIFIED: operation_utils.cpp:62-90, 195-260, 304-312; state macros at include/operation_utils.h:24-27 — INIT 1 / MAIN 3 / END 5 / ENDED 6]` Traced by hand through the state machine for a command with `init == NULL`, `end == NULL`, `main` set, via `op_execute_simple_operation`:
 
 | Pass | `operation_state` | Host must send | Firmware emits |
 |---|---|---|---|
@@ -841,7 +841,7 @@ Confirms both that firmware-only additions are safe **and** the exact idiom the 
 
 **So: 4 host ACKs, 7 framed lines around the op's own frames, ZERO `#` data frames, ZERO `DONE` string.** The `DONE` round-trip lives only in `eprom_operations.cpp::_process_incoming_data` (the write path), which the SDP commands never enter.
 
-**This is the precise sense in which LOCK-02's claim is true.** CONTEXT.md already flags that ROADMAP criterion 1's *reason* ("`init`/`end` left NULL for both" ⇒ phases skipped) is imprecise — confirmed: the phases **run empty and each still costs an `op_wait_for_ack()` round-trip**. `op_wait_for_ack` has a **1000 ms** timeout and emits `MSG_ERR_TIMEOUT` on expiry (`operation_utils.cpp:104-117`). Phrase the criterion as *"no data payload and no `DONE` round-trip"* — that is exactly what is absent — and note that the host's generic `_run_state_machine` already supplies all four ACKs today, which is why `CMD_ERASE` works.
+**This is the precise sense in which LOCK-02's claim is true.** CONTEXT.md already flags that ROADMAP criterion 1's *reason* ("`init`/`end` left NULL for both" ⇒ phases skipped) is imprecise — confirmed: the phases **run empty and each still costs an `op_wait_for_ack()` round-trip**. `op_wait_for_ack` has a **1000 ms** timeout and emits `MSG_ERR_TIMEOUT` on expiry (`operation_utils.cpp:110-123`). Phrase the criterion as *"no data payload and no `DONE` round-trip"* — that is exactly what is absent — and note that the host's generic `_run_state_machine` already supplies all four ACKs today, which is why `CMD_ERASE` works.
 
 ### F-U — D-16's page-load measurement, framed correctly
 

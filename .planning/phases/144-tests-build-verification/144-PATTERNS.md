@@ -476,7 +476,7 @@ This is the app-repo equivalent of the firmware gates' two-half non-vacuity. Inc
 
 **What the gate must assert — both sides, read line by line this session.**
 
-Firmware side, `firestarter/src/firestarter.cpp:194-208` (via `fw_path`, read-only):
+Firmware side, `firestarter/src/firestarter.cpp:189-203` (via `fw_path`, read-only):
 
 | Byte | Statement |
 |---|---|

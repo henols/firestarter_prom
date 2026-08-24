@@ -56,11 +56,11 @@ The hard part of this phase is **verification, not implementation**, for two rea
 | ID | Description | Research Support |
 |----|-------------|------------------|
 | **DEAD-01** | No `malloc`/`free`/`realloc`/`calloc`/`__brkval` symbol; `mem_util_blank_check` was the allocator's only caller; saved address moves to a file-scope static. Measured −650 B flash, −8 B RAM. | **Call-graph confirmed** (only caller). Concrete `avr-nm` assertion command given. Symbol sizes measured: `malloc` 312 B, `free` 274 B. The `−650 B` split is **corrected** (C-2); the `−8 B` RAM is **confirmed** with a byte-exact ledger. |
-| **DEAD-02** | The unchecked dereference is closed and recorded as a **latent defect**, on a part with ~470 B free RAM given `handle` (1115 B) and jsmn tokens (512 B). | Current code quoted; the unchecked `progress_data->address = handle->address` at `memory.cpp:411` immediately after `malloc` at `:409` is **confirmed**. The RAM arithmetic is **corrected** (C-3): `1115 B` is not `handle`'s size on `uno`. The `~470 B` free-RAM conclusion is **confirmed** (473 B measured). |
+| **DEAD-02** | The unchecked dereference is closed and recorded as a **latent defect**, on a part with ~470 B free RAM given `handle` (1115 B) and jsmn tokens (512 B). | Current code quoted; the unchecked `progress_data->address = handle->address` at `memory.cpp:502` immediately after `malloc` at `:409` is **confirmed**. The RAM arithmetic is **corrected** (C-3): `1115 B` is not `handle`'s size on `uno`. The `~470 B` free-RAM conclusion is **confirmed** (473 B measured). |
 | **DEAD-03** | No 64-bit runtime helper — 8 named symbols totalling 438 B; `rurp_read_voltage_mv` alone pulled them in; its body drops 434 → ~232 B. Measured −714 B. | 438 B for those 8 **confirmed exactly**. But the image holds **11** such symbols totalling **528 B** — the list is **undercounted by 90 B** (C-4). Body measured 434 → **230 B**. Sole-caller status confirmed by call graph. |
 | **DEAD-04** | Committed oracle over a stated grid: bit-identity at `k=7850`; ≤5 mV over R2 39k–47k × bandgap 200–250 × full ADC; both guards exercised; implausible calibration returns 0. | **Every number independently reproduced.** `k = 7850` exactly; ADC 1023 / bg 225 → **35691 both ways**; worst deviation over the grid **exactly 5 mV**; bit-identity at the shipped calibration is *total* (0 mismatches over bg 1–1023, stronger than claimed). **Neither guard fires anywhere in the grid** — dedicated cases required. Grid runs in **0.44 s**. |
 | **DEAD-05** | Coverage ceiling stated, not implied: `rurp_common.cpp` compiles in no native env. | **Confirmed** at `platformio.ini:227` (and identically at `:307` for `native_nodevtools`). Full list of what native *does* compile, plus all four workaround options with evidence for why three are unavailable. |
-| **DEAD-06** | Two native suites' `h.progress_data == NULL` assertions updated with their comments plus a third stale comment at `test_val_5v_page.cpp:238`; behaviour stays pinned by `is_operation_in_progress`, set by the **same statement**; rejected alternative recorded with cost. | Assertions quoted at `test_val_5v_page.cpp:339` and `test_eeprom28c_sdp.cpp:1788`. **Proven compiler-forced** (two hard `error:` lines, suites fail to build, 172 → 127 cases). The **"same statement" claim is FALSE** (C-5) — two adjacent statements; the correct, still-sufficient formulation is given. Rejected-alternative cost measured: **2 B RAM**. |
+| **DEAD-06** | Two native suites' `h.progress_data == NULL` assertions updated with their comments plus a third stale comment at `test_val_5v_page.cpp:240`; behaviour stays pinned by `is_operation_in_progress`, set by the **same statement**; rejected alternative recorded with cost. | Assertions quoted at `test_val_5v_page.cpp:351` and `test_eeprom28c_sdp.cpp:1862`. **Proven compiler-forced** (two hard `error:` lines, suites fail to build, 172 → 127 cases). The **"same statement" claim is FALSE** (C-5) — two adjacent statements; the correct, still-sufficient formulation is given. Rejected-alternative cost measured: **2 B RAM**. |
 
 ---
 
@@ -110,7 +110,7 @@ The reference is a composite of Phases 155–158. Attribution verified against t
 
 ### The Phase 155 rows of the reference, quoted
 
-`src/boards/rurp_common.cpp` — replaces `rurp_common.cpp:64-70`:
+`src/boards/rurp_common.cpp` — replaces `rurp_common.cpp:64-64`:
 
 ```c
     uint32_t sum = r1 + r2;
@@ -342,7 +342,7 @@ This is the strongest available evidence for criteria 1 and 3 and should be re-r
 
 ### The current implementation, quoted verbatim
 
-`src/boards/rurp_common.cpp:52-71`:
+`src/boards/rurp_common.cpp:52-122`:
 
 ```c
 uint16_t rurp_read_voltage_mv() {
@@ -441,7 +441,7 @@ For case 3/4: `k = floor(1100·(r1+r2)/r2)`, so `r2` small relative to `r1+r2` d
 
 Three call sites: `src/proms/eprom.cpp:711` (`eprom_check_vpp`), `src/proms/flash_intel.cpp:37` (`flash_intel_check_vpp`), `src/hardware_operations.cpp:70` (the `CMD_READ_VPP` / `CMD_READ_VPE` reporting path — **no** validation window, it just reports integer/tenths).
 
-Both validation windows are **byte-identical and asymmetric** — `eprom.cpp:713,736` and `flash_intel.cpp:39,62`:
+Both validation windows are **byte-identical and asymmetric** — `eprom.cpp:713,718` and `flash_intel.cpp:39,44`:
 
 ```c
     if (vpp_mv > (uint32_t)handle->vpp_mv + 500) {          /* HIGH: +500 mV ABSOLUTE */
@@ -504,11 +504,11 @@ Option (a) is a **host-tier numerical model plus a source-text contract**, and e
 Building `pio test -e native` with `progress_data` removed but the tests untouched produces exactly two hard errors and **both suites fail to build**:
 
 ```
-test/native/avr/test_val_5v_page/test_val_5v_page.cpp:339:32: error: ‘firestarter_handle_t’
+test/native/avr/test_val_5v_page/test_val_5v_page.cpp:351:32: error: ‘firestarter_handle_t’
     {aka ‘struct firestarter_handle’} has no member named ‘progress_data’
   339 |     TEST_ASSERT_NULL_MESSAGE(h.progress_data,
 
-test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1788:32: error: ‘firestarter_handle_t’
+test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1862:32: error: ‘firestarter_handle_t’
     {aka ‘struct firestarter_handle’} has no member named ‘progress_data’
  1788 |     TEST_ASSERT_NULL_MESSAGE(h.progress_data,
 ```
@@ -519,7 +519,7 @@ Result: `172 test cases` → **`127 test cases: 125 succeeded`** — the two sui
 
 ### The exact current assertions
 
-`test/native/avr/test_val_5v_page/test_val_5v_page.cpp:339-342`:
+`test/native/avr/test_val_5v_page/test_val_5v_page.cpp:351-339`:
 ```c
     TEST_ASSERT_NULL_MESSAGE(h.progress_data,
         "ERASE-02: h.progress_data must be NULL -- a non-NULL value means "
@@ -528,7 +528,7 @@ Result: `172 test cases` → **`127 test cases: 125 succeeded`** — the two sui
 ```
 Surviving sibling at `:333-338` — `TEST_ASSERT_FALSE_MESSAGE(is_operation_in_progress(&h), …)`. Also surviving at `:343` (`TEST_ASSERT_NOT_EQUAL` on `RESPONSE_CODE_ERROR`) and `:346` (`assert_no_vpp_in_recording`).
 
-`test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1788-1791`:
+`test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1862-1850`:
 ```c
     TEST_ASSERT_NULL_MESSAGE(h.progress_data,
         "Case 30 (ERASE-01): h.progress_data must be NULL -- a non-NULL value means "
@@ -539,17 +539,17 @@ Surviving siblings at `:1783-1787` (`TEST_ASSERT_FALSE_MESSAGE(is_operation_in_p
 
 ### The comments requiring update — there are FOUR, not three
 
-The ROADMAP names two assertion comments plus "a third stale comment at `test_val_5v_page.cpp:238`". Measured, there are **four** comment sites in these two files that reference the removed machinery or carry a **stale `memory.cpp:NNN` pin**:
+The ROADMAP names two assertion comments plus "a third stale comment at `test_val_5v_page.cpp:240`". Measured, there are **four** comment sites in these two files that reference the removed machinery or carry a **stale `memory.cpp:NNN` pin**:
 
 | # | Site | Text | Problem |
 |---|---|---|---|
-| 1 | `test_val_5v_page.cpp:237-240` | *"BLANK_CHECK_CHUNK_SIZE (**memory.cpp:393**) -- because mem_util_blank_check sets is_operation_in_progress and **mallocs progress_data** on its FIRST call"* | Describes the malloc **and** the pin is **already stale**: `BLANK_CHECK_CHUNK_SIZE` is at **`memory.cpp:397`** today (line 393 is now the `typedef` this phase deletes). This is the ROADMAP's "line 238" comment — the block spans 237-240. |
-| 2 | `test_val_5v_page.cpp:317-325` | *"must leave is_operation_in_progress FALSE and **progress_data NULL**. mem_util_blank_check is the ONLY setter of either observable on this path (**memory.cpp:401-405**)"* | Describes the removed observable **and** the pin is **already stale**: `mem_util_blank_check` spans **`memory.cpp:405-461`**; lines 401-405 are the tail of `uint32_to_bytes` plus the function's opening brace. |
-| 3 | `test_val_5v_page.cpp:339-342` | the assertion's own message | Assertion deleted with it. |
-| 4 | `test_eeprom28c_sdp.cpp:1770-1778` | *"no blank-check **progress allocation**… `mem_util_blank_check` is the ONLY setter of is_operation_in_progress on this path (**memory.cpp:401-425**)"* | Describes the allocation **and** the pin is **already stale** (same reason as #2). |
-| 5 | `test_eeprom28c_sdp.cpp:1788-1791` | the assertion's own message | Assertion deleted with it. |
+| 1 | `test_val_5v_page.cpp:240-236` | *"BLANK_CHECK_CHUNK_SIZE (**memory.cpp:489**) -- because mem_util_blank_check sets is_operation_in_progress and **mallocs progress_data** on its FIRST call"* | Describes the malloc **and** the pin is **already stale**: `BLANK_CHECK_CHUNK_SIZE` is at **`memory.cpp:490`** today (line 393 is now the `typedef` this phase deletes). This is the ROADMAP's "line 238" comment — the block spans 237-240. |
+| 2 | `test_val_5v_page.cpp:316-318` | *"must leave is_operation_in_progress FALSE and **progress_data NULL**. mem_util_blank_check is the ONLY setter of either observable on this path (**memory.cpp:494-498**)"* | Describes the removed observable **and** the pin is **already stale**: `mem_util_blank_check` spans **`memory.cpp:498-548`**; lines 401-405 are the tail of `uint32_to_bytes` plus the function's opening brace. |
+| 3 | `test_val_5v_page.cpp:351-339` | the assertion's own message | Assertion deleted with it. |
+| 4 | `test_eeprom28c_sdp.cpp:1833-1839` | *"no blank-check **progress allocation**… `mem_util_blank_check` is the ONLY setter of is_operation_in_progress on this path (**memory.cpp:494-512**)"* | Describes the allocation **and** the pin is **already stale** (same reason as #2). |
+| 5 | `test_eeprom28c_sdp.cpp:1862-1850` | the assertion's own message | Assertion deleted with it. |
 
-**Also already stale, and NOT in this phase's scope:** `test_eeprom28c_sdp.cpp:97` cites *"`mem_util_set_address(handle, 0)`, **memory.cpp:68**"* — the call is at `memory.cpp:97` and the function at `memory.cpp:259`. Line 68 is unrelated comment text. This one does not mention `progress_data` and is a **pre-existing Phase-154 casualty for Phase 159**, not a Phase 155 obligation. Recorded so the planner does not either miss it or over-scope it.
+**Also already stale, and NOT in this phase's scope:** `test_eeprom28c_sdp.cpp:97` cites *"`mem_util_set_address(handle, 0)`, **memory.cpp:68**"* — the call is at `memory.cpp:97` and the function at `memory.cpp:327`. Line 68 is unrelated comment text. This one does not mention `progress_data` and is a **pre-existing Phase-154 casualty for Phase 159**, not a Phase 155 obligation. Recorded so the planner does not either miss it or over-scope it.
 
 **Guidance:** the plan should either (a) update the four in-scope pins to correct post-change line numbers, or (b) **delete the line numbers and name the symbol instead** — which is strictly more robust given Phases 156/157/158 will move `memory.cpp` again, and Phase 159 remaps the composite diff. Option (b) is recommended and consistent with Phase 154's own reflow-vs-delete precedent (10.7:1 reflow-to-delete ratio, 117/143 files pure 1-for-1). This is a mechanical grey area with a settled precedent — decide it, do not ask.
 
@@ -565,7 +565,7 @@ The ROADMAP names two assertion comments plus "a third stale comment at `test_va
 
 ## DEAD-02: the latent defect
 
-`src/proms/memory.cpp:405-422` today:
+`src/proms/memory.cpp:498-509` today:
 
 ```c
 void mem_util_blank_check(firestarter_handle_t* handle) {
@@ -588,7 +588,7 @@ void mem_util_blank_check(firestarter_handle_t* handle) {
     }
 ```
 
-and the struct it allocates, `memory.cpp:393-395`:
+and the struct it allocates, `memory.cpp:489-460`:
 
 ```c
 typedef struct {
@@ -707,7 +707,7 @@ The change is confined to three existing firmware source files plus two existing
   │        ┌───────────────────────────────────────────────────┴──────────┐               │
   │        ▼                                                              ▼               │
   │  ═══ PATH A: blank check ══════════════            ═══ PATH B: VPP validation ════    │
-  │  mem_util_blank_check (memory.cpp:405)             eprom_check_vpp (eprom.cpp:695)     │
+  │  mem_util_blank_check (memory.cpp:498)             eprom_check_vpp (eprom.cpp:695)     │
   │        │                                           flash_intel_check_vpp (:26)        │
   │  first call?                                              │                           │
   │   ├─yes─► set_operation_in_progress          set_control_register(hv_route_mask)      │
@@ -925,7 +925,7 @@ for t in sorted(want):
 VALUE_R1, VALUE_R2 = 270000, 44000          # include/rurp_shield.h:49-50
 
 def v64(adc, bg, r1, r2):
-    """Transcription of rurp_common.cpp:66-70 (the uint64 form being replaced)."""
+    """Transcription of rurp_common.cpp:122-64 (the uint64 form being replaced)."""
     num = adc * 1100 * (r1 + r2)
     den = bg * r2
     return (num + den // 2) // den
@@ -1064,7 +1064,7 @@ The last assertion is worth highlighting: `assert "uint64_t" not in fn` is a **c
 | **DEAD-01** | no heap symbol in any of the 3 images | image/link assertion | `avr-nm` gate over 3 ELFs (script in Code Examples) — must print `heap=0` ×3 | ❌ **Wave 0** — no symbol gate exists in this repo | Link-time truth. **Complete** for this claim. |
 | **DEAD-01** | `mem_util_blank_check` was the only caller | disassembly attribution | `avr-objdump -d` + attribution script, run against the **pre-change** ELF | ❌ **Wave 0** (before-figure capture) | Must be captured **before** the change; unrecoverable after. |
 | **DEAD-01** | −650 B / −8 B RAM claim | size measurement | `pio run -e {uno,uno328pb,leonardo}`, diff vs pre-change | ✅ existing command | **−8 B RAM confirmed exactly.** Flash split **corrected** (C-2); quote the −1366 total. |
-| **DEAD-02** | the unchecked deref is gone; recorded as a latent defect | source diff + phase record | `git diff` shows `memory.cpp:409-411` removed; no `malloc` remains | ✅ (subsumed by DEAD-01's gate) | **Documentation obligation, not a test.** The *record* is the deliverable. RAM figures must use the corrected C-3 arithmetic. |
+| **DEAD-02** | the unchecked deref is gone; recorded as a latent defect | source diff + phase record | `git diff` shows `memory.cpp:502-500` removed; no `malloc` remains | ✅ (subsumed by DEAD-01's gate) | **Documentation obligation, not a test.** The *record* is the deliverable. RAM figures must use the corrected C-3 arithmetic. |
 | **DEAD-03** | no 64-bit runtime symbol in any of the 3 images | image/link assertion | `avr-nm` gate, **11 symbols** not 8 (C-4) — must print `64bit=0` ×3 | ❌ **Wave 0** | Link-time truth. **Complete.** |
 | **DEAD-03** | `rurp_read_voltage_mv` alone pulled them in; body 434 → ~232 B | disassembly + `avr-nm --print-size` | pre-change attribution + `avr-nm --print-size \| grep read_voltage_mv` | ❌ **Wave 0** | Measured **434 → 230 B**. |
 | **DEAD-03** | no `uint64_t` reappears in that function | source contract | pytest assertion `"uint64_t" not in fn` | ❌ **Wave 0** | Cheap CI-resident regression guard; complements the ELF gate. |
@@ -1124,7 +1124,7 @@ The last assertion is worth highlighting: `assert "uint64_t" not in fn` is a **c
 | V2 Authentication | no | No auth surface; local USB serial, no identity. |
 | V3 Session Management | no | No sessions. The `operation_state` bit is a single-command state machine, not a session. |
 | V4 Access Control | no | Unchanged. Command admission (`rurp_pinmap_refuses`, `is_memory_cmd`) is untouched. |
-| **V5 Input Validation** | **yes** | **Directly relevant and improved.** `r1`/`r2` arrive over the wire (`json_parser.c:337,341` `extract_long("r1"/"r2")`) into EEPROM, then feed this arithmetic. Today an adversarial or corrupt calibration produces a 64-bit product that cannot overflow but *can* truncate the `uint16_t` return silently. The reformulation adds **two explicit range guards** (`r1+r2 <= 3900000`, `k <= 4194303`) that **fail closed to 0** — the same sentinel the existing `r2 == 0` / `bandgap == 0` check already uses at `rurp_common.cpp:62`. **This is a net input-validation improvement, and should be recorded as one.** |
+| **V5 Input Validation** | **yes** | **Directly relevant and improved.** `r1`/`r2` arrive over the wire (`json_parser.c:514,518` `extract_long("r1"/"r2")`) into EEPROM, then feed this arithmetic. Today an adversarial or corrupt calibration produces a 64-bit product that cannot overflow but *can* truncate the `uint16_t` return silently. The reformulation adds **two explicit range guards** (`r1+r2 <= 3900000`, `k <= 4194303`) that **fail closed to 0** — the same sentinel the existing `r2 == 0` / `bandgap == 0` check already uses at `rurp_common.cpp:62`. **This is a net input-validation improvement, and should be recorded as one.** |
 | **V6 Cryptography** | no | None involved. **Never hand-roll** — not applicable, nothing cryptographic here. |
 | **V7 Error handling / logging** | **yes** | Unchanged, and must stay so: `MSG_ERR_NOT_BLANK`, `MSG_DATA_PROGRESS`, `MSG_WARN_VPP_LOW`, `MSG_ERR_VPP_HIGH` payloads and severities are all outside the edited hunks. A plan must verify no `LOG_*` line moves. |
 | **V10 Malicious code** | **yes** (low) | Zero new dependencies; nothing downloaded; nothing generated. See Package Legitimacy Audit. |
@@ -1212,14 +1212,14 @@ The last assertion is worth highlighting: `assert "uint64_t" not in fn` is a **c
 ### Primary (HIGH confidence — read in this session)
 
 - `firestarter/platformio.ini` — `:16` default_envs; `:227`, `:307` build_src_filter; `:239-241` messages.c precedent; `:281-286`, `:449-462`, `:509-520`, `:560-570` the no-CI-coverage and F-138-05 KeyError constraints.
-- `firestarter/src/boards/rurp_common.cpp:1-72` — the function, quoted in full.
-- `firestarter/src/proms/memory.cpp:390-460` — the typedef and `mem_util_blank_check`, quoted.
-- `firestarter/include/firestarter.h:206-230` — the handle struct.
+- `firestarter/src/boards/rurp_common.cpp:1-123` — the function, quoted in full.
+- `firestarter/src/proms/memory.cpp:458-547` — the typedef and `mem_util_blank_check`, quoted.
+- `firestarter/include/firestarter.h:206-234` — the handle struct.
 - `firestarter/include/operation_utils.h:41-51` — `set_/clear_/is_operation_in_progress` (the C-5 evidence).
 - `firestarter/include/rurp_shield.h:49-50` — `VALUE_R1` / `VALUE_R2`; `firestarter/src/rurp_config_utils.cpp:38-39`.
 - `firestarter/include/json_parser.h:17` — `NUMBER_JSNM_TOKENS 64`; `firestarter/src/firestarter.cpp:33` — `handle` is a global.
-- `firestarter/src/proms/eprom.cpp:695-756`, `firestarter/src/proms/flash_intel.cpp:26-70`, `firestarter/src/hardware_operations.cpp:55-90` — the three consumers and both validation windows.
-- `firestarter/test/native/avr/test_val_5v_page/test_val_5v_page.cpp:225-350`; `…/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:97, 1745-1797`.
+- `firestarter/src/proms/eprom.cpp:695-722`, `firestarter/src/proms/flash_intel.cpp:26-44`, `firestarter/src/hardware_operations.cpp:55-90` — the three consumers and both validation windows.
+- `firestarter/test/native/avr/test_val_5v_page/test_val_5v_page.cpp:225-358`; `…/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:97, 1745-1797`.
 - `firestarter/scripts/check_size_baseline.py:146, 476-477, 680-745`; `firestarter/scripts/baseline/size_baseline.json` (meta, avr_targets, native_envs).
 - `firestarter/tests/test_flash_path_record_sync.py:252-263, 874-882, 1205-1250`; `firestarter/tests/test_check_size_baseline.py:13-135, 190-280`; `firestarter/tests/test_write_path_source_contract_v131.py:149-300`.
 - `firestarter/.github/workflows/build.yml:142,155,157-161`; `beta-build.yml:122,128,130-134` — the three CI legs.

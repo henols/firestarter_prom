@@ -29,12 +29,12 @@ VALIDATION.md calls the id-capture facility "the plan's biggest shape risk". **I
 
 | New/Modified File | Role | Data Flow | Closest Analog | Match Quality |
 |---|---|---|---|---|
-| `src/proms/memory.cpp` (+2 helpers) | firmware service (shared memory-utility layer) | transform + emit | `mem_util_split_delay` / `mem_util_delay_us` at `src/proms/memory.cpp:237-256` — same file, same `mem_util_*` family, same "small pure helper hoisted out of duplicated call sites" motive | **exact** |
+| `src/proms/memory.cpp` (+2 helpers) | firmware service (shared memory-utility layer) | transform + emit | `mem_util_split_delay` / `mem_util_delay_us` at `src/proms/memory.cpp:305-324` — same file, same `mem_util_*` family, same "small pure helper hoisted out of duplicated call sites" motive | **exact** |
 | `include/memory_utils.h` (+2 decls) | header / contract | declaration only | `memory_verify_execute` decl at `include/memory_utils.h:29` (a decl added *specifically* to de-duplicate a byte-identical copy — this phase's exact motive) | **exact** |
 | `src/proms/eprom.cpp` (2 VPP + 1 chip-ID block) | protocol handler | request-response | `src/proms/flash_intel.cpp` twin blocks; and `eprom.cpp:481-510`'s own precedent of replacing a byte-identical fork with a shared call | **exact** |
 | `src/proms/flash_intel.cpp` (2 VPP + 1 chip-ID block) | protocol handler | request-response | `src/proms/eprom.cpp` twin blocks | **exact** |
 | `src/proms/flash_utils.cpp` (1 chip-ID block + 1 `#include`) | protocol utility | request-response | `src/proms/flash_intel.cpp:14` (already has `#include "memory_utils.h"`) | **exact** |
-| `src/proms/eeprom_28c.cpp` (1 chip-ID block, redundant casts) | protocol handler | request-response | `src/proms/flash_utils.cpp:103` (the cast-free twin) | **exact** |
+| `src/proms/eeprom_28c.cpp` (1 chip-ID block, redundant casts) | protocol handler | request-response | `src/proms/flash_utils.cpp:104` (the cast-free twin) | **exact** |
 | `src/eprom_operations.cpp` (9 `!` dropped, 3 comment lines) | command wrapper layer | event-driven (loop polarity) | the file's own 9 sites are each other's analog; `eprom_erase:37` / `eprom_check_chip_id:46` are the **do-not-touch** analogs | **exact** |
 | `src/operation_utils.cpp` (6 returns) | op engine | state machine (INIT→MAIN→END) | no analog needed — the 6 sites are enumerated verbatim in RESEARCH §DEDUP-04 | **exact (research-supplied)** |
 | `include/operation_utils.h:71,85` (2 `@return` docs) | header / contract | doc | each other | **exact** |
@@ -50,7 +50,7 @@ VALIDATION.md calls the id-capture facility "the plan's biggest shape risk". **I
 
 ### `src/proms/memory.cpp` — the two new helpers (service, transform + emit)
 
-**Primary analog — house style for a small `mem_util_*` helper** (`src/proms/memory.cpp:237-256`, read verbatim):
+**Primary analog — house style for a small `mem_util_*` helper** (`src/proms/memory.cpp:305-324`, read verbatim):
 
 ```c
 void mem_util_split_delay(uint32_t us, uint32_t* out_ms, uint16_t* out_us) {
@@ -98,7 +98,7 @@ void mem_util_report_voltage(firestarter_handle_t* handle, uint16_t measured_mv,
 
 **🚩 ONE defect in that comment: "24 of the firmware's 30 `__udivmodhi4` call sites" — the total is 31 at `adf1a31`, not 30 (RESEARCH C-2). Copy the code character-for-character; rewrite `30` to `31` in the comment.** The derived "24" is confirmed correct and stays.
 
-**⚠ `uint16_t measured_mv` / `uint16_t expected_mv` are LOAD-BEARING and must not be "improved".** Both operands at all four call sites are `uint16_t` (`eprom.cpp:711`, `flash_intel.cpp:36`, `firestarter.h:213`), so `(x + 50)` promotes to 16-bit `unsigned int` on AVR (`sizeof(int) == 2`) and `/1000` compiles to `__udivmodhi4`. Widening to `uint32_t` swaps in `__udivmodsi4`, erases the −426 B, and changes the wrap point above 65485 mV. The `(uint32_t)` casts that *do* appear — `vpp_mv > (uint32_t)handle->vpp_mv + 500` — are at the **comparison** sites, outside the extracted block, and must stay exactly where they are.
+**⚠ `uint16_t measured_mv` / `uint16_t expected_mv` are LOAD-BEARING and must not be "improved".** Both operands at all four call sites are `uint16_t` (`eprom.cpp:711`, `flash_intel.cpp:36`, `firestarter.h:214`), so `(x + 50)` promotes to 16-bit `unsigned int` on AVR (`sizeof(int) == 2`) and `/1000` compiles to `__udivmodhi4`. Widening to `uint32_t` swaps in `__udivmodsi4`, erases the −426 B, and changes the wrap point above 65485 mV. The `(uint32_t)` casts that *do* appear — `vpp_mv > (uint32_t)handle->vpp_mv + 500` — are at the **comparison** sites, outside the extracted block, and must stay exactly where they are.
 
 The chip-ID helper (same ref, immediately below) is quoted verbatim in RESEARCH §Architecture Patterns Pattern 1 and its comment needs no correction. Note its structural asymmetry: it derives **both** id and `response_code` from one `warn_only` bool (transposition-proof on one axis); `mem_util_report_voltage` takes them as **two independent parameters** (transposable). That asymmetry is DEDUP-03's whole subject.
 
@@ -137,7 +137,7 @@ void mem_util_report_chip_id(firestarter_handle_t* handle, uint16_t actual, bool
 
 ### `src/proms/eprom.cpp` / `flash_intel.cpp` — the four VPP blocks (protocol handler, request-response)
 
-**The block being extracted, quoted verbatim from `src/proms/eprom.cpp:713-743`** (this is the shape the planner will see four times; `flash_intel.cpp:39-77` is byte-identical in its packing):
+**The block being extracted, quoted verbatim from `src/proms/eprom.cpp:713-718`** (this is the shape the planner will see four times; `flash_intel.cpp:39-44` is byte-identical in its packing):
 
 ```c
     if (vpp_mv > (uint32_t)handle->vpp_mv + 500) {
@@ -180,14 +180,14 @@ Under-voltage arm collapses to one call with `(MSG_WARN_VPP_LOW, RESPONSE_CODE_W
 
 **Fences (all verified in the tree):**
 - ⚠ `flash_intel.cpp`'s two blocks are lexically inside `static void flash_intel_check_vpp(firestarter_handle_t*)` at `:26`, **not** `flash_intel_write_init` (C-1). Confirmed by reading `:26-80`.
-- The trailing `handle->firestarter_set_control_register(handle, EPROM_HV_ALL_OFF_MASK, 0);` at `eprom.cpp:754` is the VPP-03 shared composite clear guarded by `tests/test_hv_routing_source_contract_v142.py`. **Do not disturb it, `eprom_hv_route_mask`, or the `LOG_DEBUG_ID_SUB_U16(DBG_CHECKING_VPP_VOLTAGE, ...)` line.**
+- The trailing `handle->firestarter_set_control_register(handle, EPROM_HV_ALL_OFF_MASK, 0);` at `eprom.cpp:720` is the VPP-03 shared composite clear guarded by `tests/test_hv_routing_source_contract_v142.py`. **Do not disturb it, `eprom_hv_route_mask`, or the `LOG_DEBUG_ID_SUB_U16(DBG_CHECKING_VPP_VOLTAGE, ...)` line.**
 - `LOG_ID_BYTES` with a runtime id is safe — `include/logging_id.h:39-40` is a plain function call, and `:105`/`:119` prove `LOG_WARN_ID_BYTES` and `LOG_ERROR_ID_BYTES` are the *same* alias. Severity rides entirely in the id.
 
 ---
 
 ### `src/proms/flash_utils.cpp` / `eeprom_28c.cpp` / `eprom.cpp` — the four chip-ID blocks (protocol handler / utility)
 
-**Cast-free canonical form, `src/proms/flash_utils.cpp:103-119` (Site A — copy this shape):**
+**Cast-free canonical form, `src/proms/flash_utils.cpp:104-107` (Site A — copy this shape):**
 
 ```c
 void flash_util_check_chip_id_execute(firestarter_handle_t* handle) {
@@ -203,7 +203,7 @@ void flash_util_check_chip_id_execute(firestarter_handle_t* handle) {
 }
 ```
 
-**Site C's divergence, `src/proms/eeprom_28c.cpp:291-306` — redundant casts + a superfluous brace level, both provable no-ops:**
+**Site C's divergence, `src/proms/eeprom_28c.cpp:292-290` — redundant casts + a superfluous brace level, both provable no-ops:**
 
 ```c
     if (chip_id != handle->chip_id) {
@@ -213,9 +213,9 @@ void flash_util_check_chip_id_execute(firestarter_handle_t* handle) {
             _b[2] = (uint8_t)(((uint16_t)handle->chip_id >> 8) & 0xFF);
 ```
 
-`chip_id` is `uint16_t` (`eeprom_28c.cpp:288`) and `handle->chip_id` is `uint16_t` (`firestarter.h:218`). Drop both.
+`chip_id` is `uint16_t` (`eeprom_28c.cpp:288`) and `handle->chip_id` is `uint16_t` (`firestarter.h:223`). Drop both.
 
-**Site D's divergence — `src/proms/eprom.cpp:795-812` keys severity on a PARAMETER, not the flag:**
+**Site D's divergence — `src/proms/eprom.cpp:768-772` keys severity on a PARAMETER, not the flag:**
 
 ```c
 void eprom_internal_check_chip_id(firestarter_handle_t* handle, uint8_t error_code) {
@@ -259,9 +259,9 @@ bool eprom_erase(firestarter_handle_t* handle) {
 
 Delete `:65-67` (and re-terminate `:64`'s sentence). **Deleting `:57-67` wholesale destroys LOCK-01/LOCK-02 rationale unrelated to the boolean convention.**
 
-**Honest framing the plan must adopt:** `op_execute_stateful_operation`'s site 4 becomes `return !callback(handle);` because the three callbacks keep their own documented "returns true on success/continue, false on error" convention (`eprom_operations.cpp:87`, read live). **The `!` moves from 9 sites to 1; it is not eliminated.** Say that, not "the inversion is gone".
+**Honest framing the plan must adopt:** `op_execute_stateful_operation`'s site 4 becomes `return !callback(handle);` because the three callbacks keep their own documented "returns true on success/continue, false on error" convention (`eprom_operations.cpp:84`, read live). **The `!` moves from 9 sites to 1; it is not eliminated.** Say that, not "the inversion is gone".
 
-**Comment blast radius, all six locations verified live:** `eprom_operations.cpp:65-67` (delete 3), `operation_utils.cpp:92-94` (the D-06 mega-comment's mechanism narrative — "Every `eprom_*` caller inverts that return"), `operation_utils.cpp:~155` ("every `eprom_*` caller **still** inverts it" — read at `:155-156`), `include/operation_utils.h:71` and `:85` (both read `@return true if the operation is still ongoing ... false when fully completed` — invert both), and `test_eeprom28c_sdp.cpp:1411` + `:1492` (both quote `return !op_execute_...` as the contract under test — read live at `:1409-1412` and `:1491-1493`).
+**Comment blast radius, all six locations verified live:** `eprom_operations.cpp:65-63` (delete 3), `operation_utils.cpp:98-100` (the D-06 mega-comment's mechanism narrative — "Every `eprom_*` caller inverts that return"), `operation_utils.cpp:~155` ("every `eprom_*` caller **still** inverts it" — read at `:155-156`), `include/operation_utils.h:71` and `:85` (both read `@return true if the operation is still ongoing ... false when fully completed` — invert both), and `test_eeprom28c_sdp.cpp:1469` + `:1492` (both quote `return !op_execute_...` as the contract under test — read live at `:1409-1412` and `:1491-1493`).
 
 ---
 
@@ -540,7 +540,7 @@ Then `## 1. Git anchors` as a `| Field | Value |` table (`FW_PRE_SHA`, branch, `
 ## Shared Patterns
 
 ### Extract the shared MECHANISM, parameterise the divergent POLICY
-**Source:** `src/proms/memory.cpp:237-256` (`mem_util_split_delay`/`mem_util_delay_us`) and `include/memory_utils.h:19-29` (`memory_verify_execute`).
+**Source:** `src/proms/memory.cpp:305-324` (`mem_util_split_delay`/`mem_util_delay_us`) and `include/memory_utils.h:19-29` (`memory_verify_execute`).
 **Apply to:** both new helpers, all eight call sites.
 The packing and the emit are shared; severity stays at the call site (`msg_id` + `response_code`, or `warn_only`). This is what makes the change de-duplication rather than behaviour change.
 
@@ -560,7 +560,7 @@ A plain function call, so a runtime `uint8_t msg_id` is safe; identical expansio
 **Apply to:** all plans. `messages.h` is codegen-generated from meta's `tools/catalog/messages.toml`; **zero catalog edits, zero `codegen.py` runs.** I found no reason this phase would need a new id — it is de-duplication, and both payload widths (8 and 4) and all five ids are preserved exactly.
 
 ### Non-vacuity is mandatory, in every register
-**Sources:** `test_write_path_source_contract_v131.py:641-669` (pytest), `test_check_no_heap_or_64bit_symbols.py:321-349` (fixture), `test_vpp_eprom_v131.cpp:740-756` (native control), `test_eeprom28c_sdp.cpp:966-982` (native anti-hollow re-drive), `test_vpp_eprom_v131.cpp:679-681` (`saw_earlier_set` — "otherwise the assertion is vacuously true of a register that was never energised at all").
+**Sources:** `test_write_path_source_contract_v131.py:641-669` (pytest), `test_check_no_heap_or_64bit_symbols.py:321-349` (fixture), `test_vpp_eprom_v131.cpp:740-837` (native control), `test_eeprom28c_sdp.cpp:1023-1039` (native anti-hollow re-drive), `test_vpp_eprom_v131.cpp:679-681` (`saw_earlier_set` — "otherwise the assertion is vacuously true of a register that was never energised at all").
 **Apply to:** every new assertion and every new gate leg in this phase. Every one of these five is quotable in a plan.
 
 ### Unity assertion idiom
@@ -573,7 +573,7 @@ A plain function call, so a runtime `uint8_t msg_id` is safe; identical expansio
 - Hand-editing `protocol_branch_inventory.json` — its own `how_to_update` forbids it.
 - Folding `is_flag_set(FLAG_FORCE)` into `mem_util_report_chip_id`.
 - Widening the voltage helper's parameters to `uint32_t`.
-- Deleting `eprom_operations.cpp:57-67` wholesale (C-6).
+- Deleting `eprom_operations.cpp:57-63` wholesale (C-6).
 - Adding a **new** case to `native` / `native_nodevtools` (`compare_native` asserts `cases == 172` exactly).
 - Adding a strong `rurp_log_id` override to `test_eeprom28c_sdp/host_stubs.cpp` (see the A4 finding).
 - Running `pytest tests/` on a dirty tree — 4 modules assert repo porcelain and several read `git rev-parse HEAD:<path>`. **Commit, then run.**

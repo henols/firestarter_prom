@@ -53,7 +53,7 @@ on Rev 2.
 
 ### CR-01: Rev-2 PGM hold-LOW is masked by the CTRL_ADDRESS_LINE_18 / CTRL_VPP_P1_ENABLE physical-bit alias
 
-**File:** `firestarter/src/proms/memory.cpp:311-319`
+**File:** `firestarter/src/proms/memory.cpp:383-391`
 **Issue:**
 The gated fix reads the CONTROL register and clears `CTRL_ADDRESS_LINE_18`:
 
@@ -85,7 +85,7 @@ ctrl_reg |= data & CTRL_ADDRESS_LINE_18 ? CTRL_ADDRESS_LINE_18_REV2 : 0; // 0x08
 ```
 
 with `CTRL_ADDRESS_LINE_18_REV2 == CTRL_VPP_P1_ENABLE_REV2 == 0x08`
-(`include/rurp_pinout.h:128`). The physical pin-31 line therefore resolves to
+(`include/rurp_pinout.h:127`). The physical pin-31 line therefore resolves to
 `physical[0x08] = logical_P1 OR logical_A18`. Because logical P1 is held HIGH
 throughout programming, clearing logical A18 changes nothing on the physical
 pin — pin 31 stays at VIH, not the intended VIL. The fix that is supposed to
@@ -93,12 +93,12 @@ hold PGM LOW across the CE pulse is a **physical no-op on the exact hardware it
 targets**.
 
 This is exactly the bit-aliasing hazard the code's own comments are aware of
-(`memory.cpp:295`, `RC1_DIP32_27C020` rationale, RC-98B test) — but those
+(`memory.cpp:367`, `RC1_DIP32_27C020` rationale, RC-98B test) — but those
 treat the alias only as a reason to *gate out* 512K parts (D-04), and miss that
 the same alias also *defeats the assert* for the in-scope ≤256K parts whenever
 P1-as-VPP is active (which is always, during a 0x08 32-pin program pulse).
 
-The comment block (`memory.cpp:298-303`, HIGH-1 caveat) pre-excuses a Phase-99
+The comment block (`memory.cpp:370-375`, HIGH-1 caveat) pre-excuses a Phase-99
 "0 bits at addr 0" result as "consistent with the analysis," which could cause
 a genuine still-broken result to be dismissed.
 
@@ -178,7 +178,7 @@ under a rule that does not explain it.
 
 ### WR-04: Firmware gate omits the `using_p1_as_vpp` precondition, risking a stray PGM write on non-P1 0x08 32-pin configs
 
-**File:** `firestarter/src/proms/memory.cpp:311`
+**File:** `firestarter/src/proms/memory.cpp:383`
 **Issue:**
 The gate is `handle->protocol == 0x08 && handle->pins == 32 && handle->mem_size
 <= 262144`. It does not check `using_p1_as_vpp(handle)` or that the chip is
@@ -216,7 +216,7 @@ file's diagnostic style) so a decode failure is visible.
 
 ### IN-01: `uint32_to_bytes` has a stale-pos bug (pre-existing, in a reviewed file)
 
-**File:** `firestarter/src/proms/memory.cpp:379-384`
+**File:** `firestarter/src/proms/memory.cpp:451-456`
 **Issue:**
 `uint32_to_bytes` writes `buffer[pos]` then `buffer[pos++]` three times: the
 first two stores both target the same index (`buffer[pos]` then `buffer[pos++]`
@@ -230,7 +230,7 @@ buffer[pos+2]=...>>8; buffer[pos+3]=...;` or `for` over the four shifts.
 
 ### IN-02: Magic boundary constant 262144 duplicated across three files without a shared symbol
 
-**File:** `firestarter_app/tools/build_db.py:292`, `firestarter/src/proms/memory.cpp:311`, `firestarter_app/tools/diff_db.py` (implicit via DIP32_27C020)
+**File:** `firestarter_app/tools/build_db.py:292`, `firestarter/src/proms/memory.cpp:383`, `firestarter_app/tools/diff_db.py` (implicit via DIP32_27C020)
 **Issue:**
 The ≤256K size gate (`262144`) is hand-written in both the host pinout arm and
 the firmware branch. These must stay in lockstep (a divergence is a

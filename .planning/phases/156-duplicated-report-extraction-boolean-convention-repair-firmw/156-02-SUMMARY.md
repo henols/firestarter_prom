@@ -123,7 +123,7 @@ None from the plan's substantive instructions. One self-corrected authoring slip
 ### Task 1 -- under-voltage severity pairing (eprom.cpp + flash_intel.cpp)
 
 - **Worktree:** `/tmp/probe156a/firestarter` (created at `adf1a31`, removed and pruned afterward)
-- **Substitution applied:** in both `src/proms/eprom.cpp:752` and `src/proms/flash_intel.cpp:78`, replaced `handle->response_code = RESPONSE_CODE_WARNING;` with `handle->response_code = RESPONSE_CODE_ERROR;` immediately after the `LOG_WARN_ID_BYTES(MSG_WARN_VPP_LOW, _b, 8);` call (the `(MSG_WARN_VPP_LOW, RESPONSE_CODE_WARNING)` pair, transposed toward ERROR).
+- **Substitution applied:** in both `src/proms/eprom.cpp:720` and `src/proms/flash_intel.cpp:46`, replaced `handle->response_code = RESPONSE_CODE_WARNING;` with `handle->response_code = RESPONSE_CODE_ERROR;` immediately after the `LOG_WARN_ID_BYTES(MSG_WARN_VPP_LOW, _b, 8);` call (the `(MSG_WARN_VPP_LOW, RESPONSE_CODE_WARNING)` pair, transposed toward ERROR).
 - **Result:** `pio test -e native_loop_v131` reported `83 test cases: 2 failed, 80 succeeded` (a stray `SIGINT` after the failures truncated the run summary line, but both failures were captured before it). Both new cases failed:
   - `test_vpp04_e_undervoltage_warning_pairing_fires_by_id_with_payload_shape: Expected 2 Was 0. an injected 12349 mV reading (setpoint 13000, boundary 12350) must warn with RESPONSE_CODE_WARNING`
   - `test_vpp04_f_flash_intel_undervoltage_warning_pairing: Expected 2 Was 0. an injected 11399 mV reading (setpoint 12000, boundary 11400) must warn with RESPONSE_CODE_WARNING`

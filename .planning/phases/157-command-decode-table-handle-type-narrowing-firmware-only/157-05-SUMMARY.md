@@ -117,8 +117,8 @@ Command: `pio test -e native -f "*test_read_timing*"` in `/tmp/157-c-probe/fires
 test/native/avr/test_read_timing/test_read_timing_params.cpp:331: test_read_settling_us_parsed_from_json	[PASSED]
 test/native/avr/test_read_timing/test_read_timing_params.cpp:332: test_read_strobe_us_parsed_from_json	[PASSED]
 test/native/avr/test_read_timing/test_read_timing_params.cpp:333: test_read_timing_fields_default_zero_when_absent	[PASSED]
-test/native/avr/test_read_timing/test_read_timing_params.cpp:127: test_read_settling_us_capped_at_max: Expected 1000 Was 9999. read_settling_us must clamp to EXACTLY READ_TIMING_MAX_US -- T-44-01's mitigation for an absurd JSON value reaching delayMicroseconds() in the read loop; an equality, not an upper bound, because 0 passes an upper bound and 0 is this knob's own loaded value ("no settling delay")	[FAILED]
-test/native/avr/test_read_timing/test_read_timing_params.cpp:144: test_read_strobe_us_capped_at_max: Expected 1000 Was 9999. read_strobe_us must clamp to EXACTLY READ_TIMING_MAX_US -- T-44-01's mitigation for an absurd JSON value reaching delayMicroseconds() in the read loop; an equality, not an upper bound, because 0 passes an upper bound and 0 is this knob's own loaded value ("use the firmware default of 3 microseconds")	[FAILED]
+test/native/avr/test_read_timing/test_read_timing_params.cpp:161: test_read_settling_us_capped_at_max: Expected 1000 Was 9999. read_settling_us must clamp to EXACTLY READ_TIMING_MAX_US -- T-44-01's mitigation for an absurd JSON value reaching delayMicroseconds() in the read loop; an equality, not an upper bound, because 0 passes an upper bound and 0 is this knob's own loaded value ("no settling delay")	[FAILED]
+test/native/avr/test_read_timing/test_read_timing_params.cpp:178: test_read_strobe_us_capped_at_max: Expected 1000 Was 9999. read_strobe_us must clamp to EXACTLY READ_TIMING_MAX_US -- T-44-01's mitigation for an absurd JSON value reaching delayMicroseconds() in the read loop; an equality, not an upper bound, because 0 passes an upper bound and 0 is this knob's own loaded value ("use the firmware default of 3 microseconds")	[FAILED]
 test/native/avr/test_read_timing/test_read_timing_params.cpp:336: test_page_size_parsed_from_json	[PASSED]
 test/native/avr/test_read_timing/test_read_timing_params.cpp:337: test_page_size_defaults_zero_when_absent	[PASSED]
 test/native/avr/test_read_timing/test_read_timing_params.cpp:338: test_page_size_resets_between_two_parses_on_the_same_handle	[PASSED]
@@ -144,8 +144,8 @@ Command: same suite, after reverting Probe C1's row edit (`git checkout -- src/j
 test/native/avr/test_read_timing/test_read_timing_params.cpp:331: test_read_settling_us_parsed_from_json	[PASSED]
 test/native/avr/test_read_timing/test_read_timing_params.cpp:332: test_read_strobe_us_parsed_from_json	[PASSED]
 test/native/avr/test_read_timing/test_read_timing_params.cpp:333: test_read_timing_fields_default_zero_when_absent	[PASSED]
-test/native/avr/test_read_timing/test_read_timing_params.cpp:127: test_read_settling_us_capped_at_max: Expected 1000 Was 0. read_settling_us must clamp to EXACTLY READ_TIMING_MAX_US -- ... ("no settling delay")	[FAILED]
-test/native/avr/test_read_timing/test_read_timing_params.cpp:144: test_read_strobe_us_capped_at_max: Expected 1000 Was 0. read_strobe_us must clamp to EXACTLY READ_TIMING_MAX_US -- ... ("use the firmware default of 3 microseconds")	[FAILED]
+test/native/avr/test_read_timing/test_read_timing_params.cpp:161: test_read_settling_us_capped_at_max: Expected 1000 Was 0. read_settling_us must clamp to EXACTLY READ_TIMING_MAX_US -- ... ("no settling delay")	[FAILED]
+test/native/avr/test_read_timing/test_read_timing_params.cpp:178: test_read_strobe_us_capped_at_max: Expected 1000 Was 0. read_strobe_us must clamp to EXACTLY READ_TIMING_MAX_US -- ... ("use the firmware default of 3 microseconds")	[FAILED]
 test/native/avr/test_read_timing/test_read_timing_params.cpp:336: test_page_size_parsed_from_json	[PASSED]
 ... (remaining nine pre-existing/plan-04 cases all PASSED) ...
 ============ 16 test cases: 2 failed, 13 succeeded in 00:00:00.572 ============
@@ -157,7 +157,7 @@ Result: **both cap cases FAIL with observed value `0`**, exactly the required ou
 
 ```
 test/native/avr/test_read_timing/test_read_timing_params.cpp:331: test_read_settling_us_capped_at_max	[PASSED]
-test/native/avr/test_read_timing/test_read_timing_params.cpp:141: test_read_strobe_us_capped_at_max: Expected 1000 Was 0. ...	[FAILED]
+test/native/avr/test_read_timing/test_read_timing_params.cpp:175: test_read_strobe_us_capped_at_max: Expected 1000 Was 0. ...	[FAILED]
 ============ 16 test cases: 1 failed, 14 succeeded in 00:00:02.056 ============
 ```
 

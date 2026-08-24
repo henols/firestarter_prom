@@ -27,7 +27,7 @@ In [ic_layout.py:169-184](../../../firestarter_app/firestarter/ic_layout.py#L169
 3. **Delete the dead `_get_rev2_2_jumper_settings_data`** method
    ([ic_layout.py:186-199](../../../firestarter_app/firestarter/ic_layout.py#L186-L199))
    and its commented-out call site
-   ([ic_layout.py:659](../../../firestarter_app/firestarter/ic_layout.py#L659)) —
+   ([ic_layout.py:656](../../../firestarter_app/firestarter/ic_layout.py#L659)) —
    it invents a phantom "JP5" that does not exist on the hardware.
 
 ## Acceptance

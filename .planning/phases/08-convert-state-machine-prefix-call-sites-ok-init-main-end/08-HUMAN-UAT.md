@@ -22,7 +22,7 @@ reason: |
   with NO literal `INIT:`/`MAIN:`/`END:` text prefixes; bootstrap `OK: FW: 3.0.0b8:leonardo` shown. The
   SC#2 *protocol* assertion is satisfied.
   END-TO-END WRITE DOES NOT COMPLETE — but the cause is OUT OF PHASE-08 SCOPE: firmware aborts during the
-  write MAIN phase with MSG_ERR_EMPTY_INPUT (0xA4). Per firmware src/firestarter.cpp:191-194 this code is
+  write MAIN phase with MSG_ERR_EMPTY_INPUT (0xA4). Per firmware src/firestarter.cpp:186-189 this code is
   OVERLOADED ("CRC mismatch, COBS violation, overflow, or read underrun" — dedicated MSG_ERR_BAD_FRAME
   deferred), so this is a write-data-chunk COBS/CRC framing fault, not literally empty input. Reproduced
   across 3 file sizes (100 B, 37 KB, 64 KB) on matched b8/b8 → not a version issue. Regression vs the

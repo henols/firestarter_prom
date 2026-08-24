@@ -135,7 +135,7 @@ class FrameVector(NamedTuple):
 
 Plain `class X(NamedTuple)` with annotated fields; no `total=`, no defaults, no `dataclasses`.
 
-**Sanitising precedent for D-07** (`cli_handlers.py:2162-2176`) — copy the *shape*
+**Sanitising precedent for D-07** (`cli_handlers.py:2159-2173`) — copy the *shape*
 (char-by-char allow-list loop), **never the character class** (it maps `:` → `_`, which would mangle
 `"3.0.0b19:leonardo"`):
 
@@ -903,7 +903,7 @@ doubles would silently accept.
 
 **Source:** `diagnostic_report.py:85` (`NOT_MEASURED = "not measured"  # D-03: honest fallback,
 never a false 0`) and the correct `is not None` guard already in the skill script at `:340`.
-**Anti-source:** `str(ac[...])` at `diagnostic_report.py:517-518` and
+**Anti-source:** `str(ac[...])` at `diagnostic_report.py:511-512` and
 `auto.get("host_version") or "?"` at the skill script `:185`.
 **Apply to:** all three render surfaces. Branch on `is None`; never `str()`, never `or`.
 

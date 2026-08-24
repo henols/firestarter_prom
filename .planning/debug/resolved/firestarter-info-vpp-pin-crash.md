@@ -48,7 +48,7 @@ DATA_END
 
 ## Initial Evidence
 
-- Crash site: `ic_layout.py:396` in `_generate_pin_names_for_display`:
+- Crash site: `ic_layout.py:394` in `_generate_pin_names_for_display`:
   `pin_map_details["vpp-pin"] <= pin_count` — LHS is a `list`, RHS is an `int`.
 - The Phase 57 `check_dispatch.py` GATE-03 guard (plan 57-02) treats `vpp-pin` as a
   pinout field and loads `pinouts.json`; that work touched the *dispatch* reader, not

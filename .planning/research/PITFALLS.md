@@ -176,12 +176,12 @@ Phase 121 Plan 02, RESEARCH C-5 / "Pitfall 1a": `_MULTI_RUN_OPS` had **zero refe
 ### P-04 (CRITICAL): `SKIPPED` and `NA` both map to exit code **0** — six routes to a green run with no oracle
 
 **What goes wrong:**
-`cli_handlers.py:1865-1871`:
+`cli_handlers.py:1862-1868`:
 ```python
 _VERDICT_EXIT_CODES = {VERDICT_OK: 0, VERDICT_NA: 0, VERDICT_SKIPPED: 0,
                        VERDICT_MARGINAL: 2, VERDICT_BAD: 1}
 ```
-and `dev_test`'s contract (`cli_handlers.py:2094`): *"0 if every step is OK/NA/SKIPPED, 2 if any step is marginal (and none BAD), 1 if any step is BAD"*, computed as `max(...)`. **Any path that turns the oracle step into SKIPPED or NA yields `firestarter dev test <chip>` → exit 0**, and a community member reports "PASS".
+and `dev_test`'s contract (`cli_handlers.py:2091`): *"0 if every step is OK/NA/SKIPPED, 2 if any step is marginal (and none BAD), 1 if any step is BAD"*, computed as `max(...)`. **Any path that turns the oracle step into SKIPPED or NA yields `firestarter dev test <chip>` → exit 0**, and a community member reports "PASS".
 
 Every route in the current code:
 
@@ -192,7 +192,7 @@ Every route in the current code:
 | R3 | **`resolve_chip` refusal** — `_resolve_or_none` maps `ChipNotImplementedError`/`ChipNotFoundError` → `SKIPPED` (`:696-706`) | support-status refusal on the chip | oracle `SKIPPED` → 0 |
 | R4 | **`step.supported is False`** → `_skip_result(..., verdict=VERDICT_NA)` (`:781`) | a `sdp_capability()` REFUSE, or a mis-keyed applicability predicate | oracle `NA` → 0 |
 | R5 | **`write_scope="none"`** — `derive_plan` structurally OMITS write/verify/erase from `Plan.steps` and puts them on `locked_destructive`; *"run_plan has no code path to iterate them"* (`:405-409`) | if the SDP steps are added outside the `write_execute` branch, you get lock-with-no-baseline-and-no-unlock; if inside, they vanish silently | either a hazard (P-13) or an invisible omission |
-| R6 | **Empty `results`** — `if not results: sys.exit(0)` (`cli_handlers.py:2190`) | a `derive_plan` failure returning an empty plan | exit 0 with nothing run |
+| R6 | **Empty `results`** — `if not results: sys.exit(0)` (`cli_handlers.py:2187`) | a `derive_plan` failure returning an empty plan | exit 0 with nothing run |
 
 And a seventh, subtler one:
 
@@ -215,7 +215,7 @@ And a seventh, subtler one:
 **Warning signs:**
 - The phase's tests assert `result.exit_code == 0` on a happy path and nothing else.
 - No test mocks a chip-ID mismatch alongside the SDP leg.
-- The report's Markdown table (`cli_handlers.py:2169-2175`) is the only place the SDP steps appear.
+- The report's Markdown table (`cli_handlers.py:2166-2172`) is the only place the SDP steps appear.
 
 **Where it bit before:**
 Phase 114.1 exists *solely* because absent-chip handling was wrong, and its fix's real assertion was `read_hardware_revision_value.assert_not_called()`, not the exit code (`tests/test_dev_test_cmd.py:576-598`). Recorded in memory as *"dev test absent-chip false-green trap — exit-code-only tests lie"*.
@@ -317,7 +317,7 @@ The general class is documented in this repo as *"App gates scan FIRMWARE source
 ### P-08 (MEDIUM): The always-writes notice under-describes the run, and its test does not check content
 
 **What goes wrong:**
-`_ALWAYS_WRITES_NOTICE` (`cli_handlers.py:2045-2052`) currently promises:
+`_ALWAYS_WRITES_NOTICE` (`cli_handlers.py:2042-2049`) currently promises:
 
 > *"Every write/verify/erase step runs TWICE per invocation, so most chips receive the full device written twice"*
 
@@ -630,7 +630,7 @@ Enumerated. Grepped this session; the surprising result is how *little* is in th
 | 3 | **`tests/test_dev_sdp_cmd.py`** | 558 lines, 4 honesty tests | P-16 | `git mv` |
 | 4 | **`COMMAND_SDP_UNLOCK`/`COMMAND_SDP_LOCK` and their `COMMAND_NAMES` entries** | `constants.py:72-73`, dereferenced at `eprom_operations.py:301` and `:377` | **a missing `COMMAND_NAMES` entry is a `KeyError` at operation setup, not a cosmetic gap.** An over-eager "remove the SDP constants" cleanup breaks `write`'s auto-unlock and `--sdp-relock` too | a test that dereferences `COMMAND_NAMES[COMMAND_SDP_LOCK]` and `[COMMAND_SDP_UNLOCK]` and asserts non-empty. Trivial and permanent. |
 | 5 | **`sdp_capability.py` in full** | now serves three consumers: `write`'s D-04 auto-set, the new leg, `--sdp-relock` | deleting or narrowing it breaks all three | the count/parity gate from P-10 |
-| 6 | **`shell_complete=_complete_eprom` registrations** | `cli_handlers.py:2197` | a user's cached shell completion still offers `dev sdp` after upgrade | not fixable host-side; mention in release notes |
+| 6 | **`shell_complete=_complete_eprom` registrations** | `cli_handlers.py:2194` | a user's cached shell completion still offers `dev sdp` after upgrade | not fixable host-side; mention in release notes |
 | 7 | **The gh#12 reply** (`122-GH12-COMMENT.md:15`), **published 2026-07-30** | GitHub, `henols/firestarter_prom` | a one-day-old public instruction becomes wrong; and gh#12's ask is *reworded*, not answered | the owed follow-up, **behind operator wording review**, stating the substitution honestly and not letting "now provable" become "now proven" (P-12) |
 | 8 | **b14 app release notes** (`122-RELEASE-NOTES-app.md:12,22`), same date | GitHub release | names a command that no longer exists in the next beta | a "Removed" section in the next release notes naming the replacement paths explicitly |
 | 9 | **PyPI `--pre` installs of `3.0.0b14`/`3.0.0b15`** | live | `firestarter dev sdp` starts erroring for anyone who upgrades | Click's own "No such command" is adequate *if* the release notes carry the mapping. Consider a one-release deprecation shim that errors with the replacement instruction — but note it would then need 999.15 channel classification, which is exactly the diff the deletion is meant to shrink. **Recommend: clean deletion + release-notes mapping.** |

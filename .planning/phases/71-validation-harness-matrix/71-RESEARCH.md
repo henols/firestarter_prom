@@ -498,7 +498,7 @@ The Tier-2 tests do not require real serial I/O — they validate that the host 
 
 ### Where it lands
 
-`cli_handlers.py` — new `@dev.command(name="validate-family")` alongside the existing four dev subcommands (`dev read`, `dev reg`, `dev addr`, `dev consistency-check`). [VERIFIED: cli_handlers.py:904-1044]
+`cli_handlers.py` — new `@dev.command(name="validate-family")` alongside the existing four dev subcommands (`dev read`, `dev reg`, `dev addr`, `dev consistency-check`). [VERIFIED: cli_handlers.py:902-1042]
 
 ### Composition — reuse not re-implement
 
@@ -686,7 +686,7 @@ For `non_supported_dispatchable` to become non-hollow, the condition should be: 
 
 **What goes wrong:** `cli_handlers.py` is in the mypy strict island (Phase 42 D-06). A new `dev validate-family` subcommand that uses untyped intermediate values fails the mypy gate.
 **Why it happens:** The CI gate runs `mypy` strict on 8 modules including `cli_handlers.py`. [VERIFIED: firestarter_app/CLAUDE.md]
-**How to avoid:** Type-annotate the new handler fully. The `@map_typed_errors` decorator is already present on other dev subcommands and must be applied here too (pattern: `cli_handlers.py:925-926`).
+**How to avoid:** Type-annotate the new handler fully. The `@map_typed_errors` decorator is already present on other dev subcommands and must be applied here too (pattern: `cli_handlers.py:923-924`).
 
 ### Pitfall 6: VPP-invariant threshold for "no VPP" families
 

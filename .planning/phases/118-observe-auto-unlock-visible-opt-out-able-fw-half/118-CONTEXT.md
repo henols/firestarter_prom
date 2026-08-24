@@ -71,7 +71,7 @@ measurement of **the emitter**, never evidence about AT28C silicon — see
   operation-level warning for the unprotected case where the skip is harmless. Preserves Phase
   117's D-05: nothing in the SDP path writes `handle->response_code`. Precedent for the severity:
   `MSG_WARN_FL4_BOOT_BLOCK_LOCKED`. Rejected: the `MSG_INFO_SKIPPING_ERASE` INFO shape
-  (`flash_5v_page.cpp:71`) — `write -b` silently skipping erase is the footgun v1.16 Phase 92 had
+  (`flash_5v_page.cpp:70`) — `write -b` silently skipping erase is the footgun v1.16 Phase 92 had
   to fix; rejected: also setting `response_code = RESPONSE_CODE_WARNING` — breaks D-05 and warns
   on every skip regardless of whether it mattered.
 
@@ -345,7 +345,7 @@ writes already run far under budget.
   `LOG_ID` / `LOG_ID_U32` are the unconditional forms. There are **zero** existing unconditional
   emissions of an INFO-band id; D-01 creates the first.
 - **`ctrl_flags` is `uint32_t`** (`firestarter.h:96`) and `get_flags` uses `extract_long`
-  (`json_parser.c:284-285`) — `FLAG_SKIP_SDP_UNLOCK = 0x100` works on the wire with **no** parser
+  (`json_parser.c:471-472`) — `FLAG_SKIP_SDP_UNLOCK = 0x100` works on the wire with **no** parser
   or struct change.
 - **The host FLAG parity test is non-exhaustive** — eight hardcoded literals, `FW_ABSENT` skipif
   (`test_revision_constants_parity.py:123-144`). A firmware-only ninth flag does not trip it.
@@ -369,7 +369,7 @@ writes already run far under budget.
   `SDP_FIXED_*` full-stream equality breaks.
 - **`AT28C_TWC_MAX_MS`'s comment (`eeprom_28c.cpp:35-42`) already forward-declares this phase's
   constant** and draws the t_BLC-vs-t_WC distinction. Extend that comment block; do not restate it.
-- **`MSG_INFO_SKIPPING_ERASE` / `_MEM`** (`flash_5v_page.cpp:71`, `flash_nor_unlock.cpp:87`) — the
+- **`MSG_INFO_SKIPPING_ERASE` / `_MEM`** (`flash_5v_page.cpp:70`, `flash_nor_unlock.cpp:86`) — the
   two-separate-ids precedent behind D-04, and the shape D-02 deliberately upgrades to WARN.
 - **`test_case8_completion_poll_preserves_prior_severity`** — already in the suite, already
   enforcing D-05. Any new SDP-path `response_code` write fails it automatically.

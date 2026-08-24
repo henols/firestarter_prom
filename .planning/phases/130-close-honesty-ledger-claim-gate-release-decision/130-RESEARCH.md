@@ -492,7 +492,7 @@ scan.
 | **R-3** | branches are 27 commits behind `beta` | `notes:20-24` (table, 5×), `notes:29`, `notes:132`; `ROADMAP.md:2468` (needle quote) | ✗ | append-only SUPERSEDED section per D-05; ROADMAP:2468 is self-reference (C-8) |
 | **R-4** | the 72 commits "include the whole v1.22 milestone" | **NONE** | — | already-corrected phrasing everywhere; record as no-op. **Hollow phrase-table entry risk** — nothing to detect |
 | **R-5** | host branch has 44 unit tests | `ROADMAP.md:34` (*"44 new unit tests"*) | ✓ (line 34 carries `⚠ SUPERSEDED`) | discharged by CLOSE-03's line-34 collapse |
-| **R-6** | `cli_handlers.py:821` holds the board list | `notes:96` | ✗ | SUPERSEDED section (correct: `:932`) |
+| **R-6** | `cli_handlers.py:819` holds the board list | `notes:96` | ✗ | SUPERSEDED section (correct: `:932`) |
 | **R-7** | `.hex` extension hardcoded / needs work | `notes:94` | ✗ | SUPERSEDED section (`asset_candidates()`/`_pick_asset()` closed it) |
 | **R-8** | *"CRC-validated dual-slot flash per `PORTING.md`"* | `ROADMAP.md:33`, `:1732`, `:1747`, `:1883`, `:2233`; `PROJECT.md:45`; `notes:61`; `REQUIREMENTS.md:139` | mixed | `ROADMAP:33` → CLOSE-03 deletion; `:1732` → D-15's 999.23 retirement; `:1747`/`:1883` are dated review-history paragraphs; `:2233` is a Phase-126 research-flag (historical); `PROJECT.md:45` already carries the `⚠ DESIGN work` correction inline; `notes:61` → SUPERSEDED |
 | **R-9** | build order: portability-macros first | `ROADMAP.md:33`, `:1732`, `:1883`; `PROJECT.md:69` | `PROJECT.md:69` ✓ (inside `⚠ RESEARCH CORRECTIONS`) | ROADMAP:33 → CLOSE-03; `:1732` → D-15; `:1883` history |

@@ -103,7 +103,7 @@ Failure Signature Capture Schema (filled by Plan 02 into `EVIDENCE.{md,json}` Ce
 |------|---------------------|------------------------|----------|---------------------|-----------------|
 | Handler | `configure_eprom()` | `configure_eprom()` | NO | same path passes ⇒ not handler-selection | `memory.cpp:122` |
 | Pulse width | 100µs | 100µs | NO | identical ⇒ not pulse width | `eprom.cpp` pulse_delay |
-| Program pulse model | CE-only strobe | CE-only strobe | NO (same) | 0x07's PGM tied OK by 28-pin layout; 0x08 needs pin-31 PGM | `memory.cpp:274` |
+| Program pulse model | CE-only strobe | CE-only strobe | NO (same) | 0x07's PGM tied OK by 28-pin layout; 0x08 needs pin-31 PGM | `memory.cpp:346` |
 | **VPP routing** | `vpp_line=0xFF` ⇒ VPE-drop bus line, NOT P1 | `vpp_line=21` (VPP_P1_32_DIP=0x15) ⇒ **P1 / socket pin 1** | **YES** | 0x07 proves regulator+drop network; only the **P1 leg** is unproven on a UV part | `eprom.cpp:319-326`; `memory_utils.h:24` |
 | **Program-enable bit** | `CTRL_VPE_ENABLE` reaches VPE/PGM line | rewritten to `CTRL_VPP_P1_ENABLE` | **YES** | 0x07 proves CTRL_VPE_ENABLE path; the rewrite is 0x08-only | `eprom.cpp:319-326` |
 | **Pin 31 role** | 28-pin: no pin 31 issue | 32-pin: **pin 31 = bus line 22 (address-driven), not PGM** | **YES** | 0x07 has no 32-pin pin-31 mapping ⇒ exonerates all but the 32-pin axis | `database.py:141`; `pinouts.json DIP32_STD` |
@@ -124,10 +124,10 @@ Failure Signature Capture Schema (filled by Plan 02 into `EVIDENCE.{md,json}` Ce
 
 | RC | Hypothesis | CONFIRM if… | EXONERATE (OUT) if… | Method | Gating? | Verdict |
 |----|-----------|-------------|---------------------|--------|---------|---------|
-| **RC-1** | PGM pin 31 modeled as address line, not held program-active | pin 31 DMM reads VIH/floats during held proxy | pin 31 DMM reads ~0V (VIL) AND code shows it driven low at addr0 | Held-rail static proxy (`0x188`) + code-analysis (`memory.cpp:274` + `database.py:141` + `pinouts.json`) | **YES (D-03)** | **CONFIRMED (leading)** — code + differential + elimination. `database.py:141` `pin_conversions[32][31]=22` → pin 31 modeled as bus-line-22 **address (A18)**, not a held PGM; `memory.cpp:274` strobes **CE only**. The passing 0x07 28-pin sibling (no pin-31 mapping) + **RC-2 exonerated** (VPP reaches pin 1) ⇒ by elimination the 0-bits cause is **pin 31 never asserted program-active**. Direct pin-31 DMM was tooling-blocked ([debug](../../../debug/resolved/held-rail-dev-reg-timeout.md)); verdict rests on code + the 0x07/0x08 differential. |
+| **RC-1** | PGM pin 31 modeled as address line, not held program-active | pin 31 DMM reads VIH/floats during held proxy | pin 31 DMM reads ~0V (VIL) AND code shows it driven low at addr0 | Held-rail static proxy (`0x188`) + code-analysis (`memory.cpp:346` + `database.py:141` + `pinouts.json`) | **YES (D-03)** | **CONFIRMED (leading)** — code + differential + elimination. `database.py:141` `pin_conversions[32][31]=22` → pin 31 modeled as bus-line-22 **address (A18)**, not a held PGM; `memory.cpp:346` strobes **CE only**. The passing 0x07 28-pin sibling (no pin-31 mapping) + **RC-2 exonerated** (VPP reaches pin 1) ⇒ by elimination the 0-bits cause is **pin 31 never asserted program-active**. Direct pin-31 DMM was tooling-blocked ([debug](../../../debug/resolved/held-rail-dev-reg-timeout.md)); verdict rests on code + the 0x07/0x08 differential. |
 | **RC-2** | VPP not reaching pin 1 at 12.5–13.0V during pulse | pin 1 DMM ≈0V/floats while ADC≈13V (routing), OR pin1 <12.5V (pot/level) | pin 1 DMM = 12.5–13.0V steady AND ADC agrees | Held-rail proxy (`0x188`) + DMM pin1 + `firestarter vpp` ADC cross-check | **YES (D-03)** | **EXONERATED** — code + level. `-f 0x188` → physical `CTRL 0x89`, **P1-route asserted** (H2 disproven, [debug](../../../debug/resolved/held-rail-dev-reg-timeout.md)) ⇒ VPP routed to pin 1; level set 13.0V, ADC-confirmed, for the 0x08 attempt. The 0x07 sibling PASS proves regulator+VPE-drop+pulse. (Bench pin-1 DMM tooling-blocked → routing is **code-confirmed, not DMM-confirmed** — the one residual link.) |
 | **RC-3** | JP4 (`JMP_VPP_P1_BYPASS`) position wrong for 32-pin VPP-to-pin-1 | toggling JP4 changes pin-1 VPP delivery decisively | neither JP4 position delivers 12.5–13.0V to pin 1 | [OP] toggle JP4 open↔closed, re-DMM pin 1 — **ASK silkscreen meaning first (D-08)** | only if RC-1+RC-2 incomplete | **Not pursued** — D-03 trigger not met (RC-1 accounts for the symptom). JP4 was set **closed = 32-pin** for the 0x08 attempt per fw `info` guidance, so position was correct. |
-| **RC-4** | 32-pin high-address / control-bit collision corrupts target | high-address write behaves differently than addr0 | addr0 still 0-bits with pin1=13V AND pin31=VIL | code-analysis (`memory.cpp:184-198` alias `A18==P1_ENABLE` 0x08) + optional high-addr inspect (NOT a second destructive spend) | only if RC-1+RC-2 incomplete | **Not pursued** — D-03 trigger not met. The 0x08 firmware alias (`CTRL_VPP_P1_ENABLE_REV2 == CTRL_ADDRESS_LINE_18_REV2 == 0x08`, `rurp_pinout.h:128`) is **dormant at A18=0** (address 0); flagged as a **Phase-98 fix-design** concern, not a separate Phase-97 cause. |
+| **RC-4** | 32-pin high-address / control-bit collision corrupts target | high-address write behaves differently than addr0 | addr0 still 0-bits with pin1=13V AND pin31=VIL | code-analysis (`memory.cpp:187-202` alias `A18==P1_ENABLE` 0x08) + optional high-addr inspect (NOT a second destructive spend) | only if RC-1+RC-2 incomplete | **Not pursued** — D-03 trigger not met. The 0x08 firmware alias (`CTRL_VPP_P1_ENABLE_REV2 == CTRL_ADDRESS_LINE_18_REV2 == 0x08`, `rurp_pinout.h:127`) is **dormant at A18=0** (address 0); flagged as a **Phase-98 fix-design** concern, not a separate Phase-97 cause. |
 | **RC-5** | Chip OTP/dead (total silicon block) | (cannot be confirmed pre-fix — D-01 INDETERMINATE) | any bit flips in the Tier-0 micro-probe | the combined micro-probe (PRE-01/RCA-01) | handled via Tier-0; **never triggers deferral pre-fix** | **INDETERMINATE pre-fix** — the one attempt flipped 0 bits (consistent with both broken-path AND OTP). Per D-01/D-06 this **never triggers deferral** (deferral is a Phase-99 verdict only). |
 
 **Conditional trigger (D-03):** pursue RC-3/RC-4 only if, after RC-1 and RC-2 each
@@ -143,7 +143,7 @@ the firmware physical layout) becomes the leading RC-4 lead.
 write path, **socket pin 31 is modeled as address line A18** (`DIP32_STD`
 `pin_conversions[32][31]=22`, `database.py:141`) rather than as a **held
 program-active (PGM/control) pin**. The program engine strobes **CE only**
-(`memory.cpp:274`), so the seated AM27C020 receives **VPP correctly at pin 1**
+(`memory.cpp:346`), so the seated AM27C020 receives **VPP correctly at pin 1**
 (RC-2 exonerated: `-f 0x188` → physical `0x89`, P1 asserted; level 13.0V) yet
 **never sees a program-enable on pin 31** → the cell is never programmed →
 **0 bits flipped**. The passing `0x07` 28-pin sibling (no 32-pin pin-31 mapping)
@@ -166,10 +166,10 @@ validation (byte-exact write after redirecting pin 31) closes it empirically.
 ## Held-Rail Static-Proxy Control Values (RC-1/RC-2/RC-4 decisive experiment, D-05)
 
 > Pinned against the **live host `dev reg -f` bit map** (re-read this session):
-> `firestarter_app/firestarter/cli_handlers.py:1012-1020`. In the host `-f`
+> `firestarter_app/firestarter/cli_handlers.py:1010-1018`. In the host `-f`
 > (hardware-revision-remapped) namespace the bits are **DISTINCT**:
 
-| Host `-f` bit | Name (cli_handlers.py:1012-1020) |
+| Host `-f` bit | Name (cli_handlers.py:1010-1018) |
 |---------------|----------------------------------|
 | `0x100` | CTRL_VPP_VPE_DROP_ENABLE |
 | `0x080` | CTRL_VPP_REGULATOR_ENABLE |
@@ -219,13 +219,13 @@ simultaneously — it reveals whether pin 31 and pin 1 move together.
 
 ### Host-vs-firmware bit-alias caveat (CRITICAL — Pitfall 6)
 
-In the **firmware physical Rev2 layout** (`firestarter/include/rurp_pinout.h:122,128`)
+In the **firmware physical Rev2 layout** (`firestarter/include/rurp_pinout.h:121,127`)
 `CTRL_VPP_P1_ENABLE_REV2` and `CTRL_ADDRESS_LINE_18_REV2` are the **SAME control
 bit (0x08)**:
 
 ```
-#define CTRL_VPP_P1_ENABLE_REV2     0x08      // rurp_pinout.h:122
-#define CTRL_ADDRESS_LINE_18_REV2   CTRL_VPP_P1_ENABLE_REV2   // rurp_pinout.h:128  (== 0x08)
+#define CTRL_VPP_P1_ENABLE_REV2     0x08      // rurp_pinout.h:121
+#define CTRL_ADDRESS_LINE_18_REV2   CTRL_VPP_P1_ENABLE_REV2   // rurp_pinout.h:127  (== 0x08)
 ```
 
 But the host `dev reg -f` remap **presents them as distinct host bits**

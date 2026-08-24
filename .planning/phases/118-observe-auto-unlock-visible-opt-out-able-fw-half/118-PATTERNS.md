@@ -34,7 +34,7 @@ Both sub-repos verified on `v1.22-at28c-software-data-protection-lifecycle`; fir
 
 | New/Modified File | Role | Data Flow | Closest Analog | Match Quality |
 |---|---|---|---|---|
-| `firestarter/src/proms/eeprom_28c.cpp` (modify) | protocol handler | request-response + event-driven bus I/O | **itself** (post-117); nearest sibling shape `firestarter/src/proms/flash_5v_page.cpp:61-78` | exact (self) |
+| `firestarter/src/proms/eeprom_28c.cpp` (modify) | protocol handler | request-response + event-driven bus I/O | **itself** (post-117); nearest sibling shape `firestarter/src/proms/flash_5v_page.cpp:61-77` | exact (self) |
 | `firestarter/include/firestarter.h` (modify: `FLAG_SKIP_SDP_UNLOCK 0x100`) | config / constants header | n/a | the `FLAG_*` block itself, :59-68 | exact |
 | `tools/catalog/messages.toml` (meta, modify: 4 new ids) | data/config (canonical catalog) | transform → codegen | existing INFO `0x58/0x59` and WARN `0x84/0x85` entries | exact |
 | `firestarter/include/messages.h` (**GENERATED — never hand-edit**) | generated header | codegen output | — | n/a |
@@ -100,7 +100,7 @@ Concrete placement facts for the planner:
 
 **Copy the `LOG_WARN_ID*` spelling; DO NOT copy the `handle->response_code = RESPONSE_CODE_WARNING;` line** — D-02 and Phase 117 D-05 forbid it in the SDP path, and `test_case8_completion_poll_preserves_prior_severity` enforces it. This is the closest live WARN call site and it is in the same file, 130 lines above the edit site.
 
-#### (c) The **rejected** INFO shape (D-02's rejected precedent) — `flash_5v_page.cpp:61-78`
+#### (c) The **rejected** INFO shape (D-02's rejected precedent) — `flash_5v_page.cpp:61-77`
 
 ```cpp
 void flash_5v_page_write_init(firestarter_handle_t* handle) {
@@ -113,7 +113,7 @@ void flash_5v_page_write_init(firestarter_handle_t* handle) {
             if (!is_flag_set(FLAG_SKIP_ERASE)) {
                 flash_5v_page_erase_execute(handle);
             } else {
-                LOG_INFO_ID(MSG_INFO_SKIPPING_ERASE);      // <-- flash_5v_page.cpp:71, the REJECTED shape
+                LOG_INFO_ID(MSG_INFO_SKIPPING_ERASE);      // <-- flash_5v_page.cpp:70, the REJECTED shape
             }
         }
     }
@@ -123,7 +123,7 @@ void flash_5v_page_write_init(firestarter_handle_t* handle) {
 }
 ```
 
-Sibling at `flash_nor_unlock.cpp:86-87` (the D-04 two-separate-ids precedent):
+Sibling at `flash_nor_unlock.cpp:85-86` (the D-04 two-separate-ids precedent):
 ```cpp
                 LOG_DEBUG_ID_SUB(DBG_SKIPPING_ERASE_MEMORY);
                 LOG_INFO_ID(MSG_INFO_SKIPPING_ERASE_MEM);
@@ -374,7 +374,7 @@ Longest existing name is **`MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` (32 chars)**. Any 
 - `_line_of` :154-155
 - `_find_function_body` :158-183 — brace-matcher; **currently hard-wired to `_FUNC_DEF_PATTERN` (:78) which is `\bvoid\s+eeprom28c_write_init\s*\([^)]*\)\s*\{`.** D-06 needs *two* bodies (`eeprom28c_emit_command_sequence`, `eeprom28c_wait_for_sdp_completion`), and **both are `static` and one takes a multi-arg signature**:
   - `static void eeprom28c_emit_command_sequence(firestarter_handle_t* handle, const byte_flip_t* sequence, size_t length) {` (`eeprom_28c.cpp:206`)
-  - `static void eeprom28c_wait_for_sdp_completion(firestarter_handle_t* handle) {` (`eeprom_28c.cpp:256`)
+  - `static void eeprom28c_wait_for_sdp_completion(firestarter_handle_t* handle) {` (`eeprom_28c.cpp:244`)
   ⚠ The existing `_FUNC_DEF_PATTERN` starts at `\bvoid\s+`, which **would still match** `static void foo(` (the `\b` sits before `void`), and `[^)]*` handles the 3-arg signature. But the pattern must be parameterised by function name rather than a module constant. Generalise `_find_function_body(cleaned_text, func_name)`.
   ⚠ **Forward-declaration trap:** both functions have prototypes at `eeprom_28c.cpp:87-88` ending in `;` — the trailing `\{` in the pattern is what excludes them. Preserve it.
 - `_find_anchor` :186-194
@@ -661,7 +661,7 @@ versus the gated family (:42-49, representative):
 ```
 
 **Critical nuance the planner must not miss:** `LOG_WARN_ID*` (:114-119), `LOG_ERROR_ID*` (:105-110), `LOG_OK_ID*`, `LOG_INIT_ID*`, `LOG_MAIN_ID*`, `LOG_END_ID*`, `LOG_DATA_ID*` are **literal `#define` aliases of `LOG_ID*`** — i.e. unconditional. So:
-- **D-02's WARN lines have a perfect house-style analog: use `LOG_WARN_ID` / `LOG_WARN_ID_U32`.** No convention is broken there; `eeprom_28c.cpp:144` is a live sibling call site 130 lines up.
+- **D-02's WARN lines have a perfect house-style analog: use `LOG_WARN_ID` / `LOG_WARN_ID_U32`.** No convention is broken there; `eeprom_28c.cpp:138` is a live sibling call site 130 lines up.
 - **Only the two INFO-band lines break convention**, because the INFO band's *only* macro family is the gated one. D-01 therefore requires either bare `LOG_ID` / `LOG_ID_U32` with an INFO-band id, or a new unconditional `LOG_INFO_ID*_ALWAYS`-style alias. **Bare `LOG_ID` on an INFO-band id has zero precedent (see below); the pattern-consistent alternative is to add an alias block mirroring :114-119's shape.** That is a planner-level design call this map surfaces rather than settles.
 
 ### Deny-list coverage note for the gate
@@ -690,8 +690,8 @@ Host gates that read firmware source. **All five re-verified as present on `9dd1
 
 | # | Claimed pattern | Reality | Consequence for the plan |
 |---|---|---|---|
-| 1 | **A non-verbose-gated INFO-band call site** (D-01's precedent) | **ZERO exist.** Exhaustive grep of `firestarter/src/`: there are **no** bare `LOG_ID(`, `LOG_ID_U8(`, `LOG_ID_U16(`, `LOG_ID_U24(`, `LOG_ID_U32(`, `LOG_ID_BYTES(` call sites at all — every use of those macros is via a severity-named alias. All **19** `MSG_INFO_*` emissions go through `LOG_INFO_ID*` (`flash_5v_page.cpp:71`, `eprom.cpp:104,170`, `dev_tools.cpp:30,40,67,93,135,137,139`, `operation_utils.cpp:181,208,237,239`, `firestarter.cpp:136,138,139,141`, `flash_nor_unlock.cpp:87`). **CONTEXT's D-01 claim is confirmed exactly: this phase creates the tree's first non-verbose-gated INFO-band emission.** The plan must state this in the source comment (CONTEXT `<specifics>`: "the break must be argued in the source comment, not just done") and cannot cite an analog because there is none. |
-| 2 | **`MSG_WARN_FL4_BOOT_BLOCK_LOCKED` as a WARN *call-site* precedent** (D-02) | **It has ZERO firmware call sites.** `grep -rn BOOT_BLOCK_LOCKED src/ include/ test/` returns only the generated `include/messages.h:69` and `:97`. The host references are catalog-presence assertions only (`firestarter_app/tests/test_val_wire_5v_page.py:283-301`). It is a **catalog-entry-shape** precedent, not a call-site one. **The live WARN-at-a-decision-point call sites are `eeprom_28c.cpp:144` (`LOG_WARN_ID_U32(MSG_WARN_MEM_SIZE_TOO_SMALL, …)`) and `:168` (`LOG_WARN_ID_BYTES(MSG_WARN_CHIP_ID_MISMATCH, …)`) — use those.** Both are in the file being edited. Note both set `response_code`, which D-02 forbids; copy the macro, not the severity write. |
+| 1 | **A non-verbose-gated INFO-band call site** (D-01's precedent) | **ZERO exist.** Exhaustive grep of `firestarter/src/`: there are **no** bare `LOG_ID(`, `LOG_ID_U8(`, `LOG_ID_U16(`, `LOG_ID_U24(`, `LOG_ID_U32(`, `LOG_ID_BYTES(` call sites at all — every use of those macros is via a severity-named alias. All **19** `MSG_INFO_*` emissions go through `LOG_INFO_ID*` (`flash_5v_page.cpp:70`, `eprom.cpp:104,170`, `dev_tools.cpp:30,40,67,93,135,137,139`, `operation_utils.cpp:189,216,245,247`, `firestarter.cpp:132,134,135,137`, `flash_nor_unlock.cpp:86`). **CONTEXT's D-01 claim is confirmed exactly: this phase creates the tree's first non-verbose-gated INFO-band emission.** The plan must state this in the source comment (CONTEXT `<specifics>`: "the break must be argued in the source comment, not just done") and cannot cite an analog because there is none. |
+| 2 | **`MSG_WARN_FL4_BOOT_BLOCK_LOCKED` as a WARN *call-site* precedent** (D-02) | **It has ZERO firmware call sites.** `grep -rn BOOT_BLOCK_LOCKED src/ include/ test/` returns only the generated `include/messages.h:69` and `:97`. The host references are catalog-presence assertions only (`firestarter_app/tests/test_val_wire_5v_page.py:283-301`). It is a **catalog-entry-shape** precedent, not a call-site one. **The live WARN-at-a-decision-point call sites are `eeprom_28c.cpp:138` (`LOG_WARN_ID_U32(MSG_WARN_MEM_SIZE_TOO_SMALL, …)`) and `:168` (`LOG_WARN_ID_BYTES(MSG_WARN_CHIP_ID_MISMATCH, …)`) — use those.** Both are in the file being edited. Note both set `response_code`, which D-02 forbids; copy the macro, not the severity write. |
 | 3 | `micros()` anywhere in firmware | **Zero occurrences** (excluding `delayMicroseconds`). No mocking analog exists; the `millis()` `AlwaysReturn(0)` line is the shape to clone. |
 | 4 | `AT28C_TBLC_MAX_US` | Exists **only** as prose in `eeprom_28c.cpp:39`. No `#define` anywhere. |
 | 5 | `FLAG_SKIP_SDP_UNLOCK` | Exists **only** as prose in `eeprom_28c.cpp:191`. Nowhere in either sub-repo's code. |
@@ -708,7 +708,7 @@ Host gates that read firmware source. **All five re-verified as present on `9dd1
 `/workspaces/{tools/catalog,.github/workflows}`
 
 **Read in full:** `firestarter/src/proms/eeprom_28c.cpp` (427 lines), `firestarter/include/logging_id.h` (329), `firestarter_app/tools/check_no_log_in_sdp_window.py` (294), `firestarter_app/tests/fixtures/planted_log_in_window.cpp` (37), `firestarter_app/tests/test_check_no_log_in_sdp_window.py` (217).
-**Read targeted (non-overlapping):** `firestarter/include/firestarter.h:50-110`, `firestarter/include/messages.h:1-20,55-72`, `firestarter/src/proms/flash_5v_page.cpp:55-80`, `firestarter/src/proms/flash_nor_unlock.cpp:80-95`, `firestarter/platformio.ini:85-130`, `firestarter/test/native/avr/_shared/sdp_expected.h:1-204`, `firestarter/test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:60-175`, `firestarter/test/native/avr/test_sdp_harness/test_sdp_harness.cpp:60-110`, `tools/catalog/messages.toml` (band map + entries :220-341), `tools/catalog/sync_to_subrepos.sh` (full), `.github/workflows/catalog-sync-check.yml:30-60`, `firestarter/.github/workflows/build.yml:55-70`, `firestarter_app/tests/test_revision_constants_parity.py:118-148`.
+**Read targeted (non-overlapping):** `firestarter/include/firestarter.h:50-110`, `firestarter/include/messages.h:1-20,55-72`, `firestarter/src/proms/flash_5v_page.cpp:55-79`, `firestarter/src/proms/flash_nor_unlock.cpp:79-94`, `firestarter/platformio.ini:85-130`, `firestarter/test/native/avr/_shared/sdp_expected.h:1-204`, `firestarter/test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:60-175`, `firestarter/test/native/avr/test_sdp_harness/test_sdp_harness.cpp:60-110`, `tools/catalog/messages.toml` (band map + entries :220-341), `tools/catalog/sync_to_subrepos.sh` (full), `.github/workflows/catalog-sync-check.yml:30-60`, `firestarter/.github/workflows/build.yml:55-70`, `firestarter_app/tests/test_revision_constants_parity.py:118-148`.
 
 **Pattern extraction date:** 2026-07-28
 **Sub-repo HEADs at extraction:** firmware `f8d10a5`, host `9dd11a9`, both on `v1.22-at28c-software-data-protection-lifecycle`

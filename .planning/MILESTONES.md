@@ -59,7 +59,7 @@ PROTOCOL-LEDGER exactly as it stood at the open, and every write-path change v1.
    class, 81 are `read_permitted`**. Firmware gained the two read sequences and command-16 admission in
    dual-repo lockstep.
 5. **Write-path erase policy: three deletions, one new operation, and a fourth recorded reversal.** The
-   pre-write blank check is gone from both auto-erasing protocols — `0x0D` (`eeprom_28c.cpp:547-549`,
+   pre-write blank check is gone from both auto-erasing protocols — `0x0D` (`eeprom_28c.cpp:517-519`,
    deleted outright, not re-gated) and `0x05` (`flash_5v_page.cpp:88-90`, **located in code before
    being touched**, not assumed by symmetry) — each proved by a native case observed failing before the
    deletion and passing after. `0x0D` gained `eeprom28c_erase_execute`, the Atmel AN 0544B **software

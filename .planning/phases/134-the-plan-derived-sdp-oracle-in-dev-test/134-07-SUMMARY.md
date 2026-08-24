@@ -355,7 +355,7 @@ blocking gate tripped by Task 1's own new helper, same class as 134-05's identic
 ## 133 D-07's Residual (Recorded, Not Closed)
 
 Per the plan's own Task 1 instruction (D): after a Ctrl-C mid-leg, `results = run_plan(...)`
-(`cli_handlers.py:2200`, unchanged by this plan) never returns, so neither `sdp_hold_state`'s
+(`cli_handlers.py:2197`, unchanged by this plan) never returns, so neither `sdp_hold_state`'s
 assignment nor the exit computation this plan adds is ever reached -- there is no report at all.
 This residual is inherited from 133 D-07 and is NOT closed here; the mitigation is plan 134-08's
 rewritten up-front notice (printed where it is guaranteed to be seen), not a `finally` handler.

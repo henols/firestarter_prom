@@ -75,14 +75,14 @@ invariant — the markdown table and the JSON block derive from the SAME
 sanitized dict — must survive.
 
 **D-3 — Both markdown tables change; the console is EXEMPT.**
-Verified during planning at `firestarter/diagnostic_report.py:944-945`:
+Verified during planning at `firestarter/diagnostic_report.py:938-939`:
 
     for step_row in d["steps"]:
         if step_row["verdict"] not in _RAN_VERDICTS:
             continue
 
 `_RAN_VERDICTS` is `frozenset({VERDICT_OK, VERDICT_BAD, VERDICT_MARGINAL})`
-(`chip_test.py:3743`). An `NA` row is never emitted as a console step row at
+(`chip_test.py:3742`). An `NA` row is never emitted as a console step row at
 all, so there is no Reason cell there to suppress. **`diagnostic_report.py`
 gets ZERO edits in this plan.** Confirmed — the operator's read is correct.
 </locked_decisions>
@@ -105,12 +105,12 @@ re-derive them.
 2. **Both call sites confirmed.**
    - `submit.py:214-251` `build_body` — reads dicts: `step.get("reason") or "-"`
      on the line inside the `for step in sanitized_dict.get("steps", [])` loop.
-   - `cli_handlers.py:2647-2666` — reads `StepResult` attributes:
+   - `cli_handlers.py:2644-2663` — reads `StepResult` attributes:
      `f"| {r.op} | {r.verdict} | {runs} | {took} | {r.reason or '-'} |"`.
    Hence the helper must take plain values, not an object.
 
 3. **The established single-source pattern is a function-local aliased import.**
-   `cli_handlers.py:2645-2646` does
+   `cli_handlers.py:2642-2643` does
    `from firestarter.submit import _duration_text as submit_duration_text`
    inside the `dev_test` body, with a comment explaining the local-import
    choice. Its own comment states the intent: *"both formatters are imported

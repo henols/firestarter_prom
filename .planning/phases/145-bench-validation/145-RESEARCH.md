@@ -176,7 +176,7 @@ D-13 halt still lands BENCH-02 and BENCH-03 complete.
 
 **YES. HIGH confidence. Resolved in code, corroborated by three prior bench records.**
 
-**Host side.** `firestarter_app/firestarter/database.py:620-624` sets `FLAG_CAN_ERASE` when
+**Host side.** `firestarter_app/firestarter/database.py:617-620` sets `FLAG_CAN_ERASE` when
 `electrical-type ∈ {"EEPROM", "Flash/EEPROM"}` **and** `algorithm ∉ {5, 13}`. W27C512 is
 `electrical.type = "EEPROM"`, `algorithm 7`. Executed against the shipped code this session
 [VERIFIED: ran `EpromDatabase().convert_to_programmer()` on the live DB]:
@@ -211,7 +211,7 @@ if (!is_flag_set(FLAG_SKIP_BLANK_CHECK)) {
 `delay(100)`, address `0x0000`, assert `CTRL_VPP_A9_ENABLE | CTRL_VPE_ENABLE`, `delay(100)`, chip
 enable, `mem_util_delay_us(pulse_delay)`, chip disable, HV all off.
 
-The standalone `firestarter erase` path is gated at `eprom_operations.cpp:33-40`
+The standalone `firestarter erase` path is gated at `eprom_operations.cpp:33-39`
 (`if (!is_flag_set(FLAG_CAN_ERASE)) { LOG_ERROR_ID(MSG_ERR_NOT_SUPPORTED); return true; }`) —
 **that line is the source of the historical `ERROR: Not supported`**, and it no longer fires for
 W27C512 because the flag is now set.
@@ -322,17 +322,17 @@ localised."*
 `OUTPUT_FILE`. Options `-f/--force`, `-a/--address`, `-s/--size`. Writes a raw binary of exactly
 `memory-size` bytes when no `-a`/`-s` is given.
 
-**`firestarter dev read <chip>`** — `cli_handlers.py:1346-1374`. **No output-file argument at all**;
+**`firestarter dev read <chip>`** — `cli_handlers.py:1344-1372`. **No output-file argument at all**;
 prints a hexdump to console via `hexdump()`, and `size_str` defaults to `"256"`. CONTEXT is correct:
 it is not a read-back path. (It is registered *ungated*, outside the `_DEV_TOOLS_ENABLED` blocks —
 consistent with the channel split keeping `dev read` and `dev test` on stable.)
 
 **`firestarter dev consistency-check <chip> --runs N --output-dir DIR`** — exists on this branch,
-`cli_handlers.py:1498-1585`, and is **available in this devcontainer** [VERIFIED: `firestarter dev consistency-check --help` exits 0].
+`cli_handlers.py:1496-1583`, and is **available in this devcontainer** [VERIFIED: `firestarter dev consistency-check --help` exits 0].
 
 | Property | Value | Source |
 |---|---|---|
-| Gate | `if _DEV_TOOLS_ENABLED:` — `is_prerelease_build() or dev_tools_enabled_by_env()`, frozen at import | `cli_handlers.py:1291,1496`; `channel.py:144-162` |
+| Gate | `if _DEV_TOOLS_ENABLED:` — `is_prerelease_build() or dev_tools_enabled_by_env()`, frozen at import | `cli_handlers.py:1289,1494`; `channel.py:144-162` |
 | Gate status here | **enabled** — installed metadata `3.0.0b15`, source `3.0.0b20`; both PEP 440 pre-release | measured |
 | Per-run file naming | `run_{i:02d}.bin` → `run_01.bin`, `run_02.bin`, `run_03.bin` | `eprom_operations.py:1058` |
 | Default output dir | `firestarter-runs/consistency-check-<chip>-unknown-board-<TS>/` | `eprom_operations.py:1032-1037`, `DEFAULT_RUN_OUTPUT_DIR = "firestarter-runs"` |
@@ -340,7 +340,7 @@ consistent with the channel split keeping `dev read` and `dev test` on stable.)
 | Exit code | **0 = PASS, 1 = FAIL (divergent SHAs), 2 = hardware/serial error** — *not* a bool | docstring `eprom_operations.py:991-1009` |
 | Verdict block (pinned by a forward-compat regex test) | `Consistency check: PASS\|FAIL` / `Chip: … Board: unknown-board Port: …` / `Runs: N=…` / `Distinct SHAs: …` / `Output dir: …/` | `eprom_operations.py:1128-1134` |
 | On FAIL, extra lines | `First divergence: offset 0x…` / `Total divergent bytes (run_1 vs run_2): …` / `First N divergent offsets: …` | `eprom_operations.py:1145-1165` |
-| Other options | `--keep-files/--no-keep-files` (default keep), `--max-diffs` (10), `-q/--quiet`, `-f/--force`, `--read-settling`, `--read-strobe` | `cli_handlers.py:1500-1548` |
+| Other options | `--keep-files/--no-keep-files` (default keep), `--max-diffs` (10), `-q/--quiet`, `-f/--force`, `--read-settling`, `--read-strobe` | `cli_handlers.py:1498-1546` |
 
 > **Artifact-location trap.** The meta repo's `.gitignore` ignores **`firestarter-runs/`**,
 > **`consistency-check-*/`** and **`write-cycle-*/`**. Using the default output dir means the
@@ -461,7 +461,7 @@ tr '\r' '\n' < write_cycleN.stderr.raw \
   bucket"* — reachable **only** in the `--pulse-us` run.
 
 **Two-bar discriminator.** The INIT-phase blank check *also* emits `MSG_DATA_PROGRESS`, at
-`BLANK_CHECK_CHUNK_SIZE = 2048` (`memory.cpp:393, 450, 466-467`), and the operator record already
+`BLANK_CHECK_CHUNK_SIZE = 2048` (`memory.cpp:490, 450, 466-467`), and the operator record already
 observed *"two distinct progress bars per 64 KB write (0x800-step blank-check during INIT, then
 0x400-step write data during MAIN)"*. `ClassProgressHandler.start()` unconditionally closes and
 re-creates the bar (`eprom_operations.py:382-385`), so a **newline** separates the two. **Count only
@@ -614,7 +614,7 @@ For W27C512, `handle->vpp_mv = 12000`:
 > `--force` is not permitted this phase.
 
 **Sampling the monitor — better than `timeout -s INT`.** `vpp` and `vpe` carry a **hidden**
-`-t/--timeout SECONDS` option (`cli_handlers.py:947-957`). `_read_voltage_loop`
+`-t/--timeout SECONDS` option (`cli_handlers.py:945-955`). `_read_voltage_loop`
 (`hardware.py:207-276`) exits cleanly after the deadline, prints a newline and returns True (exit 0):
 ```bash
 firestarter vpp -t 5 2>&1 | tr '\r' '\n' | tail -3
@@ -1333,11 +1333,11 @@ unchanged from the research session.
 **Firmware, `/workspaces/firestarter` @ `a594173`:**
 - `src/proms/eprom.cpp` — `eprom_internal_write_init_body:143-160` (erase gate), `eprom_internal_erase:588-604`, `eprom_check_vpp:525-586` (VPP band), the per-byte loop `:330-479`, the `#ifndef SERIAL_ON_IO` emission `:398-403`, `last_emit_ms:326-328`, `configure_eprom:40-110`
 - `include/eprom.h:73-85` — `EPROM_PROGRESS_EMIT_INTERVAL_MS 1000` + its own frames-per-block rationale
-- `src/eprom_operations.cpp:33-40` — the `FLAG_CAN_ERASE` op-layer gate that emits `MSG_ERR_NOT_SUPPORTED`
-- `src/proms/eprom_params.cpp:26,50-52` — the 0x07/0x08/0x0B rows
-- `src/proms/eprom_budget.cpp:44-120` — `eprom_block_budget_s` (the 8 s / 244 s figures)
+- `src/eprom_operations.cpp:33-39` — the `FLAG_CAN_ERASE` op-layer gate that emits `MSG_ERR_NOT_SUPPORTED`
+- `src/proms/eprom_params.cpp:22,46-52` — the 0x07/0x08/0x0B rows
+- `src/proms/eprom_budget.cpp:42-118` — `eprom_block_budget_s` (the 8 s / 244 s figures)
 - `src/firestarter.cpp:155-212` — the MSG_OK_READY CAP-01/02/03 pack block
-- `src/proms/memory.cpp:393,450,466-467` — `BLANK_CHECK_CHUNK_SIZE 2048`, the INIT-phase emission
+- `src/proms/memory.cpp:490,541,557-467` — `BLANK_CHECK_CHUNK_SIZE 2048`, the INIT-phase emission
 - `include/firestarter.h:54,156` — `FW_VERSION`, `FLAG_CAN_ERASE`
 - `include/version.h` — `VERSION "3.0.0b17"` (and `git show origin/beta:` → `"3.0.0b18"`, `git show 3085084:` → `"3.0.0b17"`)
 - `scripts/baseline/size_baseline.json` — leonardo 26906/28672/1766, RAM 2014

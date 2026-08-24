@@ -861,7 +861,7 @@ With `vpp_volts` deleted the helper receives `vpp_mv` (always present, gated `> 
 cannot reach it — but a user-override could still supply a non-int. Decide whether the helper
 mirrors the existing `try/except` tolerance, and say so in the plan.
 
-**Needs no change** (verified): `ic_layout.py:606-610` already omits the pulse row on `0`.
+**Needs no change** (verified): `ic_layout.py:603-607` already omits the pulse row on `0`.
 
 ---
 

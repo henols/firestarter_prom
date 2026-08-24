@@ -107,7 +107,7 @@ locked decision — two of them *confirm* one with evidence it previously lacked
 
 2. **The cleanup drain must not append into the list `run_plan` returns.** Measured: `results` is
    returned by reference and mutated-in-`finally` **is** visible to the caller, and
-   `cli_handlers.py:2164-2166` feeds that same list into six downstream consumers — `count_applicable`
+   `cli_handlers.py:2161-2163` feeds that same list into six downstream consumers — `count_applicable`
    (N-of-M), `report.results`, `to_dict()["steps"]`, the markdown table, `build_db_diff`, and
    `sys.exit(max(...))`. Appending an unlock `StepResult` would silently open five Phase-134 report
    surfaces inside a phase whose boundary says "renders nothing new", and would make N exceed M.
@@ -643,7 +643,7 @@ grep -rn "\"blank-check\"\|'blank-check'\|\"write-partial\"\|'write-partial'" \
 | `cli_handlers.py:38` | `OP_ID,` (import) | no — import only |
 | `cli_handlers.py:1942` | `if r.op == OP_ID and r.reason and "mismatch" in r.reason.lower():` | **no** — `OP_ID`-**specific** logic in `_chip_id_fields`. A new op must not, and cannot, "join" it. |
 | `diagnostic_report.py:60` | comment: `` (`OP_WRITE_PARTIAL = "write-partial"`, chip_test.py) `` | no — comment |
-| `diagnostic_report.py:207-208` | docstring mentioning `OP_WRITE_PARTIAL` / `OP_WRITE` | no — docstring |
+| `diagnostic_report.py:204-205` | docstring mentioning `OP_WRITE_PARTIAL` / `OP_WRITE` | no — docstring |
 
 ### Row-by-row verdict against P-23's table
 
@@ -657,7 +657,7 @@ grep -rn "\"blank-check\"\|'blank-check'\|\"write-partial\"\|'write-partial'" \
 | 6 | `dedup_fingerprint` hash inputs | No | ⚠ **NOT an op-keyed registry.** `:222-224` builds `f"{result.op}={result.verdict}:{cls}"` — fully generic. A new op is picked up automatically; what changes is the hash's *meaning*, not its membership. P-23's own text concedes this. |
 | 7 | `diagnostic_report.py` renderer | No | ⚠ **NOT an op-keyed registry.** Measured `render()` `:479-484`: `for step_row in d["steps"]: table.add_row(f"step: {step_row['op']}", …)`. Fully generic — a new op renders **with zero code change**. P-23's "an unrendered op is invisible" is measurably wrong in mechanism. |
 | 8 | `tools/parse_devtest_issue.py` | No | ⚠ **NOT a registry — no op vocabulary at all.** 347 lines; only string constants are `_DEV_TEST_MARKER = "[dev test]"` (`:59`), `_FENCE` (`:64`), `_MAX_BODY_BYTES` (`:69`). Zero op strings. **CONTEXT.md correction 2 CONFIRMED.** |
-| 9 | `_ALWAYS_WRITES_NOTICE` | No (P-08) | ⚠ **NOT an op-keyed registry.** Prose at `cli_handlers.py:2071-2078`; carries a *write-count claim*, no op vocabulary. Phase 134's (P-08). |
+| 9 | `_ALWAYS_WRITES_NOTICE` | No (P-08) | ⚠ **NOT an op-keyed registry.** Prose at `cli_handlers.py:2068-2075`; carries a *write-count claim*, no op vocabulary. Phase 134's (P-08). |
 | 10 | `check_devtest_orchestrator.py`'s allow-list | No (P-07) | ⚠ **NOT an op registry.** `_HANDLER_FUNCTION_NAMES` (`:138-150`) holds **function** names, not op strings. P-07 narrowed by measurement: the deny-visitor AST-walks all of `chip_test.py`, so a `_dispatch_sdp` there **is** scanned; the gap is `cli_handlers.py` helpers, which this phase does not add to. |
 
 **Additionally measured — one real registry P-23 does not list:**
@@ -745,7 +745,7 @@ with the measured tradeoff:
 |--------|------------|
 | **(a) Explicit exemption table keyed on `(enclosing function, exception name)` with a mandatory reason string** | **Recommended.** Shares one idiom with D-12's exemption table, so the phase adds one concept rather than two. Fails closed on a new broad handler anywhere else. Needs the visitor to track enclosing-function context (a `visit_FunctionDef` push/pop, ~8 lines). Add a stale-row assertion so the exemption dies if `_sample` is renamed. |
 | (b) Honor the `# noqa: BLE001` marker | Rejected — `ast` does not see comments; would need `tokenize`, and a comment-driven gate is trivially defeated by adding a comment. |
-| (c) Narrow `_sample`'s catch to named classes | **Rejected on criterion-4 grounds.** `_sample`'s documented contract (`:757-759`, `:1027`) is "swallow all" for an **opaque caller-supplied callable** — a bad sampler can raise literally anything (`AttributeError`, `TypeError`). Narrowing changes shipped behavior, and `_make_sampler` (`cli_handlers.py:2163`) is live in production. Criterion 4 forbids this. |
+| (c) Narrow `_sample`'s catch to named classes | **Rejected on criterion-4 grounds.** `_sample`'s documented contract (`:757-759`, `:1027`) is "swallow all" for an **opaque caller-supplied callable** — a bad sampler can raise literally anything (`AttributeError`, `TypeError`). Narrowing changes shipped behavior, and `_make_sampler` (`cli_handlers.py:2160`) is live in production. Criterion 4 forbids this. |
 | (d) A declared-count watermark ("exactly 1 broad handler") | House-consistent with the mypy watermark, but it does not say *which* site is sanctioned, so a new broad handler added while `_sample`'s is removed passes. Weaker than (a) for equal effort. |
 
 **Warning signs:** the gate's RED planted-violation test passes but `test_checker_exits_zero_on_clean_source`
@@ -763,7 +763,7 @@ information for the planner.
 
 **What goes wrong:** the natural implementation of "record the unlock attempt as a `StepResult`"
 (P-20 prevention #2 says exactly this) is `results.append(unlock_result)` inside the `finally`. That
-list is `run_plan`'s return value, and it reaches **six** consumers at `cli_handlers.py:2164-2219`.
+list is `run_plan`'s return value, and it reaches **six** consumers at `cli_handlers.py:2161-2216`.
 
 **Why it happens — measured Python semantics.** A `return results` inside the `try` and a
 `results.append(...)` inside the `finally` **do not** isolate the caller from the mutation, because the
@@ -1013,7 +1013,7 @@ this and must stay outside the `try` (there is nothing to clean up yet).
             except (SerialError, HardwareOperationError, EpromOperationError):
                 pass   # record the failed-unlock attempt HERE -- but NOT into `results`
                        # (Pitfall 2: `results` is returned by reference and reaches
-                       #  six consumers at cli_handlers.py:2164-2219)
+                       #  six consumers at cli_handlers.py:2161-2216)
 
     return results                              # :794 unchanged
 ```
@@ -1103,7 +1103,7 @@ explicitly.
 
 | Category | Items Found | Action Required |
 |----------|-------------|------------------|
-| **Stored data** | **None.** The `dev test` artifacts are write-only per run: `dev-test-<chip>.json` and `.md` are overwritten at `cli_handlers.py:2192, 2205` under `get_config_dir()/reports`. No database, no ChromaDB/Mem0 collection, no keyed store holds an op string. Verified: no op string is a lookup key anywhere. | none |
+| **Stored data** | **None.** The `dev test` artifacts are write-only per run: `dev-test-<chip>.json` and `.md` are overwritten at `cli_handlers.py:2189, 2205` under `get_config_dir()/reports`. No database, no ChromaDB/Mem0 collection, no keyed store holds an op string. Verified: no op string is a lookup key anywhere. | none |
 | **Live service config** | **None.** No n8n workflow, Datadog service, Tailscale ACL, or Cloudflare tunnel references `dev test` op strings. This phase is host-local Python with no service registration. | none |
 | **OS-registered state** | **None.** No Task Scheduler entry, pm2 process, launchd plist, or systemd unit references the op vocabulary. | none |
 | **Secrets / env vars** | **Three read, none renamed:** `FIRESTARTER_DEVTEST_SRC` (`:86`), `FIRESTARTER_DEVTEST_HANDLER` (`:98`), `FIRESTARTER_DEVTEST_SUBMIT` (`:113`), plus `FIRESTARTER_CONFIG_DIR` and `FIRESTARTER_FW_ROOT` (ci_parity leg 1). All keep their names; the new fourth bucket reuses the existing seams. **No new env var.** | none |

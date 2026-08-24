@@ -119,7 +119,7 @@ Cases 4-7 are otherwise genuinely self-repairing once conflict 1 is resolved.
 ### FIX-06 — partial writes cannot report success
 
 The actual defect is a **conflation**, not merely a sampling rate: today
-`eeprom28c_wait_for_write(address, data)` at `eeprom_28c.cpp:128` is asked to answer both "is the
+`eeprom28c_wait_for_write(address, data)` at `eeprom_28c.cpp:122` is asked to answer both "is the
 internal cycle done" and "did the data land", and can answer neither honestly — its equality
 compare passes spuriously whenever the old byte already equalled the new one (blank `0xFF`
 regions, unchanged bytes), which is exactly gh#11's shape.
@@ -151,7 +151,7 @@ regions, unchanged bytes), which is exactly gh#11's shape.
 ### FIX-01/FIX-05 — emitter construction and the table guards
 
 - **D-10:** **Keep the `0x0D`-local table; cross-guard both copies.** The emitter drives
-  `EEPROM_SDP_DISABLE` (`eeprom_28c.cpp:26`), keeping FIX-01's "`0x0D`-local" framing literal and
+  `EEPROM_SDP_DISABLE` (`eeprom_28c.cpp:24`), keeping FIX-01's "`0x0D`-local" framing literal and
   leaving the FIX-04-frozen `flash_utils.h` untouched. Note the duplication is real and
   pre-existing: `FLASH_DISABLE_WRITE_PROTECTION` (`flash_utils.h:53`) is byte-identical, and it is
   the table Phase 116's reference emitter and always-green harness drive. Rejected: deleting the
@@ -167,7 +167,7 @@ regions, unchanged bytes), which is exactly gh#11's shape.
 
 - **D-12:** **Pick up the data-direction hook, but do not widen the recorder.** Add one explicit
   `rurp_set_data_output()` in the `0x0D` emitter. Verified during discussion: `memory_set_data`
-  (`memory.cpp:224`) never sets bus direction; `memory_get_data` sets **input** (`memory.cpp:183`);
+  (`memory.cpp:228`) never sets bus direction; `memory_get_data` sets **input** (`memory.cpp:186`);
   direction is otherwise restored only as a *side effect* of a non-elided register write
   (`rurp_register_utils.h:78`) — and `eeprom28c_check_chip_id` leaves the bus in INPUT immediately
   upstream of the sequence. The explicit call makes the guarantee explicit instead of incidental
@@ -323,7 +323,7 @@ regions, unchanged bytes), which is exactly gh#11's shape.
 ## Existing Code Insights
 
 ### Verified facts established during this discussion (do not re-derive)
-- **`memory_set_data` never sets bus direction.** `memory.cpp:224`. `memory_get_data` sets
+- **`memory_set_data` never sets bus direction.** `memory.cpp:228`. `memory_get_data` sets
   **input** at :183. Direction is restored only as a side effect of a non-elided register write
   (`rurp_register_utils.h:78`). `eeprom28c_check_chip_id`'s reads sit immediately upstream of the
   SDP sequence, so the sequence's first write relies on its address differing from the cached one.

@@ -289,19 +289,19 @@ recording this correction**, not by re-verifying something that was never there.
    the timing recorder stores the **arguments** a call was made with, never how long anything actually
    took. A trace diff proves *which* delay was requested, never the elapsed time.
 4. **C-4's logical-versus-physical non-claim.** On Rev 2-class hardware, logical `CTRL_ADDRESS_LINE_18`
-   and logical `CTRL_VPP_P1_ENABLE` are the **same physical bit**, `0x08` (`rurp_pinout.h:122,128`).
+   and logical `CTRL_VPP_P1_ENABLE` are the **same physical bit**, `0x08` (`rurp_pinout.h:121,127`).
    Clearing the logical P1 bit does not guarantee physical de-assertion whenever logical A18 happens to
    be set. This is **not reachable from a 27C write today** — `using_p1_as_vpp()` makes
    `mem_util_remap_address_bus` skip setting bit 21 (the address bit that would otherwise set logical
    A18) whenever VPP is routed through P1 — but the composite's guarantee is stated as **logical**, not
    physical, precisely because that reachability analysis could change under a future protocol.
 5. **D-11's `vpp_line` non-claim.** The disable guarantee covers **control-register routes only**. The
-   address-latch `vpp_line` bit (`mem_util_remap_address_bus`, `memory.cpp:346-348`) ignores
+   address-latch `vpp_line` bit (`mem_util_remap_address_bus`, `memory.cpp:418-420`) ignores
    `read_write` and is asserted on reads too; clearing it on write-path exit would be a read-path
    behaviour change, out of this milestone's scope. It is cleared by `command_done()` at operation end
    and by nothing else.
 6. **That `command_done()` runs on the real AVR abort path is not provable off hardware.** The timeout
-   arm (`firestarter.cpp:174-176`) depends on `millis()`, which sits outside every native suite's reach.
+   arm (`firestarter.cpp:169-171`) depends on `millis()`, which sits outside every native suite's reach.
    `command_done()`'s zeroing behaviour is proven only as a **source contract** (plan 142-06): its body,
    extracted by brace-matching, is asserted to contain the three zeroing writes, and both dispatch call
    arms are asserted to reach it — never exercised behaviourally on a real timeout.

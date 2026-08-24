@@ -267,7 +267,7 @@ do not re-ask. Reverse any of them *before* planning if wrong — that is the ch
 
 - **CRC32 implementation.** Bitwise reflected CRC-32 (poly `0xEDB88320`), **no lookup table**,
   living in D-03's HAL-free core TU. There is no CRC32 in the tree today — only the CRC8-CCITT
-  `PROGMEM` table in `src/boards/rurp_serial_utils.cpp:381`, which is AVR-shaped and wrong to
+  `PROGMEM` table in `src/boards/rurp_serial_utils.cpp:378`, which is AVR-shaped and wrong to
   reuse. A 1 KiB table for an operation that runs at boot and on rare config writes is not
   worth the flash. Anchored by D-05's known-answer vector.
 - **Sequence-number wraparound.** `uint32_t`, monotonically incremented, **no wraparound
@@ -416,7 +416,7 @@ None folded — see `<deferred>`.
   (Phase 125 C-11 measured it) — prefer `tests/test_*.py` unless a checker is genuinely needed.
 - `firestarter/tests/test_vpp_seam_manual_on_every_board.py`,
   `firestarter/tests/test_pinmap_guard_fires.py` — the in-tree precedents D-01's harness follows.
-- `firestarter/src/boards/rurp_serial_utils.cpp:381` — the existing CRC8-CCITT `PROGMEM`
+- `firestarter/src/boards/rurp_serial_utils.cpp:378` — the existing CRC8-CCITT `PROGMEM`
   accessor. Read to confirm it is **not** a reusable CRC32 source (it is AVR-shaped).
 
 ### Design reference — vendor the in-scope subset, follow nothing else

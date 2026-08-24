@@ -27,8 +27,8 @@ The design note and `PROJECT.md` carry line references written at different time
 | `constants.py:66` — "unconditional in firmware" comment | **VERIFIED** |
 | `COMMAND_NAMES[cmd]` dereferenced at `eprom_operations.py:301` and `:377` | **STALE.** Actual dereference sites are **`:329`** and **`:405`**. The claim's *substance* holds — both are real `COMMAND_NAMES[cmd]` lookups at operation setup, so a deleted entry is a `KeyError`, not a cosmetic gap. Note `constants.py:69` repeats the stale `:301` internally; correcting that comment is free while the file is open. |
 | host-side auto-unlock at `eprom_operations.py:1637` | **PARTIALLY STALE.** `:1637` lands inside the explanatory comment block; the live conditional is **`:1654`** (`if is_protocol_0x0d and (operation_flags & FLAG_SKIP_SDP_UNLOCK):`) |
-| `cli_handlers.py:2098-2230` — `dev_sdp` and its four gates | **STALE.** Actual span is **`:2196` (`@dev.command(name="sdp")`) → `:2213` (`def dev_sdp`) → `:2321` (EOF)**. The command is the last thing in the file, which makes the deletion a clean tail truncation. |
-| `dev_test(app, chip)` at `cli_handlers.py:1961` | **STALE.** Actual: `@dev.command(name="test")` at **`:2055`**, `def dev_test(app: "AppContext", chip: str)` at **`:2059`**. The *substance* holds — verified zero options besides `--help`. |
+| `cli_handlers.py:2095-2227` — `dev_sdp` and its four gates | **STALE.** Actual span is **`:2196` (`@dev.command(name="sdp")`) → `:2213` (`def dev_sdp`) → `:2321` (EOF)**. The command is the last thing in the file, which makes the deletion a clean tail truncation. |
+| `dev_test(app, chip)` at `cli_handlers.py:1958` | **STALE.** Actual: `@dev.command(name="test")` at **`:2055`**, `def dev_test(app: "AppContext", chip: str)` at **`:2059`**. The *substance* holds — verified zero options besides `--help`. |
 | `--sdp-relock` deferral label at `STATE.md:532` / `PROJECT.md:705` | Not re-verified (meta-repo bookkeeping, already corrected in `PROJECT.md`'s own note) |
 
 **Two new findings that change the safety story — see §2.6 and §1.4.**
@@ -75,7 +75,7 @@ The NA mechanism is already built: `run_plan` (`chip_test.py:780-782`) turns any
 The 41 refusal reasons are already user-facing prose, measured live, e.g.:
 > `2816: not on the SDP-capable list: 2816 (pre-SDP generation). Refused fail-closed because the SDP command sequence is not inert on a part without an SDP command decoder — its bytes are stored as data at the bus-truncated magic addresses.`
 
-These are long, but they do **not** bloat the `rich` table: `DiagnosticReport.render()` (`diagnostic_report.py:477-482`) renders only `op`, `verdict`, `error_code`, `fingerprint` per step — `reason` appears only in the markdown table and the JSON block.
+These are long, but they do **not** bloat the `rich` table: `DiagnosticReport.render()` (`diagnostic_report.py:471-476`) renders only `op`, `verdict`, `error_code`, `fingerprint` per step — `reason` appears only in the markdown table and the JSON block.
 
 ### 1.3 Consumers of `StepResult.op` — the D-06/D-07 claim re-verified
 
@@ -123,7 +123,7 @@ Minimal in-pattern extension: `chip_test.py` already imports a flag constant fro
 | `NA` | 0 | — | — | no |
 | `SKIPPED` | 0 | — | — | no |
 
-Verified at `cli_handlers.py:1865-1871` (exit map), `diagnostic_report.py:296-307` (dispositions), `chip_test.py:1209` (`_RAN_VERDICTS` includes `MARGINAL`).
+Verified at `cli_handlers.py:1862-1868` (exit map), `diagnostic_report.py:290-301` (dispositions), `chip_test.py:1209` (`_RAN_VERDICTS` includes `MARGINAL`).
 
 **A sixth status would open a false-green path.** `_verdict_code` is `_VERDICT_EXIT_CODES.get(verdict, 0)` (`cli_handlers.py:1876`) — **an unrecognised verdict string exits `0`.** It would also miss every arm of `build_db_diff`, landing in the final `else` → `no change suggested` / no ladder tag, silently discarding the finding. Introducing a new status is therefore an **anti-feature** (§5). Use `marginal`.
 
@@ -191,7 +191,7 @@ Protocol `0x0D` has **no erase operation at all** (`chip_test.py:562-565`, and `
 
 **Both, with different intensity — and yes, a line prints on the happy path.** Rationale:
 
-- **Per-step** (`StepResult.reason`): required. It is the machine-readable, submitted-with-the-report record, and `dedup_fingerprint` **deliberately excludes `reason`** (`diagnostic_report.py:193-198`), so putting recovery text there cannot perturb dedup grouping.
+- **Per-step** (`StepResult.reason`): required. It is the machine-readable, submitted-with-the-report record, and `dedup_fingerprint` **deliberately excludes `reason`** (`diagnostic_report.py:190-195`), so putting recovery text there cannot perturb dedup grouping.
 - **Per-run console summary** (`click.echo`, mirroring `_ALWAYS_WRITES_NOTICE`'s unconditional print at the top of `dev_test`): required. The step reason is buried in a table; an aborted run is precisely the case where a stranger needs one unmissable instruction. `click.echo` not `logger.*` — the same reasoning `dev_sdp`'s D-10 line already records ("so this always reaches the user's console/CliRunner capture regardless of log-level wiring").
 - **On the happy path: print the neutral form, not the loud form.** An unconditional *warning* trains dismissal, which would cost exactly the case it exists for. But printing nothing means the note's "the run must end unlocked, **and the report must say so**" is unmet — silence is not a statement. A one-line neutral confirmation of the end state is honest, cheap, and keeps the warning's signal intact.
 - **No new `to_dict()` field.** Encode it in step `reason` text only. This keeps the D-06/D-07 discipline (no consumer learns a new field) and keeps `tools/parse_devtest_issue.py` untouched.
@@ -227,7 +227,7 @@ Protocol `0x0D` has **no erase operation at all** (`chip_test.py:562-565`, and `
 Two deliberate departures from `--skip-sdp-unlock`'s precedents, each with a reason:
 
 - **Non-0x0D: warn but do *not* act.** `--skip-sdp-unlock`'s D-18 arm still emits the flag bit, justified by "a blanket-flag script across a mixed batch must produce identical wire frames." That argument does not transfer: relock is a **separate command (CMD 10)**, not a bit on the write frame. Issuing CMD 10 at a non-`0x0D` part would be actively wrong, and *not* issuing it changes no write frame — so wire-identity is preserved by inaction.
-- **Capability-REFUSED: refuse, do not auto-skip.** `write` currently *auto-sets* `--skip-sdp-unlock` for this subset precisely because the lock/unlock sequence's bytes get stored as data at bus-truncated magic addresses on a part with no SDP decoder. Relocking such a part would walk straight into that hazard. Unlike the verify gate, this is knowable before any hardware is energized and the user's intent cannot be honoured *at all* — so refuse, mirroring `dev_sdp`'s Gate-2-outranks-everything ordering (`cli_handlers.py:2238-2246`). **This is where the deleted command's Gate 2 gets repurposed rather than discarded.**
+- **Capability-REFUSED: refuse, do not auto-skip.** `write` currently *auto-sets* `--skip-sdp-unlock` for this subset precisely because the lock/unlock sequence's bytes get stored as data at bus-truncated magic addresses on a part with no SDP decoder. Relocking such a part would walk straight into that hazard. Unlike the verify gate, this is knowable before any hardware is energized and the user's intent cannot be honoured *at all* — so refuse, mirroring `dev_sdp`'s Gate-2-outranks-everything ordering (`cli_handlers.py:2235-2243`). **This is where the deleted command's Gate 2 gets repurposed rather than discarded.**
 
 ### 4.3 Interaction with `--skip-sdp-unlock`: compatible, not contradictory
 
@@ -317,7 +317,7 @@ Of the file's 14 tests, several are worth **repurposing rather than deleting** �
 
 | Feature | Why Expected | Complexity | Notes / dependencies |
 |---|---|---|---|
-| **Delete `dev sdp`** | A command whose success line admits it proves nothing is surface debt; 999.15 removes it from stable anyway | **LOW–MEDIUM** | Clean tail truncation (`cli_handlers.py:2196-2321`). **Depends on** auto-unlock staying default-on (§6 of the note — record the dependency), `sdp_capability.py` surviving in full, `COMMAND_NAMES` entries surviving (`KeyError` at `eprom_operations.py:329`/`:405` otherwise), **and** updating `check_no_exists_proxy.py:156` |
+| **Delete `dev sdp`** | A command whose success line admits it proves nothing is surface debt; 999.15 removes it from stable anyway | **LOW–MEDIUM** | Clean tail truncation (`cli_handlers.py:2193-2318`). **Depends on** auto-unlock staying default-on (§6 of the note — record the dependency), `sdp_capability.py` surviving in full, `COMMAND_NAMES` entries surviving (`KeyError` at `eprom_operations.py:329`/`:405` otherwise), **and** updating `check_no_exists_proxy.py:156` |
 | **`write --sdp-relock`** | The only legitimate need `dev sdp` served (an AT28C destined for a live machine); gh#12 asked for it; minipro's `-P` is the class norm | **MEDIUM** | Depends on `sdp_lock` (`:1784`), `sdp_capability`, the verify outcome, and slotting beside `write`'s existing D-04 auto-set block |
 | **Recoverability report line** | An aborted run ships a locked chip to a stranger; §2.6 shows there is no identity gate behind it | **LOW** | Wording only; must say **rewrite**, never erase. No new report field |
 | **mypy gate-hardening → primary `ci` GREEN** | A **fail-open** gate is worse than no gate: it reported green while type-checking nothing, hiding 69 errors against a watermark of 35 | **MEDIUM–HIGH** | `check_mypy_watermark.py:56` shells to a bare `mypy` from `PATH`; devcontainer py3.12 vs configured `python_version = "3.9"`. Independent of every SDP item — can run in parallel |

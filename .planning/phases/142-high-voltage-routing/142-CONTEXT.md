@@ -202,7 +202,7 @@ names it — a worktree leaves submodules empty and `files_modified` under-detec
   additional guarantee.
 
 - **D-11:** **The guarantee covers control-register routes only. The address-bus `vpp_line` bit is an
-  explicit non-claim.** `mem_util_remap_address_bus` (`firestarter/src/proms/memory.cpp:346-348`)
+  explicit non-claim.** `mem_util_remap_address_bus` (`firestarter/src/proms/memory.cpp:418-420`)
   sets `1UL << config.vpp_line` **ignoring `read_write`** — it is asserted on reads too. Clearing it
   on write-path exit would therefore be a read-path behaviour change, which this milestone excluded.
   The phase record states plainly: the disable guarantee covers control-register routes; the

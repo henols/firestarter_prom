@@ -10,7 +10,7 @@ requires:
 provides:
   - "139-GH15-ORIGINAL-CRITERIA.md: gh#15's nine acceptance-criteria boxes captured verbatim, mechanically, from the live issue body"
   - "139-CITATIONS.md: the evidence register -- gh#15 before-state, three pinned commit SHAs, 15 content-verified citation rows, and the D-10 three-ref blob-equality baseline"
-  - "the corrected program-pulse anchor (memory.cpp:249-258, memory_set_data()) replacing 139-CONTEXT.md D-06's eprom.cpp:283 erase-pulse mis-citation"
+  - "the corrected program-pulse anchor (memory.cpp:321-330, memory_set_data()) replacing 139-CONTEXT.md D-06's eprom.cpp:283 erase-pulse mis-citation"
 affects: [139-02, 139-03, 139-04, 139-05]
 
 tech-stack:
@@ -27,7 +27,7 @@ key-files:
 
 key-decisions:
   - "gh#15 carries NINE acceptance-criteria boxes, not the seven both 139-CONTEXT.md and ROADMAP.md state -- confirmed by mechanical capture and grep -c, matching 139-RESEARCH.md F-01 exactly; recorded, not reconciled by editing either document."
-  - "memory.cpp:249-258 (memory_set_data()) is cited as the PROGRAM pulse; eprom.cpp:274-283 (eprom_internal_erase()) is kept in the register but explicitly relabelled the ERASE pulse, correcting 139-CONTEXT.md D-06's unqualified 'the pulse' attribution to eprom.cpp:283."
+  - "memory.cpp:321-330 (memory_set_data()) is cited as the PROGRAM pulse; eprom.cpp:274-283 (eprom_internal_erase()) is kept in the register but explicitly relabelled the ERASE pulse, correcting 139-CONTEXT.md D-06's unqualified 'the pulse' attribution to eprom.cpp:283."
   - "138-BASELINE.md dropped from the citation set (404s at the pushed tip; not in D-06's binding list) -- this plan and this phase need no git push."
   - ".planning/PROJECT.md withheld from public citation -- its C1/C2/C3 table is at a different line number locally (71) than at the pushed tip (61); a permalink from local numbers would 200 and point at the wrong ten lines."
 
@@ -127,7 +127,7 @@ session**, so these are fully re-verified by content rather than the `[CITED, no
 fallback RESEARCH's own session had to use (minipro was not local to that session and GitLab was
 unreachable from it).
 
-**The C3 anchor correction, stated explicitly in the register:** `memory.cpp:249-258`
+**The C3 anchor correction, stated explicitly in the register:** `memory.cpp:321-330`
 (`memory_set_data()`) is cited as **the PROGRAM pulse**. `eprom.cpp:274-283`
 (`eprom_internal_erase()`) is kept in the register — relabelled explicitly as **the ERASE pulse** —
 because `139-CONTEXT.md` D-06 lists `eprom.cpp:283` as C3's "the pulse" anchor with no qualifier, and
@@ -204,7 +204,7 @@ both tasks); the phase's one `checkpoint:human-action` gate belongs to plan 139-
   `139-GH15-COMMENT.md`; `139-GH15-ORIGINAL-CRITERIA.md` is the verbatim source both the `<details>`
   block (D-01, if the body amendment is authorized) and the D-10 post-edit read-back assertion consume.
 - **The corrected C3 anchor set is now on record**: `139-GH15-COMMENT.md`'s drafting task (139-03)
-  should cite `memory.cpp:249-258` for the program pulse and, if `eprom.cpp:283` is mentioned at all,
+  should cite `memory.cpp:321-330` for the program pulse and, if `eprom.cpp:283` is mentioned at all,
   label it explicitly as the erase pulse — never as an unqualified "the pulse."
 - **No push is required anywhere in this phase**: `138-BASELINE.md` was dropped from the citation set
   specifically so the phase's only outward act stays the post itself (139-05), per D-08's shape.

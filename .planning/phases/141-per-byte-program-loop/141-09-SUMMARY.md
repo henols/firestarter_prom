@@ -110,7 +110,7 @@ status: complete
   first live reference), the MERGE-05 RED recorded verbatim with the operator's pre-dispatch decision
   to accept it, the D-13 inventory movement (tier-2 grew 21→24, correcting D-11's "shrinkage" framing
   as a finding), LOOP-03's arithmetic-only non-claim, the traced "hard-fails the block" abort chain
-  (`eprom_operations.cpp:120-122` → `firestarter.cpp:289-291`'s `command_done()`), the new message-ID
+  (`eprom_operations.cpp:115-117` → `firestarter.cpp:284-286`'s `command_done()`), the new message-ID
   band cost (`0xBF` is the ERROR band's only remaining free slot; `MSG_ERR_WRITE_FAILED` is now
   emitted by nothing on the 27C path), the two orphaned catalog IDs (left assigned, not deleted),
   LOOP-06's protocol-scoped read-skip finding, the `STROBE_KIND_DATA` oracle finding, the corrected

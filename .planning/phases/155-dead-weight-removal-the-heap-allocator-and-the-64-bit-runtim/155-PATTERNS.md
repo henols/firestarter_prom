@@ -9,7 +9,7 @@
 
 ## ⚠ Three corrections to the incoming brief (verified against the tree)
 
-1. **`include/memory_utils.h` is NOT in Phase 155's scope.** `grep -n progress include/memory_utils.h include/firestarter.h` → the only hit in the whole pair is `include/firestarter.h:226: void* progress_data;`. The reference's `memory_utils.h` hunk declares `mem_util_report_voltage`/`mem_util_report_chip_id`, which RESEARCH.md's scope fence assigns to **Phase 156**. Drop it from the file list.
+1. **`include/memory_utils.h` is NOT in Phase 155's scope.** `grep -n progress include/memory_utils.h include/firestarter.h` → the only hit in the whole pair is `include/firestarter.h:231: void* progress_data;`. The reference's `memory_utils.h` hunk declares `mem_util_report_voltage`/`mem_util_report_chip_id`, which RESEARCH.md's scope fence assigns to **Phase 156**. Drop it from the file list.
 2. **`platformio.ini`'s `build_src_filter` is at lines 205, 294, 332, 370, 412, 468 — not `:227` / `:307`.** RESEARCH.md's citations are already stale against `2ad5b32` (Phase 154 reflowed the file's comments). Six identical occurrences, one per native env. Verified: `grep -n build_src_filter platformio.ini`. Plans must cite the symbol/env, not these line numbers (Phase 159 owns citation repair, and this file will move again in 156–158).
 3. **Adding `scripts/check_no_heap_or_64bit_symbols.py` mechanically forces three more edits** via `tests/test_checker_convention.py` — see "Shared Patterns → The checker convention" below. This is the single highest-value finding for the planner: the new gate is not one file, it is four.
 
@@ -87,7 +87,7 @@ For this phase substitute `firestarter_{key}.elf`. **Note:** `check_release_asse
 2 -- ERROR: fail-closed (missing/unreadable input, unresolvable target,
      or a malformed CLI invocation) -- categorically distinct from 1
 ```
-Map for this gate: **0** = every ELF present and heap/64-bit counts all zero; **1** = a forbidden symbol is present; **2** = an ELF is missing/unreadable, `avr-nm` is absent or exits non-zero, or the `avr_targets` key set is unusable. The paired pytest asserts the **literal 2**, not merely non-zero (`tests/test_check_size_baseline.py:648-660`), so the split must be real.
+Map for this gate: **0** = every ELF present and heap/64-bit counts all zero; **1** = a forbidden symbol is present; **2** = an ELF is missing/unreadable, `avr-nm` is absent or exits non-zero, or the `avr_targets` key set is unusable. The paired pytest asserts the **literal 2**, not merely non-zero (`tests/test_check_size_baseline.py:646-658`), so the split must be real.
 
 **Fail-closed message + PASS shape** (`check_release_assets.py:104-116`):
 ```python
@@ -114,7 +114,7 @@ The PASS line **must name every env compared** — `test_check_release_assets.py
 
 **Analog:** `tests/test_check_release_assets.py` + `tests/test_check_size_baseline.py`.
 
-**Path resolution and runner** (`tests/test_check_size_baseline.py:490-515`):
+**Path resolution and runner** (`tests/test_check_size_baseline.py:495-520`):
 ```python
 _HERE = Path(__file__).resolve().parent
 _REPO_ROOT = _HERE.parent
@@ -141,7 +141,7 @@ _MISSING_BUILD_ROOT = _FIXTURES / "planted_release_assets_missing_uno328pb" / "p
 ...
 result = _run_checker(["--build-root", str(_CLEAN_BUILD_ROOT)])
 ```
-and the assertion shape (`test_check_size_baseline.py:636-646`):
+and the assertion shape (`test_check_size_baseline.py:634-644`):
 ```python
 assert result.returncode != 0, (
     f"expected non-zero exit on a planted flash regression.\n"
@@ -348,7 +348,7 @@ plus, inside `mem_util_blank_check`: delete the `blank_check_progress_data_t* pr
 
 **🚩 Defect in this hunk's comment:** *"roughly 470 B of free RAM once `handle` (1115 B) and the jsmn token array (512 B) are accounted for"* is RESEARCH.md **C-3** — it double-counts the 512 B (on `uno`, `handle` is **603 B**, and `603 + 512 = 1115`). Use C-3's corrected sentence, and RESEARCH.md's stronger framing that the 473 B is *shared heap-and-stack* headroom, so the true margin is **less than 473 B**.
 
-**Placement:** the deleted `typedef` sits at `memory.cpp:393-395`, immediately above `#define BLANK_CHECK_CHUNK_SIZE 2048` (`:397`). Put the static where the typedef was.
+**Placement:** the deleted `typedef` sits at `memory.cpp:489-460`, immediately above `#define BLANK_CHECK_CHUNK_SIZE 2048` (`:397`). Put the static where the typedef was.
 
 **Local-idiom analog (weak, and the planner should know it is weak):** `grep -rnE "^static <type> <name>;" src/` finds **exactly one** mutable file-scope static in the whole firmware — `src/boards/uno_rurp_shield.cpp:36`:
 ```c
@@ -382,16 +382,16 @@ One-line delete at `:226`, inside `firestarter_handle_t`:
 
 Three sites. Current text and in-file idiom:
 
-**Site 1 — `:237-240`** (the "third stale comment"; the block actually spans 230-240, and the `memory.cpp:393` pin is already stale — `BLANK_CHECK_CHUNK_SIZE` is at `:397` today):
+**Site 1 — `:237-240`** (the "third stale comment"; the block actually spans 230-240, and the `memory.cpp:489` pin is already stale — `BLANK_CHECK_CHUNK_SIZE` is at `:397` today):
 ```c
  * false so the deleted conditional's guard would have been satisfied. mem_size is a small 2048 --
- * BLANK_CHECK_CHUNK_SIZE (memory.cpp:393) -- because mem_util_blank_check
+ * BLANK_CHECK_CHUNK_SIZE (memory.cpp:489) -- because mem_util_blank_check
  * sets is_operation_in_progress and mallocs progress_data on its FIRST call
  * regardless of mem_size, so the oracle below does not depend on how large
  * mem_size is. */
 ```
 
-**Site 2 — `:317-325`**, with its stale `memory.cpp:401-405` pin.
+**Site 2 — `:317-325`**, with its stale `memory.cpp:494-498` pin.
 
 **Site 3 — the assertion at `:339-342`**, whose surviving Unity siblings define the local idiom exactly:
 ```c
@@ -429,7 +429,7 @@ Three sites. Current text and in-file idiom:
 
 ### `test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp` (native test)
 
-Two sites, same idiom. Comment block `:1770-1778` (with the stale `memory.cpp:401-425` pin) and the assertion at `:1788-1791`; surviving siblings at `:1783-1787` (`TEST_ASSERT_FALSE_MESSAGE`) and `:1792` (`sdp_assert_stream_equals(SDP_FIXED_DIP28_28C256, …)`) — the stream-identity assertion is untouched and is the case's real oracle.
+Two sites, same idiom. Comment block `:1770-1778` (with the stale `memory.cpp:494-512` pin) and the assertion at `:1788-1791`; surviving siblings at `:1783-1787` (`TEST_ASSERT_FALSE_MESSAGE`) and `:1792` (`sdp_assert_stream_equals(SDP_FIXED_DIP28_28C256, …)`) — the stream-identity assertion is untouched and is the case's real oracle.
 
 ---
 
@@ -470,7 +470,7 @@ Note the two load-bearing conventions: **"each number carries the verbatim comma
 
 ### The checker convention — `tests/test_checker_convention.py` (applies to the new gate script; **HARD, mechanically enforced**)
 
-**Source:** `tests/test_checker_convention.py:125-130` and its seven tests.
+**Source:** `tests/test_checker_convention.py:149-152` and its seven tests.
 ```python
 CHECKER_GLOB = "check_*.py"
 
@@ -520,5 +520,5 @@ Every artefact ties back by ID: Unity messages start `"ERASE-02: "`; pytest and 
 
 **Analog search scope:** `/workspaces/firestarter/{scripts,tests,src,include,test,platformio.ini,.github/workflows}`, `/workspaces/.planning/v1.33/`, and the preserved reference range `8695ee5..a6b46f8`.
 **Firmware HEAD at mapping time:** `2ad5b32`, working tree clean.
-**Analogs read in full or by targeted range:** `scripts/check_release_assets.py` (whole), `scripts/check_erase_no_vpp.py` (`:1-200`, `:200-345`), `tests/test_checker_convention.py` (`:1-200`), `tests/test_check_size_baseline.py` (`:1-60`, `:490-668`), `tests/test_write_path_source_contract_v131.py` (`:140-300`, `:394-428`, `:641-700`), `tests/test_config_storage_dualslot.py` (`:1-40`, `:480-560`), `tests/test_check_release_assets.py` (index), `src/boards/uno_rurp_shield.cpp:25-60`, `src/proms/memory.cpp:385-400`, `include/firestarter.h:218-230`, both native suites' cited ranges, `platformio.ini` `build_src_filter` sites.
+**Analogs read in full or by targeted range:** `scripts/check_release_assets.py` (whole), `scripts/check_erase_no_vpp.py` (`:1-200`, `:200-345`), `tests/test_checker_convention.py` (`:1-200`), `tests/test_check_size_baseline.py` (`:1-60`, `:490-668`), `tests/test_write_path_source_contract_v131.py` (`:140-300`, `:394-428`, `:641-700`), `tests/test_config_storage_dualslot.py` (`:1-40`, `:480-560`), `tests/test_check_release_assets.py` (index), `src/boards/uno_rurp_shield.cpp:25-60`, `src/proms/memory.cpp:453-493`, `include/firestarter.h:223-234`, both native suites' cited ranges, `platformio.ini` `build_src_filter` sites.
 **Pattern extraction date:** 2026-08-23

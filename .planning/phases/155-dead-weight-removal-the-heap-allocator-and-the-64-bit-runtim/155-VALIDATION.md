@@ -74,7 +74,7 @@ mapping below is fixed by research and is what each task must inherit.*
 | TBD | TBD | **0** | DEAD-01, DEAD-03 | that gate is **not hollow** — a planted `malloc` turns it RED | planted negative | reinstate one `malloc` in a throwaway worktree, run the gate, record RED | ❌ **W0** | ⬜ pending |
 | TBD | TBD | **0** | DEAD-04, DEAD-05 | numerical oracle + source-contract scan | pytest | `python3 -m pytest tests/test_voltage_reformulation_oracle.py -q` | ❌ **W0** | ⬜ pending |
 | TBD | TBD | 1+ | DEAD-01 | no `malloc`/`free`/`realloc`/`calloc`/`__brkval` in any of 3 images | image/link assertion | `avr-nm` gate → `heap=0` ×3 | ❌ W0 | ⬜ pending |
-| TBD | TBD | 1+ | DEAD-02 | unchecked deref removed; recorded as a **latent defect closed** | source diff + phase record | `git diff` shows `memory.cpp:409-411` gone; subsumed by the DEAD-01 gate | ✅ | ⬜ pending |
+| TBD | TBD | 1+ | DEAD-02 | unchecked deref removed; recorded as a **latent defect closed** | source diff + phase record | `git diff` shows `memory.cpp:502-500` gone; subsumed by the DEAD-01 gate | ✅ | ⬜ pending |
 | TBD | TBD | 1+ | DEAD-03 | no 64-bit runtime helper in any of 3 images | image/link assertion | `avr-nm` gate over **11** symbols → `64bit=0` ×3 | ❌ W0 | ⬜ pending |
 | TBD | TBD | 1+ | DEAD-03 | `rurp_read_voltage_mv` body 434 → ~230 B; no `uint64_t` reappears | size + source contract | `avr-nm --print-size \| grep read_voltage_mv`; pytest `"uint64_t" not in fn` | ❌ W0 | ⬜ pending |
 | TBD | TBD | 1+ | DEAD-04 | bit-identity at shipped calibration; ≤5 mV over the grid; **both guards**; `r2==0` → 0 | numerical oracle | same pytest file — grid (470,016 evals / 0.44 s) **+ 4 guard-boundary cases + 2 sentinels** | ❌ W0 | ⬜ pending |

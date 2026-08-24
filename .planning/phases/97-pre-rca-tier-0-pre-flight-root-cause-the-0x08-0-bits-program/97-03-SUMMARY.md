@@ -50,7 +50,7 @@ completed: 2026-06-30
 - The passing sibling **exonerates all shared axes** (handler `memory.cpp:122`, pulse width, CE-only program model, regulator, VPE-drop, verify). The 8-row differential matrix collapses to the two 32-pin-only axes: **P1-VPP-delivery** + **pin-31-as-address**.
 
 ### RCA-03 — verdicts + named cause (D-03 exit bar)
-- **RC-1 CONFIRMED (leading):** pin 31 modeled as A18 address line (`database.py:141` pin_conversions[32][31]=22), CE-only strobe (`memory.cpp:274`) → chip gets VPP at pin 1 but no program-enable on pin 31 → 0 bits. Backed by code + the 0x07/0x08 differential + RC-2 elimination.
+- **RC-1 CONFIRMED (leading):** pin 31 modeled as A18 address line (`database.py:141` pin_conversions[32][31]=22), CE-only strobe (`memory.cpp:346`) → chip gets VPP at pin 1 but no program-enable on pin 31 → 0 bits. Backed by code + the 0x07/0x08 differential + RC-2 elimination.
 - **RC-2 EXONERATED:** `-f 0x188` → physical `CTRL 0x89`, P1-route asserted (H2 disproven) + VPP level 13.0V → VPP reaches pin 1; 0x07 sibling proves regulator/drop/pulse. (Routing is code-confirmed; bench pin-1 DMM tooling-blocked.)
 - **RC-3 / RC-4 not pursued** — D-03 trigger not met (RC-1 accounts for the symptom). RC-4's 0x08 alias (`CTRL_VPP_P1_ENABLE_REV2 == CTRL_ADDRESS_LINE_18_REV2`, dormant at A18=0) flagged as a Phase-98 fix-design concern.
 - **RC-5 INDETERMINATE pre-fix** — 0-flip consistent with broken-path AND OTP; never triggers deferral (D-01/D-06). No deferral disposition recorded.

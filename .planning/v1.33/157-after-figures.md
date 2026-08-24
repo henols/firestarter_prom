@@ -266,7 +266,7 @@ toolchain will keep deduplicating it.
 
 ## 5. DECODE-03's evidence -- twelve compile-time guards, closed by execution
 
-**Twelve `_Static_assert` guards** stand in `src/json_parser.c:176-221` -- eleven per-member
+**Twelve `_Static_assert` guards** stand in `src/json_parser.c:364-409` -- eleven per-member
 offset/width checks plus one row-count check (`sizeof(key_parsers) / sizeof(key_parsers[0]) ==
 11`). This is a **NEW idiom for this repository in a C translation unit**; the only
 pre-existing static assert is the C++-guarded one at `include/eprom_params.h:62`, inert in
@@ -279,7 +279,7 @@ worktree (`git worktree add --detach /tmp/157-07-probe/firestarter HEAD`, leaf n
 **Probe 1 -- struct reorder** (`mem_size` moved from before `address` to immediately after
 `data_buffer` in `include/firestarter.h`):
 ```
-src/json_parser.c:176:1: error: static assertion failed: "mem_size: a struct reorder moved it
+src/json_parser.c:364:1: error: static assertion failed: "mem_size: a struct reorder moved it
 past the uint8_t offset column's range, or gave it a width the 32-bit store cannot carry"
  _Static_assert(offsetof(firestarter_handle_t, mem_size) < 256 &&
  ^~~~~~~~~~~~~~
@@ -289,7 +289,7 @@ past the uint8_t offset column's range, or gave it a width the 32-bit store cann
 **Probe 2 -- planted twelfth `key_parsers[]` row** (a duplicate `FIELD(key_page_size,
 page_size, 0)` row appended):
 ```
-src/json_parser.c:221:1: error: static assertion failed: "key_parsers row count changed -- add
+src/json_parser.c:409:1: error: static assertion failed: "key_parsers row count changed -- add
 or remove the matching per-member offset guard above to match"
  _Static_assert(sizeof(key_parsers) / sizeof(key_parsers[0]) == 11,
  ^~~~~~~~~~~~~~
@@ -438,7 +438,7 @@ worktree, fully discarded):**
 
 Probe A (saturation branch deleted from `store_field`):
 ```
-test_read_timing_params.cpp:192:test_out_of_range_algorithm_saturates_not_truncates:FAIL: Expected 255 Was 5. 261 must saturate to 0xFF, not truncate to 0x05 -- 0x05 is PROTO_FLASH_5V_PAGE, a real handler configure_memory would dispatch into
+test_read_timing_params.cpp:552:test_out_of_range_algorithm_saturates_not_truncates:FAIL: Expected 255 Was 5. 261 must saturate to 0xFF, not truncate to 0x05 -- 0x05 is PROTO_FLASH_5V_PAGE, a real handler configure_memory would dispatch into
 test_read_timing_params.cpp:213:test_out_of_range_algorithm_dispatch_fail_closes:FAIL: Expected 0 Was 1. this is the case that would have caught the defect: the stored byte being right (S1) is not the same claim as the dispatch fail-closing -- a saturated 0xFF must reach configure_memory's generic fail-closed tail
 test_read_timing_params.cpp:310:test_out_of_range_flags_masks_never_sets_every_flag:PASS   <- VACUOUS, see C-18
 test_read_timing_params.cpp:289:test_out_of_range_page_size_saturates_not_truncates_to_a_valid_size:FAIL: Expected 65535 Was 64. 65600 must saturate to 0xFFFF, not truncate to 64 -- 64 is a perfectly valid page size, which is what makes the hole silent
@@ -475,7 +475,7 @@ unmapped in `configure_memory`'s dispatch chain -- a property of the dispatch ta
 
 ## 8. DECODE-06's evidence -- the read-timing cap
 
-`#define READ_TIMING_MAX_US 1000UL` is hoisted above `key_parsers[]` (`src/json_parser.c:60`,
+`#define READ_TIMING_MAX_US 1000UL` is hoisted above `key_parsers[]` (`src/json_parser.c:71`,
 above the table at `:133`) -- the `clamp` column now folds T-44-01's requirement directly into
 the table.
 
@@ -487,15 +487,15 @@ was tightened from `TEST_ASSERT_TRUE(<=)` to `TEST_ASSERT_EQUAL_UINT32`.
 **The equality-RED / upper-bound-GREEN contrast (probe C2, verbatim from `157-05-SUMMARY.md`),
 on `store_field`'s clamp step changed to store `0` instead of the clamp value:**
 ```
-test_read_timing_params.cpp:127: test_read_settling_us_capped_at_max: Expected 1000 Was 0. ... [FAILED]
-test_read_timing_params.cpp:144: test_read_strobe_us_capped_at_max: Expected 1000 Was 0. ... [FAILED]
+test_read_timing_params.cpp:161: test_read_settling_us_capped_at_max: Expected 1000 Was 0. ... [FAILED]
+test_read_timing_params.cpp:178: test_read_strobe_us_capped_at_max: Expected 1000 Was 0. ... [FAILED]
 ============ 16 test cases: 2 failed, 13 succeeded ============
 ```
 Same broken tree, `test_read_settling_us_capped_at_max` temporarily reverted to its old
 upper-bound form:
 ```
 test_read_timing_params.cpp:331: test_read_settling_us_capped_at_max	[PASSED]
-test_read_timing_params.cpp:141: test_read_strobe_us_capped_at_max: Expected 1000 Was 0. ...	[FAILED]
+test_read_timing_params.cpp:175: test_read_strobe_us_capped_at_max: Expected 1000 Was 0. ...	[FAILED]
 ============ 16 test cases: 1 failed, 14 succeeded ============
 ```
 **The upper-bound form PASSES on the identical clamp-to-zero-broken tree that reddens the
@@ -506,7 +506,7 @@ use the firmware default of 3 microseconds), so the weaker form was dangerous, n
 loose.
 
 **C-21, the unremovable duplicate:** two `READ_TIMING_MAX_US` definitions exist (the
-production `#define` at `src/json_parser.c:60`, a file-scope constant in a `.c` translation
+production `#define` at `src/json_parser.c:71`, a file-scope constant in a `.c` translation
 unit; the test-local `#define` in `test_read_timing_params.cpp`) with no header export linking
 them -- the test cannot reference the production constant directly. Recorded in a drift-risk
 comment above the test-local definition, not fixed.
@@ -658,7 +658,7 @@ All ten from the plan's own frontmatter, plus C-20, C-21, C-22 as ceilings in th
 | C-6 | DECODE-05's per-stub form "could not" saturate `pins`/`chip_id`/`vpp_mv`/`page_size` | Those four are already narrow and already silently truncated by `extract_int`/`extract_long`; only `protocol` and `ctrl_flags` gain a genuinely new hole | **CLOSED**, §7 |
 | C-7 | (omission) saturating `ctrl_flags` would set every dangerous flag | `ctrl_flags` uses `FIELD_MASK`, never saturates (OD-1); confirmed load-bearing at final position, §6 | **CLOSED** |
 | C-8 | DECODE-06 "proven by a test" | `read-strobe-us` had NO cap test before this phase; plan 05 added one and tightened both assertions to equality | **CLOSED**, §8 |
-| C-9 | (implicit) the `#define` must move | Hoisted to `src/json_parser.c:60`, above the table at `:133`, confirmed this session | **CLOSED**, §8 |
+| C-9 | (implicit) the `#define` must move | Hoisted to `src/json_parser.c:71`, above the table at `:133`, confirmed this session | **CLOSED**, §8 |
 | C-10 | DECODE-07 cites `uno` 25696 (switch) vs 25678 (if-chain) | Fresh pair at this position: `uno` 23108 (switch) vs 23090 (if-chain), +18 B, coincidentally matching magnitude only | **CLOSED**, §9 |
 | C-11 | (implicit) patch applies like Phase 156's | Does NOT apply cleanly: hunk #3 fails at every `-C` level (before-record §7); implementation is a hand-port | **CLOSED** (before-record) |
 | C-12 | (implicit) phase is firmware-only | With the reference change, one host gate would go RED and its sibling pass vacuously unless `key_parsers` kept (OD-2) -- kept, zero `firestarter_app` files changed this phase | **CLOSED**, plan 02/03 SUMMARYs |
@@ -759,7 +759,7 @@ this figures record will not necessarily reach the backlog entry that carries th
 **To Phase 159:**
 - Every `file:LINE` citation in this record and in `157-before-figures.md` was measured against
   the current, post-Phase-154 tree and will be remapped **once**, over the composite diff
-  (D-01, D-05). This record's own §3-§9 citations (e.g. `src/json_parser.c:60`, `:133`,
+  (D-01, D-05). This record's own §3-§9 citations (e.g. `src/json_parser.c:71`, `:133`,
   `:176-221`, `:348`, `:379`) are current as of `785e644` and will shift again once Phase 158
   lands its own edits.
 - Plan 02's two new `#include` lines (`<stddef.h>`, `<string.h>`) shifted every citation in

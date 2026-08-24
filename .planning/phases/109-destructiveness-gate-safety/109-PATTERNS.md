@@ -285,7 +285,7 @@ this test; a dedicated `ci.yml` step is optional (D-03).
 ## Shared Patterns
 
 ### Unit-test seam (mock operator + skip_local_override)
-**Source:** `tests/test_chip_test.py:276, 488-508` and `cli_handlers.py:1476-1626`
+**Source:** `tests/test_chip_test.py:276, 488-508` and `cli_handlers.py:1474-1624`
 **Apply to:** every `chip_test.py` change
 
 ```python
@@ -295,7 +295,7 @@ op = Mock(spec=["check_eprom_id", "read_eprom", "check_eprom_blank",
                 "write_eprom", "verify_eprom", "erase_eprom"])
 op.write_eprom.return_value = True
 ```
-`dev_validate_family` (`cli_handlers.py:1568-1578`) is the sibling handler that
+`dev_validate_family` (`cli_handlers.py:1566-1576`) is the sibling handler that
 uses the same `resolve_chip(name, db=app.db)` + compose-existing-operator-method
 pattern that `run_plan`/`_run_step` follow — keep `dev test` (Phase 112)
 structurally identical (no VPP, no wire dict, no `--force`).

@@ -27,7 +27,7 @@ it — and land the operator's `dev test` redesign at the same time.
 
 **Newly pulled in by decisions below (each recorded, none a scope leak):**
 - The root-cause `FLAG_CAN_ERASE` fix for `0x0D` in `database.py` (decision 12), which **reverses**
-  `database.py:592`'s explicit *"must stay unchanged"* note. Third reversal in this phase.
+  `database.py:591`'s explicit *"must stay unchanged"* note. Third reversal in this phase.
 - The `--skip-erase` / `-b` host-side warn on `0x0D` (decision 13), closing Phase 120's deferred
   flag-surface honesty item so GATE-02 documents a fixed state rather than a wart.
 - `tools/catalog/messages.toml`'s `0x5F` honesty caveat plus both regenerated mirrors (decision 15).
@@ -128,7 +128,7 @@ and forbidden claims.
 - **D-06: A seventh op string `OP_WRITE_PARTIAL` joins the vocabulary.**
   The distinction is visible in the op name itself, so every consumer sees it without learning a new
   field, and `dedup_fingerprint` differentiates a partial run from a full one **automatically**
-  (`diagnostic_report.py:177-206` hashes `f"{op}={verdict}:{classification}"`). Owned task work: the
+  (`diagnostic_report.py:174-203` hashes `f"{op}={verdict}:{classification}"`). Owned task work: the
   `chip_test.py` frozensets `_DESTRUCTIVE_OPS` and `_MULTI_RUN_OPS`, `diagnostic_report.py`'s
   renderer and `to_dict`, the `tests/test_audit_coverage_matrix.py` golden, and **back-compat for
   `3.0.0b11` reports already in the wild**, which carry only the old six strings. Rejected: keeping
@@ -151,7 +151,7 @@ and forbidden claims.
 - **D-08: A partial run still auto-tags `ladder_state = community-reported`.**
   All-OK is all-OK regardless of coverage; coverage judgement stays with the human maintainer who
   reads the report. **Verified free:** `build_db_diff` keys **only** on the verdict set
-  (`diagnostic_report.py:272-284`) and never on op names, so the new string needs no ladder change
+  (`diagnostic_report.py:266-278`) and never on op names, so the new string needs no ladder change
   at all. **The mitigation that makes this safe, and it must be stated in the phase artifacts:**
   `count_agreeing` groups saved bodies by `dedup_fingerprint`, and D-06 changes that hash, so a
   partial run can **never** cross-agree with a full run toward the N≥2 promotion rule. Phase 114's
@@ -198,7 +198,7 @@ and forbidden claims.
 - **D-12: `FLAG_CAN_ERASE` is cleared for algorithm `0x0D` in `convert_to_programmer`.**
   The root-cause fix, not a `derive_plan`-local arm: with the bit clear, `derive_plan`'s existing
   generic branch produces the `NA` erase step for free and every downstream advertisement corrects
-  itself. This **reverses** `database.py:592`'s explicit *"leaving it set on 0x0D is firmware-inert
+  itself. This **reverses** `database.py:591`'s explicit *"leaving it set on 0x0D is firmware-inert
   and must stay unchanged"* note — the **third** recorded reversal in this phase, and it must be
   written up as one. **Blast radius verified live, all four facts:** `diff_db.py` identity is
   **unaffected** (`chip_database.json` carries no `flags` key; the bit is computed at runtime); **no**
@@ -481,7 +481,7 @@ and forbidden claims.
   entry in the spec. D-12's firmware-side exposure is nil.
 - **`serial_comm.py:549`'s `FLAG_CAN_ERASE` read is inside `_log_command_details`, guarded by
   `logger.isEnabledFor(logging.DEBUG)`.** DEBUG-only; not a behavioural consumer.
-- **`build_db_diff`'s ladder logic keys only on the verdict set** (`diagnostic_report.py:272-284`),
+- **`build_db_diff`'s ladder logic keys only on the verdict set** (`diagnostic_report.py:266-278`),
   never on op names — so D-06's new string auto-tags `community-reported` with zero code change.
 - **`dedup_fingerprint` hashes op names** (`f"{op}={verdict}:{cls}"`, `:198-204`) — so D-06
   differentiates partial from full runs for free, and `count_agreeing`'s fingerprint grouping means
@@ -510,9 +510,9 @@ and forbidden claims.
   and nothing triage-gated. D-11's `gh issue comment` must match it.
 - **`tests/test_submit.py:301-320`** — the negative-argv idiom (assert the flag is *never* sent).
 - **HOST-02's D-18 warn-and-proceed pattern** (`cli_handlers.py:547-551`) — D-13's exact template.
-- **`_is_interactive()`** (`cli_handlers.py:1802-1809`) — monkeypatchable precisely because
+- **`_is_interactive()`** (`cli_handlers.py:1799-1806`) — monkeypatchable precisely because
   `CliRunner` replaces `sys.stdin`. D-03's TTY seam.
-- **SAFE-04's `get_eprom`-emptiness hard-fail** (`cli_handlers.py:1932-1933`) — keyed off DB
+- **SAFE-04's `get_eprom`-emptiness hard-fail** (`cli_handlers.py:1929-1930`) — keyed off DB
   emptiness, never a `resolve_chip` refusal. Survives D-05 unchanged.
 
 ### Established Patterns

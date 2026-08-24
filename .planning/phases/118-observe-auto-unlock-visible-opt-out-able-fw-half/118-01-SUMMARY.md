@@ -9,7 +9,7 @@ requires:
   - phase: 117-fix-remap-aware-0x0d-emitter-honest-completion-signal
     provides: "eeprom28c_emit_command_sequence and eeprom28c_wait_for_sdp_completion as two separate, brace-matchable static functions inside eeprom_28c.cpp"
 provides:
-  - "check_no_log_in_sdp_window.py's scanned window redefined to the union of the emitter body (eeprom_28c.cpp:206-222) and the completion-poll body (eeprom_28c.cpp:256-269), replacing the old between-the-call-sites span"
+  - "check_no_log_in_sdp_window.py's scanned window redefined to the union of the emitter body (eeprom_28c.cpp:206-222) and the completion-poll body (eeprom_28c.cpp:244-257), replacing the old between-the-call-sites span"
   - "The committed anti-hollow fixture (planted_log_in_window.cpp) re-planted inside the emitter body (line 35), still failing the gate"
   - "All 4 broken pytest cases (2, 3, 4, 6) repaired by name plus a new completion-poll-body negative (case 7) -- 7 total cases, all green"
   - "D-11 preserved: the gate still asserts exactly one thing (no logging call in the timing window); no AT28C_TBLC_MAX_US citation-presence check added"
@@ -87,7 +87,7 @@ status: complete
 
 ## Accomplishments
 
-- `check_no_log_in_sdp_window.py` now brace-matches TWO function bodies — `eeprom28c_emit_command_sequence` (`eeprom_28c.cpp:206-222`) and `eeprom28c_wait_for_sdp_completion` (`eeprom_28c.cpp:256-269`) — and scans their union, instead of the old span between the two call sites inside `eeprom28c_write_init`. Verified against the real, unmodified `eeprom_28c.cpp`: `PASS: no logging call in SDP timing window (..., emitter lines 206-222, completion-poll lines 256-269)`, exit 0.
+- `check_no_log_in_sdp_window.py` now brace-matches TWO function bodies — `eeprom28c_emit_command_sequence` (`eeprom_28c.cpp:206-222`) and `eeprom28c_wait_for_sdp_completion` (`eeprom_28c.cpp:244-257`) — and scans their union, instead of the old span between the two call sites inside `eeprom28c_write_init`. Verified against the real, unmodified `eeprom_28c.cpp`: `PASS: no logging call in SDP timing window (..., emitter lines 206-222, completion-poll lines 256-269)`, exit 0.
 - `_find_function_body` generalised from a module-constant-bound lookup to `_find_function_body(cleaned_text, func_name)`, driven by a new `_func_def_pattern(func_name)` helper built from the same `\bvoid\s+<name>\s*\([^)]*\)\s*\{` template as before (still excludes the `;`-terminated forward declarations, still tolerates `static` and multi-arg signatures).
 - `_EMIT_ANCHOR_PATTERNS` / `_WAIT_ANCHOR_PATTERNS` kept **append-only**, unchanged in content, and repurposed inside a new `_resolve_windows` helper as a secondary rename-tripwire: after resolving both bodies, `eeprom28c_write_init`'s body is still brace-matched and still required to contain one emit anchor followed by one wait anchor. If a future refactor moves the emitter or poll call out of `write_init` entirely, this still fails closed.
 - The committed anti-hollow fixture (`tests/fixtures/planted_log_in_window.cpp`) re-planted: gained a `static void eeprom28c_emit_command_sequence(...)` body (with the planted `LOG_INFO_ID(MSG_DEBUG);` inside it, at line 35) and a clean `static void eeprom28c_wait_for_sdp_completion(...)` body; `eeprom28c_write_init` now calls both by their post-117 names. Verified: `FIRESTARTER_SDP_SRC=tests/fixtures/planted_log_in_window.cpp python tools/check_no_log_in_sdp_window.py` → `FAIL: 1 logging call(s) ... line 35: LOG_INFO_ID(...)`, exit 1, no `ERROR:` on stderr.

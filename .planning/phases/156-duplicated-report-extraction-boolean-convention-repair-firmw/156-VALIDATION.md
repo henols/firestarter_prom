@@ -96,7 +96,7 @@ mapping below is fixed by research and is what each task must inherit.*
 | TBD | TBD | **0** | all | Pre-change before-figures captured and committed **before any edit** — 3 flash/RAM pairs, `eprom_check_vpp` 524 B, `flash_intel_check_vpp` 562 B, `__udivmodhi4` **31** sites (not 30 — C-2) | measurement | `pio run -e {uno,uno328pb,leonardo}` + `avr-nm --print-size --size-sort -C` + `avr-objdump -d \| grep -cE '(r?call\|jmp).*__udivmodhi4'` | ❌ **W0** | ⬜ pending |
 | TBD | TBD | **0** | DEDUP-03 | Under-voltage `(MSG_WARN_VPP_LOW, RESPONSE_CODE_WARNING)` pairing asserted — closes **BLIND SPOT 1** (probe B) | native planted-negative | `pio test -e native_loop_v131` → `test_vpp_eprom_v131` | ❌ **W0** (not CI-visible) | ⬜ pending |
 | TBD | TBD | **0** | DEDUP-03 | Chip-ID **message id** asserted (`MSG_WARN_CHIP_ID_MISMATCH` / `MSG_ERR_CHIP_ID_MISMATCH`) — closes **BLIND SPOT 2** (probe D) | native planted-negative | `pio test -e native` → `test_eeprom28c_sdp` / `test_sdp_harness` | ❌ **W0** ⚠ needs an id-capture helper — **verify one exists first (A4)** | ⬜ pending |
-| TBD | TBD | **0** | DEDUP-04 | Case 24 polarity assertion flipped (`test_eeprom28c_sdp.cpp:1426`) — **measured RED by construction** | native behavioural | `pio test -e native` | ❌ **W0** | ⬜ pending |
+| TBD | TBD | **0** | DEDUP-04 | Case 24 polarity assertion flipped (`test_eeprom28c_sdp.cpp:1487`) — **measured RED by construction** | native behavioural | `pio test -e native` | ❌ **W0** | ⬜ pending |
 | TBD | TBD | **0** | DEDUP-04 | Case 25 de-vacuumed (`:1524-1534`) — drive loop flipped **and** `calls == 4` asserted. **Measured: passes vacuously taking 1 call** | native non-vacuity | `pio test -e native` | ❌ **W0** | ⬜ pending |
 | TBD | TBD | **0** | all | `tests/golden/protocol_branch_inventory.json` re-derived with the module's **own extractor**: `total_sites` 23 → 21, `protocol_keyed_sites` 1 → 1, `other_sites` 22 → 20; two removed, none added; record that the `chip_id` predicate **moved into `memory.cpp`** | pytest source-contract | `python3 -m pytest tests/test_protocol_branch_inventory.py -q` | ⚠ **2 legs RED until re-derived** | ⬜ pending |
 | TBD | TBD | 1+ | DEDUP-01 | One `mem_util_report_voltage()` replaces 4 blocks; **8-byte payload length** unchanged | native behavioural | `pio test -e native_loop_v131` → `test_vpp04_a` (`logged_id_param_count == 8`) | ✅ (length only — see ceiling 4) | ⬜ pending |
@@ -108,12 +108,12 @@ mapping below is fixed by research and is what each task must inherit.*
 | TBD | TBD | 1+ | DEDUP-02 | The standalone `CMD_CHECK_CHIP_ID` path still refuses **unconditionally**, independent of `FLAG_FORCE` (divergence 1) | native behavioural | *no oracle exists* | ❌ **W0** — the one place divergence 1 could silently regress | ⬜ pending |
 | TBD | TBD | 1+ | DEDUP-03 | A transposed VPP **over-voltage** `response_code` fails a test | native planted-negative | `pio test -e native_loop_v131` (probe A → 3 RED) | ✅ exists — **NOT in CI** | ⬜ pending |
 | TBD | TBD | 1+ | DEDUP-04 | Flip is **size**-neutral on all **three** targets (one more than the survey claimed) | measurement | `pio run -e {uno,uno328pb,leonardo}`, compare `flash_used`/`ram_used` → `0/0` ×3 | ✅ verified | ⬜ pending |
-| TBD | TBD | 1+ | DEDUP-04 | 9 `!` gone, 6 engine returns flipped, defensive comment at `eprom_operations.cpp:57-67` removed | source-scan | `grep -c 'return !op_execute_' src/eprom_operations.cpp` → `0`, **plus a non-vacuity leg** | ✅ command verified; **no committed gate** | ⬜ pending |
+| TBD | TBD | 1+ | DEDUP-04 | 9 `!` gone, 6 engine returns flipped, defensive comment at `eprom_operations.cpp:57-63` removed | source-scan | `grep -c 'return !op_execute_' src/eprom_operations.cpp` → `0`, **plus a non-vacuity leg** | ✅ command verified; **no committed gate** | ⬜ pending |
 | TBD | TBD | 1+ | all | No other committed gate regressed | pytest | `python3 -m pytest tests/ -q` → ≥313 passed | ✅ | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
-**DEDUP-04 cannot go vacuous — but it nearly did.** `test_eeprom28c_sdp.cpp:1426` (Case 24) fails
+**DEDUP-04 cannot go vacuous — but it nearly did.** `test_eeprom28c_sdp.cpp:1487` (Case 24) fails
 **by construction** after the flip, so it cannot be missed. `:1524` (Case 25) **keeps passing** while
 taking **1** `op_execute_simple_operation` call instead of the **4** its own comment requires —
 proven live with a planted probe (`Expected 4 Was 1`). Flip the assertion; **never delete the case**.
@@ -135,9 +135,9 @@ proven live with a planted probe (`Expected 4 Was 1`). Flip the assertion; **nev
       ⚠ **Requires an id-capture helper in those suites' stubs — grep for one FIRST (open question A4,
       the plan's biggest shape risk).** `test_vpp_eprom_v131`'s `count_logged_id` lives in its own
       `host_stubs.cpp` and may not be shared.
-- [ ] **`test_eeprom28c_sdp.cpp:1426`** — Case 24's polarity assertion **must** flip
+- [ ] **`test_eeprom28c_sdp.cpp:1487`** — Case 24's polarity assertion **must** flip
       (`TEST_ASSERT_FALSE` → `TEST_ASSERT_TRUE`) with its message rewritten. Measured RED.
-- [ ] **`test_eeprom28c_sdp.cpp:1524-1534`** — Case 25's drive loop **must** be flipped and a
+- [ ] **`test_eeprom28c_sdp.cpp:1582-1590`** — Case 25's drive loop **must** be flipped and a
       `calls == 4` assertion added. Measured: passes vacuously after the flip.
 - [ ] **`tests/golden/protocol_branch_inventory.json`** — re-derive with the module's own extractor
       (23 → 21 sites), in the **same commit** as the `eprom.cpp` edit.

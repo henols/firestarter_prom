@@ -17,9 +17,9 @@ disambiguation, and the D-02 test mechanics.
 **A load-bearing architectural finding the planner MUST resolve before writing tasks:** the *current*
 fw→host data block (Framing 3, the EPROM read path) does **NOT** flow through `rurp_communication_write()`.
 Reads emit chip bytes via `rurp_log_id_wide(MSG_DATA_CHUNK, …)` over the **unchanged** magic-preamble
-log/telemetry framing (`_firestarter_emit_frame_wide`, `eprom_operations.cpp:119`). `rurp_communication_write()`
+log/telemetry framing (`_firestarter_emit_frame_wide`, `eprom_operations.cpp:114`). `rurp_communication_write()`
 is only reachable through `_check_response()`'s `RESPONSE_CODE_DATA` case, and the only writer of
-`RESPONSE_CODE_DATA` (`memory.cpp:341`) is behind `#ifdef RAW_DATA_PROGRESS`, which is **not defined** in any
+`RESPONSE_CODE_DATA` (`memory.cpp:413`) is behind `#ifdef RAW_DATA_PROGRESS`, which is **not defined** in any
 build. So `rurp_communication_write()` is effectively dead code in the shipping firmware. Framing 3 (fw→host
 data) is therefore *already* carried by the magic-preamble frame the ADR declares "UNCHANGED in v1.10."
 
@@ -58,7 +58,7 @@ the host avoids a dependency for a trivial, audit-critical primitive). No packag
 |-----------|-------|---------|--------------|
 | Streaming COBS encoder | `rurp_serial_utils.cpp` (fw), `frame_parser.py`/`eprom_operations.py` (host) | Frame payload+CRC8 with no `0x00` in body | Hand-rolled per ADR §4.1; zero extra RAM on AVR |
 | Streaming COBS decoder | `rurp_serial_utils.cpp` (fw), `frame_parser.py` (host) | Decode-in-place into `data_buffer` | No second ~512 B buffer (D-04) |
-| CRC8-CCITT table | `rurp_serial_utils.cpp:110-131` (PROGMEM), `frame_parser.py:28-44` | Integrity over raw payload | Reused UNCHANGED (D-05) — byte-compatible across repos |
+| CRC8-CCITT table | `rurp_serial_utils.cpp:108-128` (PROGMEM), `frame_parser.py:28-44` | Integrity over raw payload | Reused UNCHANGED (D-05) — byte-compatible across repos |
 
 ### Package Legitimacy Audit
 
@@ -85,7 +85,7 @@ host: eprom_operations._main_phase_send_data
    ════ SERIAL 250000 baud ════
         │
         ▼
-fw: op_get_message()  peek=='#'  → consume '#'        [operation_utils.cpp:159-171]
+fw: op_get_message()  peek=='#'  → consume '#'        [operation_utils.cpp:167-179]
         │
         ▼  rurp_communication_read_data(data_buffer)   [REWRITTEN: COBS streaming decode-in-place]
            accumulate bytes until 0x00 delimiter
@@ -142,7 +142,7 @@ and a "was this a 254-run" flag — ~5–6 B stack. Bound `out` by `DATA_BUFFER_
 
 ### Pattern 3: Corrupted-`#`-marker resync (D-04 open edge — VALIDATED)
 **What:** Confirm a flipped/corrupt `#` marker byte re-anchors cleanly and does not strand the parser.
-**Trace (`operation_utils.cpp:128-178`):** `op_get_message()` peeks one byte. If it is not `'O'`/`'D'`/`'#'`,
+**Trace (`operation_utils.cpp:134-186`):** `op_get_message()` peeks one byte. If it is not `'O'`/`'D'`/`'#'`,
 the `default:` case **consumes one byte and loops** (`rurp_communication_read(); break;`). So a corrupted `#`
 (e.g. `0x23`→`0x22`) lands in `default`, is discarded, and the loop continues consuming bytes. Critically,
 the *following* COBS frame body is `0x00`-free by construction and ends in a `0x00` delimiter — so after the
@@ -221,7 +221,7 @@ Arurp 1 s `Stream` timeout) and reintroduces a timeout stall.
 **Why it happens:** Copying the old `rurp_communication_read_bytes` loop.
 **How to avoid:** The streaming decoder reads byte-by-byte via `rurp_communication_read()` /
 `rurp_communication_available()` gated by `op_get_message`'s availability check, accumulating until `0x00`.
-The 2 s `timeout_ms` loop (`rurp_serial_utils.cpp:62-69`) — the exact cascade source SC1 targets — is
+The 2 s `timeout_ms` loop (`rurp_serial_utils.cpp:59-66`) — the exact cascade source SC1 targets — is
 **removed**. Keep a bounded safety timeout only if needed to avoid an infinite wait on a never-arriving
 delimiter, but it must be the delimiter, not a length, that ends the frame.
 
@@ -252,7 +252,7 @@ def cobs_decode(encoded: bytes) -> bytes:
     return bytes(out)
 ```
 
-### Firmware decode return-code contract (operation_utils.cpp:159-171 — UNCHANGED surface)
+### Firmware decode return-code contract (operation_utils.cpp:167-179 — UNCHANGED surface)
 ```c
 // Source: live operation_utils.cpp — the error surface D-01 reuses, DO NOT change.
 case '#': {
@@ -375,7 +375,7 @@ The resync tests MUST assert **bounded recovery**, not mere detection:
 - `rurp_communication_write()` — effectively dead (only reachable via `RESPONSE_CODE_DATA` behind
   `#ifdef RAW_DATA_PROGRESS`, undefined in all builds). Rewrite for contract-correctness, but it is not the
   load-bearing path. See Open Q1.
-- The 2 s `timeout_ms` loop (`rurp_serial_utils.cpp:62-69`) — removed by this phase (the SC1 win).
+- The 2 s `timeout_ms` loop (`rurp_serial_utils.cpp:59-66`) — removed by this phase (the SC1 win).
 
 ## Assumptions Log
 
@@ -498,7 +498,7 @@ Leonardo buffer pin changes).
 
 ### RECOMMENDATION — **Option A.** (one-paragraph justification)
 
-Re-frame **only** the host→fw WRITE-receive path (`rurp_communication_read_data`, which IS the literal 2 s `len_u16`-corruption cascade source at `rurp_serial_utils.cpp:62-69`) and rewrite the dormant `rurp_communication_write` as its COBS-encode counterpart for symmetry/testability — and leave the fw→host EPROM-READ data stream on its existing `MSG_DATA_CHUNK` magic-preamble frame, untouched. The live call graph is unambiguous: EPROM reads do **not** flow through `rurp_communication_write`; they flow through `rurp_log_id_wide(MSG_DATA_CHUNK,…)` over the `[0xAA55AA55]…[0x0A]` log/telemetry frame that CONTEXT.md §"Out of scope" and ADR §4.2 both freeze as UNCHANGED. Option A delivers the entire SC1 anti-cascade win (the cascade lives on the WRITE path), satisfies FRAME-01..04 + CRC-01 as written, and never touches the frozen log/telemetry boundary. Option B (migrating reads onto a new COBS `0x00` data frame) is the only path that *contradicts* the locked CONTEXT.md scope, roughly doubles the dual-repo diff, and buys no cascade-elimination the WRITE-path change doesn't already deliver — because the read frame is already self-delimiting and length-authoritative, it has no `len_u16`-corruption-into-2 s-timeout failure mode to fix.
+Re-frame **only** the host→fw WRITE-receive path (`rurp_communication_read_data`, which IS the literal 2 s `len_u16`-corruption cascade source at `rurp_serial_utils.cpp:59-66`) and rewrite the dormant `rurp_communication_write` as its COBS-encode counterpart for symmetry/testability — and leave the fw→host EPROM-READ data stream on its existing `MSG_DATA_CHUNK` magic-preamble frame, untouched. The live call graph is unambiguous: EPROM reads do **not** flow through `rurp_communication_write`; they flow through `rurp_log_id_wide(MSG_DATA_CHUNK,…)` over the `[0xAA55AA55]…[0x0A]` log/telemetry frame that CONTEXT.md §"Out of scope" and ADR §4.2 both freeze as UNCHANGED. Option A delivers the entire SC1 anti-cascade win (the cascade lives on the WRITE path), satisfies FRAME-01..04 + CRC-01 as written, and never touches the frozen log/telemetry boundary. Option B (migrating reads onto a new COBS `0x00` data frame) is the only path that *contradicts* the locked CONTEXT.md scope, roughly doubles the dual-repo diff, and buys no cascade-elimination the WRITE-path change doesn't already deliver — because the read frame is already self-delimiting and length-authoritative, it has no `len_u16`-corruption-into-2 s-timeout failure mode to fix.
 
 > **Verdict line is at the very bottom of this addendum.**
 
@@ -512,9 +512,9 @@ Call chain (all `firestarter/src/…`, branch `v1.10-serial-transport-hardening`
 
 1. `eprom_read()` → `op_execute_stateful_operation(_process_outgoing_data, handle)` — **`eprom_operations.cpp:19-21`**.
 2. `_process_outgoing_data()` runs the chip-read main op, then emits the chunk — **`eprom_operations.cpp:110-121`**:
-   - `LOG_DATA_ID(MSG_DATA_SENDING);` — batch-start signal (`eprom_operations.cpp:118`).
-   - `rurp_log_id_wide(MSG_DATA_CHUNK, (const uint8_t*)handle->data_buffer, (uint16_t)handle->data_size);` — **`eprom_operations.cpp:119-121`** — the actual chip bytes.
-3. `rurp_log_id_wide` is the W-04 wide ID-frame emitter (Uno strong override `uno_rurp_shield.cpp:91-93`; weak default `rurp_serial_utils.cpp:280`), which writes the `[0xAA55AA55][len_u16][id][params][crc8][0x0A]` frame documented at `rurp_serial_utils.cpp:97-103`. This is **Framing 4 (log/telemetry)**, frozen UNCHANGED by ADR §4.2.
+   - `LOG_DATA_ID(MSG_DATA_SENDING);` — batch-start signal (`eprom_operations.cpp:113`).
+   - `rurp_log_id_wide(MSG_DATA_CHUNK, (const uint8_t*)handle->data_buffer, (uint16_t)handle->data_size);` — **`eprom_operations.cpp:114-116`** — the actual chip bytes.
+3. `rurp_log_id_wide` is the W-04 wide ID-frame emitter (Uno strong override `uno_rurp_shield.cpp:88-90`; weak default `rurp_serial_utils.cpp:277`), which writes the `[0xAA55AA55][len_u16][id][params][crc8][0x0A]` frame documented at `rurp_serial_utils.cpp:97-103`. This is **Framing 4 (log/telemetry)**, frozen UNCHANGED by ADR §4.2.
 
 `rurp_communication_write()` appears **nowhere** in the read path. There is exactly one in-tree caller of it (Target 2). The prior research summary (lines 17-24) is correct; this trace re-confirms it line-for-line.
 
@@ -529,27 +529,27 @@ Full caller enumeration (`grep -rn rurp_communication_write firestarter/src fire
 | Site | Role |
 |------|------|
 | `rurp_serial_utils.cpp:81` | definition |
-| `rurp_serial_utils.h:38`, `rurp_shield.h:75` | declarations |
-| **`operation_utils.cpp:314`** | **the only call site** |
+| `rurp_serial_utils.h:35`, `rurp_shield.h:75` | declarations |
+| **`operation_utils.cpp:322`** | **the only call site** |
 
-The sole call site is inside `_check_response()`, `case RESPONSE_CODE_DATA:` — **`operation_utils.cpp:313-315`**:
+The sole call site is inside `_check_response()`, `case RESPONSE_CODE_DATA:` — **`operation_utils.cpp:321-323`**:
 ```c
 case RESPONSE_CODE_DATA:
     rurp_communication_write(handle->data_buffer, handle->data_size);
     break;
 ```
 
-Reachability of `RESPONSE_CODE_DATA` (`grep -rn RESPONSE_CODE_DATA`): the value is **only ever assigned** at one place — **`memory.cpp:341`** — and that assignment is behind a guard that is **commented out**:
+Reachability of `RESPONSE_CODE_DATA` (`grep -rn RESPONSE_CODE_DATA`): the value is **only ever assigned** at one place — **`memory.cpp:413`** — and that assignment is behind a guard that is **commented out**:
 ```c
-// memory.cpp:339-341
+// memory.cpp:411-413
 // #define RAW_DATA_PROGRESS          <-- commented out
 #ifdef RAW_DATA_PROGRESS
     handle->response_code = RESPONSE_CODE_DATA;   // line 341 — never compiled
 ```
 
-`RAW_DATA_PROGRESS` is defined **nowhere else** — confirmed by `grep -rn RAW_DATA_PROGRESS` over `*.cpp/*.h/*.c` and `platformio.ini`: the only two hits are the commented `#define` (`memory.cpp:339`) and its own `#ifdef` (`memory.cpp:340`). It is **not** in `[env]`, `[env:uno]`, `[env:uno328pb]`, `[env:leonardo]`, or `[env:native]` build_flags (`platformio.ini:18,31,40,57,67`; each env's `build_flags` inherits `${env.build_flags}` which contains only `MONITOR_SPEED`, `HARDWARE_REVISION`, `DEV_TOOLS`, board name, `SERIAL_ON_IO`, and per-env `DATA_BUFFER_SIZE` — no `RAW_DATA_PROGRESS`).
+`RAW_DATA_PROGRESS` is defined **nowhere else** — confirmed by `grep -rn RAW_DATA_PROGRESS` over `*.cpp/*.h/*.c` and `platformio.ini`: the only two hits are the commented `#define` (`memory.cpp:411`) and its own `#ifdef` (`memory.cpp:412`). It is **not** in `[env]`, `[env:uno]`, `[env:uno328pb]`, `[env:leonardo]`, or `[env:native]` build_flags (`platformio.ini:18,31,40,57,67`; each env's `build_flags` inherits `${env.build_flags}` which contains only `MONITOR_SPEED`, `HARDWARE_REVISION`, `DEV_TOOLS`, board name, `SERIAL_ON_IO`, and per-env `DATA_BUFFER_SIZE` — no `RAW_DATA_PROGRESS`).
 
-**Conclusion:** with `RAW_DATA_PROGRESS` undefined in every env, `memory.cpp:341` is never compiled, so `handle->response_code` is never set to `RESPONSE_CODE_DATA`, so `operation_utils.cpp:314` is never reached. `rurp_communication_write()` is dead in `uno`, `uno328pb`, `leonardo`, and `native`. (Assumption A1 in the main research is hereby upgraded from "verified this session, risk LOW" to **VERIFIED — dead in all envs**.)
+**Conclusion:** with `RAW_DATA_PROGRESS` undefined in every env, `memory.cpp:413` is never compiled, so `handle->response_code` is never set to `RESPONSE_CODE_DATA`, so `operation_utils.cpp:322` is never reached. `rurp_communication_write()` is dead in `uno`, `uno328pb`, `leonardo`, and `native`. (Assumption A1 in the main research is hereby upgraded from "verified this session, risk LOW" to **VERIFIED — dead in all envs**.)
 
 ---
 
@@ -596,7 +596,7 @@ Files/functions touched:
 | `firestarter_app/firestarter/frame_parser.py` | new `cobs_encode`/`cobs_decode` | Add COBS helpers; reuse `_crc8_ccitt`/`_build_crc8_table` (28-50) UNCHANGED (CRC-01/D-05). |
 
 Requirement coverage **without touching log/telemetry framing**:
-- **SC1 / cascade**: the 2 s loop is on the WRITE-receive path (`rurp_serial_utils.cpp:62-69`); removing it there eliminates the cascade. ✔
+- **SC1 / cascade**: the 2 s loop is on the WRITE-receive path (`rurp_serial_utils.cpp:59-66`); removing it there eliminates the cascade. ✔
 - **FRAME-01**: `[len_u16][xor]` → `[COBS(payload+CRC8)][0x00]` on the data block, **both directions of the data-block path** (`read_data` decode + `write` encode). ✔ (Note: "both directions" = the two ends of the *write* data block + the dormant encode; the *read chip stream* is a different frame, see FRAME-03 note in Target 6.)
 - **FRAME-02**: drain-to-`0x00` on CRC/COBS fail in `rurp_communication_read_data` + host `cobs_decode` raising; bounded to one frame (main research Pattern 3 directive). ✔
 - **FRAME-03**: streaming, no second ~512 B buffer, <545 B Uno (decode-in-place). ✔

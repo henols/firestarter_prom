@@ -47,7 +47,7 @@ must_haves:
     - "logging.h and logging.c are deleted as files; all 20 #include \"logging.h\" sites have the include line removed"
     - "fw_get_version() at hardware_operations.cpp emits the LFW-05 bootstrap line via an inline F(\"OK: FW: \") + println(FW_VERSION) + flush 3-liner; post-D-01 wire shape is `OK: FW: <FW_VERSION>` (e.g. `OK: FW: 3.0.0-dev:uno`). This INTENTIONALLY adds the literal `FW: ` substring vs pre-D-01 `OK: <FW_VERSION>` and is required by host `_probe_port` at `serial_comm.py:747-748`."
     - "VERSION = \"3.0.0-dev\" in version.h:11 (was \"2.0.11-dev\")"
-    - "All four #ifdef SERIAL_DEBUG blocks referencing debug_setup / log_debug / debugSerial / RX_DEBUG / TX_DEBUG are deleted atomically (firestarter.cpp:38-40, uno_rurp_shield.cpp:22-25 [the four-line `#ifdef SERIAL_DEBUG / #define RX_DEBUG A0 / #define TX_DEBUG A1 / #endif` block], uno_rurp_shield.cpp:152-169, leonardo_rurp_shield.cpp:144-146)"
+    - "All four #ifdef SERIAL_DEBUG blocks referencing debug_setup / log_debug / debugSerial / RX_DEBUG / TX_DEBUG are deleted atomically (firestarter.cpp:38-40, uno_rurp_shield.cpp:22-25 [the four-line `#ifdef SERIAL_DEBUG / #define RX_DEBUG A0 / #define TX_DEBUG A1 / #endif` block], uno_rurp_shield.cpp:144-161, leonardo_rurp_shield.cpp:144-146)"
     - "pio run -e uno and pio run -e leonardo both build SUCCESS"
     - "firestarter_app/tests/test_fwguard.py reports 4 PASS (SC#3 host-guard regression is satisfied by the version bump exercising the existing major<3 refuse path)"
     - "grep gate: zero hits in firestarter/src/ + firestarter/include/ + firestarter/lib/ for send_ack | send_ack_const | rurp_log\\b | rurp_log_P | _firestarter_log_ | LOG_OK_MSG | log_info_const | log_error_format | log_warn\\b | debug_setup | log_debug\\b"
@@ -330,7 +330,7 @@ version.h:11:
     - `grep -rn 'rurp_log\b\|rurp_log_P' firestarter/src/ firestarter/include/ firestarter/lib/ | grep -v 'rurp_log_id' | grep -v '^.*//'` returns ZERO non-comment hits (the `rurp_log_id` ID-frame surface is preserved)
     - `grep -rn 'debug_setup\|log_debug\b' firestarter/src/ firestarter/include/` returns ZERO hits
     - `grep -rn 'LOG_OK_MSG' firestarter/src/ firestarter/include/` returns ZERO hits
-    - `grep -rn 'SoftwareSerial' firestarter/src/ firestarter/include/` returns ZERO hits (the only SoftwareSerial reference was in the SERIAL_DEBUG block at uno_rurp_shield.cpp:152-169)
+    - `grep -rn 'SoftwareSerial' firestarter/src/ firestarter/include/` returns ZERO hits (the only SoftwareSerial reference was in the SERIAL_DEBUG block at uno_rurp_shield.cpp:144-161)
     - `grep -rn 'RX_DEBUG\|TX_DEBUG' firestarter/src/ firestarter/include/` returns ZERO hits
     - `grep -rn 'send_ack\b\|send_ack_const' firestarter/src/ firestarter/include/ firestarter/lib/` returns ZERO hits (the macros are gone because logging.h is gone; callers were converted by Plan 01 + Task 1 of this plan)
   </acceptance_criteria>

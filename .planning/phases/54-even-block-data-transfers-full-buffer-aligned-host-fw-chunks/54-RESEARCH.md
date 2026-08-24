@@ -247,8 +247,8 @@ achieves the same goal cleanly.
 ```c
 // firestarter/src/boards/rurp_serial_utils.h  (or rurp_serial_utils.cpp)
 int rurp_communication_read_data(char* buffer, size_t cap);
-//   cap = DATA_BUFFER_SIZE - 1  on the CMD_IDLE / JSON-command call (firestarter.cpp:176)
-//   cap = DATA_BUFFER_SIZE      on the MAIN / write-receive call (operation_utils.cpp:164)
+//   cap = DATA_BUFFER_SIZE - 1  on the CMD_IDLE / JSON-command call (firestarter.cpp:171)
+//   cap = DATA_BUFFER_SIZE      on the MAIN / write-receive call (operation_utils.cpp:173)
 ```
 
 The PUSH macro uses `cap` instead of the hardcoded `DATA_BUFFER_SIZE - 1`:

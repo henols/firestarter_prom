@@ -137,7 +137,7 @@ evidence, and the consequence for scope.
 
 - **The record says:** design note §7 — every consumer that reads `StepResult.op` *"picks them up
   without learning a new field."*
-- **Measured truth:** true of the *schema*, but `dedup_fingerprint` (`diagnostic_report.py:186`, hash
+- **Measured truth:** true of the *schema*, but `dedup_fingerprint` (`diagnostic_report.py:183`, hash
   input at `:224`) hashes `f"{op}={verdict}:{cls}"` **per step, in order**. Adding four steps
   **changes the fingerprint value for all 43 ALLOW chips.**
   `tools/parse_devtest_issue.py::count_agreeing` groups *saved* report bodies by the already-embedded
@@ -161,19 +161,19 @@ anchor the record carries.
 
 | Record claim | Live | Status |
 |---|---|---|
-| `dev_sdp` at `cli_handlers.py:2098-2230` | `@dev.command(name="sdp")` **2196**, `def dev_sdp` **2213**, body to **2321 = EOF**; span **2196-2321**, 126 lines, last function in the file | **STALE** |
-| `dev_test(app, chip)` at `cli_handlers.py:1961` | `@dev.command(name="test")` **2055**, `def dev_test` **2059**; two params, zero options | **STALE** |
+| `dev_sdp` at `cli_handlers.py:2095-2227` | `@dev.command(name="sdp")` **2196**, `def dev_sdp` **2213**, body to **2321 = EOF**; span **2196-2321**, 126 lines, last function in the file | **STALE** |
+| `dev_test(app, chip)` at `cli_handlers.py:1958` | `@dev.command(name="test")` **2055**, `def dev_test` **2059**; two params, zero options | **STALE** |
 | `COMMAND_NAMES[cmd]` deref at `eprom_operations.py:301` and `:377` | **`:329`** (`_setup_operation`) and **`:405`** (`_operation_context`) | **STALE** — the `KeyError` risk is real, the coordinates are wrong |
 | host-side auto-unlock at `eprom_operations.py:1637` | `1637` is a comment inside the D-15/HOST-06 block; live statements **`:1653`/`:1654`**. And it is the **audit** site, not the decision site — the host's auto-unlock *decision* is `cli_handlers.py:622-636` | **STALE + MIS-ATTRIBUTED** |
 | `sdp_capability` at `sdp_capability.py:266` | FEATURES and ARCHITECTURE both read **266**; STACK reads `def sdp_capability` at **272** | **266 — 2 of 3 concur; re-verify at execution** |
 | `--sdp-relock` deferral at `STATE.md:154` / `PROJECT.md:671` | note says so itself | **STALE** |
 | `--sdp-relock` deferral at `STATE.md:532` / `PROJECT.md:705` (PROJECT.md's **own correction**) | live **`STATE.md:538`** / **`PROJECT.md:823`** | **ALSO STALE** — the correction is itself stale |
-| `dev` group at `cli_handlers.py:962`, docstring `:965` | `def dev()` **1173**, docstring **1174-1177** | **STALE** |
+| `dev` group at `cli_handlers.py:960`, docstring `:965` | `def dev()` **1173**, docstring **1174-1177** | **STALE** |
 | "eight `dev` subcommands" (gating note) | **nine** — `sdp` landed after the note; back to eight after v1.30 | **STALE** |
 | `fw --pre` `:797` / `--stable` `:810` | **956** / **969** | **STALE** |
 | `firmware.py:47` version regex | `FIRMWARE_VERSION_RE` **52** (47 is its comment) | **STALE** |
 | "test suite ~1293" | **1303** collected | **STALE** |
-| `eprom_operations.py:1736 sdp_unlock` · `:1784 sdp_lock` · `constants.py:72-73` + `COMMAND_NAMES` `:90-91` + `FLAG_SKIP_SDP_UNLOCK` `:121` · `chip_test.py:289-295` op vocabulary · `:636 _DESTRUCTIVE_OPS` · `diagnostic_report.py:186` · `channel.py` `BETA_ONLY_BOARDS` (33/34) | all as claimed | **VERIFIED** |
+| `eprom_operations.py:1736 sdp_unlock` · `:1784 sdp_lock` · `constants.py:72-73` + `COMMAND_NAMES` `:90-91` + `FLAG_SKIP_SDP_UNLOCK` `:121` · `chip_test.py:289-295` op vocabulary · `:636 _DESTRUCTIVE_OPS` · `diagnostic_report.py:183` · `channel.py` `BETA_ONLY_BOARDS` (33/34) | all as claimed | **VERIFIED** |
 
 The stale `301`/`377` pair is **baked into three places in the shipped tree** and should be corrected
 while the milestone is here (comment-only, zero behaviour): `firestarter/constants.py:69-70` (the
@@ -336,8 +336,8 @@ Where two researchers disagree, one wins. The evidence tier that decided it is n
 ### A-4 — Is a new "inconclusive" status needed?
 
 - **FEATURES:** **NO.** `marginal` already means exactly that, wired end to end: exit **2**
-  (`cli_handlers.py:1865-1871`), `build_db_diff` disposition *"inconclusive — needs N≥2 agreement"*
-  (`diagnostic_report.py:296-307`), **no** ladder tag, and it **counts as "ran"** (`_RAN_VERDICTS`
+  (`cli_handlers.py:1862-1868`), `build_db_diff` disposition *"inconclusive — needs N≥2 agreement"*
+  (`diagnostic_report.py:290-301`), **no** ladder tag, and it **counts as "ran"** (`_RAN_VERDICTS`
   includes `MARGINAL`, `chip_test.py:1209`). A sixth status is an **anti-feature** and a false-green
   path: `_verdict_code` is `_VERDICT_EXIT_CODES.get(verdict, 0)` (`:1876`), so an **unrecognised verdict
   string exits 0**, and it would miss every arm of `build_db_diff`, landing in the final `else` → *no
@@ -359,7 +359,7 @@ Where two researchers disagree, one wins. The evidence tier that decided it is n
   2. **Extend `count_applicable`'s `M` to include the SDP oracle for ALLOW chips regardless of
      outcome**, so an `NA`/`SKIPPED` oracle *drops* the N/M ratio and fires the banner. Pin with a test.
   Whether an ALLOW-chip `SKIPPED` oracle should additionally map to exit **2** is an **operator
-  decision** — it changes `dev test`'s published exit-code contract (`cli_handlers.py:2094`). See
+  decision** — it changes `dev test`'s published exit-code contract (`cli_handlers.py:2091`). See
   Operator Decisions.
 
 ## ⚠ Evidence Ceiling — preserved verbatim, restate in REQUIREMENTS before planning
@@ -452,7 +452,7 @@ field (`StepResult.op` is the extension axis) · raising the watermark to 69.
 **Must have (table stakes):**
 
 - **Delete `dev sdp`** — a command whose own success line admits it proves nothing is surface debt, and
-  999.15 removes it from stable anyway. Clean tail truncation (`cli_handlers.py:2196-2321`, the last
+  999.15 removes it from stable anyway. Clean tail truncation (`cli_handlers.py:2193-2318`, the last
   function in the file). **LOW–MEDIUM.** Depends on: auto-unlock staying default-on (record it),
   `sdp_capability.py` surviving in full, the `COMMAND_NAMES` entries surviving (`KeyError` at
   `:329`/`:405` otherwise), and `check_no_exists_proxy.py:156` moving in the same commit (R-9).
@@ -708,7 +708,7 @@ table, dissolves the host/firmware contradiction instead of arbitrating it, and 
 count 69 → 63 **for free**. Landing it before the watermark is re-baselined is the only way the number
 stays put. Combining the deletion with the mypy discharge in one phase is what resolves the three-way
 ordering conflict.
-**Delivers:** `cli_handlers.py:2196-2321` deleted; `tools/check_no_exists_proxy.py:156` edited **in the
+**Delivers:** `cli_handlers.py:2193-2318` deleted; `tools/check_no_exists_proxy.py:156` edited **in the
 same commit** (R-9); `git mv tests/test_dev_sdp_cmd.py → tests/test_dev_test_sdp_leg.py` with the four
 honesty assertions retargeted and a grep acceptance criterion proving no net loss; the D-14
 `MSG_ERR_UNKNOWN_CMD` mapping and the D-10 honesty wording **relocated, not dropped**; the `.ambr`
@@ -858,7 +858,7 @@ Surfaced, not guessed. Each changes something the implementer must not decide al
 1. **`count_applicable` / exit-code policy for a non-running oracle.** Should an ALLOW-chip oracle that
    lands `SKIPPED`/`NA` map to exit **2** (`marginal`) rather than 0? *"We tried and could not tell"* is
    genuinely marginal — but this **changes `dev test`'s published exit-code contract** at
-   `cli_handlers.py:2094` (*"0 if every step is OK/NA/SKIPPED, 2 if any step is marginal, 1 if any BAD"*)
+   `cli_handlers.py:2091` (*"0 if every step is OK/NA/SKIPPED, 2 if any step is marginal, 1 if any BAD"*)
    for community reporters already running b14/b15. The `HELD/NOT-HELD/NOT-RUN` report field and the
    `count_applicable` M extension are recommended **regardless**; only the exit-code remap needs a
    decision.

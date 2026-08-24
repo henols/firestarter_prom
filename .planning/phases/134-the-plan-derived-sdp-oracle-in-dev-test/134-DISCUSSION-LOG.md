@@ -183,7 +183,7 @@ rewritten notice, printed up front — explicitly **not** a `finally` handler.
 **User's choice:** Fix the precedence → **D-14**
 **Notes:** Surfaced as a live defect found during this session, not a design question:
 `_VERDICT_EXIT_CODES` maps `marginal → 2` and `BAD → 1` and the code is `max(...)`, so `max(1,2) = 2` —
-marginal beats BAD, contradicting both the source comment at `cli_handlers.py:1888-1890` and `dev_test`'s
+marginal beats BAD, contradicting both the source comment at `cli_handlers.py:1885-1887` and `dev_test`'s
 docstring. The truth table locked in this session has three marginal arms, so the collision is common.
 
 ### Q2 — An ALLOW chip whose oracle did not run: both the N-of-M drop and a non-green exit

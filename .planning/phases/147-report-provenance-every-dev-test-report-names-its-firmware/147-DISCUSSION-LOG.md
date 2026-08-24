@@ -33,7 +33,7 @@
 | Stash identity on the HardwareManager | Keep the signature; record the identity on the instance. Smallest diff, but a side-channel invisible at the call site. | |
 
 **User's choice:** Widen the existing method's return.
-**Notes:** `read_hardware_revision_value` has exactly one production caller (`cli_handlers.py:2504`), so the churn is test mocks rather than production code.
+**Notes:** `read_hardware_revision_value` has exactly one production caller (`cli_handlers.py:2501`), so the churn is test mocks rather than production code.
 
 ### Q3 — What should the widened method be named and return?
 

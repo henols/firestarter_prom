@@ -45,7 +45,7 @@ key-files:
 
 key-decisions:
   - "The worklist authority is the survey's hit table, so the strip scope is the hit line plus every D-01 token in the enclosing comment block. Mid-comment tokens in blocks carrying NO hit are out of scope and MEASURED as a residual (203 -> 152 lines) rather than swept silently or claimed absent"
-  - "Four provenance hits sit on CODE lines with trailing comments, one of them SWEEP-01's named keep-example eprom_params.cpp:61 -- so the plan's own `every changed line is a comment` criterion is unsatisfiable together with its own named-keep requirement. Resolved by measuring the stronger property instead: each of the four code prefixes is byte-identical, and comment-stripped equality holds over all 32 files"
+  - "Four provenance hits sit on CODE lines with trailing comments, one of them SWEEP-01's named keep-example eprom_params.cpp:58 -- so the plan's own `every changed line is a comment` criterion is unsatisfiable together with its own named-keep requirement. Resolved by measuring the stronger property instead: each of the four code prefixes is byte-identical, and comment-stripped equality holds over all 32 files"
   - "The D-02 no-touch region is the CONTIGUOUS comment block 182-232, not just 182-200: the block spans the boundary. Only lines 182-200 are pinned, but the whole block was left alone, so the `(D-09)` token at old line 209 is a deliberate named residual rather than a surgical edit next to a gate fixture"
   - "test_config_schema_pinned.py's line pins were RE-PINNED, not relaxed -- the file's own established idiom, which already carried two earlier re-pins for the same class of cause. The alternative (loosening the census to a grep) would have destroyed a real gate to make a comment sweep look cleaner"
   - "No commit in `firestarter` -- D-11 reserves that sub-repo's single commit for plan 12. 35 modified paths sit in the working tree deliberately"
@@ -67,7 +67,7 @@ coverage:
         status: pass
     human_judgment: false
   - id: D2
-    description: "firestarter/src/firestarter.cpp:182-200 is byte-identical to its pre-sweep state"
+    description: "firestarter/src/firestarter.cpp:177-195 is byte-identical to its pre-sweep state"
     requirement: "SWEEP-02"
     verification:
       - kind: integration
@@ -145,7 +145,7 @@ coverage:
     requirement: "SWEEP-01"
     verification:
       - kind: manual
-        ref: "All four surviving sentences quoted in full below (uno_rurp_shield.cpp:109, flash_5v_page.cpp:101, json_parser.c:92, eprom_params.cpp:61); the reviewable artifact is `git -C firestarter diff -- src include`"
+        ref: "All four surviving sentences quoted in full below (uno_rurp_shield.cpp:106, flash_5v_page.cpp:103, json_parser.c:282, eprom_params.cpp:58); the reviewable artifact is `git -C firestarter diff -- src include`"
         status: pass
     human_judgment: true
     rationale: "Whether the step-3 guard was honoured -- whether each surviving sentence still stands alone and still carries its full force -- is a reader judgment. The text is quoted rather than greped for so a reviewer need not reconstruct it from a 1201-line diff"
@@ -241,7 +241,7 @@ git -C firestarter diff --shortstat -- src include
 # 32 files changed, 557 insertions(+), 644 deletions(-)
 ```
 
-**8 of 1201.** Not zero — and the eight are not a defect, they are the plan's own requirement colliding with its own criterion. See the deviation section: four provenance hits sit on **code lines with trailing comments**, and one of them is SWEEP-01's *named* keep-example `eprom_params.cpp:61`, which the plan explicitly requires be swept. Each of the 8 lines is one half of one of those four edits:
+**8 of 1201.** Not zero — and the eight are not a defect, they are the plan's own requirement colliding with its own criterion. See the deviation section: four provenance hits sit on **code lines with trailing comments**, and one of them is SWEEP-01's *named* keep-example `eprom_params.cpp:58`, which the plan explicitly requires be swept. Each of the 8 lines is one half of one of those four edits:
 
 ```
 - LOG_OK_ID_U16(MSG_OK_READY, (uint16_t)DATA_BUFFER_SIZE);  // D-04: was legacy ack; semantics ≈ …
@@ -261,10 +261,10 @@ So the **stronger** property was measured instead, and it is a total statement r
 | the four trailing-comment code lines: code prefix before the comment opener, byte-identical? | **4 of 4 IDENTICAL** |
 
 ```
-src/dev_tools.cpp:107->107        IDENTICAL: '    LOG_OK_ID_U16(MSG_OK_READY, (uint16_t)DATA_BUFFER_SIZE);'
-src/dev_tools.cpp:153->153        IDENTICAL: '    LOG_OK_ID_U16(MSG_OK_READY, (uint16_t)DATA_BUFFER_SIZE);'
-src/proms/memory.cpp:212->216     IDENTICAL: '            mask |= CTRL_VPP_VPE_DROP_ENABLE;'
-src/proms/eprom_params.cpp:61->57 IDENTICAL: '    return NULL;'
+src/dev_tools.cpp:108->107        IDENTICAL: '    LOG_OK_ID_U16(MSG_OK_READY, (uint16_t)DATA_BUFFER_SIZE);'
+src/dev_tools.cpp:154->153        IDENTICAL: '    LOG_OK_ID_U16(MSG_OK_READY, (uint16_t)DATA_BUFFER_SIZE);'
+src/proms/memory.cpp:217->216     IDENTICAL: '            mask |= CTRL_VPP_VPE_DROP_ENABLE;'
+src/proms/eprom_params.cpp:58->57 IDENTICAL: '    return NULL;'
 ```
 
 Comment-stripped equality over 32 files subsumes the grep: it would catch a code change on a comment line, a code change on a trailing-comment line, and a code change anywhere else, and it reports **zero**. The three-target `.elf` equality is the independent third confirmation.
@@ -302,9 +302,9 @@ git -C firestarter diff -U0 -- src/firestarter.cpp | grep -c 'buffer_size u16 BE
 
 ## The four keep-examples, quoted in full for review
 
-SWEEP-01 requires all five *named* keep-examples be **shown** to land on "keep, reflowed". Four are in this plan's scope (`database.py:580-630` is plan 09's). Here is the surviving text, so a reviewer does not have to reconstruct it from a 1201-line diff.
+SWEEP-01 requires all five *named* keep-examples be **shown** to land on "keep, reflowed". Four are in this plan's scope (`database.py:581-620` is plan 09's). Here is the surviving text, so a reviewer does not have to reconstruct it from a 1201-line diff.
 
-### 1. `src/boards/uno_rurp_shield.cpp:109` → now `:103-105`
+### 1. `src/boards/uno_rurp_shield.cpp:106` → now `:103-105`
 
 ```c
 // Uno strong override of rurp_log_id. The com_mode gate is critical:
@@ -314,7 +314,7 @@ SWEEP-01 requires all five *named* keep-examples be **shown** to land on "keep, 
 
 `Phase 6 — ` and the `(per CONTEXT §"Specific Ideas")` pointer are gone. The invariant — *why* the gate is critical — is intact. The two tombstone lines that followed it (`Phase 8 Plan 07: debug_msg_buffer path removed; …`) were deleted under step 2; their only forward-looking fact is stated by the block at the file's end, which was itself collapsed from a tombstone into the durable statement `// Structured debug emit routes through the main serial port as id-frames (LOG_DEBUG_ID_SUB* in logging_id.h) rather than through a separate soft-serial debug channel.`
 
-### 2. `src/proms/flash_5v_page.cpp:101` → now `:100-102`
+### 2. `src/proms/flash_5v_page.cpp:103` → now `:100-102`
 
 ```c
     // An erase-on-write block gated this way, inside a protocol's
@@ -324,7 +324,7 @@ SWEEP-01 requires all five *named* keep-examples be **shown** to land on "keep, 
 
 `D-153-05:` stripped; the prohibition kept, reworded from `an executor must NOT copy` (GSD vocabulary) to `must NOT be copied` so it reads as a standing rule about the code rather than an instruction to a workflow.
 
-### 3. `src/json_parser.c:92` → still `:92`, C `/* */` delimiter form preserved
+### 3. `src/json_parser.c:282` → still `:92`, C `/* */` delimiter form preserved
 
 ```c
     /* page_size resets to 0 exactly like chip_id above. handle is a
@@ -340,7 +340,7 @@ SWEEP-01 requires all five *named* keep-examples be **shown** to land on "keep, 
 
 This is the explicit step-3 keep: it is the only written statement of the reset invariant that prevents the `phase-44-read-timing-knobs-missing-json-parse-reset` bug class. `D-05`, `PGSZ-02`, `Phase 44` and `plan 07` are gone; **both** halves survive — the invariant itself, and the honest statement that the read-timing knobs are a known latent instance of the same defect rather than an oversight. The two clauses that referred to their labels were reworded so each stands on its own (`the exact overrun PGSZ-02 exists to prevent` → `the exact overrun this reset exists to prevent`).
 
-### 4. `src/proms/eprom_params.cpp:61` → now `:57` (task 2)
+### 4. `src/proms/eprom_params.cpp:58` → now `:57` (task 2)
 
 ```c
     return NULL; /* Fail closed: a null pointer with zero hardware side effects, never &EPROM_PARAMS[0]. */
@@ -520,16 +520,16 @@ Within each edited comment block, **every** D-01-class token was stripped, not o
 **1. [Rule 1 — Bug] `test_config_schema_pinned.py` pins exact source LINE NUMBERS; the sweep broke it**
 
 - **Found during:** Task 3, first run of the firmware gate suite (8 failed, one more than plan 06's 5 + this plan's expected 2).
-- **Issue:** `test_the_seven_consumers_call_only_the_public_api` went RED with five named violations (`src/firestarter.cpp:41 does not call rurp_load_config(); observed line: '#endif'`, …). Cause: `_C14_CONSUMER_SITES` is a 9-tuple of `(path, exact 1-indexed line, function name)` asserted by `_consumer_census_violations`, and this sweep's deletions moved five of those lines. **`sweep-gate-dispositions.md` §B row 6 dispositioned this module as `control` — verified safe on the basis that "its declared-field extraction targets struct syntax, not comment text".** That is true of the struct legs; the row does not mention the second, line-pinned mechanism. A genuine unrecorded exposure, not a mis-read.
+- **Issue:** `test_the_seven_consumers_call_only_the_public_api` went RED with five named violations (`src/firestarter.cpp:38 does not call rurp_load_config(); observed line: '#endif'`, …). Cause: `_C14_CONSUMER_SITES` is a 9-tuple of `(path, exact 1-indexed line, function name)` asserted by `_consumer_census_violations`, and this sweep's deletions moved five of those lines. **`sweep-gate-dispositions.md` §B row 6 dispositioned this module as `control` — verified safe on the basis that "its declared-field extraction targets struct syntax, not comment text".** That is true of the struct legs; the row does not mention the second, line-pinned mechanism. A genuine unrecorded exposure, not a mis-read.
 - **Fix:** re-pinned to the live call sites — `src/firestarter.cpp` 41→38, 119→115, 125→121; `src/hardware_operations.cpp` 107→106, 119→118; the other four sites are in files the sweep never touched and are unchanged. Re-derived by locating each call (`grep -nE '\brurp_(load|get|save)_config\s*\('`), never by relaxing the pin. The shift and its cause are recorded in the tuple's own comment, which is the file's established idiom — it already carried two earlier re-pins for exactly this class of cause (+1 from an added `#include`, +15 from a widened comment block, both recorded there). **Module back to 17/17**, and the pin's non-vacuity needs no separate demonstration: it *had just failed for real*.
 - **Files modified:** `firestarter/tests/test_config_schema_pinned.py` (uncommitted, lands in plan 12's single firmware commit).
 - **Scope note:** `firestarter/tests/*.py` is outside the sweep's globs (corpus baseline §7) and this edit is not a sweep — it is the repair of a pin whose subject legitimately changed, the same discipline Ruling B applies to a blob-sha sidecar. The existing `Phase 143 Plan 03` / `Phase 151 Plan 03` labels in that comment were **left intact** per D-03 (IDs are retained in test files) and D-04 (test files get the narrow treatment).
-- **Blast-radius check:** a repo-wide grep for executable line-number pins over swept firmware paths finds this is the **only** one in either repo. `firestarter_app`'s two `src/firestarter.cpp:192-194` / `include/rurp_shield.h:25-31` references are **docstring prose**, not assertions — confirmed by the host modules running 88/88 against the swept content. Filed as **deferred item D6**, because §B's "control" verdict will mislead Phases 155–158, all of which shift lines.
+- **Blast-radius check:** a repo-wide grep for executable line-number pins over swept firmware paths finds this is the **only** one in either repo. `firestarter_app`'s two `src/firestarter.cpp:187-189` / `include/rurp_shield.h:25-31` references are **docstring prose**, not assertions — confirmed by the host modules running 88/88 against the swept content. Filed as **deferred item D6**, because §B's "control" verdict will mislead Phases 155–158, all of which shift lines.
 
 **2. [Rule 3 — Blocking] The plan's task-1 diff-line-class criterion is unsatisfiable together with its own SWEEP-01 named-keep requirement**
 
 - **Found during:** Task 1, enumerating the worklist.
-- **Issue:** the criterion is `every added and removed diff line under src and include is a comment line or blank: the git diff -U0 filtered count == 0`. But **four** of the in-scope provenance hits sit on **code lines with trailing comments** — `dev_tools.cpp:107`, `dev_tools.cpp:153`, `memory.cpp:212`, and `eprom_params.cpp:61`. The last is SWEEP-01's *named* keep-example, which the plan's task 2 explicitly requires be swept and its sentence kept. Any edit to a trailing comment necessarily rewrites a line that does not start with `//`, so the criterion and the requirement cannot both hold. (Plan 06 hit the mirror image of this and chose to leave its `(D-16)` — but that token was **not a survey hit**, so leaving it cost nothing; these four **are** hits, and leaving them would fail the primary oracle.)
+- **Issue:** the criterion is `every added and removed diff line under src and include is a comment line or blank: the git diff -U0 filtered count == 0`. But **four** of the in-scope provenance hits sit on **code lines with trailing comments** — `dev_tools.cpp:108`, `dev_tools.cpp:154`, `memory.cpp:217`, and `eprom_params.cpp:58`. The last is SWEEP-01's *named* keep-example, which the plan's task 2 explicitly requires be swept and its sentence kept. Any edit to a trailing comment necessarily rewrites a line that does not start with `//`, so the criterion and the requirement cannot both hold. (Plan 06 hit the mirror image of this and chose to leave its `(D-16)` — but that token was **not a survey hit**, so leaving it cost nothing; these four **are** hits, and leaving them would fail the primary oracle.)
 - **Fix:** all four edited, and the criterion replaced by two strictly stronger measurements rather than quietly reinterpreted: (a) comment-stripped text of all 32 modified files byte-identical to `FW_PRE_SHA` — **0 differences of 32**; (b) each of the four code prefixes before the comment opener byte-identical — **4 of 4**. The plan's own grep is still reported, at its literal value **8 of 1201**, with all eight lines printed and attributed. Nothing is claimed to be zero that is not.
 - **Files modified:** none beyond the four sweeps themselves (verification method only).
 
@@ -561,7 +561,7 @@ The four trailing-comment code lines could not go through that applier (its pre-
 
 ## Requirements
 
-- **SWEEP-02 — ticked.** Fully discharged: `CAP-0N` exempt everywhere (counts unchanged, 6 / 1), the both-repos exemption test applied before stripping any token not on D-01's list, `src/firestarter.cpp:182-200` proven byte-identical by content search, and `test_cap03_ack_layout_parity.py` green **and** shown still able to fail (12/12 in the clone, both planted legs included). **Standing obligation this tick carries forward, stated so the tick is not read as wider than it is:** plans 09–11 sweep host source where `CAP-0N` appears in shipped code and 13 test modules, and must retain it. That is a restatement of the now-recorded rule, not an undischarged half.
+- **SWEEP-02 — ticked.** Fully discharged: `CAP-0N` exempt everywhere (counts unchanged, 6 / 1), the both-repos exemption test applied before stripping any token not on D-01's list, `src/firestarter.cpp:177-195` proven byte-identical by content search, and `test_cap03_ack_layout_parity.py` green **and** shown still able to fail (12/12 in the clone, both planted legs included). **Standing obligation this tick carries forward, stated so the tick is not read as wider than it is:** plans 09–11 sweep host source where `CAP-0N` appears in shipped code and 13 test modules, and must retain it. That is a restatement of the now-recorded rule, not an undischarged half.
 - **SWEEP-01 / SWEEP-03 / SWEEP-05 / SWEEP-06 — left Pending.** Phase-wide; complete only at plan 12. This plan's partials: D-01 applied to 72 hits with the step-3 guard exercised on four named comments and all four surviving sentences quoted (SWEEP-01); requirement/decision IDs stripped from 31 shipped-source files, the shipped half of the asymmetry (SWEEP-03); the byte-identity pair measured on **all three** AVR targets, not just `uno` (SWEEP-05); the one blob-sha-pinned file Ruling B chose to sweep is swept and both its sidecars re-derived, with the four exemptions proven intact (SWEEP-06 — already ticked at plan 02 for the 8-path classification; this plan discharges its regeneration half).
 - **SWEEP-07 — left Pending.** Plan 03 owns RED-before, plan 12 owns RED-after. This plan contributes the measurement that all 5 legs keep their semantics over the swept content (5/5 in the clone, anchoring leg against the real swept file).
 
@@ -575,7 +575,7 @@ None beyond the three auto-fixed items above. No architectural decision was need
 - **Plan 12** must expect exactly 7 red firmware legs before its commit: the 5 porcelain legs (unchanged from plan 06) and the 2 blob-sha gates. All 7 are proven green in a clean clone carrying the same bytes committed. The clone recipe is in this SUMMARY; `/tmp/gsd-154-07-fwclone` is a throwaway and can be deleted at any time. Plan 12 must **not** re-derive the sidecars again — they already carry the correct post-sweep hash `7817c142…`, and `git rev-parse HEAD:src/proms/eprom_params.cpp` will equal it the moment the commit lands, provided nothing further edits that file.
 - **Plans 155–158** all shift line numbers in these files and will trip `test_config_schema_pinned.py::test_the_seven_consumers_call_only_the_public_api` the same way. Deferred item **D6** records it; the current pins are `firestarter.cpp` 38/115/121 and `hardware_operations.cpp` 106/118.
 - **Phase 159** will remap `.planning/` citations into these 31 files. Composite diff for `src`+`include` in this plan: **557 insertions / 644 deletions over 32 files**, net −87 lines, spread across 128 replaced blocks rather than concentrated — so per-file constant offsets will *not* work here the way they partly did for `eeprom_28c.cpp`, and the range-shrinking path plan 05 built will carry most of the load. `src/firestarter.cpp` alone is 33/38 with the no-touch region shifted −5.
-- **The `(D-09)` residual at old `src/firestarter.cpp:209`** is inside the contiguous comment block whose top half is a gate fixture. It is deliberately left, for the same reason plan 06 left `(D-16)`. Do not "finish the job" there without re-proving `_WIRE_LAYOUT_COMMENT`.
+- **The `(D-09)` residual at old `src/firestarter.cpp:204`** is inside the contiguous comment block whose top half is a gate fixture. It is deliberately left, for the same reason plan 06 left `(D-16)`. Do not "finish the job" there without re-proving `_WIRE_LAYOUT_COMMENT`.
 
 ## User Setup Required
 

@@ -21,7 +21,7 @@ Copied verbatim from `149-CONTEXT.md` `<decisions>`. **All 20 are BINDING. Do no
 - **D-08: `0x0D` only — `flash_5v_page.cpp` is an explicit non-change.** FIX-04 frozen.
 - **D-09: The 128 delivery is observed by a native test on flush cadence, and nothing else.** Runtime INFO log filed as a follow-up todo.
 - **D-10: Rename the fallback constant** (e.g. `AT28C_PAGE_SIZE_FALLBACK`).
-- **D-11: Pin the new-host / old-firmware direction with a native test** on the unknown-key skip at `json_parser.c:133`.
+- **D-11: Pin the new-host / old-firmware direction with a native test** on the unknown-key skip at `json_parser.c:320`.
 - **D-12: Fund the growth with a NEW, separately-named, SHA-attributed MERGE-05 exemption.** The existing defect-fix constant is **untouched and not widened**; `MERGE05_UNO_CLASS_FLASH_BAND` stays 64. Rejected: re-anchoring BASE-01; funding from in-phase savings; shipping a RED size gate.
 - **D-13: The comparison point is a fresh COLD capture at the forked v1.32 tip, before the first edit.** `rm -rf .pio/build/<env>` then one `pio run -e <env>` per env. Any difference is recorded as **inherited from the v1.31 merge**, never attributed to this phase.
 - **D-14: `scripts/baseline/size_baseline.json` is updated at phase end, with a superseding meta note.**
@@ -61,8 +61,8 @@ No criterion here may require silicon, assert the `0x0D` write path is proven, g
 | ID | Description (from REQUIREMENTS.md §PGSZ) | Research Support |
 |----|------------------------------------------|------------------|
 | **PGSZ-01** | The per-chip page size travels from `chip_database.json` over the wire to the firmware handler, through the existing JSON command path. | §R5 (emit site `build_db.py:786-795`, `proto_id`/`raw_page_size` in scope at `:478`/`:490`); §R5b (host emit is already built — `database.py:417-419`, `:552-553`); §R2 (the 5-part firmware key skeleton); D-01 arithmetic verified byte-for-byte (§D-01 Verification) |
-| **PGSZ-02** | The `0x0D` handler uses the delivered page size, falling back to the conservative 64-byte floor when the field is absent. | §R3 (the single flush site `eeprom_28c.cpp:634`; `handle->address` is `uint32_t` at `firestarter.h:195`); §R3b (mask ≡ mod proven on 7 geometries); §R4 (`test_read_timing` + `test_val_eeprom28c` both in CI, both green here); D-05 reset precedent at `json_parser.c:82-89` |
-| **PGSZ-03** | Constants and flag bits stay in lockstep between `firestarter/include/firestarter.h` and `firestarter_app/firestarter/constants.py`. | §R7 (`fw_presence.py` `fw_path`/`requires_fw`; `scan_paths.py` `CROSS_REPO_TEST_PATHS` has 7 entries, `_FLOOR = 6`, `src/json_parser.c` absent); `constants.py:145-149` sync note measured FALSE; `test_cap03_ack_layout_parity.py` is the newest cpp-scan precedent; `tools/ci_parity.sh:86-88` already runs the empty-`FW_ROOT` leg |
+| **PGSZ-02** | The `0x0D` handler uses the delivered page size, falling back to the conservative 64-byte floor when the field is absent. | §R3 (the single flush site `eeprom_28c.cpp:599`; `handle->address` is `uint32_t` at `firestarter.h:195`); §R3b (mask ≡ mod proven on 7 geometries); §R4 (`test_read_timing` + `test_val_eeprom28c` both in CI, both green here); D-05 reset precedent at `json_parser.c:271-278` |
+| **PGSZ-03** | Constants and flag bits stay in lockstep between `firestarter/include/firestarter.h` and `firestarter_app/firestarter/constants.py`. | §R7 (`fw_presence.py` `fw_path`/`requires_fw`; `scan_paths.py` `CROSS_REPO_TEST_PATHS` has 7 entries, `_FLOOR = 6`, `src/json_parser.c` absent); `constants.py:144-148` sync note measured FALSE; `test_cap03_ack_layout_parity.py` is the newest cpp-scan precedent; `tools/ci_parity.sh:86-88` already runs the empty-`FW_ROOT` leg |
 | **PGSZ-04** | The flash and RAM delta is measured against a pre-change baseline for all three AVR targets; leonardo has near-zero headroom and MERGE-05's band breach is open. | §R8 (live = BASE-01 + 96 on all three; leonardo MERGE-05 headroom = **0 B**, uno-class = 64 B; leonardo `flash_free` 1670 / 28672 = 5.8%); `_merge05_flash_allowance()` diff shape + the 4 test legs and 2 fixtures it breaks; toolchain installed and `pio` works |
 | **PGSZ-05** | The change is stated as **software-proven and unvalidated on silicon**, in those terms. No page-size claim about any physical AT28C part. | §R9 (`146-check-claims.py` pattern, `_assert_default_targets_are_local()` already solves the `_HERE` trap); **the `\bproven\b` forbidden pattern collides with PGSZ-05's own required phrase** — a blocking finding; changelog surface is `README.md:61` |
 </phase_requirements>
@@ -86,7 +86,7 @@ Extracted from `/workspaces/CLAUDE.md`, `firestarter/CLAUDE.md`, `firestarter_ap
 
 ## Summary
 
-This phase has an unusually short technical distance to travel and an unusually long *evidence* distance. Every hop in the data path from `infoic.xml` to `eeprom28c_write_execute` already exists except two: the provenance-keyed emit condition in `build_db.py`, and the firmware side of the wire key. The host requires **literally zero code change** — `database.py:417-419` already lifts `programming.page_size` into `_map_data` and `:552-553` already emits wire `page-size`, both truthiness-guarded, and `page-size` is already the 6th of the wire golden's 9 keys. The firmware side is a five-point edit with an exact in-repo template (`read-settling-delay`, Phase 44) and a single flush site to change (`eeprom_28c.cpp:634`).
+This phase has an unusually short technical distance to travel and an unusually long *evidence* distance. Every hop in the data path from `infoic.xml` to `eeprom28c_write_execute` already exists except two: the provenance-keyed emit condition in `build_db.py`, and the firmware side of the wire key. The host requires **literally zero code change** — `database.py:417-419` already lifts `programming.page_size` into `_map_data` and `:552-553` already emits wire `page-size`, both truthiness-guarded, and `page-size` is already the 6th of the wire golden's 9 keys. The firmware side is a five-point edit with an exact in-repo template (`read-settling-delay`, Phase 44) and a single flush site to change (`eeprom_28c.cpp:599`).
 
 What is hard is proving it honestly inside a zero-headroom flash budget and an Evidence Ceiling that forbids silicon. Three measurements this session changed what the plan must say. **First**, D-01's arithmetic is exactly right — 84 `algorithm: 13` rows, all 84 joined to the pinned XML with zero unmatched, 18 upstream-native `0x0D` splitting 15 movers @ 128 and 3 no-change @ 64, the four-way provenance table reproducing CONTEXT.md's counts digit for digit, and zero `infoic_page_size_raw` fidelity mismatches. The 15-mover and 3-no-change part lists are byte-identical to CONTEXT.md's. The two curated `_PAGE_SIZE_BY_PART` rows are upstream `0x05`, so they **cannot** collide with the provenance rule. **Second**, R1's named research item resolves against CONTEXT.md: the 18 rows do **not** classify under `PROV01_PROTECT_METADATA` today — they classify under `RULE_VCC_MARGIN_RAIL`, Phase 148's own bucket, and they **stay** there after Phase 149, with `programming.page_size` merely joining each row's compound-secondary list. The bucket census is unchanged at 686/56/2, total changed stays 744, and exit stays 0. A plan criterion of the form "the 18 rows report in the `PGSZ_PAGE_SIZE` bucket" would be **unreachable**. **Third**, PGSZ-05's own required phrase — "software-**proven** and unvalidated on silicon" — is matched by the `proven-unqualified` forbidden pattern `\bproven\b` that every prior claim gate in this project carries, because `\b` fires after a hyphen. The repo already documents this property at `146-check-claims.py:63-65`. Copied verbatim, D-19's gate would be unsatisfiable by the very artifact it exists to protect.
 
@@ -106,7 +106,7 @@ The budget picture is stark and precise. Live flash is BASE-01 + 96 B on all thr
 | Exhaustive power-of-two / range invariant | Host test suite | — | D-07: the only producer is our own in-repo host, so the assertion can be total and free |
 | Parse the wire key, reset it per command | Firmware parser (`json_parser.c`) | — | D-05: keeps `json_parse` algorithm-agnostic |
 | Validate + resolve the mask (silent fallback) | Firmware handler (`eeprom28c_write_init`) | — | D-06/D-07: the floor stays a named firmware constant |
-| Consume the mask at the flush boundary | Firmware handler (`eeprom_28c.cpp:634`) | — | Single site; absolute-address semantics must be preserved |
+| Consume the mask at the flush boundary | Firmware handler (`eeprom_28c.cpp:599`) | — | Single site; absolute-address semantics must be preserved |
 | Prove the 128 delivery | Firmware native tests (`[env:native]`) | Host wire golden (`test_wire_dict_equivalence.py`) | D-09 proves the *consumption*; D-17 proves the *emission*. Neither alone spans the seam |
 | Prove cross-repo constant lockstep | Host test suite (`tests/`, scanning firmware source) | — | D-18: the fail-closed scan infrastructure already exists |
 | Flash/RAM budget adjudication | Firmware scripts (`scripts/check_size_baseline.py`) | — | Phase-level gate; runs in no workflow (its *tests* do) |
@@ -262,7 +262,7 @@ b1737b2 feat(protocol): carry HW revision + FW identity in the MSG_OK_READY ack 
 
 ### X-4 — D-10's `PAGE_SIZE` reference count is wrong (4 refs / 3 test files)
 
-**CONTEXT.md D-10 says:** "4 references: `eeprom_28c.cpp:33`, `:634`, plus `PAGE_SIZE` mentions in 3 native test files (`test_val_eeprom28c.cpp:204,256`, `test_eeprom28c_sdp.cpp:1475,1486,1540`)".
+**CONTEXT.md D-10 says:** "4 references: `eeprom_28c.cpp:33`, `:634`, plus `PAGE_SIZE` mentions in 3 native test files (`test_val_eeprom28c.cpp:204,256`, `test_eeprom28c_sdp.cpp:1532,1543,1603`)".
 
 **Measured — 8 occurrences across 3 files (2 of them test files):**
 
@@ -270,17 +270,17 @@ b1737b2 feat(protocol): carry HW revision + FW identity in the MSG_OK_READY ack 
 $ grep -rn '\bPAGE_SIZE\b' --include='*.c' --include='*.cpp' --include='*.h' src include test lib
 src/proms/eeprom_28c.cpp:19:/* PAGE_SIZE 64 is a deliberate CONSERVATIVE FLOOR (D-13), not an unexamined
 src/proms/eeprom_28c.cpp:33:#define PAGE_SIZE 64
-src/proms/eeprom_28c.cpp:634:        bool page_end = ((address + 1) % PAGE_SIZE) == 0;
+src/proms/eeprom_28c.cpp:599:        bool page_end = ((address + 1) % PAGE_SIZE) == 0;
 test/native/avr/test_val_eeprom28c/test_val_eeprom28c.cpp:204: * base address 0, data_size 8 (PAGE_SIZE 64, so this is one flush on
 test/native/avr/test_val_eeprom28c/test_val_eeprom28c.cpp:256: * with PAGE_SIZE 64 the write flushes twice -- once at address 63 on
-test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1475: * worst value. Two pages (data_size 72, PAGE_SIZE 64: one flush at the
-test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1486:    const size_t   data_size = 72; /* > PAGE_SIZE (64): two flush windows */
-test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1540:    const size_t   loaded_before_abort = 64; /* PAGE_SIZE -- the first page, in full */
+test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1532: * worst value. Two pages (data_size 72, PAGE_SIZE 64: one flush at the
+test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1543:    const size_t   data_size = 72; /* > PAGE_SIZE (64): two flush windows */
+test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1603:    const size_t   loaded_before_abort = 64; /* PAGE_SIZE -- the first page, in full */
 ```
 
-Two firmware files → it is **2** test files, not 3. D-10's *line list* is complete and correct; only the count and file count are wrong, and it misses `:19` (which D-04 rewrites anyway). Exactly **one** occurrence is a code reference (`:634`); `:33` is the definition; the other 6 are comments plus one comment-annotated literal at `test_eeprom28c_sdp.cpp:1540`.
+Two firmware files → it is **2** test files, not 3. D-10's *line list* is complete and correct; only the count and file count are wrong, and it misses `:19` (which D-04 rewrites anyway). Exactly **one** occurrence is a code reference (`:634`); `:33` is the definition; the other 6 are comments plus one comment-annotated literal at `test_eeprom28c_sdp.cpp:1603`.
 
-Add a **9th** touch point the rename implies but D-10 does not name: `test/native/avr/test_read_timing/test_read_timing_params.cpp:62-64`'s comment about `json_init()`'s `sizeof` bug, which the folded todo's deletion makes stale (§R10b).
+Add a **9th** touch point the rename implies but D-10 does not name: `test/native/avr/test_read_timing/test_read_timing_params.cpp:70-72`'s comment about `json_init()`'s `sizeof` bug, which the folded todo's deletion makes stale (§R10b).
 
 ### X-5 — `flash4_page_size()` does not exist (three stale host comments)
 
@@ -291,12 +291,12 @@ $ git -C firestarter grep -rn 'flash4_page_size' src/ include/
 (no output)
 $ git -C firestarter grep -rn 'flash_5v_page_page_size' src/
 src/proms/flash_5v_page.cpp:27:static uint32_t flash_5v_page_page_size(uint32_t mem_size) {
-src/proms/flash_5v_page.cpp:81:    uint32_t page_size = flash_5v_page_page_size(handle->mem_size);
+src/proms/flash_5v_page.cpp:80:    uint32_t page_size = flash_5v_page_page_size(handle->mem_size);
 ```
 
-Stale references: `tools/build_db.py:125`, `firestarter/database.py:416`, `firestarter/constants.py:148`. All three say absent chips "ride the firmware `flash4_page_size(mem_size)` heuristic" — which after this phase is **doubly** wrong for `0x0D` (the fallback becomes the named AT28C floor constant, and `flash_5v_page`'s heuristic never governed `0x0D` at all). These are one-line corrections that belong in this phase's diff because the phase edits all three files' neighbourhoods.
+Stale references: `tools/build_db.py:125`, `firestarter/database.py:416`, `firestarter/constants.py:147`. All three say absent chips "ride the firmware `flash4_page_size(mem_size)` heuristic" — which after this phase is **doubly** wrong for `0x0D` (the fallback becomes the named AT28C floor constant, and `flash_5v_page`'s heuristic never governed `0x0D` at all). These are one-line corrections that belong in this phase's diff because the phase edits all three files' neighbourhoods.
 
-*(Bonus, same class: `platformio.ini:64-67`'s comment claims the host "sizes host->fw chunks to 1022 (1024-2: CRC8 + decoder NUL slot)". Measured: CAP-01 relocated the advertisement to the `MSG_OK_READY` ack, which carries `DATA_BUFFER_SIZE` **verbatim** — `firestarter.cpp:214-215` — and `_calculate_buffer_size()` returns it unmodified (`eprom_operations.py:436-442`). The chunk is 512 or 1024, not 1022. See §R10c.)*
+*(Bonus, same class: `platformio.ini:64-67`'s comment claims the host "sizes host->fw chunks to 1022 (1024-2: CRC8 + decoder NUL slot)". Measured: CAP-01 relocated the advertisement to the `MSG_OK_READY` ack, which carries `DATA_BUFFER_SIZE` **verbatim** — `firestarter.cpp:209-210` — and `_calculate_buffer_size()` returns it unmodified (`eprom_operations.py:436-442`). The chunk is 512 or 1024, not 1022. See §R10c.)*
 
 ---
 
@@ -426,12 +426,12 @@ The five-part shape, all citations from the live firmware tree (`firestarter/` @
 ### (a) PROGMEM key string + `key_parsers[]` row
 
 ```c
-// firestarter/src/json_parser.c:64-66
+// firestarter/src/json_parser.c:75-77
 /* Phase 44 — host-tunable read-timing knobs (D-04 sweep params) */
 const char key_read_settling[] PROGMEM = "read-settling-delay";
 const char key_read_strobe[]   PROGMEM = "read-strobe-us";
 
-// firestarter/src/json_parser.c:68-79
+// firestarter/src/json_parser.c:91
 typedef struct {
     PGM_P key;
     bool (*parser_func)(const char* json, jsmntok_t* tokens, int pos, firestarter_handle_t* handle);
@@ -446,14 +446,14 @@ static const key_parser_t key_parsers[] PROGMEM = {
 };
 ```
 
-**The table is self-sizing.** The dispatch loop is `for (size_t j = 0; j < sizeof(key_parsers) / sizeof(key_parsers[0]); j++)` at `json_parser.c:113` — adding a row needs **no** count constant update anywhere. `[VERIFIED: json_parser.c:113]`
+**The table is self-sizing.** The dispatch loop is `for (size_t j = 0; j < sizeof(key_parsers) / sizeof(key_parsers[0]); j++)` at `json_parser.c:301` — adding a row needs **no** count constant update anywhere. `[VERIFIED: json_parser.c:301]`
 
-**Where the PROGMEM string table lives:** the key strings are file-scope `const char[] PROGMEM` globals at `json_parser.c:56-66` (8 pre-existing + 2 Phase 44 = 10 today). `key_parsers[]` itself is `static const ... PROGMEM` and is read through `pgm_read_ptr` at `:114` and `:116`.
+**Where the PROGMEM string table lives:** the key strings are file-scope `const char[] PROGMEM` globals at `json_parser.c:67-77` (8 pre-existing + 2 Phase 44 = 10 today). `key_parsers[]` itself is `static const ... PROGMEM` and is read through `pgm_read_ptr` at `:114` and `:116`.
 
 ### (b) The `get_*` function + forward declaration
 
 ```c
-// firestarter/src/json_parser.c:25-26  (forward declarations, alongside 8 siblings)
+// firestarter/src/json_parser.c:20-19  (forward declarations, alongside 8 siblings)
 bool get_read_settling(const char* json, jsmntok_t* tokens, int pos, firestarter_handle_t* handle);
 bool get_read_strobe(const char* json, jsmntok_t* tokens, int pos, firestarter_handle_t* handle);
 
@@ -471,7 +471,7 @@ bool get_read_settling(const char* json, jsmntok_t* tokens, int pos, firestarter
 ```
 
 Note the **two idioms** available:
-- **Plain store** — the `extract_long` / `extract_int` macro (`json_parser.c:272-282`), used by 11 of the 13 getters, e.g. `get_chip_id` at `:296-298`: `extract_int("chip-id", handle->chip_id);` — a **one-line** function body.
+- **Plain store** — the `extract_long` / `extract_int` macro (`json_parser.c:459-469`), used by 11 of the 13 getters, e.g. `get_chip_id` at `:296-298`: `extract_int("chip-id", handle->chip_id);` — a **one-line** function body.
 - **Store-with-clamp** — the hand-written form above, used by exactly the two Phase 44 knobs, because they need a cap at parse time.
 
 **Recommendation for the planner:** use the **plain `extract_int` form** for `page-size` and do the validation in the handler, because D-07 locates validation in `eeprom28c_write_init`, not at parse time. `extract_int` is `#define extract_int(element, register) extract_long(element, register)` (`:282`), and `extract_long` uses `simple_strtoul` (`:37-45`), which handles positive decimals only — fine for a page size. This keeps `json_parse` algorithm-agnostic exactly as D-05 requires, and costs the fewest bytes.
@@ -479,7 +479,7 @@ Note the **two idioms** available:
 ### (c) The `firestarter_handle_t` field
 
 ```c
-// firestarter/include/firestarter.h:188-219 (excerpt :192-204)
+// firestarter/include/firestarter.h:188-224 (excerpt :192-204)
     uint32_t protocol;
     uint8_t pins;
     uint32_t mem_size;
@@ -492,12 +492,12 @@ Note the **two idioms** available:
     uint16_t chip_id;
     char data_buffer[DATA_BUFFER_SIZE];
 ```
-The struct closes at `firestarter.h:219`. `chip_id` at `:201` is the `uint16_t` precedent for the discretionary field width; `vpp_mv` at `:196` is a second.
+The struct closes at `firestarter.h:224`. `chip_id` at `:201` is the `uint16_t` precedent for the discretionary field width; `vpp_mv` at `:196` is a second.
 
 ### (d) The optional-key reset in `json_parse` (D-05's precedent)
 
 ```c
-// firestarter/src/json_parser.c:81-89
+// firestarter/src/json_parser.c:164-278
 int json_parse(const char* json, jsmntok_t* tokens, int token_count, firestarter_handle_t* handle) {
     handle->address = 0;
     handle->ctrl_flags = 0;
@@ -510,14 +510,14 @@ int json_parse(const char* json, jsmntok_t* tokens, int token_count, firestarter
 ```
 *(CONTEXT.md cites `:85-95`; the precise reset block is `:82-89`, and `chip_id`'s reset is line **89**.)*
 
-**Why the reset is load-bearing — confirmed by measurement.** `firestarter_handle_t handle;` is a single file-scope global at `firestarter.cpp:33` with **no** per-command `memset`, and `json_parse` is called exactly once per command from `parse_json` (`firestarter.cpp:78`), which `init_programmer_framed` calls at `:131` from the `CMD_IDLE` branch (`:332`). So without a reset, a `page_size` parsed for AT28C010 (128) persists into the next command for a floor chip — making "absent ⇒ 64" false in practice. ✓ D-05 confirmed.
+**Why the reset is load-bearing — confirmed by measurement.** `firestarter_handle_t handle;` is a single file-scope global at `firestarter.cpp:33` with **no** per-command `memset`, and `json_parse` is called exactly once per command from `parse_json` (`firestarter.cpp:75`), which `init_programmer_framed` calls at `:131` from the `CMD_IDLE` branch (`:332`). So without a reset, a `page_size` parsed for AT28C010 (128) persists into the next command for a floor chip — making "absent ⇒ 64" false in practice. ✓ D-05 confirmed.
 
-**Note the Phase 44 knobs are NOT reset** — `read_settling_us` / `read_strobe_us` do not appear in the `:82-89` block. They get away with it because both treat 0 as "use the default", so a stale non-zero value is a *behaviour* bug the same way `page_size` would be. This is a latent instance of the same defect one field over; not this phase's business, but worth a one-line note in `149-PAGE-SIZE.md` since the phase touches this exact block. `[MEASURED: json_parser.c:82-89 vs :198-199]`
+**Note the Phase 44 knobs are NOT reset** — `read_settling_us` / `read_strobe_us` do not appear in the `:82-89` block. They get away with it because both treat 0 as "use the default", so a stale non-zero value is a *behaviour* bug the same way `page_size` would be. This is a latent instance of the same defect one field over; not this phase's business, but worth a one-line note in `149-PAGE-SIZE.md` since the phase touches this exact block. `[MEASURED: json_parser.c:271-278 vs :198-199]`
 
 ### (e) The paired `constants.py` key + sync note — and it is currently FALSE
 
 ```python
-# firestarter_app/firestarter/constants.py:138-149  (verbatim)
+# firestarter_app/firestarter/constants.py:137-148  (verbatim)
 
 # Dev sweep knobs — Firmware sync: json_parser.c (key_read_settling, key_read_strobe)
 # JSON key name strings for host-tunable read-timing parameters.
@@ -538,7 +538,7 @@ JSON_KEY_PAGE_SIZE = "page-size"
 
 Also worth the planner's attention: the comment says "Emitted by `eprom_operations.py`". Measured, the emit is in **`database.py:552-553`** (`convert_to_programmer`); `eprom_operations.py` never mentions `page_size`. A third false clause in the same five-line comment. All three are one-line corrections in a block this phase must edit anyway.
 
-**Only 3 `JSON_KEY_*` constants exist** (`constants.py:143`, `:144`, `:149`) — so the parity test's surface is small and enumerable.
+**Only 3 `JSON_KEY_*` constants exist** (`constants.py:142`, `:144`, `:149`) — so the parity test's surface is small and enumerable.
 
 ### Byte cost of a comparable key
 
@@ -611,12 +611,12 @@ D-04 rewrites the `:26-28` clause ("64 errs SAFE … can never overrun a page") 
 
 | Fact | Value | Citation |
 |---|---|---|
-| Current flush expression | `((address + 1) % PAGE_SIZE) == 0` | `eeprom_28c.cpp:634` |
+| Current flush expression | `((address + 1) % PAGE_SIZE) == 0` | `eeprom_28c.cpp:599` |
 | Type of `handle->address` | `uint32_t` | `firestarter.h:195` |
 | Type of the loop's `address` local | `uint32_t` | `eeprom_28c.cpp:623` |
 | Other sites reading `PAGE_SIZE` in `src/` | **none** — `:634` is the only one | §X-4 grep |
 | Other sites reading `PAGE_SIZE` in `src/proms/` | **none** | §X-4 grep |
-| Function called once per flush | `eeprom28c_wait_for_page_write` (`:644`) + `eeprom28c_verify_page_readback` (`:648`) | `eeprom_28c.cpp:644,648` |
+| Function called once per flush | `eeprom28c_wait_for_page_write` (`:644`) + `eeprom28c_verify_page_readback` (`:648`) | `eeprom_28c.cpp:606,648` |
 
 ### (c) Where write-INIT lives, and the early-return trap
 
@@ -639,7 +639,7 @@ $ grep -n '^[a-zA-Z_].*(\|^static .*(' src/proms/eeprom_28c.cpp | grep -v ';$'
 `eeprom28c_write_init` is `:448-535`. **It has an early `return` at `:454`:**
 
 ```c
-// firestarter/src/proms/eeprom_28c.cpp:448-456
+// firestarter/src/proms/eeprom_28c.cpp:420-428
 void eeprom28c_write_init(firestarter_handle_t* handle) {
     if (handle->chip_id > 0) {
         eeprom28c_check_chip_id(handle);
@@ -690,7 +690,7 @@ page1 mask0        base=0    size=8    page=1    -> 8 single-byte windows  flush
 **`native/avr/test_read_timing` is the suite.** `platformio.ini:107` lists it in `[env:native]`'s `test_filter` (17 entries, `:102-119`). It is a full `json_parse` harness:
 
 ```cpp
-// firestarter/test/native/avr/test_read_timing/test_read_timing_params.cpp:53-73
+// firestarter/test/native/avr/test_read_timing/test_read_timing_params.cpp:61-81
 /* Build a zero-initialized handle suitable for JSON parse tests. */
 static firestarter_handle_t make_handle(uint8_t cmd) {
     firestarter_handle_t h = {};   /* zero-init: ensures new fields default 0 */
@@ -724,7 +724,7 @@ Its 4 existing cases (`:116-124`) are exactly the shape D-05/D-11 need:
 
 **So D-15 ("extend existing suites, no new suite") and D-11 are fully compatible.** No new translation unit, no new watermark measurement, no new `-I` entry in `platformio.ini`. Each new case is ~6 lines plus one `RUN_TEST` line.
 
-**D-11's sharp form** (the unknown-key skip at `json_parser.c:133`): the existing absent-key case does **not** exercise it. The skip is about **token-walk desynchronisation** — `token_idx += 2` on an unrecognised key. So the test must place an unknown key *before* a known one and assert the known one still lands:
+**D-11's sharp form** (the unknown-key skip at `json_parser.c:320`): the existing absent-key case does **not** exercise it. The skip is about **token-walk desynchronisation** — `token_idx += 2` on an unrecognised key. So the test must place an unknown key *before* a known one and assert the known one still lands:
 
 ```cpp
 /* D-11: a new host's unknown key must not desync the token walk. */
@@ -765,7 +765,7 @@ static bool eeprom28c_wait_for_page_write(firestarter_handle_t* handle, uint32_t
 ```
 `eeprom_28c.cpp:672-675` states this explicitly: *"Every read goes through `handle->firestarter_get_data` (`memory_get_data`) -- never a direct `rurp_*` read, never `fu_flash_data_poll()`"*.
 
-**Therefore flush count IS observable — via a test-local counter inside the mock `get_data`**, keyed on address. Concretely: record every queried address in a suite-local array (or just count calls, and separately record the set of addresses at which a *first* call occurred), and the flush points are recoverable exactly, because `wait_for_page_write` is called once per flush at the flush address and does a double-read there (`eeprom_28c.cpp:667-670`, the double-read idiom).
+**Therefore flush count IS observable — via a test-local counter inside the mock `get_data`**, keyed on address. Concretely: record every queried address in a suite-local array (or just count calls, and separately record the set of addresses at which a *first* call occurred), and the flush points are recoverable exactly, because `wait_for_page_write` is called once per flush at the flush address and does a double-read there (`eeprom_28c.cpp:629-632`, the double-read idiom).
 
 **Two known traps, and how each lands here:**
 - *Native trace stubs record NO time* — `host_stubs_common.inc:137-144` states `delay()` / `delayMicroseconds()` are **not stubbed anywhere** in the shared include (they are ArduinoFake free functions, `.AlwaysReturn()`-mocked in each suite's `setUp()`). ✓ **Does not weaken D-09**, which counts flushes and never times them. `test_val_eeprom28c.cpp:69-79` already mocks `delayMicroseconds`, `delay`, `millis`, and `micros` (all `AlwaysReturn(0)`) precisely so the write path is reachable without timing.
@@ -972,7 +972,7 @@ with `_canon = name.split(",")[0].split("@")[0].strip()` hoisted (it is currentl
 
 Two corrections to CONTEXT.md's citations, both minor but worth carrying into plan tasks:
 1. CONTEXT.md says "`database.py:417` already carries `programming.page_size` into `_map_data` and `:552` already emits wire `page-size`, both via `.get`". Measured: the guards are **truthiness** (`if page_size_val:`, `if full_eprom_data.get("page_size"):`), not presence. Both delivered values (64, 128) are truthy so behaviour is identical — but a `page_size` of **0** would be silently dropped. This makes 0 an unreachable wire value host-side, which is a *convenient* accident (it means the firmware never has to distinguish "absent" from "0"), and it is worth stating as a measured property rather than leaving it as luck. The actual emit statement is `:553`, not `:552`.
-2. **Two different key spellings in the same flow:** internal `page_size` (underscore, `:419`/`:552`) vs wire `page-size` (hyphen, `:553`). The firmware's PROGMEM string must match the **hyphen** form, and so must `constants.py`'s `JSON_KEY_PAGE_SIZE` (it does — `constants.py:149` is `"page-size"`). D-18's parity assertion must compare the hyphen form.
+2. **Two different key spellings in the same flow:** internal `page_size` (underscore, `:419`/`:552`) vs wire `page-size` (hyphen, `:553`). The firmware's PROGMEM string must match the **hyphen** form, and so must `constants.py`'s `JSON_KEY_PAGE_SIZE` (it does — `constants.py:148` is `"page-size"`). D-18's parity assertion must compare the hyphen form.
 
 ### (f) `extra_chips.json` and the provenance rule
 
@@ -1234,7 +1234,7 @@ FIRESTARTER_FW_ROOT="${TMPROOT}" python3 -m pytest tests/ -q
 
 **`tools/ci_parity.sh` leg 1 is exactly D-18's requested skip-leg proof, already scripted.** The plan does not build this — it *runs* it and captures the transcript, asserting the new parity test appears as SKIPPED with `FW_ABSENT_REASON` (use `-rs` to make skips visible; the script's bare `-q` will not show them, so the plan should run the leg with `-rs` added for the transcript). `ci_parity.sh`'s four legs are: (1) empty-`FW_ROOT` pytest, (2) plain pytest, (3) ruff lint + format at ci.yml's exact path set, (4) mypy watermark.
 
-### (e) `constants.py:145-149` quoted, and the sync note confirmed FALSE
+### (e) `constants.py:144-148` quoted, and the sync note confirmed FALSE
 
 Quoted in full in §R2(e). **Three false clauses measured** in that five-line comment: `key_page_size` does not exist in firmware; `flash4_page_size` does not exist; the emit is in `database.py`, not `eprom_operations.py`. D-18 turns clause 1 into a true, enforced claim; clauses 2 and 3 are one-line corrections in the same block.
 
@@ -1611,8 +1611,8 @@ $ git grep -c 'eprom_internal_program_pulse' origin/beta -- src/proms/eprom.cpp
 origin/beta:src/proms/eprom.cpp:4          # Phase 145's fix IS present
 $ git grep -n 'CAP-02' origin/beta -- src include | head -3
 origin/beta:src/firestarter.cpp:158:    // CAP-02 is being PORTED here, not invented: ...
-origin/beta:src/firestarter.cpp:169:    //      CAP-01              CAP-02                                CAP-03
-origin/beta:src/firestarter.cpp:197:    //    misparses. Hosts predating CAP-02 test `len(params) == 2`, ...
+origin/beta:src/firestarter.cpp:164:    //      CAP-01              CAP-02                                CAP-03
+origin/beta:src/firestarter.cpp:192:    //    misparses. Hosts predating CAP-02 test `len(params) == 2`, ...
 ```
 
 **fw#52's CAP-02 conflict is RESOLVED on `origin/beta`, and it does not touch this phase's files.** The full content diff between the v1.31 branch tip and `origin/beta` is a single equal-length version string:
@@ -1640,7 +1640,7 @@ done
 ### (b) The folded todo: dead `json_init()`
 
 ```c
-// firestarter/src/json_parser.c:50-54
+// firestarter/src/json_parser.c:42-65
 int json_init(const char* json, int len, jsmntok_t* tokens) {
     jsmn_parser parser;
     jsmn_init(&parser);
@@ -1657,10 +1657,10 @@ int json_init(const char* json, int len, jsmntok_t* tokens) {
 **Called from nowhere:**
 ```
 $ grep -rn 'json_init' src/ include/
-src/json_parser.c:50:int json_init(const char* json, int len, jsmntok_t* tokens) {
+src/json_parser.c:42:int json_init(const char* json, int len, jsmntok_t* tokens) {
 include/json_parser.h:19:    int json_init(const char* json, int len, jsmntok_t* tokens);
 $ grep -rn 'json_init' test/
-test/native/avr/test_read_timing/test_read_timing_params.cpp:62: * Note: json_init() uses sizeof(tokens)/sizeof(tokens[0]) which is wrong when
+test/native/avr/test_read_timing/test_read_timing_params.cpp:70: * Note: json_init() uses sizeof(tokens)/sizeof(tokens[0]) which is wrong when
 ```
 ✓ Zero call sites in `src/`; one **comment** mention in the very suite this phase extends. ✓ CONTEXT.md confirmed.
 
@@ -1673,12 +1673,12 @@ $ grep -rn 'gc-sections\|ffunction-sections' ~/.platformio/platforms/atmelavr/bu
 So the linker almost certainly already discards `json_init`. And the flash saving is bounded even further than the todo assumes:
 ```
 $ grep -rn 'jsmn_parse\|jsmn_init' src/ include/
-src/json_parser.c:51,52,53          (inside json_init)
-src/firestarter.cpp:56,59,60        (the LIVE parser, parse_json)
+src/json_parser.c:62,63,64          (inside json_init)
+src/firestarter.cpp:53,56,57        (the LIVE parser, parse_json)
 ```
-`jsmn_parse` / `jsmn_init` are **also** called from `firestarter.cpp:56-60`, so deleting `json_init` cannot free the jsmn library either. **Expected flash saving: 0 bytes.** ✓ The folded todo's "any flash saving is a bonus, not the justification" is exactly right, and the plan must **not** count it toward D-12's budget — measured, there is nothing to count.
+`jsmn_parse` / `jsmn_init` are **also** called from `firestarter.cpp:53-57`, so deleting `json_init` cannot free the jsmn library either. **Expected flash saving: 0 bytes.** ✓ The folded todo's "any flash saving is a bonus, not the justification" is exactly right, and the plan must **not** count it toward D-12's budget — measured, there is nothing to count.
 
-**Three edit points, not two:** `src/json_parser.c:50-54` (definition), `include/json_parser.h:19` (declaration), and `test/native/avr/test_read_timing/test_read_timing_params.cpp:62-64` (the now-stale explanatory comment — the local `parse_json` helper it justifies should stay, since it is the right harness, but its rationale sentence must change from "json_init is broken" to "json_init was deleted in Phase 149").
+**Three edit points, not two:** `src/json_parser.c:42-65` (definition), `include/json_parser.h:19` (declaration), and `test/native/avr/test_read_timing/test_read_timing_params.cpp:70-72` (the now-stale explanatory comment — the local `parse_json` helper it justifies should stay, since it is the right harness, but its rationale sentence must change from "json_init is broken" to "json_init was deleted in Phase 149").
 
 ### (c) `DATA_BUFFER_SIZE` and the board-dependent validation range
 
@@ -1710,7 +1710,7 @@ src/firestarter.cpp:56,59,60        (the LIVE parser, parse_json)
 3. **Consider whether `DATA_BUFFER_SIZE` is even the right bound.** It is convenient (a page larger than the transfer buffer is physically meaningless for this programmer) but it makes the *validation contract* board-dependent for no benefit at the delivered values. A board-invariant literal ceiling — 512, or 256 (the largest page any of the 746 rows carries) — would make the contract identical on all four envs and make the native test's coverage total rather than partial. **Claude's discretion-adjacent; the plan should state which bound it chose and why**, because "in `[1, DATA_BUFFER_SIZE]`" reads as one rule and is in fact two.
 4. **Write-block sizes are multiples of 128 — confirmed, and `platformio.ini`'s comment is stale.** The advertised chunk is `DATA_BUFFER_SIZE` **verbatim**:
    ```c
-   // firestarter/src/firestarter.cpp:214-215
+   // firestarter/src/firestarter.cpp:209-210
    _ready[0] = (uint8_t)(((uint16_t)DATA_BUFFER_SIZE >> 8) & 0xFF);
    _ready[1] = (uint8_t)((uint16_t)DATA_BUFFER_SIZE & 0xFF);
    ```
@@ -1785,7 +1785,7 @@ python_version = "3.10"
    │                        ALREADY BUILT — ZERO CHANGE    │  :552-553 convert_to_  │
    │                                    (D-02)             │    programmer          │
    │                                                       │    → "page-size"  WIRE │
-   │  constants.py:149 JSON_KEY_PAGE_SIZE = "page-size" ◀──┤                        │
+   │  constants.py:148 JSON_KEY_PAGE_SIZE = "page-size" ◀──┤                        │
    │        ▲ PGSZ-03 parity scan (D-18)                   └───────────┬────────────┘
    │        │                                                          │
    │        │                                       COBS/CRC8 @250000  │ {"cmd":2,...,
@@ -1815,7 +1815,7 @@ python_version = "3.10"
                          │  :133    unknown-key SKIP     ◀ D-11 │
                          │  :296-298 extract_int precedent      │
                          └──────────────┬───────────────────────┘
-                                        │  handle-><page field>   (firestarter.h:188-219, NEW)
+                                        │  handle-><page field>   (firestarter.h:188-224, NEW)
                                         ▼
    ┌─────────────────────────────────────────────────────────────────────┐
    │ eeprom_28c.cpp                                                      │
@@ -1913,15 +1913,15 @@ firestarter_app/                             (already on the v1.32 branch)
 **When to use:** any per-chip parameter the DB knows and the firmware currently hardcodes.
 **Example — the live Phase 44 template, all five points in one view:**
 ```c
-// (1) firestarter/src/json_parser.c:65 — PROGMEM key string
+// (1) firestarter/src/json_parser.c:76 — PROGMEM key string
 const char key_read_settling[] PROGMEM = "read-settling-delay";
-// (2) firestarter/src/json_parser.c:78 — key_parsers[] row (table is self-sizing at :113)
+// (2) firestarter/src/json_parser.c:164 — key_parsers[] row (table is self-sizing at :113)
     {key_read_settling, get_read_settling},
-// (3) firestarter/src/json_parser.c:25 fwd decl + :350-357 definition
+// (3) firestarter/src/json_parser.c:20 fwd decl + :350-357 definition
 bool get_read_settling(const char* json, jsmntok_t* tokens, int pos, firestarter_handle_t* handle) { ... }
 // (4) firestarter/include/firestarter.h:198 — handle field
     uint32_t read_settling_us;   /* ... 0 = no settling delay */
-// (5) firestarter_app/firestarter/constants.py:143 — paired constant + sync note
+// (5) firestarter_app/firestarter/constants.py:142 — paired constant + sync note
 JSON_KEY_READ_SETTLING_DELAY = "read-settling-delay"
 ```
 **What Phase 149 adds that Phase 44 lacks:** point (6), the reset in `json_parse:82-89` (D-05 — Phase 44 skipped it, §R2d), and point (7), the enforced parity scan (D-18 — Phase 44's sync note is a comment nobody checks).
@@ -1966,7 +1966,7 @@ JSON_KEY_READ_SETTLING_DELAY = "read-settling-delay"
 | Admitting flash growth | Re-anchoring BASE-01, or widening a band | A new named SHA-attributed exemption constant | `size_baseline_base01.json:re_anchor_note` — a green after an anchor move means the anchor moved, not that growth shrank |
 | A wire-golden conflict | Re-capturing the golden | Golden + committed expected-delta fixture | D-17; a re-capture erases Phase 148's own central claim from the same file |
 | Firmware message strings | Editing `include/messages.h` | `tools/catalog/messages.toml` + `codegen.py` | C-5; `messages.h` is codegen-generated and there is a CI drift gate (`build.yml:114`). This phase should need **neither** |
-| JSON tokenising | Anything | `jsmn` via `firestarter.cpp:56-60`'s live path | And note `json_init` is the dead wrapper this phase deletes (§R10b) |
+| JSON tokenising | Anything | `jsmn` via `firestarter.cpp:53-57`'s live path | And note `json_init` is the dead wrapper this phase deletes (§R10b) |
 
 **Key insight:** almost every mechanism this phase needs already exists and was built *because* a hand-rolled version failed in a measured, documented way. The phase's real work is wiring, measuring, and writing honestly — not building.
 
@@ -2265,7 +2265,7 @@ Everything else is parallelisable. The DB side and the firmware side are genuine
 | V2 Authentication | **no** | No user identity anywhere in this system; the serial link is a physical trust boundary |
 | V3 Session Management | **no** | The three-phase INIT→MAIN→END state machine is a protocol, not a session; no credentials |
 | V4 Access Control | **no** | Single local operator with physical access to the board |
-| V5 Input Validation | **YES** | The new wire field is untrusted input crossing a repo and process boundary into a memory-unsafe C parser. Controls: `simple_strtoul` (`json_parser.c:37-45`, positive-decimal only, no overflow path into a pointer); the D-07 power-of-two + range check in the handler; the reset at `json_parse:82-89` so a stale value cannot leak across commands; the `token_idx += 2` unknown-key skip (`:133`) that D-11 pins |
+| V5 Input Validation | **YES** | The new wire field is untrusted input crossing a repo and process boundary into a memory-unsafe C parser. Controls: `simple_strtoul` (`json_parser.c:29-37`, positive-decimal only, no overflow path into a pointer); the D-07 power-of-two + range check in the handler; the reset at `json_parse:82-89` so a stale value cannot leak across commands; the `token_idx += 2` unknown-key skip (`:133`) that D-11 pins |
 | V6 Cryptography | **no** | No crypto. CRC8-CCITT (`eprom_operations.py:847`) is integrity, not authenticity, and is unchanged |
 | V7 Error Handling / Logging | partial | D-07 chooses a **silent** fallback deliberately (a new message ID costs PROGMEM against a 0-byte budget to report a condition only our own host could cause). The compensating control is the exhaustive host-side proof. Recorded as a deliberate trade, not an omission |
 | V12 Files / Resources | partial | `build_db.py` fetches over the network (`requests.get`, `:438`) and writes the generated DB. Pre-existing; unchanged by this phase |
@@ -2279,7 +2279,7 @@ Everything else is parallelisable. The DB side and the firmware side are genuine
 | Out-of-bounds page write / page overrun on the die | **Tampering** | Flush granularity ≤ the physical page | The whole point of PGSZ-02. A too-**large** delivered value is the dangerous direction; D-07's fallback + D-01's provenance rule are the two controls, and D-04 correctly downgrades the floor's safety claim to *unproven* for the 11 promoted 16/32 rows |
 | Unbounded value from the wire reaching a loop bound | **DoS** | Range clamp at the trust boundary | D-07's `[1, DATA_BUFFER_SIZE]` check. Note the mask is only ever ANDed with an address — it cannot index memory — so the failure mode is wrong granularity, never a buffer overrun. Worth stating explicitly in `149-PAGE-SIZE.md` |
 | Integer overflow in `page_size - 1` | Tampering | Reject 0 before subtracting | `page_size == 0` → mask `0xFFFF…` if computed on an unsigned type, which would flush **almost never** — the dangerous direction. D-07's `>= 1` lower bound must be enforced **before** the subtraction. Measured mitigating factor: the host cannot send 0 because both emit guards are truthiness tests (§R5e), so 0 is unreachable from our own host — but the firmware must not rely on that |
-| Token-walk desynchronisation on an unknown key | Tampering | Fixed `key + value` advance | `json_parser.c:133-134`; D-11 pins it |
+| Token-walk desynchronisation on an unknown key | Tampering | Fixed `key + value` advance | `json_parser.c:320-321`; D-11 pins it |
 | Stale global state across commands | Tampering | Explicit per-command reset | D-05. `firestarter.cpp:33` has no `memset`; the reset block is the only defence |
 | Cross-algorithm value reinterpretation | Tampering (data-integrity) | Provenance-keyed selection | D-01. This is the phase's central security-flavoured control: a `page_size` read out of an `0x07`/`0x0B` record is not evidence about a 28C page buffer, and delivering one to a FRAM part is the concrete harm the rule prevents |
 | A local override supplying an unvalidated `page_size` | Tampering | Firmware-side validation | **Finding:** the D-07 host test iterates the *generated* DB, so a `~/.firestarter/database.json` override could supply a non-power-of-two or out-of-range `page_size` that the host emits (it is truthy) and the host test never sees. The **firmware** check is therefore load-bearing, not belt-and-braces. `[VERIFIED: database.py:417-419 is override-agnostic; test_wire_dict_equivalence.py:79 uses skip_local_override=True]` The plan should state this as the reason D-07's firmware half exists at all |
@@ -2403,8 +2403,8 @@ Claims tagged `[ASSUMED]` above. Each needs planner confirmation (or explicit ac
 
 **Firmware (`firestarter/` @ `6992271`, content-identical to `origin/beta` @ `7f6afc6`):**
 - `src/json_parser.c` — full read; `:25-26`, `:37-45`, `:47-48`, `:50-54`, `:56-79`, `:81-141`, `:272-366`
-- `src/firestarter.cpp:28-120`, `:131`, `:214-215`, `:262-270`, `:332`
-- `src/proms/eeprom_28c.cpp:1-60`, `:189-228`, `:448-545`, `:575-681`, function inventory
+- `src/firestarter.cpp:28-116`, `:131`, `:214-215`, `:262-270`, `:332`
+- `src/proms/eeprom_28c.cpp:1-56`, `:189-228`, `:448-545`, `:575-681`, function inventory
 - `src/proms/flash_5v_page.cpp:19-31`
 - `include/firestarter.h:1-40`, `:180-221`; `include/json_parser.h` (full)
 - `platformio.ini:1-130`
@@ -2424,7 +2424,7 @@ Claims tagged `[ASSUMED]` above. Each needs planner confirmation (or explicit ac
 - `tools/diff_db.py:1-30`, `:300-320`, `:370-400`, `:420-470`, `:595-660`, `:660-730`, `:733-810`, `:908-931`
 - `tools/extra_chips.json` (full), `tools/baseline/chip_database.baseline.json` (programmatic)
 - `tools/check_mypy_watermark.py:1-125`; `tools/ci_parity.sh:60-160`
-- `firestarter/database.py:405-425`, `:530-562`; `firestarter/constants.py:138-155`
+- `firestarter/database.py:405-425`, `:530-562`; `firestarter/constants.py:137-154`
 - `firestarter/eprom_operations.py:425-450`, `:840-870`; `firestarter/serial_comm.py:147-200`, `:349-411`
 - `firestarter/data/chip_database.json` (programmatic; 746 rows / 59 vendors)
 - `tests/fw_presence.py` (full, 140 lines); `tests/scan_paths.py` (full, 355 lines)

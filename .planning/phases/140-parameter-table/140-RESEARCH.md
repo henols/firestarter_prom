@@ -44,7 +44,7 @@
   **exactly 0** against Phase 138's baseline. On AVR a `const` struct array without `PROGMEM` lands
   in `.data` and is copied into RAM at startup, so a plain `const` table fails the gate on arrival.
   Follow the existing precedent: `static const key_parser_t key_parsers[] PROGMEM` at
-  `firestarter/src/json_parser.c:73`. Uno-class flash headroom is **42 B (`uno`) / 36 B
+  `firestarter/src/json_parser.c:164`. Uno-class flash headroom is **42 B (`uno`) / 36 B
   (`uno328pb`)** against the 64 B MERGE-05 band at the fork base — and materially less at the live
   `beta` tip (F-138-02: 8 B / 2 B). Budget accordingly.
 
@@ -194,7 +194,7 @@
 | ID | Description (verbatim, `REQUIREMENTS.md:169-179`) | Research Support |
 |----|---------------------------------------------------|------------------|
 | **TABLE-01** | A `const` table keyed by `protocol_id` carries rows for `0x07`, `0x08` and `0x0B` with `max_pulses`, `overprogram_factor`, `overprogram_cap_us`, `verify_mode` and `vpp_path`. | §Standard Stack (PROGMEM precedent, verified struct layout that is 12 B on **both** AVR and x86-64); §Code Examples (worked header); §Pitfall 1 (the `.cpp` warning trap that constrains file layout). |
-| **TABLE-02** | The table has **no pulse-width column** — program pulse width is read from `handle->pulse_delay` on every write path. | §Architecture Patterns (the pulse plumbing, host → wire → `json_parser.c:304` → `handle->pulse_delay`); §Validation Architecture (a name-set gate that is *not* fooled by `max_pulses` containing the substring "pulse"). |
+| **TABLE-02** | The table has **no pulse-width column** — program pulse width is read from `handle->pulse_delay` on every write path. | §Architecture Patterns (the pulse plumbing, host → wire → `json_parser.c:503` → `handle->pulse_delay`); §Validation Architecture (a name-set gate that is *not* fooled by `max_pulses` containing the substring "pulse"). |
 | **TABLE-03** | A protocol's constant pulse is consulted **only** when `handle->pulse_delay == 0`, and that fallback is exercised by a test rather than asserted. | §Architecture Patterns (`configure_eprom` is reachable natively with zero hardware side effects — proven by `test_val_eprom`'s negative controls); §Finding F-140-04 (**0 of 329 shipped 27C chips yield `pulse_delay == 0` — the fallback is unreachable on the bench, so the native test is the only oracle**); §Pitfall 4 (the global handle never resets `pulse_delay`). |
 | **TABLE-04** | Every value in every row is cited to a named primary datasheet, or carries an explicit "no datasheet basis — reasoned from X" note. No unattributed number ships. | §Datasheet Attribution Matrix — 8 primary datasheets read this session, per-cell verdicts, plus the three cells with no datasheet basis and the exact wording each needs. |
 | **TABLE-05** | No new `chip_database.json` field and no second firmware algorithm selector is introduced — `protocol_id` remains the sole dispatch key, verified by a gate rather than by inspection. | §Architecture Patterns (the complete, measured branch-site inventory including the **two pre-existing non-protocol branches the gate must allowlist or be RED on arrival**); §Standard Stack (the exact DB key inventory, 746 chips); §Validation Architecture (gate placement, CI legs, planted-failure obligations). |
@@ -291,7 +291,7 @@ infrastructure already pinned by Phase 138's baseline.
 
 | Component | Location | Purpose | When to Use |
 |-----------|----------|---------|-------------|
-| `static const … PROGMEM` array | `src/json_parser.c:73` (`key_parsers[]`) | The in-tree PROGMEM-table precedent D-04 names | Model for the new table's storage + `pgm_read_ptr` access idiom |
+| `static const … PROGMEM` array | `src/json_parser.c:164` (`key_parsers[]`) | The in-tree PROGMEM-table precedent D-04 names | Model for the new table's storage + `pgm_read_ptr` access idiom |
 | `_shared/host_stubs_common.inc` | `test/native/avr/_shared/` | Shared `rurp_*` stubs, three opt-in recorder layers | A new suite `#define`s its opt-ins **before** the include (guards read at include time) |
 | `[env:native_trace_v131]` | `platformio.ini:293-328` | Complete worked 4th-env instance | Template for D-11's fifth env, including the HARD CONSTRAINT comment block |
 | `tests/test_golden_trace_identity_eprom_v131.py` | firmware repo | Standalone pytest + committed inventory JSON, CI-run | **The recommended gate pattern** for D-13/D-14 — see §Don't Hand-Roll |
@@ -347,9 +347,9 @@ infrastructure already pinned by Phase 138's baseline.
                                      │  JSON @250000 baud   {"algorithm":7,"pulse-delay":100,…}
 ┌─ FIRMWARE (firestarter) ───────────▼─────────────────────────────────────────────┐
 │                                                                                  │
-│  json_parser.c:73  key_parsers[] PROGMEM ──> get_algorithm → handle->protocol    │
+│  json_parser.c:164  key_parsers[] PROGMEM ──> get_algorithm → handle->protocol    │
 │                                          └─> get_delay     → handle->pulse_delay │
-│                    ⚠ json_parse() does NOT reset pulse_delay (json_parser.c:81-89)│
+│                    ⚠ json_parse() does NOT reset pulse_delay (json_parser.c:164-278)│
 │                                    │                                             │
 │                    memory.cpp:115  protocol ∈ {0x07,0x08,0x0B} ─> configure_eprom│
 │                                    │                                             │
@@ -427,13 +427,13 @@ firestarter_app/                                 # submodule 2 — commits_land_
 **When to use:** 3 rows, read-rarely, RAM budget exactly 0.
 **Why not a switch:** a `switch` returning six values is a second selector by D-13's own definition.
 
-The in-tree precedent (`src/json_parser.c:73-79`, verbatim):
+The in-tree precedent (`src/json_parser.c:133`, verbatim):
 ```c
 static const key_parser_t key_parsers[] PROGMEM = {
     {key_mem_size, get_memory_size}, {key_address, get_address}, ...
 };
 // access:
-PGM_P key = (PGM_P)pgm_read_ptr(&key_parsers[j].key);          // json_parser.c:114
+PGM_P key = (PGM_P)pgm_read_ptr(&key_parsers[j].key);          // json_parser.c:302
 ```
 
 ### Pattern 2: The fifth native env (verbatim shape from `platformio.ini:293-328`)
@@ -676,7 +676,7 @@ surprise.
 **What goes wrong:** a test (or a real session) believes it is exercising the `pulse_delay == 0`
 fallback and is not.
 **Why it happens:** `firestarter_handle_t handle;` is a file-scope global (`src/firestarter.cpp:32`),
-and `json_parse` (`src/json_parser.c:81-89`) resets `address`, `ctrl_flags`, four `bus_config` fields
+and `json_parse` (`src/json_parser.c:164-278`) resets `address`, `ctrl_flags`, four `bus_config` fields
 and `chip_id` — **not** `pulse_delay`, `protocol`, `mem_size`, `vpp_mv` or `pins`. Compounding it,
 `eprom_write_execute` restores `org_delay` on the success path (`eprom.cpp:172`) but **not** on the
 retry-exhausted failure path (`:181-192`), so an inflated value can survive into the next command.
@@ -791,7 +791,7 @@ const eprom_params_t* eprom_params_for(uint32_t protocol);
 ```c
 /* src/proms/eprom_params.cpp — Phase 140.
  * Storage precedent: static const key_parser_t key_parsers[] PROGMEM
- * (src/json_parser.c:73), including the pgm_read_* access idiom (:114).
+ * (src/json_parser.c:164), including the pgm_read_* access idiom (:114).
  * MUST NOT #include <Arduino.h> — see 140-RESEARCH Pitfall 1.
  * Every value's citation: tests/golden/eprom_params_citations.json (D-14).
  */
@@ -845,7 +845,7 @@ void setUp(void) {
 void tearDown(void) {}
 
 /* Fresh handle per case — the global handle never resets pulse_delay
- * (json_parser.c:81-89; 140-RESEARCH Pitfall 4). */
+ * (json_parser.c:164-278; 140-RESEARCH Pitfall 4). */
 static firestarter_handle_t mk(uint32_t proto, uint32_t pulse) {
     firestarter_handle_t h = {};
     h.protocol = proto; h.cmd = CMD_WRITE; h.response_code = RESPONSE_CODE_OK;
@@ -1206,7 +1206,7 @@ inapplicable, and saying so is more honest than manufacturing coverage.
 | V2 Authentication | no | No user, session or credential exists anywhere in this phase's surface |
 | V3 Session Management | no | The serial protocol is a local, single-peer, unauthenticated link by design |
 | V4 Access Control | **indirectly** | `is_memory_cmd()` (`firestarter.h:133-147`) is documented in-tree as an **access-control gate**, not hygiene: it decides which commands may call `configure_memory()` and therefore energise the 12 V VPP regulator. Phase 140 must not widen it, and D-13's gate is the mechanism that would notice |
-| V5 Input Validation | **yes** | `handle->protocol` arrives from untrusted JSON (`json_parser.c:313`). D-05's NULL-return-and-fail-closed is the correct control and mirrors `memory.cpp:134-138`'s generic fail-closed guard. **Never** fall back to the `0x07` row for an unrecognised protocol |
+| V5 Input Validation | **yes** | `handle->protocol` arrives from untrusted JSON (`json_parser.c:503`). D-05's NULL-return-and-fail-closed is the correct control and mirrors `memory.cpp:134-138`'s generic fail-closed guard. **Never** fall back to the `0x07` row for an unrecognised protocol |
 | V6 Cryptography | no | None used or added |
 | V14 Configuration | **yes** | The gates are themselves a supply-chain-integrity control: a gate that fails open (Phase 117 ×4) or scans nothing and exits 0 (`check_permitted_claims.py`'s `_HERE`) is worse than no gate, because it manufactures false assurance |
 

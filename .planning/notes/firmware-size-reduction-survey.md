@@ -64,7 +64,7 @@ recorded 27630, which still needs a MERGE-05 adjudication.)
 
 ### 1. Narrow `protocol` + `ctrl_flags` — MEASURED −348 B flash, −5 B RAM
 
-`include/firestarter.h:209,217`. Two lines:
+`include/firestarter.h:211,223`. Two lines:
 ```c
 uint32_t protocol;    →  uint8_t  protocol;    /* max value in use: 0x39 */
 uint32_t ctrl_flags;  →  uint16_t ctrl_flags;  /* max flag: FLAG_SKIP_SDP_UNLOCK 0x100 */
@@ -78,7 +78,7 @@ pio test -e native: 172/172 succeeded
 ```
 
 ⚠ **BUT it silently breaches the fail-closed invariant, and no test catches it.**
-`src/json_parser.c:326` is `extract_long("algorithm", handle->protocol)` with no
+`src/json_parser.c:503` is `extract_long("algorithm", handle->protocol)` with no
 range check. Today `algorithm: 261` reaches `configure_memory`'s generic
 fail-closed guard and is refused. With `uint8_t` it truncates to `5` and
 dispatches into `configure_flash_5v_page`. All 172 tests passed anyway.
@@ -126,7 +126,7 @@ pio test -e native: 172/172 succeeded
 Original analysis follows.
 
 ```
-src/proms/eprom.cpp:715      and  :738    (both inside eprom_check_vpp)
+src/proms/eprom.cpp:718      and  :738    (both inside eprom_check_vpp)
 src/proms/flash_intel.cpp:41 and  :64     (both inside flash_intel_write_init)
 ```
 Each copy computes 4 scaled display values with `/1000`, `/100`, `%10`, then
@@ -157,8 +157,8 @@ leonardo  27902 → 27744   (−158 B)
 pio test -e native: 172/172 succeeded
 ```
 
-Sites: `flash_utils.cpp:105`, `flash_intel.cpp:163`, `eeprom_28c.cpp:303`,
-`eprom.cpp:769`. `flash_utils.cpp` needed a `memory_utils.h` include added; the
+Sites: `flash_utils.cpp:107`, `flash_intel.cpp:163`, `eeprom_28c.cpp:292`,
+`eprom.cpp:735`. `flash_utils.cpp` needed a `memory_utils.h` include added; the
 other three already had it.
 
 The copies **had already drifted**: three tested `is_flag_set(FLAG_FORCE)`
@@ -168,7 +168,7 @@ also carried redundant `(uint16_t)` casts the others did not.
 
 ### 5. json_parser.c — a half-finished refactor, ~900–1000 B
 
-`key_parsers[]` (`src/json_parser.c:73-82`) matches the wire key, then calls a
+`key_parsers[]` (`src/json_parser.c:164-271`) matches the wire key, then calls a
 `get_*` stub — **and each stub re-matches the same key** via `extract_num`'s
 hidden `jsoneq(json, &tokens[pos], element)` (`:285-290`).
 
@@ -235,7 +235,7 @@ Wire size also drops (57 B vs a ~250–400 B JSON write command), but that is a
 minor bonus — data chunks dominate throughput.
 
 **Costs, honestly:**
-1. **Loss of graceful degradation — the serious one.** `json_parser.c:145`
+1. **Loss of graceful degradation — the serious one.** `json_parser.c:332`
    silently skips unknown fields. That is load-bearing: it is how a newer host
    talks to older firmware, and `README.md` documents the legacy `type` key being
    safely ignored because of it. A packed struct has no such property. The
@@ -272,7 +272,7 @@ return sites.
 
 → Purely a **readability** decision, zero size cost either way. Worth doing on
 its own merits: the two opposite boolean conventions currently need a 10-line
-comment to defend the load-bearing `!` (`eprom_operations.cpp:57-67`).
+comment to defend the load-bearing `!` (`eprom_operations.cpp:57-63`).
 
 ## THE APPLYABLE RESULT — measured **−2938 B flash, −13 B RAM**, all three targets
 
@@ -350,15 +350,15 @@ with it — nothing else ever read it. **The image is now heap-free.**
 ⚠ **This one touches tests, unlike every other change here.** Two suites asserted
 `h.progress_data == NULL` as a second observable of "the pre-write blank check
 did not run":
-- `test_eeprom28c_sdp.cpp:1788` (Case 30 / ERASE-01)
-- `test_val_5v_page.cpp:339` (ERASE-02)
+- `test_eeprom28c_sdp.cpp:1862` (Case 30 / ERASE-01)
+- `test_val_5v_page.cpp:351` (ERASE-02)
 
 Both already assert `is_operation_in_progress(&h) == false` for the same fact,
 and their own comments name that as the primary. Since
 `mem_util_blank_check` sets that flag on the *same statement* that used to do the
 malloc, dropping the `progress_data` probe loses a redundant probe of a deleted
 implementation detail, not behavioural coverage. Both assertions and their
-comments were updated (a third stale comment at `test_val_5v_page.cpp:238` still
+comments were updated (a third stale comment at `test_val_5v_page.cpp:240` still
 claimed the malloc and was corrected too). If a reviewer prefers zero test churn,
 the alternative is to keep the now-dead `void* progress_data` field for 2 B of
 RAM — but then those test comments assert a malloc that no longer happens.

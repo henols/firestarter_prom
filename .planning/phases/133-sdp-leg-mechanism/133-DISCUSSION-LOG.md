@@ -106,7 +106,7 @@ both resolved under Claude's Discretion (D-12, D-13) rather than left open.
 | You decide | — | |
 
 **User's choice:** Accept report loss, record the attempt (→ D-07)
-**Notes:** the question was grounded in a measured fact — `cli_handlers.py:2164` assigns `results = run_plan(...)` and `:2166` builds the report from it, so a re-raise loses the report outright. The honest residual is recorded rather than engineered away.
+**Notes:** the question was grounded in a measured fact — `cli_handlers.py:2161` assigns `results = run_plan(...)` and `:2166` builds the report from it, so a re-raise loses the report outright. The honest residual is recorded rather than engineered away.
 
 ### Q8 — LEG-11 says catch `SerialError`, but it has three subclasses
 

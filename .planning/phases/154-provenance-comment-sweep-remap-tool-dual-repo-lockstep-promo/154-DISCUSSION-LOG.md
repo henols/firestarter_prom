@@ -97,7 +97,7 @@ of evidence for the same conclusion.
 
 **Notes:** generalised into an exemption test — a token present in *both* repos'
 shipped source is vocabulary, not provenance. This also produced the phase's one
-no-touch region (`src/firestarter.cpp:182-200`).
+no-touch region (`src/firestarter.cpp:177-195`).
 
 ---
 

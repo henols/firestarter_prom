@@ -115,7 +115,7 @@ phase must be fully **unit-testable without a bench** (mock operator + `EpromDat
   derivation bypasses; execution steps still route through it)
 - `firestarter/database.py:506/535` — `get_eprom` / `convert_to_programmer` (plan-derivation
   path that bypasses the support-status guard)
-- `firestarter/cli_handlers.py:1476` — `dev_validate_family` (sibling handler + the
+- `firestarter/cli_handlers.py:1474` — `dev_validate_family` (sibling handler + the
   `EpromDatabase(skip_local_override=True)` + mock-operator unit-test seam to copy)
 
 </canonical_refs>

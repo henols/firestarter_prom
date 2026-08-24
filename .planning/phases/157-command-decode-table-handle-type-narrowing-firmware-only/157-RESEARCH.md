@@ -118,7 +118,7 @@ one. The authoritative scope is therefore:
 | **DECODE-03** | `width` derived via `sizeof(((firestarter_handle_t*)0)->member)`; a **compile-time assertion** prevents a reorder from truncating an offset. Fields at 3–37, `data_buffer` at 38. | §DECODE-03 — offsets MEASURED before **and** after, on **both** AVR and native. Before: 3–37, `data_buffer` 38, `sizeof` 600. After: 3–32, `data_buffer` 33, `sizeof` 595. `_Static_assert` **compiles on all three AVR targets and on native** (verified by building). The reference assertion is **weaker than the criterion claims** (C-14). |
 | **DECODE-04** | `protocol` → `uint8_t`, `ctrl_flags` → `uint16_t`. 19 protocol comparisons, 45 `is_flag_set` sites. | §DECODE-04 — counts corrected to **17** comparisons + 1 `switch` = 18 protocol-keyed sites, and **40** `is_flag_set` textual uses in `src/` (**59** post-preprocessor) (C-5). Promotion, format-specifier, EEPROM-layout and host-parity surfaces all checked; **not wire-visible**. |
 | **DECODE-05** | An out-of-range wire `algorithm` fail-closes rather than truncating, **proven by a new test**. Fix saturates in `store_field`, covering `pins`, `chip_id`, `vpp_mv`, `page_size`. | §DECODE-05 — the hole is located exactly; the fail-closed tail is `configure_not_implemented` (`memory.cpp:143`); blindness **PROVEN** (F-4); per-field fail-closed semantics analysed one by one; **`ctrl_flags` must not saturate (F-1)**; the four "newly covered" fields **already truncate today** (C-6); test spec given, native-runnable (F-3). |
-| **DECODE-06** | The Phase-44 `READ_TIMING_MAX_US` clamp survives, **proven by a test**; the `#define` must be hoisted above the table. | §DECODE-06 — a clamp test **already exists** for `read-settling-delay` (`test_read_timing_params.cpp:107`) but **none** for `read-strobe-us` (C-8). Hoist confirmed necessary: the `#define` currently sits at `json_parser.c:352`, the table lands at ~`:68`. |
+| **DECODE-06** | The Phase-44 `READ_TIMING_MAX_US` clamp survives, **proven by a test**; the `#define` must be hoisted above the table. | §DECODE-06 — a clamp test **already exists** for `read-settling-delay` (`test_read_timing_params.cpp:121`) but **none** for `read-strobe-us` (C-8). Hoist confirmed necessary: the `#define` currently sits at `json_parser.c:47`, the table lands at ~`:68`. |
 | **DECODE-07** | Record the rejected `switch` alternative with its measurement: **+18 B worse** (`uno` 25696 vs 25678). | §DECODE-07 — record-only, no code change. The absolute figures are **stale by 1444 B** (C-10). Recommendation and cost of re-measuring given. |
 
 ---
@@ -163,7 +163,7 @@ this session by `git log --oneline -1 wip/v1.33-size-reduction-survey-preserved`
 ```
 $ sed -n '98,311p' .../firmware-size-reduction-measured.patch > /tmp/157-json.patch
 $ for C in 0 1 2 3; do git apply --check -C$C /tmp/157-json.patch; done
-error: patch failed: src/json_parser.c:65
+error: patch failed: src/json_parser.c:76
 error: src/json_parser.c: patch does not apply        # ALL FOUR context levels
 
 $ patch -p1 --dry-run -F3 < /tmp/157-json.patch
@@ -189,7 +189,7 @@ deleted**:
 ```
 
 The current tree carries `/* Read-timing sweep knobs. */` and `/* Page-size seam. */` instead
-(`json_parser.c:77`, `:79`). `-C` reduces *context* lines; it cannot reconcile a `-` line that no
+(`json_parser.c:164`, `:79`). `-C` reduces *context* lines; it cannot reconcile a `-` line that no
 longer exists. `[VERIFIED: four `git apply --check` runs and one `patch -F3` dry-run, this session]`
 
 `include/firestarter.h`:
@@ -361,10 +361,10 @@ ROADMAP criterion 2 and DECODE-02 both say "`json_parse_config` calls it directl
 MEASURED (`grep -rn get_flags src/ include/ test/`):
 
 ```
-src/json_parser.c:74   {key_flags, get_flags}          <- the table row
-src/json_parser.c:160  } else if (get_flags(...))      <- inside json_parse_config
-src/json_parser.c:191  } else if (get_flags(...))      <- inside json_get_cmd
-src/json_parser.c:296  bool get_flags(...) {           <- the definition
+src/json_parser.c:164   {key_flags, get_flags}          <- the table row
+src/json_parser.c:348  } else if (get_flags(...))      <- inside json_parse_config
+src/json_parser.c:379  } else if (get_flags(...))      <- inside json_get_cmd
+src/json_parser.c:497  bool get_flags(...) {           <- the definition
 ```
 
 One call in `json_parse_config`, one in `json_get_cmd`. The *conclusion* survives — `get_flags`
@@ -414,7 +414,7 @@ stated derivation.
 ### C-6 — DECODE-05's "which the per-stub form could not" is misleading for four of the five fields
 
 `pins` (u8), `chip_id` (u16), `vpp_mv` (u16) and `page_size` (u16) are **already narrow today**,
-and `extract_int` is a straight alias of `extract_long` (`json_parser.c:294`), so
+and `extract_int` is a straight alias of `extract_long` (`json_parser.c:482`), so
 `simple_strtoul`'s `unsigned long` result is **already silently truncated** into them on the
 current tree. Saturation for these four is a **behaviour change on out-of-range input**, not the
 closing of a hole the narrowing opens.
@@ -462,7 +462,7 @@ so mask-semantics in the table is also the choice that keeps the three paths con
 
 ### C-8 — DECODE-06's clamp is already half-tested; the other half does not exist
 
-`test/native/avr/test_read_timing/test_read_timing_params.cpp:107`
+`test/native/avr/test_read_timing/test_read_timing_params.cpp:121`
 `test_read_settling_us_capped_at_max` sends `{"cmd":1,"read-settling-delay":9999}` and asserts
 `h.read_settling_us <= READ_TIMING_MAX_US`. So the clamp on **`read-settling-delay` IS covered
 today** and would go RED if deleted.
@@ -471,10 +471,10 @@ Three gaps:
 1. **No test at all for `read-strobe-us`.** The suite's own header comment (`:21`) documents only
    "T4 — value above cap (T-44-01) → `read_settling_us` clamped to cap".
 2. The assertion is `<=`, not `==`. A regression that set the value to `0` — the semantically
-   loaded value ("no settling delay" / "use default 3 µs", per `json_parser.c:349-350`) — would
+   loaded value ("no settling delay" / "use default 3 µs", per `json_parser.c:44`) — would
    pass.
 3. The suite **re-defines** `#define READ_TIMING_MAX_US 1000UL` locally at
-   `test_read_timing_params.cpp:38`. Hoisting the production `#define` does not affect it, but the
+   `test_read_timing_params.cpp:46`. Hoisting the production `#define` does not affect it, but the
    two constants can drift silently in either direction.
 
 DECODE-06's "proven by a test rather than by inspection" therefore needs: a `read-strobe-us` cap
@@ -483,7 +483,7 @@ reference table applied (172/172).
 
 ### C-9 — the `#define READ_TIMING_MAX_US` hoist IS required ✅
 
-Today it sits at **`src/json_parser.c:352`**, immediately above the two stubs it serves. The field
+Today it sits at **`src/json_parser.c:47`**, immediately above the two stubs it serves. The field
 table lands at roughly `:68` (after the `key_page_size` declaration at `:66`). The `#define` must
 move above it or the `FIELD(key_read_settling, read_settling_us, READ_TIMING_MAX_US)` row will not
 compile. Confirmed by building the reference implementation, which does exactly this hoist.
@@ -629,7 +629,7 @@ structurally different (returns a value, matches two keys) and is emitted at 102
 
 ### Why the opacity, not the logic, is the cost
 
-`parser_func` is read with `pgm_read_ptr` at `json_parser.c:128` and called through. gcc cannot
+`parser_func` is read with `pgm_read_ptr` at `json_parser.c:318` and called through. gcc cannot
 see the callee, so it cannot inline it, cannot constant-propagate the literal key into `jsoneq_`,
 and must emit each stub with the full four-argument AVR ABI prologue for one `simple_strtoul` and
 one store. The five direct-call siblings have identical bodies and cost nothing because the same
@@ -775,7 +775,7 @@ answers to the research questions:
 
 ### Where the truncation happens, exactly
 
-`json_parser.c:324-326`:
+`json_parser.c:503-503`:
 ```c
 bool get_algorithm(const char* json, jsmntok_t* tokens, int pos, firestarter_handle_t* handle) {
     extract_long("algorithm", handle->protocol);
@@ -843,7 +843,7 @@ position. `[VERIFIED: pio test -e native on the probe tree, this session]`
 | **`pins`** | 1 | `0xFF` (255) | **Weakly.** `mem_util_calculate_top_address_register` (`memory.cpp:199`) tests `pins < 32` → false, so 255 takes the *Rev-2-class preserve* arm; `pins == 28` (`:231`) → false; `memory_utils.h:76-78`'s `is_vpp_pin_present` rejects 255. Today's truncation of `256` → `0` takes the **opposite** arm (`0 < 32` true). So saturating is a **behaviour change**, in the safer direction for VPP-drop but not a refusal. | truncates | SATURATE, with the arm change **stated** |
 | **`chip_id`** | 2 | `0xFFFF` | Yes-ish. A `0xFFFF` expectation cannot match a real device id, so `mem_util_report_chip_id` reports mismatch (warn or error per `warn_only`). | truncates | SATURATE |
 | **`vpp_mv`** | 2 | `0xFFFF` (65535 mV) | **Weakly — a WARNING, not a refusal.** `eprom.cpp:713` / `flash_intel.cpp:39`: `measured > expected + 500` never fires; `:718` / `:44`: `measured < expected * 95/100` = 62262 always fires → `MSG_WARN_VPP_LOW`, `RESPONSE_CODE_WARNING`. The operation **proceeds**. Today's truncation can silently yield a *plausible* value (e.g. `0x12EE0` → 12000 mV). Saturation is strictly better but not a refusal. | truncates | SATURATE, ceiling **stated** |
-| **`page_size`** | 2 | `0xFFFF` | **YES.** `eeprom28c_page_mask` (`eeprom_28c.cpp:643-651`) requires `requested <= AT28C_PAGE_SIZE_MAX && (requested & (requested-1)) == 0`; 0xFFFF fails both → silent `AT28C_PAGE_SIZE_FALLBACK`. Today's truncation of `0x10040` → `64`, a **valid** page size, is worse. | truncates | SATURATE ✅ |
+| **`page_size`** | 2 | `0xFFFF` | **YES.** `eeprom28c_page_mask` (`eeprom_28c.cpp:628-636`) requires `requested <= AT28C_PAGE_SIZE_MAX && (requested & (requested-1)) == 0`; 0xFFFF fails both → silent `AT28C_PAGE_SIZE_FALLBACK`. Today's truncation of `0x10040` → `64`, a **valid** page size, is worse. | truncates | SATURATE ✅ |
 | `mem_size`, `address`, `pulse_delay`, `read_settling_us`, `read_strobe_us` | 4 | n/a on AVR | no narrowing; `width == sizeof(unsigned long)` on AVR so the saturation branch is not taken | unchanged | unaffected |
 
 **Recommendation:** *saturate* is the right default and is genuinely fail-closed for `protocol`
@@ -905,12 +905,12 @@ oracle, not a tautology).
 
 | Item | Location | Status |
 |---|---|---|
-| `#define READ_TIMING_MAX_US 1000UL` | `src/json_parser.c:352` | must be **hoisted** above the table (~`:68`). Confirmed necessary (C-9). |
+| `#define READ_TIMING_MAX_US 1000UL` | `src/json_parser.c:47` | must be **hoisted** above the table (~`:68`). Confirmed necessary (C-9). |
 | `get_read_settling` | `src/json_parser.c:362-369` | deleted; clamp moves to the table's `clamp` column |
 | `get_read_strobe` | `src/json_parser.c:371-378` | deleted; same |
-| Existing clamp test | `test/native/avr/test_read_timing/test_read_timing_params.cpp:107` `test_read_settling_us_capped_at_max` | **EXISTS** — sends 9999, asserts `<= 1000`. Verified still GREEN with the reference table applied. |
+| Existing clamp test | `test/native/avr/test_read_timing/test_read_timing_params.cpp:121` `test_read_settling_us_capped_at_max` | **EXISTS** — sends 9999, asserts `<= 1000`. Verified still GREEN with the reference table applied. |
 | Test for `read-strobe-us` cap | — | **DOES NOT EXIST** (C-8) |
-| Local duplicate constant | `test_read_timing_params.cpp:38` | `#define READ_TIMING_MAX_US 1000UL` — a second, independent copy |
+| Local duplicate constant | `test_read_timing_params.cpp:46` | `#define READ_TIMING_MAX_US 1000UL` — a second, independent copy |
 
 **What the plan must add:** a `read-strobe-us` cap case, and tighten both to `==` rather than
 `<=` (so a "clamped to 0" regression is caught — 0 is the semantically loaded value for both
@@ -1219,7 +1219,7 @@ is the cautionary case: a claim that reads like a source property was actually a
 | Field widths in the table | a literal `1`/`2`/`4` column | `sizeof(((firestarter_handle_t*)0)->member)` | this **is** DECODE-03 |
 | Compile-time struct guard | a runtime `if (offset > 255) return;` | `_Static_assert` (verified available on all four envs) | a runtime check costs flash and fires in the field instead of at build time |
 | Byte-width store | a `switch (width)` with typed stores | `memcpy(dst, &v, width)` | smaller on AVR, and gcc lowers a constant-width `memcpy` to plain stores |
-| String→integer | a new parser | the existing `simple_strtoul` (`json_parser.c:38`) | already there, 68 B, unchanged by this phase. **Do not** reach for avr-libc `strtoul` — that is exactly the kind of library pull-in Phase 155 spent a phase removing. |
+| String→integer | a new parser | the existing `simple_strtoul` (`json_parser.c:30`) | already there, 68 B, unchanged by this phase. **Do not** reach for avr-libc `strtoul` — that is exactly the kind of library pull-in Phase 155 spent a phase removing. |
 | Size measurement | eyeballing `pio run` output | `scripts/check_size_baseline.py --rebuild` + `avr-nm --print-size --size-sort` | the project already owns both, and the gate encodes MERGE-05's bands |
 | Key-duplication proof | reading the source and asserting | `strings -a -n 2 -t d` on the ELF, offset-resolved | the duplicate is a *link-time* artifact; source inspection cannot see it |
 | Out-of-range refusal reporting | a new message id | the existing `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED` (0xBB) reached via saturation | a new id means meta-repo `messages.toml` + codegen, breaking firmware-only |
@@ -1545,7 +1545,7 @@ default. This section is required for the planner to produce `VALIDATION.md`.
 | **DECODE-05** | `flags` **masks**, never saturating to all-flags-set | unit | same | ❌ **Wave 0** — case S4 (F-1 / C-7) |
 | **DECODE-05** | `page-size` out-of-range no longer yields a *valid* page size | unit | same | ❌ **Wave 0** — case S5 |
 | **DECODE-05** | the existing suite is blind to the hole (the RED baseline) | probe | narrow + delete saturation, `pio test -e native` → 172/172 | ✅ **already performed** (F-4) |
-| **DECODE-06** | `read-settling-delay` still clamps to 1000 | unit | `pio test -e native -f "*test_read_timing*"` | ✅ **exists** (`test_read_timing_params.cpp:107`), verified GREEN with the table |
+| **DECODE-06** | `read-settling-delay` still clamps to 1000 | unit | `pio test -e native -f "*test_read_timing*"` | ✅ **exists** (`test_read_timing_params.cpp:121`), verified GREEN with the table |
 | **DECODE-06** | `read-strobe-us` clamps to 1000 | unit | same | ❌ **Wave 0** — does not exist (C-8) |
 | **DECODE-06** | both clamp to **exactly** 1000, not to 0 | unit | same | ❌ **Wave 0** — tighten `<=` to `==` |
 | **DECODE-07** | the `switch` alternative is recorded with its measurement | **record only** | none | n/a — `157-after-figures.md` discharges it |
@@ -1716,7 +1716,7 @@ wrongly-dispatched one is hardware.
 > | OQ-7 — `check_build_warnings.py` / native watermark | Run both it and `check_no_heap_or_64bit_symbols.py`. Do not assume. Neither is in CI; the watermark has zero headroom. | **OD-6** |
 >
 > **Three further corrections were found during planning and extend the C-series:** **C-17** —
-> `#define READ_TIMING_MAX_US` is at `src/json_parser.c:360`, not `:352`, and this document's
+> `#define READ_TIMING_MAX_US` is at `src/json_parser.c:60`, not `:352`, and this document's
 > DECODE-01 table lists the first seven `key_*` declarations one line high (`memory-size` is
 > `:51`). **C-18** — the claim that one saturation-deleted probe reddens S1/S2/**S4** is wrong: with
 > `ctrl_flags` narrowed and no saturation, `flags: 65536` truncates to 0 and S4's `== 0` assertion
@@ -1810,7 +1810,7 @@ wrongly-dispatched one is hardware.
   `firestarter/include/proto_constants.h`, `firestarter/include/logging_id.h` (macro bodies),
   `firestarter/src/proms/memory.cpp` (`configure_memory`,
   `mem_util_calculate_top_address_register`), `firestarter/src/proms/eprom.cpp:60-95`,
-  `firestarter/src/proms/eeprom_28c.cpp:630-680`, `firestarter/src/proms/not_implemented.cpp`.
+  `firestarter/src/proms/eeprom_28c.cpp:615-665`, `firestarter/src/proms/not_implemented.cpp`.
 - `firestarter/platformio.ini` (all envs, all `build_src_filter` and `test_filter` lists).
 - `firestarter/test/native/avr/test_read_timing/test_read_timing_params.cpp`.
 - `firestarter/scripts/check_size_baseline.py` (docstring, `:697`, `:709`),

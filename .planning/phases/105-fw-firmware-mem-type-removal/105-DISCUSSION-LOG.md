@@ -14,7 +14,7 @@
 Presented 3 gray areas (multiSelect). Operator selected **all three**:
 Fallback test disposition, protocol==0 code shape, v1.20 branch base.
 
-Resolved during scouting (not asked): `0xAE` at `rurp_serial_utils.cpp:377` is a
+Resolved during scouting (not asked): `0xAE` at `rurp_serial_utils.cpp:374` is a
 CRC8 lookup-table byte, not a message-code reference — leave untouched.
 
 ---

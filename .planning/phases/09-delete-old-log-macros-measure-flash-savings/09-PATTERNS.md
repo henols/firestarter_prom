@@ -37,10 +37,10 @@ Phase 9 is a small-surface, high-precision cleanup. Every pattern needed for it 
 
 **Role:** firmware service · **Data Flow:** request-response · **Touch:** MODIFY-IN-PLACE
 
-**Primary analog (same idiom, same file, soon-to-be-deleted):** `_firestarter_log_progmem` at `rurp_serial_utils.cpp:23–28` is the canonical 3-line `SERIAL_PORT.print(F(...))` + `println(... PROGMEM ...)` + `flush()` shape that Phase 9 inlines into `fw_get_version()`.
+**Primary analog (same idiom, same file, soon-to-be-deleted):** `_firestarter_log_progmem` at `rurp_serial_utils.cpp:20–28` is the canonical 3-line `SERIAL_PORT.print(F(...))` + `println(... PROGMEM ...)` + `flush()` shape that Phase 9 inlines into `fw_get_version()`.
 
 ```cpp
-// firestarter/src/boards/rurp_serial_utils.cpp:23-28 (analog — being deleted in Phase 9
+// firestarter/src/boards/rurp_serial_utils.cpp:20-25 (analog — being deleted in Phase 9
 // but its idiom is what D-01 transplants into hardware_operations.cpp).
 void _firestarter_log_progmem(PGM_P type, PGM_P p_msg) {
     SERIAL_PORT.print((const __FlashStringHelper*)type);
@@ -227,7 +227,7 @@ firestarter/src/proms/eprom.cpp:13             — DROP include
 firestarter/src/proms/flash_intel.cpp:13       — DROP include
 firestarter/src/proms/flash_type_3.cpp:14      — DROP include
 firestarter/src/proms/flash_type_4.cpp:14      — DROP include
-firestarter/src/proms/flash_utils.cpp:11       — DROP include
+firestarter/src/proms/flash_utils.cpp:12       — DROP include
 firestarter/src/proms/memory.cpp:18            — DROP include
 firestarter/src/proms/sram.cpp:12              — DROP include
 ```
@@ -254,7 +254,7 @@ firestarter/src/proms/sram.cpp:12              — DROP include
 #endif
 // → DELETE block
 
-// 3. firestarter/src/boards/uno_rurp_shield.cpp:152-169 — SoftwareSerial body
+// 3. firestarter/src/boards/uno_rurp_shield.cpp:144-161 — SoftwareSerial body
 #ifdef SERIAL_DEBUG
 #include <SoftwareSerial.h>
 SoftwareSerial debugSerial(RX_DEBUG, TX_DEBUG);
@@ -404,7 +404,7 @@ Phase 9 owns Phase 8's pending chip-seated UAT (RESEARCH.md §"Phase 8 UAT Carry
 ## Shared Patterns
 
 ### Phase-tagged inline comment voice
-**Source:** `serial_comm.py:42`, `:138`, `:400`, `:752`; `hardware_operations.cpp:84`; `uno_rurp_shield.cpp:93`.
+**Source:** `serial_comm.py:42`, `:138`, `:400`, `:752`; `hardware_operations.cpp:84`; `uno_rurp_shield.cpp:90`.
 **Apply to:** every new Phase 9 inline comment.
 **Format:** `// Phase N / <REQ-ID> / <DECISION-ID>: <one-line rationale>` (firmware) or `# Phase N (<REQ-ID>): <rationale>` (host).
 **Example pattern in the wild:**
@@ -460,7 +460,7 @@ Phase 9 replaces this comment as part of D-01 (the rationale flips from "stays t
 
 **Files not re-read (relied on RESEARCH.md extraction):**
 - `firestarter/src/boards/uno_rurp_shield.cpp` lines 246–251 of `rurp_serial_utils.cpp` was read; the rest of board files trusted via RESEARCH.md inventory.
-- `firestarter/include/rurp_shield.h:132-133` decls — trusted via RESEARCH.md line 111.
+- `firestarter/include/rurp_shield.h:127-128` decls — trusted via RESEARCH.md line 111.
 - `firestarter/include/rurp_serial_utils.h:14-17` decls — trusted via RESEARCH.md line 112.
 
 **Pattern extraction date:** 2026-05-19

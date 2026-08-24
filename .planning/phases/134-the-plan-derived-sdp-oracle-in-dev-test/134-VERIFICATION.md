@@ -85,7 +85,7 @@ suite in the CI-replica venv (`.venv/ci-replica`, Python 3.11.15, numpy-free) --
 |---|---|
 | `(True, B) -> BAD` (leaked write) | ✓ VERIFIED in source, `chip_test.py:2120-2131`, and by test `test_lock_leaked_write_ok_true_b_readback_is_bad` (passed) |
 | End-to-end exit 1 on a leaked lock, driven through the real CLI | ✓ VERIFIED -- `test_leaked_lock_exits_1` (passed) |
-| Mixed BAD+marginal run still exits 1, not 2 | ✓ VERIFIED -- `test_mixed_bad_and_marginal_exits_1_not_2` (passed); `_EXIT_CODE_PRECEDENCE = (1, 2, 0)` read directly at `cli_handlers.py:1929`, confirming the prior naive `max()` defect is fixed |
+| Mixed BAD+marginal run still exits 1, not 2 | ✓ VERIFIED -- `test_mixed_bad_and_marginal_exits_1_not_2` (passed); `_EXIT_CODE_PRECEDENCE = (1, 2, 0)` read directly at `cli_handlers.py:1926`, confirming the prior naive `max()` defect is fixed |
 | Partial read-back reports BAD (gh#11) | ✓ VERIFIED -- `test_partial_readback_reports_bad` (passed) |
 | Empty/short/all-0x00/all-0xFF never equality | ✓ VERIFIED -- length gate at `chip_test.py:2076-2087` runs before any `classify_fingerprint` call; 4 named degenerate tests all passed |
 
@@ -118,7 +118,7 @@ suite in the CI-replica venv (`.venv/ci-replica`, Python 3.11.15, numpy-free) --
 
 | Check | Result |
 |---|---|
-| `_SDP_RECOVERY_LOUD`/`_SDP_RECOVERY_NEUTRAL` contain "Rewrite"/no "erase" | ✓ VERIFIED by direct read (`cli_handlers.py:2220-2231`) -- no occurrence of "erase" in either constant |
+| `_SDP_RECOVERY_LOUD`/`_SDP_RECOVERY_NEUTRAL` contain "Rewrite"/no "erase" | ✓ VERIFIED by direct read (`cli_handlers.py:2217-2228`) -- no occurrence of "erase" in either constant |
 | Scoped, fail-closed grep test (`tests/test_sdp_recovery_wording.py`) | ✓ VERIFIED -- 8 tests, all passed |
 | gh#20 triage finding recorded, not posted; backlog item filed with a named owner | ✓ VERIFIED -- `134-GH20-TRIAGE.md` exists with full finding; `.planning/todos/pending/at28c256-write-path-failure-gh20.md` exists, `Owner: henols` |
 

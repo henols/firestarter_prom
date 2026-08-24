@@ -96,7 +96,7 @@ No code changes (bench-evidence plan). T-53-18 (chip-out): N/A — no sideload. 
 - **Uno 512×128 second witness** — deferred until a W27C512 is seated on ACM1 (optional, corroborating).
 - **53-06 linkage** — recommend widening the Wave-4 milestone artifact to incorporate this `even-block-ack/` evidence (recommendation only; 53-06 untouched).
 - **53-02 harness** — `dev write-cycle` erase-first step is incompatible with W27C512 (erase Not supported); consider a `--no-erase` path or document the plain-`write` substitute.
-- **Host CLI bug (unrelated):** `firestarter info W27C512` crashes (`ic_layout.py:396` — `vpp-pin` list vs int `<=`).
+- **Host CLI bug (unrelated):** `firestarter info W27C512` crashes (`ic_layout.py:394` — `vpp-pin` list vs int `<=`).
 
 ## Self-Check: PASSED (primary witness; Uno optional deferred)
 

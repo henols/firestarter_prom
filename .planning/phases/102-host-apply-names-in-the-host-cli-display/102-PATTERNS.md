@@ -24,7 +24,7 @@
 
 ### `firestarter/ic_layout.py` — the D-01 canonical map (NEW module-level dict)
 
-**Analog:** `_ELECTRICAL_TYPE_LABEL` at **ic_layout.py:475–481** — the established
+**Analog:** `_ELECTRICAL_TYPE_LABEL` at **ic_layout.py:472–481** — the established
 class-level single-source dict this phase mirrors. Note it is defined as a class
 attribute (indented one level, sibling of the methods), not truly module-level;
 match that placement so `self._PROTOCOL_DISPLAY_NAME` / `self._ELECTRICAL_TYPE_LABEL`
@@ -32,7 +32,7 @@ are accessed the same way. The docstring comment block above it (L470–474) is 
 in-file convention for documenting why the map exists and which fallback it serves —
 replicate that comment style, citing D-01/D-02 and `firestarter/doc/PROTOCOLS.md` col-2.
 
-**Existing single-source dict shape to copy** (ic_layout.py:475–481):
+**Existing single-source dict shape to copy** (ic_layout.py:472–481):
 ```python
     _ELECTRICAL_TYPE_LABEL = {
         "EEPROM": "EEPROM",
@@ -212,8 +212,8 @@ help snapshots).
 ## Shared Patterns
 
 ### Single-source / anti-divergence (the phase's core idiom)
-**Source:** `resolve_type_label` (ic_layout.py:483–515) + `_ELECTRICAL_TYPE_LABEL`
-(ic_layout.py:475–481) — the IN-01 fix.
+**Source:** `resolve_type_label` (ic_layout.py:480–515) + `_ELECTRICAL_TYPE_LABEL`
+(ic_layout.py:472–481) — the IN-01 fix.
 **Apply to:** the new `_PROTOCOL_DISPLAY_NAME` map and both maps that consume it.
 ```python
     def resolve_type_label(self, electrical_type, type_int=0, protocol_id=None) -> str:

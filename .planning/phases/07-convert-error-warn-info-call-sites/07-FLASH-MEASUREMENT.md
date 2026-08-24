@@ -219,9 +219,9 @@ Bench bypass `FIRESTARTER_DEV_ALLOW_PRE_V12=1` was set so the host-side firmware
 | `I: Init start` | `MSG_INFO_INIT_START` | 07-09 (operation_utils.cpp) | Uno, Leonardo |
 | `I: Main start` | `MSG_INFO_MAIN_START` | 07-09 (operation_utils.cpp) | Uno, Leonardo |
 | `I: Token count: 5` / `39` / `40` / `44` (u8 param rendered) | `MSG_INFO_TOKEN_COUNT` | 07-10 (firestarter.cpp) | Uno, Leonardo |
-| `ERROR: No chip ID` | `MSG_ERR_NO_CHIP_ID` | 07-12 (eprom_operations.cpp:49) | Uno, Leonardo |
-| `ERROR: Not supported` | `MSG_ERR_NOT_SUPPORTED` | 07-12 (eprom_operations.cpp:40) | Uno, Leonardo |
-| `ERROR: Cmd: 8, timeout` / `Cmd: 11, timeout` / `Cmd: 12, timeout` (u8 cmd param) | `MSG_ERR_CMD_TIMEOUT` | 07-10 (firestarter.cpp:176 hybrid) | Uno, Leonardo |
+| `ERROR: No chip ID` | `MSG_ERR_NO_CHIP_ID` | 07-12 (eprom_operations.cpp:50) | Uno, Leonardo |
+| `ERROR: Not supported` | `MSG_ERR_NOT_SUPPORTED` | 07-12 (eprom_operations.cpp:41) | Uno, Leonardo |
+| `ERROR: Cmd: 8, timeout` / `Cmd: 11, timeout` / `Cmd: 12, timeout` (u8 cmd param) | `MSG_ERR_CMD_TIMEOUT` | 07-10 (firestarter.cpp:171 hybrid) | Uno, Leonardo |
 | `ERROR: Chip ID 0x4001 dont match expected ID 0xbfb5` (2×u16 rendered) | `MSG_ERR_CHIP_ID_MISMATCH` | 07-04/06/08 (flash_intel + eeprom_28c + flash_type_3) | Leonardo |
 | `ERROR: VPP is high: 13.1V > 12.0V` (2×u32 mV rendered to V) | `MSG_ERR_VPP_HIGH` | 07-04 (flash_intel.cpp) | Leonardo |
 
@@ -255,8 +255,8 @@ The following converted catalog IDs require either an installed chip or specific
 | `MSG_ERR_OP_TIMEOUT` | 07-05 (flash_utils.cpp) | Requires a flash operation that exceeds the polling timeout |
 | `MSG_ERR_FL4_VERIFY_TIMEOUT` (5 wire bytes) | 07-05 (flash_type_4.cpp) | Requires a flash-type-4 chip to attempt the verify |
 | `MSG_ERR_MEM_SIZE_TOO_SMALL` (u32 param) | 07-06 (eeprom_28c.cpp) | Requires an EEPROM chip whose mem_size differs from request |
-| `MSG_ERR_VERIFY` | 07-07 (memory.cpp:219) | Requires a successful read that mismatches expected — needs a chip |
-| `MSG_ERR_NOT_BLANK` | 07-07 (memory.cpp:287) | Requires reading a non-0xFF byte from a chip |
+| `MSG_ERR_VERIFY` | 07-07 (memory.cpp:223) | Requires a successful read that mismatches expected — needs a chip |
+| `MSG_ERR_NOT_BLANK` | 07-07 (memory.cpp:359) | Requires reading a non-0xFF byte from a chip |
 | `dev_tools.cpp` INFO sites (REG_HEADER, BIT_HEADER, BIT_STR, CE_OE, ADDR, ADDR_REMAP) | 07-11 (dev_tools.cpp) | FLAG_VERBOSE-gated; `dev reg/addr` subcommands do not set the verbose wire flag |
 
 These gaps do NOT block SC#2 — the criterion is "decoder-toggle diff proves ID-frame encoding works end-to-end", and the eight observed IDs (with multi-byte parameter rendering on three of them) satisfy that. They are flagged here as forward work for a chip-installed test cycle and for Phase 9's flash-savings verification.

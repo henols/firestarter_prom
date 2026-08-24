@@ -108,7 +108,7 @@ Also observed: `mypy` prints `pyproject.toml: [mypy]: python_version: Python 3.9
 
 | ID | Description (verbatim, `REQUIREMENTS.md:75-80`) | Research Support |
 |----|-------------|------------------|
-| HOST-01 | `firestarter dev sdp <chip> <enable\|disable>` exists, behind the v1.21 destructiveness confirm + `-y` + the SAFE-04 absent-chip hard-fail | F-04 (`dev test`'s gate trio read at `cli_handlers.py:1719-1850`, with F-05's ordering correction — the in-tree order is confirm-then-absent, the reverse of D-08); F-13 (the `_is_interactive` monkeypatch seam); F-14 (the `find_and_connect` patch seam that makes "no port opened" a real assertion) |
+| HOST-01 | `firestarter dev sdp <chip> <enable\|disable>` exists, behind the v1.21 destructiveness confirm + `-y` + the SAFE-04 absent-chip hard-fail | F-04 (`dev test`'s gate trio read at `cli_handlers.py:1717-1847`, with F-05's ordering correction — the in-tree order is confirm-then-absent, the reverse of D-08); F-13 (the `_is_interactive` monkeypatch seam); F-14 (the `find_and_connect` patch seam that makes "no port opened" a real assertion) |
 | HOST-02 | `write --skip-sdp-unlock` emits the `0x100` flag, following the in-tree rule that `--skip-X` skips a chip-state-modifying operation | F-11 (`build_flags` at `:168-183`, `_build_op_flags` at `:242-280`, `write` at `:463-530`, all read; the BUG-1 contract's actual assertions located) |
 | HOST-03 | New `CMD_*`/`FLAG_*` values land in the same commit pair across `firestarter.h` ↔ `constants.py`, with mandatory `COMMAND_NAMES` entries, and the constants-parity test is extended | F-08, F-09, F-10 (the complete two-side define inventory, the three exemption classes, and the `CMD_DEV_REGISTER`/`COMMAND_DEV_REGISTERS` name-mismatch trap) |
 | HOST-04 | A pre-wire capability refusal keeps SDP commands away from non-SDP parts inside the `0x0D` bucket — the 2 FRAM parts and the pre-SDP `2804`/`2816`/`2817` class — resolved in code, with **zero DB change** | F-01 (the enumerated 37/47 partition summing to 84), F-02 (token/normalisation rules), F-03 (the `2817`-spans-two-pinouts proof that kills any structural rule), F-06 (the `resolve_chip` dict-shape trap that decides the predicate's signature) |
@@ -126,9 +126,9 @@ No new dependencies. Everything this phase needs already ships.
 | Library | Version | Purpose | Why Standard |
 |---------|---------|---------|--------------|
 | `click` | as pinned in `pyproject.toml` | `dev sdp` subcommand, `click.Choice` argument, `-y` flag | Every CLI surface in the app is Click since v1.8 CLI-01 [VERIFIED: `cli_handlers.py` imports] |
-| `rich` (`rich.prompt.Confirm`) | as pinned | The interactive confirm gate | `dev test` uses `Confirm.ask` at `cli_handlers.py:1837` — the exact reusable half of the v1.21 pattern (D-05) [VERIFIED: read] |
+| `rich` (`rich.prompt.Confirm`) | as pinned | The interactive confirm gate | `dev test` uses `Confirm.ask` at `cli_handlers.py:1834` — the exact reusable half of the v1.21 pattern (D-05) [VERIFIED: read] |
 | `pytest` + `unittest.mock` | as pinned | All new gates | `patch(...)` / `Mock(spec=...)` is the house idiom throughout `tests/` [VERIFIED] |
-| `click.testing.CliRunner` | bundled with click | `dev sdp` handler tests | Established pattern; note it replaces `sys.stdin`, which is why `_is_interactive` exists as a separate monkeypatchable function [VERIFIED: `cli_handlers.py:1719-1726`] |
+| `click.testing.CliRunner` | bundled with click | `dev sdp` handler tests | Established pattern; note it replaces `sys.stdin`, which is why `_is_interactive` exists as a separate monkeypatchable function [VERIFIED: `cli_handlers.py:1717-1724`] |
 
 ### Supporting
 | Library | Version | Purpose | When to Use |
@@ -341,7 +341,7 @@ def _strip_comments(text: str) -> str:
 | C-comment-safe source scanning | A regex with `(?<!//)` lookbehinds | `check_is_memory_cmd_no_ifdef.py:_strip_comments` | Length- and line-preserving, so every computed line number still maps 1:1 |
 | Observing a decoded frame id without touching the read loop | A new hook in `_read_and_parse_lines` | The `_decode_id_frame` override seam | GATE-1.8d ring-fences the read loop; Phase 55's `firmware_max_chunk` is the exact precedent and its comment says so (`serial_comm.py:260-261`) |
 | Firmware-version gating | A version comparator | Nothing — D-16 forbids a floor; use D-14's `MSG_ERR_UNKNOWN_CMD` mapping and D-15's ack | The host structurally cannot see the `b11`/`b12` suffix (F-120-04) |
-| A TTY check that survives `CliRunner` | `sys.stdin.isatty()` inline | `_is_interactive()` at `cli_handlers.py:1719-1726` | `CliRunner.invoke` replaces `sys.stdin`; the indirection exists precisely so tests can patch the function |
+| A TTY check that survives `CliRunner` | `sys.stdin.isatty()` inline | `_is_interactive()` at `cli_handlers.py:1717-1724` | `CliRunner.invoke` replaces `sys.stdin`; the indirection exists precisely so tests can patch the function |
 
 **Key insight:** every "don't hand-roll" here is a *disagreement risk*, not a complexity risk. The host already has exactly one implementation of chip-name resolution, one comment stripper, and one frame-observation seam. A second copy of any of them in this phase would be a place where the capability refusal and the operation it guards could reach different conclusions about the same chip.
 
@@ -392,7 +392,7 @@ The project already knows the shape of this problem in one place: `chip_test.py:
 
 **What goes wrong:** the handler is copied verbatim, so the confirm prompt fires before the absent-chip check, and a user who typos a chip name is asked to consent to mutating a chip that does not exist.
 
-**Why it happens:** `cli_handlers.py:1829-1850` runs, in order: `_is_interactive()` → `Confirm.ask` gate → `if not app.db.get_eprom(chip): raise ChipNotFoundError`. That order is correct *there* (the confirm guards `--destructive`, which is only meaningful once), and D-08 deliberately reverses it for `dev sdp` so "a user is never asked to consent to something that is then refused."
+**Why it happens:** `cli_handlers.py:1826-1847` runs, in order: `_is_interactive()` → `Confirm.ask` gate → `if not app.db.get_eprom(chip): raise ChipNotFoundError`. That order is correct *there* (the confirm guards `--destructive`, which is only meaningful once), and D-08 deliberately reverses it for `dev sdp` so "a user is never asked to consent to something that is then refused."
 
 **How to avoid:** write the four gates in D-08's order and add a test that patches `Confirm.ask` and asserts `mock_confirm.ask.assert_not_called()` for an absent chip, a refused-capability chip, and an `adapter-required` chip.
 
@@ -635,7 +635,7 @@ A pinout-keyed rule (`refuse all DIP24_2816`) therefore *permits* `2817`, one of
 
 ### F-04 / F-05 — The `dev test` gate trio, and its ordering divergence from D-08
 
-Read at `cli_handlers.py:1719-1850`:
+Read at `cli_handlers.py:1717-1847`:
 
 | Element | Line | Reusable as-is? |
 |---|---|---|
@@ -848,9 +848,9 @@ Combined pytest run of rows 2/3/4/6/7/8 plus `tests/test_check_devtest_orchestra
 
 **The three collisions D-20 requires recording, each verified this session:**
 
-**(a) It reverses three locked decisions.** Confirmed in live source. `cli_handlers.py:1811-1815` (the `dev_test` docstring) states verbatim: *"Issues ZERO interactive prompts about tester-supplied identity (Phase 112 Plan 04 reversal, operator-approved per `112-UAT.md`): shield revision, chip origin, and pot-adjustment are no longer asked."* And `:1831-1835`: *"SAFE-03: the ONLY interactive input left in this handler is the `--destructive` safety confirm."* SAFE-01's CLI-only lock is in the option help text at `:1760-1762`: *"CLI-only flag -- never read from config or environment (SAFE-01)."* Record it *as* a reversal, following 119 D-18's pattern.
+**(a) It reverses three locked decisions.** Confirmed in live source. `cli_handlers.py:1808-1812` (the `dev_test` docstring) states verbatim: *"Issues ZERO interactive prompts about tester-supplied identity (Phase 112 Plan 04 reversal, operator-approved per `112-UAT.md`): shield revision, chip origin, and pot-adjustment are no longer asked."* And `:1831-1835`: *"SAFE-03: the ONLY interactive input left in this handler is the `--destructive` safety confirm."* SAFE-01's CLI-only lock is in the option help text at `:1760-1762`: *"CLI-only flag -- never read from config or environment (SAFE-01)."* Record it *as* a reversal, following 119 D-18's pattern.
 
-**(b) "Non-destructive means a partial write" is a contract change, not a flag change.** `derive_plan` at `chip_test.py:319-425`, and `Plan.locked_destructive`'s docstring at `:298-316`: *"`run_plan` MUST NOT iterate this field."* Today `destructive=False` **structurally omits** `OP_WRITE`, `OP_VERIFY` and `OP_ERASE` from `Plan.steps` and records them as `(op, reason)` tuples on the advisory `locked_destructive` list — there is literally no code path from `run_plan` to a destructive op on a non-destructive plan. A third "partial write" mode therefore needs a new representation, not a flag flip. Its ripple set, all confirmed present: the closed six-string op vocabulary `OP_ID`/`OP_READ`/`OP_BLANK_CHECK`/`OP_WRITE`/`OP_VERIFY`/`OP_ERASE` (`chip_test.py:273-278`); `tools/parse_devtest_issue.py`; `diagnostic_report.py`'s renderer and its `ladder_state` tag (`:247`, GRAD-01); `dedup_fingerprint` (`diagnostic_report.py:177`, read back by `submit.py:169-174`); and `tests/test_audit_coverage_matrix.py`'s golden — **which is already RED** (F-18), so a matrix-touching change lands on top of an existing failure and must not be allowed to mask it.
+**(b) "Non-destructive means a partial write" is a contract change, not a flag change.** `derive_plan` at `chip_test.py:319-425`, and `Plan.locked_destructive`'s docstring at `:298-316`: *"`run_plan` MUST NOT iterate this field."* Today `destructive=False` **structurally omits** `OP_WRITE`, `OP_VERIFY` and `OP_ERASE` from `Plan.steps` and records them as `(op, reason)` tuples on the advisory `locked_destructive` list — there is literally no code path from `run_plan` to a destructive op on a non-destructive plan. A third "partial write" mode therefore needs a new representation, not a flag flip. Its ripple set, all confirmed present: the closed six-string op vocabulary `OP_ID`/`OP_READ`/`OP_BLANK_CHECK`/`OP_WRITE`/`OP_VERIFY`/`OP_ERASE` (`chip_test.py:273-278`); `tools/parse_devtest_issue.py`; `diagnostic_report.py`'s renderer and its `ladder_state` tag (`:247`, GRAD-01); `dedup_fingerprint` (`diagnostic_report.py:174`, read back by `submit.py:169-174`); and `tests/test_audit_coverage_matrix.py`'s golden — **which is already RED** (F-18), so a matrix-touching change lands on top of an existing failure and must not be allowed to mask it.
 
 **(c) "Destructive only for UV-erasable" needs an axis pick, and the obvious axis is not available where it is needed.** `electrical.type == "UV-EPROM"` exists in the DB (**301 parts**, measured) and *is* reachable in `derive_plan`, which reads `full = db.get_eprom(name)` (`chip_test.py:340,~365`). It is **not** reachable at the execution layer: `run_plan` → `_resolve_or_none` → `resolve_chip` (`:505`), whose dict drops `electrical-type` (F-06). The project already worked around this once, at `_write_region_for` (`:637-663`), by falling back to `algorithm == _PROTOCOL_UV_EPROM` where `_PROTOCOL_UV_EPROM = 0x0B`. **Measured coverage of that fallback: 32 of 301 UV-EPROM parts.** UV-EPROM by algorithm: `0x07 → 163`, `0x08 → 106`, `0x0B → 32`. So the existing execution-time UV signal misses 89% of UV parts. Any Phase 121 design that gates destructiveness on "UV-erasable" must either widen the algorithm set to `{0x07, 0x08, 0x0B}` (structural, no type-string dependency — the project's stated preference) or thread the `full` dict to the execution layer. This is the concrete anchor D-20 asks for.
 
@@ -1006,7 +1006,7 @@ Every gate this phase ships needs a companion proving it can fail:
 | V5 Input Validation | **yes** | `click.Choice(["enable","disable"])` for the mode; `db.get_eprom_config`'s alias resolution for the chip name; the fail-closed allow-list for capability. **Never** interpolate the user's chip string into a wire field — the wire dict is built entirely from DB-derived values via `convert_to_programmer` |
 | V6 Cryptography | no | None involved. Frame CRC8 (`codec._crc8_ccitt`) is integrity-only and untouched |
 | V7 Error Handling & Logging | **yes** | D-10/D-11/D-15's whole point: never report a state that was not observed; fail loudly rather than silently. `codec.decode_id_frame` already drops unknown ids with a warning rather than mis-rendering them (`codec.py:206-209`) |
-| V12 Files & Resources | marginal | `dev sdp` reads and writes no file. If a plan adds one, honour `FIRESTARTER_CONFIG_DIR` and the `_sanitize_chip_token` precedent (`cli_handlers.py:1907`) |
+| V12 Files & Resources | marginal | `dev sdp` reads and writes no file. If a plan adds one, honour `FIRESTARTER_CONFIG_DIR` and the `_sanitize_chip_token` precedent (`cli_handlers.py:1904`) |
 
 ### Known Threat Patterns for this stack
 
@@ -1046,7 +1046,7 @@ Every gate this phase ships needs a companion proving it can fail:
    - Recommendation: **pytest-only**, with the parser as a module-level helper and the fixture injected by `monkeypatch.setattr` on a module-level path constant. Note in the plan that this is the one gate in the table that lives entirely in `tests/`.
 
 2. **Does an explicit user decline (`Confirm.ask` → no) exit `0` or `1`?**
-   - What we know: `dev test` exits `0` on decline (`cli_handlers.py:1842`) with `click.echo("Aborted -- chip left untouched.")`. D-11 specifies `sys.exit(0 if ok else 1)` "off the state machine's result" — but on a decline there is no state machine result.
+   - What we know: `dev test` exits `0` on decline (`cli_handlers.py:1839`) with `click.echo("Aborted -- chip left untouched.")`. D-11 specifies `sys.exit(0 if ok else 1)` "off the state machine's result" — but on a decline there is no state machine result.
    - Recommendation: follow `dev test` — `0` on an explicit user decline (the user got what they asked for), `1` on a refusal the *host* imposed. Make it an explicit plan decision and test both, because `0` on a capability refusal would be wrong.
 
 3. **Does `--skip-sdp-unlock` on a non-`0x0D` chip still emit the bit (D-18)?**

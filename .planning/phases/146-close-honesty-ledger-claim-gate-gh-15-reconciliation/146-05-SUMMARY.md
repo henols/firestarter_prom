@@ -99,7 +99,7 @@ status: complete
 - Landed four `⚠ CORRECTION (Phase 146 / CLOSE-04)` blocks in `PROJECT.md` and one in
   `REQUIREMENTS.md`, each appended after the text it corrects, each citing false text by `file:line`
   rather than restating it:
-  - **C-3** — the `pulse-delay` wire field is parsed unclamped (`json_parser.c:279-282,304-306`,
+  - **C-3** — the `pulse-delay` wire field is parsed unclamped (`json_parser.c:466-469,304-306`,
     `firestarter.h:197`); an over-ceiling value is delivered, not truncated, via Phase 141's
     split-delay helper; the only firmware-side refusal is `0x0B`'s, inert on `0x07`/`0x08`. Recorded,
     not clamped — Backlog 999.31 owns the bound decision.

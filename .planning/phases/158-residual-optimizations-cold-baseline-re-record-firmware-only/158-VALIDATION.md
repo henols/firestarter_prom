@@ -26,7 +26,7 @@ created: 2026-08-24
 | **Estimated runtime** | ~35 s native (per env) · 11.5 s `pytest tests/` · ~90 s for three cold AVR builds |
 
 **Run location matters.** `pytest tests/` must be run from `/workspaces/firestarter`, not a `/tmp`
-worktree — `tests/meta_presence.py:75-95` probes for a `.git` marker in the firmware repo's *parent*
+worktree — `tests/meta_presence.py:77-97` probes for a `.git` marker in the firmware repo's *parent*
 and silently skips **32 cross-repo legs** when it is absent (355 vs 323+32, both measured this
 session — RESEARCH F-12). Every prior phase's worktree measurement under-ran the suite without
 saying so.
@@ -75,7 +75,7 @@ discharge evidence — not an incidental side effect.
 | **LAND-02** | the tripwire is still armed above the (unchanged) allowance | planted negative | the three surviving `planted_size_baseline_policy_*_v153.log` legs (`:1202`, `:1257`, `:1298`) — **measured to stay green**, so assert that fact rather than re-planting | ✅ existing |
 | **LAND-03** | the mismatch is resolved | gate | `python3 scripts/check_size_baseline.py --policy merge05 --baseline scripts/baseline/size_baseline_base01.json --rebuild` → exit 0 | ✅ existing — **local only** |
 | **LAND-04** | the grep claim holds, with its second clause | record + command | `grep -rn "check_size_baseline" .github/; echo $?` → `1`; plus `grep -n "pytest tests/" .github/workflows/build.yml` → `:161` | ✅ existing |
-| **LAND-05** | narrowing does not change parse behaviour | unit | `pio test -e native -f "*test_read_timing*"` (the only suite allocating the real 64-token budget) then full `pio test -e native && pio test -e native_nodevtools` → **184/184 both** | ✅ existing (`test_read_timing_params.cpp:76`) — **runs in CI** |
+| **LAND-05** | narrowing does not change parse behaviour | unit | `pio test -e native -f "*test_read_timing*"` (the only suite allocating the real 64-token budget) then full `pio test -e native && pio test -e native_nodevtools` → **184/184 both** | ✅ existing (`test_read_timing_params.cpp:84`) — **runs in CI** |
 | **LAND-05** | the RAM saving is real | build | `pio run -e uno` → `RAM: used 1434` (from 1562) — the linker is the witness | ✅ existing |
 | **LAND-05** | `start`/`end` remain signed | source contract | **Wave 0** — a leg asserting `int start;` / `int end;` in `jsmn.h`, so a future tidy-up to `uint16_t` cannot silently break the twelve `-1` sentinels | ❌ **Wave 0** |
 | **LAND-06** | the measurement is cited (declined branch) | build + disassembly | `pio run -e uno` flash delta + `avr-objdump -d` call-site count inside `flash_5v_page_write_execute` — reproduces `+22/+24/+22 B` and the two `__udivmodsi4` sites | ✅ existing tooling |

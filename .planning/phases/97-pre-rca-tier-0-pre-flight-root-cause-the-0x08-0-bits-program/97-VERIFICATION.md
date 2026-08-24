@@ -58,7 +58,7 @@ All five roadmap success criteria are substantively met. The four gate scripts p
 | RCA-01 micro-probe | chip pristine assertion | post-attempt N=3 oracle (pre==post SHA) | WIRED | pre_read_sha256 == post_read_sha256 in EVIDENCE.json; check_signature.py verifies this |
 | RC-2 exoneration | code-decode proof | `rurp_map_ctrl_reg_for_hardware_revision` (REVISION_2_0 arm) | WIRED | debug doc traces: 0x188 & 0xDE = 0x88, + VPE_DROP → 0x89 = REGULATOR+P1+VPE_DROP; P1 asserted |
 | RC-1 code half | DIP32_STD pin 31 = A18 | `pinouts.json` + `database.py:141` | WIRED | pinouts.json DIP32_STD.pins.address-bus-pins ends `[..., 30, 31]` (A18); database.py `pin_conversions[32][31]=22` |
-| CE-only pulse (RC-1 firmware half) | `memory.cpp:274` | `rurp_chip_enable()` only, no PGM | WIRED | `memory_set_data` calls `rurp_chip_enable()` + delay + `rurp_chip_disable()`; no PGM assertion |
+| CE-only pulse (RC-1 firmware half) | `memory.cpp:346` | `rurp_chip_enable()` only, no PGM | WIRED | `memory_set_data` calls `rurp_chip_enable()` + delay + `rurp_chip_disable()`; no PGM assertion |
 | 0x07 differential control | passing W27C512 | same session, same `configure_eprom()` | WIRED | SHA `d9471636…` write/readback match in EVIDENCE.json Cell B; check_diff07.py PASS |
 
 ---
@@ -110,7 +110,7 @@ All five roadmap success criteria are substantively met. The four gate scripts p
 **SATISFIED. RC-1 CONFIRMED and RC-2 EXONERATED each carry an individual verdict (D-03 exit bar met).**
 
 **RC-1 (CONFIRMED):**
-- Code half (unambiguous): pin_conversions[32][31]=22 (database.py:141) maps pin 31 as address bus line 22 (A18). DIP32_STD.pins.address-bus-pins ends with 31 (confirmed in pinouts.json). memory.cpp:274 strobes CE only — no PGM concept.
+- Code half (unambiguous): pin_conversions[32][31]=22 (database.py:141) maps pin 31 as address bus line 22 (A18). DIP32_STD.pins.address-bus-pins ends with 31 (confirmed in pinouts.json). memory.cpp:346 strobes CE only — no PGM concept.
 - Differential half: passing 0x07 W27C512 (28-pin) has no pin-31 mapping issue, exonerating all axes except the 32-pin address/PGM axis.
 - Elimination half: RC-2 exonerated (VPP reaches pin 1) → by elimination the 0-bits cause rests with the pin-31 modeling.
 - Missing measurement: direct pin-31 DMM was tooling-blocked. RC-1 rests on code + differential + elimination, not direct measurement. This is noted explicitly as a "residual" in RCA-FINDINGS.md; Phase-98 fix validation closes it empirically.
@@ -186,7 +186,7 @@ No TBD, FIXME, or XXX debt markers appear in any of the critical evidence fields
 
 **Assessment: HONEST HANDLING, NOT A BLOCKER.**
 
-The held-rail proxy was blocked by a real, root-caused tooling bug (DTR-reset-on-close drops the Leonardo when `dev_set_registers` finally: closes the port). The mechanism is fully documented in `debug/resolved/held-rail-dev-reg-timeout.md` with file:line evidence from both firmware (`dev_tools.cpp:71-127`) and host (`eprom_operations.py:1454-1517`, `serial_comm.py:132-136`, `uno_rurp_shield.cpp:61`).
+The held-rail proxy was blocked by a real, root-caused tooling bug (DTR-reset-on-close drops the Leonardo when `dev_set_registers` finally: closes the port). The mechanism is fully documented in `debug/resolved/held-rail-dev-reg-timeout.md` with file:line evidence from both firmware (`dev_tools.cpp:71-127`) and host (`eprom_operations.py:1454-1517`, `serial_comm.py:132-136`, `uno_rurp_shield.cpp:58`).
 
 The routing question the DMM was meant to answer (does VPP reach socket pin 1?) is answered by code-decode: the H2 hypothesis (routing fault) is DISPROVEN, not just unconfirmed. This is a genuine code-decode substitute, not a hand-wave.
 

@@ -46,7 +46,7 @@ Copy the `from shutil import which` + `subprocess`-import style. For submit, pre
 ```python
 from rich.prompt import Confirm
 ```
-Same import the `dev_test --destructive` gate already uses (`cli_handlers.py:1820`,
+Same import the `dev_test --destructive` gate already uses (`cli_handlers.py:1817`,
 excerpt below). Inject as `confirm_fn=Confirm.ask` with a real default.
 
 **Analog C — hardcoded `henols/...` GitHub owner constant** (`firestarter/constants.py:9-15`):
@@ -86,7 +86,7 @@ not the raw body (Pitfall 3).
 
 **Analog: the SAME function.** Copy the flag + gate patterns already present.
 
-**Flag pattern to copy** (`cli_handlers.py:1776-1783`, the `-y/--yes` option):
+**Flag pattern to copy** (`cli_handlers.py:1774-1780`, the `-y/--yes` option):
 ```python
 @click.option(
     "-y", "--yes", "assume_yes",
@@ -98,7 +98,7 @@ Add `--submit` as a sibling `is_flag=True, default=False` option; add `submit: b
 the `def dev_test(...)` signature (`:1786-1792`). Do NOT reuse `-y/--yes` for submission
 (RESEARCH §Guardrails — `--yes` is scoped to the destructive chip-sacrifice prompt only).
 
-**TTY-gated Confirm pattern to mirror** (`cli_handlers.py:1812-1825`):
+**TTY-gated Confirm pattern to mirror** (`cli_handlers.py:1809-1822`):
 ```python
 interactive = _is_interactive()
 if interactive and destructive and not assume_yes:
@@ -123,7 +123,7 @@ if submit:
 Pass the in-memory `report`, `chip`, and the already-resolved `json_file` path
 (`:1884`). Do NOT re-run the sweep (RESEARCH §Anti-Patterns #1).
 
-**`_is_interactive` seam to reuse** (`cli_handlers.py:1719-1726`) — tests patch this
+**`_is_interactive` seam to reuse** (`cli_handlers.py:1717-1724`) — tests patch this
 function directly, NOT `sys.stdin.isatty`, because `CliRunner.invoke` swaps `sys.stdin`.
 
 ---
@@ -132,7 +132,7 @@ function directly, NOT `sys.stdin.isatty`, because `CliRunner.invoke` swaps `sys
 
 **Analog: the SAME file's module-level helpers + `to_dict`.**
 
-**Module-level helper pattern to copy** (`is_submittable`, `diagnostic_report.py:153-165`):
+**Module-level helper pattern to copy** (`is_submittable`, `diagnostic_report.py:150-162`):
 ```python
 def is_submittable(ac: AutoCapture) -> bool:
     return bool(ac.chip) and bool(ac.protocol) and bool(ac.host_version)
@@ -143,7 +143,7 @@ Add `dedup_fingerprint(report) -> str` as a sibling module-level function (RESEA
 (`op`/`verdict`/`fingerprint.classification`, `:323-332`). EXCLUDE volatile fields
 (`generated` `:361`, `host_version`, `vpp_*/vpe_*` voltages).
 
-**`to_dict()` single-source field-add** (`diagnostic_report.py:352-369`):
+**`to_dict()` single-source field-add** (`diagnostic_report.py:346-363`):
 ```python
 return {
     "schema_version": SCHEMA_VERSION,
@@ -221,8 +221,8 @@ each PII vector is scrubbed (A3 fails OPEN — one test per vector). See RESEARC
 ## Shared Patterns
 
 ### Seam-injected callables with real defaults
-**Source:** `cli_handlers.py:1719-1726` (`_is_interactive`) + the deleted
-`prompt_provenance(ask=, confirm=)` style (documented `diagnostic_report.py:142-150`).
+**Source:** `cli_handlers.py:1717-1724` (`_is_interactive`) + the deleted
+`prompt_provenance(ask=, confirm=)` style (documented `diagnostic_report.py:139-147`).
 **Apply to:** every side-effecting boundary in `submit.py` (`which`, `subprocess.run`,
 `webbrowser.open`, TTY check, `Confirm.ask`). Keyword arg + real default → monkeypatch
 in tests.
@@ -234,20 +234,20 @@ buckets (`check_devtest_orchestrator.py`).
 false-positive on the `visit_Dict` wire-dict check.
 
 ### to_dict() single-source serialization
-**Source:** `diagnostic_report.py:352-369` (`to_dict`), consumed by `render()` (`:371`)
+**Source:** `diagnostic_report.py:346-363` (`to_dict`), consumed by `render()` (`:371`)
 and `to_json_block()` (`:441`).
 **Apply to:** the dedup fingerprint (add to `to_dict`, do not fork a field list) and
 sanitization (scrub the DICT recursively, then build both the human table and fenced
 JSON from the scrubbed dict — RESEARCH §Sanitization).
 
 ### D-03 refuse-gate predicate
-**Source:** `diagnostic_report.py:153-165` (`is_submittable`).
+**Source:** `diagnostic_report.py:150-162` (`is_submittable`).
 **Apply to:** `submit_report` entry — refuse when `is_submittable(report.auto_capture)`
 is `False`; re-derive the missing field names locally (`is_submittable` returns only a
 bool) per RESEARCH §Guardrails.
 
 ### Filesystem-safe token (adjacent, do NOT reuse for body content)
-**Source:** `cli_handlers.py:1670-1685` (`_sanitize_chip_token`).
+**Source:** `cli_handlers.py:1668-1683` (`_sanitize_chip_token`).
 Note: this sanitizes FILENAMES. The SUB-02 body sanitizer is a sibling concern (content
 PII scrub) — a NEW regex set in `submit.py`, not this helper.
 

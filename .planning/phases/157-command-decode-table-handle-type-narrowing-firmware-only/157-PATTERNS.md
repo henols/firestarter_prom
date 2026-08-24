@@ -137,7 +137,7 @@ Two conventions exist in the tree. The **production** one is per-column `pgm_rea
     uint32_t overprogram_cap_us = pgm_read_dword(&row->overprogram_cap_us);
 ```
 
-`json_parser.c`'s own existing loop already uses this form (`json_parser.c:126,128`):
+`json_parser.c`'s own existing loop already uses this form (`json_parser.c:315,318`):
 
 ```c
             PGM_P key = (PGM_P)pgm_read_ptr(&key_parsers[j].key);
@@ -341,7 +341,7 @@ The research listed this file as "possibly touched"; it is **not**.
 
 ## 4. `include/firestarter.h` — the narrowing, and the alignment precedent
 
-Current struct head (`include/firestarter.h:205-222`):
+Current struct head (`include/firestarter.h:205-227`):
 
 ```c
 typedef struct firestarter_handle {
@@ -731,18 +731,18 @@ existing is that the obvious alternative is fail-open.
 ```
 
 ### Serial-stub `setUp` for any suite whose path can log
-**Source:** `test_read_timing_params.cpp:40-49`, identically at `test_not_implemented.cpp:27-34`
+**Source:** `test_read_timing_params.cpp:48-57`, identically at `test_not_implemented.cpp:27-34`
 and `test_configure_memory.cpp:37-47`.
 **Apply to:** any new native case. Already present in the file being extended — no action, but do
 not remove it: S2's refusal path emits `MSG_ERR_PROTOCOL_NOT_IMPLEMENTED`.
 
 ### Per-column PROGMEM reads, never a struct dereference
 **Source:** `include/eprom_params.h:73-76` (the contract), `src/proms/eprom_budget.cpp:91-99` (the
-enforcement), `src/json_parser.c:126,128` (already in the file).
+enforcement), `src/json_parser.c:315,318` (already in the file).
 **Apply to:** the new `key_parsers[]` row reads.
 
 ### Non-vacuous, message-bearing Unity assertions
-**Source:** `test_read_timing_params.cpp:147-155` (T7), `test_not_implemented.cpp:52-59`.
+**Source:** `test_read_timing_params.cpp:181-189` (T7), `test_not_implemented.cpp:52-59`.
 **Apply to:** all five new DECODE-05 cases and the DECODE-06 tightenings. Prefer
 `TEST_ASSERT_EQUAL_*_MESSAGE` with a message that states the defect the case exists to catch —
 this is the local house style and it is what makes the RED-first anti-tautology check legible.

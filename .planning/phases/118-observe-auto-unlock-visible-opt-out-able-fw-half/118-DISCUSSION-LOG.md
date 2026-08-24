@@ -31,7 +31,7 @@ leaves the default path quiet is a no-op rather than a smaller version of the ph
 | Option | Description | Selected |
 |--------|-------------|----------|
 | WARN line, `response_code` untouched | New WARN-band id replacing the before/after pair. Honest about the consequence without fabricating an operation-level warning; preserves Phase 117's D-05. Precedent: `MSG_WARN_FL4_BOOT_BLOCK_LOCKED`. | ✓ |
-| INFO line (mirrors skipping-erase) | Exact `MSG_INFO_SKIPPING_ERASE` shape (`flash_5v_page.cpp:71`). Closest in-tree analog, but `write -b` silently skipping erase is the footgun v1.16 Phase 92 had to fix. | |
+| INFO line (mirrors skipping-erase) | Exact `MSG_INFO_SKIPPING_ERASE` shape (`flash_5v_page.cpp:70`). Closest in-tree analog, but `write -b` silently skipping erase is the footgun v1.16 Phase 92 had to fix. | |
 | WARN + `response_code = WARNING` | Host surfaces it in the result, not just the log stream. Warns on every skip even when harmless, and breaks D-05. | |
 
 **User's choice:** WARN line, `response_code` untouched → **D-02**

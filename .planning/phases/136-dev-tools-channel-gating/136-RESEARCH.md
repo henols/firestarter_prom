@@ -135,7 +135,7 @@ differently.
 
 ## 6. CHAN-05's target — VERIFIED
 
-`cli_handlers.py:1205`:
+`cli_handlers.py:1203`:
 
 ```python
 @cli.group(name="dev")
@@ -190,6 +190,6 @@ about a USR button most users do not have. The rewrite is a real requirement, no
 | CHAN-02 | Conditional registration of the 6 gated commands at the `@dev.command` sites |
 | CHAN-03 | The refusal path — hook TBD per §1, plus its exit-code assertion |
 | CHAN-04 | New subprocess test module; re-baseline `test_help_dev` deliberately (§4) |
-| CHAN-05 | The `dev` group docstring at `cli_handlers.py:1205` |
+| CHAN-05 | The `dev` group docstring at `cli_handlers.py:1203` |
 | CHAN-06 | `FIRESTARTER_DEV_TOOLS` override + tripwire comment at the `dev reg` site (RETIRE-07 pattern) |
 | CHAN-07 | Satisfied by construction via D-02; needs an explicit no-firmware-read assertion to be provable |

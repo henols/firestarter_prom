@@ -24,7 +24,7 @@
   command shares and touches `eprom_operations.py`).
 
 - **D-02: Widen the existing method's return — do not add a near-duplicate sibling.** It has exactly
-  **one** production call site (`cli_handlers.py:2504`); the churn is test mocks, not production
+  **one** production call site (`cli_handlers.py:2501`); the churn is test mocks, not production
   code. One method, one handshake, no duplication.
 
 - **D-03: Rename it and return a NamedTuple.** e.g.
@@ -49,7 +49,7 @@
   `comm.firmware_identity` (`serial_comm.py:412`) holds the raw, untruncated
   `"<version>:<board>"` string decoded from the CAP-02 ack tail. Firmware side confirms:
   `FW_VERSION = VERSION ":" RURP_BOARD_NAME` with `VERSION "3.0.0b18"`
-  (`firestarter/include/version.h:11`, `firestarter/src/firestarter.cpp:209-227`, 32-char cap).
+  (`firestarter/include/version.h:11`, `firestarter/src/firestarter.cpp:204-222`, 32-char cap).
   So the recorded string preserves `b19` **for free**. The version-capture path is GATE-1.8d
   ring-fenced and pinned by `test_fwguard.py` + `test_fw_version_guard.py`; editing it buys this
   phase nothing and risks refusing boards.
@@ -92,7 +92,7 @@
 - **D-10: The fenced JSON keeps `null`; the marker lives in the human surfaces.** Typed absence lets
   machine consumers test `is None`, and PROV-04's "old reports carry `null` and still parse" story
   stays **one** case instead of two. The explicit marker appears in the `rich` table
-  (`diagnostic_report.py:518`) and the triage render. **PROV-05's "both report outputs" wording is
+  (`diagnostic_report.py:512`) and the triage render. **PROV-05's "both report outputs" wording is
   tightened in the same hand-edit pass as D-06** — as written it reads as requiring a sentinel in
   the JSON.
 
@@ -163,7 +163,7 @@
 - Exact `ProgrammerIdentity` NamedTuple name and field order (fields must be named — D-03).
 - Exact phrasing of the not-attributable clause (D-14/D-17), subject to the claim gate.
 - Where the capture sits relative to `run_plan`: **keep it where it is today** (before the plan
-  runs, `cli_handlers.py:2504`) unless research finds a reason to move it.
+  runs, `cli_handlers.py:2501`) unless research finds a reason to move it.
 
 ### Deferred Ideas (OUT OF SCOPE)
 
@@ -269,14 +269,14 @@ Every coordinate below was opened this session on the live working tree
 
 | # | CONTEXT.md claim | Status | Measured |
 |---|------------------|--------|----------|
-| F-01 | `cli_handlers.py:2494-2507` — `AutoCapture(...)` with hardcoded `fw_board_identity=None` and the honest comment | **HOLDS exactly** | Comment `:2494-2500`; `auto_capture = AutoCapture(` `:2501`; `fw_board_identity=None` `:2503`; `hw_revision=app.hardware_manager.read_hardware_revision_value(),` `:2504`; closing `)` `:2507` `[VERIFIED: sed -n 2493,2508p]` |
+| F-01 | `cli_handlers.py:2491-2504` — `AutoCapture(...)` with hardcoded `fw_board_identity=None` and the honest comment | **HOLDS exactly** | Comment `:2494-2500`; `auto_capture = AutoCapture(` `:2501`; `fw_board_identity=None` `:2503`; `hw_revision=app.hardware_manager.read_hardware_revision_value(),` `:2504`; closing `)` `:2507` `[VERIFIED: sed -n 2493,2508p]` |
 | F-02 | `hardware.py:115-148` — `read_hardware_revision_value` | **HOLDS exactly** | `def read_hardware_revision_value(self, flags: int = 0) -> Optional[str]:` at `:115`; body `find_and_connect` → `expect_ack` → `if is_ok: return msg` / else `return None`; `except (ProgrammerNotFoundError, SerialError, SerialTimeoutError)` → `return None`; `finally: if comm: comm.disconnect()` ending `:147` `[VERIFIED]` |
 | F-03 | `find_and_connect` returns the probed communicator with `firmware_identity` set | **HOLDS** | `find_and_connect` `:922`, `return communicator` `:968`; `_probe_port` `:815`, sets nothing after `communicator.programmer_info = msg` `:890`. `firmware_identity` set at `:412` during the setup-ack decode, i.e. **before** the caller's second `expect_ack()`. `disconnect()` clears `programmer_info` (`:649`) but **not** `firmware_identity` `[VERIFIED]` |
 | F-04 | `check_devtest_orchestrator.py` does not scan `hardware.py`; `cli_handlers.py` scanned only via `_HANDLER_FUNCTION_NAMES` | **HOLDS** | Targets are exactly `firestarter/chip_test.py` (full), `firestarter/cli_handlers.py` (scoped, `_HANDLER_FUNCTION_NAMES` at `:152-181`), `firestarter/submit.py` (full) — `main()` `:547-625`. Live run prints `PASS: scanned ../firestarter/chip_test.py, ../firestarter/cli_handlers.py, ../firestarter/submit.py` `[VERIFIED: gate executed, EXIT=0]` |
 | F-05 | D-05: the `[\d.x]+` regex feeds only `_validate_firmware_version`; `firmware_identity` is raw | **HOLDS exactly** | `:865 identity = communicator.firmware_identity`; `:866 version_match = re.match(r"[\d.x]+", identity) if identity else None`; `:884 _validate_firmware_version(version_match.group(0), ...)`. The regex result is a **separate local**; `communicator.firmware_identity` is never reassigned `[VERIFIED]` |
 | F-06 | `diagnostic_report.py:55-85` — `SCHEMA_VERSION` + per-bump block + `NOT_MEASURED` | **HOLDS exactly** | `SCHEMA_VERSION = "1.3"` at `:55`; 1.1/1.2/1.3 rationale comments `:56-84`; `NOT_MEASURED = "not measured"` at `:85` `[VERIFIED]` |
 | F-07 | Both parsers accept `schema_version` by presence only | **HOLDS — and pre-verified for `"1.4"`** | `parse_devtest_issue.py:99 if "schema_version" not in obj:`; live fixture `"9.9-future"` at `tests/test_parse_devtest_issue.py:138`. I fed a synthesized `schema_version: "1.4"` body to **both** parsers offline; both parsed and rendered it without error `[VERIFIED: executed both CLIs]` |
-| F-08 | `diagnostic_report.py:505-560` `render`, two `str(None)` rows | **HOLDS exactly** | `def render` `:505`; `table.add_row("fw_board_identity", str(ac["fw_board_identity"]))` `:518`; `table.add_row("hw_revision", str(ac["hw_revision"]))` `:519`. `host_version` `:517` is always populated so needs no marker `[VERIFIED]` |
+| F-08 | `diagnostic_report.py:499-554` `render`, two `str(None)` rows | **HOLDS exactly** | `def render` `:505`; `table.add_row("fw_board_identity", str(ac["fw_board_identity"]))` `:518`; `table.add_row("hw_revision", str(ac["hw_revision"]))` `:519`. `host_version` `:517` is always populated so needs no marker `[VERIFIED]` |
 | F-09 | `tools/parse_devtest_issue.py::render_diff()` "~line 192 … with committed CI-run tests" | **⚠ PARTIAL DRIFT** | `def render_diff(` is at **`:192`** exactly. But a repo-wide grep for `render_diff` returns **only two hits: its definition (`:192`) and its single call site (`:251`)**. `tests/test_parse_devtest_issue.py` (22 tests) imports `_MAX_BODY_BYTES, count_agreeing, extract_db_diff, parse_devtest_body` — **not `render_diff`**. PROV-06's named surface is **completely untested today** `[VERIFIED: grep -rn render_diff]` |
 | F-10 | `dedup_fingerprint` excludes `fw_board_identity`; `is_submittable` ignores it | **HOLDS** | `is_submittable` `:195 return bool(ac.chip) and bool(ac.protocol) and bool(ac.host_version)`; `submit.py:585-595` names the same three fields. Populating the identity changes no submittability outcome and no dedup hash `[VERIFIED]` |
 | F-11 | `tests/test_dev_test_cmd.py::test_absent_chip_still_hard_fails_before_hardware` carries the load-bearing `assert_not_called()` | **HOLDS** | `:845 app.hardware_manager.read_hardware_revision_value.assert_not_called()`; docstring `:831` names it load-bearing `[VERIFIED]` |
@@ -355,7 +355,7 @@ over shipped mechanisms.
    {"state": 15}    │    └─▶ LOG_OK_ID_BYTES(MSG_OK_READY, _ready)  ── ACK #1 ──┼──┐
                     │          [bufsz u16][hw_rev u8][ver_len u8][ver bytes]…   │  │
                     │                                                          │  │
-                    │  firestarter.cpp:338  dispatch switch                    │  │
+                    │  firestarter.cpp:333  dispatch switch                    │  │
                     │    #ifdef HARDWARE_REVISION                              │  │
                     │      case CMD_HW_VERSION → MSG_OK_REV      ─── ACK #2 ────┼──┤
                     │    #else  default: → MSG_ERR_UNKNOWN_CMD   ─── ACK #2 ────┼──┤
@@ -536,7 +536,7 @@ hits**, in 3 files:
 | # | Site | What it does | Action after rename |
 |---|------|--------------|---------------------|
 | 1 | `firestarter/hardware.py:115` | the `def` | **Rename**; widen return to `ProgrammerIdentity` |
-| 2 | `firestarter/cli_handlers.py:2504` | the **only** production call site, inline inside `AutoCapture(...)` | **Unpack**: call once above the constructor, pass both fields as keywords |
+| 2 | `firestarter/cli_handlers.py:2501` | the **only** production call site, inline inside `AutoCapture(...)` | **Unpack**: call once above the constructor, pass both fields as keywords |
 | 3 | `tests/test_dev_test_cmd.py:378` | docstring prose in `make_hardware_manager` | Reword |
 | 4 | `tests/test_dev_test_cmd.py:400` | `hw.read_hardware_revision_value.return_value = hw_revision` — the fixture wiring | **Rename + change the return value to the NamedTuple.** The fixture's `hw_revision: object = "Rev 2.0-class"` parameter should gain a sibling (e.g. `fw_board_identity: object = "3.0.0b19:leonardo"`) so the 41 `dev test` invocations keep working and D-08/D-13(b) can vary one field |
 | 5 | `tests/test_dev_test_cmd.py:731` | docstring prose in `test_hw_revision_auto_captured_end_to_end` | Reword |
@@ -785,7 +785,7 @@ and PEP 604 `X | Y` on builtins requires 3.10. CI runs 3.11 only, so this is unt
 **What goes wrong:** a reviewer reads criterion #4 ("the human-readable report surfaces") as covering
 the `dev-test-<chip>.md` artifact and marks it unmet. It is not covered, deliberately: the `.md`
 body is `# dev test -- <chip>` + a `| Step | Verdict | Reason |` table + `to_json_block()`
-(`cli_handlers.py:2553-2564`), and `submit.py::build_body` (`:179-198`) is the same shape. The
+(`cli_handlers.py:2550-2561`), and `submit.py::build_body` (`:179-198`) is the same shape. The
 identity appears there **only inside the fenced JSON** — which D-10 keeps as typed `null`.
 **How to avoid:** state in the plan that PROV-05's "human-readable report surfaces" = the `rich`
 console table (`render`), and PROV-06's parser surfaces = the two triage renders. Do not silently
@@ -841,10 +841,10 @@ def read_programmer_identity(self, flags: int = 0) -> ProgrammerIdentity:
 Note the `except` branch returns `identity` too — it is `None` unless the failure happened after the
 harvest, which keeps the two failure paths genuinely independent.
 
-### E-2 — the handler unpack (`cli_handlers.py:2501-2507`)
+### E-2 — the handler unpack (`cli_handlers.py:2498-2504`)
 
 ```python
-# Source: current construction at firestarter/cli_handlers.py:2501-2507
+# Source: current construction at firestarter/cli_handlers.py:2498-2504
 # Replaces (never deletes) the :2494-2500 comment: say why THIS connection can
 # serve, where the old comment said why EpromOperator.comm cannot.
 identity = app.hardware_manager.read_programmer_identity()
@@ -860,10 +860,10 @@ auto_capture = AutoCapture(
 Field access by name (`identity.fw_board_identity`), never `a, b = ...` — a positional swap of two
 `Optional[str]`s type-checks clean (D-03).
 
-### E-3 — the marker render (`diagnostic_report.py:517-519`)
+### E-3 — the marker render (`diagnostic_report.py:511-513`)
 
 ```python
-# Source: current rows at firestarter/diagnostic_report.py:517-519
+# Source: current rows at firestarter/diagnostic_report.py:511-513
 NOT_REPORTED = "not reported"  # beside NOT_MEASURED at :85 (D-11)
 
 def _identity_cell(value: object) -> str:
@@ -1154,7 +1154,7 @@ its documented example output (`:61-67`) must be updated in lockstep with `scrip
 | A spoofed identity making a broken board look patched | Spoofing / Repudiation | Out of scope to prevent, and explicitly so: the report says what the *board claimed*. The Evidence Ceiling already forbids treating any report as proof; D-14's clause states attributability rather than authenticity |
 | Hostile issue body driving the parsers to arbitrary code / resource exhaustion | Tampering / DoS | Existing controls: size bound before parse, `JSONDecodeError`-guarded `json.loads`, fixed argv to `gh`, fail-soft extraction. **Do not add a code path that formats body content into a shell command** |
 | Log injection via a newline-bearing identity | Tampering | The scrub removes non-printables including `\n`/`\r` |
-| An extra serial connection energizing a socketed part | (hardware safety, not STRIDE) | PROV-02 / SAFE-02 — and the firmware's own note at `firestarter.cpp:205-210`: the identity ack is emitted before `firestarter_operation_init`, so the VPP regulator is not engaged. Zero new connections means zero new energize events |
+| An extra serial connection energizing a socketed part | (hardware safety, not STRIDE) | PROV-02 / SAFE-02 — and the firmware's own note at `firestarter.cpp:200-205`: the identity ack is emitted before `firestarter_operation_init`, so the VPP regulator is not engaged. Zero new connections means zero new energize events |
 
 ## Assumptions Log
 
@@ -1174,7 +1174,7 @@ Everything else in this document is `[VERIFIED]` by direct execution or file rea
 
 1. **Should the identity capture move, or stay where it is?**
    - What we know: CONTEXT.md leaves this to discretion with a default of "keep it where it is
-     today" (before `run_plan`, `cli_handlers.py:2504`).
+     today" (before `run_plan`, `cli_handlers.py:2501`).
    - What research found: **no reason to move it.** Moving it after `run_plan` would open a *second*
      connection (the whole SAFE-02 problem the current comment describes) and would put an energize
      event after the write. Capturing before the plan also means a report exists even if `run_plan`

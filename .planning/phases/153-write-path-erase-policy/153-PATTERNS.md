@@ -7,8 +7,8 @@
 > Every line number below was re-verified against the working tree on branch
 > `gsd/v1.32-at28c-write-path-root-cause-report-provenance` this session. Two RESEARCH.md line
 > numbers moved: `flash_5v_page_write_init`'s blank-check conditional is at **`:87-89`** (not 88-90),
-> and `ic_layout.py`'s `can_erase_str` block is at **`:578-586`**. `eeprom_28c.cpp:547-549`,
-> `database.py:617-622`, `test_configure_memory.cpp:311-318`, `test_eeprom28c_sdp.cpp:1391-1416`,
+> and `ic_layout.py`'s `can_erase_str` block is at **`:578-586`**. `eeprom_28c.cpp:517-519`,
+> `database.py:617-622`, `test_configure_memory.cpp:311-318`, `test_eeprom28c_sdp.cpp:1448-1473`,
 > `test_database_conversion.py:98-117`, `test_chip_test_blank_check_order.py:121-129` all confirmed.
 
 ## File Classification
@@ -45,7 +45,7 @@
 **Analog:** the same file's own switch, `configure_eeprom28c` `:222-235`. **Copy the local shape, not
 `flash_5v_page.cpp`'s.**
 
-**Current switch, verbatim** (`eeprom_28c.cpp:222-235`) — note the D-05 comment at `:208-220` that must
+**Current switch, verbatim** (`eeprom_28c.cpp:214-227`) — note the D-05 comment at `:208-220` that must
 be read before touching it, and that this function assigns **no** `firestarter_operation_init`/`_end`
 before the switch, so the new arm has nothing to null:
 
@@ -84,12 +84,12 @@ and `:126`: `static void eeprom28c_sdp_unlock_execute(firestarter_handle_t* hand
 
 ### `firestarter/src/proms/eeprom_28c.cpp` — `eeprom28c_erase_execute` (ERASE-04)
 
-**Analog: `eeprom28c_sdp_lock_execute` (`eeprom_28c.cpp:455-461`).** This is the closest structural
+**Analog: `eeprom28c_sdp_lock_execute` (`eeprom_28c.cpp:427-433`).** This is the closest structural
 match in the tree: *emit one table through the timed wrapper, then one unconditional `delay()`, no
 completion poll, no `response_code` write, no read.* That is exactly the AN-0544B erase shape.
 
 ```c
-// firestarter/src/proms/eeprom_28c.cpp:455-461 — COPY THIS SHAPE
+// firestarter/src/proms/eeprom_28c.cpp:427-433 — COPY THIS SHAPE
 static void eeprom28c_sdp_lock_execute(firestarter_handle_t* handle) {
     size_t sdp_seq_len = sizeof(EEPROM_SDP_ENABLE) / sizeof(EEPROM_SDP_ENABLE[0]);
     eeprom28c_emit_sdp_sequence_timed(handle, EEPROM_SDP_ENABLE, sdp_seq_len, MSG_INFO_SDP_LOCK,
@@ -173,11 +173,11 @@ const byte_flip_t EEPROM_SDP_DISABLE[6] = {
 };
 ```
 
-**Constant convention for `tEC`** (`eeprom_28c.cpp:57`): `#define AT28C_TWC_MAX_MS 10`. A new
+**Constant convention for `tEC`** (`eeprom_28c.cpp:53`): `#define AT28C_TWC_MAX_MS 10`. A new
 `#define AT28C_TEC_MAX_MS 20` follows it verbatim in form and placement.
 
 **⚠ ANTI-PATTERN — excerpt it so an executor recognises it on sight.**
-`flash_5v_page_erase_execute` (`flash_5v_page.cpp:199-231`) is the **12 V-on-OE hardware path**. It sits
+`flash_5v_page_erase_execute` (`flash_5v_page.cpp:198-230`) is the **12 V-on-OE hardware path**. It sits
 in the file the executor is already editing for ERASE-02. **It must not be copied.** Zero occurrences of
 `firestarter_set_control_register`, `CTRL_VPE`, `CTRL_VPP_REGULATOR_ENABLE`, `rurp_chip_enable` or
 `rurp_chip_disable` may appear in `eeprom28c_erase_execute`'s brace-matched body:
@@ -201,12 +201,12 @@ void flash_5v_page_erase_execute(firestarter_handle_t* handle) {
 
 ---
 
-### `firestarter/src/proms/eeprom_28c.cpp:547-549` (ERASE-01) and `flash_5v_page.cpp:87-89` (ERASE-02)
+### `firestarter/src/proms/eeprom_28c.cpp:517-519` (ERASE-01) and `flash_5v_page.cpp:87-89` (ERASE-02)
 
 Both are the identical three-line block. Pure deletion; no analog needed. Verbatim, current:
 
 ```c
-// eeprom_28c.cpp:547-549 (tail of eeprom28c_write_init, immediately after the
+// eeprom_28c.cpp:517-519 (tail of eeprom28c_write_init, immediately after the
 // LOG_WARN_ID(MSG_WARN_SDP_UNLOCK_SKIPPED) arm at :543)
     if (!is_flag_set(FLAG_SKIP_BLANK_CHECK)) {
         mem_util_blank_check(handle);
@@ -425,7 +425,7 @@ splitting the function so its name stops claiming both are NULL.
 
 ---
 
-### `firestarter/test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1391-1416` — MANDATORY INVERSION (Case 25)
+### `firestarter/test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1448-1473` — MANDATORY INVERSION (Case 25)
 
 **Current, verbatim.** Its four-beat shape — precondition → drive → response code → frame id — transfers
 directly to the new "erase now dispatches and emits the six-write stream" case:
@@ -737,7 +737,7 @@ re-anchoring reddens four legs unless you sever onto a new fixture family.
 ## Shared Patterns
 
 ### The `case CMD_X:` dispatch arm (firmware)
-**Source:** `eeprom_28c.cpp:232-234` (local) — cross-checked against `flash_5v_page.cpp:47-49`,
+**Source:** `eeprom_28c.cpp:224-226` (local) — cross-checked against `flash_5v_page.cpp:47-49`,
 `flash_intel.cpp:92-94`, `flash_nor_unlock.cpp:39-42`.
 **Apply to:** the one new `CMD_ERASE` arm.
 ```c
@@ -745,7 +745,7 @@ re-anchoring reddens four legs unless you sever onto a new fixture family.
             handle->firestarter_operation_main = eeprom28c_sdp_lock_execute;
             break;
 ```
-`configure_eeprom28c` assigns no init/end before its switch, so — unlike `flash_nor_unlock.cpp:60-63` —
+`configure_eeprom28c` assigns no init/end before its switch, so — unlike `flash_nor_unlock.cpp:59-62` —
 the new arm nulls nothing. **No `default:` arm** (`eeprom_28c.cpp:208-220` records why).
 
 ### Cited-constant + decision-attributed comment (both repos)
@@ -762,7 +762,7 @@ mechanism-corrected, intent-satisfied — never as failed."*
 record. This is the **fourth** recorded reversal in the D-12 chain.
 
 ### Exact-index / no-vacuity test discipline
-**Source:** `test_eeprom28c_sdp.cpp:1122` (`TEST_ASSERT_EQUAL_MESSAGE(27, div, …)`),
+**Source:** `test_eeprom28c_sdp.cpp:1179` (`TEST_ASSERT_EQUAL_MESSAGE(27, div, …)`),
 `test_page_size_invariants.py:127-131` (the nested-scan anti-vacuity docstring),
 `test_chip_test_blank_check_order.py:30-32` (observed RED before the fix landed).
 **Apply to:** every new test leg. Never `!= -1`; never a top-level DB scan; every new gate leg must be

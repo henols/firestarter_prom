@@ -248,9 +248,9 @@ MERGE-05 already RED, so nothing new goes red that was green.
 | The Uno's strong `rurp_log_id` override **defers** rather than emits while `com_mode == false`, into `deferred_log[DEFERRED_LOG_MAX]` with `DEFERRED_LOG_MAX 4`, `DEFERRED_PARAM_MAX 8` | `src/boards/uno_rurp_shield.cpp:33-40, 109-135` |
 | Overflow behaviour is **silent drop**: `// else: buffer full … drop excess rather than risk emitting on the active bus` | same file, end of `rurp_log_id` |
 | Deferred frames flush **only** in `rurp_set_communication_mode()` | same file |
-| The whole per-byte loop runs inside one programmer-mode window: `rurp_set_programmer_mode(); callback(handle); rurp_set_communication_mode();` | `src/operation_utils.cpp:385-392` (`_execute_operation`) |
+| The whole per-byte loop runs inside one programmer-mode window: `rurp_set_programmer_mode(); callback(handle); rurp_set_communication_mode();` | `src/operation_utils.cpp:393-400` (`_execute_operation`) |
 | The Uno sizing rationale is explicit: *"an operation emits at most ~1-2 critical frames per programmer-mode window, so DEFERRED_LOG_MAX=4 has ample headroom"* | `src/boards/uno_rurp_shield.cpp:24-33` |
-| The identical trap is already documented at the only existing `0xE0` emitter: *"On the Uno, `rurp_log_id` is com_mode-gated and this function runs in programmer mode, so a direct emit here is silently dropped."* | `src/proms/memory.cpp:429-436, 461-467` |
+| The identical trap is already documented at the only existing `0xE0` emitter: *"On the Uno, `rurp_log_id` is com_mode-gated and this function runs in programmer mode, so a direct emit here is silently dropped."* | `src/proms/memory.cpp:520-527, 461-467` |
 | `MSG_DATA_PROGRESS` payload is exactly 8 bytes (`u32`,`u32`) — precisely `DEFERRED_PARAM_MAX` | `firestarter_app/firestarter/messages.py:765-773` |
 | `MSG_ERR_MAX_PULSES` / `MSG_ERR_ENERGY_CAP` are 4-byte payloads emitted from *inside* the same window | `src/proms/eprom.cpp:215-224` |
 
@@ -289,7 +289,7 @@ aborts with **no error frame at all**. D-05 is load-bearing and its failure mode
  * DROPPED -- which would consume the slots MSG_ERR_MAX_PULSES needs and turn
  * a program failure into a host transport timeout (HOST-03's exact
  * anti-goal). See src/boards/uno_rurp_shield.cpp:24-33 and
- * src/proms/memory.cpp:429-436 for the same trap already documented twice. */
+ * src/proms/memory.cpp:520-527 for the same trap already documented twice. */
 #ifndef SERIAL_ON_IO
     if ((uint32_t)(millis() - last_emit_ms) >= EPROM_PROGRESS_EMIT_INTERVAL_MS) {
         last_emit_ms = millis();
@@ -657,7 +657,7 @@ firestarter_app/tests/
 - `get_response(timeout)` is an already-supported call form — `expect_ack` uses it at
   `serial_comm.py:540`. No new API.
 - The INIT phase of a write (erase + chunked blank check) emits one `0xE0` per 2048-byte chunk
-  (`memory.cpp:391-467`, `BLANK_CHECK_CHUNK_SIZE 2048`) and each yielded frame resets
+  (`memory.cpp:489-558`, `BLANK_CHECK_CHUNK_SIZE 2048`) and each yielded frame resets
   `_read_and_parse_lines`' `start_time`, so its 10 s window is fed by construction. The END phase for
   `CMD_WRITE` has `firestarter_operation_end == NULL` (`configure_eprom` only sets it for
   `CMD_ERASE`), so it is a bare ack round-trip.
@@ -740,7 +740,7 @@ at the top of the outer loop body. Placing it at the top of the loop body means 
 independent of how many bytes get skipped, which is the more honest reading of "progress".
 
 **Payload:** `(addr, handle->mem_size)` — matching `mem_util_blank_check`'s existing
-`LOG_DATA_ID_U32_U32(MSG_DATA_PROGRESS, handle->address, handle->mem_size)` at `memory.cpp:467`, so
+`LOG_DATA_ID_U32_U32(MSG_DATA_PROGRESS, handle->address, handle->mem_size)` at `memory.cpp:558`, so
 `0xE0` keeps exactly one payload contract (D-04's rejected alternative was a second meaning).
 
 **Interval:** the CONTEXT leaves the constant to discretion. Recommended **1000 ms**:
@@ -839,12 +839,12 @@ Two verified differences for `pulse-delay`:
    (`database.py:549-556`), unlike the read-timing keys which are emit-only-when-non-zero. So the
    override **replaces** an always-present key rather than adding one.
 2. There is no `JSON_KEY_PULSE_DELAY` constant today; the key is a literal in `database.py`.
-   `constants.py:143-149` establishes the `JSON_KEY_*` convention. Adding one is optional and
+   `constants.py:142-148` establishes the `JSON_KEY_*` convention. Adding one is optional and
    cosmetic; if added, use it at both sites so a single definition exists.
 
 The dict then flows onto the wire via `_setup_operation`'s `command_dict = eprom_data_dict.copy()`
 (`:335`), and the firmware parses it in `get_delay` → `extract_long("pulse-delay",
-handle->pulse_delay)` (`json_parser.c:305`). **No new wire field, no new command** — HOST-04
+handle->pulse_delay)` (`json_parser.c:503`). **No new wire field, no new command** — HOST-04
 satisfied structurally.
 
 ---
@@ -864,7 +864,7 @@ satisfied structurally.
 
 Mechanism: Click type-casts the default through `type_cast_value`, but short-circuits on `None`. The
 existing `--read-settling` / `--read-strobe` options use `type=int, default=0` with **no** range
-(`cli_handlers.py:1469-1482`) — so `default=0` is the shape a developer copying the nearest precedent
+(`cli_handlers.py:1467-1480`) — so `default=0` is the shape a developer copying the nearest precedent
 would reach for, and it is the shape that breaks. **Name this in the plan.**
 
 Exit code note: Click's refusal is `UsageError` → **exit 2**, not the app's usual `sys.exit(1)`. Tests
@@ -919,9 +919,9 @@ via `pgm_read_*` from `eprom_params_for(handle->protocol)`.
 | Cost | Value | Location |
 |------|-------|----------|
 | Once-per-block VPE settle | `delay(500)` = 500 ms | `eprom.cpp:286-289` (and the wrapper comment quantifies it: 128 blocks × 500 ms ≈ 64 s on a 64 K Uno write) |
-| Fixed pre-pulse settle, per pulse | `delayMicroseconds(3)` | `memory.cpp:335` in `memory_set_data` |
-| Read strobe + settling, per verify | 3 µs default strobe; settling 0 by default | `memory.cpp:283-305` |
-| Register writes per address change | 3 × `rurp_write_to_register`, minus elision (F-141-09) | `memory.cpp:255-270` |
+| Fixed pre-pulse settle, per pulse | `delayMicroseconds(3)` | `memory.cpp:407` in `memory_set_data` |
+| Read strobe + settling, per verify | 3 µs default strobe; settling 0 by default | `memory.cpp:355-377` |
+| Register writes per address change | 3 × `rurp_write_to_register`, minus elision (F-141-09) | `memory.cpp:327-342` |
 | Final full-block verify pass | `DATA_BUFFER_SIZE` extra reads, `0x07`/`0x08` only | `eprom.cpp:378-400` |
 | Serial | 1024 B chunk ≈ 41 ms at 250 000 baud | — |
 
@@ -1316,7 +1316,7 @@ uint16_t eprom_block_budget_s(uint32_t protocol, uint32_t pulse_us, uint32_t blo
 ```
 
 **Ordering fact `[VERIFIED]`:** `init_programmer_framed` runs `parse_json(handle)` before this block
-(`firestarter.cpp:130-132`), so `handle->protocol` and `handle->pulse_delay` are populated. But
+(`firestarter.cpp:126-128`), so `handle->protocol` and `handle->pulse_delay` are populated. But
 `configure_memory`/`configure_eprom` — which applies the `pulse_delay == 0` fallback switch — also
 runs before the ack. Confirm the exact ordering at plan time: if the fallback has **not** yet been
 applied when the ack is packed, a chip whose DB pulse is 0 would advertise a budget computed from
@@ -1853,7 +1853,7 @@ wedging the host, not to defend against an adversarial one.
 - `firestarter/messages.py` — `MSG_OK_READY` (`:142-150`), `MSG_ERR_PULSE_TOO_WIDE` (`:610-619`),
   `MSG_ERR_MAX_PULSES`/`MSG_ERR_ENERGY_CAP` (`:745-762`), `MSG_DATA_PROGRESS` (`:763-772`)
 - `firestarter/database.py` — `_parse_pulse_duration` (`:128-142`), `programmer_data` (`:549-560`)
-- `firestarter/constants.py:143-149` — the `JSON_KEY_*` convention
+- `firestarter/constants.py:142-148` — the `JSON_KEY_*` convention
 - `firestarter/chip_resolver.py` — `resolve_chip`
 - `tests/conftest.py` — `build_frame` (`:125-135`), `_FakeSerial` (`:138-192`), `make_comm`
   (`:200-231`), `make_app_context`
@@ -1914,7 +1914,7 @@ documentation page.
 | Standard stack | HIGH | No new dependency; every version read from the pinned config or the installed interpreter |
 | Architecture / integration points | HIGH | Every line number, predicate and call chain re-located and read this session in both repos |
 | BF-1 (CAP-02 absent) | HIGH | Four independent oracles: the emit site, `git merge-base --is-ancestor`, `git branch --contains`, and the app-side test that asserts the refusal |
-| BF-2 (Uno com_mode gate) | HIGH | The mechanism is documented in-tree **twice** (`uno_rurp_shield.cpp:24-33`, `memory.cpp:429-436`) and the buffer constants, the drop arm and the `SERIAL_ON_IO` scoping were each read |
+| BF-2 (Uno com_mode gate) | HIGH | The mechanism is documented in-tree **twice** (`uno_rurp_shield.cpp:24-33`, `memory.cpp:520-527`) and the buffer constants, the drop arm and the `SERIAL_ON_IO` scoping were each read |
 | BF-3 (formula correction) | HIGH | Derived from the shipped loop's statement order, computed numerically, and independently corroborated by `firestarter/CLAUDE.md`'s own derivation |
 | Budget encoding / clamp ceiling | HIGH on the arithmetic; MEDIUM on the padding multiplier | The worst-case table is exact; the ×2+2 rule rests on A1's overhead estimate |
 | Click / HOST-05 behaviour | HIGH | Measured empirically on the CI-parity interpreter, 7 cases |

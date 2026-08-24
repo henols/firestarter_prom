@@ -105,10 +105,10 @@ The operator did not lock the following — researcher and planner should propos
 - [firestarter/src/dev_tools.cpp:108](firestarter/src/dev_tools.cpp#L108), [:154](firestarter/src/dev_tools.cpp#L154) — `send_ack("")` sites for conversion to `LOG_OK_ID(MSG_OK_READY)` (D-04).
 - [firestarter/include/logging.h](firestarter/include/logging.h) — entire file; macros `send_ack`, `send_ack_const`, `debug_setup`, `log_debug` declarations + `LOG_OK_MSG extern` to delete (D-02, D-08 Claude's discretion).
 - [firestarter/src/logging.c](firestarter/src/logging.c) — `LOG_OK_MSG[] PROGMEM = "OK"` to delete; file likely deleted entirely (D-08 Claude's discretion).
-- [firestarter/src/boards/rurp_serial_utils.cpp:14-28](firestarter/src/boards/rurp_serial_utils.cpp#L14-L28) — `_firestarter_log_ram` + `_firestarter_log_progmem` to delete (D-02).
-- [firestarter/src/boards/rurp_serial_utils.cpp:246-251](firestarter/src/boards/rurp_serial_utils.cpp#L246-L251) — `rurp_log` + `rurp_log_P` weak defaults to delete (D-02).
-- [firestarter/src/boards/uno_rurp_shield.cpp:80-90](firestarter/src/boards/uno_rurp_shield.cpp#L80-L90) — Uno strong overrides of `rurp_log` + `rurp_log_P` to delete (D-02).
-- [firestarter/include/rurp_shield.h:132-133](firestarter/include/rurp_shield.h#L132-L133) — `rurp_log` + `rurp_log_P` declarations to delete (D-02).
+- [firestarter/src/boards/rurp_serial_utils.cpp:11-25](firestarter/src/boards/rurp_serial_utils.cpp#L11-L25) — `_firestarter_log_ram` + `_firestarter_log_progmem` to delete (D-02).
+- [firestarter/src/boards/rurp_serial_utils.cpp:243-248](firestarter/src/boards/rurp_serial_utils.cpp#L243-L248) — `rurp_log` + `rurp_log_P` weak defaults to delete (D-02).
+- [firestarter/src/boards/uno_rurp_shield.cpp:77-87](firestarter/src/boards/uno_rurp_shield.cpp#L77-L87) — Uno strong overrides of `rurp_log` + `rurp_log_P` to delete (D-02).
+- [firestarter/include/rurp_shield.h:127-128](firestarter/include/rurp_shield.h#L127-L128) — `rurp_log` + `rurp_log_P` declarations to delete (D-02).
 - [firestarter/include/rurp_serial_utils.h:14-17](firestarter/include/rurp_serial_utils.h#L14-L17) — `_firestarter_log_ram` + `_firestarter_log_progmem` declarations to delete (D-02).
 
 ### Catalog (Phase 9 leaves the catalog mostly untouched)

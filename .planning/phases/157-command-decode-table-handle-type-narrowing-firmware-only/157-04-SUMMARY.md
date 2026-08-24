@@ -181,7 +181,7 @@ test/native/avr/test_read_timing/test_read_timing_params.cpp:303:test_page_size_
 test/native/avr/test_read_timing/test_read_timing_params.cpp:304:test_page_size_resets_between_two_parses_on_the_same_handle:PASS
 test/native/avr/test_read_timing/test_read_timing_params.cpp:305:test_unknown_key_before_a_known_key_does_not_desync_the_token_walk:PASS
 test/native/avr/test_read_timing/test_read_timing_params.cpp:306:test_unknown_key_before_page_size_does_not_desync_the_token_walk:PASS
-test/native/avr/test_read_timing/test_read_timing_params.cpp:192:test_out_of_range_algorithm_saturates_not_truncates:FAIL: Expected 255 Was 5. 261 must saturate to 0xFF, not truncate to 0x05 -- 0x05 is PROTO_FLASH_5V_PAGE, a real handler configure_memory would dispatch into
+test/native/avr/test_read_timing/test_read_timing_params.cpp:552:test_out_of_range_algorithm_saturates_not_truncates:FAIL: Expected 255 Was 5. 261 must saturate to 0xFF, not truncate to 0x05 -- 0x05 is PROTO_FLASH_5V_PAGE, a real handler configure_memory would dispatch into
 test/native/avr/test_read_timing/test_read_timing_params.cpp:213:test_out_of_range_algorithm_dispatch_fail_closes:FAIL: Expected 0 Was 1. this is the case that would have caught the defect: the stored byte being right (S1) is not the same claim as the dispatch fail-closing -- a saturated 0xFF must reach configure_memory's generic fail-closed tail
 test/native/avr/test_read_timing/test_read_timing_params.cpp:309:test_in_range_algorithm_still_dispatches:PASS
 test/native/avr/test_read_timing/test_read_timing_params.cpp:310:test_out_of_range_flags_masks_never_sets_every_flag:PASS

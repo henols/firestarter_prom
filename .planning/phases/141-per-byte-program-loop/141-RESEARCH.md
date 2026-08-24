@@ -78,9 +78,9 @@ These are **decided, not deferred** — treat them as settled and do not re-open
 - **D-06: LOOP-07's safe delay helper is applied at BOTH `delayMicroseconds(handle->pulse_delay)`
   sites, and it lives beside `mem_util_*` (`memory_utils.h` / `memory.cpp`), not in `eprom.cpp`.**
   LOOP-07's claim is global ("no call path can reach `delayMicroseconds()` above 16383 µs"), and the
-  full site inventory is exactly two: `memory.cpp:257` (`memory_set_data` — the pulse, reached by every
+  full site inventory is exactly two: `memory.cpp:329` (`memory_set_data` — the pulse, reached by every
   protocol) and `eprom.cpp:283` (the erase pulse). Every other `delayMicroseconds()` call in the tree
-  takes a compile-time constant (1/3/4/10) or an already-clamped read-timing value (`memory.cpp:221`/
+  takes a compile-time constant (1/3/4/10) or an already-clamped read-timing value (`memory.cpp:225`/
   `:235`, capped at 1000 µs at parse time). Fixing `memory_set_data` alone would leave the erase pulse
   unsafe and LOOP-07 false.
   **Structure it as a pure split + the delay calls** so the ms/µs split is unit-testable.
@@ -205,11 +205,11 @@ Pending, and the coverage table at `:309-316` maps each to Phase 141.
 
 | ID | Requirement (abridged — full text at `REQUIREMENTS.md:183-201`) | Research Support |
 |----|------------------------------------------------------------------|------------------|
-| **LOOP-01** | Fixed-width pulses, verify after each, count the pulses that byte required; width does not grow | §"Per-byte loop shape" fixes the predicate order; primitives at `memory.cpp:249`/`:203` (D-05). Pulse-count oracle: `trace_readback_seed(idx, target, converge_after)` (`test_trace_eprom_v131/host_stubs.cpp:137`) |
+| **LOOP-01** | Fixed-width pulses, verify after each, count the pulses that byte required; width does not grow | §"Per-byte loop shape" fixes the predicate order; primitives at `memory.cpp:321`/`:203` (D-05). Pulse-count oracle: `trace_readback_seed(idx, target, converge_after)` (`test_trace_eprom_v131/host_stubs.cpp:137`) |
 | **LOOP-02** | Remove `program_mismatched_bytes()`, `verify_and_update_mask()`, the flat `NUMBER_OF_RETRIES` block loop, and the adaptive growth | Removal targets confirmed at `eprom.cpp:20`, `:114-126`, `:129-141`, `:163-179`, `:177`. RAM donor: `mismatch_bitmask[DATA_BUFFER_SIZE/8]` at `:155`. Two catalog IDs orphan — see §"Orphaned catalog IDs" |
-| **LOOP-03** | `overprogram_factor > 0` → one `3 × N × pulse` pulse, capped at `overprogram_cap_us` | Unreachable with shipped data: `overprogram_factor = 0` on all three rows, **read from source** (`eprom_params.cpp:50-52`). §"Overprogram arithmetic" gives the boundary values incl. `3 × 25 × 65535 = 4,915,125` and the clamp at `75000` |
-| **LOOP-04** | `0x0B` accumulated program time per byte capped at 50 ms, no overprogram | `0x0B` ships `energy_cap_us = 50000`, `max_pulses = 255`, `overprogram_factor = 0` (`eprom_params.cpp:52`). §"Energy-cap arithmetic" derives the exact predicate that makes D-01's own worked example true, and states the honest worst case |
-| **LOOP-05** | Miss within `max_pulses` → hard-fail the block, disable every HV route, report address + pulse count | §"What 'hard-fails the block' actually does" traces the abort `eprom_operations.cpp:120-122` → `operation_utils.cpp:178-183` → `command_done()` (`firestarter.cpp:162-171`). Free ID slots: `0xBD`/`0xBE`. **Vacuity trap named** — `command_done()` zeroes the control register regardless |
+| **LOOP-03** | `overprogram_factor > 0` → one `3 × N × pulse` pulse, capped at `overprogram_cap_us` | Unreachable with shipped data: `overprogram_factor = 0` on all three rows, **read from source** (`eprom_params.cpp:46-48`). §"Overprogram arithmetic" gives the boundary values incl. `3 × 25 × 65535 = 4,915,125` and the clamp at `75000` |
+| **LOOP-04** | `0x0B` accumulated program time per byte capped at 50 ms, no overprogram | `0x0B` ships `energy_cap_us = 50000`, `max_pulses = 255`, `overprogram_factor = 0` (`eprom_params.cpp:48`). §"Energy-cap arithmetic" derives the exact predicate that makes D-01's own worked example true, and states the honest worst case |
+| **LOOP-05** | Miss within `max_pulses` → hard-fail the block, disable every HV route, report address + pulse count | §"What 'hard-fails the block' actually does" traces the abort `eprom_operations.cpp:115-117` → `operation_utils.cpp:186-191` → `command_done()` (`firestarter.cpp:162-171`). Free ID slots: `0xBD`/`0xBE`. **Vacuity trap named** — `command_done()` zeroes the control register regardless |
 | **LOOP-06** | Already-matching and `0xFF` bytes skipped with no pulse | `data_buffer` is `char[]` (`firestarter.h:202`) so the `(uint8_t)` cast at `eprom.cpp:132` is required. The existing trace fixture's block `{0x3C, 0xFF, 0x55, 0xAA}` already contains a `0xFF` byte |
 | **LOOP-07** | Safe 32-bit ms/µs-splitting helper; no path reaches `delayMicroseconds()` above 16383 µs | **Complete inventory established** (§"delayMicroseconds call-site inventory"): 12 direct sites + 1 macro indirection, exactly 2 over-ceiling-capable — **D-06 CONFIRMED**. The 16383 boundary verified in `framework-arduino-avr/cores/arduino/wiring.c:167-183`. Native oracle: `HOST_STUBS_RECORD_TIMING` records the argument |
 | **LOOP-08** | VPE asserted+settled once per block, survives the verify read; DIP32 exception explicit | §"LOOP-08 mechanics" + §"DIP32 / A16 truth table" replace the false "a verify read does not disturb the control register" premise with the real mechanism (preserve mask `memory.cpp:161` + cache elision `rurp_register_utils.h:38-41`) and scope the DIP32 problem to `pins >= 32` — protocol `0x08` alone among the three rows |
@@ -239,7 +239,7 @@ Three findings change how the phase must be planned, none of which contradicts a
    module**, not in the JSON. And `pytest tests/ -v` **runs in CI** (`build.yml:161`,
    `beta-build.yml:134`) — so this gate going RED is a **CI failure**, not a local-only one.
 3. **The pulse-width truncation hazard is live today, not gated on Phase 143.** `pulse-delay` is parsed
-   with `extract_long` into a `uint32_t` with **no clamp at all** (`json_parser.c:305`), while AVR's
+   with `extract_long` into a `uint32_t` with **no clamp at all** (`json_parser.c:503`), while AVR's
    `delayMicroseconds` takes a 16-bit `unsigned int` and overflows its `us <<= 2` at 16384. LOOP-07's
    helper closes a *currently reachable* wire-level defect; it is not merely pre-positioning for
    `--pulse-us`.
@@ -318,14 +318,14 @@ factually false** and must be corrected when the golden is re-derived. Because A
 
 | CONTEXT.md citation | Live | Verdict |
 |---|---|---|
-| `rurp_shield.h:113-136` — chip enable/output are dedicated pins | The four `static inline` helpers are `:114-136` (`rurp_set_chip_enable` `:114`, `rurp_chip_enable` `:122`, `rurp_chip_disable` `:126`, `rurp_chip_output` `:130`, `rurp_chip_input` `:134`); the explanatory comment is `:111-113`. All four route to `rurp_set_control_pin(CHIP_ENABLE\|OUTPUT_ENABLE, state)`, which is **not** the shift-register `CONTROL_REGISTER` | ✅ line range exact. ⚠️ **the inference stated on it is wrong** — see below |
+| `rurp_shield.h:108-131` — chip enable/output are dedicated pins | The four `static inline` helpers are `:114-136` (`rurp_set_chip_enable` `:114`, `rurp_chip_enable` `:122`, `rurp_chip_disable` `:126`, `rurp_chip_output` `:130`, `rurp_chip_input` `:134`); the explanatory comment is `:111-113`. All four route to `rurp_set_control_pin(CHIP_ENABLE\|OUTPUT_ENABLE, state)`, which is **not** the shift-register `CONTROL_REGISTER` | ✅ line range exact. ⚠️ **the inference stated on it is wrong** — see below |
 | `memory_utils.h:24` — `using_p1_as_vpp()` | `:24-28` | ✅ exact |
 | `firestarter.h:194-203` — `mem_size`, `address`, `pulse_delay` (uint32_t), `data_size` | `mem_size` `:194`, `address` `:195`, `pulse_delay` `:197` (`uint32_t` ✓), `data_buffer` `:202` (`char[DATA_BUFFER_SIZE]`), `data_size` `:203` | ✅ exact. Note `data_buffer` is `char`, so byte comparisons need a `(uint8_t)` cast — the idiom already at `eprom.cpp:132` |
 | `eprom_params.h` — six columns, two enums, PROGMEM warning | `:41` `VERIFY_PER_PULSE=0 / VERIFY_PER_PULSE_PLUS_FINAL=1`; `:46` `VPP_PATH_DROP_RESISTOR=0 / VPP_PATH_DIRECT_VPE=1`; struct `:51-58`; `static_assert(sizeof == 12)` `:62-65`; accessor + PROGMEM warning `:71-79` | ✅ exact |
 | `messages.h:91` `MSG_ERR_VERIFY 0xAF`, `:93` `MSG_ERR_WRITE_FAILED 0xB1` | `:91` and `:93` | ✅ exact |
 
 > **Correction to the LOOP-08 premise as written in `<canonical_refs>`.** CONTEXT.md says
-> `rurp_shield.h:113-136` is "the mechanical basis for LOOP-08: a verify read does not disturb the
+> `rurp_shield.h:108-131` is "the mechanical basis for LOOP-08: a verify read does not disturb the
 > control register, so VPE survives it." **A verify read DOES write the control register.**
 > `memory_get_data` → `handle->firestarter_set_address` → `mem_util_set_address`
 > (`memory.cpp:175-191`) → `mem_util_calculate_top_address_register` → `rurp_write_to_register(CONTROL_REGISTER, top_address)`
@@ -361,8 +361,8 @@ Everything the phase needs is already in the tree or in the installed toolchain.
 ### Supporting (in-tree assets to reuse, not rebuild)
 | Asset | Location | Purpose | When to use |
 |-------|----------|---------|-------------|
-| `eprom_params_for()` | `src/proms/eprom_params.cpp:55-62` | PROGMEM row lookup, NULL on no match | The loop's single table entry point (first `src/` caller) |
-| `memory_set_data` / `memory_get_data` | `memory.cpp:249`, `:203` | the pulse / the verify read | D-05: reach both via `handle->firestarter_set_data` / `_get_data` |
+| `eprom_params_for()` | `src/proms/eprom_params.cpp:51-58` | PROGMEM row lookup, NULL on no match | The loop's single table entry point (first `src/` caller) |
+| `memory_set_data` / `memory_get_data` | `memory.cpp:321`, `:203` | the pulse / the verify read | D-05: reach both via `handle->firestarter_set_data` / `_get_data` |
 | `org_delay` save/restore idiom | `eprom.cpp:161,172` | emit a non-default pulse width | D-07: the overprogram pulse |
 | `HOST_STUBS_REAL_REGISTER_UTILS` | `_shared/host_stubs_common.inc:96-134` | opt-in ordered strobe recorder; compiles against the **real** `rurp_register_utils.h` so cache-elision is exercised | The new suite's register-write oracle |
 | `HOST_STUBS_RECORD_TIMING` | `_shared/host_stubs_common.inc:136-197` | opt-in `(kind, us, seq)` recorder | **The LOOP-07 oracle** — records the *argument* of every `delay`/`delayMicroseconds` call |
@@ -398,7 +398,7 @@ refused rather than audited.
 
 ## Shipped parameter table — read from source
 
-`firestarter/src/proms/eprom_params.cpp:49-53`. Column order is largest-first so `sizeof == 12` on
+`firestarter/src/proms/eprom_params.cpp:45-49`. Column order is largest-first so `sizeof == 12` on
 both AVR (1-byte alignment) and a 64-bit host (`eprom_params.h:62-65` `static_assert`).
 
 | protocol | `overprogram_cap_us` | `energy_cap_us` | `max_pulses` | `overprogram_factor` | `verify_mode` | `vpp_path` |
@@ -407,12 +407,12 @@ both AVR (1-byte alignment) and a 64-bit host (`eprom_params.h:62-65` `static_as
 | `0x08` `PROTO_EPROM_32PIN` | `75000` | `0` (uncapped) | `25` | **`0`** | `VERIFY_PER_PULSE_PLUS_FINAL` (1) | `VPP_PATH_DROP_RESISTOR` (0) |
 | `0x0B` `PROTO_EPROM_24PIN` | `75000` | **`50000`** | `255` | **`0`** | `VERIFY_PER_PULSE` (0) | `VPP_PATH_DIRECT_VPE` (1) |
 
-**CONTEXT.md's two assertions about this table are CONFIRMED** [VERIFIED: `eprom_params.cpp:50-52`]:
+**CONTEXT.md's two assertions about this table are CONFIRMED** [VERIFIED: `eprom_params.cpp:46-48`]:
 `overprogram_factor = 0` on all three rows, and `overprogram_cap_us` is therefore inert everywhere
 (the clamp `min(3 × N × pulse, cap)` evaluates to `0` on every live row).
 
 Keys are `{0x07, 0x08, 0x0B}` in a positionally parallel `EPROM_PARAM_KEYS[] PROGMEM`
-(`eprom_params.cpp:26`); `eprom_params_for()` is a **linear scan**, never a switch (a switch here would
+(`eprom_params.cpp:22`); `eprom_params_for()` is a **linear scan**, never a switch (a switch here would
 itself be the second dispatch selector TABLE-05 forbids), and returns `NULL` on no match — never
 `&EPROM_PARAMS[0]` (`:55-62`, D-05 fail-closed).
 
@@ -441,7 +441,7 @@ final full-array pass on the two `PLUS_FINAL` rows. Three defensible disposition
    reads as an oversight.
 
 **Recommendation: option 1**, with the final pass emitting `MSG_ERR_VERIFY` (`0xAF`) on mismatch —
-which is what `memory_verify_execute` (`memory.cpp:261-281`) already does and is a shape the host
+which is what `memory_verify_execute` (`memory.cpp:333-353`) already does and is a shape the host
 already renders. Whatever is chosen, `firestarter/CLAUDE.md`'s three Algorithm Handlers rows must end
 the phase consistent with what shipped (CONTEXT.md `<canonical_refs>` already requires this).
 
@@ -487,16 +487,16 @@ across `firestarter/src/`, `firestarter/include/`, `firestarter/lib/` and `fires
 
 | # | Site | Argument | Provenance | Over-ceiling capable? |
 |---|------|----------|-----------|----------------------|
-| 1 | `src/proms/memory.cpp:255` | `3` | compile-time literal | No |
-| 2 | **`src/proms/memory.cpp:257`** | **`handle->pulse_delay`** | **`uint32_t`, host-supplied, UNCLAMPED** | **YES — D-06 site 1 (the pulse)** |
-| 3 | `src/proms/memory.cpp:221` | `settling` | clamped `> 1000UL → 1000UL` at `:220`, and again at parse time (`json_parser.c:353`) | No |
-| 4 | `src/proms/memory.cpp:235` | `strobe` | clamped `> 1000UL → 1000UL` at `:234`, and at parse time (`json_parser.c:362`) | No |
+| 1 | `src/proms/memory.cpp:327` | `3` | compile-time literal | No |
+| 2 | **`src/proms/memory.cpp:329`** | **`handle->pulse_delay`** | **`uint32_t`, host-supplied, UNCLAMPED** | **YES — D-06 site 1 (the pulse)** |
+| 3 | `src/proms/memory.cpp:225` | `settling` | clamped `> 1000UL → 1000UL` at `:220`, and again at parse time (`json_parser.c:47`) | No |
+| 4 | `src/proms/memory.cpp:307` | `strobe` | clamped `> 1000UL → 1000UL` at `:234`, and at parse time (`json_parser.c:362`) | No |
 | 5 | **`src/proms/eprom.cpp:283`** | **`handle->pulse_delay`** | **`uint32_t`, host-supplied, UNCLAMPED** | **YES — D-06 site 2 (the erase pulse)** |
-| 6 | `src/proms/flash_5v_page.cpp:113` | `10` | literal | No |
+| 6 | `src/proms/flash_5v_page.cpp:112` | `10` | literal | No |
 | 7 | `src/proms/eeprom_28c.cpp:352` | `10` | literal | No |
 | 8 | `src/proms/eeprom_28c.cpp:679` | `10` | literal | No |
 | 9 | `src/boards/leonardo_rurp_shield.cpp:41` | `1` | literal | No |
-| 10 | `src/boards/rurp_serial_utils.cpp:18` | `1` | literal | No |
+| 10 | `src/boards/rurp_serial_utils.cpp:15` | `1` | literal | No |
 | 11 | `include/rurp_register_utils.h:58` | `4` | literal (the P1 set→clear settle) | No |
 | 12 | `include/rurp_register_utils.h:86` | `1` | literal (post-latch strobe) | No |
 
@@ -510,7 +510,7 @@ so on AVR the macro contributes no additional path.
 
 ### Verdict
 
-**D-06's claim is CONFIRMED: exactly two over-ceiling-capable sites, `memory.cpp:257` and
+**D-06's claim is CONFIRMED: exactly two over-ceiling-capable sites, `memory.cpp:329` and
 `eprom.cpp:283`.** Both take `handle->pulse_delay`; every other site takes a literal or an
 already-clamped value. Fixing only `memory_set_data` would leave the erase pulse unsafe and LOOP-07
 false, exactly as D-06 states.
@@ -542,7 +542,7 @@ that from database data alone `delayMicroseconds()` never sees an over-ceiling v
 that is **too generous to the current code**:
 
 - **The wire field is already unbounded.** `pulse-delay` is parsed by `get_delay()` with
-  `extract_long("pulse-delay", handle->pulse_delay)` (`json_parser.c:304-306`) into a `uint32_t` with
+  `extract_long("pulse-delay", handle->pulse_delay)` (`json_parser.c:503-497`) into a `uint32_t` with
   **no clamp of any kind** — unlike `read-settling-delay` / `read-strobe-us`, which json_parser
   explicitly clamps to `READ_TIMING_MAX_US = 1000` (`:348-362`). So a host sending
   `"pulse-delay": 100000` today produces a truncated, silently-short VPE pulse on both site 2 and
@@ -703,7 +703,7 @@ disturb the control register") is false and would send a test after the wrong as
   costs nothing. So "assert and settle once per block" is already the natural cost profile — LOOP-08 is
   mostly about *not breaking* it.
 - **The R/W direction can flip the register twice per byte.** `mem_util_remap_address_bus` is called
-  with `WRITE_FLAG` for the pulse (`memory.cpp:251`) and `READ_FLAG` for the verify (`:205`), and
+  with `WRITE_FLAG` for the pulse (`memory.cpp:323`) and `READ_FLAG` for the verify (`:205`), and
   `CTRL_READ_WRITE` (`0x40`) is part of the top-address mask, i.e. logical address bit 22. For a chip
   whose `bus_config.rw_line == 22`, alternating pulse↔verify flips that bit and the CONTROL register
   **is** re-strobed twice per byte. That is expected, is not a LOOP-08 violation, and will show in the
@@ -787,7 +787,7 @@ crossing. Two additional planning notes:
   preserve mask uses, it keeps `0x07` and `0x0B` on one path, and — decisively — it adds **no new
   tier-1 (protocol-keyed) site**, satisfying D-11. A `protocol == 0x08` predicate would be a fourth
   tier-1 site and would fail `test_exactly_three_protocol_keyed_sites_at_the_pinned_lines`.
-- **`handle->pins` is host-supplied**, parsed from the `pin-count` JSON field (`json_parser.c:301`), and
+- **`handle->pins` is host-supplied**, parsed from the `pin-count` JSON field (`json_parser.c:503`), and
   is *not* derived from `protocol`. A `0x08` command with `pins != 32` is representable on the wire, so
   the guard must read `pins`, which is what the mask reads too.
 - **`using_p1_as_vpp()` is the existing escape** (`memory_utils.h:24-28`): true when
@@ -806,12 +806,12 @@ CONTEXT.md `<specifics>` asks for this to be explicit. Traced end to end:
 
 1. `eprom_write_execute` sets `handle->response_code = RESPONSE_CODE_ERROR` (the existing shape at
    `eprom.cpp:192`) after disabling the route and emitting the error frame.
-2. `_process_incoming_data` (`src/eprom_operations.cpp:120-122`) calls
+2. `_process_incoming_data` (`src/eprom_operations.cpp:115-117`) calls
    `op_execute_function(handle->firestarter_operation_main, handle)`; on false it **returns false
    immediately and does NOT advance `handle->address` (`:124`)**.
-3. `op_execute_function` (`src/operation_utils.cpp:178-183`) returns
+3. `op_execute_function` (`src/operation_utils.cpp:186-191`) returns
    `_execute_operation(...) != ERROR`; the `RESPONSE_CODE_ERROR` → `ERROR` mapping is the switch arm at
-   `operation_utils.cpp:412`.
+   `operation_utils.cpp:420`.
 4. The `eprom_*` caller inverts the result, the command reports finished, and **`command_done()` runs**
    (`src/firestarter.cpp:162-171`): `rurp_set_programmer_mode()`, `rurp_chip_disable()`,
    `rurp_write_to_register(CONTROL_REGISTER, 0x00)`, LSB and MSB zeroed, `cmd = CMD_IDLE`,
@@ -1222,7 +1222,7 @@ and not fixed). `check_build_warnings.py` exits 2 cleanly for the same env but h
 **Adds:** `EPROM_PARAMS[]` 3 × 12 = 36 B PROGMEM + `EPROM_PARAM_KEYS[]` 3 B, both currently
 gc-collected; `eprom_params_for()`'s linear-scan body; six `pgm_read_*` hoists; the per-byte loop with
 its four predicates; the pure overprogram function; the ms/µs split helper plus **two** call sites
-(`memory.cpp:257`, `eprom.cpp:283` — the erase site pays too, for LOOP-07's global claim); two new
+(`memory.cpp:329`, `eprom.cpp:283` — the erase site pays too, for LOOP-07's global claim); two new
 `LOG_ERROR_ID_*` call sites; the `pins >= 32` branch; optionally the `verify_mode` final pass.
 
 **Removes:** `program_mismatched_bytes()` (`:114-126`), `verify_and_update_mask()` (`:129-141`), the
@@ -1455,7 +1455,7 @@ Three constraints the copied comment block must keep stating, all verified:
                                     │  · D-03 pre-flight refusal    ◄── NEW   │──► pulse > cap ► fail closed
                                     └──────────────────┬───────────────────────┘   (before ANY high voltage)
                                                        │
-              src/eprom_operations.cpp:120 ────────────▼──── per 512/1024 B block, streamed
+              src/eprom_operations.cpp:115 ────────────▼──── per 512/1024 B block, streamed
                                     ┌──────────────────▼───────────────────────────────────┐
                                     │ eprom_write_execute        ← REWRITTEN THIS PHASE     │
                                     │                                                      │
@@ -1608,12 +1608,12 @@ handle->pulse_delay = org_delay;        // restore on EVERY exit path, including
 
 | Problem | Don't build | Use instead | Why |
 |---|---|---|---|
-| Programming pulse + address remap | an EPROM-local write path | `handle->firestarter_set_data` → `memory_set_data` (`memory.cpp:249`) | D-05. A duplicate bypasses `mem_util_remap_address_bus`, which encodes per-chip bus config: address-line reordering, `rw_line`, `vpp_line`, `static_high_mask`. Getting it wrong energises the wrong socket pin |
-| Verify read | a local read using `rurp_read_data_buffer` | `handle->firestarter_get_data` → `memory_get_data` (`memory.cpp:203`) | Same remap dependency, plus the clamped settling/strobe knobs (`:219-235`) |
+| Programming pulse + address remap | an EPROM-local write path | `handle->firestarter_set_data` → `memory_set_data` (`memory.cpp:321`) | D-05. A duplicate bypasses `mem_util_remap_address_bus`, which encodes per-chip bus config: address-line reordering, `rw_line`, `vpp_line`, `static_high_mask`. Getting it wrong energises the wrong socket pin |
+| Verify read | a local read using `rurp_read_data_buffer` | `handle->firestarter_get_data` → `memory_get_data` (`memory.cpp:207`) | Same remap dependency, plus the clamped settling/strobe knobs (`:219-235`) |
 | Control-register read-modify-write | your own mask arithmetic | `handle->firestarter_set_control_register` → `eprom_internal_set_control_register` (`eprom.cpp:319`) | It performs the `CTRL_VPE_ENABLE` → `CTRL_VPP_P1_ENABLE` remap for `using_p1_as_vpp` parts. Bypassing it routes VPE to the wrong pin on DIP32/28 P1 parts |
 | Per-revision control-register bit layout | a `#define` for "the drop bit" | `rurp_write_to_register` → `rurp_map_ctrl_reg_for_hardware_revision` (`rurp_hw_rev_utils.h:15`) | Logical bit ≠ physical bit, and the mapping differs across Rev 0/1 and Rev 2.x. See the DIP32 truth table |
 | Long delay on AVR | `delay(us/1000); delayMicroseconds(us%1000);` inline at each site | one helper in `memory_utils.h`/`memory.cpp`, applied at both sites (D-06) | LOOP-07's claim is global. Two inline copies is two places to get the `us <= 16383` short-circuit and the `%`/`/` split wrong, and a new TU costs a CMake manifest edit |
-| Table lookup | a `switch (protocol)` in the loop | `eprom_params_for()` (`eprom_params.cpp:55`) | TABLE-05: a second switch IS the second dispatch selector. The D-13 gate mechanically catches it, and `test_params_table_has_no_second_selector` asserts `switch_statements == 0` in that TU |
+| Table lookup | a `switch (protocol)` in the loop | `eprom_params_for()` (`eprom_params.cpp:51`) | TABLE-05: a second switch IS the second dispatch selector. The D-13 gate mechanically catches it, and `test_params_table_has_no_second_selector` asserts `switch_statements == 0` in that TU |
 | Message wording / IDs | a `#define` in `eprom.cpp` or a PROGMEM string | `tools/catalog/messages.toml` + `sync_to_subrepos.sh` | The host holds the wording; firmware holds only IDs. A hand-added `#define` diverges the moment codegen next runs |
 | Register-strobe recording in tests | a hand-maintained replica of the latch sequence | `HOST_STUBS_REAL_REGISTER_UTILS` (`host_stubs_common.inc:59`) | A replica silently drifts from `rurp_write_to_register`'s real cache-elision — and elision is exactly the bug class the FM1608 todo documents |
 | Timing capture in tests | wrapping delays in your own counter | `HOST_STUBS_RECORD_TIMING` + the `.AlwaysDo` hook | Already provides `(kind, us, seq)` with strobe-interleave positioning, plus overflow flags |
@@ -1823,7 +1823,7 @@ void mem_util_delay_us(uint32_t us) {
 Then both over-ceiling-capable sites route through it:
 
 ```c
-// firestarter/src/proms/memory.cpp:257  (was: delayMicroseconds(handle->pulse_delay);)
+// firestarter/src/proms/memory.cpp:329  (was: delayMicroseconds(handle->pulse_delay);)
 mem_util_delay_us(handle->pulse_delay);
 
 // firestarter/src/proms/eprom.cpp:283   (was: delayMicroseconds(handle->pulse_delay);)
@@ -1964,10 +1964,10 @@ ecosystem — this is bespoke AVR firmware with no third-party algorithm library
 to reconcile; this phase names them and edits no published text):
 
 - `PROJECT.md`'s v1.31 throughput table gives `0x07`/`0x08` a `3 × N` overpulse. **Shipped value is `0`
-  on both rows** (F-140-05; verified from `eprom_params.cpp:50-51` this session).
+  on both rows** (F-140-05; verified from `eprom_params.cpp:46-47` this session).
 - Milestone **C3**'s "no *pulse* comes near [16383 µs]" is true of database data (max **1000 µs**,
   re-measured this session) but false of the wire — `pulse-delay` is an **unclamped `uint32_t`**
-  (`json_parser.c:305`), so an over-ceiling pulse is reachable **today**, before `--pulse-us` ships.
+  (`json_parser.c:503`), so an over-ceiling pulse is reachable **today**, before `--pulse-us` ships.
   This is a strengthening of the correction CONTEXT.md `<specifics>` hands forward.
 - **F-140-07**: gh#15's published justification for `0x0B`'s `energy_cap_us = 50000` — "`100 × 500 µs` is
   exactly the classic 2716 *total* programming time" — is wrong; the TI TMS 2516 total is 100 **seconds**
@@ -2012,7 +2012,7 @@ rather than implied by a `**Recommendation:**` bullet.
 
 ### 1. `verify_mode` has no decision (RESOLVED — the only genuine gap)
 - **What we know:** `0x07`/`0x08` ship `VERIFY_PER_PULSE_PLUS_FINAL`, `0x0B` ships `VERIFY_PER_PULSE`
-  (`eprom_params.cpp:50-52`), and `firestarter/CLAUDE.md`'s Algorithm Handlers rows already describe the
+  (`eprom_params.cpp:46-48`), and `firestarter/CLAUDE.md`'s Algorithm Handlers rows already describe the
   resulting behaviour ("+ 1 final full-array pass" vs "no final full-array pass"). The pre-change block
   loop's last action was always a full verify pass, so the `PLUS_FINAL` behaviour exists today by accident
   of structure.
@@ -2197,7 +2197,7 @@ threat model is *physical and electrical*, not adversarial. Mapped honestly rath
 | V2 Authentication | **No** | No user, session, or credential exists. The device trusts whatever is on its USB serial port by design |
 | V3 Session Management | **No** | The three-phase INIT→MAIN→END state machine is a protocol sequence, not a security session |
 | V4 Access Control | **No** | Single-operator physical device |
-| **V5 Input Validation** | **YES — and this phase strengthens it** | Firmware-side bounds checking on wire-supplied values. **`pulse-delay` is currently parsed unclamped** (`json_parser.c:305`), unlike `read-settling-delay`/`read-strobe-us` which clamp to `READ_TIMING_MAX_US = 1000` (`:348-362`). D-03's pre-flight refusal plus LOOP-07's helper are the phase's V5 contributions. `handle->pins` and `handle->protocol` are likewise host-supplied and must be treated as untrusted (hence: branch on `pins >= 32`, and fail closed on an unrecognised `protocol`) |
+| **V5 Input Validation** | **YES — and this phase strengthens it** | Firmware-side bounds checking on wire-supplied values. **`pulse-delay` is currently parsed unclamped** (`json_parser.c:503`), unlike `read-settling-delay`/`read-strobe-us` which clamp to `READ_TIMING_MAX_US = 1000` (`:348-362`). D-03's pre-flight refusal plus LOOP-07's helper are the phase's V5 contributions. `handle->pins` and `handle->protocol` are likewise host-supplied and must be treated as untrusted (hence: branch on `pins >= 32`, and fail closed on an unrecognised `protocol`) |
 | V6 Cryptography | **No** | No crypto anywhere in the write path. Nothing to hand-roll |
 | V7 Error Handling & Logging | **Partially** | The two new IDs must not leak anything sensitive (they carry an address and a count — both already public in existing frames) and must not be silently swallowed. The fail-closed-with-a-named-error idiom is the in-tree standard |
 | V10 Malicious Code | **Indirectly** | No new dependency is introduced (see §"Package Legitimacy Audit"), so no supply-chain surface is added |
@@ -2270,7 +2270,7 @@ copies; `pio project config` cwd probe.
 
 ### Secondary (MEDIUM confidence — in-repo records cross-checked against source)
 
-- `140-PARAM-TABLE-RECORD.md` §§5-11 — cross-checked: §2's row values match `eprom_params.cpp:50-52`
+- `140-PARAM-TABLE-RECORD.md` §§5-11 — cross-checked: §2's row values match `eprom_params.cpp:46-48`
   exactly; §6's P1/P2 zero-delta predictions match this session's three builds; §7's `native_params_v131`
   9/1 count is a record-only figure not present in any baseline JSON (accepted as stated).
 - `138-BASELINE.md` §7 F-138-02/04/05/06 — cross-checked: the 8 B / 2 B headroom is confirmed as a
@@ -2296,7 +2296,7 @@ directly, and Context7 has no entry for a bespoke AVR firmware tree.
 | Area | Level | Reason |
 |---|---|---|
 | Citation audit (~40 refs) | **HIGH** | Every reference opened in the live tree; 37 exact, 1 stale (`mem_util_blank_check`), 2 imprecise. Corrections given with exact replacements |
-| Shipped table values | **HIGH** | Read from `eprom_params.cpp:49-53`; independently corroborated by `test_eprom_params_v131.cpp:194-201`'s frozen expectations |
+| Shipped table values | **HIGH** | Read from `eprom_params.cpp:45-49`; independently corroborated by `test_eprom_params_v131.cpp:194-201`'s frozen expectations |
 | `delayMicroseconds` inventory (LOOP-07) | **HIGH** | Exhaustive grep across `src/`, `include/`, `lib/`, `platform/`; every argument's provenance traced; the macro indirection followed to its single call site; the 16383 boundary read from the toolchain's own source |
 | Flash / RAM budget | **HIGH** | All three AVR targets built this session; figures byte-identical to both baselines; the branch's non-ancestry of the drifted `beta` tip verified with `git merge-base --is-ancestor` |
 | Gate and fixture dispositions | **HIGH** | Every gate module read; CI legs read from both workflows; the D-13 re-derivation path executed; blob-SHA equivalence of `hash-object` and `rev-parse` demonstrated |

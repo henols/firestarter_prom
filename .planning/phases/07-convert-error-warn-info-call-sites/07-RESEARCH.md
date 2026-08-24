@@ -25,7 +25,7 @@
 
 - Commit cadence / batching strategy (planner picks; recommended: macro-additions commit first, then populate-site wave per proms/*.cpp module, then direct-log wave per file, ~12 commits total).
 - Multi-param composer macros (planner picks; context leans toward raw `LOG_ID_BYTES` escape hatch for the edge cases, no new macro proliferation).
-- `log_error_format_buf(handle.response_msg, "Cmd: %d, timeout", handle.cmd)` at `firestarter.cpp:176` → convert to `LOG_ERROR_ID_U8(MSG_ERR_CMD_TIMEOUT, handle.cmd)` with no buffer touch.
+- `log_error_format_buf(handle.response_msg, "Cmd: %d, timeout", handle.cmd)` at `firestarter.cpp:171` → convert to `LOG_ERROR_ID_U8(MSG_ERR_CMD_TIMEOUT, handle.cmd)` with no buffer touch.
 - `host_stubs.cpp` link-time impact (researcher confirms below — no changes needed).
 - Flash-savings target wording (planner picks; "any non-zero reduction" is the stated threshold).
 - `_check_response` test coverage gate (planner picks mechanism).
@@ -236,8 +236,8 @@ All of the following gaps arise from **dynamic-severity sites** where `firestart
 | Gap | Format String | WARN ID (exists) | ERROR ID (needed) | Affected Call-Sites |
 |-----|--------------|-------------------|-------------------|---------------------|
 | GAP-1 | `"VPP is high: %u.%uV > %u.%uV"` | `MSG_WARN_VPP_HIGH` (0x82) | `MSG_ERR_VPP_HIGH` | `eprom.cpp:223`, `flash_intel.cpp:41` |
-| GAP-2 | `"Chip ID %#04x dont match expected ID %#04x"` | `MSG_WARN_CHIP_ID_MISMATCH` (0x83) | `MSG_ERR_CHIP_ID_MISMATCH` | `eprom.cpp:264`†, `eeprom_28c.cpp:75`, `flash_intel.cpp:159`, `flash_type_3.cpp:135` |
-| GAP-3 | `"mem_size %lu too small for chip-id check"` | `MSG_WARN_MEM_SIZE_TOO_SMALL` (0x84) | `MSG_ERR_MEM_SIZE_TOO_SMALL` | `eeprom_28c.cpp:62` |
+| GAP-2 | `"Chip ID %#04x dont match expected ID %#04x"` | `MSG_WARN_CHIP_ID_MISMATCH` (0x83) | `MSG_ERR_CHIP_ID_MISMATCH` | `eprom.cpp:264`†, `eeprom_28c.cpp:71`, `flash_intel.cpp:159`, `flash_type_3.cpp:135` |
+| GAP-3 | `"mem_size %lu too small for chip-id check"` | `MSG_WARN_MEM_SIZE_TOO_SMALL` (0x84) | `MSG_ERR_MEM_SIZE_TOO_SMALL` | `eeprom_28c.cpp:58` |
 
 †`eprom.cpp:264` also has **format-string drift** (see below).
 
@@ -330,13 +330,13 @@ After Phase 7, the native test binary links `src/proms/*.cpp` which will call `L
 
 ---
 
-## 5. The `firestarter.cpp:176` Hybrid
+## 5. The `firestarter.cpp:171` Hybrid
 
 **Finding: Convert directly to `LOG_ERROR_ID_U8`, no buffer touch, no response_code mutation needed.** `[VERIFIED: source context read 2026-05-18]`
 
 The hybrid site at line 176:
 ```c
-// Current (firestarter.cpp:176)
+// Current (firestarter.cpp:171)
 log_error_format_buf(handle.response_msg, "Cmd: %d, timeout", handle.cmd);
 command_done(&handle);
 ```
@@ -352,7 +352,7 @@ if (handle.cmd != CMD_IDLE && timeout < millis()) {
 
 **Conversion:**
 ```c
-// Phase 7 (firestarter.cpp:176)
+// Phase 7 (firestarter.cpp:171)
 LOG_ERROR_ID_U8(MSG_ERR_CMD_TIMEOUT, handle.cmd);
 command_done(&handle);
 ```
@@ -361,7 +361,7 @@ No `handle.response_code` mutation. No `handle.response_msg` write. The emit hap
 
 ---
 
-## 6. `_check_response` Surgical Edit (operation_utils.cpp:321-342)
+## 6. `_check_response` Surgical Edit (operation_utils.cpp:329-350)
 
 **Exact unified-diff sketch:**
 
@@ -767,7 +767,7 @@ No missing dependencies.
 - Call-site inventory: HIGH — every file read directly at HEAD; grep cross-verified
 - Catalog gap discovery: HIGH — all catalog entries cross-checked against all populate-sites
 - host_stubs analysis: HIGH — stub file and src_filter both read directly
-- firestarter.cpp:176 hybrid analysis: HIGH — surrounding context read; `command_done()` verified no downstream response_msg/response_code use
+- firestarter.cpp:171 hybrid analysis: HIGH — surrounding context read; `command_done()` verified no downstream response_msg/response_code use
 - Stack pressure for LOG_ID_BYTES: MEDIUM — no AVR stack profiling; assessment based on call-site depth and array sizes
 - Flash delta estimate: MEDIUM — based on string-size arithmetic; actual linker output determines truth
 

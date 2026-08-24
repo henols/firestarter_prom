@@ -67,7 +67,7 @@ moment anything calls it):
 - `EPROM_PARAMS[]` 3 rows × 12 B `PROGMEM` (36 B) + `EPROM_PARAM_KEYS[]` 3 × 1 B (3 B) = 39 B of data
   that exists today but is dropped at link time; referencing it via `eprom_params_for()` makes the
   linker keep it.
-- `eprom_params_for()`'s linear-scan accessor body (`src/proms/eprom_params.cpp:55-62`) — a ≤3-iteration
+- `eprom_params_for()`'s linear-scan accessor body (`src/proms/eprom_params.cpp:51-58`) — a ≤3-iteration
   loop with one `pgm_read_byte` compare per iteration — newly linked for the same reason, ~30-40 B.
 - Six hoisted `pgm_read_*` reads at the loop's setup (one per `eprom_params_t` column) — a handful of
   bytes each on AVR, ~30-40 B total.
@@ -79,7 +79,7 @@ moment anything calls it):
   with a clamp and 32-bit-overflow-safe arithmetic) — ~50-70 B, gated by `overprogram_factor` (0 on
   every live row today, so its *body* is linked but its *effect* is inert — see P1's caveat below).
 - `mem_util_delay_us` / `mem_util_split_delay` (the ms/µs-split safe delay helper, D-06) plus its two
-  call sites replacing the bare `delayMicroseconds(handle->pulse_delay)` at `memory.cpp:257` and
+  call sites replacing the bare `delayMicroseconds(handle->pulse_delay)` at `memory.cpp:329` and
   `delayMicroseconds(handle->pulse_delay)` at `eprom.cpp:283` — ~40-60 B including both call-site diffs.
 - Three new `LOG_ERROR_ID_*` call sites (D-03's `MSG_ERR_PULSE_TOO_WIDE`, LOOP-04's
   `MSG_ERR_MAX_PULSES` and `MSG_ERR_ENERGY_CAP`) — ~10-14 B per call site, ~30-42 B total.

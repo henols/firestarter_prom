@@ -44,10 +44,10 @@ key-files:
 key-decisions:
   - "The mid-comment token population is RECORDED, NOT SWEPT -- with its measurement. 313 -> 236 `#`-comment lines in app-pkg carry a D-01 token that is not adjacent to the comment opener (77 fell incidentally to §2's unit-of-edit rule inside blocks already being edited). 236 is nearly TWICE this plan's whole measured corpus of 132, and a further 335 token occurrences sit on non-`#` lines across 22 files. Sweeping either would be an unmeasured expansion; both are filed as deferred item D8, the host half of plan 07's D5"
   - "serial_comm.py:455-581 declared a host-side NO-TOUCH REGION and the four hits inside it REVERTED, not swept. `test_serial_comm.py::test_read_and_parse_lines_ringfence_unchanged` pins sha256 over `inspect.getsource(SerialCommunicator._read_and_parse_lines)`, which includes comment text. Same shape as D-02's firmware region: a gate fixture that happens to be spelled as comments"
-  - "The two survey false positives are LEFT IN PLACE, not reworded. `firmware.py:840` (`# Require the operator...`) matches the `Req` alternation on the English word `Require`; `chip_test.py:282` (`# Plan derivation --`) matches `Plan` on the module's own domain noun (`derive_plan` returns a `Plan`). Rewriting correct English or correct domain vocabulary to dodge a regex would be a worse outcome than a documented non-zero residual"
+  - "The two survey false positives are LEFT IN PLACE, not reworded. `firmware.py:840` (`# Require the operator...`) matches the `Req` alternation on the English word `Require`; `chip_test.py:283` (`# Plan derivation --`) matches `Plan` on the module's own domain noun (`derive_plan` returns a `Plan`). Rewriting correct English or correct domain vocabulary to dodge a regex would be a worse outcome than a documented non-zero residual"
   - "The database.py reversal record's condensed form gains a `READ THIS BEFORE RE-CLEARING THE FLAG:` heading the original did not have. The plan's step-3 requirement is that a future reader cannot re-reverse the reversal; the original stated the policy/premise split as one paragraph among nine, and the condensed form makes it the paragraph a reader cannot skip"
-  - "Two source-comment `file:LINE` citations into database.py were REPAIRED, not left stale: `ic_layout.py:490` (`database.py:605` -> `:630`, and it was ALREADY stale by 34 lines before this sweep) and `chip_test.py:310` (`database.py:582-645` -> `:570-625`). Per the standing repair-citations-never-accept-staleness rule"
-  - "`chip_test.py:435-439`'s ID references are a NAMED ABSTENTION: `(D-18)` / `(D-01)` there are quotations of shipped string-literal CONTENT (`_SDP_LOCKED_REASON = 'write_scope=\"none\": {op} omitted (D-18)'`), not provenance labels. Stripping them would make the comment describe code that does not exist. Only the line-initial `D-18's` was stripped"
+  - "Two source-comment `file:LINE` citations into database.py were REPAIRED, not left stale: `ic_layout.py:488` (`database.py:605` -> `:630`, and it was ALREADY stale by 34 lines before this sweep) and `chip_test.py:312` (`database.py:581-636` -> `:570-625`). Per the standing repair-citations-never-accept-staleness rule"
+  - "`chip_test.py:436-439`'s ID references are a NAMED ABSTENTION: `(D-18)` / `(D-01)` there are quotations of shipped string-literal CONTENT (`_SDP_LOCKED_REASON = 'write_scope=\"none\": {op} omitted (D-18)'`), not provenance labels. Stripping them would make the comment describe code that does not exist. Only the line-initial `D-18's` was stripped"
   - "The `Phase 151` gate collision is NOT repaired here. Both candidate fixes land outside this plan's `<domain>` (retargeting the pin is plan 11's file; restoring the label is plan 07's file and would mean shipping a phase label in swept firmware source). Filed as blocker D7 with the recommended anchor named"
 
 patterns-established:
@@ -202,18 +202,18 @@ Diff size: **307 insertions / 331 deletions** across 20 files; **300 added / 324
 
 | File:line (post) | Line |
 |---|---|
-| `eprom_operations.py:481` | `# CAP-01: firmware_max_chunk is populated by the` |
+| `eprom_operations.py:482` | `# CAP-01: firmware_max_chunk is populated by the` |
 | `eprom_operations.py:492` | `# CAP-01 safe Uno-floor default: absent advertisement -> 512.` |
-| `serial_comm.py:67` | `# CAP-03: plausibility ceiling for the firmware-advertised per-block` |
-| `serial_comm.py:74` | `# CAP-01's own behaviour exactly. The clamp exists so a malfunctioning or` |
+| `serial_comm.py:68` | `# CAP-03: plausibility ceiling for the firmware-advertised per-block` |
+| `serial_comm.py:75` | `# CAP-01's own behaviour exactly. The clamp exists so a malfunctioning or` |
 | `serial_comm.py:115` | `# CAP-02 identity fields, declared at CLASS level on purpose. __init__ also` |
 | `serial_comm.py:123` | `# CAP-03 extends this same ack with the firmware's advertised per-block` |
-| `serial_comm.py:150` | `# CAP-01: firmware advertises effective MAIN-path decode capacity` |
+| `serial_comm.py:151` | `# CAP-01: firmware advertises effective MAIN-path decode capacity` |
 | `serial_comm.py:156` | `# CAP-02: the MSG_OK_READY ack was extended past CAP-01's 2-byte` |
-| `serial_comm.py:169` | `# CAP-03: the firmware's advertised worst-case seconds for` |
+| `serial_comm.py:170` | `# CAP-03: the firmware's advertised worst-case seconds for` |
 | `serial_comm.py:389` | `# CAP-01 buffer size occupies the first 2 bytes in BOTH the` |
 | `serial_comm.py:402` | `# CAP-02 tail: [hw_revision u8][ver_len u8][ver bytes]. Absent` |
-| `serial_comm.py:415` | `# CAP-03: the per-block write-time budget,` |
+| `serial_comm.py:416` | `# CAP-03: the per-block write-time budget,` |
 | `serial_comm.py:863` | `# CAP-02: send the user's actual command straight away. The` |
 
 Count left in place, as the criterion asks: **13**, matching the pre-sweep `CAP-0`-only measurement for this group exactly.
@@ -236,7 +236,7 @@ These four **were** swept, the suite went RED, and they were **reverted**. See �
 | File:line | Line | Which alternation, and why it is not provenance |
 |---|---|---|
 | `firmware.py:840` | `# Require the operator to name the board instead of defaulting.` | The `Req` alternation matching the English word **Require**. Ordinary prose. |
-| `chip_test.py:282` | `# Plan derivation -- the guard-BYPASSING derivation path` | The `Plan` alternation matching the module's own **domain noun** — `derive_plan()` returns a `Plan`. This hit was *exposed* by the sweep (pre-sweep the line read `# Plan derivation (SWEEP-01, D-01/D-02) -- ...`), the same expose-a-new-hit pattern plan 08 documented, except what is exposed here is a false positive rather than a retained ID. |
+| `chip_test.py:283` | `# Plan derivation -- the guard-BYPASSING derivation path` | The `Plan` alternation matching the module's own **domain noun** — `derive_plan()` returns a `Plan`. This hit was *exposed* by the sweep (pre-sweep the line read `# Plan derivation (SWEEP-01, D-01/D-02) -- ...`), the same expose-a-new-hit pattern plan 08 documented, except what is exposed here is a false positive rather than a retained ID. |
 
 Both were candidates for a one-word reword that would have driven the residual to 17. **Declined.** Rewriting correct English or correct domain vocabulary to satisfy a regex is a worse outcome than a documented, explained non-zero — and the same argument covers both, so applying it to one and not the other would be inconsistent.
 
@@ -285,7 +285,7 @@ The hardware-hazard paragraph (`:583-591`), as it stood at `APP_PRE_SHA`:
         # reason the tuple still keeps 5 even after 13 is dropped below.
 ```
 
-### 3c. The condensed block, in full (`database.py:570-625`, 56 comment lines)
+### 3c. The condensed block, in full (`database.py:572-620`, 56 comment lines)
 
 ```python
         # Canonical erase-capability ground truth: set FLAG_CAN_ERASE directly
@@ -547,7 +547,7 @@ Expected — this plan touched zero firmware files — but it is a cheap positiv
 
 ## 8. Named abstentions and deliberate non-expansions
 
-### Abstention: `chip_test.py:435-439`
+### Abstention: `chip_test.py:436-439`
 
 ```python
 # The `write_scope="none"` advisory prose, in the same
@@ -583,8 +583,8 @@ Two source-comment `file:LINE` citations pointing into `database.py` were repair
 
 | Site | Before | After | Note |
 |---|---|---|---|
-| `ic_layout.py:490` | `database.py:605` | `database.py:630` | was **already stale by 34 lines** before this sweep (the `FLAG_CAN_ERASE` line was at 639 pre-sweep, 630 post) |
-| `chip_test.py:310` | `database.py:582-645` | `database.py:570-625` | re-anchored onto the condensed reversal block |
+| `ic_layout.py:488` | `database.py:605` | `database.py:626` | was **already stale by 34 lines** before this sweep (the `FLAG_CAN_ERASE` line was at 639 pre-sweep, 630 post) |
+| `chip_test.py:312` | `database.py:581-636` | `database.py:572-620` | re-anchored onto the condensed reversal block |
 
 Both verified against the post-sweep file (`simple_flags |= FLAG_CAN_ERASE` is at `:630`; the reversal block spans `:570-625`).
 
@@ -614,7 +614,7 @@ This plan's meta-repo commit is a single `docs(154-09)` commit — the same shap
 3. **The clean-clone technique needs BOTH sibling symlinks** before its numbers mean anything, or it manufactures 6 topology failures.
 4. **The code-invariance oracle is reusable** for plans 10 and 11 (both sweep Python): `ast.dump` + comment-free token stream, with the four controls to prove it non-vacuous first.
 5. **Deferred item D8** — 236 mid-comment token lines + 335 non-`#`-line occurrences in app-pkg, plus the `_SDP_LOCKED_REASON` product-surface ID leak. Fold with plan 07's D5.
-6. **SWEEP-01/02/03 stay Pending** — phase-wide, completed at plan 12. This plan's partials: SWEEP-01's `database.py:580-630` named keep-example discharged (§3); SWEEP-02's host half discharged (§2a, 13 CAP-0N kept, count reported, CAP-03 gate green); SWEEP-03's strip direction demonstrated on shipped source, not merely stated.
+6. **SWEEP-01/02/03 stay Pending** — phase-wide, completed at plan 12. This plan's partials: SWEEP-01's `database.py:581-620` named keep-example discharged (§3); SWEEP-02's host half discharged (§2a, 13 CAP-0N kept, count reported, CAP-03 gate green); SWEEP-03's strip direction demonstrated on shipped source, not merely stated.
 
 ---
 

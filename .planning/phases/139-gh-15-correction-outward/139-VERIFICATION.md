@@ -84,7 +84,7 @@ and independently re-measured:
 |---|---|---|---|
 | 1 | A gh#15 comment states C1 (500 µs correction, ×100 BUG-2 fingerprint), cited by file:line/commit | ✓ VERIFIED | Live-posted comment (fetched back) contains `500`, `50000`, `8de307f`, `12286df`, `infoic-field-dictionary.md#L210-L217`; commits independently confirmed real, reachable from `origin/beta`, matching subjects |
 | 2 | Comment states C2 (pulse width as database datum, PREP-04 distribution cited) | ✓ VERIFIED | Contains `n = 170`/`127`/`32`, `203`/`329`/`61.7%`, links to `138-02-PULSE-DISTRIBUTION.md` and `138-pulse-distribution.py`; false "all three disagree with modal" sentence independently confirmed absent |
-| 3 | Comment states C3 (safe-delay helper's real purpose, anchored at program pulse not erase pulse) | ✓ VERIFIED | Contains `memory.cpp`, `memory_set_data`, `75 ms`, `16383`, `9464`; `eprom.cpp#L283` confirmed absent; live-fetched `memory.cpp:249-258` independently confirmed to be `memory_set_data()`'s `delayMicroseconds(handle->pulse_delay)`, and `eprom.cpp:69-77` independently confirmed to already default `0x0B` to 500 µs |
+| 3 | Comment states C3 (safe-delay helper's real purpose, anchored at program pulse not erase pulse) | ✓ VERIFIED | Contains `memory.cpp`, `memory_set_data`, `75 ms`, `16383`, `9464`; `eprom.cpp#L283` confirmed absent; live-fetched `memory.cpp:321-330` independently confirmed to be `memory_set_data()`'s `delayMicroseconds(handle->pulse_delay)`, and `eprom.cpp:69-77` independently confirmed to already default `0x0B` to 500 µs |
 | 4 | Comment states the ~6.25 V program-VCC ceiling plainly, as its own paragraph | ✓ VERIFIED | Full paragraph naming the ceiling as a hardware limit on *any* implementation, naming boxes 3/4/5 |
 | 5 | Comment proposes a specific amendment to gh#15's nine acceptance-criteria boxes, item-for-item | ✓ VERIFIED | Nine-row, three-column (box/disposition/reason) table present; independently re-derived box-anchored cross-check against `139-GH15-BODY-AMENDMENT.md`: 9/9 rows agree, 0 mismatches |
 | 6 | Draft frozen (blob SHA + byte length + committing commit) before any operator gate | ✓ VERIFIED | `139-CITATIONS.md` §5 freeze table values match `git rev-parse HEAD:<path>` and `wc -c` exactly, independently re-measured |
@@ -130,7 +130,7 @@ GitHub and repository state.
 
 Not applicable in the conventional sense (this phase produces static documentation/comment artifacts,
 not a rendering component with a data source). The closest analog — "does the posted comment's content
-match its claimed source citations" — was traced directly: `memory.cpp:249-258` and `eprom.cpp:69-77`
+match its claimed source citations" — was traced directly: `memory.cpp:321-330` and `eprom.cpp:69-77`
 were fetched live at the pinned commit SHA and independently confirmed to contain exactly the code the
 comment/citations claim.
 

@@ -1183,7 +1183,7 @@ Capture Mechanism (D-02)" for these, and require the executor to *measure* rathe
 ## Constraints Re-stated for the Executor (verified against the analogs)
 
 - **No edit to `src/proms/eprom.cpp`, `src/proms/memory.cpp`, or any other write-path source.** The
-  program pulse lives at `memory.cpp:257` (`delayMicroseconds(handle->pulse_delay)`); it is observed
+  program pulse lives at `memory.cpp:329` (`delayMicroseconds(handle->pulse_delay)`); it is observed
   through the stub layer, never modified. Instrumentation lives under `test/` only.
 - **Never rewrite `scripts/baseline/size_baseline.json`.** `size_baseline_v131.json` is a new sibling
   read through the existing `FIRESTARTER_SIZE_BASELINE` seam or an explicit `--baseline`.

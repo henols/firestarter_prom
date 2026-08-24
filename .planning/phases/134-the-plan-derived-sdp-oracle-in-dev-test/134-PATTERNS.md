@@ -88,7 +88,7 @@ _SDP_OPS = frozenset({OP_SDP_LOCK, OP_SDP_UNLOCK})
 ```python
 from firestarter.constants import FLAG_CAN_ERASE  # 0x02 -- do NOT redefine; import
 ```
-→ extend to also import `FLAG_SKIP_SDP_UNLOCK` (`firestarter_app/firestarter/constants.py:137`,
+→ extend to also import `FLAG_SKIP_SDP_UNLOCK` (`firestarter_app/firestarter/constants.py:136`,
 `= 0x100`, verified). **No new operator method and no ring-fence edit:** `write_eprom`'s
 `operation_flags` is already a defaulted 4th positional parameter.
 
@@ -386,7 +386,7 @@ SCHEMA_VERSION = "1.2"  # D-02: single-sourced, baked into to_dict() output
 # (`OP_WRITE_PARTIAL = "write-partial"`, chip_test.py) entering the report
 ```
 
-**`to_dict()`'s nine keys** (`diagnostic_report.py:436-454`, verified — `to_dict` is at **`:436`**, not
+**`to_dict()`'s nine keys** (`diagnostic_report.py:430-448`, verified — `to_dict` is at **`:436`**, not
 `:444`; `:444` is the `schema_version` line *inside* it):
 
 ```python
@@ -410,7 +410,7 @@ SCHEMA_VERSION = "1.2"  # D-02: single-sourced, baked into to_dict() output
 The new key is a **tenth**, carrying a plain assigned `str`. `_db_diff_dict` (`:426-434`) is the
 precedent for a nullable, generically-serialised field.
 
-**`render()`'s per-step row** (`diagnostic_report.py:477-482`, verified) — **D-07's entire basis:
+**`render()`'s per-step row** (`diagnostic_report.py:471-476`, verified) — **D-07's entire basis:
 `reason` is absent from the console**:
 
 ```python
@@ -422,10 +422,10 @@ precedent for a nullable, generically-serialised field.
             )
 ```
 `reason` reaches only `_step_dict` (`:406-415` → JSON) and the markdown table
-(`cli_handlers.py:2200-2201`). Any "put the detail in `reason`" instinct is invisible to whoever reads
+(`cli_handlers.py:2197-2198`). Any "put the detail in `reason`" instinct is invisible to whoever reads
 the terminal.
 
-**Banner row** (`diagnostic_report.py:494-495`) — LEG-13's visible surface, the "4 of 4" → "5 of 10"
+**Banner row** (`diagnostic_report.py:488-489`) — LEG-13's visible surface, the "4 of 4" → "5 of 10"
 change; **no code edit here**:
 ```python
         banner = d["banner"]
@@ -439,13 +439,13 @@ change; **no code edit here**:
 **Analog:** the same file's exit machinery. ⚠ **STRICT mypy island** (`disallow_untyped_defs = true`) —
 any new helper needs full annotations. Headroom is **2** (33 vs watermark 35).
 
-**Current shape** (`cli_handlers.py:1887-1902`, verified verbatim — note the comment is *false today*):
+**Current shape** (`cli_handlers.py:1884-1899`, verified verbatim — note the comment is *false today*):
 
 ```python
 # Per-verdict -> exit-code mapping (D-01): OK/NA/SKIPPED are exit-clean;
 # `marginal` is an inconclusive result (exit 2); BAD beats marginal via
 # `max` over the whole result set, mirroring dev_validate_family's own
-# `if verdict_int > overall_verdict` pattern (cli_handlers.py:1622-1623).
+# `if verdict_int > overall_verdict` pattern (cli_handlers.py:1620-1621).
 _VERDICT_EXIT_CODES = {
     VERDICT_OK: 0, VERDICT_NA: 0, VERDICT_SKIPPED: 0,
     VERDICT_MARGINAL: 2, VERDICT_BAD: 1,
@@ -456,7 +456,7 @@ def _verdict_code(verdict: str) -> int:
     return _VERDICT_EXIT_CODES.get(verdict, 0)
 ```
 
-**Exit site** (`cli_handlers.py:2216-2219`, verified):
+**Exit site** (`cli_handlers.py:2213-2216`, verified):
 ```python
     if not results:
         sys.exit(0)
@@ -465,12 +465,12 @@ def _verdict_code(verdict: str) -> int:
 ```
 `max(1, 2) = 2` ⇒ marginal beats BAD. **The named in-repo precedent for explicit precedence** the
 comment itself points at is `dev_validate_family`'s `if verdict_int > overall_verdict` at
-`cli_handlers.py:1622-1623` — copy an explicit-precedence form, not another `max`.
+`cli_handlers.py:1620-1621` — copy an explicit-precedence form, not another `max`.
 
 ⚠ `_verdict_code`'s `.get(verdict, 0)` is why **no sixth verdict status** may be introduced: an
 unrecognised verdict exits **0**.
 
-**Engine-derives / handler-assigns seam** (`cli_handlers.py:2164-2178`, verified) — the analog for
+**Engine-derives / handler-assigns seam** (`cli_handlers.py:2161-2175`, verified) — the analog for
 D-15's `sdp_hold_state` call-through; every derived value is computed in an engine module and *assigned*
 here:
 ```python
@@ -485,7 +485,7 @@ here:
 
 ### `firestarter_app/firestarter/cli_handlers.py` — the notice (D-09) and recovery constants (D-12/D-13)
 
-**Analog:** `_ALWAYS_WRITES_NOTICE` (`cli_handlers.py:2064-2078`, verified verbatim):
+**Analog:** `_ALWAYS_WRITES_NOTICE` (`cli_handlers.py:2061-2075`, verified verbatim):
 
 ```python
 # D-04: printed FIRST, unconditionally, before the SAFE-04 absent-chip
@@ -503,7 +503,7 @@ _ALWAYS_WRITES_NOTICE = (
 )
 ```
 
-**Echo pattern** (`cli_handlers.py:2123`) — D-12's two recovery forms use the same `click.echo`, not a
+**Echo pattern** (`cli_handlers.py:2120`) — D-12's two recovery forms use the same `click.echo`, not a
 logger, so they reach `CliRunner` capture regardless of log-level wiring:
 ```python
     click.echo(_ALWAYS_WRITES_NOTICE)
@@ -781,7 +781,7 @@ constant saying "erase" and asserts the scan function fails on it.
 ⚠ **Why a whole-report grep is ruled out (measured, three legitimate "erase" sites):**
 `chip_test.py:577-580` (*"protocol 0x0D (28C family) has no erase operation; each page write
 auto-erases internally"*), the `erase` op string itself in the markdown table and JSON, and
-`_ALWAYS_WRITES_NOTICE`'s *"write/verify/erase step"* (`cli_handlers.py:2073`).
+`_ALWAYS_WRITES_NOTICE`'s *"write/verify/erase step"* (`cli_handlers.py:2070`).
 
 ---
 
@@ -831,7 +831,7 @@ field, which 133 D-05 rejected on exactly this ground).
 field is a `DiagnosticReport` field.
 
 ### 5. Derive in the engine, assign in the handler
-**Source:** `firestarter_app/firestarter/cli_handlers.py:2164-2178`.
+**Source:** `firestarter_app/firestarter/cli_handlers.py:2161-2175`.
 **Apply to:** `sdp_hold_state`. Reinforced by three independent constraints: P-07 (`chip_test.py` is
 scanned in full; `cli_handlers.py` helpers sit behind a fail-open allow-list), the inversion guard
 (§2 above), and the mypy budget — `cli_handlers.py` is **STRICT** with **2 errors of headroom**, while

@@ -109,7 +109,7 @@ DS20006386B — all 28 pins of `DIP28_28C256` agree, `infoic_page_size_raw: 64` 
 register, `chip_id_check: false` is correct — and handed the question on as host/firmware. The
 root-cause pass then found why that question is currently unanswerable:
 
-- **F-01 (the spine)** — `cli_handlers.py:2503` hardcodes `fw_board_identity=None`, because
+- **F-01 (the spine)** — `cli_handlers.py:2500` hardcodes `fw_board_identity=None`, because
   `EpromOperator.comm` is a transient per-operation connection torn down after every operator call
   (SAFE-02 orchestrator-only contract). So **every `dev test` report ever filed carries
   `fw_board_identity: null`**. gh#21/#32 report host `3.0.0b15` against an unknown firmware and

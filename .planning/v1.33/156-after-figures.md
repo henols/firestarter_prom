@@ -11,7 +11,7 @@ status: AUTHORITATIVE -- this file is the phase's outcome record, re-measured ag
 supersedes: >
   ROADMAP.md Phase 156 success criteria 1, 2 and 4, and REQUIREMENTS.md DEDUP-01 through
   DEDUP-04 prose, wherever they state a figure this file corrects -- C-1 through C-7, the
-  planner-found `src/operation_utils.cpp:57` location, and the discrepancy-beyond-the-seven
+  planner-found `src/operation_utils.cpp:58` location, and the discrepancy-beyond-the-seven
   pytest baseline, all first identified in `.planning/v1.33/156-before-figures.md` and closed
   out here against the shipped code.
 requirements: [DEDUP-01, DEDUP-02, DEDUP-03, DEDUP-04]
@@ -141,7 +141,7 @@ call sites in `src/eprom_operations.cpp` are now nine plain forwarding returns
 (`grep -cE '^\s*return op_execute_(stateful|simple)_operation' src/eprom_operations.cpp` ->
 `9`; `grep -c 'return !op_execute_' src/eprom_operations.cpp` -> `0`, re-confirmed this
 session). Exactly **one** negation survives in the engine itself:
-`return !callback(handle);` at `src/operation_utils.cpp:86` (`grep -n 'return !callback'` ->
+`return !callback(handle);` at `src/operation_utils.cpp:92` (`grep -n 'return !callback'` ->
 one match, this line), the MAIN-phase delegation to `_process_incoming_data` /
 `_process_outgoing_data`. **Site 4 keeps its negation because those two callbacks keep their
 own, independent true-on-success convention** -- flipping them too would cascade into
@@ -383,9 +383,9 @@ implied covered by a test that does not exist.
 | C-3 | (implicit) a -268/-158 split for DEDUP-01/DEDUP-02 | **CONFIRMED**: plan 03 measured -268 B, plan 04 measured -158 B, summing to the measured -426 B total | this file §2 |
 | C-4 | The DEDUP-04 flip is "byte-for-byte zero" (implying image identity) | Size-identical on all three targets (one more than the original survey claimed); `.hex` SHA differs on all three | `156-before-figures.md` §10; this file §3/§8 |
 | C-5 | The shared clone is `op_execute_stateful_operation.constprop.44` | Exactly one clone, suffix `.constprop.42`, unchanged by the boolean-convention flip; no gate pins a clone suffix | `156-before-figures.md` §3; re-confirmed this session |
-| C-6 | A "ten-line comment at `eprom_operations.cpp:57-67`" exists solely to explain the `!` | Only the final 2-3 lines (`:65-67`) concerned the `!`; the rest is LOCK-01/LOCK-02 rationale, which survives unedited | `156-before-figures.md` §10; `156-05-SUMMARY.md` |
+| C-6 | A "ten-line comment at `eprom_operations.cpp:57-63`" exists solely to explain the `!` | Only the final 2-3 lines (`:65-67`) concerned the `!`; the rest is LOCK-01/LOCK-02 rationale, which survives unedited | `156-before-figures.md` §10; `156-05-SUMMARY.md` |
 | C-7 | DEAD-06: "the only requirement in Phases 155-158 that touches a test file" | **FALSE** -- DEDUP-04 (plan 05) touched `test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp`. **Consequence:** DEAD-06's uniqueness claim in `REQUIREMENTS.md` §2 no longer holds and is corrected there by this plan's Task 3, not merely noted here | `REQUIREMENTS.md` §2 (DEAD-06 entry, appended by this plan) |
-| planner-found 8th | RESEARCH's six-location comment blast-radius list for DEDUP-04 | `src/operation_utils.cpp:57` carries the identical `@return` doxygen wording as `include/operation_utils.h:72` -- a seventh location, found by plan 01, corrected by plan 05 in the same commit as the other six (`grep -c 'still ongoing'` over both files is `0`, re-confirmed this session) | `156-before-figures.md` §10; `156-05-SUMMARY.md` |
+| planner-found 8th | RESEARCH's six-location comment blast-radius list for DEDUP-04 | `src/operation_utils.cpp:58` carries the identical `@return` doxygen wording as `include/operation_utils.h:73` -- a seventh location, found by plan 01, corrected by plan 05 in the same commit as the other six (`grep -c 'still ongoing'` over both files is `0`, re-confirmed this session) | `156-before-figures.md` §10; `156-05-SUMMARY.md` |
 | found beyond the seven | RESEARCH/VALIDATION's pytest baseline: 313 passed / 0 failed / 32 skipped | Canonical checkout: 348/0/0 (`156-before-figures.md` §5, `META_PRESENT` seam). This plan's own measurement: **355 passed, 0 failed** (348 + plan 06's 7 new legs) -- the 348 baseline held steady through DEDUP-01/02/04, growing by exactly 7 for the new gate, no other count moved | `156-before-figures.md` §5; this file §5 |
 
 ---
@@ -407,8 +407,8 @@ implied covered by a test that does not exist.
   gained two new functions). `.planning/v1.33/CITATIONS-STALE.md` was **not** touched by this
   plan -- byte-unchanged, confirmed by `git status --porcelain` showing no change to it.
 - **The one in-source citation this phase's plans did repair, recorded separately as
-  incidental:** `src/proms/eeprom_28c.cpp:264` (plan 04) -- the stale comment pointing at
-  `flash_intel.cpp:146-155` was repaired to name the symbol `flash_intel_check_chip_id`
+  incidental:** `src/proms/eeprom_28c.cpp:265` (plan 04) -- the stale comment pointing at
+  `flash_intel.cpp:112-121` was repaired to name the symbol `flash_intel_check_chip_id`
   instead of a line range, since Phases 157/158 will move that file again. This is an
   incidental fix inside a comment plan 04 touched anyway, not `.planning/` remap work, and is
   not counted toward Phase 159's REMAP scope.

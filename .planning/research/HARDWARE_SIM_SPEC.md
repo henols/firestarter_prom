@@ -224,7 +224,7 @@ Each of CTL's 8 Q outputs controls a specific shield function (mapping per
 - Firmware translates logical bits → physical bits before writing.
 
 **Status of `READ_WRITE` (CTL bit 6)**: it is defined as a CTL bit and
-`flash_utils.cpp:21,25,30` toggles it via `firestarter_set_control_register`,
+`flash_utils.cpp:22,26,31` toggles it via `firestarter_set_control_register`,
 but the destination chip-socket pin is **not documented in firmware comments
 or the reference doc**. If CTL Q6 reaches socket pin 27 on the same physical
 trace as MSB Q6, then both latches can drive the same wire (a hazard). If CTL
@@ -275,7 +275,7 @@ CE# and OE# are driven directly by AVR GPIO via a buffer chain — they do
 | `CHIP_ENABLE` (0x20) | PB5 | PC7 | AVR → shield | CE# active-low |
 | `OUTPUT_ENABLE` (0x04) | PB2 | PB6 | AVR → shield | OE# active-low |
 
-Convenience macros (`rurp_shield.h:134–141`):
+Convenience macros (`rurp_shield.h:129–141`):
 - `rurp_chip_enable()` → `rurp_set_control_pin(CHIP_ENABLE, 0)` → CE# LOW
 - `rurp_chip_disable()` → CE# HIGH
 - `rurp_chip_output()` → OE# LOW (chip drives bus)
@@ -299,7 +299,7 @@ The host emits a `bus-config` JSON object with computed bus indices for each
 role, plus an `address_lines` array describing the chip's logical-bit-to-
 physical-bus-bit remapping.
 
-### 8.2 Firmware side (memory.cpp:226–249)
+### 8.2 Firmware side (memory.cpp:230–249)
 
 ```c
 uint32_t mem_util_remap_address_bus(handle, address, read_write):
@@ -346,7 +346,7 @@ For the same address in write mode (`read_write = 0`):
 
 ## 9. Per-operation behavior
 
-### 9.1 `memory_get_data(address)` — read one byte (memory.cpp:182–194)
+### 9.1 `memory_get_data(address)` — read one byte (memory.cpp:185–194)
 
 ```
 rurp_chip_output()                          # OE# LOW (chip drives data bus when CE# also LOW)
@@ -363,7 +363,7 @@ rurp_chip_disable()                         # CE# HIGH
 return data
 ```
 
-### 9.2 `memory_set_data(address, data)` — write one byte (memory.cpp:202–212)
+### 9.2 `memory_set_data(address, data)` — write one byte (memory.cpp:206–212)
 
 ```
 rurp_chip_input()                           # OE# HIGH (chip releases bus)
@@ -408,7 +408,7 @@ When a new READ command starts:
    0x41 (strobe, **but PD6 stays HIGH because both have bit 6 set**).
 
 **However**: `rurp_set_data_input` between byte reads sets `PORTD = 0` on Uno
-(per `uno_rurp_shield.cpp:138`). So **the next strobe sequence starts with
+(per `uno_rurp_shield.cpp:130`). So **the next strobe sequence starts with
 PORTD = 0 every time**. For byte 256:
 - LSB strobe sets PORTD = 0 (cache miss from 0xFF, but new value also 0): if
   bit 6 of the **prior** PORTD (0xFF) was HIGH, then PORTD = 0 produces a PD6
@@ -521,14 +521,14 @@ PD0 doubles as UART RX. Transitioning programmer-mode → comm-mode
 (`Serial.begin → RXEN0=1`) with PD0 LOW makes the UART hardware sample a
 false start bit, queuing spurious bytes that corrupt the host's `OK:`
 response. Fix: drive PD0 HIGH before clearing DDRD bit 0; drain any RX bytes
-after `Serial.begin`. See `uno_rurp_shield.cpp:54–73`.
+after `Serial.begin`. See `uno_rurp_shield.cpp:51–73`.
 
 ### 14.3 Data-input pull-up bias
 
 `rurp_set_data_input` on Uno explicitly sets `PORTD = 0` before `DDRD = 0` to
 disable the internal pull-up bias that would otherwise weakly drive HIGH
 against the chip's drive. Defensive but does **not** fix the FM1608 bug on
-its own. See `uno_rurp_shield.cpp:131–140`.
+its own. See `uno_rurp_shield.cpp:123–140`.
 
 ---
 

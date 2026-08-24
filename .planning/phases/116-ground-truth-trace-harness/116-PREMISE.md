@@ -24,8 +24,8 @@ transferred, for all four `0x0D` pinouts.
 
 Mechanism, traced end to end: `eeprom28c_write_init` calls
 `flash_execute_command(EEPROM_SDP_DISABLE)`, the 6-write `AA-55-80-AA-55-20` SDP-disable
-sequence (`eeprom_28c.cpp:105-113`), then calls `eeprom28c_wait_for_write(handle, 0x5555,
-0x20)` to confirm completion (`eeprom_28c.cpp:137`). That completion check polls
+sequence (`eeprom_28c.cpp:100-108`), then calls `eeprom28c_wait_for_write(handle, 0x5555,
+0x20)` to confirm completion (`eeprom_28c.cpp:131`). That completion check polls
 `firestarter_get_data(0x5555)` up to 2000 times, expecting to read back the sequence's own
 terminal command byte (`0x20`). Against the harness's address-keyed mock — which reproduces
 the virgin `0xFF`-style non-response a part that never recognised the sequence would give —

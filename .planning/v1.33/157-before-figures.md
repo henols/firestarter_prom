@@ -205,7 +205,7 @@ property**, not a source property, until plan 02's OD-3 (`get_flags` → `key_fl
 | `pio test -e native -f "*test_read_timing*"` | **9 test cases: 9 succeeded** | 3.01 s |
 
 `test_read_timing`'s own case count is **9** — `RUN_TEST` entries at
-`test/native/avr/test_read_timing/test_read_timing_params.cpp:185-193`, confirmed line-for-line
+`test/native/avr/test_read_timing/test_read_timing_params.cpp:544-553`, confirmed line-for-line
 this session (`:185` through `:193`, one `RUN_TEST` per line).
 
 **The lexical trap, reproduced exactly (Pitfall 7):**
@@ -373,7 +373,7 @@ for c in 0 1 2 3; do git apply --check -C$c /tmp/157-json.patch; done
 ```
 **All four FAIL**, identically:
 ```
-error: patch failed: src/json_parser.c:65
+error: patch failed: src/json_parser.c:76
 error: src/json_parser.c: patch does not apply
 ```
 
@@ -508,7 +508,7 @@ All ten appear in every plan of this phase, in every SUMMARY, and in the phase r
 | C-14 | Criterion 3's compile-time assertion "prevents a future struct reorder from silently truncating an offset" | The reference patch's single `_Static_assert` guards **`page_size` only** — a reorder moving e.g. `mem_size` below `data_buffer` would still pass it. **All eleven fields need their own guard** | 02, 07 |
 | C-15 | (implicit — case count stays 172) | Adding native cases (DECODE-05/06, this phase's Wave 0) moves the count off 172, reddening both baseline gates' count legs — expected, a handoff to **LAND-01**, not a defect | 04, 05, 07 |
 | C-16 | (implicit — some CI leg might run the size gate) | `check_size_baseline.py` runs in **NO CI workflow** — confirmed again this session (§5/§8) | 01 (this file), 07 |
-| C-17 | RESEARCH cites `#define READ_TIMING_MAX_US` at `src/json_parser.c:352`, and its DECODE-01 table lists the first seven `key_*` PROGMEM lines one line high | Measured this session: `#define READ_TIMING_MAX_US` is at **`:360`**; `grep -n 'PROGMEM = "' src/json_parser.c` confirms `memory-size` `:51`, `address` `:52`, `flags` `:53`, `chip-id` `:54`, `pin-count` `:55`, `pulse-delay` `:56`, `vpp_mv` `:57`, `algorithm` `:58`, `read-settling-delay` `:60`, `read-strobe-us` `:61`, `page-size` `:66` — the DECODE-06 hoist requirement (C-9) is unaffected; only its source line moves | 02, 07 |
+| C-17 | RESEARCH cites `#define READ_TIMING_MAX_US` at `src/json_parser.c:47`, and its DECODE-01 table lists the first seven `key_*` PROGMEM lines one line high | Measured this session: `#define READ_TIMING_MAX_US` is at **`:360`**; `grep -n 'PROGMEM = "' src/json_parser.c` confirms `memory-size` `:51`, `address` `:52`, `flags` `:53`, `chip-id` `:54`, `pin-count` `:55`, `pulse-delay` `:56`, `vpp_mv` `:57`, `algorithm` `:58`, `read-settling-delay` `:60`, `read-strobe-us` `:61`, `page-size` `:66` — the DECODE-06 hoist requirement (C-9) is unaffected; only its source line moves | 02, 07 |
 | C-18 | `157-VALIDATION.md`'s Wave-0 row says the RED-first capture is "narrowing applied with saturation/mask deleted → S1/S2/**S4** FAIL" | Wrong for S4: against that probe (narrowed `ctrl_flags`, no saturation) a wire `flags: 65536` truncates to `0`, so S4's `ctrl_flags == 0` assertion **passes vacuously**. S4's only non-vacuous negative is a **saturating** `ctrl_flags` tree (the reference patch verbatim), which stores `0xFFFF`. Two distinct probes are required; on today's un-narrowed tree (`uint32_t`), S4 is RED too (`flags: 65536` stores `0x10000`, no defined bit set) | 04 |
 | C-19 | (implicit — the −890/−1148 figures apply unconditionally) | Those figures were measured on a reference table with **no per-row policy column**. OD-1 adds one (mask-vs-saturate per row), which costs bytes. A post-change figure that still reads **exactly** −1148 is the **suspicious** outcome, not the target — plans 02/03 must record what they actually measure | 02, 03 |
 
@@ -610,7 +610,7 @@ backlog entry that carries this caveat.
   `--policy merge05` invocation fails with exactly two lines, both native case counts, and no
   AVR flash or RAM leg (§8).
 - The reference patch is proven **not to apply**: all four `git apply --check -C{0,1,2,3}` runs
-  fail identically at `src/json_parser.c:65`, and `patch --dry-run -F3` fails hunk #3 alone while
+  fail identically at `src/json_parser.c:76`, and `patch --dry-run -F3` fails hunk #3 alone while
   #4–#7 succeed with offsets (§7) — plan 02's implementation is a hand-port, confirmed.
 - All nineteen corrections (C-1 through C-19) and all seven OD decisions are recorded here with
   their declined alternatives and those alternatives' costs (§10, §11), each stated as

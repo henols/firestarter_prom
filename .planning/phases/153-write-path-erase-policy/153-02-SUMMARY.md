@@ -106,7 +106,7 @@ status: complete
 Unity failure line, verbatim:
 
 ```
-test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1671: test_case30_write_init_no_blank_check_with_flag_clear_erase01: Case 30 (ERASE-01): is_operation_in_progress must be FALSE after exactly one eeprom28c_write_init call with FLAG_SKIP_BLANK_CHECK clear -- mem_util_blank_check is the only setter of this flag on the write-INIT path, so TRUE here would mean the pre-write blank check still ran and left a multi-call INIT loop pending	[FAILED]
+test/native/avr/test_eeprom28c_sdp/test_eeprom28c_sdp.cpp:1734: test_case30_write_init_no_blank_check_with_flag_clear_erase01: Case 30 (ERASE-01): is_operation_in_progress must be FALSE after exactly one eeprom28c_write_init call with FLAG_SKIP_BLANK_CHECK clear -- mem_util_blank_check is the only setter of this flag on the write-INIT path, so TRUE here would mean the pre-write blank check still ran and left a multi-call INIT loop pending	[FAILED]
 ```
 
 Assertion 1 fired first (the other two assertions were never reached in that

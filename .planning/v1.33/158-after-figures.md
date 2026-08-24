@@ -448,7 +448,7 @@ referencing the `-1` sentinel, twelve field references across six lines. `jsmn.c
 
 **The source-contract gate, `tests/test_jsmn_token_layout_source_contract_v158.py`, five legs, all
 green this session** (`5 passed in 0.03s`): region-scoped to the text above the
-`#ifndef JSMN_HEADER` marker (`jsmn.h:33` defines `JSMN_HEADER`, so the dead duplicate
+`#ifndef JSMN_HEADER` marker (`jsmn.h:34` defines `JSMN_HEADER`, so the dead duplicate
 implementation below is never compiled and is deliberately excluded from the scan); environment
 seam `FIRESTARTER_JSMN_TOKEN_LAYOUT_SCAN_SOURCE`, binding at import time. All three probe outcomes,
 verbatim from plan 02's own session (header restored between each, `git diff --quiet` verified):
@@ -577,7 +577,7 @@ comparative-speed claim anywhere.**
 > different protocol family (the `0x07`/`0x08`/`0x0B` UV-EPROM family), and a per-byte
 > high-voltage (VPE) settle-time problem rather than a division-cost problem. REQUIREMENTS.md's
 > "Out of Scope" section separately rules `eprom_write_execute` untouchable for this milestone.
-> Separately, algorithm 13's masked page-end predicate in `src/proms/eeprom_28c.cpp:643-651,752`
+> Separately, algorithm 13's masked page-end predicate in `src/proms/eeprom_28c.cpp:628-636,752`
 > is a **different problem, kept distinct on purpose**: its page size arrives from the host wire
 > and could be anything, so it needs the validating resolver it has (`eeprom28c_page_mask`);
 > algorithm 5's page size is derived internally from three literal returns that are provably
@@ -625,7 +625,7 @@ The criterion's 57 tokens / 7 tokens headroom is reproducible by none of these t
 **`57` / `7` refutation:** none of the three counting rules reproduces the criterion's `57`/`7`.
 Even the loosest synthetic composition (the criterion's own implied recipe) yields **55**, not
 `57`. The `state`-alongside-`cmd` explanation for the unaccounted **2-token gap**
-(`src/json_parser.c:308` treats `cmd`/`state` as alternates the host never sends together) is
+(`src/json_parser.c:503` treats `cmd`/`state` as alternates the host never sends together) is
 **flagged as unverified** -- the scoping session that produced `57`/`7` was not located.
 
 **The fail-closed overflow path, from source:** `jsmn_alloc_token` (`lib/jsmn/src/jsmn.c:8-16`)
@@ -636,8 +636,8 @@ which the caller converts to `JSMN_ERROR_NOMEM` (`-1`) -- a budget overflow is a
 **The unknown-key skip, the forward-compatibility mechanism, confirmed at the same line numbers as
 `158-before-figures.md` (source unchanged by this phase):**
 ```
-src/json_parser.c:333:            // Unknown field -- skip key + value token (forward-compatible with new Python fields)
-src/json_parser.c:334:            token_idx += 2;
+src/json_parser.c:510:            // Unknown field -- skip key + value token (forward-compatible with new Python fields)
+src/json_parser.c:511:            token_idx += 2;
 ```
 
 **The conclusion, a budget argument, explicitly NOT arithmetic impossibility:**

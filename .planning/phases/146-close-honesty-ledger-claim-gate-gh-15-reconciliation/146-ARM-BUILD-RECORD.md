@@ -164,7 +164,7 @@ the action's own rule:
 | the two blind-registered TUs | `eprom_params.cpp.obj` and `eprom_budget.cpp.obj` both present in the build tree — both registrations compile for ARM |
 
 The build is not warning-free: the log carries `-Wunused-parameter` on several shared TUs, one
-`-Wtype-limits` in `rurp_serial_utils.cpp:399`, one `-Wsizeof-pointer-div` in `json_parser.c:53`, an
+`-Wtype-limits` in `rurp_serial_utils.cpp:396`, one `-Wsizeof-pointer-div` in `json_parser.c:64`, an
 `sbrk.o: missing .note.GNU-stack section` linker warning, and a CMake developer warning about
 `FetchContent_Populate` being deprecated. None is an error, no warning gate exists on this target
 (`check_build_warnings.py` has no baseline entry for it), and **no warning was fixed** — D-06 forbids it.

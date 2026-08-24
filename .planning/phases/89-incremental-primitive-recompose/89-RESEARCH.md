@@ -411,7 +411,7 @@ Note: run host gates with the system python (py3.12 here masks CI py3.11, but th
 | V2 Authentication | no | offline firmware, no users |
 | V3 Session Management | no | no sessions |
 | V4 Access Control | no | no multi-user surface |
-| V5 Input Validation | partial | the firmware's existing `vpp_mv`/`mem_size` underflow guards (e.g. eeprom_28c.cpp:82 `mem_size < 64`) — must be PRESERVED by P4 extraction, not relocated |
+| V5 Input Validation | partial | the firmware's existing `vpp_mv`/`mem_size` underflow guards (e.g. eeprom_28c.cpp:78 `mem_size < 64`) — must be PRESERVED by P4 extraction, not relocated |
 | V6 Cryptography | no | none |
 
 ### Known Threat Patterns for this firmware refactor

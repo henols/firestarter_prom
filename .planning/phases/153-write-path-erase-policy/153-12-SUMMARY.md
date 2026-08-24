@@ -145,7 +145,7 @@ No `ic_layout.py`, `database.py`, `cli_handlers.py`, `eprom_operations.py`, or a
 
 ## Decisions Made
 
-- **ERASE-06 reading (D-07 decomposition, not derivation):** adopted the "must not contradict" reading over "must derive from", per `152-CONTEXT.md` D-07's own decomposition table entry ("info's can be erased row | ic_layout.py:582 | contradicts the wire flag"). This licenses zero `ic_layout.py` edit; both new legs' docstrings record this explicitly, including the out-of-scope third value `_interpret_flags` reads.
+- **ERASE-06 reading (D-07 decomposition, not derivation):** adopted the "must not contradict" reading over "must derive from", per `152-CONTEXT.md` D-07's own decomposition table entry ("info's can be erased row | ic_layout.py:579 | contradicts the wire flag"). This licenses zero `ic_layout.py` edit; both new legs' docstrings record this explicitly, including the out-of-scope third value `_interpret_flags` reads.
 - **ERASE-05 stayed pure assertion:** no implementation task was added anywhere in this plan; all five legs in Task 3 assert an already-working chain.
 - **Plan-shape figures derived live, not from prose:** legs 5/6 in Task 1 and the reachability mutations for all six legs were measured directly against this session's `derive_plan()` and `convert_to_programmer()` output before being written into the test file, then cross-checked against the plan's prose (which matched exactly).
 

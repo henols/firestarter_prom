@@ -203,17 +203,17 @@ share the single terminal `configure_not_implemented()` — exactly D-04's inten
 | `memory.cpp` fallback steps 7–11 ~122–138 | `memory.cpp:122–137` (chain 123-135, error 136-137) | ✅ within 1 line |
 | `memory.cpp` `TYPE_*` defines ~27–30 | `memory.cpp:27–30` (`TYPE_EPROM 1`, `TYPE_FLASH_TYPE_3 3`, `TYPE_SRAM 4`, `TYPE_FLASH_TYPE_4 5`) | ✅ exact |
 | `firestarter.h` `uint8_t mem_type;` ~88 | `firestarter.h:88` `uint8_t mem_type;` | ✅ exact |
-| `json_parser.c` `extract_int("type",…)` ~307 | `json_parser.c:307` (inside `get_type()`, body 306-308) | ✅ exact |
-| `json_parser.c` `key_type[] PROGMEM = "type"` ~64 | `json_parser.c:64` | ✅ exact |
+| `json_parser.c` `extract_int("type",…)` ~307 | `json_parser.c:503` (inside `get_type()`, body 306-308) | ✅ exact |
+| `json_parser.c` `key_type[] PROGMEM = "type"` ~64 | `json_parser.c:75` | ✅ exact |
 | `messages.h` `MSG_ERR_MEM_TYPE_UNSUPPORTED 0xAE` ~83 | `messages.h:83` | ✅ exact |
-| `rurp_serial_utils.cpp:377` `0xAE` = CRC table byte, DO NOT TOUCH | `:377` is a CRC8_TABLE row (`0xAE, 0xA9, 0xA0, …`) — confirmed table data | ✅ leave untouched |
+| `rurp_serial_utils.cpp:374` `0xAE` = CRC table byte, DO NOT TOUCH | `:377` is a CRC8_TABLE row (`0xAE, 0xA9, 0xA0, …`) — confirmed table data | ✅ leave untouched |
 
 ## Finding #3 — `mem_type` consumers: exactly as CONTEXT claimed (+ 2 test files)
 
 Full-tree grep for `mem_type` / `->mem_type` / `.mem_type` `[VERIFIED: grep]`. Consumers:
 1. **`firestarter.h:88`** — struct field declaration (DELETE).
 2. **`memory.cpp:123/126/129/132/136`** — dispatch chain reads (DELETE with the chain).
-3. **`json_parser.c:307`** — populate (DELETE — see finding #4 for full touchpoint list).
+3. **`json_parser.c:503`** — populate (DELETE — see finding #4 for full touchpoint list).
 4. **`test/native/avr/test_dispatch/test_configure_memory.cpp:58/61`** — `make_handle()` param + `h.mem_type = mem_type;`.
 5. **`test/native/avr/test_not_implemented/test_not_implemented.cpp:39/42`** — same `make_handle()` pattern.
 
@@ -241,7 +241,7 @@ required per D-05.
 
 - `MSG_ERR_MEM_TYPE_UNSUPPORTED (0xAE)`: only two references tree-wide — the `#define` at
   `messages.h:83` and its single use at `memory.cpp:136` (deleted with the chain). `[VERIFIED: grep]`
-- The `0xAE` at `rurp_serial_utils.cpp:377` is a **CRC8 lookup-table byte** (surrounded by
+- The `0xAE` at `rurp_serial_utils.cpp:374` is a **CRC8 lookup-table byte** (surrounded by
   `0xA9, 0xA0, 0xA7, 0xB2, 0xB5, 0xBC, 0xBB, …`) — NOT a message code. **Do not touch.** `[VERIFIED: Read]`
 - `test_messages` (`test_rurp_log_id.cpp`) does NOT reference `0xAE`/`MEM_TYPE` (uses `0xB1` as
   its example) — removing the message will not break it. `[VERIFIED: grep]`
@@ -362,10 +362,10 @@ forking v1.20. Verify `git ls-tree beta include/proto_constants.h` is non-empty 
 **What goes wrong:** removing the fallback chain but leaving `TYPE_*` (`memory.cpp:27-30`) or
 `0xAE` (`messages.h:83`) as dead `#define`s.
 **How to avoid:** SC#3 mandates same-commit removal. After deletion, `grep -rn "TYPE_EPROM\|0xAE"`
-should show only the CRC-table byte at `rurp_serial_utils.cpp:377`.
+should show only the CRC-table byte at `rurp_serial_utils.cpp:374`.
 
 ### Pitfall 4: Touching the CRC8 table byte
-**What goes wrong:** editing `0xAE` at `rurp_serial_utils.cpp:377` corrupts the CRC8 lookup table →
+**What goes wrong:** editing `0xAE` at `rurp_serial_utils.cpp:374` corrupts the CRC8 lookup table →
 every framed message fails CRC.
 **How to avoid:** it is table DATA, not a message ref. Leave it.
 
@@ -504,7 +504,7 @@ protocol-keyed golden traces + `check_dispatch.py`'s SRAM-never-reaches-configur
 - `firestarter/src/json_parser.c` (Read) — 4 `type`-parse touchpoints
 - `firestarter/include/messages.h` (Read) — `0xAE` define
 - `firestarter/include/proto_constants.h` (Read) — v1.19 PROTO_ layer
-- `firestarter/src/boards/rurp_serial_utils.cpp:377` (Read) — CRC8 table byte
+- `firestarter/src/boards/rurp_serial_utils.cpp:374` (Read) — CRC8 table byte
 - `firestarter/test/native/avr/test_dispatch/test_configure_memory.cpp` (Read) — dispatch tests
 - `firestarter/test/native/avr/test_not_implemented/test_not_implemented.cpp` (Read) — fail-closed tests
 - `firestarter/test/native/avr/_shared/validation_matrix.h` (Read) — golden trace matrix

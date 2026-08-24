@@ -264,7 +264,7 @@ siblings, incl. `planted_cap03_literal_index.cpp`, `planted_log_in_window.cpp`).
  * real firmware/host wire-key disagreement.
  *
  * It is a faithful copy of firestarter/src/json_parser.c's PROGMEM
- * key-string block and key_parsers[] dispatch table (json_parser.c:51-81),
+ * key-string block and key_parsers[] dispatch table (json_parser.c:62-164),
  * with exactly ONE planted change: ...
  */
 ```
