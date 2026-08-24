@@ -234,6 +234,45 @@ untracked files (`.planning/config.json`, `SECURITY.md`, 4 datasheet PDFs,
 `write_test_port.sh`) are untouched. Neither gitlink is staged in the meta
 index.
 
+## Note for Plan 159-06: the post-restore dry-run shape (STATE.md is a permanent, expected exception)
+
+After the post-commit restore of `.planning/STATE.md` to its preserved dirty
+preimage (above), a **fresh** dry run over the live corpus reports:
+
+```
+1 rewritten ... 1 document(s) would change
+```
+
+with `affected_documents: [".planning/STATE.md"]` and **all** actionable /
+open counts still zero. This is the disk-based (not staged-content-based)
+view: `remap_document()` has no concept of `preserve_unstaged` -- it only
+ever reads the file's current disk bytes and compares against its own
+target-file citation oracle. Since STATE.md's disk bytes are, by design,
+permanently pinned at the pre-existing dirty preimage rather than the
+citation-fixed postimage, a disk-only dry run will **always** report this
+same "1 rewritten, 1 document" residual, forever, for as long as
+`auth-state-md-dirty`'s `preserve_unstaged` decision holds -- it is not a
+transient artifact of this task's own sequencing, and it is not a defect.
+
+The true, corpus-wide, byte-stable fixed-point proof (the "second dry run"
+section above, `0 rewritten / 0 documents`) was captured **before** this
+restore, with STATE.md's disk bytes still holding the verified real
+postimage (`61fb2b61...`) -- proving the remap LOGIC itself has reached a
+true fixed point across the entire real corpus. The residual "1 document"
+a post-restore dry run reports is solely a reflection of the deliberate
+`preserve_unstaged` gap between STATE.md's disk bytes (`e866ab7a...`,
+frozen) and its committed citation-only blob (`351d777...`) -- a gap that
+is proven correct separately, by exact blob/content-hash comparison against
+`159-index-stage-plan.json`'s prediction (done above), not by a disk-level
+dry run.
+
+**Actionable guidance for 159-06's own "dry no-op still 0/0" gate:** run the
+same dry command and treat a residual limited to exactly `affected_documents
+== [".planning/STATE.md"]` with `planned_rewrites <= 1` and all
+actionable/open counts zero as the expected, permanent PASS shape -- not a
+regression. A dry run reporting any OTHER document, or any nonzero
+actionable/open count, would be a genuine regression.
+
 ## Marker state
 
 `.planning/v1.33/CITATIONS-STALE.md`: **PRESENT** -- Plan 159-06 close-blocks
