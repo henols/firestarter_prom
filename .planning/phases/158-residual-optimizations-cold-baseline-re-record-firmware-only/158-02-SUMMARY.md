@@ -116,3 +116,12 @@ None - no external service configuration required.
 ---
 *Phase: 158-residual-optimizations-cold-baseline-re-record-firmware-only*
 *Completed: 2026-08-24*
+
+## Self-Check: PASSED
+
+- FOUND: firestarter/lib/jsmn/src/jsmn.h
+- FOUND: firestarter/tests/test_jsmn_token_layout_source_contract_v158.py
+- FOUND: .planning/phases/158-residual-optimizations-cold-baseline-re-record-firmware-only/158-02-SUMMARY.md
+- FOUND commit (firestarter): 490c435 (refactor(158-02): narrow jsmntok_t to 6 bytes, start/end stay signed)
+- FOUND commit (firestarter): 8e126f2 (test(158-02): pin the jsmn token layout as a region-scoped source contract)
+- FOUND commit (meta): 6da5675 (docs(158-02): record jsmntok_t narrowing + source-contract SUMMARY)
