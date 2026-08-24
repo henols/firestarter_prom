@@ -114,6 +114,72 @@ phase that found it.**
   Phases 155–158 entirely. Re-pinned to the v1.33 firmware tip `2ccda8d4` in the same commit.
   `firestarter_app` was already correct at `38f0d83`.
 
+### Post-Close Correction: The Sweep's Oracle Was Blind (2026-08-24)
+
+**Found by the operator, after close, by reading the code** — `include/eprom_budget.h` still carried
+`Phase 145 may record the real figure`. It was not an isolated survivor.
+
+**The instrument, not the procedure.** `survey_provenance.py` was the SWEEP-03/SWEEP-06 gate, and it
+shipped with **no test file at all**. Its detector anchors the provenance token immediately after the
+comment opener:
+
+    (//|/\*|^\s*\*|#)\s*(Task|Phase|Plan|P\d{3}|Req|REQ-|CAP-0|D-\d|WR-\d|LOOP-\d|\d{3}-CONTEXT)
+
+So a token appearing **mid-sentence** was invisible — `# needed (D-02).` never matched — as was every
+requirement family outside that fixed 5-name list. The project has **96 families**, derived from its own
+`REQUIREMENTS` records. Python **docstrings** were invisible too: `chip_test.py:537` opens a docstring
+with `Ordered, derived test plan for a single chip (SWEEP-01).` and carries no `#` anywhere.
+
+| Measurement | Old gate | Corrected |
+|---|---|---|
+| Hit lines, shipped source (both repos) | **43** | **1,174** |
+| Hit lines, whole corpus | 198 | 4,214 |
+| `D-#` in `firestarter/{src,include}` | 4 across 1 file | **87 across 21 files** |
+
+**SWEEP-03's headline evidence was an artifact of where the regex anchored.** Its discharge records
+`D-#` going "34 across 9 files → 4 across 1 file". That reproduces exactly under the old detector — 4,
+re-measured — but the property the requirement *states*, "requirement/decision IDs are stripped from
+shipped source", was never what the 4 measured.
+
+**What was done about it.** The detector was corrected to separate two questions the regex conflated —
+is this comment-or-docstring context (per language: a C scanner tracking string/char/block state,
+`tokenize` for Python), and does that text carry a token anywhere within it. `--legacy-anchored`
+reproduces the historical figure **exactly at 198**, so every number already recorded in `.planning/`
+stays reproducible. The oracle got its first **21 tests**, proven RED first.
+
+**Sweep outcome:**
+
+- **Firmware: complete.** 27 files; residue **zero** outside two named exemptions — CAP-01/02/03
+  (8 lines, live cross-repo wire vocabulary per SWEEP-02) and the blob-SHA-pinned
+  `eprom.cpp`/`eprom_params.h` (65 lines, Ruling B, whose `protocol_branch_inventory.json` sidecar
+  carries a **line-bearing** `sites` array extracted from `eprom.cpp`). Gates: **byte-identical cold on
+  all three AVR targets**, sizes unmoved, 184/184 native, 184/184 native_nodevtools, 360 pytest.
+- **App package: partial.** 285 of 787 lines swept, all strictly within-line so **no app line number
+  moved**. 1947 passed / 29 pre-existing errors — byte-equal to the pre-sweep baseline.
+  **463 lines remain unswept** and are enumerated by `strip_provenance.py --show-residue`.
+- **Not in scope:** `tools/` (288) and both test trees (2,977). `packages = ["firestarter"]`, so
+  `tools/` does not ship; test-tree IDs are deliberately retained per SWEEP-03/04.
+
+**Three defects were introduced by this correction and caught by gates, not by review** — recorded
+because the catch is the point:
+
+1. A hand edit left a dangling `(157-03,` with an unbalanced paren in `firestarter.h`.
+2. `rurp_vpp.h` lost an opening paren while its closing partner survived on the next line. Both were
+   found by a block-level comment-hygiene check written for this pass.
+3. The stripper's `\s*\(` swallowed a **line's leading indentation** when a parenthetical opened the
+   line, turning a `serial_comm.py` docstring line into `. 0-byte param region ...` and taking the
+   CAP-03 parity gate from 6-of-6 facts to **0**. A second stripper defect edited three lines inside
+   `_read_and_parse_lines`, whose body is SHA-pinned by a gate whose failure text says a change must be
+   **flagged and deferred, not re-pinned** — so unlike the firmware C-14 census that is a do-not-touch.
+
+Each has a regression test. The stripper is deliberately fail-closed: it rewrites only three provable
+shapes and **declines** everything else, which is why 463 lines are a reviewable list rather than
+silent damage.
+
+**Honest status of the requirements:** SWEEP-01 is **procedure correct, coverage incomplete**; SWEEP-03
+is **discharged for firmware, open for the app package**. Both are annotated in place in
+`milestones/v1.33-REQUIREMENTS.md` rather than silently re-ticked.
+
 ### Citation-Shift Audit Of This Close (2026-08-24)
 
 **A milestone close necessarily shifts line numbers in the very records it writes,** and in a milestone
