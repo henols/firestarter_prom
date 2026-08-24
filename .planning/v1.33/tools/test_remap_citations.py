@@ -1462,7 +1462,15 @@ def test_report_json_is_non_vacuous_and_lists_open_ids_for_a_dynamic_retarget(tm
     report = json.loads(report_path.read_text(encoding="utf-8"))
     assert report["totals"]["examined"] == 1
     assert report["totals"]["retarget"] == 1
-    assert report["open_ids"] == [rc.stable_record_id(rec)]
+    # Phase 159-02: `open_ids` is category-keyed (adds a "needs_review"
+    # bucket for tracked-pending ledger/overlay rows); the pre-existing
+    # non-strict RETARGET outcome (no --exceptions given) lands under its own
+    # outcome-named key, and every other category -- including
+    # "needs_review" -- stays empty.
+    assert report["open_ids"]["retarget"] == [rc.stable_record_id(rec)]
+    for cat, ids in report["open_ids"].items():
+        if cat != "retarget":
+            assert ids == [], f"category {cat!r} expected empty, got {ids}"
     assert report["affected_documents"] == []
     assert report["corpus_fingerprint"]
     assert report["topology_digest"]
@@ -1602,6 +1610,162 @@ def test_corpus_overlay_resolves_a_relocated_citing_document(tmp_path):
     result = h.run("--apply", "--quiet-notes", "--corpus-overlay", str(overlay_path))
     assert result.returncode == 0, _shown(result, 0)
     assert relocated_doc.read_text(encoding="utf-8").rstrip("\n").endswith(":10")
+
+
+# ---------------------------------------------------------------------------
+# Phase 159-02: tracked-pending review rows are soft (reported, not blocking)
+# -- REMAP-01/02.
+# ---------------------------------------------------------------------------
+def test_exceptions_entry_with_status_needs_review_is_soft_not_blocking(tmp_path):
+    """A ledger row with status='needs_review' (not 'reviewed') is a KNOWN,
+    tracked gap: it must be reported under open_ids['needs_review'] and the
+    run must still write --report-json and exit 1 for THAT reason alone, not
+    via the hard `violations` path that blocks the report entirely."""
+    old = _read_lines(_CHAINED_OLD)
+    new = _read_lines(_CHAINED_NEW)
+    reflow_index = new.index("static uint8_t demo_state;")
+    new = list(new)
+    new[reflow_index] = "static uint8_t demo_state;  // reflowed by the sweep"
+    doc = "A citation at the reflowed line: firestarter/src/chained_demo.cpp:6\n"
+    harness = Harness(tmp_path, old_lines=old, new_lines=new, doc_text=doc)
+    header, _ = harness.load_manifest()
+    rec = _record(1, "colon_single", _TARGET_REL, 6, None, old)
+    harness.write_manifest(header, [rec])
+    rid = rc.stable_record_id(rec)
+
+    exceptions_path = tmp_path / "exceptions.jsonl"
+    exceptions_path.write_text(
+        json.dumps({"record_id": rid, "status": "needs_review"}) + "\n",
+        encoding="utf-8",
+    )
+    report_path = tmp_path / "report.json"
+    result = harness.run(
+        "--quiet-notes",
+        "--exceptions",
+        str(exceptions_path),
+        "--report-json",
+        str(report_path),
+    )
+    assert result.returncode == 1, _shown(result, 1)
+    assert report_path.is_file(), "the report must still be written for a tracked-pending row"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report["open_ids"]["needs_review"] == [rid]
+    for cat, ids in report["open_ids"].items():
+        if cat != "needs_review":
+            assert ids == [], f"category {cat!r} expected empty, got {ids}"
+    assert report["actionable_counts"]["needs_review"] == 1
+    for k, v in report["actionable_counts"].items():
+        if k != "needs_review":
+            assert v == 0, f"actionable_counts[{k!r}] expected 0, got {v}"
+    assert report["totals"]["examined_records"] > 0
+    assert report["totals"]["examined_documents"] > 0
+    assert report["totals"]["planned_documents"] == 0  # nothing is rewritten while pending
+
+
+def test_unlisted_actionable_row_still_hard_blocks_under_exceptions(tmp_path):
+    """A record with NO ledger entry at all is still a genuine surprise and
+    remains a hard, report-blocking violation -- fail-closed default unchanged."""
+    old = _read_lines(_CHAINED_OLD)
+    new = _read_lines(_CHAINED_NEW)
+    reflow_index = new.index("static uint8_t demo_state;")
+    new = list(new)
+    new[reflow_index] = "static uint8_t demo_state;  // reflowed by the sweep"
+    doc = "A citation at the reflowed line: firestarter/src/chained_demo.cpp:6\n"
+    harness = Harness(tmp_path, old_lines=old, new_lines=new, doc_text=doc)
+    header, _ = harness.load_manifest()
+    rec = _record(1, "colon_single", _TARGET_REL, 6, None, old)
+    harness.write_manifest(header, [rec])
+
+    exceptions_path = tmp_path / "exceptions.jsonl"
+    exceptions_path.write_text(
+        json.dumps({"record_id": "orig-not-this-record", "status": "needs_review"}) + "\n",
+        encoding="utf-8",
+    )
+    report_path = tmp_path / "report.json"
+    result = harness.run(
+        "--quiet-notes",
+        "--exceptions",
+        str(exceptions_path),
+        "--report-json",
+        str(report_path),
+    )
+    assert result.returncode == 1, _shown(result, 1)
+    assert not report_path.is_file(), "an undocumented surprise must block the report entirely"
+    assert "unreviewed_retarget" in result.stderr or "BLOCK" in result.stderr
+
+
+def test_apply_refuses_while_needs_review_is_nonzero(tmp_path):
+    """--apply must refuse (exit 1, nothing written) while any record or
+    overlay authorization remains tracked-pending."""
+    old = _read_lines(_CHAINED_OLD)
+    new = _read_lines(_CHAINED_NEW)
+    reflow_index = new.index("static uint8_t demo_state;")
+    new = list(new)
+    new[reflow_index] = "static uint8_t demo_state;  // reflowed by the sweep"
+    doc = "A citation at the reflowed line: firestarter/src/chained_demo.cpp:6\n"
+    harness = Harness(tmp_path, old_lines=old, new_lines=new, doc_text=doc)
+    header, _ = harness.load_manifest()
+    rec = _record(1, "colon_single", _TARGET_REL, 6, None, old)
+    harness.write_manifest(header, [rec])
+    rid = rc.stable_record_id(rec)
+
+    exceptions_path = tmp_path / "exceptions.jsonl"
+    exceptions_path.write_text(
+        json.dumps({"record_id": rid, "status": "needs_review"}) + "\n",
+        encoding="utf-8",
+    )
+    before = harness.doc_text()
+    result = harness.run("--apply", "--quiet-notes", "--exceptions", str(exceptions_path))
+    assert result.returncode == 1, _shown(result, 1)
+    assert harness.doc_text() == before, "nothing may be written while a decision is pending"
+
+
+def test_dirty_overlap_overlay_row_surfaces_as_needs_review_without_blocking_resolution(
+    tmp_path,
+):
+    """A corpus-overlay row explicitly marked `dirty_overlap: true` resolves
+    the citing document's live location (as Phase 159-01's LocationResolver
+    already does) AND is separately surfaced as a pending authorization in
+    open_ids['needs_review'] -- it must not silently disappear."""
+    h = Harness(tmp_path)
+    relocated_dir = h.root / ".planning" / "v1.33"
+    relocated_dir.mkdir(parents=True)
+    relocated_doc = relocated_dir / "relocated_doc.md"
+    relocated_doc.write_text(h.doc.read_text(encoding="utf-8"), encoding="utf-8")
+    digest = __import__("hashlib").sha256(relocated_doc.read_bytes()).hexdigest()
+    h.doc.unlink()
+
+    header, records = h.load_manifest()
+    for rec in records:
+        rec["planning_file"] = ".planning/moved_from_here.md"
+    h.write_manifest(header, records)
+
+    overlay_path = tmp_path / "overlay.jsonl"
+    overlay_path.write_text(
+        json.dumps(
+            {
+                "path": ".planning/moved_from_here.md",
+                "current_path": ".planning/v1.33/relocated_doc.md",
+                "preapply_sha256": digest,
+                "expected_postapply_sha256": digest,
+                "dirty_overlap": True,
+                "approval_status": "pending",
+                "authorization_id": "auth-relocated-doc",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    report_path = tmp_path / "report.json"
+    result = h.run(
+        "--quiet-notes", "--corpus-overlay", str(overlay_path), "--report-json", str(report_path)
+    )
+    assert result.returncode == 1, _shown(result, 1)
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert "auth-relocated-doc" in report["open_ids"]["needs_review"]
+    assert report["actionable_counts"]["needs_review"] >= 1
+    # location resolution itself still worked -- the document WAS examined.
+    assert report["totals"]["examined_documents"] >= 1
 
 
 # ---------------------------------------------------------------------------

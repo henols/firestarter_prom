@@ -287,6 +287,17 @@ VIOLATION = "violation"
 #: Phase 159 addition: an actionable RETARGET/NOT_AT_RECORDED_LINE outcome
 #: with no reviewed `--exceptions` ledger entry, once hardening is engaged.
 UNREVIEWED_RETARGET = "unreviewed_retarget"
+#: Phase 159-02 addition: an actionable outcome (RETARGET, NOT_AT_RECORDED_LINE
+#: or NO_MATCH_IN_DOCUMENT) whose stable record ID DOES have an exceptions
+#: ledger entry, but that entry's status is not yet "reviewed" (e.g.
+#: "needs_review"). This is a KNOWN, tracked, pending decision -- not a
+#: silent surprise -- so it is reported (open_ids["needs_review"],
+#: actionable_counts["needs_review"]) and does NOT enter the hard
+#: `violations` list that blocks --report-json from being written. A record
+#: with NO ledger entry at all remains UNREVIEWED_RETARGET / a hard
+#: NO_MATCH_IN_DOCUMENT violation, exactly as before: the fail-closed
+#: default is preserved for anything genuinely undocumented.
+PENDING_REVIEW = "pending_review"
 
 OUTCOMES = (
     REWRITE,
@@ -298,6 +309,20 @@ OUTCOMES = (
     NO_MATCH_IN_DOCUMENT,
     VIOLATION,
     UNREVIEWED_RETARGET,
+    PENDING_REVIEW,
+)
+
+#: The report's `open_ids` / `actionable_counts` categories. "needs_review"
+#: is a Phase 159-02 addition alongside the pre-existing actionable outcomes;
+#: it aggregates PENDING_REVIEW citation records AND pending corpus-overlay
+#: authorization IDs (topology/dirty-overlap rows not yet approved).
+REPORT_CATEGORIES = (
+    RETARGET,
+    NOT_AT_RECORDED_LINE,
+    NO_MATCH_IN_DOCUMENT,
+    UNREVIEWED_RETARGET,
+    VIOLATION,
+    "needs_review",
 )
 
 
@@ -733,6 +758,18 @@ def resolve_with_review(
         return natural
 
     entry = (exceptions or {}).get(record_id)
+    if entry is not None and entry.get("status") not in ("reviewed", None):
+        # Phase 159-02: a TRACKED, pending ledger row (status e.g.
+        # "needs_review") is a known, documented gap -- not a surprise -- so
+        # it is reported softly rather than treated as a hard violation.
+        return Outcome(
+            PENDING_REVIEW,
+            natural.start,
+            natural.end,
+            f"{record_id} is an actionable {natural.outcome} outcome with a "
+            f"tracked exceptions-ledger entry (status={entry.get('status')!r}) "
+            "pending human review -- reported, not blocking (REMAP-02)",
+        )
     if entry is not None and entry.get("status") == "reviewed":
         chosen_start = entry.get("chosen_target_line")
         chosen_end = entry.get("chosen_target_line_end")
@@ -812,6 +849,8 @@ def _associate(
     violations: list[str],
     strict: bool,
     open_ids: set[str] | None = None,
+    exceptions: dict[str, dict] | None = None,
+    open_ids_by_category: dict[str, set[str]] | None = None,
 ) -> tuple[list, dict[tuple[int, int], dict]]:
     """Bind manifest records to the citation spans actually present in a line.
 
@@ -852,7 +891,6 @@ def _associate(
     for key, recs in record_groups.items():
         spans = span_groups.get(key, [])
         if len(spans) != len(recs):
-            counts[NO_MATCH_IN_DOCUMENT] += len(recs)
             notes.append(
                 f"{where} has {len(recs)} manifest record(s) for "
                 f"{key[0]} ({key[1]}) but {len(spans)} matching citation "
@@ -861,8 +899,21 @@ def _associate(
             )
             for rec in recs:
                 rid = stable_record_id(rec)
+                entry = (exceptions or {}).get(rid)
+                if entry is not None and entry.get("status") != "reviewed":
+                    # Phase 159-02: a TRACKED, pending ledger row -- known and
+                    # documented, reported softly rather than hard-blocking.
+                    counts[PENDING_REVIEW] += 1
+                    if open_ids is not None:
+                        open_ids.add(rid)
+                    if open_ids_by_category is not None:
+                        open_ids_by_category["needs_review"].add(rid)
+                    continue
+                counts[NO_MATCH_IN_DOCUMENT] += 1
                 if open_ids is not None:
                     open_ids.add(rid)
+                if open_ids_by_category is not None:
+                    open_ids_by_category[NO_MATCH_IN_DOCUMENT].add(rid)
                 if strict:
                     violations.append(
                         f"{where} {key[0]} ({rid}) has no unambiguous matching "
@@ -887,20 +938,31 @@ def remap_document(
     strict: bool = False,
     open_ids: set[str] | None = None,
     range_proofs: list[dict] | None = None,
+    open_ids_by_category: dict[str, set[str]] | None = None,
 ) -> str:
     lines = doc_text.split("\n")
     for lineno, records in sorted(records_by_line.items()):
         where = f"{planning_file}:{lineno}"
         if lineno < 1 or lineno > len(lines):
-            counts[NO_MATCH_IN_DOCUMENT] += len(records)
-            notes.append(
-                f"{where} is past EOF ({len(lines)} lines); "
-                f"{len(records)} record(s) matched no citation"
-            )
             for rec in records:
                 rid = stable_record_id(rec)
+                entry = (exceptions or {}).get(rid)
+                if entry is not None and entry.get("status") != "reviewed":
+                    counts[PENDING_REVIEW] += 1
+                    if open_ids is not None:
+                        open_ids.add(rid)
+                    if open_ids_by_category is not None:
+                        open_ids_by_category["needs_review"].add(rid)
+                    continue
+                counts[NO_MATCH_IN_DOCUMENT] += 1
+                notes.append(
+                    f"{where} is past EOF ({len(lines)} lines); "
+                    f"record {rid} matched no citation"
+                )
                 if open_ids is not None:
                     open_ids.add(rid)
+                if open_ids_by_category is not None:
+                    open_ids_by_category[NO_MATCH_IN_DOCUMENT].add(rid)
                 if strict:
                     violations.append(
                         f"{where} ({rid}) is past EOF -- unmatched rows are "
@@ -910,7 +972,16 @@ def remap_document(
 
         line_text = lines[lineno - 1]
         matches, assigned = _associate(
-            line_text, records, counts, notes, where, violations, strict, open_ids
+            line_text,
+            records,
+            counts,
+            notes,
+            where,
+            violations,
+            strict,
+            open_ids,
+            exceptions,
+            open_ids_by_category,
         )
         if not assigned:
             continue
@@ -995,13 +1066,26 @@ def remap_document(
                 target = f"{rec['target_file_resolved']}:{start}" + (
                     f"-{end}" if end is not None else ""
                 )
-                if out.outcome in (RETARGET, NOT_AT_RECORDED_LINE, UNREVIEWED_RETARGET):
+                if out.outcome in (
+                    RETARGET,
+                    NOT_AT_RECORDED_LINE,
+                    UNREVIEWED_RETARGET,
+                    PENDING_REVIEW,
+                ):
                     if open_ids is not None:
                         open_ids.add(rid)
-                if out.outcome in (VIOLATION, UNREVIEWED_RETARGET):
+                    if open_ids_by_category is not None:
+                        cat = "needs_review" if out.outcome == PENDING_REVIEW else out.outcome
+                        open_ids_by_category[cat].add(rid)
+                if out.outcome == VIOLATION:
+                    if open_ids_by_category is not None:
+                        open_ids_by_category[VIOLATION].add(rid)
                     violations.append(f"{where} {target} -- {out.detail}")
                     continue
-                if out.outcome in (RETARGET, NOT_AT_RECORDED_LINE):
+                if out.outcome == UNREVIEWED_RETARGET:
+                    violations.append(f"{where} {target} -- {out.detail}")
+                    continue
+                if out.outcome in (RETARGET, NOT_AT_RECORDED_LINE, PENDING_REVIEW):
                     notes.append(f"{where} {target} -- {out.detail}")
                     continue
                 if out.outcome != REWRITE:
@@ -1811,6 +1895,7 @@ def main(argv: list[str] | None = None) -> None:
     originals: dict[Path, str] = {}
     open_ids: set[str] = set()
     range_proofs: list[dict] = []
+    open_ids_by_category: dict[str, set[str]] = {cat: set() for cat in REPORT_CATEGORIES}
 
     for rel in sorted(by_doc):
         doc_path = inside(repo_root, rel, "planning_file")
@@ -1838,9 +1923,29 @@ def main(argv: list[str] | None = None) -> None:
             strict=strict,
             open_ids=open_ids,
             range_proofs=range_proofs,
+            open_ids_by_category=open_ids_by_category,
         )
         if updated != original:
             planned[doc_path] = updated
+
+    # ---- Phase 159-02: pending corpus-overlay authorizations. These do not
+    # block citation resolution (LocationResolver already resolved the byte
+    # topology) but a row EXPLICITLY marked `dirty_overlap: true` or
+    # `approval_status` in {"pending", "needs_review"} is a known-pending
+    # human decision, so it joins the report's "needs_review" set. A plain
+    # overlay row carrying neither marker (the pre-existing Phase 159-01
+    # location-resolution case) stays silent/non-blocking, unchanged.
+    pending_overlay_ids: list[str] = []
+    for row in overlays:
+        status = row.get("approval_status")
+        is_pending = bool(row.get("dirty_overlap")) or status in ("pending", "needs_review")
+        if not is_pending:
+            continue
+        auth_id = row.get("authorization_id") or row.get("path")
+        if auth_id:
+            pending_overlay_ids.append(str(auth_id))
+            open_ids.add(str(auth_id))
+            open_ids_by_category["needs_review"].add(str(auth_id))
 
     if violations:
         print("FAIL: the round-trip oracle was violated -- nothing was written:\n", file=sys.stderr)
@@ -1851,6 +1956,8 @@ def main(argv: list[str] | None = None) -> None:
             file=sys.stderr,
         )
         sys.exit(1)
+
+    needs_review_count = counts[PENDING_REVIEW] + len(pending_overlay_ids)
 
     if notes and not args.quiet_notes:
         print(f"notes ({len(notes)}):")
@@ -1877,12 +1984,21 @@ def main(argv: list[str] | None = None) -> None:
             json.dumps(topology_parts, sort_keys=True).encode("utf-8")
         ).hexdigest()
         report = {
-            "totals": {"examined": counts["examined"], **{k: counts[k] for k in OUTCOMES}},
+            "totals": {
+                "examined": counts["examined"],
+                **{k: counts[k] for k in OUTCOMES},
+                # Phase 159-02 additive aliases, in the shape the preparer's
+                # dry-run gate expects.
+                "examined_records": counts["examined"],
+                "examined_documents": len(by_doc),
+                "planned_rewrites": counts[REWRITE],
+                "planned_documents": len(planned),
+            },
             "actionable_counts": {
                 k: counts[k]
                 for k in (RETARGET, NOT_AT_RECORDED_LINE, NO_MATCH_IN_DOCUMENT, UNREVIEWED_RETARGET, VIOLATION)
             },
-            "open_ids": sorted(open_ids),
+            "open_ids": {cat: sorted(ids) for cat, ids in open_ids_by_category.items()},
             "affected_documents": sorted(
                 str(p.relative_to(repo_root)).replace(os.sep, "/") for p in planned
             ),
@@ -1890,7 +2006,18 @@ def main(argv: list[str] | None = None) -> None:
             "topology_digest": topology_digest,
             "range_proofs": range_proofs,
         }
+        report["actionable_counts"]["needs_review"] = needs_review_count
         write_json_report(Path(args.report_json), report)
+
+    if args.apply and needs_review_count > 0:
+        print(
+            f"FAIL: {needs_review_count} record(s)/overlay authorization(s) are "
+            "tracked as pending human review (needs_review) -- refusing to "
+            "--apply while any decision remains open. Nothing was written. "
+            "Exit 1 (BLOCK).",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     if args.apply:
         if args.production_receipt:
@@ -1938,19 +2065,21 @@ def main(argv: list[str] | None = None) -> None:
 
     mode = "APPLIED" if args.apply else "DRY RUN (no bytes written; pass --apply)"
     print(
-        f"PASS [{mode}]: {counts['examined']} record(s) examined across "
+        f"{'PENDING' if needs_review_count else 'PASS'} [{mode}]: "
+        f"{counts['examined']} record(s) examined across "
         f"{len(by_doc)} document(s) and {len(maps)} target file(s); "
         f"{counts[REWRITE]} rewritten, {counts[FIXED_POINT]} already at their "
         f"fixed point, {counts[RETARGET] + counts[FLAGGED_RETARGET]} flagged "
         f"retarget, {counts[NOT_AT_RECORDED_LINE]} not at their recorded line, "
         f"{counts[UNREADABLE_ROW]} skipped as unreadable, "
-        f"{counts[NO_MATCH_IN_DOCUMENT]} unmatched in their document; "
+        f"{counts[NO_MATCH_IN_DOCUMENT]} unmatched in their document, "
+        f"{needs_review_count} pending human review (needs_review); "
         f"{legitimate_fixture_rows} record(s) legitimately cite a planted "
         "fixture by name; "
         f"{len(planned)} document(s) "
         + ("changed." if args.apply else "would change.")
     )
-    sys.exit(0)
+    sys.exit(1 if needs_review_count else 0)
 
 
 if __name__ == "__main__":
