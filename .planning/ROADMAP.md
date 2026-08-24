@@ -439,7 +439,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 158-04-PLAN.md — LAND-01 + LAND-02 in ONE commit: the cold re-record of `size_baseline.json`, the `*_v158*` severance (4 new fixtures + 2 in place), the four repointed legs, and the one-sided PASS line
+- [x] 158-04-PLAN.md — LAND-01 + LAND-02 in ONE commit: the cold re-record of `size_baseline.json`, the `*_v158*` severance (4 new fixtures + 2 in place), the four repointed legs, and the one-sided PASS line
 
 **Wave 5** *(blocked on Wave 4 completion)*
 

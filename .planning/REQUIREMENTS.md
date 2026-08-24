@@ -63,8 +63,8 @@ Four things are already decided and must survive the discuss step:
 
 ## 5. Residual Optimizations & Landing (LAND) — Phase 158, close
 
-- [ ] **LAND-01**: `scripts/baseline/size_baseline.json` is re-recorded from **cold** builds (`rm -rf .pio/build/<env>` then exactly one `pio run -e <env>` per env) for all three AVR targets plus the native blocks, per that file's own documented convention. **BASE-01 is NOT re-anchored** — doing so would erase the reduction the same way it would erase a growth.
-- [ ] **LAND-02**: The MERGE-05 policy run is green **and its one-sidedness is recorded**. `check_size_baseline.py:697` compares `flash_delta > allowance` and `:709` compares `ram_delta > ram_tolerance` — growth-only — so a reduction passes with **no named exemption**, unlike the four growth exemptions v1.31–v1.32 stacked up. Recorded explicitly so a future reader cannot mistake the green run for "nothing moved". If re-anchoring reddens the known four legs, fixtures are severed onto a **new** fixture family rather than the criterion being softened.
+- [x] **LAND-01**: `scripts/baseline/size_baseline.json` is re-recorded from **cold** builds (`rm -rf .pio/build/<env>` then exactly one `pio run -e <env>` per env) for all three AVR targets plus the native blocks, per that file's own documented convention. **BASE-01 is NOT re-anchored** — doing so would erase the reduction the same way it would erase a growth.
+- [x] **LAND-02**: The MERGE-05 policy run is green **and its one-sidedness is recorded**. `check_size_baseline.py:697` compares `flash_delta > allowance` and `:709` compares `ram_delta > ram_tolerance` — growth-only — so a reduction passes with **no named exemption**, unlike the four growth exemptions v1.31–v1.32 stacked up. Recorded explicitly so a future reader cannot mistake the green run for "nothing moved". If re-anchoring reddens the known four legs, fixtures are severed onto a **new** fixture family rather than the criterion being softened.
 - [ ] **LAND-03**: The pre-existing BASE-01 native case-count mismatch — `cases baseline=141 observed=172`, which makes the canonical `--policy merge05 --baseline scripts/baseline/size_baseline_base01.json` invocation exit 1 on `beta` **before it ever reports flash** — is fixed or recorded as knowingly carried, with its cause named (BASE-01 frozen at Phase 124's count). It is **not** caused by this milestone: the size-reduction diff touches zero files under `test/`.
 - [ ] **LAND-04**: It is recorded that **`check_size_baseline.py` runs in no CI workflow at all** (`grep` over `.github/` returns nothing), so every gate this milestone leans on is a local-run obligation. Stated plainly; never implied to be automated.
 - [ ] **LAND-05**: The `jsmntok_t` 8 → 6 B narrowing is re-tested on an idle machine and either landed (**−128 B RAM** for +30 B flash, no protocol change) or rejected **with the failure named**. Its earlier "breaks the suite" reading was **retracted during scoping** as probable load-flakiness, so the result is genuinely **unknown**. `start` and `end` must stay signed — `jsmn.c` uses `-1` sentinels in twelve places.
@@ -118,8 +118,8 @@ Which phase covers which requirement. Authored with the requirements, tabulated 
 | DECODE-05 | Phase 157 | Complete (157-04, closed 157-07) |
 | DECODE-06 | Phase 157 | Complete (157-05, closed 157-07) |
 | DECODE-07 | Phase 157 | Complete (157-06, closed 157-07) |
-| LAND-01 | Phase 158 | Pending |
-| LAND-02 | Phase 158 | Pending |
+| LAND-01 | Phase 158 | Complete |
+| LAND-02 | Phase 158 | Complete |
 | LAND-03 | Phase 158 | Pending |
 | LAND-04 | Phase 158 | Pending |
 | LAND-05 | Phase 158 | Pending |
