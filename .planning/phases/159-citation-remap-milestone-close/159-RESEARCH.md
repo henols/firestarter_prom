@@ -21,7 +21,7 @@
 
 Phase 159 is not a simple invocation of the Phase 154 script. The committed remapper has the right core primitives—Git-backed old text, `SequenceMatcher(..., autojunk=False)`, independent range endpoints, a pre-write text oracle, positional binding, an all-documents-before-any-write transaction, atomic replacement, and fixed-point idempotency—but its current real-corpus contract is incomplete. The existing 21-test suite is green (`21 passed in 2.03s`), yet a dry run against the current tree required correcting a moved todo path and then reported `2238 rewritten`, `6908 fixed point`, `904 flagged retarget`, `3486 unreadable`, **156 unmatched**, and `508 documents would change`, while still exiting 0. `[VERIFIED: direct pytest and dry-run execution on 2026-08-24]`
 
-Four gaps must be planned before production application. First, the staleness marker's instruction to pass app SHA `bc9d592` is wrong for the pre-sweep oracle: it produces immediate oracle violations, while `6bfa6453` produces a clean dry run. Second, one manifest document moved from `todos/pending/` to `todos/completed/`, and ROADMAP/STATE/another todo changed after manifest generation, producing the unmatched set. Third, the original manifest cannot contain records authored in Phases 155-158; those four phase directories now contain **642 citation records** (127 + 184 + 225 + 106), and at least one is demonstrably stale (`157-RESEARCH.md` still describes `parser_func` at `json_parser.c:128`, which now contains the `FIELD_MASK` comment). Fourth, the 815 hand-retargeted rows were selected against the post-154 tree and are currently left untouched by the tool; 98 of their chosen line numbers moved again, 93 map verbatim from `2ad5b322` to the final tree, and five no longer survive verbatim and require renewed human selection. `[VERIFIED: direct manifest/source audits; git histories; dry runs]`
+Four gaps must be planned before production application. First, the staleness marker's instruction to pass app SHA `bc9d592` is wrong for the pre-sweep oracle: it produces immediate oracle violations, while `6bfa6453` produces a clean dry run. Second, one manifest document moved from `todos/pending/` to `todos/completed/`, and ROADMAP/STATE/another todo changed after manifest generation, producing the unmatched set. Third, the original manifest cannot contain records authored in Phases 155-158; those four phase directories now contain **642 citation records** (127 + 184 + 225 + 106), and at least one is demonstrably stale (`157-RESEARCH.md` still describes `parser_func` at `json_parser.c:128`, which now contains the `FIELD_MASK` comment). Fourth, the 815 hand-retargeted rows were selected against the post-154 tree and are currently left untouched by the tool; 98 of their chosen line numbers moved again, 93 map verbatim from `2ad5b322` to the final tree, and five no longer survive verbatim and form a **known minimum** for renewed human selection. The complete manual-review population is not fixed until the 642 late rows and all planning-location overlays are historically anchored and normalized; Phase 159 therefore treats the five as a floor, not a ceiling. `[VERIFIED: direct manifest/source audits; git histories; dry runs; resolved planning decision]`
 
 **Primary recommendation:** extend the existing remapper into one fail-closed, multi-anchor transaction rather than writing a second regex rewriter; settle original rows, hand-retarget rows, and the Phase 155-158 supplemental rows in a disposable rehearsal, then run one production apply, prove the second run is byte-no-op, run the archived-record gate, and only then remove the close-blocking marker. `[VERIFIED: codebase constraints and measured failure modes]`
 
@@ -196,13 +196,13 @@ line_map = maps[key]
 
 **What goes wrong:** those choices were made after Phase 154, before Phases 155-158. Ninety-eight no longer point to their chosen text; five chosen texts no longer survive verbatim. `[VERIFIED: direct 815-row audit]`
 
-**How to avoid:** map them from `2ad5b322` to final where possible, manually settle the five non-survivors, record the final count and reasons, and test their fixed-point behavior. `[VERIFIED recommendation]`
+**How to avoid:** map them from `2ad5b322` to final where possible, then build the complete review set as the union of the five known post-154 non-survivors, every newly non-surviving late endpoint, and every ambiguous historical anchor/location. Manually settle that measured set, record its final count and reasons, require zero unresolved rows, and test fixed-point behavior. `[VERIFIED recommendation; resolved planning decision]`
 
 ### Pitfall 4: Omitting records authored after the manifest
 
 **What goes wrong:** 155-158 research/plans/summaries are absent by chronology. A current rescan hides stale semantics; e.g. `157-RESEARCH.md`'s `parser_func` citation still says line 128 although line 128 now starts the `FIELD_MASK` definition. `[VERIFIED: phase chronology and live files]`
 
-**How to avoid:** create a supplemental historical manifest with a source SHA per record and feed it to the same transaction. Count all 642 parsed records, then classify out-of-candidate or intentionally non-source references explicitly rather than silently dropping them. `[VERIFIED recommendation]`
+**How to avoid:** create a supplemental historical manifest with one proven source SHA per mechanically settled record; when history evidence leaves multiple viable SHAs, preserve the full candidate set and route that stable ID through the same manual checkpoint. Count all 642 parsed records, then classify out-of-candidate or intentionally non-source references explicitly rather than silently dropping them. `[VERIFIED recommendation; resolved execution contract]`
 
 ### Pitfall 5: Proving idempotency with another write
 
@@ -292,21 +292,13 @@ No project-local skill applies: the available `devtest-triage` and `devtest-root
 |---|-------|---------|---------------|
 | — | None. Recommendations are based on committed artifacts, Git objects, source inspection, and direct executions. | — | — |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **What exact source SHA should each of the 642 Phase 155-158 records use?**
-   - What we know: the four phase directories contain 127, 184, 225, and 106 parsed records, and plans/summaries were authored at different points in sequential source histories. `[VERIFIED: direct scan and git logs]`
-   - What's unclear: a safe record-to-source-commit mapping has not yet been materialized.
-   - Recommendation: Wave 0 must derive and commit this mapping from each plan's recorded source commit/summary, then oracle-check the cited text at that anchor. Any artifact without an unambiguous anchor becomes a manual checkpoint, not a final-tree rescan.
+1. **Per-record anchors for all 642 Phase 155-158 records:** Plan 159-02 must materialize the mapping from each artifact's recorded source commit/summary dependency chain and prove both endpoint texts with `git show <source_sha>:<target>`. No guessed or final-tree fallback is permitted. A row with no unique historical anchor preserves every viable SHA/text candidate, is classified `historical_anchor` with status `needs_review`, and blocks every downstream dry run until a human supplies an evidence-backed anchor. This resolves the planning question without inventing unmeasured SHAs and leaves no row without an execution path. `[VERIFIED basis: phase counts, sequential commit evidence, and immutable-oracle requirement]`
 
-2. **How many of the current 904 flagged outcomes are the original 815 versus newly non-surviving endpoints after positional grouping?**
-   - What we know: the aggregate difference is 89 outcomes, while note output contains 103 “did not survive” messages because ranges/groups and outcome accounting differ. `[VERIFIED: dry-run output and note census]`
-   - What's unclear: the final unique record set has not been normalized.
-   - Recommendation: add a stable record ID to the runtime report and emit a machine-readable exception ledger; settle it to zero unreviewed rows before apply.
+2. **Normalized non-survivor population:** cardinality is deliberately dynamic. Plan 159-02 computes stable IDs after positional grouping and defines `review_ids` as the exact union of (a) the five already measured post-154 non-survivors, (b) every late record whose endpoint no longer survives mechanically, and (c) every ambiguous historical anchor or planning-location reconciliation. Plan 159-03 reviews that full non-empty set, and Plan 159-04 requires the same stable-ID set to become closed with zero `needs_review` or `ambiguous` rows. The known minimum is five; no maximum is assumed. `[VERIFIED basis: 815-row audit, 904 flagged outcomes, 642-record late census; resolved execution contract]`
 
-3. **Does the milestone-close orchestrator itself belong in Phase 159 execution?**
-   - What we know: prior last phases leave the project “ready for `/gsd-complete-milestone`”; the close command performs separate archival/release bookkeeping. `[VERIFIED: prior STATE/phase records]`
-   - Recommendation: Phase 159 should close REMAP requirements, delete the marker, and leave v1.33 ready for `/gsd-complete-milestone`; do not invoke the milestone-close workflow inside an execute plan unless the orchestrator explicitly authorizes it.
+3. **Milestone-close boundary:** Phase 159 closes REMAP-01..05, deletes the marker last, and leaves v1.33 ready for `/gsd-complete-milestone`. It does not invoke archival/release/push/PR/completion workflows. `[VERIFIED: prior closure convention and current authorization scope]`
 
 ## Validation Architecture
 
@@ -388,8 +380,8 @@ No project-local skill applies: the available `devtest-triage` and `devtest-root
 
 ### Wave 2 — Settle every non-mechanical row
 
-1. Advance the 815 hand-retarget choices from post-154 to final; mechanically accept the 93 exact mapped movements, explicitly confirm the 717 unchanged coordinates, and manually reselect the five non-survivors. `[VERIFIED: 815-row audit]`
-2. Normalize and review every newly non-surviving Phase 155-158 endpoint; produce zero unreviewed retargets and zero ambiguous supplemental anchors. `[VERIFIED recommendation]`
+1. Advance the 815 hand-retarget choices from post-154 to final; mechanically accept the measured 93 exact mapped movements, explicitly confirm the 717 unchanged coordinates, and seed review with the five known non-survivors. `[VERIFIED: 815-row audit]`
+2. Normalize every Phase 155-158 record and planning-location overlay, add every newly non-surviving endpoint or ambiguous historical anchor to the same stable-ID review set, review the complete measured set, and produce zero unreviewed or ambiguous rows. `[VERIFIED recommendation; resolved execution contract]`
 
 ### Wave 3 — Rehearse and prove
 

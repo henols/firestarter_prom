@@ -39,13 +39,17 @@ created: 2026-08-24
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 159-01-01 | 01 | 1 | REMAP-01, REMAP-02 | T-159-01 | Wrong anchors and actionable exceptions fail closed with zero writes | unit/integration | `python3 -m pytest -q .planning/v1.33/tools/test_remap_citations.py` | ❌ W0 additions | ⬜ pending |
-| 159-01-02 | 01 | 1 | REMAP-02, REMAP-05 | T-159-02 | Planning-location reconciliation and reviewed retargets are deterministic and fixed-point | unit/integration | `python3 -m pytest -q .planning/v1.33/tools/test_remap_citations.py` | ❌ W0 additions | ⬜ pending |
-| 159-02-01 | 02 | 1 | REMAP-01, REMAP-05 | T-159-03 | Late records receive explicit historical anchors and stable identities | corpus dry run | Hardened full-corpus dry-run command defined by the plan | ❌ W0 manifest | ⬜ pending |
-| 159-02-02 | 02 | 2 | REMAP-02 | T-159-04 | Every non-mechanical endpoint is reviewed and ledgered; no implicit deletion choice survives | corpus/ledger | Hardened full-corpus dry run reports zero unmatched, not-at-recorded, and unreviewed-retarget rows | ❌ W0 ledger | ⬜ pending |
-| 159-03-01 | 03 | 3 | REMAP-01, REMAP-02, REMAP-03, REMAP-05 | T-159-05 | Disposable rehearsal is atomic, oracle-clean, range-correct, and byte-idempotent | rehearsal | Rehearsal apply plus second-run no-op/hash comparison | ❌ W0 harness | ⬜ pending |
-| 159-04-01 | 04 | 4 | REMAP-01, REMAP-02, REMAP-03, REMAP-05 | T-159-06 | Exactly one production apply is recorded and all post-apply gates pass | production gate | Production ledger plus post-apply dry run and hash/oracle checks | ❌ plan-defined | ⬜ pending |
-| 159-04-02 | 04 | 5 | REMAP-04 | T-159-07 | Marker removal occurs only after all prior gates pass | close gate | `test ! -e .planning/v1.33/CITATIONS-STALE.md` | ❌ closure gate | ⬜ pending |
+| 159-01-01 | 01 | 1 | REMAP-01, REMAP-02, REMAP-03, REMAP-05 | T-159-01, T-159-02 | RED legs cover wrong anchors, relocation ambiguity, every actionable exception, real range shrink, rollback, and receipt replay | unit/integration RED | `python3 -m pytest -q .planning/v1.33/tools/test_remap_citations.py; test $? -ne 0` | ❌ Wave-1 additions | ⬜ pending |
+| 159-01-02 | 01 | 1 | REMAP-01, REMAP-02, REMAP-03, REMAP-05 | T-159-01..04 | Hardened engine is fail-closed, multi-anchor, reportable, atomic, fixed-point, and one-shot | unit/integration GREEN | `python3 -m pytest -q .planning/v1.33/tools/test_remap_citations.py` | ❌ Wave-1 implementation | ⬜ pending |
+| 159-02-01 | 02 | 2 | REMAP-01, REMAP-02 | T-159-05..07 | Historical preparer preserves all rows, emits stable IDs, and serializes non-unique anchors for review | unit/integration | `python3 -m pytest -q .planning/v1.33/tools/test_prepare_citation_remap.py .planning/v1.33/tools/test_build_citation_manifest.py .planning/v1.33/tools/test_remap_citations.py` | ❌ Wave-2 implementation | ⬜ pending |
+| 159-02-02 | 02 | 2 | REMAP-01, REMAP-02 | T-159-05..08 | Full late census produces the complete dynamic review-ID set; dry run exits 1 solely for it with all other counters zero | corpus/ledger | Plan 02's full `prepare_citation_remap.py` + `remap_citations.py --report-json /tmp/gsd-159-plan02-dry.json` verifier | ❌ Wave-2 artifacts | ⬜ pending |
+| 159-03-01 | 03 | 3 | REMAP-02 | T-159-09, T-159-10 | Human reviews every and only pending stable ID, using evidence fields appropriate to target, anchor, or location decisions | checkpoint + census | Plan 03's Python set-equality census over ledger and review packet | ❌ Wave-2 inputs | ⬜ pending |
+| 159-04-01 | 04 | 4 | REMAP-02 | T-159-11 | Exact approved stable-ID set is transcribed and every target/anchor/location oracle closes; no open row remains | corpus/ledger | Plan 04 Task 1's ledger assertions plus production-shaped `--report-json` dry run | ❌ Wave-4 ledger update | ⬜ pending |
+| 159-04-02 | 04 | 4 | REMAP-01, REMAP-02, REMAP-03, REMAP-05 | T-159-12..14 | Disposable apply is non-vacuous, range-correct, archive-safe, and byte-idempotent | rehearsal | `python3 -m pytest -q .planning/v1.33/tools/test_rehearse_citation_remap.py .planning/v1.33/tools/test_remap_citations.py && python3 .planning/v1.33/tools/rehearse_citation_remap.py ...` | ❌ Wave-4 harness | ⬜ pending |
+| 159-05-01 | 05 | 5 | REMAP-01, REMAP-02, REMAP-03, REMAP-05 | T-159-15 | READY preflight pins every input, source SHA, affected document, test, dry-run counter, archive result, and marker state | production preflight | Plan 05 Task 1's focused suites plus `159-production-preflight.json` assertions | ❌ Wave-5 receipt | ⬜ pending |
+| 159-05-02 | 05 | 5 | REMAP-01, REMAP-02, REMAP-03, REMAP-05 | T-159-16..18 | Sole production apply is receipt-enforced; post-apply pass is dry and byte-no-op; range/archive evidence is recorded | production apply/gate | Plan 05 Task 2's receipt assertions, full post-apply dry run, archive gate, and commit gate | ❌ Wave-5 production artifacts | ⬜ pending |
+| 159-06-01 | 06 | 6 | REMAP-01, REMAP-02, REMAP-03, REMAP-04, REMAP-05 | T-159-19..22 | Close readiness re-runs every gate and freezes a scoped payload while marker remains present | close readiness | Plan 06 Task 1's `159-close-readiness.json` assertions plus marker/pending-row gates | ❌ Wave-6 readiness | ⬜ pending |
+| 159-06-02 | 06 | 6 | REMAP-04 | T-159-19..22 | Scoped closure changes only REMAP/Phase-159 regions and removes marker as the final mutation | scoped closure/final gate | Plan 06 Task 2's marker-absence, requirement/roadmap count, STATE, archive, commit, and deletion gates | ❌ Wave-6 closure | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -56,7 +60,7 @@ created: 2026-08-24
 - [ ] Extend `.planning/v1.33/tools/remap_citations.py` for per-record anchors, planning-location reconciliation, reviewed-retarget application, stable IDs, and fail-closed exception totals.
 - [ ] Extend `.planning/v1.33/tools/test_remap_citations.py` with wrong-anchor, moved-document, shifted-planning-line, exception, retarget fixed-point, post-154 retarget, per-record SHA cache, real-range shrink, and transaction rollback tests.
 - [ ] Create `.planning/v1.33/159-late-citation-manifest.jsonl` with historical anchors for Phase 155–158 records.
-- [ ] Create a machine-readable exception ledger for the original retarget set and newly deleted/replaced endpoints; settle it before apply.
+- [ ] Create a machine-readable exception ledger whose dynamic review set contains the five known post-154 non-survivors plus every late non-survivor and ambiguous historical anchor/location; settle it to zero open rows before apply.
 - [ ] Create a disposable-corpus rehearsal/hash harness using the production parser/writer path.
 
 ---
@@ -65,13 +69,13 @@ created: 2026-08-24
 
 | Behavior | Requirement | Why Manual | Test Instructions |
 |----------|-------------|------------|-------------------|
-| Renewed target selection for the five post-154 retargets whose destination was deleted again | REMAP-02 | The correct semantic replacement requires human review of source context | Review each stable record ID against its historical source text and candidate targets; record the chosen target and rationale in the exception ledger before the dry-run gate can pass. |
+| Complete measured target/anchor/location selection set (known minimum: five post-154 non-survivors) | REMAP-02 | Semantic replacements and genuinely non-unique historical identities require human judgment | Review every stable ID emitted by Plan 02, using current source context for targets and Git/document evidence for anchors/locations; the selected-ID set must exactly equal the ledger pending set and Plan 04 must reduce open rows to zero. |
 
 ---
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verification or Wave 0 dependencies
+- [x] All 11 tasks have an `<automated>` verification mapped above
 - [ ] Sampling continuity: no 3 consecutive tasks without automated verification
 - [ ] Wave 0 covers all missing references
 - [ ] No watch-mode flags

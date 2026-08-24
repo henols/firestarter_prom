@@ -476,9 +476,9 @@ Plans:
 Plans:
 
 - [ ] 159-01-PLAN.md — harden the remapper into a fail-closed multi-anchor transaction with reviewed-retarget oracles and a write-once production receipt
-- [ ] 159-02-PLAN.md — build the 642-row supplemental historical manifest, exhaustive exception ledger, and five-record review packet without mutating the original manifest
-- [ ] 159-03-PLAN.md — manually select renewed semantic targets for exactly the five post-154 retarget destinations that no longer survive
-- [ ] 159-04-PLAN.md — settle those five choices and prove zero-exception apply/no-op/hash/range/archive behavior in a disposable rehearsal
+- [ ] 159-02-PLAN.md — build the 642-row supplemental historical manifest, exhaustive exception ledger, and complete dynamically measured review packet without mutating the original manifest
+- [ ] 159-03-PLAN.md — manually settle the five known post-154 non-survivors plus every late non-survivor and ambiguous historical anchor/location found by the census
+- [ ] 159-04-PLAN.md — settle the complete approved stable-ID set and prove zero-exception apply/no-op/hash/range/archive behavior in a disposable rehearsal
 - [ ] 159-05-PLAN.md — freeze production inputs, apply exactly once, and prove the real corpus is a byte-stable dry-run fixed point
 - [ ] 159-06-PLAN.md — scope-close REMAP/Phase 159, remove the close-blocking marker last, and record readiness for `/gsd-complete-milestone`
 
