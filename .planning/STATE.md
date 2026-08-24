@@ -5,16 +5,16 @@ milestone_name: — Source Hygiene & Firmware Size Reduction
 current_phase: 159
 current_phase_name: Citation Remap + Milestone Close
 status: executing
-stopped_at: Phase 158 complete and verified 8/8 -- jsmntok_t narrowed 8->6 B on AVR for a measured -138/-138/-136 B flash and -128 B RAM cold-to-cold on uno/uno328pb/leonardo (the ROADMAP's +30 B flash prediction superseded, C-2); size_baseline.json re-recorded cold (22952/1434, 23000/1440, 25098/1875, native+native_nodevtools 184/184/17) with fixtures severed onto the *_v158* family; BASE-01 fixed on a third native test-inventory axis 141->184 with its growth axis byte-unchanged; LAND-06's mask rewrite DECLINED with the measurement (+22/+24/+22 B flash, no linkage saving); LAND-07's 57-tokens/7-headroom figure refuted by three re-derived bounds (50/14, 51/13, 55/9) and closed on the forward-compatibility budget, not arithmetic. Thirteen corrections C-1..C-13 and ten decisions OD-1..OD-10 closed in .planning/v1.33/158-after-figures.md. Firmware HEAD 2ccda8d; 360 pytest + 184/184 native + 184/184 native_nodevtools green.
-last_updated: "2026-08-24T11:22:08.737Z"
+stopped_at: Phase 159 complete and verified 17/17 -- the Phase-154 remap applied EXACTLY ONCE over the composite pre-154-to-post-158 diff (receipt 04390458f8ee4776bd75c2656a62a809, APPLIED): 2,706 citations rewritten across 562 documents out of 14,391 records / 1,291 documents examined, corpus proven a byte-stable dry-run fixed point, and the close-blocking marker .planning/v1.33/CITATIONS-STALE.md removed LAST as the phase's final mutation. The 515-record exception ledger closed 339 reviewed / 176 retired across 8 causes with zero needs_review, settled at the phase's single manual checkpoint over four operator rounds. HONESTY CAVEAT: 269 of the resolved records rest on `diff_provenance_reworded` -- diff provenance, NOT verbatim source-text equality -- because Phase 154 deliberately reworded the cited comments; each carries an explicit `verbatim_oracle_applied: false` field, so ROADMAP criterion 2 is NOT universally satisfied and the closure text does not claim it is. The largest retire class is 149 `citation_absent_from_citing_document` -- citations deleted from their citing documents by ordinary hand-editing since the sweep, a measurement about .planning/ hygiene rather than a remap failure. The two `recordscan:supersedes`-protected historical figures on lines 94 and 96 of notes/py32f071-port-branch-state.md (deliberately stale, corrections recorded in that same file) were EXCLUDED from the remap by a new general marker-driven engine rule, keeping Phase 130's archive gate at PASS/superseded:12; their literal figures are not restated here because the Phase-130 needles treat any unexempted occurrence as a FAIL. .planning/STATE.md was committed as a citation-only blob while its disk bytes stayed frozen at the dirty preimage per `auth-state-md-dirty` -> preserve_unstaged, so a disk-level dry run permanently reports exactly one residual document -- expected, not a regression. Phase footprint is 585 files, 100% inside .planning/; zero product code touched; tools suite 133/133 green. v1.33's six phases are all complete but the MILESTONE IS NOT CLOSED -- no push, PR, release, archive, or merge has occurred. Superseded prior entry: Phase 158 complete and verified 8/8 -- jsmntok_t narrowed 8->6 B on AVR for a measured -138/-138/-136 B flash and -128 B RAM cold-to-cold on uno/uno328pb/leonardo (the ROADMAP's +30 B flash prediction superseded, C-2); size_baseline.json re-recorded cold (22952/1434, 23000/1440, 25098/1875, native+native_nodevtools 184/184/17) with fixtures severed onto the *_v158* family; BASE-01 fixed on a third native test-inventory axis 141->184 with its growth axis byte-unchanged; LAND-06's mask rewrite DECLINED with the measurement (+22/+24/+22 B flash, no linkage saving); LAND-07's 57-tokens/7-headroom figure refuted by three re-derived bounds (50/14, 51/13, 55/9) and closed on the forward-compatibility budget, not arithmetic. Thirteen corrections C-1..C-13 and ten decisions OD-1..OD-10 closed in .planning/v1.33/158-after-figures.md. Firmware HEAD 2ccda8d; 360 pytest + 184/184 native + 184/184 native_nodevtools green.
+last_updated: "2026-08-24T20:15:00.000Z"
 last_activity: 2026-08-24
-last_activity_desc: Phase 158 complete, transitioned to Phase 159
+last_activity_desc: Phase 159 complete and verified 17/17
 progress:
   total_phases: 6
-  completed_phases: 5
-  total_plans: 39
-  completed_plans: 39
-  percent: 83
+  completed_phases: 6
+  total_plans: 45
+  completed_plans: 45
+  percent: 100
 ---
 
 # Project State
@@ -29,10 +29,11 @@ See: `.planning/PROJECT.md` (updated 2026-08-22 — v1.33 started)
 **Core value:** Algorithm-first dispatch — the minipro `protocol_id` (`algorithm`) is the single
 authoritative dispatch key end to end. v1.33 does not touch that contract at all: its entire premise is
 byte-level equivalence. **Make the source shorter without changing what it does.**
-**Current focus:** Phase 158 — residual-optimizations-cold-baseline-re-record-firmware-only
-**executing now** (7 plans, waves 1–7, strictly sequential). Requirements DEDUP-01…04. Phase 154's
-`SWEEP-01…NN` placeholder resolved to **13** requirements at `/gsd-discuss-phase 154` and `REQUIREMENTS.md`
-§1 carries them; Phases 157–159 can go straight to `/gsd-plan-phase`.
+**Current focus:** Phase 159 — Citation Remap + Milestone Close
+**COMPLETE** (6 plans, waves 1–6, strictly sequential), verified 17/17. Requirements REMAP-01…05 all
+closed. All six v1.33 phases (154–159) are now complete; the milestone itself is NOT closed —
+`/gsd-complete-milestone` is a separate operator-gated workflow and nothing has been pushed, PR'd,
+released, or archived.
 
 **v1.33 Source Hygiene & Firmware Size Reduction** — 🔵 **ACTIVE** (activated 2026-08-22). Six phases,
 **154–159**. Phase 154 is dual-repo lockstep; Phases 155–158 are firmware-only; Phase 159 touches
@@ -145,9 +146,9 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: 159 — Citation Remap + Milestone Close
-Plan: Not started
-Status: Ready to execute
+Phase: 159 (Citation Remap + Milestone Close) — COMPLETE, verified 17/17
+Plan: 6 of 6
+Status: v1.33 phases all complete — awaiting operator-gated `/gsd-complete-milestone`
 Next: **Phase 159 -- Citation Remap + Milestone Close** -- apply the Phase 154 remap tool exactly once over the composite pre-154-to-post-158 diff, then close the milestone. Not yet planned.
 **Plan 158-05 complete (2026-08-24):** BASE-01's native inventory axis re-anchored 141->184 on
 both `native`/`native_nodevtools` (`avr_targets` byte-unchanged; new
@@ -180,7 +181,7 @@ code. Both native envs still 172/172, both local check scripts pass, and `firest
 wire-key parity gate reports 24 passed with zero host files touched. Next: plan 157-03 (the
 `protocol`/`ctrl_flags` type narrowing, DECODE-04).
 
-Last activity: 2026-08-24 — Phase 158 complete, transitioned to Phase 159
+Last activity: 2026-08-24 — Phase 159 complete and verified 17/17
 
 **The manifest is on disk and committed, and it is the point of no return for Phase 159.**
 `.planning/v1.33/sweep-citation-manifest.jsonl` holds **13,692** records over 2,947 planning documents
