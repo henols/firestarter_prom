@@ -105,9 +105,163 @@ _EXTENSIONS = {".cpp", ".c", ".h", ".hpp", ".ino", ".py"}
 # The corpus regex, verbatim per research's reconstruction (see module
 # docstring). re.MULTILINE is irrelevant here since matching is done
 # per-line, but ^ is kept anchored to line start via per-line application.
-_REGEX = re.compile(
+_REGEX_ANCHORED = re.compile(
     r"(//|/\*|^\s*\*|#)\s*(Task|Phase|Plan|P\d{3}|Req|REQ-|CAP-0|D-\d|WR-\d|LOOP-\d|\d{3}-CONTEXT)"
 )
+
+# Backwards-compatible alias: every pre-2026-08-24 caller and every figure
+# recorded in `.planning/` was produced by this pattern. Kept so those numbers
+# stay reproducible via --legacy-anchored; NOT the default any more.
+_REGEX = _REGEX_ANCHORED
+
+# ---------------------------------------------------------------------------
+# CORRECTED DETECTOR (2026-08-24, post-v1.33-close finding)
+#
+# _REGEX_ANCHORED requires the provenance token to sit immediately after the
+# comment opener. Measured consequence: it reports 43 hit lines in shipped
+# source where a comment-context-aware scan finds 466, and it reproduces
+# SWEEP-03's "34 -> 4 across 1 file" D-# claim only because a mid-line `D-02`
+# is invisible to it (mid-line aware: 87 across 21 files).
+#
+# The fix separates the two questions the old regex conflated:
+#   1. Is this text COMMENT-or-DOCSTRING context?  (structural, per language)
+#   2. Does that text contain a provenance token?  (anywhere within it)
+#
+# REQUIREMENT FAMILIES ARE DERIVED, NEVER INVENTED. The list below is
+# generated from `.planning/milestones/*REQUIREMENTS*.md` -- the project's own
+# authoritative requirement records -- not hand-guessed. The old fixed list
+# named 5 families (REQ-, CAP-0, D-#, WR-#, LOOP-#); the project has 96.
+# ---------------------------------------------------------------------------
+
+_REQUIREMENT_FAMILIES: tuple[str, ...] = (
+    "ADPT", "ALIAS", "BASE", "BENCH", "CAP", "CAPS",
+    "CFG", "CHAN", "CLI", "CLOSE", "CRC", "DATA",
+    "DB", "DEAD", "DEC", "DECODE", "DEDUP", "DEVTEST",
+    "DIFF", "DISP", "DOC", "DSHEET", "E2E", "ERASE",
+    "ERR", "EVEN", "EVID", "FIX", "FRAME", "FUT",
+    "FW", "GAP", "GATE", "GRAD", "HARD", "HARN",
+    "HOST", "INBOX", "INST", "ISSUE", "LAND", "LCAT",
+    "LCI", "LEDGER", "LEG", "LEGACY", "LFW", "LHOST",
+    "LMIG", "LOCK", "LOOP", "MERGE", "MS", "NAME",
+    "NMOS", "OBS", "ONBOARD", "OUT", "PATT", "PCB",
+    "PGSZ", "PIN", "PRE", "PREP", "PRIM", "PROV",
+    "RCA", "REL", "RELOCK", "REMAP", "REPRO", "RETIRE",
+    "REWR", "RPT", "RSCH", "SAFE", "SERIAL", "SILK",
+    "STRUCT", "SUB", "SWEEP", "TABLE", "TEST", "TOOL",
+    "TRACE", "UV", "VAL", "VAR", "VER", "VERIFY",
+    "VOLT", "VPP", "WIRE", "XACT", "XIC", "XPORT",
+)
+
+# `-\d{2}` (never `-\d`) is load-bearing: it keeps ordinary hyphenated prose
+# and domain tokens (`CRC-8`, `RS-232`) out of the corpus.
+_FAMILY_ALT = "|".join(_REQUIREMENT_FAMILIES)
+
+_INLINE_TOKEN_SRC = (
+    r"\b(?:Task\s+\d+|Phase\s+\d+|Plan\s+\d{2}|P\d{3}\b|REQ-\d+"
+    r"|D-\d{1,2}\b|\d{3}-(?:CONTEXT|RESEARCH|PLAN|SUMMARY|VERIFICATION)"
+    r"|(?:" + _FAMILY_ALT + r")-\d{2}\b)"
+)
+_REGEX_INLINE = re.compile(_INLINE_TOKEN_SRC)
+
+
+def _c_comment_text(text: str) -> dict[int, str]:
+    """Map 1-based line number -> the COMMENT-ONLY text on that line.
+
+    A hand-rolled scanner rather than a regex, because `//` inside a string
+    literal is not a comment and `"SWEEP-01"` in code must never count. Tracks
+    string, char and block-comment state across lines.
+    """
+    out: dict[int, list[str]] = {}
+    in_block = False
+    in_str: str | None = None
+    lineno = 1
+    i = 0
+    n = len(text)
+    while i < n:
+        ch = text[i]
+        if ch == "\n":
+            lineno += 1
+            i += 1
+            in_str = None if in_str in ('"', "'") else in_str
+            continue
+        if in_block:
+            if text.startswith("*/", i):
+                in_block = False
+                i += 2
+            else:
+                out.setdefault(lineno, []).append(ch)
+                i += 1
+            continue
+        if in_str is not None:
+            if ch == "\\":
+                i += 2
+                continue
+            if ch == in_str:
+                in_str = None
+            i += 1
+            continue
+        if ch in ('"', "'"):
+            in_str = ch
+            i += 1
+            continue
+        if text.startswith("//", i):
+            j = text.find("\n", i)
+            j = n if j == -1 else j
+            out.setdefault(lineno, []).append(text[i:j])
+            i = j
+            continue
+        if text.startswith("/*", i):
+            in_block = True
+            i += 2
+            continue
+        i += 1
+    return {k: "".join(v) for k, v in out.items()}
+
+
+def _py_comment_text(text: str) -> dict[int, str]:
+    """Map 1-based line number -> comment/docstring text for Python.
+
+    Uses `tokenize`, so `LABEL = "SWEEP-01"` (a value) is excluded while a
+    docstring (`\"\"\"... (SWEEP-01).\"\"\"`) is included -- shipped prose either
+    way. Falls back to a `#`-only scan if the file does not tokenize.
+    """
+    import io as _io
+    import tokenize as _tok
+
+    out: dict[int, list[str]] = {}
+    try:
+        toks = list(_tok.generate_tokens(_io.StringIO(text).readline))
+    except (_tok.TokenError, IndentationError, SyntaxError):
+        for ln, line in enumerate(text.splitlines(), start=1):
+            h = line.find("#")
+            if h != -1:
+                out.setdefault(ln, []).append(line[h:])
+        return {k: "".join(v) for k, v in out.items()}
+
+    at_stmt_start = True
+    for t in toks:
+        if t.type == _tok.COMMENT:
+            out.setdefault(t.start[0], []).append(t.string)
+            continue
+        if t.type == _tok.STRING and at_stmt_start:
+            for off, piece in enumerate(t.string.splitlines()):
+                out.setdefault(t.start[0] + off, []).append(piece)
+        # NL (non-logical newline) is deliberately NOT here: inside brackets
+        # tokenize emits NL for every physical line break, so treating it as a
+        # statement start would classify each fragment of an implicitly
+        # concatenated string literal as a docstring -- which wrongly counted
+        # `diff_db.py:175` and `chip_test.py:3827`, both live code.
+        if t.type in (_tok.NEWLINE, _tok.INDENT, _tok.DEDENT, _tok.ENCODING):
+            at_stmt_start = True
+        elif t.type != _tok.COMMENT:
+            at_stmt_start = False
+    return {k: "".join(v) for k, v in out.items()}
+
+
+def _comment_lines(path: Path, text: str) -> dict[int, str]:
+    if path.suffix == ".py":
+        return _py_comment_text(text)
+    return _c_comment_text(text)
 
 # Named token classes for --assert-tokens-zero, each mapped to the single
 # alternation it represents (same comment-opener prefix as _REGEX).
@@ -126,9 +280,21 @@ _TOKEN_CLASSES: dict[str, str] = {
 }
 
 
-def _token_regex(label: str) -> re.Pattern[str]:
+_TOKEN_CLASSES["REQ-FAMILY"] = r"(?:" + _FAMILY_ALT + r")-\d{2}"
+
+
+def _token_regex(label: str, legacy: bool = False) -> re.Pattern[str]:
+    """Regex for one --assert-tokens-zero class.
+
+    In the default (corrected) mode the token is matched ANYWHERE inside
+    already-extracted comment/docstring text, so a mid-line `(D-02)` is a
+    violation. In --legacy-anchored mode the historical comment-opener
+    anchoring is reproduced exactly.
+    """
     fragment = _TOKEN_CLASSES[label]
-    return re.compile(rf"(//|/\*|^\s*\*|#)\s*({fragment})")
+    if legacy:
+        return re.compile(rf"(//|/\*|^\s*\*|#)\s*({fragment})")
+    return re.compile(fragment)
 
 
 def _scan_candidate_files(base: Path, repo_root: Path) -> list[Path]:
@@ -157,7 +323,7 @@ def _scan_candidate_files(base: Path, repo_root: Path) -> list[Path]:
     return files
 
 
-def _scan_hits(files: list[Path], repo_root: Path) -> dict:
+def _scan_hits(files: list[Path], repo_root: Path, legacy: bool = False) -> dict:
     """Per-file hit-line counts (and the raw (lineno, text) pairs, kept only
     in-process for --assert-tokens-zero -- never serialized to JSON)."""
     file_hits: dict[str, int] = {}
@@ -170,9 +336,18 @@ def _scan_hits(files: list[Path], repo_root: Path) -> dict:
             print(f"ERROR: cannot read {f}: {e}", file=sys.stderr)
             sys.exit(2)
         hits: list[tuple[int, str]] = []
-        for lineno, line in enumerate(text.splitlines(), start=1):
-            if _REGEX.search(line):
-                hits.append((lineno, line))
+        if legacy:
+            for lineno, line in enumerate(text.splitlines(), start=1):
+                if _REGEX_ANCHORED.search(line):
+                    hits.append((lineno, line))
+        else:
+            # Two separate questions: is this comment/docstring context, and
+            # does that context carry a provenance token. The scanned text
+            # handed downstream is the COMMENT ONLY, so --assert-tokens-zero
+            # can never fire on a token that lives in code.
+            for lineno, ctext in sorted(_comment_lines(f, text).items()):
+                if _REGEX_INLINE.search(ctext):
+                    hits.append((lineno, ctext))
         if hits:
             rel = str(f.resolve().relative_to(repo_root))
             file_hits[rel] = len(hits)
@@ -239,6 +414,16 @@ def main(argv: list[str] | None = None) -> None:
         "--file-table", action="store_true", help="also print a per-file hit-count table"
     )
     ap.add_argument(
+        "--legacy-anchored",
+        action="store_true",
+        help=(
+            "reproduce the pre-2026-08-24 comment-opener-anchored detector exactly, "
+            "so figures already recorded in .planning/ stay reproducible. It "
+            "UNDERCOUNTS: it cannot see a mid-line token or any requirement family "
+            "outside its fixed 5-name list."
+        ),
+    )
+    ap.add_argument(
         "--assert-tokens-zero",
         metavar="TOKENCLASS",
         choices=sorted(_TOKEN_CLASSES),
@@ -275,7 +460,7 @@ def main(argv: list[str] | None = None) -> None:
                 file=sys.stderr,
             )
             sys.exit(2)
-        per_group[name] = _scan_hits(candidates, repo_root)
+        per_group[name] = _scan_hits(candidates, repo_root, legacy=args.legacy_anchored)
 
     total_files = sum(g["candidate_files"] for g in per_group.values())
     total_hits = sum(g["hits"] for g in per_group.values())
@@ -289,7 +474,7 @@ def main(argv: list[str] | None = None) -> None:
         sys.exit(2)
 
     if args.assert_tokens_zero:
-        token_re = _token_regex(args.assert_tokens_zero)
+        token_re = _token_regex(args.assert_tokens_zero, legacy=args.legacy_anchored)
         violations: list[tuple[str, str, int, str]] = []
         for name in selected:
             for rel, lines in per_group[name]["file_hit_lines"].items():
