@@ -159,6 +159,18 @@ _FAMILY_ALT = "|".join(_REQUIREMENT_FAMILIES)
 _INLINE_TOKEN_SRC = (
     r"\b(?:Task\s+\d+|Phase\s+\d+|Plan\s+\d{2}|P\d{3}\b|REQ-\d+"
     r"|D-\d{1,2}\b|\d{3}-(?:CONTEXT|RESEARCH|PLAN|SUMMARY|VERIFICATION)"
+    # Bare phase-plan references: `154-12`, `119-07`, `157-03`. Found by the
+    # stripper's own RED test -- `(157-03, DECODE-04)` was only ever detected
+    # via DECODE-04, so a plan reference standing alone was invisible.
+    # Plan/task references. Deliberately NOT a bare `\d{2,3}-\d{2}`: sampling
+    # showed that shape swallows dates (`2026-05-26` -> `05-26`), numeric
+    # ranges (`~20-60 us`, `occupy 11-15`) and file line ranges
+    # (`rurp_shield.h:25-94`). So the bare form is restricted to a THREE-digit
+    # phase, which no date or range in this corpus produces, and the two-digit
+    # phases are reachable only through their explicit `T-` / `plan ` prefixes.
+    r"|T-\d{2,3}-\d{2}\b"
+    r"|\b[Pp]lans?\s+\d{2,3}-\d{2}\b"
+    r"|(?<!\d-)(?<![:\d.])\b\d{3}-\d{2}\b"
     r"|(?:" + _FAMILY_ALT + r")-\d{2}\b)"
 )
 _REGEX_INLINE = re.compile(_INLINE_TOKEN_SRC)

@@ -246,3 +246,51 @@ def test_real_docstring_after_the_nl_fix_still_counts(repos):
         encoding="utf-8",
     )
     assert _hits(fw, app, "app-pkg") == 2
+
+
+def test_bare_plan_reference_is_a_hit(repos):
+    """`(157-03, DECODE-04)` was only ever detected via DECODE-04."""
+    fw, app = repos
+    (fw / "src" / "a.cpp").write_text("// clamped at parse time (T-44-01 cap)\n", encoding="utf-8")
+    assert _hits(fw, app, "fw-src") == 1
+
+
+def test_file_line_range_is_not_a_plan_reference(repos):
+    """`rurp_shield.h:25-94` is a citation into code, not a plan reference."""
+    fw, app = repos
+    (fw / "src" / "a.cpp").write_text(
+        "// The old #defines in rurp_shield.h:25-94 remain in place\n", encoding="utf-8"
+    )
+    assert _hits(fw, app, "fw-src") == 0
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "// Thresholds UNCHANGED - bench measurement (2026-05-26) validated reads\n",
+        "// iterations, and an [ASSUMED] ~20-60 us per-pulse overhead adds 15 s\n",
+        "// (CMD_READ_VPP..CMD_HW_VERSION occupy 11-15, and slots 9 and 10 were\n",
+        "// The old #defines in rurp_shield.h:25-94 remain in place\n",
+        '// Operator, 2026-07-31: "No VPP DAC on this board"\n',
+    ],
+)
+def test_dates_ranges_and_line_ranges_are_not_plan_references(repos, line):
+    """All five were false positives of a bare \\d{2,3}-\\d{2}, found by sampling."""
+    fw, app = repos
+    (fw / "src" / "a.cpp").write_text(line, encoding="utf-8")
+    assert _hits(fw, app, "fw-src") == 0
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "// clamped at parse time (T-44-01 cap)\n",
+        "// `protection_gate_for_entry` (plan 151-06) returns it\n",
+        "// or abort -- plan 142-06 owes the test proving that\n",
+        "// fits uint8_t (157-03) */\n",
+    ],
+)
+def test_real_plan_and_task_references_still_hit(repos, line):
+    fw, app = repos
+    (fw / "src" / "a.cpp").write_text(line, encoding="utf-8")
+    assert _hits(fw, app, "fw-src") == 1
