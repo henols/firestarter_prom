@@ -940,6 +940,39 @@ def resolve_with_review(
             )
         return Outcome(REWRITE, chosen_start, chosen_end, "reviewed retarget applied")
 
+    # Phase 159-04 mixed-group idempotency fix (Rule 1 -- self-caught while
+    # rehearsing the SECOND dry run over the real corpus). The whole-match
+    # `is_fixed_point()` check (one level up in `remap_document`) requires
+    # EVERY actionable element sharing a match (e.g. every `colon_list`
+    # element) to be individually fixed before short-circuiting the WHOLE
+    # match as a fixed point. In a MIXED group -- one element resolved
+    # naturally (no ledger entry needed), a SIBLING element resolved only
+    # via review (`diff_provenance_reworded` etc.) -- the sibling's
+    # `source_text` never verbatim-matches (that is WHY it needed review),
+    # so the whole-match check always fails and EVERY element, including
+    # the naturally-resolving one, reaches `decide()` individually. Once
+    # the naturally-resolving element has ALREADY been rewritten once, its
+    # own `decide()` IDENTITY check fails too (the document no longer reads
+    # its recorded `target_line`), producing NOT_AT_RECORDED_LINE with no
+    # ledger entry -- which the code below would otherwise BLOCK as
+    # `UNREVIEWED_RETARGET` forever, breaking REMAP-02/REMAP-05 idempotency
+    # for any record that merely happens to share a match with a reviewed
+    # sibling. This is caught here, one level lower: an unreviewed
+    # NOT_AT_RECORDED_LINE natural is FIRST checked against the record's
+    # OWN verbatim oracle (exactly what `is_fixed_point()` checks, just at
+    # per-record granularity) before ever being escalated to a violation.
+    if natural.outcome == NOT_AT_RECORDED_LINE and entry is None:
+        if lm.text_at(natural.start) == record["source_text"] and (
+            natural.end is None or lm.text_at(natural.end) == record.get("source_text_end")
+        ):
+            return Outcome(
+                FIXED_POINT,
+                natural.start,
+                natural.end,
+                "natural per-element fixed point in a mixed group -- already "
+                "correctly resolved (159-04 mixed-group idempotency fix)",
+            )
+
     if not strict:
         return natural
     return Outcome(
@@ -1093,7 +1126,43 @@ def _associate(
                 retired_plan.extend(r for r in coord_recs if r not in active_recs)
                 if not active_recs:
                     continue
-                cand = span_by_coord.get(coord, [])
+                # Phase 159-04 idempotency fix (Rule 1 -- self-caught, twice:
+                # first as a total absence, then as a genuine corruption
+                # hazard measured on the real corpus). Once a reviewed
+                # duplicate group has been applied once, the document may no
+                # longer read its STATIC original coordinate for EVERY
+                # member -- some members may already read the REVIEWED
+                # chosen coordinate, while an unrelated LEFTOVER physical
+                # occurrence at the ORIGINAL coordinate belongs to some
+                # OTHER (e.g. retired) record entirely. Preferring the
+                # original coordinate whenever it merely HAS enough spans
+                # (the earlier, insufficient fix) can silently rebind an
+                # already-resolved record onto that unrelated leftover and
+                # re-corrupt it. The chosen coordinate is therefore tried
+                # FIRST whenever it EXACTLY satisfies the active record
+                # count (a strong "already applied" signal); the original
+                # coordinate is tried next on the same exact-count basis;
+                # only if NEITHER matches exactly does either an available
+                # chosen-coordinate candidate, or the original coordinate's
+                # own (possibly imbalanced) candidate set, get used.
+                cand_original = span_by_coord.get(coord, [])
+                cand_chosen: list = []
+                entries = [(exceptions or {}).get(stable_record_id(r)) for r in active_recs]
+                if entries and all(e is not None and e.get("status") == "reviewed" for e in entries):
+                    chosen_coords = {
+                        (e.get("chosen_target_line"), e.get("chosen_target_line_end"))
+                        for e in entries
+                    }
+                    if len(chosen_coords) == 1 and next(iter(chosen_coords)) != coord:
+                        cand_chosen = span_by_coord.get(next(iter(chosen_coords)), [])
+                if len(cand_chosen) == len(active_recs):
+                    cand = cand_chosen
+                elif len(cand_original) == len(active_recs):
+                    cand = cand_original
+                elif cand_chosen:
+                    cand = cand_chosen
+                else:
+                    cand = cand_original
                 n_recs, n_spans = len(active_recs), len(cand)
                 coord_recs = active_recs
                 if n_recs == n_spans:
@@ -1104,12 +1173,27 @@ def _associate(
                     for span, rec in zip(cand, coord_recs):
                         plan.append(((span[0], span[1]), rec, []))
                     continue
-                if n_spans == 0 or n_spans > n_recs:
-                    # Nothing to attribute, or MORE spans than records --
-                    # never guessed at; bail to the fully conservative
-                    # mismatch handling for the WHOLE group.
+                if n_spans == 0:
+                    # Nothing to attribute -- never guessed at; bail to the
+                    # fully conservative mismatch handling for the WHOLE
+                    # group.
                     partition_ok = False
                     break
+                if n_spans > n_recs:
+                    # MORE physical occurrences than ACTIVE (non-retired)
+                    # records at this coordinate. Measured on the real
+                    # corpus: a coordinate can carry retired sibling(s) whose
+                    # own citation is explicitly left untouched forever, so
+                    # the "extra" physical span(s) beyond what the active
+                    # records need are exactly those retired members' own
+                    # occurrences -- which physical span is "whose" cannot
+                    # be determined and DOES NOT MATTER (a retired citation
+                    # is never touched regardless), so it is safe to bind
+                    # only as many spans as there are active records and
+                    # leave the rest alone.
+                    for span, rec in zip(cand[:n_recs], coord_recs):
+                        plan.append(((span[0], span[1]), rec, []))
+                    continue
                 # n_recs > n_spans: more manifest records than physical
                 # occurrences at this coordinate -- only sound when EVERY
                 # record here is an explicitly reviewed
