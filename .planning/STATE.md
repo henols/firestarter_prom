@@ -97,10 +97,20 @@ support (opportunistic only — its own v1.24 trigger has not fired, and its blo
 field, `build_db.py` support and firmware pin-strobe verification), and the per-pin-map jumper table
 (host-only, no bench dependency at all).
 
-**Branch model:** all three repos currently sit on `gsd/v1.33-source-hygiene-firmware-size-reduction`
-with the PRs open against `beta`. v1.34 forks its own branch off `beta` in all three repos per the
-standing rule — **but the firmware and app builds under test are the v1.33 PR heads**, not v1.34's own
-branch, because the v1.33 tree is the thing being validated.
+**Branch model — a deliberate exception to the fork-off-`beta` rule.** Meta runs on
+`gsd/v1.34-pre-merge-hardware-regression-validation`, forked off the **v1.33 branch tip** (`42a46889`),
+**not** off `beta`: `beta` does not yet carry v1.33's archive, and every v1.34 artifact cites it. All
+three repos still sit on `gsd/v1.33-source-hygiene-firmware-size-reduction` with the PRs open against
+`beta`. **The firmware and host builds under test are the v1.33 PR heads**, not v1.34's own branch,
+because the v1.33 tree is the thing being validated — and RCA-03 fixes are committed on the **v1.33**
+branch, where fw#56 and app#54 point.
+
+**⚠ `gsd-tools query commit` switched branches mid-activation** (2026-08-25). Before `ROADMAP.md` had a
+§v1.34 section there was no prose to scrape, so the verb derived `gsd/v1.34-milestone`, silently moved
+there and landed the first three commits on it; once the roadmap section existed it derived the
+descriptive name and moved back, stranding the todos commit on a tree reverted to v1.33 state. Repaired
+by cherry-pick + branch rename onto the descriptive name — all four commits are in order and there is
+exactly one `gsd/v1.34*` branch. **Check `git branch --show-current` after every `query commit` call.**
 
 **v1.33 Source Hygiene & Firmware Size Reduction** — ✅ **SHIPPED 2026-08-24** (activated 2026-08-22), six
 phases **154–159**, 45 plans, 42/43 requirements (SWEEP-13 open by design), closeout `override_closeout`.
