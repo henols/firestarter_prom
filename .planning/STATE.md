@@ -8,7 +8,7 @@ status: milestone-complete
 stopped_at: Milestone v1.33 CLOSED and archived 2026-08-24. Closeout type override_closeout (SWEEP-13 deliberately unticked + 10 pre-existing audit-open carry-forwards, none from v1.33). LOCAL CLOSE ONLY — meta tagged v1.33, nothing pushed, no PR, no merge, no beta cut, no release; all three repos remain on gsd/v1.33-source-hygiene-firmware-size-reduction and every outward-facing step stays operator-gated. REQUIREMENTS.md removed via git rm — recreate with /gsd-new-milestone.
 last_updated: "2026-08-24T20:40:00.000Z"
 last_activity: 2026-08-24
-last_activity_desc: "Milestone v1.33 (Source Hygiene & Firmware Size Reduction) CLOSED and archived 2026-08-24 — 6 phases (154-159), 45 plans, 42/43 requirements Complete; firmware heap-free, Leonardo Caterina headroom 502 B -> 3440 B, 2706 citations remapped across 562 documents in one application; zero product-code behaviour changed."
+last_activity_desc: "Quick task 260825-cmt complete -- narrative comments stripped from shipped source and maintenance tooling. Superseded: Milestone v1.33 (Source Hygiene & Firmware Size Reduction) CLOSED and archived 2026-08-24 — 6 phases (154-159), 45 plans, 42/43 requirements Complete; firmware heap-free, Leonardo Caterina headroom 502 B -> 3440 B, 2706 citations remapped across 562 documents in one application; zero product-code behaviour changed."
 progress:
   total_phases: 6
   completed_phases: 6
@@ -1679,6 +1679,7 @@ Transport provably byte-exact (COBS `0x00` + CRC8-CCITT) — settled variable. G
 
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
+| 260825-cmt | Strip narrative comments from shipped source and from the maintenance tooling (`platformio.ini`, `build_db.py`) -- keep only what explains something complicated or non-obvious usage; 2,475 comment lines removed, firmware 45%->35%, app 44%->40%, code byte-for-byte unchanged and AVR builds byte-identical | 2026-08-25 | `ebaf7d2..5759dc8` (firestarter) + `73c6394..8e8f355` (firestarter_app), gitlinks re-pinned | [260825-cmt-strip-narrative-comments](./quick/260825-cmt-strip-narrative-comments/) |
 | 260728-ahy | Fix `dev test --submit`: drop the nonexistent `gsd-inbox` label from the `gh` create argv, retarget `SUBMIT_REPO` → `henols/firestarter_prom`, and stop both tiers reporting phantom success | 2026-07-28 | `688bf10..36a9bb5` (firestarter_app submodule; gitlink NOT bumped) | [260728-ahy-fix-dev-test-submit-gh-tier-drop-nonexis](./quick/260728-ahy-fix-dev-test-submit-gh-tier-drop-nonexis/) |
 | 260729-iyx | Install Bun in devcontainer to enable the Claude Code Discord channel plugin (DM-only) | 2026-07-29 | `c5385a7` | [260729-iyx-install-bun-in-devcontainer-to-enable-di](./quick/260729-iyx-install-bun-in-devcontainer-to-enable-di/) |
 | 260807-kaq | `dev test`: run blank-check AFTER erase for electrically erasable parts, instead of before it | 2026-08-07 | `40af2ce..7fe8dea` (firestarter_app submodule, branch `fix/dev-test-blank-check-after-erase`; gitlink NOT bumped) | [260807-kaq-dev-test-blank-check-must-run-after-eras](./quick/260807-kaq-dev-test-blank-check-must-run-after-eras/) |
