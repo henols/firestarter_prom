@@ -158,7 +158,8 @@ _FAMILY_ALT = "|".join(_REQUIREMENT_FAMILIES)
 
 _INLINE_TOKEN_SRC = (
     r"\b(?:Task\s+\d+|Phase\s+\d+|Plan\s+\d{2}|P\d{3}\b|REQ-\d+"
-    r"|D-\d{1,2}\b|\d{3}-(?:CONTEXT|RESEARCH|PLAN|SUMMARY|VERIFICATION)"
+    # `D-A`..`D-F` exist alongside `D-01`..`D-25`: letter-suffixed decision ids.
+    r"|D-(?:\d{1,2}|[A-Z])\b|\d{3}-(?:CONTEXT|RESEARCH|PLAN|SUMMARY|VERIFICATION)"
     # Bare phase-plan references: `154-12`, `119-07`, `157-03`. Found by the
     # stripper's own RED test -- `(157-03, DECODE-04)` was only ever detected
     # via DECODE-04, so a plan reference standing alone was invisible.
@@ -169,6 +170,12 @@ _INLINE_TOKEN_SRC = (
     # phase, which no date or range in this corpus produces, and the two-digit
     # phases are reachable only through their explicit `T-` / `plan ` prefixes.
     r"|T-\d{2,3}-\d{2}\b"
+    # Tag shapes found in the app package's prose during the 2026-08-25 sweep:
+    # a quick-task id, a milestone tag, and a bare RESEARCH/ROADMAP pointer.
+    r"|quick[- ]task\s+\d{6}-[a-z0-9]+"
+    r"|\bv\d+\.\d{2}\b"
+    r"|\b(?:RESEARCH|ROADMAP|CONTEXT|PATTERNS)\.md\b"
+    r"|\b(?:RESEARCH|ROADMAP)\s*§"
     r"|\b[Pp]lans?\s+\d{2,3}-\d{2}\b"
     r"|(?<!\d-)(?<![:\d.])\b\d{3}-\d{2}\b"
     r"|(?:" + _FAMILY_ALT + r")-\d{2}\b)"
