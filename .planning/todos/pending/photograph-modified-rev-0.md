@@ -9,6 +9,7 @@ priority: MEDIUM
 related_phase: 31
 resolves_phase_followups: [Phase 31 follow-up #3]
 deferred_from: Phase 35 (per Phase 35 CONTEXT.md D-07)
+resolves_phase: 164
 ---
 
 # Photograph operator's Modified Rev 0 board (Phase 31 follow-up #3)
