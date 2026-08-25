@@ -211,8 +211,8 @@ def ringfenced_lines(text: str) -> set[int]:
     return protected
 
 
-def process(path: Path, apply: bool) -> tuple[int, int, list[tuple[int, str]]]:
-    if is_blob_pinned(path):
+def process(path: Path, apply: bool, allow_pinned: bool = False) -> tuple[int, int, list[tuple[int, str]]]:
+    if is_blob_pinned(path) and not allow_pinned:
         return 0, 0, []
     text = path.read_text(encoding="utf-8")
     comment_lines = set(_SP._comment_lines(path, text))
@@ -247,6 +247,17 @@ def main(argv=None) -> int:
     ap.add_argument("paths", nargs="+")
     ap.add_argument("--apply", action="store_true", help="write changes (default: dry run)")
     ap.add_argument("--show-residue", action="store_true")
+    ap.add_argument(
+        "--allow-blob-pinned",
+        action="store_true",
+        help=(
+            "DELIBERATE OVERRIDE: also edit the blob-SHA-pinned files. The caller "
+            "then OWNS re-deriving every affected sidecar -- both meta.blob_shas "
+            "and, for protocol_branch_inventory.json, the line-bearing sites[] "
+            "array extracted from eprom.cpp. Without that follow-up this turns "
+            "gates RED for a reason a reader would misdiagnose as a sweep defect."
+        ),
+    )
     args = ap.parse_args(argv)
 
     files: list[Path] = []
@@ -257,7 +268,7 @@ def main(argv=None) -> int:
 
     tot_r = tot_d = 0
     for f in files:
-        r, d, residue = process(f, args.apply)
+        r, d, residue = process(f, args.apply, allow_pinned=args.allow_blob_pinned)
         if r or d:
             print(f"{f}: removed {r}, declined {d}")
             if args.show_residue:
