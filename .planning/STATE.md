@@ -2,11 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.34
 milestone_name: Pre-Merge Hardware Regression Validation
+current_phase: 160
+current_phase_name: RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure
 status: planning
-last_updated: "2026-08-25T10:35:28.294Z"
+stopped_at: Phase 160 context gathered
+last_updated: "2026-08-25T20:56:08.844Z"
 last_activity: 2026-08-25
+last_activity_desc: Milestone v1.34 activated; 31 requirements defined, 7 phases (160–166) roadmapped and approved
 progress:
-  total_phases: 0
+  total_phases: 7
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -121,7 +125,6 @@ no beta cut, no release**; the three PRs above were opened 2026-08-25 and are wh
 Caterina headroom went **502 B → 3440 B (6.9×)**, which mattered because v1.32 Phase 151 left that target
 at zero MERGE-05 headroom. Retired Backlog **999.34**; filed Backlog **999.35** (binary command protocol)
 rather than carrying it.
-
 
 **v1.32 AT28C Write-Path Root Cause & Report Provenance** — ✅ **SHIPPED 2026-08-21** (activated 2026-08-18, ~~folding Backlog
 **999.28**~~ — **the 999.28 fold was reversed 2026-08-20**: Phase 150 (`write --sdp-relock`) was deferred
@@ -2911,8 +2914,8 @@ Bench cleanup done: `firestarter_app#43` (the misfiled `fm1608` report) closed w
 
 ## Session
 
-**Last session:** 2026-08-24T11:23:26.546Z
-**Stopped at:** **PHASE 158 COMPLETE and VERIFIED 8/8.** LAND-05 landed: `jsmntok_t` narrowed 8 -> 6 B on AVR with
+**Last session:** 2026-08-25T20:56:08.811Z
+**Stopped at:** Phase 160 context gathered
 `start`/`end` still signed (`490c435`), measured **-138 / -138 / -136 B flash and -128 B RAM** cold-to-cold on
 `uno` / `uno328pb` / `leonardo` -- a flash **reduction**, superseding the ROADMAP's `+30 B flash` prediction (C-2);
 the ARM `py32f071` half was built on BOTH sides, verified twice (executor and verifier), not ceiling-recorded. A
@@ -2947,7 +2950,7 @@ all eight traceability rows now read Complete. Firmware HEAD `2ccda8d`, tree cle
 **Handoffs to Phase 159 (REMAP-01..05):** the citation line-shifts this phase created, the gitlink sha pairs
 (`firestarter` `2ad5b322` -> `2ccda8d`), and the close-blocking `.planning/v1.33/CITATIONS-STALE.md`, all left
 byte-unchanged and recorded as residuals in `158-07-SUMMARY.md`.
-**Resume file:** None
+**Resume file:** .planning/phases/160-rig-dual-arm-build-flash-provenance-the-shared-cell-procedur/160-CONTEXT.md
 
 **Was (superseded, retained for continuity):** Phase 157 Plan 02 complete -- `firestarter/src/json_parser.c`'s `key_parsers[]`
 rewritten as a compiler-derived `{key, clamp, offset, width}` field table (`19df431`), replacing
