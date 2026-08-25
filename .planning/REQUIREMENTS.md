@@ -72,7 +72,7 @@ v1.33 branches forked from: firmware **`8695ee5`**, host app **`6bfa645`**.
 
 - [ ] **REV0-01**: Operator photographs the Modified Rev 0 board — top, bottom, silkscreen, and one frame per rework region — while it is on the bench for cell B1
 - [ ] **REV0-02**: Each cut and jumper is traced against the upstream Rev 0 schematic (blob `d2a7f691`) and written up in `.planning/v1.7/MODIFICATIONS.md`, replacing the stub that has stood since v1.7
-- [ ] **REV0-03**: The six `TBD pending Phase 35` rows in `v1.7-SHIELD-REVS.md` §4/§5 are filled from that trace, or each row that stays TBD is named with the specific reason it could not be resolved
+- [ ] **REV0-03**: The **ten** `TBD pending Phase 35` cells in `v1.7-SHIELD-REVS.md` §4/§5 — two `Rev 0 → Modified Rev 0` rows of five cells each, plus the §4 prose mention — are filled from that trace, or each cell that stays TBD is named with the specific reason it could not be resolved
 
 ### Close (CLOSE)
 
@@ -109,15 +109,60 @@ Deferred — tracked, not in this roadmap.
 
 ## Traceability
 
-Populated during roadmap creation.
+Populated during roadmap creation (2026-08-25). Every v1 requirement maps to exactly one phase;
+phase numbering continues at **160** (v1.33 ran 154–159).
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
+| RIG-01 | Phase 160 | Pending |
+| RIG-02 | Phase 160 | Pending |
+| RIG-03 | Phase 160 | Pending |
+| RIG-04 | Phase 160 | Pending |
+| RIG-05 | Phase 160 | Pending |
+| BOARD-01 | Phase 161 | Pending |
+| BOARD-02 | Phase 161 | Pending |
+| BOARD-03 | Phase 161 | Pending |
+| BOARD-04 | Phase 161 | Pending |
+| CHIP-01 | Phase 162 | Pending |
+| CHIP-02 | Phase 162 | Pending |
+| CHIP-03 | Phase 162 | Pending |
+| CHIP-04 | Phase 162 | Pending |
+| CHIP-05 | Phase 162 | Pending |
+| SHIELD-01 | Phase 163 | Pending |
+| SHIELD-02 | Phase 163 | Pending |
+| SHIELD-03 | Phase 163 | Pending |
+| SHIELD-04 | Phase 163 | Pending |
+| REV0-01 | Phase 164 | Pending |
+| REV0-02 | Phase 164 | Pending |
+| REV0-03 | Phase 164 | Pending |
+| RCA-01 | Phase 165 | Pending |
+| RCA-02 | Phase 165 | Pending |
+| RCA-03 | Phase 165 | Pending |
+| RCA-04 | Phase 165 | Pending |
+| RCA-05 | Phase 165 | Pending |
+| CLOSE-01 | Phase 166 | Pending |
+| CLOSE-02 | Phase 166 | Pending |
+| CLOSE-03 | Phase 166 | Pending |
+| CLOSE-04 | Phase 166 | Pending |
+| CLOSE-05 | Phase 166 | Pending |
+
+**Phase index:**
+
+| Phase | Name | Requirements |
+|-------|------|--------------|
+| 160 | RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure | RIG-01…05 (5) |
+| 161 | BOARD — Board Sweep, Three Boards on Rev 2.0 | BOARD-01…04 (4) |
+| 162 | CHIP — 11-Part `dev test` Sweep on the Reference Rig | CHIP-01…05 (5) |
+| 163 | SHIELD — Shield Sweep, Three Shields on the Leonardo | SHIELD-01…04 (4) |
+| 164 | REV0 — Modified Rev 0 Rework Trace | REV0-01…03 (3) |
+| 165 | RCA — Regression Triage, Root Cause & PR-Branch Fix | RCA-01…05 (5) |
+| 166 | CLOSE — Evidence Table, Merge Recommendation & Honesty Ledger | CLOSE-01…05 (5) |
 
 **Coverage:**
 - v1 requirements: 31 total
-- Mapped to phases: 0
-- Unmapped: 31 ⚠️
+- Mapped to phases: 31 ✅
+- Unmapped: 0
+- Orphans: 0 · Duplicates: 0 (no requirement appears in more than one phase)
 
 ---
 *Requirements defined: 2026-08-25*

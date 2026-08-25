@@ -74,9 +74,10 @@ block is permanently locked so a full-device verify is physically impossible (CR
 **AM27C020** is marginal not deterministic (write#1 60/64, write#2 0/64) and cannot arbitrate anything.
 
 **Second deliverable — the Modified Rev 0 rework trace.** That board is on the bench for B1 anyway.
-`.planning/v1.7/MODIFICATIONS.md` has been a stub since v1.7 with six `TBD pending Phase 35` rows in
-`v1.7-SHIELD-REVS.md` §4/§5, blocked all that time on operator photos. v1.34 photographs it, traces each
-cut and jumper against the upstream Rev 0 schematic (blob `d2a7f691`), and fills those rows.
+`.planning/v1.7/MODIFICATIONS.md` has been a stub since v1.7 with **ten** `TBD pending Phase 35` cells in
+`v1.7-SHIELD-REVS.md` §4/§5 — two `Rev 0 → Modified Rev 0` rows of five cells each — blocked all that time
+on operator photos. v1.34 photographs it, traces each cut and jumper against the upstream Rev 0 schematic
+(blob `d2a7f691`), and fills those cells.
 
 **Merge posture: v1.34 does NOT merge.** It closes with a signed-off evidence table and an explicit
 recommendation. Every outward-facing step has been operator-gated since v1.21, and a merge to `beta`
@@ -173,10 +174,78 @@ the reporter for a fresh run — now answerable, because F-01's fix makes that r
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 160 (RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure) — not started
 Plan: —
-Status: Defining requirements
-Last activity: 2026-08-25 — Milestone v1.34 started
+Status: Roadmap approved — ready to plan Phase 160
+Last activity: 2026-08-25 — Milestone v1.34 activated; 31 requirements defined, 7 phases (160–166) roadmapped and approved
+Next: **Phase 160 — RIG.** Build and name both firmware arms (control fw `8695ee5` / app `6bfa645`; v1.33 = the fw#56 / app#54 PR heads, SHAs read off the branches), make a flash provable by on-device read-back, write the one arm-agnostic per-cell procedure, and fix the oracle at full-device read-back SHA. Nothing on the bench may run before it closes. Not yet planned.
+
+## Roadmap Summary (v1.34)
+
+**Created:** 2026-08-25 by `gsd-roadmapper`. **No `research/SUMMARY.md` for this milestone** — project-level
+research was skipped at activation (operator decision, 2026-08-25): v1.34 adds no features, so the four
+generic project researchers had nothing to research.
+
+**Authored into a separate file and spliced by hand.** `ROADMAP.md` is 4,595 lines carrying every prior
+milestone and its §v1.33 section is marked never-regenerate, so the roadmapper was forbidden from writing
+`ROADMAP.md` or `STATE.md` directly. Verified after splice: **174 insertions, 0 deletions**, two pure-addition
+hunks; `STATE.md` byte-identical through the roadmapper's run; `REQUIREMENTS.md` diff confined to
+`## Traceability`.
+
+**Phases:** 7 (**160–166**). Numbering continues from v1.33's 154–159; the vacated **150** slot and the
+v1.24–v1.29 version slots stay unreused so every by-number cross-reference keeps resolving.
+**Coverage:** 31 requirements, all mapped, 0 orphans, 0 duplicates.
+
+| # | Phase | Requirements | Depends on |
+|---|-------|--------------|------------|
+| 160 | RIG — Dual-Arm Build, Flash Provenance & the Shared Cell Procedure | RIG-01…05 (5) | — |
+| 161 | BOARD — Board Sweep, Three Boards on Rev 2.0 (12 positions) | BOARD-01…04 (4) | 160 |
+| 162 | CHIP — 11-Part `dev test` Sweep on the Reference Rig | CHIP-01…05 (5) | 161 |
+| 163 | SHIELD — Shield Sweep, Three Shields on the Leonardo (8 positions) | SHIELD-01…04 (4) | 161, 162 |
+| 164 | REV0 — Modified Rev 0 Rework Trace | REV0-01…03 (3) | 163 (cell B1) |
+| 165 | RCA — Regression Triage, Root Cause & PR-Branch Fix | RCA-01…05 (5) | 161, 162, 163 |
+| 166 | CLOSE — Evidence Table, Merge Recommendation & Honesty Ledger | CLOSE-01…05 (5) | 160–165 |
+
+**Three ordering decisions, made for bench economy rather than narrative tidiness:**
+
+**O-1 — CHIP sits at 162, between the two sweeps.** Phase 161's last cell (A3/B2) leaves the Leonardo +
+Rev 2.0 rig assembled *and carrying the v1.33 arm* — exactly CHIP-01's required configuration — so the
+11-part sweep runs with no reconfiguration and no re-flash, and the Rev 2.0 shield comes off exactly once.
+Every physical reconfiguration on this bench costs a re-verified `controller:` identity and a re-declared
+shield revision. RCA is unaffected: it still follows all three sweeps.
+
+**O-2 — Cell A3/B2 executes in Phase 161; Phase 163 cites it.** SHIELD-03 is mapped to 163 deliberately —
+the requirement's content is the *non-duplication and citation* obligation, which is the shield phase's to
+discharge. Criterion 5 of 161 and criterion 2 of 163 are a matched pair: milestone-wide, exactly one result
+row and one duration figure per (arm × chip) position bearing the `A3/B2` id.
+
+**O-3 — Phase 163 runs B3 (Rev 2.2) first, then B1 (Modified Rev 0).** B1 last means the Modified Rev 0
+board is the final shield on the bench and stays out for Phase 164's operator-only photography with no
+re-mount.
+
+**Two findings surfaced during criteria derivation, both verified against the tree:**
+
+**F-1 — the "six TBD rows" figure was wrong.** `v1.7-SHIELD-REVS.md` carries the `TBD pending Phase 35`
+sentinel across **two** `Rev 0 → Modified Rev 0` rows of **five cells each — ten cells**, plus one prose
+mention at §4. Corrected 2026-08-25 in `REQUIREMENTS.md` (REV0-03), `PROJECT.md`, this file and the roadmap
+section. Phase 164 criterion 4 still re-measures at phase start rather than trusting the planning text.
+
+**F-2 — `MODIFICATIONS.md` carries a standing 2026-06-01 correction notice** recording that **no Modified
+Rev 0 physical inspection has ever occurred** — the 2026-06-01 session believed it was on that board and was
+actually on a Rev 2.0. The file's own §Board identity note states Modified Rev 0 decodes mid-band as
+`Rev 2.3`, and that a `Rev 2.0-class` reading means the board is **not** the Modified Rev 0. So Phase 163's
+B1 ADC reading becomes an independent identity falsifier, quoted into `MODIFICATIONS.md` by Phase 164
+criterion 3. The same fact sharpens SHIELD-04: Rev 2.2 also carries R41 = 10 kΩ, so a label collision
+between two physically distinct shields is live — criterion 3 requires the **raw** reading, not only the
+decoded label, plus an explicit statement if the plumbing cannot separate them.
+
+**Criteria are written to be falsifiable, not narrated.** RIG-01 requires the flash-verification oracle be
+**proven able to fail** — a deliberate wrong-arm flash during bring-up must be detected and recorded as
+detected — so no later cell rests on an oracle only ever seen green. RCA-02 rejects any root cause that
+stops at "v1.33" or "the size reduction". CLOSE-04 requires pasted command output, not an assertion, that
+no merge, push, tag, beta cut or release occurred.
+
+**Full phase detail:** `.planning/ROADMAP.md` §v1.34.
 
 ## Roadmap Summary (v1.33)
 
